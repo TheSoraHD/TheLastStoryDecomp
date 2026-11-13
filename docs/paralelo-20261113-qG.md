@@ -11,10 +11,11 @@ Inicio: 2026-11-13 03:17 CET. Tope 05:47.
     `Actor::fn_80012294` (para una pista) 97,6 %: eran `extern "C"` con `self` en ActionActorPosition y Dialog;
     ahora miembros de `Event::Actor` (declarados sin nombres de parametro) y renombrados en `symbols.txt`.
 
-- `Event/ActionActorPosition`: 13 -> 9 (32 al 100 %, sin cambios).
+- `Event/ActionActorPosition`: 13 -> 7 (32 al 100 %, sin cambios).
   - `ActionActorSetting::fn_80557E00` (nodo de pelo del tipo de pelo, casos que caen) 99,4 %,
     `ActionActorSetting::fn_80557F84` (activa los huesos fisicos de pelo/pendientes/faldon/pecho segun el modelo
     "pc101".."pc107") 99,1 %, `ActionActorSetting::vf0C` 99,96 %, `ActionActorSetting::vf08` 99,4 %.
+  - `ActionActorNode::vf0C` 98,6 %, `ActionActorHeading::vf0C` 98,7 %.
     Los dos `fn_` pasan a miembros de `ActionActorSetting` (declarados sin nombres en
     `Event/ActionProcessors_unk.h`, 4 unidades) y renombrados en `symbols.txt`.
 
@@ -34,6 +35,11 @@ Inicio: 2026-11-13 03:17 CET. Tope 05:47.
 - `ActionActorSetting::vf0C` 99,96 %: la fase 3 guarda el estado del nodo en r30 (registro de la seccion), el
   nuestro en r28.
 - `ActionActorSetting::vf08` 99,4 %: registros float (la constante de las conversiones en f6; clamps del tipo 9).
+
+- `ActionActorNode::vf0C` 98,6 %: el original relee el tamano de la lista de actores en cada busqueda de la
+  fase 3 (la primera, sin usar el resultado).
+- `ActionActorHeading::vf0C` 98,7 %: huecos de pila de las posiciones de nodos ("neck"/"reference") en orden
+  inverso.
 
 ## Decisiones tomadas sin el usuario
 

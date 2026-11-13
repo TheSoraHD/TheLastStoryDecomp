@@ -788,6 +788,130 @@ int ActionActorEyes::vf08(Action* arg) {
     return 0;
 }
 
+// NONMATCHING: stack slots of the node positions of phase 0 (the original puts the reference position lowest
+// and the head point highest; tried the positions as temporaries and the head point first) and the
+// registers of the parameter of phase 6
+// inferred: heading of an actor; phase 0 sets the point it looks at (in front of its head, or of its
+// position when the head is far from the reference node)
+int ActionActorHeading::vf0C(Action* arg, int phase) {
+    switch (phase) {
+    case 0: {
+        ActionOwner_unk* section = arg->fn_805381A0();
+        EventManager_unk* manager = arg->fn_805381C8();
+        Actor* actor = manager->FindActor_unk(section->m10);
+        if (arg->m18 > 0) {
+            int curve = arg->GetParam_unk(9)->m04.i;
+            actor->m134 = lbl_8087F540->fn_8048B3B8(curve);
+        }
+        if (actor->m144 == 0) {
+            break;
+        }
+        atn::Vector3 pos = actor->fn_80010374();
+        if (actor->fn_8001296C() != 0) {
+            MtxPtr neck = actor->fn_8001296C()->GetNodeMtx_unk("neck");
+            MtxPtr ref = actor->fn_8001296C()->GetNodeMtx_unk("reference");
+            if (neck != 0 && ref != 0) {
+                atn::Vector3 refPos(ref[0][3], ref[1][3], ref[2][3]);
+                atn::Vector3 neckPos(neck[0][3], neck[1][3], neck[2][3]);
+                float height = neckPos.y - refPos.y;
+                atn::Vector3 head(refPos.x, refPos.y + height, refPos.z);
+                if ((head - pos).Length_unk() <= height) {
+                    pos = head;
+                }
+            }
+        }
+        pos += actor->fn_800112E0() * 10.0f;
+        actor->mE8 = pos;
+        actor->m144 = 0;
+        break;
+    }
+    case 3:
+        if (arg->m18 > 0) {
+            ActionOwner_unk* section = arg->fn_805381A0();
+            EventManager_unk* manager = arg->fn_805381C8();
+            int id = section->m10;
+            Actor* actor = manager->FindActor_unk(id);
+            lbl_8087F540->fn_8048C884(actor->m134);
+        }
+        break;
+    case 2:
+        if (arg->GetParam_unk(8)->m04.i == 0) {
+            ActionOwner_unk* section = arg->fn_805381A0();
+            EventManager_unk* manager = arg->fn_805381C8();
+            int id = section->m10;
+            Actor* actor = manager->FindActor_unk(id);
+            float speed = arg->m1C > 0 ? 1.0f / arg->m1C : 1.0f;
+            actor->fn_80012D0C(speed);
+        }
+        break;
+    case 6: {
+        EventManager_unk* manager = arg->fn_805381C8();
+        int id = arg->GetParam_unk(0)->m04.i;
+        Actor* actor = manager->FindActor_unk(id);
+        if (actor->m20 == 6) {
+            arg->fn_80538DC4(2);
+        }
+        break;
+    }
+    }
+    return 0;
+}
+
+// NONMATCHING: 98.6% - the original reloads the size of the actor list for each lookup of the phase 3 (ours
+// keeps it in a register) and swaps r29/r31
+// inferred: node edit of an actor; phase 0 resets the key lists of the edit, phases 2 and 3 (end) reset the
+// edit of the node (parameter 0: name hash) unless parameter 8 keeps it
+int ActionActorNode::vf0C(Action* arg, int phase) {
+    switch (phase) {
+    case 0: {
+        ActionOwner_unk* section = arg->fn_805381A0();
+        EventManager_unk* manager = arg->fn_805381C8();
+        Actor* actor = manager->FindActor_unk(section->m10);
+        if (arg->m18 > 0) {
+            actor->m13C = lbl_8087F540->fn_8048B3B8(arg->GetParam_unk(7)->m04.i);
+        }
+        if (actor->m146 == 0 && arg->m14 - arg->m10 != 0) {
+            break;
+        }
+        actor->m118.clear();
+        actor->m124.clear();
+        actor->m146 = 0;
+        break;
+    }
+    case 2: {
+        ActionOwner_unk* section = arg->fn_805381A0();
+        EventManager_unk* manager = arg->fn_805381C8();
+        Actor* actor = manager->FindActor_unk(section->m10);
+        if (arg->m1C >= 1) {
+            actor->m146 = 1;
+        }
+    }
+    case 3: {
+        ActionOwner_unk* section = arg->fn_805381A0();
+        EventManager_unk* manager = arg->fn_805381C8();
+        int id = section->m10;
+        manager->FindActor_unk(id);
+        if (arg->GetParam_unk(8)->m04.i != 0) {
+            break;
+        }
+        Actor* actor = manager->FindActor_unk(id);
+        Actor* target = manager->FindActor_unk(id);
+        atn::Model* model = actor->fn_8001296C();
+        if (model == 0) {
+            return 0;
+        }
+        atn::Model::Res_unk* res = model->GetRes_unk();
+        int node = model->fn_800928B0(arg->GetParam_unk(0)->m04.i, 0);
+        model->fn_800948F0(res->m48[node]->m10);
+        atn::Vector3 one(1.0f, 1.0f, 1.0f);
+        model->fn_80093F1C(res->m48[node]->m10, lbl_807C7030, lbl_807C7030, one, 0);
+        target->m146 = 1;
+        break;
+    }
+    }
+    return 0;
+}
+
 // NONMATCHING: offsets of the strings in @stringBase0 ("eye_R", "reference" and "neck" come first in the
 // original: used by the functions of ActionActorEyes/Pose/Heading/Node not written yet)
 // inferred: the node `name` is a hair node of the hair kind `kind` (the cases fall through: each kind also
