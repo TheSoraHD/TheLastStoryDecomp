@@ -1,6 +1,6 @@
 # Cola A2 (paralelo-20261113): segunda pasada de Batalla
 
-Inicio: 2026-11-13 06:59 CET. Rama `agent-A2`. Unidades: `game/BattleTask`, `game/TacView`, `game/BattleCharaTask`.
+Inicio: 2026-11-13 06:59 CET; cierre 08:50 CET. Rama `agent-A2`. Unidades: `game/BattleTask`, `game/TacView`, `game/BattleCharaTask`.
 Funciones al 0 % al empezar: BattleTask 29, TacView 6, BattleCharaTask 1.
 
 ## Resultado por unidad
@@ -51,6 +51,12 @@ Funciones al 0 % al empezar: BattleTask 29, TacView 6, BattleCharaTask 1.
   - Con `Matrix3x4* p = &m;` en el giro ZYX (como `RotateZYX_unk`) suben fn_800FC410 98,7 -> 99,3 %,
     fn_800FCD24 97,3 -> 98,0 % y fn_800FD658 (ya escrita) 91,3 -> 93,0 %.
 
+- Resumen BattleTask: funciones al 0 % 29 -> 13 (16 escritas, sin `DRAFT`); al 100 % 152 -> 156 (`fn_8010D320`,
+  `fn_800F3170`, `fn_800F3490`, `fn_800F2C9C`; mnemcheck limpio). `report.json` 15313 -> 15317. Suben tambien
+  `fn_801018E4` 93,9 -> 98,5 % y `fn_800FD658` 91,3 -> 93,0 %.
+- TacView (6) y BattleCharaTask (1): sin tocar (2-8 KB; mirado `TacView::fn_805ABE74`, 2,3 KB, switch de 12
+  casos por el tipo de miembro con el inline "gauge lleno" repetido: buen candidato para la siguiente pasada).
+
 ## Decisiones tomadas sin el usuario
 
 - `game/ResHandle.h` incluido en `BattleTask.h` (las 56 unidades que incluyen BattleTask.h ya lo incluian).
@@ -98,3 +104,20 @@ Funciones al 0 % al empezar: BattleTask 29, TacView 6, BattleCharaTask 1.
   del original (fn_80102A40).
 
 ## Pendientes
+
+- Restan al 0 % en BattleTask: el constructor (0x800F1430) y `fn_800F1F94` (es `~BattleTask`: pone
+  `lbl_8087F048 = 0` y destruye los miembros; esta en la vtable) con las copias debiles `__dt__12HomingBullet`,
+  `__dt__Q210BattleTask9BetoModel` y `ControlBase::vf2C`: necesitan los miembros EffFile/Texture con su tipo real
+  en `BattleTask.h` (hoy almacenamiento crudo para no renumerar las 56 unidades que lo incluyen; el constructor
+  construye por separado `mEfp363C0[0..3]` y `mEfp365B8[0..3]`, que quiza son miembros sueltos).
+- `fn_800F3EF4` (5 KB), `fn_800F5314` (8 KB), `fn_800F8C6C` (6 KB, con `fn_800FA4FC`/`fn_800FA9F4` de su
+  `std::sort`), `fn_800FDF14` (8 KB, llama a fn_8010B398), `fn_80103FD4` (5 KB).
+- `fn_80109950` (posicion en la formacion, 1,5 KB, decodificada en esta sesion: lista `m125C` del lider, angulos con
+  `WrapAngle_unk`, vfA0): su nombre en `symbols.txt` es `Effect_unk::fn_80109950` porque CharaTask.cpp y
+  Em315Coffin.cpp la llaman a traves de su vista `Effect_unk`; escribirla como `BattleTask::` exige cambiar esas
+  vistas (otras colas).
+- `Arms::fn_80044E98`/`fn_80044FBC`: el tercer argumento es un `const atn::Vector3*` (posicion del golpe), no `int`.
+- `fn_800D58A4`/`fn_800D59B8` son de `atn::Texture` (liberar / cargando): pasarlas a miembros en
+  `atn/Texture_unk.h` (hoy `extern "C"` y `GimmickUvOwner_unk`).
+- `game/ResHandle.h` describe en realidad una carpeta de Mindows (`fn_8008937C` = AddFolder, `fn_800897D8` la
+  libera) y choca con `atn/MindowsCommon.h` en el tipo de `lbl_8087EF10`.
