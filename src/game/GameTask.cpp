@@ -243,7 +243,6 @@ extern "C" int fn_8006AA20(const char* path); // inferred: the file exists
 extern "C" void fn_800F3D28(BattleTask* battle);
 extern "C" void fn_800F3170(BattleTask* battle);
 extern "C" void fn_800EFA18(int type, int map);
-extern "C" void fn_8056C3D8(ReplayBuffer* obj);
 extern "C" void fn_80390A88(GameCamera* camera);
 extern "C" void fn_8038F52C(GameCamera* camera, CharaTask* chara); // inferred: update of the camera around `chara`
 extern "C" int fn_800A555C(void* obj, int a, int b);
@@ -1583,7 +1582,7 @@ void GameTask::vf10() {
             mGlobalFlags[2] = 0;
         }
         if (m5590 != 0) {
-            fn_8056C3D8(m5590);
+            m5590->fn_8056C3D8();
         }
         if (m5620->mActive == 0) {
             m54F0 = 0;

@@ -75,7 +75,11 @@ struct ReplayFrame_unk {
     ReplayModel_unk mModels[60];  // 0x834
     signed char mNumCharas;       // 0x1554
     signed char mNumModels;       // 0x1555
-    unsigned char m1556[0x1808 - 0x1556];
+    unsigned char m1556[0x1558 - 0x1556];
+    // 0x1558: inferred: 32 homing bullets of 0x14 bytes (ReplayBullet_unk in game/ReplayBuffer.cpp: an array of a
+    // struct with an atn::Vector3 here renumbers the @N labels of the units that include this header)
+    unsigned char mBullets[0x280];
+    atn::Matrix3x4 mLeaderMtx;     // 0x17D8: inferred: position of the leader when recording
 };
 
 // inferred: event of the replay with the frame it happened (0x48 bytes; a negative frame marks a free slot)
@@ -108,6 +112,8 @@ public:
     void fn_8056E918(int frame);
     void fn_80570254(int frame); // inferred: rebuilds the effects and events up to the frame
     void fn_8056D43C(ReplayFrame_unk* frame, const Mtx inv); // inferred: records the gimmick models
+    void fn_8056F5B4(int); // inferred: records the live frame
+    void fn_8056C3D8(); // inferred: records a frame (called every frame by GameTask::vf10)
     void fn_8056D06C(); // inferred: frees the effect events that ended more than 90 frames ago
     // inferred: code in game/GameSystem_unk.cpp (0x80570A14-0x80570A70)
     void fn_80570A14(int recording); // inferred: starts/stops the recording

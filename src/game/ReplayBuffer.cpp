@@ -12,6 +12,10 @@
 #include <boost/function.hpp>
 #include "atn/Model_unk.h"
 #include "game/BattleTask.h"
+#include "game/EnemyManager.h"
+#include "game/FriendManager.h"
+#include "game/EnemyTask.h"
+#include "game/PlayerTask.h"
 #include "atn/EffectManager.h"
 #include "atn/DebugMessages_unk.h"
 #include "atn/EfpHandle_unk.h"
@@ -244,6 +248,86 @@ ReplayBuffer::ReplayBuffer()
       m5BDA0(0), m5BDA4(0), m5BDA8(0), m5BDAC(0), m5BDB0(0), m5BDB4(0), m5BDB8(0.0f) {}
 
 ReplayBuffer::~ReplayBuffer() {}
+
+void fn_8056CB20(ReplayFrame_unk* frame, CharaTask* chara, const atn::Matrix3x4& inv);
+// inferred: homing bullet of a replay frame: position and direction angles (half floats) (0x14 bytes; names
+// invented)
+struct ReplayBullet_unk {
+    atn::Vector3 mPos;
+    short mRot[3];
+};
+// inferred: bullet `i` of a frame (name invented; see ReplayFrame_unk::mBullets)
+static inline ReplayBullet_unk* GetBullet_unk(ReplayFrame_unk* frame, int i) {
+    return &((ReplayBullet_unk*)frame->mBullets)[i];
+}
+// inferred: frame time (lbl_8087EFA8; as in game/GimmickStateCommand.cpp)
+struct ReplayFrameTime_unk {
+    unsigned char m000[0x3A4];
+    float m3A4; // inferred: frame speed
+    // inferred: inline getter (as in game/AiTarget.cpp: the operands of the fadds follow it)
+    float GetDelta_unk() const { return m3A4; }
+};
+extern "C" ReplayFrameTime_unk* lbl_8087EFA8;
+
+// NONMATCHING: 98.72% - registers: the frame pointer (r25 in the original) and the flag word/result of
+// IsSkipped_unk in the enemy loop (as in ReplayRecorder_unk::fn_8056B3D4)
+// inferred: records a frame every frame time: the party relative to the leader, the friends, the enemies, the
+// gimmick models and the homing bullets
+void ReplayBuffer::fn_8056C3D8() {
+    m5BDB8 += lbl_8087EFA8->GetDelta_unk();
+    if (m5BDB8 < 0.9999f) {
+        return;
+    }
+    m5BDB8 -= 1.0f;
+    if (m5BDA8 == 0) {
+        if (m45180 != 0) {
+            ReplayFrame_unk* frame = &mFrames[m45178];
+            atn::Matrix3x4 inv;
+            atn::Matrix3x4 trans;
+            PlayerTask* leader = lbl_8087F8A0->mHead;
+            PSMTXTrans(trans.m, leader->mPos.x, leader->mPos.y, leader->mPos.z);
+            frame->mLeaderMtx = trans;
+            inv = frame->mLeaderMtx;
+            PSMTXInverse(inv.m, inv.m);
+            fn_8056CB20(frame, lbl_8087F8A0->mHead, inv);
+            for (CharaTask* chara = FriendManager::sInstance->fn_8036554C(); chara != 0;
+                 chara = ((PlayerTask*)chara)->mNext) {
+                if (!chara->IsFlag_unk(4) && !(chara->mType == 2 && IsSkipped_unk(chara))) {
+                    fn_8056CB20(frame, chara, inv);
+                }
+            }
+            for (EnemyTask* enemy = EnemyManager::sInstance->mHead; enemy != 0; enemy = enemy->mNext) {
+                if (!enemy->IsFlag_unk(4) && !(enemy->mType == 2 && IsSkipped_unk(enemy))) {
+                    fn_8056CB20(frame, enemy, inv);
+                }
+            }
+            fn_8056D43C(frame, inv.m);
+            for (int i = 0; i < 32; i++) {
+                HomingBullet* bullet = &lbl_8087F048->mHomings[i];
+                ReplayBullet_unk* entry = GetBullet_unk(frame, i);
+                entry->mPos = bullet->m08;
+                if (bullet->m20.IsZero_unk()) {
+                    ToHalf3_unk(entry->mRot, atn::Vector3(0.0f, 0.0f, 0.0f));
+                } else {
+                    ToHalf3_unk(entry->mRot, bullet->m20.GetNormalize().ToRotation_unk());
+                }
+            }
+            m45178 = (m45178 + 1) % 45;
+            mFrames[m45178].mNumCharas = 0;
+            mFrames[m45178].mNumModels = 0;
+            if (m4517C < 45) {
+                m4517C++;
+            }
+        }
+        m45180 = m45180 == 0;
+    }
+    m00004++;
+    if (m5BDA8 == 0) {
+        fn_8056D06C();
+        fn_8057080C();
+        m5BDAC = m00004;
+    }
+}
 
 // NONMATCHING: same as ReplayRecorder_unk::fn_8056B558 (prologue registers, frsp before atan2)
 // inferred: records one character in the frame (same code as ReplayRecorder_unk::fn_8056B558; a free function:
@@ -506,6 +590,118 @@ void ReplayBuffer::vf08(EffectEvent_unk* event) {
         mEffects.push_back(entry);
     } else {
         lbl_8087EEB8->fn_800697D8("[Replay] eff buffer over!");
+    }
+}
+
+// NONMATCHING: 98.65% - same registers as fn_8056C3D8 (IsSkipped_unk in the enemy loop) and the stack slots
+// of the bullet loop
+// inferred: records the live frame mLive (the party relative to the leader, the friends and the enemies; the
+// gimmick models and the homing bullets unless `charasOnly`)
+void ReplayBuffer::fn_8056F5B4(int charasOnly) {
+    mLive.mNumCharas = 0;
+    mLive.mNumModels = 0;
+    atn::Matrix3x4 inv;
+    atn::Matrix3x4 trans;
+    PlayerTask* leader = lbl_8087F8A0->mHead;
+    PSMTXTrans(trans.m, leader->mPos.x, leader->mPos.y, leader->mPos.z);
+    mLive.mLeaderMtx = trans;
+    inv = mLive.mLeaderMtx;
+    PSMTXInverse(inv.m, inv.m);
+    fn_8056CB20(&mLive, lbl_8087F8A0->mHead, inv);
+    for (CharaTask* chara = FriendManager::sInstance->fn_8036554C(); chara != 0;
+         chara = ((PlayerTask*)chara)->mNext) {
+        if (!chara->IsFlag_unk(4) && !(chara->mType == 2 && IsSkipped_unk(chara))) {
+            fn_8056CB20(&mLive, chara, inv);
+        }
+    }
+    for (EnemyTask* enemy = EnemyManager::sInstance->mHead; enemy != 0; enemy = enemy->mNext) {
+        if (!enemy->IsFlag_unk(4) && !(enemy->mType == 2 && IsSkipped_unk(enemy))) {
+            fn_8056CB20(&mLive, enemy, inv);
+        }
+    }
+    if (charasOnly == 0) {
+        fn_8056D43C(&mLive, inv.m);
+        ReplayFrame_unk* frame = &mLive;
+        for (int i = 0; i < 32; i++) {
+            HomingBullet* bullet = &lbl_8087F048->mHomings[i];
+            ReplayBullet_unk* entry = GetBullet_unk(frame, i);
+            entry->mPos = bullet->m08;
+            if (bullet->m20.IsZero_unk()) {
+                ToHalf3_unk(entry->mRot, atn::Vector3(0.0f, 0.0f, 0.0f));
+            } else {
+                ToHalf3_unk(entry->mRot, bullet->m20.GetNormalize().ToRotation_unk());
+            }
+        }
+    }
+}
+
+// NONMATCHING: 96.63% - stack frame 0x40 smaller (slots of the matrices) and registers of the entry pointers
+// inferred: puts the live frame mLive back: the characters (as ReplayRecorder_unk::fn_8056BD34) and, unless
+// `charasOnly`, the gimmick models and the homing bullets
+void ReplayBuffer::fn_8056FC24(int charasOnly) {
+    ReplayFrame_unk* frame = &mLive;
+    int i = 0;
+    if (frame->mNumCharas > 0) {
+    for (; i < frame->mNumCharas; i++) {
+        ReplayChara_unk* entry = &frame->mCharas[i];
+        atn::Model* model = &entry->mChara->mMotion;
+        int node = entry->mNode;
+        model->m20C_15_8 = model->m50;
+        model->m50 = node;
+        model->m34C = entry->m06;
+        Mtx mtx;
+        for (unsigned int j = 0; j < 12; j++) {
+            unsigned int r = j >> 2;
+            unsigned int c = j & 3;
+            mtx[r][c] = FromHalf_unk(entry->mMtx[r][c]);
+        }
+        float angle = FromHalf_unk(entry->mAngle);
+        void* out = 0;
+        Mtx world;
+        PSMTXConcat(frame->mLeaderMtx.m, mtx, world);
+        fn_8056A9E4(model, entry->mTracks, 4, world, &out, entry, angle);
+        atn::Vector3 pos(model->mMtx.m[0][3], model->mMtx.m[1][3], model->mMtx.m[2][3]);
+        atn::Vector3 d = atn::RenderManager::instance_->mCamera.mPos - pos;
+        float dist = d.LengthSq_unk();
+        if (entry->mMotion >= 0) {
+            entry->mChara->fn_8014DEE4(entry->mMotion, 1, 0);
+        } else {
+            entry->mChara->fn_8014EEC4(1);
+        }
+        entry->mChara->fn_80148B38(dist);
+    }
+    }
+    if (charasOnly != 0) {
+        return;
+    }
+    for (int i = 0; i < frame->mNumModels; i++) {
+        ReplayModel_unk* entry = &frame->mModels[i];
+        atn::Model* model = entry->mModel;
+        Mtx mtx;
+        for (unsigned int j = 0; j < 12; j++) {
+            unsigned int r = j >> 2;
+            unsigned int c = j & 3;
+            mtx[r][c] = FromHalf_unk(entry->mMtx[r][c]);
+        }
+        void* out = 0;
+        Mtx world;
+        PSMTXConcat(frame->mLeaderMtx.m, mtx, world);
+        fn_8056A9E4(model, &entry->mTrack, 1, world, &out, 0, 0.0f);
+    }
+    for (int i = 0; i < 32; i++) {
+        ReplayBullet_unk* entry = GetBullet_unk(frame, i);
+        Mtx trans;
+        PSMTXTrans(trans, entry->mPos.x, entry->mPos.y, entry->mPos.z);
+        atn::Vector3 rot(FromHalf_unk(entry->mRot[0]), FromHalf_unk(entry->mRot[1]), FromHalf_unk(entry->mRot[2]));
+        atn::Matrix3x4 m;
+        m.SetIdentity();
+        __MtxRotate(m.m, 'z', rot.z);
+        __MtxRotate(m.m, 'y', rot.y);
+        __MtxRotate(m.m, 'x', rot.x);
+        Mtx world;
+        PSMTXConcat(trans, m.m, world);
+        __MtxCopy(trans, world);
+        lbl_8087F048->mHomings[i].vf14(trans);
     }
 }
 

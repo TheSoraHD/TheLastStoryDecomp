@@ -121,6 +121,10 @@ public:
     int fn_801255C8(); // inferred: starts the planned route (nonzero on success, fn_8016F824)
     void fn_80126214(); // inferred: update (called every frame by CharaTask::fn_80139560)
     float fn_801279E8(); // inferred: distance (compared with 20 by CharaTask::vf34)
+    void fn_80128090(); // inferred: plans the route again
+    int fn_80128CF8(); // inferred: nonzero if the goal is in sight
+    void fn_80129144(); // inferred: walks straight to the goal
+    CharaSubSeg_unk fn_80129670(int, int); // inferred: segment from point a to point b of the route
     atn::Vector3* fn_80139F58(); // inferred: accessors called out of line from CharaTask
     int fn_8013C3F4();
     CharaSubSeg_unk* fn_8013C3FC();
