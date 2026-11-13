@@ -785,10 +785,11 @@ void Em202SpiderBase::fn_80285B7C() {
 // inferred: state 11 (keeps the reach distance from the target m1580 for m1590 frames: backs off when it is
 // too near, stays in the ring 0.8-1.2 of the reach and follows when it is too far)
 void Em202SpiderBase::fn_80285FA0() {
+    float dist;
+    float rate = 1.0f;
     atn::Vector3 rot;
     atn::Vector3 d = m1580->mPos - mPos;
-    float dist = sqrt(d.x * d.x + d.z * d.z);
-    float rate = 1.0f;
+    dist = sqrt(d.x * d.x + d.z * d.z);
     rot = d.ToRotation_unk();
     if (m1554 >= m1558 && !m1570.empty()) {
         fn_802878EC(m1580);

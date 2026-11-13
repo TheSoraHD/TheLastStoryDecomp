@@ -44,14 +44,14 @@ static inline void MoveTo_unk(CharaTask* chara, const atn::Vector3& pos, float r
 
 namespace gmk {
 
-// inferred: plays a motion on character i (name invented)
-void MeetingSpot::PlayMotion_unk(int i, int motion, int loop, float blend) {
-    mChara[i]->fn_8016E970(9);
-    mChara[i]->mMotion.m34C = 1;
-    mChara[i]->mMotion.mTracks[0].m20 = 1.0f;
-    mChara[i]->mMotion.mTracks[0].m0C = 1.0f;
-    mChara[i]->mMotion.fn_80097C08(0, motion, loop, 0, 1, blend, 0.1f);
-}
+// inferred: motion ids of the pair in state 7 (names invented); enum constants keep the selection
+// as a branch (int constants differing by one become branchless arithmetic)
+enum {
+    kMeetMotion76_unk = 0x76,
+    kMeetMotion77_unk = 0x77,
+    kMeetMotion7B_unk = 0x7B,
+    kMeetMotion7C_unk = 0x7C,
+};
 
 GimmickCommon* MeetingSpot::fn_803FC8D8(atn::Task* parent, GimmickDesc_unk* desc) {
     if (parent != 0) {
@@ -233,6 +233,15 @@ void MeetingSpot::vf10() {
     }
 }
 
+// inferred: plays a motion on character i (name invented)
+void MeetingSpot::PlayMotion_unk(int i, int motion, int loop, float blend) {
+    mChara[i]->fn_8016E970(9);
+    mChara[i]->mMotion.m34C = 1;
+    mChara[i]->mMotion.mTracks[0].m20 = 1.0f;
+    mChara[i]->mMotion.mTracks[0].m0C = 1.0f;
+    mChara[i]->mMotion.fn_80097C08(0, motion, loop, 0, 1, blend, 0.1f);
+}
+
 // inferred: the character is one of the four ids of the description (0 in the first one accepts
 // any character)
 bool MeetingSpot::MatchId_unk(CharaTask* chara) {
@@ -252,9 +261,7 @@ bool MeetingSpot::MatchId_unk(CharaTask* chara) {
     return found;
 }
 
-// NONMATCHING: 99.97% - only the 6400.0f constant: it is emitted before the 1.0f/0.1f of
-// fn_803FD328 (in the original it is the last of the pool). The id local in MatchId_unk fixed the
-// operand order of the four comparisons.
+// The id local in MatchId_unk fixed the operand order of the four comparisons.
 CharaTask* MeetingSpot::fn_803FD0A0(CharaTask* other) {
     CharaTask* best = 0;
     float maxDist = 6400.0f;
@@ -300,9 +307,6 @@ CharaTask* MeetingSpot::fn_803FD0A0(CharaTask* other) {
     return best;
 }
 
-// NONMATCHING: 95.29% - the motion picked by character in state 7 (0x76/0x77, 0x7B/0x7C) is
-// chosen right before the call in the original (one saved register less), and the 1.0f/0.1f
-// constants are placed before 6400.0f in the original pool.
 void MeetingSpot::fn_803FD328(int state) {
     mState = state;
     mTimer = 0;
@@ -380,22 +384,14 @@ void MeetingSpot::fn_803FD328(int state) {
                 if (mDesc->m28 == 1) {
                     PlayMotion_unk(i, 0x75, 1);
                 } else {
-                    int motion = 0x77;
-                    if (i == 0) {
-                        motion = 0x76;
-                    }
-                    PlayMotion_unk(i, motion, 1);
+                    PlayMotion_unk(i, i == 0 ? kMeetMotion76_unk : kMeetMotion77_unk, 1);
                 }
                 break;
             case 2:
                 PlayMotion_unk(i, 0x7D, 1);
                 break;
             case 1:
-                int motion = 0x7C;
-                if (i == 0) {
-                    motion = 0x7B;
-                }
-                PlayMotion_unk(i, motion, 0);
+                PlayMotion_unk(i, i == 0 ? kMeetMotion7B_unk : kMeetMotion7C_unk, 0);
                 if (i == 1) {
                     atn::Vector3 rot = mChara[0]->mRot;
                     rot.y = atn::WrapAngle_unk(3.1415927f + rot.y);

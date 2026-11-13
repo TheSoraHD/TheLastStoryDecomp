@@ -26,8 +26,10 @@ extern "C" void fn_8008771C(void* group, const char* name, float* value, int arg
 struct Effect_unk;
 extern "C" Effect_unk* lbl_8087F048;
 extern "C" int fn_800F8548(Effect_unk* mgr); // inferred: new bullet id
-extern "C" int fn_800F8C6C(Effect_unk* mgr, int a, int b, CharaTask* chara, HitInfo_unk* data, int id, int time,
-                           int c, float f);
+// inferred: the float goes before time and count (argument evaluation order of fn_8035CF78: 0.0f, 30,
+// m594); the other units still declare it with the float last (pending with the BattleTask debt)
+extern "C" int fn_800F8C6C(Effect_unk* mgr, int a, int b, CharaTask* chara, HitInfo_unk* data, int id, float f,
+                           int time, int c);
 extern "C" void fn_800FB4B0(Effect_unk* mgr, CharaTask* chara, HitInfo_unk* data, int id, const atn::Vector3* pos,
                             int a, int time, int b, int c);
 // inferred: effect manager (class unknown), global instance at 0x8087F3C0; m0B8 is a mode used while
@@ -559,8 +561,6 @@ __declspec(noinline) void EnemyTrista::fn_8035CE58() {
     }
 }
 
-// NONMATCHING: 98.0% - stack slot of the scoped_ptr test (ptmf copy) and order of the arguments of
-// fn_800F8C6C
 void EnemyTrista::fn_8035CF78() {
     switch (m55C) {
     case 6:
@@ -579,7 +579,7 @@ void EnemyTrista::fn_8035CF78() {
                 }
                 if (m594 != 0) {
                     fn_80144710();
-                    int n = fn_800F8C6C(lbl_8087F048, 0, 0, this, m638, m590, 30, m594, 0.0f);
+                    int n = fn_800F8C6C(lbl_8087F048, 0, 0, this, m638, m590, 0.0f, 30, m594);
                     if (m594 > 0) {
                         m594 -= n;
                     }

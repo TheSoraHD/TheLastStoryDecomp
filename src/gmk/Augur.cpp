@@ -121,10 +121,13 @@ void Augur::fn_8041EE28() {
     }
 }
 
-// NONMATCHING: 99.2% - state 5: the original keeps the modulo in r5 and sets up `this` before the
-// compare (as if `this` were evaluated before a branchy argument). Tried: compare order, rate local,
-// ternaries (become subfc/subfe), if/else, inline PickState(r, rate), state declared first, rand()
-// in the condition, rate/desc locals, a this copy, negated compare, bool temporary.
+// inferred: states 6 and 7 (names invented); enum constants keep the choice below as a branch
+// (int constants differing by one become branchless arithmetic)
+enum {
+    kAugurState6_unk = 6,
+    kAugurState7_unk = 7,
+};
+
 void Augur::vf10() {
     if (mAugur != 0 && mAugur->IsFlag_unk(0xDEAD0000)) {
         CharaTask* target = mTarget;
@@ -180,11 +183,7 @@ void Augur::vf10() {
             float frame = model->mTracks[0].m08;
             if (frame >= model->fn_80097D7C(0)) {
                 int r = rand() % 100;
-                int state = 7;
-                if (r > mDesc->m24) {
-                    state = 6;
-                }
-                fn_8041F6A4(state);
+                fn_8041F6A4(r > mDesc->m24 ? kAugurState6_unk : kAugurState7_unk);
             }
         }
         break;

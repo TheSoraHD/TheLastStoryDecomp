@@ -594,16 +594,19 @@ atn::Vector3 ControlThrustForKraken::vf14() const {
     return mFrom + (mFrom - mTarget).GetNormalize() * 30.0f;
 }
 
-// NONMATCHING: 99.87% - r7/r8 swapped between the vtable address and the zero of m28
+// inferred: thrust motions (names invented); enum constants keep the choice as a branch (int
+// constants differing by one become branchless arithmetic)
+enum {
+    kThrustMotion215_unk = 0x215,
+    kThrustMotion216_unk = 0x216,
+};
+
 // inferred: thrust at a standing quark (control id 0x89); `kind` 2 thrusts from 30 units further
 ControlThrustForQuarkStand::ControlThrustForQuarkStand(Chara_unk* chara, Chara_unk* quark, int kind)
     : ControlBase(chara), mQuark(quark), mKind(kind), m28(0) {
     chara->SetControlId_unk(0x89);
     Motion_unk* m = &mChara->mMotion;
-    int motion = 0x215;
-    if (mKind == 2) {
-        motion = 0x216;
-    }
+    int motion = mKind == 2 ? kThrustMotion216_unk : kThrustMotion215_unk;
     m->m34C = 1;
     m->mTracks[0].m20 = 1.0f;
     m->fn_80097C08(0, motion, 0, 0, 1, 1.0f, 0.1f);

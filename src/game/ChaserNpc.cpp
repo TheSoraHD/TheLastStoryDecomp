@@ -142,11 +142,12 @@ void ChaserNpc::vf14() {
 // inferred: names of the states (debug display)
 static const char* sStateNames_unk[] = {"START", "STAY", "WALK", "RUN", "CAUGHT", "END"};
 
-// NONMATCHING: 98.7% - register allocation of the color conversions of the debug text.
+// NONMATCHING: 99.9% - stack slots of the temporaries (the original puts the player distance vector at
+// 0x8, below the color temporaries of the debug text). MAX(0, x) gives the srawi/andc of the original.
 void ChaserNpc::fn_80180AE0() {
     mC58.mC4 = 0;
     mC58.m11C.m01 = 0;
-    m14D0 = MAX(m14D0 - 1, 0);
+    m14D0 = MAX(0, m14D0 - 1);
     switch (m14B0) {
     case 0:
         fn_80139560();
@@ -158,7 +159,7 @@ void ChaserNpc::fn_80180AE0() {
             fn_8018161C(4);
         } else {
             m14C4 = 1.0f;
-            m14C8 = MAX(m14C8 - 1, 0);
+            m14C8 = MAX(0, m14C8 - 1);
         }
         break;
     }

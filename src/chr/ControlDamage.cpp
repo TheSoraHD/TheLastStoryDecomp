@@ -659,8 +659,13 @@ bool ControlFallDead::fn_801AF81C() {
     return result;
 }
 
-// NONMATCHING: 90.2% - the original sets r3/r4 of the motion call before choosing the motion (with
-// a branch; a ?: gives neg/or here).
+// inferred: guard motions (names invented); enum constants keep the ?: below as a branch (with int
+// constants it becomes neg/or)
+enum {
+    kGuardMotion1DD_unk = 0x1DD,
+    kGuardMotion1DE_unk = 0x1DE,
+};
+
 ControlGuarded::ControlGuarded(Chara_unk* chara, int a) : ControlBase(chara), m08(a) {
     int id = 0x15;
     if (a) {
@@ -671,11 +676,7 @@ ControlGuarded::ControlGuarded(Chara_unk* chara, int a) : ControlBase(chara), m0
     mChara->fn_801446F0();
     model->m34C = 1;
     model->mTracks[0].m20 = 1.0f;
-    int motion = 0x1DE;
-    if (a) {
-        motion = 0x1DD;
-    }
-    model->fn_80097C08(0, motion, 0, 0, 1, 0.0f, 0.1f);
+    model->fn_80097C08(0, a ? kGuardMotion1DD_unk : kGuardMotion1DE_unk, 0, 0, 1, 0.0f, 0.1f);
     model->mTracks[0].m0C = 1.0f;
     if (mChara->mType != 2) {
         fn_800C344C(sSe[0], &mChara->mPos, 0, -1, 1.0f);
