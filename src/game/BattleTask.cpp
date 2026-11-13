@@ -31,6 +31,8 @@
 #include "atn/Texture_unk.h"
 #include "game/GimmickCommon.h"
 #include "atn/NodeChunk.h"
+#include "game/MapManager.h"
+#include "atn/SoundManager.h"
 #include <boost/bind.hpp>
 #include <boost/function.hpp>
 
@@ -134,6 +136,12 @@ int BattleTask::vf0C() {
         fn_800D246C(1);
     }
     return ready;
+}
+
+// inferred: sets the node callback of a model (ModelBase::mB8 is declared as boost::function<void()> in
+// atn/Model_unk.h; its real signature is the one of NodeCallback_unk)
+extern "C" void fn_800F29D0(atn::Model* model, NodeCallback_unk callback) {
+    *(NodeCallback_unk*)&model->mB8 = callback;
 }
 
 // ---- fn_800F72F4: target marker of a character (over the inlining budget: every helper below is called
@@ -608,6 +616,80 @@ extern "C" int fn_800F8548(BattleTask* mgr) {
 extern "C" void* fn_800FAB80(BattleTask* mgr, CharaTask* chara, HitInfo_unk* data, int id, const atn::Vector3* pos,
                             const atn::Vector3* rot, int a, int time, int b, int c, float f1, float f2);
 
+// inferred: event 15 of the character listeners (a hit effect was played); names invented
+struct HitEvent_unk {
+    int mId;          // inferred: id of the hit data
+    atn::Vector3 mPos;
+    atn::Vector3 mRot;
+    int mSelf;        // inferred: the hit data is its own skill (see fn_800FB1BC)
+};
+// inferred: listeners of the characters (function-local static; see gmk/Item.cpp)
+inline CharaListeners_unk* fn_8014F8F4() {
+    static CharaListeners_unk sListeners;
+    return &sListeners;
+}
+extern "C" atn::EfpFile* fn_800EFDA0(int id);
+// inferred: casts a skill (SkillEffectManager, lbl_8087F9E8; as gmk/HealPoint.cpp)
+extern "C" SkillEffect* fn_8059B66C(void* mgr, HitInfo_unk* skill, CharaTask* user, CharaTask* target,
+                                    const atn::Vector3* pos, const atn::Vector3* rot,
+                                    boost::function<void(SkillEffect*)> callback, float rate);
+extern "C" void* lbl_8087F9E8;
+
+// inferred: effects of a hit of `chara` with `data` at `pos`: the skill effect lit by the map, its sound, the
+// sub skill (the data itself when `self`, else the bullet data->m6C) unless `flags` has 0x20000000, and event
+// 15 to the character listeners. Called as extern "C" by game/Bullet, game/DamageCalc_unk and others.
+// NONMATCHING: 98% - stack slots of the sphere and the light swapped, registers of the listener loop, .sdata2 pool
+extern "C" void fn_800FB1BC(BattleTask* mgr, CharaTask* chara, HitInfo_unk* data, const atn::Vector3* pos,
+                            const atn::Vector3* rot, unsigned int flags, int self, float scale) {
+    if (data == 0) {
+        return;
+    }
+    atn::EfpFile* efp = fn_800EFDA0(data->mB0);
+    if (efp != 0) {
+        MapColor_unk light = MapManager::instance_->fn_80491D50(atn::Sphere(*pos, 10.0f));
+        lbl_8087F3C0->mSystem.m78 = 1;
+        fn_80232B7C(0, 0);
+        // inferred: the light of the map is passed as the color of the effect (same RGBA floats)
+        fn_8023A8B4(lbl_8087F3C0, efp, 0, 0, *pos, lbl_807C7030, *(const EffectColor_unk*)&light, -1, -1, 1,
+                    scale);
+        lbl_8087F3C0->mSystem.m78 = 0;
+    }
+    const char* sound = fn_800EFE3C(data->mB0);
+    if (sound != 0) {
+        float volume = 1.0f;
+        if (data->mB0 == 0x6D4) {
+            volume = 0.6f;
+        }
+        if (lbl_8087EFE8 != 0 && (unsigned int)(data->mB0 - 0x148) <= 2) {
+            lbl_8087EFE8->m34C8 = 0;
+        }
+        fn_800C344C(sound, pos, 0, -1, volume);
+        if (lbl_8087EFE8 != 0) {
+            lbl_8087EFE8->m34C8 = 1;
+        }
+    }
+    if ((flags & 0x20000000) != 0x20000000) {
+        HitInfo_unk* skill = self ? data : fn_80219E6C(data->m6C);
+        if (skill != 0 && skill->m04 != 0) {
+            fn_8059B66C(lbl_8087F9E8, skill, chara, 0, pos, rot, boost::function<void(SkillEffect*)>(), scale);
+        }
+    }
+    HitEvent_unk event;
+    event.mId = data->m04;
+    event.mPos = *pos;
+    event.mRot = *rot;
+    event.mSelf = self;
+    CharaListeners_unk* listeners = fn_8014F8F4();
+    if (listeners->mEnabled != 0) {
+        for (int i = 0; i < (int)listeners->mList.size(); i++) {
+            CharaListener_unk& listener = listeners->mList[i];
+            if (listener.mId == -1 || listener.mId == 15) {
+                listener.mFunc(15, chara, &event);
+            }
+        }
+    }
+}
+
 // inferred: fires a bullet of `chara` on behalf of `user` and returns it (SkillEffectManager)
 extern "C" void* fn_800FBA30(BattleTask* mgr, CharaTask* chara, CharaTask* user, HitInfo_unk* data, int id,
                             const atn::Vector3* pos, const atn::Vector3* rot) {
@@ -615,6 +697,143 @@ extern "C" void* fn_800FBA30(BattleTask* mgr, CharaTask* chara, CharaTask* user,
     void* bullet = fn_800FAB80(mgr, chara, data, id, pos, rot, 0, 30, -1, -1, 0.0f, 1.0f);
     mgr->m3E398 = 0;
     return bullet;
+}
+
+// inferred: the sphere `item` is excluded from the hit `data` (name invented)
+inline bool IsSkipped_unk(const HitInfo_unk* data, const CharaTask::Item14_unk* item) {
+    bool skip = false;
+    int flags = item->m00;
+    if (data->m04 == 0xCB) {
+        if ((flags & 4) == 4) {
+            skip = true;
+        }
+    } else {
+        if (data->m01 == 1 && (flags & 2) == 2) {
+            skip = true;
+        }
+        if (data->m01 == 0 && (flags & 1) == 1) {
+            skip = true;
+        }
+    }
+    return skip;
+}
+
+// inferred: index of the hit sphere of `chara` nearest to `pos` (-1 when the bullet `id` already hit it, the
+// side of the hit `data->m64` does not reach it, or every sphere is excluded); `any` skips the side tests, `type`
+// is the side of a bullet without attacker
+extern "C" bool fn_8021A7A0(HitInfo_unk* data); // inferred: db/ParseUtil_unk (takes the record as BulletParam_unk)
+extern "C" int fn_800551BC(atn::ColliResult_unk* r, const atn::ColliCapsuleShape_unk* capsule,
+                           const atn::ColliSphereShape_unk* sphere); // inferred: capsule against sphere
+
+// inferred: index of the hit sphere of `chara` reached by the hit `data` at `pos` (as fn_800FC1D0, the sphere
+// radius grows by data->m58, scaled by the attacker for some bullets; the first sphere tests the collision
+// capsule of the character when mFlagB29 is set); -1 when nothing is reached. Em403WarLion calls it.
+// NONMATCHING: 99.9% - only the relocations of the .sdata2 constants (pool of the file incomplete)
+extern "C" int fn_800FBE70(BattleTask* mgr, CharaTask* attacker, CharaTask* chara, HitInfo_unk* data, int id,
+                           const atn::Vector3* pos, int any, int type) {
+    if (chara->fn_801533C8(id, data)) {
+        return -1;
+    }
+    if (any == 0) {
+        if (attacker != 0) {
+            if (data->m64 == 4 && attacker->fn_8016F3D0(chara, 1) && !attacker->fn_80154E38(chara)) {
+                return -1;
+            }
+            if (data->m64 == 2 && !attacker->fn_8016F3D0(chara, 1)) {
+                return -1;
+            }
+            if (data->m64 == 0 && attacker != chara) {
+                return -1;
+            }
+        } else {
+            if (data->m64 == 4 && chara->fn_8016F368(type)) {
+                return -1;
+            }
+            if (data->m64 == 2 && !chara->fn_8016F368(type)) {
+                return -1;
+            }
+        }
+    }
+    if (chara->m55C == 6 && chara->m560 == 0x41) {
+        return -1;
+    }
+    float best = 1e16f;
+    float scale = 1.0f;
+    int found = -1;
+    if (fn_8021A7A0(data) && attacker != 0) {
+        scale = attacker->fn_8017AC24();
+    }
+    for (unsigned int i = 0; i < chara->m624.mSize; i++) {
+        CharaTask::Item14_unk* item = chara->fn_80148B0C(i);
+        if (item != 0 && IsSkipped_unk(data, item)) {
+            continue;
+        }
+        if (i == 0 && chara->mFlagB29) {
+            // inferred: the capsule of the character is copied as one shape (as atn/atn_colli.cpp)
+            atn::ColliCapsuleShape_unk capsule(*(const atn::ColliCapsuleShape_unk*)&chara->mColli.m3C);
+            atn::ColliSphereShape_unk sphere;
+            sphere.mCenter = *pos;
+            sphere.mRadius = data->m58 * scale;
+            atn::ColliResult_unk result;
+            if (fn_800551BC(&result, &capsule, &sphere)) {
+                best = 0.0f;
+                found = i;
+            }
+        } else if (item != 0) {
+            float radius = data->m58 * scale + item->m04.mRadius;
+            atn::Vector3 d = *pos - item->m04.mCenter;
+            float dist = PSVECSquareMag(&d);
+            if (dist < radius * radius && dist < best) {
+                found = i;
+                best = dist;
+            }
+        }
+    }
+    return found;
+}
+
+// NONMATCHING: 99.97% - only the relocation of the 1e16f of .sdata2 (pool of the file incomplete)
+int BattleTask::fn_800FC1D0(CharaTask* attacker, CharaTask* chara, HitInfo_unk* data, int id,
+                            const atn::Vector3* pos, int any, int type) {
+    if (chara->fn_801533C8(id, data)) {
+        return -1;
+    }
+    if (any == 0) {
+        if (attacker != 0) {
+            if (data->m64 == 4 && attacker->fn_8016F3D0(chara, 1) && !attacker->fn_80154E38(chara)) {
+                return -1;
+            }
+            if (data->m64 == 2 && !attacker->fn_8016F3D0(chara, 1)) {
+                return -1;
+            }
+            if (data->m64 == 0 && attacker != chara) {
+                return -1;
+            }
+        } else {
+            if (data->m64 == 4 && chara->fn_8016F368(type)) {
+                return -1;
+            }
+            if (data->m64 == 2 && !chara->fn_8016F368(type)) {
+                return -1;
+            }
+        }
+    }
+    float best = 1e16f;
+    int found = -1;
+    for (unsigned int i = 0; i < chara->m624.mSize; i++) {
+        CharaTask::Item14_unk* item = chara->fn_80148B0C(i);
+        if (item != 0) {
+            if (!IsSkipped_unk(data, item)) {
+                atn::Vector3 d = *pos - item->m04.mCenter;
+                float dist = PSVECSquareMag(&d);
+                if (dist < best) {
+                    found = i;
+                    best = dist;
+                }
+            }
+        }
+    }
+    return found;
 }
 
 void BattleTask::fn_800FDE60(int effect, CharaTask* chara, const atn::Vector3& dir) {
