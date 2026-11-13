@@ -5,7 +5,9 @@
 #include "game/HitInfo_unk.h"
 #include "game/PlayerTask.h"
 #include "math/Vec.h"
+#include "math/VecAssign_unk.h"
 #include "chr/ControlBase.h"
+#include "game/BattleCharaTask.h"
 #include "std/string.h"
 #include "std/string_members.h"
 #include <boost/tokenizer.hpp>
@@ -570,6 +572,64 @@ CharaTask* Em316LaserSphere::fn_80318A30() {
         if (fn_80318AA4(p) != 0) {
             fn_8031A670(p);
             return p;
+        }
+    }
+    return 0;
+}
+
+// inferred: the magic `data` of `chara` targets `target` (bullet manager); returns < 0 when not (as in
+// game/Em403WarLion.cpp)
+extern "C" int fn_800FBA9C(Effect_unk* mgr, CharaTask* chara, CharaTask* target, HitInfo_unk* data, int arg,
+                           float f);
+extern "C" int fn_80051BC4(const atn::ColliCapsuleShape_unk* a, const atn::ColliCapsuleShape_unk* b);
+// inferred: control of a character that casts a magic (as in game/Em101ElderZesyaSecond.cpp)
+struct LaserMagic_unk {
+    unsigned char m00[0x1D];
+    unsigned char m1D; // inferred: nonzero once the magic is fired
+};
+
+// inferred: `chara` aims at the sphere: the magic it holds (state 6/30) once fired, its magic or skill, or the
+// line of its aimed shot crosses the capsule of the sphere
+// NONMATCHING: 98.4% - the original frame is 0x10 bytes smaller (slots of the lines and of the rotation), the
+// state test in r0 and the bullet manager loaded after the skill; 6 variants
+int Em316LaserSphere::fn_80318AA4(CharaTask* chara) {
+    if (chara->IsActive_unk()) {
+        if (chara->m55C == 6 && chara->m560 == 30) {
+            LaserMagic_unk* magic = (LaserMagic_unk*)fn_80318F90(chara);
+            if (chara->mC58.mC4 == this && magic->m1D != 0) {
+                atn::ColliCapsuleShape_unk line;
+                line.mStart = chara->mPos;
+                line.mStart.y += 20.0f;
+                atn::VecAssign_unk(line.mEnd, line.mStart + ((chr::ControlBase*)magic)->vf18() * 200.0f);
+                if (fn_80051BC4(&line, (atn::ColliCapsuleShape_unk*)&mColli.m3C)) {
+                    return 1;
+                }
+            }
+        } else if (chara->vf78() != 0 || chara->fn_80158CA4() != 0) {
+            if (chara->m55C == 6 && chara->m560 == 30) {
+                if (chara->mC58.mC4 == this) {
+                    return 1;
+                }
+            } else {
+                if (fn_800FBA9C(lbl_8087F048, chara, this, chara->m638, -1, 0.0f) >= 0) {
+                    return 1;
+                }
+                float rot = chara->fn_80158E1C().ToRotation_unk().y;
+                if (fn_800FBA9C(lbl_8087F048, chara, this, chara->m638, -1,
+                                atn::WrapAngle_unk(rot - chara->mRot.y)) >= 0) {
+                    return 1;
+                }
+            }
+        } else if (chara->mFlag6 || (chara->mFlag31 && chara->mC48 != 0)) {
+            atn::Vector3 from;
+            atn::Vector3 dir;
+            ((BattleCharaTask*)chara)->fn_800E932C(&from, &dir, 1);
+            atn::ColliCapsuleShape_unk line;
+            line.mStart = from;
+            atn::VecAssign_unk(line.mEnd, from + dir * 200.0f);
+            if (fn_80051BC4(&line, (atn::ColliCapsuleShape_unk*)&mColli.m3C)) {
+                return 1;
+            }
         }
     }
     return 0;

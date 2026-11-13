@@ -14,6 +14,11 @@ Inicio: 2026-11-13 05:03 CET. Rama `agent-K`. Tope 07:33.
   - `fn_803405C0` (estado 16, ataque del baston) 98,8 %: huecos de los locales del efecto del paso 0 y
     registros.
 
+- `game/Em316LaserSphere`: 6 -> 5. `fn_80318AA4` (el personaje apunta a la esfera: magia lanzada, su habilidad o
+  la linea de su disparo cruza la capsula) escrita, NONMATCHING 98,4 %: marco 0x10 mayor y registros.
+  Se incluye `game/BattleCharaTask.h` (`fn_800E932C`): renumera los `@N` de la unidad (+227); pd.sh y dos a mano
+  (`@13913`, `@13962`, floats 0.1 y 0.2 que solo usan funciones sin escribir).
+
 ## Decisiones tomadas sin el usuario
 
 - `fn_8033E8D4` y `fn_803402C0` son funciones `static` del fichero con el enemigo como primer argumento (el
