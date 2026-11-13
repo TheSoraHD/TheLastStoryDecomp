@@ -1,7 +1,7 @@
 # Siguiente sesion (tras paralelo-20261113)
 
 > Sesion `paralelo-20261113` (12 h, lote en paralelo con hasta 4 agentes, 23 colas) cerrada el 2026-11-13 hacia las
-> 12:40 (inicio 00:19). Rama `paralelo-20261113` sin mergear: la revisa el usuario.
+> 12:40 (inicio 00:19). Rama `paralelo-20261113` revisada y mergeada en `main` (2026-11-13, a08a870).
 
 Estado: **15232 -> 15389 / 18109**, lost 0, sin bajadas de fuzzy, rep100 135 -> 135, `main.dol: OK` (build limpio y
 clon limpio). Funciones al 0 %: **550 -> 253**. 38 DRAFT (0 en la ruta). Enlazan 9 unidades mas (131 -> 140).
