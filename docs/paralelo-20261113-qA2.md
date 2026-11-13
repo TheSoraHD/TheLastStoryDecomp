@@ -46,6 +46,10 @@ Funciones al 0 % al empezar: BattleTask 29, TacView 6, BattleCharaTask 1.
     `BattleItem_unk` gana `mConds[2]` (0xEC, condiciones de la flecha). El tercer argumento de
     `Arms::fn_80044E98`/`fn_80044FBC` es la posicion del golpe: se pasa con `(int)&pos` (la firma de `Arms.h`
     lo tipa `int`; pendiente corregirla en su cola).
+  - `fn_800F8574` (dispara las `data->m48` balas con dispersion aleatoria; 99,3 %). El sexto argumento es el
+    `HomingParam_unk*` (balas guiadas si no es nulo), luego los flags y el argumento m10 del disparo.
+  - Con `Matrix3x4* p = &m;` en el giro ZYX (como `RotateZYX_unk`) suben fn_800FC410 98,7 -> 99,3 %,
+    fn_800FCD24 97,3 -> 98,0 % y fn_800FD658 (ya escrita) 91,3 -> 93,0 %.
 
 ## Decisiones tomadas sin el usuario
 
@@ -75,6 +79,10 @@ Funciones al 0 % al empezar: BattleTask 29, TacView 6, BattleCharaTask 1.
   `fn_80210220`: el tipo `HateParamEntry_unk` es local de `db/HateParam_unk.cpp` (otra cola). Pendiente: cabecera.
 
 ## Hallazgos
+
+- Giro ZYX con `RotateAxis_unk`: pasar la matriz por un puntero local (`Matrix3x4* p = &m; p->SetIdentity();
+  RotateAxis_unk(*p, ...)`) deja la direccion en un registro salvado como el original; los temporales `r`/`t`
+  siguen saliendo en orden inverso de pila (sin resolver; fn_800F8574, fn_800FC410, fn_800FCD24, fn_800FD658).
 
 - `0x18F <= id && id <= 0x195` (constante a la izquierda) evita la fusion en `subi/cmplwi` (fn_8010B398; ya en
   trucos-mwcc.md, linea 53/294).
