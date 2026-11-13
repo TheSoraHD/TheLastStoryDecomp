@@ -132,8 +132,9 @@ public:
                      float fovy, float t);
     void fn_8038E540(const CharaTask* chara, GameCameraParam_unk* param, atn::Vector3* pos, atn::Vector3* target,
                      const atn::Vector3* charaPos); // inferred: collision of the eye
-    // inferred: pushes the eye out of the walls around the character (0x8038E23C; uses m7FC, m89C)
-    void fn_8038E23C(const CharaTask*, GameCameraParam_unk*, atn::Vector3*);
+    // inferred: pushes the eye out of the walls around the character (0x8038E23C; uses m7FC, m89C; the target is
+    // passed but not used)
+    void fn_8038E23C(const CharaTask*, GameCameraParam_unk*, atn::Vector3*, atn::Vector3*);
     void fn_803918EC(); // inferred: ambient sway of the camera (xsca of the map)
     void fn_803920C8();
     void fn_80392510();
@@ -261,7 +262,10 @@ public:
     atn::Vector3 m93C; // inferred: offset of the position of the render camera (fn_803928C0)
     atn::Vector3 m948; // inferred: offset of the target
     float m954;        // inferred: offset of the fovy
-    unsigned char m958[0x98C - 0x958];
+    unsigned char m958[0x96C - 0x958];
+    float m96C; // inferred: cleared when the ledge mode starts (fn_8038A5F0)
+    float m970;
+    unsigned char m974[0x98C - 0x974];
     atn::Vector3 m98C[8]; // inferred: cleared by the default mode (fn_80389A00)
     unsigned char m9EC[0x9F8 - 0x9EC];
     atn::Vector3 m9F8;   // inferred: hips of the character when the hips mode ends
