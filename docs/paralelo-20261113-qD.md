@@ -1,6 +1,6 @@
 # Lote paralelo 2026-11-13, cola D (Efectos)
 
-Inicio: 2026-11-13 01:18 CET. Rama `agent-D`. Unidades: `atn/EffectSystem_unk`, `atn/EffectManager`.
+Inicio: 2026-11-13 01:18 CET. Fin: ~03:05 CET. Rama `agent-D`. Unidades: `atn/EffectSystem_unk`, `atn/EffectManager`.
 
 ## Resultado por unidad
 
@@ -35,6 +35,14 @@ Inicio: 2026-11-13 01:18 CET. Rama `agent-D`. Unidades: `atn/EffectSystem_unk`, 
   (`long`, `unsigned long`, `long long`, `unsigned long long`; 0x8023C6F4, 0x8023D308, 0x8023DE24, 0x8023EA78)
   con ayudas inline (`__put_oct_unk`, `__put_hex_unk`, `__put_unsigned_unk`, `__put_signed_unk`,
   `__put_padded_unk`; nombres inventados). 0 % 10 -> 6.
+
+- `atn/EffectManager` (commit 9): escrita NONMATCHING `num_put::do_put(const void*)` (0x8023FD90, 83 %; el
+  formato del stream se guarda y se restaura con `__save_format_unk`, nombre inventado). 0 % 6 -> 5.
+  `ios_base::mPrecision` (0x28, antes relleno).
+
+- **Total EffectManager**: 0 % 29 -> 5 (quedan do_put(long double), los tres ayudantes de floats fn_802407CC,
+  fn_802411B8, fn_80241CB8 y `ctype<char>::widen(const string&)`), al 100 % 28 -> 40.
+- **Total EffectSystem_unk**: 0 % 1 -> 0, al 100 % 43 -> 44.
 
 ## Decisiones tomadas sin el usuario
 
@@ -81,6 +89,14 @@ Inicio: 2026-11-13 01:18 CET. Rama `agent-D`. Unidades: `atn/EffectSystem_unk`, 
   fuente (c2 antes que c1).
 
 ## Pendientes
+
+- `symbols.txt`: `lbl_80783CA8` (literal de `ios_base::clear` de EffectManager) se deja con su nombre: `pd.sh` lo
+  renombra a `@STRING@clear__Q23std8ios_baseFQ33std8ios_base7iostate`, que ya tiene el de WordWrap_unk (0x80779AB8)
+  y el enlace falla por simbolo duplicado (con `scope:local` enlaza pero `main.dol` no cuadra). Al repetir `pd.sh`
+  en EffectManager hay que devolverlo a `lbl_80783CA8`.
+- `std/locale_facets_unk.h`: los literales "true"/"false" del ctor inline de `numpunct` van a `.data` como
+  `@STRING@__ct__Q23std11numpunct<c>FUl` (pd los renombra); el orden "false" antes que "true" del original no se
+  comprobo.
 
 - Orden de las copias debiles de EffectManager (ordercheck no las mira): con `operator<<` el dtor de
   `locale::facet` sale detras de el (en el DOL va delante), y salen fuera de linea `~locale` y el dtor del

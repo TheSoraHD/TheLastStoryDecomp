@@ -552,6 +552,8 @@ template num_put<char>::iter_type num_put<char>::do_put(iter_type out, ios_base&
 template num_put<char>::iter_type num_put<char>::do_put(iter_type out, ios_base& str, char fill,
                                                          unsigned long long v) const;
 template num_put<char>::iter_type num_put<char>::do_put(iter_type out, ios_base& str, char fill, double v) const;
+template num_put<char>::iter_type num_put<char>::do_put(iter_type out, ios_base& str, char fill,
+                                                         const void* v) const;
 template numpunct<char>::string_type numpunct<char>::truename() const;
 template numpunct<char>::string_type numpunct<char>::falsename() const;
 template numpunct<char>::string_type numpunct<char>::do_truename() const;

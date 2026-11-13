@@ -60,6 +60,7 @@ public:
     }
     ostreambuf_iterator& operator*() { return *this; }
     ostreambuf_iterator& operator++() { return *this; }
+    ostreambuf_iterator& operator++(int) { return *this; }
     bool failed() const { return sbuf_ == 0; }
 
     basic_streambuf<C, T>* sbuf_;
@@ -353,23 +354,23 @@ inline O __put_padded_unk(O out, ios_base& str, C fill, const C* pre, int npre, 
     unsigned short adjust = str.flags() & __adjustfield_unk;
     if (adjust != __left_unk && adjust != __internal_unk) {
         for (int i = 0; i < pad; i++) {
-            *out = fill;
+            *out++ = fill;
         }
     }
     for (int i = 0; i < npre; i++) {
-        *out = *pre++;
+        *out++ = *pre++;
     }
     if (adjust == __internal_unk) {
         for (int i = 0; i < pad; i++) {
-            *out = fill;
+            *out++ = fill;
         }
     }
     for (int i = 0; i < n; i++) {
-        *out = *body++;
+        *out++ = *body++;
     }
     if (adjust == __left_unk) {
         for (int i = 0; i < pad; i++) {
-            *out = fill;
+            *out++ = fill;
         }
     }
     str.mWidth = 0;
@@ -489,6 +490,45 @@ typename num_put<C, O>::iter_type num_put<C, O>::do_put(iter_type out, ios_base&
 
 // NONMATCHING: 88% - stack slots of the two name temporaries of the inlined numpunct constructor swapped,
 // registers of the facet and the table
+// inferred: saves the format state of a stream (flags, width, precision and exceptions) and restores it, which
+// clears the state again (inlined by do_put(const void*); name invented)
+struct __save_format_unk {
+    explicit __save_format_unk(ios_base& s)
+        : str_(s), width_(s.mWidth), precision_(s.mPrecision), flags_(s.mFlags), exceptions_(s.mExceptions) {}
+    ~__save_format_unk() {
+        str_.mFlags = flags_;
+        str_.mWidth = width_;
+        str_.mPrecision = precision_;
+        str_.mExceptions = exceptions_;
+        str_.clear((ios_base::iostate)str_.mState);
+    }
+
+    ios_base& str_;
+    streamsize width_;
+    streamsize precision_;
+    unsigned short flags_;
+    unsigned char exceptions_;
+};
+
+// NONMATCHING: 83% - stack slots of the saved format and the buffers, registers of the copy loops
+// inferred: pointer output (0x8023FD90): formatted as 0x and eight hexadecimal digits padded with zeros to ten
+// characters (internal), with the format of the stream saved and restored around it; then the ten characters
+// padded with the fill character to the width of the stream
+template <class C, class O>
+typename num_put<C, O>::iter_type num_put<C, O>::do_put(iter_type out, ios_base& str, char_type fill,
+                                                        const void* v) const {
+    C buf[0x10];
+    {
+        __save_format_unk save(str);
+        str.mFlags = (((str.mFlags & ~__basefield_unk) | __hex_unk | __showbase_unk) & ~__adjustfield_unk) |
+                     __internal_unk;
+        str.mWidth = 10;
+        C zero = use_facet<ctype<C> >(str.getloc()).widen('0');
+        __put_hex_unk(buf, str, zero, (unsigned long)v);
+    }
+    return __put_padded_unk(out, str, fill, buf, 0, buf, 10);
+}
+
 // inferred: bool output (0x8023C0C0): without boolalpha as a long; else the true or false name of the
 // numpunct of the stream, padded with the fill character to the width (left, internal or right), which is
 // cleared
