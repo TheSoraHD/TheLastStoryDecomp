@@ -13,6 +13,15 @@ Cola: restos de game/GameEventScript (12 al 0 %) y AI/AI_archer_attack01 (6 al 0
     de `num_put<char>::id` y `numpunct<char>::id`, como GameScene) y los cinco thunks de base virtual
     (0x803B27AC-0x803B27F8).
   - `basic_stringbuf::str() const` (0x803AD668): 88,53 %, NONMATCHING (ver abajo).
+- `AI/AI_archer_attack01`: 0 % 5 -> 2; al 100 % 480 -> 481/510 (lost 0, fuzzdrop 0).
+  - Mapa de scripts (`std::map<std::string, factory>` en 0x807C6B84): `AIScriptMap_unk` (tamano, raiz con el
+    nodo final en `&mRoot`, primero; como `ScriptTreeData_unk`), y `lbl_807C6B84` pasa a ser ese objeto (antes
+    `unsigned char[]`; `fn_8001E1D0` y la `__sinit` a mano usan `&lbl_807C6B84`, sin cambios en su codigo).
+  - `AIScriptMap_unk::Destroy_unk` (0x8003DEE0, antes `fn_8003DEE0`) al 100 %: recursiva con los asserts de
+    los padres evaluados (dos niveles de inline, como AudioMap_unk) y `destroy` + `operator delete` del
+    nodo (sin test de nulo; con `delete node` sale el test).
+  - `fn_8001E730` (vacia el mapa: borra las factorias en orden y luego `clear()`) 93,82 % y `fn_8001EA18`
+    (`find` por nombre con `basic_string::compare(pos, n1, s, n2)` inline) 57,07 %: NONMATCHING (ver abajo).
 - `game/GameScene`: llama a `boost::lexical_cast<std::string, int>` con una declaracion de la plantilla (sin
   definicion: la copia debil es la de GameEventScript) en vez de `extern "C" fn_80393BEC`. Codigo y etiquetas
   identicos.
@@ -46,6 +55,11 @@ Cola: restos de game/GameEventScript (12 al 0 %) y AI/AI_archer_attack01 (6 al 0
   ramas; probados orden de ramas, tag temporal, cast del tamano, ctor plantilla). No se deja en `string.h`
   porque recompila todo el juego; queda con `basic_string(const T*, size_type)`.
 
+- `fn_8001E730` 93,82 %: la direccion del mapa queda en r30 (el original la vuelve a cargar con lis/addi tras
+  el bucle y en cada llamada) y un registro guardado mas; probado `clear()` como miembro.
+- `fn_8001EA18` 57,07 %: el tamano y los datos de la clave se cargan una vez antes del bucle (el original los
+  relee en cada nodo); el orden del compare (clave primero, `min` de MSL `b < a ? b : a`) ya casa.
+
 ## Decisiones tomadas sin el usuario
 
 - Renombrados en `symbols.txt`: `fn_80393BEC` -> nombre mangled de `boost::lexical_cast<std::string, int>`,
@@ -56,6 +70,8 @@ Cola: restos de game/GameEventScript (12 al 0 %) y AI/AI_archer_attack01 (6 al 0
   nuevo (script local `remap.py`, 66 etiquetas) y luego `pd.sh`.
 - `boost::throw_exception(const std::exception&)` declarada en GameEventScript.cpp (definida en
   atn/Util_unk.cpp, BOOST_NO_EXCEPTIONS).
+- AI_archer: renombrado `fn_8003DEE0` -> `Destroy_unk__15AIScriptMap_unkFP19AIScriptMapNode_unk`; `pd.sh`
+  reetiqueto los `@N` de la unidad (481 -> 481).
 - Cambio de tamano de `ctype<char>` en `locale_facets_unk.h` (cabecera MSL compartida con EffectManager): solo
   miembro de datos.
 
@@ -69,5 +85,6 @@ Cola: restos de game/GameEventScript (12 al 0 %) y AI/AI_archer_attack01 (6 al 0
 
 ## Pendientes
 
-- AI/AI_archer_attack01: en curso (mapa de scripts: fn_8001E730, fn_8001EA18, fn_8003DEE0).
+- AI/AI_archer_attack01 al 0 %: `fn_8003DD50` (insercion del nodo), `fn_8003E6B8` (destructor del mapa con
+  cuatro tests de `this` encadenados: varias clases anidadas map/tree).
 - `ordercheck` GameEventScript: 1 fuera de orden ya conocido (`__dt__15GameEventScriptFv`).

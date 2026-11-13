@@ -204,7 +204,8 @@ int fn_8001B5B4(atn::Vector3 pos, int arg);
 int fn_8001BA88(CharaTask* chara, int point, int a, int b, float c, float d, float e); // inferred: route point search
 extern double lbl_8072FF68;
 extern unsigned char lbl_807C6B78[];
-extern unsigned char lbl_807C6B84[];
+struct AIScriptMap_unk;
+extern AIScriptMap_unk lbl_807C6B84; // inferred: the script map (see AIScriptMap_unk)
 extern unsigned char lbl_8087D6F0;
 extern unsigned char lbl_8087D6F1;
 void __register_global_object(void* object, void (*destructor)(void*, int), void* dso);
@@ -256,7 +257,7 @@ int fn_8003DBA4();
 int fn_8003D6E8();
 void fn_8001C284();
 void fn_8001E730();
-void* fn_8001EA18(void*);
+void* fn_8001EA18(const char* name);
 AiInput_unk* fn_8001C260();
 AiOutput_unk* fn_8001C26C();
 AiTargets_unk* fn_8001C278();
@@ -1450,6 +1451,27 @@ struct AIScriptMapNode_unk {
     void SetParent(AIScriptMapNode_unk* parent) { mParentColor = (unsigned long)parent | (mParentColor & 1); }
 };
 
+// inferred: the script map (std::map<std::string, factory>, MSL <tree>) at 0x807C6B84: size, root (the
+// end node is at &mRoot) and first node, as ScriptTreeData_unk of game/GameEventScript.h; the nodes are
+// freed by the recursive Destroy_unk (0x8003DEE0)
+struct AIScriptMap_unk {
+    unsigned long mSize;
+    AIScriptMapNode_unk* mRoot;
+    AIScriptMapNode_unk* mFirst;
+
+    AIScriptMapNode_unk* End_unk() { return (AIScriptMapNode_unk*)&mRoot; }
+    void Destroy_unk(AIScriptMapNode_unk* node); // 0x8003DEE0
+    // inferred: MSL __tree::clear (inlined in fn_8001E730)
+    void clear() {
+        if (mRoot != 0) {
+            Destroy_unk(mRoot);
+            mSize = 0;
+            mRoot = 0;
+            mFirst = End_unk();
+        }
+    }
+};
+
 extern "C" int memcmp(const void*, const void*, unsigned long);
 extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key, AIScriptMapNode_unk** parent, unsigned char* insertLeft, unsigned char* insertFirst);
 
@@ -1517,7 +1539,7 @@ extern "C" void fn_8001C1BC() {}
 // inferred: applies the selected script's two indexed parameter values to global state.
 extern "C" void fn_8001C1C0(unsigned char* script) {
     fn_8001C088();
-    unsigned char* result = (unsigned char*)fn_8001EA18(script);
+    unsigned char* result = (unsigned char*)fn_8001EA18((const char*)script);
     if (result != 0) {
         AiInput_unk* in = fn_8001C260();
         AiOutput_unk* out = fn_8001C26C();
@@ -1559,7 +1581,7 @@ extern "C" void fn_8001C284() {
         std::string key(NAME); \
         objects[I] = new ((MemoryTag)3, "", "", 0) AI::Script::CLASS(); \
         fn_8001E0B8(&values[I], (const AIStringWithAllocator_unk*)&key, (const unsigned int*)&objects[I]); \
-        fn_8001E1D0(pairs[I], lbl_807C6B84, &values[I]); \
+        fn_8001E1D0(pairs[I], &lbl_807C6B84, &values[I]); \
         fn_8001E168(&values[I].mString, -1); \
     } while (0)
     REGISTER_AI_SCRIPT(0, "archer_attack01", AI_archer_attack01);
@@ -1849,6 +1871,80 @@ AI_sword_pointguard01::AI_sword_pointguard01() {} // 0x8001E710
 AI_return_guard01::AI_return_guard01() {} // 0x8001E720
 } // namespace Script
 } // namespace AI
+
+// NONMATCHING: 93.82% - the address of the map is kept in r30 (the original loads it again with lis/addi
+// after the loop and for each call) and one more saved register
+// inferred: empties the script map: deletes the factories in key order, then the nodes
+extern "C" void fn_8001E730() {
+    for (AIScriptMapNode_unk* x = lbl_807C6B84.mFirst; x != lbl_807C6B84.End_unk();) {
+        operator delete(x->mValue.second);
+        if (x->mRight != 0) {
+            AIScriptMapNode_unk* y = x->mRight;
+            while (y->mLeft != 0) {
+                y = y->mLeft;
+            }
+            x = y;
+        } else {
+            AIScriptMapNode_unk* p;
+            while (x != (p = x->Parent())->mLeft) {
+                x = p;
+            }
+            x = p;
+        }
+    }
+    lbl_807C6B84.clear();
+}
+
+// inferred: std::min (MSL: b < a ? b : a) as inlined in the string compare below
+static inline const unsigned long& AIMin_unk(const unsigned long& a, const unsigned long& b) {
+    return b < a ? b : a;
+}
+
+// inferred: MSL basic_string::compare(pos1, n1, s, n2) inlined in the script map lookup
+static inline int AIStrCompare_unk(const std::string& a, unsigned long pos1, unsigned long n1, const char* s,
+                                   unsigned long n2) {
+    unsigned long len = a.size();
+    unsigned long rlen = AIMin_unk(len - pos1, n1);
+    int result = memcmp(a.data() + pos1, s, AIMin_unk(rlen, n2));
+    if (result == 0) {
+        if (rlen < n2) {
+            result = -1;
+        } else if (rlen == n2) {
+            result = 0;
+        } else {
+            result = 1;
+        }
+    }
+    return result;
+}
+
+// inferred: basic_string::compare(const basic_string&) = compare(0, size(), str.data(), str.size())
+static inline int AIStrCompare_unk(const std::string& a, const std::string& b) {
+    return AIStrCompare_unk(a, 0, a.size(), b.data(), b.size());
+}
+
+// NONMATCHING: 57.07% - the key size and data are loaded once before the search loop (the original reads
+// them again for every node)
+// inferred: std::map<std::string, factory>::find on the script map (0x807C6B84, end node at +0x04 whose
+// left link is the root): the factory of the named script, 0 if there is none
+extern "C" void* fn_8001EA18(const char* name) {
+    std::string key(name);
+    AIScriptMapNode_unk* end = lbl_807C6B84.End_unk();
+    AIScriptMapNode_unk* result = end;
+    AIScriptMapNode_unk* x = lbl_807C6B84.mRoot;
+    while (x != 0) {
+        if (AIStrCompare_unk(x->mValue.first, key) >= 0) {
+            result = x;
+            x = x->mLeft;
+        } else {
+            x = x->mRight;
+        }
+    }
+    if (result == end || AIStrCompare_unk(key, result->mValue.first) < 0) {
+        result = end;
+    }
+    return result != end ? result->mValue.second : 0;
+}
 
 extern "C" int fn_8001ECD0(void* object, int type) {
     AIValue_unk* value = (AIValue_unk*)object;
@@ -10300,6 +10396,22 @@ extern "C" __declspec(noinline) int fn_8003DBA4() {
     return 6;
 }
 
+// inferred: frees a subtree; the release asserts of the parents are evaluated (as
+// AudioMap_unk::Destroy of atn/AudioDevice.cpp: without them MWCC expands three levels)
+void AIScriptMap_unk::Destroy_unk(AIScriptMapNode_unk* node) {
+    if (node->mLeft != 0) {
+        (void)((AIScriptMapNode_unk*)node->mLeft->mParentColor == node);
+        Destroy_unk(node->mLeft);
+    }
+    if (node->mRight != 0) {
+        (void)((AIScriptMapNode_unk*)node->mRight->mParentColor == node);
+        Destroy_unk(node->mRight);
+    }
+    // inferred: allocator destroy and deallocate (no null test of the node)
+    (&node->mValue)->~AIScriptMapValue_unk();
+    operator delete(node);
+}
+
 // NONMATCHING: 88.17% - the loop setup and register allocation differ from the tree-search body.
 // inferred: finds the insertion position for a string key and returns the last visited node.
 namespace std {
@@ -10393,7 +10505,7 @@ extern "C" void fn_8003E688() {
         void* last;
         void* end;
     };
-    ListHead_unk* head = (ListHead_unk*)lbl_807C6B84;
+    ListHead_unk* head = (ListHead_unk*)&lbl_807C6B84;
     head->first = 0;
     head->last = 0;
     head->end = &head->last;
