@@ -659,7 +659,7 @@ inline bool IsSoftBullet_unk(const HitInfo_unk* data) {
 // reaches (fn_800FBE70, fn_800FCD24), sends a hit message to the gimmicks in range, plays the hit effects
 // (fn_800FB1BC), raises the gauge for a player and records the test when the debug ring is enabled. Returns
 // whether a character was hit. Called as extern "C" by game/Bullet.
-// NONMATCHING: 96% - float registers of the scale, range and distance; the original clears x/y of the record
+// NONMATCHING: 96.9% - float registers of the scale, range and distance; the original clears x/y of the record
 // vectors first (a constructor) and reaches the ring through its address; .sdata2 pool
 extern "C" int fn_800FAB80(BattleTask* mgr, CharaTask* attacker, HitInfo_unk* data, int id, const atn::Vector3* pos,
                            const atn::Vector3* rot, int any, int time, int, int type, float f1, float f2) {
@@ -779,7 +779,7 @@ extern "C" void* lbl_8087F9E8;
 // inferred: effects of a hit of `chara` with `data` at `pos`: the skill effect lit by the map, its sound, the
 // sub skill (the data itself when `self`, else the bullet data->m6C) unless `flags` has 0x20000000, and event
 // 15 to the character listeners. Called as extern "C" by game/Bullet, game/DamageCalc_unk and others.
-// NONMATCHING: 98% - stack slots of the sphere and the light swapped, registers of the listener loop, .sdata2 pool
+// NONMATCHING: 98.3% - stack slots of the sphere and the light swapped, registers of the listener loop, .sdata2 pool
 extern "C" void fn_800FB1BC(BattleTask* mgr, CharaTask* chara, HitInfo_unk* data, const atn::Vector3* pos,
                             const atn::Vector3* rot, unsigned int flags, int self, float scale) {
     if (data == 0) {
@@ -833,7 +833,7 @@ extern "C" void fn_800FB1BC(BattleTask* mgr, CharaTask* chara, HitInfo_unk* data
 
 extern "C" bool fn_8021AA48(HitInfo_unk* data); // inferred: db/ParseUtil_unk (takes BulletParam_unk)
 extern "C" bool fn_8021A9CC(HitInfo_unk* data); // inferred: db/ParseUtil_unk (takes BulletParam_unk)
-// NONMATCHING: 95% - stack slots (the rotation temporaries go the other way, one vector less), .sdata2 pool
+// NONMATCHING: 91.4% - stack slots (the rotation temporaries go the other way, one vector less), .sdata2 pool
 extern "C" int fn_800FD658(BattleTask* mgr, CharaTask* attacker, CharaTask* chara, HitInfo_unk* data, int a, int id,
                            int b);
 
@@ -841,7 +841,7 @@ extern "C" int fn_800FD658(BattleTask* mgr, CharaTask* attacker, CharaTask* char
 // hit reaches (fn_800FD658, or CharaTask::fn_80178668 for the kinds of fn_8021A9CC), with the effects when
 // `effect`; a hit by a player raises the gauge m38A04. Returns whether something was hit. Called as extern "C"
 // by game/Bullet, game/EnemyTrista, SkillEffectManager and the controls.
-// NONMATCHING: 99% - the original keeps the addresses of the attacker position and rotation in registers
+// NONMATCHING: 97.6% - the original keeps the addresses of the attacker position and rotation in registers
 // before the closing effect and sound; .sdata2 pool
 extern "C" int fn_800FB4B0(BattleTask* mgr, CharaTask* attacker, HitInfo_unk* data, int id, const atn::Vector3* pos,
                            int a, int b, int, int effect) {
@@ -970,7 +970,7 @@ inline float SquareMagXZ_unk(const atn::Vector3& v) {
 // inferred: index of the hit sphere of `chara` reached by the melee arc of `attacker` (reach data->m40 plus
 // the reach of the attacker, angle data->m50 around the facing of the attacker turned by `angle`, height
 // data->m54) nearest to the attacker; -1 when nothing is reached. Called as extern "C" by the enemies.
-// NONMATCHING: 99.8% - register of the absolute height (f3/f4), .sdata2 pool
+// NONMATCHING: 99.96% - register of the absolute height (f3/f4)
 extern "C" int fn_800FBA9C(BattleTask* mgr, CharaTask* attacker, CharaTask* chara, HitInfo_unk* data, int id,
                            float angle) {
     if (chara->fn_801533C8(id, data)) {
@@ -1044,7 +1044,6 @@ extern "C" int fn_800551BC(atn::ColliResult_unk* r, const atn::ColliCapsuleShape
 // inferred: index of the hit sphere of `chara` reached by the hit `data` at `pos` (as fn_800FC1D0, the sphere
 // radius grows by data->m58, scaled by the attacker for some bullets; the first sphere tests the collision
 // capsule of the character when mFlagB29 is set); -1 when nothing is reached. Em403WarLion calls it.
-// NONMATCHING: 99.9% - only the relocations of the .sdata2 constants (pool of the file incomplete)
 extern "C" int fn_800FBE70(BattleTask* mgr, CharaTask* attacker, CharaTask* chara, HitInfo_unk* data, int id,
                            const atn::Vector3* pos, int any, int type) {
     if (chara->fn_801533C8(id, data)) {
@@ -1111,7 +1110,6 @@ extern "C" int fn_800FBE70(BattleTask* mgr, CharaTask* attacker, CharaTask* char
 // inferred: index of the hit sphere of `chara` nearest to `pos` (-1 when the bullet `id` already hit it, the
 // side of the hit `data->m64` does not reach it, or every sphere is excluded); `any` skips the side tests, `type`
 // is the side of a bullet without attacker
-// NONMATCHING: 99.97% - only the relocation of the 1e16f of .sdata2 (pool of the file incomplete)
 int BattleTask::fn_800FC1D0(CharaTask* attacker, CharaTask* chara, HitInfo_unk* data, int id,
                             const atn::Vector3* pos, int any, int type) {
     if (chara->fn_801533C8(id, data)) {
@@ -1174,7 +1172,7 @@ inline atn::Vector3 HitCenter_unk(CharaTask* chara) {
 // inferred: hit of `attacker` on `chara` with `data`: fills the attack parameters m38A5C (the point of the hit
 // on the surface of `chara`, toward the attacker or else along the facing of `chara`, and the direction) and
 // runs them through fn_800FDF14. Called as extern "C" by CharaTask and Em314Ivy.
-// NONMATCHING: 95% - stack slots (the rotation temporaries go the other way, one vector less), .sdata2 pool
+// NONMATCHING: 91.4% - stack slots (the rotation temporaries go the other way, one vector less), .sdata2 pool
 extern "C" int fn_800FD658(BattleTask* mgr, CharaTask* attacker, CharaTask* chara, HitInfo_unk* data, int a, int flag,
                            int b) {
     fn_800E2A24(&mgr->m38A5C);
@@ -1242,7 +1240,7 @@ extern "C" float fn_8010B250(BattleTask* mgr, int level, BattleCalcParam_unk* pa
 // a "guard" popup (returns 4); else the attack parameters m38A5C (level of the bullet against the level of
 // `chara`, lowered by some states and by the status 0x43 of the attacker) go through fn_800FDF14, and a hit by
 // a player raises the gauge m38A04. Called as extern "C" by game/Bullet and some enemies.
-// NONMATCHING: 99.9% - register of the word of the bitfield of the damage record (r3/r10), .sdata2 pool
+// NONMATCHING: 99.95% - register of the word of the bitfield of the damage record (r3/r10)
 extern "C" int fn_800FDB20(BattleTask* mgr, CharaTask* attacker, CharaTask* chara, int arg, HitInfo_unk* data, int id,
                            const atn::Vector3* pos, const atn::Vector3* dir, int arg8) {
     if (chara->fn_801533C8(id, data)) {
@@ -1580,6 +1578,161 @@ int BattleTask::fn_80103484(CharaTask* chara, CharaTask* other) {
         return sum / count;
     }
     return -1;
+}
+
+// inferred: chooses the target of `chara` (mC58.mC4) among the entries of mCharas by hate, keeping the current one
+// unless another is hated by more than 30; the characters linked to a BattleCharaTask that already has enough
+// attackers are skipped (unless no other is left). Keeps the previous target in mC58.mC8.
+void BattleTask::fn_80103600(CharaTask* chara) {
+    if (chara == 0) {
+        return;
+    }
+    fn_80210220(lbl_8087F0A8->mParamIndex);
+    if ((CharaTask*)chara->mC58.mC8 != chara->mC58.mC4) {
+        CharaTask* prev = (CharaTask*)chara->mC58.mC8;
+        if (prev != 0 && prev->fn_8016F4D8(chara)) {
+            ((CharaTask*)chara->mC58.mC8)->fn_8016F5EC(chara);
+        }
+        chara->mFC0 = chara->mC58.mC4;
+        int detect = lbl_8087F0A8->m050;
+        if (detect > 0 && chara->mC58.mC4 != 0 && chara->mC58.mC8 != 0 && !chara->mFlag2) {
+            chara->fn_80164F54(detect);
+        }
+    }
+    CharaTask* current = chara->mC58.mC4;
+    chara->mC58.mC8 = (int)current;
+    // inferred: only the characters in battle mode choose a target (BattleCharaTask::m1454)
+    if (((BattleCharaTask*)chara)->m1454 != 1) {
+        return;
+    }
+    chara->mC58.mC4 = 0;
+    bool linked = false;
+    CharaTask* partner = chara->mC58.mD4 != 0 ? chara->mC58.mD4->GetChara_unk() : 0;
+    if (chara->mC58.m114 == 6 && partner != 0 && partner->CanAct_unk()) {
+        linked = true;
+    }
+    int self = FindChara_unk(chara);
+    BattleChara_unk* entry = &mCharas[self];
+    if (self < 0) {
+        return;
+    }
+    if (chara->mC58.mC0 <= 0) {
+        return;
+    }
+    if (entry->m804 > 0) {
+        return;
+    }
+    fn_80210220(lbl_8087F0A8->mParamIndex);
+    int best = -1;
+    int pick = -1;
+    int bestAll = -1;
+    int pickAll = -1;
+    bool any = false;
+    for (int i = 0; i < mCharaCount; i++) {
+        if (fn_80103B58(chara, mCharas[i].mChara, 1)) {
+            any = true;
+            break;
+        }
+    }
+    if (chara->mType == 3 && (chara->mStatus.m0C & 0x100) == 0x100 && lbl_8087F8A0->mHead != 0 &&
+        lbl_8087F8A0->mHead != chara) {
+        chara->mC58.mC4 = lbl_8087F8A0->mHead;
+    } else {
+        for (int i = 0; i < mCharaCount; i++) {
+            if (!fn_80103B58(chara, mCharas[i].mChara, any)) {
+                continue;
+            }
+            int hate = entry->fn_801083D8(i);
+            if (bestAll < hate) {
+                bestAll = hate;
+                pickAll = i;
+            }
+            CharaLink_unk* link = chara->mC58.mD4;
+            if (link != 0) {
+                BattleCharaTask* other = (BattleCharaTask*)mCharas[i].mChara;
+                int count;
+                int limit = link->m00[0x245];
+                count = other->m102C;
+                if (linked) {
+                    limit = 1;
+                }
+                if (other->fn_800EEFDC()) {
+                    if (other == chara->mC58.mC4) {
+                        count--;
+                    }
+                    if (count >= limit) {
+                        continue;
+                    }
+                }
+            }
+            if (best < hate) {
+                best = hate;
+                pick = i;
+            }
+        }
+    }
+    pick = pick >= 0 ? pick : (pickAll >= 0 ? pickAll : -1);
+    if (pick < 0) {
+        return;
+    }
+    int old = FindChara_unk(current);
+    if (old >= 0 && current->CanAct_unk() && !current->IsFlag54C_unk(0x2000) && !current->fn_8016F3D0(chara, 1) &&
+        !current->mFlagB9) {
+        chara->mC58.mC4 = current;
+        if (entry->fn_801083D8(pick) > entry->fn_801083D8(old) + 30) {
+            chara->mC58.mC4 = mCharas[pick].mChara;
+            m36290[pick]++;
+        }
+    } else {
+        chara->mC58.mC4 = mCharas[pick].mChara;
+        m36290[pick]++;
+    }
+    fn_80103E60((CharaTask*)chara->mC58.mC8);
+    fn_80103E60(chara->mC58.mC4);
+}
+
+// inferred: `chara` may take `target` as its target: `target` can act, is not on its side, is not hidden or held,
+// both are battle entries, `target` is not being removed (m808), still has hate value when `checkHp`, has an AI
+// area of its own and, when both have an area id, the area of `chara` allows it
+int BattleTask::fn_80103B58(CharaTask* chara, CharaTask* target, int checkHp) {
+    if (chara == 0 || target == 0) {
+        return 0;
+    }
+    if (!target->CanAct_unk() || target->IsFlag54C_unk(0x2000) || target->fn_8016F3D0(chara, 1) ||
+        target->mFlagB9) {
+        return 0;
+    }
+    if (target->m55C == 6 && (target->m560 == 0x11 || target->m560 == 0x3B)) {
+        return 0;
+    }
+    int a = FindChara_unk(chara);
+    int b = FindChara_unk(target);
+    if (a < 0 || b < 0) {
+        return 0;
+    }
+    if (mCharas[b].m808 > 0) {
+        return 0;
+    }
+    if (checkHp != 0 && mCharas[b].m248 <= 0.0f) {
+        return 0;
+    }
+    if (target->mC58.mC0 <= 0 || (target->mC58.mD8 & 1) == 1) {
+        return 0;
+    }
+    if (target->mC58.m11C.fn_8011D1FC() && !target->mC58.m11C.fn_8011D21C()) {
+        return 0;
+    }
+    int area = chara->mC58.mB4;
+    if (area > 0 && target->mC58.mB4 > 0 && area != target->mC58.mB4) {
+        if (chara->mC58.m114 == 1 || chara->mC58.m114 == 6) {
+            return 0;
+        }
+        gs::AiArea* ai = lbl_8087F430->m10D8->fn_803C1884(area);
+        if (ai != 0 && ai->m28 >= 0 && ai->m28 != target->mC58.mB4) {
+            return 0;
+        }
+    }
+    return 1;
 }
 
 // NONMATCHING: 99.3% - registers of the entry pointer and of the flags of the inlined CanAct_unk swapped

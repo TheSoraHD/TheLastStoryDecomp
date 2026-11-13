@@ -203,6 +203,7 @@ public:
     void fn_801031D0(CharaTask* chara, CharaTask* other, int all); // inferred: removes the hate entries of `other`
     void fn_8010337C(CharaTask* chara, CharaTask* other);
     int fn_80103484(CharaTask* chara, CharaTask* other); // inferred: hate toward `other` (average without `chara`) // inferred: clears m6E4 of `other`
+    int fn_80103B58(CharaTask*, CharaTask*, int); // inferred: `chara` may aim at `target`
     void fn_80103E60(CharaTask* target); // inferred: counts the characters aiming at `target`
     void fn_801027A4(CharaTask* chara);
     void fn_801028E4(CharaTask* chara, CharaTask* other, int value); // inferred: sets m08 of `other` (hate) // inferred: adds the character to mCharas
@@ -303,7 +304,7 @@ public:
     int mCBAC;
     unsigned char mCBB0[0xCBF0 - 0xCBB0];
     BattleChara_unk mCharas[0x48]; // 0xCBF0: inferred: characters known to the battle (CharaTask::fn_80176E30)
-    unsigned char m36290[0x363B0 - 0x36290];
+    int m36290[72]; // inferred: times each entry of mCharas was chosen as a target (fn_80103600)
     int mCharaCount;               // 0x363B0
     unsigned char m363B4[0x363BC - 0x363B4];
     int m363BC;
