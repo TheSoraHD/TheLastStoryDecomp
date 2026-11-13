@@ -994,8 +994,42 @@ extern "C" void fn_8008E818(atn::ModelBase* model, atn::RenderManager* view) {
     fn_8009B93C(&entry);
 }
 
+inline atn::AABB_unk fn_8008F5F8(const atn::AABB_unk& box, const atn::Matrix3x4& m);
+
+// inferred: adds to `out` the world boxes of the joints of the tree from `node` (and its next siblings) whose
+// bounding sphere is in the frustum; `arg` is passed down unused. fn_8008F5F8 is inline (the original
+// expands it here and keeps its weak copy right after this function)
+// NONMATCHING: 80.4% - copies of the box corners and registers of the inlined fn_8008F5F8
+extern "C" void fn_8008EEDC(atn::ModelBase* model, const atn::ModelBase::NodeRes_unk* node, int arg,
+                            const Frustum_unk* frustum, atn::AABB_unk* out) {
+    using namespace atn;
+    ModelLod_unk* lod = &model->mLods[model->m50];
+    while (node != 0) {
+        if (node->m70 != 0 && node->m2C != 0) {
+            Sphere sphere;
+            sphere.mCenter = (node->m58 + node->m64) * 0.5f;
+            Vector3 d = node->m58 - node->m64;
+            sphere.mRadius = PSVECMag(&d) * 0.5f;
+            sphere.mRadius *= model->mAC;
+            PSMTXMultVec(model->mMtx.mNodes.mData[node->m18].m, &sphere.mCenter, &sphere.mCenter);
+            if (fn_8004FF58(frustum, &sphere)) {
+                AABB_unk box(node->m58, node->m64);
+                AABB_unk scaled = fn_80070B60(&box, model->mAC);
+                AABB_unk world = fn_8008F5F8(scaled, model->mMtx.mNodes.mData[node->m18]);
+                AABB_unk merged = out->Merge_unk(world);
+                out->mMin = merged.mMin;
+                out->mMax = merged.mMax;
+            }
+        }
+        if (node->m20 != -1) {
+            fn_8008EEDC(model, ((ModelBase::Res_unk*)lod->m08)->m48[node->m20], arg, frustum, out);
+        }
+        node = (node->m24 != -1) ? ((ModelBase::Res_unk*)lod->m08)->m48[node->m24] : 0;
+    }
+}
+
 // inferred: bounding box of `box` transformed by `m` (its eight corners)
-atn::AABB_unk fn_8008F5F8(const atn::AABB_unk& box, const atn::Matrix3x4& m) {
+inline atn::AABB_unk fn_8008F5F8(const atn::AABB_unk& box, const atn::Matrix3x4& m) {
     float maxZ = box.mMax.z;
     float maxY = box.mMax.y;
     float maxX = box.mMax.x;

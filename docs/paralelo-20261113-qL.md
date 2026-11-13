@@ -19,7 +19,7 @@
 
 ## atn/Model
 
-- Funciones al 0 %: 10 -> 5. Escrita `Model::fn_80097E80` (actualizacion de la animacion: avanza y muestrea las
+- Funciones al 0 %: 10 -> 4. Escrita `Model::fn_80097E80` (actualizacion de la animacion: avanza y muestrea las
   pistas en el buffer compartido `sNodePoses` (bloques de 0x100 nodos por pista, 0x300 para la mezcla), mezcla por
   peso, pista 3, `fn_800991D0` y la llamada a `m35C`; NONMATCHING 94,7 %: el original llama a `strlen(m3C8)`
   antes de elegir el puntero de la cadena del nombre de fichero y reutiliza esa prueba en el destructor; MWCC
@@ -42,6 +42,13 @@
   casualidad con `fn_80096218`: su segunda lista pasa a `SimpleVector<unsigned long>` (instanciacion propia,
   cadenas de `reserve` en 0x8087D7CC; con el tipo puntero el valor se carga tarde). `fn_80096218` sigue al 100 %.
   `@19379` (255.0f) renombrada a `@19235` a mano (pd no la reasigna: el orden de `.sdata2` de Model ya difiere).
+- Escrita `fn_8008EEDC` (caja de los joints visibles: recorre hijos y hermanos, esfera de la caja del joint
+  contra el frustum, caja escalada `fn_80070B60`, transformada `fn_8008F5F8` y unida a `out`; NONMATCHING
+  80,4 %). `fn_8008F5F8` pasa a `inline` (el original la expande aqui y deja su copia debil justo detras; sigue
+  al 100 %, ahora `W`, por eso `ordercheck` la cuenta como "missing"). Con asignaciones de `AABB_unk` en
+  fn_8008EEDC el `operator=` debil sale detras de ella: se usan copias por miembro. `ModelJoint_unk`
+  (`atn/ModelPose_unk.h`) gana los miembros de datos `m2C` y la caja `m58`/`m64` (antes relleno).
+- Cada cambio de numeracion deja el 255.0f de `.sdata2` (0x80880C14) sin renombrar por pd: ahora `@19818`.
 - `pd.sh atn/Model` vuelve a renombrar `lbl_8087D6E8/EC`: devueltos a mano.
 
 ## Decisiones tomadas sin el usuario
