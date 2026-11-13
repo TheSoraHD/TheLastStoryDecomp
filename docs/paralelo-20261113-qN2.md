@@ -15,6 +15,13 @@ Lista: `/home/claude/scratch/n-candidates.txt` (98 % y menos, y las de 99 % que 
 - `chr/ControlStickByQuark` (fuera de las colas A-M y de la ruta; no enlaza, 29 parciales): ctor de
   ControlThrustForQuarkStand 99,87 -> 100 % con `int motion = mKind == 2 ? kThrustMotion216_unk :
   kThrustMotion215_unk;` (`enum`).
+- `chr/ControlDamage` (fuera de colas): ctor de ControlGuarded 90,16 -> 100 % (`a ? kGuardMotion1DD_unk :
+  kGuardMotion1DE_unk` en el argumento).
+- `game/PlayerInput_unk` (fuera de colas): fn_80122C70 99,3 -> 100 % (`return ... ? kInput07_unk :
+  kInput00_unk;`: tambien con 7/0 MWCC quitaba el salto). Con pd.sh la unidad pasa de 27 a 30/31; queda
+  fn_801231D0 99,46 (el `return 0` de las acciones 39/40 antes de la llamada; probados if invertido y ?:).
+- `game/EnemyQuarkStand` (fuera de colas, K tenia EnemyQuarkSecond): fn_80351AB8 99,23 -> 99,97 (el motion
+  con ?: de `enum`; queda la direccion de los slots por r3).
 - `chr/ControlShoot`: ctor 98,76 -> 99,90 %. El motion de los casos 0x25/0x26 con el ternario de `enum` y
   `mFB4 = mData->m48 + mFB4`. Queda el registro del cero de mFB0/mFB4 (r6 por r4).
 - Sin cambio (intentos revertidos, 2-8 cada una): `db/MapEnvSeTable_unk` fn_80214F80 (operator[] e inline

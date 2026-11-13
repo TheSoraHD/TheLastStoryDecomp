@@ -2260,10 +2260,16 @@ void EnemyQuarkStand::fn_803519C4() {
     m1CBC = 0;
 }
 
+// inferred: motions of fn_80351AB8 (names invented); enum constants keep the ?: as a branch
+enum {
+    kQuarkMotion36_unk = 0x36,
+    kQuarkMotion37_unk = 0x37,
+};
+
 // inferred: Quark loses the sword to `chara` (state 13): faces it (motion 0x3C when `kind` is 2, else 0x36 or
 // 0x37) and gives back the two weapons and two armors kept in the item manager
-// NONMATCHING: 99.23% - the original builds the slot address (Inventory::instance_ + 0x8310) through r3 before r31
-// and schedules `li r4,0` of the motion call earlier; ~6 forms (pointer forms, inline motion)
+// NONMATCHING: 99.9% - the original builds the slot address (Inventory::instance_ + 0x8310) through r3 before r31
+// (tried pointer forms, a chained assignment, an Inventory local). The motion is a ?: of enum constants.
 void EnemyQuarkStand::fn_80351AB8(CharaTask* chara, int kind) {
     m16F0 = (int)chara;
     m16F4 = kind;
@@ -2283,11 +2289,7 @@ void EnemyQuarkStand::fn_80351AB8(CharaTask* chara, int kind) {
         model->m34C = 1;
         model->mTracks[0].m20 = 1.0f;
         model->mTracks[0].m0C = 1.0f;
-        int motion = 0x36;
-        if (kind == 0) {
-            motion = 0x37;
-        }
-        model->fn_80097C08(0, motion, 0, 0, 1, 0.0f, 0.1f);
+        model->fn_80097C08(0, kind == 0 ? kQuarkMotion37_unk : kQuarkMotion36_unk, 0, 0, 1, 0.0f, 0.1f);
         m16F8 = chara->mPos - mPos;
         m16F8.y = 0.0f;
         PSVECNormalize(&m16F8, &m16F8);
