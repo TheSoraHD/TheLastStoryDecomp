@@ -18,7 +18,8 @@ struct EffectFileEntry_unk {
     unsigned int mType;  // 0x104: 1 = model, 2 = texture pair, otherwise a texture
     int m108;
     float m10C;          // 0x10C: inferred: m108 * mUV.w (fn_8022D754)
-    unsigned char m110[0x118 - 0x110];
+    float m110;          // 0x110: inferred: pivot u of the quad (fraction of m134)
+    float m114;          // 0x114: inferred: pivot v
     EffectUV_unk mUV;    // 0x118: inferred: first frame (fn_8022D790)
     int m128;
     int m12C;            // 0x12C: inferred: frame curve (1/3: cosine, 2: triangle, 4: random, 6: reverse)

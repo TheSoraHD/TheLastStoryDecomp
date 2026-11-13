@@ -103,7 +103,7 @@ struct EffectParam_unk {
     int m54;           // 0x54: inferred: frames of the emission (> 0: it stops after them)
     int m58;           // 0x58: inferred: emission period in frames (at least 1)
     int m5C;           // 0x5C: inferred: slots started per emission (at least 1)
-    unsigned char m60[0x64 - 0x60];
+    float m60;         // 0x60: inferred: the slots are drawn moved this distance towards the camera
     float m64;         // 0x64: inferred: scale of the movement (EffectInst_unk::mA8)
     float m68;
     unsigned int m6C;
