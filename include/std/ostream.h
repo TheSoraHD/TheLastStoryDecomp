@@ -25,6 +25,7 @@ public:
 
     virtual ~basic_ostream();
     basic_ostream& flush();
+    basic_ostream& operator<<(int); // inferred: weak copy 0x8023BA10 (std/locale_facets_unk.h)
 };
 
 } // namespace std

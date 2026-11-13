@@ -15,6 +15,7 @@
 #include "atn/RenderManager.h"
 
 #include "atn/EffectParams_unk.h"
+#include "std/locale_facets_unk.h"
 
 namespace atn {
 
@@ -263,7 +264,7 @@ extern "C" void* fn_8023A680(EffectManager* mgr, EffectRes_unk* res, int a, int 
     void* effect = mgr->mSystem.fn_8022FAC4(res->mData, a, b, c, pos, rot, color, d, e, scale);
     if (mgr->mCheckTrace != 0) {
         unsigned int flags = 0;
-        if (strstr(fn_80473F18(&res->m04), "ef_mr") != 0) {
+        if (strstr(((atn::LoadHandle*)res->m04)->fn_80473F18(), "ef_mr") != 0) {
             flags |= 0x18;
         }
         if (flags != 0) {
@@ -537,3 +538,36 @@ int EffectManager::fn_8023B724(EffectEvent_unk* event) {
 }
 
 } // namespace atn
+
+// inferred: weak copies of the MSL numeric facets used by the stream output of this file (its code that
+// used them is not in the DOL), in the order of the DOL
+namespace std {
+template basic_ostream<char>& basic_ostream<char>::operator<<(int n);
+template num_put<char>::~num_put();
+template num_put<char>::iter_type num_put<char>::do_put(iter_type out, ios_base& str, char fill, bool v) const;
+template num_put<char>::iter_type num_put<char>::do_put(iter_type out, ios_base& str, char fill, long v) const;
+template num_put<char>::iter_type num_put<char>::do_put(iter_type out, ios_base& str, char fill,
+                                                         unsigned long v) const;
+template num_put<char>::iter_type num_put<char>::do_put(iter_type out, ios_base& str, char fill, long long v) const;
+template num_put<char>::iter_type num_put<char>::do_put(iter_type out, ios_base& str, char fill,
+                                                         unsigned long long v) const;
+template num_put<char>::iter_type num_put<char>::do_put(iter_type out, ios_base& str, char fill, double v) const;
+template num_put<char>::iter_type num_put<char>::do_put(iter_type out, ios_base& str, char fill,
+                                                         const void* v) const;
+template numpunct<char>::string_type numpunct<char>::truename() const;
+template numpunct<char>::string_type numpunct<char>::falsename() const;
+template numpunct<char>::string_type numpunct<char>::do_truename() const;
+template numpunct<char>::string_type numpunct<char>::do_falsename() const;
+template void __put_grouping_float<char, string>(char dp, char sep, const string& grouping, string& s);
+template int __put_digits_unk<char, unsigned long long>(ios_base& str, unsigned long long v, char* buf,
+                                                      const ctype<char>& ct, bool noGroup);
+template int __put_digits_unk<char, unsigned long>(ios_base& str, unsigned long v, char* buf, const ctype<char>& ct,
+                                                 bool noGroup);
+template char numpunct<char>::do_decimal_point() const;
+template numpunct<char>::string_type numpunct<char>::grouping() const;
+template numpunct<char>::string_type numpunct<char>::do_grouping() const;
+template char numpunct<char>::do_thousands_sep() const;
+template numpunct<char>::~numpunct();
+template locale::id num_put<char>::id;
+template locale::id numpunct<char>::id;
+} // namespace std

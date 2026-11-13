@@ -11,9 +11,14 @@
 
 namespace std {
 
+// inferred: the facet table of a locale (name from __locale_imp::replace in the DOL; defined in
+// std/locale_facets_unk.h)
+struct __locale_imp;
+
 class locale {
 public:
-    struct imp; // inferred: name of the implementation type unknown
+    class facet; // inferred: defined in std/locale_facets_unk.h (atn/EffectManager)
+    class id;    // inferred: defined in std/locale_facets_unk.h
 
     locale(const locale& loc) : mImp(loc.mImp) {
         if (mImp.mCntrl != 0) {
@@ -21,7 +26,7 @@ public:
         }
     }
 
-    tr1::__shared_ptr_base_unk<imp> mImp;
+    tr1::__shared_ptr_base_unk<__locale_imp> mImp;
 };
 
 } // namespace std
