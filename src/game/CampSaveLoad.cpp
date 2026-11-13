@@ -8,6 +8,7 @@
 #include "game/TutorialTask.h"
 #include "game/GameLoadTask.h"
 #include "db/MapIdTable_unk.h"
+#include "game/GameConfig_unk.h"
 #include "game/GameSaveBackground.h"
 #include "game/GameLoadBackground.h"
 #include "atn/GraphicsDevice.h"
@@ -28,13 +29,7 @@ struct Field_unk {
 };
 extern "C" Field_unk* lbl_8087F430;
 
-// inferred: game settings (lbl_8087F0A8); only the members used here
-struct Settings_unk {
-    unsigned char m0000[0x113C];
-    int m113C;           // inferred: chapter (1-based)
-    unsigned char m1140;
-};
-extern "C" Settings_unk* lbl_8087F0A8;
+extern "C" GameConfig_unk* lbl_8087F0A8; // inferred: game settings
 
 extern "C" int fn_803BEB54(SaveSlot_unk* slot); // inferred: nonzero if the slot is empty
 
@@ -849,6 +844,108 @@ void CampSaveLoad::fn_80119F0C() {
     }
     } else {
         m5C->mSpeed = -2.0f;
+    }
+}
+
+// inferred: sets a float value of the pane `name` of a layout (name invented)
+inline void SetLayoutFloat_unk(void* layout, const char* name, float value) {
+    fn_801FECE0(layout, fn_800DC6B4(name), value);
+}
+
+// NONMATCHING: 99.18% - registers of L"" and the layout in the first two texts, the stack slots of the two button
+// icons (the original has them at 0x30/0x20) and the string pool
+// inferred: confirmation window (m64/m68), button icons (m58) and cursor (m6C) of the states 3-9
+void CampSaveLoad::fn_8011A4D0() {
+    if (m64 == 0 || m58 == 0) {
+        return;
+    }
+    int newer = 0;
+    m58->FreezeTask();
+    m6C->FreezeTask();
+    SetLayoutText_unk(&m58->mData.m10, "string0001(1)", L"");
+    SetLayoutText_unk(&m58->mData.m10, "string0002(1)", L"");
+    ButtonUv_unk uv = lbl_8087F0A8->mInput.fn_80124C6C(0);
+    m58->SetParam2_unk("btnUv", (const float*)&uv);
+    ButtonUv_unk mask = lbl_8087F0A8->mInput.fn_80124C6C(0);
+    m58->SetParam2_unk("btnUvMask", (const float*)&mask);
+    SetLayoutValue_unk(&m58->mData.m10, "pos0001(2)", 2, 12.0f);
+    SetLayoutValue_unk(&m58->mData.m10, "pos0007(2)", 4, -101.0f);
+    SetLayoutValue_unk(&m58->mData.m10, "pos0007(2)", 0, 320.0f);
+    SetLayoutValue_unk(&m58->mData.m10, "pos0007(2)", 1, 230.0f);
+    if (m13C == 3) {
+        GameSaveSlot_unk* save = (GameSaveSlot_unk*)GetSlot_unk(m128);
+        if (m16C == 0) {
+            if (mMode == 1) {
+                newer = fn_8011BBD0(m128);
+                if (newer == 0) {
+                    SetLayoutText_unk(&m64->mData.m10, "check_msg", fn_80116FC0(1, 0x11D));
+                }
+            } else if (save->fn_803BEAB4() != 0) {
+                SetLayoutText_unk(&m64->mData.m10, "check_msg", fn_80116FC0(1, 0x114));
+            } else {
+                SetLayoutText_unk(&m64->mData.m10, "check_msg", fn_80116FC0(1, 0x115));
+            }
+        } else if (m16C == 2) {
+            SetLayoutText_unk(&m64->mData.m10, "check_msg", fn_80116FC0(1, 0x119));
+        } else {
+            SetLayoutText_unk(&m64->mData.m10, "check_msg", fn_80116FC0(1, 0x116));
+        }
+        atn::D2A_Task* window = newer != 0 ? m68 : m64;
+        SetPane_unk(window, "ynOn", 1.0f);
+        SetPane_unk(window, "checkSubType", 0.0f);
+        window->mSpeed = 2.0f;
+        if (window->IsEnd_unk()) {
+            m6C->MeltTask();
+            char name[0x40];
+            sprintf(name, "cursor_point%d", m148 + 1);
+            atn::D2A_DrawRect rect = fn_801F4E8C(window, fn_800DC6B4(name));
+            SetLayoutValue_unk(&m6C->mData.m10, "cursor_pos", 0, rect.x);
+            SetLayoutValue_unk(&m6C->mData.m10, "cursor_pos", 1, rect.y);
+            SetLayoutValue_unk(&m6C->mData.m10, "cursor_pos", 4, rect.z);
+            SetLayoutFloat_unk(&m6C->mData.m10, "wRate", rect.w);
+            SetLayoutFloat_unk(&m6C->mData.m10, "hRate", rect.h);
+        }
+    } else if (m13C == 4) {
+        if (m170 != 2) {
+            m64->mSpeed = -2.0f;
+            m68->mSpeed = -2.0f;
+        } else {
+            m64->mSpeed = 2.0f;
+            m68->mSpeed = -2.0f;
+        }
+    } else if (m13C == 5) {
+        std::basic_string<wchar_t> msg;
+        if (m16C == 0) {
+            if (mMode == 0) {
+                msg = fn_80116FC0(0, 200);
+            } else {
+                msg = fn_80116FC0(0, 201);
+            }
+        } else {
+            msg = fn_80116FC0(0, 202);
+        }
+        SetLayoutFloat_unk(&m64->mData.m10, "ynOn", 0.0f);
+        SetLayoutFloat_unk(&m64->mData.m10, "checkSubType", 0.0f);
+        SetLayoutText_unk(&m64->mData.m10, "check_msg", msg.c_str());
+    } else if (m13C == 6) {
+        SetLayoutText_unk(&m64->mData.m10, "check_msg", fn_80116FC0(1, 0x118));
+        m64->mSpeed = 2.0f;
+        SetLayoutFloat_unk(&m64->mData.m10, "ynOn", 0.0f);
+        SetLayoutFloat_unk(&m64->mData.m10, "checkSubType", 0.0f);
+        if (m64->IsEnd_unk()) {
+            m58->MeltTask();
+        }
+    } else if (m13C == 9) {
+        SetLayoutText_unk(&m64->mData.m10, "check_msg", fn_80116FC0(1, 0x11F));
+        m64->mSpeed = 2.0f;
+        SetLayoutFloat_unk(&m64->mData.m10, "ynOn", 0.0f);
+        SetLayoutFloat_unk(&m64->mData.m10, "checkSubType", 0.0f);
+        if (m64->IsEnd_unk()) {
+            m58->MeltTask();
+        }
+    } else {
+        m64->mSpeed = -2.0f;
+        m68->mSpeed = -2.0f;
     }
 }
 

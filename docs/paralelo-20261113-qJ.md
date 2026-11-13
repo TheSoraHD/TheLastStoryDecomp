@@ -5,9 +5,10 @@
 - `game/RouteWalker_unk` 6 -> 2 al 0 %. Al 100 %: `fn_80128CF8` (meta a la vista), `fn_80129670` (segmento entre
   dos puntos). Escritas: `fn_80128090` (97,05 %, replanifica el modo actual), `fn_80129144` (98,97 %, va directo a
   la meta). Quedan `fn_801255C8` (3 KB) y `fn_80126214` (6 KB).
-- `game/CampSaveLoad` 8 -> 1 al 0 %. Al 100 %: `vf10` (0x801185E0). Escritas: `vf0C` (92,83 %), `fn_8011B018`
+- `game/CampSaveLoad` 8 -> 0 al 0 % (todas escritas). Al 100 %: `vf10` (0x801185E0). Escritas: `vf0C` (92,83 %), `fn_8011B018`
   (99,36 %), `fn_801191A8` (99,98 %, estado 1, solo pool), `fn_8011999C` (97,77 %, estado 5), `fn_80119F0C`
-  (99,43 %, barra de informacion), `vf14` (98,83 %, registro de la historia). Sube `fn_8011B8D4` 95,79 -> 99,93 % (pool de cadenas).
+  (99,43 %, barra de informacion), `vf14` (98,83 %, registro de la historia), `fn_8011A4D0` (99,18 %, ventana de
+  confirmacion). El pool `@stringBase0` ya coincide salvo las 3 cadenas de `basic_string` del final. Sube `fn_8011B8D4` 95,79 -> 99,93 % (pool de cadenas).
 
 ## NONMATCHING
 
@@ -24,6 +25,8 @@
   segundo aviso cruzados. Los avisos repetidos no son una inline (los temporales de `SoundRef` estan arriba en la
   pila, en el orden del fuente).
 - `CampSaveLoad::fn_80119F0C` 99,43 %: pool y registros r27/r28 del texto de "ampm".
+- `CampSaveLoad::fn_8011A4D0` 99,18 %: registros de `L""` y del layout en los dos primeros textos, huecos de pila
+  de los dos iconos de boton (0x30/0x20 en el original).
 - `CampSaveLoad::vf14` 98,83 %: registros del bucle de entradas y de los dos colores (`atn::Color::ToU32` hace los
   OR en otro orden; no se toca la cabecera compartida) y pool.
 
@@ -43,6 +46,7 @@
   `m178` -> `TutorialPopup*`. Solo esta unidad incluye `game/CampSaveLoad.h`.
 - `GameSaveSlot_unk*` por cast desde `SaveSlot_unk*` (vista local de CampSaveLoad del mismo slot de 0xB8 bytes):
   deuda de la regla 10, pendiente unificar.
+- CampSaveLoad usa `GameConfig_unk` (incluye `game/GameConfig_unk.h`) en vez de la vista local `Settings_unk`.
 - Vista local `CampSaveLoadMsg_unk` de la tabla de mensajes `lbl_8087F1E4` (como CosEditItemList_unk): la
   cabecera `MP/MpCampMsgTable_unk.h` incluye `MP/D2AMpMenu_unk.h`, que redefine `atn::D2A_Task`. Deuda de la
   regla 10 del lado MP.
