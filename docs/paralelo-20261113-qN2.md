@@ -90,3 +90,26 @@ Lista: `/home/claude/scratch/n-candidates.txt` (98 % y menos, y las de 99 % que 
   (sin pares 0/1): 52 en todo el juego, la mayoria de otras colas (Event/Action*, MP/D2AMpMenu*, chr/Control*,
   GameUI, CharaTask...). Probar en ellas el ternario de `enum`.
 - ControlShoot ctor: el cero de mFB0/mFB4.
+- `fn_801FEB9C` (atn/D2A_Texture, `extern "C"`): parece un metodo del layout (el original evalua el nombre
+  antes de `this`: MenuCommonTask fn_804A473C 99,04, MP/D2ACommonDialog fn_804ACAF8 99,8). Pasarlo a
+  miembro toca GameUI (cola C), NewTitleTask (ruta) y D2A_TaskInstanceBase: no hecho.
+- `fn_8006EF48` en MenuCommonTask.cpp esta declarada `(font, text, size, ...)`; las demas unidades usan
+  `(font, size, text, ...)`. Corregirla acerca fn_804A5824 en instrucciones pero objdiff baja 98,83 -> 98,20:
+  revertido, por revisar.
+- gmk/WaitObject vf40: el original carga m00, m04 (blend), m08, m09 en orden de memoria para fn_80097C08;
+  con una inline intermedia el float se carga el primero. Sin resolver.
+- Funcion al 0 % de game/QuadrupedTask (fn_805675FC, presupuesto de inline, R3 de docs/inlining.md): no
+  probada.
+
+## Resumen
+
+- Funciones nuevas al 100 % (8 + 2 por re-emparejado): MeetingSpot fn_803FD328 y fn_803FD0A0, Augur vf10,
+  ControlThrustForQuarkStand ctor, ControlGuarded ctor, Input_unk fn_80122C70 (+2 de PlayerInput_unk tras
+  pd.sh), EnemyTrista fn_8035CF78, Em401_01_WhiteLeoPard fn_8031FE4C, Em202SpiderBase fn_80285FA0.
+  precommit: 15357 -> 15365 funciones, units 664 -> 666.
+- Enlazan 2 unidades nuevas: gmk/MeetingSpot y gmk/Augur (`matching: true`).
+- Funciones al 0 % de la cola: ninguna (todas eran parciales).
+- Parciales subidas: ControlShoot ctor 98,76 -> 99,90, EnemyQuarkStand fn_80351AB8 99,23 -> 99,97, ChaserNpc
+  fn_80180AE0 98,73 -> 99,90, Em306GurgBeast vf104 99,60 -> 99,85, ControlAttack ctor 98,95 -> 99,63,
+  Em206EggMonster fn_802C38E4 99,32 -> 99,93, EnemySeaLizerd fn_80355390 98,87 -> 99,96, QuadrupedTask
+  fn_80566FB4 86,11 -> 87,52.
