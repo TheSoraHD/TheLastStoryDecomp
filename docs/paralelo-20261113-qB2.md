@@ -33,7 +33,7 @@ Unidades: `game/GameCamera_unk`, `game/FinishCamera_unk`.
   `CameraShake_unk` (todo a 0): declarados sin definir en `GameCamera.h` y definidos `inline` en el .cpp.
   `mA0C[5]` pasa a cinco floats `mA0C..mA1C` (el original los inicializa como floats en la lista; solo esta
   unidad los usa). Con el ctor delante, el pool de `.sdata2` empieza en el orden del original.
-- Funciones al 0 %: 16 -> 11. Al 100 %: 28 -> 45 de 90.
+- Funciones al 0 %: 16 -> 3 (quedan fn_8037F9AC 12 KB, fn_80384188 y fn_80385B48 6,5 KB). Al 100 %: 28 -> 45 de 90.
 
 ## Decisiones tomadas sin el usuario
 
