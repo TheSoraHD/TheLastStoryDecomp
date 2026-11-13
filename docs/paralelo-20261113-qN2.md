@@ -9,6 +9,9 @@ Lista: `/home/claude/scratch/n-candidates.txt` (98 % y menos, y las de 99 % que 
   (`PlayMotion_unk(i, i == 0 ? kMeetMotion76_unk : kMeetMotion77_unk, 1)`); (2) `PlayMotion_unk` no es
   `inline`: definida entre vf10 y fn_803FD0A0, `-inline auto` la expande en fn_803FD328 y el enlazador quita
   su copia; sus 1.0f/0.1f quedan en `.sdata2` antes del 6400.0f de fn_803FD0A0, como en el original.
+- `gmk/Augur`: vf10 99,22 -> 100 %; **enlaza**. Estado 5: `int r = rand() % 100;` y
+  `fn_8041F6A4(r > mDesc->m24 ? kAugurState6_unk : kAugurState7_unk)` (ternario de `enum` en el argumento:
+  `this` se prepara antes de la comparacion, como en el original).
 - `chr/ControlShoot`: ctor 98,76 -> 99,90 %. El motion de los casos 0x25/0x26 con el ternario de `enum` y
   `mFB4 = mData->m48 + mFB4`. Queda el registro del cero de mFB0/mFB4 (r6 por r4).
 - Sin cambio (intentos revertidos, 2-8 cada una): `db/MapEnvSeTable_unk` fn_80214F80 (operator[] e inline
@@ -40,5 +43,7 @@ Lista: `/home/claude/scratch/n-candidates.txt` (98 % y menos, y las de 99 % que 
 
 ## Pendientes
 
-- Buscar otras funciones con `li rX, C; bne; li rX, C+-1` en argumentos (ternario de `enum`).
+- `/home/claude/scratch-N2/bin/enumscan.py` lista funciones <100 % con `li rX, C; bxx; li rX, C+-1`
+  (sin pares 0/1): 52 en todo el juego, la mayoria de otras colas (Event/Action*, MP/D2AMpMenu*, chr/Control*,
+  GameUI, CharaTask...). Probar en ellas el ternario de `enum`.
 - ControlShoot ctor: el cero de mFB0/mFB4.
