@@ -317,7 +317,8 @@ public:
     unsigned char m367B4[0x367B8 - 0x367B4];
     BattleMarkers_unk mMarkers; // 0x367B8: inferred: target lines
     int m389F4; // inferred: owner tag of the chant effect (its address is the effect owner)
-    unsigned char m389F8[0x38A04 - 0x389F8];
+    unsigned char m389F8[0x38A00 - 0x389F8];
+    int m38A00; // inferred: nonzero draws the target lines of every friend (fn_801055A8)
     float m38A04; // inferred: gauge value, clamped to [0, m38A0C]
     float m38A08;
     float m38A0C; // inferred: gauge maximum

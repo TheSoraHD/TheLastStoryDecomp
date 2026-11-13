@@ -17,6 +17,9 @@ Funciones al 0 % al empezar: BattleTask 51, TacView 6, BattleCharaTask 1.
   - `fn_800FDB20` (golpe de bala: popup de guardia o `m38A5C` con el nivel de la bala; 99,95 %).
   - `BattleTask::fn_80103600` (eleccion del objetivo por odio, 100 %) y `BattleTask::fn_80103B58` (el objetivo es
     valido, 100 %): miembros nuevos, renombrados en `symbols.txt`.
+  - `BattleTask::fn_801055A8` (lineas de objetivo del frame segun `SetConfig::mBattleDrawHateLine`, 100 %).
+  - `fn_801061BC` (subida de nivel de un estado: efecto, sonidos y popup; 99,95 %: solo el offset de "neck" en el
+    pool de cadenas).
   - `fn_800FAB80` (prueba de impacto de una bala contra personajes y gimmicks, efectos, barra y anillo de depuracion
     `mShots`; 96,9 %). Con ella salen las copias debiles `GimmickCommon::vf58`/`vf44` (0x800FA4EC/0x800FA4F4, 100 %).
 
@@ -52,6 +55,9 @@ Funciones al 0 % al empezar: BattleTask 51, TacView 6, BattleCharaTask 1.
 - `BattleTask.h`: `int m36290[72]` (veces que se eligio cada entrada como objetivo); `fn_80103600` lee
   `BattleCharaTask::m1454` y llama a `BattleCharaTask::fn_800EEFDC` con cast del `CharaTask*` (la firma del
   miembro ya era `CharaTask*`); `CharaC58_unk::mC8` (int en CharaTask.h) se usa como `CharaTask*` con cast.
+- `BattleTask.h`: `m38A00` (dibuja las lineas de todos los amigos). `fn_801055A8` recorre la lista de
+  FriendManager con una vista local (`BattleFriendNode_unk`, como game/AiTarget.cpp).
+- `fn_801061BC` lee la matriz del nodo "neck" como `atn::Matrix3x4` con cast para `GetTrans_unk`.
 - `fn_800FDB20` usa `atn::VecAssign_unk` para la copia de `m28` en `m10` (cruce r3/r5).
 
 - `fn_800FC1D0` como miembro de `BattleTask` (sin llamadores C++; game/Bullet lo llama solo desde asm),

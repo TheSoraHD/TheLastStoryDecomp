@@ -32,6 +32,7 @@
 #include "game/GimmickCommon.h"
 #include "atn/NodeChunk.h"
 #include "game/MapManager.h"
+#include "game/FriendManager.h"
 #include "game/GimmickManager.h"
 #include "math/VecAssign_unk.h"
 #include "atn/SoundManager.h"
@@ -1784,6 +1785,80 @@ void BattleTask::fn_80105510(int value) {
     }
 }
 
+// inferred: next character of the FriendManager list (as game/AiTarget.cpp); names invented
+struct BattleFriendNode_unk {
+    unsigned char m0000[0x14AC];
+    BattleCharaTask* mNext;
+};
+inline BattleCharaTask* NextFriend_unk(BattleCharaTask* chara) {
+    return ((BattleFriendNode_unk*)chara)->mNext;
+}
+
+// inferred: draws the target lines of the frame (option SetConfig::mBattleDrawHateLine: 1 only while the leader
+// has mFlag28, 2 always, 3 friends and enemies but not the leader) and stops the effects of the lines not drawn
+// this frame; `arg` hides the lines (mMarkers.mHideLines)
+void BattleTask::fn_801055A8(int arg) {
+    mMarkers.mHideLines = arg;
+    for (unsigned int i = 0; i < 72; i++) {
+        BattleMarker_unk* marker = &mMarkers.mItems[i];
+        if ((marker->mFlags & 1) == 1) {
+            marker->mFlags |= 2;
+        } else {
+            marker->mFlags &= ~2;
+        }
+        marker->mFlags &= ~1;
+    }
+    PlayerTask* head = lbl_8087F8A0->mHead;
+    if (m367B0 > 0 && SetConfig::sInstance->mDrawHateLine != 0) {
+        int mode = SetConfig::sInstance->mBattleDrawHateLine;
+        if (mode == 1) {
+            if (head->mFlag28) {
+                if ((head->mStatus.m0C & 0x100) == 0x100) {
+                    fn_800F72F4(head, 0);
+                }
+                for (BattleCharaTask* c = (BattleCharaTask*)FriendManager::sInstance->fn_8036554C(); c != 0;
+                     c = NextFriend_unk(c)) {
+                    if (c->mF14 != 0 || m38A00 != 0) {
+                        fn_800F72F4(c, 0);
+                    }
+                }
+                for (EnemyTask* c = EnemyManager::sInstance->mHead; c != 0; c = c->mNext) {
+                    fn_800F72F4(c, 0);
+                }
+            }
+        } else if (mode == 2) {
+            if ((head->mStatus.m0C & 0x100) == 0x100) {
+                fn_800F72F4(head, 0);
+            }
+            for (BattleCharaTask* c = (BattleCharaTask*)FriendManager::sInstance->fn_8036554C(); c != 0;
+                 c = NextFriend_unk(c)) {
+                if (c->mF14 != 0 || m38A00 != 0) {
+                    fn_800F72F4(c, 0);
+                }
+            }
+            for (EnemyTask* c = EnemyManager::sInstance->mHead; c != 0; c = c->mNext) {
+                fn_800F72F4(c, 0);
+            }
+        } else if (mode == 3) {
+            for (BattleCharaTask* c = (BattleCharaTask*)FriendManager::sInstance->fn_8036554C(); c != 0;
+                 c = NextFriend_unk(c)) {
+                fn_800F72F4(c, 0);
+            }
+            for (EnemyTask* c = EnemyManager::sInstance->mHead; c != 0; c = c->mNext) {
+                fn_800F72F4(c, 0);
+            }
+        }
+    }
+    for (unsigned int i = 0; i < 72; i++) {
+        BattleMarker_unk* marker = &mMarkers.mItems[i];
+        if ((marker->mFlags & 2) == 2 && (marker->mFlags & 1) != 1) {
+            lbl_8087F3C0->mSystem.mReplaying = 1;
+            fn_80239DAC(lbl_8087F3C0, (unsigned int)marker, 0, 0);
+            lbl_8087F3C0->mSystem.mReplaying = 0;
+        }
+    }
+}
+
 void BattleTask::fn_801058F8() {
     fn_80103FD4();
     for (PlayerTask* player = lbl_8087F8A0->mHead; player != 0; player = player->mNext) {
@@ -1868,6 +1943,44 @@ void BattleTask::fn_8010608C(CharaTask* chara, atn::Model* model) {
         PlayEfp_unk(&mEfp38AF4[9], model);
     } else {
         PlayEfp_unk(&mEfp38AF4[8], model);
+    }
+}
+
+extern "C" void fn_800CB688(atn::SoundRef* sound, int arg, float pitch); // inferred: sets the pitch
+extern "C" void fn_800CB518(atn::SoundRef* sound, int frames);            // inferred: fades the sound in
+
+// inferred: level up of a status of `chara` (CharaStatus): the effect of the level (red for the party members of
+// kind 2), the level up sounds (the second one a semitone higher per level) and the "level up" popup over the
+// neck of the model. C name, called by game/CharaStatus as extern "C"
+// NONMATCHING: offset of "neck" in the string pool of the file (incomplete)
+extern "C" void fn_801061BC(BattleTask* mgr, CharaTask* chara, atn::Model* model, int level) {
+    fn_80232B7C((unsigned int)chara, 30);
+    lbl_8087F3C0->mSystem.m78 = 1;
+    if (fn_80219558(chara->m50) == 2) {
+        fn_8023A8B4(lbl_8087F3C0, &mgr->mEfp38AF4[13] + level, model, 0, lbl_807C7030, lbl_807C7030,
+                    EffectColor_unk(1.0f, 0.0f, 0.0f, 1.0f), -1, -1, 1, 1.0f);
+    } else {
+        PlayEfp_unk(&mgr->mEfp38AF4[10] + level, model);
+    }
+    lbl_8087F3C0->mSystem.m78 = 0;
+    if (level >= 1) {
+        fn_800C31F4(lbl_80735DD0[24], 0, -1, 1.0f);
+        atn::SoundRef sound = fn_800C31F4(lbl_80735DD0[25], 0, -1, 0.75f);
+        float pitch = 1.0f;
+        for (int i = 0; i < level; i++) {
+            pitch *= 1.122462f;
+        }
+        fn_800CB688(&sound, 0, pitch);
+        fn_800CB518(&sound, 10);
+    }
+    if (lbl_8087F8A8 != 0 && level >= 1) {
+        wchar_t text[2] = L"";
+        atn::Vector3 pos(0.0f, 3.0f, 0.0f);
+        if (model != 0 && model->GetNodeMtx_unk("neck") != 0) {
+            // inferred: the node matrix is read as an atn::Matrix3x4
+            pos += ((atn::Matrix3x4*)model->GetNodeMtx_unk("neck"))->GetTrans_unk();
+        }
+        lbl_8087F8A8->fn_8054D794(6, text, &pos, level == 2, 0, 1, 0, 0, 0, 1, -1, -1);
     }
 }
 
