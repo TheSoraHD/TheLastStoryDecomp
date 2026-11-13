@@ -34,7 +34,8 @@ extern "C" float fn_801F1E7C(int icon, float size); // inferred: width of an ico
 
 struct TextMgr_unk;
 extern "C" TextMgr_unk* lbl_8087EEC8;
-extern "C" float fn_8006EF48(TextMgr_unk* mgr, const wchar_t* text, int arg2, int font, float size, float spacing);
+// inferred: width of a text (atn/Font_unk.cpp: font, size, text, spacing, proportional, font index)
+extern "C" float fn_8006EF48(TextMgr_unk* mgr, float size, const wchar_t* text, float spacing, int proportional, int font);
 
 // inferred: lines of the message being drawn (shared by all messages)
 static std::vector<std::basic_string<wchar_t> > sLines;
@@ -162,7 +163,7 @@ void D2A_Message::vf18() {
                 unsigned int c = (MsgToU8_unk(color.a) << 24) | (MsgToU8_unk(color.r) << 16) |
                                  (MsgToU8_unk(color.g) << 8) | MsgToU8_unk(color.b);
                 lbl_8087EEB0->fn_80061824(x, rect.y, rect.z, rect.w, rect.h, 0.0f, outline.x, outline.y, text, c, 1, mFont, outlined, m0E, oc);
-                x += fn_8006EF48(lbl_8087EEC8, text, 1, mFont, rect.w, 0.0f);
+                x += fn_8006EF48(lbl_8087EEC8, rect.w, text, 0.0f, 1, mFont);
             } else {
                 D2A_IconRect_unk iconRect;
                 iconRect.y = rect.y;
