@@ -117,8 +117,16 @@ bajadas. Ninguna unidad pasa a enlazar. 11 commits.
 - Leer el objetivo de un `Puppeteer` por `GetTarget_unk()` en vez de `m48` cambia los registros de lo que sigue
   (`fn_8001011C` 99,6 -> 100 %); crea una instancia nueva de la plantilla (renumera las `@N`: `pd.sh`).
 
+- Orden de `@stringBase0`: las cadenas de una inline se ponen en el pool detras de las de la funcion que la
+  llama (en `fn_80557F84`, con la deteccion "pc101".."pc107" en una inline, "earring_L".."bust_R" pasan delante
+  como en el original, pero la funcion baja de 99,1 a 94 %: no se aplica; pista para quien la retome).
+- Escribir las funciones de Eyes/Pose/Heading/Node pone "eye_R", "reference" y "neck" en su sitio:
+  `ActionActorSetting::fn_80557E00` da 100 % (su comentario de NONMATCHING por el pool sigue: queda el orden
+  "pc10x" frente a "earring_L".."bust_R" de `fn_80557F84`).
+
 ## Pendientes
 
+- `ActionActorSetting::fn_80557F84` 99,1 %: orden de las cadenas "pc101".."pc107" en el pool (ver hallazgos).
 - `ActorAnim_unk::m00` como `SimpleVector<Event::PoseKey_unk>` y `m10/m1C` como `atn::Vector3` (lote con
   `pdbatch.sh` de todas las unidades que incluyen `Event/Actor.h`): quitar los casts de `fn_8000F1EC`,
   `fn_8000FAE8` y `SavedVec_unk`/`SavedVecRef_unk`.
