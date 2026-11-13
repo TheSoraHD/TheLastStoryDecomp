@@ -93,3 +93,13 @@ Inicio 07:35.
 - `GimmickLocTable_unk` repite `BinLocs_unk` (atn/LH_Binary.cpp) y `BuildingFile_unk` (MapPartsLocatorSet):
   unificar en una cabecera (otras colas).
 - poolcheck: el `.o` lleva el 0.0174533 de la copia weak de `DegToRad_unk` (en el original esta en otra unidad).
+- `game/Bullet` `fn_80110858` (6 KB, ~1550 instrucciones) sin escribir: no cabia en el tiempo que quedaba
+  (empieza con el impacto sobre personaje `m38->m08 & 2` / gimmick `& 8` y su `GimmickHitMsg` por `vf44`).
+- Em206CocoonMp ctor y `ResHandle::ResHandle` (copia weak): el original esta fuera de presupuesto (llama hasta
+  a los ctores de `Vector3` y `LH_Binary`); el nuestro lo inlinea todo, igual que LastCocoonChrysalis.
+- Em203GreaterDaemonRedMp `fn_802A3D80` y Em203GreaterDaemon `vector<int>::operator[]`: presupuesto de inline.
+- `game/Inventory.h` (cola ItemManager_unk): `mOrder` tiene 19 palabras (0x64A0-0x64EC) y `Equip_unk` 4 huecos de
+  arma (`m30`); `MP/SaveElemB_unk.h`: el nombre de 0x294 es un `static_string` ancho (asignacion con
+  wcslen/wmemcpy). Con eso `fn_803BB584`/`fn_803BC2D4` podrian usar los `operator=` del original.
+- `atn::Keyboard::Press` (copia weak en RedMp, 90 %): el original carga `mD90` despues del `li r31, 0`
+  (cabecera atn/Keyboard.h, de otra familia).
