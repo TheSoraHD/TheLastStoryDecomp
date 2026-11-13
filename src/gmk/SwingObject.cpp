@@ -9,6 +9,7 @@
 #include <boost/function.hpp>
 #include "atn/RenderManager.h"
 #include "atn/NodeChunk.h"
+#include "atn/MapModelCache_unk.h"
 
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" int sprintf(char* buf, const char* fmt, ...);
@@ -428,9 +429,9 @@ void SwingObject::fn_803FFC50() {
 }
 } // namespace gmk
 
-// inferred: model of the building data (name invented)
+// inferred: model of the building data (InstData_unk is an entry of the map model cache)
 inline atn::Model* GetInstModel_unk(InstData_unk* data) {
-    return (atn::Model*)((char*)data + 0x10);
+    return ((MapModelCache_unk*)data)->mModel.GetModel_unk();
 }
 
 static char sSwingPath_unk[0x100]; // inferred: path buffer of the swinging map parts (0x807C8770)
