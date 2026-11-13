@@ -1,4 +1,5 @@
 #include "game/EnemyQuarkSecond.h"
+#include "macros.h"
 #include "game/GameVoice.h"
 #include "atn/ColliBase.h"
 #include "game/GimmickCommon.h"
@@ -1059,6 +1060,116 @@ inline void EnemyQuarkSecond::SetJump_unk(const atn::Vector3& target) {
 extern "C" void fn_800F8C6C(Effect_unk* mgr, int a, int b, CharaTask* owner, HitInfo_unk* data, int id, int time,
                             int c, float f); // inferred: fires the attack data
 
+// inferred: smaller of two values (an inline with the returns inside: `bge; b` in the original); name invented
+inline float QuarkMin_unk(float a, float b) {
+    if (a < b) {
+        return a;
+    }
+    return b;
+}
+
+static void fn_8033E8D4(EnemyQuarkSecond* self, int flat, const atn::Vector3* target, float height);
+
+// inferred: plays `efp` on the model with the default placement, locals in the other order (as LaserEffect_unk of
+// game/Em316LaserSphere.cpp); name invented
+inline void PlayEffectB_unk(atn::EfpFile* efp, atn::Model* model) {
+    atn::Vector3 pos;
+    atn::Vector3 rot;
+    Color4f_unk color;
+    rot.x = 0.0f;
+    rot.y = 0.0f;
+    rot.z = 0.0f;
+    pos.x = 0.0f;
+    pos.y = 0.0f;
+    pos.z = 0.0f;
+    color.r = 1.0f;
+    color.g = 1.0f;
+    color.b = 1.0f;
+    color.a = 1.0f;
+    fn_8023A8B4(lbl_8087F3C0, efp, model, 0, pos, rot, color, -1, -1, 1, 1.0f);
+}
+
+// inferred: heights of the jump of state 13 (start and end of the rise and of the fall; .sdata of the unit, names
+// invented)
+static float sRiseFrom_unk = 90.0f;
+static float sRiseTo_unk = 0.0f;
+static float sFallFrom_unk = 90.0f;
+static float sFallTo_unk = 0.0f;
+
+// inferred: rotation matrix z, y, x (as ZesyaRotZYX_unk of game/Em101LittleZesya.cpp; name invented)
+inline void QuarkRotZYX_unk(atn::Matrix3x4& m, const atn::Vector3& rot) {
+    m.SetIdentity();
+    __MtxRotate(m.m, 'z', rot.z);
+    __MtxRotate(m.m, 'y', rot.y);
+    __MtxRotate(m.m, 'x', rot.x);
+}
+
+// inferred: rain attack (state 13): jumps to the centre of the arena, chants the sonic skill while rising, then
+// starts the rain of bullets in front of it and comes down
+// NONMATCHING: 95.9% - the original frame is 0x30 bytes larger (it also stores three dead floats at 0x18, 0x28
+// and 0xB0: temporaries of an inline not identified); 3 variants
+void EnemyQuarkSecond::fn_8033D040() {
+    if (m14B4 == 0) {
+        atn::Vector3 target = m1598 + atn::Vector3(0.0f, 0.0f, 1.0f);
+        fn_8033E8D4(this, 1, &target, 90.0f);
+        if (mMotion.mTracks[0].m00 == 0x141) {
+            m14B4++;
+            PlayMotion_unk(0x16B, 0, 1.0f);
+            fn_80232B7C(this, 0x3EA);
+            PlayEffectB_unk(&m162C, &mMotion);
+            m14B8 = 0;
+        }
+    } else if (m14B4 == 1) {
+        if (m14B8 >= m14D8->mC0) {
+            m14B4++;
+            mMotion.fn_80097C08(0, 0x16D, 0, 0, 1, 0.0f, 0.1f);
+            fn_80239DAC(lbl_8087F3C0, this, 0x3EA, 0);
+            fn_80232B7C(this, 0x3E9);
+            PlayEffectB_unk(&m1638, &mMotion);
+        }
+        mPos.y = QuarkMin_unk(90.0f, 5.0f + mPos.y);
+        if (mMotion.mTracks[0].m00 == 0x16B) {
+            float frame = mMotion.mTracks[0].m08;
+            if (frame >= mMotion.fn_80097D7C(0)) {
+                mMotion.fn_80097C08(0, 0x16C, 1, 0, 1, 1.0f, 0.1f);
+            }
+        }
+    } else if (m14B4 == 2) {
+        float t = MIN(1.0f, MAX(0.0f, 0.25f * (mMotion.mTracks[0].m08 - 45.0f)));
+        mPos.y = sRiseFrom_unk + (sRiseTo_unk - sRiseFrom_unk) * t;
+        Field_unk* field = lbl_8087F430;
+        if (mMotion.mTracks[0].m08 >= 49.0f) {
+            m14B4++;
+            PlayerInput_unk* input = fn_80122550(field);
+            input->m900 = input->m900 % 2;
+            input->m904 = 10;
+            input->m908 = 7.0f;
+            input->m90C = 8.0f;
+            atn::Vector3 ofs(0.0f, 0.0f, 65.0f);
+            atn::Matrix3x4 m;
+            QuarkRotZYX_unk(m, mRot);
+            PSMTXMultVec(m.m, &ofs, &ofs);
+            m1644 = 1;
+            m1658 = fn_800F8548(lbl_8087F048);
+            m164C = mPos + ofs;
+            m164C.y = 0.0f;
+            mStatus.m228 = 0.0f;
+            fn_800C31F4("SE_EM211_010", 0, -1, 1.0f);
+        }
+    } else {
+        float t = MIN(1.0f, MAX(0.0f, 0.25f * (mMotion.mTracks[0].m08 - 45.0f)));
+        mPos.y = sFallFrom_unk + (sFallTo_unk - sFallFrom_unk) * t;
+        float frame = mMotion.mTracks[0].m08;
+        if (frame >= mMotion.fn_80097D7C(0)) {
+            ResetState_unk();
+            fn_8016E970(3);
+            m58C = 0;
+            PlayMotion_unk(2, 1, 1.0f);
+            mPos.y = 0.0f;
+        }
+    }
+}
+
 // NONMATCHING: 99.6% - f30/f31 of the turn target (the matrix of ToRotationZ_unk takes the other one);
 // 10 variants
 void EnemyQuarkSecond::fn_8033D750() {
@@ -1185,13 +1296,6 @@ void EnemyQuarkSecond::fn_8033DB8C() {
     }
 }
 
-// inferred: smaller of two values (an inline with the returns inside: `bge; b` in the original); name invented
-inline float QuarkMin_unk(float a, float b) {
-    if (a < b) {
-        return a;
-    }
-    return b;
-}
 
 // inferred: the frame of track 0 is `frames` or less from the end / has reached `frame` (names invented)
 inline bool IsNearEnd_unk(atn::Model* model, float frames) {

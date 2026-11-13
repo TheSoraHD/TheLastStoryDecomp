@@ -4,7 +4,7 @@ Inicio: 2026-11-13 05:03 CET. Rama `agent-K`. Tope 07:33.
 
 ## Resultado por unidad (funciones al 0 % / sin escribir, antes -> despues)
 
-- `game/EnemyQuarkSecond`: 10 -> 6 (en este commit). Escritas, todas `NONMATCHING`:
+- `game/EnemyQuarkSecond`: 10 -> 5. Escritas, todas `NONMATCHING`:
   - `fn_8033DB8C` (estado 14, rafaga de balas teledirigidas a la party) 96,8 %: huecos de pila (parametros
     de la bala por encima de las matrices en el original) y un registro guardado mas.
   - `fn_8033E8D4` (paso del salto: subida 0x13F, vuelo 0x140, aterrizaje 0x141) 98 %: huecos de pila de los
@@ -13,6 +13,10 @@ Inicio: 2026-11-13 05:03 CET. Rama `agent-K`. Tope 07:33.
     los temporales de las dos ramas.
   - `fn_803405C0` (estado 16, ataque del baston) 98,8 %: huecos de los locales del efecto del paso 0 y
     registros.
+  - `fn_8033D040` (estado 13, lluvia: salta al centro, canta subiendo y lanza la lluvia de balas) 97,9 %: marco
+    0x30 mayor en el original (guarda tres floats muertos: temporales de una inline sin identificar). Las alturas
+    de subida y bajada son cuatro `static float` de la `.sdata` de la unidad (`sRiseFrom_unk`...); el factor es
+    `MIN(1, MAX(0, 0.25f * (frame - 45)))` de `macros.h` (el `MAX` se evalua dos veces, como en el original).
 
 - `game/Em316LaserSphere`: 6 -> 0 (todas escritas). `fn_80318AA4` (el personaje apunta a la esfera: magia lanzada, su habilidad o
   la linea de su disparo cruza la capsula) escrita, NONMATCHING 98,4 %: marco 0x10 mayor y registros.
@@ -54,6 +58,12 @@ Inicio: 2026-11-13 05:03 CET. Rama `agent-K`. Tope 07:33.
   `float end = len - n; bool r = false; if (frame >= end) r = true; return r;` (con la resta dentro del `if`
   el `bool` sube a un registro guardado antes de la llamada).
 
+- Etiquetas `@N` de `.sdata2` ambiguas para pairdata (una funcion NONMATCHING con las cargas en otro orden
+  empareja un float con dos etiquetas y pd.sh no las renombra): renombrarlas por valor (en el pool de una
+  unidad cada valor es unico) con el `.sdata2` de nuestro `.o` (`scratch-K/valrelabel_keep.py`).
+
 ## Pendientes
 
-- EnemyQuarkSecond: fn_8033C490, fn_8033D040, fn_8033E058, fn_8033EF90, fn_8033F7FC, fn_803412AC.
+- EnemyQuarkSecond: fn_8033C490, fn_8033E058, fn_8033EF90, fn_8033F7FC, fn_803412AC.
+- Em206CocoonMp (ctor, ResHandle, fn_802BC4EC, fn_802BEE44, fn_802BF5C0), Em203GreaterDaemonRedMp fn_802A3D80 y
+  Em203GreaterDaemon `vector<int>::operator[]`: sin tocar en este lote.
