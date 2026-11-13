@@ -1460,7 +1460,32 @@ struct AIScriptMap_unk {
     AIScriptMapNode_unk* mFirst;
 
     AIScriptMapNode_unk* End_unk() { return (AIScriptMapNode_unk*)&mRoot; }
-    void Destroy_unk(AIScriptMapNode_unk* node); // 0x8003DEE0
+    AIScriptMapNode_unk* InsertNode_unk(AIScriptMapNode_unk* parent, bool left, bool leftmost,
+                                        const AIScriptMapValue_unk& value); // 0x8003DD50
+    void Destroy_unk(AIScriptMapNode_unk* node);                            // 0x8003DEE0
+    static AIScriptMapNode_unk* Allocate_unk() {
+        AIScriptMapNode_unk* p = (AIScriptMapNode_unk*)::operator new(sizeof(AIScriptMapNode_unk));
+        if (p == 0) {
+            __msl_error("Memory allocation failure");
+        }
+        return p;
+    }
+    // inferred: frees the node if the construction does not finish (as ScriptTreeData_unk::NodeHolder_unk)
+    struct NodeHolder_unk {
+        NodeHolder_unk(void* alloc, AIScriptMapNode_unk* node) : mAlloc(alloc), mNode(node) {}
+        ~NodeHolder_unk() {
+            if (mNode != 0) {
+                operator delete(mNode);
+            }
+        }
+        AIScriptMapNode_unk* release() {
+            AIScriptMapNode_unk* node = mNode;
+            mNode = 0;
+            return node;
+        }
+        void* mAlloc;
+        AIScriptMapNode_unk* mNode;
+    };
     // inferred: MSL __tree::clear (inlined in fn_8001E730)
     void clear() {
         if (mRoot != 0) {
@@ -1473,7 +1498,7 @@ struct AIScriptMap_unk {
 };
 
 extern "C" int memcmp(const void*, const void*, unsigned long);
-extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key, AIScriptMapNode_unk** parent, unsigned char* insertLeft, unsigned char* insertFirst);
+extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key, AIScriptMapNode_unk** parent, bool* insertLeft, bool* insertFirst);
 
 void operator delete(void* ptr);
 extern "C" void* fn_8001E168(AIString_unk* str, int freeObject);
@@ -1485,11 +1510,7 @@ struct AIStringWithAllocator_unk {
 };
 extern "C" AIStringWithAllocator_unk* fn_8001E0B8(AIStringWithAllocator_unk* dst, const AIStringWithAllocator_unk* src, const unsigned int* allocator);
 
-extern "C" AIScriptMapNode_unk* fn_8003DD50(void* tree,
-                                             AIScriptMapNode_unk* candidate,
-                                             unsigned char insertLeft,
-                                             unsigned char insertFirst,
-                                             const AIStringWithAllocator_unk* key);
+
 extern "C" void fn_8001E1D0(void* result, void* tree, const AIStringWithAllocator_unk* value);
 extern "C" void fn_8001C068(CharaTask* chara, const char* name);
 
@@ -1698,8 +1719,8 @@ extern "C" void* fn_8001E168(AIString_unk* str, int freeObject) {
 extern "C" void fn_8001E1D0(void* result, void* tree,
                              const AIStringWithAllocator_unk* value) {
     AIScriptMapNode_unk* parent = 0;
-    unsigned char insertLeft = 1;
-    unsigned char insertFirst = 1;
+    bool insertLeft = true;
+    bool insertFirst = true;
     AIScriptMapNode_unk* candidate = fn_8003E530(
         tree, &value->mString, &parent, &insertLeft, &insertFirst);
 
@@ -1730,7 +1751,8 @@ extern "C" void fn_8001E1D0(void* result, void* tree,
     AIScriptMapNode_unk* node;
     unsigned char flag;
     if (insert) {
-        node = fn_8003DD50(tree, candidate, insertLeft, insertFirst, value);
+        node = ((AIScriptMap_unk*)tree)->InsertNode_unk(candidate, insertLeft, insertFirst,
+                                                         *(const AIScriptMapValue_unk*)value);
         flag = lbl_8087D6F0;
     } else {
         node = parent;
@@ -10396,6 +10418,34 @@ extern "C" __declspec(noinline) int fn_8003DBA4() {
     return 6;
 }
 
+// NONMATCHING: 99.05% - the pool string is addressed as base + 0x454 in the original (one more addi) and
+// the stack slots of the iterator tag copy are swapped (as in game/GameEventScript)
+// inferred: MSL __tree::insert_node (as ScriptTreeData_unk::InsertNode_unk of game/GameEventScript.h); the
+// length error message is in the string pool of the unit (+0x454, see the note on em_scout)
+AIScriptMapNode_unk* AIScriptMap_unk::InsertNode_unk(AIScriptMapNode_unk* parent, bool left, bool leftmost,
+                                                     const AIScriptMapValue_unk& value) {
+    if (mSize == 0xFFFFFFFF) {
+        __msl_error((const char*)(lbl_807307A0 + 0x454)); // "tree::insert length error"
+    }
+    NodeHolder_unk holder(&mRoot, Allocate_unk());
+    ::new (&holder.mNode->mValue) AIScriptMapValue_unk(value);
+    AIScriptMapNode_unk* node = holder.release();
+    node->mRight = 0;
+    node->mLeft = 0;
+    ::new (&node->mParentColor) unsigned long((unsigned long)parent);
+    if (left) {
+        parent->mLeft = node;
+    } else {
+        parent->mRight = node;
+    }
+    mSize++;
+    std::__red_black_tree_void::balance_insert((std::__tree_node_base_void*)node, (std::__tree_node_base_void*)mRoot);
+    if (leftmost) {
+        mFirst = node;
+    }
+    return node;
+}
+
 // inferred: frees a subtree; the release asserts of the parents are evaluated (as
 // AudioMap_unk::Destroy of atn/AudioDevice.cpp: without them MWCC expands three levels)
 void AIScriptMap_unk::Destroy_unk(AIScriptMapNode_unk* node) {
@@ -10465,8 +10515,8 @@ template void __red_black_tree<__tree_node_base_void*>::balance_insert(__tree_no
 
 extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key,
                                             AIScriptMapNode_unk** parent,
-                                            unsigned char* insertLeft,
-                                            unsigned char* insertFirst) {
+                                            bool* insertLeft,
+                                            bool* insertFirst) {
     AIScriptMapNode_unk* node = *(AIScriptMapNode_unk**)((unsigned char*)tree + 4);
     AIScriptMapNode_unk* candidate = (AIScriptMapNode_unk*)((unsigned char*)tree + 4);
     *parent = 0;

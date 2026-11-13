@@ -13,13 +13,17 @@ Cola: restos de game/GameEventScript (12 al 0 %) y AI/AI_archer_attack01 (6 al 0
     de `num_put<char>::id` y `numpunct<char>::id`, como GameScene) y los cinco thunks de base virtual
     (0x803B27AC-0x803B27F8).
   - `basic_stringbuf::str() const` (0x803AD668): 88,53 %, NONMATCHING (ver abajo).
-- `AI/AI_archer_attack01`: 0 % 5 -> 2; al 100 % 480 -> 481/510 (lost 0, fuzzdrop 0).
+- `AI/AI_archer_attack01`: 0 % 5 -> 1; al 100 % 480 -> 481/510 (lost 0, fuzzdrop 0).
   - Mapa de scripts (`std::map<std::string, factory>` en 0x807C6B84): `AIScriptMap_unk` (tamano, raiz con el
     nodo final en `&mRoot`, primero; como `ScriptTreeData_unk`), y `lbl_807C6B84` pasa a ser ese objeto (antes
     `unsigned char[]`; `fn_8001E1D0` y la `__sinit` a mano usan `&lbl_807C6B84`, sin cambios en su codigo).
   - `AIScriptMap_unk::Destroy_unk` (0x8003DEE0, antes `fn_8003DEE0`) al 100 %: recursiva con los asserts de
     los padres evaluados (dos niveles de inline, como AudioMap_unk) y `destroy` + `operator delete` del
     nodo (sin test de nulo; con `delete node` sale el test).
+  - `AIScriptMap_unk::InsertNode_unk` (0x8003DD50, antes `fn_8003DD50`) 99,05 %: como
+    `ScriptTreeData_unk::InsertNode_unk`; los flags de `fn_8001E1D0`/`fn_8003E530` pasan a `bool` (con
+    `unsigned char` `fn_8001E1D0` bajaba de 47,6 a 39,3 por la conversion). NONMATCHING: la cadena del pool
+    (+0x454) va como base + `addi` en el original y el tag del iterador con las ranuras de pila cruzadas.
   - `fn_8001E730` (vacia el mapa: borra las factorias en orden y luego `clear()`) 93,82 % y `fn_8001EA18`
     (`find` por nombre con `basic_string::compare(pos, n1, s, n2)` inline) 57,07 %: NONMATCHING (ver abajo).
 - `game/GameScene`: llama a `boost::lexical_cast<std::string, int>` con una declaracion de la plantilla (sin
@@ -70,6 +74,7 @@ Cola: restos de game/GameEventScript (12 al 0 %) y AI/AI_archer_attack01 (6 al 0
   nuevo (script local `remap.py`, 66 etiquetas) y luego `pd.sh`.
 - `boost::throw_exception(const std::exception&)` declarada en GameEventScript.cpp (definida en
   atn/Util_unk.cpp, BOOST_NO_EXCEPTIONS).
+- AI_archer: renombrado `fn_8003DD50` -> `InsertNode_unk__15AIScriptMap_unkFP19AIScriptMapNode_unkbbRC20AIScriptMapValue_unk`.
 - AI_archer: renombrado `fn_8003DEE0` -> `Destroy_unk__15AIScriptMap_unkFP19AIScriptMapNode_unk`; `pd.sh`
   reetiqueto los `@N` de la unidad (481 -> 481).
 - Cambio de tamano de `ctype<char>` en `locale_facets_unk.h` (cabecera MSL compartida con EffectManager): solo
