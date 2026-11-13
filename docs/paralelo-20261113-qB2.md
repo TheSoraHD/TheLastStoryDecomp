@@ -33,7 +33,9 @@ Unidades: `game/GameCamera_unk`, `game/FinishCamera_unk`.
   `CameraShake_unk` (todo a 0): declarados sin definir en `GameCamera.h` y definidos `inline` en el .cpp.
   `mA0C[5]` pasa a cinco floats `mA0C..mA1C` (el original los inicializa como floats en la lista; solo esta
   unidad los usa). Con el ctor delante, el pool de `.sdata2` empieza en el orden del original.
-- Funciones al 0 %: 16 -> 3 (quedan fn_8037F9AC 12 KB, fn_80384188 y fn_80385B48 6,5 KB). Al 100 %: 28 -> 45 de 90.
+- `fn_8038378C` y `fn_8038A5F0` (99,6 %): **100 %** con el lerp de referencias `fn_800F8524(-m594.m0C, m594.m0C, t)`
+  (la doble carga de m0C sale de enlazar el temporal y el miembro a `const float&`).
+- Funciones al 0 %: 16 -> 3 (quedan fn_8037F9AC 12 KB, fn_80384188 y fn_80385B48 6,5 KB). Al 100 %: 28 -> 47 de 90.
 
 ## Decisiones tomadas sin el usuario
 
@@ -74,7 +76,8 @@ Unidades: `game/GameCamera_unk`, `game/FinishCamera_unk`.
   (0x808858F8), `@17280` (0x80885910), `@17264` (0x80885954). En GameTask `@27395`/`@27396` (0x808857A8/AC).
   Tras fn_80382A1C (+570): `@17824`, `@17853`, `@17850`, `@17834` en las mismas direcciones; tras fn_8037E12C
   (+187): `@18011`, `@18040`, `@18037`, `@18021`; tras el ctor: `@18264`, `@18268`, `@18274` (0x808858E8/F8,
-  0x80885910) y `@18323` (0x80885954).
+  0x80885910) y `@18323` (0x80885954); tras los lerps: `@18270`, `@18274`, `@18280`, `@18323` (0x8088593C),
+  `@18329` (0x80885954).
 - poolcheck de GameCamera_unk avisa ahora de la cadena '?fff>L' (0.9 seguido de 0.2 en nuestro .sdata2: orden del
   pool por primer uso; la unidad no enlaza).
 
@@ -86,6 +89,8 @@ Unidades: `game/GameCamera_unk`, `game/FinishCamera_unk`.
 - Un `Matrix3x4` temporal sin llamada al constructor sobre el que se llama `fn_8013A13C(angulo)`: es una funcion que
   devuelve la matriz por valor (`static Matrix3x4 fn_8013A13C(float)`), no un metodo sobre una local.
 - `const atn::Vector3& head = c->fn_80178088();` mantiene la direccion del temporal en un registro salvado.
+- Un miembro cargado dos veces sin CSE en `t * (m - -m) + -m`: un lerp inline con parametros `const float&`
+  (`fn_800F8524(-m, m, t)`): el temporal y la referencia al miembro leen cada uno su copia.
 - Inicializacion de `x = y = z = 0.0f` encadenada: guarda z, y, x (orden del original en m98C y mC88).
 - `cntlzw; srwi.; bne` en una condicion: inline que devuelve `x == 0` usada negada; con `!(x == 0)` directo sale
   `cmpwi` (no se consiguio en fn_80390A88).

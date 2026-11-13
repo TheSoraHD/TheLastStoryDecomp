@@ -827,8 +827,6 @@ extern "C" atn::Vector3 fn_80383728(const Camera_unk* camera) {
 // inferred: camera of the ledge without the blend (see fn_8038A5F0; side offset limits lbl_8087DCF0/F4): the eye
 // is turned a third of the way towards the current view direction; with the bird view setting it is the bird view
 // camera (fn_80387DE4)
-// NONMATCHING: 99.6% - the original loads m594.m0C twice in the first lerp of the side offset (no CSE); tried
-// a float lerp inline, other operand orders, the parameters through a pointer
 void GameCamera::fn_8038378C(const CharaTask* chara) {
     if (lbl_8087F0A8->mAlwaysBirdview != 0) {
         fn_80387DE4(chara);
@@ -847,7 +845,7 @@ void GameCamera::fn_8038378C(const CharaTask* chara) {
     t = 1.0f < t ? 1.0f : t;
     if ((flags & 1) == 1) {
         if ((flags & 2) == 2) {
-            offset = t * (m594.m0C - -m594.m0C) + -m594.m0C;
+            offset = fn_800F8524(-m594.m0C, m594.m0C, t);
         } else {
             offset = t * (lbl_8087DCF0 - -m594.m0C) + -m594.m0C;
         }
@@ -1526,7 +1524,6 @@ void GameCamera::fn_8038A200(const CharaTask* chara) {
 // inferred: camera of the ledge (CharaTask::mC14-mC44): looks along the wall from m594.m00 away, turned by
 // m594.m08 and moved sideways by up to m594.m0C towards the free ends of the ledge; blended from the saved camera
 // in 15 frames (5 from the sub mode 3)
-// NONMATCHING: 99.6% - the original loads m594.m0C twice in the first lerp of the side offset (as fn_8038378C)
 void GameCamera::fn_8038A5F0(const CharaTask* chara) {
     int frames = 15;
     if (m800 == 3) {
@@ -1563,7 +1560,7 @@ void GameCamera::fn_8038A5F0(const CharaTask* chara) {
     t = 1.0f < t ? 1.0f : t;
     if ((flags & 1) == 1) {
         if ((flags & 2) == 2) {
-            offset = t * (m594.m0C - -m594.m0C) + -m594.m0C;
+            offset = fn_800F8524(-m594.m0C, m594.m0C, t);
         } else {
             offset = t * (lbl_8087DCFC - -m594.m0C) + -m594.m0C;
         }
