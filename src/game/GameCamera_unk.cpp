@@ -24,6 +24,14 @@ extern "C" void* lbl_8087EE98;     // inferred: collision manager
 extern "C" int fn_8004ED34(void* colli, CollResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg7); // inferred: ray test
 
+extern "C" double sin(double x);
+extern "C" double cos(double x);
+extern "C" double tan(double x);
+extern "C" double atan(double x);
+extern "C" double sqrt(double x);
+// inferred: limits of the side offset of the ledge camera without blend (fn_8038378C; 0.0f)
+extern "C" float lbl_8087DCF0;
+extern "C" float lbl_8087DCF4;
 // inferred: height of the side camera during the control 11 (50.0f)
 extern "C" float lbl_8087DCF8;
 // inferred: limits of the side offset of the ledge camera at the ends of the ledge (0.0f; .sdata of this
@@ -383,6 +391,103 @@ extern "C" atn::Vector3 fn_80383728(const Camera_unk* camera) {
     return dir;
 }
 
+// inferred: rotation matrix z, then y, then x (weak copy; as in game/Em309Ghoul.cpp)
+extern "C" inline atn::Matrix3x4 fn_800109E0(const atn::Vector3& rot) {
+    atn::Matrix3x4 m;
+    m.SetIdentity();
+    if (0.0f != rot.z) {
+        Mtx t;
+        Mtx r;
+        PSMTXRotRad(r, 'z', rot.z);
+        PSMTXConcat(m.m, r, t);
+        __MtxCopy(m.m, t);
+    }
+    if (0.0f != rot.y) {
+        Mtx t;
+        Mtx r;
+        PSMTXRotRad(r, 'y', rot.y);
+        PSMTXConcat(m.m, r, t);
+        __MtxCopy(m.m, t);
+    }
+    if (0.0f != rot.x) {
+        Mtx t;
+        Mtx r;
+        PSMTXRotRad(r, 'x', rot.x);
+        PSMTXConcat(m.m, r, t);
+        __MtxCopy(m.m, t);
+    }
+    return m;
+}
+
+// inferred: camera of the ledge without the blend (see fn_8038A5F0; side offset limits lbl_8087DCF0/F4): the eye
+// is turned a third of the way towards the current view direction; with the bird view setting it is the bird view
+// camera (fn_80387DE4)
+// NONMATCHING: 99.6% - the original loads m594.m0C twice in the first lerp of the side offset (no CSE); tried
+// a float lerp inline, other operand orders, the parameters through a pointer
+void GameCamera::fn_8038378C(const CharaTask* chara) {
+    if (lbl_8087F0A8->mAlwaysBirdview != 0) {
+        fn_80387DE4(chara);
+        return;
+    }
+    atn::Vector3 side = Cross_unk(chara->mC14, atn::Vector3(0.0f, 1.0f, 0.0f));
+    side.Normalize_unk();
+    atn::Vector3 rot = side.ToRotation_unk();
+    float offset = 0.0f;
+    rot.x += m594.m08;
+    unsigned int flags = chara->mC44;
+    float length = (chara->mC20 - chara->mC2C).Length_unk();
+    float start = (chara->mPos - chara->mC20).Length_unk();
+    float end = (chara->mPos - chara->mC2C).Length_unk();
+    float t = start / length;
+    t = 1.0f < t ? 1.0f : t;
+    if ((flags & 1) == 1) {
+        if ((flags & 2) == 2) {
+            offset = t * (m594.m0C - -m594.m0C) + -m594.m0C;
+        } else {
+            offset = t * (lbl_8087DCF0 - -m594.m0C) + -m594.m0C;
+        }
+    } else if ((flags & 2) == 2) {
+        offset = t * (m594.m0C - lbl_8087DCF4) + lbl_8087DCF4;
+    }
+    float yaw;
+    float height = m594.m10;
+    if (chara->mFlag30) {
+        height -= m594.m18;
+    }
+    atn::Vector3 target = chara->mPos;
+    yaw = rot.y;
+    target.y += height;
+    m868 = target;
+    target.x += offset * (float)cos(yaw);
+    target.z += -offset * (float)sin(rot.y);
+    atn::Vector3 eye(0.0f, 0.0f, 1.0f);
+    atn::Matrix3x4 m = fn_800109E0(rot);
+    PSMTXMultVec(m.m, &eye, &eye);
+    eye *= -m594.m00;
+    eye += target;
+    atn::Vector3 dir = target - eye;
+    float dy = dir.y;
+    dir.y = 0.0f;
+    float dist = PSVECMag(&dir);
+    PSVECNormalize(&dir, &dir);
+    atn::Vector3 cur = fn_80383728(this);
+    cur.y = 0.0f;
+    PSVECNormalize(&cur, &cur);
+    dir += cur * 3.0f;
+    PSVECNormalize(&dir, &dir);
+    dir.x *= -dist;
+    dir.z *= -dist;
+    dir.y = -dy;
+    eye = target + dir;
+    float fovy = m594.m04;
+    fn_8038E23C(chara, &m594, &eye, &target);
+    SetPosition(eye);
+    SetTarget_unk(target);
+    mFovy = fovy;
+    fn_8004B378();
+    fn_80392964(1, 1, 1, 1);
+}
+
 // inferred: name invented (the second operand is evaluated twice, as a macro)
 #define GAMECAMERA_MAX_UNK(a, b) ((a) > (b) ? (a) : (b))
 #define GAMECAMERA_MIN_UNK(a, b) ((a) < (b) ? (a) : (b))
@@ -421,11 +526,6 @@ extern "C" void fn_80383F7C(float* angle, atn::Vector3* pos, const atn::Vector3*
 }
 
 // ---- fn_80387910: camera of the tactical view (over the inlining budget: the accessors are weak copies) ----
-extern "C" double sin(double x);
-extern "C" double cos(double x);
-extern "C" double tan(double x);
-extern "C" double atan(double x);
-extern "C" double sqrt(double x);
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
 // inferred: math helpers (weak copies; as in game/Em309Ghoul.cpp, game/BattleTask.cpp, gmk/Cannonball.cpp)
 extern "C" inline float fn_80011220(float x) {
@@ -433,32 +533,6 @@ extern "C" inline float fn_80011220(float x) {
 }
 extern "C" inline float fn_8037F664(float x) {
     return sin(x);
-}
-extern "C" inline atn::Matrix3x4 fn_800109E0(const atn::Vector3& rot) {
-    atn::Matrix3x4 m;
-    m.SetIdentity();
-    if (0.0f != rot.z) {
-        Mtx t;
-        Mtx r;
-        PSMTXRotRad(r, 'z', rot.z);
-        PSMTXConcat(m.m, r, t);
-        __MtxCopy(m.m, t);
-    }
-    if (0.0f != rot.y) {
-        Mtx t;
-        Mtx r;
-        PSMTXRotRad(r, 'y', rot.y);
-        PSMTXConcat(m.m, r, t);
-        __MtxCopy(m.m, t);
-    }
-    if (0.0f != rot.x) {
-        Mtx t;
-        Mtx r;
-        PSMTXRotRad(r, 'x', rot.x);
-        PSMTXConcat(m.m, r, t);
-        __MtxCopy(m.m, t);
-    }
-    return m;
 }
 extern "C" inline float fn_801C3910(const atn::Vector3& v) {
     return sqrt(v.x * v.x + v.z * v.z);
@@ -951,8 +1025,7 @@ void GameCamera::fn_8038A200(const CharaTask* chara) {
 // inferred: camera of the ledge (CharaTask::mC14-mC44): looks along the wall from m594.m00 away, turned by
 // m594.m08 and moved sideways by up to m594.m0C towards the free ends of the ledge; blended from the saved camera
 // in 15 frames (5 from the sub mode 3)
-// NONMATCHING: 87.6% - stack layout (the original keeps the vector temporaries below side/rot/target/eye and
-// saves f23/f24 for the blends)
+// NONMATCHING: 99.6% - the original loads m594.m0C twice in the first lerp of the side offset (as fn_8038378C)
 void GameCamera::fn_8038A5F0(const CharaTask* chara) {
     int frames = 15;
     if (m800 == 3) {
@@ -978,18 +1051,15 @@ void GameCamera::fn_8038A5F0(const CharaTask* chara) {
     }
     atn::Vector3 side = Cross_unk(chara->mC14, atn::Vector3(0.0f, 1.0f, 0.0f));
     side.Normalize_unk();
-    atn::Vector3 rot = side;
-    rot.fn_80139F60();
+    atn::Vector3 rot = side.ToRotation_unk();
+    float offset = 0.0f;
     rot.x += m594.m08;
-    atn::Vector3 target;
-    atn::Vector3 eye;
     unsigned int flags = chara->mC44;
     float length = (chara->mC20 - chara->mC2C).Length_unk();
     float start = (chara->mPos - chara->mC20).Length_unk();
     float end = (chara->mPos - chara->mC2C).Length_unk();
     float t = start / length;
     t = 1.0f < t ? 1.0f : t;
-    float offset = 0.0f;
     if ((flags & 1) == 1) {
         if ((flags & 2) == 2) {
             offset = t * (m594.m0C - -m594.m0C) + -m594.m0C;
@@ -1003,14 +1073,15 @@ void GameCamera::fn_8038A5F0(const CharaTask* chara) {
     if (chara->mFlag30) {
         height -= m594.m18;
     }
-    target = chara->mPos;
+    atn::Vector3 target = chara->mPos;
     target.y += height;
     target.x += offset * (float)cos(rot.y);
     target.z += -offset * (float)sin(rot.y);
-    eye = atn::Vector3(0.0f, 0.0f, 1.0f);
+    atn::Vector3 eye(0.0f, 0.0f, 1.0f);
     atn::Matrix3x4 m = fn_800109E0(rot);
     PSMTXMultVec(m.m, &eye, &eye);
-    eye = eye * -m594.m00 + target;
+    eye *= -m594.m00;
+    eye += target;
     float fovy = m594.m04;
     float k = 0.5f * (1.0f + (float)sin(3.1415927f * ((float)m808 / (float)frames) - 1.5707964f));
     eye = LerpV_unk(m80C, eye, k);

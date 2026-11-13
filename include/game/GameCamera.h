@@ -146,6 +146,7 @@ public:
     // inferred: functions of the mode tables of fn_8037F744 (start and update of each mode; not written)
     void fn_803830A8(const CharaTask* chara);
     void fn_8038378C(const CharaTask* chara);
+    void fn_80387DE4(const CharaTask*); // inferred: bird view camera (setting mAlwaysBirdview)
     void fn_80384188(const CharaTask* chara);
     void fn_80385B48(const CharaTask* chara);
     void fn_80387548(const CharaTask* chara);
