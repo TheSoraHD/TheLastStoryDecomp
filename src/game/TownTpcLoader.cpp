@@ -61,8 +61,14 @@ TownTpcLoader* TownTpcLoader::fn_805B9B08(atn::Task* parent, int cellX, int cell
     return 0;
 }
 
-// NONMATCHING: 99.6% - the pointer and the counter of the last loop are in swapped registers (r29/r30).
-// Tried: shared/outer `i`, while loop, bool ready, early return, mData[i], IsFlag_unk, x/z declaration order.
+// inferred: starts the loaded characters (name invented; the inline gives the loop registers)
+static inline void StartCharas_unk(atn::FixedArray_unk<atn::Task*, 64>& charas) {
+    for (int i = 0; i < charas.size(); i++) {
+        ((CharaTask*)charas[i])->fn_8016E970(2);
+        charas[i]->fn_800D246C(0);
+    }
+}
+
 int TownTpcLoader::vf0C() {
     if (mState < 2) {
         if (mState >= 1) {
@@ -94,10 +100,7 @@ int TownTpcLoader::vf0C() {
         }
     }
     if (ready) {
-        for (int i = 0; i < mCharas.size(); i++) {
-            ((CharaTask*)mCharas[i])->fn_8016E970(2);
-            mCharas[i]->fn_800D246C(0);
-        }
+        StartCharas_unk(mCharas);
     }
     return ready;
 }

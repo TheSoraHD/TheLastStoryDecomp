@@ -141,7 +141,7 @@
   "classes": [
    "Arms"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "game/ArmsCreate_unk.cpp",
@@ -1958,7 +1958,7 @@
   "classes": [
    "GameLoadTask"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "game/GameLoadBackground.cpp",
@@ -2408,7 +2408,7 @@
   "classes": [
    "gmk::LemonBucket"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "gmk/RandomMerchant.cpp",
@@ -2884,7 +2884,7 @@
   "classes": [
    "MP::func_enter_setting"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "MP/Popup.cpp",
@@ -2985,7 +2985,7 @@
   "classes": [
    "NewStaffRoll"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "game/NewTitleTask.cpp",
@@ -3274,7 +3274,7 @@
   "classes": [
    "TownTpcLoader"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "game/TutorialTask.cpp",
@@ -3752,7 +3752,7 @@
   "classes": [
    "chr::ControlBase"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "chr/ControlMountle.cpp",

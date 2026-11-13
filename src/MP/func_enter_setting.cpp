@@ -1,20 +1,8 @@
+#include "MP/PacketPackMP.h"
 #include "MP/FuncMessage.h"
-#include "atn/net/PacketPack.h"
 #include "std/ios_init.h"
 
 namespace MP {
-
-// inferred: multiplayer packet packer (vtable 0x80792A28; the atn::SingletonNoStatic base is
-// left out)
-class PacketPackMP : public atn::net::PacketPack {
-public:
-    // inferred: inline (weak copies 0x8050105C and 0x80501054, after the weak copies of the MP::func_*
-    // classes in the original)
-    virtual int vf0C() { return 0; }
-    virtual unsigned char vf10() { return 0x41; }
-    virtual unsigned char vf14(int code);
-    virtual atn::net::FuncMessage* vf18(unsigned char id);
-};
 
 // inferred: message id of a packet code (0x804FF9BC)
 unsigned char PacketPackMP::vf14(int code) {
