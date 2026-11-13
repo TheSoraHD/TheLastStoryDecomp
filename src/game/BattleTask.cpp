@@ -40,6 +40,12 @@
 #include "game/GimmickManager.h"
 #include "math/VecAssign_unk.h"
 #include "atn/SoundManager.h"
+#include "chr/CharaEquip_unk.h"
+#include "db/EquipParam_unk.h"
+#include "game/SkillEffectManager.h"
+#include "game/HomeButtonMenu.h"
+#include "game/CrossbowMenuTask.h"
+#include "atn/GraphicsDevice.h"
 #include <boost/bind.hpp>
 #include <boost/function.hpp>
 
@@ -53,7 +59,9 @@ extern "C" int rand();
 struct Arena_unk {
     unsigned char m000[0x4FC];
     int m4FC; // inferred: state (0x1E: in play; fn_801004FC)
-    unsigned char m500[0x540 - 0x500];
+    unsigned char m500[0x50C - 0x500];
+    int m50C; // inferred: compared with 5 by fn_8010220C
+    unsigned char m510[0x540 - 0x510];
     int m540; // inferred: mode (2: teams)
     // inferred: modes 0 and 1 (name invented)
     bool IsFreeMode_unk() const {
@@ -187,6 +195,325 @@ extern "C" const char* lbl_808813D8; // inferred: "/data/d2anime/ui_seek_arow.d2
 extern "C" const char* const lbl_80735988[3]; // inferred: splash effects (.rodata of this file)
 extern "C" const char* fn_8020BD78(int index); // inferred: name of an effect palette
 extern "C" int sprintf(char* s, const char* format, ...);
+
+// inferred: the atn::EffFile and atn::Texture members of BattleTask are raw storage in the header (see
+// BattleMarkers_unk); names invented
+inline atn::EffFile* AsEffFile_unk(unsigned char* p) {
+    return (atn::EffFile*)p;
+}
+inline atn::Texture* AsTexture_unk(unsigned char* p) {
+    return (atn::Texture*)p;
+}
+extern "C" void fn_800D58A4(atn::Texture* tex); // inferred: releases the texture (as game/GameUI.cpp)
+// inferred: names of the battle effect files (const pointers of .sdata2 of this file to strings of .rodata)
+extern "C" const char* const lbl_808813DC;
+extern "C" const char* const lbl_808813E0;
+extern "C" const char* const lbl_808813E4;
+extern "C" const char* const lbl_808813E8;
+extern "C" const char* const lbl_808813EC;
+extern "C" const char* const lbl_808813F0;
+extern "C" const char* const lbl_8088140C;
+extern "C" const char* const lbl_80881410;
+extern "C" const char* const lbl_80881414;
+extern "C" const char* const lbl_80881418;
+extern "C" const char* const lbl_8088141C;
+extern "C" const char* const lbl_80881420;
+extern "C" const char* const lbl_80881424;
+extern "C" const char* const lbl_80881428;
+extern "C" const char* const lbl_8088142C;
+extern "C" const char* const lbl_80881430;
+extern "C" const char* const lbl_80881434;
+extern "C" const char* const lbl_80881438;
+extern "C" const char* const lbl_8088143C;
+extern "C" const char* const lbl_80881440;
+extern "C" const char* const lbl_80881444;
+extern "C" const char* const lbl_80881448;
+extern "C" const char* const lbl_8088144C;
+extern "C" const char* const lbl_80881450;
+extern "C" const char* const lbl_80881454;
+extern "C" const char* const lbl_80881458;
+extern "C" const char* const lbl_8088145C;
+extern "C" const char* const lbl_80881460;
+extern "C" const char* const lbl_80881468;
+extern "C" const char* const lbl_8088146C;
+extern "C" const char* const lbl_80881470;
+extern "C" const char* const lbl_80881474;
+extern "C" const char* const lbl_80735A94[3]; // inferred: status effect files (.rodata of this file)
+extern "C" const char* const lbl_80735A48[7]; // inferred: effect files of mEfp365E8 (.rodata of this file)
+
+// inferred: load requests of the battle effects, once (m3E394); fn_800F3170 releases them. C name, called by
+// GameTask as extern "C"
+extern "C" void fn_800F2C9C(BattleTask* mgr) {
+    if (mgr->m3E394 != 0) {
+        return;
+    }
+    mgr->m3E394 = 1;
+    char path[0x100];
+    for (int i = 0; i < 3; i++) {
+        for (int j = 0; j < 7; j++) {
+            if (i == 0) {
+                sprintf(path, "/effect/hit/ef_hg%03d.eff\0", j);
+            } else if (i == 1) {
+                sprintf(path, "/effect/hit/ef_hs%03d.eff\0", j);
+            } else {
+                sprintf(path, "/effect/ef_hm001c.eff\0");
+            }
+            AsEffFile_unk(mgr->mHitEff[i][j])->LoadRequest(path);
+        }
+    }
+    for (int i = 0; i < 5; i++) {
+        sprintf(path, "/effect/hit/ef_hs000_%02d.eff\0", i);
+        AsEffFile_unk(mgr->mEff3651C[i])->LoadRequest(path);
+        sprintf(path, "/effect/hit/ef_hs001_%02d.eff\0", i);
+        AsEffFile_unk(mgr->mEff36558[i])->LoadRequest(path);
+    }
+    for (int i = 0; i < 3; i++) {
+        AsEffFile_unk(mgr->mEff36594[i])->LoadRequest(lbl_80735A94[i]);
+    }
+    mgr->mEfp365B8[0].LoadRequest(lbl_80881474);
+    mgr->mEfp365B8[1].LoadRequest("ef_bs072h.efp");
+    mgr->mEfp363C0[0].LoadRequest(lbl_808813E0);
+    mgr->mEfp363C0[1].LoadRequest(lbl_808813E4);
+    mgr->mEfp363C0[2].LoadRequest(lbl_808813E8);
+    mgr->mEfp363C0[3].LoadRequest(lbl_808813EC);
+    AsTexture_unk(mgr->mCB7C)->fn_800D5908(lbl_808813DC);
+    mgr->mEfp364EC.LoadRequest(lbl_808813F0);
+    mgr->mEfp38AF4[0].LoadRequest(lbl_8088140C);
+    mgr->mEfp38AF4[1].LoadRequest("ef_bu044a.efp");
+    mgr->mEfp38AF4[2].LoadRequest(lbl_80881410);
+    mgr->mEfp38AF4[3].LoadRequest(lbl_80881414);
+    mgr->mEfp38AF4[4].LoadRequest(lbl_80881418);
+    mgr->mEfp38AF4[5].LoadRequest("ef_bu044d.efp");
+    mgr->mEfp38AF4[6].LoadRequest(lbl_8088141C);
+    mgr->mEfp38AF4[7].LoadRequest("ef_bu044b.efp");
+    mgr->mEfp38AF4[8].LoadRequest(lbl_80881420);
+    mgr->mEfp38AF4[9].LoadRequest("ef_bu044e.efp");
+    mgr->mEfp38AF4[10].LoadRequest(lbl_80881424);
+    mgr->mEfp38AF4[11].LoadRequest(lbl_80881428);
+    mgr->mEfp38AF4[12].LoadRequest(lbl_8088142C);
+    mgr->mEfp38AF4[13].LoadRequest(lbl_80881424);
+    mgr->mEfp38AF4[14].LoadRequest(lbl_80881428);
+    mgr->mEfp38AF4[15].LoadRequest(lbl_8088142C);
+    mgr->mEfp38AF4[16].LoadRequest(lbl_80881434);
+    mgr->mEfp38AF4[17].LoadRequest(lbl_80881438);
+    mgr->mEfp38AF4[18].LoadRequest(lbl_80881438);
+    mgr->mEfp38AF4[19].LoadRequest(lbl_8088143C);
+    mgr->mEfp38AF4[20].LoadRequest(lbl_80881440);
+    mgr->mEfp38AF4[21].LoadRequest(lbl_80881444);
+    mgr->mEfp38AF4[22].LoadRequest(lbl_80881448);
+    mgr->mEfp38AF4[23].LoadRequest(lbl_8088144C);
+    mgr->mEfp38AF4[25].LoadRequest(lbl_80881450);
+    mgr->mEfp38AF4[26].LoadRequest(lbl_80881454);
+    mgr->mEfp38AF4[27].LoadRequest(lbl_80881458);
+    mgr->mEfp38AF4[28].LoadRequest(lbl_8088145C);
+    AsEffFile_unk(mgr->m389F4)->LoadRequest(lbl_80881430);
+    mgr->mEfp38AF4[29].LoadRequest(lbl_80881460);
+    mgr->mEfp38AF4[30].LoadRequest("ef_uc067.efp");
+    mgr->mEfp38AF4[31].LoadRequest(lbl_80881468);
+    mgr->mEfp365B8[2].LoadRequest(lbl_8088146C);
+    mgr->mEfp365B8[3].LoadRequest(lbl_80881470);
+    for (int i = 0; i < 7; i++) {
+        mgr->mEfp365E8[i].LoadRequest(lbl_80735A48[i]);
+    }
+    mgr->mStunEfp[0][0].LoadRequest("ef_ui018a.efp");
+    mgr->mStunEfp[0][1].LoadRequest("ef_ui018b.efp");
+    mgr->mStunEfp[0][2].LoadRequest("ef_ui018c.efp");
+    mgr->mStunEfp[1][0].LoadRequest("ef_ui008a.efp");
+    mgr->mStunEfp[1][1].LoadRequest("ef_ui008b.efp");
+    mgr->mStunEfp[1][2].LoadRequest("ef_ui008c.efp");
+    lbl_8087F9E8->fn_8059AFD8();
+}
+
+
+// inferred: releases the battle effects once (m3E394) and the effect files of the skills. C name, called by
+// GameTask as extern "C"
+extern "C" void fn_800F3170(BattleTask* mgr) {
+    if (mgr->m3E394 == 0) {
+        return;
+    }
+    mgr->m3E394 = 0;
+    for (int i = 0; i < 3; i++) {
+        for (int j = 0; j < 7; j++) {
+            AsEffFile_unk(mgr->mHitEff[i][j])->Destroy();
+        }
+    }
+    for (int i = 0; i < 5; i++) {
+        AsEffFile_unk(mgr->mEff3651C[i])->Destroy();
+        AsEffFile_unk(mgr->mEff36558[i])->Destroy();
+    }
+    for (int i = 0; i < 3; i++) {
+        AsEffFile_unk(mgr->mEff36594[i])->Destroy();
+    }
+    mgr->mEfp365B8[0].Destroy();
+    mgr->mEfp365B8[1].Destroy();
+    mgr->mEfp363C0[0].Destroy();
+    mgr->mEfp363C0[1].Destroy();
+    mgr->mEfp363C0[2].Destroy();
+    mgr->mEfp363C0[3].Destroy();
+    fn_800D58A4(AsTexture_unk(mgr->mCB7C));
+    mgr->mEfp364EC.Destroy();
+    mgr->mEfp38AF4[0].Destroy();
+    mgr->mEfp38AF4[1].Destroy();
+    for (int i = 0; i < 3; i++) {
+        (&mgr->mEfp38AF4[2])[i].Destroy();
+    }
+    mgr->mEfp38AF4[5].Destroy();
+    mgr->mEfp38AF4[6].Destroy();
+    mgr->mEfp38AF4[7].Destroy();
+    mgr->mEfp38AF4[8].Destroy();
+    mgr->mEfp38AF4[9].Destroy();
+    for (int i = 0; i < 3; i++) {
+        (&mgr->mEfp38AF4[10])[i].Destroy();
+        (&mgr->mEfp38AF4[13])[i].Destroy();
+    }
+    mgr->mEfp38AF4[16].Destroy();
+    mgr->mEfp38AF4[20].Destroy();
+    mgr->mEfp38AF4[21].Destroy();
+    mgr->mEfp38AF4[22].Destroy();
+    mgr->mEfp38AF4[17].Destroy();
+    mgr->mEfp38AF4[18].Destroy();
+    mgr->mEfp38AF4[19].Destroy();
+    mgr->mEfp38AF4[23].Destroy();
+    mgr->mEfp38AF4[25].Destroy();
+    mgr->mEfp38AF4[26].Destroy();
+    mgr->mEfp38AF4[27].Destroy();
+    mgr->mEfp38AF4[28].Destroy();
+    AsEffFile_unk(mgr->m389F4)->Destroy();
+    mgr->mEfp38AF4[29].Destroy();
+    mgr->mEfp38AF4[30].Destroy();
+    mgr->mEfp38AF4[31].Destroy();
+    mgr->mEfp365B8[2].Destroy();
+    mgr->mEfp365B8[3].Destroy();
+    for (int i = 0; i < 7; i++) {
+        mgr->mEfp365E8[i].Destroy();
+    }
+    for (int i = 0; i < 2; i++) {
+        for (int j = 0; j < 3; j++) {
+            mgr->mStunEfp[i][j].Destroy();
+        }
+    }
+    lbl_8087F9E8->fn_8059B0F0();
+}
+
+extern "C" int fn_800EF91C(); // inferred: nonzero while the effects of game/BattleEfp_unk load
+
+// inferred: nonzero while the battle effects (the same as fn_800F3170 releases), the models of mSlots, the stun
+// effects or the skill effect files load
+int BattleTask::fn_800F3490() {
+    int loading = 0;
+    if (fn_800EF91C()) {
+        loading = 1;
+    }
+    for (int i = 0; i < 3; i++) {
+        for (int j = 0; j < 7; j++) {
+            if (AsEffFile_unk(mHitEff[i][j])->IsLoading()) {
+                loading = 1;
+            }
+        }
+    }
+    for (int i = 0; i < 5; i++) {
+        if (AsEffFile_unk(mEff3651C[i])->IsLoading()) {
+            loading = 1;
+        }
+        if (AsEffFile_unk(mEff36558[i])->IsLoading()) {
+            loading = 1;
+        }
+    }
+    for (int i = 0; i < 3; i++) {
+        if (AsEffFile_unk(mEff36594[i])->IsLoading()) {
+            loading = 1;
+        }
+    }
+    if (mEfp365B8[0].IsLoading() || mEfp365B8[1].IsLoading()) {
+        loading = 1;
+    }
+    if (mEfp363C0[0].IsLoading()) {
+        loading = 1;
+    }
+    if (mEfp363C0[1].IsLoading()) {
+        loading = 1;
+    }
+    if (mEfp363C0[2].IsLoading()) {
+        loading = 1;
+    }
+    if (mEfp363C0[3].IsLoading()) {
+        loading = 1;
+    }
+    // inferred: atn::Texture "is loading" (0x800D59B8, named as GimmickUvOwner_unk like gmk/AutomaticDoor.cpp)
+    if (((GimmickUvOwner_unk*)mCB7C)->fn_800D59B8()) {
+        loading = 1;
+    }
+    if (mEfp364EC.IsLoading()) {
+        loading = 1;
+    }
+    if (mEfp38AF4[0].IsLoading() || mEfp38AF4[1].IsLoading()) {
+        loading = 1;
+    }
+    for (int i = 0; i < 3; i++) {
+        if ((&mEfp38AF4[2])[i].IsLoading()) {
+            loading = 1;
+        }
+    }
+    if (mEfp38AF4[5].IsLoading()) {
+        loading = 1;
+    }
+    if (mEfp38AF4[6].IsLoading() || mEfp38AF4[8].IsLoading()) {
+        loading = 1;
+    }
+    if (mEfp38AF4[7].IsLoading() || mEfp38AF4[9].IsLoading()) {
+        loading = 1;
+    }
+    for (int i = 0; i < 3; i++) {
+        if ((&mEfp38AF4[10])[i].IsLoading() || (&mEfp38AF4[13])[i].IsLoading()) {
+            loading = 1;
+        }
+    }
+    if (mEfp38AF4[16].IsLoading() || mEfp38AF4[17].IsLoading() || mEfp38AF4[18].IsLoading() ||
+        mEfp38AF4[19].IsLoading() || mEfp38AF4[20].IsLoading() || mEfp38AF4[21].IsLoading() ||
+        mEfp38AF4[22].IsLoading() || mEfp38AF4[23].IsLoading() || mEfp38AF4[25].IsLoading() ||
+        mEfp38AF4[26].IsLoading() || mEfp38AF4[27].IsLoading() || mEfp38AF4[28].IsLoading()) {
+        loading = 1;
+    }
+    if (AsEffFile_unk(m389F4)->IsLoading()) {
+        loading = 1;
+    }
+    if (mEfp38AF4[29].IsLoading()) {
+        loading = 1;
+    }
+    if (mEfp38AF4[30].IsLoading()) {
+        loading = 1;
+    }
+    if (mEfp38AF4[31].IsLoading()) {
+        loading = 1;
+    }
+    if (mEfp365B8[2].IsLoading()) {
+        loading = 1;
+    }
+    if (mEfp365B8[3].IsLoading()) {
+        loading = 1;
+    }
+    for (int i = 0; i < 7; i++) {
+        if (mEfp365E8[i].IsLoading()) {
+            loading = 1;
+        }
+    }
+    for (unsigned int i = 0; i < 8; i++) {
+        if (mSlots[i].mModel.fn_8008B140()) {
+            loading = 1;
+        }
+    }
+    for (int i = 0; i < 2; i++) {
+        for (int j = 0; j < 3; j++) {
+            if (mStunEfp[i][j].IsLoading()) {
+                loading = 1;
+            }
+        }
+    }
+    if (lbl_8087F9E8->fn_8059B1B4()) {
+        loading = 1;
+    }
+    return loading;
+}
 
 // NONMATCHING: 97.9% - the first string pointer is loaded before the register saves in the original; string pool
 // offsets differ (file not complete)
@@ -630,6 +957,88 @@ extern "C" int fn_800F8548(BattleTask* mgr) {
     return id;
 }
 
+extern "C" const char* fn_800EFF04(int id);       // inferred: firing sound of row `id`
+extern "C" atn::EffFile* fn_800EFD04(int id);     // inferred: bullet effect of row `id`
+extern "C" bool fn_8021A888(HitInfo_unk* data);   // inferred: db/ParseUtil_unk (takes the record as BulletParam_unk)
+extern "C" float fn_8010B250(BattleTask* mgr, int level, BattleCalcParam_unk* param);
+
+// inferred: fires the `data->m48` bullets of `data` from `pos` along `dir` (homing bullets with `homing`), spread
+// randomly by the aim instability of `owner` (m12CC, raised by 0.33 up to 1 after the shot); plays the firing sound
+// (louder for the player with fn_8021A888). C name, called by enemies as extern "C"
+// NONMATCHING: 99.3% - stack slots of the rotation temporaries (allocated the other way), of the rotation copy
+extern "C" int fn_800F8574(BattleTask* mgr, CharaTask* owner, HitInfo_unk* data, const atn::Vector3* pos,
+                           const atn::Vector3* dir, const HomingParam_unk* homing, unsigned int flags, int arg,
+                           float a, float b) {
+    if (data == 0) {
+        return 0;
+    }
+    const char* sound = fn_800EFF04(data->mB0);
+    if (sound != 0) {
+        float volume = 1.0f;
+        if (owner->mType == 0 && fn_8021A888(data)) {
+            volume = 1.75f;
+        }
+        fn_800C344C(sound, pos, 0, -1, volume);
+    }
+    atn::Vector3 rot = dir->ToRotation_unk();
+    atn::Matrix3x4 m;
+    atn::Matrix3x4* p = &m;
+    p->SetIdentity();
+    if (0.0f != rot.z) {
+        atn::Matrix3x4::RotateAxis_unk(*p, 'z', rot.z);
+    }
+    if (0.0f != rot.y) {
+        atn::Matrix3x4::RotateAxis_unk(*p, 'y', rot.y);
+    }
+    if (0.0f != rot.x) {
+        atn::Matrix3x4::RotateAxis_unk(*p, 'x', rot.x);
+    }
+    for (int i = 0; i < data->m48; i++) {
+        atn::Vector3 v(0.0f, 0.0f, 1.0f);
+        float spread = 0.017453292f * (owner->mStatus.mParamB.m2C * (1.0f - owner->m12CC));
+        Mtx ry;
+        PSMTXRotRad(ry, 'y', spread * ((float)(rand() % 1001) / 1000.0f));
+        PSMTXMultVec(ry, &v, &v);
+        Mtx rz;
+        PSMTXRotRad(rz, 'z', 6.2831855f * ((float)(rand() % 1001) / 1000.0f));
+        PSMTXMultVec(rz, &v, &v);
+        PSMTXMultVec(m.m, &v, &v);
+        BulletShot_unk shot;
+        shot.m00 = 0.1f;
+        shot.m04 = 0;
+        shot.m08 = 0;
+        shot.m10 = 0;
+        shot.m14 = 0.0f;
+        shot.m18 = 1.0f;
+        shot.m00 = fn_8010B250(mgr, data->m3C, 0);
+        shot.m04 = (int)fn_800EFD04(data->mB0);
+        shot.m08 = (int)fn_800EFDA0(data->mB0);
+        shot.m0C = data;
+        shot.m10 = arg;
+        shot.m14 = a;
+        shot.m18 = b;
+        if (homing == 0) {
+            Bullet* bullet = lbl_8087F048->fn_801010A0();
+            if (bullet == 0) {
+                break;
+            }
+            bullet->fn_8010EE78(&shot, pos, &v, owner, -1, flags, -1.0f);
+        } else {
+            HomingBullet* bullet = lbl_8087F048->fn_801010E8();
+            if (bullet == 0) {
+                break;
+            }
+            bullet->vf28(&shot, pos, &v, owner, homing, flags);
+        }
+    }
+    float t = owner->m12CC + 0.33f;
+    if (t > 1.0f) {
+        t = 1.0f;
+    }
+    owner->m12CC = t;
+    return 1;
+}
+
 
 extern "C" int fn_800FBE70(BattleTask* mgr, CharaTask* attacker, CharaTask* chara, HitInfo_unk* data, int id,
                            const atn::Vector3* pos, int any, int type);
@@ -638,7 +1047,7 @@ extern "C" void fn_800FB1BC(BattleTask* mgr, CharaTask* chara, HitInfo_unk* data
 extern "C" bool fn_8021A7A0(HitInfo_unk* data); // inferred: db/ParseUtil_unk (takes the record as BulletParam_unk)
 // inferred: damage of the bullet `data` to the sphere `index` of `chara`
 extern "C" void fn_800FCD24(BattleTask* mgr, CharaTask* attacker, CharaTask* chara, int index, HitInfo_unk* data, int id,
-                            const atn::Vector3* pos, int time, int arg8, float f1, float f2);
+                            const atn::Vector3* pos, int time, BattleCalcParam_unk* out, float, float rate);
 extern "C" void* memset(void* dst, int c, unsigned long n);
 
 // inferred: push of the debug ring (drops the oldest record when full)
@@ -789,7 +1198,6 @@ extern "C" atn::EfpFile* fn_800EFDA0(int id);
 extern "C" SkillEffect* fn_8059B66C(void* mgr, HitInfo_unk* skill, CharaTask* user, CharaTask* target,
                                     const atn::Vector3* pos, const atn::Vector3* rot,
                                     boost::function<void(SkillEffect*)> callback, float rate);
-extern "C" void* lbl_8087F9E8;
 
 // inferred: effects of a hit of `chara` with `data` at `pos`: the skill effect lit by the map, its sound, the
 // sub skill (the data itself when `self`, else the bullet data->m6C) unless `flags` has 0x20000000, and event
@@ -848,7 +1256,7 @@ extern "C" void fn_800FB1BC(BattleTask* mgr, CharaTask* chara, HitInfo_unk* data
 
 extern "C" bool fn_8021AA48(HitInfo_unk* data); // inferred: db/ParseUtil_unk (takes BulletParam_unk)
 extern "C" bool fn_8021A9CC(HitInfo_unk* data); // inferred: db/ParseUtil_unk (takes BulletParam_unk)
-// NONMATCHING: 91.4% - stack slots (the rotation temporaries go the other way, one vector less), .sdata2 pool
+// NONMATCHING: 93.0% - stack slots (the rotation temporaries go the other way, one vector less), .sdata2 pool
 extern "C" int fn_800FD658(BattleTask* mgr, CharaTask* attacker, CharaTask* chara, HitInfo_unk* data, int a, int id,
                            int b);
 
@@ -1168,6 +1576,255 @@ int BattleTask::fn_800FC1D0(CharaTask* attacker, CharaTask* chara, HitInfo_unk* 
     return found;
 }
 
+// inferred: damage record shown by fn_80108C10 (local view, as StatusDamage_unk/DaemonDamage_unk of other files)
+struct BattleDamage_unk {
+    int m00; // inferred: kind (1, 4 and 5 are shown)
+    int m04; // inferred: value (negative: recovery)
+    int m08;
+    int m0C;
+    int m10;
+    int m14;
+    int m18;
+    unsigned int m1C_28 : 4; // inferred: cleared by fn_800FDB20 (the rest of the word is left as it is)
+    unsigned int m1C_0 : 28;
+};
+extern "C" void fn_80108C10(BattleTask* mgr, BattleDamage_unk* damage, const atn::Vector3* pos, CharaTask* attacker,
+                            CharaTask* chara, unsigned int flags, int skipEmpty);
+extern "C" bool fn_8021A8D0(HitInfo_unk* data); // inferred: db/ParseUtil_unk (takes BulletParam_unk)
+extern "C" float fn_8010B250(BattleTask* mgr, int level, BattleCalcParam_unk* param);
+
+// inferred: center of the hit sphere `index` of `chara` (the middle height of its collision capsule for the first
+// sphere when mFlagB29 is set); name invented
+inline atn::Vector3 HitCenterAt_unk(CharaTask* chara, int index) {
+    atn::Vector3 center;
+    if (index == 0 && chara->mFlagB29) {
+        atn::Vector3 start = chara->mColli.m3C;
+        atn::Vector3 end = chara->mColli.m48;
+        center = chara->mColli.m3C;
+        float half = 0.5f * (end.y - start.y);
+        center.y += half;
+    } else {
+        center = chara->fn_80148B0C(index)->m04.mCenter;
+    }
+    return center;
+}
+
+// inferred: direct hit of `attacker` with `hit` (id `id`, `frames`) on the sphere `index` of `chara`: the attack
+// parameters m38A5C (point on the surface of the sphere toward `attacker`; level of the attacker plus the hit
+// against `chara`, raised by the critical and combo states and the count of the control, lowered by some states
+// of `chara`, or the fixed level of the hit; push away from `attacker`, scaled by GameConfig::mForceRatio with a
+// minimum for the characters with mFlag10) go through fn_800FDF14. C name, called by CharaTask as extern "C"
+// NONMATCHING: 99.3% - stack slots of the rotation temporaries (allocated the other way, as in fn_800FD658)
+extern "C" void fn_800FC410(BattleTask* mgr, CharaTask* attacker, CharaTask* chara, int index, HitInfo_unk* hit, int id,
+                            int frames) {
+    fn_800E2A24(&mgr->m38A5C);
+    mgr->m38A5C.m00 = (int)attacker; // inferred: the field is an int (see fn_800FD658)
+    mgr->m38A5C.m04 = chara;
+    mgr->m38A5C.m40 = index;
+    mgr->m38A5C.m08 = hit;
+    atn::Vector3 dir = attacker->mPos - HitCenterAt_unk(chara, index);
+    if (!((float)__fabs(PSVECSquareMag(&dir)) < 1.1920929e-7f)) {
+        PSVECNormalize(&dir, &dir);
+        dir *= chara->m5B0;
+        mgr->m38A5C.m1C = dir + HitCenterAt_unk(chara, index);
+    } else {
+        float radius = chara->m5B0;
+        dir.x = 0.0f;
+        dir.y = 0.0f;
+        dir.z = radius;
+        atn::Matrix3x4 m;
+        atn::Matrix3x4* p = &m;
+        p->SetIdentity();
+        if (0.0f != chara->mRot.z) {
+            atn::Matrix3x4::RotateAxis_unk(*p, 'z', chara->mRot.z);
+        }
+        if (0.0f != chara->mRot.y) {
+            atn::Matrix3x4::RotateAxis_unk(*p, 'y', chara->mRot.y);
+        }
+        if (0.0f != chara->mRot.x) {
+            atn::Matrix3x4::RotateAxis_unk(*p, 'x', chara->mRot.x);
+        }
+        PSMTXMultVec(p->m, &dir, &dir);
+        mgr->m38A5C.m1C = dir + HitCenterAt_unk(chara, index);
+    }
+    atn::Vector3 n = dir;
+    PSVECNormalize(&n, &n);
+    mgr->m38A5C.m28 = atn::Vector3(-n.x, -n.y, -n.z);
+    mgr->m38A5C.m34 = id;
+    mgr->m38A5C.m38 = frames;
+    if (attacker != 0 && attacker->m648 != 0) {
+        mgr->m38A5C.m3C = attacker->m648->m04;
+    }
+    mgr->m38A5C.m44 = 0;
+    int level = attacker->mStatus.mParamB.m30 + hit->m3C - chara->mStatus.mParamB.m34;
+    mgr->m38A5C.m54 = attacker->fn_8017A228(0);
+    mgr->m38A5C.m58 = attacker->fn_8017A228(1);
+    bool fixed = false;
+    if (attacker->m59D) {
+        if (attacker->m598 == 0) {
+            level = 1;
+            fixed = true;
+        } else if (attacker->m598 == 1 && lbl_8087F610 == 0) {
+            level++;
+        }
+    }
+    if (attacker->mStatus.fn_80134234()) {
+        int count = 1;
+        if (attacker->mControl.get() != 0) {
+            count = attacker->mControl->vf2C();
+        }
+        if (count > 0) {
+            if (attacker->m598 + 1 < count) {
+                level = 1;
+                fixed = true;
+            } else if (lbl_8087F610 == 0) {
+                level++;
+            }
+        }
+    }
+    if (attacker->m59E) {
+        mgr->m38A5C.m0C |= 0x80;
+        if (!fixed) {
+            level++;
+        }
+    }
+    if (attacker->m59F) {
+        mgr->m38A5C.m0C |= 0x4000;
+    }
+    if (level <= 4 && chara != 0 && chara->mFlagB16) {
+        int lower = level - 1;
+        level = 1;
+        if (lower > 1) {
+            level = lower;
+        }
+    }
+    if (attacker != 0 && chara != 0 && chara->fn_801789D8(0, 0x400000)) {
+        if (level <= 4) {
+            level = MAX(level - 2, 0);
+        } else {
+            level = MAX(level - 1, 0);
+        }
+    }
+    if (hit != 0 && (hit->mAC & 0x400000) == 0x400000) {
+        level = hit->m3C;
+    }
+    mgr->m38A5C.m5C = attacker->m5A0;
+    float scale = fn_8010B250(mgr, level, &mgr->m38A5C);
+    mgr->m38A5C.m10 = chara->mPos - attacker->mPos;
+    if (!((float)__fabs(PSVECSquareMag(&mgr->m38A5C.m10)) < 1.1920929e-7f)) {
+        PSVECNormalize(&mgr->m38A5C.m10, &mgr->m38A5C.m10);
+    } else {
+        atn::Vector3 v(0.0f, 0.0f, 1.0f);
+        Mtx m;
+        PSMTXRotRad(m, 'y', chara->mRot.y);
+        PSMTXMultVec(m, &v, &v);
+        mgr->m38A5C.m10 = atn::Vector3(-v.x, -v.y, -v.z);
+    }
+    mgr->m38A5C.m10 *= scale;
+    if (chara->mFlag10 && PSVECSquareMag(&mgr->m38A5C.m10) > 0.01f) {
+        mgr->m38A5C.m10 *= lbl_8087F0A8->mForceRatio;
+        if (PSVECMag(&mgr->m38A5C.m10) < 0.11f) {
+            PSVECNormalize(&mgr->m38A5C.m10, &mgr->m38A5C.m10);
+            mgr->m38A5C.m10 *= 0.11f;
+        }
+    }
+    mgr->fn_800FDF14(&mgr->m38A5C);
+}
+
+// inferred: the bullet `data` (id `id`) of `attacker` hits the sphere `index` of `chara` at `pos`: the attack
+// parameters m38A5C (point on the surface of the sphere toward `pos`, or along the facing of `chara`; push away
+// from `pos` scaled by the level of the bullet against `chara`; no push for the bullet 0x139 of a character with
+// mFlag31) go through fn_800FDF14 and are copied to `out`. In multiplayer a guarding character takes the bullets
+// 0x131 and 0x142 as a "guard" popup. C name
+// NONMATCHING: 98.0% - stack slots of the rotation temporaries (allocated the other way), copy of the record pairs
+extern "C" void fn_800FCD24(BattleTask* mgr, CharaTask* attacker, CharaTask* chara, int index, HitInfo_unk* data, int id,
+                            const atn::Vector3* pos, int time, BattleCalcParam_unk* out, float, float rate) {
+    if (lbl_8087F610 != 0 && (chara->mStatus.m14 & 1u) == 1 && data != 0 && (data->m04 == 0x142 || data->m04 == 0x131)) {
+        BattleDamage_unk damage;
+        damage.m08 = 0;
+        damage.m0C = 0;
+        damage.m10 = 0;
+        damage.m14 = -1;
+        damage.m1C_28 = 0;
+        damage.m18 = -1;
+        damage.m04 = 0;
+        damage.m00 = 1;
+        fn_80108C10(mgr, &damage, pos, attacker, chara, 0x108, 0);
+        return;
+    }
+    fn_800E2A24(&mgr->m38A5C);
+    mgr->m38A5C.m00 = (int)attacker; // inferred: the field is an int (see fn_800FD658)
+    mgr->m38A5C.m04 = chara;
+    mgr->m38A5C.m40 = index;
+    mgr->m38A5C.m08 = data;
+    mgr->m38A5C.m5C = rate;
+    atn::Vector3 dir = *pos - HitCenterAt_unk(chara, index);
+    if (!((float)__fabs(PSVECSquareMag(&dir)) < 1.1920929e-7f)) {
+        PSVECNormalize(&dir, &dir);
+        dir *= chara->m5B0;
+        mgr->m38A5C.m1C = dir + HitCenterAt_unk(chara, index);
+    } else {
+        float radius = chara->m5B0;
+        dir.x = 0.0f;
+        dir.y = 0.0f;
+        dir.z = radius;
+        atn::Matrix3x4 m;
+        atn::Matrix3x4* p = &m;
+        p->SetIdentity();
+        if (0.0f != chara->mRot.z) {
+            atn::Matrix3x4::RotateAxis_unk(*p, 'z', chara->mRot.z);
+        }
+        if (0.0f != chara->mRot.y) {
+            atn::Matrix3x4::RotateAxis_unk(*p, 'y', chara->mRot.y);
+        }
+        if (0.0f != chara->mRot.x) {
+            atn::Matrix3x4::RotateAxis_unk(*p, 'x', chara->mRot.x);
+        }
+        PSMTXMultVec(p->m, &dir, &dir);
+        mgr->m38A5C.m1C = dir + HitCenterAt_unk(chara, index);
+    }
+    atn::Vector3 n = dir;
+    PSVECNormalize(&n, &n);
+    mgr->m38A5C.m28 = atn::Vector3(-n.x, -n.y, -n.z);
+    mgr->m38A5C.m34 = id;
+    mgr->m38A5C.m38 = time;
+    if (attacker != 0 && attacker->m648 != 0) {
+        mgr->m38A5C.m3C = attacker->m648->m04;
+    }
+    mgr->m38A5C.m44 = 2;
+    mgr->m38A5C.m48 = 0;
+    int level = data->m3C - chara->mStatus.mParamB.m34;
+    if (attacker != 0 && chara != 0 && chara->fn_801789D8(0, 0x400000)) {
+        if (level <= 4) {
+            level = MAX(level - 2, 0);
+        } else {
+            level = MAX(level - 1, 0);
+        }
+    }
+    float scale = fn_8010B250(mgr, level, &mgr->m38A5C);
+    mgr->m38A5C.m10 = chara->mPos - *pos;
+    if (!((float)__fabs(PSVECSquareMag(&mgr->m38A5C.m10)) < 1.1920929e-7f)) {
+        PSVECNormalize(&mgr->m38A5C.m10, &mgr->m38A5C.m10);
+    } else {
+        atn::Vector3 v(0.0f, 0.0f, 1.0f);
+        Mtx m;
+        PSMTXRotRad(m, 'y', chara->mRot.y);
+        PSMTXMultVec(m, &v, &v);
+        mgr->m38A5C.m10 = atn::Vector3(-v.x, -v.y, -v.z);
+    }
+    mgr->m38A5C.m10 *= scale;
+    if (attacker != 0 && chara->mFlag31 && mgr->m38A5C.m08->m04 == 0x139) {
+        mgr->m38A5C.m10 *= 0.0f;
+    }
+    if (mgr->m38A5C.m08 != 0 && mgr->m38A5C.m08->m04 == 0xD5) {
+        mgr->m38A5C.m0C |= 0x80;
+    }
+    mgr->fn_800FDF14(&mgr->m38A5C);
+    if (out != 0) {
+        *out = mgr->m38A5C;
+    }
+}
+
 // inferred: center of the hit body of `chara`: the middle height of its collision capsule when mFlagB29 is
 // set, else its first hit sphere (name invented)
 inline atn::Vector3 HitCenter_unk(CharaTask* chara) {
@@ -1187,7 +1844,7 @@ inline atn::Vector3 HitCenter_unk(CharaTask* chara) {
 // inferred: hit of `attacker` on `chara` with `data`: fills the attack parameters m38A5C (the point of the hit
 // on the surface of `chara`, toward the attacker or else along the facing of `chara`, and the direction) and
 // runs them through fn_800FDF14. Called as extern "C" by CharaTask and Em314Ivy.
-// NONMATCHING: 91.4% - stack slots (the rotation temporaries go the other way, one vector less), .sdata2 pool
+// NONMATCHING: 93.0% - stack slots (the rotation temporaries go the other way, one vector less), .sdata2 pool
 extern "C" int fn_800FD658(BattleTask* mgr, CharaTask* attacker, CharaTask* chara, HitInfo_unk* data, int a, int flag,
                            int b) {
     fn_800E2A24(&mgr->m38A5C);
@@ -1211,17 +1868,18 @@ extern "C" int fn_800FD658(BattleTask* mgr, CharaTask* attacker, CharaTask* char
             dir.y = 0.0f;
             dir.z = radius;
             atn::Matrix3x4 m;
-            m.SetIdentity();
+            atn::Matrix3x4* p = &m;
+            p->SetIdentity();
             if (0.0f != chara->mRot.z) {
-                atn::Matrix3x4::RotateAxis_unk(m, 'z', chara->mRot.z);
+                atn::Matrix3x4::RotateAxis_unk(*p, 'z', chara->mRot.z);
             }
             if (0.0f != chara->mRot.y) {
-                atn::Matrix3x4::RotateAxis_unk(m, 'y', chara->mRot.y);
+                atn::Matrix3x4::RotateAxis_unk(*p, 'y', chara->mRot.y);
             }
             if (0.0f != chara->mRot.x) {
-                atn::Matrix3x4::RotateAxis_unk(m, 'x', chara->mRot.x);
+                atn::Matrix3x4::RotateAxis_unk(*p, 'x', chara->mRot.x);
             }
-            PSMTXMultVec(m.m, &dir, &dir);
+            PSMTXMultVec(p->m, &dir, &dir);
             mgr->m38A5C.m1C = dir + HitCenter_unk(chara);
         }
     }
@@ -1234,22 +1892,6 @@ extern "C" int fn_800FD658(BattleTask* mgr, CharaTask* attacker, CharaTask* char
     return mgr->fn_800FDF14(&mgr->m38A5C);
 }
 
-// inferred: damage record shown by fn_80108C10 (local view, as StatusDamage_unk/DaemonDamage_unk of other files)
-struct BattleDamage_unk {
-    int m00; // inferred: kind (1, 4 and 5 are shown)
-    int m04; // inferred: value (negative: recovery)
-    int m08;
-    int m0C;
-    int m10;
-    int m14;
-    int m18;
-    unsigned int m1C_28 : 4; // inferred: cleared by fn_800FDB20 (the rest of the word is left as it is)
-    unsigned int m1C_0 : 28;
-};
-extern "C" void fn_80108C10(BattleTask* mgr, BattleDamage_unk* damage, const atn::Vector3* pos, CharaTask* attacker,
-                            CharaTask* chara, unsigned int flags, int skipEmpty);
-extern "C" bool fn_8021A8D0(HitInfo_unk* data); // inferred: db/ParseUtil_unk (takes BulletParam_unk)
-extern "C" float fn_8010B250(BattleTask* mgr, int level, BattleCalcParam_unk* param);
 
 // inferred: bullet `data` (id `id`) of `attacker` hits `chara` at `pos` toward `dir`: a guarding character takes
 // a "guard" popup (returns 4); else the attack parameters m38A5C (level of the bullet against the level of
@@ -1326,6 +1968,86 @@ void BattleTask::fn_800FDE60(int effect, CharaTask* chara, const atn::Vector3& d
 }
 
 extern "C" double cos(double x);
+
+// inferred: character of the camera targets ahead of `chara` (facing `rot->y`) with the nearest hit sphere inside
+// `range` (half of it while fn_801789D8 holds, unless the target has mFlag22) and the cone `theta`, the distance
+// weighted by the angle; a sphere at the reference point wins at once. `all` = 0 skips the party, `aimed` skips the
+// targets with mFlagB6 and favours the enemy that targets `chara`. Two maps limit the height difference
+// NONMATCHING: 97.1% - registers of the arguments permuted, the height sum with the operands swapped
+CharaTask* BattleTask::fn_800FFE68(CharaTask* chara, const atn::Vector3* rot, int all, int aimed, float range,
+                                    float theta) {
+    if (chara == 0) {
+        return 0;
+    }
+    float cosLimit = cos(0.5f * theta);
+    float best = 1e16f;
+    CharaTask* found = 0;
+    int busy = chara->fn_801789D8(0, 0x440000);
+    atn::Vector3 dir(0.0f, 0.0f, 1.0f);
+    Mtx m;
+    PSMTXRotRad(m, 'y', rot->y);
+    PSMTXMultVec(m, &dir, &dir);
+    atn::Vector3 pos = chara->mPos;
+    pos.y += chara->m5B0;
+    if (chara->mFlagB9) {
+        pos -= atn::Vector3(0.0f, 24.0f, -2.0f);
+    }
+    for (unsigned int i = 0; i < mTargetCount; i++) {
+        if (all == 0 && mTargets[i]->IsPartyMember_unk()) {
+            continue;
+        }
+        if (!fn_8010B180(chara, mTargets[i])) {
+            continue;
+        }
+        if (aimed != 0 && mTargets[i]->mFlagB6) {
+            continue;
+        }
+        if (lbl_8087F430->GetCurrentMap() != 0) {
+            int type = lbl_8087F430->GetCurrentMap()->mType;
+            int id = lbl_8087F430->GetCurrentMap()->mId;
+            int sub = lbl_8087F430->GetCurrentMap()->mSubId;
+            if (type == 2 && id == 0x11 && sub == 2 && (float)__fabs(chara->mPos.y - mTargets[i]->mPos.y) > 25.0f) {
+                continue;
+            }
+            if (type == 2 && id == 10 && sub == 2 && mTargets[i]->m60->m24 == 0x27 &&
+                (float)__fabs(chara->mPos.y - mTargets[i]->mPos.y) > 18.0f) {
+                continue;
+            }
+        }
+        float limit = range;
+        CharaTask* target = mTargets[i];
+        if (busy != 0 && target->mFlag22 != 1) {
+            limit *= 0.5f;
+        }
+        for (unsigned int j = 0; j < target->m624.mSize; j++) {
+            if ((target->m624.mData[j].m00 & 8) == 8) {
+                continue;
+            }
+            atn::Vector3 d = target->m624.mData[j].m04.mCenter - pos;
+            float dist = PSVECMag(&d);
+            if (0.0f == dist) {
+                best = dist;
+                found = mTargets[i];
+                continue;
+            }
+            dist -= target->m624.mData[j].m04.mRadius;
+            if (aimed != 0 && !mTargets[i]->IsPartyMember_unk() && mTargets[i]->mC58.mC4 == chara &&
+                ((BattleCharaTask*)mTargets[i])->vfE4()) {
+                dist *= 0.001f;
+            }
+            PSVECNormalize(&d, &d);
+            float dot = PSVECDotProduct(&d, &dir);
+            if (dot > cosLimit && dist < limit) {
+                dist += dist * (1.0f - dot);
+                if (dist < best) {
+                    best = dist;
+                    found = mTargets[i];
+                }
+            }
+        }
+    }
+    return found;
+}
 
 // NONMATCHING: 99.7% - stack: the original puts the difference at 0x14 and the scaled sum at 0x20 (swapped)
 // inferred: the score of an entry is its distance to the surface plus a penalty that grows away from `dir`
@@ -1512,9 +2234,53 @@ int BattleTask::fn_80100BB8(CharaTask** out, CharaTask* chara, const atn::Vector
     return 0;
 }
 
-void BattleTask::fn_80100BC0() {
-    fn_801055A8(0);
+void BattleTask::fn_80100BC0(void* arg, void*) {
+    ((BattleTask*)arg)->fn_801055A8(0);
     lbl_8087F3C0->fn_8023A614(5);
+}
+
+// inferred: items of the debug menu (atn/MindowsCommon.h; not included here because game/ResHandle.h declares
+// lbl_8087EF10 and fn_8008937C with other types)
+extern "C" void fn_800874C8(void* folder, const char* name, int* value, int min, int max, int step,
+                            void (*func)(void*, void*), void* arg); // inferred: AddInt
+extern "C" void fn_8008771C(void* folder, const char* name, float* value, float min, float max, float step,
+                            void (*func)(void*, void*), void* arg); // inferred: AddFloat
+extern "C" void fn_80087994(void* folder, const char* name, int* value, void (*func)(void*, void*),
+                            void* arg); // inferred: AddBool
+
+// inferred: debug menu "Battle": target lines, reticle, morale (gauge) and tension parameters
+// NONMATCHING: 99.4% - only the offsets of the strings in @stringBase0 (strings of unwritten functions missing)
+void BattleTask::fn_80100BF0() {
+    void* folder = m38A58.Load("Battle");
+    fn_800874C8(folder, "DrawHateArrow", &m367B0, 0, 3, 1, fn_80100BC0, this);
+    fn_80087994(folder, "DrawHateNumber", &m367B4, 0, 0);
+    fn_8008771C(folder, "ReticleBlur", &m3E3A0, 1.0f, 300.0f, 1.0f, 0, 0);
+    fn_8008771C(folder, "ReticleCenterLerp", &m3E3A4, 0.0f, 1.0f, 1.0f, 0, 0);
+    fn_8008771C(folder, "ReticleCenterOfs", &m3E3A8, 0.0f, 300.0f, 1.0f, 0, 0);
+    void* morale = fn_8008937C(folder, "Morale");
+    fn_80087994(morale, "DebugMode", &m38A08, 0, 0);
+    fn_8008771C(morale, "Max", &m38A0C, 1.0f, 300.0f, 1.0f, 0, 0);
+    fn_8008771C(morale, "DownSpeed", &m38A10, -100.0f, 100.0f, 0.01f, 0, 0);
+    fn_8008771C(morale, "SwordAttack", &m38A14, -100.0f, 100.0f, 1.0f, 0, 0);
+    fn_8008771C(morale, "CrossbowAttack", &m38A18, -100.0f, 100.0f, 1.0f, 0, 0);
+    fn_8008771C(morale, "MagicAttack", &m38A1C, -100.0f, 100.0f, 1.0f, 0, 0);
+    fn_8008771C(morale, "Defeat", &m38A20, -100.0f, 100.0f, 1.0f, 0, 0);
+    fn_8008771C(morale, "Damage", &m38A24, -100.0f, 100.0f, 1.0f, 0, 0);
+    fn_8008771C(morale, "Replay", &m38A28, -100.0f, 100.0f, 1.0f, 0, 0);
+    fn_8008771C(morale, "AttractHate", &m38A2C, -100.0f, 100.0f, 1.0f, 0, 0);
+    fn_8008771C(morale, "WaitMin", &m38A30, -1000.0f, 1000.0f, 1.0f, 0, 0);
+    fn_8008771C(morale, "WaitMax", &m38A34, -1000.0f, 1000.0f, 1.0f, 0, 0);
+    fn_8008771C(morale, "HateUpBoost", &m38A38, -1000.0f, 1000.0f, 1.0f, 0, 0);
+    fn_8008771C(morale, "HateDownBoost", &m38A3C, -1000.0f, 1000.0f, 1.0f, 0, 0);
+    fn_8008771C(morale, "EnemyRatio", &m38A40, -1000.0f, 1000.0f, 1.0f, 0, 0);
+    void* tension = fn_8008937C(folder, "Tension");
+    fn_8008771C(tension, "Attack", &m38A44, -1.0f, 1.0f, 0.01f, 0, 0);
+    fn_8008771C(tension, "MagicAttack", &m38A48, -1.0f, 1.0f, 0.01f, 0, 0);
+    fn_8008771C(tension, "Defeat", &m38A4C, -1.0f, 1.0f, 0.01f, 0, 0);
+    fn_8008771C(tension, "Damage", &m38A50, -1.0f, 1.0f, 0.01f, 0, 0);
+    fn_8008771C(tension, "Boss", &m38A54, -1.0f, 1.0f, 0.01f, 0, 0);
+    fn_80087994(folder, "DrawAttackLog", &mShots.mEnabled, 0, 0);
+    fn_80087994(folder, "DrawPick", &m3E390, 0, 0);
 }
 
 Bullet* BattleTask::fn_801010A0() {
@@ -1580,7 +2346,7 @@ int BattleTask::fn_80101340(CharaTask* chara) {
     return count;
 }
 
-// inferred: hit effect of level `level` (1..) and kind `kind` (mEfp363C0[4 + (level - 1) * 7 + kind]);
+// inferred: hit effect of level `level` (1..) and kind `kind` (mHitEff[level - 1][kind]);
 // C name, called by other files as extern "C"
 extern "C" void fn_80101434(BattleTask* mgr, const atn::Vector3* pos, const atn::Vector3* rot, int level, int kind) {
     if (level <= 0 || kind < 0) {
@@ -1591,8 +2357,7 @@ extern "C" void fn_80101434(BattleTask* mgr, const atn::Vector3* pos, const atn:
     if (flag) {
         fn_800F7FA0()->mSystem.m78 = 1;
     }
-    atn::EfpFile (*hits)[7] = (atn::EfpFile (*)[7])&mgr->mEfp363C0[4]; // inferred: [level - 1][kind]
-    fn_8023A680(fn_800F7FA0(), (EffectRes_unk*)&hits[level - 1][kind], -1, 0, 0, pos, rot, 0, 0, -1, 1, 1.0f);
+    fn_8023A680(fn_800F7FA0(), (EffectRes_unk*)mgr->mHitEff[level - 1][kind], -1, 0, 0, pos, rot, 0, 0, -1, 1, 1.0f);
     if (flag) {
         fn_800F7FA0()->mSystem.m78 = 0;
     }
@@ -1618,19 +2383,19 @@ extern "C" void fn_80101524(BattleTask* mgr, const atn::Vector3* pos, const atn:
     }
     if (added & 1) {
         fn_80232B7C((unsigned int)mgr, 0);
-        fn_8023A680(lbl_8087F3C0, (EffectRes_unk*)&mgr->mEfp3651C[10], -1, 0, 0, pos, rot, 0, 0, -1, 1, 1.0f);
+        fn_8023A680(lbl_8087F3C0, (EffectRes_unk*)mgr->mEff36594[0], -1, 0, 0, pos, rot, 0, 0, -1, 1, 1.0f);
     }
     if (added & 0x400000) {
         fn_80232B7C((unsigned int)mgr, 0);
-        fn_8023A680(lbl_8087F3C0, (EffectRes_unk*)&mgr->mEfp3651C[11], -1, 0, 0, pos, rot, 0, 0, -1, 1, 1.0f);
+        fn_8023A680(lbl_8087F3C0, (EffectRes_unk*)mgr->mEff36594[1], -1, 0, 0, pos, rot, 0, 0, -1, 1, 1.0f);
     }
     if (added & 0x40) {
         fn_80232B7C((unsigned int)mgr, 0);
-        fn_8023A680(lbl_8087F3C0, (EffectRes_unk*)&mgr->mEfp3651C[12], -1, 0, 0, pos, rot, 0, 0, -1, 1, 1.0f);
+        fn_8023A680(lbl_8087F3C0, (EffectRes_unk*)mgr->mEff36594[2], -1, 0, 0, pos, rot, 0, 0, -1, 1, 1.0f);
     }
     if ((added & 0x1800000) && chara != 0) {
         fn_80232B7C((unsigned int)mgr, 0);
-        PlayEfp_unk((added & 0x80000) ? &mgr->mEfp3651C[14] : &mgr->mEfp3651C[13], chara->GetModel_unk());
+        PlayEfp_unk((added & 0x80000) ? &mgr->mEfp365B8[1] : &mgr->mEfp365B8[0], chara->GetModel_unk());
     }
     added &= 0xFE5FE7DF;
     removed &= 0xFE5FE7DF;
@@ -1655,7 +2420,7 @@ extern "C" void fn_80101524(BattleTask* mgr, const atn::Vector3* pos, const atn:
 // inferred: hit effect of the attack parameters `param` at the hit point, oriented along the hit direction: the
 // guard effect of the level of the attacker when the target guards (CharaStatus flag 0x20), the effect m88 of
 // kind 1, nothing for kind 2, else the normal or strong (m0C 0x80) hit effect of the level of the attacker
-// NONMATCHING: 93.9% - stack slots and registers of the inlined Vector3::fn_80139F60
+// NONMATCHING: 98.5% - stack slots and registers of the inlined Vector3::fn_80139F60
 void BattleTask::fn_801018E4(BattleCalcParam_unk* param) {
     CharaTask* attacker = (CharaTask*)param->m00; // inferred: the field is an int (see fn_800FD658)
     CharaTask* chara = param->m04;
@@ -1673,7 +2438,7 @@ void BattleTask::fn_801018E4(BattleCalcParam_unk* param) {
     if (chara != 0 && (chara->mStatus.m0C & 0x20) == 0x20) {
         int level = attacker != 0 ? attacker->fn_8017A160() : 0;
         fn_80232B7C((unsigned int)this, 0);
-        fn_8023A680(lbl_8087F3C0, (EffectRes_unk*)(&mEfp3651C[5] + level), -1, 0, 0, &param->m1C, &rot, 0, 0, -1, 1,
+        fn_8023A680(lbl_8087F3C0, (EffectRes_unk*)mEff36558[level], -1, 0, 0, &param->m1C, &rot, 0, 0, -1, 1,
                     1.0f);
         return;
     }
@@ -1687,15 +2452,14 @@ void BattleTask::fn_801018E4(BattleCalcParam_unk* param) {
             return;
         }
         fn_80232B7C((unsigned int)this, 0);
-        // inferred: 0x363F0 holds three rows of seven atn::EffFile (the header types the range as EfpFile)
-        fn_8023A680(lbl_8087F3C0, (EffectRes_unk*)(&mEfp363C0[9] + (effect - 1) * 7), -1, 0, 0, &param->m1C, &rot,
+        fn_8023A680(lbl_8087F3C0, (EffectRes_unk*)mHitEff[effect - 1][5], -1, 0, 0, &param->m1C, &rot,
                     0, 0, -1, 1, 1.0f);
         return;
     }
     int strong = (param->m0C >> 7) & 1;
     int level = attacker != 0 ? attacker->fn_8017A160() : 0;
     fn_80232B7C((unsigned int)this, 0);
-    fn_8023A680(lbl_8087F3C0, strong ? (EffectRes_unk*)(&mEfp3651C[5] + level) : (EffectRes_unk*)&mEfp3651C[level], -1, 0,
+    fn_8023A680(lbl_8087F3C0, strong ? (EffectRes_unk*)mEff36558[level] : (EffectRes_unk*)mEff3651C[level], -1, 0,
                 0, &param->m1C, &rot, 0, 0, -1, 1, 1.0f);
 }
 
@@ -1819,6 +2583,96 @@ void BattleTask::fn_801021B4(RayObj_unk* obj, int a, int b) {
     }
 }
 
+extern "C" atn::GraphicsDevice_unk* lbl_8087EEE0;
+extern "C" void* lbl_8087EF70; // inferred: pad
+extern "C" float fn_800A56A8(void* pad, int port, int axis, int arg); // inferred: stick axis
+extern "C" atn::Vector2_unk lbl_807C7028; // inferred: zero 2D vector (atn/Math_unk.cpp)
+extern "C" unsigned int fn_800DC6B4(const char* s); // inferred: string hash
+extern "C" void fn_801FECE0(void* layout, unsigned int hash, float value);
+extern "C" void fn_801FED24(void* layout, unsigned int hash, int index, float value);
+
+// inferred: values of the panes of a d2anime layout (names invented, as game/BattleResult.cpp)
+inline void SetPaneValue_unk(void* layout, const char* name, float value) {
+    fn_801FECE0(layout, fn_800DC6B4(name), value);
+}
+inline void SetPaneValue_unk(void* layout, const char* name, int index, float value) {
+    fn_801FED24(layout, fn_800DC6B4(name), index, value);
+}
+// inferred: playing with less than 5 ... (m50C) in multiplayer (inlined; name invented)
+inline bool IsReticleShown_unk(Arena_unk* arena) {
+    bool r = false;
+    if (arena->m4FC == 0x1E && arena->m50C < 5) {
+        r = true;
+    }
+    return r;
+}
+
+// inferred: reticle of the camera (mCB30, mCB60): color and blink by the target under the cursor, the outer rings
+// follow the right stick (scaled by ReticleBlur), the center moves toward the opposite of the stick (ReticleCenterOfs,
+// ReticleCenterLerp). In multiplayer only while playing (m4FC 0x1E) with m50C below 5. C name, called by
+// BattleCharaTask as extern "C"
+// NONMATCHING: 99.0% - volatile registers permuted (flag of the arena test, screen size, copies of the center)
+extern "C" void fn_8010220C(BattleTask* mgr, int) {
+    if (lbl_8087F610 != 0 && !IsReticleShown_unk(lbl_8087F610)) {
+        return;
+    }
+    float cx = 0.5f * lbl_8087EEE0->mWidth;
+    float cy = 0.5f * lbl_8087EEE0->mHeight;
+    float r;
+    float g;
+    float b;
+    float on = 0.0f;
+    if (mgr->m3E2E0 != 0 || mgr->m3E2E4 != 0 || mgr->m3E2EC != 0) {
+        if ((mgr->m3E2E0 != 0 && mgr->m3E2F0 != 0) || mgr->m3E2EC != 0) {
+            r = 195.0f;
+            g = 65.0f;
+            b = 80.0f;
+            on = 1.0f;
+        } else if (mgr->m3E2E4 != 0) {
+            r = 195.0f;
+            g = 65.0f;
+            b = 80.0f;
+        } else {
+            r = 24.0f;
+            g = 85.0f;
+            b = 243.0f;
+            on = 1.0f;
+        }
+    } else {
+        r = 104.0f;
+        g = 121.0f;
+        b = 166.0f;
+    }
+    mgr->mCB34 = 1;
+    SetPaneValue_unk(&mgr->mCB30->mData.m10, "colorR", r);
+    SetPaneValue_unk(&mgr->mCB30->mData.m10, "colorG", g);
+    SetPaneValue_unk(&mgr->mCB30->mData.m10, "colorB", b);
+    SetPaneValue_unk(&mgr->mCB30->mData.m10, "on", on);
+    atn::Vector2_unk stick(0.0f, 0.0f);
+    if (HomeButtonMenu::sInstance->m84 != 1) {
+        stick.x = -fn_800A56A8(lbl_8087EF70, 0, 0, 0);
+        stick.y = fn_800A56A8(lbl_8087EF70, 0, 1, 0);
+    }
+    SetPaneValue_unk(&mgr->mCB30->mData.m10, "posOuter2", 0,
+                                   mgr->mCB40.x + (0.75f * (mgr->mCB38.x * mgr->m3E3A0) + (stick.x * mgr->m3E3A0 + cx)));
+    SetPaneValue_unk(&mgr->mCB30->mData.m10, "posOuter2", 1,
+                                   mgr->mCB40.y + (0.75f * (mgr->mCB38.y * mgr->m3E3A0) + (stick.y * mgr->m3E3A0 + cy)));
+    SetPaneValue_unk(&mgr->mCB30->mData.m10, "posOuter1", 0, mgr->mCB38.x + (0.75f * (stick.x * mgr->m3E3A0) + cx));
+    SetPaneValue_unk(&mgr->mCB30->mData.m10, "posOuter1", 1, mgr->mCB38.y + (0.75f * (stick.y * mgr->m3E3A0) + cy));
+    mgr->mCB40 = mgr->mCB38;
+    mgr->mCB38 = stick;
+    if (mgr->m3E2E0 != 0 || mgr->m3E2E4 != 0) {
+        mgr->mCB50 = lbl_807C7028;
+    } else {
+        mgr->mCB50 = stick * -mgr->m3E3A8;
+    }
+    mgr->mCB48 = atn::Lerp2_unk(mgr->mCB48, mgr->mCB50, mgr->m3E3A4);
+    SetPaneValue_unk(&mgr->mCB30->mData.m10, "centerPos", 0, mgr->mCB48.x);
+    SetPaneValue_unk(&mgr->mCB30->mData.m10, "centerPos", 1, mgr->mCB48.y);
+    SetPaneValue_unk(&mgr->mCB60->mData.m10, "centerPos", 0, 320.0f + mgr->mCB48.x);
+    SetPaneValue_unk(&mgr->mCB60->mData.m10, "centerPos", 1, 224.0f + mgr->mCB48.y);
+}
+
 void BattleTask::fn_801027A4(CharaTask* chara) {
     if (FindChara_unk(chara) < 0) {
         mCharas[mCharaCount].mChara = chara;
@@ -1856,6 +2710,59 @@ void BattleTask::fn_801028E4(CharaTask* chara, CharaTask* other, int value) {
     } else {
         for (int i = 0; i < 0x48; i++) {
             mCharas[i].m08[b] = value;
+        }
+    }
+}
+
+// inferred: entry of db/HateParam_unk (0x80210220); only the field read here (the type is local to that file)
+struct HateParamView_unk {
+    unsigned char m00[0x34];
+    float m34; // inferred: distance at which the attack hate falls to `base`
+};
+
+// inferred: hate added by an attack of `target` with damage `damage` (only from 100000 and outside multiplayer):
+// 200, or with `base` >= 0 from 200 at distance 0 down to `base` at HateParam m34, for `chara` or, without it,
+// for every character; the hate does not drop below 0
+// NONMATCHING: 99.4% - registers of this, base and value permuted (r26-r28)
+void BattleTask::fn_80102A40(CharaTask* chara, CharaTask* target, int damage, int base) {
+    if (lbl_8087F610 == 0 && damage >= 100000) {
+        int value = 200;
+        HateParamView_unk* param = (HateParamView_unk*)fn_80210220(lbl_8087F0A8->mParamIndex);
+        int a = FindChara_unk(chara);
+        int b = FindChara_unk(target);
+        if (b < 0) {
+            return;
+        }
+        if (a >= 0) {
+            BattleChara_unk* entry = &mCharas[a];
+            if (entry->mChara != 0 && entry->mChara->CanAct_unk()) {
+                if (base >= 0) {
+                    atn::Vector3 d = entry->mChara->mPos - target->mPos;
+                    float dist = PSVECMag(&d);
+                    float t = MIN(MAX(dist / param->m34, 0.0f), 1.0f);
+                    value = base + (int)((1.0f - t) * (value - base));
+                }
+                entry->m08[b] += value;
+                if (entry->m08[b] < 0) {
+                    entry->m08[b] = 0;
+                }
+            }
+        } else {
+            for (int i = 0; i < mCharaCount; i++) {
+                BattleChara_unk* entry = &mCharas[i];
+                if (entry->mChara != 0 && entry->mChara->CanAct_unk()) {
+                    if (base >= 0) {
+                        atn::Vector3 d = entry->mChara->mPos - target->mPos;
+                        float dist = PSVECMag(&d);
+                        float t = MIN(MAX(dist / param->m34, 0.0f), 1.0f);
+                        value = base + (int)((1.0f - t) * (value - base));
+                    }
+                    entry->m08[b] += value;
+                    if (entry->m08[b] < 0) {
+                        entry->m08[b] = 0;
+                    }
+                }
+            }
         }
     }
 }
@@ -2265,7 +3172,7 @@ void BattleTask::fn_80105B4C(void* owner, atn::Model* model, const EffectColor_u
 void BattleTask::fn_80105BD8(atn::Model* model) {
     lbl_8087F3C0->mSystem.m78 = 1;
     fn_80232B7C(0, 0);
-    PlayEfp_unk(&mEfp363C0[25], model);
+    PlayEfp_unk(&mEfp364EC, model);
     lbl_8087F3C0->mSystem.m78 = 0;
 }
 
@@ -2378,12 +3285,63 @@ void BattleTask::fn_80106680(void* owner, atn::Model* model) {
 
 void BattleTask::fn_80106728(int arg, atn::Model* model) {
     fn_80232B7C(0, 0);
-    PlayEfp_unk(&mEfp3651C[15], model);
+    PlayEfp_unk(&mEfp365B8[2], model);
 }
 
 void BattleTask::fn_801067D0(CharaTask* chara, atn::Model* model) {
     fn_80232B7C(0, 0);
-    PlayEfp_unk(&mEfp3651C[16], model);
+    PlayEfp_unk(&mEfp365B8[3], model);
+}
+
+extern "C" std::string fn_8006B174(const std::string& path); // inferred: file name of a path (as game/CharaTask.cpp)
+extern "C" void fn_8023A108(atn::EffectManager* mgr, unsigned int owner, int group, int frame); // inferred: effect frame
+
+// inferred: the weapon has a condition of the kinds (inlined; name invented)
+inline bool HasCond_unk(Arms* arms, int kind, int kind2) {
+    return arms->fn_80045694(kind, -1, kind2, -1) != 0;
+}
+
+// inferred: effect of the attack motion of `chara` (the motion of track 0 among seven "na000_ats" motions, effect
+// mEfp365E8[kind]), plus effect and sound 0x232C when the right weapon has the condition (2, 0x22); the effects of
+// group 9 follow the frame and the speed of the motion. C name, called by chr::ControlAttackBase as extern "C"
+// NONMATCHING: 97.7% - frame 0x10 larger (stack slots of the strings and the second color), registers r26-r28
+extern "C" void fn_80106878(BattleTask* mgr, CharaTask* chara) {
+    atn::Model* model = chara->GetModel_unk();
+    atn::LoadHandle* handle = model->fn_80097D40(model->mTracks[0].m00);
+    if (handle == 0) {
+        return;
+    }
+    std::string name = fn_8006B174(std::string(handle->fn_80473F18()));
+    int kind = 7;
+    if (name == "na000_ats00_00.motion") {
+        kind = 0;
+    } else if (name == "na000_ats00_01.motion") {
+        kind = 1;
+    } else if (name == "na000_ats00_02.motion") {
+        kind = 2;
+    } else if (name == "na000_ats00_04.motion") {
+        kind = 3;
+    } else if (name == "na000_ats00_05.motion") {
+        kind = 4;
+    } else if (name == "na000_ats08_00.motion") {
+        kind = 0;
+    } else if (name == "na000_ats08_01.motion") {
+        kind = 6;
+    }
+    if (kind == 7) {
+        return;
+    }
+    fn_80232B7C((unsigned int)chara, 9);
+    PlayEfp_unk(&mgr->mEfp365E8[kind], model);
+    if (chara->m648 != 0 && HasCond_unk((Arms*)chara->m648, 2, 0x22)) {
+        EffectColor_unk white(1.0f, 1.0f, 1.0f, 1.0f);
+        mgr->fn_801070C8(0x232C, (unsigned int)chara, 9, model, &lbl_807C7030, &lbl_807C7030, &white, 1.0f);
+        mgr->fn_80107208(0x232C, &chara->mPos, 1.0f);
+    }
+    if (model->mTracks[0].m08 > 0.0f) {
+        fn_8023A108(lbl_8087F3C0, (unsigned int)chara, 9, (int)model->mTracks[0].m08);
+    }
+    lbl_8087F3C0->fn_8023A254((unsigned int)chara, 9, model->mTracks[0].m0C);
 }
 
 void BattleTask::fn_801070C8(int id, unsigned int owner, int group, atn::Model* model, const atn::Vector3* pos,
@@ -2440,13 +3398,13 @@ void BattleTask::fn_8010743C(const atn::Vector3* pos, int changed, float f) {
     m3E300 = 1;
     lbl_8087F3C0->mSystem.mReplaying = 1;
     if (changed != 0) {
-        fn_80239DAC(lbl_8087F3C0, (unsigned int)&m389F4, 0, 0);
+        fn_80239DAC(lbl_8087F3C0, (unsigned int)m389F4, 0, 0);
     }
-    if (changed != 0 || !fn_80239D58(lbl_8087F3C0, &m389F4, 0)) {
+    if (changed != 0 || !fn_80239D58(lbl_8087F3C0, m389F4, 0)) {
         EffectColor_unk color = m3E304;
         color.a = m3E2FC;
-        fn_80232B7C((unsigned int)&m389F4, 0);
-        fn_8023A680(lbl_8087F3C0, (EffectRes_unk*)&m389F4, -1, 6, (int)pos, 0, 0, &color, 0, -1, 1, f / 15.0f);
+        fn_80232B7C((unsigned int)m389F4, 0);
+        fn_8023A680(lbl_8087F3C0, (EffectRes_unk*)m389F4, -1, 6, (int)pos, 0, 0, &color, 0, -1, 1, f / 15.0f);
     }
     lbl_8087F3C0->mSystem.mReplaying = 0;
 }
@@ -2465,7 +3423,7 @@ void BattleTask::fn_80107584() {
         color.g = m3E304.g;
         color.b = m3E304.b;
         color.a = m3E2FC;
-        lbl_8087F3C0->fn_8023A184((unsigned int)&m389F4, 0, &color);
+        lbl_8087F3C0->fn_8023A184((unsigned int)m389F4, 0, &color);
         break;
     }
     case 2: {
@@ -2475,9 +3433,9 @@ void BattleTask::fn_80107584() {
         color.g = m3E304.g;
         color.b = m3E304.b;
         color.a = m3E2FC;
-        lbl_8087F3C0->fn_8023A184((unsigned int)&m389F4, 0, &color);
+        lbl_8087F3C0->fn_8023A184((unsigned int)m389F4, 0, &color);
         if (m3E2FC < 0.001f) {
-            fn_80239DAC(lbl_8087F3C0, (unsigned int)&m389F4, 0, 0);
+            fn_80239DAC(lbl_8087F3C0, (unsigned int)m389F4, 0, 0);
             m3E300 = 0;
         }
         break;
@@ -2681,6 +3639,88 @@ int BattleTask::fn_80108378(CharaTask* chara) {
     return -1;
 }
 
+// inferred: character of the entry `id` of the battle manager, null when there is none (name invented)
+static inline CharaTask* GetBattleChara_unk(BattleTask* battle, int id) {
+    CharaTask* chara;
+    if (id < 0 || battle->mCharaCount <= id) {
+        chara = 0;
+    } else {
+        chara = battle->mCharas[id].mChara;
+    }
+    return chara;
+}
+
+// inferred: hate of this entry toward the entry `id`. For a friend that follows the AI (m118 1) without the 0x800
+// status: the base value plus closeness to its leader (within 120) and half of the recorded hits, minus the hate
+// of the players; else the base value plus the recent damage m24C, the hits, the 0x800 and m48C bonuses, minus
+// the players' hate outside multiplayer, scaled by m128. Outside multiplayer the result is scaled by m248 and
+// m6E4 of the other entry, plus m80C
+// NONMATCHING: 93.7% - register allocation (the config in r31 in the original) and scheduling of the scale
+int BattleChara_unk::fn_801083D8(int id) {
+    int result = -1;
+    if (id >= 0) {
+    int hate = m08[id];
+    fn_80210220(lbl_8087F0A8->mParamIndex);
+    GameConfig_unk* config = lbl_8087F0A8;
+    CharaTask* other = lbl_8087F048 != 0 ? GetBattleChara_unk(lbl_8087F048, id) : 0;
+    CharaTask* chara = mChara;
+    CharaTask* leader = chara->mC58.m114 == 6 ? (chara->mC58.mD4 != 0 ? chara->mC58.mD4->GetChara_unk() : 0) : chara;
+    if (chara != 0 && (chara->mStatus.m0C & 0x800) != 0x800 && chara->mC58.m118 == 1 && leader != 0 &&
+        leader->CanAct_unk()) {
+        atn::Vector3 d = leader->mPos - other->mPos;
+        float near = 120.0f;
+        float dist = PSVECMag(&d);
+        if (dist < near) {
+            hate += (int)(3.0f * (near - dist));
+        }
+        for (int i = 0; i < mHateCount; i++) {
+            if (mHateValues[i] > 0 && id == mHateIds[i] && dist < near) {
+                hate += mHateValues[i] / 2;
+            }
+        }
+        if (other->mType == 0) {
+            hate = MAX(hate - config->mPlayerMinusHate, 0);
+        }
+        if (lbl_8087F048 != 0) {
+            hate = (int)(hate * (lbl_8087F048->mCharas[id].m248 * (1.0f - m6E4[id])));
+        }
+        return hate;
+    }
+    float limit = 500.0f;
+    if ((chara->mStatus.m0C & 0x2000) == 0x2000) {
+        limit *= 0.1f;
+    }
+    if (chara->mC58.m118 == 1) {
+        limit = 50.0f;
+    }
+    float damage = m24C[id];
+    if (damage < 500.0f) {
+        hate += (int)(100.0f * (500.0f - damage) / 500.0f);
+    }
+    for (int i = 0; i < mHateCount; i++) {
+        if (mHateValues[i] > 0 && id == mHateIds[i] && damage < limit) {
+            hate += mHateValues[i];
+        }
+    }
+    if ((chara->mStatus.m0C & 0x800) == 0x800) {
+        hate += m36C[id];
+    }
+    if (damage < limit && m5AC[id] > 0) {
+        hate += m48C[id];
+    }
+    if (other->mType == 0 && lbl_8087F610 == 0 && fn_80219558(other->m50) != 2) {
+        hate = MAX(hate - config->mPlayerMinusHate, 0);
+    }
+    int value = MAX(hate + other->mStatus.fn_80134168(0x33, -1), 0);
+    value = (int)(value * m128[id] + 0.1f);
+    if (lbl_8087F048 != 0 && lbl_8087F610 == 0) {
+        value = (int)(value * (lbl_8087F048->mCharas[id].m248 * (1.0f - m6E4[id])));
+    }
+    result = value + m80C[id];
+    }
+    return result;
+}
+
 void BattleChara_unk::fn_801088B8(int id, int value) {
     int n = 0;
     for (int i = 0; i < mHateCount; i++) {
@@ -2841,7 +3881,16 @@ extern "C" void fn_80108C10(BattleTask* mgr, BattleDamage_unk* damage, const atn
 
 // inferred: camp message table (lbl_8087F1E4, as in game/CosEditItemList_unk.cpp)
 struct BattleMsg_unk {
+    struct Pair_unk {
+        int m00;
+        const wchar_t* mText;
+    };
     const wchar_t* Get_unk(int id) { return mText[id] != 0 ? mText[id] : lbl_808813D0; }
+    // inferred: text of an (id, text) pair of the table (as in game/CosEditItemList_unk.cpp)
+    const wchar_t* GetPair_unk(int id) {
+        Pair_unk* pairs = (Pair_unk*)mText;
+        return pairs[id].mText != 0 ? pairs[id].mText : lbl_808813D0;
+    }
     const wchar_t* mText[1];
 };
 extern "C" BattleMsg_unk* lbl_8087F1E4;
@@ -2917,6 +3966,153 @@ extern "C" void fn_80108F38(BattleTask* mgr, const atn::Vector3* pos, int status
     }
 }
 
+// inferred: item data (its name at +8, as MpItem_unk of MP/D2AMpMenuResult.cpp); names invented
+struct BattleItem_unk {
+    unsigned char m00[0x8];
+    const wchar_t* mName;
+    unsigned char m0C[0xEC - 0xC];
+    ArmsCond_unk mConds[2]; // 0xEC: inferred: status conditions of the arrow (fn_8010B398)
+};
+// inferred: weapon data (only the kind is read; its name is the entry 0xEB + kind of the message table)
+struct BattleWeapon_unk {
+    unsigned char m00[0xB8];
+    int mKind;
+};
+// inferred: status effect data (its name at +0xC)
+struct BattleState_unk {
+    unsigned char m00[0xC];
+    const wchar_t* mName;
+};
+// inferred: log message definitions (.rodata of this file, 0x80735AB0): message of the table, kind and flags
+// passed to LogMessageTask::fn_8047961C; names invented
+struct BattleLogDef_unk {
+    int mMsg;
+    int mKind;
+    int mFlags;
+};
+extern "C" const BattleLogDef_unk lbl_80735AB0[];
+extern "C" BattleItem_unk* fn_80211480(int id);
+extern "C" BattleWeapon_unk* fn_80206C50(int id);
+extern "C" BattleState_unk* fn_8021AF50(int id);
+extern "C" int fn_800DD3FC(wchar_t* s, const wchar_t* format, ...); // inferred: wide sprintf
+extern "C" wchar_t* wcscpy(wchar_t* dst, const wchar_t* src);
+
+// inferred: battle log message `id` about `chara` (formats of the message table, pairs of 8 bytes); `value` is the
+// item, weapon, skill or status, `arg` a count. The level flag is set for the items, the weapons, the money and the
+// messages 0x43/0x44. C name, called by other files as extern "C"
+// NONMATCHING: 96.2% - operand order and reuse of the table lookups, the name of the character loaded later
+extern "C" void fn_801092C8(BattleTask* mgr, int id, CharaTask* chara, int value, int arg) {
+    if (!(lbl_8087F0A8->m06C > 0) || !(LogMessageTask::sInstance != 0)) {
+        return;
+    }
+    int level;
+    const BattleLogDef_unk* def = &lbl_80735AB0[id];
+    level = 0;
+    wchar_t text[0x100];
+    memset(text, 0, sizeof(text));
+    switch (id) {
+    case 0x15:
+        if (value == 0x43 || value == 0x44) {
+            level = 1;
+        }
+        wcscpy(text, lbl_8087F1E4->GetPair_unk(value));
+        break;
+    case 1: {
+        level = 1;
+        BattleItem_unk* item = fn_80211480(value);
+        if (item != 0) {
+            fn_800DD3FC(text, lbl_8087F1E4->GetPair_unk(def->mMsg), item->mName, arg);
+        } else {
+            fn_800DD3FC(text, lbl_8087F1E4->GetPair_unk(0x17), value);
+        }
+        break;
+    }
+    case 2: {
+        level = 1;
+        BattleWeapon_unk* weapon = fn_80206C50(value);
+        if (weapon != 0) {
+            fn_800DD3FC(text, lbl_8087F1E4->GetPair_unk(def->mMsg), lbl_8087F1E4->GetPair_unk(weapon->mKind + 0xEB),
+                        arg);
+        } else {
+            fn_800DD3FC(text, lbl_8087F1E4->GetPair_unk(0x17), value);
+        }
+        break;
+    }
+    case 3:
+    case 4:
+        level = 1;
+        fn_800DD3FC(text, lbl_8087F1E4->GetPair_unk(def->mMsg), value);
+        break;
+    case 5:
+        fn_800DD3FC(text, lbl_8087F1E4->GetPair_unk(def->mMsg));
+        break;
+    case 0xF:
+        level = 1;
+        fn_800DD3FC(text, lbl_8087F1E4->GetPair_unk(def->mMsg));
+        break;
+    case 6:
+    case 7:
+        return;
+    case 8:
+    case 9:
+    case 10:
+    case 11:
+    case 0x16:
+        fn_800DD3FC(text, lbl_8087F1E4->GetPair_unk(def->mMsg), chara->m60->m04);
+        break;
+    case 0xC:
+    case 0xD: {
+        HitInfo_unk* skill = fn_80219E6C(value);
+        if (skill != 0 && chara != 0 && chara->m60 != 0) {
+            fn_800DD3FC(text, lbl_8087F1E4->GetPair_unk(def->mMsg), chara->m60->m04, skill->m08);
+        } else {
+            fn_800DD3FC(text, lbl_8087F1E4->GetPair_unk(0x18), value);
+        }
+        break;
+    }
+    case 0xE: {
+        BattleState_unk* state = fn_8021AF50(value);
+        if (state != 0 && chara != 0 && chara->m60 != 0) {
+            fn_800DD3FC(text, lbl_8087F1E4->GetPair_unk(def->mMsg), chara->m60->m04,
+                        state->mName != 0 ? state->mName : lbl_808813D0);
+        } else {
+            fn_800DD3FC(text, lbl_8087F1E4->GetPair_unk(0x18), value);
+        }
+        break;
+    }
+    case 0x10:
+        if (chara != 0 && chara->m60 != 0) {
+            fn_800DD3FC(text, lbl_8087F1E4->GetPair_unk(def->mMsg), chara->m60->m04, value);
+        }
+        break;
+    case 0x11:
+    case 0x12:
+    case 0x13:
+        fn_800DD3FC(text, lbl_8087F1E4->GetPair_unk(def->mMsg), value, arg);
+        break;
+    case 0x17:
+    case 0x18:
+    case 0x19:
+    case 0x1A:
+    case 0x1B:
+    case 0x1C:
+    case 0x1D:
+    case 0x1E:
+    case 0x1F:
+        fn_800DD3FC(text, lbl_8087F1E4->GetPair_unk(def->mMsg), chara->m60->m04, value);
+        break;
+    case 0x14: {
+        BattleState_unk* state = fn_8021AF50(value);
+        if (chara != 0 && chara->m60 != 0 && state != 0) {
+            fn_800DD3FC(text, lbl_8087F1E4->GetPair_unk(def->mMsg), chara->m60->m04,
+                        state->mName != 0 ? state->mName : lbl_808813D0);
+        }
+        break;
+    }
+    }
+    LogMessageTask::sInstance->fn_8047961C(text, def->mKind, def->mFlags, level);
+}
+
 void BattleTask::fn_80109828(const wchar_t* text) {
     if (!(lbl_8087F0A8->m06C > 0) || !(LogMessageTask::sInstance != 0)) {
         return;
@@ -2927,7 +4123,6 @@ void BattleTask::fn_80109828(const wchar_t* text) {
 }
 
 extern "C" bool fn_8021BE98(wchar_t* buf, SpEffect_unk* effect); // inferred: text of a status effect
-extern "C" int fn_800DD3FC(wchar_t* s, const wchar_t* format, ...); // inferred: wide sprintf
 
 // inferred: log message "<character> <effect>" (format 0x8B of the message table)
 void BattleTask::fn_80109864(SpEffect_unk* effect, CharaTask* chara) {
@@ -3349,6 +4544,296 @@ inline CharaTask* GetCharaAt_unk(BattleTask* mgr, int i) {
     return mgr->mCharas[i].mChara;
 }
 
+extern "C" atn::Task* lbl_8087FA20; // inferred: town task (null outside the towns; as game/GameTask.cpp)
+
+// inferred: weapon of `chara` used by the attack (the left one in the double attack control), as in fn_80101CDC
+// (name invented)
+inline Arms* AttackArms_unk(CharaTask* chara) {
+    Arms* arms;
+    if (chara == 0 || chara->m648 == 0) {
+        arms = 0;
+    } else {
+        arms = (Arms*)chara->m648;
+        if (chara->m55C == 6 && chara->m560 == 4 && chara->m64C != 0 && chara->mControl.get() != 0 &&
+            chara->mControl->vf30() % 2 == 1) {
+            arms = (Arms*)chara->m64C;
+        }
+    }
+    return arms;
+}
+
+// inferred: the hit `hit` is one of the magic bullets that apply the status 0x3F (name invented)
+inline bool IsStatusBullet_unk(HitInfo_unk* hit) {
+    bool r;
+    if (hit != 0 && (hit->m04 == 0xCC || hit->m04 == 0xD1 || hit->m04 == 0xD5 || hit->m04 == 0x5BC ||
+                     hit->m04 == 0x658)) {
+        r = true;
+    } else {
+        r = false;
+    }
+    return r;
+}
+
+// inferred: status effects given by the hit `param`: the statuses 0x30, 0x3E, 0x3F and 0x42 of the attacker (or of
+// the user of the bullet, m3E398), the counter statuses 0x40 and 0x23 of the target with their chance, the
+// conditions of the weapon, of the selected arrow and of the weapons 399-405; then the target loses the statuses
+// its state forbids, and each status is logged. Nonzero when one of them is shown
+// NONMATCHING: 98.8% - register allocation (attacker, target and their statuses permuted)
+int BattleTask::fn_8010B398(BattleCalcParam_unk* param) {
+    CharaTask* attacker = (CharaTask*)param->m00; // inferred: the field is an int (see fn_800FD658)
+    CharaTask* chara = param->m04;
+    int result = 0;
+    if (attacker == 0 || chara == 0) {
+        return 0;
+    }
+    int kind = param->m44;
+    atn::Vector3 pos = param->m1C;
+    unsigned int flags = param->m0C;
+    Arms* arms = AttackArms_unk(attacker);
+    if (arms == 0 || arms->m274 == 0) {
+        return 0;
+    }
+    HitInfo_unk* hit = param->m08;
+    CharaStatus* status = &attacker->mStatus;
+    CharaStatus* target = &chara->mStatus;
+    if (m3E398 != 0) {
+        attacker = m3E398;
+        arms = AttackArms_unk(attacker);
+    }
+    status->mEntries.mCount = 0;
+    if (m3E39C != 0) {
+        return 0;
+    }
+    if (param->m08 != 0 && (param->m08->mAC & 0x8000) == 0x8000 && !param->m08->m90.Check(0x2000000)) {
+        return 0;
+    }
+    if (lbl_8087FA20 != 0) {
+        return 0;
+    }
+    if (status->fn_80134134(0x30)) {
+        status->mEntries.push_back(*status->fn_80134134(0x30)->mEntry);
+    }
+    if (status->fn_80134134(0x3E)) {
+        status->mEntries.push_back(*status->fn_80134134(0x3E)->mEntry);
+    }
+    if (status->fn_80134134(0x3F) && (kind == 0 || IsStatusBullet_unk(hit))) {
+        status->mEntries.push_back(*status->fn_80134134(0x3F)->mEntry);
+    }
+    if (status->fn_80134134(0x42) && hit != 0 && (hit->mAC & 0x2000000) == 0x2000000) {
+        status->mEntries.push_back(*status->fn_80134134(0x42)->mEntry);
+    }
+    if (target->fn_80134134(0x40)) {
+        CharaStatusRef_unk* ref = target->fn_80134134(0x40);
+        int chance = target->fn_801341B8(0x40, -1);
+        if (chance > rand() % 100 && hit != 0 && (hit->mAC & 4) != 4) {
+            status->mEntries.push_back(*ref->mEntry);
+        }
+    }
+    if (target->fn_80134134(0x23)) {
+        for (unsigned int i = 0; i < target->mRefs.mCount; i++) {
+            CharaStatusEntry_unk* entry = target->mRefs[i].mEntry;
+            if (entry->mId == 0x23 && entry->m10 > rand() % 100 && (entry->mSub != 9 || (hit->mAC & 4) != 4)) {
+                status->mEntries.push_back(*entry);
+            }
+        }
+    }
+    for (int i = 0; i < 2; i++) {
+        // inferred: the third argument of the condition tests is the position of the hit
+        if (arms->fn_80044E98(i, kind, (int)&pos, flags, attacker, chara, hit)) {
+            ArmsCond_unk* cond = &arms->m274->mC4[i];
+            if (cond->m10 > rand() % 100) {
+                status->mEntries.push_back(*(CharaStatusEntry_unk*)cond);
+            }
+        }
+    }
+    if (attacker->mType == 0 && attacker->fn_8014FCE8() && CrossbowMenuTask::sInstance != 0) {
+        BattleItem_unk* arrow =
+            fn_80211480(CrossbowMenuTask::sInstance->m4C.mData[CrossbowMenuTask::sInstance->m150]);
+        if (arrow != 0) {
+            ArmsCond_unk* cond = arrow->mConds;
+            for (int i = 0; i < 2; i++, cond++) {
+                if (Arms::fn_80044FBC(cond, kind, (int)&pos, flags, attacker, chara, 0) && cond->m10 > rand() % 100) {
+                    status->mEntries.push_back(*(CharaStatusEntry_unk*)cond);
+                }
+            }
+        }
+    }
+    if (arms->m274->m78 == 0) {
+        int id = arms->m274->m80 % 1000;
+        if (0x18F <= id && id <= 0x195) {
+            ArmsCond_unk cond;
+            cond.m00 = 0x3F;
+            cond.m04 = 7;
+            cond.m08 = 2;
+            cond.m0C = 0;
+            cond.m10 = 100;
+            if (Arms::fn_80044FBC(&cond, kind, (int)&pos, flags, attacker, chara, hit)) {
+                status->mEntries.push_back(*(CharaStatusEntry_unk*)&cond);
+            }
+        }
+    }
+    if (status->fn_80133EE8(0x11) && (target->m18 & 0x10000)) {
+        status->fn_80133E24(0x11, -1);
+    }
+    if (status->fn_80133EE8(0x12) && ((target->m18 & 0x400000) || (target->m18 & 1) || chara->mFlag22 == 1)) {
+        status->fn_80133E24(0x12, -1);
+    }
+    if (status->fn_80133EE8(0x13) && (target->m18 & 0x80)) {
+        status->fn_80133E24(0x13, -1);
+    }
+    if (status->fn_80133EE8(0x14) && ((target->m18 & 1) || chara->mFlag22 == 1)) {
+        status->fn_80133E24(0x14, -1);
+    }
+    if (status->fn_80133EE8(0x15) && (target->m18 & 0x40)) {
+        status->fn_80133E24(0x15, -1);
+    }
+    if (status->fn_80133EE8(0x16) && (target->m18 & 0x10)) {
+        status->fn_80133E24(0x16, -1);
+    }
+    if (status->fn_80133EE8(0x17) && (target->m18 & 0x8000)) {
+        status->fn_80133E24(0x17, -1);
+    }
+    if (status->fn_80133EE8(0x19) && (target->m18 & 4)) {
+        status->fn_80133E24(0x19, -1);
+    }
+    if (status->fn_80133EE8(0x18) && (target->m18 & 0x4000)) {
+        status->fn_80133E24(0x18, -1);
+    }
+    if (status->fn_80133EE8(0x13) &&
+        ((target->m0C & 0x40) == 0x40 || (target->m0C & 0x100) == 0x100 || (target->m0C & 0x4000) == 0x4000 ||
+         (target->m0C & 0x10000) == 0x10000 || (target->m0C & 0x10) == 0x10)) {
+        status->fn_80133E24(0x13, -1);
+    }
+    if (status->fn_80133EE8(0x11) &&
+        ((target->m0C & 0x40) == 0x40 || (target->m0C & 0x100) == 0x100 || (target->m0C & 0x4000) == 0x4000 ||
+         (target->m0C & 0x80) == 0x80 || (target->m0C & 0x10) == 0x10)) {
+        status->fn_80133E24(0x11, -1);
+    }
+    if (status->fn_80133EE8(1) && chara->mFlag22 == 1) {
+        status->fn_80133E24(1, -1);
+    }
+    for (unsigned int i = 0; i < status->mEntries.mCount; i++) {
+        CharaStatusEntry_unk* entry = &status->mEntries[i];
+        bool shown = true;
+        if (entry->mSub == 0x13) {
+            shown = false;
+        }
+        if (entry->mId == 0x22) {
+            shown = false;
+        }
+        if (entry->mId == 0x3F) {
+            shown = false;
+        }
+        if (entry->mSub == 0x11) {
+            shown = false;
+        }
+        if (entry->mId == 0x3C) {
+            shown = false;
+        }
+        if (entry->mId == 0x42 && !(param->m08 != 0 && (param->m08->mAC & 0x2000000) == 0x2000000)) {
+            shown = false;
+        }
+        if (entry->mSub == 0x1A) {
+            shown = false;
+        }
+        if (shown) {
+            result = 1;
+        }
+        if (entry->mId != 0x3C) {
+            fn_80109864((SpEffect_unk*)entry, attacker);
+        }
+    }
+    return result;
+}
+
+// inferred: applies the status `ref` of an equipment condition: the conditions 0x1D, 0x1F and 0x21 go to every player
+// on the side of `chara` (without the 0x2000 flag), the others to `chara` (name invented)
+inline void ApplyEquipStatus_unk(CharaTask* chara, int kind, const CharaStatusRef_unk& ref) {
+    if (kind == 0x1D || kind == 0x1F || kind == 0x21) {
+        for (PlayerTask* p = lbl_8087F8A0->mHead; p != 0; p = p->mNext) {
+            if ((p->m54C & 0x2000) != 0x2000 && p->fn_8016F3D0(chara, 1)) {
+                p->mStatus.fn_80133FBC(ref, 1);
+            }
+        }
+    } else {
+        chara->mStatus.fn_80133FBC(ref, 1);
+    }
+}
+
+// inferred: statuses of the equipment of `chara` (a player or a kind 3 character) whose conditions hold: the two
+// weapons (key: the weapon), the shield conditions 0x3D of a weapon with m78 (and in multiplayer the third part)
+// and the four accessories (key: their equip_param row). C name, called by CharaTask, CosEditBase and ShopUpGrade
+// as extern "C"
+// NONMATCHING: 97.5% - register allocation of the loops; the accessory loop walks a pointer instead of i * 4
+extern "C" void fn_8010C00C(BattleTask* mgr, CharaTask* chara) {
+    if ((chara->m54C & 0x2000) == 0x2000) {
+        return;
+    }
+    if (chara->mType != 0 && chara->mType != 3) {
+        return;
+    }
+    chr::CharaPart_unk* weapons[2];
+    weapons[0] = chara->m648;
+    weapons[1] = chara->m64C;
+    for (unsigned int i = 0; i < 2; i++) {
+        Arms* arms = (Arms*)weapons[i];
+        if (arms == 0 || arms->m274 == 0) {
+            continue;
+        }
+        for (int j = 0; j < 2; j++) {
+            if (arms->fn_80044F54(j, chara)) {
+                ArmsCond_unk* cond = &arms->m274->mC4[j];
+                CharaStatusRef_unk ref((CharaStatusEntry_unk*)cond, (unsigned int)arms, chara, 1, 0);
+                ApplyEquipStatus_unk(chara, cond->m00, ref);
+            }
+        }
+        if (arms->m274->m78 == 1 && chara->m674 >= 1) {
+            Arms* shield = (Arms*)(chara->m678 != 0 ? chara->m678 : chara->mParts.mData[0]);
+            if (shield != 0) {
+                for (int j = 0; j < 2; j++) {
+                    if (shield->fn_80044F54(j, chara)) {
+                        ArmsData_unk* data = shield->m274;
+                        if (data->mC4[j].m00 == 0x3D) {
+                            CharaStatusRef_unk ref((CharaStatusEntry_unk*)&data->mC4[j], (unsigned int)data, chara, 1,
+                                                   0);
+                            chara->mStatus.fn_80133FBC(ref, 1);
+                        }
+                    }
+                }
+            }
+            if (lbl_8087F610 != 0) {
+                Arms* part = (chara->m678 == 0 && chara->mParts.mCount >= 3) ? (Arms*)chara->mParts.mData[2] : 0;
+                if (part != 0 && part->m274 != 0 && part->m274->m78 == 0) {
+                    for (int j = 0; j < 2; j++) {
+                        if (part->fn_80044F54(j, chara)) {
+                            ArmsData_unk* data = part->m274;
+                            if (data->mC4[j].m00 == 0x3D) {
+                                CharaStatusRef_unk ref((CharaStatusEntry_unk*)&data->mC4[j], (unsigned int)data, chara,
+                                                       1, 0);
+                                chara->mStatus.fn_80133FBC(ref, 1);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    for (int i = 0; i < 4; i++) {
+        chr::CharaEquip_unk* equip = chara->m680[i];
+        if (equip == 0 || equip->m414 == 0) {
+            continue;
+        }
+        for (int j = 0; j < 2; j++) {
+            // inferred: m414 is a row of equip_param.csv; its conditions mE4 have the layout of ArmsCond_unk
+            ArmsCond_unk* cond = (ArmsCond_unk*)&((EquipParamEntry_unk*)equip->m414)->mE4[j];
+            if (Arms::fn_80045510(cond, chara)) {
+                CharaStatusRef_unk ref((CharaStatusEntry_unk*)cond, (unsigned int)equip->m414, chara, 1, 0);
+                ApplyEquipStatus_unk(chara, cond->m00, ref);
+            }
+        }
+    }
+}
+
 // inferred: hate table m391E0: for every character that can act, the value toward each other one not on its side
 // (wounds of the other, nearness within 200, bonus 200 for the other kind of character, the attackers already on
 // a BattleCharaTask and the party member kinds); 1 at least toward the players
@@ -3538,15 +5023,6 @@ int BattleTask::fn_8010CD3C(int kind, CharaTask* chara, CharaTask* other) {
 extern "C" int fn_80444020(Inventory* party, int item, int a, int b, int c, int d, int* outA, int* outB,
                            int* outC); // inferred: adds an item (as in game/BattleResult.cpp)
 extern "C" int fn_8021E48C(int item, int arg); // inferred: count of the item given at once
-// inferred: item data (its name at +8, as MpItem_unk of MP/D2AMpMenuResult.cpp); names invented
-struct BattleItem_unk {
-    unsigned char m00[0x8];
-    const wchar_t* mName;
-};
-extern "C" BattleItem_unk* fn_80211480(int id);
-extern "C" int fn_800DD3FC(wchar_t* s, const wchar_t* format, ...); // inferred: wide sprintf
-// inferred: battle message `id` about `chara` (status effect popups and log)
-extern "C" void fn_801092C8(BattleTask* mgr, int id, CharaTask* chara, int kind, int arg);
 
 // inferred: effect `kind` of a special hit of `chara` on `target`: 4 steals the item of `target` once (message, sound
 // and item notice), 5 knocks `chara` back with an effect, 7/8/0x2E/0x2F only show the message (not for the
@@ -3616,6 +5092,40 @@ extern "C" void fn_8010CF28(BattleTask* mgr, int kind, CharaTask* chara, CharaTa
         break;
     }
     }
+}
+
+extern "C" unsigned int PSMTXInverse(const Mtx src, Mtx inv);
+
+// inferred: direction on the screen from the centre of the view to `pos` (called by game/GameUI.cpp): the
+// difference of the two directions from the camera, turned by the inverse of the yaw of the view, on the x/y plane
+extern "C" void fn_8010D320(BattleTask* mgr, atn::Vector3 pos) {
+    mgr->mCB58 = 1;
+    atn::Camera& cam = atn::RenderManager::instance_->mCamera;
+    atn::Vector3 dir;
+    dir = cam.mTarget - cam.mPos;
+    dir.Normalize_unk();
+    atn::Vector3 to = pos - cam.mPos;
+    if (to.IsZero_unk()) {
+        to.x = 0.0f;
+        to.y = 0.0f;
+        to.z = 1.0f;
+    }
+    to.Normalize_unk();
+    atn::Vector3 rot = dir.ToRotation_unk();
+    atn::Matrix3x4 m = atn::Matrix3x4::RotY_unk(rot.y);
+    atn::Vector3 diff = to - dir;
+    to = diff;
+    atn::Matrix3x4 inv(m);
+    PSMTXInverse(inv.m, inv.m);
+    PSMTXMultVec(inv.m, &to, &to);
+    to.z = 0.0f;
+    if (to.IsZero_unk()) {
+        to.x = 0.0f;
+        to.y = 1.0f;
+        to.z = 0.0f;
+    }
+    to.Normalize_unk();
+    mgr->mCB70.Set_unk(-to.x, 0.0f, to.y);
 }
 
 int BattleTask::fn_8010D770(HitInfo_unk* hit) {

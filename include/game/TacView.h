@@ -44,7 +44,7 @@ struct TacViewChara_unk {
     AiTarget m18;
     int m4C;
     unsigned char m50[4];
-    unsigned char m54[0x10];
+    void* m54[4]; // inferred: skill of each command (HitInfo_unk, or SkillParam_unk for the kinds >= 6)
     int m64[4];
     int m74[4];
     int m84[4];
@@ -120,6 +120,7 @@ public:
     // BattleCharaTask::fn_800E2FE0)
     void fn_805AA014(CharaTask* chara, int type); // inferred: type 6 when a redirection ends (AIManager)
     int fn_805AA390(CharaTask* chara); // inferred: kind of the charged skill (1 normal, 2 special, 3 other)
+    void fn_805ABE74(); // inferred: commands of the character under the cursor (m54)
     void fn_805AA4C8(SkillEffect* effect);
     void fn_805AA4E4(); // inferred: opens the view
     void fn_805AA734(); // inferred: closes the view
