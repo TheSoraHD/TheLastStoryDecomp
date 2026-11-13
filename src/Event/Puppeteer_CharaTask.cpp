@@ -19,6 +19,7 @@
 #include "game/GameTask.h"
 #include "Event/Action.h"
 #include "chr/CharaEquip_unk.h"
+#include "atn/PBone.h"
 
 extern "C" GameTask* lbl_8087F430; // inferred: the field
 
@@ -592,6 +593,132 @@ void Actor::fn_8000EE8C() {
             }
             m148.clear();
         }
+    }
+}
+
+// inferred: sets or clears `bit` of a flag word (inlined; name invented)
+inline void SetFlagBit_unk(unsigned int& flags, unsigned int bit, unsigned int on) {
+    if (on == 1) {
+        flags |= bit;
+    } else {
+        flags &= ~bit;
+    }
+}
+
+// inferred: saved vectors of ActorAnim_unk (see Event/Actor.h; name invented)
+inline const atn::Vector3& SavedVec_unk(const unsigned char* p) {
+    return *(const atn::Vector3*)p;
+}
+
+// inferred: stores a saved bit into a bool (inlined; name invented)
+inline void SetBool_unk(unsigned char& b, unsigned int on) {
+    b = on == 1;
+}
+
+// inferred: end of the event: gives back to the character the state that fn_8000F1EC saved in m18 and m24
+// (flags, control mode, motions, node edits, position, physics bones)
+// NONMATCHING: 92.9% - the original reloads m18 for each saved bit of a character (here it stays in a
+// register), saves r28-r31 one by one (one register more here), walks the physics bones from the address of
+// their count (atn::Model::m384/m388 as one array) and copies the camera offsets through one 0x1C-byte
+// temporary (GameCamera::m93C/m948/m954); "z" is placed elsewhere in the string pool
+void Actor::fn_8000FAE8() {
+    if (m18_0) {
+        switch (m20) {
+        case 7:
+        case 1: {
+            if (m18_7 == 1) {
+                break;
+            }
+            SetFlagBit_unk(GetChara_unk()->mFlags, 4, m18_16);
+            GetChara_unk()->fn_800D246C(m18_17);
+            GetChara_unk()->fn_8016E4C4(m18_18);
+            SetFlagBit_unk(GetChara_unk()->mColli.mFlags, 1, m18_19);
+            if (m18_20 == 1) {
+                GetChara_unk()->mStatus.mParamB.m9C |= 1;
+            } else {
+                GetChara_unk()->mStatus.mParamB.m9C &= ~1;
+            }
+            if (m18_21 == 1) {
+                GetChara_unk()->vf98();
+            } else {
+                GetChara_unk()->vf9C(0);
+            }
+            SetBool_unk(GetChara_unk()->m1220.m10, m18_22);
+            if (m18_8 == 6) {
+                GetChara_unk()->fn_8016E970(m18_8);
+                GetChara_unk()->fn_8016EB48(1, 1, 1);
+            } else {
+                GetChara_unk()->fn_8016E970(m18_8);
+            }
+            atn::Model* model = GetChara_unk()->GetModel_unk();
+            for (int i = 0; i < 6; i++) {
+                if ((unsigned int)(model->mTracks[i].m00 - 239) <= 79) {
+                    model->fn_80097C08(i, GetChara_unk()->m484[0], 1, 0, 1, 1.0f, 0.1f);
+                }
+                model->mTracks[i].m14 = 0.1f;
+            }
+            if ((GetChara_unk()->mType == 0 || GetChara_unk()->mType == 3) &&
+                (GetChara_unk()->mStatus.m0C & 0x20) == 0x20) {
+                model->fn_80097C08(0, 0x2E, 0, 0, 1, 1.0f, 0.1f);
+                model->mTracks[0].m08 = model->fn_80097D7C(0);
+            }
+            model->fn_80097CCC(4, 0.0f);
+            model->fn_80097CCC(3, 0.0f);
+            GetChara_unk()->m1188.ClearMotion(true);
+            // inferred: m24.m00 is a SimpleVector<Event::PoseKey_unk> (same layout; see the pending note of
+            // ActorAnim_unk::m00 in docs/paralelo-20261113-qG.md)
+            model->fn_80094420(*(atn::SimpleVector<Event::PoseKey_unk>*)&m24.m00);
+            GetChara_unk()->fn_80176DFC(0, 0, 0);
+            for (int motion = 239; motion <= 318; motion++) {
+                model->fn_80097A20(motion);
+            }
+            model->fn_8009373C("set_y", 0);
+            fn_80012D0C(0.3f);
+            fn_80013530(0.3f);
+            GetChara_unk()->m1188.m78 = 0;
+            GetChara_unk()->m1154.m00 = 0;
+            GetChara_unk()->m1154.m04 = 0.0f;
+            if (m24.m0C == -1) {
+                GetChara_unk()->fn_8014EEC4(0);
+            } else {
+                GetChara_unk()->fn_8014DEE4(m24.m0C, 0, 0);
+            }
+            if (GetSequence_unk()->m98_9) {
+                GetChara_unk()->mPos = SavedVec_unk(&m24.m10[0x00]);
+                GetChara_unk()->mRot = SavedVec_unk(&m24.m10[0x0C]);
+                GetChara_unk()->fn_80144710();
+                GetChara_unk()->GetModel_unk()->CalcMatrixStack(atn::ModelNodeCallback_unk());
+                GetChara_unk()->fn_80148B38(0.0f);
+            }
+            GetChara_unk()->mFlag7 = 1;
+            atn::Model* bones = GetChara_unk()->GetModel_unk();
+            for (int i = 0; i < (int)bones->m384; i++) {
+                bones->m388[i]->vf20(m24.m28[i]);
+            }
+            CharaTask* chara = GetChara_unk();
+            if (chara->m13FC != 0) {
+                chara->m13FC->fn_80176ACC();
+                MtxPtr node = chara->m13FC->GetModel_unk()->GetNodeMtx_unk("z");
+                if (node != 0) {
+                    chara->mF1C = (int)node;
+                }
+                lbl_8087F430->mCamera.m93C = atn::Vector3(0.0f, 10.0f, 0.0f);
+                lbl_8087F430->mCamera.m948 = atn::Vector3(0.0f, 0.0f, 0.0f);
+                lbl_8087F430->mCamera.m954 = 0.0f;
+            }
+            m144 = 1;
+            m145 = 1;
+            m146 = 1;
+            m188 = 1;
+            break;
+        }
+        case 2:
+            SetFlagBit_unk(m1C->mFlags, 4, m18_16);
+            m1C->fn_800D246C(m18_17);
+            ((GimmickCommon*)m1C)->m9C = m18_18;
+            break;
+        }
+        m18_0 = 0;
     }
 }
 

@@ -738,8 +738,75 @@ void ActionActorEyes::fn_80553DC8(Action* arg, atn::Vector3* cur, const atn::Vec
     }
 }
 
+// inferred: eyes while the wandering window is closed: with `mode` towards the angles of the parameters 6-8,
+// otherwise towards the node of the target actor moved by the parameters 2-4; for `left` > 0 the eyes ease
+// from the last goal (actor->mF4 / actor->m100) along the curve of the actor (`length`, `v` and `now` unused)
+// NONMATCHING: 93.7% - stack frame 0x10 smaller here (slots of the vectors), volatile registers of the two
+// actor lookups and the order of the loads of arg->m18 and of the event manager
+void ActionActorEyes::fn_80554088(Action* arg, int length, atn::Vector3* v, int mode, float left, float now) {
+    ActionOwner_unk* section = arg->fn_805381A0();
+    EventManager_unk* manager = arg->fn_805381C8();
+    Actor* actor = manager->FindActor_unk(section->m10);
+    float weight = 1.0f;
+    Actor* target = manager->FindActor_unk(arg->GetParam_unk(0)->m04.i);
+    int node = arg->GetParam_unk(1)->m04.i;
+    float t = 1.0f;
+    if (left > 0.0f) {
+        t -= left / (float)arg->m18;
+        t = lbl_8087F540->fn_8048BD04(actor->m138, t);
+    }
+    if (mode != 0) {
+        atn::Vector3 angles;
+        angles.x = atn::DegToRad_unk(arg->GetParam_unk(6)->m04.f);
+        angles.y = atn::DegToRad_unk(arg->GetParam_unk(7)->m04.f);
+        angles.z = atn::DegToRad_unk(arg->GetParam_unk(8)->m04.f);
+        atn::Vector3 goal(lbl_807C7030);
+        goal += angles;
+        if (t == 1.0f) {
+            goal = angles;
+            actor->mF4 = goal;
+        } else {
+            atn::Vector3 prev = actor->mF4;
+            goal = prev + (goal - prev) * t;
+        }
+        actor->fn_80012D34(target, node, goal, mode, lbl_807C7030, 0, weight, 0.0f);
+        return;
+    }
+    atn::Vector3 offset(arg->GetParam_unk(2)->m04.f, arg->GetParam_unk(3)->m04.f, arg->GetParam_unk(4)->m04.f);
+    atn::Vector3 prev = actor->m100;
+    atn::Vector3 pos = target->fn_80010374();
+    if (target->fn_8001296C() != 0) {
+        MtxPtr mtx = GetNodeMtxByHash_unk(target->fn_8001296C(), node);
+        if (mtx != 0) {
+            pos = atn::Vector3(mtx[0][3], mtx[1][3], mtx[2][3]);
+        }
+    }
+    pos += offset;
+    if (t == 1.0f) {
+        atn::Vector3 dir = pos - actor->fn_80010374();
+        if (PSVECMag(&dir) > 0.0f) {
+            PSVECNormalize(&dir, &dir);
+            // inferred: turn between the eyes and the front of the actor (computed and not used)
+            atn::Vector3 rot = dir.ToRotationZ_unk();
+            rot -= actor->fn_800112E0().ToRotationZ_unk();
+        }
+        pos = offset;
+        actor->m100 = pos;
+    } else {
+        atn::Vector3 d = pos - prev;
+        float dist = PSVECMag(&d);
+        if (dist > 0.0f) {
+            dist *= t;
+            PSVECNormalize(&d, &d);
+        }
+        prev = prev + d * dist;
+        pos = prev;
+    }
+    actor->fn_80012D34(target, node, pos, mode, lbl_807C7030, 0, weight, 0.0f);
+}
+
 // NONMATCHING: 92.4% - saved registers (the original gives r31/r30 to camera/mode and r28 to arg) and the
-// volatile registers of the inlined lookups; fn_80554088 (between fn_80553DC8 and this one) is not written yet
+// volatile registers of the inlined lookups
 int ActionActorEyes::vf08(Action* arg) {
     float now = arg->fn_805381C8()->m198;
     float frames = arg->GetParam_unk(12)->m04.f;

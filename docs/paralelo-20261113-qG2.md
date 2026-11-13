@@ -15,7 +15,12 @@ Inicio: 2026-11-13 07:19 CET. Tope 09:49.
     `Actor::GetModel_unk` (mismo codigo que fn_8001296C, con `?:` en el caso 2) y la pista en una local con
     `case 1: t = track;` (si no, el caso 1 pierde su comparacion).
   - `Actor::fn_80013558` (copia los colores de material guardados y los vuelve a poner) 97,7 %.
+  - `Actor::fn_8000FAE8` (fin del evento: devuelve al personaje el estado guardado en m18/m24) 92,9 %.
   - `fn_8001011C` 99,2 -> 99,6 % (columnas de `SetModelMtx_unk` por `MtxCol_unk`, evaluadas z, y, x).
+
+- `Event/ActionActorPosition`: 4 -> 3.
+  - `ActionActorEyes::fn_80554088` (ojos fuera de la ventana de vagabundeo: hacia los angulos de los
+    parametros 6-8 o hacia el nodo del actor objetivo desplazado por 2-4, con transicion por la curva) 93,7 %.
 
 ## NONMATCHING
 
@@ -25,6 +30,13 @@ Inicio: 2026-11-13 07:19 CET. Tope 09:49.
 - `fn_80013558` 97,7 %: el `push_back` inline de `std::vector<ColorF_unk>` (std/vector.h, otra familia: el
   original mueve los elementos con un bucle contado) y huecos de pila de los dos colores (invertidos).
 
+- `fn_8000FAE8` 92,9 %: el original relee m18 en cada bit guardado (aqui queda en registro), guarda r28-r31 uno a
+  uno (un registro mas aqui), recorre los huesos fisicos desde la direccion de su contador
+  (`atn::Model::m384/m388` como un array) y copia los offsets de la camara con un temporal de 0x1C bytes
+  (`GameCamera::m93C/m948/m954`); "z" en otro sitio del pool de cadenas.
+- `ActionActorEyes::fn_80554088` 93,7 %: marco 0x10 menor aqui (huecos de los vectores), registros volatiles de
+  las dos busquedas de actores y orden de las cargas de `arg->m18` y del gestor de eventos.
+
 ## Decisiones tomadas sin el usuario
 
 - `include/Event/Actor.h` (33 unidades): `fn_80010B68` pasa a `const` y miembro nuevo
@@ -32,7 +44,16 @@ Inicio: 2026-11-13 07:19 CET. Tope 09:49.
   parametro (no renumeran). Llamadores de
   `fn_80010B68` (Event/Path, Event/ActionActorPosition) sin cambios en el fuente; el nombre en `symbols.txt`.
 - `@15509`/`@15510` (0.0f/1.0f de `.sdata2` de la unidad) renombrados a mano (pd.sh no los renombra): ahora
-  `@16851`/`@16852`.
+  `@17150`/`@17151`.
+
+- `Event/Actor.h`: bits de `m18` (MSB primero) detallados: `m18_0` estado guardado, `m18_8` (8 bits) modo de
+  control, `m18_16..22` bits guardados del personaje; `ActorAnim_unk::m0C` int. Las dos posiciones guardadas
+  (`m24 + 0x10/0x1C`) quedan como bytes (`m10[0x18]`) leidas con `SavedVec_unk` (reinterpretacion): como
+  miembros `atn::Vector3` el constructor implicito del actor renumera las `@N` de Event/Sequence y
+  Event/EventParser_unk (cola F). Cambiarlo junto con `ActorAnim_unk::m00` (pendiente).
+- `fn_8000FAE8` pasa `m24.m00` a `atn::Model::fn_80094420` como `SimpleVector<Event::PoseKey_unk>` con un cast
+  (mismo layout que `ActorKey2C_unk`; pendiente del cambio de `ActorAnim_unk::m00`).
+- `src/Event/Puppeteer_CharaTask.cpp` incluye `atn/PBone.h` (renumera sus `@N`, re-emparejada).
 
 ## Hallazgos
 

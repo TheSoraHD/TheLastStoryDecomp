@@ -56,8 +56,12 @@ struct ActorPair_unk {
 // inferred: animation state of an actor (0x34 bytes at 0x24)
 struct ActorAnim_unk {
     atn::SimpleVector<ActorKey2C_unk> m00;
-    unsigned char m0C[0x28 - 0x0C];
-    IntVector_unk m28;
+    int m0C; // inferred: saved by fn_8000F1EC, given back with CharaTask::fn_8014DEE4 (-1: none)
+    // inferred: saved position (0x10) and rotation (0x1C) of the character, two atn::Vector3: as Vector3
+    // members the implicit constructor of the actor renumbers the @N labels of Event/Sequence and
+    // Event/EventParser_unk (see docs/paralelo-20261113-qG2.md)
+    unsigned char m10[0x28 - 0x10];
+    IntVector_unk m28; // inferred: saved states of the physics bones
 };
 
 // inferred: eye movement of an actor (0x34 bytes at 0x18C, cleared by its constructor; names invented)
@@ -150,12 +154,22 @@ struct Actor : public CommonData {
 
     union {
         struct {
-            unsigned int m18_0 : 2;
+            unsigned int m18_0 : 1; // inferred: the state of the character is saved (fn_8000F1EC/fn_8000FAE8)
+            unsigned int m18_1 : 1;
             unsigned int mWait_unk : 1; // inferred: set while the actor has no character or is moving
             unsigned int m18_3 : 3;
             unsigned int m18_6 : 1; // inferred: set for set point characters and gimmicks
             unsigned int m18_7 : 1; // inferred: the actor is not reset at the start of the event (Event::Sequence)
-            unsigned int m18_8 : 24;
+            // inferred: state saved by fn_8000F1EC and given back by fn_8000FAE8
+            unsigned int m18_8 : 8;  // inferred: control mode (CharaTask::fn_8016E970)
+            unsigned int m18_16 : 1; // inferred: task stopped (atn::Task::mFlags 4)
+            unsigned int m18_17 : 1; // inferred: argument of atn::Task::fn_800D246C
+            unsigned int m18_18 : 1; // inferred: shown (CharaTask::fn_8016E4C4; GimmickCommon::m9C)
+            unsigned int m18_19 : 1; // inferred: bit 0 of the collision flags
+            unsigned int m18_20 : 1; // inferred: bit 0 of CharaStatus::mParamB.m9C
+            unsigned int m18_21 : 1; // inferred: model visible (CharaTask::vf98/vf9C)
+            unsigned int m18_22 : 1; // inferred: motion commands enabled (CharaTask::m1220.m10)
+            unsigned int m18_23 : 9;
         };
         unsigned int m18;
     };
