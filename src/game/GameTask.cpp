@@ -559,7 +559,7 @@ extern "C" void fn_800EF8DC(); // inferred: game/BattleEfp_unk.cpp
 
 // NONMATCHING: 98.6% - float registers and store order of the inlined ResetPostFx_unk (the depth of field
 // block; MapTask::fn_8049ED90 has the same differences). The weak RenderConfig::SetColorMatrix after this
-// function (0x80366D40) is not emitted
+// function (0x80366D40) comes out behind it because fn_803729B4 calls it out of line
 // inferred: the field is deleted: releases the managers and restores the render settings (the bloom is
 // switched on before the reset, as in the original: two stores to 0x54)
 GameTask::~GameTask() {

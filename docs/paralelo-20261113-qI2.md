@@ -2,7 +2,7 @@
 
 ## Resultado por unidad
 
-- `game/GameTask`: funciones al 0 % 6 -> 3. Escritas (NONMATCHING, equivalentes):
+- `game/GameTask`: funciones al 0 % 6 -> 2; al 100 % 107 -> 108 (`SetColorMatrix`, copia debil 0x80366D40). Escritas (NONMATCHING, equivalentes):
   - `~GameTask` (98,6 %): suelta los gestores y restaura los ajustes de render (`ResetPostFx_unk`,
     `ResetShadow_unk`, el bloque de dano como en `fn_80373FC4`). El original guarda dos veces `m054.mEnabled`
     (una antes del reset): sale con `render->m054.mEnabled = 1` y un puntero local. Quedan registros de float y
@@ -22,6 +22,11 @@
   constructor de `CharaStatus`. No tocado.
 
 ## Decisiones tomadas sin el usuario
+
+- `symbols.txt`: `SetColorMatrix__Q23atn12RenderConfigFRCQ33atn12RenderConfig11ColorMatrix` (nombre del RSO) pasa a
+  `SetColorMatrix__17RenderSetting_unkFRC20ColorMatrixParam_unk`: nuestro `.o` ya emitia la copia debil (la llama
+  fuera de linea `fn_803729B4`) y, con el destructor escrito, sale detras de el como en el original: 100 %. El
+  nombre real (`atn::RenderConfig`, `RenderConfig::ColorMatrix`) queda para cuando se renombre la clase.
 
 - `MpSettings_unk::m284` (local de `GameTask.cpp`) pasa de bytes a `int`.
 - `GameTask.cpp` incluye `db/GrowthParseGlobal.h`, `atn/Layer3D.h` y `game/SongManager.h`.
@@ -43,9 +48,6 @@
 
 - `fn_8036F268` deberia ser miembro de `GameTask` (regla 10): exige renombrar en `symbols.txt` y cambiar los
   llamadores de `game/GameEventScript.cpp` y `game/NewCampPartsMapSelect.cpp` (otras colas).
-- La copia debil `RenderConfig::SetColorMatrix` (0x80366D40) no sale: en el original va detras del destructor
-  (primer uso) y `fn_803729B4` la llama fuera de linea; con `SetColorMatrix(ColorMatrixParam_unk())` en lugar de
-  `ResetPostFx_unk` baja el destructor (98,06 %) y tampoco sale.
 - `fn_80371790` (3,5 KB): copia local de `FixedArray_unk<ExpEntry_unk, 8>` con el constructor de `ExpEntry_unk`
   (memset del `LevelUpResult_unk`): exige constructores en `Inventory.h` (58 unidades), como el ctor de `Inventory`.
 - `fn_803731E8`: sigue bloqueada por la firma de `FinishCamera_unk::fn_803786FC` (cola B2).
