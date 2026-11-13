@@ -321,6 +321,9 @@ public:
     GameUIColor_unk fn_803DF138(SkillEffect* bullet);
     const wchar_t* fn_803DF2DC(SkillEffect* bullet); // inferred: name of a skill effect
     void fn_803DF5B4();
+    // inferred: icon over a character (0x803E4E58: colour and frame; 0x803E5200: position)
+    void fn_803E4E58(atn::D3AnimeInstance*, CharaTask*, atn::Vector3*, int);
+    void fn_803E5200(atn::D3AnimeInstance*, CharaTask*, atn::Vector3*, int);
     void fn_803DF648(int arg);
     void fn_803E0D4C();
     void fn_803E0D84();

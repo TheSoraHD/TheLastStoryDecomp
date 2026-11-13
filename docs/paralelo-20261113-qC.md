@@ -2,6 +2,14 @@
 
 Unidades: `game/GameUI`, `game/MiniMapTask`, `game/PopupTask`.
 
+## Resumen
+
+- Funciones al 0 %: GameUI 22 -> 11, MiniMapTask 4 -> 4, PopupTask 1 -> 1 (cola 27 -> 16).
+- Al 100 % nuevas: 2 (`GameUI::fn_803D164C`, `GameUI::fn_803E6ADC`); report 15232 -> 15234.
+- Escritas y equivalentes (NONMATCHING): fn_803DCD34 99,4 %, fn_803CFC78 99,8 %, fn_803D022C 99,5 %,
+  fn_803D0B20 99,5 %, fn_803D2194 99,9 %, fn_803DD160 87,5 %, fn_803E6D4C 72 %, fn_803E746C 68 %,
+  fn_803DDD54 69 %, fn_803E4E58 80 %.
+
 ## Resultado por unidad
 
 ### game/GameUI (22 al 0 %)
@@ -26,6 +34,10 @@ Unidades: `game/GameUI`, `game/MiniMapTask`, `game/PopupTask`.
 - `fn_803DDD54` (icono de oficio de una instancia `<32, 8>` por indice, `switch` de 10 casos; la tabla de
   `.data` 0x8078BE40 es su tabla de saltos, no una tabla de datos) 69 %: la copia de los colores
   (`SetColor255_unk` con `D2A_RGB_unk`, ver pendientes).
+- `GameUI::fn_803E4E58` (icono sobre un personaje: color segun el tipo de ataque, `iconColor00..02`,
+  `iconColorSdw00`, fotograma en [0, 40)) 80 %: la copia de los colores. Declarados en `GameUI.h` (sin nombres)
+  `fn_803E4E58` y `fn_803E5200` (`(atn::D3AnimeInstance*, CharaTask*, atn::Vector3*, int)`, renombrados en
+  `symbols.txt`); fn_803E5200 (posicion del icono) sigue sin escribir.
 
 ## NONMATCHING nuevas
 
@@ -85,5 +97,11 @@ Unidades: `game/GameUI`, `game/MiniMapTask`, `game/PopupTask`.
 - `atn::D2A_TaskInstanceBase<N, M>::SetColor255_unk(const char*, D2A_RGB_unk)`: el original copia 16 bytes en
   la llamada; el parametro es probablemente `atn::Color` (cambiar `include/atn/D2A_TaskInstance.h` y renombrar
   los dos simbolos `...FPCcQ23atn11D2A_RGB_unk` -> `...FPCcQ23atn5Color`; otra familia).
+- `__sinit_\GameUI_cpp` (0x803E78B4, antes fn_803E78B4): nuestro `__sinit` sale de la definicion de
+  `lbl_807C8628` y no pone los valores iniciales de la tabla (16 colores; el original los escribe con
+  constructores `atn::Color(r, g, b, a)`): falta escribir el inicializador de la tabla.
+- Quedan al 0 % en GameUI: fn_803D7850, fn_803D83A8 (10 KB), fn_803DAB4C, fn_803DBD44, fn_803E0E10,
+  fn_803E2110 (push_back de m30C), fn_803E2410/fn_803E2A30, fn_803E3468, fn_803E5200 (posicion del icono,
+  mucha aritmetica float), el `__sinit`.
 - MiniMapTask: SetPosition/SetTarget de `atn::Camera` (inline nueva en `Camera_unk.h`, muy incluida) y
   `fn_804ABF74` (ctor de `ComDrawTextureMask`): sin tocar.

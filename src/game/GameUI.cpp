@@ -4084,6 +4084,53 @@ extern "C" bool fn_803E4DD4(CharaTask* chara) {
     return false;
 }
 
+extern "C" GameConfig_unk* lbl_8087F0A8; // inferred: game settings (line colours of the hate display)
+// inferred: colour of a 0xAARRGGBB value (as game/BattleTask fn_800F8014; name invented)
+inline atn::Color GameUIColorU32_unk(unsigned int rgba) {
+    return atn::Color(0.003921569f * (float)((rgba >> 16) & 0xFF), 0.003921569f * (float)((rgba >> 8) & 0xFF),
+                      0.003921569f * (float)(rgba & 0xFF), 0.003921569f * (float)(rgba >> 24));
+}
+// inferred: the d2anime instance behind a D3AnimeInstance (D3AnimeInstance::GetTask returns the partial view
+// D2AInstance_unk of atn/D3AnimeInstance.h)
+inline GameUIInst_unk* GetIconInst_unk(atn::D3AnimeInstance* icon) {
+    return (GameUIInst_unk*)icon->GetTask();
+}
+
+// inferred: icon over a character (position by fn_803E5200, colour by the kind of attack the character
+// uses: white when `white`, else the line colours of the settings) and its frame kept in [0, 40); moves
+// `pos` down for the next icon
+// NONMATCHING: the colour is passed to SetColor255_unk as D2A_RGB_unk (the original copies the whole
+// atn::Color, see pendientes)
+void GameUI::fn_803E4E58(atn::D3AnimeInstance* icon, CharaTask* chara, atn::Vector3* pos, int white) {
+    if (icon == 0 || chara == 0) {
+        return;
+    }
+    fn_803E5200(icon, chara, pos, white);
+    atn::Color color;
+    if (white != 0) {
+        color = atn::Color(1.0f, 1.0f, 1.0f, 1.0f);
+    } else if (chara->mStatus.fn_80134270()) {
+        color = GameUIColorU32_unk(lbl_8087F0A8->mLineColorMagic);
+    } else if (chara->mStatus.fn_80134250()) {
+        color = GameUIColorU32_unk(lbl_8087F0A8->mLineColorArcher);
+    } else {
+        color = GameUIColorU32_unk(lbl_8087F0A8->mLineColorSword);
+    }
+    SetInstColor_unk(GetIconInst_unk(icon), "iconColor00", color);
+    SetInstColor_unk(GetIconInst_unk(icon), "iconColor01", color);
+    SetInstColor_unk(GetIconInst_unk(icon), "iconColor02", color);
+    SetInstColor_unk(GetIconInst_unk(icon), "iconColorSdw00", color);
+    float zero = 0.0f;
+    float end = 40.0f;
+    if (zero > GetIconInst_unk(icon)->mFrame) {
+        GetIconInst_unk(icon)->mFrame = zero;
+    }
+    if (end <= GetIconInst_unk(icon)->mFrame) {
+        GetIconInst_unk(icon)->mFrame = zero;
+    }
+    pos->y += 1.5f;
+}
+
 void GameUI::fn_803E58CC() {
     if (mDC0 != 0) {
         mDC0->mFrame = 0.0f;
