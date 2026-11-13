@@ -141,7 +141,7 @@
   "classes": [
    "Arms"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "game/ArmsCreate_unk.cpp",
@@ -2985,7 +2985,7 @@
   "classes": [
    "NewStaffRoll"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "game/NewTitleTask.cpp",
@@ -3752,7 +3752,7 @@
   "classes": [
    "chr::ControlBase"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "chr/ControlMountle.cpp",
