@@ -133,8 +133,19 @@ void LemonBucket::Start() {
     vf40(&msg);
 }
 
-// NONMATCHING: 99.77% - loop registers (index and offset swapped in the fade/switch loops; the int
-// index compared as unsigned gives the order but not the registers)
+// inferred: updates the material fades and the node switches of the model (names invented; the
+// inlines give the loop registers of the original)
+static inline void UpdateFades_unk(atn::SimpleArray<GimmickMaterialFade_unk>& fades, atn::Model* model) {
+    for (unsigned int i = 0; i < fades.mSize; i++) {
+        fades[i].fn_803EBE74(model);
+    }
+}
+static inline void UpdateSwitches_unk(atn::SimpleArray<GimmickMotionSwitch_unk>& switches, atn::Model* model) {
+    for (unsigned int i = 0; i < switches.mSize; i++) {
+        switches[i].fn_803EC0F8(model);
+    }
+}
+
 void LemonBucket::vf10() {
     if (mDesc->m7C == 0) {
         if (mScattered != 0) {
@@ -160,12 +171,8 @@ void LemonBucket::vf10() {
         if (vf38() != 0) {
             fn_803ED5D0(vf38());
         }
-        for (unsigned int i = 0; i < mFades.mSize; i++) {
-            mFades[i].fn_803EBE74(&mModel2);
-        }
-        for (unsigned int i = 0; i < mSwitches.mSize; i++) {
-            mSwitches[i].fn_803EC0F8(&mModel2);
-        }
+        UpdateFades_unk(mFades, &mModel2);
+        UpdateSwitches_unk(mSwitches, &mModel2);
         if (mScattered == 0 && mModel2.mTracks[0].m08 >= mScatterFrame) {
             fn_8042FDBC();
         } else {

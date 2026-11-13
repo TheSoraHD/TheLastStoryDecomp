@@ -2408,7 +2408,7 @@
   "classes": [
    "gmk::LemonBucket"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "gmk/RandomMerchant.cpp",
@@ -3274,7 +3274,7 @@
   "classes": [
    "TownTpcLoader"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "game/TutorialTask.cpp",

@@ -19,6 +19,13 @@ Unidades fuera de la ruta con una sola funcion por debajo del 100 % (lista en `/
   0x80792A44); (3) orden de RTTI/vtables: la clase va en `include/MP/PacketPackMP.h`, incluida antes de las
   `MP::func_*`, y `atn::net::FuncMessage` pasa a `include/atn/net/FuncMessage.h` (incluida por
   `MP/FuncMessage.h`, sin cambio para atn/PPDATAU). Resuelve el bloqueo de `docs/mwcc-blockers.md` (s12h-20261108).
+- `game/TownTpcLoader`: vf0C 99,59 -> 100 %; **enlaza**. El ultimo bucle en una `static inline StartCharas_unk(FixedArray&)`.
+- `gmk/LemonBucket`: vf10 99,77 -> 100 %; **enlaza**. Los bucles de fades/switches en `static inline UpdateFades_unk`/`UpdateSwitches_unk`.
+- Sin cambio (intentos con inlines y ordenes, revertidos): `atn/D2A_Frame` vf18 (registros de float),
+  `game/MapPartsRain` ctor, `chr/ControlDetect` vf0C (r3/r4 de la copia; asgwrap sin mejora),
+  `game/CrossbowMenuTask` fn_801E9544 (con la inline el inventario sale bien pero se cruzan i/offset),
+  `MP/D2AMpMenuSetRule` fn_804CECEC, `game/SelectMember` ctor (con la inline el ctor se inlinea en
+  fn_8057162C), `atn/CsvBase_char_124_13_34` fn_802078C4.
 - `game/GameLoadTask` vf10 (99,96): sin cambio, ~6 intentos (buffer/puntero borrado en r29/r30 cruzados).
 
 ## Hallazgos
@@ -32,6 +39,8 @@ Unidades fuera de la ruta con una sola funcion por debajo del 100 % (lista en `/
 - **Orden de vtables/RTTI (y de sus cadenas de nombre) en `.data`/`.rodata` = inverso al orden de declaracion
   de las clases en la unidad**: la clase declarada antes sale despues. Se arregla con el orden de los
   `#include` o partiendo una cabecera (Arms, func_enter_setting).
+- **Indice y desplazamiento de un bucle cruzados (r29/r30)**: sacar el bucle a una `static inline` que recibe el
+  contenedor por referencia (TownTpcLoader, LemonBucket).
 - Copia debil de `scoped_ptr::get` tras la primera funcion que llama a `get()` explicito (no a `if (p)`) (Arms vf0C).
 
 ## Decisiones tomadas sin el usuario
