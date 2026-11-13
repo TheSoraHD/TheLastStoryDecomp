@@ -943,6 +943,38 @@ void Em316LaserSphere::fn_80319C10() {
     fn_80239DAC(lbl_8087F3C0, this, 1001, 1);
 }
 
+// inferred: fires the laser at the target (state 9): the beam goes from the edge of the sphere to "spine1" of the
+// target, its matrix is translated, rotated along the beam and scaled to its length (in 50 units)
+// NONMATCHING: 98.3% - stack slots of the temporaries and of the matrices of the inlined helpers; 2 variants
+void Em316LaserSphere::fn_80319C90() {
+    int wait = m1C84;
+    m1574 = wait + rand() % wait;
+    if (fn_80316F74(&mStatus) || mStatus.IsState_unk(0x800000)) {
+        m1574 *= 2;
+    }
+    fn_80239DAC(lbl_8087F3C0, this, 0x3E8, 1);
+    SetState_unk(9);
+    m1568 = mPos;
+    atn::Vector3 spine = fn_80318648(m14B8);
+    m155C = spine - mPos;
+    PSVECNormalize(&m155C, &m155C);
+    m1578 = 0;
+    m15B4 = m14B8;
+    m155C = spine - (mPos + m155C * m5B0);
+    float len = PSVECMag(&m155C) / 50.0f;
+    PSVECNormalize(&m155C, &m155C);
+    atn::Vector3 rot = m155C.ToRotation_unk();
+    atn::Vector3 start = mPos + m155C * m5B0;
+    m15B8 = fn_800F80A8(start);
+    fn_800F80B8(m15B8.m, &rot);
+    m15E8 = m15B8;
+    atn::Vector3 scale(1.0f, 1.0f, len);
+    fn_800F8290(m15B8.m, scale.x, scale.y, scale.z);
+    fn_80232B7C(this, 0x3E8);
+    fn_8023A680(lbl_8087F3C0, &m159C, -1, 5, &m15B8, 0, 0, 0, 1.0f, 0, -1, 1);
+    fn_8023A680(lbl_8087F3C0, &m15A8, -1, 5, &m15E8, 0, 0, 0, 1.0f, 0, -1, 1);
+}
+
 // inferred: settings (lbl_8087F0A8, as in game/CopyRobotTask.cpp): frames per second at 0x30
 struct LaserSettings_unk {
     unsigned char m00[0x30];

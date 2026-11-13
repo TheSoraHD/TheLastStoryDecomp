@@ -14,7 +14,7 @@ Inicio: 2026-11-13 05:03 CET. Rama `agent-K`. Tope 07:33.
   - `fn_803405C0` (estado 16, ataque del baston) 98,8 %: huecos de los locales del efecto del paso 0 y
     registros.
 
-- `game/Em316LaserSphere`: 6 -> 3. `fn_80318AA4` (el personaje apunta a la esfera: magia lanzada, su habilidad o
+- `game/Em316LaserSphere`: 6 -> 2. `fn_80318AA4` (el personaje apunta a la esfera: magia lanzada, su habilidad o
   la linea de su disparo cruza la capsula) escrita, NONMATCHING 98,4 %: marco 0x10 mayor y registros.
   Se incluye `game/BattleCharaTask.h` (`fn_800E932C`): renumera los `@N` de la unidad (+227); pd.sh y dos a mano
   (`@13913`, `@13962`, floats 0.1 y 0.2 que solo usan funciones sin escribir; tras fn_8031A670, `@14344`, `@14393`).
@@ -27,6 +27,8 @@ Inicio: 2026-11-13 05:03 CET. Rama `agent-K`. Tope 07:33.
   escrita, NONMATCHING 90,8 %: registros guardados (f30/f31 y un GPR mas). El sitio de destino es una inline con
   dos `return` (`LaserMovePlace_unk`: el original escribe la suma directamente en el local) y el aleatorio
   `lo + (hi - lo) * rand() / 32767` (`LaserRand_unk`: 0.20000005 = 1.2f - 1.0f plegado).
+  `fn_80319C90` (dispara el laser: matriz trasladada, girada a lo largo del rayo y escalada a su longitud)
+  escrita, NONMATCHING 98,3 %: huecos de pila de los temporales.
 
 ## Decisiones tomadas sin el usuario
 
