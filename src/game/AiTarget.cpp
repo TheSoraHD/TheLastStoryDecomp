@@ -844,7 +844,6 @@ extern "C" int fn_800197A4(AIManager* ai, atn::Vector3* out, int* kind, CharaTas
     return best;
 }
 
-// NONMATCHING: 99.9% - operands of the fmuls of the half length swapped (len * 0.5 in either order)
 // inferred: point beside the hide point `point` along its link (`link`, else the first link of the
 // point); `kind` gets 3 for the points of kind 1-2, else 1/2 for the start/end of the link (game/
 // RouteWalker_unk). The manager is not used
@@ -892,7 +891,7 @@ extern "C" int fn_80019E88(AIManager* ai, atn::Vector3* out, int* kind, int poin
     }
     if (p.m18 != 0) {
         if (out != 0) {
-            float d = len * 0.5f;
+            float d = len / 2.0f;
             d = d < 4.0f ? d : 4.0f;
             if (link->mFrom + 1 == point) {
                 *out = p.mPos + dir * d;
