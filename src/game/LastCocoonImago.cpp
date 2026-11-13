@@ -716,8 +716,8 @@ void LastCocoonImago::fn_8045B82C() {
         int done = 0;
         if (m18EC != 0 && m14B8 == lbl_8087F8A0->mHead) {
             atn::Vector3 toPlace = m18F4->mPos - mPos;
-            toPlace.y = 0.0f;
             atn::Vector3 toTarget(m14B8->mPos.x - mPos.x, 0.0f, m14B8->mPos.z - mPos.z);
+            toPlace.y = 0.0f;
             if (toPlace.LengthSq_unk() < toTarget.LengthSq_unk()) {
                 if (toPlace.LengthSq_unk() > 25.0f) {
                     toPlace.Normalize_unk();
