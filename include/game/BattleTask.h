@@ -156,7 +156,7 @@ public:
     // inferred: start (model, group) and stop (character, group) of the battle effects; the stop
     // functions call fn_80239DAC with the effect group of the start
     void fn_800FDE60(int effect, CharaTask* chara, const atn::Vector3& dir); // inferred: starts an attack effect
-    void fn_800FDF14(BattleCalcParam_unk* param);
+    int fn_800FDF14(BattleCalcParam_unk* param); // inferred: returns the result of the hit (fn_800FD658)
     // inferred: hit sphere of `chara` nearest to the position (-1: none or the hit does not reach it); game/Bullet
     int fn_800FC1D0(CharaTask*, CharaTask*, HitInfo_unk*, int, const atn::Vector3*, int, int);
     void fn_80100BC0();          // inferred: stops the effects (fn_801055A8 and effect group 5)
@@ -302,10 +302,14 @@ public:
     float m38A04; // inferred: gauge value, clamped to [0, m38A0C]
     float m38A08;
     float m38A0C; // inferred: gauge maximum
-    unsigned char m38A10[0x38A28 - 0x38A10];
+    unsigned char m38A10[0x38A1C - 0x38A10];
+    float m38A1C; // inferred: gauge gained by a hit of a player (fn_800FB4B0)
+    unsigned char m38A20[0x38A28 - 0x38A20];
     float m38A28; // inferred: gauge increments
     float m38A2C;
-    unsigned char m38A30[0x38A48 - 0x38A30];
+    unsigned char m38A30[0x38A38 - 0x38A30];
+    float m38A38; // inferred: rate of m38A1C for the characters with mFlag28
+    unsigned char m38A3C[0x38A48 - 0x38A3C];
     float m38A48; // inferred: gauge gained by a magic
     unsigned char m38A4C[0x38A5C - 0x38A4C];
     BattleCalcParam_unk m38A5C; // inferred: parameters of the current attack

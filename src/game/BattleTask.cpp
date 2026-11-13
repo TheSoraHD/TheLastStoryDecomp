@@ -690,6 +690,99 @@ extern "C" void fn_800FB1BC(BattleTask* mgr, CharaTask* chara, HitInfo_unk* data
     }
 }
 
+extern "C" bool fn_8021AA48(HitInfo_unk* data); // inferred: db/ParseUtil_unk (takes BulletParam_unk)
+extern "C" bool fn_8021A9CC(HitInfo_unk* data); // inferred: db/ParseUtil_unk (takes BulletParam_unk)
+// NONMATCHING: 95% - stack slots (the rotation temporaries go the other way, one vector less), .sdata2 pool
+extern "C" int fn_800FD658(BattleTask* mgr, CharaTask* attacker, CharaTask* chara, HitInfo_unk* data, int a, int id,
+                           int b);
+
+// inferred: blast of `attacker` with `data` at `pos`: hits every player and enemy in range data->m44 that the
+// hit reaches (fn_800FD658, or CharaTask::fn_80178668 for the kinds of fn_8021A9CC), with the effects when
+// `effect`; a hit by a player raises the gauge m38A04. Returns whether something was hit. Called as extern "C"
+// by game/Bullet, game/EnemyTrista, SkillEffectManager and the controls.
+// NONMATCHING: 99% - the original keeps the addresses of the attacker position and rotation in registers
+// before the closing effect and sound; .sdata2 pool
+extern "C" int fn_800FB4B0(BattleTask* mgr, CharaTask* attacker, HitInfo_unk* data, int id, const atn::Vector3* pos,
+                           int a, int b, int, int effect) {
+    if (data == 0 || attacker == 0) {
+        return 0;
+    }
+    bool hit = false;
+    float range = data->m44;
+    for (PlayerTask* chara = lbl_8087F8A0->mHead; chara != 0; chara = chara->mNext) {
+        if (chara->fn_801533C8(id, data) && !fn_8021AA48(data)) {
+            continue;
+        }
+        if (data->m64 == 4 && attacker->fn_8016F3D0(chara, 1)) {
+            continue;
+        }
+        if (data->m64 == 2 && !attacker->fn_8016F3D0(chara, 0)) {
+            continue;
+        }
+        if (data->m64 == 0 && attacker != chara) {
+            continue;
+        }
+        atn::Vector3 d = *pos - chara->mPos;
+        if (!(PSVECSquareMag(&d) < range * range)) {
+            continue;
+        }
+        if (fn_8021A9CC(data)) {
+            if (chara->fn_80178668(data, 0, data->m5C, attacker, 0)) {
+                hit = true;
+            }
+        } else {
+            hit |= fn_800FD658(mgr, attacker, chara, data, a, id, b);
+            if (effect != 0) {
+                EffectColor_unk color(1.0f, 1.0f, 1.0f, 1.0f);
+                mgr->fn_80107168(data->mB0, 0, 0, chara->GetModel_unk(), &lbl_807C7030, &lbl_807C7030, &color, 1.0f);
+            }
+        }
+    }
+    for (EnemyTask* chara = EnemyManager::sInstance->mHead; chara != 0; chara = chara->mNext) {
+        if (chara->fn_801533C8(id, data) && !fn_8021AA48(data)) {
+            continue;
+        }
+        if (data->m64 == 4 && attacker->fn_8016F3D0(chara, 1)) {
+            continue;
+        }
+        if (data->m64 == 2 && !attacker->fn_8016F3D0(chara, 1)) {
+            continue;
+        }
+        if (data->m64 == 0 && attacker != chara) {
+            continue;
+        }
+        atn::Vector3 d = *pos - chara->mPos;
+        if (!(PSVECSquareMag(&d) < range * range)) {
+            continue;
+        }
+        if (fn_8021A9CC(data)) {
+            if (chara->fn_80178668(data, 0, data->m5C, attacker, 0)) {
+                hit = true;
+            }
+        } else {
+            hit |= fn_800FD658(mgr, attacker, chara, data, a, id, b);
+            if (effect != 0) {
+                EffectColor_unk color(1.0f, 1.0f, 1.0f, 1.0f);
+                mgr->fn_80107168(data->mB0, 0, 0, chara->GetModel_unk(), &lbl_807C7030, &lbl_807C7030, &color, 1.0f);
+            }
+        }
+    }
+    if (effect != 0) {
+        EffectColor_unk color(1.0f, 1.0f, 1.0f, 1.0f);
+        mgr->fn_801070C8(data->mB0, 0, 0, 0, &attacker->mPos, &attacker->mRot, &color, 1.0f);
+        mgr->fn_80107208(data->mB0, &attacker->mPos, 1.0f);
+    }
+    if (hit && attacker != 0 && attacker->mType == 0) {
+        float add = mgr->m38A1C * (attacker->mFlag28 ? mgr->m38A38 : 1.0f);
+        float zero;
+        mgr->m38A04 = MAX(zero = 0.0f, MIN(mgr->m38A04 + add, mgr->m38A0C));
+    }
+    if (attacker != 0) {
+        attacker->mStatus.mEntries.mCount = 0;
+    }
+    return hit;
+}
+
 // inferred: fires a bullet of `chara` on behalf of `user` and returns it (SkillEffectManager)
 extern "C" void* fn_800FBA30(BattleTask* mgr, CharaTask* chara, CharaTask* user, HitInfo_unk* data, int id,
                             const atn::Vector3* pos, const atn::Vector3* rot) {
@@ -718,9 +811,90 @@ inline bool IsSkipped_unk(const HitInfo_unk* data, const CharaTask::Item14_unk* 
     return skip;
 }
 
-// inferred: index of the hit sphere of `chara` nearest to `pos` (-1 when the bullet `id` already hit it, the
-// side of the hit `data->m64` does not reach it, or every sphere is excluded); `any` skips the side tests, `type`
-// is the side of a bullet without attacker
+extern "C" double acos(double x);
+extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
+extern "C" double sqrt(double x);
+// inferred: squared distance (name invented)
+inline float SquareDist_unk(const atn::Vector3& a, const atn::Vector3& b) {
+    atn::Vector3 d = a - b;
+    return PSVECSquareMag(&d);
+}
+// inferred: squared length on the ground plane (name invented)
+inline float SquareMagXZ_unk(const atn::Vector3& v) {
+    atn::Vector3 flat(v.x, 0.0f, v.z);
+    return PSVECSquareMag(&flat);
+}
+
+// inferred: index of the hit sphere of `chara` reached by the melee arc of `attacker` (reach data->m40 plus
+// the reach of the attacker, angle data->m50 around the facing of the attacker turned by `angle`, height
+// data->m54) nearest to the attacker; -1 when nothing is reached. Called as extern "C" by the enemies.
+// NONMATCHING: 99.8% - register of the absolute height (f3/f4), .sdata2 pool
+extern "C" int fn_800FBA9C(BattleTask* mgr, CharaTask* attacker, CharaTask* chara, HitInfo_unk* data, int id,
+                           float angle) {
+    if (chara->fn_801533C8(id, data)) {
+        return -1;
+    }
+    if (attacker != 0 && data != 0) {
+        if (data->m64 == 4 && attacker->fn_8016F3D0(chara, 1) && !attacker->fn_80154E38(chara)) {
+            return -1;
+        }
+        if (data->m64 == 2 && !attacker->fn_8016F3D0(chara, 1)) {
+            return -1;
+        }
+    }
+    if (chara->m55C == 6 && chara->m560 == 0x41) {
+        return -1;
+    }
+    int found = -1;
+    float best = 1e16f;
+    float reach = data->m40 + attacker->mStatus.mParamB.m28;
+    // inferred: m50/m54 are floats (arc angle, height); HitInfo_unk keeps them as bytes (as game/Em202Spider)
+    float arc = *(float*)&data->m50[0];
+    float height = *(float*)&data->m50[4];
+    for (unsigned int i = 0; i < chara->m624.mSize; i++) {
+        CharaTask::Item14_unk* item = chara->fn_80148B0C(i);
+        if (item == 0 || IsSkipped_unk(data, item)) {
+            continue;
+        }
+        float range = reach + item->m04.mRadius;
+        atn::Vector3 d = item->m04.mCenter - attacker->mPos;
+        float dy = __fabs(d.y);
+        if (dy > range) {
+            continue;
+        }
+        float dist2 = SquareMagXZ_unk(d);
+        if (dist2 > range * range) {
+            continue;
+        }
+        d.y = 0.0f;
+        if (!d.IsZero_unk()) {
+            PSVECNormalize(&d, &d);
+            atn::Vector3 dir(0.0f, 0.0f, 1.0f);
+            Mtx m;
+            PSMTXRotRad(m, 'y', angle + attacker->mRot.y);
+            PSMTXMultVec(m, &dir, &dir);
+            float dot = PSVECDotProduct(&d, &dir);
+            float theta = acos(dot);
+            if (theta > 0.5f * arc) {
+                continue;
+            }
+            if (height > 0.0f) {
+                float s = sqrt(1.0f - dot * dot);
+                float dist = sqrt(dist2);
+                if (dist * s > height + item->m04.mRadius) {
+                    continue;
+                }
+            }
+        }
+        float dist = SquareDist_unk(item->m04.mCenter, attacker->mPos);
+        if (dist < best) {
+            found = i;
+            best = dist;
+        }
+    }
+    return found;
+}
+
 extern "C" bool fn_8021A7A0(HitInfo_unk* data); // inferred: db/ParseUtil_unk (takes the record as BulletParam_unk)
 extern "C" int fn_800551BC(atn::ColliResult_unk* r, const atn::ColliCapsuleShape_unk* capsule,
                            const atn::ColliSphereShape_unk* sphere); // inferred: capsule against sphere
@@ -792,6 +966,9 @@ extern "C" int fn_800FBE70(BattleTask* mgr, CharaTask* attacker, CharaTask* char
     return found;
 }
 
+// inferred: index of the hit sphere of `chara` nearest to `pos` (-1 when the bullet `id` already hit it, the
+// side of the hit `data->m64` does not reach it, or every sphere is excluded); `any` skips the side tests, `type`
+// is the side of a bullet without attacker
 // NONMATCHING: 99.97% - only the relocation of the 1e16f of .sdata2 (pool of the file incomplete)
 int BattleTask::fn_800FC1D0(CharaTask* attacker, CharaTask* chara, HitInfo_unk* data, int id,
                             const atn::Vector3* pos, int any, int type) {
@@ -836,6 +1013,72 @@ int BattleTask::fn_800FC1D0(CharaTask* attacker, CharaTask* chara, HitInfo_unk* 
     return found;
 }
 
+// inferred: center of the hit body of `chara`: the middle height of its collision capsule when mFlagB29 is
+// set, else its first hit sphere (name invented)
+inline atn::Vector3 HitCenter_unk(CharaTask* chara) {
+    atn::Vector3 center;
+    if (chara->mFlagB29) {
+        atn::Vector3 start = chara->mColli.m3C;
+        atn::Vector3 end = chara->mColli.m48;
+        center = chara->mColli.m3C;
+        float half = 0.5f * (end.y - start.y);
+        center.y += half;
+    } else {
+        center = chara->fn_80148B0C(0)->m04.mCenter;
+    }
+    return center;
+}
+
+// inferred: hit of `attacker` on `chara` with `data`: fills the attack parameters m38A5C (the point of the hit
+// on the surface of `chara`, toward the attacker or else along the facing of `chara`, and the direction) and
+// runs them through fn_800FDF14. Called as extern "C" by CharaTask and Em314Ivy.
+// NONMATCHING: 95% - stack slots (the rotation temporaries go the other way, one vector less), .sdata2 pool
+extern "C" int fn_800FD658(BattleTask* mgr, CharaTask* attacker, CharaTask* chara, HitInfo_unk* data, int a, int flag,
+                           int b) {
+    fn_800E2A24(&mgr->m38A5C);
+    mgr->m38A5C.m00 = (int)attacker; // inferred: the field is an int (BattleTask::fn_800FDE60 takes it as int)
+    mgr->m38A5C.m04 = chara;
+    mgr->m38A5C.m08 = data;
+    mgr->m38A5C.m0C = 0;
+    if (flag != 0) {
+        mgr->m38A5C.m0C |= 0x40000;
+    }
+    atn::Vector3 dir(0.0f, 0.0f, 1.0f);
+    if (attacker != 0) {
+        dir = attacker->mPos - chara->mPos;
+        if (!((float)__fabs(PSVECSquareMag(&dir)) < 1.1920929e-7f)) {
+            PSVECNormalize(&dir, &dir);
+            dir *= chara->m5B0;
+            mgr->m38A5C.m1C = dir + HitCenter_unk(chara);
+        } else {
+            float radius = chara->m5B0;
+            dir.x = 0.0f;
+            dir.y = 0.0f;
+            dir.z = radius;
+            atn::Matrix3x4 m;
+            m.SetIdentity();
+            if (0.0f != chara->mRot.z) {
+                atn::Matrix3x4::RotateAxis_unk(m, 'z', chara->mRot.z);
+            }
+            if (0.0f != chara->mRot.y) {
+                atn::Matrix3x4::RotateAxis_unk(m, 'y', chara->mRot.y);
+            }
+            if (0.0f != chara->mRot.x) {
+                atn::Matrix3x4::RotateAxis_unk(m, 'x', chara->mRot.x);
+            }
+            PSMTXMultVec(m.m, &dir, &dir);
+            mgr->m38A5C.m1C = dir + HitCenter_unk(chara);
+        }
+    }
+    atn::Vector3 n = dir;
+    PSVECNormalize(&n, &n);
+    mgr->m38A5C.m28 = -n;
+    mgr->m38A5C.m34 = a;
+    mgr->m38A5C.m38 = b;
+    mgr->m38A5C.m44 = 3;
+    return mgr->fn_800FDF14(&mgr->m38A5C);
+}
+
 void BattleTask::fn_800FDE60(int effect, CharaTask* chara, const atn::Vector3& dir) {
     fn_800E2A24(&m38A5C);
     m38A5C.m00 = effect;
@@ -849,7 +1092,6 @@ void BattleTask::fn_800FDE60(int effect, CharaTask* chara, const atn::Vector3& d
     fn_800FDF14(&m38A5C);
 }
 
-extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
 extern "C" double cos(double x);
 
 // NONMATCHING: 99.7% - stack: the original puts the difference at 0x14 and the scaled sum at 0x20 (swapped)
