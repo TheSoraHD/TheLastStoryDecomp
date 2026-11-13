@@ -361,6 +361,7 @@ public:
     void fn_803E6BB4(CharaTask* target); // inferred: new target
     void fn_803D2A6C(); // inferred: updates the HUD
     void fn_803DCA84(CharaTask* chara, float* fade);
+    void fn_803DCD34(CharaTask*, int, int, int); // inferred: party window of a character
     void fn_803E0E10(CharaTask* chara, GameUIElem60_unk* window, int index); // inferred: updates a window
     void fn_803E3468(atn::D2A_Task* a, atn::D2A_Task* b, GameUIElem1C_unk* button, int arg);
     // inferred: weak copies 0x803D6DE4 and 0x803D71A8; names invented

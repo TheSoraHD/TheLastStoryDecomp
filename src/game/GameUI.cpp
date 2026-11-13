@@ -36,6 +36,7 @@ struct GameUIGauge_unk : public atn::D2A_Task {};
 #include "game/GameConfig_unk.h"
 #include "game/FriendManager.h"
 #include "game/BattleCharaTask.h"
+#include "game/Arms.h"
 #include "std/vector.h"
 #include "atn/RenderSetting_unk.h"
 extern "C" int sprintf(char* s, const char* format, ...);
@@ -2152,6 +2153,81 @@ void GameUI::fn_803DCA84(CharaTask* chara, float* fade) {
     }
 }
 
+// inferred: the tactical view cursor is on a target (name invented)
+inline bool IsCursorOn_unk(const TacViewSel_unk& sel) {
+    return sel.mState != 2;
+}
+
+// inferred: d2anime instance of a character window (mF14; created as D2A_TaskInstanceBase<64, 8>)
+typedef atn::D2A_TaskInstanceBase<64, 8> GameUIWindow_unk;
+extern "C" void fn_803E6D4C(GameUIWindow_unk* window, chr::CharaData_unk* data); // inferred: job and attribute icons
+
+// inferred: fills the window of party slot `slot` with `chara` (leader mark, position over the head or at
+// the bottom of the screen when `fixed`, level and skill name)
+// NONMATCHING: 99.4% - only the offsets into the string pool (the functions before it are not written yet)
+void GameUI::fn_803DCD34(CharaTask* chara, int slot, int other, int fixed) {
+    if (chara != 0) {
+        GameUIWindow_unk* window = (GameUIWindow_unk*)mF14[m1014[slot]];
+        window->SetValue0_unk("leader", 0.0f);
+        window->MeltTask();
+        TacView* tac = lbl_8087F9F8;
+        if ((IsCursorOn_unk(tac->m48) && tac->IsIdle_unk() && tac->m48.m04 == chara) || other == 0) {
+            window->mSpeed = 1.0f;
+            window->SetValue1_unk("basePoint", 4, slot + 1);
+        } else {
+            window->mSpeed = -1.0f;
+            window->SetValue1_unk("basePoint", 4, slot + 100);
+        }
+        if (fixed == 0) {
+            MtxPtr mtx = chara->GetModel_unk()->GetNodeMtx_unk("head");
+            atn::Vector3 pos(mtx != 0 ? ((atn::Matrix3x4*)mtx)->GetTrans_unk() : chara->mColli.m48);
+            atn::Vector3 screen = fn_8008B964()->GetScreenPosition(pos);
+            if (screen.z > 1.0f) {
+                screen *= -1.0f;
+            }
+            window->SetValue1_unk("basePoint", 0, screen.x);
+            window->SetValue1_unk("basePoint", 1, screen.y);
+        } else {
+            atn::GraphicsDevice_unk* gd = lbl_8087EEE0;
+            float x = 0.5f * gd->mWidth;
+            float y = 0.5f * gd->mHeight;
+            window->SetValue1_unk("basePoint", 0, 15.0f + x);
+            window->SetValue1_unk("basePoint", 1, y - 15.0f);
+        }
+        fn_803E6D4C(window, chara->m5C);
+        int level = chara->mStatus.mParamB.m78;
+        if (chara->mType == 2) {
+            level = chara->mStatus.fn_80133BD8(1);
+        }
+        if (chara->mStatus.IsState_unk(0x400)) {
+            level -= 3;
+        }
+        window->SetText_unk("name", chara->m60->m04);
+        if (lbl_8087F610 == 0 || chara->mFlag22 == 1) {
+            window->SetValue0_unk("showLevel", 1.0f);
+            window->SetNumber_unk("nowLv", level, 0);
+        } else {
+            window->SetValue0_unk("showLevel", 0.0f);
+            window->SetNumber_unk("nowLv", 0, 0);
+        }
+        HitInfo_unk* skill = 0;
+        if (lbl_8087F610 == 0) {
+            if (chara->mStatus.m2D0[0].m[0] != 0) {
+                skill = fn_80219E6C(chara->mStatus.m2D0[0].m[0]);
+            } else if (chara->m648 != 0) {
+                skill = ((Arms*)chara->m648)->fn_80044C30(0);
+            }
+        }
+        if (skill != 0 && skill->m04 != 200) {
+            window->SetValue0_unk("showSkill", 1.0f);
+            window->SetText_unk("jobName", (const wchar_t*)skill->m08);
+        } else {
+            window->SetValue0_unk("showSkill", 0.0f);
+            window->SetText_unk("jobName", lbl_8078C638 + 41);
+        }
+    }
+}
+
 // inferred: UV rectangle of a d2anime parameter (names invented)
 struct GameUIUvRect_unk {
     GameUIUvRect_unk(float u0, float v0, float u1, float v1) {
@@ -2165,20 +2241,100 @@ struct GameUIUvRect_unk {
 inline void SetJobUv_unk(atn::D2A_Task* task, const char* name, const GameUIUvRect_unk& r) {
     task->SetParam2_unk(name, r.v);
 }
-inline void SetJobColor_unk(atn::D2A_Task* task, const char* name, const GameUIColor_unk& c) {
-    GameUIColor_unk tmp = c;
+inline void SetJobColor_unk(atn::D2A_Task* task, const char* name, const atn::Color& c) {
+    atn::Color tmp = c;
     task->SetColor255_unk(name, &tmp.r);
 }
 
 // inferred: colours of the HUD (0x807C8628, .bss of this file); they are set by the static initializer
 // (fn_803E78B4, not written yet), so they are only declared here
-extern "C" GameUIColor_unk lbl_807C8628[16];
+extern "C" atn::Color lbl_807C8628[16];
+
+extern "C" void fn_801FEEFC(atn::D2A_Layout_unk* layout, unsigned int hash, int value); // inferred: int parameter
+// inferred: int layout parameter of a d2anime task by name (name invented)
+inline void SetLayoutInt_unk(atn::D2A_Task* task, const char* name, int value) {
+    fn_801FEEFC(&task->mData.m10, fn_800DC6B4(name), value);
+}
+
+extern "C" void fn_803DD90C(atn::D2A_Task* task, int job);
+// inferred: colour parameter from a colour passed by value (name invented)
+inline void SetAttrColor_unk(atn::D2A_Task* task, const char* name, atn::Color c) {
+    task->SetColor255_unk(name, &c.r);
+}
+
+// inferred: job and attribute icons of a character (attribute: UV of the icon, two colours and the blend
+// mode); called by game/NewCampPartsStatus
+// NONMATCHING: 87.5% - register allocation (the original keeps the task in r31 and the data in r28), the
+// original takes the address of each colour before copying it (same as fn_803DD90C), and the offsets into
+// the string pool (the functions before it are not written yet)
+extern "C" void fn_803DD160(atn::D2A_Task* task, chr::CharaData_unk* data) {
+    atn::Color* colors = lbl_807C8628;
+    if (data == 0 || task == 0) {
+        return;
+    }
+    task->SetLayoutValue_unk("job01", 1.0f);
+    task->SetLayoutValue_unk("job02", 0.0f);
+    fn_803DD90C(task, data->m122);
+    int attr = (signed char)data->m120[0];
+    if (attr == 2) {
+        task->SetLayoutValue_unk("attr01", 1.0f);
+        SetJobUv_unk(task, "attrUv01ma", GameUIUvRect_unk(0.25f, 0.25f, 0.5f, 0.5f));
+        SetJobUv_unk(task, "attrUv01mb", GameUIUvRect_unk(0.25f, 0.25f, 0.5f, 0.5f));
+        SetAttrColor_unk(task, "attrCol01a", colors[7]);
+        SetAttrColor_unk(task, "attrCol01b", colors[14]);
+        SetLayoutInt_unk(task, "attrBlend", 0);
+    } else if (attr == 1) {
+        task->SetLayoutValue_unk("attr01", 1.0f);
+        SetJobUv_unk(task, "attrUv01ma", GameUIUvRect_unk(0.5f, 0.25f, 0.75f, 0.5f));
+        SetJobUv_unk(task, "attrUv01mb", GameUIUvRect_unk(0.5f, 0.25f, 0.75f, 0.5f));
+        SetAttrColor_unk(task, "attrCol01a", colors[8]);
+        SetAttrColor_unk(task, "attrCol01b", colors[14]);
+        SetLayoutInt_unk(task, "attrBlend", 0);
+    } else if (attr == 4) {
+        task->SetLayoutValue_unk("attr01", 1.0f);
+        SetJobUv_unk(task, "attrUv01ma", GameUIUvRect_unk(0.75f, 0.25f, 1.0f, 0.5f));
+        SetJobUv_unk(task, "attrUv01mb", GameUIUvRect_unk(0.75f, 0.25f, 1.0f, 0.5f));
+        SetAttrColor_unk(task, "attrCol01a", colors[9]);
+        SetAttrColor_unk(task, "attrCol01b", colors[14]);
+        SetLayoutInt_unk(task, "attrBlend", 0);
+    } else if (attr == 3) {
+        task->SetLayoutValue_unk("attr01", 1.0f);
+        SetJobUv_unk(task, "attrUv01ma", GameUIUvRect_unk(0.0f, 0.5f, 0.25f, 0.75f));
+        SetJobUv_unk(task, "attrUv01mb", GameUIUvRect_unk(0.0f, 0.5f, 0.25f, 0.75f));
+        SetAttrColor_unk(task, "attrCol01a", colors[11]);
+        SetAttrColor_unk(task, "attrCol01b", colors[14]);
+        SetLayoutInt_unk(task, "attrBlend", 0);
+    } else if (attr == 5) {
+        task->SetLayoutValue_unk("attr01", 1.0f);
+        SetJobUv_unk(task, "attrUv01ma", GameUIUvRect_unk(0.0f, 0.25f, 0.25f, 0.5f));
+        SetJobUv_unk(task, "attrUv01mb", GameUIUvRect_unk(0.0f, 0.25f, 0.25f, 0.5f));
+        SetAttrColor_unk(task, "attrCol01a", colors[10]);
+        SetAttrColor_unk(task, "attrCol01b", colors[14]);
+        SetLayoutInt_unk(task, "attrBlend", 0);
+    } else if (attr == 6) {
+        task->SetLayoutValue_unk("attr01", 1.0f);
+        SetJobUv_unk(task, "attrUv01ma", GameUIUvRect_unk(0.5f, 0.5f, 0.75f, 0.75f));
+        SetJobUv_unk(task, "attrUv01mb", GameUIUvRect_unk(0.5f, 0.5f, 0.75f, 0.75f));
+        SetAttrColor_unk(task, "attrCol01a", colors[12]);
+        SetAttrColor_unk(task, "attrCol01b", colors[15]);
+        SetLayoutInt_unk(task, "attrBlend", 3);
+    } else if (attr == 7) {
+        task->SetLayoutValue_unk("attr01", 1.0f);
+        SetJobUv_unk(task, "attrUv01ma", GameUIUvRect_unk(0.75f, 0.5f, 1.0f, 0.75f));
+        SetJobUv_unk(task, "attrUv01mb", GameUIUvRect_unk(0.75f, 0.5f, 1.0f, 0.75f));
+        SetAttrColor_unk(task, "attrCol01a", colors[13]);
+        SetAttrColor_unk(task, "attrCol01b", colors[15]);
+        SetLayoutInt_unk(task, "attrBlend", 3);
+    } else {
+        task->SetLayoutValue_unk("attr01", 0.0f);
+    }
+}
 
 // inferred: job icon of a character window (UV of the icon and its colours)
 // NONMATCHING: 91.2% - the original keeps the colour table in r29 and the entry in r30 (one more saved
 // register); tried the colour by value, by reference, with a local copy and a reference per branch
 extern "C" void fn_803DD90C(atn::D2A_Task* task, int job) {
-    GameUIColor_unk* colors = lbl_807C8628;
+    atn::Color* colors = lbl_807C8628;
     if (job == 4) {
         SetJobUv_unk(task, "jobUv01ma", GameUIUvRect_unk(0.5f, 0.0f, 0.75f, 0.25f));
         SetJobUv_unk(task, "jobUv01mb", GameUIUvRect_unk(0.5f, 0.0f, 0.75f, 0.25f));
@@ -3513,4 +3669,113 @@ bool GameUI::fn_803E6C88(unsigned int id) {
         }
     }
     return false;
+}
+
+// inferred: colour parameter of a character window; the original passes the whole atn::Color (16 bytes are
+// copied), so the parameter of D2A_TaskInstanceBase::SetColor255_unk is probably an atn::Color (name invented)
+inline void SetWindowColor_unk(GameUIWindow_unk* task, const char* name, const atn::Color& c) {
+    atn::D2A_RGB_unk rgb;
+    rgb.r = c.r;
+    rgb.g = c.g;
+    rgb.b = c.b;
+    task->SetColor255_unk(name, rgb);
+}
+
+extern "C" void fn_803E746C(GameUIWindow_unk* task, int job);
+
+// inferred: same as fn_803DD160 for a character window (D2A_TaskInstanceBase<64, 8>)
+// NONMATCHING: the copy of each colour (see SetWindowColor_unk), registers and the string pool offsets
+extern "C" void fn_803E6D4C(GameUIWindow_unk* task, chr::CharaData_unk* data) {
+    atn::Color* colors = lbl_807C8628;
+    if (data == 0 || task == 0) {
+        return;
+    }
+    task->SetValue0_unk("job01", 1.0f);
+    task->SetValue0_unk("job02", 0.0f);
+    fn_803E746C(task, data->m122);
+    int attr = (signed char)data->m120[0];
+    if (attr == 2) {
+        task->SetValue0_unk("attr01", 1.0f);
+        task->SetValues2_unk("attrUv01ma", atn::Color(0.25f, 0.25f, 0.5f, 0.5f));
+        task->SetValues2_unk("attrUv01mb", atn::Color(0.25f, 0.25f, 0.5f, 0.5f));
+        SetWindowColor_unk(task, "attrCol01a", colors[7]);
+        SetWindowColor_unk(task, "attrCol01b", colors[14]);
+        task->SetInt_unk("attrBlend", 0);
+    } else if (attr == 1) {
+        task->SetValue0_unk("attr01", 1.0f);
+        task->SetValues2_unk("attrUv01ma", atn::Color(0.5f, 0.25f, 0.75f, 0.5f));
+        task->SetValues2_unk("attrUv01mb", atn::Color(0.5f, 0.25f, 0.75f, 0.5f));
+        SetWindowColor_unk(task, "attrCol01a", colors[8]);
+        SetWindowColor_unk(task, "attrCol01b", colors[14]);
+        task->SetInt_unk("attrBlend", 0);
+    } else if (attr == 4) {
+        task->SetValue0_unk("attr01", 1.0f);
+        task->SetValues2_unk("attrUv01ma", atn::Color(0.75f, 0.25f, 1.0f, 0.5f));
+        task->SetValues2_unk("attrUv01mb", atn::Color(0.75f, 0.25f, 1.0f, 0.5f));
+        SetWindowColor_unk(task, "attrCol01a", colors[9]);
+        SetWindowColor_unk(task, "attrCol01b", colors[14]);
+        task->SetInt_unk("attrBlend", 0);
+    } else if (attr == 3) {
+        task->SetValue0_unk("attr01", 1.0f);
+        task->SetValues2_unk("attrUv01ma", atn::Color(0.0f, 0.5f, 0.25f, 0.75f));
+        task->SetValues2_unk("attrUv01mb", atn::Color(0.0f, 0.5f, 0.25f, 0.75f));
+        SetWindowColor_unk(task, "attrCol01a", colors[11]);
+        SetWindowColor_unk(task, "attrCol01b", colors[14]);
+        task->SetInt_unk("attrBlend", 0);
+    } else if (attr == 5) {
+        task->SetValue0_unk("attr01", 1.0f);
+        task->SetValues2_unk("attrUv01ma", atn::Color(0.0f, 0.25f, 0.25f, 0.5f));
+        task->SetValues2_unk("attrUv01mb", atn::Color(0.0f, 0.25f, 0.25f, 0.5f));
+        SetWindowColor_unk(task, "attrCol01a", colors[10]);
+        SetWindowColor_unk(task, "attrCol01b", colors[14]);
+        task->SetInt_unk("attrBlend", 0);
+    } else if (attr == 6) {
+        task->SetValue0_unk("attr01", 1.0f);
+        task->SetValues2_unk("attrUv01ma", atn::Color(0.5f, 0.5f, 0.75f, 0.75f));
+        task->SetValues2_unk("attrUv01mb", atn::Color(0.5f, 0.5f, 0.75f, 0.75f));
+        SetWindowColor_unk(task, "attrCol01a", colors[12]);
+        SetWindowColor_unk(task, "attrCol01b", colors[15]);
+        task->SetInt_unk("attrBlend", 3);
+    } else if (attr == 7) {
+        task->SetValue0_unk("attr01", 1.0f);
+        task->SetValues2_unk("attrUv01ma", atn::Color(0.75f, 0.5f, 1.0f, 0.75f));
+        task->SetValues2_unk("attrUv01mb", atn::Color(0.75f, 0.5f, 1.0f, 0.75f));
+        SetWindowColor_unk(task, "attrCol01a", colors[13]);
+        SetWindowColor_unk(task, "attrCol01b", colors[15]);
+        task->SetInt_unk("attrBlend", 3);
+    } else {
+        task->SetValue0_unk("attr01", 0.0f);
+    }
+}
+
+// inferred: same as fn_803DD90C for a character window (D2A_TaskInstanceBase<64, 8>)
+// NONMATCHING: the copy of each colour (see SetWindowColor_unk) and the string pool offsets
+extern "C" void fn_803E746C(GameUIWindow_unk* task, int job) {
+    atn::Color* colors = lbl_807C8628;
+    if (job == 4) {
+        task->SetValues2_unk("jobUv01ma", atn::Color(0.5f, 0.0f, 0.75f, 0.25f));
+        task->SetValues2_unk("jobUv01mb", atn::Color(0.5f, 0.0f, 0.75f, 0.25f));
+        SetWindowColor_unk(task, "jobCol01a", colors[4]);
+        SetWindowColor_unk(task, "jobGradation", colors[4]);
+    } else if (job == 2) {
+        task->SetValues2_unk("jobUv01ma", atn::Color(0.0f, 0.0f, 0.25f, 0.25f));
+        task->SetValues2_unk("jobUv01mb", atn::Color(0.0f, 0.0f, 0.25f, 0.25f));
+        SetWindowColor_unk(task, "jobCol01a", colors[1]);
+        SetWindowColor_unk(task, "jobGradation", colors[1]);
+    } else if (job == 3) {
+        task->SetValues2_unk("jobUv01ma", atn::Color(0.25f, 0.0f, 0.5f, 0.25f));
+        task->SetValues2_unk("jobUv01mb", atn::Color(0.25f, 0.0f, 0.5f, 0.25f));
+        SetWindowColor_unk(task, "jobCol01a", colors[2]);
+        SetWindowColor_unk(task, "jobGradation", colors[2]);
+    } else if (job == 1) {
+        task->SetValues2_unk("jobUv01ma", atn::Color(0.75f, 0.0f, 1.0f, 0.25f));
+        task->SetValues2_unk("jobUv01mb", atn::Color(0.75f, 0.0f, 1.0f, 0.25f));
+        SetWindowColor_unk(task, "jobCol01a", colors[0]);
+        SetWindowColor_unk(task, "jobGradation", colors[0]);
+    } else {
+        task->SetValues2_unk("jobUv01ma", atn::Color(0.75f, 0.0f, 1.0f, 0.25f));
+        task->SetValues2_unk("jobUv01mb", atn::Color(0.75f, 0.0f, 1.0f, 0.25f));
+        SetWindowColor_unk(task, "jobCol01a", colors[5]);
+        SetWindowColor_unk(task, "jobGradation", colors[5]);
+    }
 }
