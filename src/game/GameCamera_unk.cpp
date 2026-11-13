@@ -14,6 +14,7 @@
 #include "gmk/Lemon.h"
 #include "chr/CharaEquip_unk.h"
 #include "math/VecAssign_unk.h"
+#include "game/SetConfig.h"
 
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 extern "C" GameConfig_unk* lbl_8087F0A8;
@@ -24,11 +25,6 @@ extern "C" void* lbl_8087EE98;     // inferred: collision manager
 extern "C" int fn_8004ED34(void* colli, CollResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg7); // inferred: ray test
 
-extern "C" double sin(double x);
-extern "C" double cos(double x);
-extern "C" double tan(double x);
-extern "C" double atan(double x);
-extern "C" double sqrt(double x);
 // inferred: limits of the side offset of the ledge camera without blend (fn_8038378C; 0.0f)
 extern "C" float lbl_8087DCF0;
 extern "C" float lbl_8087DCF4;
@@ -40,6 +36,40 @@ extern "C" float lbl_8087DCFC;
 extern "C" float lbl_8087DD00;
 // .sdata of this unit: lbl_8087DCF0..lbl_8087DD00 are global floats (0.0f except lbl_8087DCF8); a zero
 // initializer goes to .sbss without explicit_zero_data, so they stay extern for now
+
+extern "C" double sin(double x);
+extern "C" double cos(double x);
+extern "C" double tan(double x);
+extern "C" double atan(double x);
+extern "C" double sqrt(double x);
+
+// inferred: rotation matrix z, then y, then x (weak copy; as in game/Em309Ghoul.cpp)
+extern "C" inline atn::Matrix3x4 fn_800109E0(const atn::Vector3& rot) {
+    atn::Matrix3x4 m;
+    m.SetIdentity();
+    if (0.0f != rot.z) {
+        Mtx t;
+        Mtx r;
+        PSMTXRotRad(r, 'z', rot.z);
+        PSMTXConcat(m.m, r, t);
+        __MtxCopy(m.m, t);
+    }
+    if (0.0f != rot.y) {
+        Mtx t;
+        Mtx r;
+        PSMTXRotRad(r, 'y', rot.y);
+        PSMTXConcat(m.m, r, t);
+        __MtxCopy(m.m, t);
+    }
+    if (0.0f != rot.x) {
+        Mtx t;
+        Mtx r;
+        PSMTXRotRad(r, 'x', rot.x);
+        PSMTXConcat(m.m, r, t);
+        __MtxCopy(m.m, t);
+    }
+    return m;
+}
 
 static inline atn::Vector3 Negate_unk(const atn::Vector3& v) {
     return atn::Vector3(-v.x, -v.y, -v.z);
@@ -228,6 +258,71 @@ void GameCamera::fn_8037EF30(int a, int b, float f) {
     fn_8037EF48(lbl_8087F8A0->mHead, a, b, f);
 }
 
+// inferred: camera behind the character (or looking from it to its target mFC4/mFC0) at the parameters m51C;
+// with `place` the camera is put there at once (out of the walls), with `reset` the turn speeds mA0C are cleared;
+// `speed` < 0 takes SetConfig::mTurnSpeed
+// NONMATCHING: 99.2% - stack slots: the original puts the temporaries of fn_800109E0 (rotation vector and the
+// z/y/x matrices) in the reverse order (as fn_8038C070)
+void GameCamera::fn_8037EF48(CharaTask* chara, int place, int reset, float speed) {
+    if (m7FC != 0 && m7FC != 8) {
+        return;
+    }
+    m7F4 = 1;
+    mCA8 = speed;
+    if (mCA8 < 0.0f) {
+        mCA8 = SetConfig::sInstance->mTurnSpeed;
+    }
+    m7F8 = chara->mRot.y;
+    if (chara->mFlag31 || chara->mMotion.mTracks[0].m00 == 0x55) {
+        m7F8 += 3.1415927f;
+    }
+    CharaTask* other = chara->mFC4 != 0 ? chara->mFC4 : chara->mFC0;
+    if (other != 0) {
+        atn::Vector3 dir = other->mPos - chara->mPos;
+        if (PSVECSquareMag(&dir) > 1.0e-5f) {
+            PSVECNormalize(&dir, &dir);
+            dir.fn_80139F60();
+            m7F8 = dir.y;
+        }
+    }
+    m7F8 = atn::WrapAngle_unk(m7F8);
+    if (reset) {
+        mA0C[0] = 0.0f;
+        mA0C[1] = 0.0f;
+        mA0C[2] = 0.0f;
+    }
+    if (lbl_8087F0A8->mAlwaysBirdview != 0 && !reset) {
+        m7F4 = 0;
+    }
+    if (place) {
+        atn::Vector3 pos = mPos;
+        atn::Vector3 target = mTarget;
+        target = chara->mPos;
+        target.y += m51C.m10;
+        m868 = target;
+        target.x += m51C.m0C * (float)cos(3.1415927f + chara->mRot.y);
+        target.z += -m51C.m0C * (float)sin(3.1415927f + chara->mRot.y);
+        pos.x = 0.0f;
+        pos.y = 0.0f;
+        pos.z = 1.0f;
+        atn::Matrix3x4 m = fn_800109E0(atn::Vector3(-m51C.m08, 3.1415927f + chara->mRot.y, 0.0f));
+        PSMTXMultVec(m.m, &pos, &pos);
+        pos *= m51C.m00;
+        pos += target;
+        CollResult_unk result;
+        if (fn_8004ED34(lbl_8087EE98, &result, &target, &pos, 0x80000008, 0, 0)) {
+            pos = result.m10;
+        }
+        SetPosition(pos);
+        SetTarget_unk(target);
+        mFovy = m51C.m04;
+        fn_8004B378();
+        fn_80392964(1, 1, 1, 1);
+        lbl_8087F0A8->mInput.fn_80124BE4();
+    }
+    m880 = 0;
+}
+
 void GameCamera::fn_8037F690(const atn::Vector3* pos) {
     m840 = *pos;
     m838 = 1;
@@ -391,33 +486,6 @@ extern "C" atn::Vector3 fn_80383728(const Camera_unk* camera) {
     return dir;
 }
 
-// inferred: rotation matrix z, then y, then x (weak copy; as in game/Em309Ghoul.cpp)
-extern "C" inline atn::Matrix3x4 fn_800109E0(const atn::Vector3& rot) {
-    atn::Matrix3x4 m;
-    m.SetIdentity();
-    if (0.0f != rot.z) {
-        Mtx t;
-        Mtx r;
-        PSMTXRotRad(r, 'z', rot.z);
-        PSMTXConcat(m.m, r, t);
-        __MtxCopy(m.m, t);
-    }
-    if (0.0f != rot.y) {
-        Mtx t;
-        Mtx r;
-        PSMTXRotRad(r, 'y', rot.y);
-        PSMTXConcat(m.m, r, t);
-        __MtxCopy(m.m, t);
-    }
-    if (0.0f != rot.x) {
-        Mtx t;
-        Mtx r;
-        PSMTXRotRad(r, 'x', rot.x);
-        PSMTXConcat(m.m, r, t);
-        __MtxCopy(m.m, t);
-    }
-    return m;
-}
 
 // inferred: camera of the ledge without the blend (see fn_8038A5F0; side offset limits lbl_8087DCF0/F4): the eye
 // is turned a third of the way towards the current view direction; with the bird view setting it is the bird view
@@ -1908,7 +1976,6 @@ void GameCamera::fn_803903E0(const atn::Vector3* target, float angle, int arg) {
     }
 }
 
-#include "game/SetConfig.h"
 
 // inferred: xsca camera curves (as in game/NewCampTask.cpp and game/Em309Ghoul.cpp)
 struct XsfCurveSet_unk {

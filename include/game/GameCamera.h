@@ -210,7 +210,7 @@ public:
     unsigned char m7C8[0x7F0 - 0x7C8];
     int m7F0; // inferred: debug display of the camera (fn_8039328C)
     int m7F4;
-    unsigned char m7F8[0x7FC - 0x7F8];
+    float m7F8; // inferred: yaw of the leader camera (fn_8037EF48)
     int m7FC;              // inferred: sub mode (fn_80389838)
     int m800;              // inferred: previous sub mode
     int m804;
@@ -280,7 +280,8 @@ public:
     DofParam_unk mC24;     // inferred: depth of field saved while the camera box sets its own (fn_80389884)
     DofParam_unk mC54;     // inferred: depth of field of the camera box
     int mC84;              // inferred: mC54 is applied
-    unsigned char mC88[0xCAC - 0xC88];
+    unsigned char mC88[0xCA8 - 0xC88];
+    float mCA8; // inferred: turn speed of the leader camera (SetConfig::mTurnSpeed when negative, fn_8037EF48)
 };
 
 #endif

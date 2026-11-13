@@ -13,7 +13,9 @@ Rama `agent-B`. Inicio: 2026-11-13 01:05 CET. Referencia: `/home/claude/ref-B` (
 - `fn_803884B8` (camara lateral m648): **100 %** (mnemcheck limpio).
 - `fn_8038A5F0` (camara de la cornisa, CharaTask::mC14-mC44): escrita, NONMATCHING 99,8 % (una carga de m594.m0C).
 - `fn_8038378C` (cornisa sin mezcla; vista de pajaro con `fn_80387DE4`): escrita, NONMATCHING 99,8 % (igual).
-- Funciones al 0 %: 26 -> 22.
+- `fn_8037EF48` (seguir al lider): escrita, NONMATCHING 99,5 % (orden en la pila de los temporales de
+  fn_800109E0, como fn_8038C070).
+- Funciones al 0 %: 26 -> 21.
 
 ## NONMATCHING nuevas
 
@@ -24,6 +26,9 @@ Rama `agent-B`. Inicio: 2026-11-13 01:05 CET. Referencia: `/home/claude/ref-B` (
   de floats, otros ordenes de operandos y los parametros por puntero.
 
 ## Decisiones tomadas sin el usuario
+
+- `GameCamera.h`: `float m7F8` (giro del lider) y `float mCA8` (velocidad de giro) en lugar de relleno.
+- `#include "game/SetConfig.h"` subido al principio de `GameCamera_unk.cpp` (estaba antes de las curvas xsca).
 
 - `GameCamera.h`: `m958[0x98C - 0x958]` partido para `float m96C, m970` (miembros de datos, no renumeran);
   `fn_8038E23C` con un cuarto `atn::Vector3*` (cambio de firma, sin nombres de parametro).
