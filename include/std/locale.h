@@ -14,6 +14,8 @@ namespace std {
 class locale {
 public:
     struct imp; // inferred: name of the implementation type unknown
+    class facet; // inferred: defined in std/locale_facets_unk.h (atn/EffectManager)
+    class id;    // inferred: defined in std/locale_facets_unk.h
 
     locale(const locale& loc) : mImp(loc.mImp) {
         if (mImp.mCntrl != 0) {

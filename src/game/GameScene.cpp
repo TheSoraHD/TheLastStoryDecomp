@@ -30,6 +30,7 @@
 #include "atn/ColliBase.h"
 #include <boost/tokenizer.hpp>
 #include "game/MapTask.h"
+#include "std/locale_facets_unk.h"
 
 typedef boost::tokenizer<boost::char_separator<char> > Tokenizer;
 
@@ -2434,20 +2435,9 @@ gs::BgmBox* GameScene::fn_803CCDAC(atn::SimpleArray<gs::BgmBox>& boxes, CharaTas
     return best;
 }
 
-// inferred: once guards shared with the weak collision-data initializer.
-extern "C" signed char lbl_8087F3CC;
-extern "C" signed char lbl_8087F3CD;
-
-class GameSceneInit_unk {
-public:
-    GameSceneInit_unk() {
-        if (lbl_8087F3CC == 0) {
-            lbl_8087F3CC = 1;
-        }
-        if (lbl_8087F3CD == 0) {
-            lbl_8087F3CD = 1;
-        }
-    }
-};
-
-static GameSceneInit_unk sGameSceneInit;
+// inferred: the __sinit of the file only sets the guards of the ids of the MSL numeric facets (weak static
+// members, std/locale_facets_unk.h; same guards as atn/EffectManager)
+namespace std {
+template locale::id num_put<char>::id;
+template locale::id numpunct<char>::id;
+} // namespace std

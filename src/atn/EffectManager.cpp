@@ -15,6 +15,7 @@
 #include "atn/RenderManager.h"
 
 #include "atn/EffectParams_unk.h"
+#include "std/locale_facets_unk.h"
 
 namespace atn {
 
@@ -263,7 +264,7 @@ extern "C" void* fn_8023A680(EffectManager* mgr, EffectRes_unk* res, int a, int 
     void* effect = mgr->mSystem.fn_8022FAC4(res->mData, a, b, c, pos, rot, color, d, e, scale);
     if (mgr->mCheckTrace != 0) {
         unsigned int flags = 0;
-        if (strstr(fn_80473F18(&res->m04), "ef_mr") != 0) {
+        if (strstr(((atn::LoadHandle*)res->m04)->fn_80473F18(), "ef_mr") != 0) {
             flags |= 0x18;
         }
         if (flags != 0) {
@@ -537,3 +538,21 @@ int EffectManager::fn_8023B724(EffectEvent_unk* event) {
 }
 
 } // namespace atn
+
+// inferred: weak copies of the MSL numeric facets used by the stream output of this file (its code that
+// used them is not in the DOL), in the order of the DOL
+namespace std {
+template num_put<char>::~num_put();
+template num_put<char>::iter_type num_put<char>::do_put(iter_type out, ios_base& str, char fill, double v) const;
+template numpunct<char>::string_type numpunct<char>::truename() const;
+template numpunct<char>::string_type numpunct<char>::falsename() const;
+template numpunct<char>::string_type numpunct<char>::do_truename() const;
+template numpunct<char>::string_type numpunct<char>::do_falsename() const;
+template char numpunct<char>::do_decimal_point() const;
+template numpunct<char>::string_type numpunct<char>::grouping() const;
+template numpunct<char>::string_type numpunct<char>::do_grouping() const;
+template char numpunct<char>::do_thousands_sep() const;
+template numpunct<char>::~numpunct();
+template locale::id num_put<char>::id;
+template locale::id numpunct<char>::id;
+} // namespace std
