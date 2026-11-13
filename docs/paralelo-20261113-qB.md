@@ -75,4 +75,12 @@ Rama `agent-B`. Inicio: 2026-11-13 01:05 CET. Referencia: `/home/claude/ref-B` (
 - Constructor (0x8037D8B8): inicializa `m34` de cada `GameCameraParam_unk` y los temporizadores: hace falta un
   constructor por defecto en `GameCameraParam_unk` (inline nueva en una cabecera de 153 unidades).
 - Herencia de `GameCamera`: el destructor original trata la camara de 0x00 como miembro (ver arriba).
-
+- `fn_8037E12C` (lee el csv de camaras del mapa, 1904 bytes): copia y reasigna campo a campo los ajustes de
+  jugador de `GameConfig_unk` 0x244-0x330 como un struct (hoy campos sueltos en `GameConfig_unk.h`, otra
+  familia); sus cadenas "gun".."fixRotY" arreglarian los desplazamientos de fn_8037E9E0.
+- `fn_8038F52C` (3656 bytes, cambio de modo segun la accion del personaje, tabla de 0x8A casos) y
+  `fn_80390A88` (3684 bytes): sin empezar. Los weak de 8-36 bytes (fn_8037F640 cos, fn_80382A00, fn_803830A0,
+  fn_80387540, fn_8038B648, fn_803903C4, fn_803903CC) saldran al escribir las funciones grandes que los llaman.
+- `fn_80382A1C`: sigue bloqueada (TownTask::fn_805B81F0 y `atn::Camera::SetUpVector` en cabeceras de otras
+  familias).
+- game/FinishCamera_unk: sin cambios (su unica funcion al 0 % tiene 13216 bytes).
