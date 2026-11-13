@@ -21,11 +21,18 @@ Unidades fuera de la ruta con una sola funcion por debajo del 100 % (lista en `/
   `MP/FuncMessage.h`, sin cambio para atn/PPDATAU). Resuelve el bloqueo de `docs/mwcc-blockers.md` (s12h-20261108).
 - `game/TownTpcLoader`: vf0C 99,59 -> 100 %; **enlaza**. El ultimo bucle en una `static inline StartCharas_unk(FixedArray&)`.
 - `gmk/LemonBucket`: vf10 99,77 -> 100 %; **enlaza**. Los bucles de fades/switches en `static inline UpdateFades_unk`/`UpdateSwitches_unk`.
-- Sin cambio (intentos con inlines y ordenes, revertidos): `atn/D2A_Frame` vf18 (registros de float),
+- Sin cambio (intentos con inlines y ordenes, revertidos; 3-10 intentos cada una): `atn/D2A_Frame` vf18 (registros de float),
   `game/MapPartsRain` ctor, `chr/ControlDetect` vf0C (r3/r4 de la copia; asgwrap sin mejora),
   `game/CrossbowMenuTask` fn_801E9544 (con la inline el inventario sale bien pero se cruzan i/offset),
   `MP/D2AMpMenuSetRule` fn_804CECEC, `game/SelectMember` ctor (con la inline el ctor se inlinea en
-  fn_8057162C), `atn/CsvBase_char_124_13_34` fn_802078C4.
+  fn_8057162C), `atn/CsvBase_char_124_13_34` fn_802078C4, `db/MemberList_unk` fn_80217D9C,
+  `atn/CompositeCache_unk` fn_800D8458, `chr/ControlAppear` vf40, `game/GameSaveBanner` fn_803B9638,
+  `game/BattleResult` fn_800F0D14 (el bucle base_point en inline sube a 99,38 % pero no llega),
+  `Event/EventLoader_unk` fn_80576258 (en inline se inlinea en fn_80576030), `gmk/FlyObjManager`
+  fn_80427870 (`SetMtx_unk` arregla la escala pero baja vf40/vf44 por el orden del pool), `gmk/Augur` vf10,
+  `game/Em201ZanGurg` ctor, `gmk/ReinforcePoint` vf10, `chr/ControlOneMotion` (ctor de Transition).
+- No probadas por bloqueo conocido: los `Loader::Get_unk<T>` de los LH_* (cabecera muy incluida,
+  `docs/mwcc-blockers.md`), Event/MotionData vf08, CopyRobotTask vf10.
 - `game/GameLoadTask`: vf10 99,96 -> 100 %; **enlaza**. La rama "Debug Data" en una `static inline
   LoadDebugData_unk(GameLoadTask*)` (lee `self->m48` dentro) con los locales en orden `path, size, offset`.
 
@@ -55,3 +62,15 @@ Unidades fuera de la ruta con una sola funcion por debajo del 100 % (lista en `/
   `MP/FuncMessage.h`, que la incluye; solo la incluyen func_enter_setting y atn/PPDATAU).
 
 ## Pendientes
+
+- Probar el truco del bucle en `static inline` en mas funciones con indice/desplazamiento cruzados
+  (MapManager FindArea, TreasureBoxTable, LH_Handle ya probado sin exito).
+- `gmk/FlyObjManager` fn_80427870: con `SetMtx_unk` quedan los temporales de pila de los estados 2/3 y la
+  esfera; habria que resolver a la vez el orden de `.sdata2` de vf40/vf44.
+
+## Resumen
+
+- 7 unidades pasan a enlazar: chr/ControlBase, game/Arms, game/NewStaffRoll, MP/func_enter_setting,
+  game/TownTpcLoader, gmk/LemonBucket, game/GameLoadTask (units 657 -> 664 en precommit).
+- 6 funciones nuevas al 100 % (15313 -> 15319): ControlBase::vf18, Arms::vf10, NewStaffRoll::fn_80531394,
+  TownTpcLoader::vf0C, LemonBucket::vf10, GameLoadTask::vf10. Ninguna funcion al 0 % en la cola (todas eran parciales).
