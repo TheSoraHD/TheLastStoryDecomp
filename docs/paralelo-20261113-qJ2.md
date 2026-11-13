@@ -14,6 +14,10 @@ Inicio 07:35.
   `static_string::c_str`, `make_pair`, `Csv::m630` y la matriz del registro (`UpdateRecordMatrix_unk`, 0x80498354).
   `vf2C` pasa a 100 % (la cadena "vector length error" va ahora delante de "<all>").
 
+- `game/Em206CocoonMp` 5 -> 2 (quedan ctor y `ResHandle::ResHandle`, bloqueados como el ctor de
+  LastCocoonChrysalis); 27/39 al 100 % (sin cambios). Escritas: `fn_802BC4EC` (96,25 %, portada de
+  `LastCocoonImago::fn_8045ABB4`), `fn_802BEE44` (estado 13, 95,05 %) y `fn_802BF5C0` (estado 14, 93,92 %).
+
 ## NONMATCHING
 
 - MPGL `vf10` 98,96 %: los huecos de pila de las rotaciones inline salen en orden inverso (en el original la z
@@ -25,6 +29,10 @@ Inicio 07:35.
   `vector<MapModelCache_unk*>` de atn/Motion_unk); viene de `include/std/vector.h` (no tocado).
 - `vector<GimmickLocSwing_unk>::push_back` 86,71 %: el original mueve los elementos POD con memcpy al crecer;
   `include/std/vector.h` los copia en bucle (no tocado: cabecera de 350 unidades).
+
+- Em206CocoonMp `fn_802BC4EC` 96,25 %, `fn_802BEE44` 95,05 %, `fn_802BF5C0` 93,92 %: huecos de pila
+  (matrices de `ToRotation_unk`, temporales), registros flotantes; en las dos ultimas los MIN/MAX de las
+  velocidades salen con la comparacion invertida y el `MIN(1.0f, 1.0f)` del original no se pliega alli.
 
 ## Decisiones tomadas sin el usuario
 
@@ -43,6 +51,9 @@ Inicio 07:35.
   re-emparejadas con `pdbatch.sh` (RotaryRoom 9 -> 12).
 - `fn_800E0AA8` (size de un vector de punteros, copia weak de otra unidad) se llama como `extern "C"`, igual
   que en GameScene, CharaPathMove, Em203GreaterDaemonRed y Em302Kraken.
+
+- Em206CocoonMp: `#include "gmk/Lemon.h"` (para `CollResult_unk`) y `GameConfig_unk.h`; seis `@N` de
+  `.sdata2` renombrados a mano por valor (pairdata los daba por ambiguos).
 
 ## Hallazgos
 
