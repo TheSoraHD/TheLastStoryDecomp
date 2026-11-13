@@ -642,11 +642,10 @@ void Em203GreaterDaemon::vf14() {
 }
 
 // inferred: the daemon is not knocked back; the absorb skill and the hits after the 10% rage do no damage
-// NONMATCHING: 97.00% - stack slots / register allocation of the damage vectors
 void Em203GreaterDaemon::vf3C(HitInfo_unk* hit) {
     HitMsg_unk* msg = (HitMsg_unk*)hit;
-    msg->m10 *= 0.0f;
     int down = (mStatus.m0C >> 2) & 1;
+    msg->m10 *= 0.0f;
     if (m14C8 != 0 || msg->mData == m14D8) {
         msg->m68 = 0;
         msg->m4C = 0;
@@ -666,8 +665,8 @@ void Em203GreaterDaemon::vf3C(HitInfo_unk* hit) {
                 m560 = 4;
                 m590 = fn_800F8548(lbl_8087F048);
                 PlayMotion_unk(0x37, 0, 0, 0.5f);
-                m151C = atn::Vector3(0.0f, -80.0f, 0.0f);
                 m14B4 = 0;
+                m151C = atn::Vector3(0.0f, -80.0f, 0.0f);
                 m1528 = 0.0f;
                 m1974 = 0;
                 fn_80239DAC(lbl_8087F3C0, this, -2, 1);

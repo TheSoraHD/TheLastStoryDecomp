@@ -21,6 +21,11 @@ Inicio 07:35.
 - `game/GameSaveData_unk` 2 -> 0; 26/37 al 100 % (sin cambios). Escritas: `GameSaveInventory_unk::fn_803BB584`
   (recoge el inventario, 94,37 %) y `fn_803BC2D4` (lo restaura, 87,31 %).
 
+- `game/Em203GreaterDaemon` (parciales): `vf3C` al 100 % (lectura de `down` antes de anular el empuje y
+  `m14B4 = 0` antes de `m151C`); 46 -> 47/66. El `vector<int>::operator[]` sigue sin salir (presupuesto).
+- `game/Em203GreaterDaemonRedMp`: `fn_802A3D80` sin cambios (probado otra vez con los helpers como `extern "C"
+  inline` delante: sigue inlineandolo todo).
+
 ## NONMATCHING
 
 - MPGL `vf10` 99,64 %: orden de las direcciones de pila izadas del modo 2 y de la direccion del registro en la
