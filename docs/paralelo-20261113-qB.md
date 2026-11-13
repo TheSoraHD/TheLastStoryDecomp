@@ -15,7 +15,11 @@ Rama `agent-B`. Inicio: 2026-11-13 01:05 CET. Referencia: `/home/claude/ref-B` (
 - `fn_8038378C` (cornisa sin mezcla; vista de pajaro con `fn_80387DE4`): escrita, NONMATCHING 99,8 % (igual).
 - `fn_8037EF48` (seguir al lider): escrita, NONMATCHING 99,5 % (orden en la pila de los temporales de
   fn_800109E0, como fn_8038C070).
-- Funciones al 0 %: 26 -> 21.
+- `fn_8037E9E0` (menu de depuracion "GameCamera"): escrita; el codigo coincide, solo cambian los
+  desplazamientos de `@stringBase0` (faltan las cadenas "gun".."fixRotY" de fn_8037E12C, sin escribir).
+- `~GameCamera` (0x8037DC68): escrito, NONMATCHING 99,97 %: el original destruye la camara de 0x00 con -1
+  (como miembro, no como base): GameCamera tendria un `atn::Camera` en 0x00 en lugar de derivar de el.
+- Funciones al 0 %: 26 -> 19.
 
 ## NONMATCHING nuevas
 
@@ -28,6 +32,10 @@ Rama `agent-B`. Inicio: 2026-11-13 01:05 CET. Referencia: `/home/claude/ref-B` (
 ## Decisiones tomadas sin el usuario
 
 - `GameCamera.h`: `float m7F8` (giro del lider) y `float mCA8` (velocidad de giro) en lugar de relleno.
+- `GameCamera.h`: `GameCameraParam_unk m7B0` ("WallUp"; antes m7B4/m7BC/m7C0/m7C4 sueltos, ahora
+  `m7B0.m04`...), `ResHandle m7EC` (y `#include "game/ResHandle.h"`: las 153 unidades que incluyen
+  GameCamera.h ya la incluian; labelcheck igual), campos del menu m8D8, m8DC, m9EC, m9F0, m9F4, mA04, mA08 y
+  la declaracion de `fn_8037E9E0()`.
 - `#include "game/SetConfig.h"` subido al principio de `GameCamera_unk.cpp` (estaba antes de las curvas xsca).
 
 - `GameCamera.h`: `m958[0x98C - 0x958]` partido para `float m96C, m970` (miembros de datos, no renumeran);
@@ -55,5 +63,9 @@ Rama `agent-B`. Inicio: 2026-11-13 01:05 CET. Referencia: `/home/claude/ref-B` (
   `float yaw;` declarado antes de `height` dieron la pila y los registros de fn_8038378C/fn_8038A5F0.
 
 ## Pendientes
+
+- Constructor (0x8037D8B8): inicializa `m34` de cada `GameCameraParam_unk` y los temporizadores: hace falta un
+  constructor por defecto en `GameCameraParam_unk` (inline nueva en una cabecera de 153 unidades).
+- Herencia de `GameCamera`: el destructor original trata la camara de 0x00 como miembro (ver arriba).
 
 - `fn_80387DE4` (vista de pajaro, 1748 bytes): sin escribir (mando `lbl_8087EF70`, `fn_800A56A8`).

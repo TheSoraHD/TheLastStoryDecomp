@@ -82,6 +82,10 @@ static inline atn::Vector3 Cross_unk(const atn::Vector3& a, const atn::Vector3& 
     return r;
 }
 
+// NONMATCHING: 99.97% - the original destroys the camera at 0x00 with -1, as a member and not as the base class
+// (GameCamera would hold an atn::Camera at 0x00 instead of deriving from it)
+GameCamera::~GameCamera() {}
+
 // inferred: default parameters of the camera modes (also called by the constructor): the box camera (m738) and the
 // event camera (m774) are copies of m51C, m6FC a copy of m6C0 (their m34 is copied, not set)
 void GameCamera::fn_8037DD00() {
@@ -183,10 +187,10 @@ void GameCamera::fn_8037DD00() {
     m684.m2C = 0.01f;
     m684.m30 = 0.0f;
     m684.m38 = 0;
-    m7BC = 0.0f;
-    m7C0 = 30.0f;
-    m7C4 = 20.0f;
-    m7B4 = 1.134464f;
+    m7B0.m0C = 0.0f;
+    m7B0.m10 = 30.0f;
+    m7B0.m14 = 20.0f;
+    m7B0.m04 = 1.134464f;
     m6C0.m00 = 38.0f;
     m6C0.m04 = 1.134464f;
     m6C0.m08 = 0.34906584f;
@@ -233,6 +237,41 @@ extern "C" void fn_8008771C(void* group, const char* name, float* value, int arg
                             float step);
 extern "C" void fn_80087858(void* group, const char* name, float* value, int arg3, int arg4, float min, float max,
                             float step); // inferred: angle item
+extern "C" void fn_80087994(void* group, const char* name, int* flag, int arg3, int arg4); // inferred: switch item
+extern "C" void fn_800874C8(void* group, const char* name, int* value, int min, int max, int step, int arg6,
+                            int arg7); // inferred: integer item
+extern "C" void fn_80087E9C(void* group, const char* name, atn::Vector3* value, int arg3, int arg4, float min,
+                            float max, float step); // inferred: vector item
+
+// inferred: debug menu of the camera: the parameters of every mode and the global settings
+void GameCamera::fn_8037E9E0() {
+    void* group = m7EC.Load("GameCamera");
+    fn_8037ECF0("Default", group, &m51C);
+    fn_8037ECF0("Hide", group, &m594);
+    fn_8037ECF0("Shoot", group, &m5D0);
+    fn_8037ECF0("Crouch", group, &m60C);
+    fn_8037ECF0("Control", group, &m558);
+    fn_8037ECF0("Chant", group, &m648);
+    fn_8037ECF0("BirdView", group, &m684);
+    fn_8037ECF0("WallUp", group, &m7B0);
+    fn_8037ECF0("Chase", group, &m6C0);
+    fn_8037ECF0("ChaseRear", group, &m6FC);
+    fn_8037ECF0("Fix", group, &m738);
+    fn_8037ECF0("FixRotY", group, &m774);
+    fn_80087994(group, "DrawDebugInfo", &m7F0, 0, 0);
+    fn_80087858(group, "PadDisableAngle", &mA04, 0, 0, 0.0f, 180.0f, 1.0f);
+    fn_800874C8(group, "PadDisableFrame", &mA08, 0, 300, 1, 0, 0);
+    fn_8008771C(group, "BirdViewLockOnSpeed", &m8D8, 0, 0, 0.0f, 100.0f, 0.01f);
+    fn_8008771C(group, "BirdViewLockOnLength", &m8DC, 0, 0, 0.0f, 100.0f, 0.01f);
+    fn_800874C8(group, "CollisionMode", &m9F4, 0, 2, 1, 0, 0);
+    fn_800874C8(group, "InterpFrame", &m9F0, 1, 999, 1, 0, 0);
+    fn_8008771C(group, "InterpSpeed", &m9EC, 0, 0, 0.0f, 1.0f, 0.001f);
+    void* fix = fn_8008937C(group, "FixProgram");
+    fn_80087E9C(fix, "Position", &m4FC, 0, 0, -10000.0f, 10000.0f, 1.0f);
+    fn_80087E9C(fix, "Target", &m508, 0, 0, -10000.0f, 10000.0f, 1.0f);
+    fn_80087858(fix, "AngleOfView", &m514, 0, 0, -10000.0f, 10000.0f, 1.0f);
+    fn_80087994(fix, "PlayerOffset", &m518, 0, 0);
+}
 
 // inferred: debug menu of the parameters of a camera mode
 // NONMATCHING: 94.3% - offsets of the strings until the rest of the pool is written; named floats
@@ -745,8 +784,8 @@ static inline float MotionFrame_unk(CharaTask* c) {
     return c->mMotion.mTracks[0].m08;
 }
 
-// inferred: side camera (m648): stays m7C4 behind, m7C0 above and m7BC beside the character, looking at a point in
-// front of it; the control ids 15, 11 and 16 (m560) move it in while their motion plays
+// inferred: side camera (m648): stays m7B0.m14 behind, m7B0.m10 above and m7B0.m0C beside the character, looking at a
+// point in front of it; the control ids 15, 11 and 16 (m560) move it in while their motion plays
 void GameCamera::fn_803884B8(const CharaTask* chara) {
     m808++;
     atn::Vector3 pos = mPos;
@@ -757,9 +796,9 @@ void GameCamera::fn_803884B8(const CharaTask* chara) {
     atn::Matrix3x4 m;
     m.fn_8013A13C(chara->mRot.y);
     PSMTXMultVec(m.m, &front, &front);
-    float side = m7BC;
-    float height = m7C0;
-    float dist = m7C4;
+    float side = m7B0.m0C;
+    float height = m7B0.m10;
+    float dist = m7B0.m14;
     float speed = m648.m1C;
     CharaTask* c = const_cast<CharaTask*>(chara);
     switch (chara->m560) {
@@ -794,7 +833,7 @@ void GameCamera::fn_803884B8(const CharaTask* chara) {
     if (lbl_8087F430->fn_80370174(0x65) && chara->mPos.y > 90.0f) {
         mFovy = 0.4f * (0.87266463f - mFovy) + mFovy;
     } else {
-        mFovy = m7B4;
+        mFovy = m7B0.m04;
     }
     fn_8004B378();
     fn_80392964(0, 1, 0, 0);
@@ -1455,7 +1494,7 @@ void GameCamera::fn_8038C070(const CharaTask* chara) {
 }
 
 // inferred: low camera beside the character (50 above it, m648.m0C to the side) looking at 12 above it; the target and
-// the fovy (m7B4) are blended in 10 frames; then back to the sub mode with m83C = 6. The eye position is
+// the fovy (m7B0.m04) are blended in 10 frames; then back to the sub mode with m83C = 6. The eye position is
 // computed but not used
 // NONMATCHING: 48% - here fn_80392964 and its callees (fn_803920C8, fn_803928C0...) are all inlined, while the
 // original calls them as in fn_8038BD78
@@ -1485,7 +1524,7 @@ void GameCamera::fn_8038C5B0(const CharaTask* chara) {
     target.y += 12.0f;
     target = (target - m818) * t + m818;
     SetTarget_unk(target);
-    mFovy = MIN((float)m808 / 10.0f, 1.0f) * (m7B4 - m830) + m830;
+    mFovy = MIN((float)m808 / 10.0f, 1.0f) * (m7B0.m04 - m830) + m830;
     fn_8004B378();
     fn_80392964(0, 1, 0, 0);
     if (++m808 > 10) {

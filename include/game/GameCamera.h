@@ -4,6 +4,7 @@
 #include "math/Vec.h"
 #include "atn/Camera_unk.h"
 #include "atn/RenderSetting_unk.h"
+#include "game/ResHandle.h"
 
 namespace gs {
 struct CameraBox;
@@ -106,6 +107,7 @@ public:
     void fn_8037DD00(); // inferred: resets the camera (also called by the constructor)
     // inferred: reads the camera csv of the map (data and size of MapTask::m60) for a camera and a sub camera
     void fn_8037E12C(void* data, int size, int camera, int sub);
+    void fn_8037E9E0(); // inferred: registers the debug menu of the camera
     void fn_80389884(int mode); // inferred: sets the camera mode (MapTask::fn_804A04AC: 0, 10 or 11)
     // inferred: follows the leader (fn_8037EF48 with the head of the player list)
     void fn_8037EF30(int a, int b, float f);
@@ -201,13 +203,10 @@ public:
     GameCameraParam_unk m738; // inferred: box camera mode (fn_80388A88; m0C-m14: position, m18: height of the target)
     GameCameraParam_unk m774; // inferred: event camera (fn_8038CD94; m08: pitch, m0C-m14: offset from the head,
                               // m28: yaw in degrees)
-    unsigned char m7B0[0x7B4 - 0x7B0];
-    float m7B4;          // inferred: fovy of the low side mode (fn_8038C5B0)
-    unsigned char m7B8[0x7BC - 0x7B8];
-    float m7BC; // inferred: reset by fn_8037DD00
-    float m7C0;
-    float m7C4;
-    unsigned char m7C8[0x7F0 - 0x7C8];
+    // inferred: "WallUp" parameters of the debug menu (fn_8037E9E0): m04 fovy of the low side mode (fn_8038C5B0),
+    // m0C/m10/m14 side offset, height and distance of the side camera (fn_803884B8)
+    GameCameraParam_unk m7B0;
+    ResHandle m7EC; // inferred: debug menu group "GameCamera" (fn_8037E9E0)
     int m7F0; // inferred: debug display of the camera (fn_8039328C)
     int m7F4;
     float m7F8; // inferred: yaw of the leader camera (fn_8037EF48)
@@ -242,7 +241,9 @@ public:
     int m8CC;          // inferred: fn_803903E0 pulls the start point out of the walls once
     unsigned char m8D0[0x8D4 - 0x8D0];
     int m8D4; // inferred: set at the end of the replay rewind (GameTask::fn_80373AE8)
-    unsigned char m8D8[0x8E4 - 0x8D8];
+    float m8D8; // inferred: debug menu "BirdViewLockOnSpeed"
+    float m8DC; // inferred: debug menu "BirdViewLockOnLength"
+    unsigned char m8E0[0x8E4 - 0x8E0];
     int m8E4; // inferred: cleared by GameTask::vf10 when the tactical view closes
     int m8E8; // inferred: cleared by GameTask::vf10 at the end of a map change
     int m8EC;
@@ -268,9 +269,12 @@ public:
     float m970;
     unsigned char m974[0x98C - 0x974];
     atn::Vector3 m98C[8]; // inferred: cleared by the default mode (fn_80389A00)
-    unsigned char m9EC[0x9F8 - 0x9EC];
+    float m9EC; // inferred: debug menu "InterpSpeed"
+    int m9F0;   // inferred: debug menu "InterpFrame"
+    int m9F4;   // inferred: debug menu "CollisionMode"
     atn::Vector3 m9F8;   // inferred: hips of the character when the hips mode ends
-    unsigned char mA04[0xA0C - 0xA04];
+    float mA04; // inferred: debug menu "PadDisableAngle"
+    int mA08;   // inferred: debug menu "PadDisableFrame"
     float mA0C[5];
     atn::Camera mA20;      // inferred: camera the render camera is blended from (fn_80392FE8, fn_80392D2C)
     float mC14;            // inferred: blend weight, decreased by mC18 every frame
