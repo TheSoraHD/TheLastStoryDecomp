@@ -13,6 +13,8 @@
 #include "game/BattleTask.h"
 #include "game/GameTask.h"
 #include "game/PlayerManager.h"
+#include "game/GameConfig_unk.h"
+#include "gmk/Lemon.h"
 
 extern "C" int strncmp(const char* a, const char* b, unsigned long n);
 extern "C" std::string fn_8006AFF8(const std::string& a, const std::string& b); // inferred: a + b
@@ -606,6 +608,84 @@ void Em206CocoonMp::vf54() {
     }
 }
 
+extern "C" int fn_8004D388(void* world, CollResult_unk* result, CharaTask::Sphere_unk* sphere, atn::Vector3* move,
+                           unsigned int mask, void* ignore, int arg, float radius); // inferred: sweep test
+extern "C" void* lbl_8087EE98; // inferred: collision world
+extern "C" GameConfig_unk* lbl_8087F0A8; // inferred: game settings
+
+// NONMATCHING: 96.25% - float registers and stack slots (as LastCocoonImago::fn_8045ABB4, the same walk
+// without the m197C test)
+// inferred: turns towards `target` and walks (when `move` is over a third) at `speed`, with gravity, the push
+// m6B8 and the collision sweep; leans with the turn (m584)
+void Em206CocoonMp::fn_802BC4EC(const atn::Vector3& target, float move, float speed) {
+    atn::Vector3 pos = mPos;
+    atn::Vector3 rot = mRot;
+    m14E8 = 0;
+    float d = atn::WrapAngle_unk(target.y - rot.y);
+    float dt = lbl_8087EFA8->m3A4;
+    float step = d * (m56C * (1.0f + 0.75f * atn::Abs_unk(d / 3.1415927f)));
+    if (step < 0.034906585f) {
+        m14E8 = 1;
+    }
+    rot.y += step;
+    atn::Vector3 vel(0.0f, 0.0f, 1.0f);
+    atn::Matrix3x4 m;
+    m.fn_8013A13C(rot.y);
+    PSMTXMultVec(m.m, &vel, &vel);
+    if (move > 0.33333334f) {
+        vel *= 0.33333334f * speed;
+        m14E8 = 1;
+    } else {
+        vel *= 0.0f;
+    }
+    if (m58C != 6 && m58C != 9 && m58C != 7) {
+        vf24();
+    }
+    int fps = lbl_8087F0A8->m030;
+    vel.y += 2.0f * (dt * (-98.1f / (float)(fps * fps)));
+    vel.x += m6B8.x * MIN(1.0f, dt);
+    vel.z += m6B8.z * MIN(1.0f, dt);
+    vel.y += m6B8.y;
+    atn::Vector3 friction(m6B8.x * MIN(1.0f, 0.19999999f * dt), m6B8.y * MIN(1.0f, 0.19999999f * dt),
+                          m6B8.z * MIN(1.0f, 0.19999999f * dt));
+    m6B8.x -= friction.x;
+    m6B8.z -= friction.z;
+    m6B8.y = 0.0f;
+    if (m6B8.Length_unk() < 0.1f) {
+        m6B8.x = 0.0f;
+        m6B8.y = 0.0f;
+        m6B8.z = 0.0f;
+    }
+    if (vel.y < -12.0f) {
+        vel.y = -12.0f;
+    }
+    CollResult_unk result;
+    atn::Vector3 oldPos = pos;
+    Sphere_unk sphere;
+    sphere.mCenter = m614;
+    sphere.mRadius = m620;
+    fn_8004D388(lbl_8087EE98, &result, &sphere, &vel, fn_80179D44() | 0x80000000, &mColli, 0, sphere.mRadius);
+    pos = result.m10;
+    pos -= m5A4;
+    pos.y -= sphere.mRadius;
+    m634 = result.m34 != 0 ? *(int*)result.m34 : -1;
+    atn::Vector3 moved = vel + (pos - oldPos);
+    float lean = 0.0f;
+    if (PSVECSquareMag(&moved) > 0.001f && move > 0.001f) {
+        lean = atn::WrapAngle_unk(moved.GetNormalize().ToRotation_unk().y - mRot.y);
+    }
+    lean *= 2.0f;
+    m584 = MAX(MIN(m584 - 0.5f * lean, 1.0471976f), -1.0471976f) * 0.9f;
+    mPos = pos;
+    mRot = rot;
+    mRot.x = atn::WrapAngle_unk(mRot.x);
+    mRot.y = atn::WrapAngle_unk(mRot.y);
+    mRot.z = atn::WrapAngle_unk(mRot.z);
+    m574 = atn::Vector3(0.0f, 0.0f, 0.0f);
+    m630 = 0;
+    m610 = 0;
+}
+
 void Em206CocoonMp::vf24() {
     if (m55C == 6 && mControl && mControl->vf3C() == 0) {
         return;
@@ -1038,6 +1118,174 @@ void Em206CocoonMp::fn_802BEAEC() {
     } else if (mMotion.mTracks[0].m08 <= 2.0f) {
         mMotion.fn_80097C08(0, 0x169, 0, 0, 1, 0.0f, 0.1f);
         mMotion.mTracks[0].m0C = 1.0f;
+    }
+}
+
+// NONMATCHING: 95.05% - stack slots of the inlined ToRotation_unk matrices and of the temporaries; the
+// MIN(1.0f, 1.0f) of the speed is folded here
+// inferred: state 13 (rolls straight ahead): speeds up the roll (m570), falls with gravity, sweeps the
+// collision and hits in front; after 60 frames goes to state 14 when the target is no longer ahead (or
+// after 180 frames)
+void Em206CocoonMp::fn_802BEE44() {
+    atn::Vector3 dir = m14F8.ToRotation_unk();
+    atn::Vector3 pos = mPos;
+    atn::Vector3 rot = mRot;
+    float t = lbl_8087EFA8->m3A4 * mMotion.m350;
+    m570 *= 0.85f;
+    if (m570 < 0.001f) {
+        m570 = 0.0f;
+    }
+    float speed = 1.0f;
+    speed = MIN(1.0f, speed);
+    float accel;
+    if (speed > 0.4f) {
+        accel = MAX((speed - 0.4f) / 0.6f * (2.0f * t), 0.0f);
+    } else {
+        accel = 0.0f;
+    }
+    m570 += 0.26f * accel - 0.125f * m570;
+    m574.LengthSq_unk();
+    m574.x -= m574.x * MIN(1.0f, 0.7f * t);
+    m574.z -= m574.z * MIN(1.0f, 0.7f * t);
+    atn::Vector3 vel;
+    vel.x = m570 * (float)sin(rot.y);
+    vel.y = 0.0f;
+    vel.z = m570 * (float)cos(rot.y);
+    vel.x *= MIN(1.0f, t);
+    vel.y *= MIN(1.0f, t);
+    vel.z *= MIN(1.0f, t);
+    int fps = lbl_8087F0A8->m030;
+    m574.y += t * (-98.1f / (float)(fps * fps));
+    if (m574.y < 0.0f) {
+        m574.y = MIN(m574.y, -0.4f);
+    }
+    vel += m574 * t;
+    if (vel.y < -6.0f) {
+        vel.y = -6.0f;
+    }
+    CollResult_unk result;
+    Sphere_unk sphere = fn_80176548(pos);
+    fn_8004D388(lbl_8087EE98, &result, &sphere, &vel, fn_80179D44() | 0x80000000, &mColli, 0, sphere.mRadius);
+    pos = result.m10;
+    pos -= m5A4;
+    pos.y -= sphere.mRadius;
+    m634 = result.m34 != 0 ? *(int*)result.m34 : -1;
+    mPos = pos;
+    mRot = rot;
+    m574 = vel;
+    atn::Vector3 saved = mPos;
+    atn::Vector3 front(0.0f, 0.0f, 1.0f);
+    atn::Matrix3x4 m;
+    m.fn_8013A13C(mRot.y);
+    PSMTXMultVec(m.m, &front, &front);
+    mPos -= front * 5.0f;
+    int id = m590;
+    fn_800F8C6C(lbl_8087F048, 0, 0, this, fn_80219E6C(0x5C0), id, 60, -1, 0.0f);
+    mPos = saved;
+    if (++m1504 > 60) {
+        CharaTask* target = mC58.mC4;
+        atn::Vector3 to(target->mPos.x - mPos.x, 0.0f, target->mPos.z - mPos.z);
+        if (to.LengthSq_unk() < 0.0001f) {
+            to.x = 0.0f;
+            to.y = 0.0f;
+            to.z = 1.0f;
+        } else {
+            to.Normalize_unk();
+        }
+        atn::Vector3 ahead(0.0f, 0.0f, 1.0f);
+        atn::Matrix3x4 r;
+        r.fn_8013A13C(mRot.y);
+        PSMTXMultVec(r.m, &ahead, &ahead);
+        if (PSVECDotProduct(&to, &ahead) < 0.70710677f || m1504 > 180) {
+            SetState_unk(14);
+            m1504 = 0;
+            mMotion.m34C = 1;
+            mMotion.mTracks[0].m20 = 1.0f;
+            mMotion.fn_80097C08(0, 0x166, 1, 0, 1, 0.0f, 0.025f);
+            mMotion.mTracks[0].m0C = 1.0f;
+        }
+    }
+}
+
+// NONMATCHING: 93.92% - stack slots and float registers; the comparisons of the clamps (MIN/MAX) are
+// reversed and the speed factor is folded
+// inferred: state 14 (turns towards the target while rolling, slower when the turn is wide); after 30
+// frames, when the target is ahead (or after 90 frames), jumps to the route point 500 (state 16) after
+// 1200 frames of ice mode, otherwise rolls again (state 13)
+void Em206CocoonMp::fn_802BF5C0() {
+    CharaTask* target = mC58.mC4;
+    atn::Vector3 to(target->mPos.x - mPos.x, 0.0f, target->mPos.z - mPos.z);
+    if (to.LengthSq_unk() < 0.0001f) {
+        to.x = 0.0f;
+        to.y = 0.0f;
+        to.z = 1.0f;
+    } else {
+        to.Normalize_unk();
+    }
+    atn::Vector3 goal = to.ToRotation_unk();
+    atn::Vector3 pos = mPos;
+    atn::Vector3 rot = mRot;
+    float speed = 1.0f;
+    float turn = 0.01f;
+    float d = atn::WrapAngle_unk(goal.y - rot.y);
+    float t = lbl_8087EFA8->m3A4 * mMotion.m350;
+    rot.y += d * (0.1f * (1.0f + 0.75f * atn::Abs_unk(d / 3.1415927f)));
+    m570 *= 0.0085f;
+    if (m570 < 0.001f) {
+        m570 = 0.0f;
+    }
+    float accel = MIN(speed, 1.0f) * (turn * t);
+    float wide = m570 < 0.5f ? 0.0f : 0.25f;
+    float over = MAX(atn::Abs_unk(d / 3.1415927f) - wide, 0.0f);
+    accel = MAX(accel * (1.0f - 1.5f * (over / (1.0f - wide))), 0.0f);
+    m570 += 0.26f * accel - 0.125f * m570;
+    m574.LengthSq_unk();
+    m574.x -= m574.x * MIN(1.0f, 0.04f * t);
+    m574.z -= m574.z * MIN(1.0f, 0.04f * t);
+    atn::Vector3 vel;
+    vel.x = m570 * (float)sin(rot.y);
+    vel.y = 0.0f;
+    vel.z = m570 * (float)cos(rot.y);
+    vel.x *= MIN(1.0f, t);
+    vel.y *= MIN(1.0f, t);
+    vel.z *= MIN(1.0f, t);
+    int fps = lbl_8087F0A8->m030;
+    m574.y += t * (-98.1f / (float)(fps * fps));
+    if (m574.y < 0.0f) {
+        m574.y = MIN(m574.y, -0.4f);
+    }
+    vel += m574 * t;
+    if (vel.y < -6.0f) {
+        vel.y = -6.0f;
+    }
+    CollResult_unk result;
+    Sphere_unk sphere = fn_80176548(pos);
+    fn_8004D388(lbl_8087EE98, &result, &sphere, &vel, fn_80179D44() | 0x80000000, &mColli, 0, sphere.mRadius);
+    pos = result.m10;
+    pos -= m5A4;
+    pos.y -= sphere.mRadius;
+    m634 = result.m34 != 0 ? *(int*)result.m34 : -1;
+    mPos = pos;
+    mRot = rot;
+    m574 = vel;
+    if (++m1504 > 30) {
+        atn::Vector3 ahead(0.0f, 0.0f, 1.0f);
+        atn::Matrix3x4 m;
+        m.fn_8013A13C(mRot.y);
+        PSMTXMultVec(m.m, &ahead, &ahead);
+        if (PSVECDotProduct(&to, &ahead) > 0.9659258f || m1504 > 90) {
+            if (m14F4 > 1200) {
+                SetState_unk(16);
+                mMotion.m34C = 1;
+                mMotion.mTracks[0].m20 = 1.0f;
+                mMotion.fn_80097C08(0, 0x168, 0, 0, 1, 0.0f, 0.025f);
+                mMotion.mTracks[0].m0C = 1.0f;
+                m1508 = mPos;
+                m1514 = lbl_8087F430->m10D8->FindPlace_unk(500)->mPos;
+                return;
+            }
+            StartRoll_unk();
+        }
     }
 }
 

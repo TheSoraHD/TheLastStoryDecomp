@@ -177,7 +177,10 @@ struct GameSaveInventory_unk {
     MP::SaveElemB_unk mUpgrades[28];   // 0x11C4: inferred: upgraded equipment
     GameSaveItem_unk mItems[0x600];    // 0x60F4
     Inventory::Equip_unk mEquips[7]; // 0x90F4: inferred: copy of Inventory::mEquips
-    unsigned char m92B4[0x94C8 - 0x92B4];
+    unsigned short mIdentify[0x100]; // 0x92B4: inferred: items to identify (Inventory::fn_8044D530 - 100000)
+    signed char mOrder[3][6];        // 0x94B4: inferred: order of the party (Inventory::mOrder, as bytes)
+    signed char mOrder18;            // 0x94C6
+    unsigned char m94C7;
     int m94C8; // inferred: shown in the slot header (GameSaveSlot_unk::m70)
     unsigned char m94CC[0x9548 - 0x94CC];
 };

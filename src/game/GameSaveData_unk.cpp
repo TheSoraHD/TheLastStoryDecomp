@@ -696,6 +696,193 @@ MP::SaveElemB_unk::SaveElemB_unk() : m000(-1), m004(-1), m008(-1), m00C(-1) {
     m294 = 0;
 }
 
+// inferred: the equipment sets of the inventory are copied one by one into the save data and back (struct
+// assignments of 0x40 bytes); the save data types them as GameSaveEquipExtra_unk
+static inline Inventory::Equip_unk& AsEquip_unk(GameSaveEquipExtra_unk& e) {
+    return *(Inventory::Equip_unk*)&e;
+}
+// inferred: view of the parts of an upgraded equipment, copied whole by the assignment of MP::SaveElemB_unk
+struct SaveBlock280_unk {
+    MP::SaveElemBPart_unk m[32];
+};
+
+extern "C" unsigned long wcslen(const wchar_t* s);
+extern "C" wchar_t* wmemcpy(wchar_t* dst, const wchar_t* src, unsigned long n);
+
+// inferred: assignment of an upgraded equipment (MP::SaveElemB_unk::operator= in the original: the name at
+// 0x294 is a static wide string, copied with wcslen + wmemcpy)
+static inline void CopyUpgrade_unk(MP::SaveElemB_unk& dst, const MP::SaveElemB_unk& src) {
+    dst.m000 = src.m000;
+    dst.m004 = src.m004;
+    dst.m008 = src.m008;
+    dst.m00C = src.m00C;
+    *(SaveBlock280_unk*)dst.m010 = *(const SaveBlock280_unk*)src.m010;
+    dst.m290 = src.m290;
+    const wchar_t* name = (const wchar_t*)&src.m294;
+    wchar_t* to = (wchar_t*)&dst.m294;
+    if (name != to) {
+        wmemcpy(to, name, wcslen(name) + 1);
+    }
+}
+
+// NONMATCHING: 94.37% - register allocation (two more saved registers: r22-r31 against r24-r31) and
+// the addressing of the equipment copies
+// inferred: collects the inventory: money, bag, costume sets, shown equipment, upgraded equipment,
+// equipment, items to identify, party order and the play time
+void GameSaveInventory_unk::fn_803BB584() {
+    Inventory* inv = Inventory::instance_;
+    m0000 = inv->mMoney;
+    for (int i = 0; i < 0x600; i++) {
+        Inventory::Item_unk* item = inv->fn_80444804(i);
+        if (item != 0) {
+            mItems[i].mCode = item->mCode;
+            mItems[i].mCount = item->mCount;
+            mItems[i].mAge = item->m08;
+            mItems[i].m05 = item->m0C;
+        }
+    }
+    for (int i = 0; i < 16; i++) {
+        AsEquip_unk(m0004[i]) = inv->mEquipSetA[i];
+    }
+    for (int i = 0; i < 7; i++) {
+        AsEquip_unk(mExtras[i]) = inv->mEquipShown[i];
+    }
+    for (int i = 0; i < 28; i++) {
+        CopyUpgrade_unk(mUpgrades[i], inv->mUpgrades[i]);
+    }
+    for (int i = 0; i < 7; i++) {
+        mEquips[i] = inv->mEquip[i];
+    }
+    for (int i = 0; i < 0x100; i++) {
+        mIdentify[i] = inv->fn_8044D530(i) - 100000;
+    }
+    // inferred: the order is 19 words from Inventory::mOrder (it goes on into m64C8)
+    const int* order = inv->mOrder;
+    for (int i = 0; i < 3; i++) {
+        for (int j = 0; j < 6; j++) {
+            mOrder[i][j] = order[i * 6 + j];
+        }
+    }
+    mOrder18 = order[18];
+    if (lbl_8087F430 != 0) {
+        m94C8 = lbl_8087F430->m5744;
+    }
+}
+
+extern "C" void fn_80212790();                                     // inferred: clears the found items
+extern "C" int fn_80211940(ItemParamEntry_unk* item, int count);   // inferred: adds an item, returns its code
+
+// NONMATCHING: 87.31% - register allocation and addressing of the copies (the bag loops keep pointers
+// in other registers)
+// inferred: restores the inventory: money, bag (format 10: 8-byte items, older: 0xC-byte items), and from
+// format 3 the costume sets, the shown equipment and the upgraded equipment; then the equipment (the
+// slots of unknown protectors and weapons are given back as items), the items to identify, the party
+// order and the play time
+void GameSaveInventory_unk::fn_803BC2D4() {
+    Inventory* inv = Inventory::instance_;
+    if (inv == 0) {
+        return;
+    }
+    inv->fn_8044D6E0(m0000);
+    fn_80212790();
+    for (int i = 0; i < 0x600; i++) {
+        Inventory::Item_unk* item = Inventory::instance_->fn_80444804(i);
+        if (item != 0 && item->mCode >= 1000000) {
+            item->mCode = -1;
+            item->mCount = 0;
+            item->m08 = 0;
+        }
+    }
+    if (lbl_8087DD64 < 10) {
+        for (int i = 0; i < 0x500; i++) {
+            if (i < 0x400) {
+                const GameSaveItemOld_unk* old = &((const GameSaveItemOld_unk*)mItems)[i];
+                Inventory::Item_unk* item = inv->fn_80444744(old->mCode);
+                if (item != 0) {
+                    item->mCount = old->mCount;
+                    item->m08 = old->m06;
+                    item->m0C = old->m08;
+                }
+            } else {
+                const GameSaveItemOld_unk* old = &mOldItems[i - 0x400];
+                Inventory::Item_unk* item = inv->fn_80444744(old->mCode);
+                if (item != 0) {
+                    item->mCount = old->mCount;
+                    item->m08 = old->m06;
+                    item->m0C = old->m08;
+                }
+            }
+        }
+    } else {
+        for (int i = 0; i < 0x600; i++) {
+            Inventory::Item_unk* item = inv->fn_80444744(mItems[i].mCode);
+            if (item != 0) {
+                item->mCount = mItems[i].mCount;
+                item->m08 = mItems[i].mAge;
+                item->m0C = mItems[i].m05;
+            } else if (mItems[i].mCode >= 1000000) {
+                int code = fn_80211940(fn_80211480(mItems[i].mCode % 1000000), mItems[i].mCode / 1000000);
+                if (code > 0) {
+                    Inventory::Item_unk* slot = inv->fn_80444804(fn_8021150C(code));
+                    if (slot != 0) {
+                        slot->mCode = mItems[i].mCode;
+                        slot->mCount = mItems[i].mCount;
+                        slot->m08 = mItems[i].mAge;
+                        slot->m0C = mItems[i].m05;
+                    }
+                }
+            }
+        }
+    }
+    if (lbl_8087DD64 >= 3) {
+        for (int i = 0; i < 16; i++) {
+            inv->mEquipSetA[i] = AsEquip_unk(m0004[i]);
+        }
+        for (int i = 0; i < 7; i++) {
+            inv->mEquipShown[i] = AsEquip_unk(mExtras[i]);
+        }
+        for (int i = 0; i < 28; i++) {
+            CopyUpgrade_unk(inv->mUpgrades[i], mUpgrades[i]);
+        }
+        for (int i = 0; i < 28; i++) {
+            CopyUpgrade_unk(inv->mUpgrades[i], mUpgrades[i]);
+        }
+    }
+    for (int i = 0; i < 7; i++) {
+        for (int j = 0; j < 4; j++) {
+            mEquips[i].mProtectors[j].m04 = i * 4 + j;
+        }
+        inv->mEquip[i] = mEquips[i];
+        // inferred: four weapon slots (the last two in m30)
+        const Inventory::EquipSlot_unk* weapons = mEquips[i].mWeapons;
+        for (int j = 0; j < 4; j++) {
+            int id = mEquips[i].mProtectors[j].mId;
+            if (id >= 1000 && fn_8020ED84(j, id) == 0) {
+                fn_80211940(fn_80211480(fn_8020EF80(fn_8020ED84(j, id % 1000))), mEquips[i].mProtectors[j].mId / 1000);
+            }
+            id = weapons[j].mId;
+            if (id >= 1000 && fn_80206B14(0, id) == 0) {
+                fn_80211940(fn_80211480(fn_80206BE4(fn_80206B14(0, id % 1000))), weapons[j].mId / 1000);
+            }
+        }
+    }
+    inv->fn_8044D4F0();
+    for (int i = 0; i < 0x100; i++) {
+        int code = mIdentify[i] + 100000;
+        inv->fn_8044D404(code);
+    }
+    int* order = inv->mOrder;
+    for (int i = 0; i < 3; i++) {
+        for (int j = 0; j < 6; j++) {
+            order[i * 6 + j] = mOrder[i][j];
+        }
+    }
+    order[18] = mOrder18;
+    if (lbl_8087F430 != 0) {
+        lbl_8087F430->m5744 = m94C8;
+    }
+}
+
 int GameSaveInventory_unk::fn_803BD0FC(GameSavePacketEquip_unk* equip, int chara, int slot) const {
     int index = fn_80219558(chara);
     if (0 <= index && index < 7) {
