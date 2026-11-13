@@ -25,6 +25,8 @@ Lista: `/home/claude/scratch/n-candidates.txt` (98 % y menos, y las de 99 % que 
 - `game/ChaserNpc` (fuera de colas): fn_80180AE0 98,73 -> 99,90 (`MAX(0, m14D0 - 1)` en vez de
   `MAX(m14D0 - 1, 0)`); queda el orden de los temporales en la pila.
 - `game/Em306GurgBeast` (fuera de colas): vf104 99,60 -> 99,85 (estado 8/9 con ?: de `enum`); queda CanAct_unk.
+- `chr/ControlAttackBase` (fuera de colas): ctor de ControlAttack 98,95 -> 99,63 (`kind` con ?: de `enum`
+  tras rand()); queda la pila del vector frontal.
 - `chr/ControlShoot`: ctor 98,76 -> 99,90 %. El motion de los casos 0x25/0x26 con el ternario de `enum` y
   `mFB4 = mData->m48 + mFB4`. Queda el registro del cero de mFB0/mFB4 (r6 por r4).
 - Sin cambio (intentos revertidos, 2-8 cada una): `db/MapEnvSeTable_unk` fn_80214F80 (operator[] e inline
