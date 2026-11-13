@@ -1596,6 +1596,60 @@ extern "C" void fn_80101434(BattleTask* mgr, const atn::Vector3* pos, const atn:
     }
 }
 
+// inferred: effects and sounds of a change of the status flags of a character from `old` to `flags` at `pos`:
+// effects of the poison (1), the curse (0x400000) and 0x40 states, the stone effect (0x1800000, on the model of
+// `chara`), and one sound for the states gained or else for the states lost (flags 0x20 mutes it). C name, called by
+// CharaStatus and chr::ControlCdnStone as extern "C"
+// NONMATCHING: 98.95% - the original loads the effect manager before choosing the stone effect; string pool offsets
+extern "C" void fn_80101524(BattleTask* mgr, const atn::Vector3* pos, const atn::Vector3* rot, unsigned int old,
+                            unsigned int flags, CharaTask* chara) {
+    if ((flags & 0x20) != 0) {
+        return;
+    }
+    unsigned int changed = old ^ flags;
+    unsigned int added = flags & changed;
+    unsigned int removed = old & changed;
+    added &= 0xFFDFE7DF;
+    removed &= 0xFFDFE7DF;
+    if (added == 0 && removed == 0) {
+        return;
+    }
+    if (added & 1) {
+        fn_80232B7C((unsigned int)mgr, 0);
+        fn_8023A680(lbl_8087F3C0, (EffectRes_unk*)&mgr->mEfp3651C[10], -1, 0, 0, pos, rot, 0, 0, -1, 1, 1.0f);
+    }
+    if (added & 0x400000) {
+        fn_80232B7C((unsigned int)mgr, 0);
+        fn_8023A680(lbl_8087F3C0, (EffectRes_unk*)&mgr->mEfp3651C[11], -1, 0, 0, pos, rot, 0, 0, -1, 1, 1.0f);
+    }
+    if (added & 0x40) {
+        fn_80232B7C((unsigned int)mgr, 0);
+        fn_8023A680(lbl_8087F3C0, (EffectRes_unk*)&mgr->mEfp3651C[12], -1, 0, 0, pos, rot, 0, 0, -1, 1, 1.0f);
+    }
+    if ((added & 0x1800000) && chara != 0) {
+        fn_80232B7C((unsigned int)mgr, 0);
+        PlayEfp_unk((added & 0x80000) ? &mgr->mEfp3651C[14] : &mgr->mEfp3651C[13], chara->GetModel_unk());
+    }
+    added &= 0xFE5FE7DF;
+    removed &= 0xFE5FE7DF;
+    if (added & 1) {
+        fn_800C344C("SE_BTCOM_113", pos, 0, -1, 1.0f);
+    } else if (added & 0x400000) {
+        fn_800C344C("SE_BTCOM_086", pos, 0, -1, 1.0f);
+    } else if (added & 0x8000) {
+        fn_800C344C("SE_BTCOM_111", pos, 0, -1, 1.0f);
+    } else if (added != 0) {
+        fn_800C344C("SE_BTCOM_073", pos, 0, -1, 1.0f);
+    }
+    if (removed & 0x400001) {
+        fn_800C344C("SE_BTCOM_087", pos, 0, -1, 1.0f);
+    } else if (removed & 0x40) {
+        fn_800C344C("SE_BTCOM_072", pos, 0, -1, 1.0f);
+    } else if (removed != 0) {
+        fn_800C344C("SE_BTCOM_074", pos, 0, -1, 1.0f);
+    }
+}
+
 void BattleTask::fn_801021B4(RayObj_unk* obj, int a, int b) {
     m3E2E8 = obj;
     m3E2E0 = 0;
