@@ -17,6 +17,8 @@
 #include "std/new.h"
 #include <boost/bind.hpp>
 #include "nw4r/math/triangular.h"
+#include "atn/Light_unk.h"
+#include "atn/DrawEntry_unk.h"
 
 extern "C" char* strcpy(char* dst, const char* src);
 extern "C" int strcmp(const char* a, const char* b);
@@ -846,8 +848,8 @@ void ModelBase::vf18(RenderManager* view) {
 extern "C" void fn_8008E818(ModelBase* model, RenderManager* view); // inferred: draws the meshes
 
 // inferred: draw: picks the level of detail (with the LOD bias of the render settings in the shadow and
-// reflection passes), updates the skinning matrices for the view and draws (fn_8008E818, still not
-// written, as a member it would need a new declaration in atn/Model_unk.h)
+// reflection passes), updates the skinning matrices for the view and draws (fn_8008E818, extern "C": as a
+// member it would need a new declaration in atn/Model_unk.h)
 // NONMATCHING: 92.0% - scheduling of the inlined sphere (fn_80094F98) and the early return layout
 void ModelBase::vf10(RenderManager* view) {
     if (m20C_31_24 != 8 || !mFlag6_unk) {
@@ -883,6 +885,114 @@ void ModelBase::vf10(RenderManager* view) {
     m50 = lod;
 }
 } // namespace atn
+
+namespace atn {
+struct GraphicsDevice_unk;
+}
+extern "C" atn::GraphicsDevice_unk* lbl_8087EEE0; // inferred: graphics device (include/atn/GraphicsDevice.h)
+extern "C" void fn_80076760(atn::GraphicsDevice_unk* device, int state, int value); // inferred: render state
+extern "C" unsigned short* fn_804761CC(atn::LH_Model* model); // inferred: nodes to draw (atn/LH_Model.cpp)
+extern "C" int fn_804761E8(atn::LH_Model* model);             // inferred: number of nodes to draw
+
+// inferred: blinking of the materials of m15C in the pass 10 (value in [0, 1] moved by sBlinkStep in the
+// direction sBlinkDir); names invented
+static float sBlinkStep_unk = 0.01f;
+static float sBlinkDir_unk = 1.0f;
+static float sBlink_unk;
+
+// inferred: value clamped to [lo, hi], by reference (the two bounds are constant temporaries in .sdata); name
+// invented
+static inline float ClampRef_unk(float v, const float& lo, const float& hi) {
+    return (v < lo) ? lo : ((v > hi) ? hi : v);
+}
+
+// inferred: colour from four floats in [0, 1] (name invented)
+static inline GXColor ToGXColor_unk(float r, float g, float b, float a) {
+    GXColor c;
+    c.r = (unsigned char)(255.0f * r);
+    c.g = (unsigned char)(255.0f * g);
+    c.b = (unsigned char)(255.0f * b);
+    c.a = (unsigned char)(255.0f * a);
+    return c;
+}
+
+// inferred: nodes to draw of a draw state (name invented)
+static inline void SetDrawNodes_unk(DrawEntry_unk& entry, short* nodes, unsigned int count) {
+    entry.m50 = nodes;
+    entry.m54 = count;
+}
+
+// inferred: draws the meshes of the model: level of detail (the shadow model in the shadow pass), materials
+// of the pass, world matrix and bounding sphere, then the draw state DrawEntry_unk (atn/ModelDraw_unk.cpp)
+// NONMATCHING: 93.9% - the original reads m50 and the colour m40 through the matrix block (GetMtx_unk + 0x48 /
+// + 0x38, as fn_80091684), m20C_7 is a signed bit there (srawi), the store of the blink value is scheduled after
+// the colour and the order of the stack arguments of the constructor
+extern "C" void fn_8008E818(atn::ModelBase* model, atn::RenderManager* view) {
+    using namespace atn;
+    ModelBase::Mtx_unk* mtx = model->GetMtx_unk();
+    ModelLod_unk* lod = &model->mLods[model->m50];
+    if (model->mFlag5_unk && model->mFlag4_unk && fn_8008B964()->GetPass_unk() == 3) {
+        lod = &model->m1C4;
+    }
+    int* remap = lod->m10.mData;
+    if (view->GetPass_unk() == 10) {
+        float v = sBlinkStep_unk * sBlinkDir_unk + sBlink_unk;
+        if (v > 1.0f || v < 0.0f) {
+            sBlinkDir_unk *= -1.0f;
+        }
+        sBlink_unk = ClampRef_unk(v, 0.0f, 1.0f);
+        model->m15C->mMaterials.mData[0]->mColor =
+            ToGXColor_unk(model->m14C, model->m150, model->m154, model->m158);
+    }
+    MaterialSet_unk* mats = &model->m104;
+    SimpleArray<int>* matRemap = &model->m104.m08[model->m50];
+    if (model->m138 != 0) {
+        mats = model->m138;
+        matRemap = &model->m138->m08[model->m50];
+    }
+    if (view->GetPass_unk() == 5) {
+        mats = model->m160;
+        matRemap = &model->m160->m08[model->m50];
+    } else if (view->GetPass_unk() == 10) {
+        mats = model->m15C;
+        matRemap = &model->m15C->m08[model->m50];
+    }
+    Sphere sphere = model->GetModel_unk()->fn_80094F98();
+    DrawCallback_unk cb = *(DrawCallback_unk*)&model->m1F0;
+    DrawEntry_unk entry(&lod->mHandle, (Mtx*)mtx, (Mtx*)model->m58, (int)mtx->mNodes.mData, (DrawColor_unk*)&model->m40,
+                        (DrawMaterials_unk*)mats, (DrawRemap_unk*)matRemap, &sphere, remap, model->mFlags,
+                        model->m1DC != 0 ? model->m1DC : RenderManager::instance_->mScene,
+                        (int)model->m208.get(), &cb);
+    entry.m44 = model->mEC.mData;
+    entry.m48 = model->m20C_7;
+    if (model->mFlag5_unk && model->mFlag4_unk && RenderManager::instance_->GetPass_unk() == 3) {
+        entry.m4C = 0;
+    } else {
+        entry.m4C = model->mF4.mData;
+    }
+    SetDrawNodes_unk(entry, (short*)fn_804761CC(&lod->mHandle), fn_804761E8(&lod->mHandle));
+    if (lod == &model->m1C4) {
+        entry.m58 = 1;
+    }
+    entry.m5C = (void*)model->m1E0;
+    int pass = RenderManager::instance_->GetPass_unk();
+    if (pass == 8) {
+        entry.m00 = 2;
+    } else if (pass == 10) {
+        entry.m00 = 1;
+    } else if (pass == 6) {
+        entry.m00 = 1;
+    } else if (pass == 9) {
+        entry.m00 = 4;
+    } else if (pass == 0) {
+        if ((model->mFlags & 0x80) == 0x80) {
+            fn_80076760(lbl_8087EEE0, 6, 2);
+        } else {
+            fn_80076760(lbl_8087EEE0, 6, 1);
+        }
+    }
+    fn_8009B93C(&entry);
+}
 
 // inferred: bounding box of `box` transformed by `m` (its eight corners)
 atn::AABB_unk fn_8008F5F8(const atn::AABB_unk& box, const atn::Matrix3x4& m) {
@@ -2095,9 +2205,11 @@ void Model::fn_80096218(SimpleVector<unsigned int>* list, void* arg) {
             }
         }
     }
-    SimpleVector<unsigned int>* composites = (SimpleVector<unsigned int>*)arg;
+    // inferred: a list of cache entries (own instantiation: its reserve strings are at 0x8087D7CC; with the
+    // entry pointer type the value is loaded later than in the original)
+    SimpleVector<unsigned long>* composites = (SimpleVector<unsigned long>*)arg;
     for (unsigned int i = 0; i < m1E4.size(); i++) {
-        composites->push_back((unsigned int)m1E4[i]->m14.mEntry);
+        composites->push_back((unsigned long)m1E4[i]->m14.mEntry);
     }
 }
 

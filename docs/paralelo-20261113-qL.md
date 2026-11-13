@@ -19,7 +19,7 @@
 
 ## atn/Model
 
-- Funciones al 0 %: 10 -> 6. Escrita `Model::fn_80097E80` (actualizacion de la animacion: avanza y muestrea las
+- Funciones al 0 %: 10 -> 5. Escrita `Model::fn_80097E80` (actualizacion de la animacion: avanza y muestrea las
   pistas en el buffer compartido `sNodePoses` (bloques de 0x100 nodos por pista, 0x300 para la mezcla), mezcla por
   peso, pista 3, `fn_800991D0` y la llamada a `m35C`; NONMATCHING 94,7 %: el original llama a `strlen(m3C8)`
   antes de elegir el puntero de la cadena del nombre de fichero y reutiliza esa prueba en el destructor; MWCC
@@ -32,6 +32,16 @@
   esquema que `fn_800909B0`: `ScaleMtx_unk`/`AddMtx_unk`); NONMATCHING 77 % y 70 %: orden de los temporales y
   de las sumas (el original carga la tercera matriz entre los stores de la suma con la segunda). `SkinWeight3_unk`
   sube delante de ellas y se define `SkinWeight4_unk` (0x24 bytes).
+- Escrita `fn_8008E818` (dibujo de las mallas: LOD o modelo de sombra, materiales de la pasada, esfera inline
+  `fn_80094F98`, `DrawEntry_unk` y `fn_8009B93C`; parpadeo del color de `m15C` en la pasada 10; NONMATCHING
+  93,9 %: el original lee m50 y el color m40 a traves del bloque de matrices, `m20C_7` con signo y orden de los
+  argumentos en pila del constructor). `DrawEntry_unk` pasa de `src/atn/ModelDraw_unk.cpp` a
+  `include/atn/DrawEntry_unk.h` (ModelDraw_unk.o identico; `fn_8009B93C` declarada sin nombre de parametro).
+- Los limites 0.0/1.0 del parpadeo son temporales `const float&` (`ClampRef_unk`): asi quedan en `.sdata`
+  (0x8087D7A0/A4) como en el original. Con el `.sdata` completo la etiqueta 0x8087D7CC deja de cuadrar por
+  casualidad con `fn_80096218`: su segunda lista pasa a `SimpleVector<unsigned long>` (instanciacion propia,
+  cadenas de `reserve` en 0x8087D7CC; con el tipo puntero el valor se carga tarde). `fn_80096218` sigue al 100 %.
+  `@19379` (255.0f) renombrada a `@19235` a mano (pd no la reasigna: el orden de `.sdata2` de Model ya difiere).
 - `pd.sh atn/Model` vuelve a renombrar `lbl_8087D6E8/EC`: devueltos a mano.
 
 ## Decisiones tomadas sin el usuario
@@ -48,3 +58,7 @@
   (no a `.rodata`): explica los `0.0`/`1.0` de `.data` de MotionBank_unk y CryptMP.
 
 ## Pendientes
+
+- `m20C_7` de `ModelBase` es un bit con signo en `fn_8008E818` (srawi): la cabecera lo declara `unsigned`
+  (cabecera compartida, no tocado).
+- Orden de `.sdata2` de atn/Model: el 0.0f va primero en el original y tercero aqui.
