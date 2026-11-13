@@ -1,0 +1,112 @@
+# paralelo-20261113, cola C (agente C)
+
+Unidades: `game/GameUI`, `game/MiniMapTask`, `game/PopupTask`.
+
+## Resumen
+
+- Funciones al 0 % (fnstat): GameUI 22 -> 10, MiniMapTask 4 -> 4, PopupTask 1 -> 1 (cola 27 -> 15); el
+  `__sinit` de GameUI queda emparejado al 0,76 % pero no esta escrito (ver pendientes), asi que son 11 sin escribir.
+- Al 100 % nuevas: 2 (`GameUI::fn_803D164C`, `GameUI::fn_803E6ADC`); report 15232 -> 15234.
+- Escritas y equivalentes (NONMATCHING): fn_803DCD34 99,4 %, fn_803CFC78 99,8 %, fn_803D022C 99,5 %,
+  fn_803D0B20 99,5 %, fn_803D2194 99,9 %, fn_803DD160 87,5 %, fn_803E6D4C 72 %, fn_803E746C 68 %,
+  fn_803DDD54 69 %, fn_803E4E58 80 %.
+
+## Resultado por unidad
+
+### game/GameUI (22 al 0 %)
+
+- `GameUI::fn_803DCD34` (ventana de grupo de un personaje: marca de lider, posicion sobre la cabeza o abajo,
+  nivel y nombre de la habilidad) 99,4 %: solo los desplazamientos en el pool de cadenas (las funciones
+  anteriores de la unidad no estan escritas, asi que `@stringBase0` no cuadra).
+- `fn_803DD160` (iconos de oficio y atributo, `atn::D2A_Task`; lo llama NewCampPartsStatus) 87,5 %.
+- `fn_803E6D4C` / `fn_803E746C`: las mismas dos funciones para la ventana `D2A_TaskInstanceBase<64, 8>`
+  (72 % / 68 %): el original pasa a `SetColor255_unk` el `atn::Color` entero (16 bytes).
+- `GameUI::fn_803CFC78` (parametros del HUD en el menu de depuracion: colores de oficio/atributo, cursor de la
+  vista tactica, contadores, icono de acceso) 99,8 %: el original pasa el primer color con `addi r5, r30, 0`.
+  Primera funcion con cadenas tras el constructor: sus desplazamientos en `@stringBase0` ya cuadran.
+- `GameUI::fn_803D022C` (crea las partes del HUD; lo llama GameTask) 99,5 %: registros de los bucles.
+- `GameUI::fn_803D0B20` (crea el resto del HUD: texturas de marcas, vista de conjunto, repeticion, resultado,
+  efectos) 99,5 %: registros de los bucles.
+- `GameUI::fn_803E6ADC` 99,59 % -> **100 %** (mnemcheck limpio) al cuadrar el pool de cadenas.
+- `GameUI::fn_803D164C` (oculta y para las ventanas y marcas del HUD; lo llama GameTask): **100 %** (mnemcheck
+  limpio); `fn_803DF5B4` pasa a `__declspec(noinline)` (el original la llama
+  con `bl` y MWCC la inlineaba).
+- `GameUI::fn_803D2194` (oculta y para el resto del HUD) 99,9 %: el bucle desenrollado cruza r4/r5.
+- `fn_803DDD54` (icono de oficio de una instancia `<32, 8>` por indice, `switch` de 10 casos; la tabla de
+  `.data` 0x8078BE40 es su tabla de saltos, no una tabla de datos) 69 %: la copia de los colores
+  (`SetColor255_unk` con `D2A_RGB_unk`, ver pendientes).
+- `GameUI::fn_803E4E58` (icono sobre un personaje: color segun el tipo de ataque, `iconColor00..02`,
+  `iconColorSdw00`, fotograma en [0, 40)) 80 %: la copia de los colores. Declarados en `GameUI.h` (sin nombres)
+  `fn_803E4E58` y `fn_803E5200` (`(atn::D3AnimeInstance*, CharaTask*, atn::Vector3*, int)`, renombrados en
+  `symbols.txt`); fn_803E5200 (posicion del icono) sigue sin escribir.
+
+## NONMATCHING nuevas
+
+- `fn_803DCD34` 99,4 %: pool de cadenas.
+- `fn_803DD160` 87,5 %: registros (task en r31, data en r28) y la copia de cada color (el original toma la
+  direccion de la entrada y copia desde ella, como fn_803DD90C).
+- `fn_803E6D4C`, `fn_803E746C`: ver pendientes (parametro de `SetColor255_unk`).
+- `fn_803CFC78` 99,8 %: `addi r5, r30, 0` del primer color (probados la tabla como puntero, el array directo,
+  dos arrays `static`).
+- `fn_803D022C` 99,5 %: el original da a las rutas sacadas del bucle los registros altos y a los punteros de
+  induccion los bajos.
+
+## Decisiones tomadas sin el usuario
+
+- `GameUI.h`: declarado `void fn_803DCD34(CharaTask*, int, int, int);` sin nombres de parametro;
+  `symbols.txt`: `fn_803DCD34` -> `fn_803DCD34__6GameUIFP9CharaTaskiii` (renombrado; nadie mas lo usa).
+- `lbl_807C8628` (tabla de colores del HUD, `.bss` de la unidad) pasa de `GameUIColor_unk[16]` a
+  `atn::Color[16]`: la copia del original es la del constructor de copia de `atn::Color` (`lfs`, no `lwz`).
+  `SetJobColor_unk` toma `const atn::Color&` (fn_803DD90C sigue en 91,2 %).
+- `GameUI.cpp` incluye `game/Arms.h` (para `Arms::fn_80044C30`, como BattleCharaTask).
+- `GameUI.h`: declarados `fn_803CFC78()` y `fn_803D022C()` (sin parametros); `GameUIElem20_unk::m14/m18`
+  pasan de `int` a `GameUIInst_unk*` (las crea fn_803D022C). `symbols.txt`: `fn_803CFC78` y `fn_803D022C`
+  pasan a `...__6GameUIFv`; `fn_803E78B4` pasa a `__sinit_\GameUI_cpp` (scope:local).
+- `lbl_807C8628` se define en GameUI.cpp (regla 10: `.bss` de la unidad); como `atn::Color` tiene constructor,
+  sale nuestro `__sinit` (vacio de momento) que se empareja con el original.
+- `game/GameTask.cpp` (otra cola): llama `lbl_8087F490->fn_803D022C()` en vez del `extern "C"` (renombrado);
+  quitar esa declaracion (con nombre de parametro) libera un `@N`: `pd.sh` re-empareja casi todo y dos floats
+  ambiguos de `.sdata2` (0x808857A8 = 3.0, 0x808857AC = 0.4) se renombran a mano (@27400, @27401). Lo mismo con
+  `fn_803D0B20` (ahora @27399, @27400).
+- `GameUISession_unk` (y `GameUISessionPlayer_unk`) se mueven al principio de GameUI.cpp; gana `int m5A8` e
+  `IsShowLevel_unk()` (devuelve `unsigned char`: el `clrlwi` del original).
+- `GameUI.h`: `mA90` pasa a `GameUIInst_unk*`; `m10F4`, `m10F8`, `m844`, `m1148`, `m2544`, `m2548` pasan de
+  `atn::Task*` a `atn::D2A_Task*` (las crea fn_803D0B20 con fn_801F3FF8). `mB08`/`mB20` siguen como
+  `atn::Task*` (con `atn::D2A_Task*` GameTask, que los convierte con casts, renumera 4 `@N`); cast `AsD2A_unk`. `mAB8`, `mAE0`,
+  `m2610` (`D2A_TaskInstanceBase<8, 2>`) y `mF14` (`<64, 8>`) siguen como `atn::Task*` con cast en GameUI.cpp
+  (`AsSmallInst_unk`, `AsWindow_unk`).
+  `m848[5]`/`m874[5]` siguen como `atn::Task*` ([0] D2A_Task, [1..4] instancias; el constructor los pone a 0
+  en un bucle de 5).
+- `typedef atn::D2A_TaskInstanceBase<64, 8> GameUIWindow_unk` en GameUI.cpp; `mF14` sigue siendo
+  `atn::Task*` en `GameUI.h` (cast en fn_803DCD34) para no tocar la cabecera.
+
+## Hallazgos
+
+- `x != 2 && x == 0` sobre un miembro: el original carga una vez y compara dos veces; con una inline `bool`
+  para la primera mitad (`IsCursorOn_unk(sel) { return sel.mState != 2; }`) sale igual (GameUI fn_803DCD34).
+  En fn_803DCA84 (con `tac != 0 && tac->mA70 != 0` delante) la misma inline pliega las dos comparaciones.
+- Escala de un `Vector3` en el orden z, x, y con temporales en registros: `v *= -1.0f` (operator*=), no
+  `v = v * -1.0f` (deja un temporal en pila).
+- Cambiar el tipo de un miembro de cabecera que usa otra unidad (`GameUI::mB08`/`mB20` de `atn::Task*` a
+  `atn::D2A_Task*`, que GameTask convierte con casts y usa en inlines) renumera sus `@N` (GameTask: +4; quitar
+  los casts no lo arregla). Comprobar con `nm` del `.o` de esa unidad antes del precommit.
+- Rutas que el original saca de un bucle (en registros y al principio del pool de cadenas): locales
+  `const char*` dentro del bucle (GameUI fn_803D022C, 91,6 % -> 99,5 %).
+
+## Pendientes
+
+- `atn::D2A_TaskInstanceBase<N, M>::SetColor255_unk(const char*, D2A_RGB_unk)`: el original copia 16 bytes en
+  la llamada; el parametro es probablemente `atn::Color` (cambiar `include/atn/D2A_TaskInstance.h` y renombrar
+  los dos simbolos `...FPCcQ23atn11D2A_RGB_unk` -> `...FPCcQ23atn5Color`; otra familia).
+- `__sinit_\GameUI_cpp` (0x803E78B4, antes fn_803E78B4): nuestro `__sinit` sale de la definicion de
+  `lbl_807C8628` y no pone los valores iniciales de la tabla (16 colores; el original los escribe con
+  constructores `atn::Color(r, g, b, a)`): falta escribir el inicializador de la tabla.
+- Quedan al 0 % en GameUI: fn_803D7850, fn_803D83A8 (10 KB), fn_803DAB4C, fn_803DBD44, fn_803E0E10,
+  fn_803E2110 (push_back de m30C), fn_803E2410/fn_803E2A30, fn_803E3468, fn_803E5200 (posicion del icono,
+  mucha aritmetica float), el `__sinit`.
+- `fn_803E2A30` (medidor de puntos de magia: `GameUI::fn_803E2A30(int kind, int frames, const atn::Vector3&,
+  int count, int speed)`, 1568 bytes) escrita pero no subida: game/Np131LivingArmor (otra cola) la llama como
+  `extern "C"` con un `void* draw`; quitar esa declaracion (con nombres) renumera 15 `@N` de Np131LivingArmor.
+  Hacerlo en la integracion: llamar `static_cast<GameUI*>(draw)->fn_803E2A30(...)` y `pd.sh` de esa unidad.
+- MiniMapTask: SetPosition/SetTarget de `atn::Camera` (inline nueva en `Camera_unk.h`, muy incluida) y
+  `fn_804ABF74` (ctor de `ComDrawTextureMask`): sin tocar.

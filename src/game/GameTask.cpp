@@ -226,8 +226,6 @@ extern "C" void fn_80047B54(void* sound, int arg);
 extern "C" void fn_800F2C9C(void* battle);
 extern "C" void fn_800EF588(int type, int map);
 extern "C" void fn_8004829C(void* sound, const char** groups, int count);
-extern "C" void fn_803D022C(void* obj);
-extern "C" void fn_803D0B20(void* obj);
 extern "C" atn::Task* fn_8052A888(atn::Task* parent);
 extern "C" int sprintf(char* buf, const char* fmt, ...);
 
@@ -498,9 +496,9 @@ GameTask::GameTask(atn::Task* parent, const Option& option)
         const char* groups[2] = {"GROUP_SYSTEM", "GROUP_PC001"};
         fn_8004829C(lbl_8087EE90, groups, 2);
     }
-    fn_803D022C(lbl_8087F490);
+    lbl_8087F490->fn_803D022C();
     if (!fn_8036555C(option.mType, option.mMap, option.mSub)) {
-        fn_803D0B20(lbl_8087F490);
+        lbl_8087F490->fn_803D0B20();
     }
     m5620 = atn::FadeColor::Create(this, 10, 0xFF000000, 0);
     m5624 = atn::FadeCapture::Create(this, 30, 0xFFFFFFFF, 0xFF000000, 0);
@@ -1303,7 +1301,7 @@ void GameTask::vf10() {
             if (!fn_8036555C(m550C.mType, m550C.mId, m550C.mSub)) {
                 fn_800F2C9C(lbl_8087F048);
                 lbl_8087F8A8->fn_8054A9A8();
-                fn_803D0B20(lbl_8087F490);
+                lbl_8087F490->fn_803D0B20();
             }
             m550C.mState = 7;
             fn_8046ECDC(lbl_8087F518, 1);

@@ -36,6 +36,7 @@ struct GameUIGauge_unk : public atn::D2A_Task {};
 #include "game/GameConfig_unk.h"
 #include "game/FriendManager.h"
 #include "game/BattleCharaTask.h"
+#include "game/Arms.h"
 #include "std/vector.h"
 #include "atn/RenderSetting_unk.h"
 extern "C" int sprintf(char* s, const char* format, ...);
@@ -57,7 +58,6 @@ struct GameUIField_unk {
 extern "C" GameUIField_unk* lbl_8087F430;
 extern "C" void fn_800D2338(atn::Task* task); // inferred: deletes the task
 extern "C" void fn_800D58A4(atn::Texture_unk* tex); // inferred: releases a render texture
-extern "C" void fn_803CFC78(GameUI* ui);   // inferred: creates the parts of the HUD
 extern "C" int fn_8021A984(HitInfo_unk* hit); // inferred: the hit heals
 extern "C" int fn_8021A9CC(HitInfo_unk* hit); // inferred: kind test
 extern "C" atn::GraphicsDevice_unk* lbl_8087EEE0;
@@ -131,6 +131,45 @@ extern "C" void fn_80444CF8(wchar_t* text, int item, int count, int rare); // in
 extern "C" int fn_800DD3FC(wchar_t* s, const wchar_t* format, ...);       // inferred: wide sprintf
 struct GameUISession_unk;
 extern "C" GameUISession_unk* lbl_8087F610; // inferred: multiplayer session
+// inferred: player of the multiplayer session (0xD5C bytes, as MP/D2AMpMenuLobby)
+struct GameUISessionPlayer_unk {
+    CharaTask* m00;
+    unsigned char m04[0xD0 - 0x04];
+    unsigned int mD0_31 : 1; // inferred: valid
+    unsigned int mD0_lo : 31;
+    unsigned char mD4[0xD5C - 0xD4];
+};
+// inferred: multiplayer session (lbl_8087F610)
+struct GameUISession_unk {
+    unsigned char m00[0x4FC];
+    int m4FC;
+    unsigned char m500[0x50C - 0x500];
+    int m50C;
+    // inferred: weak copies 0x803D6DF4, 0x803D6E1C, 0x803D7060; names invented
+    bool IsWaiting_unk() const {
+        bool r = false;
+        if (m4FC == 30 && m50C < 5) {
+            r = true;
+        }
+        return r;
+    }
+    int GetM50C_unk() const { return m50C; }
+    bool IsState30_unk() const { return m4FC == 30; }
+    // inferred: player of the session (as MP/D2AMpMenuCockpit GetPlayer_unk); name invented
+    GameUISessionPlayer_unk* GetPlayer_unk(int i) {
+        if (i >= 0 && i < m5E8) {
+            return &m5E4[i];
+        }
+        return 0;
+    }
+    // inferred: the level and the last attack of the characters are shown (byte of m5A8; GameUI::fn_803D022C)
+    unsigned char IsShowLevel_unk() const { return m5A8; }
+    unsigned char m510[0x5A8 - 0x510];
+    int m5A8;
+    unsigned char m5AC[0x5E4 - 0x5AC];
+    GameUISessionPlayer_unk* m5E4; // inferred: players
+    int m5E8;                      // inferred: number of players
+};
 extern "C" void fn_804DA478(void* session); // inferred: notifies the session
 extern "C" void fn_801FED24(atn::D2A_Layout_unk* layout, unsigned int hash, int index, float value);
 // inferred: sets one component of a layout parameter by name (name invented)
@@ -183,7 +222,11 @@ GAMEUI_CHECK(m2678, 0x2678);
 GAMEUI_CHECK(m288C, 0x288C);
 
 GameUI* lbl_8087F490;
-int lbl_8087F494;     // inferred: the game runs at 60 frames per second (else 30)
+int lbl_8087F494;     // inferred: debug flag "ChantTimeHalf" (fn_803CFC78): frames counted at 60 per second (else 30)
+
+// inferred: colours of the HUD (0x807C8628, .bss of this file); they are set by the static initializer
+// (fn_803E78B4, not written yet) and registered in the debug menu by fn_803CFC78
+atn::Color lbl_807C8628[16];
 
 // inferred: frames to whole seconds, rounded up past the first (60 or 30 frames per second)
 extern "C" int fn_803CE854(int frames) {
@@ -393,7 +436,7 @@ GameUI::~GameUI() {
 
 int GameUI::vf0C() {
     if (fn_800D3FA4() != 0) {
-        fn_803CFC78(this);
+        fn_803CFC78();
         return 1;
     }
     return 0;
@@ -452,6 +495,391 @@ float GameUIDuration_unk::fn_803CFC6C() {
 }
 
 void GameUI::vf14() {}
+
+// inferred: debug parameter menu (atn/ParamMenu_unk; same declarations as gmk/SwingObject.cpp)
+extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, int arg6,
+                            int arg7);
+extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3, int arg4);
+extern "C" void fn_8008771C(void* group, const char* name, float* value, int arg3, int arg4, float min, float max,
+                            float step);
+extern "C" void fn_80088FAC(void* group, const char* name, float* rgba, int arg3, int arg4, float min, float max,
+                            float step); // inferred: colour (four floats)
+
+// inferred: registers the parameters of the HUD in the debug menu ("GameUI": job and attribute colours, the
+// colours of the tactical view cursor, the flash counters and the access icon)
+// NONMATCHING: 99.8% - the original passes the first colour as `addi r5, r30, 0` (here `mr`), which also
+// moves one string load; tried the table as a pointer, the array directly, two static arrays
+void GameUI::fn_803CFC78() {
+    const char* name = "GameUI";
+    atn::Color* colors = lbl_807C8628;
+    void* group;
+    if (m2664.mRes == 0 && lbl_8087EF10 != 0) {
+        group = m2664.mRes = fn_8008937C(lbl_8087EF10->m10, name);
+    } else {
+        group = 0;
+    }
+    fn_80087994(group, "ChantTimeHalf", &lbl_8087F494, 0, 0);
+    fn_80088FAC(group, "Job_Soldier", &colors[0].r, 0, 0, 0.0f, 1.0f, 1.0f);
+    fn_80088FAC(group, "Job_Magic", &colors[1].r, 0, 0, 0.0f, 1.0f, 1.0f);
+    fn_80088FAC(group, "Job_Healer", &colors[2].r, 0, 0, 0.0f, 1.0f, 1.0f);
+    fn_80088FAC(group, "Job_Reverser", &colors[3].r, 0, 0, 0.0f, 1.0f, 1.0f);
+    fn_80088FAC(group, "Job_Archer", &colors[4].r, 0, 0, 0.0f, 1.0f, 1.0f);
+    fn_80088FAC(group, "Job_Others", &colors[5].r, 0, 0, 0.0f, 1.0f, 1.0f);
+    fn_80088FAC(group, "Job_Guard", &colors[6].r, 0, 0, 0.0f, 1.0f, 1.0f);
+    fn_80088FAC(group, "Attr_Fire", &colors[7].r, 0, 0, 0.0f, 1.0f, 1.0f);
+    fn_80088FAC(group, "Attr_Ice", &colors[8].r, 0, 0, 0.0f, 1.0f, 1.0f);
+    fn_80088FAC(group, "Attr_Forest", &colors[9].r, 0, 0, 0.0f, 1.0f, 1.0f);
+    fn_80088FAC(group, "Attr_Wind", &colors[11].r, 0, 0, 0.0f, 1.0f, 1.0f);
+    fn_80088FAC(group, "Attr_Holy", &colors[10].r, 0, 0, 0.0f, 1.0f, 1.0f);
+    fn_80088FAC(group, "Attr_Dark", &colors[12].r, 0, 0, 0.0f, 1.0f, 1.0f);
+    fn_80088FAC(group, "Attr_Star", &colors[13].r, 0, 0, 0.0f, 1.0f, 1.0f);
+    fn_80088FAC(group, "Attr_Back", &colors[14].r, 0, 0, 0.0f, 1.0f, 1.0f);
+    fn_80088FAC(group, "Attr_Back2", &colors[15].r, 0, 0, 0.0f, 1.0f, 1.0f);
+    void* cursor = fn_8008937C(group, "TacviewCursor");
+    fn_80088FAC(cursor, "WindF", &m2698.r, 0, 0, 0.0f, 1.0f, 1.0f);
+    fn_80088FAC(cursor, "WindB", &m26A8.r, 0, 0, 0.0f, 1.0f, 1.0f);
+    fn_80088FAC(cursor, "CommandF", &m2678.r, 0, 0, 0.0f, 1.0f, 1.0f);
+    fn_80088FAC(cursor, "CommandB", &m2688.r, 0, 0, 0.0f, 1.0f, 1.0f);
+    fn_80088FAC(cursor, "EnHealF", &m26B8.r, 0, 0, 0.0f, 1.0f, 1.0f);
+    fn_80088FAC(cursor, "EnHealB", &m26C8.r, 0, 0, 0.0f, 1.0f, 1.0f);
+    fn_80088FAC(cursor, "FrHealB", &m26D8.r, 0, 0, 0.0f, 1.0f, 1.0f);
+    fn_80088FAC(cursor, "FrFlameB", &m26E8.r, 0, 0, 0.0f, 1.0f, 1.0f);
+    fn_80088FAC(cursor, "FrFreezeB", &m26F8.r, 0, 0, 0.0f, 1.0f, 1.0f);
+    fn_80088FAC(cursor, "FrForestB", &m2708.r, 0, 0, 0.0f, 1.0f, 1.0f);
+    fn_80088FAC(cursor, "FrHolyB", &m2718.r, 0, 0, 0.0f, 1.0f, 1.0f);
+    fn_800874C8(group, "NewFlashCount", &mD78, 0, 999, 1, 0, 0);
+    fn_800874C8(group, "NewFlashCountMax", &mD7C, 0, 999, 1, 0, 0);
+    fn_80087994(group, "NewFlashInfinity", &mD80, 0, 0);
+    fn_80088FAC(group, "OnCursor", &m288C.r, 0, 0, 0.0f, 1.0f, 1.0f);
+    fn_80088FAC(group, "OnCursorShadow", &m289C.r, 0, 0, 0.0f, 1.0f, 1.0f);
+    fn_8008771C(group, "AccessIconSizeMin", &m2668, 0, 0, 0.0f, 1.0f, 0.01f);
+    fn_8008771C(group, "AccessIconSizeMax", &m266C, 0, 0, 0.0f, 1.0f, 0.01f);
+    fn_8008771C(group, "AccessIconDistMin", &m2670, 0, 0, 0.0f, 100000.0f, 0.01f);
+    fn_8008771C(group, "AccessIconDistMax", &m2674, 0, 0, 0.0f, 100000.0f, 0.01f);
+}
+
+// inferred: creates the parts of the HUD (d2anime tasks and instances; called by game/GameTask, released by
+// fn_803D11B4); the paths used in every pass of a loop are locals of the loop (the original keeps them in
+// registers, and they come first in the string pool)
+// NONMATCHING: 99.5% - register allocation of the loops (the original gives the hoisted paths the higher
+// registers and the induction pointers the lower ones)
+void GameUI::fn_803D022C() {
+    m50.m0C = fn_801F64D0(this, "/data/d2anime/ui_player_hpmp.d2a");
+    m50.m0C->fn_800D246C(1);
+    m50.m10 = fn_801F64D0(this, "/data/d2anime/ui_player_tp_shine.d2a");
+    m50.m10->fn_800D246C(1);
+    if (lbl_8087F610 != 0 && !lbl_8087F610->IsShowLevel_unk()) {
+        m50.m14 = 0;
+    } else {
+        m50.m14 = fn_801F64D0(this, "/data/d2anime/ui_player_lv.d2a");
+        m50.m14->fn_800D246C(1);
+    }
+    m50.m18 = fn_801F64D0(this, "/data/d2anime/ui_player_icon_help_loop.d2a");
+    m50.m18->fn_800D246C(1);
+    if (lbl_8087F610 != 0 && !lbl_8087F610->IsShowLevel_unk()) {
+        m50.m1C = 0;
+    } else {
+        m50.m1C = fn_801F64D0(this, "/data/d2anime/ui_player_last.d2a");
+        m50.m1C->fn_800D246C(1);
+    }
+    m50.m20 = fn_801F64D0(this, "/data/d2anime/ui_player_heal.d2a");
+    m50.m20->fn_800D246C(1);
+    m50.m24 = fn_801F64D0(this, "/data/d2anime/ui_player_icon_hate_loop.d2a");
+    m50.m24->fn_800D246C(1);
+    m50.m28 = fn_801F64D0(this, "/data/d2anime/ui_player_wind_shine.d2a");
+    m50.m28->fn_800D246C(1);
+    m50.m2C = fn_801F64D0(this, "/data/d2anime/ui_player_lvup.d2a");
+    m50.m2C->fn_800D246C(1);
+    for (int i = 0; i < 6; i++) {
+        const char* hpmp = "/data/d2anime/ui_friend_hpmp.d2a";
+        const char* tpShine = "/data/d2anime/ui_friend_tp_shine.d2a";
+        const char* help = "/data/d2anime/ui_friend_icon_help_loop.d2a";
+        const char* heal = "/data/d2anime/ui_friend_heal.d2a";
+        const char* lvup = "/data/d2anime/ui_friend_lvup.d2a";
+        const char* magStart = "data/d2anime/ui_friend_icon_mag_start.d2a";
+        const char* magDefault = "data/d2anime/ui_friend_icon_default.d2a";
+        mB0[i].m0C = fn_801F64D0(this, hpmp);
+        mB0[i].m0C->fn_800D246C(1);
+        mB0[i].m10 = fn_801F64D0(this, tpShine);
+        mB0[i].m10->fn_800D246C(1);
+        if (lbl_8087F610 != 0 && !lbl_8087F610->IsShowLevel_unk()) {
+            mB0[i].m14 = 0;
+        } else {
+            mB0[i].m14 = fn_801F64D0(this, "/data/d2anime/ui_friend_lv.d2a");
+            mB0[i].m14->fn_800D246C(1);
+        }
+        mB0[i].m18 = fn_801F64D0(this, help);
+        mB0[i].m18->fn_800D246C(1);
+        if (lbl_8087F610 != 0 && !lbl_8087F610->IsShowLevel_unk()) {
+            mB0[i].m1C = 0;
+        } else {
+            mB0[i].m1C = fn_801F64D0(this, "/data/d2anime/ui_friend_last.d2a");
+            mB0[i].m1C->fn_800D246C(1);
+        }
+        mB0[i].m20 = fn_801F64D0(this, heal);
+        mB0[i].m20->fn_800D246C(1);
+        mB0[i].m2C = fn_801F64D0(this, lvup);
+        mB0[i].m2C->fn_800D246C(1);
+        m318[i].m14 = fn_801F64D0(this, magStart);
+        m318[i].m14->fn_800D246C(0);
+        m318[i].m18 = fn_801F64D0(this, magDefault);
+        m318[i].m18->fn_800D246C(0);
+        for (int j = 0; j < 5; j++) {
+            if (j == 0) {
+                m318[i].mInst[j] = m318[i].m14;
+            } else if (j == 1) {
+                m318[i].mInst[j] = fn_801F64D0(this, "/data/d2anime/ui_friend_icon_mag_broken.d2a");
+                m318[i].mInst[j]->fn_800D246C(1);
+            } else {
+                m318[i].mInst[j] = m318[i].m18;
+            }
+        }
+    }
+    m3EC = (GameUIDuration_unk*)fn_801F3FF8(this, "/data/d2anime/ui_hp_heal.d2a", 0);
+    m3EC->fn_800D246C(1);
+    m3EC->mVisible = 0;
+    for (int i = 0; i < 8; i++) {
+        const char* hp = "/data/d2anime/ui_hp.d2a";
+        const char* shine = "/data/d2anime/ui_hp_shine.d2a";
+        m574[i] = fn_801F64D0(this, hp);
+        m574[i]->fn_800D246C(1);
+        m594[i] = fn_801F64D0(this, shine);
+        m594[i]->fn_800D246C(1);
+    }
+    m5B8 = fn_801F3FF8(this, "/data/d2anime/ui_hp.d2a", 0);
+    m5B8->fn_800D246C(1);
+    m3D8 = fn_801F3FF8(this, "/data/d2anime/ui_boss_frame.d2a", 0);
+    m3D8->fn_800D246C(1);
+    for (int i = 0; i < 4; i++) {
+        const char* path = "/data/d2anime/ui_boss_hp.d2a";
+        m3DC[i] = fn_801F64D0(this, path);
+        m3DC[i]->fn_800D246C(1);
+    }
+    for (int i = 0; i < 6; i++) {
+        const char* path = "/data/d2anime/ui_point_down_op.d2a";
+        m6FC[i] = fn_801F64D0(this, path);
+        m6FC[i]->fn_800D246C(1);
+    }
+    m714[0] = fn_801F3FF8(this, "/data/d2anime/ui_lever_open.d2a", 0);
+    m714[0]->fn_800D246C(1);
+    m71C[0] = fn_801F3FF8(this, "/data/d2anime/ui_lever_roop.d2a", 0);
+    m71C[0]->fn_800D246C(1);
+    m714[1] = fn_801F3FF8(this, "/data/d2anime/ui_lever_open.d2a", 0);
+    m714[1]->fn_800D246C(1);
+    m71C[1] = fn_801F3FF8(this, "/data/d2anime/ui_lever_roop.d2a", 0);
+    m71C[1]->fn_800D246C(1);
+    m72C = fn_801F3FF8(this, "/data/d2anime/ui_event_button_loop.d2a", 0);
+    m72C->fn_800D246C(1);
+    m730 = fn_801F3FF8(this, "/data/d2anime/ui_event_button.d2a", 0);
+    m730->fn_800D246C(1);
+    for (int i = 0; i < 12; i++) {
+        const char* path = "/data/d2anime/ui_object_lock.d2a";
+        m8A0[i] = fn_801F64D0(this, path);
+        m8A0[i]->fn_800D246C(1);
+    }
+    mA84 = fn_801F3FF8(this, "/data/d2anime/ui_aspect_event.d2a", 0);
+    mA84->fn_800D246C(1);
+    mA88 = fn_801F3FF8(this, "/data/d2anime/ui_object_lock_hit.d2a", 0);
+    mA88->fn_800D246C(1);
+    m73C = fn_801F3FF8(this, "/data/d2anime/ui_abtn_r_op.d2a", 0);
+    m73C->fn_800D246C(1);
+    m740 = fn_801F3FF8(this, "/data/d2anime/ui_abtn_r_cl.d2a", 0);
+    m740->fn_800D246C(1);
+    m744 = fn_801F3FF8(this, "/data/d2anime/ui_abtn_arrow_loop.d2a", 0);
+    m744->fn_800D246C(1);
+    m7B8 = fn_801F3FF8(this, "/data/d2anime/ui_abtn_l_op.d2a", 0);
+    m7B8->fn_800D246C(1);
+    m7BC = fn_801F3FF8(this, "/data/d2anime/ui_abtn_l_cl.d2a", 0);
+    m7BC->fn_800D246C(1);
+    m814[0] = (GameUIGauge_unk*)fn_801F3FF8(this, "/data/d2anime/ui_abtn_reaction_opcl.d2a", 0);
+    m814[0]->fn_800D246C(1);
+    m814[2] = (GameUIGauge_unk*)fn_801F3FF8(this, "/data/d2anime/ui_abtn_reaction_loop.d2a", 0);
+    m814[2]->fn_800D246C(1);
+    m814[4] = (GameUIGauge_unk*)fn_801F3FF8(this, "/data/d2anime/ui_abtn_reaction_shine.d2a", 0);
+    m814[4]->fn_800D246C(1);
+    m814[6] = (GameUIGauge_unk*)fn_801F3FF8(this, "/data/d2anime/ui_abtn_arrow_loop.d2a", 0);
+    m814[6]->fn_800D246C(1);
+    m814[1] = (GameUIGauge_unk*)fn_801F3FF8(this, "/data/d2anime/ui_abtn_reaction2_opcl.d2a", 0);
+    m814[1]->fn_800D246C(1);
+    m814[3] = (GameUIGauge_unk*)fn_801F3FF8(this, "/data/d2anime/ui_abtn_reaction2_loop.d2a", 0);
+    m814[3]->fn_800D246C(1);
+    m814[5] = (GameUIGauge_unk*)fn_801F3FF8(this, "/data/d2anime/ui_abtn_reaction2_shine.d2a", 0);
+    m814[5]->fn_800D246C(1);
+    m814[7] = (GameUIGauge_unk*)fn_801F3FF8(this, "/data/d2anime/ui_abtn_arrow2_loop.d2a", 0);
+    m814[7]->fn_800D246C(1);
+    m83C = (GameUIGauge_unk*)fn_801F3FF8(this, "/data/d2anime/ui_action_seek_shine_op.d2a", 0);
+    m83C->fn_800D246C(1);
+    m840 = (GameUIGauge_unk*)fn_801F3FF8(this, "/data/d2anime/ui_action_seek_shine.d2a", 0);
+    m840->fn_800D246C(1);
+    m263C = GameMessageWindow::fn_803B5470(this);
+    m2640 = GameTextMessageWindow::fn_803B612C(this);
+    for (int i = 0; i < 8; i++) {
+        mB38[i].m00 = atn::D3AnimeInstance::Create(this, "/data/d2anime/ui_access_point_op.d2a", 1);
+        mB38[i].m00->fn_800D246C(1);
+        mB38[i].m04 = atn::D3AnimeInstance::Create(this, "/data/d2anime/ui_access_point_loop.d2a", 1);
+        mB38[i].m04->fn_800D246C(1);
+        mB38[i].m08 = atn::D3AnimeInstance::Create(this, "/data/d2anime/ui_event_icon_hostile_opcl.d2a", 1);
+        mB38[i].m08->fn_800D246C(1);
+        mB38[i].m0C = atn::D3AnimeInstance::Create(this, "/data/d2anime/ui_event_icon_hostile_loop.d2a", 1);
+        mB38[i].m0C->fn_800D246C(1);
+        mB38[i].m10 = atn::D3AnimeInstance::Create(this, "/data/d2anime/ui_event_icon_large_opcl.d2a", 1);
+        mB38[i].m10->fn_800D246C(1);
+        mB38[i].m14 = atn::D3AnimeInstance::Create(this, "/data/d2anime/ui_event_icon_large_loop.d2a", 1);
+        mB38[i].m14->fn_800D246C(1);
+        mB38[i].m18 = atn::D3AnimeInstance::Create(this, "/data/d2anime/ui_event_icon_ev_opcl_test.d2a", 1);
+        mB38[i].m18->fn_800D246C(1);
+        mB38[i].m1C = atn::D3AnimeInstance::Create(this, "/data/d2anime/ui_event_icon_ev_loop_test.d2a", 1);
+        mB38[i].m1C->fn_800D246C(1);
+    }
+    m2654 = (GameUIGauge_unk*)fn_801F3FF8(this, "/data/d2anime/ui_bashohyouji.d2a", 0);
+    m2654->fn_800D246C(1);
+    mD70 = fn_801F3FF8(this, "/data/d2anime/ui_event_icon_new_map_opcl.d2a", 0);
+    mD70->fn_800D246C(1);
+    mD74 = fn_801F3FF8(this, "/data/d2anime/ui_event_icon_new_map_loop.d2a", 0);
+    mD74->fn_800D246C(1);
+    mDB4 = (GameUIGauge_unk*)fn_801F3FF8(this, "/data/d2anime/camp_info_bar.d2a", 0);
+    mDB4->fn_800D246C(1);
+    mDB8 = fn_801F3FF8(this, "/data/d2anime/ui_item_pop.d2b", 0);
+    mDB8->fn_800D246C(1);
+    mDBC = fn_801F3FF8(this, "/data/d2anime/ui_item_atari.d2b", 0);
+    mDBC->fn_800D246C(1);
+    mDC0 = (GameUIGauge_unk*)fn_801F3FF8(this, "/data/d2anime/ui_music.d2b", 0);
+    mDC0->fn_800D246C(1);
+}
+
+// inferred: creates the rest of the HUD (marker textures, gauges of the overlook view, result and replay
+// parts, effects); called by game/GameTask, released by fn_803D11B4
+// NONMATCHING: 99.5% - register allocation of the loops (counters and induction pointers swapped)
+void GameUI::fn_803D0B20() {
+    if (mDC8 == 0) {
+        mDC8 = 1;
+        mDD4.fn_800D5908("data/texture/icon_mark2.texture");
+        mE04.fn_800D5908("data/texture/icon_mark2_shine.texture");
+        mE34.fn_800D5908("data/texture/icon_mark.texture");
+        mE64.fn_800D5908("data/texture/icon_mark_shine.texture");
+        for (int i = 0; i < 16; i++) {
+            for (int j = 0; j < 5; j++) {
+                m5BC[i][j] = atn::D3AnimeInstance::Create(this, "/data/d2anime/ui_hate_slow2.d2a", 1);
+                m5BC[i][j]->fn_800D246C(1);
+            }
+        }
+        for (int i = 0; i < 10; i++) {
+            const char* point = "/data/d2anime/ui_magic_point.d2a";
+            const char* speed = "/data/d2anime/ui_magic_speed.d2a";
+            const char* giga = "/data/d2anime/ui_magic_point_giga.d2a";
+            mA90[i] = fn_801F64D0(this, point);
+            mA90[i]->fn_800D246C(1);
+            mAB8[i] = atn::D2A_TaskInstanceBase<8, 2>::Create(this, speed);
+            mAB8[i]->fn_800D246C(1);
+            mAE0[i] = atn::D2A_TaskInstanceBase<8, 2>::Create(this, giga);
+            mAE0[i]->fn_800D246C(1);
+        }
+        for (int i = 0; i < 32; i++) {
+            const char* path = "data/d2anime/ui_overlook_info.d2a";
+            mF14[i] = atn::D2A_TaskInstanceBase<64, 8>::Create(this, path);
+            mF14[i]->fn_800D246C(1);
+            mF94[i] = 0;
+            m1014[i] = i;
+        }
+        for (int i = 0; i < 8; i++) {
+            const char* path = "/data/d2anime/ui_overlook_skill.d2a";
+            m10B4[i] = fn_801F64D0(this, path);
+            m10B4[i]->fn_800D246C(1);
+            m10D4[i] = 0;
+        }
+        m10F4 = fn_801F3FF8(this, "data/d2anime/ui_cursor.d2a", 0);
+        m10F4->fn_800D246C(1);
+        m10F8 = fn_801F3FF8(this, "/data/d2anime/icon_rotta_ring.d2a", 0);
+        m10F8->fn_800D246C(1);
+        m844 = fn_801F3FF8(this, "/data/d2anime/ui_slash_shine.d2a", 0);
+        m844->fn_800D246C(1);
+        m870 = fn_801F3FF8(this, "/data/d2anime/ui_lever_rotate.d2a", 0);
+        m870->fn_800D246C(1);
+        m848[0] = fn_801F3FF8(this, "/data/d2anime/ui_point_slash.d2a", 0);
+        m848[0]->fn_800D246C(1);
+        for (int i = 0; i < 4; i++) {
+            const char* path = "/data/d2anime/ui_point_slash.d2a";
+            m848[i + 1] = fn_801F64D0(this, path);
+            m848[i + 1]->fn_800D246C(1);
+        }
+        m874[0] = fn_801F3FF8(this, "/data/d2anime/ui_point_slash.d2a", 0);
+        m874[0]->fn_800D246C(1);
+        for (int i = 0; i < 4; i++) {
+            const char* path = "/data/d2anime/ui_point_slash.d2a";
+            m874[i + 1] = fn_801F64D0(this, path);
+            m874[i + 1]->fn_800D246C(1);
+        }
+        mB08[0] = fn_801F3FF8(this, "data/d2anime/ui_replay_open.d2a", 0);
+        mB08[0]->fn_800D246C(1);
+        mB08[1] = fn_801F3FF8(this, "data/d2anime/ui_replay_wait.d2a", 0);
+        mB08[1]->fn_800D246C(1);
+        mB08[2] = fn_801F3FF8(this, "data/d2anime/ui_replay_shake_open.d2a", 0);
+        mB08[2]->fn_800D246C(1);
+        mB08[3] = fn_801F3FF8(this, "data/d2anime/ui_replay_shake_wait.d2a", 0);
+        mB08[3]->fn_800D246C(1);
+        mB08[4] = fn_801F3FF8(this, "data/d2anime/ui_replay_on.d2a", 0);
+        mB08[4]->fn_800D246C(1);
+        mB08[5] = fn_801F3FF8(this, "data/d2anime/ui_replay_loop.d2a", 0);
+        mB08[5]->fn_800D246C(1);
+        mB20[0] = fn_801F3FF8(this, "data/d2anime/ui_replay_loop_open.d2a", 0);
+        mB20[0]->fn_800D246C(1);
+        mB20[1] = fn_801F3FF8(this, "data/d2anime/ui_remain.d2a", 0);
+        mB20[1]->fn_800D246C(1);
+        for (int i = 0; i < 4; i++) {
+            mB20[i + 2] = fn_801F3FF8(this, "data/d2anime/ui_remain_list.d2a", 0);
+            mB20[i + 2]->fn_800D246C(1);
+        }
+        m1104 = fn_801F3FF8(this, "data/d2anime/ui_result_LvUPchara_op_xx.d2a", 0);
+        m1104->fn_800D246C(1);
+        m1108 = fn_801F3FF8(this, "data/d2anime/ui_result_newskill.d2a", 0);
+        m1108->fn_800D246C(1);
+        m1110 = fn_801F3FF8(this, "data/d2anime/ui_result_param_op.d2a", 0);
+        m1110->fn_800D246C(1);
+        m1114 = fn_801F3FF8(this, "data/d2anime/ui_result_param_loop.d2a", 0);
+        m1114->fn_800D246C(1);
+        m1140 = fn_801F3FF8(this, "/data/d2anime/ui_weakpoint_btn_opcl.d2a", 0);
+        m1140->fn_800D246C(1);
+        m1144 = fn_801F3FF8(this, "/data/d2anime/ui_weakpoint_btn_loop.d2a", 0);
+        m1144->fn_800D246C(1);
+        m1148 = fn_801F3FF8(this, "/data/d2anime/ui_weakpoint_text.d2a", 0);
+        m1148->fn_800D246C(1);
+        m1158.LoadRequest("data/eff/ef_ui006e_01.eff");
+        m1164.LoadRequest("data/eff/ef_ui006d_01.eff");
+        m1554[0].LoadRequest("data/eff/ef_ui014e_01.eff");
+        m1584[0].LoadRequest("data/eff/ef_ui014d_01.eff");
+        m1554[1].LoadRequest("data/eff/ef_ui015e_01.eff");
+        m1584[1].LoadRequest("data/eff/ef_ui015d_01.eff");
+        m1554[2].LoadRequest("data/eff/ef_ui016e_01.eff");
+        m1584[2].LoadRequest("data/eff/ef_ui016d_01.eff");
+        m1554[3].LoadRequest("data/eff/ef_ui017e_01.eff");
+        m1584[3].LoadRequest("data/eff/ef_ui017d_01.eff");
+        m2544 = fn_801F3FF8(this, "/data/d2anime/ui_event_icon_new_map_opcl.d2a", 0);
+        m2544->fn_800D246C(1);
+        m2548 = fn_801F3FF8(this, "/data/d2anime/ui_event_icon_new_map_loop.d2a", 0);
+        m2548->fn_800D246C(1);
+        m254C = fn_801F3FF8(this, "/data/d2anime/ui_magic_3.d2b", 0);
+        m254C->fn_800D246C(1);
+        m2550[0] = fn_801F3FF8(this, "/data/d2anime/ui_in_coming_enemy.d2b", 0);
+        m2550[1] = fn_801F3FF8(this, "/data/d2anime/ui_strong_enemy.d2b", 0);
+        m2550[2] = fn_801F3FF8(this, "/data/d2anime/ui_tension_max.d2b", 0);
+        for (int i = 0; i < 3; i++) {
+            if (m2550[i] != 0) {
+                m2550[i]->fn_800D246C(1);
+            }
+        }
+        m2564 = fn_801F3FF8(this, "/data/d2anime/ui_circle_break.d2b", 0);
+        m2564->fn_800D246C(1);
+        for (int i = 0; i < 4; i++) {
+            const char* path = "/data/d2anime/ui_sield.d2a";
+            m2610[i] = atn::D2A_TaskInstanceBase<8, 2>::Create(this, path);
+            m2610[i]->fn_800D246C(1);
+        }
+        m2628 = (GameUIGauge_unk*)fn_801F3FF8(this, "/data/d2anime/ui_lockon.d2b", 0);
+        m2628->fn_800D246C(1);
+        mDC4 = (GameUIGauge_unk*)fn_801F3FF8(this, "/data/d2anime/arena_clear_xx.d2b", 0);
+        mDC4->fn_800D246C(1);
+    }
+}
 
 // inferred: releases the parts of the HUD (called by game/GameTask)
 void GameUI::fn_803D11B4() {
@@ -602,6 +1030,398 @@ int GameUI::fn_803D1574() {
     return busy;
 }
 
+// inferred: hides and stops the windows and marks of the HUD (called by game/GameTask)
+void GameUI::fn_803D164C() {
+    m50.m0C->fn_800D246C(0);
+    m50.m0C->FreezeTask();
+    m50.m10->fn_800D246C(0);
+    m50.m10->FreezeTask();
+    if (m50.m14 != 0) {
+        m50.m14->fn_800D246C(0);
+        m50.m14->SetLoop_unk(0);
+        m50.m14->FreezeTask();
+    }
+    m50.m18->fn_800D246C(0);
+    m50.m18->FreezeTask();
+    if (m50.m1C != 0) {
+        m50.m1C->fn_800D246C(0);
+        m50.m1C->FreezeTask();
+    }
+    m50.m20->fn_800D246C(0);
+    m50.m20->SetLoop_unk(0);
+    m50.m20->FreezeTask();
+    m50.m2C->fn_800D246C(0);
+    m50.m2C->SetLoop_unk(0);
+    m50.m2C->SetEnd_unk();
+    m50.m2C->FreezeTask();
+    m50.m24->fn_800D246C(0);
+    m50.m24->FreezeTask();
+    m50.m28->fn_800D246C(0);
+    m50.m28->FreezeTask();
+    for (int i = 0; i < 6; i++) {
+        mB0[i].m0C->fn_800D246C(0);
+        mB0[i].m0C->FreezeTask();
+        mB0[i].m10->fn_800D246C(0);
+        mB0[i].m10->FreezeTask();
+        if (mB0[i].m14 != 0) {
+            mB0[i].m14->fn_800D246C(0);
+            mB0[i].m14->SetLoop_unk(0);
+            mB0[i].m14->FreezeTask();
+        }
+        mB0[i].m18->fn_800D246C(0);
+        mB0[i].m18->FreezeTask();
+        if (mB0[i].m1C != 0) {
+            mB0[i].m1C->fn_800D246C(0);
+            mB0[i].m1C->FreezeTask();
+        }
+        mB0[i].m20->fn_800D246C(0);
+        mB0[i].m20->SetLoop_unk(0);
+        mB0[i].m20->FreezeTask();
+        mB0[i].m2C->fn_800D246C(0);
+        mB0[i].m2C->SetLoop_unk(0);
+        mB0[i].m2C->SetEnd_unk();
+        mB0[i].m2C->FreezeTask();
+        for (int j = 0; j < 5; j++) {
+            m318[i].mInst[j]->fn_800D246C(0);
+            m318[i].mInst[j]->SetLoop_unk(0);
+            m318[i].mInst[j]->SetEnd_unk();
+            m318[i].mInst[j]->FreezeTask();
+        }
+        m318[i].m14->fn_800D246C(0);
+        m318[i].m14->SetLoop_unk(0);
+        m318[i].m14->SetEnd_unk();
+        m318[i].m14->FreezeTask();
+        m318[i].m18->fn_800D246C(0);
+        m318[i].m18->SetLoop_unk(0);
+        m318[i].m18->SetEnd_unk();
+        m318[i].m18->FreezeTask();
+    }
+    m3EC->fn_800D246C(0);
+    m3EC->mRepeat = 0;
+    for (int i = 0; i < 8; i++) {
+        m574[i]->fn_800D246C(0);
+        m574[i]->FreezeTask();
+        m594[i]->fn_800D246C(0);
+        m594[i]->FreezeTask();
+    }
+    m5B8->fn_800D246C(0);
+    m5B8->FreezeTask();
+    m3D8->mRepeat = 0;
+    m3D8->fn_800D246C(0);
+    m3D8->FreezeTask();
+    for (int i = 0; i < 4; i++) {
+        m3DC[i]->fn_800D246C(0);
+        m3DC[i]->FreezeTask();
+        fn_801F6C80(m3DC[i], "line", i);
+    }
+    for (int i = 0; i < 6; i++) {
+        m6FC[i]->fn_800D246C(0);
+        m6FC[i]->SetLoop_unk(0);
+        m6FC[i]->FreezeTask();
+    }
+    m714[0]->fn_800D246C(0);
+    m714[0]->mRepeat = 0;
+    m714[0]->FreezeTask();
+    m71C[0]->fn_800D246C(0);
+    m71C[0]->FreezeTask();
+    m714[1]->fn_800D246C(0);
+    m714[1]->mRepeat = 0;
+    m714[1]->FreezeTask();
+    m71C[1]->fn_800D246C(0);
+    m71C[1]->FreezeTask();
+    m72C->fn_800D246C(0);
+    m72C->mRepeat = 0;
+    m72C->FreezeTask();
+    m730->fn_800D246C(0);
+    m730->FreezeTask();
+    for (int i = 0; i < 12; i++) {
+        m8A0[i]->fn_800D246C(0);
+        m8A0[i]->FreezeTask();
+        m8A0[i]->SetLoop_unk(0);
+        m8A0[i]->SetSpeed_unk(2.0f);
+    }
+    mA84->fn_800D246C(0);
+    mA84->FreezeTask();
+    mA84->mRepeat = 0;
+    mA84->SetSpeed_unk(1.0f);
+    mA84->SetEnd_unk();
+    mA88->fn_800D246C(0);
+    mA88->FreezeTask();
+    mA88->mRepeat = 0;
+    mA88->SetSpeed_unk(1.0f);
+    mA88->SetEnd_unk();
+    m73C->fn_800D246C(0);
+    m73C->mRepeat = 0;
+    m73C->FreezeTask();
+    m740->fn_800D246C(0);
+    m740->mRepeat = 0;
+    m740->FreezeTask();
+    m744->fn_800D246C(0);
+    m744->mRepeat = 1;
+    m744->FreezeTask();
+    m7B8->fn_800D246C(0);
+    m7B8->mRepeat = 0;
+    m7B8->FreezeTask();
+    m7BC->fn_800D246C(0);
+    m7BC->mRepeat = 0;
+    m7BC->FreezeTask();
+    for (int i = 0; i < 2; i++) {
+        m814[i]->fn_800D246C(0);
+        m814[i]->mRepeat = 0;
+        m814[i]->FreezeTask();
+        m814[i + 2]->fn_800D246C(0);
+        m814[i + 2]->FreezeTask();
+        m814[i + 4]->fn_800D246C(0);
+        m814[i + 4]->mRepeat = 0;
+        m814[i + 4]->FreezeTask();
+        if (m814[i + 6] != 0) {
+            m814[i + 6]->fn_800D246C(0);
+            m814[i + 6]->mRepeat = 1;
+            m814[i + 6]->FreezeTask();
+        }
+    }
+    m83C->fn_800D246C(0);
+    m83C->mRepeat = 0;
+    m83C->FreezeTask();
+    m840->fn_800D246C(0);
+    m840->mRepeat = 1;
+    m840->FreezeTask();
+    m838 = 0;
+    for (int i = 0; i < 8; i++) {
+        mB38[i].m00->fn_800D246C(0);
+        mB38[i].m00->FreezeTask();
+        mB38[i].m00->GetTask()->mLoop = 0;
+        mB38[i].m04->fn_800D246C(0);
+        mB38[i].m04->FreezeTask();
+        mB38[i].m08->fn_800D246C(0);
+        mB38[i].m08->FreezeTask();
+        mB38[i].m08->GetTask()->mLoop = 0;
+        mB38[i].m0C->fn_800D246C(0);
+        mB38[i].m0C->FreezeTask();
+        mB38[i].m10->fn_800D246C(0);
+        mB38[i].m10->FreezeTask();
+        mB38[i].m10->GetTask()->mLoop = 0;
+        mB38[i].m14->fn_800D246C(0);
+        mB38[i].m14->FreezeTask();
+        mB38[i].m18->fn_800D246C(0);
+        mB38[i].m18->FreezeTask();
+        mB38[i].m18->GetTask()->mLoop = 0;
+        mB38[i].m1C->fn_800D246C(0);
+        mB38[i].m1C->FreezeTask();
+    }
+    m2654->fn_800D246C(0);
+    m2654->FreezeTask();
+    m2654->mRepeat = 0;
+    m2644 = 0;
+    m2648 = 0;
+    m264C = 45;
+    m2650 = 0;
+    mD70->fn_800D246C(0);
+    mD70->FreezeTask();
+    mD70->mRepeat = 0;
+    mD74->fn_800D246C(0);
+    mD74->FreezeTask();
+    mDB4->fn_800D246C(0);
+    mDB4->mRepeat = 0;
+    mDB8->fn_800D246C(0);
+    mDB8->mRepeat = 0;
+    mDB8->SetSpeed_unk(0.75f);
+    mDB8->SetEnd_unk();
+    mDB8->FreezeTask();
+    mDBC->fn_800D246C(0);
+    mDBC->mRepeat = 0;
+    mDBC->SetSpeed_unk(0.75f);
+    mDBC->SetEnd_unk();
+    mDBC->FreezeTask();
+    mDC0->fn_800D246C(0);
+    mDC0->mRepeat = 0;
+    mDC0->SetEnd_unk();
+    mDC0->FreezeTask();
+    fn_803DF5B4();
+}
+
+// inferred: the instances of mAB8/mAE0/m2610 (D2A_TaskInstanceBase<8, 2>) and mF14 (<64, 8>) are kept as
+// atn::Task* in game/GameUI.h (a template type there renumbers the @N labels of the units that include it)
+typedef atn::D2A_TaskInstanceBase<8, 2> GameUISmallInst_unk;
+inline GameUISmallInst_unk* AsSmallInst_unk(atn::Task* task) {
+    return static_cast<GameUISmallInst_unk*>(task);
+}
+inline atn::D2A_Task* AsD2A_unk(atn::Task* task) {
+    return static_cast<atn::D2A_Task*>(task);
+}
+inline atn::D2A_TaskInstanceBase<64, 8>* AsWindow_unk(atn::Task* task) {
+    return static_cast<atn::D2A_TaskInstanceBase<64, 8>*>(task);
+}
+
+// inferred: hides and stops every part of the HUD created by fn_803D022C/fn_803D0B20 (called by
+// game/GameTask)
+// NONMATCHING: 99.9% - the unrolled second loop swaps r4/r5 (counter and pointer); tried the counter outside
+// the loop and unsigned
+void GameUI::fn_803D2194() {
+    if (mDC8 != 0) {
+        for (int i = 0; i < 16; i++) {
+            for (int j = 0; j < 5; j++) {
+                m5BC[i][j]->fn_800D246C(0);
+                m5BC[i][j]->FreezeTask();
+            }
+        }
+        for (int i = 0; i < 10; i++) {
+            mA90[i]->fn_800D246C(0);
+            mA90[i]->SetSpeed_unk(0.0f);
+            mAB8[i]->fn_800D246C(0);
+            AsSmallInst_unk(mAB8[i])->SetLoop_unk(0);
+            AsSmallInst_unk(mAB8[i])->SetSpeed_unk(1.0f);
+            mAE0[i]->fn_800D246C(0);
+            AsSmallInst_unk(mAE0[i])->SetSpeed_unk(0.0f);
+        }
+        mA8C = 0;
+        for (int i = 0; i < 10; i++) {
+            mA90[i]->FreezeTask();
+            if (mAB8[i]->IsFlag_unk(4)) {
+                AsSmallInst_unk(mAB8[i])->Rewind_unk();
+            }
+            mAB8[i]->FreezeTask();
+            mAE0[i]->FreezeTask();
+        }
+        for (int i = 0; i < 32; i++) {
+            mF14[i]->fn_800D246C(0);
+            AsWindow_unk(mF14[i])->SetLoop_unk(0);
+            AsWindow_unk(mF14[i])->Rewind_unk();
+            mF14[i]->FreezeTask();
+        }
+        for (int i = 0; i < 8; i++) {
+            m10B4[i]->fn_800D246C(0);
+            m10B4[i]->SetLoop_unk(0);
+            m10B4[i]->Rewind_unk();
+            m10B4[i]->FreezeTask();
+        }
+        m10F4->fn_800D246C(0);
+        m10F4->mRepeat = 0;
+        m10F4->Rewind_unk();
+        m10F4->FreezeTask();
+        m10F8->fn_800D246C(0);
+        m10F8->mRepeat = 0;
+        m10F8->Rewind_unk();
+        m10F8->FreezeTask();
+        m844->fn_800D246C(0);
+        m844->mRepeat = 1;
+        m844->FreezeTask();
+        m870->fn_800D246C(0);
+        m870->mRepeat = 0;
+        m870->FreezeTask();
+        m848[0]->fn_800D246C(0);
+        static_cast<atn::D2A_Task*>(m848[0])->mRepeat = 0;
+        m848[0]->FreezeTask();
+        for (int i = 0; i < 4; i++) {
+            m848[i + 1]->fn_800D246C(0);
+            static_cast<GameUIInst_unk*>(m848[i + 1])->SetLoop_unk(0);
+            m848[i + 1]->FreezeTask();
+        }
+        m874[0]->fn_800D246C(0);
+        static_cast<atn::D2A_Task*>(m874[0])->mRepeat = 0;
+        m874[0]->FreezeTask();
+        for (int i = 0; i < 4; i++) {
+            m874[i + 1]->fn_800D246C(0);
+            static_cast<GameUIInst_unk*>(m874[i + 1])->SetLoop_unk(0);
+            m874[i + 1]->FreezeTask();
+        }
+        mB08[0]->fn_800D246C(0);
+        mB08[0]->FreezeTask();
+        AsD2A_unk(mB08[0])->mRepeat = 0;
+        mB08[1]->fn_800D246C(0);
+        mB08[1]->FreezeTask();
+        mB08[2]->fn_800D246C(0);
+        mB08[2]->FreezeTask();
+        AsD2A_unk(mB08[2])->mRepeat = 0;
+        mB08[3]->fn_800D246C(0);
+        mB08[3]->FreezeTask();
+        mB08[4]->fn_800D246C(0);
+        mB08[4]->FreezeTask();
+        AsD2A_unk(mB08[4])->mRepeat = 0;
+        mB08[5]->fn_800D246C(0);
+        mB08[5]->FreezeTask();
+        mB20[0]->fn_800D246C(0);
+        mB20[0]->FreezeTask();
+        AsD2A_unk(mB20[0])->mRepeat = 0;
+        mB20[1]->fn_800D246C(0);
+        mB20[1]->FreezeTask();
+        AsD2A_unk(mB20[1])->mRepeat = 0;
+        for (int i = 0; i < 4; i++) {
+            mB20[i + 2]->fn_800D246C(0);
+            mB20[i + 2]->FreezeTask();
+            AsD2A_unk(mB20[i + 2])->mRepeat = 0;
+        }
+        m1104->fn_800D246C(0);
+        m1104->FreezeTask();
+        m1104->mRepeat = 0;
+        m1104->SetEnd_unk();
+        m1108->fn_800D246C(0);
+        m1108->FreezeTask();
+        m1108->mRepeat = 0;
+        m1108->SetEnd_unk();
+        m1110->fn_800D246C(0);
+        m1110->FreezeTask();
+        m1110->mRepeat = 0;
+        m1110->SetEnd_unk();
+        m1114->fn_800D246C(0);
+        m1114->FreezeTask();
+        m1114->mRepeat = 0;
+        m1114->SetEnd_unk();
+        m1140->fn_800D246C(0);
+        m1140->FreezeTask();
+        m1140->mRepeat = 0;
+        m1144->fn_800D246C(0);
+        m1144->FreezeTask();
+        m1148->fn_800D246C(0);
+        m1148->FreezeTask();
+        m1148->mRepeat = 0;
+        m2544->fn_800D246C(0);
+        m2544->FreezeTask();
+        m2544->mRepeat = 0;
+        m2548->fn_800D246C(0);
+        m2548->FreezeTask();
+        m254C->fn_800D246C(0);
+        m254C->FreezeTask();
+        m254C->mRepeat = 0;
+        m254C->SetEnd_unk();
+        for (int i = 0; i < 3; i++) {
+            if (m2550[i] != 0) {
+                m2550[i]->fn_800D246C(0);
+                m2550[i]->mRepeat = 0;
+                m2550[i]->SetEnd_unk();
+                m2550[i]->FreezeTask();
+            }
+        }
+        if (m2564 != 0) {
+            m2564->fn_800D246C(0);
+            m2564->mRepeat = 0;
+            m2564->SetEnd_unk();
+            m2564->FreezeTask();
+        }
+        for (int i = 0; i < 4; i++) {
+            if (m2610[i] != 0) {
+                m2610[i]->fn_800D246C(0);
+                AsSmallInst_unk(m2610[i])->SetLoop_unk(1);
+                AsSmallInst_unk(m2610[i])->Rewind_unk();
+                m2610[i]->FreezeTask();
+            }
+        }
+        if (m2628 != 0) {
+            m2628->fn_800D246C(0);
+            m2628->mRepeat = 0;
+            m2628->Rewind_unk();
+            m2628->SetSpeed_unk(-1.0f);
+            m2628->FreezeTask();
+        }
+        if (mDC4 != 0) {
+            mDC4->fn_800D246C(0);
+            mDC4->mRepeat = 0;
+            mDC4->SetEnd_unk();
+            mDC4->FreezeTask();
+        }
+    }
+}
+
 // ---- objects read by GameUI::fn_803D2A6C (views; names invented) ----
 extern "C" unsigned int fn_80372574(const void* array); // inferred: size of a fixed array (count at +0, weak copy of game/GameTask.cpp)
 
@@ -662,41 +1482,6 @@ extern "C" Field_unk* fn_80121F00();                               // inferred: 
 extern "C" GameUIPlayerInput_unk* fn_80122550(Field_unk* field);   // inferred: field + 0x6C
 extern "C" int fn_80244CA0(atn::Task* table);                      // inferred: (flags >> 1) & 1
 
-// inferred: player of the multiplayer session (0xD5C bytes, as MP/D2AMpMenuLobby)
-struct GameUISessionPlayer_unk {
-    CharaTask* m00;
-    unsigned char m04[0xD0 - 0x04];
-    unsigned int mD0_31 : 1; // inferred: valid
-    unsigned int mD0_lo : 31;
-    unsigned char mD4[0xD5C - 0xD4];
-};
-// inferred: multiplayer session (lbl_8087F610)
-struct GameUISession_unk {
-    unsigned char m00[0x4FC];
-    int m4FC;
-    unsigned char m500[0x50C - 0x500];
-    int m50C;
-    // inferred: weak copies 0x803D6DF4, 0x803D6E1C, 0x803D7060; names invented
-    bool IsWaiting_unk() const {
-        bool r = false;
-        if (m4FC == 30 && m50C < 5) {
-            r = true;
-        }
-        return r;
-    }
-    int GetM50C_unk() const { return m50C; }
-    bool IsState30_unk() const { return m4FC == 30; }
-    // inferred: player of the session (as MP/D2AMpMenuCockpit GetPlayer_unk); name invented
-    GameUISessionPlayer_unk* GetPlayer_unk(int i) {
-        if (i >= 0 && i < m5E8) {
-            return &m5E4[i];
-        }
-        return 0;
-    }
-    unsigned char m510[0x5E4 - 0x510];
-    GameUISessionPlayer_unk* m5E4; // inferred: players
-    int m5E8;                      // inferred: number of players
-};
 extern "C" GameUISessionPlayer_unk* fn_804EB870(GameUISession_unk* s); // inferred: local player
 extern "C" GameUISession_unk* fn_800F7F90();                                 // inferred: returns lbl_8087F610
 extern "C" int fn_804EB010(GameUISession_unk* session, CharaTask* chara);   // inferred
@@ -2152,6 +2937,81 @@ void GameUI::fn_803DCA84(CharaTask* chara, float* fade) {
     }
 }
 
+// inferred: the tactical view cursor is on a target (name invented)
+inline bool IsCursorOn_unk(const TacViewSel_unk& sel) {
+    return sel.mState != 2;
+}
+
+// inferred: d2anime instance of a character window (mF14; created as D2A_TaskInstanceBase<64, 8>)
+typedef atn::D2A_TaskInstanceBase<64, 8> GameUIWindow_unk;
+extern "C" void fn_803E6D4C(GameUIWindow_unk* window, chr::CharaData_unk* data); // inferred: job and attribute icons
+
+// inferred: fills the window of party slot `slot` with `chara` (leader mark, position over the head or at
+// the bottom of the screen when `fixed`, level and skill name)
+// NONMATCHING: 99.4% - only the offsets into the string pool (the functions before it are not written yet)
+void GameUI::fn_803DCD34(CharaTask* chara, int slot, int other, int fixed) {
+    if (chara != 0) {
+        GameUIWindow_unk* window = static_cast<GameUIWindow_unk*>(mF14[m1014[slot]]);
+        window->SetValue0_unk("leader", 0.0f);
+        window->MeltTask();
+        TacView* tac = lbl_8087F9F8;
+        if ((IsCursorOn_unk(tac->m48) && tac->IsIdle_unk() && tac->m48.m04 == chara) || other == 0) {
+            window->mSpeed = 1.0f;
+            window->SetValue1_unk("basePoint", 4, slot + 1);
+        } else {
+            window->mSpeed = -1.0f;
+            window->SetValue1_unk("basePoint", 4, slot + 100);
+        }
+        if (fixed == 0) {
+            MtxPtr mtx = chara->GetModel_unk()->GetNodeMtx_unk("head");
+            atn::Vector3 pos(mtx != 0 ? ((atn::Matrix3x4*)mtx)->GetTrans_unk() : chara->mColli.m48);
+            atn::Vector3 screen = fn_8008B964()->GetScreenPosition(pos);
+            if (screen.z > 1.0f) {
+                screen *= -1.0f;
+            }
+            window->SetValue1_unk("basePoint", 0, screen.x);
+            window->SetValue1_unk("basePoint", 1, screen.y);
+        } else {
+            atn::GraphicsDevice_unk* gd = lbl_8087EEE0;
+            float x = 0.5f * gd->mWidth;
+            float y = 0.5f * gd->mHeight;
+            window->SetValue1_unk("basePoint", 0, 15.0f + x);
+            window->SetValue1_unk("basePoint", 1, y - 15.0f);
+        }
+        fn_803E6D4C(window, chara->m5C);
+        int level = chara->mStatus.mParamB.m78;
+        if (chara->mType == 2) {
+            level = chara->mStatus.fn_80133BD8(1);
+        }
+        if (chara->mStatus.IsState_unk(0x400)) {
+            level -= 3;
+        }
+        window->SetText_unk("name", chara->m60->m04);
+        if (lbl_8087F610 == 0 || chara->mFlag22 == 1) {
+            window->SetValue0_unk("showLevel", 1.0f);
+            window->SetNumber_unk("nowLv", level, 0);
+        } else {
+            window->SetValue0_unk("showLevel", 0.0f);
+            window->SetNumber_unk("nowLv", 0, 0);
+        }
+        HitInfo_unk* skill = 0;
+        if (lbl_8087F610 == 0) {
+            if (chara->mStatus.m2D0[0].m[0] != 0) {
+                skill = fn_80219E6C(chara->mStatus.m2D0[0].m[0]);
+            } else if (chara->m648 != 0) {
+                skill = ((Arms*)chara->m648)->fn_80044C30(0);
+            }
+        }
+        if (skill != 0 && skill->m04 != 200) {
+            window->SetValue0_unk("showSkill", 1.0f);
+            window->SetText_unk("jobName", (const wchar_t*)skill->m08);
+        } else {
+            window->SetValue0_unk("showSkill", 0.0f);
+            window->SetText_unk("jobName", lbl_8078C638 + 41);
+        }
+    }
+}
+
 // inferred: UV rectangle of a d2anime parameter (names invented)
 struct GameUIUvRect_unk {
     GameUIUvRect_unk(float u0, float v0, float u1, float v1) {
@@ -2165,20 +3025,97 @@ struct GameUIUvRect_unk {
 inline void SetJobUv_unk(atn::D2A_Task* task, const char* name, const GameUIUvRect_unk& r) {
     task->SetParam2_unk(name, r.v);
 }
-inline void SetJobColor_unk(atn::D2A_Task* task, const char* name, const GameUIColor_unk& c) {
-    GameUIColor_unk tmp = c;
+inline void SetJobColor_unk(atn::D2A_Task* task, const char* name, const atn::Color& c) {
+    atn::Color tmp = c;
     task->SetColor255_unk(name, &tmp.r);
 }
 
-// inferred: colours of the HUD (0x807C8628, .bss of this file); they are set by the static initializer
-// (fn_803E78B4, not written yet), so they are only declared here
-extern "C" GameUIColor_unk lbl_807C8628[16];
+
+extern "C" void fn_801FEEFC(atn::D2A_Layout_unk* layout, unsigned int hash, int value); // inferred: int parameter
+// inferred: int layout parameter of a d2anime task by name (name invented)
+inline void SetLayoutInt_unk(atn::D2A_Task* task, const char* name, int value) {
+    fn_801FEEFC(&task->mData.m10, fn_800DC6B4(name), value);
+}
+
+extern "C" void fn_803DD90C(atn::D2A_Task* task, int job);
+// inferred: colour parameter from a colour passed by value (name invented)
+inline void SetAttrColor_unk(atn::D2A_Task* task, const char* name, atn::Color c) {
+    task->SetColor255_unk(name, &c.r);
+}
+
+// inferred: job and attribute icons of a character (attribute: UV of the icon, two colours and the blend
+// mode); called by game/NewCampPartsStatus
+// NONMATCHING: 87.5% - register allocation (the original keeps the task in r31 and the data in r28), the
+// original takes the address of each colour before copying it (same as fn_803DD90C), and the offsets into
+// the string pool (the functions before it are not written yet)
+extern "C" void fn_803DD160(atn::D2A_Task* task, chr::CharaData_unk* data) {
+    atn::Color* colors = lbl_807C8628;
+    if (data == 0 || task == 0) {
+        return;
+    }
+    task->SetLayoutValue_unk("job01", 1.0f);
+    task->SetLayoutValue_unk("job02", 0.0f);
+    fn_803DD90C(task, data->m122);
+    int attr = (signed char)data->m120[0];
+    if (attr == 2) {
+        task->SetLayoutValue_unk("attr01", 1.0f);
+        SetJobUv_unk(task, "attrUv01ma", GameUIUvRect_unk(0.25f, 0.25f, 0.5f, 0.5f));
+        SetJobUv_unk(task, "attrUv01mb", GameUIUvRect_unk(0.25f, 0.25f, 0.5f, 0.5f));
+        SetAttrColor_unk(task, "attrCol01a", colors[7]);
+        SetAttrColor_unk(task, "attrCol01b", colors[14]);
+        SetLayoutInt_unk(task, "attrBlend", 0);
+    } else if (attr == 1) {
+        task->SetLayoutValue_unk("attr01", 1.0f);
+        SetJobUv_unk(task, "attrUv01ma", GameUIUvRect_unk(0.5f, 0.25f, 0.75f, 0.5f));
+        SetJobUv_unk(task, "attrUv01mb", GameUIUvRect_unk(0.5f, 0.25f, 0.75f, 0.5f));
+        SetAttrColor_unk(task, "attrCol01a", colors[8]);
+        SetAttrColor_unk(task, "attrCol01b", colors[14]);
+        SetLayoutInt_unk(task, "attrBlend", 0);
+    } else if (attr == 4) {
+        task->SetLayoutValue_unk("attr01", 1.0f);
+        SetJobUv_unk(task, "attrUv01ma", GameUIUvRect_unk(0.75f, 0.25f, 1.0f, 0.5f));
+        SetJobUv_unk(task, "attrUv01mb", GameUIUvRect_unk(0.75f, 0.25f, 1.0f, 0.5f));
+        SetAttrColor_unk(task, "attrCol01a", colors[9]);
+        SetAttrColor_unk(task, "attrCol01b", colors[14]);
+        SetLayoutInt_unk(task, "attrBlend", 0);
+    } else if (attr == 3) {
+        task->SetLayoutValue_unk("attr01", 1.0f);
+        SetJobUv_unk(task, "attrUv01ma", GameUIUvRect_unk(0.0f, 0.5f, 0.25f, 0.75f));
+        SetJobUv_unk(task, "attrUv01mb", GameUIUvRect_unk(0.0f, 0.5f, 0.25f, 0.75f));
+        SetAttrColor_unk(task, "attrCol01a", colors[11]);
+        SetAttrColor_unk(task, "attrCol01b", colors[14]);
+        SetLayoutInt_unk(task, "attrBlend", 0);
+    } else if (attr == 5) {
+        task->SetLayoutValue_unk("attr01", 1.0f);
+        SetJobUv_unk(task, "attrUv01ma", GameUIUvRect_unk(0.0f, 0.25f, 0.25f, 0.5f));
+        SetJobUv_unk(task, "attrUv01mb", GameUIUvRect_unk(0.0f, 0.25f, 0.25f, 0.5f));
+        SetAttrColor_unk(task, "attrCol01a", colors[10]);
+        SetAttrColor_unk(task, "attrCol01b", colors[14]);
+        SetLayoutInt_unk(task, "attrBlend", 0);
+    } else if (attr == 6) {
+        task->SetLayoutValue_unk("attr01", 1.0f);
+        SetJobUv_unk(task, "attrUv01ma", GameUIUvRect_unk(0.5f, 0.5f, 0.75f, 0.75f));
+        SetJobUv_unk(task, "attrUv01mb", GameUIUvRect_unk(0.5f, 0.5f, 0.75f, 0.75f));
+        SetAttrColor_unk(task, "attrCol01a", colors[12]);
+        SetAttrColor_unk(task, "attrCol01b", colors[15]);
+        SetLayoutInt_unk(task, "attrBlend", 3);
+    } else if (attr == 7) {
+        task->SetLayoutValue_unk("attr01", 1.0f);
+        SetJobUv_unk(task, "attrUv01ma", GameUIUvRect_unk(0.75f, 0.5f, 1.0f, 0.75f));
+        SetJobUv_unk(task, "attrUv01mb", GameUIUvRect_unk(0.75f, 0.5f, 1.0f, 0.75f));
+        SetAttrColor_unk(task, "attrCol01a", colors[13]);
+        SetAttrColor_unk(task, "attrCol01b", colors[15]);
+        SetLayoutInt_unk(task, "attrBlend", 3);
+    } else {
+        task->SetLayoutValue_unk("attr01", 0.0f);
+    }
+}
 
 // inferred: job icon of a character window (UV of the icon and its colours)
 // NONMATCHING: 91.2% - the original keeps the colour table in r29 and the entry in r30 (one more saved
 // register); tried the colour by value, by reference, with a local copy and a reference per branch
 extern "C" void fn_803DD90C(atn::D2A_Task* task, int job) {
-    GameUIColor_unk* colors = lbl_807C8628;
+    atn::Color* colors = lbl_807C8628;
     if (job == 4) {
         SetJobUv_unk(task, "jobUv01ma", GameUIUvRect_unk(0.5f, 0.0f, 0.75f, 0.25f));
         SetJobUv_unk(task, "jobUv01mb", GameUIUvRect_unk(0.5f, 0.0f, 0.75f, 0.25f));
@@ -2204,6 +3141,90 @@ extern "C" void fn_803DD90C(atn::D2A_Task* task, int job) {
         SetJobUv_unk(task, "jobUv01mb", GameUIUvRect_unk(0.75f, 0.0f, 1.0f, 0.25f));
         SetJobColor_unk(task, "jobCol01a", colors[5]);
         SetJobColor_unk(task, "jobGradation", colors[5]);
+    }
+}
+
+// inferred: colour parameter of a d2anime instance from a colour of the table (see SetWindowColor_unk)
+inline void SetInstColor_unk(GameUIInst_unk* inst, const char* name, const atn::Color& c) {
+    atn::D2A_RGB_unk rgb;
+    rgb.r = c.r;
+    rgb.g = c.g;
+    rgb.b = c.b;
+    inst->SetColor255_unk(name, rgb);
+}
+
+// inferred: job icon of a d2anime instance by job index (UV of the icon and its colours; 10 jobs)
+// NONMATCHING: the copy of each colour (the original passes the whole atn::Color to SetColor255_unk) and
+// registers
+extern "C" void fn_803DDD54(GameUIInst_unk* inst, int job) {
+    atn::Color* colors = lbl_807C8628;
+    switch (job) {
+    case 0:
+        fn_801F7590(inst, "jobUv01ma", atn::Color(0.75f, 0.0f, 1.0f, 0.25f));
+        fn_801F7590(inst, "jobUv01mb", atn::Color(0.75f, 0.0f, 1.0f, 0.25f));
+        SetInstColor_unk(inst, "jobCol01a", colors[0]);
+        SetInstColor_unk(inst, "jobGradation", colors[0]);
+        break;
+    case 1:
+        fn_801F7590(inst, "jobUv01ma", atn::Color(0.5f, 0.0f, 0.75f, 0.25f));
+        fn_801F7590(inst, "jobUv01mb", atn::Color(0.5f, 0.0f, 0.75f, 0.25f));
+        SetInstColor_unk(inst, "jobCol01a", colors[4]);
+        SetInstColor_unk(inst, "jobGradation", colors[4]);
+        break;
+    case 2:
+        fn_801F7590(inst, "jobUv01ma", atn::Color(0.25f, 0.5f, 0.5f, 0.75f));
+        fn_801F7590(inst, "jobUv01mb", atn::Color(0.25f, 0.5f, 0.5f, 0.75f));
+        SetInstColor_unk(inst, "jobCol01a", colors[6]);
+        SetInstColor_unk(inst, "jobGradation", colors[6]);
+        break;
+    case 3:
+        fn_801F7590(inst, "jobUv01ma", atn::Color(0.25f, 0.0f, 0.5f, 0.25f));
+        fn_801F7590(inst, "jobUv01mb", atn::Color(0.25f, 0.0f, 0.5f, 0.25f));
+        SetInstColor_unk(inst, "jobCol01a", colors[2]);
+        SetInstColor_unk(inst, "jobGradation", colors[2]);
+        break;
+    case 4:
+        fn_801F7590(inst, "jobUv01ma", atn::Color(0.25f, 0.0f, 0.5f, 0.25f));
+        fn_801F7590(inst, "jobUv01mb", atn::Color(0.25f, 0.0f, 0.5f, 0.25f));
+        SetInstColor_unk(inst, "jobCol01a", colors[3]);
+        SetInstColor_unk(inst, "jobGradation", colors[3]);
+        break;
+    case 5:
+        fn_801F7590(inst, "jobUv01ma", atn::Color(0.25f, 0.25f, 0.5f, 0.5f));
+        fn_801F7590(inst, "jobUv01mb", atn::Color(0.25f, 0.25f, 0.5f, 0.5f));
+        SetInstColor_unk(inst, "jobCol01a", colors[7]);
+        SetInstColor_unk(inst, "jobGradation", colors[7]);
+        break;
+    case 6:
+        fn_801F7590(inst, "jobUv01ma", atn::Color(0.5f, 0.25f, 0.75f, 0.5f));
+        fn_801F7590(inst, "jobUv01mb", atn::Color(0.5f, 0.25f, 0.75f, 0.5f));
+        SetInstColor_unk(inst, "jobCol01a", colors[8]);
+        SetInstColor_unk(inst, "jobGradation", colors[8]);
+        break;
+    case 7:
+        fn_801F7590(inst, "jobUv01ma", atn::Color(0.75f, 0.25f, 1.0f, 0.5f));
+        fn_801F7590(inst, "jobUv01mb", atn::Color(0.75f, 0.25f, 1.0f, 0.5f));
+        SetInstColor_unk(inst, "jobCol01a", colors[9]);
+        SetInstColor_unk(inst, "jobGradation", colors[9]);
+        break;
+    case 8:
+        fn_801F7590(inst, "jobUv01ma", atn::Color(0.0f, 0.5f, 0.25f, 0.75f));
+        fn_801F7590(inst, "jobUv01mb", atn::Color(0.0f, 0.5f, 0.25f, 0.75f));
+        SetInstColor_unk(inst, "jobCol01a", colors[11]);
+        SetInstColor_unk(inst, "jobGradation", colors[11]);
+        break;
+    case 9:
+        fn_801F7590(inst, "jobUv01ma", atn::Color(0.0f, 0.25f, 0.25f, 0.5f));
+        fn_801F7590(inst, "jobUv01mb", atn::Color(0.0f, 0.25f, 0.25f, 0.5f));
+        SetInstColor_unk(inst, "jobCol01a", colors[10]);
+        SetInstColor_unk(inst, "jobGradation", colors[10]);
+        break;
+    default:
+        fn_801F7590(inst, "jobUv01ma", atn::Color(0.75f, 0.0f, 1.0f, 0.25f));
+        fn_801F7590(inst, "jobUv01mb", atn::Color(0.75f, 0.0f, 1.0f, 0.25f));
+        SetInstColor_unk(inst, "jobCol01a", colors[5]);
+        SetInstColor_unk(inst, "jobGradation", colors[5]);
+        break;
     }
 }
 
@@ -2431,7 +3452,8 @@ const wchar_t* GameUI::fn_803DF2DC(SkillEffect* bullet) {
     return lbl_8087F1E4->Get_unk(0x267);
 }
 
-void GameUI::fn_803DF5B4() {
+// inferred: the original calls it with bl from fn_803D164C (MWCC would inline it there)
+__declspec(noinline) void GameUI::fn_803DF5B4() {
     m2F0.mCount = 0;
     for (int i = 0; i < 6; i++) {
         mB0[i].m00 = 0;
@@ -3062,6 +4084,53 @@ extern "C" bool fn_803E4DD4(CharaTask* chara) {
     return false;
 }
 
+extern "C" GameConfig_unk* lbl_8087F0A8; // inferred: game settings (line colours of the hate display)
+// inferred: colour of a 0xAARRGGBB value (as game/BattleTask fn_800F8014; name invented)
+inline atn::Color GameUIColorU32_unk(unsigned int rgba) {
+    return atn::Color(0.003921569f * (float)((rgba >> 16) & 0xFF), 0.003921569f * (float)((rgba >> 8) & 0xFF),
+                      0.003921569f * (float)(rgba & 0xFF), 0.003921569f * (float)(rgba >> 24));
+}
+// inferred: the d2anime instance behind a D3AnimeInstance (D3AnimeInstance::GetTask returns the partial view
+// D2AInstance_unk of atn/D3AnimeInstance.h)
+inline GameUIInst_unk* GetIconInst_unk(atn::D3AnimeInstance* icon) {
+    return (GameUIInst_unk*)icon->GetTask();
+}
+
+// inferred: icon over a character (position by fn_803E5200, colour by the kind of attack the character
+// uses: white when `white`, else the line colours of the settings) and its frame kept in [0, 40); moves
+// `pos` down for the next icon
+// NONMATCHING: the colour is passed to SetColor255_unk as D2A_RGB_unk (the original copies the whole
+// atn::Color, see pendientes)
+void GameUI::fn_803E4E58(atn::D3AnimeInstance* icon, CharaTask* chara, atn::Vector3* pos, int white) {
+    if (icon == 0 || chara == 0) {
+        return;
+    }
+    fn_803E5200(icon, chara, pos, white);
+    atn::Color color;
+    if (white != 0) {
+        color = atn::Color(1.0f, 1.0f, 1.0f, 1.0f);
+    } else if (chara->mStatus.fn_80134270()) {
+        color = GameUIColorU32_unk(lbl_8087F0A8->mLineColorMagic);
+    } else if (chara->mStatus.fn_80134250()) {
+        color = GameUIColorU32_unk(lbl_8087F0A8->mLineColorArcher);
+    } else {
+        color = GameUIColorU32_unk(lbl_8087F0A8->mLineColorSword);
+    }
+    SetInstColor_unk(GetIconInst_unk(icon), "iconColor00", color);
+    SetInstColor_unk(GetIconInst_unk(icon), "iconColor01", color);
+    SetInstColor_unk(GetIconInst_unk(icon), "iconColor02", color);
+    SetInstColor_unk(GetIconInst_unk(icon), "iconColorSdw00", color);
+    float zero = 0.0f;
+    float end = 40.0f;
+    if (zero > GetIconInst_unk(icon)->mFrame) {
+        GetIconInst_unk(icon)->mFrame = zero;
+    }
+    if (end <= GetIconInst_unk(icon)->mFrame) {
+        GetIconInst_unk(icon)->mFrame = zero;
+    }
+    pos->y += 1.5f;
+}
+
 void GameUI::fn_803E58CC() {
     if (mDC0 != 0) {
         mDC0->mFrame = 0.0f;
@@ -3513,4 +4582,113 @@ bool GameUI::fn_803E6C88(unsigned int id) {
         }
     }
     return false;
+}
+
+// inferred: colour parameter of a character window; the original passes the whole atn::Color (16 bytes are
+// copied), so the parameter of D2A_TaskInstanceBase::SetColor255_unk is probably an atn::Color (name invented)
+inline void SetWindowColor_unk(GameUIWindow_unk* task, const char* name, const atn::Color& c) {
+    atn::D2A_RGB_unk rgb;
+    rgb.r = c.r;
+    rgb.g = c.g;
+    rgb.b = c.b;
+    task->SetColor255_unk(name, rgb);
+}
+
+extern "C" void fn_803E746C(GameUIWindow_unk* task, int job);
+
+// inferred: same as fn_803DD160 for a character window (D2A_TaskInstanceBase<64, 8>)
+// NONMATCHING: the copy of each colour (see SetWindowColor_unk), registers and the string pool offsets
+extern "C" void fn_803E6D4C(GameUIWindow_unk* task, chr::CharaData_unk* data) {
+    atn::Color* colors = lbl_807C8628;
+    if (data == 0 || task == 0) {
+        return;
+    }
+    task->SetValue0_unk("job01", 1.0f);
+    task->SetValue0_unk("job02", 0.0f);
+    fn_803E746C(task, data->m122);
+    int attr = (signed char)data->m120[0];
+    if (attr == 2) {
+        task->SetValue0_unk("attr01", 1.0f);
+        task->SetValues2_unk("attrUv01ma", atn::Color(0.25f, 0.25f, 0.5f, 0.5f));
+        task->SetValues2_unk("attrUv01mb", atn::Color(0.25f, 0.25f, 0.5f, 0.5f));
+        SetWindowColor_unk(task, "attrCol01a", colors[7]);
+        SetWindowColor_unk(task, "attrCol01b", colors[14]);
+        task->SetInt_unk("attrBlend", 0);
+    } else if (attr == 1) {
+        task->SetValue0_unk("attr01", 1.0f);
+        task->SetValues2_unk("attrUv01ma", atn::Color(0.5f, 0.25f, 0.75f, 0.5f));
+        task->SetValues2_unk("attrUv01mb", atn::Color(0.5f, 0.25f, 0.75f, 0.5f));
+        SetWindowColor_unk(task, "attrCol01a", colors[8]);
+        SetWindowColor_unk(task, "attrCol01b", colors[14]);
+        task->SetInt_unk("attrBlend", 0);
+    } else if (attr == 4) {
+        task->SetValue0_unk("attr01", 1.0f);
+        task->SetValues2_unk("attrUv01ma", atn::Color(0.75f, 0.25f, 1.0f, 0.5f));
+        task->SetValues2_unk("attrUv01mb", atn::Color(0.75f, 0.25f, 1.0f, 0.5f));
+        SetWindowColor_unk(task, "attrCol01a", colors[9]);
+        SetWindowColor_unk(task, "attrCol01b", colors[14]);
+        task->SetInt_unk("attrBlend", 0);
+    } else if (attr == 3) {
+        task->SetValue0_unk("attr01", 1.0f);
+        task->SetValues2_unk("attrUv01ma", atn::Color(0.0f, 0.5f, 0.25f, 0.75f));
+        task->SetValues2_unk("attrUv01mb", atn::Color(0.0f, 0.5f, 0.25f, 0.75f));
+        SetWindowColor_unk(task, "attrCol01a", colors[11]);
+        SetWindowColor_unk(task, "attrCol01b", colors[14]);
+        task->SetInt_unk("attrBlend", 0);
+    } else if (attr == 5) {
+        task->SetValue0_unk("attr01", 1.0f);
+        task->SetValues2_unk("attrUv01ma", atn::Color(0.0f, 0.25f, 0.25f, 0.5f));
+        task->SetValues2_unk("attrUv01mb", atn::Color(0.0f, 0.25f, 0.25f, 0.5f));
+        SetWindowColor_unk(task, "attrCol01a", colors[10]);
+        SetWindowColor_unk(task, "attrCol01b", colors[14]);
+        task->SetInt_unk("attrBlend", 0);
+    } else if (attr == 6) {
+        task->SetValue0_unk("attr01", 1.0f);
+        task->SetValues2_unk("attrUv01ma", atn::Color(0.5f, 0.5f, 0.75f, 0.75f));
+        task->SetValues2_unk("attrUv01mb", atn::Color(0.5f, 0.5f, 0.75f, 0.75f));
+        SetWindowColor_unk(task, "attrCol01a", colors[12]);
+        SetWindowColor_unk(task, "attrCol01b", colors[15]);
+        task->SetInt_unk("attrBlend", 3);
+    } else if (attr == 7) {
+        task->SetValue0_unk("attr01", 1.0f);
+        task->SetValues2_unk("attrUv01ma", atn::Color(0.75f, 0.5f, 1.0f, 0.75f));
+        task->SetValues2_unk("attrUv01mb", atn::Color(0.75f, 0.5f, 1.0f, 0.75f));
+        SetWindowColor_unk(task, "attrCol01a", colors[13]);
+        SetWindowColor_unk(task, "attrCol01b", colors[15]);
+        task->SetInt_unk("attrBlend", 3);
+    } else {
+        task->SetValue0_unk("attr01", 0.0f);
+    }
+}
+
+// inferred: same as fn_803DD90C for a character window (D2A_TaskInstanceBase<64, 8>)
+// NONMATCHING: the copy of each colour (see SetWindowColor_unk) and the string pool offsets
+extern "C" void fn_803E746C(GameUIWindow_unk* task, int job) {
+    atn::Color* colors = lbl_807C8628;
+    if (job == 4) {
+        task->SetValues2_unk("jobUv01ma", atn::Color(0.5f, 0.0f, 0.75f, 0.25f));
+        task->SetValues2_unk("jobUv01mb", atn::Color(0.5f, 0.0f, 0.75f, 0.25f));
+        SetWindowColor_unk(task, "jobCol01a", colors[4]);
+        SetWindowColor_unk(task, "jobGradation", colors[4]);
+    } else if (job == 2) {
+        task->SetValues2_unk("jobUv01ma", atn::Color(0.0f, 0.0f, 0.25f, 0.25f));
+        task->SetValues2_unk("jobUv01mb", atn::Color(0.0f, 0.0f, 0.25f, 0.25f));
+        SetWindowColor_unk(task, "jobCol01a", colors[1]);
+        SetWindowColor_unk(task, "jobGradation", colors[1]);
+    } else if (job == 3) {
+        task->SetValues2_unk("jobUv01ma", atn::Color(0.25f, 0.0f, 0.5f, 0.25f));
+        task->SetValues2_unk("jobUv01mb", atn::Color(0.25f, 0.0f, 0.5f, 0.25f));
+        SetWindowColor_unk(task, "jobCol01a", colors[2]);
+        SetWindowColor_unk(task, "jobGradation", colors[2]);
+    } else if (job == 1) {
+        task->SetValues2_unk("jobUv01ma", atn::Color(0.75f, 0.0f, 1.0f, 0.25f));
+        task->SetValues2_unk("jobUv01mb", atn::Color(0.75f, 0.0f, 1.0f, 0.25f));
+        SetWindowColor_unk(task, "jobCol01a", colors[0]);
+        SetWindowColor_unk(task, "jobGradation", colors[0]);
+    } else {
+        task->SetValues2_unk("jobUv01ma", atn::Color(0.75f, 0.0f, 1.0f, 0.25f));
+        task->SetValues2_unk("jobUv01mb", atn::Color(0.75f, 0.0f, 1.0f, 0.25f));
+        SetWindowColor_unk(task, "jobCol01a", colors[5]);
+        SetWindowColor_unk(task, "jobGradation", colors[5]);
+    }
 }
