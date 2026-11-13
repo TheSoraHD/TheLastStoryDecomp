@@ -59,7 +59,7 @@ void GameSaveLoadBackgroundCommon::fn_803B83A4(char* name, int* offset, int slot
     if (NANDGetHomeDir(home) != 0) {
         return;
     }
-    sprintf(name, "%s/%s", home, lbl_80885C78);
+    sprintf(name, "%s/%s\0", home, lbl_80885C78);
     if (slot >= 0) {
         *offset = slot * sizeof(GameSaveFile_unk) + 0x20;
     } else {
@@ -72,7 +72,7 @@ void GameSaveLoadBackgroundCommon::fn_803B8454(char* name, int* size) {
     if (lbl_8087F0A8->m198 != 0) {
         name[0] = 0;
     } else if (NANDGetHomeDir(home) == 0) {
-        sprintf(name, "%s/%s", home, lbl_80885C78);
+        sprintf(name, "%s/%s\0", home, lbl_80885C78);
         *size = 17 * sizeof(GameSaveFile_unk) + 0x20;
     }
 }
@@ -82,7 +82,7 @@ extern "C" void fn_803B84DC(char* name) {
     if (lbl_8087F0A8->m198 != 0) {
         name[0] = 0;
     } else if (NANDGetHomeDir(home) == 0) {
-        sprintf(name, "%s/%s", home, lbl_80885C7C);
+        sprintf(name, "%s/%s\0", home, lbl_80885C7C);
     }
 }
 
@@ -99,7 +99,7 @@ extern "C" void fn_803B854C(char* name, int* size) {
             if (NANDGetHomeDir(home) != 0) {
                 return;
             }
-            sprintf(name, "%s/%s", home, lbl_80885C78);
+            sprintf(name, "%s/%s\0", home, lbl_80885C78);
         }
         *size = 0x149580;
     }
@@ -160,7 +160,7 @@ int GameSaveLoadCommon::fn_803B87A8() {
         if (lbl_8087F0A8->m198 != 0) {
             name[0] = 0;
         } else if (NANDGetHomeDir(home) == 0) {
-            sprintf(name, "%s/%s", home, lbl_80885C78);
+            sprintf(name, "%s/%s\0", home, lbl_80885C78);
         }
         int work;
         if (lbl_8087EF68 != 0) {
@@ -254,9 +254,17 @@ extern "C" int fn_803B8AC4(const char* path) {
     return NANDGetStatus(path, &stat) == 0;
 }
 
-// NONMATCHING: 99.9% - only the offsets of the two format strings in @stringBase0: the original pool has
-// "", "%s/save%02d.dat", "", "%s/save_sys.dat", "" between "%s/%s" and them (literals of functions
-// stripped by the linker, not reconstructed)
+// inferred: path helpers whose code the linker stripped: only their literals remain in the
+// original @stringBase0 ("%s/save%02d.dat", "", "%s/save_sys.dat", "" after "%s/%s", "" and before
+// the slot list formats). The formats carry an extra NUL (the "" after each one).
+void SaveSlotPath_unk(char* name, const char* home, int slot) {
+    sprintf(name, "%s/save%02d.dat\0", home, slot);
+}
+
+void SaveSysPath_unk(char* name, const char* home) {
+    sprintf(name, "%s/save_sys.dat\0", home);
+}
+
 void GameSaveLoadCommon::fn_803B8B08(GameSaveSlot_unk* slots) {
     char text[0x100];
     char map[0x100];
