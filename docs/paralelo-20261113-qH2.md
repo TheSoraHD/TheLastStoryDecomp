@@ -6,7 +6,7 @@ Rama `agent-H2`. Inicio 09:28 (Madrid).
 
 | Unidad | Sin escribir antes -> despues | 100 % (fnstat) |
 |---|---|---|
-| game/EnemyQuarkSecond | 5 -> 0 | 44 -> 44 / 70 |
+| game/EnemyQuarkSecond | 5 -> 0 | 44 -> 46 / 70 (fn_80341BEC, fn_80344780) |
 | game/LastCocoonImago | 4 -> 2 (quedan el ctor, por presupuesto, y fn_80459FB8 = vfBC, bloqueada) | 19 -> 20 / 36 (vfCC, por las etiquetas) |
 | game/LastCocoonEgg | 8 -> 6 (quedan las 6 copias debiles de vf0C/vf10) | 21 -> 21 / 42 |
 
@@ -58,6 +58,10 @@ los dos commits.
 - Puntero al gestor de balas en un local justo antes de la llamada (`Effect_unk* mgr = lbl_8087F048;`) cuando el
   original lo carga despues de los `rand()` (fn_8033F7FC 95,4 -> 97,7 %).
 
+- `fn_80341BEC` llamaba a "SE_EM211_012"; el original usa "SE_SP007_001" (stringBase0+0x36F). Corregido: con
+  todas las funciones escritas el pool coincide y `fn_80341BEC` y `fn_80344780` (debug menu) pasan a 100 %
+  (mnemcheck limpio); report 15358 -> 15360.
+
 ## game/LastCocoonImago
 
 - `fn_8045D3A4` (modo 12: camara de las curvas xsca "cm000_em206_00" alrededor del imago, como
@@ -82,6 +86,10 @@ los dos commits.
 - `LastCocoonEggSeg_unk` con sus campos (m00 en uso, m04 posicion, m10 PV, m14 inicio, m20 fin, m2C matriz del
   efecto m1994); el constructor sigue limpiando solo m00. LastCocoonEgg.cpp incluye game/BattleTask.h
   (fn_80101340).
+
+- Egg: el orden de `@stringBase0` no coincide porque vf0C inlinea fn_8045817C (cadenas del menu de depuracion) y
+  vf10 inlinea fn_80456E1C ("SE_EM206_027"); el original las llama (presupuesto, bloqueo conocido). Por eso
+  fn_8045531C sigue en 99,7 %.
 
 ## Pendientes
 

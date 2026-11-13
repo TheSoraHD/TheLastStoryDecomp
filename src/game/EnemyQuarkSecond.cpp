@@ -2103,8 +2103,6 @@ void EnemyQuarkSecond::fn_803412AC() {
     }
 }
 
-// NONMATCHING: 99.99% - only the offset of "SE_EM211_012" in @stringBase0 (the strings of the
-// functions not written yet come before it)
 void EnemyQuarkSecond::fn_80341BEC() {
     if (m14B4 == 0) {
         if (mMotion.mTracks[0].m08 >= 35.0f) {
@@ -2112,7 +2110,7 @@ void EnemyQuarkSecond::fn_80341BEC() {
             m14BC = 1;
             fn_80232B7C(&m1610, 0);
             PlayEffect_unk(&m1610, &mMotion, 4.0f);
-            fn_800C344C("SE_EM211_012", &mPos, 0, -1, 1.0f);
+            fn_800C344C("SE_SP007_001", &mPos, 0, -1, 1.0f);
         }
     } else {
         float frame = mMotion.mTracks[0].m08;
@@ -2378,8 +2376,6 @@ int EnemyQuarkSecond::fn_803446BC(const atn::Vector3& pos) {
     return (float)sqrt(d.x * d.x + d.z * d.z) >= 380.0f;
 }
 
-// NONMATCHING: 99.8% - only the offsets of the strings in @stringBase0 (the strings of the state
-// functions, not written yet, come before them in the pool)
 void EnemyQuarkSecond::fn_80344780() {
     void* group = m175C.Load("Quark");
     fn_80087994(group, "DebugDisp", &m1760, 0, 0);
