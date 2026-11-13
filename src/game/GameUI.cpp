@@ -48,7 +48,9 @@ extern "C" const char* const lbl_80750618[14];
 
 // inferred: field (lbl_8087F430) and its route table at 0x10D8
 struct GameUIField_unk {
-    unsigned char m00[0x868];
+    unsigned char m00[0x74];
+    atn::Vector3 mEye; // inferred: camera position (GameUI::fn_803E5200)
+    unsigned char m80[0x868 - 0x80];
     int m868; // inferred: kind of field (5, 7: the leader is the centre of the markers)
     unsigned char m86C[0x910 - 0x86C];
     atn::Vector3 m910; // inferred: centre of the markers in the tactical view
@@ -164,7 +166,9 @@ struct GameUISession_unk {
     }
     // inferred: the level and the last attack of the characters are shown (byte of m5A8; GameUI::fn_803D022C)
     unsigned char IsShowLevel_unk() const { return m5A8; }
-    unsigned char m510[0x5A8 - 0x510];
+    unsigned char m510[0x540 - 0x510];
+    int m540; // inferred: state of the match (2: playing; GameUI::fn_803E2410)
+    unsigned char m544[0x5A8 - 0x544];
     int m5A8;
     unsigned char m5AC[0x5E4 - 0x5AC];
     GameUISessionPlayer_unk* m5E4; // inferred: players
@@ -225,8 +229,25 @@ GameUI* lbl_8087F490;
 int lbl_8087F494;     // inferred: debug flag "ChantTimeHalf" (fn_803CFC78): frames counted at 60 per second (else 30)
 
 // inferred: colours of the HUD (0x807C8628, .bss of this file); they are set by the static initializer
-// (fn_803E78B4, not written yet) and registered in the debug menu by fn_803CFC78
-atn::Color lbl_807C8628[16];
+// (__sinit, 0x803E78B4) and registered in the debug menu by fn_803CFC78
+atn::Color lbl_807C8628[16] = {
+    atn::Color(255 / 255.0f, 217 / 255.0f, 51 / 255.0f, 0.0f),
+    atn::Color(230 / 255.0f, 46 / 255.0f, 46 / 255.0f, 0.0f),
+    atn::Color(125 / 255.0f, 125 / 255.0f, 125 / 255.0f, 0.0f),
+    atn::Color(197 / 255.0f, 80 / 255.0f, 254 / 255.0f, 0.0f),
+    atn::Color(197 / 255.0f, 80 / 255.0f, 254 / 255.0f, 0.0f),
+    atn::Color(153 / 255.0f, 153 / 255.0f, 153 / 255.0f, 0.0f),
+    atn::Color(125 / 255.0f, 125 / 255.0f, 125 / 255.0f, 0.0f),
+    atn::Color(255 / 255.0f, 60 / 255.0f, 15 / 255.0f, 0.0f),
+    atn::Color(10 / 255.0f, 10 / 255.0f, 255 / 255.0f, 0.0f),
+    atn::Color(51 / 255.0f, 255 / 255.0f, 102 / 255.0f, 0.0f),
+    atn::Color(250 / 255.0f, 240 / 255.0f, 130 / 255.0f, 0.0f),
+    atn::Color(167 / 255.0f, 248 / 255.0f, 255 / 255.0f, 0.0f),
+    atn::Color(102 / 255.0f, 26 / 255.0f, 153 / 255.0f, 0.0f),
+    atn::Color(153 / 255.0f, 27 / 255.0f, 27 / 255.0f, 0.0f),
+    atn::Color(255 / 255.0f, 255 / 255.0f, 255 / 255.0f, 0.0f),
+    atn::Color(25 / 255.0f, 25 / 255.0f, 25 / 255.0f, 0.0f),
+};
 
 // inferred: frames to whole seconds, rounded up past the first (60 or 30 frames per second)
 extern "C" int fn_803CE854(int frames) {
@@ -2875,6 +2896,81 @@ void GameUI::fn_803D2A6C() {
     }
 }
 
+// inferred: centre and radius of a character for the hate lines (the battle collision when bit C31 of
+// BattleCharaTask::m14A8 is set; names invented)
+inline const atn::Vector3& GetLineCenter_unk(CharaTask* c) {
+    return static_cast<BattleCharaTask*>(c)->mFlagC31 ? static_cast<BattleCharaTask*>(c)->m148C : c->mColli.m48;
+}
+inline float GetLineRadius_unk(CharaTask* c) {
+    return static_cast<BattleCharaTask*>(c)->mFlagC31 ? static_cast<BattleCharaTask*>(c)->m1498 : c->m5B0;
+}
+extern "C" void PSMTXTrans(Mtx m, float x, float y, float z);
+extern "C" void PSMTXScale(Mtx m, float x, float y, float z);
+extern "C" void fn_8023A680(EffectMgr_unk* mgr, atn::EffFile* res, int arg2, int arg3, atn::Model* model,
+                            const atn::Vector3* pos, const atn::Vector3* rot, int arg7, int arg8, int arg9,
+                            int arg10, float scale);
+
+// inferred: hate line `index` from `from` to `to` (between the edges of their collisions): the end slides
+// towards the target over five frames when `slide` (m78), the two effects of m1554/m1584 are placed along
+// the line (the colour by the kind of attack of `from`)
+// NONMATCHING: 98.7% - stack offsets of the temporaries (the original frame is 0x20 bytes larger; the
+// matrices of the inlined RotateZYX_unk are laid out in another order) and float registers
+void GameUI::fn_803D7850(CharaTask* from, CharaTask* to, int index, int slide) {
+    atn::Vector3 p0(GetLineCenter_unk(from));
+    atn::Vector3 p1(GetLineCenter_unk(to));
+    atn::Vector3 dir(p1.x - p0.x, 0.0f, p1.z - p0.z);
+    float dist = dir.Length_unk();
+    if (dist - (1.5f * GetLineRadius_unk(from) + 1.5f * GetLineRadius_unk(to)) > 1.0f) {
+        GameUIElem7C_unk* e = &m15BC[index];
+        dir.Normalize_unk();
+        p0 += dir * GetLineRadius_unk(from) * 1.5f;
+        p1 -= dir * GetLineRadius_unk(to) * 1.5f;
+        if (m15B8 == 0) {
+            e->m60 = p1;
+            e->m78 = 0.0f;
+        } else if (slide != 0) {
+            e->m78 = 1.0f;
+            mSeMask |= 0x2000;
+        }
+        float width = 0.5f;
+        if (e->m78 > 0.0f) {
+            p1 = (e->m60 - p1) * e->m78 + p1;
+            e->m78 = e->m78 - 0.2f;
+        } else {
+            e->m60 = p1;
+        }
+        dir = (p1 - dir * GetLineRadius_unk(to)) - p0;
+        atn::Vector3 rot = dir.ToRotation_unk();
+        float len = dir.Length_unk() / 50.0f;
+        atn::Matrix3x4 trans;
+        PSMTXTrans(trans.m, p0.x, p0.y, p0.z);
+        e->m00 = trans;
+        e->m00.RotateZYX_unk(rot);
+        atn::Matrix3x4 scale;
+        PSMTXScale(scale.m, width, width, len);
+        atn::Matrix3x4 t;
+        PSMTXConcat(e->m00.m, scale.m, t.m);
+        e->m00 = t;
+        atn::Vector3 end = p0 + dir;
+        atn::Matrix3x4 trans2;
+        PSMTXTrans(trans2.m, end.x, end.y, end.z);
+        e->m30 = trans2;
+        e->m30.RotateZYX_unk(rot);
+        if (m15B8 == 0) {
+            int color = 3;
+            if (from->mType != 2) {
+                color = 0;
+            } else if (from->mStatus.fn_80134250()) {
+                color = 2;
+            } else if (from->mStatus.fn_80134270()) {
+                color = 1;
+            }
+            fn_8023A680(lbl_8087F3C0, &m1554[color], -1, 5, (atn::Model*)&e->m00, 0, 0, 0, 0, -1, 1, 1.0f);
+            fn_8023A680(lbl_8087F3C0, &m1584[color], -1, 5, (atn::Model*)&e->m30, 0, 0, 0, 0, -1, 1, 1.0f);
+        }
+    }
+}
+
 // inferred: stops the effects of m1554 (called by game/TacView)
 void GameUI::fn_803D8344() {
     if (m15B8 != 0) {
@@ -3227,6 +3323,88 @@ extern "C" void fn_803DDD54(GameUIInst_unk* inst, int job) {
         break;
     }
 }
+
+// inferred: glyphs of the buttons in the button texture (name and UV rect; .data 0x8078BE68, the rects are set
+// by the static initializer); names invented
+struct GameUIButtonGlyph_unk {
+    wchar_t mName[4];
+    atn::Vector4_unk mUv;
+};
+static GameUIButtonGlyph_unk sButtonGlyphs_unk[20] = {
+    {L"A", atn::Vector4_unk(0.0f, 0.0f, 0.25f, 0.25f)},
+    {L"B", atn::Vector4_unk(0.25f, 0.0f, 0.5f, 0.25f)},
+    {L"C", atn::Vector4_unk(0.0f, 0.25f, 0.25f, 0.5f)},
+    {L"Z", atn::Vector4_unk(0.75f, 0.0f, 1.0f, 0.25f)},
+    {L"1", atn::Vector4_unk(0.0f, 0.0f, 0.0f, 0.0f)},
+    {L"2", atn::Vector4_unk(0.0f, 0.0f, 0.0f, 0.0f)},
+    {L"+", atn::Vector4_unk(0.5f, 0.25f, 0.75f, 0.5f)},
+    {L"-", atn::Vector4_unk(0.5f, 0.0f, 0.75f, 0.25f)},
+    {L"", atn::Vector4_unk(0.0f, 0.0f, 0.0f, 0.0f)},
+    {L"", atn::Vector4_unk(0.0f, 0.0f, 0.0f, 0.0f)},
+    {L"", atn::Vector4_unk(0.0f, 0.0f, 0.0f, 0.0f)},
+    {L"", atn::Vector4_unk(0.0f, 0.0f, 0.0f, 0.0f)},
+    {L"a", atn::Vector4_unk(0.0f, 0.5f, 0.25f, 0.75f)},
+    {L"b", atn::Vector4_unk(0.25f, 0.25f, 0.5f, 0.5f)},
+    {L"x", atn::Vector4_unk(0.5f, 0.75f, 0.75f, 1.0f)},
+    {L"y", atn::Vector4_unk(0.5f, 0.5f, 0.75f, 0.75f)},
+    {L"L", atn::Vector4_unk(0.0f, 0.75f, 0.25f, 1.0f)},
+    {L"R", atn::Vector4_unk(0.25f, 0.75f, 0.5f, 1.0f)},
+    {L"ZL", atn::Vector4_unk(0.75f, 0.5f, 1.0f, 0.75f)},
+    {L"ZR", atn::Vector4_unk(0.25f, 0.5f, 0.5f, 0.75f)},
+};
+// inferred: button help entries (0x1C bytes): flag, icon kind, message id and UV rect (GameUI::fn_803E3468);
+// names invented
+struct GameUIButtonHelp_unk {
+    int m00;
+    int mIcon;
+    int mMsg;
+    atn::Vector4_unk mUv;
+};
+static GameUIButtonHelp_unk sButtonHelp_unk[18] = {
+    {0, 1, 0xB5, atn::Vector4_unk(0.0f, 0.0f, 0.25f, 0.125f)},
+    {0, 1, 0xB6, atn::Vector4_unk(0.25f, 0.125f, 0.5f, 0.25f)},
+    {0, 0, 0xB7, atn::Vector4_unk(0.5f, 0.0f, 0.75f, 0.125f)},
+    {0, 0, 0xB8, atn::Vector4_unk(0.25f, 0.0f, 0.5f, 0.125f)},
+    {0, 0, 0xB9, atn::Vector4_unk(0.75f, 0.0f, 1.0f, 0.125f)},
+    {0, 0, 0xBA, atn::Vector4_unk(0.5f, 0.0f, 0.75f, 0.125f)},
+    {0, 6, 0xBB, atn::Vector4_unk(0.0f, 0.125f, 0.25f, 0.25f)},
+    {0, 0, 0xBC, atn::Vector4_unk(0.0f, 0.0f, 0.0f, 0.0f)},
+    {0, 7, 0xBD, atn::Vector4_unk(0.0f, 0.0f, 0.0f, 0.0f)},
+    {0, 0, 0xBF, atn::Vector4_unk(0.25f, 0.375f, 0.5f, 0.5f)},
+    {0, 4, 0xC0, atn::Vector4_unk(0.5f, 0.125f, 0.75f, 0.25f)},
+    {0, 4, 0xC2, atn::Vector4_unk(0.5f, 0.25f, 0.75f, 0.375f)},
+    {1, 5, 0xC4, atn::Vector4_unk(0.25f, 0.375f, 0.5f, 0.5f)},
+    {0, 3, 0xC8, atn::Vector4_unk(0.75f, 0.25f, 1.0f, 0.375f)},
+    {0, 4, 0xC9, atn::Vector4_unk(0.5f, 0.125f, 0.75f, 0.25f)},
+    {0, 2, 0xCA, atn::Vector4_unk(0.5f, 0.5f, 0.75f, 0.625f)},
+    {0, 6, 0xCB, atn::Vector4_unk(0.75f, 0.5f, 1.0f, 0.625f)},
+    {0, 3, 0xCC, atn::Vector4_unk(0.75f, 0.25f, 1.0f, 0.375f)},
+};
+static GameUIButtonHelp_unk sButtonHelp2_unk[23] = {
+    {0, 0, 0xCD, atn::Vector4_unk(0.0f, 0.125f, 0.25f, 0.25f)},
+    {0, 6, 0xCE, atn::Vector4_unk(0.75f, 0.125f, 1.0f, 0.25f)},
+    {0, 6, 0xCF, atn::Vector4_unk(0.0f, 0.125f, 0.25f, 0.25f)},
+    {0, 5, 0xD0, atn::Vector4_unk(0.75f, 0.375f, 1.0f, 0.5f)},
+    {0, 6, 0xD1, atn::Vector4_unk(0.25f, 0.375f, 0.5f, 0.5f)},
+    {0, 7, 0xD2, atn::Vector4_unk(0.0f, 0.0f, 0.0f, 0.0f)},
+    {0, 6, 0xD3, atn::Vector4_unk(0.0f, 0.5f, 0.25f, 0.625f)},
+    {0, 6, 0xD4, atn::Vector4_unk(0.25f, 0.5f, 0.5f, 0.625f)},
+    {0, 6, 0xD5, atn::Vector4_unk(0.0f, 0.25f, 0.25f, 0.375f)},
+    {0, 6, 0xD6, atn::Vector4_unk(0.0f, 0.375f, 0.25f, 0.5f)},
+    {0, 6, 0xD7, atn::Vector4_unk(0.0f, 0.0f, 0.0f, 0.0f)},
+    {0, 6, 0xD8, atn::Vector4_unk(0.0f, 0.0f, 0.0f, 0.0f)},
+    {0, 6, 0xD9, atn::Vector4_unk(0.0f, 0.0f, 0.0f, 0.0f)},
+    {0, 6, 0xDA, atn::Vector4_unk(0.0f, 0.0f, 0.0f, 0.0f)},
+    {0, 8, 0xDB, atn::Vector4_unk(0.0f, 0.0f, 0.0f, 0.0f)},
+    {0, 6, 0xDC, atn::Vector4_unk(0.0f, 0.0f, 0.0f, 0.0f)},
+    {0, 6, 0xDD, atn::Vector4_unk(0.0f, 0.0f, 0.0f, 0.0f)},
+    {0, 6, 0xDE, atn::Vector4_unk(0.0f, 0.0f, 0.0f, 0.0f)},
+    {0, 6, 0xDF, atn::Vector4_unk(0.0f, 0.0f, 0.0f, 0.0f)},
+    {0, 5, 0xE0, atn::Vector4_unk(0.0f, 0.0f, 0.0f, 0.0f)},
+    {0, 5, 0xE1, atn::Vector4_unk(0.0f, 0.0f, 0.0f, 0.0f)},
+    {0, 6, 0xE2, atn::Vector4_unk(0.0f, 0.0f, 0.0f, 0.0f)},
+    {0, 6, 0xBA, atn::Vector4_unk(0.0f, 0.0f, 0.0f, 0.0f)},
+};
 
 // NONMATCHING: 95.5% - register allocation: the original keeps the zero of the first loop in r31 and
 // reuses it as the offset into m10D4 (this in r30); here this stays in r31 (4 variants)
@@ -3720,6 +3898,230 @@ void GameUI::fn_803E0D84() {
     m30C.mMid.mBase.mCount -= (int)m30C.mMid.mBase.mCount;
 }
 
+extern "C" int fn_8021A888(HitInfo_unk* hit); // inferred: the magic is an attack magic (as CharaTask.cpp)
+
+// inferred: magic point gauge over a character: the chant of its current magic (kind 0/1 by the magic for
+// the party, 2/3 for kind-2 characters), the magic chosen in the tactics view, or the time of the states
+// of bits 0 and 31 (kinds 4 and 5); characters of flag B13 draw their own (vfC0)
+// NONMATCHING: 99.7% - the result flags of the inlined CharaTask::CanAct_unk (r0/r3 of IsFree/IsActive swapped)
+// and the registers of the copy of the fixed screen position of the player
+void GameUI::fn_803E2410(CharaTask* chara) {
+    if (chara->mFlagB13) {
+        chara->vfC0(this);
+        return;
+    }
+    if (!chara->CanAct_unk()) {
+        return;
+    }
+    int type = chara->mType;
+    if (type != 0 && chara->mC58.mC0 == 0) {
+        return;
+    }
+    if (chara->mFlag26 != 1) {
+        return;
+    }
+    if (lbl_8087F610 != 0 && type != 0 && lbl_8087F610->m540 != 2) {
+        return;
+    }
+    if (chara->fn_80160324()) {
+        HitInfo_unk* hit = chara->m638;
+        if (hit == 0) {
+            return;
+        }
+        int speed = (hit->mAC >> 5) & 1;
+        atn::Vector3 pos = chara->vf58();
+        atn::Vector3 screen = atn::RenderManager::instance_->GetScreenPosition(pos);
+        if (chara->mType == 0) {
+            screen = atn::Vector3(320.0f, 170.0f, 0.5f);
+        }
+        if (0.0f < screen.z && screen.z < 1.0f) {
+            int frames = chara->fn_8016DAB0();
+            if (chara->mType == 2) {
+                if (fn_8021A888(hit)) {
+                    fn_803E2A30(2, frames, screen, 1, speed);
+                } else {
+                    fn_803E2A30(3, frames, screen, 1, 0);
+                }
+            } else {
+                int count = 1;
+                PlayerTask* player = lbl_8087F8A0->mHead;
+                if (player != 0 && player->mFlag28) {
+                    count = 2;
+                }
+                if (chara->fn_801789D8(0x4FBF, 0)) {
+                    count <<= 1;
+                }
+                if (((unsigned int)chara->mStatus.m14 & 0x2000) == 0x2000) {
+                    count <<= 1;
+                }
+                if (fn_8021A888(hit)) {
+                    fn_803E2A30(0, frames, screen, count, 0);
+                } else {
+                    fn_803E2A30(1, frames, screen, count, 0);
+                }
+            }
+        }
+    } else if (lbl_8087F9F8 != 0 && lbl_8087F9F8->mA70 != 0) {
+        atn::Vector3 pos = chara->vf58();
+        atn::Vector3 screen = atn::RenderManager::instance_->GetScreenPosition(pos);
+        if (0.0f < screen.z && screen.z < 1.0f) {
+            if (chara->mType == 2) {
+                return;
+            }
+            int count = 1;
+            PlayerTask* player = lbl_8087F8A0->mHead;
+            if (player != 0 && player->mFlag28) {
+                count = 2;
+            }
+            if (chara->fn_801789D8(0x4FBF, 0)) {
+                count <<= 1;
+            }
+            if (((unsigned int)chara->mStatus.m14 & 0x2000) == 0x2000) {
+                count <<= 1;
+            }
+            HitInfo_unk* hit = lbl_8087F9F8->fn_805ADD3C(chara);
+            if (hit != 0) {
+                int frames = chara->fn_8016DAB0();
+                if (fn_8021A888(hit)) {
+                    fn_803E2A30(0, frames, screen, count, 0);
+                } else {
+                    fn_803E2A30(1, frames, screen, count, 0);
+                }
+            }
+        }
+    } else if ((chara->mStatus.m0C & 1) == 1) {
+        atn::Vector3 pos = chara->mPos + atn::Vector3(0.0f, 20.0f, 0.0f);
+        atn::Vector3 screen = atn::RenderManager::instance_->GetScreenPosition(pos);
+        bool show = true;
+        if (lbl_8087F610 != 0 && chara->mType != 0) {
+            show = false;
+        }
+        if (show && 0.0f < screen.z && screen.z < 1.0f) {
+            int frames = chara->mStatus.fn_801333A4(1);
+            if (frames < 0) {
+                frames = 0;
+            }
+            fn_803E2A30(4, frames, screen, 1, 0);
+        }
+    } else if ((chara->mStatus.m0C & 0x80000000) == 0x80000000) {
+        atn::Vector3 pos = chara->mPos + atn::Vector3(0.0f, 15.0f, 0.0f);
+        atn::Vector3 screen = atn::RenderManager::instance_->GetScreenPosition(pos);
+        if (0.0f < screen.z && screen.z < 1.0f) {
+            int frames = chara->mStatus.fn_801333A4(0x80000000);
+            if (frames < 0) {
+                frames = 0;
+            }
+            fn_803E2A30(5, frames, screen, 1, 0);
+        }
+    }
+}
+
+// inferred: colour parameter of a d2anime instance from a colour of the HUD (see SetInstColor_unk)
+inline void SetInstColorU_unk(GameUIInst_unk* inst, const char* name, GameUIColor_unk c) {
+    atn::D2A_RGB_unk rgb;
+    rgb.r = c.r;
+    rgb.g = c.g;
+    rgb.b = c.b;
+    inst->SetColor255_unk(name, rgb);
+}
+
+// inferred: next magic point gauge of the HUD (mA90/mAB8/mAE0[mA8C]) at `pos`: `frames` left (seconds and
+// sub-second frame), colour by `kind`, `count` points lit (the giga gauge when more than one) and the
+// speed gauge when `speed`
+// NONMATCHING: the colour is passed to SetColor255_unk as D2A_RGB_unk (the original copies the whole
+// colour; parameter of atn/D2A_TaskInstance.h, see pendientes)
+void GameUI::fn_803E2A30(int kind, int frames, atn::Vector3 pos, int count, int speed) {
+    if (mA8C < 10) {
+        int seconds = fn_803CE854(frames);
+        int sub = fn_803CE8A8(frames);
+        GameUIInst_unk* point = mA90[mA8C];
+        GameUISmallInst_unk* giga = AsSmallInst_unk(mAB8[mA8C]);
+        GameUISmallInst_unk* gauge = AsSmallInst_unk(mAE0[mA8C]);
+        point->MeltTask();
+        fn_801F6D7C(point, "basePoint", 0, pos.x);
+        fn_801F6D7C(point, "basePoint", 1, pos.y);
+        giga->SetValue1_unk("basePoint", 0, pos.x);
+        giga->SetValue1_unk("basePoint", 1, pos.y);
+        gauge->SetValue1_unk("basePoint", 0, pos.x);
+        gauge->SetValue1_unk("basePoint", 1, pos.y);
+        if (frames == 0) {
+            fn_801F837C(point, "damage", lbl_8078C638 + 42);
+        } else {
+            fn_801F8598(point, "damage", seconds, 0);
+        }
+        bool lit = false;
+        bool many = false;
+        int max = (seconds > 12 ? 12 : seconds) < 0 ? 0 : (seconds > 12 ? 12 : seconds);
+        GameUIColor_unk color;
+        if (kind == 0) {
+            lit = true;
+            if (count > 1) {
+                many = true;
+            }
+            color = m2728;
+        } else if (kind == 1) {
+            lit = true;
+            if (count > 1) {
+                many = true;
+            }
+            color = m2738;
+        } else if (kind == 2) {
+            lit = true;
+            if (speed != 0) {
+                color = m2768;
+            } else {
+                color = m2748;
+            }
+        } else if (kind == 3) {
+            lit = true;
+            color = m2758;
+        } else if (kind == 4) {
+            color = m2778;
+        } else if (kind == 5) {
+            color = GameUIColor_unk(240, 0, 0, 255);
+        } else {
+            color = GameUIColor_unk(240, 170, 0, 255);
+        }
+        SetInstColorU_unk(point, "baseColor", color);
+        fn_801F6C80(point, "colOn", 0.0f);
+        fn_801F6C80(point, "colR", 255.0f * color.r);
+        fn_801F6C80(point, "colG", 255.0f * color.g);
+        fn_801F6C80(point, "colB", 255.0f * color.b);
+        for (int i = 0; i < 12; i++) {
+            char name[64];
+            sprintf(name, "pointCol%02d", i + 1);
+            fn_801F791C(point, name, 0, (lit && i < max) ? 255.0f : 0.0f);
+        }
+        fn_801F791C(point, "hateCol", 0, many ? 255.0f : 0.0f);
+        if (many) {
+            giga->MeltTask();
+            giga->SetValue0_unk("colOn", 0.0f);
+            giga->SetValue0_unk("colR", 255.0f * color.r);
+            giga->SetValue0_unk("colG", 255.0f * color.g);
+            giga->SetValue0_unk("colB", 255.0f * color.b);
+            giga->SetNumber_unk("string0003(1)", count, 0);
+        }
+        if (frames == 0) {
+            point->mFrame = 15.0f;
+            gauge->mFrame = 15.0f;
+        } else {
+            point->mFrame = sub;
+            gauge->mFrame = sub;
+        }
+        if (giga->mFrame >= 15.0f) {
+            giga->mFrame = 14.0f;
+        }
+        if (speed != 0) {
+            gauge->MeltTask();
+            gauge->SetValue0_unk("colOn", 0.0f);
+            gauge->SetValue0_unk("colR", 50.0f);
+            gauge->SetValue0_unk("colG", 20.0f);
+            gauge->SetValue0_unk("colB", 90.0f);
+        }
+        mA8C++;
+    }
+}
+
 // NONMATCHING: 92.3% - the original addresses the members of the temporary mark with separate registers
 // (addi rN, r1, off for each vector) instead of one base; tried init list, body assignments, by-value
 // constructor, placement new without the temporary (5 variants)
@@ -3760,6 +4162,255 @@ void GameUI::fn_803E3384() {
     m748.Reset_unk();
     m764.Reset_unk();
     m780.Reset_unk();
+}
+
+extern "C" GameConfig_unk* lbl_8087F0A8; // inferred: game settings (line colours of the hate display)
+// inferred: object whose name the button prompt shows (GameUIElem1C_unk::m10); name invented
+struct GameUINamed_unk {
+    int m00;
+    int m04;
+    const wchar_t* mName;
+};
+// inferred: UV rect parameter of a d2anime task from a rect passed by value (name invented)
+inline void SetUvRect_unk(atn::D2A_Task* task, const char* name, atn::Vector4_unk r) {
+    task->SetParam2_unk(name, &r.x);
+}
+
+// inferred: button prompt of an action: the item part, the button glyph (by the icon kind of the action, the
+// pad, the attack type and the gathering type of the settings), the arrows of the cross pad on `arrows` and
+// the name and icon of the action (sButtonHelp2_unk for kind 6, else sButtonHelp_unk)
+void GameUI::fn_803E3468(atn::D2A_Task* task, atn::D2A_Task* arrows, GameUIElem1C_unk* button, int force) {
+    if (lbl_8087F0A8->mShowActionIcon == 0) {
+        return;
+    }
+    if (force == 0) {
+        int kind = button->m00;
+        if (kind == 6 || kind == 12 || kind == 9) {
+            return;
+        }
+    }
+    task->MeltTask();
+    int kind = button->m00;
+    int sub = button->m04;
+    task->SetLayoutValue_unk("item", sButtonHelp_unk[kind].m00 == 1 ? 1.0f : 0.0f);
+    char num[64];
+    sprintf(num, "%d", button->m08);
+    task->SetText_unk("item_num", (int)num);
+    if (button->m10 != 0) {
+        SetLayoutText_unk(&task->mData.m10, "item_name", ((GameUINamed_unk*)button->m10)->mName);
+    }
+    int glyph = 0;
+    int icon;
+    if (button->m00 == 6) {
+        icon = sButtonHelp2_unk[sub].mIcon;
+    } else {
+        icon = sButtonHelp_unk[kind].mIcon;
+    }
+    int stick = fn_800A58D0(lbl_8087EF70, 0);
+    SetConfig* config = SetConfig::sInstance;
+    bool tacview = config->mInTacviewType == 0;
+    bool gathering = config->mGatheringType == 0;
+    if (stick == 0) {
+        if (config->mAttackType == 0) {
+            switch (icon) {
+            case 0:
+                glyph = 0;
+                break;
+            case 1:
+                glyph = 0;
+                break;
+            case 2:
+                glyph = 3;
+                if (gathering) {
+                    glyph = 2;
+                }
+                break;
+            case 3:
+                glyph = 2;
+                if (gathering) {
+                    glyph = 3;
+                }
+                break;
+            case 4:
+                glyph = 0;
+                break;
+            case 5:
+                glyph = 0;
+                break;
+            case 6:
+                glyph = 0;
+                break;
+            case 7:
+                glyph = 1;
+                break;
+            case 8:
+                glyph = 0;
+                break;
+            }
+        } else {
+            switch (icon) {
+            case 0:
+                glyph = 8;
+                if (tacview) {
+                    glyph = 9;
+                }
+                break;
+            case 1:
+                glyph = 8;
+                if (tacview) {
+                    glyph = 9;
+                }
+                break;
+            case 2:
+                glyph = 3;
+                if (gathering) {
+                    glyph = 2;
+                }
+                break;
+            case 3:
+                glyph = 2;
+                if (gathering) {
+                    glyph = 3;
+                }
+                break;
+            case 4:
+                glyph = 0;
+                break;
+            case 5:
+                glyph = 8;
+                if (tacview) {
+                    glyph = 9;
+                }
+                break;
+            case 6:
+                glyph = 0;
+                break;
+            case 7:
+                glyph = 1;
+                break;
+            case 8:
+                glyph = 8;
+                if (tacview) {
+                    glyph = 9;
+                }
+                break;
+            }
+        }
+    } else {
+        if (config->mAttackType == 0) {
+            switch (icon) {
+            case 0:
+                glyph = 12;
+                break;
+            case 1:
+                glyph = 12;
+                break;
+            case 2:
+                glyph = 18;
+                if (gathering) {
+                    glyph = 16;
+                }
+                break;
+            case 3:
+                glyph = 16;
+                if (gathering) {
+                    glyph = 18;
+                }
+                break;
+            case 4:
+                glyph = 12;
+                break;
+            case 5:
+                glyph = 12;
+                break;
+            case 6:
+                glyph = 12;
+                break;
+            case 7:
+                glyph = 17;
+                break;
+            case 8:
+                glyph = 12;
+                break;
+            }
+        } else {
+            switch (icon) {
+            case 0:
+                glyph = 15;
+                break;
+            case 1:
+                glyph = 15;
+                break;
+            case 2:
+                glyph = 18;
+                if (gathering) {
+                    glyph = 16;
+                }
+                break;
+            case 3:
+                glyph = 16;
+                if (gathering) {
+                    glyph = 18;
+                }
+                break;
+            case 4:
+                glyph = 12;
+                break;
+            case 5:
+                glyph = 15;
+                break;
+            case 6:
+                glyph = 12;
+                break;
+            case 7:
+                glyph = 17;
+                break;
+            case 8:
+                glyph = 15;
+                break;
+            }
+        }
+    }
+    SetUvRect_unk(task, "btnUv", sButtonGlyphs_unk[glyph].mUv);
+    SetUvRect_unk(task, "btnUvMask", sButtonGlyphs_unk[glyph].mUv);
+    task->SetLayoutValue_unk("crossOn", 0.0f);
+    if ((unsigned int)(glyph - 8) <= 3) {
+        task->SetLayoutValue_unk("crossOn", 1.0f);
+        if (arrows != 0) {
+            arrows->MeltTask();
+            arrows->SetLayoutValue_unk("arrowU", 0.0f);
+            arrows->SetLayoutValue_unk("arrowD", 0.0f);
+            arrows->SetLayoutValue_unk("arrowL", 0.0f);
+            arrows->SetLayoutValue_unk("arrowR", 0.0f);
+            switch (glyph) {
+            case 8:
+                arrows->SetLayoutValue_unk("arrowU", 1.0f);
+                break;
+            case 9:
+                arrows->SetLayoutValue_unk("arrowD", 1.0f);
+                break;
+            case 10:
+                arrows->SetLayoutValue_unk("arrowL", 1.0f);
+                break;
+            case 11:
+                arrows->SetLayoutValue_unk("arrowR", 1.0f);
+                break;
+            }
+        }
+    }
+    if (button->m00 == 6) {
+        int msg = sButtonHelp2_unk[sub].mMsg;
+        task->SetLayoutText_unk("action_name", lbl_8087F1E4->GetEntry_unk(msg));
+        task->SetLayoutText_unk("action_name_sub", lbl_8087F1E4->GetEntry_unk(msg));
+        SetUvRect_unk(task, "icon_uv", sButtonHelp2_unk[sub].mUv);
+        SetUvRect_unk(task, "icon_mk_uv", sButtonHelp2_unk[sub].mUv);
+    } else {
+        int msg = sButtonHelp_unk[kind].mMsg;
+        task->SetLayoutText_unk("action_name", lbl_8087F1E4->GetEntry_unk(msg));
+        task->SetLayoutText_unk("action_name_sub", lbl_8087F1E4->GetEntry_unk(msg));
+        SetUvRect_unk(task, "icon_uv", sButtonHelp_unk[kind].mUv);
+        SetUvRect_unk(task, "icon_mk_uv", sButtonHelp_unk[kind].mUv);
+    }
 }
 
 void GameUI::fn_803E3BE8(void* msg, int arg, float time) {
@@ -4084,7 +4735,6 @@ extern "C" bool fn_803E4DD4(CharaTask* chara) {
     return false;
 }
 
-extern "C" GameConfig_unk* lbl_8087F0A8; // inferred: game settings (line colours of the hate display)
 // inferred: colour of a 0xAARRGGBB value (as game/BattleTask fn_800F8014; name invented)
 inline atn::Color GameUIColorU32_unk(unsigned int rgba) {
     return atn::Color(0.003921569f * (float)((rgba >> 16) & 0xFF), 0.003921569f * (float)((rgba >> 8) & 0xFF),
@@ -4129,6 +4779,55 @@ void GameUI::fn_803E4E58(atn::D3AnimeInstance* icon, CharaTask* chara, atn::Vect
         GetIconInst_unk(icon)->mFrame = zero;
     }
     pos->y += 1.5f;
+}
+
+// inferred: linear interpolation that adds the start last (name invented)
+inline atn::Vector3 LerpB_unk(const atn::Vector3& a, const atn::Vector3& b, float t) {
+    return (b - a) * t + a;
+}
+
+// inferred: position of an icon over a character: above the head (or the neck, or the collision centre),
+// moved 3 units towards the camera, turned towards the camera, scaled by its distance between the limits
+// m2670..m2674 (scales m266C..m2668)
+// NONMATCHING: 99.3% - float registers (f10/f11 swapped in two places) and the store of the flags of
+// MeltTask is scheduled one instruction later
+void GameUI::fn_803E5200(atn::D3AnimeInstance* icon, CharaTask* chara, atn::Vector3* pos, int) {
+    GameUIField_unk* field = lbl_8087F430;
+    MtxPtr head = chara->GetModel_unk()->GetNodeMtx_unk("head");
+    MtxPtr neck = chara->GetModel_unk()->GetNodeMtx_unk("neck");
+    atn::Vector3 top(head != 0   ? ((atn::Matrix3x4*)head)->GetTrans_unk()
+                     : neck != 0 ? ((atn::Matrix3x4*)neck)->GetTrans_unk()
+                                 : chara->mColli.m48);
+    top.y += 5.0f;
+    top.y += static_cast<BattleCharaTask*>(chara)->m149C;
+    atn::Vector3 dir = field->mEye - top;
+    float dist = dir.Length_unk();
+    dir.Normalize_unk();
+    atn::Vector3 base = top + dir * 3.0f;
+    dir.y = 0.0f;
+    dir.Normalize_unk();
+    atn::Vector3 front;
+    front = atn::Vector3(0.0f, 0.0f, 1.0f);
+    PSMTXMultVec(icon->mRot.m, &front, &front);
+    dir = front + dir;
+    dir.Normalize_unk();
+    dir = front + dir;
+    dir.Normalize_unk();
+    atn::Vector3 rot = dir.ToRotation_unk();
+    atn::Vector3 large(m2668, m2668, m2668);
+    atn::Vector3 small(m266C, m266C, m266C);
+    float d = m2670 > (m2674 < dist ? m2674 : dist) ? m2670 : (m2674 < dist ? m2674 : dist);
+    atn::Vector3 scale(1.0f, 1.0f, 1.0f);
+    scale = LerpB_unk(small, large, d / (m2674 - m2670));
+    icon->SetPosition_unk(base + *pos);
+    icon->MeltTask();
+    atn::Matrix3x4 mtx;
+    mtx.fn_8013A13C(rot.y);
+    icon->SetRotation_unk(mtx);
+    icon->SetScale_unk(scale);
+    fn_801F6D7C(GetIconInst_unk(icon), "pos0003", 0, 0.0f);
+    fn_801F6D7C(GetIconInst_unk(icon), "pos0003", 1, 0.0f);
+    fn_801F6D7C(GetIconInst_unk(icon), "pos0003", 4, d);
 }
 
 void GameUI::fn_803E58CC() {
