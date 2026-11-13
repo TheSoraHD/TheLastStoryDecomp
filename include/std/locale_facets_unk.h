@@ -129,8 +129,44 @@ enum {
     __left_unk = 0x20,
     __oct_unk = 0x40,
     __basefield_unk = 0x4A,
-    __adjustfield_unk = 0xB0
+    __adjustfield_unk = 0xB0,
+    __uppercase_unk = 0x4000
 };
+
+template <class C>
+class ctype;
+
+// inferred: the char ctype facet (constructor 0x8069xxxx in MSL locale.cpp); vtable slots from the calls of
+// the digit helpers (do_widen at 0x1C)
+template <>
+class ctype<char> : public locale::facet {
+public:
+    explicit ctype(const unsigned short* tab = 0, bool del = false, size_t refs = 0);
+    char widen(char c) const { return do_widen(c); }
+
+    static locale::id id;
+
+protected:
+    virtual ~ctype();
+    virtual char do_toupper(char c) const;
+    virtual const char* do_toupper(char* low, const char* high) const;
+    virtual char do_tolower(char c) const;
+    virtual const char* do_tolower(char* low, const char* high) const;
+    virtual char do_widen(char c) const;
+};
+
+// inferred: std::reverse as inlined in the digit helpers
+template <class I>
+inline void __reverse_unk(I first, I last) {
+    if (first != last) {
+        while (first < --last) {
+            char t = *first;
+            *first = *last;
+            *last = t;
+            ++first;
+        }
+    }
+}
 
 template <class C>
 class numpunct : public locale::facet {
@@ -214,6 +250,73 @@ numpunct<C>::~numpunct() {}
 
 // NONMATCHING: 88% - stack slots of the two name temporaries of the inlined numpunct constructor swapped,
 // registers of the facet and the table
+// NONMATCHING: 89.5% (unsigned long long), 94.4% (unsigned long) - one saved register less (registers of the
+// grouping counters), stack slots of the name temporaries of the inlined numpunct constructor swapped
+// inferred: digits of an unsigned integer in the base of the stream flags (8, 10 or 16, upper case letters
+// with uppercase), grouped with the numpunct of the stream unless noGroup, written backwards then reversed;
+// returns their count (weak copies 0x80242A8C for unsigned long long and 0x80242FF4 for unsigned long; name
+// invented)
+template <class C, class U>
+int __put_digits_unk(ios_base& str, U v, C* buf, const ctype<C>& ct, bool noGroup) {
+    locale loc = str.getloc();
+    if (v == 0) {
+        *buf = ct.widen('0');
+        return 1;
+    }
+    const numpunct<C>& np = use_facet<numpunct<C> >(loc);
+    unsigned int base = 10;
+    switch (str.flags() & __basefield_unk) {
+    case __oct_unk:
+        base = 8;
+        break;
+    case __hex_unk:
+        base = 16;
+        break;
+    }
+    C* p = buf;
+    string g = np.grouping();
+    unsigned int gi = 0;
+    unsigned char cnt = 0;
+    unsigned char gsize = 0;
+    bool group = g.size() != 0;
+    if (group) {
+        gsize = g[0];
+        if (gsize == 0) {
+            group = false;
+        }
+    }
+    if (noGroup) {
+        group = false;
+    }
+    C sep = group ? np.thousands_sep() : C();
+    bool upper = (str.flags() & __uppercase_unk) != 0;
+    while (v != 0) {
+        unsigned int d = v % base;
+        C c;
+        if (d < 10) {
+            c = ct.widen((char)('0' + d));
+        } else if (upper) {
+            c = ct.widen((char)('A' - 10 + d));
+        } else {
+            c = ct.widen((char)('a' - 10 + d));
+        }
+        v /= base;
+        *p++ = c;
+        if (v != 0 && group && ++cnt == gsize) {
+            *p++ = sep;
+            if (++gi < g.size()) {
+                gsize = g[gi];
+                if (gsize == 0) {
+                    group = false;
+                }
+            }
+            cnt = 0;
+        }
+    }
+    __reverse_unk(buf, p);
+    return p - buf;
+}
+
 // inferred: bool output (0x8023C0C0): without boolalpha as a long; else the true or false name of the
 // numpunct of the stream, padded with the fill character to the width (left, internal or right), which is
 // cleared

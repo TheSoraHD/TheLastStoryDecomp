@@ -550,6 +550,10 @@ template numpunct<char>::string_type numpunct<char>::truename() const;
 template numpunct<char>::string_type numpunct<char>::falsename() const;
 template numpunct<char>::string_type numpunct<char>::do_truename() const;
 template numpunct<char>::string_type numpunct<char>::do_falsename() const;
+template int __put_digits_unk<char, unsigned long long>(ios_base& str, unsigned long long v, char* buf,
+                                                      const ctype<char>& ct, bool noGroup);
+template int __put_digits_unk<char, unsigned long>(ios_base& str, unsigned long v, char* buf, const ctype<char>& ct,
+                                                 bool noGroup);
 template char numpunct<char>::do_decimal_point() const;
 template numpunct<char>::string_type numpunct<char>::grouping() const;
 template numpunct<char>::string_type numpunct<char>::do_grouping() const;
