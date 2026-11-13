@@ -200,6 +200,125 @@ inline atn::Texture* AsTexture_unk(unsigned char* p) {
     return (atn::Texture*)p;
 }
 extern "C" void fn_800D58A4(atn::Texture* tex); // inferred: releases the texture (as game/GameUI.cpp)
+// inferred: names of the battle effect files (const pointers of .sdata2 of this file to strings of .rodata)
+extern "C" const char* const lbl_808813DC;
+extern "C" const char* const lbl_808813E0;
+extern "C" const char* const lbl_808813E4;
+extern "C" const char* const lbl_808813E8;
+extern "C" const char* const lbl_808813EC;
+extern "C" const char* const lbl_808813F0;
+extern "C" const char* const lbl_8088140C;
+extern "C" const char* const lbl_80881410;
+extern "C" const char* const lbl_80881414;
+extern "C" const char* const lbl_80881418;
+extern "C" const char* const lbl_8088141C;
+extern "C" const char* const lbl_80881420;
+extern "C" const char* const lbl_80881424;
+extern "C" const char* const lbl_80881428;
+extern "C" const char* const lbl_8088142C;
+extern "C" const char* const lbl_80881430;
+extern "C" const char* const lbl_80881434;
+extern "C" const char* const lbl_80881438;
+extern "C" const char* const lbl_8088143C;
+extern "C" const char* const lbl_80881440;
+extern "C" const char* const lbl_80881444;
+extern "C" const char* const lbl_80881448;
+extern "C" const char* const lbl_8088144C;
+extern "C" const char* const lbl_80881450;
+extern "C" const char* const lbl_80881454;
+extern "C" const char* const lbl_80881458;
+extern "C" const char* const lbl_8088145C;
+extern "C" const char* const lbl_80881460;
+extern "C" const char* const lbl_80881468;
+extern "C" const char* const lbl_8088146C;
+extern "C" const char* const lbl_80881470;
+extern "C" const char* const lbl_80881474;
+extern "C" const char* const lbl_80735A94[3]; // inferred: status effect files (.rodata of this file)
+extern "C" const char* const lbl_80735A48[7]; // inferred: effect files of mEfp365E8 (.rodata of this file)
+
+// inferred: load requests of the battle effects, once (m3E394); fn_800F3170 releases them. C name, called by
+// GameTask as extern "C"
+extern "C" void fn_800F2C9C(BattleTask* mgr) {
+    if (mgr->m3E394 != 0) {
+        return;
+    }
+    mgr->m3E394 = 1;
+    char path[0x100];
+    for (int i = 0; i < 3; i++) {
+        for (int j = 0; j < 7; j++) {
+            if (i == 0) {
+                sprintf(path, "/effect/hit/ef_hg%03d.eff\0", j);
+            } else if (i == 1) {
+                sprintf(path, "/effect/hit/ef_hs%03d.eff\0", j);
+            } else {
+                sprintf(path, "/effect/ef_hm001c.eff\0");
+            }
+            AsEffFile_unk(mgr->mHitEff[i][j])->LoadRequest(path);
+        }
+    }
+    for (int i = 0; i < 5; i++) {
+        sprintf(path, "/effect/hit/ef_hs000_%02d.eff\0", i);
+        AsEffFile_unk(mgr->mEff3651C[i])->LoadRequest(path);
+        sprintf(path, "/effect/hit/ef_hs001_%02d.eff\0", i);
+        AsEffFile_unk(mgr->mEff36558[i])->LoadRequest(path);
+    }
+    for (int i = 0; i < 3; i++) {
+        AsEffFile_unk(mgr->mEff36594[i])->LoadRequest(lbl_80735A94[i]);
+    }
+    mgr->mEfp365B8[0].LoadRequest(lbl_80881474);
+    mgr->mEfp365B8[1].LoadRequest("ef_bs072h.efp");
+    mgr->mEfp363C0[0].LoadRequest(lbl_808813E0);
+    mgr->mEfp363C0[1].LoadRequest(lbl_808813E4);
+    mgr->mEfp363C0[2].LoadRequest(lbl_808813E8);
+    mgr->mEfp363C0[3].LoadRequest(lbl_808813EC);
+    AsTexture_unk(mgr->mCB7C)->fn_800D5908(lbl_808813DC);
+    mgr->mEfp364EC.LoadRequest(lbl_808813F0);
+    mgr->mEfp38AF4[0].LoadRequest(lbl_8088140C);
+    mgr->mEfp38AF4[1].LoadRequest("ef_bu044a.efp");
+    mgr->mEfp38AF4[2].LoadRequest(lbl_80881410);
+    mgr->mEfp38AF4[3].LoadRequest(lbl_80881414);
+    mgr->mEfp38AF4[4].LoadRequest(lbl_80881418);
+    mgr->mEfp38AF4[5].LoadRequest("ef_bu044d.efp");
+    mgr->mEfp38AF4[6].LoadRequest(lbl_8088141C);
+    mgr->mEfp38AF4[7].LoadRequest("ef_bu044b.efp");
+    mgr->mEfp38AF4[8].LoadRequest(lbl_80881420);
+    mgr->mEfp38AF4[9].LoadRequest("ef_bu044e.efp");
+    mgr->mEfp38AF4[10].LoadRequest(lbl_80881424);
+    mgr->mEfp38AF4[11].LoadRequest(lbl_80881428);
+    mgr->mEfp38AF4[12].LoadRequest(lbl_8088142C);
+    mgr->mEfp38AF4[13].LoadRequest(lbl_80881424);
+    mgr->mEfp38AF4[14].LoadRequest(lbl_80881428);
+    mgr->mEfp38AF4[15].LoadRequest(lbl_8088142C);
+    mgr->mEfp38AF4[16].LoadRequest(lbl_80881434);
+    mgr->mEfp38AF4[17].LoadRequest(lbl_80881438);
+    mgr->mEfp38AF4[18].LoadRequest(lbl_80881438);
+    mgr->mEfp38AF4[19].LoadRequest(lbl_8088143C);
+    mgr->mEfp38AF4[20].LoadRequest(lbl_80881440);
+    mgr->mEfp38AF4[21].LoadRequest(lbl_80881444);
+    mgr->mEfp38AF4[22].LoadRequest(lbl_80881448);
+    mgr->mEfp38AF4[23].LoadRequest(lbl_8088144C);
+    mgr->mEfp38AF4[25].LoadRequest(lbl_80881450);
+    mgr->mEfp38AF4[26].LoadRequest(lbl_80881454);
+    mgr->mEfp38AF4[27].LoadRequest(lbl_80881458);
+    mgr->mEfp38AF4[28].LoadRequest(lbl_8088145C);
+    AsEffFile_unk(mgr->m389F4)->LoadRequest(lbl_80881430);
+    mgr->mEfp38AF4[29].LoadRequest(lbl_80881460);
+    mgr->mEfp38AF4[30].LoadRequest("ef_uc067.efp");
+    mgr->mEfp38AF4[31].LoadRequest(lbl_80881468);
+    mgr->mEfp365B8[2].LoadRequest(lbl_8088146C);
+    mgr->mEfp365B8[3].LoadRequest(lbl_80881470);
+    for (int i = 0; i < 7; i++) {
+        mgr->mEfp365E8[i].LoadRequest(lbl_80735A48[i]);
+    }
+    mgr->mStunEfp[0][0].LoadRequest("ef_ui018a.efp");
+    mgr->mStunEfp[0][1].LoadRequest("ef_ui018b.efp");
+    mgr->mStunEfp[0][2].LoadRequest("ef_ui018c.efp");
+    mgr->mStunEfp[1][0].LoadRequest("ef_ui008a.efp");
+    mgr->mStunEfp[1][1].LoadRequest("ef_ui008b.efp");
+    mgr->mStunEfp[1][2].LoadRequest("ef_ui008c.efp");
+    lbl_8087F9E8->fn_8059AFD8();
+}
+
 
 // inferred: releases the battle effects once (m3E394) and the effect files of the skills. C name, called by
 // GameTask as extern "C"

@@ -25,6 +25,10 @@ Funciones al 0 % al empezar: BattleTask 29, TacView 6, BattleCharaTask 1.
     `m389F4` es un EffFile; `mCB7C` un `atn::Texture`; `m3E394` el flag de cargados. Las EffFile y la Texture son
     almacenamiento crudo (`unsigned char[0xC]`) como en `BattleMarkers_unk`, con `AsEffFile_unk`/`AsTexture_unk`
     en el .cpp. `fn_801018E4` sube de 93,9 a 98,5 % con el tipado.
+  - `fn_800F2C9C` (peticiones de carga de los efectos de batalla): **100 %**, mnemcheck limpio. Los cinco
+    formatos de `sprintf` llevan `\0` extra (los `""` del pool). Los nombres de `.sdata2` (`lbl_808813DC`...
+    `lbl_80881474`) y las tablas `lbl_80735A94`/`lbl_80735A48` de `.rodata` quedan `extern` como las demas del
+    fichero (la unidad no enlaza aun).
 
 ## Decisiones tomadas sin el usuario
 
