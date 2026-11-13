@@ -20,7 +20,8 @@ Inicio: 2026-11-13 07:19 CET. Tope 09:49.
   - `Actor::fn_8000FAE8` (fin del evento: devuelve al personaje el estado guardado en m18/m24) 92,9 %.
   - `Actor::fn_80012AC4` (matriz de un nodo del actor) 99,6 -> 100 %: metodo `const` (renombrado a
     `fn_80012AC4__Q25Event5ActorCFUi`; llamador Event/ActionEffectPlay sin cambios en el fuente).
-  - `fn_8001011C` 99,2 -> 99,6 % (columnas de `SetModelMtx_unk` por `MtxCol_unk`, evaluadas z, y, x).
+  - `Actor::fn_8001011C` (mueve el actor) 99,2 -> 100 %: columnas de `SetModelMtx_unk` por `MtxCol_unk`,
+    evaluadas z, y, x, y el modelo por `Puppeteer::GetTarget_unk()` en vez de `m48`.
 
 - `Event/ActionActorPosition`: 4 -> 0 (34 al 100 %, sin cambios).
   - `ActionActorNode::vf08` (mueve y gira un nodo del modelo con fundidos; acumula los offsets por nodo en
@@ -35,7 +36,7 @@ Inicio: 2026-11-13 07:19 CET. Tope 09:49.
 
 ## NONMATCHING
 
-- `fn_80010490` 97,6 %: el original guarda this/rot en r28/r29 y la matriz y el modelo del caso 3 en r31/r30
+- `fn_80010490` 97,8 % (99,2 % `fn_80011420`, con `GetTarget_unk()` para la traslacion): el original guarda this/rot en r28/r29 y la matriz y el modelo del caso 3 en r31/r30
   (aqui comparten registro); matriz del caso 3 arriba del marco.
 - `fn_80011420` 99,0 %: huecos de las matrices de rotacion (0x30 mas arriba aqui).
 - `fn_80013558` 97,7 %: el `push_back` inline de `std::vector<ColorF_unk>` (std/vector.h, otra familia: el
@@ -63,7 +64,7 @@ Inicio: 2026-11-13 07:19 CET. Tope 09:49.
   parametro (no renumeran). Llamadores de
   `fn_80010B68` (Event/Path, Event/ActionActorPosition) sin cambios en el fuente; el nombre en `symbols.txt`.
 - `@15509`/`@15510` (0.0f/1.0f de `.sdata2` de la unidad) renombrados a mano (pd.sh no los renombra): ahora
-  `@17637`/`@17638`.
+  `@17644`/`@17645`.
 
 - `Event/Actor.h`: bits de `m18` (MSB primero) detallados: `m18_0` estado guardado, `m18_8` (8 bits) modo de
   control, `m18_16..22` bits guardados del personaje; `ActorAnim_unk::m0C` int. Las dos posiciones guardadas
@@ -90,6 +91,9 @@ Inicio: 2026-11-13 07:19 CET. Tope 09:49.
 
 - Las `@STRING@Resize_unk__...` de `.sdata` son cadenas vacias (los argumentos de nombre de `operator new[]`):
   solo cuenta el nombre de la etiqueta (el tipo del `SimpleVector`).
+
+- Leer el objetivo de un `Puppeteer` por `GetTarget_unk()` en vez de `m48` cambia los registros de lo que sigue
+  (`fn_8001011C` 99,6 -> 100 %); crea una instancia nueva de la plantilla (renumera las `@N`: `pd.sh`).
 
 ## Pendientes
 

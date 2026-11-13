@@ -851,7 +851,6 @@ inline void SetModelMtx_unk(atn::Model* model, const atn::Matrix3x4& m) {
 }
 
 // inferred: moves the actor to `pos`
-// NONMATCHING: 99.6% - registers of the matrix copy (r5/r6 swapped)
 void Actor::fn_8001011C(const atn::Vector3& pos) {
     switch (m20) {
     case 7:
@@ -862,7 +861,7 @@ void Actor::fn_8001011C(const atn::Vector3& pos) {
         ((GimmickCommon*)m1C)->m6C = pos;
         break;
     case 3: {
-        atn::Model* model = ((Puppeteer<atn::Model>*)m1C)->m48;
+        atn::Model* model = ((Puppeteer<atn::Model>*)m1C)->GetTarget_unk();
         atn::Matrix3x4 m(model->mMtx);
         m.m[0][3] = pos.x;
         m.m[1][3] = pos.y;
@@ -959,11 +958,11 @@ inline void Actor::SetRotation_unk(const atn::Vector3& rot) {
         break;
     case 3: {
         atn::Matrix3x4 m = fn_800109E0(rot);
-        atn::Vector3 t = ((Puppeteer<atn::Model>*)m1C)->m48->mMtx.GetTrans_unk();
+        atn::Vector3 t = ((Puppeteer<atn::Model>*)m1C)->GetTarget_unk()->mMtx.GetTrans_unk();
         m.m[0][3] = t.x;
         m.m[1][3] = t.y;
         m.m[2][3] = t.z;
-        SetModelMtx_unk(((Puppeteer<atn::Model>*)m1C)->m48, m);
+        SetModelMtx_unk(((Puppeteer<atn::Model>*)m1C)->GetTarget_unk(), m);
         ((Puppeteer<atn::Model>*)m1C)->m48->CalcMatrixStack(atn::ModelNodeCallback_unk());
         break;
     }
@@ -979,7 +978,7 @@ inline void Actor::SetRotation_unk(const atn::Vector3& rot) {
     }
 }
 
-// NONMATCHING: 97.6% - registers and stack: the original keeps this and rot in r28/r29, the matrix and the
+// NONMATCHING: 97.8% - registers and stack: the original keeps this and rot in r28/r29, the matrix and the
 // model of the case 3 in r31/r30 (here they share a register) and the matrix of the case 3 at the top of the
 // frame
 void Actor::fn_80010490(const atn::Vector3& rot) {
@@ -1101,7 +1100,7 @@ atn::Vector3 Actor::fn_800112E0() {
 }
 
 // inferred: sets the rotation of the actor around y
-// NONMATCHING: 99.0% - stack slots of the rotation matrices (0x30 higher here) and registers of the copy of the
+// NONMATCHING: 99.2% - stack slots of the rotation matrices (0x30 higher here) and registers of the copy of the
 // matrix of the case 3
 void Actor::fn_80011420(float yaw) {
     SetRotation_unk(atn::Vector3(0.0f, yaw, 0.0f));
