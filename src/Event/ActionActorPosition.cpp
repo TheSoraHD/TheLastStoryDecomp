@@ -788,6 +788,93 @@ int ActionActorEyes::vf08(Action* arg) {
     return 0;
 }
 
+// NONMATCHING: 96.5% - registers of the start of phase 0 (the original loads m18 and the size of the
+// parameters before the lookup), stack slots of the node positions (as ActionActorHeading::vf0C) and
+// operand order of the degree conversions of phase 3
+// inferred: eyes of an actor; phase 0 sets the point they look at (at the height of the right eye above the
+// reference node, in front of the actor) unless parameter 9 is set, phases 2 and 3 end the eye movement
+int ActionActorEyes::vf0C(Action* arg, int phase) {
+    switch (phase) {
+    case 0: {
+        ActionOwner_unk* section = arg->fn_805381A0();
+        EventManager_unk* manager = arg->fn_805381C8();
+        Actor* actor = manager->FindActor_unk(section->m10);
+        int length = arg->m18;
+        manager->FindActor_unk(arg->GetParam_unk(0)->m04.i);
+        int fixed = arg->GetParam_unk(9)->m04.i;
+        if (length > 0) {
+            int curve = arg->GetParam_unk(15)->m04.i;
+            actor->m138 = lbl_8087F540->fn_8048B3B8(curve);
+        }
+        if (fixed != 0) {
+            if (actor->m145 != 0) {
+                atn::Vector3 zero(0.0f, 0.0f, 0.0f);
+                actor->mF4 = zero;
+                actor->m145 = 0;
+            }
+        } else if (actor->m145 != 0) {
+            atn::Vector3 pos = actor->fn_80010374();
+            if (actor->fn_8001296C() != 0) {
+                MtxPtr eye = actor->fn_8001296C()->GetNodeMtx_unk("eye_R");
+                MtxPtr ref = actor->fn_8001296C()->GetNodeMtx_unk("reference");
+                if (eye != 0 && ref != 0) {
+                    const atn::Vector3& refPos = atn::Vector3(ref[0][3], ref[1][3], ref[2][3]);
+                    const atn::Vector3& eyePos = atn::Vector3(eye[0][3], eye[1][3], eye[2][3]);
+                    float height = eyePos.y - refPos.y;
+                    atn::Vector3 head(refPos.x, refPos.y + height, refPos.z);
+                    (head - pos).Length_unk();
+                    pos = head;
+                }
+            }
+            pos += actor->fn_800112E0() * 10.0f;
+            actor->m100 = pos;
+            actor->m145 = 0;
+            actor->m18C.m28 = pos;
+        }
+        actor->m18C.m00 = 0;
+        break;
+    }
+    case 2: {
+        ActionOwner_unk* section = arg->fn_805381A0();
+        EventManager_unk* manager = arg->fn_805381C8();
+        Actor* actor = manager->FindActor_unk(section->m10);
+        if (arg->m18 > 0) {
+            lbl_8087F540->fn_8048C884(actor->m138);
+        }
+        if (arg->GetParam_unk(5)->m04.i == 0) {
+            float speed = arg->m1C > 0 ? 2.0f / arg->m1C : 1.0f;
+            actor->fn_80013530(speed);
+        }
+        break;
+    }
+    case 3: {
+        ActionOwner_unk* section = arg->fn_805381A0();
+        EventManager_unk* manager = arg->fn_805381C8();
+        Actor* actor = manager->FindActor_unk(section->m10);
+        if (arg->GetParam_unk(5)->m04.i == 0) {
+            actor->fn_80013530(1.0f);
+            actor->m18C.m1C = lbl_807C7030;
+        } else {
+            atn::Vector3 rot;
+            rot.x = arg->GetParam_unk(6)->m04.f * 0.017453292f;
+            rot.y = arg->GetParam_unk(7)->m04.f * 0.017453292f;
+            rot.z = arg->GetParam_unk(8)->m04.f * 0.017453292f;
+            actor->m18C.m1C = rot;
+        }
+    }
+    case 6: {
+        EventManager_unk* manager = arg->fn_805381C8();
+        int id = arg->GetParam_unk(0)->m04.i;
+        Actor* actor = manager->FindActor_unk(id);
+        if (actor->m20 == 6) {
+            arg->fn_80538DC4(2);
+        }
+        break;
+    }
+    }
+    return 0;
+}
+
 // NONMATCHING: stack slots of the node positions of phase 0 (the original puts the reference position lowest
 // and the head point highest; tried the positions as temporaries and the head point first) and the
 // registers of the parameter of phase 6

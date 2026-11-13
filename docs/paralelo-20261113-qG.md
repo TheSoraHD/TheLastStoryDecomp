@@ -11,11 +11,11 @@ Inicio: 2026-11-13 03:17 CET. Tope 05:47.
     `Actor::fn_80012294` (para una pista) 97,6 %: eran `extern "C"` con `self` en ActionActorPosition y Dialog;
     ahora miembros de `Event::Actor` (declarados sin nombres de parametro) y renombrados en `symbols.txt`.
 
-- `Event/ActionActorPosition`: 13 -> 7 (32 al 100 %, sin cambios).
+- `Event/ActionActorPosition`: 13 -> 6 (32 -> 33 al 100 %).
   - `ActionActorSetting::fn_80557E00` (nodo de pelo del tipo de pelo, casos que caen) 99,4 %,
     `ActionActorSetting::fn_80557F84` (activa los huesos fisicos de pelo/pendientes/faldon/pecho segun el modelo
     "pc101".."pc107") 99,1 %, `ActionActorSetting::vf0C` 99,96 %, `ActionActorSetting::vf08` 99,4 %.
-  - `ActionActorNode::vf0C` 98,6 %, `ActionActorHeading::vf0C` 98,7 %.
+  - `ActionActorNode::vf0C` 98,6 %, `ActionActorHeading::vf0C` 98,7 %, `ActionActorEyes::vf0C` 96,5 %.
     Los dos `fn_` pasan a miembros de `ActionActorSetting` (declarados sin nombres en
     `Event/ActionProcessors_unk.h`, 4 unidades) y renombrados en `symbols.txt`.
 
@@ -54,6 +54,10 @@ Inicio: 2026-11-13 03:17 CET. Tope 05:47.
 - `IsState6_unk` (declarada en Actor.h, definida en ActionActorPosition) definida tambien en Puppeteer_CharaTask.
 
 - `src/Event/ActionActorPosition.cpp` incluye `game/CharaTask.h` y `atn/PBone.h` (re-emparejada con `pd.sh`).
+
+- `ActorEyes_unk::m28` pasa de bytes a `atn::Vector3` (punto mirado, `ActionActorEyes::vf0C`): renumera las `@N`
+  de Event/EventParser_unk, Event/Puppeteer_CharaTask y Event/Sequence; re-emparejadas con `pdbatch.sh`
+  (precommit OK).
 
 ## Hallazgos
 

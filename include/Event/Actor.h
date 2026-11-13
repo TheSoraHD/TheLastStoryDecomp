@@ -68,7 +68,7 @@ struct ActorEyes_unk {
     atn::Vector3 m04;    // inferred: goal of the eyes
     atn::Vector3 m10;    // inferred: current eye angles
     atn::Vector3 m1C;
-    unsigned char m28[0x34 - 0x28];
+    atn::Vector3 m28; // inferred: point looked at (ActionActorEyes::vf0C)
 };
 
 // inferred: an actor of the event (0x1C0 bytes)
