@@ -35,6 +35,8 @@ Lista: `/home/claude/scratch/n-candidates.txt` (98 % y menos, y las de 99 % que 
   fn_800F8C6C (float antes). `game/QuadrupedTask`: fn_80566FB4 86,11 -> 87,52 con la misma firma.
 - `game/Em202SpiderBase` (fuera de colas): fn_80285FA0 99,65 -> 100 % (`float dist;` declarada antes y
   `float rate = 1.0f;` asignada primero: el 1.0f se carga en el prologo y dist queda en f31).
+- `game/EnemySeaLizerd` (fuera de colas): fn_80355390 98,87 -> 99,96 (copia del puntero `CharaTask* c = chara;`
+  al principio de GetFrontPos_unk); queda f4/f6 del frsp de fn_80139F60.
 - `chr/ControlShoot`: ctor 98,76 -> 99,90 %. El motion de los casos 0x25/0x26 con el ternario de `enum` y
   `mFB4 = mData->m48 + mFB4`. Queda el registro del cero de mFB0/mFB4 (r6 por r4).
 - Sin cambio (intentos revertidos, 2-8 cada una): `db/MapEnvSeTable_unk` fn_80214F80 (operator[] e inline

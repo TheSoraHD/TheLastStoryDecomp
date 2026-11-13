@@ -217,14 +217,16 @@ void EnemySeaLizerd::fn_80354EE4() {
 
 // inferred: position one unit in front of a character (name invented)
 inline atn::Vector3 GetFrontPos_unk(CharaTask* const& chara) {
+    CharaTask* c = chara;
     atn::Vector3 offset(0.0f, 0.0f, 1.0f);
     Mtx m;
-    PSMTXRotRad(m, 'y', chara->mRot.y);
+    PSMTXRotRad(m, 'y', c->mRot.y);
     PSMTXMultVec(m, &offset, &offset);
     return chara->mPos + offset;
 }
 
-// NONMATCHING: 98.9% - the target character is loaded before the offset is built (r6), f4/f6
+// NONMATCHING: 99.9% - f4/f6 of the frsp of the inlined fn_80139F60 (the character pointer copy in
+// GetFrontPos_unk gives its early load)
 void EnemySeaLizerd::fn_80355390() {
     atn::Vector3 from;
     atn::Vector3 to;
