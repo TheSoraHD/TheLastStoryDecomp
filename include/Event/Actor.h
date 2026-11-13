@@ -111,7 +111,7 @@ struct Actor : public CommonData {
     atn::Model* fn_8001296C();     // inferred: same code as fn_80012A1C
     atn::Model* fn_80012A1C();     // inferred: model of the actor (0 if none)
     inline atn::Model* GetModel_unk(); // inferred: inlined copy of fn_8001296C (Event/Puppeteer_CharaTask.cpp)
-    MtxPtr fn_80012AC4(unsigned int node); // inferred: node matrix of the actor (ActionEffectPlay)
+    MtxPtr fn_80012AC4(unsigned int node) const; // inferred: node matrix of the actor (ActionEffectPlay)
     void fn_8001268C(int msg, int state); // inferred: message to a gimmick actor
     void fn_8000EE8C();            // inferred: update (Event::Sequence::vf10)
     void fn_8000F1EC();            // inferred: start of the event

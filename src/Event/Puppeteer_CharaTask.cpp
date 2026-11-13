@@ -1535,16 +1535,15 @@ atn::Model* Actor::fn_80012A1C() {
 }
 
 // inferred: matrix of the node `node` (name hash) of the actor, its world matrix for 0
-// NONMATCHING: 99.6% - the original loads m20 before saving r31 and r30 (prologue scheduling); tried a local
-// for the kind, a cast, a result variable, a default case, if/else and an int argument
-MtxPtr Actor::fn_80012AC4(unsigned int node) {
+// inferred: const (the original loads m20 before saving r31 and r30)
+MtxPtr Actor::fn_80012AC4(unsigned int node) const {
     switch (m20) {
     case 7:
     case 1:
         if (node != 0) {
-            return GetChara_unk()->GetModel_unk()->GetNodeMtxByHash_unk(node);
+            return ((Puppeteer<CharaTask>*)m1C)->m48->GetModel_unk()->GetNodeMtxByHash_unk(node);
         }
-        return GetChara_unk()->GetModel_unk()->mMtx.m;
+        return ((Puppeteer<CharaTask>*)m1C)->m48->GetModel_unk()->mMtx.m;
     case 2:
         if (node != 0) {
             return ((GimmickCommon*)m1C)->vf38()->GetNodeMtxByHash_unk(node);

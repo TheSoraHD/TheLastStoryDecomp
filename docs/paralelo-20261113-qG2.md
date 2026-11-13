@@ -18,6 +18,8 @@ Inicio: 2026-11-13 07:19 CET. Tope 09:49.
   - `Actor::fn_8000F1EC` (inicio del evento: guarda en m18/m24 el estado del personaje y lo toma) 96,3 %; con el
     cast a `SimpleVector<Event::PoseKey_unk>` sale tambien `PoseKey_unk::PoseKey_unk` (0x8000FAE4) al 100 %.
   - `Actor::fn_8000FAE8` (fin del evento: devuelve al personaje el estado guardado en m18/m24) 92,9 %.
+  - `Actor::fn_80012AC4` (matriz de un nodo del actor) 99,6 -> 100 %: metodo `const` (renombrado a
+    `fn_80012AC4__Q25Event5ActorCFUi`; llamador Event/ActionEffectPlay sin cambios en el fuente).
   - `fn_8001011C` 99,2 -> 99,6 % (columnas de `SetModelMtx_unk` por `MtxCol_unk`, evaluadas z, y, x).
 
 - `Event/ActionActorPosition`: 4 -> 0 (34 al 100 %, sin cambios).
@@ -56,7 +58,7 @@ Inicio: 2026-11-13 07:19 CET. Tope 09:49.
 
 ## Decisiones tomadas sin el usuario
 
-- `include/Event/Actor.h` (33 unidades): `fn_80010B68` pasa a `const` y miembro nuevo
+- `include/Event/Actor.h` (33 unidades): `fn_80010B68` y `fn_80012AC4` pasan a `const` y miembro nuevo
   `inline void SetRotation_unk(const atn::Vector3&)` e `inline atn::Model* GetModel_unk()` sin nombre de
   parametro (no renumeran). Llamadores de
   `fn_80010B68` (Event/Path, Event/ActionActorPosition) sin cambios en el fuente; el nombre en `symbols.txt`.
