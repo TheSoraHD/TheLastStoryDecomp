@@ -29,6 +29,10 @@ Funciones al 0 % al empezar: BattleTask 29, TacView 6, BattleCharaTask 1.
     formatos de `sprintf` llevan `\0` extra (los `""` del pool). Los nombres de `.sdata2` (`lbl_808813DC`...
     `lbl_80881474`) y las tablas `lbl_80735A94`/`lbl_80735A48` de `.rodata` quedan `extern` como las demas del
     fichero (la unidad no enlaza aun).
+  - `fn_80106878` (efecto del movimiento de ataque "na000_ats..." de un personaje, `mEfp365E8[kind]`; 97,7 %:
+    marco 0x10 mayor). Usa `PlayEfp_unk`, `fn_801070C8`/`fn_80107208` (se inlinean) y `HasCond_unk` (inline nuevo).
+  - `fn_8010220C` (reticula de la camara: color, anillos con el stick y centro; 99,0 %, registros volatiles).
+    Miembros nuevos `mCB34`, `mCB38`, `mCB40`, `mCB48`, `mCB50` (`atn::Vector2_unk`); `Arena_unk::m50C`.
 
 ## Decisiones tomadas sin el usuario
 
@@ -48,6 +52,8 @@ Funciones al 0 % al empezar: BattleTask 29, TacView 6, BattleCharaTask 1.
   `GimmickUvOwner_unk` (su nombre en `symbols.txt`, como gmk/AutomaticDoor.cpp): las dos son de `atn::Texture`
   (atn/Texture_unk.cpp, otra cola). Pendiente: pasarlas a miembros de `atn::Texture`.
 - `fn_800F3170` sigue `extern "C"` con `BattleTask*` (GameTask.cpp la declara asi).
+- Includes nuevos en BattleTask.cpp: `game/HomeButtonMenu.h`, `atn/GraphicsDevice.h` (`lbl_8087EEE0` como
+  `atn::GraphicsDevice_unk*`, como GameUI.cpp). `SetPaneValue_unk` inline local (como BattleResult.cpp).
 - Vistas locales nuevas en BattleTask.cpp: `BattleWeapon_unk` (fn_80206C50), `BattleState_unk` (fn_8021AF50),
   `BattleLogDef_unk`; `BattleMsg_unk::GetPair_unk` (como CosEditItemList_unk).
 

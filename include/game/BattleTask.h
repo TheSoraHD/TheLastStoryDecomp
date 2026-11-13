@@ -304,7 +304,11 @@ public:
     HomingBullet mHomings[32];    // 0xA150: inferred: homing bullet pool
     BetoModel mSlots[8];           // 0xBA50: inferred: characters with an active battle effect
     atn::D2A_Task* mCB30;          // inferred: d2anime task (made by fn_800F39A4)
-    unsigned char mCB34[0xCB58 - 0xCB34];
+    int mCB34;                 // inferred: the reticle was updated this frame (fn_8010220C)
+    atn::Vector2_unk mCB38;    // inferred: stick offset of the reticle
+    atn::Vector2_unk mCB40;    // inferred: previous mCB38
+    atn::Vector2_unk mCB48;    // inferred: center of the reticle (moves toward mCB50)
+    atn::Vector2_unk mCB50;    // inferred: target of the center
     int mCB58;                     // inferred: set by fn_8010D320 (aim direction valid)
     unsigned char mCB5C[0xCB60 - 0xCB5C];
     atn::D2A_Task* mCB60;          // inferred: d2anime task (made by fn_800F39A4; may be null)

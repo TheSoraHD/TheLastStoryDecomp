@@ -43,6 +43,8 @@
 #include "chr/CharaEquip_unk.h"
 #include "db/EquipParam_unk.h"
 #include "game/SkillEffectManager.h"
+#include "game/HomeButtonMenu.h"
+#include "atn/GraphicsDevice.h"
 #include <boost/bind.hpp>
 #include <boost/function.hpp>
 
@@ -56,7 +58,9 @@ extern "C" int rand();
 struct Arena_unk {
     unsigned char m000[0x4FC];
     int m4FC; // inferred: state (0x1E: in play; fn_801004FC)
-    unsigned char m500[0x540 - 0x500];
+    unsigned char m500[0x50C - 0x500];
+    int m50C; // inferred: compared with 5 by fn_8010220C
+    unsigned char m510[0x540 - 0x510];
     int m540; // inferred: mode (2: teams)
     // inferred: modes 0 and 1 (name invented)
     bool IsFreeMode_unk() const {
@@ -2262,6 +2266,96 @@ void BattleTask::fn_801021B4(RayObj_unk* obj, int a, int b) {
     }
 }
 
+extern "C" atn::GraphicsDevice_unk* lbl_8087EEE0;
+extern "C" void* lbl_8087EF70; // inferred: pad
+extern "C" float fn_800A56A8(void* pad, int port, int axis, int arg); // inferred: stick axis
+extern "C" atn::Vector2_unk lbl_807C7028; // inferred: zero 2D vector (atn/Math_unk.cpp)
+extern "C" unsigned int fn_800DC6B4(const char* s); // inferred: string hash
+extern "C" void fn_801FECE0(void* layout, unsigned int hash, float value);
+extern "C" void fn_801FED24(void* layout, unsigned int hash, int index, float value);
+
+// inferred: values of the panes of a d2anime layout (names invented, as game/BattleResult.cpp)
+inline void SetPaneValue_unk(void* layout, const char* name, float value) {
+    fn_801FECE0(layout, fn_800DC6B4(name), value);
+}
+inline void SetPaneValue_unk(void* layout, const char* name, int index, float value) {
+    fn_801FED24(layout, fn_800DC6B4(name), index, value);
+}
+// inferred: playing with less than 5 ... (m50C) in multiplayer (inlined; name invented)
+inline bool IsReticleShown_unk(Arena_unk* arena) {
+    bool r = false;
+    if (arena->m4FC == 0x1E && arena->m50C < 5) {
+        r = true;
+    }
+    return r;
+}
+
+// inferred: reticle of the camera (mCB30, mCB60): color and blink by the target under the cursor, the outer rings
+// follow the right stick (scaled by ReticleBlur), the center moves toward the opposite of the stick (ReticleCenterOfs,
+// ReticleCenterLerp). In multiplayer only while playing (m4FC 0x1E) with m50C below 5. C name, called by
+// BattleCharaTask as extern "C"
+// NONMATCHING: 99.0% - volatile registers permuted (flag of the arena test, screen size, copies of the center)
+extern "C" void fn_8010220C(BattleTask* mgr, int) {
+    if (lbl_8087F610 != 0 && !IsReticleShown_unk(lbl_8087F610)) {
+        return;
+    }
+    float cx = 0.5f * lbl_8087EEE0->mWidth;
+    float cy = 0.5f * lbl_8087EEE0->mHeight;
+    float r;
+    float g;
+    float b;
+    float on = 0.0f;
+    if (mgr->m3E2E0 != 0 || mgr->m3E2E4 != 0 || mgr->m3E2EC != 0) {
+        if ((mgr->m3E2E0 != 0 && mgr->m3E2F0 != 0) || mgr->m3E2EC != 0) {
+            r = 195.0f;
+            g = 65.0f;
+            b = 80.0f;
+            on = 1.0f;
+        } else if (mgr->m3E2E4 != 0) {
+            r = 195.0f;
+            g = 65.0f;
+            b = 80.0f;
+        } else {
+            r = 24.0f;
+            g = 85.0f;
+            b = 243.0f;
+            on = 1.0f;
+        }
+    } else {
+        r = 104.0f;
+        g = 121.0f;
+        b = 166.0f;
+    }
+    mgr->mCB34 = 1;
+    SetPaneValue_unk(&mgr->mCB30->mData.m10, "colorR", r);
+    SetPaneValue_unk(&mgr->mCB30->mData.m10, "colorG", g);
+    SetPaneValue_unk(&mgr->mCB30->mData.m10, "colorB", b);
+    SetPaneValue_unk(&mgr->mCB30->mData.m10, "on", on);
+    atn::Vector2_unk stick(0.0f, 0.0f);
+    if (HomeButtonMenu::sInstance->m84 != 1) {
+        stick.x = -fn_800A56A8(lbl_8087EF70, 0, 0, 0);
+        stick.y = fn_800A56A8(lbl_8087EF70, 0, 1, 0);
+    }
+    SetPaneValue_unk(&mgr->mCB30->mData.m10, "posOuter2", 0,
+                                   mgr->mCB40.x + (0.75f * (mgr->mCB38.x * mgr->m3E3A0) + (stick.x * mgr->m3E3A0 + cx)));
+    SetPaneValue_unk(&mgr->mCB30->mData.m10, "posOuter2", 1,
+                                   mgr->mCB40.y + (0.75f * (mgr->mCB38.y * mgr->m3E3A0) + (stick.y * mgr->m3E3A0 + cy)));
+    SetPaneValue_unk(&mgr->mCB30->mData.m10, "posOuter1", 0, mgr->mCB38.x + (0.75f * (stick.x * mgr->m3E3A0) + cx));
+    SetPaneValue_unk(&mgr->mCB30->mData.m10, "posOuter1", 1, mgr->mCB38.y + (0.75f * (stick.y * mgr->m3E3A0) + cy));
+    mgr->mCB40 = mgr->mCB38;
+    mgr->mCB38 = stick;
+    if (mgr->m3E2E0 != 0 || mgr->m3E2E4 != 0) {
+        mgr->mCB50 = lbl_807C7028;
+    } else {
+        mgr->mCB50 = stick * -mgr->m3E3A8;
+    }
+    mgr->mCB48 = atn::Lerp2_unk(mgr->mCB48, mgr->mCB50, mgr->m3E3A4);
+    SetPaneValue_unk(&mgr->mCB30->mData.m10, "centerPos", 0, mgr->mCB48.x);
+    SetPaneValue_unk(&mgr->mCB30->mData.m10, "centerPos", 1, mgr->mCB48.y);
+    SetPaneValue_unk(&mgr->mCB60->mData.m10, "centerPos", 0, 320.0f + mgr->mCB48.x);
+    SetPaneValue_unk(&mgr->mCB60->mData.m10, "centerPos", 1, 224.0f + mgr->mCB48.y);
+}
+
 void BattleTask::fn_801027A4(CharaTask* chara) {
     if (FindChara_unk(chara) < 0) {
         mCharas[mCharaCount].mChara = chara;
@@ -2880,6 +2974,57 @@ void BattleTask::fn_80106728(int arg, atn::Model* model) {
 void BattleTask::fn_801067D0(CharaTask* chara, atn::Model* model) {
     fn_80232B7C(0, 0);
     PlayEfp_unk(&mEfp365B8[3], model);
+}
+
+extern "C" std::string fn_8006B174(const std::string& path); // inferred: file name of a path (as game/CharaTask.cpp)
+extern "C" void fn_8023A108(atn::EffectManager* mgr, unsigned int owner, int group, int frame); // inferred: effect frame
+
+// inferred: the weapon has a condition of the kinds (inlined; name invented)
+inline bool HasCond_unk(Arms* arms, int kind, int kind2) {
+    return arms->fn_80045694(kind, -1, kind2, -1) != 0;
+}
+
+// inferred: effect of the attack motion of `chara` (the motion of track 0 among seven "na000_ats" motions, effect
+// mEfp365E8[kind]), plus effect and sound 0x232C when the right weapon has the condition (2, 0x22); the effects of
+// group 9 follow the frame and the speed of the motion. C name, called by chr::ControlAttackBase as extern "C"
+// NONMATCHING: 97.7% - frame 0x10 larger (stack slots of the strings and the second color), registers r26-r28
+extern "C" void fn_80106878(BattleTask* mgr, CharaTask* chara) {
+    atn::Model* model = chara->GetModel_unk();
+    atn::LoadHandle* handle = model->fn_80097D40(model->mTracks[0].m00);
+    if (handle == 0) {
+        return;
+    }
+    std::string name = fn_8006B174(std::string(handle->fn_80473F18()));
+    int kind = 7;
+    if (name == "na000_ats00_00.motion") {
+        kind = 0;
+    } else if (name == "na000_ats00_01.motion") {
+        kind = 1;
+    } else if (name == "na000_ats00_02.motion") {
+        kind = 2;
+    } else if (name == "na000_ats00_04.motion") {
+        kind = 3;
+    } else if (name == "na000_ats00_05.motion") {
+        kind = 4;
+    } else if (name == "na000_ats08_00.motion") {
+        kind = 0;
+    } else if (name == "na000_ats08_01.motion") {
+        kind = 6;
+    }
+    if (kind == 7) {
+        return;
+    }
+    fn_80232B7C((unsigned int)chara, 9);
+    PlayEfp_unk(&mgr->mEfp365E8[kind], model);
+    if (chara->m648 != 0 && HasCond_unk((Arms*)chara->m648, 2, 0x22)) {
+        EffectColor_unk white(1.0f, 1.0f, 1.0f, 1.0f);
+        mgr->fn_801070C8(0x232C, (unsigned int)chara, 9, model, &lbl_807C7030, &lbl_807C7030, &white, 1.0f);
+        mgr->fn_80107208(0x232C, &chara->mPos, 1.0f);
+    }
+    if (model->mTracks[0].m08 > 0.0f) {
+        fn_8023A108(lbl_8087F3C0, (unsigned int)chara, 9, (int)model->mTracks[0].m08);
+    }
+    lbl_8087F3C0->fn_8023A254((unsigned int)chara, 9, model->mTracks[0].m0C);
 }
 
 void BattleTask::fn_801070C8(int id, unsigned int owner, int group, atn::Model* model, const atn::Vector3* pos,
