@@ -58,4 +58,10 @@
   8 enteros: `mA8..`, `m10C..`; floats de `CharaRes_unk::m58..m84` y de `AIManager::m9C..`).
 - ItemManager_unk `fn_80448B80` (99,85 %): `cmpw r3, rN` del `atoi(...) == id`; invertir los operandos o un cast
   no cambia nada.
+- Constructor de `Inventory` (0x80442FF4): ademas de los constructores de `Item_unk`/`ExpEntry_unk`, los tres
+  arrays de 0xD380/0xD540/0xD940 se construyen con 8 enteros a -1 y un memset de 0x20 (el constructor de
+  `GameSaveEquipExtra_unk` de `GameSaveData.h`, no `Equip_unk`): cambiar el tipo en `Inventory.h` toca unidades
+  de otras colas. El bucle final es `fn_80444828` inlineada (codigo del objeto por grupo de color).
+- `atn/TextAnimation fn_800D9960` (4 KB, `std::wstring` y `DrawHelper`) y `atn/LH_Model fn_80474F0C` (3,8 KB de
+  tablas de formatos de vertice copiadas a la pila): no empezadas, demasiado grandes para el tiempo que quedaba.
 - `fn_803731E8`: sigue bloqueada por la firma de `FinishCamera_unk::fn_803786FC` (cola B2).
