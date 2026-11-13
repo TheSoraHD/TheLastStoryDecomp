@@ -10435,7 +10435,8 @@ void AIScriptMap_unk::Destroy_unk(AIScriptMapNode_unk* node) {
     operator delete(node);
 }
 
-// NONMATCHING: 88.17% - the loop setup and register allocation differ from the tree-search body.
+// NONMATCHING: 92.93% - stack slots of the size temporaries of the inlined basic_string::compare
+// (std/string.h) differ (12/8 here, 16/20 in the original)
 // inferred: finds the insertion position for a string key and returns the last visited node.
 namespace std {
 
@@ -10490,25 +10491,14 @@ extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key,
                                             AIScriptMapNode_unk** parent,
                                             bool* insertLeft,
                                             bool* insertFirst) {
-    AIScriptMapNode_unk* node = *(AIScriptMapNode_unk**)((unsigned char*)tree + 4);
-    AIScriptMapNode_unk* candidate = (AIScriptMapNode_unk*)((unsigned char*)tree + 4);
+    AIScriptMapNode_unk* candidate = ((AIScriptMap_unk*)tree)->End_unk();
     *parent = 0;
+    AIScriptMapNode_unk* node = ((AIScriptMap_unk*)tree)->mRoot;
     *insertLeft = 1;
     *insertFirst = 1;
     while (node != 0) {
         candidate = node;
-        AIString_unk* nodeKey = (AIString_unk*)&node->mValue.first;
-        unsigned int nodeSize;
-        const char* nodeData;
-        if ((nodeKey->mFlags >> 31) == 0) {
-            nodeSize = *(unsigned char*)nodeKey & 0x7F;
-            nodeData = (const char*)nodeKey + 1;
-        } else {
-            nodeSize = nodeKey->mSize;
-            nodeData = nodeKey->mData;
-        }
-        std::string* keyString = (std::string*)key;
-        int cmp = keyString->compare(0, keyString->size(), nodeData, nodeSize);
+        int cmp = ((const std::string*)key)->compare(node->mValue.first);
         if (cmp < 0) {
             node = node->mLeft;
             *insertLeft = 1;

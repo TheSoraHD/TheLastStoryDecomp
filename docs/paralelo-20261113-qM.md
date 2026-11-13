@@ -33,6 +33,9 @@ Cola: restos de game/GameEventScript (12 al 0 %) y AI/AI_archer_attack01 (6 al 0
   - Parcial `fn_8001E1D0` (`map::insert`) 47,60 -> 94,07 %: reescrita con `fn_8003E530`,
     `basic_string::compare(const basic_string&)` de `std/string.h` y `InsertNode_unk` (los locales sin
     inicializar: los pone el llamado). Queda el hueco de pila del predecesor.
+  - Parcial `fn_8003E530` (posicion de insercion) 88,17 -> 92,93 %: `compare` de `std/string.h`, extremo y
+    raiz del `AIScriptMap_unk`, `*parent = 0` antes de leer la raiz. Quedan los huecos de pila de los
+    temporales del compare.
   - `fn_8001E730` (vacia el mapa: borra las factorias en orden y luego `clear()`) 93,82 % y `fn_8001EA18`
     (`find` por nombre: `AIScriptMap_unk::Find_unk(std::string(name))` inline con el `compare` de
     `std/string.h`) 88,02 %: NONMATCHING (ver abajo).
