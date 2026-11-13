@@ -13,6 +13,8 @@
 #include "game/MapTask.h"
 #include "gmk/Lemon.h"
 #include "chr/CharaEquip_unk.h"
+#include "math/VecAssign_unk.h"
+#include "game/SetConfig.h"
 
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 extern "C" GameConfig_unk* lbl_8087F0A8;
@@ -23,9 +25,66 @@ extern "C" void* lbl_8087EE98;     // inferred: collision manager
 extern "C" int fn_8004ED34(void* colli, CollResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg7); // inferred: ray test
 
+// inferred: limits of the side offset of the ledge camera without blend (fn_8038378C; 0.0f)
+extern "C" float lbl_8087DCF0;
+extern "C" float lbl_8087DCF4;
+// inferred: height of the side camera during the control 11 (50.0f)
+extern "C" float lbl_8087DCF8;
+// inferred: limits of the side offset of the ledge camera at the ends of the ledge (0.0f; .sdata of this
+// unit: a global float initialized to zero only stays in .sdata with explicit_zero_data)
+extern "C" float lbl_8087DCFC;
+extern "C" float lbl_8087DD00;
+// .sdata of this unit: lbl_8087DCF0..lbl_8087DD00 are global floats (0.0f except lbl_8087DCF8); a zero
+// initializer goes to .sbss without explicit_zero_data, so they stay extern for now
+
+extern "C" double sin(double x);
+extern "C" double cos(double x);
+extern "C" double tan(double x);
+extern "C" double atan(double x);
+extern "C" double sqrt(double x);
+
+// inferred: rotation matrix z, then y, then x (weak copy; as in game/Em309Ghoul.cpp)
+extern "C" inline atn::Matrix3x4 fn_800109E0(const atn::Vector3& rot) {
+    atn::Matrix3x4 m;
+    m.SetIdentity();
+    if (0.0f != rot.z) {
+        Mtx t;
+        Mtx r;
+        PSMTXRotRad(r, 'z', rot.z);
+        PSMTXConcat(m.m, r, t);
+        __MtxCopy(m.m, t);
+    }
+    if (0.0f != rot.y) {
+        Mtx t;
+        Mtx r;
+        PSMTXRotRad(r, 'y', rot.y);
+        PSMTXConcat(m.m, r, t);
+        __MtxCopy(m.m, t);
+    }
+    if (0.0f != rot.x) {
+        Mtx t;
+        Mtx r;
+        PSMTXRotRad(r, 'x', rot.x);
+        PSMTXConcat(m.m, r, t);
+        __MtxCopy(m.m, t);
+    }
+    return m;
+}
+
 static inline atn::Vector3 Negate_unk(const atn::Vector3& v) {
     return atn::Vector3(-v.x, -v.y, -v.z);
 }
+
+// inferred: cross product a x b (name invented)
+static inline atn::Vector3 Cross_unk(const atn::Vector3& a, const atn::Vector3& b) {
+    atn::Vector3 r;
+    PSVECCrossProduct(&a, &b, &r);
+    return r;
+}
+
+// NONMATCHING: 99.97% - the original destroys the camera at 0x00 with -1, as a member and not as the base class
+// (GameCamera would hold an atn::Camera at 0x00 instead of deriving from it)
+GameCamera::~GameCamera() {}
 
 // inferred: default parameters of the camera modes (also called by the constructor): the box camera (m738) and the
 // event camera (m774) are copies of m51C, m6FC a copy of m6C0 (their m34 is copied, not set)
@@ -128,10 +187,10 @@ void GameCamera::fn_8037DD00() {
     m684.m2C = 0.01f;
     m684.m30 = 0.0f;
     m684.m38 = 0;
-    m7BC = 0.0f;
-    m7C0 = 30.0f;
-    m7C4 = 20.0f;
-    m7B4 = 1.134464f;
+    m7B0.m0C = 0.0f;
+    m7B0.m10 = 30.0f;
+    m7B0.m14 = 20.0f;
+    m7B0.m04 = 1.134464f;
     m6C0.m00 = 38.0f;
     m6C0.m04 = 1.134464f;
     m6C0.m08 = 0.34906584f;
@@ -178,6 +237,41 @@ extern "C" void fn_8008771C(void* group, const char* name, float* value, int arg
                             float step);
 extern "C" void fn_80087858(void* group, const char* name, float* value, int arg3, int arg4, float min, float max,
                             float step); // inferred: angle item
+extern "C" void fn_80087994(void* group, const char* name, int* flag, int arg3, int arg4); // inferred: switch item
+extern "C" void fn_800874C8(void* group, const char* name, int* value, int min, int max, int step, int arg6,
+                            int arg7); // inferred: integer item
+extern "C" void fn_80087E9C(void* group, const char* name, atn::Vector3* value, int arg3, int arg4, float min,
+                            float max, float step); // inferred: vector item
+
+// inferred: debug menu of the camera: the parameters of every mode and the global settings
+void GameCamera::fn_8037E9E0() {
+    void* group = m7EC.Load("GameCamera");
+    fn_8037ECF0("Default", group, &m51C);
+    fn_8037ECF0("Hide", group, &m594);
+    fn_8037ECF0("Shoot", group, &m5D0);
+    fn_8037ECF0("Crouch", group, &m60C);
+    fn_8037ECF0("Control", group, &m558);
+    fn_8037ECF0("Chant", group, &m648);
+    fn_8037ECF0("BirdView", group, &m684);
+    fn_8037ECF0("WallUp", group, &m7B0);
+    fn_8037ECF0("Chase", group, &m6C0);
+    fn_8037ECF0("ChaseRear", group, &m6FC);
+    fn_8037ECF0("Fix", group, &m738);
+    fn_8037ECF0("FixRotY", group, &m774);
+    fn_80087994(group, "DrawDebugInfo", &m7F0, 0, 0);
+    fn_80087858(group, "PadDisableAngle", &mA04, 0, 0, 0.0f, 180.0f, 1.0f);
+    fn_800874C8(group, "PadDisableFrame", &mA08, 0, 300, 1, 0, 0);
+    fn_8008771C(group, "BirdViewLockOnSpeed", &m8D8, 0, 0, 0.0f, 100.0f, 0.01f);
+    fn_8008771C(group, "BirdViewLockOnLength", &m8DC, 0, 0, 0.0f, 100.0f, 0.01f);
+    fn_800874C8(group, "CollisionMode", &m9F4, 0, 2, 1, 0, 0);
+    fn_800874C8(group, "InterpFrame", &m9F0, 1, 999, 1, 0, 0);
+    fn_8008771C(group, "InterpSpeed", &m9EC, 0, 0, 0.0f, 1.0f, 0.001f);
+    void* fix = fn_8008937C(group, "FixProgram");
+    fn_80087E9C(fix, "Position", &m4FC, 0, 0, -10000.0f, 10000.0f, 1.0f);
+    fn_80087E9C(fix, "Target", &m508, 0, 0, -10000.0f, 10000.0f, 1.0f);
+    fn_80087858(fix, "AngleOfView", &m514, 0, 0, -10000.0f, 10000.0f, 1.0f);
+    fn_80087994(fix, "PlayerOffset", &m518, 0, 0);
+}
 
 // inferred: debug menu of the parameters of a camera mode
 // NONMATCHING: 94.3% - offsets of the strings until the rest of the pool is written; named floats
@@ -201,6 +295,71 @@ void GameCamera::fn_8037ECF0(const char* name, void* menu, GameCameraParam_unk* 
 
 void GameCamera::fn_8037EF30(int a, int b, float f) {
     fn_8037EF48(lbl_8087F8A0->mHead, a, b, f);
+}
+
+// inferred: camera behind the character (or looking from it to its target mFC4/mFC0) at the parameters m51C;
+// with `place` the camera is put there at once (out of the walls), with `reset` the turn speeds mA0C are cleared;
+// `speed` < 0 takes SetConfig::mTurnSpeed
+// NONMATCHING: 99.2% - stack slots: the original puts the temporaries of fn_800109E0 (rotation vector and the
+// z/y/x matrices) in the reverse order (as fn_8038C070)
+void GameCamera::fn_8037EF48(CharaTask* chara, int place, int reset, float speed) {
+    if (m7FC != 0 && m7FC != 8) {
+        return;
+    }
+    m7F4 = 1;
+    mCA8 = speed;
+    if (mCA8 < 0.0f) {
+        mCA8 = SetConfig::sInstance->mTurnSpeed;
+    }
+    m7F8 = chara->mRot.y;
+    if (chara->mFlag31 || chara->mMotion.mTracks[0].m00 == 0x55) {
+        m7F8 += 3.1415927f;
+    }
+    CharaTask* other = chara->mFC4 != 0 ? chara->mFC4 : chara->mFC0;
+    if (other != 0) {
+        atn::Vector3 dir = other->mPos - chara->mPos;
+        if (PSVECSquareMag(&dir) > 1.0e-5f) {
+            PSVECNormalize(&dir, &dir);
+            dir.fn_80139F60();
+            m7F8 = dir.y;
+        }
+    }
+    m7F8 = atn::WrapAngle_unk(m7F8);
+    if (reset) {
+        mA0C[0] = 0.0f;
+        mA0C[1] = 0.0f;
+        mA0C[2] = 0.0f;
+    }
+    if (lbl_8087F0A8->mAlwaysBirdview != 0 && !reset) {
+        m7F4 = 0;
+    }
+    if (place) {
+        atn::Vector3 pos = mPos;
+        atn::Vector3 target = mTarget;
+        target = chara->mPos;
+        target.y += m51C.m10;
+        m868 = target;
+        target.x += m51C.m0C * (float)cos(3.1415927f + chara->mRot.y);
+        target.z += -m51C.m0C * (float)sin(3.1415927f + chara->mRot.y);
+        pos.x = 0.0f;
+        pos.y = 0.0f;
+        pos.z = 1.0f;
+        atn::Matrix3x4 m = fn_800109E0(atn::Vector3(-m51C.m08, 3.1415927f + chara->mRot.y, 0.0f));
+        PSMTXMultVec(m.m, &pos, &pos);
+        pos *= m51C.m00;
+        pos += target;
+        CollResult_unk result;
+        if (fn_8004ED34(lbl_8087EE98, &result, &target, &pos, 0x80000008, 0, 0)) {
+            pos = result.m10;
+        }
+        SetPosition(pos);
+        SetTarget_unk(target);
+        mFovy = m51C.m04;
+        fn_8004B378();
+        fn_80392964(1, 1, 1, 1);
+        lbl_8087F0A8->mInput.fn_80124BE4();
+    }
+    m880 = 0;
 }
 
 void GameCamera::fn_8037F690(const atn::Vector3* pos) {
@@ -366,6 +525,76 @@ extern "C" atn::Vector3 fn_80383728(const Camera_unk* camera) {
     return dir;
 }
 
+
+// inferred: camera of the ledge without the blend (see fn_8038A5F0; side offset limits lbl_8087DCF0/F4): the eye
+// is turned a third of the way towards the current view direction; with the bird view setting it is the bird view
+// camera (fn_80387DE4)
+// NONMATCHING: 99.6% - the original loads m594.m0C twice in the first lerp of the side offset (no CSE); tried
+// a float lerp inline, other operand orders, the parameters through a pointer
+void GameCamera::fn_8038378C(const CharaTask* chara) {
+    if (lbl_8087F0A8->mAlwaysBirdview != 0) {
+        fn_80387DE4(chara);
+        return;
+    }
+    atn::Vector3 side = Cross_unk(chara->mC14, atn::Vector3(0.0f, 1.0f, 0.0f));
+    side.Normalize_unk();
+    atn::Vector3 rot = side.ToRotation_unk();
+    float offset = 0.0f;
+    rot.x += m594.m08;
+    unsigned int flags = chara->mC44;
+    float length = (chara->mC20 - chara->mC2C).Length_unk();
+    float start = (chara->mPos - chara->mC20).Length_unk();
+    float end = (chara->mPos - chara->mC2C).Length_unk();
+    float t = start / length;
+    t = 1.0f < t ? 1.0f : t;
+    if ((flags & 1) == 1) {
+        if ((flags & 2) == 2) {
+            offset = t * (m594.m0C - -m594.m0C) + -m594.m0C;
+        } else {
+            offset = t * (lbl_8087DCF0 - -m594.m0C) + -m594.m0C;
+        }
+    } else if ((flags & 2) == 2) {
+        offset = t * (m594.m0C - lbl_8087DCF4) + lbl_8087DCF4;
+    }
+    float yaw;
+    float height = m594.m10;
+    if (chara->mFlag30) {
+        height -= m594.m18;
+    }
+    atn::Vector3 target = chara->mPos;
+    yaw = rot.y;
+    target.y += height;
+    m868 = target;
+    target.x += offset * (float)cos(yaw);
+    target.z += -offset * (float)sin(rot.y);
+    atn::Vector3 eye(0.0f, 0.0f, 1.0f);
+    atn::Matrix3x4 m = fn_800109E0(rot);
+    PSMTXMultVec(m.m, &eye, &eye);
+    eye *= -m594.m00;
+    eye += target;
+    atn::Vector3 dir = target - eye;
+    float dy = dir.y;
+    dir.y = 0.0f;
+    float dist = PSVECMag(&dir);
+    PSVECNormalize(&dir, &dir);
+    atn::Vector3 cur = fn_80383728(this);
+    cur.y = 0.0f;
+    PSVECNormalize(&cur, &cur);
+    dir += cur * 3.0f;
+    PSVECNormalize(&dir, &dir);
+    dir.x *= -dist;
+    dir.z *= -dist;
+    dir.y = -dy;
+    eye = target + dir;
+    float fovy = m594.m04;
+    fn_8038E23C(chara, &m594, &eye, &target);
+    SetPosition(eye);
+    SetTarget_unk(target);
+    mFovy = fovy;
+    fn_8004B378();
+    fn_80392964(1, 1, 1, 1);
+}
+
 // inferred: name invented (the second operand is evaluated twice, as a macro)
 #define GAMECAMERA_MAX_UNK(a, b) ((a) > (b) ? (a) : (b))
 #define GAMECAMERA_MIN_UNK(a, b) ((a) < (b) ? (a) : (b))
@@ -404,11 +633,6 @@ extern "C" void fn_80383F7C(float* angle, atn::Vector3* pos, const atn::Vector3*
 }
 
 // ---- fn_80387910: camera of the tactical view (over the inlining budget: the accessors are weak copies) ----
-extern "C" double sin(double x);
-extern "C" double cos(double x);
-extern "C" double tan(double x);
-extern "C" double atan(double x);
-extern "C" double sqrt(double x);
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
 // inferred: math helpers (weak copies; as in game/Em309Ghoul.cpp, game/BattleTask.cpp, gmk/Cannonball.cpp)
 extern "C" inline float fn_80011220(float x) {
@@ -416,32 +640,6 @@ extern "C" inline float fn_80011220(float x) {
 }
 extern "C" inline float fn_8037F664(float x) {
     return sin(x);
-}
-extern "C" inline atn::Matrix3x4 fn_800109E0(const atn::Vector3& rot) {
-    atn::Matrix3x4 m;
-    m.SetIdentity();
-    if (0.0f != rot.z) {
-        Mtx t;
-        Mtx r;
-        PSMTXRotRad(r, 'z', rot.z);
-        PSMTXConcat(m.m, r, t);
-        __MtxCopy(m.m, t);
-    }
-    if (0.0f != rot.y) {
-        Mtx t;
-        Mtx r;
-        PSMTXRotRad(r, 'y', rot.y);
-        PSMTXConcat(m.m, r, t);
-        __MtxCopy(m.m, t);
-    }
-    if (0.0f != rot.x) {
-        Mtx t;
-        Mtx r;
-        PSMTXRotRad(r, 'x', rot.x);
-        PSMTXConcat(m.m, r, t);
-        __MtxCopy(m.m, t);
-    }
-    return m;
 }
 extern "C" inline float fn_801C3910(const atn::Vector3& v) {
     return sqrt(v.x * v.x + v.z * v.z);
@@ -577,6 +775,193 @@ void GameCamera::fn_80387910(const CharaTask* chara) {
     SetPosition(pos);
     SetTarget_unk(target);
     fn_8037F688(this, fovy);
+    fn_8004B378();
+    fn_80392964(0, 1, 0, 0);
+}
+
+// inferred: the map has a ceiling (MapTask::mEC; written out as in fn_8038E540)
+static inline bool HasCeiling_unk() {
+    bool ceiling = false;
+    bool map = false;
+    if (lbl_8087F430 != 0 && lbl_8087F430->GetCurrentMap() != 0) {
+        map = true;
+    }
+    if (map && lbl_8087F430->GetCurrentMap()->mEC != 0) {
+        ceiling = true;
+    }
+    return ceiling;
+}
+
+// inferred: height of the view over the ground on maps without a ceiling (10 on map 3, 8 on map 17-2, else 30)
+static inline float ViewHeight_unk() {
+    if (lbl_8087F430 != 0 && lbl_8087F430->GetCurrentMap() != 0) {
+        MapTask* map = lbl_8087F430->GetCurrentMap();
+        if (map->mId == 3) {
+            return 10.0f;
+        }
+        if (map->mId == 17 && map->mSubId == 2) {
+            return 8.0f;
+        }
+    }
+    return 30.0f;
+}
+
+static inline void AddViewHeight_unk(atn::Vector3* p) {
+    if (!HasCeiling_unk()) {
+        p->y += ViewHeight_unk();
+    }
+}
+
+// inferred: sweep test of a sphere (here the camera eye) against the collision world
+extern "C" int fn_8004D388(void* world, CollResult_unk* result, atn::Vector3* pos, atn::Vector3* move,
+                           unsigned int mask, void* ignore, int arg, float radius);
+extern "C" void* lbl_8087EF70; // inferred: pads
+extern "C" int fn_800A58D0(void* pad, int port);                          // inferred: classic controller connected
+extern "C" float fn_800A56A8(void* pad, int port, int axis, int arg); // inferred: stick axis
+
+// inferred: bird view camera: turns m8A0 towards the leader's yaw while m7F4 is set, turns with the right stick of
+// the classic controller (speed mA0C[2]), follows the character over the floor (m8A4, swept on maps with a
+// ceiling) and runs the tactical view camera (fn_80387910)
+// NONMATCHING: 90.6% - stack slots of the ray ends (the original keeps from/to of the floor ray lowest) and
+// the order of the first loads
+void GameCamera::fn_80387DE4(const CharaTask* chara) {
+    atn::Vector3 top = m8A4;
+    top.y += lbl_8087F0A8->m08C;
+    AddViewHeight_unk(&top);
+    float radius = lbl_8087F0A8->m08C;
+    if (m7F4 != 0) {
+        float turn = -atn::WrapAngle_unk(m8A0 - atn::WrapAngle_unk(-m7F8));
+        m96C = 0.3f * turn;
+        m8A0 = atn::WrapAngle_unk(m96C + m8A0);
+        if ((float)__fabs(turn) < 0.05f) {
+            m7F4 = 0;
+        }
+    }
+    if (fn_800A58D0(lbl_8087EF70, 0)) {
+        float x = -fn_800A56A8(lbl_8087EF70, 0, 2, 0);
+        float ax = (float)__fabs(x);
+        if (ax > 0.2f) {
+            float speed = (x > 0.0f ? 1.0f : -1.0f) * ((ax - 0.2f) / 0.8f);
+            mA0C[2] = -speed * 0.017453292f + mA0C[2];
+            mA0C[2] = GAMECAMERA_MAX_UNK(-0.08726646f, GAMECAMERA_MIN_UNK(0.08726646f, mA0C[2])) *
+                      (float)__fabs(speed);
+        } else {
+            mA0C[2] *= 0.7f;
+            if ((float)__fabs(mA0C[2]) < 0.00017453292f) {
+                mA0C[2] = 0.0f;
+            }
+        }
+        if (0.0f != mA0C[2]) {
+            m8A0 = atn::WrapAngle_unk(mA0C[2] + m8A0);
+        }
+    }
+    if (!HasCeiling_unk()) {
+        m8A4 = chara->mPos;
+    } else {
+        CollResult_unk result;
+        CollResult_unk floor;
+        int floorId = -1;
+        atn::Vector3 from = chara->mPos;
+        atn::Vector3 to = chara->mPos;
+        from.y += 5.0f;
+        to.y -= 5.0f;
+        if (fn_8004ED34(lbl_8087EE98, &floor, &from, &to, 0x08000000, 0, 0)) {
+            if (floor.m34 != 0) {
+                floorId = *(int*)floor.m34;
+            }
+        } else {
+            atn::Vector3 zero(0.0f, 0.0f, 0.0f);
+            if (fn_8004D388(lbl_8087EE98, &floor, const_cast<atn::Vector3*>(&chara->mPos), &zero, 0x08000000, 0, 0,
+                            20.0f)) {
+                if (floor.m34 != 0) {
+                    floorId = *(int*)floor.m34;
+                }
+            }
+        }
+        atn::Vector3 move = chara->mPos - m8A4;
+        if (PSVECMag(&move) > 20.0f) {
+            m8A4 = chara->mPos;
+            move = atn::Vector3(0.0f, 0.0f, 0.0f);
+        }
+        move.y = 0.5f * -radius;
+        if (fn_8004D388(lbl_8087EE98, &result, &top, &move, 0x08000000, 0, floorId, radius)) {
+            atn::Vector3 d = result.m10 - top;
+            if ((result.m3C & 1) != 1) {
+                d.y = 0.0f;
+            }
+            m8A4 += d;
+        } else {
+            move.y = 0.0f;
+            m8A4 += move;
+        }
+        atn::Vector3 up = m8A4;
+        atn::Vector3 down = m8A4;
+        up.y += 10.0f + radius;
+        down.y -= 5.0f;
+        if (fn_8004ED34(lbl_8087EE98, &result, &up, &down, 0x08000000, 0, (int)floorId)) {
+            m8A4.y = result.m10.y;
+        }
+        m8B0 = m8A4;
+    }
+    fn_80387910(chara);
+}
+
+// inferred: frame of the first motion track of the character (name invented)
+static inline float MotionFrame_unk(CharaTask* c) {
+    return c->mMotion.mTracks[0].m08;
+}
+
+// inferred: side camera (m648): stays m7B0.m14 behind, m7B0.m10 above and m7B0.m0C beside the character, looking at a
+// point in front of it; the control ids 15, 11 and 16 (m560) move it in while their motion plays
+void GameCamera::fn_803884B8(const CharaTask* chara) {
+    m808++;
+    atn::Vector3 pos = mPos;
+    atn::Vector3 target = mTarget;
+    atn::Vector3 up = mUp;
+    atn::Vector3 offset(0.0f, 0.0f, 0.0f);
+    atn::Vector3 front(0.0f, 0.0f, 1.0f);
+    atn::Matrix3x4 m;
+    m.fn_8013A13C(chara->mRot.y);
+    PSMTXMultVec(m.m, &front, &front);
+    float side = m7B0.m0C;
+    float height = m7B0.m10;
+    float dist = m7B0.m14;
+    float speed = m648.m1C;
+    CharaTask* c = const_cast<CharaTask*>(chara);
+    switch (chara->m560) {
+    case 15:
+        atn::VecAssign_unk(front, Negate_unk(front));
+        atn::VecAssign_unk(offset, (chara->mF6C - m890) * 0.3f);
+        break;
+    case 11: {
+        float h;
+        side *= 1.0f - GAMECAMERA_MIN_UNK(0.9f, 2.5f * MotionFrame_unk(c) / c->mMotion.fn_80097D7C(0));
+        float t = GAMECAMERA_MIN_UNK(1.0f, MotionFrame_unk(c) / 10.0f);
+        h = t * (lbl_8087DCF8 - height) + height;
+        height = h * (1.0f + GAMECAMERA_MIN_UNK(0.5f, 2.0f * GAMECAMERA_MAX_UNK(0.0f, MotionFrame_unk(c) - 10.0f) /
+                                                      (c->mMotion.fn_80097D7C(0) - 10.0f)));
+        dist *= 1.0f - GAMECAMERA_MIN_UNK(0.9f, 2.5f * MotionFrame_unk(c) / c->mMotion.fn_80097D7C(0));
+        speed = 1.0f;
+        break;
+    }
+    case 16:
+        dist *= 1.0f - GAMECAMERA_MIN_UNK(0.9f, 2.0f * MotionFrame_unk(c) / c->mMotion.fn_80097D7C(0));
+        speed = 0.3f;
+        break;
+    }
+    atn::Vector3 look = c->fn_80178088() + front * dist + offset;
+    target += (look - target) * speed;
+    pos = c->fn_80178088();
+    pos.y += height;
+    pos += Cross_unk(front, up) * side;
+    fn_8038E23C(chara, &m648, &pos, &target);
+    SetPosition(pos);
+    SetTarget_unk(target);
+    if (lbl_8087F430->fn_80370174(0x65) && chara->mPos.y > 90.0f) {
+        mFovy = 0.4f * (0.87266463f - mFovy) + mFovy;
+    } else {
+        mFovy = m7B0.m04;
+    }
     fn_8004B378();
     fn_80392964(0, 1, 0, 0);
 }
@@ -870,6 +1255,87 @@ void GameCamera::fn_8038A200(const CharaTask* chara) {
     m834 = 0;
 }
 
+
+// inferred: camera of the ledge (CharaTask::mC14-mC44): looks along the wall from m594.m00 away, turned by
+// m594.m08 and moved sideways by up to m594.m0C towards the free ends of the ledge; blended from the saved camera
+// in 15 frames (5 from the sub mode 3)
+// NONMATCHING: 99.6% - the original loads m594.m0C twice in the first lerp of the side offset (as fn_8038378C)
+void GameCamera::fn_8038A5F0(const CharaTask* chara) {
+    int frames = 15;
+    if (m800 == 3) {
+        frames = 5;
+    }
+    if (m808 == 0) {
+        if (m800 == 3) {
+            m884 = mPos;
+            m890 = mTarget;
+        }
+        m80C = mPos;
+        m818 = mTarget;
+        m830 = mFovy;
+        m96C = 0.0f;
+        m970 = 0.0f;
+        m7F4 = 0;
+    }
+    if (lbl_8087F0A8->mAlwaysBirdview != 0) {
+        m800 = m7FC;
+        m808 = 0;
+        m834 = 0;
+        return;
+    }
+    atn::Vector3 side = Cross_unk(chara->mC14, atn::Vector3(0.0f, 1.0f, 0.0f));
+    side.Normalize_unk();
+    atn::Vector3 rot = side.ToRotation_unk();
+    float offset = 0.0f;
+    rot.x += m594.m08;
+    unsigned int flags = chara->mC44;
+    float length = (chara->mC20 - chara->mC2C).Length_unk();
+    float start = (chara->mPos - chara->mC20).Length_unk();
+    float end = (chara->mPos - chara->mC2C).Length_unk();
+    float t = start / length;
+    t = 1.0f < t ? 1.0f : t;
+    if ((flags & 1) == 1) {
+        if ((flags & 2) == 2) {
+            offset = t * (m594.m0C - -m594.m0C) + -m594.m0C;
+        } else {
+            offset = t * (lbl_8087DCFC - -m594.m0C) + -m594.m0C;
+        }
+    } else if ((flags & 2) == 2) {
+        offset = t * (m594.m0C - lbl_8087DD00) + lbl_8087DD00;
+    }
+    float height = m594.m10;
+    if (chara->mFlag30) {
+        height -= m594.m18;
+    }
+    atn::Vector3 target = chara->mPos;
+    target.y += height;
+    target.x += offset * (float)cos(rot.y);
+    target.z += -offset * (float)sin(rot.y);
+    atn::Vector3 eye(0.0f, 0.0f, 1.0f);
+    atn::Matrix3x4 m = fn_800109E0(rot);
+    PSMTXMultVec(m.m, &eye, &eye);
+    eye *= -m594.m00;
+    eye += target;
+    float fovy = m594.m04;
+    float k = 0.5f * (1.0f + (float)sin(3.1415927f * ((float)m808 / (float)frames) - 1.5707964f));
+    eye = LerpV_unk(m80C, eye, k);
+    target = LerpV_unk(m818, target, k);
+    float angle = k * (fovy - m830) + m830;
+    fn_8038E23C(chara, &m594, &eye, &target);
+    SetPosition(eye);
+    SetTarget_unk(target);
+    mFovy = angle;
+    fn_8004B378();
+    fn_80392964(1, 1, 1, 1);
+    if (++m808 > frames) {
+        m80C = eye;
+        m818 = target;
+        m800 = m7FC;
+        m808 = 0;
+    }
+    m834 = 0;
+}
+
 // NONMATCHING: 89.3% - order of the blend temporaries and float registers
 void GameCamera::fn_8038AEF0(const atn::Vector3* pos, const atn::Vector3* target, const CharaTask* chara,
                              int collide, float fovy, float t) {
@@ -1155,7 +1621,7 @@ void GameCamera::fn_8038C070(const CharaTask* chara) {
 }
 
 // inferred: low camera beside the character (50 above it, m648.m0C to the side) looking at 12 above it; the target and
-// the fovy (m7B4) are blended in 10 frames; then back to the sub mode with m83C = 6. The eye position is
+// the fovy (m7B0.m04) are blended in 10 frames; then back to the sub mode with m83C = 6. The eye position is
 // computed but not used
 // NONMATCHING: 48% - here fn_80392964 and its callees (fn_803920C8, fn_803928C0...) are all inlined, while the
 // original calls them as in fn_8038BD78
@@ -1185,7 +1651,7 @@ void GameCamera::fn_8038C5B0(const CharaTask* chara) {
     target.y += 12.0f;
     target = (target - m818) * t + m818;
     SetTarget_unk(target);
-    mFovy = MIN((float)m808 / 10.0f, 1.0f) * (m7B4 - m830) + m830;
+    mFovy = MIN((float)m808 / 10.0f, 1.0f) * (m7B0.m04 - m830) + m830;
     fn_8004B378();
     fn_80392964(0, 1, 0, 0);
     if (++m808 > 10) {
@@ -1460,6 +1926,50 @@ void GameCamera::fn_8038DF5C(const CharaTask* chara) {
 }
 
 
+
+// inferred: pulls the eye in front of the walls between the character and the eye: the hit point is pushed off the
+// wall and swept as a sphere; while it keeps hitting (m89C, up to 8 frames) the eye is blended to it
+// NONMATCHING: ~98% - order of the load of param->m10 and the copies of the ray ends; r27/r28 of the hit point
+// and result.m10
+void GameCamera::fn_8038E23C(const CharaTask* chara, GameCameraParam_unk* param, atn::Vector3* pos,
+                             atn::Vector3* target) {
+    if (param->m38 == 0) {
+        return;
+    }
+    atn::Vector3 to = *pos;
+    atn::Vector3 from = chara->mPos;
+    from.y += param->m10;
+    if (m7FC == 2 && chara->mFlag30) {
+        from.y -= param->m18;
+    }
+    CollResult_unk result;
+    if (fn_8004ED34(lbl_8087EE98, &result, &from, &to, 0x80000008, 0, 0)) {
+        m89C++;
+        atn::Vector3 p = result.m10;
+        p += result.m28;
+        atn::Vector3 move(0.0f, 0.0f, 0.0f);
+        fn_8004D388(lbl_8087EE98, &result, &p, &move, 0x80000008, 0, 0, 1.0f);
+        p = result.m10;
+        if (m89C >= 8) {
+            *pos = p;
+        } else {
+            *pos = LerpV_unk(*pos, p, (float)m89C / 8.0f);
+        }
+    } else if (m7FC == 2) {
+        if (m89C > 8) {
+            m89C = 8;
+        }
+        if (m89C > 0) {
+            m89C--;
+        }
+        if (m89C > 0) {
+            *pos = LerpV_unk(*pos, mPos, (float)m89C / 8.0f);
+        }
+    } else {
+        m89C = 0;
+    }
+}
+
 // inferred: keeps the eye out of the walls: on maps with ceilings (MapTask::mEC) the eye is put under the ceiling
 // above it, then a ray from the character to the eye (at the same height) pulls it in front of the wall; while it
 // keeps hitting (m89C, up to 8 frames) the eye is blended back towards the current camera position
@@ -1526,12 +2036,14 @@ void GameCamera::fn_8038E540(const CharaTask* chara, GameCameraParam_unk* param,
     }
 }
 
-void GameCamera::fn_80390374() {
-    fn_80389838(m804);
-}
-
-// inferred: the map has a ceiling (MapTask::mEC; written out as in fn_8038E540)
-static inline bool HasCeiling_unk() {
+// inferred: keeps the eye out of the walls for the bird view (fn_8038C928 and the camera of the default mode): a ray
+// from target2 (30 above it, or the collision radius on maps with a ceiling) to the eye at the same height pulls
+// the eye in front of the wall; on maps with a ceiling it is tried a second time 10 higher, and while the target
+// cannot see the eye (m89C, up to 8 frames) the eye is blended towards the wall
+// NONMATCHING: 90.5% - order of the loads of the ray ends (the original reloads from.z, here to.z is forwarded
+// with frsp; as fn_8038E540) and the float registers of the radius and the step
+void GameCamera::fn_8038E9B0(const CharaTask* chara, GameCameraParam_unk* param, atn::Vector3* pos,
+                             atn::Vector3* target, atn::Vector3* target2) {
     bool ceiling = false;
     bool map = false;
     if (lbl_8087F430 != 0 && lbl_8087F430->GetCurrentMap() != 0) {
@@ -1540,28 +2052,117 @@ static inline bool HasCeiling_unk() {
     if (map && lbl_8087F430->GetCurrentMap()->mEC != 0) {
         ceiling = true;
     }
-    return ceiling;
-}
-
-// inferred: height of the view over the ground on maps without a ceiling (10 on map 3, 8 on map 17-2, else 30)
-static inline float ViewHeight_unk() {
-    if (lbl_8087F430 != 0 && lbl_8087F430->GetCurrentMap() != 0) {
-        MapTask* map = lbl_8087F430->GetCurrentMap();
-        if (map->mId == 3) {
-            return 10.0f;
+    if (!ceiling) {
+        float radius = lbl_8087F0A8->m08C;
+        CollResult_unk result;
+        atn::Vector3 from = *target2;
+        float top = 50.0f + pos->y;
+        from.y += 30.0f;
+        atn::Vector3 to = *pos;
+        to.y = from.y;
+        atn::Vector3 dir = to - from;
+        PSVECNormalize(&dir, &dir);
+        to += dir * radius;
+        if (fn_8004ED34(lbl_8087EE98, &result, &from, &to, 0x80000008, 0, 0)) {
+            atn::Vector3 hit = result.m10 - dir * radius;
+            hit.y = pos->y;
+            atn::Vector3 d = hit - *pos;
+            hit.y += MIN(20.0f, PSVECMag(&d));
+            hit.y = MIN(top, hit.y);
+            *pos = hit;
         }
-        if (map->mId == 17 && map->mSubId == 2) {
-            return 8.0f;
+    } else {
+        float radius = lbl_8087F0A8->m08C;
+        CollResult_unk result;
+        atn::Vector3 from = *target2;
+        atn::Vector3 to;
+        atn::Vector3 seen = *target;
+        from.y += radius;
+        to = *pos;
+        to.y = from.y;
+        atn::Vector3 dir = to - from;
+        PSVECNormalize(&dir, &dir);
+        to += dir * radius;
+        for (int i = 0; i < 2; i++) {
+            if (fn_8004ED34(lbl_8087EE98, &result, &from, &to, 0x08000000, 0, 0)) {
+                atn::Vector3 hit = result.m10 - dir * radius;
+                hit.y = pos->y;
+                atn::Vector3 d = hit - *pos;
+                hit.y += MIN(20.0f, PSVECMag(&d));
+                *pos = hit;
+                break;
+            }
+            from.y += 10.0f;
+            to.y = from.y;
+        }
+        from = *pos;
+        to = *target;
+        if (fn_8004ED34(lbl_8087EE98, &result, &from, &to, 0x08000000, 0, 0)) {
+            seen = result.m10;
+        }
+        from = seen;
+        to = *pos;
+        if (fn_8004ED34(lbl_8087EE98, &result, &from, &to, 0x08000000, 0, 0)) {
+            m89C++;
+            atn::Vector3 p = result.m10;
+            if (m89C < 8) {
+                p = LerpV_unk(*pos, p, (float)m89C / 8.0f);
+            }
+            *pos = p;
+        } else {
+            m89C = 0;
         }
     }
-    return 30.0f;
 }
 
-static inline void AddViewHeight_unk(atn::Vector3* p) {
-    if (!HasCeiling_unk()) {
-        p->y += ViewHeight_unk();
+// inferred: sets the parameters of a camera mode (read from the camera csv of the map by fn_8037E12C)
+void GameCamera::fn_8038EF94(const GameCameraParam_unk* param, int mode) {
+    switch (mode) {
+    case 0:
+        m51C = *param;
+        break;
+    case 2:
+        m594 = *param;
+        break;
+    case 3:
+        m5D0 = *param;
+        break;
+    case 4:
+        m60C = *param;
+        break;
+    case 1:
+        m558 = *param;
+        break;
+    case 5:
+        m648 = *param;
+        break;
+    case 8:
+        m6C0 = *param;
+        break;
+    case 9:
+        m6FC = *param;
+        break;
+    case 6:
+        m684 = *param;
+        break;
+    case 10:
+        m738 = *param;
+        lbl_8087F0A8->mInput.m10 = 3;
+        break;
+    case 11:
+        if (m7FC == mode) {
+            m800 = 0;
+            m808 = 0;
+        }
+        m774 = *param;
+        break;
     }
 }
+
+void GameCamera::fn_80390374() {
+    fn_80389838(m804);
+}
+
 
 // inferred: starts the tactical view camera at `target` (m8A4) turned by `angle` (m8A0) around the raised point;
 // with `arg` (m8CC) and a ceiling, the start point is pulled out of the nearest wall found by 8 rays of 30
@@ -1629,7 +2230,6 @@ void GameCamera::fn_803903E0(const atn::Vector3* target, float angle, int arg) {
     }
 }
 
-#include "game/SetConfig.h"
 
 // inferred: xsca camera curves (as in game/NewCampTask.cpp and game/Em309Ghoul.cpp)
 struct XsfCurveSet_unk {
