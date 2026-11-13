@@ -3234,6 +3234,80 @@ extern "C" float fn_8010B250(BattleTask* mgr, int level, BattleCalcParam_unk* pa
     return lbl_80735ED0[(level > 0 ? level : 0) < 15 ? (level > 0 ? level : 0) : 15];
 }
 
+// inferred: character of the entry `i` of mCharas, null out of range (inlined); name invented
+inline CharaTask* GetCharaAt_unk(BattleTask* mgr, int i) {
+    if (i < 0 || mgr->mCharaCount <= i) {
+        return 0;
+    }
+    return mgr->mCharas[i].mChara;
+}
+
+// inferred: hate table m391E0: for every character that can act, the value toward each other one not on its side
+// (wounds of the other, nearness within 200, bonus 200 for the other kind of character, the attackers already on
+// a BattleCharaTask and the party member kinds); 1 at least toward the players
+// NONMATCHING: 98.98% - register allocation of the loops (rows, characters and counters permuted)
+void BattleTask::fn_8010C3E4() {
+    for (int i = 0; i < mCharaCount; i++) {
+        CharaTask* chara = GetCharaAt_unk(this, i);
+        int* row = m391E0[i];
+        if (!chara->CanAct_unk()) {
+            memset(row, 0, sizeof(m391E0[i]));
+            continue;
+        }
+        for (int j = 0; j < mCharaCount; j++) {
+            CharaTask* other = GetCharaAt_unk(this, j);
+            row[j] = 0;
+            if (chara == other || (other->mFlags & 4) == 4 || other->IsFlag54C_unk(0x2000) ||
+                !chara->fn_8016F3D0(other, 1) || !chara->fn_8016F3D0(other, 1)) {
+                continue;
+            }
+            int value = 0;
+            if (other->CanAct_unk()) {
+                float rate = other->mStatus.mParamB.m84 > 0 ? other->mStatus.m04 / other->mStatus.mParamB.m84 : 0.0f;
+                value = (int)(100.0f * (1.0f - rate));
+            }
+            atn::Vector3 d = other->mPos - chara->mPos;
+            float dist = PSVECMag(&d);
+            value += (int)(100.0f * MIN(MAX((200.0f - dist) / 200.0f, 0.0f), 1.0f));
+            if (chara->m5C != 0 && other->m5C != 0) {
+                int kind = chara->m5C->m11C;
+                int otherKind = other->m5C->m11C;
+                if (kind == 0 || kind == 2) {
+                    if (otherKind != 0 && otherKind != 2 && other->mType != 0) {
+                        value += 200;
+                    }
+                    value += (int)(100.0f * MIN(MAX(other->m102C / 3.0f, 0.0f), 1.0f));
+                } else if (otherKind == 0 || otherKind == 2 || other->mType == 0) {
+                    value += 200;
+                }
+            }
+            if (chara->mType == 3 && other->mType == 3) {
+                int member = fn_80219558(chara->m50);
+                int otherMember = fn_80219558(other->m50);
+                if (member == 1 || (unsigned int)(member - 9) <= 1) {
+                    if (otherMember == 0) {
+                        value += 200;
+                    }
+                } else if (member == 6) {
+                    if (otherMember == 1 || otherMember == 9 || otherMember == 10 || otherMember == 5) {
+                        value += 100;
+                    } else if (otherMember == 3) {
+                        value += 200;
+                    }
+                } else if (member == 3) {
+                    if (otherMember == 6) {
+                        value += 200;
+                    }
+                }
+            }
+            if (value == 0 && other->mType == 0) {
+                value = 1;
+            }
+            row[j] = value;
+        }
+    }
+}
+
 CharaTask* BattleTask::fn_8010C948(CharaTask* chara) {
     int i = FindChara_unk(chara);
     if (i < 0) {

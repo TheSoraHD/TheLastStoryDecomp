@@ -188,6 +188,7 @@ public:
                      const atn::Vector3* rot, const EffectColor_unk* color, float scale);
     // inferred: chant effect (CharaTask::fn_80145334): shown at pos (restarted when `changed`)
     void fn_8010743C(const atn::Vector3* pos, int changed, float f);
+    void fn_8010C3E4(); // inferred: updates the hate table m391E0
     CharaTask* fn_8010C948(CharaTask* chara); // inferred: the character `chara` hates most
     void fn_80105DCC(CharaTask* chara, atn::Model* model, int level); // inferred: charge effect of the level
     Bullet* fn_801010A0();       // inferred: free bullet

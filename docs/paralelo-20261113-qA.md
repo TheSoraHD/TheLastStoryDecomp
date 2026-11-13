@@ -26,6 +26,12 @@ Funciones al 0 % al empezar: BattleTask 51, TacView 6, BattleCharaTask 1.
   - `fn_80101524` (efectos y sonidos de un cambio de estados; 98,95 %).
   - `BattleTask::fn_801018E4` (efecto de golpe de `m38A5C`, orientado con `Vector3::fn_80139F60`; 93,9 %): miembro
     nuevo, renombrado en `symbols.txt`.
+  - `BattleTask::fn_8010C3E4` (tabla de odio `m391E0`; 98,98 %): miembro nuevo, renombrado en `symbols.txt`.
+- Resumen BattleTask: funciones al 0 % 51 -> 30 (21 escritas sin `DRAFT`); al 100 % 143 -> 151 (`fn_800F29D0`,
+  `fn_800FC1D0`, `fn_800FBE70`, `GimmickCommon::vf58`/`vf44`, `fn_80103600`, `fn_80103B58`, `fn_801055A8`);
+  `report.json` 15232 -> 15240. `mnemcheck.py` limpio en todas las nuevas al 100 %; las NONMATCHING no tienen
+  saltos ni comparaciones desalineados (revisado con `odiff2.py`).
+- TacView (6) y BattleCharaTask (1): sin tocar (funciones de 2-8 KB; `fn_805ADB28` solo sale con `fn_805AC758`).
   - `fn_800FAB80` (prueba de impacto de una bala contra personajes y gimmicks, efectos, barra y anillo de depuracion
     `mShots`; 96,9 %). Con ella salen las copias debiles `GimmickCommon::vf58`/`vf44` (0x800FA4EC/0x800FA4F4, 100 %).
 
@@ -41,6 +47,7 @@ Funciones al 0 % al empezar: BattleTask 51, TacView 6, BattleCharaTask 1.
 - `fn_80101524` 98,95 %: el original carga el gestor de efectos antes de elegir el efecto de piedra (probado:
   llamada directa sin `PlayEfp_unk`, peor); offsets del pool de cadenas.
 - `fn_801018E4` 93,9 %: pila y registros de la inline `Vector3::fn_80139F60`.
+- `fn_8010C3E4` 98,98 %: asignacion de registros de los bucles.
 - `fn_8010CF28` 94,1 %: huecos de pila de los vectores del retroceso y del color, registros.
 - `fn_800FD658` 91,4 %: huecos de pila de las matrices temporales de las rotaciones (orden inverso).
 - `fn_800FB1BC` 98 %: huecos de pila de la esfera y la luz cambiados (probado: esfera con nombre, referencia
@@ -104,6 +111,15 @@ Funciones al 0 % al empezar: BattleTask 51, TacView 6, BattleCharaTask 1.
   registros del original donde el mismo codigo en linea los cambia (fn_800FC1D0/fn_800FBE70).
 
 ## Pendientes
+
+- Restan al 0 % en BattleTask: el constructor, `fn_800F1F94`, `fn_800F2C9C`, `fn_800F3170` (necesita tipar
+  0x363F0..0x365F4), `fn_800F3490`, `fn_800F3EF4`, `fn_800F5314`, `fn_800F8574`, `fn_800F8C6C` (con el
+  `std::sort`/mediana `fn_800FA4FC`/`fn_800FA9F4`), `fn_800FC410`, `fn_800FCD24`, `fn_800FDF14`, `fn_800FFE68`,
+  `fn_80100BF0`, `fn_80101CDC`, `fn_8010220C`, `fn_80102A40`, `fn_80103FD4`, `fn_80106878`,
+  `BattleChara_unk::fn_801083D8`, `fn_801092C8` (tabla de mensajes de 8 bytes de `lbl_8087F1E4`),
+  `fn_80109950`, `fn_8010B398`, `fn_8010C00C` (necesita `Arms`/`CharaEquip_unk` desde `CharaPart_unk`),
+  `fn_8010D320` (como `fn_801018E4`, con `Vector3::fn_80139F60`) y las copias debiles de los destructores y
+  `ControlBase::vf2C` que emite el constructor.
 
 - `fn_800FA4FC`/`fn_800FA9F4` (std::sort y mediana de tres, elementos de 0xC bytes por el float de +8) solo
   se emiten al escribir su llamador `fn_800F8C6C` (6 KB).
