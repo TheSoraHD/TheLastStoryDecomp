@@ -60,6 +60,11 @@ Inicio: 2026-11-13 03:12 CET. Tope 05:42.
 - Direccion de un nodo a angulos con `Vector3::ToRotationZ_unk()` (la variante que lee z en una local): el
   original redondea z una sola vez (`fn_805384CC`).
 
+- `pd.sh` deja sin renombrar algunas etiquetas de `.sdata2` (DebugInfo: 0.0, -1e6 y 1.0; Node: 0.0 y 1.0):
+  `labelcheck` lo detecta y se renombran a mano en `symbols.txt` con el nombre de nuestro `.o`.
+- Pagina 2 (`fn_8022354C`): `cut->fn_8053B028()` por un getter inline como argumento acerca la carga de la
+  longitud (96,35 -> 96,6 %); el original tiene un registro salvado mas y 0x10 bytes mas de pila.
+
 ## Pendientes
 
 - `Event/Sequence` 0x8054372C-0x80545C3C (19 plantillas, y `EventParser_unk` fn_8057DB14/DC38/E274, y `Manager`

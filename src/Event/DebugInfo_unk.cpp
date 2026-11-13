@@ -598,8 +598,16 @@ inline Cut* GetCutAt_unk(Sequence* seq, int index) {
     return (index >= 0 && index < (int)seq->mB8.size()) ? seq->mB8[index].get() : 0;
 }
 
+// inferred: length of a cut and next cut (inline getters)
+static inline int GetCutLength_unk(Cut* cut) {
+    return cut->m2C;
+}
+static inline int GetNext_unk(Cut* cut) {
+    return cut->fn_8053B028();
+}
+
 // inferred: page 2 of the debug info: list of the cuts (ten around the current one)
-// NONMATCHING: 96.3% - offsets of the strings in @stringBase0 (the "" after "vector length error") and the
+// NONMATCHING: 96.6% - offsets of the strings in @stringBase0 (the "" after "vector length error") and the
 // register of the length of the cut
 void fn_8022354C(DebugInfo_unk* info) {
     Sequence* seq = fn_8000DB1C()->fn_80112F54();
@@ -639,16 +647,14 @@ void fn_8022354C(DebugInfo_unk* info) {
             const char* name = fn_80222A24(cut);
             int len = cut->m2C;
             int id = cut->mIndex;
-            sprintf(buf, "[%02d]: id=%d, name=%s,  next=%d, len=%d, skip=%s, %s", i, id, name, cut->fn_8053B028(),
-                    len, skip, mark);
+            sprintf(buf, "[%02d]: id=%d, name=%s,  next=%d, len=%d, skip=%s, %s", i, id, name, GetNext_unk(cut), len, skip, mark);
         } else {
             const char* mark = cut->mIndex == seq->m94 ? "StartCut" : "";
             const char* skip = cut->fn_8053C124(cut->mSkip);
             const char* name = fn_80222A24(cut);
             int len = cut->m2C;
             int id = cut->mIndex;
-            sprintf(buf, "[%02d]: id=%d, name=%s, next=%d, len=%d, skip=%s, %s", i, id, name, cut->fn_8053B028(),
-                    len, skip, mark);
+            sprintf(buf, "[%02d]: id=%d, name=%s, next=%d, len=%d, skip=%s, %s", i, id, name, GetNext_unk(cut), len, skip, mark);
         }
         fn_80221CAC(fn_800F7250(), info->m04 + info->m0C, info->m08 + info->m0C * row++, -1000000.0f,
                     info->m0C, info->m0C, buf, 0xFFFFFFFF, 1);
