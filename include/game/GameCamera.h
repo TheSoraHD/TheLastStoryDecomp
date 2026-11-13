@@ -24,6 +24,7 @@ struct GameCameraState_unk {
 // inferred: blend timer of the camera parameters (0xC bytes; weak copies 0x803829C0, 0x803829D4); names
 // invented
 struct GameCameraTimer_unk {
+    GameCameraTimer_unk(); // inferred: clears mActive (inline, defined in game/GameCamera_unk.cpp)
     bool fn_803829C0() const { return mActive != 0; } // inferred: running
     void fn_803829D4() {                                // inferred: steps towards 0
         mTime = mTime - mStep;
@@ -80,6 +81,7 @@ struct GameCameraParam_unk {
 // inferred: parameters a camera mode imposes (GameCamera::m46C): mode (4 keeps the current one), weight and
 // speed of the blend, and the parameters; names invented
 struct GameCameraModeParam_unk {
+    GameCameraModeParam_unk(); // inferred: clears mMode (inline, defined in game/GameCamera_unk.cpp)
     void fn_8037E89C(int mode, const GameCameraParam_unk& param, float step); // inferred: starts a mode
     int mMode;
     float mWeight;
@@ -89,6 +91,7 @@ struct GameCameraModeParam_unk {
 
 // inferred: shake of the camera (GameCamera::mShake: frame, length, width and height; names invented)
 struct CameraShake_unk {
+    CameraShake_unk(); // inferred: clears the shake (inline, defined in game/GameCamera_unk.cpp)
     atn::Vector3 GetOffset_unk() const; // 0x803933F4
     int mFrame;
     int mLength;
@@ -185,7 +188,9 @@ public:
     void fn_8038DF5C(const CharaTask* chara);
 
     atn::Camera m1F4;      // 0x1F4: inferred: camera given to the render manager
-    unsigned char m3E8[0x424 - 0x3E8];
+    unsigned char m3E8[0x41C - 0x3E8];
+    float m41C;
+    unsigned char m420[0x424 - 0x420];
     GameCameraTimer_unk m424; // inferred: blend of the event camera (fn_8038CD94)
     GameCameraParam_unk m430; // inferred: parameters the blend m424 starts from (fn_8037E12C)
     GameCameraModeParam_unk m46C;
@@ -243,7 +248,7 @@ public:
     atn::Vector3 m8BC; // inferred: point given to fn_803903E0
     float m8C8;        // inferred: its height
     int m8CC;          // inferred: fn_803903E0 pulls the start point out of the walls once
-    unsigned char m8D0[0x8D4 - 0x8D0];
+    int m8D0;
     int m8D4; // inferred: set at the end of the replay rewind (GameTask::fn_80373AE8)
     float m8D8; // inferred: debug menu "BirdViewLockOnSpeed"
     float m8DC; // inferred: debug menu "BirdViewLockOnLength"
@@ -268,10 +273,15 @@ public:
     atn::Vector3 m93C; // inferred: offset of the position of the render camera (fn_803928C0)
     atn::Vector3 m948; // inferred: offset of the target
     float m954;        // inferred: offset of the fovy
-    unsigned char m958[0x96C - 0x958];
+    float m958;
+    float m95C;
+    unsigned char m960[0x96C - 0x960];
     float m96C; // inferred: cleared when the ledge mode starts (fn_8038A5F0)
     float m970;
-    unsigned char m974[0x98C - 0x974];
+    float m974;
+    unsigned char m978[0x984 - 0x978];
+    int m984;
+    float m988;
     atn::Vector3 m98C[8]; // inferred: cleared by the default mode (fn_80389A00)
     float m9EC; // inferred: debug menu "InterpSpeed"
     int m9F0;   // inferred: debug menu "InterpFrame"
@@ -279,7 +289,11 @@ public:
     atn::Vector3 m9F8;   // inferred: hips of the character when the hips mode ends
     float mA04; // inferred: debug menu "PadDisableAngle"
     int mA08;   // inferred: debug menu "PadDisableFrame"
-    float mA0C[5];
+    float mA0C; // inferred: turn speeds (cleared by fn_8037EF48 with `reset`)
+    float mA10;
+    float mA14; // inferred: turn speed of the bird view (classic controller, fn_80387DE4)
+    float mA18;
+    float mA1C;
     atn::Camera mA20;      // inferred: camera the render camera is blended from (fn_80392FE8, fn_80392D2C)
     float mC14;            // inferred: blend weight, decreased by mC18 every frame
     float mC18;
@@ -288,7 +302,8 @@ public:
     DofParam_unk mC24;     // inferred: depth of field saved while the camera box sets its own (fn_80389884)
     DofParam_unk mC54;     // inferred: depth of field of the camera box
     int mC84;              // inferred: mC54 is applied
-    unsigned char mC88[0xCA8 - 0xC88];
+    atn::Vector2_unk mC88[3]; // inferred: cleared by the constructor
+    atn::Vector2_unk mCA0;
     float mCA8; // inferred: turn speed of the leader camera (SetConfig::mTurnSpeed when negative, fn_8037EF48)
 };
 

@@ -28,7 +28,12 @@ Unidades: `game/GameCamera_unk`, `game/FinishCamera_unk`.
   aqui) a una local y de vuelta para las dos distancias de fijado (0xF0 bytes mas de pila); el resto coincide.
   Con sus cadenas ("gun".."fixRotY") el pool queda completo: `fn_8037E9E0`, `fn_8037ECF0` y `fn_8039328C`
   pasan al 100 % (poolorder igual).
-- Funciones al 0 %: 16 -> 12. Al 100 %: 28 -> 44 de 90.
+- `GameCamera::GameCamera` (0x8037D8B8, 944 bytes): **100 %**. Hace falta el constructor por defecto de
+  `GameCameraParam_unk` (m34 = 0), `GameCameraTimer_unk` (mActive = 0), `GameCameraModeParam_unk` (mMode = 0) y
+  `CameraShake_unk` (todo a 0): declarados sin definir en `GameCamera.h` y definidos `inline` en el .cpp.
+  `mA0C[5]` pasa a cinco floats `mA0C..mA1C` (el original los inicializa como floats en la lista; solo esta
+  unidad los usa). Con el ctor delante, el pool de `.sdata2` empieza en el orden del original.
+- Funciones al 0 %: 16 -> 11. Al 100 %: 28 -> 45 de 90.
 
 ## Decisiones tomadas sin el usuario
 
@@ -58,13 +63,18 @@ Unidades: `game/GameCamera_unk`, `game/FinishCamera_unk`.
 - `GameCamera.h`: constructor por defecto `GameCameraParam_unk();` declarado sin definir (pone m34 a 0; la
   definicion inline esta en `GameCamera_unk.cpp`, no renumera: labelcheck igual) y `GameCameraParam_unk m430` en
   lugar del relleno (miembro de datos). Con el ctor declarado faltaria aun la herencia para el ctor de GameCamera.
+- `GameCamera.h` (datos, no renumeran): `float m41C`, `int m8D0`, `float m958, m95C`, `float m974`, `int m984`,
+  `float m988`, `atn::Vector2_unk mC88[3]` y `mCA0` en lugar de relleno; `mA0C[5]` -> `mA0C, mA10, mA14, mA18,
+  mA1C`. Constructores por defecto declarados (sin parametros) en `GameCameraTimer_unk`, `GameCameraModeParam_unk`
+  y `CameraShake_unk`. labelcheck igual.
 - `.sdata` lbl_8087DD04..lbl_8087DD34 (extremos de las mezclas) quedan `extern "C"` como lbl_8087DCF0..DD00.
 - Etiquetas ambiguas de `.sdata2` que `pd.sh` no re-empareja, renombradas a mano con su direccion:
   `@15867`->`@16522` (0x808858E8), `@15896`->`@16551` (0x808858F8), `@15877`->`@16532` (0x80885954),
   `@15893`->`@16548` (0x80885910); tras fn_80390A88 otra vez (+732): `@17254` (0x808858E8), `@17283`
   (0x808858F8), `@17280` (0x80885910), `@17264` (0x80885954). En GameTask `@27395`/`@27396` (0x808857A8/AC).
   Tras fn_80382A1C (+570): `@17824`, `@17853`, `@17850`, `@17834` en las mismas direcciones; tras fn_8037E12C
-  (+187): `@18011`, `@18040`, `@18037`, `@18021`.
+  (+187): `@18011`, `@18040`, `@18037`, `@18021`; tras el ctor: `@18264`, `@18268`, `@18274` (0x808858E8/F8,
+  0x80885910) y `@18323` (0x80885954).
 - poolcheck de GameCamera_unk avisa ahora de la cadena '?fff>L' (0.9 seguido de 0.2 en nuestro .sdata2: orden del
   pool por primer uso; la unidad no enlaza).
 
@@ -76,12 +86,15 @@ Unidades: `game/GameCamera_unk`, `game/FinishCamera_unk`.
 - Un `Matrix3x4` temporal sin llamada al constructor sobre el que se llama `fn_8013A13C(angulo)`: es una funcion que
   devuelve la matriz por valor (`static Matrix3x4 fn_8013A13C(float)`), no un metodo sobre una local.
 - `const atn::Vector3& head = c->fn_80178088();` mantiene la direccion del temporal en un registro salvado.
+- Inicializacion de `x = y = z = 0.0f` encadenada: guarda z, y, x (orden del original en m98C y mC88).
 - `cntlzw; srwi.; bne` en una condicion: inline que devuelve `x == 0` usada negada; con `!(x == 0)` directo sale
   `cmpwi` (no se consiguio en fn_80390A88).
 
 ## Pendientes
 
 - `fn_80390A88`: pila (ver arriba).
+- `~GameCamera` 99,97 %: el original trata la camara de 0x00 como miembro (no base); cambia la herencia de una
+  clase incluida por 144 unidades.
 - `fn_8037E12C`: agrupar 0x244-0x333 de `GameConfig_unk.h` en un struct (otra familia; cambia sus usos) para
   llegar al 100 %.
 - `atn::Matrix3x4::fn_8013A13C` deberia ser estatica y devolver la matriz (cambia todos sus llamadores, otra

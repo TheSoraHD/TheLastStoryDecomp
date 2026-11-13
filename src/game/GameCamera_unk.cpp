@@ -1,5 +1,5 @@
-// Camera of the field (GameCamera, GameTask + 0x6C). Only a few members are written; the constructor and
-// the update (0x8037F9AC) are still missing, so the unit is not linked.
+// Camera of the field (GameCamera, GameTask + 0x6C). The update of the default mode (0x8037F9AC) and two stick
+// modes (0x80384188, 0x80385B48) are still missing, so the unit is not linked.
 #include "game/GameCamera.h"
 #include "game/GameScene.h"
 #include "game/CharaManager.h"
@@ -21,6 +21,7 @@
 #include "chr/ControlBase.h"
 #include "game/TacView.h"
 #include "atn/Csv.h"
+#include "atn/GraphicsDevice.h"
 
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 extern "C" GameConfig_unk* lbl_8087F0A8;
@@ -103,6 +104,44 @@ static inline atn::Vector3 Cross_unk(const atn::Vector3& a, const atn::Vector3& 
     atn::Vector3 r;
     PSVECCrossProduct(&a, &b, &r);
     return r;
+}
+
+// inferred: constructors of the parts of the camera (inline; defined here, their only user)
+inline GameCameraTimer_unk::GameCameraTimer_unk() : mActive(0) {}
+inline GameCameraParam_unk::GameCameraParam_unk() : m34(0.0f) {}
+inline GameCameraModeParam_unk::GameCameraModeParam_unk() : mMode(0) {}
+inline CameraShake_unk::CameraShake_unk() : mFrame(0), mLength(0), mWidth(0.0f), mHeight(0.0f) {}
+
+extern "C" atn::GraphicsDevice_unk* lbl_8087EEE0; // inferred: graphics device
+extern "C" float fn_80076FF8(atn::GraphicsDevice_unk* device); // inferred: aspect ratio of the screen
+
+// inferred: builds the three cameras and the parameters, then resets the camera (fn_8037DD00) and registers its
+// debug menu
+GameCamera::GameCamera()
+    : m41C(0.0f), m7F0(0), m7F4(0), m7FC(0), m804(0), m808(0), m834(0), m838(0), m83C(0), m840(0.0f, 0.0f, 0.0f),
+      m84C(0.0f, 0.0f, 0.0f), m858(0), m880(0), m884(0.0f, 0.0f, 0.0f), m890(0.0f, 0.0f, 0.0f), m89C(0),
+      m8A0(3.1415927f), m8A4(0.0f, 0.0f, 0.0f), m8B0(0.0f, 0.0f, 0.0f), m8BC(0.0f, 0.0f, 0.0f), m8C8(0.0f), m8CC(0),
+      m8D0(-1), m8D4(0), m8D8(0.03f), m8DC(16.0f), m8E0(1), m8E4(0), m8E8(0), m8EC(0), m8F0(0), m8F4(0), m8F8(0.0f),
+      m8FC(1.0f), m910(0), m911(0), m914(0), m918(15), m91C(0.0f, 0.0f, 0.0f), m928(0.0f, 0.0f, 0.0f),
+      m93C(0.0f, 0.0f, 0.0f), m948(0.0f, 0.0f, 0.0f), m954(0.0f), m958(0.0f), m95C(1.0f), m96C(0.0f), m970(0.0f),
+      m974(0.0f), m984(0), m988(0.0f), m9EC(0.25f), m9F0(10), m9F4(1), mA04(0.6981317f), mA08(15), mA0C(0.0f),
+      mA10(0.0f), mA14(0.0f), mA18(0.0f), mA1C(0.0f), mC14(-1.0f), mC1C(0.0f), mC20(0), mC84(0), mCA0(0.0f, 0.0f),
+      mCA8(1.0f) {
+    mAspect = fn_80076FF8(lbl_8087EEE0);
+    m800 = m7FC;
+    memset(&m4FC, 0, 0x20);
+    fn_8037DD00();
+    fn_8037E9E0();
+    mC54.mStart = 400.0f;
+    mC54.mEnd = 500.0f;
+    mC54.mNearStart = 30.0f;
+    mC54.mNearEnd = 10.0f;
+    for (int i = 0; i < 3; i++) {
+        mC88[i].x = mC88[i].y = 0.0f;
+    }
+    for (int i = 0; i < 8; i++) {
+        m98C[i].x = m98C[i].y = m98C[i].z = 0.0f;
+    }
 }
 
 // NONMATCHING: 99.97% - the original destroys the camera at 0x00 with -1, as a member and not as the base class
@@ -246,7 +285,6 @@ void GameCamera::fn_8037DD00() {
 
 extern "C" int atoi(const char* s);
 extern "C" int strcmp(const char* a, const char* b);
-inline GameCameraParam_unk::GameCameraParam_unk() : m34(0.0f) {}
 extern "C" float fn_800DC288(const char* s); // inferred: string to float
 
 // inferred: reads the camera csv of the map (lines "camera, gun|sword, mode, 14 parameters"): the lines of `camera`
@@ -444,9 +482,9 @@ void GameCamera::fn_8037EF48(CharaTask* chara, int place, int reset, float speed
     }
     m7F8 = atn::WrapAngle_unk(m7F8);
     if (reset) {
-        mA0C[0] = 0.0f;
-        mA0C[1] = 0.0f;
-        mA0C[2] = 0.0f;
+        mA0C = 0.0f;
+        mA10 = 0.0f;
+        mA14 = 0.0f;
     }
     if (lbl_8087F0A8->mAlwaysBirdview != 0 && !reset) {
         m7F4 = 0;
@@ -1049,7 +1087,7 @@ extern "C" int fn_800A58D0(void* pad, int port);                          // inf
 extern "C" float fn_800A56A8(void* pad, int port, int axis, int arg); // inferred: stick axis
 
 // inferred: bird view camera: turns m8A0 towards the leader's yaw while m7F4 is set, turns with the right stick of
-// the classic controller (speed mA0C[2]), follows the character over the floor (m8A4, swept on maps with a
+// the classic controller (speed mA14), follows the character over the floor (m8A4, swept on maps with a
 // ceiling) and runs the tactical view camera (fn_80387910)
 // NONMATCHING: 90.6% - stack slots of the ray ends (the original keeps from/to of the floor ray lowest) and
 // the order of the first loads
@@ -1071,17 +1109,17 @@ void GameCamera::fn_80387DE4(const CharaTask* chara) {
         float ax = (float)__fabs(x);
         if (ax > 0.2f) {
             float speed = (x > 0.0f ? 1.0f : -1.0f) * ((ax - 0.2f) / 0.8f);
-            mA0C[2] = -speed * 0.017453292f + mA0C[2];
-            mA0C[2] = GAMECAMERA_MAX_UNK(-0.08726646f, GAMECAMERA_MIN_UNK(0.08726646f, mA0C[2])) *
+            mA14 = -speed * 0.017453292f + mA14;
+            mA14 = GAMECAMERA_MAX_UNK(-0.08726646f, GAMECAMERA_MIN_UNK(0.08726646f, mA14)) *
                       (float)__fabs(speed);
         } else {
-            mA0C[2] *= 0.7f;
-            if ((float)__fabs(mA0C[2]) < 0.00017453292f) {
-                mA0C[2] = 0.0f;
+            mA14 *= 0.7f;
+            if ((float)__fabs(mA14) < 0.00017453292f) {
+                mA14 = 0.0f;
             }
         }
-        if (0.0f != mA0C[2]) {
-            m8A0 = atn::WrapAngle_unk(mA0C[2] + m8A0);
+        if (0.0f != mA14) {
+            m8A0 = atn::WrapAngle_unk(mA14 + m8A0);
         }
     }
     if (!HasCeiling_unk()) {
@@ -1347,11 +1385,11 @@ void GameCamera::fn_80389838(int mode) {
     m808 = 0;
     m838 = 0;
     m880 = 0;
-    mA0C[0] = 0.0f;
-    mA0C[1] = 0.0f;
-    mA0C[2] = 0.0f;
-    mA0C[3] = 0.0f;
-    mA0C[4] = 0.0f;
+    mA0C = 0.0f;
+    mA10 = 0.0f;
+    mA14 = 0.0f;
+    mA18 = 0.0f;
+    mA1C = 0.0f;
     lbl_8087F0A8->mInput.m10 = 3;
 }
 
