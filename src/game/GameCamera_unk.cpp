@@ -1912,6 +1912,129 @@ void GameCamera::fn_8038E540(const CharaTask* chara, GameCameraParam_unk* param,
     }
 }
 
+// inferred: keeps the eye out of the walls for the bird view (fn_8038C928 and the camera of the default mode): a ray
+// from target2 (30 above it, or the collision radius on maps with a ceiling) to the eye at the same height pulls
+// the eye in front of the wall; on maps with a ceiling it is tried a second time 10 higher, and while the target
+// cannot see the eye (m89C, up to 8 frames) the eye is blended towards the wall
+// NONMATCHING: 90.5% - order of the loads of the ray ends (the original reloads from.z, here to.z is forwarded
+// with frsp; as fn_8038E540) and the float registers of the radius and the step
+void GameCamera::fn_8038E9B0(const CharaTask* chara, GameCameraParam_unk* param, atn::Vector3* pos,
+                             atn::Vector3* target, atn::Vector3* target2) {
+    bool ceiling = false;
+    bool map = false;
+    if (lbl_8087F430 != 0 && lbl_8087F430->GetCurrentMap() != 0) {
+        map = true;
+    }
+    if (map && lbl_8087F430->GetCurrentMap()->mEC != 0) {
+        ceiling = true;
+    }
+    if (!ceiling) {
+        float radius = lbl_8087F0A8->m08C;
+        CollResult_unk result;
+        atn::Vector3 from = *target2;
+        float top = 50.0f + pos->y;
+        from.y += 30.0f;
+        atn::Vector3 to = *pos;
+        to.y = from.y;
+        atn::Vector3 dir = to - from;
+        PSVECNormalize(&dir, &dir);
+        to += dir * radius;
+        if (fn_8004ED34(lbl_8087EE98, &result, &from, &to, 0x80000008, 0, 0)) {
+            atn::Vector3 hit = result.m10 - dir * radius;
+            hit.y = pos->y;
+            atn::Vector3 d = hit - *pos;
+            hit.y += MIN(20.0f, PSVECMag(&d));
+            hit.y = MIN(top, hit.y);
+            *pos = hit;
+        }
+    } else {
+        float radius = lbl_8087F0A8->m08C;
+        CollResult_unk result;
+        atn::Vector3 from = *target2;
+        atn::Vector3 to;
+        atn::Vector3 seen = *target;
+        from.y += radius;
+        to = *pos;
+        to.y = from.y;
+        atn::Vector3 dir = to - from;
+        PSVECNormalize(&dir, &dir);
+        to += dir * radius;
+        for (int i = 0; i < 2; i++) {
+            if (fn_8004ED34(lbl_8087EE98, &result, &from, &to, 0x08000000, 0, 0)) {
+                atn::Vector3 hit = result.m10 - dir * radius;
+                hit.y = pos->y;
+                atn::Vector3 d = hit - *pos;
+                hit.y += MIN(20.0f, PSVECMag(&d));
+                *pos = hit;
+                break;
+            }
+            from.y += 10.0f;
+            to.y = from.y;
+        }
+        from = *pos;
+        to = *target;
+        if (fn_8004ED34(lbl_8087EE98, &result, &from, &to, 0x08000000, 0, 0)) {
+            seen = result.m10;
+        }
+        from = seen;
+        to = *pos;
+        if (fn_8004ED34(lbl_8087EE98, &result, &from, &to, 0x08000000, 0, 0)) {
+            m89C++;
+            atn::Vector3 p = result.m10;
+            if (m89C < 8) {
+                p = LerpV_unk(*pos, p, (float)m89C / 8.0f);
+            }
+            *pos = p;
+        } else {
+            m89C = 0;
+        }
+    }
+}
+
+// inferred: sets the parameters of a camera mode (read from the camera csv of the map by fn_8037E12C)
+void GameCamera::fn_8038EF94(const GameCameraParam_unk* param, int mode) {
+    switch (mode) {
+    case 0:
+        m51C = *param;
+        break;
+    case 2:
+        m594 = *param;
+        break;
+    case 3:
+        m5D0 = *param;
+        break;
+    case 4:
+        m60C = *param;
+        break;
+    case 1:
+        m558 = *param;
+        break;
+    case 5:
+        m648 = *param;
+        break;
+    case 8:
+        m6C0 = *param;
+        break;
+    case 9:
+        m6FC = *param;
+        break;
+    case 6:
+        m684 = *param;
+        break;
+    case 10:
+        m738 = *param;
+        lbl_8087F0A8->mInput.m10 = 3;
+        break;
+    case 11:
+        if (m7FC == mode) {
+            m800 = 0;
+            m808 = 0;
+        }
+        m774 = *param;
+        break;
+    }
+}
+
 void GameCamera::fn_80390374() {
     fn_80389838(m804);
 }

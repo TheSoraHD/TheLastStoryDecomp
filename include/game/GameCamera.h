@@ -137,6 +137,7 @@ public:
     // inferred: pushes the eye out of the walls around the character (0x8038E23C; uses m7FC, m89C; the target is
     // passed but not used)
     void fn_8038E23C(const CharaTask*, GameCameraParam_unk*, atn::Vector3*, atn::Vector3*);
+    void fn_8038EF94(const GameCameraParam_unk*, int); // inferred: sets the parameters of a mode
     void fn_803918EC(); // inferred: ambient sway of the camera (xsca of the map)
     void fn_803920C8();
     void fn_80392510();
