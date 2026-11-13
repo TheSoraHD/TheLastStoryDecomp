@@ -147,8 +147,8 @@ struct GameUIElem20_unk {
         mInst[4] = 0;
     }
     GameUIInst_unk* mInst[5]; // inferred: d2anime instances (frame at 0x50, GameUI::fn_803E0D84)
-    int m14;
-    int m18;
+    GameUIInst_unk* m14; // inferred: "ui_friend_icon_mag_start" (GameUI::fn_803D022C)
+    GameUIInst_unk* m18; // inferred: "ui_friend_icon_default"
     int m1C;
 };
 
@@ -303,6 +303,8 @@ public:
 
     void fn_803CF740();
     void fn_803CF74C();
+    void fn_803CFC78(); // inferred: registers the debug parameters of the HUD
+    void fn_803D022C(); // inferred: creates the parts of the HUD
     void fn_803D11B4(); // inferred: releases the parts of the HUD
     int fn_803D1574();
     // inferred: called by GameTask (0x803D164C, 0x803D2194: refresh of the HUD parts; 0x803D83A8: per-frame
