@@ -18,6 +18,12 @@ Inicio: 2026-11-13 07:19 CET. Tope 09:49.
   - `Actor::fn_8000F1EC` (inicio del evento: guarda en m18/m24 el estado del personaje y lo toma) 96,3 %; con el
     cast a `SimpleVector<Event::PoseKey_unk>` sale tambien `PoseKey_unk::PoseKey_unk` (0x8000FAE4) al 100 %.
   - `Actor::fn_8000FAE8` (fin del evento: devuelve al personaje el estado guardado en m18/m24) 92,9 %.
+  - `Puppeteer<atn::Model>::vf10` (stub con DRAFT) -> 100 %: pone el modelo sobre la matriz m54 y calcula su pila
+    de matrices en los estados 10-12; el estado 11/12 como bool en un inline (`IsPlayState_unk`, `bool r = true;
+    if (...) r = false;`), el concat por `GetTarget_unk()`. `SetModelMtx_unk` y sus inlines movidos antes.
+  - `Actor::fn_80012D34` 99,81 -> 99,98 % (sin DRAFT): la diferencia de la cadena de `GetTrans` en una local; solo
+    queda el desplazamiento de "eye_R" en `@stringBase0` (el pool original 0x8072EE0C tiene tambien los nombres
+    de parametros de las acciones).
   - `Actor::fn_80012AC4` (matriz de un nodo del actor) 99,6 -> 100 %: metodo `const` (renombrado a
     `fn_80012AC4__Q25Event5ActorCFUi`; llamador Event/ActionEffectPlay sin cambios en el fuente).
   - `Actor::fn_8001011C` (mueve el actor) 99,2 -> 100 %: columnas de `SetModelMtx_unk` por `MtxCol_unk`,
@@ -64,7 +70,7 @@ Inicio: 2026-11-13 07:19 CET. Tope 09:49.
   parametro (no renumeran). Llamadores de
   `fn_80010B68` (Event/Path, Event/ActionActorPosition) sin cambios en el fuente; el nombre en `symbols.txt`.
 - `@15509`/`@15510` (0.0f/1.0f de `.sdata2` de la unidad) renombrados a mano (pd.sh no los renombra): ahora
-  `@17644`/`@17645`.
+  `@17726`/`@17727`.
 
 - `Event/Actor.h`: bits de `m18` (MSB primero) detallados: `m18_0` estado guardado, `m18_8` (8 bits) modo de
   control, `m18_16..22` bits guardados del personaje; `ActorAnim_unk::m0C` int. Las dos posiciones guardadas

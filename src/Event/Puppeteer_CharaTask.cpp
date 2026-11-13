@@ -99,6 +99,28 @@ inline atn::Model::Res_unk* atn::Model::fn_8000DD04() {
 }
 
 namespace Event {
+// inferred: largest of three values (std::max by reference)
+inline float MaxScale_unk(const float& a, const float& b) {
+    return (a > b) ? a : b;
+}
+
+// inferred: column of a matrix (inlined; name invented)
+inline atn::Vector3 MtxCol_unk(const atn::Matrix3x4& m, int i) {
+    return atn::Vector3(m.m[0][i], m.m[1][i], m.m[2][i]);
+}
+
+// inferred: sets the world matrix of a model and its largest scale axis (inlined; name invented)
+inline void SetModelMtx_unk(atn::Model* model, const atn::Matrix3x4& m) {
+    static_cast<atn::Matrix3x4&>(model->mMtx) = m;
+    float sz = MtxCol_unk(m, 2).Length_unk();
+    float sy = MtxCol_unk(m, 1).Length_unk();
+    float sx = MtxCol_unk(m, 0).Length_unk();
+    atn::Vector3 scale(sx, sy, sz);
+    // inferred: a max macro (the inner max is evaluated again for the result)
+    model->m54 = scale.x > MaxScale_unk(scale.y, scale.z) ? scale.x : MaxScale_unk(scale.y, scale.z);
+}
+
+
 
 
 template <>
@@ -159,10 +181,34 @@ int Puppeteer<atn::Model>::vf0C() {
     return 1;
 }
 
-// DRAFT: stub; the matrix stack of the model is not computed
-// NONMATCHING: stub - computes the matrix stack of the model
+// inferred: states 11 and 12 of a sequence (inlined; name invented)
+inline bool IsPlayState_unk(int state) {
+    bool r = true;
+    if (state != 11 && state != 12) {
+        r = false;
+    }
+    return r;
+}
+
+// inferred: places the model on the node matrix m54 (if any) and computes its matrix stack while the
+// sequence plays (states 10-12)
 template <>
 void Puppeteer<atn::Model>::vf10() {
+    if (m50 == 0) {
+        return;
+    }
+    int state = m50->m194;
+    if (state != 10 && !IsPlayState_unk(state)) {
+        return;
+    }
+    if (m54 != 0) {
+        atn::Matrix3x4 m;
+        PSMTXConcat(m54->m, GetTarget_unk()->mMtx.m, m.m);
+        SetModelMtx_unk(m48, m);
+    }
+    m48->fn_80097E80(1);
+    m48->CalcMatrixStack(atn::ModelNodeCallback_unk());
+    m54 = 0;
 }
 
 template <>
@@ -827,27 +873,6 @@ void Actor::fn_8000FAE8() {
         }
         m18_0 = 0;
     }
-}
-
-// inferred: largest of three values (std::max by reference)
-inline float MaxScale_unk(const float& a, const float& b) {
-    return (a > b) ? a : b;
-}
-
-// inferred: column of a matrix (inlined; name invented)
-inline atn::Vector3 MtxCol_unk(const atn::Matrix3x4& m, int i) {
-    return atn::Vector3(m.m[0][i], m.m[1][i], m.m[2][i]);
-}
-
-// inferred: sets the world matrix of a model and its largest scale axis (inlined; name invented)
-inline void SetModelMtx_unk(atn::Model* model, const atn::Matrix3x4& m) {
-    static_cast<atn::Matrix3x4&>(model->mMtx) = m;
-    float sz = MtxCol_unk(m, 2).Length_unk();
-    float sy = MtxCol_unk(m, 1).Length_unk();
-    float sx = MtxCol_unk(m, 0).Length_unk();
-    atn::Vector3 scale(sx, sy, sz);
-    // inferred: a max macro (the inner max is evaluated again for the result)
-    model->m54 = scale.x > MaxScale_unk(scale.y, scale.z) ? scale.x : MaxScale_unk(scale.y, scale.z);
 }
 
 // inferred: moves the actor to `pos`
@@ -1592,9 +1617,10 @@ extern "C" inline int fn_80013444(const atn::Vector3* a, const atn::Vector3* b) 
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 namespace Event {
 
-// DRAFT: not checked against the original (draft of the eye/head turn)
-// NONMATCHING: draft - turns the eyes of the character towards a point (the camera, limited to `angle`
-// around the eye direction), or the head of another actor towards `target`
+// inferred: turns the eyes of the character towards a point (the camera, limited to `angle` around the eye
+// direction), or the head of another actor towards `target`
+// NONMATCHING: 99.98% - only the offset of "eye_R" in @stringBase0 (the original pool at 0x8072EE0C also
+// holds the parameter names of the actions: "set_y" and "z" are tails of "offset_y" and "offset_z")
 void Actor::fn_80012D34(Actor* target, int node, const atn::Vector3& cam, int arg4, const atn::Vector3& jitter,
                         int arg6, float weight, float angle) {
     if (m20 != 7 && m20 != 1) {
@@ -1603,7 +1629,8 @@ void Actor::fn_80012D34(Actor* target, int node, const atn::Vector3& cam, int ar
     if (arg6 != 0) {
         atn::Vector3 pos(cam);
         atn::Matrix3x4* eye = (atn::Matrix3x4*)fn_800128FC()->GetModel_unk()->GetNodeMtx_unk("eye_R");
-        atn::Vector3 dir(0.0f, 0.0f, (pos - eye->GetTrans_unk()).Length_unk());
+        atn::Vector3 diff = pos - eye->GetTrans_unk();
+        atn::Vector3 dir(0.0f, 0.0f, diff.Length_unk());
         dir.fn_80011410(eye->GetRotation_unk());
         atn::Vector3 aim = (cam - eye->GetTrans_unk()).ToRotation_unk();
         float dx = atn::WrapAngle_unk(aim.x - dir.ToRotation_unk().x);
