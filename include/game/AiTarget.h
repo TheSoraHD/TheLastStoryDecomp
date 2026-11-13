@@ -81,6 +81,10 @@ public:
     AiTarget* fn_800185B4(CharaTask* chara, HitInfo_unk* hit); // inferred: redirection of `chara`
     void fn_80018834();
     int fn_80018BAC(CharaTask* chara);
+    // inferred: random move point seen from `pos` in the direction `dir` (angle `range` in degrees) between
+    // the distances min and max, linked to the nearest point (parameters: pos, group, arg3, arg4, arg5, mask,
+    // arg7, dir, range, min, max; the names are left out of the declaration)
+    int fn_80018D5C(const atn::Vector3*, int, int, int, int, int, int, float, float, float, float);
 
     int m48;
     int m4C;

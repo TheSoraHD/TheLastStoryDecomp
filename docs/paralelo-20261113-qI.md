@@ -14,8 +14,9 @@
   con `atoi`), `Inventory::fn_80449ABC` 55 % (sin constructores, ver decisiones) y su `std::sort`
   (`MslSort_unk`/`MslMedian3_unk` con `ExpOrderLess_unk`, 0x8044A1D8/0x8044B44C/0x8044C6C0, 52-62 %: el
   original es mas grande, mas inlining).
-- `game/AiTarget`: funciones al 0 % 11 -> 10. `fn_80016C10` escrita (NONMATCHING 98,76 %, registros:
-  el original pone la escena en r30 y el indice*4 en r29, al reves que el nuestro).
+- `game/AiTarget`: funciones al 0 % 11 -> 8. `fn_80016C10` escrita (NONMATCHING 98,76 %, registros:
+  el original pone la escena en r30 y el indice*4 en r29, al reves que el nuestro). `AIManager::fn_80018D5C`
+  (punto de ruta en un cono) 99,5 % y `fn_80018C80` 92,7 % escritas.
 
 ## Decisiones tomadas sin el usuario
 
@@ -50,7 +51,17 @@
 - En `fn_80016C10` el original recarga `m98.mData` entre la prueba de `m2C` y el puntero al punto: la prueba
   lee `mData[i - 1]` directamente y el punto se toma con `operator[]`.
 
+- `RouteSearch_unk` de `game/Em006DarkMaster.cpp` era `AIManager`: la unidad incluye `AiTarget.h` y llama a
+  `AIManager::fn_80018D5C` (renombrado en `symbols.txt`; `main.dol: OK`). Declaracion nueva en `AiTarget.h`
+  sin nombres de parametro. `fn_80018C80` se queda `extern "C"` con el `AIManager*` delante porque
+  `AI/AiCommon_unk` la enlaza con nombre C (y le pasa registros sin inicializar; firma por revisar).
+
 ## Pendientes
+
+- `fn_8001794C`/`fn_80017128` (AiTarget): necesitan `AiInput_unk`/`AiOutput_unk` (hoy locales en
+  `AI/AI_archer_attack01.cpp`, con campos sueltos; el original usa arrays) en una cabecera comun, y
+  `CharaRes_unk::m58-m84` se leen como float (la cabecera los tiene como pares de int).
+- Constructor de `Inventory`: exige constructores en `Item_unk`/`ExpEntry_unk`/`Equip_unk` (renumera `@N`).
 
 - `Inventory::AddItem` devuelve `int` (antes `void` en `Inventory.h`; los llamadores ignoran el valor).
 - `DropSetting_unk` (ItemManager_unk) es una vista de `InitSetting_unk` de `db/InitSetting_unk.cpp`: falta una

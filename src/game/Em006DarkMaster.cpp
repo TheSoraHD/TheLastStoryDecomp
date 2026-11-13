@@ -4,6 +4,7 @@
 #include "atn/SoundRef.h"
 #include "game/EnemyManager.h"
 #include "game/BattleTask.h"
+#include "game/AiTarget.h" // AIManager::fn_80018D5C (route search)
 
 extern "C" int sprintf(char* buf, const char* fmt, ...);
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
@@ -16,13 +17,6 @@ struct Field_unk {
     void* m10D8;
 };
 extern "C" Field_unk* lbl_8087F430;
-// inferred: route search (lbl_8087EE68); fn_80018D5C finds a route point around `pos` between the
-// distances min and max (names invented)
-struct RouteSearch_unk {
-    int fn_80018D5C(const atn::Vector3* pos, int group, int arg3, int arg4, int arg5, int mask, int arg7, float dir,
-                    float range, float min, float max);
-};
-extern "C" RouteSearch_unk* lbl_8087EE68;
 
 // inferred: servant of the master (enemy of kind 42); its master is at 0x14D4
 struct DarkServant_unk : public EnemyTask {
@@ -204,7 +198,7 @@ void Em006DarkMaster::vf100(int state) {
             ((BattleTask*)lbl_8087F048)->fn_8010653C(this, &mMotion);
         }
         void* routes = lbl_8087F430 != 0 ? lbl_8087F430->m10D8 : 0;
-        RouteSearch_unk* search = lbl_8087EE68;
+        AIManager* search = lbl_8087EE68;
         int point = search->fn_80018D5C(&mPos, mC58.mB4, 0, -1, 0, fn_80179D44(), 1, 3.1415927f + mRot.y, 240.0f,
                                         100.0f, 200.0f);
         if (point <= 0) {

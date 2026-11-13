@@ -489,6 +489,114 @@ int AIManager::fn_80018BAC(CharaTask* chara) {
     return 1;
 }
 
+extern "C" double cos(double x);
+extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
+extern "C" unsigned short fn_803CD958(U16Table_unk* links, int point); // inferred: the two points are linked
+
+// NONMATCHING: 92.7% - scheduling of the loads of mB4 and of the last float argument
+// inferred: the original module calls it with a C name (AI/AiCommon_unk), so it stays extern "C"
+// inferred: route point for `chara` (its group, and the sub group while flag 2 of mD8 is set) in the
+// direction it faces (AI/AiCommon_unk fn_8001BA88)
+extern "C" int fn_80018C80(AIManager* ai, CharaTask* chara, int arg4, int arg5, float range, float min, float max) {
+    int ret;
+    if (chara != 0) {
+        int sub = 0;
+        if ((chara->mC58.mD8 & 2) == 2) {
+            sub = chara->mC58.mB8;
+        }
+        ret = ai->fn_80018D5C(&chara->mPos, chara->mC58.mB4, sub, arg4, arg5, chara->fn_80179D44(), 1,
+                              chara->mRot.y, range, min, max);
+    } else {
+        ret = 0;
+    }
+    return ret;
+}
+
+// NONMATCHING: 99.5% - registers of the scene (r28/r27) and stack slots of the front vector
+// inferred: random move point seen from `pos` facing `dir` (cone of `range` degrees) between the distances
+// min and max, linked to the nearest point (weighted by m1C when arg4 >= 0)
+int AIManager::fn_80018D5C(const atn::Vector3* pos, int group, int arg3, int arg4, int arg5, int mask, int arg7,
+                           float dir, float range, float min, float max) {
+    GameScene* scene = lbl_8087F430->m10D8;
+    int result = 0;
+    if (scene != 0) {
+        int start = scene->fn_803C1560(pos, mask, 0, 0, arg7, -1.0f);
+        atn::Vector3 origin = scene->m98[start - 1].mPos;
+        Mtx rot;
+        PSMTXRotRad(rot, 'y', dir);
+        atn::Vector3 axis(0.0f, 0.0f, 1.0f);
+        atn::Vector3 front = axis;
+        PSMTXMultVec(rot, &front, &front);
+        float limit = cos(0.017453292f * (0.5f * range));
+        int sum = 0;
+        for (int i = 1; i <= scene->m74; i++) {
+            gs::MovePoint& p = scene->m98[i - 1];
+            if (p.m2C != 0 && (group <= 0 || p.m20 == group)) {
+                sum += p.m1C;
+                if (sum > 0) {
+                    break;
+                }
+            }
+        }
+        if (sum <= 0) {
+            arg4 = -1;
+        }
+        int found[256];
+        int count = 0;
+        for (int i = 1; i <= scene->m74; i++) {
+            gs::MovePoint& p = scene->m98[i - 1];
+            if (p.m2C == 0 || start == i || start == 0) {
+                continue;
+            }
+            if ((int)fn_803CD958(&scene->mA0.mData[start - 1], i - 1) <= 0) {
+                continue;
+            }
+            if (p.m1C < arg4) {
+                continue;
+            }
+            if (arg5 >= 0 && p.m18 != arg5) {
+                continue;
+            }
+            if (group > 0 && p.m20 != group) {
+                continue;
+            }
+            if (arg3 > 0 && p.m24 != arg3) {
+                continue;
+            }
+            atn::Vector3 diff = p.mPos - origin;
+            atn::Vector3 d = diff;
+            float dist = PSVECSquareMag(&d);
+            PSVECNormalize(&d, &d);
+            if (dist < min * min || max * max < dist) {
+                continue;
+            }
+            if (PSVECDotProduct(&d, &front) >= limit && count < 255) {
+                found[count++] = i;
+            }
+        }
+        if (count > 0) {
+            if (arg4 >= 0) {
+                int total = 0;
+                for (int k = 0; k < count; k++) {
+                    total += scene->m98[found[k] - 1].m1C;
+                }
+                int r = rand() % total;
+                for (int k = 0; k < count; k++) {
+                    int w = scene->m98[found[k] - 1].m1C;
+                    if (r < w) {
+                        result = found[k];
+                        break;
+                    }
+                    r -= w;
+                }
+            } else {
+                result = found[rand() % count];
+            }
+        }
+    }
+    return result;
+}
+
 namespace std {
 namespace tr1 {
 namespace detail {
