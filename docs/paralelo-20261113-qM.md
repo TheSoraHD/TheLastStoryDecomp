@@ -115,9 +115,11 @@ Cola: restos de game/GameEventScript (12 al 0 %) y AI/AI_archer_attack01 (6 al 0
 
 - GameEventScript: `poolorder.py --funcs` da 8 funciones que solo fallan por el pool de cadenas (fn_803A064C,
   fn_803A1B20, fn_803A24A4, fn_803A4568, fn_803A47A4, fn_803AA5E4 y los dos `InsertNode_unk`): al original le
-  sobran 7 cadenas vacias `""` sin referencias (indices 13, 16, 18, 26, 28, 31, 33 y 38 del pool: antes de
-  "vector length error", "Event not found! ev%04d", "Title", "END", "Page%d -> %d"...). Parecen literales de
-  codigo eliminado (asserts o `new (tag, "", "", 0)` muertos); no se han buscado.
+  sobran 7 cadenas vacias `""` sin referencias (no es alineacion), cada una justo detras del formato de un
+  `sprintf` de depuracion: el log de flags (fn_8039C??? "...%d -> %d,"), "ScriptError: ExecComAimGimmick...",
+  "Event not found! ev%04d", "START Page%d", "END" (pero no "Page%d -> %d" del mismo `if`), y los dos logs
+  "%d,%s,%d,..." de cambio de pagina y de flag externo. Parece una llamada inline con un `""` que se elimina
+  (p. ej. un `strcat(buf, "")` o un parametro por defecto no usado); no se ha probado.
 
 - AI_archer: pasar el mapa a objeto global (destructor y `__sinit` del compilador) cuando se encuentre la
   forma de la `__sinit` original.
