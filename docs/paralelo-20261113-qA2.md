@@ -18,6 +18,13 @@ Funciones al 0 % al empezar: BattleTask 29, TacView 6, BattleCharaTask 1.
     nuevos: `m367B4`, `m38A08` (int), `m38A10`, `m38A14`, `m38A20`, `m38A24`, `m38A30`, `m38A34`, `m38A3C`-`m38A54`,
     `m3E390`, `m3E3A0`-`m3E3A8` (parametros del menu).
   - `fn_801092C8` (mensaje del registro de batalla segun `lbl_80735AB0`; 87,9 %: dos casos comparten la cola).
+  - `fn_8010C00C` (estados de las condiciones del equipo; 97,5 %, registros de los bucles).
+  - `fn_800F3170` (libera los efectos de batalla) y `BattleTask::fn_800F3490` (cargando): **100 %** las dos,
+    mnemcheck limpio. Tipado de 0x363C0..0x3663C: `mEfp363C0[4]`, `mHitEff[3][7]` (EffFile), `mEfp364EC`,
+    `mSplashEfp[3]`, `mEff3651C[5]`, `mEff36558[5]`, `mEff36594[3]` (EffFile), `mEfp365B8[4]`, `mEfp365E8[7]`;
+    `m389F4` es un EffFile; `mCB7C` un `atn::Texture`; `m3E394` el flag de cargados. Las EffFile y la Texture son
+    almacenamiento crudo (`unsigned char[0xC]`) como en `BattleMarkers_unk`, con `AsEffFile_unk`/`AsTexture_unk`
+    en el .cpp. `fn_801018E4` sube de 93,9 a 98,5 % con el tipado.
 
 ## Decisiones tomadas sin el usuario
 
@@ -30,6 +37,13 @@ Funciones al 0 % al empezar: BattleTask 29, TacView 6, BattleCharaTask 1.
   `void*`: `atn/MindowsCommon.h` choca con `game/ResHandle.h` en el tipo de `lbl_8087EF10`.
 - `fn_801092C8` sigue `extern "C"` con `BattleTask*` (la llaman ~10 unidades de otras colas). `lbl_80735AB0`
   (`.rodata` de este fichero) como `extern` como ya estaba `lbl_80735DD0`: la unidad no enlaza todavia.
+- `game/SkillEffectManager.h` incluido en BattleTask.cpp (quita el `extern "C" void* lbl_8087F9E8` local);
+  `chr/CharaEquip_unk.h` y `db/EquipParam_unk.h` tambien (fn_8010C00C: `m414` se lee como `EquipParamEntry_unk`
+  y sus condiciones `mE4` como `ArmsCond_unk`, con cast).
+- `fn_800D58A4` (liberar `atn::Texture`) como `extern "C"` (como GameUI.cpp) y `fn_800D59B8` llamado a traves de
+  `GimmickUvOwner_unk` (su nombre en `symbols.txt`, como gmk/AutomaticDoor.cpp): las dos son de `atn::Texture`
+  (atn/Texture_unk.cpp, otra cola). Pendiente: pasarlas a miembros de `atn::Texture`.
+- `fn_800F3170` sigue `extern "C"` con `BattleTask*` (GameTask.cpp la declara asi).
 - Vistas locales nuevas en BattleTask.cpp: `BattleWeapon_unk` (fn_80206C50), `BattleState_unk` (fn_8021AF50),
   `BattleLogDef_unk`; `BattleMsg_unk::GetPair_unk` (como CosEditItemList_unk).
 
@@ -38,6 +52,9 @@ Funciones al 0 % al empezar: BattleTask 29, TacView 6, BattleCharaTask 1.
   `fn_80210220`: el tipo `HateParamEntry_unk` es local de `db/HateParam_unk.cpp` (otra cola). Pendiente: cabecera.
 
 ## Hallazgos
+
+- Arrays separados (`a[5]`, `b[5]`) en vez de uno con `a[5 + i]` dan los punteros de bucle del original; con
+  `(&arr[k])[i]` tambien se reduce el indice (fn_800F3170/fn_800F3490).
 
 - `Vector3 v; v = a - b; v.Normalize_unk();` da la copia `psq` desde el temporal con el temporal debajo en la pila
   (`GetNormalize()` lo deja igual pero con r5/r6 cruzados) (fn_8010D320).

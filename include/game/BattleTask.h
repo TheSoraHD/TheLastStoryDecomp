@@ -310,7 +310,7 @@ public:
     atn::D2A_Task* mCB60;          // inferred: d2anime task (made by fn_800F39A4; may be null)
     unsigned char mCB64[0xCB70 - 0xCB64];
     atn::Vector3 mCB70;            // inferred: screen direction to the aimed position (fn_8010D320)
-    unsigned char mCB7C[0xCBAC - 0xCB7C];
+    unsigned char mCB7C[0xCBAC - 0xCB7C]; // inferred: atn::Texture (raw storage, see BattleMarkers_unk)
     int mCBAC;
     unsigned char mCBB0[0xCBF0 - 0xCBB0];
     BattleChara_unk mCharas[0x48]; // 0xCBF0: inferred: characters known to the battle (CharaTask::fn_80176E30)
@@ -318,16 +318,22 @@ public:
     int mCharaCount;               // 0x363B0
     unsigned char m363B4[0x363BC - 0x363B4];
     int m363BC;
-    atn::EfpFile mEfp363C0[26];  // 0x363C0: inferred: battle effects (EFP files)
-    atn::EfpFile mSplashEfp[3];  // 0x364F8: inferred: splashes on water (fn_8010A308; loaded by fn_800F39A4)
-    atn::EfpFile mEfp3651C[17];  // 0x3651C: inferred: battle effects (EFP files)
-    unsigned char m365E8[0x3663C - 0x365E8];
+    // inferred: battle effects; the atn::EffFile members (released with EffFile::Destroy by fn_800F3170) are raw
+    // storage for the reason given at BattleMarkers_unk
+    atn::EfpFile mEfp363C0[4];        // 0x363C0
+    unsigned char mHitEff[3][7][0xC]; // 0x363F0: inferred: atn::EffFile, hit effects [level - 1][kind] (fn_80101434)
+    atn::EfpFile mEfp364EC;           // 0x364EC
+    atn::EfpFile mSplashEfp[3];       // 0x364F8: inferred: splashes on water (fn_8010A308; loaded by fn_800F39A4)
+    unsigned char mEff3651C[5][0xC]; // 0x3651C: inferred: atn::EffFile, hit per level
+    unsigned char mEff36558[5][0xC]; // 0x36558: inferred: atn::EffFile, strong hit or guard per level
+    unsigned char mEff36594[3][0xC]; // 0x36594: inferred: atn::EffFile, status effects (poison, curse, 0x40)
+    atn::EfpFile mEfp365B8[4];        // 0x365B8: inferred: [0]/[1] stone (fn_80101524), [2]/[3]
+    atn::EfpFile mEfp365E8[7];        // 0x365E8
     atn::EfpFile mEfp3663C[31]; // 0x3663C: inferred: palette effects (ef_<palette>.efp, fn_800F39A4)
     int m367B0; // inferred: copied from GameTask::m5618 at the end of a map change; debug "DrawHateArrow"
     int m367B4; // inferred: debug "DrawHateNumber"
     BattleMarkers_unk mMarkers; // 0x367B8: inferred: target lines
-    int m389F4; // inferred: owner tag of the chant effect (its address is the effect owner)
-    unsigned char m389F8[0x38A00 - 0x389F8];
+    unsigned char m389F4[0xC]; // inferred: atn::EffFile of the chant effect (raw storage; its address is the owner tag)
     int m38A00; // inferred: nonzero draws the target lines of every friend (fn_801055A8)
     float m38A04; // inferred: gauge value, clamped to [0, m38A0C]
     int m38A08;   // inferred: debug "DebugMode" of the morale
@@ -375,7 +381,7 @@ public:
     BattleStun_unk mStuns[4];      // 0x3E318: inferred: characters with a timed effect (fn_8010A868)
     atn::EfpFile mStunEfp[2][3];   // 0x3E348: inferred: [enemy of the player][-, loop, end] effects
     int m3E390; // inferred: debug "DrawPick"
-    unsigned char m3E394[0x3E398 - 0x3E394];
+    int m3E394; // inferred: the battle effects are loaded (cleared by fn_800F3170)
     CharaTask* m3E398; // inferred: user of the bullet being made (set around fn_800FAB80 by fn_800FBA30)
     int m3E39C; // inferred: set while the event script makes a bullet (GameEventScript::fn_803A4A7C)
     float m3E3A0; // inferred: debug "ReticleBlur"
