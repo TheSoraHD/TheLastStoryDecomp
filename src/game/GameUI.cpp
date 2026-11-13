@@ -1030,6 +1030,398 @@ int GameUI::fn_803D1574() {
     return busy;
 }
 
+// inferred: hides and stops the windows and marks of the HUD (called by game/GameTask)
+void GameUI::fn_803D164C() {
+    m50.m0C->fn_800D246C(0);
+    m50.m0C->FreezeTask();
+    m50.m10->fn_800D246C(0);
+    m50.m10->FreezeTask();
+    if (m50.m14 != 0) {
+        m50.m14->fn_800D246C(0);
+        m50.m14->SetLoop_unk(0);
+        m50.m14->FreezeTask();
+    }
+    m50.m18->fn_800D246C(0);
+    m50.m18->FreezeTask();
+    if (m50.m1C != 0) {
+        m50.m1C->fn_800D246C(0);
+        m50.m1C->FreezeTask();
+    }
+    m50.m20->fn_800D246C(0);
+    m50.m20->SetLoop_unk(0);
+    m50.m20->FreezeTask();
+    m50.m2C->fn_800D246C(0);
+    m50.m2C->SetLoop_unk(0);
+    m50.m2C->SetEnd_unk();
+    m50.m2C->FreezeTask();
+    m50.m24->fn_800D246C(0);
+    m50.m24->FreezeTask();
+    m50.m28->fn_800D246C(0);
+    m50.m28->FreezeTask();
+    for (int i = 0; i < 6; i++) {
+        mB0[i].m0C->fn_800D246C(0);
+        mB0[i].m0C->FreezeTask();
+        mB0[i].m10->fn_800D246C(0);
+        mB0[i].m10->FreezeTask();
+        if (mB0[i].m14 != 0) {
+            mB0[i].m14->fn_800D246C(0);
+            mB0[i].m14->SetLoop_unk(0);
+            mB0[i].m14->FreezeTask();
+        }
+        mB0[i].m18->fn_800D246C(0);
+        mB0[i].m18->FreezeTask();
+        if (mB0[i].m1C != 0) {
+            mB0[i].m1C->fn_800D246C(0);
+            mB0[i].m1C->FreezeTask();
+        }
+        mB0[i].m20->fn_800D246C(0);
+        mB0[i].m20->SetLoop_unk(0);
+        mB0[i].m20->FreezeTask();
+        mB0[i].m2C->fn_800D246C(0);
+        mB0[i].m2C->SetLoop_unk(0);
+        mB0[i].m2C->SetEnd_unk();
+        mB0[i].m2C->FreezeTask();
+        for (int j = 0; j < 5; j++) {
+            m318[i].mInst[j]->fn_800D246C(0);
+            m318[i].mInst[j]->SetLoop_unk(0);
+            m318[i].mInst[j]->SetEnd_unk();
+            m318[i].mInst[j]->FreezeTask();
+        }
+        m318[i].m14->fn_800D246C(0);
+        m318[i].m14->SetLoop_unk(0);
+        m318[i].m14->SetEnd_unk();
+        m318[i].m14->FreezeTask();
+        m318[i].m18->fn_800D246C(0);
+        m318[i].m18->SetLoop_unk(0);
+        m318[i].m18->SetEnd_unk();
+        m318[i].m18->FreezeTask();
+    }
+    m3EC->fn_800D246C(0);
+    m3EC->mRepeat = 0;
+    for (int i = 0; i < 8; i++) {
+        m574[i]->fn_800D246C(0);
+        m574[i]->FreezeTask();
+        m594[i]->fn_800D246C(0);
+        m594[i]->FreezeTask();
+    }
+    m5B8->fn_800D246C(0);
+    m5B8->FreezeTask();
+    m3D8->mRepeat = 0;
+    m3D8->fn_800D246C(0);
+    m3D8->FreezeTask();
+    for (int i = 0; i < 4; i++) {
+        m3DC[i]->fn_800D246C(0);
+        m3DC[i]->FreezeTask();
+        fn_801F6C80(m3DC[i], "line", i);
+    }
+    for (int i = 0; i < 6; i++) {
+        m6FC[i]->fn_800D246C(0);
+        m6FC[i]->SetLoop_unk(0);
+        m6FC[i]->FreezeTask();
+    }
+    m714[0]->fn_800D246C(0);
+    m714[0]->mRepeat = 0;
+    m714[0]->FreezeTask();
+    m71C[0]->fn_800D246C(0);
+    m71C[0]->FreezeTask();
+    m714[1]->fn_800D246C(0);
+    m714[1]->mRepeat = 0;
+    m714[1]->FreezeTask();
+    m71C[1]->fn_800D246C(0);
+    m71C[1]->FreezeTask();
+    m72C->fn_800D246C(0);
+    m72C->mRepeat = 0;
+    m72C->FreezeTask();
+    m730->fn_800D246C(0);
+    m730->FreezeTask();
+    for (int i = 0; i < 12; i++) {
+        m8A0[i]->fn_800D246C(0);
+        m8A0[i]->FreezeTask();
+        m8A0[i]->SetLoop_unk(0);
+        m8A0[i]->SetSpeed_unk(2.0f);
+    }
+    mA84->fn_800D246C(0);
+    mA84->FreezeTask();
+    mA84->mRepeat = 0;
+    mA84->SetSpeed_unk(1.0f);
+    mA84->SetEnd_unk();
+    mA88->fn_800D246C(0);
+    mA88->FreezeTask();
+    mA88->mRepeat = 0;
+    mA88->SetSpeed_unk(1.0f);
+    mA88->SetEnd_unk();
+    m73C->fn_800D246C(0);
+    m73C->mRepeat = 0;
+    m73C->FreezeTask();
+    m740->fn_800D246C(0);
+    m740->mRepeat = 0;
+    m740->FreezeTask();
+    m744->fn_800D246C(0);
+    m744->mRepeat = 1;
+    m744->FreezeTask();
+    m7B8->fn_800D246C(0);
+    m7B8->mRepeat = 0;
+    m7B8->FreezeTask();
+    m7BC->fn_800D246C(0);
+    m7BC->mRepeat = 0;
+    m7BC->FreezeTask();
+    for (int i = 0; i < 2; i++) {
+        m814[i]->fn_800D246C(0);
+        m814[i]->mRepeat = 0;
+        m814[i]->FreezeTask();
+        m814[i + 2]->fn_800D246C(0);
+        m814[i + 2]->FreezeTask();
+        m814[i + 4]->fn_800D246C(0);
+        m814[i + 4]->mRepeat = 0;
+        m814[i + 4]->FreezeTask();
+        if (m814[i + 6] != 0) {
+            m814[i + 6]->fn_800D246C(0);
+            m814[i + 6]->mRepeat = 1;
+            m814[i + 6]->FreezeTask();
+        }
+    }
+    m83C->fn_800D246C(0);
+    m83C->mRepeat = 0;
+    m83C->FreezeTask();
+    m840->fn_800D246C(0);
+    m840->mRepeat = 1;
+    m840->FreezeTask();
+    m838 = 0;
+    for (int i = 0; i < 8; i++) {
+        mB38[i].m00->fn_800D246C(0);
+        mB38[i].m00->FreezeTask();
+        mB38[i].m00->GetTask()->mLoop = 0;
+        mB38[i].m04->fn_800D246C(0);
+        mB38[i].m04->FreezeTask();
+        mB38[i].m08->fn_800D246C(0);
+        mB38[i].m08->FreezeTask();
+        mB38[i].m08->GetTask()->mLoop = 0;
+        mB38[i].m0C->fn_800D246C(0);
+        mB38[i].m0C->FreezeTask();
+        mB38[i].m10->fn_800D246C(0);
+        mB38[i].m10->FreezeTask();
+        mB38[i].m10->GetTask()->mLoop = 0;
+        mB38[i].m14->fn_800D246C(0);
+        mB38[i].m14->FreezeTask();
+        mB38[i].m18->fn_800D246C(0);
+        mB38[i].m18->FreezeTask();
+        mB38[i].m18->GetTask()->mLoop = 0;
+        mB38[i].m1C->fn_800D246C(0);
+        mB38[i].m1C->FreezeTask();
+    }
+    m2654->fn_800D246C(0);
+    m2654->FreezeTask();
+    m2654->mRepeat = 0;
+    m2644 = 0;
+    m2648 = 0;
+    m264C = 45;
+    m2650 = 0;
+    mD70->fn_800D246C(0);
+    mD70->FreezeTask();
+    mD70->mRepeat = 0;
+    mD74->fn_800D246C(0);
+    mD74->FreezeTask();
+    mDB4->fn_800D246C(0);
+    mDB4->mRepeat = 0;
+    mDB8->fn_800D246C(0);
+    mDB8->mRepeat = 0;
+    mDB8->SetSpeed_unk(0.75f);
+    mDB8->SetEnd_unk();
+    mDB8->FreezeTask();
+    mDBC->fn_800D246C(0);
+    mDBC->mRepeat = 0;
+    mDBC->SetSpeed_unk(0.75f);
+    mDBC->SetEnd_unk();
+    mDBC->FreezeTask();
+    mDC0->fn_800D246C(0);
+    mDC0->mRepeat = 0;
+    mDC0->SetEnd_unk();
+    mDC0->FreezeTask();
+    fn_803DF5B4();
+}
+
+// inferred: the instances of mAB8/mAE0/m2610 (D2A_TaskInstanceBase<8, 2>) and mF14 (<64, 8>) are kept as
+// atn::Task* in game/GameUI.h (a template type there renumbers the @N labels of the units that include it)
+typedef atn::D2A_TaskInstanceBase<8, 2> GameUISmallInst_unk;
+inline GameUISmallInst_unk* AsSmallInst_unk(atn::Task* task) {
+    return static_cast<GameUISmallInst_unk*>(task);
+}
+inline atn::D2A_Task* AsD2A_unk(atn::Task* task) {
+    return static_cast<atn::D2A_Task*>(task);
+}
+inline atn::D2A_TaskInstanceBase<64, 8>* AsWindow_unk(atn::Task* task) {
+    return static_cast<atn::D2A_TaskInstanceBase<64, 8>*>(task);
+}
+
+// inferred: hides and stops every part of the HUD created by fn_803D022C/fn_803D0B20 (called by
+// game/GameTask)
+// NONMATCHING: 99.9% - the unrolled second loop swaps r4/r5 (counter and pointer); tried the counter outside
+// the loop and unsigned
+void GameUI::fn_803D2194() {
+    if (mDC8 != 0) {
+        for (int i = 0; i < 16; i++) {
+            for (int j = 0; j < 5; j++) {
+                m5BC[i][j]->fn_800D246C(0);
+                m5BC[i][j]->FreezeTask();
+            }
+        }
+        for (int i = 0; i < 10; i++) {
+            mA90[i]->fn_800D246C(0);
+            mA90[i]->SetSpeed_unk(0.0f);
+            mAB8[i]->fn_800D246C(0);
+            AsSmallInst_unk(mAB8[i])->SetLoop_unk(0);
+            AsSmallInst_unk(mAB8[i])->SetSpeed_unk(1.0f);
+            mAE0[i]->fn_800D246C(0);
+            AsSmallInst_unk(mAE0[i])->SetSpeed_unk(0.0f);
+        }
+        mA8C = 0;
+        for (int i = 0; i < 10; i++) {
+            mA90[i]->FreezeTask();
+            if (mAB8[i]->IsFlag_unk(4)) {
+                AsSmallInst_unk(mAB8[i])->Rewind_unk();
+            }
+            mAB8[i]->FreezeTask();
+            mAE0[i]->FreezeTask();
+        }
+        for (int i = 0; i < 32; i++) {
+            mF14[i]->fn_800D246C(0);
+            AsWindow_unk(mF14[i])->SetLoop_unk(0);
+            AsWindow_unk(mF14[i])->Rewind_unk();
+            mF14[i]->FreezeTask();
+        }
+        for (int i = 0; i < 8; i++) {
+            m10B4[i]->fn_800D246C(0);
+            m10B4[i]->SetLoop_unk(0);
+            m10B4[i]->Rewind_unk();
+            m10B4[i]->FreezeTask();
+        }
+        m10F4->fn_800D246C(0);
+        m10F4->mRepeat = 0;
+        m10F4->Rewind_unk();
+        m10F4->FreezeTask();
+        m10F8->fn_800D246C(0);
+        m10F8->mRepeat = 0;
+        m10F8->Rewind_unk();
+        m10F8->FreezeTask();
+        m844->fn_800D246C(0);
+        m844->mRepeat = 1;
+        m844->FreezeTask();
+        m870->fn_800D246C(0);
+        m870->mRepeat = 0;
+        m870->FreezeTask();
+        m848[0]->fn_800D246C(0);
+        static_cast<atn::D2A_Task*>(m848[0])->mRepeat = 0;
+        m848[0]->FreezeTask();
+        for (int i = 0; i < 4; i++) {
+            m848[i + 1]->fn_800D246C(0);
+            static_cast<GameUIInst_unk*>(m848[i + 1])->SetLoop_unk(0);
+            m848[i + 1]->FreezeTask();
+        }
+        m874[0]->fn_800D246C(0);
+        static_cast<atn::D2A_Task*>(m874[0])->mRepeat = 0;
+        m874[0]->FreezeTask();
+        for (int i = 0; i < 4; i++) {
+            m874[i + 1]->fn_800D246C(0);
+            static_cast<GameUIInst_unk*>(m874[i + 1])->SetLoop_unk(0);
+            m874[i + 1]->FreezeTask();
+        }
+        mB08[0]->fn_800D246C(0);
+        mB08[0]->FreezeTask();
+        AsD2A_unk(mB08[0])->mRepeat = 0;
+        mB08[1]->fn_800D246C(0);
+        mB08[1]->FreezeTask();
+        mB08[2]->fn_800D246C(0);
+        mB08[2]->FreezeTask();
+        AsD2A_unk(mB08[2])->mRepeat = 0;
+        mB08[3]->fn_800D246C(0);
+        mB08[3]->FreezeTask();
+        mB08[4]->fn_800D246C(0);
+        mB08[4]->FreezeTask();
+        AsD2A_unk(mB08[4])->mRepeat = 0;
+        mB08[5]->fn_800D246C(0);
+        mB08[5]->FreezeTask();
+        mB20[0]->fn_800D246C(0);
+        mB20[0]->FreezeTask();
+        AsD2A_unk(mB20[0])->mRepeat = 0;
+        mB20[1]->fn_800D246C(0);
+        mB20[1]->FreezeTask();
+        AsD2A_unk(mB20[1])->mRepeat = 0;
+        for (int i = 0; i < 4; i++) {
+            mB20[i + 2]->fn_800D246C(0);
+            mB20[i + 2]->FreezeTask();
+            AsD2A_unk(mB20[i + 2])->mRepeat = 0;
+        }
+        m1104->fn_800D246C(0);
+        m1104->FreezeTask();
+        m1104->mRepeat = 0;
+        m1104->SetEnd_unk();
+        m1108->fn_800D246C(0);
+        m1108->FreezeTask();
+        m1108->mRepeat = 0;
+        m1108->SetEnd_unk();
+        m1110->fn_800D246C(0);
+        m1110->FreezeTask();
+        m1110->mRepeat = 0;
+        m1110->SetEnd_unk();
+        m1114->fn_800D246C(0);
+        m1114->FreezeTask();
+        m1114->mRepeat = 0;
+        m1114->SetEnd_unk();
+        m1140->fn_800D246C(0);
+        m1140->FreezeTask();
+        m1140->mRepeat = 0;
+        m1144->fn_800D246C(0);
+        m1144->FreezeTask();
+        m1148->fn_800D246C(0);
+        m1148->FreezeTask();
+        m1148->mRepeat = 0;
+        m2544->fn_800D246C(0);
+        m2544->FreezeTask();
+        m2544->mRepeat = 0;
+        m2548->fn_800D246C(0);
+        m2548->FreezeTask();
+        m254C->fn_800D246C(0);
+        m254C->FreezeTask();
+        m254C->mRepeat = 0;
+        m254C->SetEnd_unk();
+        for (int i = 0; i < 3; i++) {
+            if (m2550[i] != 0) {
+                m2550[i]->fn_800D246C(0);
+                m2550[i]->mRepeat = 0;
+                m2550[i]->SetEnd_unk();
+                m2550[i]->FreezeTask();
+            }
+        }
+        if (m2564 != 0) {
+            m2564->fn_800D246C(0);
+            m2564->mRepeat = 0;
+            m2564->SetEnd_unk();
+            m2564->FreezeTask();
+        }
+        for (int i = 0; i < 4; i++) {
+            if (m2610[i] != 0) {
+                m2610[i]->fn_800D246C(0);
+                AsSmallInst_unk(m2610[i])->SetLoop_unk(1);
+                AsSmallInst_unk(m2610[i])->Rewind_unk();
+                m2610[i]->FreezeTask();
+            }
+        }
+        if (m2628 != 0) {
+            m2628->fn_800D246C(0);
+            m2628->mRepeat = 0;
+            m2628->Rewind_unk();
+            m2628->SetSpeed_unk(-1.0f);
+            m2628->FreezeTask();
+        }
+        if (mDC4 != 0) {
+            mDC4->fn_800D246C(0);
+            mDC4->mRepeat = 0;
+            mDC4->SetEnd_unk();
+            mDC4->FreezeTask();
+        }
+    }
+}
+
 // ---- objects read by GameUI::fn_803D2A6C (views; names invented) ----
 extern "C" unsigned int fn_80372574(const void* array); // inferred: size of a fixed array (count at +0, weak copy of game/GameTask.cpp)
 
@@ -2559,7 +2951,7 @@ extern "C" void fn_803E6D4C(GameUIWindow_unk* window, chr::CharaData_unk* data);
 // NONMATCHING: 99.4% - only the offsets into the string pool (the functions before it are not written yet)
 void GameUI::fn_803DCD34(CharaTask* chara, int slot, int other, int fixed) {
     if (chara != 0) {
-        GameUIWindow_unk* window = (GameUIWindow_unk*)mF14[m1014[slot]];
+        GameUIWindow_unk* window = static_cast<GameUIWindow_unk*>(mF14[m1014[slot]]);
         window->SetValue0_unk("leader", 0.0f);
         window->MeltTask();
         TacView* tac = lbl_8087F9F8;
@@ -2976,7 +3368,8 @@ const wchar_t* GameUI::fn_803DF2DC(SkillEffect* bullet) {
     return lbl_8087F1E4->Get_unk(0x267);
 }
 
-void GameUI::fn_803DF5B4() {
+// inferred: the original calls it with bl from fn_803D164C (MWCC would inline it there)
+__declspec(noinline) void GameUI::fn_803DF5B4() {
     m2F0.mCount = 0;
     for (int i = 0; i < 6; i++) {
         mB0[i].m00 = 0;

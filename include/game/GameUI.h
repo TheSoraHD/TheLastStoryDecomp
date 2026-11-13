@@ -415,11 +415,11 @@ public:
     int m838;
     GameUIGauge_unk* m83C;                     // 0x83C
     GameUIGauge_unk* m840;                     // 0x840
-    atn::Task* m844;
-    atn::Task* m848[5];
+    atn::D2A_Task* m844;
+    atn::Task* m848[5]; // inferred: [0] a d2anime task, [1..4] instances (fn_803D0B20)
     FixedArray_unk<CharaTask*, 4> m85C; // inferred: characters near the player (fn_803D2A6C)
     atn::D2A_Task* m870;
-    atn::Task* m874[5];
+    atn::Task* m874[5]; // inferred: as m848
     atn::Vector3 m888; // inferred: fn_803E6ADC
     atn::Vector3 m894;
     GameUIInst_unk* m8A0[12];
@@ -427,10 +427,10 @@ public:
     atn::D2A_Task* mA84; // inferred: frame and "basePos" set by fn_803E6ADC
     atn::D2A_Task* mA88;
     int mA8C;
-    atn::Task* mA90[10];
-    atn::Task* mAB8[10];
-    atn::Task* mAE0[10];
-    atn::Task* mB08[6];
+    GameUIInst_unk* mA90[10];
+    atn::Task* mAB8[10]; // inferred: D2A_TaskInstanceBase<8, 2> (fn_803D0B20)
+    atn::Task* mAE0[10]; // inferred: D2A_TaskInstanceBase<8, 2>
+    atn::Task* mB08[6]; // inferred: d2anime tasks (fn_803D0B20); kept as atn::Task* (game/GameTask casts them)
     atn::Task* mB20[6];
     struct {
         atn::D3AnimeInstance* m00;
@@ -493,14 +493,14 @@ public:
     atn::Texture_unk mE34;                     // 0xE34
     atn::Texture_unk mE64;                     // 0xE64
     unsigned char mE94[0xF14 - 0xE94];
-    atn::Task* mF14[32];
+    atn::Task* mF14[32]; // inferred: D2A_TaskInstanceBase<64, 8>, windows of the overlook view (fn_803D0B20)
     int mF94[32];
     int m1014[32];
     float m1094[8];
     GameUIInst_unk* m10B4[8]; // inferred: effect markers (fn_803DE648)
     SkillEffect* m10D4[8];  // inferred: skill effects shown by the markers
-    atn::Task* m10F4;
-    atn::Task* m10F8;
+    atn::D2A_Task* m10F4;
+    atn::D2A_Task* m10F8;
     int m10FC;
     float m1100;
     atn::D2A_Task* m1104; // inferred: head marker animations (fn_803E41AC)
@@ -518,7 +518,7 @@ public:
     unsigned char m1134[0x1140 - 0x1134];
     atn::D2A_Task* m1140;
     atn::D2A_Task* m1144;
-    atn::Task* m1148;
+    atn::D2A_Task* m1148;
     int m114C;
     int m1150;
     int m1154;
@@ -533,8 +533,8 @@ public:
     GameUIElem7C_unk m15BC[32];                // 0x15BC
     int m253C;
     int m2540;
-    atn::Task* m2544;
-    atn::Task* m2548;
+    atn::D2A_Task* m2544;
+    atn::D2A_Task* m2548;
     atn::D2A_Task* m254C; // inferred: time over a character (fn_803E5C60)
     atn::D2A_Task* m2550[3]; // inferred: notices (fn_803E598C)
     int m255C;
@@ -551,7 +551,7 @@ public:
         unsigned int m00; // inferred: count (compared unsigned in fn_803E6850)
         GameUIElem10_unk m[4];
     } m25CC;                                   // 0x25CC
-    atn::Task* m2610[4];
+    atn::Task* m2610[4]; // inferred: D2A_TaskInstanceBase<8, 2> (fn_803D0B20)
     CharaTask* m2620; // inferred: current target (fn_803E6BB4)
     CharaTask* m2624; // inferred: previous target
     GameUIGauge_unk* m2628; // inferred: m100 reset by fn_803E6BB4

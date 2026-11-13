@@ -19,6 +19,10 @@ Unidades: `game/GameUI`, `game/MiniMapTask`, `game/PopupTask`.
 - `GameUI::fn_803D0B20` (crea el resto del HUD: texturas de marcas, vista de conjunto, repeticion, resultado,
   efectos) 99,5 %: registros de los bucles.
 - `GameUI::fn_803E6ADC` 99,59 % -> **100 %** (mnemcheck limpio) al cuadrar el pool de cadenas.
+- `GameUI::fn_803D164C` (oculta y para las ventanas y marcas del HUD; lo llama GameTask): **100 %** (mnemcheck
+  limpio); `fn_803DF5B4` pasa a `__declspec(noinline)` (el original la llama
+  con `bl` y MWCC la inlineaba).
+- `GameUI::fn_803D2194` (oculta y para el resto del HUD) 99,9 %: el bucle desenrollado cruza r4/r5.
 
 ## NONMATCHING nuevas
 
@@ -50,6 +54,13 @@ Unidades: `game/GameUI`, `game/MiniMapTask`, `game/PopupTask`.
   `fn_803D0B20` (ahora @27399, @27400).
 - `GameUISession_unk` (y `GameUISessionPlayer_unk`) se mueven al principio de GameUI.cpp; gana `int m5A8` e
   `IsShowLevel_unk()` (devuelve `unsigned char`: el `clrlwi` del original).
+- `GameUI.h`: `mA90` pasa a `GameUIInst_unk*`; `m10F4`, `m10F8`, `m844`, `m1148`, `m2544`, `m2548` pasan de
+  `atn::Task*` a `atn::D2A_Task*` (las crea fn_803D0B20 con fn_801F3FF8). `mB08`/`mB20` siguen como
+  `atn::Task*` (con `atn::D2A_Task*` GameTask, que los convierte con casts, renumera 4 `@N`); cast `AsD2A_unk`. `mAB8`, `mAE0`,
+  `m2610` (`D2A_TaskInstanceBase<8, 2>`) y `mF14` (`<64, 8>`) siguen como `atn::Task*` con cast en GameUI.cpp
+  (`AsSmallInst_unk`, `AsWindow_unk`).
+  `m848[5]`/`m874[5]` siguen como `atn::Task*` ([0] D2A_Task, [1..4] instancias; el constructor los pone a 0
+  en un bucle de 5).
 - `typedef atn::D2A_TaskInstanceBase<64, 8> GameUIWindow_unk` en GameUI.cpp; `mF14` sigue siendo
   `atn::Task*` en `GameUI.h` (cast en fn_803DCD34) para no tocar la cabecera.
 
@@ -60,6 +71,9 @@ Unidades: `game/GameUI`, `game/MiniMapTask`, `game/PopupTask`.
   En fn_803DCA84 (con `tac != 0 && tac->mA70 != 0` delante) la misma inline pliega las dos comparaciones.
 - Escala de un `Vector3` en el orden z, x, y con temporales en registros: `v *= -1.0f` (operator*=), no
   `v = v * -1.0f` (deja un temporal en pila).
+- Cambiar el tipo de un miembro de cabecera que usa otra unidad (`GameUI::mB08`/`mB20` de `atn::Task*` a
+  `atn::D2A_Task*`, que GameTask convierte con casts y usa en inlines) renumera sus `@N` (GameTask: +4; quitar
+  los casts no lo arregla). Comprobar con `nm` del `.o` de esa unidad antes del precommit.
 - Rutas que el original saca de un bucle (en registros y al principio del pool de cadenas): locales
   `const char*` dentro del bucle (GameUI fn_803D022C, 91,6 % -> 99,5 %).
 
