@@ -156,6 +156,8 @@ protected:
     virtual char do_tolower(char c) const;
     virtual const char* do_tolower(char* low, const char* high) const;
     virtual char do_widen(char c) const;
+
+    char m08[0x10]; // inferred: the facet is 0x18 bytes (new in use_facet, 0x80393CA8)
 };
 
 // inferred: std::reverse as inlined in the digit helpers
@@ -581,9 +583,9 @@ basic_ostream<C, T>& basic_ostream<C, T>::operator<<(int n) {
         bool failed;
         unsigned short base = this->flags() & __basefield_unk;
         if (base == __oct_unk || base == __hex_unk) {
-            failed = np.put(ostreambuf_iterator<C, T>(*this), *this, this->m38[0], (unsigned long)n).failed();
+            failed = np.put(ostreambuf_iterator<C, T>(*this), *this, this->mFill, (unsigned long)n).failed();
         } else {
-            failed = np.put(ostreambuf_iterator<C, T>(*this), *this, this->m38[0], (long)n).failed();
+            failed = np.put(ostreambuf_iterator<C, T>(*this), *this, this->mFill, (long)n).failed();
         }
         if (failed) {
             this->clear((ios_base::iostate)(this->mState | ios_base::badbit | ios_base::failbit));

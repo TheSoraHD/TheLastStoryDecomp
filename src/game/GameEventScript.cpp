@@ -64,8 +64,10 @@
 #include "db/GrowthParseGlobal.h"
 
 #include <exception>
+#include <typeinfo>
 #include "std/string.h"
 #include "std/string_members.h"
+#include "std/istream.h"
 
 extern "C" GameTask* lbl_8087F430; // inferred: the field
 
@@ -83,12 +85,59 @@ public:
 
 namespace boost {
 
-// inferred: Boost 1.35 lexical_cast.hpp (the source/target type_info pointers are not used here)
+// inferred: Boost 1.34 lexical_cast.hpp (the source and target type_info pointers at 0x04/0x08,
+// 0x80393F64)
 class bad_lexical_cast : public std::bad_cast {
 public:
+    bad_lexical_cast(const std::type_info& source_type_arg, const std::type_info& target_type_arg)
+        : source(&source_type_arg), target(&target_type_arg) {}
     virtual ~bad_lexical_cast();
     virtual const char* what() const;
+
+private:
+    const std::type_info* source;
+    const std::type_info* target;
 };
+
+// inferred: the game is built with BOOST_NO_EXCEPTIONS (defined in atn/Util_unk.cpp)
+void throw_exception(const std::exception& e);
+
+namespace detail {
+
+// inferred: Boost 1.34 lexical_stream on a std::stringstream; the precision is
+// numeric_limits<int>::digits10 + 1 (stored 10, 0x80393E94)
+template <typename Target, typename Source>
+class lexical_stream {
+public:
+    lexical_stream() {
+        stream.unsetf(std::ios_base::skipws);
+        stream.precision(10);
+    }
+    bool operator<<(const Source& input) { return !(stream << input).fail(); }
+    bool operator>>(std::string& output) {
+        output = stream.str();
+        return true;
+    }
+
+private:
+    std::stringstream stream;
+};
+
+} // namespace detail
+
+// inferred: weak copy 0x80393BEC (boost::lexical_cast<std::string>(const int&))
+// NONMATCHING: 89.34% - use_facet<ctype<char>> in basic_ios::init: the original builds the facet before
+// it reads the facet id and the locale table again (std/locale_facets_unk.h keeps the order of the
+// numpunct case of atn/EffectManager); unsetf(skipws) masks with `and` and 0xEFFF (here andi.)
+template <typename Target, typename Source>
+inline Target lexical_cast(const Source& arg) {
+    detail::lexical_stream<Target, Source> interpreter;
+    Target result;
+    if (!(interpreter << arg && interpreter >> result)) {
+        throw_exception(bad_lexical_cast(typeid(Source), typeid(Target)));
+    }
+    return result;
+}
 } // namespace boost
 
 extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float volume);
@@ -266,8 +315,6 @@ extern "C" GameEventScript* fn_80393610(atn::Task* parent, const char* path, int
 
 extern "C" int fn_8006AA20(const char* path);                     // inferred: the file exists
 extern "C" std::string fn_8006B2D8(const std::string& path);      // inferred: name without extension
-// inferred: boost::lexical_cast<std::string>(const int&) (weak copy 0x80393BEC; string stream)
-extern "C" std::string fn_80393BEC(const int& value);
 
 // NONMATCHING: 99.95% - registers of the string sizes (r23 vs r20)
 // inferred: loads the script of the scene (file 0) and its sub scripts (files 1-2): the town sub quest and
@@ -291,7 +338,7 @@ GameEventScript::GameEventScript(atn::Task* parent, const char* path, int area, 
         for (int i = 1; i < 3; i++) {
             std::string file = fn_8006B2D8(std::string(path));
             file += "_sub";
-            file += fn_80393BEC(i);
+            file += boost::lexical_cast<std::string>(i);
             file += ".sc";
             if (fn_8006AA20(file.c_str())) {
                 m48[i].vf0C(file.c_str());

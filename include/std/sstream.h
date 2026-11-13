@@ -15,7 +15,10 @@ public:
     typedef typename basic_streambuf<C, T>::pos_type pos_type;
     typedef typename basic_streambuf<C, T>::off_type off_type;
 
+    // inferred: inlined in boost::lexical_cast (0x80393BEC); defined in std/istream.h
+    explicit basic_stringbuf(ios_base::openmode);
     virtual ~basic_stringbuf();
+    basic_string<C, T, A> str() const; // weak copy 0x803AD668 (defined in std/istream.h)
 
 protected:
     virtual pos_type seekoff(off_type off, ios_base::seekdir way, ios_base::openmode which);
@@ -27,7 +30,7 @@ protected:
 public:
     unsigned char mMode;         // 0x24: inferred: ios_base::openmode bits kept in a byte
     char m25[3];
-    C* mHigh;                    // 0x28: inferred: high-water mark of the put area
+    mutable C* mHigh;            // 0x28: inferred: high-water mark of the put area
     basic_string<C, T, A> mStr;  // 0x2C
 };
 
