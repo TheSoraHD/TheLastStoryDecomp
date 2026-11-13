@@ -197,6 +197,46 @@ inline atn::Matrix3x4 MakeRotYXZ_unk(const atn::Vector3& rot) {
     return m;
 }
 
+// inferred: rotation matrix from angles, applied in the order z, y, x (ActionActorHeading::vf08)
+inline atn::Matrix3x4 MakeRotZYX_unk(const atn::Vector3& rot) {
+    atn::Matrix3x4 m;
+    m.SetIdentity();
+    if (0.0f != rot.z) {
+        atn::Matrix3x4::RotateAxis_unk(m, 'z', rot.z);
+    }
+    if (0.0f != rot.y) {
+        atn::Matrix3x4::RotateAxis_unk(m, 'y', rot.y);
+    }
+    if (0.0f != rot.x) {
+        atn::Matrix3x4::RotateAxis_unk(m, 'x', rot.x);
+    }
+    return m;
+}
+
+// inferred: offset saved for the node `key` (zero if none; inlined, name invented)
+inline atn::Vector3 FindKey_unk(atn::SimpleVector<ActorKey10_unk>& keys, int key) {
+    for (unsigned int i = 0; i < keys.size(); i++) {
+        if (key == keys[i].m00) {
+            return keys[i].m04;
+        }
+    }
+    return lbl_807C7030;
+}
+
+// inferred: sets the offset saved for the node `key`, adding it if missing (inlined, name invented)
+inline void SetKey_unk(atn::SimpleVector<ActorKey10_unk>& keys, int key, const atn::Vector3& v) {
+    for (unsigned int i = 0; i < keys.size(); i++) {
+        if (key == keys[i].m00) {
+            keys[i].m04 = v;
+            return;
+        }
+    }
+    ActorKey10_unk entry;
+    entry.m00 = key;
+    entry.m04 = v;
+    keys.push_back(entry);
+}
+
 inline float Distance_unk(const atn::Vector3& a, const atn::Vector3& b) {
     return (b - a).Length_unk();
 }
@@ -738,8 +778,75 @@ void ActionActorEyes::fn_80553DC8(Action* arg, atn::Vector3* cur, const atn::Vec
     }
 }
 
+// inferred: eyes while the wandering window is closed: with `mode` towards the angles of the parameters 6-8,
+// otherwise towards the node of the target actor moved by the parameters 2-4; for `left` > 0 the eyes ease
+// from the last goal (actor->mF4 / actor->m100) along the curve of the actor (`length`, `v` and `now` unused)
+// NONMATCHING: 93.7% - stack frame 0x10 smaller here (slots of the vectors), volatile registers of the two
+// actor lookups and the order of the loads of arg->m18 and of the event manager
+void ActionActorEyes::fn_80554088(Action* arg, int length, atn::Vector3* v, int mode, float left, float now) {
+    ActionOwner_unk* section = arg->fn_805381A0();
+    EventManager_unk* manager = arg->fn_805381C8();
+    Actor* actor = manager->FindActor_unk(section->m10);
+    float weight = 1.0f;
+    Actor* target = manager->FindActor_unk(arg->GetParam_unk(0)->m04.i);
+    int node = arg->GetParam_unk(1)->m04.i;
+    float t = 1.0f;
+    if (left > 0.0f) {
+        t -= left / (float)arg->m18;
+        t = lbl_8087F540->fn_8048BD04(actor->m138, t);
+    }
+    if (mode != 0) {
+        atn::Vector3 angles;
+        angles.x = atn::DegToRad_unk(arg->GetParam_unk(6)->m04.f);
+        angles.y = atn::DegToRad_unk(arg->GetParam_unk(7)->m04.f);
+        angles.z = atn::DegToRad_unk(arg->GetParam_unk(8)->m04.f);
+        atn::Vector3 goal(lbl_807C7030);
+        goal += angles;
+        if (t == 1.0f) {
+            goal = angles;
+            actor->mF4 = goal;
+        } else {
+            atn::Vector3 prev = actor->mF4;
+            goal = prev + (goal - prev) * t;
+        }
+        actor->fn_80012D34(target, node, goal, mode, lbl_807C7030, 0, weight, 0.0f);
+        return;
+    }
+    atn::Vector3 offset(arg->GetParam_unk(2)->m04.f, arg->GetParam_unk(3)->m04.f, arg->GetParam_unk(4)->m04.f);
+    atn::Vector3 prev = actor->m100;
+    atn::Vector3 pos = target->fn_80010374();
+    if (target->fn_8001296C() != 0) {
+        MtxPtr mtx = GetNodeMtxByHash_unk(target->fn_8001296C(), node);
+        if (mtx != 0) {
+            pos = atn::Vector3(mtx[0][3], mtx[1][3], mtx[2][3]);
+        }
+    }
+    pos += offset;
+    if (t == 1.0f) {
+        atn::Vector3 dir = pos - actor->fn_80010374();
+        if (PSVECMag(&dir) > 0.0f) {
+            PSVECNormalize(&dir, &dir);
+            // inferred: turn between the eyes and the front of the actor (computed and not used)
+            atn::Vector3 rot = dir.ToRotationZ_unk();
+            rot -= actor->fn_800112E0().ToRotationZ_unk();
+        }
+        pos = offset;
+        actor->m100 = pos;
+    } else {
+        atn::Vector3 d = pos - prev;
+        float dist = PSVECMag(&d);
+        if (dist > 0.0f) {
+            dist *= t;
+            PSVECNormalize(&d, &d);
+        }
+        prev = prev + d * dist;
+        pos = prev;
+    }
+    actor->fn_80012D34(target, node, pos, mode, lbl_807C7030, 0, weight, 0.0f);
+}
+
 // NONMATCHING: 92.4% - saved registers (the original gives r31/r30 to camera/mode and r28 to arg) and the
-// volatile registers of the inlined lookups; fn_80554088 (between fn_80553DC8 and this one) is not written yet
+// volatile registers of the inlined lookups
 int ActionActorEyes::vf08(Action* arg) {
     float now = arg->fn_805381C8()->m198;
     float frames = arg->GetParam_unk(12)->m04.f;
@@ -877,6 +984,136 @@ int ActionActorEyes::vf0C(Action* arg, int phase) {
     return 0;
 }
 
+// inferred: applies a pose: the node keys of the pose data (parameter 0) replace or are added to a copy of the
+// node edits saved by the actor (Actor::fn_8000F1EC), then set on the model
+// NONMATCHING: 97.9% - registers of the two lookups (actor r27 and pose r26 in the original) and the copy loop
+// of the saved keys (the original adds the offset to the source before each load)
+int ActionActorPose::vf0C(Action* arg, int phase) {
+    if (phase == 0) {
+        ActionOwner_unk* section = arg->fn_805381A0();
+        EventManager_unk* manager = arg->fn_805381C8();
+        Actor* actor = manager->FindActor_unk(section->m10);
+        PoseData* pose = manager->m134.Find_unk(arg->GetParam_unk(0)->m04.i);
+        atn::Model* model = actor->fn_8001296C();
+        if (model != 0) {
+            atn::SimpleVector<PoseKey_unk> keys;
+            // inferred: m24.m00 is a SimpleVector<Event::PoseKey_unk> (see Actor::fn_8000F1EC)
+            atn::SimpleVector<PoseKey_unk>& saved = *(atn::SimpleVector<PoseKey_unk>*)&actor->m24.m00;
+            keys.Resize_unk(saved.size());
+            for (unsigned int k = 0; k < keys.size(); k++) {
+                keys[k] = saved[k];
+            }
+            for (int i = 0; i < (int)pose->m1C->size(); i++) {
+                PoseKey_unk& key = (*pose->m1C)[i];
+                int found = -1;
+                PoseKey_unk* p = &keys[0];
+                for (int j = 0; j < (int)keys.size(); j++, p++) {
+                    if (key.m00 == p->m00) {
+                        found = j;
+                        break;
+                    }
+                }
+                if (found >= 0) {
+                    keys[found] = key;
+                } else {
+                    keys.push_back(key);
+                }
+            }
+            model->fn_80094420(keys);
+        }
+    }
+    return 0;
+}
+
+// inferred: turns the head of the actor: towards the angles of the parameters 5-7 (from the neck), or
+// towards the node of the target actor moved by the parameters 2-4; eases from the last goal (actor->mDC /
+// actor->mE8) along the curve of the actor during the fade in, and stops for the fade out
+// NONMATCHING: 97.1% - stack frame 0x10 larger here (slots of the vectors and of the converted offset) and
+// the registers of the index and of the id in the two actor lookups (r4/r5)
+int ActionActorHeading::vf08(Action* arg) {
+    float now = arg->fn_805381C8()->m198;
+    if (!(now >= 1.0f)) {
+        return 0;
+    }
+    ActionOwner_unk* section = arg->fn_805381A0();
+    EventManager_unk* manager = arg->fn_805381C8();
+    Actor* actor = manager->GetActors_unk()->Find_unk(section->m10);
+    Actor* target = manager->GetActors_unk()->Find_unk(arg->GetParam_unk(0)->m04.i);
+    unsigned int node = arg->GetParam_unk(1)->m04.i;
+    atn::Vector3 offset;
+    offset.x = arg->GetParam_unk(2)->m04.f;
+    offset.y = arg->GetParam_unk(3)->m04.f;
+    offset.z = arg->GetParam_unk(4)->m04.f;
+    atn::Vector3 angles;
+    angles.x = atn::DegToRad_unk(arg->GetParam_unk(5)->m04.f);
+    angles.y = atn::DegToRad_unk(arg->GetParam_unk(6)->m04.f);
+    angles.z = atn::DegToRad_unk(arg->GetParam_unk(7)->m04.f);
+    if (target->m20 == 6) {
+        offset = manager->fn_80541BD8(offset);
+    }
+    float t = 1.0f;
+    if (arg->m18 > 0) {
+        float left = (float)(arg->m18 + arg->m10) - manager->m198;
+        if (left > 0.0f) {
+            t = lbl_8087F540->fn_8048BD04(actor->m134, 1.0f - left / (float)arg->m18);
+        }
+    }
+    if (arg->m1C > 0 && (float)arg->m14 - manager->m198 < (float)arg->m1C) {
+        return 0;
+    }
+    atn::Vector3 base = actor->fn_80010374();
+    if (actor->fn_8001296C() != 0) {
+        MtxPtr neck = GetNodeMtxByHash_unk(actor->fn_8001296C(), fn_800DC6B4("neck"));
+        if (neck != 0) {
+            base = atn::Vector3(neck[0][3], neck[1][3], neck[2][3]);
+        }
+    }
+    if (PSVECSquareMag(&angles) != 0.0f) {
+        if (t == 1.0f) {
+            atn::Vector3 front = actor->fn_800112E0();
+            atn::Matrix3x4 m = MakeRotZYX_unk(angles);
+            PSMTXMultVec(m.m, &front, &front);
+            base += front * 10.0f;
+            actor->mE8 = base;
+            actor->mDC = angles;
+        } else {
+            atn::Vector3 prev = actor->mDC;
+            angles = prev + (angles - prev) * t;
+        }
+        actor->fn_80012CBC(angles, 1.0f);
+        return 0;
+    }
+    atn::Vector3 pos = target->fn_80010374();
+    if (target->fn_8001296C() != 0) {
+        MtxPtr mtx = GetNodeMtxByHash_unk(target->fn_8001296C(), node);
+        if (mtx != 0) {
+            pos = atn::Vector3(mtx[0][3], mtx[1][3], mtx[2][3]);
+        }
+    }
+    pos += offset;
+    if (t == 1.0f) {
+        atn::Vector3 dir = pos - base;
+        if (PSVECMag(&dir) > 0.0f) {
+            PSVECNormalize(&dir, &dir);
+            atn::Vector3 rot = dir.ToRotationZ_unk();
+            rot -= actor->fn_800112E0().ToRotationZ_unk();
+            actor->mDC = rot;
+        }
+        actor->mE8 = pos;
+    } else {
+        atn::Vector3 prev = actor->mE8;
+        atn::Vector3 d = pos - prev;
+        float dist = PSVECMag(&d);
+        if (dist > 0.0f) {
+            dist *= t;
+            PSVECNormalize(&d, &d);
+        }
+        pos = prev + d * dist;
+    }
+    actor->fn_80012CE4(pos, 1.0f);
+    return 0;
+}
+
 // NONMATCHING: stack slots of the node positions of phase 0 (the original puts the reference position lowest
 // and the head point highest; tried the positions as temporaries and the head point first) and the
 // registers of the parameter of phase 6
@@ -943,6 +1180,87 @@ int ActionActorHeading::vf0C(Action* arg, int phase) {
         break;
     }
     }
+    return 0;
+}
+
+// inferred: moves and turns a node of the model of the actor (parameter 0: node name hash, 1-3 offset,
+// rotation from the parameter 4 in degrees): during the fade in the node eases along the curve of the actor
+// from the offsets saved for the node (m118 positions, m124 rotations) and, once there, the offsets are
+// accumulated into them; during the fade out it goes back to zero
+// NONMATCHING: 96.1% - scheduling of the conversions of the fade times and of the degrees, and the registers
+// of the key searches (the original adds the offset to the data pointer of the loop)
+int ActionActorNode::vf08(Action* arg) {
+    float now = arg->fn_805381C8()->m198;
+    ActionOwner_unk* section = arg->fn_805381A0();
+    EventManager_unk* manager = arg->fn_805381C8();
+    Actor* owner = manager->FindActor_unk(section->m10);
+    Actor* actor = manager->FindActor_unk(section->m10);
+    atn::Model* model = owner->fn_8001296C();
+    if (model == 0) {
+        return 0;
+    }
+    atn::Model::Res_unk* res = model->GetRes_unk();
+    if (res == 0) {
+        return 0;
+    }
+    unsigned int hash = arg->GetParam_unk(0)->m04.i;
+    if (hash == 0) {
+        return 0;
+    }
+    atn::Vector3 offset;
+    offset.x = arg->GetParam_unk(1)->m04.f;
+    offset.y = arg->GetParam_unk(2)->m04.f;
+    offset.z = arg->GetParam_unk(3)->m04.f;
+    atn::Vector3 angles = arg->fn_80538C14(4);
+    angles.x = 0.017453292f * angles.x;
+    angles.y = 0.017453292f * angles.y;
+    angles.z = 0.017453292f * angles.z;
+    int node = model->fn_800928B0(hash, 0);
+    atn::Model::NodeEdit_unk* edit = model->fn_800948F0(res->m48[node]->m10);
+    atn::Vector3 pos = offset;
+    atn::Vector3 rot = angles;
+    atn::Vector3 scale = edit != 0 ? edit->m20 : atn::Vector3(1.0f, 1.0f, 1.0f);
+    int flags = edit != 0 ? edit->m04 : 0;
+    int start = arg->m10;
+    int fadeIn = arg->m18;
+    int end = arg->m14;
+    int fadeOut = arg->m1C;
+    float t = 1.0f;
+    if (now <= (float)(start + fadeIn) && fadeIn >= 1) {
+        float left = (float)(start + fadeIn) - arg->fn_805381C8()->m198;
+        if (left < lbl_8087F540->mB4) {
+            left = 0.0f;
+        }
+        if (left > 0.0f) {
+            t -= left / (float)fadeIn;
+        }
+        t = lbl_8087F540->fn_8048BD04(actor->m13C, t);
+        if (t == 1.0f) {
+            atn::Vector3 basePos = FindKey_unk(actor->m118, node);
+            atn::Vector3 newPos = basePos + offset;
+            atn::Vector3 baseRot = FindKey_unk(actor->m124, node);
+            atn::Vector3 newRot = baseRot + angles;
+            SetKey_unk(actor->m118, node, newPos);
+            SetKey_unk(actor->m124, node, newRot);
+        } else {
+            atn::Vector3 basePos = FindKey_unk(actor->m118, node);
+            atn::Vector3 baseRot = FindKey_unk(actor->m124, node);
+            atn::Vector3 dPos = pos - basePos;
+            atn::Vector3 dRot = rot - baseRot;
+            float dist = PSVECMag(&dPos);
+            if (dist > 0.0f) {
+                dist *= t;
+                PSVECNormalize(&dPos, &dPos);
+            }
+            pos = basePos + dPos * dist;
+            rot = baseRot + dRot * t;
+        }
+    } else if (now >= (float)(end - fadeOut) && fadeOut >= 1) {
+        float k = 1.0f - (now - (float)(end - fadeOut)) / (float)fadeOut;
+        pos *= k;
+        rot *= k;
+    }
+    model->fn_80093F1C(res->m48[node]->m10, pos, rot, scale, flags);
     return 0;
 }
 

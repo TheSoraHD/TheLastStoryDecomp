@@ -40,11 +40,12 @@ struct ActorKey2C_unk {
     float m28;
 };
 
-// inferred: 0x10-byte key of the lists of an actor (built with __construct_new_array)
+// inferred: 0x10-byte key of the lists of an actor (built with __construct_new_array): offset saved for a
+// node of the model (ActionActorNode::vf08)
 struct ActorKey10_unk {
     ActorKey10_unk() {}
-    atn::Vector3 m00;
-    float m0C;
+    int m00;          // inferred: node index
+    atn::Vector3 m04; // inferred: offset (position in m118, rotation in m124)
 };
 
 // inferred: 8-byte entry of the list at 0xAC of an actor
@@ -56,8 +57,12 @@ struct ActorPair_unk {
 // inferred: animation state of an actor (0x34 bytes at 0x24)
 struct ActorAnim_unk {
     atn::SimpleVector<ActorKey2C_unk> m00;
-    unsigned char m0C[0x28 - 0x0C];
-    IntVector_unk m28;
+    int m0C; // inferred: saved by fn_8000F1EC, given back with CharaTask::fn_8014DEE4 (-1: none)
+    // inferred: saved position (0x10) and rotation (0x1C) of the character, two atn::Vector3: as Vector3
+    // members the implicit constructor of the actor renumbers the @N labels of Event/Sequence and
+    // Event/EventParser_unk (see docs/paralelo-20261113-qG2.md)
+    unsigned char m10[0x28 - 0x10];
+    IntVector_unk m28; // inferred: saved states of the physics bones
 };
 
 // inferred: eye movement of an actor (0x34 bytes at 0x18C, cleared by its constructor; names invented)
@@ -102,10 +107,11 @@ struct Actor : public CommonData {
     void fn_80013508(float* target, const atn::Vector3& pos, float speed);
     void fn_80013530(float speed);
     atn::Vector3 fn_80010374();    // inferred: position of the actor
-    atn::Vector3 fn_80010B68();    // inferred: rotation of the actor
+    atn::Vector3 fn_80010B68() const; // inferred: rotation of the actor
     atn::Model* fn_8001296C();     // inferred: same code as fn_80012A1C
     atn::Model* fn_80012A1C();     // inferred: model of the actor (0 if none)
-    MtxPtr fn_80012AC4(unsigned int node); // inferred: node matrix of the actor (ActionEffectPlay)
+    inline atn::Model* GetModel_unk(); // inferred: inlined copy of fn_8001296C (Event/Puppeteer_CharaTask.cpp)
+    MtxPtr fn_80012AC4(unsigned int node) const; // inferred: node matrix of the actor (ActionEffectPlay)
     void fn_8001268C(int msg, int state); // inferred: message to a gimmick actor
     void fn_8000EE8C();            // inferred: update (Event::Sequence::vf10)
     void fn_8000F1EC();            // inferred: start of the event
@@ -122,6 +128,7 @@ struct Actor : public CommonData {
     void fn_8001011C(const atn::Vector3& pos); // inferred: moves the actor to `pos`
     void fn_80010490(const atn::Vector3& rot); // inferred: sets the rotation (radians)
     void fn_80011420(float yaw);               // inferred: sets the rotation around y
+    inline void SetRotation_unk(const atn::Vector3&); // inferred: body of fn_80010490 (Event/Puppeteer_CharaTask.cpp)
     // inferred: places the actor with a matrix, optionally relative to the node matrix `node`
     void fn_8001122C(MtxPtr node, int arg2, int arg3, const atn::Matrix3x4& mtx);
     void fn_800121F0(int arg, float distance); // inferred: called with the distance moved
@@ -148,12 +155,22 @@ struct Actor : public CommonData {
 
     union {
         struct {
-            unsigned int m18_0 : 2;
+            unsigned int m18_0 : 1; // inferred: the state of the character is saved (fn_8000F1EC/fn_8000FAE8)
+            unsigned int m18_1 : 1;
             unsigned int mWait_unk : 1; // inferred: set while the actor has no character or is moving
             unsigned int m18_3 : 3;
             unsigned int m18_6 : 1; // inferred: set for set point characters and gimmicks
             unsigned int m18_7 : 1; // inferred: the actor is not reset at the start of the event (Event::Sequence)
-            unsigned int m18_8 : 24;
+            // inferred: state saved by fn_8000F1EC and given back by fn_8000FAE8
+            unsigned int m18_8 : 8;  // inferred: control mode (CharaTask::fn_8016E970)
+            unsigned int m18_16 : 1; // inferred: task stopped (atn::Task::mFlags 4)
+            unsigned int m18_17 : 1; // inferred: argument of atn::Task::fn_800D246C
+            unsigned int m18_18 : 1; // inferred: shown (CharaTask::fn_8016E4C4; GimmickCommon::m9C)
+            unsigned int m18_19 : 1; // inferred: bit 0 of the collision flags
+            unsigned int m18_20 : 1; // inferred: bit 0 of CharaStatus::mParamB.m9C
+            unsigned int m18_21 : 1; // inferred: model visible (CharaTask::vf98/vf9C)
+            unsigned int m18_22 : 1; // inferred: motion commands enabled (CharaTask::m1220.m10)
+            unsigned int m18_23 : 9;
         };
         unsigned int m18;
     };

@@ -19,6 +19,7 @@
 #include "game/GameTask.h"
 #include "Event/Action.h"
 #include "chr/CharaEquip_unk.h"
+#include "atn/PBone.h"
 
 extern "C" GameTask* lbl_8087F430; // inferred: the field
 
@@ -98,6 +99,28 @@ inline atn::Model::Res_unk* atn::Model::fn_8000DD04() {
 }
 
 namespace Event {
+// inferred: largest of three values (std::max by reference)
+inline float MaxScale_unk(const float& a, const float& b) {
+    return (a > b) ? a : b;
+}
+
+// inferred: column of a matrix (inlined; name invented)
+inline atn::Vector3 MtxCol_unk(const atn::Matrix3x4& m, int i) {
+    return atn::Vector3(m.m[0][i], m.m[1][i], m.m[2][i]);
+}
+
+// inferred: sets the world matrix of a model and its largest scale axis (inlined; name invented)
+inline void SetModelMtx_unk(atn::Model* model, const atn::Matrix3x4& m) {
+    static_cast<atn::Matrix3x4&>(model->mMtx) = m;
+    float sz = MtxCol_unk(m, 2).Length_unk();
+    float sy = MtxCol_unk(m, 1).Length_unk();
+    float sx = MtxCol_unk(m, 0).Length_unk();
+    atn::Vector3 scale(sx, sy, sz);
+    // inferred: a max macro (the inner max is evaluated again for the result)
+    model->m54 = scale.x > MaxScale_unk(scale.y, scale.z) ? scale.x : MaxScale_unk(scale.y, scale.z);
+}
+
+
 
 
 template <>
@@ -105,34 +128,71 @@ int Puppeteer<CharaTask>::vf0C() {
     return 1;
 }
 
-// NONMATCHING: partial - places the character on the matrix m54 (rotations of the euler angles); written up to
-// the identity matrix so that its 0.0f and 1.0f open .sdata2 as in the original
+// inferred: states 11 and 12 of a sequence (inlined; name invented)
+inline bool IsPlayState_unk(int state) {
+    bool r = true;
+    if (state != 11 && state != 12) {
+        r = false;
+    }
+    return r;
+}
+
+// inferred: replaces the rotation of `m` by the rotation of the angles `rot` (y, x then z), keeping its
+// translation (inlined; name invented)
+inline void SetRotYXZ_unk(atn::Matrix3x4& m, const atn::Vector3& rot) {
+    atn::Vector3 t(m.m[0][3], m.m[1][3], m.m[2][3]);
+    atn::Matrix3x4 r;
+    atn::Matrix3x4* p = &r;
+    p->SetIdentity();
+    if (0.0f != rot.y) {
+        atn::Matrix3x4::RotateAxis_unk(*p, 'y', rot.y);
+    }
+    if (0.0f != rot.x) {
+        atn::Matrix3x4::RotateAxis_unk(*p, 'x', rot.x);
+    }
+    if (0.0f != rot.z) {
+        atn::Matrix3x4::RotateAxis_unk(*p, 'z', rot.z);
+    }
+    m = *p;
+    m.fn_801479E4(t);
+}
+
+// inferred: places the character on the matrix m54 while the sequence plays (states 10-12): the matrix the
+// character follows (CharaTask::mF1C) is m88 = m54 (with the position of the character unless mB8, the
+// rotation of the character unless mB9) * m58
+// NONMATCHING: 93.0% - saved registers (r27-r31 here, r29-r31 in the original), the block of m54 placed after
+// the call (the original branches over it) and the copies of the translations through stack temporaries
 template <>
 void Puppeteer<CharaTask>::vf10() {
     if (m50 == 0) {
         return;
     }
-    if (m50->m194 != 10) {
-        bool ending = m50->m194 == 11 || m50->m194 == 12;
-        if (!ending) {
-            return;
-        }
+    int state = m50->m194;
+    if (state != 10 && !IsPlayState_unk(state)) {
+        return;
     }
     CharaTask* chara = m48;
     if (chara == 0 || chara->m55C != 8 || !chara->IsFlag_unk(4)) {
         return;
     }
-    if (m54 == 0) {
-        return;
+    if (m54 != 0) {
+        atn::Matrix3x4 mtx(*m54);
+        if (mB8 == 0) {
+            mtx.fn_801479E4(chara->mPos);
+            m58.m[0][3] = m58.m[1][3] = m58.m[2][3] = 0.0f;
+        }
+        if (mB9 == 0) {
+            SetRotYXZ_unk(mtx, m48->mRot);
+            SetRotYXZ_unk(m58, lbl_807C7030);
+        }
+        atn::Matrix3x4 m;
+        PSMTXConcat(mtx.m, m58.m, m.m);
+        m88 = m;
+        m48->mF1C = (int)&m88;
     }
-    atn::Matrix3x4 mtx(*m54);
-    if (mB8 == 0) {
-        mtx.fn_801479E4(chara->mPos);
-        m58.m[0][3] = m58.m[1][3] = m58.m[2][3] = 0.0f;
-    }
-    if (mB9 == 0) {
-        atn::Matrix3x4 rot(1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f);
-        m88 = rot;
+    m48->fn_80145334();
+    if (m54 != 0) {
+        m48->mF1C = 0;
     }
 }
 
@@ -158,10 +218,25 @@ int Puppeteer<atn::Model>::vf0C() {
     return 1;
 }
 
-// DRAFT: stub; the matrix stack of the model is not computed
-// NONMATCHING: stub - computes the matrix stack of the model
+// inferred: places the model on the node matrix m54 (if any) and computes its matrix stack while the
+// sequence plays (states 10-12)
 template <>
 void Puppeteer<atn::Model>::vf10() {
+    if (m50 == 0) {
+        return;
+    }
+    int state = m50->m194;
+    if (state != 10 && !IsPlayState_unk(state)) {
+        return;
+    }
+    if (m54 != 0) {
+        atn::Matrix3x4 m;
+        PSMTXConcat(m54->m, GetTarget_unk()->mMtx.m, m.m);
+        SetModelMtx_unk(m48, m);
+    }
+    m48->fn_80097E80(1);
+    m48->CalcMatrixStack(atn::ModelNodeCallback_unk());
+    m54 = 0;
 }
 
 template <>
@@ -595,23 +670,240 @@ void Actor::fn_8000EE8C() {
     }
 }
 
-// inferred: largest of three values (std::max by reference)
-inline float MaxScale_unk(const float& a, const float& b) {
-    return (a > b) ? a : b;
+// inferred: saved vectors of ActorAnim_unk, written by fn_8000F1EC (see Event/Actor.h; name invented)
+inline atn::Vector3& SavedVecRef_unk(unsigned char* p) {
+    return *(atn::Vector3*)p;
 }
 
-// inferred: sets the world matrix of a model and its largest scale axis (inlined; name invented)
-inline void SetModelMtx_unk(atn::Model* model, const atn::Matrix3x4& m) {
-    static_cast<atn::Matrix3x4&>(model->mMtx) = m;
-    atn::Vector3 scale(atn::Vector3(m.m[0][0], m.m[1][0], m.m[2][0]).Length_unk(),
-                       atn::Vector3(m.m[0][1], m.m[1][1], m.m[2][1]).Length_unk(),
-                       atn::Vector3(m.m[0][2], m.m[1][2], m.m[2][2]).Length_unk());
-    // inferred: a max macro (the inner max is evaluated again for the result)
-    model->m54 = scale.x > MaxScale_unk(scale.y, scale.z) ? scale.x : MaxScale_unk(scale.y, scale.z);
+// inferred: nonzero to bool (inlined; name invented)
+inline bool ToBool_unk(unsigned int v) {
+    return v != 0;
+}
+
+// inferred: start of the event: saves in m18 and m24 the state of the character that fn_8000FAE8 gives back
+// (control mode, task and collision flags, node edits, physics bones) and takes the character over
+// NONMATCHING: 96.3% - registers (this in r29 in the original), the physics bones walked from the address
+// of their count (atn::Model::m384/m388 as one array), and the original reloads the flag word of the
+// character for the clears of mFlag3/mFlag5
+void Actor::fn_8000F1EC() {
+    if (m18_0 == 1) {
+        return;
+    }
+    mB8[0] = 0;
+    mB8[1] = 0;
+    mB8[2] = 0;
+    mC4 = lbl_807C7030;
+    mDC = lbl_807C7030;
+    mE8 = lbl_807C7030;
+    mF4 = lbl_807C7030;
+    m100 = lbl_807C7030;
+    switch (m20) {
+    case 7:
+    case 1: {
+        if (m18_7 == 1) {
+            break;
+        }
+        m18_8 = GetChara_unk()->m55C;
+        if (m18_8 == 6) {
+            GetChara_unk()->fn_80178208(0);
+        }
+        m18_16 = GetChara_unk()->mFlags >> 2;
+        m18_17 = GetChara_unk()->mFlags;
+        m18_18 = ToBool_unk(((GetChara_unk()->m54C >> 3) & 1) ^ 1);
+        m18_19 = !((GetChara_unk()->mFlags >> 2) & 1) && (GetChara_unk()->mColli.mFlags & 1);
+        m18_20 = GetChara_unk()->mStatus.mParamB.m9C;
+        m18_21 = ToBool_unk(GetChara_unk()->mFlag18);
+        m18_22 = GetChara_unk()->m1220.m10 != 0;
+        CharaTask* chara = GetChara_unk();
+        // inferred: m24.m00 is a SimpleVector<Event::PoseKey_unk> (see fn_8000FAE8)
+        *(atn::SimpleVector<Event::PoseKey_unk>*)&m24.m00 = chara->GetModel_unk()->mD8;
+        m24.m0C = GetChara_unk()->m674;
+        SavedVecRef_unk(&m24.m10[0x00]) = GetChara_unk()->mPos;
+        SavedVecRef_unk(&m24.m10[0x0C]) = GetChara_unk()->mRot;
+        m24.m28.clear();
+        atn::Model* bones = GetChara_unk()->GetModel_unk();
+        for (int i = 0; i < (int)bones->m384; i++) {
+            m24.m28.push_back(bones->m388[i]->vf24());
+        }
+        GetChara_unk()->fn_8016E970(8);
+        GetChara_unk()->mFlags |= 4;
+        GetChara_unk()->fn_800D246C(1);
+        GetChara_unk()->fn_8016E5F0(1);
+        GetChara_unk()->mColli.mFlags |= 1;
+        GetChara_unk()->mStatus.mParamB.m9C &= ~1;
+        GetChara_unk()->fn_801446F0();
+        GetChara_unk()->mLook.fn_80129A48(0.3f);
+        GetChara_unk()->m1188.ClearMotion(false);
+        if (GetChara_unk()->mFlag3) {
+            GetChara_unk()->mFlag3 = 0;
+        }
+        if (GetChara_unk()->mFlag5) {
+            GetChara_unk()->mFlag5 = 0;
+        }
+        GetChara_unk()->mFC0 = 0;
+        if (GetChara_unk()->mFlag31) {
+            GetChara_unk()->fn_801539E0();
+            if (GetChara_unk()->mType == 0) {
+                m24.m0C = GetChara_unk()->m674;
+            }
+        }
+        if (GetChara_unk()->mFlag6) {
+            GetChara_unk()->fn_80155DAC(0);
+            if (GetChara_unk()->mType == 0) {
+                m24.m0C = GetChara_unk()->m674;
+            }
+        }
+        if (GetChara_unk()->m139C != 0) {
+            GetChara_unk()->fn_8017A33C(0, 1);
+        }
+        GetChara_unk()->fn_80164DCC(0);
+        if (GetChara_unk()->m1208 != 0) {
+            GetChara_unk()->fn_801750FC();
+        }
+        CharaTask* c = GetChara_unk();
+        if (c->m13FC != 0) {
+            c->fn_8017AC44(0);
+            c->m13FC->fn_801765D8();
+        }
+        m58 = -1;
+        break;
+    }
+    case 2:
+        m18_16 = m1C->mFlags >> 2;
+        m18_17 = m1C->mFlags;
+        m18_18 = ((GimmickCommon*)m1C)->m9C != 0;
+        break;
+    }
+    m18_0 = 1;
+}
+
+// inferred: sets or clears `bit` of a flag word (inlined; name invented)
+inline void SetFlagBit_unk(unsigned int& flags, unsigned int bit, unsigned int on) {
+    if (on == 1) {
+        flags |= bit;
+    } else {
+        flags &= ~bit;
+    }
+}
+
+// inferred: saved vectors of ActorAnim_unk (see Event/Actor.h; name invented)
+inline const atn::Vector3& SavedVec_unk(const unsigned char* p) {
+    return *(const atn::Vector3*)p;
+}
+
+// inferred: stores a saved bit into a bool (inlined; name invented)
+inline void SetBool_unk(unsigned char& b, unsigned int on) {
+    b = on == 1;
+}
+
+// inferred: end of the event: gives back to the character the state that fn_8000F1EC saved in m18 and m24
+// (flags, control mode, motions, node edits, position, physics bones)
+// NONMATCHING: 92.9% - the original reloads m18 for each saved bit of a character (here it stays in a
+// register), saves r28-r31 one by one (one register more here), walks the physics bones from the address of
+// their count (atn::Model::m384/m388 as one array) and copies the camera offsets through one 0x1C-byte
+// temporary (GameCamera::m93C/m948/m954); "z" is placed elsewhere in the string pool
+void Actor::fn_8000FAE8() {
+    if (m18_0) {
+        switch (m20) {
+        case 7:
+        case 1: {
+            if (m18_7 == 1) {
+                break;
+            }
+            SetFlagBit_unk(GetChara_unk()->mFlags, 4, m18_16);
+            GetChara_unk()->fn_800D246C(m18_17);
+            GetChara_unk()->fn_8016E4C4(m18_18);
+            SetFlagBit_unk(GetChara_unk()->mColli.mFlags, 1, m18_19);
+            if (m18_20 == 1) {
+                GetChara_unk()->mStatus.mParamB.m9C |= 1;
+            } else {
+                GetChara_unk()->mStatus.mParamB.m9C &= ~1;
+            }
+            if (m18_21 == 1) {
+                GetChara_unk()->vf98();
+            } else {
+                GetChara_unk()->vf9C(0);
+            }
+            SetBool_unk(GetChara_unk()->m1220.m10, m18_22);
+            if (m18_8 == 6) {
+                GetChara_unk()->fn_8016E970(m18_8);
+                GetChara_unk()->fn_8016EB48(1, 1, 1);
+            } else {
+                GetChara_unk()->fn_8016E970(m18_8);
+            }
+            atn::Model* model = GetChara_unk()->GetModel_unk();
+            for (int i = 0; i < 6; i++) {
+                if ((unsigned int)(model->mTracks[i].m00 - 239) <= 79) {
+                    model->fn_80097C08(i, GetChara_unk()->m484[0], 1, 0, 1, 1.0f, 0.1f);
+                }
+                model->mTracks[i].m14 = 0.1f;
+            }
+            if ((GetChara_unk()->mType == 0 || GetChara_unk()->mType == 3) &&
+                (GetChara_unk()->mStatus.m0C & 0x20) == 0x20) {
+                model->fn_80097C08(0, 0x2E, 0, 0, 1, 1.0f, 0.1f);
+                model->mTracks[0].m08 = model->fn_80097D7C(0);
+            }
+            model->fn_80097CCC(4, 0.0f);
+            model->fn_80097CCC(3, 0.0f);
+            GetChara_unk()->m1188.ClearMotion(true);
+            // inferred: m24.m00 is a SimpleVector<Event::PoseKey_unk> (same layout; see the pending note of
+            // ActorAnim_unk::m00 in docs/paralelo-20261113-qG.md)
+            model->fn_80094420(*(atn::SimpleVector<Event::PoseKey_unk>*)&m24.m00);
+            GetChara_unk()->fn_80176DFC(0, 0, 0);
+            for (int motion = 239; motion <= 318; motion++) {
+                model->fn_80097A20(motion);
+            }
+            model->fn_8009373C("set_y", 0);
+            fn_80012D0C(0.3f);
+            fn_80013530(0.3f);
+            GetChara_unk()->m1188.m78 = 0;
+            GetChara_unk()->m1154.m00 = 0;
+            GetChara_unk()->m1154.m04 = 0.0f;
+            if (m24.m0C == -1) {
+                GetChara_unk()->fn_8014EEC4(0);
+            } else {
+                GetChara_unk()->fn_8014DEE4(m24.m0C, 0, 0);
+            }
+            if (GetSequence_unk()->m98_9) {
+                GetChara_unk()->mPos = SavedVec_unk(&m24.m10[0x00]);
+                GetChara_unk()->mRot = SavedVec_unk(&m24.m10[0x0C]);
+                GetChara_unk()->fn_80144710();
+                GetChara_unk()->GetModel_unk()->CalcMatrixStack(atn::ModelNodeCallback_unk());
+                GetChara_unk()->fn_80148B38(0.0f);
+            }
+            GetChara_unk()->mFlag7 = 1;
+            atn::Model* bones = GetChara_unk()->GetModel_unk();
+            for (int i = 0; i < (int)bones->m384; i++) {
+                bones->m388[i]->vf20(m24.m28[i]);
+            }
+            CharaTask* chara = GetChara_unk();
+            if (chara->m13FC != 0) {
+                chara->m13FC->fn_80176ACC();
+                MtxPtr node = chara->m13FC->GetModel_unk()->GetNodeMtx_unk("z");
+                if (node != 0) {
+                    chara->mF1C = (int)node;
+                }
+                lbl_8087F430->mCamera.m93C = atn::Vector3(0.0f, 10.0f, 0.0f);
+                lbl_8087F430->mCamera.m948 = atn::Vector3(0.0f, 0.0f, 0.0f);
+                lbl_8087F430->mCamera.m954 = 0.0f;
+            }
+            m144 = 1;
+            m145 = 1;
+            m146 = 1;
+            m188 = 1;
+            break;
+        }
+        case 2:
+            SetFlagBit_unk(m1C->mFlags, 4, m18_16);
+            m1C->fn_800D246C(m18_17);
+            ((GimmickCommon*)m1C)->m9C = m18_18;
+            break;
+        }
+        m18_0 = 0;
+    }
 }
 
 // inferred: moves the actor to `pos`
-// NONMATCHING: 99.2% - stack slots of the three column vectors of SetModelMtx_unk (reversed)
 void Actor::fn_8001011C(const atn::Vector3& pos) {
     switch (m20) {
     case 7:
@@ -622,7 +914,7 @@ void Actor::fn_8001011C(const atn::Vector3& pos) {
         ((GimmickCommon*)m1C)->m6C = pos;
         break;
     case 3: {
-        atn::Model* model = ((Puppeteer<atn::Model>*)m1C)->m48;
+        atn::Model* model = ((Puppeteer<atn::Model>*)m1C)->GetTarget_unk();
         atn::Matrix3x4 m(model->mMtx);
         m.m[0][3] = pos.x;
         m.m[1][3] = pos.y;
@@ -664,6 +956,127 @@ atn::Vector3 Actor::fn_80010374() {
             atn::Matrix3x4* mtx = &((DummyData*)m1C)->m18;
             return atn::Vector3(mtx->m[0][3], mtx->m[1][3], mtx->m[2][3]);
         }
+    }
+    return lbl_807C7030;
+}
+
+} // namespace Event
+// inferred: as in gmk/Cannonball.cpp (out-of-line copy 0x8013C3B4 in game/CharaTask.cpp)
+inline atn::Vector3 atn::Vector3::operator-() const {
+    return atn::Vector3(-x, -y, -z);
+}
+namespace Event {
+
+} // namespace Event
+extern "C" void PSMTXRotRad(Mtx m, char axis, float rad);
+// inferred: rotation matrix from euler angles, z then y then x (weak copy 0x800109E0)
+extern "C" inline atn::Matrix3x4 fn_800109E0(const atn::Vector3& rot) {
+    atn::Matrix3x4 m;
+    m.SetIdentity();
+    if (0.0f != rot.z) {
+        Mtx t;
+        Mtx r;
+        PSMTXRotRad(r, 'z', rot.z);
+        PSMTXConcat(m.m, r, t);
+        __MtxCopy(m.m, t);
+    }
+    if (0.0f != rot.y) {
+        Mtx t;
+        Mtx r;
+        PSMTXRotRad(r, 'y', rot.y);
+        PSMTXConcat(m.m, r, t);
+        __MtxCopy(m.m, t);
+    }
+    if (0.0f != rot.x) {
+        Mtx t;
+        Mtx r;
+        PSMTXRotRad(r, 'x', rot.x);
+        PSMTXConcat(m.m, r, t);
+        __MtxCopy(m.m, t);
+    }
+    return m;
+}
+namespace Event {
+
+// inferred: sets the rotation of the actor (radians; a model or a dummy keeps its translation); inlined in
+// fn_80010490 and fn_80011420 (name invented)
+inline void Actor::SetRotation_unk(const atn::Vector3& rot) {
+    switch (m20) {
+    case 7:
+    case 1:
+        ((Puppeteer<CharaTask>*)m1C)->m48->mRot = rot;
+        break;
+    case 2:
+        ((GimmickCommon*)m1C)->m78 = rot;
+        break;
+    case 3: {
+        atn::Matrix3x4 m = fn_800109E0(rot);
+        atn::Vector3 t = ((Puppeteer<atn::Model>*)m1C)->GetTarget_unk()->mMtx.GetTrans_unk();
+        m.m[0][3] = t.x;
+        m.m[1][3] = t.y;
+        m.m[2][3] = t.z;
+        SetModelMtx_unk(((Puppeteer<atn::Model>*)m1C)->GetTarget_unk(), m);
+        ((Puppeteer<atn::Model>*)m1C)->m48->CalcMatrixStack(atn::ModelNodeCallback_unk());
+        break;
+    }
+    case 4: {
+        atn::Matrix3x4& d = ((DummyData*)m1C)->m18;
+        atn::Vector3 t = d.GetTrans_unk();
+        d = fn_800109E0(rot);
+        d.m[0][3] = t.x;
+        d.m[1][3] = t.y;
+        d.m[2][3] = t.z;
+        break;
+    }
+    }
+}
+
+// NONMATCHING: 97.8% - registers and stack: the original keeps this and rot in r28/r29, the matrix and the
+// model of the case 3 in r31/r30 (here they share a register) and the matrix of the case 3 at the top of the
+// frame
+void Actor::fn_80010490(const atn::Vector3& rot) {
+    SetRotation_unk(rot);
+}
+
+// inferred: rotation of the z axis of a matrix (inlined; name invented)
+inline atn::Vector3 ZRotation_unk(const atn::Matrix3x4& m) {
+    return atn::Vector3(m.m[2][0], m.m[2][1], m.m[2][2]).ToRotationZ_unk();
+}
+
+// inferred: rotation of the actor (radians; for a model or a dummy, from the z axis of its matrix)
+atn::Vector3 Actor::fn_80010B68() const {
+    switch (m20) {
+    case 6:
+        return lbl_807C7030;
+    case 7:
+    case 1: {
+        Puppeteer<CharaTask>* p = (Puppeteer<CharaTask>*)m1C;
+        if (p != 0) {
+            return p->m48->mRot;
+        }
+        break;
+    }
+    case 2: {
+        GimmickCommon* g = (GimmickCommon*)m1C;
+        if (g != 0) {
+            return g->m78;
+        }
+        break;
+    }
+    case 3: {
+        Puppeteer<atn::Model>* p = (Puppeteer<atn::Model>*)m1C;
+        if (p != 0) {
+            return -p->GetTarget_unk()->mMtx.GetRow_unk(2).ToRotationZ_unk();
+        }
+        break;
+    }
+    case 4: {
+        DummyData* d = (DummyData*)m1C;
+        if (d != 0) {
+            return ZRotation_unk(d->m18);
+        }
+        break;
+    }
     }
     return lbl_807C7030;
 }
@@ -739,6 +1152,13 @@ atn::Vector3 Actor::fn_800112E0() {
     return front;
 }
 
+// inferred: sets the rotation of the actor around y
+// NONMATCHING: 99.2% - stack slots of the rotation matrices (0x30 higher here) and registers of the copy of the
+// matrix of the case 3
+void Actor::fn_80011420(float yaw) {
+    SetRotation_unk(atn::Vector3(0.0f, yaw, 0.0f));
+}
+
 // inferred: rotation of the actor around y
 float Actor::fn_80011964() {
     switch (m20) {
@@ -757,6 +1177,104 @@ float Actor::fn_80011964() {
 extern "C" unsigned int fn_800119B8() {
     return 8;
 }
+
+// inferred: model of the actor (same code as fn_8001296C; inlined in fn_800119C0)
+inline atn::Model* Actor::GetModel_unk() {
+    switch (m20) {
+    case 7:
+    case 1:
+        if (m1C != 0) {
+            return GetChara_unk()->GetModel_unk();
+        }
+        return 0;
+    case 2:
+        return m1C != 0 ? ((GimmickCommon*)m1C)->vf38() : 0;
+    case 3:
+        if (m1C != 0) {
+            return ((Puppeteer<atn::Model>*)m1C)->m48;
+        }
+        return 0;
+    case 4:
+    case 6:
+        return 0;
+    }
+    return 0;
+}
+
+// inferred: plays the motion `motion` on the actor (Event::BehaviorGesture): `kind` picks the track of a
+// character (0 the base one, or the fifth when the motion is of type 4; 2 and 3 fixed), `seqp` is the
+// sequence holding the motion data (Event::Sequence)
+void Actor::fn_800119C0(int kind, int motion, int arg3, int frames, void* seqp, int track, int arg7, float speed,
+                        float frame) {
+    Sequence* seq = (Sequence*)seqp;
+    if (m20 == 7 || m20 == 1) {
+        atn::Model* model = GetModel_unk();
+        if ((unsigned int)(motion - 239) <= 79) {
+            MotionData* data = seq->mC4.Find_unk(motion);
+            if (data == 0) {
+                return;
+            }
+            model->fn_80097A9C(motion, &data->m18->mLoader);
+        }
+        int t; // inferred: track of the motion (a local: the case 1 keeps its compare)
+        switch (kind) {
+        case 0: {
+            atn::LH_Motion* m = static_cast<atn::LH_Motion*>(model->fn_80097D40(motion));
+            if (m != 0 && m->fn_804768D0() == 4) {
+                t = 4;
+            } else {
+                t = track;
+            }
+            break;
+        }
+        case 1:
+            t = track;
+            break;
+        case 2:
+            t = 3;
+            break;
+        case 3:
+            t = 4;
+            break;
+        default:
+            t = track;
+            break;
+        }
+        model->m34C = 1;
+        model->mTracks[t].m20 = 1.0f;
+        model->fn_80097C08(t, motion, arg3, 1, arg7, 0.0f, 0.1f);
+        model->mTracks[t].m0C = speed;
+        model->mTracks[t].m14 = frames == 0 ? 1.0f : 1.0f / frames;
+        model->mTracks[t].m08 = frame;
+    } else if (m20 == 2) {
+        if (motion < 239) {
+            return;
+        }
+        atn::Model* model = GetModel_unk();
+        model->fn_80097A9C(motion - 229, &seq->mC4.Find_unk(motion)->m18->mLoader);
+        model->m34C = 1;
+        model->mTracks[0].m20 = 1.0f;
+        model->fn_80097C08(0, motion - 229, arg3, 1, 1, 0.0f, 0.1f);
+        model->mTracks[0].m0C = speed;
+        model->mTracks[0].m14 = 1.0f / frames;
+        model->mTracks[0].m08 = frame;
+    } else if (m20 == 3) {
+        if (motion < 239) {
+            return;
+        }
+        int slot = motion - 239;
+        atn::Model* model = GetModel_unk();
+        model->fn_80097A9C(slot, &seq->mC4.Find_unk(motion)->m18->mLoader);
+        m58 = model->mTracks[0].m00;
+        model->m34C = 1;
+        model->mTracks[0].m20 = 1.0f;
+        model->fn_80097C08(0, slot, arg3, 1, arg7, 0.0f, 0.1f);
+        model->mTracks[0].m0C = speed;
+        model->mTracks[0].m14 = frames == 0 ? 1.0f : 1.0f / frames;
+        model->mTracks[0].m08 = frame;
+    }
+}
+
 
 // NONMATCHING: the original jumps to the end when the kind is not 7 or 1 (no null character) and
 // schedules the bool arguments differently; tried the check of the kind first and nested ifs
@@ -1069,16 +1587,15 @@ atn::Model* Actor::fn_80012A1C() {
 }
 
 // inferred: matrix of the node `node` (name hash) of the actor, its world matrix for 0
-// NONMATCHING: 99.6% - the original loads m20 before saving r31 and r30 (prologue scheduling); tried a local
-// for the kind, a cast, a result variable, a default case, if/else and an int argument
-MtxPtr Actor::fn_80012AC4(unsigned int node) {
+// inferred: const (the original loads m20 before saving r31 and r30)
+MtxPtr Actor::fn_80012AC4(unsigned int node) const {
     switch (m20) {
     case 7:
     case 1:
         if (node != 0) {
-            return GetChara_unk()->GetModel_unk()->GetNodeMtxByHash_unk(node);
+            return ((Puppeteer<CharaTask>*)m1C)->m48->GetModel_unk()->GetNodeMtxByHash_unk(node);
         }
-        return GetChara_unk()->GetModel_unk()->mMtx.m;
+        return ((Puppeteer<CharaTask>*)m1C)->m48->GetModel_unk()->mMtx.m;
     case 2:
         if (node != 0) {
             return ((GimmickCommon*)m1C)->vf38()->GetNodeMtxByHash_unk(node);
@@ -1115,34 +1632,6 @@ void Actor::fn_80012D0C(float speed) {
 
 // ---- fn_80012D34 and its helpers (over the inlining budget: weak copies at 0x800132EC-0x80013484) ----
 } // namespace Event
-extern "C" void PSMTXRotRad(Mtx m, char axis, float rad);
-// inferred: rotation matrix from euler angles, z then y then x (weak copy 0x800109E0)
-extern "C" inline atn::Matrix3x4 fn_800109E0(const atn::Vector3& rot) {
-    atn::Matrix3x4 m;
-    m.SetIdentity();
-    if (0.0f != rot.z) {
-        Mtx t;
-        Mtx r;
-        PSMTXRotRad(r, 'z', rot.z);
-        PSMTXConcat(m.m, r, t);
-        __MtxCopy(m.m, t);
-    }
-    if (0.0f != rot.y) {
-        Mtx t;
-        Mtx r;
-        PSMTXRotRad(r, 'y', rot.y);
-        PSMTXConcat(m.m, r, t);
-        __MtxCopy(m.m, t);
-    }
-    if (0.0f != rot.x) {
-        Mtx t;
-        Mtx r;
-        PSMTXRotRad(r, 'x', rot.x);
-        PSMTXConcat(m.m, r, t);
-        __MtxCopy(m.m, t);
-    }
-    return m;
-}
 // inferred: *this = m * *this (declared in math/Vec.h; weak copy 0x80011410)
 // inferred: fabs (weak copy 0x80011220)
 extern "C" inline float fn_80011220(float x) {
@@ -1156,9 +1645,10 @@ extern "C" inline int fn_80013444(const atn::Vector3* a, const atn::Vector3* b) 
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 namespace Event {
 
-// DRAFT: not checked against the original (draft of the eye/head turn)
-// NONMATCHING: draft - turns the eyes of the character towards a point (the camera, limited to `angle`
-// around the eye direction), or the head of another actor towards `target`
+// inferred: turns the eyes of the character towards a point (the camera, limited to `angle` around the eye
+// direction), or the head of another actor towards `target`
+// NONMATCHING: 99.98% - only the offset of "eye_R" in @stringBase0 (the original pool at 0x8072EE0C also
+// holds the parameter names of the actions: "set_y" and "z" are tails of "offset_y" and "offset_z")
 void Actor::fn_80012D34(Actor* target, int node, const atn::Vector3& cam, int arg4, const atn::Vector3& jitter,
                         int arg6, float weight, float angle) {
     if (m20 != 7 && m20 != 1) {
@@ -1167,7 +1657,8 @@ void Actor::fn_80012D34(Actor* target, int node, const atn::Vector3& cam, int ar
     if (arg6 != 0) {
         atn::Vector3 pos(cam);
         atn::Matrix3x4* eye = (atn::Matrix3x4*)fn_800128FC()->GetModel_unk()->GetNodeMtx_unk("eye_R");
-        atn::Vector3 dir(0.0f, 0.0f, (pos - eye->GetTrans_unk()).Length_unk());
+        atn::Vector3 diff = pos - eye->GetTrans_unk();
+        atn::Vector3 dir(0.0f, 0.0f, diff.Length_unk());
         dir.fn_80011410(eye->GetRotation_unk());
         atn::Vector3 aim = (cam - eye->GetTrans_unk()).ToRotation_unk();
         float dx = atn::WrapAngle_unk(aim.x - dir.ToRotation_unk().x);
@@ -1264,6 +1755,30 @@ void Actor::fn_80013508(float* target, const atn::Vector3& pos, float speed) {
 void Actor::fn_80013530(float speed) {
     if (m20 == 7 || m20 == 1) {
         GetChara_unk()->mLook.fn_8012AC40(speed);
+    }
+}
+
+// inferred: restores the material colours of the model from the ones saved by Actor::vf08 (m158/m164 copied
+// to m170/m17C) and sets them back on the materials (ActionActorMaterial::vf0C)
+// NONMATCHING: 97.7% - the inlined push_back of std::vector<ColorF_unk> (std/vector.h: the original moves the
+// old elements with a counted loop) and the stack slots of the two colours (reversed)
+void Actor::fn_80013558() {
+    m170.clear();
+    m17C.clear();
+    atn::Model::Res_unk* res = ((Puppeteer<CharaTask>*)m1C)->GetTarget_unk()->GetModel_unk()->GetRes_unk();
+    if (res != 0) {
+        for (int i = 0; i < res->m30; i++) {
+            m170.push_back(m158[i]);
+            m17C.push_back(m164[i]);
+            unsigned int hash = fn_800DC6B4(res->m50[i]);
+            Material_unk* mat = ((Puppeteer<CharaTask>*)m1C)->GetTarget_unk()->GetModel_unk()->fn_800929C0(hash);
+            GXColor c1 = mat->m1C;
+            ColorF_unk ambient(c1);
+            GXColor c2 = mat->m20;
+            ColorF_unk specular(c2);
+            ((Puppeteer<CharaTask>*)m1C)->GetTarget_unk()->GetModel_unk()->fn_80094958(res->m50[i], &m158[i],
+                                                                                     &ambient, &specular);
+        }
     }
 }
 
