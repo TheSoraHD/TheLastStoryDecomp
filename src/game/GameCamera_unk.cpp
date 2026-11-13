@@ -462,6 +462,148 @@ static inline atn::Vector3 LerpV_unk(const atn::Vector3& a, const atn::Vector3& 
     return (b - a) * t + a;
 }
 
+extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
+// inferred: math helpers (weak copies; as in game/Em309Ghoul.cpp, game/BattleTask.cpp, gmk/Cannonball.cpp)
+extern "C" inline float fn_80011220(float x) {
+    return __fabs(x);
+}
+extern "C" inline float fn_8037F664(float x) {
+    return sin(x);
+}
+extern "C" inline float fn_801C3910(const atn::Vector3& v) {
+    return sqrt(v.x * v.x + v.z * v.z);
+}
+extern "C" inline float fn_801A03E8(const atn::Vector3& a, const atn::Vector3& b) {
+    return PSVECDotProduct(&a, &b);
+}
+extern "C" inline float fn_800F8524(const float& a, const float& b, float t) {
+    return t * (b - a) + a;
+}
+extern "C" inline void fn_8032EC94(int* p) {
+    *p = 0;
+}
+// inferred: camera accessors (weak copies; C names: the method names are unknown)
+extern "C" inline void fn_8037F688(atn::Camera* camera, float fovy) {
+    camera->mFovy = fovy;
+}
+extern "C" inline float fn_80385B40(atn::Camera* camera) {
+    return camera->mDist;
+}
+
+// inferred: sweep test of a sphere (here the camera eye) against the collision world
+extern "C" int fn_8004D388(void* world, CollResult_unk* result, atn::Vector3* pos, atn::Vector3* move,
+                           unsigned int mask, void* ignore, int arg, float radius);
+extern "C" inline TownTask* fn_803830A0() {
+    return lbl_8087FA20;
+}
+// inferred: up vector of the camera (weak copy 0x80382A08)
+inline void atn::Camera::SetUpVector(const atn::Vector3& v) {
+    mUp = v;
+}
+// inferred: collision world (weak copy; as in gmk/Cannonball.cpp)
+inline void* fn_801404F8() {
+    return lbl_8087EE98;
+}
+extern "C" inline float fn_8037F640(float x) {
+    return cos(x);
+}
+extern "C" atn::Vector3 fn_805B81F0(const TownTask* town, int x, int z); // inferred: centre of a cell (game/TownTask.cpp)
+
+// inferred: camera of the town (m6FC): looks at the character m6FC.m10 above it from m6FC.m00 away, turning towards
+// its yaw at the speed m6FC.m2C (immediately with m8EC); lower pitch near the centre cell of the town; the eye is
+// moved in front of the walls (m880 frames back out), and the target goes m6FC.m0C beside the character
+// (over the inlining budget: the accessors are weak copies)
+// NONMATCHING: 64.6% - the original gets the two y rotations from fn_8013A13C as a function returning the matrix
+// by value (here atn::Matrix3x4::RotY_unk; `Matrix3x4 m; m.fn_8013A13C()` adds a call to its empty constructor)
+// and float registers of the pitch blend
+void GameCamera::fn_80382A1C(const CharaTask* chara) {
+    CharaTask* c = const_cast<CharaTask*>(chara);
+    atn::Vector3 pos(*GetPosition_unk());
+    atn::Vector3 target(m868);
+    atn::Vector3 dir = target - pos;
+    dir.Length_unk();
+    float fovy = GetFovy_unk();
+    dir.Normalize_unk();
+    atn::Vector3 rot = (-dir).ToRotation_unk();
+    atn::Vector3 up(0.0f, 1.0f, 0.0f);
+    float fov = m6FC.m24 * (m6FC.m04 - fovy) + fovy;
+    const atn::Vector3& head = c->fn_80178088();
+    atn::Vector3 charaRot(*c->GetRot_unk());
+    target = head;
+    target.y += m6FC.m10;
+    m868 = target;
+    if (m8EC != 0) {
+        rot.y = charaRot.y;
+    }
+    float pitch = -m6FC.m08;
+    if (fn_803830A0()) {
+        atn::Vector3 d = head - fn_805B81F0(fn_803830A0(), 3, 2);
+        d.y = 0.0f;
+        if (head.y < 30.0f && d.LengthSq_unk() < 122500.0f) {
+            pitch *= 0.25f;
+        }
+    }
+    atn::Vector3 r(pitch, rot.y, 0.0f);
+    atn::Vector3 offset(0.0f, 0.0f, m6FC.m00);
+    offset.fn_80011410(fn_800109E0(r));
+    atn::Vector3 eye;
+    eye = offset + target;
+    float turn = -atn::WrapAngle_unk(r.y - atn::WrapAngle_unk(charaRot.y));
+    atn::Vector3 e = eye - target;
+    e.fn_80011410(atn::Matrix3x4::RotY_unk(-r.y));
+    r.y = turn * m6FC.m2C + r.y;
+    e.fn_80011410(atn::Matrix3x4::RotY_unk(r.y));
+    eye = e + target;
+    offset = target - eye;
+    offset.Length_unk();
+    offset.Normalize_unk();
+    CollResult_unk result;
+    offset = target - eye;
+    r = (-offset).ToRotation_unk();
+    rot.x += pitch - rot.x;
+    rot.y = r.y;
+    rot.z = r.z;
+    dir = atn::Vector3(0.0f, 0.0f, m6FC.m00);
+    dir.fn_80011410(fn_800109E0(rot));
+    pos = dir + target;
+    if (fn_8004ED34(fn_801404F8(), &result, &target, &pos, 0x80000008, 0, 0)) {
+        atn::Vector3 hit = target - result.m10;
+        if (hit.LengthSq_unk() > 0.0001f) {
+            pos = result.m10;
+            pos += (target - pos).GetNormalize() * 0.1f;
+            m880 = 10;
+            if ((pos - *GetPosition_unk()).LengthSq_unk() > 0.00001f && m8EC == 0) {
+                pos = atn::Lerp_unk(*GetPosition_unk(), pos, 0.25f);
+            }
+        }
+    } else if (m880 > 0) {
+        m880--;
+        if ((pos - *GetPosition_unk()).LengthSq_unk() > 0.00001f) {
+            pos = atn::Lerp_unk(*GetPosition_unk(), pos, 1.0f - (float)m880 / 10.0f);
+        }
+    }
+    if (fn_8004D388(fn_801404F8(), &result, &pos, &lbl_807C7030, 0x80000008, 0, 0, 3.0f)) {
+        pos = result.m10;
+    }
+    float dist = (target - pos).Length_unk();
+    target.x += m6FC.m0C * (dist / m6FC.m00) * fn_8037F640(rot.y);
+    target.z += -m6FC.m0C * (dist / m6FC.m00) * fn_8037F664(rot.y);
+    if (fn_801C3910(target - pos) < 1.0f) {
+        if (offset.Length_unk() > 0.1f) {
+            pos -= offset.GetNormalize();
+        } else {
+            pos.z += 1.0f;
+        }
+    }
+    SetPosition(pos);
+    SetTarget_unk(target);
+    fn_8037F688(this, fov);
+    SetUpVector(up);
+    fn_8004B378();
+    fn_80392964(1, 1, 1, 1);
+    m8EC = 0;
+}
+
 // inferred: free camera moved with the stick (dead zone 0.2, squared response, turned around the up vector and the
 // side vector at the speed m558.m1C) from frame 15 on, and kept m558.m10 above the character looking m558.m00 away;
 // with m838 set it blends instead the target from m84C to m840 and the fovy from m85C to half m558.m04 (6 steps)
@@ -655,34 +797,6 @@ extern "C" void fn_80383F7C(float* angle, atn::Vector3* pos, const atn::Vector3*
 }
 
 // ---- fn_80387910: camera of the tactical view (over the inlining budget: the accessors are weak copies) ----
-extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
-// inferred: math helpers (weak copies; as in game/Em309Ghoul.cpp, game/BattleTask.cpp, gmk/Cannonball.cpp)
-extern "C" inline float fn_80011220(float x) {
-    return __fabs(x);
-}
-extern "C" inline float fn_8037F664(float x) {
-    return sin(x);
-}
-extern "C" inline float fn_801C3910(const atn::Vector3& v) {
-    return sqrt(v.x * v.x + v.z * v.z);
-}
-extern "C" inline float fn_801A03E8(const atn::Vector3& a, const atn::Vector3& b) {
-    return PSVECDotProduct(&a, &b);
-}
-extern "C" inline float fn_800F8524(const float& a, const float& b, float t) {
-    return t * (b - a) + a;
-}
-extern "C" inline void fn_8032EC94(int* p) {
-    *p = 0;
-}
-// inferred: camera accessors (weak copies; C names: the method names are unknown)
-extern "C" inline void fn_8037F688(atn::Camera* camera, float fovy) {
-    camera->mFovy = fovy;
-}
-extern "C" inline float fn_80385B40(atn::Camera* camera) {
-    return camera->mDist;
-}
-
 // inferred: update of the side camera mode (see fn_8038BD78): the target follows the target of the character
 // (10 further in front while it is in control 14 of state 6), the eye stays beside it out of the walls; with
 // the debug option m28C, button 7 gives the default camera
@@ -834,9 +948,6 @@ static inline void AddViewHeight_unk(atn::Vector3* p) {
     }
 }
 
-// inferred: sweep test of a sphere (here the camera eye) against the collision world
-extern "C" int fn_8004D388(void* world, CollResult_unk* result, atn::Vector3* pos, atn::Vector3* move,
-                           unsigned int mask, void* ignore, int arg, float radius);
 extern "C" void* lbl_8087EF70; // inferred: pads
 extern "C" int fn_800A58D0(void* pad, int port);                          // inferred: classic controller connected
 extern "C" float fn_800A56A8(void* pad, int port, int axis, int arg); // inferred: stick axis
@@ -1370,7 +1481,7 @@ void GameCamera::fn_8038AEF0(const atn::Vector3* pos, const atn::Vector3* target
     atn::Vector3 d = look - eye;
     if (d.x * d.x + d.z * d.z < 1.0f) {
         atn::Vector3 h(d.x, 0.0f, d.z);
-        if (PSVECSquareMag(&h) < 1.0e-6f) {
+        if (PSVECSquareMag(&h) < 0.0001f) {
             h = atn::Vector3(0.0f, 0.0f, 1.0f);
         } else {
             PSVECNormalize(&h, &h);
@@ -2205,9 +2316,6 @@ extern "C" inline HitInfo_unk* fn_80339F6C(CharaTask* chara) {
 }
 extern "C" inline int fn_80382A00(CharaTask* chara) {
     return chara->m58C;
-}
-extern "C" inline TownTask* fn_803830A0() {
-    return lbl_8087FA20;
 }
 extern "C" inline ChaseManager* fn_803903C4() {
     return lbl_8087F098;

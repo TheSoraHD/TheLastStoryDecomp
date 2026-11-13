@@ -16,7 +16,14 @@ Unidades: `game/GameCamera_unk`, `game/FinishCamera_unk`.
   original tiene 0x10 bytes mas de locales: Mtx en 0x168, move en 0x158, la copia del cursor de TacView repartida
   en 0x140/0x0C/0x1C) y la planificacion de las primeras sumas de vectores (el original redondea con `frsp`
   la z del ojo).
-- Funciones al 0 %: 16 -> 14.
+- `GameCamera::fn_80382A1C` (0x80382A1C, 1668 bytes; camara de la ciudad, parametros m6FC; por encima del
+  presupuesto: todo fuera de linea): escrita, NONMATCHING 64,6 %: solo difieren las dos rotaciones en y (el original
+  llama a `Matrix3x4::fn_8013A13C` como funcion que devuelve la matriz por valor; aqui `Matrix3x4::RotY_unk`,
+  porque `Matrix3x4 m; m.fn_8013A13C()` anade una llamada al constructor vacio) y dos registros de la mezcla
+  del pitch. Salen al 100 % sus copias weak `fn_8037F640` (cos) y `atn::Camera::SetUpVector`.
+- `fn_8038AEF0`: el umbral era 1.0e-6f y el original lee 0.0001 (0x808859DC): corregido (quita el aviso
+  1e-06 de poolcheck).
+- Funciones al 0 %: 16 -> 13. Al 100 %: 28 -> 41 de 90.
 
 ## Decisiones tomadas sin el usuario
 
@@ -38,21 +45,34 @@ Unidades: `game/GameCamera_unk`, `game/FinishCamera_unk`.
   `game/TacView.h`, otra familia) y vistas locales `TacViewTargetPos_unk` (posicion en 0x10 del objetivo del
   cursor) y `TacViewTask_unk` (`TacView::m15AC`, tarea con estado en 0x48): deuda de la regla 10, pendiente de
   llevar a `game/TacView.h`.
+- `include/atn/Camera_unk.h` (otra familia, 252 unidades): declaracion `void SetUpVector(const Vector3&);` sin
+  nombre de parametro (labelcheck igual); la definicion inline esta en `GameCamera_unk.cpp` (unico usuario).
+- Bloque de ayudantes `extern "C" inline` (fn_80011220, fn_8037F664, fn_801C3910, ...) subido delante de
+  fn_803830A8 para usarlo en fn_80382A1C; `fn_803830A0` tambien. `fn_805B81F0` declarada `extern "C"` como en
+  game/TownTask.cpp.
 - `.sdata` lbl_8087DD04..lbl_8087DD34 (extremos de las mezclas) quedan `extern "C"` como lbl_8087DCF0..DD00.
 - Etiquetas ambiguas de `.sdata2` que `pd.sh` no re-empareja, renombradas a mano con su direccion:
   `@15867`->`@16522` (0x808858E8), `@15896`->`@16551` (0x808858F8), `@15877`->`@16532` (0x80885954),
   `@15893`->`@16548` (0x80885910); tras fn_80390A88 otra vez (+732): `@17254` (0x808858E8), `@17283`
   (0x808858F8), `@17280` (0x80885910), `@17264` (0x80885954). En GameTask `@27395`/`@27396` (0x808857A8/AC).
+  Tras fn_80382A1C (+570): `@17824`, `@17853`, `@17850`, `@17834` en las mismas direcciones.
+- poolcheck de GameCamera_unk avisa ahora de la cadena '?fff>L' (0.9 seguido de 0.2 en nuestro .sdata2: orden del
+  pool por primer uso; la unidad no enlaza).
 
 ## Hallazgos
 
 - `x / 4.0f` y `x / 8.0f` dan `fmuls x, 0.25` con x primero; `0.25f * x` o `x * 0.25f` dan el orden contrario.
 - Un `unsigned char` comparado con `cmpwi` tras `lbz`: `(int)campo == 4`.
 - MWCC ordena las locales de la pila por tamano (CollResult_unk 0x50 y Mtx arriba aunque se declaren despues).
+- Un `Matrix3x4` temporal sin llamada al constructor sobre el que se llama `fn_8013A13C(angulo)`: es una funcion que
+  devuelve la matriz por valor (`static Matrix3x4 fn_8013A13C(float)`), no un metodo sobre una local.
+- `const atn::Vector3& head = c->fn_80178088();` mantiene la direccion del temporal en un registro salvado.
 - `cntlzw; srwi.; bne` en una condicion: inline que devuelve `x == 0` usada negada; con `!(x == 0)` directo sale
   `cmpwi` (no se consiguio en fn_80390A88).
 
 ## Pendientes
 
 - `fn_80390A88`: pila (ver arriba).
+- `atn::Matrix3x4::fn_8013A13C` deberia ser estatica y devolver la matriz (cambia todos sus llamadores, otra
+  familia): con eso fn_80382A1C llegaria casi al 100 %.
 - TacView.h: declarar `fn_805AA94C` como metodo y los campos de `TacViewTarget_unk` (0x10) y `m15AC` (cola A2).
