@@ -97,8 +97,20 @@ int GameLoadTask::vf0C() {
     return fn_803B87A8() == 0;
 }
 
-// NONMATCHING: 99.95% - in the "Debug Data" branch the file buffer is in r29 and the deleted save data in
-// r30 (swapped); declaring the buffer earlier or scoping the reset does not change it
+// inferred: loads the save data of a slot from the debug file (name invented)
+static inline void LoadDebugData_unk(GameLoadTask* self) {
+    char path[0x100];
+    int size;
+    int offset;
+    sprintf(path, "/test/savedata/savedata.dat");
+    ResetSaveData_unk();
+    char* buf = (char*)fn_8006BA8C(path, &size, 0);
+    GameSaveLoadBackgroundCommon::fn_803B83A4(path, &offset, self->m48);
+    memcpy(lbl_8087F460, buf + offset + sizeof(GameSaveSlot_unk), kSaveDataSize_unk);
+    atn::FileFreeBuffer(buf, false);
+    fn_803BE850(lbl_8087F460);
+}
+
 void GameLoadTask::vf10() {
     if (mD64 == 0) {
         return;
@@ -123,16 +135,7 @@ void GameLoadTask::vf10() {
                 mD68 = 4;
             } else if (mDB0 != 0) {
                 if (mDB4[m48].fn_803BEAB4()) {
-                    int offset;
-                    int size;
-                    char path[0x100];
-                    sprintf(path, "/test/savedata/savedata.dat");
-                    ResetSaveData_unk();
-                    char* buf = (char*)fn_8006BA8C(path, &size, 0);
-                    GameSaveLoadBackgroundCommon::fn_803B83A4(path, &offset, m48);
-                    memcpy(lbl_8087F460, buf + offset + sizeof(GameSaveSlot_unk), kSaveDataSize_unk);
-                    atn::FileFreeBuffer(buf, false);
-                    fn_803BE850(lbl_8087F460);
+                    LoadDebugData_unk(this);
                     mD68 = 4;
                 }
             } else if (mSlots[m48].fn_803BEAB4()) {

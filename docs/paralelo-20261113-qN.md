@@ -26,7 +26,8 @@ Unidades fuera de la ruta con una sola funcion por debajo del 100 % (lista en `/
   `game/CrossbowMenuTask` fn_801E9544 (con la inline el inventario sale bien pero se cruzan i/offset),
   `MP/D2AMpMenuSetRule` fn_804CECEC, `game/SelectMember` ctor (con la inline el ctor se inlinea en
   fn_8057162C), `atn/CsvBase_char_124_13_34` fn_802078C4.
-- `game/GameLoadTask` vf10 (99,96): sin cambio, ~6 intentos (buffer/puntero borrado en r29/r30 cruzados).
+- `game/GameLoadTask`: vf10 99,96 -> 100 %; **enlaza**. La rama "Debug Data" en una `static inline
+  LoadDebugData_unk(GameLoadTask*)` (lee `self->m48` dentro) con los locales en orden `path, size, offset`.
 
 ## Hallazgos
 
@@ -41,6 +42,8 @@ Unidades fuera de la ruta con una sola funcion por debajo del 100 % (lista en `/
   `#include` o partiendo una cabecera (Arms, func_enter_setting).
 - **Indice y desplazamiento de un bucle cruzados (r29/r30)**: sacar el bucle a una `static inline` que recibe el
   contenedor por referencia (TownTpcLoader, LemonBucket).
+- Dos locales de un bloque en registros salvados cruzados: sacar el bloque a una `static inline` que recibe `this`
+  y lee los miembros dentro (GameLoadTask vf10).
 - Copia debil de `scoped_ptr::get` tras la primera funcion que llama a `get()` explicito (no a `if (p)`) (Arms vf0C).
 
 ## Decisiones tomadas sin el usuario

@@ -1958,7 +1958,7 @@
   "classes": [
    "GameLoadTask"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "game/GameLoadBackground.cpp",
