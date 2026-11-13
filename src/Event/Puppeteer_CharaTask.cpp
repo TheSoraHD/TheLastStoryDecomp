@@ -892,6 +892,104 @@ extern "C" unsigned int fn_800119B8() {
     return 8;
 }
 
+// inferred: model of the actor (same code as fn_8001296C; inlined in fn_800119C0)
+inline atn::Model* Actor::GetModel_unk() {
+    switch (m20) {
+    case 7:
+    case 1:
+        if (m1C != 0) {
+            return GetChara_unk()->GetModel_unk();
+        }
+        return 0;
+    case 2:
+        return m1C != 0 ? ((GimmickCommon*)m1C)->vf38() : 0;
+    case 3:
+        if (m1C != 0) {
+            return ((Puppeteer<atn::Model>*)m1C)->m48;
+        }
+        return 0;
+    case 4:
+    case 6:
+        return 0;
+    }
+    return 0;
+}
+
+// inferred: plays the motion `motion` on the actor (Event::BehaviorGesture): `kind` picks the track of a
+// character (0 the base one, or the fifth when the motion is of type 4; 2 and 3 fixed), `seqp` is the
+// sequence holding the motion data (Event::Sequence)
+void Actor::fn_800119C0(int kind, int motion, int arg3, int frames, void* seqp, int track, int arg7, float speed,
+                        float frame) {
+    Sequence* seq = (Sequence*)seqp;
+    if (m20 == 7 || m20 == 1) {
+        atn::Model* model = GetModel_unk();
+        if ((unsigned int)(motion - 239) <= 79) {
+            MotionData* data = seq->mC4.Find_unk(motion);
+            if (data == 0) {
+                return;
+            }
+            model->fn_80097A9C(motion, &data->m18->mLoader);
+        }
+        int t; // inferred: track of the motion (a local: the case 1 keeps its compare)
+        switch (kind) {
+        case 0: {
+            atn::LH_Motion* m = static_cast<atn::LH_Motion*>(model->fn_80097D40(motion));
+            if (m != 0 && m->fn_804768D0() == 4) {
+                t = 4;
+            } else {
+                t = track;
+            }
+            break;
+        }
+        case 1:
+            t = track;
+            break;
+        case 2:
+            t = 3;
+            break;
+        case 3:
+            t = 4;
+            break;
+        default:
+            t = track;
+            break;
+        }
+        model->m34C = 1;
+        model->mTracks[t].m20 = 1.0f;
+        model->fn_80097C08(t, motion, arg3, 1, arg7, 0.0f, 0.1f);
+        model->mTracks[t].m0C = speed;
+        model->mTracks[t].m14 = frames == 0 ? 1.0f : 1.0f / frames;
+        model->mTracks[t].m08 = frame;
+    } else if (m20 == 2) {
+        if (motion < 239) {
+            return;
+        }
+        atn::Model* model = GetModel_unk();
+        model->fn_80097A9C(motion - 229, &seq->mC4.Find_unk(motion)->m18->mLoader);
+        model->m34C = 1;
+        model->mTracks[0].m20 = 1.0f;
+        model->fn_80097C08(0, motion - 229, arg3, 1, 1, 0.0f, 0.1f);
+        model->mTracks[0].m0C = speed;
+        model->mTracks[0].m14 = 1.0f / frames;
+        model->mTracks[0].m08 = frame;
+    } else if (m20 == 3) {
+        if (motion < 239) {
+            return;
+        }
+        int slot = motion - 239;
+        atn::Model* model = GetModel_unk();
+        model->fn_80097A9C(slot, &seq->mC4.Find_unk(motion)->m18->mLoader);
+        m58 = model->mTracks[0].m00;
+        model->m34C = 1;
+        model->mTracks[0].m20 = 1.0f;
+        model->fn_80097C08(0, slot, arg3, 1, arg7, 0.0f, 0.1f);
+        model->mTracks[0].m0C = speed;
+        model->mTracks[0].m14 = frames == 0 ? 1.0f : 1.0f / frames;
+        model->mTracks[0].m08 = frame;
+    }
+}
+
+
 // NONMATCHING: the original jumps to the end when the kind is not 7 or 1 (no null character) and
 // schedules the bool arguments differently; tried the check of the kind first and nested ifs
 // inferred: plays the facial motion `face` (the motions 239-318 are copied from the motion data of the
@@ -1370,6 +1468,30 @@ void Actor::fn_80013508(float* target, const atn::Vector3& pos, float speed) {
 void Actor::fn_80013530(float speed) {
     if (m20 == 7 || m20 == 1) {
         GetChara_unk()->mLook.fn_8012AC40(speed);
+    }
+}
+
+// inferred: restores the material colours of the model from the ones saved by Actor::vf08 (m158/m164 copied
+// to m170/m17C) and sets them back on the materials (ActionActorMaterial::vf0C)
+// NONMATCHING: 97.7% - the inlined push_back of std::vector<ColorF_unk> (std/vector.h: the original moves the
+// old elements with a counted loop) and the stack slots of the two colours (reversed)
+void Actor::fn_80013558() {
+    m170.clear();
+    m17C.clear();
+    atn::Model::Res_unk* res = ((Puppeteer<CharaTask>*)m1C)->GetTarget_unk()->GetModel_unk()->GetRes_unk();
+    if (res != 0) {
+        for (int i = 0; i < res->m30; i++) {
+            m170.push_back(m158[i]);
+            m17C.push_back(m164[i]);
+            unsigned int hash = fn_800DC6B4(res->m50[i]);
+            Material_unk* mat = ((Puppeteer<CharaTask>*)m1C)->GetTarget_unk()->GetModel_unk()->fn_800929C0(hash);
+            GXColor c1 = mat->m1C;
+            ColorF_unk ambient(c1);
+            GXColor c2 = mat->m20;
+            ColorF_unk specular(c2);
+            ((Puppeteer<CharaTask>*)m1C)->GetTarget_unk()->GetModel_unk()->fn_80094958(res->m50[i], &m158[i],
+                                                                                     &ambient, &specular);
+        }
     }
 }
 
