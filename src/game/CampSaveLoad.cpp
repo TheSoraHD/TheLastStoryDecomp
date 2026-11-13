@@ -381,6 +381,93 @@ void CampSaveLoad::vf10() {
     }
 }
 
+extern "C" int fn_800A55D4(void* pad, int port, int button); // inferred: button held
+// inferred: button held (name invented)
+inline int IsHeld_unk(int button) {
+    return lbl_8087EF70 != 0 ? fn_800A55D4(lbl_8087EF70, 0, button) : 0;
+}
+extern "C" void fn_801FEDBC(void* layout, unsigned int hash, int index, float value);
+// inferred: name invented (as SetLayoutValue_unk)
+inline void SetLayoutValue2_unk(void* layout, const char* name, int index, float value) {
+    fn_801FEDBC(layout, fn_800DC6B4(name), index, value);
+}
+extern "C" void* fn_801FEC74(void* layout, const char* name); // inferred: finds a pane
+// inferred: text of a pane (returned by value)
+extern "C" std::basic_string<wchar_t> fn_800A4450(void* pane, int a, int b);
+extern "C" void* lbl_8087EEC8; // inferred: font manager
+extern "C" float fn_8006EF48(void* font, float size, const wchar_t* text, float f2, int a, int b); // text width
+
+// inferred: extra draw parameters of a pane (the color at 0x08; names invented)
+struct CampDrawWork_unk {
+    float m00;
+    float m04;
+    atn::Color mColor;
+};
+
+// NONMATCHING: 98.83% - registers of the entry loop and of the two colors (ToU32 ORs in another order) and the
+// string pool
+// inferred: draws the story log of the selected slot, scrolling in the "StoryLog" pane
+void CampSaveLoad::vf14() {
+    fn_80119F0C();
+    fn_8011A4D0();
+    if (m60 != 0) {
+        if (m13C == 4 && m170 != 2) {
+            m60->mSpeed = 2.0f;
+        } else {
+            m60->mSpeed = -2.0f;
+        }
+    }
+    m4C8 += IsHeld_unk(9) ? 3.0f : 1.5f;
+    float scroll = m4C8 < 50.0f ? 0.0f : m4C8 - 50.0f;
+    GameSaveSlot_unk* save = (GameSaveSlot_unk*)GetSlot_unk(m128);
+    const wchar_t* text;
+    bool used = (bool)save->fn_803BEAB4();
+    if (used) {
+        used = !fn_803BEB54((SaveSlot_unk*)save);
+    }
+    if (used) {
+        text = 0;
+        int act = save->m74;
+        int chapter = save->m7C;
+        for (unsigned int i = 0; i < mEntries.size(); i++) {
+            CampSaveLoadEntry_unk& entry = mEntries[i];
+            if (entry.m00 <= act && act < entry.m04) {
+                if (entry.m08 <= 0 && text == 0) {
+                    text = entry.m0C.c_str();
+                } else if (entry.m08 == chapter) {
+                    text = entry.m0C.c_str();
+                }
+            }
+        }
+    } else {
+        text = 0;
+    }
+    if (text != 0) {
+        atn::D2A_DrawRect rect;
+        atn::Color color;
+        atn::D2A_DrawExtra extra;
+        CampDrawWork_unk work;
+        atn::D2A_Task* bar = m5C;
+        bar->GetDrawParams_unk(fn_800DC6B4("StoryLog"), &rect, &color, &extra, &work);
+        float scale = 0.05f;
+        float width = fn_8006EF48(lbl_8087EEC8, rect.w, fn_800A4450(fn_801FEC74(&m5C->mData.m10, "logText"), 0, 0).data(),
+                                  0.0f, 1, 1);
+        SetLayoutValue2_unk(&m5C->mData.m10, "logColor", 0, 0.0f);
+        unsigned int color2 = work.mColor.ToU32();
+        lbl_8087EEB0->fn_80061AE4(text, color.ToU32(), 1, 1, 0, 1, color2, rect.x - scroll, rect.y, rect.z,
+                                  rect.w, rect.h, 0.0f, work.m00, work.m04, rect.x - width * scale, width, scale);
+        if (scroll > fn_8006EF48(lbl_8087EEC8, rect.w, text, 0.0f, 1, 1)) {
+            m4C8 = 0.0f;
+        }
+    } else {
+        SetLayoutValue2_unk(&m5C->mData.m10, "logColor", 0, 0.0f);
+    }
+    if (lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->fn_80370174(0x391) > 0) {
+        lbl_8087EEB0->fn_80060D58(0.0f, 0.0f, 100.0f, (float)lbl_8087EEE0->mWidth, (float)lbl_8087EEE0->mHeight,
+                                  0xFF000000);
+    }
+}
+
 void CampSaveLoad::fn_80119030(int state, int arg) {
     m140 = m13C;
     m13C = state;
@@ -679,11 +766,6 @@ void CampSaveLoad::fn_8011999C() {
 
 MP::SaveElemB_unk::~SaveElemB_unk() {}
 
-extern "C" void* fn_801FEC74(void* layout, const char* name); // inferred: finds a pane
-// inferred: text of a pane (returned by value)
-extern "C" std::basic_string<wchar_t> fn_800A4450(void* pane, int a, int b);
-extern "C" void* lbl_8087EEC8; // inferred: font manager
-extern "C" float fn_8006EF48(void* font, float size, const wchar_t* text, float f2, int a, int b); // text width
 extern "C" void fn_801FED24(void* layout, unsigned int hash, int index, float value);
 extern "C" int fn_8006BA30(); // inferred: language of the game
 extern "C" int fn_800DD3FC(wchar_t* s, const wchar_t* format, ...); // inferred: swprintf

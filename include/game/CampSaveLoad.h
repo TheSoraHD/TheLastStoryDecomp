@@ -74,6 +74,7 @@ public:
     void fn_801191A8(); // inferred: state 1 (slot selection)
     void fn_8011999C(); // inferred: state 5
     void fn_80119F0C(); // inferred: info bar
+    void fn_8011A4D0(); // inferred: slot frames and cursor
     virtual void vf14(); // 0x801189B4
     virtual void vf1C(); // 0x801191A0
     virtual void vf20(); // 0x801191A4

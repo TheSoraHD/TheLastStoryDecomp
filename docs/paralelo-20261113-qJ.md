@@ -5,9 +5,9 @@
 - `game/RouteWalker_unk` 6 -> 2 al 0 %. Al 100 %: `fn_80128CF8` (meta a la vista), `fn_80129670` (segmento entre
   dos puntos). Escritas: `fn_80128090` (97,05 %, replanifica el modo actual), `fn_80129144` (98,97 %, va directo a
   la meta). Quedan `fn_801255C8` (3 KB) y `fn_80126214` (6 KB).
-- `game/CampSaveLoad` 8 -> 2 al 0 %. Al 100 %: `vf10` (0x801185E0). Escritas: `vf0C` (92,83 %), `fn_8011B018`
+- `game/CampSaveLoad` 8 -> 1 al 0 %. Al 100 %: `vf10` (0x801185E0). Escritas: `vf0C` (92,83 %), `fn_8011B018`
   (99,36 %), `fn_801191A8` (99,98 %, estado 1, solo pool), `fn_8011999C` (97,77 %, estado 5), `fn_80119F0C`
-  (99,08 %, barra de informacion). Sube `fn_8011B8D4` 95,79 -> 99,93 % (pool de cadenas).
+  (99,43 %, barra de informacion), `vf14` (98,83 %, registro de la historia). Sube `fn_8011B8D4` 95,79 -> 99,93 % (pool de cadenas).
 
 ## NONMATCHING
 
@@ -23,7 +23,9 @@
 - `CampSaveLoad::fn_8011999C` 97,77 %: un registro salvado de mas en los paneles de `m64` y texto/layout del
   segundo aviso cruzados. Los avisos repetidos no son una inline (los temporales de `SoundRef` estan arriba en la
   pila, en el orden del fuente).
-- `CampSaveLoad::fn_80119F0C` 99,08 %: pool y registros r27/r28 del texto de "ampm".
+- `CampSaveLoad::fn_80119F0C` 99,43 %: pool y registros r27/r28 del texto de "ampm".
+- `CampSaveLoad::vf14` 98,83 %: registros del bucle de entradas y de los dos colores (`atn::Color::ToU32` hace los
+  OR en otro orden; no se toca la cabecera compartida) y pool.
 
 ## Decisiones tomadas sin el usuario
 
