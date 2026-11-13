@@ -11,12 +11,13 @@ Inicio: 2026-11-13 03:17 CET. Tope 05:47.
     `Actor::fn_80012294` (para una pista) 97,6 %: eran `extern "C"` con `self` en ActionActorPosition y Dialog;
     ahora miembros de `Event::Actor` (declarados sin nombres de parametro) y renombrados en `symbols.txt`.
 
-- `Event/ActionActorPosition`: 13 -> 5 (32 -> 33 al 100 %).
+- `Event/ActionActorPosition`: 13 -> 4 (32 -> 33 al 100 %).
   - `ActionActorSetting::fn_80557E00` (nodo de pelo del tipo de pelo, casos que caen) 99,4 %,
     `ActionActorSetting::fn_80557F84` (activa los huesos fisicos de pelo/pendientes/faldon/pecho segun el modelo
     "pc101".."pc107") 99,1 %, `ActionActorSetting::vf0C` 99,96 %, `ActionActorSetting::vf08` 99,4 %.
   - `ActionActorNode::vf0C` 98,6 %, `ActionActorHeading::vf0C` 98,7 %, `ActionActorEyes::vf0C` 96,5 %,
-    `ActionActorMaterial::vf08` (fundido del color de un material) 99,4 %.
+    `ActionActorMaterial::vf08` (fundido del color de un material) 99,4 %, `ActionActorMaterial::vf0C` 95,4 %
+    (llama a `Actor::fn_80013558`, ahora miembro declarado en `Event/Actor.h` y renombrado en `symbols.txt`).
     Los dos `fn_` pasan a miembros de `ActionActorSetting` (declarados sin nombres en
     `Event/ActionProcessors_unk.h`, 4 unidades) y renombrados en `symbols.txt`.
 

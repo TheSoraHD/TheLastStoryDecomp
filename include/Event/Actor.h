@@ -118,6 +118,7 @@ struct Actor : public CommonData {
     void fn_80011E98(int, Sequence*, int, int, int, float); // inferred: facial motion (ActionActorFacial)
     void fn_80012054(int, int, int, float, float);         // inferred: motion of a slot (Event::Dialog)
     void fn_80012294(int, int, int);                       // inferred: stops a track (ActionActorMotion)
+    void fn_80013558(); // inferred: saves the material colours of the model (ActionActorMaterial::vf0C)
     void fn_8001011C(const atn::Vector3& pos); // inferred: moves the actor to `pos`
     void fn_80010490(const atn::Vector3& rot); // inferred: sets the rotation (radians)
     void fn_80011420(float yaw);               // inferred: sets the rotation around y

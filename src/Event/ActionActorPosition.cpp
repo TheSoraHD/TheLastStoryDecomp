@@ -157,6 +157,7 @@ extern "C" int fn_80223EB8(Action* arg);              // inferred: arg->m18 (len
 extern "C" Manager* fn_8000DB1C();              // inferred: returns lbl_8087F540
 extern "C" void PSMTXTranspose(const Mtx src, Mtx dst);
 extern "C" int strcmp(const char* a, const char* b);
+extern "C" unsigned int fn_800DC6B4(const char* s); // inferred: string hash
 extern "C" std::string fn_8006B174(const std::string& path); // inferred: file name of a path
 
 // inferred: step of `cur` towards `goal` in `frames` frames (name invented)
@@ -1488,6 +1489,97 @@ int ActionActorMaterial::vf08(Action* arg) {
     }
     return 0;
 }
+// NONMATCHING: 95.4% - stack slots of the colours (the frame of the original is 0x10 bytes larger) and saved
+// registers permuted
+// inferred: material change of an actor; phase 0 sets the colour of the action at once (without fades),
+// phases 3 and 4 (end) restore the colour saved at the start (parameter 6) or at the load of the actor
+// (parameter 7), or save the current one
+int ActionActorMaterial::vf0C(Action* arg, int phase) {
+    switch (phase) {
+    case 0: {
+        int length = arg->m14 - arg->m10;
+        int fadeIn = arg->m18;
+        ActionOwner_unk* section = arg->fn_805381A0();
+        EventManager_unk* manager = arg->fn_805381C8();
+        Actor* actor = manager->FindActor_unk(section->m10);
+        atn::Model* model = actor->fn_8001296C();
+        atn::Model::Res_unk* res = model->GetRes_unk();
+        int index = model->fn_8009290C(arg->GetParam_unk(0)->m04.i);
+        if (arg->m18 > 0) {
+            int curve = arg->GetParam_unk(8)->m04.i;
+            actor->m140 = lbl_8087F540->fn_8048B3B8(curve);
+        }
+        if (actor->m188 != 0) {
+            actor->fn_80013558();
+            actor->m188 = 0;
+        }
+        if (index >= 0) {
+            const char* const* name = &res->m50[index];
+            Material_unk* material = model->fn_80094B6C(*name);
+            if (length == 0 || fadeIn == 0) {
+                atn::Color target;
+                target.a = arg->GetParam_unk(2)->m04.f;
+                target.r = arg->GetParam_unk(3)->m04.f;
+                target.g = arg->GetParam_unk(4)->m04.f;
+                target.b = arg->GetParam_unk(5)->m04.f;
+                GXColor ambientGX = material->m1C;
+                ColorF_unk ambient(ambientGX);
+                GXColor thirdGX = material->m20;
+                ColorF_unk third(thirdGX);
+                model->fn_80094958(*name, &target, &third, &ambient);
+            }
+        }
+        break;
+    }
+    case 3:
+    case 4: {
+        ActionOwner_unk* section = arg->fn_805381A0();
+        EventManager_unk* manager = arg->fn_805381C8();
+        Actor* actor = manager->FindActor_unk(section->m10);
+        atn::Model* model = actor->fn_8001296C();
+        atn::Model::Res_unk* res = model->GetRes_unk();
+        int index = model->fn_8009290C(arg->GetParam_unk(0)->m04.i);
+        const char* const* name = &res->m50[index];
+        Material_unk* material = model->fn_80094B6C(*name);
+        if (index < 0) {
+            break;
+        }
+        int done = 0;
+        if (arg->GetParam_unk(6)->m04.i != 0) {
+            ColorF_unk saved = actor->m170[index];
+            GXColor ambientGX = material->m1C;
+            ColorF_unk ambient(ambientGX);
+            GXColor thirdGX = material->m20;
+            ColorF_unk third(thirdGX);
+            model->fn_80094958(*name, &saved, &third, &ambient);
+            model->fn_80093D98(*name, actor->m17C[index]);
+            done = 1;
+        }
+        if (arg->GetParam_unk(7)->m04.i != 0) {
+            ColorF_unk loaded = actor->m158[index];
+            GXColor ambientGX = material->m1C;
+            ColorF_unk ambient(ambientGX);
+            GXColor thirdGX = material->m20;
+            ColorF_unk third(thirdGX);
+            model->fn_80094958(*name, &loaded, &third, &ambient);
+            model->fn_80093D98(*name, actor->m164[index]);
+            actor->m170[index] = loaded;
+            atn::Color color(loaded.r, loaded.g, loaded.b, loaded.a);
+            actor->m17C[index] = color.ToU32();
+            done = 1;
+        }
+        if (done == 0) {
+            ColorF_unk diffuse(fn_8000DD98(model->fn_80094B6C(*name)));
+            int shown = model->fn_80093E90(fn_800DC6B4(*name));
+            actor->m170[index] = diffuse;
+            actor->m17C[index] = shown;
+        }
+        break;
+    }
+    }
+    return 0;
+}
+
 
 
 int ActionActorWind::vf08(Action* arg) {
