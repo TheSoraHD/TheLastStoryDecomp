@@ -32,6 +32,10 @@ public:
     }
 
 protected:
+    // inferred: inlined in the basic_stringbuf constructor (0x80393BEC): null areas, global locale
+    // (defined in std/istream.h)
+    basic_streambuf();
+
     virtual void imbue(const locale& loc);
     virtual basic_streambuf* setbuf(char_type* s, streamsize n);
     virtual pos_type seekoff(off_type off, ios_base::seekdir way, ios_base::openmode which);
