@@ -1151,10 +1151,11 @@ inline void StartBlink_unk(CharaTask* chara, Action* arg, int length) {
     }
 }
 
-// NONMATCHING: the phase 3 keeps the saved node state in r30 (the register of the section) and ours in r28;
-// tried the declaration orders and the locals shared by the phases
+// inferred: the hash and the state of the node of kind 6 are the same locals in phases 0 and 3 (registers)
 // inferred: settings of an actor (parameter 0: kind); phase 0 applies them, phases 3 and 5 undo some
 int ActionActorSetting::vf0C(Action* arg, int phase) {
+    unsigned int hash;
+    int show;
     switch (phase) {
     case 0: {
         ActionOwner_unk* section = arg->fn_805381A0();
@@ -1198,8 +1199,8 @@ int ActionActorSetting::vf0C(Action* arg, int phase) {
             actor->fn_80012638(arg->GetParam_unk(1)->m04.i);
             break;
         case 6: {
-            unsigned int hash = arg->GetParam_unk(1)->m04.i;
-            int show = arg->GetParam_unk(2)->m04.i;
+            hash = arg->GetParam_unk(1)->m04.i;
+            show = arg->GetParam_unk(2)->m04.i;
             atn::Model* model = actor->fn_8001296C();
             if (model != 0) {
                 arg->m38 = model->fn_80093D28(hash);
@@ -1269,17 +1270,16 @@ int ActionActorSetting::vf0C(Action* arg, int phase) {
                 chara->m1188.m78 = 0;
             }
         } else if (param->m04.i == 6) {
-            int prev;
-            unsigned int hash = arg->GetParam_unk(1)->m04.i;
-            prev = arg->m38;
+            hash = arg->GetParam_unk(1)->m04.i;
+            show = arg->m38;
             atn::Model* model = actor->fn_8001296C();
             if (model == 0) {
                 break;
             }
-            if (prev == -1) {
+            if (show == -1) {
                 model->fn_80093C20(hash);
             } else {
-                model->fn_800937E8(hash, prev != 0);
+                model->fn_800937E8(hash, show != 0);
             }
         } else if (param->m04.i == 9) {
             CharaTask* chara = actor->fn_800128FC();

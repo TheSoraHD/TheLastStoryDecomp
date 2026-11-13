@@ -11,10 +11,10 @@ Inicio: 2026-11-13 03:17 CET. Tope 05:47.
     `Actor::fn_80012294` (para una pista) 97,6 %: eran `extern "C"` con `self` en ActionActorPosition y Dialog;
     ahora miembros de `Event::Actor` (declarados sin nombres de parametro) y renombrados en `symbols.txt`.
 
-- `Event/ActionActorPosition`: 13 -> 4 (32 -> 33 al 100 %).
+- `Event/ActionActorPosition`: 13 -> 4 (32 -> 34 al 100 %; `ActionActorSetting::vf0C` al 100 %).
   - `ActionActorSetting::fn_80557E00` (nodo de pelo del tipo de pelo, casos que caen) 99,4 %,
     `ActionActorSetting::fn_80557F84` (activa los huesos fisicos de pelo/pendientes/faldon/pecho segun el modelo
-    "pc101".."pc107") 99,1 %, `ActionActorSetting::vf0C` 99,96 %, `ActionActorSetting::vf08` 99,4 %.
+    "pc101".."pc107") 99,1 %, `ActionActorSetting::vf0C` 100 %, `ActionActorSetting::vf08` 99,4 %.
   - `ActionActorNode::vf0C` 98,6 %, `ActionActorHeading::vf0C` 98,7 %, `ActionActorEyes::vf0C` 96,5 %,
     `ActionActorMaterial::vf08` (fundido del color de un material) 99,4 %, `ActionActorMaterial::vf0C` 95,4 %
     (llama a `Actor::fn_80013558`, ahora miembro declarado en `Event/Actor.h` y renombrado en `symbols.txt`).
@@ -34,8 +34,6 @@ Inicio: 2026-11-13 03:17 CET. Tope 05:47.
   van antes en el original: las usan funciones de Eyes/Pose/Heading/Node sin escribir).
 - `fn_80557F84`: el original recorre los huesos desde la direccion del contador (chara + 0x434, como un
   `FixedArray_unk` de contador y array: `atn::Model::m384/m388` serian un solo miembro; cabecera de otra cola).
-- `ActionActorSetting::vf0C` 99,96 %: la fase 3 guarda el estado del nodo en r30 (registro de la seccion), el
-  nuestro en r28.
 - `ActionActorSetting::vf08` 99,4 %: registros float (la constante de las conversiones en f6; clamps del tipo 9).
 
 - `ActionActorNode::vf0C` 98,6 %: el original relee el tamano de la lista de actores en cada busqueda de la
@@ -79,6 +77,9 @@ Inicio: 2026-11-13 03:17 CET. Tope 05:47.
 - Dos lecturas de `m20` sin fusionar en `fn_8000EE8C`: la de `== 6` pasa por el accesor `IsState6_unk()`.
 - Un `switch` interior cuyo caso 0 cae al `return 0` final comun (rama nula compartida con default): escribirlo
   como inline con `return` por caso (`GetTrackMode_unk`).
+
+- Dos fases de un `switch` con el mismo uso (hash y estado de un nodo) comparten los registros del original si
+  las variables se declaran una vez al principio de la funcion (`ActionActorSetting::vf0C` 99,96 -> 100 %).
 
 ## Pendientes
 
