@@ -10,6 +10,10 @@ Inicio: 2026-11-13 03:12 CET. Tope 05:42.
   (deja de ser borrador). 40 -> 42 funciones al 100 %. Las paginas que quedan en 99,x % fallan solo por los
   desplazamientos de `@stringBase0` (ver NONMATCHING).
 
+- `Event/Node`: 2 -> 0. `Action::fn_805377F0` (pone la accion al comando `id`: atributos por defecto y curva
+  (0,1)-(1,1); 94,2 %) y `Action::fn_805384CC` (posicion relativa al nodo de un actor, girada por su yaw; 99,37 %).
+  `fn_805382BC`/`fn_805384CC` llaman ahora a `Actor::fn_80011964` como miembro (antes `extern "C"`).
+
 ## NONMATCHING
 
 - `Event/DebugInfo_unk`: falta en el pool el `""` que el original pone justo tras `"vector length error"`
@@ -17,6 +21,11 @@ Inicio: 2026-11-13 03:12 CET. Tope 05:42.
   funcion anterior lo referencia). Todas las paginas quedan un byte desplazadas. Pagina 0: ademas los huecos de
   pila de las dos etiquetas de iterador de los `+=` de cadena (probado `append`, una inline intermedia, una
   local). Pagina 1: registros de los tres booleanos de los canales de sonido (5 ordenes de declaracion).
+
+- `Action::fn_805377F0` 94,2 %: el `resize` inline de los atributos (plantilla de `std/vector.h`): el original
+  rellena con `{0x28, 0}` (constructor de `ActionParam_unk`; puesto en `Event/Action.h` da 92,1 %, no se deja:
+  16 unidades incluyen la cabecera) y sus temporales de pila ocupan 8 bytes menos.
+- `Action::fn_805384CC` 99,37 %: orden del store de `r.z` dentro de `Vector3::RotZ_unk` (`math/Vec.h`).
 
 ## Decisiones tomadas sin el usuario
 
@@ -28,6 +37,9 @@ Inicio: 2026-11-13 03:12 CET. Tope 05:42.
 - Nombres de estado y de tipo de la secuencia como inline con enlace externo (`GetSequenceStateName_unk`,
   `GetSequenceTypeName_unk`): sus literales van a `.data` en orden inverso, como en el original.
 
+- `Event/Node.cpp`: fuera la declaracion `extern "C" float fn_80011964(Event::Actor*)` (regla 10: es un
+  metodo de `Actor`, ya declarado en `Event/Actor.h`).
+
 ## Hallazgos
 
 - Funcion que devuelve por valor una copia de un `std::string` miembro: con el parametro `const T*` sale el
@@ -35,4 +47,10 @@ Inicio: 2026-11-13 03:12 CET. Tope 05:42.
 - Pagina 1: el original evalua los argumentos de `sprintf` como llamadas (getters inline: `GetCurCam_unk`,
   `GetWaitMode_unk`, `GetStartCut_unk`): con miembros directos salen cargados antes.
 
+- Direccion de un nodo a angulos con `Vector3::ToRotationZ_unk()` (la variante que lee z en una local): el
+  original redondea z una sola vez (`fn_805384CC`).
+
 ## Pendientes
+
+- `ActionParam_unk` probablemente tiene un constructor `m00(0x28), m04(0)` (resize de `fn_805377F0`); ponerlo
+  en `Event/Action.h` exige revisar las 16 unidades que la incluyen.
