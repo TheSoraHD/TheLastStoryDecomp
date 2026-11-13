@@ -2113,7 +2113,7 @@
   "classes": [
    "gmk::MeetingSpot"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "gmk/SwingObject.cpp",

@@ -29,7 +29,9 @@ public:
     virtual int vf40(GimmickMsg_unk* msg);
     virtual int vf60();
 
-    inline void PlayMotion_unk(int i, int motion, int loop, float blend = 0.0f); // inferred
+    // inferred: not inline; -inline auto expands it in fn_803FD328 and the linker strips the
+    // out-of-line copy (its 1.0f/0.1f stay in .sdata2 before the 6400.0f of fn_803FD0A0)
+    void PlayMotion_unk(int i, int motion, int loop, float blend = 0.0f);
     inline bool MatchId_unk(CharaTask* chara); // inferred
     CharaTask* fn_803FD0A0(CharaTask* other); // inferred: picks the farthest NPC within 80 units
     void fn_803FD328(int state);              // inferred: sets the state (10 releases the characters)

@@ -26,9 +26,15 @@ extern "C" float lbl_8087DA54;
 
 namespace chr {
 
-// NONMATCHING: 98.8% - the case 0x25/0x26 schedules the motion selection before the call arguments, and
-// the zero stored to mFB0/mFB4 gets r6 instead of r4. Tried: ternary/if-else/decrement for the motion
-// id, a local for the motion, case order, a zero local and swapped addition for mFB4.
+// inferred: motion ids of the shot (names invented); enum constants keep the ternary below as a
+// branch (int constants differing by one become branchless arithmetic)
+enum {
+    kShootMotion17D_unk = 0x17D,
+    kShootMotion17E_unk = 0x17E,
+};
+
+// NONMATCHING: 99.90% - the zero stored to mFB0/mFB4 gets r6 instead of r4 (so mFB4/m48 take
+// r4/r0 instead of r0/r3). Tried: a zero local, swapped addition, the charge block in a static inline.
 ControlShoot::ControlShoot(Chara_unk* chara, int id, const atn::Vector3& from, const atn::Vector3& to)
     : ControlBase(chara), mData(fn_80219E6C(id)), mFrom(from), mTo(to), m28(1) {
     mChara->m560 = 0x62;
@@ -42,13 +48,7 @@ ControlShoot::ControlShoot(Chara_unk* chara, int id, const atn::Vector3& from, c
     switch (mMotion) {
     case 0x25:
     case 0x26:
-        {
-            int id = 0x17E;
-            if (mMotion == 0x25) {
-                id = 0x17D;
-            }
-            motion->fn_80097C08(0, id, 0, 1, 1, 1.0f, 0.1f);
-        }
+        motion->fn_80097C08(0, mMotion == 0x25 ? kShootMotion17D_unk : kShootMotion17E_unk, 0, 1, 1, 1.0f, 0.1f);
         if (flag) {
             atn::Vector3 ofs(0.0f, 0.0f, -2.0f);
             Mtx m;
@@ -154,7 +154,7 @@ ControlShoot::ControlShoot(Chara_unk* chara, int id, const atn::Vector3& from, c
         CrossbowMenuTask::sInstance->fn_801EA0B4();
     }
     mChara->mFB0 = 0;
-    mChara->mFB4 += mData->m48;
+    mChara->mFB4 = mData->m48 + mChara->mFB4;
     if (mChara->mFB4 >= mChara->mStatus.mParamB.m20) {
         mChara->mFB0 = rate * mChara->mStatus.mParamB.m24;
         mChara->mFB4 = 0;
