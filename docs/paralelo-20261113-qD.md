@@ -16,6 +16,10 @@ Inicio: 2026-11-13 01:18 CET. Rama `agent-D`. Unidades: `atn/EffectSystem_unk`, 
   `numpunct::id`). NONMATCHING 55 %: `numpunct::do_truename/do_falsename/do_grouping` (copia corta del string).
   `fn_8023A680` llama a `atn::LoadHandle::fn_80473F18` como miembro (99,03 -> 99,06 %).
 
+- `atn/EffectManager` (commit 4): escrita NONMATCHING `basic_ostream<char>::operator<<(int)` (0x8023BA10, 27 %:
+  el original inlinea el ctor y el dtor del sentry; aqui se llaman, ver docs/mwcc-blockers.md del sentry). 0 % 16 -> 15.
+  `std::locale::imp` pasa a llamarse `std::__locale_imp` (nombre del DOL, `replace__Q23std12__locale_imp...`).
+
 ## Decisiones tomadas sin el usuario
 
 - Empece por fn_8022DD1C y no por EffectManager: la cola de EffectManager son 26 instanciaciones de MSL
@@ -61,6 +65,10 @@ Inicio: 2026-11-13 01:18 CET. Rama `agent-D`. Unidades: `atn/EffectSystem_unk`, 
   fuente (c2 antes que c1).
 
 ## Pendientes
+
+- Orden de las copias debiles de EffectManager (ordercheck no las mira): con `operator<<` el dtor de
+  `locale::facet` sale detras de el (en el DOL va delante), y salen fuera de linea `~locale` y el dtor del
+  `__shared_ptr_base_unk` (el original los inlinea).
 
 - EffectManager: MSL de `ostream << int` (fn_8023BA10) y `num_put`/`numpunct` (ver notas qF2).
 - `atn/EffectDesc_unk.cpp`: usar `atn/EffectVertex_unk.h`.

@@ -9,6 +9,8 @@
 #include "std/string.h"
 #include "std/locale.h"
 #include "std/streambuf.h"
+#include "std/ostream.h"
+#include "std/vector.h"
 
 namespace std {
 
@@ -27,17 +29,46 @@ protected:
 class locale::id {
 public:
     id() {}
+    size_t get() {
+        if (id_ == 0) {
+            id_ = ++__id_count_;
+        }
+        return id_;
+    }
 
     size_t id_;
     static size_t __id_count_;
 };
 
-// inferred: output iterator over a stream buffer (one word)
+// inferred: index of the facets of a locale; replace (0x80691xxx, MSL locale.cpp) installs a facet in a slot
+struct __locale_imp {
+    void replace(locale::facet* f, size_t id);
+
+    vector<locale::facet*> facets_; // 0x00
+};
+
+// inferred: output iterator over a stream buffer (one word); a null buffer is a failed iterator
 template <class C, class T = char_traits<C> >
 class ostreambuf_iterator {
 public:
+    ostreambuf_iterator(basic_ostream<C, T>& s) : sbuf_(s.rdbuf()) {}
+    bool failed() const { return sbuf_ == 0; }
+
     basic_streambuf<C, T>* sbuf_;
 };
+
+// inferred: the facet of a locale, created and installed on first use
+template <class Facet>
+inline const Facet& use_facet(const locale& loc) {
+    size_t i = Facet::id.get();
+    __locale_imp* imp = loc.mImp.mPtr;
+    const locale::facet* f;
+    if (i >= imp->facets_.size() || (f = imp->facets_[i]) == 0) {
+        imp->replace(new Facet, Facet::id.get());
+        f = loc.mImp.mPtr->facets_[i];
+    }
+    return *(const Facet*)f;
+}
 
 template <class C, class O = ostreambuf_iterator<C> >
 class num_put : public locale::facet {
@@ -46,6 +77,10 @@ public:
     typedef O iter_type;
 
     explicit num_put(size_t refs = 0) : locale::facet(refs) {}
+    iter_type put(iter_type out, ios_base& str, char_type fill, long v) const { return do_put(out, str, fill, v); }
+    iter_type put(iter_type out, ios_base& str, char_type fill, unsigned long v) const {
+        return do_put(out, str, fill, v);
+    }
 
     static locale::id id;
 
@@ -145,6 +180,33 @@ typename numpunct<C>::char_type numpunct<C>::do_thousands_sep() const {
 }
 template <class C>
 numpunct<C>::~numpunct() {}
+
+// inferred: the basefield flags of ios_base (only used here; dec 0x02, hex 0x08, oct 0x40)
+enum { __basefield_unk = 0x4A, __hex_unk = 0x08, __oct_unk = 0x40 };
+
+// inferred: integer output (weak copy 0x8023BA10): octal and hexadecimal go through the unsigned long put;
+// a failed put sets badbit and failbit
+// NONMATCHING: 27% - the original inlines the sentry constructor and destructor (and the flush of the tied stream
+// down to an out of line sentry), here they are called (std/ostream.h, defined in atn/WordWrap_unk)
+template <class C, class T>
+basic_ostream<C, T>& basic_ostream<C, T>::operator<<(int n) {
+    sentry s(*this);
+    if (s.mOk) {
+        typedef num_put<C, ostreambuf_iterator<C, T> > facet_type;
+        const facet_type& np = use_facet<facet_type>(this->getloc());
+        bool failed;
+        unsigned short base = this->flags() & __basefield_unk;
+        if (base == __oct_unk || base == __hex_unk) {
+            failed = np.put(ostreambuf_iterator<C, T>(*this), *this, this->m38[0], (unsigned long)n).failed();
+        } else {
+            failed = np.put(ostreambuf_iterator<C, T>(*this), *this, this->m38[0], (long)n).failed();
+        }
+        if (failed) {
+            this->clear((ios_base::iostate)(this->mState | ios_base::badbit | ios_base::failbit));
+        }
+    }
+    return *this;
+}
 
 // inferred: a narrow literal as a string of the character type (weak copy 0x80243514)
 inline string __literal(const char* s, char) {

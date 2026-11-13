@@ -542,6 +542,7 @@ int EffectManager::fn_8023B724(EffectEvent_unk* event) {
 // inferred: weak copies of the MSL numeric facets used by the stream output of this file (its code that
 // used them is not in the DOL), in the order of the DOL
 namespace std {
+template basic_ostream<char>& basic_ostream<char>::operator<<(int n);
 template num_put<char>::~num_put();
 template num_put<char>::iter_type num_put<char>::do_put(iter_type out, ios_base& str, char fill, double v) const;
 template numpunct<char>::string_type numpunct<char>::truename() const;
