@@ -921,6 +921,49 @@ void Em316LaserSphere::fn_8031A484() {
     fn_800EB7A0();
 }
 
+// inferred: dodges the attack of `chara` (state 10, then 7): turns the line from the target by sAngle_unk to the
+// side away from the aim of `chara` and moves there
+// NONMATCHING: 30% - the original inlines the tiny members and two of the four "spine1" positions and calls
+// ToRotation_unk and fn_80318648 (docs/inlining.md R5: its body is an inline over the budget); here it is over the
+// budget and calls everything. A wrapper inline gives 67% but then fn_80318A30 inlines fn_8031A670 (100 -> 0)
+void Em316LaserSphere::fn_8031A670(CharaTask* chara) {
+    SetState_unk(10);
+    fn_80239DAC(lbl_8087F3C0, this, 0x3E8, 1);
+    fn_80239DAC(lbl_8087F3C0, this, 0x3E9, 1);
+    m1524 = chara;
+    m1534 = 0.0f;
+    atn::Vector3 line = mPos - fn_80318648(m14B8);
+    PSVECNormalize(&line, &line);
+    m1528 = line;
+    CharaTask* attacker = m1524;
+    atn::Vector3 spine = fn_80318648(m14B8);
+    atn::Vector3 back = mPos - spine;
+    PSVECNormalize(&back, &back);
+    int side;
+    if (attacker == m14B8) {
+        float aim = atn::WrapAngle_unk(attacker->fn_80158E1C().ToRotation_unk().y);
+        float rot = atn::WrapAngle_unk(back.ToRotation_unk().y);
+        side = atn::WrapAngle_unk(aim - rot) > 0.0f ? -1 : 1;
+    } else {
+        atn::Vector3 a = fn_80318648(attacker) - mPos;
+        PSVECNormalize(&a, &a);
+        float aim = atn::WrapAngle_unk(a.ToRotation_unk().y);
+        atn::Vector3 b = spine - mPos;
+        PSVECNormalize(&b, &b);
+        float rot = atn::WrapAngle_unk(b.ToRotation_unk().y);
+        side = atn::WrapAngle_unk(aim - rot) > 0.0f ? 1 : -1;
+    }
+    m1538 = sAngle_unk * (float)side;
+    atn::Vector3 dir = m1528;
+    Mtx m;
+    PSMTXRotRad(m, 'y', m1538);
+    PSMTXMultVec(m, &dir, &dir);
+    m1504 = mPos;
+    m1510 = fn_80318648(m14B8) + dir * 25.0f;
+    m151C = 0.0f;
+    m58C = 7;
+}
+
 int Em316LaserSphere::vfE4() {
     return m58C == 8;
 }

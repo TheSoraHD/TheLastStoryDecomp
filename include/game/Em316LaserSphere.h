@@ -67,7 +67,7 @@ public:
     atn::Vector3 m1510; // inferred: end of the move
     float m151C;        // inferred: progress of the move
     int m1520;          // inferred: frame counter of the wait
-    int m1524;
+    CharaTask* m1524; // inferred: character that attacks the sphere (fn_8031A670)
     atn::Vector3 m1528; // inferred: offset of the orbit
     float m1534;        // inferred: angle of the orbit
     float m1538;        // inferred: target angle of the orbit

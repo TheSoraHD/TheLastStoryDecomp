@@ -14,10 +14,15 @@ Inicio: 2026-11-13 05:03 CET. Rama `agent-K`. Tope 07:33.
   - `fn_803405C0` (estado 16, ataque del baston) 98,8 %: huecos de los locales del efecto del paso 0 y
     registros.
 
-- `game/Em316LaserSphere`: 6 -> 5. `fn_80318AA4` (el personaje apunta a la esfera: magia lanzada, su habilidad o
+- `game/Em316LaserSphere`: 6 -> 4. `fn_80318AA4` (el personaje apunta a la esfera: magia lanzada, su habilidad o
   la linea de su disparo cruza la capsula) escrita, NONMATCHING 98,4 %: marco 0x10 mayor y registros.
   Se incluye `game/BattleCharaTask.h` (`fn_800E932C`): renumera los `@N` de la unidad (+227); pd.sh y dos a mano
-  (`@13913`, `@13962`, floats 0.1 y 0.2 que solo usan funciones sin escribir).
+  (`@13913`, `@13962`, floats 0.1 y 0.2 que solo usan funciones sin escribir; tras fn_8031A670, `@14344`, `@14393`).
+  `fn_8031A670` (esquiva el ataque de un personaje: estado 10 y luego 7) escrita, NONMATCHING 30 %: el original
+  inlinea los miembros pequenos y dos de las cuatro posiciones "spine1" y llama a ToRotation_unk y fn_80318648
+  (patron R5 de docs/inlining.md: su cuerpo es una inline fuera de presupuesto); aqui pasa el presupuesto y lo llama
+  todo. Con una inline envoltorio sube al 67 %, pero entonces fn_80318A30 inlinea fn_8031A670 y baja de 100 a 0: se
+  deja la forma directa. `Em316LaserSphere::m1524` pasa de `int` a `CharaTask*` (el atacante).
 
 ## Decisiones tomadas sin el usuario
 
