@@ -54,8 +54,13 @@ Funciones al 0 % al empezar: BattleTask 29, TacView 6, BattleCharaTask 1.
 - Resumen BattleTask: funciones al 0 % 29 -> 13 (16 escritas, sin `DRAFT`); al 100 % 152 -> 156 (`fn_8010D320`,
   `fn_800F3170`, `fn_800F3490`, `fn_800F2C9C`; mnemcheck limpio). `report.json` 15313 -> 15317. Suben tambien
   `fn_801018E4` 93,9 -> 98,5 % y `fn_800FD658` 91,3 -> 93,0 %.
-- TacView (6) y BattleCharaTask (1): sin tocar (2-8 KB; mirado `TacView::fn_805ABE74`, 2,3 KB, switch de 12
-  casos por el tipo de miembro con el inline "gauge lleno" repetido: buen candidato para la siguiente pasada).
+- `game/TacView`: funciones al 0 % 6 -> 5. Escrita `TacView::fn_805ABE74` (ordenes del personaje bajo el cursor
+  segun el tipo de miembro; 97,1 %, registros y orden de algunos stores): miembro nuevo declarado en `TacView.h`
+  (10 unidades, sin parametros), renombrado en `symbols.txt`; `TacViewChara_unk::m54` pasa de bytes a
+  `void* m54[4]` (habilidad de cada orden: `HitInfo_unk` o `SkillParam_unk`); inline `IsGaugeFull_unk`.
+  El campo +8 (`mObj`) recibe el tipo de la habilidad cargada (`fn_805AA390`) con cast, como ya hacia
+  `fn_805AE188` con el 1.
+- BattleCharaTask (1): sin tocar (5,6 KB).
 
 ## Decisiones tomadas sin el usuario
 
