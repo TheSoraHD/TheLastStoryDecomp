@@ -14,7 +14,7 @@ Inicio: 2026-11-13 05:03 CET. Rama `agent-K`. Tope 07:33.
   - `fn_803405C0` (estado 16, ataque del baston) 98,8 %: huecos de los locales del efecto del paso 0 y
     registros.
 
-- `game/Em316LaserSphere`: 6 -> 4. `fn_80318AA4` (el personaje apunta a la esfera: magia lanzada, su habilidad o
+- `game/Em316LaserSphere`: 6 -> 3. `fn_80318AA4` (el personaje apunta a la esfera: magia lanzada, su habilidad o
   la linea de su disparo cruza la capsula) escrita, NONMATCHING 98,4 %: marco 0x10 mayor y registros.
   Se incluye `game/BattleCharaTask.h` (`fn_800E932C`): renumera los `@N` de la unidad (+227); pd.sh y dos a mano
   (`@13913`, `@13962`, floats 0.1 y 0.2 que solo usan funciones sin escribir; tras fn_8031A670, `@14344`, `@14393`).
@@ -23,6 +23,10 @@ Inicio: 2026-11-13 05:03 CET. Rama `agent-K`. Tope 07:33.
   (patron R5 de docs/inlining.md: su cuerpo es una inline fuera de presupuesto); aqui pasa el presupuesto y lo llama
   todo. Con una inline envoltorio sube al 67 %, pero entonces fn_80318A30 inlinea fn_8031A670 y baja de 100 a 0: se
   deja la forma directa. `Em316LaserSphere::m1524` pasa de `int` a `CharaTask*` (el atacante).
+  `fn_80317EF8` (estado 1: dispara al acabar la espera o se mueve a un sitio aleatorio alrededor del objetivo)
+  escrita, NONMATCHING 90,8 %: registros guardados (f30/f31 y un GPR mas). El sitio de destino es una inline con
+  dos `return` (`LaserMovePlace_unk`: el original escribe la suma directamente en el local) y el aleatorio
+  `lo + (hi - lo) * rand() / 32767` (`LaserRand_unk`: 0.20000005 = 1.2f - 1.0f plegado).
 
 ## Decisiones tomadas sin el usuario
 

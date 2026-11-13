@@ -529,6 +529,64 @@ void Em316LaserSphere::fn_80317EA0() {
     }
 }
 
+// inferred: random value between `lo` and `hi` (name invented)
+inline float LaserRand_unk(float lo, float hi) {
+    return lo + (hi - lo) * ((float)rand() / 32767.0f);
+}
+// inferred: rotation matrix y, x, z (as ZesyaRotZYX_unk of game/Em101LittleZesya.cpp; name invented)
+inline void LaserRotYXZ_unk(atn::Matrix3x4& m, const atn::Vector3& rot) {
+    m.SetIdentity();
+    __MtxRotate(m.m, 'y', rot.y);
+    __MtxRotate(m.m, 'x', rot.x);
+    __MtxRotate(m.m, 'z', rot.z);
+}
+
+// inferred: random place around `t` at m1500 (zero without a target); name invented
+inline atn::Vector3 LaserMovePlace_unk(Em316LaserSphere* self, CharaTask* t) {
+    if (t == 0) {
+        return lbl_807C7030;
+    }
+    atn::Vector3 center = self->fn_80318648(t);
+    atn::Vector3 ofs(0.0f, 0.0f, self->m1500 * LaserRand_unk(1.0f, 1.2f));
+    atn::Vector3 rot(LaserRand_unk(0.0f, -0.7853982f), LaserRand_unk(0.0f, 6.2831855f), 0.0f);
+    atn::Matrix3x4 m;
+    LaserRotYXZ_unk(m, rot);
+    PSMTXMultVec(m.m, &ofs, &ofs);
+    return center + ofs;
+}
+
+// inferred: state 1: fires when the attack wait (m1574) is over (state 8), otherwise after a random wait moves to
+// a random place around the target (state 7)
+// NONMATCHING: 90.8% - the original keeps the zero and the random yaw in f31/f30 and one more saved GPR (the
+// MoveWait read twice); 4 variants
+void Em316LaserSphere::fn_80317EF8() {
+    CharaTask* target = m14B8;
+    if (target == 0) {
+        return;
+    }
+    atn::Vector3 d = mPos - fn_80318648(target);
+    PSVECMag(&d);
+    if (m1574 < 0) {
+        SetState_unk(8);
+        fn_80232B7C(this, 0x3E8);
+        LaserEffect_unk(&m1590, &mMotion);
+        return;
+    }
+    int wait = m1C88 + rand() % m1C88;
+    if (fn_80316F74(&mStatus) || mStatus.IsState_unk(0x800000)) {
+        wait *= 3;
+    }
+    if (m1520 > wait) {
+        SetState_unk(7);
+        fn_80318648(m14B8);
+        m1504 = mPos;
+        atn::Vector3 to = LaserMovePlace_unk(this, m14B8);
+        m1510 = to;
+        m151C = 0.0f;
+        fn_800C344C(sSounds_unk[2], &mPos, 0, -1, 1.0f);
+    }
+}
+
 // NONMATCHING: 88.7% - order of the copies to the capsule (the original stores m3C.z through a frsp and the
 // radius m620 last) and the stack slots of top/bottom; ~16 variants
 void Em316LaserSphere::fn_80318594() {
