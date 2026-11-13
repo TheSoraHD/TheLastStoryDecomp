@@ -1421,7 +1421,7 @@ extern "C" void fn_8001C088();
 extern "C" void fn_8001C1C0(unsigned char* script);
 
 // inferred: this global sentinel is registered with the destructor for its three linked buckets.
-extern "C" void fn_8003E6B8(void* object, int freeObject);
+extern "C" void* fn_8003E6B8(void* object, int freeObject);
 extern "C" void fn_8003E688();
 
 // inferred: three-word MSL string header; the high bit selects the heap-buffer representation.
@@ -1455,6 +1455,12 @@ struct AIScriptMapNode_unk {
 // end node is at &mRoot) and first node, as ScriptTreeData_unk of game/GameEventScript.h; the nodes are
 // freed by the recursive Destroy_unk (0x8003DEE0)
 struct AIScriptMap_unk {
+    ~AIScriptMap_unk() {
+        if (mRoot != 0) {
+            Destroy_unk(mRoot);
+        }
+    }
+
     unsigned long mSize;
     AIScriptMapNode_unk* mRoot;
     AIScriptMapNode_unk* mFirst;
@@ -1495,6 +1501,18 @@ struct AIScriptMap_unk {
             mFirst = End_unk();
         }
     }
+};
+
+// inferred: the layers of std::map over the tree (the destructor 0x8003E6B8 tests the object five times: once
+// for the delete and once per layer, as the ScriptTree layers of game/GameEventScript.h)
+struct AIScriptMapL3_unk : public AIScriptMap_unk {
+    ~AIScriptMapL3_unk() {}
+};
+struct AIScriptMapL2_unk : public AIScriptMapL3_unk {
+    ~AIScriptMapL2_unk() {}
+};
+struct AIScriptMapL1_unk : public AIScriptMapL2_unk {
+    ~AIScriptMapL1_unk() {}
 };
 
 extern "C" int memcmp(const void*, const void*, unsigned long);
@@ -10559,5 +10577,18 @@ extern "C" void fn_8003E688() {
     head->first = 0;
     head->last = 0;
     head->end = &head->last;
-    __register_global_object(head, fn_8003E6B8, lbl_807C6B78);
+    __register_global_object(head, (void (*)(void*, int))fn_8003E6B8, lbl_807C6B78);
+}
+
+// inferred: the destructor of the script map registered by fn_8003E688 (the deleting destructor of the
+// std::map layers; written here because the registration above is written by hand: a global object
+// gives the same code but addresses the first store through the symbol, 67.5% for fn_8003E688)
+extern "C" void* fn_8003E6B8(void* object, int freeObject) {
+    if (object != 0) {
+        ((AIScriptMapL1_unk*)object)->~AIScriptMapL1_unk();
+        if (freeObject > 0) {
+            operator delete(object);
+        }
+    }
+    return object;
 }

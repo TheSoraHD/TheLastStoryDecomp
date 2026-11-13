@@ -13,7 +13,7 @@ Cola: restos de game/GameEventScript (12 al 0 %) y AI/AI_archer_attack01 (6 al 0
     de `num_put<char>::id` y `numpunct<char>::id`, como GameScene) y los cinco thunks de base virtual
     (0x803B27AC-0x803B27F8).
   - `basic_stringbuf::str() const` (0x803AD668): 88,53 %, NONMATCHING (ver abajo).
-- `AI/AI_archer_attack01`: 0 % 5 -> 1; al 100 % 480 -> 481/510 (lost 0, fuzzdrop 0).
+- `AI/AI_archer_attack01`: 0 % 5 -> 0; al 100 % 480 -> 482/510 (lost 0, fuzzdrop 0).
   - Mapa de scripts (`std::map<std::string, factory>` en 0x807C6B84): `AIScriptMap_unk` (tamano, raiz con el
     nodo final en `&mRoot`, primero; como `ScriptTreeData_unk`), y `lbl_807C6B84` pasa a ser ese objeto (antes
     `unsigned char[]`; `fn_8001E1D0` y la `__sinit` a mano usan `&lbl_807C6B84`, sin cambios en su codigo).
@@ -24,6 +24,12 @@ Cola: restos de game/GameEventScript (12 al 0 %) y AI/AI_archer_attack01 (6 al 0
     `ScriptTreeData_unk::InsertNode_unk`; los flags de `fn_8001E1D0`/`fn_8003E530` pasan a `bool` (con
     `unsigned char` `fn_8001E1D0` bajaba de 47,6 a 39,3 por la conversion). NONMATCHING: la cadena del pool
     (+0x454) va como base + `addi` en el original y el tag del iterador con las ranuras de pila cruzadas.
+  - `fn_8003E6B8` (destructor del mapa registrado por la `__sinit` a mano `fn_8003E688`) al 100 %: borrado
+    con test de `this`, `~AIScriptMapL1_unk()` explicito (capas L1-L3 sobre `AIScriptMap_unk`: cuatro tests
+    mas) y devuelve el objeto. Escrito como `extern "C"` porque la `__sinit` ya lo esta: con un objeto global
+    de verdad (`AIScriptMapL1_unk lbl_807C6B84;`) el compilador da el destructor al 100 % pero la `__sinit`
+    baja a 67,5 % (la primera escritura va por el simbolo, `stw rX, lo(rHA)`; probadas 11 variantes en
+    `try.sh`: ctor en lista o cuerpo, base, miembro, `static`, miembro estatico, ctor no inline).
   - `fn_8001E730` (vacia el mapa: borra las factorias en orden y luego `clear()`) 93,82 % y `fn_8001EA18`
     (`find` por nombre con `basic_string::compare(pos, n1, s, n2)` inline) 57,07 %: NONMATCHING (ver abajo).
 - `game/GameScene`: llama a `boost::lexical_cast<std::string, int>` con una declaracion de la plantilla (sin
@@ -77,6 +83,8 @@ Cola: restos de game/GameEventScript (12 al 0 %) y AI/AI_archer_attack01 (6 al 0
 - AI_archer: renombrado `fn_8003DD50` -> `InsertNode_unk__15AIScriptMap_unkFP19AIScriptMapNode_unkbbRC20AIScriptMapValue_unk`.
 - AI_archer: renombrado `fn_8003DEE0` -> `Destroy_unk__15AIScriptMap_unkFP19AIScriptMapNode_unk`; `pd.sh`
   reetiqueto los `@N` de la unidad (481 -> 481).
+- AI_archer: `fn_8003E6B8` como funcion `extern "C"` que hace de destructor con borrado (decision a revisar:
+  sustituye a la que generaria el compilador; ver arriba).
 - Cambio de tamano de `ctype<char>` en `locale_facets_unk.h` (cabecera MSL compartida con EffectManager): solo
   miembro de datos.
 
@@ -90,6 +98,6 @@ Cola: restos de game/GameEventScript (12 al 0 %) y AI/AI_archer_attack01 (6 al 0
 
 ## Pendientes
 
-- AI/AI_archer_attack01 al 0 %: `fn_8003DD50` (insercion del nodo), `fn_8003E6B8` (destructor del mapa con
-  cuatro tests de `this` encadenados: varias clases anidadas map/tree).
+- AI_archer: pasar el mapa a objeto global (destructor y `__sinit` del compilador) cuando se encuentre la
+  forma de la `__sinit` original.
 - `ordercheck` GameEventScript: 1 fuera de orden ya conocido (`__dt__15GameEventScriptFv`).
