@@ -1592,9 +1592,53 @@ int BattleTask::fn_80100BB8(CharaTask** out, CharaTask* chara, const atn::Vector
     return 0;
 }
 
-void BattleTask::fn_80100BC0() {
-    fn_801055A8(0);
+void BattleTask::fn_80100BC0(void* arg, void*) {
+    ((BattleTask*)arg)->fn_801055A8(0);
     lbl_8087F3C0->fn_8023A614(5);
+}
+
+// inferred: items of the debug menu (atn/MindowsCommon.h; not included here because game/ResHandle.h declares
+// lbl_8087EF10 and fn_8008937C with other types)
+extern "C" void fn_800874C8(void* folder, const char* name, int* value, int min, int max, int step,
+                            void (*func)(void*, void*), void* arg); // inferred: AddInt
+extern "C" void fn_8008771C(void* folder, const char* name, float* value, float min, float max, float step,
+                            void (*func)(void*, void*), void* arg); // inferred: AddFloat
+extern "C" void fn_80087994(void* folder, const char* name, int* value, void (*func)(void*, void*),
+                            void* arg); // inferred: AddBool
+
+// inferred: debug menu "Battle": target lines, reticle, morale (gauge) and tension parameters
+// NONMATCHING: 99.4% - only the offsets of the strings in @stringBase0 (strings of unwritten functions missing)
+void BattleTask::fn_80100BF0() {
+    void* folder = m38A58.Load("Battle");
+    fn_800874C8(folder, "DrawHateArrow", &m367B0, 0, 3, 1, fn_80100BC0, this);
+    fn_80087994(folder, "DrawHateNumber", &m367B4, 0, 0);
+    fn_8008771C(folder, "ReticleBlur", &m3E3A0, 1.0f, 300.0f, 1.0f, 0, 0);
+    fn_8008771C(folder, "ReticleCenterLerp", &m3E3A4, 0.0f, 1.0f, 1.0f, 0, 0);
+    fn_8008771C(folder, "ReticleCenterOfs", &m3E3A8, 0.0f, 300.0f, 1.0f, 0, 0);
+    void* morale = fn_8008937C(folder, "Morale");
+    fn_80087994(morale, "DebugMode", &m38A08, 0, 0);
+    fn_8008771C(morale, "Max", &m38A0C, 1.0f, 300.0f, 1.0f, 0, 0);
+    fn_8008771C(morale, "DownSpeed", &m38A10, -100.0f, 100.0f, 0.01f, 0, 0);
+    fn_8008771C(morale, "SwordAttack", &m38A14, -100.0f, 100.0f, 1.0f, 0, 0);
+    fn_8008771C(morale, "CrossbowAttack", &m38A18, -100.0f, 100.0f, 1.0f, 0, 0);
+    fn_8008771C(morale, "MagicAttack", &m38A1C, -100.0f, 100.0f, 1.0f, 0, 0);
+    fn_8008771C(morale, "Defeat", &m38A20, -100.0f, 100.0f, 1.0f, 0, 0);
+    fn_8008771C(morale, "Damage", &m38A24, -100.0f, 100.0f, 1.0f, 0, 0);
+    fn_8008771C(morale, "Replay", &m38A28, -100.0f, 100.0f, 1.0f, 0, 0);
+    fn_8008771C(morale, "AttractHate", &m38A2C, -100.0f, 100.0f, 1.0f, 0, 0);
+    fn_8008771C(morale, "WaitMin", &m38A30, -1000.0f, 1000.0f, 1.0f, 0, 0);
+    fn_8008771C(morale, "WaitMax", &m38A34, -1000.0f, 1000.0f, 1.0f, 0, 0);
+    fn_8008771C(morale, "HateUpBoost", &m38A38, -1000.0f, 1000.0f, 1.0f, 0, 0);
+    fn_8008771C(morale, "HateDownBoost", &m38A3C, -1000.0f, 1000.0f, 1.0f, 0, 0);
+    fn_8008771C(morale, "EnemyRatio", &m38A40, -1000.0f, 1000.0f, 1.0f, 0, 0);
+    void* tension = fn_8008937C(folder, "Tension");
+    fn_8008771C(tension, "Attack", &m38A44, -1.0f, 1.0f, 0.01f, 0, 0);
+    fn_8008771C(tension, "MagicAttack", &m38A48, -1.0f, 1.0f, 0.01f, 0, 0);
+    fn_8008771C(tension, "Defeat", &m38A4C, -1.0f, 1.0f, 0.01f, 0, 0);
+    fn_8008771C(tension, "Damage", &m38A50, -1.0f, 1.0f, 0.01f, 0, 0);
+    fn_8008771C(tension, "Boss", &m38A54, -1.0f, 1.0f, 0.01f, 0, 0);
+    fn_80087994(folder, "DrawAttackLog", &mShots.mEnabled, 0, 0);
+    fn_80087994(folder, "DrawPick", &m3E390, 0, 0);
 }
 
 Bullet* BattleTask::fn_801010A0() {
@@ -2814,6 +2858,88 @@ int BattleTask::fn_80108378(CharaTask* chara) {
     return -1;
 }
 
+// inferred: character of the entry `id` of the battle manager, null when there is none (name invented)
+static inline CharaTask* GetBattleChara_unk(BattleTask* battle, int id) {
+    CharaTask* chara;
+    if (id < 0 || battle->mCharaCount <= id) {
+        chara = 0;
+    } else {
+        chara = battle->mCharas[id].mChara;
+    }
+    return chara;
+}
+
+// inferred: hate of this entry toward the entry `id`. For a friend that follows the AI (m118 1) without the 0x800
+// status: the base value plus closeness to its leader (within 120) and half of the recorded hits, minus the hate
+// of the players; else the base value plus the recent damage m24C, the hits, the 0x800 and m48C bonuses, minus
+// the players' hate outside multiplayer, scaled by m128. Outside multiplayer the result is scaled by m248 and
+// m6E4 of the other entry, plus m80C
+// NONMATCHING: 93.7% - register allocation (the config in r31 in the original) and scheduling of the scale
+int BattleChara_unk::fn_801083D8(int id) {
+    int result = -1;
+    if (id >= 0) {
+    int hate = m08[id];
+    fn_80210220(lbl_8087F0A8->mParamIndex);
+    GameConfig_unk* config = lbl_8087F0A8;
+    CharaTask* other = lbl_8087F048 != 0 ? GetBattleChara_unk(lbl_8087F048, id) : 0;
+    CharaTask* chara = mChara;
+    CharaTask* leader = chara->mC58.m114 == 6 ? (chara->mC58.mD4 != 0 ? chara->mC58.mD4->GetChara_unk() : 0) : chara;
+    if (chara != 0 && (chara->mStatus.m0C & 0x800) != 0x800 && chara->mC58.m118 == 1 && leader != 0 &&
+        leader->CanAct_unk()) {
+        atn::Vector3 d = leader->mPos - other->mPos;
+        float near = 120.0f;
+        float dist = PSVECMag(&d);
+        if (dist < near) {
+            hate += (int)(3.0f * (near - dist));
+        }
+        for (int i = 0; i < mHateCount; i++) {
+            if (mHateValues[i] > 0 && id == mHateIds[i] && dist < near) {
+                hate += mHateValues[i] / 2;
+            }
+        }
+        if (other->mType == 0) {
+            hate = MAX(hate - config->mPlayerMinusHate, 0);
+        }
+        if (lbl_8087F048 != 0) {
+            hate = (int)(hate * (lbl_8087F048->mCharas[id].m248 * (1.0f - m6E4[id])));
+        }
+        return hate;
+    }
+    float limit = 500.0f;
+    if ((chara->mStatus.m0C & 0x2000) == 0x2000) {
+        limit *= 0.1f;
+    }
+    if (chara->mC58.m118 == 1) {
+        limit = 50.0f;
+    }
+    float damage = m24C[id];
+    if (damage < 500.0f) {
+        hate += (int)(100.0f * (500.0f - damage) / 500.0f);
+    }
+    for (int i = 0; i < mHateCount; i++) {
+        if (mHateValues[i] > 0 && id == mHateIds[i] && damage < limit) {
+            hate += mHateValues[i];
+        }
+    }
+    if ((chara->mStatus.m0C & 0x800) == 0x800) {
+        hate += m36C[id];
+    }
+    if (damage < limit && m5AC[id] > 0) {
+        hate += m48C[id];
+    }
+    if (other->mType == 0 && lbl_8087F610 == 0 && fn_80219558(other->m50) != 2) {
+        hate = MAX(hate - config->mPlayerMinusHate, 0);
+    }
+    int value = MAX(hate + other->mStatus.fn_80134168(0x33, -1), 0);
+    value = (int)(value * m128[id] + 0.1f);
+    if (lbl_8087F048 != 0 && lbl_8087F610 == 0) {
+        value = (int)(value * (lbl_8087F048->mCharas[id].m248 * (1.0f - m6E4[id])));
+    }
+    result = value + m80C[id];
+    }
+    return result;
+}
+
 void BattleChara_unk::fn_801088B8(int id, int value) {
     int n = 0;
     for (int i = 0; i < mHateCount; i++) {
@@ -2974,7 +3100,16 @@ extern "C" void fn_80108C10(BattleTask* mgr, BattleDamage_unk* damage, const atn
 
 // inferred: camp message table (lbl_8087F1E4, as in game/CosEditItemList_unk.cpp)
 struct BattleMsg_unk {
+    struct Pair_unk {
+        int m00;
+        const wchar_t* mText;
+    };
     const wchar_t* Get_unk(int id) { return mText[id] != 0 ? mText[id] : lbl_808813D0; }
+    // inferred: text of an (id, text) pair of the table (as in game/CosEditItemList_unk.cpp)
+    const wchar_t* GetPair_unk(int id) {
+        Pair_unk* pairs = (Pair_unk*)mText;
+        return pairs[id].mText != 0 ? pairs[id].mText : lbl_808813D0;
+    }
     const wchar_t* mText[1];
 };
 extern "C" BattleMsg_unk* lbl_8087F1E4;
@@ -3050,6 +3185,151 @@ extern "C" void fn_80108F38(BattleTask* mgr, const atn::Vector3* pos, int status
     }
 }
 
+// inferred: item data (its name at +8, as MpItem_unk of MP/D2AMpMenuResult.cpp); names invented
+struct BattleItem_unk {
+    unsigned char m00[0x8];
+    const wchar_t* mName;
+};
+// inferred: weapon data (only the kind is read; its name is the entry 0xEB + kind of the message table)
+struct BattleWeapon_unk {
+    unsigned char m00[0xB8];
+    int mKind;
+};
+// inferred: status effect data (its name at +0xC)
+struct BattleState_unk {
+    unsigned char m00[0xC];
+    const wchar_t* mName;
+};
+// inferred: log message definitions (.rodata of this file, 0x80735AB0): message of the table, kind and flags
+// passed to LogMessageTask::fn_8047961C; names invented
+struct BattleLogDef_unk {
+    int mMsg;
+    int mKind;
+    int mFlags;
+};
+extern "C" const BattleLogDef_unk lbl_80735AB0[];
+extern "C" BattleItem_unk* fn_80211480(int id);
+extern "C" BattleWeapon_unk* fn_80206C50(int id);
+extern "C" BattleState_unk* fn_8021AF50(int id);
+extern "C" int fn_800DD3FC(wchar_t* s, const wchar_t* format, ...); // inferred: wide sprintf
+extern "C" wchar_t* wcscpy(wchar_t* dst, const wchar_t* src);
+
+// inferred: battle log message `id` about `chara` (formats of the message table, pairs of 8 bytes); `value` is the
+// item, weapon, skill or status, `arg` a count. The level flag is set for the items, the weapons, the money and the
+// messages 0x43/0x44. C name, called by other files as extern "C"
+// NONMATCHING: 87.9% - the cases 0x10 and 0x17-0x1F share their tail here, operand order of the table lookups
+extern "C" void fn_801092C8(BattleTask* mgr, int id, CharaTask* chara, int value, int arg) {
+    if (!(lbl_8087F0A8->m06C > 0) || !(LogMessageTask::sInstance != 0)) {
+        return;
+    }
+    int level;
+    const BattleLogDef_unk* def = &lbl_80735AB0[id];
+    level = 0;
+    wchar_t text[0x100];
+    memset(text, 0, sizeof(text));
+    switch (id) {
+    case 0x15:
+        if (value == 0x43 || value == 0x44) {
+            level = 1;
+        }
+        wcscpy(text, lbl_8087F1E4->GetPair_unk(value));
+        break;
+    case 1: {
+        level = 1;
+        BattleItem_unk* item = fn_80211480(value);
+        if (item != 0) {
+            fn_800DD3FC(text, lbl_8087F1E4->GetPair_unk(def->mMsg), item->mName, arg);
+        } else {
+            fn_800DD3FC(text, lbl_8087F1E4->GetPair_unk(0x17), value);
+        }
+        break;
+    }
+    case 2: {
+        level = 1;
+        BattleWeapon_unk* weapon = fn_80206C50(value);
+        if (weapon != 0) {
+            fn_800DD3FC(text, lbl_8087F1E4->GetPair_unk(def->mMsg), lbl_8087F1E4->GetPair_unk(weapon->mKind + 0xEB),
+                        arg);
+        } else {
+            fn_800DD3FC(text, lbl_8087F1E4->GetPair_unk(0x17), value);
+        }
+        break;
+    }
+    case 3:
+    case 4:
+        level = 1;
+        fn_800DD3FC(text, lbl_8087F1E4->GetPair_unk(def->mMsg), value);
+        break;
+    case 5:
+        fn_800DD3FC(text, lbl_8087F1E4->GetPair_unk(def->mMsg));
+        break;
+    case 0xF:
+        level = 1;
+        fn_800DD3FC(text, lbl_8087F1E4->GetPair_unk(def->mMsg));
+        break;
+    case 6:
+    case 7:
+        return;
+    case 8:
+    case 9:
+    case 10:
+    case 11:
+    case 0x16:
+        fn_800DD3FC(text, lbl_8087F1E4->GetPair_unk(def->mMsg), chara->m60->m04);
+        break;
+    case 0xC:
+    case 0xD: {
+        HitInfo_unk* skill = fn_80219E6C(value);
+        if (skill != 0 && chara != 0 && chara->m60 != 0) {
+            fn_800DD3FC(text, lbl_8087F1E4->GetPair_unk(def->mMsg), chara->m60->m04, skill->m08);
+        } else {
+            fn_800DD3FC(text, lbl_8087F1E4->GetPair_unk(0x18), value);
+        }
+        break;
+    }
+    case 0xE: {
+        BattleState_unk* state = fn_8021AF50(value);
+        if (state != 0 && chara != 0 && chara->m60 != 0) {
+            fn_800DD3FC(text, lbl_8087F1E4->GetPair_unk(def->mMsg), chara->m60->m04,
+                        state->mName != 0 ? state->mName : lbl_808813D0);
+        } else {
+            fn_800DD3FC(text, lbl_8087F1E4->GetPair_unk(0x18), value);
+        }
+        break;
+    }
+    case 0x10:
+        if (chara != 0 && chara->m60 != 0) {
+            fn_800DD3FC(text, lbl_8087F1E4->GetPair_unk(def->mMsg), chara->m60->m04, value);
+        }
+        break;
+    case 0x11:
+    case 0x12:
+    case 0x13:
+        fn_800DD3FC(text, lbl_8087F1E4->GetPair_unk(def->mMsg), value, arg);
+        break;
+    case 0x14: {
+        BattleState_unk* state = fn_8021AF50(value);
+        if (chara != 0 && chara->m60 != 0 && state != 0) {
+            fn_800DD3FC(text, lbl_8087F1E4->GetPair_unk(def->mMsg), chara->m60->m04,
+                        state->mName != 0 ? state->mName : lbl_808813D0);
+        }
+        break;
+    }
+    case 0x17:
+    case 0x18:
+    case 0x19:
+    case 0x1A:
+    case 0x1B:
+    case 0x1C:
+    case 0x1D:
+    case 0x1E:
+    case 0x1F:
+        fn_800DD3FC(text, lbl_8087F1E4->GetPair_unk(def->mMsg), chara->m60->m04, value);
+        break;
+    }
+    LogMessageTask::sInstance->fn_8047961C(text, def->mKind, def->mFlags, level);
+}
+
 void BattleTask::fn_80109828(const wchar_t* text) {
     if (!(lbl_8087F0A8->m06C > 0) || !(LogMessageTask::sInstance != 0)) {
         return;
@@ -3060,7 +3340,6 @@ void BattleTask::fn_80109828(const wchar_t* text) {
 }
 
 extern "C" bool fn_8021BE98(wchar_t* buf, SpEffect_unk* effect); // inferred: text of a status effect
-extern "C" int fn_800DD3FC(wchar_t* s, const wchar_t* format, ...); // inferred: wide sprintf
 
 // inferred: log message "<character> <effect>" (format 0x8B of the message table)
 void BattleTask::fn_80109864(SpEffect_unk* effect, CharaTask* chara) {
@@ -3671,15 +3950,6 @@ int BattleTask::fn_8010CD3C(int kind, CharaTask* chara, CharaTask* other) {
 extern "C" int fn_80444020(Inventory* party, int item, int a, int b, int c, int d, int* outA, int* outB,
                            int* outC); // inferred: adds an item (as in game/BattleResult.cpp)
 extern "C" int fn_8021E48C(int item, int arg); // inferred: count of the item given at once
-// inferred: item data (its name at +8, as MpItem_unk of MP/D2AMpMenuResult.cpp); names invented
-struct BattleItem_unk {
-    unsigned char m00[0x8];
-    const wchar_t* mName;
-};
-extern "C" BattleItem_unk* fn_80211480(int id);
-extern "C" int fn_800DD3FC(wchar_t* s, const wchar_t* format, ...); // inferred: wide sprintf
-// inferred: battle message `id` about `chara` (status effect popups and log)
-extern "C" void fn_801092C8(BattleTask* mgr, int id, CharaTask* chara, int kind, int arg);
 
 // inferred: effect `kind` of a special hit of `chara` on `target`: 4 steals the item of `target` once (message, sound
 // and item notice), 5 knocks `chara` back with an effect, 7/8/0x2E/0x2F only show the message (not for the
