@@ -2884,7 +2884,7 @@
   "classes": [
    "MP::func_enter_setting"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "MP/Popup.cpp",
