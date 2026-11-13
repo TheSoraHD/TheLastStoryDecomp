@@ -1,5 +1,23 @@
 # Cola H (paralelo-20261113): Last Cocoon (Egg, Imago)
 
+## Resumen
+
+| Unidad | Sin escribir antes -> despues | 100 % (fnstat) |
+|---|---|---|
+| game/LastCocoonEgg | 14 -> 8 (6 son copias debiles que solo existen por el presupuesto de vf0C/vf10) | 21 -> 21 / 42 |
+| game/LastCocoonImago | 12 -> 4 (fn_80458550 copia debil del ctor, fn_80459FB8 = vfBC bloqueada) | 18 -> 19 / 36 |
+
+Escritas: Egg vf0C, vf14, fn_804570F4, fn_804576D4, fn_80457E98; Imago vf10, vf40, vf50, fn_8045ABB4,
+fn_8045B82C, fn_8045BFFC, fn_8045CB24. Al 100 % nueva: Imago vfD8 (por el re-emparejado de etiquetas).
+
+## Pendientes
+
+- Egg: fn_80455638 (bucle de m19A0 con golpes), fn_804562E4 (modo 7, disparos), y las copias debiles
+  fn_80453C88/DB4/DBC/E20/54554/54564 (necesitan vf0C/vf10 por encima del presupuesto).
+- Imago: fn_8045D3A4 (modo 12, camara Xsca), fn_8045EDEC (flechas de los puntos debiles: GameUI
+  fn_803E3050, fn_80051B70, fn_8004ECC0; locales de pila sin identificar), ctor (presupuesto),
+  fn_80459FB8 = vfBC (necesita el argumento en CharaTask::vfBC y pdbatch de 217 unidades).
+
 ## game/LastCocoonEgg
 
 - Escritas (0 % -> escritas, NONMATCHING): vf0C (carga, Csv, nodo "catch_point", lista de personajes
