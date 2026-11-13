@@ -10,6 +10,11 @@ Inicio: 2026-11-13 03:05 CET. Tope 05:35.
   iterador (`MslIter_unk` de protectores y de armas, 0x801DBAC0-0x801DC07C y 0x801E26B4-0x801E2D68), el swap
   de armas, `size`/`[]`/`clear`/begin/end de `vector<CosEditWeaponItem_unk>`. `fn_801E07A4` 0 -> 97,2 %.
 
+- Segundo commit: `fn_801E6EF0`/`fn_801E6FC8` al 100 % (referencia local a la entrada: `e.mOwner == chara`
+  da el orden de `cmpw` del original); `L"%s\0"` en los dos predicados (el `@wstringBase0` del original tiene
+  dos bytes NUL de mas tras `L"%s"`: offsets de `fn_801E7D78`/`fn_801E7EA8` 99,0 -> 99,25 %); `fn_801E7D78`
+  99,64 % con el avance de `skill` en el `for`. Unidad: 52/91 al 100 %.
+
 ## Cambios
 
 - Predicados `CosEditEquipLess_unk` y `CosEditArmorLess_unk` (los dos con `L"%s"`): en un namespace anonimo,

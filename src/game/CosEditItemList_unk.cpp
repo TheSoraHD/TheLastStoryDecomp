@@ -570,7 +570,7 @@ struct CosEditEquipLess_unk {
         COSEDIT_ASSERT_UNK(nb->mName != 0);
         wchar_t sa[64];
         COSEDIT_ASSERT_UNK(wcslen(na->mName) < 64);
-        fn_800DD3FC(sa, L"%s", na->mName);
+        fn_800DD3FC(sa, L"%s\0", na->mName);
         wchar_t* plus = wcschr(sa, L'+');
         if (plus != 0) {
             COSEDIT_ASSERT_UNK(plus > sa);
@@ -578,7 +578,7 @@ struct CosEditEquipLess_unk {
         }
         wchar_t sb[64];
         COSEDIT_ASSERT_UNK(wcslen(nb->mName) < 64);
-        fn_800DD3FC(sb, L"%s", nb->mName);
+        fn_800DD3FC(sb, L"%s\0", nb->mName);
         plus = wcschr(sb, L'+');
         if (plus != 0) {
             COSEDIT_ASSERT_UNK(plus > sb);
@@ -1486,7 +1486,7 @@ struct CosEditArmorLess_unk {
         COSEDIT_ASSERT_UNK(nb->mName != 0);
         wchar_t sa[64];
         COSEDIT_ASSERT_UNK(wcslen(na->mName) < 64);
-        fn_800DD3FC(sa, L"%s", na->mName);
+        fn_800DD3FC(sa, L"%s\0", na->mName);
         wchar_t* plus = wcschr(sa, L'+');
         if (plus != 0) {
             COSEDIT_ASSERT_UNK(plus > sa);
@@ -1494,7 +1494,7 @@ struct CosEditArmorLess_unk {
         }
         wchar_t sb[64];
         COSEDIT_ASSERT_UNK(wcslen(nb->mName) < 64);
-        fn_800DD3FC(sb, L"%s", nb->mName);
+        fn_800DD3FC(sb, L"%s\0", nb->mName);
         plus = wcschr(sb, L'+');
         if (plus != 0) {
             COSEDIT_ASSERT_UNK(plus > sb);
@@ -1808,7 +1808,8 @@ void CosEditProtector::fn_801E6EF0(int member, int list, int* cursor, int* top, 
     int chara = fn_80219544(member);
     std::vector<CosEditItem_unk>& items = mB34[list];
     for (int i = 0; i < (int)items.size(); i++) {
-        if (chara == items[i].mOwner) {
+        CosEditItem_unk& e = items[i];
+        if (e.mOwner == chara) {
             *cursor = i;
             if (a) {
                 *top = i;
@@ -1833,7 +1834,8 @@ void CosEditProtector::fn_801E6EF0(int member, int list, int* cursor, int* top, 
 void CosEditProtector::fn_801E6FC8(int member, int slot, int* cursor, int* top, int a) {
     int chara = fn_80219544(member);
     for (int i = 0; i < (int)mB4C.size(); i++) {
-        if (chara == mB4C[i].mOwner && slot == mB4C[i].m14) {
+        CosEditWeaponItem_unk& e = mB4C[i];
+        if (e.mOwner == chara && e.m14 == slot) {
             *cursor = i;
             if (a) {
                 *top = i;
@@ -2099,7 +2101,7 @@ extern "C" void fn_801E7D78(atn::D3Anime* anime, void* item, int known) {
     memset(names[0], 0, sizeof(names[0]));
     memset(names[1], 0, sizeof(names[1]));
     CosEditStat_unk* skill = &((CosEditArmor_unk*)item)->mElem0;
-    for (int i = 0; i < 2; i++) {
+    for (int i = 0; i < 2; i++, skill = (CosEditStat_unk*)((char*)skill + 0x14)) {
         if (item == 0) {
             wcscpy(names[i], L"-----");
         } else if (known == 0) {
@@ -2111,7 +2113,6 @@ extern "C" void fn_801E7D78(atn::D3Anime* anime, void* item, int known) {
         sprintf(name, "skill_name%02d", i);
         CosEditListTask_unk* task = (CosEditListTask_unk*)anime->GetTask();
         fn_801FEE08(task->mLayout, fn_800DC6B4(name), names[i]);
-        skill = (CosEditStat_unk*)((char*)skill + 0x14);
     }
 }
 
