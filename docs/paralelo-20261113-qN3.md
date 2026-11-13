@@ -30,3 +30,7 @@
 
 - Literales de una funcion que el enlazador elimino: una tabla `static` sin usar no los emite; una
   funcion libre no `static` sin llamador si, en su orden del fuente.
+
+## atn/WPad_unk (integrador, tras la caida del entorno)
+
+- ctor 99,78 -> 100 % (17 -> 18/18 al 100 %): el bucle de `KPADEnableAimingMode` en una `static inline EnableAimingAll_unk()`; la llamada a `fn_8065F530` como `WPADRegisterAllocator` (su nombre en `symbols.txt`). Precommit repetido por el integrador: PRECOMMIT OK, 15389.
