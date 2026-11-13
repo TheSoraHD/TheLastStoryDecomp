@@ -13,6 +13,7 @@
 #include "std/string.h"
 #include "macros.h"
 #include "atn/DrawHelper.h"
+#include "gmk/Lemon.h"
 
 // inferred: effect/bullet manager (lbl_8087F048); only the member used here (name invented)
 struct Effect_unk {
@@ -652,6 +653,91 @@ void LastCocoonImago::vf54() {
     }
 }
 
+extern "C" int fn_8004D388(void* world, CollResult_unk* result, CharaTask::Sphere_unk* sphere, atn::Vector3* move,
+                           unsigned int mask, void* ignore, int arg, float radius); // inferred: sweep test
+extern "C" void* lbl_8087EE98; // inferred: collision world
+// inferred: game state (as in game/LastCocoonQuadruped.cpp); names invented
+struct ImagoGameState_unk {
+    unsigned char m000[0x3A4];
+    float m3A4; // inferred: time of a frame
+};
+extern "C" ImagoGameState_unk* lbl_8087EFA8;
+
+// NONMATCHING: 96% - float registers (dt, speed, move) and stack slots
+// inferred: turns towards `rot` and walks (when `move` is over a third) at `speed`, with gravity, the push
+// m6B8 and the collision sweep; leans with the turn (m584)
+void LastCocoonImago::fn_8045ABB4(const atn::Vector3& target, float move, float speed) {
+    if (m197C != 0) {
+        move = 0.0f;
+    }
+    atn::Vector3 pos = mPos;
+    atn::Vector3 rot = mRot;
+    m14C8 = 0;
+    float d = atn::WrapAngle_unk(target.y - rot.y);
+    float dt = lbl_8087EFA8->m3A4;
+    float step = d * (m56C * (1.0f + 0.75f * atn::Abs_unk(d / 3.1415927f)));
+    if (step < 0.034906585f) {
+        m14C8 = 1;
+    }
+    rot.y += step;
+    atn::Vector3 vel(0.0f, 0.0f, 1.0f);
+    atn::Matrix3x4 m;
+    m.fn_8013A13C(rot.y);
+    PSMTXMultVec(m.m, &vel, &vel);
+    if (move > 0.33333334f) {
+        vel *= 0.33333334f * speed;
+        m14C8 = 1;
+    } else {
+        vel *= 0.0f;
+    }
+    if (m58C != 7 && m58C != 8) {
+        vf24();
+    }
+    int fps = lbl_8087F0A8->m030;
+    vel.y += 2.0f * (dt * (-98.1f / (float)(fps * fps)));
+    vel.x += m6B8.x * MIN(1.0f, dt);
+    vel.z += m6B8.z * MIN(1.0f, dt);
+    vel.y += m6B8.y;
+    atn::Vector3 friction(m6B8.x * MIN(1.0f, 0.19999999f * dt), m6B8.y * MIN(1.0f, 0.19999999f * dt),
+                          m6B8.z * MIN(1.0f, 0.19999999f * dt));
+    m6B8.x -= friction.x;
+    m6B8.z -= friction.z;
+    m6B8.y = 0.0f;
+    if (m6B8.Length_unk() < 0.1f) {
+        m6B8.x = 0.0f;
+        m6B8.y = 0.0f;
+        m6B8.z = 0.0f;
+    }
+    if (vel.y < -12.0f) {
+        vel.y = -12.0f;
+    }
+    CollResult_unk result;
+    atn::Vector3 oldPos = pos;
+    Sphere_unk sphere;
+    sphere.mCenter = m614;
+    sphere.mRadius = m620;
+    fn_8004D388(lbl_8087EE98, &result, &sphere, &vel, fn_80179D44() | 0x80000000, &mColli, 0, sphere.mRadius);
+    pos = result.m10;
+    pos -= m5A4;
+    pos.y -= sphere.mRadius;
+    m634 = result.m34 != 0 ? *(int*)result.m34 : -1;
+    atn::Vector3 moved = vel + (pos - oldPos);
+    float lean = 0.0f;
+    if (PSVECSquareMag(&moved) > 0.001f && move > 0.001f) {
+        lean = atn::WrapAngle_unk(moved.GetNormalize().ToRotation_unk().y - mRot.y);
+    }
+    lean *= 2.0f;
+    m584 = MAX(MIN(m584 - 0.5f * lean, 1.0471976f), -1.0471976f) * 0.9f;
+    mPos = pos;
+    mRot = rot;
+    mRot.x = atn::WrapAngle_unk(mRot.x);
+    mRot.y = atn::WrapAngle_unk(mRot.y);
+    mRot.z = atn::WrapAngle_unk(mRot.z);
+    m574 = atn::Vector3(0.0f, 0.0f, 0.0f);
+    m630 = 0;
+    m610 = 0;
+}
+
 void LastCocoonImago::vf24() {
     if (m55C == 6 && mControl && !mControl->vf3C()) {
         return;
@@ -1134,12 +1220,6 @@ void LastCocoonImago::fn_8045E548() {
     fn_8045ABB4(m14E0, 0.0f, m568);
 }
 
-// inferred: game state (as in game/LastCocoonQuadruped.cpp); names invented
-struct ImagoGameState_unk {
-    unsigned char m000[0x3A4];
-    float m3A4; // inferred: time of a frame
-};
-extern "C" ImagoGameState_unk* lbl_8087EFA8;
 extern "C" HitInfo_unk* fn_80219E6C(int id); // inferred: skill data
 struct HitResult_unk;
 extern "C" int fn_800F8C6C(Effect_unk* mgr, HitResult_unk* results, int count, CharaTask* chara, HitInfo_unk* data,

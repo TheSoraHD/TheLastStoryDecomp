@@ -45,6 +45,9 @@
   brillo y la caida sobre m1960): 0 -> 95 %. Inlines nuevos `EndMode_unk` (vuelta al modo 0) y `Roar_unk`
   (modo 6). fn_8045D3A4 y fn_8045EDEC declaradas como miembros (renombradas en symbols.txt a
   `fn_8045D3A4__15LastCocoonImagoFv` y `fn_8045EDEC__15LastCocoonImagoFi`); siguen sin escribir.
+- fn_8045ABB4 (giro hacia la rotacion pedida, paso, gravedad, empuje m6B8 con `MIN` de macros.h, barrido
+  `fn_8004D388` e inclinacion m584 como Em403WarLion): 0 -> 96 %. `CollResult_unk` de gmk/Lemon.h.
+  Etiquetas @17936/@17937 (.sdata2 0x80886C30/34) renombradas a mano (ambiguas para pairdata).
 - Tras re-emparejar etiquetas, vfD8 (0x8045F884) pasa a 100 %: fnstat 18 -> 19 / 36.
 - fnstat 18 / 36 (sin cambio).
 
