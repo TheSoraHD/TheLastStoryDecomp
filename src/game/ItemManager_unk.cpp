@@ -609,13 +609,16 @@ extern "C" bool fn_80213B78(int code, int type, int id, int sub); // db/ItemRare
 // inferred: candidate of a random item (0xC bytes; names invented)
 struct ItemCandidate_unk {
     ItemCandidate_unk() : mCode(0), mCount(1), mWeight(10), mItem(0) {}
+    ItemCandidate_unk(int code, short count, short weight, void* item)
+        : mCode(code), mCount(count), mWeight(weight), mItem(item) {}
     int mCode;
     short mCount;
     short mWeight;
-    ItemParamEntry_unk* mItem;
+    void* mItem; // inferred: ItemParamEntry_unk, WeaponParamEntry_unk or EquipParamEntry_unk
 };
 typedef atn::FixedArray_unk<ItemCandidate_unk, 384> ItemCandidates_unk;
-// inferred: fills `list` with the candidates of the random code `code` (0x80445F44)
+extern "C" int fn_80448B80(Inventory* inventory, const char* map, const char* from);
+// inferred: fills `list` with the candidates of the random code `code` (defined below)
 extern "C" int fn_80445F44(Inventory* inventory, ItemCandidates_unk* list, int code, int count, int arg);
 
 // inferred: the item is rare in the current place (the map of the field, else the place of the item being
@@ -738,7 +741,7 @@ extern "C" int fn_80445130(Inventory* inventory, int* code, int* count, int arg)
         int kinds[10];
         memset(kinds, 0, sizeof(kinds));
         for (unsigned int i = 0; i < list.size(); i++) {
-            ItemParamEntry_unk* item = list.mData[i].mItem;
+            ItemParamEntry_unk* item = (ItemParamEntry_unk*)list.mData[i].mItem;
             IsRareHere_unk(item->mId);
             kinds[item->mBC]++;
         }
@@ -799,6 +802,196 @@ extern "C" int fn_80445130(Inventory* inventory, int* code, int* count, int arg)
         }
     }
     return ret;
+}
+
+// inferred: order of the drawn weapons: mEC first (descending), then id, then address; name invented
+struct WeaponCandidateLess_unk {
+    bool operator()(const ItemCandidate_unk& a, const ItemCandidate_unk& b) const {
+        WeaponParamEntry_unk* wa = (WeaponParamEntry_unk*)a.mItem;
+        WeaponParamEntry_unk* wb = (WeaponParamEntry_unk*)b.mItem;
+        if (wa->mEC != wb->mEC) {
+            return wa->mEC > wb->mEC;
+        }
+        if (wa->mId != wb->mId) {
+            return wb->mId > wa->mId;
+        }
+        return wb > wa;
+    }
+};
+// inferred: same for the protectors (mBC, then id); name invented
+struct EquipCandidateLess_unk {
+    bool operator()(const ItemCandidate_unk& a, const ItemCandidate_unk& b) const {
+        EquipParamEntry_unk* ea = (EquipParamEntry_unk*)a.mItem;
+        EquipParamEntry_unk* eb = (EquipParamEntry_unk*)b.mItem;
+        if (ea->mBC != eb->mBC) {
+            return ea->mBC > eb->mBC;
+        }
+        if (ea->mId != eb->mId) {
+            return eb->mId > ea->mId;
+        }
+        return eb > ea;
+    }
+};
+
+// NONMATCHING: 94.4% - the id ranges and the kind test of the protectors fold into one unsigned compare
+// (the original keeps two compares) and the early returns are not shared
+// inferred: candidates of the random code `code` (weapons, protectors, items or money) that can be found in
+// the current place (fn_80448B80); the halves of the sorted list are dropped by codes and flags
+extern "C" int fn_80445F44(Inventory* inventory, ItemCandidates_unk* list, int code, int count, int arg) {
+    switch (code) {
+    case 0x2711:
+    case 0x2715:
+    case 0x2718:
+    case 0x271A: {
+        int n = fn_80206B68();
+        for (int i = 0; i < n; i++) {
+            WeaponParamEntry_unk* weapon = fn_80206B70(i);
+            if (fn_80448B80(inventory, weapon->mF4.c_str(), weapon->m104.c_str()) == 0) {
+                continue;
+            }
+            if (IsRareHere_unk(fn_80206BE4(weapon)) &&
+                !(weapon->mKind == 0 && weapon->mId >= 617 && weapon->mId <= 620)) {
+                int have = fn_80444564(inventory, fn_80206BE4(weapon));
+                int max = 2;
+                if (weapon->mKind == 0 && weapon->mId >= 434 && weapon->mId <= 461) {
+                    max = 1;
+                }
+                if (have >= max && lbl_8087F430 != 0 && lbl_8087F430->m5694 == 0 &&
+                    lbl_8087F430->fn_80370174(0x11B) <= 0) {
+                    continue;
+                }
+            }
+            int c = fn_80206BE4(weapon);
+            if (list->size() < 0x180) {
+                list->push_back(ItemCandidate_unk(c, 1, 10, weapon));
+            }
+        }
+        if (code == 0x2718) {
+            int found = 0;
+            for (unsigned int i = 0; i < list->size(); i++) {
+                if (((WeaponParamEntry_unk*)list->mData[i].mItem)->m128 > 0) {
+                    found++;
+                }
+            }
+            if (found > 0) {
+                for (ItemCandidate_unk* p = list->begin(); p != list->end();) {
+                    if (((WeaponParamEntry_unk*)p->mItem)->m128 <= 0) {
+                        list->erase(p);
+                    } else {
+                        p++;
+                    }
+                }
+            }
+        }
+        if (code == 0x2715) {
+            MslSort_unk(list->begin(), list->end(), WeaponCandidateLess_unk());
+            unsigned int half = list->size() / 2;
+            for (unsigned int i = 0; i < half; i++) {
+                list->mSize--;
+            }
+        }
+        if (lbl_8087F430 != 0 && lbl_8087F430->fn_80370174(0xD5) > 0) {
+            MslSort_unk(list->begin(), list->end(), WeaponCandidateLess_unk());
+            unsigned int half = list->size() / 2;
+            for (unsigned int i = 0; i < half; i++) {
+                list->erase(list->begin());
+            }
+        }
+        break;
+    }
+    case 0x2712:
+    case 0x2716: {
+        int n = fn_8020EE58();
+        for (int i = 0; i < n; i++) {
+            EquipParamEntry_unk* equip = fn_8020EE60(i);
+            bool ok;
+            if (equip == 0) {
+                ok = false;
+            } else if (equip->mKind == 0 || equip->mKind == 1) {
+                ok = true;
+            } else {
+                ok = false;
+            }
+            if (ok && fn_80448B80(inventory, equip->mC0.c_str(), equip->mD0.c_str()) != 0) {
+                int c = fn_8020EF80(equip);
+                if (list->size() < 0x180) {
+                    list->push_back(ItemCandidate_unk(c, 1, 10, equip));
+                }
+            }
+        }
+        if (code == 0x2716) {
+            MslSort_unk(list->begin(), list->end(), EquipCandidateLess_unk());
+            unsigned int half = list->size() / 2;
+            for (unsigned int i = 0; i < half; i++) {
+                list->mSize--;
+            }
+        }
+        if (lbl_8087F430 != 0 && lbl_8087F430->fn_80370174(0xD5) > 0) {
+            MslSort_unk(list->begin(), list->end(), EquipCandidateLess_unk());
+            unsigned int half = list->size() / 2;
+            for (unsigned int i = 0; i < half; i++) {
+                list->erase(list->begin());
+            }
+        }
+        break;
+    }
+    case 0x2713:
+    case 0x2717: {
+        int n = fn_802114D8();
+        for (int i = 0; i < n; i++) {
+            ItemParamEntry_unk* item = fn_802114E0(i);
+            if (code == 0x2713) {
+                if (item->mBC == 6 || item->mBC == 9) {
+                    continue;
+                }
+            } else if (inventory->mDB10 == 0 || item->mBC != 6 || item->mB4 > 7) {
+                continue;
+            }
+            if (fn_80448B80(inventory, item->mCC.c_str(), item->mDC.c_str()) != 0) {
+                short num = (signed char)item->mC3 > 0 ? (signed char)item->mC3 : 1;
+                if (list->size() < 0x180) {
+                    list->push_back(ItemCandidate_unk(item->mId, num, 10, item));
+                }
+            }
+        }
+        break;
+    }
+    case 0x2714:
+        if (fn_80211480(code) == 0) {
+            return 0;
+        }
+        for (int i = 0; i < 5; i++) {
+            short money = fn_80444EFC(0);
+            ItemParamEntry_unk* item = fn_80211480(code);
+            if (list->size() < 0x180) {
+                list->push_back(ItemCandidate_unk(code, money, 10, item));
+            }
+        }
+        break;
+    default:
+        if (fn_80211480(code) == 0) {
+            return 0;
+        }
+        if (list->size() < 0x180) {
+            list->push_back(ItemCandidate_unk(code, count, 10, fn_80211480(code)));
+        }
+        break;
+    }
+    if ((code >= 0x2711 && code <= 0x2718) || code == 0x271A) {
+        if ((lbl_8087F430 != 0 && lbl_8087F430->fn_80370174(0x11B) > 0) ||
+            (inventory->mDB14 != 0 && inventory->mDB28 > 0)) {
+            if (arg != 0 || code == 0x2713 || code == 0x2717) {
+                ItemParamEntry_unk* item = fn_80211480(0x143);
+                if (item != 0) {
+                    short num = (signed char)item->mC3 > 0 ? (signed char)item->mC3 : 1;
+                    if (list->size() < 0x180) {
+                        list->push_back(ItemCandidate_unk(item->mId, num, 10, item));
+                    }
+                }
+            }
+        }
+    }
+    return 1;
 }
 
 extern "C" int strcmp(const char* a, const char* b);

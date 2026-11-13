@@ -2,10 +2,13 @@
 
 ## Resultado por unidad
 
-- `game/ItemManager_unk`: funciones al 0 % 19 -> 8. Al 100 %: `fn_80444EFC` (dinero que suelta un enemigo),
+- `game/ItemManager_unk`: funciones al 0 % 19 -> 1 (solo queda el constructor). Al 100 %: `fn_80444EFC` (dinero que suelta un enemigo),
   `fn_804491F4` (recompensas de un enemigo), `fn_80449448` (escala de recompensas por diferencia de nivel),
   `Inventory::AddItem` (0x804439FC). `fn_80445130` (sorteo de los codigos aleatorios 0x2711-0x271A) escrita,
-  NONMATCHING 98,5 % (un `cmpwi` del resultado no usado de `fn_80213B78`).
+  NONMATCHING 98,5 % (un `cmpwi` del resultado no usado de `fn_80213B78`). `fn_80445F44` (candidatos de cada
+  codigo aleatorio) escrita, NONMATCHING 94,4 %; sus dos `std::sort` (`MslSort_unk` con
+  `EquipCandidateLess_unk`/`WeaponCandidateLess_unk`) salen con el tamano exacto: medianas 0x80447740 y
+  0x80448908 al 100 %, sorts 99,27 % (registros de la seleccion de `MslSort_unk.h`, cabecera compartida).
   `fn_80444C50` vuelve a 100 % tras el re-emparejado de datos. Escritas NONMATCHING: `fn_80444020` 88,7 %
   (constantes 0/-1/1/0xF0000 en r19-r23 en el original), `fn_80448B80` 99,85 % (operandos de cuatro `cmpw`
   con `atoi`), `Inventory::fn_80449ABC` 55 % (sin constructores, ver decisiones) y su `std::sort`
@@ -52,7 +55,8 @@
 - `Inventory::AddItem` devuelve `int` (antes `void` en `Inventory.h`; los llamadores ignoran el valor).
 - `DropSetting_unk` (ItemManager_unk) es una vista de `InitSetting_unk` de `db/InitSetting_unk.cpp`: falta una
   cabecera comun.
-- Quedan al 0 % en ItemManager_unk: ctor, `fn_80445F44` y sus dos `std::sort` (0x804467F0-0x80448908).
+- Queda al 0 % en ItemManager_unk: el constructor de `Inventory` (0x80442FF4).
+- `Inventory::mDB10` pasa a `int` (permite los objetos de estado en `fn_80445F44`).
 - GameTask `fn_803731E8`: `FinishCamera_unk::fn_803786FC` recibe en realidad un entero (`leader != mChara ? 30
   : 0`), no un `CharaTask*`; corregir la firma exige tocar `game/FinishCamera_unk`.
 

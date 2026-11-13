@@ -117,7 +117,7 @@ public:
     atn::LH_Binary mLoader;                         // 0xDB00
     int mLoaded;                                    // 0xDB08: inferred: mLoader done (fn_8044386C)
     int mDB0C;                                      // inferred: cleared by the shops around AddItem (0x805849E8)
-    unsigned char mDB10[0xDB14 - 0xDB10];
+    int mDB10;                                      // inferred: the stat items can be drawn (fn_80445F44)
     int mDB14;                                      // inferred: read by fn_8044909C; 1 while mDB18-mDB20 are set
     int mDB18;                                      // inferred: map of the item being added (type, map,
     int mDB1C;                                      // point of fn_80216AFC; -1 when unset, gmk::RandomItem)
