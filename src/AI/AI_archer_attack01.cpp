@@ -1469,6 +1469,23 @@ struct AIScriptMap_unk {
     AIScriptMapNode_unk* InsertNode_unk(AIScriptMapNode_unk* parent, bool left, bool leftmost,
                                         const AIScriptMapValue_unk& value); // 0x8003DD50
     void Destroy_unk(AIScriptMapNode_unk* node);                            // 0x8003DEE0
+    // inferred: MSL __tree::find (lower bound, then the key test), inlined in fn_8001EA18
+    AIScriptMapNode_unk* Find_unk(const std::string& key) {
+        AIScriptMapNode_unk* result = End_unk();
+        AIScriptMapNode_unk* x = mRoot;
+        while (x != 0) {
+            if (x->mValue.first.compare(key) >= 0) {
+                result = x;
+                x = x->mLeft;
+            } else {
+                x = x->mRight;
+            }
+        }
+        if (result == End_unk() || key.compare(result->mValue.first) < 0) {
+            result = End_unk();
+        }
+        return result;
+    }
     static AIScriptMapNode_unk* Allocate_unk() {
         AIScriptMapNode_unk* p = (AIScriptMapNode_unk*)::operator new(sizeof(AIScriptMapNode_unk));
         if (p == 0) {
@@ -1732,36 +1749,8 @@ extern "C" void* fn_8001E168(AIString_unk* str, int freeObject) {
     return str;
 }
 
-// inferred: std::min (MSL: b < a ? b : a) as inlined in the string compare below
-static inline const unsigned long& AIMin_unk(const unsigned long& a, const unsigned long& b) {
-    return b < a ? b : a;
-}
-
-// inferred: MSL basic_string::compare(pos1, n1, s, n2) inlined in the script map lookup
-static inline int AIStrCompare_unk(const std::string& a, unsigned long pos1, unsigned long n1, const char* s,
-                                   unsigned long n2) {
-    unsigned long len = a.size();
-    unsigned long rlen = AIMin_unk(len - pos1, n1);
-    int result = memcmp(a.data() + pos1, s, AIMin_unk(rlen, n2));
-    if (result == 0) {
-        if (rlen < n2) {
-            result = -1;
-        } else if (rlen == n2) {
-            result = 0;
-        } else {
-            result = 1;
-        }
-    }
-    return result;
-}
-
-// inferred: basic_string::compare(const basic_string&) = compare(0, size(), str.data(), str.size())
-static inline int AIStrCompare_unk(const std::string& a, const std::string& b) {
-    return AIStrCompare_unk(a, 0, a.size(), b.data(), b.size());
-}
-
-// NONMATCHING: 75.11% - the key data and size come from one test of the long bit in the original (two here,
-// as in fn_8001EA18) and the predecessor is at 0x0C of the frame (0x1C here)
+// NONMATCHING: 94.07% - the predecessor is at 0x0C of the frame (0x1C here, after the temporaries of the
+// inlined compare) and its register is swapped with the insert position
 // inferred: std::map::insert(value) on the script map: the insert position, then a new node unless the
 // predecessor has the same key; the result is the pair<iterator, bool> (the two flags are constants of
 // .sdata)
@@ -1777,7 +1766,7 @@ extern "C" void fn_8001E1D0(void* result, void* tree, const AIStringWithAllocato
     bool left;
     AIScriptMapNode_unk* parent = fn_8003E530(tree, &value->mString, &pred, &left, &leftmost);
     AIScriptInsertResult_unk r;
-    if (pred == 0 || AIStrCompare_unk(pred->mValue.first, v.first) < 0) {
+    if (pred == 0 || pred->mValue.first.compare(v.first) < 0) {
         r.first = ((AIScriptMap_unk*)tree)->InsertNode_unk(parent, left, leftmost, v);
         r.second = lbl_8087D6F0;
     } else {
@@ -1942,27 +1931,14 @@ extern "C" void fn_8001E730() {
     lbl_807C6B84.clear();
 }
 
-// NONMATCHING: 57.07% - the key size and data are loaded once before the search loop (the original reads
-// them again for every node)
+// inferred: called with bl by fn_8001C1C0 (MWCC would inline it: noinline as in fn_8003DBA4)
+// NONMATCHING: 88.02% - the key size and data are loaded once before the search loop (the original reads
+// them again for every node and saves four registers instead of seven)
 // inferred: std::map<std::string, factory>::find on the script map (0x807C6B84, end node at +0x04 whose
 // left link is the root): the factory of the named script, 0 if there is none
-extern "C" void* fn_8001EA18(const char* name) {
-    std::string key(name);
-    AIScriptMapNode_unk* end = lbl_807C6B84.End_unk();
-    AIScriptMapNode_unk* result = end;
-    AIScriptMapNode_unk* x = lbl_807C6B84.mRoot;
-    while (x != 0) {
-        if (AIStrCompare_unk(x->mValue.first, key) >= 0) {
-            result = x;
-            x = x->mLeft;
-        } else {
-            x = x->mRight;
-        }
-    }
-    if (result == end || AIStrCompare_unk(key, result->mValue.first) < 0) {
-        result = end;
-    }
-    return result != end ? result->mValue.second : 0;
+extern "C" __declspec(noinline) void* fn_8001EA18(const char* name) {
+    AIScriptMapNode_unk* it = lbl_807C6B84.Find_unk(std::string(name));
+    return it != lbl_807C6B84.End_unk() ? it->mValue.second : 0;
 }
 
 extern "C" int fn_8001ECD0(void* object, int type) {

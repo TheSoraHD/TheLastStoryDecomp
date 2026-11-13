@@ -30,10 +30,12 @@ Cola: restos de game/GameEventScript (12 al 0 %) y AI/AI_archer_attack01 (6 al 0
     de verdad (`AIScriptMapL1_unk lbl_807C6B84;`) el compilador da el destructor al 100 % pero la `__sinit`
     baja a 67,5 % (la primera escritura va por el simbolo, `stw rX, lo(rHA)`; probadas 11 variantes en
     `try.sh`: ctor en lista o cuerpo, base, miembro, `static`, miembro estatico, ctor no inline).
-  - Parcial `fn_8001E1D0` (`map::insert`) 47,60 -> 75,11 %: reescrita con `fn_8003E530`, el compare de MSL y
-    `InsertNode_unk` (los locales sin inicializar: los pone el llamado).
+  - Parcial `fn_8001E1D0` (`map::insert`) 47,60 -> 94,07 %: reescrita con `fn_8003E530`,
+    `basic_string::compare(const basic_string&)` de `std/string.h` y `InsertNode_unk` (los locales sin
+    inicializar: los pone el llamado). Queda el hueco de pila del predecesor.
   - `fn_8001E730` (vacia el mapa: borra las factorias en orden y luego `clear()`) 93,82 % y `fn_8001EA18`
-    (`find` por nombre con `basic_string::compare(pos, n1, s, n2)` inline) 57,07 %: NONMATCHING (ver abajo).
+    (`find` por nombre: `AIScriptMap_unk::Find_unk(std::string(name))` inline con el `compare` de
+    `std/string.h`) 88,02 %: NONMATCHING (ver abajo).
 - `game/GameScene`: llama a `boost::lexical_cast<std::string, int>` con una declaracion de la plantilla (sin
   definicion: la copia debil es la de GameEventScript) en vez de `extern "C" fn_80393BEC`. Codigo y etiquetas
   identicos.
@@ -69,8 +71,9 @@ Cola: restos de game/GameEventScript (12 al 0 %) y AI/AI_archer_attack01 (6 al 0
 
 - `fn_8001E730` 93,82 %: la direccion del mapa queda en r30 (el original la vuelve a cargar con lis/addi tras
   el bucle y en cada llamada) y un registro guardado mas; probado `clear()` como miembro.
-- `fn_8001EA18` 57,07 %: el tamano y los datos de la clave se cargan una vez antes del bucle (el original los
-  relee en cada nodo); el orden del compare (clave primero, `min` de MSL `b < a ? b : a`) ya casa.
+- `fn_8001EA18` 88,02 %: el tamano y los datos de la clave se cargan una vez antes del bucle (el original los
+  relee en cada nodo y guarda 4 registros, aqui 7); probados clave local, temporal en `Find_unk`, helper de
+  compare propio (57 %).
 
 ## Decisiones tomadas sin el usuario
 
@@ -85,12 +88,19 @@ Cola: restos de game/GameEventScript (12 al 0 %) y AI/AI_archer_attack01 (6 al 0
 - AI_archer: renombrado `fn_8003DD50` -> `InsertNode_unk__15AIScriptMap_unkFP19AIScriptMapNode_unkbbRC20AIScriptMapValue_unk`.
 - AI_archer: renombrado `fn_8003DEE0` -> `Destroy_unk__15AIScriptMap_unkFP19AIScriptMapNode_unk`; `pd.sh`
   reetiqueto los `@N` de la unidad (481 -> 481).
+- AI_archer: `__declspec(noinline)` en `fn_8001EA18` (con `Find_unk` inline MWCC la metia en `fn_8001C1C0`, que bajaba de 100 a 0).
 - AI_archer: `fn_8003E6B8` como funcion `extern "C"` que hace de destructor con borrado (decision a revisar:
   sustituye a la que generaria el compilador; ver arriba).
 - Cambio de tamano de `ctype<char>` en `locale_facets_unk.h` (cabecera MSL compartida con EffectManager): solo
   miembro de datos.
 
 ## Hallazgos
+
+- `basic_string::compare(const basic_string&)` de `std/string.h` reproduce el compare inline de MSL de los
+  `std::map<std::string, ...>` (datos y tamano del argumento en una sola prueba del bit largo); un helper
+  propio con `compare(pos, n1, s, n2)` lo separa en dos.
+- Un objeto global con destructor da en la `__sinit` `stw rX, sym@l(rHA)` para la primera escritura; el
+  original (AI_archer 0x8003E688) la hace con el puntero en r3.
 
 - MWCC no guarda las vtables en los dtors inline de `basic_stringbuf`/`basic_streambuf` dentro de
   `~basic_stringstream` (solo las ranuras de base virtual en +0x3C).
