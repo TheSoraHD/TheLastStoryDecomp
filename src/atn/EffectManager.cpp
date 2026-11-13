@@ -545,6 +545,12 @@ namespace std {
 template basic_ostream<char>& basic_ostream<char>::operator<<(int n);
 template num_put<char>::~num_put();
 template num_put<char>::iter_type num_put<char>::do_put(iter_type out, ios_base& str, char fill, bool v) const;
+template num_put<char>::iter_type num_put<char>::do_put(iter_type out, ios_base& str, char fill, long v) const;
+template num_put<char>::iter_type num_put<char>::do_put(iter_type out, ios_base& str, char fill,
+                                                         unsigned long v) const;
+template num_put<char>::iter_type num_put<char>::do_put(iter_type out, ios_base& str, char fill, long long v) const;
+template num_put<char>::iter_type num_put<char>::do_put(iter_type out, ios_base& str, char fill,
+                                                         unsigned long long v) const;
 template num_put<char>::iter_type num_put<char>::do_put(iter_type out, ios_base& str, char fill, double v) const;
 template numpunct<char>::string_type numpunct<char>::truename() const;
 template numpunct<char>::string_type numpunct<char>::falsename() const;

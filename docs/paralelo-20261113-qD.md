@@ -31,6 +31,11 @@ Inicio: 2026-11-13 01:18 CET. Rama `agent-D`. Unidades: `atn/EffectSystem_unk`, 
 - `atn/EffectManager` (commit 7): `std::__put_grouping_float<char, string>` (0x802428D8) al 100 %. 0 % 11 -> 10,
   al 100 % 39 -> 40.
 
+- `atn/EffectManager` (commit 8): escritas NONMATCHING (~79 %) las cuatro salidas de enteros de `num_put`
+  (`long`, `unsigned long`, `long long`, `unsigned long long`; 0x8023C6F4, 0x8023D308, 0x8023DE24, 0x8023EA78)
+  con ayudas inline (`__put_oct_unk`, `__put_hex_unk`, `__put_unsigned_unk`, `__put_signed_unk`,
+  `__put_padded_unk`; nombres inventados). 0 % 10 -> 6.
+
 ## Decisiones tomadas sin el usuario
 
 - Empece por fn_8022DD1C y no por EffectManager: la cola de EffectManager son 26 instanciaciones de MSL

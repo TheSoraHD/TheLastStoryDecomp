@@ -130,6 +130,8 @@ enum {
     __oct_unk = 0x40,
     __basefield_unk = 0x4A,
     __adjustfield_unk = 0xB0,
+    __showbase_unk = 0x200,
+    __showpos_unk = 0x800,
     __uppercase_unk = 0x4000
 };
 
@@ -248,8 +250,6 @@ typename numpunct<C>::char_type numpunct<C>::do_thousands_sep() const {
 template <class C>
 numpunct<C>::~numpunct() {}
 
-// NONMATCHING: 88% - stack slots of the two name temporaries of the inlined numpunct constructor swapped,
-// registers of the facet and the table
 // inferred: inserts the thousands separator in the integer part of a formatted float (the digits before the
 // decimal point dp, or the whole string), following the grouping (weak copy 0x802428D8)
 template <class C, class S>
@@ -341,6 +341,154 @@ int __put_digits_unk(ios_base& str, U v, C* buf, const ctype<C>& ct, bool noGrou
     return p - buf;
 }
 
+// inferred: writes a prefix and a body padded with the fill character to the width of the stream (before them
+// unless left or internal adjusted, between them when internal, after them when left), then clears the width
+// (inlined by the integer do_put functions; name invented)
+template <class C, class O>
+inline O __put_padded_unk(O out, ios_base& str, C fill, const C* pre, int npre, const C* body, int n) {
+    int pad = 0;
+    if (str.mWidth > npre + n) {
+        pad = str.mWidth - (npre + n);
+    }
+    unsigned short adjust = str.flags() & __adjustfield_unk;
+    if (adjust != __left_unk && adjust != __internal_unk) {
+        for (int i = 0; i < pad; i++) {
+            *out = fill;
+        }
+    }
+    for (int i = 0; i < npre; i++) {
+        *out = *pre++;
+    }
+    if (adjust == __internal_unk) {
+        for (int i = 0; i < pad; i++) {
+            *out = fill;
+        }
+    }
+    for (int i = 0; i < n; i++) {
+        *out = *body++;
+    }
+    if (adjust == __left_unk) {
+        for (int i = 0; i < pad; i++) {
+            *out = fill;
+        }
+    }
+    str.mWidth = 0;
+    return out;
+}
+
+// inferred: octal output with a leading 0 (zero or showbase) (inlined by the integer do_put; name invented)
+template <class C, class O, class U>
+inline O __put_oct_unk(O out, ios_base& str, C fill, U v) {
+    const ctype<C>& ct = use_facet<ctype<C> >(str.getloc());
+    C buf[0x40];
+    C* p = buf;
+    int n = 0;
+    if (v == 0 || (str.flags() & __showbase_unk) != 0) {
+        *p++ = ct.widen('0');
+        n = 1;
+    }
+    if (v != 0) {
+        n += __put_digits_unk(str, v, p, ct, false);
+    }
+    return __put_padded_unk(out, str, fill, buf, 0, buf, n);
+}
+
+// inferred: hexadecimal output with 0x or 0X (showbase, uppercase) (inlined by the integer do_put; name
+// invented)
+template <class C, class O, class U>
+inline O __put_hex_unk(O out, ios_base& str, C fill, U v) {
+    const ctype<C>& ct = use_facet<ctype<C> >(str.getloc());
+    C pre[2];
+    int npre = 0;
+    if ((str.flags() & __showbase_unk) != 0) {
+        pre[0] = ct.widen('0');
+        if ((str.flags() & __uppercase_unk) != 0) {
+            pre[1] = ct.widen('X');
+        } else {
+            pre[1] = ct.widen('x');
+        }
+        npre = 2;
+    }
+    C buf[0x20];
+    int n = __put_digits_unk(str, v, buf, ct, false);
+    return __put_padded_unk(out, str, fill, pre, npre, buf, n);
+}
+
+// inferred: output of an unsigned integer in the base of the stream; the digits through __put_digits_unk with
+// the ctype of the stream (inlined by do_put for unsigned long and unsigned long long; name invented)
+template <class C, class O, class U>
+inline O __put_unsigned_unk(O out, ios_base& str, C fill, U v) {
+    switch (str.flags() & __basefield_unk) {
+    case __oct_unk:
+        return __put_oct_unk(out, str, fill, v);
+    case __hex_unk:
+        return __put_hex_unk(out, str, fill, v);
+    default: {
+        const ctype<C>& ct = use_facet<ctype<C> >(str.getloc());
+        C buf[0x40];
+        int n = __put_digits_unk(str, v, buf, ct, false);
+        return __put_padded_unk(out, str, fill, buf, 0, buf, n);
+    }
+    }
+}
+
+// inferred: output of a signed integer: octal and hexadecimal as unsigned, decimal with a - sign (or + with
+// showpos) (inlined by do_put for long and long long; name invented)
+template <class C, class O, class S, class U>
+inline O __put_signed_unk(O out, ios_base& str, C fill, S v) {
+    switch (str.flags() & __basefield_unk) {
+    case __oct_unk:
+        return __put_oct_unk(out, str, fill, (U)v);
+    case __hex_unk:
+        return __put_hex_unk(out, str, fill, (U)v);
+    default: {
+        const ctype<C>& ct = use_facet<ctype<C> >(str.getloc());
+        C pre[1];
+        int npre = 0;
+        if (v >= 0 && (str.flags() & __showpos_unk) != 0) {
+            pre[0] = ct.widen('+');
+            npre = 1;
+        } else if (v < 0) {
+            npre = 1;
+            pre[0] = ct.widen('-');
+            v = -v;
+        }
+        C buf[0x40];
+        int n = __put_digits_unk(str, (U)v, buf, ct, false);
+        return __put_padded_unk(out, str, fill, pre, npre, buf, n);
+    }
+    }
+}
+
+// NONMATCHING: 79% - stack slots of the buffers and the facet temporaries, registers of the output loops
+template <class C, class O>
+typename num_put<C, O>::iter_type num_put<C, O>::do_put(iter_type out, ios_base& str, char_type fill, long v) const {
+    return __put_signed_unk<C, O, long, unsigned long>(out, str, fill, v);
+}
+
+// NONMATCHING: 79% - stack slots of the buffers and the facet temporaries, registers of the output loops
+template <class C, class O>
+typename num_put<C, O>::iter_type num_put<C, O>::do_put(iter_type out, ios_base& str, char_type fill,
+                                                        long long v) const {
+    return __put_signed_unk<C, O, long long, unsigned long long>(out, str, fill, v);
+}
+
+// NONMATCHING: 79% - stack slots of the buffers and the facet temporaries, registers of the output loops
+template <class C, class O>
+typename num_put<C, O>::iter_type num_put<C, O>::do_put(iter_type out, ios_base& str, char_type fill,
+                                                        unsigned long v) const {
+    return __put_unsigned_unk(out, str, fill, v);
+}
+
+// NONMATCHING: 79% - stack slots of the buffers and the facet temporaries, registers of the output loops
+template <class C, class O>
+typename num_put<C, O>::iter_type num_put<C, O>::do_put(iter_type out, ios_base& str, char_type fill,
+                                                        unsigned long long v) const {
+    return __put_unsigned_unk(out, str, fill, v);
+}
+
+// NONMATCHING: 88% - stack slots of the two name temporaries of the inlined numpunct constructor swapped,
+// registers of the facet and the table
 // inferred: bool output (0x8023C0C0): without boolalpha as a long; else the true or false name of the
 // numpunct of the stream, padded with the fill character to the width (left, internal or right), which is
 // cleared
