@@ -9,6 +9,9 @@
   (99,36 %), `fn_801191A8` (99,98 %, estado 1, solo pool), `fn_8011999C` (97,77 %, estado 5), `fn_80119F0C`
   (99,43 %, barra de informacion), `vf14` (98,83 %, registro de la historia), `fn_8011A4D0` (99,18 %, ventana de
   confirmacion). El pool `@stringBase0` ya coincide salvo las 3 cadenas de `basic_string` del final. Sube `fn_8011B8D4` 95,79 -> 99,93 % (pool de cadenas).
+- `game/ReplayBuffer` 5 -> 3 al 0 %. Escritas: `fn_8056C3D8` (98,77 %, graba un fotograma), `fn_8056F5B4`
+  (98,65 %, graba el fotograma en vivo `mLive`). GameTask 98 -> 106 en fnstat tras `pdbatch` (renumerado por la
+  llamada a miembro).
 
 ## NONMATCHING
 
@@ -29,6 +32,9 @@
   de los dos iconos de boton (0x30/0x20 en el original).
 - `CampSaveLoad::vf14` 98,83 %: registros del bucle de entradas y de los dos colores (`atn::Color::ToU32` hace los
   OR en otro orden; no se toca la cabecera compartida) y pool.
+
+- `ReplayBuffer::fn_8056C3D8` 98,77 % y `fn_8056F5B4` 98,65 %: registros (puntero del fotograma; palabra de flags y
+  resultado de `IsSkipped_unk` en el bucle de enemigos, como `ReplayRecorder_unk::fn_8056B3D4`).
 
 ## Decisiones tomadas sin el usuario
 
@@ -53,6 +59,14 @@
 - `fn_801F4D80(name, (int)path.c_str())` como en NewCampPartsMapSelect (la firma de `atn/D2A_Task.h` tiene `int`).
 - `CampSaveLoad::GetSlot_unk(int)` inline nueva en `game/CampSaveLoad.h` (el original carga el indice antes de
   `GetData_unk()`).
+- `ReplayBuffer::fn_8056C3D8()` y `fn_8056F5B4(int)` como miembros en `game/ReplayBuffer.h` (5 unidades; sin
+  nombres de parametro, no renumeran). GameTask llamaba a `fn_8056C3D8` como `extern "C"` con `self`: ahora
+  `m5590->fn_8056C3D8()` (se quita la declaracion local, que tenia un parametro con nombre: GameTask renumera -1,
+  re-emparejada con `pdbatch.sh` y dos etiquetas de `.sdata2` corregidas a mano, 0x808857A8/0x808857AC).
+- `ReplayFrame_unk`: `mLeaderMtx` (0x17D8) en la cabecera; las 32 balas (0x1558) siguen como bytes en la cabecera
+  y la struct `ReplayBullet_unk` esta en el `.cpp`: un array de una struct con `atn::Vector3` en la cabecera renumera
+  los `@N` de Arms, Bullet y HomingBullet (+5). Vista local `ReplayFrameTime_unk` de `lbl_8087EFA8` (como en
+  GimmickStateCommand/AiTarget).
 - Renombrados en `symbols.txt`: `vf0C/vf10/vf14__12CampSaveLoadFv`, `fn_8011B018__12CampSaveLoadFiP12SaveSlot_unk`,
   `fn_801191A8/fn_8011999C/fn_80119F0C/fn_8011A4D0__12CampSaveLoadFv`.
 
@@ -73,6 +87,10 @@
   fn_801191A8 98,6 -> 99,98 %).
 - Una conversion int -> float muerta (`lis 0x4330` + `xoris` + dos `stw`, sin `lfd`) es un local `float` sin usar
   (`float hour = save->m10;`, CampSaveLoad::fn_80119F0C).
+
+- Un miembro array de una struct con `atn::Vector3` dentro de una struct con constructor inline en una cabecera
+  renumera los `@N` de las unidades que la incluyen (ReplayFrame_unk: +5); un `atn::Matrix3x4` suelto o una
+  declaracion de metodo sin nombres de parametro no.
 
 ## Pendientes
 
