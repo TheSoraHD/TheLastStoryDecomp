@@ -2,6 +2,7 @@
 // the file name is unknown). Only the short functions at the end of the file are written so far.
 #include "game/Inventory.h"
 #include "game/GameTask.h"
+#include "game/MapTask.h"
 #include "game/CharaTask.h"
 #include "game/MarketTask.h"
 #include "db/ItemParam_unk.h"
@@ -9,7 +10,11 @@
 #include "db/EquipParam_unk.h"
 #include "atn/Memory.h"
 #include "game/PlayerManager.h"
+#include "game/PlayerTask.h"
 #include "db/ChapterList_unk.h"
+#include "game/DamageCalc_unk.h"
+#include "game/HitInfo_unk.h"
+#include "game/MslSort_unk.h"
 
 extern "C" const char* fn_8020BD3C(int index); // inferred: name of the group of a colour (db/PaletteTable_unk)
 extern "C" const char* fn_8020BD78(int index); // inferred: name of an effect palette
@@ -68,6 +73,118 @@ void Inventory::fn_804438E0(int code) {
         }
         item->m08 = 0;
     }
+}
+
+// inferred: drop tables (db, as in gmk/TreasureBox.cpp; names invented)
+struct ItemEntry_unk {
+    int mId;
+    int mCount;
+    int m08;
+};
+struct ItemTable_unk {
+    int m00;
+    ItemEntry_unk* mEntries; // 0x04
+};
+extern "C" ItemTable_unk* fn_8021E444(int table);
+extern "C" int fn_8021E5A4(ItemTable_unk* table, int flags); // inferred: draws an entry
+extern "C" HitInfo_unk* fn_80219E6C(int id);                // inferred: bullet data by id
+extern "C" void* lbl_8087F048;                              // BattleTask
+extern "C" void* lbl_8087F610;                              // inferred: multiplayer session
+// inferred: shows a damage on the battle UI (game/BattleTask)
+extern "C" void fn_80108C10(void* battle, DamageResult_unk* damage, const atn::Vector3* pos, CharaTask* attacker,
+                            CharaTask* target, int arg5, int arg6);
+// inferred: message of an item got (game/BattleTask; 1 item, 2 weapon, 3 money)
+extern "C" void fn_801092C8(void* battle, int kind, int arg, int code, int count);
+extern "C" void fn_80445130(Inventory* inventory, int* code, int* count, int arg);
+extern "C" int fn_80444EFC(CharaTask* chara);
+
+// inferred: gets the entry `index` (drawn when negative) of the drop table `table`: the items used at once
+// (kind 3 or flag 0x100) are applied to the leader, the money is added and the other items go to the bag;
+// `message` shows the message of the battle. Returns 0 without a table or an entry (game/BattleTask)
+// NONMATCHING: 88.7% - the original keeps the constants 0, -1, 1 and 0xF0000 in r19-r23 for the whole
+// function (stack frame 0x80) and shares the final `return 1`
+extern "C" int fn_80444020(Inventory* inventory, int table, int message, int index, CharaTask* chara, int arg,
+                           int* outCode, int* outCount, int* outAdded) {
+    ItemTable_unk* t = fn_8021E444(table);
+    if (t == 0) {
+        return 0;
+    }
+    int i = index < 0 ? fn_8021E5A4(t, Inventory::Order() != 0 ? Inventory::Order()->fn_8044909C() : 0) : index;
+    if (i < 0) {
+        return 0;
+    }
+    ItemEntry_unk* entry = &t->mEntries[i];
+    ItemParamEntry_unk* item = fn_80211480(entry->mId);
+    if (item == 0) {
+        inventory->AddItem(1, 1, 1, 0, 0, 1, 1);
+        return 1;
+    }
+    int code = entry->mId;
+    int count = entry->mCount;
+    if ((int)item->mItemKind == 3 || (item->mAC & 0x100) == 0x100) {
+        CharaTask* leader = lbl_8087F8A0->mHead;
+        HitInfo_unk* hit = item->mC4 > 0 ? fn_80219E6C(item->mC4) : 0;
+        if (leader != 0 && hit != 0) {
+            DamageResult_unk result;
+            fn_8003EA3C(&result, hit, leader, leader, 0, &lbl_807C6B90, 0, 0);
+            void* battle = lbl_8087F048;
+            if (battle != 0 && (hit->mAC & 0x80000) != 0x80000 &&
+                (lbl_8087F610 == 0 || (hit->m04 != 6004 && hit->m04 != 20428))) {
+                atn::Vector3 pos = leader->vfAC();
+                fn_80108C10(battle, &result, &pos, leader, leader, 0, 0);
+            }
+        }
+        if (outCode != 0) {
+            *outCode = code;
+        }
+        if (outCount != 0) {
+            *outCount = count;
+        }
+        if (outAdded != 0) {
+            *outAdded = 1;
+        }
+    } else {
+        fn_80445130(inventory, &code, &count, 0);
+        if (code != 0x2714 && code != 0x2719) {
+            int added = 1;
+            Inventory::instance_->AddItem(code, count, arg, 1, &added, 1, 1);
+            if (message != 0) {
+                if (fn_80206B9C(code) && added == 0) {
+                    fn_801092C8(lbl_8087F048, 2, 0, code, count);
+                } else if (item->mBC != 6) {
+                    fn_801092C8(lbl_8087F048, 1, 0, code, count);
+                }
+            }
+            if (outCode != 0) {
+                *outCode = code;
+            }
+            if (outCount != 0) {
+                *outCount = count;
+            }
+            if (outAdded != 0) {
+                *outAdded = added;
+            }
+        } else {
+            int money = count;
+            if (code == 0x2714) {
+                money = fn_80444EFC(chara);
+            }
+            Inventory::instance_->AddMoney(money);
+            if (message != 0) {
+                fn_801092C8(lbl_8087F048, 3, 0, money, 0);
+            }
+            if (outCode != 0) {
+                *outCode = code;
+            }
+            if (outCount != 0) {
+                *outCount = money;
+            }
+            if (outAdded != 0) {
+                *outAdded = 1;
+            }
+        }
+    }
+    return 1;
 }
 
 // inferred: removes `num` items `code`; returns the number removed (game shops, gimmicks)
@@ -354,6 +471,108 @@ extern "C" int fn_80444EFC(CharaTask* chara) {
     return (int)(rate * (level * 3 * RandScale_unk(8.0f)));
 }
 
+extern "C" int strcmp(const char* a, const char* b);
+extern "C" int strncmp(const char* a, const char* b, unsigned long n);
+extern "C" unsigned long strlen(const char* s);
+extern "C" int atoi(const char* s);
+extern "C" ChapterEntry_unk* fn_80208714(int index); // db/ChapterList_unk: chapter by index
+extern "C" int fn_80208740();                       // db/ChapterList_unk: number of chapters
+
+// inferred: the place `map` ("any", "dgNNN" or "dgNNN_PP") matches the current map (or the map of the item
+// being added); `from` ("any", "dgNNN", "to_dgNNN") limits it to the chapters reached before (fn_80445F44)
+extern "C" int fn_80448B80(Inventory* inventory, const char* map, const char* from) {
+    if (map == 0 || *map == 0) {
+        return 0;
+    }
+    if (from == 0 || *from == 0) {
+        return 0;
+    }
+    MapTask* cur = lbl_8087F430 != 0 ? lbl_8087F430->GetCurrentMap() : 0;
+    int type = cur != 0 ? cur->mType : -1;
+    int id = cur != 0 ? cur->mId : 0;
+    int sub = cur != 0 ? cur->mSubId : 0;
+    if (type == 2 && id == 9) {
+        if (sub == 12) {
+            sub = 2;
+        }
+        if (sub == 15) {
+            sub = 5;
+        }
+        if (sub == 16) {
+            sub = 6;
+        }
+    }
+    if (type != 2 || id == 999) {
+        if (inventory->mDB14 == 0) {
+            return 1;
+        }
+        type = inventory->mDB18;
+        id = inventory->mDB1C;
+        sub = inventory->mDB20;
+    }
+    int ret = 0;
+    if (strcmp(map, "any") == 0) {
+        ret = 1;
+    } else if (strncmp(map, "dg", 2) == 0 && atoi(map + 2) == id) {
+        if (strlen(map) >= 6) {
+            if (atoi(map + 6) == sub) {
+                ret = 1;
+            } else {
+                ret = 0;
+            }
+        } else {
+            ret = 1;
+        }
+    }
+    if (ret == 0) {
+        if (strcmp(from, "any") == 0) {
+            if (lbl_8087F430 != 0 && lbl_8087F430->fn_803752F4(map) != 0) {
+                ret = 1;
+            } else if (inventory->mDB14 != 0 && strncmp(map, "dg", 2) == 0 && inventory->mDB18 == 2) {
+                ChapterEntry_unk* chapter = fn_802085E0(2, atoi(map + 2));
+                ret = fn_802085E0(2, inventory->mDB1C) >= chapter;
+            }
+        } else if (strncmp(map, "dg", 2) == 0 && strncmp(from, "to_dg", 5) == 0) {
+            int dst = atoi(map + 2);
+            int dstSub = 0;
+            if (strlen(map) >= 6) {
+                dstSub = atoi(map + 6);
+            }
+            int src = atoi(from + 5);
+            int srcSub = 0;
+            if (strlen(from) >= 9) {
+                srcSub = atoi(from + 9);
+            }
+            int found = 0;
+            for (int i = 0; i < fn_80208740(); i++) {
+                ChapterEntry_unk* c = fn_80208714(i);
+                if (c->mType == 2 && c->mMap == dst && (dstSub <= 0 || c->mPoint == dstSub)) {
+                    found = 1;
+                    continue;
+                }
+                if (found && c->mType == type && c->mMap == id && (c->mPoint <= 0 || c->mPoint == sub)) {
+                    ret = 1;
+                    break;
+                }
+                if (c->mType == 2 && c->mMap == src && (srcSub <= 0 || c->mPoint == srcSub)) {
+                    break;
+                }
+            }
+        } else if (strncmp(from, "dg", 2) == 0 && atoi(from + 2) == id) {
+            if (strlen(from) >= 6) {
+                if (atoi(from + 6) == sub) {
+                    ret = 1;
+                } else {
+                    ret = 0;
+                }
+            } else {
+                ret = 1;
+            }
+        }
+    }
+    return ret;
+}
+
 // inferred: chance of finding a weapon by rank (the second one once the weapon was found)
 static const int sWeaponRate0_unk[5] = {0, 0, 100, 100, 100};
 static const int sWeaponRate1_unk[5] = {0, 100, 100, 100, 100};
@@ -397,9 +616,10 @@ struct InventorySettings_unk {
     unsigned char m190[0x280 - 0x190];
     int m280; // inferred: experience is shared (fn_80449A18)
     int m284; // inferred: the rewards are scaled by the difference of levels (fn_80449448)
+    unsigned char m288[0x298 - 0x288];
+    int m298; // inferred: the killer gets 1.2 times the experience (fn_80449ABC)
 };
 extern "C" InventorySettings_unk* lbl_8087F0A8;
-extern "C" void* lbl_8087F610; // inferred: multiplayer session
 
 int Inventory::fn_8044909C() {
     int flags = 0;
@@ -501,6 +721,108 @@ void Inventory::fn_80449A18(int killer, int level, int exp, int arg4, float rate
             fn_80449ABC(killer, level);
         }
     }
+}
+
+// inferred: order of the party in the results: by the member kind of the character id (fn_80219558;
+// negative for the guests, placed after the members and among them by id); name invented
+struct ExpOrderLess_unk {
+    bool operator()(const Inventory::ExpEntry_unk& a, const Inventory::ExpEntry_unk& b) const {
+        int ka = fn_80219558(a.mChara->m50);
+        int kb = fn_80219558(b.mChara->m50);
+        if (ka < 0 && kb >= 0) {
+            return false;
+        }
+        if (ka >= 0 && kb < 0) {
+            return true;
+        }
+        if (ka < 0 && kb < 0) {
+            return a.mChara->m50 < b.mChara->m50;
+        }
+        return ka < kb;
+    }
+};
+
+// NONMATCHING: the original constructs the entries with a constructor (mChara, memset of mResult, the
+// four counters) in the local array of 8 and in the temporary of the push_back; here they are cleared with
+// memset (ExpEntry_unk has no constructor: a new inline in Inventory.h would renumber its 58 includers)
+// inferred: shares the experience of the battle (m6014/m6018) among the party members that can act and
+// adds it to the list of the last battle (sorted for game/BattleResult)
+void Inventory::fn_80449ABC(int killer, int level) {
+    atn::FixedArray_unk<ExpEntry_unk, 8> party;
+    party.clear();
+    ExpEntry_unk entry;
+    memset(&entry, 0, sizeof(entry)); // inferred: the original zeroes it with a constructor
+    for (PlayerTask* chara = lbl_8087F8A0->mHead; chara != 0; chara = chara->mNext) {
+        if (chara->IsActive_unk() && (chara->m54C & 0x2000) != 0x2000 && chara->mC54 != 0 &&
+            chara->fn_8016E484() && party.size() < 8) {
+            entry.mChara = chara;
+            party.push_back(entry);
+        }
+    }
+    int expA = m6014;
+    int expB = m6018;
+    for (unsigned int i = 0; i < party.size(); i++) {
+        party[i].mExpA = expA;
+        party[i].mExpB = expB;
+        if (lbl_8087F0A8->m298 != 0 && party[i].mChara == (CharaTask*)killer) {
+            party[i].mExpA = (int)(1.2f * party[i].mExpA);
+            party[i].mExpB = (int)(1.2f * party[i].mExpB);
+        }
+    }
+    int top = lbl_8087F430->fn_80375D0C();
+    if (level > top && lbl_8087F0A8->mD4 == 3) {
+        top = level;
+    }
+    for (unsigned int i = 0; i < party.size(); i++) {
+        ExpEntry_unk& e = party[i];
+        fn_80449448(&e.mExpA, &e.mExpB, e.mChara->mStatus.mParamA.m78, top);
+        e.mExp = e.mExpA + e.mExpB;
+        e.mLevelUp = e.mChara->mStatus.fn_8013354C(e.mExp, &e.mResult);
+    }
+    unsigned int count = mExpEntries.size();
+    for (unsigned int i = 0; i < party.size(); i++) {
+        ExpEntry_unk& e = party[i];
+        ExpEntry_unk* p = 0;
+        for (unsigned int j = 0; j < mExpEntries.size(); j++) {
+            if (mExpEntries[j].mChara == e.mChara) {
+                p = &mExpEntries[j];
+                break;
+            }
+        }
+        if (p == 0 && mExpEntries.size() < 8) {
+            ExpEntry_unk added;
+            memset(&added, 0, sizeof(added));
+            added.mChara = e.mChara;
+            mExpEntries.push_back(added);
+            p = &mExpEntries[mExpEntries.size() - 1];
+        }
+        if (p != 0) {
+            p->mExpA += e.mExpA;
+            p->mExpB += e.mExpB;
+            p->mExp += e.mExp;
+            p->mLevelUp += e.mLevelUp;
+            p->mResult.m00 += e.mResult.m00;
+            p->mResult.m04 += e.mResult.m04;
+            p->mResult.m08 += e.mResult.m08;
+            p->mResult.m0C += e.mResult.m0C;
+            p->mResult.m10 += e.mResult.m10;
+            p->mResult.m14 += e.mResult.m14;
+            p->mResult.m18 += e.mResult.m18;
+            p->mResult.m1C += e.mResult.m1C;
+            p->mResult.m20 += e.mResult.m20;
+            p->mResult.m44[0] |= e.mResult.m44[0];
+            p->mResult.m44[1] |= e.mResult.m44[1];
+            p->mResult.m44[2] |= e.mResult.m44[2];
+            p->mResult.m44[3] |= e.mResult.m44[3];
+        }
+    }
+    if (count != mExpEntries.size()) {
+        MslSort_unk(mExpEntries.begin(), mExpEntries.end(), ExpOrderLess_unk());
+    }
+    m600C += m6014;
+    m6010 += m6018;
+    m6014 = 0;
+    m6018 = 0;
 }
 
 void Inventory::fn_8044D028() {
