@@ -13,6 +13,9 @@
   - `fn_8036F268` (98,7 %): cambio de mapa (`extern "C"` con el `GameTask*` delante, como la llaman
     `GameEventScript` y `NewCampPartsMapSelect`); el parametro `save` pasa a `GameSaveData_unk*`.
 
+- `game/AiTarget`: al 100 % +1, `fn_80019E88` (`len / 2.0f` en lugar de `len * 0.5f`: orden de operandos del
+  `fmuls`, truco ya en `docs/trucos-mwcc.md`). Las 4 al 0 % siguen bloqueadas (ver pendientes).
+
 ## NONMATCHING con motivo
 
 - Copias de `CharaStatusData_unk` (`m54..m7C`) y de `CharaStatus` (`m2CC..m2EC`): el original las copia por
@@ -50,4 +53,9 @@
   llamadores de `game/GameEventScript.cpp` y `game/NewCampPartsMapSelect.cpp` (otras colas).
 - `fn_80371790` (3,5 KB): copia local de `FixedArray_unk<ExpEntry_unk, 8>` con el constructor de `ExpEntry_unk`
   (memset del `LevelUpResult_unk`): exige constructores en `Inventory.h` (58 unidades), como el ctor de `Inventory`.
+- AiTarget `fn_8001794C`/`fn_80017128`: necesitan `AiInput_unk`/`AiOutput_unk` (locales de
+  `AI/AI_archer_attack01.cpp`, cola M) en una cabecera comun, con arrays (el original copia con bucles `ctr` de
+  8 enteros: `mA8..`, `m10C..`; floats de `CharaRes_unk::m58..m84` y de `AIManager::m9C..`).
+- ItemManager_unk `fn_80448B80` (99,85 %): `cmpw r3, rN` del `atoi(...) == id`; invertir los operandos o un cast
+  no cambia nada.
 - `fn_803731E8`: sigue bloqueada por la firma de `FinishCamera_unk::fn_803786FC` (cola B2).
