@@ -12,6 +12,9 @@ Lista: `/home/claude/scratch/n-candidates.txt` (98 % y menos, y las de 99 % que 
 - `gmk/Augur`: vf10 99,22 -> 100 %; **enlaza**. Estado 5: `int r = rand() % 100;` y
   `fn_8041F6A4(r > mDesc->m24 ? kAugurState6_unk : kAugurState7_unk)` (ternario de `enum` en el argumento:
   `this` se prepara antes de la comparacion, como en el original).
+- `chr/ControlStickByQuark` (fuera de las colas A-M y de la ruta; no enlaza, 29 parciales): ctor de
+  ControlThrustForQuarkStand 99,87 -> 100 % con `int motion = mKind == 2 ? kThrustMotion216_unk :
+  kThrustMotion215_unk;` (`enum`).
 - `chr/ControlShoot`: ctor 98,76 -> 99,90 %. El motion de los casos 0x25/0x26 con el ternario de `enum` y
   `mFB4 = mData->m48 + mFB4`. Queda el registro del cero de mFB0/mFB4 (r6 por r4).
 - Sin cambio (intentos revertidos, 2-8 cada una): `db/MapEnvSeTable_unk` fn_80214F80 (operator[] e inline
@@ -39,7 +42,9 @@ Lista: `/home/claude/scratch/n-candidates.txt` (98 % y menos, y las de 99 % que 
 - `include/gmk/MeetingSpot.h`: `PlayMotion_unk` pasa de `inline` a declaracion normal (la incluyen
   MeetingSpot y GimmickCommon; sin cambio de `@N`, labelcheck/rep100 igual).
 - `enum` anonimos con nombres inventados (`kMeetMotion*_unk`, `kShootMotion*_unk`) en los `.cpp`.
-- `matching: true` en `gmk/MeetingSpot` (con `main.dol: OK`).
+- `matching: true` en `gmk/MeetingSpot` y `gmk/Augur` (con `main.dol: OK`).
+- Con la cola casi agotada, aplico el ternario de `enum` a funciones de unidades que no son de ninguna cola
+  A-M ni de la ruta (salida de `enumscan.py`), empezando por chr/ControlStickByQuark.
 
 ## Pendientes
 
