@@ -31,6 +31,8 @@ Lista: `/home/claude/scratch/n-candidates.txt` (98 % y menos, y las de 99 % que 
   con constantes que difieren en 2 basta un ?: de `int`); quedan las ranuras de pila.
 - `game/EnemyTrista` (fuera de colas): fn_8035CF78 97,99 -> 100 %. El float de fn_800F8C6C va antes de
   `time` y `count` en la declaracion (el orden de evaluacion del original es 0.0f, 30, m594).
+- `game/Em401_01_WhiteLeoPard` (fuera de colas): fn_8031FE4C 98,63 -> 100 % con la misma firma de
+  fn_800F8C6C (float antes). `game/QuadrupedTask`: fn_80566FB4 86,11 -> 87,52 con la misma firma.
 - `chr/ControlShoot`: ctor 98,76 -> 99,90 %. El motion de los casos 0x25/0x26 con el ternario de `enum` y
   `mFB4 = mData->m48 + mFB4`. Queda el registro del cero de mFB0/mFB4 (r6 por r4).
 - Sin cambio (intentos revertidos, 2-8 cada una): `db/MapEnvSeTable_unk` fn_80214F80 (operator[] e inline

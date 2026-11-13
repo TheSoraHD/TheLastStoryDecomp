@@ -296,8 +296,9 @@ extern "C" int fn_8004D388(void* world, CollResult_unk* result, CharaTask::Spher
 struct Effect_unk;
 extern "C" Effect_unk* lbl_8087F048;
 extern "C" int fn_800F8548(Effect_unk* mgr); // inferred: new bullet id
-extern "C" int fn_800F8C6C(Effect_unk* mgr, int a, int b, CharaTask* chara, HitInfo_unk* data, int id, int time,
-                           int c, float f); // inferred: deals a hit, returns the damage dealt
+// inferred: the float goes before time and count (argument order of fn_8031FE4C, as in EnemyTrista)
+extern "C" int fn_800F8C6C(Effect_unk* mgr, int a, int b, CharaTask* chara, HitInfo_unk* data, int id, float f,
+                           int time, int c); // inferred: deals a hit, returns the damage dealt
 
 extern "C" int rand();
 extern "C" double sqrt(double x);
@@ -332,8 +333,6 @@ inline void Em401_01_WhiteLeoPard::LookAt_unk(CharaTask* target) {
     mRot.y = d.ToRotationZ_unk().y;
 }
 
-// NONMATCHING: 98.63% - li r4, 0 / lwz r10, m594 of the fn_800F8C6C call scheduled the other way round
-// (~6 variants: local copy, unsigned argument, reordered hit)
 // inferred: state machine (m58C): 3/4 move, 6 aims the jump, 7 jumps, 1 attacks, 2 dies
 void Em401_01_WhiteLeoPard::fn_8031FE4C() {
     if (m55C == 2) {
@@ -387,7 +386,7 @@ void Em401_01_WhiteLeoPard::fn_8031FE4C() {
                     break;
                 }
             }
-            int damage = fn_800F8C6C(lbl_8087F048, 0, 0, this, hit, m590, 30, m594, 0.0f);
+            int damage = fn_800F8C6C(lbl_8087F048, 0, 0, this, hit, m590, 0.0f, 30, m594);
             if (m594 > 0) {
                 m594 -= damage;
             }
@@ -931,7 +930,7 @@ void Em401_01_WhiteLeoPard::fn_80322AD4() {
     mPos -= m5A4;
     mPos.y -= sphere.mRadius;
     if (m1588 >= 3.0f) {
-        fn_800F8C6C(lbl_8087F048, 0, 0, this, fn_80219E6C(0x686), m590, 30, -1, 0.0f);
+        fn_800F8C6C(lbl_8087F048, 0, 0, this, fn_80219E6C(0x686), m590, 0.0f, 30, -1);
     }
 }
 
