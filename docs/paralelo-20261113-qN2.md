@@ -37,6 +37,8 @@ Lista: `/home/claude/scratch/n-candidates.txt` (98 % y menos, y las de 99 % que 
   `float rate = 1.0f;` asignada primero: el 1.0f se carga en el prologo y dist queda en f31).
 - `game/EnemySeaLizerd` (fuera de colas): fn_80355390 98,87 -> 99,96 (copia del puntero `CharaTask* c = chara;`
   al principio de GetFrontPos_unk); queda f4/f6 del frsp de fn_80139F60.
+- `game/Em202ForestSpider` (fuera de colas): vf118 99,15 -> 100 % (`CharaInfo_unk* info = m18EC->m60;` y
+  `info->m04` en el argumento: el `->m04` se carga despues de la rama de Get_unk).
 - `chr/ControlShoot`: ctor 98,76 -> 99,90 %. El motion de los casos 0x25/0x26 con el ternario de `enum` y
   `mFB4 = mData->m48 + mFB4`. Queda el registro del cero de mFB0/mFB4 (r6 por r4).
 - Sin cambio (intentos revertidos, 2-8 cada una): `db/MapEnvSeTable_unk` fn_80214F80 (operator[] e inline
@@ -103,10 +105,11 @@ Lista: `/home/claude/scratch/n-candidates.txt` (98 % y menos, y las de 99 % que 
 
 ## Resumen
 
-- Funciones nuevas al 100 % (8 + 2 por re-emparejado): MeetingSpot fn_803FD328 y fn_803FD0A0, Augur vf10,
+- Funciones nuevas al 100 % (9 + 2 por re-emparejado): MeetingSpot fn_803FD328 y fn_803FD0A0, Augur vf10,
   ControlThrustForQuarkStand ctor, ControlGuarded ctor, Input_unk fn_80122C70 (+2 de PlayerInput_unk tras
-  pd.sh), EnemyTrista fn_8035CF78, Em401_01_WhiteLeoPard fn_8031FE4C, Em202SpiderBase fn_80285FA0.
-  precommit: 15357 -> 15365 funciones, units 664 -> 666.
+  pd.sh), EnemyTrista fn_8035CF78, Em401_01_WhiteLeoPard fn_8031FE4C, Em202SpiderBase fn_80285FA0,
+  Em202ForestSpider vf118.
+  precommit: 15357 -> 15366 funciones, units 664 -> 666.
 - Enlazan 2 unidades nuevas: gmk/MeetingSpot y gmk/Augur (`matching: true`).
 - Funciones al 0 % de la cola: ninguna (todas eran parciales).
 - Parciales subidas: ControlShoot ctor 98,76 -> 99,90, EnemyQuarkStand fn_80351AB8 99,23 -> 99,97, ChaserNpc
