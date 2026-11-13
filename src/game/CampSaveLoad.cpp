@@ -521,7 +521,6 @@ static inline void SetWarningText_unk(CampSaveLoad* menu, const wchar_t* text) {
     SetLayoutText_unk(&menu->m60->mData.m10, "warning_msg", text);
 }
 
-// NONMATCHING: 99.98% - string pool offsets only (pool of the unit not complete yet)
 // inferred: state 1: choice of the slot
 void CampSaveLoad::fn_801191A8() {
     if (IsTriggered_unk(4)) {

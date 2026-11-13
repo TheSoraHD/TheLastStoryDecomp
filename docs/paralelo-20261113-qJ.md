@@ -5,8 +5,8 @@
 - `game/RouteWalker_unk` 6 -> 2 al 0 %. Al 100 %: `fn_80128CF8` (meta a la vista), `fn_80129670` (segmento entre
   dos puntos). Escritas: `fn_80128090` (97,05 %, replanifica el modo actual), `fn_80129144` (98,97 %, va directo a
   la meta). Quedan `fn_801255C8` (3 KB) y `fn_80126214` (6 KB).
-- `game/CampSaveLoad` 8 -> 0 al 0 % (todas escritas). Al 100 %: `vf10` (0x801185E0). Escritas: `vf0C` (92,83 %), `fn_8011B018`
-  (99,36 %), `fn_801191A8` (99,98 %, estado 1, solo pool), `fn_8011999C` (97,77 %, estado 5), `fn_80119F0C`
+- `game/CampSaveLoad` 8 -> 0 al 0 % (todas escritas). Al 100 %: `vf10` (0x801185E0) y `fn_801191A8` (0x801191A8, al completar el pool). Escritas: `vf0C` (92,83 %), `fn_8011B018`
+  (99,36 %), `fn_8011999C` (97,77 %, estado 5), `fn_80119F0C`
   (99,43 %, barra de informacion), `vf14` (98,83 %, registro de la historia), `fn_8011A4D0` (99,18 %, ventana de
   confirmacion). El pool `@stringBase0` ya coincide salvo las 3 cadenas de `basic_string` del final. Sube `fn_8011B8D4` 95,79 -> 99,93 % (pool de cadenas).
 - `game/ReplayBuffer` 5 -> 2 al 0 %. Escritas: `fn_8056C3D8` (98,77 %, graba un fotograma), `fn_8056F5B4`
