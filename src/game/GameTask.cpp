@@ -240,6 +240,7 @@ extern "C" void fn_80450B28();         // inferred: freezes the item slot animat
 extern "C" void fn_80450B44(); // inferred: resumes the item slot animations
 extern "C" void fn_800A5B30(void* pad, int arg); // inferred: pad reset (atn/Pad_unk.cpp)
 extern "C" int VISetTimeToDimming(int type);
+extern "C" int VIEnableDimming(int enable);
 extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float volume); // inferred: plays a sound
 extern "C" TacView* lbl_8087F9F8; // inferred: the tactical view
 extern "C" atn::Task* lbl_8087FA20;
@@ -550,6 +551,89 @@ extern "C" void* fn_8036635C() {
 }
 
 GameMessage::~GameMessage() {}
+
+extern "C" void fn_8004895C(void* sound); // inferred: releases the sound groups (game/NewTitleTask.cpp)
+extern "C" void fn_80049654(void* sound);
+extern "C" void fn_800498D4(void* sound);
+extern "C" void fn_800EF8DC(); // inferred: game/BattleEfp_unk.cpp
+
+// NONMATCHING: 98.6% - float registers and store order of the inlined ResetPostFx_unk (the depth of field
+// block; MapTask::fn_8049ED90 has the same differences). The weak RenderConfig::SetColorMatrix after this
+// function (0x80366D40) is not emitted
+// inferred: the field is deleted: releases the managers and restores the render settings (the bloom is
+// switched on before the reset, as in the original: two stores to 0x54)
+GameTask::~GameTask() {
+    lbl_8087F430 = 0;
+    if (m10E0 != 0) {
+        fn_800D2338(m10E0);
+    }
+    if (lbl_8087F3C0 != 0) {
+        lbl_8087F3C0->mCheckTrace = 0;
+        lbl_8087F3C0->mSystem.mListener = 0;
+    }
+    if (lbl_8087EE98 != 0) {
+        lbl_8087EE98->m9034 = 1;
+    }
+    if (m5590 != 0) {
+        delete m5590;
+    }
+    if (m5628 != 0) {
+        delete m5628;
+    }
+    void* data = m550C.mFile.fn_80470580();
+    unsigned int count = m550C.mFile.fn_8047059C() / sizeof(unsigned int);
+    if (data != 0) {
+        lbl_8087F518->fn_8046F96C((unsigned int*)data, count);
+        m550C.mFile.fn_80473F88();
+    }
+    fn_800EF8DC();
+    Inventory::fn_80442F68();
+    if (lbl_8087EE90 != 0 && lbl_8087F610 == 0) {
+        fn_8004895C(lbl_8087EE90);
+    }
+    if (lbl_8087EE90 != 0) {
+        fn_80049654(lbl_8087EE90);
+        fn_800498D4(lbl_8087EE90);
+    }
+    lbl_8087EFE8->fn_800CE368();
+    lbl_8087EFE8->m34D4 = 0;
+    lbl_8087EFE8->mOutputMode = 0;
+    if (lbl_8087F3C0 != 0) {
+        fn_800D2338(lbl_8087F3C0);
+    }
+    if (sGameTaskStatic_unk.m00 != 0) {
+        sGameTaskStatic_unk.m00 = 0;
+    }
+    lbl_8087F460 = 0;
+    atn::RenderManager::instance_->fn_800C16B4()->SetLight_unk(0);
+    atn::RenderManager::instance_->fn_800C16B4()->fn_800C289C(0);
+    atn::RenderManager::instance_->m54964 = 0;
+    RenderSetting_unk* render = lbl_8087EFA8;
+    render->m054.mEnabled = 1;
+    render->ResetPostFx_unk();
+    lbl_8087EFA8->ResetShadow_unk();
+    DamageEffectParam_unk damage(*lbl_8087EFA8->GetDamage_unk());
+    damage.mEnabled = 0;
+    lbl_8087EFA8->SetDamage_unk(damage);
+    lbl_8087EFA8->SetMotionBlur_unk(0);
+    lbl_8087EFA8->SetFrameSpeed_unk(1.0f);
+    if (lbl_8087F610 == 0 && HomeButtonMenu::sInstance != 0) {
+        HomeButtonMenu::sInstance->m88 = 1;
+    }
+    if (lbl_8087EF70 != 0) {
+        fn_800A5B30(lbl_8087EF70, 5);
+    }
+    VIEnableDimming(1);
+    VISetTimeToDimming(0);
+    if (lbl_8087F610 == 0) {
+        SetConfig::sInstance->fn_8057EF40();
+        lbl_8087F420->m0C = 0;
+        if (lbl_8087F018 != 0) {
+            lbl_8087F018->m40E0 = 0;
+        }
+    }
+    ((PostFxMgrView_unk*)lbl_8087EF8C)->mMotionBlur.fn_800AFEBC(2);
+}
 
 // inferred: dungeon number of a map id ("dg01_00" -> 100; "dg09_xx01" adds the sub dungeon)
 static inline int GetDungeonId_unk(const char* id) {

@@ -2,7 +2,11 @@
 
 ## Resultado por unidad
 
-- `game/GameTask`: funciones al 0 % 6 -> 4. Escritas (NONMATCHING, equivalentes):
+- `game/GameTask`: funciones al 0 % 6 -> 3. Escritas (NONMATCHING, equivalentes):
+  - `~GameTask` (98,6 %): suelta los gestores y restaura los ajustes de render (`ResetPostFx_unk`,
+    `ResetShadow_unk`, el bloque de dano como en `fn_80373FC4`). El original guarda dos veces `m054.mEnabled`
+    (una antes del reset): sale con `render->m054.mEnabled = 1` y un puntero local. Quedan registros de float y
+    el orden de los stores del bloque de profundidad de campo (las mismas diferencias que `MapTask::fn_8049ED90`).
   - `fn_80367A40` (98,3 %): nivel del grupo y de los enemigos al empezar el campo (curvas de `db::GrowthEntry_unk`
     con `fn_800A6BDC`, copia del estado al inventario). `x / 2.0f` da el `fmuls f1, f1, f30` del original
     (`x * 0.5f` invierte los operandos).
@@ -26,6 +30,12 @@
 
 ## Hallazgos
 
+- `pd.sh` no renombra una `@N` de `.sdata2` usada por dos funciones cuando una de ellas (NONMATCHING) usa en
+  nuestro `.o` otra constante de igual valor: renombrar a mano la del original (`@28791`, 0x808857A8, de
+  `fn_8036D2D0`) o labelcheck da 1 que falta.
+- `delete p` de una clase con destructor no virtual da una sola comprobacion; el original de `~GameTask` lleva
+  `if (p != 0) delete p;` (dos `beq` para `m5628`).
+
 - MWCC copia los miembros agregados (arrays, structs) de una clase por pares de palabras desde su propio
   desplazamiento, y los escalares de uno en uno: el agrupamiento de la copia delata la frontera de los agregados.
 
@@ -33,4 +43,9 @@
 
 - `fn_8036F268` deberia ser miembro de `GameTask` (regla 10): exige renombrar en `symbols.txt` y cambiar los
   llamadores de `game/GameEventScript.cpp` y `game/NewCampPartsMapSelect.cpp` (otras colas).
+- La copia debil `RenderConfig::SetColorMatrix` (0x80366D40) no sale: en el original va detras del destructor
+  (primer uso) y `fn_803729B4` la llama fuera de linea; con `SetColorMatrix(ColorMatrixParam_unk())` en lugar de
+  `ResetPostFx_unk` baja el destructor (98,06 %) y tampoco sale.
+- `fn_80371790` (3,5 KB): copia local de `FixedArray_unk<ExpEntry_unk, 8>` con el constructor de `ExpEntry_unk`
+  (memset del `LevelUpResult_unk`): exige constructores en `Inventory.h` (58 unidades), como el ctor de `Inventory`.
 - `fn_803731E8`: sigue bloqueada por la firma de `FinishCamera_unk::fn_803786FC` (cola B2).
