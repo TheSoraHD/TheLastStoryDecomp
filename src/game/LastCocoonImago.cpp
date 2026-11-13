@@ -192,6 +192,85 @@ void LastCocoonImago::vf3C(HitInfo_unk* hit) {
     vf40(hit);
 }
 
+// inferred: hit point ratio (weak copy 0x8029F3AC of game/Em203GreaterDaemonRedMp.cpp)
+extern "C" inline float fn_8029F3AC(CharaStatus* status) {
+    if (status->mParamB.m84 > 0) {
+        return status->m04 / status->mParamB.m84;
+    }
+    return 0.0f;
+}
+// inferred: starts a knockback mode (7 or 8) pushed along `dir` (name invented)
+inline void LastCocoonImago::Knockback_unk(const atn::Vector3& dir, int mode, int motion) {
+    atn::Vector3 v = dir;
+    m14BC = 0;
+    m14C0 = 0;
+    m590 = fn_800F8548(lbl_8087F048);
+    m58C = mode;
+    fn_8016E970(3);
+    mMotion.m34C = 1;
+    mMotion.mTracks[0].m20 = 1.0f;
+    mMotion.mTracks[0].m0C = 1.0f;
+    mMotion.fn_80097C08(0, motion, 0, 1, 1, 0.0f, 0.025f);
+    atn::Vector3 n = v;
+    n.Normalize_unk();
+    atn::Vector3 push = n;
+    push.y *= 0.3f;
+    SetM6B8_unk(push);
+    atn::Vector3 back(-n.x, -n.y, -n.z);
+    m14E0 = back.ToRotation_unk();
+}
+
+// NONMATCHING: 97% - stack slots of the two knockbacks (the inline keeps the mode in a register)
+// inferred: hit reaction: the attack 0x1791 pushes it (towards the place m18F4 while m18EC is set), the
+// hits of part 1 with a power of 3 or more knock it back; asks for help at 70 % of the hit points
+void LastCocoonImago::vf40(HitInfo_unk* hit) {
+    HitMsg_unk* msg = (HitMsg_unk*)hit;
+    if (m58C == 12) {
+        return;
+    }
+    if (m58C == 14) {
+        if ((mStatus.m0C & 0x20) == 0x20) {
+            fn_8045EB60();
+        }
+        return;
+    }
+    if ((mStatus.m0C & 0x20) == 0x20) {
+        fn_8045EB60();
+        return;
+    }
+    if (msg->mData->m04 == 0x1791) {
+        atn::Vector3 dir = msg->m28 * 0.5f;
+        if (m18EC != 0) {
+            if (((GameTask*)lbl_8087F430)->fn_80370A78(0xCF) == 0) {
+                ((GameTask*)lbl_8087F430)->fn_80370AE4(0xCF, 1);
+            }
+            dir = m18F4->mPos - mPos;
+            dir.y = 0.0f;
+            dir.Normalize_unk();
+            dir *= 0.5f;
+        }
+        if (m197C == 0) {
+            Knockback_unk(dir, 7, 0x14A);
+        }
+    } else if (*(int*)&msg->m3C[4] == 1) {
+        if (msg->mData->m3C >= 3 && m58C != 7) {
+            atn::Vector3 dir(msg->m28.x * 5.0f, 0.0f, msg->m28.z * 5.0f);
+            if (m18EC != 0) {
+                dir *= 0.1f;
+            }
+            if (m197C == 0) {
+                Knockback_unk(dir, 8, 0x33);
+            }
+        }
+        m18D4[1].mCount = 15;
+    }
+    if (m18EC == 0 && fn_8029F3AC(&mStatus) < 0.7f) {
+        if (((GameTask*)lbl_8087F430)->fn_80370A78(0xCE) == 0) {
+            ((GameTask*)lbl_8087F430)->fn_80370AE4(0xCE, 1);
+        }
+    }
+}
+
 atn::Vector3 LastCocoonImago::vf64(int center) {
     atn::Vector3 result = mPos;
     if (center == 0) {
@@ -268,6 +347,30 @@ int LastCocoonImago::vfB8(wchar_t* name) {
         }
     }
     return 0;
+}
+
+// NONMATCHING: 98% - stack slots of the temporaries (the zero vector of the Item14_unk constructor)
+// inferred: damage spheres: the three attack nodes (between the two nodes when both exist) and m1948
+void LastCocoonImago::vf50() {
+    Item14_unk item;
+    for (int i = 0; i < 3; i++) {
+        MtxPtr a = mMotion.GetNodeMtx_unk(sImagoAttacks_unk[i].mNode0);
+        MtxPtr b = mMotion.GetNodeMtx_unk(sImagoAttacks_unk[i].mNode1);
+        if (a != 0) {
+            if (b != 0) {
+                atn::Vector3 pb = ((atn::Matrix3x4*)b)->GetTrans_unk();
+                atn::Vector3 pa = ((atn::Matrix3x4*)a)->GetTrans_unk();
+                item.m04.mCenter = (pb - pa) * 0.6f + pa;
+            } else {
+                item.m04.mCenter = ((atn::Matrix3x4*)a)->GetTrans_unk();
+            }
+            item.m04.mRadius = sImagoAttacks_unk[i].mRadius;
+            m624.push_back(item);
+        }
+    }
+    item.m04.mCenter = m1948;
+    item.m04.mRadius = m1954;
+    m624.push_back(item);
 }
 
 // NONMATCHING: 98.5% - stack slots of the temporaries of the two branches (and the load order of the nodes)
@@ -710,7 +813,7 @@ void LastCocoonImago::fn_8045E780() {
     }
 }
 
-void LastCocoonImago::fn_8045EB60() {
+__declspec(noinline) void LastCocoonImago::fn_8045EB60() {
     int fromHang = m58C == 14;
     SetMode_unk(2);
     mMotion.m34C = 1;

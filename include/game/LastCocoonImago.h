@@ -20,6 +20,8 @@ public:
     virtual void vf24();                                     // 0x8045B40C
     virtual void vf38(int enable);                           // 0x8045D1EC
     virtual void vf3C(HitInfo_unk* hit);                     // 0x80459358
+    virtual void vf40(HitInfo_unk* hit);                     // 0x804596E8
+    virtual void vf50();                                     // 0x80459FD0
     virtual void vf54(); // 0x8045A8F0: inferred: places the hit spheres of the attacks
     virtual atn::Vector3 vf64(int center);                   // 0x80459EBC
     virtual void vf80(const atn::Vector3& pos, const atn::Vector3& dir); // 0x8045C83C
@@ -35,6 +37,7 @@ public:
     void fn_8045CB24(); // inferred: colours of the body parts
     void fn_8045D224(); // inferred: mode update: holds the gimmick motion, frame 120 disables the capsules
     void fn_8045EB60();
+    inline void Knockback_unk(const atn::Vector3& dir, int mode, int motion);
     void fn_8045F4CC(); // inferred: sends message 4 to the gimmicks of type 1 touching the body // inferred: mode 2 (motion 0x37, or 0x31 from frame 200 after mode 14)
     void fn_8045ECC4(); // inferred: mode 12 (motion 0x31), stops and sends message 5 to m18F8
     // inferred: starts a mode (names invented)

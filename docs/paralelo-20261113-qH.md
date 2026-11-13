@@ -29,6 +29,13 @@
   `CharaTask::vfBC` renumera las `@N` (y un `@enum$`) de muchas unidades que incluyen CharaTask.h
   (precommit: lost en chr/ControlAppear, labelcheck peor en ~50 unidades). Revertido; pendiente para una
   sesion con tiempo para `pdbatch.sh` de las 217 unidades.
+- vf40 (0x804596E8, antes fn_804596E8; reaccion a los golpes: empuje del ataque 0x1791, retroceso de la
+  parte 1, aviso al 70 % de vida): 0 -> 97 %. El empuje es un inline `Knockback_unk` (escrito dos veces
+  en linea baja a 90 %: la pila). `fn_8045EB60` pasa a `__declspec(noinline)` (el original la llama con
+  `bl` desde vf40; nuestro MWCC la inlineaba), como fn_8045ECC4.
+- vf50 (0x80459FD0, antes fn_80459FD0; esferas de dano con `m624.push_back`): 0 -> 98 % (pila del
+  temporal del constructor de Item14_unk). Lerp escrito `(pb - pa) * 0.6f + pa`.
+- vf10 = fn_8045883C (0x8045883C) sin escribir.
 - fnstat 18 / 36 (sin cambio).
 
 ## Decisiones tomadas sin el usuario
@@ -42,6 +49,8 @@
   `Vector4_unk` locales al fuente (el `operator*(Vector4_unk, float)` ya existia y devuelve `EggColor_unk`).
 
 ## Hallazgos
+
+- Las ranuras de la vtable de Imago: fn_8045883C = vf10, fn_804596E8 = vf40, fn_80459FD0 = vf50, fn_80459FB8 = vfBC.
 
 - Un `if (!cond) { A } else { B }` con A cayendo detras del salto: si el original pone la rama del
   `else` al final, invertir la condicion (LastCocoonEgg fn_80457C48 68 -> 98 %).
