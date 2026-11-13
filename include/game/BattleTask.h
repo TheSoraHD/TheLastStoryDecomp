@@ -111,6 +111,24 @@ struct BattleMarkers_unk {
 };
 
 // inferred: entry of BattleTask::mStuns (0xC bytes): character with a timed effect (groups 0x3E9/0x3EA)
+// inferred: debug record of a bullet hit test (0x28 bytes; ring of 32 in BattleTask, filled by fn_800FAB80
+// when enabled); names invented
+struct BattleShot_unk {
+    int mKind;          // inferred: 1 = bullet
+    HitInfo_unk* mData;
+    atn::Vector3 mPos;
+    atn::Vector3 mDir;
+    float mRadius;
+    int m24;
+};
+struct BattleShots_unk {
+    void Push_unk(const BattleShot_unk&); // inferred: inline, defined in game/BattleTask.cpp
+    unsigned int mCount;
+    BattleShot_unk mItems[32];
+    unsigned int mHead; // inferred: index of the oldest record
+    int mEnabled;
+};
+
 struct BattleStun_unk {
     CharaTask* mChara;
     int mTimer;   // inferred: frames left
@@ -302,7 +320,8 @@ public:
     float m38A04; // inferred: gauge value, clamped to [0, m38A0C]
     float m38A08;
     float m38A0C; // inferred: gauge maximum
-    unsigned char m38A10[0x38A1C - 0x38A10];
+    unsigned char m38A10[0x38A18 - 0x38A10];
+    float m38A18; // inferred: gauge gained by a bullet hit of a player (fn_800FDB20)
     float m38A1C; // inferred: gauge gained by a hit of a player (fn_800FB4B0)
     unsigned char m38A20[0x38A28 - 0x38A20];
     float m38A28; // inferred: gauge increments
@@ -320,7 +339,7 @@ public:
     BattleSel_unk m38CB8;
     int m38CCC; // inferred: result of the comparison of the totals (1, 3; 2 when GameTask::fn_80375184 fails)
     int m38CD0; // inferred: previous m38CCC
-    unsigned char m38CD4[0x391E0 - 0x38CD4];
+    BattleShots_unk mShots; // 0x38CD4
     int m391E0[0x48][0x48]; // inferred: hate of each character toward each other (fn_8010C948)
     int m3E2E0; // inferred: character under the cursor
     CharaTask* m3E2E4; // inferred: object under the cursor

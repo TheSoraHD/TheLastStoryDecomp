@@ -32,6 +32,8 @@
 #include "game/GimmickCommon.h"
 #include "atn/NodeChunk.h"
 #include "game/MapManager.h"
+#include "game/GimmickManager.h"
+#include "math/VecAssign_unk.h"
 #include "atn/SoundManager.h"
 #include <boost/bind.hpp>
 #include <boost/function.hpp>
@@ -613,8 +615,147 @@ extern "C" int fn_800F8548(BattleTask* mgr) {
     return id;
 }
 
-extern "C" void* fn_800FAB80(BattleTask* mgr, CharaTask* chara, HitInfo_unk* data, int id, const atn::Vector3* pos,
-                            const atn::Vector3* rot, int a, int time, int b, int c, float f1, float f2);
+
+extern "C" int fn_800FBE70(BattleTask* mgr, CharaTask* attacker, CharaTask* chara, HitInfo_unk* data, int id,
+                           const atn::Vector3* pos, int any, int type);
+extern "C" void fn_800FB1BC(BattleTask* mgr, CharaTask* chara, HitInfo_unk* data, const atn::Vector3* pos,
+                            const atn::Vector3* rot, unsigned int flags, int self, float scale);
+extern "C" bool fn_8021A7A0(HitInfo_unk* data); // inferred: db/ParseUtil_unk (takes the record as BulletParam_unk)
+// inferred: damage of the bullet `data` to the sphere `index` of `chara`
+extern "C" void fn_800FCD24(BattleTask* mgr, CharaTask* attacker, CharaTask* chara, int index, HitInfo_unk* data, int id,
+                            const atn::Vector3* pos, int time, int arg8, float f1, float f2);
+extern "C" void* memset(void* dst, int c, unsigned long n);
+
+// inferred: push of the debug ring (drops the oldest record when full)
+inline void BattleShots_unk::Push_unk(const BattleShot_unk& shot) {
+    if (mCount >= 32) {
+        mHead = (mHead + 1) & 31;
+        mCount--;
+    }
+    mItems[(mHead + mCount) & 31] = shot;
+    mCount++;
+}
+// inferred: the bullet kind does not hit the gimmicks (names invented)
+inline bool HitsGimmicks_unk(int kind) {
+    bool hits = true;
+    if ((unsigned int)(kind - 0x1F7) <= 2 || (unsigned int)(kind - 0x201) <= 2) {
+        hits = false;
+    }
+    return hits;
+}
+// inferred: bullets that do not break the gimmicks of type 1
+inline bool IsSoftBullet_unk(const HitInfo_unk* data) {
+    if (data == 0) {
+        return false;
+    }
+    int id = data->m04;
+    if (id == 0x136 || id == 0x139 || id == 0x13C || id == 0x146 || id == 0x15A || id == 0x232C) {
+        return true;
+    }
+    return false;
+}
+
+// inferred: hit test of the bullet `data` of `attacker` at `pos`: damages every player and enemy whose hit sphere it
+// reaches (fn_800FBE70, fn_800FCD24), sends a hit message to the gimmicks in range, plays the hit effects
+// (fn_800FB1BC), raises the gauge for a player and records the test when the debug ring is enabled. Returns
+// whether a character was hit. Called as extern "C" by game/Bullet.
+// NONMATCHING: 96% - float registers of the scale, range and distance; the original clears x/y of the record
+// vectors first (a constructor) and reaches the ring through its address; .sdata2 pool
+extern "C" int fn_800FAB80(BattleTask* mgr, CharaTask* attacker, HitInfo_unk* data, int id, const atn::Vector3* pos,
+                           const atn::Vector3* rot, int any, int time, int, int type, float f1, float f2) {
+    fn_800E2A24(&mgr->m38A5C);
+    if (data == 0) {
+        return 0;
+    }
+    int hit = 0;
+    for (PlayerTask* chara = lbl_8087F8A0->mHead; chara != 0; chara = chara->mNext) {
+        int index = fn_800FBE70(mgr, attacker, chara, data, id, pos, any, type);
+        if (index >= 0) {
+            fn_800FCD24(mgr, attacker, chara, index, data, id, pos, time, 0, f1, f2);
+            hit = 1;
+        }
+    }
+    for (EnemyTask* chara = EnemyManager::sInstance->mHead; chara != 0; chara = chara->mNext) {
+        int index = fn_800FBE70(mgr, attacker, chara, data, id, pos, any, type);
+        if (index >= 0) {
+            fn_800FCD24(mgr, attacker, chara, index, data, id, pos, time, 0, f1, f2);
+            hit = 1;
+        }
+    }
+    float scale = 1.0f;
+    if (fn_8021A7A0(data) && attacker != 0) {
+        scale = attacker->fn_8017AC24();
+    }
+    if (HitsGimmicks_unk(data->m04)) {
+        float range = data->m58 * scale;
+        int power = data->m1C;
+        if (attacker != 0) {
+            power += (int)(data->m2C * attacker->mStatus.mParamB.m04);
+        }
+        int level = data->m3C;
+        for (GimmickCommon* gimmick = GimmickManager::instance_->mHead; gimmick != 0; gimmick = gimmick->m5C) {
+            if ((gimmick->mFlags & 2) != 2 || (gimmick->mFlags & 0xDEAD0000) == 0xDEAD0000) {
+                continue;
+            }
+            atn::Vector3 d = gimmick->vf54() - *pos;
+            float dist = PSVECMag(&d);
+            if (!(dist - gimmick->vf58() <= range)) {
+                continue;
+            }
+            GimmickHitMsg_unk msg;
+            memset(&msg, 0, sizeof(msg));
+            msg.mType = power;
+            msg.mDir = d;
+            msg.mPos = *pos;
+            *(HitInfo_unk**)msg.m2C = data; // inferred: the hit data of the bullet
+            msg.mSender = attacker;
+            switch (gimmick->m50) {
+            case 1:
+                if (level >= 2) {
+                    int sub = gimmick->mId % 1000;
+                    if (sub == 0x3A || sub == 0x6B || sub == 0x7B) {
+                        gimmick->vf44(&msg);
+                    } else if (!IsSoftBullet_unk(data)) {
+                        gimmick->vf44(&msg);
+                    }
+                }
+                break;
+            case 0x1C:
+                if (level >= 2) {
+                    gimmick->vf44(&msg);
+                }
+                break;
+            case 0x10:
+            case 0x22:
+            case 0x30:
+                if (level > 0) {
+                    gimmick->vf44(&msg);
+                }
+                break;
+            }
+        }
+    }
+    fn_800FB1BC(mgr, attacker, data, pos, rot, mgr->m38A5C.m94, 0, scale);
+    if (hit != 0 && attacker != 0 && attacker->mType == 0) {
+        float add = mgr->m38A1C * (attacker->mFlag28 ? mgr->m38A38 : 1.0f);
+        float zero;
+        mgr->m38A04 = MAX(zero = 0.0f, MIN(mgr->m38A04 + add, mgr->m38A0C));
+    }
+    if (mgr->mShots.mEnabled != 0) {
+        BattleShot_unk shot;
+        shot.mKind = 1;
+        shot.mData = data;
+        shot.mPos = *pos;
+        shot.mDir = *rot;
+        shot.mRadius = data->m58;
+        shot.m24 = 0;
+        mgr->mShots.Push_unk(shot);
+    }
+    if (attacker != 0) {
+        attacker->mStatus.mEntries.mCount = 0;
+    }
+    return hit;
+}
 
 // inferred: event 15 of the character listeners (a hit effect was played); names invented
 struct HitEvent_unk {
@@ -783,13 +924,14 @@ extern "C" int fn_800FB4B0(BattleTask* mgr, CharaTask* attacker, HitInfo_unk* da
     return hit;
 }
 
-// inferred: fires a bullet of `chara` on behalf of `user` and returns it (SkillEffectManager)
-extern "C" void* fn_800FBA30(BattleTask* mgr, CharaTask* chara, CharaTask* user, HitInfo_unk* data, int id,
-                            const atn::Vector3* pos, const atn::Vector3* rot) {
+// inferred: hit test of a bullet of `chara` on behalf of `user` (fn_800FAB80); returns whether a character was hit
+// (SkillEffectManager)
+extern "C" int fn_800FBA30(BattleTask* mgr, CharaTask* chara, CharaTask* user, HitInfo_unk* data, int id,
+                           const atn::Vector3* pos, const atn::Vector3* rot) {
     mgr->m3E398 = user;
-    void* bullet = fn_800FAB80(mgr, chara, data, id, pos, rot, 0, 30, -1, -1, 0.0f, 1.0f);
+    int hit = fn_800FAB80(mgr, chara, data, id, pos, rot, 0, 30, -1, -1, 0.0f, 1.0f);
     mgr->m3E398 = 0;
-    return bullet;
+    return hit;
 }
 
 // inferred: the sphere `item` is excluded from the hit `data` (name invented)
@@ -1077,6 +1219,84 @@ extern "C" int fn_800FD658(BattleTask* mgr, CharaTask* attacker, CharaTask* char
     mgr->m38A5C.m38 = b;
     mgr->m38A5C.m44 = 3;
     return mgr->fn_800FDF14(&mgr->m38A5C);
+}
+
+// inferred: damage record shown by fn_80108C10 (local view, as StatusDamage_unk/DaemonDamage_unk of other files)
+struct BattleDamage_unk {
+    int m00; // inferred: kind (1, 4 and 5 are shown)
+    int m04; // inferred: value (negative: recovery)
+    int m08;
+    int m0C;
+    int m10;
+    int m14;
+    int m18;
+    unsigned int m1C_28 : 4; // inferred: cleared by fn_800FDB20 (the rest of the word is left as it is)
+    unsigned int m1C_0 : 28;
+};
+extern "C" void fn_80108C10(BattleTask* mgr, BattleDamage_unk* damage, const atn::Vector3* pos, CharaTask* attacker,
+                            CharaTask* chara, unsigned int flags, int skipEmpty);
+extern "C" bool fn_8021A8D0(HitInfo_unk* data); // inferred: db/ParseUtil_unk (takes BulletParam_unk)
+extern "C" float fn_8010B250(BattleTask* mgr, int level, BattleCalcParam_unk* param);
+
+// inferred: bullet `data` (id `id`) of `attacker` hits `chara` at `pos` toward `dir`: a guarding character takes
+// a "guard" popup (returns 4); else the attack parameters m38A5C (level of the bullet against the level of
+// `chara`, lowered by some states and by the status 0x43 of the attacker) go through fn_800FDF14, and a hit by
+// a player raises the gauge m38A04. Called as extern "C" by game/Bullet and some enemies.
+// NONMATCHING: 99.9% - register of the word of the bitfield of the damage record (r3/r10), .sdata2 pool
+extern "C" int fn_800FDB20(BattleTask* mgr, CharaTask* attacker, CharaTask* chara, int arg, HitInfo_unk* data, int id,
+                           const atn::Vector3* pos, const atn::Vector3* dir, int arg8) {
+    if (chara->fn_801533C8(id, data)) {
+        return 0;
+    }
+    if ((chara->mStatus.m14 & 1u) == 1 && !fn_8021A8D0(data) && data != 0 && (data->mAC & 0x10000000) != 0x10000000) {
+        if (attacker != 0 && attacker->m60->m24 == 0x14) {
+            lbl_8087F430->fn_803750E4(0x13C);
+        }
+        BattleDamage_unk damage;
+        damage.m08 = 0;
+        damage.m0C = 0;
+        damage.m10 = 0;
+        damage.m14 = -1;
+        damage.m1C_28 = 0;
+        damage.m18 = -1;
+        damage.m04 = 0;
+        damage.m00 = 1;
+        fn_80108C10(mgr, &damage, pos, attacker, chara, 0x108, 0);
+        return 4;
+    }
+    fn_800E2A24(&mgr->m38A5C);
+    mgr->m38A5C.m00 = (int)attacker; // inferred: the field is an int (see fn_800FD658)
+    mgr->m38A5C.m04 = chara;
+    mgr->m38A5C.m40 = arg;
+    mgr->m38A5C.m08 = data;
+    mgr->m38A5C.m1C = *pos;
+    mgr->m38A5C.m28 = *dir;
+    mgr->m38A5C.m34 = id;
+    mgr->m38A5C.m38 = arg8;
+    mgr->m38A5C.m3C = 1;
+    mgr->m38A5C.m44 = 1;
+    mgr->m38A5C.m48 = 0;
+    int level = data->m3C - chara->mStatus.mParamB.m34;
+    if (attacker != 0 && chara != 0 && chara->fn_801789D8(0, 0x400000)) {
+        if (level <= 4) {
+            level = MAX(level - 2, 0);
+        } else {
+            level = MAX(level - 1, 0);
+        }
+    }
+    if (attacker != 0 && attacker->mStatus.fn_80134168(0x43, -1) > 15) {
+        level /= (attacker->mStatus.fn_80134168(0x43, -1) + 10) / 10;
+    }
+    float scale = fn_8010B250(mgr, level, &mgr->m38A5C);
+    atn::VecAssign_unk(mgr->m38A5C.m10, mgr->m38A5C.m28);
+    mgr->m38A5C.m10 *= scale;
+    mgr->fn_800FDF14(&mgr->m38A5C);
+    if (attacker != 0 && attacker->mType == 0) {
+        float add = mgr->m38A18 * (attacker->mFlag28 ? mgr->m38A38 : 1.0f);
+        float zero;
+        mgr->m38A04 = MAX(zero = 0.0f, MIN(mgr->m38A04 + add, mgr->m38A0C));
+    }
+    return 0;
 }
 
 void BattleTask::fn_800FDE60(int effect, CharaTask* chara, const atn::Vector3& dir) {
@@ -1905,15 +2125,6 @@ void BattleTask::fn_80108A5C(CharaTask* chara, const atn::Vector3* dir) {
 // inferred: the early return as !(a) || !(b) gives the bne over a blr of the original
 // inferred: damage record shown by fn_80108C10 (as StatusDamage_unk of game/CharaStatus.cpp); only the members
 // used here
-struct BattleDamage_unk {
-    int m00; // inferred: kind (1, 4 and 5 are shown)
-    int m04; // inferred: value (negative: recovery)
-    int m08;
-    int m0C;
-    int m10;
-    int m14;
-    int m18;
-};
 extern "C" int fn_804EB7C4(Arena_unk* arena, CharaTask* chara); // inferred: player of a multiplayer session
 extern "C" int fn_804EB814(Arena_unk* arena, CharaTask* chara); // inferred: team of a multiplayer session
 extern "C" int swprintf(wchar_t* s, unsigned int n, const wchar_t* format, ...);

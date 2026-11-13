@@ -14,6 +14,9 @@ Funciones al 0 % al empezar: BattleTask 51, TacView 6, BattleCharaTask 1.
   - `fn_800FBA9C` (esfera alcanzada por el arco cuerpo a cuerpo; 99,8 %).
   - `fn_800FB4B0` (explosion sobre jugadores y enemigos en el radio, sube la barra m38A04; 99 %).
   - `fn_800FD658` (rellena `m38A5C` con el punto y la direccion del golpe y llama a `fn_800FDF14`; 95 %).
+  - `fn_800FDB20` (golpe de bala: popup de guardia o `m38A5C` con el nivel de la bala; 99,9 %).
+  - `fn_800FAB80` (prueba de impacto de una bala contra personajes y gimmicks, efectos, barra y anillo de depuracion
+    `mShots`; 96 %). Con ella salen las copias debiles `GimmickCommon::vf58`/`vf44` (0x800FA4EC/0x800FA4F4, 100 %).
 
 ## NONMATCHING
 
@@ -30,7 +33,15 @@ Funciones al 0 % al empezar: BattleTask 51, TacView 6, BattleCharaTask 1.
   su resultado; el tipo de retorno no cambia el nombre).
 - `fn_800FD658` guarda el atacante en `BattleCalcParam_unk::m00` como `int` (cast), como `fn_800FDE60`, cuyo
   nombre mangled lleva `int`.
-- `fn_800FB4B0`, `fn_800FD658` siguen `extern "C"` (llamadores `extern "C"` en otras colas).
+- `fn_800FB4B0`, `fn_800FD658`, `fn_800FDB20`, `fn_800FAB80` siguen `extern "C"` (llamadores `extern "C"` en
+  otras colas).
+- `fn_800FBA30` y `fn_800FAB80` devuelven `int` (si se golpeo a alguien), no `void*`.
+- `BattleTask.h`: `m38A18`, `BattleShot_unk`/`BattleShots_unk mShots` (0x38CD4, anillo de 32 registros) con
+  `Push_unk` declarada sin nombre de parametro y definida inline en el .cpp (como los marcadores).
+- `BattleDamage_unk` se sube antes de `fn_800FDB20` con la palabra `m1C` (4 bits altos que se limpian).
+- `GimmickHitMsg_unk::m2C` recibe el puntero de la bala con cast (`unsigned char m2C[4]` en GimmickCommon.h,
+  cabecera ajena).
+- `fn_800FDB20` usa `atn::VecAssign_unk` para la copia de `m28` en `m10` (cruce r3/r5).
 
 - `fn_800FC1D0` como miembro de `BattleTask` (sin llamadores C++; game/Bullet lo llama solo desde asm),
   declarada en `BattleTask.h` sin nombres de parametro.
