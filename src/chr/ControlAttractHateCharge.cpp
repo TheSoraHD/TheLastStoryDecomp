@@ -1,3 +1,4 @@
+#include "macros.h"
 #include "chr/ControlAttractHateCharge.h"
 #include "atn/EffectSystem_unk.h"
 #include "game/AiTarget.h"
