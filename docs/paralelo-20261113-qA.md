@@ -22,6 +22,7 @@ Funciones al 0 % al empezar: BattleTask 51, TacView 6, BattleCharaTask 1.
     pool de cadenas).
   - `fn_801004FC` (blanco de `chara` en las esferas del personaje que encuentra `fn_800FFE68`; 97,3 %) y
     `fn_8010089C` (blanco entre los personajes cercanos de `GameUI::m85C`; 99 %); llamadas por BattleCharaTask.
+  - `fn_8010CF28` (efecto especial de un golpe: robo de objeto, retroceso, mensajes; 94,1 %).
   - `fn_800FAB80` (prueba de impacto de una bala contra personajes y gimmicks, efectos, barra y anillo de depuracion
     `mShots`; 96,9 %). Con ella salen las copias debiles `GimmickCommon::vf58`/`vf44` (0x800FA4EC/0x800FA4F4, 100 %).
 
@@ -34,6 +35,7 @@ Funciones al 0 % al empezar: BattleTask 51, TacView 6, BattleCharaTask 1.
 - `fn_800FAB80` 96,9 %: registros float; el original limpia x/y de los vectores del registro (constructor) y llega
   al anillo por su direccion.
 - `fn_801004FC` 97,3 % y `fn_8010089C` 99 %: asignacion de registros.
+- `fn_8010CF28` 94,1 %: huecos de pila de los vectores del retroceso y del color, registros.
 - `fn_800FD658` 91,4 %: huecos de pila de las matrices temporales de las rotaciones (orden inverso).
 - `fn_800FB1BC` 98 %: huecos de pila de la esfera y la luz cambiados (probado: esfera con nombre, referencia
   a la luz), registros del bucle de oyentes.
@@ -62,6 +64,8 @@ Funciones al 0 % al empezar: BattleTask 51, TacView 6, BattleCharaTask 1.
   FriendManager con una vista local (`BattleFriendNode_unk`, como game/AiTarget.cpp).
 - `BattleAim_unk` (resultado de 0x18 bytes de las busquedas de blanco) local en BattleTask.cpp; `Arena_unk` gana
   `m4FC` y la inline `IsFreeMode_unk` (vista local, como antes).
+- `fn_8010CF28`: `BattleItem_unk` (dato de objeto, nombre en +8) local; `fn_801092C8` y `fn_80444020` declaradas
+  `extern "C"`.
 - `fn_801061BC` lee la matriz del nodo "neck" como `atn::Matrix3x4` con cast para `GetTrans_unk`.
 - `fn_800FDB20` usa `atn::VecAssign_unk` para la copia de `m28` en `m10` (cruce r3/r5).
 

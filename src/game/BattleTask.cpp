@@ -32,6 +32,7 @@
 #include "game/GimmickCommon.h"
 #include "atn/NodeChunk.h"
 #include "game/MapManager.h"
+#include "game/Inventory.h"
 #include "game/GameUI.h"
 #include "game/FriendManager.h"
 #include "game/GimmickManager.h"
@@ -3250,6 +3251,89 @@ int BattleTask::fn_8010CD3C(int kind, CharaTask* chara, CharaTask* other) {
         break;
     }
     return 0;
+}
+
+extern "C" int fn_80444020(Inventory* party, int item, int a, int b, int c, int d, int* outA, int* outB,
+                           int* outC); // inferred: adds an item (as in game/BattleResult.cpp)
+extern "C" int fn_8021E48C(int item, int arg); // inferred: count of the item given at once
+// inferred: item data (its name at +8, as MpItem_unk of MP/D2AMpMenuResult.cpp); names invented
+struct BattleItem_unk {
+    unsigned char m00[0x8];
+    const wchar_t* mName;
+};
+extern "C" BattleItem_unk* fn_80211480(int id);
+extern "C" int fn_800DD3FC(wchar_t* s, const wchar_t* format, ...); // inferred: wide sprintf
+// inferred: battle message `id` about `chara` (status effect popups and log)
+extern "C" void fn_801092C8(BattleTask* mgr, int id, CharaTask* chara, int kind, int arg);
+
+// inferred: effect `kind` of a special hit of `chara` on `target`: 4 steals the item of `target` once (message, sound
+// and item notice), 5 knocks `chara` back with an effect, 7/8/0x2E/0x2F only show the message (not for the
+// player). C name, called by HomingBullet and CharaTask as extern "C"
+// NONMATCHING: 94.1% - stack slots of the knock back vectors and the color, registers of the manager and the kind
+extern "C" void fn_8010CF28(BattleTask* mgr, int kind, CharaTask* chara, CharaTask* target) {
+    switch (kind) {
+    case 4: {
+        if (chara == 0 || target == 0) {
+            break;
+        }
+        int item = target->m5C != 0 ? target->m5C->mD0 : 0;
+        if (item <= 0) {
+            break;
+        }
+        int index = mgr->FindChara_unk(target);
+        BattleChara_unk* entry = index >= 0 ? &mgr->mCharas[index] : 0;
+        if (entry == 0 || entry->m92E != 0) {
+            break;
+        }
+        int got = 0;
+        int count = 0;
+        if (!fn_80444020(Inventory::instance_, item, 0, fn_8021E48C(item, 1), 0, 0, &got, &count, 0)) {
+            break;
+        }
+        if (got <= 0 || count <= 0) {
+            break;
+        }
+        entry->m92E = 1;
+        wchar_t text[256];
+        BattleItem_unk* data = fn_80211480(got);
+        if (data != 0) {
+            fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0x1F), chara->m60->m04, data->mName, count);
+        } else {
+            fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0x2F), got);
+        }
+        if (lbl_8087F0A8->m06C > 0 && LogMessageTask::sInstance != 0) {
+            LogMessageTask::sInstance->fn_8047961C(text, -0x3301, 0, 0);
+        }
+        fn_800C31F4(lbl_80735DD0[21], 0, -1, 1.0f);
+        if (lbl_8087F490 != 0) {
+            lbl_8087F490->fn_803E5E64(got, count, 1);
+        }
+        break;
+    }
+    case 7:
+    case 8:
+    case 0x2E:
+    case 0x2F:
+        if (chara != 0 && chara->mType != 0) {
+            fn_801092C8(mgr, 0xE, chara, kind, 0);
+        }
+        break;
+    case 5: {
+        if (chara == 0) {
+            break;
+        }
+        atn::Vector3 dir(0.0f, 0.0f, 1.0f);
+        Mtx m;
+        PSMTXRotRad(m, 'y', chara->mRot.y);
+        PSMTXMultVec(m, &dir, &dir);
+        chara->fn_8015E1B8(atn::Vector3(-dir.x, -dir.y, -dir.z) * 0.2f);
+        EffectColor_unk color(1.0f, 1.0f, 1.0f, 1.0f);
+        mgr->fn_801070C8(0x2331, 0, 0, chara->GetModel_unk(), &lbl_807C7030, &lbl_807C7030, &color, 1.0f);
+        mgr->fn_80107208(0x2331, &chara->mPos, 1.0f);
+        fn_801092C8(mgr, 0xE, chara, kind, 0);
+        break;
+    }
+    }
 }
 
 int BattleTask::fn_8010D770(HitInfo_unk* hit) {
