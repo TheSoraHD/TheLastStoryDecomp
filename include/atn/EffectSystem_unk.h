@@ -209,7 +209,7 @@ struct EffectParam_unk {
 // EffectSystem_unk::mInsts; fields named by use, the size is not known yet)
 struct EffectInst_unk {
     EffectInst_unk(); // 0x8022BDB4
-    int m00;
+    EffectInst_unk* m00;    // 0x00: inferred: previous of the list (EffectNode_unk::mPrev, atn/EffectRes_unk.cpp)
     EffectInst_unk* mNext;  // 0x04
     unsigned int m08;       // 0x08: inferred: shape of the emitter (3, 5: from the matrix m0C)
     float* m0C;
@@ -253,7 +253,7 @@ struct EffectFade_unk {
 // inferred: element of the system with a constructor (0x1B8 bytes; fields named by offset)
 struct EffectSlot_unk {
     EffectSlot_unk(); // 0x8022BE1C
-    int m00;
+    EffectSlot_unk* m00; // 0x00: inferred: previous of the list (EffectNode_unk::mPrev)
     EffectSlot_unk* mNext; // 0x04: inferred: next slot of the instance
     struct EffectInst_unk* m08; // 0x08: inferred: instance of the model drawn (position m9C, scale mA8)
     int m0C;
@@ -382,7 +382,7 @@ public:
     int mSlotCount;             // 0x10
     EffectSlot_unk* mSlots;     // 0x14
     EffectSlot_unk* mFreeSlots; // 0x18: inferred: free list of the slots (EffectSlot_unk::mNext)
-    int m1C;
+    EffectSlot_unk* m1C;        // 0x1C: inferred: list of the used slots (head written by fn_8023793C)
     int mParticleCount;              // 0x20
     EffectParticle_unk* mParticles;  // 0x24
     int m28;
