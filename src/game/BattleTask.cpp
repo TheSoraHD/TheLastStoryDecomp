@@ -32,6 +32,7 @@
 #include "game/GimmickCommon.h"
 #include "atn/NodeChunk.h"
 #include "game/MapManager.h"
+#include "game/GameUI.h"
 #include "game/FriendManager.h"
 #include "game/GimmickManager.h"
 #include "math/VecAssign_unk.h"
@@ -47,8 +48,18 @@ extern "C" GameTask* lbl_8087F430;
 extern "C" int rand();
 // inferred: multiplayer manager (as Arena_unk of game/CharaTask.cpp); only the member used here
 struct Arena_unk {
-    unsigned char m000[0x540];
+    unsigned char m000[0x4FC];
+    int m4FC; // inferred: state (0x1E: in play; fn_801004FC)
+    unsigned char m500[0x540 - 0x500];
     int m540; // inferred: mode (2: teams)
+    // inferred: modes 0 and 1 (name invented)
+    bool IsFreeMode_unk() const {
+        bool r = true;
+        if (m540 != 0 && m540 != 1) {
+            r = false;
+        }
+        return r;
+    }
 };
 extern "C" Arena_unk* lbl_8087F610; // inferred: multiplayer manager (null in single player)
 extern "C" atn::EfpFile* fn_800EFBC4(int id); // inferred: battle effect of row `id`
@@ -1344,6 +1355,154 @@ CharaTask* BattleTask::fn_801002DC(CharaTask* chara, const atn::Vector3* pos, co
         }
     }
     return found;
+}
+
+// inferred: result of the aim searches (0x18 bytes, cleared by BattleCharaTask before the call); names invented
+struct BattleAim_unk {
+    CharaTask* mChara;
+    int m04;
+    int mIndex;        // inferred: hit sphere of mChara
+    atn::Vector3 mPos; // inferred: center of the sphere
+};
+// inferred: aim of `chara` at the nearest hit sphere of the character found ahead by fn_800FFE68 (2 * `range`,
+// full turn): within `range` (on the ground plane with a height limit in multiplayer modes 0/1) and inside the cone
+// `angle` unless mFlagB9 (then the reference point is 24 lower). C name, called by BattleCharaTask as extern "C"
+// NONMATCHING: 97.3% - register allocation (integer and float registers permuted)
+extern "C" int fn_801004FC(BattleTask* mgr, BattleAim_unk* out, CharaTask* chara, const atn::Vector3* rot,
+                           float range, float angle) {
+    CharaTask* target = mgr->fn_800FFE68(chara, rot, 0, 0, 2.0f * range, 6.2831855f);
+    if (target == 0) {
+        return 0;
+    }
+    atn::Vector3 center = chara->mPos;
+    int found = -1;
+    center.y += chara->m5B0;
+    float best = 2.0f * range;
+    if (chara->mFlagB9) {
+        center.y -= 24.0f;
+    }
+    atn::Vector3 dir(0.0f, 0.0f, 1.0f);
+    Mtx m;
+    PSMTXRotRad(m, 'y', rot->y);
+    PSMTXMultVec(m, &dir, &dir);
+    for (unsigned int i = 0; i < target->m624.mSize; i++) {
+        if ((target->m624.mData[i].m00 & 8) == 8) {
+            continue;
+        }
+        atn::Vector3 d = target->m624.mData[i].m04.mCenter - center;
+        bool flat = false;
+        if (lbl_8087F610 != 0 && lbl_8087F610->IsFreeMode_unk()) {
+            flat = true;
+        }
+        float dist;
+        bool inside;
+        if (flat) {
+            atn::Vector3 v(d.x, 0.0f, d.z);
+            dist = PSVECMag(&v) - target->m624.mData[i].m04.mRadius;
+            float dy = (float)__fabs(d.y) - chara->mStatus.mParamB.m28;
+            inside = false;
+            if (dist < range && dy < 0.0f) {
+                inside = true;
+            }
+        } else {
+            float dy = (float)__fabs(d.y) - range;
+            if (0.0f > dy) {
+                dy = 0.0f;
+            }
+            atn::Vector3 v(d.x, dy, d.z);
+            dist = PSVECMag(&v) - target->m624.mData[i].m04.mRadius;
+            inside = dist < range;
+        }
+        if (!inside) {
+            continue;
+        }
+        if ((float)__fabs(PSVECSquareMag(&d)) < 1.1920929e-7f) {
+            d.x = 0.0f;
+            d.y = 0.0f;
+            d.z = 0.1f;
+        }
+        PSVECNormalize(&d, &d);
+        if (!chara->mFlagB9) {
+            float c = cos(angle);
+            if (!(PSVECDotProduct(&d, &dir) > c)) {
+                continue;
+            }
+        }
+        if (dist < best) {
+            best = dist;
+            found = i;
+        }
+    }
+    if (found < 0) {
+        return 0;
+    }
+    if (lbl_8087F610 != 0 && lbl_8087F610->m4FC != 0x1E) {
+        return 0;
+    }
+    out->mChara = target;
+    out->mIndex = found;
+    out->mPos = target->m624.mData[found].m04.mCenter;
+    return 1;
+}
+
+extern "C" GameUI* lbl_8087F490;
+
+// inferred: aim of `chara` among the characters near the player (GameUI::m85C): the hit sphere ahead of the facing
+// `rot->y`, within `range` and the cone `angle`, with the smallest distance weighted by the angle (a sphere at the
+// center of `chara` wins at once). C name, called by BattleCharaTask as extern "C"
+// NONMATCHING: 99% - integer registers of the loops (list, counters, target and index permuted)
+extern "C" int fn_8010089C(BattleTask* mgr, BattleAim_unk* out, CharaTask* chara, const atn::Vector3* rot,
+                           float range, float angle) {
+    float cosMax;
+    float best = 2.0f * range;
+    FixedArray_unk<CharaTask*, 4>* list = &lbl_8087F490->m85C;
+    int found = -1;
+    cosMax = cos(0.5f * angle);
+    float yaw = rot->y;
+    atn::Vector3 dir(0.0f, 0.0f, 1.0f);
+    CharaTask* target = 0;
+    Mtx m;
+    PSMTXRotRad(m, 'y', yaw);
+    PSMTXMultVec(m, &dir, &dir);
+    atn::Vector3 center = chara->mPos;
+    center.y += chara->m5B0;
+    for (unsigned int i = 0; i < list->mCount; i++) {
+        CharaTask* other = list->mData[i];
+        for (unsigned int j = 0; j < other->m624.mSize; j++) {
+            atn::Vector3 d = other->m624.mData[j].m04.mCenter - center;
+            float dist = PSVECMag(&d);
+            if (0.0f == dist || d.x * d.x + d.z * d.z < 0.00001f) {
+                best = dist;
+                target = list->mData[i];
+                found = j;
+                continue;
+            }
+            dist -= other->m624.mData[j].m04.mRadius;
+            d.y = 0.0f;
+            PSVECNormalize(&d, &d);
+            float dot = PSVECDotProduct(&d, &dir);
+            atn::Vector3 facing(0.0f, 0.0f, 1.0f);
+            Mtx m2;
+            PSMTXRotRad(m2, 'y', chara->mRot.y);
+            PSMTXMultVec(m2, &facing, &facing);
+            dist += 16.0f * (1.0f - PSVECDotProduct(&dir, &facing));
+            if (dot > cosMax && dist < range) {
+                dist += dist * (1.0f - dot);
+                if (dist < best) {
+                    best = dist;
+                    target = list->mData[i];
+                    found = j;
+                }
+            }
+        }
+    }
+    if (target == 0) {
+        return 0;
+    }
+    out->mChara = target;
+    out->mIndex = found;
+    out->mPos = target->m624.mData[found].m04.mCenter;
+    return 1;
 }
 
 int BattleTask::fn_80100BB8(CharaTask** out, CharaTask* chara, const atn::Vector3* dir, float range, float theta) {
