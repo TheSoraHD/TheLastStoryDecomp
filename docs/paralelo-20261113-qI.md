@@ -14,7 +14,7 @@
   con `atoi`), `Inventory::fn_80449ABC` 55 % (sin constructores, ver decisiones) y su `std::sort`
   (`MslSort_unk`/`MslMedian3_unk` con `ExpOrderLess_unk`, 0x8044A1D8/0x8044B44C/0x8044C6C0, 52-62 %: el
   original es mas grande, mas inlining).
-- `game/AiTarget`: funciones al 0 % 11 -> 5. `fn_80016C10` escrita (NONMATCHING 98,76 %, registros:
+- `game/AiTarget`: funciones al 0 % 11 -> 4 (100 %: 30 -> 32, la copia debil `__dt__SimpleArray<i>` y una por re-emparejado). `fn_80016C10` escrita (NONMATCHING 98,76 %, registros:
   el original pone la escena en r30 y el indice*4 en r29, al reves que el nuestro). `AIManager::fn_80018D5C`
   (punto de ruta en un cono) 99,5 %, `fn_80018C80` 92,7 %, `fn_80019254` (la misma busqueda desde un
   punto, con lista de puntos cercanos de reserva) 99,2 % y `fn_80019E88` (punto junto a un escondite) 99,9 %
