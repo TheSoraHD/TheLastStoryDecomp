@@ -104,5 +104,9 @@ Unidades: `game/GameUI`, `game/MiniMapTask`, `game/PopupTask`.
 - Quedan al 0 % en GameUI: fn_803D7850, fn_803D83A8 (10 KB), fn_803DAB4C, fn_803DBD44, fn_803E0E10,
   fn_803E2110 (push_back de m30C), fn_803E2410/fn_803E2A30, fn_803E3468, fn_803E5200 (posicion del icono,
   mucha aritmetica float), el `__sinit`.
+- `fn_803E2A30` (medidor de puntos de magia: `GameUI::fn_803E2A30(int kind, int frames, const atn::Vector3&,
+  int count, int speed)`, 1568 bytes) escrita pero no subida: game/Np131LivingArmor (otra cola) la llama como
+  `extern "C"` con un `void* draw`; quitar esa declaracion (con nombres) renumera 15 `@N` de Np131LivingArmor.
+  Hacerlo en la integracion: llamar `static_cast<GameUI*>(draw)->fn_803E2A30(...)` y `pd.sh` de esa unidad.
 - MiniMapTask: SetPosition/SetTarget de `atn::Camera` (inline nueva en `Camera_unk.h`, muy incluida) y
   `fn_804ABF74` (ctor de `ComDrawTextureMask`): sin tocar.
