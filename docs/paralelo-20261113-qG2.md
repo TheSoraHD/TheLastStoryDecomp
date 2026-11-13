@@ -21,6 +21,10 @@ Inicio: 2026-11-13 07:19 CET. Tope 09:49.
   - `Puppeteer<atn::Model>::vf10` (stub con DRAFT) -> 100 %: pone el modelo sobre la matriz m54 y calcula su pila
     de matrices en los estados 10-12; el estado 11/12 como bool en un inline (`IsPlayState_unk`, `bool r = true;
     if (...) r = false;`), el concat por `GetTarget_unk()`. `SetModelMtx_unk` y sus inlines movidos antes.
+  - `Puppeteer<CharaTask>::vf10` (parcial, 20 %) -> 93,0 %, escrita entera: pone al personaje sobre la matriz
+    m54 (con su posicion salvo mB8, su rotacion salvo mB9) por m58 en m88 (`CharaTask::mF1C`), llama a
+    `fn_80145334` y suelta la matriz. Rotacion y,x,z conservando la traslacion en el inline `SetRotYXZ_unk`
+    (matriz por un puntero, como `Matrix3x4::RotateZYX_unk`).
   - `Actor::fn_80012D34` 99,81 -> 99,98 % (sin DRAFT): la diferencia de la cadena de `GetTrans` en una local; solo
     queda el desplazamiento de "eye_R" en `@stringBase0` (el pool original 0x8072EE0C tiene tambien los nombres
     de parametros de las acciones).
@@ -42,6 +46,8 @@ Inicio: 2026-11-13 07:19 CET. Tope 09:49.
 
 ## NONMATCHING
 
+- `Puppeteer<CharaTask>::vf10` 93,0 %: registros salvados (r27-r31 aqui), el bloque de m54 colocado tras la
+  llamada y las copias de las traslaciones por temporales de pila.
 - `fn_80010490` 97,8 % (99,2 % `fn_80011420`, con `GetTarget_unk()` para la traslacion): el original guarda this/rot en r28/r29 y la matriz y el modelo del caso 3 en r31/r30
   (aqui comparten registro); matriz del caso 3 arriba del marco.
 - `fn_80011420` 99,0 %: huecos de las matrices de rotacion (0x30 mas arriba aqui).
@@ -70,7 +76,7 @@ Inicio: 2026-11-13 07:19 CET. Tope 09:49.
   parametro (no renumeran). Llamadores de
   `fn_80010B68` (Event/Path, Event/ActionActorPosition) sin cambios en el fuente; el nombre en `symbols.txt`.
 - `@15509`/`@15510` (0.0f/1.0f de `.sdata2` de la unidad) renombrados a mano (pd.sh no los renombra): ahora
-  `@17726`/`@17727`.
+  `@17892`/`@17893` (con `Puppeteer<CharaTask>::vf10` escrita, `pd.sh` ya los renombra).
 
 - `Event/Actor.h`: bits de `m18` (MSB primero) detallados: `m18_0` estado guardado, `m18_8` (8 bits) modo de
   control, `m18_16..22` bits guardados del personaje; `ActorAnim_unk::m0C` int. Las dos posiciones guardadas

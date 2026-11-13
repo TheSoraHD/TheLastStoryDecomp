@@ -128,34 +128,71 @@ int Puppeteer<CharaTask>::vf0C() {
     return 1;
 }
 
-// NONMATCHING: partial - places the character on the matrix m54 (rotations of the euler angles); written up to
-// the identity matrix so that its 0.0f and 1.0f open .sdata2 as in the original
+// inferred: states 11 and 12 of a sequence (inlined; name invented)
+inline bool IsPlayState_unk(int state) {
+    bool r = true;
+    if (state != 11 && state != 12) {
+        r = false;
+    }
+    return r;
+}
+
+// inferred: replaces the rotation of `m` by the rotation of the angles `rot` (y, x then z), keeping its
+// translation (inlined; name invented)
+inline void SetRotYXZ_unk(atn::Matrix3x4& m, const atn::Vector3& rot) {
+    atn::Vector3 t(m.m[0][3], m.m[1][3], m.m[2][3]);
+    atn::Matrix3x4 r;
+    atn::Matrix3x4* p = &r;
+    p->SetIdentity();
+    if (0.0f != rot.y) {
+        atn::Matrix3x4::RotateAxis_unk(*p, 'y', rot.y);
+    }
+    if (0.0f != rot.x) {
+        atn::Matrix3x4::RotateAxis_unk(*p, 'x', rot.x);
+    }
+    if (0.0f != rot.z) {
+        atn::Matrix3x4::RotateAxis_unk(*p, 'z', rot.z);
+    }
+    m = *p;
+    m.fn_801479E4(t);
+}
+
+// inferred: places the character on the matrix m54 while the sequence plays (states 10-12): the matrix the
+// character follows (CharaTask::mF1C) is m88 = m54 (with the position of the character unless mB8, the
+// rotation of the character unless mB9) * m58
+// NONMATCHING: 93.0% - saved registers (r27-r31 here, r29-r31 in the original), the block of m54 placed after
+// the call (the original branches over it) and the copies of the translations through stack temporaries
 template <>
 void Puppeteer<CharaTask>::vf10() {
     if (m50 == 0) {
         return;
     }
-    if (m50->m194 != 10) {
-        bool ending = m50->m194 == 11 || m50->m194 == 12;
-        if (!ending) {
-            return;
-        }
+    int state = m50->m194;
+    if (state != 10 && !IsPlayState_unk(state)) {
+        return;
     }
     CharaTask* chara = m48;
     if (chara == 0 || chara->m55C != 8 || !chara->IsFlag_unk(4)) {
         return;
     }
-    if (m54 == 0) {
-        return;
+    if (m54 != 0) {
+        atn::Matrix3x4 mtx(*m54);
+        if (mB8 == 0) {
+            mtx.fn_801479E4(chara->mPos);
+            m58.m[0][3] = m58.m[1][3] = m58.m[2][3] = 0.0f;
+        }
+        if (mB9 == 0) {
+            SetRotYXZ_unk(mtx, m48->mRot);
+            SetRotYXZ_unk(m58, lbl_807C7030);
+        }
+        atn::Matrix3x4 m;
+        PSMTXConcat(mtx.m, m58.m, m.m);
+        m88 = m;
+        m48->mF1C = (int)&m88;
     }
-    atn::Matrix3x4 mtx(*m54);
-    if (mB8 == 0) {
-        mtx.fn_801479E4(chara->mPos);
-        m58.m[0][3] = m58.m[1][3] = m58.m[2][3] = 0.0f;
-    }
-    if (mB9 == 0) {
-        atn::Matrix3x4 rot(1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f);
-        m88 = rot;
+    m48->fn_80145334();
+    if (m54 != 0) {
+        m48->mF1C = 0;
     }
 }
 
@@ -179,15 +216,6 @@ void Puppeteer<CharaTask>::vf14() {
 template <>
 int Puppeteer<atn::Model>::vf0C() {
     return 1;
-}
-
-// inferred: states 11 and 12 of a sequence (inlined; name invented)
-inline bool IsPlayState_unk(int state) {
-    bool r = true;
-    if (state != 11 && state != 12) {
-        r = false;
-    }
-    return r;
 }
 
 // inferred: places the model on the node matrix m54 (if any) and computes its matrix stack while the
