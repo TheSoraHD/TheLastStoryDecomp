@@ -26,6 +26,7 @@
 #include "game/TeamAIManager.h"
 
 extern "C" void* memset(void* dst, int c, unsigned long n);
+extern "C" void* memcpy(void* dst, const void* src, unsigned long n);
 extern "C" void fn_80087994(void* menu, const char* name, int* flag, int arg3, int arg4); // AddBool
 extern "C" void fn_800874C8(void* menu, const char* name, int* value, int min, int max, int step, int func,
                             int arg); // AddInt
@@ -595,6 +596,173 @@ int AIManager::fn_80018D5C(const atn::Vector3* pos, int group, int arg3, int arg
         }
     }
     return result;
+}
+
+// NONMATCHING: 99.2% - register allocation (as fn_80018D5C)
+// inferred: as fn_80018D5C from the move point `point` (the nearest one to `pos` when 0); when no point is
+// in the cone, any linked point closer than `max` (game/CrowdSimulation)
+extern "C" int fn_80019254(AIManager* ai, int point, const atn::Vector3* pos, int group, int arg3, int arg4,
+                           float dir, float range, float min, float max) {
+    GameScene* scene = lbl_8087F430->m10D8;
+    int result = 0;
+    if (scene != 0) {
+        if (point == 0) {
+            point = scene->fn_803C1560(pos, 0, 0, 0, 0, -1.0f);
+        }
+        atn::Vector3 origin = scene->m98[point - 1].mPos;
+        Mtx rot;
+        PSMTXRotRad(rot, 'y', dir);
+        atn::Vector3 axis(0.0f, 0.0f, 1.0f);
+        atn::Vector3 front = axis;
+        PSMTXMultVec(rot, &front, &front);
+        float limit = cos(0.017453292f * (0.5f * range));
+        int sum = 0;
+        for (int i = 1; i <= scene->m74; i++) {
+            gs::MovePoint& p = scene->m98[i - 1];
+            if (p.m2C != 0 && (group <= 0 || p.m20 == group)) {
+                sum += p.m1C;
+                if (sum > 0) {
+                    break;
+                }
+            }
+        }
+        if (sum <= 0) {
+            arg4 = -1;
+        }
+        int nears[256];
+        int found[256];
+        int nearCount = 0;
+        int count = 0;
+        for (int i = 1; i <= scene->m74; i++) {
+            gs::MovePoint& p = scene->m98[i - 1];
+            if (p.m2C == 0 || point == i || point == 0) {
+                continue;
+            }
+            if ((int)fn_803CD958(&scene->mA0.mData[point - 1], i - 1) <= 0) {
+                continue;
+            }
+            if (p.m1C < arg4) {
+                continue;
+            }
+            if (group > 0 && p.m20 != group) {
+                continue;
+            }
+            if (arg3 > 0 && p.m24 != arg3) {
+                continue;
+            }
+            atn::Vector3 diff = p.mPos - origin;
+            atn::Vector3 d = diff;
+            float dist = PSVECSquareMag(&d);
+            PSVECNormalize(&d, &d);
+            if (max * max < dist) {
+                continue;
+            }
+            if (nearCount < 255) {
+                nears[nearCount++] = i;
+            }
+            if (dist < min * min) {
+                continue;
+            }
+            if (PSVECDotProduct(&d, &front) >= limit && count < 255) {
+                found[count++] = i;
+            }
+        }
+        if (count == 0) {
+            memcpy(found, nears, sizeof(found));
+            count = nearCount;
+        }
+        if (count > 0) {
+            if (arg4 >= 0) {
+                result = found[0];
+                int total = 0;
+                for (int k = 0; k < count; k++) {
+                    total += scene->m98[found[k] - 1].m1C;
+                }
+                int r = rand() % total;
+                for (int k = 0; k < count; k++) {
+                    int w = scene->m98[found[k] - 1].m1C;
+                    if (r < w) {
+                        result = found[k];
+                        break;
+                    }
+                    r -= w;
+                }
+            } else {
+                result = found[rand() % count];
+            }
+        }
+    }
+    return result;
+}
+
+extern "C" float PSVECMag(const atn::Vector3* v);
+
+// NONMATCHING: 99.9% - operands of the fmuls of the half length swapped (len * 0.5 in either order)
+// inferred: point beside the hide point `point` along its link (`link`, else the first link of the
+// point); `kind` gets 3 for the points of kind 1-2, else 1/2 for the start/end of the link (game/
+// RouteWalker_unk). The manager is not used
+extern "C" int fn_80019E88(AIManager* ai, atn::Vector3* out, int* kind, int point, gs::HideLink_unk* link) {
+    GameScene* scene = lbl_8087F430 != 0 ? lbl_8087F430->m10D8 : 0;
+    if (scene == 0) {
+        return 0;
+    }
+    if (link == 0) {
+        for (unsigned int i = 0; i < scene->mB4.size(); i++) {
+            gs::HideLink_unk* l = &scene->mB4.mData[i];
+            if (l->mFrom + 1 == point || l->mTo + 1 == point) {
+                link = l;
+                break;
+            }
+        }
+    }
+    if (link == 0) {
+        return 0;
+    }
+    gs::HidePoint& from = scene->mAC[link->mFrom];
+    gs::HidePoint& to = scene->mAC[link->mTo];
+    if (from.m3C != 0 || to.m3C != 0) {
+        return 0;
+    }
+    atn::Vector3 dir = to.mPos - from.mPos;
+    float len = PSVECMag(&dir);
+    if (len > 0.0f) {
+        PSVECNormalize(&dir, &dir);
+    }
+    gs::HidePoint& p = scene->mAC.mData[point - 1];
+    if (p.m14 == 1 || p.m14 == 2) {
+        if (out != 0) {
+            float d = 0.2f * len;
+            if (link->mFrom + 1 == point) {
+                *out = p.mPos + dir * d;
+            } else {
+                *out = p.mPos - dir * d;
+            }
+        }
+        if (kind != 0) {
+            *kind = 3;
+        }
+        return 1;
+    }
+    if (p.m18 != 0) {
+        if (out != 0) {
+            float d = len * 0.5f;
+            d = d < 4.0f ? d : 4.0f;
+            if (link->mFrom + 1 == point) {
+                *out = p.mPos + dir * d;
+            } else {
+                *out = p.mPos - dir * d;
+            }
+        }
+        if (kind != 0) {
+            if (link->mFrom + 1 == point) {
+                *kind = 1;
+            } else {
+                *kind = 2;
+            }
+        }
+        return 1;
+    }
+    return 0;
 }
 
 namespace std {
