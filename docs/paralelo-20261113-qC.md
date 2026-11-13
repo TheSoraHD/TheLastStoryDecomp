@@ -4,7 +4,8 @@ Unidades: `game/GameUI`, `game/MiniMapTask`, `game/PopupTask`.
 
 ## Resumen
 
-- Funciones al 0 %: GameUI 22 -> 11, MiniMapTask 4 -> 4, PopupTask 1 -> 1 (cola 27 -> 16).
+- Funciones al 0 % (fnstat): GameUI 22 -> 10, MiniMapTask 4 -> 4, PopupTask 1 -> 1 (cola 27 -> 15); el
+  `__sinit` de GameUI queda emparejado al 0,76 % pero no esta escrito (ver pendientes), asi que son 11 sin escribir.
 - Al 100 % nuevas: 2 (`GameUI::fn_803D164C`, `GameUI::fn_803E6ADC`); report 15232 -> 15234.
 - Escritas y equivalentes (NONMATCHING): fn_803DCD34 99,4 %, fn_803CFC78 99,8 %, fn_803D022C 99,5 %,
   fn_803D0B20 99,5 %, fn_803D2194 99,9 %, fn_803DD160 87,5 %, fn_803E6D4C 72 %, fn_803E746C 68 %,
