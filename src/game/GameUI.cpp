@@ -4778,11 +4778,16 @@ void GameUI::fn_803E4E58(atn::D3AnimeInstance* icon, CharaTask* chara, atn::Vect
     pos->y += 1.5f;
 }
 
+// inferred: linear interpolation that adds the start last (name invented)
+inline atn::Vector3 LerpB_unk(const atn::Vector3& a, const atn::Vector3& b, float t) {
+    return (b - a) * t + a;
+}
+
 // inferred: position of an icon over a character: above the head (or the neck, or the collision centre),
 // moved 3 units towards the camera, turned towards the camera, scaled by its distance between the limits
 // m2670..m2674 (scales m266C..m2668)
-// NONMATCHING: 99.2% - the lerp of the scale adds the base last in the original (atn::Lerp_unk adds it
-// first; written the other way the temporaries move) and float registers
+// NONMATCHING: 99.3% - float registers (f10/f11 swapped in two places) and the store of the flags of
+// MeltTask is scheduled one instruction later
 void GameUI::fn_803E5200(atn::D3AnimeInstance* icon, CharaTask* chara, atn::Vector3* pos, int) {
     GameUIField_unk* field = lbl_8087F430;
     MtxPtr head = chara->GetModel_unk()->GetNodeMtx_unk("head");
@@ -4810,7 +4815,7 @@ void GameUI::fn_803E5200(atn::D3AnimeInstance* icon, CharaTask* chara, atn::Vect
     atn::Vector3 small(m266C, m266C, m266C);
     float d = m2670 > (m2674 < dist ? m2674 : dist) ? m2670 : (m2674 < dist ? m2674 : dist);
     atn::Vector3 scale(1.0f, 1.0f, 1.0f);
-    scale = atn::Lerp_unk(small, large, d / (m2674 - m2670));
+    scale = LerpB_unk(small, large, d / (m2674 - m2670));
     icon->SetPosition_unk(base + *pos);
     icon->MeltTask();
     atn::Matrix3x4 mtx;

@@ -4,7 +4,11 @@ Unidades: `game/GameUI`, `game/MiniMapTask`, `game/PopupTask`.
 
 ## Resultado
 
-- (se actualiza al cerrar)
+- Funciones al 0 % (fnstat, sin escribir): GameUI 10 -> 5 (y el `__sinit`, que tampoco estaba escrito), MiniMapTask 4 -> 4,
+  PopupTask 1 -> 1 (cola 15 -> 10).
+- Escritas (todas NONMATCHING, ninguna nueva al 100 %): `fn_803E2410` 99,6 %, `fn_803E2A30` 92 %,
+  `__sinit_\GameUI_cpp` 0,76 -> 65,7 %, `fn_803E3468` 90,3 %, `fn_803E5200` 99,3 %, `fn_803D7850` 98,7 %.
+- report.json 15357 -> 15357 (lost 0, sin bajadas); ninguna unidad nueva enlaza.
 
 ## game/GameUI
 
@@ -30,9 +34,9 @@ Unidades: `game/GameUI`, `game/MiniMapTask`, `game/PopupTask`.
 
 - `GameUI::fn_803E5200` (posicion del icono sobre un personaje: sobre "head"/"neck"/el centro de colision,
   3 unidades hacia la camara, girado hacia ella con `Vector3::ToRotation_unk` y escalado por la distancia entre
-  m2670..m2674): 0 % -> 99,2 %. `top.y += 5; top.y += m149C` (BattleCharaTask) y `Vector3 scale(1, 1, 1)` antes
-  de asignarle el lerp suben de 89 a 99,2. Resto: el lerp suma la base al final (`atn::Lerp_unk` la suma
-  primero; escrito al reves se mueven los temporales).
+  m2670..m2674): 0 % -> 99,3 %. `top.y += 5; top.y += m149C` (BattleCharaTask), `Vector3 scale(1, 1, 1)` antes
+  de asignarle el lerp y un lerp local `LerpB_unk` = `(b - a) * t + a` (el original suma la base al final)
+  suben de 89 a 99,3. Resto: f10/f11 cruzados en dos sitios y el `stw` de MeltTask una instruccion despues.
 - `GameUI::fn_803D7850(CharaTask*, CharaTask*, int, int)` (linea de odio `index` entre dos personajes, entre
   los bordes de sus colisiones; el extremo se desliza 5 fotogramas cuando `slide`; dos efectos de m1554/m1584
   con el color segun el tipo de ataque): 0 % -> 98,7 %. `float dist` local, `p1 = (m60 - p1) * t + p1` y
@@ -61,12 +65,24 @@ Unidades: `game/GameUI`, `game/MiniMapTask`, `game/PopupTask`.
 ## Hallazgos
 
 - Tras cada funcion nueva el `pd.sh` renumera los floats que solo usa el `__sinit` y labelcheck da "peor":
-  renombrarlos por valor (`scratch-C2/tools/fixlabels.py`; ojo con un `@N` nuestro ya usado en otra direccion).
+  renombrarlos por valor (`scratch-C2/tools/fixlabels.py`; no ve una etiqueta cuyo `@N` existe en nuestro .o con
+  otro valor: comprobar el valor a mano).
 
 - Un `__sinit` de datos se puede reconstruir emulando su asm (lfs/stfs/psq) para sacar los valores finales.
 - `x = a; if (c) x = b;` da `li; beq; li`; el ternario da codigo sin saltos (neg/or/srwi).
 
 ## Pendientes
+
+- GameUI al 0 %: `fn_803D83A8` (10 KB, llama a fn_803E2410/fn_803D7850), `fn_803DAB4C` (4,6 KB),
+  `fn_803DBD44` (3,4 KB: colocacion de las ventanas de enemigos, `vector<wstring>` de fn_800E0000; leido entero,
+  sin escribir), `fn_803E0E10` (4,9 KB: ventana de grupo, muchos campos de `GameUIElem60_unk`; leida la mitad),
+  `fn_803E2110` (push_back de m30C: con `std::vector<Entry_unk>` aislado sale casi igual, pero m30C es una vista a
+  mano en `GameUI.h` (38 unidades) y su `Clear_unk` 0x803CF78C es el `clear()` del vector; hay que pasar m30C a
+  `std::vector` en una integracion).
+- MiniMapTask: `vf10(RenderManager*)` tiene borrador, pero el original llama sin inline al ctor de copia de
+  `atn::Camera` y a `RenderManager::SetCamera_unk` (0x80116BD4), que `atn/RenderManager.h` define inline (otra
+  familia); SetPosition/SetTarget de `atn::Camera` y `fn_804ABF74` dependen de cabeceras ajenas. Sin tocar.
+- PopupTask `vf14` (9,3 KB): sin tocar.
 
 - `atn::D2A_TaskInstanceBase<N, M>::SetColor255_unk`: el parametro deberia ser `atn::Color` (16 bytes); bloquea
   fn_803E2A30, fn_803E4E58, fn_803DDD54 (otra familia).
