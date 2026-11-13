@@ -1650,6 +1650,53 @@ extern "C" void fn_80101524(BattleTask* mgr, const atn::Vector3* pos, const atn:
     }
 }
 
+// inferred: hit effect of the attack parameters `param` at the hit point, oriented along the hit direction: the
+// guard effect of the level of the attacker when the target guards (CharaStatus flag 0x20), the effect m88 of
+// kind 1, nothing for kind 2, else the normal or strong (m0C 0x80) hit effect of the level of the attacker
+// NONMATCHING: 93.9% - stack slots and registers of the inlined Vector3::fn_80139F60
+void BattleTask::fn_801018E4(BattleCalcParam_unk* param) {
+    CharaTask* attacker = (CharaTask*)param->m00; // inferred: the field is an int (see fn_800FD658)
+    CharaTask* chara = param->m04;
+    bool show = false;
+    if (param->m44 == 0) {
+        show = true;
+    } else if (param->m44 == 2 && param->m08 != 0 && (param->m08->mAC & 0x08000000) == 0x08000000) {
+        show = true;
+    }
+    if (!show) {
+        return;
+    }
+    atn::Vector3 rot = param->m28;
+    rot.fn_80139F60();
+    if (chara != 0 && (chara->mStatus.m0C & 0x20) == 0x20) {
+        int level = attacker != 0 ? attacker->fn_8017A160() : 0;
+        fn_80232B7C((unsigned int)this, 0);
+        fn_8023A680(lbl_8087F3C0, (EffectRes_unk*)(&mEfp3651C[5] + level), -1, 0, 0, &param->m1C, &rot, 0, 0, -1, 1,
+                    1.0f);
+        return;
+    }
+    int kind = param->m84;
+    if (kind == 2) {
+        return;
+    }
+    if (kind == 1) {
+        int effect = param->m88;
+        if (effect <= 0) {
+            return;
+        }
+        fn_80232B7C((unsigned int)this, 0);
+        // inferred: 0x363F0 holds three rows of seven atn::EffFile (the header types the range as EfpFile)
+        fn_8023A680(lbl_8087F3C0, (EffectRes_unk*)(&mEfp363C0[9] + (effect - 1) * 7), -1, 0, 0, &param->m1C, &rot,
+                    0, 0, -1, 1, 1.0f);
+        return;
+    }
+    int strong = (param->m0C >> 7) & 1;
+    int level = attacker != 0 ? attacker->fn_8017A160() : 0;
+    fn_80232B7C((unsigned int)this, 0);
+    fn_8023A680(lbl_8087F3C0, strong ? (EffectRes_unk*)(&mEfp3651C[5] + level) : (EffectRes_unk*)&mEfp3651C[level], -1, 0,
+                0, &param->m1C, &rot, 0, 0, -1, 1, 1.0f);
+}
+
 void BattleTask::fn_801021B4(RayObj_unk* obj, int a, int b) {
     m3E2E8 = obj;
     m3E2E0 = 0;
