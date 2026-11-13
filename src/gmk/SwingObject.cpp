@@ -18,7 +18,7 @@ extern "C" InstData_unk* fn_8009F788(const char* name); // inferred: finds or lo
 extern "C" int fn_8009FFCC(InstData_unk* data);         // inferred: nonzero while loading
 extern "C" char lbl_8087D710[2]; // inferred: " " (field separators of the tab CSV)
 extern "C" float fn_800DC288(const char* s); // inferred: string to float
-extern "C" int fn_800DC6B4(const char* s);   // inferred: hash of a name
+extern "C" unsigned int fn_800DC6B4(const char* s); // inferred: hash of a name (as atn/MapModelCache_unk.h)
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, int arg6,
                             int arg7);
