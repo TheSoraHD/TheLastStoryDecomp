@@ -19,6 +19,7 @@
 #include "game/ChaseManager.h"
 #include "game/Input_unk.h"
 #include "chr/ControlBase.h"
+#include "game/TacView.h"
 
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 extern "C" GameConfig_unk* lbl_8087F0A8;
@@ -2571,6 +2572,218 @@ void GameCamera::fn_803903E0(const atn::Vector3* target, float angle, int arg) {
                 m8A4 = best.m04 + best.m28 * radius + atn::Vector3(m8A4.x - from.x, 0.0f, m8A4.z - from.z);
             }
         }
+    }
+}
+
+// ---- fn_80390A88: free camera of the tactical view ----
+extern "C" int fn_800A55D4(void* pad, int port, int button); // inferred: button held
+// inferred: TacView::fn_805AA94C (moves the view point with the stick; not declared in game/TacView.h)
+extern "C" void fn_805AA94C(TacView* view, atn::Vector3* pos, atn::Vector3* move, int free, int reset);
+// inferred: parts of TacView not declared in game/TacView.h (names invented): the object aimed at by the cursor
+// keeps its position at 0x10, and m15AC is a task with a state at 0x48
+struct TacViewTargetPos_unk {
+    unsigned char m00[0x10];
+    atn::Vector3 m10;
+};
+struct TacViewTask_unk {
+    int IsIdle_unk() const { return m48 == 0; }
+    unsigned char m00[0x48];
+    int m48;
+};
+
+// inferred: normalizes `v` unless it is (almost) zero
+static inline void SafeNormalize_unk(atn::Vector3* v) {
+    if ((float)__fabs(v->LengthSq_unk()) < 1.1920929e-07f) {
+        return;
+    }
+    v->Normalize_unk();
+}
+
+// inferred: the view moves to its point (TacView::m159C)
+static inline bool TacViewMoving_unk(TacView* view) {
+    bool moving = false;
+    if (view->m15D8 == 1 && view->m15A8 > 0) {
+        moving = true;
+    }
+    return moving;
+}
+
+// inferred: `p` raised by the radius of the eye (and by the view height on maps without a ceiling)
+static inline atn::Vector3 RaisedPos_unk(const atn::Vector3& p) {
+    atn::Vector3 r = p;
+    r.y += lbl_8087F0A8->m08C;
+    AddViewHeight_unk(&r);
+    return r;
+}
+
+// inferred: free camera of the tactical view (m8E0): the left stick moves the point m8A4 (relative to the yaw m8A0)
+// within m8E8 ? 800 : 400 of m8BC (the view point of TacView while it moves it), swept against the walls (three
+// tries up the steps on maps with a ceiling); while the view is open the point follows the cursor; the right
+// stick and the buttons 2/3 turn the yaw
+// NONMATCHING: ~63% - stack layout (the original has 0x10 more bytes of locals: Mtx at 0x168, move at 0x158,
+// the copy of the cursor split over 0x140/0x0C/0x1C) and the scheduling of the first vector sums
+void GameCamera::fn_80390A88() {
+    if (m8E0 == 0) {
+        return;
+    }
+    atn::Vector3 move;
+    move.x = -fn_800A56A8(lbl_8087EF70, 0, 0, 0);
+    move.y = 0.0f;
+    move.z = fn_800A56A8(lbl_8087EF70, 0, 1, 0);
+    if ((float)__fabs(move.x) < 0.3f) {
+        move.x = 0.0f;
+    }
+    if ((float)__fabs(move.z) < 0.3f) {
+        move.z = 0.0f;
+    }
+    int free = lbl_8087F9F8->mA70 == 0;
+    float radius = lbl_8087F0A8->m08C;
+    atn::Vector3 pos = m8A4;
+    pos.y += radius;
+    AddViewHeight_unk(&pos);
+    if (lbl_8087F9F8 != 0 && lbl_8087F9F8->mA70 != 0) {
+        TacViewSel_unk sel = lbl_8087F9F8->m48;
+        if (lbl_8087F9F8->m15D8 == 1) {
+            free = 1;
+        }
+        fn_805AA94C(lbl_8087F9F8, &m8A4, &move, free, m8D4);
+        if (m8D4 != 0) {
+            m8D4 = 0;
+        }
+    }
+    Mtx m;
+    PSMTXRotRad(m, 'y', -m8A0);
+    PSMTXMultVec(m, &move, &move);
+    move *= lbl_8087F0A8->m064;
+    if (free) {
+        float minDist = 0.001f;
+        float maxDist = m8E8 ? 800.0f : 400.0f;
+        if (m8E8) {
+            maxDist *= 2.0f;
+        }
+        atn::Vector3 center = m8BC;
+        int follow = 1;
+        if (lbl_8087F9F8->m15D8 == 1) {
+            if (!TacViewMoving_unk(lbl_8087F9F8)) {
+                minDist = 0.001f;
+                maxDist = lbl_8087F9F8->m15ED ? 600.0f : 200.0f;
+                center = lbl_8087F9F8->m15DC;
+            } else {
+                follow = 0;
+            }
+        }
+        if (follow) {
+            atn::Vector3 eye = m8A4;
+            atn::Vector3 dir = move;
+            atn::Vector3 d = eye + dir - center;
+            if (PSVECMag(&d) > 0.0f) {
+                eye += move;
+            } else {
+                dir = eye + dir - center;
+                dir.y = 0.0f;
+                SafeNormalize_unk(&dir);
+                eye = dir * (0.00001f + minDist) + center;
+            }
+            dir = eye - center;
+            if (maxDist < PSVECMag(&dir)) {
+                PSVECNormalize(&dir, &dir);
+                eye = center + dir * maxDist;
+            }
+            eye.y = GAMECAMERA_MAX_UNK(center.y - 10.0f, GAMECAMERA_MIN_UNK(10.0f + center.y, eye.y));
+            pos = RaisedPos_unk(m8A4);
+            move = eye - pos;
+            move.y = 0.0f;
+        }
+    }
+    unsigned int mask = 0x80000008;
+    if (HasCeiling_unk()) {
+        mask = 0x08000000;
+        pos.y += m8C8 - m8A4.y;
+        move.y = 0.5f * -radius + move.y;
+    }
+    if (free) {
+        if (lbl_8087F9F8 != 0 && TacViewMoving_unk(lbl_8087F9F8)) {
+            lbl_8087F9F8->fn_805AA82C(&m8A4);
+        } else {
+            CollResult_unk result;
+            if (HasCeiling_unk()) {
+                int tries = 0;
+                bool aimed = false;
+                bool sub = false;
+                if (lbl_8087F9F8 != 0 && lbl_8087F9F8->m15AC != 0) {
+                    sub = true;
+                }
+                if (sub && !((TacViewTask_unk*)lbl_8087F9F8->m15AC)->IsIdle_unk()) {
+                    aimed = true;
+                }
+                int floor = aimed ? lbl_8087F9F8->m15DC.y : m8BC.y;
+                do {
+                    if (fn_8004D388(lbl_8087EE98, &result, &pos, &move, mask, 0, -1, radius)) {
+                        atn::Vector3 d = result.m10 - pos;
+                        if (result.m10.y - (float)floor > 20.0f) {
+                            atn::Vector3 from = result.m10;
+                            atn::Vector3 to = result.m10;
+                            to.y -= 2.0f * radius;
+                            tries++;
+                            if (fn_8004ED34(lbl_8087EE98, &result, &from, &to, mask, 0, -1) &&
+                                result.m28.x * result.m28.x + result.m28.z * result.m28.z > 0.001f &&
+                                move.x * move.x + move.z * move.z > 0.001f) {
+                                atn::Vector3 n(-result.m28.x, 0.0f, -result.m28.z);
+                                PSVECNormalize(&n, &n);
+                                move.y = 0.0f;
+                                float dot = PSVECDotProduct(&n, &move);
+                                move -= n * dot;
+                                move.y = 0.2f * -radius;
+                            } else {
+                                move *= 0.5f;
+                            }
+                        } else {
+                            m8C8 += d.y;
+                            if (m8C8 < m8A4.y) {
+                                m8C8 = m8A4.y;
+                            }
+                            d.y = 0.0f;
+                            m8A4 += d;
+                            break;
+                        }
+                    } else {
+                        move.y = 0.0f;
+                        m8A4 += move;
+                        break;
+                    }
+                    pos = m8A4;
+                    pos.y = m8C8 + radius;
+                } while (tries < 3);
+            } else {
+                fn_8004D388(lbl_8087EE98, &result, &pos, &move, mask, 0, 0, radius);
+                atn::Vector3 d = result.m10 - pos;
+                d.y = 0.0f;
+                m8A4 += d;
+            }
+        }
+    } else if (lbl_8087F9F8->m48.mState == 0) {
+        m8A4 += (lbl_8087F9F8->m48.m04->GetTacViewPosition() - m8A4) * 0.2f;
+    } else if (lbl_8087F9F8->m48.mState == 1) {
+        m8A4 += (((TacViewTargetPos_unk*)lbl_8087F9F8->m48.mTarget)->m10 - m8A4) * 0.2f;
+    }
+    float turn = 0.0f;
+    if (fn_800A58D0(lbl_8087EF70, 0)) {
+        float x = -fn_800A56A8(lbl_8087EF70, 0, 2, 0);
+        if ((float)__fabs(x) < 0.3f) {
+            x = 0.0f;
+        }
+        turn = x * -0.08726646f;
+    }
+    if (lbl_8087F9F8 == 0 || lbl_8087F9F8->mA70 == 0 || lbl_8087F9F8->mA78 != 0) {
+        if (fn_800A55D4(lbl_8087EF70, 0, 2)) {
+            turn -= 0.08726646f;
+        }
+        if (fn_800A55D4(lbl_8087EF70, 0, 3)) {
+            turn += 0.08726646f;
+        }
+    }
+    if ((float)__fabs(turn) > 0.001f) {
+        m8A0 = atn::WrapAngle_unk(turn + m8A0);
     }
 }
 

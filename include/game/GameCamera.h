@@ -123,6 +123,7 @@ public:
     void fn_8038A1D8(const CharaTask* chara); // inferred: the character is not used (mode table entry)
     void fn_80390374(); // inferred: goes back to the mode m804
     void fn_8038F52C(CharaTask*); // inferred: chooses the mode from the action of the character
+    void fn_80390A88(); // inferred: free camera of the tactical view
     void fn_803903E0(const atn::Vector3* target, float angle, int arg); // inferred: turns toward `target`
     void fn_80392C94(GameCameraState_unk* state) const; // inferred: saves the mode
     void fn_80392CE0(const GameCameraState_unk* state); // inferred: restores it
@@ -245,7 +246,7 @@ public:
     int m8D4; // inferred: set at the end of the replay rewind (GameTask::fn_80373AE8)
     float m8D8; // inferred: debug menu "BirdViewLockOnSpeed"
     float m8DC; // inferred: debug menu "BirdViewLockOnLength"
-    unsigned char m8E0[0x8E4 - 0x8E0];
+    int m8E0; // inferred: free camera of the tactical view (fn_80390A88)
     int m8E4; // inferred: cleared by GameTask::vf10 when the tactical view closes
     int m8E8; // inferred: cleared by GameTask::vf10 at the end of a map change
     int m8EC;

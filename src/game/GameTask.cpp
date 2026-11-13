@@ -243,7 +243,6 @@ extern "C" int fn_8006AA20(const char* path); // inferred: the file exists
 extern "C" void fn_800F3D28(BattleTask* battle);
 extern "C" void fn_800F3170(BattleTask* battle);
 extern "C" void fn_800EFA18(int type, int map);
-extern "C" void fn_80390A88(GameCamera* camera);
 extern "C" int fn_800A555C(void* obj, int a, int b);
 extern "C" void* lbl_8087EF70;
 extern "C" void fn_804A5E40(MenuCommonTask* menu, int kind, atn::Vector3* pos, int arg);
@@ -1597,7 +1596,7 @@ void GameTask::vf10() {
                     fn_803731E8();
                 } else {
                     if (mCamera.m7FC == 6 && mCamera.m7FC == mCamera.m800 && lbl_8087F9F8->mA70 == 0) {
-                        fn_80390A88(&mCamera);
+                        mCamera.fn_80390A88();
                     }
                     fn_8036CC90();
                 }
