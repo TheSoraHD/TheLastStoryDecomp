@@ -27,6 +27,8 @@ Lista: `/home/claude/scratch/n-candidates.txt` (98 % y menos, y las de 99 % que 
 - `game/Em306GurgBeast` (fuera de colas): vf104 99,60 -> 99,85 (estado 8/9 con ?: de `enum`); queda CanAct_unk.
 - `chr/ControlAttackBase` (fuera de colas): ctor de ControlAttack 98,95 -> 99,63 (`kind` con ?: de `enum`
   tras rand()); queda la pila del vector frontal.
+- `game/Em206EggMonster` (fuera de colas): fn_802C38E4 99,32 -> 99,93 (`next = rand() % 2 == 0 ? 2 : 4;`:
+  con constantes que difieren en 2 basta un ?: de `int`); quedan las ranuras de pila.
 - `chr/ControlShoot`: ctor 98,76 -> 99,90 %. El motion de los casos 0x25/0x26 con el ternario de `enum` y
   `mFB4 = mData->m48 + mFB4`. Queda el registro del cero de mFB0/mFB4 (r6 por r4).
 - Sin cambio (intentos revertidos, 2-8 cada una): `db/MapEnvSeTable_unk` fn_80214F80 (operator[] e inline
