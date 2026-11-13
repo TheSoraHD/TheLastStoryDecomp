@@ -284,6 +284,15 @@ inline void SetPaneText_unk(atn::D2A_Task* anime, const char* name, const wchar_
 }
 extern "C" void fn_800D2338(atn::Task* task); // inferred: removes the task
 
+// inferred: sets a text or a value of the pane `name` of a layout (names invented)
+inline void SetLayoutText_unk(void* layout, const char* name, const wchar_t* text) {
+    fn_801FEE08(layout, fn_800DC6B4(name), text);
+}
+inline void SetLayoutValue_unk(void* layout, const char* name, int index, float value) {
+    fn_801FED24(layout, fn_800DC6B4(name), index, value);
+}
+
+
 // inferred: holds an arrow on its last frames while it is pressed (name invented)
 static inline void UpdateArrow_unk(CampArrow_unk& arrow) {
     atn::D2A_Task* task = arrow.mTask;
@@ -427,11 +436,10 @@ inline int IsDeleteTriggered_unk() {
 
 // inferred: text of the warning of the camp info panel (name invented)
 static inline void SetWarningText_unk(CampSaveLoad* menu, const wchar_t* text) {
-    SetPaneText_unk(menu->m60, "warning_msg", text);
+    SetLayoutText_unk(&menu->m60->mData.m10, "warning_msg", text);
 }
 
-// NONMATCHING: 98.58% - register of the m60 layout in the warning text, the loop index
-// and frame pointer of the last loop in swapped registers, and the string pool
+// NONMATCHING: 99.98% - string pool offsets only (pool of the unit not complete yet)
 // inferred: state 1: choice of the slot
 void CampSaveLoad::fn_801191A8() {
     if (IsTriggered_unk(4)) {
@@ -576,8 +584,8 @@ void CampSaveLoad::fn_8011979C() {
 extern "C" MP::SaveData_unk* lbl_8087F460; // inferred: current save data (game/GameSaveData_unk)
 extern "C" int fn_803BE854(MP::SaveData_unk* data);
 
-// NONMATCHING: 92.34% - registers of the warning texts (the original takes the layout of m60 before hashing the
-// pane name) and the string pool
+// NONMATCHING: 97.77% - one more saved register around the m64 panes, the text and layout registers of the
+// second warning swapped, and the string pool
 // inferred: state 5: waits for the save, load or delete (m16C) of the slot m128
 void CampSaveLoad::fn_8011999C() {
     m14C++;
@@ -671,6 +679,97 @@ void CampSaveLoad::fn_8011999C() {
 
 MP::SaveElemB_unk::~SaveElemB_unk() {}
 
+extern "C" void* fn_801FEC74(void* layout, const char* name); // inferred: finds a pane
+// inferred: text of a pane (returned by value)
+extern "C" std::basic_string<wchar_t> fn_800A4450(void* pane, int a, int b);
+extern "C" void* lbl_8087EEC8; // inferred: font manager
+extern "C" float fn_8006EF48(void* font, float size, const wchar_t* text, float f2, int a, int b); // text width
+extern "C" void fn_801FED24(void* layout, unsigned int hash, int index, float value);
+extern "C" int fn_8006BA30(); // inferred: language of the game
+extern "C" int fn_800DD3FC(wchar_t* s, const wchar_t* format, ...); // inferred: swprintf
+extern "C" const wchar_t lbl_808813D0[2]; // inferred: empty text
+// inferred: camp message table (lbl_8087F1E4, as in game/CosEditItemList_unk.cpp)
+struct CampSaveLoadMsg_unk {
+    const wchar_t* Get_unk(int id) { return mText[id] != 0 ? mText[id] : lbl_808813D0; }
+    const wchar_t* mText[1];
+};
+extern "C" CampSaveLoadMsg_unk* lbl_8087F1E4;
+
+// NONMATCHING: 99.08% - string pool offsets and the registers of the message text of "ampm" (r27/r28)
+// inferred: fills the info bar (m5C) with the slot m128: map, act, level, date and play time
+void CampSaveLoad::fn_80119F0C() {
+    if (m5C == 0) {
+        return;
+    }
+    GameSaveSlot_unk* save = (GameSaveSlot_unk*)GetSlot_unk(m128);
+    if (save->fn_803BEAB4() != 0) {
+    if (fn_803BEB54((SaveSlot_unk*)save) == 0) {
+        m5C->mSpeed = 2.0f;
+        MapId_unk* map = fn_8021771C(save->m30, save->m32, save->m31);
+        if (map != 0) {
+            SetLayoutText_unk(&m5C->mData.m10, "mapName", map->mName);
+            m5C->SetNumber_unk("act", save->m74 / 100000, 0);
+            void* pane = fn_801FEC74(&m5C->mData.m10, "string0017_01(1)");
+            if (pane != 0) {
+                float w = fn_8006EF48(lbl_8087EEC8, 16.0f, fn_800A4450(pane, 0, 0).data(), 0.0f, 1, 4);
+                SetLayoutValue_unk(&m5C->mData.m10, "pos0007", 0, -100.0f + w);
+            }
+        }
+        int level = save->mParty.mCharas[0].mLevel;
+        for (int i = 0; i < 7; i++) {
+            if (save->mParty.mCharas[i].mId == 1) {
+                level = save->mParty.mCharas[i].mLevel;
+                break;
+            }
+        }
+        m5C->SetNumber_unk("level", level, 0);
+        if (mMode == 1) {
+            SetLayoutText_unk(&m5C->mData.m10, "saveloadType", fn_80116FC0(0, 0x2777));
+        } else {
+            SetLayoutText_unk(&m5C->mData.m10, "saveloadType", fn_80116FC0(0, 0x2776));
+        }
+        wchar_t text[0x100];
+        wchar_t date[0x100];
+        switch (fn_8006BA30()) {
+        case 2:
+            fn_800DD3FC(date, L"%d.%d.%d", save->m14, save->m18 + 1, save->m1C);
+            break;
+        case 4:
+            fn_800DD3FC(date, L"%d-%d-%d", save->m14, save->m18 + 1, save->m1C);
+            break;
+        default:
+            fn_800DD3FC(date, L"%d/%d/%d", save->m14, save->m18 + 1, save->m1C);
+            break;
+        }
+        fn_800DD3FC(text, L"%s %2d:%02d", date, save->m10, save->m0C);
+        SetLayoutText_unk(&m5C->mData.m10, "day", text);
+        m5C->SetText_unk("time", (int)"");
+        float hour = save->m10; // inferred: unused (the original keeps the dead int to float conversion)
+        m5C->SetText_unk("ampm", (int)"");
+        int sec = save->m70 / 30;
+        int min = sec / 60;
+        fn_800DD3FC(text, L"%d:%02d:%02d", min / 60, min % 60, sec % 60);
+        SetLayoutText_unk(&m5C->mData.m10, "playTime", text);
+    } else {
+        m5C->mSpeed = 2.0f;
+        SetLayoutText_unk(&m5C->mData.m10, "mapName", L"");
+        m5C->SetNumber_unk("act", 0, 0);
+        m5C->SetNumber_unk("level", 0, 0);
+        if (mMode == 1) {
+            SetLayoutText_unk(&m5C->mData.m10, "saveloadType", fn_80116FC0(0, 0x2777));
+        } else {
+            SetLayoutText_unk(&m5C->mData.m10, "saveloadType", fn_80116FC0(0, 0x2776));
+        }
+        SetLayoutText_unk(&m5C->mData.m10, "day", L"");
+        SetLayoutText_unk(&m5C->mData.m10, "time", L"");
+        SetLayoutText_unk(&m5C->mData.m10, "ampm", lbl_8087F1E4->Get_unk(0x38D));
+        m5C->SetText_unk("playTime", (int)"0:00:00");
+    }
+    } else {
+        m5C->mSpeed = -2.0f;
+    }
+}
+
 // NONMATCHING: 88.8% - the original converts each pad result to a bool value (neg/or/srwi)
 // before testing it
 // NONMATCHING: 98.7% - floating-point register allocation of the two frame values (and the
@@ -712,7 +811,6 @@ void CampSaveLoad::fn_8011AD38() {
     }
 }
 
-extern "C" int fn_800DD3FC(wchar_t* s, const wchar_t* format, ...); // inferred: swprintf
 
 // NONMATCHING: 99.33% - string pool offsets and the size/pointer registers of the two appends swapped (r23/r24)
 // inferred: shows the save slot `index` in its frame (index - 1) % 8: icon, number, play time and map thumbnail,

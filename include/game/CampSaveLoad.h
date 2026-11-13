@@ -73,6 +73,7 @@ public:
     virtual void vf10(); // 0x801185E0
     void fn_801191A8(); // inferred: state 1 (slot selection)
     void fn_8011999C(); // inferred: state 5
+    void fn_80119F0C(); // inferred: info bar
     virtual void vf14(); // 0x801189B4
     virtual void vf1C(); // 0x801191A0
     virtual void vf20(); // 0x801191A4
