@@ -179,6 +179,7 @@ public:
     int fn_800FC1D0(CharaTask*, CharaTask*, HitInfo_unk*, int, const atn::Vector3*, int, int);
     void fn_80100BC0();          // inferred: stops the effects (fn_801055A8 and effect group 5)
     void fn_801018E4(BattleCalcParam_unk*); // inferred: hit effect of the attack parameters
+    void fn_80101CDC(BattleCalcParam_unk*); // inferred: hit sound of the attack parameters
     void fn_800F72F4(class BattleCharaTask* chara, int arg); // inferred: draws the target line of `chara`
     void fn_801055A8(int arg);
     // inferred: plays the battle effect `id` (fn_800EFBC4) / skill effect (fn_800EFDA0) after stopping the group

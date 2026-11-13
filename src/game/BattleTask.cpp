@@ -32,6 +32,8 @@
 #include "game/GimmickCommon.h"
 #include "atn/NodeChunk.h"
 #include "game/MapManager.h"
+#include "game/Arms.h"
+#include "chr/ControlBase.h"
 #include "game/Inventory.h"
 #include "game/GameUI.h"
 #include "game/FriendManager.h"
@@ -1695,6 +1697,111 @@ void BattleTask::fn_801018E4(BattleCalcParam_unk* param) {
     fn_80232B7C((unsigned int)this, 0);
     fn_8023A680(lbl_8087F3C0, strong ? (EffectRes_unk*)(&mEfp3651C[5] + level) : (EffectRes_unk*)&mEfp3651C[level], -1, 0,
                 0, &param->m1C, &rot, 0, 0, -1, 1, 1.0f);
+}
+
+extern "C" void fn_800CB688(atn::SoundRef* sound, int arg, float pitch); // inferred: sets the pitch
+
+// inferred: hit sound of the attack parameters `param`: for a hit of kind 0 the sound of the weapon of the attacker
+// (the left one in the double attack control) with a random pitch, plus the critical (m94 0x80) and m78 sounds;
+// for a bullet of kind 2 without effect the bullet sounds
+void BattleTask::fn_80101CDC(BattleCalcParam_unk* param) {
+    CharaTask* attacker = (CharaTask*)param->m00; // inferred: the field is an int (see fn_800FD658)
+    if (param->m44 == 0) {
+        if (param->m84 == 1) {
+            fn_800C344C(lbl_80735DD0[17 + rand() % 3], &param->m1C, 0, -1, 1.0f);
+        } else if (param->m84 == 0) {
+            int sound = rand() % 3 + 2;
+            float pitch = 1.0f;
+            Arms* arms;
+            if (attacker == 0 || attacker->m648 == 0) {
+                arms = 0;
+            } else {
+                arms = (Arms*)attacker->m648;
+                if (attacker->m55C == 6 && attacker->m560 == 4 && attacker->m64C != 0 && attacker->mControl.get() != 0 &&
+                    attacker->mControl->vf30() % 2 == 1) {
+                    arms = (Arms*)attacker->m64C;
+                }
+            }
+            if (arms != 0 && arms->m274 != 0) {
+                switch (arms->m274->m80 % 1000) {
+                case 0x253:
+                    sound = 5;
+                    break;
+                case 0x255:
+                    sound = 10;
+                    break;
+                case 0x257:
+                    sound = 6;
+                    break;
+                case 0x258:
+                    sound = 9;
+                    break;
+                case 0x259:
+                    sound = 13;
+                    break;
+                case 0x25A:
+                    sound = 12;
+                    break;
+                case 0x25B:
+                    sound = 11;
+                    break;
+                case 0x25E:
+                case 0x2FD: case 0x2FE: case 0x2FF: case 0x300: case 0x301: case 0x302: case 0x303:
+                    sound = 6;
+                    break;
+                case 0x25F:
+                case 0x304: case 0x305: case 0x306: case 0x307: case 0x308: case 0x309: case 0x30A:
+                    sound = 13;
+                    break;
+                case 0x260:
+                case 0x30B: case 0x30C: case 0x30D: case 0x30E: case 0x30F: case 0x310: case 0x311:
+                    sound = 13;
+                    break;
+                case 0x261:
+                case 0x312: case 0x313: case 0x314: case 0x315: case 0x316: case 0x317: case 0x318:
+                    sound = 14;
+                    break;
+                case 0x263: case 0x264: case 0x265:
+                case 0x320: case 0x321: case 0x322: case 0x323: case 0x324: case 0x325: case 0x326: case 0x327:
+                case 0x328: case 0x329: case 0x32A: case 0x32B: case 0x32C: case 0x32D: case 0x32E: case 0x32F:
+                case 0x330: case 0x331: case 0x332: case 0x333: case 0x334:
+                    sound = 15;
+                    break;
+                case 0x254:
+                case 0x256:
+                case 0x25C: case 0x25D:
+                case 0x262:
+                case 0x319: case 0x31A: case 0x31B: case 0x31C: case 0x31D: case 0x31E: case 0x31F:
+                    break;
+                default:
+                    goto fixed; // inferred: the other weapons keep the pitch
+                }
+                pitch = 1.0f + (0.15f * ((rand() % 1001) / 1000.0f) - 0.075f);
+            fixed:
+                if (attacker->m50 == 0x4A25A) {
+                    sound = 16;
+                }
+            }
+            atn::SoundRef ref = fn_800C344C(lbl_80735DD0[sound], &param->m1C, 0, -1, 1.0f);
+            fn_800CB688(&ref, 0, pitch);
+            if ((param->m94 & 0x80u) == 0x80) {
+                fn_800C344C(lbl_80735DD0[7], &param->m1C, 0, -1, 1.0f);
+            }
+            if (param->m78 >= 0) {
+                fn_800C344C(lbl_80735DD0[8], &param->m1C, 0, -1, 1.0f);
+            }
+        }
+    } else if (param->m44 == 2 && param->m08 != 0 && param->m08->mB0 <= 0) {
+        if (param->m84 == 1) {
+            fn_800C344C(lbl_80735DD0[20], &param->m1C, 0, -1, 1.0f);
+        } else if (param->m84 == 0) {
+            if (param->m08->m58 < 10.0f) {
+                fn_800C344C(lbl_80735DD0[5], &param->m1C, 0, -1, 1.0f);
+            } else {
+                fn_800C344C(lbl_80735DD0[6], &param->m1C, 0, -1, 1.0f);
+            }
+        }
+    }
 }
 
 void BattleTask::fn_801021B4(RayObj_unk* obj, int a, int b) {

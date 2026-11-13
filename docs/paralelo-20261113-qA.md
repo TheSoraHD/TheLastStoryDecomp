@@ -27,9 +27,11 @@ Funciones al 0 % al empezar: BattleTask 51, TacView 6, BattleCharaTask 1.
   - `BattleTask::fn_801018E4` (efecto de golpe de `m38A5C`, orientado con `Vector3::fn_80139F60`; 93,9 %): miembro
     nuevo, renombrado en `symbols.txt`.
   - `BattleTask::fn_8010C3E4` (tabla de odio `m391E0`; 98,98 %): miembro nuevo, renombrado en `symbols.txt`.
-- Resumen BattleTask: funciones al 0 % 51 -> 30 (21 escritas sin `DRAFT`); al 100 % 143 -> 151 (`fn_800F29D0`,
-  `fn_800FC1D0`, `fn_800FBE70`, `GimmickCommon::vf58`/`vf44`, `fn_80103600`, `fn_80103B58`, `fn_801055A8`);
-  `report.json` 15232 -> 15240. `mnemcheck.py` limpio en todas las nuevas al 100 %; las NONMATCHING no tienen
+  - `BattleTask::fn_80101CDC` (sonido de golpe segun el arma, con tono aleatorio; 100 %): miembro nuevo,
+    renombrado en `symbols.txt`.
+- Resumen BattleTask: funciones al 0 % 51 -> 29 (22 escritas sin `DRAFT`); al 100 % 143 -> 152 (`fn_800F29D0`,
+  `fn_800FC1D0`, `fn_800FBE70`, `GimmickCommon::vf58`/`vf44`, `fn_80103600`, `fn_80103B58`, `fn_801055A8`,
+  `fn_80101CDC`); `report.json` 15232 -> 15241. `mnemcheck.py` limpio en todas las nuevas al 100 %; las NONMATCHING no tienen
   saltos ni comparaciones desalineados (revisado con `odiff2.py`).
 - TacView (6) y BattleCharaTask (1): sin tocar (funciones de 2-8 KB; `fn_805ADB28` solo sale con `fn_805AC758`).
   - `fn_800FAB80` (prueba de impacto de una bala contra personajes y gimmicks, efectos, barra y anillo de depuracion
@@ -81,6 +83,8 @@ Funciones al 0 % al empezar: BattleTask 51, TacView 6, BattleCharaTask 1.
   `extern "C"`.
 - `fn_80101524` toma `chara` como sexto argumento (CharaStatus lo pasa; ControlCdnStone declara menos) y usa
   `mEfp3651C[10..12]` como `EffectRes_unk*` con cast (son `atn::EffFile`, la cabecera los tipa `EfpFile`).
+- `fn_80101CDC`: `goto` en el `default` del `switch` del arma (ver hallazgos); `(Arms*)` sobre
+  `CharaTask::m648/m64C` (como game/BattleCharaTask.cpp); includes `game/Arms.h` y `chr/ControlBase.h`.
 - `fn_801018E4` usa el rango 0x363F0 de `mEfp363C0` como tres filas de siete `atn::EffFile` con cast
   (`&mEfp363C0[9] + (n - 1) * 7`). **Pendiente**: tipar 0x363F0..0x365F4 en `BattleTask.h` (EffFile frente a
   EfpFile; `fn_800F3170`, la liberacion de recursos, lo necesita).
@@ -101,6 +105,11 @@ Funciones al 0 % al empezar: BattleTask 51, TacView 6, BattleCharaTask 1.
 
 ## Hallazgos
 
+- `if (scoped_ptr)` pasa por el `unspecified_bool` de Boost (`__ptmf_null`, copias de punteros a miembro): para
+  la prueba simple del original, `p.get() != 0` (fn_80101CDC).
+- Un `switch` cuyo `default` salta por encima del codigo comun posterior sale con `default: goto etiqueta;`; con un
+  `bool` el compilador materializa el flag (fn_80101CDC).
+
 - `x = a >= 0 ? a : (b >= 0 ? b : -1)` da el `blt/b` del original donde el `if (a < 0) {...}` sale invertido
   (fn_80103600).
 
@@ -115,7 +124,7 @@ Funciones al 0 % al empezar: BattleTask 51, TacView 6, BattleCharaTask 1.
 - Restan al 0 % en BattleTask: el constructor, `fn_800F1F94`, `fn_800F2C9C`, `fn_800F3170` (necesita tipar
   0x363F0..0x365F4), `fn_800F3490`, `fn_800F3EF4`, `fn_800F5314`, `fn_800F8574`, `fn_800F8C6C` (con el
   `std::sort`/mediana `fn_800FA4FC`/`fn_800FA9F4`), `fn_800FC410`, `fn_800FCD24`, `fn_800FDF14`, `fn_800FFE68`,
-  `fn_80100BF0`, `fn_80101CDC`, `fn_8010220C`, `fn_80102A40`, `fn_80103FD4`, `fn_80106878`,
+  `fn_80100BF0`, `fn_8010220C`, `fn_80102A40`, `fn_80103FD4`, `fn_80106878`,
   `BattleChara_unk::fn_801083D8`, `fn_801092C8` (tabla de mensajes de 8 bytes de `lbl_8087F1E4`),
   `fn_80109950`, `fn_8010B398`, `fn_8010C00C` (necesita `Arms`/`CharaEquip_unk` desde `CharaPart_unk`),
   `fn_8010D320` (como `fn_801018E4`, con `Vector3::fn_80139F60`) y las copias debiles de los destructores y
