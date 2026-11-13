@@ -4,7 +4,7 @@ Inicio 07:35.
 
 ## Resultado por unidad (funciones al 0 % antes -> despues)
 
-- `game/MapPartsGimmickLoc` 15 -> 0; 27 (varias falsas) -> 39/46 al 100 %. Escritas `vf10` (99,05 %) y
+- `game/MapPartsGimmickLoc` 15 -> 0; 27 (varias falsas) -> 41/46 al 100 %. Escritas `vf10` (99,64 %) y
   `fn_804985E4` (100 %); las 28 copias weak que salen de `fn_804985E4` (funcion fuera del presupuesto de inline:
   llama a todo con `bl`) se rehicieron con sus tipos reales y se renombraron en `symbols.txt`:
   `SimpleArray<SwingPart_unk*>/<Record>::operator[]`, `Resize_unk(n, heap, name)` de los dos arrays,
@@ -23,11 +23,8 @@ Inicio 07:35.
 
 ## NONMATCHING
 
-- MPGL `vf10` 99,05 %: los huecos de pila de las rotaciones inline salen en orden inverso (en el original la z
-  queda abajo; en la copia suelta 0x80498354 tambien al reves que la nuestra). f26/f27 del aleatorio: `min`
-  declarado antes que `max`. Probado
-  escribir la rotacion a mano con `Matrix3x4::RotateAxis_unk` (95 %) y con el `RotateAxis_unk` del fichero (89 %).
-- `UpdateRecordMatrix_unk` 99,91 %: huecos de pila de las tres rotaciones.
+- MPGL `vf10` 99,64 %: orden de las direcciones de pila izadas del modo 2 y de la direccion del registro en la
+  prueba del recuento.
 - `SetLod_unk` 88,57 %: el original hace `frsp` de la distancia antes de dividir (probado releer el miembro, double).
 - `vector<MapLocator_unk*>::~vector` 96,77 %: un `beq` de mas en el original (mismo caso que
   `vector<MapModelCache_unk*>` de atn/Motion_unk); viene de `include/std/vector.h` (no tocado).
@@ -81,6 +78,10 @@ Inicio 07:35.
 
 - Copia de un array de structs: `for (i < 16) a[i] = b[i];` con elementos de 0x40 sale como en el original
   (bucle desenrollado de 8 en 8: 2 x 0x200); copiar el bloque entero como una struct da un bucle de 8 bytes.
+
+- Huecos de pila de rotaciones inline al reves: el original pone las tres rotaciones en un inline propio
+  (`RotateEulerZYX_unk`, como `RotateEuler_unk` de MapInstance_unk) dentro del de la matriz: un nivel de inline
+  mas invierte el orden. Con eso `UpdateRecordMatrix_unk` y `fn_8049994C` salen al 100 % y `vf10` 99,64 %.
 
 ## Pendientes
 

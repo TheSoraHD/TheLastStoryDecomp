@@ -184,23 +184,38 @@ int MapPartsGimmickLoc::vf0C() {
 
 extern "C" void PSMTXTrans(Mtx m, float x, float y, float z);
 
-// inferred: m = m * rot(axis, rad)
-static inline void RotateAxis_unk(atn::Matrix3x4& m, char axis, float rad) {
-    Mtx t;
-    Mtx r;
-    PSMTXRotRad(r, axis, rad);
-    PSMTXConcat(m.m, r, t);
-    __MtxCopy(m.m, t);
+// inferred: rotations z, y, x of a matrix in place (as RotateEuler_unk of game/MapInstance_unk.cpp)
+inline void RotateEulerZYX_unk(atn::Matrix3x4& m, const atn::Vector3& rot) {
+    if (0.0f != rot.z) {
+        atn::Matrix3x4::RotateAxis_unk(m, 'z', rot.z);
+    }
+    if (0.0f != rot.y) {
+        atn::Matrix3x4::RotateAxis_unk(m, 'y', rot.y);
+    }
+    if (0.0f != rot.x) {
+        atn::Matrix3x4::RotateAxis_unk(m, 'x', rot.x);
+    }
 }
 
-// NONMATCHING: 99.91% (weak copy 0x80498354) - stack slots of the three rotations of RotateZYX_unk
+// inferred: m = m * rot_z * rot_y * rot_x (as Matrix3x4::RotateZYX_unk, with the rotations in a helper:
+// the stack slots of the three rotations come out in the order of the original)
+inline void RotateRecord_unk(atn::Matrix3x4& self, const atn::Vector3& rot) {
+    atn::Matrix3x4 t;
+    atn::Matrix3x4 m;
+    atn::Matrix3x4* p = &m;
+    p->SetIdentity();
+    RotateEulerZYX_unk(*p, rot);
+    PSMTXConcat(self.m, p->m, t.m);
+    self = t;
+}
+
 // inferred: matrix of a record: translation, then rotations z, y, x (weak copy 0x80498354; inlined
 // three times in vf10)
 inline void UpdateRecordMatrix_unk(MapPartsGimmickLocRecord_unk& rec) {
     atn::Matrix3x4 t;
     PSMTXTrans(t.m, rec.m2C.x, rec.m2C.y, rec.m2C.z);
     rec.mMtx = t;
-    rec.mMtx.RotateZYX_unk(rec.m38);
+    RotateRecord_unk(rec.mMtx, rec.m38);
 }
 
 // inferred: random value in [min, max] in steps of 1/1000
@@ -210,10 +225,8 @@ static inline float RandRange_unk(float min, float max) {
 
 extern "C" void fn_8023A108(atn::EffectManager* mgr, unsigned int owner, int group, int count);
 
-// NONMATCHING: 99.05% - the stack slots of the inlined rotations are allocated in the opposite order (z
-// lowest in the original); tried the rotation written out with Matrix3x4::RotateAxis_unk and with the
-// file's RotateAxis_unk (t before r): 95% and 89%, and one more inline level (98%). `min` is declared
-// before `max` for f26/f27
+// NONMATCHING: 99.64% - order of the hoisted stack addresses of mode 2 (the matrix of the last
+// UpdateRecordMatrix_unk is set up first) and of the record address of the count test
 // inferred: effects of the records: mode 0 records are started once (with the effect colour and a random
 // scale), mode 1 records are restarted every m8C (+- m90) frames; then the swinging parts are updated
 void MapPartsGimmickLoc::vf10() {
@@ -536,23 +549,13 @@ void MapPartsGimmickLoc::SetAreaEffConfig() {
     }
 }
 
-// NONMATCHING: 98.32% - stack slots and registers of the three inlined rotations (z, y, x)
 // inferred: moves and turns the records by the placement of the part
 void MapPartsGimmickLoc::fn_8049994C(const atn::Vector3& pos, const atn::Vector3& rot) {
     for (unsigned int i = 0; i < mRecords.size(); i++) {
         mRecords.mData[i].m2C += pos;
         atn::Matrix3x4 m;
-        atn::Matrix3x4* p = &m;
-        p->SetIdentity();
-        if (0.0f != rot.z) {
-            RotateAxis_unk(*p, 'z', rot.z);
-        }
-        if (0.0f != rot.y) {
-            RotateAxis_unk(*p, 'y', rot.y);
-        }
-        if (0.0f != rot.x) {
-            RotateAxis_unk(*p, 'x', rot.x);
-        }
+        m.SetIdentity();
+        RotateEulerZYX_unk(m, rot);
         PSMTXMultVec(m.m, &mRecords.mData[i].m2C, &mRecords.mData[i].m2C);
         mRecords.mData[i].m38 += rot;
     }
