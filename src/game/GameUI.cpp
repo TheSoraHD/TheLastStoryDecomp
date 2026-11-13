@@ -227,8 +227,25 @@ GameUI* lbl_8087F490;
 int lbl_8087F494;     // inferred: debug flag "ChantTimeHalf" (fn_803CFC78): frames counted at 60 per second (else 30)
 
 // inferred: colours of the HUD (0x807C8628, .bss of this file); they are set by the static initializer
-// (fn_803E78B4, not written yet) and registered in the debug menu by fn_803CFC78
-atn::Color lbl_807C8628[16];
+// (__sinit, 0x803E78B4) and registered in the debug menu by fn_803CFC78
+atn::Color lbl_807C8628[16] = {
+    atn::Color(255 / 255.0f, 217 / 255.0f, 51 / 255.0f, 0.0f),
+    atn::Color(230 / 255.0f, 46 / 255.0f, 46 / 255.0f, 0.0f),
+    atn::Color(125 / 255.0f, 125 / 255.0f, 125 / 255.0f, 0.0f),
+    atn::Color(197 / 255.0f, 80 / 255.0f, 254 / 255.0f, 0.0f),
+    atn::Color(197 / 255.0f, 80 / 255.0f, 254 / 255.0f, 0.0f),
+    atn::Color(153 / 255.0f, 153 / 255.0f, 153 / 255.0f, 0.0f),
+    atn::Color(125 / 255.0f, 125 / 255.0f, 125 / 255.0f, 0.0f),
+    atn::Color(255 / 255.0f, 60 / 255.0f, 15 / 255.0f, 0.0f),
+    atn::Color(10 / 255.0f, 10 / 255.0f, 255 / 255.0f, 0.0f),
+    atn::Color(51 / 255.0f, 255 / 255.0f, 102 / 255.0f, 0.0f),
+    atn::Color(250 / 255.0f, 240 / 255.0f, 130 / 255.0f, 0.0f),
+    atn::Color(167 / 255.0f, 248 / 255.0f, 255 / 255.0f, 0.0f),
+    atn::Color(102 / 255.0f, 26 / 255.0f, 153 / 255.0f, 0.0f),
+    atn::Color(153 / 255.0f, 27 / 255.0f, 27 / 255.0f, 0.0f),
+    atn::Color(255 / 255.0f, 255 / 255.0f, 255 / 255.0f, 0.0f),
+    atn::Color(25 / 255.0f, 25 / 255.0f, 25 / 255.0f, 0.0f),
+};
 
 // inferred: frames to whole seconds, rounded up past the first (60 or 30 frames per second)
 extern "C" int fn_803CE854(int frames) {
@@ -3230,6 +3247,88 @@ extern "C" void fn_803DDD54(GameUIInst_unk* inst, int job) {
     }
 }
 
+// inferred: glyphs of the buttons in the button texture (name and UV rect; .data 0x8078BE68, the rects are set
+// by the static initializer); names invented
+struct GameUIButtonGlyph_unk {
+    wchar_t mName[4];
+    atn::Vector4_unk mUv;
+};
+static GameUIButtonGlyph_unk sButtonGlyphs_unk[20] = {
+    {L"A", atn::Vector4_unk(0.0f, 0.0f, 0.25f, 0.25f)},
+    {L"B", atn::Vector4_unk(0.25f, 0.0f, 0.5f, 0.25f)},
+    {L"C", atn::Vector4_unk(0.0f, 0.25f, 0.25f, 0.5f)},
+    {L"Z", atn::Vector4_unk(0.75f, 0.0f, 1.0f, 0.25f)},
+    {L"1", atn::Vector4_unk(0.0f, 0.0f, 0.0f, 0.0f)},
+    {L"2", atn::Vector4_unk(0.0f, 0.0f, 0.0f, 0.0f)},
+    {L"+", atn::Vector4_unk(0.5f, 0.25f, 0.75f, 0.5f)},
+    {L"-", atn::Vector4_unk(0.5f, 0.0f, 0.75f, 0.25f)},
+    {L"", atn::Vector4_unk(0.0f, 0.0f, 0.0f, 0.0f)},
+    {L"", atn::Vector4_unk(0.0f, 0.0f, 0.0f, 0.0f)},
+    {L"", atn::Vector4_unk(0.0f, 0.0f, 0.0f, 0.0f)},
+    {L"", atn::Vector4_unk(0.0f, 0.0f, 0.0f, 0.0f)},
+    {L"a", atn::Vector4_unk(0.0f, 0.5f, 0.25f, 0.75f)},
+    {L"b", atn::Vector4_unk(0.25f, 0.25f, 0.5f, 0.5f)},
+    {L"x", atn::Vector4_unk(0.5f, 0.75f, 0.75f, 1.0f)},
+    {L"y", atn::Vector4_unk(0.5f, 0.5f, 0.75f, 0.75f)},
+    {L"L", atn::Vector4_unk(0.0f, 0.75f, 0.25f, 1.0f)},
+    {L"R", atn::Vector4_unk(0.25f, 0.75f, 0.5f, 1.0f)},
+    {L"ZL", atn::Vector4_unk(0.75f, 0.5f, 1.0f, 0.75f)},
+    {L"ZR", atn::Vector4_unk(0.25f, 0.5f, 0.5f, 0.75f)},
+};
+// inferred: button help entries (0x1C bytes): flag, icon kind, message id and UV rect (GameUI::fn_803E3468);
+// names invented
+struct GameUIButtonHelp_unk {
+    int m00;
+    int mIcon;
+    int mMsg;
+    atn::Vector4_unk mUv;
+};
+static GameUIButtonHelp_unk sButtonHelp_unk[18] = {
+    {0, 1, 0xB5, atn::Vector4_unk(0.0f, 0.0f, 0.25f, 0.125f)},
+    {0, 1, 0xB6, atn::Vector4_unk(0.25f, 0.125f, 0.5f, 0.25f)},
+    {0, 0, 0xB7, atn::Vector4_unk(0.5f, 0.0f, 0.75f, 0.125f)},
+    {0, 0, 0xB8, atn::Vector4_unk(0.25f, 0.0f, 0.5f, 0.125f)},
+    {0, 0, 0xB9, atn::Vector4_unk(0.75f, 0.0f, 1.0f, 0.125f)},
+    {0, 0, 0xBA, atn::Vector4_unk(0.5f, 0.0f, 0.75f, 0.125f)},
+    {0, 6, 0xBB, atn::Vector4_unk(0.0f, 0.125f, 0.25f, 0.25f)},
+    {0, 0, 0xBC, atn::Vector4_unk(0.0f, 0.0f, 0.0f, 0.0f)},
+    {0, 7, 0xBD, atn::Vector4_unk(0.0f, 0.0f, 0.0f, 0.0f)},
+    {0, 0, 0xBF, atn::Vector4_unk(0.25f, 0.375f, 0.5f, 0.5f)},
+    {0, 4, 0xC0, atn::Vector4_unk(0.5f, 0.125f, 0.75f, 0.25f)},
+    {0, 4, 0xC2, atn::Vector4_unk(0.5f, 0.25f, 0.75f, 0.375f)},
+    {1, 5, 0xC4, atn::Vector4_unk(0.25f, 0.375f, 0.5f, 0.5f)},
+    {0, 3, 0xC8, atn::Vector4_unk(0.75f, 0.25f, 1.0f, 0.375f)},
+    {0, 4, 0xC9, atn::Vector4_unk(0.5f, 0.125f, 0.75f, 0.25f)},
+    {0, 2, 0xCA, atn::Vector4_unk(0.5f, 0.5f, 0.75f, 0.625f)},
+    {0, 6, 0xCB, atn::Vector4_unk(0.75f, 0.5f, 1.0f, 0.625f)},
+    {0, 3, 0xCC, atn::Vector4_unk(0.75f, 0.25f, 1.0f, 0.375f)},
+};
+static GameUIButtonHelp_unk sButtonHelp2_unk[23] = {
+    {0, 0, 0xCD, atn::Vector4_unk(0.0f, 0.125f, 0.25f, 0.25f)},
+    {0, 6, 0xCE, atn::Vector4_unk(0.75f, 0.125f, 1.0f, 0.25f)},
+    {0, 6, 0xCF, atn::Vector4_unk(0.0f, 0.125f, 0.25f, 0.25f)},
+    {0, 5, 0xD0, atn::Vector4_unk(0.75f, 0.375f, 1.0f, 0.5f)},
+    {0, 6, 0xD1, atn::Vector4_unk(0.25f, 0.375f, 0.5f, 0.5f)},
+    {0, 7, 0xD2, atn::Vector4_unk(0.0f, 0.0f, 0.0f, 0.0f)},
+    {0, 6, 0xD3, atn::Vector4_unk(0.0f, 0.5f, 0.25f, 0.625f)},
+    {0, 6, 0xD4, atn::Vector4_unk(0.25f, 0.5f, 0.5f, 0.625f)},
+    {0, 6, 0xD5, atn::Vector4_unk(0.0f, 0.25f, 0.25f, 0.375f)},
+    {0, 6, 0xD6, atn::Vector4_unk(0.0f, 0.375f, 0.25f, 0.5f)},
+    {0, 6, 0xD7, atn::Vector4_unk(0.0f, 0.0f, 0.0f, 0.0f)},
+    {0, 6, 0xD8, atn::Vector4_unk(0.0f, 0.0f, 0.0f, 0.0f)},
+    {0, 6, 0xD9, atn::Vector4_unk(0.0f, 0.0f, 0.0f, 0.0f)},
+    {0, 6, 0xDA, atn::Vector4_unk(0.0f, 0.0f, 0.0f, 0.0f)},
+    {0, 8, 0xDB, atn::Vector4_unk(0.0f, 0.0f, 0.0f, 0.0f)},
+    {0, 6, 0xDC, atn::Vector4_unk(0.0f, 0.0f, 0.0f, 0.0f)},
+    {0, 6, 0xDD, atn::Vector4_unk(0.0f, 0.0f, 0.0f, 0.0f)},
+    {0, 6, 0xDE, atn::Vector4_unk(0.0f, 0.0f, 0.0f, 0.0f)},
+    {0, 6, 0xDF, atn::Vector4_unk(0.0f, 0.0f, 0.0f, 0.0f)},
+    {0, 5, 0xE0, atn::Vector4_unk(0.0f, 0.0f, 0.0f, 0.0f)},
+    {0, 5, 0xE1, atn::Vector4_unk(0.0f, 0.0f, 0.0f, 0.0f)},
+    {0, 6, 0xE2, atn::Vector4_unk(0.0f, 0.0f, 0.0f, 0.0f)},
+    {0, 6, 0xBA, atn::Vector4_unk(0.0f, 0.0f, 0.0f, 0.0f)},
+};
+
 // NONMATCHING: 95.5% - register allocation: the original keeps the zero of the first loop in r31 and
 // reuses it as the offset into m10D4 (this in r30); here this stays in r31 (4 variants)
 void GameUI::fn_803DE648() {
@@ -3985,6 +4084,255 @@ void GameUI::fn_803E3384() {
     m780.Reset_unk();
 }
 
+extern "C" GameConfig_unk* lbl_8087F0A8; // inferred: game settings (line colours of the hate display)
+// inferred: object whose name the button prompt shows (GameUIElem1C_unk::m10); name invented
+struct GameUINamed_unk {
+    int m00;
+    int m04;
+    const wchar_t* mName;
+};
+// inferred: UV rect parameter of a d2anime task from a rect passed by value (name invented)
+inline void SetUvRect_unk(atn::D2A_Task* task, const char* name, atn::Vector4_unk r) {
+    task->SetParam2_unk(name, &r.x);
+}
+
+// inferred: button prompt of an action: the item part, the button glyph (by the icon kind of the action, the
+// pad, the attack type and the gathering type of the settings), the arrows of the cross pad on `arrows` and
+// the name and icon of the action (sButtonHelp2_unk for kind 6, else sButtonHelp_unk)
+void GameUI::fn_803E3468(atn::D2A_Task* task, atn::D2A_Task* arrows, GameUIElem1C_unk* button, int force) {
+    if (lbl_8087F0A8->mShowActionIcon == 0) {
+        return;
+    }
+    if (force == 0) {
+        int kind = button->m00;
+        if (kind == 6 || kind == 12 || kind == 9) {
+            return;
+        }
+    }
+    task->MeltTask();
+    int kind = button->m00;
+    int sub = button->m04;
+    task->SetLayoutValue_unk("item", sButtonHelp_unk[kind].m00 == 1 ? 1.0f : 0.0f);
+    char num[64];
+    sprintf(num, "%d", button->m08);
+    task->SetText_unk("item_num", (int)num);
+    if (button->m10 != 0) {
+        SetLayoutText_unk(&task->mData.m10, "item_name", ((GameUINamed_unk*)button->m10)->mName);
+    }
+    int glyph = 0;
+    int icon;
+    if (button->m00 == 6) {
+        icon = sButtonHelp2_unk[sub].mIcon;
+    } else {
+        icon = sButtonHelp_unk[kind].mIcon;
+    }
+    int stick = fn_800A58D0(lbl_8087EF70, 0);
+    SetConfig* config = SetConfig::sInstance;
+    bool tacview = config->mInTacviewType == 0;
+    bool gathering = config->mGatheringType == 0;
+    if (stick == 0) {
+        if (config->mAttackType == 0) {
+            switch (icon) {
+            case 0:
+                glyph = 0;
+                break;
+            case 1:
+                glyph = 0;
+                break;
+            case 2:
+                glyph = 3;
+                if (gathering) {
+                    glyph = 2;
+                }
+                break;
+            case 3:
+                glyph = 2;
+                if (gathering) {
+                    glyph = 3;
+                }
+                break;
+            case 4:
+                glyph = 0;
+                break;
+            case 5:
+                glyph = 0;
+                break;
+            case 6:
+                glyph = 0;
+                break;
+            case 7:
+                glyph = 1;
+                break;
+            case 8:
+                glyph = 0;
+                break;
+            }
+        } else {
+            switch (icon) {
+            case 0:
+                glyph = 8;
+                if (tacview) {
+                    glyph = 9;
+                }
+                break;
+            case 1:
+                glyph = 8;
+                if (tacview) {
+                    glyph = 9;
+                }
+                break;
+            case 2:
+                glyph = 3;
+                if (gathering) {
+                    glyph = 2;
+                }
+                break;
+            case 3:
+                glyph = 2;
+                if (gathering) {
+                    glyph = 3;
+                }
+                break;
+            case 4:
+                glyph = 0;
+                break;
+            case 5:
+                glyph = 8;
+                if (tacview) {
+                    glyph = 9;
+                }
+                break;
+            case 6:
+                glyph = 0;
+                break;
+            case 7:
+                glyph = 1;
+                break;
+            case 8:
+                glyph = 8;
+                if (tacview) {
+                    glyph = 9;
+                }
+                break;
+            }
+        }
+    } else {
+        if (config->mAttackType == 0) {
+            switch (icon) {
+            case 0:
+                glyph = 12;
+                break;
+            case 1:
+                glyph = 12;
+                break;
+            case 2:
+                glyph = 18;
+                if (gathering) {
+                    glyph = 16;
+                }
+                break;
+            case 3:
+                glyph = 16;
+                if (gathering) {
+                    glyph = 18;
+                }
+                break;
+            case 4:
+                glyph = 12;
+                break;
+            case 5:
+                glyph = 12;
+                break;
+            case 6:
+                glyph = 12;
+                break;
+            case 7:
+                glyph = 17;
+                break;
+            case 8:
+                glyph = 12;
+                break;
+            }
+        } else {
+            switch (icon) {
+            case 0:
+                glyph = 15;
+                break;
+            case 1:
+                glyph = 15;
+                break;
+            case 2:
+                glyph = 18;
+                if (gathering) {
+                    glyph = 16;
+                }
+                break;
+            case 3:
+                glyph = 16;
+                if (gathering) {
+                    glyph = 18;
+                }
+                break;
+            case 4:
+                glyph = 12;
+                break;
+            case 5:
+                glyph = 15;
+                break;
+            case 6:
+                glyph = 12;
+                break;
+            case 7:
+                glyph = 17;
+                break;
+            case 8:
+                glyph = 15;
+                break;
+            }
+        }
+    }
+    SetUvRect_unk(task, "btnUv", sButtonGlyphs_unk[glyph].mUv);
+    SetUvRect_unk(task, "btnUvMask", sButtonGlyphs_unk[glyph].mUv);
+    task->SetLayoutValue_unk("crossOn", 0.0f);
+    if ((unsigned int)(glyph - 8) <= 3) {
+        task->SetLayoutValue_unk("crossOn", 1.0f);
+        if (arrows != 0) {
+            arrows->MeltTask();
+            arrows->SetLayoutValue_unk("arrowU", 0.0f);
+            arrows->SetLayoutValue_unk("arrowD", 0.0f);
+            arrows->SetLayoutValue_unk("arrowL", 0.0f);
+            arrows->SetLayoutValue_unk("arrowR", 0.0f);
+            switch (glyph) {
+            case 8:
+                arrows->SetLayoutValue_unk("arrowU", 1.0f);
+                break;
+            case 9:
+                arrows->SetLayoutValue_unk("arrowD", 1.0f);
+                break;
+            case 10:
+                arrows->SetLayoutValue_unk("arrowL", 1.0f);
+                break;
+            case 11:
+                arrows->SetLayoutValue_unk("arrowR", 1.0f);
+                break;
+            }
+        }
+    }
+    if (button->m00 == 6) {
+        int msg = sButtonHelp2_unk[sub].mMsg;
+        task->SetLayoutText_unk("action_name", lbl_8087F1E4->GetEntry_unk(msg));
+        task->SetLayoutText_unk("action_name_sub", lbl_8087F1E4->GetEntry_unk(msg));
+        SetUvRect_unk(task, "icon_uv", sButtonHelp2_unk[sub].mUv);
+        SetUvRect_unk(task, "icon_mk_uv", sButtonHelp2_unk[sub].mUv);
+    } else {
+        int msg = sButtonHelp_unk[kind].mMsg;
+        task->SetLayoutText_unk("action_name", lbl_8087F1E4->GetEntry_unk(msg));
+        task->SetLayoutText_unk("action_name_sub", lbl_8087F1E4->GetEntry_unk(msg));
+        SetUvRect_unk(task, "icon_uv", sButtonHelp_unk[kind].mUv);
+        SetUvRect_unk(task, "icon_mk_uv", sButtonHelp_unk[kind].mUv);
+    }
+}
+
 void GameUI::fn_803E3BE8(void* msg, int arg, float time) {
     if (msg != 0 && m2640 != 0) {
         m2640->mCount = 0;
@@ -4307,7 +4655,6 @@ extern "C" bool fn_803E4DD4(CharaTask* chara) {
     return false;
 }
 
-extern "C" GameConfig_unk* lbl_8087F0A8; // inferred: game settings (line colours of the hate display)
 // inferred: colour of a 0xAARRGGBB value (as game/BattleTask fn_800F8014; name invented)
 inline atn::Color GameUIColorU32_unk(unsigned int rgba) {
     return atn::Color(0.003921569f * (float)((rgba >> 16) & 0xFF), 0.003921569f * (float)((rgba >> 8) & 0xFF),

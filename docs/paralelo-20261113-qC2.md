@@ -17,6 +17,16 @@ Unidades: `game/GameUI`, `game/MiniMapTask`, `game/PopupTask`.
   borrador de la cola C: 0 % -> 92 %. `pos` va **por valor** (el llamador copia el vector); los segundos y el
   fotograma salen de fn_803CE854/fn_803CE8A8 inline. NONMATCHING por el parametro de `SetColor255_unk`
   (`D2A_RGB_unk`; el original copia el color entero) que agranda la pila y mueve los registros.
+- `__sinit_\GameUI_cpp` (0x803E78B4): escrito 0,76 % -> 65,7 %. Valores sacados emulando el asm original
+  (script `scratch-C2/tools/emu.py`): `lbl_807C8628` = 16 `atn::Color(r / 255.0f, g / 255.0f, b / 255.0f, 0)`, y
+  la `.data` 0x8078BE68 (0x65C bytes) son tres tablas `static`: `sButtonGlyphs_unk[20]` ({`wchar_t[4]`,
+  `atn::Vector4_unk` UV}; "A", "B", ..., "ZL", "ZR"), `sButtonHelp_unk[18]` y `sButtonHelp2_unk[23]` ({flag,
+  tipo de icono, id de mensaje, UV}, 0x1C bytes). El UV es `atn::Vector4_unk` (copia paired-single). Resto:
+  orden de los registros y la pila del inicializador.
+- `GameUI::fn_803E3468` (aviso de boton de una accion: item, glifo del boton segun el icono, el mando, el tipo de
+  ataque y el de recogida de `SetConfig`, flechas de la cruceta y nombre/icono de la accion): 0 % -> 90,3 %.
+  Resto: el original guarda `&task->mData.m10` en un registro antes del hash (aqui se rematerializa; probados
+  helpers con referencia a la capa), y lee dos veces el texto de `lbl_8087F1E4` (aqui una).
 
 ## Decisiones tomadas sin el usuario
 
@@ -27,8 +37,15 @@ Unidades: `game/GameUI`, `game/MiniMapTask`, `game/PopupTask`.
   declaracion y llamada como `static_cast<GameUI*>(draw)->fn_803E2A30(...)` (lo pide el prompt al renombrar);
   re-emparejada con `pd.sh`, sin bajadas.
 - `GameUISession_unk` (local de GameUI.cpp) gana `int m540` (estado de la partida, 2 = jugando).
+- `extern "C" GameConfig_unk* lbl_8087F0A8` se sube en GameUI.cpp (antes de fn_803E3468).
+- `symbols.txt`: seis floats de `.sdata2` que solo usa el `__sinit` (0x80885DA0, DB0, DB8, DD8, DE8, DFC) se
+  renombran a mano a los `@N` de nuestro .o (pd.sh no los empareja porque el `__sinit` no esta al 100 %;
+  labelcheck volvia a "peor").
 
 ## Hallazgos
+
+- Un `__sinit` de datos se puede reconstruir emulando su asm (lfs/stfs/psq) para sacar los valores finales.
+- `x = a; if (c) x = b;` da `li; beq; li`; el ternario da codigo sin saltos (neg/or/srwi).
 
 ## Pendientes
 
