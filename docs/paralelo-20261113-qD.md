@@ -28,6 +28,9 @@ Inicio: 2026-11-13 01:18 CET. Rama `agent-D`. Unidades: `atn/EffectSystem_unk`, 
   (`std::__put_digits_unk<char, U>`, nombre inventado): 0x80242A8C (`unsigned long long`, 89,5 %) y 0x80242FF4
   (`unsigned long`, 94,4 %). 0 % 13 -> 11. `ctype<char>` declarada en la cabecera (vtable hasta do_widen).
 
+- `atn/EffectManager` (commit 7): `std::__put_grouping_float<char, string>` (0x802428D8) al 100 %. 0 % 11 -> 10,
+  al 100 % 39 -> 40.
+
 ## Decisiones tomadas sin el usuario
 
 - Empece por fn_8022DD1C y no por EffectManager: la cola de EffectManager son 26 instanciaciones de MSL

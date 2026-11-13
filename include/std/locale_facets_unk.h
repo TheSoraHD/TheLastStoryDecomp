@@ -250,6 +250,30 @@ numpunct<C>::~numpunct() {}
 
 // NONMATCHING: 88% - stack slots of the two name temporaries of the inlined numpunct constructor swapped,
 // registers of the facet and the table
+// inferred: inserts the thousands separator in the integer part of a formatted float (the digits before the
+// decimal point dp, or the whole string), following the grouping (weak copy 0x802428D8)
+template <class C, class S>
+void __put_grouping_float(C dp, C sep, const S& grouping, S& s) {
+    if (grouping.size() != 0 && s.size() > 1) {
+        typename S::size_type pos = s.find(dp);
+        if (pos == S::npos) {
+            pos = s.size();
+        }
+        typename S::size_type gi = 0;
+        unsigned char g = grouping.data()[0];
+        unsigned int cnt = 0;
+        while (--pos != 0) {
+            if (++cnt == g) {
+                s.replace(pos, 0, 1, sep);
+                if (++gi < grouping.size()) {
+                    g = grouping[gi];
+                }
+                cnt = 0;
+            }
+        }
+    }
+}
+
 // NONMATCHING: 89.5% (unsigned long long), 94.4% (unsigned long) - one saved register less (registers of the
 // grouping counters), stack slots of the name temporaries of the inlined numpunct constructor swapped
 // inferred: digits of an unsigned integer in the base of the stream flags (8, 10 or 16, upper case letters
