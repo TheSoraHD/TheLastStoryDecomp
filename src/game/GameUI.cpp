@@ -747,6 +747,140 @@ void GameUI::fn_803D022C() {
     mDC0->fn_800D246C(1);
 }
 
+// inferred: creates the rest of the HUD (marker textures, gauges of the overlook view, result and replay
+// parts, effects); called by game/GameTask, released by fn_803D11B4
+// NONMATCHING: 99.5% - register allocation of the loops (counters and induction pointers swapped)
+void GameUI::fn_803D0B20() {
+    if (mDC8 == 0) {
+        mDC8 = 1;
+        mDD4.fn_800D5908("data/texture/icon_mark2.texture");
+        mE04.fn_800D5908("data/texture/icon_mark2_shine.texture");
+        mE34.fn_800D5908("data/texture/icon_mark.texture");
+        mE64.fn_800D5908("data/texture/icon_mark_shine.texture");
+        for (int i = 0; i < 16; i++) {
+            for (int j = 0; j < 5; j++) {
+                m5BC[i][j] = atn::D3AnimeInstance::Create(this, "/data/d2anime/ui_hate_slow2.d2a", 1);
+                m5BC[i][j]->fn_800D246C(1);
+            }
+        }
+        for (int i = 0; i < 10; i++) {
+            const char* point = "/data/d2anime/ui_magic_point.d2a";
+            const char* speed = "/data/d2anime/ui_magic_speed.d2a";
+            const char* giga = "/data/d2anime/ui_magic_point_giga.d2a";
+            mA90[i] = fn_801F64D0(this, point);
+            mA90[i]->fn_800D246C(1);
+            mAB8[i] = atn::D2A_TaskInstanceBase<8, 2>::Create(this, speed);
+            mAB8[i]->fn_800D246C(1);
+            mAE0[i] = atn::D2A_TaskInstanceBase<8, 2>::Create(this, giga);
+            mAE0[i]->fn_800D246C(1);
+        }
+        for (int i = 0; i < 32; i++) {
+            const char* path = "data/d2anime/ui_overlook_info.d2a";
+            mF14[i] = atn::D2A_TaskInstanceBase<64, 8>::Create(this, path);
+            mF14[i]->fn_800D246C(1);
+            mF94[i] = 0;
+            m1014[i] = i;
+        }
+        for (int i = 0; i < 8; i++) {
+            const char* path = "/data/d2anime/ui_overlook_skill.d2a";
+            m10B4[i] = fn_801F64D0(this, path);
+            m10B4[i]->fn_800D246C(1);
+            m10D4[i] = 0;
+        }
+        m10F4 = fn_801F3FF8(this, "data/d2anime/ui_cursor.d2a", 0);
+        m10F4->fn_800D246C(1);
+        m10F8 = fn_801F3FF8(this, "/data/d2anime/icon_rotta_ring.d2a", 0);
+        m10F8->fn_800D246C(1);
+        m844 = fn_801F3FF8(this, "/data/d2anime/ui_slash_shine.d2a", 0);
+        m844->fn_800D246C(1);
+        m870 = fn_801F3FF8(this, "/data/d2anime/ui_lever_rotate.d2a", 0);
+        m870->fn_800D246C(1);
+        m848[0] = fn_801F3FF8(this, "/data/d2anime/ui_point_slash.d2a", 0);
+        m848[0]->fn_800D246C(1);
+        for (int i = 0; i < 4; i++) {
+            const char* path = "/data/d2anime/ui_point_slash.d2a";
+            m848[i + 1] = fn_801F64D0(this, path);
+            m848[i + 1]->fn_800D246C(1);
+        }
+        m874[0] = fn_801F3FF8(this, "/data/d2anime/ui_point_slash.d2a", 0);
+        m874[0]->fn_800D246C(1);
+        for (int i = 0; i < 4; i++) {
+            const char* path = "/data/d2anime/ui_point_slash.d2a";
+            m874[i + 1] = fn_801F64D0(this, path);
+            m874[i + 1]->fn_800D246C(1);
+        }
+        mB08[0] = fn_801F3FF8(this, "data/d2anime/ui_replay_open.d2a", 0);
+        mB08[0]->fn_800D246C(1);
+        mB08[1] = fn_801F3FF8(this, "data/d2anime/ui_replay_wait.d2a", 0);
+        mB08[1]->fn_800D246C(1);
+        mB08[2] = fn_801F3FF8(this, "data/d2anime/ui_replay_shake_open.d2a", 0);
+        mB08[2]->fn_800D246C(1);
+        mB08[3] = fn_801F3FF8(this, "data/d2anime/ui_replay_shake_wait.d2a", 0);
+        mB08[3]->fn_800D246C(1);
+        mB08[4] = fn_801F3FF8(this, "data/d2anime/ui_replay_on.d2a", 0);
+        mB08[4]->fn_800D246C(1);
+        mB08[5] = fn_801F3FF8(this, "data/d2anime/ui_replay_loop.d2a", 0);
+        mB08[5]->fn_800D246C(1);
+        mB20[0] = fn_801F3FF8(this, "data/d2anime/ui_replay_loop_open.d2a", 0);
+        mB20[0]->fn_800D246C(1);
+        mB20[1] = fn_801F3FF8(this, "data/d2anime/ui_remain.d2a", 0);
+        mB20[1]->fn_800D246C(1);
+        for (int i = 0; i < 4; i++) {
+            mB20[i + 2] = fn_801F3FF8(this, "data/d2anime/ui_remain_list.d2a", 0);
+            mB20[i + 2]->fn_800D246C(1);
+        }
+        m1104 = fn_801F3FF8(this, "data/d2anime/ui_result_LvUPchara_op_xx.d2a", 0);
+        m1104->fn_800D246C(1);
+        m1108 = fn_801F3FF8(this, "data/d2anime/ui_result_newskill.d2a", 0);
+        m1108->fn_800D246C(1);
+        m1110 = fn_801F3FF8(this, "data/d2anime/ui_result_param_op.d2a", 0);
+        m1110->fn_800D246C(1);
+        m1114 = fn_801F3FF8(this, "data/d2anime/ui_result_param_loop.d2a", 0);
+        m1114->fn_800D246C(1);
+        m1140 = fn_801F3FF8(this, "/data/d2anime/ui_weakpoint_btn_opcl.d2a", 0);
+        m1140->fn_800D246C(1);
+        m1144 = fn_801F3FF8(this, "/data/d2anime/ui_weakpoint_btn_loop.d2a", 0);
+        m1144->fn_800D246C(1);
+        m1148 = fn_801F3FF8(this, "/data/d2anime/ui_weakpoint_text.d2a", 0);
+        m1148->fn_800D246C(1);
+        m1158.LoadRequest("data/eff/ef_ui006e_01.eff");
+        m1164.LoadRequest("data/eff/ef_ui006d_01.eff");
+        m1554[0].LoadRequest("data/eff/ef_ui014e_01.eff");
+        m1584[0].LoadRequest("data/eff/ef_ui014d_01.eff");
+        m1554[1].LoadRequest("data/eff/ef_ui015e_01.eff");
+        m1584[1].LoadRequest("data/eff/ef_ui015d_01.eff");
+        m1554[2].LoadRequest("data/eff/ef_ui016e_01.eff");
+        m1584[2].LoadRequest("data/eff/ef_ui016d_01.eff");
+        m1554[3].LoadRequest("data/eff/ef_ui017e_01.eff");
+        m1584[3].LoadRequest("data/eff/ef_ui017d_01.eff");
+        m2544 = fn_801F3FF8(this, "/data/d2anime/ui_event_icon_new_map_opcl.d2a", 0);
+        m2544->fn_800D246C(1);
+        m2548 = fn_801F3FF8(this, "/data/d2anime/ui_event_icon_new_map_loop.d2a", 0);
+        m2548->fn_800D246C(1);
+        m254C = fn_801F3FF8(this, "/data/d2anime/ui_magic_3.d2b", 0);
+        m254C->fn_800D246C(1);
+        m2550[0] = fn_801F3FF8(this, "/data/d2anime/ui_in_coming_enemy.d2b", 0);
+        m2550[1] = fn_801F3FF8(this, "/data/d2anime/ui_strong_enemy.d2b", 0);
+        m2550[2] = fn_801F3FF8(this, "/data/d2anime/ui_tension_max.d2b", 0);
+        for (int i = 0; i < 3; i++) {
+            if (m2550[i] != 0) {
+                m2550[i]->fn_800D246C(1);
+            }
+        }
+        m2564 = fn_801F3FF8(this, "/data/d2anime/ui_circle_break.d2b", 0);
+        m2564->fn_800D246C(1);
+        for (int i = 0; i < 4; i++) {
+            const char* path = "/data/d2anime/ui_sield.d2a";
+            m2610[i] = atn::D2A_TaskInstanceBase<8, 2>::Create(this, path);
+            m2610[i]->fn_800D246C(1);
+        }
+        m2628 = (GameUIGauge_unk*)fn_801F3FF8(this, "/data/d2anime/ui_lockon.d2b", 0);
+        m2628->fn_800D246C(1);
+        mDC4 = (GameUIGauge_unk*)fn_801F3FF8(this, "/data/d2anime/arena_clear_xx.d2b", 0);
+        mDC4->fn_800D246C(1);
+    }
+}
+
 // inferred: releases the parts of the HUD (called by game/GameTask)
 void GameUI::fn_803D11B4() {
     if (mDC8 != 0) {

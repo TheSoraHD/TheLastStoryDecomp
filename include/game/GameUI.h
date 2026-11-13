@@ -305,6 +305,7 @@ public:
     void fn_803CF74C();
     void fn_803CFC78(); // inferred: registers the debug parameters of the HUD
     void fn_803D022C(); // inferred: creates the parts of the HUD
+    void fn_803D0B20(); // inferred: creates the rest of the HUD
     void fn_803D11B4(); // inferred: releases the parts of the HUD
     int fn_803D1574();
     // inferred: called by GameTask (0x803D164C, 0x803D2194: refresh of the HUD parts; 0x803D83A8: per-frame

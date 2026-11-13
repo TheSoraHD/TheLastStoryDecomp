@@ -16,6 +16,9 @@ Unidades: `game/GameUI`, `game/MiniMapTask`, `game/PopupTask`.
   vista tactica, contadores, icono de acceso) 99,8 %: el original pasa el primer color con `addi r5, r30, 0`.
   Primera funcion con cadenas tras el constructor: sus desplazamientos en `@stringBase0` ya cuadran.
 - `GameUI::fn_803D022C` (crea las partes del HUD; lo llama GameTask) 99,5 %: registros de los bucles.
+- `GameUI::fn_803D0B20` (crea el resto del HUD: texturas de marcas, vista de conjunto, repeticion, resultado,
+  efectos) 99,5 %: registros de los bucles.
+- `GameUI::fn_803E6ADC` 99,59 % -> **100 %** (mnemcheck limpio) al cuadrar el pool de cadenas.
 
 ## NONMATCHING nuevas
 
@@ -43,7 +46,8 @@ Unidades: `game/GameUI`, `game/MiniMapTask`, `game/PopupTask`.
   sale nuestro `__sinit` (vacio de momento) que se empareja con el original.
 - `game/GameTask.cpp` (otra cola): llama `lbl_8087F490->fn_803D022C()` en vez del `extern "C"` (renombrado);
   quitar esa declaracion (con nombre de parametro) libera un `@N`: `pd.sh` re-empareja casi todo y dos floats
-  ambiguos de `.sdata2` (0x808857A8 = 3.0, 0x808857AC = 0.4) se renombran a mano (@27400, @27401).
+  ambiguos de `.sdata2` (0x808857A8 = 3.0, 0x808857AC = 0.4) se renombran a mano (@27400, @27401). Lo mismo con
+  `fn_803D0B20` (ahora @27399, @27400).
 - `GameUISession_unk` (y `GameUISessionPlayer_unk`) se mueven al principio de GameUI.cpp; gana `int m5A8` e
   `IsShowLevel_unk()` (devuelve `unsigned char`: el `clrlwi` del original).
 - `typedef atn::D2A_TaskInstanceBase<64, 8> GameUIWindow_unk` en GameUI.cpp; `mF14` sigue siendo
