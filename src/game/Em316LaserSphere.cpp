@@ -2,11 +2,15 @@
 #include "atn/Csv.h"
 #include "atn/Material_unk.h"
 #include "game/CharaManager.h"
+#include "game/EnemyManager.h"
 #include "game/HitInfo_unk.h"
 #include "game/PlayerTask.h"
 #include "math/Vec.h"
+#include "math/VecAssign_unk.h"
 #include "chr/ControlBase.h"
+#include "game/BattleCharaTask.h"
 #include "std/string.h"
+#include "std/vector.h"
 #include "std/string_members.h"
 #include <boost/tokenizer.hpp>
 
@@ -64,6 +68,7 @@ static const char* const sSounds_unk[] = {"SE_EM601_006", "SE_EM601_002", "SE_EM
 // inferred: alpha range of the trail models (.sdata 0x8087DC48/0x8087DC4C); names invented
 static float sOne_unk = 1.0f;
 static float sZero_unk = 0.0f;
+static int sFirstCount_unk = 1; // inferred: count of a new group of spheres (fn_803176D0)
 
 // inferred: shared by all the spheres: set once the targets have been shared this frame (lbl_8087F3F4)
 // and the last angle (lbl_8087F3F0); names invented
@@ -511,6 +516,100 @@ void Em316LaserSphere::vf80(const atn::Vector3& pos, const atn::Vector3& offset)
     fn_800C31F4(sSounds_unk[0], 0, -1, 1.0f);
 }
 
+// inferred: target of a sphere for the sharing (the leader when mFlag28, else the default target); name invented
+inline CharaTask* SharedTarget_unk(Em316LaserSphere* sphere) {
+    CharaTask* leader = lbl_8087F8A0->mHead;
+    if (leader->mFlag28) {
+        return leader;
+    }
+    return sphere->m14D4;
+}
+
+// inferred: the character is active, free and not grappled (as IsTarget2_unk of game/Em201ZanGurgFinal.cpp)
+inline bool SphereCanAct_unk(CharaTask* c) {
+    bool active;
+    bool free;
+    bool r;
+    r = false;
+    active = false;
+    free = false;
+    if ((c->mFlags & 4) != 4 && (c->mFlags & 1) != 1) {
+        free = true;
+    }
+    if (free && (c->mStatus.m0C & 0x20) != 0x20) {
+        active = true;
+    }
+    if (active) {
+        bool grappled = false;
+        if (c->m55C == 6 && c->m560 == 28) {
+            grappled = true;
+        }
+        if (!grappled) {
+            r = true;
+        }
+    }
+    return r;
+}
+
+// inferred: shares the targets between the laser spheres (called once per frame): sorts the active spheres
+// by the id of their target and gives each one its index (m14C8) and the size of its group (m14CC)
+// NONMATCHING: 97.7% - the original tests the leader flag once for both targets of the sort, and the destructors
+// of the two vectors test the vector once more (std/vector.h)
+void Em316LaserSphere::fn_803176D0() {
+    std::vector<Em316LaserSphere*> spheres;
+    for (EnemyTask* e = EnemyManager::sInstance->mHead; e != 0; e = e->mNext) {
+        if (!SphereCanAct_unk(e)) {
+            continue;
+        }
+        if (e->m146C != 45 && e->m146C != 49) {
+            continue;
+        }
+        Em316LaserSphere* sphere = (Em316LaserSphere*)e;
+        bool inserted = false;
+        for (Em316LaserSphere** it = spheres.begin(); it != spheres.end(); ++it) {
+            int key = SharedTarget_unk(sphere)->m50;
+            if (SharedTarget_unk(*it)->m50 >= key) {
+                spheres.insert(it, sphere);
+                inserted = true;
+                break;
+            }
+        }
+        if (!inserted) {
+            spheres.push_back(sphere);
+        }
+    }
+    std::vector<int> counts;
+    int last = -1;
+    int index = 0;
+    for (unsigned int i = 0; i < spheres.size(); i++) {
+        Em316LaserSphere* sphere = spheres[i];
+        if (last != SharedTarget_unk(sphere)->m50) {
+            sphere->m14C4 = 0;
+            index = 0;
+            sphere->m14C8 = 0;
+            counts.push_back(sFirstCount_unk);
+        } else {
+            index++;
+            counts[counts.size() - 1]++;
+            sphere->m14C4 = 1;
+            sphere->m14C8 = index;
+        }
+        last = SharedTarget_unk(sphere)->m50;
+    }
+    last = -1;
+    int group = -1;
+    for (unsigned int i = 0; i < spheres.size(); i++) {
+        Em316LaserSphere* sphere = spheres[i];
+        if (last != SharedTarget_unk(sphere)->m50) {
+            group++;
+            sphere->m14CC = counts[group];
+        } else {
+            sphere->m14CC = counts[group];
+        }
+        last = SharedTarget_unk(sphere)->m50;
+    }
+}
+
 void Em316LaserSphere::fn_80317EA0() {
     CharaTask* leader = lbl_8087F8A0->mHead;
     if (leader->mFlag28) {
@@ -524,6 +623,64 @@ void Em316LaserSphere::fn_80317EA0() {
     }
     if (m14B8 == 0) {
         m14B8 = m14D4;
+    }
+}
+
+// inferred: random value between `lo` and `hi` (name invented)
+inline float LaserRand_unk(float lo, float hi) {
+    return lo + (hi - lo) * ((float)rand() / 32767.0f);
+}
+// inferred: rotation matrix y, x, z (as ZesyaRotZYX_unk of game/Em101LittleZesya.cpp; name invented)
+inline void LaserRotYXZ_unk(atn::Matrix3x4& m, const atn::Vector3& rot) {
+    m.SetIdentity();
+    __MtxRotate(m.m, 'y', rot.y);
+    __MtxRotate(m.m, 'x', rot.x);
+    __MtxRotate(m.m, 'z', rot.z);
+}
+
+// inferred: random place around `t` at m1500 (zero without a target); name invented
+inline atn::Vector3 LaserMovePlace_unk(Em316LaserSphere* self, CharaTask* t) {
+    if (t == 0) {
+        return lbl_807C7030;
+    }
+    atn::Vector3 center = self->fn_80318648(t);
+    atn::Vector3 ofs(0.0f, 0.0f, self->m1500 * LaserRand_unk(1.0f, 1.2f));
+    atn::Vector3 rot(LaserRand_unk(0.0f, -0.7853982f), LaserRand_unk(0.0f, 6.2831855f), 0.0f);
+    atn::Matrix3x4 m;
+    LaserRotYXZ_unk(m, rot);
+    PSMTXMultVec(m.m, &ofs, &ofs);
+    return center + ofs;
+}
+
+// inferred: state 1: fires when the attack wait (m1574) is over (state 8), otherwise after a random wait moves to
+// a random place around the target (state 7)
+// NONMATCHING: 90.8% - the original keeps the zero and the random yaw in f31/f30 and one more saved GPR (the
+// MoveWait read twice); 4 variants
+void Em316LaserSphere::fn_80317EF8() {
+    CharaTask* target = m14B8;
+    if (target == 0) {
+        return;
+    }
+    atn::Vector3 d = mPos - fn_80318648(target);
+    PSVECMag(&d);
+    if (m1574 < 0) {
+        SetState_unk(8);
+        fn_80232B7C(this, 0x3E8);
+        LaserEffect_unk(&m1590, &mMotion);
+        return;
+    }
+    int wait = m1C88 + rand() % m1C88;
+    if (fn_80316F74(&mStatus) || mStatus.IsState_unk(0x800000)) {
+        wait *= 3;
+    }
+    if (m1520 > wait) {
+        SetState_unk(7);
+        fn_80318648(m14B8);
+        m1504 = mPos;
+        atn::Vector3 to = LaserMovePlace_unk(this, m14B8);
+        m1510 = to;
+        m151C = 0.0f;
+        fn_800C344C(sSounds_unk[2], &mPos, 0, -1, 1.0f);
     }
 }
 
@@ -570,6 +727,64 @@ CharaTask* Em316LaserSphere::fn_80318A30() {
         if (fn_80318AA4(p) != 0) {
             fn_8031A670(p);
             return p;
+        }
+    }
+    return 0;
+}
+
+// inferred: the magic `data` of `chara` targets `target` (bullet manager); returns < 0 when not (as in
+// game/Em403WarLion.cpp)
+extern "C" int fn_800FBA9C(Effect_unk* mgr, CharaTask* chara, CharaTask* target, HitInfo_unk* data, int arg,
+                           float f);
+extern "C" int fn_80051BC4(const atn::ColliCapsuleShape_unk* a, const atn::ColliCapsuleShape_unk* b);
+// inferred: control of a character that casts a magic (as in game/Em101ElderZesyaSecond.cpp)
+struct LaserMagic_unk {
+    unsigned char m00[0x1D];
+    unsigned char m1D; // inferred: nonzero once the magic is fired
+};
+
+// inferred: `chara` aims at the sphere: the magic it holds (state 6/30) once fired, its magic or skill, or the
+// line of its aimed shot crosses the capsule of the sphere
+// NONMATCHING: 98.4% - the original frame is 0x10 bytes smaller (slots of the lines and of the rotation), the
+// state test in r0 and the bullet manager loaded after the skill; 6 variants
+int Em316LaserSphere::fn_80318AA4(CharaTask* chara) {
+    if (chara->IsActive_unk()) {
+        if (chara->m55C == 6 && chara->m560 == 30) {
+            LaserMagic_unk* magic = (LaserMagic_unk*)fn_80318F90(chara);
+            if (chara->mC58.mC4 == this && magic->m1D != 0) {
+                atn::ColliCapsuleShape_unk line;
+                line.mStart = chara->mPos;
+                line.mStart.y += 20.0f;
+                atn::VecAssign_unk(line.mEnd, line.mStart + ((chr::ControlBase*)magic)->vf18() * 200.0f);
+                if (fn_80051BC4(&line, (atn::ColliCapsuleShape_unk*)&mColli.m3C)) {
+                    return 1;
+                }
+            }
+        } else if (chara->vf78() != 0 || chara->fn_80158CA4() != 0) {
+            if (chara->m55C == 6 && chara->m560 == 30) {
+                if (chara->mC58.mC4 == this) {
+                    return 1;
+                }
+            } else {
+                if (fn_800FBA9C(lbl_8087F048, chara, this, chara->m638, -1, 0.0f) >= 0) {
+                    return 1;
+                }
+                float rot = chara->fn_80158E1C().ToRotation_unk().y;
+                if (fn_800FBA9C(lbl_8087F048, chara, this, chara->m638, -1,
+                                atn::WrapAngle_unk(rot - chara->mRot.y)) >= 0) {
+                    return 1;
+                }
+            }
+        } else if (chara->mFlag6 || (chara->mFlag31 && chara->mC48 != 0)) {
+            atn::Vector3 from;
+            atn::Vector3 dir;
+            ((BattleCharaTask*)chara)->fn_800E932C(&from, &dir, 1);
+            atn::ColliCapsuleShape_unk line;
+            line.mStart = from;
+            atn::VecAssign_unk(line.mEnd, from + dir * 200.0f);
+            if (fn_80051BC4(&line, (atn::ColliCapsuleShape_unk*)&mColli.m3C)) {
+                return 1;
+            }
         }
     }
     return 0;
@@ -825,6 +1040,38 @@ void Em316LaserSphere::fn_80319C10() {
     fn_80239DAC(lbl_8087F3C0, this, 1001, 1);
 }
 
+// inferred: fires the laser at the target (state 9): the beam goes from the edge of the sphere to "spine1" of the
+// target, its matrix is translated, rotated along the beam and scaled to its length (in 50 units)
+// NONMATCHING: 98.3% - stack slots of the temporaries and of the matrices of the inlined helpers; 2 variants
+void Em316LaserSphere::fn_80319C90() {
+    int wait = m1C84;
+    m1574 = wait + rand() % wait;
+    if (fn_80316F74(&mStatus) || mStatus.IsState_unk(0x800000)) {
+        m1574 *= 2;
+    }
+    fn_80239DAC(lbl_8087F3C0, this, 0x3E8, 1);
+    SetState_unk(9);
+    m1568 = mPos;
+    atn::Vector3 spine = fn_80318648(m14B8);
+    m155C = spine - mPos;
+    PSVECNormalize(&m155C, &m155C);
+    m1578 = 0;
+    m15B4 = m14B8;
+    m155C = spine - (mPos + m155C * m5B0);
+    float len = PSVECMag(&m155C) / 50.0f;
+    PSVECNormalize(&m155C, &m155C);
+    atn::Vector3 rot = m155C.ToRotation_unk();
+    atn::Vector3 start = mPos + m155C * m5B0;
+    m15B8 = fn_800F80A8(start);
+    fn_800F80B8(m15B8.m, &rot);
+    m15E8 = m15B8;
+    atn::Vector3 scale(1.0f, 1.0f, len);
+    fn_800F8290(m15B8.m, scale.x, scale.y, scale.z);
+    fn_80232B7C(this, 0x3E8);
+    fn_8023A680(lbl_8087F3C0, &m159C, -1, 5, &m15B8, 0, 0, 0, 1.0f, 0, -1, 1);
+    fn_8023A680(lbl_8087F3C0, &m15A8, -1, 5, &m15E8, 0, 0, 0, 1.0f, 0, -1, 1);
+}
+
 // inferred: settings (lbl_8087F0A8, as in game/CopyRobotTask.cpp): frames per second at 0x30
 struct LaserSettings_unk {
     unsigned char m00[0x30];
@@ -859,6 +1106,49 @@ void Em316LaserSphere::fn_8031A484() {
         m15B4 = 0;
     }
     fn_800EB7A0();
+}
+
+// inferred: dodges the attack of `chara` (state 10, then 7): turns the line from the target by sAngle_unk to the
+// side away from the aim of `chara` and moves there
+// NONMATCHING: 30% - the original inlines the tiny members and two of the four "spine1" positions and calls
+// ToRotation_unk and fn_80318648 (docs/inlining.md R5: its body is an inline over the budget); here it is over the
+// budget and calls everything. A wrapper inline gives 67% but then fn_80318A30 inlines fn_8031A670 (100 -> 0)
+void Em316LaserSphere::fn_8031A670(CharaTask* chara) {
+    SetState_unk(10);
+    fn_80239DAC(lbl_8087F3C0, this, 0x3E8, 1);
+    fn_80239DAC(lbl_8087F3C0, this, 0x3E9, 1);
+    m1524 = chara;
+    m1534 = 0.0f;
+    atn::Vector3 line = mPos - fn_80318648(m14B8);
+    PSVECNormalize(&line, &line);
+    m1528 = line;
+    CharaTask* attacker = m1524;
+    atn::Vector3 spine = fn_80318648(m14B8);
+    atn::Vector3 back = mPos - spine;
+    PSVECNormalize(&back, &back);
+    int side;
+    if (attacker == m14B8) {
+        float aim = atn::WrapAngle_unk(attacker->fn_80158E1C().ToRotation_unk().y);
+        float rot = atn::WrapAngle_unk(back.ToRotation_unk().y);
+        side = atn::WrapAngle_unk(aim - rot) > 0.0f ? -1 : 1;
+    } else {
+        atn::Vector3 a = fn_80318648(attacker) - mPos;
+        PSVECNormalize(&a, &a);
+        float aim = atn::WrapAngle_unk(a.ToRotation_unk().y);
+        atn::Vector3 b = spine - mPos;
+        PSVECNormalize(&b, &b);
+        float rot = atn::WrapAngle_unk(b.ToRotation_unk().y);
+        side = atn::WrapAngle_unk(aim - rot) > 0.0f ? 1 : -1;
+    }
+    m1538 = sAngle_unk * (float)side;
+    atn::Vector3 dir = m1528;
+    Mtx m;
+    PSMTXRotRad(m, 'y', m1538);
+    PSMTXMultVec(m, &dir, &dir);
+    m1504 = mPos;
+    m1510 = fn_80318648(m14B8) + dir * 25.0f;
+    m151C = 0.0f;
+    m58C = 7;
 }
 
 int Em316LaserSphere::vfE4() {
