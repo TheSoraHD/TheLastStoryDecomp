@@ -263,7 +263,7 @@ void BattleResult::fn_800F0D14(int mode) {
         fn_801F6D7C(mExpLoop[i], "base_point", 4, line);
         fn_801F6D7C(mLvUpOp[i], "base_point", 4, line);
     }
-    atn::FixedArray_unk<Inventory::ExpEntry_unk, 7>* members = &Inventory::instance_->mExpEntries;
+    atn::FixedArray_unk<Inventory::ExpEntry_unk, 8>* members = &Inventory::instance_->mExpEntries;
     mCount = members->size();
     for (int i = 0; i < members->size(); i++) {
         mExpOp[i]->mFrame = 0.0f;

@@ -325,6 +325,23 @@ struct CharaStatusData_unk {
     unsigned char m5C[0x7C - 0x5C];
 };
 
+// inferred: stat differences after levelling up (CharaStatus::fn_8013354C; 0x7C bytes, kept in
+// Inventory::ExpEntry_unk and summed by Inventory::fn_80449ABC); name invented
+struct LevelUpResult_unk {
+    int m00;
+    int m04;
+    float m08; // level
+    float m0C;
+    float m10;
+    float m14;
+    float m18;
+    float m1C;
+    int m20;
+    int m24[8];
+    unsigned int m44[4]; // inferred: flags (or-ed by Inventory::fn_80449ABC)
+    int m54[10];
+};
+
 class CharaStatusBase {
 public:
     CharaStatusBase(); // 0x8012AE50

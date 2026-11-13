@@ -26,6 +26,7 @@
 #include "game/TeamAIManager.h"
 
 extern "C" void* memset(void* dst, int c, unsigned long n);
+extern "C" void* memcpy(void* dst, const void* src, unsigned long n);
 extern "C" void fn_80087994(void* menu, const char* name, int* flag, int arg3, int arg4); // AddBool
 extern "C" void fn_800874C8(void* menu, const char* name, int* value, int min, int max, int step, int func,
                             int arg); // AddInt
@@ -111,7 +112,7 @@ void AIManager::fn_80016888() {
     fn_80017064(lbl_8087F8A0->mHead);
     for (CharaTask* c = FriendManager::sInstance->fn_8036554C(); c != 0; c = NextChara_unk(c)) {
         if (!c->mC58.mHeld_unk) {
-            fn_80016A94(c, boost::function<void()>());
+            fn_80016A94(c, boost::function<int(gs::MovePoint*)>());
         }
         fn_80017064(c);
         c->mC58.m08 = c->mC58.m0C.mDestPoint;
@@ -122,7 +123,7 @@ void AIManager::fn_80016888() {
     }
     for (EnemyTask* e = EnemyManager::sInstance->mHead; e != 0; e = e->mNext) {
         if (!e->mC58.mHeld_unk) {
-            fn_80016A94(e, boost::function<void()>());
+            fn_80016A94(e, boost::function<int(gs::MovePoint*)>());
         }
         fn_80017064(e);
         e->mC58.m08 = e->mC58.m0C.mDestPoint;
@@ -140,14 +141,72 @@ void AIManager::fn_80016888() {
 
 // NONMATCHING: 99.4% - stack slots of the local position and of the returned temporary swapped
 // inferred: puts `chara` at a random point of its route group, facing a random direction
-void AIManager::fn_80016A94(CharaTask* chara, boost::function<void()> callback) {
-    int point = fn_80016C10(chara->mC58.mB4, callback);
+void AIManager::fn_80016A94(CharaTask* chara, boost::function<int(gs::MovePoint*)> filter) {
+    int point = fn_80016C10(chara->mC58.mB4, filter);
     atn::Vector3 pos;
     pos = lbl_8087F430->m10D8->fn_803C11A4(point);
     atn::Vector3 rot = chara->mRot;
     rot.y = 6.2831855f * ((rand() % 1001) / 1000.0f) - 3.1415927f;
     chara->mPos = pos;
     chara->mRot = rot;
+}
+
+// inferred: weight of a move point (m14 plus five times m1C, at most 100); name invented
+static inline int MoveWeight_unk(const gs::MovePoint* p) {
+    int n = p->m1C < 100 ? p->m1C : 100;
+    return (int)p->m14 + n * 5;
+}
+
+int AIManager::fn_80016C10(int group, boost::function<int(gs::MovePoint*)> filter) {
+    GameScene* scene = lbl_8087F430->m10D8;
+    int total = 0;
+    atn::SimpleArray<int> weights;
+    weights.Resize_unk(scene->m74, 0);
+    memset(weights.mData, 0, weights.mSize * sizeof(int));
+    if (group > 0) {
+        for (int i = 1; i <= scene->m74; i++) {
+            if (scene->m98.mData[i - 1].m2C != 0) {
+                gs::MovePoint& p = scene->m98[i - 1];
+                weights[i - 1] = 0;
+                if (filter.empty()) {
+                    if (group == p.m20) {
+                        weights[i - 1] = MoveWeight_unk(&p);
+                    }
+                } else if (filter(&p)) {
+                    weights[i - 1] = MoveWeight_unk(&p);
+                }
+            }
+        }
+    } else {
+        for (int i = 1; i <= scene->m74; i++) {
+            if (scene->m98.mData[i - 1].m2C != 0) {
+                gs::MovePoint& p = scene->m98[i - 1];
+                if (filter.empty() || filter(&p)) {
+                    weights[i - 1] = MoveWeight_unk(&p);
+                }
+            }
+        }
+    }
+    for (int i = 1; i <= scene->m74; i++) {
+        if (scene->m98[i - 1].m2C != 0) {
+            total += weights[i - 1];
+        }
+    }
+    if (total == 0) {
+        return -1;
+    }
+    int r = rand() % total;
+    int found;
+    for (int i = 1; i <= scene->m74; i++) {
+        if (scene->m98[i - 1].m2C != 0) {
+            if (r < weights[i - 1]) {
+                found = i;
+                break;
+            }
+            r -= weights[i - 1];
+        }
+    }
+    return found;
 }
 
 void AIManager::fn_80016FB4() {
@@ -429,6 +488,428 @@ int AIManager::fn_80018BAC(CharaTask* chara) {
         }
     }
     return 1;
+}
+
+extern "C" double cos(double x);
+extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
+extern "C" void PSVECCrossProduct(const atn::Vector3* a, const atn::Vector3* b, atn::Vector3* axb);
+extern "C" int fn_80019E88(AIManager* ai, atn::Vector3* out, int* kind, int point, gs::HideLink_unk* link);
+extern "C" unsigned short fn_803CD958(U16Table_unk* links, int point); // inferred: the two points are linked
+
+// NONMATCHING: 92.7% - scheduling of the loads of mB4 and of the last float argument
+// inferred: the original module calls it with a C name (AI/AiCommon_unk), so it stays extern "C"
+// inferred: route point for `chara` (its group, and the sub group while flag 2 of mD8 is set) in the
+// direction it faces (AI/AiCommon_unk fn_8001BA88)
+extern "C" int fn_80018C80(AIManager* ai, CharaTask* chara, int arg4, int arg5, float range, float min, float max) {
+    int ret;
+    if (chara != 0) {
+        int sub = 0;
+        if ((chara->mC58.mD8 & 2) == 2) {
+            sub = chara->mC58.mB8;
+        }
+        ret = ai->fn_80018D5C(&chara->mPos, chara->mC58.mB4, sub, arg4, arg5, chara->fn_80179D44(), 1,
+                              chara->mRot.y, range, min, max);
+    } else {
+        ret = 0;
+    }
+    return ret;
+}
+
+// NONMATCHING: 99.5% - registers of the scene (r28/r27) and stack slots of the front vector
+// inferred: random move point seen from `pos` facing `dir` (cone of `range` degrees) between the distances
+// min and max, linked to the nearest point (weighted by m1C when arg4 >= 0)
+int AIManager::fn_80018D5C(const atn::Vector3* pos, int group, int arg3, int arg4, int arg5, int mask, int arg7,
+                           float dir, float range, float min, float max) {
+    GameScene* scene = lbl_8087F430->m10D8;
+    int result = 0;
+    if (scene != 0) {
+        int start = scene->fn_803C1560(pos, mask, 0, 0, arg7, -1.0f);
+        atn::Vector3 origin = scene->m98[start - 1].mPos;
+        Mtx rot;
+        PSMTXRotRad(rot, 'y', dir);
+        atn::Vector3 axis(0.0f, 0.0f, 1.0f);
+        atn::Vector3 front = axis;
+        PSMTXMultVec(rot, &front, &front);
+        float limit = cos(0.017453292f * (0.5f * range));
+        int sum = 0;
+        for (int i = 1; i <= scene->m74; i++) {
+            gs::MovePoint& p = scene->m98[i - 1];
+            if (p.m2C != 0 && (group <= 0 || p.m20 == group)) {
+                sum += p.m1C;
+                if (sum > 0) {
+                    break;
+                }
+            }
+        }
+        if (sum <= 0) {
+            arg4 = -1;
+        }
+        int found[256];
+        int count = 0;
+        for (int i = 1; i <= scene->m74; i++) {
+            gs::MovePoint& p = scene->m98[i - 1];
+            if (p.m2C == 0 || start == i || start == 0) {
+                continue;
+            }
+            if ((int)fn_803CD958(&scene->mA0.mData[start - 1], i - 1) <= 0) {
+                continue;
+            }
+            if (p.m1C < arg4) {
+                continue;
+            }
+            if (arg5 >= 0 && p.m18 != arg5) {
+                continue;
+            }
+            if (group > 0 && p.m20 != group) {
+                continue;
+            }
+            if (arg3 > 0 && p.m24 != arg3) {
+                continue;
+            }
+            atn::Vector3 diff = p.mPos - origin;
+            atn::Vector3 d = diff;
+            float dist = PSVECSquareMag(&d);
+            PSVECNormalize(&d, &d);
+            if (dist < min * min || max * max < dist) {
+                continue;
+            }
+            if (PSVECDotProduct(&d, &front) >= limit && count < 255) {
+                found[count++] = i;
+            }
+        }
+        if (count > 0) {
+            if (arg4 >= 0) {
+                int total = 0;
+                for (int k = 0; k < count; k++) {
+                    total += scene->m98[found[k] - 1].m1C;
+                }
+                int r = rand() % total;
+                for (int k = 0; k < count; k++) {
+                    int w = scene->m98[found[k] - 1].m1C;
+                    if (r < w) {
+                        result = found[k];
+                        break;
+                    }
+                    r -= w;
+                }
+            } else {
+                result = found[rand() % count];
+            }
+        }
+    }
+    return result;
+}
+
+// NONMATCHING: 99.2% - register allocation (as fn_80018D5C)
+// inferred: as fn_80018D5C from the move point `point` (the nearest one to `pos` when 0); when no point is
+// in the cone, any linked point closer than `max` (game/CrowdSimulation)
+extern "C" int fn_80019254(AIManager* ai, int point, const atn::Vector3* pos, int group, int arg3, int arg4,
+                           float dir, float range, float min, float max) {
+    GameScene* scene = lbl_8087F430->m10D8;
+    int result = 0;
+    if (scene != 0) {
+        if (point == 0) {
+            point = scene->fn_803C1560(pos, 0, 0, 0, 0, -1.0f);
+        }
+        atn::Vector3 origin = scene->m98[point - 1].mPos;
+        Mtx rot;
+        PSMTXRotRad(rot, 'y', dir);
+        atn::Vector3 axis(0.0f, 0.0f, 1.0f);
+        atn::Vector3 front = axis;
+        PSMTXMultVec(rot, &front, &front);
+        float limit = cos(0.017453292f * (0.5f * range));
+        int sum = 0;
+        for (int i = 1; i <= scene->m74; i++) {
+            gs::MovePoint& p = scene->m98[i - 1];
+            if (p.m2C != 0 && (group <= 0 || p.m20 == group)) {
+                sum += p.m1C;
+                if (sum > 0) {
+                    break;
+                }
+            }
+        }
+        if (sum <= 0) {
+            arg4 = -1;
+        }
+        int nears[256];
+        int found[256];
+        int nearCount = 0;
+        int count = 0;
+        for (int i = 1; i <= scene->m74; i++) {
+            gs::MovePoint& p = scene->m98[i - 1];
+            if (p.m2C == 0 || point == i || point == 0) {
+                continue;
+            }
+            if ((int)fn_803CD958(&scene->mA0.mData[point - 1], i - 1) <= 0) {
+                continue;
+            }
+            if (p.m1C < arg4) {
+                continue;
+            }
+            if (group > 0 && p.m20 != group) {
+                continue;
+            }
+            if (arg3 > 0 && p.m24 != arg3) {
+                continue;
+            }
+            atn::Vector3 diff = p.mPos - origin;
+            atn::Vector3 d = diff;
+            float dist = PSVECSquareMag(&d);
+            PSVECNormalize(&d, &d);
+            if (max * max < dist) {
+                continue;
+            }
+            if (nearCount < 255) {
+                nears[nearCount++] = i;
+            }
+            if (dist < min * min) {
+                continue;
+            }
+            if (PSVECDotProduct(&d, &front) >= limit && count < 255) {
+                found[count++] = i;
+            }
+        }
+        if (count == 0) {
+            memcpy(found, nears, sizeof(found));
+            count = nearCount;
+        }
+        if (count > 0) {
+            if (arg4 >= 0) {
+                result = found[0];
+                int total = 0;
+                for (int k = 0; k < count; k++) {
+                    total += scene->m98[found[k] - 1].m1C;
+                }
+                int r = rand() % total;
+                for (int k = 0; k < count; k++) {
+                    int w = scene->m98[found[k] - 1].m1C;
+                    if (r < w) {
+                        result = found[k];
+                        break;
+                    }
+                    r -= w;
+                }
+            } else {
+                result = found[rand() % count];
+            }
+        }
+    }
+    return result;
+}
+
+extern "C" float PSVECMag(const atn::Vector3* v);
+
+// inferred: visited hide points of fn_800197A4 (one bit per point)
+static unsigned int sHideVisited_unk[0x80];
+
+// inferred: normalizes unless the vector is (almost) zero; name invented (as in game/Em006DarkMaster.cpp)
+static inline void SafeNormalize_unk(atn::Vector3* v) {
+    if (!((float)__fabs(PSVECSquareMag(v)) < 1.1920929e-7f)) {
+        PSVECNormalize(v, v);
+    }
+}
+
+// NONMATCHING: 99% - register allocation and the order of the bit index computation
+// inferred: nearest hide point for `chara` in the cone `dir`/`angle` that hides it from its target (mC58.mC4;
+// the target is ignored when `arg` is set, without a target or in another group); writes the point beside it
+// with fn_80019E88 (AI/AiCommon_unk)
+extern "C" int fn_800197A4(AIManager* ai, atn::Vector3* out, int* kind, CharaTask* chara, const atn::Vector3* dir,
+                           int arg, float angle) {
+    atn::Vector3 self = chara->mPos;
+    atn::Vector3 enemy = chara->mPos;
+    if (arg == 0) {
+        CharaTask* target = chara->mC58.mC4;
+        if (target == 0) {
+            arg = 1;
+        } else {
+            int group = chara->mC58.mB4;
+            enemy = target->mPos;
+            if (group > 0 && target->mC58.mB4 > 0 && group != target->mC58.mB4) {
+                arg = 1;
+            }
+        }
+    }
+    int best = 0;
+    int bestLink = 0;
+    int group = chara->mC58.mB4;
+    int sub = chara->mC58.mB8;
+    GameScene* scene = lbl_8087F430->m10D8;
+    float bestDist = 1.0e16f;
+    float limit = cos(0.017453292f * angle);
+    atn::Vector3 away = enemy - self;
+    float enemyDist = PSVECSquareMag(&away);
+    if (!((float)__fabs(enemyDist) < 1.1920929e-7f)) {
+        PSVECNormalize(&away, &away);
+    }
+    memset(sHideVisited_unk, 0, sizeof(sHideVisited_unk));
+    for (unsigned int i = 0; i < scene->mB4.size(); i++) {
+        gs::HideLink_unk* link = &scene->mB4.mData[i];
+        if (link->m08 == 0) {
+            continue;
+        }
+        if (chara->mFlag31 && link->mFrom + 1 == chara->mC38 && link->mTo + 1 == chara->mC3C) {
+            continue;
+        }
+        if ((float)__fabs(link->mMid.y - self.y) > 15.0f) {
+            continue;
+        }
+        gs::HidePoint* points[2];
+        points[0] = &scene->mAC.mData[link->mFrom];
+        points[1] = &scene->mAC.mData[link->mTo];
+        atn::Vector3 side = points[1]->mPos - points[0]->mPos;
+        float linkLen = PSVECSquareMag(&side);
+        SafeNormalize_unk(&side);
+        if (arg == 0) {
+            atn::Vector3 toEnemy = enemy - link->mMid;
+            SafeNormalize_unk(&toEnemy);
+            atn::Vector3 up(0.0f, 1.0f, 0.0f);
+            atn::Vector3 normal;
+            PSVECCrossProduct(&up, &toEnemy, &normal);
+            SafeNormalize_unk(&normal);
+            if (PSVECDotProduct(&normal, &side) < 0.70710677f) {
+                continue;
+            }
+        }
+        if (linkLen < chara->m5B0 * chara->m5B0) {
+            continue;
+        }
+        if (points[0]->m3C != 0 && points[1]->m3C != 0) {
+            continue;
+        }
+        for (unsigned int k = 0; k < 2; k++) {
+            gs::HidePoint* p = points[k];
+            unsigned int word = sHideVisited_unk[p->mIndex / 32];
+            unsigned int mask = 1 << (p->mIndex % 32);
+            if ((mask & word) == mask) {
+                continue;
+            }
+            sHideVisited_unk[p->mIndex / 32] = word | mask;
+            if (points[k]->m38 == 0) {
+                continue;
+            }
+            if (fn_80019E88(ai, 0, 0, points[k]->mIndex, link) == 0) {
+                continue;
+            }
+            if (group > 0 && group != points[k]->m1C) {
+                continue;
+            }
+            if (sub > 0 && sub != points[k]->m20) {
+                continue;
+            }
+            p = points[k];
+            if (p->m24 != 0 && chara->mType != 0) {
+                continue;
+            }
+            atn::Vector3 to = p->mPos - self;
+            float dist = PSVECSquareMag(&to);
+            if (dist > 0.0f) {
+                PSVECNormalize(&to, &to);
+            }
+            if ((chara->mC58.mD8 & 4) != 4 && dist < 100.0f) {
+                continue;
+            }
+            if (dist > 400.0f && PSVECDotProduct(&to, dir) < limit) {
+                continue;
+            }
+            if (arg == 0) {
+                atn::Vector3 a = enemy - self;
+                if (PSVECSquareMag(&a) > 0.0f) {
+                    PSVECNormalize(&a, &a);
+                }
+                atn::Vector3 b = enemy - points[k]->mPos;
+                float e = PSVECSquareMag(&b);
+                if (e > 0.0f) {
+                    PSVECNormalize(&b, &b);
+                }
+                if (e < 900.0f && enemyDist > e) {
+                    continue;
+                }
+                if (enemyDist > 6400.0f && 3.0f * (3.0f * enemyDist) < e) {
+                    continue;
+                }
+                if (PSVECDotProduct(&away, &b) < 0.0f) {
+                    continue;
+                }
+            }
+            if (bestDist > dist) {
+                bestDist = dist;
+                bestLink = i;
+                best = points[k]->mIndex;
+            }
+        }
+    }
+    if (best > 0) {
+        fn_80019E88(ai, out, kind, best, &scene->mB4.mData[bestLink]);
+    }
+    return best;
+}
+
+// NONMATCHING: 99.9% - operands of the fmuls of the half length swapped (len * 0.5 in either order)
+// inferred: point beside the hide point `point` along its link (`link`, else the first link of the
+// point); `kind` gets 3 for the points of kind 1-2, else 1/2 for the start/end of the link (game/
+// RouteWalker_unk). The manager is not used
+extern "C" int fn_80019E88(AIManager* ai, atn::Vector3* out, int* kind, int point, gs::HideLink_unk* link) {
+    GameScene* scene = lbl_8087F430 != 0 ? lbl_8087F430->m10D8 : 0;
+    if (scene == 0) {
+        return 0;
+    }
+    if (link == 0) {
+        for (unsigned int i = 0; i < scene->mB4.size(); i++) {
+            gs::HideLink_unk* l = &scene->mB4.mData[i];
+            if (l->mFrom + 1 == point || l->mTo + 1 == point) {
+                link = l;
+                break;
+            }
+        }
+    }
+    if (link == 0) {
+        return 0;
+    }
+    gs::HidePoint& from = scene->mAC[link->mFrom];
+    gs::HidePoint& to = scene->mAC[link->mTo];
+    if (from.m3C != 0 || to.m3C != 0) {
+        return 0;
+    }
+    atn::Vector3 dir = to.mPos - from.mPos;
+    float len = PSVECMag(&dir);
+    if (len > 0.0f) {
+        PSVECNormalize(&dir, &dir);
+    }
+    gs::HidePoint& p = scene->mAC.mData[point - 1];
+    if (p.m14 == 1 || p.m14 == 2) {
+        if (out != 0) {
+            float d = 0.2f * len;
+            if (link->mFrom + 1 == point) {
+                *out = p.mPos + dir * d;
+            } else {
+                *out = p.mPos - dir * d;
+            }
+        }
+        if (kind != 0) {
+            *kind = 3;
+        }
+        return 1;
+    }
+    if (p.m18 != 0) {
+        if (out != 0) {
+            float d = len * 0.5f;
+            d = d < 4.0f ? d : 4.0f;
+            if (link->mFrom + 1 == point) {
+                *out = p.mPos + dir * d;
+            } else {
+                *out = p.mPos - dir * d;
+            }
+        }
+        if (kind != 0) {
+            if (link->mFrom + 1 == point) {
+                *kind = 1;
+            } else {
+                *kind = 2;
+            }
+        }
+        return 1;
+    }
+    return 0;
 }
 
 namespace std {
