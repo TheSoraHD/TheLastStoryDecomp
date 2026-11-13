@@ -28,6 +28,12 @@ Unidades: `game/GameUI`, `game/MiniMapTask`, `game/PopupTask`.
   Resto: el original guarda `&task->mData.m10` en un registro antes del hash (aqui se rematerializa; probados
   helpers con referencia a la capa), y lee dos veces el texto de `lbl_8087F1E4` (aqui una).
 
+- `GameUI::fn_803E5200` (posicion del icono sobre un personaje: sobre "head"/"neck"/el centro de colision,
+  3 unidades hacia la camara, girado hacia ella con `Vector3::ToRotation_unk` y escalado por la distancia entre
+  m2670..m2674): 0 % -> 99,2 %. `top.y += 5; top.y += m149C` (BattleCharaTask) y `Vector3 scale(1, 1, 1)` antes
+  de asignarle el lerp suben de 89 a 99,2. Resto: el lerp suma la base al final (`atn::Lerp_unk` la suma
+  primero; escrito al reves se mueven los temporales).
+
 ## Decisiones tomadas sin el usuario
 
 - `GameUI.h`: declarados `fn_803E2410(CharaTask*)` y `fn_803E2A30(int, int, atn::Vector3, int, int)` sin nombres
@@ -37,12 +43,16 @@ Unidades: `game/GameUI`, `game/MiniMapTask`, `game/PopupTask`.
   declaracion y llamada como `static_cast<GameUI*>(draw)->fn_803E2A30(...)` (lo pide el prompt al renombrar);
   re-emparejada con `pd.sh`, sin bajadas.
 - `GameUISession_unk` (local de GameUI.cpp) gana `int m540` (estado de la partida, 2 = jugando).
+- `GameUIField_unk` (local) gana `atn::Vector3 mEye` en 0x74 (posicion de la camara).
 - `extern "C" GameConfig_unk* lbl_8087F0A8` se sube en GameUI.cpp (antes de fn_803E3468).
 - `symbols.txt`: seis floats de `.sdata2` que solo usa el `__sinit` (0x80885DA0, DB0, DB8, DD8, DE8, DFC) se
   renombran a mano a los `@N` de nuestro .o (pd.sh no los empareja porque el `__sinit` no esta al 100 %;
   labelcheck volvia a "peor").
 
 ## Hallazgos
+
+- Tras cada funcion nueva el `pd.sh` renumera los floats que solo usa el `__sinit` y labelcheck da "peor":
+  renombrarlos por valor (`scratch-C2/tools/fixlabels.py`; ojo con un `@N` nuestro ya usado en otra direccion).
 
 - Un `__sinit` de datos se puede reconstruir emulando su asm (lfs/stfs/psq) para sacar los valores finales.
 - `x = a; if (c) x = b;` da `li; beq; li`; el ternario da codigo sin saltos (neg/or/srwi).

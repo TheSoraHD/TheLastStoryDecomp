@@ -48,7 +48,9 @@ extern "C" const char* const lbl_80750618[14];
 
 // inferred: field (lbl_8087F430) and its route table at 0x10D8
 struct GameUIField_unk {
-    unsigned char m00[0x868];
+    unsigned char m00[0x74];
+    atn::Vector3 mEye; // inferred: camera position (GameUI::fn_803E5200)
+    unsigned char m80[0x868 - 0x80];
     int m868; // inferred: kind of field (5, 7: the leader is the centre of the markers)
     unsigned char m86C[0x910 - 0x86C];
     atn::Vector3 m910; // inferred: centre of the markers in the tactical view
@@ -4699,6 +4701,50 @@ void GameUI::fn_803E4E58(atn::D3AnimeInstance* icon, CharaTask* chara, atn::Vect
         GetIconInst_unk(icon)->mFrame = zero;
     }
     pos->y += 1.5f;
+}
+
+// inferred: position of an icon over a character: above the head (or the neck, or the collision centre),
+// moved 3 units towards the camera, turned towards the camera, scaled by its distance between the limits
+// m2670..m2674 (scales m266C..m2668)
+// NONMATCHING: 99.2% - the lerp of the scale adds the base last in the original (atn::Lerp_unk adds it
+// first; written the other way the temporaries move) and float registers
+void GameUI::fn_803E5200(atn::D3AnimeInstance* icon, CharaTask* chara, atn::Vector3* pos, int) {
+    GameUIField_unk* field = lbl_8087F430;
+    MtxPtr head = chara->GetModel_unk()->GetNodeMtx_unk("head");
+    MtxPtr neck = chara->GetModel_unk()->GetNodeMtx_unk("neck");
+    atn::Vector3 top(head != 0   ? ((atn::Matrix3x4*)head)->GetTrans_unk()
+                     : neck != 0 ? ((atn::Matrix3x4*)neck)->GetTrans_unk()
+                                 : chara->mColli.m48);
+    top.y += 5.0f;
+    top.y += static_cast<BattleCharaTask*>(chara)->m149C;
+    atn::Vector3 dir = field->mEye - top;
+    float dist = dir.Length_unk();
+    dir.Normalize_unk();
+    atn::Vector3 base = top + dir * 3.0f;
+    dir.y = 0.0f;
+    dir.Normalize_unk();
+    atn::Vector3 front;
+    front = atn::Vector3(0.0f, 0.0f, 1.0f);
+    PSMTXMultVec(icon->mRot.m, &front, &front);
+    dir = front + dir;
+    dir.Normalize_unk();
+    dir = front + dir;
+    dir.Normalize_unk();
+    atn::Vector3 rot = dir.ToRotation_unk();
+    atn::Vector3 large(m2668, m2668, m2668);
+    atn::Vector3 small(m266C, m266C, m266C);
+    float d = m2670 > (m2674 < dist ? m2674 : dist) ? m2670 : (m2674 < dist ? m2674 : dist);
+    atn::Vector3 scale(1.0f, 1.0f, 1.0f);
+    scale = atn::Lerp_unk(small, large, d / (m2674 - m2670));
+    icon->SetPosition_unk(base + *pos);
+    icon->MeltTask();
+    atn::Matrix3x4 mtx;
+    mtx.fn_8013A13C(rot.y);
+    icon->SetRotation_unk(mtx);
+    icon->SetScale_unk(scale);
+    fn_801F6D7C(GetIconInst_unk(icon), "pos0003", 0, 0.0f);
+    fn_801F6D7C(GetIconInst_unk(icon), "pos0003", 1, 0.0f);
+    fn_801F6D7C(GetIconInst_unk(icon), "pos0003", 4, d);
 }
 
 void GameUI::fn_803E58CC() {
