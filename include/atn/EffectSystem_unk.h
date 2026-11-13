@@ -398,7 +398,7 @@ public:
     int m68;
     int mLayer;                   // 0x6C
     int m70;
-    int mUpdating;                // 0x74
+    volatile int mUpdating;       // 0x74: inferred: volatile (the draw waits on it reloading it)
     int m78;
     int m7C;
     atn::EffectManagerCallback* mListener; // 0x80: inferred: the replay (ReplayBuffer)

@@ -6,6 +6,8 @@ Inicio: 2026-11-13 01:18 CET. Rama `agent-D`. Unidades: `atn/EffectSystem_unk`, 
 
 - `atn/EffectSystem_unk` (commit 1): 0 % 1 -> 0; escrita NONMATCHING fn_8022DD1C (dibujado de un slot,
   7592 bytes, 84,8 %). Toda la unidad queda escrita; al 100 % sin cambios (43/58). No enlaza (15 NONMATCHING).
+- `atn/EffectSystem_unk` (commit 2): fn_8022D478 al 100 % (`EffectSystem_unk::mUpdating` volatile: la espera
+  `while (mUpdating != 0)` relee la palabra en cada vuelta). 44/58.
 
 ## Decisiones tomadas sin el usuario
 
@@ -21,6 +23,12 @@ Inicio: 2026-11-13 01:18 CET. Rama `agent-D`. Unidades: `atn/EffectSystem_unk`, 
   (ultimo argumento `int`: es la escena; se pasa `(int)scene`).
 - `pd.sh` empareja mal 5 floats de `.sdata2` de la unidad (2.0 y los coeficientes -3, 4, 3, 5 de la spline):
   renombrados a mano en `symbols.txt` por valor (0x808830D8, 0x808830F0-0x808830FC).
+
+- `EffectSystem_unk::mUpdating` pasa a `volatile int` (cabecera de 67 unidades; solo el tipo de un miembro de
+  datos; EffectManager, que tambien lo usa, sigue igual).
+- Tras cada cambio de la unidad, `pd.sh` empareja mal los floats de `.sdata2` (el 0.5 y pi de fn_8022D790 estan
+  cruzados en el pool desde antes): los renombro por valor con un script propio
+  (`/home/claude/scratch-D/fixsd2.py`, compara el `.sdata2` del `.o` original y el nuestro).
 
 ## NONMATCHING
 
