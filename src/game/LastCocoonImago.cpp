@@ -14,6 +14,8 @@
 #include "macros.h"
 #include "atn/DrawHelper.h"
 #include "gmk/Lemon.h"
+#include "atn/Camera_unk.h"
+#include "atn/RenderManager.h"
 
 // inferred: effect/bullet manager (lbl_8087F048); only the member used here (name invented)
 struct Effect_unk {
@@ -23,7 +25,9 @@ struct Effect_unk {
 extern "C" Effect_unk* lbl_8087F048;
 // inferred: field (lbl_8087F430); only the member used here
 struct Field_unk {
-    unsigned char m0000[0x10D8];
+    unsigned char m0000[0x6C];
+    atn::Camera m006C; // inferred: camera of the field (as in game/EnemyQuarkStand.cpp)
+    unsigned char m0260[0x10D8 - 0x260];
     RouteTable_unk* m10D8; // inferred: route table of the map
     unsigned char m10DC[0x54F4 - 0x10DC];
     unsigned char m54F4[4]; // inferred: name table (fn_803B3B38)
@@ -1068,6 +1072,126 @@ void LastCocoonImago::fn_8045D224() {
     }
 }
 
+extern "C" void fn_80392D2C(atn::Camera* camera, const atn::Camera* from, float rate); // inferred: blends back
+extern "C" double tan(double x);
+extern "C" double atan(double x);
+extern "C" void PSMTXTrans(Mtx m, float x, float y, float z);
+extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
+// inferred: xsca camera curves (as in game/EnemyQuarkStand.cpp); only the members called here
+struct XsfCurveSet_unk {
+    float fn_805BF204(float time, int channel);
+    void fn_805BF410(float time, float* out, int x, int y, int z);
+};
+struct Xsca_unk {
+    XsfCurveSet_unk* fn_805BDCBC(unsigned int index);
+};
+// inferred: rotation matrix y * x * z of a vector (as QuarkRotationYXZv_unk of game/EnemyQuarkStand.cpp)
+inline atn::Matrix3x4& ImagoRotationYXZ_unk(atn::Matrix3x4& m, const atn::Vector3& r) {
+    m.SetIdentity();
+    if (r.y != 0.0f) {
+        Mtx a;
+        Mtx t;
+        PSMTXRotRad(a, 'y', r.y);
+        PSMTXConcat(m.m, a, t);
+        __MtxCopy(m.m, t);
+    }
+    if (r.x != 0.0f) {
+        Mtx a;
+        Mtx t;
+        PSMTXRotRad(a, 'x', r.x);
+        PSMTXConcat(m.m, a, t);
+        __MtxCopy(m.m, t);
+    }
+    if (r.z != 0.0f) {
+        Mtx a;
+        Mtx t;
+        PSMTXRotRad(a, 'z', r.z);
+        PSMTXConcat(m.m, a, t);
+        __MtxCopy(m.m, t);
+    }
+    return m;
+}
+inline void ImagoRotateYXZ_unk(atn::Matrix3x4& m, const atn::Vector3& r) {
+    Mtx t;
+    atn::Matrix3x4 rot;
+    PSMTXConcat(m.m, ImagoRotationYXZ_unk(rot, r).m, t);
+    __MtxCopy(m.m, t);
+}
+// inferred: game state (lbl_8087EFA8): flag at 0x240 set while the camera event of mode 12 runs (name invented)
+struct ImagoEventState_unk {
+    unsigned char m000[0x240];
+    int m240;
+};
+
+// inferred: mode 12: the camera follows the xsca curves "cm000_em206_00" around the imago until the motion ends
+// (then the capsules are disabled), effects and sounds at fixed frames, and from frame 200 the field camera
+// blends back and the imago goes to mode 14 (motions 0x2F, 0x30) and tells the gimmick m18F8 (message 3)
+// NONMATCHING: 95.2% - registers of the implicit copies of atn::Camera, the aspect kept in f31 across tan() and
+// the slots of the rotation temporaries (as EnemyQuarkStand::fn_8034DE90)
+void LastCocoonImago::fn_8045D3A4() {
+    XsfCurveSet_unk* curve = ((Xsca_unk*)m1964.fn_804786F8())->fn_805BDCBC(0);
+    atn::Vector3 eye;
+    atn::Vector3 target;
+    curve->fn_805BF410(mMotion.mTracks[0].m08, &eye.x, 1, 2, 3);
+    curve->fn_805BF410(mMotion.mTracks[0].m08, &target.x, 7, 8, 9);
+    atn::Matrix3x4 m;
+    PSMTXTrans(m.m, mPos.x, mPos.y, mPos.z);
+    ImagoRotateYXZ_unk(m, atn::Vector3(0.0f, mRot.y, 0.0f));
+    PSMTXMultVec(m.m, &eye, &eye);
+    PSMTXMultVec(m.m, &target, &target);
+    atn::Camera camera = lbl_8087F430->m006C;
+    camera.mPos = eye;
+    camera.mTarget = target;
+    float fov = curve->fn_805BF204(mMotion.mTracks[0].m08, 0);
+    camera.mFovy = 2.0f * (float)atan((float)tan(0.5f * (0.017453292f * fov)) / camera.mAspect);
+    camera.fn_8004B378();
+    float frame = mMotion.mTracks[0].m08;
+    if (frame < mMotion.fn_80097D7C(0)) {
+        atn::RenderManager::instance_->mCamera = camera;
+    } else {
+        LastCocoonImago::vf38(0);
+    }
+    frame = mMotion.mTracks[0].m08;
+    if (frame >= mMotion.fn_80097D7C(0) - 30.0f && ((GameTask*)lbl_8087F430)->fn_80370A78(0xCD) == 0) {
+        ((GameTask*)lbl_8087F430)->fn_80370AE4(0xCD, 1);
+    }
+    if ((m14BC == 0 && mMotion.mTracks[0].m08 > 139.0f) || (m14BC == 1 && mMotion.mTracks[0].m08 > 144.0f) ||
+        (m14BC == 2 && mMotion.mTracks[0].m08 > 150.0f) || (m14BC == 3 && mMotion.mTracks[0].m08 > 155.0f) ||
+        (m14BC == 4 && mMotion.mTracks[0].m08 > 170.0f) || (m14BC == 5 && mMotion.mTracks[0].m08 > 190.0f) ||
+        (m14BC == 6 && mMotion.mTracks[0].m08 > 220.0f)) {
+        m14BC++;
+        fn_80232B7C(0, 0);
+        PlayEfp_unk(&m196C, &mMotion);
+        if (m14BC % 2 == 0) {
+            fn_800C344C("SE_EM206_011", &mPos, 0, -1, 1.0f);
+        }
+    }
+    frame = mMotion.mTracks[0].m08;
+    if (frame >= 140.0f && frame < mMotion.fn_80097D7C(0) - 10.0f) {
+        ((ImagoEventState_unk*)lbl_8087EFA8)->m240 = 1;
+    } else {
+        ((ImagoEventState_unk*)lbl_8087EFA8)->m240 = 0;
+    }
+    if (mMotion.mTracks[0].m08 >= 200.0f && (mStatus.m0C & 0x20) != 0x20) {
+        fn_80392D2C(&lbl_8087F430->m006C, &camera, 0.033333335f);
+        m14BC = 0;
+        m14C0 = 0;
+        m590 = fn_800F8548(lbl_8087F048);
+        m58C = 14;
+        fn_8016E970(3);
+        mMotion.m34C = 1;
+        mMotion.mTracks[0].m20 = 1.0f;
+        mMotion.mTracks[0].m0C = 1.0f;
+        mMotion.fn_80097C08(0, 0x2F, 0, 0, 1, 0.0f, 0.1f);
+        m574 = lbl_807C7030;
+        mMotion.fn_80097C08(0, 0x30, 1, 0, 1, 0.0f, 0.025f);
+        m14BC = 2;
+        GimmickMsg_unk msg(3);
+        m18F8->vf40(&msg);
+        ((ImagoEventState_unk*)lbl_8087EFA8)->m240 = 0;
+    }
+}
+
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 extern "C" GameUI* lbl_8087F490;
 extern "C" GameConfig_unk* lbl_8087F0A8; // inferred: game settings (m48C: input)
@@ -1285,6 +1409,86 @@ __declspec(noinline) void LastCocoonImago::fn_8045ECC4() {
     GimmickMsg_unk msg;
     msg.mType = 5;
     m18F8->vf40(&msg);
+}
+
+extern "C" int fn_8004ECC0(void* world, atn::Vector3* hit, const atn::Vector3* from, const atn::Vector3* to,
+                           unsigned int mask, void* ignore, int arg); // inferred: ray test
+extern "C" int fn_80051B70(const atn::Vector3* line, const CharaTask::Sphere_unk* sphere); // inferred: segment hits
+                                                                                             // sphere
+// inferred: the field camera looks around (as in gmk/WindyItem.cpp; name invented)
+inline bool ImagoLookMode_unk(int mode) {
+    return mode == 3 || mode == 1 || mode == 4;
+}
+// inferred: the sphere can be seen from `eye` (as CanSee_unk of gmk/WindyItem.cpp, other mask; name invented)
+inline int ImagoCanSee_unk(const atn::Vector3& eye, const CharaTask::Sphere_unk& sphere) {
+    atn::Vector3 line[2];
+    line[0] = eye;
+    line[1] = sphere.mCenter;
+    atn::Vector3 d = line[1] - line[0];
+    float len = PSVECMag(&d);
+    float radius = sphere.mRadius;
+    if (!((float)__fabs(len) < 1.1920929e-7f)) {
+        line[1] = line[1] - line[0];
+        PSVECNormalize(&line[1], &line[1]);
+        line[1] = line[1] * (len - radius) + line[0];
+    }
+    return fn_8004ECC0(lbl_8087EE98, 0, &line[0], &line[1], 0x80000000, 0, 0) == 0;
+}
+
+// inferred: arrow of the weak point `index` (sphere of m624): when the field camera looks around and the sphere is
+// in front of it and visible, the UI shows the target (and the hint of the attack once); otherwise, when it is
+// near (800) and visible, the UI shows it too
+// NONMATCHING: 73.6% - the original stores -1/0 at the start in seven dead stack words (an 0xA8-byte object at
+// 0xF0 with -1 at +4 and +0x24 and 0 at +0x44..+0xA4, and -1 at 0x1E0: locals of an inline not identified) and
+// keeps the copies of the segment and of the sphere in other slots; 3 variants
+void LastCocoonImago::fn_8045EDEC(int index) {
+    GameTask* field = (GameTask*)lbl_8087F430;
+    CharaTask::Sphere_unk ball = m624.mData[index].m04;
+    if (field->mCamera.m7FC == 3 || field->mCamera.m7FC == 1 || field->mCamera.m7FC == 4) {
+        atn::Vector3 line[2];
+        line[0] = field->mCamera.mPos;
+        line[1] = field->mCamera.mTarget;
+        line[1] -= line[0];
+        PSVECNormalize(&line[1], &line[1]);
+        line[1] = line[1] * 800.0f + line[0];
+        CharaTask::Sphere_unk item;
+        item.mCenter = ball.mCenter;
+        item.mRadius = ball.mRadius * 1.4f;
+        atn::Vector3 toItem = item.mCenter - field->mCamera.mPos;
+        float dist = PSVECMag(&toItem);
+        atn::Vector3 lo(-ball.mRadius, -ball.mRadius, 0.0f);
+        atn::Vector3 hi(ball.mRadius, ball.mRadius, 0.0f);
+        atn::Matrix3x4 view = field->mCamera.mInvView;
+        view.m[0][3] = 0.0f;
+        view.m[1][3] = 0.0f;
+        view.m[2][3] = 0.0f;
+        PSMTXMultVec(view.m, &lo, &lo);
+        PSMTXMultVec(view.m, &hi, &hi);
+        atn::Vector3 p1 = ball.mCenter + lo;
+        p1 = atn::RenderManager::instance_->GetScreenPosition(p1);
+        atn::Vector3 p2 = ball.mCenter + hi;
+        p2 = atn::RenderManager::instance_->GetScreenPosition(p2);
+        atn::Vector2_unk size(0.5f * (float)__fabs(p1.x - p2.x), 0.5f * (float)__fabs(p1.y - p2.y));
+        atn::Vector2_unk center(0.5f * (p1.x + p2.x), 0.5f * (p1.y + p2.y));
+        int shown = 0;
+        if (fn_80051B70(line, &item) != 0 && ImagoCanSee_unk(line[0], item)) {
+            shown = 1;
+            lbl_8087F490->fn_803E3050(ball.mCenter, atn::Vector3(center.x, center.y, p1.z), size, dist);
+            int held;
+            if (lbl_8087F0A8->m0B0 != 0) {
+                held = lbl_8087F0A8->mInput.fn_801240B4(0x24);
+            } else {
+                held = 1;
+            }
+            if (held != 0 && m18D0 == 0 && index < 3) {
+                ((GameTask*)lbl_8087F430)->fn_80370AE4(sImagoAttacks_unk[index].m10, 1);
+                m18D0 = 1;
+            }
+        }
+        if (shown == 0 && dist < 800.0f && ImagoCanSee_unk(line[0], item)) {
+            lbl_8087F490->fn_803E3050(ball.mCenter, atn::Vector3(center.x, center.y, p1.z), size, dist);
+        }
+    }
 }
 
 // inferred: the sphere of a ColliSphere read as one shape (name invented)

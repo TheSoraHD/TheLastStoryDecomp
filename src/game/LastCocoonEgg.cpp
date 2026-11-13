@@ -10,6 +10,7 @@
 #include "atn/Vector4_unk.h"
 #include "atn/Material_unk.h"
 #include "macros.h"
+#include "game/BattleTask.h"
 
 // inferred: effect manager (class unknown), global instance at 0x8087F3C0
 struct EffectMgr_unk {
@@ -608,6 +609,142 @@ void LastCocoonEgg::fn_8045531C() {
     }
 }
 
+// inferred: damage record shown by fn_80108C10 (as DaemonDamage_unk of game/Em203GreaterDaemon.cpp)
+struct EggDamage_unk {
+    EggDamage_unk() : m00(0), m04(0), m08(0), m0C(0), m10(0), m14(-1) {
+        m1C = 0;
+        m18 = -1;
+    }
+    int m00;
+    int m04;
+    int m08;
+    int m0C;
+    int m10;
+    int m14;
+    int m18;
+    unsigned int m1C : 4;
+    unsigned int m1C_rest : 28;
+};
+extern "C" void fn_80108C10(Effect_unk* effect, EggDamage_unk* damage, const atn::Vector3& pos, CharaTask* attacker,
+                            CharaTask* chara, int b, int c);
+// inferred: plays an effect bound to a matrix (kind 5; as in game/EnemyQuarkSecond.cpp)
+extern "C" void fn_8023A680(EffectMgr_unk* mgr, atn::EffFile* res, int arg2, int kind, const void* target,
+                            const atn::Vector3* pos, const atn::Vector3* rot, int arg7, int arg8, int arg9,
+                            int arg10, float scale);
+// inferred: party member that can be targeted (as IsBurstTarget_unk of game/EnemyQuarkSecond.cpp)
+inline bool EggIsTarget_unk(CharaTask* c) {
+    bool active;
+    bool free;
+    bool r;
+    r = false;
+    active = false;
+    free = false;
+    if ((c->mFlags & 4) != 4 && (c->mFlags & 1) != 1) {
+        free = true;
+    }
+    if (free && (c->mStatus.m0C & 0x20) != 0x20) {
+        active = true;
+    }
+    if (active) {
+        bool grappled = false;
+        if (c->m55C == 6 && c->m560 == 28) {
+            grappled = true;
+        }
+        if (!grappled) {
+            r = true;
+        }
+    }
+    return r;
+}
+// inferred: first free orb (name invented)
+inline LastCocoonEggSeg_unk* LastCocoonEgg_FreeSeg_unk(LastCocoonEgg* egg) {
+    for (int i = 0; i < 32; i++) {
+        if (egg->m19AC[i].m00 == 0) {
+            return &egg->m19AC[i];
+        }
+    }
+    return 0;
+}
+// inferred: position of a node (name invented)
+inline atn::Vector3 EggNodePos_unk(MtxPtr m) {
+    return atn::Vector3(m[0][3], m[1][3], m[2][3]);
+}
+
+// inferred: life drain: every 40 frames that an attacker keeps bullets on it, the egg drains 50 hit points per
+// bullet (leaving at least one) into an orb that flies from the attacker's spine back to the egg and heals it
+// on arrival; also tells the game task (event m14) the first time an attacker gets the state 0x20000
+// NONMATCHING: 98.7% - registers (the constants of the loops, the flags of the target test) and stack slots of the
+// position temporaries; the offset of "spine" in @stringBase0 (strings of fn_804562E4 not written); 3 variants
+void LastCocoonEgg::fn_80455638() {
+    for (unsigned int i = 0; i < m19A0.size(); i++) {
+        LastCocoonEggPart_unk& part = m19A0[i];
+        int state = (part.m00->mStatus.m0C >> 17) & 1;
+        if (part.m10 == 0 && state != 0) {
+            ((GameTask*)lbl_8087F430)->fn_80370AE4(part.m14, 1);
+        }
+        part.m10 = state;
+        part.m04 = 0.0f;
+        if (EggIsTarget_unk(part.m00)) {
+            part.m04 = (float)((BattleTask*)lbl_8087F048)->fn_80101340(part.m00);
+        }
+        if (part.m04 <= 0.0f) {
+            part.m08 = 0;
+        } else if (++part.m08 % 40 == 0) {
+            EggDamage_unk damage;
+            LastCocoonEggSeg_unk* seg = LastCocoonEgg_FreeSeg_unk(this);
+            if (seg != 0) {
+                float amount = MIN(50.0f * part.m04, part.m00->mStatus.m04 - 1.0f);
+                damage.m00 = 1;
+                damage.m04 = (int)amount;
+                part.m00->mStatus.fn_8012DF7C(damage.m04, 0, 0);
+                fn_80108C10(lbl_8087F048, &damage, part.m00->mPos + atn::Vector3(0.0f, 15.0f, 0.0f), this,
+                            part.m00, 0, 0);
+                PlayEfp_unk(&m1988, &part.m00->mMotion);
+                seg->m14 = EggNodePos_unk(part.m00->mMotion.GetNodeMtx_unk("spine"));
+                seg->m20 = mPos;
+                seg->m20.y += 10.0f * m14D0;
+                seg->m04 = seg->m14;
+                seg->m10 = amount;
+                seg->m2C.SetIdentity();
+                seg->m2C.fn_801479E4(seg->m04);
+                seg->m00 = 1;
+                fn_80232B7C(seg, 0);
+                fn_8023A680(lbl_8087F3C0, &m1994, -1, 5, &seg->m2C, 0, 0, 0, 0, -1, 1, 1.0f);
+                fn_800C344C("SE_EM206_024", &mPos, 0, -1, 1.0f);
+            }
+        }
+    }
+    for (int i = 0; i < 32; i++) {
+        LastCocoonEggSeg_unk* seg = &m19AC[i];
+        if (seg->m00 != 0) {
+            atn::Vector3 dir(seg->m20.x - seg->m14.x, 0.0f, seg->m20.z - seg->m14.z);
+            PSVECNormalize(&dir, &dir);
+            atn::Vector3 d(seg->m20.x - seg->m04.x, 0.0f, seg->m20.z - seg->m04.z);
+            if (PSVECSquareMag(&d) < 2.25f) {
+                dir *= PSVECMag(&d);
+            } else {
+                dir *= 1.5f;
+            }
+            seg->m04 += dir;
+            seg->m04.y = (seg->m20.y - seg->m04.y) * 0.2f + seg->m04.y;
+            seg->m2C.SetIdentity();
+            seg->m2C.fn_801479E4(seg->m04);
+            atn::Vector3 diff(seg->m04.x - seg->m20.x, seg->m04.y - seg->m20.y, seg->m04.z - seg->m20.z);
+            if (PSVECSquareMag(&diff) < 1.0f) {
+                fn_80239DAC(lbl_8087F3C0, seg, 0, 0);
+                EggDamage_unk damage;
+                damage.m00 = 1;
+                damage.m04 = (int)-seg->m10;
+                atn::Vector3 pos = fn_80148B0C(0)->m04.mCenter;
+                pos += atn::Vector3(0.0f, 15.0f, 0.0f);
+                mStatus.fn_8012DF7C(damage.m04, 0, 0);
+                fn_80108C10(lbl_8087F048, &damage, pos, this, this, 0, 0);
+                seg->m00 = 0;
+            }
+        }
+    }
+}
+
 void LastCocoonEgg::fn_80455D80() {
     fn_80232B7C(this, 1000);
     PlayEfp_unk(&m1928, &mMotion);
@@ -691,6 +828,116 @@ void LastCocoonEgg::fn_80456194() {
         fn_8016E970(3);
         m2558 = 0;
         m14CC = 1;
+    }
+}
+
+extern "C" int rand();
+extern "C" int fn_80053BD0(atn::ColliResult_unk* r, const atn::ColliCapsuleShape_unk* c,
+                           const atn::ColliCapsuleShape_unk* capsule); // inferred: segment against capsule
+extern "C" void fn_800F8574(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* data, const atn::Vector3* pos,
+                            const atn::Vector3* dir, void* param, int arg6, int arg7, float a,
+                            float b); // inferred: fires a bullet (as in game/EnemyQuarkSecond.cpp)
+// inferred: segment of a shot (a capsule shape without radius; as Segment_unk of chr/ControlPushedDown.cpp)
+struct EggSegment_unk {
+    atn::Vector3 mStart;
+    atn::Vector3 mEnd;
+};
+// inferred: fires the bullet 0x5AB from 10 above the egg along `dir`; it starts where the 30-long segment first
+// meets the egg's own capsule (name invented)
+inline void EggShoot_unk(LastCocoonEgg* egg, atn::Vector3 dir) {
+    atn::Vector3 from = egg->mPos + atn::Vector3(0.0f, 10.0f, 0.0f);
+    EggSegment_unk seg;
+    seg.mStart = from + dir * 30.0f;
+    seg.mEnd = from;
+    atn::ColliResult_unk result;
+    if (fn_80053BD0(&result, (const atn::ColliCapsuleShape_unk*)&seg,
+                    (const atn::ColliCapsuleShape_unk*)&egg->mColli.m3C) != 0) {
+        from = result.m04;
+    }
+    Effect_unk* mgr = lbl_8087F048;
+    fn_800F8574(mgr, egg, fn_80219E6C(0x5AB), &from, &dir, 0, 0x24, 0, 0.0f, 1.0f);
+}
+// inferred: rotation matrix z, y, x with the angle compared on the right (as in game/EnemyQuarkSecond.cpp)
+inline void EggRotate2_unk(Mtx m, char axis, float rad) {
+    if (0.0f != rad) {
+        Mtx r;
+        PSMTXRotRad(r, axis, rad);
+        Mtx t;
+        PSMTXConcat(m, r, t);
+        __MtxCopy(m, t);
+    }
+}
+
+// inferred: mode 7: charges for 60 frames (effect m252C), then for 45 frames (effect m2538, sound) and shoots: one
+// bullet at each targetable party member ("hips") and six fans of random bullets (count of the skill 0x5AC) around
+// the egg; back to mode 0
+// NONMATCHING: 87.2% - registers of the loop constants and stack slots of the shot locals (the original keeps
+// the segment, the result and the start in other slots and reloads the start through a copy); 4 variants
+void LastCocoonEgg::fn_804562E4() {
+    if (m14BC == 0) {
+        if (m14C0 < 60) {
+            m14DC = 9.0f * ((float)m14C0 / 60.0f) + 1.0f;
+        } else {
+            m14C0 = 0;
+            m14BC = 1;
+            m14CC = 0;
+            fn_80232B7C(this, 0x3E9);
+            PlayEfp_unk(&m252C, &mMotion);
+        }
+    } else if (m14BC == 1) {
+        if (m14C0 < 45) {
+            m14DC = 1.0f;
+        } else {
+            fn_80239DAC(lbl_8087F3C0, this, 0x3E9, 0);
+            PlayEfp_unk(&m2538, &mMotion);
+            fn_800C344C("SE_EM206_023", &mPos, 0, -1, 1.0f);
+            m12CC = 1.0f;
+            for (PlayerTask* p = lbl_8087F8A0->mHead; p != 0; p = (PlayerTask*)p->mNext) {
+                if (EggIsTarget_unk(p)) {
+                    atn::Vector3 dir = EggNodePos_unk(p->mMotion.GetNodeMtx_unk("hips")) -
+                                       (mPos + atn::Vector3(0.0f, 10.0f, 0.0f));
+                    PSVECNormalize(&dir, &dir);
+                    EggShoot_unk(this, dir);
+                }
+            }
+            for (int i = 0; i < 6; i++) {
+                float angle = 6.2831855f * (float)i / 6.0f;
+                atn::Vector3 front(0.0f, 0.0f, 1.0f);
+                Mtx r;
+                PSMTXRotRad(r, 'y', mRot.y);
+                PSMTXMultVec(r, &front, &front);
+                Mtx r2;
+                PSMTXRotRad(r2, 'y', angle);
+                PSMTXMultVec(r2, &front, &front);
+                atn::Vector3 rot = front.ToRotation_unk();
+                atn::Matrix3x4 m;
+                m.SetIdentity();
+                EggRotate2_unk(m.m, 'z', rot.z);
+                EggRotate2_unk(m.m, 'y', rot.y);
+                EggRotate2_unk(m.m, 'x', rot.x);
+                HitInfo_unk* data = fn_80219E6C(0x5AC);
+                for (int j = 0; j < data->m48; j++) {
+                    atn::Vector3 dir(0.0f, 0.0f, 1.0f);
+                    float spread = 0.017453292f * mStatus.mParamB.m2C;
+                    Mtx ry;
+                    PSMTXRotRad(ry, 'y', spread * ((float)(rand() % 1001) / 1000.0f));
+                    PSMTXMultVec(ry, &dir, &dir);
+                    Mtx rz;
+                    PSMTXRotRad(rz, 'z', 6.2831855f * ((float)(rand() % 1001) / 1000.0f));
+                    PSMTXMultVec(rz, &dir, &dir);
+                    PSMTXMultVec(m.m, &dir, &dir);
+                    EggShoot_unk(this, dir);
+                }
+            }
+            m12CC = 0.0f;
+            m14BC = 0;
+            m14C0 = 0;
+            m590 = fn_800F8548(lbl_8087F048);
+            m58C = 0;
+            fn_8016E970(3);
+            m2558 = 0;
+            m14CC = 1;
+        }
     }
 }
 

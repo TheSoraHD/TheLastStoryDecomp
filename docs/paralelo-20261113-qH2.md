@@ -6,7 +6,9 @@ Rama `agent-H2`. Inicio 09:28 (Madrid).
 
 | Unidad | Sin escribir antes -> despues | 100 % (fnstat) |
 |---|---|---|
-| game/EnemyQuarkSecond | 5 -> 0 | 44 -> 44 / 70 (pendiente de confirmar tras pd) |
+| game/EnemyQuarkSecond | 5 -> 0 | 44 -> 44 / 70 |
+| game/LastCocoonImago | 4 -> 2 (quedan el ctor, por presupuesto, y fn_80459FB8 = vfBC, bloqueada) | 19 -> 20 / 36 (vfCC, por las etiquetas) |
+| game/LastCocoonEgg | 8 -> 6 (quedan las 6 copias debiles de vf0C/vf10) | 21 -> 21 / 42 |
 
 ## game/EnemyQuarkSecond
 
@@ -28,6 +30,9 @@ Escritas (0 % -> escritas y equivalentes, todas `NONMATCHING`):
   (`sFinaleFrom_unk`/`sFinaleTo_unk` en `.sdata`) con la camara del campo en modo 4 mirando "spine1", sacude la
   camara en el frame 108 y se oculta en el 110): 99 %.
 
+`report.json` 15357 -> 15358 (vfCC de Imago al 100 %, mnemcheck limpio), lost 0, sin bajadas, PRECOMMIT OK en
+los dos commits.
+
 ## Decisiones tomadas sin el usuario
 
 - `fn_8023A680` declarada en EnemyQuarkSecond.cpp con `const void* target` (tipo 5: una Matrix3x4), como
@@ -36,6 +41,13 @@ Escritas (0 % -> escritas y equivalentes, todas `NONMATCHING`):
   copiadas de game/Em101ElderZesya.cpp) con un cast desde `lbl_8087F430` (Field_unk del fichero solo tiene lo que
   borra fn_80344BB4). Deuda de la regla 10 (un tipo por objeto): unificar con GameTask/GameCamera.
 - `.sdata` 0x8087DC68-0x8087DC7C definidas en el fuente como `static float` (pd.sh las renombra).
+- Etiquetas `.sdata2` ambiguas para pd.sh renombradas por valor (script de scratch-K, valrelabel) en
+  EnemyQuarkSecond (11), LastCocoonImago (5 + `@17937` -> `@19245` a mano, 0.0 ambiguo) y LastCocoonEgg (8; se
+  deja `lbl_80886C18`, otro 0.0, sin tocar para no duplicar `@15168`).
+- `fn_80455638`/`fn_804562E4` de Egg pasan a miembros (renombrado en symbols.txt), como las de Imago.
+- Imago `fn_8045D3A4`: copia de la camara del campo con `atn::Camera` (copia implicita), como EnemyQuarkStand.
+- poolcheck avisa de floats 2.44346 / 25 / 20 (y la cadena '?fff?333?' en Egg): vienen de las copias debiles de
+  CharaTask::vfA0/vf70/vf58 (cabecera), no de las funciones nuevas; avisos previos.
 
 ## Hallazgos
 
@@ -46,7 +58,33 @@ Escritas (0 % -> escritas y equivalentes, todas `NONMATCHING`):
 - Puntero al gestor de balas en un local justo antes de la llamada (`Effect_unk* mgr = lbl_8087F048;`) cuando el
   original lo carga despues de los `rand()` (fn_8033F7FC 95,4 -> 97,7 %).
 
+## game/LastCocoonImago
+
+- `fn_8045D3A4` (modo 12: camara de las curvas xsca "cm000_em206_00" alrededor del imago, como
+  EnemyQuarkStand::fn_8034DE90; al acabar el motion desactiva las capsulas; efectos m196C y "SE_EM206_011" en
+  los frames 139-220; bandera m240 de lbl_8087EFA8 entre 140 y el final - 10; desde el 200 la camara del campo
+  vuelve (fn_80392D2C) y pasa al modo 14 con el mensaje 3 a m18F8): 95,2 %.
+- `fn_8045EDEC` (flecha del punto debil `index`: si la camara del campo esta en modo de mirar (m7FC 3/1/4) y la
+  esfera esta delante y visible, GameUI::fn_803E3050 y una vez el aviso del ataque sImagoAttacks_unk[index].m10;
+  si no, cerca (800) y visible, tambien la muestra; como gmk/WindyItem): 73,6 %. El original escribe -1/0 en
+  siete palabras muertas de la pila al empezar (inline sin identificar).
+- Field_unk de LastCocoonImago.cpp gana la camara `atn::Camera m006C`; incluye atn/Camera_unk.h y
+  atn/RenderManager.h (renumera solo la unidad; pd + valrelabel).
+
+## game/LastCocoonEgg
+
+- `fn_80455638` (drenaje de vida: cada 40 frames con balas sobre un atacante, 50 PV por bala en un orbe
+  `LastCocoonEggSeg_unk` que vuela de su "spine" al huevo y lo cura al llegar; aviso m14 la primera vez que el
+  atacante tiene el estado 0x20000): 98,7 %. Renombrada en symbols.txt a `fn_80455638__13LastCocoonEggFv`.
+- `fn_804562E4` (modo 7: carga 60 + 45 frames con los efectos m252C/m2538 y "SE_EM206_023"; una bala 0x5AB a
+  "hips" de cada miembro atacable y seis abanicos aleatorios de la habilidad 0x5AC; la bala sale donde el
+  segmento de 30 corta la capsula propia, fn_80053BD0): 87,2 %. Renombrada a `fn_804562E4__13LastCocoonEggFv`.
+- `LastCocoonEggSeg_unk` con sus campos (m00 en uso, m04 posicion, m10 PV, m14 inicio, m20 fin, m2C matriz del
+  efecto m1994); el constructor sigue limpiando solo m00. LastCocoonEgg.cpp incluye game/BattleTask.h
+  (fn_80101340).
+
 ## Pendientes
 
-- LastCocoonEgg (fn_80455638, fn_804562E4, copias debiles) y LastCocoonImago (fn_8045D3A4, fn_8045EDEC, ctor):
-  sin tocar en esta pasada (ver abajo si se avanzan).
+- Egg: las seis copias debiles de vf0C/vf10 (presupuesto de inlining). Imago: ctor (presupuesto) y vfBC
+  (argumento en CharaTask::vfBC, renumera 217 unidades).
+- Deuda de la regla 10: vistas locales de lbl_8087F430 (Field_unk / QuarkField_unk) en lugar de GameTask.
