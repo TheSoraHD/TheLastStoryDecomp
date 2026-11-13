@@ -1,5 +1,16 @@
 # paralelo-20261113, cola L (motor atn)
 
+Resumen: funciones al 0 % de la cola 21 -> 13 (Model 10 -> 3, MotionBank_unk 1 -> 0; sin cambios
+LayerOcclusionCPU 3, WordWrap_unk 3, TextAnimation 1, LH_Model 1, SmallAllocator_8 2). Al 100 % nueva:
+`boost::function2<...>::dummy::nonnull` (0x80099F70). 8 funciones escritas como NONMATCHING (70-96 %).
+lost 0, sin bajadas de fuzzy, labelcheck/rep100 iguales en cada commit.
+
+- SmallAllocator_8: sus dos "0 %" (`~SmallAllocator<6>`, `operator delete`) ya estan escritos; el 0 % es el
+  presupuesto de inline del gestor (notas anteriores), no tocados.
+- WordWrap_unk: los tres que faltan son copias de iostream de MSL (fuera de alcance del lote), no tocados.
+- Quedan en Model: `fn_8008D78C` (recibe la vista en r4, la cabecera la declara sin argumentos),
+  `vf14` (0x8008FA24, cuatro argumentos) y `fn_800991D0` (3,2 KB).
+
 ## atn/MotionBank_unk
 
 - Funciones al 0 %: 1 -> 0. Escrita `fn_800A2664` (generador aleatorio de MP::CryptMP, `new` en el primer uso con
