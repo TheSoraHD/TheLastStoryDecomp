@@ -40,11 +40,12 @@ struct ActorKey2C_unk {
     float m28;
 };
 
-// inferred: 0x10-byte key of the lists of an actor (built with __construct_new_array)
+// inferred: 0x10-byte key of the lists of an actor (built with __construct_new_array): offset saved for a
+// node of the model (ActionActorNode::vf08)
 struct ActorKey10_unk {
     ActorKey10_unk() {}
-    atn::Vector3 m00;
-    float m0C;
+    int m00;          // inferred: node index
+    atn::Vector3 m04; // inferred: offset (position in m118, rotation in m124)
 };
 
 // inferred: 8-byte entry of the list at 0xAC of an actor

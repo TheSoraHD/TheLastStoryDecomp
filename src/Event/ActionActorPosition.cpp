@@ -213,6 +213,30 @@ inline atn::Matrix3x4 MakeRotZYX_unk(const atn::Vector3& rot) {
     return m;
 }
 
+// inferred: offset saved for the node `key` (zero if none; inlined, name invented)
+inline atn::Vector3 FindKey_unk(atn::SimpleVector<ActorKey10_unk>& keys, int key) {
+    for (unsigned int i = 0; i < keys.size(); i++) {
+        if (key == keys[i].m00) {
+            return keys[i].m04;
+        }
+    }
+    return lbl_807C7030;
+}
+
+// inferred: sets the offset saved for the node `key`, adding it if missing (inlined, name invented)
+inline void SetKey_unk(atn::SimpleVector<ActorKey10_unk>& keys, int key, const atn::Vector3& v) {
+    for (unsigned int i = 0; i < keys.size(); i++) {
+        if (key == keys[i].m00) {
+            keys[i].m04 = v;
+            return;
+        }
+    }
+    ActorKey10_unk entry;
+    entry.m00 = key;
+    entry.m04 = v;
+    keys.push_back(entry);
+}
+
 inline float Distance_unk(const atn::Vector3& a, const atn::Vector3& b) {
     return (b - a).Length_unk();
 }
@@ -1156,6 +1180,87 @@ int ActionActorHeading::vf0C(Action* arg, int phase) {
         break;
     }
     }
+    return 0;
+}
+
+// inferred: moves and turns a node of the model of the actor (parameter 0: node name hash, 1-3 offset,
+// rotation from the parameter 4 in degrees): during the fade in the node eases along the curve of the actor
+// from the offsets saved for the node (m118 positions, m124 rotations) and, once there, the offsets are
+// accumulated into them; during the fade out it goes back to zero
+// NONMATCHING: 96.1% - scheduling of the conversions of the fade times and of the degrees, and the registers
+// of the key searches (the original adds the offset to the data pointer of the loop)
+int ActionActorNode::vf08(Action* arg) {
+    float now = arg->fn_805381C8()->m198;
+    ActionOwner_unk* section = arg->fn_805381A0();
+    EventManager_unk* manager = arg->fn_805381C8();
+    Actor* owner = manager->FindActor_unk(section->m10);
+    Actor* actor = manager->FindActor_unk(section->m10);
+    atn::Model* model = owner->fn_8001296C();
+    if (model == 0) {
+        return 0;
+    }
+    atn::Model::Res_unk* res = model->GetRes_unk();
+    if (res == 0) {
+        return 0;
+    }
+    unsigned int hash = arg->GetParam_unk(0)->m04.i;
+    if (hash == 0) {
+        return 0;
+    }
+    atn::Vector3 offset;
+    offset.x = arg->GetParam_unk(1)->m04.f;
+    offset.y = arg->GetParam_unk(2)->m04.f;
+    offset.z = arg->GetParam_unk(3)->m04.f;
+    atn::Vector3 angles = arg->fn_80538C14(4);
+    angles.x = 0.017453292f * angles.x;
+    angles.y = 0.017453292f * angles.y;
+    angles.z = 0.017453292f * angles.z;
+    int node = model->fn_800928B0(hash, 0);
+    atn::Model::NodeEdit_unk* edit = model->fn_800948F0(res->m48[node]->m10);
+    atn::Vector3 pos = offset;
+    atn::Vector3 rot = angles;
+    atn::Vector3 scale = edit != 0 ? edit->m20 : atn::Vector3(1.0f, 1.0f, 1.0f);
+    int flags = edit != 0 ? edit->m04 : 0;
+    int start = arg->m10;
+    int fadeIn = arg->m18;
+    int end = arg->m14;
+    int fadeOut = arg->m1C;
+    float t = 1.0f;
+    if (now <= (float)(start + fadeIn) && fadeIn >= 1) {
+        float left = (float)(start + fadeIn) - arg->fn_805381C8()->m198;
+        if (left < lbl_8087F540->mB4) {
+            left = 0.0f;
+        }
+        if (left > 0.0f) {
+            t -= left / (float)fadeIn;
+        }
+        t = lbl_8087F540->fn_8048BD04(actor->m13C, t);
+        if (t == 1.0f) {
+            atn::Vector3 basePos = FindKey_unk(actor->m118, node);
+            atn::Vector3 newPos = basePos + offset;
+            atn::Vector3 baseRot = FindKey_unk(actor->m124, node);
+            atn::Vector3 newRot = baseRot + angles;
+            SetKey_unk(actor->m118, node, newPos);
+            SetKey_unk(actor->m124, node, newRot);
+        } else {
+            atn::Vector3 basePos = FindKey_unk(actor->m118, node);
+            atn::Vector3 baseRot = FindKey_unk(actor->m124, node);
+            atn::Vector3 dPos = pos - basePos;
+            atn::Vector3 dRot = rot - baseRot;
+            float dist = PSVECMag(&dPos);
+            if (dist > 0.0f) {
+                dist *= t;
+                PSVECNormalize(&dPos, &dPos);
+            }
+            pos = basePos + dPos * dist;
+            rot = baseRot + dRot * t;
+        }
+    } else if (now >= (float)(end - fadeOut) && fadeOut >= 1) {
+        float k = 1.0f - (now - (float)(end - fadeOut)) / (float)fadeOut;
+        pos *= k;
+        rot *= k;
+    }
+    model->fn_80093F1C(res->m48[node]->m10, pos, rot, scale, flags);
     return 0;
 }
 
