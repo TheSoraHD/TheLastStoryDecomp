@@ -761,7 +761,7 @@ CostumeEditChara* CosEditBase::fn_801CF334() {
 }
 
 // inferred: equips weapon `item` in `slot` of `member` (and on every character using the same model)
-int CosEditBase::fn_801CF3C0(int member, CharaTask* chara, CosEditItem_unk* item, int slot, int add, int remove) {
+int CosEditBase::fn_801CF3C0(int member, CharaTask* chara, CosEditWeaponItem_unk* item, int slot, int add, int remove) {
     CosEditItemData_unk* data = fn_80206C50(item->mId);
     if (!data) {
         return 0;
