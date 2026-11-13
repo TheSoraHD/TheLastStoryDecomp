@@ -20,7 +20,9 @@ Inicio: 2026-11-13 07:19 CET. Tope 09:49.
   - `Actor::fn_8000FAE8` (fin del evento: devuelve al personaje el estado guardado en m18/m24) 92,9 %.
   - `fn_8001011C` 99,2 -> 99,6 % (columnas de `SetModelMtx_unk` por `MtxCol_unk`, evaluadas z, y, x).
 
-- `Event/ActionActorPosition`: 4 -> 2.
+- `Event/ActionActorPosition`: 4 -> 1.
+  - `ActionActorPose::vf0C` (aplica una pose: las claves de nodo de la pose sustituyen o se anaden a una copia
+    de las ediciones guardadas por el actor) 97,9 %.
   - `ActionActorHeading::vf08` (gira la cabeza: hacia los angulos de los parametros 5-7 desde el cuello o hacia
     el nodo del actor objetivo desplazado por 2-4; transicion por la curva, parada en el fundido de salida)
     97,1 %.
@@ -44,6 +46,7 @@ Inicio: 2026-11-13 07:19 CET. Tope 09:49.
 - `ActionActorEyes::fn_80554088` 93,7 %: marco 0x10 menor aqui (huecos de los vectores), registros volatiles de
   las dos busquedas de actores y orden de las cargas de `arg->m18` y del gestor de eventos.
 
+- `ActionActorPose::vf0C` 97,9 %: registros de las dos busquedas y el bucle de copia de las claves guardadas.
 - `ActionActorHeading::vf08` 97,1 %: marco 0x10 mayor aqui (huecos de los vectores y del offset convertido) y
   registros del indice y del id en las dos busquedas de actores (r4/r5).
 
@@ -61,6 +64,8 @@ Inicio: 2026-11-13 07:19 CET. Tope 09:49.
   (`m24 + 0x10/0x1C`) quedan como bytes (`m10[0x18]`) leidas con `SavedVec_unk` (reinterpretacion): como
   miembros `atn::Vector3` el constructor implicito del actor renumera las `@N` de Event/Sequence y
   Event/EventParser_unk (cola F). Cambiarlo junto con `ActorAnim_unk::m00` (pendiente).
+- `ActionActorPose::vf0C` copia `actor->m24.m00` con `Resize_unk` y un bucle (el original no pasa por
+  `clear()` de `Assign_unk`; `SimpleVector` no tiene constructor de copia en `atn/Array_unk.h`, otra familia).
 - `fn_8000FAE8` pasa `m24.m00` a `atn::Model::fn_80094420` como `SimpleVector<Event::PoseKey_unk>` con un cast
   (mismo layout que `ActorKey2C_unk`; pendiente del cambio de `ActorAnim_unk::m00`).
 - `src/Event/Puppeteer_CharaTask.cpp` incluye `atn/PBone.h` (renumera sus `@N`, re-emparejada).

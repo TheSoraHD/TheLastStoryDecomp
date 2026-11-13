@@ -960,6 +960,47 @@ int ActionActorEyes::vf0C(Action* arg, int phase) {
     return 0;
 }
 
+// inferred: applies a pose: the node keys of the pose data (parameter 0) replace or are added to a copy of the
+// node edits saved by the actor (Actor::fn_8000F1EC), then set on the model
+// NONMATCHING: 97.9% - registers of the two lookups (actor r27 and pose r26 in the original) and the copy loop
+// of the saved keys (the original adds the offset to the source before each load)
+int ActionActorPose::vf0C(Action* arg, int phase) {
+    if (phase == 0) {
+        ActionOwner_unk* section = arg->fn_805381A0();
+        EventManager_unk* manager = arg->fn_805381C8();
+        Actor* actor = manager->FindActor_unk(section->m10);
+        PoseData* pose = manager->m134.Find_unk(arg->GetParam_unk(0)->m04.i);
+        atn::Model* model = actor->fn_8001296C();
+        if (model != 0) {
+            atn::SimpleVector<PoseKey_unk> keys;
+            // inferred: m24.m00 is a SimpleVector<Event::PoseKey_unk> (see Actor::fn_8000F1EC)
+            atn::SimpleVector<PoseKey_unk>& saved = *(atn::SimpleVector<PoseKey_unk>*)&actor->m24.m00;
+            keys.Resize_unk(saved.size());
+            for (unsigned int k = 0; k < keys.size(); k++) {
+                keys[k] = saved[k];
+            }
+            for (int i = 0; i < (int)pose->m1C->size(); i++) {
+                PoseKey_unk& key = (*pose->m1C)[i];
+                int found = -1;
+                PoseKey_unk* p = &keys[0];
+                for (int j = 0; j < (int)keys.size(); j++, p++) {
+                    if (key.m00 == p->m00) {
+                        found = j;
+                        break;
+                    }
+                }
+                if (found >= 0) {
+                    keys[found] = key;
+                } else {
+                    keys.push_back(key);
+                }
+            }
+            model->fn_80094420(keys);
+        }
+    }
+    return 0;
+}
+
 // inferred: turns the head of the actor: towards the angles of the parameters 5-7 (from the neck), or
 // towards the node of the target actor moved by the parameters 2-4; eases from the last goal (actor->mDC /
 // actor->mE8) along the curve of the actor during the fade in, and stops for the fade out
