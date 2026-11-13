@@ -1056,6 +1056,63 @@ extern "C" void fn_800909B0(atn::Matrix3x4* out, const atn::Matrix3x4* mats, con
     }
 }
 
+// inferred: skinning weights of a vertex block with three joints (0x1C bytes); names invented
+struct SkinWeight3_unk {
+    int m00;
+    int mIndex0;
+    float mWeight0;
+    int mIndex1;
+    float mWeight1;
+    int mIndex2;
+    float mWeight2;
+};
+
+// inferred: skinning weights of a vertex block with four joints (0x24 bytes); names invented
+struct SkinWeight4_unk {
+    int m00;
+    int mIndex0;
+    float mWeight0;
+    int mIndex1;
+    float mWeight1;
+    int mIndex2;
+    float mWeight2;
+    int mIndex3;
+    float mWeight3;
+};
+
+// inferred: **out = mats[a] * wa + mats[b] * wb + mats[c] * wc for each weight, advancing *out
+// NONMATCHING: 77% - the original adds the second matrix before scaling the third one, keeping the loads of
+// the third matrix between the stores of the sum (17 saved float registers); order of the temporaries
+extern "C" void fn_80090C58(atn::Matrix3x4** out, const atn::Matrix3x4* mats, const SkinWeight3_unk* w, int n) {
+    for (int i = 0; i < n; i++) {
+        atn::Matrix3x4 t0 = ScaleMtx_unk(mats[w->mIndex0], w->mWeight0);
+        atn::Matrix3x4 t1 = ScaleMtx_unk(mats[w->mIndex1], w->mWeight1);
+        **out = t0;
+        atn::Matrix3x4 t2 = ScaleMtx_unk(mats[w->mIndex2], w->mWeight2);
+        AddMtx_unk(**out, t1);
+        AddMtx_unk(**out, t2);
+        w++;
+        (*out)++;
+    }
+}
+
+// inferred: same with four joints
+// NONMATCHING: 70% - as fn_80090C58 (order of the scaled temporaries and the sums)
+extern "C" void fn_800910D4(atn::Matrix3x4** out, const atn::Matrix3x4* mats, const SkinWeight4_unk* w, int n) {
+    for (int i = 0; i < n; i++) {
+        atn::Matrix3x4 t0 = ScaleMtx_unk(mats[w->mIndex0], w->mWeight0);
+        atn::Matrix3x4 t1 = ScaleMtx_unk(mats[w->mIndex1], w->mWeight1);
+        **out = t0;
+        atn::Matrix3x4 t2 = ScaleMtx_unk(mats[w->mIndex2], w->mWeight2);
+        AddMtx_unk(**out, t1);
+        AddMtx_unk(**out, t2);
+        atn::Matrix3x4 t3 = ScaleMtx_unk(mats[w->mIndex3], w->mWeight3);
+        AddMtx_unk(**out, t3);
+        w++;
+        (*out)++;
+    }
+}
+
 namespace atn {
 
 // inferred: the two matrices are equal (name invented)
@@ -1247,16 +1304,6 @@ extern "C" void DCZeroRange(void* addr, unsigned long size);
 extern "C" asm void fn_80099F74(register const SkinWeight2_unk* w, register const atn::Matrix3x4* mats, register atn::Matrix3x4* out, register int n);
 extern "C" asm void fn_8009A018(register const SkinWeight3_unk* w, register const atn::Matrix3x4* mats, register atn::Matrix3x4* out, register int n);
 
-// inferred: skinning weights of a vertex block with three joints (0x1C bytes); names invented
-struct SkinWeight3_unk {
-    int m00;
-    int mIndex0;
-    float mWeight0;
-    int mIndex1;
-    float mWeight1;
-    int mIndex2;
-    float mWeight2;
-};
 
 // inferred: double-buffered transfer of an array to the locked cache, 32 entries a block (buffers at
 // 0xE0001800 and right after the first one); names invented

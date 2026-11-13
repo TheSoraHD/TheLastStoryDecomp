@@ -19,7 +19,7 @@
 
 ## atn/Model
 
-- Funciones al 0 %: 10 -> 8. Escrita `Model::fn_80097E80` (actualizacion de la animacion: avanza y muestrea las
+- Funciones al 0 %: 10 -> 6. Escrita `Model::fn_80097E80` (actualizacion de la animacion: avanza y muestrea las
   pistas en el buffer compartido `sNodePoses` (bloques de 0x100 nodos por pista, 0x300 para la mezcla), mezcla por
   peso, pista 3, `fn_800991D0` y la llamada a `m35C`; NONMATCHING 94,7 %: el original llama a `strlen(m3C8)`
   antes de elegir el puntero de la cadena del nombre de fichero y reutiliza esa prueba en el destructor; MWCC
@@ -28,6 +28,10 @@
   renombrado en `symbols.txt`.
 - `fn_800991D0` declarada `extern "C"` con el modelo como primer argumento (como `fn_8008E818`): declararla
   miembro exige tocar `atn/Model_unk.h` (muy incluida).
+- Escritas `fn_80090C58` y `fn_800910D4` (skinning de 3 y 4 juntas en memoria principal, `**out` avanza; mismo
+  esquema que `fn_800909B0`: `ScaleMtx_unk`/`AddMtx_unk`); NONMATCHING 77 % y 70 %: orden de los temporales y
+  de las sumas (el original carga la tercera matriz entre los stores de la suma con la segunda). `SkinWeight3_unk`
+  sube delante de ellas y se define `SkinWeight4_unk` (0x24 bytes).
 - `pd.sh atn/Model` vuelve a renombrar `lbl_8087D6E8/EC`: devueltos a mano.
 
 ## Decisiones tomadas sin el usuario
