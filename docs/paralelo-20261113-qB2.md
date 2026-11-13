@@ -37,6 +37,11 @@ Unidades: `game/GameCamera_unk`, `game/FinishCamera_unk`.
   (la doble carga de m0C sale de enlazar el temporal y el miembro a `const float&`).
 - Funciones al 0 %: 16 -> 3 (quedan fn_8037F9AC 12 KB, fn_80384188 y fn_80385B48 6,5 KB). Al 100 %: 28 -> 47 de 90.
 
+### game/FinishCamera_unk
+
+- Sin cambios: su unica funcion al 0 % (`fn_803792F0`, 13 KB) no cabia en la sesion; probadas variantes de
+  `AddCurve_unk` para fn_80379104 (99,7 %) sin mejora.
+
 ## Decisiones tomadas sin el usuario
 
 - `fn_8038F52C` pasa a metodo `GameCamera::fn_8038F52C(CharaTask*)`: declaracion nueva en `GameCamera.h` (sin
@@ -47,7 +52,7 @@ Unidades: `game/GameCamera_unk`, `game/FinishCamera_unk`.
 - `fn_800F8524` (lerp, copia weak de otro fichero) toma `const float&` en lugar de punteros: con un temporal
   (`-DegToRad_unk(7.0f)`) el original lo pone en la pila despues de las variables con nombre; actualizadas sus
   dos llamadas de fn_80387910 (borrador, sin cambio de codigo).
-- `GameCamera.h` sin tocar salvo la declaracion. En `GameCamera_unk.cpp`: vistas locales `Settings_unk`,
+- En `GameCamera_unk.cpp`: vistas locales `Settings_unk`,
   `Field_unk` y `CameraConfig_unk` (como en game/CharaTask.cpp, game/GameUI.cpp y Event/Path.cpp; el tipo real
   es GameConfig_unk/GameTask/SetConfig, pero los nombres mangled de sus copias weak usan esas clases).
 - `fn_80390A88` tambien pasa a metodo (`fn_80390A88__10GameCameraFv`, declaracion sin parametros en
@@ -64,7 +69,7 @@ Unidades: `game/GameCamera_unk`, `game/FinishCamera_unk`.
   game/TownTask.cpp.
 - `GameCamera.h`: constructor por defecto `GameCameraParam_unk();` declarado sin definir (pone m34 a 0; la
   definicion inline esta en `GameCamera_unk.cpp`, no renumera: labelcheck igual) y `GameCameraParam_unk m430` en
-  lugar del relleno (miembro de datos). Con el ctor declarado faltaria aun la herencia para el ctor de GameCamera.
+  lugar del relleno (miembro de datos).
 - `GameCamera.h` (datos, no renumeran): `float m41C`, `int m8D0`, `float m958, m95C`, `float m974`, `int m984`,
   `float m988`, `atn::Vector2_unk mC88[3]` y `mCA0` en lugar de relleno; `mA0C[5]` -> `mA0C, mA10, mA14, mA18,
   mA1C`. Constructores por defecto declarados (sin parametros) en `GameCameraTimer_unk`, `GameCameraModeParam_unk`
@@ -97,6 +102,8 @@ Unidades: `game/GameCamera_unk`, `game/FinishCamera_unk`.
 
 ## Pendientes
 
+- GameCamera_unk al 0 %: `fn_8037F9AC` (12 KB, actualizacion del modo por defecto), `fn_80384188` y `fn_80385B48`
+  (6,5 KB, modos con el stick; marco de 0x990 bytes). FinishCamera_unk: `fn_803792F0` (13 KB).
 - `fn_80390A88`: pila (ver arriba).
 - `~GameCamera` 99,97 %: el original trata la camara de 0x00 como miembro (no base); cambia la herencia de una
   clase incluida por 144 unidades.
