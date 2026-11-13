@@ -10,7 +10,7 @@ extern "C" double sqrt(double x);
 extern "C" double fabs(double x);
 
 // inferred: RVL SDK (KPAD/WPAD) functions, names unknown
-extern "C" void fn_8065F530(void* (*alloc)(unsigned int), int (*free)(void*)); // inferred: WPADRegisterAllocator
+extern "C" void WPADRegisterAllocator(void* (*alloc)(unsigned int), int (*free)(void*));
 extern "C" void KPADInit();                                                 // inferred: KPADInit
 extern "C" void KPADSetConnectCallback(int chan, void (*cb)(int, int));                   // inferred: KPADSetConnectCallback
 extern "C" void KPADDisableDPD(int chan);                                         // inferred: KPADDisableDPD
@@ -69,15 +69,20 @@ int fn_800DDB14(void* ptr) {
 
 } // extern "C"
 
-// NONMATCHING: 99% - the counter of the KPADEnableAimingMode loop is r31 in the original (r30 here); tried shared
-// counters, pointer loops and declaration orders.
+// inferred: aiming mode on for every channel (name invented)
+static inline void EnableAimingAll_unk() {
+    for (int i = 0; i < 4; i++) {
+        KPADEnableAimingMode(i);
+    }
+}
+
 WPad_unk::WPad_unk() {
     mRepeatDelay = 15;
     mRepeatInterval = 5;
     mPointerEnabled = 0;
     m40BC = 0;
     mSensitivity = 5;
-    fn_8065F530(fn_800DDAC4, fn_800DDB14);
+    WPADRegisterAllocator(fn_800DDAC4, fn_800DDB14);
     KPADInit();
     for (int j = 0; j < 4; j++) {
         KPADSetConnectCallback(j, fn_800DDA34);
@@ -101,9 +106,7 @@ WPad_unk::WPad_unk() {
     m40D0[3] = 1;
     memset(m40E0, 0, sizeof(m40E0));
     memset(mStatus, 0, sizeof(mStatus));
-    for (int k = 0; k < 4; k++) {
-        KPADEnableAimingMode(k);
-    }
+    EnableAimingAll_unk();
     KPADStatus_unk* p = mStatus[0];
     for (int i = 0; i < 4; i++, p += 16) {
         KPADRead(i, p, 16);

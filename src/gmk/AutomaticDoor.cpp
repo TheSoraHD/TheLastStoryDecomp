@@ -120,17 +120,20 @@ AutomaticDoor::~AutomaticDoor() {
     }
 }
 
-// NONMATCHING: 99.81% - the ready flag gets r30 instead of r31 (tried int/bool and an inline test)
+// inferred: the texture is loaded (name invented)
+static inline int IsTextureReady_unk(atn::Texture_unk& tex) {
+    int ready = 0;
+    if (tex.mImage != 0 ||
+        (((GimmickUvOwner_unk*)&tex)->fn_800D59B8() == 0 && ((atn::LoadHandle*)&tex.m20)->fn_80473EFC() == 3)) {
+        ready = 1;
+    }
+    return ready;
+}
+
 int AutomaticDoor::vf0C() {
     if (fn_803EC91C() == 0) {
         fn_803EDB18(&mModel);
-        int ready = 0;
-        if (mTexture.mImage != 0 ||
-            (((GimmickUvOwner_unk*)&mTexture)->fn_800D59B8() == 0 &&
-             ((atn::LoadHandle*)&mTexture.m20)->fn_80473EFC() == 3)) {
-            ready = 1;
-        }
-        if (ready != 0) {
+        if (IsTextureReady_unk(mTexture)) {
             CreateCamera_unk(&mModel);
         }
         if (strlen(mBoundNode.mStr) != 0 && mModel.mB0 < 0) {
