@@ -1526,6 +1526,127 @@ inline atn::Vector3 HitCenterAt_unk(CharaTask* chara, int index) {
     return center;
 }
 
+// inferred: direct hit of `attacker` with `hit` (id `id`, `frames`) on the sphere `index` of `chara`: the attack
+// parameters m38A5C (point on the surface of the sphere toward `attacker`; level of the attacker plus the hit
+// against `chara`, raised by the critical and combo states and the count of the control, lowered by some states
+// of `chara`, or the fixed level of the hit; push away from `attacker`, scaled by GameConfig::mForceRatio with a
+// minimum for the characters with mFlag10) go through fn_800FDF14. C name, called by CharaTask as extern "C"
+// NONMATCHING: 98.7% - stack slots of the rotation matrices (allocated the other way, as in fn_800FD658)
+extern "C" void fn_800FC410(BattleTask* mgr, CharaTask* attacker, CharaTask* chara, int index, HitInfo_unk* hit, int id,
+                            int frames) {
+    fn_800E2A24(&mgr->m38A5C);
+    mgr->m38A5C.m00 = (int)attacker; // inferred: the field is an int (see fn_800FD658)
+    mgr->m38A5C.m04 = chara;
+    mgr->m38A5C.m40 = index;
+    mgr->m38A5C.m08 = hit;
+    atn::Vector3 dir = attacker->mPos - HitCenterAt_unk(chara, index);
+    if (!((float)__fabs(PSVECSquareMag(&dir)) < 1.1920929e-7f)) {
+        PSVECNormalize(&dir, &dir);
+        dir *= chara->m5B0;
+        mgr->m38A5C.m1C = dir + HitCenterAt_unk(chara, index);
+    } else {
+        float radius = chara->m5B0;
+        dir.x = 0.0f;
+        dir.y = 0.0f;
+        dir.z = radius;
+        atn::Matrix3x4 m;
+        m.SetIdentity();
+        if (0.0f != chara->mRot.z) {
+            atn::Matrix3x4::RotateAxis_unk(m, 'z', chara->mRot.z);
+        }
+        if (0.0f != chara->mRot.y) {
+            atn::Matrix3x4::RotateAxis_unk(m, 'y', chara->mRot.y);
+        }
+        if (0.0f != chara->mRot.x) {
+            atn::Matrix3x4::RotateAxis_unk(m, 'x', chara->mRot.x);
+        }
+        PSMTXMultVec(m.m, &dir, &dir);
+        mgr->m38A5C.m1C = dir + HitCenterAt_unk(chara, index);
+    }
+    atn::Vector3 n = dir;
+    PSVECNormalize(&n, &n);
+    mgr->m38A5C.m28 = atn::Vector3(-n.x, -n.y, -n.z);
+    mgr->m38A5C.m34 = id;
+    mgr->m38A5C.m38 = frames;
+    if (attacker != 0 && attacker->m648 != 0) {
+        mgr->m38A5C.m3C = attacker->m648->m04;
+    }
+    mgr->m38A5C.m44 = 0;
+    int level = attacker->mStatus.mParamB.m30 + hit->m3C - chara->mStatus.mParamB.m34;
+    mgr->m38A5C.m54 = attacker->fn_8017A228(0);
+    mgr->m38A5C.m58 = attacker->fn_8017A228(1);
+    bool fixed = false;
+    if (attacker->m59D) {
+        if (attacker->m598 == 0) {
+            level = 1;
+            fixed = true;
+        } else if (attacker->m598 == 1 && lbl_8087F610 == 0) {
+            level++;
+        }
+    }
+    if (attacker->mStatus.fn_80134234()) {
+        int count = 1;
+        if (attacker->mControl.get() != 0) {
+            count = attacker->mControl->vf2C();
+        }
+        if (count > 0) {
+            if (attacker->m598 + 1 < count) {
+                level = 1;
+                fixed = true;
+            } else if (lbl_8087F610 == 0) {
+                level++;
+            }
+        }
+    }
+    if (attacker->m59E) {
+        mgr->m38A5C.m0C |= 0x80;
+        if (!fixed) {
+            level++;
+        }
+    }
+    if (attacker->m59F) {
+        mgr->m38A5C.m0C |= 0x4000;
+    }
+    if (level <= 4 && chara != 0 && chara->mFlagB16) {
+        int lower = level - 1;
+        level = 1;
+        if (lower > 1) {
+            level = lower;
+        }
+    }
+    if (attacker != 0 && chara != 0 && chara->fn_801789D8(0, 0x400000)) {
+        if (level <= 4) {
+            level = MAX(level - 2, 0);
+        } else {
+            level = MAX(level - 1, 0);
+        }
+    }
+    if (hit != 0 && (hit->mAC & 0x400000) == 0x400000) {
+        level = hit->m3C;
+    }
+    mgr->m38A5C.m5C = attacker->m5A0;
+    float scale = fn_8010B250(mgr, level, &mgr->m38A5C);
+    mgr->m38A5C.m10 = chara->mPos - attacker->mPos;
+    if (!((float)__fabs(PSVECSquareMag(&mgr->m38A5C.m10)) < 1.1920929e-7f)) {
+        PSVECNormalize(&mgr->m38A5C.m10, &mgr->m38A5C.m10);
+    } else {
+        atn::Vector3 v(0.0f, 0.0f, 1.0f);
+        Mtx m;
+        PSMTXRotRad(m, 'y', chara->mRot.y);
+        PSMTXMultVec(m, &v, &v);
+        mgr->m38A5C.m10 = atn::Vector3(-v.x, -v.y, -v.z);
+    }
+    mgr->m38A5C.m10 *= scale;
+    if (chara->mFlag10 && PSVECSquareMag(&mgr->m38A5C.m10) > 0.01f) {
+        mgr->m38A5C.m10 *= lbl_8087F0A8->mForceRatio;
+        if (PSVECMag(&mgr->m38A5C.m10) < 0.11f) {
+            PSVECNormalize(&mgr->m38A5C.m10, &mgr->m38A5C.m10);
+            mgr->m38A5C.m10 *= 0.11f;
+        }
+    }
+    mgr->fn_800FDF14(&mgr->m38A5C);
+}
+
 // inferred: the bullet `data` (id `id`) of `attacker` hits the sphere `index` of `chara` at `pos`: the attack
 // parameters m38A5C (point on the surface of the sphere toward `pos`, or along the facing of `chara`; push away
 // from `pos` scaled by the level of the bullet against `chara`; no push for the bullet 0x139 of a character with

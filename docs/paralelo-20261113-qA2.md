@@ -37,6 +37,9 @@ Funciones al 0 % al empezar: BattleTask 29, TacView 6, BattleCharaTask 1.
     el `BattleCalcParam_unk*` de salida (copia de m38A5C), el decimo float no se lee. Inline nuevo
     `HitCenterAt_unk` (como `HitCenter_unk` con indice); `BattleDamage_unk`/`fn_80108C10`/`fn_8010B250` suben
     delante.
+  - `fn_800FC410` (golpe directo de un personaje contra la esfera `index`; 98,7 %: huecos de las matrices de giro,
+    como fn_800FD658). Lee `mControl->vf2C()` (numero de ventanas de golpe), `m598`/`m59D`/`m59E`/`m59F`/`m5A0`
+    del atacante y `GameConfig_unk::mForceRatio`.
 
 ## Decisiones tomadas sin el usuario
 
@@ -66,6 +69,8 @@ Funciones al 0 % al empezar: BattleTask 29, TacView 6, BattleCharaTask 1.
   `fn_80210220`: el tipo `HateParamEntry_unk` es local de `db/HateParam_unk.cpp` (otra cola). Pendiente: cabecera.
 
 ## Hallazgos
+
+- `int n = 1; if (p) n = p->vf();` da el `li r4, 1` antes de la llamada; el ternario lo pone despues (fn_800FC410).
 
 - Arrays separados (`a[5]`, `b[5]`) en vez de uno con `a[5 + i]` dan los punteros de bucle del original; con
   `(&arr[k])[i]` tambien se reduce el indice (fn_800F3170/fn_800F3490).
