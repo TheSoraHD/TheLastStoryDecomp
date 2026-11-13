@@ -1,6 +1,6 @@
 # Lote paralelo 2026-11-13, cola A (Batalla)
 
-Inicio: 2026-11-13 01:01 CET. Rama `agent-A`. Unidades: `game/BattleTask`, `game/TacView`, `game/BattleCharaTask`.
+Inicio: 2026-11-13 01:01 CET; cierre 02:55 CET. Rama `agent-A`. Unidades: `game/BattleTask`, `game/TacView`, `game/BattleCharaTask`.
 Funciones al 0 % al empezar: BattleTask 51, TacView 6, BattleCharaTask 1.
 
 ## Resultado por unidad
@@ -10,10 +10,12 @@ Funciones al 0 % al empezar: BattleTask 51, TacView 6, BattleCharaTask 1.
   - `fn_800FC1D0` (esfera de golpe mas cercana; miembro nuevo de `BattleTask`, renombrado en `symbols.txt`;
     100 % tras `pd.sh`).
   - `fn_800FBE70` (igual con radio y capsula de colision; 100 % tras `pd.sh`).
-  - `fn_800FB1BC` (efecto, sonido, sub-habilidad y evento 15 de un golpe; 98 %).
-  - `fn_800FBA9C` (esfera alcanzada por el arco cuerpo a cuerpo; 99,8 %).
-  - `fn_800FB4B0` (explosion sobre jugadores y enemigos en el radio, sube la barra m38A04; 99 %).
-  - `fn_800FD658` (rellena `m38A5C` con el punto y la direccion del golpe y llama a `fn_800FDF14`; 95 %).
+  - `fn_800FB1BC` (efecto, sonido, sub-habilidad y evento 15 de un golpe; 98,3 %).
+  - `fn_800FBA9C` (esfera alcanzada por el arco cuerpo a cuerpo; 99,96 %).
+  - `fn_800FB4B0` (explosion sobre jugadores y enemigos en el radio, sube la barra m38A04; 97,6 %).
+  - `fn_800FD658` (rellena `m38A5C` con el punto y la direccion del golpe y llama a `fn_800FDF14`; 91,4 %).
+  - `fn_800FAB80` (prueba de impacto de una bala contra personajes y gimmicks, efectos, barra y anillo de depuracion
+    `mShots`; 96,9 %). Con ella salen las copias debiles `GimmickCommon::vf58`/`vf44` (0x800FA4EC/0x800FA4F4, 100 %).
   - `fn_800FDB20` (golpe de bala: popup de guardia o `m38A5C` con el nivel de la bala; 99,95 %).
   - `BattleTask::fn_80103600` (eleccion del objetivo por odio, 100 %) y `BattleTask::fn_80103B58` (el objetivo es
     valido, 100 %): miembros nuevos, renombrados en `symbols.txt`.
@@ -34,8 +36,6 @@ Funciones al 0 % al empezar: BattleTask 51, TacView 6, BattleCharaTask 1.
   `fn_80101CDC`); `report.json` 15232 -> 15241. `mnemcheck.py` limpio en todas las nuevas al 100 %; las NONMATCHING no tienen
   saltos ni comparaciones desalineados (revisado con `odiff2.py`).
 - TacView (6) y BattleCharaTask (1): sin tocar (funciones de 2-8 KB; `fn_805ADB28` solo sale con `fn_805AC758`).
-  - `fn_800FAB80` (prueba de impacto de una bala contra personajes y gimmicks, efectos, barra y anillo de depuracion
-    `mShots`; 96,9 %). Con ella salen las copias debiles `GimmickCommon::vf58`/`vf44` (0x800FA4EC/0x800FA4F4, 100 %).
 
 ## NONMATCHING
 
