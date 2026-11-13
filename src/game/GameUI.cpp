@@ -3144,6 +3144,90 @@ extern "C" void fn_803DD90C(atn::D2A_Task* task, int job) {
     }
 }
 
+// inferred: colour parameter of a d2anime instance from a colour of the table (see SetWindowColor_unk)
+inline void SetInstColor_unk(GameUIInst_unk* inst, const char* name, const atn::Color& c) {
+    atn::D2A_RGB_unk rgb;
+    rgb.r = c.r;
+    rgb.g = c.g;
+    rgb.b = c.b;
+    inst->SetColor255_unk(name, rgb);
+}
+
+// inferred: job icon of a d2anime instance by job index (UV of the icon and its colours; 10 jobs)
+// NONMATCHING: the copy of each colour (the original passes the whole atn::Color to SetColor255_unk) and
+// registers
+extern "C" void fn_803DDD54(GameUIInst_unk* inst, int job) {
+    atn::Color* colors = lbl_807C8628;
+    switch (job) {
+    case 0:
+        fn_801F7590(inst, "jobUv01ma", atn::Color(0.75f, 0.0f, 1.0f, 0.25f));
+        fn_801F7590(inst, "jobUv01mb", atn::Color(0.75f, 0.0f, 1.0f, 0.25f));
+        SetInstColor_unk(inst, "jobCol01a", colors[0]);
+        SetInstColor_unk(inst, "jobGradation", colors[0]);
+        break;
+    case 1:
+        fn_801F7590(inst, "jobUv01ma", atn::Color(0.5f, 0.0f, 0.75f, 0.25f));
+        fn_801F7590(inst, "jobUv01mb", atn::Color(0.5f, 0.0f, 0.75f, 0.25f));
+        SetInstColor_unk(inst, "jobCol01a", colors[4]);
+        SetInstColor_unk(inst, "jobGradation", colors[4]);
+        break;
+    case 2:
+        fn_801F7590(inst, "jobUv01ma", atn::Color(0.25f, 0.5f, 0.5f, 0.75f));
+        fn_801F7590(inst, "jobUv01mb", atn::Color(0.25f, 0.5f, 0.5f, 0.75f));
+        SetInstColor_unk(inst, "jobCol01a", colors[6]);
+        SetInstColor_unk(inst, "jobGradation", colors[6]);
+        break;
+    case 3:
+        fn_801F7590(inst, "jobUv01ma", atn::Color(0.25f, 0.0f, 0.5f, 0.25f));
+        fn_801F7590(inst, "jobUv01mb", atn::Color(0.25f, 0.0f, 0.5f, 0.25f));
+        SetInstColor_unk(inst, "jobCol01a", colors[2]);
+        SetInstColor_unk(inst, "jobGradation", colors[2]);
+        break;
+    case 4:
+        fn_801F7590(inst, "jobUv01ma", atn::Color(0.25f, 0.0f, 0.5f, 0.25f));
+        fn_801F7590(inst, "jobUv01mb", atn::Color(0.25f, 0.0f, 0.5f, 0.25f));
+        SetInstColor_unk(inst, "jobCol01a", colors[3]);
+        SetInstColor_unk(inst, "jobGradation", colors[3]);
+        break;
+    case 5:
+        fn_801F7590(inst, "jobUv01ma", atn::Color(0.25f, 0.25f, 0.5f, 0.5f));
+        fn_801F7590(inst, "jobUv01mb", atn::Color(0.25f, 0.25f, 0.5f, 0.5f));
+        SetInstColor_unk(inst, "jobCol01a", colors[7]);
+        SetInstColor_unk(inst, "jobGradation", colors[7]);
+        break;
+    case 6:
+        fn_801F7590(inst, "jobUv01ma", atn::Color(0.5f, 0.25f, 0.75f, 0.5f));
+        fn_801F7590(inst, "jobUv01mb", atn::Color(0.5f, 0.25f, 0.75f, 0.5f));
+        SetInstColor_unk(inst, "jobCol01a", colors[8]);
+        SetInstColor_unk(inst, "jobGradation", colors[8]);
+        break;
+    case 7:
+        fn_801F7590(inst, "jobUv01ma", atn::Color(0.75f, 0.25f, 1.0f, 0.5f));
+        fn_801F7590(inst, "jobUv01mb", atn::Color(0.75f, 0.25f, 1.0f, 0.5f));
+        SetInstColor_unk(inst, "jobCol01a", colors[9]);
+        SetInstColor_unk(inst, "jobGradation", colors[9]);
+        break;
+    case 8:
+        fn_801F7590(inst, "jobUv01ma", atn::Color(0.0f, 0.5f, 0.25f, 0.75f));
+        fn_801F7590(inst, "jobUv01mb", atn::Color(0.0f, 0.5f, 0.25f, 0.75f));
+        SetInstColor_unk(inst, "jobCol01a", colors[11]);
+        SetInstColor_unk(inst, "jobGradation", colors[11]);
+        break;
+    case 9:
+        fn_801F7590(inst, "jobUv01ma", atn::Color(0.0f, 0.25f, 0.25f, 0.5f));
+        fn_801F7590(inst, "jobUv01mb", atn::Color(0.0f, 0.25f, 0.25f, 0.5f));
+        SetInstColor_unk(inst, "jobCol01a", colors[10]);
+        SetInstColor_unk(inst, "jobGradation", colors[10]);
+        break;
+    default:
+        fn_801F7590(inst, "jobUv01ma", atn::Color(0.75f, 0.0f, 1.0f, 0.25f));
+        fn_801F7590(inst, "jobUv01mb", atn::Color(0.75f, 0.0f, 1.0f, 0.25f));
+        SetInstColor_unk(inst, "jobCol01a", colors[5]);
+        SetInstColor_unk(inst, "jobGradation", colors[5]);
+        break;
+    }
+}
+
 // NONMATCHING: 95.5% - register allocation: the original keeps the zero of the first loop in r31 and
 // reuses it as the offset into m10D4 (this in r30); here this stays in r31 (4 variants)
 void GameUI::fn_803DE648() {

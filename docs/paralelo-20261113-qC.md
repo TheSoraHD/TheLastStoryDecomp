@@ -23,6 +23,9 @@ Unidades: `game/GameUI`, `game/MiniMapTask`, `game/PopupTask`.
   limpio); `fn_803DF5B4` pasa a `__declspec(noinline)` (el original la llama
   con `bl` y MWCC la inlineaba).
 - `GameUI::fn_803D2194` (oculta y para el resto del HUD) 99,9 %: el bucle desenrollado cruza r4/r5.
+- `fn_803DDD54` (icono de oficio de una instancia `<32, 8>` por indice, `switch` de 10 casos; la tabla de
+  `.data` 0x8078BE40 es su tabla de saltos, no una tabla de datos) 69 %: la copia de los colores
+  (`SetColor255_unk` con `D2A_RGB_unk`, ver pendientes).
 
 ## NONMATCHING nuevas
 
