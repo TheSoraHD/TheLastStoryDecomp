@@ -2,14 +2,21 @@
 
 Inicio: 2026-11-13 07:19 CET. Tope 09:49.
 
+Total: funciones al 0 % (sin escribir) de la cola 18 -> 6 (Puppeteer_CharaTask 14 -> 6, ActionActorPosition 4 -> 0);
+las 6 que quedan son copias debiles de libreria o de otras cabeceras (`Model::CalcMatrixStack`, destructor de
+`SimpleVector<PoseKey_unk>`, `atn::Task::vf18`, `basic_string::reserve/do_replace`, `dtor_80014250`).
+Nuevas al 100 %: `fn_80010B68`, `fn_800119C0`, `PoseKey_unk::PoseKey_unk`, `fn_80012AC4`, `fn_8001011C`,
+`Puppeteer<atn::Model>::vf10` (Puppeteer_CharaTask 82 -> 88/111). `report.json` 15314 -> 15320, lost 0, sin
+bajadas. Ninguna unidad pasa a enlazar. 11 commits.
+
 ## Resultado por unidad (funciones al 0 % / sin escribir, antes -> despues)
 
-- `Event/Puppeteer_CharaTask`: 14 -> ... (82 -> 83 al 100 %).
+- `Event/Puppeteer_CharaTask`: 14 -> 6 (82 -> 88 al 100 %).
   - `Actor::fn_80010B68` (rotacion del actor; para modelo y dummy, del eje z de su matriz) 100 %: metodo
     `const` (renombrado en `symbols.txt` a `fn_80010B68__Q25Event5ActorCFv`), punteros locales por caso,
     `GetRow_unk(2).ToRotationZ_unk()` y `operator-` inline (como en gmk/Cannonball).
-  - `Actor::fn_80010490` (pone la rotacion; modelo y dummy conservan la traslacion) 97,6 % y
-    `Actor::fn_80011420` (rotacion en y) 99,0 %: el mismo cuerpo en el inline `Actor::SetRotation_unk`
+  - `Actor::fn_80010490` (pone la rotacion; modelo y dummy conservan la traslacion) 97,8 % y
+    `Actor::fn_80011420` (rotacion en y) 99,2 %: el mismo cuerpo en el inline `Actor::SetRotation_unk`
     (el original lo inlinea en las dos).
   - `Actor::fn_800119C0` (motion de un gesto, Event::BehaviorGesture) 100 %: el getter del modelo como inline
     `Actor::GetModel_unk` (mismo codigo que fn_8001296C, con `?:` en el caso 2) y la pista en una local con
@@ -48,9 +55,9 @@ Inicio: 2026-11-13 07:19 CET. Tope 09:49.
 
 - `Puppeteer<CharaTask>::vf10` 93,0 %: registros salvados (r27-r31 aqui), el bloque de m54 colocado tras la
   llamada y las copias de las traslaciones por temporales de pila.
-- `fn_80010490` 97,8 % (99,2 % `fn_80011420`, con `GetTarget_unk()` para la traslacion): el original guarda this/rot en r28/r29 y la matriz y el modelo del caso 3 en r31/r30
+- `fn_80010490` 97,8 %: el original guarda this/rot en r28/r29 y la matriz y el modelo del caso 3 en r31/r30
   (aqui comparten registro); matriz del caso 3 arriba del marco.
-- `fn_80011420` 99,0 %: huecos de las matrices de rotacion (0x30 mas arriba aqui).
+- `fn_80011420` 99,2 %: huecos de las matrices de rotacion (0x30 mas arriba aqui).
 - `fn_80013558` 97,7 %: el `push_back` inline de `std::vector<ColorF_unk>` (std/vector.h, otra familia: el
   original mueve los elementos con un bucle contado) y huecos de pila de los dos colores (invertidos).
 
@@ -75,8 +82,11 @@ Inicio: 2026-11-13 07:19 CET. Tope 09:49.
   `inline void SetRotation_unk(const atn::Vector3&)` e `inline atn::Model* GetModel_unk()` sin nombre de
   parametro (no renumeran). Llamadores de
   `fn_80010B68` (Event/Path, Event/ActionActorPosition) sin cambios en el fuente; el nombre en `symbols.txt`.
-- `@15509`/`@15510` (0.0f/1.0f de `.sdata2` de la unidad) renombrados a mano (pd.sh no los renombra): ahora
-  `@17892`/`@17893` (con `Puppeteer<CharaTask>::vf10` escrita, `pd.sh` ya los renombra).
+- `@15509`/`@15510` (0.0f/1.0f de `.sdata2` de Puppeteer_CharaTask) renombrados a mano en cada re-emparejado
+  mientras ninguna funcion escrita los usaba primero (pd.sh no los renombraba): ahora `@17892`/`@17893`; con
+  `Puppeteer<CharaTask>::vf10` escrita `pd.sh` ya los renombra solo.
+- `include/Event/Actor.h`: `inline void SetRotation_unk` y `inline atn::Model* GetModel_unk` son miembros nuevos
+  (declarados sin nombre de parametro, definidos en Event/Puppeteer_CharaTask.cpp).
 
 - `Event/Actor.h`: bits de `m18` (MSB primero) detallados: `m18_0` estado guardado, `m18_8` (8 bits) modo de
   control, `m18_16..22` bits guardados del personaje; `ActorAnim_unk::m0C` int. Las dos posiciones guardadas
