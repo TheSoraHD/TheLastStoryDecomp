@@ -122,6 +122,7 @@ public:
     void fn_8038A1B8(const CharaTask* chara); // inferred: forced update of the current mode
     void fn_8038A1D8(const CharaTask* chara); // inferred: the character is not used (mode table entry)
     void fn_80390374(); // inferred: goes back to the mode m804
+    void fn_8038F52C(CharaTask*); // inferred: chooses the mode from the action of the character
     void fn_803903E0(const atn::Vector3* target, float angle, int arg); // inferred: turns toward `target`
     void fn_80392C94(GameCameraState_unk* state) const; // inferred: saves the mode
     void fn_80392CE0(const GameCameraState_unk* state); // inferred: restores it

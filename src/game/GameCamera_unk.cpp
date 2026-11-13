@@ -15,6 +15,10 @@
 #include "chr/CharaEquip_unk.h"
 #include "math/VecAssign_unk.h"
 #include "game/SetConfig.h"
+#include "game/HitInfo_unk.h"
+#include "game/ChaseManager.h"
+#include "game/Input_unk.h"
+#include "chr/ControlBase.h"
 
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 extern "C" GameConfig_unk* lbl_8087F0A8;
@@ -34,6 +38,23 @@ extern "C" float lbl_8087DCF8;
 // unit: a global float initialized to zero only stays in .sdata with explicit_zero_data)
 extern "C" float lbl_8087DCFC;
 extern "C" float lbl_8087DD00;
+// inferred: ends of the blends of the special motions of fn_8038F52C (.sdata of this unit: 0.0f, 0.0f, -6.0f,
+// -6.0f, 0.4f, 1.0f, 0.8f, 0.4f, 0.0f, 1.0f, 0.8f, 0.6f, 1.0f)
+extern "C" float lbl_8087DD04;
+extern "C" float lbl_8087DD08;
+extern "C" float lbl_8087DD0C;
+extern "C" float lbl_8087DD10;
+extern "C" float lbl_8087DD14;
+extern "C" float lbl_8087DD18;
+extern "C" float lbl_8087DD1C;
+extern "C" float lbl_8087DD20;
+extern "C" float lbl_8087DD24;
+extern "C" float lbl_8087DD28;
+extern "C" float lbl_8087DD2C;
+extern "C" float lbl_8087DD30;
+extern "C" float lbl_8087DD34;
+class TownTask;
+extern "C" TownTask* lbl_8087FA20; // inferred: town task (game/TownTask.h)
 // .sdata of this unit: lbl_8087DCF0..lbl_8087DD00 are global floats (0.0f except lbl_8087DCF8); a zero
 // initializer goes to .sbss without explicit_zero_data, so they stay extern for now
 
@@ -647,8 +668,8 @@ extern "C" inline float fn_801C3910(const atn::Vector3& v) {
 extern "C" inline float fn_801A03E8(const atn::Vector3& a, const atn::Vector3& b) {
     return PSVECDotProduct(&a, &b);
 }
-extern "C" inline float fn_800F8524(const float* a, const float* b, float t) {
-    return t * (*b - *a) + *a;
+extern "C" inline float fn_800F8524(const float& a, const float& b, float t) {
+    return t * (b - a) + a;
 }
 extern "C" inline void fn_8032EC94(int* p) {
     *p = 0;
@@ -764,10 +785,10 @@ void GameCamera::fn_80387910(const CharaTask* chara) {
     dist = (target - pos).Length_unk();
     if (dist > 0.1f) {
         float camDist = fn_80385B40(this);
-        dist = fn_800F8524(&camDist, &dist, 0.4f);
+        dist = fn_800F8524(camDist, dist, 0.4f);
         float pitch = fn_80383728(this).ToRotation_unk().x;
         atn::Vector3 r = (target - pos).ToRotation_unk();
-        r.x = fn_800F8524(&pitch, &r.x, 0.4f);
+        r.x = fn_800F8524(pitch, r.x, 0.4f);
         atn::Matrix3x4 m = fn_800109E0(r);
         dir = atn::Vector3(0.0f, 0.0f, 1.0f).Transform_unk(m);
         pos = target - dir * dist;
@@ -2159,8 +2180,331 @@ void GameCamera::fn_8038EF94(const GameCameraParam_unk* param, int mode) {
     }
 }
 
-void GameCamera::fn_80390374() {
+// ---- fn_8038F52C: camera mode from the action of the character (over the inlining budget: the accessors
+// are weak copies) ----
+// inferred: accessors of the character and of the singletons (weak copies; C names: the method names are
+// unknown)
+extern "C" inline int fn_8038B648(CharaTask* chara) {
+    return chara->mC48;
+}
+extern "C" inline int fn_80267B20(CharaTask* chara) {
+    return chara->m55C;
+}
+extern "C" inline int fn_80267B28(CharaTask* chara) {
+    return chara->m560;
+}
+extern "C" inline atn::Model* fn_800F84C8(CharaTask* chara) {
+    return (atn::Model*)&chara->mMotion;
+}
+extern "C" inline chr::ControlBase* fn_80387540(CharaTask* chara) {
+    return chara->mControl.get();
+}
+extern "C" inline HitInfo_unk* fn_80339F6C(CharaTask* chara) {
+    return chara->m638;
+}
+extern "C" inline int fn_80382A00(CharaTask* chara) {
+    return chara->m58C;
+}
+extern "C" inline TownTask* fn_803830A0() {
+    return lbl_8087FA20;
+}
+extern "C" inline ChaseManager* fn_803903C4() {
+    return lbl_8087F098;
+}
+extern "C" inline int fn_803903CC(ChaseManager* mgr) {
+    return mgr->mState != 0;
+}
+// inferred: camera part of SetConfig (from mAttackTurnSpeed; as in Event/Path.cpp, weak copies 0x801156C4 and
+// 0x801156D8); names invented
+struct CameraConfig_unk {
+    float m00; // inferred: SetConfig::mAttackTurnSpeed
+};
+inline SetConfig* GetSetConfig_unk() {
+    return SetConfig::sInstance;
+}
+inline CameraConfig_unk* GetCameraConfig_unk(SetConfig* config) {
+    return (CameraConfig_unk*)&config->mAttackTurnSpeed;
+}
+// inferred: settings (lbl_8087F0A8) and field (lbl_8087F430) as the accessors of other files see them (as in
+// game/CharaTask.cpp and game/GameUI.cpp)
+struct Settings_unk {
+    Input_unk* fn_80116BAC(); // inferred: pad (this + 0x48C)
+};
+extern "C" Settings_unk* fn_800F52F8(); // inferred: returns lbl_8087F0A8
+struct Field_unk {
+    GameScene* fn_8013C504(); // inferred: scene of the field
+};
+extern "C" Field_unk* fn_80121F00(); // inferred: returns lbl_8087F430
+
+inline void GameCamera::fn_80390374() {
     fn_80389838(m804);
+}
+
+// inferred: chooses the camera mode from the state (m55C) and the control (m560) of `chara` (GameTask): hanging,
+// attacks, special motions; some controls change the parameters of the hips mode (m51C) through m46C
+void GameCamera::fn_8038F52C(CharaTask* chara) {
+    int set = 0;
+    if (m7FC != 6 && m7FC != 19) {
+        if (chara->fn_8013C3A8()) {
+            if (fn_8038B648(chara)) {
+                fn_80389838(3);
+            } else {
+                fn_80389838(2);
+            }
+        } else if (chara->fn_801479D8()) {
+            fn_80389838(4);
+        } else if (fn_80267B20(chara) == 6) {
+            switch (fn_80267B28(chara)) {
+            case 13:
+            case 33:
+            case 34:
+                fn_80389838(5);
+                break;
+            case 14: {
+                float frame = fn_800F84C8(chara)->GetMotionFrame(0);
+                float len = fn_800F84C8(chara)->fn_80097D7C(0);
+                GameCameraParam_unk p(m51C);
+                p.m00 *= 1.6f;
+                p.m04 *= 1.1f;
+                p.m08 = atn::DegToRad_unk(25.0f);
+                m46C.fn_8037E89C(3, p, 1.0f);
+                m46C.mParam.m00 = p.m00;
+                set = 1;
+                m46C.mParam.m04 = p.m04;
+                m46C.mParam.m08 = p.m08;
+                fn_80390374();
+                fn_8037EF30(0, 0, -1.0f);
+                break;
+            }
+            case 29:
+                if (fn_80387540(chara) && fn_80387540(chara)->vf58()) {
+                    fn_80389838(4);
+                } else {
+                    fn_80389838(5);
+                }
+                break;
+            case 30:
+            case 31:
+                if (fn_80339F6C(chara) && (int)fn_80339F6C(chara)->m02 == 4) {
+                    fn_80390374();
+                }
+                break;
+            case 11:
+            case 15:
+            case 16:
+                fn_80389838(7);
+                break;
+            case 8:
+            case 24:
+            case 25:
+            case 26:
+            case 27:
+            case 41:
+            case 58:
+            case 84:
+                fn_80390374();
+                fn_8037EF30(0, 1, -1.0f);
+                break;
+            case 23:
+                fn_80390374();
+                if (fn_80382A00(chara) != 2 || !chara->fn_8015EB2C()) {
+                    fn_8037EF30(0, 0, -1.0f);
+                }
+                break;
+            case 40: {
+                GameCameraParam_unk p(m51C);
+                p.m0C = 0.0f;
+                m46C.fn_8037E89C(2, p, 0.1f);
+                set = 1;
+                fn_80390374();
+                fn_8037EF30(0, 0, -1.0f);
+                break;
+            }
+            case 4:
+            case 48:
+            case 50:
+                fn_80390374();
+                fn_8037EF30(0, 0, GetCameraConfig_unk(GetSetConfig_unk())->m00);
+                break;
+            case 113:
+            case 115:
+                fn_80389838(13);
+                break;
+            case 76:
+                fn_80389838(14);
+                break;
+            case 77:
+                fn_80389838(15);
+                break;
+            case 81:
+                fn_80389838(20);
+                fn_8037EF30(1, 1, -1.0f);
+                break;
+            case 110:
+            case 111:
+            case 112:
+                fn_80390374();
+                fn_8037EF30(1, 1, -1.0f);
+                break;
+            case 9:
+            case 10:
+            case 95: {
+                GameCameraParam_unk p(m51C);
+                p.m04 *= 0.7f;
+                m46C.fn_8037E89C(3, p, 0.1f);
+                set = 1;
+                fn_80390374();
+                fn_8037EF30(0, 0, -1.0f);
+                break;
+            }
+            case 141: {
+                float frame = fn_800F84C8(chara)->GetMotionFrame(0);
+                float len = fn_800F84C8(chara)->fn_80097D7C(0);
+                GameCameraParam_unk p(m51C);
+                if (fn_800F84C8(chara)->fn_80139F2C(0) == 0x16E) {
+                    float from = -atn::DegToRad_unk(20.0f);
+                    float to = atn::DegToRad_unk(10.0f);
+                    if (frame > 33.0f) {
+                        p.m08 += fn_800F8524(from, to, GAMECAMERA_MIN_UNK(1.0f, (frame - 23.0f) / 4.0f));
+                    } else if (frame > 14.0f) {
+                        p.m08 += fn_800F8524(lbl_8087DD04, from, GAMECAMERA_MIN_UNK(1.0f, (frame - 14.0f) / 3.0f));
+                    }
+                    p.m04 *= 0.7f;
+                } else if (fn_800F84C8(chara)->fn_80139F2C(0) == 0x170) {
+                    float from = -atn::DegToRad_unk(10.0f);
+                    float to = atn::DegToRad_unk(5.0f);
+                    if (frame > 33.0f) {
+                        p.m08 += fn_800F8524(from, to, GAMECAMERA_MIN_UNK(1.0f, (frame - 23.0f) / 4.0f));
+                    } else if (frame > 14.0f) {
+                        p.m08 += fn_800F8524(lbl_8087DD08, from, GAMECAMERA_MIN_UNK(1.0f, (frame - 14.0f) / 3.0f));
+                    }
+                    if (frame > len - 13.0f) {
+                        float t = GAMECAMERA_MIN_UNK(1.0f, GAMECAMERA_MAX_UNK(0.0f, (frame - (len - 13.0f)) / 12.0f));
+                        p.m0C = fn_800F8524(lbl_8087DD0C, p.m0C, t);
+                        p.m34 = fn_800F8524(-atn::DegToRad_unk(7.0f), p.m34, t);
+                    } else {
+                        float t = GAMECAMERA_MAX_UNK(0.0f, GAMECAMERA_MIN_UNK(1.0f, (frame - 16.0f) / 10.0f));
+                        p.m0C = fn_800F8524(p.m0C, lbl_8087DD10, t);
+                        p.m34 = fn_800F8524(p.m34, -atn::DegToRad_unk(7.0f), t);
+                    }
+                    p.m04 *= 0.6f;
+                } else {
+                    float from = -atn::DegToRad_unk(15.0f);
+                    float to = atn::DegToRad_unk(0.0f);
+                    if (frame > len - 10.0f) {
+                        p.m00 *= fn_800F8524(lbl_8087DD14, lbl_8087DD18,
+                                             GAMECAMERA_MIN_UNK(1.0f, GAMECAMERA_MAX_UNK(0.0f, (frame - (len - 10.0f)) / 9.0f)));
+                        p.m08 = fn_800F8524(m46C.mParam.m08, p.m08,
+                                            GAMECAMERA_MIN_UNK(1.0f, (frame - (len - 10.0f)) / 6.0f));
+                    } else if (frame > 33.0f) {
+                        p.m08 += fn_800F8524(from, to, GAMECAMERA_MIN_UNK(1.0f, (frame - 23.0f) / 4.0f));
+                        p.m00 *= fn_800F8524(lbl_8087DD1C, lbl_8087DD20,
+                                             GAMECAMERA_MIN_UNK(1.0f, GAMECAMERA_MAX_UNK(0.0f, (frame - 33.0f) / 5.0f)));
+                    } else {
+                        p.m08 += fn_800F8524(lbl_8087DD24, from,
+                                             GAMECAMERA_MIN_UNK(1.0f, GAMECAMERA_MAX_UNK(0.0f, (frame - 14.0f) / 3.0f)));
+                        p.m00 *= fn_800F8524(lbl_8087DD28, lbl_8087DD2C,
+                                             GAMECAMERA_MIN_UNK(1.0f, GAMECAMERA_MAX_UNK(0.0f, frame / 5.0f)));
+                    }
+                }
+                m46C.fn_8037E89C(3, p, 0.1f);
+                m46C.mParam.m08 = GAMECAMERA_MAX_UNK(-atn::DegToRad_unk(25.0f), p.m08);
+                set = 1;
+                m46C.mParam.m04 = p.m04;
+                m46C.mParam.m00 = p.m00;
+                m46C.mParam.m0C = p.m0C;
+                m46C.mParam.m34 = p.m34;
+                fn_80390374();
+                fn_8037EF30(0, 1, -1.0f);
+                break;
+            }
+            case 121: {
+                GameCameraParam_unk p(m51C);
+                p.m00 = 45.0f;
+                p.m28 = 0.3f;
+                p.m0C = 25.0f;
+                p.m10 = 10.0f;
+                m46C.fn_8037E89C(3, p, 0.1f);
+                set = 1;
+                fn_80390374();
+                break;
+            }
+            case 138: {
+                GameCameraParam_unk p(m51C);
+                p.m00 = 45.0f;
+                p.m28 = 0.3f;
+                p.m0C = 25.0f;
+                p.m10 = 10.0f;
+                m46C.fn_8037E89C(3, p, 0.1f);
+                set = 1;
+                fn_80390374();
+                break;
+            }
+            case 132: {
+                GameCameraParam_unk p(m51C);
+                if (fn_800F84C8(chara)->GetMotionFrame(0) < 22.0f) {
+                    p.m00 *= 0.6f;
+                } else if (fn_800F84C8(chara)->GetMotionFrame(0) > 41.0f) {
+                    p.m00 *= GAMECAMERA_MAX_UNK(1.0f, 1.2f - 0.03f * (fn_800F84C8(chara)->GetMotionFrame(0) - 41.0f));
+                } else {
+                    p.m00 *= GAMECAMERA_MIN_UNK(1.2f, 0.15f * (fn_800F84C8(chara)->GetMotionFrame(0) - 22.0f) + 0.6f);
+                }
+                m46C.fn_8037E89C(3, p, 0.1f);
+                m46C.mParam.m00 = p.m00;
+                set = 1;
+                m46C.mParam.m0C = p.m0C;
+                fn_80390374();
+                fn_8037EF30(0, 0, -1.0f);
+                break;
+            }
+            case 139: {
+                GameCameraParam_unk p(m51C);
+                if (fn_800F84C8(chara)->GetMotionFrame(0) > fn_800F84C8(chara)->fn_80097D7C(0) - 8.0f) {
+                    p.m00 *= fn_800F8524(lbl_8087DD30, lbl_8087DD34,
+                                         GAMECAMERA_MIN_UNK(1.0f, (fn_800F84C8(chara)->GetMotionFrame(0) -
+                                                                   (fn_800F84C8(chara)->fn_80097D7C(0) - 8.0f)) /
+                                                                      8.0f));
+                } else {
+                    p.m00 *= 0.6f;
+                }
+                m46C.fn_8037E89C(3, p, 0.1f);
+                m46C.mParam.m00 = p.m00;
+                set = 1;
+                m46C.mParam.m0C = p.m0C;
+                fn_80390374();
+                fn_8037EF30(0, 0, -1.0f);
+                break;
+            }
+            case 129:
+                break;
+            default:
+                fn_80390374();
+                break;
+            }
+        } else if (fn_803830A0() && fn_800F52F8()->fn_80116BAC()->fn_801240B4(0x24)) {
+            fn_80389838(9);
+        } else if (fn_803903C4() && fn_803903CC(fn_803903C4())) {
+            fn_80389838(8);
+        } else if (fn_80121F00() && fn_80121F00()->fn_8013C504()) {
+            gs::CameraBox* box = fn_80121F00()->fn_8013C504()->fn_803C2048(chara);
+            if (box) {
+                if (box->m2C == 1) {
+                    fn_80389838(10);
+                } else if (box->m2C == 2) {
+                    fn_80389838(11);
+                } else {
+                    fn_80390374();
+                }
+            } else {
+                fn_80390374();
+            }
+        } else {
+            fn_80390374();
+        }
+    }
+    if (!set && m46C.mMode != 4) {
+        fn_8032EC94(&m46C.mMode);
+    }
 }
 
 
