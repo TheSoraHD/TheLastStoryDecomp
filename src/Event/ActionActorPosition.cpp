@@ -590,8 +590,6 @@ int ActionActorPosition::vf08(Action* arg) {
     return 0;
 }
 
-extern "C" void fn_80012540(Actor* actor, int arg);                 // inferred: stops the motions
-extern "C" void fn_80012294(Actor* actor, int track, int a, int b); // inferred: stops a track
 
 // inferred: free motion slot of the actor for `arg` (-1 if none)
 inline int AddMotionAction_unk(Actor* actor, Action* arg) {
@@ -623,7 +621,7 @@ int ActionActorMotion::vf0C(Action* arg, int phase) {
         int b2 = arg->GetParam_unk(9)->m04.i;
         int stop = arg->GetParam_unk(10)->m04.i;
         int c = arg->GetParam_unk(11)->m04.i;
-        fn_80012540(actor, stop);
+        actor->fn_80012540(stop);
         int slot = AddMotionAction_unk(actor, arg);
         if (slot == -1) {
             break;
@@ -633,7 +631,7 @@ int ActionActorMotion::vf0C(Action* arg, int phase) {
             actor->fn_800119C0(2, a2, b2, motion, manager, slot, c, blend2, speed2);
         } else {
             actor->fn_800119C0(0, a1, b1, motion, manager, slot, c, blend1, speed1);
-            fn_80012294(actor, 2, 0, 0);
+            actor->fn_80012294(2, 0, 0);
         }
         break;
     }
@@ -657,8 +655,6 @@ int ActionActorMotion::vf0C(Action* arg, int phase) {
     return 0;
 }
 
-// inferred: sets the facial expression of an actor (0x80011E98)
-extern "C" void fn_80011E98(Actor* actor, int face, EventManager_unk* manager, int a, int b, int c, float d);
 
 int ActionActorFacial::vf0C(Action* arg, int phase) {
     if (phase == 0) {
@@ -674,7 +670,7 @@ int ActionActorFacial::vf0C(Action* arg, int phase) {
         int b = arg->GetParam_unk(5)->m04.i;
         int c = arg->GetParam_unk(6)->m04.i;
         float d = arg->GetParam_unk(7)->m04.f;
-        fn_80011E98(actor, face, manager, a, b, c, d);
+        actor->fn_80011E98(face, manager, a, b, c, d);
     }
     return 0;
 }

@@ -17,6 +17,8 @@
 #include "game/GimmickManager.h"
 #include "game/GameScene.h"
 #include "game/GameTask.h"
+#include "Event/Action.h"
+#include "chr/CharaEquip_unk.h"
 
 extern "C" GameTask* lbl_8087F430; // inferred: the field
 
@@ -514,6 +516,85 @@ int Actor::vf10() const {
     return 1;
 }
 
+// inferred: as in Event/ActionActorPosition.cpp
+inline bool Actor::IsState6_unk() const {
+    return m20 == 6;
+}
+
+// inferred: an equipment part of the list is still loading (inlined; name invented)
+inline bool IsEquipLoading_unk(IntVector_unk& list) {
+    for (unsigned int i = 0; i < list.size(); i++) {
+        if (((chr::CharaEquip_unk*)list[i])->fn_8056405C() != 0) {
+            return true;
+        }
+    }
+    return false;
+}
+
+// inferred: update of the actor (Event::Sequence::vf10): weights of the motions played together, the
+// event flag of the character and the equipment parts waiting to be attached
+// NONMATCHING: 99.84% - registers of the attach loop (character r28 for r31, offset r31 for r29); tried a
+// new local, the character in the loop, the loop in an inline taking the character (character right,
+// weight loop registers swapped)
+void Actor::fn_8000EE8C() {
+    if (m1C == 0) {
+        return;
+    }
+    if (IsState6_unk()) {
+        return;
+    }
+    if (m18_7 == 1) {
+        return;
+    }
+    CharaTask* chara = fn_800128FC();
+    if (chara != 0 && GetSequence_unk()->m194 == 10) {
+        int frame = (int)GetSequence_unk()->m198;
+        float total = 0.0f;
+        int count = 0;
+        for (int i = 0; i < 3; i++) {
+            if (mB8[i] != 0) {
+                total += mB8[i]->fn_8053A2E8(mB8[i]->fn_805393A4(frame));
+                count++;
+            }
+        }
+        if (count >= 2) {
+            atn::Model* model = fn_8001296C();
+            model->m34C = 3;
+            for (int i = 0; i < 3; i++) {
+                if (mB8[i] == 0) {
+                    model->mTracks[i].m20 = 0.0f;
+                } else {
+                    model->mTracks[i].m20 = mB8[i]->fn_8053A2E8(mB8[i]->fn_805393A4(frame)) / total;
+                }
+            }
+        }
+    }
+    if (lbl_8087F430 == 0 && chara != 0) {
+        if (fn_8000DB1C()->m2384 != 0) {
+            if (GetSequence_unk()->m194 == 10) {
+                if (!chara->IsFlag54C_unk(0x200000)) {
+                    chara->m54C |= 0x200000;
+                }
+            } else if (chara->IsFlag54C_unk(0x200000)) {
+                chara->m54C &= ~0x200000;
+            }
+        } else if (chara->IsFlag54C_unk(0x200000)) {
+            chara->m54C &= ~0x200000;
+        }
+    }
+    // inferred: the list holds equipment parts (chr::CharaEquip_unk*)
+    if (m148.size() != 0) {
+        if (!IsEquipLoading_unk(m148)) {
+            chara = GetChara_unk();
+            for (unsigned int j = 0; j < m148.size(); j++) {
+                chara->fn_80150178(((chr::CharaEquip_unk*)m148[j])->m000, (chr::CharaEquip_unk*)m148[j]);
+                ((chr::CharaEquip_unk*)m148[j])->fn_80566010();
+            }
+            m148.clear();
+        }
+    }
+}
+
 // inferred: largest of three values (std::max by reference)
 inline float MaxScale_unk(const float& a, const float& b) {
     return (a > b) ? a : b;
@@ -672,6 +753,47 @@ float Actor::fn_80011964() {
     return 0.0f;
 }
 
+// inferred: number of equipment slots (CostumeEditChara calls it)
+extern "C" unsigned int fn_800119B8() {
+    return 8;
+}
+
+// NONMATCHING: the original jumps to the end when the kind is not 7 or 1 (no null character) and
+// schedules the bool arguments differently; tried the check of the kind first and nested ifs
+// inferred: plays the facial motion `face` (the motions 239-318 are copied from the motion data of the
+// sequence first)
+void Actor::fn_80011E98(int face, Sequence* seq, int eyes, int head, int hair, float speed) {
+    CharaTask* chara = fn_800128FC();
+    if (chara != 0) {
+        atn::Model* model = fn_8001296C();
+        if ((unsigned int)(face - 239) <= 79) {
+            MotionData* data = seq->mC4.Find_unk(face);
+            if (data == 0) {
+                return;
+            }
+            model->fn_80097A9C(face, &data->m18->mLoader);
+        }
+        chara->m1188.SetMotion(face, eyes != 0, head != 0, hair != 0, speed, 0.0f);
+    }
+}
+
+// inferred: plays the motion of the slot `slot` of the character on track 0
+// NONMATCHING: registers of the motion and of the model swapped (r30/r31); tried the declaration order
+// and a local for the saved motion
+void Actor::fn_80012054(int slot, int arg2, int frames, float speed, float frame) {
+    if (m20 == 7 || m20 == 1) {
+        int motion = GetChara_unk()->m484[slot];
+        atn::Model* model = fn_8001296C();
+        m58 = model->mTracks[0].m00;
+        model->m34C = 1;
+        model->mTracks[0].m20 = 1.0f;
+        model->fn_80097C08(0, motion, arg2, 1, 1, 0.0f, 0.1f);
+        model->mTracks[0].m0C = speed;
+        model->mTracks[0].m14 = frames == 0 ? 1.0f : 1.0f / frames;
+        model->mTracks[0].m08 = frame;
+    }
+}
+
 // inferred: sets the speed of the motion `motion` from the distance moved
 void Actor::fn_800121F0(int motion, float distance) {
     if (m20 == 7 || m20 == 1) {
@@ -679,6 +801,63 @@ void Actor::fn_800121F0(int motion, float distance) {
         atn::LoadHandle* handle = model->fn_80097D40(motion);
         MotionInfo_unk* info = handle != 0 ? fn_802096A8(handle->fn_80473F18()) : 0;
         model->mTracks[0].m0C = info != 0 ? distance / info->m04 : 0.0f;
+    }
+}
+
+// inferred: how the track `track` is stopped (inlined; name invented)
+inline int GetTrackMode_unk(atn::Model* model, int track, int motion) {
+    switch (track) {
+    case 0: {
+        atn::LH_Motion* handle = (atn::LH_Motion*)model->fn_80097D40(motion);
+        if (handle != 0) {
+            if (handle->fn_804768D0() == 4) {
+                return 4;
+            }
+            return 0;
+        }
+        break;
+    }
+    case 1:
+        return 0;
+    case 2:
+        return 3;
+    case 3:
+        return 4;
+    }
+    return 0;
+}
+
+// inferred: stops the track `track` of the actor in `frames` frames (back to the motion saved by
+// fn_80012054 for track 0)
+// NONMATCHING: order of the compares of m20 (the original tests 7, 3 and then 1; a switch follows the
+// order of its cases: tried 7/1/3, 1/7/3 and 3 first)
+void Actor::fn_80012294(int track, int motion, int frames) {
+    switch (m20) {
+    case 7:
+    case 1: {
+        atn::Model* model = m1C != 0 ? GetChara_unk()->GetModel_unk() : 0;
+        int mode = GetTrackMode_unk(model, track, motion);
+        if (mode == 3 || mode == 4) {
+            model->fn_80097CCC(mode, 1.0f / frames);
+        } else {
+            model->m34C = 1;
+            model->mTracks[0].m20 = 1.0f;
+            model->mTracks[0].m0C = 1.0f;
+            model->mTracks[0].m14 = 1.0f / frames;
+            model->fn_80097C08(0, m58 != -1 ? m58 : 2, 1, 1, 1, 0.0f, 0.1f);
+        }
+        break;
+    }
+    case 3:
+        if (track == 0) {
+            atn::Model* model = fn_8001296C();
+            model->m34C = 1;
+            model->mTracks[0].m20 = 1.0f;
+            model->mTracks[0].m0C = 1.0f;
+            model->mTracks[0].m14 = 1.0f / frames;
+            model->fn_80097C08(0, m58 == -1 ? 0 : m58, 1, 1, 1, 0.0f, 0.1f);
+        }
+        break;
     }
 }
 

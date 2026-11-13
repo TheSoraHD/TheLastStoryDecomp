@@ -115,6 +115,9 @@ struct Actor : public CommonData {
     // inferred: plays motion `motion` on the actor (used by Event::BehaviorGesture)
     void fn_800119C0(int arg1, int motion, int arg3, int arg4, void* arg5, int arg6, int arg7, float arg8,
                      float arg9);
+    void fn_80011E98(int, Sequence*, int, int, int, float); // inferred: facial motion (ActionActorFacial)
+    void fn_80012054(int, int, int, float, float);         // inferred: motion of a slot (Event::Dialog)
+    void fn_80012294(int, int, int);                       // inferred: stops a track (ActionActorMotion)
     void fn_8001011C(const atn::Vector3& pos); // inferred: moves the actor to `pos`
     void fn_80010490(const atn::Vector3& rot); // inferred: sets the rotation (radians)
     void fn_80011420(float yaw);               // inferred: sets the rotation around y
