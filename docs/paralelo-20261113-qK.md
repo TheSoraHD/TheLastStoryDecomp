@@ -1,0 +1,37 @@
+# Cola K (enemigos) - lote paralelo 2026-11-13
+
+Inicio: 2026-11-13 05:03 CET. Rama `agent-K`. Tope 07:33.
+
+## Resultado por unidad (funciones al 0 % / sin escribir, antes -> despues)
+
+- `game/EnemyQuarkSecond`: 10 -> 6 (en este commit). Escritas, todas `NONMATCHING`:
+  - `fn_8033DB8C` (estado 14, rafaga de balas teledirigidas a la party) 96,8 %: huecos de pila (parametros
+    de la bala por encima de las matrices en el original) y un registro guardado mas.
+  - `fn_8033E8D4` (paso del salto: subida 0x13F, vuelo 0x140, aterrizaje 0x141) 98 %: huecos de pila de los
+    vectores de distancia.
+  - `fn_803402C0` (atrae una bala a la cabeza; guarda su habilidad) 95 %: relectura del contador y huecos de
+    los temporales de las dos ramas.
+  - `fn_803405C0` (estado 16, ataque del baston) 98,8 %: huecos de los locales del efecto del paso 0 y
+    registros.
+
+## Decisiones tomadas sin el usuario
+
+- `fn_8033E8D4` y `fn_803402C0` son funciones `static` del fichero con el enemigo como primer argumento (el
+  simbolo del original no tiene clase); renombradas en `symbols.txt` a su nombre mangled con `scope:local`
+  (como Em316LastLaser en el lote anterior). Si en realidad fueran miembros, basta con moverlas a la clase.
+- `lbl_80885304` (35.0f, de esta unidad) deja de ser `extern`: literal en `fn_80341BEC` y `fn_803405C0`
+  (regla 10); pd.sh lo renombra a `@N`.
+- `QuarkHoming_unk` (parametros de la bala teledirigida) sin el giro por defecto 0.0942478: el pool de la
+  unidad no lo tiene (el llamador siempre lo pone) y dejarlo anadia un float al `.sdata2`.
+- `QuarkHits_unk::mData` se queda como `int[32]`: se guarda el `HitInfo_unk*` de la bala con un cast.
+
+## Hallazgos
+
+- `bge X; b Y; X: fmr` en un minimo de floats: inline `if (a < b) { return a; } return b;` (QuarkMin_unk).
+- `li r0, 0; ... li r0, 1; cmpwi r0` tras la llamada a la longitud de la animacion: inline con
+  `float end = len - n; bool r = false; if (frame >= end) r = true; return r;` (con la resta dentro del `if`
+  el `bool` sube a un registro guardado antes de la llamada).
+
+## Pendientes
+
+- EnemyQuarkSecond: fn_8033C490, fn_8033D040, fn_8033E058, fn_8033EF90, fn_8033F7FC, fn_803412AC.
