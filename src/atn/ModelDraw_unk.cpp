@@ -830,7 +830,7 @@ void fn_8009CC28(DrawMesh_unk* mesh, Material_unk* mat, DrawShader_unk* shader, 
     }
 }
 
-// NONMATCHING: 99.84% - stage and texture registers swapped in the width loop
+// inferred: mip test draw (texture of the size of the first texture stage)
 void fn_8009D1A4(Material_unk* mat) {
     GXColor white = {0xFF, 0xFF, 0xFF, 0xFF};
     GXSetChanMatColor(4, white);
@@ -857,11 +857,13 @@ void fn_8009D1A4(Material_unk* mat) {
         fn_800D594C(&sMip1024, "common/mip1024.texture");
     }
     TexStage_unk* stage;
+    atn::Texture_unk* t;
     int width = 0;
     for (int i = 0; i < ((DrawShader_unk*)mat->m08)->mDesc->m0E4; i++) {
         stage = &mat->m0C[i];
         if (stage->mId == 0) {
-            if (TexReady_unk(stage->mTexture)) {
+            t = stage->mTexture;
+            if (TexReady_unk(t)) {
                 width = GXGetTexObjWidth(&stage->mTexture->mObj);
             }
             break;
