@@ -614,8 +614,8 @@ struct CosEditArmourLess_unk {
             }
             return false;
         }
-        float va = ((EquipParamEntry_unk*)a.mItem)->m08;
         float vb = ((EquipParamEntry_unk*)b.mItem)->m08;
+        float va = ((EquipParamEntry_unk*)a.mItem)->m08;
         if ((float)__fabs(va - vb) < 1.1920929e-7f) {
             CosEditListName_unk* na = (CosEditListName_unk*)fn_80211480(fn_8020EF80(a.mItem));
             CosEditListName_unk* nb = (CosEditListName_unk*)fn_80211480(fn_8020EF80(b.mItem));
@@ -635,8 +635,8 @@ struct CosEditRobeLess_unk {
             }
             return false;
         }
-        float va = ((EquipParamEntry_unk*)a.mItem)->m0C;
         float vb = ((EquipParamEntry_unk*)b.mItem)->m0C;
+        float va = ((EquipParamEntry_unk*)a.mItem)->m0C;
         if ((float)__fabs(va - vb) < 1.1920929e-7f) {
             CosEditListName_unk* na = (CosEditListName_unk*)fn_80211480(fn_8020EF80(a.mItem));
             CosEditListName_unk* nb = (CosEditListName_unk*)fn_80211480(fn_8020EF80(b.mItem));
@@ -1536,8 +1536,8 @@ struct CosEditWeaponArmourLess_unk {
             }
             return false;
         }
-        float va = ((CosEditWeaponStat_unk*)a.mItem)->mAttack;
         float vb = ((CosEditWeaponStat_unk*)b.mItem)->mAttack;
+        float va = ((CosEditWeaponStat_unk*)a.mItem)->mAttack;
         if ((float)__fabs(va - vb) < 1.1920929e-7f) {
             CosEditListName_unk* na = (CosEditListName_unk*)fn_80211480(fn_80206BE4(a.mItem));
             CosEditListName_unk* nb = (CosEditListName_unk*)fn_80211480(fn_80206BE4(b.mItem));
@@ -1560,8 +1560,8 @@ struct CosEditWeaponRobeLess_unk {
             }
             return false;
         }
-        float va = ((CosEditWeaponStat_unk*)a.mItem)->mMagic;
         float vb = ((CosEditWeaponStat_unk*)b.mItem)->mMagic;
+        float va = ((CosEditWeaponStat_unk*)a.mItem)->mMagic;
         if ((float)__fabs(va - vb) < 1.1920929e-7f) {
             CosEditListName_unk* na = (CosEditListName_unk*)fn_80211480(fn_80206BE4(a.mItem));
             CosEditListName_unk* nb = (CosEditListName_unk*)fn_80211480(fn_80206BE4(b.mItem));

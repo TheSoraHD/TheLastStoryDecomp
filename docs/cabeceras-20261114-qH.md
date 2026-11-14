@@ -43,6 +43,10 @@ Rama `agent-H`, referencia `/home/claude/ref-H` (15433 / 18109 tras integrar A+B
    `b->mId > a->mId` (orden de registros de la seleccion inline): los cuatro `MslSort_unk<ItemCandidate_unk*>`
    99,93 -> **100 %**. Total **15441 -> 15445**. `PRECOMMIT OK`.
 
+7. Comparadores de CosEditItemList_unk: el valor de `b` leido antes que el de `a` (`float vb` primero): sorts de
+   proteccion 97,8 -> 98,35, armas 98,0/98,2 -> 98,56/98,36, medianas 99,0 -> 99,5/99,6. Queda el reparto de
+   registros float de `fabs(va - vb)` (probados `d` local y sin el cast) y la recarga de first/last.
+
 ## Sin resolver (probado)
 
 - `GameTask::fn_80371790` (99,15): marco 0x10 mayor y ranuras de las matrices de RotateYXZ_unk; no tocado.
