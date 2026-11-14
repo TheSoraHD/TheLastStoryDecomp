@@ -32,7 +32,7 @@ Rama `agent-H`, referencia `/home/claude/ref-H` (15433 / 18109 tras integrar A+B
    seleccion inline (probados `end(last - 1)`, `end = last`, `while`).
 
 4. `lblmap.py game/Em305Vampire`: tres etiquetas de `.sdata2` renombradas (solo renombrados), `fn_802EBBA8`
-   99,98 -> **100**. Total **15441 -> 15442** (en report tras ninja).
+   99,98 -> 100 en `objdiff-cli` (el report ya la daba al 100 %: no cambia el total, 15441).
 
 ## Sin resolver (probado)
 
