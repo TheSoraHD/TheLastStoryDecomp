@@ -956,8 +956,8 @@ inline bool HasSound_unk(const char* name) {
 
 // inferred: plays the voice of an actor: with lip sync on its character (or on the balloon head when
 // the event shows dialog heads, flag 0x00800000), or without when it has none
-// NONMATCHING: 97.4% - arg in r27 (r28 in the original) and the long-string test of size() is shared
-// with c_str() here (the original tests it again); tried size()/length()/empty() forms and Keep_unk
+// NONMATCHING: 98.6% - arg in r27 (r28 in the original) and registers; the name is read through
+// CommonData::GetName_unk (the long-string test is then made again by c_str())
 int ActionVoicePlay::vf0C(Action* arg, int phase) {
     switch (phase) {
     case 0: {
@@ -967,10 +967,10 @@ int ActionVoicePlay::vf0C(Action* arg, int phase) {
         if (entry == 0) {
             break;
         }
-        if (entry->m08.size() == 0) {
+        if (entry->GetName_unk().size() == 0) {
             break;
         }
-        if (lbl_8087EE90 != 0 && !HasSound_unk(entry->m08.c_str())) {
+        if (lbl_8087EE90 != 0 && !HasSound_unk(entry->GetName_unk().c_str())) {
             break;
         }
         atn::Vector3 pos = arg->fn_805384CC(2);
@@ -979,7 +979,7 @@ int ActionVoicePlay::vf0C(Action* arg, int phase) {
         float pitch = arg->GetParam_unk(9)->m04.f;
         int noKeep = arg->GetParam_unk(10)->m04.i;
         int lipSync = arg->GetParam_unk(11)->m04.i;
-        if (lbl_8087F498->fn_803EB2A4(entry->m08.c_str()) == 0) {
+        if (lbl_8087F498->fn_803EB2A4(entry->GetName_unk().c_str()) == 0) {
             lbl_8087F540->fn_80489A2C();
         }
         if (lbl_8087F0A8->mVoiceLimitLevel >= 3) {
@@ -993,9 +993,9 @@ int ActionVoicePlay::vf0C(Action* arg, int phase) {
         }
         if (entry != 0) {
             if (lipSync != 0 && chara != 0) {
-                sound = lbl_8087F498->fn_803EA09C(chara, entry->m08.c_str(), 0, 1, 0, volume);
+                sound = lbl_8087F498->fn_803EA09C(chara, entry->GetName_unk().c_str(), 0, 1, 0, volume);
             } else {
-                sound = lbl_8087F498->fn_803E9608(entry->m08.c_str(), 0, 1, volume);
+                sound = lbl_8087F498->fn_803E9608(entry->GetName_unk().c_str(), 0, 1, volume);
             }
         }
         lbl_8087F540->fn_80489A50(arg, 0);

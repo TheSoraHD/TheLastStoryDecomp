@@ -146,8 +146,9 @@ basic_string<T, Tr, A>& basic_string<T, Tr, A>::do_replace(size_type pos, size_t
     } else {
         basic_string tmp;
         if (tail != 0 && p + pos + n2 < j2 && j2 <= p + sz) {
-            tmp.do_replace(0, tmp.size(), j1, j2, random_access_iterator_tag());
-            j1 = tmp.data();
+            size_type tsz = tmp.size();
+            tmp.do_replace(0, tsz, j1, j2, random_access_iterator_tag());
+            j1 = tmp.mFlags.mIsLong ? tmp.mLong.mData : tmp.mShort.mData;
         }
         if (tail != 0) {
             memmove(p + pos + n2, p + pos + rlen, tail * sizeof(T));

@@ -2524,7 +2524,7 @@ void Sort_unk(T* first, T* last, Compare comp) {
 }
 
 
-// NONMATCHING: 93.4% - one more saved register in the original (the action loop has a first test)
+// NONMATCHING: 94.6% - one more saved register in the original (the action loop has a first test)
 // inferred: collects the voices of the sequence (audio channels of the sections of kind 1), from the
 // current cut, with their start frames; the same stream twice in a row is kept once in event 0xE19
 void Manager::fn_80488E00(Sequence* seq) {
@@ -2542,11 +2542,11 @@ void Manager::fn_80488E00(Sequence* seq) {
                         for (int k = 0; k < (int)channel->mActions.size(); k++) {
                             Action* action = channel->GetAction_unk(k);
                             StringData* data = seq->m114.Find_unk(action->GetParam_unk(0)->m04.i);
-                            if (data != 0 && data->m08.size() != 0 &&
-                                (lbl_8087EE90 == 0 || fn_80049B74(lbl_8087EE90, data->m08.c_str()) != 0)) {
+                            if (data != 0 && data->GetName_unk().size() != 0 &&
+                                (lbl_8087EE90 == 0 || fn_80049B74(lbl_8087EE90, data->GetName_unk().c_str()) != 0)) {
                                 if (mVoices.size() == 0 || seq->m190 != 0xE19 ||
-                                    !(seq->m114.Find_unk(mVoices[mVoices.size() - 1].mAction->GetParam_unk(0)->m04.i)->m08 ==
-                                      data->m08)) {
+                                    !(seq->m114.Find_unk(mVoices[mVoices.size() - 1].mAction->GetParam_unk(0)->m04.i)->GetName_unk() ==
+                                      data->GetName_unk())) {
                                     mVoices.push_back(ManagerEntry_unk(action, frame + action->m10));
                                 }
                             }
