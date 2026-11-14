@@ -16,8 +16,19 @@ Agente C, rama `agent-C`. Unidades: `game/GameCamera_unk`, `game/FinishCamera_un
   en `GameCamera.h` (sin nombres de parametro) y definida en `GameCamera_unk.cpp` entre fn_8037F744 y
   fn_8037F9AC; el cuerpo calcula los 14 valores en locales y guarda m38 antes que m34.
 
+- `GameCamera::fn_80384188` (0x80384188, 6588 bytes; modo cadera/apuntar m5D0 con los dos sticks, zoom mC1C,
+  fijado de enemigo m860 con BattleTask::fn_801002DC): escrita desde el asm (no estaba en el port), sin DRAFT,
+  NONMATCHING ~33 %: aqui pasa el presupuesto de inlining y llama a todos los operadores de Vector3, el original
+  lo inlinea todo. Bisecado: el corte esta en el bloque del limite de pitch + offset + primera colision (tres
+  fn_800109E0 y dos fn_80139F60); helpers inline para el codigo repetido no bastan. Sospecha: las copias de
+  Vector3 (`__VecCopy` asm inline en Vec.h) cuentan como candidatos aqui y en el original eran copias del
+  compilador. Dudas: `fn_80050900(p, line, out)` (punto mas cercano de la recta) y `target = dir * mDist` en el
+  limite de pitch (sin sumar pos; asi en el asm).
+- `GameCamera::fn_80385B48` (gemela de fn_80384188): sin escribir (mismo problema de presupuesto).
+
 ### Cambios de layout/firma (para el port)
 
+- `GameCamera.h`: `CharaTask* m860` (antes int) y `float m864` (antes bytes): enemigo fijado y su mezcla.
 - `GameCamera.h`: `GameCameraParam_unk m3E8` (antes `m3E8[]`, `float m41C`, `m420[]`: es la mezcla de
   parametros de fn_8037F9AC; el constructor de GameCamera ya no inicializa `m41C`, lo hace el constructor por
   defecto de `GameCameraParam_unk`), `atn::Vector3 m960` y `atn::Vector3 m978` (antes arrays de bytes).
@@ -63,11 +74,15 @@ Agente C, rama `agent-C`. Unidades: `game/GameCamera_unk`, `game/FinishCamera_un
 
 ## Hallazgos de una linea
 
+- FinishCamera fn_803792F0: con `AddCurve_unk` (inline con copia de Vector3) la funcion pasa el presupuesto de
+  inlining (38 %); con las curvas sumadas a mano lo inlinea todo (94 %). Las copias `__VecCopy` pesan.
+
 - Una funcion inline definida en una cabecera consume `@N` en cada unidad que la incluye (aqui 10 por
   `fn_8037F830` con tres parametros con nombre; la declaracion con nombres consume 3, sin nombres 0).
 
 ## Resultado
 
-- Funciones: fn_8037F9AC 0 -> 93,4 % (escrita), fn_803792F0 0 -> 94,4 % (escrita), fn_8037F830 63,8 -> 100 %,
+- Funciones: fn_8037F9AC 0 -> 93,4 % (escrita), fn_803792F0 0 -> 94,4 % (escrita), fn_80384188 0 -> ~33 %
+  (escrita, sobre presupuesto), fn_8037F830 63,8 -> 100 %,
   fn_803786FC 100 % con su firma real. report.json 15389 -> 15390, lost 0, sin bajadas, PRECOMMIT OK.
 - poolcheck de GameCamera_unk: aviso de `0.2f` y una cadena (unidad no enlazada; sin comprobar si ya estaba).

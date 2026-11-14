@@ -216,8 +216,8 @@ public:
     atn::Vector3 m84C;
     int m858;
     float m85C;
-    int m860;
-    unsigned char m864[0x868 - 0x864];
+    CharaTask* m860; // inferred: enemy locked on by the hips mode (BattleTask::fn_801002DC)
+    float m864;      // inferred: blend of the lock on
     atn::Vector3 m868; // inferred: target of the tactical view camera (fn_80387910)
     atn::Vector3 m874;   // inferred: offset of the eye of the hips mode
     int m880;
