@@ -25,6 +25,12 @@ Rama `agent-H`, referencia `/home/claude/ref-H` (15433 / 18109 tras integrar A+B
    Resultado CosEditItemList_unk 55 -> 59 al 100 % (+ `fn_801DD26C` 96,6 -> **100**, `fn_801E07A4` 97,2 ->
    **100** con una sola entrada para los dos bucles y la llamada antes de los stores); total **15436 -> 15441**.
 
+3. **`MslIter_unk::operator>=` como `!(a < b)`** (MSL; el original materializa el bool con xor/cntlzw) y, en los
+   comparadores de CosEditItemList_unk, los nombres de los dos objetos en variables antes de `wcscmp`: sorts de
+   CosEdit 95,8 -> 97,8 (proteccion) y 96,3 -> 98,0/98,2 (armas), medianas 97,9 -> 99,0/99,2, NewCampPartsItem
+   BagLess 94,9 -> 96,7, Event/Node 78,5 -> 79,0. Queda la recarga de first/last tras `last - first` en la
+   seleccion inline (probados `end(last - 1)`, `end = last`, `while`).
+
 ## Sin resolver (probado)
 
 - `GameTask::fn_80371790` (99,15): marco 0x10 mayor y ranuras de las matrices de RotateYXZ_unk; no tocado.

@@ -46,7 +46,7 @@ inline bool operator<(const MslIter_unk<T>& a, const MslIter_unk<T>& b) {
 }
 template <class T>
 inline bool operator>=(const MslIter_unk<T>& a, const MslIter_unk<T>& b) {
-    return a.mPtr >= b.mPtr;
+    return !(a < b);
 }
 
 template <class T>

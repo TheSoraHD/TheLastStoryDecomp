@@ -617,8 +617,9 @@ struct CosEditArmourLess_unk {
         float va = ((EquipParamEntry_unk*)a.mItem)->m08;
         float vb = ((EquipParamEntry_unk*)b.mItem)->m08;
         if ((float)__fabs(va - vb) < 1.1920929e-7f) {
-            return wcscmp(((CosEditListName_unk*)fn_80211480(fn_8020EF80(a.mItem)))->mName,
-                          ((CosEditListName_unk*)fn_80211480(fn_8020EF80(b.mItem)))->mName) < 0;
+            CosEditListName_unk* na = (CosEditListName_unk*)fn_80211480(fn_8020EF80(a.mItem));
+            CosEditListName_unk* nb = (CosEditListName_unk*)fn_80211480(fn_8020EF80(b.mItem));
+            return wcscmp(na->mName, nb->mName) < 0;
         }
         return va > vb;
     }
@@ -637,8 +638,9 @@ struct CosEditRobeLess_unk {
         float va = ((EquipParamEntry_unk*)a.mItem)->m0C;
         float vb = ((EquipParamEntry_unk*)b.mItem)->m0C;
         if ((float)__fabs(va - vb) < 1.1920929e-7f) {
-            return wcscmp(((CosEditListName_unk*)fn_80211480(fn_8020EF80(a.mItem)))->mName,
-                          ((CosEditListName_unk*)fn_80211480(fn_8020EF80(b.mItem)))->mName) < 0;
+            CosEditListName_unk* na = (CosEditListName_unk*)fn_80211480(fn_8020EF80(a.mItem));
+            CosEditListName_unk* nb = (CosEditListName_unk*)fn_80211480(fn_8020EF80(b.mItem));
+            return wcscmp(na->mName, nb->mName) < 0;
         }
         return va > vb;
     }
@@ -1537,8 +1539,9 @@ struct CosEditWeaponArmourLess_unk {
         float va = ((CosEditWeaponStat_unk*)a.mItem)->mAttack;
         float vb = ((CosEditWeaponStat_unk*)b.mItem)->mAttack;
         if ((float)__fabs(va - vb) < 1.1920929e-7f) {
-            return wcscmp(((CosEditListName_unk*)fn_80211480(fn_80206BE4(a.mItem)))->mName,
-                          ((CosEditListName_unk*)fn_80211480(fn_80206BE4(b.mItem)))->mName) < 0;
+            CosEditListName_unk* na = (CosEditListName_unk*)fn_80211480(fn_80206BE4(a.mItem));
+            CosEditListName_unk* nb = (CosEditListName_unk*)fn_80211480(fn_80206BE4(b.mItem));
+            return wcscmp(na->mName, nb->mName) < 0;
         }
         return va > vb;
     }
@@ -1560,8 +1563,9 @@ struct CosEditWeaponRobeLess_unk {
         float va = ((CosEditWeaponStat_unk*)a.mItem)->mMagic;
         float vb = ((CosEditWeaponStat_unk*)b.mItem)->mMagic;
         if ((float)__fabs(va - vb) < 1.1920929e-7f) {
-            return wcscmp(((CosEditListName_unk*)fn_80211480(fn_80206BE4(a.mItem)))->mName,
-                          ((CosEditListName_unk*)fn_80211480(fn_80206BE4(b.mItem)))->mName) < 0;
+            CosEditListName_unk* na = (CosEditListName_unk*)fn_80211480(fn_80206BE4(a.mItem));
+            CosEditListName_unk* nb = (CosEditListName_unk*)fn_80211480(fn_80206BE4(b.mItem));
+            return wcscmp(na->mName, nb->mName) < 0;
         }
         return va > vb;
     }
