@@ -34,3 +34,7 @@ merge final aunque el port siga activo; notas para el port solo en el proyecto (
   copias debiles de Event). E (.rodata de BattleTask) espera a que acabe G, que tambien toca BattleTask.
 - 17:01 integrada N (HomeButton::draw, HBMBase enlaza; 147 unidades cerca de enlazar probadas, casi todas
   registros): 15434, lost 0, sin bajadas, rep100 139. Reinicio del servidor a las ~17:00: G, H y A2 se reanudan solos.
+- 17:22 integrada A2 solo con notas y parche (docs/cabeceras-20261114-qA2.patch): la forma original de
+  push_back (fast + slow + expand_by + realloc) sube 37 funciones (Event/Manager fn_80481B9C 58 -> 96 %, Section/Cut/
+  Channel 69 -> 92 %) pero baja RenderManager::RenderManager 88,7 -> 46,3 % (presupuesto de inline), ParsePATH_unk
+  72,7 -> 16,5 %, ParseACID_unk y DataList_unk<Actor>::Add_unk. **Para revisar:** aceptar esas bajadas o otra pasada.
