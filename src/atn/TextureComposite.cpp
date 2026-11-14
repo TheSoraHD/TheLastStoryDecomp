@@ -1,6 +1,7 @@
 #include "atn/Texture_unk.h"
 #include "std/vector.h"
 #include "atn/RenderManager.h"
+#include "atn/IRender.h"
 #include "atn/PostFxManager.h"
 
 // inferred: GX/OS functions not in atn/GXDecl.h (enums as int)
@@ -127,17 +128,6 @@ struct CompositeColor_unk {
     float r, g, b, a;
 };
 
-// inferred: renderer interface (see atn/VideoTHP.cpp)
-class IRender {
-public:
-    virtual ~IRender() {}
-    virtual int vf0C(); // 0x80046218
-    virtual void vf10(RenderManager* camera) = 0;
-    virtual int vf14() = 0;
-    virtual void vf18() = 0;
-    virtual void vf1C(); // 0x800461FC
-};
-
 // inferred from __vt__Q23atn23TextureCompositeCommand: one pass drawn into the composite
 class TextureCompositeCommand {
 public:
@@ -189,8 +179,10 @@ public:
     TextureComposite();
     virtual ~TextureComposite();
     virtual void vf10(RenderManager* camera);
-    virtual int vf14() { return 1; }
-    virtual void vf18() {}
+    virtual int vf14(const Matrix3x4* view, const Vector3* eye, const Frustum_unk* frustum, AABB_unk* box) {
+        return 1;
+    }
+    virtual void vf18(RenderManager* view) {}
 
     void Request_unk(Texture_unk* texture, int format);
 

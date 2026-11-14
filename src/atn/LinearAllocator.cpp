@@ -3,15 +3,12 @@
 #include "atn/Texture_unk.h"
 #include "atn/Memory.h"
 #include "atn/RenderManager.h"
+#include "atn/IRender.h"
 #include "atn/LinearAllocator.h"
 
 // The real file defines atn::PostFxManager (RTTI name at 0x80732AC8), a task that owns the
 // post effects and a linear allocator for their temporary textures.
 
-namespace atn {
-struct Camera;
-}
-typedef atn::Camera Camera_unk;
 // inferred: render parameters (fields named by offset)
 struct PostFxParams_unk {
     unsigned char m000[0x54];
@@ -37,23 +34,12 @@ extern "C" void DCInvalidateRange(void* addr, unsigned long size);
 namespace atn {
 
 
-// inferred: renderer interface (see atn/VideoTHP.cpp)
-class IRender {
-public:
-    virtual ~IRender() {}
-    virtual int vf0C(); // 0x80046218
-    virtual void vf10(Camera_unk* camera) = 0;
-    virtual int vf14();
-    virtual void vf18();
-    virtual void vf1C(); // 0x800461FC
-};
-
 // inferred: the post effects (constructors and vtables in their own files)
 class PostFxBloom : public IRender {
 public:
     PostFxBloom(); // 0x800A9E54
     virtual ~PostFxBloom() {}
-    virtual void vf10(Camera_unk* camera);
+    virtual void vf10(RenderManager* view);
     unsigned char m04[0x44 - 0x04];
 };
 
@@ -61,7 +47,7 @@ class PostFxDof : public IRender {
 public:
     PostFxDof(); // 0x800AC5F4
     virtual ~PostFxDof() {}
-    virtual void vf10(Camera_unk* camera);
+    virtual void vf10(RenderManager* view);
     unsigned char m04[0x7C - 0x04];
 };
 
@@ -69,7 +55,7 @@ class PostFxMotionBlur : public IRender {
 public:
     PostFxMotionBlur(); // 0x800AFE40
     virtual ~PostFxMotionBlur() {}
-    virtual void vf10(Camera_unk* camera);
+    virtual void vf10(RenderManager* view);
     void fn_800AAE20();
     unsigned char m04[0xB0 - 0x04];
 };
@@ -78,7 +64,7 @@ class PostFxColorMatrix : public IRender {
 public:
     PostFxColorMatrix(); // 0x800AA6C4
     virtual ~PostFxColorMatrix() {}
-    virtual void vf10(Camera_unk* camera);
+    virtual void vf10(RenderManager* view);
     void fn_800AA8DC();
     void fn_800AAE20();
     unsigned char m04[0x48 - 0x04];
@@ -90,7 +76,7 @@ class PostFxGodRay : public IRender {
 public:
     PostFxGodRay(); // 0x800AEE9C
     virtual ~PostFxGodRay() {}
-    virtual void vf10(Camera_unk* camera);
+    virtual void vf10(RenderManager* view);
     int fn_800AEF4C();
     void fn_800AEF68();
     unsigned char m04[0x38 - 0x04];
@@ -102,7 +88,7 @@ class PostFxDamage : public IRender {
 public:
     PostFxDamage(); // 0x800ABD84
     virtual ~PostFxDamage() {}
-    virtual void vf10(Camera_unk* camera);
+    virtual void vf10(RenderManager* view);
 };
 
 // inferred: element of the rain drop array (constructed with new[])
@@ -128,7 +114,7 @@ class PostFxRain : public IRender {
 public:
     PostFxRain(); // 0x800B089C
     virtual ~PostFxRain() {}
-    virtual void vf10(Camera_unk* camera);
+    virtual void vf10(RenderManager* view);
     int fn_800B0A48();
     void fn_800B1554();
     void fn_800B1598();
@@ -142,7 +128,7 @@ class PostFxGamma : public IRender {
 public:
     PostFxGamma(); // 0x800AD0F0
     virtual ~PostFxGamma() {}
-    virtual void vf10(Camera_unk* camera);
+    virtual void vf10(RenderManager* view);
     void fn_800AD340();
     unsigned char m04[0x138 - 0x04];
     Texture_unk m138;

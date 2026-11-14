@@ -2,6 +2,7 @@
 #include "atn/Memory.h"
 #include "math/Vec.h"
 #include "atn/RenderManager.h"
+#include "atn/IRender.h"
 #include "atn/Lerp_unk.h"
 
 extern "C" int rand();
@@ -69,17 +70,6 @@ static int sRainLines = 1;
 
 namespace atn {
 
-// inferred: renderer interface (see atn/VideoTHP.cpp)
-class IRender {
-public:
-    virtual ~IRender() {}
-    virtual int vf0C(); // 0x80046218
-    virtual void vf10(RenderManager* camera) = 0;
-    virtual int vf14(void* arg1, void* arg2, void* frustum) = 0;
-    virtual void vf18() = 0;
-    virtual void vf1C(); // 0x800461FC
-};
-
 // inferred: RGBA color with by-value operators (name invented)
 struct RainColor_unk {
     RainColor_unk() {}
@@ -137,8 +127,10 @@ public:
     Rain();
     virtual ~Rain();
     virtual void vf10(RenderManager* camera);
-    virtual int vf14(void* arg1, void* arg2, void* frustum) { return fn_800502A8((const Frustum_unk*)frustum, &mAreaMin); }
-    virtual void vf18() {}
+    virtual int vf14(const Matrix3x4* view, const Vector3* eye, const Frustum_unk* frustum, AABB_unk* box) {
+        return fn_800502A8(frustum, &mAreaMin);
+    }
+    virtual void vf18(RenderManager* view) {}
 
     void fn_800B1C1C(); // inferred: queues the render
     void fn_800B2180(); // inferred: allocates the drops

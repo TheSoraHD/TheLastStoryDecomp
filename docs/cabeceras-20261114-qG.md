@@ -63,6 +63,26 @@ Rama `agent-G`. Inicio 16:10. Referencia `$REF` = `/home/claude/ref-G` (15433 / 
   `RenderNode_unk` y `OccModel_unk` deriva de `RenderObj_unk` (relleno 0x04-0x3C, mismo layout), con
   `static_cast<OccModel_unk*>(node->mObj)`. Neutro (fnstat igual, `vf14` sigue 99,4 %), labelcheck igual.
 
+### 5. Copias locales de `IRender`
+
+- Fuera las cinco copias de `class IRender` (Rain, TextureComposite, VideoTHP, LinearAllocator,
+  CompositeIntensityTintMulti): incluyen `atn/IRender.h`. Las derivadas toman las firmas de la cabecera:
+  - `Rain::vf14(const Matrix3x4*, const Vector3*, const Frustum_unk* frustum, AABB_unk*)` (antes
+    `vf14(void*, void*, void* frustum)`; el frustum sigue siendo el tercero) y `Rain::vf18(RenderManager*)`.
+  - `TextureComposite::vf14(...4...)`/`vf18(RenderManager*)` (antes sin argumentos), tambien en la copia de
+    `TextureComposite` de CompositeIntensityTintMulti (cuyo `vf10` pasa de `Camera_unk*` a `RenderManager*`).
+  - `VideoTHP::vf10(RenderManager*)`, `vf14(...4...)`, `vf18(RenderManager*)` (antes sin argumentos).
+  - LinearAllocator: las declaraciones `vf10` de las ocho `PostFx*` locales pasan de `Camera_unk*` a
+    `RenderManager*` (el `.o` da las mismas funciones; `main.dol: OK`). Fuera el `typedef Camera_unk`.
+- `symbols.txt`: renombrados los 7 simbolos con firma nueva (`vf14__Q23atn4RainFPvPvPv`, `vf18__Q23atn4RainFv`,
+  `vf14/vf18__Q23atn16TextureCompositeFv`, `vf10/vf14/vf18__Q23atn8VideoTHPFv`) a los nombres nuevos.
+- `pdbatch.sh` de las cinco (las inlines de `IRender.h` renumeran las `@N` de CompositeIntensityTintMulti:
+  `vf14` 99,8 -> 100 % tras el re-emparejado). Neutro, labelcheck igual, `main.dol: OK` (LinearAllocator enlaza).
+- Pendiente (no es de esta cola): `PostFxBloom.cpp` y demas `PostFx*` declaran `vf10(void*)`, que no sobrescribe
+  `IRender::vf10(RenderManager*)` (el vtable original dice `vf10__Q23atn11PostFxBloomFPv`); las vistas locales de
+  `PostFx*`/`PostFxManager` en LinearAllocator y de `TextureComposite` en CompositeIntensityTintMulti; y
+  `include/atn/VideoTHP.h` (vista sin bases de `VideoTHP` para Event::MovieTask/TutorialTask).
+
 ## Decisiones tomadas sin el usuario
 
 - Llamadas por molde `(BattleTask*)lbl_8087F048` en vez de cambiar el tipo de `lbl_8087F048` en las 41 unidades:
@@ -85,6 +105,9 @@ Rama `agent-G`. Inicio 16:10. Referencia `$REF` = `/home/claude/ref-G` (15433 / 
   `CharaC58_unk::m1A0`. Pendiente en el port: un tipo de puntero para esa palabra (una union aqui renumera `@N`).
 - `atn::RenderObj_unk::vf0C`: `void` -> `int`. `LayerOcclusionCPU::vf14` (unidad del port) usa
   `atn::RenderNode_unk`/`RenderObj_unk`; `OccModel_unk` ahora deriva de `RenderObj_unk` (mismo tamano y offsets).
+
+- Firmas de virtuales de `atn::IRender` en Rain, TextureComposite, VideoTHP (ver punto 5): `vf14` con los cuatro
+  argumentos de `IRender.h` y `vf18(RenderManager*)`. Ninguna es unidad del port.
 
 ## Hallazgos
 

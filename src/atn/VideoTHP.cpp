@@ -2,6 +2,7 @@
 #include "atn/MemoryManager.h"
 #include "std/string_members.h"
 #include "atn/RenderManager.h"
+#include "atn/IRender.h"
 #include "atn/Layer3D.h"
 
 // inferred: THP player of the SDK sample library (automatic names)
@@ -81,17 +82,6 @@ struct Vector2f_unk {
     float x, y;
 };
 
-// inferred: renderer interface (RTTI 0x80777518, emitted with its key function in another file)
-class IRender {
-public:
-    virtual ~IRender() {}
-    virtual int vf0C(); // 0x80046218
-    virtual void vf10();
-    virtual int vf14() = 0;
-    virtual void vf18() = 0;
-    virtual void vf1C(); // 0x800461FC
-};
-
 // inferred: video player interface (RTTI emitted here)
 class Video : public IRender {
 public:
@@ -119,9 +109,9 @@ class VideoTHP : public Video {
 public:
     VideoTHP(const char* name);
     virtual ~VideoTHP();
-    virtual void vf10();
-    virtual int vf14();
-    virtual void vf18();
+    virtual void vf10(RenderManager*);
+    virtual int vf14(const Matrix3x4*, const Vector3*, const Frustum_unk*, AABB_unk*);
+    virtual void vf18(RenderManager*);
     virtual void vf20();
     virtual void vf24();
     virtual void vf28();
@@ -205,7 +195,7 @@ void VideoTHP::vf28() {
 
 // NONMATCHING: 99.28% - only volatile register choices differ (r8/r9 for the converted height,
 // r6/r8 for the converted draw height, and one lis/addi pair); tried variable orders and temporaries
-void VideoTHP::vf10() {
+void VideoTHP::vf10(RenderManager*) {
     switch (m08) {
     case 3:
         fn_805B5E7C(1);
@@ -280,7 +270,7 @@ void VideoTHP::vf10() {
     atn::RenderManager::instance_->mLayers[18]->vf1C(); // inferred: layer "2D Object"
 }
 
-void VideoTHP::vf18() {}
+void VideoTHP::vf18(RenderManager*) {}
 
 void VideoTHP::vf3C(float volume, int time) {
     fn_805B6AE0((int)(127.0f * volume), time * 1000 / 30);
@@ -302,7 +292,7 @@ float VideoTHP::vf2C() {
     return fn_805B6930();
 }
 
-int VideoTHP::vf14() {
+int VideoTHP::vf14(const Matrix3x4*, const Vector3*, const Frustum_unk*, AABB_unk*) {
     return 1;
 }
 
