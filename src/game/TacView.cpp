@@ -19,6 +19,7 @@
 #include "game/GameConfig_unk.h"
 #include "atn/Sphere.h"
 #include "atn/RenderManager.h"
+#include "std/vector_wstring.h"
 
 // inferred: sector (0 ahead, 1-7 clockwise, 8 none) of the direction `dir` seen from above
 int fn_805A6D20(const atn::Vector3& dir) {
@@ -1563,13 +1564,16 @@ basic_string<T, Traits, Alloc> operator+(const basic_string<T, Traits, Alloc>& l
 // four command panes (mDirs) placed on its anchors, the tension mark, the fade in (mLayouts.m20 frames), the
 // name, the hit points (colour by the rate), the counters m224/m300 of its status, and for each command its
 // name, icon and state; with the hints on, the skill names and descriptions go to the message of GameUI
-// NONMATCHING: 90.6% - the growth path of std::vector::push_back (std/vector.h moves the strings one by one, the
-// original with memcpy), an unused test of lbl_8087F8A0 at the start, and the stack slot of `pos`
+// NONMATCHING: 99.2% - register allocation (chara info, fade) and, in the growth path of push_back, the registers
+// of the new capacity and storage and the stack slots of the two max() operands (std/vector.h __grow_cap_unk)
 void TacView::fn_805AC758() {
     if (m48.mState == 0 && m48.m04->mType != 2) {
         CharaTask* chara = m48.m04;
-        atn::Vector3 pos = ((const TacViewChara_unk*)&m48)->fn_805AE138();
-        atn::Vector3 screen = atn::RenderManager::instance_->GetScreenPosition(pos);
+        // inferred: unused read of the head of the party (the original keeps the test of lbl_8087F8A0)
+        if (lbl_8087F8A0 != 0) {
+            CharaTask* head = lbl_8087F8A0->mHead;
+        }
+        atn::Vector3 screen = atn::RenderManager::instance_->GetScreenPosition(((const TacViewChara_unk*)&m48)->fn_805AE138());
         mLayouts.mSelect->MeltTask();
         mLayouts.mSelect->mFrame = 15.0f;
         SetLayoutValue_unk(&mLayouts.mSelect->mData.m10, "basePoint", 0, 320.0f);
@@ -1688,7 +1692,8 @@ void TacView::fn_805AC758() {
             while (lines.size() < 3) {
                 lines.push_back(std::basic_string<wchar_t>(L""));
             }
-            lbl_8087F490->fn_803E4978((lines[0] + lines[1] + lines[2]).c_str());
+            std::basic_string<wchar_t> message = lines[0] + lines[1] + lines[2];
+            lbl_8087F490->fn_803E4978(message.c_str());
         }
     }
     int frame = mLayouts.m20 + 1;
