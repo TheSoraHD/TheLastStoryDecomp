@@ -21,6 +21,8 @@ struct GameUIGauge_unk : public atn::D2A_Task {};
 #include "game/PlayerTask.h"
 #include "game/EnemyManager.h"
 #include "game/EnemyTask.h"
+#include "game/Inventory.h"
+#include "game/AiTarget.h"
 #include "game/SkillEffectManager.h"
 #include "atn/GraphicsDevice.h"
 #include "game/HitInfo_unk.h"
@@ -56,6 +58,8 @@ struct GameUIField_unk {
     atn::Vector3 m910; // inferred: centre of the markers in the tactical view
     unsigned char m91C[0x10D8 - 0x91C];
     atn::Task* m10D8;
+    unsigned char m10DC[0x54E4 - 0x10DC];
+    int m54E4; // inferred: state of the field (GameTask::m54E4; 8: an event runs)
 };
 extern "C" GameUIField_unk* lbl_8087F430;
 extern "C" void fn_800D2338(atn::Task* task); // inferred: deletes the task
@@ -2981,6 +2985,770 @@ void GameUI::fn_803D8344() {
     }
 }
 
+// inferred: position of a node matrix (name invented)
+inline atn::Vector3 GetNodePos_unk(MtxPtr m) {
+    return atn::Vector3(m[0][3], m[1][3], m[2][3]);
+}
+extern "C" GameConfig_unk* lbl_8087F0A8; // inferred: game settings (line colours of the hate display)
+// inferred: skill returned by fn_8021AF50 (only the members read here; names invented)
+struct GameUISkill_unk {
+    unsigned char m00[0x0C];
+    const wchar_t* m0C; // inferred: name
+    int m10;
+    const wchar_t* m14; // inferred: description
+};
+extern "C" GameUISkill_unk* fn_8021AF50(int bit); // inferred: skill of a status bit
+// inferred: skills of a character (a flag byte per status bit from +2) for its level (name invented)
+struct GameUISkillTable_unk {
+    unsigned char m00[2];
+    unsigned char mLearnt[128];
+};
+extern "C" GameUISkillTable_unk* fn_80219160(int member, int level);
+// inferred: object aimed at by AIManager::m458 (only the members read here; a scale and a radius)
+struct GameUIAimTarget_unk {
+    unsigned char m00[0x28];
+    float m28;
+    unsigned char m2C[0x5C - 0x2C];
+    float m5C;
+};
+extern "C" void fn_80232B7C(void* owner, int arg); // inferred: starts the effects of owner
+extern "C" bool fn_803E4DD4(CharaTask* chara); // inferred: filter of the enemies with icons
+extern "C" void fn_801F465C(atn::D2A_Task* task, int arg);
+extern "C" RenderSetting_unk* lbl_8087EFA8;
+extern "C" const int lbl_80750658[12]; // inferred: message of each skill icon
+// inferred: the field is in an event (names invented)
+inline bool IsEventState_unk(GameUIField_unk* field) {
+    return field->m54E4 == 8 && lbl_8087F540 != 0;
+}
+inline bool IsNotEvent_unk() {
+    bool r = true;
+    if (lbl_8087F540 != 0 && lbl_8087F540->fn_80481654() != 0) {
+        r = false;
+    }
+    return r;
+}
+inline bool IsFieldPlaying_unk() {
+    bool r = false;
+    if (lbl_8087F430->m54E4 == 8 && IsNotEvent_unk()) {
+        r = true;
+    }
+    return r;
+}
+// inferred: target of an AI target, null for type 4 (name invented)
+inline GameUIAimTarget_unk* GetAimTarget_unk(AiTarget* t) {
+    GameUIAimTarget_unk* r = 0;
+    if (t->m08 != 4) {
+        r = (GameUIAimTarget_unk*)t->m0C;
+    }
+    return r;
+}
+// inferred: colour parameters of the skill icon (names invented)
+inline void SetIconColor_unk(atn::D2A_Task* task, const char* name, const GameUIColor_unk& c) {
+    GameUIColor_unk tmp(c.r, c.g, c.b, c.a);
+    task->SetColor255_unk(name, &tmp.r);
+}
+inline void SetIconColorHalf_unk(atn::D2A_Task* task, const char* name, const GameUIColor_unk& c) {
+    GameUIColor_unk tmp(c.r * 0.5f, c.g * 0.5f, c.b * 0.5f, c.a * 0.5f);
+    task->SetColor255_unk(name, &tmp.r);
+}
+// inferred: text of a message id, checked and then read again (name invented)
+inline const wchar_t* GetMsgEntry_unk(int id) {
+    return ((GameUIMsgTable_unk::Entry_unk*)lbl_8087F1E4)[id].mText != 0
+               ? ((GameUIMsgTable_unk::Entry_unk*)lbl_8087F1E4)[id].mText
+               : lbl_808813D0;
+}
+// inferred: old and new values of the stats of a character that levelled up (names invented)
+inline void SetLevelUp_unk(atn::D2A_Task* task, CharaTask* c, Inventory::ExpEntry_unk* e) {
+    task->SetNumber_unk("oldLevel", c->mStatus.mParamB.m78 - (int)e->mResult.m08, 0);
+    task->SetNumber_unk("nextLevel", c->mStatus.mParamB.m78, 0);
+    task->SetNumber_unk("oldHP", c->mStatus.mParamB.m84 - (int)e->mResult.m0C, 0);
+    task->SetNumber_unk("nextHP", c->mStatus.mParamB.m84, 0);
+    task->SetNumber_unk("oldAtk", (int)(c->mStatus.mParamB.m00 - e->mResult.m10), 0);
+    task->SetNumber_unk("nextAtk", (int)c->mStatus.mParamB.m00, 0);
+    task->SetNumber_unk("oldMAtk", (int)(c->mStatus.mParamB.m04 - e->mResult.m14), 0);
+    task->SetNumber_unk("nextMAtk", (int)c->mStatus.mParamB.m04, 0);
+    task->SetNumber_unk("oldDef", (int)(c->mStatus.mParamB.m08 - e->mResult.m18), 0);
+    task->SetNumber_unk("nextDef", (int)c->mStatus.mParamB.m08, 0);
+    task->SetNumber_unk("oldMDef", (int)(c->mStatus.mParamB.m0C - e->mResult.m1C), 0);
+    task->SetNumber_unk("nextMDef", (int)c->mStatus.mParamB.m0C, 0);
+    task->SetNumber_unk("oldAgi", c->mStatus.mParamB.m94 - e->mResult.m20, 0);
+    task->SetNumber_unk("nextAgi", c->mStatus.mParamB.m94, 0);
+}
+// inferred: name text of a skill, the empty text when it has none (name invented)
+inline const wchar_t* GetSkillName_unk(GameUISkill_unk* s) {
+    return s->m0C != 0 ? s->m0C : lbl_808813D0;
+}
+
+// inferred: per-frame update of the HUD (called by game/GameTask): hides every part, then the icons over the
+// nearest enemies, the magic point gauges, the hate lines of the tactical view, the aim lines, the skill icons,
+// the notices, the counters, the target marker and the level-up marker
+// NONMATCHING: written from the asm
+void GameUI::fn_803D83A8() {
+    if (mDC8 != 0) {
+        if (((GameTask*)lbl_8087F430)->fn_80370174(0x6A) == 1) {
+            ((GameTask*)lbl_8087F430)->fn_80370320(0x6A, 0, 0);
+        }
+        m10F8->FreezeTask();
+        if (m10FC != 0) {
+            m10F8->MeltTask();
+            if (((GameTask*)lbl_8087F430)->fn_80370174(0x6A) == 0) {
+                ((GameTask*)lbl_8087F430)->fn_80370320(0x6A, 1, 0);
+            }
+        }
+        m10FC = 0;
+        for (int i = 0; i < 16; i++) {
+            for (int j = 0; j < 5; j++) {
+                m5BC[i][j]->FreezeTask();
+            }
+        }
+        m1104->FreezeTask();
+        m1108->FreezeTask();
+        m1110->FreezeTask();
+        m1114->FreezeTask();
+        m254C->FreezeTask();
+        for (int i = 0; i < 3; i++) {
+            if (m2550[i] != 0) {
+                m2550[i]->FreezeTask();
+            }
+        }
+        if (m2564 != 0) {
+            m2564->FreezeTask();
+        }
+        for (int i = 0; i < 4; i++) {
+            if (m2610[i] != 0) {
+                m2610[i]->FreezeTask();
+            }
+        }
+        if (m2628 != 0) {
+            m2628->FreezeTask();
+        }
+        mDC4->FreezeTask();
+        mA8C = 0;
+        for (int i = 0; i < 10; i++) {
+            mA90[i]->FreezeTask();
+            if (mAB8[i]->IsFlag_unk(4)) {
+                AsSmallInst_unk(mAB8[i])->Rewind_unk();
+            }
+            mAB8[i]->FreezeTask();
+            mAE0[i]->FreezeTask();
+        }
+
+        GameUIField_unk* field = lbl_8087F430;
+        bool event = false;
+        if (IsEventState_unk(field) && lbl_8087F540->fn_80481654() != 0) {
+            event = true;
+        }
+        bool playing = IsFieldPlaying_unk();
+        if (field->m868 != 6 && field->m868 != 5) {
+            // inferred: status icons over the nearest enemies
+            fn_803E4A5C(&m2788, fn_803E4DD4);
+            for (unsigned int i = 0; i < 16; i++) {
+                if (i < m2788.mCount) {
+                    CharaTask* c = m2788.mData[i].mChara;
+                    if (c != 0) {
+                        atn::Vector3 offset(0.0f, 1.5f, 0.0f);
+                        int n = 0;
+                        if (c->mStatus.m430 > 0 && (c->mStatus.m18 & 8) != 8) {
+                            n = 1;
+                            fn_803E4E58((atn::D3AnimeInstance*)m5BC[i][0], c, &offset, 0);
+                            if (c->mStatus.m434 < 180.0f) {
+                                n = 2;
+                                fn_803E4E58((atn::D3AnimeInstance*)m5BC[i][1], m2788.mData[i].mChara, &offset, 0);
+                            }
+                            if (c->mStatus.m434 < 90.0f) {
+                                fn_803E4E58((atn::D3AnimeInstance*)m5BC[i][n++], m2788.mData[i].mChara, &offset, 0);
+                            }
+                        }
+                        if (c->mStatus.IsState_unk(0x800000)) {
+                            fn_803E4E58((atn::D3AnimeInstance*)m5BC[i][n++], m2788.mData[i].mChara, &offset, 0);
+                        }
+                        if (c->mStatus.IsState_unk(0x1000000)) {
+                            fn_803E4E58((atn::D3AnimeInstance*)m5BC[i][n], m2788.mData[i].mChara, &offset, 0);
+                        }
+                    }
+                }
+            }
+        }
+        if (playing || lbl_8087F430->m54E4 == 0 || lbl_8087F430->m54E4 == 14) {
+            for (CharaTask* c = lbl_8087F8A0->mHead; c != 0; c = ((PlayerTask*)c)->mNext) {
+                fn_803E2410(c);
+            }
+            for (CharaTask* c = EnemyManager::sInstance->mHead; c != 0; c = ((EnemyTask*)c)->mNext) {
+                fn_803E2410(c);
+            }
+        }
+
+        if (lbl_8087EE68 != 0) {
+            // inferred: hate lines of the tactical view (towards the character under the cursor)
+            CharaTask* cursor = 0;
+            for (AiTarget* it = lbl_8087EE68->mE0.begin(); it != lbl_8087EE68->mE0.end(); it++) {
+                if (it->m08 == 0) {
+                    CharaTask* c = it->m0C;
+                    if (c != 0 && CanActB_unk(c) && lbl_8087F9F8 != 0 && lbl_8087F9F8->mA70 != 0) {
+                        cursor = c;
+                    }
+                }
+            }
+            if (lbl_8087F9F8 != 0 && lbl_8087F9F8->mA70 != 0) {
+                lbl_8087F3C0->mB8 = 5;
+                fn_80232B7C(m1554, 0);
+                int index = 0;
+                if (lbl_8087F9F8->m1590 == 1) {
+                    for (PlayerTask* c = lbl_8087F8A0->mHead; c != 0; c = c->mNext) {
+                        if (CanActB_unk(c)) {
+                            CharaTask* t = c->mC58.mC4;
+                            if (t != 0 && c->mC58.m114 != 4) {
+                                if (cursor != 0) {
+                                    t = cursor;
+                                }
+                                if (t != 0 && t->IsPartyMember_unk()) {
+                                    fn_803D7850(c, t, index, m15B4 != cursor);
+                                    index++;
+                                }
+                            }
+                        }
+                    }
+                } else if (lbl_8087F9F8->m1590 == 0) {
+                    for (EnemyTask* c = EnemyManager::sInstance->mHead; c != 0; c = c->mNext) {
+                        if (CanActB_unk(c)) {
+                            CharaTask* t = c->mC58.mC4;
+                            if (t != 0 && c->mC58.m114 != 4) {
+                                if (t != 0 && t->IsPartyMember_unk()) {
+                                    fn_803D7850(c, t, index, 0);
+                                    index++;
+                                }
+                            }
+                        }
+                    }
+                }
+                lbl_8087F3C0->mB8 = 0;
+                m15B4 = cursor;
+                m15B8 = 1;
+            } else {
+                fn_803D8344();
+            }
+
+            // inferred: aim lines from the head of every player to the target of the AI
+            AiTarget* aim = &lbl_8087EE68->m458;
+            GameUIAimTarget_unk* target = GetAimTarget_unk(aim);
+            if (target != 0) {
+                if (m1170 != target) {
+                    lbl_8087F3C0->mB8 = 5;
+                    fn_80232B7C(&m1158, 0);
+                    int k = 0;
+                    for (PlayerTask* c = lbl_8087F8A0->mHead; c != 0; c = c->mNext) {
+                        if (CanActB_unk(c)) {
+                            atn::Vector3 head = GetNodePos_unk(c->mMotion.GetNodeMtx_unk("head"));
+                            atn::Vector3 pos = aim->fn_8003E950();
+                            atn::Vector3 dir(pos.x - head.x, 0.0f, pos.z - head.z);
+                            if (dir.Length_unk() - 1.5f * (target->m5C * target->m28) > 10.0f) {
+                                dir.Normalize_unk();
+                                atn::Vector3 end = aim->fn_8003E950() - dir * (0.7f * (target->m5C * target->m28));
+                                end.y += 3.0f;
+                                dir = end - head;
+                                atn::Vector3 rot = dir.ToRotation_unk();
+                                float len = dir.Length_unk() / 50.0f;
+                                atn::Matrix3x4 trans;
+                                PSMTXTrans(trans.m, head.x, head.y, head.z);
+                                m1174[k].m00 = trans;
+                                m1174[k].m00.RotateZYX_unk(rot);
+                                atn::Matrix3x4 scale;
+                                atn::Vector3 size(1.0f, 1.0f, len);
+                                PSMTXScale(scale.m, size.x, size.y, size.z);
+                                atn::Matrix3x4 t;
+                                PSMTXConcat(m1174[k].m00.m, scale.m, t.m);
+                                m1174[k].m00 = t;
+                                atn::Vector3 to = head + dir;
+                                atn::Matrix3x4 trans2;
+                                PSMTXTrans(trans2.m, to.x, to.y, to.z);
+                                m1174[k].m30 = trans2;
+                                m1174[k].m30.RotateZYX_unk(rot);
+                                if (m1170 == 0) {
+                                    fn_8023A680(lbl_8087F3C0, &m1158, -1, 5, (atn::Model*)&m1174[k].m00, 0, 0, 0, 0, -1, 1, 1.0f);
+                                    fn_8023A680(lbl_8087F3C0, &m1164, -1, 5, (atn::Model*)&m1174[k].m30, 0, 0, 0, 0, -1, 1, 1.0f);
+                                }
+                                k++;
+                            }
+                        }
+                    }
+                    lbl_8087F3C0->mB8 = 0;
+                }
+            } else if (m1170 != 0) {
+                lbl_8087F3C0->mB8 = 5;
+                fn_80239DAC(lbl_8087F3C0, &m1158, 0, 0);
+                lbl_8087F3C0->mB8 = 0;
+            }
+            m1170 = target;
+        }
+
+        if (m254C != 0 && !m254C->IsEnd_unk()) {
+            m254C->MeltTask();
+        }
+        if (mDC4 != 0 && !mDC4->IsEnd_unk()) {
+            mDC4->MeltTask();
+        }
+
+        // inferred: icons of the skills used
+        if (event) {
+            m2568.m00 = 0;
+            m2564->SetEnd_unk();
+        } else if (m2568.m00 != 0) {
+            m2564->MeltTask();
+            if (m2568.m00 >= 2) {
+                m2564->mSpeed = 2.0f;
+            } else {
+                m2564->mSpeed = 1.0f;
+            }
+            SetLayoutText_unk(&m2564->mData.m10, "diffuseType", GetMsgEntry_unk(lbl_80750658[m2568.m[0].m00]));
+            switch (m2568.m[0].m00) {
+            case 0:
+            case 1:
+                SetIconColorHalf_unk(m2564, "diffuseColor", m26E8);
+                SetIconColor_unk(m2564, "diffuseColorSub", m26E8);
+                break;
+            case 2:
+            case 3:
+                SetIconColorHalf_unk(m2564, "diffuseColor", m26F8);
+                SetIconColor_unk(m2564, "diffuseColorSub", m26F8);
+                break;
+            case 4:
+            case 5:
+                SetIconColorHalf_unk(m2564, "diffuseColor", m2708);
+                SetIconColor_unk(m2564, "diffuseColorSub", m2708);
+                break;
+            case 6:
+            case 7:
+                SetIconColorHalf_unk(m2564, "diffuseColor", m2718);
+                SetIconColor_unk(m2564, "diffuseColorSub", m2718);
+                break;
+            case 8:
+            case 9:
+                SetIconColorHalf_unk(m2564, "diffuseColor", m26D8);
+                SetIconColor_unk(m2564, "diffuseColorSub", m26D8);
+                break;
+            case 10:
+                SetIconColorHalf_unk(m2564, "diffuseColor", m26C8);
+                SetIconColor_unk(m2564, "diffuseColorSub", m26C8);
+                break;
+            }
+            if (m2564->IsEnd_unk()) {
+                for (unsigned int i = &m2568.m[0] - m2568.m; i < m2568.m00 - 1; i++) {
+                    m2568.m[i] = m2568.m[i + 1];
+                }
+                m2568.m00 = m2568.m00 - 1;
+                if (m2568.m00 != 0) {
+                    m2564->Rewind_unk();
+                    mSeMask |= 0x400;
+                }
+            }
+        }
+
+        // inferred: notices (the sound when their delay runs out)
+        int notice = m255C;
+        if (notice >= 0 && m2568.m00 == 0) {
+            if (m2560 >= 0.0f) {
+                m2560 -= lbl_8087EFA8->m3A4;
+                if (m2560 <= 0.0f) {
+                    switch (notice) {
+                    case 0:
+                        fn_800C31F4(lbl_80750618[7], 0, -1, 1.0f);
+                        break;
+                    case 1:
+                        fn_800C31F4(lbl_80750618[8], 0, -1, 1.0f);
+                        break;
+                    case 2:
+                        fn_800C31F4(lbl_80750618[9], 0, -1, 1.0f);
+                        break;
+                    }
+                }
+            } else {
+                m2550[m255C]->MeltTask();
+                if (m2550[m255C]->IsEnd_unk()) {
+                    m255C = -1;
+                }
+            }
+        }
+
+        // inferred: counters over the characters
+        if (m25CC.m00 != 0) {
+            for (unsigned int i = 0; i < m25CC.m00; i++) {
+                if (m2610[i] != 0) {
+                    CharaTask* c = m25CC.m[i].m00;
+                    if (c != 0) {
+                        MtxPtr mtx = c->mMotion.GetNodeMtx_unk("head");
+                        atn::Vector3 pos = mtx != 0 ? GetNodePos_unk(mtx) : c->mColli.m48;
+                        pos.y += 5.0f;
+                        atn::Vector3 screen = atn::RenderManager::instance_->GetScreenPosition(pos);
+                        if (0.0f < screen.z && screen.z < 1.0f) {
+                            m2610[i]->MeltTask();
+                            AsSmallInst_unk(m2610[i])->SetValue1_unk("base_point", 0, screen.x);
+                            AsSmallInst_unk(m2610[i])->SetValue1_unk("base_point", 1, screen.y);
+                        }
+                    }
+                    float rate = 0.0f;
+                    if (m25CC.m[i].m08 > 0) {
+                        float q = (1.0f < (float)m25CC.m[i].m04 / (float)m25CC.m[i].m08)
+                                      ? 1.0f
+                                      : (float)m25CC.m[i].m04 / (float)m25CC.m[i].m08;
+                        if (0.0f > q) {
+                            rate = 0.0f;
+                        } else if (1.0f < (float)m25CC.m[i].m04 / (float)m25CC.m[i].m08) {
+                            rate = 1.0f;
+                        } else {
+                            rate = (float)m25CC.m[i].m04 / (float)m25CC.m[i].m08;
+                        }
+                    }
+                    AsSmallInst_unk(m2610[i])->SetValue0_unk("hpRate", rate);
+                }
+            }
+        }
+        m25CC.m00 = 0;
+
+        // inferred: marker over the current target
+        bool show = !event;
+        if (lbl_8087F610 != 0 && !lbl_8087F610->IsWaiting_unk()) {
+            show = false;
+        }
+        if (!show) {
+            m2620 = 0;
+            m2624 = 0;
+            m2628->mSpeed = -1.0f;
+            m2628->mFrame = 0.0f;
+        } else {
+            CharaTask* t = m2620 != 0 ? m2620 : m2624;
+            if (t != 0) {
+                MtxPtr mtx = t->mMotion.GetNodeMtx_unk("spine");
+                atn::Vector3 pos = mtx != 0 ? GetNodePos_unk(mtx) : t->mColli.m48;
+                if (t->m50 == 700104 || t->m50 == 302301 || t->m50 == 304201) {
+                    pos = t->mColli.m48;
+                }
+                atn::Vector3 screen = atn::RenderManager::instance_->GetScreenPosition(pos);
+                SetLayoutValue_unk(&m2628->mData.m10, "basePoint", 0, screen.x);
+                SetLayoutValue_unk(&m2628->mData.m10, "basePoint", 1, screen.y);
+            }
+            if (m2620 != 0) {
+                m2628->mSpeed = 1.0f;
+                m2628->MeltTask();
+            } else {
+                m2628->mSpeed = -1.0f;
+                if (m2628->mFrame > 0.0f) {
+                    m2628->MeltTask();
+                }
+            }
+        }
+
+        // inferred: level-up marker over a character: stats, then the skills learnt
+        if (m110C != 0) {
+            m1104->MeltTask();
+            Inventory* inv = Inventory::instance_;
+            Inventory::ExpEntry_unk* e = 0;
+            for (unsigned int i = 0; i < inv->mExpEntries.size(); i++) {
+                if (inv->mExpEntries[i].mChara == m110C) {
+                    e = &inv->mExpEntries[i];
+                    break;
+                }
+            }
+            if (Inventory::instance_->mDF30.mChara != 0) {
+                // inferred: the finishing skill keeps the stats in the same layout
+                e = (Inventory::ExpEntry_unk*)&inv->mDF30;
+            }
+            if (e != 0) {
+                SetLevelUp_unk(m1110, m110C, e);
+                SetLevelUp_unk(m1114, m110C, e);
+                if (m1120 == 0) {
+                    if (m110C->fn_8016E484() != 0) {
+                        GameUISkillTable_unk* table =
+                            fn_80219160(fn_80219558(m110C->m50), m110C->mStatus.mParamA.m78 - e->mLevelUp);
+                        if (table != 0 && lbl_8087F0A8->m194 == 0) {
+                            int n = 0;
+                            for (int i = 0; i < 128; i++) {
+                                if (table->mLearnt[i] == 0 && m110C->mStatus.fn_801346C8(i, 0)) {
+                                    new (&m1134[m1130]) GameUISkill_unk*(fn_8021AF50(i));
+                                    m1130++;
+                                    if (++n >= 2) {
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    if (Inventory::instance_->mDF30.m90 > 0) {
+                        GameUISkill_unk* s = fn_8021AF50(Inventory::instance_->mDF30.m90);
+                        if (s != 0) {
+                            new (&m1134[m1130]) GameUISkill_unk*(s);
+                            m1130++;
+                            m1104->SetEnd_unk();
+                        }
+                    }
+                    m1120 = 1;
+                }
+                if (m1130 != 0 && m1124 < m1130 && m1104->IsEnd_unk()) {
+                    if (++m1128 >= 30) {
+                        if (m1128 == 30) {
+                            fn_800C31F4("SE_UI001_017", 0, -1, 1.0f);
+                        }
+                        m1108->MeltTask();
+                        SetLayoutText_unk(&m1108->mData.m10, "skillName00", GetSkillName_unk(m1134[m1124]));
+                        SetLayoutText_unk(&m1108->mData.m10, "skillName01", GetSkillName_unk(m1134[m1124]));
+                        SetLayoutText_unk(&m1108->mData.m10, "skillName02", GetSkillName_unk(m1134[m1124]));
+                        SetLayoutText_unk(&m1108->mData.m10, "skillName03", GetSkillName_unk(m1134[m1124]));
+                        const wchar_t* desc = m1134[m1124]->m14 != 0 ? m1134[m1124]->m14 : lbl_808813D0;
+                        if (desc != 0) {
+                            mD90.m00 = 1;
+                            mD90.m04 = 0;
+                            mD90.m08 = desc;
+                            mDB0 = 2;
+                        }
+                        if (m1108->IsEnd_unk() && m1124 + 1 < m1130) {
+                            m1128 = 0;
+                            m1124 = m1124 + 1;
+                            m1108->Rewind_unk();
+                        }
+                    }
+                }
+            } else {
+                m110C = 0;
+                m1118 = 0;
+                m111C = 0;
+                m112C = 0;
+            }
+            if (m112C != 0 && m1118 >= 120) {
+                m1118 = 119;
+            }
+            if (m1118 > 120) {
+                m1110->MeltTask();
+                if (m1110->mFrame <= 1.0f) {
+                    m110C = 0;
+                    m1118 = 0;
+                }
+            } else if (m1118 == 120) {
+                m1110->MeltTask();
+                m1110->mSpeed = -1.0f;
+                m1110->SetEnd_unk();
+            } else if (m1118 != 0) {
+                if (m1110->IsEnd_unk()) {
+                    m1114->MeltTask();
+                    if (m111C == 0) {
+                        fn_801F465C(m1114, 1);
+                        m111C = 1;
+                    }
+                } else {
+                    m1110->MeltTask();
+                }
+            }
+            if (Inventory::instance_->mDF30.m90 > 0) {
+                m1104->FreezeTask();
+                m1110->FreezeTask();
+                m1114->FreezeTask();
+            }
+            m112C = 0;
+            m1118++;
+        }
+    }
+}
+
+extern "C" double fmod(double x, double y);
+// inferred: wraps an angle to -pi..pi (name invented)
+inline float WrapAngleF_unk(float a) {
+    a = fmod(a, 6.2831855f);
+    if (a > 3.1415927f) {
+        a -= 6.2831855f;
+    }
+    if (a < -3.1415927f) {
+        a += 6.2831855f;
+    }
+    return a;
+}
+extern "C" void fn_803DBD44(GameUI* ui); // inferred: updates the windows of the overlook view
+
+// inferred: icons of the tactical view (called by game/GameTask): the cursor ring on the ground spins and is
+// drawn with the colours of the effect under it, the order prompt window follows the state of the view;
+// `show` 0 hides the overlook windows, `keep` 0 also updates them (fn_803DBD44)
+// NONMATCHING: written from the asm
+void GameUI::fn_803DAB4C(int show, int keep) {
+    if (mDC8 != 0) {
+        if (m10F4->IsFlag_unk(4)) {
+            m10F4->Rewind_unk();
+        }
+        m10F4->FreezeTask();
+        m2544->FreezeTask();
+        m2548->FreezeTask();
+        if (show == 0) {
+            mDCC = 1;
+            if (mB20[1] != 0) {
+                for (int i = 1; i < 6; i++) {
+                    mB20[i]->FreezeTask();
+                    AsD2A_unk(mB20[i])->Rewind_unk();
+                }
+            }
+        } else {
+            if (mDCC >= 0) {
+                mDCC--;
+            }
+            int prompt = 0;
+            m253C = 0;
+            TacView* tac = lbl_8087F9F8;
+            if (tac != 0 && tac->mA70 != 0) {
+                atn::Vector3 center = lbl_8087F430->m910;
+                if (tac->m48.mState != 2) {
+                    mDD0 -= 0.12566371f;
+                    mDD0 = WrapAngleF_unk(mDD0);
+                } else if (tac->m15D8 != 0) {
+                    mDD0 -= 0.06283186f;
+                    mDD0 = WrapAngleF_unk(mDD0);
+                } else {
+                    mDD0 = 0.0f;
+                }
+                atn::Vector3 rot(-1.5707964f, mDD0, 0.0f);
+                float radius = 20.0f;
+                atn::Vector3 scale(radius * 3.5f, radius * 3.5f, radius * 3.5f);
+                center.y += 1.0f;
+                atn::Vector3 screen = atn::RenderManager::instance_->GetScreenPosition(center);
+                if (lbl_8087F9F8->m48.mState != 0 && lbl_8087F9F8->m15D8 == 0) {
+                    m10F4->MeltTask();
+                    SetLayoutValue_unk(&m10F4->mData.m10, "base_pos", 0, screen.x);
+                    SetLayoutValue_unk(&m10F4->mData.m10, "base_pos", 1, screen.y);
+                    if (m10F4->mFrame >= 5.0f) {
+                        m10F4->mFrame = 5.0f;
+                    }
+                }
+                if (lbl_8087F9F8->m15D8 != 0) {
+                    atn::Vector3 pos = lbl_8087F430->m910;
+                    bool colored = true;
+                    SkillEffect* best = 0;
+                    if (lbl_8087F9F8->m15D8 == 1) {
+                        float bestDist = 1e16f;
+                        for (unsigned int i = 0; i < 32; i++) {
+                            SkillEffect* e = lbl_8087F9E8->GetBullet_unk(i);
+                            if (e->m08 != 0) {
+                                atn::Sphere s(e->m10, e->m5C * e->m28);
+                                float limit = 6.0f + s.mRadius;
+                                atn::Vector3 d = s.mCenter - pos;
+                                float dist = PSVECSquareMag(&d);
+                                if (e->m5C * e->m28 > 15.0f && dist < limit * limit && dist < bestDist &&
+                                    (e->m04->mAC & 0x100000) != 0x100000) {
+                                    best = e;
+                                    bestDist = dist;
+                                }
+                            }
+                        }
+                    }
+                    atn::Vector2_unk uv0(0.0f, 0.0f);
+                    atn::Vector2_unk uv1(1.0f, 1.0f);
+                    if (best != 0) {
+                        HitInfo_unk* hit = best->GetHit_unk();
+                        if (hit == 0 || (hit->mAC & 0x40) == 0x40) {
+                            colored = false;
+                        }
+                    } else {
+                        colored = false;
+                    }
+                    bool busy = false;
+                    if (lbl_8087F9F8->m1598 != 0 || lbl_8087F9F8->m15EC != 0) {
+                        busy = true;
+                    }
+                    if (!busy) {
+                        atn::Color mul = *(const atn::Color*)&m2678;
+                        atn::Color add = *(const atn::Color*)&m2688;
+                        lbl_8087EEB0->fn_80064AC4(pos, rot, scale, uv0, uv1, add.ToU32(), 0, (int)&mE04, 0, -12.0f);
+                        lbl_8087EEB0->fn_80064AC4(pos, rot, scale, uv0, uv1, mul.ToU32(), 0, (int)&mDD4, 0, -13.0f);
+                        lbl_8087F9F8->fn_805AE034(0);
+                    } else if (colored) {
+                        atn::Color mul;
+                        atn::Color add;
+                        fn_803DEE24(best, (GameUIColor_unk*)&mul, (GameUIColor_unk*)&add);
+                        lbl_8087EEB0->fn_80064AC4(pos, rot, scale, uv0, uv1, add.ToU32(), 0, (int)&mE04, 0, -12.0f);
+                        lbl_8087EEB0->fn_80064AC4(pos, rot, scale, uv0, uv1, mul.ToU32(), 0, (int)&mDD4, 0, -13.0f);
+                        lbl_8087F9F8->fn_805AE034((TacViewTarget_unk*)best);
+                    } else {
+                        atn::Color mul = *(const atn::Color*)&m2698;
+                        atn::Color add = *(const atn::Color*)&m26A8;
+                        lbl_8087EEB0->fn_80064AC4(pos, rot, scale, uv0, uv1, add.ToU32(), 0, (int)&mE04, 0, -12.0f);
+                        lbl_8087EEB0->fn_80064AC4(pos, rot, scale, uv0, uv1, mul.ToU32(), 0, (int)&mDD4, 0, -13.0f);
+                        lbl_8087F9F8->fn_805AE034(0);
+                    }
+                }
+                if (mB20[1] != 0 && tac->m48.mState != 2) {
+                    prompt = 1;
+                    m253C = lbl_8087F9F8->fn_805AA824();
+                    if (m253C == 0) {
+                        prompt = 0;
+                    }
+                }
+            }
+            if (lbl_8087F9F8 != 0 && lbl_8087F9F8->mA7C > 0) {
+                prompt = 0;
+            }
+            if (prompt != 0) {
+                if (m2540 == 0) {
+                    m2540 = 1;
+                }
+            } else if (m2540 == 2) {
+                m2540 = 3;
+                m2544->mFrame = 10.0f;
+            }
+            switch (m2540) {
+            case 0:
+                m2544->mFrame = 0.0f;
+                m2548->mFrame = 0.0f;
+                break;
+            case 1:
+                m2544->MeltTask();
+                if (m2544->mFrame >= 5.0f) {
+                    m2540 = 2;
+                }
+                break;
+            case 2:
+                m2548->MeltTask();
+                break;
+            case 3:
+                m2544->MeltTask();
+                if (m2544->IsEnd_unk()) {
+                    m2540 = 0;
+                }
+                break;
+            }
+            if (m2540 != 3) {
+                float z = 15.0f;
+                wchar_t text[32];
+                memset(text, 0, sizeof(text));
+                wchar_t button[4];
+                memset(button, 0, sizeof(button));
+                switch (m253C) {
+                case 2:
+                    wcscpy(text, lbl_8078C638 + 16);   // "TARGET?"
+                    wcscpy(button, lbl_8078C638 + 24); // "A"
+                    break;
+                case 1:
+                    wcscpy(text, lbl_8078C638 + 26); // "RETURN?"
+                    wcscpy(button, lbl_8078C638 + 24);
+                    break;
+                case 3:
+                    wcscpy(text, lbl_8078C638 + 34); // "ORDER?"
+                    wcscpy(button, lbl_8078C638 + 24);
+                    break;
+                }
+                SetLayoutText_unk(&m2544->mData.m10, "string0001(1)", text);
+                SetLayoutText_unk(&m2544->mData.m10, "string0002(1)", text);
+                SetLayoutText_unk(&m2548->mData.m10, "string0001(1)", text);
+                SetLayoutText_unk(&m2548->mData.m10, "string0002(1)", text);
+                SetLayoutText_unk(&m2544->mData.m10, "buttonStr(1)(1)", button);
+                SetLayoutText_unk(&m2548->mData.m10, "buttonStr(1)(1)", button);
+                SetLayoutValue_unk(&m2544->mData.m10, "pos0001(2)", 2, z);
+                SetLayoutValue_unk(&m2548->mData.m10, "pos0001(2)", 2, z);
+                SetLayoutValue_unk(&m2544->mData.m10, "pos0007(2)", 0, 385.0f);
+                SetLayoutValue_unk(&m2548->mData.m10, "pos0007(2)", 0, 385.0f);
+                SetLayoutValue_unk(&m2544->mData.m10, "pos0007(2)", 1, 260.0f);
+                SetLayoutValue_unk(&m2548->mData.m10, "pos0007(2)", 1, 260.0f);
+            }
+        }
+        if (keep == 0) {
+            fn_803DBD44(this);
+        }
+        fn_803DE648();
+    }
+}
+
 // inferred: ring drawn under a character (textures mE34 and mE64); it spins while the tactical view points
 // at the character, and `fade` goes up or down by one each frame (0..8) and widens it
 // NONMATCHING: 98.7% - the original loads TacView::m48 once and compares it with 2 and then with 0 (MWCC
@@ -4164,7 +4932,6 @@ void GameUI::fn_803E3384() {
     m780.Reset_unk();
 }
 
-extern "C" GameConfig_unk* lbl_8087F0A8; // inferred: game settings (line colours of the hate display)
 // inferred: object whose name the button prompt shows (GameUIElem1C_unk::m10); name invented
 struct GameUINamed_unk {
     int m00;
@@ -4488,10 +5255,6 @@ void GameUI::fn_803E4100() {
     m834 = 0;
 }
 
-// inferred: position of a node matrix (name invented)
-inline atn::Vector3 GetNodePos_unk(MtxPtr m) {
-    return atn::Vector3(m[0][3], m[1][3], m[2][3]);
-}
 
 // inferred: starts the marker over the head of a character
 // NONMATCHING: code matches; only the offsets of its strings in the pool differ (earlier strings unwritten)
