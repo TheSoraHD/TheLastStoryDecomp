@@ -20,6 +20,7 @@
 #include "atn/Light_unk.h"
 #include "atn/DrawEntry_unk.h"
 #include "atn/DrawHelper.h"
+#include "atn/EulerToQuat_unk.h"
 
 extern "C" char* strcpy(char* dst, const char* src);
 extern "C" int strcmp(const char* a, const char* b);
@@ -99,7 +100,6 @@ extern "C" void fn_800910D4(atn::Matrix3x4** out, const atn::Matrix3x4* mats, co
 #include "atn/MotionCmd_unk.h"
 extern "C" void fn_800A0A68(atn::MotionCmd_unk* cmd, atn::Model* model, const atn::LH_Motion* src); // inferred: copies
 extern "C" float fn_800A08D4(atn::LH_Motion* motion); // inferred: length of the motion
-extern "C" void fn_800991D0(atn::Model* model, int advance); // inferred: applies the node edits/physics (not written)
 
 namespace atn {
 
@@ -116,27 +116,6 @@ inline atn::Vector3 ModelJoint_unk::GetRot_unk() const {
 
 inline atn::Vector3 ModelJoint_unk::GetTrans_unk() const {
     return m4C;
-}
-
-// inferred: rotation from euler angles (same as Quaternion_unk::fn_801498F0 of game/CharaTask.cpp); name
-// invented
-inline Quaternion_unk EulerToQuat_unk(const Vector3& rot) {
-    Quaternion_unk q;
-    float rx = rot.x;
-    float ry = rot.y;
-    float rz = rot.z;
-    float cx, cy, cz;
-    float sx, sy, sz;
-    nw4r::math::SinCosRad(&sx, &cx, rx / 2.0f);
-    nw4r::math::SinCosRad(&sy, &cy, ry / 2.0f);
-    nw4r::math::SinCosRad(&sz, &cz, rz / 2.0f);
-    float cycz = cy * cz;
-    float sysz = sy * sz;
-    q.w = cx * cycz + sx * sysz;
-    q.x = sx * cycz - cx * sysz;
-    q.y = cz * (cx * sy) + sz * (sx * cy);
-    q.z = sz * (cx * cy) - cz * (sx * sy);
-    return q;
 }
 
 inline NodeWork_unk::NodeWork_unk() {
@@ -567,14 +546,17 @@ int ModelBase::vf20() {
 void ModelBase::vf24() {
 }
 
-// NONMATCHING: 92.3% - stack layout (the path strings are above the boost::function temporaries)
+// NONMATCHING: 99.3% - stack slots (the path strings are above the boost::function temporaries); the directory
+// string lives in its own block (destroyed before the state is set, as in the original)
 void ModelBase::fn_8008B978(int unbound) {
     mFlag3_unk = unbound;
     if (!mFlag3_unk) {
-        std::string dir = fn_8006B0C8(std::string(fn_8008B130()));
-        for (unsigned int i = 0; i < m104.mMaterials.size(); i++) {
-            TexGetter_unk getter = boost::bind(&ModelBase::fn_80095B08, this, _1);
-            m104.mMaterials.mData[i]->fn_80080C20(dir, getter);
+        {
+            std::string dir = fn_8006B0C8(std::string(fn_8008B130()));
+            for (unsigned int i = 0; i < m104.mMaterials.size(); i++) {
+                TexGetter_unk getter = boost::bind(&ModelBase::fn_80095B08, this, _1);
+                m104.mMaterials.mData[i]->fn_80080C20(dir, getter);
+            }
         }
         m20C_31_24 = 4;
         mFlag2_unk = 1;
@@ -834,10 +816,53 @@ void ModelBase::fn_8008C950() {
     CalcMatrixStack(0, ModelNodeCallback_unk());
 }
 
+extern "C" void fn_8006FEBC(AABB_unk* screen, const AABB_unk* box); // inferred: screen rectangle of a box (atn/Geometry_unk.cpp)
+
+// inferred: the occlusion data of the model needs no test (flag 2, no occlusion data, or ready), as in
+// fn_8008CD60; name invented
+static inline bool IsReady_unk(ModelBase* model) {
+    bool ready = true;
+    bool noOcclusion = true;
+    if ((model->mFlags & 2) != 2 && fn_80476194(&model->mLods[0].mHandle) == 0) {
+        noOcclusion = false;
+    }
+    if (!noOcclusion && fn_804761B0(&model->mLods[0].mHandle) == 0) {
+        ready = false;
+    }
+    return ready;
+}
+
+// inferred: flag tests of mFlags (names invented)
+static inline bool HasFlag_unk(ModelBase* model, unsigned int flag) {
+    return (model->mFlags & flag) == flag;
+}
+
+// inferred: the model is drawn in the reflection pass (flags 0x400 or 0x800, and the scene reflects the
+// characters or flag 0x1000), as in fn_8008CD60; name invented
+static inline bool IsReflected_unk(ModelBase* model) {
+    bool reflect = false;
+    bool mirror = (model->mFlags & 0x400) == 0x400 || (model->mFlags & 0x800) == 0x800;
+    if (mirror) {
+        Scene* scene = model->m1DC;
+        if (scene == 0) {
+            scene = RenderManager::instance_->mScene;
+        }
+        bool chara = true;
+        if (scene->mReflectChara == 0 && (model->mFlags & 0x1000) != 0x1000) {
+            chara = false;
+        }
+        if (chara) {
+            reflect = true;
+        }
+    }
+    return reflect;
+}
+
 // inferred: queues the model in the render passes of its flags (only the occlusion pass while its occlusion
 // data is pending); updates the scene of the bounding sphere and draws the debug joints and sphere
-// NONMATCHING: 95.8% - the original keeps the flag tests as bool values (0/1 in registers: the test of 0x10000,
-// the occlusion and reflection conditions) and reloads mFlags for each pass test
+// NONMATCHING: 97.3% - the test of 0x10000 is materialized as a value in the original (subf/or/srwi) and mFlags is
+// reloaded for each pass test (the occlusion and reflection conditions are the inline bools IsReady_unk and
+// IsReflected_unk, shared with fn_8008D78C)
 void Model::fn_8008CD60() {
     if (fn_804761B0(&mLods[0].mHandle)) {
         RenderManager::instance_->AddRender(this, 0, m98);
@@ -854,22 +879,13 @@ void Model::fn_8008CD60() {
         RenderManager::instance_->AddRender(this, 0x10, m98);
         return;
     }
-    bool noOcclusion = (mFlags & 2) == 2 || fn_80476194(&mLods[0].mHandle);
-    bool occluder = noOcclusion || fn_804761B0(&mLods[0].mHandle);
-    if (occluder) {
+    if (IsReady_unk(this)) {
         RenderManager::instance_->AddRender(this, 0, m98);
     } else if (lbl_8087EFA8->m014 == 0) {
         if ((mFlags & 4) == 4) {
             RenderManager::instance_->AddRender(this, 3, m98);
         }
-        bool reflect = false;
-        if ((mFlags & 0x400) == 0x400 || (mFlags & 0x800) == 0x800) {
-            Scene* scene = (m1DC != 0) ? m1DC : RenderManager::instance_->mScene;
-            if (scene->mReflectChara != 0 || (mFlags & 0x1000) == 0x1000) {
-                reflect = true;
-            }
-        }
-        if (reflect) {
+        if (IsReflected_unk(this)) {
             RenderManager::instance_->AddRender(this, 4, m98);
         }
         if ((mFlags & 0x1000000) != 0x1000000 && (mFlags & 0x10) == 0x10) {
@@ -916,44 +932,152 @@ void ModelBase::vf18(RenderManager* view) {
     }
 }
 
-extern "C" void fn_8008E818(ModelBase* model, RenderManager* view); // inferred: draws the meshes
+// inferred: element-wise matrix sum and scale (the arguments of the constructor are evaluated from
+// the last one); names invented
+static inline Matrix3x4 MtxAdd_unk(const Matrix3x4& a, const Matrix3x4& b) {
+    return Matrix3x4(a.m[0][0] + b.m[0][0], a.m[0][1] + b.m[0][1], a.m[0][2] + b.m[0][2], a.m[0][3] + b.m[0][3],
+                     a.m[1][0] + b.m[1][0], a.m[1][1] + b.m[1][1], a.m[1][2] + b.m[1][2], a.m[1][3] + b.m[1][3],
+                     a.m[2][0] + b.m[2][0], a.m[2][1] + b.m[2][1], a.m[2][2] + b.m[2][2], a.m[2][3] + b.m[2][3]);
+}
+static inline Matrix3x4 MtxScale_unk(const Matrix3x4& a, float s) {
+    return Matrix3x4(a.m[0][0] * s, a.m[0][1] * s, a.m[0][2] * s, a.m[0][3] * s, a.m[1][0] * s, a.m[1][1] * s,
+                     a.m[1][2] * s, a.m[1][3] * s, a.m[2][0] * s, a.m[2][1] * s, a.m[2][2] * s, a.m[2][3] * s);
+}
+
+// inferred: bounding sphere of the shadow model m1C4 (its box, not scaled) in world space, with the matrix of
+// fn_80094F98 (expanded by the original in vf14); name invented
+static inline Sphere ShadowSphere_unk(ModelBase* model) {
+    ModelBase::Res_unk* res = (ModelBase::Res_unk*)model->m1C4.m08;
+    Sphere sphere;
+    sphere.mCenter = (res->GetMax_unk() + res->GetMin_unk()) * 0.5f;
+    sphere.mRadius = 0.5f * (res->GetMax_unk() - res->GetMin_unk()).Length_unk();
+    Matrix3x4 mtx = model->mMtx;
+    if (model->mB0 >= 0) {
+        if (model->mB4 >= 0) {
+            mtx = MtxScale_unk(MtxAdd_unk(model->mMtx.mNodes.mData[model->mB0], model->mMtx.mNodes.mData[model->mB4]),
+                               0.5f);
+        } else {
+            mtx = model->mMtx.mNodes.mData[model->mB0];
+        }
+    }
+    Vector3 center = sphere.mCenter;
+    PSMTXMultVec(mtx.m, &center, &center);
+    sphere.mCenter = center;
+    return sphere;
+}
+
+// inferred: visibility result of the entry of a map tree (visible when the entry is not set); name invented
+static inline int IsVisible_unk(const AABBTree::Handle& handle) {
+    int valid = 0;
+    if (handle.mTree != 0 && handle.mNode != 0) {
+        valid = 1;
+    }
+    if (valid) {
+        return handle.mTree->mVisible.mData[handle.mNode->mIndex];
+    }
+    return 1;
+}
+
+// inferred: visibility of the model for the view (called by vf18; mFlag6_unk is what vf10 and fn_8008E818 draw
+// by): the result of its entry in the map tree (m200), then the frustum test of its bounding sphere (or of the
+// shadow model), the occlusion test or the distance / screen size culling, the reflection pass, and the flags
+// 0x40000 (asks for the screen copy) and 0x400000 (always visible)
+// NONMATCHING: 96.4% - stack layout and registers (the address registers of the inlined matrices), the test of
+// flag 1 is materialized as a value in the original (subfic/or/srwi after reloading mFlags) and the box of the
+// sphere is built in place
+void ModelBase::fn_8008D78C(RenderManager* view) {
+    Sphere sphere = GetModel_unk()->fn_80094F98();
+    mFlag6_unk = IsVisible_unk(m200);
+    if (mFlag6_unk && !fn_8004FF58(&view->mCamera.mFrustum, &sphere)) {
+        mFlag6_unk = 0;
+        if (mFlag5_unk && mFlag4_unk) {
+            Sphere shadow = ShadowSphere_unk(this);
+            if (fn_8004FF58(&view->mCamera.mFrustum, &shadow)) {
+                mFlag6_unk = 1;
+            }
+        }
+    }
+    if (mFlag6_unk && !IsReady_unk(this)) {
+        if (lbl_8087EFA8->m1D0 != 0 && view->m2F8 != 0 && (mFlags & 0x2000000) != 0x2000000) {
+            AABB_unk box;
+            if (!HasFlag_unk(this, 1)) {
+                float r = sphere.mRadius;
+                box = AABB_unk(sphere.mCenter - Vector3(r, r, r), sphere.mCenter + Vector3(r, r, r));
+            } else {
+                box = GetModel_unk()->fn_80095300();
+            }
+            mFlag6_unk = RenderManager::instance_->fn_800C0A50(&box);
+        }
+    } else if (mFlag6_unk && IsReady_unk(this)) {
+        if ((view->mCamera.mPos - sphere.mCenter).Length_unk() - sphere.mRadius > lbl_8087EFA8->m1EC) {
+            mFlag6_unk = 0;
+        } else {
+            AABB_unk box = GetModel_unk()->fn_80095300();
+            AABB_unk screen;
+            fn_8006FEBC(&screen, &box);
+            if ((screen.mMax.x - screen.mMin.x) * (screen.mMax.y - screen.mMin.y) <
+                lbl_8087EFA8->m1F0 * lbl_8087EFA8->m1F0) {
+                mFlag6_unk = 0;
+            }
+        }
+    }
+    if (!mFlag6_unk) {
+        if (IsReflected_unk(this) && HasFlag_unk(this, 0x400)) {
+            Scene* scene = m1DC;
+            if (scene == 0) {
+                scene = RenderManager::instance_->mScene;
+            }
+            Vector3 center = sphere.mCenter;
+            PSMTXMultVec(scene->mReflect.m, &center, &center);
+            Sphere mirrored(center, sphere.mRadius);
+            if (fn_8004FF58(&view->mCamera.mFrustum, &mirrored)) {
+                mFlag6_unk = 1;
+            }
+        }
+    }
+    if (mFlag6_unk && (mFlags & 0x40000) == 0x40000) {
+        view->m54960 = 1;
+    }
+    if ((mFlags & 0x400000) == 0x400000) {
+        mFlag6_unk = 1;
+    }
+}
+
 
 // inferred: draw: picks the level of detail (with the LOD bias of the render settings in the shadow and
-// reflection passes), updates the skinning matrices for the view and draws (fn_8008E818, extern "C": as a
-// member it would need a new declaration in atn/Model_unk.h)
-// NONMATCHING: 92.0% - scheduling of the inlined sphere (fn_80094F98) and the early return layout
+// reflection passes), updates the skinning matrices for the view and draws (fn_8008E818)
+// NONMATCHING: 92.3% - scheduling of the inlined sphere (fn_80094F98)
 void ModelBase::vf10(RenderManager* view) {
-    if (m20C_31_24 != 8 || !mFlag6_unk) {
-        return;
-    }
-    int lod = m50;
-    Sphere sphere = GetModel_unk()->fn_80094F98();
-    if (view->GetPass_unk() == 3 || view->GetPass_unk() == 4) {
-        m50 += lbl_8087EFA8->m178;
-        if (m50 >= m20C_23_16) {
-            m50 = m20C_23_16 - 1;
+    if (m20C_31_24 == 8 && mFlag6_unk) {
+        int lod = m50;
+        Sphere sphere = GetModel_unk()->fn_80094F98();
+        if (view->GetPass_unk() == 3 || view->GetPass_unk() == 4) {
+            m50 += lbl_8087EFA8->m178;
+            if (m50 >= m20C_23_16) {
+                m50 = m20C_23_16 - 1;
+            }
         }
-    }
-    Matrix3x4 mtx = view->mCamera.mView;
-    if ((mFlags & 0x400) == 0x400 && view->GetPass_unk() == 4) {
-        Scene* scene = m1DC;
-        if (scene == 0) {
-            scene = RenderManager::instance_->mScene;
+        Matrix3x4 mtx = view->mCamera.mView;
+        if ((mFlags & 0x400) == 0x400 && view->GetPass_unk() == 4) {
+            Scene* scene = m1DC;
+            if (scene == 0) {
+                scene = RenderManager::instance_->mScene;
+            }
+            Matrix3x4 t;
+            PSMTXConcat(mtx.m, scene->mReflect.m, t.m);
+            mtx = t;
         }
-        Matrix3x4 t;
-        PSMTXConcat(mtx.m, scene->mReflect.m, t.m);
-        mtx = t;
+        if (view->GetPass_unk() != 10) {
+            fn_80091A90(mtx.m);
+        }
+        fn_8008E818(view);
+        const int* remap = mLods[m50].m10.mData;
+        if (view->GetPass_unk() == 10) {
+            CalcMatrixStack(0, ModelNodeCallback_unk());
+            fn_80091684(view->mCamera.mView.m, remap);
+        }
+        m50 = lod;
     }
-    if (view->GetPass_unk() != 10) {
-        fn_80091A90(mtx.m);
-    }
-    fn_8008E818(this, view);
-    const int* remap = mLods[m50].m10.mData;
-    if (view->GetPass_unk() == 10) {
-        CalcMatrixStack(0, ModelNodeCallback_unk());
-        fn_80091684(view->mCamera.mView.m, remap);
-    }
-    m50 = lod;
 }
 } // namespace atn
 
@@ -995,15 +1119,15 @@ static inline void SetDrawNodes_unk(DrawEntry_unk& entry, short* nodes, unsigned
 
 // inferred: draws the meshes of the model: level of detail (the shadow model in the shadow pass), materials
 // of the pass, world matrix and bounding sphere, then the draw state DrawEntry_unk (atn/ModelDraw_unk.cpp)
-// NONMATCHING: 93.9% - the original reads m50 and the colour m40 through the matrix block (GetMtx_unk + 0x48 /
-// + 0x38, as fn_80091684), m20C_7 is a signed bit there (srawi), the store of the blink value is scheduled after
-// the colour and the order of the stack arguments of the constructor
-extern "C" void fn_8008E818(atn::ModelBase* model, atn::RenderManager* view) {
-    using namespace atn;
-    ModelBase::Mtx_unk* mtx = model->GetMtx_unk();
-    ModelLod_unk* lod = &model->mLods[model->m50];
-    if (model->mFlag5_unk && model->mFlag4_unk && fn_8008B964()->GetPass_unk() == 3) {
-        lod = &model->m1C4;
+// NONMATCHING: 94.5% - the original reads m50 and the colour m40 through the matrix block (GetMtx_unk + 0x48 /
+// + 0x38, as fn_80091684), the store of the blink value is scheduled after the colour and the order of the
+// stack arguments of the constructor
+namespace atn {
+void ModelBase::fn_8008E818(RenderManager* view) {
+    ModelBase::Mtx_unk* mtx = GetMtx_unk();
+    ModelLod_unk* lod = &mLods[m50];
+    if (mFlag5_unk && mFlag4_unk && fn_8008B964()->GetPass_unk() == 3) {
+        lod = &m1C4;
     }
     int* remap = lod->m10.mData;
     if (view->GetPass_unk() == 10) {
@@ -1012,40 +1136,40 @@ extern "C" void fn_8008E818(atn::ModelBase* model, atn::RenderManager* view) {
             sBlinkDir_unk *= -1.0f;
         }
         sBlink_unk = ClampRef_unk(v, 0.0f, 1.0f);
-        model->m15C->mMaterials.mData[0]->mColor =
-            ToGXColor_unk(model->m14C, model->m150, model->m154, model->m158);
+        m15C->mMaterials.mData[0]->mColor =
+            ToGXColor_unk(m14C, m150, m154, m158);
     }
-    MaterialSet_unk* mats = &model->m104;
-    SimpleArray<int>* matRemap = &model->m104.m08[model->m50];
-    if (model->m138 != 0) {
-        mats = model->m138;
-        matRemap = &model->m138->m08[model->m50];
+    MaterialSet_unk* mats = &m104;
+    SimpleArray<int>* matRemap = &m104.m08[m50];
+    if (m138 != 0) {
+        mats = m138;
+        matRemap = &m138->m08[m50];
     }
     if (view->GetPass_unk() == 5) {
-        mats = model->m160;
-        matRemap = &model->m160->m08[model->m50];
+        mats = m160;
+        matRemap = &m160->m08[m50];
     } else if (view->GetPass_unk() == 10) {
-        mats = model->m15C;
-        matRemap = &model->m15C->m08[model->m50];
+        mats = m15C;
+        matRemap = &m15C->m08[m50];
     }
-    Sphere sphere = model->GetModel_unk()->fn_80094F98();
-    DrawCallback_unk cb = *(DrawCallback_unk*)&model->m1F0;
-    DrawEntry_unk entry(&lod->mHandle, (Mtx*)mtx, (Mtx*)model->m58, (int)mtx->mNodes.mData, (DrawColor_unk*)&model->m40,
-                        (DrawMaterials_unk*)mats, (DrawRemap_unk*)matRemap, &sphere, remap, model->mFlags,
-                        model->m1DC != 0 ? model->m1DC : RenderManager::instance_->mScene,
-                        (int)model->m208.get(), &cb);
-    entry.m44 = model->mEC.mData;
-    entry.m48 = model->m20C_7;
-    if (model->mFlag5_unk && model->mFlag4_unk && RenderManager::instance_->GetPass_unk() == 3) {
+    Sphere sphere = GetModel_unk()->fn_80094F98();
+    DrawCallback_unk cb = *(DrawCallback_unk*)&m1F0;
+    DrawEntry_unk entry(&lod->mHandle, (Mtx*)mtx, (Mtx*)m58, (int)mtx->mNodes.mData, (DrawColor_unk*)&m40,
+                        (DrawMaterials_unk*)mats, (DrawRemap_unk*)matRemap, &sphere, remap, mFlags,
+                        m1DC != 0 ? m1DC : RenderManager::instance_->mScene,
+                        (int)m208.get(), &cb);
+    entry.m44 = mEC.mData;
+    entry.m48 = m20C_7;
+    if (mFlag5_unk && mFlag4_unk && RenderManager::instance_->GetPass_unk() == 3) {
         entry.m4C = 0;
     } else {
-        entry.m4C = model->mF4.mData;
+        entry.m4C = mF4.mData;
     }
     SetDrawNodes_unk(entry, (short*)fn_804761CC(&lod->mHandle), fn_804761E8(&lod->mHandle));
-    if (lod == &model->m1C4) {
+    if (lod == &m1C4) {
         entry.m58 = 1;
     }
-    entry.m5C = (void*)model->m1E0;
+    entry.m5C = (void*)m1E0;
     int pass = RenderManager::instance_->GetPass_unk();
     if (pass == 8) {
         entry.m00 = 2;
@@ -1056,7 +1180,7 @@ extern "C" void fn_8008E818(atn::ModelBase* model, atn::RenderManager* view) {
     } else if (pass == 9) {
         entry.m00 = 4;
     } else if (pass == 0) {
-        if ((model->mFlags & 0x80) == 0x80) {
+        if ((mFlags & 0x80) == 0x80) {
             fn_80076760(lbl_8087EEE0, 6, 2);
         } else {
             fn_80076760(lbl_8087EEE0, 6, 1);
@@ -1064,22 +1188,34 @@ extern "C" void fn_8008E818(atn::ModelBase* model, atn::RenderManager* view) {
     }
     fn_8009B93C(&entry);
 }
+} // namespace atn
 
 inline atn::AABB_unk fn_8008F5F8(const atn::AABB_unk& box, const atn::Matrix3x4& m);
 
+// inferred: corners of the box of the meshes of a joint by value (names invented)
+static inline atn::Vector3 JointBoxMin_unk(const ModelJoint_unk* joint) {
+    return joint->m58;
+}
+static inline atn::Vector3 JointBoxMax_unk(const ModelJoint_unk* joint) {
+    return joint->m64;
+}
+
 // inferred: adds to `out` the world boxes of the joints of the tree from `node` (and its next siblings) whose
-// bounding sphere is in the frustum; `arg` is passed down unused. fn_8008F5F8 is inline (the original
+// bounding sphere is in the frustum; `arg` (the view matrix of vf14) is passed down unused. fn_8008F5F8 is inline (the original
 // expands it here and keeps its weak copy right after this function)
-// NONMATCHING: 80.4% - copies of the box corners and registers of the inlined fn_8008F5F8
-extern "C" void fn_8008EEDC(atn::ModelBase* model, const atn::ModelBase::NodeRes_unk* node, int arg,
+// NONMATCHING: 87.9% - copies of the box corners (the original copies the box to the scaled one in place) and
+// registers of the inlined fn_8008F5F8
+extern "C" void fn_8008EEDC(atn::ModelBase* model, const atn::ModelBase::NodeRes_unk* node, const atn::Matrix3x4* arg,
                             const Frustum_unk* frustum, atn::AABB_unk* out) {
     using namespace atn;
     ModelLod_unk* lod = &model->mLods[model->m50];
     while (node != 0) {
-        if (node->m70 != 0 && node->m2C != 0) {
+        bool mesh = node->m2C != 0;
+        bool visible = node->m70 != 0 && mesh;
+        if (visible) {
             Sphere sphere;
-            sphere.mCenter = (node->m58 + node->m64) * 0.5f;
-            Vector3 d = node->m58 - node->m64;
+            sphere.mCenter = (JointBoxMin_unk(node) + JointBoxMax_unk(node)) * 0.5f;
+            Vector3 d = JointBoxMin_unk(node) - JointBoxMax_unk(node);
             sphere.mRadius = PSVECMag(&d) * 0.5f;
             sphere.mRadius *= model->mAC;
             PSMTXMultVec(model->mMtx.mNodes.mData[node->m18].m, &sphere.mCenter, &sphere.mCenter);
@@ -1130,6 +1266,46 @@ inline atn::AABB_unk fn_8008F5F8(const atn::AABB_unk& box, const atn::Matrix3x4&
 }
 
 namespace atn {
+
+// inferred: sets both corners of a box (name invented)
+static inline void SetBox_unk(AABB_unk* box, const Vector3& min, const Vector3& max) {
+    box->mMin = min;
+    box->mMax = max;
+}
+
+// inferred: shadow caster test of atn/LayerShadow.cpp: bounding sphere of the model in world space (the one
+// of the shadow model in the shadow pass), culled by the frustum and by the shadow distance from the camera
+// position `pos`; when `bounds` is given, writes the box of the caster: the box of the sphere for a small
+// model, else the boxes of the visible joints (fn_8008EEDC, which gets `view` unused)
+// NONMATCHING: 98.2% - registers (the original keeps the level of detail in r31 and this in r26), the address
+// registers of the inlined matrix of fn_80094F98 and the stack slot of the copy of the shadow sphere center
+int ModelBase::vf14(const Matrix3x4* view, const Vector3* pos, const Frustum_unk* frustum, AABB_unk* bounds) {
+    ModelLod_unk* lod;
+    Sphere sphere;
+    lod = &mLods[m50];
+    if (mFlag5_unk && mFlag4_unk && RenderManager::instance_->GetPass_unk() == 3) {
+        sphere = ShadowSphere_unk(this);
+    } else {
+        sphere = GetModel_unk()->fn_80094F98();
+    }
+    if (!fn_8004FF58(frustum, &sphere)) {
+        return 0;
+    }
+    if ((*pos - sphere.mCenter).Length_unk() > lbl_8087EFA8->m104.mCullDist) {
+        return 0;
+    }
+    if (bounds != 0) {
+        if (sphere.mRadius < 15.0f * mAC) {
+            float r = sphere.mRadius;
+            *bounds = AABB_unk(sphere.mCenter - Vector3(r, r, r), sphere.mCenter + Vector3(r, r, r));
+        } else {
+            NodeRes_unk* root = ((Res_unk*)lod->m08)->m48[0];
+            SetBox_unk(bounds, Vector3(1e16f, 1e16f, 1e16f), Vector3(-1e16f, -1e16f, -1e16f));
+            fn_8008EEDC(this, root, view, frustum, bounds);
+        }
+    }
+    return 1;
+}
 
 void ModelBase::vf1C() {
 }
@@ -1259,13 +1435,13 @@ inline void AddMtx_unk(atn::Matrix3x4& d, const atn::Matrix3x4& a) {
 }
 
 // inferred: out[i] = mats[a] * wa + mats[b] * wb for each weight
-// NONMATCHING: 45% - the original computes and stores the first matrix before loading the second one
-// (8 saved float registers instead of 17)
-extern "C" void fn_800909B0(atn::Matrix3x4* out, const atn::Matrix3x4* mats, const SkinWeight2_unk* w, int n) {
+// NONMATCHING: 79.2% - scheduling of the second scaled matrix (the original stores it whole before the sum); the
+// matrices and weights are not const (with const pointers MWCC moves the loads of the second matrix above the
+// stores of the first one: 45%)
+extern "C" void fn_800909B0(atn::Matrix3x4* out, atn::Matrix3x4* mats, SkinWeight2_unk* w, int n) {
     for (int i = 0; i < n; i++) {
         *out = ScaleMtx_unk(mats[w->mIndex0], w->mWeight0);
-        atn::Matrix3x4 t = ScaleMtx_unk(mats[w->mIndex1], w->mWeight1);
-        AddMtx_unk(*out, t);
+        AddMtx_unk(*out, ScaleMtx_unk(mats[w->mIndex1], w->mWeight1));
         w++;
         out++;
     }
@@ -2148,18 +2324,6 @@ void Model::fn_80094F14(float u, float v) {
     }
 }
 
-// inferred: element-wise matrix sum and scale (the arguments of the constructor are evaluated from
-// the last one); names invented
-static inline Matrix3x4 MtxAdd_unk(const Matrix3x4& a, const Matrix3x4& b) {
-    return Matrix3x4(a.m[0][0] + b.m[0][0], a.m[0][1] + b.m[0][1], a.m[0][2] + b.m[0][2], a.m[0][3] + b.m[0][3],
-                     a.m[1][0] + b.m[1][0], a.m[1][1] + b.m[1][1], a.m[1][2] + b.m[1][2], a.m[1][3] + b.m[1][3],
-                     a.m[2][0] + b.m[2][0], a.m[2][1] + b.m[2][1], a.m[2][2] + b.m[2][2], a.m[2][3] + b.m[2][3]);
-}
-static inline Matrix3x4 MtxScale_unk(const Matrix3x4& a, float s) {
-    return Matrix3x4(a.m[0][0] * s, a.m[0][1] * s, a.m[0][2] * s, a.m[0][3] * s, a.m[1][0] * s, a.m[1][1] * s,
-                     a.m[1][2] * s, a.m[1][3] * s, a.m[2][0] * s, a.m[2][1] * s, a.m[2][2] * s, a.m[2][3] * s);
-}
-
 // inferred: bounding sphere in world space: the center of the box through the world matrix, or the
 // matrix of the node mB0 (the middle of the nodes mB0 and mB4 if both are set)
 // NONMATCHING: 99.5% - r3/r7 swapped between the node array and the address of the scaled matrix
@@ -2437,7 +2601,6 @@ void Model::fn_80097A9C(int motion, const LH_Motion* src) {
     }
     LH_Motion* slot = &m224.mData[motion].GetMotion_unk();
     *slot = *src;
-    slot->m08 = src->m08;
     fn_800A0A68(&m354.mData[motion], this, src);
 }
 
@@ -2657,7 +2820,7 @@ int Model::fn_80097E80(int advance) {
         }
     }
     fn_80098DD8(advance);
-    fn_800991D0(this, advance);
+    fn_800991D0(advance);
     if (m35C) {
         m35C((MotionBuffer*)m21C.mData, GetRes_unk()->m44);
     }
@@ -2896,6 +3059,98 @@ extern "C" void fn_80099010(MotionPose_unk* pose, const ModelJoint_unk* joint) {
         pose->m00 |= 4;
     }
 }
+
+extern "C" int fn_800A0548(atn::LH_Motion* motion, MotionPose_unk* pose, unsigned int hash, atn::NodeWork_unk* work,
+                           float frame); // inferred: samples a motion on a node by name hash (atn/Motion_unk.cpp)
+
+// inferred: samples the additive tracks 4 and 5 (after the main tracks and the fading track 3): with full weight
+// the motion replaces the node poses, else it is blended in with the track weight m10 (and the previous motion
+// m24 with its weight m2C while it fades out); the parts the motion does not set come from the bind pose of the
+// joint (fn_80099010). After track 4 the node pose callback m370 runs.
+// NONMATCHING: 99.6% - registers of the index and of the inlined fn_80099010 (r23/r22 in the original) and the
+// loop invariant stack addresses kept in saved registers
+namespace atn {
+void Model::fn_800991D0(int advance) {
+    const int* remap;
+    ModelBase::Res_unk* res = (ModelBase::Res_unk*)mLods[m50].m08;
+    remap = mLods[m50].m10.mData;
+    MotionPose_unk pose;
+    MotionPose_unk prev;
+    float speed = lbl_8087EFA8->m3A4;
+    float dt = m350 * speed;
+    for (int i = 4; i <= 5; i++) {
+        Model::Track_unk* t = &mTracks[i];
+        LH_Motion* motion = t->m04;
+        if (motion != 0) {
+            if (advance) {
+                t->m10 += t->m14;
+            }
+            if (t->m10 > t->m1C) {
+                t->m10 = t->m1C;
+            }
+            if (advance) {
+                t->m2C -= t->m14;
+            }
+            if (t->m2C < 0.0f) {
+                t->m2C = 0.0f;
+                t->m24 = 0;
+            }
+            bool full = Abs_unk(t->m10 - 1.0f) < 1.1920929e-7f;
+            for (int j = 0; j < res->m44; j++) {
+                ModelBase::NodeRes_unk* joint = res->m48[j];
+                int index = (remap != 0) ? remap[joint->m18] : joint->m18;
+                if (full) {
+                    fn_800A0548(motion, &m21C.mData[index], joint->m14, &m214.mData[index], t->m08);
+                    continue;
+                }
+                pose.m00 = 0;
+                if (fn_800A0548(motion, &pose, joint->m14, &m214.mData[index], t->m08) == 0) {
+                    continue;
+                }
+                fn_80099010(&m21C.mData[index], joint);
+                fn_80099010(&pose, joint);
+                if (t->m24 != 0 && t->m2C > 0.0f) {
+                    prev.m00 = 0;
+                    if (fn_800A0548(t->m24, &prev, joint->m14, &m214.mData[index], t->m28) != 0) {
+                        fn_80099010(&prev, joint);
+                        fn_80098948(&m21C.mData[index], 1, &m21C.mData[index], &prev, t->m2C);
+                    }
+                }
+                fn_80098948(&m21C.mData[index], 1, &m21C.mData[index], &pose, t->m10);
+            }
+            if (advance) {
+                t->m08 += t->m0C * dt;
+            }
+            if (t->m18 && t->m08 >= fn_800A08D4(motion)) {
+                t->m08 -= fn_800A08D4(motion);
+            }
+        } else if (t->m24 != 0) {
+            if (advance) {
+                t->m2C -= t->m14;
+            }
+            if (t->m2C < 0.0f) {
+                t->m2C = 0.0f;
+                t->m24 = 0;
+                continue;
+            }
+            for (int j = 0; j < res->m44; j++) {
+                ModelBase::NodeRes_unk* joint = res->m48[j];
+                int index = (remap != 0) ? remap[joint->m18] : joint->m18;
+                pose.m00 = 0;
+                if (fn_800A0548(t->m24, &pose, joint->m14, &m214.mData[index], t->m28) == 0) {
+                    continue;
+                }
+                fn_80099010(&m21C.mData[index], joint);
+                fn_80099010(&pose, joint);
+                fn_80098948(&m21C.mData[index], 1, &m21C.mData[index], &pose, t->m2C);
+            }
+        }
+        if (i == 4 && m370) {
+            m370((MotionBuffer*)m21C.mData, GetRes_unk()->m44);
+        }
+    }
+}
+} // namespace atn
 
 namespace atn {
 
