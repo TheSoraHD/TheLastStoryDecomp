@@ -31,6 +31,20 @@ Inicio: 2026-11-14 06:25 CET. Rama `agent-K`. Unidades: `game/AiTarget`, `game/B
   orden de la segunda copia de la matriz de color (el original carga antes las constantes de la mezcla) y los
   registros del ternario de `fn_803786FC`.
 
+- `GameTask::fn_80371790` (0x80371790, 3556 bytes): **escrita, NONMATCHING 97,3 %** (objdiff; fnstat 77 %). Firma
+  `void fn_80371790()` (sin cambio). Pose de victoria tras un combate (estado 9): copia local de
+  `Inventory::mExpEntries` (y de `mDF30` si hay remate), para cada miembro con nivel ganado (o el del remate) y
+  activo: con repeticion (`lbl_8087F0A8->mD0 == 1`) solo lo anade a la camara final; si no, lo pone en su punto de
+  movimiento mas cercano (`fn_803C1560`), busca una direccion libre (4 rayos `fn_8004ED34` girando 90 grados),
+  cuenta las habilidades nuevas por nivel (`fn_80219160`/`CharaStatus::fn_801346C8`), pone la animacion (0x177 si
+  aprendio algo, 4/5/3 segun el tipo), su matriz (traslacion, YXZ, escala) y lo anade a la camara final con ese
+  numero. Despues camara final 5, ventanas de mensajes, popup, efecto de dano apagado y congela el campo; sin
+  miembros, `Inventory::fn_8044D028`. Resto: el original construye la copia local con el constructor de
+  `ExpEntry_unk` (memset de `LevelUpResult_unk` y copia miembro a miembro), que `game/Inventory.h` no declara
+  (cabecera de otra familia, 58 unidades: pendiente), y los setters de `atn::Model` (`fn_80139F24`,
+  `fn_8013C554`, `SetMotionSpeed`, `SetMotionFrame`) van inline en el original y fuera de linea en
+  `atn/Model_unk.h`.
+
 ## Cambios de firma / layout (para el port)
 
 - `AIManager::vf14()` declarada (virtual) en `include/game/AiTarget.h`; `AIManager::m88` pasa de `int` a `NpcTask*`.
@@ -41,6 +55,9 @@ Inicio: 2026-11-14 06:25 CET. Rama `agent-K`. Unidades: `game/AiTarget`, `game/B
 - `ResManager` (`game/ResHandle.h`, `lbl_8087EF10`): `int m04` (menu abierto; es el `Mindows_unk::m04` de
   `atn/MindowsCommon.h`, que declara `lbl_8087EF10` con otro tipo: pendiente unificar).
 - `AiTarget.cpp`: `lbl_8087F048` declarado como `BattleTask*`.
+- `GameTask.cpp`: vista local `LevelSkills_unk` de la tabla de `fn_80219160` (la misma que `EquipSet_unk` de
+  `game/CharaStatus.cpp`): pendiente una cabecera comun. `Inventory::mDF30` se lee como `ExpEntry_unk` (sus 0x90
+  primeros bytes tienen esa forma; `InventoryFinish_unk` deberia derivar de `ExpEntry_unk`).
 
 ## Decisiones y hallazgos
 
