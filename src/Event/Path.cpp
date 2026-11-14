@@ -10,6 +10,7 @@
 #include "game/SetConfig.h"
 #include "atn/SoundCore.h"
 #include "game/Input_unk.h"
+#include "game/GameConfig_unk.h"
 #include "std/string_members.h"
 #include "Event/Actor.h"
 #include "atn/RenderManager.h"
@@ -98,7 +99,7 @@ extern "C" inline float fn_80011220(float x) {
 // inferred: settings (lbl_8087F0A8) and their pad input
 struct Settings_unk {
     // inferred: weak copy 0x80116BAC
-    Input_unk* fn_80116BAC() { return (Input_unk*)m48C; }
+    Input_unk* fn_80116BAC() { return (Input_unk*)&((GameConfig_unk*)this)->mInput; } // inferred: = GameConfig_unk::mInput
     unsigned char m000[0x48C];
     unsigned char m48C[1];
 };
