@@ -4414,6 +4414,94 @@ void GameTask::fn_80373164(CharaTask* owner, const atn::Vector3* pos, int id) {
     }
 }
 
+extern "C" ArenaTask* lbl_8087EE78;
+
+// NONMATCHING: 93.4% - scheduling of the second copy of the colour matrix (the constants of the camera blend are
+// loaded earlier in the original) and registers of the frames of the finish camera
+// inferred: starts the replay of the finishing blow (field state 7): freezes the field, rewinds the replay buffer
+// m5598 frames, starts the finish camera, lowers the sound and switches the render settings to monochrome
+void GameTask::fn_803731E8() {
+    m54E4 = 7;
+    m5598 = 88;
+    m55A4 = 15;
+    m559C = 90;
+    m5590->fn_8056F5B4(0);
+    if (m5594 == 0) {
+        mFinish.fn_80378610(1, lbl_8087F8A0->mHead, atn::Vector3(0.0f, 0.0f, 0.0f));
+    }
+    mFinish.m394 = 1;
+    int frames = 30;
+    mFinish.fn_803786FC(lbl_8087F8A0->mHead == mFinish.mChara ? 0 : frames);
+    ((atn::Task*)lbl_8087F048)->FreezeTask();
+    lbl_8087F8A0->FreezeTask();
+    EnemyManager::sInstance->FreezeTask();
+    NpcManager::sInstance->FreezeTask();
+    FriendManager::sInstance->FreezeTask();
+    lbl_8087EE68->FreezeTask();
+    m10D8->fn_800D246C(1);
+    GimmickManager::instance_->fn_803EE514();
+    lbl_8087F048->fn_8010129C();
+    GameTimer::sInstance->FreezeTask();
+    GameUI* ui = lbl_8087F490;
+    ui->mB08[0]->FreezeTask();
+    ui->mB08[1]->FreezeTask();
+    ui->mB08[2]->FreezeTask();
+    ui->mB08[3]->FreezeTask();
+    ui->mB08[4]->MeltTask();
+    ((atn::D2A_Task*)ui->mB08[4])->mFrame = 0.0f;
+    ui->mB20[0]->MeltTask();
+    ((atn::D2A_Task*)ui->mB20[0])->mFrame = 0.0f;
+    ui->mB08[5]->FreezeTask();
+    ui->mB20[1]->FreezeTask();
+    ((atn::D2A_Task*)ui->mB20[1])->mFrame = 0.0f;
+    ui->mB20[2]->FreezeTask();
+    ((atn::D2A_Task*)ui->mB20[2])->mFrame = 0.0f;
+    ui->mB20[3]->FreezeTask();
+    ((atn::D2A_Task*)ui->mB20[3])->mFrame = 0.0f;
+    ui->mB20[4]->FreezeTask();
+    ((atn::D2A_Task*)ui->mB20[4])->mFrame = 0.0f;
+    ui->mB20[5]->FreezeTask();
+    ((atn::D2A_Task*)ui->mB20[5])->mFrame = 0.0f;
+    lbl_8087F3C0->fn_800D246C(1);
+    lbl_8087F3C0->mPaused = 1;
+    lbl_8087F3C0->fn_8023A60C(0);
+    lbl_8087F3C0->fn_8023A60C(2);
+    lbl_8087F3C0->fn_8023A60C(3);
+    lbl_8087F3C0->fn_8023A60C(5);
+    m5590->fn_80570254(-m5598);
+    m5590->fn_8056D8C8(m559C - m5598, 1, 0);
+    mFinish.fn_803792F0();
+    lbl_8087EFE8->fn_800CFA28(1, 1, 2, 10);
+    if (GameBgm::sInstance != 0) {
+        float volume = GameBgm::sInstance->mReq.mVolume;
+        GameBgm::sInstance->fn_8037D49C(0.2f * volume, 10);
+    }
+    m55A8 = fn_800C31F4(sFieldSounds_unk[1], 0, -1, 1.0f);
+    if (lbl_8087EE78 != 0) {
+        lbl_8087EE78->fn_80043D58(2);
+    }
+    lbl_8087EFA8->m240.mEnabled = 1;
+    ColorMatrixParam_unk cm(*lbl_8087EFA8->GetColorMatrix_unk());
+    m55C4 = cm;
+    cm.mEnabled = 1;
+    cm.mMono = 1;
+    cm.mMonoRate = 1.0f;
+    lbl_8087EFA8->SetColorMatrix(cm);
+    m55C0 = lbl_8087EFA8->m3A4;
+    lbl_8087EFA8->m3A4 = 1.0f;
+    m55A0 = 20;
+    GameCameraParam_unk param(mCamera.m684);
+    param.m00 *= 0.5f;
+    param.m04 *= 0.8f;
+    param.m08 *= 0.6f;
+    if (mCamera.m4B4.mActive != 1 && mCamera.m4B4.mActive != 4) {
+        mCamera.m4B4.mActive = 1;
+        mCamera.m4C0 = param;
+        mCamera.m4B4.mStep = 0.033333335f;
+        mCamera.m4B4.mTime = 1.0f;
+    }
+}
+
 // inferred: ends the replay (field state 0): resumes the field and restores the render settings
 void GameTask::fn_803737C0() {
     m54E4 = 0;
@@ -4476,7 +4564,6 @@ extern "C" void fn_800CB5B4(atn::SoundRef* sound, int frames, float volume); // 
 extern "C" void fn_800CB5C8(atn::SoundRef* sound, int frames, int detach);  // inferred: stops the sound
 extern "C" const char* fn_800EFE3C(int id); // inferred: sound name of a voice
 extern "C" int fn_8021A984(HitInfo_unk* hit);
-extern "C" ArenaTask* lbl_8087EE78;
 // inferred: owner of the hit replayed by the rewind (m55B4; class unknown)
 struct ReplayHit_unk {
     unsigned char m00[0xB0];

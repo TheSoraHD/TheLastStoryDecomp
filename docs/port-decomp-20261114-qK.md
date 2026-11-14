@@ -21,6 +21,16 @@ Inicio: 2026-11-14 06:25 CET. Rama `agent-K`. Unidades: `game/AiTarget`, `game/B
   (`m90 == mId % 4`; si no, `mC58.m04++` y 0), bloque de entrada reducido y vuelta del estado y de `m140`/`m9C`.
   Resto: el mismo bloqueo que `fn_80017128` (ver hallazgos).
 
+- `GameTask::fn_803731E8` (0x803731E8, 1496 bytes): **escrita, NONMATCHING 93,4 %**. Firma `void fn_803731E8()`
+  (sin cambio). Empieza la repeticion del golpe final (estado 7 del campo): `m5598 = 88`, `m559C = 90`,
+  `m55A4 = 15`, graba el frame en `m5590`, camara final (`fn_80378610` si no hay repeticion, `m394 = 1`,
+  `fn_803786FC(lider == mChara ? 0 : 30)`), congela los gestores y el HUD (descongela `mB08[4]`/`mB20[0]`),
+  efectos en pausa, rebobina el `ReplayBuffer`, baja el sonido y la BGM (x0,2), suena `sFieldSounds_unk[1]` en
+  `m55A8`, voz de la arena, matriz de color monocroma (guarda la actual en `m55C4` y la velocidad en `m55C0`) y
+  mezcla de la camara hacia `m684` escalado (0,5/0,8/0,6) con `m4B4`. Es la inversa de `fn_803737C0`. Resto:
+  orden de la segunda copia de la matriz de color (el original carga antes las constantes de la mezcla) y los
+  registros del ternario de `fn_803786FC`.
+
 ## Cambios de firma / layout (para el port)
 
 - `AIManager::vf14()` declarada (virtual) en `include/game/AiTarget.h`; `AIManager::m88` pasa de `int` a `NpcTask*`.
@@ -33,6 +43,12 @@ Inicio: 2026-11-14 06:25 CET. Rama `agent-K`. Unidades: `game/AiTarget`, `game/B
 - `AiTarget.cpp`: `lbl_8087F048` declarado como `BattleTask*`.
 
 ## Decisiones y hallazgos
+
+- `symbols.txt` de GameTask: tras `pd.sh` quedaron 5 etiquetas de `.sdata2` sin emparejar (0x8088571C, 0x80885730-38,
+  0x808857A8) y dos `lbl_` nuevas que ahora usa el fuente (0x808857E0/E4); renombradas a mano a las `@N` de
+  nuestro `.o` (valores comprobados con `poolcheck`). En AiTarget lo mismo con 0x808806F0-F8.
+- Ternario sin salto `x == y ? 0 : n` con `li n` + `nor/srawi/andc`: el original tiene la constante en un local
+  (`int frames = 30;`); con el literal sale `rlwinm` (como el truco ya apuntado de `andc`).
 
 - Cadenas de formato del original seguidas de un `""` en `@stringBase0`: se escriben con `"\0"` final
   (`"%d\0"`), como en el original.

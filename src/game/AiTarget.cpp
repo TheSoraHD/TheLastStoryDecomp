@@ -1,6 +1,6 @@
 // AI manager (AIManager, lbl_8087EE68) and its targets (AiTarget).
-// Only part of the unit is written: the large functions (vf14 0x80014A5C, the route search
-// 0x80018D5C-0x8001A228) are still missing, so the unit is not linked. The unit ends with the weak
+// Every function is written, but several are not at 100% yet (vf14, the AI script steps fn_80017128/fn_8001794C,
+// the route search 0x80018D5C-0x8001A228), so the unit is not linked. The unit ends with the weak
 // copies of std::runtime_error, boost::bad_function_call and the std::tr1::shared_ptr deleter
 // (include/std/stdexcept.h; formerly the split std/runtime_error.cpp).
 #include <boost/function.hpp>
