@@ -1,7 +1,7 @@
 // inferred: cache of composed textures (used by atn::CompositeIntensityTintMulti and atn::Model): an MSL
 // std::list of reference counted entries kept in a function-level static. File and class names invented;
-// the types are duplicated in src/atn/CompositeIntensityTintMulti.cpp.
-#include "atn/Texture_unk.h"
+// the entry types are in atn/CompositeCache_unk.h.
+#include "atn/CompositeCache_unk.h"
 #include "atn/Memory.h"
 #include "std/list.h"
 
@@ -9,46 +9,6 @@ extern "C" unsigned int fn_800DC6B4(const char* str); // inferred: hash of a str
 
 namespace atn {
 
-// inferred: RGBA color
-struct CacheColor_unk {
-    float r, g, b, a;
-};
-
-// inferred: description of one layer (0x40 bytes; see CompositeLayerDesc_unk in CompositeIntensityTintMulti.cpp)
-struct CompositeLayerDesc_unk {
-    const char* mPath;        // 0x00
-    CacheColor_unk mColor[3]; // 0x04
-    int mUse[3];              // 0x34
-};
-
-// inferred: the same layer with the hash of its path
-struct CompositeKeyLayer_unk {
-    unsigned int mHash;       // 0x00
-    CacheColor_unk mColor[3]; // 0x04
-    int mUse[3];              // 0x34
-};
-
-// inferred: key of a cached texture (0x188 bytes)
-struct CompositeKey_unk {
-    CompositeKey_unk(const char* base, const CompositeLayerDesc_unk* layers, int count);
-    bool fn_800D82BC(const CompositeKey_unk& other) const;
-
-    unsigned int mHash;               // 0x00
-    int mCount;                       // 0x04
-    CompositeKeyLayer_unk mLayers[6]; // 0x08
-};
-
-// inferred: cached composed texture (refcounted; 0x1BC bytes)
-struct CompositeCacheEntry_unk {
-    CompositeCacheEntry_unk(const char* base, const CompositeLayerDesc_unk* layers, int count)
-        : mRefCount(0), mKey(base, layers, count) {}
-    void fn_800D8448();
-    void fn_800D8458();
-
-    int mRefCount;          // 0x000
-    CompositeKey_unk mKey;  // 0x004
-    Texture_unk mTexture;   // 0x18C
-};
 
 // inferred: the MSL list destroys its nodes in its destructor (std/list.h has no destructor so that the
 // other users are not changed); two levels as in the MSL __list_imp

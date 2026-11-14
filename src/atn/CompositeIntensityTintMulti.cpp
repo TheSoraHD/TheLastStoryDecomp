@@ -1,5 +1,6 @@
 #include "atn/Texture_unk.h"
 #include "atn/Color.h"
+#include "atn/CompositeCache_unk.h"
 #include "atn/Memory.h"
 #include "std/vector.h"
 
@@ -65,18 +66,6 @@ struct CompositeColor_unk {
     float r, g, b, a;
 };
 
-// inferred: description of one layer (0x40 bytes; names invented)
-struct CompositeLayerDesc_unk {
-    const char* mPath;     // 0x00
-    Color4f_unk mColor[3]; // 0x04
-    int mUse[3];           // 0x34
-};
-
-// inferred: cached composed texture (refcounted; 0x1BC bytes)
-struct CompositeCacheEntry_unk {
-    void fn_800D8448(); // inferred: add a reference
-    void fn_800D8458(); // inferred: release
-};
 
 // inferred: cache of composed textures (an MSL std::list in a function-level static; names invented)
 struct CompositeCacheNode_unk {
@@ -114,7 +103,7 @@ struct CompositeCacheHandle_unk {
     CompositeCacheHandle_unk();
     void AddRef_unk() const;
     void Release_unk();
-    Texture_unk* fn_800D8808() { return (Texture_unk*)((char*)mEntry + 0x18C); } // weak copy 0x800D8808
+    Texture_unk* fn_800D8808() { return &mEntry->mTexture; } // weak copy 0x800D8808
     CompositeCacheEntry_unk* mEntry;
 };
 
