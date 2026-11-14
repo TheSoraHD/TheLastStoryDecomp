@@ -143,9 +143,13 @@ void FinishCamera_unk::fn_80378610(int mode, CharaTask* chara, const atn::Vector
     mRot = chara->mRot;
 }
 
-// NONMATCHING: 99.2% - r8/r9 swapped in the temporaries of the entry copy
+// inferred: the entry is filled member by member (the constructor with arguments swaps r8/r9)
 void FinishCamera_unk::fn_8037865C(CharaTask* chara, const atn::Vector3& a, const atn::Vector3& b, int arg) {
-    FinishCameraEntry_unk entry(chara, a, b, arg);
+    FinishCameraEntry_unk entry;
+    entry.mChara = chara;
+    entry.m04 = a;
+    entry.m10 = b;
+    entry.m1C = arg;
     if (mEntries.mCount < 7) {
         mEntries.PushBack_unk(entry);
     }

@@ -50,6 +50,10 @@ Unidades: game/GameUI, game/PopupTask, game/TacView, game/GameCamera_unk, game/F
   `fn_800109E0` (tres RotRad + Concat) y `ToRotation_unk` (atan2), con PSMTX44MultVec: unas 170 diferencias de
   logica frente a fn_80384188; con el mismo problema de presupuesto de inline no pasaria del ~30 %.
 
+- `FinishCamera_unk::fn_8037865C` (0x8037865C): 99,2 -> **100 %** (mnemcheck limpio): la entrada se rellena
+  miembro a miembro en vez de con el constructor con argumentos. `fn_80379104` (99,7 %): asgwrap y el orden de las
+  declaraciones no lo arreglan.
+
 ## Cambios de firma o de layout (para el port)
 
 - `GameUI.h`: `float mE94[32]` (antes `unsigned char mE94[0x80]`): fundido de los anillos de los enemigos.
@@ -80,6 +84,8 @@ Unidades: game/GameUI, game/PopupTask, game/TacView, game/GameCamera_unk, game/F
 - `dist[i] = d.y * d.y;` y comparar luego con `dist[i]` da el `frsp` del original (con `key = dist[i] = ...` no).
 - Quitar una declaracion `extern "C"` con 5 parametros con nombre renumera (-5) las `@N` de la unidad; pairdata
   no las recoloca todas: compilar el .o de antes y el de despues y renombrar por (seccion, offset) entre ambos.
+- Construir un struct local con su constructor con argumentos cruza r8/r9 en las direcciones de sus Vector3;
+  rellenarlo miembro a miembro tras el constructor por defecto da el orden del original (FinishCamera fn_8037865C).
 - Tras `pd.sh`, si `labelcheck` sigue con faltas, emparejar por offset del `.sdata2` del .o (valor igual) y
   renombrar a mano.
 
