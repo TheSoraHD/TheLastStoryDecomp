@@ -4,6 +4,7 @@
 #include "atn/GXDecl.h"
 #include "atn/RenderManager.h"
 #include "atn/PostFxManager.h"
+#include "atn/IRender.h"
 
 // inferred: render manager (lbl_8087EEE0; see atn/Layer2DBlur.cpp)
 struct PostFxRenderMgr_unk {
@@ -18,17 +19,6 @@ extern "C" void fn_80075F58(PostFxRenderMgr_unk* mgr, int x, int y, int w, int h
 extern "C" void fn_80075DEC(PostFxRenderMgr_unk* mgr);  // inferred: restores the viewport
 
 namespace atn {
-
-// inferred: renderer interface (local copies in other files, e.g. atn/LinearAllocator.cpp)
-class IRender {
-public:
-    virtual ~IRender() {}
-    virtual int vf0C(); // 0x80046218
-    virtual void vf10(void* camera) = 0;
-    virtual int vf14(void* arg1, void* arg2, void* frustum);
-    virtual void vf18();
-    virtual void vf1C(); // 0x800461FC
-};
 
 // inferred: base of the post effects (only its RTTI is known, emitted by atn/PostFxBloom.cpp)
 class IPostFx : public IRender {};

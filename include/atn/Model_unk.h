@@ -88,7 +88,7 @@ struct ModelBase : public IRender {
     virtual ~ModelBase();              // 0x8008A76C
     virtual int GetRenderType_unk();                 // 0x80099F68
     virtual void vf10(RenderManager* view);         // 0x8008E304: inferred: draw
-    virtual int vf14(void* arg1, void* arg2, void* frustum); // 0x8008FA24
+    virtual int vf14(const Matrix3x4*, const Vector3*, const Frustum_unk*, AABB_unk*); // 0x8008FA24: shadow test
     virtual void vf18(RenderManager* view);         // 0x8008D6C0
     virtual void vf1C();                             // 0x800902BC
     virtual int vf20();                              // 0x8008B96C: inferred: still loading
@@ -104,7 +104,7 @@ struct ModelBase : public IRender {
     void fn_8008B978(int unbound);               // inferred: binds the textures of the materials
     void fn_8008C62C(int lod);                   // inferred: maps the materials of a level to the main ones
     void fn_8008C950();                          // inferred: sets up the nodes after loading
-    void fn_8008D78C();                          // inferred
+    void fn_8008D78C(RenderManager*);            // inferred: visibility (writes mFlag6_unk); view in r4 (left by vf18)
     void fn_8009076C(const Mtx m);               // inferred: applies m to the world and node matrices
     void fn_80091684(const Mtx m, const int* remap); // inferred: builds the skinning matrices
     void fn_80091A90(const Mtx m);                   // inferred: updates the skinning matrices for m
