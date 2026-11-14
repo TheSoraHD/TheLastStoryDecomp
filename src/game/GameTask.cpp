@@ -2374,8 +2374,6 @@ void GameTask::fn_8036CA60(int warp) {
     }
 }
 
-extern "C" void fn_800E4278(PlayerTask* player, GameTask* task); // inferred: input of the leader
-
 // inferred: update of the field in state 0 (camera, leader input, depth of field, skip of the tutorial)
 // NONMATCHING: 98.7% - the original reloads lbl_8087EFA8 before storing the depth of field and keeps the camera
 // distance in f4
@@ -2383,7 +2381,7 @@ void GameTask::fn_8036CC90() {
     PlayerTask* leader = lbl_8087F8A0->mHead;
     mCamera.fn_8038F52C(leader);
     if (mCamera.m7FC != 6 && !leader->IsFlag_unk(4) && !leader->IsFlag_unk(1) && m56D4 == 0) {
-        fn_800E4278(leader, this);
+        leader->fn_800E4278(this);
     }
     fn_8036CFA4();
     DofParam_unk dof = lbl_8087EFA8->mDof;

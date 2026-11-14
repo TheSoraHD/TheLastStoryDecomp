@@ -415,7 +415,7 @@ public:
     int m3E2EC;
     int m3E2F0;
     atn::D2A_Task* m3E2F4; // inferred: d2anime task (made by fn_800F39A4)
-    unsigned char m3E2F8[0x3E2FC - 0x3E2F8];
+    int m3E2F8; // inferred: last recovery shown by m3E2F4 (fn_800FDF14)
     float m3E2FC; // inferred: alpha of the chant effect
     int m3E300;   // inferred: state of the chant effect (1: fading in, 2: fading out)
     EffectColor_unk m3E304; // inferred: color of the chant effect (set to 1, 1, 1, 1)
