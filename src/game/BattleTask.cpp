@@ -1474,9 +1474,10 @@ void BattleTask::vf14() {
     }
 }
 
-// DRAFT: written for the weak copies; the drawing of the target line is incomplete
-// NONMATCHING: draft - draws the target line of `chara` (base and head models, the line through the
-// clipped segment and the appearance animation)
+// inferred: draws the target line of `chara` (base and head models, the line through the clipped segment and
+// the appearance animation)
+// NONMATCHING: 98.2% - registers; the results of fn_800F8014 are passed to Color::operator= from r3 in the
+// original (a temporary here); the early return of IsPartyMember_unk branches the other way
 void BattleTask::fn_800F72F4(BattleCharaTask* chara, int arg) {
     if (chara->fn_800EE180() == 0) {
         return;
@@ -1603,7 +1604,7 @@ void BattleTask::fn_800F72F4(BattleCharaTask* chara, int arg) {
             float f = (float)(count - i - 1) / 6.0f;
             v->mPos = atn::Lerp_unk(to, marker->m60, f);
             v->mPos += (v->mPos - from).GetNormalize() * (4.0f * (1.0f - f * f));
-            verts[i].mColor = color.ToU32();
+            verts[i + 1].mColor = color.ToU32();
             v->mUV = fn_800F84D8(atn::Vec2_unk(1.0f, 0.0f), atn::Vec2_unk(0.0f, 0.0f), (float)i / (float)count);
         }
         fn_800F7250()->fn_80064F00(verts, count + 1, 0xA0, 0, (int)&mLineTex, 0.0f);
