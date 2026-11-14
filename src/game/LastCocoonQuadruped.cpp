@@ -1562,10 +1562,6 @@ void LastCocoonQuadruped::fn_80467F50() {
     fn_800C344C("SE_EM206_001", &mPos, 0, -1, 1.0f);
 }
 
-extern "C" int fn_800FBA9C(BattleTask* mgr, CharaTask* chara, CharaTask* target, HitInfo_unk* data, int arg,
-                           float f); // inferred: the attack reaches the target
-extern "C" int fn_800FBE70(BattleTask* mgr, CharaTask* chara, CharaTask* target, HitInfo_unk* data, int arg,
-                           atn::Vector3* dir, int a, int b); // inferred: the attack in `dir` reaches the target
 
 // NONMATCHING: 97.7% - `m560 == 4 || m560 == 5` becomes a range test (two compares in the original), which
 // shifts the registers r23-r31

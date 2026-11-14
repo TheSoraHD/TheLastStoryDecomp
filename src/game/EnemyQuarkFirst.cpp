@@ -681,8 +681,6 @@ void EnemyQuarkFirst::vf104() {
 
 extern "C" void fn_8023A108(EffectMgr_unk* mgr, atn::EfpFile* efp, int id, int arg); // inferred: effect fade
 extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float volume); // inferred: plays a sound
-extern "C" int fn_800FBA9C(BattleTask* mgr, CharaTask* chara, CharaTask* target, HitInfo_unk* data, int arg,
-                           float f); // inferred: the attack reaches the target (>= 0)
 
 // inferred: the counter attack reaches m14E4 (name invented)
 inline bool EnemyQuarkFirst::CanHitTarget_unk(HitInfo_unk* hit) {

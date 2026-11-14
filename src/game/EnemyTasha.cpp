@@ -46,9 +46,6 @@ extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); /
 extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the next effects
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
 BattleTask* fn_8013A194();
-// inferred: the bullet of `owner` that hits `chara` (index, negative if none)
-extern "C" int fn_800FBA9C(BattleTask* mgr, CharaTask* chara, CharaTask* owner, HitInfo_unk* hit, int arg,
-                           float f);
 // inferred: skill effect manager (lbl_8087F9E8; weak copy 0x80356FFC is its accessor)
 
 extern "C" void* lbl_8087EE98;

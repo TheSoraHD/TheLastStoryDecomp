@@ -132,7 +132,6 @@ extern "C" void fn_8044D104(void* mgr, int kind, int id, int arg, int chara);
 extern "C" int fn_80219558(int id); // inferred: party member kind of a character id
 extern "C" void fn_800FDB20(BattleTask* mgr, CharaTask* owner, CharaTask* target, int arg, HitInfo_unk* data, int id,
                             const atn::Vector3* pos, const atn::Vector3* dir, float scale);
-extern "C" void fn_80101434(BattleTask* mgr, const atn::Vector3* pos, const atn::Vector3* rot, int a, int b);
 
 // inferred: small inline helpers whose weak copies are emitted in this file (other files call them by these
 // automatic names)

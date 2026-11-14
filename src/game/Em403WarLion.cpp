@@ -1558,11 +1558,6 @@ struct CollObj_unk {
     unsigned int m08;
     CharaTask* m0C;
 };
-// inferred: the magic `data` of `chara` targets `target` (bullet manager); returns < 0 when not
-extern "C" int fn_800FBA9C(BattleTask* mgr, CharaTask* chara, CharaTask* target, HitInfo_unk* data, int arg,
-                           float f);
-extern "C" int fn_800FBE70(BattleTask* mgr, CharaTask* chara, CharaTask* target, HitInfo_unk* data, int arg,
-                           atn::Vector3* pos, int a, int b);
 
 // NONMATCHING: 98.28% - asignacion de GPR (this en r27 en el original) y el id del control releido
 // inferred: looks for a player that attacks the war lion (magic, arrows or the gun) and gives the

@@ -1437,7 +1437,6 @@ extern "C" int fn_8004ED34(void* world, atn::ColliResult_unk* result, const atn:
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
 extern "C" void fn_800FDB20(BattleTask* mgr, CharaTask* owner, CharaTask* target, int arg, HitInfo_unk* data, int id,
                             const atn::Vector3* pos, const atn::Vector3* dir, int time, float scale);
-extern "C" void fn_80101434(BattleTask* mgr, const atn::Vector3* pos, const atn::Vector3* rot, int a, int b);
 
 // NONMATCHING: 98.4% - stack slots of the local vectors and matrices
 // inferred: flight of the thrown egg (m14F4): it explodes after m14D8 frames, sticks to the character it

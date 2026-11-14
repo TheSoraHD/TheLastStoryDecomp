@@ -5699,7 +5699,6 @@ struct EffectMgr_unk {
     int mB8;
 };
 extern "C" EffectMgr_unk* lbl_8087F3C0;
-extern "C" void fn_8010C00C(BattleTask* mgr, CharaTask* chara);
 extern "C" void fn_800FC410(BattleTask* effect, CharaTask* chara, CharaTask* target, int arg, HitInfo_unk* hit, int id,
                             int frames);
 extern "C" bool fn_80051A88(const atn::Model::Sphere_unk* sphere, const atn::Vector3* point); // inferred: point in sphere

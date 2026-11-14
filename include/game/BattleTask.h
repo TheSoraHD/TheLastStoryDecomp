@@ -521,5 +521,13 @@ extern "C" void fn_80108F38(BattleTask*, const atn::Vector3*, int);
 extern "C" void fn_801092C8(BattleTask*, int, CharaTask*, int, int);
 // inferred: splash on water between two points
 extern "C" void fn_8010A308(BattleTask*, const atn::Vector3*, const atn::Vector3*, float);
+// inferred: hit of a melee attack (mgr, attacker, chara, data, id, angle)
+extern "C" int fn_800FBA9C(BattleTask*, CharaTask*, CharaTask*, HitInfo_unk*, int, float);
+// inferred: hit at a position (mgr, attacker, chara, data, id, pos, any, type)
+extern "C" int fn_800FBE70(BattleTask*, CharaTask*, CharaTask*, HitInfo_unk*, int, const atn::Vector3*, int, int);
+// inferred: hit effect (mgr, pos, rot, level, kind)
+extern "C" void fn_80101434(BattleTask*, const atn::Vector3*, const atn::Vector3*, int, int);
+// inferred: removes the character from the battle
+extern "C" void fn_8010C00C(BattleTask*, CharaTask*);
 
 #endif
