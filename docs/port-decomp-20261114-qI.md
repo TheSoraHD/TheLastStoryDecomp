@@ -26,6 +26,19 @@ Unidades: game/GameUI, game/PopupTask, game/TacView, game/GameCamera_unk, game/F
   (antes `extern "C"` con `TacView*`, deuda de la regla 10); llamador `GameCamera::fn_80390A88` cambiado a
   `lbl_8087F9F8->fn_805AA94C(...)`; symbols.txt renombrado. GameCamera_unk 46 -> 48 al 100 % (etiquetas).
 
+- `TacView::fn_805AC758` (0x805AC758, 5072 B): 0 % -> **90,6 %** (escrita desde el asm, sin DRAFT). Ventanas del
+  personaje bajo el cursor: ventana de seleccion (`mSelect`, basePoint 320/220) con los cuatro paneles de orden
+  (`mDirs[1..2,0,3]` en select_left/right/up/down, `mHpFlash` en select_center), tensionOn (m228 < 1 -> 0,3),
+  fundido `mLayouts.m20 / 12` (invertido si hay panel elegido `m1C`), nombre (`mFace`), PV (nowHP, hpRate y color
+  por la tasa < 0,3 / < 0,6), contadores `mStatus.m224`/`m300` (colOn, colR/G/B, frame), y por orden: texto,
+  msgLen, skipSelect (`m54.mObj == i`), icono (`fn_803DDD54`), canSelect y frame; con la ayuda activada manda a
+  `GameUI::fn_803E4978` las tres lineas "nombre：descripcion". Al final `m20 = clamp(m20 + 1, 0, 15)`.
+  NONMATCHING: crecimiento de `std::vector::push_back` (std/vector.h) y detalles de pila.
+  **Firma final:** `void TacView::fn_805AC758()` (antes `extern "C"` con `TacView*`); symbols.txt renombrado.
+- `std::operator+(const wstring&, const wstring&)` (0x805ADB28, 216 B): 0 % -> **62 %**. Plantilla definida en
+  `TacView.cpp` (no en `std/string.h`, para no renumerar); necesita acceso a los miembros privados (un `friend` en
+  `std/string.h`) para leer datos y tamano con una sola prueba. symbols.txt renombrado a `__pl<w,...>__3std...`.
+
 ## Cambios de firma o de layout (para el port)
 
 - `GameUI.h`: `float mE94[32]` (antes `unsigned char mE94[0x80]`): fundido de los anillos de los enemigos.
@@ -33,6 +46,11 @@ Unidades: game/GameUI, game/PopupTask, game/TacView, game/GameCamera_unk, game/F
 - `TacView.h`: nuevo metodo `void fn_805AA94C(atn::Vector3*, atn::Vector3*, int, int);` (sin nombres de
   parametro; labelcheck igual en las 11 unidades que incluyen TacView.h). Quitada la declaracion
   `extern "C"` de `GameCamera_unk.cpp` (el port debe llamar al metodo).
+- `TacView.h`: `TacViewLayouts_unk::m1C` es `atn::D2A_TaskInstanceBase<32, 8>*` (panel de orden elegido) y `m20`
+  es `int` (frames del fundido), antes `atn::Task*` los dos; nuevo metodo `void fn_805AC758();`.
+- `TacView.cpp`: `std::operator+` de wstring definida aqui (el port puede usar la de su STL).
+- `HitInfo_unk::m0C` (HitInfo_unk.h, bytes 0x0C-0x10) es el texto de descripcion (`const wchar_t*`); en TacView se
+  lee con un cast (pendiente cambiar el tipo en la cabecera compartida).
 - `GameUI.h`: nuevo metodo `void fn_803DBD44();` (el port necesita su definicion de `GameUI.cpp`).
 - `GameUI.cpp`: incluye `game/BattleTask.h` y `game/HomeButtonMenu.h`; `lbl_8087F048` pasa de `void*` a
   `BattleTask*` (y `fn_8013A194()` devuelve `BattleTask*`).
@@ -55,5 +73,9 @@ Unidades: game/GameUI, game/PopupTask, game/TacView, game/GameCamera_unk, game/F
   renombrar a mano.
 
 ## Pendientes
+
+- `std/string.h`: `friend` de `operator+(const basic_string&, const basic_string&)` (y quitar la de TacView.cpp).
+- `HitInfo_unk.h`: `m0C` como `const wchar_t*` (descripcion).
+- `std/vector.h`: el crecimiento de `push_back` (memcpy de los elementos) baja fn_805AC758 (ya en SIGUIENTE_sesion).
 
 - `CharaTask::vfBC(void*)`: tambien la necesita GameUI fn_803DBD44 (ademas de LastCocoonImago fn_80459FB8).
