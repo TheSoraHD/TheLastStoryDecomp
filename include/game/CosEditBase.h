@@ -46,6 +46,9 @@ struct CosEditLoad_unk {
 // the POD path of std::vector (std/vector.h dispatches on __builtin_is_pod): pending, see
 // docs/paralelo-20261113-qE.md
 struct CosEditItem_unk {
+    // inferred: weak copy 0x801D8C90 (called out of line by CosEditProtector::fn_801DD26C); m04 and m14 are
+    // left as they are. With it MSL still copies the entries by assignment (trivial copy)
+    CosEditItem_unk() : mItem(0), mIndex(-1), mOwner(-1), mEnabled(0) {}
     // inferred: empty entry (name invented)
     void Clear_unk() {
         mIndex = -1;

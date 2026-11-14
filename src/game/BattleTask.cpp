@@ -1756,6 +1756,8 @@ extern "C" int fn_800F8574(BattleTask* mgr, CharaTask* owner, HitInfo_unk* data,
 
 // inferred: a character reached by a melee attack, sorted by mScore (fn_800F8C6C); names invented
 struct MeleeTarget_unk {
+    // inferred: empty default constructor: the copies of std::sort go member by member (lfs/stfs, 0x800FA9F4)
+    MeleeTarget_unk() {}
     CharaTask* mChara;
     int mPart;    // inferred: hit sphere reached (fn_800FBA9C)
     float mScore; // inferred: distance weighted by the angle to the facing of the attacker
