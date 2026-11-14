@@ -7,6 +7,7 @@
 #include "game/CharaManager.h"
 #include "game/EnemyTask.h"
 #include "game/PlayerTask.h"
+#include "atn/ColliBase.h"
 
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" int rand();
@@ -15,22 +16,8 @@ extern "C" HitInfo_unk* fn_80219E6C(int id); // inferred: skill data
 
 // inferred: frame time (class unknown)
 extern "C" void* fn_800F52F8();
-extern "C" float fn_802F0998(void* settings); // inferred: gravity per frame
-// inferred: collision world and its ray test (see CharaTask.cpp)
-struct CollResult_unk {
-    CollResult_unk();
-    unsigned char m00[0x04];
-    atn::Vector3 m04; // inferred: hit position
-    unsigned char m10[0x28 - 0x10];
-    atn::Vector3 m28; // inferred: normal
-    unsigned char m34[0x38 - 0x34];
-    void* m38;        // inferred: hit object
-    int m3C;
-    int m40;
-    unsigned char m44[0x50 - 0x44];
-};
-void* fn_801404F8();
-extern "C" int fn_8004ED34(void* colli, CollResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
+extern "C" float fn_802F0998(void* settings); void* fn_801404F8();
+extern "C" int fn_8004ED34(void* colli, atn::ColliResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg7); // inferred: ray test
 extern "C" int fn_801A03F4(void* obj); // inferred: the hit object is a character
 extern "C" float fn_801A03E8(const atn::Vector3* a, const atn::Vector3* b); // inferred: dot product
@@ -271,7 +258,7 @@ void FlamingArrow::vf10() {
             mArrows[i].mVel.y += fn_802F0998(fn_800F52F8());
             atn::Vector3 from(mArrows[i].mPos);
             atn::Vector3 to = mArrows[i].mPos + mArrows[i].mVel;
-            CollResult_unk result;
+            atn::ColliResult_unk result;
             if (fn_8004ED34(fn_801404F8(), &result, &from, &to, 0x80000004, 0, 0) != 0) {
                 mArrows[i].mPos = result.m04;
                 mArrows[i].mState = 2;

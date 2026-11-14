@@ -6,6 +6,7 @@
 #include "atn/Memory.h"
 #include "macros.h"
 #include <boost/bind.hpp>
+#include "atn/ColliBase.h"
 
 extern "C" int rand();
 extern "C" double cos(double x);
@@ -32,28 +33,14 @@ inline float Gravity_unk(MountleSettings_unk* settings) {
     return -98.1f / (float)(settings->m30 * settings->m30);
 }
 
-// inferred: collision world and its tests (see chr/ControlWallUp.cpp and game/Em401_01_WhiteLeoPard.cpp)
-struct MountleCollResult_unk {
-    MountleCollResult_unk() : m34(0), m38(0), m3C(0), m40(0) {}
-    unsigned char m00[0x04];
-    atn::Vector3 m04; // inferred: hit position
-    atn::Vector3 m10; // inferred: position after the sweep
-    unsigned char m1C[0x28 - 0x1C];
-    atn::Vector3 m28; // inferred: normal
-    int m34;
-    int m38;
-    unsigned int m3C; // inferred: attributes of the hit polygon (0x400: ledge)
-    int m40;
-    unsigned char m44[0x50 - 0x44];
-};
 extern "C" void* lbl_8087EE98;
 // inferred: collision world (accessor 0x801404F8, as in gmk/Cannonball.cpp)
 inline void* fn_801404F8() {
     return lbl_8087EE98;
 }
-extern "C" int fn_8004ED34(void* colli, MountleCollResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
+extern "C" int fn_8004ED34(void* colli, atn::ColliResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg7);
-extern "C" int fn_8004D388(void* world, MountleCollResult_unk* result, CharaTask::Sphere_unk* sphere, atn::Vector3* move,
+extern "C" int fn_8004D388(void* world, atn::ColliResult_unk* result, CharaTask::Sphere_unk* sphere, atn::Vector3* move,
                            unsigned int mask, void* ignore, int arg, float radius); // inferred: sweep test
 
 // inferred: effect/bullet manager (lbl_8087F048); class unknown
@@ -158,7 +145,7 @@ int ControlMountle::vf0C() {
     }
     float frame = m->mTracks[0].m08;
     if (frame <= m24) {
-        MountleCollResult_unk res;
+        atn::ColliResult_unk res;
         float reach = mChara->m620;
         atn::Vector3 from = mChara->mPos;
         atn::Vector3 pos = mChara->mPos;
@@ -261,7 +248,7 @@ int ControlGuardMountle::vf0C() {
     }
     float frame = m->mTracks[0].m08;
     if (frame < m->fn_80097D7C(0)) {
-        MountleCollResult_unk res;
+        atn::ColliResult_unk res;
         if (m->mTracks[0].m08 < 19.0f) {
             float reach = mChara->m620;
             atn::Vector3 from = mChara->mPos;
@@ -343,7 +330,7 @@ ControlWallMountle::ControlWallMountle(Chara_unk* chara, const atn::Vector3& nor
     m14 = mChara->mPos;
     m20.y = m14.y;
     atn::Vector3 from = m14;
-    MountleCollResult_unk res;
+    atn::ColliResult_unk res;
     atn::Vector3 to = pos + normal;
     from.y = to.y;
     atn::Vector3 dir = -normal;
@@ -450,7 +437,7 @@ ControlJump::ControlJump(Chara_unk* chara, const atn::Vector3& pos, const atn::V
 bool ControlJump::fn_801C2198(atn::Vector3& out, const atn::Vector3& dir) {
     Chara_unk* c = mChara;
     float reach = 65.0f;
-    MountleCollResult_unk res;
+    atn::ColliResult_unk res;
     m31 = false;
     Motion_unk* m = &c->mMotion;
     bool ret = false;

@@ -6,6 +6,7 @@
 #include "atn/Csv.h"
 #include "std/string.h"
 #include "std/string_members.h"
+#include "atn/ColliBase.h"
 
 extern "C" unsigned long strlen(const char* s);
 extern "C" int strcmp(const char* a, const char* b);
@@ -618,24 +619,8 @@ void Em202Spider::vf7C(int arg) {
 }
 
 // inferred: result of a ray test (0x50 bytes, as in game/Em208Queen.cpp)
-// inferred: hit polygon of a ray test (flags at 0x08, as in game/CharaTask.cpp); name invented
-struct CollPoly_unk {
-    unsigned char m00[0x08];
-    unsigned int m08;
-};
-struct CollResult_unk {
-    CollResult_unk() : m34(0), m38(0), m3C(0), m40(0) {}
-    unsigned char m00[0x10];
-    atn::Vector3 m10; // inferred: hit position
-    unsigned char m1C[0x34 - 0x1C];
-    void* m34;
-    CollPoly_unk* m38;
-    int m3C;
-    void* m40;
-    unsigned char m44[0x50 - 0x44];
-};
 extern "C" void* lbl_8087EE98; // inferred: collision world
-extern "C" int fn_8004ED34(void* colli, CollResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
+extern "C" int fn_8004ED34(void* colli, atn::ColliResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg7); // inferred: ray test
 // inferred: nonzero when the sound group is loaded (game/Se_unk.cpp declares it with an int; same C symbol)
 extern "C" int fn_800C3118(const char* group);
@@ -781,7 +766,7 @@ void Em202Spider::fn_8027F69C() {
         to.z *= 1.3f;
         to += mPos;
         to.y = mPos.y;
-        CollResult_unk result;
+        atn::ColliResult_unk result;
         if (fn_8004ED34(lbl_8087EE98, &result, &origin, &to, 0x80000000, 0, 0) != 0) {
             if (!played && fn_800C3118(sSeGroup_unk) != 0) {
                 fn_800C344C(sSe_unk[2], &result.m10, 0, -1, 1.0f);
@@ -1152,20 +1137,20 @@ inline int WrapIndex_unk(int i, int n) {
 // original keeps them at the bottom of the frame); 4 variants (local order, FrontDir_unk, named vectors)
 void Em202Spider::fn_80281F88() {
     int outer = 0;
-    CollResult_unk left;
-    CollResult_unk right;
+    atn::ColliResult_unk left;
+    atn::ColliResult_unk right;
     atn::Vector3 to;
     atn::Vector3 wall;
     to = atn::Vector3(1000.0f * -FrontDir_unk(this).x, 0.0f, 0.0f);
     to += mPos;
     int hitLeft = fn_8004ED34(lbl_8087EE98, &left, &mPos, &to, 0x80000000, 0, 0);
-    if (hitLeft != 0 && (left.m38->m08 & 4) != 4) {
+    if (hitLeft != 0 && (left.m38->mFlags & 4) != 4) {
         hitLeft = 0;
     }
     to = atn::Vector3(0.0f, 0.0f, 1000.0f * -FrontDir_unk(this).z);
     to += mPos;
     int hitRight = fn_8004ED34(lbl_8087EE98, &right, &mPos, &to, 0x80000000, 0, 0);
-    if (hitRight != 0 && (right.m38->m08 & 4) != 4) {
+    if (hitRight != 0 && (right.m38->mFlags & 4) != 4) {
         hitRight = 0;
     }
     if (hitLeft != 0 && hitRight != 0) {

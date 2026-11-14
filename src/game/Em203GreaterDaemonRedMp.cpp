@@ -15,6 +15,7 @@
 #include "game/MapTask.h"
 #include "game/BattleTask.h"
 #include "math/VecAssign_unk.h"
+#include "atn/ColliBase.h"
 
 extern "C" unsigned long strlen(const char* s);
 extern "C" int strcmp(const char* a, const char* b);
@@ -150,20 +151,8 @@ struct RedSkillMgr_unk {
     RedSkill_unk mSkills[32];
 };
 extern "C" RedSkillMgr_unk* lbl_8087F9E8;
-// inferred: collision world and its ray test (as in game/Em003LesserDaemon.cpp)
-struct CollResult_unk {
-    CollResult_unk() : m34(0), m38(0), m3C(0), m40(0) {}
-    unsigned char m00[0x10];
-    atn::Vector3 m10; // inferred: hit position
-    unsigned char m1C[0x34 - 0x1C];
-    void* m34;
-    void* m38;
-    int m3C;
-    int m40;
-    unsigned char m44[0x50 - 0x44];
-};
 extern "C" void* lbl_8087EE98;
-extern "C" int fn_8004ED34(void* colli, CollResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
+extern "C" int fn_8004ED34(void* colli, atn::ColliResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg7); // inferred: ray test
 // inferred: weak copies of other files, called out of line
 extern "C" bool fn_800E0AB0(const IntVector_unk* v);

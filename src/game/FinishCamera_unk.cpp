@@ -39,9 +39,9 @@ extern "C" void fn_80087858(void* group, const char* name, float* value, FinishM
 extern "C" void* lbl_8087EE98;
 extern "C" int fn_8004ECC0(void* world, atn::Vector3* hit, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, int a, int b); // inferred: segment test, hit position
-extern "C" int fn_8004ED34(void* world, CollResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
+extern "C" int fn_8004ED34(void* world, atn::ColliResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, int a, int b);
-extern "C" int fn_8004D388(void* world, CollResult_unk* result, const atn::Vector3* center, const atn::Vector3* move,
+extern "C" int fn_8004D388(void* world, atn::ColliResult_unk* result, const atn::Vector3* center, const atn::Vector3* move,
                            unsigned int mask, int a, int b, float radius); // inferred: sphere test
 
 extern "C" GameConfig_unk* lbl_8087F0A8;
@@ -269,7 +269,7 @@ void FinishCamera_unk::fn_80378CCC() {
 // NONMATCHING: 79.9% - frame 0x1A0 vs 0x150 (more temporaries in the original: hit at sp+0xE0)
 void FinishCamera_unk::fn_80378D34(atn::Vector3* eye, const atn::Vector3* target, const atn::Vector3* start,
                                    int keep) {
-    CollResult_unk hit;
+    atn::ColliResult_unk hit;
     atn::Vector3 to = *target;
     atn::Vector3 from = *eye;
     if (fn_8004ED34(lbl_8087EE98, &hit, &from, &to, 0x80000008, 0, 0) != 0) {
@@ -304,7 +304,7 @@ void FinishCamera_unk::fn_80378D34(atn::Vector3* eye, const atn::Vector3* target
 // NONMATCHING: 99.7% - register order of the offset computation
 // inferred: called with bl by fn_803792F0, where MWCC would inline it (accepted __declspec(noinline), rule 2)
 __declspec(noinline) float FinishCamera_unk::fn_80379104(XsfCurveSet_unk* curve, const atn::Vector3* pos, float time, float angle) {
-    CollResult_unk hit;
+    atn::ColliResult_unk hit;
     float offset;
     for (unsigned int i = 0; i < 8; i++) {
         Mtx rot;

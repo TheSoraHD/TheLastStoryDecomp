@@ -15,6 +15,7 @@
 #include "std/string.h"
 #include "std/string_members.h"
 #include "game/BattleTask.h"
+#include "atn/ColliBase.h"
 
 extern "C" unsigned long strlen(const char* s);
 extern "C" int strcmp(const char* a, const char* b);
@@ -86,21 +87,8 @@ inline void ClearModelFlag_unk(atn::Model* model, unsigned int flag) {
 
 extern "C" void fn_801092C8(Effect_unk* effect, int msg, CharaTask* chara, int value, int arg);
 extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float volume);
-// inferred: ray test against the map (as in gmk/MotionObject.cpp); layout of gmk/Lemon.h
-struct KrakenMpColl_unk {
-    KrakenMpColl_unk() : m34(0), m38(0), m3C(0), m40(0) {}
-    unsigned char m00[0x04];
-    atn::Vector3 m04; // inferred: hit position
-    atn::Vector3 m10; // inferred: position after the sweep
-    unsigned char m1C[0x34 - 0x1C];
-    void* m34;
-    void* m38;
-    unsigned int m3C;
-    int m40;
-    atn::Vector3 m44;
-};
 extern "C" void* lbl_8087EE98;
-extern "C" int fn_8004ED34(void* colli, KrakenMpColl_unk* result, const atn::Vector3* from, const atn::Vector3* to,
+extern "C" int fn_8004ED34(void* colli, atn::ColliResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg7);
 extern "C" HitInfo_unk* fn_80219E6C(int id); // inferred: bullet/skill data by id
 extern "C" void fn_800FAB80(Effect_unk* mgr, CharaTask* chara, HitInfo_unk* bullet, int arg3, const atn::Vector3* pos,
@@ -968,7 +956,7 @@ void Em302KrakenMp::fn_802E094C() {
         m1504.y += 0.1f;
         atn::Vector3 to = m1504;
         to.y -= 100.0f;
-        KrakenMpColl_unk result;
+        atn::ColliResult_unk result;
         if (fn_8004ED34(lbl_8087EE98, &result, &m1504, &to, 0, &mC58.mC4->mColli, 0) != 0) {
             m1504 = result.m10;
         }

@@ -16,6 +16,7 @@
 #include "chr/FuncPair_unk.h"
 #include <boost/bind.hpp>
 #include "math/VecAssign_unk.h"
+#include "atn/ColliBase.h"
 
 
 // inferred: input state embedded at +0x48C of the object behind lbl_8087F0A8
@@ -75,24 +76,10 @@ extern "C" void fn_800FAB80(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* bull
 extern "C" HitInfo_unk* fn_80219E6C(int id); // inferred: bullet data by id
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
 extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float volume);
-extern "C" void* lbl_8087EF70; // inferred: pad
-// inferred: result of the collision tests (as in game/Em401_01_WhiteLeoPard.cpp)
-struct CollResult_unk {
-    CollResult_unk() : m34(0), m38(0), m3C(0), m40(0) {}
-    unsigned char m00[0x04];
-    atn::Vector3 m04; // inferred: hit position
-    atn::Vector3 m10; // inferred: position after the sweep
-    unsigned char m1C[0x34 - 0x1C];
-    void* m34;
-    int m38;
-    int m3C;
-    void* m40;
-    unsigned char m44[0x50 - 0x44];
-};
-extern "C" void* lbl_8087EE98; // inferred: collision world
-extern "C" int fn_8004ED34(void* colli, CollResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
+extern "C" void* lbl_8087EF70; extern "C" void* lbl_8087EE98; // inferred: collision world
+extern "C" int fn_8004ED34(void* colli, atn::ColliResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg7);
-extern "C" int fn_8004D388(void* world, CollResult_unk* result, CharaTask::Sphere_unk* sphere, atn::Vector3* move,
+extern "C" int fn_8004D388(void* world, atn::ColliResult_unk* result, CharaTask::Sphere_unk* sphere, atn::Vector3* move,
                            unsigned int mask, void* ignore, int arg, float radius); // inferred: sweep test
 // inferred: damage record shown by fn_80108C10 (as DaemonDamage_unk of game/Em203GreaterDaemon.cpp)
 struct Damage_unk {
@@ -735,7 +722,7 @@ int ControlThrustForGhoul::vf0C() {
             atn::Vector3 from = mChara->mPos;
             from.y += 10.0f;
             atn::Vector3 to = from + back;
-            CollResult_unk result;
+            atn::ColliResult_unk result;
             if (fn_8004ED34(lbl_8087EE98, &result, &from, &to, 0x80000000, 0, 0)) {
                 back = Front_unk(mChara) * -25.0f;
                 RotY_unk(back, 0.9424779f);
@@ -1141,7 +1128,7 @@ int ControlMatHoldDamage::vf0C() {
             atn::Matrix3x4::RotateAxis_unk(rot, 'x', c->mRot.x);
         }
         PSMTXMultVec(rot.m, &move, &move);
-        CollResult_unk result;
+        atn::ColliResult_unk result;
         CharaTask::Sphere_unk sphere = mChara->fn_80176548(mChara->mPos);
         fn_8004D388(lbl_8087EE98, &result, &sphere, &move, 0x80000000, mChara->GetColli_unk(), 0, sphere.mRadius);
         atn::Vector3 pos = result.m10;
@@ -1420,7 +1407,7 @@ ControlThrownSkelton::ControlThrownSkelton(Chara_unk* chara, const atn::Vector3&
 
 // NONMATCHING: 93.1% - flies along mDir until it hits a wall; the hit fires the bullet mHit
 int ControlThrownSkelton::vf0C() {
-    CollResult_unk result;
+    atn::ColliResult_unk result;
     atn::Vector3 from = mChara->mPos + mDir * 5.0f;
     atn::Vector3 to = mChara->mPos + mDir * 30.0f;
     if (fn_8004ED34(lbl_8087EE98, &result, &from, &to, mChara->fn_80179D44(), &mChara->mColli, 0)) {
@@ -2168,7 +2155,7 @@ int ControlReflectLaser::vf0C() {
                 mDir.fn_80011410(fn_800109E0(rot));
             }
         }
-        CollResult_unk result;
+        atn::ColliResult_unk result;
         atn::Vector3 from(pos);
         atn::Vector3 to = pos + mDir * 1000.0f;
         if (fn_8004ED34(fn_801404F8(), &result, &from, &to, 6, mChara->GetColli_unk(), 0)) {

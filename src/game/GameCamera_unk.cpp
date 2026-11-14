@@ -30,7 +30,7 @@ extern "C" RenderSetting_unk* lbl_8087EFA8;
 extern "C" int sprintf(char* buf, const char* fmt, ...);
 extern "C" GameTask* lbl_8087F430; // inferred: the field
 extern "C" void* lbl_8087EE98;     // inferred: collision manager
-extern "C" int fn_8004ED34(void* colli, CollResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
+extern "C" int fn_8004ED34(void* colli, atn::ColliResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg7); // inferred: ray test
 
 // inferred: limits of the side offset of the ledge camera without blend (fn_8038378C; 0.0f)
@@ -505,7 +505,7 @@ void GameCamera::fn_8037EF48(CharaTask* chara, int place, int reset, float speed
         PSMTXMultVec(m.m, &pos, &pos);
         pos *= m51C.m00;
         pos += target;
-        CollResult_unk result;
+        atn::ColliResult_unk result;
         if (fn_8004ED34(lbl_8087EE98, &result, &target, &pos, 0x80000008, 0, 0)) {
             pos = result.m10;
         }
@@ -659,7 +659,7 @@ extern "C" inline float fn_80385B40(atn::Camera* camera) {
 }
 
 // inferred: sweep test of a sphere (here the camera eye) against the collision world
-extern "C" int fn_8004D388(void* world, CollResult_unk* result, atn::Vector3* pos, atn::Vector3* move,
+extern "C" int fn_8004D388(void* world, atn::ColliResult_unk* result, atn::Vector3* pos, atn::Vector3* move,
                            unsigned int mask, void* ignore, int arg, float radius);
 extern "C" inline TownTask* fn_803830A0() {
     return lbl_8087FA20;
@@ -1070,8 +1070,8 @@ void GameCamera::fn_8037F9AC(const CharaTask* chara) {
         offset.z = -1.0f;
     }
 
-    CollResult_unk result;
-    CollResult_unk result2;
+    atn::ColliResult_unk result;
+    atn::ColliResult_unk result2;
     if (m9F4 >= 1 && !chara->mFlag5) {
         if (fn_8004ED34(lbl_8087EE98, &result, &target, &eye, 0x80000008, 0, 0) && m8F0 == 0 &&
             !fn_8004ED34(lbl_8087EE98, &result2, &pos, &result.m10, 0x80000008, 0, 0)) {
@@ -1269,7 +1269,7 @@ void GameCamera::fn_80382A1C(const CharaTask* chara) {
     offset = target - eye;
     offset.Length_unk();
     offset.Normalize_unk();
-    CollResult_unk result;
+    atn::ColliResult_unk result;
     offset = target - eye;
     r = (-offset).ToRotation_unk();
     rot.x += pitch - rot.x;
@@ -1633,7 +1633,7 @@ void GameCamera::fn_80384188(const CharaTask* chara) {
     }
     pos = hips + offset;
     target = dir * m5D0.m00 + pos;
-    CollResult_unk result;
+    atn::ColliResult_unk result;
     atn::Vector3 from(hips);
     from.y += m874.y;
     atn::Vector3 beside(m874.x > 0.0f ? 3.0f + m874.x : m874.x - 3.0f, 0.0f, 0.0f);
@@ -1927,8 +1927,8 @@ void GameCamera::fn_80387DE4(const CharaTask* chara) {
     if (!HasCeiling_unk()) {
         m8A4 = chara->mPos;
     } else {
-        CollResult_unk result;
-        CollResult_unk floor;
+        atn::ColliResult_unk result;
+        atn::ColliResult_unk floor;
         int floorId = -1;
         atn::Vector3 from = chara->mPos;
         atn::Vector3 to = chara->mPos;
@@ -2071,7 +2071,7 @@ void GameCamera::fn_80388C44(const CharaTask* chara) {
     PSMTXRotRad(m3, 'y', 3.1415927f + yaw);
     PSMTXMultVec(m3, &front, &front);
     atn::Vector3 pos = target + front * m774.m00;
-    CollResult_unk result;
+    atn::ColliResult_unk result;
     if (fn_8004ED34(lbl_8087EE98, &result, &target, &pos, 0x80000008, 0, 0)) {
         pos = result.m10;
         pos += Negate_unk(front) * 0.1f;
@@ -2511,7 +2511,7 @@ void GameCamera::fn_8038B650(const CharaTask* chara) {
             atn::Vector3 dir = (m1F4.mTarget - m1F4.mPos).GetNormalize();
             atn::Vector3 from = m1F4.mPos;
             atn::Vector3 to = from + dir * 800.0f;
-            CollResult_unk result;
+            atn::ColliResult_unk result;
             atn::Vector3 point = m1F4.mTarget;
             if (fn_8004ED34(lbl_8087EE98, &result, &from, &to, 4, (void*)&chara->mColli, 0)) {
                 point = result.m04;
@@ -3010,7 +3010,7 @@ void GameCamera::fn_8038E23C(const CharaTask* chara, GameCameraParam_unk* param,
     if (m7FC == 2 && chara->mFlag30) {
         from.y -= param->m18;
     }
-    CollResult_unk result;
+    atn::ColliResult_unk result;
     if (fn_8004ED34(lbl_8087EE98, &result, &from, &to, 0x80000008, 0, 0)) {
         m89C++;
         atn::Vector3 p = result.m10;
@@ -3047,7 +3047,7 @@ void GameCamera::fn_8038E540(const CharaTask* chara, GameCameraParam_unk* param,
     float radius = lbl_8087F0A8->m08C;
     float top = 50.0f + pos->y;
     float height = 30.0f;
-    CollResult_unk result;
+    atn::ColliResult_unk result;
     bool map = false;
     bool ceiling = false;
     if (lbl_8087F430 != 0 && lbl_8087F430->GetCurrentMap() != 0) {
@@ -3122,7 +3122,7 @@ void GameCamera::fn_8038E9B0(const CharaTask* chara, GameCameraParam_unk* param,
     }
     if (!ceiling) {
         float radius = lbl_8087F0A8->m08C;
-        CollResult_unk result;
+        atn::ColliResult_unk result;
         atn::Vector3 from = *target2;
         float top = 50.0f + pos->y;
         from.y += 30.0f;
@@ -3141,7 +3141,7 @@ void GameCamera::fn_8038E9B0(const CharaTask* chara, GameCameraParam_unk* param,
         }
     } else {
         float radius = lbl_8087F0A8->m08C;
-        CollResult_unk result;
+        atn::ColliResult_unk result;
         atn::Vector3 from = *target2;
         atn::Vector3 to;
         atn::Vector3 seen = *target;
@@ -3583,7 +3583,7 @@ void GameCamera::fn_803903E0(const atn::Vector3* target, float angle, int arg) {
             from.y += radius;
             AddViewHeight_unk(&from);
             bool found = false;
-            CollResult_unk best;
+            atn::ColliResult_unk best;
             float bestDist = 1.0e16f;
             unsigned int mask = 0x08000000;
             const atn::Vector3* start = &m8A4;
@@ -3592,8 +3592,8 @@ void GameCamera::fn_803903E0(const atn::Vector3* target, float angle, int arg) {
                 Mtx r;
                 PSMTXRotRad(r, 'y', 0.7853982f * (float)i);
                 PSMTXMultVec(r, &dir, &dir);
-                CollResult_unk back;
-                CollResult_unk result;
+                atn::ColliResult_unk back;
+                atn::ColliResult_unk result;
                 atn::Vector3 a = *start;
                 atn::Vector3 b = *start + dir;
                 if (fn_8004ED34(lbl_8087EE98, &result, &a, &b, mask, 0, 0)) {
@@ -3746,7 +3746,7 @@ void GameCamera::fn_80390A88() {
         if (lbl_8087F9F8 != 0 && TacViewMoving_unk(lbl_8087F9F8)) {
             lbl_8087F9F8->fn_805AA82C(&m8A4);
         } else {
-            CollResult_unk result;
+            atn::ColliResult_unk result;
             if (HasCeiling_unk()) {
                 int tries = 0;
                 bool aimed = false;

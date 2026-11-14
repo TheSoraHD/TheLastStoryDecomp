@@ -10,6 +10,7 @@
 #include "math/Vec.h"
 #include "game/BattleTask.h"
 #include "math/VecAssign_unk.h"
+#include "atn/ColliBase.h"
 
 extern "C" int sprintf(char* buf, const char* fmt, ...);
 extern "C" unsigned long strlen(const char* s);
@@ -28,25 +29,10 @@ extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 // inferred: effect/bullet manager (lbl_8087F048, as in chr/ControlUseSkill.cpp); class unknown
 struct Effect_unk;
 extern "C" Effect_unk* lbl_8087F048;
-extern "C" int fn_800F8548(Effect_unk* mgr); // inferred: new bullet id
-// inferred: collision world (lbl_8087EE98) and its tests (as in game/CharaTask.cpp)
-struct GhoulColl_unk {
-    GhoulColl_unk() : m34(0), m38(0), m3C(0), m40(0) {}
-    unsigned char m00[0x04];
-    atn::Vector3 m04; // inferred: hit position
-    atn::Vector3 m10; // inferred: position after the sweep
-    unsigned char m1C[0x28 - 0x1C];
-    atn::Vector3 m28; // inferred: hit normal
-    int m34;
-    int m38;
-    unsigned int m3C; // inferred: attribute of the hit (bit 5: wall)
-    int m40;
-    unsigned char m44[0x50 - 0x44];
-};
-extern "C" void* lbl_8087EE98;
-extern "C" int fn_8004D388(void* world, GhoulColl_unk* result, CharaTask::Sphere_unk* sphere, atn::Vector3* move,
+extern "C" int fn_800F8548(Effect_unk* mgr); extern "C" void* lbl_8087EE98;
+extern "C" int fn_8004D388(void* world, atn::ColliResult_unk* result, CharaTask::Sphere_unk* sphere, atn::Vector3* move,
                            unsigned int mask, void* ignore, int arg, float radius); // inferred: sweep test
-extern "C" int fn_8004ED34(void* world, GhoulColl_unk* result, const atn::Vector3* from, const atn::Vector3* to,
+extern "C" int fn_8004ED34(void* world, atn::ColliResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg); // inferred: ray test
 extern "C" void PSMTXRotAxisRad(Mtx m, const atn::Vector3* axis, float rad);
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
@@ -681,14 +667,14 @@ void Em309GhoulSimple::vf108() {
             mFlag31 = 1;
         } else {
             Sphere_unk sphere = fn_80176548(mPos);
-            GhoulColl_unk result;
+            atn::ColliResult_unk result;
             atn::Vector3 move(m1540.x * 10.0f, -5.0f, m1540.z * 10.0f);
             if (fn_8004D388(lbl_8087EE98, &result, &sphere, &move, 0x80020000, 0, 0, sphere.mRadius)) {
                 mPos = result.m10;
                 if ((result.m3C & 0x20) == 0x20) {
                     fn_800C344C("SE_EM309_016", &result.m10, 0, -1, 1.0f);
                     atn::Vector3 to = sphere.mCenter + m1540 * 50.0f;
-                    GhoulColl_unk wall;
+                    atn::ColliResult_unk wall;
                     atn::Vector3 dir;
                     if (fn_8004ED34(lbl_8087EE98, &wall, &sphere.mCenter, &to, 0x80000000, 0, 0)) {
                         dir = m1540;

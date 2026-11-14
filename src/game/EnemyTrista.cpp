@@ -4,6 +4,7 @@
 #include "game/CharaManager.h"
 #include "math/Vec.h"
 #include "game/GameTask.h"
+#include "atn/ColliBase.h"
 
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" int atoi(const char* s);
@@ -48,21 +49,8 @@ extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* m
                             int arg8, int arg9, float scale);
 extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
 extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the next effects
-extern "C" int fn_80041A28(int arg, CharaTask* chara, CharaTask* target); // inferred: kind of attack
-// inferred: collision world and its ray test (as in game/EnemySeaLizerd.cpp)
-struct CollResult_unk {
-    CollResult_unk() : m34(0), m38(0), m3C(0), m40(0) {}
-    unsigned char m00[0x04];
-    atn::Vector3 m04; // inferred: hit position
-    unsigned char m10[0x34 - 0x10];
-    int m34;
-    int m38;
-    int m3C;
-    int m40;
-    unsigned char m44[0x50 - 0x44];
-};
-extern "C" void* lbl_8087EE98;
-extern "C" int fn_8004ED34(void* colli, CollResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
+extern "C" int fn_80041A28(int arg, CharaTask* chara, CharaTask* target); extern "C" void* lbl_8087EE98;
+extern "C" int fn_8004ED34(void* colli, atn::ColliResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg7); // inferred: ray test
 // inferred: camera parameters of the field (0x3C bytes); names invented
 struct TristaCamParam_unk {
@@ -670,7 +658,7 @@ int EnemyTrista::fn_8035D4E0(HitMsg_unk* msg) {
     atn::Vector3 to = mPos + dir * 80.0f;
     from.y += 4.0f;
     to.y += 4.0f;
-    CollResult_unk result;
+    atn::ColliResult_unk result;
     void* world = lbl_8087EE98;
     if (fn_8004ED34(world, &result, &from, &to, fn_80179D44() | 0x80000000, 0, 0) == 0) {
         m14C4 = to;

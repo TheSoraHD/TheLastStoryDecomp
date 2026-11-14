@@ -58,19 +58,19 @@ extern "C" void fn_800F8574(BulletMgr_unk* mgr, CharaTask* owner, HitInfo_unk* d
 extern "C" void fn_800FB4B0(BulletMgr_unk* mgr, CharaTask* owner, HitInfo_unk* data, int id, const atn::Vector3* pos,
                             int a, int b, int c, int d); // inferred: hit effect on the collision
 extern "C" void* lbl_8087EE98; // inferred: collision manager
-extern "C" int fn_8004ED34(void* colli, CollResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
+extern "C" int fn_8004ED34(void* colli, atn::ColliResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg);
 extern "C" void fn_800FB1BC(BulletMgr_unk* mgr, CharaTask* owner, HitInfo_unk* data, const atn::Vector3* pos,
                             const atn::Vector3* rot, int a, int b, float scale); // inferred: hit effect
 extern "C" int fn_800FAB80(BulletMgr_unk* mgr, CharaTask* owner, HitInfo_unk* data, int id, const atn::Vector3* pos,
                            const atn::Vector3* rot, int a, int b, float c, float d, int e, int f); // inferred: hit effect
-extern "C" int fn_8004D388(void* colli, CollResult_unk* result, const atn::Vector3* center, const atn::Vector3* move,
+extern "C" int fn_8004D388(void* colli, atn::ColliResult_unk* result, const atn::Vector3* center, const atn::Vector3* move,
                            unsigned int mask, void* ignore, int arg, HitInfo_unk* data, float radius); // inferred: sphere sweep
 
 extern "C" SkillEffectManager* lbl_8087F9E8;
 extern "C" int fn_8021A8D0(HitInfo_unk* data); // inferred: the bullet goes through shields
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
-extern "C" int fn_8005361C(CollResult_unk* result, const atn::ColliCapsuleShape_unk* seg,
+extern "C" int fn_8005361C(atn::ColliResult_unk* result, const atn::ColliCapsuleShape_unk* seg,
                            const atn::ColliSphereShape_unk* sphere); // inferred: segment against sphere
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
 extern "C" void PSVECCrossProduct(const atn::Vector3* a, const atn::Vector3* b, atn::Vector3* axb);
@@ -78,7 +78,7 @@ extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
 extern "C" float PSVECMag(const atn::Vector3* v);
 extern "C" int rand();
 
-// inferred: collision object of a character (CollResult_unk::m38 when m3C has the flag 2)
+// inferred: collision object of a character (atn::ColliResult_unk::m38 when m3C has the flag 2)
 struct CollOwner_unk {
     unsigned char m00[0x0C];
     CharaTask* m0C;
@@ -396,7 +396,7 @@ void Bullet::vf10() {
     }
     if (m78 >= m68->m44 || (m70 > 1.0f && m78 >= m70)) {
         if ((m68->mAC & 0x10000) || (m70 > 1.0f && m78 >= m70)) {
-            CollResult_unk res;
+            atn::ColliResult_unk res;
             res.m00 = 1;
             res.m04 = m08;
             res.m10 = m08;
@@ -473,7 +473,7 @@ void Bullet::fn_801100A0() {
             atn::ColliSphereShape_unk sphere;
             sphere.mCenter = shield->m10;
             sphere.mRadius = 1.1f * (shield->m5C * shield->m28);
-            CollResult_unk res;
+            atn::ColliResult_unk res;
             atn::Vector3 move = seg.mStart - seg.mEnd;
             if (PSVECSquareMag(&move) > 2.0f && fn_8005361C(&res, &seg, &sphere) != 0) {
                 fn_800C344C(sSeNames_unk[4], &m88->mPos, 0, -1, 0.75f);
@@ -520,7 +520,7 @@ void Bullet::fn_801100A0() {
     if (m88 != 0 && m88->mType == 3 && m78 <= 4.0f * m80) {
         mask |= 0x40000000;
     }
-    CollResult_unk res;
+    atn::ColliResult_unk res;
     void* ignore = &m88->mColli;
     if ((m68->mAC & 0x8000) == 0x8000 && m78 > m80) {
         ignore = 0;
@@ -566,7 +566,7 @@ void Bullet::fn_801120B0() {
     if (HasFlag_unk(2)) {
         mask |= 0x40000000;
     }
-    CollResult_unk res;
+    atn::ColliResult_unk res;
     if (fn_8004ED34(lbl_8087EE98, &res, &m14, &m08, mask, 0, 0) != 0) {
         fn_800FB4B0(lbl_8087F048, m88, m68, m7C, &m08, 0, 0x1E, -1, 1);
         vf0C(1, 0);
@@ -578,7 +578,7 @@ void Bullet::fn_80112174() {
     if (HasFlag_unk(2)) {
         mask |= 0x40000000;
     }
-    CollResult_unk res;
+    atn::ColliResult_unk res;
     if (fn_8004ED34(lbl_8087EE98, &res, &m14, &m08, mask, 0, 0) != 0) {
         ((SkillEffect*)m8C)->fn_80599FFC(&res.m10); // inferred: m8C is a skill effect
         vf0C(1, 0);

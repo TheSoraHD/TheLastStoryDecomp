@@ -2,6 +2,7 @@
 #include "atn/Csv.h"
 #include "std/string.h"
 #include "std/string_members.h"
+#include "atn/ColliBase.h"
 
 extern "C" char* strstr(const char* s, const char* sub);
 extern "C" int strcmp(const char* a, const char* b);
@@ -18,21 +19,8 @@ extern "C" void fn_800F8574(BulletMgr_unk* mgr, CharaTask* owner, HitInfo_unk* b
                             const atn::Vector3* vel, int arg5, int arg6, int arg7, float arg8,
                             float arg9); // inferred: throws a bullet
 extern "C" void fn_8010A308(BulletMgr_unk* mgr, const atn::Vector3* from, const atn::Vector3* to,
-                            float arg); // inferred: splash effect
-// inferred: collision world and its ray test (as in game/ChaserNpc.cpp)
-struct CollResult_unk {
-    CollResult_unk() : m34(0), m38(0), m3C(0), m40(0) {}
-    unsigned char m00[0x04];
-    atn::Vector3 m04; // inferred: hit position
-    unsigned char m10[0x34 - 0x10];
-    void* m34;
-    void* m38;
-    int m3C;
-    void* m40;
-    unsigned char m44[0x50 - 0x44];
-};
-extern "C" void* lbl_8087EE98;
-extern "C" int fn_8004ED34(void* colli, CollResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
+                            float arg); extern "C" void* lbl_8087EE98;
+extern "C" int fn_8004ED34(void* colli, atn::ColliResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg7); // inferred: ray test
 // inferred: game settings (m30: frames per second)
 struct Settings_unk {
@@ -158,7 +146,7 @@ void EnemySeaLizerd::fn_80354DA4() {
     atn::Vector3 head = GetNodePos_unk(mMotion.GetNodeMtx_unk("head"));
     atn::Vector3 target(mC58.mC4->mPos);
     target.y += 11.0f;
-    CollResult_unk result;
+    atn::ColliResult_unk result;
     if (fn_8004ED34(lbl_8087EE98, &result, &head, &target, 0x80000006, 0, 0) != 0) {
         m14B8 -= 30;
     } else {
@@ -246,7 +234,7 @@ void EnemySeaLizerd::fn_80355390() {
     from.y += 5.0f;
     to = m14D8;
     to.y -= 20.0f;
-    CollResult_unk result;
+    atn::ColliResult_unk result;
     if (fn_8004ED34(colli, &result, &from, &to, fn_80179D44() | 0x80000000, 0, 0) != 0) {
         m14D8 = result.m04;
     }

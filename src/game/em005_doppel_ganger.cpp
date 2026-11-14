@@ -9,6 +9,7 @@
 #include "std/string.h"
 #include "std/string_members.h"
 #include "game/BattleTask.h"
+#include "atn/ColliBase.h"
 
 extern "C" unsigned long strlen(const char* s);
 extern "C" int atoi(const char* s);
@@ -165,23 +166,10 @@ struct Settings_unk {
 };
 extern "C" Settings_unk* lbl_8087F0A8;
 
-// inferred: collision world and its tests (as in game/Em003LesserDaemon.cpp)
-struct CollResult_unk {
-    CollResult_unk() : m34(0), m38(0), m3C(0), m40(0) {}
-    unsigned char m00[0x04];
-    atn::Vector3 m04; // inferred: hit position
-    atn::Vector3 m10; // inferred: position after the sweep
-    unsigned char m1C[0x34 - 0x1C];
-    void* m34;
-    void* m38;
-    int m3C;
-    void* m40;
-    unsigned char m44[0x50 - 0x44];
-};
 extern "C" void* lbl_8087EE98;
-extern "C" int fn_8004ED34(void* colli, CollResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
+extern "C" int fn_8004ED34(void* colli, atn::ColliResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg7); // inferred: ray test
-extern "C" int fn_8004D388(void* world, CollResult_unk* result, const atn::Vector3* center, const atn::Vector3* move,
+extern "C" int fn_8004D388(void* world, atn::ColliResult_unk* result, const atn::Vector3* center, const atn::Vector3* move,
                            unsigned int mask, void* ignore, int arg, float radius); // inferred: sweep test
 
 // NONMATCHING: 99.6% - r26/r27 of the second std::string and r25/r26 of the strlen of the parameters (same
@@ -1109,7 +1097,7 @@ int ControlCall::vf0C() {
                 atn::Vector3 to = st.m0C;
                 from.y += 10.0f;
                 to.y += 10.0f;
-                CollResult_unk res;
+                atn::ColliResult_unk res;
                 void* colli = lbl_8087EE98;
                 if (fn_8004ED34(colli, &res, &from, &to, e->fn_80179D44() | 0x80000000, 0, 0) != 0) {
                     st.m0C = res.m04;

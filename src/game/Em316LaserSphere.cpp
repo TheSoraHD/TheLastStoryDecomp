@@ -13,6 +13,7 @@
 #include "std/vector.h"
 #include "std/string_members.h"
 #include <boost/tokenizer.hpp>
+#include "atn/ColliBase.h"
 
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" int strncmp(const char* a, const char* b, unsigned long n);
@@ -803,21 +804,7 @@ void Em316LaserSphere::fn_80318F9C() {
     }
 }
 
-extern "C" void* lbl_8087EE98; // inferred: collision world
-// inferred: collision result (as in game/Em003LesserDaemon.cpp)
-struct CollResult_unk {
-    CollResult_unk() : m34(0), m38(0), m3C(0), m40(0) {}
-    unsigned char m00[0x04];
-    atn::Vector3 m04; // inferred: hit position
-    atn::Vector3 m10; // inferred: position after the sweep
-    unsigned char m1C[0x34 - 0x1C];
-    void* m34;
-    void* m38;
-    int m3C;
-    int m40;
-    unsigned char m44[0x50 - 0x44];
-};
-extern "C" int fn_8004D388(void* world, CollResult_unk* result, CharaTask::Sphere_unk* sphere, atn::Vector3* move,
+extern "C" void* lbl_8087EE98; extern "C" int fn_8004D388(void* world, atn::ColliResult_unk* result, CharaTask::Sphere_unk* sphere, atn::Vector3* move,
                            unsigned int mask, void* ignore, int arg7, float radius);
 
 // NONMATCHING: 94.2% - the mask 0x80000080 is built in r0 then or-ed into r7 in the original, the 0.5f is
@@ -830,7 +817,7 @@ void Em316LaserSphere::vfEC() {
         mFlag15 = 1;
         fn_801765D8();
     } else {
-        CollResult_unk result;
+        atn::ColliResult_unk result;
         Sphere_unk sphere = fn_80176548(mPos);
         unsigned int mask = 0x80000000;
         int hit = fn_8004D388(lbl_8087EE98, &result, &sphere, &m1540, mask | 0x80, &mColli, 0, sphere.mRadius);
@@ -935,7 +922,7 @@ inline void* fn_801404F8() {
 }
 extern "C" void fn_800F8574(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* data, const atn::Vector3* pos,
                             const atn::Vector3* dir, void* param, int flags, int arg7, float arg8, float arg9);
-extern "C" int fn_8004ED34(void* colli, CollResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
+extern "C" int fn_8004ED34(void* colli, atn::ColliResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg7); // inferred: ray test
 extern "C" void PSMTXTrans(Mtx m, float x, float y, float z);
 extern "C" void PSMTXScale(Mtx m, float x, float y, float z);
@@ -988,7 +975,7 @@ void Em316LaserSphere::fn_8031958C() {
         if (m14C0 % 10 == 0) {
             fn_800F8574(fn_8013A194(), this, m157C, &mPos, &m155C, 0, 0, 0, 0.0f, 1.0f);
         }
-        CollResult_unk result;
+        atn::ColliResult_unk result;
         atn::Vector3 from(mPos);
         atn::Vector3 to = from + m155C * 1000.0f;
         if (fn_8004ED34(fn_801404F8(), &result, &from, &to, 0x80000004, 0, 0) != 0) {

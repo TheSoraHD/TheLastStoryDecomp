@@ -14,6 +14,7 @@
 #include "std/string.h"
 #include "std/string_members.h"
 #include "game/BattleTask.h"
+#include "atn/ColliBase.h"
 
 extern "C" unsigned long strlen(const char* s);
 extern "C" int strcmp(const char* a, const char* b);
@@ -55,24 +56,8 @@ extern "C" void fn_805A5078(const atn::Vector3* pos, const atn::Vector3* dir, in
 extern "C" int fn_80051B70(const atn::ColliCapsuleShape_unk* a, const atn::ColliCapsuleShape_unk* b);
 // inferred: zero vector
 extern "C" atn::Vector3 lbl_807C7030;
-// inferred: result of a ray test (0x50 bytes, as in game/Em202Spider.cpp)
-struct CollPoly_unk {
-    unsigned char m00[0x08];
-    unsigned int m08;
-};
-struct CollResult_unk {
-    CollResult_unk() : m34(0), m38(0), m3C(0), m40(0) {}
-    unsigned char m00[0x10];
-    atn::Vector3 m10; // inferred: hit position
-    unsigned char m1C[0x34 - 0x1C];
-    void* m34;
-    CollPoly_unk* m38;
-    int m3C;
-    void* m40;
-    unsigned char m44[0x50 - 0x44];
-};
 extern "C" void* lbl_8087EE98; // inferred: collision world
-extern "C" int fn_8004ED34(void* colli, CollResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
+extern "C" int fn_8004ED34(void* colli, atn::ColliResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg7); // inferred: ray test
 extern "C" int fn_800C3118(const char* group); // inferred: nonzero when the sound group is loaded
 extern "C" atn::SoundRef fn_800C344C(const char* name, const atn::Vector3& pos, int arg2, int arg3, float volume);
@@ -1199,7 +1184,7 @@ void Em202ForestSpider::fn_80277BC0() {
         to.z *= 1.3f;
         to += mPos;
         to.y = mPos.y;
-        CollResult_unk result;
+        atn::ColliResult_unk result;
         if (fn_8004ED34(lbl_8087EE98, &result, &origin, &to, 0x80000000, 0, 0) != 0) {
             if (!played && fn_800C3118(sSeGroup_unk) != 0) {
                 fn_800C344C(sSe_unk, result.m10, 0, -1, 1.0f);
@@ -1303,7 +1288,7 @@ int Em202ForestSpider::fn_8027851C(CharaTask* chara) {
     atn::Vector3 from(hm[0][3], hm[1][3], hm[2][3]);
     MtxPtr wm = chara->mMotion.GetNodeMtx_unk("waist");
     atn::Vector3 to(wm[0][3], wm[1][3], wm[2][3]);
-    CollResult_unk result;
+    atn::ColliResult_unk result;
     if (fn_8004ED34(lbl_8087EE98, &result, &from, &to, 0x80000000, &mColli, 0) != 0) {
         return 0;
     }
@@ -1460,8 +1445,8 @@ extern "C" void fn_800F8290(atn::Matrix3x4* mtx, float x, float y, float z);
 void* fn_801404F8(); // inferred: collision world
 extern "C" void fn_8004D124(void* world); // inferred: refreshes the collision world
 extern "C" float fn_801A03E8(const atn::Vector3& a, const atn::Vector3& b); // inferred: dot product
-extern "C" int fn_801A03F4(CollPoly_unk* poly);           // inferred: the polygon belongs to a character
-extern "C" CharaTask* fn_801A0400(CollPoly_unk* poly);    // inferred: its character
+extern "C" int fn_801A03F4(atn::ColliBase* poly);           // inferred: the polygon belongs to a character
+extern "C" CharaTask* fn_801A0400(atn::ColliBase* poly);    // inferred: its character
 
 // inferred: updates the four threads: a caught character drags the tip; a free tip flies on, breaks the webs of
 // the gimmicks of type 1 it crosses and catches the character it hits; then the thread is stretched from the head
@@ -1517,7 +1502,7 @@ void Em202ForestSpider::fn_80279280() {
                     }
                 }
             }
-            CollResult_unk result;
+            atn::ColliResult_unk result;
             if (fn_8004ED34(fn_801404F8(), &result, &from, &to, m1900, &mColli, 0) != 0) {
                 if (result.m38 != 0 && fn_801A03F4(result.m38)) {
                     if (fn_801A0400(result.m38) == t->m88) {

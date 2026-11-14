@@ -5,6 +5,7 @@
 #include "game/CharaManager.h"
 #include "game/CharaTask.h"
 #include "game/PlayerTask.h"
+#include "atn/ColliBase.h"
 
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" char* strcpy(char* dst, const char* src);
@@ -38,21 +39,8 @@ struct Settings_unk {
 };
 extern "C" Settings_unk* lbl_8087F0A8;
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
-extern "C" atn::Matrix3x4 lbl_807C7060; // inferred: identity matrix
-// inferred: collision world and ray test (see gmk::FlamingArrow)
-struct CollResult_unk {
-    CollResult_unk() : m34(0), m38(0), m3C(0), m40(0) {}
-    unsigned char m00[0x04];
-    atn::Vector3 m04; // inferred: hit position
-    unsigned char m10[0x34 - 0x10];
-    void* m34;
-    void* m38; // inferred: hit object
-    unsigned int m3C;
-    void* m40;
-    unsigned char m44[0x50 - 0x44];
-};
-extern "C" void* lbl_8087EE98;
-extern "C" int fn_8004ED34(void* colli, CollResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
+extern "C" atn::Matrix3x4 lbl_807C7060; extern "C" void* lbl_8087EE98;
+extern "C" int fn_8004ED34(void* colli, atn::ColliResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg7); // inferred: ray test
 // inferred: link of the character lists of the managers (CharaTask + 0x14AC)
 struct CharaListNode_unk {
@@ -240,7 +228,7 @@ void MotionObject::vf10() {
                 atn::Vector3 to(pos);
                 from.y += 10.0f;
                 to.y -= 10.0f;
-                CollResult_unk result;
+                atn::ColliResult_unk result;
                 if (fn_8004ED34(lbl_8087EE98, &result, &from, &to, 0x80000000, 0, 0) != 0 &&
                     result.m38 == colli->mObject) {
                     chara->mPos = result.m04;

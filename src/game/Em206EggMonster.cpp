@@ -14,6 +14,7 @@
 #include "game/GimmickManager.h"
 #include "game/GameTask.h"
 #include "math/VecAssign_unk.h"
+#include "atn/ColliBase.h"
 
 // inferred: point the camera looks at (lbl_8087F430 + 0x97C, as in game/Em101ElderZesya.cpp); names invented
 struct EggLook_unk {
@@ -175,21 +176,7 @@ extern "C" double sin(double x);
 extern "C" int rand();
 extern "C" void* lbl_8087EE98; // inferred: collision world
 extern "C" int fn_8004ECC0(void* world, atn::Vector3* hit, const atn::Vector3* from, const atn::Vector3* to,
-                           unsigned int mask, void* a, int b, CharaTask* ignore); // inferred: ray test
-// inferred: result of a collision query (0x50 bytes, as in game/Em208Queen.cpp)
-struct CollResult_unk {
-    CollResult_unk() : m34(0), m38(0), m3C(0), m40(0) {}
-    unsigned char m00[0x10];
-    atn::Vector3 m10; // inferred: hit position
-    unsigned char m1C[0x28 - 0x1C];
-    atn::Vector3 m28;
-    int m34;
-    atn::ColliBase* m38;
-    int m3C;
-    void* m40;
-    unsigned char m44[0x50 - 0x44];
-};
-extern "C" void fn_8004D388(void* mgr, CollResult_unk* result, CharaTask::Sphere_unk* sphere, atn::Vector3* move,
+                           unsigned int mask, void* a, int b, CharaTask* ignore); extern "C" void fn_8004D388(void* mgr, atn::ColliResult_unk* result, CharaTask::Sphere_unk* sphere, atn::Vector3* move,
                             unsigned int mask, void* ignore, int arg, float radius); // inferred: sweep test
 // inferred: angle wrap to [-180, 180] (name invented)
 inline float WrapDeg_unk(float deg) {
@@ -1107,7 +1094,7 @@ void Em206EggMonster::fn_802C4480() {
         atn::Matrix3x4 m;
         m.fn_8013A13C(mRot.y);
         PSMTXMultVec(m.m, &move, &move);
-        CollResult_unk result;
+        atn::ColliResult_unk result;
         CharaTask::Sphere_unk sphere = fn_80176548(mPos);
         fn_8004D388(lbl_8087EE98, &result, &sphere, &move, 0x80000000, &mColli, 0, sphere.mRadius);
         atn::Vector3 pos = result.m10;
@@ -1451,7 +1438,7 @@ __declspec(noinline) int Em206EggMonster::fn_802C69BC() {
     return 0;
 }
 
-extern "C" int fn_8004ED34(void* world, CollResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
+extern "C" int fn_8004ED34(void* world, atn::ColliResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg); // inferred: ray test
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
 extern "C" void fn_800FDB20(Effect_unk* mgr, CharaTask* owner, CharaTask* target, int arg, HitInfo_unk* data, int id,
@@ -1517,7 +1504,7 @@ void Em206EggMonster::fn_802C6DF4() {
     }
     atn::Vector3 from = m14F4.GetTrans_unk();
     atn::Vector3 to = from + m14DC;
-    CollResult_unk result;
+    atn::ColliResult_unk result;
     if (fn_8004ED34(lbl_8087EE98, &result, &from, &to, 6, &mColli, 0) != 0) {
         CharaTask* chara = 0;
         if (result.m38 != 0 && (result.m38->mFlags & 2) == 2) {

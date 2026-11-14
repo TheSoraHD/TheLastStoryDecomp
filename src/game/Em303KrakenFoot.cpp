@@ -8,6 +8,7 @@
 #include "game/Em302Kraken.h"
 #include "game/PlayerTask.h"
 #include "math/Vec.h"
+#include "atn/ColliBase.h"
 
 extern "C" int sprintf(char* buf, const char* fmt, ...);
 extern "C" char* strstr(const char* s, const char* sub);
@@ -31,23 +32,8 @@ extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
 // inferred: effect/bullet manager (lbl_8087F048, as in chr/ControlUseSkill.cpp); class unknown
 struct Effect_unk;
 extern "C" Effect_unk* lbl_8087F048;
-extern "C" int fn_800F8548(Effect_unk* mgr); // inferred: new bullet id
-// inferred: ray test result (as in game/Em101LittleZesya.cpp)
-struct CollResult_unk {
-    CollResult_unk() : m34(0), m38(0), m3C(0), m40(0) {}
-    unsigned char m00[0x04];
-    atn::Vector3 m04;
-    atn::Vector3 m10; // inferred: hit position
-    unsigned char m1C[0x28 - 0x1C];
-    atn::Vector3 m28; // inferred: offset added to the hit position
-    void* m34;
-    void* m38;
-    int m3C;
-    void* m40;
-    unsigned char m44[0x50 - 0x44];
-};
-extern "C" void* lbl_8087EE98;
-extern "C" int fn_8004ED34(void* colli, CollResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
+extern "C" int fn_800F8548(Effect_unk* mgr); extern "C" void* lbl_8087EE98;
+extern "C" int fn_8004ED34(void* colli, atn::ColliResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg7); // inferred: ray test
 // inferred: effect manager (class unknown), global instance at 0x8087F3C0 (as in game/Em303KrakenFootMp.cpp)
 struct EffectMgr_unk;
@@ -385,7 +371,7 @@ inline void Em303KrakenFoot::Release_unk() {
             atn::Vector3 to = m14D0->mPos;
             atn::Vector3 from = mPos;
             from.y = to.y;
-            CollResult_unk result;
+            atn::ColliResult_unk result;
             if (fn_8004ED34(lbl_8087EE98, &result, &from, &to, 0x80000000, 0, 0) != 0) {
                 result.m10 += result.m28;
                 m14D0->mPos = result.m10;
@@ -428,7 +414,7 @@ void Em303KrakenFoot::vf40(HitInfo_unk* hit) {
                 atn::Vector3 to = m14D0->mPos;
                 atn::Vector3 from = mPos;
                 from.y = to.y;
-                CollResult_unk result;
+                atn::ColliResult_unk result;
                 if (fn_8004ED34(lbl_8087EE98, &result, &from, &to, 0x80000000, 0, 0) != 0) {
                     result.m10 += result.m28;
                     m14D0->mPos = result.m10;
@@ -640,7 +626,7 @@ inline void Em303KrakenFoot::Drop_unk() {
         atn::Vector3 to = m14D0->mPos;
         from = mPos;
         from.y = to.y;
-        CollResult_unk result;
+        atn::ColliResult_unk result;
         if (fn_8004ED34(lbl_8087EE98, &result, &from, &to, 0x80000000, 0, 0) != 0) {
             result.m10 += result.m28;
             m14D0->mPos = result.m10;

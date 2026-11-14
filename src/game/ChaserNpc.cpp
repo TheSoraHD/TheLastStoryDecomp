@@ -7,6 +7,7 @@
 #include "atn/SoundRef.h"
 #include "macros.h"
 #include "atn/DrawHelper.h"
+#include "atn/ColliBase.h"
 
 extern "C" unsigned long strlen(const char* s);
 extern "C" int strcmp(const char* a, const char* b);
@@ -45,21 +46,8 @@ struct Field_unk {
     RouteTable_unk* m10D8;
 };
 extern "C" Field_unk* lbl_8087F430;
-extern "C" unsigned short fn_803CD958(RoutePath_unk* path, int point); // inferred: next point towards `point`
-// inferred: collision world and its ray test (see CharaTask.cpp)
-struct CollResult_unk {
-    CollResult_unk() : m34(0), m38(0), m3C(0), m40(0) {}
-    unsigned char m00[0x04];
-    atn::Vector3 m04; // inferred: hit position
-    unsigned char m10[0x34 - 0x10];
-    void* m34;
-    void* m38;
-    int m3C;
-    void* m40;
-    unsigned char m44[0x50 - 0x44];
-};
-extern "C" void* lbl_8087EE98;
-extern "C" int fn_8004ED34(void* colli, CollResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
+extern "C" unsigned short fn_803CD958(RoutePath_unk* path, int point); extern "C" void* lbl_8087EE98;
+extern "C" int fn_8004ED34(void* colli, atn::ColliResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg7); // inferred: ray test
 // inferred: debug drawing (lbl_8087EEB0) and camera (atn::RenderManager::instance_)
 extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg, int arg2, float volume); // inferred: plays a sound
@@ -445,7 +433,7 @@ bool ChaserNpc::fn_80182134() {
         PSMTXMultVec(m, &front, &front);
         float angle = acos(PSVECDotProduct(&front.GetNormalize(), &dir));
         if (angle < 0.5f * angleMax) {
-            CollResult_unk result;
+            atn::ColliResult_unk result;
             seen = fn_8004ED34(lbl_8087EE98, &result, &eye, &target, 0x80000000, 0, 0) == 0;
             if (lbl_8087F0A8->m53C != 0) {
                 if (!seen) {

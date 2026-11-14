@@ -5,7 +5,9 @@
 #include "math/Vec.h"
 
 class CharaTask;
-struct CollResult_unk;
+namespace atn {
+struct ColliResult_unk;
+}
 class ReplayBuffer;
 
 // inferred: shot parameters (0x1C bytes, copied into the replay event by HomingBullet::vf28)
@@ -85,7 +87,7 @@ public:
     void fn_8010F41C();                     // inferred: stops the effects
     void fn_8010F4BC();                     // inferred: updates the matrix of the effect
     void fn_801100A0();                     // inferred: hit effect
-    void fn_80110858(CollResult_unk* res); // inferred: the bullet hits `res`
+    void fn_80110858(atn::ColliResult_unk* res); // inferred: the bullet hits `res`
     void fn_801120B0();
     void fn_80112174();
 

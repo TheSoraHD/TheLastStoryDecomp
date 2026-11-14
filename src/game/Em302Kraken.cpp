@@ -14,6 +14,7 @@
 #include "std/string.h"
 #include "std/string_members.h"
 #include "game/BattleTask.h"
+#include "atn/ColliBase.h"
 
 extern "C" unsigned long strlen(const char* s);
 extern "C" int strcmp(const char* a, const char* b);
@@ -74,21 +75,8 @@ struct Field_unk {
 };
 extern "C" Field_unk* lbl_8087F430;
 extern "C" void fn_801092C8(Effect_unk* effect, int msg, CharaTask* chara, int value, int arg);
-// inferred: ray test against the map (as in gmk/MotionObject.cpp); layout of gmk/Lemon.h
-struct KrakenColl_unk {
-    KrakenColl_unk() : m34(0), m38(0), m3C(0), m40(0) {}
-    unsigned char m00[0x04];
-    atn::Vector3 m04; // inferred: hit position
-    atn::Vector3 m10; // inferred: position after the sweep
-    unsigned char m1C[0x34 - 0x1C];
-    void* m34;
-    void* m38;
-    unsigned int m3C;
-    int m40;
-    atn::Vector3 m44;
-};
 extern "C" void* lbl_8087EE98;
-extern "C" int fn_8004ED34(void* colli, KrakenColl_unk* result, const atn::Vector3* from, const atn::Vector3* to,
+extern "C" int fn_8004ED34(void* colli, atn::ColliResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg7);
 // inferred: damage record sent to the effect manager (layout of game/CharaStatus.cpp)
 struct KrakenDamage_unk {
@@ -953,7 +941,7 @@ void Em302Kraken::fn_802DA718() {
         m14FC.y += 0.1f;
         atn::Vector3 to = m14FC;
         to.y -= 100.0f;
-        KrakenColl_unk result;
+        atn::ColliResult_unk result;
         if (fn_8004ED34(lbl_8087EE98, &result, &m14FC, &to, 0, &m1630->mColli, 0) != 0) {
             m14FC = result.m10;
         }

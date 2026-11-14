@@ -40,7 +40,7 @@ extern "C" void* lbl_8087EE98; // inferred: collision world
 extern "C" int fn_8004ECC0(void* world, atn::Vector3* hit, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg); // inferred: ray test
 extern "C" int fn_8059A298(atn::Vector3* pos, atn::Vector3* rot, int arg); // inferred: places a ground effect
-extern "C" int fn_8004ED34(void* colli, CollResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
+extern "C" int fn_8004ED34(void* colli, atn::ColliResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg7); // inferred: ray test
 extern "C" float PSVECSquareMag(const atn::Vector3* v);
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
@@ -418,8 +418,8 @@ inline float Dot_unk(const atn::Vector3& a, const atn::Vector3& b) {
     return PSVECDotProduct(&a, &b);
 }
 
-// inferred: material of the polygon hit (CollResult_unk::m34); 0x14 is water (name invented)
-inline bool IsWater_unk(const CollResult_unk& res) {
+// inferred: material of the polygon hit (atn::ColliResult_unk::m34); 0x14 is water (name invented)
+inline bool IsWater_unk(const atn::ColliResult_unk& res) {
     return res.m34 != 0 && *(unsigned int*)res.m34 == 0x14;
 }
 
@@ -443,7 +443,7 @@ extern "C" int fn_8059A298(atn::Vector3* pos, atn::Vector3* rot, int steep) {
     atn::Vector3 c;
     atn::Vector3 d;
     unsigned int mask = 0x80080000;
-    CollResult_unk res;
+    atn::ColliResult_unk res;
     if (fn_8004ED34(lbl_8087EE98, &res, &from, &to, mask, 0, 0)) {
         if (steep != 0 && Dot_unk(res.m28, atn::Vector3(0.0f, 1.0f, 0.0f)) < 0.8660254f) {
             fail = 1;

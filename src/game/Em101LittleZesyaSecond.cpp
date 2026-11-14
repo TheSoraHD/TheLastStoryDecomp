@@ -8,6 +8,7 @@
 #include "std/string.h"
 #include "std/string_members.h"
 #include "game/GameTask.h"
+#include "atn/ColliBase.h"
 
 extern "C" unsigned long strlen(const char* s);
 extern "C" int strcmp(const char* a, const char* b);
@@ -140,21 +141,8 @@ extern "C" void fn_800F8574(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* data
                             const atn::Vector3* dir, HomingParam_unk* param, int arg6, int arg7, float a, float b);
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
 extern "C" int rand();
-// inferred: collision world and its ray test (as in game/Em101LittleZesya.cpp)
-struct CollResult_unk {
-    CollResult_unk() : m34(0), m38(0), m3C(0), m40(0) {}
-    unsigned char m00[0x04];
-    atn::Vector3 m04; // inferred: hit position
-    atn::Vector3 m10;
-    unsigned char m1C[0x34 - 0x1C];
-    int m34;
-    int m38;
-    int m3C;
-    int m40;
-    unsigned char m44[0x50 - 0x44];
-};
 extern "C" void* lbl_8087EE98;
-extern "C" int fn_8004ED34(void* colli, CollResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
+extern "C" int fn_8004ED34(void* colli, atn::ColliResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg7); // inferred: ray test
 
 // NONMATCHING: 99.81% - r26/r27 of the second std::string and r25/r26 of the strlen of the parameters
@@ -782,7 +770,7 @@ void Em101LittleZesyaSecond::fn_802621D4(atn::Vector3* pos, float* rot) {
         *pos = m14FC + Neg_unk(dir) * 60.0f;
         pos->y += 100.0f;
     }
-    CollResult_unk result;
+    atn::ColliResult_unk result;
     atn::Vector3 to = atn::Vector3(0.0f, -200.0f, 0.0f) + *pos;
     if (fn_8004ED34(lbl_8087EE98, &result, pos, &to, 0x80000000, &mColli, 0) != 0) {
         *pos = result.m10;

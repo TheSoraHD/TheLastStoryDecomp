@@ -136,20 +136,7 @@ extern "C" void fn_8003EA3C(MulueDamage_unk* result, HitInfo_unk* data, CharaTas
                             unsigned int flags, const void* param, int arg, int arg2); // inferred: computes the damage
 struct HitParam_unk;
 extern "C" HitParam_unk lbl_807C6B90;
-// inferred: ray test against the map (as in game/Em208Queen.cpp)
-struct MulueColl_unk {
-    MulueColl_unk() : m34(0), m38(0), m3C(0), m40(0) {}
-    unsigned char m00[0x10];
-    atn::Vector3 m10; // inferred: hit position
-    unsigned char m1C[0x28 - 0x1C];
-    atn::Vector3 m28; // inferred: offset added to the hit position
-    int m34;
-    atn::ColliBase* m38; // inferred: object hit
-    int m3C;
-    int m40;
-    unsigned char m44[0x50 - 0x44];
-};
-extern "C" int fn_8004ED34(void* world, MulueColl_unk* result, const atn::Vector3* from, const atn::Vector3* to,
+extern "C" int fn_8004ED34(void* world, atn::ColliResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg7, CharaTask* arg8); // inferred: ray test
 // inferred: hint of the HUD (GameUI::m764) built as a temporary (as in game/Em209SmallGolem.cpp)
 struct MulueUIHint_unk : public GameUIElem1C_unk {
@@ -1071,7 +1058,7 @@ void Em204Mulue::fn_802A94C8() {
         from.y += 3.0f;
         atn::Vector3 to(m1644->mPos);
         to.y += 3.0f;
-        MulueColl_unk result;
+        atn::ColliResult_unk result;
         if (fn_8004ED34(lbl_8087EE98, &result, &from, &to, 0x80000000, 0, 0, m1644) != 0 &&
             (result.m38->mFlags & 4) == 4) {
             result.m10 += result.m28;
