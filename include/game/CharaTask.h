@@ -117,7 +117,7 @@ struct CharaObj1208_unk {
 };
 
 // inferred: objects registered in CharaTask::m120C by fn_805989A4 (class unknown); m04 is compared
-// with the skill data of CharaStatus::m2D0 by CharaTask::fn_80176428
+// with the skill data of CharaStatus::m2CC by CharaTask::fn_80176428
 struct CharaAttach_unk {
     int m00;
     HitInfo_unk* m04;

@@ -301,7 +301,7 @@ struct CharaData_unk {
     int mD0; // inferred: gimmick created by the EnemyTask constructor when > 0 (passed to its vf68)
     signed char mD4[4]; // inferred: passed with mD8 to CharaTask::fn_8014F2B4 by the BattleCharaTask constructor
     int mD8[4];
-    ::CharaStatusPair_unk mE8[4]; // inferred: added to CharaStatus::m2D0 on load (fn_8013655C)
+    ::CharaStatusPair_unk mE8[4]; // inferred: added to CharaStatus::m2CC on load (fn_8013655C)
     int m108[5];                  // inferred: passed to CharaTask::fn_8014FF9C on load
     int m11C;
     unsigned char m120[0x122 - 0x120];
@@ -536,8 +536,9 @@ public:
     float m244; // inferred: copy of m04 (fn_8012D8B8)
     int m248;
     int m24C[32]; // inferred: one value per flag bit (fn_801333A4)
-    int m2CC;
-    CharaStatusPair_unk m2D0[4];
+    // inferred: count and four pairs (skills of the character; m2CC[i].m[0] is a skill id): addressed from 0x2CC
+    // (BattleCharaTask::fn_800E9110) and constructed as one array (constructor 0x8012B0B0)
+    FixedArray_unk<CharaStatusPair_unk, 4> m2CC;
     CharaTask* mChara; // 0x2F0
     float m2F4;
     float m2F8;

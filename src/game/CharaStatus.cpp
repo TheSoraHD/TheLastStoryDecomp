@@ -181,9 +181,9 @@ inline bool CharaStatus::IsWeak_unk() {
 }
 
 // NONMATCHING: 98.1% - register allocation only: the original keeps zero in r30 and the loop
-// pointers of m2D0 in r29/r28; ours uses r29 for zero and r28/r30 for the pointers.
+// pointers of m2CC in r29/r28; ours uses r29 for zero and r28/r30 for the pointers (also as a FixedArray).
 CharaStatus::CharaStatus()
-    : m240(0), m248(0), m2CC(0), mChara(0), m2F4(0.0f), m2F8(0.0f), m2FC(1.0f), m300(0),
+    : m240(0), m248(0), mChara(0), m2F4(0.0f), m2F8(0.0f), m2FC(1.0f), m300(0),
       m428(0.0f), m42C(0.0f), m430(0), m434(0.0f), m438(0.0f) {
     memset(m24C, 0, sizeof(m24C));
 }
@@ -450,7 +450,7 @@ void CharaStatus::fn_8012CE4C(int kind) {
     }
 }
 
-// NONMATCHING: 97.5% - the loop that resets m2D0 walks a pointer (the original uses base + offset, with the
+// NONMATCHING: 97.5% - the loop that resets m2CC walks a pointer (the original uses base + offset, with the
 // zero in the register of `set`). Tried: unsigned and shared counters, a helper, sizeof bound.
 void CharaStatus::fn_8012D180() {
     int kind = fn_80219558(mChara->m50);
@@ -478,59 +478,59 @@ void CharaStatus::fn_8012D180() {
         owned[i] = ok ? (int)lbl_8087EE68->fn_800185B4(mChara, (HitInfo_unk*)items[i]) : 0;
     }
     for (int i = 0; i < 4; i++) {
-        m2D0[i] = CharaStatusPair_unk(0);
+        m2CC.mData[i] = CharaStatusPair_unk(0);
     }
     switch (kind) {
     case 0:
-        m2D0[0] = CharaStatusPair_unk(ids[1]);
-        m2D0[3] = CharaStatusPair_unk(ids[5]);
+        m2CC[0] = CharaStatusPair_unk(ids[1]);
+        m2CC[3] = CharaStatusPair_unk(ids[5]);
         break;
     case 1:
         if (owned[3] == 0) {
-            m2D0[0] = CharaStatusPair_unk(ids[1]);
+            m2CC[0] = CharaStatusPair_unk(ids[1]);
         } else {
-            m2D0[0] = CharaStatusPair_unk(ids[3]);
+            m2CC[0] = CharaStatusPair_unk(ids[3]);
         }
         if (lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->fn_80370174(909) == 1) {
-            m2D0[3] = CharaStatusPair_unk(1730);
+            m2CC[3] = CharaStatusPair_unk(1730);
         } else {
-            m2D0[3] = CharaStatusPair_unk(ids[5]);
+            m2CC[3] = CharaStatusPair_unk(ids[5]);
         }
         break;
     case 2:
     case 3:
         if (owned[4] != 0) {
-            m2D0[0] = CharaStatusPair_unk(ids[4]);
+            m2CC[0] = CharaStatusPair_unk(ids[4]);
         }
-        m2D0[3] = CharaStatusPair_unk(ids[5]);
+        m2CC[3] = CharaStatusPair_unk(ids[5]);
         break;
     case 4:
         if (owned[4] == 0) {
-            m2D0[0] = CharaStatusPair_unk(ids[1]);
+            m2CC[0] = CharaStatusPair_unk(ids[1]);
         } else {
-            m2D0[0] = CharaStatusPair_unk(ids[4]);
+            m2CC[0] = CharaStatusPair_unk(ids[4]);
         }
         if (lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->fn_80370174(908) == 1) {
-            m2D0[3] = CharaStatusPair_unk(6042);
+            m2CC[3] = CharaStatusPair_unk(6042);
         } else {
-            m2D0[3] = CharaStatusPair_unk(ids[5]);
+            m2CC[3] = CharaStatusPair_unk(ids[5]);
         }
         break;
     case 6:
         if (owned[4] == 0) {
-            m2D0[0] = CharaStatusPair_unk(ids[1]);
+            m2CC[0] = CharaStatusPair_unk(ids[1]);
         } else {
-            m2D0[0] = CharaStatusPair_unk(ids[4]);
+            m2CC[0] = CharaStatusPair_unk(ids[4]);
         }
-        m2D0[3] = CharaStatusPair_unk(ids[5]);
+        m2CC[3] = CharaStatusPair_unk(ids[5]);
         break;
     case 5:
         if (owned[1] == 0) {
-            m2D0[0] = CharaStatusPair_unk(ids[3]);
+            m2CC[0] = CharaStatusPair_unk(ids[3]);
         } else {
-            m2D0[0] = CharaStatusPair_unk(ids[1]);
+            m2CC[0] = CharaStatusPair_unk(ids[1]);
         }
-        m2D0[3] = CharaStatusPair_unk(ids[5]);
+        m2CC[3] = CharaStatusPair_unk(ids[5]);
         break;
     }
 }
@@ -929,7 +929,7 @@ void CharaStatus::fn_8012F034(float amount) {
         if (!fn_80219344(mChara, 5)) {
             return;
         }
-    } else if (m2D0[3].m[0] <= 0) {
+    } else if (m2CC[3].m[0] <= 0) {
         return;
     }
     static const float sFactors[5] = {0.6f, 0.8f, 1.0f, 1.2f, 1.4f};

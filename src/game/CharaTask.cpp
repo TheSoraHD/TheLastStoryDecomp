@@ -636,8 +636,7 @@ int CharaTask::fn_8013655C() {
             }
             for (int i = 0; i < 4; i++) {
                 CharaStatusPair_unk pair = m5C->mE8[i];
-                new (&mStatus.m2D0[mStatus.m2CC]) CharaStatusPair_unk(pair);
-                mStatus.m2CC++;
+                mStatus.m2CC.PushBack_unk(pair);
             }
         }
         mAC = 2;
@@ -7863,11 +7862,11 @@ int CharaTask::fn_8015487C() {
         break;
     case 2:
         result = 2;
-        if (mStatus.m2CC != 0) {
-            if (mStatus.m2D0[0].m[0] > 0 && fn_8021A8D0((HitInfo_unk*)fn_80219E6C(mStatus.m2D0[0].m[0]))) {
+        if (mStatus.m2CC.mCount != 0) {
+            if (mStatus.m2CC[0].m[0] > 0 && fn_8021A8D0((HitInfo_unk*)fn_80219E6C(mStatus.m2CC[0].m[0]))) {
                 result = 5;
-            } else if ((unsigned int)mStatus.m2CC >= 2 && mStatus.m2D0[1].m[0] > 0 &&
-                       fn_8021A8D0((HitInfo_unk*)fn_80219E6C(mStatus.m2D0[1].m[0]))) {
+            } else if (mStatus.m2CC.mCount >= 2 && mStatus.m2CC[1].m[0] > 0 &&
+                       fn_8021A8D0((HitInfo_unk*)fn_80219E6C(mStatus.m2CC[1].m[0]))) {
                 result = 5;
             }
         }
@@ -10649,7 +10648,7 @@ int CharaTask::fn_801763E0(CharaAttach_unk* obj) {
     return 0;
 }
 
-// inferred: with a valid index, nonzero if the skill of mStatus.m2D0[index] is attached; otherwise
+// inferred: with a valid index, nonzero if the skill of mStatus.m2CC[index] is attached; otherwise
 // nonzero if anything is attached
 int CharaTask::fn_80176428(int index) {
     if (index < 0 || 4 <= index) {
@@ -10669,7 +10668,7 @@ int CharaTask::fn_80176428(int index) {
         }
         return count > 0;
     }
-    HitInfo_unk* skill = fn_80219E6C(mStatus.m2D0[index].m[0]);
+    HitInfo_unk* skill = fn_80219E6C(mStatus.m2CC[index].m[0]);
     if (m120C[0] != 0 && m120C[0]->m04 == skill) {
         return 1;
     }
@@ -11830,7 +11829,7 @@ int CharaTask::fn_8017A9A8() {
                 } else if (m1388 >= 0x1BD) {
                     result = 1;
                 }
-                HitInfo_unk* skill = mStatus.m2D0[0].m[0] > 0 ? fn_80219E6C(mStatus.m2D0[0].m[0]) : 0;
+                HitInfo_unk* skill = mStatus.m2CC[0].m[0] > 0 ? fn_80219E6C(mStatus.m2CC[0].m[0]) : 0;
                 if (skill != 0 && fn_8021A960(skill) && (skill->mAC & 0x20) == 0x20) {
                     result = 0;
                 }

@@ -268,7 +268,7 @@ int Em005DoppelGanger::vf0C() {
         mStatus.fn_8012B3E8();
         mStatus.fn_8012B988();
         for (int i = 0; i < 4; i++) {
-            mStatus.m2D0[i] = m5C->mE8[i];
+            mStatus.m2CC[i] = m5C->mE8[i];
         }
         fn_8016E4C4(0);
         return 1;

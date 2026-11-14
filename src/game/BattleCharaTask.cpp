@@ -259,7 +259,7 @@ int BattleCharaTask::vf0C() {
             }
         }
         if (m50 == 0x1895D || m50 == 0x189C1 || m50 == 0x31289) {
-            mStatus.m2D0[3] = CharaStatusPair_unk(0x1785);
+            mStatus.m2CC[3] = CharaStatusPair_unk(0x1785);
             mStatus.m2FC = 2.0f;
         }
         if (fn_80179AB4() == 1 && fn_80179A34() / 10000 == 305) {
@@ -1404,19 +1404,19 @@ void BattleCharaTask::fn_800E62AC(Field_unk* field, int a, int b) {
                         if (lbl_8087F610 == 0) {
                             fn_8016D74C(fn_80219344(this, 1), 0, 0);
                         } else {
-                            fn_8016D74C(fn_80219E6C(mStatus.m2D0[m145C].m[0]), 0, 0);
+                            fn_8016D74C(fn_80219E6C(mStatus.m2CC[m145C].m[0]), 0, 0);
                         }
                     }
                     break;
                 case 2:
                 case 3:
-                    if (lbl_8087F610 != 0 && mStatus.m2D0[m145C].m[0] > 0 && HpRate_unk(this) >= 0.25f &&
+                    if (lbl_8087F610 != 0 && mStatus.m2CC[m145C].m[0] > 0 && HpRate_unk(this) >= 0.25f &&
                         (mStatus.m0C & 4) != 4) {
-                        fn_8016D74C(fn_80219E6C(mStatus.m2D0[m145C].m[0]), 0, 0);
+                        fn_8016D74C(fn_80219E6C(mStatus.m2CC[m145C].m[0]), 0, 0);
                     }
                     break;
                 case 6: {
-                    CharaStatusPair_unk& magic = mStatus.m2D0[m145C];
+                    CharaStatusPair_unk& magic = mStatus.m2CC[m145C];
                     if (magic.m[0] != fn_8021921C(this, 4)) {
                         fn_800E9110();
                     }
@@ -1428,7 +1428,7 @@ void BattleCharaTask::fn_800E62AC(Field_unk* field, int a, int b) {
                     fn_800E9110();
                     break;
                 default: {
-                    CharaStatusPair_unk& magic = mStatus.m2D0[m145C];
+                    CharaStatusPair_unk& magic = mStatus.m2CC[m145C];
                     if (magic.m[0] > 0) {
                         if ((unsigned int)m5C->m11C <= 2) {
                             if ((unsigned int)m50 == 0xAAE72) {
@@ -1663,7 +1663,7 @@ void BattleCharaTask::fn_800E7BB0() {
         } else if (mStatus.fn_80134134(0x29) != 0) {
             skill = 0x177B;
         } else if (mStatus.m228 >= 1.0f && fn_80219344(this, 5) != 0) {
-            skill = mStatus.m2D0[3].m[0];
+            skill = mStatus.m2CC[3].m[0];
         }
     }
     int ok = 0;
@@ -1706,8 +1706,8 @@ void BattleCharaTask::fn_800E7BB0() {
             break;
         case 0x178F:
         case 0x1790:
-            // inferred: the skill pair m2D0[3] is passed as the skill reference
-            fn_8016125C((const SkillRef_unk*)&mStatus.m2D0[3], this, 0x173, 0, 10.0f);
+            // inferred: the skill pair m2CC[3] is passed as the skill reference
+            fn_8016125C((const SkillRef_unk*)&mStatus.m2CC[3], this, 0x173, 0, 10.0f);
             break;
         default:
             if ((mStatus.m0C & 4) != 4) {
@@ -2065,12 +2065,12 @@ void BattleCharaTask::fn_800E8FB8() {
     }
     if (lbl_8087F610 != 0 && CrossbowMenuTask::sInstance->m4C[CrossbowMenuTask::sInstance->m150] == 0x65) {
         if (m5C->m11C == 3 || m50 == 0xAAE72) {
-            HitInfo_unk* hit = fn_80219E6C(mStatus.m2D0[m145C].m[0]);
+            HitInfo_unk* hit = fn_80219E6C(mStatus.m2CC[m145C].m[0]);
             if (hit != 0 && hit->mC8 > 0) {
                 bullet = hit->mC8;
             }
         } else if (m50 == 0xAAE76 || m50 == 0xAAE77) {
-            bullet = mStatus.m2D0[1].m[0];
+            bullet = mStatus.m2CC[1].m[0];
         }
     }
     if (bullet > 0) {
@@ -2078,10 +2078,11 @@ void BattleCharaTask::fn_800E8FB8() {
     }
 }
 
-// NONMATCHING: 98.7% - the m2D0 entry is addressed from 0xAA0 (a FixedArray of CharaStatus?) and stack slots of the
+// NONMATCHING: 98.8% - the skill entry is addressed from 0xAA0 (&mStatus.m2CC, kept in r4 before m145C is read;
+// operator[], mData[], begin() + i and a local reference all fold it into the offset) and stack slots of the
 // scaled direction temporaries
 void BattleCharaTask::fn_800E9110() {
-    HitInfo_unk* hit = fn_80219E6C(mStatus.m2D0[m145C].m[0]);
+    HitInfo_unk* hit = fn_80219E6C(mStatus.m2CC[m145C].m[0]);
     atn::Vector3 pos = mPos;
     atn::Vector3 dir(0.0f, 0.0f, 50.0f);
     if (mFlag31 && mC48 != 0) {
@@ -3067,7 +3068,7 @@ int BattleCharaTask::fn_800EE794(SkillEffect* effect) {
             float best = 1e16f;
             for (PlayerTask* p = lbl_8087F8A0->mHead; p != 0; p = p->mNext) {
                 if (fn_800EE640(p)) {
-                    HitInfo_unk* hit = p->mStatus.m2D0[0].m[0] > 0 ? fn_80219E6C(p->mStatus.m2D0[0].m[0]) : 0;
+                    HitInfo_unk* hit = p->mStatus.m2CC[0].m[0] > 0 ? fn_80219E6C(p->mStatus.m2CC[0].m[0]) : 0;
                     if (hit != 0 && fn_8021A984(hit)) {
                         atn::Vector3 d = mPos - p->mPos;
                         float dist = PSVECSquareMag(&d);

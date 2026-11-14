@@ -4096,8 +4096,8 @@ void GameUI::fn_803DCD34(CharaTask* chara, int slot, int other, int fixed) {
         }
         HitInfo_unk* skill = 0;
         if (lbl_8087F610 == 0) {
-            if (chara->mStatus.m2D0[0].m[0] != 0) {
-                skill = fn_80219E6C(chara->mStatus.m2D0[0].m[0]);
+            if (chara->mStatus.m2CC[0].m[0] != 0) {
+                skill = fn_80219E6C(chara->mStatus.m2CC[0].m[0]);
             } else if (chara->m648 != 0) {
                 skill = ((Arms*)chara->m648)->fn_80044C30(0);
             }
@@ -5036,7 +5036,7 @@ void GameUI::fn_803E0E10(CharaTask* chara, GameUIElem60_unk* window, int index) 
     if (chara->fn_8016E484() != 0) {
         skill = fn_80219344(chara, 5);
     } else {
-        skill = chara->mStatus.m2D0[3].m[0] > 0 ? fn_80219E6C(chara->mStatus.m2D0[3].m[0]) : 0;
+        skill = chara->mStatus.m2CC[3].m[0] > 0 ? fn_80219E6C(chara->mStatus.m2CC[3].m[0]) : 0;
     }
     float tp = 1.0f < chara->mStatus.m228 ? 1.0f : chara->mStatus.m228;
     if (on != 0 && (tp >= 1.0f || chara->mStatus.m2F4 > 0.0f)) {

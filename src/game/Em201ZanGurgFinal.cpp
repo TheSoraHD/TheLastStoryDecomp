@@ -695,7 +695,7 @@ int Em201ZanGurgFinal::vf0C() {
         if (m14C0 == 1) {
             m14C8 = 2.0f;
             mStatus.m228 = 0.5f;
-            mStatus.m2D0[3] = CharaStatusPair_unk(0x616);
+            mStatus.m2CC[3] = CharaStatusPair_unk(0x616);
         } else if (m14C0 == 0) {
             m1634 = 1;
         }

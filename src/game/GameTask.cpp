@@ -891,9 +891,6 @@ int GameTask::vf0C() {
 // inferred: evaluates an atn::ParseTree compiled into a ParseCode_unk (atn/ParseTree.cpp)
 extern "C" float fn_800A6BDC(const unsigned char* code);
 
-// NONMATCHING: 98% - the copies of CharaStatusData_unk and CharaStatus: the original copies m54..m7C and
-// m2CC..m2EC in 8-byte pairs (one aggregate each: as an anonymous struct it matches, but the anonymous type
-// takes an @N in every unit including CharaStatus.h)
 // inferred: sets the level of the party and the enemies for the field (arg: the field starts; else the
 // saved status is restored)
 void GameTask::fn_80367A40(int arg) {
@@ -3202,8 +3199,7 @@ void GameTask::fn_8036EE0C() {
     }
 }
 
-// NONMATCHING: 98.7% - the copy of CharaStatus (m2CC..m2EC in 8-byte pairs in the original, see fn_80367A40)
-// and the registers of the inlined IsDungeonCleared_unk (the original reuses those of the dead arguments)
+// NONMATCHING: 99.8% - the registers of the inlined IsDungeonCleared_unk (the original reuses those of the dead arguments)
 // inferred: changes the map (save: data to restore; else the party is saved in m5628); a: kept in m550C.m24,
 // reason: copy format of the capture fade; arg9 unused
 extern "C" void fn_8036F268(GameTask* task, int type, int id, int subId, int entry, int a, GameSaveData_unk* save,
@@ -3578,7 +3574,7 @@ inline void GameTask::StartFinish_unk(CharaTask* chara, int id) {
 }
 
 // inferred: SetGlobalFlag (arg: do not run the side effects of the flag)
-// NONMATCHING: the copy of CharaStatusData_unk and the GameUI calls (the original passes the id too)
+// NONMATCHING: 98.1% - registers (r29/r30 swapped) and the GameUI calls (the original passes the id too)
 void GameTask::fn_80370320(int index, int value, int arg) {
     if ((unsigned int)index > 0xFFF) {
         if (lbl_8087EEB8 != 0) {

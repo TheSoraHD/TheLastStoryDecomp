@@ -249,7 +249,7 @@ extern "C" int fn_80267B28(CharaTask* chara);                    // inferred: re
 class EnemyQuarkStand;
 extern "C" void fn_80353EE4(EnemyQuarkStand* self); // inferred: releases the camera
 extern "C" void fn_80353F0C(EnemyQuarkStand* self); // inferred: frees the character stuck by the sword
-// inferred: stores a pair in CharaStatus::m2D0 (weak copy in game/EnemyQuarkSecond.cpp)
+// inferred: stores a pair in CharaStatus::m2CC (weak copy in game/EnemyQuarkSecond.cpp)
 extern "C" void fn_803396FC(CharaStatus* status, int index, const CharaStatusPair_unk& pair);
 extern "C" HitInfo_unk* fn_80219E6C(int id);
 

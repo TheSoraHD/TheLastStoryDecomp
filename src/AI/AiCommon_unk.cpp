@@ -487,7 +487,7 @@ extern "C" int fn_8001BB04(CharaTask* chara, int slot, CharaTask* target) {
     int ret = 1;
     if (chara != 0 && target != 0 && slot < 4) {
         float dist = PSVECMag(&(target->mPos - chara->mPos));
-        const int* ids = chara->mStatus.m2D0[slot].m;
+        const int* ids = chara->mStatus.m2CC[slot].m;
         for (int i = 0; i < 2; i++) {
             int id = ids[i];
             if (id > 0) {
@@ -508,7 +508,7 @@ extern "C" int fn_8001BB04(CharaTask* chara, int slot, CharaTask* target) {
 extern "C" int fn_8001BC38(CharaTask* chara, int slot) {
     int ret = 0;
     if (chara != 0 && slot < 4) {
-        ret = fn_8003F440(chara, &chara->mStatus.m2D0[slot]);
+        ret = fn_8003F440(chara, &chara->mStatus.m2CC[slot]);
     }
     return ret;
 }
@@ -523,7 +523,7 @@ extern "C" int fn_8001BC80(CharaTask* chara, int index) {
 
 extern "C" int fn_8001BCB4(CharaTask* chara, int slot) {
     bool ret = false;
-    if (chara != 0 && slot < 4 && chara->mStatus.m2D0[slot].m[0] > 0 && fn_80219E6C(chara->mStatus.m2D0[slot].m[0]) != 0) {
+    if (chara != 0 && slot < 4 && chara->mStatus.m2CC[slot].m[0] > 0 && fn_80219E6C(chara->mStatus.m2CC[slot].m[0]) != 0) {
         ret = true;
     }
     return ret;
