@@ -24,8 +24,7 @@ struct BulletSettings_unk {
 };
 extern "C" BulletSettings_unk* lbl_8087F0A8;
 // inferred: bullet pool (class unknown)
-struct BulletPool_unk;
-extern "C" BulletPool_unk* lbl_8087F048;
+extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
 extern "C" HitInfo_unk* fn_80219E6C(int id);          // inferred: bullet data by id
 extern "C" int fn_800EFD04(int id);                   // inferred: effect resources of a bullet
 extern "C" int fn_800EFDA0(int id);
@@ -117,7 +116,7 @@ void BulletPoint::vf10() {
         return;
     }
     mTimer = 0;
-    Bullet* bullet = ((BattleTask*)lbl_8087F048)->fn_801010A0();
+    Bullet* bullet = lbl_8087F048->fn_801010A0();
     if (bullet == 0) {
         return;
     }

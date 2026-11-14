@@ -31,8 +31,7 @@ extern "C" int strncmp(const char* a, const char* b, unsigned long n);
 extern "C" std::string fn_8006AFF8(const std::string& a, const std::string& b);
 
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; extern "C" void* lbl_8087EE98;
-struct Effect_unk;
-extern "C" void fn_800F8574(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* data, const atn::Vector3* pos,
+extern "C" void fn_800F8574(BattleTask* mgr, CharaTask* owner, HitInfo_unk* data, const atn::Vector3* pos,
                             const atn::Vector3* dir, HomingParam_unk* param, int arg6, int arg7, float a,
                             float b); // inferred: fires a bullet (as in game/Em101LittleZesyaSecond.cpp)
 extern "C" void PSMTXRotAxisRad(Mtx m, const atn::Vector3* axis, float rad);
@@ -62,11 +61,9 @@ struct Color4f_unk {
 };
 extern "C" EffectMgr_unk* lbl_8087F3C0;
 extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
-// inferred: effect/bullet manager (lbl_8087F048); class unknown
-struct Effect_unk;
-extern "C" Effect_unk* lbl_8087F048;
-extern "C" int fn_800F8548(Effect_unk* mgr); // inferred: new bullet id
-extern "C" void fn_800FAB80(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* bullet, int id, const atn::Vector3* pos,
+extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
+extern "C" int fn_800F8548(BattleTask* mgr); // inferred: new bullet id
+extern "C" void fn_800FAB80(BattleTask* mgr, CharaTask* owner, HitInfo_unk* bullet, int id, const atn::Vector3* pos,
                             const atn::Vector3* rot, int arg6, int arg7, int arg8, int arg9, float arg10,
                             float arg11); // inferred: fires a bullet (as in gmk/Coffin.cpp)
 // inferred: starts an effect resource at a position (argument layout of this unit; see game/Em301LShade.cpp)
@@ -457,7 +454,7 @@ inline int Em003LesserDaemon::FarthestPoint_unk() {
 
 // inferred: the battle AI ignores the other enemies (name invented)
 inline void ClearHate_unk(CharaTask* self) {
-    DaemonAi_unk* ai = (DaemonAi_unk*)((BattleTask*)lbl_8087F048)->fn_80103F60(self);
+    DaemonAi_unk* ai = (DaemonAi_unk*)lbl_8087F048->fn_80103F60(self);
     if (ai != 0) {
         for (EnemyTask* e = EnemyManager::sInstance->mHead; e != 0; e = e->mNext) {
             int index = ((BattleTask*)ai)->fn_80108378(e);
@@ -549,7 +546,7 @@ void Em003LesserDaemon::vf10() {
     case 1: {
         float frame = mMotion.mTracks[0].m08;
         if (frame >= 58.0f && frame <= 68.0f) {
-            ((BattleTask*)lbl_8087F048)->fn_800F8C6C(0, 0, this, m14C8, m590, atn::WrapAngle_unk(6.2831855f * ((frame - 58.0f) / 10.0f) - 0.47123894f), 30, -1);
+            lbl_8087F048->fn_800F8C6C(0, 0, this, m14C8, m590, atn::WrapAngle_unk(6.2831855f * ((frame - 58.0f) / 10.0f) - 0.47123894f), 30, -1);
         }
         float frame2 = mMotion.mTracks[0].m08;
         if (frame2 >= mMotion.fn_80097D7C(0)) {
@@ -1163,7 +1160,7 @@ void Em003LesserDaemon::fn_8024E7E4() {
         pos -= m5A4;
         pos.y -= sphere.mRadius;
         mPos = pos;
-        ((BattleTask*)lbl_8087F048)->fn_800F8C6C(0, 0, this, m14CC, m590, 0.0f, 30, -1);
+        lbl_8087F048->fn_800F8C6C(0, 0, this, m14CC, m590, 0.0f, 30, -1);
         break;
     }
     case 2: {

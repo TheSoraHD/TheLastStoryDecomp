@@ -24,11 +24,9 @@ extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3,
                             int arg7);
 extern "C" void fn_8008771C(void* group, const char* name, float* value, int arg3, int arg4, float min, float max,
                             float step);
-// inferred: effect/bullet manager (lbl_8087F048, as in chr/ControlUseSkill.cpp); class unknown
-struct Effect_unk;
-extern "C" Effect_unk* lbl_8087F048;
-extern "C" int fn_800F8548(Effect_unk* mgr); // inferred: new bullet id
-extern "C" void fn_800FB4B0(Effect_unk* mgr, CharaTask* chara, HitInfo_unk* data, int id, const atn::Vector3* pos,
+extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
+extern "C" int fn_800F8548(BattleTask* mgr); // inferred: new bullet id
+extern "C" void fn_800FB4B0(BattleTask* mgr, CharaTask* chara, HitInfo_unk* data, int id, const atn::Vector3* pos,
                             int a, int time, int b, int c);
 // inferred: effect manager (class unknown), global instance at 0x8087F3C0; m0B8 is a mode used while
 // the guard effect is created
@@ -294,7 +292,7 @@ inline void EnemyTrista::FireEvent_unk() {
     Mtx m;
     PSMTXRotRad(m, 'y', mC58.mC4->mRot.y);
     PSMTXMultVec(m, &dir, &dir);
-    Effect_unk* mgr = lbl_8087F048;
+    BattleTask* mgr = lbl_8087F048;
     atn::Vector3 pos = mC58.mC4->mPos + dir;
     fn_800FB4B0(mgr, this, m14F4, fn_800F8548(mgr), &pos, 0, 30, -1, 1);
 }
@@ -564,7 +562,7 @@ void EnemyTrista::fn_8035CF78() {
                 }
                 if (m594 != 0) {
                     fn_80144710();
-                    int n = ((BattleTask*)lbl_8087F048)->fn_800F8C6C(0, 0, this, m638, m590, 0.0f, 30, m594);
+                    int n = lbl_8087F048->fn_800F8C6C(0, 0, this, m638, m590, 0.0f, 30, m594);
                     if (m594 > 0) {
                         m594 -= n;
                     }

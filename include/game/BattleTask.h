@@ -244,6 +244,7 @@ public:
     void fn_80101CDC(BattleCalcParam_unk*); // inferred: hit sound of the attack parameters
     void fn_800F72F4(class BattleCharaTask* chara, int arg); // inferred: draws the target line of `chara`
     void fn_801055A8(int arg);
+    void fn_8013A19C(int); // inferred: sets m3E39C (defined in game/CharaTask.cpp)
     // inferred: plays the battle effect `id` (fn_800EFBC4) / skill effect (fn_800EFDA0) after stopping the group
     void fn_801070C8(int id, unsigned int owner, int group, atn::Model* model, const atn::Vector3* pos,
                      const atn::Vector3* rot, const EffectColor_unk* color, float scale);

@@ -30,12 +30,12 @@ extern "C" CoffinField_unk* lbl_8087F430;
 extern "C" int fn_80219558(int id); // inferred: party member kind of a character id (negative for enemies)
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 // inferred: bullets
-struct BulletMgr_unk;
-extern "C" BulletMgr_unk* lbl_8087F048;
+class BattleTask;
+extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
 struct HitInfo_unk;
 extern "C" HitInfo_unk* fn_80219E6C(int id); // inferred: bullet data by id
-extern "C" int fn_800F8548(BulletMgr_unk* mgr);
-extern "C" void fn_800FAB80(BulletMgr_unk* mgr, int arg1, HitInfo_unk* bullet, int arg3, const atn::Vector3* pos,
+extern "C" int fn_800F8548(BattleTask* mgr);
+extern "C" void fn_800FAB80(BattleTask* mgr, int arg1, HitInfo_unk* bullet, int arg3, const atn::Vector3* pos,
                             const atn::Vector3* rot, int arg6, int arg7, int arg8, int arg9, float arg10,
                             float arg11);
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);

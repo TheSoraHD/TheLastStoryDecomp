@@ -28,10 +28,9 @@ struct EffectMgr_unk;
 extern "C" EffectMgr_unk* lbl_8087F3C0;
 extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
 extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the next effects
-// inferred: effect/bullet manager (lbl_8087F048, as in chr/ControlUseSkill.cpp); class unknown
-struct Effect_unk;
-extern "C" Effect_unk* lbl_8087F048;
-extern "C" int fn_800F8548(Effect_unk* mgr); // inferred: new bullet id
+class BattleTask;
+extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
+extern "C" int fn_800F8548(BattleTask* mgr); // inferred: new bullet id
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 // inferred: debug menu entries (as in game/CharaTask.cpp)
 extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3, int arg4);
@@ -735,7 +734,7 @@ CharaTask* Em316LaserSphere::fn_80318A30() {
 
 // inferred: the magic `data` of `chara` targets `target` (bullet manager); returns < 0 when not (as in
 // game/Em403WarLion.cpp)
-extern "C" int fn_800FBA9C(Effect_unk* mgr, CharaTask* chara, CharaTask* target, HitInfo_unk* data, int arg,
+extern "C" int fn_800FBA9C(BattleTask* mgr, CharaTask* chara, CharaTask* target, HitInfo_unk* data, int arg,
                            float f);
 extern "C" int fn_80051BC4(const atn::ColliCapsuleShape_unk* a, const atn::ColliCapsuleShape_unk* b);
 // inferred: control of a character that casts a magic (as in game/Em101ElderZesyaSecond.cpp)
@@ -914,13 +913,13 @@ extern "C" int fn_80239D58(EffectMgr_unk* mgr, void* owner, int id); // inferred
 extern "C" void fn_8023A680(EffectMgr_unk* mgr, void* res, int a, int b, void* mtx, const atn::Vector3* pos,
                             const atn::Vector3* rot, const float* color, float scale, int e, int f, int g);
 // inferred: bullet manager and collision world (weak copies 0x8013A194/0x801404F8 of another file)
-inline Effect_unk* fn_8013A194() {
+inline BattleTask* fn_8013A194() {
     return lbl_8087F048;
 }
 inline void* fn_801404F8() {
     return lbl_8087EE98;
 }
-extern "C" void fn_800F8574(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* data, const atn::Vector3* pos,
+extern "C" void fn_800F8574(BattleTask* mgr, CharaTask* owner, HitInfo_unk* data, const atn::Vector3* pos,
                             const atn::Vector3* dir, void* param, int flags, int arg7, float arg8, float arg9);
 extern "C" int fn_8004ED34(void* colli, atn::ColliResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg7); // inferred: ray test

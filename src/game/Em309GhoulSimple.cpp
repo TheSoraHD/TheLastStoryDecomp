@@ -26,17 +26,15 @@ extern "C" int rand();
 extern "C" HitInfo_unk* fn_80219E6C(int id); // inferred: skill data by id
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
-// inferred: effect/bullet manager (lbl_8087F048, as in chr/ControlUseSkill.cpp); class unknown
-struct Effect_unk;
-extern "C" Effect_unk* lbl_8087F048;
-extern "C" int fn_800F8548(Effect_unk* mgr); extern "C" void* lbl_8087EE98;
+extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
+extern "C" int fn_800F8548(BattleTask* mgr); extern "C" void* lbl_8087EE98;
 extern "C" int fn_8004D388(void* world, atn::ColliResult_unk* result, CharaTask::Sphere_unk* sphere, atn::Vector3* move,
                            unsigned int mask, void* ignore, int arg, float radius); // inferred: sweep test
 extern "C" int fn_8004ED34(void* world, atn::ColliResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg); // inferred: ray test
 extern "C" void PSMTXRotAxisRad(Mtx m, const atn::Vector3* axis, float rad);
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
-extern "C" void fn_800FAB80(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* bullet, int arg3, const atn::Vector3* pos,
+extern "C" void fn_800FAB80(BattleTask* mgr, CharaTask* owner, HitInfo_unk* bullet, int arg3, const atn::Vector3* pos,
                             const atn::Vector3* rot, int arg6, int arg7, int arg8, int arg9, float arg10,
                             float arg11);
 // inferred: effect manager (class unknown, as in game/Em309Ghoul.cpp)
@@ -237,7 +235,7 @@ void Em309GhoulSimple::vf10() {
         mRot = rot;
     }
     if (m1570 != 0) {
-        GhoulWeights_unk* w = (GhoulWeights_unk*)((BattleTask*)lbl_8087F048)->fn_80103F60(this);
+        GhoulWeights_unk* w = (GhoulWeights_unk*)lbl_8087F048->fn_80103F60(this);
         for (PlayerTask* p = lbl_8087F8A0->mHead; p != 0; p = p->mNext) {
             int i = ((BattleTask*)w)->fn_80108378(p);
             w->mWeight[i] = p->mType == 0 ? 1.0f : 0.3f;
@@ -563,13 +561,13 @@ void Em309GhoulSimple::vf108() {
                 if (frame >= 36.0f) {
                     int id = m14C8;
                     HitInfo_unk* skill = fn_80219E6C(m14E8);
-                    ((BattleTask*)lbl_8087F048)->fn_800F8C6C(0, 0, this, skill, id, 0.0f, 30, -1);
+                    lbl_8087F048->fn_800F8C6C(0, 0, this, skill, id, 0.0f, 30, -1);
                     m14BC++;
                 }
             } else if (m58C == 10 && frame >= 40.0f) {
                 int id = m14C8;
                 HitInfo_unk* skill = fn_80219E6C(m14F8);
-                ((BattleTask*)lbl_8087F048)->fn_800F8C6C(0, 0, this, skill, id, 0.0f, 30, -1);
+                lbl_8087F048->fn_800F8C6C(0, 0, this, skill, id, 0.0f, 30, -1);
                 m14BC++;
             }
         } else if (frame >= mMotion.fn_80097D7C(0)) {
@@ -699,7 +697,7 @@ void Em309GhoulSimple::vf108() {
             mPos.y = mPos.y - sphere.mRadius;
         }
         if (m14BC == 1 && m14C0 % 6 == 0) {
-            Effect_unk* mgr = lbl_8087F048;
+            BattleTask* mgr = lbl_8087F048;
             fn_800FAB80(mgr, this, fn_80219E6C(m1518), m14C8, &mPos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
         }
         return;

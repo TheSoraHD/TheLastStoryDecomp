@@ -55,10 +55,8 @@ extern "C" void fn_800F29D0(atn::Model* model, NodeCallback_unk callback);
 extern "C" void fn_8031F2A4(atn::Model* model, boost::function<void(atn::MotionBuffer*, int)> callback); extern "C" void* lbl_8087EE98; // inferred: collision world
 extern "C" int fn_8004D388(void* world, atn::ColliResult_unk* result, CharaTask::Sphere_unk* sphere, atn::Vector3* move,
                            unsigned int mask, void* ignore, int arg, float radius); // inferred: sweep test
-// inferred: effect/bullet manager (lbl_8087F048); class unknown
-struct Effect_unk;
-extern "C" Effect_unk* lbl_8087F048;
-extern "C" int fn_800F8548(Effect_unk* mgr); // inferred: new bullet id
+extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
+extern "C" int fn_800F8548(BattleTask* mgr); // inferred: new bullet id
 
 extern "C" int rand();
 extern "C" double sqrt(double x);
@@ -304,7 +302,7 @@ void QuadrupedTask::fn_80566FB4() {
         fn_805675FC();
         if (lbl_8087F048 != 0 && fn_80158CA4() && m594 != 0) {
             fn_80144710();
-            int damage = ((BattleTask*)lbl_8087F048)->fn_800F8C6C(0, 0, this, m638, m590, 0.0f, 30, m594);
+            int damage = lbl_8087F048->fn_800F8C6C(0, 0, this, m638, m590, 0.0f, 30, m594);
             if (m594 > 0) {
                 m594 -= damage;
             }

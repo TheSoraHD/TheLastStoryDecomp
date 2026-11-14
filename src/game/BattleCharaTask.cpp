@@ -85,13 +85,12 @@ struct Field_unk {
 extern "C" Field_unk* lbl_8087F430;
 extern "C" void fn_804776F4(atn::LH_MotionSet* set, atn::Model* model); // inferred: applies the motions
 // inferred: effect manager (lbl_8087F048, as in game/CharaTask.cpp)
-struct Effect_unk;
-extern "C" Effect_unk* lbl_8087F048;
-extern "C" int fn_800F8548(Effect_unk* mgr); // inferred: new bullet id
-extern "C" void fn_800FAB80(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* bullet, int id, const atn::Vector3* pos,
+extern "C" BattleTask* lbl_8087F048;
+extern "C" int fn_800F8548(BattleTask* mgr); // inferred: new bullet id
+extern "C" void fn_800FAB80(BattleTask* mgr, CharaTask* owner, HitInfo_unk* bullet, int id, const atn::Vector3* pos,
                             const atn::Vector3* rot, int arg6, int arg7, int arg8, int arg9, float arg10,
                             float arg11); // inferred: fires a bullet (as in gmk/Coffin.cpp)
-extern "C" void fn_800F8574(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* data, const atn::Vector3* pos,
+extern "C" void fn_800F8574(BattleTask* mgr, CharaTask* owner, HitInfo_unk* data, const atn::Vector3* pos,
                             const atn::Vector3* dir, HomingParam_unk* param, int arg6, int arg7, float a,
                             float b); // inferred: fires a bullet (as in game/Em003LesserDaemon.cpp)
 // inferred: colour as four floats (as in game/CharaTask.cpp)
@@ -136,16 +135,16 @@ static inline atn::Vector3 FrontDir_unk(const atn::Vector3& rot) {
     PSMTXMultVec(m.m, &v, &v);
     return v;
 }
-extern "C" void fn_8010220C(Effect_unk* mgr, int arg);
+extern "C" void fn_8010220C(BattleTask* mgr, int arg);
 // inferred: target in front of the character within radius/theta
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
 // inferred: target searches of the effect manager (in front / around)
-extern "C" int fn_801004FC(Effect_unk* mgr, CharaTask** out, CharaTask* chara, const atn::Vector3* dir, float range,
+extern "C" int fn_801004FC(BattleTask* mgr, CharaTask** out, CharaTask* chara, const atn::Vector3* dir, float range,
                            float theta);
 extern "C" double cos(double x);
 extern "C" double sin(double x);
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
-extern "C" int fn_800F8548(Effect_unk* mgr);
+extern "C" int fn_800F8548(BattleTask* mgr);
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 extern "C" int fn_80041A28(int arg, CharaTask* chara, CharaTask* target); // inferred: kind of attack
 // inferred: target found by fn_800E7214 with its position (only the character is filled here)
@@ -328,9 +327,9 @@ void BattleCharaTask::fn_800E2FE0() {
                     mFlagC27 = 1;
                     m1430 = config->mCoolDownFrame;
                     if (lbl_8087F048 != 0) {
-                        ((BattleTask*)lbl_8087F048)->fn_8010AB94();
+                        lbl_8087F048->fn_8010AB94();
                     }
-                    ((BattleTask*)lbl_8087F048)->fn_80105DCC(this, &mMotion, 1);
+                    lbl_8087F048->fn_80105DCC(this, &mMotion, 1);
                     m1470 = 0;
                 }
                 break;
@@ -525,7 +524,7 @@ void BattleCharaTask::fn_800E3F5C() {
         }
         obj = result.m38;
     }
-    ((BattleTask*)lbl_8087F048)->fn_801021B4(obj, enemy, b);
+    lbl_8087F048->fn_801021B4(obj, enemy, b);
 }
 
 void BattleCharaTask::vf14() {
@@ -547,14 +546,14 @@ inline atn::Vector3 NodePos_unk(MtxPtr m) {
 extern "C" float fn_800A56A8(void* pad, int port, int axis, int arg); // inferred: stick axis (as in game/GameTask.cpp)
 extern "C" void* lbl_8087EF70; // inferred: pad of the stick
 // inferred: target in front of the character for the cover actions (game/BattleTask.cpp, BattleAim_unk)
-extern "C" int fn_8010089C(Effect_unk* mgr, BattleTarget_unk* out, CharaTask* chara, const atn::Vector3* rot,
+extern "C" int fn_8010089C(BattleTask* mgr, BattleTarget_unk* out, CharaTask* chara, const atn::Vector3* rot,
                            float range, float angle);
-extern "C" void fn_801092C8(Effect_unk* mgr, int kind, CharaTask* chara, int item, int num); // inferred: battle message
+extern "C" void fn_801092C8(BattleTask* mgr, int kind, CharaTask* chara, int item, int num); // inferred: battle message
 extern "C" int fn_80211734(HitInfo_unk* item);                 // inferred: infinite item
 extern "C" void fn_8044441C(Inventory* inv, int id, int num);  // inferred: removes items
 extern "C" int fn_804444E8(Inventory* inv, int id);            // inferred: number of items
 extern "C" HitInfo_unk* fn_80211480(int code);                 // inferred: entry of an item code (db/ItemParam_unk.h)
-extern "C" void fn_80108C10(Effect_unk* mgr, DamageResult_unk* damage, const atn::Vector3& pos, CharaTask* attacker,
+extern "C" void fn_80108C10(BattleTask* mgr, DamageResult_unk* damage, const atn::Vector3& pos, CharaTask* attacker,
                             CharaTask* chara, unsigned int flags, int skipEmpty); // inferred: shows the damage
 extern "C" EnemyTask* fn_8036DDD4(GameTask* task); // inferred: enemy in reach of the leader (game/GameTask.cpp)
 
@@ -1068,7 +1067,7 @@ void BattleCharaTask::fn_800E589C() {
                 if (m560 == 4 && config->mAttackEndWait != 0 && mMotion.mTracks[0].m08 >= frame) {
                     float speed = 4.0f / m638->m68;
                     if (((unsigned int)mStatus.m14 & 0x2000) == 0x2000) {
-                        speed *= ((BattleTask*)lbl_8087F048)->fn_8010CA34();
+                        speed *= lbl_8087F048->fn_8010CA34();
                     }
                     mMotion.mTracks[0].m0C = speed;
                 }
@@ -1082,7 +1081,7 @@ void BattleCharaTask::fn_800E589C() {
                             m1444 = target.mPos;
                         } else if (pressed) {
                             mFlagC30 = 1;
-                            Effect_unk* mgr = lbl_8087F048;
+                            BattleTask* mgr = lbl_8087F048;
                             atn::Vector3 dir = fn_80178018();
                             CharaTask* chara = ((BattleTask*)mgr)->fn_800FFE68(this, &dir, 0, 0, config->mBtnAtkCorrectRadius,
                                                            0.5f * config->mBtnAtkCorrectTheta);
@@ -1131,7 +1130,7 @@ void BattleCharaTask::fn_800E589C() {
             float rest = mMotion.fn_80097D7C(0) - frame;
             float speed = rest / (rest + config->mAttackGuardWait);
             if (((unsigned int)mStatus.m14 & 0x2000) == 0x2000) {
-                speed *= ((BattleTask*)lbl_8087F048)->fn_8010CA34();
+                speed *= lbl_8087F048->fn_8010CA34();
             }
             mMotion.mTracks[0].m0C = speed;
         }
@@ -1145,7 +1144,7 @@ void BattleCharaTask::fn_800E589C() {
             if (m594 != 0) {
                 fn_80144710();
                 HitResult_unk results[8];
-                int n = ((BattleTask*)lbl_8087F048)->fn_800F8C6C(results, 8, this, m638, m590, mFlag31 ? 3.1415927f : 0.0f, 30, m594);
+                int n = lbl_8087F048->fn_800F8C6C(results, 8, this, m638, m590, mFlag31 ? 3.1415927f : 0.0f, 30, m594);
                 if (n > 0) {
                     if (m594 > 0) {
                         m594 -= n;
@@ -1345,7 +1344,7 @@ void BattleCharaTask::fn_800E62AC(Field_unk* field, int a, int b) {
                     mFC0 = 0;
                 } else if (lbl_8087F0A8->mInput.fn_801231D0(0x1E)) {
                     if (mFC4 != 0) {
-                        Effect_unk* mgr = lbl_8087F048;
+                        BattleTask* mgr = lbl_8087F048;
                         atn::Vector3 dir = fn_80178018();
                         fn_8016DC14(((BattleTask*)mgr)->fn_800FFE68(this, &dir, 0, 1, config->mLockOnLen, config->mLockOnTheta), 0);
                         mFC0 = mFC4;
@@ -1353,7 +1352,7 @@ void BattleCharaTask::fn_800E62AC(Field_unk* field, int a, int b) {
                         fn_8016DC14(mFC0, 0);
                     }
                 } else {
-                    ((BattleTask*)lbl_8087F048)->fn_80108A54(this);
+                    lbl_8087F048->fn_80108A54(this);
                 }
                 mFlag5 = 1;
                 if (fn_800E70EC(0, a, b)) {
@@ -1462,7 +1461,7 @@ int BattleCharaTask::fn_800E70EC(int a, int b, int c) {
         if (SetConfig::sInstance->mAttackType != 0 && !mFlagB16 && c == 0 && config->mInput.fn_801231D0(4) &&
             !mFlag31) {
             if (a == 0) {
-                Effect_unk* mgr = lbl_8087F048;
+                BattleTask* mgr = lbl_8087F048;
                 atn::Vector3 dir = fn_80178018();
                 CharaTask* target =
                     ((BattleTask*)mgr)->fn_800FFE68(this, &dir, 0, 0, config->mBtnAtkCorrectRadius, config->mBtnAtkCorrectTheta);
@@ -1506,7 +1505,7 @@ int BattleCharaTask::fn_800E7214(CharaTask** out, int keep) {
                 return 1;
             }
         }
-        if (((BattleTask*)lbl_8087F048)->fn_80100BB8(out, this, &dir, config->m248, config->m24C)) {
+        if (lbl_8087F048->fn_80100BB8(out, this, &dir, config->m248, config->m24C)) {
             return 1;
         }
     }
@@ -1534,7 +1533,7 @@ int BattleCharaTask::fn_800E73EC(Field_unk* field, int b, int c) {
             if (mFC4 != 0) {
                 mFC0 = mFC4;
             } else {
-                Effect_unk* mgr = lbl_8087F048;
+                BattleTask* mgr = lbl_8087F048;
                 atn::Vector3 dir = fn_80178018();
                 mFC0 = ((BattleTask*)mgr)->fn_800FFE68(this, &dir, 0, 1, config->mLockOnLen, config->mLockOnTheta);
             }
@@ -1603,7 +1602,7 @@ void BattleCharaTask::fn_800E7650(Field_unk* field, int, int) {
         if (mFlag31) {
             mFC0 = 0;
         } else if (!lbl_8087F0A8->mInput.fn_801231D0(0x1E)) {
-            ((BattleTask*)lbl_8087F048)->fn_80108A54(this);
+            lbl_8087F048->fn_80108A54(this);
         }
         mFlag4 = 1;
         if (!lbl_8087F0A8->mInput.fn_801240B4(7)) {
@@ -1621,7 +1620,7 @@ void BattleCharaTask::fn_800E7650(Field_unk* field, int, int) {
                 ((GameTask*)lbl_8087F430)->fn_80370320(0xEF, 1, 0);
             }
             if (mFC0 == 0) {
-                Effect_unk* mgr = lbl_8087F048;
+                BattleTask* mgr = lbl_8087F048;
                 atn::Vector3 dir = fn_80178018();
                 mFC0 = ((BattleTask*)mgr)->fn_800FFE68(this, &dir, 0, 1, config->mLockOnLen, config->mLockOnTheta);
             }
@@ -1751,12 +1750,12 @@ void BattleCharaTask::fn_800E7F04() {
                 }
             }
             if (skill != 0) {
-                Effect_unk* mgr = lbl_8087F048;
+                BattleTask* mgr = lbl_8087F048;
                 fn_800FAB80(mgr, this, skill, fn_800F8548(mgr), &mPos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
                 Color4f_unk color(1.0f, 1.0f, 1.0f, 1.0f);
-                ((BattleTask*)lbl_8087F048)->fn_80107168(skill->m04, 0, 0, m1428->GetModel_unk(), &lbl_807C7030, &lbl_807C7030,
+                lbl_8087F048->fn_80107168(skill->m04, 0, 0, m1428->GetModel_unk(), &lbl_807C7030, &lbl_807C7030,
                             &color, 1.0f);
-                ((BattleTask*)lbl_8087F048)->fn_80107208(skill->m04, &m1428->mPos, 1.0f);
+                lbl_8087F048->fn_80107208(skill->m04, &m1428->mPos, 1.0f);
                 HitInfo_unk* sub = skill->m6C > 0 ? fn_80219E6C(skill->m6C) : 0;
                 if (sub != 0) {
                     FixedArray_unk<CharaTask*, 32> targets;
@@ -1789,10 +1788,10 @@ void BattleCharaTask::fn_800E7F04() {
                             homing.mTarget = targets[i % targets.mCount];
                             homing.mDelay = 0.0f;
                             homing.mCount = id;
-                            Effect_unk* mgr = lbl_8087F048;
+                            BattleTask* mgr = lbl_8087F048;
                             fn_800F8574(mgr, this, sub, &fn_801781B0(), &pos, &homing, 0x2006, 0, 0.0f, 1.0f);
                         } else {
-                            Effect_unk* mgr = lbl_8087F048;
+                            BattleTask* mgr = lbl_8087F048;
                             fn_800F8574(mgr, this, sub, &fn_801781B0(), &pos, 0, 2, 0, 0.0f, 1.0f);
                         }
                     }
@@ -1815,7 +1814,7 @@ void BattleCharaTask::fn_800E7F04() {
                 m14A8 |= 0x8000000;
                 m1430 = config->mCoolDownFrame;
             }
-            ((BattleTask*)lbl_8087F048)->fn_8010AB94();
+            lbl_8087F048->fn_8010AB94();
         }
     }
     if (m1430 > 0) {
@@ -2409,7 +2408,7 @@ void BattleCharaTask::fn_800E9ED8() {
             float rest = mMotion.fn_80097D7C(0) - frame;
             float speed = rest / (rest + config->mAttackGuardWait);
             if (((unsigned int)mStatus.m14 & 0x2000) == 0x2000) {
-                speed *= ((BattleTask*)lbl_8087F048)->fn_8010CA34();
+                speed *= lbl_8087F048->fn_8010CA34();
             }
             mMotion.mTracks[0].m0C = speed;
         }
@@ -2423,7 +2422,7 @@ void BattleCharaTask::fn_800E9ED8() {
             if (m594 != 0) {
                 fn_80144710();
                 HitResult_unk results[8];
-                int n = ((BattleTask*)lbl_8087F048)->fn_800F8C6C(results, 8, this, m638, m590, 0.0f, 30, m594);
+                int n = lbl_8087F048->fn_800F8C6C(results, 8, this, m638, m590, 0.0f, 30, m594);
                 if (n > 0) {
                     if (m594 > 0) {
                         m594 -= n;
@@ -2577,7 +2576,7 @@ void BattleCharaTask::fn_800EAECC() {
                 fn_800EB7A0();
             } else if (m1434 == 15) {
                 if (m146C != 0x2C) {
-                    ((BattleTask*)lbl_8087F048)->fn_80105BD8(&mMotion);
+                    lbl_8087F048->fn_80105BD8(&mMotion);
                     fn_800C344C(sBattleSe_unk[2], &mPos, 0, -1, 1.0f);
                 }
                 vf9C(1);

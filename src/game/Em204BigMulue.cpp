@@ -28,11 +28,9 @@ extern "C" void fn_8008771C(void* group, const char* name, float* value, int arg
                             float step);
 extern "C" void fn_80087E9C(void* group, const char* name, atn::Vector3* value, int arg3, int arg4, float min,
                             float max, float step);
-// inferred: effect/bullet manager (lbl_8087F048, as in chr/ControlUseSkill.cpp); class unknown
-struct Effect_unk;
-extern "C" Effect_unk* lbl_8087F048;
-Effect_unk* fn_8013A194(); // inferred: effect/bullet manager (weak copy of another file)
-extern "C" void fn_800FAB80(Effect_unk* mgr, CharaTask* chara, HitInfo_unk* bullet, int arg3, const atn::Vector3* pos,
+extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
+BattleTask* fn_8013A194(); // inferred: effect/bullet manager (weak copy of another file)
+extern "C" void fn_800FAB80(BattleTask* mgr, CharaTask* chara, HitInfo_unk* bullet, int arg3, const atn::Vector3* pos,
                             const atn::Vector3* rot, int arg6, int arg7, int arg8, int arg9, float arg10,
                             float arg11); // inferred: fires a bullet
 // inferred: effect manager (class unknown), global instance at 0x8087F3C0
@@ -1222,7 +1220,7 @@ void Em204BigMulue::fn_802B1B50(int fire) {
         if (c->CanAct_unk()) {
             atn::Model* cm = &c->mMotion;
             atn::Vector3 to = GetNodePos_unk(cm->GetNodeMtx_unk("hips"));
-            Bullet* bullet = ((BattleTask*)lbl_8087F048)->fn_801010A0();
+            Bullet* bullet = lbl_8087F048->fn_801010A0();
             if (bullet != 0) {
                 atn::Model* model = &mMotion;
                 atn::Vector3 hips = GetNodePos_unk(model->GetNodeMtx_unk("hips"));

@@ -19,10 +19,8 @@ extern "C" void PSMTXMultVec(const Mtx m, const atn::Vector3* src, atn::Vector3*
 // inferred: attack table of a motion (by the path of its resource)
 extern "C" chr::AttackTable_unk* fn_802097C4(const char* path);
 
-// inferred: effect manager (lbl_8087F048, see game/CharaTask.cpp)
-struct Effect_unk;
-extern "C" Effect_unk* lbl_8087F048;
-extern "C" void fn_80106878(Effect_unk* effect, CharaTask* chara); // inferred: attack started
+extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
+extern "C" void fn_80106878(BattleTask* effect, CharaTask* chara); // inferred: attack started
 
 // inferred: multiplayer session (lbl_8087F610, see MP/CharaListeners_unk.cpp)
 extern "C" void* lbl_8087F610;
@@ -37,7 +35,7 @@ extern "C" GameState_unk* lbl_8087EFA8;
 
 extern "C" const char* fn_800EFF04(int id); // inferred: sound name of an effect id
 extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float volume);
-extern "C" int fn_800F8548(Effect_unk* mgr); // inferred: new bullet id
+extern "C" int fn_800F8548(BattleTask* mgr); // inferred: new bullet id
 extern "C" HitInfo_unk* fn_80219E6C(int id);  // inferred: skill data
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
 
@@ -241,7 +239,7 @@ float ControlAttackBase::vf60() {
     }
     rate *= status->fn_8012DB04();
     if (((unsigned int)mChara->mStatus.m14 & 0x2000) == 0x2000) {
-        rate *= ((BattleTask*)lbl_8087F048)->fn_8010CA34();
+        rate *= lbl_8087F048->fn_8010CA34();
     }
     if (SetConfig::sInstance->mAttackType != 0 && lbl_8087F610 != 0) {
         rate *= 0.85f;
@@ -513,7 +511,7 @@ ControlAttackSetup::ControlAttackSetup(Chara_unk* chara, int wait) : ControlBase
     }
     rate *= status->fn_8012DB04();
     if (((unsigned int)mChara->mStatus.m14 & 0x2000) == 0x2000) {
-        rate *= ((BattleTask*)lbl_8087F048)->fn_8010CA34();
+        rate *= lbl_8087F048->fn_8010CA34();
     }
     motion->m34C = 1;
     motion->mTracks[0].m20 = 1.0f;

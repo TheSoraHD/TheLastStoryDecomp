@@ -81,12 +81,12 @@ extern "C" float PSVECMag(const atn::Vector3* v);
 extern "C" void PSMTXRotRad(Mtx m, char axis, float rad);
 extern "C" void PSMTXMultVec(const Mtx m, const atn::Vector3* src, atn::Vector3* dst);
 // inferred: bullets
-struct BulletMgr_unk;
 struct HitInfo_unk;
-extern "C" BulletMgr_unk* lbl_8087F048;
+class BattleTask;
+extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
 extern "C" HitInfo_unk* fn_80219E6C(int id); // inferred: bullet data by id
-extern "C" int fn_800F8548(BulletMgr_unk* mgr);
-extern "C" void fn_800FAB80(BulletMgr_unk* mgr, int arg1, HitInfo_unk* bullet, int arg3, const atn::Vector3* pos,
+extern "C" int fn_800F8548(BattleTask* mgr);
+extern "C" void fn_800FAB80(BattleTask* mgr, int arg1, HitInfo_unk* bullet, int arg3, const atn::Vector3* pos,
                             const atn::Vector3* rot, int arg6, int arg7, int arg8, int arg9, float arg10,
                             float arg11);
 // inferred: debug menu
@@ -390,7 +390,7 @@ void GimmickCommonB0_unk::fn_803F0764(GimmickCommon* gimmick) {
                 pos += gimmick->m6C;
             }
             int id = atoi(mNames[cmd->mIndex].mStr);
-            BulletMgr_unk* mgr = lbl_8087F048;
+            BattleTask* mgr = lbl_8087F048;
             if (mgr != 0 && id > 0) {
                 fn_800FAB80(mgr, 0, fn_80219E6C(id), fn_800F8548(mgr), &pos, &gimmick->m78, 0, 30, -1, -1,
                             cmd->mScale, 1.0f);

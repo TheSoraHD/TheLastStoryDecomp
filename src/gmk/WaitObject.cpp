@@ -48,12 +48,11 @@ extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* m
                             int arg8, int arg9, float scale);
 extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
 extern "C" void fn_80232B7C(void* owner, int arg);
-// inferred: bullet manager (lbl_8087F048, see gmk/Brazier.cpp)
-struct WaitBullets_unk;
-extern "C" WaitBullets_unk* lbl_8087F048;
+class BattleTask;
+extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
 extern "C" HitInfo_unk* fn_80219E6C(int id); // inferred: bullet data by id
-extern "C" int fn_800F8548(WaitBullets_unk* mgr);
-extern "C" void fn_800FAB80(WaitBullets_unk* mgr, CharaTask* owner, HitInfo_unk* bullet, int arg3,
+extern "C" int fn_800F8548(BattleTask* mgr);
+extern "C" void fn_800FAB80(BattleTask* mgr, CharaTask* owner, HitInfo_unk* bullet, int arg3,
                             const atn::Vector3* pos, const atn::Vector3* rot, int arg6, int arg7, int arg8, int arg9,
                             float arg10, float arg11);
 // inferred: bullet that hit the object (GimmickHitMsg_unk + 0x2C; names invented)
@@ -488,7 +487,7 @@ int WaitObject::vf44(GimmickHitMsg_unk* msg) {
         if (hit == 0 || (float)hit->mPower < ((WaitArea_unk*)t->m08)->mRadius) {
             continue;
         }
-        WaitBullets_unk* mgr = lbl_8087F048;
+        BattleTask* mgr = lbl_8087F048;
         int bullet = (int)((WaitArea_unk*)t->m08)->mValue;
         if (mgr != 0 && bullet > 0 && hit->mId != bullet) {
             atn::Vector3 pos = ((WaitTarget_unk*)GetColli_unk(m54))->mPos;

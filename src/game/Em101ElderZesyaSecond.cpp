@@ -31,10 +31,8 @@ struct Field_unk {
     RouteTable_unk* m10D8;
 };
 extern "C" Field_unk* lbl_8087F430;
-// inferred: effect/bullet manager (lbl_8087F048, as in chr/ControlUseSkill.cpp); class unknown
-struct Effect_unk;
-extern "C" Effect_unk* lbl_8087F048;
-extern "C" int fn_800F8548(Effect_unk* mgr); // inferred: new bullet id
+extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
+extern "C" int fn_800F8548(BattleTask* mgr); // inferred: new bullet id
 // inferred: effect manager (class unknown), global instance at 0x8087F3C0
 struct EffectMgr_unk {
     unsigned char m00[0xB8];
@@ -59,7 +57,7 @@ extern "C" int atoi(const char* s);
 extern "C" int fn_800DC12C(const char* s);   // inferred: string to int
 extern "C" float fn_800DC288(const char* s); // inferred: string to float
 extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float volume);
-extern "C" void fn_800FAB80(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* bullet, int id, const atn::Vector3* pos,
+extern "C" void fn_800FAB80(BattleTask* mgr, CharaTask* owner, HitInfo_unk* bullet, int id, const atn::Vector3* pos,
                             const atn::Vector3* rot, int arg6, int arg7, int arg8, int arg9, float arg10,
                             float arg11); // inferred: fires a bullet (as in gmk/Coffin.cpp)
 extern "C" void* memset(void* dst, int c, unsigned long n);
@@ -324,7 +322,7 @@ void Em101ElderZesyaSecond::vf10() {
                 wchar_t text[256];
                 memset(text, 0, sizeof(text));
                 fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0xA5), *(const wchar_t**)((char*)m60 + 4));
-                ((BattleTask*)lbl_8087F048)->fn_80109828(text);
+                lbl_8087F048->fn_80109828(text);
             } else if (frame >= mMotion.fn_80097D7C(0)) {
                 mFB8 = 0.0f;
                 m14D4 = 0;
@@ -378,7 +376,7 @@ void Em101ElderZesyaSecond::vf10() {
     fn_80145334();
     for (PlayerTask* p = lbl_8087F8A0->mHead; p != 0; p = p->mNext) {
         if (p->mType != 0 && p->CanAct_unk()) {
-            ElderWeights_unk* w = (ElderWeights_unk*)((BattleTask*)lbl_8087F048)->fn_80103F60(p);
+            ElderWeights_unk* w = (ElderWeights_unk*)lbl_8087F048->fn_80103F60(p);
             if (w != 0) {
                 int i = ((BattleTask*)w)->fn_80108378(this);
                 if (i >= 0) {
@@ -596,7 +594,7 @@ void Em101ElderZesyaSecond::fn_8025BF58() {
         wchar_t text[256];
         memset(text, 0, sizeof(text));
         fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0xA3), *(const wchar_t**)((char*)m60 + 4));
-        ((BattleTask*)lbl_8087F048)->fn_80109828(text);
+        lbl_8087F048->fn_80109828(text);
         fn_800FAB80(lbl_8087F048, this, m638, m590, &m14E4, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
     }
 }

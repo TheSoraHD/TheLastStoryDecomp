@@ -68,10 +68,10 @@ struct Camera_unk {
 extern "C" Camera_unk* lbl_8087F430;
 extern "C" int rand();
 extern "C" void PSMTXTrans(Mtx m, float x, float y, float z);
-struct Effect_unk;
-extern "C" Effect_unk* lbl_8087F048; // inferred: effect/bullet manager
-extern "C" int fn_800F8548(Effect_unk* mgr);
-extern "C" void fn_800FAB80(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* bullet, int arg3, const atn::Vector3* pos,
+class BattleTask;
+extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
+extern "C" int fn_800F8548(BattleTask* mgr);
+extern "C" void fn_800FAB80(BattleTask* mgr, CharaTask* owner, HitInfo_unk* bullet, int arg3, const atn::Vector3* pos,
                             const atn::Vector3* rot, int a, int time, int b, int c, float f1, float f2);
 extern "C" HitInfo_unk* fn_80219E6C(int id); // inferred: bullet data by id
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
@@ -97,7 +97,7 @@ struct Damage_unk {
     unsigned int m1C : 4;
     unsigned int m1C_rest : 28;
 };
-extern "C" void fn_80108C10(Effect_unk* effect, Damage_unk* damage, const atn::Vector3& pos, CharaTask* attacker,
+extern "C" void fn_80108C10(BattleTask* effect, Damage_unk* damage, const atn::Vector3& pos, CharaTask* attacker,
                             CharaTask* chara, int b, int c);
 // inferred: the damage computation (game/DamageCalc_unk.h, with the record above)
 struct DamageParam_unk;
@@ -239,25 +239,25 @@ static inline float Frame_unk(Motion_unk* m) {
 }
 
 // inferred: fires `hit` from `pos` (name invented)
-static inline void ShootHit_unk(Effect_unk* mgr, CharaTask* chara, HitInfo_unk* hit, const atn::Vector3& pos,
+static inline void ShootHit_unk(BattleTask* mgr, CharaTask* chara, HitInfo_unk* hit, const atn::Vector3& pos,
                                 const atn::Vector3* rot) {
     fn_800FAB80(mgr, chara, hit, fn_800F8548(mgr), &pos, rot, 0, 0x1E, -1, -1, 0.0f, 1.0f);
 }
 
 // inferred: fires the bullet `id` from `pos` (name invented)
-static inline void ShootFrom_unk(Effect_unk* mgr, CharaTask* chara, int id, int arg, const atn::Vector3& pos,
+static inline void ShootFrom_unk(BattleTask* mgr, CharaTask* chara, int id, int arg, const atn::Vector3& pos,
                                  const atn::Vector3* rot) {
     fn_800FAB80(mgr, chara, fn_80219E6C(id), arg, &pos, rot, 0, 0x1E, -1, -1, 0.0f, 1.0f);
 }
 
 // inferred: fires the bullet `id` from `pos` (name invented)
-static inline void ShootIdFrom_unk(Effect_unk* mgr, CharaTask* chara, int id, const atn::Vector3& pos,
+static inline void ShootIdFrom_unk(BattleTask* mgr, CharaTask* chara, int id, const atn::Vector3& pos,
                                    const atn::Vector3* rot) {
     fn_800FAB80(mgr, chara, fn_80219E6C(id), fn_800F8548(mgr), &pos, rot, 0, 0x1E, -1, -1, 0.0f, 1.0f);
 }
 
 // inferred: fires the bullet `id` from a character (name invented)
-static inline void Shoot_unk(Effect_unk* mgr, CharaTask* chara, int id, const atn::Vector3* pos,
+static inline void Shoot_unk(BattleTask* mgr, CharaTask* chara, int id, const atn::Vector3* pos,
                              const atn::Vector3* rot) {
     fn_800FAB80(mgr, chara, fn_80219E6C(id), fn_800F8548(mgr), pos, rot, 0, 0x1E, -1, -1, 0.0f, 1.0f);
 }
@@ -509,7 +509,7 @@ int ControlThrustForCrab::vf0C() {
     mChara->mPos = pos;
     if (m->mTracks[0].m08 >= 41.0f && m->mTracks[0].m08 < 43.0f) {
         CharaTask* c = mChara;
-        Effect_unk* mgr = lbl_8087F048;
+        BattleTask* mgr = lbl_8087F048;
         fn_800FAB80(mgr, mChara, fn_80219E6C(0xD1), 1000, &c->mPos, &c->mRot, 0, 0x1E, -1, -1, 0.0f, 1.0f);
         lbl_8087F430->Shake_unk(10, 0.3f, 0.3f);
     }
@@ -2095,7 +2095,7 @@ extern "C" inline Settings_unk* fn_800F52F8() {
 }
 } // namespace chr
 // inferred: global accessors (weak copies of other files, outside chr)
-inline Effect_unk* fn_8013A194() {
+inline BattleTask* fn_8013A194() {
     return lbl_8087F048;
 }
 inline void* fn_801404F8() {

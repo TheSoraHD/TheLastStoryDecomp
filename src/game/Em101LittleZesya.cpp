@@ -43,12 +43,10 @@ extern "C" void fn_8008771C(void* group, const char* name, float* value, int arg
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 extern "C" atn::Vector3 lbl_807C7030;              // inferred: zero vector
 extern "C" double sqrt(double x);
-// inferred: effect/bullet manager (lbl_8087F048, as in chr/ControlUseSkill.cpp); class unknown
-struct Effect_unk;
-extern "C" Effect_unk* lbl_8087F048;
-extern "C" int fn_800F8548(Effect_unk* mgr); // inferred: new bullet id
+extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
+extern "C" int fn_800F8548(BattleTask* mgr); // inferred: new bullet id
 extern "C" int fn_800DD3FC(wchar_t* s, const wchar_t* format, ...); // inferred: wide sprintf
-extern "C" void fn_800F8574(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* data, const atn::Vector3* pos,
+extern "C" void fn_800F8574(BattleTask* mgr, CharaTask* owner, HitInfo_unk* data, const atn::Vector3* pos,
                             const atn::Vector3* dir, HomingParam_unk* param, int arg6, int arg7, float a,
                             float b); // inferred: fires a bullet (as in game/Em101ElderZesya.cpp)
 extern "C" void* memset(void* dst, int c, unsigned long n);
@@ -487,7 +485,7 @@ void Em101LittleZesya::fn_8025DE7C() {
                 m590 = fn_800F8548(lbl_8087F048);
             }
             fn_80144710();
-            ((BattleTask*)lbl_8087F048)->fn_800F8C6C(0, 0, this, m638, m590, 0.0f, 30, -1);
+            lbl_8087F048->fn_800F8C6C(0, 0, this, m638, m590, 0.0f, 30, -1);
         }
     }
 }
@@ -591,7 +589,7 @@ void Em101LittleZesya::fn_8025E748() {
     ASSERT_UNK(this != 0);
     float frame = mMotion.mTracks[0].m08;
     if (17.0f < frame && frame <= 19.0f) {
-        ((BattleTask*)lbl_8087F048)->fn_800F8C6C(0, 0, this, m1528, m590, 0.0f, 30, -1);
+        lbl_8087F048->fn_800F8C6C(0, 0, this, m1528, m590, 0.0f, 30, -1);
     } else {
         frame = mMotion.mTracks[0].m08;
         if (frame >= mMotion.fn_80097D7C(0)) {
@@ -718,7 +716,7 @@ void Em101LittleZesya::fn_8025F07C() {
     wchar_t text[256];
     memset(text, 0, sizeof(text));
     fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0xA9), *(const wchar_t**)((char*)m60 + 4));
-    ((BattleTask*)lbl_8087F048)->fn_80109828(text);
+    lbl_8087F048->fn_80109828(text);
     atn::Vector3 dir;
     atn::Vector3 rot = (mPos - m1590).ToRotationZ_unk();
     dir.x = 0.0f;
@@ -767,7 +765,7 @@ void Em101LittleZesya::fn_8025F45C() {
     wchar_t text[256];
     memset(text, 0, sizeof(text));
     fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0xAB), *(const wchar_t**)((char*)m60 + 4));
-    ((BattleTask*)lbl_8087F048)->fn_80109828(text);
+    lbl_8087F048->fn_80109828(text);
     if (m15BC != 0) {
         m1590 = m14C4.mData[Nearest_unk(m15A8.m08)];
     } else {

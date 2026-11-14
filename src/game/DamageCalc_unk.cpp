@@ -28,13 +28,11 @@ extern "C" SkillEffect* fn_8059B66C(void* mgr, HitInfo_unk* skill, CharaTask* us
                                     const atn::Vector3* pos, const atn::Vector3* rot,
                                     boost::function<void(SkillEffect*)> callback, float rate);
 
-// inferred: effect manager of the characters (lbl_8087F048)
-struct Effect_unk;
-extern "C" Effect_unk* lbl_8087F048;
-extern "C" void fn_800FB1BC(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* data, const atn::Vector3* pos,
+extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
+extern "C" void fn_800FB1BC(BattleTask* mgr, CharaTask* owner, HitInfo_unk* data, const atn::Vector3* pos,
                             const atn::Vector3* rot, int a, int b, float scale); // inferred: hit effect
-extern "C" void fn_80108F38(Effect_unk* mgr, const atn::Vector3& pos, int status); // inferred: status effect
-extern "C" void fn_801092C8(Effect_unk* mgr, int id, CharaTask* chara, int a, int b);
+extern "C" void fn_80108F38(BattleTask* mgr, const atn::Vector3& pos, int status); // inferred: status effect
+extern "C" void fn_801092C8(BattleTask* mgr, int id, CharaTask* chara, int a, int b);
 
 // inferred: field (lbl_8087F430)
 struct Field_unk {
@@ -712,7 +710,7 @@ int fn_80040B44(DamageResult_unk* result, HitInfo_unk* data, CharaStatus* attack
     }
     if (target->mChara != 0 && target->fn_8012E534() == 0) {
         if (attacker->fn_80133EE8(0x10)) {
-            Effect_unk* effect = lbl_8087F048;
+            BattleTask* effect = lbl_8087F048;
             status |= 0x20;
             if (effect != 0) {
                 fn_80108F38(effect, target->mChara->fn_801781B0(), 0x20);
@@ -856,7 +854,7 @@ int fn_800413EC(int kind, CharaTask* chara, CharaTask* target) {
     float rate = 0.1f * (chara->mStatus.mParamB.m78 - target->mStatus.fn_80133BD8(0));
     float chance = MIN(0.5f, MAX(0.0f, rate));
     if (kind == 0 && ((unsigned int)chara->mStatus.m14 & 0x2000) == 0x2000) {
-        chance += ((BattleTask*)lbl_8087F048)->fn_8010CA2C();
+        chance += lbl_8087F048->fn_8010CA2C();
     }
     if (kind == 1 && lbl_8087F0A8->mCounterBonus == 0) {
         chance = 0.0f;
@@ -937,11 +935,11 @@ int fn_800417E8(int kind, CharaTask* chara, CharaTask* target) {
             chance = 0.3f * MIN(count, 2);
         }
         if (chara->mType == 3 && ((unsigned int)chara->mStatus.m14 & 0x2000) == 0x2000) {
-            chance += ((BattleTask*)lbl_8087F048)->fn_8010CA2C();
+            chance += lbl_8087F048->fn_8010CA2C();
         }
     }
     if (kind == 1) {
-        if (lbl_8087F048 != 0 && ((BattleTask*)lbl_8087F048)->fn_8010CD3C(3, chara, target)) {
+        if (lbl_8087F048 != 0 && lbl_8087F048->fn_8010CD3C(3, chara, target)) {
             fn_801092C8(lbl_8087F048, 0xE, chara, 3, 0);
             chance = 1.0f;
         }

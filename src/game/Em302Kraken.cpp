@@ -24,10 +24,8 @@ extern "C" float fn_800DC288(const char* s); // inferred: string to float
 extern "C" int fn_800DC12C(const char* s);   // inferred: string to int
 // inferred: std::string concatenation (weak copy 0x8006AFF8)
 extern "C" std::string fn_8006AFF8(const std::string& a, const std::string& b);
-// inferred: effect/bullet manager (lbl_8087F048, as in chr/ControlUseSkill.cpp); class unknown
-struct Effect_unk;
-extern "C" Effect_unk* lbl_8087F048;
-extern "C" int fn_800F8548(Effect_unk* mgr); // inferred: new bullet id
+extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
+extern "C" int fn_800F8548(BattleTask* mgr); // inferred: new bullet id
 extern "C" int fn_800DD3FC(wchar_t* s, const wchar_t* format, ...); // inferred: wide sprintf
 extern "C" const wchar_t lbl_808813D0[2]; // inferred: empty text
 // inferred: camp message table (lbl_8087F1E4, as in game/Em309Ghoul.cpp)
@@ -74,7 +72,7 @@ struct Field_unk {
     atn::Vector3 m988;
 };
 extern "C" Field_unk* lbl_8087F430;
-extern "C" void fn_801092C8(Effect_unk* effect, int msg, CharaTask* chara, int value, int arg);
+extern "C" void fn_801092C8(BattleTask* effect, int msg, CharaTask* chara, int value, int arg);
 extern "C" void* lbl_8087EE98;
 extern "C" int fn_8004ED34(void* colli, atn::ColliResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg7);
@@ -95,13 +93,13 @@ struct KrakenDamage_unk {
     unsigned int m1C : 4;
     unsigned int m1C_rest : 28;
 };
-extern "C" void fn_80108C10(Effect_unk* effect, KrakenDamage_unk* damage, const atn::Vector3& pos, int a, CharaTask* chara,
+extern "C" void fn_80108C10(BattleTask* effect, KrakenDamage_unk* damage, const atn::Vector3& pos, int a, CharaTask* chara,
                             int b, int c);
 extern "C" int rand();
 extern "C" void fn_8023A680(EffectMgr_unk* mgr, void* res, int a, int b, atn::Vector3* pos, int c, int d, const float* color,
                             float scale, int e, int f, int g);
 extern "C" HitInfo_unk* fn_80219E6C(int id); // inferred: bullet/skill data by id
-extern "C" void fn_800FAB80(Effect_unk* mgr, CharaTask* chara, HitInfo_unk* bullet, int arg3, const atn::Vector3* pos,
+extern "C" void fn_800FAB80(BattleTask* mgr, CharaTask* chara, HitInfo_unk* bullet, int arg3, const atn::Vector3* pos,
                             const atn::Vector3* rot, int arg6, int arg7, int arg8, int arg9, float arg10,
                             float arg11);
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
@@ -992,7 +990,7 @@ void Em302Kraken::fn_802DAA38() {
         wchar_t text[256];
         memset(text, 0, sizeof(text));
         fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0x12D), *(const wchar_t**)((char*)m60 + 4));
-        ((BattleTask*)lbl_8087F048)->fn_80109828(text);
+        lbl_8087F048->fn_80109828(text);
     }
     if (m14C4 > 20 && m14C4 <= 90) {
         float t = (m14C4 - 20) / 70.0f;
@@ -1020,7 +1018,7 @@ void Em302Kraken::fn_802DAA38() {
             total -= (int)(m1514 * chara->mStatus.m04) + 1;
             chara->mStatus.fn_8012DF7C(hp + 1, 0, 0);
             fn_80108C10(lbl_8087F048, &damage, chara->mPos + atn::Vector3(0.0f, 15.0f, 0.0f), (int)this, chara, 0, 0);
-            ((BattleTask*)lbl_8087F048)->fn_80107850(&chara->mMotion);
+            lbl_8087F048->fn_80107850(&chara->mMotion);
             atn::Vector3 rot = chara->mRot.ToRotation_unk();
             atn::Vector3 dir = rot * -1.0f;
             dir.Normalize_unk();
@@ -1035,7 +1033,7 @@ void Em302Kraken::fn_802DAA38() {
             wchar_t text[256];
             memset(text, 0, sizeof(text));
             fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0x12F), *(const wchar_t**)((char*)m60 + 4));
-            ((BattleTask*)lbl_8087F048)->fn_80109828(text);
+            lbl_8087F048->fn_80109828(text);
         }
         Reset_unk();
     }
@@ -1274,7 +1272,7 @@ void Em302Kraken::fn_802DC014() {
     wchar_t text[256];
     memset(text, 0, sizeof(text));
     fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0x135), *(const wchar_t**)((char*)m60 + 4));
-    ((BattleTask*)lbl_8087F048)->fn_80109828(text);
+    lbl_8087F048->fn_80109828(text);
 }
 
 // inferred: starts state 11 (anger): effects, sound and the camp message
@@ -1297,7 +1295,7 @@ void Em302Kraken::fn_802DC1C0() {
     wchar_t text[256];
     memset(text, 0, sizeof(text));
     fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0x137), *(const wchar_t**)((char*)m60 + 4));
-    ((BattleTask*)lbl_8087F048)->fn_80109828(text);
+    lbl_8087F048->fn_80109828(text);
 }
 
 // inferred: starts state 12 (dives): asks the pillar of the current appear point to sink
@@ -1473,7 +1471,7 @@ void Em302Kraken::fn_802DCA34(int state, int count) {
             targets[i]->fn_80166760();
         }
         fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0x139), *(const wchar_t**)((char*)m60 + 4));
-        ((BattleTask*)lbl_8087F048)->fn_80109828(text);
+        lbl_8087F048->fn_80109828(text);
         break;
     case 0:
         for (unsigned int i = 0; i < targets.size(); i++) {
@@ -1481,7 +1479,7 @@ void Em302Kraken::fn_802DCA34(int state, int count) {
             targets[i]->fn_80167F1C();
         }
         fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0x13B), *(const wchar_t**)((char*)m60 + 4));
-        ((BattleTask*)lbl_8087F048)->fn_80109828(text);
+        lbl_8087F048->fn_80109828(text);
         break;
     case 3:
         for (unsigned int i = 0; i < targets.size(); i++) {
@@ -1523,8 +1521,8 @@ void Em302Kraken::fn_802DD1B4(int level) {
         }
         EnemyTask* e = enemies[i];
         RoutePlace_unk* place = places[i];
-        ((BattleTask*)lbl_8087F048)->fn_80107850(&e->mMotion);
-        ((BattleTask*)lbl_8087F048)->fn_801077A8(&e->mMotion, &e->mMotion);
+        lbl_8087F048->fn_80107850(&e->mMotion);
+        lbl_8087F048->fn_801077A8(&e->mMotion, &e->mMotion);
         fn_80232B7C(e, 1000);
         PlayEffect_unk(&m14EC, (atn::Model*)&e->mMotion);
         e->mFlag15 = 0;
@@ -1544,7 +1542,7 @@ void Em302Kraken::fn_802DD1B4(int level) {
     wchar_t text[256];
     memset(text, 0, sizeof(text));
     fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0x13D), *(const wchar_t**)((char*)m60 + 4));
-    ((BattleTask*)lbl_8087F048)->fn_80109828(text);
+    lbl_8087F048->fn_80109828(text);
 }
 
 void Em302Kraken::fn_802DDA90() {
@@ -1566,7 +1564,7 @@ void Em302Kraken::fn_802DDA90() {
     wchar_t text[256];
     memset(text, 0, sizeof(text));
     fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0x13F), *(const wchar_t**)((char*)m60 + 4));
-    ((BattleTask*)lbl_8087F048)->fn_80109828(text);
+    lbl_8087F048->fn_80109828(text);
 }
 
 void Em302Kraken::fn_802DDBB0() {

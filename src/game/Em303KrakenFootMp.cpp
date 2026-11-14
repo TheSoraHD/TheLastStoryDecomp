@@ -15,10 +15,8 @@ extern "C" float fn_800DC288(const char* s); // inferred: string to float
 extern "C" int fn_800DC12C(const char* s);   // inferred: string to int
 extern "C" HitInfo_unk* fn_80219E6C(int id); // inferred: bullet/skill data by id
 extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3, int arg4);
-// inferred: effect/bullet manager (lbl_8087F048, as in chr/ControlUseSkill.cpp); class unknown
-struct Effect_unk;
-extern "C" Effect_unk* lbl_8087F048;
-extern "C" int fn_800F8548(Effect_unk* mgr); // inferred: new bullet id
+extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
+extern "C" int fn_800F8548(BattleTask* mgr); // inferred: new bullet id
 // inferred: effect manager (class unknown), global instance at 0x8087F3C0 (as in game/Em209BigGolem.cpp)
 struct EffectMgr_unk;
 struct Color4f_unk {
@@ -296,7 +294,7 @@ void Em303KrakenFootMp::vf104() {
                 }
             } else if (mMotion.mTracks[0].m08 >= 19.0f && mMotion.mTracks[0].m08 <= 23.0f) {
                 int id = m590;
-                ((BattleTask*)lbl_8087F048)->fn_800F8C6C(0, 0, this, m14F8, id, 0.0f, 30, -1);
+                lbl_8087F048->fn_800F8C6C(0, 0, this, m14F8, id, 0.0f, 30, -1);
             }
             break;
         case 9:
@@ -306,7 +304,7 @@ void Em303KrakenFootMp::vf104() {
             } else if (mMotion.mTracks[0].m08 >= 24.0f && mMotion.mTracks[0].m08 <= 28.0f) {
                 int id = m590;
                 HitInfo_unk* data = m14FC;
-                ((BattleTask*)lbl_8087F048)->fn_800F8C6C(0, 0, this, data, id, 0.0f, 30, -1);
+                lbl_8087F048->fn_800F8C6C(0, 0, this, data, id, 0.0f, 30, -1);
             }
             break;
         case 10:

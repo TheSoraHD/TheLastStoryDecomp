@@ -32,9 +32,9 @@ extern "C" HomingParams_unk* lbl_8087EFA8;
 extern "C" GameTask* lbl_8087F430;
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 
-struct BulletMgr_unk;
-extern "C" BulletMgr_unk* lbl_8087F048;
-extern "C" void fn_800F8574(BulletMgr_unk* mgr, CharaTask* owner, HitInfo_unk* data, const atn::Vector3* pos,
+class BattleTask;
+extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
+extern "C" void fn_800F8574(BattleTask* mgr, CharaTask* owner, HitInfo_unk* data, const atn::Vector3* pos,
                             const atn::Vector3* dir, HomingParam_unk* param, int arg6, int arg7, float a, float b);
 // inferred: damage record shown by fn_80108C10 (as StatusDamage_unk of game/CharaStatus.cpp)
 struct HomingDamage_unk {
@@ -53,10 +53,10 @@ struct HomingDamage_unk {
     unsigned int m1C : 4;
     unsigned int m1C_rest : 28;
 };
-extern "C" void fn_80108C10(BulletMgr_unk* mgr, HomingDamage_unk* damage, const atn::Vector3& pos, CharaTask* a,
+extern "C" void fn_80108C10(BattleTask* mgr, HomingDamage_unk* damage, const atn::Vector3& pos, CharaTask* a,
                             CharaTask* chara, int b, int c);
-extern "C" void fn_8010CF28(BulletMgr_unk* mgr, int id, CharaTask* chara, CharaTask* owner); // inferred: counter event
-extern "C" float fn_8010B250(BulletMgr_unk* mgr, int kind, int arg); // inferred: scale of the bullet
+extern "C" void fn_8010CF28(BattleTask* mgr, int id, CharaTask* chara, CharaTask* owner); // inferred: counter event
+extern "C" float fn_8010B250(BattleTask* mgr, int kind, int arg); // inferred: scale of the bullet
 extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float volume);
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
 
@@ -342,7 +342,7 @@ int HomingBullet::vf1C(CharaTask* chara, const atn::Vector3* pos, void* arg) {
                         } else if (m68->m74.m10 > 0.5f) {
                             id = 0x5F0;
                         }
-                        BulletMgr_unk* mgr = lbl_8087F048;
+                        BattleTask* mgr = lbl_8087F048;
                         fn_800F8574(mgr, chara, fn_80219E6C(id), &p, &off, &mA0, 0, 0, 0.0f, 1.0f);
                     }
                     if (chara->mFlag22 == 1 && lbl_8087F430 != 0 && lbl_8087F430->fn_80370A78(0xCC) == 0) {

@@ -15,15 +15,13 @@
 #include "math/VecAssign_unk.h"
 #include "atn/ColliBase.h"
 
-// inferred: effect/bullet manager (lbl_8087F048); class unknown
-struct Effect_unk;
-extern "C" Effect_unk* lbl_8087F048;
-extern "C" int fn_800F8548(Effect_unk* mgr); // inferred: new bullet id
+extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
+extern "C" int fn_800F8548(BattleTask* mgr); // inferred: new bullet id
 extern "C" double sqrt(double x);
-extern "C" void fn_800FAB80(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* bullet, int arg3, const atn::Vector3* pos,
+extern "C" void fn_800FAB80(BattleTask* mgr, CharaTask* owner, HitInfo_unk* bullet, int arg3, const atn::Vector3* pos,
                             const atn::Vector3* rot, int arg6, int arg7, int arg8, int arg9, float arg10,
                             float arg11);
-extern "C" void fn_801092C8(Effect_unk* effect, int msg, CharaTask* chara, int value, int arg);
+extern "C" void fn_801092C8(BattleTask* effect, int msg, CharaTask* chara, int value, int arg);
 extern "C" int fn_800DD3FC(wchar_t* s, const wchar_t* format, ...); // inferred: wide sprintf
 extern "C" const wchar_t lbl_808813D0[2]; // inferred: empty text
 // inferred: camp message table (lbl_8087F1E4, see MP/D2AMpMenuSetRule.cpp)
@@ -272,7 +270,7 @@ inline void Em309Ghoul::StartAttack_unk() {
     wchar_t text[256];
     memset(text, 0, sizeof(text));
     fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0x143), *(const wchar_t**)((char*)m60 + 4));
-    ((BattleTask*)lbl_8087F048)->fn_80109828(text);
+    lbl_8087F048->fn_80109828(text);
 }
 
 // inferred: back to the idle state 0 (name invented)
@@ -307,7 +305,7 @@ void Em309Ghoul::vf10() {
                 fn_80144710();
                 HitInfo_unk* skill = fn_80219E6C(0x64A);
                 int id = m590;
-                ((BattleTask*)lbl_8087F048)->fn_800F8C6C(0, 0, this, skill, id, 0.0f, 30, -1);
+                lbl_8087F048->fn_800F8C6C(0, 0, this, skill, id, 0.0f, 30, -1);
             }
             if (m1690 != 0) {
                 lbl_8087EEB0->fn_80063D3C(mPos, mStatus.mParamB.m28 + fn_80219E6C(0x64A)->m40, 0.0f, 0xFFFF0000);
@@ -324,7 +322,7 @@ void Em309Ghoul::vf10() {
                 fn_80144710();
                 HitInfo_unk* skill = fn_80219E6C(0x64B);
                 int id = m590;
-                ((BattleTask*)lbl_8087F048)->fn_800F8C6C(0, 0, this, skill, id, 0.0f, 30, -1);
+                lbl_8087F048->fn_800F8C6C(0, 0, this, skill, id, 0.0f, 30, -1);
             }
             if (m1690 != 0) {
                 lbl_8087EEB0->fn_80063D3C(mPos, mStatus.mParamB.m28 + fn_80219E6C(0x64B)->m40, 0.0f, 0xFFFF0000);
@@ -630,7 +628,7 @@ void Em309Ghoul::fn_802FF6C4() {
         m1454 = 1;
         m14EC = mC58.mC4;
     }
-    GhoulWeights_unk* w = (GhoulWeights_unk*)((BattleTask*)lbl_8087F048)->fn_80103F60(this);
+    GhoulWeights_unk* w = (GhoulWeights_unk*)lbl_8087F048->fn_80103F60(this);
     for (PlayerTask* p = lbl_8087F8A0->mHead; p != 0; p = p->mNext) {
         int i = ((BattleTask*)w)->fn_80108378(p);
         if (i >= 0) {
@@ -848,7 +846,7 @@ void Em309Ghoul::fn_80300654() {
     wchar_t text[256];
     memset(text, 0, sizeof(text));
     fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0x141), *(const wchar_t**)((char*)m60 + 4));
-    ((BattleTask*)lbl_8087F048)->fn_80109828(text);
+    lbl_8087F048->fn_80109828(text);
 }
 
 void Em309Ghoul::fn_8030073C() {
@@ -881,7 +879,7 @@ void Em309Ghoul::fn_803009F4() {
     wchar_t text[256];
     memset(text, 0, sizeof(text));
     fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0x145), *(const wchar_t**)((char*)m60 + 4));
-    ((BattleTask*)lbl_8087F048)->fn_80109828(text);
+    lbl_8087F048->fn_80109828(text);
 }
 
 void Em309Ghoul::fn_80300AD8() {
@@ -930,7 +928,7 @@ void Em309Ghoul::fn_80300AD8() {
     wchar_t text[256];
     memset(text, 0, sizeof(text));
     fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0x147), *(const wchar_t**)((char*)m60 + 4));
-    ((BattleTask*)lbl_8087F048)->fn_80109828(text);
+    lbl_8087F048->fn_80109828(text);
     if (mFlag22) {
         ((GameTask*)lbl_8087F430)->fn_80370AE4(0xA7, 1);
     }
@@ -1028,9 +1026,9 @@ void Em309Ghoul::fn_803010BC() {
     wchar_t text[256];
     memset(text, 0, sizeof(text));
     fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0x149), *(const wchar_t**)((char*)m60 + 4));
-    ((BattleTask*)lbl_8087F048)->fn_80109828(text);
+    lbl_8087F048->fn_80109828(text);
     fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0x14B), *(const wchar_t**)((char*)m60 + 4));
-    ((BattleTask*)lbl_8087F048)->fn_80109828(text);
+    lbl_8087F048->fn_80109828(text);
     if (mFlag22) {
         ((GameTask*)lbl_8087F430)->fn_80370AE4(0xA8, 1);
     }
@@ -1266,7 +1264,7 @@ void Em309Ghoul::fn_80301DDC() {
             wchar_t text[256];
             memset(text, 0, sizeof(text));
             fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0x14D), *(const wchar_t**)((char*)m60 + 4));
-            ((BattleTask*)lbl_8087F048)->fn_80109828(text);
+            lbl_8087F048->fn_80109828(text);
         }
         if (mMotion.mTracks[0].m00 == 0x145) {
             float frame = mMotion.mTracks[0].m08;
@@ -1406,7 +1404,7 @@ void Em309Ghoul::fn_803026F0() {
             ResetState_unk();
             return;
         }
-        Effect_unk* mgr = lbl_8087F048;
+        BattleTask* mgr = lbl_8087F048;
         atn::Vector3 pos = mPos + dir * (float)m14F4;
         int id = fn_800F8548(mgr);
         fn_800FAB80(mgr, this, fn_80219E6C(0x64C), id, &pos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
@@ -1471,7 +1469,7 @@ void Em309Ghoul::fn_80302B84() {
         PSMTXMultVec(m.m, &ofs, &ofs);
         if (dist < 20.0f) {
             atn::Vector3 pos = lbl_8087F8A0->mHead->mPos + ofs;
-            Effect_unk* mgr = lbl_8087F048;
+            BattleTask* mgr = lbl_8087F048;
             fn_800FAB80(mgr, this, fn_80219E6C(0x64E), 1000, &pos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
         }
         mRot.y += 0.11219973f;
@@ -1723,7 +1721,7 @@ void Em309Ghoul::fn_80302F94() {
         }
         if (m14F4 > m16E4) {
             atn::Vector3 pos = GetNodePos_unk(mMotion.GetNodeMtx_unk("hips"));
-            Effect_unk* mgr = lbl_8087F048;
+            BattleTask* mgr = lbl_8087F048;
             fn_800FAB80(mgr, this, fn_80219E6C(0x64D), 1000, &pos, &mRot, 0, m16E8, -1, -1, 0.0f, 1.0f);
         }
     } else if (m14F0 == 1) {
@@ -1790,7 +1788,7 @@ extern "C" inline atn::Matrix3x4 fn_800109E0(const atn::Vector3& rot) {
 extern "C" inline EffectMgr_unk* fn_800F7FA0() {
     return lbl_8087F3C0;
 }
-inline Effect_unk* fn_8013A194() {
+inline BattleTask* fn_8013A194() {
     return lbl_8087F048;
 }
 

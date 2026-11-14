@@ -24,17 +24,15 @@ struct Field_unk {
     RouteTable_unk* m10D8;
 };
 extern "C" Field_unk* lbl_8087F430;
-// inferred: effect/bullet manager (lbl_8087F048, as in chr/ControlUseSkill.cpp); class unknown
-struct Effect_unk;
-extern "C" Effect_unk* lbl_8087F048;
-extern "C" int fn_800F8548(Effect_unk* mgr); // inferred: new bullet id
+extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
+extern "C" int fn_800F8548(BattleTask* mgr); // inferred: new bullet id
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
 extern "C" double cos(double x);
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 extern "C" HitInfo_unk* fn_80219E6C(int id); // inferred: bullet/skill data by id
 extern "C" float fn_80011220(float x);       // inferred: fabs (weak copy of another file)
 extern "C" float fn_801A03E8(const atn::Vector3& a, const atn::Vector3& b); // inferred: dot product
-Effect_unk* fn_8013A194();                   // inferred: effect/bullet manager (weak copy of another file)
+BattleTask* fn_8013A194();                   // inferred: effect/bullet manager (weak copy of another file)
 void* fn_801404F8();                         // inferred: collision world (weak copy of another file)
 // inferred: game settings (lbl_8087F0A8); frames per second at 0x30 (as in gmk/Cannonball.cpp)
 struct BeastSettings_unk {
@@ -55,9 +53,9 @@ extern "C" int fn_8004D388(void* world, atn::ColliResult_unk* result, atn::Vecto
                            unsigned int mask, void* ignore, int arg, float radius); // inferred: sweep test
 // inferred: weak copies emitted after vf108 (fn_802F0964 is also called by game/Em312DarkServant.cpp,
 // fn_802F0998 by gmk/Cannonball.cpp and gmk/FlamingArrow.cpp)
-extern "C" inline void fn_802F0964(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* bullet, int id, int time, int c,
+extern "C" inline void fn_802F0964(BattleTask* mgr, CharaTask* owner, HitInfo_unk* bullet, int id, int time, int c,
                                    float f) {
-    ((BattleTask*)mgr)->fn_800F8C6C(0, 0, owner, bullet, id, f, time, c);
+    mgr->fn_800F8C6C(0, 0, owner, bullet, id, f, time, c);
 }
 extern "C" inline float fn_802F0988(BeastParams_unk* params) {
     return params->mTimeScale;
@@ -295,7 +293,7 @@ void Em306GurgBeast::vf10() {
                 m14E8->mMotion.mTracks[0].m0C = 1.0f;
                 m14E8->mMotion.fn_80097C08(0, 0x2E, 0, 0, 1, 0.0f, 0.1f);
                 m14E8 = 0;
-                ((BattleTask*)lbl_8087F048)->fn_801028E4(0, this, 0);
+                lbl_8087F048->fn_801028E4(0, this, 0);
                 fn_8015495C(0, 1, 1, 1);
                 mC58.mC4 = 0;
                 mF18 = mF14;
@@ -625,7 +623,7 @@ void Em306GurgBeast::vf104() {
             if (m152C != 0) {
                 PlayerTask* head;
                 if (lbl_8087F048 != 0 && lbl_8087F8A0 != 0 && (head = lbl_8087F8A0->mHead) != 0) {
-                    ((BattleTask*)lbl_8087F048)->fn_80102824(this, head);
+                    lbl_8087F048->fn_80102824(this, head);
                 }
                 m152C->fn_8016E970(1);
                 m152C->fn_801446F0();
@@ -659,7 +657,7 @@ void Em306GurgBeast::vf104() {
                 m14E8->m574 = dir;
                 m14E8->fn_8015E7A0(dir, -1, 0);
                 m14E8 = 0;
-                ((BattleTask*)lbl_8087F048)->fn_801028E4(0, this, 0);
+                lbl_8087F048->fn_801028E4(0, this, 0);
                 fn_8015495C(0, 1, 1, 1);
                 mC58.mC4 = 0;
                 mF18 = mF14;
@@ -998,7 +996,7 @@ void Em306GurgBeast::fn_802F1320(int restart) {
     }
     PlayerTask* head;
     if (lbl_8087F048 != 0 && lbl_8087F8A0 != 0 && (head = lbl_8087F8A0->mHead) != 0) {
-        ((BattleTask*)lbl_8087F048)->fn_80102824(this, head);
+        lbl_8087F048->fn_80102824(this, head);
     }
     if ((m152C->mStatus.m0C & 0x20) != 0x20) {
         m152C->fn_8016E970(1);

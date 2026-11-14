@@ -282,10 +282,8 @@ void Em401_01_WhiteLeoPard::fn_8031FD34(HitMsg_unk* msg) {
 extern "C" void* lbl_8087EE98; // inferred: collision world
 extern "C" int fn_8004D388(void* world, atn::ColliResult_unk* result, CharaTask::Sphere_unk* sphere, atn::Vector3* move,
                            unsigned int mask, void* ignore, int arg, float radius); // inferred: sweep test
-// inferred: effect/bullet manager (lbl_8087F048); class unknown
-struct Effect_unk;
-extern "C" Effect_unk* lbl_8087F048;
-extern "C" int fn_800F8548(Effect_unk* mgr); // inferred: new bullet id
+extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
+extern "C" int fn_800F8548(BattleTask* mgr); // inferred: new bullet id
 
 extern "C" int rand();
 extern "C" double sqrt(double x);
@@ -373,7 +371,7 @@ void Em401_01_WhiteLeoPard::fn_8031FE4C() {
                     break;
                 }
             }
-            int damage = ((BattleTask*)lbl_8087F048)->fn_800F8C6C(0, 0, this, hit, m590, 0.0f, 30, m594);
+            int damage = lbl_8087F048->fn_800F8C6C(0, 0, this, hit, m590, 0.0f, 30, m594);
             if (m594 > 0) {
                 m594 -= damage;
             }
@@ -917,7 +915,7 @@ void Em401_01_WhiteLeoPard::fn_80322AD4() {
     mPos -= m5A4;
     mPos.y -= sphere.mRadius;
     if (m1588 >= 3.0f) {
-        ((BattleTask*)lbl_8087F048)->fn_800F8C6C(0, 0, this, fn_80219E6C(0x686), m590, 0.0f, 30, -1);
+        lbl_8087F048->fn_800F8C6C(0, 0, this, fn_80219E6C(0x686), m590, 0.0f, 30, -1);
     }
 }
 

@@ -16,10 +16,9 @@ extern "C" int atoi(const char* s);
 extern "C" int sprintf(char* buf, const char* fmt, ...);
 extern "C" int fn_800DC12C(const char* s);   // inferred: string to int
 extern "C" float fn_800DC288(const char* s); // inferred: string to float
-struct Effect_unk;
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
 struct HomingParam_unk;
-extern "C" void fn_800F8574(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* data, const atn::Vector3* pos,
+extern "C" void fn_800F8574(BattleTask* mgr, CharaTask* owner, HitInfo_unk* data, const atn::Vector3* pos,
                             const atn::Vector3* dir, HomingParam_unk* param, int arg6, int arg7, float a,
                             float b); // inferred: fires a bullet (as in game/Em003LesserDaemon.cpp)
 extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3, int arg4); // inferred: debug menu
@@ -32,10 +31,8 @@ extern "C" Field_unk* lbl_8087F430;
 // inferred: std::string concatenation (weak copy 0x8006AFF8)
 extern "C" std::string fn_8006AFF8(const std::string& a, const std::string& b);
 
-// inferred: effect/bullet manager (lbl_8087F048); class unknown
-struct Effect_unk;
-extern "C" Effect_unk* lbl_8087F048;
-extern "C" int fn_800F8548(Effect_unk* mgr); // inferred: new bullet id
+extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
+extern "C" int fn_800F8548(BattleTask* mgr); // inferred: new bullet id
 // inferred: effect manager (class unknown), global instance at 0x8087F3C0
 struct EffectMgr_unk;
 extern "C" EffectMgr_unk* lbl_8087F3C0;
@@ -55,7 +52,7 @@ struct System_unk {
 extern "C" System_unk* lbl_8087F0A8;
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
-extern "C" void fn_80108F38(Effect_unk* mgr, const atn::Vector3* pos, int arg);
+extern "C" void fn_80108F38(BattleTask* mgr, const atn::Vector3* pos, int arg);
 extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the next effects
 // inferred: color as four floats (as in game/CharaTask.cpp)
 struct Color4f_unk {
@@ -300,7 +297,7 @@ void Em202SpiderBase::vf10() {
                 if (f >= 17.0f && f <= 22.0f) {
                     fn_80144710();
                     int id = m590;
-                    ((BattleTask*)lbl_8087F048)->fn_800F8C6C(0, 0, this, fn_80219E6C(0x3F3), id, 0.0f, 30, -1);
+                    lbl_8087F048->fn_800F8C6C(0, 0, this, fn_80219E6C(0x3F3), id, 0.0f, 30, -1);
                 }
             }
             break;
@@ -477,7 +474,7 @@ void Em202SpiderBase::vf40(HitInfo_unk* hit) {
         color.b = 1.0f;
         color.a = 1.0f;
         fn_8023A8B4(lbl_8087F3C0, &m15B0, &mMotion, 0, pos, rot, color, -1, -1, 1, 1.0f);
-        Effect_unk* mgr = lbl_8087F048;
+        BattleTask* mgr = lbl_8087F048;
         atn::Vector3 p = fn_801781B0();
         fn_80108F38(mgr, &p, 0x80);
     }

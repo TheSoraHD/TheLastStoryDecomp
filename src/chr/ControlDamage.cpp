@@ -33,10 +33,8 @@ extern "C" GameState_unk* lbl_8087EFA8;
 struct Field_unk {
 };
 extern "C" Field_unk* lbl_8087F430;
-// inferred: effect manager of the characters (lbl_8087F048)
-struct Effect_unk;
-extern "C" Effect_unk* lbl_8087F048;
-extern "C" void fn_8010A308(Effect_unk* mgr, const atn::Vector3* from, const atn::Vector3* to, float radius);
+extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
+extern "C" void fn_8010A308(BattleTask* mgr, const atn::Vector3* from, const atn::Vector3* to, float radius);
 // inferred: RGBA colour (names invented)
 typedef EffectColor_unk Color4f_unk;
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
@@ -416,9 +414,9 @@ int ControlKnockdown::vf0C() {
                     if (mChara->GetLens_unk()) {
                         pos.y = -mChara->GetLens_unk()->mPlane.mDist * mChara->GetLens_unk()->mPlane.mNormal.y + 0.01f;
                     }
-                    ((BattleTask*)lbl_8087F048)->fn_801070C8(0x7D7, 0, 0, 0, &res.m10, &mChara->mRot,
+                    lbl_8087F048->fn_801070C8(0x7D7, 0, 0, 0, &res.m10, &mChara->mRot,
                                 &Color4f_unk(1.0f, 1.0f, 1.0f, 1.0f), 1.0f);
-                    ((BattleTask*)lbl_8087F048)->fn_80107208(0x7D7, &res.m10, 1.0f);
+                    lbl_8087F048->fn_80107208(0x7D7, &res.m10, 1.0f);
                 }
             }
         }
@@ -617,7 +615,7 @@ int ControlFallDead::vf0C() {
         m0C--;
         if (landed || m0C <= 0) {
             if (lbl_8087F048) {
-                ((BattleTask*)lbl_8087F048)->fn_800FDE60(0, mChara, atn::Vector3(0.0f, -1.0f, 0.0f));
+                lbl_8087F048->fn_800FDE60(0, mChara, atn::Vector3(0.0f, -1.0f, 0.0f));
             }
             model->fn_80097C08(0, 0x1D6, 0, 0, 1, 0.0f, 0.1f);
             model->mTracks[0].m0C = 1.0f;

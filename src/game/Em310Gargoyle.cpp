@@ -221,20 +221,19 @@ struct RoutePath_unk {
     int m04;
 };
 extern "C" unsigned short fn_803CD958(RoutePath_unk* path, int point); // inferred: next point towards `point`
-// inferred: bullet manager (lbl_8087F048, class unknown); fn_8010A308 moves a hit capsule (as in
-// game/EnemySeaLizerd.cpp)
-struct Effect_unk;
-extern "C" Effect_unk* lbl_8087F048;
-extern "C" void fn_8010A308(Effect_unk* mgr, const atn::Vector3* from, const atn::Vector3* to, float radius);
+// inferred: fn_8010A308 moves a hit capsule (as in game/EnemySeaLizerd.cpp)
+class BattleTask;
+extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
+extern "C" void fn_8010A308(BattleTask* mgr, const atn::Vector3* from, const atn::Vector3* to, float radius);
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
 // inferred: wraps an angle to [-180, 180] (0x802A7910 of game/Em204Mulue.cpp; constants not in this pool)
 extern "C" float fn_802A7910(float deg);
 extern "C" HitInfo_unk* fn_80219E6C(int id); // inferred: skill data by id
 // inferred: bullet manager accessor (CharaTask.cpp) and bullet launcher (as in game/Em203GreaterDaemon.cpp)
-Effect_unk* fn_8013A194();
+BattleTask* fn_8013A194();
 struct HomingParam_unk;
-extern "C" void fn_800F8574(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* data, const atn::Vector3* pos,
+extern "C" void fn_800F8574(BattleTask* mgr, CharaTask* owner, HitInfo_unk* data, const atn::Vector3* pos,
                             const atn::Vector3* dir, HomingParam_unk* param, int arg6, int arg7, float a,
                             float b); // inferred: fires a bullet
 // inferred: model matrix (weak copy 0x80266154, as in gmk/Cannonball.cpp)
