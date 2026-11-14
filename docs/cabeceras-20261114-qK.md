@@ -25,6 +25,17 @@
   funcion) renumera los `@N` de la unidad: hace falta `precommit.sh --pd`. Ademas, el par duplicado `@37207`
   (0x8088157C/0x80881580, dos nombres iguales en symbols.txt, de antes) no lo arregla pd: renombrado a mano.
 
+### 3. `fn_800FDF14` 94,3 -> 95,7 %
+- El marco de pila 0x100 mayor venia de que MWCC convertia en escalares el `HitDamage_unk` del bloque de la
+  absorcion de odio (nunca se pasa por direccion): pasando `damage.m04` (y no `heal`) a `fn_8012DF7C` el struct
+  queda en memoria y el marco es 0x450 como el original (94,27 -> 94,38).
+- `HitPos_unk(CharaTask*, const int& index)`: el original relee `p->m40` en la segunda llamada (94,38 -> 94,99).
+- Textos de los paneles `hpUpNum`/`hpUpSubNum` por una inline de fichero `SetPaneText_unk` (el layout se evalua
+  antes del hash, como `SetPaneValue_unk`) (-> 95,59); `radius` antes de `d` en el tiro a la cabeza (-> 95,65).
+- Queda: booleanos materializados del original en `CanAct_unk`/`IsFree_unk` (li/cmpwi; el nuestro los pliega),
+  ranuras de pila de varios bloques (en el original los locales del tiro a la cabeza estan en 0x50/0x5C) y la
+  temporal de `HitPos_unk` (0xA0 frente a 0x88).
+
 ### 4. Funciones al 99,x %
 - `BattleTask::fn_801002DC` 99,93 -> **100 %**: el punto medio de la capsula en un `atn::Vector3 center` con nombre
   (ordena las ranuras de pila como el original).

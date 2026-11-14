@@ -961,11 +961,16 @@ inline BattleShots_unk::iterator BattleShots_unk::erase(iterator it) {
 
 extern "C" unsigned int fn_800DC6B4(const char* s); // inferred: string hash
 extern "C" void fn_801FECE0(void* layout, unsigned int hash, float value);
+extern "C" void fn_801FEE08(void* layout, unsigned int hash, const wchar_t* text); // inferred: text of a pane
 extern "C" void fn_801FED24(void* layout, unsigned int hash, int index, float value);
 
 // inferred: values of the panes of a d2anime layout (names invented, as game/BattleResult.cpp)
 inline void SetPaneValue_unk(void* layout, const char* name, float value) {
     fn_801FECE0(layout, fn_800DC6B4(name), value);
+}
+// inferred: text of a pane (as MP::SetPaneText_unk; the layout is evaluated before the hash, 0x800FEC3C)
+inline void SetPaneText_unk(void* layout, const char* name, const wchar_t* text) {
+    fn_801FEE08(layout, fn_800DC6B4(name), text);
 }
 inline void SetPaneValue_unk(void* layout, const char* name, int index, float value) {
     fn_801FED24(layout, fn_800DC6B4(name), index, value);
@@ -3187,7 +3192,6 @@ extern "C" ArenaTask* lbl_8087EE78; // inferred: the arena (ArenaTask's sInstanc
 extern "C" int fn_80444020(Inventory* party, int item, int a, int b, int c, int d, int* outA, int* outB,
                            int* outC); // inferred: adds an item (as in game/BattleResult.cpp)
 extern "C" int fn_8021E48C(int item, int arg); // inferred: count of the item given at once
-extern "C" void fn_801FEE08(void* layout, unsigned int hash, const wchar_t* text); // inferred: text of a pane
 extern "C" int rand();
 
 // inferred: camp message table (lbl_8087F1E4, as in game/CosEditItemList_unk.cpp)
@@ -3254,7 +3258,7 @@ inline bool IsSpecialHit_unk(HitInfo_unk* hit) {
     return false;
 }
 // inferred: center of the hit sphere `index` of `chara`, or its position (names invented)
-inline atn::Vector3 HitPos_unk(CharaTask* chara, int index) {
+inline atn::Vector3 HitPos_unk(CharaTask* chara, const int& index) {
     if (chara->fn_80148B0C(index) != 0) {
         return chara->fn_80148B0C(index)->m04.mCenter;
     }
@@ -3306,8 +3310,8 @@ int BattleTask::fn_800FDF14(BattleCalcParam_unk* p) {
         MtxPtr head = target->GetModel_unk()->GetNodeMtx_unk("head");
         if (head != 0 && target->mFlag22 != 1 && !IsNoHead_unk(target)) {
             atn::Vector3 pos(head[0][3], head[1][3], head[2][3]);
-            atn::Vector3 d = pos - p->m1C;
             float radius = target->m5B4 * 0.25f;
+            atn::Vector3 d = pos - p->m1C;
             if (PSVECSquareMag(&d) < radius * radius) {
                 SetHitFlag_unk(p, 0x80000000);
             }
@@ -3474,7 +3478,7 @@ int BattleTask::fn_800FDF14(BattleCalcParam_unk* p) {
         int heal = -(int)(p->m68 * lbl_8087F0A8->mHateAbsorbHpRate);
         HitDamage_unk damage;
         damage.m04 = heal;
-        attacker->mStatus.fn_8012DF7C(heal, 0, 0);
+        attacker->mStatus.fn_8012DF7C(damage.m04, 0, 0);
         if (lbl_8087F0A8->mShowPlayerUI != 0 && p->m90 != 0) {
             if (heal != m3E2F8) {
                 m3E2F4->Rewind_unk();
@@ -3482,8 +3486,8 @@ int BattleTask::fn_800FDF14(BattleCalcParam_unk* p) {
             }
             wchar_t num[8];
             fn_800DD3FC(num, L"%d", -heal);
-            fn_801FEE08(&m3E2F4->mData.m10, fn_800DC6B4("hpUpNum"), num);
-            fn_801FEE08(&m3E2F4->mData.m10, fn_800DC6B4("hpUpSubNum"), num);
+            SetPaneText_unk(&m3E2F4->mData.m10, "hpUpNum", num);
+            SetPaneText_unk(&m3E2F4->mData.m10, "hpUpSubNum", num);
             SetPaneValue_unk(&m3E2F4->mData.m10, "hpRate",
                              attacker->mStatus.m04 / (float)attacker->mStatus.mParamB.m84);
             m3E2F4->MeltTask();
