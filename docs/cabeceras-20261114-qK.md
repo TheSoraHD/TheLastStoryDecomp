@@ -70,6 +70,9 @@
 - `fn_800FD658` 93,44 -> 99,75 %: `atn::Vector3(-n.x, -n.y, -n.z)` en lugar de `-n` (el `operator-` unario no se
   expandia: llamada a `__mi__Q23atn7Vector3CFv`; el original niega en linea, como en fn_800FC410).
 
+- `chara->GetInfo_unk()->m04` en lugar de `chara->m60->m04` en todos los mensajes de `fn_800DD3FC`:
+  `fn_801092C8` 96,27 -> 96,42 %, `fn_8010CF28` 94,10 -> 94,72 % (el original carga `m60` antes del texto).
+
 ### Otras probadas sin exito
 - `fn_80105DCC` y `fn_800FB1BC`: el original carga `lbl_8087F3C0` antes de elegir el EFP / de los argumentos (la
   llamada escrita a mano o el color temporal empeoran); `fn_80106878`: marco 0x10 mayor (orden de la temporal

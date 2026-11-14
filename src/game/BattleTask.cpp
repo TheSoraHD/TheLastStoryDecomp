@@ -6109,13 +6109,13 @@ extern "C" void fn_801092C8(BattleTask* mgr, int id, CharaTask* chara, int value
     case 10:
     case 11:
     case 0x16:
-        fn_800DD3FC(text, lbl_8087F1E4->GetPair_unk(def->mMsg), chara->m60->m04);
+        fn_800DD3FC(text, lbl_8087F1E4->GetPair_unk(def->mMsg), chara->GetInfo_unk()->m04);
         break;
     case 0xC:
     case 0xD: {
         HitInfo_unk* skill = fn_80219E6C(value);
         if (skill != 0 && chara != 0 && chara->m60 != 0) {
-            fn_800DD3FC(text, lbl_8087F1E4->GetPair_unk(def->mMsg), chara->m60->m04, skill->m08);
+            fn_800DD3FC(text, lbl_8087F1E4->GetPair_unk(def->mMsg), chara->GetInfo_unk()->m04, skill->m08);
         } else {
             fn_800DD3FC(text, lbl_8087F1E4->GetPair_unk(0x18), value);
         }
@@ -6124,7 +6124,7 @@ extern "C" void fn_801092C8(BattleTask* mgr, int id, CharaTask* chara, int value
     case 0xE: {
         BattleState_unk* state = fn_8021AF50(value);
         if (state != 0 && chara != 0 && chara->m60 != 0) {
-            fn_800DD3FC(text, lbl_8087F1E4->GetPair_unk(def->mMsg), chara->m60->m04,
+            fn_800DD3FC(text, lbl_8087F1E4->GetPair_unk(def->mMsg), chara->GetInfo_unk()->m04,
                         state->mName != 0 ? state->mName : lbl_808813D0);
         } else {
             fn_800DD3FC(text, lbl_8087F1E4->GetPair_unk(0x18), value);
@@ -6133,7 +6133,7 @@ extern "C" void fn_801092C8(BattleTask* mgr, int id, CharaTask* chara, int value
     }
     case 0x10:
         if (chara != 0 && chara->m60 != 0) {
-            fn_800DD3FC(text, lbl_8087F1E4->GetPair_unk(def->mMsg), chara->m60->m04, value);
+            fn_800DD3FC(text, lbl_8087F1E4->GetPair_unk(def->mMsg), chara->GetInfo_unk()->m04, value);
         }
         break;
     case 0x11:
@@ -6150,12 +6150,12 @@ extern "C" void fn_801092C8(BattleTask* mgr, int id, CharaTask* chara, int value
     case 0x1D:
     case 0x1E:
     case 0x1F:
-        fn_800DD3FC(text, lbl_8087F1E4->GetPair_unk(def->mMsg), chara->m60->m04, value);
+        fn_800DD3FC(text, lbl_8087F1E4->GetPair_unk(def->mMsg), chara->GetInfo_unk()->m04, value);
         break;
     case 0x14: {
         BattleState_unk* state = fn_8021AF50(value);
         if (chara != 0 && chara->m60 != 0 && state != 0) {
-            fn_800DD3FC(text, lbl_8087F1E4->GetPair_unk(def->mMsg), chara->m60->m04,
+            fn_800DD3FC(text, lbl_8087F1E4->GetPair_unk(def->mMsg), chara->GetInfo_unk()->m04,
                         state->mName != 0 ? state->mName : lbl_808813D0);
         }
         break;
@@ -6186,7 +6186,7 @@ void BattleTask::fn_80109864(SpEffect_unk* effect, CharaTask* chara) {
     wchar_t name[0x100];
     memset(name, 0, sizeof(name));
     if (fn_8021BE98(name, effect)) {
-        fn_800DD3FC(text, format, chara->m60->m04, name);
+        fn_800DD3FC(text, format, chara->GetInfo_unk()->m04, name);
     }
     if (text[0] != 0) {
         LogMessageTask::sInstance->fn_8047961C(text, -0x333334, 2, 0);
@@ -7227,7 +7227,7 @@ extern "C" void fn_8010CF28(BattleTask* mgr, int kind, CharaTask* chara, CharaTa
         wchar_t text[256];
         BattleItem_unk* data = fn_80211480(got);
         if (data != 0) {
-            fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0x1F), chara->m60->m04, data->mName, count);
+            fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0x1F), chara->GetInfo_unk()->m04, data->mName, count);
         } else {
             fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0x2F), got);
         }
