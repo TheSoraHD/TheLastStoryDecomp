@@ -20,6 +20,7 @@
 #include "Event/Action.h"
 #include "chr/CharaEquip_unk.h"
 #include "atn/PBone.h"
+#include "std/string_members.h"
 
 extern "C" GameTask* lbl_8087F430; // inferred: the field
 
@@ -238,6 +239,17 @@ void Puppeteer<atn::Model>::vf10() {
     m48->CalcMatrixStack(atn::ModelNodeCallback_unk());
     m54 = 0;
 }
+
+} // namespace Event
+
+namespace atn {
+// inferred: inline of atn::Model (its only copy is here): the matrix stack from the node poses of the model
+inline void Model::CalcMatrixStack(ModelNodeCallback_unk callback) {
+    ModelBase::CalcMatrixStack((const MotionBuffer*)m21C.mData, callback);
+}
+} // namespace atn
+
+namespace Event {
 
 template <>
 void Puppeteer<atn::Model>::vf14() {
@@ -682,9 +694,8 @@ inline bool ToBool_unk(unsigned int v) {
 
 // inferred: start of the event: saves in m18 and m24 the state of the character that fn_8000FAE8 gives back
 // (control mode, task and collision flags, node edits, physics bones) and takes the character over
-// NONMATCHING: 96.3% - registers (this in r29 in the original), the physics bones walked from the address
-// of their count (atn::Model::m384/m388 as one array), and the original reloads the flag word of the
-// character for the clears of mFlag3/mFlag5
+// NONMATCHING: 96.7% - registers (this in r29 in the original) and the physics bones walked from the
+// address of their count (atn::Model::m384/m388 as one array)
 void Actor::fn_8000F1EC() {
     if (m18_0 == 1) {
         return;
@@ -715,8 +726,7 @@ void Actor::fn_8000F1EC() {
         m18_21 = ToBool_unk(GetChara_unk()->mFlag18);
         m18_22 = GetChara_unk()->m1220.m10 != 0;
         CharaTask* chara = GetChara_unk();
-        // inferred: m24.m00 is a SimpleVector<Event::PoseKey_unk> (see fn_8000FAE8)
-        *(atn::SimpleVector<Event::PoseKey_unk>*)&m24.m00 = chara->GetModel_unk()->mD8;
+        m24.m00 = chara->GetModel_unk()->mD8;
         m24.m0C = GetChara_unk()->m674;
         SavedVecRef_unk(&m24.m10[0x00]) = GetChara_unk()->mPos;
         SavedVecRef_unk(&m24.m10[0x0C]) = GetChara_unk()->mRot;
@@ -734,10 +744,10 @@ void Actor::fn_8000F1EC() {
         GetChara_unk()->fn_801446F0();
         GetChara_unk()->mLook.fn_80129A48(0.3f);
         GetChara_unk()->m1188.ClearMotion(false);
-        if (GetChara_unk()->mFlag3) {
+        if (GetChara_unk()->IsFlag3_unk()) {
             GetChara_unk()->mFlag3 = 0;
         }
-        if (GetChara_unk()->mFlag5) {
+        if (GetChara_unk()->IsFlag5_unk()) {
             GetChara_unk()->mFlag5 = 0;
         }
         GetChara_unk()->mFC0 = 0;
@@ -846,14 +856,12 @@ void Actor::fn_8000FAE8() {
             model->fn_80097CCC(4, 0.0f);
             model->fn_80097CCC(3, 0.0f);
             GetChara_unk()->m1188.ClearMotion(true);
-            // inferred: m24.m00 is a SimpleVector<Event::PoseKey_unk> (same layout; see the pending note of
-            // ActorAnim_unk::m00 in docs/paralelo-20261113-qG.md)
-            model->fn_80094420(*(atn::SimpleVector<Event::PoseKey_unk>*)&m24.m00);
+            model->fn_80094420(m24.m00);
             GetChara_unk()->fn_80176DFC(0, 0, 0);
             for (int motion = 239; motion <= 318; motion++) {
                 model->fn_80097A20(motion);
             }
-            model->fn_8009373C("set_y", 0);
+            model->fn_8009373C("op_hand_line", 0);
             fn_80012D0C(0.3f);
             fn_80013530(0.3f);
             GetChara_unk()->m1188.m78 = 0;
@@ -879,7 +887,7 @@ void Actor::fn_8000FAE8() {
             CharaTask* chara = GetChara_unk();
             if (chara->m13FC != 0) {
                 chara->m13FC->fn_80176ACC();
-                MtxPtr node = chara->m13FC->GetModel_unk()->GetNodeMtx_unk("z");
+                MtxPtr node = chara->m13FC->GetModel_unk()->GetNodeMtx_unk("seatpoint");
                 if (node != 0) {
                     chara->mF1C = (int)node;
                 }
@@ -1082,25 +1090,20 @@ atn::Vector3 Actor::fn_80010B68() const {
 }
 
 // inferred: places the actor on the matrix `mtx`, optionally relative to the node matrix `node`
-// NONMATCHING: the original keeps the compares of the empty cases 2 and 4 and copies the matrix through a
-// stack copy interleaved with the stores to m58 (probably inlines that are not known)
+// NONMATCHING: 58.8% - the original keeps the compares of the empty cases 2 and 4 and copies the matrix
+// with the six loads first and the stores to the stack temporary interleaved with those to m58
 void Actor::fn_8001122C(MtxPtr node, int arg2, int arg3, const atn::Matrix3x4& mtx) {
     switch (m20) {
     case 7:
     case 1: {
-        atn::Matrix3x4 m(mtx);
-        ((Puppeteer<CharaTask>*)m1C)->m58 = m;
-        ((Puppeteer<CharaTask>*)m1C)->m54 = (atn::Matrix3x4*)node;
-        ((Puppeteer<CharaTask>*)m1C)->mB8 = arg2;
-        ((Puppeteer<CharaTask>*)m1C)->mB9 = arg3;
+        ((Puppeteer<CharaTask>*)m1C)->SetMtx_unk(mtx);
+        ((Puppeteer<CharaTask>*)m1C)->SetNode_unk(node, arg2, arg3);
         break;
     }
     case 2:
         break;
     case 3:
-        ((Puppeteer<atn::Model>*)m1C)->m54 = (atn::Matrix3x4*)node;
-        ((Puppeteer<atn::Model>*)m1C)->mB8 = arg2;
-        ((Puppeteer<atn::Model>*)m1C)->mB9 = arg3;
+        ((Puppeteer<atn::Model>*)m1C)->SetNode_unk(node, arg2, arg3);
         break;
     case 4:
         break;
@@ -1783,3 +1786,9 @@ void Actor::fn_80013558() {
 }
 
 } // namespace Event
+
+namespace atn {
+// inferred: inline and empty in atn::Task (its only copy is weak, here at 0x80013CAC); defined here and not
+// in atn/Task.h because the inline body there renumbers the @N labels of the 367 units that include it
+inline void Task::vf18(Task*) {}
+} // namespace atn

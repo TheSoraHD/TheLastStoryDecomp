@@ -1,5 +1,7 @@
 #include "game/SetConfig.h"
 #include "game/GameTask.h"
+#include "game/GameConfig_unk.h"
+#include "Event/Dialog.h"
 #include "Event/Cut.h"
 #include "Event/Section.h"
 #include "Event/Channel.h"
@@ -12,13 +14,6 @@
 
 
 
-extern "C" volatile float lbl_80887E20;
-extern "C" volatile float lbl_80887E24;
-extern "C" void fn_8047F6E4(void* object);
-extern "C" void fn_8047F8B0(void* object);
-extern "C" void fn_8047F850(void* object, int start, int colorStart, int colorEnd);
-extern "C" void fn_8047F88C(void* object, int frame);
-extern "C" void fn_8047F994(void* object, int arg1, int arg2);
 namespace Event {
 // inferred: processor of each kind of action (.bss of this file)
 ActionProcessor* sProcessors_unk[56];
@@ -304,15 +299,8 @@ extern "C" void fn_8054F380() {
         Event::sProcessors_unk[i] = 0;
     }
 }
-extern "C" void fn_80489A50(void* manager, int arg1, int arg2);
-extern "C" void fn_8048F9B0(void* manager, void* event);
-extern "C" void fn_80484FBC(void* manager);
-extern "C" void fn_804870F4(void* manager);
-extern "C" void fn_80486F50(void* manager);
-extern "C" void fn_8048F184(void* manager, int arg);
-extern "C" void fn_8048FC7C(void* manager);
-extern "C" void* lbl_8087F0A8;
-extern "C" void* lbl_8087F430;
+extern "C" GameConfig_unk* lbl_8087F0A8; // inferred: game settings
+extern "C" GameTask* lbl_8087F430;      // inferred: field task
 
 
 namespace Event {
@@ -489,181 +477,176 @@ void Sequence::fn_8054FFE0() {
 
 } // namespace Event
 
-// inferred: method of Event::Sequence (layout still read through offsets here)
-void Event::Sequence::fn_805501DC(int enabled) {
-    void* self = this;
-    int& state = *reinterpret_cast<int*>(static_cast<unsigned char*>(self) + 0x1C0);
-    if (state == 0 && enabled != 0) {
+namespace Event {
+
+// inferred: the action that holds the sequence (its vf08 returned 3); the manager is told when it starts
+// and when it ends
+void Sequence::fn_805501DC(Action* action) {
+    if (m1C0 == 0 && action != 0) {
         lbl_8087F540->fn_8047F8C0(1);
-    } else if (state != 0 && enabled == 0) {
+    } else if (m1C0 != 0 && action == 0) {
         lbl_8087F540->fn_8047F8C0(0);
     }
-    state = enabled;
+    m1C0 = action;
 }
 
-// NONMATCHING: 65.17% - manager gating, action windows, cut changes and timeouts are reconstructed;
-// exact MWCC register allocation and nested action-state dispatch still differ.
-void Event::Sequence::fn_80550254() {
-    void* self = this;
-    unsigned char* object = static_cast<unsigned char*>(self);
-    unsigned int& flags = *reinterpret_cast<unsigned int*>(object + 0x98);
-    flags |= 0x00040000;
+// inferred: processor of an action (kind 0x1F: a behaviour chosen by parameter 0)
+inline ActionProcessor* GetProcessor_unk(Action* action) {
+    if (action->m0C == 0x1F) {
+        return fn_8010DB54(action->GetParam_unk(0)->m04.i);
+    }
+    return sProcessors_unk[action->m0C];
+}
+
+// inferred: the frame `t` was reached in this step (from m19C, with a small tolerance, up to m198)
+inline int IsStepFrame_unk(const Sequence* seq, float t) {
+    return t >= seq->m19C - 0.00001f && t < seq->m198;
+}
+
+// inferred: time of a frame of the event manager
+inline float FrameTime_unk() {
+    return lbl_8087F540->mB4;
+}
+
+// inferred: the holding action still holds the sequence (else it is released)
+inline bool IsHeld_unk(Sequence* seq) {
+    if (seq->m1C0 != 0) {
+        ActionProcessor* processor = GetProcessor_unk(seq->m1C0);
+        if (processor == 0) {
+            return false;
+        }
+        if (processor->vf08(seq->m1C0) == 3) {
+            return true;
+        }
+        seq->fn_805501DC(0);
+    }
+    return false;
+}
+
+// NONMATCHING: 99.4% - saved registers: the original gives r24 to the processor and r21-r23 to the action,
+// channel and section (here one higher each, the processor in r21)
+// inferred: one frame of the sequence: waits for the holding action, advances the frame and runs the phases
+// of the actions of the current cut whose marks were reached (0 start, 1 end of the fade in, 2 start of the
+// fade out, 3 end; vf08 while it spans the step); at the end of the cut it goes to the next one
+void Sequence::fn_80550254() {
+    mPadCamera_unk = 1;
     if (SetConfig::sInstance != 0 && SetConfig::sInstance->mEventCameraControl == 0) {
-        flags &= ~0x00040000;
+        mPadCamera_unk = 0;
     }
-
-    void* manager = lbl_8087F540;
-    void* current = *reinterpret_cast<void**>(object + 0x1C0);
-    if (current != 0) {
-        int type = *reinterpret_cast<int*>(static_cast<unsigned char*>(current) + 0x0C);
-        void* handler;
-        if (type == 0x1F) {
-            unsigned char* first = *reinterpret_cast<int*>(static_cast<unsigned char*>(current) + 0x30) > 0
-                ? *reinterpret_cast<unsigned char**>(static_cast<unsigned char*>(current) + 0x2C) : 0;
-            handler = *reinterpret_cast<void**>(first + 4);
-        } else {
-            handler = Event::sProcessors_unk[type];
-        }
-        if (handler == 0 || reinterpret_cast<int (*)(void*, void*)>(
-                (*reinterpret_cast<void***>(handler))[2])(handler, current) != 3) {
-            if (current != 0) {
-                ((Manager*)manager)->fn_8047F8C0(0);
+    if (IsHeld_unk(this)) {
+        return;
+    }
+    fn_8054FBE0(1);
+    m198 += FrameTime_unk();
+    if (m19C > m198) {
+        m19C = 0.0f;
+    }
+    fn_8054FFE0();
+    if (m50 == 1 || m50 == 3) {
+        lbl_8087F540->fn_80481A20();
+        lbl_8087F540->fn_80489A50(0, 0);
+        lbl_8087F540->fn_80488DB8();
+    }
+    Cut* cut = fn_80541210();
+    if (cut != 0) {
+        for (int i = 0; i < (int)cut->mSections.size(); i++) {
+            Section* section = cut->GetSection_unk(i);
+            if (section->m14 == 0) {
+                continue;
             }
-            *reinterpret_cast<void**>(object + 0x1C0) = 0;
-        } else {
-            return;
-        }
-    }
-
-    static_cast<Event::Sequence*>(self)->fn_8054FBE0(1);
-    float& time = *reinterpret_cast<float*>(object + 0x198);
-    time += *reinterpret_cast<float*>(static_cast<unsigned char*>(manager) + 0xB4);
-    float& previousTime = *reinterpret_cast<float*>(object + 0x19C);
-    if (previousTime > time) {
-        previousTime = lbl_80887E20;
-    }
-    static_cast<Event::Sequence*>(self)->fn_8054FFE0();
-    int mode = *reinterpret_cast<int*>(object + 0x50);
-    if (mode == 1 || mode == 3) {
-        ((Manager*)manager)->fn_80481A20();
-        fn_80489A50(manager, 0, 0);
-        ((Manager*)manager)->fn_80488DB8();
-    }
-
-    unsigned char* event = static_cast<unsigned char*>((void*)fn_80541210());
-    if (event != 0) {
-        int count = *reinterpret_cast<int*>(event + 0x40);
-        unsigned char** records = *reinterpret_cast<unsigned char***>(event + 0x3C);
-        for (int i = 0; i < count; ++i) {
-            unsigned char* record = records[i];
-            if (record == 0 || *reinterpret_cast<int*>(record + 0x14) == 0) {
-                break;
-            }
-            if (*reinterpret_cast<int*>(record + 0x0C) == 3) {
-                int key = *reinterpret_cast<int*>(record + 0x10);
-                int objectCount = *reinterpret_cast<int*>(object + 0x168);
-                unsigned char* objects = *reinterpret_cast<unsigned char**>(object + 0x164);
-                int selected = 0;
-                for (; selected < objectCount; ++selected) {
-                    if (*reinterpret_cast<int*>(objects + selected * 0x1C0 + 0x14) == key) {
-                        break;
-                    }
-                }
-                *reinterpret_cast<int*>(object + 0x1BC) = selected < objectCount ? selected * 0x1C0 : 0;
+            if (section->m0C == 3) {
+                m1BC = FindActor_unk(section->m10);
             } else {
-                *reinterpret_cast<int*>(object + 0x1BC) = 0;
+                m1BC = 0;
             }
-
-            int groupCount = *reinterpret_cast<int*>(record + 0x1C);
-            unsigned char** groups = *reinterpret_cast<unsigned char***>(record + 0x18);
-            for (int j = 0; j < groupCount; ++j) {
-                unsigned char* group = groups[j];
-                if (group == 0 || *reinterpret_cast<int*>(group + 0x10) == 0) {
-                    break;
+            for (int j = 0; j < (int)section->mChannels.size(); j++) {
+                Channel* channel = section->GetChannel_unk(j);
+                if (channel->m10 == 0) {
+                    continue;
                 }
-                int actionCount = *reinterpret_cast<int*>(group + 0x18);
-                unsigned char** actions = *reinterpret_cast<unsigned char***>(group + 0x14);
-                for (int k = 0; k < actionCount; ++k) {
-                    unsigned char* action = actions[k];
-                    int type = *reinterpret_cast<int*>(action + 0x0C);
-                    void* handler;
-                    if (type == 0x1F) {
-                        unsigned char* entry = *reinterpret_cast<int*>(action + 0x30) > 0
-                            ? *reinterpret_cast<unsigned char**>(action + 0x2C) : 0;
-                        handler = *reinterpret_cast<void**>(entry + 4);
-                    } else {
-                        handler = Event::sProcessors_unk[type];
-                    }
-                    if (handler == 0) {
+                for (int k = 0; k < (int)channel->mActions.size(); k++) {
+                    Action* action = channel->GetAction_unk(k);
+                    action->m3C = k;
+                    ActionProcessor* processor = GetProcessor_unk(action);
+                    if (processor == 0) {
                         continue;
                     }
-                    float start = static_cast<float>(*reinterpret_cast<int*>(action + 0x10));
-                    float end = static_cast<float>(*reinterpret_cast<int*>(action + 0x18) +
-                                                   *reinterpret_cast<int*>(action + 0x10));
-                    float lo = *reinterpret_cast<float*>(object + 0x19C);
-                    float hi = *reinterpret_cast<float*>(object + 0x198);
-                    bool starts = start >= lo - 1.0f && start < hi;
-                    bool ends = end >= lo - 1.0f && end < hi;
-                    int active = *reinterpret_cast<int*>(object + 0x1BC);
-                    bool selected = active != 0 && start >= lo - 1.0f && end >= hi;
-                    if (selected) {
-                        void** table = *reinterpret_cast<void***>(handler);
-                        reinterpret_cast<void (*)(void*, void*, int)>(table[3])(handler, action, 0);
-                        reinterpret_cast<void (*)(void*, void*, int)>(table[3])(handler, action, 1);
-                        reinterpret_cast<int (*)(void*, void*)>(table[2])(handler, action);
-                        reinterpret_cast<void (*)(void*, void*, int)>(table[3])(handler, action, 2);
-                        reinterpret_cast<void (*)(void*, void*, int)>(table[3])(handler, action, 3);
+                    float start = action->m10;
+                    float fadeIn = action->m10 + action->m18;
+                    float fadeOut = action->m14 - action->m1C;
+                    float end = action->m14;
+                    int atStart = IsStepFrame_unk(this, start);
+                    int atFadeIn = IsStepFrame_unk(this, fadeIn);
+                    int atFadeOut = IsStepFrame_unk(this, fadeOut);
+                    int atEnd = IsStepFrame_unk(this, end);
+                    int result = 0;
+                    if (atStart && atEnd) {
+                        processor->vf0C(action, 0);
+                        processor->vf0C(action, 1);
+                        result = processor->vf08(action);
+                        processor->vf0C(action, 2);
+                        processor->vf0C(action, 3);
                     } else {
-                        void** table = *reinterpret_cast<void***>(handler);
-                        if (starts) reinterpret_cast<void (*)(void*, void*, int)>(table[3])(handler, action, 0);
-                        if (ends) reinterpret_cast<void (*)(void*, void*, int)>(table[3])(handler, action, 1);
-                        if (lo >= start && hi <= end) {
-                            *reinterpret_cast<int*>(object + 0x1C0) =
-                                reinterpret_cast<int (*)(void*, void*)>(table[2])(handler, action);
+                        if (atStart) {
+                            processor->vf0C(action, 0);
                         }
-                        if (*reinterpret_cast<int*>(object + 0x1C0) == 3) {
-                            ((Manager*)manager)->fn_8047F8C0(1);
+                        if (atFadeIn) {
+                            processor->vf0C(action, 1);
                         }
+                        if (m19C >= start && m198 <= end) {
+                            result = processor->vf08(action);
+                        }
+                        if (atFadeOut) {
+                            processor->vf0C(action, 2);
+                        }
+                        if (atEnd) {
+                            processor->vf0C(action, 3);
+                        }
+                    }
+                    if (result == 3) {
+                        fn_805501DC(action);
                     }
                 }
             }
         }
-    }
-
-    static_cast<Event::Sequence*>(self)->fn_8054FBE0(0);
-    mode = *reinterpret_cast<int*>(object + 0x50);
-    if (mode == 1 || mode == 3) {
-        fn_8048F9B0(manager, event);
-    }
-    event = static_cast<unsigned char*>((void*)fn_80541210());
-    if (event != 0 && time > static_cast<float>(*reinterpret_cast<int*>(event + 0x2C))) {
-        time = static_cast<float>(*reinterpret_cast<int*>(event + 0x2C));
-        int cutId = reinterpret_cast<Event::Cut*>(event)->fn_8053B028();
-        if (cutId != -1) {
-            int count = *reinterpret_cast<int*>(object + 0xBC);
-            unsigned char** entries = *reinterpret_cast<unsigned char***>(object + 0xB8);
-            int i = 0;
-            for (; i < count; ++i) {
-                if (*reinterpret_cast<int*>(entries[i] + 0x0C) == cutId) break;
+        fn_8054FBE0(0);
+        if (m50 == 1 || m50 == 3) {
+            lbl_8087F540->fn_8048F9B0(cut);
+        }
+        Cut* current = fn_80541210();
+        if (current != 0 && m198 > (float)current->m2C) {
+            m198 = (float)current->m2C;
+            if (m98_8 != 1 || (m280 != 0 && m280->fn_802291BC() == 0)) {
+                if (current->fn_8053B028() != -1) {
+                    fn_80541520(fn_80541198(FindCutByIndex_unk(current->fn_8053B028())), 0);
+                    if (m50 == 1 || m50 == 3) {
+                        lbl_8087F540->fn_80484FBC();
+                        lbl_8087F540->fn_804870F4();
+                        lbl_8087F540->fn_80486F50();
+                        lbl_8087F540->fn_8048F184(0);
+                        lbl_8087F540->fn_8048F184(1);
+                        lbl_8087F540->fn_8048FC7C();
+                    }
+                    if (m280 != 0) {
+                        m280->fn_802297AC();
+                    }
+                    int index = current->mIndex;
+                    if (current->fn_8053B028() != index) {
+                        fn_80550254();
+                    }
+                } else if (lbl_8087F0A8->m194 != 0 && m190 == 0x19D) {
+                    lbl_8087F430->fn_80370B78(-1, 0, 0, 0.0f);
+                    fn_8053E8C8(11);
+                } else {
+                    fn_8053E8C8(13);
+                }
             }
-            fn_80541520(fn_80541198(0), 0);
-            if (mode == 1 || mode == 3) {
-                fn_80484FBC(manager); fn_804870F4(manager); fn_80486F50(manager);
-                fn_8048F184(manager, 0); fn_8048F184(manager, 1); fn_8048FC7C(manager);
-            }
-            if (reinterpret_cast<Event::Cut*>(event)->fn_8053B028() != *reinterpret_cast<int*>(event + 0x0C)) {
-                fn_80550254();
-            }
-        } else if (lbl_8087F0A8 != 0 && *reinterpret_cast<int*>(static_cast<unsigned char*>(lbl_8087F0A8) + 0x194) != 0 &&
-                   *reinterpret_cast<int*>(object + 0x190) == 0x19D) {
-            ((GameTask*)lbl_8087F430)->fn_80370B78(-1, lbl_80887E20, 0, 0);
-            fn_8053E8C8(11);
-        } else {
-            fn_8053E8C8(13);
         }
     }
-    *reinterpret_cast<float*>(object + 0x19C) = time;
+    m19C = m198;
 }
+
+} // namespace Event
 
 namespace Event {
 

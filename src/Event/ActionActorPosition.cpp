@@ -724,7 +724,7 @@ int ActionActorFacial::vf0C(Action* arg, int phase) {
 
 extern "C" int rand();
 
-// NONMATCHING: 95.7% - volatile registers of the two inlined actor lookups and the parameter checks; the
+// NONMATCHING: 98.5% - volatile registers of the two inlined actor lookups and the parameter checks; the
 // weight 1.0 in f29 (ours f30)
 void ActionActorEyes::fn_80553A74(Action* arg, float now) {
     ActionOwner_unk* section = arg->fn_805381A0();
@@ -744,12 +744,14 @@ void ActionActorEyes::fn_80553A74(Action* arg, float now) {
     } else if ((float)(length - fadeOut) < t && fadeOut >= 1) {
         angle *= ((float)length - t) / (float)fadeOut;
     }
-    float rad = 0.017453292f * angle;
-    float rx = atn::Abs_unk(0.017453292f * arg->GetParam_unk(10)->m04.f);
-    float ry = atn::Abs_unk(0.017453292f * arg->GetParam_unk(11)->m04.f);
+    float rad = atn::DegToRad_unk(angle);
+    float rx = atn::Abs_unk(atn::DegToRad_unk(arg->GetParam_unk(10)->m04.f));
+    float ry = atn::Abs_unk(atn::DegToRad_unk(arg->GetParam_unk(11)->m04.f));
     atn::Vector3 jitter(lbl_807C7030);
-    jitter.x = 2.0f * rx * ((float)rand() / 32767.0f) - rx;
-    jitter.y = 2.0f * ry * ((float)rand() / 32767.0f) - ry;
+    float vx = 2.0f * rx * ((float)rand() / 32767.0f);
+    jitter.x = vx - rx;
+    float vy = 2.0f * ry * ((float)rand() / 32767.0f);
+    jitter.y = vy - ry;
     actor->fn_80012D34(target, node, cam, 0, jitter, 1, weight, rad);
 }
 
@@ -845,7 +847,7 @@ void ActionActorEyes::fn_80554088(Action* arg, int length, atn::Vector3* v, int 
     actor->fn_80012D34(target, node, pos, mode, lbl_807C7030, 0, weight, 0.0f);
 }
 
-// NONMATCHING: 92.4% - saved registers (the original gives r31/r30 to camera/mode and r28 to arg) and the
+// NONMATCHING: 94.8% - saved registers (the original gives r31/r30 to camera/mode and r28 to arg) and the
 // volatile registers of the inlined lookups
 int ActionActorEyes::vf08(Action* arg) {
     float now = arg->fn_805381C8()->m198;
@@ -875,10 +877,13 @@ int ActionActorEyes::vf08(Action* arg) {
     if (wander) {
         if (actor->m18C.m00 <= 0) {
             Actor* target2 = manager->FindActor_unk(arg->GetParam_unk(0)->m04.i);
-            float rx = atn::Abs_unk(0.017453292f * arg->GetParam_unk(10)->m04.f);
-            float ry = atn::Abs_unk(0.017453292f * arg->GetParam_unk(11)->m04.f);
-            actor->m18C.m04.Set_unk(2.0f * rx * ((float)rand() / 32767.0f) - rx, 2.0f * ry * ((float)rand() / 32767.0f) - ry,
-                                0.0f);
+            float rx = atn::Abs_unk(atn::DegToRad_unk(arg->GetParam_unk(10)->m04.f));
+            float ry = atn::Abs_unk(atn::DegToRad_unk(arg->GetParam_unk(11)->m04.f));
+            // inferred: the arguments are evaluated right to left (the first random number goes to y)
+            float vy = 2.0f * ry * ((float)rand() / 32767.0f);
+            float y = vy - ry;
+            float vx = 2.0f * rx * ((float)rand() / 32767.0f);
+            actor->m18C.m04.Set_unk(vx - rx, y, 0.0f);
             actor->m18C.m00 = (int)frames;
         } else {
             fn_80553DC8(arg, &actor->m18C.m10, &actor->m18C.m04, mode, frames);
@@ -897,9 +902,9 @@ int ActionActorEyes::vf08(Action* arg) {
     return 0;
 }
 
-// NONMATCHING: 96.5% - registers of the start of phase 0 (the original loads m18 and the size of the
-// parameters before the lookup), stack slots of the node positions (as ActionActorHeading::vf0C) and
-// operand order of the degree conversions of phase 3
+// NONMATCHING: 98.3% - registers of the start of phase 0 (the original loads m18 and the size of the
+// parameters before the lookup and keeps a dead test of m18) and stack slots of the node positions (as
+// ActionActorHeading::vf0C)
 // inferred: eyes of an actor; phase 0 sets the point they look at (at the height of the right eye above the
 // reference node, in front of the actor) unless parameter 9 is set, phases 2 and 3 end the eye movement
 int ActionActorEyes::vf0C(Action* arg, int phase) {
@@ -909,7 +914,10 @@ int ActionActorEyes::vf0C(Action* arg, int phase) {
         EventManager_unk* manager = arg->fn_805381C8();
         Actor* actor = manager->FindActor_unk(section->m10);
         int length = arg->m18;
-        manager->FindActor_unk(arg->GetParam_unk(0)->m04.i);
+        // inferred: target and node read and unused (as in fn_80553A74): the original keeps the dead test of
+        // the parameter count for parameter 1
+        Actor* target = manager->FindActor_unk(arg->GetParam_unk(0)->m04.i);
+        int node = arg->GetParam_unk(1)->m04.i;
         int fixed = arg->GetParam_unk(9)->m04.i;
         if (length > 0) {
             int curve = arg->GetParam_unk(15)->m04.i;
@@ -965,9 +973,9 @@ int ActionActorEyes::vf0C(Action* arg, int phase) {
             actor->m18C.m1C = lbl_807C7030;
         } else {
             atn::Vector3 rot;
-            rot.x = arg->GetParam_unk(6)->m04.f * 0.017453292f;
-            rot.y = arg->GetParam_unk(7)->m04.f * 0.017453292f;
-            rot.z = arg->GetParam_unk(8)->m04.f * 0.017453292f;
+            rot.x = atn::DegToRad_unk(arg->GetParam_unk(6)->m04.f);
+            rot.y = atn::DegToRad_unk(arg->GetParam_unk(7)->m04.f);
+            rot.z = atn::DegToRad_unk(arg->GetParam_unk(8)->m04.f);
             actor->m18C.m1C = rot;
         }
     }
@@ -997,8 +1005,7 @@ int ActionActorPose::vf0C(Action* arg, int phase) {
         atn::Model* model = actor->fn_8001296C();
         if (model != 0) {
             atn::SimpleVector<PoseKey_unk> keys;
-            // inferred: m24.m00 is a SimpleVector<Event::PoseKey_unk> (see Actor::fn_8000F1EC)
-            atn::SimpleVector<PoseKey_unk>& saved = *(atn::SimpleVector<PoseKey_unk>*)&actor->m24.m00;
+            atn::SimpleVector<PoseKey_unk>& saved = actor->m24.m00;
             keys.Resize_unk(saved.size());
             for (unsigned int k = 0; k < keys.size(); k++) {
                 keys[k] = saved[k];
@@ -1187,8 +1194,8 @@ int ActionActorHeading::vf0C(Action* arg, int phase) {
 // rotation from the parameter 4 in degrees): during the fade in the node eases along the curve of the actor
 // from the offsets saved for the node (m118 positions, m124 rotations) and, once there, the offsets are
 // accumulated into them; during the fade out it goes back to zero
-// NONMATCHING: 96.1% - scheduling of the conversions of the fade times and of the degrees, and the registers
-// of the key searches (the original adds the offset to the data pointer of the loop)
+// NONMATCHING: 96.9% - scheduling of the conversions of the fade times, and the registers
+// of the key searches (the original adds the offset to the data pointer of the loop); degrees by DegToRad_unk
 int ActionActorNode::vf08(Action* arg) {
     float now = arg->fn_805381C8()->m198;
     ActionOwner_unk* section = arg->fn_805381A0();
@@ -1212,9 +1219,9 @@ int ActionActorNode::vf08(Action* arg) {
     offset.y = arg->GetParam_unk(2)->m04.f;
     offset.z = arg->GetParam_unk(3)->m04.f;
     atn::Vector3 angles = arg->fn_80538C14(4);
-    angles.x = 0.017453292f * angles.x;
-    angles.y = 0.017453292f * angles.y;
-    angles.z = 0.017453292f * angles.z;
+    angles.x = atn::DegToRad_unk(angles.x);
+    angles.y = atn::DegToRad_unk(angles.y);
+    angles.z = atn::DegToRad_unk(angles.z);
     int node = model->fn_800928B0(hash, 0);
     atn::Model::NodeEdit_unk* edit = model->fn_800948F0(res->m48[node]->m10);
     atn::Vector3 pos = offset;
