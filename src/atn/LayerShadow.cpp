@@ -260,7 +260,7 @@ void LayerShadow::vf10(void* arg) {
             node->mObj = 0;
         }
     }
-    AABB_unk fbox(frustum.mMin, frustum.mMax);
+    AABB_unk fbox(frustum.mBounds.mMin, frustum.mBounds.mMax);
     s = lbl_8087EFA8;
     if (s->m140 != 0) {
         if (s->m138 != 0) {

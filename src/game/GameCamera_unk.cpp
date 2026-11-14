@@ -4218,7 +4218,8 @@ void GameCamera::fn_80392964(int a, int b, int c, int d) {
     fn_8008B964()->SetCamera_unk(m1F4);
 }
 
-// NONMATCHING: 98% - registers and order of the copy of the frustum planes
+// NONMATCHING: 99.4% - registers of the pointers of the copies of the frustum bounds and planes (r6-r9 in
+// the reverse order)
 extern "C" void fn_80392A04(atn::Camera* dst, const atn::Camera* src) {
     *dst = *src;
 }
@@ -4241,7 +4242,6 @@ void GameCamera::fn_80392CE0(const GameCameraState_unk* state) {
     m830 = state->m24;
 }
 
-// NONMATCHING: 98.8% - the copy of the camera, as fn_80392A04
 // inferred: makes the render camera blend back from `from` (weight 1, decreased by `rate` every frame);
 // called with the camera of the field (EnemyQuarkStand, GameEventScript)
 void GameCamera::fn_80392D2C(const atn::Camera* from, float rate) {

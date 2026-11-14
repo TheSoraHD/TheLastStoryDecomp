@@ -105,7 +105,7 @@ extern "C" void fn_8004F5B8(Frustum_unk* fr, const Mtx view, int ortho, float t,
         PSMTXMultVec(inv.m, p, p);
     }
     PSMTXMultVec(inv.m, &eye, &eye);
-    fn_8004F45C(&fr->mMin, pts, 8);
+    fn_8004F45C(&fr->mBounds.mMin, pts, 8);
     SetPlane_unk(fr->mPlanes[0], eye, pts[0], pts[3]);
     SetPlane_unk(fr->mPlanes[1], eye, pts[2], pts[1]);
     SetPlane_unk(fr->mPlanes[2], pts[0], pts[2], pts[1]);
@@ -155,8 +155,8 @@ extern "C" int fn_8004FF58(const Frustum_unk* fr, const Sphere* sphere) {
 
 // inferred: the box overlaps the bounds of the frustum (name invented)
 inline bool Frustum_unk_Overlaps(const Frustum_unk* f, const Vector3* box) {
-    if (box[0].x > f->mMax.x || f->mMin.x > box[1].x || box[0].y > f->mMax.y || f->mMin.y > box[1].y ||
-        box[0].z > f->mMax.z || f->mMin.z > box[1].z) {
+    if (box[0].x > f->mBounds.mMax.x || f->mBounds.mMin.x > box[1].x || box[0].y > f->mBounds.mMax.y ||
+        f->mBounds.mMin.y > box[1].y || box[0].z > f->mBounds.mMax.z || f->mBounds.mMin.z > box[1].z) {
         return false;
     }
     return true;
@@ -208,22 +208,22 @@ extern "C" int fn_800502A8(const Frustum_unk* fr, const Vector3* box) {
 
 // inferred: the segment can be inside the bounds of the frustum (name invented)
 inline bool Frustum_unk_SegOverlaps(const Frustum_unk* f, const Vector3* seg) {
-    if (f->mMin.x > seg[0].x && f->mMin.x > seg[1].x) {
+    if (f->mBounds.mMin.x > seg[0].x && f->mBounds.mMin.x > seg[1].x) {
         return false;
     }
-    if (f->mMin.y > seg[0].y && f->mMin.y > seg[1].y) {
+    if (f->mBounds.mMin.y > seg[0].y && f->mBounds.mMin.y > seg[1].y) {
         return false;
     }
-    if (f->mMin.z > seg[0].z && f->mMin.z > seg[1].z) {
+    if (f->mBounds.mMin.z > seg[0].z && f->mBounds.mMin.z > seg[1].z) {
         return false;
     }
-    if (f->mMax.x < seg[0].x && f->mMax.x < seg[1].x) {
+    if (f->mBounds.mMax.x < seg[0].x && f->mBounds.mMax.x < seg[1].x) {
         return false;
     }
-    if (f->mMax.y < seg[0].y && f->mMax.y < seg[1].y) {
+    if (f->mBounds.mMax.y < seg[0].y && f->mBounds.mMax.y < seg[1].y) {
         return false;
     }
-    if (f->mMax.z < seg[0].z && f->mMax.z < seg[1].z) {
+    if (f->mBounds.mMax.z < seg[0].z && f->mBounds.mMax.z < seg[1].z) {
         return false;
     }
     return true;

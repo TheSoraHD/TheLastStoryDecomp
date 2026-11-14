@@ -13,8 +13,12 @@ struct Frustum_unk {
     float mNear;           // 0x34: -near (view space z)
     float mFar;            // 0x38: -far
     Plane_unk mSides[4];   // 0x3C: view space side planes
-    atn::Vector3 mMin;     // 0x7C: world space bounds of the corners
-    atn::Vector3 mMax;     // 0x88
+    // inferred: a struct, not two members: Camera's implicit copy (fn_80392A04) copies both vectors through
+    // one pointer (same layout as atn::AABB_unk, whose inlines would renumber the units including this header)
+    struct Bounds_unk {
+        atn::Vector3 mMin; // 0x7C: world space bounds of the corners
+        atn::Vector3 mMax; // 0x88
+    } mBounds;
     Plane_unk mPlanes[6];  // 0x94: world space planes
 };
 
