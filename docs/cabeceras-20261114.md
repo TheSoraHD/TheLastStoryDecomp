@@ -49,3 +49,7 @@ merge final aunque el port siga activo; notas para el port solo en el proyecto (
   (construct(mData + mSize++, x); 20 asserts vacios en vector(const vector&); memmove en copias de vectores de
   punteros/int/float). Suben 45 funciones (Sequence::fn_8054204C 10 -> 93 %, ParsePATH_unk 73 -> 95 %); quedan 8
   bajadas de registros/huecos de pila (<= 0,72 %). Lanzada A4 para esas 8.
+- 19:01 integrada E (datos de BattleTask en el fuente, .rodata igual al original, BattleTask 164 -> 165):
+  15447, lost 0, sin bajadas, rep100 138, labelcheck 20, build limpio OK. **Cambio de split (para revisar):** la
+  cadena "Event::ActionProcessor" (.rodata 0x80736530) y `__RTTI__Q25Event15ActionProcessor` (.data 0x80779E28, hueco
+  auto_07) pasan a Event/Behavior_unk (aparece una sola vez en el DOL; la emite Behavior_unk.o, que enlaza). Commit f1ce542.
