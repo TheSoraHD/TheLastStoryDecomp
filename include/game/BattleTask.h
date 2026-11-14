@@ -43,7 +43,7 @@ struct BattleChara_unk {
     int fn_801083D8(int id);             // inferred: hate value toward the entry `id`
 
     CharaTask* mChara;
-    int m04;
+    CharaTask* m04;     // inferred: nearest opponent of the character (BattleTask::vf10)
     int m08[72];        // inferred: one value per entry of BattleTask::mCharas
     float m128[72];
     float m248;
@@ -123,11 +123,43 @@ struct BattleShot_unk {
     int m24;
 };
 struct BattleShots_unk {
+    // inferred: iterator of the ring (holds the ring and an index; as Ring_unk of Event/Manager.h); the
+    // inline members are defined in game/BattleTask.cpp
+    struct iterator {
+        iterator(BattleShots_unk*, unsigned int);
+        BattleShot_unk& operator*() const;
+        BattleShot_unk* operator->() const;
+        iterator& operator++();
+        bool operator!=(iterator) const;
+        BattleShots_unk* mRing;
+        unsigned int mIndex;
+    };
     void Push_unk(const BattleShot_unk&); // inferred: inline, defined in game/BattleTask.cpp
+    iterator begin();
+    iterator end();
+    BattleShot_unk& operator[](unsigned int);
+    iterator erase(iterator); // inferred: removes a record, moving the following ones (BattleTask::vf10)
     unsigned int mCount;
     BattleShot_unk mItems[32];
     unsigned int mHead; // inferred: index of the oldest record
     int mEnabled;
+};
+
+// inferred: fixed array {count, entries} of BattleTask::mTargets (as atn::FixedArray_unk<CharaTask*, 64>; not
+// the template so that the units that include this header keep their @N labels); the inline members are
+// defined in game/BattleTask.cpp
+struct BattleTargets_unk {
+    unsigned int size() const;
+    void clear();
+    void push_back(CharaTask* const&); // inferred: constructs in place (null check of the slot, vf10)
+    unsigned int mSize;
+    CharaTask* mData[64];
+};
+
+// inferred: timer of BattleTask::mCBB0 (vf10 counts m04 down and removes the finished ones); names invented
+struct BattleTimer_unk {
+    float m00;
+    int m04; // inferred: frames left
 };
 
 struct BattleStun_unk {
@@ -144,6 +176,9 @@ public:
         BetoModel(); // 0x8010D808 (destructor: weak copy 0x800F1F38)
         // inferred: node callback (bound by vf0C): the nodes follow the same node of the character, scaled
         void fn_8010D854(atn::Matrix3x4*, const atn::NodeChunk&, const atn::ModelNodeCallbackContext&);
+        // inferred: follows the matrix of the character (scale from its largest axis); inline, defined in
+        // game/BattleTask.cpp (vf10)
+        void SetMtx_unk(const atn::Matrix3x4&);
 
         int mUsed;
         atn::ModelBase mModel; // 0x04
@@ -194,6 +229,7 @@ public:
     void fn_8010743C(const atn::Vector3* pos, int changed, float f);
     void fn_8010C3E4(); // inferred: updates the hate table m391E0
     CharaTask* fn_8010C948(CharaTask* chara); // inferred: the character `chara` hates most
+    CharaTask* GetHated_unk(CharaTask*); // inferred: inline form of fn_8010C948 (vf14), defined in game/BattleTask.cpp
     void fn_80105DCC(CharaTask* chara, atn::Model* model, int level); // inferred: charge effect of the level
     Bullet* fn_801010A0();       // inferred: free bullet
     HomingBullet* fn_801010E8(); // inferred: free homing bullet
@@ -218,6 +254,7 @@ public:
     void fn_80103600(CharaTask* chara);
     BattleChara_unk* fn_80103F60(CharaTask* chara); // inferred: entry of the character, null if missing
     void fn_80103FD4();
+    void UpdateAlert_unk(CharaTask*, PlayerTask*); // inferred: inline, defined in game/BattleTask.cpp
     void fn_80109F7C(); // inferred: wakes up the enemies that see the player, are hurt or have a busy ally near
     void fn_8010A868(); // inferred: updates mStuns
     void fn_8010ABF4();
@@ -298,8 +335,7 @@ public:
     int fn_8010D770(HitInfo_unk* hit);
     int fn_8010D7B4(HitInfo_unk* hit);
 
-    unsigned int mTargetCount;   // 0x48: inferred: number of entries of mTargets
-    CharaTask* mTargets[64];     // 0x4C: inferred: characters the camera can lock on (fn_801002DC)
+    BattleTargets_unk mTargets; // 0x48: inferred: characters the camera can lock on (fn_801002DC)
     int mBulletId;                // 0x14C: inferred: next bullet id (fn_800F8548)
     Bullet mBullets[256];         // 0x150: inferred: bullet pool
     HomingBullet mHomings[32];    // 0xA150: inferred: homing bullet pool
@@ -311,13 +347,13 @@ public:
     atn::Vector2_unk mCB48;    // inferred: center of the reticle (moves toward mCB50)
     atn::Vector2_unk mCB50;    // inferred: target of the center
     int mCB58;                     // inferred: set by fn_8010D320 (aim direction valid)
-    unsigned char mCB5C[0xCB60 - 0xCB5C];
+    float mCB5C;                   // inferred: alpha of the arrow mCB60 (vf14)
     atn::D2A_Task* mCB60;          // inferred: d2anime task (made by fn_800F39A4; may be null)
-    unsigned char mCB64[0xCB70 - 0xCB64];
+    atn::Vector3 mCB64;            // inferred: aimed direction smoothed by vf14 (turns the arrow)
     atn::Vector3 mCB70;            // inferred: screen direction to the aimed position (fn_8010D320)
     unsigned char mCB7C[0xCBAC - 0xCB7C]; // inferred: atn::Texture (raw storage, see BattleMarkers_unk)
-    int mCBAC;
-    unsigned char mCBB0[0xCBF0 - 0xCBB0];
+    unsigned int mCBAC;            // inferred: entries of mCBB0
+    BattleTimer_unk mCBB0[8];      // inferred: timers counted down by vf10
     BattleChara_unk mCharas[0x48]; // 0xCBF0: inferred: characters known to the battle (CharaTask::fn_80176E30)
     int m36290[72]; // inferred: times each entry of mCharas was chosen as a target (fn_80103600)
     int mCharaCount;               // 0x363B0
