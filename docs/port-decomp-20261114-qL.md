@@ -1,6 +1,6 @@
 # Sesion port-decomp-20261114, cola L (push_back de std/vector.h; TacView, Event/Sequence, EventParser_unk, Manager)
 
-Inicio: 2026-11-14 07:27 CET. Tope ~09:57. Commits: 217bf0c, 081c82b, 7fd6bc1, c8bef05, d6418b5 y el de notas.
+Inicio: 2026-11-14 07:27 CET. Tope ~09:57. Commits: 217bf0c, 081c82b, 7fd6bc1, c8bef05, d6418b5, 1601b95 y los de notas.
 
 ## push_back de `std/vector.h` (lote de cabecera): sin cambio commiteable
 
@@ -54,6 +54,10 @@ Medido en Sequence.o (scripts en `/home/claude/scratch-L/tmp/pad*.sh`, variantes
   resto el original deja el 0 del constructor); casos 0x1788/0x1791 antes que 0x179A-0x179C en el switch;
   `(int)...->m02 == 7` (cmpwi). Queda: registros (cmd/extra) y las comparaciones de cmd 8-11 de la rama de IA, que
   el original hace sobre el `cmd - 6` de la primera (con `switch` baja a 95,8 %).
+- `TacView::vf10` (0x805A781C): 94,87 -> **97,62 %**: `IsPadPressed_unk` como `if (!pad) return false; return
+  fn_800A555C(...) != 0;` (dentro de los `||`) y un `GetPadTrig_unk` que devuelve el int del ternario para las
+  pruebas sueltas (botones 4 y 5: el original salta sobre el int sin convertirlo). Quedan registros, las copias de
+  los parametros de camara, la relectura de mA7C y la forma del primer retorno.
 - `Event::Sequence::fn_8053ED4C` (0x8053ED4C): 98,76 -> **100 %** (`fn_80483714(GetFlag7_unk(), m98_15)`: el
   original lee m98 dos veces, una por el getter y otra por el campo de bits). mnemcheck limpio.
 - `Event::Sequence::fn_8053E8D0`: 98,89 -> **99,95 %** (`int id = m190;` antes de `fn_8020F130()`; la matriz de
@@ -81,7 +85,7 @@ Medido en Sequence.o (scripts en `/home/claude/scratch-L/tmp/pad*.sh`, variantes
 
 - Ninguno en clases compartidas. Nuevo `include/std/vector_wstring.h` (especializaciones de
   `__vec_split_base_unk`/`__vec_split_unk`/`vector::__swap_out_unk` para `basic_string<wchar_t>`).
-- `PushLight_unk` (static inline en Event/Manager.cpp).
+- `PushLight_unk` (static inline en Event/Manager.cpp); `GetPadTrig_unk` (static inline en game/TacView.cpp).
 
 ## Decisiones tomadas sin el usuario
 
