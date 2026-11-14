@@ -63,3 +63,7 @@ merge final aunque el port siga activo; notas para el port solo en el proyecto (
   KrakenMpCommand_unk, gs::HideLink2_unk); quedan 4 bajadas de registros (DebugInfoColumn_unk copia 99,64 -> 99,00,
   NewCampPartsItem fn_80517B3C 99,40 -> 99,07, Manager fn_80484088 95,18 -> 94,97, GameEventScript fn_8039F08C
   99,97 -> 99,83) y 5 de <= 0,03. **Para revisar.** Lanzada A5 sobre esas bajadas.
+- 20:04 integrada A5 (solo notas y docs/cabeceras-20261114-qA5.patch, el mejor: A3+A4 + __construct_at_end_unk
+  por referencia + selector de U16RunPair_unk): 15450 con el parche (+5 push_back al 100 %, 2 de ControlAppear se
+  recuperan re-emparejando) y 8 bajadas de registros (4 de 0,01-0,02). **Decision del usuario**: integrarlo aceptando
+  las bajadas o seguir. No se lanzan mas pasadas de push_back.
