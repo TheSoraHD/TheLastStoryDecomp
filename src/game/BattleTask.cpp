@@ -1903,8 +1903,8 @@ inline void PlayRowEffect_unk(int id, atn::Model* model, const atn::Vector3& pos
     }
 }
 
-// NONMATCHING: 88.5% - the push_back of the target vector is inlined in the original with the MSL growth (length
-// checks with fprintf/abort, our std/vector.h calls its helpers), and registers
+// NONMATCHING: 89% - stack slots of the locals (the frame and the inlined push_back are the same), the original
+// clears x/y of the vectors of the debug record first (a constructor, as in fn_800FAB80), and registers
 // inferred: melee attack `data` of `chara` (arc turned by `angle` from its facing): every player and enemy reached
 // (fn_800FBA9C) is sorted by its distance weighted by the angle (3 - 2 cos) and hit in that order (fn_800FC410), at
 // most `max` of them (all when negative), writing the attacker and the damage of each hit in `out` (up to
@@ -1931,7 +1931,7 @@ extern "C" int fn_800F8C6C(BattleTask* mgr, MeleeResult_unk* out, int outCount, 
         atn::Vector3 d = chara->mPos - node->m04.mCenter;
         float score = PSVECMag(&d) - node->m04.mRadius;
         d.y = 0.0f;
-        if (0.0f == d.x && 0.0f == d.y && 0.0f == d.z) {
+        if (d.IsZero_unk()) {
             d.y = 1.0f;
         }
         PSVECNormalize(&d, &d);
@@ -1951,7 +1951,7 @@ extern "C" int fn_800F8C6C(BattleTask* mgr, MeleeResult_unk* out, int outCount, 
         atn::Vector3 d = chara->mPos - node->m04.mCenter;
         float score = PSVECMag(&d) - node->m04.mRadius;
         d.y = 0.0f;
-        if (0.0f == d.x && 0.0f == d.y && 0.0f == d.z) {
+        if (d.IsZero_unk()) {
             d.y = 1.0f;
         }
         PSVECNormalize(&d, &d);

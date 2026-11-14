@@ -45,7 +45,7 @@ Inicio: 2026-11-14 06:25 CET. Rama `agent-K`. Unidades: `game/AiTarget`, `game/B
   `fn_8013C554`, `SetMotionSpeed`, `SetMotionFrame`) van inline en el original y fuera de linea en
   `atn/Model_unk.h`.
 
-- `fn_800F8C6C` (0x800F8C6C, 6272 bytes, unidad BattleTask): **escrita, NONMATCHING 88,5 %** (fnstat; antes 0 %).
+- `fn_800F8C6C` (0x800F8C6C, 6272 bytes, unidad BattleTask): **escrita, NONMATCHING 89 %** (fnstat; antes 0 %).
   Firma `extern "C" int fn_800F8C6C(BattleTask* mgr, MeleeResult_unk* out, int outCount, CharaTask* chara,
   HitInfo_unk* data, int id, float angle, int time, int max)` (el float va antes de `time`/`max`, como ya
   declaraba EnemyTrista; devuelve el numero de personajes golpeados). Ataque cuerpo a cuerpo: jugadores y enemigos
