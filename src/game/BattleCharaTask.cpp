@@ -571,6 +571,19 @@ extern "C" void fn_80108C10(Effect_unk* mgr, DamageResult_unk* damage, const atn
 extern "C" EnemyTask* fn_8036DDD4(GameTask* task); // inferred: enemy in reach of the leader (game/GameTask.cpp)
 
 // inferred: button of the cover attack (2 with the attack type A); name invented
+// inferred: drops the lock-on target when it can no longer be targeted (name invented)
+static inline void ReleaseTarget_unk(CharaTask* self) {
+    CharaTask* target = self->mFC4;
+    if (target != 0) {
+        if (!CanActB_unk(target) || self->mFlag31 || self->mFlag6 || (target->m54C & 0x2000) == 0x2000) {
+            self->fn_8016DC14(0, 0);
+        } else if (!self->mFlag5 && lbl_8087F0A8->mInput.fn_801240B4(0x11)) {
+            self->fn_8016DC14(0, 0);
+        } else if (self->m55C == 6 && self->m560 == 0x1D) {
+            self->fn_8016DC14(0, 0);
+        }
+    }
+}
 // inferred: dot product of two vectors passed by reference (name invented)
 static inline float Dot_unk(const atn::Vector3& a, const atn::Vector3& b) {
     return PSVECDotProduct(&a, &b);
@@ -620,15 +633,7 @@ void BattleCharaTask::fn_800E4278(GameTask* task) {
     int a = ui->m748.m00;
     int b = ui->m748.m14;
     int done = 0;
-    if (mFC4 != 0) {
-        if (!CanActB_unk(mFC4) || mFlag31 || mFlag6 || (mFC4->m54C & 0x2000) == 0x2000) {
-            fn_8016DC14(0, 0);
-        } else if (!mFlag5 && lbl_8087F0A8->mInput.fn_801240B4(0x11)) {
-            fn_8016DC14(0, 0);
-        } else if (m55C == 6 && m560 == 0x1D) {
-            fn_8016DC14(0, 0);
-        }
-    }
+    ReleaseTarget_unk(this);
     if (m55C == 1 && !mFlagB9) {
         GameScene* scene;
         if (mFlag6) {
