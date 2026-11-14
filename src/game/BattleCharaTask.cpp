@@ -2919,7 +2919,6 @@ int BattleCharaTask::fn_800EE180() {
     return 1;
 }
 
-// NONMATCHING: 98.7% - the original reloads mItemCount for the slot address of AddItem_unk
 void BattleCharaTask::fn_800EE360() {
     if (lbl_8087F610 != 0 && fn_804EB1AC(lbl_8087F610) == 0) {
         return;
