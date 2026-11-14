@@ -8,6 +8,7 @@
 #include "std/string_members.h"
 #include "game/GameTask.h"
 #include "atn/ColliBase.h"
+#include "game/BattleTask.h"
 
 extern "C" unsigned long strlen(const char* s);
 extern "C" int strcmp(const char* a, const char* b);
@@ -37,8 +38,7 @@ extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* m
 extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the next effects
 extern "C" void fn_80108F38(Effect_unk* mgr, const atn::Vector3* pos, int arg);
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
-extern "C" int fn_800F8C6C(Effect_unk* mgr, int a, int b, CharaTask* chara, HitInfo_unk* data, int id, int time,
-                           int c, float f); extern "C" void* lbl_8087EE98;
+ extern "C" void* lbl_8087EE98;
 extern "C" int fn_8004D388(void* world, atn::ColliResult_unk* result, const atn::Vector3* center, const atn::Vector3* move,
                            unsigned int mask, void* ignore, int arg, float radius); // inferred: sweep test
 // inferred: debug menu entries (as in game/CharaTask.cpp and game/NewCampPartsHint.cpp)
@@ -223,7 +223,7 @@ inline void Em305Vampire::Tackle_unk() {
     if (31.0f <= f && f <= 33.0f) {
         int id = m590;
         HitInfo_unk* data = m1510;
-        fn_800F8C6C(lbl_8087F048, 0, 0, this, data, id, 60, 5, 0.0f);
+        ((BattleTask*)lbl_8087F048)->fn_800F8C6C(0, 0, this, data, id, 0.0f, 60, 5);
     }
     if (m14F4 != 0) {
         atn::Vector3 d = m14F4->mPos - mPos;
@@ -658,7 +658,7 @@ void Em305Vampire::fn_802EAC70() {
     if (31.0f <= f && f <= 33.0f) {
         int id = m590;
         HitInfo_unk* data = m1510;
-        fn_800F8C6C(lbl_8087F048, 0, 0, this, data, id, 60, 5, 0.0f);
+        ((BattleTask*)lbl_8087F048)->fn_800F8C6C(0, 0, this, data, id, 0.0f, 60, 5);
     }
     if (m14F4 != 0) {
         atn::Vector3 d = m14F4->mPos - mPos;
@@ -688,7 +688,7 @@ void Em305Vampire::fn_802EAF68() {
             hit = 1;
         }
         fn_80144710();
-        if (fn_800F8C6C(lbl_8087F048, 0, 0, this, m150C, m590, 10, 5, 0.0f) != 0) {
+        if (((BattleTask*)lbl_8087F048)->fn_800F8C6C(0, 0, this, m150C, m590, 0.0f, 10, 5) != 0) {
             hit = 1;
         }
         if (hit) {

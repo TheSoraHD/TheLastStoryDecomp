@@ -2,6 +2,7 @@
 #include "atn/Color.h"
 #include "atn/CompositeCache_unk.h"
 #include "atn/Memory.h"
+#include "atn/IRender.h"
 #include "std/vector.h"
 
 // The cache of composed textures (0x800D81CC-0x800D87A4) comes from another file (own "" pool at
@@ -10,10 +11,6 @@
 // of its inline helpers (0x800D87A4-0x800D8C14: handle ctor/AddRef/Release/texture, RGBA ctor, texture
 // accessors, push_back of the command list...) before the constructor.
 
-namespace atn {
-struct Camera;
-}
-typedef atn::Camera Camera_unk;
 // inferred: fn_800D59B8 is a member of the texture class (see game/StrapTask.cpp)
 struct GimmickUvOwner_unk {
     int fn_800D59B8(); // inferred: still loading
@@ -122,17 +119,6 @@ void CompositeCacheHandle_unk::Release_unk() {
     }
 }
 
-// inferred: renderer interface (see atn/AABBTree.cpp)
-class IRender {
-public:
-    virtual ~IRender() {}
-    virtual int vf0C() { return 2; }
-    virtual void vf10(Camera_unk* camera) = 0;
-    virtual int vf14(void* arg1, void* arg2, void* frustum) { return 1; }
-    virtual void vf18() {}
-    virtual void vf1C() {}
-};
-
 // inferred: see atn/TextureComposite.cpp
 class TextureCompositeCommand {
 public:
@@ -200,9 +186,11 @@ class TextureComposite : public IRender {
 public:
     TextureComposite();
     virtual ~TextureComposite();
-    virtual void vf10(Camera_unk* camera);
-    virtual int vf14() { return 1; }
-    virtual void vf18() {}
+    virtual void vf10(RenderManager* view);
+    virtual int vf14(const Matrix3x4* view, const Vector3* eye, const Frustum_unk* frustum, AABB_unk* box) {
+        return 1;
+    }
+    virtual void vf18(RenderManager* view) {}
 
     void Request_unk(Texture_unk* texture, int format);
     void fn_800D8C0C(Texture_unk* alpha) { m10 = alpha; }

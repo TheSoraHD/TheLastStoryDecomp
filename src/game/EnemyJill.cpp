@@ -8,6 +8,7 @@
 #include "std/string_members.h"
 #include "game/GameTask.h"
 #include "math/VecAssign_unk.h"
+#include "game/BattleTask.h"
 
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" int atoi(const char* s);
@@ -755,14 +756,6 @@ void EnemyJill::fn_8032FFF8() {
     }
 }
 
-// inferred: the float argument is declared before the last int: the order of the arguments (evaluated right to
-// left) puts the load of the last int after the float; the ABI is the same with any position of the float
-// inferred: the real prototype ends with (int c, float f) as in the other units; here the float is declared
-// first because only this order gives the load order of the original at the three call sites (fn_80330218,
-// fn_8033135C: with (int, float) they drop to 99.45% / 96.87%, the same residue as EnemyTrista::fn_8035CF78).
-// The registers are the same (r10 and f1), so the call is equivalent.
-extern "C" int fn_800F8C6C(Effect_unk* mgr, int a, int b, CharaTask* chara, HitInfo_unk* data, int id, int time,
-                           float f, int c);
 extern "C" int fn_80041A28(int arg, CharaTask* chara, CharaTask* target); // inferred: kind of attack
 
 // inferred: turns toward the target by `t` of the angle and starts the normal attack (inlined twice in
@@ -826,7 +819,7 @@ void EnemyJill::fn_80330218() {
                 }
                 if (m594 != 0) {
                     fn_80144710();
-                    int n = fn_800F8C6C(lbl_8087F048, 0, 0, this, m638, m590, 30, 0.0f, m594);
+                    int n = ((BattleTask*)lbl_8087F048)->fn_800F8C6C(0, 0, this, m638, m590, 0.0f, 30, m594);
                     if (n != 0) {
                         CharaTask* player = lbl_8087F8A0->mHead;
                         if (player != 0 && player->mFlag5) {
@@ -1056,7 +1049,7 @@ inline void JillRotZYX_unk(atn::Matrix3x4& m, const atn::Vector3& rot) {
 
 // inferred: fires the hit `data` (names invented)
 inline void EnemyJill::FireHit_unk(HitInfo_unk* data) {
-    fn_800F8C6C(lbl_8087F048, 0, 0, this, data, m590, 10, 0.0f, m594);
+    ((BattleTask*)lbl_8087F048)->fn_800F8C6C(0, 0, this, data, m590, 0.0f, 10, m594);
 }
 
 void EnemyJill::fn_8033135C() {
@@ -1076,7 +1069,7 @@ void EnemyJill::fn_8033135C() {
         } else if (mMotion.mTracks[0].m08 >= 27.0f && mMotion.mTracks[0].m08 <= 32.0f) {
             FireHit_unk(m14E0);
         } else if (mMotion.mTracks[0].m08 >= 46.0f && mMotion.mTracks[0].m08 <= 51.0f) {
-            if (fn_800F8C6C(lbl_8087F048, 0, 0, this, m14D0, m590, 10, 0.0f, m594) != 0) {
+            if (((BattleTask*)lbl_8087F048)->fn_800F8C6C(0, 0, this, m14D0, m590, 0.0f, 10, m594) != 0) {
                 CharaTask* player = lbl_8087F8A0->mHead;
                 if (player != 0 && player->mFlag5) {
                     m1590 = 1;

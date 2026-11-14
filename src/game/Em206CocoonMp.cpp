@@ -26,8 +26,6 @@ extern "C" int fn_800F8548(Effect_unk* mgr); // inferred: new bullet id
 extern "C" void fn_800FAB80(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* bullet, int id, const atn::Vector3* pos,
                             const atn::Vector3* rot, int arg6, int arg7, int arg8, int arg9, float arg10,
                             float arg11); // inferred: shoots a bullet
-extern "C" void fn_800F8C6C(Effect_unk* mgr, int a, int b, CharaTask* chara, HitInfo_unk* data, int id, int time,
-                            int c, float f);
 extern "C" void fn_800F8574(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* data, const atn::Vector3* pos,
                             const atn::Vector3* dir, void* param, int arg6, int arg7, float a,
                             float b); // inferred: fires a bullet (as in game/Em003LesserDaemon.cpp)
@@ -1013,7 +1011,7 @@ void Em206CocoonMp::fn_802BE180() {
     } else if (mMotion.mTracks[0].m08 >= 57.0f && mMotion.mTracks[0].m08 <= 65.0f) {
         HitInfo_unk* data = fn_80219E6C(0x5BF);
         fn_80144710();
-        fn_800F8C6C(lbl_8087F048, 0, 0, this, data, m590, 30, -1, 0.0f);
+        ((BattleTask*)lbl_8087F048)->fn_800F8C6C(0, 0, this, data, m590, 0.0f, 30, -1);
         if (m192C != 0) {
             lbl_8087EEB0->fn_80063D3C(mPos, mStatus.mParamB.m28 + data->m40, 0.0f, 0xFFFF0000);
         }
@@ -1041,7 +1039,7 @@ void Em206CocoonMp::fn_802BE2A0() {
             HitInfo_unk* data = fn_80219E6C(0x5BE);
             fn_80144710();
             int id = m590;
-            fn_800F8C6C(lbl_8087F048, 0, 0, this, data, id, 30, -1, 0.0f);
+            ((BattleTask*)lbl_8087F048)->fn_800F8C6C(0, 0, this, data, id, 0.0f, 30, -1);
         }
         fn_802BC4EC(fwd.ToRotation_unk(), 1.0f, 1.5f * (3.75f * k));
     }
@@ -1180,7 +1178,7 @@ void Em206CocoonMp::fn_802BEE44() {
     PSMTXMultVec(m.m, &front, &front);
     mPos -= front * 5.0f;
     int id = m590;
-    fn_800F8C6C(lbl_8087F048, 0, 0, this, fn_80219E6C(0x5C0), id, 60, -1, 0.0f);
+    ((BattleTask*)lbl_8087F048)->fn_800F8C6C(0, 0, this, fn_80219E6C(0x5C0), id, 0.0f, 60, -1);
     mPos = saved;
     if (++m1504 > 60) {
         CharaTask* target = mC58.mC4;

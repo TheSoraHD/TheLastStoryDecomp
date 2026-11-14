@@ -47,8 +47,6 @@ extern "C" double sqrt(double x);
 struct Effect_unk;
 extern "C" Effect_unk* lbl_8087F048;
 extern "C" int fn_800F8548(Effect_unk* mgr); // inferred: new bullet id
-extern "C" void fn_800F8C6C(Effect_unk* mgr, int a, int b, CharaTask* chara, HitInfo_unk* data, int id, int time,
-                            int c, float f);
 extern "C" int fn_800DD3FC(wchar_t* s, const wchar_t* format, ...); // inferred: wide sprintf
 extern "C" void fn_800F8574(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* data, const atn::Vector3* pos,
                             const atn::Vector3* dir, HomingParam_unk* param, int arg6, int arg7, float a,
@@ -489,7 +487,7 @@ void Em101LittleZesya::fn_8025DE7C() {
                 m590 = fn_800F8548(lbl_8087F048);
             }
             fn_80144710();
-            fn_800F8C6C(lbl_8087F048, 0, 0, this, m638, m590, 30, -1, 0.0f);
+            ((BattleTask*)lbl_8087F048)->fn_800F8C6C(0, 0, this, m638, m590, 0.0f, 30, -1);
         }
     }
 }
@@ -593,7 +591,7 @@ void Em101LittleZesya::fn_8025E748() {
     ASSERT_UNK(this != 0);
     float frame = mMotion.mTracks[0].m08;
     if (17.0f < frame && frame <= 19.0f) {
-        fn_800F8C6C(lbl_8087F048, 0, 0, this, m1528, m590, 30, -1, 0.0f);
+        ((BattleTask*)lbl_8087F048)->fn_800F8C6C(0, 0, this, m1528, m590, 0.0f, 30, -1);
     } else {
         frame = mMotion.mTracks[0].m08;
         if (frame >= mMotion.fn_80097D7C(0)) {

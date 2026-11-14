@@ -15,6 +15,7 @@
 #include "std/string_members.h"
 #include "game/Input_unk.h"
 #include "atn/ColliBase.h"
+#include "game/BattleTask.h"
 
 extern "C" unsigned long strlen(const char* s);
 extern "C" int strcmp(const char* a, const char* b);
@@ -58,8 +59,6 @@ extern "C" Effect_unk* lbl_8087F048;
 extern "C" int fn_800F8548(Effect_unk* mgr); // inferred: new bullet id
 extern "C" void fn_800F8574(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* data, const atn::Vector3* pos,
                             const atn::Vector3* dir, void* homing, int arg6, int arg7, float a, float b);
-extern "C" void fn_800F8C6C(Effect_unk* mgr, int a, int b, CharaTask* chara, HitInfo_unk* data, int id, int time,
-                            int c, float f);
 extern "C" void fn_800FAB80(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* bullet, int id, const atn::Vector3* pos,
                             const atn::Vector3* rot, int arg6, int arg7, int arg8, int arg9, float arg10,
                             float arg11); // inferred: fires a bullet (as in gmk/Coffin.cpp)
@@ -1461,7 +1460,7 @@ inline void Em201ZanGurgFinal_Hit_unk(Em201ZanGurgFinal* z, int frameEffect, int
     }
     HitInfo_unk* data = fn_80219E6C(skill);
     z->fn_80144710();
-    fn_800F8C6C(lbl_8087F048, 0, 0, z, data, z->m590, 30, -1, 0.0f);
+    ((BattleTask*)lbl_8087F048)->fn_800F8C6C(0, 0, z, data, z->m590, 0.0f, 30, -1);
 }
 
 // inferred: release assert of the original (empty; without them MWCC inlines the small state functions into
@@ -1488,7 +1487,7 @@ void Em201ZanGurgFinal::fn_802684C0() {
         }
         HitInfo_unk* data = fn_80219E6C(0x60E);
         fn_80144710();
-        fn_800F8C6C(lbl_8087F048, 0, 0, this, data, m590, 30, -1, 0.0f);
+        ((BattleTask*)lbl_8087F048)->fn_800F8C6C(0, 0, this, data, m590, 0.0f, 30, -1);
     }
 }
 
@@ -1590,7 +1589,7 @@ void Em201ZanGurgFinal::fn_80268CB4() {
         HitInfo_unk* data = fn_80219E6C(0x610);
         fn_80144710();
         int id = m590;
-        fn_800F8C6C(lbl_8087F048, 0, 0, this, data, id, 30, -1, 0.0f);
+        ((BattleTask*)lbl_8087F048)->fn_800F8C6C(0, 0, this, data, id, 0.0f, 30, -1);
     } else if (mMotion.mTracks[0].m08 >= 44.0f && mMotion.mTracks[0].m08 <= 46.0f) {
         if (m14EC > 0 && m14BC == 45) {
             fn_8026F9BC("rightwepoint");
@@ -1598,7 +1597,7 @@ void Em201ZanGurgFinal::fn_80268CB4() {
         HitInfo_unk* data = fn_80219E6C(0x611);
         fn_80144710();
         int id = m590;
-        fn_800F8C6C(lbl_8087F048, 0, 0, this, data, id, 30, -1, 0.0f);
+        ((BattleTask*)lbl_8087F048)->fn_800F8C6C(0, 0, this, data, id, 0.0f, 30, -1);
     } else if (mMotion.mTracks[0].m08 >= 70.0f && mMotion.mTracks[0].m08 <= 73.0f) {
         if (m14EC > 0 && m14BC == 72) {
             fn_8026F9BC("rightwepoint");
@@ -1606,7 +1605,7 @@ void Em201ZanGurgFinal::fn_80268CB4() {
         HitInfo_unk* data = fn_80219E6C(0x612);
         fn_80144710();
         int id = m590;
-        fn_800F8C6C(lbl_8087F048, 0, 0, this, data, id, 30, -1, 0.0f);
+        ((BattleTask*)lbl_8087F048)->fn_800F8C6C(0, 0, this, data, id, 0.0f, 30, -1);
     }
     int fps = lbl_8087F0A8->mFrameRate;
     float g = -98.1f / (float)(fps * fps);
@@ -1640,7 +1639,7 @@ void Em201ZanGurgFinal::fn_80269168() {
         }
         HitInfo_unk* data = fn_80219E6C(0x613);
         fn_80144710();
-        fn_800F8C6C(lbl_8087F048, 0, 0, this, data, m590, 30, -1, 0.0f);
+        ((BattleTask*)lbl_8087F048)->fn_800F8C6C(0, 0, this, data, m590, 0.0f, 30, -1);
     }
 }
 
@@ -1837,7 +1836,7 @@ void Em201ZanGurgFinal::fn_8026A010() {
         HitInfo_unk* data = fn_80219E6C(0x615);
         fn_80144710();
         int id = m590;
-        fn_800F8C6C(lbl_8087F048, 0, 0, this, data, id, 30, -1, 0.0f);
+        ((BattleTask*)lbl_8087F048)->fn_800F8C6C(0, 0, this, data, id, 0.0f, 30, -1);
     } else if (m14C4 == 2) {
         speed = 0.96666664f;
         frame = mMotion.mTracks[0].m08;
@@ -1847,7 +1846,7 @@ void Em201ZanGurgFinal::fn_8026A010() {
             HitInfo_unk* data = fn_80219E6C(0x615);
             fn_80144710();
             int id = m590;
-            fn_800F8C6C(lbl_8087F048, 0, 0, this, data, id, 30, -1, 0.0f);
+            ((BattleTask*)lbl_8087F048)->fn_800F8C6C(0, 0, this, data, id, 0.0f, 30, -1);
         }
     }
     atn::Vector3 move = m1530 * speed;
@@ -1965,7 +1964,7 @@ void Em201ZanGurgFinal::fn_8026A628() {
         }
         HitInfo_unk* data = fn_80219E6C(0x61C);
         fn_80144710();
-        fn_800F8C6C(lbl_8087F048, 0, 0, this, data, m590, 30, -1, 0.0f);
+        ((BattleTask*)lbl_8087F048)->fn_800F8C6C(0, 0, this, data, m590, 0.0f, 30, -1);
     }
 }
 

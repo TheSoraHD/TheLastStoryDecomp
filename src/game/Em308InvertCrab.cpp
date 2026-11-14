@@ -108,8 +108,6 @@ extern "C" CrabMessage_unk* lbl_8087F490;
 extern "C" void* lbl_8087EF70; // inferred: pad
 extern "C" int fn_800A555C(void* pad, int port, int button); // inferred: button triggered
 extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float volume); // inferred: 2D sound
-extern "C" void fn_800F8C6C(Effect_unk* mgr, int a, int b, CharaTask* chara, HitInfo_unk* data, int id, int time,
-                            int c, float f); // inferred: attack hit
 extern "C" void fn_800F8574(Effect_unk* mgr, CharaTask* chara, HitInfo_unk* data, const atn::Vector3* pos,
                             const atn::Vector3* dir, int a, int b, int c, float f1, float f2); // inferred: bullet
 extern "C" double sqrt(double x);
@@ -299,7 +297,7 @@ void Em308InvertCrab::vf10() {
             }
             if (mMotion.mTracks[0].m08 >= 12.0f && mMotion.mTracks[0].m08 <= 17.0f) {
                 fn_80144710();
-                fn_800F8C6C(lbl_8087F048, 0, 0, this, m1528, m590, 30, -1, 0.0f);
+                ((BattleTask*)lbl_8087F048)->fn_800F8C6C(0, 0, this, m1528, m590, 0.0f, 30, -1);
             }
             break;
         case 8:

@@ -29,8 +29,6 @@ extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3,
 struct Effect_unk;
 extern "C" Effect_unk* lbl_8087F048;
 extern "C" int fn_800F8548(Effect_unk* mgr); // inferred: new bullet id
-extern "C" void fn_800F8C6C(Effect_unk* mgr, int a, int b, CharaTask* chara, HitInfo_unk* data, int id, int time,
-                            int c, float f); // inferred: attack hit
 extern "C" void fn_800F8574(Effect_unk* mgr, CharaTask* chara, HitInfo_unk* data, const atn::Vector3* pos,
                             const atn::Vector3* dir, int a, int b, int c, float f1, float f2); // inferred: bullet
 extern "C" void fn_800FAB80(Effect_unk* mgr, CharaTask* chara, HitInfo_unk* bullet, int arg3, const atn::Vector3* pos,
@@ -534,7 +532,7 @@ void Em204MulueMp::vf104() {
                 Rest_unk();
             }
             if (mMotion.mTracks[0].m08 >= 23.0f && mMotion.mTracks[0].m08 <= 27.0f) {
-                fn_800F8C6C(lbl_8087F048, 0, 0, this, m1674, m590, 30, -1, 0.0f);
+                ((BattleTask*)lbl_8087F048)->fn_800F8C6C(0, 0, this, m1674, m590, 0.0f, 30, -1);
             }
             break;
         case 8:

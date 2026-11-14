@@ -11,7 +11,13 @@ namespace Event {
 
 // inferred: lengths of the segments: a class derived from std::vector<float> (its destructor has one more
 // level than those of the other vectors, as WarLionPathList_unk of game/Em403WarLion.h)
-struct PathLengths_unk : public std::vector<float> {};
+struct PathLengths_unk : public std::vector<float> {
+    PathLengths_unk() {}
+    ~PathLengths_unk() { ((void)0); ((void)0); ((void)0); ((void)0); ((void)0); }
+    // inferred: the builders of the splines make their three temporary vectors with it (weak copy 0x8032B6F8,
+    // first emitted by game/Em403WarLion.cpp; the destructor is the weak copy 0x8000D844)
+    PathLengths_unk(unsigned int n) : std::vector<float>(n) {}
+};
 
 // inferred: natural cubic spline through the points (names invented; see game/PathData_unk.cpp; same
 // class as WarLionPath_unk of game/Em403WarLion.h). Also embedded in the event actors (Actor at 0x5C).

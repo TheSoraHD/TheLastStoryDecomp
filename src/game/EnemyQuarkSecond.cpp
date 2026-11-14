@@ -1057,8 +1057,6 @@ inline void EnemyQuarkSecond::SetJump_unk(const atn::Vector3& target) {
     m570 = 0.0f;
 }
 
-extern "C" void fn_800F8C6C(Effect_unk* mgr, int a, int b, CharaTask* owner, HitInfo_unk* data, int id, int time,
-                            int c, float f); // inferred: fires the attack data
 
 // inferred: smaller of two values (an inline with the returns inside: `bge; b` in the original); name invented
 inline float QuarkMin_unk(float a, float b) {
@@ -1276,7 +1274,7 @@ void EnemyQuarkSecond::fn_8033D750() {
         }
     }
     if (mMotion.mTracks[0].m08 >= 47.0f && mMotion.mTracks[0].m08 < 49.0f) {
-        fn_800F8C6C(lbl_8087F048, 0, 0, this, m14E0, m590, 30, -1, 0.0f);
+        ((BattleTask*)lbl_8087F048)->fn_800F8C6C(0, 0, this, m14E0, m590, 0.0f, 30, -1);
     }
 }
 
@@ -1454,7 +1452,7 @@ void EnemyQuarkSecond::fn_8033E058() {
         m1568.mTarget -= back;
     }
     if (mMotion.mTracks[0].m08 >= 61.0f && mMotion.mTracks[0].m08 < 65.0f) {
-        fn_800F8C6C(lbl_8087F048, 0, 0, this, m14D4, m590, 30, -1, 0.0f);
+        ((BattleTask*)lbl_8087F048)->fn_800F8C6C(0, 0, this, m14D4, m590, 0.0f, 30, -1);
     }
 }
 

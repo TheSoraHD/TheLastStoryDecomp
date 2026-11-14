@@ -15,6 +15,7 @@
 #include "atn/RenderManager.h"
 #include "game/GameTask.h"
 #include "atn/ColliBase.h"
+#include "game/BattleTask.h"
 
 // inferred: node position (as in game/Em205Ogre.cpp; name invented)
 inline atn::Vector3 GetNodePos_unk(MtxPtr m) {
@@ -58,9 +59,6 @@ extern "C" int fn_8004D388(void* world, atn::ColliResult_unk* result, CharaTask:
 struct Effect_unk;
 extern "C" Effect_unk* lbl_8087F048;
 extern "C" int fn_800F8548(Effect_unk* mgr); // inferred: new bullet id
-// inferred: deals a hit, returns the damage dealt; the float goes before time and count (as in EnemyTrista)
-extern "C" int fn_800F8C6C(Effect_unk* mgr, int a, int b, CharaTask* chara, HitInfo_unk* data, int id, float f,
-                           int time, int c);
 
 extern "C" int rand();
 extern "C" double sqrt(double x);
@@ -306,7 +304,7 @@ void QuadrupedTask::fn_80566FB4() {
         fn_805675FC();
         if (lbl_8087F048 != 0 && fn_80158CA4() && m594 != 0) {
             fn_80144710();
-            int damage = fn_800F8C6C(lbl_8087F048, 0, 0, this, m638, m590, 0.0f, 30, m594);
+            int damage = ((BattleTask*)lbl_8087F048)->fn_800F8C6C(0, 0, this, m638, m590, 0.0f, 30, m594);
             if (m594 > 0) {
                 m594 -= damage;
             }

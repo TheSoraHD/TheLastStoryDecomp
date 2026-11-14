@@ -986,8 +986,6 @@ void BattleCharaTask::fn_800E4278(GameTask* task) {
     }
 }
 
-extern "C" int fn_800F8C6C(Effect_unk* mgr, HitResult_unk* results, int count, CharaTask* chara, HitInfo_unk* data,
-                           int id, int time, int hits, float angle); // inferred: deals a hit, returns the hits
 
 // inferred: frame of the attack motions where the hit starts (name invented)
 inline float HitFrame_unk(int motion) {
@@ -1147,8 +1145,7 @@ void BattleCharaTask::fn_800E589C() {
             if (m594 != 0) {
                 fn_80144710();
                 HitResult_unk results[8];
-                int n = fn_800F8C6C(lbl_8087F048, results, 8, this, m638, m590, 30, m594,
-                                    mFlag31 ? 3.1415927f : 0.0f);
+                int n = ((BattleTask*)lbl_8087F048)->fn_800F8C6C(results, 8, this, m638, m590, mFlag31 ? 3.1415927f : 0.0f, 30, m594);
                 if (n > 0) {
                     if (m594 > 0) {
                         m594 -= n;
@@ -2426,7 +2423,7 @@ void BattleCharaTask::fn_800E9ED8() {
             if (m594 != 0) {
                 fn_80144710();
                 HitResult_unk results[8];
-                int n = fn_800F8C6C(lbl_8087F048, results, 8, this, m638, m590, 30, m594, 0.0f);
+                int n = ((BattleTask*)lbl_8087F048)->fn_800F8C6C(results, 8, this, m638, m590, 0.0f, 30, m594);
                 if (n > 0) {
                     if (m594 > 0) {
                         m594 -= n;

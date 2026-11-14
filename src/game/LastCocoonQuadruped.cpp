@@ -119,8 +119,6 @@ extern "C" void fn_800FAB80(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* bull
                             float arg11); // inferred: fires a bullet (as in game/BattleCharaTask.cpp)
 
 struct HitResult_unk;
-extern "C" int fn_800F8C6C(Effect_unk* mgr, HitResult_unk* results, int count, CharaTask* chara, HitInfo_unk* data,
-                           int id, int time, int hits, float angle); // inferred: deals a hit, returns the hits
 // inferred: as in game/Em206EggMonster.cpp (name invented)
 inline float WrapDeg_unk(float deg) {
     float d = fmod(deg, 360.0);
@@ -1084,7 +1082,7 @@ void LastCocoonQuadruped::fn_804638A4() {
         float f = mMotion.mTracks[0].m08;
         if (f >= 19.0f && f <= 26.0f) {
             fn_80144710();
-            fn_800F8C6C(lbl_8087F048, 0, 0, this, fn_80219E6C(0x5B4), m590, 30, -1, 0.0f);
+            ((BattleTask*)lbl_8087F048)->fn_800F8C6C(0, 0, this, fn_80219E6C(0x5B4), m590, 0.0f, 30, -1);
         }
     }
 }
@@ -1134,7 +1132,7 @@ void LastCocoonQuadruped::fn_80463F20() {
     mRot = (mPos - m1504.GetPos_unk(1.0f / 45.0f * (m14C0 - 1))).ToRotationZ_unk();
     fn_80144710();
     HitInfo_unk* bullet = fn_80219E6C(0x5B4);
-    fn_800F8C6C(lbl_8087F048, 0, 0, this, bullet, m590, 30, -1, 0.0f);
+    ((BattleTask*)lbl_8087F048)->fn_800F8C6C(0, 0, this, bullet, m590, 0.0f, 30, -1);
     if (m18F4 != 0) {
         lbl_8087EEB0->fn_80063D3C(mPos, mStatus.mParamB.m28 + bullet->m40, 0.0f, 0xFFFF0000);
     }
@@ -1155,7 +1153,7 @@ void LastCocoonQuadruped::fn_80464608() {
     mRot = (mPos - m1504.GetPos_unk(1.0f / 45.0f * (m14C0 - 1))).ToRotationZ_unk();
     fn_80144710();
     HitInfo_unk* bullet = fn_80219E6C(0x5B4);
-    fn_800F8C6C(lbl_8087F048, 0, 0, this, bullet, m590, 30, -1, 0.0f);
+    ((BattleTask*)lbl_8087F048)->fn_800F8C6C(0, 0, this, bullet, m590, 0.0f, 30, -1);
     if (m18F4 != 0) {
         lbl_8087EEB0->fn_80063D3C(mPos, mStatus.mParamB.m28 + bullet->m40, 0.0f, 0xFFFF0000);
     }
@@ -1204,7 +1202,7 @@ void LastCocoonQuadruped::fn_80464CF0() {
         m1574 = 0;
         float rotY = mRot.y;
         int id = fn_800F8548(lbl_8087F048);
-        fn_800F8C6C(lbl_8087F048, 0, 0, this, fn_80219E6C(0x5B5), id, 30, -1, rotY);
+        ((BattleTask*)lbl_8087F048)->fn_800F8C6C(0, 0, this, fn_80219E6C(0x5B5), id, rotY, 30, -1);
     } else {
         atn::ColliResult_unk result;
         atn::Vector3 move(0.0f, -98.1f / (float)(lbl_8087F0A8->m030 * lbl_8087F0A8->m030), 1.0f);

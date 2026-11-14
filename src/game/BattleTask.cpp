@@ -1940,9 +1940,9 @@ inline void PlayRowEffect_unk(int id, atn::Model* model, const atn::Vector3& pos
 // `outCount`). For each hit the counter statuses of the attacker fire their bullets (0x28, 0x2F, 0x32, 0x3E), play
 // effects (0x34) or heal (7-9: the attacker, and the players with status 8). Then the gimmicks inside the arc get
 // a hit message, the gauge of a player rises and the attack is recorded in the debug ring. Returns the number of
-// characters hit. C name, called by the enemies as extern "C"
-extern "C" int fn_800F8C6C(BattleTask* mgr, HitResult_unk* out, int outCount, CharaTask* chara, HitInfo_unk* data,
-                           int id, float angle, int time, int max) {
+// characters hit
+int BattleTask::fn_800F8C6C(HitResult_unk* out, int outCount, CharaTask* chara, HitInfo_unk* data, int id, float angle,
+                            int time, int max) {
     if (data == 0) {
         return 0;
     }
@@ -1952,7 +1952,7 @@ extern "C" int fn_800F8C6C(BattleTask* mgr, HitResult_unk* out, int outCount, Ch
     PSMTXRotRad(m.m, 'y', angle + chara->mRot.y);
     PSMTXMultVec(m.m, &front, &front);
     for (PlayerTask* c = lbl_8087F8A0->mHead; c != 0; c = c->mNext) {
-        int part = fn_800FBA9C(mgr, chara, c, data, id, angle);
+        int part = fn_800FBA9C(this, chara, c, data, id, angle);
         if (part < 0) {
             continue;
         }
@@ -1972,7 +1972,7 @@ extern "C" int fn_800F8C6C(BattleTask* mgr, HitResult_unk* out, int outCount, Ch
         targets.push_back(t);
     }
     for (EnemyTask* c = EnemyManager::sInstance->mHead; c != 0; c = c->mNext) {
-        int part = fn_800FBA9C(mgr, chara, c, data, id, angle);
+        int part = fn_800FBA9C(this, chara, c, data, id, angle);
         if (part < 0) {
             continue;
         }
@@ -2003,11 +2003,11 @@ extern "C" int fn_800F8C6C(BattleTask* mgr, HitResult_unk* out, int outCount, Ch
             break;
         }
         CharaTask* target = targets[i].mChara;
-        fn_800FC410(mgr, chara, target, targets[i].mPart, data, id, time);
-        int result = mgr->m38A5C.m64;
+        fn_800FC410(this, chara, target, targets[i].mPart, data, id, time);
+        int result = m38A5C.m64;
         if (result == 1 || result == 4 || result == 5) {
             if (targets[i].mChara->fn_80148B0C(targets[i].mPart) != 0) {
-                atn::Vector3 hitPos = mgr->m38A5C.m1C;
+                atn::Vector3 hitPos = m38A5C.m1C;
                 atn::Vector3 dir(0.0f, 0.0f, 1.0f);
                 atn::Matrix3x4 rm;
                 PSMTXRotRad(rm.m, 'y', targets[i].mChara->mRot.y);
@@ -2015,12 +2015,12 @@ extern "C" int fn_800F8C6C(BattleTask* mgr, HitResult_unk* out, int outCount, Ch
                 atn::Vector3 partPos = targets[i].mChara->fn_80148B0C(targets[i].mPart)->m04.mCenter + dir;
                 if (HasStatus_unk(chara, 0x28)) {
                     int bullet = fn_800F8548(lbl_8087F048);
-                    fn_800FAB80(mgr, chara, fn_80219E6C(0x2329), bullet, &hitPos, &chara->mRot, 0, 30, -1, -1, 0.0f,
+                    fn_800FAB80(this, chara, fn_80219E6C(0x2329), bullet, &hitPos, &chara->mRot, 0, 30, -1, -1, 0.0f,
                                 1.0f);
                 }
                 if (HasStatus_unk(chara, 0x2F)) {
                     int bullet = fn_800F8548(lbl_8087F048);
-                    fn_800FAB80(mgr, chara, fn_80219E6C(0x232A), bullet, &partPos, &chara->mRot, 0, 30, -1, -1, 0.0f,
+                    fn_800FAB80(this, chara, fn_80219E6C(0x232A), bullet, &partPos, &chara->mRot, 0, 30, -1, -1, 0.0f,
                                 1.0f);
                 }
                 if (HasStatus_unk(chara, 0x32)) {
@@ -2034,7 +2034,7 @@ extern "C" int fn_800F8C6C(BattleTask* mgr, HitResult_unk* out, int outCount, Ch
                         atn::Vector3 up(0.0f, t->fn_80148B0C(2)->m04.mRadius, 0.0f);
                         atn::Vector3 base = t->fn_80148B0C(2)->m04.mCenter - up;
                         atn::Vector3 pos = base + front2;
-                        fn_800FAB80(mgr, chara, fn_80219E6C(0x232B), bullet, &pos, &chara->mRot, 0, 30, -1, -1, 0.0f,
+                        fn_800FAB80(this, chara, fn_80219E6C(0x232B), bullet, &pos, &chara->mRot, 0, 30, -1, -1, 0.0f,
                                     1.0f);
                     } else {
                         int bullet = fn_800F8548(lbl_8087F048);
@@ -2043,7 +2043,7 @@ extern "C" int fn_800F8C6C(BattleTask* mgr, HitResult_unk* out, int outCount, Ch
                         PSMTXRotRad(m2.m, 'y', t->mRot.y);
                         PSMTXMultVec(m2.m, &front2, &front2);
                         atn::Vector3 pos = t->mPos + front2;
-                        fn_800FAB80(mgr, chara, fn_80219E6C(0x232B), bullet, &pos, &chara->mRot, 0, 30, -1, -1, 0.0f,
+                        fn_800FAB80(this, chara, fn_80219E6C(0x232B), bullet, &pos, &chara->mRot, 0, 30, -1, -1, 0.0f,
                                     1.0f);
                     }
                 }
@@ -2072,14 +2072,14 @@ extern "C" int fn_800F8C6C(BattleTask* mgr, HitResult_unk* out, int outCount, Ch
                 CharaStatusEntry_unk* entry = chara->mStatus.fn_80133EE8(0x3E);
                 if (entry != 0 && fn_80219E6C(entry->mValue) != 0) {
                     int bullet = fn_800F8548(lbl_8087F048);
-                    fn_800FAB80(mgr, chara, fn_80219E6C(entry->mValue), bullet, &hitPos, &chara->mRot, 0, 30, -1, -1,
+                    fn_800FAB80(this, chara, fn_80219E6C(entry->mValue), bullet, &hitPos, &chara->mRot, 0, 30, -1, -1,
                                 0.0f, 1.0f);
                 }
             }
         }
         if (count < outCount) {
             out[count].mChara = chara;
-            out[count].mFlags = mgr->m38A5C.m94;
+            out[count].mFlags = m38A5C.m94;
         }
     }
     int power = data->m14;
@@ -2145,11 +2145,11 @@ extern "C" int fn_800F8C6C(BattleTask* mgr, HitResult_unk* out, int outCount, Ch
         }
     }
     if (count > 0 && chara != 0 && chara->mType == 0) {
-        float add = mgr->m38A14 * (chara->mFlag28 ? mgr->m38A38 : 1.0f);
+        float add = m38A14 * (chara->mFlag28 ? m38A38 : 1.0f);
         float zero;
-        mgr->m38A04 = MAX(zero = 0.0f, MIN(mgr->m38A04 + add, mgr->m38A0C));
+        m38A04 = MAX(zero = 0.0f, MIN(m38A04 + add, m38A0C));
     }
-    if (mgr->mShots.mEnabled != 0) {
+    if (mShots.mEnabled != 0) {
         BattleShot_unk shot;
         shot.mKind = 0;
         shot.mData = data;
@@ -2158,7 +2158,7 @@ extern "C" int fn_800F8C6C(BattleTask* mgr, HitResult_unk* out, int outCount, Ch
         shot.mDir.y += angle;
         shot.mRadius = data->m40 + chara->mStatus.mParamB.m28;
         shot.m24 = 0;
-        mgr->mShots.Push_unk(shot);
+        mShots.Push_unk(shot);
     }
     if (chara != 0) {
         chara->mStatus.mEntries.mCount = 0;

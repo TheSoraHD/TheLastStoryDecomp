@@ -16,13 +16,9 @@
 #include "gmk/Lemon.h"
 #include "atn/Camera_unk.h"
 #include "atn/RenderManager.h"
+#include "game/BattleTask.h"
 
-// inferred: effect/bullet manager (lbl_8087F048); only the member used here (name invented)
-struct Effect_unk {
-    unsigned char m00000[0x3E2E8];
-    void* m3E2E8; // inferred: sphere of the current target (compared with m18FC)
-};
-extern "C" Effect_unk* lbl_8087F048;
+extern "C" BattleTask* lbl_8087F048; // inferred: battle manager
 // inferred: field (lbl_8087F430); only the member used here
 struct Field_unk {
     unsigned char m0000[0x6C];
@@ -34,7 +30,7 @@ struct Field_unk {
 };
 extern "C" Field_unk* lbl_8087F430;
 extern "C" wchar_t* wcscpy(wchar_t* dst, const wchar_t* src);
-extern "C" int fn_800F8548(Effect_unk* mgr); // inferred: new bullet id
+extern "C" int fn_800F8548(BattleTask* mgr); // inferred: new bullet id
 extern "C" atn::Vector3 lbl_807C7030;        // inferred: zero vector
 extern "C" int fn_80051B14(const atn::ColliSphereShape_unk* s, const atn::ColliCapsuleShape_unk* c); // inferred: hit test
 
@@ -210,10 +206,8 @@ inline void LastCocoonImago::Roar_unk() {
 
 extern "C" HitInfo_unk* fn_80219E6C(int id); // inferred: skill data
 struct HitResult_unk;
-extern "C" int fn_800F8C6C(Effect_unk* mgr, HitResult_unk* results, int count, CharaTask* chara, HitInfo_unk* data,
-                           int id, int time, int hits, float angle); // inferred: deals a hit, returns the hits
 struct HomingParam_unk;
-extern "C" void fn_800F8574(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* data, const atn::Vector3* pos,
+extern "C" void fn_800F8574(BattleTask* mgr, CharaTask* owner, HitInfo_unk* data, const atn::Vector3* pos,
                             const atn::Vector3* dir, HomingParam_unk* param, int arg6, int arg7, float a,
                             float b); // inferred: fires a bullet
 extern "C" GameConfig_unk* lbl_8087F0A8; // inferred: game settings
@@ -273,7 +267,7 @@ void LastCocoonImago::vf10() {
             } else if (mMotion.mTracks[0].m08 >= 57.0f && mMotion.mTracks[0].m08 <= 65.0f) {
                 HitInfo_unk* bullet = fn_80219E6C(0x5B8);
                 fn_80144710();
-                fn_800F8C6C(lbl_8087F048, 0, 0, this, bullet, m590, 30, -1, 0.0f);
+                lbl_8087F048->fn_800F8C6C(0, 0, this, bullet, m590, 0.0f, 30, -1);
                 if (m1984 != 0) {
                     lbl_8087EEB0->fn_80063D3C(mPos, mStatus.mParamB.m28 + bullet->m40, 0.0f, 0xFFFF0000);
                 }
@@ -293,7 +287,7 @@ void LastCocoonImago::vf10() {
                         ((atn::Matrix3x4*)m14FC->mMotion.GetNodeMtx_unk("hips"))->GetTrans_unk();
                     atn::Vector3 dir = hips - hand;
                     dir.Normalize_unk();
-                    Effect_unk* mgr = lbl_8087F048;
+                    BattleTask* mgr = lbl_8087F048;
                     fn_800F8574(mgr, this, fn_80219E6C(0x5B7), &hand, &dir, 0, 0x24, 0, 0.0f, 1.0f);
                 }
             } else {
@@ -1200,7 +1194,7 @@ void LastCocoonImago::fn_8045D3A4() {
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 extern "C" GameUI* lbl_8087F490;
 extern "C" GameConfig_unk* lbl_8087F0A8; // inferred: game settings (m48C: input)
-extern "C" void fn_800FAB80(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* bullet, int id, const atn::Vector3* pos,
+extern "C" void fn_800FAB80(BattleTask* mgr, CharaTask* owner, HitInfo_unk* bullet, int id, const atn::Vector3* pos,
                             const atn::Vector3* rot, int arg6, int arg7, int arg8, int arg9, float arg10,
                             float arg11); // inferred: fires a bullet (as in gmk/Coffin.cpp)
 extern "C" float PSVECMag(const atn::Vector3* v);
@@ -1251,7 +1245,7 @@ void LastCocoonImago::fn_8045DF34() {
                 PSMTXMultVec(m.m, &dir, &dir);
                 atn::Vector3 at = mPos + dir;
                 CharaTask* player = lbl_8087F8A0->mHead;
-                Effect_unk* mgr = lbl_8087F048;
+                BattleTask* mgr = lbl_8087F048;
                 fn_800FAB80(mgr, player, bullet, fn_800F8548(mgr), &at, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
             }
         }
@@ -1351,8 +1345,6 @@ void LastCocoonImago::fn_8045E548() {
 
 extern "C" HitInfo_unk* fn_80219E6C(int id); // inferred: skill data
 struct HitResult_unk;
-extern "C" int fn_800F8C6C(Effect_unk* mgr, HitResult_unk* results, int count, CharaTask* chara, HitInfo_unk* data,
-                           int id, int time, int hits, float angle); // inferred: deals a hit, returns the hits
 
 void LastCocoonImago::fn_8045E780() {
     mMotion.mTracks[0].m0C = mStatus.fn_8012DB04();
@@ -1381,7 +1373,7 @@ void LastCocoonImago::fn_8045E780() {
         if (frame >= 35.0f && frame <= 46.0f) {
             HitInfo_unk* bullet = fn_80219E6C(0x5B6);
             fn_80144710();
-            fn_800F8C6C(lbl_8087F048, 0, 0, this, bullet, m590, 30, -1, 0.0f);
+            lbl_8087F048->fn_800F8C6C(0, 0, this, bullet, m590, 0.0f, 30, -1);
         }
     }
 }

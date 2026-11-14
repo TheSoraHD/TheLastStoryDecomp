@@ -151,8 +151,6 @@ extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the nex
 struct Effect_unk;
 extern "C" Effect_unk* lbl_8087F048;
 extern "C" int fn_800F8548(Effect_unk* mgr); // inferred: new bullet id
-extern "C" void fn_800F8C6C(Effect_unk* mgr, int a, int b, CharaTask* chara, HitInfo_unk* data, int id, int time,
-                            int arg, float f); // inferred: fires a melee hit
 extern "C" void fn_800F8574(Effect_unk* mgr, CharaTask* chara, HitInfo_unk* data, const atn::Vector3* pos,
                             const atn::Vector3* dir, HomingParam_unk* param, int flags, int arg, float f1,
                             float f2); // inferred: fires a homing bullet
@@ -1332,7 +1330,7 @@ void EnemyQuarkStand::fn_8034A194() {
             TurnTo_unk(1.0f);
         }
         if (mMotion.mTracks[0].m08 >= 21.0f) {
-            fn_800F8C6C(lbl_8087F048, 0, 0, this, m1548, fn_800F8548(lbl_8087F048), 30, -1, 0.0f);
+            ((BattleTask*)lbl_8087F048)->fn_800F8C6C(0, 0, this, m1548, fn_800F8548(lbl_8087F048), 0.0f, 30, -1);
             Field_unk* field = lbl_8087F430;
             field->m96C %= 2;
             field->m970 = 10;
@@ -1356,7 +1354,7 @@ void EnemyQuarkStand::fn_8034A644() {
             TurnTo_unk(1.0f);
         }
         if (mMotion.mTracks[0].m08 >= 33.0f) {
-            fn_800F8C6C(lbl_8087F048, 0, 0, this, m1544, fn_800F8548(lbl_8087F048), 30, -1, 0.0f);
+            ((BattleTask*)lbl_8087F048)->fn_800F8C6C(0, 0, this, m1544, fn_800F8548(lbl_8087F048), 0.0f, 30, -1);
             Field_unk* field = lbl_8087F430;
             field->m96C %= 2;
             field->m970 = 10;
@@ -1369,7 +1367,7 @@ void EnemyQuarkStand::fn_8034A644() {
             TurnTo_unk(1.0f);
         }
         if (mMotion.mTracks[0].m08 >= 61.0f) {
-            fn_800F8C6C(lbl_8087F048, 0, 0, this, m1548, fn_800F8548(lbl_8087F048), 30, -1, 0.0f);
+            ((BattleTask*)lbl_8087F048)->fn_800F8C6C(0, 0, this, m1548, fn_800F8548(lbl_8087F048), 0.0f, 30, -1);
             Field_unk* field = lbl_8087F430;
             field->m96C %= 2;
             field->m970 = 10;
@@ -1412,7 +1410,7 @@ void EnemyQuarkStand::fn_8034AE48() {
         float t = QS_MAX_unk(0.0f, QS_MIN_unk(1.0f, (mMotion.mTracks[0].m08 - 24.0f) / 6.0f));
         mPos = QuarkLerp_unk(m15DC.mStart, m15DC.mTarget, t);
         if (mMotion.mTracks[0].m08 >= 30.0f) {
-            fn_800F8C6C(lbl_8087F048, 0, 0, this, m1534, fn_800F8548(lbl_8087F048), 30, -1, 0.0f);
+            ((BattleTask*)lbl_8087F048)->fn_800F8C6C(0, 0, this, m1534, fn_800F8548(lbl_8087F048), 0.0f, 30, -1);
             Field_unk* field = lbl_8087F430;
             field->m96C %= 2;
             field->m970 = 10;
@@ -1426,7 +1424,7 @@ void EnemyQuarkStand::fn_8034AE48() {
         float t = QS_MAX_unk(0.0f, QS_MIN_unk(1.0f, (mMotion.mTracks[0].m08 - 30.0f) / 9.0f));
         mPos = QuarkLerp_unk(m15DC.mStart, m15DC.mTarget, t);
         if (mMotion.mTracks[0].m08 >= 39.0f) {
-            fn_800F8C6C(lbl_8087F048, 0, 0, this, m1538, fn_800F8548(lbl_8087F048), 30, -1, 0.0f);
+            ((BattleTask*)lbl_8087F048)->fn_800F8C6C(0, 0, this, m1538, fn_800F8548(lbl_8087F048), 0.0f, 30, -1);
             Field_unk* field = lbl_8087F430;
             field->m96C %= 2;
             field->m970 = 10;
