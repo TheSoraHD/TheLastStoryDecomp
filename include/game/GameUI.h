@@ -377,7 +377,7 @@ public:
     void fn_803D2A6C(); // inferred: updates the HUD
     void fn_803DCA84(CharaTask* chara, float* fade);
     void fn_803DCD34(CharaTask*, int, int, int); // inferred: party window of a character
-    void fn_803E0E10(CharaTask* chara, GameUIElem60_unk* window, int index); // inferred: updates a window
+    static void fn_803E0E10(CharaTask* chara, GameUIElem60_unk* window, int index); // inferred: updates a window
     void fn_803E3468(atn::D2A_Task* a, atn::D2A_Task* b, GameUIElem1C_unk* button, int arg);
     void fn_803E2410(CharaTask*); // inferred: magic point gauge of a character
     void fn_803E2A30(int, int, atn::Vector3, int, int); // inferred: next magic point gauge of the HUD
