@@ -266,29 +266,37 @@ void FinishCamera_unk::fn_80378CCC() {
     }
 }
 
-// NONMATCHING: 79.9% - frame 0x1A0 vs 0x150 (more temporaries in the original: hit at sp+0xE0)
+// inferred: a + (b - a) * t (name invented)
+static inline atn::Vector3 FinishLerp_unk(const atn::Vector3& a, const atn::Vector3& b, float t) {
+    return (b - a) * t + a;
+}
+
+// inferred: moves the eye out of the walls: ray from the target to the eye, then four sphere sweeps (radius 3) from
+// the target towards the eye; when something was hit and `keep` is set, the eye only moves a quarter of the way
+// from `start` (the original also fills a zero vector `zero` it does not use)
 void FinishCamera_unk::fn_80378D34(atn::Vector3* eye, const atn::Vector3* target, const atn::Vector3* start,
                                    int keep) {
     atn::ColliResult_unk hit;
-    atn::Vector3 to = *target;
-    atn::Vector3 from = *eye;
+    atn::Vector3 from = *target;
+    atn::Vector3 to = *eye;
     if (fn_8004ED34(lbl_8087EE98, &hit, &from, &to, 0x80000008, 0, 0) != 0) {
         *eye = hit.m04 + hit.m28;
     }
-    float step = PSVECMag(&(*target - *eye)) * 0.25f;
+    float step = PSVECMag(&(*target - *eye)) / 4.0f;
     atn::Vector3 cur = *target;
+    atn::Vector3 center;
+    atn::Vector3 move;
+    atn::Vector3 zero;
     int hits = 0;
     for (int i = 1; i <= 4; i++) {
-        atn::Vector3 dir = *eye - cur;
-        PSVECNormalize(&dir, &dir);
-        atn::Vector3 move = dir * step;
-        atn::Vector3 center = cur + move;
-        atn::Vector3 zero(0.0f, 0.0f, 0.0f);
-        if (fn_8004D388(lbl_8087EE98, &hit, &center, &zero, 0x80000008, 0, 0, 3.0f) != 0) {
+        atn::VecAssign_unk(move, (*eye - cur).GetNormalize() * step);
+        atn::VecAssign_unk(center, cur + move);
+        atn::VecAssign_unk(zero, atn::Vector3(0.0f, 0.0f, 0.0f));
+        if (fn_8004D388(lbl_8087EE98, &hit, &center, &atn::Vector3(0.0f, 0.0f, 0.0f), 0x80000008, 0, 0, 3.0f) != 0) {
             hits++;
             cur.x = hit.m10.x;
+            cur.y = (center.y + hit.m10.y) / 2.0f;
             cur.z = hit.m10.z;
-            cur.y = (center.y + hit.m10.y) * 0.5f;
         } else {
             cur = center;
         }
@@ -296,7 +304,7 @@ void FinishCamera_unk::fn_80378D34(atn::Vector3* eye, const atn::Vector3* target
     *eye = cur;
     if (hits > 0 && keep != 0) {
         if (PSVECSquareMag(&(*eye - *start)) > 0.00001f) {
-            *eye = *start + (*eye - *start) * 0.25f;
+            *eye = FinishLerp_unk(*start, *eye, 0.25f);
         }
     }
 }
