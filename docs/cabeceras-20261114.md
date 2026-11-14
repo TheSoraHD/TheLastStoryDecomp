@@ -53,3 +53,13 @@ merge final aunque el port siga activo; notas para el port solo en el proyecto (
   15447, lost 0, sin bajadas, rep100 138, labelcheck 20, build limpio OK. **Cambio de split (para revisar):** la
   cadena "Event::ActionProcessor" (.rodata 0x80736530) y `__RTTI__Q25Event15ActionProcessor` (.data 0x80779E28, hueco
   auto_07) pasan a Event/Behavior_unk (aparece una sola vez en el DOL; la emite Behavior_unk.o, que enlaza). Commit f1ce542.
+- 19:24 integrada J (fn_802A4170/84 = ctor y operator[] de std::vector<EnemyTask*>, PostFx*::vf10(RenderManager*)
+  con vtable de 0x20, una sola atn::VideoTHP y atn::TextureComposite.h; PathLengths_unk en WindyItem/PathData_unk/
+  ActionActorPosition sigue sin salir: 0x8000D844 es el dtor de vector<float>, depende de vector.h): 15447, lost 0,
+  sin bajadas, rep100 138, labelcheck 20.
+- 19:24 integrada A4 (solo notas y docs/cabeceras-20261114-qA4.patch): cada nivel de inline invierte el orden
+  de los huecos de pila (selector por tipo `__vec_grow_sel_unk`), `__recommend_ref_unk` y `__destroy_front_unk`
+  aparte. +5 funciones al 100 % (push_back de CosEditItem_unk, CosEditWeaponItem_unk, KrakenCommand_unk,
+  KrakenMpCommand_unk, gs::HideLink2_unk); quedan 4 bajadas de registros (DebugInfoColumn_unk copia 99,64 -> 99,00,
+  NewCampPartsItem fn_80517B3C 99,40 -> 99,07, Manager fn_80484088 95,18 -> 94,97, GameEventScript fn_8039F08C
+  99,97 -> 99,83) y 5 de <= 0,03. **Para revisar.** Lanzada A5 sobre esas bajadas.
