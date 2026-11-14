@@ -29,3 +29,8 @@ merge final aunque el port siga activo; notas para el port solo en el proyecto (
   unidades y a mano 0x80759740/48 de PacketPack (@18171/@18172). Total **15431**, lost 0 frente a la integracion
   anterior y a cada agente, sin bajadas, rep100 139 (= ref), labelcheck 49 -> 20 lineas (MapPartsBase 10 -> 11
   etiquetas, aceptado). `pairdata.py --min N` nuevo (filtra funciones por %).
+- 16:10 segunda tanda: G (regla 10 en cabeceras, fn_800F8C6C miembro), H (funciones desbloqueadas: GameTask,
+  Inventory, CosEditItemList_unk, Em305Vampire, ShopUpGrade), N (cerca de enlazar), A2 (forma original de push_back y
+  copias debiles de Event). E (.rodata de BattleTask) espera a que acabe G, que tambien toca BattleTask.
+- 17:01 integrada N (HomeButton::draw, HBMBase enlaza; 147 unidades cerca de enlazar probadas, casi todas
+  registros): 15434, lost 0, sin bajadas, rep100 139. Reinicio del servidor a las ~17:00: G, H y A2 se reanudan solos.
