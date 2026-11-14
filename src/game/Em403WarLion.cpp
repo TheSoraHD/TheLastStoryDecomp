@@ -32,7 +32,6 @@ extern "C" const WarLionPlace_unk lbl_80749B00[10] = {
 
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
-extern "C" int fn_800F8548(BattleTask* mgr); // inferred: new bullet id
 // inferred: settings (lbl_8087F0A8) and debug drawing (lbl_8087EEB0), as in game/CopyRobotTask.cpp
 struct Settings_unk {
     unsigned char m00[0x30];
@@ -88,9 +87,6 @@ inline float Clamp01_unk(float x) {
     return x;
 }
 extern "C" HitInfo_unk* fn_80219E6C(int id);
-extern "C" void fn_800FAB80(BattleTask* mgr, CharaTask* owner, HitInfo_unk* bullet, int arg3, const atn::Vector3* pos,
-                            const atn::Vector3* rot, int arg6, int arg7, int arg8, int arg9, float arg10,
-                            float arg11);
 // inferred: effect manager (class unknown), global instance at 0x8087F3C0
 struct EffectMgr_unk;
 struct Color4f_unk {
@@ -204,11 +200,6 @@ extern "C" CharaTask* fn_802A4094(CharaTask* chara);
 extern "C" atn::Matrix3x4* fn_80266154(atn::Model* model);
 extern "C" float fn_80011220(float x); // inferred: fabs (weak copy of another helper)
 BattleTask* fn_8013A194();
-// inferred: AI data of an ally (class unknown): weights by enemy at 0x128
-struct AllyAi_unk {
-    unsigned char m000[0x128];
-    float m128[1];
-};
 
 // inferred: singleton accessor (weak copy, also called by game/GameUI.cpp)
 extern "C" inline FriendManager* fn_80323C2C() {
@@ -356,9 +347,9 @@ void Em403WarLion::vf10() {
         }
     }
     for (CharaTask* c = fn_80323C2C()->fn_8036554C(); c != 0; c = fn_802A4094(c)) {
-        AllyAi_unk* ai = (AllyAi_unk*)fn_8013A194()->fn_80103F60(c);
+        BattleChara_unk* ai = fn_8013A194()->fn_80103F60(c);
         if (ai != 0) {
-            int i = ((BattleTask*)ai)->fn_80108378(this);
+            int i = ai->fn_80108378(this);
             if (i >= 0) {
                 if (m14CC - 1U <= 1) {
                     ai->m128[i] = 0.0f;
@@ -1567,11 +1558,6 @@ struct CollObj_unk {
     unsigned int m08;
     CharaTask* m0C;
 };
-// inferred: the magic `data` of `chara` targets `target` (bullet manager); returns < 0 when not
-extern "C" int fn_800FBA9C(BattleTask* mgr, CharaTask* chara, CharaTask* target, HitInfo_unk* data, int arg,
-                           float f);
-extern "C" int fn_800FBE70(BattleTask* mgr, CharaTask* chara, CharaTask* target, HitInfo_unk* data, int arg,
-                           atn::Vector3* pos, int a, int b);
 
 // NONMATCHING: 98.28% - asignacion de GPR (this en r27 en el original) y el id del control releido
 // inferred: looks for a player that attacks the war lion (magic, arrows or the gun) and gives the

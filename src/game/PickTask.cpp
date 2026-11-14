@@ -8,28 +8,12 @@
 #include "game/PlayerTask.h"
 #include "game/GameTask.h"
 
-// inferred: 0x934-byte character slot of the battle manager (only the character is known)
-struct PickSlot_unk {
-    CharaTask* mChara;
-    unsigned char m04[0x934 - 0x4];
-};
-// inferred: battle manager (lbl_8087F048, see game/CharaTask.cpp)
-// inferred: character list of the battle manager (names invented)
-struct PickSlots_unk {
-    CharaTask* GetChara_unk(int i) {
-        PickSlot_unk* s = mSlots;
-        return s[i].mChara;
-    }
-
-    PickSlot_unk mSlots[0x48];
-};
-struct PickBattle_unk {
-    unsigned char m00[0xCBF0];
-    PickSlots_unk mSlots; // 0xCBF0
-    unsigned char m363B0_pad[0x363B0 - (0xCBF0 + 0x48 * 0x934)];
-    int mCount; // 0x363B0
-};
-extern "C" PickBattle_unk* lbl_8087F048;
+extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
+// inferred: character of the entry `i` of mCharas (inline; name invented)
+inline CharaTask* GetBattleChara_unk(BattleChara_unk* charas, int i) {
+    BattleChara_unk* s = charas;
+    return s[i].mChara;
+}
 
 // inferred: area of the map (0x30 bytes)
 struct PickArea_unk {
@@ -143,19 +127,19 @@ void PickTask::vf10() {
     if (player == 0) {
         return;
     }
-    int playerIndex = ((BattleTask*)lbl_8087F048)->fn_80102890(player);
+    int playerIndex = lbl_8087F048->fn_80102890(player);
     if (playerIndex < 0) {
         return;
     }
     bool onLedge = GetFlag31_unk(player) == 1;
     memset(m4C, 0, sizeof(m4C));
-    int n = lbl_8087F048->mCount;
+    int n = lbl_8087F048->mCharaCount;
     if (n >= 0x48) {
         n = 0x48;
     }
     int numSeers = 0;
     for (int i = 0; i < n; i++) {
-        CharaTask* a = lbl_8087F048->mSlots.GetChara_unk(i);
+        CharaTask* a = GetBattleChara_unk(lbl_8087F048->mCharas, i);
         if (a != 0 && a->mType == 2 && a->CanAct_unk() && (a->m54C & 0x2000) != 0x2000 && a->mC58.mC0 > 0 &&
             a->mC58.m11C.fn_8011D1FC()) {
             float warn = a->mC58.m11C.m18;
@@ -164,7 +148,7 @@ void PickTask::vf10() {
                 if (i == j) {
                     continue;
                 }
-                CharaTask* b = lbl_8087F048->mSlots.GetChara_unk(j);
+                CharaTask* b = GetBattleChara_unk(lbl_8087F048->mCharas, j);
                 if (b == 0 || (b->mType != 2 && b->mType != 0)) {
                     continue;
                 }
@@ -198,7 +182,7 @@ void PickTask::vf10() {
         }
     }
     for (int i = 0; i < n; i++) {
-        CharaTask* c = lbl_8087F048->mSlots.GetChara_unk(i);
+        CharaTask* c = GetBattleChara_unk(lbl_8087F048->mCharas, i);
         CharaD74_unk* label = &c->mC58.m11C;
         if (!c->CanAct_unk() || c->mType != 2 || c->mC58.mC0 <= 0) {
             label->m01 = 0;
@@ -329,7 +313,7 @@ void PickTask::vf10() {
                 lost = true;
             } else if (!kind45) {
                 for (int k = 0; k < n; k++) {
-                    CharaTask* o = lbl_8087F048->mSlots.GetChara_unk(k);
+                    CharaTask* o = GetBattleChara_unk(lbl_8087F048->mCharas, k);
                     int kind = o->mC58.m11C.m00;
                     if (c == o) {
                         continue;

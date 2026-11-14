@@ -30,9 +30,6 @@ extern "C" void fn_80087E9C(void* group, const char* name, atn::Vector3* value, 
                             float max, float step);
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
 BattleTask* fn_8013A194(); // inferred: effect/bullet manager (weak copy of another file)
-extern "C" void fn_800FAB80(BattleTask* mgr, CharaTask* chara, HitInfo_unk* bullet, int arg3, const atn::Vector3* pos,
-                            const atn::Vector3* rot, int arg6, int arg7, int arg8, int arg9, float arg10,
-                            float arg11); // inferred: fires a bullet
 // inferred: effect manager (class unknown), global instance at 0x8087F3C0
 struct EffectMgr_unk;
 extern "C" EffectMgr_unk* lbl_8087F3C0;

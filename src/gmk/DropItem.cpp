@@ -10,6 +10,7 @@
 #include "atn/SoundRef.h"
 #include "game/CharaManager.h"
 #include "game/CharaTask.h"
+#include "game/BattleTask.h"
 #include "game/PlayerTask.h"
 #include "atn/RenderManager.h"
 #include "game/MapTask.h"
@@ -50,39 +51,7 @@ extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* m
 extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
 extern "C" int fn_80239D58(EffectMgr_unk* mgr, void* owner, int id); // inferred: the effect is playing
 extern "C" void fn_80232B7C(void* owner, int arg);
-// inferred: bullets (lbl_8087F048): 256 entries of 0xA0 bytes
-struct DropAttack_unk {
-    float m00;
-    int m04;
-    int m08;
-    struct Owner_unk {
-        unsigned char m00[0xAC];
-        unsigned int mAC;
-    }* mOwner; // 0x0C
-    int m10;
-    float m14;
-    float m18;
-};
-struct DropBulletOwner_unk {
-    unsigned char m00[0x48];
-    int m48;
-};
-struct DropBullet_unk {
-    unsigned int mFlags;  // 0x154
-    atn::Vector3 mPos;    // 0x158
-    unsigned char m164[0x170 - 0x164];
-    atn::Vector3 mDir;    // 0x170
-    unsigned char m17C[0x1AC - 0x17C];
-    DropAttack_unk mAttack; // 0x1AC
-    unsigned char m1C8[0x1D8 - 0x1C8];
-    DropBulletOwner_unk* mOwner; // 0x1D8
-    unsigned char m1DC[0x1F4 - 0x1DC];
-};
-struct DropBulletMgr_unk {
-    unsigned char m000[0x154];
-    DropBullet_unk mBullets[256];
-};
-extern "C" DropBulletMgr_unk* lbl_8087F048;
+extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager (bullet pool)
 // inferred: segment and capsule of the touch test (names invented)
 struct DropSegment_unk {
     DropSegment_unk(const atn::Vector3& a, const atn::Vector3& b) : mA(a), mB(b) {}
@@ -194,8 +163,8 @@ inline bool IsFree_unk(CharaTask* chara) {
 }
 
 // inferred: the attack can not take items (name invented)
-inline bool IsBlocked_unk(DropAttack_unk attack) {
-    return (attack.mOwner->mAC & 0x8000) == 0x8000;
+inline bool IsBlocked_unk(BulletShot_unk attack) {
+    return (attack.m0C->mAC & 0x8000) == 0x8000;
 }
 
 extern "C" GimmickCommon* fn_804093B4(atn::Task* parent, int id, int arg) {
@@ -322,14 +291,21 @@ void DropItem::vf10() {
         }
         if (lbl_8087F048 != 0 && m190 == 0) {
             for (int i = 0; i < 256; i++) {
-                DropBullet_unk* bullet = &lbl_8087F048->mBullets[i];
-                unsigned int flags = bullet->mFlags;
-                if (((flags & 0x10000) == 0x10000 || (flags & 0x2000000) == 0x2000000) && bullet->mOwner != 0 &&
-                    bullet->mOwner->m48 == 0) {
-                    DropAttack_unk attack = bullet->mAttack;
-                    if ((attack.mOwner == 0 || !IsBlocked_unk(attack)) && (flags & 0x200000) != 0x200000 &&
-                        !((float)__fabs(PSVECSquareMag(&bullet->mDir)) < 1.1920929e-7f)) {
-                        DropSegment_unk seg(bullet->mPos - bullet->mDir, bullet->mPos + bullet->mDir);
+                Bullet* bullet = &lbl_8087F048->mBullets[i];
+                unsigned int flags = bullet->m04;
+                if (((flags & 0x10000) == 0x10000 || (flags & 0x2000000) == 0x2000000) && bullet->m88 != 0 &&
+                    bullet->m88->mType == 0) {
+                    BulletShot_unk attack;
+                    attack.m00 = bullet->m5C;
+                    attack.m04 = bullet->m60;
+                    attack.m08 = bullet->m64;
+                    attack.m0C = bullet->m68;
+                    attack.m10 = bullet->m6C;
+                    attack.m14 = bullet->m70;
+                    attack.m18 = bullet->m74;
+                    if ((attack.m0C == 0 || !IsBlocked_unk(attack)) && (flags & 0x200000) != 0x200000 &&
+                        !((float)__fabs(PSVECSquareMag(&bullet->m20)) < 1.1920929e-7f)) {
+                        DropSegment_unk seg(bullet->m08 - bullet->m20, bullet->m08 + bullet->m20);
                         DropCapsule_unk capsule(m6C + atn::Vector3(0.0f, 3.5f, 0.0f),
                                                 m6C + atn::Vector3(0.0f, 11.0f, 0.0f), 3.5f);
                         if (fn_80051BC4(&seg, &capsule) != 0) {

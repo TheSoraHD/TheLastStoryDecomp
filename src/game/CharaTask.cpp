@@ -186,15 +186,8 @@ extern "C" Field_unk* lbl_8087F430;
 extern "C" void PSMTXTrans(Mtx m, float x, float y, float z);
 extern "C" void PSMTXScale(Mtx m, float x, float y, float z);
 
-// inferred: the battle manager under the name game/BattleTask.cpp still defines fn_80109950 with (as a member
-// of Effect_unk; pending there)
-struct Effect_unk {
-    atn::Vector3 fn_80109950(CharaTask* chara); // inferred: a position for the character
-};
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
 
-extern "C" int fn_800F8548(BattleTask* mgr);
-extern "C" void fn_800FD658(BattleTask* mgr, CharaTask* a, CharaTask* b, void* bullet, int arg4, int arg5, int arg6);
 
 // inferred: globals returned by accessors that are called out of line
 extern "C" void* lbl_8087EE98;
@@ -365,7 +358,6 @@ extern "C" int fn_8021BE98(char* name, CharaStatusEntry_unk* entry);  // inferre
 
 extern "C" void* lbl_8087F540;
 extern "C" int fn_80481654(void* obj);
-extern "C" void fn_8010A4A8(BattleTask* effect, CharaTask* chara);
 
 extern "C" const wchar_t lbl_808813D0[2]; // inferred: empty text
 // inferred: message table (lbl_8087F1E4); name invented
@@ -1111,9 +1103,6 @@ BattleTask* fn_8013A194();
 extern "C" Field_unk* fn_80121F00();
 extern "C" Settings_unk* fn_800F52F8();
 extern "C" void* fn_800F7F90();
-extern "C" void fn_800FAB80(BattleTask* mgr, CharaTask* owner, HitInfo_unk* bullet, int arg3, const atn::Vector3* pos,
-                            const atn::Vector3* rot, int arg6, int arg7, int arg8, int arg9, float arg10,
-                            float arg11);
 
 namespace chr {
 
@@ -1508,7 +1497,7 @@ int CharaTask::fn_8013A4E8(float* a, atn::Vector3* rot, float* b) {
                 break;
             }
             if (fn_800F52F8()->fn_8013C434()->m00 != 0) {
-                atn::Vector3 pos = ((Effect_unk*)fn_8013A194())->fn_80109950(this);
+                atn::Vector3 pos = fn_8013A194()->fn_80109950(this);
                 atn::Vector3 dir2 = pos - mPos;
                 *a = dir2.Length_unk();
                 if (*a > 0.0f) {
@@ -5708,9 +5697,6 @@ struct EffectMgr_unk {
     int mB8;
 };
 extern "C" EffectMgr_unk* lbl_8087F3C0;
-extern "C" void fn_8010C00C(BattleTask* mgr, CharaTask* chara);
-extern "C" void fn_800FC410(BattleTask* effect, CharaTask* chara, CharaTask* target, int arg, HitInfo_unk* hit, int id,
-                            int frames);
 extern "C" bool fn_80051A88(const atn::Model::Sphere_unk* sphere, const atn::Vector3* point); // inferred: point in sphere
 extern "C" void fn_80239DAC(void* mgr, void* owner, int a, int b); // inferred: stops the effects of `owner`
 extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the effects (a matrix or an EfpFile)
@@ -8780,7 +8766,7 @@ inline BattleTask* GetEffect_unk() { return lbl_8087F048; }
 void CharaTask::fn_80164454(int id, CharaTask* a, CharaTask* b, unsigned int flags) {
     BattleTask* mgr = lbl_8087F048;
     if (mgr != 0) {
-        void* bullet;
+        HitInfo_unk* bullet;
         if (id > 0) {
             bullet = fn_80219E6C(id);
         } else {
@@ -10766,7 +10752,6 @@ void CharaTask::fn_80176DFC(int a, int b, int c) {
 // instantiations of Sort_unk are 0x80177688 (comparison by value) and 0x80177AA0 (by reference,
 // recursive part); Median3_unk is 0x80177EB8. Names invented.
 typedef bool (*FloatLess_unk)(const float& a, const float& b);
-extern "C" void fn_801092C8(BattleTask* effect, int id, CharaTask* chara, int a, int b);
 
 template <class T>
 inline void Swap_unk(T& a, T& b) {

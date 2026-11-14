@@ -20,11 +20,6 @@ extern "C" void* lbl_8087F610;                     // inferred: arena mode (see 
 struct Field_unk;
 extern "C" Field_unk* lbl_8087F430;
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
-extern "C" int fn_800F8548(BattleTask* mgr);
-extern "C" void fn_800FB4B0(BattleTask* mgr, CharaTask* chara, HitInfo_unk* data, int id, const atn::Vector3* pos,
-                            int a, int time, int b, int c);
-extern "C" void fn_800FBA30(BattleTask* mgr, CharaTask* chara, CharaTask* user, HitInfo_unk* data, int id,
-                            const atn::Vector3* pos, const atn::Vector3* rot);
 extern "C" void fn_800FB1BC(BattleTask* mgr, CharaTask* chara, HitInfo_unk* data, const atn::Vector3* pos,
                             const atn::Vector3* rot, int a, int b);
 typedef EffectColor_unk Color4f_unk;

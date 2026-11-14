@@ -28,10 +28,6 @@ extern "C" void fn_8023A8B4(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Mod
 extern "C" void fn_80232B7C(void* owner, int arg);
 // inferred: bullets (as in gmk/LandMine.cpp)
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
-extern "C" int fn_800F8548(BattleTask* mgr); // inferred: new bullet id
-extern "C" void fn_800FAB80(BattleTask* mgr, CharaTask* owner, HitInfo_unk* bullet, int id,
-                            const atn::Vector3* pos, const atn::Vector3* rot, int arg6, int arg7, int arg8,
-                            int arg9, float arg10, float arg11);
 // inferred: field (lbl_8087F430); the event flags are read with fn_80370A78 and written with fn_80370AE4
 struct Field_unk;
 extern "C" Field_unk* lbl_8087F430;

@@ -20,7 +20,6 @@ extern "C" void PSMTXMultVec(const Mtx m, const atn::Vector3* src, atn::Vector3*
 extern "C" chr::AttackTable_unk* fn_802097C4(const char* path);
 
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
-extern "C" void fn_80106878(BattleTask* effect, CharaTask* chara); // inferred: attack started
 
 // inferred: multiplayer session (lbl_8087F610, see MP/CharaListeners_unk.cpp)
 extern "C" void* lbl_8087F610;
@@ -35,7 +34,6 @@ extern "C" GameState_unk* lbl_8087EFA8;
 
 extern "C" const char* fn_800EFF04(int id); // inferred: sound name of an effect id
 extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float volume);
-extern "C" int fn_800F8548(BattleTask* mgr); // inferred: new bullet id
 extern "C" HitInfo_unk* fn_80219E6C(int id);  // inferred: skill data
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
 

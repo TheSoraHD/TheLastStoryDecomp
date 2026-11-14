@@ -18,9 +18,6 @@ extern "C" std::string fn_8006AFF8(const std::string& a, const std::string& b);
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 extern "C" atn::Vector3 lbl_807C7030;              // inferred: zero vector
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
-extern "C" int fn_800F8548(BattleTask* mgr); // inferred: new bullet id
-extern "C" void fn_800F8574(BattleTask* mgr, CharaTask* chara, HitInfo_unk* data, const atn::Vector3* pos,
-                            const atn::Vector3* dir, int a, int b, int c, float f1, float f2);
 // inferred: effect manager (class unknown), global instance at 0x8087F3C0
 struct EffectMgr_unk;
 struct Color4f_unk {

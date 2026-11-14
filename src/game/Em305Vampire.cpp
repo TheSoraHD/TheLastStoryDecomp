@@ -21,7 +21,6 @@ extern "C" int fn_800DC12C(const char* s); // inferred: string to int
 extern "C" HitInfo_unk* fn_80219E6C(int id); // inferred: bullet/skill data by id
 
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
-extern "C" int fn_800F8548(BattleTask* mgr); // inferred: new bullet id
 // inferred: effect manager (class unknown), global instance at 0x8087F3C0
 struct EffectMgr_unk;
 extern "C" EffectMgr_unk* lbl_8087F3C0;
@@ -34,7 +33,6 @@ extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* m
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
 extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the next effects
-extern "C" void fn_80108F38(BattleTask* mgr, const atn::Vector3* pos, int arg);
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
  extern "C" void* lbl_8087EE98;
 extern "C" int fn_8004D388(void* world, atn::ColliResult_unk* result, const atn::Vector3* center, const atn::Vector3* move,
@@ -71,9 +69,6 @@ extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2
 extern "C" int fn_800CB58C(atn::SoundRef* sound);                           // inferred: nonzero while playing
 extern "C" void fn_800CB6E4(atn::SoundRef* sound, const atn::Vector3* pos); // inferred: moves the sound
 
-extern "C" void fn_800FAB80(BattleTask* mgr, CharaTask* owner, HitInfo_unk* bullet, int id, const atn::Vector3* pos,
-                            const atn::Vector3* rot, int arg6, int arg7, int arg8, int arg9, float arg10,
-                            float arg11); // inferred: fires a bullet (as in gmk/Coffin.cpp)
 // inferred: field (lbl_8087F430); m10D8: route tables; fn_80370AE4 sets a counter (as in gmk/Coffin.cpp)
 struct VampireField_unk {
     unsigned char m0000[0x10D8];

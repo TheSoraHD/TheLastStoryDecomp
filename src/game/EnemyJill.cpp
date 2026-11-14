@@ -30,7 +30,6 @@ struct JillParams_unk {
 };
 extern "C" JillParams_unk* lbl_8087EFA8;
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
-extern "C" int fn_800F8548(BattleTask* mgr); // inferred: new bullet id
 
 // inferred: const info (the load of info->m20 is scheduled into the prologue only through a const pointer)
 EnemyJill::EnemyJill(atn::Task* parent, const EnemyInfo_unk* info)
@@ -260,9 +259,6 @@ extern "C" inline CharaTask* fn_8000DCF4(PlayerMgr_unk* mgr) {
     return mgr->mHead;
 }
 BattleTask* fn_8013A194();
-extern "C" void fn_800FAB80(BattleTask* mgr, CharaTask* owner, HitInfo_unk* bullet, int arg3, const atn::Vector3* pos,
-                            const atn::Vector3* rot, int arg6, int arg7, int arg8, int arg9, float arg10,
-                            float arg11);
 
 // NONMATCHING: 99.79% - r29/r30 of the current event and of the rotation pointer in the event damage (the
 // rest matches)

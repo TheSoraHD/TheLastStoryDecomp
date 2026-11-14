@@ -31,9 +31,6 @@ extern "C" int strncmp(const char* a, const char* b, unsigned long n);
 extern "C" std::string fn_8006AFF8(const std::string& a, const std::string& b);
 
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; extern "C" void* lbl_8087EE98;
-extern "C" void fn_800F8574(BattleTask* mgr, CharaTask* owner, HitInfo_unk* data, const atn::Vector3* pos,
-                            const atn::Vector3* dir, HomingParam_unk* param, int arg6, int arg7, float a,
-                            float b); // inferred: fires a bullet (as in game/Em101LittleZesyaSecond.cpp)
 extern "C" void PSMTXRotAxisRad(Mtx m, const atn::Vector3* axis, float rad);
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
 extern "C" int rand();
@@ -62,18 +59,9 @@ struct Color4f_unk {
 extern "C" EffectMgr_unk* lbl_8087F3C0;
 extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
-extern "C" int fn_800F8548(BattleTask* mgr); // inferred: new bullet id
-extern "C" void fn_800FAB80(BattleTask* mgr, CharaTask* owner, HitInfo_unk* bullet, int id, const atn::Vector3* pos,
-                            const atn::Vector3* rot, int arg6, int arg7, int arg8, int arg9, float arg10,
-                            float arg11); // inferred: fires a bullet (as in gmk/Coffin.cpp)
 // inferred: starts an effect resource at a position (argument layout of this unit; see game/Em301LShade.cpp)
 extern "C" void fn_8023A680(EffectMgr_unk* mgr, void* res, int a, int b, void* mtx, const atn::Vector3* pos,
                             const atn::Vector3* rot, const float* color, float scale, int e, int f, int g);
-// inferred: AI weights by enemy (fn_80103F60, as in game/Em403WarLion.cpp)
-struct DaemonAi_unk {
-    unsigned char m000[0x128];
-    float m128[1];
-};
 // inferred: arena/UI (lbl_8087F490); fn_803E6850 shows a counter (as in game/Em305VampireMp.cpp)
 extern "C" GameUI* lbl_8087F490;
 extern "C" double fmod(double x, double y);
@@ -454,10 +442,10 @@ inline int Em003LesserDaemon::FarthestPoint_unk() {
 
 // inferred: the battle AI ignores the other enemies (name invented)
 inline void ClearHate_unk(CharaTask* self) {
-    DaemonAi_unk* ai = (DaemonAi_unk*)lbl_8087F048->fn_80103F60(self);
+    BattleChara_unk* ai = lbl_8087F048->fn_80103F60(self);
     if (ai != 0) {
         for (EnemyTask* e = EnemyManager::sInstance->mHead; e != 0; e = e->mNext) {
-            int index = ((BattleTask*)ai)->fn_80108378(e);
+            int index = ai->fn_80108378(e);
             if (index >= 0) {
                 ai->m128[index] = 0.0f;
             }

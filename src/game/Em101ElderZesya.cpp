@@ -168,7 +168,6 @@ extern "C" HitParam_unk lbl_807C6B90; // inferred: default parameters
 extern "C" void fn_8003EA3C(ElderDamage_unk* result, HitInfo_unk* data, CharaTask* attacker, CharaTask* owner,
                             unsigned int flags, const HitParam_unk* param, int arg, int arg2); // inferred: damage
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
-extern "C" int fn_800F8548(BattleTask* mgr); // inferred: new bullet id
 extern "C" void fn_80102EAC(BattleTask* mgr, int id, CharaTask* attacker, int arg, int arg2);
 
 extern "C" void* lbl_8087EE98;
@@ -207,9 +206,6 @@ inline void PlayEffect_unk(atn::EfpFile* efp, atn::Model* model) {
 }
 
 extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float volume);
-extern "C" void fn_800FAB80(BattleTask* mgr, CharaTask* owner, HitInfo_unk* bullet, int id, const atn::Vector3* pos,
-                            const atn::Vector3* rot, int arg6, int arg7, int arg8, int arg9, float arg10,
-                            float arg11); // inferred: fires a bullet (as in gmk/Coffin.cpp)
 
 extern "C" int fn_800DD3FC(wchar_t* s, const wchar_t* format, ...); // inferred: wide sprintf
 extern "C" void* memset(void* dst, int c, unsigned long n);
@@ -232,9 +228,6 @@ extern "C" void fn_8025D704(int zesya); // inferred: Em101LittleZesya goes back 
 
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 extern "C" atn::Vector3 lbl_807C7030;              // inferred: zero vector
-extern "C" void fn_800F8574(BattleTask* mgr, CharaTask* owner, HitInfo_unk* data, const atn::Vector3* pos,
-                            const atn::Vector3* dir, HomingParam_unk* param, int arg6, int arg7, float a,
-                            float b); // inferred: fires a bullet (as in game/Em101LittleZesyaSecond.cpp)
 extern "C" void PSMTXRotAxisRad(Mtx m, const atn::Vector3* axis, float rad);
 extern "C" int rand();
 // inferred: fields of the running magic control (class unknown; as in game/Em003LesserDaemon.cpp)

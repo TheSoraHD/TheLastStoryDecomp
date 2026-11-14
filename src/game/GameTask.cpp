@@ -229,13 +229,11 @@ extern "C" int fn_803CE160(int type, int map, int sub);
 extern "C" int fn_803CE154();
 extern "C" int fn_803CE148();
 extern "C" void fn_80047B54(void* sound, int arg);
-extern "C" void fn_800F2C9C(void* battle);
 extern "C" void fn_800EF588(int type, int map);
 extern "C" void fn_8004829C(void* sound, const char** groups, int count);
 extern "C" atn::Task* fn_8052A888(atn::Task* parent);
 extern "C" int sprintf(char* buf, const char* fmt, ...);
 
-extern "C" void fn_801092C8(void* battle, int kind, CharaTask* chara, int bit, int arg);
 extern "C" TutorialData_unk* fn_8021F09C(int id); // inferred: row of the tutorial table
 extern "C" void fn_802328DC(int frame); // inferred: effect system frame
 extern "C" void fn_80450B28();         // inferred: freezes the item slot animations
@@ -247,8 +245,6 @@ extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float
 extern "C" TacView* lbl_8087F9F8; // inferred: the tactical view
 extern "C" atn::Task* lbl_8087FA20;
 extern "C" int fn_8006AA20(const char* path); // inferred: the file exists
-extern "C" void fn_800F3D28(BattleTask* battle);
-extern "C" void fn_800F3170(BattleTask* battle);
 extern "C" void fn_800EFA18(int type, int map);
 extern "C" int fn_800A555C(void* obj, int a, int b);
 extern "C" void* lbl_8087EF70;

@@ -25,9 +25,6 @@ extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3,
 extern "C" void fn_8008771C(void* group, const char* name, float* value, int arg3, int arg4, float min, float max,
                             float step);
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
-extern "C" int fn_800F8548(BattleTask* mgr); // inferred: new bullet id
-extern "C" void fn_800FB4B0(BattleTask* mgr, CharaTask* chara, HitInfo_unk* data, int id, const atn::Vector3* pos,
-                            int a, int time, int b, int c);
 // inferred: effect manager (class unknown), global instance at 0x8087F3C0; m0B8 is a mode used while
 // the guard effect is created
 struct EffectMgr_unk {

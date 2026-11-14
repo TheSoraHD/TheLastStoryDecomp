@@ -16,12 +16,7 @@
 #include "atn/ColliBase.h"
 
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
-extern "C" int fn_800F8548(BattleTask* mgr); // inferred: new bullet id
 extern "C" double sqrt(double x);
-extern "C" void fn_800FAB80(BattleTask* mgr, CharaTask* owner, HitInfo_unk* bullet, int arg3, const atn::Vector3* pos,
-                            const atn::Vector3* rot, int arg6, int arg7, int arg8, int arg9, float arg10,
-                            float arg11);
-extern "C" void fn_801092C8(BattleTask* effect, int msg, CharaTask* chara, int value, int arg);
 extern "C" int fn_800DD3FC(wchar_t* s, const wchar_t* format, ...); // inferred: wide sprintf
 extern "C" const wchar_t lbl_808813D0[2]; // inferred: empty text
 // inferred: camp message table (lbl_8087F1E4, see MP/D2AMpMenuSetRule.cpp)
@@ -65,11 +60,6 @@ extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* m
 extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the next effects
 extern "C" chr::CharaData_unk* fn_8020A81C(const char* name); // inferred: character data by name
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
-// inferred: per-player weights of an effect (floats at +0x128); names invented
-struct GhoulWeights_unk {
-    unsigned char m00[0x128];
-    float mWeight[4];
-};
 // inferred: field (lbl_8087F430); the event flags are read with fn_80370A78
 struct Field_unk {
     RouteTable_unk* fn_8013C504(); // inferred: returns m10D8
@@ -628,14 +618,14 @@ void Em309Ghoul::fn_802FF6C4() {
         m1454 = 1;
         m14EC = mC58.mC4;
     }
-    GhoulWeights_unk* w = (GhoulWeights_unk*)lbl_8087F048->fn_80103F60(this);
+    BattleChara_unk* w = lbl_8087F048->fn_80103F60(this);
     for (PlayerTask* p = lbl_8087F8A0->mHead; p != 0; p = p->mNext) {
-        int i = ((BattleTask*)w)->fn_80108378(p);
+        int i = w->fn_80108378(p);
         if (i >= 0) {
             if (m1524 >= m16F8) {
-                w->mWeight[i] = p == leader ? 1.0f : 0.0f;
+                w->m128[i] = p == leader ? 1.0f : 0.0f;
             } else {
-                w->mWeight[i] = 1.0f;
+                w->m128[i] = 1.0f;
             }
         }
     }

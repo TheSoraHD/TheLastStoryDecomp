@@ -6,8 +6,6 @@
 #include "game/GimmickCommon.h"
 
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
-extern "C" int fn_800F8548(BattleTask* mgr); // inferred: new bullet id
-extern "C" void fn_801092C8(void* mgr, int arg, CharaTask* chara, int a, int b);
 // inferred: field (lbl_8087F430); the event flags are read with fn_80370A78 and written with fn_80370AE4
 struct Field_unk;
 extern "C" Field_unk* lbl_8087F430;

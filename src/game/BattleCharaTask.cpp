@@ -86,13 +86,6 @@ extern "C" Field_unk* lbl_8087F430;
 extern "C" void fn_804776F4(atn::LH_MotionSet* set, atn::Model* model); // inferred: applies the motions
 // inferred: effect manager (lbl_8087F048, as in game/CharaTask.cpp)
 extern "C" BattleTask* lbl_8087F048;
-extern "C" int fn_800F8548(BattleTask* mgr); // inferred: new bullet id
-extern "C" void fn_800FAB80(BattleTask* mgr, CharaTask* owner, HitInfo_unk* bullet, int id, const atn::Vector3* pos,
-                            const atn::Vector3* rot, int arg6, int arg7, int arg8, int arg9, float arg10,
-                            float arg11); // inferred: fires a bullet (as in gmk/Coffin.cpp)
-extern "C" void fn_800F8574(BattleTask* mgr, CharaTask* owner, HitInfo_unk* data, const atn::Vector3* pos,
-                            const atn::Vector3* dir, HomingParam_unk* param, int arg6, int arg7, float a,
-                            float b); // inferred: fires a bullet (as in game/Em003LesserDaemon.cpp)
 // inferred: colour as four floats (as in game/CharaTask.cpp)
 typedef EffectColor_unk Color4f_unk;
 extern "C" void* fn_80210220(int id); // inferred: record of the parameters (result unused here)
@@ -135,7 +128,6 @@ static inline atn::Vector3 FrontDir_unk(const atn::Vector3& rot) {
     PSMTXMultVec(m.m, &v, &v);
     return v;
 }
-extern "C" void fn_8010220C(BattleTask* mgr, int arg);
 // inferred: target in front of the character within radius/theta
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
 // inferred: target searches of the effect manager (in front / around)
@@ -144,7 +136,6 @@ extern "C" int fn_801004FC(BattleTask* mgr, CharaTask** out, CharaTask* chara, c
 extern "C" double cos(double x);
 extern "C" double sin(double x);
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
-extern "C" int fn_800F8548(BattleTask* mgr);
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 extern "C" int fn_80041A28(int arg, CharaTask* chara, CharaTask* target); // inferred: kind of attack
 // inferred: target found by fn_800E7214 with its position (only the character is filled here)
@@ -548,7 +539,6 @@ extern "C" void* lbl_8087EF70; // inferred: pad of the stick
 // inferred: target in front of the character for the cover actions (game/BattleTask.cpp, BattleAim_unk)
 extern "C" int fn_8010089C(BattleTask* mgr, BattleTarget_unk* out, CharaTask* chara, const atn::Vector3* rot,
                            float range, float angle);
-extern "C" void fn_801092C8(BattleTask* mgr, int kind, CharaTask* chara, int item, int num); // inferred: battle message
 extern "C" int fn_80211734(HitInfo_unk* item);                 // inferred: infinite item
 extern "C" void fn_8044441C(Inventory* inv, int id, int num);  // inferred: removes items
 extern "C" int fn_804444E8(Inventory* inv, int id);            // inferred: number of items
@@ -1083,7 +1073,7 @@ void BattleCharaTask::fn_800E589C() {
                             mFlagC30 = 1;
                             BattleTask* mgr = lbl_8087F048;
                             atn::Vector3 dir = fn_80178018();
-                            CharaTask* chara = ((BattleTask*)mgr)->fn_800FFE68(this, &dir, 0, 0, config->mBtnAtkCorrectRadius,
+                            CharaTask* chara = mgr->fn_800FFE68(this, &dir, 0, 0, config->mBtnAtkCorrectRadius,
                                                            0.5f * config->mBtnAtkCorrectTheta);
                             if (chara != 0) {
                                 target.mChara = chara;
@@ -1346,7 +1336,7 @@ void BattleCharaTask::fn_800E62AC(Field_unk* field, int a, int b) {
                     if (mFC4 != 0) {
                         BattleTask* mgr = lbl_8087F048;
                         atn::Vector3 dir = fn_80178018();
-                        fn_8016DC14(((BattleTask*)mgr)->fn_800FFE68(this, &dir, 0, 1, config->mLockOnLen, config->mLockOnTheta), 0);
+                        fn_8016DC14(mgr->fn_800FFE68(this, &dir, 0, 1, config->mLockOnLen, config->mLockOnTheta), 0);
                         mFC0 = mFC4;
                     } else {
                         fn_8016DC14(mFC0, 0);
@@ -1464,7 +1454,7 @@ int BattleCharaTask::fn_800E70EC(int a, int b, int c) {
                 BattleTask* mgr = lbl_8087F048;
                 atn::Vector3 dir = fn_80178018();
                 CharaTask* target =
-                    ((BattleTask*)mgr)->fn_800FFE68(this, &dir, 0, 0, config->mBtnAtkCorrectRadius, config->mBtnAtkCorrectTheta);
+                    mgr->fn_800FFE68(this, &dir, 0, 0, config->mBtnAtkCorrectRadius, config->mBtnAtkCorrectTheta);
                 if (target != 0) {
                     fn_800E8688(0xC8, 1, target, &target->mPos, 0, 0);
                 } else {
@@ -1535,7 +1525,7 @@ int BattleCharaTask::fn_800E73EC(Field_unk* field, int b, int c) {
             } else {
                 BattleTask* mgr = lbl_8087F048;
                 atn::Vector3 dir = fn_80178018();
-                mFC0 = ((BattleTask*)mgr)->fn_800FFE68(this, &dir, 0, 1, config->mLockOnLen, config->mLockOnTheta);
+                mFC0 = mgr->fn_800FFE68(this, &dir, 0, 1, config->mLockOnLen, config->mLockOnTheta);
             }
         }
         mFlag5 = 1;
@@ -1622,7 +1612,7 @@ void BattleCharaTask::fn_800E7650(Field_unk* field, int, int) {
             if (mFC0 == 0) {
                 BattleTask* mgr = lbl_8087F048;
                 atn::Vector3 dir = fn_80178018();
-                mFC0 = ((BattleTask*)mgr)->fn_800FFE68(this, &dir, 0, 1, config->mLockOnLen, config->mLockOnTheta);
+                mFC0 = mgr->fn_800FFE68(this, &dir, 0, 1, config->mLockOnLen, config->mLockOnTheta);
             }
             mFlag4 = 1;
             ((GameCamera*)obj)->fn_8037EF30(0, 1, -1.0f);

@@ -82,11 +82,6 @@ struct VoiceEntry_unk {
 };
 extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float volume);
 extern "C" float fn_800A56A8(void* pad, int port, int axis, int arg); // inferred: stick axis
-extern "C" int fn_800F8548(BattleTask* mgr);
-extern "C" void fn_800FAB80(BattleTask* mgr, CharaTask* owner, HitInfo_unk* bullet, int arg3, const atn::Vector3* pos,
-                            const atn::Vector3* rot, int arg6, int arg7, int arg8, int arg9, float arg10, float arg11);
-extern "C" void fn_800FB4B0(BattleTask* mgr, CharaTask* owner, HitInfo_unk* bullet, int arg3, const atn::Vector3* pos,
-                            int arg5, int arg6, int arg7, int arg8);
 // inferred: game state (lbl_8087EFA8, as in game/CharaTask.cpp); names invented
 struct GameState_unk {
     unsigned char m000[0x3A4];

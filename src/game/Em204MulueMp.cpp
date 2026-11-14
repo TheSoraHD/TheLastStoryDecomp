@@ -26,12 +26,6 @@ extern "C" HitInfo_unk* fn_80219E6C(int id); // inferred: bullet/skill data by i
 // inferred: debug menu helper (as in game/CharaTask.cpp)
 extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3, int arg4);
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
-extern "C" int fn_800F8548(BattleTask* mgr); // inferred: new bullet id
-extern "C" void fn_800F8574(BattleTask* mgr, CharaTask* chara, HitInfo_unk* data, const atn::Vector3* pos,
-                            const atn::Vector3* dir, int a, int b, int c, float f1, float f2); // inferred: bullet
-extern "C" void fn_800FAB80(BattleTask* mgr, CharaTask* chara, HitInfo_unk* bullet, int arg3, const atn::Vector3* pos,
-                            const atn::Vector3* rot, int arg6, int arg7, int arg8, int arg9, float arg10,
-                            float arg11); // inferred: fires a bullet
 // inferred: effect manager (class unknown), global instance at 0x8087F3C0 (two flags at 0xC4/0xC8 are
 // set around the spin effect, as in game/Em209SmallGolem.cpp)
 struct EffectMgr_unk {

@@ -20,14 +20,6 @@ extern "C" int strncmp(const char* a, const char* b, unsigned long n);
 extern "C" std::string fn_8006AFF8(const std::string& a, const std::string& b); // inferred: a + b
 extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3, int arg4); // debug menu
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
-extern "C" int fn_800F8548(BattleTask* mgr); // inferred: new bullet id
-extern "C" void fn_800FAB80(BattleTask* mgr, CharaTask* owner, HitInfo_unk* bullet, int id, const atn::Vector3* pos,
-                            const atn::Vector3* rot, int arg6, int arg7, int arg8, int arg9, float arg10,
-                            float arg11); // inferred: shoots a bullet
-extern "C" void fn_800F8574(BattleTask* mgr, CharaTask* owner, HitInfo_unk* data, const atn::Vector3* pos,
-                            const atn::Vector3* dir, void* param, int arg6, int arg7, float a,
-                            float b); // inferred: fires a bullet (as in game/Em003LesserDaemon.cpp)
-extern "C" void fn_80108F38(BattleTask* mgr, const atn::Vector3* pos, int arg);
 extern "C" HitInfo_unk* fn_80219E6C(int id); // inferred: skill data
 // inferred: effect manager (class unknown), global instance at 0x8087F3C0
 struct EffectMgr_unk;
@@ -438,11 +430,6 @@ extern "C" inline bool fn_800E0AB0(const std::vector<EnemyTask*>* list) {
     COCOON_ASSERT100_UNK(list != 0);
     return list->mSize == 0;
 }
-// inferred: aggro weights of the battle record of a character (as BattleSlots_unk of game/Em301LShade.cpp)
-struct CocoonSlots_unk {
-    unsigned char m000[0x128];
-    float m128[1];
-};
 
 // inferred: runs the current state; while rolling (states 13 and 14) every 120 frames one random character
 // other than the target gets all the aggro, else every character has the same weight
@@ -515,37 +502,37 @@ void Em206CocoonMp::vf104() {
     if (m58C == 13 || m58C == 14) {
         if (++m1918 > 120) {
             m1918 = 0;
-            CocoonSlots_unk* slots = (CocoonSlots_unk*)fn_8013A194()->fn_80103F60(this);
+            BattleChara_unk* slots = fn_8013A194()->fn_80103F60(this);
             std::vector<EnemyTask*> list;
             for (EnemyTask* p = (EnemyTask*)fn_802A36B0(fn_8000D9E8()); p != 0; p = (EnemyTask*)fn_802A4094(p)) {
                 if (p != mC58.mC4) {
                     list.push_back(p);
                 }
-                slots->m128[((BattleTask*)slots)->fn_80108378(p)] = 0.2f;
+                slots->m128[slots->fn_80108378(p)] = 0.2f;
             }
             for (EnemyTask* e = fn_801A0408(fn_801A03E0()); e != 0; e = fn_801A03EC(e)) {
                 if (!e->fn_8013A158()) {
                     if (e != mC58.mC4) {
                         list.push_back(e);
                     }
-                    slots->m128[((BattleTask*)slots)->fn_80108378(e)] = 0.2f;
+                    slots->m128[slots->fn_80108378(e)] = 0.2f;
                 }
             }
             if (!fn_800E0AB0(&list)) {
                 unsigned int n = fn_800E0AA8(&list);
                 CharaTask* t = list[rand() % n];
-                slots->m128[((BattleTask*)slots)->fn_80108378(t)] = 1.0f;
+                slots->m128[slots->fn_80108378(t)] = 1.0f;
             }
         }
     } else {
         m1918 = 0;
-        CocoonSlots_unk* slots = (CocoonSlots_unk*)fn_8013A194()->fn_80103F60(this);
+        BattleChara_unk* slots = fn_8013A194()->fn_80103F60(this);
         for (CharaTask* p = fn_802A36B0(fn_8000D9E8()); p != 0; p = fn_802A4094(p)) {
-            slots->m128[((BattleTask*)slots)->fn_80108378(p)] = 1.0f;
+            slots->m128[slots->fn_80108378(p)] = 1.0f;
         }
         for (EnemyTask* e = fn_801A0408(fn_801A03E0()); e != 0; e = fn_801A03EC(e)) {
             if (!e->fn_8013A158()) {
-                slots->m128[((BattleTask*)slots)->fn_80108378(e)] = 1.0f;
+                slots->m128[slots->fn_80108378(e)] = 1.0f;
             }
         }
     }

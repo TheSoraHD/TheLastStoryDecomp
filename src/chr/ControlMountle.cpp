@@ -45,7 +45,6 @@ extern "C" int fn_8004D388(void* world, atn::ColliResult_unk* result, CharaTask:
                            unsigned int mask, void* ignore, int arg, float radius); // inferred: sweep test
 
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
-extern "C" int fn_800F8548(BattleTask* mgr); // inferred: new bullet id
 
 
 // inferred: inline in the original (weak copies 0x8013C3B4, 0x8013C394, 0x8013C38C, 0x8013C460,

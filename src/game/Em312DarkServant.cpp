@@ -30,10 +30,10 @@ extern "C" int fn_80239D58(EffectMgr_unk* mgr, void* owner, int id); // inferred
 extern "C" int rand();
 extern "C" float fn_80011220(float x); // inferred: fabs (weak copy of another helper)
 // inferred: effect manager methods (as in game/CharaTask.cpp)
-struct Effect_unk;
-Effect_unk* fn_8013A194();
-extern "C" int fn_800F8548(Effect_unk* mgr); // inferred: new bullet id
-extern "C" void fn_802F0964(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* bullet, int id, int arg7, int arg8,
+class BattleTask;
+BattleTask* fn_8013A194();
+extern "C" int fn_800F8548(BattleTask* mgr); // inferred: new bullet id
+extern "C" void fn_802F0964(BattleTask* mgr, CharaTask* owner, HitInfo_unk* bullet, int id, int arg7, int arg8,
                             float arg9); // inferred: fires a bullet (weak copy, game/Em306GurgBeast.cpp)
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);

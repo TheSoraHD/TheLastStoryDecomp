@@ -1,5 +1,6 @@
 #include "game/GameSoundControl.h"
 #include "game/GameTask.h"
+#include "game/BattleTask.h"
 #include "game/GameBgm.h"
 #include "atn/Memory.h"
 #include "atn/FixedArray.h"
@@ -41,19 +42,7 @@ struct Field_unk {
     FieldStream_unk* m5624;
 };
 extern "C" Field_unk* lbl_8087F430;
-// inferred: battle state kept by the effect manager (lbl_8087F048); names invented
-struct BattleState_unk {
-    unsigned char m00000[0x38C90];
-    int m38C90;
-    int m38C94;
-    unsigned char m38C98[0x38C9C - 0x38C98];
-    int m38C9C;
-    unsigned char m38CA0;
-    unsigned char m38CA1[0x38CCC - 0x38CA1];
-    int m38CCC;
-    int m38CD0;
-};
-extern "C" BattleState_unk* lbl_8087F048;
+extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
 extern "C" void* lbl_8087EE90;
 extern "C" void* lbl_8087F418;
 extern "C" void* lbl_8087F540;
@@ -104,10 +93,10 @@ void GameSoundControl::fn_803CDB64() {}
 
 void GameSoundControl::fn_803CDB68() {
     if (lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->fn_803761FC() && GameBgm::sInstance != 0) {
-        BattleState_unk* state = lbl_8087F048;
-        if (state->m38CA0 == 0) {
-            if (state->m38C9C >= 3) {
-                if (state->m38C90 * 2 <= state->m38C94) {
+        BattleTask* state = lbl_8087F048;
+        if (state->m38C90.m10 == 0) {
+            if (state->m38C90.m0C >= 3) {
+                if (state->m38C90.m00 * 2 <= state->m38C90.m04) {
                     GameBgm::sInstance->fn_8037D4C0(0x6B, 0, 1, 0, 1.0f);
                 } else {
                     GameBgm::sInstance->fn_8037D4C0(0x66, 0, 1, 0, 1.0f);
@@ -205,7 +194,7 @@ void GameSoundControl::fn_803CDF84() {
         return;
     }
     if (((GameTask*)lbl_8087F430)->fn_80375184() && ((GameTask*)lbl_8087F430)->fn_803761FC() && lbl_8087F048 != 0) {
-        BattleState_unk* state = lbl_8087F048;
+        BattleTask* state = lbl_8087F048;
         if (state->m38CCC != state->m38CD0) {
             switch (state->m38CCC) {
             case 1:

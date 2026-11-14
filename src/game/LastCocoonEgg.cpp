@@ -30,11 +30,7 @@ extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); /
 extern "C" void fn_80232B7C(void* owner, int arg);
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
-extern "C" int fn_800F8548(BattleTask* mgr); // inferred: new bullet id
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
-extern "C" void fn_800FAB80(BattleTask* mgr, CharaTask* owner, HitInfo_unk* bullet, int id, const atn::Vector3* pos,
-                            const atn::Vector3* rot, int arg6, int arg7, int arg8, int arg9, float arg10,
-                            float arg11); // inferred: fires a bullet (as in gmk/Coffin.cpp)               // inferred: popup text manager
 // inferred: camera shake request of the field (lbl_8087F430); as in gmk/ShakeCamera.cpp
 // inferred: named Field_unk as in game/LastCocoonImago.cpp (fn_8013C504__9Field_unkFv)
 struct Field_unk {
@@ -833,9 +829,6 @@ void LastCocoonEgg::fn_80456194() {
 extern "C" int rand();
 extern "C" int fn_80053BD0(atn::ColliResult_unk* r, const atn::ColliCapsuleShape_unk* c,
                            const atn::ColliCapsuleShape_unk* capsule); // inferred: segment against capsule
-extern "C" void fn_800F8574(BattleTask* mgr, CharaTask* owner, HitInfo_unk* data, const atn::Vector3* pos,
-                            const atn::Vector3* dir, void* param, int arg6, int arg7, float a,
-                            float b); // inferred: fires a bullet (as in game/EnemyQuarkSecond.cpp)
 // inferred: segment of a shot (a capsule shape without radius; as Segment_unk of chr/ControlPushedDown.cpp)
 struct EggSegment_unk {
     atn::Vector3 mStart;

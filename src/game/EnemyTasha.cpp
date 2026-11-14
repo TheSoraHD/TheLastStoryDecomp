@@ -46,13 +46,6 @@ extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); /
 extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the next effects
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
 BattleTask* fn_8013A194();
-extern "C" int fn_800F8548(BattleTask* mgr); // inferred: new bullet id
-extern "C" void fn_800FAB80(BattleTask* mgr, CharaTask* owner, HitInfo_unk* bullet, int arg3, const atn::Vector3* pos,
-                            const atn::Vector3* rot, int arg6, int arg7, int arg8, int arg9, float arg10,
-                            float arg11); // inferred: fires a bullet (as in game/EnemyJill.cpp)
-// inferred: the bullet of `owner` that hits `chara` (index, negative if none)
-extern "C" int fn_800FBA9C(BattleTask* mgr, CharaTask* chara, CharaTask* owner, HitInfo_unk* hit, int arg,
-                           float f);
 // inferred: skill effect manager (lbl_8087F9E8; weak copy 0x80356FFC is its accessor)
 
 extern "C" void* lbl_8087EE98;

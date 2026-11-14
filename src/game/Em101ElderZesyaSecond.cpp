@@ -32,7 +32,6 @@ struct Field_unk {
 };
 extern "C" Field_unk* lbl_8087F430;
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
-extern "C" int fn_800F8548(BattleTask* mgr); // inferred: new bullet id
 // inferred: effect manager (class unknown), global instance at 0x8087F3C0
 struct EffectMgr_unk {
     unsigned char m00[0xB8];
@@ -57,9 +56,6 @@ extern "C" int atoi(const char* s);
 extern "C" int fn_800DC12C(const char* s);   // inferred: string to int
 extern "C" float fn_800DC288(const char* s); // inferred: string to float
 extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float volume);
-extern "C" void fn_800FAB80(BattleTask* mgr, CharaTask* owner, HitInfo_unk* bullet, int id, const atn::Vector3* pos,
-                            const atn::Vector3* rot, int arg6, int arg7, int arg8, int arg9, float arg10,
-                            float arg11); // inferred: fires a bullet (as in gmk/Coffin.cpp)
 extern "C" void* memset(void* dst, int c, unsigned long n);
 extern "C" int fn_800DD3FC(wchar_t* s, const wchar_t* format, ...); // inferred: wide sprintf
 extern "C" const wchar_t lbl_808813D0[2]; // inferred: empty text
@@ -73,11 +69,6 @@ extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 extern "C" atn::Vector3 lbl_807C7030;              // inferred: zero vector
 // inferred: skill effect manager (lbl_8087F9E8, as in gmk/HealPoint.cpp); nonzero while the magic is active
-// inferred: per-player weights of an effect (floats at +0x128, as in game/Em309Ghoul.cpp); names invented
-struct ElderWeights_unk {
-    unsigned char m00[0x128];
-    float mWeight[4];
-};
 // inferred: current control while casting (as in game/Em101ElderZesya.cpp)
 struct ControlMagic_unk {
     unsigned char m00[0x1D];
@@ -376,11 +367,11 @@ void Em101ElderZesyaSecond::vf10() {
     fn_80145334();
     for (PlayerTask* p = lbl_8087F8A0->mHead; p != 0; p = p->mNext) {
         if (p->mType != 0 && p->CanAct_unk()) {
-            ElderWeights_unk* w = (ElderWeights_unk*)lbl_8087F048->fn_80103F60(p);
+            BattleChara_unk* w = lbl_8087F048->fn_80103F60(p);
             if (w != 0) {
-                int i = ((BattleTask*)w)->fn_80108378(this);
+                int i = w->fn_80108378(this);
                 if (i >= 0) {
-                    w->mWeight[i] = 100.0f;
+                    w->m128[i] = 100.0f;
                 }
             }
         }

@@ -148,12 +148,7 @@ extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared len
 extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
 extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the next effects
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
-extern "C" int fn_800F8548(BattleTask* mgr); // inferred: new bullet id
-extern "C" void fn_800F8574(BattleTask* mgr, CharaTask* chara, HitInfo_unk* data, const atn::Vector3* pos,
-                            const atn::Vector3* dir, HomingParam_unk* param, int flags, int arg, float f1,
-                            float f2); // inferred: fires a homing bullet
 BattleTask* fn_8013A194(); // inferred: bullet manager (returns lbl_8087F048)
-extern "C" float fn_8010B250(BattleTask* mgr, int kind, int arg); // inferred: scale of the bullet
 extern "C" int fn_800EFD04(int id); // inferred: effect resources of a bullet
 extern "C" int fn_800EFDA0(int id);
 extern "C" float fn_800F8524(const float* a, const float* b, float t); // inferred: lerp of two floats
@@ -164,9 +159,6 @@ extern "C" void fn_8023A680(EffectMgr_unk* mgr, atn::EffFile* res, int arg2, int
 extern "C" void fn_80276AE4(EffectMgr_unk* mgr, atn::EfpFile* efp, void* model, const atn::Vector3* pos,
                             const atn::Vector3* rot, int a, int b, int c, float scale);
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
-extern "C" void fn_800FAB80(BattleTask* mgr, CharaTask* owner, HitInfo_unk* bullet, int arg3, const atn::Vector3* pos,
-                            const atn::Vector3* rot, int arg6, int arg7, int arg8, int arg9, float arg10,
-                            float arg11); // inferred: fires a bullet at a point
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume); // 3D sound
 // inferred: game state (lbl_8087EFA8): the frame time at 0x3A4 (as in game/Em301LShade.cpp)
 struct QuarkGame_unk {
@@ -179,11 +171,6 @@ extern "C" int fn_8004ED34(void* colli, void* result, const atn::Vector3* from, 
                            unsigned int mask, void* ignore, int arg7); // inferred: segment test
 extern "C" void fn_8023A108(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: effect fade
 extern "C" GameUI* lbl_8087F490; // inferred: game UI
-// inferred: per-player weights of an effect (floats at +0x128, as GhoulWeights_unk of game/Em309Ghoul.cpp)
-struct QuarkWeights_unk {
-    unsigned char m00[0x128];
-    float mWeight[4];
-};
 // inferred: the stuck control keeps the action to run at its end (boost::function at +0x24; name
 // invented)
 struct QuarkStickControl_unk {
@@ -2570,20 +2557,20 @@ void EnemyQuarkStand::fn_8035359C() {
             m17E4 = 0;
         }
     }
-    QuarkWeights_unk* w = (QuarkWeights_unk*)lbl_8087F048->fn_80103F60(this);
+    BattleChara_unk* w = lbl_8087F048->fn_80103F60(this);
     if (m17E4 != 0) {
         for (CharaTask* p = lbl_8087F8A0->mHead; p != 0; p = ((PlayerTask*)p)->mNext) {
-            int i = ((BattleTask*)w)->fn_80108378(p);
+            int i = w->fn_80108378(p);
             if (p == m17E4) {
-                w->mWeight[i] = 100.0f;
+                w->m128[i] = 100.0f;
             } else {
-                w->mWeight[i] = 0.0f;
+                w->m128[i] = 0.0f;
             }
         }
     } else {
         for (CharaTask* p = lbl_8087F8A0->mHead; p != 0; p = ((PlayerTask*)p)->mNext) {
-            int i = ((BattleTask*)w)->fn_80108378(p);
-            w->mWeight[i] = 1.0f;
+            int i = w->fn_80108378(p);
+            w->m128[i] = 1.0f;
         }
     }
 }

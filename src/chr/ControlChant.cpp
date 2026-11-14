@@ -41,15 +41,6 @@ extern "C" GameState_unk* lbl_8087EFA8;
 // inferred: RGBA colour of the effects
 typedef EffectColor_unk Color4f_unk;
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
-extern "C" int fn_800F8548(BattleTask* mgr);
-extern "C" void fn_800F8574(BattleTask* mgr, CharaTask* owner, HitInfo_unk* data, const atn::Vector3* pos,
-                            const atn::Vector3* dir, HomingParam_unk* param, int arg6, int arg7, float a,
-                            float b); // inferred: fires a bullet
-extern "C" void fn_800FAB80(BattleTask* mgr, CharaTask* owner, HitInfo_unk* bullet, int arg3, const atn::Vector3* pos,
-                            const atn::Vector3* rot, int arg6, int arg7, int arg8, int arg9, float arg10, float arg11);
-extern "C" void fn_800FB4B0(BattleTask* mgr, CharaTask* owner, HitInfo_unk* bullet, int arg3, const atn::Vector3* pos,
-                            int arg5, int arg6, int arg7, int arg8);
-extern "C" void fn_801092C8(BattleTask* effect, int msg, CharaTask* chara, int value, int arg);
 // inferred: result of a damage computation (names invented, as in game/EnemyTasha.cpp)
 struct MagicDamage_unk {
     MagicDamage_unk() : m00(0), m04(0), m08(0), m0C(0), m10(0), m14(-1), m18(-1), m1C_28(0) {}

@@ -21,7 +21,6 @@
 #include "atn/ColliBase.h"
 
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
-extern "C" int fn_800F8548(BattleTask* mgr); // inferred: new bullet id
 // inferred: field (lbl_8087F430): camera shake and event flags (as in gmk/ShakeCamera.cpp)
 struct QuadField_unk {
     void Shake_unk(int frame, float x, float y) {
@@ -113,9 +112,6 @@ struct QuadDamage_unk {
 extern "C" void fn_80108C10(BattleTask* effect, QuadDamage_unk* damage, const atn::Vector3& pos, CharaTask* from,
                             CharaTask* to, int b, int c);
 
-extern "C" void fn_800FAB80(BattleTask* mgr, CharaTask* owner, HitInfo_unk* bullet, int id, const atn::Vector3* pos,
-                            const atn::Vector3* rot, int arg6, int arg7, int arg8, int arg9, float arg10,
-                            float arg11); // inferred: fires a bullet (as in game/BattleCharaTask.cpp)
 
 struct HitResult_unk;
 // inferred: as in game/Em206EggMonster.cpp (name invented)
@@ -1307,9 +1303,6 @@ struct QuadHoming_unk : public HomingParam_unk {
         mCount = -1;
     }
 };
-extern "C" void fn_800F8574(BattleTask* mgr, CharaTask* owner, HitInfo_unk* data, const atn::Vector3* pos,
-                            const atn::Vector3* dir, HomingParam_unk* param, int arg6, int arg7, float a,
-                            float b); // inferred: fires a homing bullet (as in game/Em203GreaterDaemon.cpp)
 
 // inferred: copy of the shot parameters of a bullet built in place (Bullet::GetShot_unk makes one more
 // copy); name invented
@@ -1569,10 +1562,6 @@ void LastCocoonQuadruped::fn_80467F50() {
     fn_800C344C("SE_EM206_001", &mPos, 0, -1, 1.0f);
 }
 
-extern "C" int fn_800FBA9C(BattleTask* mgr, CharaTask* chara, CharaTask* target, HitInfo_unk* data, int arg,
-                           float f); // inferred: the attack reaches the target
-extern "C" int fn_800FBE70(BattleTask* mgr, CharaTask* chara, CharaTask* target, HitInfo_unk* data, int arg,
-                           atn::Vector3* dir, int a, int b); // inferred: the attack in `dir` reaches the target
 
 // NONMATCHING: 97.7% - `m560 == 4 || m560 == 5` becomes a range test (two compares in the original), which
 // shifts the registers r23-r31

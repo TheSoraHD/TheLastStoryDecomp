@@ -33,10 +33,6 @@ extern "C" CharaManager<EnemyTask>* fn_801A03E0(); // inferred: enemy manager
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
-extern "C" int fn_800F8548(BattleTask* mgr); // inferred: new bullet id
-extern "C" void fn_800FAB80(BattleTask* mgr, CharaTask* owner, HitInfo_unk* bullet, int id, const atn::Vector3* pos,
-                            const atn::Vector3* rot, int arg6, int arg7, int arg8, int arg9, float arg10,
-                            float arg11); // inferred: fires a bullet (as in gmk/Coffin.cpp)
 // inferred: skill effects (as in gmk/HealPoint.cpp); the callback is empty here
 struct SkillEffect;
 extern "C" void* lbl_8087F9E8;

@@ -246,16 +246,6 @@ int EnemyQuarkSecond::vf0C() {
 
 // --- declarations used by the state functions (names invented unless noted) ---
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
-extern "C" int fn_800F8548(BattleTask* mgr); // inferred: new bullet id
-extern "C" void fn_800FAB80(BattleTask* mgr, CharaTask* owner, HitInfo_unk* bullet, int arg3, const atn::Vector3& pos,
-                            const atn::Vector3& rot, int arg6, int arg7, int arg8, int arg9, float arg10,
-                            float arg11);
-// inferred: battle state (fn_80103F60 returns a record per party member; m128: weights), as in
-// game/Em301LShade.cpp
-struct BattleSlots_unk {
-    unsigned char m000[0x128];
-    float m128[1];
-};
 // inferred: effect manager (atn::EffectManager, global instance at 0x8087F3C0)
 struct EffectMgr_unk;
 extern "C" EffectMgr_unk* lbl_8087F3C0;
@@ -1100,9 +1090,6 @@ inline void QuarkRotZYX_unk(atn::Matrix3x4& m, const atn::Vector3& rot) {
     __MtxRotate(m.m, 'x', rot.x);
 }
 
-extern "C" void fn_800F8574(BattleTask* mgr, CharaTask* owner, HitInfo_unk* data, const atn::Vector3* pos,
-                            const atn::Vector3* dir, HomingParam_unk* param, int arg6, int arg7, float a,
-                            float b); // inferred: fires a bullet (as in game/Em201ZanGurgFinal.cpp)
 
 // inferred: plays an effect bound to a matrix (kind 5: `target` is a Matrix3x4; as gmk/PlayEffect.cpp, which
 // passes a model)
@@ -1326,7 +1313,7 @@ void EnemyQuarkSecond::fn_8033DB8C() {
         if (mMotion.mTracks[0].m08 >= 45.0f) {
             m14B4++;
             BattleTask* mgr = lbl_8087F048;
-            fn_800FAB80(mgr, this, m14CC, fn_800F8548(mgr), mPos, mRot, 0, 30, -1, -1, 0.0f, 1.0f);
+            fn_800FAB80(mgr, this, m14CC, fn_800F8548(mgr), &mPos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
             FixedArray_unk<CharaTask*, 32> targets;
             for (PlayerTask* p = lbl_8087F8A0->mHead; p != 0; p = (PlayerTask*)p->mNext) {
                 if (IsBurstTarget_unk(p) && (p->m54C & 0x2000) != 0x2000 && !fn_8016F3D0(p, 1) &&
@@ -2049,7 +2036,7 @@ void EnemyQuarkSecond::fn_803412AC() {
             m1758->mMotion.mTracks[0].m0C = mMotion.mTracks[0].m0C;
             PlayerTask* lead = lbl_8087F8A0->mHead;
             BattleTask* mgr = lbl_8087F048;
-            fn_800FAB80(mgr, lead, fn_80219E6C(0x780), fn_800F8548(mgr), mPos, mRot, 0, 30, -1, -1, 0.0f, 1.0f);
+            fn_800FAB80(mgr, lead, fn_80219E6C(0x780), fn_800F8548(mgr), &mPos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
             fn_80232B7C(&m168C, 0);
             PlayEffectB_unk(&m168C, &mMotion);
             ((atn::EffectManager*)lbl_8087F3C0)->fn_8023A254((unsigned int)&m168C, 0, 0.5f);
@@ -2309,7 +2296,7 @@ void EnemyQuarkSecond::fn_803441AC() {
         Mtx m;
         PSMTXRotRad(m, 'y', angle);
         PSMTXMultVec(m, &dir, &dir);
-        fn_800FAB80(lbl_8087F048, this, m14D8, m1658, m164C + dir, atn::Vector3(0.0f, angle, 0.0f), 0, 30, -1, -1,
+        fn_800FAB80(lbl_8087F048, this, m14D8, m1658, &(m164C + dir), &atn::Vector3(0.0f, angle, 0.0f), 0, 30, -1, -1,
                     3.0f, 1.0f);
         if (m1760 != 0) {
             lbl_8087EEB0->fn_80063D3C(m164C + dir, m14D8->m58, 1000.0f, 0xFF000000);
@@ -2389,12 +2376,12 @@ void EnemyQuarkSecond::fn_80344780() {
 }
 
 void EnemyQuarkSecond::fn_803449AC() {
-    BattleSlots_unk* slots = (BattleSlots_unk*)lbl_8087F048->fn_80103F60(this);
+    BattleChara_unk* slots = lbl_8087F048->fn_80103F60(this);
     if (m14C8 != 0) {
         CharaTask* c = lbl_8087F8A0->mHead;
         if (!c->mFlag28) {
             for (; c != 0; c = fn_802A4094(c)) {
-                int i = ((BattleTask*)slots)->fn_80108378(c);
+                int i = slots->fn_80108378(c);
                 if (c == m14C4) {
                     slots->m128[i] = 100.0f;
                 } else {
@@ -2405,7 +2392,7 @@ void EnemyQuarkSecond::fn_803449AC() {
         }
     }
     for (CharaTask* c = lbl_8087F8A0->mHead; c != 0; c = fn_802A4094(c)) {
-        slots->m128[((BattleTask*)slots)->fn_80108378(c)] = 1.0f;
+        slots->m128[slots->fn_80108378(c)] = 1.0f;
     }
 }
 
