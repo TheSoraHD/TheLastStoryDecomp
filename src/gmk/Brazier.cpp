@@ -1,4 +1,5 @@
 #include "gmk/Brazier.h"
+#include "game/BattleTask.h"
 #include "atn/Csv.h"
 #include "atn/Memory.h"
 #include "game/CharaManager.h"
@@ -60,16 +61,11 @@ struct BrazierField_unk {
 extern "C" BrazierField_unk* lbl_8087F430;
 extern "C" int fn_8004FF58(void* view, const CharaTask::Sphere_unk* sphere); // inferred: the sphere is in view
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
-// inferred: bullets
-struct BrazierBullets_unk {
-    unsigned char m00000[0x3E39C];
-    int m3E39C; // inferred: set while a gimmick fires
-};
 struct HitInfo_unk;
-extern "C" BrazierBullets_unk* lbl_8087F048;
+extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
 extern "C" HitInfo_unk* fn_80219E6C(int id); // inferred: bullet data by id
-extern "C" int fn_800F8548(BrazierBullets_unk* mgr);
-extern "C" void fn_800FAB80(BrazierBullets_unk* mgr, CharaTask* owner, HitInfo_unk* bullet, int arg3,
+extern "C" int fn_800F8548(BattleTask* mgr);
+extern "C" void fn_800FAB80(BattleTask* mgr, CharaTask* owner, HitInfo_unk* bullet, int arg3,
                             const atn::Vector3* pos, const atn::Vector3* rot, int arg6, int arg7, int arg8, int arg9,
                             float arg10, float arg11);
 // inferred: arena characters (lbl_8087F610); 0xD5C bytes each
@@ -394,7 +390,7 @@ int Brazier::vf40(GimmickMsg_unk* msg) {
         PlayEfp_unk(lbl_8087F3C0, &mEfpCrush, &mModelCrush);
         fn_800CB5C8(&mSound, 0, 0);
         fn_800C344C(sSe[1], &m6C, 0, -1, 1.0f);
-        BrazierBullets_unk* mgr;
+        BattleTask* mgr;
         CharaTask* player = 0;
         if (lbl_8087F8A0 != 0) {
             player = lbl_8087F8A0->mHead;

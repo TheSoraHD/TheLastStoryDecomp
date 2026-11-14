@@ -42,8 +42,11 @@ Rama `agent-L`. Inicio 19:37. Referencia `$REF` = `/home/claude/ref-L` (15447 / 
   (Arms), `MountleEffect_unk` (ControlMountle), `WaitBullets_unk` (WaitObject).
 - 5 con `void*` que ya incluian `BattleTask.h` y moldeaban en cada llamada: LottaSummon, Em002_01BlackSkelton,
   Em006DarkMaster, ControlDive, Event/Manager (fuera los moldes; `fn_800F8548(BattleTask*)` en Em002).
-- Quedan (vistas con cuerpo o `void*` sin la cabecera; para otra pasada): CannonBullets_unk (Cannonball),
-  BrazierBullets_unk (Brazier), BattleState_unk (GameSoundControl), ArenaEnemyMgr_unk (ArenaTask), PickBattle_unk
+- Tercer commit: vistas con cuerpo `{ m00000[0x3E39C]; int m3E39C; }` de Cannonball (`CannonBullets_unk`),
+  Brazier (`BrazierBullets_unk`) y FragileObject (`BulletMgr_unk`): incluyen `game/BattleTask.h` y usan
+  `BattleTask::m3E39C`; `pdbatch.sh` de las tres (Cannonball 23 -> 24, Brazier 12 -> 14 en fnstat). Neutro,
+  precommit OK (poolcheck: el aviso de 1.19e-07 de Cannonball, mismo fuente de constantes).
+- Quedan (vistas con cuerpo; para otra pasada): BattleState_unk (GameSoundControl), ArenaEnemyMgr_unk (ArenaTask), PickBattle_unk
   (PickTask), WallEffect_unk (ControlWallUp), DropBulletMgr_unk (DropItem), AiEnemyMgr_unk (AiCommon_unk),
   BulletMgr_unk con cuerpo (FragileObject, CharaEquip_unk), Colli_unk (ControlAppear), `atn::Task*` (GameScene).
 - Segundo commit: los `void*` sin la cabecera (ShopUpGrade, ControlDropDown, RandomMerchant, RandomItem,

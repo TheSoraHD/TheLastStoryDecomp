@@ -1,4 +1,5 @@
 #include "gmk/Cannonball.h"
+#include "game/BattleTask.h"
 #include "game/GameTask.h"
 #include "atn/ColliBase.h"
 #include "atn/Csv.h"
@@ -142,15 +143,10 @@ extern "C" inline void fn_800F80A8(MtxPtr mtx, const atn::Vector3* pos) {
 }
 extern "C" void fn_800F80B8(MtxPtr mtx, const atn::Vector3* rot);
 extern "C" void fn_80316E38(atn::Model* model, MtxPtr mtx);
-// inferred: bullets
-struct CannonBullets_unk {
-    unsigned char m00000[0x3E39C];
-    int m3E39C; // inferred: set while a gimmick fires
-};
-extern "C" CannonBullets_unk* lbl_8087F048;
+extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
 extern "C" HitInfo_unk* fn_80219E6C(int id); // inferred: bullet data by id
-extern "C" int fn_800F8548(CannonBullets_unk* mgr);
-extern "C" void fn_800FAB80(CannonBullets_unk* mgr, CharaTask* owner, HitInfo_unk* bullet, int arg3,
+extern "C" int fn_800F8548(BattleTask* mgr);
+extern "C" void fn_800FAB80(BattleTask* mgr, CharaTask* owner, HitInfo_unk* bullet, int arg3,
                             const atn::Vector3* pos, const atn::Vector3* rot, int arg6, int arg7, int arg8, int arg9,
                             float arg10, float arg11);
 // inferred: hit request of the explosion when the bullet is of kind 3 (0x20 bytes; names invented)
@@ -675,7 +671,7 @@ void Cannonball::fn_803FB870(const atn::Vector3* pos, CharaTask* owner, int flag
                 }
             } else {
                 lbl_8087F048->m3E39C = 1;
-                CannonBullets_unk* mgr = lbl_8087F048;
+                BattleTask* mgr = lbl_8087F048;
                 atn::Vector3 dir(0.0f, 0.0f, 0.0f);
                 fn_800FAB80(mgr, owner, bullet, fn_800F8548(mgr), pos, &dir, flag, 30, -1, -1, 0.0f, 1.0f);
                 lbl_8087F048->m3E39C = 0;
