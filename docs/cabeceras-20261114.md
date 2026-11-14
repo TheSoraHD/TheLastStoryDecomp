@@ -45,5 +45,7 @@ merge final aunque el port siga activo; notas para el port solo en el proyecto (
   la integracion; **ojo**: en los bloques en conflicto se perdian renombrados no @N de la rama del agente
   (fn_800F8C6C -> undefined al enlazar): `scratch/reapply.py <rama>` los vuelve a aplicar. pdbatch en 85 unidades y
   lblmap en 22. Total **15446**, lost 0, sin bajadas, rep100 138, labelcheck 20.
-  Por cierto: GameTask fn_80371790 sube con los ctores de la cola C; EnemyQuarkStand 49->58, GameEventScript 102->108,
-  LastCocoonImago 14->20 funciones con etiquetas al dia tras pdbatch.
+- 18:41 integrada A3 (solo notas y docs/cabeceras-20261114-qA3.patch): sin las 4 bajadas grandes de A2
+  (construct(mData + mSize++, x); 20 asserts vacios en vector(const vector&); memmove en copias de vectores de
+  punteros/int/float). Suben 45 funciones (Sequence::fn_8054204C 10 -> 93 %, ParsePATH_unk 73 -> 95 %); quedan 8
+  bajadas de registros/huecos de pila (<= 0,72 %). Lanzada A4 para esas 8.
