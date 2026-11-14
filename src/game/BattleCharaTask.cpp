@@ -631,7 +631,7 @@ void BattleCharaTask::fn_800E4278(GameTask* task) {
         if (mFlag6) {
             if (IsSameMode_unk(camera)) {
                 atn::Vector3 rot = mRot;
-                rot.y = 3.1415927f + camera->mRot.y;
+                rot.y = 3.1415927f + camera->mCamera.mRot.y;
                 mRot = rot;
             }
             if (mFlag3) {
@@ -919,7 +919,7 @@ void BattleCharaTask::fn_800E4278(GameTask* task) {
             if (mFlag6) {
                 if (IsSameMode_unk(camera)) {
                     atn::Vector3 rot = mRot;
-                    rot.y = 3.1415927f + camera->mRot.y;
+                    rot.y = 3.1415927f + camera->mCamera.mRot.y;
                     mRot = rot;
                 }
             }

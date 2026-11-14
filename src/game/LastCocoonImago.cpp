@@ -1451,19 +1451,19 @@ void LastCocoonImago::fn_8045EDEC(int index) {
     CharaTask::Sphere_unk ball = m624.mData[index].m04;
     if (field->mCamera.m7FC == 3 || field->mCamera.m7FC == 1 || field->mCamera.m7FC == 4) {
         atn::Vector3 line[2];
-        line[0] = field->mCamera.mPos;
-        line[1] = field->mCamera.mTarget;
+        line[0] = field->mCamera.mCamera.mPos;
+        line[1] = field->mCamera.mCamera.mTarget;
         line[1] -= line[0];
         PSVECNormalize(&line[1], &line[1]);
         line[1] = line[1] * 800.0f + line[0];
         CharaTask::Sphere_unk item;
         item.mCenter = ball.mCenter;
         item.mRadius = ball.mRadius * 1.4f;
-        atn::Vector3 toItem = item.mCenter - field->mCamera.mPos;
+        atn::Vector3 toItem = item.mCenter - field->mCamera.mCamera.mPos;
         float dist = PSVECMag(&toItem);
         atn::Vector3 lo(-ball.mRadius, -ball.mRadius, 0.0f);
         atn::Vector3 hi(ball.mRadius, ball.mRadius, 0.0f);
-        atn::Matrix3x4 view = field->mCamera.mInvView;
+        atn::Matrix3x4 view = field->mCamera.mCamera.mInvView;
         view.m[0][3] = 0.0f;
         view.m[1][3] = 0.0f;
         view.m[2][3] = 0.0f;

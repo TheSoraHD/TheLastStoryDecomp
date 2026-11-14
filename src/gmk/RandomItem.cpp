@@ -371,19 +371,19 @@ void RandomItem::fn_804348C4() {
         }
         if (IsLookMode_unk(camera.m7FC)) {
             atn::Vector3 line[2];
-            line[0] = camera.mPos;
-            line[1] = camera.mTarget - line[0];
+            line[0] = camera.mCamera.mPos;
+            line[1] = camera.mCamera.mTarget - line[0];
             PSVECNormalize(&line[1], &line[1]);
             line[1] = line[1] * 800.0f + line[0];
             RandomItemSphere_unk sphere;
             sphere.mCenter = m154;
             sphere.mRadius = m120;
             RandomItemSphere_unk item = sphere;
-            atn::Vector3 toItem = sphere.mCenter - camera.mPos;
+            atn::Vector3 toItem = sphere.mCenter - camera.mCamera.mPos;
             float dist = PSVECMag(&toItem);
             atn::Vector3 lo(-item.mRadius, -item.mRadius, 0.0f);
             atn::Vector3 hi(item.mRadius, item.mRadius, 0.0f);
-            atn::Matrix3x4 rot = camera.mInvView;
+            atn::Matrix3x4 rot = camera.mCamera.mInvView;
             rot.m[0][3] = 0.0f;
             rot.m[1][3] = 0.0f;
             rot.m[2][3] = 0.0f;
