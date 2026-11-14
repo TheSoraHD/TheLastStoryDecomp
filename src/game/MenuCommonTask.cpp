@@ -76,7 +76,7 @@ MenuCommonTask* MenuCommonTask::fn_804A29C4(atn::Task* parent) {
 // NONMATCHING: 99.6% - registers of the mA0 array construction loop differ (zero/pointer/end in r29/r30/r28 in the target);
 // tried element ctor init list/body, nested text struct, counted list struct
 MenuCommonTask::MenuCommonTask(atn::Task* parent)
-    : atn::Task(parent), m9C(0), m1EC(0.0f), m1F0(-15.0f), m1F4(0.9f), m1F8(0.9f), m1FC(-7.0f) {
+    : atn::Task(parent), m9C(0), m1EC(0.0f, -15.0f), m1F4(0.9f, 0.9f), m1FC(-7.0f) {
     m4C = 0;
     m50 = fn_801F3FF8(this, "/data/d2anime/camp_info.d2a", 0);
     m50->fn_800D246C(1);
@@ -149,8 +149,8 @@ int MenuCommonTask::vf0C() {
             m1D0[i] = 0;
         }
         void* group = m1E8.Load("MenuCommon");
-        fn_80087BB4(group, "EquipFace Ofs", &m1EC, 0, 0, -1000.0f, 1000.0f, 1.0f);
-        fn_80087BB4(group, "EquipFace Scl", &m1F4, 0, 0, -1000.0f, 1000.0f, 1.0f);
+        fn_80087BB4(group, "EquipFace Ofs", &m1EC.x, 0, 0, -1000.0f, 1000.0f, 1.0f);
+        fn_80087BB4(group, "EquipFace Scl", &m1F4.x, 0, 0, -1000.0f, 1000.0f, 1.0f);
         fn_8008771C(group, "4:3 Desc Ofs", &m1FC, 0, 0, -1000.0f, 1000.0f, 1.0f);
         return 1;
     }

@@ -5,6 +5,7 @@
 #include <boost/function.hpp>
 #include "atn/RenderManager.h"
 #include "chr/CharaEquip_unk.h"
+#include "game/MenuCommonTask.h"
 
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 extern "C" atn::Task* fn_801F64D0(atn::Task* parent, const char* path); // inferred: d2anime task
@@ -14,13 +15,6 @@ extern "C" void PSMTXScale(Mtx m, float x, float y, float z);
 extern "C" unsigned int fn_800119B8(); // inferred: number of equipment slots
 extern "C" void fn_801F6D7C(atn::Task* task, const char* name, int index, float value);
 extern "C" void fn_804A4CE4(atn::Task* task, int face, int a, int b);
-// inferred: menu cursor (lbl_8087F580)
-struct CostumeEditCursor_unk {
-    unsigned char m000[0x1EC];
-    atn::Vector2_unk mOffset; // 0x1EC
-    atn::Vector2_unk mSize;   // 0x1F4
-};
-extern "C" CostumeEditCursor_unk* lbl_8087F580;
 
 #define __MAX_unk(a, b) ((a) > (b) ? (a) : (b))
 
@@ -190,8 +184,8 @@ void CostumeEditChara::vf10() {
         }
         atn::Vector3 screen = atn::RenderManager::instance_->GetScreenPosition(mPos);
         screen.y = 220.0f;
-        atn::Vector2_unk offset = lbl_8087F580->mOffset;
-        atn::Vector2_unk size = lbl_8087F580->mSize;
+        atn::Vector2_unk offset = MenuCommonTask::sInstance->m1EC;
+        atn::Vector2_unk size = MenuCommonTask::sInstance->m1F4;
         fn_801F6D7C(mFaceIcon, "BasePos", 0, screen.x + offset.x);
         fn_801F6D7C(mFaceIcon, "BasePos", 1, screen.y + offset.y);
         fn_801F6D7C(mFaceIcon, "BasePos", 2, size.x);
