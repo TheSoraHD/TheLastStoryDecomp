@@ -1721,6 +1721,420 @@ extern "C" int fn_800F8574(BattleTask* mgr, CharaTask* owner, HitInfo_unk* data,
     return 1;
 }
 
+// inferred: a character reached by a melee attack, sorted by mScore (fn_800F8C6C); names invented
+struct MeleeTarget_unk {
+    CharaTask* mChara;
+    int mPart;    // inferred: hit sphere reached (fn_800FBA9C)
+    float mScore; // inferred: distance weighted by the angle to the facing of the attacker
+};
+// inferred: std::sort predicate of fn_800F8C6C
+struct MeleeTargetLess_unk {
+    bool operator()(const MeleeTarget_unk& a, const MeleeTarget_unk& b) const { return a.mScore < b.mScore; }
+};
+// inferred: result written for the caller by fn_800F8C6C (attacker and damage of the hit); names invented
+struct MeleeResult_unk {
+    CharaTask* mAttacker;
+    int mDamage;
+};
+
+template <class T>
+inline void MeleeSwap_unk(T& a, T& b) {
+    T tmp = a;
+    a = b;
+    b = tmp;
+}
+
+// inferred: MSL __sort3 (median of three of std::sort, 0x800FA9F4; iterators by reference)
+template <class T, class Compare>
+void MeleeMedian3_unk(T*& a, T*& b, T*& c, Compare& comp) {
+    bool ac = !comp(*c, *a);
+    bool bc = !comp(*b, *c);
+    if (ac && bc) {
+        return;
+    }
+    if (!ac && !bc) {
+        MeleeSwap_unk(*a, *b);
+        return;
+    }
+    if (comp(*b, *a)) {
+        MeleeSwap_unk(*a, *b);
+    }
+    if (ac) {
+        MeleeSwap_unk(*b, *c);
+    } else {
+        MeleeSwap_unk(*a, *c);
+    }
+}
+
+// inferred: MSL __sort (std::sort, 0x800FA4FC): selection sort up to 20 elements, else quicksort around the
+// median of three entries picked with a rotating offset (as Sort_unk of atn/RenderSystem_unk.cpp)
+template <class T, class Compare>
+void MeleeSort_unk(T*& first, T*& last, Compare& comp) {
+    static int sOffset = -4; // inferred: lbl_8087D978
+    while (true) {
+        int n = last - first;
+        if (n <= 1) {
+            return;
+        }
+        if (n <= 20) {
+            if (first != last) {
+                for (T* it = first; it != last - 1; it++) {
+                    T* min = it;
+                    if (it != last) {
+                        for (T* j = it + 1; j != last; j++) {
+                            if (comp(*j, *min)) {
+                                min = j;
+                            }
+                        }
+                    }
+                    if (min != it) {
+                        MeleeSwap_unk(*min, *it);
+                    }
+                }
+            }
+            return;
+        }
+        T* a = first + (n / 4 + sOffset % 5);
+        if (++sOffset >= 5) {
+            sOffset = -4;
+        }
+        T* b = first + (n * 3 / 4 + sOffset % 5);
+        if (++sOffset >= 5) {
+            sOffset = -4;
+        }
+        T* pivot = last - 1;
+        MeleeMedian3_unk(a, b, pivot, comp);
+        T* i = first;
+        T* j = pivot;
+        while (comp(*i, *pivot)) {
+            i++;
+        }
+        while (i != --j && !comp(*j, *pivot)) {
+        }
+        if (i < j) {
+            MeleeSwap_unk(*i, *j);
+            i++;
+            while (true) {
+                while (comp(*i, *pivot)) {
+                    i++;
+                }
+                while (!comp(*--j, *pivot)) {
+                }
+                if (i >= j) {
+                    break;
+                }
+                MeleeSwap_unk(*i, *j);
+                i++;
+            }
+        }
+        if (i == first) {
+            T* back = last - 1;
+            MeleeSwap_unk(*i, *pivot);
+            i++;
+            if (!comp(*first, *back)) {
+                while (i != last && !comp(*first, *i)) {
+                    i++;
+                }
+                if (i < back) {
+                    MeleeSwap_unk(*i, *back);
+                }
+            }
+            j = back;
+            if (i < j) {
+                while (true) {
+                    while (!comp(*first, *i)) {
+                        i++;
+                    }
+                    while (comp(*first, *--j)) {
+                    }
+                    if (i >= j) {
+                        break;
+                    }
+                    MeleeSwap_unk(*i, *j);
+                    i++;
+                }
+            }
+            first = i;
+        } else if (i - first < last - i) {
+            MeleeSort_unk(first, i, comp);
+            first = i;
+        } else {
+            MeleeSort_unk(i, last, comp);
+            last = i;
+        }
+    }
+}
+
+extern "C" int fn_800FBA9C(BattleTask* mgr, CharaTask* attacker, CharaTask* chara, HitInfo_unk* data, int id,
+                           float angle);
+extern "C" void fn_800FC410(BattleTask* mgr, CharaTask* attacker, CharaTask* chara, int index, HitInfo_unk* hit, int id,
+                            int frames);
+extern "C" int fn_800FAB80(BattleTask* mgr, CharaTask* attacker, HitInfo_unk* data, int id, const atn::Vector3* pos,
+                           const atn::Vector3* rot, int any, int time, int, int type, float f1, float f2);
+extern "C" float PSVECSquareMag(const atn::Vector3* v);
+extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
+extern "C" double cos(double x);
+extern "C" double sqrt(double x);
+extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
+
+// inferred: the counter statuses of the attacker; names invented
+inline bool HasStatus_unk(CharaTask* chara, int id) {
+    return chara->mStatus.fn_80133EE8(id) != 0 || chara->mStatus.fn_80134134(id) != 0;
+}
+// inferred: plays the effect and the sound of row `id` at `pos` (color 1, scale `scale`)
+inline void PlayRowEffect_unk(int id, atn::Model* model, const atn::Vector3& pos, const atn::Vector3& rot,
+                              const atn::Vector3& soundPos, float scale) {
+    EffectColor_unk color;
+    color.r = 1.0f;
+    color.g = 1.0f;
+    color.b = 1.0f;
+    color.a = 1.0f;
+    atn::EfpFile* efp = fn_800EFDA0(id);
+    if (efp != 0) {
+        fn_80232B7C(0, 0);
+        fn_8023A8B4(lbl_8087F3C0, efp, model, 0, pos, rot, color, -1, -1, 1, scale);
+    }
+    const char* sound = fn_800EFE3C(id);
+    if (sound != 0) {
+        fn_800C344C(sound, &soundPos, 0, -1, 1.0f);
+    }
+}
+
+// NONMATCHING: draft - the push_back of the target vector is inlined in the original with the MSL growth
+// (length checks with fprintf/abort); written from the assembly, not compared yet
+// DRAFT: equivalent version, not compared instruction by instruction
+// inferred: melee attack `data` of `chara` (arc turned by `angle` from its facing): every player and enemy reached
+// (fn_800FBA9C) is sorted by its distance weighted by the angle (3 - 2 cos) and hit in that order (fn_800FC410), at
+// most `max` of them (all when negative), writing the attacker and the damage of each hit in `out` (up to
+// `outCount`). For each hit the counter statuses of the attacker fire their bullets (0x28, 0x2F, 0x32, 0x3E), play
+// effects (0x34) or heal (7-9: the attacker, and the players with status 8). Then the gimmicks inside the arc get
+// a hit message, the gauge of a player rises and the attack is recorded in the debug ring. Returns the number of
+// characters hit. C name, called by the enemies as extern "C"
+extern "C" int fn_800F8C6C(BattleTask* mgr, MeleeResult_unk* out, int outCount, CharaTask* chara, HitInfo_unk* data,
+                           int id, float angle, int time, int max) {
+    if (data == 0) {
+        return 0;
+    }
+    std::vector<MeleeTarget_unk> targets;
+    atn::Vector3 front(0.0f, 0.0f, 1.0f);
+    atn::Matrix3x4 m;
+    PSMTXRotRad(m.m, 'y', angle + chara->mRot.y);
+    PSMTXMultVec(m.m, &front, &front);
+    for (PlayerTask* c = lbl_8087F8A0->mHead; c != 0; c = c->mNext) {
+        int part = fn_800FBA9C(mgr, chara, c, data, id, angle);
+        if (part < 0) {
+            continue;
+        }
+        CharaTask::Item14_unk* node = c->fn_80148B0C(part);
+        atn::Vector3 d = chara->mPos - node->m04.mCenter;
+        float score = PSVECMag(&d) - node->m04.mRadius;
+        d.y = 0.0f;
+        if (0.0f == d.x && 0.0f == d.y && 0.0f == d.z) {
+            d.y = 1.0f;
+        }
+        PSVECNormalize(&d, &d);
+        score *= 3.0f - 2.0f * PSVECDotProduct(&d, &front);
+        MeleeTarget_unk t;
+        t.mChara = c;
+        t.mPart = part;
+        t.mScore = score;
+        targets.push_back(t);
+    }
+    for (EnemyTask* c = EnemyManager::sInstance->mHead; c != 0; c = c->mNext) {
+        int part = fn_800FBA9C(mgr, chara, c, data, id, angle);
+        if (part < 0) {
+            continue;
+        }
+        CharaTask::Item14_unk* node = c->fn_80148B0C(part);
+        atn::Vector3 d = chara->mPos - node->m04.mCenter;
+        float score = PSVECMag(&d) - node->m04.mRadius;
+        d.y = 0.0f;
+        if (0.0f == d.x && 0.0f == d.y && 0.0f == d.z) {
+            d.y = 1.0f;
+        }
+        PSVECNormalize(&d, &d);
+        score *= 3.0f - 2.0f * PSVECDotProduct(&d, &front);
+        MeleeTarget_unk t;
+        t.mChara = c;
+        t.mPart = part;
+        t.mScore = score;
+        targets.push_back(t);
+    }
+    {
+        MeleeTarget_unk* first = targets.begin();
+        MeleeTarget_unk* last = targets.begin() + targets.size();
+        MeleeTargetLess_unk comp;
+        MeleeSort_unk(first, last, comp);
+    }
+    int count = 0;
+    for (unsigned int i = 0; i < targets.size(); i++, count++) {
+        if (max >= 0 && count >= max) {
+            break;
+        }
+        CharaTask* target = targets[i].mChara;
+        fn_800FC410(mgr, chara, target, targets[i].mPart, data, id, time);
+        int result = mgr->m38A5C.m64;
+        if (result == 1 || result == 4 || result == 5) {
+            if (targets[i].mChara->fn_80148B0C(targets[i].mPart) != 0) {
+                atn::Vector3 hitPos = mgr->m38A5C.m1C;
+                atn::Vector3 dir(0.0f, 0.0f, 1.0f);
+                atn::Matrix3x4 rm;
+                PSMTXRotRad(rm.m, 'y', targets[i].mChara->mRot.y);
+                PSMTXMultVec(rm.m, &dir, &dir);
+                atn::Vector3 partPos = targets[i].mChara->fn_80148B0C(targets[i].mPart)->m04.mCenter + dir;
+                if (HasStatus_unk(chara, 0x28)) {
+                    int bullet = fn_800F8548(lbl_8087F048);
+                    fn_800FAB80(mgr, chara, fn_80219E6C(0x2329), bullet, &hitPos, &chara->mRot, 0, 30, -1, -1, 0.0f,
+                                1.0f);
+                }
+                if (HasStatus_unk(chara, 0x2F)) {
+                    int bullet = fn_800F8548(lbl_8087F048);
+                    fn_800FAB80(mgr, chara, fn_80219E6C(0x232A), bullet, &partPos, &chara->mRot, 0, 30, -1, -1, 0.0f,
+                                1.0f);
+                }
+                if (HasStatus_unk(chara, 0x32)) {
+                    CharaTask* t = targets[i].mChara;
+                    if (t->m50 == 0x4A31F && t->fn_80148B0C(2) != 0) {
+                        int bullet = fn_800F8548(lbl_8087F048);
+                        atn::Vector3 front2(0.0f, 0.0f, 1.0f);
+                        atn::Matrix3x4 m2;
+                        PSMTXRotRad(m2.m, 'y', t->mRot.y);
+                        PSMTXMultVec(m2.m, &front2, &front2);
+                        atn::Vector3 up(0.0f, t->fn_80148B0C(2)->m04.mRadius, 0.0f);
+                        atn::Vector3 base = t->fn_80148B0C(2)->m04.mCenter - up;
+                        atn::Vector3 pos = base + front2;
+                        fn_800FAB80(mgr, chara, fn_80219E6C(0x232B), bullet, &pos, &chara->mRot, 0, 30, -1, -1, 0.0f,
+                                    1.0f);
+                    } else {
+                        int bullet = fn_800F8548(lbl_8087F048);
+                        atn::Vector3 front2(0.0f, 0.0f, 1.0f);
+                        atn::Matrix3x4 m2;
+                        PSMTXRotRad(m2.m, 'y', t->mRot.y);
+                        PSMTXMultVec(m2.m, &front2, &front2);
+                        atn::Vector3 pos = t->mPos + front2;
+                        fn_800FAB80(mgr, chara, fn_80219E6C(0x232B), bullet, &pos, &chara->mRot, 0, 30, -1, -1, 0.0f,
+                                    1.0f);
+                    }
+                }
+                if (chara->mStatus.fn_80133EE8(0x34) != 0) {
+                    PlayRowEffect_unk(0x232D, 0, partPos, chara->mRot, partPos, 1.0f);
+                }
+                if (chara->mStatus.fn_80133EE8(7) != 0 || chara->mStatus.fn_80133EE8(8) != 0 ||
+                    chara->mStatus.fn_80133EE8(9) != 0) {
+                    atn::Vector3 d = chara->mPos - targets[i].mChara->mPos;
+                    float dist = PSVECMag(&d);
+                    PlayRowEffect_unk(0x232F, 0, chara->mPos, chara->mRot, partPos, dist / 30.0f);
+                    atn::FixedArray_unk<CharaTask*, 16> healed;
+                    healed.push_back(chara);
+                    if (chara->mStatus.fn_80133EE8(8) != 0) {
+                        for (PlayerTask* p = lbl_8087F8A0->mHead; p != 0; p = p->mNext) {
+                            if (p->CanAct_unk() && (p->m54C & 0x2000) != 0x2000) {
+                                healed.push_back(p);
+                            }
+                        }
+                    }
+                    for (unsigned int k = 0; k < healed.size(); k++) {
+                        CharaTask* h = healed[k];
+                        PlayRowEffect_unk(0x2330, h->GetModel_unk(), lbl_807C7030, lbl_807C7030, h->mPos, 1.0f);
+                    }
+                }
+                CharaStatusEntry_unk* entry = chara->mStatus.fn_80133EE8(0x3E);
+                if (entry != 0 && fn_80219E6C(entry->mValue) != 0) {
+                    int bullet = fn_800F8548(lbl_8087F048);
+                    fn_800FAB80(mgr, chara, fn_80219E6C(entry->mValue), bullet, &hitPos, &chara->mRot, 0, 30, -1, -1,
+                                0.0f, 1.0f);
+                }
+            }
+        }
+        if (count < outCount) {
+            out[count].mAttacker = chara;
+            out[count].mDamage = mgr->m38A5C.m94;
+        }
+    }
+    int power = data->m14;
+    if (chara != 0) {
+        power += (int)(data->m28 * chara->mStatus.mParamB.m00);
+    }
+    float range = data->m40 + chara->mStatus.mParamB.m28;
+    int level = data->m3C + chara->mStatus.mParamB.m30;
+    if (power > 0) {
+        for (GimmickCommon* gimmick = GimmickManager::instance_->mHead; gimmick != 0; gimmick = gimmick->m5C) {
+            atn::Vector3 d = gimmick->vf54() - chara->mPos;
+            float dist = PSVECMag(&d) - gimmick->vf58();
+            atn::Vector3 flat(d.x, 0.0f, d.z);
+            float sq = PSVECSquareMag(&flat);
+            if (sq > 0.0f) {
+                PSVECNormalize(&flat, &flat);
+            }
+            atn::Vector3 dir(0.0f, 0.0f, 1.0f);
+            atn::Matrix3x4 rm;
+            PSMTXRotRad(rm.m, 'y', angle + chara->mRot.y);
+            PSMTXMultVec(rm.m, &dir, &dir);
+            float dot = PSVECDotProduct(&flat, &dir);
+            if (!(dist <= range)) {
+                continue;
+            }
+            if (!(dot >= (float)cos(0.5f * *(float*)&data->m50[0]))) {
+                continue;
+            }
+            float height = *(float*)&data->m50[4];
+            if (height > 0.0f) {
+                float s = sqrt(1.0f - dot * dot);
+                float r = sqrt(sq);
+                if (r * s > height + gimmick->vf58()) {
+                    continue;
+                }
+            }
+            atn::Vector3 n;
+            if (0.0f == d.x && 0.0f == d.y && 0.0f == d.z) {
+                n = atn::Vector3(0.0f, 1.0f, 0.0f);
+            } else {
+                n = d;
+                PSVECNormalize(&n, &n);
+            }
+            atn::Vector3 rot = n.ToRotation_unk(); // inferred: computed but not used
+            (void)rot;
+            GimmickHitMsg_unk msg;
+            memset(&msg, 0, sizeof(msg));
+            msg.mType = power;
+            msg.mDir = d;
+            msg.mSender = chara;
+            switch (gimmick->m50) {
+            case 1:
+                if (level >= 2) {
+                    gimmick->vf44(&msg);
+                }
+                break;
+            case 0x10:
+                if (chara->mType == 0) {
+                    gimmick->vf44(&msg);
+                }
+                break;
+            }
+        }
+    }
+    if (count > 0 && chara != 0 && chara->mType == 0) {
+        float add = mgr->m38A14 * (chara->mFlag28 ? mgr->m38A38 : 1.0f);
+        float zero;
+        mgr->m38A04 = MAX(zero = 0.0f, MIN(mgr->m38A04 + add, mgr->m38A0C));
+    }
+    if (mgr->mShots.mEnabled != 0) {
+        BattleShot_unk shot;
+        shot.mKind = 0;
+        shot.mData = data;
+        shot.mPos = chara->mPos;
+        shot.mDir = chara->mRot;
+        shot.mDir.y += angle;
+        shot.mRadius = data->m40 + chara->mStatus.mParamB.m28;
+        shot.m24 = 0;
+        mgr->mShots.Push_unk(shot);
+    }
+    if (chara != 0) {
+        chara->mStatus.mEntries.mCount = 0;
+    }
+    return count;
+}
+
 
 extern "C" int fn_800FBE70(BattleTask* mgr, CharaTask* attacker, CharaTask* chara, HitInfo_unk* data, int id,
                            const atn::Vector3* pos, int any, int type);

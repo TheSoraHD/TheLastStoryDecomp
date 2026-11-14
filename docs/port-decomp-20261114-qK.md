@@ -45,6 +45,25 @@ Inicio: 2026-11-14 06:25 CET. Rama `agent-K`. Unidades: `game/AiTarget`, `game/B
   `fn_8013C554`, `SetMotionSpeed`, `SetMotionFrame`) van inline en el original y fuera de linea en
   `atn/Model_unk.h`.
 
+- `fn_800F8C6C` (0x800F8C6C, 6272 bytes, unidad BattleTask): **escrita, NONMATCHING 88,5 %** (fnstat; antes 0 %).
+  Firma `extern "C" int fn_800F8C6C(BattleTask* mgr, MeleeResult_unk* out, int outCount, CharaTask* chara,
+  HitInfo_unk* data, int id, float angle, int time, int max)` (el float va antes de `time`/`max`, como ya
+  declaraba EnemyTrista; devuelve el numero de personajes golpeados). Ataque cuerpo a cuerpo: jugadores y enemigos
+  alcanzados (`fn_800FBA9C`) en un `std::vector<MeleeTarget_unk>` ({personaje, esfera, distancia x (3 - 2 cos)}),
+  `std::sort` por esa puntuacion y golpe en orden (`fn_800FC410`) hasta `max`; por golpe valido
+  (`m38A5C.m64` 1/4/5) los estados del atacante disparan balas (0x28 -> 0x2329, 0x2F -> 0x232A, 0x32 -> 0x232B,
+  0x3E -> la bala del estado), efectos (0x34 -> 0x232D) o curan (7-9 -> 0x232F y 0x2330 al atacante y, con 8, a los
+  jugadores); `out[i] = {chara, m38A5C.m94}`. Despues mensaje de golpe a los gimmicks dentro del arco (tipo 1 con
+  nivel >= 2, tipo 0x10 si el atacante es jugador), sube el medidor (`m38A14`) y registra el golpe en `mShots`.
+  Sigue `extern "C"` con el `BattleTask*` delante (la llaman ~40 unidades con nombre C): deuda de la regla 10.
+  Resto: el `push_back` del vector va inline en el original (crecimiento de MSL con `fprintf`/`abort`), registros.
+- `MeleeSort_unk` / `MeleeMedian3_unk` (0x800FA4FC / 0x800FA9F4, plantillas del `std::sort` de MSL con iteradores
+  por referencia, como `Sort_unk` de `atn/RenderSystem_unk.cpp`): **escritas, NONMATCHING 64,5 % / 76,8 %**.
+  Renombradas en `symbols.txt` (`fn_800FA4FC`/`fn_800FA9F4` -> nombres de las plantillas); el `static` del desfase
+  es `lbl_8087D978`.
+- Re-emparejado de BattleTask (`pd.sh` + `pairdata99.py --relabel`): fnstat 105 -> 156/212 al 100 % (etiquetas
+  `@N` viejas); `@STRING@__allocate__...vector<MeleeTarget_unk>` coincide con `lbl_80779DD8` del original.
+
 ## Cambios de firma / layout (para el port)
 
 - `AIManager::vf14()` declarada (virtual) en `include/game/AiTarget.h`; `AIManager::m88` pasa de `int` a `NpcTask*`.
@@ -60,6 +79,11 @@ Inicio: 2026-11-14 06:25 CET. Rama `agent-K`. Unidades: `game/AiTarget`, `game/B
   primeros bytes tienen esa forma; `InventoryFinish_unk` deberia derivar de `ExpEntry_unk`).
 
 ## Decisiones y hallazgos
+
+- `fn_800F8C6C`: estructuras nuevas locales de BattleTask.cpp `MeleeTarget_unk`, `MeleeTargetLess_unk`,
+  `MeleeResult_unk` (nombres inventados). `HitInfo_unk::m50` (bytes) se lee como dos floats (angulo del arco y
+  altura): pendiente tiparlo en `HitInfo_unk.h` (`float m50; float m54;`, ya apuntado por la cola B).
+- poolcheck de BattleTask: el float 2.44346 de `vfA0__9CharaTask` ya salia antes (no es de esta cola).
 
 - `symbols.txt` de GameTask: tras `pd.sh` quedaron 5 etiquetas de `.sdata2` sin emparejar (0x8088571C, 0x80885730-38,
   0x808857A8) y dos `lbl_` nuevas que ahora usa el fuente (0x808857E0/E4); renombradas a mano a las `@N` de
