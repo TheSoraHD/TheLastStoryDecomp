@@ -2,6 +2,19 @@
 
 Unidades: game/GameUI, game/PopupTask, game/TacView, game/GameCamera_unk, game/FinishCamera_unk.
 
+## Resumen
+
+- Al 0 % de la cola: GameUI fn_803DBD44 -> 97,75 %; TacView fn_805AA94C -> 97,4 %, fn_805AC758 -> 90,6 %,
+  fn_805ADB28 (std::operator+) -> 62 %; GameCamera fn_80385B48 sin escribir (ver abajo).
+- Subidas: TacView vf10 94,50 -> 94,87; GameUI fn_803E0E10 83,36 -> 85,05; fn_803D83A8 87,96 -> 88,79;
+  FinishCamera fn_8037865C 99,2 -> **100**. Revisadas sin cambio: GameUI fn_803DAB4C, PopupTask vf14,
+  GameCamera fn_8037F9AC (diferencias de registros/pila; en fn_8037F9AC un `fsubs f29, f0, f0` del original que
+  aqui no sale, sin localizar).
+- Al 100 % por unidad: GameUI 136 -> 138 (offsets de cadenas), GameCamera_unk 46 -> 48 (etiquetas),
+  FinishCamera_unk 8 -> 9; TacView 38 y PopupTask 10 sin cambios. Total del report 15392 -> 15393.
+- Deudas de la regla 10 saldadas: `fn_803DBD44(GameUI*)`, `fn_805AA94C(TacView*, ...)` (y su llamador en
+  GameCamera_unk) y `fn_805AC758(TacView*)` pasan a metodos.
+
 ## Resultado por funcion
 
 - `GameUI::fn_803DBD44` (0x803DBD44, 3392 B): 0 % -> **97,75 %** (escrita desde el asm, sin DRAFT).
