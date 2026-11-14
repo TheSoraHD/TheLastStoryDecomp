@@ -694,9 +694,8 @@ inline bool ToBool_unk(unsigned int v) {
 
 // inferred: start of the event: saves in m18 and m24 the state of the character that fn_8000FAE8 gives back
 // (control mode, task and collision flags, node edits, physics bones) and takes the character over
-// NONMATCHING: 96.3% - registers (this in r29 in the original), the physics bones walked from the address
-// of their count (atn::Model::m384/m388 as one array), and the original reloads the flag word of the
-// character for the clears of mFlag3/mFlag5
+// NONMATCHING: 96.7% - registers (this in r29 in the original) and the physics bones walked from the
+// address of their count (atn::Model::m384/m388 as one array)
 void Actor::fn_8000F1EC() {
     if (m18_0 == 1) {
         return;
@@ -745,10 +744,10 @@ void Actor::fn_8000F1EC() {
         GetChara_unk()->fn_801446F0();
         GetChara_unk()->mLook.fn_80129A48(0.3f);
         GetChara_unk()->m1188.ClearMotion(false);
-        if (GetChara_unk()->mFlag3) {
+        if (GetChara_unk()->IsFlag3_unk()) {
             GetChara_unk()->mFlag3 = 0;
         }
-        if (GetChara_unk()->mFlag5) {
+        if (GetChara_unk()->IsFlag5_unk()) {
             GetChara_unk()->mFlag5 = 0;
         }
         GetChara_unk()->mFC0 = 0;
