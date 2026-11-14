@@ -54,6 +54,7 @@ class D2A_Task;
 
 namespace Event {
 
+class Action;
 class Cut;
 class Label;
 class Dialog;
@@ -324,7 +325,7 @@ public:
     void* fn_80575F6C();
     void fn_80576030(const char* path, void* arg);
     void fn_8057D5F4(const char* path, void* arg);
-    void fn_805501DC(int arg);
+    void fn_805501DC(Action* arg); // inferred: sets the action that holds the sequence (m1C0)
     void fn_80550254();
     void fn_80575FCC();
     void fn_80576258();
@@ -410,7 +411,7 @@ public:
     int m1B4;
     int m1B8;
     Actor* m1BC; // inferred: actor of the current character section (fn_80550A78)
-    int m1C0;
+    Action* m1C0; // inferred: action that holds the sequence (its vf08 returned 3; fn_805501DC)
     atn::LH_Binary m1C4;
     int m1CC;  // inferred: size of the event data when it is owned (m98_0)
     void* m1D0; // inferred: event data when it is owned
