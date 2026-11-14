@@ -170,7 +170,7 @@ extern "C" void fn_80076174(atn::GraphicsDevice_unk* device, int enabled);
 extern "C" void fn_800763C0(atn::GraphicsDevice_unk* device, unsigned int map, atn::Texture_unk* tex);
 extern "C" void fn_800763FC(atn::GraphicsDevice_unk* device, const void* texObj, unsigned int map);
 extern "C" void fn_8007642C(atn::GraphicsDevice_unk* device, int index, Light_unk* light);
-extern "C" int fn_80076C44(atn::GraphicsDevice_unk* device, const atn::VtxFormat_unk* format);
+extern "C" int fn_80076C44(atn::GraphicsDevice_unk* device, const atn::VtxFormat_unk& format);
 extern "C" void fn_80076F88(atn::GraphicsDevice_unk* device, unsigned int index);
 
 #endif

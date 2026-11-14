@@ -9,8 +9,8 @@ extern "C" unsigned int PSMTXInverse(const Mtx src, Mtx inv);
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" char* strstr(const char* s, const char* sub);
 extern "C" char* strcat(char* dst, const char* src);
-extern "C" void fn_80076F88(void* manager, void* texture); // inferred: releases a texture
-extern "C" void* lbl_8087EEE0;                              // inferred: texture manager
+#include "atn/GraphicsDevice.h"
+extern "C" atn::GraphicsDevice_unk* lbl_8087EEE0; // inferred: graphics device
 
 // ModelNode_unk, ModelJoint_unk, ModelData_unk, ModelPose_unk: atn/ModelPose_unk.h
 
@@ -35,7 +35,10 @@ public:
             self->m64 = data;
         }
     }
-    // NONMATCHING: not decompiled yet (0x80474F0C)
+    // inferred: vertex arrays of a mesh of version 1 (fn_8047614C; 0x144 bytes)
+    struct MeshArrays_unk {
+        DrawArray_unk mList[27];
+    };
     void fn_80474F0C(ModelData_unk* model);
 
     void* m5C;                         // 'modl' chunk
@@ -44,8 +47,8 @@ public:
     SimpleArray<Matrix3x4> mMatrices;   // 0x68: inverse joint matrices
     SimpleArray<unsigned short> mJoints; // 0x70: joints that have m70 > 0
     int m78;
-    SimpleArray<void*> mTextures;       // 0x7C
-    SimpleArray<int> m84;
+    SimpleArray<int> mTextures;         // 0x7C: inferred: vertex formats of the meshes (fn_80076C44)
+    SimpleArray<MeshArrays_unk> m84;    // 0x84
 };
 
 LoadModel::~LoadModel() {
@@ -95,6 +98,188 @@ void LoadModel::vf0C() {
                 }
             }
         }
+    }
+}
+
+// inferred: GX component type and size in bytes of each component type of the file (0 s8, 1 s16,
+// 2 u8, 3 u16, 4 f32, 5 rgb8, 6 rgba8, 7 rgb565, 8 rgba4, 9 rgba6, 10 rgbx8)
+static const int sTypeGX_unk[11] = {1, 3, 0, 2, 4, 1, 5, 0, 3, 4, 2};
+static const int sTypeSize_unk[11] = {1, 2, 1, 2, 4, 3, 4, 2, 2, 3, 4};
+
+// inferred: builds the vertex format of each mesh (shared through the cache of the graphics device)
+// and points its vertex arrays to the streams of the file: the slots of the list at m54 from
+// version 2, a list of its own (m84) before
+// NONMATCHING: 96.4% - stack slots of the strength-reduced mesh offsets (i*0x144, i*4), scheduling of the
+// array offsets in the version-2 branch and the load of lbl_8087EEE0 before the VtxFormat_unk temporary
+void LoadModel::fn_80474F0C(ModelData_unk* model) {
+    mTextures.Resize_unk(model->m3C, 6);
+    for (int i = 0; i < model->m3C; i++) {
+        VtxDescArray_unk desc;
+        VtxAttrFmtArray_unk fmt;
+        for (int k = 0; k < 27; k++) {
+            GXVtxAttrFmtList f = {0xFF, 0, 0, 0};
+            fmt.mList[k] = f;
+        }
+        for (int k = 0; k < 27; k++) {
+            desc.mList[k].attr = 0xFF;
+            desc.mList[k].type = 0;
+        }
+        ModelNode_unk* mesh = model->m40[i];
+        if (mesh->m04 >= 2) {
+            int n = 0;
+            if (mesh->m1C != -1) {
+                mesh->m54[n].m04 = model->m2C[mesh->m1C]->mData;
+                n++;
+            }
+            if (mesh->m20 != -1) {
+                mesh->m54[n].m04 = model->m2C[mesh->m20]->mData;
+                n++;
+            }
+            if (mesh->m24 != -1) {
+                mesh->m54[n].m04 = model->m2C[mesh->m24]->mData;
+                n++;
+            }
+            if (mesh->m28 != -1) {
+                mesh->m54[n].m04 = model->m2C[mesh->m28]->mData;
+                n++;
+            }
+            for (int k = 0; k < 8; k++) {
+                if (mesh->m2C[k] != -1) {
+                    mesh->m54[n].m04 = model->m2C[mesh->m2C[k]]->mData;
+                    n++;
+                }
+            }
+        } else {
+            if (i == 0) {
+                m84.Resize_unk(model->m3C, 6);
+            }
+            DrawArray_unk* arrays = m84.mData[i].mList;
+            for (int k = 0; k < 27; k++) {
+                DrawArray_unk a = {0xFF, 0, 0};
+                arrays[k] = a;
+            }
+            int n = 0;
+            if (mesh->m1C != -1) {
+                LoadVtxStream_unk* stream = model->m2C[mesh->m1C];
+                LoadVtxAttr_unk* attr = stream->mDesc->mAttrs;
+                int type = attr->mType;
+                GXVtxAttrFmtList f = {9, 1, sTypeGX_unk[type], attr->mFrac};
+                fmt.mList[n] = f;
+                DrawArray_unk a = {9, stream->mData, sTypeSize_unk[type] * 3};
+                arrays[n] = a;
+                n++;
+            }
+            if (mesh->m20 != -1) {
+                LoadVtxStream_unk* stream = model->m2C[mesh->m20];
+                LoadVtxAttr_unk* attr = stream->mDesc->mAttrs;
+                int type = attr->mType;
+                GXVtxAttrFmtList f = {10, 0, sTypeGX_unk[type], attr->mFrac};
+                fmt.mList[n] = f;
+                DrawArray_unk a = {10, stream->mData, sTypeSize_unk[type] * 3};
+                arrays[n] = a;
+                n++;
+            }
+            for (int k = 0; k < 2; k++) {
+                int s = (&mesh->m24)[k];
+                if (s != -1) {
+                    LoadVtxStream_unk* stream = model->m2C[s];
+                    LoadVtxAttr_unk* attr = stream->mDesc->mAttrs;
+                    int type = attr->mType;
+                    GXVtxAttrFmtList f = {k + 11, 1, sTypeGX_unk[type], attr->mFrac};
+                    fmt.mList[n] = f;
+                    DrawArray_unk a = {k + 11, 0, 0};
+                    a.m04 = stream->mData;
+                    a.m08 = sTypeSize_unk[type];
+                    arrays[n] = a;
+                    n++;
+                }
+            }
+            for (int k = 0; k < 8; k++) {
+                if (mesh->m2C[k] != -1) {
+                    LoadVtxStream_unk* stream = model->m2C[mesh->m2C[k]];
+                    LoadVtxAttr_unk* attr = stream->mDesc->mAttrs;
+                    int type = attr->mType;
+                    GXVtxAttrFmtList f = {k + 13, 1, sTypeGX_unk[type], attr->mFrac};
+                    fmt.mList[n] = f;
+                    DrawArray_unk a = {k + 13, 0, 0};
+                    a.m04 = stream->mData;
+                    a.m08 = sTypeSize_unk[type] * 2;
+                    arrays[n] = a;
+                    n++;
+                }
+            }
+            DrawArray_unk a = {0xFF, 0, 0};
+            arrays[n] = a;
+        }
+        LoadVtxDesc_unk* vd = mesh->m18;
+        for (int k = 0; k < vd->mCount; k++) {
+            LoadVtxAttr_unk* a = &vd->mAttrs[k];
+            int type = 3;
+            if (a->mType == 2) {
+                type = 2;
+            }
+            switch (a->mKind) {
+            case 4:
+                desc.mList[k].attr = 0;
+                desc.mList[k].type = 1;
+                break;
+            case 5:
+                desc.mList[k].attr = a->mIndex + 1;
+                desc.mList[k].type = 1;
+                break;
+            case 0:
+                desc.mList[k].attr = 9;
+                desc.mList[k].type = type;
+                break;
+            case 1:
+                desc.mList[k].attr = 10;
+                desc.mList[k].type = type;
+                break;
+            case 2:
+                desc.mList[k].attr = a->mIndex + 13;
+                desc.mList[k].type = type;
+                break;
+            case 3:
+                desc.mList[k].attr = a->mIndex + 11;
+                desc.mList[k].type = type;
+                break;
+            }
+        }
+        int n = 0;
+        if (mesh->m1C != -1) {
+            LoadVtxAttr_unk* attr = model->m2C[mesh->m1C]->mDesc->mAttrs;
+            GXVtxAttrFmtList f = {9, 1, sTypeGX_unk[attr->mType], attr->mFrac};
+            fmt.mList[n] = f;
+            n++;
+        }
+        if (mesh->m20 != -1) {
+            LoadVtxAttr_unk* attr = model->m2C[mesh->m20]->mDesc->mAttrs;
+            GXVtxAttrFmtList f = {10, 0, sTypeGX_unk[attr->mType], attr->mFrac};
+            fmt.mList[n] = f;
+            n++;
+        }
+        for (int k = 0; k < 2; k++) {
+            int s = (&mesh->m24)[k];
+            if (s != -1) {
+                LoadVtxAttr_unk* attr = model->m2C[s]->mDesc->mAttrs;
+                GXVtxAttrFmtList f = {k + 11, 1, sTypeGX_unk[attr->mType], attr->mFrac};
+                fmt.mList[n] = f;
+                n++;
+            }
+        }
+        for (int k = 0; k < 8; k++) {
+            if (mesh->m2C[k] != -1) {
+                LoadVtxAttr_unk* attr = model->m2C[mesh->m2C[k]]->mDesc->mAttrs;
+                GXVtxAttrFmtList f = {k + 13, 1, sTypeGX_unk[attr->mType], attr->mFrac};
+                fmt.mList[n] = f;
+                n++;
+            }
+        }
+        GXVtxAttrFmtList f = {0xFF, 0, 0, 0};
+        fmt.mList[n] = f;
+        desc.mList[vd->mCount].attr = 0xFF;
+        desc.mList[vd->mCount].type = 0;
+        mTextures[i] = fn_80076C44(lbl_8087EEE0, VtxFormat_unk(desc, fmt));
     }
 }
 

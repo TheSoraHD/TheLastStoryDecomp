@@ -17,6 +17,7 @@
 #include "atn/RenderManager.h"
 #include "atn/Layer3D.h"
 #include "atn/ColorMatrixParam_unk.h"
+#include "atn/ModelVtx_unk.h"
 
 // inferred: up to four lights sorted by distance (atn/LightUtil_unk.cpp). The two selectors are
 // called here on uninitialized temporaries: they return the set by value (declared here as
@@ -157,12 +158,7 @@ static inline TexStage_unk* FindStage_unk(Material_unk* mat, DrawTexEntry_unk* e
 }
 
 
-// inferred: mesh of a model
-struct DrawArray_unk {
-    int m00; // inferred: attribute (0xFF ends the list)
-    void* m04;
-    int m08;
-};
+// inferred: mesh of a model (DrawArray_unk: atn/ModelVtx_unk.h)
 struct DrawList_unk {
     unsigned char m00[0x10];
     unsigned int m10;

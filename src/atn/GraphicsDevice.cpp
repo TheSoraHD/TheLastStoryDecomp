@@ -1971,18 +1971,18 @@ extern "C" void fn_80076BE4(GraphicsDevice_unk* device, const VtxFormat_unk* for
 }
 
 // inferred: finds or adds a vertex format in the cache; returns its index
-extern "C" int fn_80076C44(GraphicsDevice_unk* device, const VtxFormat_unk* format) {
+extern "C" int fn_80076C44(GraphicsDevice_unk* device, const VtxFormat_unk& format) {
     int freeSlot = 256;
     for (int i = 0; i < 256; i++) {
         if (freeSlot == 256 && device->mVtxFormats[i].mFormat == 0) {
             freeSlot = i;
         }
-        if (device->mVtxFormats[i].mFormat != 0 && fn_80071088(format, device->mVtxFormats[i].mFormat)) {
+        if (device->mVtxFormats[i].mFormat != 0 && fn_80071088(&format, device->mVtxFormats[i].mFormat)) {
             device->mVtxFormats[i].mRefs++;
             return i;
         }
     }
-    device->mVtxFormats[freeSlot].mFormat = new ((MemoryTag)6, "", "", 0) VtxFormat_unk(*format);
+    device->mVtxFormats[freeSlot].mFormat = new ((MemoryTag)6, "", "", 0) VtxFormat_unk(format);
     device->mVtxFormats[freeSlot].mRefs = 1;
     return freeSlot;
 }

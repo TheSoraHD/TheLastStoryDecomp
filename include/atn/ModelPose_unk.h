@@ -3,6 +3,7 @@
 
 #include "math/Vec.h"
 #include <boost/function.hpp>
+#include "atn/ModelVtx_unk.h"
 
 namespace atn {
 class Matrix3x4;
@@ -64,10 +65,20 @@ struct ModelMtxBlock_unk {
 };
 
 // inferred: node of the model data (atn/LH_Model.cpp)
+// inferred: 'mesh' chunk (ModelDraw_unk's DrawMesh_unk): vertex description and the stream of each
+// attribute (indices into ModelData_unk::m2C, -1: none); fields from LoadModel::fn_80474F0C
 struct ModelNode_unk {
-    unsigned char m00[0x24];
-    int m24;
-    int m28;
+    unsigned char m00[4];
+    unsigned int m04;       // inferred: version
+    unsigned char m08[0x18 - 0x08];
+    LoadVtxDesc_unk* m18;   // inferred: indices sent by the display lists
+    int m1C;                // inferred: position stream
+    int m20;                // inferred: normal stream
+    int m24;                // inferred: color 0 stream
+    int m28;                // inferred: color 1 stream
+    int m2C[8];             // inferred: texture coordinate streams
+    unsigned char m4C[0x54 - 0x4C];
+    DrawArray_unk* m54;     // inferred: vertex arrays of the file (version 2)
 };
 
 // inferred: model data of the loaded file (the 'modl' chunk)
@@ -79,7 +90,8 @@ struct ModelData_unk {
     unsigned char m00[0x10];
     atn::Vector3 mMin; // 0x10: inferred: bounding box (MapPartsModel::vf24)
     atn::Vector3 mMax; // 0x1C
-    unsigned char m28[0x30 - 0x28];
+    int m28;                   // inferred: number of vertex streams
+    LoadVtxStream_unk** m2C;   // inferred: vertex streams ('strm' chunks)
     int m30; // inferred: number of materials
     atn::ShaderDesc_unk** m34; // inferred: shader descriptions of the materials (m30 of them)
     ModelMtxBlock_unk* m38;
