@@ -125,8 +125,8 @@ Em305VampireMp::Em305VampireMp(atn::Task* parent, EnemyInfo_unk* info) : Em305Va
 
 Em305VampireMp::~Em305VampireMp() {}
 
-// NONMATCHING: 94.0% - the inlined std::vector push_back of the two routes (known open case: the
-// original fast path of the 16-byte elements has no placement-new null check) and registers
+// NONMATCHING: 98.9% - registers of the inlined std::vector push_back of the two routes (size/capacity
+// loads swapped, known open case)
 int Em305VampireMp::vf0C() {
     if (m1564.IsLoading() == 0 && (m1438 == 0 || (m1438->mFlags & 2) == 2) && m1570.IsLoading() == 0 &&
         m157C.IsLoading() == 0 && m1588.IsLoading() == 0 && m14D4.fn_80473F50() == 0 &&

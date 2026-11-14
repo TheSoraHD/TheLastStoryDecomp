@@ -138,7 +138,7 @@ Em305Vampire::~Em305Vampire() {
     fn_800CB5C8(&m15A4, 5, 0);
 }
 
-// NONMATCHING: 93.89% - same as Em305VampireMp::vf0C: the inlined std::vector push_back of the two routes
+// NONMATCHING: 98.95% - same as Em305VampireMp::vf0C: the inlined std::vector push_back of the two routes
 // (known open case) and registers
 int Em305Vampire::vf0C() {
     if (m1564.IsLoading() == 0 && (m1438 == 0 || (m1438->mFlags & 2) == 2) && m1570.IsLoading() == 0 &&

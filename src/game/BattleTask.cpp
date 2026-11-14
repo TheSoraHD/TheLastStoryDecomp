@@ -1756,6 +1756,8 @@ extern "C" int fn_800F8574(BattleTask* mgr, CharaTask* owner, HitInfo_unk* data,
 
 // inferred: a character reached by a melee attack, sorted by mScore (fn_800F8C6C); names invented
 struct MeleeTarget_unk {
+    // inferred: empty default constructor: the copies of std::sort go member by member (lfs/stfs, 0x800FA9F4)
+    MeleeTarget_unk() {}
     CharaTask* mChara;
     int mPart;    // inferred: hit sphere reached (fn_800FBA9C)
     float mScore; // inferred: distance weighted by the angle to the facing of the attacker
@@ -1773,7 +1775,6 @@ inline void MeleeSwap_unk(T& a, T& b) {
 }
 
 // inferred: MSL __sort3 (median of three of std::sort, 0x800FA9F4; iterators by reference)
-// NONMATCHING: 76.8% - order of the comparisons and of the swaps of the 12-byte elements
 template <class T, class Compare>
 void MeleeMedian3_unk(T*& a, T*& b, T*& c, Compare& comp) {
     bool ac = !comp(*c, *a);
@@ -1797,7 +1798,7 @@ void MeleeMedian3_unk(T*& a, T*& b, T*& c, Compare& comp) {
 
 // inferred: MSL __sort (std::sort, 0x800FA4FC): selection sort up to 20 elements, else quicksort around the
 // median of three entries picked with a rotating offset (as Sort_unk of atn/RenderSystem_unk.cpp)
-// NONMATCHING: 64.5% - the original keeps the iterators in memory (references) and inlines the selection sort
+// NONMATCHING: 73.3% - the original keeps the iterators in memory (references) and inlines the selection sort
 // differently
 template <class T, class Compare>
 void MeleeSort_unk(T*& first, T*& last, Compare& comp) {
