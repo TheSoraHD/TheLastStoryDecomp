@@ -25,6 +25,11 @@
   funcion) renumera los `@N` de la unidad: hace falta `precommit.sh --pd`. Ademas, el par duplicado `@37207`
   (0x8088157C/0x80881580, dos nombres iguales en symbols.txt, de antes) no lo arregla pd: renombrado a mano.
 
+### 2b. `fn_800F8C6C` (90,6 %, sin cambios)
+- La mayor parte de lo que falta viene del `push_back` de `std::vector<MeleeTarget_unk>` (`std/vector.h`, cola A4):
+  el original deja `__files` (stderr de los `fprintf` de `__msl_error`) en r31 fuera del bucle y el nuestro lo
+  recarga en cada llamada; no se toca aqui.
+
 ### 3. `fn_800FDF14` 94,3 -> 96,0 %
 - El marco de pila 0x100 mayor venia de que MWCC convertia en escalares el `HitDamage_unk` del bloque de la
   absorcion de odio (nunca se pasa por direccion): pasando `damage.m04` (y no `heal`) a `fn_8012DF7C` el struct
@@ -62,8 +67,32 @@
   quedan por debajo de todo; en el nuestro, por encima de las temporales) y 0x30 bytes sin usar en 0xD8 de
   fn_800FC410.
 
+### Otras probadas sin exito
+- `fn_80105DCC` y `fn_800FB1BC`: el original carga `lbl_8087F3C0` antes de elegir el EFP / de los argumentos (la
+  llamada escrita a mano o el color temporal empeoran); `fn_80106878`: marco 0x10 mayor (orden de la temporal
+  `std::string`, del color blanco y del nombre; con una `std::string path` con nombre o el color temporal baja);
+  `fn_80108C10`: el `bne/b` del retorno temprano (ifs anidados, `!m0C`, inline booleana: nada); `Lerp_unk`: el
+  orden de los operandos pediria cambiar `math/Vec.h` (lo usan mas de 20 unidades), no se toca.
+
+## Resumen de cifras
+- BattleTask: 165 -> 168 / 212 funciones al 100 % (`fn_801002DC`, `fn_800F80B8`, `fn_800F8290`; `report.json`
+  15447 -> 15450 en total), 0 al 0 % antes y despues. Subidas: MeleeSort_unk 73,3 -> 92,5, fn_800FDF14 94,3 -> 96,0,
+  fn_800FC410 99,46 -> 99,82, fn_800FCD24 98,10 -> 98,46, fn_800F8574 99,58 -> 99,61, fn_800FD658 93,16 -> 93,44.
+- `.data` sin cambios (ver paso 1).
+
 ## Decisiones tomadas sin el usuario
 - `symbols.txt`: solo renombrados de `@N` de BattleTask (pd.sh, y a mano/por script los duplicados que pd deja).
 
 ## Para el port
-- Sin cambios de firmas, tipos ni layouts (solo cuerpos de funciones de `game/BattleTask.cpp`).
+- Sin cambios de firmas, tipos ni layouts de clases compartidas: solo cuerpos de funciones de `game/BattleTask.cpp`.
+- Inlines de fichero en `game/BattleTask.cpp` (no en cabeceras): nuevas `MakeRotZYX_unk(atn::Matrix3x4*, const
+  atn::Vector3&)` y `SetPaneText_unk(void*, const char*, const wchar_t*)`; `HitPos_unk(CharaTask*, int)` pasa a
+  `HitPos_unk(CharaTask*, const int&)`. `fn_800F80B8` ya no llama a `Matrix3x4::RotateZYX_unk`.
+
+## Hallazgos (una linea cada uno)
+- MWCC convierte en escalares un struct local que nunca se pasa por direccion (cada campo en su ranura, marco
+  mayor); leer el campo del struct en vez de la variable de la que se copio lo deja en memoria (fn_800FDF14).
+- Un parametro `const int&` en una inline hace que el original relea el campo en cada uso (`p->m40`).
+- La rotacion z-y-x dentro de una inline propia deja las temporales de las tres rotaciones en orden ascendente.
+- Un float que el original guarda en la pila con `stfs` + `frsp` al entrar: los argumentos se copian a un
+  `atn::Vector3` local (fn_800F8290).
