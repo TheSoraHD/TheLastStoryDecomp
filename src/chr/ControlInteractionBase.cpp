@@ -10,9 +10,9 @@ extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared len
 extern "C" void fn_80050A1C(const atn::Vector3* pos, atn::Vector3 a, atn::Vector3* out, atn::Vector3 b);
 
 
-// inferred: camera/character manager (lbl_8087F048, class unknown)
-extern "C" void* lbl_8087F048;
-extern "C" void fn_8010A308(void* obj, atn::Vector3* from, atn::Vector3* to, float radius);
+class BattleTask;
+extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
+extern "C" void fn_8010A308(BattleTask* obj, atn::Vector3* from, atn::Vector3* to, float radius);
 
 // inferred: field object (lbl_8087F430) and its counters (same calls as in gmk/AttractHatePoint.cpp)
 extern "C" void* lbl_8087F430;

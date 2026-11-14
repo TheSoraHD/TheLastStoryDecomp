@@ -68,8 +68,9 @@ extern "C" void fn_800DD8A8(wchar_t* buf, const wchar_t* format, int count, ...)
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 // inferred: item manager and shop (classes unknown)
 extern "C" void fn_8044D6AC(void* mgr, int price);
-extern "C" void* lbl_8087F048;
-extern "C" void fn_801092C8(void* mgr, int arg1, int arg2, int item, int num);
+class BattleTask;
+extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
+extern "C" void fn_801092C8(BattleTask* mgr, int arg1, int arg2, int item, int num);
 extern "C" GameUI* lbl_8087F490;
 
 // inferred: rotation matrix z * y * x (same as GimmickCommon.cpp)

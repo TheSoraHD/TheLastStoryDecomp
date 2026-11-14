@@ -73,7 +73,8 @@ extern "C" int fn_8021E4E4(int* itemId, int* num, int id, unsigned int flags);
 extern "C" int fn_80450B60(int item);
 extern "C" void* fn_80211480(int id); // inferred: item data
 extern "C" int fn_80216AFC(const char* name, int* type, int* map, int* point); // inferred: parses a map id
-extern "C" void* lbl_8087F048; // inferred: battle manager
+class BattleTask;
+extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
 
 // inferred: sounds of the item (found, taken)
 static const char* const sSounds_unk[] = {"SE_UICOM_011", "SE_UICOM_008"};

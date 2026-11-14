@@ -30,8 +30,9 @@ extern "C" void* lbl_8087F518;                     // inferred: loading screen
 extern "C" void fn_8046ECDC(void* obj, int arg);
 extern "C" void fn_8046EED8(void* obj);
 extern "C" atn::SoundRef fn_80117228(int id);      // inferred: plays a system sound effect
-extern "C" void* lbl_8087F048;
-extern "C" void fn_8010C00C(void* mgr, CharaTask* chara);
+class BattleTask;
+extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
+extern "C" void fn_8010C00C(BattleTask* mgr, CharaTask* chara);
 extern "C" void fn_800D2338(atn::Task* task); // inferred: removes the task
 extern "C" void fn_80087E9C(void* group, const char* name, atn::Vector3* value, int arg3, int arg4, float min,
                             float max, float step);

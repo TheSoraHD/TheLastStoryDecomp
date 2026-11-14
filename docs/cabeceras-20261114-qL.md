@@ -45,9 +45,11 @@ Rama `agent-L`. Inicio 19:37. Referencia `$REF` = `/home/claude/ref-L` (15447 / 
 - Quedan (vistas con cuerpo o `void*` sin la cabecera; para otra pasada): CannonBullets_unk (Cannonball),
   BrazierBullets_unk (Brazier), BattleState_unk (GameSoundControl), ArenaEnemyMgr_unk (ArenaTask), PickBattle_unk
   (PickTask), WallEffect_unk (ControlWallUp), DropBulletMgr_unk (DropItem), AiEnemyMgr_unk (AiCommon_unk),
-  BulletMgr_unk con cuerpo (FragileObject, CharaEquip_unk), Colli_unk (ControlAppear), `atn::Task*` (GameScene) y
-  `void*` en ShopUpGrade, ControlDropDown, RandomMerchant, RandomItem, CosEditBase, ItemManager_unk, ItemSlotAnime,
-  ControlInteractionBase.
+  BulletMgr_unk con cuerpo (FragileObject, CharaEquip_unk), Colli_unk (ControlAppear), `atn::Task*` (GameScene).
+- Segundo commit: los `void*` sin la cabecera (ShopUpGrade, ControlDropDown, RandomMerchant, RandomItem,
+  CosEditBase, ItemManager_unk, ItemSlotAnime, ControlInteractionBase) con `class BattleTask;` adelantada y
+  `BattleTask*` como primer argumento de las funciones C de BattleTask que declaran (`fn_801092C8`, `fn_8010A308`,
+  `fn_8010C00C`, `fn_80108C10`). Neutro, precommit OK.
 
 ### 2. `Event/MovieState_unk.h` -> `atn::VideoTHP`
 
@@ -75,7 +77,18 @@ Rama `agent-L`. Inicio 19:37. Referencia `$REF` = `/home/claude/ref-L` (15447 / 
   argumento (antes `Effect_unk*`). Unidades del port tocadas: BattleCharaTask (solo esas declaraciones y moldes;
   ninguna firma propia cambia).
 
+## Comprobaciones
+
+- Primer commit: `pdbatch.sh` de Event/ActionEffectPlay, Event/Manager, chr/ControlChant y game/CharaTask (la
+  inclusion de `atn/VideoTHP.h` y los cambios de CharaTask renumeraban `@N`: rep100 peor antes, igual despues).
+  `lbl_8087D6E8/EC`, `sInstance`, `lbl_80885CB0`, las cadenas 0x80783CA8/0x8078CB00-10 y
+  `@enum$...ControlAppear_cpp` sin cambios. 15447 / 18109, lost 0, sin bajadas, labelcheck/rep100 igual,
+  `main.dol: OK`. poolcheck: solo los avisos de floats ya conocidos (15.0, pi...) en las unidades tocadas (los
+  cambios son de tipos de puntero, no tocan constantes).
+
 ## Hallazgos
 
-- `fnstat.py` no coincide con `report.json` en unidades grandes (CharaTask: 269 frente a 383 al 100 % con el
-  mismo fuente): para comprobar bajadas usar `ninja` + `regress.py`/`fuzzdrop.py`, no `fnstat.py` contra el report.
+- `report.json` no ve las `@N` renumeradas (CharaTask seguia "383 al 100 %" con las etiquetas corridas); `fnstat.py`
+  (objdiff-cli diff) y el rep100 de `precommit.sh` si: mirar siempre el rep100 tras tocar includes o tipos.
+- Quitar o cambiar moldes y tipos de puntero en las llamadas no renumera; si lo hace incluir una cabecera con
+  clases nuevas (aqui `atn/VideoTHP.h`) o, en CharaTask, el conjunto de cambios (no aislado: `pdbatch` lo arregla).

@@ -217,13 +217,14 @@ struct ItemTable_unk {
 extern "C" ItemTable_unk* fn_8021E444(int table);
 extern "C" int fn_8021E5A4(ItemTable_unk* table, int flags); // inferred: draws an entry
 extern "C" HitInfo_unk* fn_80219E6C(int id);                // inferred: bullet data by id
-extern "C" void* lbl_8087F048;                              // BattleTask
+class BattleTask;
+extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
 extern "C" void* lbl_8087F610;                              // inferred: multiplayer session
 // inferred: shows a damage on the battle UI (game/BattleTask)
-extern "C" void fn_80108C10(void* battle, DamageResult_unk* damage, const atn::Vector3* pos, CharaTask* attacker,
+extern "C" void fn_80108C10(BattleTask* battle, DamageResult_unk* damage, const atn::Vector3* pos, CharaTask* attacker,
                             CharaTask* target, int arg5, int arg6);
 // inferred: message of an item got (game/BattleTask; 1 item, 2 weapon, 3 money)
-extern "C" void fn_801092C8(void* battle, int kind, int arg, int code, int count);
+extern "C" void fn_801092C8(BattleTask* battle, int kind, int arg, int code, int count);
 extern "C" int fn_80444EFC(CharaTask* chara);
 
 // inferred: gets the entry `index` (drawn when negative) of the drop table `table`: the items used at once
@@ -255,7 +256,7 @@ extern "C" int fn_80444020(Inventory* inventory, int table, int message, int ind
         if (leader != 0 && hit != 0) {
             DamageResult_unk result;
             fn_8003EA3C(&result, hit, leader, leader, 0, &lbl_807C6B90, 0, 0);
-            void* battle = lbl_8087F048;
+            BattleTask* battle = lbl_8087F048;
             if (battle != 0 && (hit->mAC & 0x80000) != 0x80000 &&
                 (lbl_8087F610 == 0 || (hit->m04 != 6004 && hit->m04 != 20428))) {
                 atn::Vector3 pos = leader->vfAC();
