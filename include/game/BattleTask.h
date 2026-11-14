@@ -65,7 +65,7 @@ struct BattleChara_unk {
     unsigned char m92D;
     unsigned char m92E;
     unsigned char m92F;
-    int m930;
+    unsigned int m930; // inferred: frame of the last target (CharaTask::mFD8)
 };
 
 // inferred from __vt__10BattleTask (0x80779DA0): battle manager (lbl_8087F048). Other units still use
@@ -357,7 +357,8 @@ public:
     BattleChara_unk mCharas[0x48]; // 0xCBF0: inferred: characters known to the battle (CharaTask::fn_80176E30)
     int m36290[72]; // inferred: times each entry of mCharas was chosen as a target (fn_80103600)
     int mCharaCount;               // 0x363B0
-    unsigned char m363B4[0x363BC - 0x363B4];
+    int m363B4; // inferred: counter decremented every frame by fn_80103FD4
+    int m363B8;
     int m363BC;
     // inferred: battle effects; the atn::EffFile members (released with EffFile::Destroy by fn_800F3170) are raw
     // storage for the reason given at BattleMarkers_unk

@@ -639,6 +639,10 @@ struct HateConfig_unk {
     unsigned int mLineColorSword;  // 0x18
     unsigned int mLineColorArcher; // 0x1C
     unsigned int mLineColorMagic;  // 0x20
+    int mPlayerMinusHate;          // 0x24
+    int mIgnoreLongHate;           // 0x28
+    int mIgnoreLongHateValue[10];  // 0x2C: by character kind (CharaData_unk::m121)
+    int mIgnoreLongHateRand[10];   // 0x54
 };
 
 // inferred: segment clipped by the frustum (empty constructor: weak copy 0x800F8544); names invented
@@ -3700,6 +3704,306 @@ BattleChara_unk* BattleTask::fn_80103F60(CharaTask* chara) {
         return &mCharas[i];
     }
     return 0;
+}
+
+// inferred: hate of every character of mCharas toward the others, once per frame: clears the entries of the
+// characters that cannot act; for the others, the timer of the "IgnoreLongHate" settings, the distance (m24C),
+// the hate by distance (m36C), the bonus of the ranged attackers (m48C/m5AC) and of the AI orders (m80C), the
+// chosen target (fn_8017A5D8, hate-attract level) and the smoothed visibility m248
+// NONMATCHING: 98.2% - registers of the CanAct_unk flags at the top of the loop, the count of mCharas reloaded by
+// the inlined FindChara_unk, order of the loads of the linked character (rotation)
+void BattleTask::fn_80103FD4() {
+    HateConfig_unk* hate = fn_800F8098(lbl_8087F0A8);
+    fn_80210220(lbl_8087F0A8->mParamIndex);
+    if (m363B4 > 0) {
+        m363B4--;
+    }
+    for (int i = 0; i < mCharaCount; i++) {
+        CharaTask* target = 0;
+        CharaTask* guard = 0;
+        BattleChara_unk* entry = &mCharas[i];
+        BattleMarker_unk* marker = &mMarkers.mItems[i];
+        CharaTask* chara = entry->mChara;
+        if (!chara->CanAct_unk() || (chara->m54C & 0x2000) == 0x2000) {
+            int idx = FindChara_unk(chara);
+            if (idx >= 0) {
+                for (int k = 0; k < 72; k++) {
+                    mCharas[k].m08[idx] = 0;
+                }
+            }
+            if (entry->m92F) {
+                entry->fn_801081D8();
+            }
+            bool used = marker->mFlags & 1;
+            marker->m70 = 0;
+            marker->mFlags = 0;
+            marker->mMode = 0;
+            if (used) {
+                marker->mFlags |= 1;
+            }
+            if (entry->mChara->IsGrappled_unk()) {
+                entry->m808 = 60;
+            }
+            entry->mChara->fn_8017A5D8(0);
+        } else {
+            entry->m92F = 1;
+            if (entry->m808 > 0) {
+                entry->m808--;
+            }
+            if (entry->m804 > 0) {
+                if (entry->mChara->m55C == 6 && entry->mChara->m560 == 0x60) {
+                    entry->m804--;
+                } else {
+                    entry->m804 = 0;
+                }
+            }
+            if (hate->mIgnoreLongHate != 0 && entry->mChara != 0) {
+                int kind = (signed char)entry->mChara->m5C->m120[1];
+                if (hate->mIgnoreLongHateValue[kind] > 0) {
+                    if (entry->mChara->mC58.mC4 != (CharaTask*)entry->mChara->mC58.mC8) {
+                        entry->m6DC = 0;
+                        entry->m6E0 = hate->mIgnoreLongHateValue[kind];
+                        if (hate->mIgnoreLongHateRand[kind] > 0) {
+                            entry->m6E0 += rand() % hate->mIgnoreLongHateRand[kind];
+                        }
+                    } else {
+                        entry->m6DC++;
+                    }
+                }
+            }
+            for (int j = 0; j < mCharaCount; j++) {
+                CharaTask* other = mCharas[j].mChara;
+                if (other == 0) {
+                    continue;
+                }
+                if (entry->m6E0 > 0) {
+                    if (other == entry->mChara->mC58.mC4) {
+                        entry->m6E4[j] = MIN(MAX((float)entry->m6DC / (float)entry->m6E0, 0.0f), 1.0f);
+                    } else if (entry->m6E4[j] > 0.0f) {
+                        entry->m6E4[j] = MIN(MAX(entry->m6E4[j] - (1.0f / 300.0f), 0.0f), 1.0f);
+                    }
+                } else {
+                    entry->m6E4[j] = 0.0f;
+                }
+                atn::Vector3 d = entry->mChara->mPos - other->mPos;
+                entry->m24C[j] = PSVECMag(&d);
+                if (other->mFlag28) {
+                    float minDist = 12000.0f;
+                    float maxDist = 15000.0f;
+                    float near = entry->m24C[j] - minDist;
+                    if (0.0f > near) {
+                        near = 0.0f;
+                    }
+                    float t = near / (maxDist - minDist);
+                    if (1.0f < t) {
+                        t = 1.0f;
+                    }
+                    float f = 1.0f - t;
+                    if (other != entry->mChara->mC58.mC4 && entry->m6E4[j] > 0.05f) {
+                        f = 0.0f;
+                    }
+                    if (f > 0.0f) {
+                        int value = (int)(1000.0f * f + 2000.0f) + entry->m6CC;
+                        float shade = (float)other->fn_80164EF4();
+                        float rate = 1.0f;
+                        if (lbl_8087F0A8->mTimeReset != 0) {
+                            float s = shade - 240.0f;
+                            if (0.0f > s) {
+                                s = 0.0f;
+                            }
+                            s = s / 60.0f;
+                            if (1.0f < s) {
+                                s = 1.0f;
+                            }
+                            rate = 1.0f - s;
+                        }
+                        entry->m36C[j] = (int)((float)value * rate);
+                        if (entry->mChara != 0 && (entry->mChara->mStatus.m0C & 0x800) != 0x800) {
+                            if (entry->m24C[j] < (float)m363BC || entry->mChara->mC58.mC4 == other ||
+                                (entry->mChara->m137C & 0x1000) == 0x1000 || lbl_8087F430->fn_80370174(10) > 0) {
+                                target = other;
+                            }
+                        } else {
+                            target = other;
+                        }
+                        if (1.0f == shade) {
+                            entry->m6CC = (int)(70.0f * ((float)rand() / 32767.0f));
+                        }
+                    } else {
+                        entry->m36C[j] = 0;
+                    }
+                } else {
+                    entry->m36C[j] = 0;
+                }
+                if (other->mFlagB16 && entry->m24C[j] < 1.5f * (float)m363BC && entry->m930 < (unsigned int)other->m138C) {
+                    guard = other;
+                }
+                CharaLink_unk* link = entry->mChara->mC58.mD4;
+                CharaTask* linked = link != 0 ? link->GetChara_unk() : 0;
+                if (linked != 0 && linked->CanAct_unk() && linked->mFlag28 &&
+                    (entry->mChara->mC58.m114 == 3 || entry->mChara->mC58.m114 == 1)) {
+                    atn::Vector3 v(0.0f, 0.0f, 25.0f);
+                    atn::Vector3 pos = linked->mPos;
+                    Mtx m;
+                    PSMTXRotRad(m, 'y', linked->mRot.y);
+                    PSMTXMultVec(m, &v, &v);
+                    pos += v;
+                    atn::Vector3 e = pos - other->mPos;
+                    float s = PSVECMag(&e) - 50.0f;
+                    if (0.0f > s) {
+                        s = 0.0f;
+                    }
+                    s = s / 100.0f;
+                    if (1.0f < s) {
+                        s = 1.0f;
+                    }
+                    float f = 1.0f - s;
+                    float rate = 1.0f;
+                    if (f > 0.0f) {
+                        int value = (int)(100.0f * f + 50.0f) + entry->m6CC;
+                        entry->m36C[j] += (int)((float)value * rate);
+                    }
+                }
+                if (other->mFB8 > 10.0f) {
+                    if (lbl_8087F610 == 0) {
+                        if (other->mType == 2) {
+                            entry->m48C[j] = 0;
+                            entry->m5AC[j] = 0;
+                        } else {
+                            if (other->m638 != 0) {
+                                entry->m48C[j] = *(int*)other->m638->mA8;
+                            } else {
+                                entry->m48C[j] = 220;
+                            }
+                            if (entry->mChara->m648 != 0 && entry->mChara->m648->m04 != 1) {
+                                entry->m48C[j] = (int)(0.4f * (float)entry->m48C[j]);
+                            }
+                            int kind = fn_80219558(other->m50);
+                            if ((unsigned int)(kind - 9) <= 1 || kind == 1) {
+                                entry->m48C[j] = (int)(0.7f * (float)entry->m48C[j]);
+                            }
+                            entry->m5AC[j] = 600;
+                        }
+                    } else {
+                        entry->m48C[j] = 220;
+                        entry->m5AC[j] = 200;
+                    }
+                }
+                if (entry->m5AC[j] > 0) {
+                    entry->m5AC[j]--;
+                }
+                if ((other->mStatus.m0C & 0x20) == 0x20) {
+                    entry->m48C[j] = 0;
+                    entry->m5AC[j] = 0;
+                }
+                if (other->mType == 0 && other->mFlag31 && !other->HasC48_unk()) {
+                    entry->m48C[j] = (int)(0.8f * (float)entry->m48C[j]);
+                    for (int k = 0; k < entry->mHateCount; k++) {
+                        if (entry->mHateValues[k] > 0 && j == entry->mHateIds[k]) {
+                            entry->mHateValues[k] = (short)(0.8f * (float)entry->mHateValues[k]);
+                        }
+                    }
+                }
+                if (entry->mChara->mC58.mMode == 0x11 && entry->mChara->mC58.mCC != 0 &&
+                    entry->mChara->mC58.mCC == other->mC58.mC4) {
+                    entry->m24C[j] = entry->m24C[j] * 0.5f;
+                }
+                entry->m80C[j] = 0;
+                if (entry->mChara->mType == 3) {
+                    AiTarget* redirect = lbl_8087EE68 != 0 ? lbl_8087EE68->fn_800185B4(entry->mChara, 0) : 0;
+                    AiTarget* aimed = lbl_8087EE68 != 0 ? lbl_8087EE68->fn_80018394(other) : 0;
+                    PlayerTask* leader = lbl_8087F8A0 != 0 ? lbl_8087F8A0->mHead : 0;
+                    if (redirect != 0 && redirect->m08 == 0 && redirect->m0C == other) {
+                        entry->m80C[j] += 2000;
+                    } else if (aimed != 0) {
+                        entry->m80C[j] += (aimed->m2C + 1) * 200;
+                    } else if (leader != 0 && (leader->mFC0 == other || other->mFDC == leader)) {
+                        if (leader->mFlag28) {
+                            int kind = entry->mChara->m5C != 0 ? entry->mChara->m5C->m122 : -1;
+                            if (kind != 3) {
+                                if (kind == 2) {
+                                    entry->m80C[j] += 70;
+                                } else {
+                                    entry->m80C[j] += 35;
+                                }
+                            }
+                        }
+                        if (leader == other->mFDC && entry->mChara->fn_801789D8(0, 0x4000000)) {
+                            entry->m80C[j] += 175;
+                        }
+                    }
+                }
+                if (guard != 0 && guard == other) {
+                    entry->m80C[j] += 3000;
+                }
+            }
+            if (target != 0 && entry->mChara->mType == 2 && (entry->mChara->m137C & 0x2000) == 0x2000 &&
+                lbl_8087F430 != 0 && lbl_8087F430->GetCurrentMap() != 0 && lbl_8087F8A0 != 0) {
+                MapTask* map = lbl_8087F430->GetCurrentMap();
+                if (map->mType == 2 && map->mId == 13) {
+                    PlayerTask* p = lbl_8087F8A0->FindByName_unk(8);
+                    if (p != 0 && p->CanAct_unk() && (p->m54C & 0x2000) != 0x2000) {
+                        atn::Vector3 a = entry->mChara->mPos - target->mPos;
+                        float da = PSVECSquareMag(&a);
+                        atn::Vector3 b = entry->mChara->mPos - p->mPos;
+                        if (da > 0.8f * PSVECSquareMag(&b)) {
+                            int idx = FindChara_unk(target);
+                            target = 0;
+                            entry->m36C[idx] = 0;
+                        }
+                    }
+                }
+            }
+            if (target != 0 && guard != 0 && entry->mChara->mType == 2) {
+                if ((unsigned int)target->mFD8 < (unsigned int)guard->m138C) {
+                    int idx = FindChara_unk(target);
+                    target = 0;
+                    entry->m36C[idx] = 0;
+                } else {
+                    entry->m80C[FindChara_unk(guard)] = 0;
+                }
+            }
+            if ((entry->mChara->mStatus.m0C & 0x800) == 0x800) {
+                if (target == 0) {
+                    entry->mChara->fn_8017A5D8(0);
+                    PlayerTask* leader = lbl_8087F8A0 != 0 ? lbl_8087F8A0->mHead : 0;
+                    if (leader != 0) {
+                        CharaTask* self = entry->mChara;
+                        fn_80210220(lbl_8087F0A8->mParamIndex);
+                        int a = FindChara_unk(self);
+                        int b = FindChara_unk(leader);
+                        if (b >= 0 && a >= 0) {
+                            BattleChara_unk* e = &mCharas[a];
+                            if (e->mChara != 0 && e->mChara->CanAct_unk()) {
+                                e->fn_8010895C(b, 1);
+                            }
+                        }
+                    }
+                    entry->m930 = 0;
+                }
+            } else if (target != 0 && (target->m54C & 4) != 4) {
+                if (entry->mChara->mType == 2) {
+                    entry->mChara->fn_80165284(target);
+                }
+                entry->mChara->fn_8017A5D8(1);
+                if ((entry->mChara->mStatus.m0C & 0x800) == 0x800) {
+                    target->mStatus.fn_8012F188(lbl_8087F0A8->mExplsnAddHateAtt);
+                }
+                if (entry->m804 > 0 && entry->mChara->m55C == 6 && entry->mChara->m560 == 0x60) {
+                    entry->m804 = 0;
+                    entry->mChara->fn_8016E970(entry->mChara->m564);
+                }
+                entry->m930 = target->mFD8;
+            }
+        }
+        if (entry->mChara->mType != 2 && entry->mChara->mFlag31 && !entry->mChara->HasC48_unk()) {
+            entry->m248 = MIN(MAX(entry->m248 - (1.0f / 15.0f), 0.0f), 1.0f);
+        } else if (entry->mChara->mType == 0 && entry->mChara->m55C == 5) {
+            entry->m248 = MIN(MAX(entry->m248 - 0.013333335f, 0.0f), 1.0f);
+        } else {
+            entry->m248 = MIN(MAX((1.0f / 15.0f) + entry->m248, 0.0f), 1.0f);
+        }
+    }
 }
 
 void BattleTask::fn_80105510(int value) {

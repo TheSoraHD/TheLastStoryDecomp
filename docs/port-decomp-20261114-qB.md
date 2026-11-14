@@ -23,7 +23,15 @@ Inicio: 2026-11-14 02:59 CET. Rama `agent-B`. Unidades: `game/BattleTask`, `game
   salida (`fn_8001C26C`): estado, parte en mano, valores guardados. Resto: el original indexa los valores guardados
   desde el puntero a `CharaC58_unk` (en CharaTask.h `m140`/`m1A0` son bytes) y desenrolla distinto. Sale con ella
   la copia debil `vf5C__13GimmickCommonFv` (+1 funcion al 100 %: 15390).
-- `BattleTask::fn_80103FD4` (5436) y `BattleCharaTask::fn_800E4278` (5668): sin escribir (ver pendientes).
+- `BattleTask::fn_80103FD4` (0x80103FD4, 5436 bytes): **escrita, NONMATCHING 98,3 %** (antes 0 %). Firma
+  `void fn_80103FD4()`. Odio de cada entrada de mCharas hacia las demas: limpia las que no pueden actuar
+  (`m08[idx]` de todas, marcador conservando el bit 1, `m808 = 60` si esta agarrado); en las demas el temporizador
+  "IgnoreLongHate" (m6DC/m6E0/m6E4), distancias (m24C), odio por distancia con el tiempo de sombra (m36C, m6CC
+  aleatorio), bonus del personaje enlazado, de los atacantes a distancia (m48C/m5AC) y de las ordenes de la IA
+  (m80C: 2000, (n+1)*200, 70/35, 175, 3000), objetivo (`fn_8017A5D8`, `fn_8012F188` con `mExplsnAddHateAtt`,
+  `m930 = target->mFD8`) y visibilidad m248. Resto: registros de los indicadores de CanAct_unk al principio del
+  bucle, recarga de mCharaCount en FindChara_unk y orden de las cargas del personaje enlazado.
+- `BattleCharaTask::fn_800E4278` (5668): sin escribir (sin tiempo).
 
 ## Cambios de firma o de layout (para el port)
 
@@ -33,6 +41,11 @@ Inicio: 2026-11-14 02:59 CET. Rama `agent-B`. Unidades: `game/BattleTask`, `game
   plantilla en la cabecera renumera los `@N` de las ~57 unidades que incluyen BattleTask.h. Los bucles de
   fn_800FFE68/fn_801002DC usan `mTargets.mData[i]` (con `operator[]` pierden la induccion de puntero).
 - `BattleTask::mCBAC` pasa a `unsigned int`, `mCBB0` a `BattleTimer_unk mCBB0[8]` (`{float m00; int m04;}`).
+- `BattleTask::m363B4` -> `int m363B4; int m363B8;` (contador de fn_80103FD4), `BattleChara_unk::m930` ->
+  `unsigned int` (se compara sin signo con `CharaTask::m138C`/`mFD8`; esos dos se comparan con cast porque
+  CharaTask.h es de otra familia: candidatos a `unsigned int`).
+- Vista local `HateConfig_unk` (BattleTask.cpp): `mPlayerMinusHate`, `mIgnoreLongHate`,
+  `mIgnoreLongHateValue[10]`, `mIgnoreLongHateRand[10]` (como GameConfig_unk desde 0x350).
 - `BattleTask::mCB5C` -> `float` (alfa de la flecha), `mCB64` -> `atn::Vector3` (direccion suavizada).
 - `BattleShots_unk`: iterador (`iterator`, `begin`, `end`, `operator[]`, `erase`) declarado en la cabecera sin
   nombres de parametro y definido inline en BattleTask.cpp.
@@ -61,22 +74,15 @@ Inicio: 2026-11-14 02:59 CET. Rama `agent-B`. Unidades: `game/BattleTask`, `game
   queda por debajo de los de bucles posteriores indica una inline (UpdateAlert_unk en vf10).
 - Instanciar `atn::FixedArray_unk<T, N>` como miembro en una cabecera compartida renumera los `@N` de las
   unidades que la incluyen (los parametros con nombre de la plantilla).
+- MWCC no pliega `15000.0f - 12000.0f` si vienen de locales, y no elimina `x * rate` con `float rate = 1.0f`: el
+  original los tenia asi (fn_80103FD4).
+- Inicializar los locales al principio del bucle exterior (target/guard) aunque solo se usen en una rama coloca
+  los `li rX, 0` como el original (fn_80103FD4, +0,5 %).
 - `pairdata.py --relabel` da parejas ambiguas si la unidad tiene funciones grandes NONMATCHING: filtrar por
   `match_percent >= 99`.
 
 ## Pendientes
 
-- `fn_80103FD4` (odio por personaje, 5,4 KB, 18 registros de coma flotante): asm leido entero, sin escribir.
-  Esquema: `HateConfig_unk` (vista local de GameConfig desde 0x350) necesita `mPlayerMinusHate` (+0x24),
-  `mIgnoreLongHate` (+0x28), `mIgnoreLongHateValue[10]` (+0x2C) y `mIgnoreLongHateRand[10]` (+0x54), indexados por
-  `(signed char)chara->m5C->m121`; `fn_80210220(cfg->mParamIndex)` sin usar el resultado; `m363B4` es un contador
-  (`int`, decrementa si > 0). Bucle por `mCharas[i]` con `mMarkers.mItems[i]`: si el personaje no puede actuar
-  (CanAct o flag 0x2000 de m54C) limpia `mCharas[k].m08[idx]` (k < 72), resetea la entrada si `m92F`, limpia el
-  marcador conservando el bit 1 de `mFlags`, `m808 = 60` si esta agarrado y `fn_8017A5D8(0)`; si puede, recorre los
-  rivales (`m6E4[j]` con m6DC/m6E0, distancias en `m24C[j]` con PSVECMag, `m36C[j]` del odio con fn_80164EF4,
-  `mF8`/`m48C`/`m5AC`/`m80C[j]` con los bonus 0x7D0, (n+1)*200, 70/35, 0xAF, 3000), elige objetivo (r30) y
-  `m930 = target->mFD8`; al final ajusta `m248` con 1/15, 1/75 segun tipo y estado. Constantes (sdata2):
-  0, 1, 0.8, 1000, 2000, 240, 60, 12000, 15000, 0.05, 1/300, 32767, 70, 1.5, 50, 100, 25, 0.4, 0.7, 10, 0.5.
 - `BattleCharaTask::fn_800E4278` (5,6 KB): sin empezar.
 - `HitInfo_unk::m50/m54` como floats (ver arriba).
 - `CharaC58_unk::m140` -> `float[24]`, `m1A0` -> `int[4]` y `CharaRes_unk::m64-m84` como 9 floats en
