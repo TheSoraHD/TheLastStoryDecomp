@@ -14,7 +14,6 @@
 
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
-extern "C" int fn_800F8548(BattleTask* mgr); // inferred: new bullet id
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" int strncmp(const char* a, const char* b, unsigned long n);
 // inferred: std::string concatenation (weak copy 0x8006AFF8)
@@ -60,9 +59,6 @@ extern "C" GameUI* lbl_8087F490;
 extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg, int arg2, float volume); // inferred: plays a sound
 extern "C" void* lbl_8087F0A8; // inferred: settings (pad at 0x48C)
 struct HomingParam_unk;
-extern "C" void fn_800F8574(BattleTask* mgr, CharaTask* owner, HitInfo_unk* data, const atn::Vector3* pos,
-                            const atn::Vector3* dir, HomingParam_unk* param, int arg6, int arg7, float a,
-                            float b); // inferred: fires a bullet (as in game/Em003LesserDaemon.cpp)
 // inferred: hint of the HUD (GameUI::m764) built as a temporary (name invented)
 struct GolemUIHint_unk : public GameUIElem1C_unk {
     GolemUIHint_unk(int a, int b, int c) {

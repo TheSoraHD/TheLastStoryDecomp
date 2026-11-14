@@ -24,10 +24,8 @@ extern "C" float fn_800DC288(const char* s); // inferred: string to float
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
-extern "C" int fn_800F8548(BattleTask* mgr); // inferred: new bullet id
 extern "C" HitInfo_unk* fn_80219E6C(int id); // inferred: bullet/skill data by id
 extern "C" void fn_800FD658(BattleTask* mgr, CharaTask* a, CharaTask* b, void* bullet, int arg4, int arg5, int arg6);
-extern "C" void fn_801092C8(BattleTask* effect, int msg, CharaTask* chara, int value, int arg);
 // inferred: color as four floats (name invented)
 typedef EffectColor_unk IvyColor_unk;
 extern "C" void fn_8044D6AC(void* mgr, int money); // inferred: adds money (gmk/RandomMerchant.cpp)

@@ -152,7 +152,6 @@ extern "C" int fn_80444020(Inventory* party, int item, int a, int b, int c, int 
 extern "C" int rand();
 extern "C" int atoi(const char* s);
 extern "C" int sprintf(char* buf, const char* format, ...);
-extern "C" void fn_801092C8(BattleTask* battle, int kind, int arg, int value, int arg4); // inferred: battle log entry
 extern "C" void* lbl_8087EF70;                                     // inferred: pad input
 extern "C" int fn_800A555C(void* pad, int port, int button);       // inferred: button triggered
 extern "C" unsigned int fn_800DC6B4(const char* s); // inferred: string hash
@@ -4524,10 +4523,6 @@ extern "C" atn::EfpFile* fn_800EFDA0(int id); // inferred: skill effect of row `
 extern "C" void fn_8023A8B4(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
                             const atn::Vector3& pos, const atn::Vector3& rot, const atn::Color& color, int arg7,
                             int arg8, int arg9, float scale); // inferred: plays an effect
-extern "C" int fn_800F8548(BattleTask* battle); // inferred: new bullet id
-extern "C" void fn_800FAB80(BattleTask* battle, CharaTask* owner, HitInfo_unk* bullet, int id, const atn::Vector3* pos,
-                            const atn::Vector3* rot, int arg6, int arg7, int arg8, int arg9, float arg10,
-                            float arg11); // inferred: shoots a bullet
 
 // inferred: the member can be hit by a script skill (name invented)
 static inline bool IsTargetable_unk(CharaTask* chara) {

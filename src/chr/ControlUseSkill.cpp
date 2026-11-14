@@ -6,13 +6,6 @@
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
 extern "C" void* lbl_8087F430; // inferred: field manager (as in game/CharaTask.cpp)
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
-extern "C" int fn_800F8548(BattleTask* mgr);
-// inferred: fire the skill (bullet, area or simple effect); argument names unknown
-extern "C" void fn_800F8574(BattleTask* mgr, CharaTask* chara, HitInfo_unk* data, const atn::Vector3* pos,
-                            const atn::Vector3* dir, int a, int b, int c, float f1, float f2);
-extern "C" void fn_800FB4B0(BattleTask* mgr, CharaTask* chara, HitInfo_unk* data, int id, const atn::Vector3* pos,
-                            int a, int time, int b, int c);
-extern "C" void fn_801092C8(BattleTask* effect, int msg, CharaTask* chara, int value, int arg);
 // inferred: parameters of fn_8003EA3C (defined in game/CharaTask.cpp)
 struct HitParam_unk;
 extern "C" HitParam_unk lbl_807C6B90; // inferred: default parameters

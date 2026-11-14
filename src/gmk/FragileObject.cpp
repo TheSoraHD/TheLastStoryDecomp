@@ -49,10 +49,6 @@ extern "C" void* lbl_8087F610; // inferred: arena mode
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
 struct HitInfo_unk;
 extern "C" HitInfo_unk* fn_80219E6C(int id); // inferred: bullet data by id
-extern "C" int fn_800F8548(BattleTask* mgr);
-extern "C" void fn_800FAB80(BattleTask* mgr, int arg1, HitInfo_unk* bullet, int arg3, const atn::Vector3* pos,
-                            const atn::Vector3* rot, int arg6, int arg7, int arg8, int arg9, float arg10,
-                            float arg11);
 // inferred: map id test of the "IF" blocks (see game/GimmickStateCommand.cpp)
 extern "C" bool fn_80216AFC(const char* id, int* type, int* map, int* point);
 struct Field_unk;
@@ -274,9 +270,9 @@ void FragileObject::vf10() {
             atn::Vector3 pos = ((atn::Matrix3x4*)mModelBefore.mMtx.m)->GetTrans_unk();
             pos.y += 15.0f;
             if (lbl_8087F048 != 0 && mExplode > 0) {
-                int chara = 0;
+                CharaTask* chara = 0;
                 if (mExplodeElza == 1) {
-                    chara = (int)lbl_8087F8A0->mHead;
+                    chara = lbl_8087F8A0->mHead;
                 }
                 lbl_8087F048->m3E39C = 1;
                 BattleTask* mgr = lbl_8087F048;

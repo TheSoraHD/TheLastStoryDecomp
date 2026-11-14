@@ -31,8 +31,6 @@ extern "C" SkillEffect* fn_8059B66C(void* mgr, HitInfo_unk* skill, CharaTask* us
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
 extern "C" void fn_800FB1BC(BattleTask* mgr, CharaTask* owner, HitInfo_unk* data, const atn::Vector3* pos,
                             const atn::Vector3* rot, int a, int b, float scale); // inferred: hit effect
-extern "C" void fn_80108F38(BattleTask* mgr, const atn::Vector3& pos, int status); // inferred: status effect
-extern "C" void fn_801092C8(BattleTask* mgr, int id, CharaTask* chara, int a, int b);
 
 // inferred: field (lbl_8087F430)
 struct Field_unk {
@@ -713,7 +711,7 @@ int fn_80040B44(DamageResult_unk* result, HitInfo_unk* data, CharaStatus* attack
             BattleTask* effect = lbl_8087F048;
             status |= 0x20;
             if (effect != 0) {
-                fn_80108F38(effect, target->mChara->fn_801781B0(), 0x20);
+                fn_80108F38(effect, &target->mChara->fn_801781B0(), 0x20);
             }
         }
         if (attacker->fn_80133EE8(0x11)) {

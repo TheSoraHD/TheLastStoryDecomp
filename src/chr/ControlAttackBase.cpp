@@ -35,7 +35,6 @@ extern "C" GameState_unk* lbl_8087EFA8;
 
 extern "C" const char* fn_800EFF04(int id); // inferred: sound name of an effect id
 extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float volume);
-extern "C" int fn_800F8548(BattleTask* mgr); // inferred: new bullet id
 extern "C" HitInfo_unk* fn_80219E6C(int id);  // inferred: skill data
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
 

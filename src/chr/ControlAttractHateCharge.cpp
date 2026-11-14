@@ -16,11 +16,6 @@ extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2
 extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float volume);
 // inferred: RGBA colour (names invented)
 typedef EffectColor_unk Color4f_unk;
-extern "C" int fn_800F8548(BattleTask* mgr);
-extern "C" void fn_800FB4B0(BattleTask* mgr, CharaTask* chara, HitInfo_unk* data, int id, const atn::Vector3* pos,
-                            int a, int time, int b, int c);
-extern "C" void fn_800FAB80(BattleTask* mgr, CharaTask* owner, HitInfo_unk* bullet, int arg3, const atn::Vector3* pos,
-                            const atn::Vector3* rot, int a, int time, int b, int c, float f1, float f2);
 // inferred: one line of the voice table (defined in atn/ptr_string_base_char_0.cpp)
 struct VoiceEntry_unk {
     const char* fn_8021FD7C(int kind) const;

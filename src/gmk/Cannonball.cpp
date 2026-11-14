@@ -145,10 +145,6 @@ extern "C" void fn_800F80B8(MtxPtr mtx, const atn::Vector3* rot);
 extern "C" void fn_80316E38(atn::Model* model, MtxPtr mtx);
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
 extern "C" HitInfo_unk* fn_80219E6C(int id); // inferred: bullet data by id
-extern "C" int fn_800F8548(BattleTask* mgr);
-extern "C" void fn_800FAB80(BattleTask* mgr, CharaTask* owner, HitInfo_unk* bullet, int arg3,
-                            const atn::Vector3* pos, const atn::Vector3* rot, int arg6, int arg7, int arg8, int arg9,
-                            float arg10, float arg11);
 // inferred: hit request of the explosion when the bullet is of kind 3 (0x20 bytes; names invented)
 struct CannonHit_unk {
     CannonHit_unk() {

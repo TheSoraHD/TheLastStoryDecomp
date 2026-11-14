@@ -34,9 +34,6 @@ extern "C" int fn_8004ED34(void* world, atn::ColliResult_unk* result, const atn:
                            unsigned int mask, void* ignore, int arg); // inferred: ray test
 extern "C" void PSMTXRotAxisRad(Mtx m, const atn::Vector3* axis, float rad);
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
-extern "C" void fn_800FAB80(BattleTask* mgr, CharaTask* owner, HitInfo_unk* bullet, int arg3, const atn::Vector3* pos,
-                            const atn::Vector3* rot, int arg6, int arg7, int arg8, int arg9, float arg10,
-                            float arg11);
 // inferred: effect manager (class unknown, as in game/Em309Ghoul.cpp)
 struct EffectMgr_unk;
 extern "C" EffectMgr_unk* lbl_8087F3C0;

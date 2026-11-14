@@ -40,12 +40,42 @@
   `m5C..m74`; `IsBlocked_unk(BulletShot_unk)` mira `HitInfo_unk::mAC`. Con `GetShot_unk()` vf10 bajaba
   (90,70 -> 90,22: un temporal mas); con la copia explicita sube 90,70 -> 91,74. pd + precommit OK.
 
+### 3. Declaraciones `extern "C"` de BattleTask en `game/BattleTask.h`
+
+- Al final de `BattleTask.h`, sin nombres de parametro y con el tipo de la definicion de BattleTask.cpp:
+  `fn_800F8548`, `fn_800F8574`, `fn_800FAB80` (devuelve `int`), `fn_800FB4B0` (`int`), `fn_80108F38`, `fn_801092C8`,
+  `fn_8010A308`. Las 67 unidades que incluyen la cabecera pierden sus declaraciones locales (script
+  `scratch-L2/decl.py`); ajustes de llamadas: `fn_80108F38(fx, &chara->fn_801781B0(), ...)` (CharaStatus x18,
+  DamageCalc_unk, Em308ParmCrab: antes por referencia), EnemyQuarkSecond `&mPos, &mRot` y `&(m164C + dir)`,
+  FragileObject `CharaTask* chara` (antes `int` con molde). Codigo identico.
+- Quitar las declaraciones locales (con nombres de parametro) renumera `@N`: `pdbatch.sh` de las 67 + BattleTask, y
+  a mano lo que el re-emparejado dejo mal: GameEventScript (5 floats de .sdata2 0x80885B10-34 con el desplazamiento
+  -18 de HEAD; `lblmap.py` lo habia empeorado a 66 sin nombre), QuadrupedTask (double .rodata 0x8075FCA0 @14270 ->
+  @14269), Em206CocoonMp (0x808841C0 @18117 -> @18091). `lbl_8087D6E8/EC` y 0x8087EE78 devueltos tras cada pd.
+- precommit: main.dol OK, 15450, lost 0, sin bajadas, labelcheck/rep100 igual. Unico FAIL: ordercheck de
+  GameEventScript (1 fuera de orden `__dt__15GameEventScriptFv` + `FindWarpIn_unk` extra), igual con el fuente y la
+  cabecera de HEAD: ya estaba.
+- No hechas: `fn_80108C10` (cada unidad tiene su vista del dano: `DaemonDamage_unk`, `QueenDamage_unk`...; unificar
+  `BattleDamage_unk` es otra tarea) y las de 1-5 declaraciones. Las unidades que no incluyen `BattleTask.h` (`-` en
+  `sigs.py`: Coffin, SparkCube, LandMine, WaitObject, GimmickStateCommand, Bullet, Em310Gargoyle...) siguen con su
+  declaracion local (incluir la cabecera renumera); varias tienen tipos distintos (`int`/`void*` en vez de
+  `CharaTask*`/`HitInfo_unk*`, Bullet con `fn_800FAB80` devolviendo `int` y los float antes de dos int).
+
 ## Decisiones tomadas sin el usuario
 
 - La cola pedia la declaracion sin nombres de parametro; la ya existente tenia `chara` y se ha movido tal cual:
   quitarlo renumeraria `@N` en todas las unidades que incluyen `BattleTask.h`.
 
 ## Para el port
+
+- `game/BattleTask.h` declara `extern "C"` (sin nombres): `fn_800F8548`, `fn_800F8574`, `fn_800FAB80`, `fn_800FB4B0`,
+  `fn_80108F38`, `fn_801092C8`, `fn_8010A308` (tipos de la definicion). Las unidades que incluyen la cabecera ya no
+  las declaran; `fn_80108F38` recibe `const atn::Vector3*` en todas (antes `&` en CharaStatus, DamageCalc_unk,
+  Em308ParmCrab, Em308ParmCrab) y `fn_800FAB80` punteros en EnemyQuarkSecond. Unidad del port tocada:
+  BattleCharaTask (solo quitar sus declaraciones locales).
+- Vistas de `lbl_8087F048` quitadas (GameScene, ControlAppear, AiCommon_unk, ArenaTask, GameSoundControl,
+  ControlWallUp, CharaEquip_unk, PickTask, DropItem): ahora `BattleTask*`; ninguna unidad del port salvo GameScene
+  (no es del port). `PickTask` usa un inline `GetBattleChara_unk(BattleChara_unk*, int)` local.
 
 - `BattleTask::fn_80108378(CharaTask*)` -> `BattleChara_unk::fn_80108378(CharaTask*)` (no usa `this`). Unidad del
   port tocada: BattleTask (solo el nombre de clase de la definicion).

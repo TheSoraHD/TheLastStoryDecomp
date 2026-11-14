@@ -30,7 +30,6 @@ struct Field_unk {
 };
 extern "C" Field_unk* lbl_8087F430;
 extern "C" wchar_t* wcscpy(wchar_t* dst, const wchar_t* src);
-extern "C" int fn_800F8548(BattleTask* mgr); // inferred: new bullet id
 extern "C" atn::Vector3 lbl_807C7030;        // inferred: zero vector
 extern "C" int fn_80051B14(const atn::ColliSphereShape_unk* s, const atn::ColliCapsuleShape_unk* c); // inferred: hit test
 
@@ -207,9 +206,6 @@ inline void LastCocoonImago::Roar_unk() {
 extern "C" HitInfo_unk* fn_80219E6C(int id); // inferred: skill data
 struct HitResult_unk;
 struct HomingParam_unk;
-extern "C" void fn_800F8574(BattleTask* mgr, CharaTask* owner, HitInfo_unk* data, const atn::Vector3* pos,
-                            const atn::Vector3* dir, HomingParam_unk* param, int arg6, int arg7, float a,
-                            float b); // inferred: fires a bullet
 extern "C" GameConfig_unk* lbl_8087F0A8; // inferred: game settings
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 
@@ -1193,9 +1189,6 @@ void LastCocoonImago::fn_8045D3A4() {
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 extern "C" GameUI* lbl_8087F490;
 extern "C" GameConfig_unk* lbl_8087F0A8; // inferred: game settings (m48C: input)
-extern "C" void fn_800FAB80(BattleTask* mgr, CharaTask* owner, HitInfo_unk* bullet, int id, const atn::Vector3* pos,
-                            const atn::Vector3* rot, int arg6, int arg7, int arg8, int arg9, float arg10,
-                            float arg11); // inferred: fires a bullet (as in gmk/Coffin.cpp)
 extern "C" float PSVECMag(const atn::Vector3* v);
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
 // inferred: button hint of the UI with its defaults (as MulueUIHint_unk in game/Em204Mulue.cpp)

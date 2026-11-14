@@ -235,7 +235,6 @@ extern "C" void fn_8004829C(void* sound, const char** groups, int count);
 extern "C" atn::Task* fn_8052A888(atn::Task* parent);
 extern "C" int sprintf(char* buf, const char* fmt, ...);
 
-extern "C" void fn_801092C8(void* battle, int kind, CharaTask* chara, int bit, int arg);
 extern "C" TutorialData_unk* fn_8021F09C(int id); // inferred: row of the tutorial table
 extern "C" void fn_802328DC(int frame); // inferred: effect system frame
 extern "C" void fn_80450B28();         // inferred: freezes the item slot animations

@@ -193,7 +193,6 @@ struct Effect_unk {
 };
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
 
-extern "C" int fn_800F8548(BattleTask* mgr);
 extern "C" void fn_800FD658(BattleTask* mgr, CharaTask* a, CharaTask* b, void* bullet, int arg4, int arg5, int arg6);
 
 // inferred: globals returned by accessors that are called out of line
@@ -1111,9 +1110,6 @@ BattleTask* fn_8013A194();
 extern "C" Field_unk* fn_80121F00();
 extern "C" Settings_unk* fn_800F52F8();
 extern "C" void* fn_800F7F90();
-extern "C" void fn_800FAB80(BattleTask* mgr, CharaTask* owner, HitInfo_unk* bullet, int arg3, const atn::Vector3* pos,
-                            const atn::Vector3* rot, int arg6, int arg7, int arg8, int arg9, float arg10,
-                            float arg11);
 
 namespace chr {
 
@@ -10766,7 +10762,6 @@ void CharaTask::fn_80176DFC(int a, int b, int c) {
 // instantiations of Sort_unk are 0x80177688 (comparison by value) and 0x80177AA0 (by reference,
 // recursive part); Median3_unk is 0x80177EB8. Names invented.
 typedef bool (*FloatLess_unk)(const float& a, const float& b);
-extern "C" void fn_801092C8(BattleTask* effect, int id, CharaTask* chara, int a, int b);
 
 template <class T>
 inline void Swap_unk(T& a, T& b) {

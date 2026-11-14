@@ -28,7 +28,6 @@ extern "C" Field_unk* lbl_8087F430;
 extern "C" std::string fn_8006AFF8(const std::string& a, const std::string& b);
 
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
-extern "C" int fn_800F8548(BattleTask* mgr); // inferred: new bullet id
 // inferred: effect manager (class unknown), global instance at 0x8087F3C0
 struct EffectMgr_unk;
 extern "C" EffectMgr_unk* lbl_8087F3C0;
@@ -103,10 +102,7 @@ extern "C" void fn_80040B40(CrabDamage_unk* result, HitInfo_unk* data, CharaStat
 extern "C" double sqrt(double x);
 extern "C" int fn_8004D314(void* world, int arg, const atn::Vector3* pos, const atn::Vector3* dir, unsigned int mask,
                            void* ignore, int arg7, float radius); // inferred: sphere/ray test (as in gmk/Brazier.cpp)
-extern "C" void fn_800F8574(BattleTask* mgr, CharaTask* chara, HitInfo_unk* data, const atn::Vector3* pos,
-                            const atn::Vector3* dir, int a, int b, int c, float f1, float f2); // inferred: bullet
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
-extern "C" void fn_80108F38(BattleTask* effect, const atn::Vector3& pos, int status); // inferred: status effect
 
 // NONMATCHING: 99.83% - r26/r27 of the second std::string constructor (known blocker, as in Em308InvertCrab)
 // inferred: same pattern as Em308InvertCrab's constructor (data file "database/chara/special/" + db_name)
@@ -532,7 +528,7 @@ void Em308ParmCrab::vf40(HitInfo_unk* hit) {
         color.a = 1.0f;
         fn_8023A8B4(lbl_8087F3C0, &m1600, &mMotion, 0, pos, rot, color, -1, -1, 1, 1.0f);
         BattleTask* fx = lbl_8087F048;
-        fn_80108F38(fx, fn_801781B0(), 0x80);
+        fn_80108F38(fx, &fn_801781B0(), 0x80);
     }
 }
 

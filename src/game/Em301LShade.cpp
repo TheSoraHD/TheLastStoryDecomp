@@ -52,7 +52,6 @@ struct Field_unk {
     float m974; // inferred: shake strength
     float m978;
 };
-extern "C" void fn_801092C8(BattleTask* effect, int msg, CharaTask* chara, int value, int arg);
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 // inferred: damage record sent to the effect manager (layout of game/CharaStatus.cpp)
 struct ShadeDamage_unk {
@@ -110,7 +109,6 @@ extern "C" Field_unk* fn_80121F00();
 extern "C" CharaManager<EnemyTask>* fn_801A03E0(); // inferred: enemy manager
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
-extern "C" int fn_800F8548(BattleTask* mgr); // inferred: new bullet id
 extern "C" int fn_800DD3FC(wchar_t* s, const wchar_t* format, ...); // inferred: wide sprintf
 extern "C" const wchar_t lbl_808813D0[2]; // inferred: empty text
 // inferred: camp message table (lbl_8087F1E4, as in game/Em309Ghoul.cpp)
@@ -136,9 +134,6 @@ extern "C" int fn_8021A888(HitInfo_unk* hit);
 extern "C" SkillEffectManager* lbl_8087F9E8;
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 extern "C" HitInfo_unk* fn_80219E6C(int id); // inferred: bullet/skill data by id
-extern "C" void fn_800FAB80(BattleTask* mgr, CharaTask* chara, HitInfo_unk* bullet, int arg3, const atn::Vector3* pos,
-                            const atn::Vector3* rot, int arg6, int arg7, int arg8, int arg9, float arg10,
-                            float arg11);
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
 extern "C" void* lbl_8087EE98;
 extern "C" int fn_8004ED34(void* colli, atn::ColliResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,

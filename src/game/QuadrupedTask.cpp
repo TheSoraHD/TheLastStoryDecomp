@@ -56,7 +56,6 @@ extern "C" void fn_8031F2A4(atn::Model* model, boost::function<void(atn::MotionB
 extern "C" int fn_8004D388(void* world, atn::ColliResult_unk* result, CharaTask::Sphere_unk* sphere, atn::Vector3* move,
                            unsigned int mask, void* ignore, int arg, float radius); // inferred: sweep test
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
-extern "C" int fn_800F8548(BattleTask* mgr); // inferred: new bullet id
 
 extern "C" int rand();
 extern "C" double sqrt(double x);

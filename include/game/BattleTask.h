@@ -500,4 +500,23 @@ public:
     unsigned char m3E3AC[0x3E3B0 - 0x3E3AC]; // inferred: size 0x3E3B0 (new of fn_800F13BC)
 };
 
+// C functions of game/BattleTask.cpp called by other units (no parameter names: a named parameter in a header
+// declaration takes an @N in every unit that includes it)
+// inferred: next bullet id
+extern "C" int fn_800F8548(BattleTask*);
+// inferred: fires a homing bullet (mgr, owner, data, pos, dir, homing, flags, arg, a, b)
+extern "C" int fn_800F8574(BattleTask*, CharaTask*, HitInfo_unk*, const atn::Vector3*, const atn::Vector3*,
+                           const HomingParam_unk*, unsigned int, int, float, float);
+// inferred: fires a bullet (mgr, attacker, data, id, pos, rot, any, time, -, type, f1, f2)
+extern "C" int fn_800FAB80(BattleTask*, CharaTask*, HitInfo_unk*, int, const atn::Vector3*, const atn::Vector3*, int,
+                           int, int, int, float, float);
+// inferred: hit of a skill (mgr, attacker, data, id, pos, a, b, -, effect)
+extern "C" int fn_800FB4B0(BattleTask*, CharaTask*, HitInfo_unk*, int, const atn::Vector3*, int, int, int, int);
+// inferred: log message of a status at a position
+extern "C" void fn_80108F38(BattleTask*, const atn::Vector3*, int);
+// inferred: log message (mgr, id, chara, value, arg)
+extern "C" void fn_801092C8(BattleTask*, int, CharaTask*, int, int);
+// inferred: splash on water between two points
+extern "C" void fn_8010A308(BattleTask*, const atn::Vector3*, const atn::Vector3*, float);
+
 #endif

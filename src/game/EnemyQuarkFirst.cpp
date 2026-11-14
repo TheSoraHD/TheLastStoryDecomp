@@ -84,7 +84,6 @@ struct Field_unk {
 };
 extern "C" Field_unk* lbl_8087F430;
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
-extern "C" int fn_800F8548(BattleTask* mgr); // inferred: new bullet id
 // inferred: skill effect manager (lbl_8087F9E8); fn_8059C2A8 shows the skill of a character
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 // inferred: collision world and its ray test (see game/ChaserNpc.cpp)
@@ -682,9 +681,6 @@ void EnemyQuarkFirst::vf104() {
 
 extern "C" void fn_8023A108(EffectMgr_unk* mgr, atn::EfpFile* efp, int id, int arg); // inferred: effect fade
 extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float volume); // inferred: plays a sound
-extern "C" void fn_800FAB80(BattleTask* mgr, CharaTask* owner, HitInfo_unk* bullet, int id, const atn::Vector3* pos,
-                            const atn::Vector3* rot, int arg6, int arg7, int arg8, int arg9, float arg10,
-                            float arg11); // inferred: fires a bullet
 extern "C" int fn_800FBA9C(BattleTask* mgr, CharaTask* chara, CharaTask* target, HitInfo_unk* data, int arg,
                            float f); // inferred: the attack reaches the target (>= 0)
 

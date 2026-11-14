@@ -16,7 +16,6 @@ extern "C" int fn_800DC12C(const char* s);   // inferred: string to int
 extern "C" HitInfo_unk* fn_80219E6C(int id); // inferred: bullet/skill data by id
 extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3, int arg4);
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
-extern "C" int fn_800F8548(BattleTask* mgr); // inferred: new bullet id
 // inferred: effect manager (class unknown), global instance at 0x8087F3C0 (as in game/Em209BigGolem.cpp)
 struct EffectMgr_unk;
 struct Color4f_unk {

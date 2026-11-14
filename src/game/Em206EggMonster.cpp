@@ -147,7 +147,6 @@ extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3,
 // inferred: name table of the field (lbl_8087F430 + 0x54F4) (as in game/CharaTask.cpp)
 extern "C" wchar_t* wcscpy(wchar_t* dst, const wchar_t* src);
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
-extern "C" int fn_800F8548(BattleTask* mgr); // inferred: new bullet id
 // inferred: effect manager (class unknown), global instance at 0x8087F3C0
 struct EffectMgr_unk;
 extern "C" EffectMgr_unk* lbl_8087F3C0;
@@ -354,8 +353,6 @@ static const EggWave_unk sWaves_unk[3] = {
 };
 extern "C" void PSMTXScale(Mtx m, float x, float y, float z);
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
-extern "C" void fn_800FAB80(BattleTask* mgr, CharaTask* owner, HitInfo_unk* bullet, int arg3, const atn::Vector3* pos,
-                            const atn::Vector3* rot, int arg6, int arg7, int arg8, int arg9, float arg10, float arg11);
 
 // inferred: scale matrix and matrix product by value (names invented, as in gmk/Leaf.cpp)
 inline atn::Matrix3x4 ScaleMtx_unk(const atn::Vector3& s) {
