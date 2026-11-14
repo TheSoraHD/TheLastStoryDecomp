@@ -194,8 +194,15 @@ static inline void TacViewClose_unk(TacView* v) {
     }
 }
 // inferred: the pad button is pressed (no pad: 0; name invented)
-static inline bool IsPadPressed_unk(int button) {
+// inferred: same test returning the int of the pad (single tests: the original branches on it directly)
+static inline int GetPadTrig_unk(int button) {
     return lbl_8087EF70 != 0 ? fn_800A555C(lbl_8087EF70, 0, button) : 0;
+}
+static inline bool IsPadPressed_unk(int button) {
+    if (lbl_8087EF70 == 0) {
+        return false;
+    }
+    return fn_800A555C(lbl_8087EF70, 0, button) != 0;
 }
 // inferred: the cursor takes the slot m158C, none when out of range (name invented)
 inline void TacViewSelectSlot_unk(TacView* v) {
@@ -250,8 +257,8 @@ inline float TacViewMenuOffset_unk() {
 // the move to a slot (mA84), then runs the mode mA78: 0 picks the command of each party member (pad
 // directions, confirm and cancel), 1 moves the free camera, 4 aims at a position, 5 ends with the summary;
 // button 0x2E switches the hate lines (m1590)
-// NONMATCHING: 94.5% - registers and the copies of the camera parameters (the original copies GameCamera::m684 into
-// stack slots in modes 1 and 4)
+// NONMATCHING: 97.6% - registers, the copies of the camera parameters (the original copies GameCamera::m684 into
+// stack slots in modes 1 and 4), the reload of mA7C and the layout of the first early return
 void TacView::vf10() {
     mLayouts.mSelect->FreezeTask();
     mLayouts.mHpFlash->FreezeTask();
@@ -344,10 +351,10 @@ void TacView::vf10() {
                 fn_805A96D4(chara, dir);
                 confirm = 1;
             }
-            if (IsPadPressed_unk(4)) {
+            if (GetPadTrig_unk(4)) {
                 confirm = 1;
             }
-            if (IsPadPressed_unk(5)) {
+            if (GetPadTrig_unk(5)) {
                 cancel = 1;
             }
             if (confirm != 0) {
@@ -553,7 +560,7 @@ void TacView::vf10() {
         if (lbl_8087F490 != 0) {
             lbl_8087F490->m764 = end;
         }
-        if (IsPadPressed_unk(4)) {
+        if (GetPadTrig_unk(4)) {
             mA7C = 20;
             fn_805A70D4(3, 1.0f);
             m1594++;
@@ -587,7 +594,7 @@ void TacView::vf10() {
             if (any != 0) {
                 lbl_8087F8A0->mHead->mStatus.m08 = 0.0f;
             }
-        } else if (IsPadPressed_unk(5)) {
+        } else if (GetPadTrig_unk(5)) {
             ChangeMode_unk(0);
             if (m158C < 0) {
                 m158C++;
