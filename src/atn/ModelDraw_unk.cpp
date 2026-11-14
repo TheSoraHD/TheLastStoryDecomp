@@ -1065,17 +1065,23 @@ void fn_8009DCE0(Material_unk* mat) {
     }
 }
 
-// NONMATCHING: 99.04% - registers of mat/shader (r29/r31 in the original) and the attribute of GXSetArray
-// reloaded in the original (here the value of the loop test is reused)
+// inferred: sets a vertex array of the list (inline: the attribute is loaded again for the call)
+static inline void SetArray_unk(const DrawArray_unk* a) {
+    GXSetArray(a->m00, a->m04, a->m08);
+}
+
+// inferred: draws a mesh command (shader declared first: its register is r31, though loaded last)
 void fn_8009DE60(DrawCmd_unk* cmd, float dist) {
+    DrawShader_unk* shader;
+    int flags;
     Material_unk* mat = cmd->m08;
-    int flags = cmd->m04;
-    DrawShader_unk* shader = (DrawShader_unk*)mat->m08;
+    flags = cmd->m04;
     DrawMesh_unk* mesh = cmd->m0C;
     void* vtx = cmd->m18;
     DrawArray_unk* arrays = cmd->m1C;
     atn::Scene* lens = cmd->m10;
     Mtx* mtx = cmd->m14;
+    shader = (DrawShader_unk*)mat->m08;
     atn::RenderManager::instance_->fn_800BDB40(lens);
     if (cmd->m3C.mFunc1 != 0) {
         cmd->m3C.mFunc1(cmd->m3C.mArg1, cmd->m3C.mArg2);
@@ -1107,7 +1113,7 @@ void fn_8009DE60(DrawCmd_unk* cmd, float dist) {
     }
     fn_80076BE4(lbl_8087EEE0, vtx);
     for (; arrays->m00 != 0xFF; arrays++) {
-        GXSetArray(arrays->m00, arrays->m04, arrays->m08);
+        SetArray_unk(arrays);
     }
     if (lbl_8087EFB0 == 0 && lbl_8087EFA8->m234 == 0) {
         fn_8009BB9C(mat, mesh, mtx);
