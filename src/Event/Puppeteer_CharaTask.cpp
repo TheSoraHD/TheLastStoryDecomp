@@ -726,8 +726,7 @@ void Actor::fn_8000F1EC() {
         m18_21 = ToBool_unk(GetChara_unk()->mFlag18);
         m18_22 = GetChara_unk()->m1220.m10 != 0;
         CharaTask* chara = GetChara_unk();
-        // inferred: m24.m00 is a SimpleVector<Event::PoseKey_unk> (see fn_8000FAE8)
-        *(atn::SimpleVector<Event::PoseKey_unk>*)&m24.m00 = chara->GetModel_unk()->mD8;
+        m24.m00 = chara->GetModel_unk()->mD8;
         m24.m0C = GetChara_unk()->m674;
         SavedVecRef_unk(&m24.m10[0x00]) = GetChara_unk()->mPos;
         SavedVecRef_unk(&m24.m10[0x0C]) = GetChara_unk()->mRot;
@@ -857,9 +856,7 @@ void Actor::fn_8000FAE8() {
             model->fn_80097CCC(4, 0.0f);
             model->fn_80097CCC(3, 0.0f);
             GetChara_unk()->m1188.ClearMotion(true);
-            // inferred: m24.m00 is a SimpleVector<Event::PoseKey_unk> (same layout; see the pending note of
-            // ActorAnim_unk::m00 in docs/paralelo-20261113-qG.md)
-            model->fn_80094420(*(atn::SimpleVector<Event::PoseKey_unk>*)&m24.m00);
+            model->fn_80094420(m24.m00);
             GetChara_unk()->fn_80176DFC(0, 0, 0);
             for (int motion = 239; motion <= 318; motion++) {
                 model->fn_80097A20(motion);

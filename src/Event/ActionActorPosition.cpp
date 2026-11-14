@@ -997,8 +997,7 @@ int ActionActorPose::vf0C(Action* arg, int phase) {
         atn::Model* model = actor->fn_8001296C();
         if (model != 0) {
             atn::SimpleVector<PoseKey_unk> keys;
-            // inferred: m24.m00 is a SimpleVector<Event::PoseKey_unk> (see Actor::fn_8000F1EC)
-            atn::SimpleVector<PoseKey_unk>& saved = *(atn::SimpleVector<PoseKey_unk>*)&actor->m24.m00;
+            atn::SimpleVector<PoseKey_unk>& saved = actor->m24.m00;
             keys.Resize_unk(saved.size());
             for (unsigned int k = 0; k < keys.size(); k++) {
                 keys[k] = saved[k];
