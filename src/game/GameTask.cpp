@@ -1983,7 +1983,7 @@ void GameTask::vf10() {
     if (lbl_8087EFE8 != 0 && m54E4 == 0) {
         atn::Vector3 pos = lbl_8087F8A0->mHead->mPos;
         pos.y += 1.0f;
-        atn::Vector3 rot = mCamera.mRot;
+        atn::Vector3 rot = mCamera.mCamera.mRot;
         float angle = fmod(3.1415927f + rot.y, 6.2831854820251465);
         if (angle > 3.1415927f) {
             angle -= 6.2831855f;
@@ -2389,8 +2389,8 @@ void GameTask::fn_8036CC90() {
         lbl_8087EFA8->mDof = dof;
     } else if (GetCurrentMap() != 0) {
         dof.mNearEnd = GetCurrentMap()->mF0;
-        if (mCamera.mDist < 25.0f) {
-            float t = mCamera.mDist / 25.0f;
+        if (mCamera.mCamera.mDist < 25.0f) {
+            float t = mCamera.mCamera.mDist / 25.0f;
             dof.mNearEnd = t * (GetCurrentMap()->mF0 - lbl_8087DCD4) + lbl_8087DCD4;
         }
         lbl_8087EFA8->mDof = dof;
@@ -2433,7 +2433,7 @@ void GameTask::fn_8036CFA4() {
         break;
     case 5:
     case 6: {
-        atn::Vector3 rot = (mCamera.mTarget - mCamera.mPos).GetNormalize().ToRotation_unk();
+        atn::Vector3 rot = (mCamera.mCamera.mTarget - mCamera.mCamera.mPos).GetNormalize().ToRotation_unk();
         if (rot.x >= 0.7853982f || mCamera.m7FC == mCamera.m800) {
             show = 1;
         }

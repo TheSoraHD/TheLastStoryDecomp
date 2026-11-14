@@ -278,19 +278,19 @@ void WindyItem::vf10() {
                 continue;
             }
             atn::Vector3 line[2];
-            line[0] = camera.mPos;
-            line[1] = camera.mTarget - line[0];
+            line[0] = camera.mCamera.mPos;
+            line[1] = camera.mCamera.mTarget - line[0];
             PSVECNormalize(&line[1], &line[1]);
             line[1] = line[1] * range + line[0];
             WindySphere_unk ball;
             ball.mCenter = Eval_unk(slot.mPath, slot.mPath.mT);
             ball.mRadius = mEF4;
             WindySphere_unk item = ball;
-            atn::Vector3 toItem = ball.mCenter - camera.mPos;
+            atn::Vector3 toItem = ball.mCenter - camera.mCamera.mPos;
             float dist = PSVECMag(&toItem);
             atn::Vector3 lo(-item.mRadius, -item.mRadius, 0.0f);
             atn::Vector3 hi(item.mRadius, item.mRadius, 0.0f);
-            atn::Matrix3x4 view = camera.mInvView;
+            atn::Matrix3x4 view = camera.mCamera.mInvView;
             view.m[0][3] = 0.0f;
             view.m[1][3] = 0.0f;
             view.m[2][3] = 0.0f;

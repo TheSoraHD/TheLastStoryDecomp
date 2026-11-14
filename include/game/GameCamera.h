@@ -86,8 +86,9 @@ struct CameraShake_unk {
 // Camera of the field (GameTask + 0x6C, constructed by the GameTask constructor; code in
 // game/GameCamera_unk.cpp). Real name from the RSO (__ct__10GameCameraFv, Update__10GameCameraFPC9CharaTask,
 // StartRollBack__10GameCameraFiif...); the constructor 0x8037D8B8 builds two atn::Camera at 0x00 and 0x1F4.
+// The atn::Camera at 0x00 is a member, not the base: the destructor 0x8037DC68 destroys it with -1.
 // Size inferred from the next member of GameTask (FinishCamera_unk at 0xD18). Member names invented.
-class GameCamera : public atn::Camera {
+class GameCamera {
 public:
     GameCamera(); // 0x8037D8B8
     ~GameCamera(); // 0x8037DC68
@@ -171,6 +172,7 @@ public:
     void fn_8038DDE0(const CharaTask* chara);
     void fn_8038DF5C(const CharaTask* chara);
 
+    atn::Camera mCamera;   // 0x000: inferred: camera moved by the modes
     atn::Camera m1F4;      // 0x1F4: inferred: camera given to the render manager
     GameCameraParam_unk m3E8; // inferred: blend of the mode parameters with m430 and m46C (fn_8037F9AC)
     GameCameraTimer_unk m424; // inferred: blend of the event camera (fn_8038CD94)

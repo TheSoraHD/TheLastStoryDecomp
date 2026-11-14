@@ -1599,8 +1599,8 @@ void GameEventScript::fn_80399734() {
                     atn::ColliSphereShape_unk bounds(sphere.mPos, sphere.m14);
                     if (CanLook_unk()) {
                         atn::ColliCapsuleShape_unk segment;
-                        segment.mStart = lbl_8087F430->mCamera.mPos;
-                        segment.mEnd = lbl_8087F430->mCamera.mTarget;
+                        segment.mStart = lbl_8087F430->mCamera.mCamera.mPos;
+                        segment.mEnd = lbl_8087F430->mCamera.mCamera.mTarget;
                         segment.mEnd -= segment.mStart;
                         PSVECNormalize(&segment.mEnd, &segment.mEnd);
                         segment.mEnd = segment.mEnd * 1200.0f + segment.mStart;
@@ -1625,8 +1625,8 @@ void GameEventScript::fn_80399734() {
                     bool seen = false;
                     if (CanLook_unk()) {
                         atn::ColliCapsuleShape_unk segment;
-                        segment.mStart = lbl_8087F430->mCamera.mPos;
-                        segment.mEnd = lbl_8087F430->mCamera.mTarget;
+                        segment.mStart = lbl_8087F430->mCamera.mCamera.mPos;
+                        segment.mEnd = lbl_8087F430->mCamera.mCamera.mTarget;
                         segment.mEnd -= segment.mStart;
                         PSVECNormalize(&segment.mEnd, &segment.mEnd);
                         segment.mEnd = segment.mEnd * 80.0f + segment.mStart;
@@ -1667,17 +1667,17 @@ void GameEventScript::fn_80399734() {
                     GameCamera& camera = lbl_8087F430->mCamera;
                     if (CanLook_unk()) {
                         atn::ColliCapsuleShape_unk segment;
-                        segment.mStart = lbl_8087F430->mCamera.mPos;
-                        segment.mEnd = lbl_8087F430->mCamera.mTarget;
+                        segment.mStart = lbl_8087F430->mCamera.mCamera.mPos;
+                        segment.mEnd = lbl_8087F430->mCamera.mCamera.mTarget;
                         segment.mEnd -= segment.mStart;
                         PSVECNormalize(&segment.mEnd, &segment.mEnd);
                         segment.mEnd = segment.mEnd * 1200.0f + segment.mStart;
                         atn::ColliSphereShape_unk hit = bounds;
-                        atn::Vector3 toCenter = bounds.mCenter - camera.mPos;
+                        atn::Vector3 toCenter = bounds.mCenter - camera.mCamera.mPos;
                         float dist = PSVECMag(&toCenter);
                         atn::Vector3 lo(-bounds.mRadius, -bounds.mRadius, 0.0f);
                         atn::Vector3 hi(bounds.mRadius, bounds.mRadius, 0.0f);
-                        atn::Matrix3x4 rot = *(atn::Matrix3x4*)&camera.mInvView;
+                        atn::Matrix3x4 rot = *(atn::Matrix3x4*)&camera.mCamera.mInvView;
                         rot.m[0][3] = 0.0f;
                         rot.m[1][3] = 0.0f;
                         rot.m[2][3] = 0.0f;
@@ -1971,7 +1971,7 @@ void GameEventScript::ApproachCharas_unk(Manager* manager, atn::SimpleArray<gs::
                 GameTask* field = lbl_8087F430;
                 float best = 1e16f;
                 for (unsigned int j = 0; j < list.size(); j++) {
-                    atn::Vector3 d = field->mCamera.mPos - list[j].mChara->mPos;
+                    atn::Vector3 d = field->mCamera.mCamera.mPos - list[j].mChara->mPos;
                     float dist = PSVECSquareMag(&d);
                     if (dist < best) {
                         best = dist;
@@ -2127,11 +2127,11 @@ void GameEventScript::ApproachCharas_unk(Manager* manager, atn::SimpleArray<gs::
                             int seen = fn_803AC3D8(chara, line, 1, 1200.0f);
                             atn::ColliCapsuleShape_unk capsule(chara->mColli.m3C, chara->mColli.m48,
                                                                chara->mColli.m54);
-                            atn::Vector3 toEnd = capsule.mEnd - camera.mPos;
+                            atn::Vector3 toEnd = capsule.mEnd - camera.mCamera.mPos;
                             dist = PSVECMag(&toEnd);
                             atn::Vector3 lo(-capsule.mRadius, -capsule.mRadius, 0.0f);
                             atn::Vector3 hi(capsule.mRadius, capsule.mRadius, 0.0f);
-                            atn::Matrix3x4 rot = *(atn::Matrix3x4*)&camera.mInvView;
+                            atn::Matrix3x4 rot = *(atn::Matrix3x4*)&camera.mCamera.mInvView;
                             rot.m[0][3] = 0.0f;
                             rot.m[1][3] = 0.0f;
                             rot.m[2][3] = 0.0f;
@@ -3523,7 +3523,7 @@ extern "C" int fn_803A11D8(int id, int arg, int warpId, EventIdEntry_unk* entry)
         Event::EventCamera_unk* camera = lbl_8087F540->GetCamera_unk();
         GameTask* field = lbl_8087F430;
         float speed = 30.0f;
-        camera->m444 = field->mCamera;
+        camera->m444 = field->mCamera.mCamera;
         camera->m63C = speed;
         camera->m638 = 0.0f;
     }
@@ -3675,7 +3675,7 @@ void GameEventScript::fn_803A1DB0(ScriptResult_unk& result, const ScriptCmd_unk*
                 break;
             case 2:
                 lbl_8087F430->fn_8037529C(0xFFFFFFFF, 0xFFFFFF, 5, 0, 10);
-                fn_80392D2C(&lbl_8087F430->mCamera, lbl_8087F540->GetCamera_unk(), 0.05f);
+                fn_80392D2C(&lbl_8087F430->mCamera.mCamera, lbl_8087F540->GetCamera_unk(), 0.05f);
                 lbl_8087F430->mCamera.fn_8037EF30(1, 1, -1.0f);
                 break;
             default:
@@ -5926,7 +5926,7 @@ void GameEventScript::fn_803A914C(ScriptResult_unk& result, const ScriptCmd_unk*
                     shake.mFovy = 0.0f;
                     GameTask* field = lbl_8087F430;
                     amp = (1.0f - (float)cos(3.1415927f * t * 0.5f)) * 0.5f;
-                    scale = field->mCamera.mDist / 3.0f;
+                    scale = field->mCamera.mCamera.mDist / 3.0f;
                     if (((unsigned int)args->m10 & 0x20) != 0x20) {
                         if (args->m0C == 1) {
                             scale *= -1.0f;
@@ -6018,7 +6018,7 @@ void GameEventScript::fn_803A956C(ScriptResult_unk& result, const ScriptCmd_unk*
             shake.mTarget.z = 0.0f;
             shake.mFovy = 0.0f;
             amp = 1.0f - (float)sin(0.5f * (3.1415927f * t));
-            scale = field->mCamera.mDist / 3.0f;
+            scale = field->mCamera.mCamera.mDist / 3.0f;
             if (((unsigned int)args->m10 & 0x20) != 0x20) {
                 if (args->m0C == 1) {
                     scale *= -1.0f;
@@ -6754,8 +6754,8 @@ extern "C" int fn_80051BC4(const atn::ColliCapsuleShape_unk* a, const atn::Colli
 // the action 36 is held (debug input) or the camera mode is stable (with `wait`, for 15 frames)
 int GameEventScript::fn_803AC3D8(CharaTask* chara, atn::Vector3* line, int wait, float range) {
     atn::ColliCapsuleShape_unk segment;
-    segment.mStart = lbl_8087F430->mCamera.mPos;
-    segment.mEnd = lbl_8087F430->mCamera.mTarget;
+    segment.mStart = lbl_8087F430->mCamera.mCamera.mPos;
+    segment.mEnd = lbl_8087F430->mCamera.mCamera.mTarget;
     segment.mEnd -= segment.mStart;
     if (!((float)__fabs(segment.mEnd.LengthSq_unk()) < 1.1920929e-7f)) {
         segment.mEnd.Normalize_unk();

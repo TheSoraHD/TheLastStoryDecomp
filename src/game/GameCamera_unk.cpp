@@ -129,7 +129,7 @@ GameCamera::GameCamera()
       m974(0.0f), m984(0), m988(0.0f), m9EC(0.25f), m9F0(10), m9F4(1), mA04(0.6981317f), mA08(15), mA0C(0.0f),
       mA10(0.0f), mA14(0.0f), mA18(0.0f), mA1C(0.0f), mC14(-1.0f), mC1C(0.0f), mC20(0), mC84(0), mCA0(0.0f, 0.0f),
       mCA8(1.0f) {
-    mAspect = fn_80076FF8(lbl_8087EEE0);
+    mCamera.mAspect = fn_80076FF8(lbl_8087EEE0);
     m800 = m7FC;
     memset(&m4FC, 0, 0x20);
     fn_8037DD00();
@@ -146,8 +146,7 @@ GameCamera::GameCamera()
     }
 }
 
-// NONMATCHING: 99.97% - the original destroys the camera at 0x00 with -1, as a member and not as the base class
-// (GameCamera would hold an atn::Camera at 0x00 instead of deriving from it)
+// inferred: the camera at 0x00 is a member (destroyed with -1)
 GameCamera::~GameCamera() {}
 
 // inferred: default parameters of the camera modes (also called by the constructor): the box camera (m738) and the
@@ -492,8 +491,8 @@ void GameCamera::fn_8037EF48(CharaTask* chara, int place, int reset, float speed
         m7F4 = 0;
     }
     if (place) {
-        atn::Vector3 pos = mPos;
-        atn::Vector3 target = mTarget;
+        atn::Vector3 pos = mCamera.mPos;
+        atn::Vector3 target = mCamera.mTarget;
         target = chara->mPos;
         target.y += m51C.m10;
         m868 = target;
@@ -510,10 +509,10 @@ void GameCamera::fn_8037EF48(CharaTask* chara, int place, int reset, float speed
         if (fn_8004ED34(lbl_8087EE98, &result, &target, &pos, 0x80000008, 0, 0)) {
             pos = result.m10;
         }
-        SetPosition(pos);
-        SetTarget_unk(target);
-        mFovy = m51C.m04;
-        fn_8004B378();
+        mCamera.SetPosition(pos);
+        mCamera.SetTarget_unk(target);
+        mCamera.mFovy = m51C.m04;
+        mCamera.fn_8004B378();
         fn_80392964(1, 1, 1, 1);
         lbl_8087F0A8->mInput.fn_80124BE4();
     }
@@ -524,8 +523,8 @@ void GameCamera::fn_8037F690(const atn::Vector3* pos) {
     m840 = *pos;
     m838 = 1;
     m83C = 0;
-    m84C = mTarget;
-    m85C = mFovy;
+    m84C = mCamera.mTarget;
+    m85C = mCamera.mFovy;
     m860 = 0;
 }
 
@@ -534,8 +533,8 @@ void GameCamera::fn_8037F6D8(const atn::Vector3* pos) {
     m858 = 1;
     m838 = 1;
     m83C = 0;
-    m84C = mTarget;
-    m85C = mFovy;
+    m84C = mCamera.mTarget;
+    m85C = mCamera.mFovy;
     m860 = 0;
 }
 
@@ -571,8 +570,8 @@ static const GameCameraMode_unk sModeUpdate_unk[21] = {
 
 void GameCamera::fn_8037F744() {
     PlayerTask* leader = lbl_8087F8A0->mHead;
-    mNear = lbl_8087EFA8->m1C0;
-    mFar = lbl_8087EFA8->m1C4;
+    mCamera.mNear = lbl_8087EFA8->m1C0;
+    mCamera.mFar = lbl_8087EFA8->m1C4;
     if (m800 != m7FC) {
         (this->*sModeStart_unk[m7FC])(leader);
     } else {
@@ -730,8 +729,8 @@ void GameCamera::fn_8037F9AC(const CharaTask* chara) {
         param = &m3E8;
     }
 
-    atn::Vector3 cur(mPos);
-    atn::Vector3 pos(mPos);
+    atn::Vector3 cur(mCamera.mPos);
+    atn::Vector3 pos(mCamera.mPos);
     for (int i = 0; i < 8; i++) {
         if (m98C[i].x == 0.0f) {
             m98C[i] = cur;
@@ -746,7 +745,7 @@ void GameCamera::fn_8037F9AC(const CharaTask* chara) {
     atn::Vector3 target(m868);
     atn::Vector3 base;
     atn::Vector3 dir = target - pos;
-    float fovy = mFovy;
+    float fovy = mCamera.mFovy;
     if (dir.Length_unk() > 0.0001f) {
         dir.Normalize_unk();
     } else {
@@ -1213,11 +1212,11 @@ void GameCamera::fn_8037F9AC(const CharaTask* chara) {
     float dist = (target - pos).Length_unk();
     target.x += (float)cos(rot.y) * (param->m0C * MIN(dist / param->m00, 1.0f));
     target.z += (float)sin(rot.y) * (-param->m0C * MIN(dist / param->m00, 1.0f));
-    SetPosition(pos);
-    SetTarget_unk(target);
-    mFovy = fov;
-    SetUpVector(up);
-    fn_8004B378();
+    mCamera.SetPosition(pos);
+    mCamera.SetTarget_unk(target);
+    mCamera.mFovy = fov;
+    mCamera.SetUpVector(up);
+    mCamera.fn_8004B378();
     fn_80392964(1, 1, 1, 1);
     m8EC = 0;
 }
@@ -1231,11 +1230,11 @@ void GameCamera::fn_8037F9AC(const CharaTask* chara) {
 // and float registers of the pitch blend
 void GameCamera::fn_80382A1C(const CharaTask* chara) {
     CharaTask* c = const_cast<CharaTask*>(chara);
-    atn::Vector3 pos(*GetPosition_unk());
+    atn::Vector3 pos(*mCamera.GetPosition_unk());
     atn::Vector3 target(m868);
     atn::Vector3 dir = target - pos;
     dir.Length_unk();
-    float fovy = GetFovy_unk();
+    float fovy = mCamera.GetFovy_unk();
     dir.Normalize_unk();
     atn::Vector3 rot = (-dir).ToRotation_unk();
     atn::Vector3 up(0.0f, 1.0f, 0.0f);
@@ -1285,14 +1284,14 @@ void GameCamera::fn_80382A1C(const CharaTask* chara) {
             pos = result.m10;
             pos += (target - pos).GetNormalize() * 0.1f;
             m880 = 10;
-            if ((pos - *GetPosition_unk()).LengthSq_unk() > 0.00001f && m8EC == 0) {
-                pos = atn::Lerp_unk(*GetPosition_unk(), pos, 0.25f);
+            if ((pos - *mCamera.GetPosition_unk()).LengthSq_unk() > 0.00001f && m8EC == 0) {
+                pos = atn::Lerp_unk(*mCamera.GetPosition_unk(), pos, 0.25f);
             }
         }
     } else if (m880 > 0) {
         m880--;
-        if ((pos - *GetPosition_unk()).LengthSq_unk() > 0.00001f) {
-            pos = atn::Lerp_unk(*GetPosition_unk(), pos, 1.0f - (float)m880 / 10.0f);
+        if ((pos - *mCamera.GetPosition_unk()).LengthSq_unk() > 0.00001f) {
+            pos = atn::Lerp_unk(*mCamera.GetPosition_unk(), pos, 1.0f - (float)m880 / 10.0f);
         }
     }
     if (fn_8004D388(fn_801404F8(), &result, &pos, &lbl_807C7030, 0x80000008, 0, 0, 3.0f)) {
@@ -1308,11 +1307,11 @@ void GameCamera::fn_80382A1C(const CharaTask* chara) {
             pos.z += 1.0f;
         }
     }
-    SetPosition(pos);
-    SetTarget_unk(target);
-    fn_8037F688(this, fov);
-    SetUpVector(up);
-    fn_8004B378();
+    mCamera.SetPosition(pos);
+    mCamera.SetTarget_unk(target);
+    fn_8037F688(&mCamera, fov);
+    mCamera.SetUpVector(up);
+    mCamera.fn_8004B378();
     fn_80392964(1, 1, 1, 1);
     m8EC = 0;
 }
@@ -1329,16 +1328,16 @@ void GameCamera::fn_803830A8(const CharaTask* chara) {
         if (m83C < 6) {
             m83C++;
             float t = (float)m83C / 6.0f;
-            SetTarget_unk(LerpV_unk(m84C, m840, t));
+            mCamera.SetTarget_unk(LerpV_unk(m84C, m840, t));
             float fovy = 0.5f * m558.m04;
-            mFovy = t * (fovy - m85C) + m85C;
+            mCamera.mFovy = t * (fovy - m85C) + m85C;
         }
     } else {
-        atn::Vector3 pos = mPos;
-        atn::Vector3 target = mTarget;
-        atn::Vector3 up = mUp;
+        atn::Vector3 pos = mCamera.mPos;
+        atn::Vector3 target = mCamera.mTarget;
+        atn::Vector3 up = mCamera.mUp;
         atn::Vector3 dir;
-        dir = mTarget - mPos;
+        dir = mCamera.mTarget - mCamera.mPos;
         PSVECNormalize(&dir, &dir);
         atn::Vector3 side;
         PSVECCrossProduct(&dir, &up, &side);
@@ -1374,9 +1373,9 @@ void GameCamera::fn_803830A8(const CharaTask* chara) {
         dir = target - pos;
         PSVECNormalize(&dir, &dir);
         if ((float)__fabs(dir.y) > 0.9f) {
-            pos = mPos;
-            target = mTarget;
-            dir = (mTarget - mPos).GetNormalize();
+            pos = mCamera.mPos;
+            target = mCamera.mTarget;
+            dir = (mCamera.mTarget - mCamera.mPos).GetNormalize();
         }
         atn::Vector3 head = chara->mPos;
         atn::Vector3 rot = chara->mRot;
@@ -1387,10 +1386,10 @@ void GameCamera::fn_803830A8(const CharaTask* chara) {
         head += offset;
         pos = head;
         target = pos + dir * m558.m00;
-        mPos = pos;
-        mTarget = target;
+        mCamera.mPos = pos;
+        mCamera.mTarget = target;
     }
-    fn_8004B378();
+    mCamera.fn_8004B378();
     fn_80392964(1, 1, 0, 0);
 }
 
@@ -1452,7 +1451,7 @@ void GameCamera::fn_8038378C(const CharaTask* chara) {
     dir.y = 0.0f;
     float dist = PSVECMag(&dir);
     PSVECNormalize(&dir, &dir);
-    atn::Vector3 cur = fn_80383728(this);
+    atn::Vector3 cur = fn_80383728(&mCamera);
     cur.y = 0.0f;
     PSVECNormalize(&cur, &cur);
     dir += cur * 3.0f;
@@ -1463,10 +1462,10 @@ void GameCamera::fn_8038378C(const CharaTask* chara) {
     eye = target + dir;
     float fovy = m594.m04;
     fn_8038E23C(chara, &m594, &eye, &target);
-    SetPosition(eye);
-    SetTarget_unk(target);
-    mFovy = fovy;
-    fn_8004B378();
+    mCamera.SetPosition(eye);
+    mCamera.SetTarget_unk(target);
+    mCamera.mFovy = fovy;
+    mCamera.fn_8004B378();
     fn_80392964(1, 1, 1, 1);
 }
 
@@ -1536,9 +1535,9 @@ void GameCamera::fn_80384188(const CharaTask* chara) {
                 m83C = 6;
             }
             float t = (float)m83C / 6.0f;
-            SetTarget_unk((m840 - m84C) * t + m84C);
-            mFovy = t * (0.6f * m5D0.m04 - m85C) + m85C;
-            fn_8004B378();
+            mCamera.SetTarget_unk((m840 - m84C) * t + m84C);
+            mCamera.mFovy = t * (0.6f * m5D0.m04 - m85C) + m85C;
+            mCamera.fn_8004B378();
             fn_80392964(1, 1, 0, 0);
         }
         return;
@@ -1547,11 +1546,11 @@ void GameCamera::fn_80384188(const CharaTask* chara) {
     if (lbl_8087F0A8->mInput.fn_801240B4(0x24) && !lbl_8087F0A8->mInput.fn_801231D0(0x24)) {
         zoom = 1;
     }
-    atn::Vector3 pos(mPos);
-    atn::Vector3 target(mTarget);
-    atn::Vector3 up(mUp);
+    atn::Vector3 pos(mCamera.mPos);
+    atn::Vector3 target(mCamera.mTarget);
+    atn::Vector3 up(mCamera.mUp);
     atn::Vector3 dir;
-    dir = mTarget - mPos;
+    dir = mCamera.mTarget - mCamera.mPos;
     PSVECNormalize(&dir, &dir);
     atn::Vector3 side;
     PSVECCrossProduct(&dir, &up, &side);
@@ -1617,7 +1616,7 @@ void GameCamera::fn_80384188(const CharaTask* chara) {
         dir.z = 1.0f;
         atn::Matrix3x4 m = fn_800109E0(angle);
         PSMTXMultVec(m.m, &dir, &dir);
-        target = dir * mDist;
+        target = dir * mCamera.mDist;
     }
     atn::Vector3 offset(m874.x, m874.y, m5D0.m14);
     atn::Vector3 hips(m9F8);
@@ -1714,22 +1713,22 @@ void GameCamera::fn_80384188(const CharaTask* chara) {
             }
         }
     }
-    mPos = pos;
-    mTarget = target;
+    mCamera.mPos = pos;
+    mCamera.mTarget = target;
     float fovy;
     if (zoom) {
-        fovy = mFovy - 0.1f * m5D0.m04;
+        fovy = mCamera.mFovy - 0.1f * m5D0.m04;
         if (fovy < 0.6f * m5D0.m04) {
             fovy = 0.6f * m5D0.m04;
         }
     } else {
-        fovy = 0.1f * m5D0.m04 + mFovy;
+        fovy = 0.1f * m5D0.m04 + mCamera.mFovy;
         if (fovy > m5D0.m04) {
             fovy = m5D0.m04;
         }
     }
-    mFovy = fovy;
-    fn_8004B378();
+    mCamera.mFovy = fovy;
+    mCamera.fn_8004B378();
     fn_80392964(1, 1, 0, 0);
 }
 
@@ -1755,9 +1754,9 @@ void GameCamera::fn_80385B48(const CharaTask* chara) {
             }
             float t = (float)m83C / 6.0f;
             atn::Vector3 v = (m840 - m84C) * t + m84C;
-            mFovy = fn_800F8524(m85C, 0.6f * m60C.m04, t);
-            mTarget = v;
-            fn_8004B378();
+            mCamera.mFovy = fn_800F8524(m85C, 0.6f * m60C.m04, t);
+            mCamera.mTarget = v;
+            mCamera.fn_8004B378();
             fn_80392964(1, 1, 0, 0);
         }
         return;
@@ -1766,11 +1765,11 @@ void GameCamera::fn_80385B48(const CharaTask* chara) {
     if (lbl_8087F0A8->mInput.fn_801240B4(0x24) && !lbl_8087F0A8->mInput.fn_801231D0(0x24)) {
         zoom = 1;
     }
-    atn::Vector3 pos(mPos);
-    atn::Vector3 target(mTarget);
-    atn::Vector3 up(mUp);
+    atn::Vector3 pos(mCamera.mPos);
+    atn::Vector3 target(mCamera.mTarget);
+    atn::Vector3 up(mCamera.mUp);
     atn::Vector3 dir;
-    dir = mTarget - mPos;
+    dir = mCamera.mTarget - mCamera.mPos;
     PSVECNormalize(&dir, &dir);
     atn::Vector3 side;
     PSVECCrossProduct(&dir, &up, &side);
@@ -1852,7 +1851,7 @@ void GameCamera::fn_80385B48(const CharaTask* chara) {
         dir.z = 1.0f;
         atn::Matrix3x4 m = fn_800109E0(angle);
         PSMTXMultVec(m.m, &dir, &dir);
-        target = dir * mDist;
+        target = dir * mCamera.mDist;
     }
     const atn::Vector3& hips = chara->mPos;
     float ox = m874.x;
@@ -1960,9 +1959,9 @@ void GameCamera::fn_80385B48(const CharaTask* chara) {
             }
         }
     }
-    mPos = pos;
-    mTarget = target;
-    float cur = mFovy;
+    mCamera.mPos = pos;
+    mCamera.mTarget = target;
+    float cur = mCamera.mFovy;
     float fovy = !chara->mFlag6 ? 1.0471976f : m60C.m04;
     if (zoom) {
         cur = cur - 0.1f * fovy;
@@ -1975,8 +1974,8 @@ void GameCamera::fn_80385B48(const CharaTask* chara) {
             cur = fovy;
         }
     }
-    mFovy = cur;
-    fn_8004B378();
+    mCamera.mFovy = cur;
+    mCamera.fn_8004B378();
     fn_80392964(1, 1, 0, 0);
 }
 
@@ -1991,9 +1990,9 @@ void GameCamera::fn_80387548(const CharaTask* chara) {
         return;
     }
     m808++;
-    atn::Vector3 pos = mPos;
-    atn::Vector3 target = mTarget;
-    atn::Vector3 up = mUp;
+    atn::Vector3 pos = mCamera.mPos;
+    atn::Vector3 target = mCamera.mTarget;
+    atn::Vector3 up = mCamera.mUp;
     atn::Vector3 point = chara->mF6C;
     if (lbl_8087F0A8->m040 == 0) {
         point = (chara->mF6C + chara->mPos) * 0.5f;
@@ -2015,9 +2014,9 @@ void GameCamera::fn_80387548(const CharaTask* chara) {
     PSVECCrossProduct(&dir, &up, &cross);
     pos += cross * side;
     fn_8038E540(chara, &m648, &pos, &target, &chara->mPos);
-    SetPosition(pos);
-    SetTarget_unk(target);
-    fn_8004B378();
+    mCamera.SetPosition(pos);
+    mCamera.SetTarget_unk(target);
+    mCamera.fn_8004B378();
     fn_80392964(0, 1, 0, 0);
 }
 
@@ -2032,8 +2031,8 @@ void GameCamera::fn_80387910(const CharaTask* chara) {
             fn_8032EC94(&m4B4.mActive);
         }
     }
-    atn::Vector3 pos(*GetPosition_unk());
-    atn::Vector3 target(*GetTarget_unk());
+    atn::Vector3 pos(*mCamera.GetPosition_unk());
+    atn::Vector3 target(*mCamera.GetTarget_unk());
     atn::Vector3 dir = target - pos;
     atn::Vector3 flat(dir);
     flat.y = 0.0f;
@@ -2043,7 +2042,7 @@ void GameCamera::fn_80387910(const CharaTask* chara) {
         flat.Normalize_unk();
     }
     float dist = dir.Length_unk();
-    float fovy = GetFovy_unk();
+    float fovy = mCamera.GetFovy_unk();
     dir.Normalize_unk();
     atn::Vector3 rot = (-dir).ToRotation_unk();
     rot.y = m8A0;
@@ -2083,19 +2082,19 @@ void GameCamera::fn_80387910(const CharaTask* chara) {
     }
     dist = (target - pos).Length_unk();
     if (dist > 0.1f) {
-        float camDist = fn_80385B40(this);
+        float camDist = fn_80385B40(&mCamera);
         dist = fn_800F8524(camDist, dist, 0.4f);
-        float pitch = fn_80383728(this).ToRotation_unk().x;
+        float pitch = fn_80383728(&mCamera).ToRotation_unk().x;
         atn::Vector3 r = (target - pos).ToRotation_unk();
         r.x = fn_800F8524(pitch, r.x, 0.4f);
         atn::Matrix3x4 m = fn_800109E0(r);
         dir = atn::Vector3(0.0f, 0.0f, 1.0f).Transform_unk(m);
         pos = target - dir * dist;
     }
-    SetPosition(pos);
-    SetTarget_unk(target);
-    fn_8037F688(this, fovy);
-    fn_8004B378();
+    mCamera.SetPosition(pos);
+    mCamera.SetTarget_unk(target);
+    fn_8037F688(&mCamera, fovy);
+    mCamera.fn_8004B378();
     fn_80392964(0, 1, 0, 0);
 }
 
@@ -2232,9 +2231,9 @@ static inline float MotionFrame_unk(CharaTask* c) {
 // point in front of it; the control ids 15, 11 and 16 (m560) move it in while their motion plays
 void GameCamera::fn_803884B8(const CharaTask* chara) {
     m808++;
-    atn::Vector3 pos = mPos;
-    atn::Vector3 target = mTarget;
-    atn::Vector3 up = mUp;
+    atn::Vector3 pos = mCamera.mPos;
+    atn::Vector3 target = mCamera.mTarget;
+    atn::Vector3 up = mCamera.mUp;
     atn::Vector3 offset(0.0f, 0.0f, 0.0f);
     atn::Vector3 front(0.0f, 0.0f, 1.0f);
     atn::Matrix3x4 m;
@@ -2272,14 +2271,14 @@ void GameCamera::fn_803884B8(const CharaTask* chara) {
     pos.y += height;
     pos += Cross_unk(front, up) * side;
     fn_8038E23C(chara, &m648, &pos, &target);
-    SetPosition(pos);
-    SetTarget_unk(target);
+    mCamera.SetPosition(pos);
+    mCamera.SetTarget_unk(target);
     if (lbl_8087F430->fn_80370174(0x65) && chara->mPos.y > 90.0f) {
-        mFovy = 0.4f * (0.87266463f - mFovy) + mFovy;
+        mCamera.mFovy = 0.4f * (0.87266463f - mCamera.mFovy) + mCamera.mFovy;
     } else {
-        mFovy = m7B0.m04;
+        mCamera.mFovy = m7B0.m04;
     }
-    fn_8004B378();
+    mCamera.fn_8004B378();
     fn_80392964(0, 1, 0, 0);
 }
 
@@ -2287,17 +2286,17 @@ void GameCamera::fn_803884B8(const CharaTask* chara) {
 // inferred: camera mode at m738.m0C looking at the character (m738.m18 above it); with a camera box of size m30
 // the fovy is narrowed to keep that size in view
 void GameCamera::fn_80388A88(const CharaTask* chara) {
-    SetPosition(atn::Vector3(m738.m0C, m738.m10, m738.m14));
+    mCamera.SetPosition(atn::Vector3(m738.m0C, m738.m10, m738.m14));
     atn::Vector3 offset(0.0f, m738.m18, 0.0f);
-    SetTarget_unk(const_cast<CharaTask*>(chara)->fn_80178088() + offset);
-    mFovy = m738.m04;
+    mCamera.SetTarget_unk(const_cast<CharaTask*>(chara)->fn_80178088() + offset);
+    mCamera.mFovy = m738.m04;
     if (mC20 != 0 && mC20->m30 > 0) {
-        atn::Vector3 d = mPos - mTarget;
+        atn::Vector3 d = mCamera.mPos - mCamera.mTarget;
         float dist = PSVECMag(&d);
         float fovy = 2.0f * (float)atan((float)mC20->m30 * (float)tan(m738.m04 * 0.5f) / dist);
-        mFovy = fovy < m738.m04 ? fovy : m738.m04;
+        mCamera.mFovy = fovy < m738.m04 ? fovy : m738.m04;
     }
-    fn_8004B378();
+    mCamera.fn_8004B378();
     fn_80392964(0, 1, 0, 0);
 }
 
@@ -2326,17 +2325,17 @@ void GameCamera::fn_80388C44(const CharaTask* chara) {
         if (m880 < 10) {
             m880++;
         }
-        pos = (pos - mPos) * ((float)m880 / 10.0f) + mPos;
+        pos = (pos - mCamera.mPos) * ((float)m880 / 10.0f) + mCamera.mPos;
     } else {
         if (m880 > 0) {
             m880--;
         }
-        pos = (pos - mPos) * (1.0f - (float)m880 / 10.0f) + mPos;
+        pos = (pos - mCamera.mPos) * (1.0f - (float)m880 / 10.0f) + mCamera.mPos;
     }
-    SetPosition(pos);
-    SetTarget_unk(target);
-    mFovy = m774.m04;
-    fn_8004B378();
+    mCamera.SetPosition(pos);
+    mCamera.SetTarget_unk(target);
+    mCamera.mFovy = m774.m04;
+    mCamera.fn_8004B378();
     fn_80392964(0, 1, 1, 1);
 }
 
@@ -2354,9 +2353,9 @@ void GameCamera::fn_80389060(const CharaTask* chara) {
     m2.fn_8013A13C(chara->mRot.y);
     PSMTXMultVec(m2.m, &offset, &offset);
     pos += offset;
-    SetPosition(pos);
-    SetTarget_unk(target);
-    fn_8004B378();
+    mCamera.SetPosition(pos);
+    mCamera.SetTarget_unk(target);
+    mCamera.fn_8004B378();
     fn_80392964(1, 1, 1, 1);
 }
 
@@ -2365,9 +2364,9 @@ void GameCamera::fn_80389210(const CharaTask* chara) {
     atn::Vector3 target = chara->mPos;
     atn::Vector3 dir = target - (const_cast<CharaTask*>(chara)->fn_80178088() + atn::Vector3(0.0f, -5.0f, 0.0f));
     atn::Vector3 pos = target + dir.GetNormalize() * 40.0f;
-    SetPosition(pos);
-    SetTarget_unk(target);
-    fn_8004B378();
+    mCamera.SetPosition(pos);
+    mCamera.SetTarget_unk(target);
+    mCamera.fn_8004B378();
     fn_80392964(1, 1, 1, 1);
 }
 
@@ -2381,9 +2380,9 @@ void GameCamera::fn_803893A0(const CharaTask* chara) {
     PSMTXRotRad(m, 'y', chara->mRot.y);
     atn::Vector3 d = dir;
     PSMTXMultVec(m, &d, &d);
-    SetPosition(target - d * 30.0f);
-    SetTarget_unk(target);
-    fn_8004B378();
+    mCamera.SetPosition(target - d * 30.0f);
+    mCamera.SetTarget_unk(target);
+    mCamera.fn_8004B378();
     fn_80392964(1, 1, 1, 0);
 }
 
@@ -2393,9 +2392,9 @@ void GameCamera::fn_8038952C(const CharaTask* chara) {
     const atn::Model* model = &chara->mMotion;
     const atn::Matrix3x4* node = (const atn::Matrix3x4*)model->GetNodeMtx_unk(model->GetNodeNoByName("hips", 0));
     atn::Vector3 target = node->GetTrans_unk();
-    SetPosition(const_cast<CharaTask*>(chara)->fn_80178088() + atn::Vector3(0.0f, 50.0f, 0.0f));
-    SetTarget_unk(target);
-    fn_8004B378();
+    mCamera.SetPosition(const_cast<CharaTask*>(chara)->fn_80178088() + atn::Vector3(0.0f, 50.0f, 0.0f));
+    mCamera.SetTarget_unk(target);
+    mCamera.fn_8004B378();
     fn_80392964(1, 1, 1, 0);
 }
 
@@ -2413,10 +2412,10 @@ void GameCamera::fn_80389678(const CharaTask* chara) {
         pos += chara->mPos;
         target += chara->mPos;
     }
-    SetPosition(pos);
-    SetTarget_unk(target);
-    mFovy = m514;
-    fn_8004B378();
+    mCamera.SetPosition(pos);
+    mCamera.SetTarget_unk(target);
+    mCamera.mFovy = m514;
+    mCamera.fn_8004B378();
     fn_80392964(1, 1, 1, 0);
 }
 
@@ -2467,7 +2466,7 @@ void GameCamera::fn_80389884(int mode) {
 // two blends (as fn_8038C928)
 void GameCamera::fn_80389A00(const CharaTask* chara) {
     if (m800 == 4 && chara->m648 == 0 && m910 != 0) {
-        mA20 = *this;
+        mA20 = mCamera;
         mC14 = 1.0f;
         mC18 = 0.1f;
         m800 = m7FC;
@@ -2486,9 +2485,9 @@ void GameCamera::fn_80389A00(const CharaTask* chara) {
         fn_8037F9AC(chara);
     } else {
         if (m808 == 0) {
-            m80C = mPos;
-            m818 = mTarget;
-            m830 = mFovy;
+            m80C = mCamera.mPos;
+            m818 = mCamera.mTarget;
+            m830 = mCamera.mFovy;
         }
         m834 = 0;
         fn_8037F9AC(chara);
@@ -2497,7 +2496,7 @@ void GameCamera::fn_80389A00(const CharaTask* chara) {
         if (m424.mTime < m424.mStep) {
             m424.mActive = 0;
         }
-        atn::Vector3 a(mPos.x - mTarget.x, 0.0f, mPos.z - mTarget.z);
+        atn::Vector3 a(mCamera.mPos.x - mCamera.mTarget.x, 0.0f, mCamera.mPos.z - mCamera.mTarget.z);
         if (PSVECSquareMag(&a) > 0.0f) {
             PSVECNormalize(&a, &a);
         }
@@ -2509,10 +2508,10 @@ void GameCamera::fn_80389A00(const CharaTask* chara) {
             m424.mActive = 0;
             t = 1.0f;
         }
-        SetPosition((mPos - m80C) * t + m80C);
-        SetTarget_unk((mTarget - m818) * t + m818);
-        mFovy = t * (mFovy - m830) + m830;
-        fn_8004B378();
+        mCamera.SetPosition((mCamera.mPos - m80C) * t + m80C);
+        mCamera.SetTarget_unk((mCamera.mTarget - m818) * t + m818);
+        mCamera.mFovy = t * (mCamera.mFovy - m830) + m830;
+        mCamera.fn_8004B378();
         fn_80392964(1, 1, 1, 1);
     }
     for (int i = 0; i < 8; i++) {
@@ -2540,12 +2539,12 @@ void GameCamera::fn_8038A1D8(const CharaTask* chara) {
 // blended in 5 frames from the saved camera
 // NONMATCHING: 89.7% - scheduling of the three blends
 void GameCamera::fn_8038A200(const CharaTask* chara) {
-    atn::Vector3 pos = mPos;
-    atn::Vector3 target = mTarget;
+    atn::Vector3 pos = mCamera.mPos;
+    atn::Vector3 target = mCamera.mTarget;
     if (m808 == 0) {
         m80C = pos;
         m818 = target;
-        m830 = mFovy;
+        m830 = mCamera.mFovy;
     }
     atn::Vector3 eye = chara->mPos;
     atn::Vector3 offset(0.0f, m558.m10, 0.0f);
@@ -2558,10 +2557,10 @@ void GameCamera::fn_8038A200(const CharaTask* chara) {
     atn::Vector3 look = offset + eye;
     pos = (eye - m80C) * ((float)m808 / 5.0f) + m80C;
     target = (look - m818) * ((float)m808 / 5.0f) + m818;
-    SetPosition(pos);
-    SetTarget_unk(target);
-    mFovy = ((float)m808 / 5.0f) * (m558.m04 - m830) + m830;
-    fn_8004B378();
+    mCamera.SetPosition(pos);
+    mCamera.SetTarget_unk(target);
+    mCamera.mFovy = ((float)m808 / 5.0f) * (m558.m04 - m830) + m830;
+    mCamera.fn_8004B378();
     fn_80392964(1, 1, 0, 0);
     if (++m808 > 5) {
         m80C = pos;
@@ -2583,12 +2582,12 @@ void GameCamera::fn_8038A5F0(const CharaTask* chara) {
     }
     if (m808 == 0) {
         if (m800 == 3) {
-            m884 = mPos;
-            m890 = mTarget;
+            m884 = mCamera.mPos;
+            m890 = mCamera.mTarget;
         }
-        m80C = mPos;
-        m818 = mTarget;
-        m830 = mFovy;
+        m80C = mCamera.mPos;
+        m818 = mCamera.mTarget;
+        m830 = mCamera.mFovy;
         m96C = 0.0f;
         m970 = 0.0f;
         m7F4 = 0;
@@ -2638,10 +2637,10 @@ void GameCamera::fn_8038A5F0(const CharaTask* chara) {
     target = LerpV_unk(m818, target, k);
     float angle = k * (fovy - m830) + m830;
     fn_8038E23C(chara, &m594, &eye, &target);
-    SetPosition(eye);
-    SetTarget_unk(target);
-    mFovy = angle;
-    fn_8004B378();
+    mCamera.SetPosition(eye);
+    mCamera.SetTarget_unk(target);
+    mCamera.mFovy = angle;
+    mCamera.fn_8004B378();
     fn_80392964(1, 1, 1, 1);
     if (++m808 > frames) {
         m80C = eye;
@@ -2671,10 +2670,10 @@ void GameCamera::fn_8038AEF0(const atn::Vector3* pos, const atn::Vector3* target
         }
         look += h;
     }
-    SetPosition(eye);
-    SetTarget_unk(look);
-    mFovy = angle;
-    fn_8004B378();
+    mCamera.SetPosition(eye);
+    mCamera.SetTarget_unk(look);
+    mCamera.mFovy = angle;
+    mCamera.fn_8004B378();
 }
 
 // inferred: camera behind the hips of the character (offset m874, zoomed by mC1C while the global flag 0x6A
@@ -2682,9 +2681,9 @@ void GameCamera::fn_8038AEF0(const atn::Vector3* pos, const atn::Vector3* target
 // NONMATCHING: 93.7% - copies of m884/m890 and stack slots of the offsets
 void GameCamera::fn_8038B148(const CharaTask* chara) {
     if (m808 == 0) {
-        m80C = mPos;
-        m818 = mTarget;
-        m830 = mFovy;
+        m80C = mCamera.mPos;
+        m818 = mCamera.mTarget;
+        m830 = mCamera.mFovy;
         float x = -m5D0.m0C;
         if (chara->mC48 == 2 || (chara->mC48 == 3 && chara->mFlag29)) {
             x = -x - 0.5f;
@@ -2809,9 +2808,9 @@ void GameCamera::fn_8038B650(const CharaTask* chara) {
                 break;
             }
         }
-        m80C = mPos;
-        m818 = mTarget;
-        m830 = mFovy;
+        m80C = mCamera.mPos;
+        m818 = mCamera.mTarget;
+        m830 = mCamera.mFovy;
     }
     float ox = m874.x;
     float oy = m874.y;
@@ -2859,9 +2858,9 @@ void GameCamera::fn_8038B650(const CharaTask* chara) {
 // NONMATCHING: 92.2% - temporaries of the point and the cross product
 void GameCamera::fn_8038BD78(const CharaTask* chara) {
     if (m808 == 0) {
-        m80C = mPos;
-        m818 = mTarget;
-        m830 = mFovy;
+        m80C = mCamera.mPos;
+        m818 = mCamera.mTarget;
+        m830 = mCamera.mFovy;
     }
     atn::Vector3 point = chara->mF6C;
     if (lbl_8087F0A8->m040 == 0) {
@@ -2873,7 +2872,7 @@ void GameCamera::fn_8038BD78(const CharaTask* chara) {
     pos.y += m648.m10;
     float side = m648.m0C;
     atn::Vector3 cross;
-    PSVECCrossProduct(&dir, &mUp, &cross);
+    PSVECCrossProduct(&dir, &mCamera.mUp, &cross);
     pos += cross * side;
     fn_8038AEF0(&pos, &target, chara, 1, m648.m04, (float)m808 / 15.0f);
     fn_80392964(0, 1, 0, 0);
@@ -2899,9 +2898,9 @@ void GameCamera::fn_8038C070(const CharaTask* chara) {
         frames = 10;
     }
     if (m808 == 0) {
-        m80C = mPos;
-        m818 = mTarget;
-        m830 = mFovy;
+        m80C = mCamera.mPos;
+        m818 = mCamera.mTarget;
+        m830 = mCamera.mFovy;
     }
     atn::Vector3 pos(0.0f, 0.0f, -m684.m00);
     atn::Vector3 rot(m684.m08, -m8A0, 0.0f);
@@ -2919,10 +2918,10 @@ void GameCamera::fn_8038C070(const CharaTask* chara) {
     if (eye.x == look.x && eye.z == look.z) {
         eye.x += 0.1f;
     }
-    SetPosition(eye);
-    SetTarget_unk(look);
-    mFovy = fovy;
-    fn_8004B378();
+    mCamera.SetPosition(eye);
+    mCamera.SetTarget_unk(look);
+    mCamera.mFovy = fovy;
+    mCamera.fn_8004B378();
     fn_80392964(0, 1, 0, 0);
     if (++m808 > frames) {
         m80C = eye;
@@ -2943,14 +2942,14 @@ void GameCamera::fn_8038C070(const CharaTask* chara) {
 // original calls them as in fn_8038BD78
 void GameCamera::fn_8038C5B0(const CharaTask* chara) {
     if (m808 == 0) {
-        m80C = mPos;
-        m818 = mTarget;
-        m830 = mFovy;
+        m80C = mCamera.mPos;
+        m818 = mCamera.mTarget;
+        m830 = mCamera.mFovy;
         m890 = chara->mF6C;
     }
-    atn::Vector3 pos = mPos;
-    atn::Vector3 target = mTarget;
-    atn::Vector3 up = mUp;
+    atn::Vector3 pos = mCamera.mPos;
+    atn::Vector3 target = mCamera.mTarget;
+    atn::Vector3 up = mCamera.mUp;
     atn::Vector3 front(0.0f, 0.0f, 1.0f);
     atn::Matrix3x4 m;
     m.fn_8013A13C(chara->mRot.y);
@@ -2966,9 +2965,9 @@ void GameCamera::fn_8038C5B0(const CharaTask* chara) {
     target = chara->mPos;
     target.y += 12.0f;
     target = (target - m818) * t + m818;
-    SetTarget_unk(target);
-    mFovy = MIN((float)m808 / 10.0f, 1.0f) * (m7B0.m04 - m830) + m830;
-    fn_8004B378();
+    mCamera.SetTarget_unk(target);
+    mCamera.mFovy = MIN((float)m808 / 10.0f, 1.0f) * (m7B0.m04 - m830) + m830;
+    mCamera.fn_8004B378();
     fn_80392964(0, 1, 0, 0);
     if (++m808 > 10) {
         m800 = m7FC;
@@ -2985,9 +2984,9 @@ void GameCamera::fn_8038C5B0(const CharaTask* chara) {
 // NONMATCHING: 89.5% - scheduling of the blends and stack slots
 void GameCamera::fn_8038C928(const CharaTask* chara) {
     float t = 1.0f;
-    m80C = mPos;
-    m818 = mTarget;
-    m830 = mFovy;
+    m80C = mCamera.mPos;
+    m818 = mCamera.mTarget;
+    m830 = mCamera.mFovy;
     if (m424.fn_803829C0()) {
         m424.fn_803829D4();
         t = 1.0f - m424.mTime;
@@ -3024,10 +3023,10 @@ void GameCamera::fn_8038C928(const CharaTask* chara) {
         m808 = 0;
     }
     float f = t * (fovy - m830) + m830;
-    SetPosition((pos - m80C) * t + m80C);
-    SetTarget_unk((target - m818) * t + m818);
-    mFovy = f;
-    fn_8004B378();
+    mCamera.SetPosition((pos - m80C) * t + m80C);
+    mCamera.SetTarget_unk((target - m818) * t + m818);
+    mCamera.mFovy = f;
+    mCamera.fn_8004B378();
     fn_80392964(0, 1, 0, 0);
 }
 
@@ -3036,9 +3035,9 @@ void GameCamera::fn_8038C928(const CharaTask* chara) {
 // NONMATCHING: 91.5% - scheduling of the front vector and of the blends
 void GameCamera::fn_8038CD94(const CharaTask* chara) {
     if (m808 == 0) {
-        m80C = mPos;
-        m818 = mTarget;
-        m830 = mFovy;
+        m80C = mCamera.mPos;
+        m818 = mCamera.mTarget;
+        m830 = mCamera.mFovy;
     }
     float yaw = 0.017453292f * m774.m28;
     atn::Vector3 offset(m774.m0C, m774.m10, m774.m14);
@@ -3063,10 +3062,10 @@ void GameCamera::fn_8038CD94(const CharaTask* chara) {
             m424.mActive = 0;
         }
     }
-    SetPosition((pos - m80C) * t + m80C);
-    SetTarget_unk((target - m818) * t + m818);
-    mFovy = t * (m774.m04 - m830) + m830;
-    fn_8004B378();
+    mCamera.SetPosition((pos - m80C) * t + m80C);
+    mCamera.SetTarget_unk((target - m818) * t + m818);
+    mCamera.mFovy = t * (m774.m04 - m830) + m830;
+    mCamera.fn_8004B378();
     fn_80392964(0, 1, 1, 1);
     m808++;
     if (t >= 1.0f) {
@@ -3083,9 +3082,9 @@ void GameCamera::fn_8038CD94(const CharaTask* chara) {
 // NONMATCHING: 87.8% - scheduling of the two blends (the angle of the rotation is loaded before the matrix)
 void GameCamera::fn_8038D1C0(const CharaTask* chara) {
     if (m808 == 0) {
-        m80C = mPos;
-        m818 = mTarget;
-        m830 = mFovy;
+        m80C = mCamera.mPos;
+        m818 = mCamera.mTarget;
+        m830 = mCamera.mFovy;
     }
     atn::Vector3 target = chara->mPos;
     atn::Vector3 front(0.0f, 0.0f, 10.0f);
@@ -3102,9 +3101,9 @@ void GameCamera::fn_8038D1C0(const CharaTask* chara) {
     PSMTXMultVec(m2.m, &offset, &offset);
     pos += offset;
     pos = (pos - m80C) * ((float)m808 / 30.0f) + m80C;
-    SetPosition(pos);
-    SetTarget_unk(target);
-    fn_8004B378();
+    mCamera.SetPosition(pos);
+    mCamera.SetTarget_unk(target);
+    mCamera.fn_8004B378();
     fn_80392964(1, 1, 0, 0);
     if (++m808 > 30) {
         m800 = m7FC;
@@ -3120,9 +3119,9 @@ void GameCamera::fn_8038D1C0(const CharaTask* chara) {
 // NONMATCHING: 80.8% - the original adds the offset to the head after the first blend (more float registers)
 void GameCamera::fn_8038D4D4(const CharaTask* chara) {
     if (m808 == 0) {
-        m80C = mPos;
-        m818 = mTarget;
-        m830 = mFovy;
+        m80C = mCamera.mPos;
+        m818 = mCamera.mTarget;
+        m830 = mCamera.mFovy;
     }
     atn::Vector3 target = chara->mPos;
     atn::Vector3 offset(0.0f, -5.0f, 0.0f);
@@ -3131,9 +3130,9 @@ void GameCamera::fn_8038D4D4(const CharaTask* chara) {
     atn::Vector3 dir = (target - (head + offset)).GetNormalize();
     atn::Vector3 pos = target + dir * 40.0f;
     pos = (pos - m80C) * ((float)m808 / 10.0f) + m80C;
-    SetPosition(pos);
-    SetTarget_unk(target);
-    fn_8004B378();
+    mCamera.SetPosition(pos);
+    mCamera.SetTarget_unk(target);
+    mCamera.fn_8004B378();
     fn_80392964(1, 1, 0, 0);
     if (++m808 > 10) {
         m800 = m7FC;
@@ -3149,10 +3148,10 @@ void GameCamera::fn_8038D4D4(const CharaTask* chara) {
 // NONMATCHING: 84% - order of the two blends and temporaries of the direction
 void GameCamera::fn_8038D854(const CharaTask* chara) {
     if (m808 == 0) {
-        m80C = mPos;
-        m818 = mTarget;
+        m80C = mCamera.mPos;
+        m818 = mCamera.mTarget;
         m824 = m818 - m80C;
-        m830 = mFovy;
+        m830 = mCamera.mFovy;
     }
     atn::Vector3 target = chara->mPos;
     target.y += 20.451f;
@@ -3165,9 +3164,9 @@ void GameCamera::fn_8038D854(const CharaTask* chara) {
     atn::Vector3 pos = target - back;
     target = (target - m818) * ((float)m808 / 23.0f) + m818;
     pos = (pos - m80C) * ((float)m808 / 23.0f) + m80C;
-    SetPosition(pos);
-    SetTarget_unk(target);
-    fn_8004B378();
+    mCamera.SetPosition(pos);
+    mCamera.SetTarget_unk(target);
+    mCamera.fn_8004B378();
     fn_80392964(1, 1, 0, 0);
     if (++m808 > 23) {
         m800 = m7FC;
@@ -3183,19 +3182,19 @@ void GameCamera::fn_8038D854(const CharaTask* chara) {
 // to the sub mode with m83C = 6
 void GameCamera::fn_8038DBE4(const CharaTask* chara) {
     if (m808 == 0) {
-        m80C = mPos;
-        m818 = mTarget;
+        m80C = mCamera.mPos;
+        m818 = mCamera.mTarget;
         m824 = m818 - m80C;
-        m830 = mFovy;
+        m830 = mCamera.mFovy;
     }
     const atn::Model* model = &chara->mMotion;
     const atn::Matrix3x4* node = (const atn::Matrix3x4*)model->GetNodeMtx_unk(model->GetNodeNoByName("hips", 0));
     atn::Vector3 target = node->GetTrans_unk();
     atn::Vector3 offset(0.0f, 50.0f, 0.0f);
     atn::Vector3 pos = const_cast<CharaTask*>(chara)->fn_80178088() + offset;
-    SetPosition(pos);
-    SetTarget_unk(target);
-    fn_8004B378();
+    mCamera.SetPosition(pos);
+    mCamera.SetTarget_unk(target);
+    mCamera.fn_8004B378();
     fn_80392964(1, 1, 0, 0);
     if (++m808 > 1) {
         m800 = m7FC;
@@ -3216,9 +3215,9 @@ void GameCamera::fn_8038DDE0(const CharaTask* chara) {
 // inferred: blends over 30 frames from the camera saved on the first frame to the default mode
 void GameCamera::fn_8038DF5C(const CharaTask* chara) {
     if (m808 == 0) {
-        m80C = mPos;
-        m818 = mTarget;
-        m830 = mFovy;
+        m80C = mCamera.mPos;
+        m818 = mCamera.mTarget;
+        m830 = mCamera.mFovy;
     }
     m834 = 0;
     m8F0 = 1;
@@ -3226,12 +3225,12 @@ void GameCamera::fn_8038DF5C(const CharaTask* chara) {
     m8F0 = 0;
     float t = (float)m808 / 30.0f;
     float k = 0.5f * (1.0f + (float)sin(3.1415927f * t - 1.5707964f));
-    atn::Vector3 pos = (mPos - m80C) * k + m80C;
-    atn::Vector3 target = (mTarget - m818) * k + m818;
-    SetPosition(pos);
-    SetTarget_unk(target);
-    mFovy = k * (mFovy - m830) + m830;
-    fn_8004B378();
+    atn::Vector3 pos = (mCamera.mPos - m80C) * k + m80C;
+    atn::Vector3 target = (mCamera.mTarget - m818) * k + m818;
+    mCamera.SetPosition(pos);
+    mCamera.SetTarget_unk(target);
+    mCamera.mFovy = k * (mCamera.mFovy - m830) + m830;
+    mCamera.fn_8004B378();
     fn_80392964(1, 1, 1, 1);
     if (++m808 >= 30) {
         m800 = m7FC;
@@ -3279,7 +3278,7 @@ void GameCamera::fn_8038E23C(const CharaTask* chara, GameCameraParam_unk* param,
             m89C--;
         }
         if (m89C > 0) {
-            *pos = LerpV_unk(*pos, mPos, (float)m89C / 8.0f);
+            *pos = LerpV_unk(*pos, mCamera.mPos, (float)m89C / 8.0f);
         }
     } else {
         m89C = 0;
@@ -3348,7 +3347,7 @@ void GameCamera::fn_8038E540(const CharaTask* chara, GameCameraParam_unk* param,
     m89C = MIN(8, MAX(0, m89C));
     if (m89C > 0) {
         float k = 0.5f * ((float)m89C * 0.125f);
-        *pos = (mPos - *pos) * k + *pos;
+        *pos = (mCamera.mPos - *pos) * k + *pos;
     }
 }
 
@@ -4201,7 +4200,7 @@ extern "C" void fn_80392A04(atn::Camera* dst, const atn::Camera* src);
 // NONMATCHING: the original is over the inlining budget and calls fn_80392A04 and RenderManager::SetCamera_unk;
 // here both are inlined
 void GameCamera::fn_80392964(int a, int b, int c, int d) {
-    fn_80392A04(&m1F4, this);
+    fn_80392A04(&m1F4, &mCamera);
     if (c != 0) {
         fn_80392510();
     }
@@ -4275,9 +4274,9 @@ void GameCamera::fn_8039328C() {
     if (m7F0 != 0) {
         char buf[256];
         atn::DrawHelper* draw = lbl_8087EEB0;
-        sprintf(buf, "pos    (%4.2f, %4.2f, %4.2f)", mPos.x, mPos.y, mPos.z);
+        sprintf(buf, "pos    (%4.2f, %4.2f, %4.2f)", mCamera.mPos.x, mCamera.mPos.y, mCamera.mPos.z);
         draw->fn_800616C0(40.0f, 20.0f, 0.0f, 16.0f, 16.0f, buf, 0xFFFFFFFF, 0.0f, 0, 0, 0);
-        sprintf(buf, "target (%4.2f, %4.2f, %4.2f)", mTarget.x, mTarget.y, mTarget.z);
+        sprintf(buf, "target (%4.2f, %4.2f, %4.2f)", mCamera.mTarget.x, mCamera.mTarget.y, mCamera.mTarget.z);
         draw->fn_800616C0(40.0f, 36.0f, 0.0f, 16.0f, 16.0f, buf, 0xFFFFFFFF, 0.0f, 0, 0, 0);
         if (m7FC == 6) {
             draw->fn_80063D3C(m8A4, lbl_8087F0A8->m08C, 0.0f, 0xFFFFFF00);
