@@ -28,3 +28,6 @@ Re-emparejado: `pairdata` llamo `__vt__...`/`sInstance__9SetConfig` a cadenas y 
 - ~06:08 reinicio del servidor: I y G se reanudan solos; F reanudada a mano (tope 07:30); H habia terminado (informe perdido; notas en qH).
 - 06:12 integrada H: total 15394; rep100 +1 (`BattleCharaTask::fn_800EBD00` 99,95 %, etiqueta float sin pareja tras re-emparejar). 06:18 lanzada J (segunda pasada de modelos).
 - 06:22 integrada F: total 15395; rep100 +1 aceptado: `fn_800B5994` codigo identico, sus cuatro limites a cero (`lbl_8087D898..A4`) los pone MWCC en `.sbss` y el original en `.sdata` (como `fn_800B6218`, que ya estaba). 06:26 lanzada K (restos al 0 % de AiTarget, BattleTask, GameTask, MiniMapTask).
+- 07:25 integrada I (merge limpio; 15396). 07:31 lanzada L (push_back de `std/vector.h`, TacView, Event/Sequence).
+- 07:45 integrada G (conflictos de `@N`: version de la integracion + `pdbatch.sh`/`lblmap.py` de GameCamera_unk y FinishCamera_unk; dos floats duplicados de GameCamera_unk a mano: 0x80885974 = @21368, 0x8088597C = @21370). 07:56 lanzada M (`CharaTask::vfBC`).
+- 08:05 integrada K (limpio). 08:12 lanzada N (tercera pasada de combate + vistas de colision de BattleTask/BattleCharaTask). 08:15 integrada J (limpio; 15399). 08:19 lanzada O (camaras y MiniMapTask).
