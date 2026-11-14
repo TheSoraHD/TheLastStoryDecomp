@@ -20,6 +20,8 @@ ONLYLOCAL = "--local" in sys.argv
 # --relabel: also re-pair target labels that already have a compiler-local name (@NNNN) which no
 # longer matches ours, so resetlocal (and the extra dtk split it costs) is not needed first
 RELABEL = "--relabel" in sys.argv
+# --min N: only use the functions at N % or more (for units with big NONMATCHING functions)
+MINPCT = float(sys.argv[sys.argv.index("--min") + 1]) if "--min" in sys.argv else 0.0
 TNAME = r"^(lbl_[0-9A-F]{8}|@\d+)$" if RELABEL else r"^lbl_[0-9A-F]{8}$"
 SYM = "config/SLSP01/symbols.txt"
 
@@ -51,7 +53,8 @@ def relocs(sym):
             d = json.loads(out)
         except ValueError:
             d = {"left": {"symbols": []}, "right": {"symbols": []}}
-        _ALL = ({s["name"]: s.get("instructions", []) for s in d["left"]["symbols"]},
+        _ALL = ({s["name"]: s.get("instructions", []) for s in d["left"]["symbols"]
+                 if s.get("match_percent", 100.0 if MINPCT == 0 else 0.0) >= MINPCT},
                 {s["name"]: s.get("instructions", []) for s in d["right"]["symbols"]})
     rows = {"left": _ALL[0].get(sym), "right": _ALL[1].get(sym)}
     if not rows["left"] or not rows["right"]:
