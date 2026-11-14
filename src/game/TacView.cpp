@@ -1353,7 +1353,7 @@ void TacView::fn_805ABE74() {
     int kind = fn_80219558(chara->m50);
     if (0 <= kind && kind < 7) {
         m54.m64[0] = 5;
-        m54.m74[0] = chara->mStatus.m2CC - 1;
+        m54.m74[0] = chara->mStatus.m2CC.mCount - 1;
     }
     if (chara->mStatus.m228 < 1.0f) {
         m54.m50[0] = 0;
@@ -1445,7 +1445,7 @@ void TacView::fn_805ABE74() {
             m54.m64[1] = 1;
             m54.m74[1] = 0;
             m54.m50[1] = ((chara->mStatus.m0C >> 2) & 1) ^ 1;
-            HitInfo_unk* skill = fn_80219E6C(chara->mStatus.m2D0[0].m[0]);
+            HitInfo_unk* skill = fn_80219E6C(chara->mStatus.m2CC[0].m[0]);
             if (skill != 0 && skill->m74.m04 > 0.0f) {
                 m54.m84[1] = 6;
             } else {
@@ -1507,16 +1507,16 @@ void TacView::fn_805ABE74() {
             if (0 <= kind && kind < 7) {
                 int slot = m54.m74[i];
                 if (slot >= 0) {
-                    m54.m54[i] = chara->mStatus.m2D0[slot].m[0] > 0 ? fn_80219E6C(chara->mStatus.m2D0[slot].m[0]) : 0;
+                    m54.m54[i] = chara->mStatus.m2CC[slot].m[0] > 0 ? fn_80219E6C(chara->mStatus.m2CC[slot].m[0]) : 0;
                 } else {
                     m54.m54[i] = fn_80219344(chara);
                 }
             } else {
                 int slot = m54.m74[i];
                 if (slot >= 0) {
-                    m54.m54[i] = fn_80219E6C(chara->mStatus.m2D0[slot].m[0]);
+                    m54.m54[i] = fn_80219E6C(chara->mStatus.m2CC[slot].m[0]);
                 } else {
-                    m54.m54[i] = fn_80219E6C(chara->mStatus.m2D0[i].m[0]);
+                    m54.m54[i] = fn_80219E6C(chara->mStatus.m2CC[i].m[0]);
                 }
             }
         } else {

@@ -106,7 +106,7 @@ int ControlUseSkill::vf0C() {
             Effect_unk* mgr = lbl_8087F048;
             fn_800FB4B0(mgr, mChara, data, fn_800F8548(mgr), &mChara->mPos, 0, 30, -1, 1);
         }
-        if (lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->fn_80375184() && data->m04 == mChara->mStatus.m2D0[3].m[0]) {
+        if (lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->fn_80375184() && data->m04 == mChara->mStatus.m2CC[3].m[0]) {
             if (mChara->mType == 2) {
                 fn_801092C8(lbl_8087F048, 0xC, mChara, data->m04, 0);
             } else {

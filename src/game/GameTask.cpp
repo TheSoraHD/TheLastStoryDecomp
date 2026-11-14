@@ -211,6 +211,8 @@ struct MpSettings_unk {
     int m5A0;
 };
 #include "game/ErrorManager.h"
+#include "game/InventoryExp_unk.h"
+#include "db/PlayerParam_unk.h"
 extern "C" Collision_unk* lbl_8087EE98;
 extern "C" void* lbl_8087F610; // inferred: multiplayer session (null in single player)
 extern "C" atn::EffectManager* lbl_8087F3C0;
@@ -891,9 +893,6 @@ int GameTask::vf0C() {
 // inferred: evaluates an atn::ParseTree compiled into a ParseCode_unk (atn/ParseTree.cpp)
 extern "C" float fn_800A6BDC(const unsigned char* code);
 
-// NONMATCHING: 98% - the copies of CharaStatusData_unk and CharaStatus: the original copies m54..m7C and
-// m2CC..m2EC in 8-byte pairs (one aggregate each: as an anonymous struct it matches, but the anonymous type
-// takes an @N in every unit including CharaStatus.h)
 // inferred: sets the level of the party and the enemies for the field (arg: the field starts; else the
 // saved status is restored)
 void GameTask::fn_80367A40(int arg) {
@@ -3202,8 +3201,7 @@ void GameTask::fn_8036EE0C() {
     }
 }
 
-// NONMATCHING: 98.7% - the copy of CharaStatus (m2CC..m2EC in 8-byte pairs in the original, see fn_80367A40)
-// and the registers of the inlined IsDungeonCleared_unk (the original reuses those of the dead arguments)
+// NONMATCHING: 99.8% - the registers of the inlined IsDungeonCleared_unk (the original reuses those of the dead arguments)
 // inferred: changes the map (save: data to restore; else the party is saved in m5628); a: kept in m550C.m24,
 // reason: copy format of the capture fade; arg9 unused
 extern "C" void fn_8036F268(GameTask* task, int type, int id, int subId, int entry, int a, GameSaveData_unk* save,
@@ -3578,7 +3576,7 @@ inline void GameTask::StartFinish_unk(CharaTask* chara, int id) {
 }
 
 // inferred: SetGlobalFlag (arg: do not run the side effects of the flag)
-// NONMATCHING: the copy of CharaStatusData_unk and the GameUI calls (the original passes the id too)
+// NONMATCHING: 98.1% - registers (r29/r30 swapped) and the GameUI calls (the original passes the id too)
 void GameTask::fn_80370320(int index, int value, int arg) {
     if ((unsigned int)index > 0xFFF) {
         if (lbl_8087EEB8 != 0) {
@@ -3980,16 +3978,11 @@ inline void RotateYXZ_unk(atn::Matrix3x4& mtx, const atn::Vector3& rot);
 inline void Scale_unk(atn::Matrix3x4& mtx, const atn::Vector3& s);
 extern "C" inline atn::Matrix3x4 fn_800F80A8(const atn::Vector3* pos);
 extern "C" inline void fn_80316E38(atn::Model* model, const atn::Matrix3x4* mtx);
-// inferred: skills learnt per level of a kind of character (as in game/CharaStatus.cpp); names invented
-struct LevelSkills_unk {
-    unsigned char m00[2];
-    unsigned char m02[128]; // inferred: 0 for every status bit that the level gives
-};
-extern "C" LevelSkills_unk* fn_80219160(int kind, int level);
+extern "C" PlayerParam_unk* fn_80219160(int kind, int level); // db/PlayerParam_unk.cpp
 
-// NONMATCHING: 97.3% - the local copy of the party (FixedArray_unk<ExpEntry_unk, 8>) is built in the original
-// with the constructor of ExpEntry_unk (memset of LevelUpResult_unk, then a member by member copy), which
-// game/Inventory.h does not declare; the setters of atn::Model (fn_80139F24, fn_8013C554, SetMotionSpeed,
+// NONMATCHING: the stack frame (0x20 bytes more in the original) and the registers of the copy of mDF30; the
+// local copy of the party is built with the constructor of ExpEntry_unk (game/InventoryExp_unk.h) as in the
+// original; the setters of atn::Model (fn_80139F24, fn_8013C554, SetMotionSpeed,
 // SetMotionFrame) are inlined in the original and out of line in atn/Model_unk.h
 // inferred: victory pose after a battle (field state 9): every party member that won a level (or the one of the
 // finishing skill, Inventory::mDF30) is turned towards a free direction at its nearest move point, plays the
@@ -4004,7 +3997,7 @@ void GameTask::fn_80371790() {
     mFinish.fn_803786F0();
     atn::FixedArray_unk<Inventory::ExpEntry_unk, 8> entries;
     for (unsigned int i = 0; i < party->size(); i++) {
-        entries.push_back((*party)[i]);
+        entries.push_back(party->begin()[i]);
     }
     if (Inventory::instance_->mDF30.mChara != 0) {
         // inferred: the first 0x90 bytes of the finishing skill entry have the layout of ExpEntry_unk
@@ -4054,10 +4047,10 @@ void GameTask::fn_80371790() {
             if (c->m50 == 1) {
                 int kind = fn_80219558(c->m50);
                 for (int level = 1; level <= e->mLevelUp; level++) {
-                    LevelSkills_unk* skills = fn_80219160(kind, c->mStatus.mParamA.m78 - level);
+                    PlayerParam_unk* skills = fn_80219160(kind, c->mStatus.mParamA.m78 - level);
                     if (skills != 0) {
                         for (int bit = 0; bit < 128; bit++) {
-                            if (skills->m02[bit] == 0 && c->mStatus.fn_801346C8(bit, 0)) {
+                            if (skills->mSkills[bit] == 0 && c->mStatus.fn_801346C8(bit, 0)) {
                                 learnt = 1;
                                 break;
                             }
@@ -4069,11 +4062,11 @@ void GameTask::fn_80371790() {
                 }
             }
             int skillCount = 0;
-            LevelSkills_unk* skills =
+            PlayerParam_unk* skills =
                 fn_80219160(fn_80219558(c->m50), c->mStatus.mParamA.m78 - (*party)[i].mLevelUp);
             if (skills != 0) {
                 for (int bit = 0; bit < 128; bit++) {
-                    if (skills->m02[bit] == 0 && c->mStatus.fn_801346C8(bit, 0)) {
+                    if (skills->mSkills[bit] == 0 && c->mStatus.fn_801346C8(bit, 0)) {
                         skillCount++;
                     }
                 }

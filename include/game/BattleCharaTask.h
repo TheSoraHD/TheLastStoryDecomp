@@ -41,7 +41,7 @@ public:
     int fn_800E7214(CharaTask** out, int keep);
     int fn_800E73EC(struct Field_unk* field, int b, int c); // inferred: input of the player (lock-on, auto attack) // inferred: target of the player's attack (keep: prefer m1440) // inferred: auto attack of the player (button attack correction)
     void fn_800E8FB8(); // inferred: shoots the selected arrow of the crossbow
-    void fn_800E9110(); // inferred: casts the magic m145C of m2D0 in front (or at the aimed point)
+    void fn_800E9110(); // inferred: casts the magic m145C of mStatus.m2CC in front (or at the aimed point)
     void fn_800E932C(atn::Vector3* from, atn::Vector3* to, int arg); // inferred: aimed shot
     void fn_800E7650(struct Field_unk* field, int, int); // inferred: input of the player in the battle mode (lock-on, crossbow)
     void fn_800E7BB0(); // inferred: starts the overdrive/special skill of the character

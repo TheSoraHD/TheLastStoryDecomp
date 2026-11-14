@@ -143,7 +143,7 @@ int EnemyQuarkFirst::vf0C() {
     vfFC();
     mStatus.fn_80134674(2);
     mStatus.fn_80134674(3);
-    mStatus.m2D0[3] = CharaStatusPair_unk(m151C->m04);
+    mStatus.m2CC[3] = CharaStatusPair_unk(m151C->m04);
     mStatus.m2FC = 2.0f;
     return 1;
 }

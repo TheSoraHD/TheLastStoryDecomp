@@ -802,7 +802,7 @@ inline const atn::Vector3& SavedVec_unk(const unsigned char* p) {
 }
 
 // inferred: stores a saved bit into a bool (inlined; name invented)
-inline void SetBool_unk(unsigned char& b, unsigned int on) {
+inline void SetBool_unk(bool& b, unsigned int on) {
     b = on == 1;
 }
 

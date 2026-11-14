@@ -139,7 +139,7 @@ static void fn_80338D14(QuarkTable_unk* table, atn::Csv* csv) {
 // vf0C, which is over the inline budget; game/EnemyQuarkStand.cpp calls the same copies). Names keep
 // the addresses: 0x80339718 is the CharaStatusPair_unk(int) constructor of CharaStatus.h (no null test).
 extern "C" inline void fn_803396FC(CharaStatus* status, int index, const CharaStatusPair_unk& pair) {
-    status->m2D0[index] = pair;
+    status->m2CC[index] = pair;
 }
 
 int EnemyQuarkSecond::vf0C() {
