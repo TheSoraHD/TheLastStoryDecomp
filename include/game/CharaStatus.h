@@ -338,6 +338,7 @@ struct CharaStatusData_unk {
 // inferred: stat differences after levelling up (CharaStatus::fn_8013354C; 0x7C bytes, kept in
 // Inventory::ExpEntry_unk and summed by Inventory::fn_80449ABC); name invented
 struct LevelUpResult_unk {
+    LevelUpResult_unk(); // inferred: clears it with memset (body in game/InventoryExp_unk.h)
     int m00;
     int m04;
     float m08; // level

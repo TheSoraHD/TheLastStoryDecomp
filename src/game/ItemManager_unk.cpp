@@ -15,6 +15,7 @@
 #include "game/DamageCalc_unk.h"
 #include "game/HitInfo_unk.h"
 #include "game/MslSort_unk.h"
+#include "game/InventoryExp_unk.h"
 
 extern "C" const char* fn_8020BD3C(int index); // inferred: name of the group of a colour (db/PaletteTable_unk)
 extern "C" const char* fn_8020BD78(int index); // inferred: name of an effect palette
@@ -1262,16 +1263,14 @@ struct ExpOrderLess_unk {
     }
 };
 
-// NONMATCHING: the original constructs the entries with a constructor (mChara, memset of mResult, the
-// four counters) in the local array of 8 and in the temporary of the push_back; here they are cleared with
-// memset (ExpEntry_unk has no constructor: a new inline in Inventory.h would renumber its 58 includers)
+// NONMATCHING: registers (r26-r30 rotated) and the place of the experience reads; the entries are built with
+// the constructor of ExpEntry_unk (game/InventoryExp_unk.h) as in the original
 // inferred: shares the experience of the battle (m6014/m6018) among the party members that can act and
 // adds it to the list of the last battle (sorted for game/BattleResult)
 void Inventory::fn_80449ABC(int killer, int level) {
     atn::FixedArray_unk<ExpEntry_unk, 8> party;
     party.clear();
     ExpEntry_unk entry;
-    memset(&entry, 0, sizeof(entry)); // inferred: the original zeroes it with a constructor
     for (PlayerTask* chara = lbl_8087F8A0->mHead; chara != 0; chara = chara->mNext) {
         if (chara->IsActive_unk() && (chara->m54C & 0x2000) != 0x2000 && chara->mC54 != 0 &&
             chara->fn_8016E484() && party.size() < 8) {
@@ -1311,7 +1310,6 @@ void Inventory::fn_80449ABC(int killer, int level) {
         }
         if (p == 0 && mExpEntries.size() < 8) {
             ExpEntry_unk added;
-            memset(&added, 0, sizeof(added));
             added.mChara = e.mChara;
             mExpEntries.push_back(added);
             p = &mExpEntries[mExpEntries.size() - 1];

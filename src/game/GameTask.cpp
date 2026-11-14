@@ -211,6 +211,7 @@ struct MpSettings_unk {
     int m5A0;
 };
 #include "game/ErrorManager.h"
+#include "game/InventoryExp_unk.h"
 extern "C" Collision_unk* lbl_8087EE98;
 extern "C" void* lbl_8087F610; // inferred: multiplayer session (null in single player)
 extern "C" atn::EffectManager* lbl_8087F3C0;
@@ -3983,9 +3984,9 @@ struct LevelSkills_unk {
 };
 extern "C" LevelSkills_unk* fn_80219160(int kind, int level);
 
-// NONMATCHING: 97.3% - the local copy of the party (FixedArray_unk<ExpEntry_unk, 8>) is built in the original
-// with the constructor of ExpEntry_unk (memset of LevelUpResult_unk, then a member by member copy), which
-// game/Inventory.h does not declare; the setters of atn::Model (fn_80139F24, fn_8013C554, SetMotionSpeed,
+// NONMATCHING: the stack frame (0x20 bytes more in the original) and the registers of the copy of mDF30; the
+// local copy of the party is built with the constructor of ExpEntry_unk (game/InventoryExp_unk.h) as in the
+// original; the setters of atn::Model (fn_80139F24, fn_8013C554, SetMotionSpeed,
 // SetMotionFrame) are inlined in the original and out of line in atn/Model_unk.h
 // inferred: victory pose after a battle (field state 9): every party member that won a level (or the one of the
 // finishing skill, Inventory::mDF30) is turned towards a free direction at its nearest move point, plays the
@@ -4000,7 +4001,7 @@ void GameTask::fn_80371790() {
     mFinish.fn_803786F0();
     atn::FixedArray_unk<Inventory::ExpEntry_unk, 8> entries;
     for (unsigned int i = 0; i < party->size(); i++) {
-        entries.push_back((*party)[i]);
+        entries.push_back(party->begin()[i]);
     }
     if (Inventory::instance_->mDF30.mChara != 0) {
         // inferred: the first 0x90 bytes of the finishing skill entry have the layout of ExpEntry_unk

@@ -29,6 +29,7 @@ class Inventory {
 public:
     // inferred: experience won in a battle by one party member (0x90 bytes, game/BattleResult)
     struct ExpEntry_unk {
+        ExpEntry_unk(); // inferred: body in game/InventoryExp_unk.h
         CharaTask* mChara;
         LevelUpResult_unk mResult; // 0x04: inferred: stats won (CharaStatus::fn_8013354C)
         int mExpA; // 0x80: inferred: experience won
