@@ -35,6 +35,13 @@
   emparejar); se corrigen por desplazamiento y valor con un script (mismo desplazamiento y mismo valor en el .o
   original y el nuestro, hasta 0x80881594; despues el pool diverge por el float de mas).
 
+- Rotacion z-y-x de `chara->mRot`/`rot` (identidad + tres `RotateAxis_unk`) en una inline de fichero
+  `MakeRotZYX_unk(const atn::Vector3&)` que devuelve la matriz: las temporales de las rotaciones salen en el orden del
+  original. `fn_800FC410` 99,46 -> 99,82 %, `fn_800FCD24` 98,10 -> 98,46 %, `fn_800F8574` 99,58 -> 99,61 %. Queda
+  en las tres el orden de otras ranuras (en el original los locales declarados al final, `n` y el `Mtx` del else,
+  quedan por debajo de todo; en el nuestro, por encima de las temporales) y 0x30 bytes sin usar en 0xD8 de
+  fn_800FC410.
+
 ## Decisiones tomadas sin el usuario
 - `symbols.txt`: solo renombrados de `@N` de BattleTask (pd.sh, y a mano/por script los duplicados que pd deja).
 

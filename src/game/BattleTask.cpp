@@ -1778,6 +1778,23 @@ extern "C" atn::EffFile* fn_800EFD04(int id);     // inferred: bullet effect of 
 extern "C" bool fn_8021A888(HitInfo_unk* data);   // inferred: db/ParseUtil_unk (takes the record as BulletParam_unk)
 extern "C" float fn_8010B250(BattleTask* mgr, int level, BattleCalcParam_unk* param);
 
+// inferred: rotation z, y, x from the angles `rot` into `m` (name invented; inlined by fn_800F8574, fn_800FC410 and fn_800FCD24)
+inline atn::Matrix3x4 MakeRotZYX_unk(const atn::Vector3& rot) {
+    atn::Matrix3x4 m;
+    atn::Matrix3x4* p = &m;
+    p->SetIdentity();
+    if (0.0f != rot.z) {
+        atn::Matrix3x4::RotateAxis_unk(*p, 'z', rot.z);
+    }
+    if (0.0f != rot.y) {
+        atn::Matrix3x4::RotateAxis_unk(*p, 'y', rot.y);
+    }
+    if (0.0f != rot.x) {
+        atn::Matrix3x4::RotateAxis_unk(*p, 'x', rot.x);
+    }
+    return m;
+}
+
 // inferred: fires the `data->m48` bullets of `data` from `pos` along `dir` (homing bullets with `homing`), spread
 // randomly by the aim instability of `owner` (m12CC, raised by 0.33 up to 1 after the shot); plays the firing sound
 // (louder for the player with fn_8021A888). C name, called by enemies as extern "C"
@@ -1797,18 +1814,7 @@ extern "C" int fn_800F8574(BattleTask* mgr, CharaTask* owner, HitInfo_unk* data,
         fn_800C344C(sound, pos, 0, -1, volume);
     }
     atn::Vector3 rot = dir->ToRotation_unk();
-    atn::Matrix3x4 m;
-    atn::Matrix3x4* p = &m;
-    p->SetIdentity();
-    if (0.0f != rot.z) {
-        atn::Matrix3x4::RotateAxis_unk(*p, 'z', rot.z);
-    }
-    if (0.0f != rot.y) {
-        atn::Matrix3x4::RotateAxis_unk(*p, 'y', rot.y);
-    }
-    if (0.0f != rot.x) {
-        atn::Matrix3x4::RotateAxis_unk(*p, 'x', rot.x);
-    }
+    atn::Matrix3x4 m = MakeRotZYX_unk(rot);
     for (int i = 0; i < data->m48; i++) {
         atn::Vector3 v(0.0f, 0.0f, 1.0f);
         float spread = 0.017453292f * (owner->mStatus.mParamB.m2C * (1.0f - owner->m12CC));
@@ -2873,19 +2879,8 @@ extern "C" void fn_800FC410(BattleTask* mgr, CharaTask* attacker, CharaTask* cha
         dir.x = 0.0f;
         dir.y = 0.0f;
         dir.z = radius;
-        atn::Matrix3x4 m;
-        atn::Matrix3x4* p = &m;
-        p->SetIdentity();
-        if (0.0f != chara->mRot.z) {
-            atn::Matrix3x4::RotateAxis_unk(*p, 'z', chara->mRot.z);
-        }
-        if (0.0f != chara->mRot.y) {
-            atn::Matrix3x4::RotateAxis_unk(*p, 'y', chara->mRot.y);
-        }
-        if (0.0f != chara->mRot.x) {
-            atn::Matrix3x4::RotateAxis_unk(*p, 'x', chara->mRot.x);
-        }
-        PSMTXMultVec(p->m, &dir, &dir);
+        atn::Matrix3x4 m = MakeRotZYX_unk(chara->mRot);
+        PSMTXMultVec(m.m, &dir, &dir);
         mgr->m38A5C.m1C = dir + HitCenterAt_unk(chara, index);
     }
     atn::Vector3 n = dir;
@@ -3009,19 +3004,8 @@ extern "C" void fn_800FCD24(BattleTask* mgr, CharaTask* attacker, CharaTask* cha
         dir.x = 0.0f;
         dir.y = 0.0f;
         dir.z = radius;
-        atn::Matrix3x4 m;
-        atn::Matrix3x4* p = &m;
-        p->SetIdentity();
-        if (0.0f != chara->mRot.z) {
-            atn::Matrix3x4::RotateAxis_unk(*p, 'z', chara->mRot.z);
-        }
-        if (0.0f != chara->mRot.y) {
-            atn::Matrix3x4::RotateAxis_unk(*p, 'y', chara->mRot.y);
-        }
-        if (0.0f != chara->mRot.x) {
-            atn::Matrix3x4::RotateAxis_unk(*p, 'x', chara->mRot.x);
-        }
-        PSMTXMultVec(p->m, &dir, &dir);
+        atn::Matrix3x4 m = MakeRotZYX_unk(chara->mRot);
+        PSMTXMultVec(m.m, &dir, &dir);
         mgr->m38A5C.m1C = dir + HitCenterAt_unk(chara, index);
     }
     atn::Vector3 n = dir;
@@ -3108,19 +3092,8 @@ extern "C" int fn_800FD658(BattleTask* mgr, CharaTask* attacker, CharaTask* char
             dir.x = 0.0f;
             dir.y = 0.0f;
             dir.z = radius;
-            atn::Matrix3x4 m;
-            atn::Matrix3x4* p = &m;
-            p->SetIdentity();
-            if (0.0f != chara->mRot.z) {
-                atn::Matrix3x4::RotateAxis_unk(*p, 'z', chara->mRot.z);
-            }
-            if (0.0f != chara->mRot.y) {
-                atn::Matrix3x4::RotateAxis_unk(*p, 'y', chara->mRot.y);
-            }
-            if (0.0f != chara->mRot.x) {
-                atn::Matrix3x4::RotateAxis_unk(*p, 'x', chara->mRot.x);
-            }
-            PSMTXMultVec(p->m, &dir, &dir);
+            atn::Matrix3x4 m = MakeRotZYX_unk(chara->mRot);
+            PSMTXMultVec(m.m, &dir, &dir);
             mgr->m38A5C.m1C = dir + HitCenter_unk(chara);
         }
     }
