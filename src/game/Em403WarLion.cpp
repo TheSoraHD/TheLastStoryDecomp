@@ -92,8 +92,6 @@ extern "C" HitInfo_unk* fn_80219E6C(int id);
 extern "C" void fn_800FAB80(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* bullet, int arg3, const atn::Vector3* pos,
                             const atn::Vector3* rot, int arg6, int arg7, int arg8, int arg9, float arg10,
                             float arg11);
-extern "C" void fn_800F8C6C(Effect_unk* mgr, int a, int b, CharaTask* chara, HitInfo_unk* data, int id, int time,
-                            int c, float f);
 // inferred: effect manager (class unknown), global instance at 0x8087F3C0
 struct EffectMgr_unk;
 struct Color4f_unk {
@@ -1199,7 +1197,7 @@ void Em403WarLion::fn_80327EF0() {
     frame = mMotion.mTracks[0].m08;
     if (frame >= 19.0f && frame <= 26.0f) {
         fn_80144710();
-        fn_800F8C6C(lbl_8087F048, 0, 0, this, fn_80219E6C(0x672), m590, 30, -1, 0.0f);
+        ((BattleTask*)lbl_8087F048)->fn_800F8C6C(0, 0, this, fn_80219E6C(0x672), m590, 0.0f, 30, -1);
     }
 }
 
@@ -1366,7 +1364,7 @@ void Em403WarLion::fn_80328C6C() {
     frame = mMotion.mTracks[0].m08;
     if (frame >= 5.0f && frame <= 25.0f) {
         fn_80144710();
-        fn_800F8C6C(lbl_8087F048, 0, 0, this, fn_80219E6C(0x674), m15F8, 30, -1, 0.0f);
+        ((BattleTask*)lbl_8087F048)->fn_800F8C6C(0, 0, this, fn_80219E6C(0x674), m15F8, 0.0f, 30, -1);
     }
 }
 
@@ -1380,7 +1378,7 @@ void Em403WarLion::fn_8032932C() {
     float f = mMotion.mTracks[0].m08;
     if (f >= 5.0f && f <= 25.0f) {
         fn_80144710();
-        fn_800F8C6C(lbl_8087F048, 0, 0, this, fn_80219E6C(0x674), m590, 30, -1, 0.0f);
+        ((BattleTask*)lbl_8087F048)->fn_800F8C6C(0, 0, this, fn_80219E6C(0x674), m590, 0.0f, 30, -1);
     }
 }
 
@@ -1414,7 +1412,7 @@ void Em403WarLion::fn_8032943C() {
         } else {
             mPos += m150C;
             fn_80144710();
-            fn_800F8C6C(lbl_8087F048, 0, 0, this, fn_80219E6C(0x674), m590, 30, -1, 0.0f);
+            ((BattleTask*)lbl_8087F048)->fn_800F8C6C(0, 0, this, fn_80219E6C(0x674), m590, 0.0f, 30, -1);
             CollHit_unk hit;
             atn::Vector3 from(mPos);
             atn::Vector3 to(mPos);

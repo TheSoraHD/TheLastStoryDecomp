@@ -36,8 +36,6 @@ extern "C" int fn_8004ED34(void* world, atn::ColliResult_unk* result, const atn:
                            unsigned int mask, void* ignore, int arg); // inferred: ray test
 extern "C" void PSMTXRotAxisRad(Mtx m, const atn::Vector3* axis, float rad);
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
-extern "C" void fn_800F8C6C(Effect_unk* mgr, int a, int b, CharaTask* chara, HitInfo_unk* data, int id, int time,
-                            int arg, float angle); // inferred: fires a bullet (as in game/Em205Ogre.cpp)
 extern "C" void fn_800FAB80(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* bullet, int arg3, const atn::Vector3* pos,
                             const atn::Vector3* rot, int arg6, int arg7, int arg8, int arg9, float arg10,
                             float arg11);
@@ -565,13 +563,13 @@ void Em309GhoulSimple::vf108() {
                 if (frame >= 36.0f) {
                     int id = m14C8;
                     HitInfo_unk* skill = fn_80219E6C(m14E8);
-                    fn_800F8C6C(lbl_8087F048, 0, 0, this, skill, id, 30, -1, 0.0f);
+                    ((BattleTask*)lbl_8087F048)->fn_800F8C6C(0, 0, this, skill, id, 0.0f, 30, -1);
                     m14BC++;
                 }
             } else if (m58C == 10 && frame >= 40.0f) {
                 int id = m14C8;
                 HitInfo_unk* skill = fn_80219E6C(m14F8);
-                fn_800F8C6C(lbl_8087F048, 0, 0, this, skill, id, 30, -1, 0.0f);
+                ((BattleTask*)lbl_8087F048)->fn_800F8C6C(0, 0, this, skill, id, 0.0f, 30, -1);
                 m14BC++;
             }
         } else if (frame >= mMotion.fn_80097D7C(0)) {

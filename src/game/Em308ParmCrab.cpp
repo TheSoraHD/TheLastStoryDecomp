@@ -7,6 +7,7 @@
 #include <boost/function.hpp>
 #include "math/VecAssign_unk.h"
 #include "atn/ColliBase.h"
+#include "game/BattleTask.h"
 
 extern "C" unsigned long strlen(const char* s);
 extern "C" int strcmp(const char* a, const char* b);
@@ -101,8 +102,6 @@ struct CrabDamage_unk {
 };
 extern "C" void fn_80040B40(CrabDamage_unk* result, HitInfo_unk* data, CharaStatus* status, CharaStatus* owner,
                             unsigned int flags, const HitParam_unk* param); // inferred: applies the skill
-extern "C" void fn_800F8C6C(Effect_unk* mgr, int a, int b, CharaTask* chara, HitInfo_unk* data, int id, int time,
-                            int c, float f); // inferred: attack hit
 extern "C" double sqrt(double x);
 extern "C" int fn_8004D314(void* world, int arg, const atn::Vector3* pos, const atn::Vector3* dir, unsigned int mask,
                            void* ignore, int arg7, float radius); // inferred: sphere/ray test (as in gmk/Brazier.cpp)
@@ -307,7 +306,7 @@ void Em308ParmCrab::vf10() {
                 m58C = 6;
                 fn_8016E970(3);
             } else if (mMotion.mTracks[0].m08 >= 12.0f && mMotion.mTracks[0].m08 <= 17.0f) {
-                fn_800F8C6C(lbl_8087F048, 0, 0, this, m1530, m590, 30, -1, 0.0f);
+                ((BattleTask*)lbl_8087F048)->fn_800F8C6C(0, 0, this, m1530, m590, 0.0f, 30, -1);
             }
             break;
         case 8:

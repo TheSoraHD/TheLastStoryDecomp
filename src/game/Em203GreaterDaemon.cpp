@@ -264,8 +264,6 @@ struct EffectMgrD0_unk {
     unsigned char m00[0xD0];
     int mD0;
 };
-extern "C" void fn_800F8C6C(Effect_unk* mgr, int a, int b, CharaTask* chara, HitInfo_unk* data, int id, int time,
-                            int c, float f); // inferred: moves a bullet with the character
 // inferred: damage record shown by fn_80108C10 (as StatusDamage_unk of game/CharaStatus.cpp)
 struct DaemonDamage_unk {
     DaemonDamage_unk() : m00(0), m04(0), m08(0), m0C(0), m10(0), m14(-1) {
@@ -1444,7 +1442,7 @@ void Em203GreaterDaemon::fn_8028E1A0() {
         (mMotion.mTracks[0].m08 > 56.0f && mMotion.mTracks[0].m08 < 60.0f)) {
         atn::Vector3 spine = GetNodePos_unk(mMotion.GetNodeMtx_unk("spine"));
         spine += FrontM_unk(mRot.y) * 20.0f;
-        fn_800F8C6C(lbl_8087F048, 0, 0, this, m14E0, m590, 30, -1, 0.0f);
+        ((BattleTask*)lbl_8087F048)->fn_800F8C6C(0, 0, this, m14E0, m590, 0.0f, 30, -1);
     } else {
         m590 = fn_800F8548(lbl_8087F048);
     }

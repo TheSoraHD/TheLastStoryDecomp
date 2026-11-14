@@ -7,6 +7,7 @@
 #include "std/string.h"
 #include "std/string_members.h"
 #include "math/VecAssign_unk.h"
+#include "game/BattleTask.h"
 
 extern "C" unsigned long strlen(const char* s);
 extern "C" int strcmp(const char* a, const char* b);
@@ -16,8 +17,6 @@ extern "C" int sprintf(char* buf, const char* fmt, ...);
 extern "C" int fn_800DC12C(const char* s);   // inferred: string to int
 extern "C" float fn_800DC288(const char* s); // inferred: string to float
 struct Effect_unk;
-extern "C" void fn_800F8C6C(Effect_unk* mgr, int a, int b, CharaTask* chara, HitInfo_unk* data, int id, int time,
-                            int c, float f);
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
 struct HomingParam_unk;
 extern "C" void fn_800F8574(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* data, const atn::Vector3* pos,
@@ -301,7 +300,7 @@ void Em202SpiderBase::vf10() {
                 if (f >= 17.0f && f <= 22.0f) {
                     fn_80144710();
                     int id = m590;
-                    fn_800F8C6C(lbl_8087F048, 0, 0, this, fn_80219E6C(0x3F3), id, 30, -1, 0.0f);
+                    ((BattleTask*)lbl_8087F048)->fn_800F8C6C(0, 0, this, fn_80219E6C(0x3F3), id, 0.0f, 30, -1);
                 }
             }
             break;

@@ -16,6 +16,7 @@
 #include "gmk/Lemon.h"
 #include "atn/Camera_unk.h"
 #include "atn/RenderManager.h"
+#include "game/BattleTask.h"
 
 // inferred: effect/bullet manager (lbl_8087F048); only the member used here (name invented)
 struct Effect_unk {
@@ -210,8 +211,6 @@ inline void LastCocoonImago::Roar_unk() {
 
 extern "C" HitInfo_unk* fn_80219E6C(int id); // inferred: skill data
 struct HitResult_unk;
-extern "C" int fn_800F8C6C(Effect_unk* mgr, HitResult_unk* results, int count, CharaTask* chara, HitInfo_unk* data,
-                           int id, int time, int hits, float angle); // inferred: deals a hit, returns the hits
 struct HomingParam_unk;
 extern "C" void fn_800F8574(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* data, const atn::Vector3* pos,
                             const atn::Vector3* dir, HomingParam_unk* param, int arg6, int arg7, float a,
@@ -273,7 +272,7 @@ void LastCocoonImago::vf10() {
             } else if (mMotion.mTracks[0].m08 >= 57.0f && mMotion.mTracks[0].m08 <= 65.0f) {
                 HitInfo_unk* bullet = fn_80219E6C(0x5B8);
                 fn_80144710();
-                fn_800F8C6C(lbl_8087F048, 0, 0, this, bullet, m590, 30, -1, 0.0f);
+                ((BattleTask*)lbl_8087F048)->fn_800F8C6C(0, 0, this, bullet, m590, 0.0f, 30, -1);
                 if (m1984 != 0) {
                     lbl_8087EEB0->fn_80063D3C(mPos, mStatus.mParamB.m28 + bullet->m40, 0.0f, 0xFFFF0000);
                 }
@@ -1351,8 +1350,6 @@ void LastCocoonImago::fn_8045E548() {
 
 extern "C" HitInfo_unk* fn_80219E6C(int id); // inferred: skill data
 struct HitResult_unk;
-extern "C" int fn_800F8C6C(Effect_unk* mgr, HitResult_unk* results, int count, CharaTask* chara, HitInfo_unk* data,
-                           int id, int time, int hits, float angle); // inferred: deals a hit, returns the hits
 
 void LastCocoonImago::fn_8045E780() {
     mMotion.mTracks[0].m0C = mStatus.fn_8012DB04();
@@ -1381,7 +1378,7 @@ void LastCocoonImago::fn_8045E780() {
         if (frame >= 35.0f && frame <= 46.0f) {
             HitInfo_unk* bullet = fn_80219E6C(0x5B6);
             fn_80144710();
-            fn_800F8C6C(lbl_8087F048, 0, 0, this, bullet, m590, 30, -1, 0.0f);
+            ((BattleTask*)lbl_8087F048)->fn_800F8C6C(0, 0, this, bullet, m590, 0.0f, 30, -1);
         }
     }
 }

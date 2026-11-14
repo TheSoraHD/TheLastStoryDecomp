@@ -9,6 +9,7 @@
 #include "std/string_members.h"
 #include "game/GameTask.h"
 #include "atn/ColliBase.h"
+#include "game/BattleTask.h"
 
 extern "C" unsigned long strlen(const char* s);
 extern "C" int strcmp(const char* a, const char* b);
@@ -122,8 +123,6 @@ extern "C" int fn_800F8548(Effect_unk* mgr); // inferred: new bullet id
 // inferred: effect manager (class unknown), global instance at 0x8087F3C0
 struct EffectMgr_unk;
 extern "C" EffectMgr_unk* lbl_8087F3C0;
-extern "C" void fn_800F8C6C(Effect_unk* mgr, int a, int b, CharaTask* chara, HitInfo_unk* data, int id, int time,
-                            int c, float f);
 extern "C" void fn_800FAB80(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* bullet, int id, const atn::Vector3* pos,
                             const atn::Vector3* rot, int arg6, int arg7, int arg8, int arg9, float arg10,
                             float arg11); // inferred: fires a bullet (as in game/Em101ElderZesyaSecond.cpp)
@@ -259,7 +258,7 @@ inline void Em101LittleZesyaSecond::Cast_unk() {
                 m590 = fn_800F8548(lbl_8087F048);
             }
             fn_80144710();
-            fn_800F8C6C(lbl_8087F048, 0, 0, this, m638, m590, 30, -1, 0.0f);
+            ((BattleTask*)lbl_8087F048)->fn_800F8C6C(0, 0, this, m638, m590, 0.0f, 30, -1);
         }
     }
 }
@@ -386,7 +385,7 @@ void Em101LittleZesyaSecond::vf10() {
         case 10: {
             float frame = mMotion.mTracks[0].m08;
             if (17.0f < frame && frame <= 19.0f) {
-                fn_800F8C6C(lbl_8087F048, 0, 0, this, fn_80219E6C(0x5E8), m590, 30, -1, 0.0f);
+                ((BattleTask*)lbl_8087F048)->fn_800F8C6C(0, 0, this, fn_80219E6C(0x5E8), m590, 0.0f, 30, -1);
             } else {
                 frame = mMotion.mTracks[0].m08;
                 if (frame >= mMotion.fn_80097D7C(0)) {

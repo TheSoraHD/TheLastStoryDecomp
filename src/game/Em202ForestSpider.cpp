@@ -67,8 +67,6 @@ extern "C" HitInfo_unk* fn_80219E6C(int id);  // inferred: skill data
 struct Effect_unk;
 extern "C" Effect_unk* lbl_8087F048;
 extern "C" int fn_800F8548(Effect_unk* mgr); // inferred: new bullet id
-extern "C" void fn_800F8C6C(Effect_unk* mgr, int a, int b, CharaTask* chara, HitInfo_unk* data, int id, int time,
-                            int c, float f);
 // inferred: effect manager (class unknown), global instance at 0x8087F3C0 (as in game/Em202Spider.cpp)
 struct EffectMgr_unk;
 extern "C" EffectMgr_unk* lbl_8087F3C0;
@@ -663,7 +661,7 @@ void Em202ForestSpider::vf108() {
     float f = mMotion.mTracks[0].m08;
     if (f >= 17.0f && f <= 22.0f) {
         int id = m590;
-        fn_800F8C6C(lbl_8087F048, 0, 0, this, fn_80219E6C(m1508), id, 30, -1, 0.0f);
+        ((BattleTask*)lbl_8087F048)->fn_800F8C6C(0, 0, this, fn_80219E6C(m1508), id, 0.0f, 30, -1);
     }
 }
 
@@ -675,7 +673,7 @@ void Em202ForestSpider::vf10C() {
     float f = mMotion.mTracks[0].m08;
     if (f >= 12.0f && f <= 17.0f) {
         int id = m590;
-        fn_800F8C6C(lbl_8087F048, 0, 0, this, fn_80219E6C(m150C), id, 30, -1, 0.0f);
+        ((BattleTask*)lbl_8087F048)->fn_800F8C6C(0, 0, this, fn_80219E6C(m150C), id, 0.0f, 30, -1);
     }
 }
 

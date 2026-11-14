@@ -3,6 +3,7 @@
 #include "math/Vec.h"
 #include "game/FriendManager.h"
 #include "game/CharaStatus.h"
+#include "game/BattleTask.h"
 
 // inferred: field (lbl_8087F430): route tables at 0x10D8 (as in game/Em306GurgBeast.cpp)
 struct Field_unk {
@@ -49,8 +50,6 @@ extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* m
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
 extern "C" void fn_80108F38(Effect_unk* mgr, const atn::Vector3* pos, int arg);
-extern "C" void fn_800F8C6C(Effect_unk* mgr, int a, int b, CharaTask* chara, HitInfo_unk* data, int id, int time,
-                            int c, float f);
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
 struct HomingParam_unk;
 extern "C" void fn_800F8574(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* data, const atn::Vector3* pos,
@@ -165,7 +164,7 @@ void Em202_01_BSpider::vf10() {
                     fn_80144710();
                     int id = m590;
                     HitInfo_unk* skill = fn_80219E6C(0x3F3);
-                    fn_800F8C6C(lbl_8087F048, 0, 0, this, skill, id, 30, -1, 0.0f);
+                    ((BattleTask*)lbl_8087F048)->fn_800F8C6C(0, 0, this, skill, id, 0.0f, 30, -1);
                 }
             }
             break;
@@ -179,7 +178,7 @@ void Em202_01_BSpider::vf10() {
                 if (f >= 12.0f && f <= 17.0f) {
                     int id = m590;
                     HitInfo_unk* skill = fn_80219E6C(0x3F5);
-                    fn_800F8C6C(lbl_8087F048, 0, 0, this, skill, id, 30, -1, 0.0f);
+                    ((BattleTask*)lbl_8087F048)->fn_800F8C6C(0, 0, this, skill, id, 0.0f, 30, -1);
                 }
             }
             break;

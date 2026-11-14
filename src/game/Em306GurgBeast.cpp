@@ -53,13 +53,11 @@ extern "C" void* lbl_8087EE98; // inferred: collision world
 extern "C" double sqrt(double x);
 extern "C" int fn_8004D388(void* world, atn::ColliResult_unk* result, atn::Vector3* sphere, atn::Vector3* move,
                            unsigned int mask, void* ignore, int arg, float radius); // inferred: sweep test
-extern "C" void fn_800F8C6C(Effect_unk* mgr, int a, int b, CharaTask* chara, HitInfo_unk* data, int id, int time,
-                            int c, float f); // inferred: attack hit
 // inferred: weak copies emitted after vf108 (fn_802F0964 is also called by game/Em312DarkServant.cpp,
 // fn_802F0998 by gmk/Cannonball.cpp and gmk/FlamingArrow.cpp)
 extern "C" inline void fn_802F0964(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* bullet, int id, int time, int c,
                                    float f) {
-    fn_800F8C6C(mgr, 0, 0, owner, bullet, id, time, c, f);
+    ((BattleTask*)mgr)->fn_800F8C6C(0, 0, owner, bullet, id, f, time, c);
 }
 extern "C" inline float fn_802F0988(BeastParams_unk* params) {
     return params->mTimeScale;

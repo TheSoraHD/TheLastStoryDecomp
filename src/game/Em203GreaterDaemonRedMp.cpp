@@ -89,8 +89,6 @@ extern "C" void fn_800FAB80(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* bull
 extern "C" void fn_800F8574(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* data, const atn::Vector3* pos,
                             const atn::Vector3* dir, HomingParam_unk* param, int arg6, int arg7, float a,
                             float b); // inferred: fires a homing bullet
-extern "C" void fn_800F8C6C(Effect_unk* mgr, int a, int b, CharaTask* chara, HitInfo_unk* data, int id, int time,
-                            int c, float f); // inferred: moves a bullet with the character
 extern "C" int fn_800DD3FC(wchar_t* s, const wchar_t* format, ...); // inferred: wide sprintf
 extern "C" const wchar_t lbl_808813D0[2]; // inferred: empty text
 // inferred: camp message table (lbl_8087F1E4, as in game/Em101ElderZesya.cpp)
@@ -1091,7 +1089,7 @@ void Em203GreaterDaemonRedMp::fn_802A0818() {
                (mMotion.mTracks[0].m08 > 56.0f && mMotion.mTracks[0].m08 < 60.0f)) {
         atn::Vector3 spine = GetNodePos_unk(mMotion.GetNodeMtx_unk("spine"));
         spine += Front_unk(mRot.y) * 35.0f;
-        fn_800F8C6C(lbl_8087F048, 0, 0, this, m14F0, m590, 30, -1, 0.0f);
+        ((BattleTask*)lbl_8087F048)->fn_800F8C6C(0, 0, this, m14F0, m590, 0.0f, 30, -1);
     } else {
         m590 = fn_800F8548(lbl_8087F048);
     }

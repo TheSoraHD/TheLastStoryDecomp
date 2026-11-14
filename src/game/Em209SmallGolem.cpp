@@ -61,8 +61,6 @@ extern "C" PlayerManager_unk* lbl_8087F8A0;
 extern "C" GameUI* lbl_8087F490;
 extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg, int arg2, float volume); // inferred: plays a sound
 extern "C" void* lbl_8087F0A8; // inferred: settings (pad at 0x48C)
-extern "C" void fn_800F8C6C(Effect_unk* mgr, int a, int b, CharaTask* chara, HitInfo_unk* data, int id, int time,
-                            int c, float f);
 struct HomingParam_unk;
 extern "C" void fn_800F8574(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* data, const atn::Vector3* pos,
                             const atn::Vector3* dir, HomingParam_unk* param, int arg6, int arg7, float a,
@@ -362,7 +360,7 @@ void Em209SmallGolem::vf10() {
             float f = mMotion.mTracks[0].m08;
             if (f >= 17.0f && f <= 19.0f) {
                 fn_80144710();
-                fn_800F8C6C(lbl_8087F048, 0, 0, this, fn_80219E6C(m1510), m590, 30, -1, 0.0f);
+                ((BattleTask*)lbl_8087F048)->fn_800F8C6C(0, 0, this, fn_80219E6C(m1510), m590, 0.0f, 30, -1);
             }
             if (m1554 != 0) {
                 HitInfo_unk* skill = fn_80219E6C(m1510);

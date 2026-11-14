@@ -216,6 +216,9 @@ public:
     int fn_800F3B4C(); // inferred: nonzero while the other resources load
     void fn_800F39A4(); // inferred: load requests of the resources
     void fn_80371664(); // inferred: defined in game/GameTask.cpp (0x80371664, clears mCBAC)
+    // inferred: melee hit (out, outCount, chara, data, id, angle, time, max): hits the characters inside the arc
+    // and returns how many were hit (0x800F8C6C, game/BattleTask.cpp)
+    int fn_800F8C6C(HitResult_unk*, int, CharaTask*, HitInfo_unk*, int, float, int, int);
     // inferred: index of the character in mCharas, -1 if missing (inlined)
     int FindChara_unk(CharaTask* chara) {
         if (chara == 0) {

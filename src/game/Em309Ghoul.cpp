@@ -116,8 +116,6 @@ extern "C" HitInfo_unk* fn_80219E6C(int id); // inferred: skill data by id
 extern "C" int fn_800DC12C(const char* s); // inferred: string to int
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
 extern "C" double fmod(double x, double y);
-extern "C" void fn_800F8C6C(Effect_unk* mgr, int a, int b, CharaTask* chara, HitInfo_unk* data, int id, int time,
-                            int arg, float angle); // inferred: fires a bullet (as in game/Em205Ogre.cpp)
 extern "C" int sprintf(char* buf, const char* fmt, ...);
 
 // NONMATCHING: 96.97% - registers of the inlined FindPlace_unk loops (the original keeps the table in r11 for
@@ -309,7 +307,7 @@ void Em309Ghoul::vf10() {
                 fn_80144710();
                 HitInfo_unk* skill = fn_80219E6C(0x64A);
                 int id = m590;
-                fn_800F8C6C(lbl_8087F048, 0, 0, this, skill, id, 30, -1, 0.0f);
+                ((BattleTask*)lbl_8087F048)->fn_800F8C6C(0, 0, this, skill, id, 0.0f, 30, -1);
             }
             if (m1690 != 0) {
                 lbl_8087EEB0->fn_80063D3C(mPos, mStatus.mParamB.m28 + fn_80219E6C(0x64A)->m40, 0.0f, 0xFFFF0000);
@@ -326,7 +324,7 @@ void Em309Ghoul::vf10() {
                 fn_80144710();
                 HitInfo_unk* skill = fn_80219E6C(0x64B);
                 int id = m590;
-                fn_800F8C6C(lbl_8087F048, 0, 0, this, skill, id, 30, -1, 0.0f);
+                ((BattleTask*)lbl_8087F048)->fn_800F8C6C(0, 0, this, skill, id, 0.0f, 30, -1);
             }
             if (m1690 != 0) {
                 lbl_8087EEB0->fn_80063D3C(mPos, mStatus.mParamB.m28 + fn_80219E6C(0x64B)->m40, 0.0f, 0xFFFF0000);

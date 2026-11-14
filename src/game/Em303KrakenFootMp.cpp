@@ -5,6 +5,7 @@
 #include "game/CharaStatus.h"
 #include "game/CharaManager.h"
 #include "game/PlayerTask.h"
+#include "game/BattleTask.h"
 
 extern "C" int sprintf(char* buf, const char* fmt, ...);
 extern "C" int strcmp(const char* a, const char* b);
@@ -41,8 +42,6 @@ struct Field_unk {
 extern "C" Field_unk* lbl_8087F430;
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 extern "C" int rand();
-extern "C" void fn_800F8C6C(Effect_unk* mgr, int a, int b, CharaTask* chara, HitInfo_unk* data, int id, int time,
-                            int c, float f); // inferred: attack hit (as in game/Em303KrakenFoot.cpp)
 
 Em303KrakenFootMp::Em303KrakenFootMp(atn::Task* parent, EnemyInfo_unk* info)
     : SpecialEnemyBase(parent, info), m14DC(0), m14E0(0), m14E4(0), m14EC(20.0f), m14F0(0), m14F4(0), m14F8(0),
@@ -297,7 +296,7 @@ void Em303KrakenFootMp::vf104() {
                 }
             } else if (mMotion.mTracks[0].m08 >= 19.0f && mMotion.mTracks[0].m08 <= 23.0f) {
                 int id = m590;
-                fn_800F8C6C(lbl_8087F048, 0, 0, this, m14F8, id, 30, -1, 0.0f);
+                ((BattleTask*)lbl_8087F048)->fn_800F8C6C(0, 0, this, m14F8, id, 0.0f, 30, -1);
             }
             break;
         case 9:
@@ -307,7 +306,7 @@ void Em303KrakenFootMp::vf104() {
             } else if (mMotion.mTracks[0].m08 >= 24.0f && mMotion.mTracks[0].m08 <= 28.0f) {
                 int id = m590;
                 HitInfo_unk* data = m14FC;
-                fn_800F8C6C(lbl_8087F048, 0, 0, this, data, id, 30, -1, 0.0f);
+                ((BattleTask*)lbl_8087F048)->fn_800F8C6C(0, 0, this, data, id, 0.0f, 30, -1);
             }
             break;
         case 10:

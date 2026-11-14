@@ -15,6 +15,7 @@
 #include "game/GameTask.h"
 #include "math/VecAssign_unk.h"
 #include "atn/ColliBase.h"
+#include "game/BattleTask.h"
 
 // inferred: point the camera looks at (lbl_8087F430 + 0x97C, as in game/Em101ElderZesya.cpp); names invented
 struct EggLook_unk {
@@ -163,8 +164,6 @@ struct Color4f_unk {
 };
 
 extern "C" HitInfo_unk* fn_80219E6C(int id); // inferred: skill data
-extern "C" void fn_800F8C6C(Effect_unk* mgr, int a, int b, CharaTask* chara, HitInfo_unk* data, int id, int time,
-                            int c, float f);
 extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
 extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
@@ -1072,7 +1071,7 @@ void Em206EggMonster::fn_802C42D4() {
             data = fn_80219E6C(0x578);
         }
         fn_80144710();
-        fn_800F8C6C(lbl_8087F048, 0, 0, this, data, m590, 30, -1, 0.0f);
+        ((BattleTask*)lbl_8087F048)->fn_800F8C6C(0, 0, this, data, m590, 0.0f, 30, -1);
     } else if (mMotion.mTracks[0].m08 >= 71.0f && mMotion.mTracks[0].m08 <= 76.0f) {
         mMotion.mTracks[0].m0C = 0.3f;
     } else if (atn::Abs_unk(mMotion.mTracks[0].m08 - 1.0f) < 1.1920929e-7f) {
@@ -1111,7 +1110,7 @@ void Em206EggMonster::fn_802C4480() {
             data = fn_80219E6C(0x57A);
         }
         fn_80144710();
-        fn_800F8C6C(lbl_8087F048, 0, 0, this, data, m590, 30, -1, 0.0f);
+        ((BattleTask*)lbl_8087F048)->fn_800F8C6C(0, 0, this, data, m590, 0.0f, 30, -1);
     }
 }
 

@@ -14,6 +14,7 @@
 #include "chr/ControlDamage.h"
 #include "atn/SoundRef.h"
 #include "atn/ColliBase.h"
+#include "game/BattleTask.h"
 
 extern "C" int sprintf(char* buf, const char* fmt, ...);
 extern "C" int strcmp(const char* a, const char* b);
@@ -683,8 +684,6 @@ void EnemyQuarkFirst::vf104() {
 
 extern "C" void fn_8023A108(EffectMgr_unk* mgr, atn::EfpFile* efp, int id, int arg); // inferred: effect fade
 extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float volume); // inferred: plays a sound
-extern "C" int fn_800F8C6C(Effect_unk* mgr, int a, int b, CharaTask* chara, HitInfo_unk* data, int id, int time,
-                           int c, float f); // inferred: hit test of the current attack
 extern "C" void fn_800FAB80(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* bullet, int id, const atn::Vector3* pos,
                             const atn::Vector3* rot, int arg6, int arg7, int arg8, int arg9, float arg10,
                             float arg11); // inferred: fires a bullet
@@ -822,7 +821,7 @@ void EnemyQuarkFirst::vf108() {
                 }
                 float cur = mMotion.mTracks[0].m08;
                 if (cur >= 21.0f && cur <= 25.0f) {
-                    fn_800F8C6C(lbl_8087F048, 0, 0, this, m1518, m590, 30, -1, 0.0f);
+                    ((BattleTask*)lbl_8087F048)->fn_800F8C6C(0, 0, this, m1518, m590, 0.0f, 30, -1);
                 }
             } else if (m14BC == 1) {
                 float frame = mMotion.mTracks[0].m08;
@@ -962,7 +961,7 @@ void EnemyQuarkFirst::vf108() {
                     m14E4->mMotion.mTracks[0].m08 = mMotion.mTracks[0].m08;
                 }
             }
-            if (fn_800F8C6C(lbl_8087F048, 0, 0, this, m638, m590, 30, -1, 0.0f) > 0 && m14D8 == 0 &&
+            if (((BattleTask*)lbl_8087F048)->fn_800F8C6C(0, 0, this, m638, m590, 0.0f, 30, -1) > 0 && m14D8 == 0 &&
                 fn_805A49E4((SpecialFlag_unk*)&m1564) == 0) {
                 fn_805A4A1C((SpecialFlag_unk*)&m1564, 1);
             }

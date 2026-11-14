@@ -7,6 +7,7 @@
 #include "std/string.h"
 #include "std/string_members.h"
 #include "atn/ColliBase.h"
+#include "game/BattleTask.h"
 
 extern "C" unsigned long strlen(const char* s);
 extern "C" int strcmp(const char* a, const char* b);
@@ -61,8 +62,6 @@ extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* m
 extern "C" void fn_80108F38(Effect_unk* mgr, const atn::Vector3* pos, int arg);
 // inferred: sends `id` to the gimmicks in a cone (game/SpecialEnemyBase.cpp)
 extern "C" void fn_805A5078(const atn::Vector3* pos, const atn::Vector3* dir, int id, float radius, float angle);
-extern "C" void fn_800F8C6C(Effect_unk* mgr, int a, int b, CharaTask* chara, HitInfo_unk* data, int id, int time,
-                            int c, float f);
 
 // inferred: sounds of the spider
 static const char* const sSe_unk[3] = {"SE_EM202_008", "SE_EM202_002", "SE_DG001_014"};
@@ -250,7 +249,7 @@ inline void PlayModelEffect_unk(Em202Spider* self, int id, atn::EfpFile* efp) {
 // inferred: attack hit of the skill (name invented)
 inline void Em202Spider::Attack_unk(HitInfo_unk* const& skill) {
     int id = m590;
-    fn_800F8C6C(lbl_8087F048, 0, 0, this, skill, id, 30, -1, 0.0f);
+    ((BattleTask*)lbl_8087F048)->fn_800F8C6C(0, 0, this, skill, id, 0.0f, 30, -1);
 }
 
 // inferred: back to state 0 (names invented)
@@ -643,7 +642,7 @@ inline void Em202Spider::Dash_unk(const atn::Vector3& rot) {
     PSMTXRotRad(m, 'y', mRot.y);
     PSMTXMultVec(m, &fwd, &fwd);
     fn_805A5078(&pos, &fwd, 20, m1514->m58, m1514->m50);
-    fn_800F8C6C(lbl_8087F048, 0, 0, this, m1514, m590, 30, -1, rot.y - mRot.y);
+    ((BattleTask*)lbl_8087F048)->fn_800F8C6C(0, 0, this, m1514, m590, rot.y - mRot.y, 30, -1);
 }
 
 // NONMATCHING: 99.76% - stack slots of the position/front vectors of the dash (the original puts them below

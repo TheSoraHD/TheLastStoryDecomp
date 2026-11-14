@@ -45,8 +45,6 @@ struct ControlMagic_unk {
     unsigned char m18[0x1D - 0x18];
     unsigned char m1D; // inferred: nonzero once the bullets are fired
 };
-extern "C" void fn_800F8C6C(Effect_unk* mgr, int a, int b, CharaTask* chara, HitInfo_unk* data, int id, int time,
-                            int c, float f); // inferred: moves a bullet with the character
 extern "C" int fn_8004ED34(void* colli, atn::ColliResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg7); // inferred: ray test
 extern "C" int fn_8004D388(void* world, atn::ColliResult_unk* result, const atn::Vector3* center, const atn::Vector3* move,
@@ -551,8 +549,7 @@ void Em003LesserDaemon::vf10() {
     case 1: {
         float frame = mMotion.mTracks[0].m08;
         if (frame >= 58.0f && frame <= 68.0f) {
-            fn_800F8C6C(lbl_8087F048, 0, 0, this, m14C8, m590, 30, -1,
-                        atn::WrapAngle_unk(6.2831855f * ((frame - 58.0f) / 10.0f) - 0.47123894f));
+            ((BattleTask*)lbl_8087F048)->fn_800F8C6C(0, 0, this, m14C8, m590, atn::WrapAngle_unk(6.2831855f * ((frame - 58.0f) / 10.0f) - 0.47123894f), 30, -1);
         }
         float frame2 = mMotion.mTracks[0].m08;
         if (frame2 >= mMotion.fn_80097D7C(0)) {
@@ -1166,7 +1163,7 @@ void Em003LesserDaemon::fn_8024E7E4() {
         pos -= m5A4;
         pos.y -= sphere.mRadius;
         mPos = pos;
-        fn_800F8C6C(lbl_8087F048, 0, 0, this, m14CC, m590, 30, -1, 0.0f);
+        ((BattleTask*)lbl_8087F048)->fn_800F8C6C(0, 0, this, m14CC, m590, 0.0f, 30, -1);
         break;
     }
     case 2: {
