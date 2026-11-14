@@ -59,6 +59,14 @@ ActionActorPosition (`vf0C__Q25Event19ActionActorPosition`, 98,67 % en HEAD) y P
   con `vf3C(int, float)` frente a `vf3C(float, int)`): cambiarla toca la firma de `Manager::fn_8048E9A4` en
   `Event/Manager.h` (cabecera de muchas unidades).
 
+## 3c. Una sola `atn::TextureComposite` (`include/atn/TextureComposite.h`)
+
+- Nueva cabecera con `CompositeColor_unk`, `TextureCompositeCommand` y sus tres derivadas (con los
+  constructores que usaba CompositeIntensityTintMulti, mismo orden de declaracion para las vtables),
+  `TextureCompositeCommandList_unk` y `TextureComposite` (con `fn_800D8C0C`/`fn_800D8894`). TextureComposite.cpp
+  y CompositeIntensityTintMulti.cpp la incluyen y pierden sus copias. pdbatch de las dos (CITM vf14 99,8 ->
+  100 % tras el re-emparejado). Neutro, precommit OK.
+
 ## Decisiones tomadas sin el usuario
 
 - Punto 1 dejado como estaba (la forma con locales reales baja en las tres unidades).
