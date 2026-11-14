@@ -52,6 +52,7 @@
 #include "game/CrossbowMenuTask.h"
 #include "atn/GraphicsDevice.h"
 #include "atn/Font_unk.h"
+#include "game/PickTask.h"
 #include <boost/bind.hpp>
 #include <boost/function.hpp>
 
@@ -127,6 +128,47 @@ BattleTask* BattleTask::fn_800F13BC(atn::Task* parent) {
     return lbl_8087F048;
 }
 
+extern "C" PopupTask* fn_8054A6E8(atn::Task* parent); // inferred: creates the popup task (game/PopupTask.cpp)
+extern "C" const char* const lbl_80881464; // inferred: "ef_neb01o.model" (.sdata2 of this file)
+
+BattleTask::BattleTask(atn::Task* parent)
+    : atn::Task(parent), mBulletId(0), mCB34(0), mCharaCount(0), m363B4(0), m363B8(0), m363BC(40),
+      m367B0(2), m367B4(0), mHideLines(1), m38A00(0), m38A04(0.0f), m38A08(0), m38A0C(120.0f), m38A10(0.333f), m38A14(80.0f),
+      m38A18(0.0f), m38A1C(80.0f), m38A20(20.0f), m38A24(10.0f), m38A28(0.0f), m38A2C(0.0f), m38A30(0.0f),
+      m38A34(0.0f), m38A38(1.5f), m38A3C(1.0f), m38A40(1.0f), m38A44(0.006f), m38A48(0.01f), m38A4C(0.05f),
+      m38A50(0.012f), m38A54(0.005f), m38C74(0), m38C78(0.0f), m38C7C(0.0f), m38C80(0.0f), m38C84(0.0f),
+      m38C88(0.0f), m38C8C(1.0f), m3E2E0(0), m3E2E4(0), m3E2E8(0), m3E2EC(0), m3E2F8(0), m3E2FC(0.1f), m3E300(0),
+      mStunCount(0), m3E390(0), m3E394(0), m3E398(0), m3E39C(0), m3E3A0(4.0f), m3E3A4(0.1f), m3E3A8(6.0f) {
+    SkillEffectManager::fn_8059AB98(this);
+    fn_8054A6E8(this);
+    LogMessageTask::fn_80478714(this);
+    PickTask::fn_80548D54(this);
+    fn_800F39A4();
+    fn_80100BF0();
+    for (unsigned int i = 0; i < 8; i++) {
+        mSlots[i].mModel.fn_8008AD4C(lbl_80881464, 0);
+        mSlots[i].mUsed = 0;
+        mSlots[i].mChara = 0;
+    }
+    mCB38.x = 0.0f;
+    mCB38.y = 0.0f;
+    mCB40.x = 0.0f;
+    mCB40.y = 0.0f;
+    mCB50.x = 0.0f;
+    mCB50.y = 0.0f;
+    mCB48.x = 0.0f;
+    mCB48.y = 0.0f;
+    mCB58 = 0;
+    mCB5C = 0.0f;
+    mCB64 = atn::Vector3(0.0f, 0.0f, 1.0f);
+    atn::VecAssign_unk(mCB70, atn::Vector3(0.0f, 0.0f, 1.0f));
+    m3E304 = EffectColor_unk(1.0f, 1.0f, 1.0f, 0.0f);
+}
+
+BattleTask::~BattleTask() {
+    lbl_8087F048 = 0;
+}
+
 // inferred: setup: waits for the effects and the d2anime tasks, then binds the node callback of the effect
 // models (the nodes follow the character the model is drawn on)
 int BattleTask::vf0C() {
@@ -184,12 +226,6 @@ extern "C" void fn_800F29D0(atn::Model* model, NodeCallback_unk callback) {
 inline BattleMarker_unk* BattleMarkers_unk::fn_800F8538(int i) {
     return &mItems[i];
 }
-inline atn::EffFile* BattleMarkers_unk::GetEfp_unk(int i) {
-    return (atn::EffFile*)mEfp[i];
-}
-inline atn::Texture* BattleMarkers_unk::GetTex_unk() {
-    return (atn::Texture*)mTex;
-}
 
 extern "C" const char* lbl_808813F4; // inferred: "/effect/hateline/hate_line_01a.eff" (.sdata of this file)
 extern "C" const char* lbl_808813F8; // inferred: "/effect/hateline/hate_line_01b.eff"
@@ -203,14 +239,6 @@ extern "C" const char* const lbl_80735988[3]; // inferred: splash effects (.roda
 extern "C" const char* fn_8020BD78(int index); // inferred: name of an effect palette
 extern "C" int sprintf(char* s, const char* format, ...);
 
-// inferred: the atn::EffFile and atn::Texture members of BattleTask are raw storage in the header (see
-// BattleMarkers_unk); names invented
-inline atn::EffFile* AsEffFile_unk(unsigned char* p) {
-    return (atn::EffFile*)p;
-}
-inline atn::Texture* AsTexture_unk(unsigned char* p) {
-    return (atn::Texture*)p;
-}
 extern "C" void fn_800D58A4(atn::Texture* tex); // inferred: releases the texture (as game/GameUI.cpp)
 // inferred: names of the battle effect files (const pointers of .sdata2 of this file to strings of .rodata)
 extern "C" const char* const lbl_808813DC;
@@ -265,60 +293,60 @@ extern "C" void fn_800F2C9C(BattleTask* mgr) {
             } else {
                 sprintf(path, "/effect/ef_hm001c.eff\0");
             }
-            AsEffFile_unk(mgr->mHitEff[i][j])->LoadRequest(path);
+            mgr->mHitEff[i][j].LoadRequest(path);
         }
     }
     for (int i = 0; i < 5; i++) {
         sprintf(path, "/effect/hit/ef_hs000_%02d.eff\0", i);
-        AsEffFile_unk(mgr->mEff3651C[i])->LoadRequest(path);
+        (&mgr->mEff3651C[i])->LoadRequest(path);
         sprintf(path, "/effect/hit/ef_hs001_%02d.eff\0", i);
-        AsEffFile_unk(mgr->mEff36558[i])->LoadRequest(path);
+        (&mgr->mEff36558[i])->LoadRequest(path);
     }
     for (int i = 0; i < 3; i++) {
-        AsEffFile_unk(mgr->mEff36594[i])->LoadRequest(lbl_80735A94[i]);
+        (&mgr->mEff36594[i])->LoadRequest(lbl_80735A94[i]);
     }
-    mgr->mEfp365B8[0].LoadRequest(lbl_80881474);
-    mgr->mEfp365B8[1].LoadRequest("ef_bs072h.efp");
-    mgr->mEfp363C0[0].LoadRequest(lbl_808813E0);
-    mgr->mEfp363C0[1].LoadRequest(lbl_808813E4);
-    mgr->mEfp363C0[2].LoadRequest(lbl_808813E8);
-    mgr->mEfp363C0[3].LoadRequest(lbl_808813EC);
-    AsTexture_unk(mgr->mCB7C)->fn_800D5908(lbl_808813DC);
+    mgr->mEfp365B8.LoadRequest(lbl_80881474);
+    mgr->mEfp365C4.LoadRequest("ef_bs072h.efp");
+    mgr->mEfp363C0.LoadRequest(lbl_808813E0);
+    mgr->mEfp363CC.LoadRequest(lbl_808813E4);
+    mgr->mEfp363D8.LoadRequest(lbl_808813E8);
+    mgr->mEfp363E4.LoadRequest(lbl_808813EC);
+    mgr->mCB7C.fn_800D5908(lbl_808813DC);
     mgr->mEfp364EC.LoadRequest(lbl_808813F0);
-    mgr->mEfp38AF4[0].LoadRequest(lbl_8088140C);
-    mgr->mEfp38AF4[1].LoadRequest("ef_bu044a.efp");
-    mgr->mEfp38AF4[2].LoadRequest(lbl_80881410);
-    mgr->mEfp38AF4[3].LoadRequest(lbl_80881414);
-    mgr->mEfp38AF4[4].LoadRequest(lbl_80881418);
-    mgr->mEfp38AF4[5].LoadRequest("ef_bu044d.efp");
-    mgr->mEfp38AF4[6].LoadRequest(lbl_8088141C);
-    mgr->mEfp38AF4[7].LoadRequest("ef_bu044b.efp");
-    mgr->mEfp38AF4[8].LoadRequest(lbl_80881420);
-    mgr->mEfp38AF4[9].LoadRequest("ef_bu044e.efp");
-    mgr->mEfp38AF4[10].LoadRequest(lbl_80881424);
-    mgr->mEfp38AF4[11].LoadRequest(lbl_80881428);
-    mgr->mEfp38AF4[12].LoadRequest(lbl_8088142C);
-    mgr->mEfp38AF4[13].LoadRequest(lbl_80881424);
-    mgr->mEfp38AF4[14].LoadRequest(lbl_80881428);
-    mgr->mEfp38AF4[15].LoadRequest(lbl_8088142C);
-    mgr->mEfp38AF4[16].LoadRequest(lbl_80881434);
-    mgr->mEfp38AF4[17].LoadRequest(lbl_80881438);
-    mgr->mEfp38AF4[18].LoadRequest(lbl_80881438);
-    mgr->mEfp38AF4[19].LoadRequest(lbl_8088143C);
-    mgr->mEfp38AF4[20].LoadRequest(lbl_80881440);
-    mgr->mEfp38AF4[21].LoadRequest(lbl_80881444);
-    mgr->mEfp38AF4[22].LoadRequest(lbl_80881448);
-    mgr->mEfp38AF4[23].LoadRequest(lbl_8088144C);
-    mgr->mEfp38AF4[25].LoadRequest(lbl_80881450);
-    mgr->mEfp38AF4[26].LoadRequest(lbl_80881454);
-    mgr->mEfp38AF4[27].LoadRequest(lbl_80881458);
-    mgr->mEfp38AF4[28].LoadRequest(lbl_8088145C);
-    AsEffFile_unk(mgr->m389F4)->LoadRequest(lbl_80881430);
-    mgr->mEfp38AF4[29].LoadRequest(lbl_80881460);
-    mgr->mEfp38AF4[30].LoadRequest("ef_uc067.efp");
-    mgr->mEfp38AF4[31].LoadRequest(lbl_80881468);
-    mgr->mEfp365B8[2].LoadRequest(lbl_8088146C);
-    mgr->mEfp365B8[3].LoadRequest(lbl_80881470);
+    mgr->mEfp38AF4.LoadRequest(lbl_8088140C);
+    mgr->mEfp38B00.LoadRequest("ef_bu044a.efp");
+    mgr->mEfp38B0C[0].LoadRequest(lbl_80881410);
+    mgr->mEfp38B0C[1].LoadRequest(lbl_80881414);
+    mgr->mEfp38B0C[2].LoadRequest(lbl_80881418);
+    mgr->mEfp38B30.LoadRequest("ef_bu044d.efp");
+    mgr->mEfp38B3C.LoadRequest(lbl_8088141C);
+    mgr->mEfp38B48.LoadRequest("ef_bu044b.efp");
+    mgr->mEfp38B54.LoadRequest(lbl_80881420);
+    mgr->mEfp38B60.LoadRequest("ef_bu044e.efp");
+    mgr->mEfp38B6C[0].LoadRequest(lbl_80881424);
+    mgr->mEfp38B6C[1].LoadRequest(lbl_80881428);
+    mgr->mEfp38B6C[2].LoadRequest(lbl_8088142C);
+    mgr->mEfp38B90[0].LoadRequest(lbl_80881424);
+    mgr->mEfp38B90[1].LoadRequest(lbl_80881428);
+    mgr->mEfp38B90[2].LoadRequest(lbl_8088142C);
+    mgr->mEfp38BB4.LoadRequest(lbl_80881434);
+    mgr->mEfp38BC0.LoadRequest(lbl_80881438);
+    mgr->mEfp38BCC.LoadRequest(lbl_80881438);
+    mgr->mEfp38BD8.LoadRequest(lbl_8088143C);
+    mgr->mEfp38BE4.LoadRequest(lbl_80881440);
+    mgr->mEfp38BF0.LoadRequest(lbl_80881444);
+    mgr->mEfp38BFC.LoadRequest(lbl_80881448);
+    mgr->mEfp38C08.LoadRequest(lbl_8088144C);
+    mgr->mEfp38C20.LoadRequest(lbl_80881450);
+    mgr->mEfp38C2C.LoadRequest(lbl_80881454);
+    mgr->mEfp38C38.LoadRequest(lbl_80881458);
+    mgr->mEfp38C44.LoadRequest(lbl_8088145C);
+    mgr->m389F4.LoadRequest(lbl_80881430);
+    mgr->mEfp38C50.LoadRequest(lbl_80881460);
+    mgr->mEfp38C5C.LoadRequest("ef_uc067.efp");
+    mgr->mEfp38C68.LoadRequest(lbl_80881468);
+    mgr->mEfp365D0.LoadRequest(lbl_8088146C);
+    mgr->mEfp365DC.LoadRequest(lbl_80881470);
     for (int i = 0; i < 7; i++) {
         mgr->mEfp365E8[i].LoadRequest(lbl_80735A48[i]);
     }
@@ -341,56 +369,56 @@ extern "C" void fn_800F3170(BattleTask* mgr) {
     mgr->m3E394 = 0;
     for (int i = 0; i < 3; i++) {
         for (int j = 0; j < 7; j++) {
-            AsEffFile_unk(mgr->mHitEff[i][j])->Destroy();
+            mgr->mHitEff[i][j].Destroy();
         }
     }
     for (int i = 0; i < 5; i++) {
-        AsEffFile_unk(mgr->mEff3651C[i])->Destroy();
-        AsEffFile_unk(mgr->mEff36558[i])->Destroy();
+        (&mgr->mEff3651C[i])->Destroy();
+        (&mgr->mEff36558[i])->Destroy();
     }
     for (int i = 0; i < 3; i++) {
-        AsEffFile_unk(mgr->mEff36594[i])->Destroy();
+        (&mgr->mEff36594[i])->Destroy();
     }
-    mgr->mEfp365B8[0].Destroy();
-    mgr->mEfp365B8[1].Destroy();
-    mgr->mEfp363C0[0].Destroy();
-    mgr->mEfp363C0[1].Destroy();
-    mgr->mEfp363C0[2].Destroy();
-    mgr->mEfp363C0[3].Destroy();
-    fn_800D58A4(AsTexture_unk(mgr->mCB7C));
+    mgr->mEfp365B8.Destroy();
+    mgr->mEfp365C4.Destroy();
+    mgr->mEfp363C0.Destroy();
+    mgr->mEfp363CC.Destroy();
+    mgr->mEfp363D8.Destroy();
+    mgr->mEfp363E4.Destroy();
+    fn_800D58A4(&mgr->mCB7C);
     mgr->mEfp364EC.Destroy();
-    mgr->mEfp38AF4[0].Destroy();
-    mgr->mEfp38AF4[1].Destroy();
+    mgr->mEfp38AF4.Destroy();
+    mgr->mEfp38B00.Destroy();
     for (int i = 0; i < 3; i++) {
-        (&mgr->mEfp38AF4[2])[i].Destroy();
+        (&mgr->mEfp38B0C[0])[i].Destroy();
     }
-    mgr->mEfp38AF4[5].Destroy();
-    mgr->mEfp38AF4[6].Destroy();
-    mgr->mEfp38AF4[7].Destroy();
-    mgr->mEfp38AF4[8].Destroy();
-    mgr->mEfp38AF4[9].Destroy();
+    mgr->mEfp38B30.Destroy();
+    mgr->mEfp38B3C.Destroy();
+    mgr->mEfp38B48.Destroy();
+    mgr->mEfp38B54.Destroy();
+    mgr->mEfp38B60.Destroy();
     for (int i = 0; i < 3; i++) {
-        (&mgr->mEfp38AF4[10])[i].Destroy();
-        (&mgr->mEfp38AF4[13])[i].Destroy();
+        (&mgr->mEfp38B6C[0])[i].Destroy();
+        (&mgr->mEfp38B90[0])[i].Destroy();
     }
-    mgr->mEfp38AF4[16].Destroy();
-    mgr->mEfp38AF4[20].Destroy();
-    mgr->mEfp38AF4[21].Destroy();
-    mgr->mEfp38AF4[22].Destroy();
-    mgr->mEfp38AF4[17].Destroy();
-    mgr->mEfp38AF4[18].Destroy();
-    mgr->mEfp38AF4[19].Destroy();
-    mgr->mEfp38AF4[23].Destroy();
-    mgr->mEfp38AF4[25].Destroy();
-    mgr->mEfp38AF4[26].Destroy();
-    mgr->mEfp38AF4[27].Destroy();
-    mgr->mEfp38AF4[28].Destroy();
-    AsEffFile_unk(mgr->m389F4)->Destroy();
-    mgr->mEfp38AF4[29].Destroy();
-    mgr->mEfp38AF4[30].Destroy();
-    mgr->mEfp38AF4[31].Destroy();
-    mgr->mEfp365B8[2].Destroy();
-    mgr->mEfp365B8[3].Destroy();
+    mgr->mEfp38BB4.Destroy();
+    mgr->mEfp38BE4.Destroy();
+    mgr->mEfp38BF0.Destroy();
+    mgr->mEfp38BFC.Destroy();
+    mgr->mEfp38BC0.Destroy();
+    mgr->mEfp38BCC.Destroy();
+    mgr->mEfp38BD8.Destroy();
+    mgr->mEfp38C08.Destroy();
+    mgr->mEfp38C20.Destroy();
+    mgr->mEfp38C2C.Destroy();
+    mgr->mEfp38C38.Destroy();
+    mgr->mEfp38C44.Destroy();
+    mgr->m389F4.Destroy();
+    mgr->mEfp38C50.Destroy();
+    mgr->mEfp38C5C.Destroy();
+    mgr->mEfp38C68.Destroy();
+    mgr->mEfp365D0.Destroy();
+    mgr->mEfp365DC.Destroy();
     for (int i = 0; i < 7; i++) {
         mgr->mEfp365E8[i].Destroy();
     }
@@ -413,90 +441,90 @@ int BattleTask::fn_800F3490() {
     }
     for (int i = 0; i < 3; i++) {
         for (int j = 0; j < 7; j++) {
-            if (AsEffFile_unk(mHitEff[i][j])->IsLoading()) {
+            if (mHitEff[i][j].IsLoading()) {
                 loading = 1;
             }
         }
     }
     for (int i = 0; i < 5; i++) {
-        if (AsEffFile_unk(mEff3651C[i])->IsLoading()) {
+        if ((&mEff3651C[i])->IsLoading()) {
             loading = 1;
         }
-        if (AsEffFile_unk(mEff36558[i])->IsLoading()) {
+        if ((&mEff36558[i])->IsLoading()) {
             loading = 1;
         }
     }
     for (int i = 0; i < 3; i++) {
-        if (AsEffFile_unk(mEff36594[i])->IsLoading()) {
+        if ((&mEff36594[i])->IsLoading()) {
             loading = 1;
         }
     }
-    if (mEfp365B8[0].IsLoading() || mEfp365B8[1].IsLoading()) {
+    if (mEfp365B8.IsLoading() || mEfp365C4.IsLoading()) {
         loading = 1;
     }
-    if (mEfp363C0[0].IsLoading()) {
+    if (mEfp363C0.IsLoading()) {
         loading = 1;
     }
-    if (mEfp363C0[1].IsLoading()) {
+    if (mEfp363CC.IsLoading()) {
         loading = 1;
     }
-    if (mEfp363C0[2].IsLoading()) {
+    if (mEfp363D8.IsLoading()) {
         loading = 1;
     }
-    if (mEfp363C0[3].IsLoading()) {
+    if (mEfp363E4.IsLoading()) {
         loading = 1;
     }
     // inferred: atn::Texture "is loading" (0x800D59B8, named as GimmickUvOwner_unk like gmk/AutomaticDoor.cpp)
-    if (((GimmickUvOwner_unk*)mCB7C)->fn_800D59B8()) {
+    if (((GimmickUvOwner_unk*)&mCB7C)->fn_800D59B8()) {
         loading = 1;
     }
     if (mEfp364EC.IsLoading()) {
         loading = 1;
     }
-    if (mEfp38AF4[0].IsLoading() || mEfp38AF4[1].IsLoading()) {
+    if (mEfp38AF4.IsLoading() || mEfp38B00.IsLoading()) {
         loading = 1;
     }
     for (int i = 0; i < 3; i++) {
-        if ((&mEfp38AF4[2])[i].IsLoading()) {
+        if ((&mEfp38B0C[0])[i].IsLoading()) {
             loading = 1;
         }
     }
-    if (mEfp38AF4[5].IsLoading()) {
+    if (mEfp38B30.IsLoading()) {
         loading = 1;
     }
-    if (mEfp38AF4[6].IsLoading() || mEfp38AF4[8].IsLoading()) {
+    if (mEfp38B3C.IsLoading() || mEfp38B54.IsLoading()) {
         loading = 1;
     }
-    if (mEfp38AF4[7].IsLoading() || mEfp38AF4[9].IsLoading()) {
+    if (mEfp38B48.IsLoading() || mEfp38B60.IsLoading()) {
         loading = 1;
     }
     for (int i = 0; i < 3; i++) {
-        if ((&mEfp38AF4[10])[i].IsLoading() || (&mEfp38AF4[13])[i].IsLoading()) {
+        if ((&mEfp38B6C[0])[i].IsLoading() || (&mEfp38B90[0])[i].IsLoading()) {
             loading = 1;
         }
     }
-    if (mEfp38AF4[16].IsLoading() || mEfp38AF4[17].IsLoading() || mEfp38AF4[18].IsLoading() ||
-        mEfp38AF4[19].IsLoading() || mEfp38AF4[20].IsLoading() || mEfp38AF4[21].IsLoading() ||
-        mEfp38AF4[22].IsLoading() || mEfp38AF4[23].IsLoading() || mEfp38AF4[25].IsLoading() ||
-        mEfp38AF4[26].IsLoading() || mEfp38AF4[27].IsLoading() || mEfp38AF4[28].IsLoading()) {
+    if (mEfp38BB4.IsLoading() || mEfp38BC0.IsLoading() || mEfp38BCC.IsLoading() ||
+        mEfp38BD8.IsLoading() || mEfp38BE4.IsLoading() || mEfp38BF0.IsLoading() ||
+        mEfp38BFC.IsLoading() || mEfp38C08.IsLoading() || mEfp38C20.IsLoading() ||
+        mEfp38C2C.IsLoading() || mEfp38C38.IsLoading() || mEfp38C44.IsLoading()) {
         loading = 1;
     }
-    if (AsEffFile_unk(m389F4)->IsLoading()) {
+    if (m389F4.IsLoading()) {
         loading = 1;
     }
-    if (mEfp38AF4[29].IsLoading()) {
+    if (mEfp38C50.IsLoading()) {
         loading = 1;
     }
-    if (mEfp38AF4[30].IsLoading()) {
+    if (mEfp38C5C.IsLoading()) {
         loading = 1;
     }
-    if (mEfp38AF4[31].IsLoading()) {
+    if (mEfp38C68.IsLoading()) {
         loading = 1;
     }
-    if (mEfp365B8[2].IsLoading()) {
+    if (mEfp365D0.IsLoading()) {
         loading = 1;
     }
-    if (mEfp365B8[3].IsLoading()) {
+    if (mEfp365DC.IsLoading()) {
         loading = 1;
     }
     for (int i = 0; i < 7; i++) {
@@ -527,13 +555,13 @@ int BattleTask::fn_800F3490() {
 // inferred: load requests of the battle resources (called by the constructor): the target lines, the
 // d2anime tasks, the splash and palette effects
 void BattleTask::fn_800F39A4() {
-    mMarkers.GetEfp_unk(0)->LoadRequest(lbl_808813F4);
-    mMarkers.GetEfp_unk(1)->LoadRequest(lbl_808813F8);
-    mMarkers.GetEfp_unk(4)->LoadRequest(lbl_808813FC);
-    mMarkers.GetEfp_unk(5)->LoadRequest(lbl_80881400);
-    mMarkers.GetEfp_unk(2)->LoadRequest(lbl_80881404);
-    mMarkers.GetEfp_unk(3)->LoadRequest(lbl_80881408);
-    mMarkers.GetTex_unk()->fn_800D5908("/battle/hatemove.texture");
+    mEnemyLine.mBase.LoadRequest(lbl_808813F4);
+    mEnemyLine.mHead.LoadRequest(lbl_808813F8);
+    mOwnLine.mBase.LoadRequest(lbl_808813FC);
+    mOwnLine.mHead.LoadRequest(lbl_80881400);
+    mAppearLine.mBase.LoadRequest(lbl_80881404);
+    mAppearLine.mHead.LoadRequest(lbl_80881408);
+    mLineTex.fn_800D5908("/battle/hatemove.texture");
     mCB30 = fn_801F3FF8(this, lbl_808813D4, 0);
     mCB30->fn_800D246C(1);
     mCB60 = fn_801F3FF8(this, lbl_808813D8, 0);
@@ -543,7 +571,7 @@ void BattleTask::fn_800F39A4() {
     for (int i = 0; i < 3; i++) {
         mSplashEfp[i].LoadRequest(lbl_80735988[i]);
     }
-    mEfp38AF4[24].LoadRequest("data/eff/ef_sc024.efp");
+    mEfp38C14.LoadRequest("data/eff/ef_sc024.efp");
     for (unsigned int i = 0; i < 31; i++) {
         char path[256];
         sprintf(path, "/data/efp/ef_%s.efp", fn_8020BD78(i));
@@ -552,9 +580,9 @@ void BattleTask::fn_800F39A4() {
 }
 
 // inferred: both effects of a line pair are loading (inlined); name invented
-inline bool IsLoading_unk(BattleMarkers_unk& markers, int first) {
+inline bool IsLoading_unk(BattleLineEff_unk& line) {
     bool loading = false;
-    if (markers.GetEfp_unk(first)->IsLoading() || markers.GetEfp_unk(first + 1)->IsLoading()) {
+    if (line.mBase.IsLoading() || line.mHead.IsLoading()) {
         loading = true;
     }
     return loading;
@@ -563,14 +591,14 @@ inline bool IsLoading_unk(BattleMarkers_unk& markers, int first) {
 // inferred: nonzero while the resources requested by fn_800F39A4 load
 int BattleTask::fn_800F3B4C() {
     int loading = 0;
-    if (IsLoading_unk(mMarkers, 0) || IsLoading_unk(mMarkers, 4)) {
+    if (IsLoading_unk(mEnemyLine) || IsLoading_unk(mOwnLine)) {
         loading = 1;
     }
-    if (IsLoading_unk(mMarkers, 2)) {
+    if (IsLoading_unk(mAppearLine)) {
         loading = 1;
     }
     // inferred: the texture is seen through GimmickUvOwner_unk, as in the other callers of fn_800D59B8
-    if (((GimmickUvOwner_unk*)mMarkers.GetTex_unk())->fn_800D59B8()) {
+    if (((GimmickUvOwner_unk*)&mLineTex)->fn_800D59B8()) {
         loading = 1;
     }
     if (!mCB30->IsFlag_unk(2)) {
@@ -587,7 +615,7 @@ int BattleTask::fn_800F3B4C() {
             loading = 1;
         }
     }
-    if (mEfp38AF4[24].IsLoading()) {
+    if (mEfp38C14.IsLoading()) {
         loading = 1;
     }
     for (unsigned int i = 0; i < 31; i++) {
@@ -611,13 +639,13 @@ extern "C" void fn_800F3D28(BattleTask* mgr) {
         mgr->mCharas[i].m92E = 0;
         mgr->mCharas[i].m92F = 0;
         mgr->mCharas[i].fn_801081D8();
-        memset(mgr->m391E0[i], 0, sizeof(mgr->m391E0[i]));
+        memset(mgr->m391E0[i].m, 0, sizeof(mgr->m391E0[i].m));
         mgr->mMarkers.mItems[i].m70 = 0;
         mgr->mMarkers.mItems[i].mFlags = 0;
         mgr->mMarkers.mItems[i].mMode = 0;
     }
     mgr->mCharaCount = 0;
-    mgr->mCBAC = 0;
+    mgr->mTimers.mCount = 0;
     mgr->mStunCount = 0;
     for (int i = 0; i < 8; i++) {
         mgr->mSlots[i].mChara = 0;
@@ -878,7 +906,7 @@ inline void BattleTask::BetoModel::SetMtx_unk(const atn::Matrix3x4& mtx) {
 
 // inferred: update of the battle every frame: rebuilds the lock-on targets (mTargets: enemies, near NPCs and
 // friends), the nearest opponent of every enemy and friend (BattleChara_unk::m04), the "alert" sound of the
-// enemies near the leader, the mE0_12 flag of the friends, updates the bullets, the timers of mCBB0, the hate,
+// enemies near the leader, the mE0_12 flag of the friends, updates the bullets, the timers of mTimers.mItems, the hate,
 // the morale gauge, the debug shot records and the models of mSlots
 // NONMATCHING: 98.5% - registers of the shot ring loop (the original reloads the iterator from the stack), base
 // register of the slot model (r29) and stack slots of the column temporaries
@@ -1054,14 +1082,14 @@ void BattleTask::vf10() {
         }
     }
 
-    BattleTimer_unk* it = mCBB0;
-    while (it != mCBB0 + mCBAC) {
+    BattleTimer_unk* it = mTimers.mItems;
+    while (it != mTimers.mItems + mTimers.mCount) {
         if (--it->m04 <= 0) {
-            unsigned int i = it - mCBB0;
-            for (; i < mCBAC - 1; i++) {
-                mCBB0[i] = mCBB0[i + 1];
+            unsigned int i = it - mTimers.mItems;
+            for (; i < mTimers.mCount - 1; i++) {
+                mTimers.mItems[i] = mTimers.mItems[i + 1];
             }
-            mCBAC = mCBAC - 1;
+            mTimers.mCount = mTimers.mCount - 1;
         } else {
             it++;
         }
@@ -1113,7 +1141,7 @@ inline CharaTask* BattleTask::GetHated_unk(CharaTask* chara) {
     }
     int best = 0;
     int found = -1;
-    int* row = m391E0[i];
+    int* row = m391E0[i].m;
     for (int j = 0; j < mCharaCount; j++) {
         if (best < row[j]) {
             best = row[j];
@@ -1189,7 +1217,7 @@ void BattleTask::vf14() {
         fn_800F7250()->fn_80060D58(30.0f, 30.0f, 20.0f, width, height, 0xFFFF0033);
         fn_800F7250()->fn_80060D58(30.0f, 30.0f, 20.0f, width * m38A04 / m38A0C, height, 0xFF0066FF);
         char text[16];
-        sprintf(text, "%.2f", m38A04);
+        sprintf(text, "%.2f\0", m38A04);
         fn_800F7250()->fn_800616C0(32.0f + width * m38A04 / m38A0C, 30.0f, 20.0f, 14.0f, 14.0f, text, 0xFFFFFFFF,
                                    0.0f, 1, 1, 0);
     }
@@ -1244,7 +1272,7 @@ void BattleTask::vf14() {
                 char text[256];
                 wchar_t wtext[256];
                 if (mode == 1) {
-                    sprintf(text, "Timer:%d/%d", entry->m6DC, entry->m6E0);
+                    sprintf(text, "Timer:%d/%d\0", entry->m6DC, entry->m6E0);
                     fn_8006F2F0(lbl_8087EEC8, wtext, text, 256);
                     fn_800F7250()->fn_80061824(60.0f + x, y, 0.0f, 12.0f, 12.0f, 0.0f, 0.0f, 0.0f, wtext, 0xAFFFFFFF, 1,
                                                1, 0, 0, 0xFF000000);
@@ -1321,7 +1349,7 @@ void BattleTask::vf14() {
                     }
                     unsigned int color = hated == other ? 0xAFFFAFAF : 0xAFFFFFFF;
                     wchar_t wtext[256];
-                    swprintf(wtext, 256, L"%d", m391E0[i][j]);
+                    swprintf(wtext, 256, L"%d", m391E0[i].m[j]);
                     fn_800F7250()->fn_80061824(x, y, 0.0f, 12.0f, 12.0f, 0.0f, 0.0f, 0.0f, wtext, color, 1, 1, 0, 0,
                                                0xFF000000);
                     char text[256];
@@ -1344,9 +1372,9 @@ void BattleTask::vf14() {
             fn_800F7250()->fn_80062C8C(32, 0x2288AAFF, pos.x, pos.y, pos.z, 0.0f, (float)range, 20.0f);
             atn::Vector3 screen = atn::RenderManager::instance_->GetScreenPosition(pos + atn::Vector3(0.0f, 10.0f, 0.0f));
             if (m363BC <= 300) {
-                sprintf(text, "Range: %d", m363BC);
+                sprintf(text, "Range: %d\0", m363BC);
             } else {
-                sprintf(text, "Range: Infinity");
+                sprintf(text, "Range: Infinity\0");
             }
             fn_800F7250()->fn_800616C0(15.0f + screen.x, screen.y, 0.0f, 14.0f, 14.0f, text, 0xFFFFFFFF, 0.0f, 1, 1,
                                        0);
@@ -1361,7 +1389,7 @@ void BattleTask::vf14() {
             if (screen.z < 0.0f || 1.0f < screen.z) {
                 continue;
             }
-            sprintf(text, "HateAtt: Lv%d", mCharas[i].mChara->mStatus.m430);
+            sprintf(text, "HateAtt: Lv%d\0", mCharas[i].mChara->mStatus.m430);
             fn_800F7250()->fn_800616C0(15.0f + screen.x, screen.y, 0.0f, 14.0f, 14.0f, text, 0xFFFFFFFF, 0.0f, 1, 1,
                                        0);
         }
@@ -1446,9 +1474,10 @@ void BattleTask::vf14() {
     }
 }
 
-// DRAFT: written for the weak copies; the drawing of the target line is incomplete
-// NONMATCHING: draft - draws the target line of `chara` (base and head models, the line through the
-// clipped segment and the appearance animation)
+// inferred: draws the target line of `chara` (base and head models, the line through the clipped segment and
+// the appearance animation)
+// NONMATCHING: 98.2% - registers; the results of fn_800F8014 are passed to Color::operator= from r3 in the
+// original (a temporary here); the early return of IsPartyMember_unk branches the other way
 void BattleTask::fn_800F72F4(BattleCharaTask* chara, int arg) {
     if (chara->fn_800EE180() == 0) {
         return;
@@ -1465,7 +1494,7 @@ void BattleTask::fn_800F72F4(BattleCharaTask* chara, int arg) {
     marker->mFlags |= 1;
     int changed = 0;
     int mode = 0;
-    if (markers->mHideLines != 0 || (target->IsPlayer() && fn_800F5300(target) != 0) || fn_800F7F90() != 0) {
+    if (mHideLines != 0 || (target->IsPlayer() && fn_800F5300(target) != 0) || fn_800F7F90() != 0) {
         mode = 1;
     } else if (fn_800F5300(fn_8000D9E8()->GetHead_unk()) != 0) {
         mode = 3;
@@ -1489,10 +1518,10 @@ void BattleTask::fn_800F72F4(BattleCharaTask* chara, int arg) {
         if ((marker->mFlags & 0x10) != 0x10) {
             fn_800F7F98(fn_800F7FA0(), 1);
             fn_800F7FA8(fn_800F7FA0(), marker, 0);
-            fn_8023A680(fn_800F7FA0(), (EffectRes_unk*)markers->mEfp[2], -1, 5, (int)marker, 0, 0, 0, 0, -1, 1, 1.0f);
-            fn_8023A680(fn_800F7FA0(), (EffectRes_unk*)markers->mEfp[3], -1, 5, (int)&marker->mMtx2, 0, 0, 0, 0, -1, 1, 2.0f);
+            fn_8023A680(fn_800F7FA0(), (EffectRes_unk*)&mAppearLine.mBase, -1, 5, (int)marker, 0, 0, 0, 0, -1, 1, 1.0f);
+            fn_8023A680(fn_800F7FA0(), (EffectRes_unk*)&mAppearLine.mHead, -1, 5, (int)&marker->mMtx2, 0, 0, 0, 0, -1, 1, 2.0f);
             if (((Player_unk*)chara)->GetM146C_unk() == 0x12 || ((Player_unk*)chara)->GetM146C_unk() == 0x11) {
-                fn_8023A680(fn_800F7FA0(), (EffectRes_unk*)markers->mEfp[2], -1, 5, (int)marker, 0, 0, 0, 0, -1, 1, 1.0f);
+                fn_8023A680(fn_800F7FA0(), (EffectRes_unk*)&mAppearLine.mBase, -1, 5, (int)marker, 0, 0, 0, 0, -1, 1, 1.0f);
             }
             fn_800F7F98(fn_800F7FA0(), 0);
         }
@@ -1542,7 +1571,7 @@ void BattleTask::fn_800F72F4(BattleCharaTask* chara, int arg) {
         break;
     }
     marker->m70--;
-    if (markers->mHideLines == 0 && marker->m70 >= 0) {
+    if (mHideLines == 0 && marker->m70 >= 0) {
         float t = (float)(marker->m70 - 6) / 6.0f;
         size = 0.0f > t ? 0.0f : (float)(marker->m70 - 6) / 6.0f;
         to = atn::Lerp_unk(to, marker->m60, size);
@@ -1575,10 +1604,10 @@ void BattleTask::fn_800F72F4(BattleCharaTask* chara, int arg) {
             float f = (float)(count - i - 1) / 6.0f;
             v->mPos = atn::Lerp_unk(to, marker->m60, f);
             v->mPos += (v->mPos - from).GetNormalize() * (4.0f * (1.0f - f * f));
-            verts[i].mColor = color.ToU32();
+            verts[i + 1].mColor = color.ToU32();
             v->mUV = fn_800F84D8(atn::Vec2_unk(1.0f, 0.0f), atn::Vec2_unk(0.0f, 0.0f), (float)i / (float)count);
         }
-        fn_800F7250()->fn_80064F00(verts, count + 1, 0xA0, 0, (int)markers->mTex, 0.0f);
+        fn_800F7250()->fn_80064F00(verts, count + 1, 0xA0, 0, (int)&mLineTex, 0.0f);
         if (marker->m70 == 8) {
             if (info->mC4->IsPlayer()) {
                 if (fn_800F5300(info->mC4)) {
@@ -1606,7 +1635,7 @@ void BattleTask::fn_800F72F4(BattleCharaTask* chara, int arg) {
         }
         marker->mMtx = fn_800F80A8(&clipped.mStart);
         fn_800F80B8(marker->mMtx.m, &rot);
-        if (markers->mHideLines != 0) {
+        if (mHideLines != 0) {
             fn_800F8290(marker->mMtx.m, 3.0f, 3.0f, scale);
         } else {
             fn_800F8290(marker->mMtx.m, size, size, scale);
@@ -1617,7 +1646,7 @@ void BattleTask::fn_800F72F4(BattleCharaTask* chara, int arg) {
         marker->m6C = last;
     }
     if (fn_80239D58(fn_800F7FA0(), marker, 0) == 0) {
-        atn::EffFile* res = (mode == 1 || mode == 3) ? (atn::EffFile*)markers->mEfp[4] : (atn::EffFile*)markers->mEfp[0];
+        atn::EffFile* res = (mode == 1 || mode == 3) ? &mOwnLine.mBase : &mEnemyLine.mBase;
         fn_800F7F98(fn_800F7FA0(), 1);
         fn_800F84D0(fn_800F7FA0(), 5);
         fn_800F7FA8(fn_800F7FA0(), marker, 0);
@@ -1730,12 +1759,6 @@ struct MeleeTarget_unk {
 // inferred: std::sort predicate of fn_800F8C6C
 struct MeleeTargetLess_unk {
     bool operator()(const MeleeTarget_unk& a, const MeleeTarget_unk& b) const { return a.mScore < b.mScore; }
-};
-// inferred: result written for the caller by fn_800F8C6C (same view as HitResult_unk of game/BattleCharaTask.cpp:
-// the attacker and the flags of the hit, BattleCalcParam_unk::m94, 8 = critical); names invented
-struct HitResult_unk {
-    CharaTask* mChara;
-    unsigned int mFlags;
 };
 
 template <class T>
@@ -3922,7 +3945,6 @@ extern "C" void fn_80087994(void* folder, const char* name, int* value, void (*f
                             void* arg); // inferred: AddBool
 
 // inferred: debug menu "Battle": target lines, reticle, morale (gauge) and tension parameters
-// NONMATCHING: 99.4% - only the offsets of the strings in @stringBase0 (strings of unwritten functions missing)
 void BattleTask::fn_80100BF0() {
     void* folder = m38A58.Load("Battle");
     fn_800874C8(folder, "DrawHateArrow", &m367B0, 0, 3, 1, fn_80100BC0, this);
@@ -4030,7 +4052,7 @@ extern "C" void fn_80101434(BattleTask* mgr, const atn::Vector3* pos, const atn:
     if (flag) {
         fn_800F7FA0()->mSystem.m78 = 1;
     }
-    fn_8023A680(fn_800F7FA0(), (EffectRes_unk*)mgr->mHitEff[level - 1][kind], -1, 0, 0, pos, rot, 0, 0, -1, 1, 1.0f);
+    fn_8023A680(fn_800F7FA0(), (EffectRes_unk*)&mgr->mHitEff[level - 1][kind], -1, 0, 0, pos, rot, 0, 0, -1, 1, 1.0f);
     if (flag) {
         fn_800F7FA0()->mSystem.m78 = 0;
     }
@@ -4056,19 +4078,19 @@ extern "C" void fn_80101524(BattleTask* mgr, const atn::Vector3* pos, const atn:
     }
     if (added & 1) {
         fn_80232B7C((unsigned int)mgr, 0);
-        fn_8023A680(lbl_8087F3C0, (EffectRes_unk*)mgr->mEff36594[0], -1, 0, 0, pos, rot, 0, 0, -1, 1, 1.0f);
+        fn_8023A680(lbl_8087F3C0, (EffectRes_unk*)&mgr->mEff36594[0], -1, 0, 0, pos, rot, 0, 0, -1, 1, 1.0f);
     }
     if (added & 0x400000) {
         fn_80232B7C((unsigned int)mgr, 0);
-        fn_8023A680(lbl_8087F3C0, (EffectRes_unk*)mgr->mEff36594[1], -1, 0, 0, pos, rot, 0, 0, -1, 1, 1.0f);
+        fn_8023A680(lbl_8087F3C0, (EffectRes_unk*)&mgr->mEff36594[1], -1, 0, 0, pos, rot, 0, 0, -1, 1, 1.0f);
     }
     if (added & 0x40) {
         fn_80232B7C((unsigned int)mgr, 0);
-        fn_8023A680(lbl_8087F3C0, (EffectRes_unk*)mgr->mEff36594[2], -1, 0, 0, pos, rot, 0, 0, -1, 1, 1.0f);
+        fn_8023A680(lbl_8087F3C0, (EffectRes_unk*)&mgr->mEff36594[2], -1, 0, 0, pos, rot, 0, 0, -1, 1, 1.0f);
     }
     if ((added & 0x1800000) && chara != 0) {
         fn_80232B7C((unsigned int)mgr, 0);
-        PlayEfp_unk((added & 0x80000) ? &mgr->mEfp365B8[1] : &mgr->mEfp365B8[0], chara->GetModel_unk());
+        PlayEfp_unk((added & 0x80000) ? &mgr->mEfp365C4 : &mgr->mEfp365B8, chara->GetModel_unk());
     }
     added &= 0xFE5FE7DF;
     removed &= 0xFE5FE7DF;
@@ -4111,7 +4133,7 @@ void BattleTask::fn_801018E4(BattleCalcParam_unk* param) {
     if (chara != 0 && (chara->mStatus.m0C & 0x20) == 0x20) {
         int level = attacker != 0 ? attacker->fn_8017A160() : 0;
         fn_80232B7C((unsigned int)this, 0);
-        fn_8023A680(lbl_8087F3C0, (EffectRes_unk*)mEff36558[level], -1, 0, 0, &param->m1C, &rot, 0, 0, -1, 1,
+        fn_8023A680(lbl_8087F3C0, (EffectRes_unk*)&mEff36558[level], -1, 0, 0, &param->m1C, &rot, 0, 0, -1, 1,
                     1.0f);
         return;
     }
@@ -4125,14 +4147,14 @@ void BattleTask::fn_801018E4(BattleCalcParam_unk* param) {
             return;
         }
         fn_80232B7C((unsigned int)this, 0);
-        fn_8023A680(lbl_8087F3C0, (EffectRes_unk*)mHitEff[effect - 1][5], -1, 0, 0, &param->m1C, &rot,
+        fn_8023A680(lbl_8087F3C0, (EffectRes_unk*)&mHitEff[effect - 1][5], -1, 0, 0, &param->m1C, &rot,
                     0, 0, -1, 1, 1.0f);
         return;
     }
     int strong = (param->m0C >> 7) & 1;
     int level = attacker != 0 ? attacker->fn_8017A160() : 0;
     fn_80232B7C((unsigned int)this, 0);
-    fn_8023A680(lbl_8087F3C0, strong ? (EffectRes_unk*)mEff36558[level] : (EffectRes_unk*)mEff3651C[level], -1, 0,
+    fn_8023A680(lbl_8087F3C0, strong ? (EffectRes_unk*)&mEff36558[level] : (EffectRes_unk*)&mEff3651C[level], -1, 0,
                 0, &param->m1C, &rot, 0, 0, -1, 1, 1.0f);
 }
 
@@ -4241,17 +4263,17 @@ void BattleTask::fn_80101CDC(BattleCalcParam_unk* param) {
     }
 }
 
-void BattleTask::fn_801021B4(RayObj_unk* obj, int a, int b) {
+void BattleTask::fn_801021B4(atn::ColliBase* obj, int a, int b) {
     m3E2E8 = obj;
     m3E2E0 = 0;
     m3E2E4 = 0;
     m3E2EC = b;
     m3E2F0 = a;
     if (obj != 0) {
-        if ((obj->m08 & 2) == 2) {
-            m3E2E0 = (int)obj->m0C;
-        } else if ((obj->m08 & 8) == 8) {
-            m3E2E4 = obj->m0C;
+        if ((obj->mFlags & 2) == 2) {
+            m3E2E0 = obj->m0C;
+        } else if ((obj->mFlags & 8) == 8) {
+            m3E2E4 = (CharaTask*)obj->m0C;
         }
     }
 }
@@ -5033,9 +5055,9 @@ inline BattleCharaTask* NextFriend_unk(BattleCharaTask* chara) {
 
 // inferred: draws the target lines of the frame (option SetConfig::mBattleDrawHateLine: 1 only while the leader
 // has mFlag28, 2 always, 3 friends and enemies but not the leader) and stops the effects of the lines not drawn
-// this frame; `arg` hides the lines (mMarkers.mHideLines)
+// this frame; `arg` hides the lines (mHideLines)
 void BattleTask::fn_801055A8(int arg) {
-    mMarkers.mHideLines = arg;
+    mHideLines = arg;
     for (unsigned int i = 0; i < 72; i++) {
         BattleMarker_unk* marker = &mMarkers.mItems[i];
         if ((marker->mFlags & 1) == 1) {
@@ -5105,7 +5127,7 @@ void BattleTask::fn_801058F8() {
 
 void BattleTask::fn_80105950(void* owner, atn::Model* model) {
     fn_80232B7C((unsigned int)owner, 0);
-    PlayEfp_unk(&mEfp363C0[0], model);
+    PlayEfp_unk(&mEfp363C0, model);
 }
 
 void BattleTask::fn_801059F8(CharaTask* chara) {
@@ -5114,12 +5136,12 @@ void BattleTask::fn_801059F8(CharaTask* chara) {
 
 void BattleTask::fn_80105A08(void* owner, atn::Model* model) {
     fn_80232B7C((unsigned int)owner, 0);
-    PlayEfp_unk(&mEfp363C0[1], model);
+    PlayEfp_unk(&mEfp363CC, model);
 }
 
 void BattleTask::fn_80105AB0(void* owner, atn::Model* model, const EffectColor_unk& color) {
     fn_80232B7C((unsigned int)owner, 0);
-    fn_8023A8B4(lbl_8087F3C0, &mEfp363C0[2], model, 0, lbl_807C7030, lbl_807C7030, color, -1, -1, 1, 1.0f);
+    fn_8023A8B4(lbl_8087F3C0, &mEfp363D8, model, 0, lbl_807C7030, lbl_807C7030, color, -1, -1, 1, 1.0f);
 }
 
 void BattleTask::fn_80105B3C(CharaTask* chara) {
@@ -5128,7 +5150,7 @@ void BattleTask::fn_80105B3C(CharaTask* chara) {
 
 void BattleTask::fn_80105B4C(void* owner, atn::Model* model, const EffectColor_unk* color) {
     fn_80232B7C((unsigned int)owner, 0);
-    fn_8023A8B4(lbl_8087F3C0, &mEfp363C0[3], model, 0, lbl_807C7030, lbl_807C7030, *color, -1, -1, 1, 1.0f);
+    fn_8023A8B4(lbl_8087F3C0, &mEfp363E4, model, 0, lbl_807C7030, lbl_807C7030, *color, -1, -1, 1, 1.0f);
 }
 
 void BattleTask::fn_80105BD8(atn::Model* model) {
@@ -5141,9 +5163,9 @@ void BattleTask::fn_80105BD8(atn::Model* model) {
 void BattleTask::fn_80105C9C(CharaTask* chara, atn::Model* model) {
     fn_80232B7C((unsigned int)chara, 3);
     if (fn_80219558(chara->m50) == 2) {
-        PlayEfp_unk(&mEfp38AF4[1], model);
+        PlayEfp_unk(&mEfp38B00, model);
     } else {
-        PlayEfp_unk(&mEfp38AF4[0], model);
+        PlayEfp_unk(&mEfp38AF4, model);
     }
 }
 
@@ -5151,9 +5173,9 @@ void BattleTask::fn_80105C9C(CharaTask* chara, atn::Model* model) {
 void BattleTask::fn_80105DCC(CharaTask* chara, atn::Model* model, int level) {
     fn_80232B7C((unsigned int)chara, 4);
     if (fn_80219558(chara->m50) == 2) {
-        PlayEfp_unk(&mEfp38AF4[5], model);
+        PlayEfp_unk(&mEfp38B30, model);
     } else {
-        PlayEfp_unk(&mEfp38AF4[2] + MIN((unsigned int)MAX(level, 0), 3u), model);
+        PlayEfp_unk(&mEfp38B0C[0] + MIN((unsigned int)MAX(level, 0), 3u), model);
     }
 }
 
@@ -5164,9 +5186,9 @@ void BattleTask::fn_80105F3C(void* owner) {
 void BattleTask::fn_80105F4C(CharaTask* chara, atn::Model* model) {
     fn_80232B7C((unsigned int)chara, 3);
     if (fn_80219558(chara->m50) == 2) {
-        PlayEfp_unk(&mEfp38AF4[7], model);
+        PlayEfp_unk(&mEfp38B48, model);
     } else {
-        PlayEfp_unk(&mEfp38AF4[6], model);
+        PlayEfp_unk(&mEfp38B3C, model);
     }
 }
 
@@ -5177,9 +5199,9 @@ void BattleTask::fn_8010607C(void* owner) {
 void BattleTask::fn_8010608C(CharaTask* chara, atn::Model* model) {
     fn_80232B7C((unsigned int)chara, 3);
     if (fn_80219558(chara->m50) == 2) {
-        PlayEfp_unk(&mEfp38AF4[9], model);
+        PlayEfp_unk(&mEfp38B60, model);
     } else {
-        PlayEfp_unk(&mEfp38AF4[8], model);
+        PlayEfp_unk(&mEfp38B54, model);
     }
 }
 
@@ -5189,15 +5211,14 @@ extern "C" void fn_800CB518(atn::SoundRef* sound, int frames);            // inf
 // inferred: level up of a status of `chara` (CharaStatus): the effect of the level (red for the party members of
 // kind 2), the level up sounds (the second one a semitone higher per level) and the "level up" popup over the
 // neck of the model. C name, called by game/CharaStatus as extern "C"
-// NONMATCHING: offset of "neck" in the string pool of the file (incomplete)
 extern "C" void fn_801061BC(BattleTask* mgr, CharaTask* chara, atn::Model* model, int level) {
     fn_80232B7C((unsigned int)chara, 30);
     lbl_8087F3C0->mSystem.m78 = 1;
     if (fn_80219558(chara->m50) == 2) {
-        fn_8023A8B4(lbl_8087F3C0, &mgr->mEfp38AF4[13] + level, model, 0, lbl_807C7030, lbl_807C7030,
+        fn_8023A8B4(lbl_8087F3C0, &mgr->mEfp38B90[0] + level, model, 0, lbl_807C7030, lbl_807C7030,
                     EffectColor_unk(1.0f, 0.0f, 0.0f, 1.0f), -1, -1, 1, 1.0f);
     } else {
-        PlayEfp_unk(&mgr->mEfp38AF4[10] + level, model);
+        PlayEfp_unk(&mgr->mEfp38B6C[0] + level, model);
     }
     lbl_8087F3C0->mSystem.m78 = 0;
     if (level >= 1) {
@@ -5227,7 +5248,7 @@ void BattleTask::fn_8010652C(void* owner) {
 
 void BattleTask::fn_8010653C(void* owner, atn::Model* model) {
     fn_80232B7C((unsigned int)owner, 6);
-    PlayEfp_unk(&mEfp38AF4[29], model);
+    PlayEfp_unk(&mEfp38C50, model);
 }
 
 void BattleTask::fn_801065E4(void* owner) {
@@ -5236,23 +5257,23 @@ void BattleTask::fn_801065E4(void* owner) {
 
 void BattleTask::fn_801065F4(CharaTask* chara, atn::Model* model, const ColorF_unk* color) {
     fn_80232B7C((unsigned int)chara, 7);
-    fn_8023A8B4(lbl_8087F3C0, &mEfp38AF4[30], model, 0, lbl_807C7030, lbl_807C7030, *(const EffectColor_unk*)color,
+    fn_8023A8B4(lbl_8087F3C0, &mEfp38C5C, model, 0, lbl_807C7030, lbl_807C7030, *(const EffectColor_unk*)color,
                 -1, -1, 1, 1.0f);
 }
 
 void BattleTask::fn_80106680(void* owner, atn::Model* model) {
     fn_80232B7C((unsigned int)owner, 8);
-    PlayEfp_unk(&mEfp38AF4[31], model);
+    PlayEfp_unk(&mEfp38C68, model);
 }
 
 void BattleTask::fn_80106728(int arg, atn::Model* model) {
     fn_80232B7C(0, 0);
-    PlayEfp_unk(&mEfp365B8[2], model);
+    PlayEfp_unk(&mEfp365D0, model);
 }
 
 void BattleTask::fn_801067D0(CharaTask* chara, atn::Model* model) {
     fn_80232B7C(0, 0);
-    PlayEfp_unk(&mEfp365B8[3], model);
+    PlayEfp_unk(&mEfp365DC, model);
 }
 
 extern "C" std::string fn_8006B174(const std::string& path); // inferred: file name of a path (as game/CharaTask.cpp)
@@ -5360,13 +5381,13 @@ void BattleTask::fn_8010743C(const atn::Vector3* pos, int changed, float f) {
     m3E300 = 1;
     lbl_8087F3C0->mSystem.mReplaying = 1;
     if (changed != 0) {
-        fn_80239DAC(lbl_8087F3C0, (unsigned int)m389F4, 0, 0);
+        fn_80239DAC(lbl_8087F3C0, (unsigned int)&m389F4, 0, 0);
     }
-    if (changed != 0 || !fn_80239D58(lbl_8087F3C0, m389F4, 0)) {
+    if (changed != 0 || !fn_80239D58(lbl_8087F3C0, &m389F4, 0)) {
         EffectColor_unk color = m3E304;
         color.a = m3E2FC;
-        fn_80232B7C((unsigned int)m389F4, 0);
-        fn_8023A680(lbl_8087F3C0, (EffectRes_unk*)m389F4, -1, 6, (int)pos, 0, 0, &color, 0, -1, 1, f / 15.0f);
+        fn_80232B7C((unsigned int)&m389F4, 0);
+        fn_8023A680(lbl_8087F3C0, (EffectRes_unk*)&m389F4, -1, 6, (int)pos, 0, 0, &color, 0, -1, 1, f / 15.0f);
     }
     lbl_8087F3C0->mSystem.mReplaying = 0;
 }
@@ -5385,7 +5406,7 @@ void BattleTask::fn_80107584() {
         color.g = m3E304.g;
         color.b = m3E304.b;
         color.a = m3E2FC;
-        lbl_8087F3C0->fn_8023A184((unsigned int)m389F4, 0, &color);
+        lbl_8087F3C0->fn_8023A184((unsigned int)&m389F4, 0, &color);
         break;
     }
     case 2: {
@@ -5395,9 +5416,9 @@ void BattleTask::fn_80107584() {
         color.g = m3E304.g;
         color.b = m3E304.b;
         color.a = m3E2FC;
-        lbl_8087F3C0->fn_8023A184((unsigned int)m389F4, 0, &color);
+        lbl_8087F3C0->fn_8023A184((unsigned int)&m389F4, 0, &color);
         if (m3E2FC < 0.001f) {
-            fn_80239DAC(lbl_8087F3C0, (unsigned int)m389F4, 0, 0);
+            fn_80239DAC(lbl_8087F3C0, (unsigned int)&m389F4, 0, 0);
             m3E300 = 0;
         }
         break;
@@ -5409,7 +5430,7 @@ void BattleTask::fn_80107584() {
 void BattleTask::fn_801076D0(void* owner, atn::Model* model) {
     if (fn_80239D58(lbl_8087F3C0, owner, 20) == 0) {
         fn_80232B7C((unsigned int)owner, 20);
-        PlayEfp_unk(&mEfp38AF4[16], model);
+        PlayEfp_unk(&mEfp38BB4, model);
     }
 }
 
@@ -5419,7 +5440,7 @@ void BattleTask::fn_80107798(void* owner, int flag) {
 
 void BattleTask::fn_801077A8(void* owner, atn::Model* model) {
     fn_80232B7C((unsigned int)owner, 21);
-    PlayEfp_unk(&mEfp38AF4[17], model);
+    PlayEfp_unk(&mEfp38BC0, model);
 }
 
 void BattleTask::fn_80107850(void* owner) {
@@ -5428,12 +5449,12 @@ void BattleTask::fn_80107850(void* owner) {
 
 void BattleTask::fn_80107860(void* owner, atn::Model* model) {
     fn_80232B7C((unsigned int)owner, 22);
-    PlayEfp_unk(&mEfp38AF4[19], model);
+    PlayEfp_unk(&mEfp38BD8, model);
 }
 
 void BattleTask::fn_80107908(void* owner, atn::Model* model) {
     fn_80232B7C((unsigned int)owner, 23);
-    PlayEfp_unk(&mEfp38AF4[20], model);
+    PlayEfp_unk(&mEfp38BE4, model);
 }
 
 void BattleTask::fn_801079B0(void* owner) {
@@ -5442,7 +5463,7 @@ void BattleTask::fn_801079B0(void* owner) {
 
 void BattleTask::fn_801079C0(void* owner, atn::Model* model) {
     fn_80232B7C((unsigned int)owner, 24);
-    PlayEfp_unk(&mEfp38AF4[22], model);
+    PlayEfp_unk(&mEfp38BFC, model);
 }
 
 void BattleTask::fn_80107A68(void* owner) {
@@ -5451,7 +5472,7 @@ void BattleTask::fn_80107A68(void* owner) {
 
 void BattleTask::fn_80107A78(void* owner, atn::Model* model) {
     fn_80232B7C((unsigned int)owner, 25);
-    PlayEfp_unk(&mEfp38AF4[18], model);
+    PlayEfp_unk(&mEfp38BCC, model);
 }
 
 void BattleTask::fn_80107B20(void* owner) {
@@ -5460,7 +5481,7 @@ void BattleTask::fn_80107B20(void* owner) {
 
 void BattleTask::fn_80107B30(void* owner, atn::Model* model) {
     fn_80232B7C((unsigned int)owner, 26);
-    PlayEfp_unk(&mEfp38AF4[23], model);
+    PlayEfp_unk(&mEfp38C08, model);
 }
 
 void BattleTask::fn_80107BD8(void* owner) {
@@ -5470,7 +5491,7 @@ void BattleTask::fn_80107BD8(void* owner) {
 void BattleTask::fn_80107BE8(void* owner, atn::Model* model) {
     lbl_8087F3C0->mSystem.mLayer = 2;
     fn_80232B7C((unsigned int)owner, 27);
-    PlayEfp_unk(&mEfp38AF4[24], model);
+    PlayEfp_unk(&mEfp38C14, model);
     lbl_8087F3C0->mSystem.mLayer = 0;
 }
 
@@ -5483,7 +5504,7 @@ void BattleTask::fn_80107CA8(void* owner, int flag) {
 void BattleTask::fn_80107CEC(void* owner, atn::Model* model, float scale) {
     fn_80232B7C((unsigned int)owner, 28);
     EffectColor_unk color(1.0f, 1.0f, 1.0f, 1.0f);
-    fn_8023A8B4(lbl_8087F3C0, &mEfp38AF4[25], model, 0, lbl_807C7030, lbl_807C7030, color, -1, -1, 1, scale);
+    fn_8023A8B4(lbl_8087F3C0, &mEfp38C20, model, 0, lbl_807C7030, lbl_807C7030, color, -1, -1, 1, scale);
 }
 
 void BattleTask::fn_80107D94(void* owner) {
@@ -5497,7 +5518,7 @@ void BattleTask::fn_80107DA4(void* owner, atn::Model* model, float scale, const 
     color.g = 1.0f;
     color.b = 1.0f;
     color.a = 1.0f;
-    fn_8023A8B4(lbl_8087F3C0, &mEfp38AF4[26], model, 0, pos, lbl_807C7030, color, -1, -1, 1, scale);
+    fn_8023A8B4(lbl_8087F3C0, &mEfp38C2C, model, 0, pos, lbl_807C7030, color, -1, -1, 1, scale);
 }
 
 void BattleTask::fn_80107E58(void* owner) {
@@ -5506,7 +5527,7 @@ void BattleTask::fn_80107E58(void* owner) {
 
 void BattleTask::fn_80107E68(void* owner, atn::Model* model) {
     fn_80232B7C((unsigned int)owner, 30);
-    PlayEfp_unk(&mEfp38AF4[21], model);
+    PlayEfp_unk(&mEfp38BF0, model);
 }
 
 void BattleTask::fn_80107F10(void* owner) {
@@ -5516,7 +5537,7 @@ void BattleTask::fn_80107F10(void* owner) {
 void BattleTask::fn_80107F20(void* owner, atn::Model* model, float scale) {
     fn_80232B7C((unsigned int)owner, 31);
     EffectColor_unk color(1.0f, 1.0f, 1.0f, 1.0f);
-    fn_8023A8B4(lbl_8087F3C0, &mEfp38AF4[27], model, 0, lbl_807C7030, lbl_807C7030, color, -1, -1, 1, scale);
+    fn_8023A8B4(lbl_8087F3C0, &mEfp38C38, model, 0, lbl_807C7030, lbl_807C7030, color, -1, -1, 1, scale);
 }
 
 void BattleTask::fn_80107FC8(void* owner) {
@@ -5525,7 +5546,7 @@ void BattleTask::fn_80107FC8(void* owner) {
 
 void BattleTask::fn_80107FD8(void* owner, atn::Model* model) {
     fn_80232B7C((unsigned int)owner, 32);
-    PlayEfp_unk(&mEfp38AF4[28], model);
+    PlayEfp_unk(&mEfp38C44, model);
 }
 
 void BattleTask::fn_80108080(void* owner) {
@@ -6218,23 +6239,8 @@ atn::Vector3 Effect_unk::fn_80109950(CharaTask* chara) {
     return chara->mPos;
 }
 
-// inferred: result of the collision tests of lbl_8087EE98 (0x50 bytes; same layout as include/gmk/Lemon.h and
-// game/CharaTask.cpp, here with the constructor inlined)
-struct CollResult_unk {
-    CollResult_unk() : m34(0), m38(0), m3C(0), m40(0) {}
-    int m00;
-    atn::Vector3 m04; // inferred: hit position
-    atn::Vector3 m10;
-    atn::Vector3 m1C;
-    atn::Vector3 m28;
-    unsigned int* m34; // inferred: collision attribute of the hit (first word: kind, 0x1B water)
-    void* m38;
-    unsigned int m3C;
-    void* m40;
-    atn::Vector3 m44;
-};
 extern "C" void* lbl_8087EE98; // inferred: collision manager
-extern "C" int fn_8004ED34(void* colli, CollResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
+extern "C" int fn_8004ED34(void* colli, atn::ColliResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg7); // inferred: ray test
 
 // inferred: the character is in one of the busy controls (6: 4..11, 29, 30); inlined, name invented
@@ -6325,9 +6331,9 @@ void BattleTask::fn_80109F7C() {
 // inferred: splash when the segment from..to crosses water (attribute 0x1B); `size` picks the effect and
 // its scale. C name, called by other files as extern "C"
 extern "C" void fn_8010A308(BattleTask* mgr, const atn::Vector3* from, const atn::Vector3* to, float size) {
-    CollResult_unk result;
+    atn::ColliResult_unk result;
     if (fn_8004ED34(lbl_8087EE98, &result, from, to, 0x80000000, 0, 0) != 0 && result.m34 != 0 &&
-        result.m34[0] == 0x1B) {
+        *(unsigned int*)result.m34 == 0x1B) {
         int kind = 1;
         if (size < 6.0f) {
             kind = 0;
@@ -6917,9 +6923,9 @@ extern "C" void fn_8010C00C(BattleTask* mgr, CharaTask* chara) {
 void BattleTask::fn_8010C3E4() {
     for (int i = 0; i < mCharaCount; i++) {
         CharaTask* chara = GetCharaAt_unk(this, i);
-        int* row = m391E0[i];
+        int* row = m391E0[i].m;
         if (!chara->CanAct_unk()) {
-            memset(row, 0, sizeof(m391E0[i]));
+            memset(row, 0, sizeof(m391E0[i].m));
             continue;
         }
         for (int j = 0; j < mCharaCount; j++) {
@@ -6983,7 +6989,7 @@ CharaTask* BattleTask::fn_8010C948(CharaTask* chara) {
     }
     int best = 0;
     int found = -1;
-    int* row = m391E0[i];
+    int* row = m391E0[i].m;
     for (int j = 0; j < mCharaCount; j++) {
         if (best < row[j]) {
             best = row[j];

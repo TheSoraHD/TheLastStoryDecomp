@@ -3935,7 +3935,7 @@ void GameTask::fn_80371334() {
 }
 
 void BattleTask::fn_80371664() {
-    mCBAC = 0;
+    mTimers.mCount = 0;
 }
 
 

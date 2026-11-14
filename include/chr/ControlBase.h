@@ -39,7 +39,9 @@ public:
     virtual float vf20() { return 0.0f; }
     virtual int vf24() { return 0; }
     virtual int vf28() { return 0; }
-    virtual int vf2C(); // inferred: returns an int (number of hit windows in chr::ControlAttackBase)
+    // inferred: returns an int (number of hit windows in chr::ControlAttackBase); inline, weak copy 0x800FCD1C
+    // after the virtual call in BattleTask fn_800FC410
+    virtual int vf2C() { return 1; }
     // inferred: returns an int (compared with 5 by callers of CharaTask::fn_8017A450, tested by vf5C);
     // inline, weak copy 0x800E60FC after the virtual call in BattleCharaTask::fn_800E589C
     virtual int vf30() const { return 0; }
