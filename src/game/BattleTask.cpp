@@ -1169,7 +1169,7 @@ inline void RotateY_unk(atn::Vector3& v, float rad) {
 // inferred: draw of the battle every frame: the reticle (d2anime mCB30 and the arrow mCB60 turned toward the
 // aimed direction), the debug displays (morale gauge, enemies aiming at the leader, hate tables, hate range,
 // shot records), the models of mSlots and the end of the d2anime m3E2F4
-// NONMATCHING: 88.4% - register allocation of the debug loops (the original keeps the base of mCharas and the
+// NONMATCHING: 90.1% - register allocation of the debug loops (the original keeps the base of mCharas and the
 // constants in other registers) and stack layout (0x10 bytes more; the locals of the inlined fn_80139F60 are
 // below the matrices of the shot loop, `aim` below the first text buffer)
 void BattleTask::vf14() {
@@ -1258,8 +1258,9 @@ void BattleTask::vf14() {
     int mode = lbl_8087F0A8->mDrawHateInfo;
     if (mode > 0) {
         if (mode == 1 || mode == 2) {
+            BattleChara_unk* charas = mCharas;
             for (int i = 0; i < mCharaCount; i++) {
-                BattleChara_unk* entry = &mCharas[i];
+                BattleChara_unk* entry = &charas[i];
                 if (entry->mChara == 0 || !entry->mChara->IsActive_unk()) {
                     continue;
                 }
@@ -1273,7 +1274,7 @@ void BattleTask::vf14() {
                 }
                 int count = 0;
                 for (int j = 0; j < mCharaCount; j++) {
-                    CharaTask* other = mCharas[j].mChara;
+                    CharaTask* other = charas[j].mChara;
                     if (other != 0 && other->IsActive_unk() && !other->fn_8016F3D0(entry->mChara, 1)) {
                         count++;
                     }
@@ -1289,18 +1290,18 @@ void BattleTask::vf14() {
                                                1, 0, 0, 0xFF000000);
                     y += 12.0f;
                     for (int j = 0; j < mCharaCount; j++) {
-                        CharaTask* other = mCharas[j].mChara;
+                        CharaTask* other = charas[j].mChara;
                         if (other == 0 || !other->IsActive_unk() || other->fn_8016F3D0(entry->mChara, 1)) {
                             continue;
                         }
                         unsigned int color = 0xAFFFFFFF;
-                        if (entry->mChara->mC58.mC4 == mCharas[j].mChara) {
+                        if (entry->mChara->mC58.mC4 == charas[j].mChara) {
                             color = 0xAFAFFFAF;
                         }
-                        swprintf(wtext, 256, L"%d", fn_80103484(entry->mChara, mCharas[j].mChara));
+                        swprintf(wtext, 256, L"%d", fn_80103484(entry->mChara, charas[j].mChara));
                         fn_800F7250()->fn_80061824(x, y, 0.0f, 12.0f, 12.0f, 0.0f, 0.0f, 0.0f, wtext, color, 1, 1, 0,
                                                    0, 0xFF000000);
-                        sprintf(text, "[%d: %s]", mCharas[j].mChara->m58, mCharas[j].mChara->m60->m0C);
+                        sprintf(text, "[%d: %s]", charas[j].mChara->m58, charas[j].mChara->m60->m0C);
                         fn_8006F2F0(lbl_8087EEC8, wtext, text, 256);
                         fn_800F7250()->fn_80061824(30.0f + x, y, 0.0f, 12.0f, 12.0f, 0.0f, 0.0f, 0.0f, wtext, color, 1,
                                                    1, 0, 0, 0xFF000000);
@@ -1308,18 +1309,18 @@ void BattleTask::vf14() {
                     }
                 } else if (mode == 2) {
                     for (int j = 0; j < mCharaCount; j++) {
-                        CharaTask* other = mCharas[j].mChara;
+                        CharaTask* other = charas[j].mChara;
                         if (other == 0 || !other->IsActive_unk() || other->fn_8016F3D0(entry->mChara, 1)) {
                             continue;
                         }
                         unsigned int color = 0xAFFFFFFF;
-                        if (mCharas[j].mChara->mC58.mC4 == entry->mChara) {
+                        if (charas[j].mChara->mC58.mC4 == entry->mChara) {
                             color = 0xAFFFAFAF;
                         }
-                        swprintf(wtext, 256, L"%d", fn_80103484(mCharas[j].mChara, entry->mChara));
+                        swprintf(wtext, 256, L"%d", fn_80103484(charas[j].mChara, entry->mChara));
                         fn_800F7250()->fn_80061824(x, y, 0.0f, 12.0f, 12.0f, 0.0f, 0.0f, 0.0f, wtext, color, 1, 1, 0,
                                                    0, 0xFF000000);
-                        sprintf(text, "[%d: %s]", mCharas[j].mChara->m58, mCharas[j].mChara->m60->m0C);
+                        sprintf(text, "[%d: %s]", charas[j].mChara->m58, charas[j].mChara->m60->m0C);
                         fn_8006F2F0(lbl_8087EEC8, wtext, text, 256);
                         fn_800F7250()->fn_80061824(30.0f + x, y, 0.0f, 12.0f, 12.0f, 0.0f, 0.0f, 0.0f, wtext, color, 1,
                                                    1, 0, 0, 0xFF000000);
@@ -1328,8 +1329,9 @@ void BattleTask::vf14() {
                 }
             }
         } else if (mode == 3) {
+            BattleChara_unk* charas = mCharas;
             for (int i = 0; i < mCharaCount; i++) {
-                CharaTask* chara = (i < 0 || mCharaCount <= i) ? 0 : mCharas[i].mChara;
+                CharaTask* chara = (i < 0 || mCharaCount <= i) ? 0 : charas[i].mChara;
                 if (chara == 0 || chara->IsFlag_unk(4) || chara->mType != 3) {
                     continue;
                 }
@@ -1343,7 +1345,7 @@ void BattleTask::vf14() {
                 }
                 int count = 0;
                 for (int j = 0; j < mCharaCount; j++) {
-                    CharaTask* other = (j < 0 || mCharaCount <= j) ? 0 : mCharas[j].mChara;
+                    CharaTask* other = (j < 0 || mCharaCount <= j) ? 0 : charas[j].mChara;
                     if (other != 0 && !other->IsFlag_unk(4) && (other->m54C & 0x2000) != 0x2000 &&
                         other->fn_8016F3D0(chara, 1)) {
                         count++;
@@ -1353,7 +1355,7 @@ void BattleTask::vf14() {
                 float y = (screen.y - 50.0f) - 12.0f * (float)count;
                 CharaTask* hated = GetHated_unk(chara);
                 for (int j = 0; j < mCharaCount; j++) {
-                    CharaTask* other = (j < 0 || mCharaCount <= j) ? 0 : mCharas[j].mChara;
+                    CharaTask* other = (j < 0 || mCharaCount <= j) ? 0 : charas[j].mChara;
                     if (other == 0 || other->IsFlag_unk(4) || (other->m54C & 0x2000) == 0x2000 ||
                         !other->fn_8016F3D0(chara, 1)) {
                         continue;
@@ -1390,8 +1392,9 @@ void BattleTask::vf14() {
             fn_800F7250()->fn_800616C0(15.0f + screen.x, screen.y, 0.0f, 14.0f, 14.0f, text, 0xFFFFFFFF, 0.0f, 1, 1,
                                        0);
         }
+        BattleChara_unk* charas = mCharas;
         for (int i = 0; i < mCharaCount; i++) {
-            CharaTask* chara = mCharas[i].mChara;
+            CharaTask* chara = charas[i].mChara;
             if (chara == 0 || !(chara->mStatus.m430 > 0)) {
                 continue;
             }
@@ -1400,7 +1403,7 @@ void BattleTask::vf14() {
             if (screen.z < 0.0f || 1.0f < screen.z) {
                 continue;
             }
-            sprintf(text, "HateAtt: Lv%d\0", mCharas[i].mChara->mStatus.m430);
+            sprintf(text, "HateAtt: Lv%d\0", charas[i].mChara->mStatus.m430);
             fn_800F7250()->fn_800616C0(15.0f + screen.x, screen.y, 0.0f, 14.0f, 14.0f, text, 0xFFFFFFFF, 0.0f, 1, 1,
                                        0);
         }
