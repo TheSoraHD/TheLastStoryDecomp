@@ -219,6 +219,10 @@ struct GameUIName0C_unk {
     const wchar_t* m0C;
 };
 
+// inferred: skill shown by the level-up marker and object aimed at by the aim lines; defined in game/GameUI.cpp
+struct GameUISkill_unk;
+struct GameUIAimTarget_unk;
+
 // inferred: 0x7C-byte element of the arrays at 0x1174 and 0x15BC (names invented)
 struct GameUIElem7C_unk {
     GameUIElem7C_unk() : m78(0.0f) {}
@@ -523,8 +527,8 @@ public:
     int m1124;
     int m1128;
     int m112C;
-    int m1130;
-    unsigned char m1134[0x1140 - 0x1134];
+    int m1130;                // inferred: count of m1134
+    GameUISkill_unk* m1134[3]; // inferred: skills learnt shown by the level-up marker (fn_803D83A8)
     atn::D2A_Task* m1140;
     atn::D2A_Task* m1144;
     atn::D2A_Task* m1148;
@@ -533,11 +537,11 @@ public:
     int m1154;
     atn::EffFile m1158;                       // 0x1158
     atn::EffFile m1164;                       // 0x1164
-    int m1170;
+    GameUIAimTarget_unk* m1170; // inferred: target of the aim lines (AIManager::m458, fn_803D83A8)
     GameUIElem7C_unk m1174[8];                 // 0x1174
     atn::EffFile m1554[4];                    // 0x1554
     atn::EffFile m1584[4];                    // 0x1584
-    int m15B4;
+    CharaTask* m15B4; // inferred: target of the hate lines of the last frame (fn_803D83A8)
     int m15B8;
     GameUIElem7C_unk m15BC[32];                // 0x15BC
     int m253C;

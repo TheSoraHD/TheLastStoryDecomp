@@ -13,6 +13,10 @@
 #include "game/EnemyManager.h"
 #include "game/EnemyTask.h"
 #include "game/GameUI.h"
+#include "game/MenuCommonTask.h"
+#include "game/SetConfig.h"
+#include "game/BattleCharaTask.h"
+#include "game/GameConfig_unk.h"
 
 // inferred: sector (0 ahead, 1-7 clockwise, 8 none) of the direction `dir` seen from above
 int fn_805A6D20(const atn::Vector3& dir) {
@@ -144,7 +148,631 @@ int TacView::vf0C() {
     return 0;
 }
 
+extern "C" double sqrt(double x);
+extern "C" GameTask* lbl_8087F430;
+extern "C" PlayerManager* lbl_8087F8A0;
+extern "C" void* lbl_8087EF70; // inferred: pad input
+extern "C" GameConfig_unk* lbl_8087F0A8;
+extern "C" int fn_800A555C(void* pad, int port, int button); // inferred: button pressed
+extern "C" int fn_800A55FC(void* pad, int port, int button); // inferred: button released
+extern "C" void fn_804A5E40(MenuCommonTask* menu, int type, const float* ofs, int id); // inferred: menu event
+extern "C" int fn_80219558(int id); // inferred: party member of a character id
+extern "C" int fn_8021A77C(HitInfo_unk* hit); // inferred: kind test of a skill
+// inferred: not written yet; they take the view as first argument (symbols without a C++ name)
+extern "C" void fn_805AC758(TacView* view);
+
+// inferred: closes the view (body of fn_805AA734, inlined by vf10; name invented)
+static inline void TacViewClose_unk(TacView* v) {
+    if (v->mA70 == 0) {
+        return;
+    }
+    v->mA70 = 0;
+    v->ChangeMode_unk(6);
+    v->m48.mState = 2;
+    v->m48.m04 = 0;
+    v->m48.mTarget = 0;
+    v->m15D8 = 0;
+    v->m15DC.x = 0.0f;
+    v->m15DC.y = 0.0f;
+    v->m15DC.z = 0.0f;
+    v->m15E8 = -1.0f;
+    v->m15EC = 0;
+    v->m15ED = 0;
+    v->m15F0.mState = 2;
+    v->m15F0.m04 = 0;
+    v->m15F0.mTarget = 0;
+    fn_800CB5C8(&v->m16C0, 15, 0);
+    v->mLayouts.m1C = 0;
+    v->mLayouts.m20 = 0;
+    for (int i = 0; i < 4; i++) {
+        v->mLayouts.mDirs[i]->Rewind_unk();
+    }
+}
+// inferred: the pad button is pressed (no pad: 0; name invented)
+static inline int IsPadPressed_unk(int button) {
+    return lbl_8087EF70 != 0 ? fn_800A555C(lbl_8087EF70, 0, button) : 0;
+}
+// inferred: the cursor takes the slot m158C, none when out of range (name invented)
+inline void TacViewSelectSlot_unk(TacView* v) {
+    if (v->m158C >= 0 && v->m158C < (int)v->mSlots.size()) {
+        v->m48 = v->mSlots[v->m158C].mSel;
+    } else {
+        v->m48.mState = 2;
+        v->m48.m04 = 0;
+        v->m48.mTarget = 0;
+    }
+}
+// inferred: next slot, or the end of the orders (mode 5) after the last one (name invented)
+inline void TacViewNextSlot_unk(TacView* v) {
+    v->m158C++;
+    v->ChangeMode_unk(0);
+    if (v->m158C < (int)v->mSlots.size()) {
+        TacViewSelectSlot_unk(v);
+    } else {
+        v->ChangeMode_unk(5);
+    }
+}
+// inferred: undoes the last order given to `chara` (name invented)
+inline void TacViewUndo_unk(TacView* v, CharaTask* chara) {
+    if (v->mCharas.size() != 0) {
+        if (v->mCharas[v->mCharas.size() - 1].m4C >= 0) {
+            lbl_8087EE68->fn_80018608(chara, 0);
+            static_cast<BattleCharaTask*>(chara)->m1470 = 0;
+            v->fn_805ADF50(chara);
+            if (v->mCharas[v->mCharas.size() - 1].m0C != 0 || v->mCharas[v->mCharas.size() - 1].m10 != 0) {
+                chara->fn_80160170((HitInfo_unk*)v->mCharas[v->mCharas.size() - 1].m10,
+                                   (CharaTask*)v->mCharas[v->mCharas.size() - 1].m0C);
+            }
+            chara->fn_8017ABD4(v->mCharas[v->mCharas.size() - 1].m14);
+            if (v->mCharas[v->mCharas.size() - 1].m18.m08 != 4) {
+                lbl_8087EE68->fn_800184F4(&v->mCharas[v->mCharas.size() - 1].m18);
+            }
+            chara->mStatus.fn_8012D180();
+        }
+        v->mCharas.mSize--;
+    }
+}
+// inferred: offset of the menu windows while the view is open (name invented)
+inline float TacViewMenuOffset_unk() {
+    float ofs = 0.0f;
+    if (lbl_8087F490 != 0) {
+        ofs = 60.0f * lbl_8087F490->fn_803E4A48();
+    }
+    return ofs;
+}
+
+// inferred: update of the tactical view: hides the layouts; while open, counts down the closing (mA7C) and
+// the move to a slot (mA84), then runs the mode mA78: 0 picks the command of each party member (pad
+// directions, confirm and cancel), 1 moves the free camera, 4 aims at a position, 5 ends with the summary;
+// button 0x2E switches the hate lines (m1590)
+// NONMATCHING: 94.5% - registers and the copies of the camera parameters (the original copies GameCamera::m684 into
+// stack slots in modes 1 and 4)
+void TacView::vf10() {
+    mLayouts.mSelect->FreezeTask();
+    mLayouts.mHpFlash->FreezeTask();
+    mLayouts.mFace->FreezeTask();
+    for (int i = 0; i < 4; i++) {
+        mLayouts.mDirs[i]->FreezeTask();
+    }
+    if (mA70 == 0 || (lbl_8087F430 != 0 && lbl_8087F430->m54E4 == 13)) {
+        return;
+    }
+    if (mA7C > 0) {
+        if (--mA7C <= 0) {
+            TacViewClose_unk(this);
+        }
+        return;
+    }
+    GameCamera* camera = &lbl_8087F430->mCamera;
+    if (mA84 > 0) {
+        fn_805AC758(this);
+        if (--mA84 > 0) {
+            return;
+        }
+        if (m15D8 == 1) {
+            m15A8 = 1;
+            if ((CharaTask*)m15AC != m48.m04) {
+                m15AC = (int)m48.m04;
+                m159C = camera->m8A4;
+            }
+            ChangeMode_unk(4);
+        } else if (m15D8 == 2) {
+            CharaTask* target = m48.mState == 0 ? m48.m04->mC58.mC4 : 0;
+            ChangeMode_unk(1);
+            if (target != 0) {
+                m48.mState = 2;
+                m48.m04 = 0;
+                m48.mTarget = 0;
+                for (unsigned int i = 0; i < mSlots.size(); i++) {
+                    if (mSlots[i].mSel.mState == 0 && mSlots[i].mSel.m04 == target) {
+                        m48 = mSlots[i].mSel;
+                        break;
+                    }
+                }
+            } else if ((int)mSlots.size() > 0) {
+                m48 = mSlots[0].mSel;
+            } else {
+                m48.mState = 2;
+                m48.m04 = 0;
+                m48.mTarget = 0;
+            }
+            fn_805A70D4(8, 1.0f);
+        } else {
+            TacViewNextSlot_unk(this);
+            mLayouts.m1C = 0;
+            mLayouts.m20 = 0;
+        }
+        return;
+    }
+    GameUIElem1C_unk button;
+    if (lbl_8087F490 != 0) {
+        lbl_8087F490->m764 = button;
+    }
+    if (mA78 == 0) {
+        camera->fn_80390A88();
+        GameCameraParam_unk param(camera->m684);
+        param.m04 *= 0.7f;
+        if (camera->m4B4.mActive != 1 && camera->m4B4.mActive != 4) {
+            camera->m4B4.mActive = 1;
+            camera->m4C0 = param;
+            camera->m4B4.mStep = 0.0f;
+            camera->m4B4.mTime = 1.0f;
+        }
+        camera->fn_8037F744();
+        fn_805ABE74();
+        fn_805AC758(this);
+        if (m48.mState == 0) {
+            int confirm = 0;
+            int cancel = 0;
+            int dir = -1;
+            CharaTask* chara = m48.m04;
+            if (mA74 == 0 && (IsPadPressed_unk(0) != 0 || IsPadPressed_unk(0x1A) != 0) && m54.m50[0] != 0) {
+                dir = 0;
+            } else if (mA74 == 0 && (IsPadPressed_unk(2) != 0 || IsPadPressed_unk(0x17) != 0) && m54.m50[1] != 0) {
+                dir = 1;
+            } else if (mA74 == 0 && (IsPadPressed_unk(3) != 0 || IsPadPressed_unk(0x18) != 0) && m54.m50[2] != 0) {
+                dir = 2;
+            } else if (mA74 == 0 && (IsPadPressed_unk(1) != 0 || IsPadPressed_unk(0x19) != 0) && m54.m50[3] != 0) {
+                dir = 3;
+            }
+            if (dir >= 0) {
+                fn_805A96D4(chara, dir);
+                confirm = 1;
+            }
+            if (IsPadPressed_unk(4) != 0) {
+                confirm = 1;
+            }
+            if (IsPadPressed_unk(5) != 0) {
+                cancel = 1;
+            }
+            if (confirm != 0) {
+                if (mCharas.size() < 16) {
+                    mCharas.push_back(m54);
+                }
+                mLayouts.m1C = dir >= 0 ? (atn::Task*)mLayouts.mDirs[dir] : 0;
+                mLayouts.m20 = 0;
+                if (mLayouts.m1C != 0) {
+                    mA84 = 15;
+                    fn_805A70D4(1, 1.0f);
+                } else {
+                    mA84 = 1;
+                    fn_805A70D4(4, 1.0f);
+                }
+            } else if (cancel != 0) {
+                if (--m158C >= 0) {
+                    TacViewSelectSlot_unk(this);
+                    chara = m48.m04;
+                    TacViewUndo_unk(this, chara);
+                    fn_805ABE74();
+                    mLayouts.m1C = 0;
+                    mLayouts.m20 = 0;
+                    fn_805AC758(this);
+                } else {
+                    TacViewClose_unk(this);
+                }
+                fn_805A70D4(2, 1.0f);
+            }
+            float ofs = TacViewMenuOffset_unk();
+            atn::Vector3 a(0.0f, -ofs, 0.0f);
+            fn_804A5E40(MenuCommonTask::sInstance, 10, &a.x, 0);
+            atn::Vector3 b(0.0f, -ofs, 0.0f);
+            fn_804A5E40(MenuCommonTask::sInstance, 11, &b.x, 0);
+        }
+    } else if (mA78 == 1) {
+        camera->fn_80390A88();
+        if (m1598 == 0) {
+            atn::Vector3 d(m159C.x - camera->m8A4.x, m159C.y - camera->m8A4.y, m159C.z - camera->m8A4.z);
+            if ((float)sqrt(d.x * d.x + d.z * d.z) > 2.0f) {
+                bool moving = false;
+                if (m15D8 == 1 && m15A8 > 0) {
+                    moving = true;
+                }
+                if (!moving) {
+                    m1598 = 1;
+                }
+            }
+        }
+        GameCameraParam_unk param(camera->m684);
+        camera->m4B4.mActive = 0;
+        camera->fn_8037F744();
+        if (lbl_8087F0A8->mInput.fn_801231D0(0) != 0) {
+            lbl_8087EE68->fn_800183E0(m54.mChara, m48.m04, (HitInfo_unk*)m54.m54[m54.m4C], 0);
+            m15D8 = 0;
+            TacViewNextSlot_unk(this);
+            mLayouts.m1C = 0;
+            mLayouts.m20 = 0;
+            fn_805A70D4(1, 1.0f);
+        } else if (lbl_8087F0A8->mInput.fn_801231D0(1) != 0) {
+            m15D8 = 0;
+            ChangeMode_unk(0);
+            TacViewSelectSlot_unk(this);
+            TacViewUndo_unk(this, m48.m04);
+            mLayouts.m1C = 0;
+            mLayouts.m20 = 0;
+            fn_805A70D4(2, 1.0f);
+        }
+    } else if (mA78 == 4) {
+        camera->fn_80390A88();
+        m1598 = 1;
+        GameCameraParam_unk param(camera->m684);
+        camera->m4B4.mActive = 0;
+        camera->fn_8037F744();
+        if (m1598 != 0 && m16C0.mPtr == 0) {
+            m16C0 = fn_805A70D4(6, 1.0f);
+        }
+        float ofs = TacViewMenuOffset_unk();
+        if (m48.m04 == 0) {
+            atn::Vector3 a(0.0f, -ofs, 0.0f);
+            fn_804A5E40(MenuCommonTask::sInstance, 9, &a.x, 0);
+        } else {
+            HitInfo_unk* skill = m54.m4C >= 0 ? (HitInfo_unk*)m54.m54[m54.m4C] : 0;
+            switch (fn_80219558(m48.m04->m50)) {
+            case 0: {
+                atn::Vector3 a(0.0f, -ofs, 0.0f);
+                fn_804A5E40(MenuCommonTask::sInstance, 9, &a.x, 0);
+                break;
+            }
+            case 2:
+            case 3:
+                if (skill == 0 || fn_8021A77C(skill) != 0) {
+                    atn::Vector3 a(0.0f, -ofs, 0.0f);
+                    fn_804A5E40(MenuCommonTask::sInstance, 12, &a.x, 0);
+                } else {
+                    atn::Vector3 a(0.0f, -ofs, 0.0f);
+                    fn_804A5E40(MenuCommonTask::sInstance, 13, &a.x, 0);
+                }
+                break;
+            case 4:
+            case 6: {
+                atn::Vector3 a(0.0f, -ofs, 0.0f);
+                fn_804A5E40(MenuCommonTask::sInstance, 12, &a.x, 0);
+                break;
+            }
+            }
+        }
+        int decide = 0;
+        switch (SetConfig::sInstance->mWindKey) {
+        case 0: {
+            decide = 1;
+            bool held = false;
+            if (m15EC == 0 && lbl_8087F0A8->mInput.fn_801240B4(9) == 0) {
+                held = true;
+            }
+            if (!held) {
+                bool on = false;
+                if (m15EC != 0 && lbl_8087F0A8->mInput.fn_801231D0(0) != 0) {
+                    on = true;
+                }
+                if (!on) {
+                    decide = 0;
+                }
+            }
+            break;
+        }
+        case 1: {
+            decide = 0;
+            bool on = false;
+            if (m1598 != 0 || m15EC != 0) {
+                on = true;
+            }
+            if (on && lbl_8087F0A8->mInput.fn_801231D0(0) != 0) {
+                decide = 1;
+            }
+            break;
+        }
+        case 2:
+            decide = lbl_8087F0A8->mInput.fn_801231D0(0);
+            break;
+        }
+        if (decide != 0) {
+            atn::Vector3 pos = camera->m8A4;
+            PlayerState_unk state(6);
+            state.m0C = pos;
+            if (m15EC == 0) {
+                BattleCharaTask* player = (BattleCharaTask*)lbl_8087F8A0->mHead;
+                state.m0C.y = player->mPos.y;
+                player->SetState_unk(state);
+                TacViewClose_unk(this);
+                fn_805A70D4(5, 1.0f);
+                m1594++;
+            } else {
+                HitInfo_unk* skill = m54.m4C >= 0 ? (HitInfo_unk*)m54.m54[m54.m4C] : 0;
+                switch (fn_80219558(m48.m04->m50)) {
+                case 0:
+                    state.m0C.y = m48.m04->mPos.y;
+                    break;
+                case 2:
+                case 3:
+                    if (skill == 0 || fn_8021A77C(skill) != 0) {
+                        state.m00 = 10;
+                    } else {
+                        state.m00 = 1;
+                        state.m18 = skill->m04;
+                        state.m02 = 8;
+                    }
+                    break;
+                case 4:
+                case 6:
+                    state.m00 = 11;
+                    break;
+                }
+                static_cast<BattleCharaTask*>(m48.m04)->SetState_unk(state);
+                m15D8 = 0;
+                fn_805A70D4(1, 1.0f);
+                TacViewNextSlot_unk(this);
+                mLayouts.m1C = 0;
+                mLayouts.m20 = 0;
+            }
+            m159C = camera->m8A4;
+        } else if (lbl_8087F0A8->mInput.fn_801231D0(1) != 0) {
+            if (m15EC == 0) {
+                TacViewClose_unk(this);
+                lbl_8087F430->m5674 = 0;
+            } else {
+                m15D8 = 0;
+                ChangeMode_unk(0);
+                TacViewSelectSlot_unk(this);
+                mLayouts.m1C = 0;
+                mLayouts.m20 = 0;
+                fn_805A70D4(2, 1.0f);
+                m159C = camera->m8A4;
+            }
+        }
+    } else if (mA78 == 5) {
+        GameUIElem1C_unk end;
+        end.m00 = 6;
+        end.m04 = 12;
+        if (lbl_8087F430 != 0 && lbl_8087F430->fn_80375184() != 0) {
+            end.m04 = 13;
+        }
+        if (lbl_8087F490 != 0) {
+            lbl_8087F490->m764 = end;
+        }
+        if (IsPadPressed_unk(4) != 0) {
+            mA7C = 20;
+            fn_805A70D4(3, 1.0f);
+            m1594++;
+            fn_805ADDD4(0);
+            int any = 0;
+            TacViewChara_unk* c = mCharas.begin();
+            for (unsigned int i = 0; i < mCharas.size(); i++, c++) {
+                if (c->mType != 0 && c->m4C >= 0) {
+                    any = 1;
+                    if (c->m64[c->m4C] == 8 && static_cast<BattleCharaTask*>((CharaTask*)c->mType)->fn_800EE794(0) != 0 &&
+                        ((CharaTask*)c->mType)->fn_80160324()) {
+                        ((CharaTask*)c->mType)->fn_8016034C();
+                    }
+                    if (((CharaTask*)c->mType)->fn_80160324() && static_cast<BattleCharaTask*>((CharaTask*)c->mType)->m1470 != 0) {
+                        ((CharaTask*)c->mType)->fn_8016034C();
+                    }
+                    if (c->m94 != 0 && lbl_8087F9E8 != 0) {
+                        for (int j = 0; j < 4; j++) {
+                            if (c->m64[j] == 4 && c->m54[j] != 0) {
+                                lbl_8087F9E8->fn_8059C2A8((CharaTask*)c->mType, (HitInfo_unk*)c->m54[j]);
+                            }
+                        }
+                        for (int j = 0; j < 6; j++) {
+                            if (sIds[j] > 0) {
+                                lbl_8087F9E8->fn_8059C2A8((CharaTask*)c->mType, fn_80219E6C(sIds[j]));
+                            }
+                        }
+                    }
+                }
+            }
+            if (any != 0) {
+                lbl_8087F8A0->mHead->mStatus.m08 = 0.0f;
+            }
+        } else if (IsPadPressed_unk(5) != 0) {
+            ChangeMode_unk(0);
+            if (m158C < 0) {
+                m158C++;
+            } else {
+                m158C--;
+            }
+            TacViewSelectSlot_unk(this);
+            TacViewUndo_unk(this, m48.m04);
+            fn_805A70D4(2, 1.0f);
+        }
+    }
+    if (lbl_8087F0A8->mInput.fn_801231D0(0x2E) != 0) {
+        m1590 = (m1590 + 1) % 2;
+        lbl_8087F490->fn_803D8344();
+    }
+    if (mA74 != 0 && fn_800A55FC(lbl_8087EF70, 0, 0) != 0 && fn_800A55FC(lbl_8087EF70, 0, 1) != 0 &&
+        fn_800A55FC(lbl_8087EF70, 0, 2) != 0 && fn_800A55FC(lbl_8087EF70, 0, 3) != 0 &&
+        fn_800A55FC(lbl_8087EF70, 0, 0x1A) != 0 && fn_800A55FC(lbl_8087EF70, 0, 0x19) != 0 &&
+        fn_800A55FC(lbl_8087EF70, 0, 0x17) != 0 && fn_800A55FC(lbl_8087EF70, 0, 0x18) != 0) {
+        mA74 = 0;
+    }
+}
+
 void TacView::vf14() {}
+
+extern "C" int fn_8021A888(HitInfo_unk* hit); // inferred: the skill is an attack magic
+extern "C" atn::Vector3 lbl_807C7030;          // inferred: zero vector
+// inferred: aiming state of the view (m15D8-m15F8; name invented)
+inline void TacViewSetAim_unk(TacView* v, int mode, const atn::Vector3& pos, float radius, unsigned char a,
+                              unsigned char b) {
+    v->m15D8 = mode;
+    v->m15DC = pos;
+    v->m15E8 = radius;
+    v->m15EC = a;
+    v->m15ED = b;
+    v->m15F0.mState = 2;
+    v->m15F0.m04 = 0;
+    v->m15F0.mTarget = 0;
+}
+
+// inferred: gives `chara` the command of the direction `dir` of the character entry m54: target, skill and AI
+// order; skills that are aimed (areas, sub bullets) start the aiming of the view
+// NONMATCHING: 80.6% - the original builds the aiming state (m15D8-m15F8) in a local struct and copies it, and
+// orders the compares of the commands differently
+void TacView::fn_805A96D4(CharaTask* chara, int dir) {
+    m54.m4C = dir;
+    m54.mType = (int)chara;
+    HitInfo_unk* skill = (HitInfo_unk*)m54.m54[dir];
+    if (skill != 0) {
+        if (skill->m64 == 0) {
+            m54.mChara = chara;
+        } else if (fn_8021A77C(skill) != 0 || fn_8021A888(skill) != 0) {
+            m54.mChara = chara->mC58.mC4;
+        } else {
+            m54.mChara = chara;
+        }
+    }
+    if (chara->fn_80160324()) {
+        m54.m0C = (int)chara->mF7C;
+        m54.m10 = (int)chara->m638;
+    }
+    m54.m14 = chara->fn_8017AC08();
+    if (lbl_8087EE68 != 0 && lbl_8087EE68->fn_800185B4(chara, 0) != 0) {
+        m54.m18 = *lbl_8087EE68->fn_800185B4(chara, 0);
+    } else {
+        m54.m18.fn_8003E918();
+    }
+    m54.m94 = 1;
+    CharaTask* user = (CharaTask*)m54.mType;
+    CharaTask* target = m54.mChara;
+    int kind = fn_80219558(user->m50);
+    int extra = 0;
+    int cmd = m54.m64[m54.m4C];
+    if (cmd < 6) {
+        switch (kind) {
+        case 2:
+        case 3:
+            if (cmd == 4) {
+                extra = skill->m5C + 30;
+            }
+            break;
+        case 1:
+        case 5:
+        case 9:
+        case 10:
+            if (user->mType == 0 && cmd == 5) {
+                PlayerState_unk state(11);
+                state.m0C = user->mPos;
+                static_cast<BattleCharaTask*>(chara)->SetState_unk(state);
+            } else {
+                if (user->fn_80160324() && skill != 0) {
+                    user->fn_80160170(skill, target);
+                }
+                fn_805ADC20(user, skill);
+                if (lbl_8087F490 != 0) {
+                    lbl_8087F490->fn_803E5C60(user);
+                }
+            }
+            break;
+        case 4:
+            if (user->mType == 0 && cmd == 5) {
+                break;
+            }
+            if (cmd == 4) {
+                target = user;
+            }
+            if (user->fn_80160324() && skill != 0) {
+                user->fn_80160170(skill, target);
+            }
+            fn_805ADC20(user, skill);
+            if (lbl_8087F490 != 0) {
+                lbl_8087F490->fn_803E5C60(user);
+            }
+            break;
+        case 6:
+            if (cmd == 4) {
+                PlayerState_unk state(7);
+                state.m18 = skill->m04;
+                static_cast<BattleCharaTask*>(chara)->SetState_unk(state);
+            } else if (user->mType != 0 || cmd != 5) {
+                fn_805ADC20(user, skill);
+                if (lbl_8087F490 != 0) {
+                    lbl_8087F490->fn_803E5C60(user);
+                }
+            }
+            break;
+        }
+        lbl_8087EE68->fn_800183E0(user, target, skill, extra);
+    } else {
+        if (cmd == 6 || cmd == 7) {
+            lbl_8087EE68->fn_80018608(user, 0);
+            PlayerState_unk state(7);
+            state.m18 = skill->m04;
+            static_cast<BattleCharaTask*>(chara)->SetState_unk(state);
+        } else if (cmd == 8) {
+            AiTarget* t = lbl_8087EE68 != 0 ? lbl_8087EE68->fn_800185B4(user, 0) : 0;
+            if (t != 0 && t->m28 != 0 && t->m28->m04 == 0x4FBD) {
+                m54.m94 = 0;
+            }
+        } else if (cmd == 9) {
+            lbl_8087EE68->fn_800183E0(user, target, skill, 0);
+        } else if (cmd == 10 || cmd == 11) {
+            lbl_8087EE68->fn_800183E0(user, target, skill, 0);
+        }
+    }
+    if (skill == 0) {
+        return;
+    }
+    if (m54.m94 != 0) {
+        fn_805AA014(user, cmd);
+    }
+    user->mStatus.fn_8012D180();
+    if (skill->m70 > 0) {
+        if (fn_80219E6C(skill->m70)->m02 == 7) {
+            TacViewSetAim_unk(this, 1, chara->mPos, 100.0f, 1, 0);
+        }
+        return;
+    }
+    if (user->mType == 0) {
+        switch (skill->m04) {
+        case 0x179A:
+        case 0x179B:
+        case 0x179C:
+            TacViewSetAim_unk(this, 1, chara->mPos, skill->m58, 1, 1);
+            break;
+        case 0x1788:
+        case 0x1791:
+            TacViewSetAim_unk(this, 1, chara->mPos, skill->m58, 1, 0);
+            break;
+        case 0x4FBB:
+        case 0x1789:
+            TacViewSetAim_unk(this, 1, chara->mPos, skill->m58, 1, 0);
+            break;
+        }
+    } else if (skill->m04 == 0x4FBB || skill->m04 == 0x1789) {
+        TacViewSetAim_unk(this, 1, chara->mPos, skill->m58, 1, 0);
+    } else if ((fn_8021A888(skill) != 0 || skill->m04 == 0x1788 || skill->m04 == 0x1791) && chara->mType != 2) {
+        int count = 0;
+        for (EnemyTask* e = EnemyManager::sInstance != 0 ? EnemyManager::sInstance->mHead : 0; e != 0;
+             e = e->mNext) {
+            if (e->CanAct_unk() && (e->m54C & 0x2000) != 0x2000 && e->mC58.mC0 != 0 &&
+                static_cast<BattleCharaTask*>((CharaTask*)e)->m146C != 0x29) {
+                count++;
+            }
+        }
+        if (count > 0) {
+            TacViewSetAim_unk(this, 2, lbl_807C7030, 0.0f, 1, 0);
+        }
+    }
+}
 
 void TacView::fn_805AA014(CharaTask* chara, int type) {
     switch (fn_80219558(chara->m50)) {
@@ -334,30 +962,7 @@ void TacView::fn_805AA4E4() {
 }
 
 void TacView::fn_805AA734() {
-    if (mA70 == 0) {
-        return;
-    }
-    mA70 = 0;
-    ChangeMode_unk(6);
-    m48.mState = 2;
-    m48.m04 = 0;
-    m48.mTarget = 0;
-    m15D8 = 0;
-    m15DC.x = 0.0f;
-    m15DC.y = 0.0f;
-    m15DC.z = 0.0f;
-    m15E8 = -1.0f;
-    m15EC = 0;
-    m15ED = 0;
-    m15F0.mState = 2;
-    m15F0.m04 = 0;
-    m15F0.mTarget = 0;
-    fn_800CB5C8(&m16C0, 15, 0);
-    mLayouts.m1C = 0;
-    mLayouts.m20 = 0;
-    for (int i = 0; i < 4; i++) {
-        mLayouts.mDirs[i]->Rewind_unk();
-    }
+    TacViewClose_unk(this);
 }
 
 int TacView::fn_805AA824() {

@@ -125,6 +125,7 @@ public:
     void fn_805AA4E4(); // inferred: opens the view
     void fn_805AA734(); // inferred: closes the view
     int fn_805AA824();  // inferred: always 0 (tested by GameUI)
+    void fn_805A96D4(CharaTask*, int); // inferred: command of a direction for a character (vf10)
     void fn_805AB828(int mode); // inferred: changes the mode of the view (mA78)
     // inferred: inlined in fn_805AA4E4/fn_805AA734 (name invented)
     void ChangeMode_unk(int mode) {
