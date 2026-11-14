@@ -2872,7 +2872,7 @@ game/MarketTask.cpp:
 
 game/MenuCommonTask.cpp:
 	.text       start:0x804A29C4 end:0x804A7EA4
-	.rodata     start:0x80757108 end:0x80757648
+	.rodata     start:0x80757108 end:0x80757640
 	.data       start:0x807907B0 end:0x80790818
 	.sdata      start:0x8087E0E0 end:0x8087E0E8
 	.sbss       start:0x8087F580 end:0x8087F588
@@ -2880,7 +2880,7 @@ game/MenuCommonTask.cpp:
 
 game/MiniMapTask.cpp:
 	.text       start:0x804A7EA4 end:0x804AC430
-	.rodata     start:0x80757648 end:0x80757820
+	.rodata     start:0x80757640 end:0x80757820
 	.data       start:0x80790818 end:0x80790888
 	.sdata2     start:0x80887250 end:0x808872D0
 

@@ -17,6 +17,7 @@
 #include "game/CharaManager.h"
 #include "game/PlayerTask.h"
 #include "game/GimmickCommon.h"
+#include "game/GameConfig_unk.h"
 
 extern "C" void fn_8008771C(void* menu, const char* name, float* value, float min, float max, float step,
                             void (*func)(void*, void*), void* arg); // inferred: AddFloat of the debug menu
@@ -133,9 +134,6 @@ extern "C" void fn_804A893C(unsigned int* object, unsigned int flags) {
     object[1] |= flags;
 }
 
-// NONMATCHING: 0.07% - target performs the main minimap draw/update pass.
-void MiniMapTask::vf14() {}
-
 extern "C" atn::GraphicsDevice_unk* lbl_8087EEE0;
 extern "C" float fn_80076FF8(atn::GraphicsDevice_unk* device); // inferred: screen aspect ratio
 inline atn::GraphicsDevice_unk* GetGraphics_unk() {
@@ -143,6 +141,175 @@ inline atn::GraphicsDevice_unk* GetGraphics_unk() {
 }
 extern "C" GameTask* lbl_8087F430;
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
+extern "C" GameConfig_unk* lbl_8087F0A8;
+
+// inferred: keeps the rgb of the material colour and sets its alpha
+static inline void MiniMapSetAlpha_unk(Material_unk* material, float alpha) {
+    ColorF_unk color(fn_8000DD98(material));
+    color.a = alpha;
+    material->mColor = color.ToGX();
+}
+
+#define MINIMAP_MIN_UNK(a, b) ((a) < (b) ? (a) : (b))
+
+// NONMATCHING: 94.2% - float register allocation in the marker loop (the original keeps the centre in f30/f31
+// and the constants in f24-f29) and scheduling around the draw calls; the leader check is a bne/b pair in the
+// original
+// inferred: per frame: fades the house/line/road layers out while the leader is in the "LOWER_LAYER" box,
+// hides the minimap in the "OFF_AREA" boxes, turns the map with the leader or the camera (mode of the game
+// config), draws the player arrow and the markers (inside: point and marker; outside: arrow on the edge
+// toward the marker, if m24 is set) and places the orthographic camera m640 over the leader
+void MiniMapTask::vf14() {
+    m5D8->mFlags |= 4;
+    if (m4C == 0 || lbl_8087F8A0 == 0 || lbl_8087F8A0->mHead == 0) {
+        return;
+    }
+    atn::Vector3 pos = lbl_8087F8A0->mHead->mPos;
+    int lower = 0;
+    if (pos.y <= m1604 && pos.x > m15F4 && pos.x < m15F4 + m15FC && pos.z > m15F8 && pos.z < m15F8 + m1600) {
+        lower = 1;
+    }
+    m1608 = lower ? MINIMAP_MAX_UNK(0.2f, m1608 - 0.05f) : MINIMAP_MIN_UNK(1.0f, 0.05f + m1608);
+    m208.mFlags &= ~0x10;
+    // inferred: alpha of the house/line/road materials (rgb kept): translucent below 0.99 (draw mode 3 and the
+    // model flag 0x10), else mode 1
+    {
+        float alpha = m1608;
+        Material_unk* material = m208.fn_80092954("m_house_alpha");
+        if (material != 0) {
+            MiniMapSetAlpha_unk(material, alpha);
+            if (alpha < 0.99f) {
+                material->fn_8007FAF0(3);
+                m208.mFlags |= 0x10;
+            } else {
+                material->fn_8007FAF0(1);
+            }
+        }
+    }
+    {
+        float alpha = m1608;
+        Material_unk* material = m208.fn_80092954("m_line_alpha");
+        if (material != 0) {
+            MiniMapSetAlpha_unk(material, alpha);
+            if (alpha < 0.99f) {
+                material->fn_8007FAF0(3);
+                m208.mFlags |= 0x10;
+            } else {
+                material->fn_8007FAF0(1);
+            }
+        }
+    }
+    {
+        float alpha = m1608;
+        Material_unk* material = m208.fn_80092954("m_road_alpha");
+        if (material != 0) {
+            MiniMapSetAlpha_unk(material, alpha);
+            if (alpha < 0.99f) {
+                material->fn_8007FAF0(3);
+                m208.mFlags |= 0x10;
+            } else {
+                material->fn_8007FAF0(1);
+            }
+        }
+    }
+    if (m160C != 0) {
+        fn_804A9EB4();
+        return;
+    }
+    float scale = m5F4 * (m5E4 / 128.0f);
+    atn::Vector3 center(0.5f * m5E4 + m5DC, 0.5f * m5E8 + m5E0, 0.0f);
+    float cx = center.x;
+    float cy = center.y;
+    float arrowSize = m630;
+    float markerSize = m638;
+    float arrowShineSize = m634;
+    float pointSize = m63C;
+    for (unsigned int i = 0; i < m1538.mCount; i++) {
+        if (pos.x > m1538.mData[i].mMin.x && pos.x < m1538.mData[i].mMin.x + m1538.mData[i].mMax.x &&
+            pos.z > m1538.mData[i].mMin.y && pos.z < m1538.mData[i].mMin.y + m1538.mData[i].mMax.y) {
+            return;
+        }
+    }
+    pos.y = 0.0f;
+    float angle = 0.0f;
+    switch (lbl_8087F0A8->mTitle.m24) { // inferred: rotation mode of the minimap
+    case 1:
+        angle = lbl_8087F8A0->mHead->mRot.y - 3.1415927f;
+        break;
+    case 2: {
+        atn::Camera& camera = atn::RenderManager::instance_->mCamera;
+        angle = -(camera.mTarget - camera.mPos).GetNormalize().ToRotation_unk().y - 3.1415927f;
+        break;
+    }
+    }
+    atn::Matrix3x4 mtx = atn::Matrix3x4::RotY_unk(angle);
+    atn::Vector3 front(0.0f, 0.0f, -1.0f);
+    PSMTXMultVec(mtx.m, &front, &front);
+    atn::Vector3 frontRot(front.x, 0.0f, -front.z);
+    frontRot.fn_80139F60(); // inferred: not used afterwards
+    lbl_8087EEB0->fn_8005EE38(0xFF395A83, &lbl_8087EEB0->m10, &m1D8, 0, 0.5f * m5E4 + m5DC, 0.5f * m5E8 + m5E0, 10.0f, 12.0f, 12.0f,
+                              -(lbl_8087F8A0->mHead->mRot.y - 3.1415927f), 0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f,
+                              1.0f, 1.0f);
+    for (unsigned int i = 0; i < 64; i++) {
+        MiniMapMarker_unk* m = &mMarkers[i];
+        if (m->m00 != 1) {
+            continue;
+        }
+        if (m->m04 != -1 && !lbl_8087F430->fn_80370174(m->m04)) {
+            continue;
+        }
+        atn::Vector3 markerPos(m->mPos.x, 0.0f, m->mPos.z);
+        atn::Vector3 d = markerPos - pos;
+        d.Length_unk();
+        atn::Vector3 v = d * (1.0f / m5FC) * scale;
+        PSMTXMultVec(mtx.m, &v, &v);
+        int inside = 0;
+        if (v.x > 0.5f * -m5E4 + 3.0f && v.x < 0.5f * m5E4 - 3.0f && v.z > 0.5f * -m5E8 + 3.0f &&
+            v.z < 0.5f * m5E8 - 3.0f) {
+            inside = 1;
+        }
+        if (!inside) {
+            if (m->m24 == 0) {
+                continue;
+            }
+            v.x = MINIMAP_MAX_UNK(0.5f * -m5E4 + 3.0f, MINIMAP_MIN_UNK(0.5f * m5E4 - 3.0f, v.x));
+            v.z = MINIMAP_MAX_UNK(0.5f * -m5E8 + 3.0f, MINIMAP_MIN_UNK(0.5f * m5E8 - 3.0f, v.z));
+            atn::Vector3 n = d.GetNormalize() * scale;
+            PSMTXMultVec(mtx.m, &n, &n);
+            atn::Vector3 dir(n.x, 0.0f, -n.z);
+            dir.fn_80139F60();
+            float rot = dir.y;
+            lbl_8087EEB0->fn_8005EDF0(m610.ToU32(), &m178, 1, 1, cx + v.x, cy + v.z, 10.0f,
+                                      arrowShineSize * m->mScale, arrowShineSize * m->mScale, rot, 0.0f, 0.0f, 1.0f, 1.0f);
+            lbl_8087EEB0->fn_8005EE38(m->mColor.ToU32(), &m88, &m118, 0, cx + v.x, cy + v.z, 10.0f,
+                                      arrowSize * m->mScale, arrowSize * m->mScale, rot, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f,
+                                      1.0f, 1.0f);
+        } else {
+            lbl_8087EEB0->fn_8005E3E4(m620.ToU32(), &m1A8, cx + v.x - 0.5f * pointSize * m->mScale,
+                                      cy + v.z - 0.5f * pointSize * m->mScale, 10.0f, pointSize * m->mScale,
+                                      pointSize * m->mScale, 0.0f, 0.0f, 1.0f, 1.0f, 1, 1);
+            lbl_8087EEB0->fn_8005E7F4(m->mColor.ToU32(), &mB8, &m148, cx + v.x - 0.5f * markerSize * m->mScale,
+                                      cy + v.z - 0.5f * markerSize * m->mScale, 10.0f, markerSize * m->mScale,
+                                      markerSize * m->mScale, 0.0f, 0.0f, 1.0f, 1.0f);
+        }
+    }
+    m640.mProjType = 1;
+    m640.SetPosition(pos.x, 100.0f, pos.z);
+    m640.SetTarget(pos.x, 0.0f, pos.z);
+    m640.mUp.x = 0.0f;
+    m640.mUp.y = 0.0f;
+    m640.mUp.z = -1.0f;
+    float h = m5FC * (float)GetGraphics_unk()->mHeight / scale * (m5E8 / 256.0f);
+    float aspect = (float)GetGraphics_unk()->mWidth / (float)GetGraphics_unk()->mHeight;
+    m640.mTop = 0.5f * h;
+    m640.mBottom = 0.5f * -h;
+    m640.mRight = 0.5f * h * aspect;
+    m640.mLeft = 0.5f * -h * aspect;
+    m640.fn_8004B378();
+    atn::RenderManager::instance_->AddRender(this, 2, 0.0f);
+    atn::RenderManager::instance_->AddRender(this, 16, 0.0f);
+}
+
 extern "C" unsigned int fn_800DC6B4(const char* s); // inferred: string hash
 extern "C" void fn_801FECE0(void* layout, unsigned int hash, float value); // inferred: sets a value of a pane
 inline void atn::D2A_Task::SetLayoutValue_unk(const char* name, float value) {
