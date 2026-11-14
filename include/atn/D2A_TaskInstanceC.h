@@ -13,7 +13,7 @@ extern "C" float fn_801F6C2C(atn::D2A_TaskInstanceBase<32, 8>* inst);           
 extern "C" void* fn_801F6C38(atn::D2A_TaskInstanceBase<32, 8>* inst, const char* name);        // GetTrack_unk
 extern "C" void fn_801F6C80(atn::D2A_TaskInstanceBase<32, 8>* inst, const char* name, float value);
 extern "C" void fn_801F6D7C(atn::D2A_TaskInstanceBase<32, 8>* inst, const char* name, int index, float value);
-extern "C" void fn_801F6E78(atn::D2A_TaskInstanceBase<32, 8>* inst, const char* name, atn::D2A_DrawRect r);
+extern "C" void fn_801F6E78(atn::D2A_TaskInstanceBase<32, 8>* inst, const char* name, atn::D2A_DrawRect& r);
 extern "C" void fn_801F7590(atn::D2A_TaskInstanceBase<32, 8>* inst, const char* name, atn::D2A_DrawColor c);
 extern "C" void fn_801F791C(atn::D2A_TaskInstanceBase<32, 8>* inst, const char* name, int index, float value);
 extern "C" void fn_801F7DF0(atn::D2A_TaskInstanceBase<32, 8>* inst, const char* name, float r, float g, float b);
