@@ -5110,6 +5110,142 @@ void BattleTask::fn_80109864(SpEffect_unk* effect, CharaTask* chara) {
     }
 }
 
+// inferred: view of the battle manager under the name the callers use (CharaTask::fn_80145334 and
+// Em315Coffin call fn_8013A194()->fn_80109950(this)); `this` is not read
+struct Effect_unk {
+    atn::Vector3 fn_80109950(CharaTask* chara);
+};
+
+// NONMATCHING: 97.5% - register allocation (center/ring and the loop pointers, best/offset floats permuted) and
+// the index loop keeps its pointer out of the loop
+// inferred: place of `chara` in the ring of characters around its leader (mC58.mC4; the ring is m125C of the leader,
+// entries {angle, character}): the characters between the nearest (or the player-side one) and `chara` take
+// their width (vfA0) scaled to a full turn, on one side or the other; its own position when it is not in the ring
+atn::Vector3 Effect_unk::fn_80109950(CharaTask* chara) {
+    CharaTask* center = chara->mC58.mC4;
+    if (center == 0) {
+        return chara->mPos;
+    }
+    unsigned int count = center->m125C.mCount;
+    FixedArray_unk<CharaPair_unk, 8>& ring = center->m125C;
+    if (count <= 1) {
+        return chara->mPos;
+    }
+    int found = 0;
+    for (CharaPair_unk* it = ring.begin(); it != ring.end(); it++) {
+        if (it->m04 == chara) {
+            found = 1;
+            break;
+        }
+    }
+    if (!found) {
+        return chara->mPos;
+    }
+    float rot = center->mRot.y;
+    float best = 1e16f;
+    CharaTask* nearest = 0;
+    float angle = 0.0f;
+    CharaPair_unk* it = ring.begin();
+    for (unsigned int i = 0; i < ring.mCount; i++, it++) {
+        atn::Vector3 d = it->m04->mPos - center->mPos;
+        float dist = PSVECSquareMag(&d);
+        CharaTask* c = it->m04;
+        if (c->mType == 0) {
+            angle = it->m00;
+            nearest = c;
+            break;
+        }
+        if (c->mType == 2 && c->m50 < 100) {
+            angle = it->m00;
+            nearest = c;
+            break;
+        }
+        if (dist < best) {
+            best = dist;
+            angle = it->m00;
+            nearest = c;
+        }
+    }
+    float total = 0.0f;
+    it = ring.begin();
+    for (unsigned int i = 0; i < ring.mCount; i++, it++) {
+        total += it->m04->vfA0();
+    }
+    if (total < 6.2831855f) {
+        return chara->mPos;
+    }
+    float scale = 6.2831855f / total;
+    if (nearest == chara) {
+        return chara->mPos;
+    }
+    int index;
+    for (index = (int)count - 1; index >= 0; index--) {
+        if (ring.mData[index].m04 == nearest) {
+            index--;
+            break;
+        }
+    }
+    float offset = 0.5f * (scale * nearest->vfA0());
+    int hit = 0;
+    for (;;) {
+        if (index < 0) {
+            index = count - 1;
+        }
+        CharaPair_unk& e = ring.mData[index];
+        if (atn::WrapAngle_unk(angle - e.m00) < 0.0f) {
+            break;
+        }
+        offset += 0.5f * (scale * e.m04->vfA0());
+        if (e.m04 == chara) {
+            hit = 1;
+            break;
+        }
+        offset += 0.5f * (scale * e.m04->vfA0());
+        index--;
+    }
+    if (hit) {
+        atn::Vector3 v(0.0f, 0.0f, chara->m64->m30);
+        atn::Matrix3x4 m;
+        m.fn_8013A13C(atn::WrapAngle_unk(rot + angle - offset));
+        PSMTXMultVec(m.m, &v, &v);
+        atn::Vector3 pos(center->mPos.x + v.x, chara->mPos.y, center->mPos.z + v.z);
+        return pos;
+    }
+    for (index = 0; index < (int)count; index++) {
+        if (ring.mData[index].m04 == nearest) {
+            index++;
+            break;
+        }
+    }
+    offset = 0.5f * (scale * nearest->vfA0());
+    hit = 0;
+    for (;;) {
+        if (index >= (int)count) {
+            index = 0;
+        }
+        CharaPair_unk& e = ring.mData[index];
+        if (atn::WrapAngle_unk(angle - e.m00) >= 0.0f) {
+            break;
+        }
+        offset += 0.5f * (scale * e.m04->vfA0());
+        if (e.m04 == chara) {
+            hit = 1;
+            break;
+        }
+        offset += 0.5f * (scale * e.m04->vfA0());
+        index++;
+    }
+    if (hit) {
+        atn::Vector3 v(0.0f, 0.0f, chara->m64->m30);
+        atn::Matrix3x4 m;
+        m.fn_8013A13C(atn::WrapAngle_unk(offset + (rot + angle)));
+        PSMTXMultVec(m.m, &v, &v);
+        atn::Vector3 pos(center->mPos.x + v.x, chara->mPos.y, center->mPos.z + v.z);
+        return pos;
+    }
+    return chara->mPos;
+}
+
 // inferred: result of the collision tests of lbl_8087EE98 (0x50 bytes; same layout as include/gmk/Lemon.h and
 // game/CharaTask.cpp, here with the constructor inlined)
 struct CollResult_unk {

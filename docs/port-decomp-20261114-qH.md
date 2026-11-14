@@ -13,6 +13,12 @@ Inicio: 2026-11-14 04:41 CET. Rama `agent-H`. Unidades: `game/BattleCharaTask`, 
   del arma (`fn_800E62AC`/`fn_800E7650` con `GameUI::m748.m00`/`m748.m14`). Resto: r0/r3 permutados en las
   comprobaciones del objetivo, la entrada 0x11 recarga `lbl_8087F0A8` (aqui usa `config`), orden de stores del
   vector al objetivo, cargas de `m7FC`/`m800` de la camara y la recarga de la palabra de flags antes de `mFlag5 = 0`.
+- `Effect_unk::fn_80109950` (0x80109950, 1580 bytes, unidad BattleTask): **escrita, NONMATCHING 97,5 %** (antes 0 %).
+  Firma `atn::Vector3 Effect_unk::fn_80109950(CharaTask*)` (sin cambio; `this` no se lee). Puesto de `chara` en el
+  anillo de su lider (`mC58.mC4`, `m125C` = {angulo, personaje}): busca el mas cercano (o el de tipo 0 / tipo 2
+  con `m50 < 100`), reparte la vuelta completa por los anchos `vfA0` y recorre el anillo hacia un lado y el otro hasta
+  `chara`; devuelve el centro mas `(0, 0, m64->m30)` girado, con la y de `chara`, o `mPos` si no esta. Resto:
+  asignacion de registros (centro/anillo, punteros de los bucles, floats `best`/`offset`).
 
 ## Cambios de firma / layout (para el port)
 
@@ -23,6 +29,12 @@ Inicio: 2026-11-14 04:41 CET. Rama `agent-H`. Unidades: `game/BattleCharaTask`, 
 - `fn_80108C10` declarado en BattleCharaTask.cpp con `const atn::Vector3&` (como en Em203GreaterDaemon), no puntero.
 
 ## Decisiones y hallazgos
+
+- `Effect_unk` se define como vista minima en BattleTask.cpp solo para `fn_80109950` (CharaTask.cpp y Em315Coffin
+  la llaman con ese nombre mangled); pendiente unificar con `BattleTask` cuando se toquen esas unidades.
+- Re-emparejado de BattleTask: `pd.sh` (pairdata --relabel) rompe ~45 funciones (rep100 +45). Con pairdata99 hay que
+  iterar y aun quedan 32 etiquetas de funciones NONMATCHING: el desplazamiento de los `@N` es constante (+328, y
+  +427 a partir de ~@33000), aplicado a mano por direccion (labelcheck vuelve a "missing 2" como la referencia).
 
 - Un parametro con nombre en la cabecera consume un `@N` en todas las unidades que la incluyen: se deja el nombre
   `field` en `fn_800E7650` para no mover las etiquetas de ~40 unidades; la nueva declaracion va sin nombre.
