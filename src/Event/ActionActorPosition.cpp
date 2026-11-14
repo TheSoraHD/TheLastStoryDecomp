@@ -724,7 +724,7 @@ int ActionActorFacial::vf0C(Action* arg, int phase) {
 
 extern "C" int rand();
 
-// NONMATCHING: 95.7% - volatile registers of the two inlined actor lookups and the parameter checks; the
+// NONMATCHING: 98.5% - volatile registers of the two inlined actor lookups and the parameter checks; the
 // weight 1.0 in f29 (ours f30)
 void ActionActorEyes::fn_80553A74(Action* arg, float now) {
     ActionOwner_unk* section = arg->fn_805381A0();
@@ -744,12 +744,14 @@ void ActionActorEyes::fn_80553A74(Action* arg, float now) {
     } else if ((float)(length - fadeOut) < t && fadeOut >= 1) {
         angle *= ((float)length - t) / (float)fadeOut;
     }
-    float rad = 0.017453292f * angle;
-    float rx = atn::Abs_unk(0.017453292f * arg->GetParam_unk(10)->m04.f);
-    float ry = atn::Abs_unk(0.017453292f * arg->GetParam_unk(11)->m04.f);
+    float rad = atn::DegToRad_unk(angle);
+    float rx = atn::Abs_unk(atn::DegToRad_unk(arg->GetParam_unk(10)->m04.f));
+    float ry = atn::Abs_unk(atn::DegToRad_unk(arg->GetParam_unk(11)->m04.f));
     atn::Vector3 jitter(lbl_807C7030);
-    jitter.x = 2.0f * rx * ((float)rand() / 32767.0f) - rx;
-    jitter.y = 2.0f * ry * ((float)rand() / 32767.0f) - ry;
+    float vx = 2.0f * rx * ((float)rand() / 32767.0f);
+    jitter.x = vx - rx;
+    float vy = 2.0f * ry * ((float)rand() / 32767.0f);
+    jitter.y = vy - ry;
     actor->fn_80012D34(target, node, cam, 0, jitter, 1, weight, rad);
 }
 
@@ -845,7 +847,7 @@ void ActionActorEyes::fn_80554088(Action* arg, int length, atn::Vector3* v, int 
     actor->fn_80012D34(target, node, pos, mode, lbl_807C7030, 0, weight, 0.0f);
 }
 
-// NONMATCHING: 92.4% - saved registers (the original gives r31/r30 to camera/mode and r28 to arg) and the
+// NONMATCHING: 94.8% - saved registers (the original gives r31/r30 to camera/mode and r28 to arg) and the
 // volatile registers of the inlined lookups
 int ActionActorEyes::vf08(Action* arg) {
     float now = arg->fn_805381C8()->m198;
@@ -875,10 +877,13 @@ int ActionActorEyes::vf08(Action* arg) {
     if (wander) {
         if (actor->m18C.m00 <= 0) {
             Actor* target2 = manager->FindActor_unk(arg->GetParam_unk(0)->m04.i);
-            float rx = atn::Abs_unk(0.017453292f * arg->GetParam_unk(10)->m04.f);
-            float ry = atn::Abs_unk(0.017453292f * arg->GetParam_unk(11)->m04.f);
-            actor->m18C.m04.Set_unk(2.0f * rx * ((float)rand() / 32767.0f) - rx, 2.0f * ry * ((float)rand() / 32767.0f) - ry,
-                                0.0f);
+            float rx = atn::Abs_unk(atn::DegToRad_unk(arg->GetParam_unk(10)->m04.f));
+            float ry = atn::Abs_unk(atn::DegToRad_unk(arg->GetParam_unk(11)->m04.f));
+            // inferred: the arguments are evaluated right to left (the first random number goes to y)
+            float vy = 2.0f * ry * ((float)rand() / 32767.0f);
+            float y = vy - ry;
+            float vx = 2.0f * rx * ((float)rand() / 32767.0f);
+            actor->m18C.m04.Set_unk(vx - rx, y, 0.0f);
             actor->m18C.m00 = (int)frames;
         } else {
             fn_80553DC8(arg, &actor->m18C.m10, &actor->m18C.m04, mode, frames);
