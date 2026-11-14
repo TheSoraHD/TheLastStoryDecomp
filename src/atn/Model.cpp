@@ -103,9 +103,6 @@ extern "C" float fn_800A08D4(atn::LH_Motion* motion); // inferred: length of the
 
 namespace atn {
 
-inline Model::Node_unk::Node_unk() {
-}
-
 inline atn::Vector3 ModelJoint_unk::GetScale_unk() const {
     return m34;
 }
@@ -118,16 +115,8 @@ inline atn::Vector3 ModelJoint_unk::GetTrans_unk() const {
     return m4C;
 }
 
-inline NodeWork_unk::NodeWork_unk() {
-    memset(this, 0, sizeof(NodeWork_unk));
-}
-
 inline int RenderManager::GetPass_unk() const {
     return m2F8;
-}
-
-inline ModelBase::Mtx_unk* Model::GetMtx_unk() {
-    return &mMtx;
 }
 
 extern "C" void fn_800D58A4(Texture_unk* tex); // inferred: releases a texture

@@ -23,7 +23,7 @@ class Scene;
 struct MotionCmd_unk; // inferred: motion command entry of a motion slot (16 bytes)
 // inferred: per-node work entry of a model (18 bytes, cleared by its weak ctor 0x800979E8); name invented
 struct NodeWork_unk {
-    inline NodeWork_unk(); // inferred: defined in atn/Model.cpp
+    NodeWork_unk() { memset(this, 0, sizeof(NodeWork_unk)); }
     unsigned short m00[9];
 };
 class Matrix3x4;
@@ -220,10 +220,14 @@ struct Model : public ModelBase {
     virtual int vf20(); // 0x80097B74: inferred: a motion is still loading
     // inferred: atn::Model declares its own accessor of the matrix block (second weak copy 0x800952F8, used
     // by fn_80095300; defined in atn/Model.cpp)
-    inline Mtx_unk* GetMtx_unk();
+    Mtx_unk* GetMtx_unk() { return &mMtx; }
     virtual void vf24(); // 0x800977F0
     using ModelBase::CalcMatrixStack;
-    void CalcMatrixStack(ModelNodeCallback_unk callback); // 0x8000D430
+    // inferred: inline (weak copy 0x8000D430, first emitted by Event/Puppeteer_CharaTask): the matrix stack from
+    // the node poses of the model
+    void CalcMatrixStack(ModelNodeCallback_unk callback) {
+        ModelBase::CalcMatrixStack((const MotionBuffer*)m21C.mData, callback);
+    }
     int fn_8009290C(unsigned int hash);          // inferred: material index by name hash
     Material_unk* fn_80092954(const char* name); // inferred: material by name
     Material_unk* fn_800929C0(unsigned int hash); // inferred: material by name hash
@@ -298,7 +302,7 @@ struct Model : public ModelBase {
     // inferred: node pose of the model (0x2C bytes): a MotionPose_unk (its constructor is called by the weak
     // constructor 0x8008A4B0); m00 flags (1 position, 2 rotation, 4 scale; CharaTask::fn_80148CC4)
     struct Node_unk : public MotionPose_unk {
-        inline Node_unk(); // inferred: defined in atn/Model.cpp
+        Node_unk() {}
     };
     Res_unk* fn_8000DD04(); // inferred: returns the loaded data of the first level
     typedef Node_unk Entry_unk;
@@ -331,18 +335,20 @@ struct Model : public ModelBase {
     void fn_800991D0(int); // inferred: samples the additive tracks 4 and 5 (called by fn_80097E80)
 
     // inferred: accessors called out of line from CharaTask (names keep the address)
-    Node_unk* fn_80147A00();
+    Node_unk* fn_80147A00() { return m21C.mData; }
     typedef atn::Sphere Sphere_unk;
     Sphere_unk fn_80094F98(); // inferred: bounding sphere (passed to MapManager::FindArea)
     AABB_unk fn_80095300();   // inferred: bounding box in world space
-    float GetMotionFrame(int track) const; // 0x80139550
-    void fn_80139F24(int value);
-    int fn_80139F2C(int track);
-    void SetMotionSpeed(int track, float speed); // 0x80139F3C
-    void SetMotionFrame(int track, float frame); // 0x80357F38 (defined in game/EnemyTasha.cpp)
-    int fn_8013C3DC();
-    float fn_8013C3E4(int track);
-    void fn_8013C554(int track, float weight);
+    float GetMotionFrame(int track) const { return mTracks[track].m08; } // weak copy 0x80139550
+    // inferred: inline setters (weak copies 0x80139F24, 0x80139F3C, 0x80357F38, 0x8013C554; inlined by
+    // GameTask::fn_80371790)
+    void fn_80139F24(int value) { m34C = value; }
+    int fn_80139F2C(int track) { return mTracks[track].m00; }
+    void SetMotionSpeed(int track, float speed) { mTracks[track].m0C = speed; }
+    void SetMotionFrame(int track, float frame) { mTracks[track].m08 = frame; }
+    int fn_8013C3DC() { return m34C; }
+    float fn_8013C3E4(int track) { return mTracks[track].m20; }
+    void fn_8013C554(int track, float weight) { mTracks[track].m20 = weight; }
     float GetMotionSpeed(int track) const { return mTracks[track].m0C; } // weak copy 0x80224628
 
     SimpleArray<NodeWork_unk> m214;  // inferred: 18-byte per-node work entries (cleared by their ctor 0x800979E8)

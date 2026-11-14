@@ -199,19 +199,6 @@ void MotionCommand_unk::fn_80121114(CharaTask* chara) {
     mChara = chara;
 }
 
-// inferred: accessors of the motion tracks (weak copies called out of line from CharaTask)
-inline float atn::Model::GetMotionFrame(int track) const {
-    return mTracks[track].m08;
-}
-inline int atn::Model::fn_80139F2C(int track) {
-    return mTracks[track].m00;
-}
-inline int atn::Model::fn_8013C3DC() {
-    return m34C;
-}
-inline float atn::Model::fn_8013C3E4(int track) {
-    return mTracks[track].m20;
-}
 
 // inferred: hashes of node names (.sbss 0x8087F078-0x8087F080, set by the static initializer)
 static unsigned int sLeftFoot = fn_800DC6B4("leftfoot");
