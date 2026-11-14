@@ -1,3 +1,4 @@
+#include "std/msl_size.h"
 #include "game/CharaTask.h"
 #include "game/CharaManager.h"
 #include "game/PlayerTask.h"
@@ -1441,14 +1442,14 @@ struct AIScriptMapValue_unk {
 struct AIScriptMapNode_unk {
     AIScriptMapNode_unk* mLeft;
     AIScriptMapNode_unk* mRight;
-    unsigned long mParentColor; // inferred: parent pointer, bit 0 = red (fn_8003E120)
+    __msl_size_t mParentColor; // inferred: parent pointer, bit 0 = red (fn_8003E120)
     AIScriptMapValue_unk mValue;
 
     AIScriptMapNode_unk* Parent() const { return (AIScriptMapNode_unk*)(mParentColor & ~1); }
     bool IsRed() const { return (mParentColor & 1) == 1; }
     void SetRed() { mParentColor |= 1; }
     void SetBlack() { mParentColor &= ~1; }
-    void SetParent(AIScriptMapNode_unk* parent) { mParentColor = (unsigned long)parent | (mParentColor & 1); }
+    void SetParent(AIScriptMapNode_unk* parent) { mParentColor = (__msl_size_t)parent | (mParentColor & 1); }
 };
 
 // inferred: the script map (std::map<std::string, factory>, MSL <tree>) at 0x807C6B84: size, root (the
@@ -10405,7 +10406,7 @@ AIScriptMapNode_unk* AIScriptMap_unk::InsertNode_unk(AIScriptMapNode_unk* parent
     AIScriptMapNode_unk* node = holder.release();
     node->mRight = 0;
     node->mLeft = 0;
-    ::new (&node->mParentColor) unsigned long((unsigned long)parent);
+    ::new (&node->mParentColor) __msl_size_t((__msl_size_t)parent);
     if (left) {
         parent->mLeft = node;
     } else {

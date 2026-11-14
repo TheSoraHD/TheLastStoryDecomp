@@ -16,10 +16,10 @@ struct CollResult_unk {
     unsigned char m00[0x10];
     atn::Vector3 mPos; // 0x10
     unsigned char m1C[0x34 - 0x1C];
-    int m34;
-    int m38;
+    void* m34;
+    void* m38;
     int m3C;
-    int m40;
+    void* m40;
     int m44;
 };
 extern "C" System_unk* lbl_8087F0A8;

@@ -44,8 +44,8 @@ struct CollResult_unk {
     unsigned char m00[0x04];
     atn::Vector3 m04; // inferred: hit position
     unsigned char m10[0x34 - 0x10];
-    int m34;
-    int m38;
+    void* m34;
+    void* m38;
     int m3C;
     int m40;
     unsigned char m44[0x50 - 0x44];

@@ -64,10 +64,10 @@ struct CollResult_unk {
     atn::Vector3 m10; // inferred: hit position
     unsigned char m1C[0x28 - 0x1C];
     atn::Vector3 m28; // inferred: offset added to the hit position
-    int m34;
+    void* m34;
     atn::ColliBase* m38; // inferred: object hit
     int m3C;
-    int m40;
+    void* m40;
     unsigned char m44[0x50 - 0x44];
 };
 extern "C" int fn_8004ED34(void* colli, CollResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,

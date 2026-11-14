@@ -59,10 +59,10 @@ struct CollResult_unk {
     atn::Vector3 m04; // inferred: hit position
     atn::Vector3 m10; // inferred: position after the sweep (as in gmk/Lemon.h)
     unsigned char m1C[0x34 - 0x1C];
-    int m34;
-    int m38;
+    void* m34;
+    void* m38;
     int m3C;
-    int m40;
+    void* m40;
     unsigned char m44[0x50 - 0x44];
 };
 extern "C" void* lbl_8087EE98;

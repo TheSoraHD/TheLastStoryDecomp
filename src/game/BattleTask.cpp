@@ -4154,7 +4154,7 @@ struct CollResult_unk {
     unsigned int* m34; // inferred: collision attribute of the hit (first word: kind, 0x1B water)
     void* m38;
     unsigned int m3C;
-    int m40;
+    void* m40;
     atn::Vector3 m44;
 };
 extern "C" void* lbl_8087EE98; // inferred: collision manager

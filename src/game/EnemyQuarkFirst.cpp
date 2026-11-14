@@ -95,7 +95,7 @@ struct CollResult_unk {
     int m34;
     int m38;
     int m3C;
-    int m40;
+    void* m40;
     unsigned char m44[0x50 - 0x44];
 };
 extern "C" int fn_8004ED34(void* colli, CollResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,

@@ -14,6 +14,7 @@
 #include "atn/DrawHelper.h"
 #include "atn/Scene.h"
 #include "atn/RenderManager.h"
+#include "atn/Layer3D.h"
 #include "atn/ColorMatrixParam_unk.h"
 
 // inferred: up to four lights sorted by distance (atn/LightUtil_unk.cpp). The two selectors are
@@ -924,10 +925,10 @@ void fn_8009D58C(DrawEntry_unk* entry, DrawNode_unk* node, DrawPart_unk* part, i
     if (sSecondPass_unk != 0 && (mat->m48 & 2) != 2) {
         return;
     }
-    DrawPass_unk* pass = (DrawPass_unk*)atn::RenderManager::instance_->mLayers[atn::RenderManager::instance_->m2F8]; // pending: view of the layer
+    atn::IRenderLayer* pass = atn::RenderManager::instance_->mLayers[atn::RenderManager::instance_->m2F8];
     if (lbl_8087EFB0 == 0) {
         unsigned char m = mat->m49;
-        if (m != (m & pass->m0C)) {
+        if (m != (m & (unsigned int)pass->m0C)) {
             return;
         }
     }
@@ -983,7 +984,7 @@ void fn_8009D58C(DrawEntry_unk* entry, DrawNode_unk* node, DrawPart_unk* part, i
             flags &= ~4;
         }
     }
-    flags &= pass->m10;
+    flags &= (unsigned int)pass->m10;
     if (entry->m58 != 0) {
         flags |= 0x40;
     }

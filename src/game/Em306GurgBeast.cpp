@@ -57,9 +57,9 @@ struct CollResult_unk {
     atn::Vector3 m10; // inferred: position reached
     unsigned char m1C[0x34 - 0x1C];
     int* m34; // inferred: attribute of the hit (copied to CharaTask::m634)
-    int m38;
+    void* m38;
     unsigned int m3C; // inferred: flags (bit 0: on the ground)
-    int m40;
+    void* m40;
     unsigned char m44[0x50 - 0x44];
 };
 extern "C" int fn_8004D388(void* world, CollResult_unk* result, atn::Vector3* sphere, atn::Vector3* move,

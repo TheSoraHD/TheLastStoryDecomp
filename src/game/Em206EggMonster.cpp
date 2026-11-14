@@ -186,7 +186,7 @@ struct CollResult_unk {
     int m34;
     atn::ColliBase* m38;
     int m3C;
-    int m40;
+    void* m40;
     unsigned char m44[0x50 - 0x44];
 };
 extern "C" void fn_8004D388(void* mgr, CollResult_unk* result, CharaTask::Sphere_unk* sphere, atn::Vector3* move,
