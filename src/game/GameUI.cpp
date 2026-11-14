@@ -4666,6 +4666,353 @@ void GameUI::fn_803E0D84() {
     m30C.mMid.mBase.mCount -= (int)m30C.mMid.mBase.mCount;
 }
 
+// inferred: global object at lbl_8087F098 (class unknown, as in game/CharaTask.cpp); m48 nonzero shows all
+struct GameUIGlobal98_unk {
+    unsigned char m00[0x48];
+    int m48;
+};
+extern "C" GameUIGlobal98_unk* lbl_8087F098;
+extern "C" HitInfo_unk* fn_80219344(CharaTask* chara, int kind); // inferred: skill of a kind of a party member
+// inferred: magic points of a character as a rate (name invented)
+inline float GetMpRate_unk(CharaTask* c) {
+    return c->mStatus.mParamB.m88 > 0 ? c->mStatus.m08 / (float)c->mStatus.mParamB.m88 : 0.0f;
+}
+
+// inferred: party window `index` of a character (-1: the leader): name, level, hit points (the shown value
+// follows the real one over 20 frames), experience, magic points, the time bar, the face of its job and the
+// level-up and lives marks
+// NONMATCHING: written from the asm
+void GameUI::fn_803E0E10(CharaTask* chara, GameUIElem60_unk* window, int index) {
+    if (lbl_8087F610 != 0 && (lbl_8087F610->m50C != 0 || lbl_8087F610->m4FC != 30)) {
+        return;
+    }
+    GameUIField_unk* field = lbl_8087F430;
+    int show = 1;
+    int tutorial = ((GameTask*)field)->fn_80370174(0x69);
+    CharaTask* first = lbl_8087F8A0 != 0 ? (CharaTask*)lbl_8087F8A0->mHead : 0;
+    int forced = ((GameTask*)lbl_8087F430)->m5660;
+    int flag25 = ((GameTask*)lbl_8087F430)->fn_80370174(0x25);
+    if (tutorial == 1) {
+        if (index != -1 && first != 0) {
+            show = 0;
+            bool on = true;
+            if (forced == 0) {
+                bool r = false;
+                if (first->m648 != 0 && flag25 == 0) {
+                    r = true;
+                }
+                if (!r) {
+                    on = false;
+                }
+            }
+            if (on) {
+                show = 1;
+            }
+        }
+    } else if (tutorial != 2 && (lbl_8087F098 == 0 || lbl_8087F098->m48 == 0) && first != 0) {
+        show = 0;
+        bool on = true;
+        bool party = true;
+        if (forced == 0) {
+            bool r = false;
+            if (first->m648 != 0 && flag25 == 0) {
+                r = true;
+            }
+            if (!r) {
+                party = false;
+            }
+        }
+        if (!party && lbl_8087F610 == 0) {
+            on = false;
+        }
+        if (on) {
+            show = 1;
+        }
+    }
+    int job = chara->m60->m2C;
+    bool hasJob = false;
+    if (show != 0 && job > 0 && job <= 26) {
+        hasJob = true;
+    }
+    bool visible = false;
+    if (hasJob) {
+        bool r = true;
+        if (field->m868 == 6 && lbl_8087F610 == 0) {
+            r = false;
+        }
+        if (r) {
+            visible = true;
+        }
+    }
+    int on = 0;
+    if (visible && lbl_8087F0A8->mShowPlayerUI != 0) {
+        on = 1;
+    }
+    int lives = chara->mStatus.m300;
+    if (0.0f == chara->mStatus.m04) {
+        if (--lives <= 0) {
+            lives = 0;
+        }
+    }
+    int hp = (int)chara->mStatus.m04;
+    if (window->m34 != chara->mStatus.mParamB.m84) {
+        window->m50 = 0;
+        window->m48 = 0;
+    } else if (chara->mStatus.mParamB.m8C >= 0.0f && (float)(hp - window->m30) >= 1.0f) {
+        window->m50 = 1;
+        window->m48 = 20;
+        window->m0C->Rewind_unk();
+    } else if (chara->mStatus.mParamB.m8C <= 0.0f && (float)(window->m30 - hp) >= 1.0f) {
+        window->m50 = 0;
+        window->m48 = 20;
+        window->m0C->Rewind_unk();
+    }
+    window->m34 = chara->mStatus.mParamB.m84;
+    window->m30 = hp;
+    if (window->m48 > 0) {
+        window->m48--;
+        window->m38 = (int)(0.15f * ((float)hp - (float)window->m38) + (float)window->m38);
+    } else {
+        window->m38 = hp;
+    }
+    window->m3C = (float)window->m38 / (float)chara->mStatus.mParamB.m84;
+    if (window->m14 != 0) {
+        int frames = lives > 0 ? 15 : 20;
+        if (window->m40 > chara->mStatus.m224) {
+            if (window->m40 - chara->mStatus.m224 == 1) {
+                window->m4C = frames;
+            } else {
+                window->m4C = 0;
+            }
+        } else if (window->m5C > lives) {
+            window->m4C = frames;
+        } else if (window->m4C <= 0) {
+            window->m4C = 0;
+        }
+        window->m40 = chara->mStatus.m224;
+        window->m5C = lives;
+    }
+    HitInfo_unk* skill;
+    if (chara->fn_8016E484() != 0) {
+        skill = fn_80219344(chara, 5);
+    } else {
+        skill = chara->mStatus.m2D0[3].m[0] > 0 ? fn_80219E6C(chara->mStatus.m2D0[3].m[0]) : 0;
+    }
+    float tp = 1.0f < chara->mStatus.m228 ? 1.0f : chara->mStatus.m228;
+    if (on != 0 && (tp >= 1.0f || chara->mStatus.m2F4 > 0.0f)) {
+        window->m10->MeltTask();
+    }
+    window->m44 = tp;
+    int count = 0 > (5 < chara->mStatus.m224 ? 5 : chara->mStatus.m224)
+                    ? 0
+                    : (5 < chara->mStatus.m224 ? 5 : chara->mStatus.m224);
+    int exp = chara->mStatus.m1A8.mExp;
+    float expRate = (float)exp / (float)(exp + chara->mStatus.fn_8012B028());
+    float join = (float)window->m00 / 20.0f;
+    int mp = fn_80219344(chara, 1) != 0;
+    bool noFlag = true;
+    if (lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->fn_80370174(0x88) != 0) {
+        noFlag = false;
+    }
+    mp |= noFlag;
+    float chant = 0.0f;
+    if (chara->m55C == 6 && (chara->m560 == 29 || chara->m560 == 30)) {
+        chant = chara->mFB8 / chara->mFBC;
+    }
+    if (on == 0) {
+        return;
+    }
+    atn::D2A_DrawRect base;
+    if (window->m0C != 0) {
+        fn_801F6C80(window->m0C, "line", (float)index);
+        fn_801F6C80(window->m0C, "join", join);
+        base = window->m0C->GetRect_unk("base_point");
+        window->m0C->MeltTask();
+        fn_801F837C(window->m0C, "chara_name", (const wchar_t*)chara->m60->m08);
+        fn_801F6C80(window->m0C, "hpRate", window->m3C);
+        fn_801F6C80(window->m0C, "expRate", expRate);
+        fn_801F8598(window->m0C, "nowLv", chara->mStatus.mParamB.m78, 0);
+        fn_801F8598(window->m0C, "maxLv", chara->mStatus.mParamA.m78, 0);
+        fn_801F8598(window->m0C, "nowHP", window->m38, 0);
+        fn_801F8598(window->m0C, "maxHP", chara->mStatus.mParamB.m84, 0);
+        if (lbl_8087F610 != 0) {
+            fn_801F837C(window->m0C, "nowLv", lbl_8078C638 + 41);
+            fn_801F837C(window->m0C, "string0016", lbl_8078C638 + 41);
+        }
+        if (chara->mStatus.mParamB.m8C > 0.0f && window->m3C < 1.0f) {
+            fn_801F6C80(window->m0C, "heal", 1.0f);
+            fn_801F7DF0(window->m0C, "flashColor", 255.0f, 255.0f, 255.0f);
+        } else {
+            if (window->m48 > 0) {
+                fn_801F6C80(window->m0C, "heal", 1.0f);
+            } else {
+                fn_801F6C80(window->m0C, "heal", 0.0f);
+            }
+            if (window->m50 != 0) {
+                fn_801F7DF0(window->m0C, "flashColor", 255.0f, 0.0f, 0.0f);
+            } else {
+                fn_801F7DF0(window->m0C, "flashColor", 0.0f, 255.0f, 0.0f);
+            }
+        }
+        if (chara->mStatus.IsState_unk(0x20)) {
+            window->m0C->SetColor_unk("faceColor", 0xFFC83C14);
+        } else {
+            window->m0C->SetColor_unk("faceColor", 0xFFFFFFFF);
+        }
+        atn::Color uv(0.0f, 0.0f, 0.125f, 0.25f);
+        if (job > 0 && job <= 26) {
+            uv = atn::Color(0.125f * (float)(job % 8), 0.25f * (float)(job / 8), 0.125f * (float)(job % 8 + 1),
+                            0.25f * (float)(job / 8 + 1));
+        }
+        fn_801F7590(window->m0C, "faceUV", uv);
+        fn_801F7590(window->m0C, "faceMUV", uv);
+        if (skill != 0 && skill->m04 > 0 && lbl_8087F610 == 0) {
+            fn_801F6C80(window->m0C, "tpBarOn", 1.0f);
+            if (chara->mStatus.m2F4 > 0.0f) {
+                fn_801F6C80(window->m0C, "tpRate", chara->mStatus.m2F4 / (1e-5f + chara->mStatus.m2F8));
+            } else {
+                fn_801F6C80(window->m0C, "tpRate", tp);
+            }
+        } else {
+            fn_801F6C80(window->m0C, "tpBarOn", 0.0f);
+        }
+        if (mp != 0) {
+            float rate = GetMpRate_unk(chara);
+            fn_801F6C80(window->m0C, "mpBarOn", 1.0f);
+            fn_801F6C80(window->m0C, "mpRate", rate);
+            fn_801F6C80(window->m0C, "mpMax01", rate < 0.25f ? 0.0f : 1.0f);
+            fn_801F6C80(window->m0C, "mpMax02", rate < 0.5f ? 0.0f : 1.0f);
+            fn_801F6C80(window->m0C, "mpMax03", rate < 0.75f ? 0.0f : 1.0f);
+            fn_801F6C80(window->m0C, "mpMax04", rate < 1.0f ? 0.0f : 1.0f);
+        } else {
+            fn_801F6C80(window->m0C, "mpBarOn", 0.0f);
+        }
+    }
+    if (window->m10 != 0) {
+        fn_801F6E78(window->m10, "base_pos", base);
+        if (skill != 0 && skill->m04 > 0) {
+            fn_801F6C80(window->m10, "faceU", 0.125f * (float)(job % 8));
+            fn_801F6C80(window->m10, "faceV", 0.25f * (float)(job / 8));
+            if (chara->mStatus.m2F4 > 0.0f) {
+                fn_801F6C80(window->m10, "tpRate", chara->mStatus.m2F4 / (1e-5f + chara->mStatus.m2F8));
+            } else {
+                fn_801F6C80(window->m10, "tpRate", 1.0f);
+            }
+        }
+    }
+    if (window->m14 != 0) {
+        fn_801F6E78(window->m14, "base_pos", base);
+        window->m14->MeltTask();
+        if (window->m4C > 0) {
+            window->m4C--;
+            window->m14->mSpeed = 1.0f;
+            fn_801F8598(window->m14, "beforeLife", lives + 1, 0);
+            fn_801F8598(window->m14, "afterLife", lives, 0);
+        } else {
+            window->m14->mSpeed = 0.0f;
+            if (lives <= 0) {
+                window->m14->mFrame = 20.0f * (float)(5 - chara->mStatus.m224) + 30.0f;
+            } else {
+                window->m14->mFrame = 0.0f > 15.0f * (float)(2 - lives) ? 0.0f : 15.0f * (float)(2 - lives);
+            }
+            fn_801F8598(window->m14, "beforeLife", lives, 0);
+            fn_801F8598(window->m14, "afterLife", lives, 0);
+        }
+        if (lives <= 0) {
+            fn_801F6C80(window->m14, "colOn", 1.0f);
+        } else {
+            fn_801F6C80(window->m14, "colOn", 0.0f);
+        }
+        if (count <= 1) {
+            fn_801F6C80(window->m14, "colR", 255.0f);
+            fn_801F6C80(window->m14, "colG", 0.0f);
+            fn_801F6C80(window->m14, "colB", 0.0f);
+        } else if (count <= 2) {
+            fn_801F6C80(window->m14, "colR", 255.0f);
+            fn_801F6C80(window->m14, "colG", 180.0f);
+            fn_801F6C80(window->m14, "colB", 0.0f);
+        } else {
+            fn_801F6C80(window->m14, "colR", 0.0f);
+            fn_801F6C80(window->m14, "colG", 255.0f);
+            fn_801F6C80(window->m14, "colB", 100.0f);
+        }
+    }
+    if (window->m18 != 0) {
+        fn_801F6E78(window->m18, "base_pos", base);
+        if (chara->mStatus.IsState_unk(0x20)) {
+            window->m18->MeltTask();
+            window->m18->mSpeed = 1.0f;
+        }
+        if (chara->mStatus.m224 == 1 && window->m4C == 0) {
+            window->m18->MeltTask();
+            window->m18->mSpeed = 1.4f;
+        }
+        if (job > 0 && job <= 26) {
+            fn_801F6C80(window->m18, "faceU", 0.125f * (float)(job % 8));
+            fn_801F6C80(window->m18, "faceV", 0.25f * (float)(job / 8));
+        } else {
+            fn_801F6C80(window->m18, "faceU", 0.0f);
+            fn_801F6C80(window->m18, "faceV", 0.0f);
+        }
+        fn_801F837C(window->m18, "chara_name", (const wchar_t*)chara->m60->m08);
+        fn_801F8598(window->m18, "nowLv", chara->mStatus.mParamB.m78, 0);
+    }
+    if (window->m24 != 0) {
+        fn_801F6E78(window->m24, "base_pos", base);
+        if (chara->mFlag28) {
+            window->m24->MeltTask();
+        }
+        if (job > 0 && job <= 26) {
+            fn_801F6C80(window->m24, "faceU", 0.125f * (float)(job % 8));
+            fn_801F6C80(window->m24, "faceV", 0.25f * (float)(job / 8));
+        } else {
+            fn_801F6C80(window->m24, "faceU", 0.0f);
+            fn_801F6C80(window->m24, "faceV", 0.0f);
+        }
+    }
+    if (window->m28 != 0 && mp != 0) {
+        fn_801F6E78(window->m28, "base_pos", base);
+        if (GetMpRate_unk(chara) >= 1.0f) {
+            window->m28->MeltTask();
+        }
+    }
+    if (window->m1C != 0) {
+        fn_801F6E78(window->m1C, "base_pos", base);
+        window->m1C->mSpeed = 1.4f;
+        if (chara->mStatus.m224 == 1 && window->m4C == 0) {
+            window->m1C->MeltTask();
+        }
+    }
+    int level = chara->mStatus.mParamB.m78;
+    if (window->m54 == 0) {
+        window->m54 = level;
+    }
+    if (window->m58 == 0) {
+        window->m58 = chara->mStatus.mParamA.m78;
+    }
+    if (window->m20 != 0) {
+        fn_801F6E78(window->m20, "base_pos", base);
+        float frame;
+        if ((window->m54 < level && chara->m648 != 0 && window->m58 == chara->mStatus.mParamA.m78) ||
+            ((frame = window->m20->mFrame) > 0.0f && frame < fn_801F6C2C(window->m20))) {
+            fn_801F8598(window->m20, "nowLv", level, 0);
+            window->m20->MeltTask();
+        }
+    }
+    if (window->m2C != 0) {
+        fn_801F6E78(window->m2C, "base_pos", base);
+        if (window->m58 < chara->mStatus.mParamA.m78) {
+            window->m2C->mFrame = 0.0f;
+        }
+        GameUIInst_unk* up = window->m2C;
+        if (!(up->mFrame >= fn_801F6C2C(up))) {
+            window->m2C->MeltTask();
+        }
+    }
+    window->m54 = level;
+    window->m58 = chara->mStatus.mParamA.m78;
+}
+
 extern "C" int fn_8021A888(HitInfo_unk* hit); // inferred: the magic is an attack magic (as CharaTask.cpp)
 
 // inferred: magic point gauge over a character: the chant of its current magic (kind 0/1 by the magic for
