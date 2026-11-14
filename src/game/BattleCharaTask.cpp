@@ -508,7 +508,8 @@ void BattleCharaTask::fn_800E3F5C() {
         dir = camera->mCamera.mTarget - camera->mCamera.mPos;
         dir.Normalize_unk();
         float range = 800.0f > mStatus.mParamB.m28 ? 800.0f : mStatus.mParamB.m28;
-        atn::Vector3 start = from;
+        atn::Vector3 start;
+        atn::VecAssign_unk(start, from);
         atn::Vector3 to = from + dir * range;
         RayResult_unk result;
         unsigned int mask = 4;
@@ -2146,9 +2147,9 @@ void BattleCharaTask::fn_800E932C(atn::Vector3* pos, atn::Vector3* dir, int from
     }
     if (mFlag6) {
         if ((unsigned int)m50 == 0xAAE76) {
-            shot = NodePos_unk(mMotion.GetNodeMtx_unk("ef_locater01"));
+            atn::VecAssign_unk(shot, NodePos_unk(mMotion.GetNodeMtx_unk("ef_locater01")));
         } else if ((unsigned int)m50 == 0xAAE77) {
-            shot = NodePos_unk(mMotion.GetNodeMtx_unk("rightwepoint"));
+            atn::VecAssign_unk(shot, NodePos_unk(mMotion.GetNodeMtx_unk("rightwepoint")));
         }
     }
     if (mFlag31) {
