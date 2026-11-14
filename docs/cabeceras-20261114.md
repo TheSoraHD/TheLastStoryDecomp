@@ -78,3 +78,27 @@ merge final aunque el port siga activo; notas para el port solo en el proyecto (
   100 % (fn_80392D2C, copia debil de SetCamera_unk, Camera(const Camera&), NewCampTask fn_8052C6CC,
   Sequence::fn_8053E8D0), pero bajan NewCampTask fn_8052E1A0 71,31 -> 70,81 y fn_8052FA44 73,22 -> 73,12, y el merge
   exige cero bajadas. **Para revisar.** Renumera 253 unidades (+2 @N); notas: docs/cabeceras-20261114-qM.md (en esa rama).
+
+## Resumen
+
+- Inicio 13:20, fin ~23:30. 18 colas con agentes (A, B, C, D, F, G, H, N, A2, I, A3, E, J, A4, K, A5, L, M, M2, L2),
+  hasta 4 a la vez. Dos reinicios del servidor (~17:00 y ~20:43): los agentes se reanudaron solos.
+- **15424 -> 15450 / 18109**, lost 0, sin bajadas frente a la referencia, rep100 139 -> 138, labelcheck 49 -> 19,
+  `poolcheck` de las 134 unidades tocadas igual que `main`. Funciones al 0 %: 201 -> 199. Enlaza HBMBase (669 -> 670
+  unidades completas). DRAFT: 34 (0 en la ruta).
+- Por cola (al 100 %): C +2 (GameTask fn_80367A40, MslMedian3_unk<ExpEntry_unk>), B +2 (TacView operator+ 0x805ADB28,
+  Sequence::fn_80541CFC), A +4 (ctor de CosEditItem_unk, MeleeMedian3_unk...), F +1 (~GameCamera), N +1 (HBMBase),
+  H +11 (ItemManager_unk +6, CosEditItemList_unk +5 y sin funciones al 0 %, ShopBase +1), E +1, K +3 (BattleTask
+  165 -> 168). D, G, I, J, L, L2: deuda de la regla 10 / cabeceras, sin funciones nuevas.
+
+## Decisiones tomadas sin el usuario (para revisar)
+
+- Fase 0.3: `fn_801F6E78` con `D2A_DrawRect&` no const (con const la definicion no empareja).
+- `HitArc_unk`/`HitHeight_unk` se quedan en BattleTask (sin ellas baja vf14).
+- Conflictos `@N` de symbols.txt: version de la integracion + re-emparejado en lote; renombrados no `@N` de los
+  agentes reaplicados; revertidos 25 renombrados de pairdata que rompian el enlace o encogian el .dol.
+- Split (cola E, commit f1ce542): "Event::ActionProcessor" y su RTTI a Event/Behavior_unk.
+- Parche de `push_back` (A2-A5) **no integrado**: +5 funciones al 100 % y +45 de fuzzy, con 8 bajadas de registros.
+- Cola M **no integrada** (rama `cabeceras-20261114-m`): +5 al 100 % con 2 bajadas pequenas en NewCampTask.
+- `MeleeTarget_unk` se queda local en BattleTask.cpp (G); `LevelUpResult_unk` y `CharaStatusData_unk` no se unifican (I).
+- L2: la declaracion de `BattleChara_unk::fn_80108378` conserva el nombre de parametro `chara` (quitarlo renumera).

@@ -268,3 +268,21 @@ en variable antes de la llamada. Pista sin probar del todo: en `fn_804C23E4` el 
 - `port-decomp-20261114`: bucles int->float en AIManager (`fn_80017128`, `fn_8001794C`): nuestro MWCC saca fuera del bucle un valor que el original reescribe por elemento (desenrollado 6/4 frente a 8) (qK).
 - `port-decomp-20261114`: `atn/LayerOcclusionCPU fn_800B47AC` (77,7 %): el original pone GQR6 con `mtspr` y carga s16 con `psq_l` (asm no aprobado); escrita en C con escala equivalente. `fn_800B5994`: codigo identico, sus limites a cero van a `.sbss` y en el original a `.sdata`.
 - `port-decomp-20261114`: el `""` de la pool de atn/Model detras de "NODE_EDIT" lo crea algo compilado entre `fn_8008A00C` y `fn_8008AD4C` que no queda en `.text`; con `static`, `static inline`, `inline` o `std::string("")` no sale (qJ).
+
+## cabeceras-20261114
+
+- **Forma original de `push_back` (`std/vector.h`)**: rapido + `slow` (`expand_by(1)` / `realloc`) sube 45 funciones y
+  5 al 100 %, pero deja 8 bajadas de registros (puntero al buffer de realloc en un registro mas alto). Probadas ~60
+  variantes en las colas A2-A5 (`docs/cabeceras-20261114-qA2..qA5.md`); mejor parche `docs/cabeceras-20261114-qA5.patch`.
+  Pendiente de decision del usuario.
+- **Copias de `atn::Scene`/`atn::Camera` en NewCampTask** (`fn_8052E1A0`, `fn_8052FA44`): el original llama a los
+  `operator=` de `vector<atn::Light>`/`vector<atn::Camera>` (0x8052E980, 0x8052EEBC) y nosotros lo inlineamos todo;
+  con `Frustum_unk::mBounds` (cola M, rama `cabeceras-20261114-m`) bajan 0,5/0,1. Necesita esos `operator=` en vector.h.
+- **`PathLengths_unk` en WindyItem/PathData_unk/ActionActorPosition**: 0x8000D844/0x8032B6F8 son el dtor/ctor de
+  `vector<float>`, no de una clase propia; con locales del tipo se inlinean y bajan mucho (qG, qJ).
+- **`LevelUpResult_unk` != `CharaStatusData_unk`**: misma forma, distinta copia (campo a campo frente a bloque); no
+  unificar (qI).
+- **`BattleCharaTask::fn_800E9110`** (98,8 %): el original deja `&mStatus.m2CC` (0xAA0) en un registro; 15 variantes
+  pliegan el offset (qC, qI).
+- **`@wstringBase0` de BattleTask**: un `L""` sin referencias y un segundo `L"%d"` sin fusionar (qK).
+- **`.data` de BattleTask** 0x174 frente a 0x148: RTTI de Task/TaskBase y `@STRING@` debiles, como en unidades enlazadas (qK).
