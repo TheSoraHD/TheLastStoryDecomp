@@ -43,24 +43,8 @@ struct GameCameraParam_unk {
     GameCameraParam_unk(const GameCameraParam_unk& o)
         : m00(o.m00), m04(o.m04), m08(o.m08), m0C(o.m0C), m10(o.m10), m14(o.m14), m18(o.m18), m1C(o.m1C),
           m20(o.m20), m24(o.m24), m28(o.m28), m2C(o.m2C), m30(o.m30), m34(o.m34), m38(o.m38) {}
-    // inferred: weak copy 0x8037F830: blend from a to b
-    void fn_8037F830(const GameCameraParam_unk& a, const GameCameraParam_unk& b, float t) {
-        m00 = t * (b.m00 - a.m00) + a.m00;
-        m04 = t * (b.m04 - a.m04) + a.m04;
-        m08 = t * (b.m08 - a.m08) + a.m08;
-        m0C = t * (b.m0C - a.m0C) + a.m0C;
-        m10 = t * (b.m10 - a.m10) + a.m10;
-        m14 = t * (b.m14 - a.m14) + a.m14;
-        m18 = t * (b.m18 - a.m18) + a.m18;
-        m1C = t * (b.m1C - a.m1C) + a.m1C;
-        m20 = t * (b.m20 - a.m20) + a.m20;
-        m24 = t * (b.m24 - a.m24) + a.m24;
-        m28 = t * (b.m28 - a.m28) + a.m28;
-        m2C = t * (b.m2C - a.m2C) + a.m2C;
-        m30 = t * (b.m30 - a.m30) + a.m30;
-        m34 = t * (b.m34 - a.m34) + a.m34;
-        m38 = a.m38;
-    }
+    // inferred: blend from a to b (0x8037F830, defined in game/GameCamera_unk.cpp)
+    void fn_8037F830(const GameCameraParam_unk&, const GameCameraParam_unk&, float);
     float m00; // inferred: distance
     float m04; // inferred: fovy
     float m08; // inferred: pitch
@@ -188,9 +172,7 @@ public:
     void fn_8038DF5C(const CharaTask* chara);
 
     atn::Camera m1F4;      // 0x1F4: inferred: camera given to the render manager
-    unsigned char m3E8[0x41C - 0x3E8];
-    float m41C;
-    unsigned char m420[0x424 - 0x420];
+    GameCameraParam_unk m3E8; // inferred: blend of the mode parameters with m430 and m46C (fn_8037F9AC)
     GameCameraTimer_unk m424; // inferred: blend of the event camera (fn_8038CD94)
     GameCameraParam_unk m430; // inferred: parameters the blend m424 starts from (fn_8037E12C)
     GameCameraModeParam_unk m46C;
@@ -275,11 +257,11 @@ public:
     float m954;        // inferred: offset of the fovy
     float m958;
     float m95C;
-    unsigned char m960[0x96C - 0x960];
+    atn::Vector3 m960; // inferred: eye offset of the control 75 of state 6 (fn_8037F9AC)
     float m96C; // inferred: cleared when the ledge mode starts (fn_8038A5F0)
     float m970;
     float m974;
-    unsigned char m978[0x984 - 0x978];
+    atn::Vector3 m978; // inferred: eye of the default camera before it is pulled out of the walls (fn_8037F9AC)
     int m984;
     float m988;
     atn::Vector3 m98C[8]; // inferred: cleared by the default mode (fn_80389A00)

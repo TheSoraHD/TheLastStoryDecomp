@@ -1,5 +1,5 @@
-// Camera of the field (GameCamera, GameTask + 0x6C). The update of the default mode (0x8037F9AC) and two stick
-// modes (0x80384188, 0x80385B48) are still missing, so the unit is not linked.
+// Camera of the field (GameCamera, GameTask + 0x6C). Two stick modes (0x80384188, 0x80385B48) are still missing,
+// so the unit is not linked.
 #include "game/GameCamera.h"
 #include "game/GameScene.h"
 #include "game/CharaManager.h"
@@ -118,7 +118,7 @@ extern "C" float fn_80076FF8(atn::GraphicsDevice_unk* device); // inferred: aspe
 // inferred: builds the three cameras and the parameters, then resets the camera (fn_8037DD00) and registers its
 // debug menu
 GameCamera::GameCamera()
-    : m41C(0.0f), m7F0(0), m7F4(0), m7FC(0), m804(0), m808(0), m834(0), m838(0), m83C(0), m840(0.0f, 0.0f, 0.0f),
+    : m7F0(0), m7F4(0), m7FC(0), m804(0), m808(0), m834(0), m838(0), m83C(0), m840(0.0f, 0.0f, 0.0f),
       m84C(0.0f, 0.0f, 0.0f), m858(0), m880(0), m884(0.0f, 0.0f, 0.0f), m890(0.0f, 0.0f, 0.0f), m89C(0),
       m8A0(3.1415927f), m8A4(0.0f, 0.0f, 0.0f), m8B0(0.0f, 0.0f, 0.0f), m8BC(0.0f, 0.0f, 0.0f), m8C8(0.0f), m8CC(0),
       m8D0(-1), m8D4(0), m8D8(0.03f), m8DC(16.0f), m8E0(1), m8E4(0), m8E8(0), m8EC(0), m8F0(0), m8F4(0), m8F8(0.0f),
@@ -587,6 +587,39 @@ void GameCamera::fn_8037F744() {
     }
 }
 
+// inferred: blend of the camera parameters from a to b (m38 is taken from a)
+void GameCameraParam_unk::fn_8037F830(const GameCameraParam_unk& a, const GameCameraParam_unk& b, float t) {
+    float v00 = t * (b.m00 - a.m00) + a.m00;
+    float v04 = t * (b.m04 - a.m04) + a.m04;
+    float v08 = t * (b.m08 - a.m08) + a.m08;
+    float v0C = t * (b.m0C - a.m0C) + a.m0C;
+    float v10 = t * (b.m10 - a.m10) + a.m10;
+    float v14 = t * (b.m14 - a.m14) + a.m14;
+    float v18 = t * (b.m18 - a.m18) + a.m18;
+    float v1C = t * (b.m1C - a.m1C) + a.m1C;
+    float v20 = t * (b.m20 - a.m20) + a.m20;
+    float v24 = t * (b.m24 - a.m24) + a.m24;
+    float v28 = t * (b.m28 - a.m28) + a.m28;
+    float v2C = t * (b.m2C - a.m2C) + a.m2C;
+    float v30 = t * (b.m30 - a.m30) + a.m30;
+    float v34 = t * (b.m34 - a.m34) + a.m34;
+    m00 = v00;
+    m04 = v04;
+    m08 = v08;
+    m0C = v0C;
+    m10 = v10;
+    m14 = v14;
+    m18 = v18;
+    m1C = v1C;
+    m20 = v20;
+    m24 = v24;
+    m28 = v28;
+    m2C = v2C;
+    m30 = v30;
+    m38 = a.m38;
+    m34 = v34;
+}
+
 extern "C" void PSMTXRotAxisRad(Mtx m, const atn::Vector3* axis, float rad);
 extern "C" void* lbl_8087EF70; // inferred: pad
 extern "C" float fn_800A56A8(void* pad, int port, int axis, int arg); // inferred: stick axis (as in Em306GurgBeast)
@@ -642,6 +675,550 @@ extern "C" inline float fn_8037F640(float x) {
     return cos(x);
 }
 extern "C" atn::Vector3 fn_805B81F0(const TownTask* town, int x, int z); // inferred: centre of a cell (game/TownTask.cpp)
+
+extern "C" double asin(double x);
+extern "C" int fn_800A58D0(void* pad, int port);             // inferred: classic controller connected
+extern "C" int fn_800A55D4(void* pad, int port, int button); // inferred: button held
+struct MpSession_unk;
+extern "C" MpSession_unk* lbl_8087F610; // inferred: multiplayer session (only tested against 0 here)
+extern "C" atn::Vector3 lbl_807C7030;   // inferred: zero vector
+
+// inferred: the stick s left the direction of one of the last three frames (name invented)
+static inline bool StickTurned_unk(const atn::Vector2_unk& s, const atn::Vector2_unk* last) {
+    for (int i = 0; i < 3; i++) {
+        if (s.x * last[i].x + s.y * last[i].y > 0.0f) {
+            continue;
+        }
+        return true;
+    }
+    return false;
+}
+
+// inferred: default camera behind the leader (mode 0, also 8, 16 and 17; parameters m51C, m6C0 in mode 8, blended
+// with m430 while the event timer m424 runs and with the parameters of m46C). The target is m10 above the head of
+// the character; the eye turns towards the character it looks at (mFC4/mFC0 or m834), back behind it after
+// fn_8037EF48 (m7F4, yaw m7F8), behind it while mFlag5/mFlag4, or else slowly behind it with its speed (auto
+// roll); the right stick (or the buttons 2/3) turns the eye (mA14) and the pitch (mA10 -> mA0C). The eye is then
+// pulled out of the walls (CollisionMode m9F4: 1 = eight sweeps from the target, 2 = the same smoothed over the
+// last eight eyes m98C with a cubic B-spline) and the target moved m0C to the side
+// NONMATCHING: 93.3% - stack slots of the inlined temporaries (the frame is 0x10 smaller), two more saved gprs in
+// the original (it keeps the addresses of the sweep temporaries in r21-r25) and the layout of the stick loop
+void GameCamera::fn_8037F9AC(const CharaTask* chara) {
+    CharaTask* c = const_cast<CharaTask*>(chara);
+    if (lbl_8087F0A8->mAlwaysBirdview != 0) {
+        fn_80387DE4(chara);
+        return;
+    }
+    const GameCameraParam_unk* param = &m51C;
+    if (m7FC == 8) {
+        param = &m6C0;
+    }
+    if (m424.fn_803829C0()) {
+        m424.fn_803829D4();
+        m3E8.fn_8037F830(*param, m430, m424.mTime);
+        param = &m3E8;
+        if (m424.mTime < m424.mStep) {
+            m424.mActive = 0;
+        }
+    }
+    if (m46C.mMode != 0) {
+        m46C.mWeight = m46C.mWeight - m46C.mStep;
+        m46C.mWeight = 0.0f > m46C.mWeight ? 0.0f : m46C.mWeight;
+        m3E8.fn_8037F830(m46C.mParam, *param, m46C.mWeight);
+        param = &m3E8;
+    }
+
+    atn::Vector3 cur(mPos);
+    atn::Vector3 pos(mPos);
+    for (int i = 0; i < 8; i++) {
+        if (m98C[i].x == 0.0f) {
+            m98C[i] = cur;
+        }
+    }
+    for (int i = 7; i > 0; i--) {
+        m98C[i] = m98C[i - 1];
+    }
+    if (m880 > 0) {
+        pos = m978;
+    }
+    atn::Vector3 target(m868);
+    atn::Vector3 base;
+    atn::Vector3 dir = target - pos;
+    float fovy = mFovy;
+    if (dir.Length_unk() > 0.0001f) {
+        dir.Normalize_unk();
+    } else {
+        pos.z += 1.0f;
+        dir.x = 0.0f;
+        dir.y = 0.0f;
+        dir.z = -1.0f;
+    }
+    atn::Vector3 rot = Negate_unk(dir).ToRotation_unk();
+    float fov = param->m24 * (param->m04 - fovy) + fovy;
+    atn::Vector3 up(0.0f, 1.0f, 0.0f);
+    atn::Vector3 head = c->fn_80178088();
+    atn::Vector3 charaRot(chara->mRot);
+    target = head;
+    target.y += param->m10;
+    m868 = target;
+    base = target;
+    if (chara->mFlag31 || chara->mMotion.mTracks[0].m00 == 0x55) {
+        charaRot.y += 3.1415927f;
+    }
+    if (m8EC != 0) {
+        rot.y += 3.1415927f;
+    }
+
+    atn::Vector3 r(-(param->m08 + mA0C), rot.y, 0.0f);
+    atn::Vector3 offset(0.0f, 0.0f, param->m00);
+    {
+        atn::Matrix3x4 m = fn_800109E0(r);
+        PSMTXMultVec(m.m, &offset, &offset);
+    }
+    atn::Vector3 eye;
+    eye = offset + target;
+
+    float sx = fn_800A56A8(lbl_8087EF70, 0, 0, 0);
+    float sy = fn_800A56A8(lbl_8087EF70, 0, 1, 0);
+    if ((float)__fabs(sx) > 0.2f || (float)__fabs(sy) > 0.2f) {
+        if (++m984 >= 40) {
+            m984 = 40;
+        }
+    } else if (--m984 <= 0) {
+        m984 = 0;
+    }
+
+    CharaTask* other = chara->mFC4 != 0 ? chara->mFC4 : chara->mFC0;
+    if (other != 0 || m834 != 0) {
+        CharaTask* look = m834 != 0 ? m834 : other;
+        atn::Vector3 d(look->mPos.x - chara->mPos.x, 0.0f, look->mPos.z - chara->mPos.z);
+        float len = d.Length_unk();
+        if (len > 0.001f && (float)__fabs(0.5f * param->m0C / len) < 1.0f) {
+            d.Normalize_unk();
+            d.fn_80139F60();
+            float a = 4.0f * (float)asin(0.5f * param->m0C / len);
+            a = MIN(0.2617994f, MAX(-0.2617994f, a));
+            d.y += a;
+            float turn = -atn::WrapAngle_unk(r.y - atn::WrapAngle_unk(3.1415927f + d.y));
+            atn::Vector3 e = pos - target;
+            Mtx m;
+            PSMTXRotRad(m, 'y', -r.y);
+            PSMTXMultVec(m, &e, &e);
+            float speed = m7F4 != 0 ? param->m28 : param->m30;
+            if (m834 != 0) {
+                speed *= 1.5f;
+            }
+            mCA0.y += 1.0f / (SetConfig::sInstance->mRotDelay / 10.0f);
+            if (mCA0.y > 3.1415927f) {
+                mCA0.y = 3.1415927f;
+            }
+            if ((float)__fabs(turn) > mCA0.y) {
+                turn = turn >= 0.0f ? mCA0.y : -mCA0.y;
+            }
+            m96C = turn * speed;
+            m970 = 0.0f;
+            r.y += m96C;
+            Mtx m2;
+            PSMTXRotRad(m2, 'y', r.y);
+            PSMTXMultVec(m2, &e, &e);
+            eye = e + target;
+            if (m7F4 != 0 && (float)__fabs(turn) < 0.2f) {
+                m7F4 = 0;
+            }
+        }
+    } else if (m7F4 != 0) {
+        float turn = -atn::WrapAngle_unk(r.y - atn::WrapAngle_unk(3.1415927f + m7F8));
+        atn::Vector3 e = eye - target;
+        Mtx m;
+        PSMTXRotRad(m, 'y', -r.y);
+        PSMTXMultVec(m, &e, &e);
+        mCA0.y += 1.0f / (SetConfig::sInstance->mRotDelay / 10.0f);
+        if (mCA0.y > 3.1415927f) {
+            mCA0.y = 3.1415927f;
+        }
+        if ((float)__fabs(turn) > mCA0.y) {
+            turn = turn >= 0.0f ? mCA0.y : -mCA0.y;
+        }
+        m970 = 0.0f;
+        m96C = mCA8 * (turn * param->m28);
+        r.y += m96C;
+        Mtx m2;
+        PSMTXRotRad(m2, 'y', r.y);
+        PSMTXMultVec(m2, &e, &e);
+        eye = e + target;
+        if ((float)__fabs(turn) < 0.05f) {
+            m7F4 = 0;
+            mCA0.y = 0.0f;
+        }
+    } else if (chara->mFlag5 || chara->mFlag4) {
+        float turn = -atn::WrapAngle_unk(r.y - atn::WrapAngle_unk(3.1415927f + charaRot.y));
+        atn::Vector3 e = eye - target;
+        Mtx m;
+        PSMTXRotRad(m, 'y', -r.y);
+        PSMTXMultVec(m, &e, &e);
+        mCA0.y += 1.0f / (SetConfig::sInstance->mRotDelay / 10.0f);
+        if (mCA0.y > 3.1415927f) {
+            mCA0.y = 3.1415927f;
+        }
+        if ((float)__fabs(turn) > mCA0.y) {
+            turn = turn >= 0.0f ? mCA0.y : -mCA0.y;
+        }
+        m970 = 0.0f;
+        m96C = turn * param->m30;
+        r.y = r.y + m96C + turn * param->m30;
+        Mtx m2;
+        PSMTXRotRad(m2, 'y', r.y);
+        PSMTXMultVec(m2, &e, &e);
+        eye = e + target;
+    } else {
+        m988 = 0.2f * (c->m570 - m988) + m988;
+        float t = (m988 - 0.5f) * 1.6666666f;
+        t = MAX(0.0f, MIN(1.0f, t));
+        float roll = 0.0375f * (0.5f * t + 0.65f);
+        if (c->m570 < 0.2f) {
+            roll = 0.0f;
+        }
+        float turn = -atn::WrapAngle_unk(r.y - atn::WrapAngle_unk(3.1415927f + charaRot.y));
+        float dead = 1.0f - 1.0f;
+        if ((unsigned int)m984 <= 20) {
+            roll *= 0.25f;
+        }
+        if (SetConfig::sInstance != 0) {
+            roll *= SetConfig::sInstance->mRollbackSpeed;
+        }
+        float x = fn_800A56A8(lbl_8087EF70, 0, 0, 0);
+        if ((float)__fabs(x) <= 0.2f) {
+            x = 0.0f;
+        }
+        float y = fn_800A56A8(lbl_8087EF70, 0, 1, 0);
+        if ((float)__fabs(y) <= 0.2f) {
+            y = 0.0f;
+        }
+        atn::Vector2_unk s(x, y);
+        if ((float)sqrt(x * x + y * y) != 0.0f) {
+            float inv = 1.0f / (float)sqrt(s.x * s.x + s.y * s.y);
+            s.x = x * inv;
+            s.y = y * inv;
+        }
+        if (!StickTurned_unk(s, mC88)) {
+            mCA0.x += 1.0f / SetConfig::sInstance->mRotDelay;
+        } else {
+            mCA0.x = 0.0f;
+        }
+        if (mCA0.x >= 1.0f) {
+            mCA0.x = 1.0f;
+        }
+        mC88[2] = mC88[1];
+        mC88[1] = mC88[0];
+        mC88[0] = s;
+        roll *= mCA0.x;
+        if ((float)__fabs(turn) < 0.017453292f * (30.0f * dead)) {
+            turn = 0.0f;
+        }
+        if ((float)__fabs(turn) > 0.017453292f * (180.0f - 30.0f)) {
+            turn = 0.0f;
+        }
+        if ((float)__fabs(turn) > (float)__fabs(m974)) {
+            m974 = 0.2f * (turn - m974) + m974;
+        } else {
+            m974 = 0.4f * (turn - m974) + m974;
+        }
+        roll *= m974;
+        if ((float)__fabs(m96C) < (float)__fabs(roll)) {
+            if (roll >= 0.0f) {
+                m970 += 0.1f;
+                if (m970 > 1.0f) {
+                    m970 = 1.0f;
+                }
+                m96C = m970 * 0.017453292f + m96C;
+                if (m96C > roll) {
+                    m96C = roll;
+                    m970 = 0.0f;
+                }
+            } else {
+                m970 -= 0.1f;
+                if (m970 < -1.0f) {
+                    m970 = -1.0f;
+                }
+                m96C = m970 * 0.017453292f + m96C;
+                if (m96C < roll) {
+                    m96C = roll;
+                    m970 = 0.0f;
+                }
+            }
+        } else if (roll >= 0.0f) {
+            m970 -= 0.1f;
+            if (m970 < -1.0f) {
+                m970 = -1.0f;
+            }
+            m96C = m970 * 0.017453292f + m96C;
+            if (m96C < roll) {
+                m96C = roll;
+                m970 = 0.0f;
+            }
+        } else {
+            m970 += 0.1f;
+            if (m970 > 1.0f) {
+                m970 = 1.0f;
+            }
+            m96C = m970 * 0.017453292f + m96C;
+            if (m96C > roll) {
+                m96C = roll;
+                m970 = 0.0f;
+            }
+        }
+        if (m96C > 0.07853982f) {
+            m96C = 0.07853982f;
+        }
+        if (m96C < -0.07853982f) {
+            m96C = -0.07853982f;
+        }
+        atn::Vector3 e = eye - target;
+        Mtx m;
+        PSMTXRotRad(m, 'y', -r.y);
+        PSMTXMultVec(m, &e, &e);
+        r.y += m96C;
+        Mtx m2;
+        PSMTXRotRad(m2, 'y', r.y);
+        PSMTXMultVec(m2, &e, &e);
+        eye = e + target;
+    }
+
+    if (0.0f != param->m34) {
+        atn::Vector3 e = eye - target;
+        Mtx m;
+        PSMTXRotRad(m, 'y', -r.y);
+        PSMTXMultVec(m, &e, &e);
+        r.y += param->m34;
+        Mtx m2;
+        PSMTXRotRad(m2, 'y', r.y);
+        PSMTXMultVec(m2, &e, &e);
+        eye = e + target;
+    }
+
+    float rx = 0.0f;
+    float ry = 0.0f;
+    if (fn_800A58D0(lbl_8087EF70, 0)) {
+        rx = fn_800A56A8(lbl_8087EF70, 0, 2, 0);
+        ry = fn_800A56A8(lbl_8087EF70, 0, 3, 0);
+    }
+    if (lbl_8087F610 != 0 && chara->m58C == 2 && c->fn_8015EB2C()) {
+        rx += fn_800A56A8(lbl_8087EF70, 0, 0, 0);
+        ry += fn_800A56A8(lbl_8087EF70, 0, 1, 0);
+    }
+    if (fn_800A55D4(lbl_8087EF70, 0, 2)) {
+        rx -= 0.9f;
+    } else if (fn_800A55D4(lbl_8087EF70, 0, 3)) {
+        rx += 0.9f;
+    }
+    if (((unsigned int)SetConfig::sInstance->m50 & 2) == 2) {
+        rx *= -1.0f;
+    }
+    if (((unsigned int)SetConfig::sInstance->m50 & 1) == 1) {
+        ry *= -1.0f;
+    }
+    float ax = (float)__fabs(rx);
+    if (ax > 0.2f) {
+        float v = (rx > 0.0f ? 1.0f : -1.0f) * ((ax - 0.2f) / 0.8f);
+        mA14 = -v * 0.017453292f + mA14;
+        mA14 = MAX(-0.08726646f, MIN(0.08726646f, mA14)) * (float)__fabs(v);
+    } else {
+        mA14 *= 0.7f;
+        if ((float)__fabs(mA14) < 0.00017453292f) {
+            mA14 = 0.0f;
+        }
+    }
+    if (0.0f != mA14) {
+        atn::Vector3 e = eye - target;
+        Mtx m;
+        PSMTXRotRad(m, 'y', -r.y);
+        PSMTXMultVec(m, &e, &e);
+        r.y += mA14;
+        Mtx m2;
+        PSMTXRotRad(m2, 'y', r.y);
+        PSMTXMultVec(m2, &e, &e);
+        eye = e + target;
+    }
+    float ay = (float)__fabs(ry);
+    if (ay > 0.2f) {
+        float v = (ry > 0.0f ? 1.0f : -1.0f) * ((ay - 0.2f) / 0.8f);
+        mA10 = -v * 0.013962634f + mA10;
+        mA10 = MAX(-0.06981317f, MIN(0.06981317f, mA10)) * (float)__fabs(v);
+    } else {
+        mA10 *= 0.6f;
+        if ((float)__fabs(mA10) < 0.00017453292f) {
+            mA10 = 0.0f;
+        }
+    }
+    mA0C += mA10;
+    float pitch = MAX(-0.43633232f, MIN(0.7853982f, param->m08 + mA0C));
+    if (chara->mFlag3 || (chara->m54C & 0x200000) == 0x200000) {
+        if (pitch < 0.08726646f) {
+            pitch = MIN(0.08726646f, pitch + 0.08726646f);
+        }
+    }
+    mA0C = pitch - param->m08;
+
+    offset = target - eye;
+    if (offset.Length_unk() > 0.00001f) {
+        offset.Normalize_unk();
+    } else {
+        eye.z += 1.0f;
+        offset.x = 0.0f;
+        offset.y = 0.0f;
+        offset.z = -1.0f;
+    }
+
+    CollResult_unk result;
+    CollResult_unk result2;
+    if (m9F4 >= 1 && !chara->mFlag5) {
+        if (fn_8004ED34(lbl_8087EE98, &result, &target, &eye, 0x80000008, 0, 0) && m8F0 == 0 &&
+            !fn_8004ED34(lbl_8087EE98, &result2, &pos, &result.m10, 0x80000008, 0, 0)) {
+            eye = result.m10;
+            atn::Vector3 d = target - eye;
+            if (d.LengthSq_unk() > 0.01f) {
+                eye += d.GetNormalize() * 0.1f;
+            }
+            offset = target - eye;
+            offset.Length_unk();
+            offset.Normalize_unk();
+        }
+    } else if (fn_8004ED34(lbl_8087EE98, &result, &target, &eye, 0x80000008, 0, 0) && m8F0 == 0) {
+        eye = result.m10;
+        atn::Vector3 d = target - eye;
+        if (d.LengthSq_unk() > 0.01f) {
+            eye += d.GetNormalize() * 0.1f;
+        }
+    }
+
+    offset = target - eye;
+    r = Negate_unk(offset).ToRotation_unk();
+    rot.x += (-(param->m08 + mA0C) - rot.x) * param->m20;
+    rot.y = r.y;
+    rot.z = 0.0f;
+    offset = atn::Vector3(0.0f, 0.0f, param->m00);
+    {
+        atn::Matrix3x4 m = fn_800109E0(rot);
+        PSMTXMultVec(m.m, &offset, &offset);
+    }
+    pos = offset + target;
+
+    // inferred: control 75 of state 6 (m958/m95C/m960 set by that control)
+    if (chara->m55C == 6 && chara->m560 == 0x4B) {
+        atn::Vector3 v(m960);
+        Mtx m;
+        PSMTXRotRad(m, 'y', m958 * 2.6179938f);
+        PSMTXMultVec(m, &v, &v);
+        atn::Vector3 s = v * (0.5f * m958);
+        v.x = v.x + s.x;
+        v.y = -3.0f * m958 + (v.y + s.y);
+        v.z = v.z + s.z;
+        pos = target + v * m95C;
+    }
+
+    m978 = pos;
+    if (m9F4 >= 1 && !chara->mFlag5) {
+        atn::Vector3 d = base - pos;
+        float step = d.Length_unk() * 0.125f;
+        atn::Vector3 p(base);
+        int hits = 0;
+        for (int i = 1; i <= 8; i++) {
+            atn::Vector3 v = pos - p;
+            if ((float)__fabs(v.LengthSq_unk()) < 1.1920929e-7f) {
+                v.x = 0.0f;
+                v.y = 0.0f;
+                v.z = 0.1f;
+            }
+            atn::Vector3 move = v.GetNormalize() * step;
+            if (fn_8004D388(lbl_8087EE98, &result, &p, &move, 0x80000008, 0, 0, 3.5f)) {
+                hits++;
+                p.x = result.m10.x;
+                p.y = (p.y + result.m10.y) * 0.5f;
+                p.z = result.m10.z;
+            } else {
+                p = result.m10;
+            }
+        }
+        pos = p;
+        if (m9F4 == 2) {
+            m98C[0] = pos;
+            float x = 0.0f;
+            float y = 0.0f;
+            float z = 0.0f;
+            for (int i = -2; i < 10; i++) {
+                int idx = i;
+                if (i < 0) {
+                    idx = 0;
+                }
+                if (i > 7) {
+                    idx = 7;
+                }
+                float t = 1.0f - (float)i;
+                if (t < 0.0f) {
+                    t = -t;
+                }
+                float w;
+                if (t < 1.0f) {
+                    w = (4.0f + (t * (3.0f * t * t) - 6.0f * t * t)) / 6.0f;
+                } else if (t < 2.0f) {
+                    float u = t - 2.0f;
+                    w = (u * (-u * u)) / 6.0f;
+                } else {
+                    w = 0.0f;
+                }
+                x = w * m98C[idx].x + x;
+                y = w * m98C[idx].y + y;
+                z = w * m98C[idx].z + z;
+            }
+            pos.x = x;
+            pos.y = y;
+            pos.z = z;
+        } else if (hits > 0) {
+            m880 = m9F0;
+            if ((pos - cur).LengthSq_unk() > 0.00001f) {
+                pos = (pos - cur) * m9EC + cur;
+            }
+        } else if (m880 > 0) {
+            m880--;
+            if ((pos - cur).LengthSq_unk() > 0.00001f) {
+                pos = (pos - cur) * (1.0f - (float)m880 / (float)m9F0) + cur;
+            }
+        }
+        offset = target - pos;
+        r = Negate_unk(offset).ToRotation_unk();
+        rot.y = r.y;
+        rot.z = 0.0f;
+    } else if (fn_8004ED34(lbl_8087EE98, &result, &target, &pos, 0x80000008, 0, 0) && m8F0 == 0) {
+        atn::Vector3 d = target - result.m10;
+        if (d.LengthSq_unk() > 0.0001f) {
+            pos = result.m10;
+            pos += (target - pos).GetNormalize() * 0.1f;
+            m880 = m9F0;
+            if ((pos - cur).LengthSq_unk() > 0.00001f) {
+                pos = (pos - cur) * m9EC + cur;
+            }
+        }
+        if (fn_8004D388(lbl_8087EE98, &result, &pos, &lbl_807C7030, 0x80000008, 0, 0, 3.0f)) {
+            pos = result.m10;
+        }
+    } else if (m880 > 0) {
+        m880--;
+        if ((pos - cur).LengthSq_unk() > 0.00001f) {
+            pos = (pos - cur) * (1.0f - (float)m880 / (float)m9F0) + cur;
+        }
+    }
+
+    float dist = (target - pos).Length_unk();
+    target.x += (float)cos(rot.y) * (param->m0C * MIN(dist / param->m00, 1.0f));
+    target.z += (float)sin(rot.y) * (-param->m0C * MIN(dist / param->m00, 1.0f));
+    SetPosition(pos);
+    SetTarget_unk(target);
+    mFovy = fov;
+    SetUpVector(up);
+    fn_8004B378();
+    fn_80392964(1, 1, 1, 1);
+    m8EC = 0;
+}
 
 // inferred: camera of the town (m6FC): looks at the character m6FC.m10 above it from m6FC.m00 away, turning towards
 // its yaw at the speed m6FC.m2C (immediately with m8EC); lower pitch near the centre cell of the town; the eye is
