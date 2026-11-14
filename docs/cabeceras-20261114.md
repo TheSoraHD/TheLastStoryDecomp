@@ -67,3 +67,9 @@ merge final aunque el port siga activo; notas para el port solo en el proyecto (
   por referencia + selector de U16RunPair_unk): 15450 con el parche (+5 push_back al 100 %, 2 de ControlAppear se
   recuperan re-emparejando) y 8 bajadas de registros (4 de 0,01-0,02). **Decision del usuario**: integrarlo aceptando
   las bajadas o seguir. No se lanzan mas pasadas de push_back.
+- 20:54 integradas K (BattleTask 165 -> 168: fn_801002DC, fn_800F80B8, fn_800F8290; MeleeSort_unk 73 -> 92,5 %,
+  fn_800FDF14 94,3 -> 96,0 % con el marco del original, fn_800FD658 -> 99,75 %; .data sin resolver: un L"" y un
+  segundo L"%d" sin fusionar en @wstringBase0) y L (84+11 unidades usan BattleTask* lbl_8087F048 en vez de vistas
+  Effect_unk/void*; BattleTask::fn_8013A19C(int); Event/MovieState_unk.h fuera: Manager usa atn::VideoTHP).
+  Sin conflictos. 15450, lost 0, sin bajadas, rep100 138, labelcheck 19. Reinicio del servidor ~20:43 (K, L, M
+  reanudados solos).
