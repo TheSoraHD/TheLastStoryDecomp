@@ -1520,10 +1520,14 @@ extern "C" EnemyTask* fn_802A4094(EnemyTask* enemy);
 extern "C" unsigned int fn_802A409C(BattleCharaTask* chara);
 extern "C" float fn_802A40A8(float min, float max);
 extern "C" void fn_802A4120(HomingParam_unk* param);
-extern "C" EnemyTask** fn_802A4184(std::vector<EnemyTask*>* candidates, int index);
 extern "C" EnemyTask* fn_801A0408(CharaManager<EnemyTask>* mgr); // inferred: first enemy
 extern "C" EnemyTask* fn_801A03EC(EnemyTask* enemy);            // inferred: next enemy
 Effect_unk* fn_8013A194(); // inferred: bullet manager (lbl_8087F048)
+
+// inferred: weak copies of the vector of candidate enemies of fn_802A3D80 (called out of line there in the
+// original, which is over the inline budget)
+template std::vector<EnemyTask*>::vector();
+template EnemyTask*& std::vector<EnemyTask*>::operator[](size_type i);
 
 // inferred: fires the laser (m14E8) at the leader (single) or at every player and every other enemy
 // that can act (names invented)
@@ -1552,7 +1556,7 @@ void Em203GreaterDaemonRedMp::fn_802A3D80(int single) {
         }
     }
     for (unsigned int i = 0; i < fn_800E0AA8((const IntVector_unk*)&targets); i++) {
-        CharaTask* target = *fn_802A4184(&targets, i);
+        CharaTask* target = targets[i];
         atn::Vector3 pos = ((atn::Matrix3x4*)GetModel_unk()->GetNodeMtx_unk("spine"))->GetTrans_unk();
         atn::Vector3 offset(0.0f, 0.0f, 30.0f);
         offset.fn_80011410(fn_800109E0(mRot));
@@ -1615,17 +1619,6 @@ extern "C" int fn_802A4168(CharaManager<EnemyTask>* manager) {
     return manager->mCount;
 }
 
-// inferred: default construction of the temporary vector of candidate enemies in fn_802A3D80.
-extern "C" void fn_802A4170(std::vector<EnemyTask*>* candidates) {
-    candidates->mData = 0;
-    candidates->mSize = 0;
-    candidates->mCap = 0;
-}
-
-// inferred: address of the indexed candidate pointer in a vector.
-extern "C" EnemyTask** fn_802A4184(std::vector<EnemyTask*>* candidates, int index) {
-    return &candidates->mData[index];
-}
 
 int Em203GreaterDaemonRedMp::fn_802A4194(int arg) {
     if (m15A8.size() == 0) {

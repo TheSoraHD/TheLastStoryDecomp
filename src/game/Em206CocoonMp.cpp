@@ -421,7 +421,6 @@ extern "C" EnemyTask* fn_801A0408(CharaManager<EnemyTask>* mgr);    // inferred:
 extern "C" EnemyTask* fn_801A03EC(EnemyTask* enemy);                // inferred: next enemy
 // inferred: the list of candidates is a std::vector<EnemyTask*>; its constructor is the weak copy 0x802A4170 and
 // its destructor the one named __dt__18NecroPlaceList_unkFv in symbols.txt (names of the relocations differ)
-extern "C" EnemyTask** fn_802A4184(std::vector<EnemyTask*>* list, int index);
 extern "C" unsigned int fn_800E0AA8(const std::vector<EnemyTask*>* list); // inferred: size
 BattleTask* fn_8013A194(); // inferred: battle task (lbl_8087F048)
 // inferred: asserts of the debug build, empty in release: with them vf104 goes over the inline budget as the
@@ -536,7 +535,7 @@ void Em206CocoonMp::vf104() {
             }
             if (!fn_800E0AB0(&list)) {
                 unsigned int n = fn_800E0AA8(&list);
-                CharaTask* t = *fn_802A4184(&list, rand() % n);
+                CharaTask* t = list[rand() % n];
                 slots->m128[((BattleTask*)slots)->fn_80108378(t)] = 1.0f;
             }
         }
