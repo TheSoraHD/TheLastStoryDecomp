@@ -3973,6 +3973,167 @@ void GameTask::fn_8037177C() {
     m5770 = 0;
 }
 
+// inferred: helpers defined further down (inline)
+extern "C" int fn_8004ED34(void* colli, void* result, const atn::Vector3* from, const atn::Vector3* to,
+                           unsigned int mask, void* ignore, int arg);
+inline void RotateYXZ_unk(atn::Matrix3x4& mtx, const atn::Vector3& rot);
+inline void Scale_unk(atn::Matrix3x4& mtx, const atn::Vector3& s);
+extern "C" inline atn::Matrix3x4 fn_800F80A8(const atn::Vector3* pos);
+extern "C" inline void fn_80316E38(atn::Model* model, const atn::Matrix3x4* mtx);
+// inferred: skills learnt per level of a kind of character (as in game/CharaStatus.cpp); names invented
+struct LevelSkills_unk {
+    unsigned char m00[2];
+    unsigned char m02[128]; // inferred: 0 for every status bit that the level gives
+};
+extern "C" LevelSkills_unk* fn_80219160(int kind, int level);
+
+// NONMATCHING: 97.3% - the local copy of the party (FixedArray_unk<ExpEntry_unk, 8>) is built in the original
+// with the constructor of ExpEntry_unk (memset of LevelUpResult_unk, then a member by member copy), which
+// game/Inventory.h does not declare; the setters of atn::Model (fn_80139F24, fn_8013C554, SetMotionSpeed,
+// SetMotionFrame) are inlined in the original and out of line in atn/Model_unk.h
+// inferred: victory pose after a battle (field state 9): every party member that won a level (or the one of the
+// finishing skill, Inventory::mDF30) is turned towards a free direction at its nearest move point, plays the
+// victory motion (0x177 when it learnt a skill) and is added to the finish camera with the number of skills
+// learnt; then the finish camera, the message windows and the field are frozen. Without such members the
+// party of the battle is cleared.
+void GameTask::fn_80371790() {
+    Inventory* inv = Inventory::instance_;
+    int count = 0;
+    atn::FixedArray_unk<Inventory::ExpEntry_unk, 8>* party = &inv->mExpEntries;
+    CharaTask* first = 0;
+    mFinish.fn_803786F0();
+    atn::FixedArray_unk<Inventory::ExpEntry_unk, 8> entries;
+    for (unsigned int i = 0; i < party->size(); i++) {
+        entries.push_back((*party)[i]);
+    }
+    if (Inventory::instance_->mDF30.mChara != 0) {
+        // inferred: the first 0x90 bytes of the finishing skill entry have the layout of ExpEntry_unk
+        entries.push_back(*(Inventory::ExpEntry_unk*)&Inventory::instance_->mDF30);
+    }
+    if (m5590 != 0) {
+        m5590->fn_80570A14(1);
+        m5590->fn_80570A64();
+        m5594 = 0;
+        m55A4 = 0;
+    }
+    if (lbl_8087F0A8->mD0 != 1) {
+        m558C.mPtr->fn_8056B3D4();
+    }
+    for (unsigned int i = 0; i < entries.size(); i++) {
+        Inventory::ExpEntry_unk* e = &entries[i];
+        if (e->mLevelUp <= 0 && e->mChara != Inventory::instance_->mDF30.mChara) {
+            continue;
+        }
+        CharaTask* c = e->mChara;
+        if (!c->IsActive_unk()) {
+            continue;
+        }
+        if (first == 0) {
+            first = c;
+        }
+        if (lbl_8087F0A8->mD0 == 1) {
+            mFinish.fn_8037865C(c, c->mPos, c->mRot, 0);
+        } else {
+            int point = m10D8->fn_803C1560(&c->mPos, c->fn_80179D44(), 0, 0, 1, 8.0f);
+            atn::Vector3 pos = m10D8->m98.mData[point - 1].mPos;
+            atn::Vector3 rot = c->mRot;
+            for (int k = 0; k < 4; k++) {
+                atn::Vector3 from(pos);
+                from.y += 5.0f;
+                atn::Vector3 dir(0.0f, 0.0f, 1.0f);
+                atn::Matrix3x4 m;
+                m.fn_8013A13C(rot.y);
+                PSMTXMultVec(m.m, &dir, &dir);
+                atn::Vector3 to = from + dir * 20.0f;
+                if (fn_8004ED34(lbl_8087EE98, 0, &from, &to, 0x80000008, 0, 0) == 0) {
+                    break;
+                }
+                rot.y = atn::WrapAngle_unk(1.5707964f + rot.y);
+            }
+            int learnt = 0;
+            if (c->m50 == 1) {
+                int kind = fn_80219558(c->m50);
+                for (int level = 1; level <= e->mLevelUp; level++) {
+                    LevelSkills_unk* skills = fn_80219160(kind, c->mStatus.mParamA.m78 - level);
+                    if (skills != 0) {
+                        for (int bit = 0; bit < 128; bit++) {
+                            if (skills->m02[bit] == 0 && c->mStatus.fn_801346C8(bit, 0)) {
+                                learnt = 1;
+                                break;
+                            }
+                        }
+                    }
+                    if (learnt != 0) {
+                        break;
+                    }
+                }
+            }
+            int skillCount = 0;
+            LevelSkills_unk* skills =
+                fn_80219160(fn_80219558(c->m50), c->mStatus.mParamA.m78 - (*party)[i].mLevelUp);
+            if (skills != 0) {
+                for (int bit = 0; bit < 128; bit++) {
+                    if (skills->m02[bit] == 0 && c->mStatus.fn_801346C8(bit, 0)) {
+                        skillCount++;
+                    }
+                }
+            }
+            if (Inventory::instance_->mDF30.m90 > 0) {
+                learnt = 1;
+                skillCount++;
+            }
+            c->fn_8014DEE4(0, 1, 0);
+            if (learnt != 0) {
+                c->GetModel_unk()->fn_80097C08(0, 0x177, 0, 1, 1, 1.0f, 0.1f);
+            } else if (c->m5C->m11C == 2) {
+                c->GetModel_unk()->fn_80097C08(0, 4, 1, 0, 1, 1.0f, 0.1f);
+            } else if (c->m50 == 1) {
+                c->GetModel_unk()->fn_80097C08(0, 5, 1, 0, 1, 1.0f, 0.1f);
+            } else {
+                c->GetModel_unk()->fn_80097C08(0, 3, 1, 0, 1, 1.0f, 0.1f);
+            }
+            c->GetModel_unk()->fn_80139F24(1);
+            c->GetModel_unk()->fn_8013C554(0, 1.0f);
+            c->GetModel_unk()->SetMotionSpeed(0, 1.0f);
+            atn::Matrix3x4 mtx = fn_800F80A8(&pos);
+            RotateYXZ_unk(mtx, rot);
+            Scale_unk(mtx, *c->GetScale_unk());
+            fn_80316E38(c->GetModel_unk(), &mtx);
+            c->GetModel_unk()->fn_80097E80(1);
+            c->GetModel_unk()->CalcMatrixStack(atn::ModelNodeCallback_unk(0));
+            c->fn_80148B38(10.0f);
+            c->GetModel_unk()->SetMotionFrame(0, 0.0f);
+            mFinish.fn_8037865C(c, pos, rot, skillCount);
+        }
+        count++;
+    }
+    mFinish.fn_8037C690((Xsca_unk*)m56DC.fn_804786F8(), 0);
+    if (count <= 0) {
+        Inventory::instance_->fn_8044D028();
+        return;
+    }
+    mFinish.fn_80378610(5, first, atn::Vector3(0.0f, 0.0f, 0.0f));
+    mFinish.fn_803786FC(0);
+    mFinish.fn_803792F0();
+    m54E4 = 9;
+    lbl_8087F490->m263C->fn_803B57B0(1);
+    lbl_8087F490->m2640->fn_803B6C88(1);
+    MenuCommonTask::sInstance->fn_804A2F98();
+    lbl_8087F048->fn_80371664();
+    lbl_8087F8A8->fn_8054E51C();
+    DamageEffectParam_unk damage(*lbl_8087EFA8->GetDamage_unk());
+    damage.mEnabled = 0;
+    lbl_8087EFA8->SetDamage_unk(damage);
+    if (lbl_8087F0A8->mD0 == 1) {
+        lbl_8087F8A0->fn_800D246C(1);
+    } else {
+        lbl_8087F8A0->FreezeTask();
+    }
+    FriendManager::sInstance->fn_800D246C(1);
+    EnemyManager::sInstance->FreezeTask();
+    m10D8->fn_800D246C(1);
+}
+
 void GameTask::fn_803727DC() {
     m54E4 = 0;
     if (m5590 != 0) {
@@ -4273,9 +4434,9 @@ inline ColorMatrixParam_unk* RenderSetting_unk::GetColorMatrix_unk() {
     return &m324;
 }
 
-// DRAFT: not checked against the original (draft of the victory pose)
-// NONMATCHING: draft - victory pose of the multiplayer battle (places the members around the leader and
-// starts the finish camera); every inline is called out of line in the original (R3)
+// NONMATCHING: 98.9% - the default constructor of the atn::Matrix3x4 of the ray loop is called out of line here
+// (the original emits nothing for it), and registers. Victory pose of the multiplayer battle (places the members
+// around the leader and starts the finish camera); every inline is called out of line in the original (R3)
 void GameTask::fn_803729B4(CharaTask* chara) {
     if (chara == 0) {
         return;
@@ -4414,6 +4575,94 @@ void GameTask::fn_80373164(CharaTask* owner, const atn::Vector3* pos, int id) {
     }
 }
 
+extern "C" ArenaTask* lbl_8087EE78;
+
+// NONMATCHING: 93.4% - scheduling of the second copy of the colour matrix (the constants of the camera blend are
+// loaded earlier in the original) and registers of the frames of the finish camera
+// inferred: starts the replay of the finishing blow (field state 7): freezes the field, rewinds the replay buffer
+// m5598 frames, starts the finish camera, lowers the sound and switches the render settings to monochrome
+void GameTask::fn_803731E8() {
+    m54E4 = 7;
+    m5598 = 88;
+    m55A4 = 15;
+    m559C = 90;
+    m5590->fn_8056F5B4(0);
+    if (m5594 == 0) {
+        mFinish.fn_80378610(1, lbl_8087F8A0->mHead, atn::Vector3(0.0f, 0.0f, 0.0f));
+    }
+    mFinish.m394 = 1;
+    int frames = 30;
+    mFinish.fn_803786FC(lbl_8087F8A0->mHead == mFinish.mChara ? 0 : frames);
+    ((atn::Task*)lbl_8087F048)->FreezeTask();
+    lbl_8087F8A0->FreezeTask();
+    EnemyManager::sInstance->FreezeTask();
+    NpcManager::sInstance->FreezeTask();
+    FriendManager::sInstance->FreezeTask();
+    lbl_8087EE68->FreezeTask();
+    m10D8->fn_800D246C(1);
+    GimmickManager::instance_->fn_803EE514();
+    lbl_8087F048->fn_8010129C();
+    GameTimer::sInstance->FreezeTask();
+    GameUI* ui = lbl_8087F490;
+    ui->mB08[0]->FreezeTask();
+    ui->mB08[1]->FreezeTask();
+    ui->mB08[2]->FreezeTask();
+    ui->mB08[3]->FreezeTask();
+    ui->mB08[4]->MeltTask();
+    ((atn::D2A_Task*)ui->mB08[4])->mFrame = 0.0f;
+    ui->mB20[0]->MeltTask();
+    ((atn::D2A_Task*)ui->mB20[0])->mFrame = 0.0f;
+    ui->mB08[5]->FreezeTask();
+    ui->mB20[1]->FreezeTask();
+    ((atn::D2A_Task*)ui->mB20[1])->mFrame = 0.0f;
+    ui->mB20[2]->FreezeTask();
+    ((atn::D2A_Task*)ui->mB20[2])->mFrame = 0.0f;
+    ui->mB20[3]->FreezeTask();
+    ((atn::D2A_Task*)ui->mB20[3])->mFrame = 0.0f;
+    ui->mB20[4]->FreezeTask();
+    ((atn::D2A_Task*)ui->mB20[4])->mFrame = 0.0f;
+    ui->mB20[5]->FreezeTask();
+    ((atn::D2A_Task*)ui->mB20[5])->mFrame = 0.0f;
+    lbl_8087F3C0->fn_800D246C(1);
+    lbl_8087F3C0->mPaused = 1;
+    lbl_8087F3C0->fn_8023A60C(0);
+    lbl_8087F3C0->fn_8023A60C(2);
+    lbl_8087F3C0->fn_8023A60C(3);
+    lbl_8087F3C0->fn_8023A60C(5);
+    m5590->fn_80570254(-m5598);
+    m5590->fn_8056D8C8(m559C - m5598, 1, 0);
+    mFinish.fn_803792F0();
+    lbl_8087EFE8->fn_800CFA28(1, 1, 2, 10);
+    if (GameBgm::sInstance != 0) {
+        float volume = GameBgm::sInstance->mReq.mVolume;
+        GameBgm::sInstance->fn_8037D49C(0.2f * volume, 10);
+    }
+    m55A8 = fn_800C31F4(sFieldSounds_unk[1], 0, -1, 1.0f);
+    if (lbl_8087EE78 != 0) {
+        lbl_8087EE78->fn_80043D58(2);
+    }
+    lbl_8087EFA8->m240.mEnabled = 1;
+    ColorMatrixParam_unk cm(*lbl_8087EFA8->GetColorMatrix_unk());
+    m55C4 = cm;
+    cm.mEnabled = 1;
+    cm.mMono = 1;
+    cm.mMonoRate = 1.0f;
+    lbl_8087EFA8->SetColorMatrix(cm);
+    m55C0 = lbl_8087EFA8->m3A4;
+    lbl_8087EFA8->m3A4 = 1.0f;
+    m55A0 = 20;
+    GameCameraParam_unk param(mCamera.m684);
+    param.m00 *= 0.5f;
+    param.m04 *= 0.8f;
+    param.m08 *= 0.6f;
+    if (mCamera.m4B4.mActive != 1 && mCamera.m4B4.mActive != 4) {
+        mCamera.m4B4.mActive = 1;
+        mCamera.m4C0 = param;
+        mCamera.m4B4.mStep = 0.033333335f;
+        mCamera.m4B4.mTime = 1.0f;
+    }
+}
+
 // inferred: ends the replay (field state 0): resumes the field and restores the render settings
 void GameTask::fn_803737C0() {
     m54E4 = 0;
@@ -4476,7 +4725,6 @@ extern "C" void fn_800CB5B4(atn::SoundRef* sound, int frames, float volume); // 
 extern "C" void fn_800CB5C8(atn::SoundRef* sound, int frames, int detach);  // inferred: stops the sound
 extern "C" const char* fn_800EFE3C(int id); // inferred: sound name of a voice
 extern "C" int fn_8021A984(HitInfo_unk* hit);
-extern "C" ArenaTask* lbl_8087EE78;
 // inferred: owner of the hit replayed by the rewind (m55B4; class unknown)
 struct ReplayHit_unk {
     unsigned char m00[0xB0];
