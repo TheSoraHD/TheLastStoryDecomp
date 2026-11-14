@@ -5704,7 +5704,7 @@ void BattleChara_unk::fn_801081D8() {
     m930 = 0;
 }
 
-int BattleTask::fn_80108378(CharaTask* chara) {
+int BattleChara_unk::fn_80108378(CharaTask* chara) {
     BattleTask* battle = lbl_8087F048;
     if (battle != 0) {
         if (chara == 0) {

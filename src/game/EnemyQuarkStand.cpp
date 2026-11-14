@@ -179,11 +179,6 @@ extern "C" int fn_8004ED34(void* colli, void* result, const atn::Vector3* from, 
                            unsigned int mask, void* ignore, int arg7); // inferred: segment test
 extern "C" void fn_8023A108(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: effect fade
 extern "C" GameUI* lbl_8087F490; // inferred: game UI
-// inferred: per-player weights of an effect (floats at +0x128, as GhoulWeights_unk of game/Em309Ghoul.cpp)
-struct QuarkWeights_unk {
-    unsigned char m00[0x128];
-    float mWeight[4];
-};
 // inferred: the stuck control keeps the action to run at its end (boost::function at +0x24; name
 // invented)
 struct QuarkStickControl_unk {
@@ -2570,20 +2565,20 @@ void EnemyQuarkStand::fn_8035359C() {
             m17E4 = 0;
         }
     }
-    QuarkWeights_unk* w = (QuarkWeights_unk*)lbl_8087F048->fn_80103F60(this);
+    BattleChara_unk* w = lbl_8087F048->fn_80103F60(this);
     if (m17E4 != 0) {
         for (CharaTask* p = lbl_8087F8A0->mHead; p != 0; p = ((PlayerTask*)p)->mNext) {
-            int i = ((BattleTask*)w)->fn_80108378(p);
+            int i = w->fn_80108378(p);
             if (p == m17E4) {
-                w->mWeight[i] = 100.0f;
+                w->m128[i] = 100.0f;
             } else {
-                w->mWeight[i] = 0.0f;
+                w->m128[i] = 0.0f;
             }
         }
     } else {
         for (CharaTask* p = lbl_8087F8A0->mHead; p != 0; p = ((PlayerTask*)p)->mNext) {
-            int i = ((BattleTask*)w)->fn_80108378(p);
-            w->mWeight[i] = 1.0f;
+            int i = w->fn_80108378(p);
+            w->m128[i] = 1.0f;
         }
     }
 }

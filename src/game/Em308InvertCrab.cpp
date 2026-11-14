@@ -111,11 +111,6 @@ extern "C" void fn_800F8574(BattleTask* mgr, CharaTask* chara, HitInfo_unk* data
 extern "C" double sqrt(double x);
 extern "C" int fn_8004D314(void* world, int arg, const atn::Vector3* pos, const atn::Vector3* dir, unsigned int mask,
                            void* ignore, int arg7, float radius); // inferred: sphere/ray test (as in gmk/Brazier.cpp)
-// inferred: per-player weights of an effect (floats at +0x128, as in game/Em309Ghoul.cpp); names invented
-struct CrabWeights_unk {
-    unsigned char m00[0x128];
-    float mWeight[72]; // inferred: cleared in a loop of 72 (unrolled 8 x 9)
-};
 // inferred: debug drawing (lbl_8087EEB0, as in gmk/Brazier.cpp)
 extern "C" void* lbl_8087EE98;
 extern "C" int fn_8004ED34(void* colli, atn::ColliResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
@@ -832,9 +827,9 @@ void Em308InvertCrab::fn_802F42CC() {
             fn_802F693C((CharaTask*)m1580);
             break;
         }
-        CrabWeights_unk* w = (CrabWeights_unk*)lbl_8087F048->fn_80103F60(this);
+        BattleChara_unk* w = lbl_8087F048->fn_80103F60(this);
         for (int j = 0; j < 72; j++) {
-            w->mWeight[j] = 1.0f;
+            w->m128[j] = 1.0f;
         }
     } else {
         float f = mMotion.mTracks[0].m08;
@@ -1147,12 +1142,12 @@ int Em308InvertCrab::fn_802F62A0(CharaTask* target, int next) {
     m1534 = 0;
     m1530 = next;
     m1588 = target;
-    CrabWeights_unk* w = (CrabWeights_unk*)lbl_8087F048->fn_80103F60(this);
+    BattleChara_unk* w = lbl_8087F048->fn_80103F60(this);
     if (w != 0) {
-        int i = ((BattleTask*)w)->fn_80108378(target);
+        int i = w->fn_80108378(target);
         for (int j = 0; j < 72; j++) {
             if (j != i) {
-                w->mWeight[j] = 0.0f;
+                w->m128[j] = 0.0f;
             }
         }
     }

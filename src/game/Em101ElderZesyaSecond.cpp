@@ -73,11 +73,6 @@ extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 extern "C" atn::Vector3 lbl_807C7030;              // inferred: zero vector
 // inferred: skill effect manager (lbl_8087F9E8, as in gmk/HealPoint.cpp); nonzero while the magic is active
-// inferred: per-player weights of an effect (floats at +0x128, as in game/Em309Ghoul.cpp); names invented
-struct ElderWeights_unk {
-    unsigned char m00[0x128];
-    float mWeight[4];
-};
 // inferred: current control while casting (as in game/Em101ElderZesya.cpp)
 struct ControlMagic_unk {
     unsigned char m00[0x1D];
@@ -376,11 +371,11 @@ void Em101ElderZesyaSecond::vf10() {
     fn_80145334();
     for (PlayerTask* p = lbl_8087F8A0->mHead; p != 0; p = p->mNext) {
         if (p->mType != 0 && p->CanAct_unk()) {
-            ElderWeights_unk* w = (ElderWeights_unk*)lbl_8087F048->fn_80103F60(p);
+            BattleChara_unk* w = lbl_8087F048->fn_80103F60(p);
             if (w != 0) {
-                int i = ((BattleTask*)w)->fn_80108378(this);
+                int i = w->fn_80108378(this);
                 if (i >= 0) {
-                    w->mWeight[i] = 100.0f;
+                    w->m128[i] = 100.0f;
                 }
             }
         }

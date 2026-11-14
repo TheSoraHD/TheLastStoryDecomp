@@ -53,11 +53,6 @@ struct GhoulField_unk {
     RouteTable_unk* m10D8;
 };
 extern "C" GhoulField_unk* lbl_8087F430;
-// inferred: per-player weights of an effect (floats at +0x128); names invented
-struct GhoulWeights_unk {
-    unsigned char m00[0x128];
-    float mWeight[4];
-};
 
 inline GhoulStr_unk& GhoulStr_unk::operator=(const char* str) {
     if (str != mStr) {
@@ -235,10 +230,10 @@ void Em309GhoulSimple::vf10() {
         mRot = rot;
     }
     if (m1570 != 0) {
-        GhoulWeights_unk* w = (GhoulWeights_unk*)lbl_8087F048->fn_80103F60(this);
+        BattleChara_unk* w = lbl_8087F048->fn_80103F60(this);
         for (PlayerTask* p = lbl_8087F8A0->mHead; p != 0; p = p->mNext) {
-            int i = ((BattleTask*)w)->fn_80108378(p);
-            w->mWeight[i] = p->mType == 0 ? 1.0f : 0.3f;
+            int i = w->fn_80108378(p);
+            w->m128[i] = p->mType == 0 ? 1.0f : 0.3f;
         }
     }
 }

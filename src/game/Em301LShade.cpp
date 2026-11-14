@@ -205,11 +205,6 @@ inline atn::Vector3 GetNodePos_unk(MtxPtr m) {
 }
 
 extern "C" int rand();
-// inferred: battle state (fn_80103F60 returns a record per party member; m128: weights)
-struct BattleSlots_unk {
-    unsigned char m000[0x128];
-    float m128[1];
-};
 
 // inferred: float color converted from/to GXColor (as in game/GimmickCommon.cpp); names invented
 struct ShadeColor_unk {
@@ -757,9 +752,9 @@ void Em301LShade::vf10() {
     }
     fn_8014C540();
     fn_80145334();
-    BattleSlots_unk* slots = (BattleSlots_unk*)lbl_8087F048->fn_80103F60(this);
+    BattleChara_unk* slots = lbl_8087F048->fn_80103F60(this);
     for (CharaTask* c = lbl_8087F8A0->mHead; c != 0; c = NextChara_unk(c)) {
-        int i = ((BattleTask*)slots)->fn_80108378(c);
+        int i = slots->fn_80108378(c);
         if (c->fn_8016E484() == 0) {
             slots->m128[i] = 0.0f;
         } else {

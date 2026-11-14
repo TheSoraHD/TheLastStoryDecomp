@@ -43,6 +43,8 @@ struct BattleChara_unk {
     void fn_801088B8(int id, int value); // inferred: adds a hate entry (at most 10 per id; drops the oldest)
     void fn_8010895C(int id, int all);   // inferred: removes the entries of an id and compacts the list
     void fn_801081D8();                  // inferred: resets the entry
+    // inferred: index of the character in mCharas of the battle manager, -1 if missing (does not use this)
+    int fn_80108378(CharaTask* chara);
     int fn_801083D8(int id);             // inferred: hate value toward the entry `id`
 
     CharaTask* mChara;
@@ -337,7 +339,6 @@ public:
     void fn_80107FC8(void* owner);
     void fn_80107FD8(void* owner, atn::Model* model);
     void fn_80108080(void* owner);
-    int fn_80108378(CharaTask* chara); // inferred: index of the character in mCharas of the instance, -1 if missing
     void fn_80108A54(CharaTask* chara);
     // inferred: keeps the lock-on target of `chara` (CharaTask::mFC0) or picks a new one
     void fn_80108A5C(CharaTask* chara, const atn::Vector3* dir);

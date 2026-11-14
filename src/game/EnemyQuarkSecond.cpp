@@ -250,12 +250,6 @@ extern "C" int fn_800F8548(BattleTask* mgr); // inferred: new bullet id
 extern "C" void fn_800FAB80(BattleTask* mgr, CharaTask* owner, HitInfo_unk* bullet, int arg3, const atn::Vector3& pos,
                             const atn::Vector3& rot, int arg6, int arg7, int arg8, int arg9, float arg10,
                             float arg11);
-// inferred: battle state (fn_80103F60 returns a record per party member; m128: weights), as in
-// game/Em301LShade.cpp
-struct BattleSlots_unk {
-    unsigned char m000[0x128];
-    float m128[1];
-};
 // inferred: effect manager (atn::EffectManager, global instance at 0x8087F3C0)
 struct EffectMgr_unk;
 extern "C" EffectMgr_unk* lbl_8087F3C0;
@@ -2389,12 +2383,12 @@ void EnemyQuarkSecond::fn_80344780() {
 }
 
 void EnemyQuarkSecond::fn_803449AC() {
-    BattleSlots_unk* slots = (BattleSlots_unk*)lbl_8087F048->fn_80103F60(this);
+    BattleChara_unk* slots = lbl_8087F048->fn_80103F60(this);
     if (m14C8 != 0) {
         CharaTask* c = lbl_8087F8A0->mHead;
         if (!c->mFlag28) {
             for (; c != 0; c = fn_802A4094(c)) {
-                int i = ((BattleTask*)slots)->fn_80108378(c);
+                int i = slots->fn_80108378(c);
                 if (c == m14C4) {
                     slots->m128[i] = 100.0f;
                 } else {
@@ -2405,7 +2399,7 @@ void EnemyQuarkSecond::fn_803449AC() {
         }
     }
     for (CharaTask* c = lbl_8087F8A0->mHead; c != 0; c = fn_802A4094(c)) {
-        slots->m128[((BattleTask*)slots)->fn_80108378(c)] = 1.0f;
+        slots->m128[slots->fn_80108378(c)] = 1.0f;
     }
 }
 

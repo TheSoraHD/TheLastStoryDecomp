@@ -204,11 +204,6 @@ extern "C" CharaTask* fn_802A4094(CharaTask* chara);
 extern "C" atn::Matrix3x4* fn_80266154(atn::Model* model);
 extern "C" float fn_80011220(float x); // inferred: fabs (weak copy of another helper)
 BattleTask* fn_8013A194();
-// inferred: AI data of an ally (class unknown): weights by enemy at 0x128
-struct AllyAi_unk {
-    unsigned char m000[0x128];
-    float m128[1];
-};
 
 // inferred: singleton accessor (weak copy, also called by game/GameUI.cpp)
 extern "C" inline FriendManager* fn_80323C2C() {
@@ -356,9 +351,9 @@ void Em403WarLion::vf10() {
         }
     }
     for (CharaTask* c = fn_80323C2C()->fn_8036554C(); c != 0; c = fn_802A4094(c)) {
-        AllyAi_unk* ai = (AllyAi_unk*)fn_8013A194()->fn_80103F60(c);
+        BattleChara_unk* ai = fn_8013A194()->fn_80103F60(c);
         if (ai != 0) {
-            int i = ((BattleTask*)ai)->fn_80108378(this);
+            int i = ai->fn_80108378(this);
             if (i >= 0) {
                 if (m14CC - 1U <= 1) {
                     ai->m128[i] = 0.0f;
