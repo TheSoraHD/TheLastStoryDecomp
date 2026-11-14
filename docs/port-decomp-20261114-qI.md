@@ -61,6 +61,11 @@ Unidades: game/GameUI, game/PopupTask, game/TacView, game/GameCamera_unk, game/F
   en lo que se ve; revisar si falta un panel). El `m560 == 29 || m560 == 30` sigue en rango (switch y orden de
   operandos probados).
 
+- `GameUI::fn_803D83A8` (0x803D83A8): 87,96 -> **88,79 %**: `SetLevelUp_unk` pasa a `static inline`; como
+  `inline` con enlace externo sus 13 cadenas iban a `@STRING@SetLevelUp_unk...` en vez de a `@stringBase0`, lo que
+  desplazaba 0x84 bytes las cadenas de todas las funciones siguientes. Queda un desfase de 0x14: la cadena
+  "vector length error" del `push_back` de `std::vector<wstring>` (std/vector.h, pendiente compartido).
+
 ## Cambios de firma o de layout (para el port)
 
 - `GameUI.h`: `float mE94[32]` (antes `unsigned char mE94[0x80]`): fundido de los anillos de los enemigos.
@@ -93,6 +98,8 @@ Unidades: game/GameUI, game/PopupTask, game/TacView, game/GameCamera_unk, game/F
   no las recoloca todas: compilar el .o de antes y el de despues y renombrar por (seccion, offset) entre ambos.
 - Construir un struct local con su constructor con argumentos cruza r8/r9 en las direcciones de sus Vector3;
   rellenarlo miembro a miembro tras el constructor por defecto da el orden del original (FinishCamera fn_8037865C).
+- Las cadenas de una funcion `inline` no `static` de un .cpp van a `@STRING@<funcion>@N` (fuera de `@stringBase0`)
+  y desplazan el pool de las funciones siguientes: `static inline` las deja en el pool (GameUI SetLevelUp_unk).
 - `0 < x && x <= N` evita que MWCC junte las dos comparaciones en un rango `subi/cmplwi` (con `x > 0` las junta).
 - Tras `pd.sh`, si `labelcheck` sigue con faltas, emparejar por offset del `.sdata2` del .o (valor igual) y
   renombrar a mano.

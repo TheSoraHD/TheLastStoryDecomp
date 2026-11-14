@@ -3062,7 +3062,8 @@ inline const wchar_t* GetMsgEntry_unk(int id) {
                : lbl_808813D0;
 }
 // inferred: old and new values of the stats of a character that levelled up (names invented)
-inline void SetLevelUp_unk(atn::D2A_Task* task, CharaTask* c, Inventory::ExpEntry_unk* e) {
+// inferred: static (its strings are in the pool of the file, @stringBase0, as in the original)
+static inline void SetLevelUp_unk(atn::D2A_Task* task, CharaTask* c, Inventory::ExpEntry_unk* e) {
     task->SetNumber_unk("oldLevel", c->mStatus.mParamB.m78 - (int)e->mResult.m08, 0);
     task->SetNumber_unk("nextLevel", c->mStatus.mParamB.m78, 0);
     task->SetNumber_unk("oldHP", c->mStatus.mParamB.m84 - (int)e->mResult.m0C, 0);
