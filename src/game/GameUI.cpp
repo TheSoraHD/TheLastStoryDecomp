@@ -3773,20 +3773,21 @@ inline atn::ColliBase* GetCursorTarget_unk() {
 // inferred: windows of the overlook view: the rings under the enemies (fn_803DCA84), the windows of the
 // enemies sorted by their screen height (m1014), the party window of each one (fn_803DCD34) and the
 // description window of the enemy under the cursor (m1140..m1148, text cut in five lines)
-// NONMATCHING: 97.6% - the original reloads lbl_8087F048 for m3E2E0 and computes mF94[m1014[i]] for vfBC
+// NONMATCHING: 97.9% - stack slots of the vectors of the overlook loop; the original reloads lbl_8087F048 for
+// m3E2E0 and computes mF94[m1014[i]] for vfBC
 // after its argument (ours keeps the first load and hoists the object above the argument); the else branch
 // of the text lines keeps its literal in a register
 void GameUI::fn_803DBD44() {
     if (mDC8 == 0) {
         return;
     }
-    float w = lbl_8087EEE0->mWidth;
-    float h = lbl_8087EEE0->mHeight;
+    float w = lbl_8087EEE0->GetWidth_unk();
+    float h = lbl_8087EEE0->GetHeight_unk();
     float dist[32];
     for (int i = 0; i < 32; i++) {
+        dist[i] = 1e16f;
         mF94[i] = 0;
         m1014[i] = -1;
-        dist[i] = 1e16f;
         mF14[i]->FreezeTask();
     }
     if (mDCC >= 1) {
