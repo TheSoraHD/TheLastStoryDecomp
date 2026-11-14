@@ -20,6 +20,7 @@
 #include "Event/Action.h"
 #include "chr/CharaEquip_unk.h"
 #include "atn/PBone.h"
+#include "std/string_members.h"
 
 extern "C" GameTask* lbl_8087F430; // inferred: the field
 
@@ -861,7 +862,7 @@ void Actor::fn_8000FAE8() {
             for (int motion = 239; motion <= 318; motion++) {
                 model->fn_80097A20(motion);
             }
-            model->fn_8009373C("set_y", 0);
+            model->fn_8009373C("op_hand_line", 0);
             fn_80012D0C(0.3f);
             fn_80013530(0.3f);
             GetChara_unk()->m1188.m78 = 0;
@@ -887,7 +888,7 @@ void Actor::fn_8000FAE8() {
             CharaTask* chara = GetChara_unk();
             if (chara->m13FC != 0) {
                 chara->m13FC->fn_80176ACC();
-                MtxPtr node = chara->m13FC->GetModel_unk()->GetNodeMtx_unk("z");
+                MtxPtr node = chara->m13FC->GetModel_unk()->GetNodeMtx_unk("seatpoint");
                 if (node != 0) {
                     chara->mF1C = (int)node;
                 }
@@ -1791,3 +1792,9 @@ void Actor::fn_80013558() {
 }
 
 } // namespace Event
+
+namespace atn {
+// inferred: inline and empty in atn::Task (its only copy is weak, here at 0x80013CAC); defined here and not
+// in atn/Task.h because the inline body there renumbers the @N labels of the 367 units that include it
+inline void Task::vf18(Task*) {}
+} // namespace atn
