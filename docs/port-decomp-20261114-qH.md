@@ -31,6 +31,16 @@ Inicio: 2026-11-14 04:41 CET. Rama `agent-H`. Unidades: `game/BattleCharaTask`, 
   usa el ancla de `.rodata` (`lbl_807355C8`, r31) porque `lbl_80735DD0` aun es `extern` (deuda de la regla 10),
   `vf3C` recibe un segundo argumento (1) que `CharaTask.h` no declara, y 0x100 bytes de pila / registros.
 
+- Sin escribir: el constructor y el destructor de `BattleTask` (0x800F1430, 0x800F1F94; con ellos saldrian las
+  copias debiles `__dt__12HomingBullet` y `__dt__Q210BattleTask9BetoModel`): necesitan tipar los `atn::EffFile` /
+  `atn::Texture` que `BattleTask.h` guarda como bytes, y eso renumera los `@N` de todas las unidades que incluyen la
+  cabecera (ver el comentario de `BattleMarkers_unk`); el orden de destruccion no se puede imitar a mano.
+  `fn_800F8C6C` (6 KB, con `fn_800FA4FC`/`fn_800FA9F4` de `std::sort`) usa `std::vector<{CharaTask*, int, float}>`
+  con el `push_back` de `std/vector.h` que sigue pendiente (docs/SIGUIENTE_sesion.md). `vf2C__Q23chr11ControlBaseFv`
+  (8 bytes) sale con alguna de ellas.
+- No tocadas: las NONMATCHING de la cola B (`vf14` 85 %, `AIManager::fn_80017128` 89,9 %, `vf10` 98,5 %,
+  `fn_80103FD4` 98,3 %): no dio tiempo tras las tres funciones nuevas.
+
 ## Cambios de firma / layout (para el port)
 
 - `BattleCharaTask::fn_800E4278(GameTask*)` nuevo miembro en `include/game/BattleCharaTask.h`; `GameTask::fn_8036CC90`
@@ -67,3 +77,10 @@ Inicio: 2026-11-14 04:41 CET. Rama `agent-H`. Unidades: `game/BattleCharaTask`, 
   colocan los huecos de pila detras de los locales con nombre, como el original.
 - `bool b = IsX(); int v = 4; if (b) v = 2;` reproduce `cntlzw/srwi.` (bool materializado).
 - Bucle sobre `FixedArray_unk`: `items.mData[i]` da base `&items` + 4 con puntero incrementado; `items[i]` (int) no.
+
+## Resumen
+
+Funciones al 0 % escritas: 3 (`fn_800E4278` 0 -> 99,5 %, `fn_80109950` 0 -> 97,5 %, `fn_800FDF14` 0 -> 92,3 %).
+Funciones al 100 %: sin cambios en estas unidades (report.json 15392 -> 15394: `GameTask::fn_8036CC90` al
+100 % al llamar al miembro, y `fn_800EBD00` cuenta 100 en el report con objdiff 99,95 %). lost 0, sin bajadas de fuzzy.
+precommit: `labelcheck/rep100: peor` solo por `fn_800EBD00` (ver arriba).
