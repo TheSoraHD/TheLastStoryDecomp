@@ -4,6 +4,8 @@
 #include "atn/GraphicsDevice.h"
 #include "atn/MemoryManager.h"
 #include "atn/Texture_unk.h"
+#include "atn/CharaLightData_unk.h"
+#include "atn/LayerShadow.h"
 #include "atn/Memory.h"
 #include "atn/RenderSetting_unk.h"
 #include "atn/TextureCacheManager.h"
@@ -208,15 +210,6 @@ static unsigned int CountFrames_unk(FrameQueue_unk* queue) {
 
 extern "C" RenderSetting_unk* lbl_8087EFA8;
 
-// inferred: textures and matrices of the shadow layer (layer 3 of atn::RenderManager, LayerShadow)
-// used by the effects of fn_80074EC8
-struct RenderTextures_unk {
-    unsigned char m000[0x460];
-    GXTexObj m460;           // 0x460: light map (fn_800748D8)
-    GXTexObj m480;           // 0x480: rim light (fn_80073A6C)
-    atn::Matrix3x4 m4A0;     // 0x4A0: texture matrices of the rim light
-    atn::Matrix3x4 m4D0;     // 0x4D0
-};
 
 // inferred: first object of .rodata; no reference left in the code
 extern const int lbl_807316B8[4] = {0xFF, 0, 0, 0};
@@ -240,7 +233,7 @@ namespace atn {
 struct ShaderDesc_unk;
 }
 extern "C" void fn_80074EC8(atn::GraphicsDevice_unk* device, const atn::ShaderDesc_unk* desc, int flags,
-                            atn::TexProjector_unk* light, atn::TexProjector_unk* light2, atn::ShadowMap_unk* shadow);
+                            CharaLightData_unk* light, CharaLightData_unk* light2, atn::ShadowMap_unk* shadow);
 extern "C" void fn_800761A8(atn::GraphicsDevice_unk* device);
 extern "C" GXTexRegion* fn_80076FD4(GXTexObj* obj, unsigned int id);
 extern "C" void fn_8009BF3C(void* mesh, void* material, void* lens, const float* color);
@@ -1003,7 +996,7 @@ inline bool IsTextureReady_unk(atn::Texture_unk* tex) {
 // inferred: projects a texture on the model from above (orthographic when mDir is zero) and
 // modulates the color with it (TEV stage after the material, texture coordinate of type 4)
 // NONMATCHING: 95.53% - register allocation (projector in r27, angle in f29) and (load order of fn_800D5E18 fixed with getters)
-extern "C" void fn_80073194(TevStats_unk* stats, int flags, atn::TexProjector_unk* proj) {
+extern "C" void fn_80073194(TevStats_unk* stats, int flags, CharaLightData_unk* proj) {
     if (proj != 0 && 0.0f == proj->mSize.x && 0.0f == proj->mSize.y) {
         return;
     }
@@ -1024,13 +1017,13 @@ extern "C" void fn_80073194(TevStats_unk* stats, int flags, atn::TexProjector_un
     atn::Vector3 offset(0.0f, 0.0f, 0.0f);
     float angle = 0.0f;
     atn::Texture_unk* tex = &lbl_8087EEB0->m40;
-    if (proj != 0 && IsTextureReady_unk(&proj->mTextures[proj->mTexture])) {
-        pos = proj->mPos;
+    if (proj != 0 && IsTextureReady_unk(&proj->mTextures[proj->m44])) {
+        pos = proj->m04;
         size = proj->mSize;
         dir = proj->mDir;
-        tex = &proj->mTextures[proj->mTexture];
-        angle = 0.017453292f * proj->mAngle;
-        offset = proj->mOffset;
+        tex = &proj->mTextures[proj->m44];
+        angle = 0.017453292f * proj->m1C;
+        offset = proj->mPos;
     }
     fn_800763C0(lbl_8087EEE0, map, tex);
     atn::Matrix3x4 texMtx;
@@ -1083,7 +1076,7 @@ extern "C" void fn_80073194(TevStats_unk* stats, int flags, atn::TexProjector_un
     GXLoadTexMtxImm(texMtx.m, postMtx, 0);
     GXSetTevSwapMode(stage, 0, 0);
     GXSetTevOrder(stage, coord, map, 0xFF);
-    switch (proj->mBlend) {
+    switch (proj->m00) {
     case 0:
         GXSetTevColorIn(stage, 15, 0, 8, 15);
         GXSetTevColorOp(stage, 0, 0, 0, 1, 0);
@@ -1200,10 +1193,10 @@ extern "C" void fn_80073A6C(TevStats_unk* stats, int flags) {
     GXSetTexCoordGen2(coord0, 0, 0, 0, 0, postMtx0);
     GXSetTexCoordGen2(coord1, 0, 0, 0, 0, postMtx1);
     LoadTexObj_unk(lbl_8087EEE0, &atn::RenderManager::instance_->m50C, map0);
-    LoadTexObj_unk(lbl_8087EEE0, &((RenderTextures_unk*)atn::RenderManager::instance_->mLayers[3]) /* pending: view of LayerShadow */->m480, map1);
-    RenderTextures_unk* textures = ((RenderTextures_unk*)atn::RenderManager::instance_->mLayers[3]) /* pending: view of LayerShadow */;
-    GXLoadTexMtxImm(textures->m4A0.m, postMtx0, 0);
-    GXLoadTexMtxImm(textures->m4D0.m, postMtx1, 0);
+    LoadTexObj_unk(lbl_8087EEE0, &((atn::LayerShadow*)atn::RenderManager::instance_->mLayers[3])->mDepthTex, map1);
+    atn::LayerShadow* textures = ((atn::LayerShadow*)atn::RenderManager::instance_->mLayers[3]);
+    GXLoadTexMtxImm(textures->mDepthMtx.m, postMtx0, 0);
+    GXLoadTexMtxImm(textures->mTexMtx.m, postMtx1, 0);
     GXSetTevOrder(stage0, coord0, map0, 0xFF);
     GXSetTevColorIn(stage0, 15, 15, 15, 8);
     GXSetTevColorOp(stage0, 0, 0, 0, 1, 1);
@@ -1309,7 +1302,7 @@ extern "C" void fn_800742C8(TevStats_unk* stats, int flags) {
     }
     GXSetTexCoordGen2(coord0, 0, 0, 0, 0, postMtx0);
     GXSetTexCoordGen2(coord1, 0, 1, 3, 0, postMtx1);
-    LoadTexObj_unk(lbl_8087EEE0, &((RenderTextures_unk*)atn::RenderManager::instance_->mLayers[3]) /* pending: view of LayerShadow */->m460, map0);
+    LoadTexObj_unk(lbl_8087EEE0, &((atn::LayerShadow*)atn::RenderManager::instance_->mLayers[3])->mTex, map0);
     LoadTexObj_unk(lbl_8087EEE0, &atn::RenderManager::instance_->m530, map1);
     atn::RenderManager* view = atn::RenderManager::instance_;
     atn::Matrix3x4 proj;
@@ -1373,7 +1366,7 @@ extern "C" void fn_800748D8(TevStats_unk* stats, int flags) {
     }
     int postMtx = map * 3 + 0x40;
     GXSetTexCoordGen2(coord, 0, 0, 0, 0, postMtx);
-    LoadTexObj_unk(lbl_8087EEE0, &((RenderTextures_unk*)atn::RenderManager::instance_->mLayers[3]) /* pending: view of LayerShadow */->m460, map);
+    LoadTexObj_unk(lbl_8087EEE0, &((atn::LayerShadow*)atn::RenderManager::instance_->mLayers[3])->mTex, map);
     atn::Matrix3x4 proj;
     proj.SetIdentity();
     atn::RenderManager* view = atn::RenderManager::instance_;
@@ -1451,15 +1444,15 @@ extern "C" void fn_80074B24(TevStats_unk* stats, atn::ShadowMap_unk* shadow, int
     GXSetTevAlphaOp(stage1, 0, 0, 0, 1, 0);
 }
 
-atn::TexProjector_unk* lbl_8087EEE8; // inferred: projector of the effect of flag bit 2 (fn_80073194)
-atn::TexProjector_unk* lbl_8087EEEC; // inferred: projector of the effect of flag bit 3
+CharaLightData_unk* lbl_8087EEE8; // inferred: projector of the effect of flag bit 2 (fn_80073194)
+CharaLightData_unk* lbl_8087EEEC; // inferred: projector of the effect of flag bit 3
 
 
 // inferred: sets up the TEV for a material and the effects of the flags (bit 0: texture coordinates
 // split by type; bits 1-5: effects added after the material). The last setup is cached in the device.
 // NONMATCHING: 98.55% - the original recomputes the row of sTevCosts (mulli) for the coordinate sum of mode 1/2; order of the cache stores
 extern "C" void fn_80074EC8(GraphicsDevice_unk* device, const atn::ShaderDesc_unk* desc, int flags,
-                            atn::TexProjector_unk* light, atn::TexProjector_unk* light2, atn::ShadowMap_unk* shadow) {
+                            CharaLightData_unk* light, CharaLightData_unk* light2, atn::ShadowMap_unk* shadow) {
     if (lbl_8087EFA8->m204 != 0 && device->mShaderDesc != 0 && device->mShaderDesc == desc && device->mShaderFlags == flags &&
         (!(flags & 8) || lbl_8087EEEC == light2) && (!(flags & 4) || lbl_8087EEE8 == light) &&
         (shadow == 0 || !(flags & 0x20) || device->mShadow == shadow)) {

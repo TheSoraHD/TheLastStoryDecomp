@@ -3,6 +3,7 @@
 
 #include "math/Vec.h"
 #include "atn/Camera_unk.h"
+#include "atn/GXStateBits_unk.h"
 
 // SDK structures used by the graphics device (the SDK headers are not on the game include path;
 // same layout and tags as revolution/gx and revolution/vi).
@@ -32,6 +33,10 @@ struct GXVtxAttrFmtList {
     unsigned char frac; // 0x0C
 };
 struct GXFifoObj;
+
+// texture projected on the models by the effect of flag bits 2 and 3 of fn_80074EC8 (fn_80073194): the
+// light projected on the characters (atn/CharaLightData_unk.h)
+struct CharaLightData_unk;
 
 namespace atn {
 struct Light;
@@ -80,23 +85,6 @@ struct VtxFormat_unk {
     VtxDescArray_unk mDesc;       // 0x1B0
 };
 
-// inferred: GX pixel state cached by the device and sent by fn_800761A8 (bits from the most
-// significant; values are indices into the translation tables of fn_800761A8)
-struct GXStateBits_unk {
-    unsigned int mAlphaTest : 1;  // dirty bits 0-2: GXSetAlphaCompare / GXSetZCompLoc
-    unsigned int mAlphaFunc : 3;
-    unsigned int mAlphaRef : 8;
-    unsigned int mBlend : 1;      // dirty bits 3-5: GXSetBlendMode
-    unsigned int mBlendSrc : 3;
-    unsigned int mBlendDst : 3;
-    unsigned int mCull : 1;       // dirty bit 6: GXSetCullMode
-    unsigned int m20 : 1;
-    unsigned int mZTest : 1;      // dirty bits 8-10: GXSetZMode
-    unsigned int mZFunc : 3;
-    unsigned int mZWrite : 1;
-    unsigned int mUpdateMask : 2; // dirty bit 11: bit 1 GXSetColorUpdate, bit 0 GXSetAlphaUpdate
-    unsigned int m28 : 4;
-};
 
 // inferred: one dirty bit per field of GXStateBits_unk (bits 0-11, in field order)
 struct GXDirtyBits_unk {
@@ -105,22 +93,6 @@ struct GXDirtyBits_unk {
     unsigned int mLow : 20;
 };
 
-// inferred: texture projected on the models by the effect of flag bits 2 and 3 of fn_80074EC8
-// (fn_80073194). Names invented.
-struct TexProjector_unk {
-    int mBlend;            // 0x00: TEV color operation (0-6)
-    Vector2_unk mPos;      // 0x04: center (x, z)
-    Vector2_unk mSize;     // 0x0C: size projected (0: no projection)
-    float m14;
-    float m18;
-    float mAngle;          // 0x1C: rotation of the texture (degrees)
-    float m20;
-    Vector3 mDir;          // 0x24: projection direction (zero: from above, orthographic)
-    Vector3 mOffset;       // 0x30
-    float m3C;
-    Texture_unk* mTextures; // 0x40
-    int mTexture;          // 0x44
-};
 
 // inferred: shadow map passed to fn_80074EC8 for the effect of flag bit 5 (fn_80074B24): light
 // camera and its depth texture. Names invented.
