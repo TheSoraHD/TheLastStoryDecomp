@@ -48,6 +48,49 @@ public:
 // destroying the elements, so the fixed array is wrapped in a class (name invented)
 class AiTargetList_unk : public atn::FixedArray_unk<AiTarget, 16> {};
 
+// inferred: input block of the AI scripts (lbl_807C68C0, 0x180 bytes, returned by fn_8001C260; defined in
+// AI/AI_archer_attack01.cpp with its own view AiInput_unk). Filled by AIManager::fn_80017128. Names invented.
+struct AiScriptInput_unk {
+    CharaTask* mChara;      // 0x00
+    int mState;             // 0x04: CharaC58_unk::m00
+    int mDone;              // 0x08: CharaC58_unk::mDone_unk
+    int mFrame;             // 0x0C: CharaC58_unk::m04
+    atn::Vector3 mPos;      // 0x10
+    float mTargetDist;      // 0x1C: distance to mTarget minus its radius (9999: none)
+    CharaTask* mTarget;     // 0x20: CharaC58_unk::mC4
+    float mFollowDist;      // 0x24 (9999: none)
+    CharaTask* mFollow;     // 0x28: CharaC58_unk::mCC
+    int mHasGimmick;        // 0x2C
+    int m30[3];             // 0x30: CharaRes_unk::m58-m60
+    int m3C[3];             // 0x3C: CharaRes_unk::m30-m38 (times 3 in hard mode for enemies)
+    int m48[4];             // 0x48: CharaRes_unk::m44, m48, m3C, m40
+    int mLife;              // 0x58: percent of m04 over mParamB.m84
+    int mMana;              // 0x5C: percent of m08 over mParamB.m88
+    int m60[4];             // 0x60
+    int m70[3];
+    int m7C[9];             // 0x7C: CharaRes_unk::m64-m84 (floats)
+    int mA0[2];
+    int mA8[24];            // 0xA8: CharaC58_unk::m140 (floats)
+    int m108;
+    int m10C[16];           // 0x10C: AIManager::m9C
+    int m14C[9];
+    int m170[4];            // 0x170: CharaC58_unk::m1A0
+};
+// inferred: output block of the AI scripts (lbl_807C6A40, 0xF0 bytes, returned by fn_8001C26C). Names invented.
+struct AiScriptOutput_unk {
+    int mValid;    // 0x00: > 0 when the script ran
+    int mState;    // 0x04
+    int m08;
+    int mPart;     // 0x0C: part to hold (-1: none)
+    int mC0;       // 0x10
+    int m14;
+    int m18[24];   // 0x18: back to CharaC58_unk::m140
+    int m78;
+    int m7C[16];   // 0x7C: back to AIManager::m9C
+    int mBC[9];
+    int mE0[4];    // 0xE0: back to CharaC58_unk::m1A0
+};
+
 // inferred: AI manager (instance lbl_8087EE68, code in game/AiTarget.cpp; __vt__9AIManager 0x80775AE0,
 // size 0x7E0 from the new of fn_800144FC)
 class AIManager : public atn::Task {
@@ -103,7 +146,7 @@ public:
     int m90;
     float m94;
     int m98;
-    unsigned char m9C[0x40];
+    float m9C[16]; // inferred: values kept between the AI script steps (fn_80017128)
     int mDC;
     AiTargetList_unk mE0;
     AiTarget m424;

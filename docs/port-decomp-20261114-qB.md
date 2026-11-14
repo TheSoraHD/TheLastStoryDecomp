@@ -17,8 +17,13 @@ Inicio: 2026-11-14 02:59 CET. Rama `agent-B`. Unidades: `game/BattleTask`, `game
   en el modo 3 de "DrawHateInfo" se cuentan/dibujan los personajes con `fn_8016F3D0(chara, 1)` **distinto de 0**;
   `fn_8010C948` va inline (nueva inline `GetHated_unk`); el texto de rango y el de "HateAtt" son `char[256]`, el de
   los disparos `wchar_t[256]`; `57.295776f` (0x42652EE0).
-- `BattleTask::fn_80103FD4` (5436), `BattleCharaTask::fn_800E4278` (5668), `AIManager::fn_80017128` (2076): sin
-  escribir (ver pendientes).
+- `AIManager::fn_80017128` (0x80017128, 2076 bytes): **escrita, NONMATCHING 89,9 %** (antes 0 %). Firma
+  `int fn_80017128(CharaTask*)` (devuelve 0 sin escena o sin datos del personaje, 1 si no). Paso del script de IA:
+  rellena el bloque de entrada (`fn_8001C260`), ejecuta el script de `CharaRes_unk::m08` (`fn_8001C1C0`) y lee el de
+  salida (`fn_8001C26C`): estado, parte en mano, valores guardados. Resto: el original indexa los valores guardados
+  desde el puntero a `CharaC58_unk` (en CharaTask.h `m140`/`m1A0` son bytes) y desenrolla distinto. Sale con ella
+  la copia debil `vf5C__13GimmickCommonFv` (+1 funcion al 100 %: 15390).
+- `BattleTask::fn_80103FD4` (5436) y `BattleCharaTask::fn_800E4278` (5668): sin escribir (ver pendientes).
 
 ## Cambios de firma o de layout (para el port)
 
@@ -35,6 +40,10 @@ Inicio: 2026-11-14 02:59 CET. Rama `agent-B`. Unidades: `game/BattleTask`, `game
   `GetHated_unk(CharaTask*)`, `BetoModel::SetMtx_unk(const atn::Matrix3x4&)`.
 - `symbols.txt`: `fn_800F3EF4` -> `vf10__10BattleTaskFv`, `fn_800F5314` -> `vf14__10BattleTaskFv`, y etiquetas
   `@N` de BattleTask re-emparejadas.
+
+- `AiTarget.h`: `AIManager::m9C` pasa de `unsigned char[0x40]` a `float m9C[16]` (valores guardados entre pasos
+  del script). Tipos nuevos `AiScriptInput_unk` (0x180) y `AiScriptOutput_unk` (0xF0) con arrays; son el mismo
+  objeto que `AiInput_unk`/`AiOutput_unk` de `AI/AI_archer_attack01.cpp` (otra cola): pendiente unificar.
 
 ## Decisiones tomadas sin el usuario
 
@@ -60,3 +69,9 @@ Inicio: 2026-11-14 02:59 CET. Rama `agent-B`. Unidades: `game/BattleTask`, `game
 - `fn_80103FD4` (odio por personaje, 5,4 KB, 18 registros de coma flotante; lee mas campos del bloque "Hate" de
   GameConfig desde 0x350 de los que tiene `HateConfig_unk`: +0x28, +0x2C + 4 * tipo, +0x54 + 4 * tipo).
 - `HitInfo_unk::m50/m54` como floats (ver arriba).
+- `CharaC58_unk::m140` -> `float[24]`, `m1A0` -> `int[4]` y `CharaRes_unk::m64-m84` como 9 floats en
+  `game/CharaTask.h` (cabecera de otra familia, muy incluida): con eso fn_80017128 deberia acercarse al 100 %.
+- `AI/AI_archer_attack01.cpp` deberia usar `AiScriptInput_unk`/`AiScriptOutput_unk` de `game/AiTarget.h`
+  (regla 10: un objeto, un tipo).
+- Tras `pd.sh game/AiTarget` hay que devolver `lbl_8087D6E8`/`lbl_8087D6EC` (los empareja con las cadenas
+  `@STRING@Resize_unk` de `SimpleArray<int>` y el enlace falla).
