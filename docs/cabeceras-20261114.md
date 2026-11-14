@@ -102,3 +102,6 @@ merge final aunque el port siga activo; notas para el port solo en el proyecto (
 - Cola M **no integrada** (rama `cabeceras-20261114-m`): +5 al 100 % con 2 bajadas pequenas en NewCampTask.
 - `MeleeTarget_unk` se queda local en BattleTask.cpp (G); `LevelUpResult_unk` y `CharaStatusData_unk` no se unifican (I).
 - L2: la declaracion de `BattleChara_unk::fn_80108378` conserva el nombre de parametro `chara` (quitarlo renumera).
+- 23:13 integrado `main` (port-propuestas6-20261114, e23343f): conflicto solo en el Estado de CLAUDE.md; pdbatch
+  de Event/Path, RenderSystem_unk y CharaTask + lblmap en RenderSystem_unk. 15450, lost 0, sin bajadas, rep100 138,
+  labelcheck 19. Merge en `main` con --no-ff.
