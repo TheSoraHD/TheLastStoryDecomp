@@ -39,6 +39,10 @@ Rama `agent-H`, referencia `/home/claude/ref-H` (15433 / 18109 tras integrar A+B
    fuera de linea 96,15 -> **96,57**, con lo que **desaparece la bajada** del punto 1. `PRECOMMIT OK`.
    Queda el reparto de registros de esos dos nombres (r29/r30 del original).
 
+6. `EquipCandidateLess_unk`/`WeaponCandidateLess_unk` (ItemManager_unk): `a->mId < b->mId` en lugar de
+   `b->mId > a->mId` (orden de registros de la seleccion inline): los cuatro `MslSort_unk<ItemCandidate_unk*>`
+   99,93 -> **100 %**. Total **15441 -> 15445**. `PRECOMMIT OK`.
+
 ## Sin resolver (probado)
 
 - `GameTask::fn_80371790` (99,15): marco 0x10 mayor y ranuras de las matrices de RotateYXZ_unk; no tocado.

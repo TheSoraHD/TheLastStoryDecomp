@@ -814,7 +814,7 @@ struct WeaponCandidateLess_unk {
             return wa->mEC > wb->mEC;
         }
         if (wa->mId != wb->mId) {
-            return wb->mId > wa->mId;
+            return wa->mId < wb->mId;
         }
         return wb > wa;
     }
@@ -828,7 +828,7 @@ struct EquipCandidateLess_unk {
             return ea->mBC > eb->mBC;
         }
         if (ea->mId != eb->mId) {
-            return eb->mId > ea->mId;
+            return ea->mId < eb->mId;
         }
         return eb > ea;
     }
