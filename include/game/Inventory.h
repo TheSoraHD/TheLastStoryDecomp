@@ -97,6 +97,8 @@ public:
 
     // RSO: GetPlayerStatusInfo__9InventoryFi (weak copy 0x805282A8)
     CharaStatus* GetPlayerStatusInfo(int i) { return &mPlayers[i]; }
+    // inferred: equipment of a player (weak copy 0x801D80A0, body in game/InventoryEquip_unk.h)
+    Equip_unk* GetEquip_unk(int);
 
     Item_unk mItems[0x600];                         // 0x0000: inferred: the bag (code < 0: free slot)
     int mMoney;                                     // 0x6000

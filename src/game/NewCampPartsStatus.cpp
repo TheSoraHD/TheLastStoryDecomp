@@ -9,6 +9,7 @@
 #include "game/CharaStatus.h"
 #include "game/CharaTask.h"
 #include "game/Inventory.h"
+#include "game/InventoryEquip_unk.h"
 #include "game/PlayerManager.h"
 #include "std/string_members.h"
 
@@ -90,7 +91,6 @@ extern "C" NewCampStatusField_unk* lbl_8087F430;
 
 // inferred: characters (fn_8000D9E8 returns the manager lbl_8087F8A0)
 extern "C" void* fn_8000D9E8();
-extern "C" void fn_801D80A0(Inventory* party, int chara);
 // inferred: character name data (fn_8020924C)
 struct NewCampStatusName_unk {
     unsigned char m00[8];
@@ -465,7 +465,7 @@ void NewCampPartsStatus::fn_80527938() {
             status = Inventory::Order()->GetPlayerStatusInfo(set.mChara);
         }
         NewCampStatusName_unk* info = fn_8020924C(fn_80219544(set.mChara));
-        fn_801D80A0(Inventory::Order(), set.mChara);
+        Inventory::Order()->GetEquip_unk(set.mChara);
         fn_803DD160(base, fn_8020A81C(info->m14));
         fn_803D70B4(base, "name", info->mName);
         fn_803D70B4(base, "nameSub", info->mName);

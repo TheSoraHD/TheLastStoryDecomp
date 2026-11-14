@@ -15,6 +15,31 @@ Rama `agent-H`, referencia `/home/claude/ref-H` (15433 / 18109 tras integrar A+B
    - **Bajada aceptada**: `MslSelectionSort_unk<NewCampItemEntry_unk, NewCampCategoryLess_unk>` 96,15 -> 95,47
      (fuera de linea; ver decisiones).
 
+2. **Accesores fuera de linea de CosEditItemList_unk** (cabeceras nuevas solo con cuerpos inline, para no
+   renumerar): `Inventory::GetEquip_unk(int)` (declarada sin nombre de parametro en `game/Inventory.h`, cuerpo en
+   `game/InventoryEquip_unk.h`; copia debil 0x801D80A0, antes `fn_801D80A0` al 0 %) y
+   `NewCampTask::GetPairCount_unk() const` / `GetPair_unk(int)` (declaradas en `game/NewCampTask.h`, cuerpos en
+   `game/NewCampPairs_unk.h`; copias 0x801DA2F0/0x801DA2F8, que el original lee con `this` = NewCampTask: antes
+   se tomaban por `FixedArray_unk::size`/`operator[]`, 99,5/99,75 %). Renombrados en `symbols.txt` (3 lineas).
+   NewCampPartsStatus llama al miembro en lugar del `extern "C" fn_801D80A0(Inventory*, int)` (regla 10).
+   Resultado CosEditItemList_unk 55 -> 59 al 100 % (+ `fn_801DD26C` 96,6 -> **100**, `fn_801E07A4` 97,2 ->
+   **100** con una sola entrada para los dos bucles y la llamada antes de los stores); total **15436 -> 15441**.
+
+## Sin resolver (probado)
+
+- `GameTask::fn_80371790` (99,15): marco 0x10 mayor y ranuras de las matrices de RotateYXZ_unk; no tocado.
+- `Inventory::fn_80449ABC` (92,2): coloreo de registros y reduccion de induccion de los bucles; referencia en el
+  segundo bucle baja (91,8).
+- `GameTask::fn_8036F268` (99,77): registros del IsDungeonCleared_unk inline; retornos tempranos bajan vf0C y
+  fn_803754F0.
+- `GameTask::fn_80370320` (98,1): el original pasa `index` como segundo argumento a `GameUI::fn_803E43B8` y -1 a
+  `fn_803E4434` (firma `(int, int)` en GameUI, unidad del port: no tocada) y relee mCount en Push_unk.
+- `push_back` de vector (CosEdit 99,76, Em305Vampire vf0C, ShopUpGrade): ranuras de pila del `n` de
+  `__grow_cap_unk` frente a los temporales de max(); el orden cambia segun la unidad (CosEdit al reves que
+  ShopUpGrade). Probados max(n, x), `const size_type&` y alias por referencia: peor.
+- `ShopUpGrade::fn_805969D4`: ademas el pool de cadenas anchas del original tiene un L"" sin referencia antes de
+  L"+99" (offset 8, nuestro 6).
+
 ## Decisiones tomadas sin el usuario
 
 - Aceptada la bajada de 0,7 % de `MslSelectionSort_unk<NewCampItemEntry_unk>` (0x8051AD54) a cambio de 3
@@ -24,7 +49,10 @@ Rama `agent-H`, referencia `/home/claude/ref-H` (15433 / 18109 tras integrar A+B
 
 ## Para el port
 
-- Sin cambios de tipos, firmas ni layouts. `include/game/MslSort_unk.h` tiene una plantilla inline nueva
+- `game/Inventory.h`: metodo nuevo `Equip_unk* GetEquip_unk(int)` (cuerpo en `game/InventoryEquip_unk.h`);
+  `game/NewCampTask.h`: `GetPairCount_unk() const` y `GetPair_unk(int)` (cuerpos en `game/NewCampPairs_unk.h`).
+  Sin cambios de layout. NewCampPartsStatus ya no declara `extern "C" fn_801D80A0`.
+- Sin cambios de tipos, firmas ni layouts en lo demas. `include/game/MslSort_unk.h` tiene una plantilla inline nueva
   (`MslMinElement_unk`); `MslSelectionSort_unk` la usa.
 
 ## Hallazgos (una linea)
