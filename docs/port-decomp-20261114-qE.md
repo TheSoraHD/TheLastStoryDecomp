@@ -44,6 +44,19 @@ Inicio 2026-11-14 04:41.
   en `.sdata2` (0x80880C50 y 0x80880C54), una por cada expansion de `SetMatColor_unk` (el blanco de
   `GXSetTevKColor(1, ...)`); nuestra inline comparte una. Probado: `static` sin `inline` (no se inlinea).
 
+- `atn/GraphicsDevice` `fn_80074EC8` (texgen y TEV del material): **equivalente** (diferencias solo de
+  registros y orden); 98,55 -> 99,28 % con `int mode = 1; if (lbl_8087EFA8->m18C != 0) mode = 2;`. Quedan el
+  `mulli` recalculado de la fila de `sTevCosts` en la prueba sin dual y el orden de un `stw`.
+  Para el port: con `flags & 1` (dual = malla con skinning, `DrawCmd` bit 0) los texgen de tipo 0 usan
+  `GXSetTexCoordGen2(coord, func, src, GX_IDENTITY (0x3C), 0, 0x40 + 3k)` y los de tipo 1-4 la matriz del
+  texgen con normalizacion (salvo tipo 4) y la posterior `0x40 + 3k`; el contador `k` avanza en el mismo
+  orden que `fn_8009BB9C` carga las matrices posteriores. Sin dual, tipo 0 usa `texGen.mMtx` y `GX_PTIDENTITY`
+  (0x7D). En dual las coordenadas se renumeran: tipo 0 desde 0, tipos 1-3 desde 4, tipo 4 desde 6 (las
+  ordenes TEV y las indirectas usan `coords[...]`, no el indice del texgen).
+- Las que llama `fn_80074EC8` (`fn_80073194` 96,99 %, `fn_80073A6C` 99,88 %, `fn_800742C8` 99,39 %,
+  `fn_800748D8` 99,73 %, `fn_80074B24` 99,64 %, `fn_80072F64` 100 %): revisadas con un diff que ignora los
+  nombres de registro: **equivalentes** (solo registros, orden de cargas y operandos conmutados).
+
 ## Cambios de firma / layout (para el port)
 
 - `fn_80076C44` (`include/atn/GraphicsDevice.h`, `src/atn/GraphicsDevice.cpp`): el formato pasa de

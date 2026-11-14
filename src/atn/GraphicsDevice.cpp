@@ -1450,7 +1450,7 @@ CharaLightData_unk* lbl_8087EEEC; // inferred: projector of the effect of flag b
 
 // inferred: sets up the TEV for a material and the effects of the flags (bit 0: texture coordinates
 // split by type; bits 1-5: effects added after the material). The last setup is cached in the device.
-// NONMATCHING: 98.55% - the original recomputes the row of sTevCosts (mulli) for the coordinate sum of mode 1/2; order of the cache stores
+// NONMATCHING: 99.28% - the original recomputes the row of sTevCosts (mulli) for the coordinate sum of mode 1/2; order of the cache stores
 extern "C" void fn_80074EC8(GraphicsDevice_unk* device, const atn::ShaderDesc_unk* desc, int flags,
                             CharaLightData_unk* light, CharaLightData_unk* light2, atn::ShadowMap_unk* shadow) {
     if (lbl_8087EFA8->m204 != 0 && device->mShaderDesc != 0 && device->mShaderDesc == desc && device->mShaderFlags == flags &&
@@ -1592,11 +1592,9 @@ extern "C" void fn_80074EC8(GraphicsDevice_unk* device, const atn::ShaderDesc_un
                 device->mShaderFlags &= ~2;
             }
         } else if (flags & 0x10) {
-            int mode;
+            int mode = 1;
             if (lbl_8087EFA8->m18C != 0) {
                 mode = 2;
-            } else {
-                mode = 1;
             }
             if (FitsTev_unk(&stats, mode)) {
                 if (mode == 2) {
