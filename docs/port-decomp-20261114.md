@@ -35,3 +35,30 @@ Re-emparejado: `pairdata` llamo `__vt__...`/`sInstance__9SetConfig` a cadenas y 
 - ~09:55 segundo reinicio del servidor: P y Q se reanudan solos. 10:00 integradas O y N (conflictos de `@N` con M: version de la integracion + `pdbatch.sh` de 117 unidades + `pairdata99.py` en BattleTask + `lblmap.py` en 19 + `align.py` de la cola M en 8; `@enum$6812ControlAppear_cpp` -> `6816`). Total 15418, rep100 141, labelcheck 50. 10:20 lanzada R (MiniMapTask::vf14).
 - 10:40 integrada Q: enlazan `db/RandomItemTable_unk`, `game/PlayerInput_unk`, `game/CopyRobotTask`. Q sigue con una segunda lista (dos funciones por debajo del 100 %): sin resultados.
 - 11:00 integradas P (`Event/Actor.h` renumero 33 unidades: `pdbatch.sh` + `lblmap.py` de 8) y R (**cambio de splits**: el double u32->float de 0x80757640 pasa de la `.rodata` de `game/MenuCommonTask` a la de `game/MiniMapTask`; lo usa `MiniMapTask::vf14`, MenuCommonTask no; build limpio con `main.dol: OK`). Total 15424, rep100 141, labelcheck 49. 11:03 lanzadas S (HUD) y T (combate), tope 12:15.
+- 11:35 integrada S (`GameUI::fn_803E0E10` es estatica: el original no recibe `this`). 11:46 integrada T (`BattleTask::vf14` 85 -> 90 %).
+
+## Resumen
+
+Inicio 02:23, fin ~12:30. 20 colas (A-T) con hasta 4 agentes a la vez (mismo modelo). Dos reinicios del servidor (~06:08 y ~09:55): los agentes se reanudaron; el agente A se quedo parado de 04:09 a 06:08 esperando una aprobacion de herramienta (su trabajo hasta entonces se integro).
+
+- **15389 -> 15424 / 18109**, lost 0 frente a 0f33107, sin bajadas de fuzzy, rep100 139 -> 139, labelcheck 57 -> 49 lineas, build limpio y `main.dol: OK`.
+- Funciones al 0 % (report.json): **253 -> 201**. DRAFT: 38 -> 34 (0 en la ruta).
+- Enlazan 140 -> **143**: `db/RandomItemTable_unk`, `game/PlayerInput_unk`, `game/CopyRobotTask` (cola Q).
+- Funciones de las colas del prompt (A-F): las 25 escritas y equivalentes, sin DRAFT; al 100 % en objdiff solo `fn_8009DE60` (y `fn_8009BF3C`/`fn_800B5994` a 99,9x %: datos, no codigo). Estado y firma de cada una: `claude/port-decomp-20261114.md` (proyecto).
+- Al 100 % nuevas por unidad (destacadas): BattleTask ctor/dtor y copias debiles, MiniMapTask (ctor, dtor, vf0C, vf10(), `atn::Camera::SetPosition/SetTarget`), FinishCamera_unk (`fn_8037865C`, `fn_80378D34`), GameCamera_unk (`fn_8037F830`), Model (`fn_80097A9C`), ModelDraw_unk (`fn_8009DE60`, `fn_8009D1A4`, `fn_8009B93C`), Sequence (`fn_8053ED4C`), LastCocoonImago (`vfBC`), AiTarget (`fn_80018078`), BattleCharaTask (`fn_800EBD00`, `fn_800EE360`), Puppeteer_CharaTask (3), chr/ControlBase `vf2C`, BattleTask `fn_80100BF0`/`fn_801061BC`, las tres unidades enlazadas.
+
+## Cambios de splits, game_units y symbols
+
+- `splits.txt` (cola R): el double u32->float de 0x80757640 pasa de la `.rodata` de `game/MenuCommonTask` (acaba en 0x80757640) a la de `game/MiniMapTask` (empieza en 0x80757640). Pruebas: lo usa `MiniMapTask::vf14`; MenuCommonTask ni lo usa ni lo emite y su `@stringBase0` acaba justo ahi; sin el cambio labelcheck empeoraba en las dos. Build limpio `main.dol: OK`.
+- `game_units.json`: `matching: true` en RandomItemTable_unk, PlayerInput_unk, CopyRobotTask.
+- `symbols.txt`: solo renombrados (firmas nuevas, mangled de vistas unificadas, re-emparejados de `@N`).
+
+## Decisiones tomadas sin el usuario (para revisar)
+
+- Fase 0 punto 7 no hecho en la fase 0 (no cabia en el tope); lo hicieron las colas G y N.
+- `IRenderLayer::vf10(void*)` en `atn/Layer3D.h` (necesario para `LayerShadow.h`): renombra cinco `vf10` de capas.
+- rep100: `fn_800B5994` (datos en `.sbss`/`.sdata`) aceptado; el resto de las subidas temporales de rep100 se arreglaron al integrar.
+- Funciones con bajadas aceptadas dentro de una cola por la firma real (GameUI `fn_803DBD44` 97,87 -> 97,62 y recuperada a 97,89).
+- `GameUI::fn_803E0E10` estatica (el original no recibe `this`).
+- `std/vector.h` sin cambios (cola L): el `push_back` del original no sale sin bajadas.
+- poolcheck: un aviso nuevo en `game/BattleTask` (float 2.44346 sin pareja), el resto igual que la base.
