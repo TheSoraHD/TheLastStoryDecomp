@@ -160,7 +160,6 @@ extern "C" int fn_80219558(int id); // inferred: party member of a character id
 extern "C" int fn_8021A77C(HitInfo_unk* hit); // inferred: kind test of a skill
 // inferred: not written yet; they take the view as first argument (symbols without a C++ name)
 extern "C" void fn_805AC758(TacView* view);
-extern "C" void fn_805A96D4(TacView* view, CharaTask* chara, int dir);
 
 // inferred: closes the view (body of fn_805AA734, inlined by vf10; name invented)
 static inline void TacViewClose_unk(TacView* v) {
@@ -337,7 +336,7 @@ void TacView::vf10() {
                 dir = 3;
             }
             if (dir >= 0) {
-                fn_805A96D4(this, chara, dir);
+                fn_805A96D4(chara, dir);
                 confirm = 1;
             }
             if (IsPadPressed_unk(4) != 0) {
@@ -608,6 +607,172 @@ void TacView::vf10() {
 }
 
 void TacView::vf14() {}
+
+extern "C" int fn_8021A888(HitInfo_unk* hit); // inferred: the skill is an attack magic
+extern "C" atn::Vector3 lbl_807C7030;          // inferred: zero vector
+// inferred: aiming state of the view (m15D8-m15F8; name invented)
+inline void TacViewSetAim_unk(TacView* v, int mode, const atn::Vector3& pos, float radius, unsigned char a,
+                              unsigned char b) {
+    v->m15D8 = mode;
+    v->m15DC = pos;
+    v->m15E8 = radius;
+    v->m15EC = a;
+    v->m15ED = b;
+    v->m15F0.mState = 2;
+    v->m15F0.m04 = 0;
+    v->m15F0.mTarget = 0;
+}
+
+// inferred: gives `chara` the command of the direction `dir` of the character entry m54: target, skill and AI
+// order; skills that are aimed (areas, sub bullets) start the aiming of the view
+// NONMATCHING: 80.6% - the original builds the aiming state (m15D8-m15F8) in a local struct and copies it, and
+// orders the compares of the commands differently
+void TacView::fn_805A96D4(CharaTask* chara, int dir) {
+    m54.m4C = dir;
+    m54.mType = (int)chara;
+    HitInfo_unk* skill = (HitInfo_unk*)m54.m54[dir];
+    if (skill != 0) {
+        if (skill->m64 == 0) {
+            m54.mChara = chara;
+        } else if (fn_8021A77C(skill) != 0 || fn_8021A888(skill) != 0) {
+            m54.mChara = chara->mC58.mC4;
+        } else {
+            m54.mChara = chara;
+        }
+    }
+    if (chara->fn_80160324()) {
+        m54.m0C = (int)chara->mF7C;
+        m54.m10 = (int)chara->m638;
+    }
+    m54.m14 = chara->fn_8017AC08();
+    if (lbl_8087EE68 != 0 && lbl_8087EE68->fn_800185B4(chara, 0) != 0) {
+        m54.m18 = *lbl_8087EE68->fn_800185B4(chara, 0);
+    } else {
+        m54.m18.fn_8003E918();
+    }
+    m54.m94 = 1;
+    CharaTask* user = (CharaTask*)m54.mType;
+    CharaTask* target = m54.mChara;
+    int kind = fn_80219558(user->m50);
+    int extra = 0;
+    int cmd = m54.m64[m54.m4C];
+    if (cmd < 6) {
+        switch (kind) {
+        case 2:
+        case 3:
+            if (cmd == 4) {
+                extra = skill->m5C + 30;
+            }
+            break;
+        case 1:
+        case 5:
+        case 9:
+        case 10:
+            if (user->mType == 0 && cmd == 5) {
+                PlayerState_unk state(11);
+                state.m0C = user->mPos;
+                static_cast<BattleCharaTask*>(chara)->SetState_unk(state);
+            } else {
+                if (user->fn_80160324() && skill != 0) {
+                    user->fn_80160170(skill, target);
+                }
+                fn_805ADC20(user, skill);
+                if (lbl_8087F490 != 0) {
+                    lbl_8087F490->fn_803E5C60(user);
+                }
+            }
+            break;
+        case 4:
+            if (user->mType == 0 && cmd == 5) {
+                break;
+            }
+            if (cmd == 4) {
+                target = user;
+            }
+            if (user->fn_80160324() && skill != 0) {
+                user->fn_80160170(skill, target);
+            }
+            fn_805ADC20(user, skill);
+            if (lbl_8087F490 != 0) {
+                lbl_8087F490->fn_803E5C60(user);
+            }
+            break;
+        case 6:
+            if (cmd == 4) {
+                PlayerState_unk state(7);
+                state.m18 = skill->m04;
+                static_cast<BattleCharaTask*>(chara)->SetState_unk(state);
+            } else if (user->mType != 0 || cmd != 5) {
+                fn_805ADC20(user, skill);
+                if (lbl_8087F490 != 0) {
+                    lbl_8087F490->fn_803E5C60(user);
+                }
+            }
+            break;
+        }
+        lbl_8087EE68->fn_800183E0(user, target, skill, extra);
+    } else {
+        if (cmd == 6 || cmd == 7) {
+            lbl_8087EE68->fn_80018608(user, 0);
+            PlayerState_unk state(7);
+            state.m18 = skill->m04;
+            static_cast<BattleCharaTask*>(chara)->SetState_unk(state);
+        } else if (cmd == 8) {
+            AiTarget* t = lbl_8087EE68 != 0 ? lbl_8087EE68->fn_800185B4(user, 0) : 0;
+            if (t != 0 && t->m28 != 0 && t->m28->m04 == 0x4FBD) {
+                m54.m94 = 0;
+            }
+        } else if (cmd == 9) {
+            lbl_8087EE68->fn_800183E0(user, target, skill, 0);
+        } else if (cmd == 10 || cmd == 11) {
+            lbl_8087EE68->fn_800183E0(user, target, skill, 0);
+        }
+    }
+    if (skill == 0) {
+        return;
+    }
+    if (m54.m94 != 0) {
+        fn_805AA014(user, cmd);
+    }
+    user->mStatus.fn_8012D180();
+    if (skill->m70 > 0) {
+        if (fn_80219E6C(skill->m70)->m02 == 7) {
+            TacViewSetAim_unk(this, 1, chara->mPos, 100.0f, 1, 0);
+        }
+        return;
+    }
+    if (user->mType == 0) {
+        switch (skill->m04) {
+        case 0x179A:
+        case 0x179B:
+        case 0x179C:
+            TacViewSetAim_unk(this, 1, chara->mPos, skill->m58, 1, 1);
+            break;
+        case 0x1788:
+        case 0x1791:
+            TacViewSetAim_unk(this, 1, chara->mPos, skill->m58, 1, 0);
+            break;
+        case 0x4FBB:
+        case 0x1789:
+            TacViewSetAim_unk(this, 1, chara->mPos, skill->m58, 1, 0);
+            break;
+        }
+    } else if (skill->m04 == 0x4FBB || skill->m04 == 0x1789) {
+        TacViewSetAim_unk(this, 1, chara->mPos, skill->m58, 1, 0);
+    } else if ((fn_8021A888(skill) != 0 || skill->m04 == 0x1788 || skill->m04 == 0x1791) && chara->mType != 2) {
+        int count = 0;
+        for (EnemyTask* e = EnemyManager::sInstance != 0 ? EnemyManager::sInstance->mHead : 0; e != 0;
+             e = e->mNext) {
+            if (e->CanAct_unk() && (e->m54C & 0x2000) != 0x2000 && e->mC58.mC0 != 0 &&
+                static_cast<BattleCharaTask*>((CharaTask*)e)->m146C != 0x29) {
+                count++;
+            }
+        }
+        if (count > 0) {
+            TacViewSetAim_unk(this, 2, lbl_807C7030, 0.0f, 1, 0);
+        }
+    }
+}
 
 void TacView::fn_805AA014(CharaTask* chara, int type) {
     switch (fn_80219558(chara->m50)) {

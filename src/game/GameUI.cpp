@@ -5013,6 +5013,52 @@ void GameUI::fn_803E0E10(CharaTask* chara, GameUIElem60_unk* window, int index) 
     window->m58 = chara->mStatus.mParamA.m78;
 }
 
+// inferred: appends {index, chara} to the list m30C, growing it as the MSL vector does (3/5 more, then
+// half more; name invented)
+static inline void GameUIListPush_unk(GameUIList_unk* list, int index, CharaTask* chara) {
+    GameUIListBase_unk& base = list->mMid.mBase;
+    if (base.mCount < list->m08) {
+        base.mCount++;
+        base.At_unk(base.mCount - 1)->m00 = index;
+        base.At_unk(base.mCount - 1)->m04 = chara;
+        return;
+    }
+    unsigned int cap = list->m08;
+    unsigned int need = base.mCount + 1 - cap;
+    if (cap < 0x0AAAAAAA) {
+        unsigned int grow = (cap + 1) * 3 / 5;
+        cap += grow < need ? need : grow;
+    } else if (cap < 0x15555554) {
+        unsigned int grow = (cap + 1) / 2;
+        cap += grow < need ? need : grow;
+    } else {
+        cap = 0x1FFFFFFF;
+    }
+    GameUIListBase_unk::Entry_unk* data = (GameUIListBase_unk::Entry_unk*)::operator new(cap * 8);
+    data[base.mCount].m00 = index;
+    data[base.mCount].m04 = chara;
+    for (unsigned int i = 0; i < base.mCount; i++) {
+        data[i] = *base.At_unk(i);
+    }
+    unsigned int count = base.mCount + 1;
+    unsigned char* old = base.mData;
+    base.mData = (unsigned char*)data;
+    base.mCount = count;
+    list->m08 = cap;
+    if (old != 0) {
+        delete old;
+    }
+}
+
+// inferred: HUD notice about a character: characters of kind 3 are added to the list m30C
+// NONMATCHING: written by hand; the original inlines MSL's vector<T>::push_back (m30C is likely a std::vector of
+// {index, chara}, with the length checks that call fprintf/abort)
+void GameUI::fn_803E2110(int index, CharaTask* chara) {
+    if (chara->mType == 3) {
+        GameUIListPush_unk(&m30C, index, chara);
+    }
+}
+
 extern "C" int fn_8021A888(HitInfo_unk* hit); // inferred: the magic is an attack magic (as CharaTask.cpp)
 
 // inferred: magic point gauge over a character: the chant of its current magic (kind 0/1 by the magic for
