@@ -4839,7 +4839,7 @@ void GameUI::fn_803DF648(int arg) {
     FixedArray_unk<CharaTask*, 6> list;
     for (CharaTask* c = FriendManager::sInstance->fn_8036554C(); c != 0; c = ((PlayerTask*)c)->mNext) {
         if ((!c->IsFlag_unk(4) || c->m55C == 8) && !c->IsFlag54C_unk(0x2000) && c->mC54 != 0 &&
-            c->GetInfo_unk()->m2C > 0 && c->GetInfo_unk()->m2C <= 26) {
+            0 < c->GetInfo_unk()->m2C && c->GetInfo_unk()->m2C <= 26) {
             list.PushBack_unk(c);
             if (list.full()) {
                 break;
@@ -4964,7 +4964,7 @@ void GameUI::fn_803E0E10(CharaTask* chara, GameUIElem60_unk* window, int index) 
     }
     int job = chara->m60->m2C;
     bool hasJob = false;
-    if (show != 0 && job > 0 && job <= 26) {
+    if (show != 0 && 0 < job && job <= 26) {
         hasJob = true;
     }
     bool visible = false;
@@ -5052,6 +5052,7 @@ void GameUI::fn_803E0E10(CharaTask* chara, GameUIElem60_unk* window, int index) 
     if (chara->m55C == 6 && (chara->m560 == 29 || chara->m560 == 30)) {
         chant = chara->mFB8 / chara->mFBC;
     }
+    chant = 1.0f < chant ? 1.0f : chant;
     if (on == 0) {
         return;
     }
@@ -5093,7 +5094,7 @@ void GameUI::fn_803E0E10(CharaTask* chara, GameUIElem60_unk* window, int index) 
             window->m0C->SetColor_unk("faceColor", 0xFFFFFFFF);
         }
         atn::Color uv(0.0f, 0.0f, 0.125f, 0.25f);
-        if (job > 0 && job <= 26) {
+        if (0 < job && job <= 26) {
             uv = atn::Color(0.125f * (float)(job % 8), 0.25f * (float)(job / 8), 0.125f * (float)(job % 8 + 1),
                             0.25f * (float)(job / 8 + 1));
         }
@@ -5180,7 +5181,7 @@ void GameUI::fn_803E0E10(CharaTask* chara, GameUIElem60_unk* window, int index) 
             window->m18->MeltTask();
             window->m18->mSpeed = 1.4f;
         }
-        if (job > 0 && job <= 26) {
+        if (0 < job && job <= 26) {
             fn_801F6C80(window->m18, "faceU", 0.125f * (float)(job % 8));
             fn_801F6C80(window->m18, "faceV", 0.25f * (float)(job / 8));
         } else {
@@ -5195,7 +5196,7 @@ void GameUI::fn_803E0E10(CharaTask* chara, GameUIElem60_unk* window, int index) 
         if (chara->mFlag28) {
             window->m24->MeltTask();
         }
-        if (job > 0 && job <= 26) {
+        if (0 < job && job <= 26) {
             fn_801F6C80(window->m24, "faceU", 0.125f * (float)(job % 8));
             fn_801F6C80(window->m24, "faceV", 0.25f * (float)(job / 8));
         } else {

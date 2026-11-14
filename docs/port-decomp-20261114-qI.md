@@ -54,6 +54,13 @@ Unidades: game/GameUI, game/PopupTask, game/TacView, game/GameCamera_unk, game/F
   miembro a miembro en vez de con el constructor con argumentos. `fn_80379104` (99,7 %): asgwrap y el orden de las
   declaraciones no lo arreglan.
 
+- `GameUI::fn_803E0E10` (0x803E0E10): 83,36 -> **85,05 %**. `0 < job && job <= 26` (con `job > 0` MWCC junta el
+  rango en subi/cmplwi; tambien en las otras cuatro comprobaciones del oficio del fichero, sin cambios en las
+  demas funciones) y `chant = 1.0f < chant ? 1.0f : chant;` tras el calculo del canto (el original deja el fcmpo
+  del minimo). Pendiente de equivalencia: `chant` no se usa despues en nuestro fuente (el original tampoco lo usa
+  en lo que se ve; revisar si falta un panel). El `m560 == 29 || m560 == 30` sigue en rango (switch y orden de
+  operandos probados).
+
 ## Cambios de firma o de layout (para el port)
 
 - `GameUI.h`: `float mE94[32]` (antes `unsigned char mE94[0x80]`): fundido de los anillos de los enemigos.
@@ -86,10 +93,15 @@ Unidades: game/GameUI, game/PopupTask, game/TacView, game/GameCamera_unk, game/F
   no las recoloca todas: compilar el .o de antes y el de despues y renombrar por (seccion, offset) entre ambos.
 - Construir un struct local con su constructor con argumentos cruza r8/r9 en las direcciones de sus Vector3;
   rellenarlo miembro a miembro tras el constructor por defecto da el orden del original (FinishCamera fn_8037865C).
+- `0 < x && x <= N` evita que MWCC junte las dos comparaciones en un rango `subi/cmplwi` (con `x > 0` las junta).
 - Tras `pd.sh`, si `labelcheck` sigue con faltas, emparejar por offset del `.sdata2` del .o (valor igual) y
   renombrar a mano.
 
 ## Pendientes
+
+- `GameCamera`: el destructor original llama a `__dt__Q23atn6CameraFv(this, -1)` para el objeto en 0: el
+  `atn::Camera` de 0 es un miembro, no la base (GameCamera.h dice `class GameCamera : public atn::Camera`); mismo
+  layout, pero cambiarlo toca todos los usos (lote propio).
 
 - `std/string.h`: `friend` de `operator+(const basic_string&, const basic_string&)` (y quitar la de TacView.cpp).
 - `HitInfo_unk.h`: `m0C` como `const wchar_t*` (descripcion).
