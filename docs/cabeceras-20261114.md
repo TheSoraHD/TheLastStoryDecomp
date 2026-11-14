@@ -22,3 +22,10 @@ merge final aunque el port siga activo; notas para el port solo en el proyecto (
 - 15:16 integrada C (CharaStatus.h: m2CC FixedArray, CharaStatusTail_unk, MotionCommand_unk::m10 bool, ctores de
   ExpEntry_unk/LevelUpResult_unk en InventoryExp_unk.h, db/PlayerParam_unk.h = EquipSet/LevelSkills/GameUISkillTable):
   15424 -> 15426, sin conflictos. Notas: docs/cabeceras-20261114-qC.md.
+- 16:04 integradas B (string.h), A (vector.h), D (Model_unk.h/Task.h) y F (GameCamera miembro). Conflictos de
+  symbols.txt (B 32 bloques, A 3, D 32; solo @N salvo 0x80885700 y 0x8074A2A8): version de la integracion. Despues:
+  `@enum$6929ControlAppear_cpp` (lo que emite el .o), `pdbatch.sh` de 384 unidades (13 min, ninguna baja), revertidos 25
+  renombrados que no son @N (`sPath`, `sInstance`, `__vt__`, `@STRING@`..., como avisaron B y D), `lblmap.py` en 45
+  unidades y a mano 0x80759740/48 de PacketPack (@18171/@18172). Total **15431**, lost 0 frente a la integracion
+  anterior y a cada agente, sin bajadas, rep100 139 (= ref), labelcheck 49 -> 20 lineas (MapPartsBase 10 -> 11
+  etiquetas, aceptado). `pairdata.py --min N` nuevo (filtra funciones por %).
