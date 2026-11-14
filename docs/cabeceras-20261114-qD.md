@@ -60,3 +60,10 @@ Rama `agent-D`. Referencia: `$REF` = `/home/claude/ref-D` (15424 / 18109).
   nada (o anadirlas luego).
 - `pairdata --relabel` puede dar un nombre global ya usado (`sPath`) a una etiqueta: el enlazador falla con
   `multiply-defined`; revisar los renombrados que no son `@N`.
+
+## Pendientes
+
+- `GameTask::fn_80371790` (79,4 %): sigue faltando el constructor de `Inventory::ExpEntry_unk`/`LevelUpResult_unk`
+  en `game/Inventory.h` (58 unidades, re-emparejado en lote).
+- `GameTask::fn_803729B4` (98,9 %): no depende de los setters; el original no llama al ctor de `atn::Matrix3x4`
+  de un temporal (r28/r29 cruzados), y usa copias fuera de linea de `std::vector<EnemyTask*>`.
