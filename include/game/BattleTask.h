@@ -544,5 +544,9 @@ extern "C" void fn_8010220C(BattleTask*, int);
 extern "C" void fn_80106878(BattleTask*, CharaTask*);
 // inferred: works on the entry of the character in mStuns
 extern "C" void fn_8010A4A8(BattleTask*, CharaTask*);
+// inferred: hit of a bullet (mgr, attacker, chara, data, a, flag, b), names of the definition
+extern "C" int fn_800FD658(BattleTask*, CharaTask*, CharaTask*, HitInfo_unk*, int, int, int);
+// inferred: scale of a bullet of the level (the callers pass no attack parameters)
+extern "C" float fn_8010B250(BattleTask*, int, BattleCalcParam_unk*);
 
 #endif

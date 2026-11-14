@@ -149,7 +149,6 @@ extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); /
 extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the next effects
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
 BattleTask* fn_8013A194(); // inferred: bullet manager (returns lbl_8087F048)
-extern "C" float fn_8010B250(BattleTask* mgr, int kind, int arg); // inferred: scale of the bullet
 extern "C" int fn_800EFD04(int id); // inferred: effect resources of a bullet
 extern "C" int fn_800EFDA0(int id);
 extern "C" float fn_800F8524(const float* a, const float* b, float t); // inferred: lerp of two floats

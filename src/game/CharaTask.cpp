@@ -188,7 +188,6 @@ extern "C" void PSMTXScale(Mtx m, float x, float y, float z);
 
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
 
-extern "C" void fn_800FD658(BattleTask* mgr, CharaTask* a, CharaTask* b, void* bullet, int arg4, int arg5, int arg6);
 
 // inferred: globals returned by accessors that are called out of line
 extern "C" void* lbl_8087EE98;
@@ -8767,7 +8766,7 @@ inline BattleTask* GetEffect_unk() { return lbl_8087F048; }
 void CharaTask::fn_80164454(int id, CharaTask* a, CharaTask* b, unsigned int flags) {
     BattleTask* mgr = lbl_8087F048;
     if (mgr != 0) {
-        void* bullet;
+        HitInfo_unk* bullet;
         if (id > 0) {
             bullet = fn_80219E6C(id);
         } else {

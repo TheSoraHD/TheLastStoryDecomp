@@ -54,7 +54,6 @@ struct Field_unk {
 extern "C" Field_unk* lbl_8087F430;
 extern "C" Field_unk* fn_80121F00();
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
-extern "C" float fn_8010B250(BattleTask* mgr, int kind, int arg); // inferred: scale of the bullet
 // inferred: effect manager (class unknown), global instance at 0x8087F3C0
 struct EffectMgr_unk {
     unsigned char m00[0xB8];

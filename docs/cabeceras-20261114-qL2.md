@@ -62,8 +62,10 @@
   (GameTask), `fn_800FBA30` (SkillEffectManager), `fn_800FC410` (CharaTask), `fn_8010220C` (BattleCharaTask),
   `fn_80106878` (ControlAttackBase), `fn_8010A4A8` (CharaTask). pd + `shiftfix.py` en GameTask (16 floats/double
   con el nombre de HEAD menos 3-4; quedan los 2 sin nombre que ya habia). precommit OK.
-- No hechas por tipos que no casan con la definicion: `fn_8010B250` (los llamadores pasan `int` donde la definicion
-  tiene `BattleCalcParam_unk*`), `fn_800FDB20` (un `float` de mas en ZanGurgFinal/Em206EggMonster frente a un `int`
+- Cuarta tanda: `fn_800FD658` (`HitInfo_unk*`; CharaTask::fn_80164454 con `HitInfo_unk* bullet` en vez de `void*`)
+  y `fn_8010B250(BattleTask*, int, BattleCalcParam_unk*)` (los llamadores pasan 0). CharaTask, Em201ZanGurgFinal,
+  Em314Ivy (`shiftfix.py`: 2 floats), EnemyQuarkStand. precommit OK.
+- No hechas por tipos que no casan con la definicion: `fn_800FDB20` (un `float` de mas en ZanGurgFinal/Em206EggMonster frente a un `int`
   de la definicion), `fn_800FB1BC` (SkillEffectManager sin el `float` final), `fn_80101524` (5 argumentos frente a
   6), `fn_8010CF28`, `fn_800FD658` (`void*` donde la definicion tiene `HitInfo_unk*`), `fn_80102EAC` (Em101ElderZesya
   pasa `int` donde la definicion tiene `CharaTask*`), `fn_801004FC`/`fn_8010089C` (`BattleAim_unk` solo existe en
