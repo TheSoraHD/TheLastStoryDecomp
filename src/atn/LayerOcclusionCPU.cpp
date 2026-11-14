@@ -671,21 +671,18 @@ inline float ClampF_unk(float v, const float& lo, const float& hi) {
 // inferred: bounds of the 8 corners of the box transformed by m (same as the inline ProjectBox_unk of
 // atn/Geometry_unk.cpp with a 3x4 matrix); name invented
 inline AABB_unk ViewBox_unk(const Mtx m, const AABB_unk* box) {
+    // inferred: max z and y read first (they decide which values get saved FPRs)
     float maxZ = box->mMax.z;
     float maxY = box->mMax.y;
-    float maxX = box->mMax.x;
-    float minX = box->mMin.x;
-    float minY = box->mMin.y;
-    float minZ = box->mMin.z;
     Vector3 corners[8];
-    corners[0] = Vector3(maxX, maxY, maxZ);
-    corners[1] = Vector3(minX, maxY, maxZ);
-    corners[2] = Vector3(maxX, minY, maxZ);
-    corners[3] = Vector3(minX, minY, maxZ);
-    corners[4] = Vector3(maxX, maxY, minZ);
-    corners[5] = Vector3(minX, maxY, minZ);
-    corners[6] = Vector3(maxX, minY, minZ);
-    corners[7] = Vector3(minX, minY, minZ);
+    corners[0] = Vector3(box->mMax.x, maxY, maxZ);
+    corners[1] = Vector3(box->mMin.x, maxY, maxZ);
+    corners[2] = Vector3(box->mMax.x, box->mMin.y, maxZ);
+    corners[3] = Vector3(box->mMin.x, box->mMin.y, maxZ);
+    corners[4] = Vector3(box->mMax.x, maxY, box->mMin.z);
+    corners[5] = Vector3(box->mMin.x, maxY, box->mMin.z);
+    corners[6] = Vector3(box->mMax.x, box->mMin.y, box->mMin.z);
+    corners[7] = Vector3(box->mMin.x, box->mMin.y, box->mMin.z);
     PSMTXMultVecArray(m, corners, corners, 8);
     Vector3 max(corners[0]);
     Vector3 min(corners[0]);
@@ -699,8 +696,8 @@ inline AABB_unk ViewBox_unk(const Mtx m, const AABB_unk* box) {
     return AABB_unk(min, max);
 }
 
-// NONMATCHING: 93.2% - scheduling of the box reads and of the corner temporaries, registers of the
-// screen width/height
+// NONMATCHING: 99.9% - only the data: the zero limits lbl_8087D898-lbl_8087D8A4 go to .sbss here (the
+// original keeps them in .sdata, see fn_800B6218); the code is the same
 // inferred: the box (world coordinates) is hidden by the occlusion buffer: bounds of its corners in view
 // space, outside the near/far range -> visible; screen rectangle, too small -> hidden, too large ->
 // visible, else tested against the buffer pyramid from its smallest level (fn_800B64DC)
@@ -724,10 +721,10 @@ extern "C" int fn_800B5994(atn::LayerOcclusionCPU* layer, const atn::AABB_unk* b
     screen.mMin.y = atn::ClampF_unk(screen.mMin.y, lbl_8087D89C, height);
     screen.mMax.x = atn::ClampF_unk(screen.mMax.x, lbl_8087D8A0, width);
     screen.mMax.y = atn::ClampF_unk(screen.mMax.y, lbl_8087D8A4, height);
-    float h = screen.mMax.y - screen.mMin.y;
     float w = screen.mMax.x - screen.mMin.x;
-    float minSize = lbl_8087EFA8->m1F4;
-    if (w < minSize && h < minSize && w * h < minSize) {
+    float h = screen.mMax.y - screen.mMin.y;
+    float area = w * h;
+    if (w < lbl_8087EFA8->m1F4 && h < lbl_8087EFA8->m1F4 && area < lbl_8087EFA8->m1F4) {
         if (lbl_8087EFA8->m1DC != 0) {
             lbl_8087EEB0->fn_800610A4(0xFFFFFF00, screen.mMin.x, screen.mMin.y, 0.0f, w, h);
         }
