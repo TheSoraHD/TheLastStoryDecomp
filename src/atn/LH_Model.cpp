@@ -109,8 +109,9 @@ static const int sTypeSize_unk[11] = {1, 2, 1, 2, 4, 3, 4, 2, 2, 3, 4};
 // inferred: builds the vertex format of each mesh (shared through the cache of the graphics device)
 // and points its vertex arrays to the streams of the file: the slots of the list at m54 from
 // version 2, a list of its own (m84) before
-// NONMATCHING: 96.4% - stack slots of the strength-reduced mesh offsets (i*0x144, i*4), scheduling of the
-// array offsets in the version-2 branch and the load of lbl_8087EEE0 before the VtxFormat_unk temporary
+// NONMATCHING: 98.55% - stack slots of the aggregate temporaries (the original puts the two list
+// terminators right after the initial ones), one mulli scheduled in the normal block of version 1 and
+// the load of lbl_8087EEE0 before the VtxFormat_unk temporary
 void LoadModel::fn_80474F0C(ModelData_unk* model) {
     mTextures.Resize_unk(model->m3C, 6);
     for (int i = 0; i < model->m3C; i++) {
@@ -135,13 +136,11 @@ void LoadModel::fn_80474F0C(ModelData_unk* model) {
                 mesh->m54[n].m04 = model->m2C[mesh->m20]->mData;
                 n++;
             }
-            if (mesh->m24 != -1) {
-                mesh->m54[n].m04 = model->m2C[mesh->m24]->mData;
-                n++;
-            }
-            if (mesh->m28 != -1) {
-                mesh->m54[n].m04 = model->m2C[mesh->m28]->mData;
-                n++;
+            for (int k = 0; k < 2; k++) {
+                if ((&mesh->m24)[k] != -1) {
+                    mesh->m54[n].m04 = model->m2C[(&mesh->m24)[k]]->mData;
+                    n++;
+                }
             }
             for (int k = 0; k < 8; k++) {
                 if (mesh->m2C[k] != -1) {
@@ -153,7 +152,7 @@ void LoadModel::fn_80474F0C(ModelData_unk* model) {
             if (i == 0) {
                 m84.Resize_unk(model->m3C, 6);
             }
-            DrawArray_unk* arrays = m84.mData[i].mList;
+            DrawArray_unk* arrays = m84[i].mList;
             for (int k = 0; k < 27; k++) {
                 DrawArray_unk a = {0xFF, 0, 0};
                 arrays[k] = a;

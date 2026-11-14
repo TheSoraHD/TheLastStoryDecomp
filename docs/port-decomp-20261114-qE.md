@@ -5,9 +5,9 @@ Inicio 2026-11-14 04:41.
 ## Resultado por funcion
 
 - `atn::LoadModel::fn_80474F0C` (0x80474F0C, 3820 bytes, formatos y arrays de vertices): escrita (antes sin
-  escribir), NONMATCHING 96,4 % (huecos de pila de los desplazamientos reducidos por fuerza `i*0x144`/`i*4`,
-  orden de los desplazamientos en la rama de version 2 y la carga de `lbl_8087EEE0` antes del temporal
-  `VtxFormat_unk`). Firma final: `void atn::LoadModel::fn_80474F0C(ModelData_unk* model)` (la de antes).
+  escribir), NONMATCHING 98,55 % (huecos de pila de los temporales de agregado: el original pone los dos
+  terminadores justo tras los iniciales; un `mulli` del bloque de normales de version 1; la carga de
+  `lbl_8087EEE0` antes del temporal `VtxFormat_unk`). Firma final: `void atn::LoadModel::fn_80474F0C(ModelData_unk* model)` (la de antes).
   - **Logica frente al asm (para el port):** la version funcional del port es equivalente. Detalles que el port
     tiene igual o de mas: el original solo crea `m84` (las listas de 27 `DrawArray_unk` de las mallas de
     version 1) con la **primera** malla (`i == 0`); el `|| m84.mData == 0` del port es una proteccion de mas, no
@@ -20,7 +20,9 @@ Inicio 2026-11-14 04:41.
     los campos no constantes a 0; para que el temporal de `DrawArray_unk` se materialice como en el original en
     colores/texturas hace falta `= {attr, 0, 0}` y luego asignar los campos.
   - Hallazgo: `mTextures[i] = fn_80076C44(lbl_8087EEE0, VtxFormat_unk(desc, fmt))` con `operator[]` (la direccion
-    del destino se calcula antes de la llamada): 92 -> 96 %.
+    del destino se calcula antes de la llamada): 92 -> 96 %; `m84[i].mList` (operator[]) 96,4 -> 97,7 %; los dos
+    colores de la rama de version 2 como bucle `for (k < 2)` (desenrollado por el compilador) -> 98,55 %: la
+    malla tiene `int mClr[2]` y `int mTex[8]` (en la decomp siguen `m24`/`m28`/`m2C[8]`).
 
 - `fn_8009BB9C` (0x8009BB9C, matrices de textura): **equivalente** al asm (revisado entero); sigue
   NONMATCHING 95,6 % (solo registros: el `cos` en f24 y las constantes 0/1 en f30/f31 del original).
