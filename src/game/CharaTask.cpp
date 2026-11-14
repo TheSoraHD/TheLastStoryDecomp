@@ -359,7 +359,6 @@ extern "C" int fn_8021BE98(char* name, CharaStatusEntry_unk* entry);  // inferre
 
 extern "C" void* lbl_8087F540;
 extern "C" int fn_80481654(void* obj);
-extern "C" void fn_8010A4A8(BattleTask* effect, CharaTask* chara);
 
 extern "C" const wchar_t lbl_808813D0[2]; // inferred: empty text
 // inferred: message table (lbl_8087F1E4); name invented
@@ -5699,8 +5698,6 @@ struct EffectMgr_unk {
     int mB8;
 };
 extern "C" EffectMgr_unk* lbl_8087F3C0;
-extern "C" void fn_800FC410(BattleTask* effect, CharaTask* chara, CharaTask* target, int arg, HitInfo_unk* hit, int id,
-                            int frames);
 extern "C" bool fn_80051A88(const atn::Model::Sphere_unk* sphere, const atn::Vector3* point); // inferred: point in sphere
 extern "C" void fn_80239DAC(void* mgr, void* owner, int a, int b); // inferred: stops the effects of `owner`
 extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the effects (a matrix or an EfpFile)

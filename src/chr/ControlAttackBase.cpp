@@ -20,7 +20,6 @@ extern "C" void PSMTXMultVec(const Mtx m, const atn::Vector3* src, atn::Vector3*
 extern "C" chr::AttackTable_unk* fn_802097C4(const char* path);
 
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
-extern "C" void fn_80106878(BattleTask* effect, CharaTask* chara); // inferred: attack started
 
 // inferred: multiplayer session (lbl_8087F610, see MP/CharaListeners_unk.cpp)
 extern "C" void* lbl_8087F610;

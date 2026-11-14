@@ -58,10 +58,16 @@
 - Segunda tanda: `fn_800FBA9C`, `fn_800FBE70` (`const atn::Vector3*`), `fn_80101434`, `fn_8010C00C`; fuera las locales
   de CharaTask, Em201ZanGurgFinal, Em206EggMonster, Em403WarLion, EnemyQuarkFirst, EnemyTasha, LastCocoonQuadruped.
   pd + `shiftfix.py` (EnemyQuarkFirst 0x808851B0 @10596 -> @10590). precommit OK.
+- Tercera tanda (un solo llamador, mismos tipos que la definicion): `fn_800F2C9C`, `fn_800F3170`, `fn_800F3D28`
+  (GameTask), `fn_800FBA30` (SkillEffectManager), `fn_800FC410` (CharaTask), `fn_8010220C` (BattleCharaTask),
+  `fn_80106878` (ControlAttackBase), `fn_8010A4A8` (CharaTask). pd + `shiftfix.py` en GameTask (16 floats/double
+  con el nombre de HEAD menos 3-4; quedan los 2 sin nombre que ya habia). precommit OK.
 - No hechas por tipos que no casan con la definicion: `fn_8010B250` (los llamadores pasan `int` donde la definicion
   tiene `BattleCalcParam_unk*`), `fn_800FDB20` (un `float` de mas en ZanGurgFinal/Em206EggMonster frente a un `int`
   de la definicion), `fn_800FB1BC` (SkillEffectManager sin el `float` final), `fn_80101524` (5 argumentos frente a
-  6), `fn_8010CF28`, `fn_800FD658` (`void*` donde la definicion tiene `HitInfo_unk*`); y las de un solo llamador.
+  6), `fn_8010CF28`, `fn_800FD658` (`void*` donde la definicion tiene `HitInfo_unk*`), `fn_80102EAC` (Em101ElderZesya
+  pasa `int` donde la definicion tiene `CharaTask*`), `fn_801004FC`/`fn_8010089C` (`BattleAim_unk` solo existe en
+  BattleTask.cpp; BattleCharaTask usa otra vista), `fn_8010D320` (GameUI, `void*` y `Vector3` por valor).
 - No hechas: `fn_80108C10` (cada unidad tiene su vista del dano: `DaemonDamage_unk`, `QueenDamage_unk`...; unificar
   `BattleDamage_unk` es otra tarea) y las de 1-5 declaraciones. Las unidades que no incluyen `BattleTask.h` (`-` en
   `sigs.py`: Coffin, SparkCube, LandMine, WaitObject, GimmickStateCommand, Bullet, Em310Gargoyle...) siguen con su

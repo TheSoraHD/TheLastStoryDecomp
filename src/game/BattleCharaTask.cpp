@@ -128,7 +128,6 @@ static inline atn::Vector3 FrontDir_unk(const atn::Vector3& rot) {
     PSMTXMultVec(m.m, &v, &v);
     return v;
 }
-extern "C" void fn_8010220C(BattleTask* mgr, int arg);
 // inferred: target in front of the character within radius/theta
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
 // inferred: target searches of the effect manager (in front / around)
