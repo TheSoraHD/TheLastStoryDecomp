@@ -29,6 +29,8 @@ struct GameUIGauge_unk : public atn::D2A_Task {};
 #include "atn/SoundRef.h"
 #include "string.h"
 #include "game/TacView.h"
+#include "game/BattleTask.h"
+#include "game/HomeButtonMenu.h"
 #include "atn/DrawHelper.h"
 #include "atn/Camera_unk.h"
 #include "atn/D2A_TaskInstanceC.h"
@@ -60,6 +62,8 @@ struct GameUIField_unk {
     atn::Task* m10D8;
     unsigned char m10DC[0x54E4 - 0x10DC];
     int m54E4; // inferred: state of the field (GameTask::m54E4; 8: an event runs)
+    unsigned char m54E8[0x56D4 - 0x54E8];
+    int m56D4; // inferred: windows of the overlook view hidden (GameUI::fn_803DBD44)
 };
 extern "C" GameUIField_unk* lbl_8087F430;
 extern "C" void fn_800D2338(atn::Task* task); // inferred: deletes the task
@@ -1571,8 +1575,8 @@ extern "C" float lbl_8087DEE8;
 extern "C" float lbl_8087DEEC;
 extern "C" float fn_802A7964(float rad);  // inferred: to degrees
 extern "C" float fn_802A7910(float deg);  // inferred: wraps an angle
-extern "C" void* lbl_8087F048;
-inline void* fn_8013A194() {
+extern "C" BattleTask* lbl_8087F048;
+inline BattleTask* fn_8013A194() {
     return lbl_8087F048;
 }
 extern "C" void fn_8010D320(void* obj, atn::Vector3 pos); // inferred: aims at a position
@@ -3559,7 +3563,6 @@ inline float WrapAngleF_unk(float a) {
     }
     return a;
 }
-extern "C" void fn_803DBD44(GameUI* ui); // inferred: updates the windows of the overlook view
 
 // inferred: icons of the tactical view (called by game/GameTask): the cursor ring on the ground spins and is
 // drawn with the colours of the effect under it, the order prompt window follows the state of the view;
@@ -3743,9 +3746,241 @@ void GameUI::fn_803DAB4C(int show, int keep) {
             }
         }
         if (keep == 0) {
-            fn_803DBD44(this);
+            fn_803DBD44();
         }
         fn_803DE648();
+    }
+}
+
+// inferred: d2anime instance of a character window (mF14; created as D2A_TaskInstanceBase<64, 8>)
+typedef atn::D2A_TaskInstanceBase<64, 8> GameUIWindow_unk;
+
+// inferred: battle manager accessors used by the windows of the overlook view (BattleTask m3E2E0, m3E2E8,
+// m3E2F0; names invented)
+inline bool HasCursorChara_unk() {
+    bool r = false;
+    if (lbl_8087F048 != 0 && lbl_8087F048->m3E2F0 != 0) {
+        r = true;
+    }
+    return r;
+}
+inline RayObj_unk* GetCursorTarget_unk() {
+    return lbl_8087F048 != 0 ? lbl_8087F048->m3E2E8 : 0;
+}
+
+// inferred: windows of the overlook view: the rings under the enemies (fn_803DCA84), the windows of the
+// enemies sorted by their screen height (m1014), the party window of each one (fn_803DCD34) and the
+// description window of the enemy under the cursor (m1140..m1148, text cut in five lines)
+// NONMATCHING: 97.7% - CharaTask::vfBC takes an argument in the original (GetCursorTarget_unk(), dropped
+// here as dead code); the else branch of the text lines keeps its literal in a register
+void GameUI::fn_803DBD44() {
+    if (mDC8 == 0) {
+        return;
+    }
+    float w = lbl_8087EEE0->mWidth;
+    float h = lbl_8087EEE0->mHeight;
+    float dist[32];
+    for (int i = 0; i < 32; i++) {
+        mF94[i] = 0;
+        m1014[i] = -1;
+        dist[i] = 1e16f;
+        mF14[i]->FreezeTask();
+    }
+    if (mDCC >= 1) {
+        for (int i = 0; i < 32; i++) {
+            mE94[i] = 0.0f;
+        }
+    }
+    if (lbl_8087F610 != 0 && !lbl_8087F610->IsWaiting_unk()) {
+        return;
+    }
+    if (mDCC < 1) {
+        bool rings = true;
+        if (lbl_8087F9F8 != 0) {
+            if (lbl_8087F9F8->m15D8 == 1 && lbl_8087F9F8->m15EC == 0) {
+                rings = false;
+            }
+            if (GetTacView_unk()->mA70 == 0) {
+                rings = false;
+            }
+        }
+        if (rings) {
+            int n = 0;
+            for (EnemyTask* c = EnemyManager::sInstance->mHead; c != 0; c = c->mNext) {
+                if ((c->mFlags & 4) != 4 && (c->m54C & 0x2000) != 0x2000 && (c->mStatus.m0C & 0x20) != 0x20 &&
+                    (c->m54C & 8) != 8 && c->mC54 != 0 && n < 32) {
+                    fn_803DCA84(c, &mE94[n++]);
+                }
+            }
+        }
+    }
+    int count = 0;
+    for (EnemyTask* c = EnemyManager::sInstance->mHead; c != 0; c = c->mNext) {
+        if (count >= 32) {
+            break;
+        }
+        if ((c->mFlags & 4) != 4 && (c->m54C & 0x2000) != 0x2000 && (c->mStatus.m0C & 0x20) != 0x20 &&
+            (c->m54C & 8) != 8) {
+            mF94[count++] = c;
+        }
+    }
+    if (mDCC < 1) {
+        CharaTask* leader = lbl_8087F8A0->mHead;
+        atn::Vector3 lpos = ((atn::Matrix3x4*)leader->mMotion.mMtx.m)->GetTrans_unk();
+        atn::Vector3 lscreen = atn::RenderManager::instance_->GetScreenPosition(lpos);
+        if (lscreen.z > 1.0f) {
+            lscreen *= -1.0f;
+        }
+        float nearest = 1e16f;
+        atn::Vector3 pos;
+        atn::Vector3 screen;
+        atn::Vector3 d;
+        for (int i = 0; i < count; i++) {
+            CharaTask* c = mF94[i];
+            pos = ((atn::Matrix3x4*)c->mMotion.mMtx.m)->GetTrans_unk();
+            screen = atn::RenderManager::instance_->GetScreenPosition(pos);
+            if (screen.z > 1.0f) {
+                screen *= -1.0f;
+            }
+            d = screen - lscreen;
+            dist[i] = d.y * d.y;
+            for (int j = 0; j < 32; j++) {
+                if (m1014[j] < 0 || dist[m1014[j]] > dist[i]) {
+                    if (j != 31) {
+                        memcpy(&m1014[j + 1], &m1014[j], (31 - j) * 4);
+                    }
+                    m1014[j] = i;
+                    break;
+                }
+            }
+            screen.y -= 0.5f * h;
+            screen.x -= 0.5f * w;
+            float len = screen.x * screen.x + screen.y * screen.y;
+            if (nearest > len) {
+                nearest = len;
+            }
+        }
+    } else {
+        for (int i = 0; i < 32; i++) {
+            m1014[i] = i;
+        }
+    }
+    bool windows = true;
+    if (lbl_8087F430->m54E4 == 8 && lbl_8087F540 != 0 && lbl_8087F540->fn_80481654() != 0) {
+        windows = false;
+    }
+    if (lbl_8087F9F8 != 0 && lbl_8087F9F8->mA70 != 0 && lbl_8087F9F8->m15D8 == 1) {
+        windows = false;
+    }
+    CharaTask* cursor = 0;
+    for (int i = 0; i < count; i++) {
+        if (windows) {
+            bool selected = false;
+            if (HasCursorChara_unk() && (CharaTask*)lbl_8087F048->m3E2E0 == mF94[m1014[i]]) {
+                selected = true;
+            }
+            GetCursorTarget_unk(); // inferred: argument of vfBC in the original (see above)
+            if (!mF94[m1014[i]]->vfBC()) {
+                selected = false;
+            }
+            if (mDCC < 1 || selected) {
+                if (lbl_8087F430->m54E4 != 1) {
+                    bool fixed = false;
+                    if (lbl_8087F9F8 != 0 && lbl_8087F9F8->mA70 != 0) {
+                        fixed = true;
+                    }
+                    fn_803DCD34(mF94[m1014[i]], i, selected, fixed);
+                }
+                if (mF94[m1014[i]] != 0 && selected) {
+                    cursor = mF94[m1014[i]];
+                }
+            }
+        }
+        GameUIWindow_unk* window = static_cast<GameUIWindow_unk*>(mF14[m1014[i]]);
+        if (window->IsFlag_unk(4) && window->mFrame > 0.0f) {
+            window->mFrame = 0.0f;
+        }
+    }
+    m1140->FreezeTask();
+    m1144->FreezeTask();
+    m1148->FreezeTask();
+    if (lbl_8087F430->m54E4 == 8 && lbl_8087F540 != 0 && lbl_8087F540->fn_80481654() != 0) {
+        m1150 = 0;
+        m1140->mFrame = 0.0f;
+        m1144->mFrame = 0.0f;
+        return;
+    }
+    int state = lbl_8087F430->m54E4;
+    if (state != 1 && state != 3 && state != 4 && state != 9 && state != 13 && state != 14 &&
+        lbl_8087F430->m56D4 == 0) {
+        wchar_t text[0x100];
+        if (m1150 != 0) {
+            m1154++;
+            m1148->MeltTask();
+            if (m1154 < 150 && (HomeButtonMenu::sInstance == 0 || HomeButtonMenu::sInstance->m84 != 1) &&
+                lbl_8087F0A8->mInput.fn_801231D0(0x30)) {
+                m1154 = 150;
+            }
+            if (m1154 == 150) {
+                m1148->mSpeed = -1.0f;
+            }
+            if (m1154 > 150 && m1148->mFrame <= 1.0f) {
+                m1150 = 0;
+                m1140->mFrame = 0.0f;
+                m1144->mFrame = 0.0f;
+            }
+            return;
+        }
+        if (cursor == 0 || !cursor->vfB8(text)) {
+            m114C = 0;
+            m1150 = 0;
+            m1140->mFrame = 0.0f;
+            m1144->mFrame = 0.0f;
+            return;
+        }
+        m114C = (int)cursor;
+        ButtonUv_unk uv = lbl_8087F0A8->mInput.fn_80124C6C(0x30);
+        {
+            ButtonUv_unk uvCopy(uv);
+            m1140->SetParam2_unk("btnUv", &uvCopy.x);
+        }
+        {
+            ButtonUv_unk uvCopy(uv);
+            m1140->SetParam2_unk("btnUvMask", &uvCopy.x);
+        }
+        {
+            ButtonUv_unk uvCopy(uv);
+            m1144->SetParam2_unk("btnUv", &uvCopy.x);
+        }
+        {
+            ButtonUv_unk uvCopy(uv);
+            m1144->SetParam2_unk("btnUvMask", &uvCopy.x);
+        }
+        if (m1140->IsEnd_unk()) {
+            m1144->MeltTask();
+        } else {
+            m1140->MeltTask();
+        }
+        if (HomeButtonMenu::sInstance != 0 && HomeButtonMenu::sInstance->m84 == 1) {
+            return;
+        }
+        if (lbl_8087F0A8->mInput.fn_801231D0(0x30)) {
+            m1150 = 1;
+            m1154 = 0;
+            m1148->mFrame = 0.0f;
+            m1148->mSpeed = 1.0f;
+            std::vector<std::basic_string<wchar_t> > lines;
+            fn_800E0000(&lines, text, 256.0f, 16.0f, 0.0f, 1, 1, 0);
+            for (unsigned int i = 0; i < 5; i++) {
+                char name[32];
+                sprintf(name, "text%d", i);
+                if (i < lines.size()) {
+                    SetLayoutText_unk(&m1148->mData.m10, name, lines[i].c_str());
+                } else {
+                    SetLayoutText_unk(&m1148->mData.m10, name, &lbl_8078C638[41]);
+                }
+            }
+        }
     }
 }
 
@@ -3806,8 +4041,6 @@ inline bool IsCursorOn_unk(const TacViewSel_unk& sel) {
     return sel.mState != 2;
 }
 
-// inferred: d2anime instance of a character window (mF14; created as D2A_TaskInstanceBase<64, 8>)
-typedef atn::D2A_TaskInstanceBase<64, 8> GameUIWindow_unk;
 extern "C" void fn_803E6D4C(GameUIWindow_unk* window, chr::CharaData_unk* data); // inferred: job and attribute icons
 
 // inferred: fills the window of party slot `slot` with `chara` (leader mark, position over the head or at

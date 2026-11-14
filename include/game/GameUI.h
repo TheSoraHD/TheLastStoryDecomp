@@ -323,6 +323,7 @@ public:
     void fn_803D8344();
     void fn_803D83A8();
     void fn_803DAB4C(int, int);
+    void fn_803DBD44(); // inferred: windows of the overlook view
     void fn_803DE648(); // inferred: updates the markers of the skill effects
     void fn_803DE89C(SkillEffect* bullet, int index);
     void fn_803DEE24(SkillEffect* bullet, GameUIColor_unk* add, GameUIColor_unk* mul); // inferred: colours of a marker
@@ -505,9 +506,9 @@ public:
     atn::Texture_unk mE04;                     // 0xE04
     atn::Texture_unk mE34;                     // 0xE34
     atn::Texture_unk mE64;                     // 0xE64
-    unsigned char mE94[0xF14 - 0xE94];
+    float mE94[32]; // inferred: fade of the rings under the enemies (fn_803DCA84)
     atn::Task* mF14[32]; // inferred: D2A_TaskInstanceBase<64, 8>, windows of the overlook view (fn_803D0B20)
-    int mF94[32];
+    CharaTask* mF94[32]; // inferred: enemies of the windows of the overlook view (fn_803DBD44)
     int m1014[32];
     float m1094[8];
     GameUIInst_unk* m10B4[8]; // inferred: effect markers (fn_803DE648)
