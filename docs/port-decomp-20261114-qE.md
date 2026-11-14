@@ -70,7 +70,9 @@ Inicio 2026-11-14 04:41.
   `GXSetTevColorOp`). 97,48 -> 99,04 % (`int flags`, `cmd->m20` leido antes del `if`, orden de locales).
 - Resto de `ModelDraw_unk` revisado con el diff sin registros: `fn_8009B93C`, `fn_8009C508`, `fn_8009C688`,
   `fn_8009C84C`, `fn_8009CC28`, `fn_8009D1A4`, `fn_8009DCE0`: **equivalentes** (registros, orden, recargas).
-  El ctor de `DrawEntry_unk` (89,6 %) no se ha revisado.
+  Ctor de `DrawEntry_unk` (0x8009E1E4): **equivalente**; 89,6 -> 96,75 % con `MAX(x, MAX(y, z))` de `macros.h`
+  (el original evalua dos veces el maximo interior: es la macro, no una inline) y `m08->fn_80475DF8()` (el
+  miembro, no el parametro). `MaxF_unk` quitada.
 
 ## Cambios de firma / layout (para el port)
 
