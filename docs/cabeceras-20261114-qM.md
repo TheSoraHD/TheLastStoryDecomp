@@ -51,6 +51,22 @@ Inicio 20:06. Referencia: `/home/claude/ref-M` (15447 funciones).
 - `Sequence::fn_8053E8D0` antes de acertar: local `leader` declarada fuera del `if` o al principio del bloque:
   igual; con `?:` baja.
 
+- `GameCamera::fn_8038D4D4` (80,8): con `LerpV_unk` en las dos mezclas sube a 85,7 pero renumera los `@N` de
+  la unidad (-4); no dejado. La pila del original pone `head` y `offset` por debajo de los temporales (como si
+  fueran locales de un inline o de un bloque anidado): sin probar del todo.
+- `GameCamera::fn_8038952C` (85,0): solo el orden del prologo (el original copia `chara` a r30 antes de sacar
+  `&mMotion`); `GetNodeMtx_unk("hips")`, `GetModel_unk()`, `const_cast` a una local: igual o peor.
+- `Manager::fn_8047EFD8` (99,76): registros del puntero y del indice del bucle de `m74`; `int i` fuera: igual.
+- `Manager::fn_8048BD64/C884/D3A4`, `fn_80482400`, `Clear_unk`: bloqueos conocidos (recursion de `~Curve`,
+  `push_back`, `std/vector.h`), no tocados.
+
+## Cifras
+
+- Referencia 15447 -> 15452 funciones al 100 % (lost 0); labelcheck y rep100 iguales a la referencia.
+- GameCamera_unk 49 -> 50/90 al 100 % (fn_8038C5B0 48,6 -> 99,6), Sequence 84 -> 85/119, Manager 138/185 y
+  FinishCamera_unk 10/12 sin cambios; al 0 %: sin cambios (0, 19, 5, 0). Fuera de la cola, por la cabecera:
+  Event/Path `SetCamera_unk`, MiniMapTask `Camera(const Camera&)`, NewCampTask `fn_8052C6CC`.
+
 ## Decisiones tomadas sin el usuario
 
 - `Bounds_unk` anidado en `Frustum_unk` (y no `atn::AABB_unk`, que tiene la misma forma): con `AABB_unk` el
