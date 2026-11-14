@@ -39,6 +39,17 @@ por debajo del 100 %, el resto al 100 %): 147 unidades. Referencia `$REF` = `/ho
   local, ternario a mano), `db/ChaseParam_unk` (char*, sin `len`), `game/GameSaveLoadCommon` (cuerpo del
   inline escrito en el bucle en 3 formas: cambia la pila y sigue el `bne`), `game/Em205Ogre` vf108 (asgwrap:
   99,688 -> 99,71, no se guarda): sin cambio.
+- `dwc/src/base/dwc_account` DWC_ReportFriendData (96,46 %): la prueba de "buddy y flag 8" del caso
+  GS_PROFILE_ID es un inline que devuelve BOOL (`if (... && ...) return TRUE; return FALSE;`, da el
+  `li r0,1 / li r0,0 / cmpwi` del original): **99,79 %**, pero entonces la funcion se inlinea en
+  DWC_ReportUserData (que baja del 100 %), asi que no se guarda. Queda el orden de comparaciones del switch
+  (original 2,3,1 con cuerpos 3,2,1; MWCC compara y coloca siempre en el orden del fuente, probadas las 24
+  permutaciones con default; `case 2: case 3:` compartido da una comprobacion de rango) y los buffers del
+  nombre de usuario intercambiados.
+- `game/CostumeEditChara` vf14 (98,90 %): accesores libres (puntero, referencia, sub-objeto), `*(p + i)`,
+  `(&a[0])[i]`, indice int: el `add + lwz 0x680` no pasa a `addi + lwzx`.
+- `atn/EffectSequencer_unk` fn_802440F0 (95,55 %): elem dentro del bucle, `mElems + i`, prueba por indice,
+  indice int. `gmk/FallingTower` fn_8041044C: orden de mAmp/sin, sin en local, forma del lerp.
 - Sin probar mas por notas previas exhaustivas: OS (OSInit, solo relocs de la 0x80004000), dwc_transport,
   dwc_ranking, LH_* `Get_unk` (plantilla de `atn/LoadManager.h`, cabecera compartida), Texture_unk,
   MapIdTable_unk, SelectMember, MotionData, Event/Label, HealPoint, Em002_02SkeltonKing ctor (carga de
@@ -60,3 +71,7 @@ por debajo del 100 %, el resto al 100 %): 147 unidades. Referencia `$REF` = `/ho
 ## Hallazgos
 
 - Un agregado local inicializado desde el pool que se programa tarde: probar `static const` (HomeButton::draw).
+- Un `li r0,1 / li r0,0 / cmpwi r0,0` antes de un `if` es un inline que devuelve BOOL con `return TRUE/FALSE`
+  (DWC_ReportFriendData).
+- MWCC emite la cadena de comparaciones de un switch pequeno y los cuerpos en el orden del fuente; dos
+  etiquetas consecutivas con el mismo cuerpo se convierten en una comprobacion de rango.
