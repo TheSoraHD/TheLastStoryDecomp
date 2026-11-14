@@ -105,6 +105,7 @@ struct ModelBase : public IRender {
     void fn_8008C62C(int lod);                   // inferred: maps the materials of a level to the main ones
     void fn_8008C950();                          // inferred: sets up the nodes after loading
     void fn_8008D78C(RenderManager*);            // inferred: visibility (writes mFlag6_unk); view in r4 (left by vf18)
+    void fn_8008E818(RenderManager*);            // inferred: draws the meshes (called by vf10)
     void fn_8009076C(const Mtx m);               // inferred: applies m to the world and node matrices
     void fn_80091684(const Mtx m, const int* remap); // inferred: builds the skinning matrices
     void fn_80091A90(const Mtx m);                   // inferred: updates the skinning matrices for m
@@ -327,6 +328,7 @@ struct Model : public ModelBase {
     void fn_800920B8(unsigned int hash);
     // inferred: samples the fading track 3 (fn_80097E80)
     void fn_80098DD8(int advance);
+    void fn_800991D0(int); // inferred: samples the additive tracks 4 and 5 (called by fn_80097E80)
 
     // inferred: accessors called out of line from CharaTask (names keep the address)
     Node_unk* fn_80147A00();

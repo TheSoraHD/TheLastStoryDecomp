@@ -14,8 +14,7 @@ Inicio 2026-11-14 02:59. Unidades: atn/Model, atn/BoneCalc_unk.
   `mFlags`, sin encontrar la forma).
 - `fn_800991D0` (0x800991D0, pistas aditivas 4 y 5): escrita, NONMATCHING 99,6 % (registros del indice y del
   puntero de la inline `fn_80099010`; direcciones de pila invariantes en registros salvados). Firma final:
-  `extern "C" void fn_800991D0(atn::Model*, int advance)` (sigue `extern "C"` con el modelo delante: como miembro
-  necesita una declaracion nueva en `atn/Model_unk.h`, deuda de la regla 10 apuntada).
+  `void atn::Model::fn_800991D0(int advance)` (miembro; antes `extern "C"` con el modelo delante).
 - `atn/BoneCalc_unk` `fn_8009ADA4` (0x8009ADA4, matrices desde un motion): escrita, NONMATCHING 98,2 % (las pruebas
   `empty()` de los dos `boost::function` salen materializadas en el original, `cntlzw/srwi.`, aqui `cmpwi`; no
   sale con ninguna forma probada; pila). Firma final:
@@ -46,6 +45,10 @@ Inicio 2026-11-14 02:59. Unidades: atn/Model, atn/BoneCalc_unk.
 - `include/atn/EulerToQuat_unk.h` nuevo: `atn::EulerToQuat_unk` sale de Model.cpp (Model.o identico) y lo usa
   BoneCalc. Los getters `ModelJoint_unk::GetScale_unk/GetRot_unk/GetTrans_unk` siguen definidos en el .cpp (Model y
   BoneCalc): con cuerpo en la cabecera renumeran los `@enum$N`.
+
+- Deuda de la regla 10 saldada en Model: `fn_8008E818` pasa a `void ModelBase::fn_8008E818(RenderManager*)` y
+  `fn_800991D0` a `void Model::fn_800991D0(int)` (declaraciones sin nombres de parametro en `atn/Model_unk.h`,
+  neutras: `@enum$N` y labelcheck iguales; mismo porcentaje; renombrados en `symbols.txt`).
 
 ## Decisiones tomadas sin el usuario
 

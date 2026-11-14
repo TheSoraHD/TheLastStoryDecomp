@@ -100,7 +100,6 @@ extern "C" void fn_800910D4(atn::Matrix3x4** out, const atn::Matrix3x4* mats, co
 #include "atn/MotionCmd_unk.h"
 extern "C" void fn_800A0A68(atn::MotionCmd_unk* cmd, atn::Model* model, const atn::LH_Motion* src); // inferred: copies
 extern "C" float fn_800A08D4(atn::LH_Motion* motion); // inferred: length of the motion
-extern "C" void fn_800991D0(atn::Model* model, int advance); // inferred: samples the additive tracks 4 and 5
 
 namespace atn {
 
@@ -1041,11 +1040,9 @@ void ModelBase::fn_8008D78C(RenderManager* view) {
     }
 }
 
-extern "C" void fn_8008E818(ModelBase* model, RenderManager* view); // inferred: draws the meshes
 
 // inferred: draw: picks the level of detail (with the LOD bias of the render settings in the shadow and
-// reflection passes), updates the skinning matrices for the view and draws (fn_8008E818, extern "C": as a
-// member it would need a new declaration in atn/Model_unk.h)
+// reflection passes), updates the skinning matrices for the view and draws (fn_8008E818)
 // NONMATCHING: 92.0% - scheduling of the inlined sphere (fn_80094F98) and the early return layout
 void ModelBase::vf10(RenderManager* view) {
     if (m20C_31_24 != 8 || !mFlag6_unk) {
@@ -1072,7 +1069,7 @@ void ModelBase::vf10(RenderManager* view) {
     if (view->GetPass_unk() != 10) {
         fn_80091A90(mtx.m);
     }
-    fn_8008E818(this, view);
+    fn_8008E818(view);
     const int* remap = mLods[m50].m10.mData;
     if (view->GetPass_unk() == 10) {
         CalcMatrixStack(0, ModelNodeCallback_unk());
@@ -1123,12 +1120,12 @@ static inline void SetDrawNodes_unk(DrawEntry_unk& entry, short* nodes, unsigned
 // NONMATCHING: 93.9% - the original reads m50 and the colour m40 through the matrix block (GetMtx_unk + 0x48 /
 // + 0x38, as fn_80091684), m20C_7 is a signed bit there (srawi), the store of the blink value is scheduled after
 // the colour and the order of the stack arguments of the constructor
-extern "C" void fn_8008E818(atn::ModelBase* model, atn::RenderManager* view) {
-    using namespace atn;
-    ModelBase::Mtx_unk* mtx = model->GetMtx_unk();
-    ModelLod_unk* lod = &model->mLods[model->m50];
-    if (model->mFlag5_unk && model->mFlag4_unk && fn_8008B964()->GetPass_unk() == 3) {
-        lod = &model->m1C4;
+namespace atn {
+void ModelBase::fn_8008E818(RenderManager* view) {
+    ModelBase::Mtx_unk* mtx = GetMtx_unk();
+    ModelLod_unk* lod = &mLods[m50];
+    if (mFlag5_unk && mFlag4_unk && fn_8008B964()->GetPass_unk() == 3) {
+        lod = &m1C4;
     }
     int* remap = lod->m10.mData;
     if (view->GetPass_unk() == 10) {
@@ -1137,40 +1134,40 @@ extern "C" void fn_8008E818(atn::ModelBase* model, atn::RenderManager* view) {
             sBlinkDir_unk *= -1.0f;
         }
         sBlink_unk = ClampRef_unk(v, 0.0f, 1.0f);
-        model->m15C->mMaterials.mData[0]->mColor =
-            ToGXColor_unk(model->m14C, model->m150, model->m154, model->m158);
+        m15C->mMaterials.mData[0]->mColor =
+            ToGXColor_unk(m14C, m150, m154, m158);
     }
-    MaterialSet_unk* mats = &model->m104;
-    SimpleArray<int>* matRemap = &model->m104.m08[model->m50];
-    if (model->m138 != 0) {
-        mats = model->m138;
-        matRemap = &model->m138->m08[model->m50];
+    MaterialSet_unk* mats = &m104;
+    SimpleArray<int>* matRemap = &m104.m08[m50];
+    if (m138 != 0) {
+        mats = m138;
+        matRemap = &m138->m08[m50];
     }
     if (view->GetPass_unk() == 5) {
-        mats = model->m160;
-        matRemap = &model->m160->m08[model->m50];
+        mats = m160;
+        matRemap = &m160->m08[m50];
     } else if (view->GetPass_unk() == 10) {
-        mats = model->m15C;
-        matRemap = &model->m15C->m08[model->m50];
+        mats = m15C;
+        matRemap = &m15C->m08[m50];
     }
-    Sphere sphere = model->GetModel_unk()->fn_80094F98();
-    DrawCallback_unk cb = *(DrawCallback_unk*)&model->m1F0;
-    DrawEntry_unk entry(&lod->mHandle, (Mtx*)mtx, (Mtx*)model->m58, (int)mtx->mNodes.mData, (DrawColor_unk*)&model->m40,
-                        (DrawMaterials_unk*)mats, (DrawRemap_unk*)matRemap, &sphere, remap, model->mFlags,
-                        model->m1DC != 0 ? model->m1DC : RenderManager::instance_->mScene,
-                        (int)model->m208.get(), &cb);
-    entry.m44 = model->mEC.mData;
-    entry.m48 = model->m20C_7;
-    if (model->mFlag5_unk && model->mFlag4_unk && RenderManager::instance_->GetPass_unk() == 3) {
+    Sphere sphere = GetModel_unk()->fn_80094F98();
+    DrawCallback_unk cb = *(DrawCallback_unk*)&m1F0;
+    DrawEntry_unk entry(&lod->mHandle, (Mtx*)mtx, (Mtx*)m58, (int)mtx->mNodes.mData, (DrawColor_unk*)&m40,
+                        (DrawMaterials_unk*)mats, (DrawRemap_unk*)matRemap, &sphere, remap, mFlags,
+                        m1DC != 0 ? m1DC : RenderManager::instance_->mScene,
+                        (int)m208.get(), &cb);
+    entry.m44 = mEC.mData;
+    entry.m48 = m20C_7;
+    if (mFlag5_unk && mFlag4_unk && RenderManager::instance_->GetPass_unk() == 3) {
         entry.m4C = 0;
     } else {
-        entry.m4C = model->mF4.mData;
+        entry.m4C = mF4.mData;
     }
     SetDrawNodes_unk(entry, (short*)fn_804761CC(&lod->mHandle), fn_804761E8(&lod->mHandle));
-    if (lod == &model->m1C4) {
+    if (lod == &m1C4) {
         entry.m58 = 1;
     }
-    entry.m5C = (void*)model->m1E0;
+    entry.m5C = (void*)m1E0;
     int pass = RenderManager::instance_->GetPass_unk();
     if (pass == 8) {
         entry.m00 = 2;
@@ -1181,7 +1178,7 @@ extern "C" void fn_8008E818(atn::ModelBase* model, atn::RenderManager* view) {
     } else if (pass == 9) {
         entry.m00 = 4;
     } else if (pass == 0) {
-        if ((model->mFlags & 0x80) == 0x80) {
+        if ((mFlags & 0x80) == 0x80) {
             fn_80076760(lbl_8087EEE0, 6, 2);
         } else {
             fn_80076760(lbl_8087EEE0, 6, 1);
@@ -1189,6 +1186,7 @@ extern "C" void fn_8008E818(atn::ModelBase* model, atn::RenderManager* view) {
     }
     fn_8009B93C(&entry);
 }
+} // namespace atn
 
 inline atn::AABB_unk fn_8008F5F8(const atn::AABB_unk& box, const atn::Matrix3x4& m);
 
@@ -2810,7 +2808,7 @@ int Model::fn_80097E80(int advance) {
         }
     }
     fn_80098DD8(advance);
-    fn_800991D0(this, advance);
+    fn_800991D0(advance);
     if (m35C) {
         m35C((MotionBuffer*)m21C.mData, GetRes_unk()->m44);
     }
@@ -3056,21 +3054,20 @@ extern "C" int fn_800A0548(atn::LH_Motion* motion, MotionPose_unk* pose, unsigne
 // inferred: samples the additive tracks 4 and 5 (after the main tracks and the fading track 3): with full weight
 // the motion replaces the node poses, else it is blended in with the track weight m10 (and the previous motion
 // m24 with its weight m2C while it fades out); the parts the motion does not set come from the bind pose of the
-// joint (fn_80099010). After track 4 the node pose callback m370 runs. extern "C" with the model first: as a
-// member it would need a new declaration in atn/Model_unk.h
+// joint (fn_80099010). After track 4 the node pose callback m370 runs.
 // NONMATCHING: 99.6% - registers of the index and of the inlined fn_80099010 (r23/r22 in the original) and the
 // loop invariant stack addresses kept in saved registers
-extern "C" void fn_800991D0(atn::Model* model, int advance) {
-    using namespace atn;
+namespace atn {
+void Model::fn_800991D0(int advance) {
     const int* remap;
-    ModelBase::Res_unk* res = (ModelBase::Res_unk*)model->mLods[model->m50].m08;
-    remap = model->mLods[model->m50].m10.mData;
+    ModelBase::Res_unk* res = (ModelBase::Res_unk*)mLods[m50].m08;
+    remap = mLods[m50].m10.mData;
     MotionPose_unk pose;
     MotionPose_unk prev;
     float speed = lbl_8087EFA8->m3A4;
-    float dt = model->m350 * speed;
+    float dt = m350 * speed;
     for (int i = 4; i <= 5; i++) {
-        Model::Track_unk* t = &model->mTracks[i];
+        Model::Track_unk* t = &mTracks[i];
         LH_Motion* motion = t->m04;
         if (motion != 0) {
             if (advance) {
@@ -3091,23 +3088,23 @@ extern "C" void fn_800991D0(atn::Model* model, int advance) {
                 ModelBase::NodeRes_unk* joint = res->m48[j];
                 int index = (remap != 0) ? remap[joint->m18] : joint->m18;
                 if (full) {
-                    fn_800A0548(motion, &model->m21C.mData[index], joint->m14, &model->m214.mData[index], t->m08);
+                    fn_800A0548(motion, &m21C.mData[index], joint->m14, &m214.mData[index], t->m08);
                     continue;
                 }
                 pose.m00 = 0;
-                if (fn_800A0548(motion, &pose, joint->m14, &model->m214.mData[index], t->m08) == 0) {
+                if (fn_800A0548(motion, &pose, joint->m14, &m214.mData[index], t->m08) == 0) {
                     continue;
                 }
-                fn_80099010(&model->m21C.mData[index], joint);
+                fn_80099010(&m21C.mData[index], joint);
                 fn_80099010(&pose, joint);
                 if (t->m24 != 0 && t->m2C > 0.0f) {
                     prev.m00 = 0;
-                    if (fn_800A0548(t->m24, &prev, joint->m14, &model->m214.mData[index], t->m28) != 0) {
+                    if (fn_800A0548(t->m24, &prev, joint->m14, &m214.mData[index], t->m28) != 0) {
                         fn_80099010(&prev, joint);
-                        fn_80098948(&model->m21C.mData[index], 1, &model->m21C.mData[index], &prev, t->m2C);
+                        fn_80098948(&m21C.mData[index], 1, &m21C.mData[index], &prev, t->m2C);
                     }
                 }
-                fn_80098948(&model->m21C.mData[index], 1, &model->m21C.mData[index], &pose, t->m10);
+                fn_80098948(&m21C.mData[index], 1, &m21C.mData[index], &pose, t->m10);
             }
             if (advance) {
                 t->m08 += t->m0C * dt;
@@ -3128,19 +3125,20 @@ extern "C" void fn_800991D0(atn::Model* model, int advance) {
                 ModelBase::NodeRes_unk* joint = res->m48[j];
                 int index = (remap != 0) ? remap[joint->m18] : joint->m18;
                 pose.m00 = 0;
-                if (fn_800A0548(t->m24, &pose, joint->m14, &model->m214.mData[index], t->m28) == 0) {
+                if (fn_800A0548(t->m24, &pose, joint->m14, &m214.mData[index], t->m28) == 0) {
                     continue;
                 }
-                fn_80099010(&model->m21C.mData[index], joint);
+                fn_80099010(&m21C.mData[index], joint);
                 fn_80099010(&pose, joint);
-                fn_80098948(&model->m21C.mData[index], 1, &model->m21C.mData[index], &pose, t->m2C);
+                fn_80098948(&m21C.mData[index], 1, &m21C.mData[index], &pose, t->m2C);
             }
         }
-        if (i == 4 && model->m370) {
-            model->m370((MotionBuffer*)model->m21C.mData, model->GetRes_unk()->m44);
+        if (i == 4 && m370) {
+            m370((MotionBuffer*)m21C.mData, GetRes_unk()->m44);
         }
     }
 }
+} // namespace atn
 
 namespace atn {
 
