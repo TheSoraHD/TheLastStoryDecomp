@@ -1334,7 +1334,7 @@ void ModelBase::CalcMatrixStack(const MotionBuffer* motion, ModelNodeCallback_un
 } // namespace atn
 
 ModelPose_unk::ModelPose_unk(ModelData_unk* model, atn::Matrix3x4* matrices, const int* remap,
-                             boost::function<void()> callback, const unsigned int* extra, int extraCount)
+                             atn::ModelNodeCallback_unk callback, const unsigned int* extra, int extraCount)
     : m00(model), m04(matrices), m08(remap), m0C(0), m10(0), m14(0), m18(callback), m40(extra), m44(extraCount),
       m48(0) {}
 

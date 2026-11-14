@@ -106,7 +106,7 @@ struct ModelData_unk {
 // inferred: pose of a model, built on the stack to compute the joint matrices (constructor
 // 0x800904E0; 0x58 bytes); its two callbacks are destroyed inline. Names invented.
 struct ModelPose_unk {
-    ModelPose_unk(ModelData_unk* model, atn::Matrix3x4* matrices, const int* remap, boost::function<void()> callback,
+    ModelPose_unk(ModelData_unk* model, atn::Matrix3x4* matrices, const int* remap, atn::ModelNodeCallback_unk callback,
                   const unsigned int* extra, int extraCount);
     void fn_80090584(atn::ModelNodeCallback_unk callback); // inferred: sets the node callback
     // inferred: node edits (names invented)
@@ -124,7 +124,7 @@ struct ModelPose_unk {
     const short* m0C;
     const void* m10; // inferred: node edits (Event::PoseKey_unk)
     unsigned int m14;
-    boost::function<void()> m18;
+    atn::ModelNodeCallback_unk m18; // inferred: node callback of the sorted nodes m40 (same nonnull 0x8009B938 as m2C)
     atn::ModelNodeCallback_unk m2C;
     const unsigned int* m40; // inferred: sorted nodes with the callback enabled (Model::mCC)
     int m44;
