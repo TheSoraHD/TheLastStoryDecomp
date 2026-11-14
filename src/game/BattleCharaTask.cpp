@@ -584,6 +584,10 @@ static inline void ReleaseTarget_unk(CharaTask* self) {
         }
     }
 }
+// inferred: the camera kept its sub mode (name invented)
+static inline bool IsSameMode_unk(const GameCamera* camera) {
+    return camera->m7FC == camera->m800;
+}
 // inferred: dot product of two vectors passed by reference (name invented)
 static inline float Dot_unk(const atn::Vector3& a, const atn::Vector3& b) {
     return PSVECDotProduct(&a, &b);
@@ -609,8 +613,8 @@ static inline int AttackButton_unk() {
     return button;
 }
 
-// NONMATCHING: 99.5% - r0/r3 swapped in the target checks, the lock-on input reloads lbl_8087F0A8 (here config),
-// store order of the direction to the target, the camera mode loads and the flag word reload before mFlag5
+// NONMATCHING: 99.5% - r0/r3 swapped in the target checks, the lock-on input reloads lbl_8087F0A8 (here config)
+// and the flag word reload before mFlag5 = 0
 // inferred: input of the leader (called by GameTask::fn_8036CC90): lock-on, cover actions, gimmicks and items
 // in reach, the button hint of the HUD (GameUI::m764) and the input of the weapon (fn_800E62AC/fn_800E7650)
 void BattleCharaTask::fn_800E4278(GameTask* task) {
@@ -637,7 +641,7 @@ void BattleCharaTask::fn_800E4278(GameTask* task) {
     if (m55C == 1 && !mFlagB9) {
         GameScene* scene;
         if (mFlag6) {
-            if (camera->m800 == camera->m7FC) {
+            if (IsSameMode_unk(camera)) {
                 atn::Vector3 rot = mRot;
                 rot.y = 3.1415927f + camera->mRot.y;
                 mRot = rot;
@@ -683,7 +687,8 @@ void BattleCharaTask::fn_800E4278(GameTask* task) {
                                     if (side == 3) {
                                         mode = 2;
                                     }
-                                    atn::Vector3 to(target.mPos.x - mPos.x, 0.0f, target.mPos.z - mPos.z);
+                                    atn::Vector3 to = target.mPos - mPos;
+                                    to.y = 0.0f;
                                     if (PSVECSquareMag(&to) > 0.001f) {
                                         PSVECNormalize(&to, &to);
                                     } else {
@@ -924,7 +929,7 @@ void BattleCharaTask::fn_800E4278(GameTask* task) {
             break;
         case 0x62:
             if (mFlag6) {
-                if (camera->m800 == camera->m7FC) {
+                if (IsSameMode_unk(camera)) {
                     atn::Vector3 rot = mRot;
                     rot.y = 3.1415927f + camera->mRot.y;
                     mRot = rot;
