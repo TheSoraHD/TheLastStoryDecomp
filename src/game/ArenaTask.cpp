@@ -2,6 +2,7 @@
 #include "game/GameScene.h"
 #include "game/GameUI.h"
 #include "game/CharaTask.h"
+#include "game/BattleTask.h"
 #include "atn/Memory.h"
 #include "atn/SoundRef.h"
 #include "macros.h"
@@ -25,18 +26,7 @@ struct ArenaField_unk {
 extern "C" ArenaField_unk* lbl_8087F430;
 
 
-// inferred: enemy manager (lbl_8087F048); slots of 0x934 bytes
-struct ArenaEnemySlot_unk {
-    CharaTask* mChara;
-    unsigned char m04[0x934 - 0x4];
-};
-struct ArenaEnemyMgr_unk {
-    unsigned char m00[0xCBF0];
-    ArenaEnemySlot_unk mSlots[72]; // 0xCBF0
-    unsigned char m36290[0x363B0 - 0x36290];
-    int mNumSlots; // 0x363B0
-};
-extern "C" ArenaEnemyMgr_unk* lbl_8087F048;
+extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
 
 static ArenaTask* sInstance;
 
@@ -186,12 +176,12 @@ void ArenaTask::fn_80043A24() {
     if (mTable == 0) {
         return;
     }
-    ArenaEnemyMgr_unk* mgr = lbl_8087F048;
+    BattleTask* mgr = lbl_8087F048;
     if (mgr == 0) {
         return;
     }
-    ArenaEnemySlot_unk* slot = mgr->mSlots;
-    int n = mgr->mNumSlots;
+    BattleChara_unk* slot = mgr->mCharas;
+    int n = mgr->mCharaCount;
     for (int i = 0; i < n && !mEntries.full(); i++) {
         mEntries.PushBack_unk(Entry_unk(slot->mChara));
         slot++;

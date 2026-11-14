@@ -3,6 +3,7 @@
 #include "game/GameVoice.h"
 #include "chr/ControlCharge.h"
 #include "game/CharaTask.h"
+#include "game/BattleTask.h"
 #include "atn/Memory.h"
 #include <boost/bind.hpp>
 #include "game/Input_unk.h"
@@ -36,23 +37,11 @@ extern "C" void* lbl_8087EE98;
 extern "C" int fn_8004ED34(void* colli, atn::ColliResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg7);
 
-// inferred: color (four floats) of the effect manager behind lbl_8087F048; names invented
-struct WallColor_unk {
-    WallColor_unk(float r_, float g_, float b_, float a_) : r(r_), g(g_), b(b_), a(a_) {}
-    float r;
-    float g;
-    float b;
-    float a;
-};
-struct WallEffect_unk {
-    unsigned char m00000[0x3E304];
-    WallColor_unk m3E304; // inferred: fade color of the screen
-};
-extern "C" WallEffect_unk* lbl_8087F048;
-extern "C" int fn_800F8548(WallEffect_unk* mgr);
-extern "C" void fn_800FAB80(WallEffect_unk* mgr, CharaTask* owner, HitInfo_unk* bullet, int arg3, const atn::Vector3* pos,
+extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
+extern "C" int fn_800F8548(BattleTask* mgr);
+extern "C" void fn_800FAB80(BattleTask* mgr, CharaTask* owner, HitInfo_unk* bullet, int arg3, const atn::Vector3* pos,
                             const atn::Vector3* rot, int arg6, int arg7, int arg8, int arg9, float arg10, float arg11);
-extern "C" void fn_800FB4B0(WallEffect_unk* mgr, CharaTask* owner, HitInfo_unk* bullet, int arg3, const atn::Vector3* pos,
+extern "C" void fn_800FB4B0(BattleTask* mgr, CharaTask* owner, HitInfo_unk* bullet, int arg3, const atn::Vector3* pos,
                             int arg5, int arg6, int arg7, int arg8);
 
 
@@ -155,9 +144,9 @@ int ControlWallUp::vf0C() {
         to.y += 10.0f;
         atn::ColliResult_unk result;
         if (fn_8004ED34(lbl_8087EE98, &result, &from, &to, 0x80000020, 0, 0)) {
-            lbl_8087F048->m3E304 = WallColor_unk(0.6f, 0.6f, 0.6f, 1.0f);
+            lbl_8087F048->m3E304 = EffectColor_unk(0.6f, 0.6f, 0.6f, 1.0f);
         } else {
-            lbl_8087F048->m3E304 = WallColor_unk(1.0f, 1.0f, 1.0f, 1.0f);
+            lbl_8087F048->m3E304 = EffectColor_unk(1.0f, 1.0f, 1.0f, 1.0f);
         }
     } else {
         m08 = mChara->mC58.fn_8011BF3C(mChara->m648->m04);
@@ -286,12 +275,12 @@ int ControlWallSlash::vf0C() {
             m30 = 1;
             mChara->fn_8016DA4C();
             CharaTask* chara = mChara;
-            WallEffect_unk* effect = lbl_8087F048;
+            BattleTask* effect = lbl_8087F048;
             HitInfo_unk* hit = chara->m638;
             fn_800FAB80(effect, mChara, hit, fn_800F8548(effect), &chara->mPos, &chara->mRot, 0, 30, -1, -1, 0.0f, 1.0f);
             if (mChara->mStatus.HasTimer_unk()) {
                 HitInfo_unk* bullet = fn_80219E6C(0x1395);
-                WallEffect_unk* effect2 = lbl_8087F048;
+                BattleTask* effect2 = lbl_8087F048;
                 fn_800FB4B0(effect2, mChara, bullet, fn_800F8548(effect2), &mChara->mPos, 0, 30, -1, 1);
                 if (mChara->fn_801789D8(0x1395, 0)) {
                     mChara->fn_80178864(bullet, mChara);

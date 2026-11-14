@@ -1,6 +1,7 @@
 // inferred file name (splits-auto): AI helpers of the scripts of AI/AI_archer_attack01.cpp. They
 // work on the current character (lbl_8087EE60) and on lists of 16 characters.
 #include "game/CharaTask.h"
+#include "game/BattleTask.h"
 #include "game/AiTarget.h"
 #include "game/GameScene.h"
 #include "game/NpcManager.h"
@@ -38,22 +39,7 @@ struct Field_unk {
     RouteTable_unk* m10D8;
 };
 extern "C" Field_unk* lbl_8087F430;
-// inferred: enemy manager (lbl_8087F048); slots of 0x934 bytes (as in game/ArenaTask.cpp)
-struct AiEnemySlot_unk {
-    CharaTask* mChara;
-    unsigned char m04[0x934 - 0x4];
-};
-struct AiEnemyMgr_unk {
-    unsigned char m00[0xCBF0];
-    AiEnemySlot_unk mSlots[72]; // 0xCBF0
-    unsigned char m36290[0x363B0 - 0x36290];
-    int mNumSlots; // 0x363B0
-};
-extern "C" AiEnemyMgr_unk* lbl_8087F048;
-// inferred: same object as lbl_8087F048 seen from game/CharaTask.cpp (names invented)
-struct Effect_unk {
-    CharaTask* fn_8010C948(CharaTask* chara); // inferred: a target for the character
-};
+extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
 // inferred: team manager (lbl_8087FA00); members of 0x37C bytes
 struct AiTeamMember_unk {
     unsigned char m000[0x218];
@@ -118,8 +104,8 @@ extern "C" void fn_8001A464(CharaTask** list) {
 extern "C" void fn_8001A510(CharaTask** list) {
     CharaTask* self = lbl_8087EE60;
     int count = 0;
-    AiEnemySlot_unk* slots = lbl_8087F048->mSlots;
-    for (int i = 0; i < lbl_8087F048->mNumSlots; i++) {
+    BattleChara_unk* slots = lbl_8087F048->mCharas;
+    for (int i = 0; i < lbl_8087F048->mCharaCount; i++) {
         CharaTask* chara = slots[i].mChara;
         if (chara != 0 && chara->IsActive_unk() && self->fn_8016F3D0(chara, 1) &&
             (self->mC58.mB4 <= 0 || chara->mC58.mB4 <= 0 || self->mC58.mB4 == chara->mC58.mB4)) {
@@ -352,7 +338,7 @@ extern "C" void fn_8001AEDC(unsigned int order, int* a, int* b, int* c, int* d) 
     case 17:
     {
         float radius = *a;
-        ai->fn_8011CA08(self, ((Effect_unk*)lbl_8087F048)->fn_8010C948(self), radius);
+        ai->fn_8011CA08(self, lbl_8087F048->fn_8010C948(self), radius);
     }
         break;
     case 20:

@@ -133,7 +133,7 @@ extern "C" void* lbl_8087F610; // inferred: multiplayer session
 extern "C" EnvSeManager* lbl_8087F418;
 extern "C" TownTask* lbl_8087FA20;
 extern "C" ArenaTask* lbl_8087EE78;
-extern "C" atn::Task* lbl_8087F048;
+extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
 extern "C" PlayerManager* lbl_8087F8A0;
 struct SoundManager_unk {
     unsigned char m0000[0x2984];
@@ -348,7 +348,7 @@ int GameScene::vf0C() {
                 lbl_8087FA20->fn_805B7B04(pos);
             }
             if (lbl_8087F048 != 0) {
-                ((BattleTask*)lbl_8087F048)->fn_801027A4(lbl_8087F8A0->mHead);
+                lbl_8087F048->fn_801027A4(lbl_8087F8A0->mHead);
             }
             CrowdManager::fn_801EA4B0(this, (CrowdDesc_unk*)&mD4, m68);
             if (lbl_8087FA20 == 0) {
@@ -485,7 +485,7 @@ atn::Task* GameScene::fn_803C0938(unsigned int index) {
     player->m58 = m90[index].mId;
     player->mC58.mHeld_unk = 1;
     if (lbl_8087F048 != 0) {
-        ((BattleTask*)lbl_8087F048)->fn_801027A4(player);
+        lbl_8087F048->fn_801027A4(player);
     }
     player->vf30(lbl_8087F8A0->m5C);
     if (m90[index].m28 > 0) {
@@ -522,7 +522,7 @@ atn::Task* GameScene::fn_803C0C2C(unsigned int index) {
     }
     enemy->mC58.mHeld_unk = 1;
     if (lbl_8087F048 != 0) {
-        ((BattleTask*)lbl_8087F048)->fn_801027A4(enemy);
+        lbl_8087F048->fn_801027A4(enemy);
     }
     if (lbl_8087F0A8->m07C != 0) {
         enemy->vf30(EnemyManager::sInstance->m58);
