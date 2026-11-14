@@ -8,7 +8,7 @@
 
 namespace atn {
 
-// NONMATCHING: weak copy at 0x804766B0 (fn_804766B0), same register difference as the other
+// NONMATCHING: 99.x% - weak copy at 0x804766B0, same register difference as the other
 // Get_unk copies (see atn/LoadManager.h). Instantiated here so that objdiff can show it.
 template LoadMotion* Loader::Get_unk<LoadMotion>(const char* path, int cached);
 
