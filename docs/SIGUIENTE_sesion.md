@@ -5,7 +5,7 @@
 > `claude/port-cabeceras-20261114.md` (proyecto).
 
 Estado: **15424 -> 15450 / 18109**, lost 0, sin bajadas, rep100 138, labelcheck 19, `main.dol: OK`. Funciones al 0 %:
-**199**. 34 DRAFT (0 en la ruta). Enlazan 144 unidades del juego/motor + HBMBase.
+**199**. 34 DRAFT (0 en la ruta). Enlazan 143 unidades del juego y del motor (como antes) y, entre las librerias, HBMBase.
 
 ## Decisiones pendientes del usuario
 
