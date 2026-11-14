@@ -1557,25 +1557,6 @@ extern "C" float fn_8006EF48(void* font, float size, const wchar_t* text, float 
 extern "C" int fn_800DD3FC(wchar_t* s, const wchar_t* format, ...); // inferred: wide sprintf
 extern "C" unsigned long wcslen(const wchar_t* s);
 
-namespace std {
-// inferred: operator+ of the MSL string (weak copy 0x805ADB28, only used here); not in std/string.h, where a new
-// template renumbers the @N labels of every unit that includes it
-// NONMATCHING: 62% - the original reads data and size of each string from one test (private members: needs a
-// friend declaration in std/string.h)
-template <class T, class Traits, class Alloc>
-basic_string<T, Traits, Alloc> operator+(const basic_string<T, Traits, Alloc>& lhs,
-                                         const basic_string<T, Traits, Alloc>& rhs) {
-    basic_string<T, Traits, Alloc> r;
-    const T* ld = lhs.data();
-    typename basic_string<T, Traits, Alloc>::size_type ln = lhs.size();
-    const T* rd = rhs.data();
-    typename basic_string<T, Traits, Alloc>::size_type rn = rhs.size();
-    r.reserve(ln + rn);
-    r.do_replace(0, 0, ld, ld + ln, random_access_iterator_tag());
-    r.do_replace(ln, 0, rd, rd + rn, random_access_iterator_tag());
-    return r;
-}
-} // namespace std
 
 // inferred: windows of the character under the cursor (m48): the select window over its position with the
 // four command panes (mDirs) placed on its anchors, the tension mark, the fade in (mLayouts.m20 frames), the
