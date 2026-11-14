@@ -225,7 +225,7 @@ class PostFxGodRay : public IPostFx {
 public:
     PostFxGodRay();
     virtual ~PostFxGodRay() {}
-    virtual void vf10(void* camera);
+    virtual void vf10(RenderManager* view);
     int fn_800AEF4C();
     void fn_800AEF68();
 
@@ -327,7 +327,7 @@ void PostFxGodRay::fn_800AEF68() {
 }
 
 // NONMATCHING: 99.84% - FPR allocation of the color lerp
-void PostFxGodRay::vf10(void* camera) {
+void PostFxGodRay::vf10(RenderManager* view) {
     int fullW;
     int fullH;
     GXSetZMode(0, 3, 0);

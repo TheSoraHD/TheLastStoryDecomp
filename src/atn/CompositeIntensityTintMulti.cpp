@@ -4,6 +4,7 @@
 #include "atn/Memory.h"
 #include "atn/IRender.h"
 #include "std/vector.h"
+#include "atn/TextureComposite.h"
 
 // The cache of composed textures (0x800D81CC-0x800D87A4) comes from another file (own "" pool at
 // 0x80734758, own destructor chain entry 0x807C77E8); its object is a function-level static of an inline
@@ -55,13 +56,6 @@ inline int fn_800D8870(atn::Texture_unk* tex) {
 namespace atn {
 
 // atn::Color4f_unk is atn::Color (atn/Color.h)
-
-
-// inferred: RGBA color of the commands (see atn/TextureComposite.cpp)
-struct CompositeColor_unk {
-    CompositeColor_unk() {}
-    float r, g, b, a;
-};
 
 
 // inferred: cache of composed textures (an MSL std::list in a function-level static; names invented)
@@ -118,90 +112,6 @@ void CompositeCacheHandle_unk::Release_unk() {
         mEntry = 0;
     }
 }
-
-// inferred: see atn/TextureComposite.cpp
-class TextureCompositeCommand {
-public:
-    virtual ~TextureCompositeCommand() {}
-    virtual void vf0C() = 0;
-};
-
-class TextureCompositeMaskIntensitySingle : public TextureCompositeCommand {
-public:
-    TextureCompositeMaskIntensitySingle(Texture_unk* a, Texture_unk* b, Texture_unk* c, Color4f_unk color0,
-                                        Color4f_unk color1)
-        : m04(a), m08(c), m0C(b) {
-        m10.r = color0.r;
-        m10.g = color0.g;
-        m10.b = color0.b;
-        m10.a = color0.a;
-        m20.r = color1.r;
-        m20.g = color1.g;
-        m20.b = color1.b;
-        m20.a = color1.a;
-    }
-    virtual ~TextureCompositeMaskIntensitySingle() {}
-    virtual void vf0C();
-
-    Texture_unk* m04;
-    Texture_unk* m08;
-    Texture_unk* m0C;
-    CompositeColor_unk m10;
-    CompositeColor_unk m20;
-};
-
-class TextureCompositeCopy : public TextureCompositeCommand {
-public:
-    TextureCompositeCopy(Texture_unk* tex, const Color4f_unk& color) : m04(tex) {
-        m08.r = color.r;
-        m08.g = color.g;
-        m08.b = color.b;
-        m08.a = color.a;
-    }
-    virtual ~TextureCompositeCopy() {}
-    virtual void vf0C();
-
-    Texture_unk* m04;
-    CompositeColor_unk m08;
-};
-
-class TextureCompositeCopyAlpha : public TextureCompositeCommand {
-public:
-    TextureCompositeCopyAlpha(Texture_unk* tex, const Color4f_unk& color) : m04(tex) {
-        m08.r = color.r;
-        m08.g = color.g;
-        m08.b = color.b;
-        m08.a = color.a;
-    }
-    virtual ~TextureCompositeCopyAlpha() {}
-    virtual void vf0C();
-
-    Texture_unk* m04;
-    CompositeColor_unk m08;
-};
-
-struct TextureCompositeCommandList_unk : public std::vector<TextureCompositeCommand*> {};
-
-class TextureComposite : public IRender {
-public:
-    TextureComposite();
-    virtual ~TextureComposite();
-    virtual void vf10(RenderManager* view);
-    virtual int vf14(const Matrix3x4* view, const Vector3* eye, const Frustum_unk* frustum, AABB_unk* box) {
-        return 1;
-    }
-    virtual void vf18(RenderManager* view) {}
-
-    void Request_unk(Texture_unk* texture, int format);
-    void fn_800D8C0C(Texture_unk* alpha) { m10 = alpha; }
-    void fn_800D8894(TextureCompositeCommand* command) { mCommands.push_back(command); } // weak copy 0x800D8894
-
-    int m04;
-    int m08;
-    Texture_unk* m0C;
-    Texture_unk* m10;
-    TextureCompositeCommandList_unk mCommands; // 0x14
-};
 
 // inferred: interface of the texture compositors
 class ITextureCompositor {

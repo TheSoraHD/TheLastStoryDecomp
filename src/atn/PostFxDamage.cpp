@@ -140,14 +140,14 @@ class PostFxDamage : public IPostFx {
 public:
     PostFxDamage();
     virtual ~PostFxDamage() {}
-    virtual void vf10(void* camera);
+    virtual void vf10(RenderManager* view);
 };
 
 PostFxDamage::PostFxDamage() {}
 
 // NONMATCHING: 98.11% - registers of the sizes/images at the start (w/h in r23/r22 in the original), the shift
 // of the tint is computed with mfcr instead of branches and the K color slots are swapped (~12 variants)
-void PostFxDamage::vf10(void* camera) {
+void PostFxDamage::vf10(RenderManager* view) {
     static int sLoaded;
     static Texture_unk sEdge;
     if (sLoaded == 0) {
