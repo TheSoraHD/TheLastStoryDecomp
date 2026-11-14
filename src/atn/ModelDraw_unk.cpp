@@ -5,6 +5,7 @@
 #include "atn/GXDecl.h"
 #include "atn/LH_Model.h"
 #include "atn/Material_unk.h"
+#include "atn/LayerShadow.h"
 #include "atn/Shader_unk.h"
 #include "atn/Sphere.h"
 #include "atn/Texture_unk.h"
@@ -297,7 +298,7 @@ extern "C" void fn_800761A8(DrawRender_unk* rs);
 extern "C" void fn_800763C0(DrawRender_unk* rs, int stage, void* texture);
 extern "C" void fn_8007642C(DrawRender_unk* rs, int index, void* light);
 extern "C" void fn_80076760(DrawRender_unk* rs, int state, int value);
-extern "C" void fn_80076A28(DrawRender_unk* rs, void* blend);
+extern "C" void fn_80076A28(DrawRender_unk* rs, const atn::GXStateBits_unk* state);
 extern "C" void fn_80076BE4(DrawRender_unk* rs, void* vtx);
 extern "C" void fn_80074EC8(DrawRender_unk* rs, DrawDesc_unk* desc, unsigned int flags, void* light, void* shadow,
                             void* arg);
@@ -599,7 +600,7 @@ void fn_8009BF3C(DrawMesh_unk* mesh, Material_unk* mat, atn::Scene* lens, DrawCo
     fn_8009C688(mat);
     fn_8009C84C(mat);
     DrawRender_unk* rs = lbl_8087EEE0;
-    fn_80076A28(rs, (unsigned char*)mat + 0x14);
+    fn_80076A28(rs, &mat->mState);
     GXSetTevSwapModeTable(3, SwapR_unk(mat->m38), SwapG_unk(mat->m38), SwapB_unk(mat->m38), SwapA_unk(mat->m38));
     if (atn::RenderManager::instance_->m2F8 == 4 && (int)mat->m14_19 == 1) {
         fn_80076760(rs, 6, 2);
@@ -1006,9 +1007,9 @@ void fn_8009D58C(DrawEntry_unk* entry, DrawNode_unk* node, DrawPart_unk* part, i
     cmd.m38 = entry->m0C->m50[part->m00];
     float dist = 0.0f;
     if (lbl_8087EFB0 != 0) {
-        DrawPass_unk* view = (DrawPass_unk*)atn::RenderManager::instance_->mLayers[3]; // pending: view of the layer (LayerShadow)
-        atn::Vector3 d(view->m7C.x - entry->m30.mCenter.x, view->m7C.y - entry->m30.mCenter.y,
-                       view->m7C.z - entry->m30.mCenter.z);
+        atn::LayerShadow* shadow = (atn::LayerShadow*)atn::RenderManager::instance_->mLayers[3];
+        atn::Vector3 d(shadow->mCamera.mPos.x - entry->m30.mCenter.x, shadow->mCamera.mPos.y - entry->m30.mCenter.y,
+                       shadow->mCamera.mPos.z - entry->m30.mCenter.z);
         dist = PSVECMag(&d);
     }
     if (flags & 4) {
@@ -1127,7 +1128,7 @@ void fn_8009DE60(DrawCmd_unk* cmd, float dist) {
             fn_8009B9E8(mat, mesh, sub, mtx, cache);
             GXCallDisplayList(sub->m38->m14, sub->m38->m10);
         }
-        fn_80076A28(rs, (unsigned char*)mat + 0x14);
+        fn_80076A28(rs, &mat->mState);
         fn_800761A8(rs);
     } else {
         for (int i = 0; i < mesh->m4C; i++) {

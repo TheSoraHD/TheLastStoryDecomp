@@ -21,6 +21,7 @@ struct ShaderDesc_unk;
 }
 
 #include "atn/String_unk.h"
+#include "atn/GXStateBits_unk.h"
 
 // inferred: UV transform of a texture stage (0x14 bytes); the defaults are const objects of
 // .sdata2 (0x80880B88-0x80880B98) that atn/ModelDraw_unk.cpp also reads
@@ -166,20 +167,27 @@ struct Material_unk {
     ShaderTex_unk* m08;
     TexStage_unk* m0C; // inferred: texture stages (m4A)
     TexAnim_unk* m10;  // inferred: texture animations (m4B)
-    unsigned int m14_0 : 1;
-    unsigned int m14_1 : 3;
-    unsigned int m14_4 : 8;
-    unsigned int m14_12 : 1;
-    unsigned int m14_13 : 3;
-    unsigned int m14_16 : 3;
-    unsigned int m14_19 : 1;
-    unsigned int m14_20 : 1;
-    unsigned int m14_21 : 1;
-    unsigned int m14_22 : 3;
-    unsigned int m14_25 : 1;
-    unsigned int m14_26 : 1;
-    unsigned int m14_27 : 1;
-    unsigned int m14_28 : 4;
+    // 0x14: GX pixel state of the material (sent with fn_80076A28); the parser and the shaders use the
+    // m14_* fields
+    union {
+        struct {
+        unsigned int m14_0 : 1;
+        unsigned int m14_1 : 3;
+        unsigned int m14_4 : 8;
+        unsigned int m14_12 : 1;
+        unsigned int m14_13 : 3;
+        unsigned int m14_16 : 3;
+        unsigned int m14_19 : 1;
+        unsigned int m14_20 : 1;
+        unsigned int m14_21 : 1;
+        unsigned int m14_22 : 3;
+        unsigned int m14_25 : 1;
+        unsigned int m14_26 : 1;
+        unsigned int m14_27 : 1;
+        unsigned int m14_28 : 4;
+        };
+        atn::GXStateBits_unk mState;
+    };
     GXColor mColor; // 0x18: inferred: material colour
     GXColor m1C;    // inferred: ambient colour
     GXColor m20;
