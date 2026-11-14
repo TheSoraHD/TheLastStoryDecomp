@@ -116,6 +116,9 @@ public:
     void fn_803903E0(const atn::Vector3* target, float angle, int arg); // inferred: turns toward `target`
     void fn_80392C94(GameCameraState_unk* state) const; // inferred: saves the mode
     void fn_80392CE0(const GameCameraState_unk* state); // inferred: restores it
+    // inferred: makes the render camera blend back from the given camera (weight 1, decreased by the rate every
+    // frame); 0x80392D2C
+    void fn_80392D2C(const atn::Camera*, float);
     void fn_803933A4(); // inferred: reset of the event state
     void fn_8037F744(); // inferred: update of the camera mode (tables 0x8074E018 and 0x8074E114)
     void fn_8037ECF0(const char* name, void* menu, GameCameraParam_unk* param); // inferred: debug menu of a mode

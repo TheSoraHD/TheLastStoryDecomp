@@ -4244,10 +4244,10 @@ void GameCamera::fn_80392CE0(const GameCameraState_unk* state) {
 // NONMATCHING: 98.8% - the copy of the camera, as fn_80392A04
 // inferred: makes the render camera blend back from `from` (weight 1, decreased by `rate` every frame);
 // called with the camera of the field (EnemyQuarkStand, GameEventScript)
-extern "C" void fn_80392D2C(GameCamera* camera, const atn::Camera* from, float rate) {
-    camera->mA20 = *from;
-    camera->mC14 = 1.0f;
-    camera->mC18 = rate;
+void GameCamera::fn_80392D2C(const atn::Camera* from, float rate) {
+    mA20 = *from;
+    mC14 = 1.0f;
+    mC18 = rate;
 }
 
 // NONMATCHING: 83% - stack slots of the (a - b) and (a - b) * t temporaries swapped and the float registers
