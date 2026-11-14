@@ -239,6 +239,17 @@ void Puppeteer<atn::Model>::vf10() {
     m54 = 0;
 }
 
+} // namespace Event
+
+namespace atn {
+// inferred: inline of atn::Model (its only copy is here): the matrix stack from the node poses of the model
+inline void Model::CalcMatrixStack(ModelNodeCallback_unk callback) {
+    ModelBase::CalcMatrixStack((const MotionBuffer*)m21C.mData, callback);
+}
+} // namespace atn
+
+namespace Event {
+
 template <>
 void Puppeteer<atn::Model>::vf14() {
     if (m4C_0 != 1) {
