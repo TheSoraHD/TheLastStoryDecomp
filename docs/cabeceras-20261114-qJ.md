@@ -90,3 +90,13 @@ ActionActorPosition (`vf0C__Q25Event19ActionActorPosition`, 98,67 % en HEAD) y P
   implicito (despues MWCC da "object redefined"); la copia debil sale igualmente detras del primer llamador.
 - Locales con constructor de una inline dentro de otra inline (dos niveles) reciben ranuras de pila en orden
   inverso al de declaracion; con un nivel, en orden directo (ActionActorPosition frente a Em403WarLion).
+
+## Pendientes
+
+- Punto 1 (PathLengths_unk en WindyItem, PathData_unk, ActionActorPosition): ver arriba; el arreglo de fondo es
+  el ctor/dtor de `std::vector<float>` en `std/vector.h` (cola A3) y unificar los trazados con
+  `Event::PathSpline_unk` (resize reales + renombrar 0x8032B314/0x8032BE88).
+- `Event/MovieState_unk.h` (otra vista de `VideoTHP`, toca `Event/Manager.h`).
+- Vistas locales de las ocho `PostFx*` y `PostFxManager` en LinearAllocator (unidad enlazada; derivan de
+  `IRender` en vez de `IPostFx`) y en `atn/PostFxManager.h`.
+- GameTask::fn_803729B4: el ctor vacio de `atn::Matrix3x4` que el original no llama.
