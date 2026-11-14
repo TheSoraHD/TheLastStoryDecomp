@@ -38,6 +38,7 @@
 #include "chr/ControlCharge.h"
 #include "chr/ControlWallUp.h"
 #include "chr/ControlMountle.h"
+#include "chr/ControlCannonLift.h"
 #include "game/GameEventScript.h"
 #include "chr/ControlStool.h"
 #include "chr/ControlPushedDown.h"
@@ -1104,16 +1105,6 @@ extern "C" Field_unk* fn_80121F00();
 extern "C" Settings_unk* fn_800F52F8();
 extern "C" void* fn_800F7F90();
 
-namespace chr {
-
-// inferred: control of chr/ControlCannonLift.cpp (vtable stored by 0x801A1BE4)
-class ControlCannonTarget : public ControlBase {
-public:
-    ControlCannonTarget(Chara_unk* chara); // 0x801A1BE4
-    virtual int vf0C();
-    unsigned char m08[0x30 - 0x08];
-};
-} // namespace chr
 
 void CharaTask::fn_80139560() {
     atn::Vector3 rot(mRot);
@@ -10298,22 +10289,6 @@ int CharaTask::fn_801749EC(atn::Vector3* pos, atn::Vector3* vel) {
     return 0;
 }
 
-namespace chr {
-
-// inferred: controls of chr/ControlCannonLift.cpp (names from the vtables stored by the constructors)
-class ControlCannonLift : public ControlBase {
-public:
-    ControlCannonLift(Chara_unk* chara, GimmickCommon* cannon); // 0x801A0BA8
-    virtual int vf0C();
-    unsigned char m08[0x10 - 0x08];
-};
-class ControlCannonThrow : public ControlBase {
-public:
-    ControlCannonThrow(Chara_unk* chara, const atn::Vector3& dir, float speed); // 0x801A17A4
-    virtual int vf0C();
-    unsigned char m08[0x18 - 0x08];
-};
-} // namespace chr
 
 void CharaTask::fn_80174E04(GimmickCommon* cannon) {
     fn_80178208(new ((MemoryTag)0, "", "", 0) chr::ControlCannonLift(this, cannon));

@@ -973,34 +973,33 @@ void atn::RenderManager::fn_800C06B0(const atn::FogSettings* fog) {
     // NONMATCHING: 98.06% - stack slots of the colours: the original passes GXColor by value (temporaries
     // after the named colour); declared so, fn_800C08B0 loses its scheduling (71%)
     if (lbl_8087EFA8->m02C != 0) {
-        if (*(int*)((unsigned char*)this + 0x890) != 0) {
-            *(int*)((unsigned char*)this + 0x890) = 0;
+        if (m890 != 0) {
+            m890 = 0;
             unsigned int color = 0;
-            float farZ = *(float*)((unsigned char*)this + 0x1D0);
-            float nearZ = *(float*)((unsigned char*)this + 0x1CC);
+            float farZ = mCamera.mFar;
+            float nearZ = mCamera.mNear;
             GXSetFog(0, &color, 0.0f, 0.0f, nearZ, farZ);
         }
         return;
     }
 
-    unsigned char* bytes = (unsigned char*)this;
-    if (*(int*)(bytes + 0x890) != 0 && *(const int*)fog == *(int*)(bytes + 0x894) &&
-        *(const float*)((const unsigned char*)fog + 4) == *(float*)(bytes + 0x898) &&
-        *(const float*)((const unsigned char*)fog + 8) == *(float*)(bytes + 0x89C) &&
-        *(const float*)((const unsigned char*)fog + 0xC) == *(float*)(bytes + 0x8A0) &&
-        *(const float*)((const unsigned char*)fog + 0x10) == *(float*)(bytes + 0x8A4) &&
-        *(const float*)((const unsigned char*)fog + 0x14) == *(float*)(bytes + 0x8A8)) {
+    if (m890 != 0 && fog->mMode == m894 &&
+        fog->mStart == m898 &&
+        fog->mEnd == m89C &&
+        fog->mColor.r == m8A0 &&
+        fog->mColor.g == m8A4 &&
+        fog->mColor.b == m8A8) {
         return;
     }
-    int fogType = *(const int*)fog;
-    *(int*)(bytes + 0x894) = fogType;
-    *(float*)(bytes + 0x898) = *(const float*)((const unsigned char*)fog + 4);
-    *(float*)(bytes + 0x89C) = *(const float*)((const unsigned char*)fog + 8);
-    *(int*)(bytes + 0x8A0) = *(const int*)((const unsigned char*)fog + 0xC);
-    *(int*)(bytes + 0x8A4) = *(const int*)((const unsigned char*)fog + 0x10);
-    *(int*)(bytes + 0x8A8) = *(const int*)((const unsigned char*)fog + 0x14);
-    *(int*)(bytes + 0x8AC) = *(const int*)((const unsigned char*)fog + 0x18);
-    *(int*)(bytes + 0x890) = 1;
+    int fogType = fog->mMode;
+    m894 = fogType;
+    m898 = fog->mStart;
+    m89C = fog->mEnd;
+    *(int*)&m8A0 = *(const int*)&fog->mColor.r;
+    *(int*)&m8A4 = *(const int*)&fog->mColor.g;
+    *(int*)&m8A8 = *(const int*)&fog->mColor.b;
+    *(int*)&m8AC = *(const int*)&fog->mColor.a;
+    m890 = 1;
 
     int type = 0;
     switch (fogType) {
@@ -1012,13 +1011,13 @@ void atn::RenderManager::fn_800C06B0(const atn::FogSettings* fog) {
     case 5: type = 7; break;
     }
     GXColor c;
-    c.r = (unsigned char)(255.0f * *(float*)(bytes + 0x8A0));
-    c.g = (unsigned char)(255.0f * *(float*)(bytes + 0x8A4));
-    c.b = (unsigned char)(255.0f * *(float*)(bytes + 0x8A8));
-    c.a = (unsigned char)(255.0f * *(float*)(bytes + 0x8AC));
+    c.r = (unsigned char)(255.0f * m8A0);
+    c.g = (unsigned char)(255.0f * m8A4);
+    c.b = (unsigned char)(255.0f * m8A8);
+    c.a = (unsigned char)(255.0f * m8AC);
     GXColor arg = c;
-    GXSetFog(type, &arg, *(float*)(bytes + 0x898), *(float*)(bytes + 0x89C),
-             *(float*)(bytes + 0x1CC), *(float*)(bytes + 0x1D0));
+    GXSetFog(type, &arg, m898, m89C,
+             mCamera.mNear, mCamera.mFar);
 }
 
 void atn::RenderManager::fn_800C08B0() {

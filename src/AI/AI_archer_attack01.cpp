@@ -1268,9 +1268,10 @@ extern "C" void* fn_8003E6B8(void* object, int freeObject);
 extern "C" void fn_8003E688();
 
 // inferred: three-word MSL string header; the high bit selects the heap-buffer representation.
+// inferred: words of the MSL std::string (__msl_size_t, so the layout also holds on LP64)
 struct AIString_unk {
-    unsigned int mFlags;
-    unsigned int mSize;
+    __msl_size_t mFlags;
+    __msl_size_t mSize;
     char* mData;
 };
 
