@@ -1742,7 +1742,13 @@ void Manager::fn_80484FBC() {
     }
     m1F10.clear();
 }
-// NONMATCHING: 86.8% - growth paths of the inlined std::vector::push_back (docs/msl_cpp.md)
+// inferred: the light is passed by value (the original copies it to a temporary before push_back)
+static inline void PushLight_unk(LightList_unk* list, atn::Light light) {
+    list->push_back(light);
+}
+
+// NONMATCHING: 95.1% - growth paths of the inlined std::vector::push_back: the original keeps the capacity in a
+// saved register and stores the 1 of __recommend_unk before the length check (std/vector.h)
 // inferred: adds the point light `id` of the event (replacing the one with the same id)
 void Manager::fn_80485028(int id, const atn::Vector3& pos, float radius, int color) {
     for (int i = 0; i < (int)m1F10.size(); i++) {
@@ -1757,10 +1763,10 @@ void Manager::fn_80485028(int id, const atn::Vector3& pos, float radius, int col
     unsigned int c = color;
     light.fn_800791B4(pos, atn::Color((1.0f / 255.0f) * ((c >> 16) & 0xFF), (1.0f / 255.0f) * ((c >> 8) & 0xFF), (1.0f / 255.0f) * (c & 0xFF),
                                      (1.0f / 255.0f) * (c >> 24)), radius);
-    lbl_8087EEF8->push_back(light);
+    PushLight_unk(lbl_8087EEF8, light);
 }
 
-// NONMATCHING: 87.5% - growth paths of the inlined std::vector::push_back (docs/msl_cpp.md)
+// NONMATCHING: 96.1% - growth paths of the inlined std::vector::push_back (see fn_80485028)
 // inferred: adds the spot light of the event (id -1)
 void Manager::fn_80485964(const atn::Vector3& pos, const atn::Vector3& dir, float a, float b, int color) {
     for (int i = 0; i < (int)m1F10.size(); i++) {
@@ -1775,10 +1781,10 @@ void Manager::fn_80485964(const atn::Vector3& pos, const atn::Vector3& dir, floa
     unsigned int c = color;
     light.fn_80079210(pos, dir, atn::Color((1.0f / 255.0f) * ((c >> 16) & 0xFF), (1.0f / 255.0f) * ((c >> 8) & 0xFF), (1.0f / 255.0f) * (c & 0xFF),
                                      (1.0f / 255.0f) * (c >> 24)), a, b);
-    lbl_8087EEF8->push_back(light);
+    PushLight_unk(lbl_8087EEF8, light);
 }
 
-// NONMATCHING: 87.2% - growth paths of the inlined std::vector::push_back (docs/msl_cpp.md)
+// NONMATCHING: 96.0% - growth paths of the inlined std::vector::push_back (see fn_80485028)
 // inferred: adds the directional light of the event (id -2)
 void Manager::fn_804862C4(const atn::Vector3& dir, int color) {
     for (int i = 0; i < (int)m1F10.size(); i++) {
@@ -1793,7 +1799,7 @@ void Manager::fn_804862C4(const atn::Vector3& dir, int color) {
     unsigned int c = color;
     light.fn_800790D0(dir, atn::Color((1.0f / 255.0f) * ((c >> 16) & 0xFF), (1.0f / 255.0f) * ((c >> 8) & 0xFF), (1.0f / 255.0f) * (c & 0xFF),
                                      (1.0f / 255.0f) * (c >> 24)));
-    lbl_8087EEF8->push_back(light);
+    PushLight_unk(lbl_8087EEF8, light);
 }
 
 // inferred: sets the color (0xAARRGGBB) and the blur of the god ray of the render scene and of the
