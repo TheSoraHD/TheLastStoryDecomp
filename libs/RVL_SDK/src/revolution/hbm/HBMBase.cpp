@@ -1508,9 +1508,8 @@ void HomeButton::calc_battery(int chan) {
     getController(chan)->clrBatteryFlag();
 }
 
-// NONMATCHING: 97.99% - la carga del color de la niebla se programa despues de los fmr
 void HomeButton::draw() {
-    GXColor fogClr = {0, 0, 0, 255};
+    static const GXColor fogClr = {0, 0, 0, 255};
     GXSetFog(GX_FOG_NONE, fogClr, 0.0f, 0.0f, 0.0f, 0.0f);
     GXSetTexCoordScaleManually(GX_TEXCOORD0, GX_FALSE, 0, 0);
     GXSetTexCoordCylWrap(GX_TEXCOORD0, GX_FALSE, GX_FALSE);
