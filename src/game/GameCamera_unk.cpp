@@ -3620,8 +3620,6 @@ void GameCamera::fn_803903E0(const atn::Vector3* target, float angle, int arg) {
 
 // ---- fn_80390A88: free camera of the tactical view ----
 extern "C" int fn_800A55D4(void* pad, int port, int button); // inferred: button held
-// inferred: TacView::fn_805AA94C (moves the view point with the stick; not declared in game/TacView.h)
-extern "C" void fn_805AA94C(TacView* view, atn::Vector3* pos, atn::Vector3* move, int free, int reset);
 // inferred: parts of TacView not declared in game/TacView.h (names invented): the object aimed at by the cursor
 // keeps its position at 0x10, and m15AC is a task with a state at 0x48
 struct TacViewTargetPos_unk {
@@ -3689,7 +3687,7 @@ void GameCamera::fn_80390A88() {
         if (lbl_8087F9F8->m15D8 == 1) {
             free = 1;
         }
-        fn_805AA94C(lbl_8087F9F8, &m8A4, &move, free, m8D4);
+        lbl_8087F9F8->fn_805AA94C(&m8A4, &move, free, m8D4);
         if (m8D4 != 0) {
             m8D4 = 0;
         }

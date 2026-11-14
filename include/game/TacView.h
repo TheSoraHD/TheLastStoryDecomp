@@ -136,6 +136,7 @@ public:
         fn_800CB5C8(&m16C0, 15, 0);
     }
     void fn_805AA82C(atn::Vector3* pos); // inferred: moves `pos` toward m159C
+    void fn_805AA94C(atn::Vector3*, atn::Vector3*, int, int); // inferred: cursor moved by the stick (GameCamera)
     void fn_805ADC00();
     void fn_805ADC10();
     // inferred: an entry for the character (and hit, if given) exists; `active` selects the state

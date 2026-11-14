@@ -17,6 +17,7 @@
 #include "game/SetConfig.h"
 #include "game/BattleCharaTask.h"
 #include "game/GameConfig_unk.h"
+#include "atn/Sphere.h"
 
 // inferred: sector (0 ahead, 1-7 clockwise, 8 none) of the direction `dir` seen from above
 int fn_805A6D20(const atn::Vector3& dir) {
@@ -160,6 +161,7 @@ extern "C" int fn_80219558(int id); // inferred: party member of a character id
 extern "C" int fn_8021A77C(HitInfo_unk* hit); // inferred: kind test of a skill
 // inferred: not written yet; they take the view as first argument (symbols without a C++ name)
 extern "C" void fn_805AC758(TacView* view);
+extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 
 // inferred: closes the view (body of fn_805AA734, inlined by vf10; name invented)
 static inline void TacViewClose_unk(TacView* v) {
@@ -982,6 +984,180 @@ void TacView::fn_805AA82C(atn::Vector3* pos) {
         m15A8--;
     }
     *pos += d;
+}
+
+// inferred: hit data of an effect as the overview window names it (the shared kinds of the skills; names
+// invented)
+static inline HitInfo_unk* TacViewInfoHit_unk(HitInfo_unk* hit, const TacViewSel_unk& sel) {
+    if (hit != 0) {
+        switch (hit->m04) {
+        case 7:
+        case 10:
+        case 13:
+        case 16:
+        case 17:
+        case 18:
+        case 20:
+        case 0x6D8:
+        case 0x4EF8:
+            hit = fn_80219E6C(30001);
+            break;
+        }
+        if (hit->m04 == 0x4EF9) {
+            hit = fn_80219E6C(30002);
+        }
+        if ((hit->m04 == 0x4EEC || hit->m04 == 0x4EED) && sel.mTarget->m08 != 0 && sel.mTarget->m08->mType == 2) {
+            hit = fn_80219E6C(3007);
+        }
+        if ((signed char)hit->m02 == 4 || (signed char)hit->m02 == 0) {
+            hit = 0;
+        }
+    }
+    return hit;
+}
+
+// inferred: moves the cursor of the view with the stick `move` (mode 1: to the nearest slot in that direction, or
+// along the links of the current one; `reset` forces it), or, in modes 0 and 4 with the hints on (`free`), shows
+// the info window of the effect or enemy nearest to `pos`
+// NONMATCHING: 97.4% - register allocation (best distance f0/f9, r31/r25) and the scheduling of the first
+// distance of the effect loop
+void TacView::fn_805AA94C(atn::Vector3* pos, atn::Vector3* move, int free, int reset) {
+    if (mA78 == 0 || mA78 == 4) {
+        if (SetConfig::sInstance->mTacviewHint != 0 && free != 0 && lbl_8087F490->mD90.m00 == 0) {
+            TacViewCursor_unk sel;
+            float best = 1e16f;
+            CharaTask* head = lbl_8087F8A0->mHead;
+            for (unsigned int i = 0; lbl_8087F9E8->GetBullet_unk(i) != 0; i++) {
+                SkillEffect* e = lbl_8087F9E8->GetBullet_unk(i);
+                if (e->m08 != 0 && e->m08->mC58.mB4 > 0 && head->mC58.mB4 > 0 &&
+                    e->m08->mC58.mB4 != head->mC58.mB4) {
+                    continue;
+                }
+                atn::Vector3 center = e->m10;
+                float r = e->m5C * e->m28;
+                float dist = (*pos - center).LengthSqXZ_unk();
+                if (r >= 15.0f && dist < r * r && dist < best) {
+                    best = dist;
+                    sel.m04 = 0;
+                    sel.mState = 1;
+                    sel.mTarget = (TacViewTarget_unk*)e;
+                }
+            }
+            for (EnemyTask* c = EnemyManager::sInstance->mHead; c != 0; c = c->mNext) {
+                if ((c->mFlags & 4) != 4 && (c->mStatus.m0C & 0x20) != 0x20 && (c->m54C & 0x2000) != 0x2000 &&
+                    static_cast<BattleCharaTask*>((CharaTask*)c)->m146C != 0x29) {
+                    atn::Vector3 cpos = c->mPos;
+                    float r = 2.2f * c->m5B0;
+                    float dist = (*pos - cpos).LengthSqXZ_unk();
+                    if (dist < r * r && dist < best) {
+                        best = dist;
+                        sel.mTarget = 0;
+                        sel.mState = 0;
+                        sel.m04 = c;
+                    }
+                }
+            }
+            if (sel.mState != 2 && sel.mState != 0) {
+                SkillEffect* e = (SkillEffect*)sel.mTarget;
+                HitInfo_unk* hit = TacViewInfoHit_unk(e->GetHit_unk(), sel);
+                if (hit != 0) {
+                    HitInfo_unk* link = e->GetHit_unk();
+                    if (link != 0 && (link->m04 == 0x4EF8 || link->m04 == 0x4EF9)) {
+                        link = fn_80219E6C(30000);
+                    }
+                    if ((link->m04 == 0x4EEC || link->m04 == 0x4EED) && e->m08 != 0 && e->m08->mType == 2) {
+                        link = fn_80219E6C(3007);
+                    }
+                    lbl_8087F490->fn_803E4A20((int)hit, (int)link);
+                    m15D4 = 1;
+                }
+            }
+        }
+    } else if (mA78 == 1) {
+        if (mA80 > 0) {
+            mA80--;
+        }
+        TacViewSel_unk cur = m48;
+        if ((PSVECSquareMag(move) > 0.0f && mA80 <= 0) || reset != 0) {
+            atn::Vector3 dir = *move;
+            if (dir.LengthSq_unk() < 0.09f) {
+                dir *= 0.0f;
+            } else {
+                dir.Normalize_unk();
+            }
+            Mtx m;
+            PSMTXRotRad(m, 'y', -lbl_8087F430->mCamera.m8A0);
+            PSMTXMultVec(m, &dir, &dir);
+            int sector = fn_805A6D20(atn::Vector3(dir));
+            if (sector == 8) {
+                return;
+            }
+            if (cur.mState == 2) {
+                TacViewSlot_unk* nearest[8];
+                memset(nearest, 0, sizeof(nearest));
+                float bestDist[8];
+                for (int k = 0; k < 8; k++) {
+                    bestDist[k] = 1e16f;
+                }
+                for (unsigned int i = 0; i < mSlots.mSize; i++) {
+                    TacViewSlot_unk* slot = &mSlots.mData[i];
+                    if (slot->mSel.mState == 2) {
+                        continue;
+                    }
+                    if (mA78 == 1 && slot->mSel.mState == 0 &&
+                        ((CharaTask*)m54.mType)->fn_8016F3D0(slot->mSel.m04, 1)) {
+                        continue;
+                    }
+                    // inferred: the slot starts as TacViewChara_unk (type, character, object), as in fn_805AB828
+                    atn::Vector3 d = ((const TacViewChara_unk*)slot)->fn_805AE138() - *pos;
+                    float len = d.x * d.x + d.z * d.z;
+                    if (len > 0.0f) {
+                        d.Normalize_unk();
+                    }
+                    int k = fn_805A6D20(atn::Vector3(d));
+                    if (k != 8 && len < bestDist[k]) {
+                        nearest[k] = slot;
+                        bestDist[k] = len;
+                    }
+                }
+                TacViewSlot_unk* slot = nearest[sector];
+                if (slot != 0) {
+                    m48 = slot->mSel;
+                    mA80 = 10;
+                    fn_805A70D4(8, 1.0f);
+                }
+            } else {
+                TacViewSlot_unk* slot = mSlots.mData;
+                for (unsigned int i = 0; i < mSlots.mSize; i++, slot++) {
+                    bool same;
+                    if (slot->mSel.mState == 0 && cur.mState == 0) {
+                        same = slot->mSel.m04 == cur.m04;
+                    } else if (slot->mSel.mState == 1 && cur.mState == 1) {
+                        same = true;
+                    } else {
+                        same = false;
+                    }
+                    if (same) {
+                        int order[3];
+                        order[0] = sector;
+                        order[1] = (sector + 1) % 8;
+                        order[2] = sector > 0 ? sector - 1 : 7;
+                        for (int k = 0; k < 3; k++) {
+                            TacViewSlot_unk* next = slot->mNear[order[k]];
+                            if (next != 0 && !(mA78 == 1 && next->mSel.mState == 0 &&
+                                               ((CharaTask*)m54.mType)->fn_8016F3D0(next->mSel.m04, 1))) {
+                                m48 = next->mSel;
+                                mA80 = 10;
+                                fn_805A70D4(8, 1.0f);
+                                return;
+                            }
+                        }
+                        return;
+                    }
+                }
+            }
+        }
+    }
 }
 
 // ---- fn_805AB828: list of the targets of the view (over the inlining budget: the accessors are weak copies) ----
