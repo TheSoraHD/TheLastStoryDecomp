@@ -45,12 +45,30 @@ ActionActorPosition (`vf0C__Q25Event19ActionActorPosition`, 98,67 % en HEAD) y P
   Ahora `vf10(RenderManager* view)`: vtable igual que el original (0x20, vf10 en 0x10). `symbols.txt`: los ocho
   `vf10__Q23atn<N>PostFx<X>FPv` -> `...FPQ23atn13RenderManager`. Porcentajes iguales; precommit OK.
 
+## 3b. Una sola `atn::VideoTHP` (`include/atn/VideoTHP.h`)
+
+- La cabecera tenia una vista sin bases (virtuales `vf0C..vf3C` sin argumentos, `int vf30()`); ahora declara
+  `DebugGroup_unk`, `atn::Vector2f_unk`, `atn::Video : IRender` y `atn::VideoTHP : Video` reales (las de
+  `atn/VideoTHP.cpp`, que ahora la incluye). Sin cuerpos inline en la cabecera ni nombres de parametro (para
+  no renumerar `@N`): `Video::Video`, `~Video`, `VideoTHP::SetName_unk` y los dos miembros de `DebugGroup_unk`
+  se definen `inline` en VideoTHP.cpp. Usan la cabecera TutorialTask (via `game/TutorialTask.h`: tambien
+  GameTask, CampSaveLoad, NewCampPartsHint, NewCampPartsStatus) y Event/MotionData.
+- Las inline de `IRender.h` renumeraban `@N`: pdbatch de las siete unidades y dos renombrados a mano en GameTask
+  (0x808857A8/AC: `@29544`/`@29545`; lblmap completo bajaba vf10 y fn_80371790 0,01-0,02). Neutro, precommit OK.
+- Pendiente: `Event/MovieState_unk.h` (vista de `VideoTHP` para ActionEffectPlay y `Event::Manager::fn_8048E9A4`,
+  con `vf3C(int, float)` frente a `vf3C(float, int)`): cambiarla toca la firma de `Manager::fn_8048E9A4` en
+  `Event/Manager.h` (cabecera de muchas unidades).
+
 ## Decisiones tomadas sin el usuario
 
 - Punto 1 dejado como estaba (la forma con locales reales baja en las tres unidades).
 - Notas comunes `docs/cabeceras-20261114.md`: ya venia modificado en la copia (dos lineas quitadas) sin ser mio; no lo incluyo en mis commits.
 
 ## Para el port
+
+- `include/atn/VideoTHP.h`: `atn::VideoTHP` es ahora la clase real (bases `Video`/`IRender`); antes la vista
+  declaraba 13 virtuales sin argumentos (en TutorialTask `vf30()` devolvia `int`, ahora `unsigned int`). Layout
+  igual (0x98). Ninguna unidad del port.
 
 - `atn::PostFx*::vf10(void*)` -> `vf10(RenderManager*)` (ahora sobrescribe `IRender::vf10`; antes la vtable
   tenia una ranura de mas). Ninguna unidad del port.
