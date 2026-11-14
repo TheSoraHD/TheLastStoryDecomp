@@ -1119,10 +1119,6 @@ int CharaTask::fn_80138E1C(int arg) {
     return result;
 }
 
-float atn::Model::GetMotionFrame(int track) const {
-    return mTracks[track].m08;
-}
-
 AIManager* fn_80139EF4();
 Effect_unk* fn_8013A194();
 extern "C" Field_unk* fn_80121F00();
@@ -1345,18 +1341,6 @@ int CharaTask::fn_80139EFC() {
 
 int CharaTask::fn_80139F04() {
     return m1400.mSize >= 2;
-}
-
-void atn::Model::fn_80139F24(int value) {
-    m34C = value;
-}
-
-int atn::Model::fn_80139F2C(int track) {
-    return mTracks[track].m00;
-}
-
-void atn::Model::SetMotionSpeed(int track, float speed) {
-    mTracks[track].m0C = speed;
 }
 
 int CharaStatus::fn_80139F4C() {
@@ -2087,14 +2071,6 @@ atn::Vector3 atn::Vector3::operator-() const {
     return Vector3(-x, -y, -z);
 }
 
-int atn::Model::fn_8013C3DC() {
-    return m34C;
-}
-
-float atn::Model::fn_8013C3E4(int track) {
-    return mTracks[track].m20;
-}
-
 int RouteWalker_unk::fn_8013C3F4() {
     return m2C;
 }
@@ -2169,10 +2145,6 @@ atn::Vector3* CharaD68_unk::fn_8013C53C() {
 
 float CharaD68_unk::fn_8013C544() {
     return m5C * m28;
-}
-
-void atn::Model::fn_8013C554(int track, float weight) {
-    mTracks[track].m20 = weight;
 }
 
 // inferred: 16-byte block copied with paired singles; name invented
@@ -4522,10 +4494,6 @@ void CharaTask::fn_80145334() {
 
 int CharaTask::fn_801479D8() {
     return mFlag6;
-}
-
-atn::Model::Node_unk* atn::Model::fn_80147A00() {
-    return m21C.mData;
 }
 
 atn::Matrix3x4 atn::Matrix3x4::fn_80147A08(const Quaternion_unk& q) {

@@ -770,10 +770,6 @@ void EnemyTasha::vf100(int state) {
     }
 }
 
-void atn::Model::SetMotionFrame(int track, float frame) {
-    mTracks[track].m08 = frame;
-}
-
 // NONMATCHING: 99.88% - r29/r30 swapped for the attack count and the turn temporary, r3/r4 of the
 // target difference copy; ~12 variants
 void EnemyTasha::vf104() {

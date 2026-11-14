@@ -242,13 +242,6 @@ void Puppeteer<atn::Model>::vf10() {
 
 } // namespace Event
 
-namespace atn {
-// inferred: inline of atn::Model (its only copy is here): the matrix stack from the node poses of the model
-inline void Model::CalcMatrixStack(ModelNodeCallback_unk callback) {
-    ModelBase::CalcMatrixStack((const MotionBuffer*)m21C.mData, callback);
-}
-} // namespace atn
-
 namespace Event {
 
 template <>
@@ -1786,9 +1779,3 @@ void Actor::fn_80013558() {
 }
 
 } // namespace Event
-
-namespace atn {
-// inferred: inline and empty in atn::Task (its only copy is weak, here at 0x80013CAC); defined here and not
-// in atn/Task.h because the inline body there renumbers the @N labels of the 367 units that include it
-inline void Task::vf18(Task*) {}
-} // namespace atn

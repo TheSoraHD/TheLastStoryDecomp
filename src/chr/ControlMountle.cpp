@@ -68,15 +68,6 @@ inline atn::Vector3* CharaTask::fn_8013C38C() {
 inline void CharaTask::fn_8013C460(int value) {
     mFlag5 = value;
 }
-inline void atn::Model::fn_80139F24(int value) {
-    m34C = value;
-}
-inline void atn::Model::fn_8013C554(int track, float weight) {
-    mTracks[track].m20 = weight;
-}
-inline void atn::Model::SetMotionSpeed(int track, float speed) {
-    mTracks[track].m0C = speed;
-}
 
 // inferred: front of a character with the rotation `rot` (as in game/Em306GurgBeast.cpp); name
 // invented
