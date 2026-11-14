@@ -8,7 +8,7 @@ Agente F, rama `agent-F`. Unidades: `atn/LayerOcclusionCPU`, `atn/LH_Motion_cont
 |---|---|---|---|
 | `Loader::Get_unk<LoadMotion>` (0x804766B0, antes `fn_804766B0`) | sin emparejar (`-`) | escrita, NONMATCHING 97,1 % | `template<> LoadMotion* atn::Loader::Get_unk<LoadMotion>(const char*, int)` |
 | `fn_800B47AC` | sin escribir | escrita, NONMATCHING 77,6 % | `extern "C" void fn_800B47AC(atn::LayerOcclusionCPU*, const unsigned short* indices, int count, int type, int frac, const void* vertices, int clip, const Mtx* mtx)` |
-| `fn_800B5994` | sin escribir | escrita, NONMATCHING 93,2 % | `extern "C" int fn_800B5994(atn::LayerOcclusionCPU*, const atn::AABB_unk*)` (1 = oculta) |
+| `fn_800B5994` | sin escribir | escrita, NONMATCHING 99,9 % (codigo igual; solo los limites de `.sbss`) | `extern "C" int fn_800B5994(atn::LayerOcclusionCPU*, const atn::AABB_unk*)` (1 = oculta) |
 | `fn_800B4390` (fuera de la cola) | sin escribir (asm a mano) | escrita en C++, NONMATCHING (objdiff 0 %: el original es asm a mano) | `extern "C" void fn_800B4390(const Plane_unk*, const atn::Vector3* in, int count, atn::Vector3* out, int* outCount)` |
 | `LayerOcclusionCPU::vf10` | `vf10(int)` | `vf10(void*)`, sigue al 100 % | `virtual void vf10(void*)` |
 
@@ -35,8 +35,10 @@ Agente F, rama `agent-F`. Unidades: `atn/LayerOcclusionCPU`, `atn/LH_Motion_cont
   (`ViewBox_unk`, misma forma que `ProjectBox_unk` de `atn/Geometry_unk.cpp` con `PSMTXMultVecArray` y
   `__VecMinMax`), fuera de near/far -> 0; rectangulo de pantalla (`fn_800704DC`) acotado con `lbl_8087D898..A4`;
   si ancho, alto y area < `m1F4` -> 1; si cubre >= 31 celdas -> 0; si no `fn_800B64DC(..., 4)`. Cajas y rectangulos
-  de depuracion (`fn_8006FE08`, `DrawHelper::fn_800610A4`) segun `m1DC`/`m1E4`. Queda en 93 %: orden de las lecturas
-  de la caja y de los temporales de las esquinas, registros.
+  de depuracion (`fn_8006FE08`, `DrawHelper::fn_800610A4`) segun `m1DC`/`m1E4`. 93 % -> 99,9 %: las esquinas se
+  construyen leyendo los campos de la caja directamente salvo `max.z`/`max.y` en locales (deciden los FPR guardados),
+  `w` antes que `h`, area en variable y `m1F4` leido en cada condicion. Lo que queda es solo de datos: los limites a
+  cero `lbl_8087D898..A4` van a `.sbss` (el original los tiene en `.sdata`, igual que `fn_800B6218`).
 - `fn_800B4390`: paso de Sutherland-Hodgman (parte con `n.p + d < 0`). El original divide con `fres` (aproximado); el
   C++ divide exacto. Se define `lbl_807790A8 = {0.0f, 1.0f}` (`.data` propio, umbral y w) y el `.data` queda en el
   orden del original.
@@ -62,11 +64,19 @@ Agente F, rama `agent-F`. Unidades: `atn/LayerOcclusionCPU`, `atn/LH_Motion_cont
 - Etiquetas de `.sdata2`: `pd.sh` no empareja el `0.0f` (0x80880F48); se renombra a mano a nuestra etiqueta
   (renombrado) para que `labelcheck` no empeore. Repetirlo tras cada `pd.sh` de la unidad.
 
+- `precommit.sh` da `FAIL` solo por `REP+ atn/LayerOcclusionCPU fn_800B5994 99,9`: `report.json` la cuenta al
+  100 % (15392 -> 15393) y `objdiff-cli diff` no, por la seccion de los limites (`.sbss`/`.sdata`), como
+  `fn_800B6218`, que ya estaba en `rep100` de la referencia. Es una entrada nueva de rep100, no una bajada: se acepta
+  y se deja apuntado (main.dol OK, lost 0, sin bajadas de fuzzy, labelcheck igual, ordercheck 0).
+
 ## Hallazgos
 
 - El pool `.sdata2` del original empieza por 0.5, 255, 0, 1 = orden inverso de las constantes de
   `atn::ColorToU8_unk`; aqui salen en orden de primer uso (1, 0, 255, 16, 32, 128, 0.5). Sin resolver.
 - `vf10`/`vf1C` dan 100 % en objdiff con las etiquetas emparejadas aunque el offset de 1.0f en `.sdata2` difiera.
+
+- Probado en `fn_800B4694` (90,6 %): el ternario del ultimo argumento en la llamada, `bool`, la forma sin local de
+  la forma; en todas MWCC la inlinea en `vf14` (62 %): se deja como estaba.
 
 ## Pendientes
 
