@@ -46,7 +46,7 @@ inline bool operator<(const MslIter_unk<T>& a, const MslIter_unk<T>& b) {
 }
 template <class T>
 inline bool operator>=(const MslIter_unk<T>& a, const MslIter_unk<T>& b) {
-    return a.mPtr >= b.mPtr;
+    return !(a < b);
 }
 
 template <class T>
@@ -89,20 +89,28 @@ void MslMedian3_unk(Iter a, Iter b, Iter c, Compare& comp) {
     }
 }
 
+// inferred: smallest element of a range (MSL min_element; as a separate inline with its own result the
+// registers of the inlined selection sort match, e.g. MslSort_unk<ExpEntry_unk*> 0x8044A1D8)
+template <class Iter, class Compare>
+inline Iter MslMinElement_unk(Iter first, Iter last, Compare& comp) {
+    Iter result(first);
+    if (first != last) {
+        for (++first; first != last; ++first) {
+            if (comp(*first, *result)) {
+                result = first;
+            }
+        }
+    }
+    return result;
+}
+
 // inferred: selection sort of the short ranges (MSL __selection_sort)
 template <class Iter, class Compare>
 inline void MslSelectionSort_unk(Iter first, Iter last, Compare& comp) {
     if (first != last) {
-        for (Iter end(last - 1); first != end; ++first) {
-            Iter min(first);
-            if (first != last) {
-                Iter it(first + 1);
-                for (; it != last; ++it) {
-                    if (comp(*it, *min)) {
-                        min = it;
-                    }
-                }
-            }
+        Iter end(last);
+        for (--end; first != end; ++first) {
+            Iter min(MslMinElement_unk(first, last, comp));
             if (min != first) {
                 MslSwap_unk(*min, *first);
             }

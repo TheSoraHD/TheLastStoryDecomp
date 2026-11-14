@@ -3980,10 +3980,9 @@ extern "C" inline atn::Matrix3x4 fn_800F80A8(const atn::Vector3* pos);
 extern "C" inline void fn_80316E38(atn::Model* model, const atn::Matrix3x4* mtx);
 extern "C" PlayerParam_unk* fn_80219160(int kind, int level); // db/PlayerParam_unk.cpp
 
-// NONMATCHING: the stack frame (0x20 bytes more in the original) and the registers of the copy of mDF30; the
-// local copy of the party is built with the constructor of ExpEntry_unk (game/InventoryExp_unk.h) as in the
-// original; the setters of atn::Model (fn_80139F24, fn_8013C554, SetMotionSpeed,
-// SetMotionFrame) are inlined in the original and out of line in atn/Model_unk.h
+// NONMATCHING: 99.15% - the stack frame (0x10 bytes more in the original: the matrices of RotateYXZ_unk and the
+// ray matrix sit elsewhere) and the copy of mDF30 (the original reloads mChara); the local copy of the party is
+// built with the constructor of ExpEntry_unk (game/InventoryExp_unk.h) as in the original
 // inferred: victory pose after a battle (field state 9): every party member that won a level (or the one of the
 // finishing skill, Inventory::mDF30) is turned towards a free direction at its nearest move point, plays the
 // victory motion (0x177 when it learnt a skill) and is added to the finish camera with the number of skills
