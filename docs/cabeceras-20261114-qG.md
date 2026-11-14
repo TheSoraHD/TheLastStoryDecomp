@@ -39,6 +39,22 @@ Rama `agent-G`. Inicio 16:10. Referencia `$REF` = `/home/claude/ref-G` (15433 / 
   `BattleTask::fn_800F8C6C` (ninguna otra unidad lo usa). Llevarlo a `BattleTask.h` (ctor inline vacio, plantillas)
   renumeraria las `@N` de las ~80 unidades que incluyen la cabecera sin desbloquear nada.
 
+### 3. `AiInput_unk`/`AiOutput_unk` de AI_archer_attack01
+
+- `AiScriptInput_unk`/`AiScriptOutput_unk` salen de `game/AiTarget.h` a la cabecera nueva
+  `include/game/AiScriptIO_unk.h` (solo datos; `AiTarget.h` la incluye). AI_archer_attack01 incluye solo esa
+  cabecera, define `AiScriptInput_unk lbl_807C68C0; AiScriptOutput_unk lbl_807C6A40;` y pierde sus vistas
+  `AiInput_unk`/`AiOutput_unk` (todo `int` por desplazamiento). ~2600 accesos traducidos por desplazamiento
+  (`m7C` -> `m7C[0]`, `m80` -> `m7C[1]`, `m18`..`m74` de la salida -> `m18[i]`, `m00` -> `mChara`/`mValid`,
+  `m20` -> `mTarget`, `m28` -> `mFollow` (ya `CharaTask*`, fuera los moldes), `m64` -> `m60[1]`...); en
+  `fn_8001C088` `&in->mA4` -> `&in->mA0[1]`, `&in->m16C` -> `&in->m14C[8]`, `&out->mDC` -> `&out->mBC[8]`.
+  La palabra `mE0[0]` de la salida guarda un `CharaTask*` en los scripts: moldes `(CharaTask*)`/`(int)`.
+- Neutro: fnstat de AI_archer_attack01 igual funcion por funcion (482/510), sin bajadas, labelcheck igual.
+- Probado y descartado: incluir `game/AiTarget.h` entero en AI_archer_attack01 (los `@N` de los dobles de
+  conversion se renumeran: hace falta `pd.sh`) y una `union { int mE0[4]; CharaTask* ...; }` en la estructura
+  (una union anonima renumera las `@N` de las ~25 unidades que incluyen `AiTarget.h`: BattleTask, CharaTask,
+  GameEventScript, GameUI...).
+
 ## Decisiones tomadas sin el usuario
 
 - Llamadas por molde `(BattleTask*)lbl_8087F048` en vez de cambiar el tipo de `lbl_8087F048` en las 41 unidades:
@@ -55,5 +71,15 @@ Rama `agent-G`. Inicio 16:10. Referencia `$REF` = `/home/claude/ref-G` (15433 / 
   Resto de llamadores (no del port): ControlMountle, ControlUseSkill, Em003..Em403, EnemyJill/QuarkFirst/
   QuarkSecond/QuarkStand/Tasha/Trista, LastCocoonImago, LastCocoonQuadruped, QuadrupedTask, em005_doppel_ganger.
 
+- `AiScriptInput_unk`/`AiScriptOutput_unk` viven ahora en `game/AiScriptIO_unk.h` (incluida por
+  `game/AiTarget.h`; layout sin cambios). En el port, `mE0[0]` de la salida guarda un `CharaTask*` en
+  AI_archer_attack01 (`(int)` puntero): en x64 se trunca; AiTarget copia las cuatro palabras a
+  `CharaC58_unk::m1A0`. Pendiente en el port: un tipo de puntero para esa palabra (una union aqui renumera `@N`).
+
 ## Hallazgos
+
+- Una `union` anonima nueva dentro de un `struct` de una cabecera compartida renumera las `@N` de todas las
+  unidades que la incluyen (un miembro de datos normal no).
+- `fnstat.py --nobuild` puede diferir del `report.json` de `$REF` en una unidad (AI_archer_attack01: 11
+  funciones); para medir un cambio, comparar fnstat con fnstat del fuente de HEAD.
 
