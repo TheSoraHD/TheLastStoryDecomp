@@ -143,21 +143,25 @@ extern "C" GameTask* lbl_8087F430;
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 extern "C" GameConfig_unk* lbl_8087F0A8;
 
+// inferred: keeps the rgb of the material colour and sets its alpha
+static inline void MiniMapSetAlpha_unk(Material_unk* material, float alpha) {
+    ColorF_unk color(fn_8000DD98(material));
+    color.a = alpha;
+    material->mColor = color.ToGX();
+}
+
 #define MINIMAP_MIN_UNK(a, b) ((a) < (b) ? (a) : (b))
 
+// NONMATCHING: 94.2% - float register allocation in the marker loop (the original keeps the centre in f30/f31
+// and the constants in f24-f29) and scheduling around the draw calls; the leader check is a bne/b pair in the
+// original
 // inferred: per frame: fades the house/line/road layers out while the leader is in the "LOWER_LAYER" box,
 // hides the minimap in the "OFF_AREA" boxes, turns the map with the leader or the camera (mode of the game
 // config), draws the player arrow and the markers (inside: point and marker; outside: arrow on the edge
 // toward the marker, if m24 is set) and places the orthographic camera m640 over the leader
 void MiniMapTask::vf14() {
     m5D8->mFlags |= 4;
-    if (m4C == 0) {
-        return;
-    }
-    if (lbl_8087F8A0 == 0) {
-        return;
-    }
-    if (lbl_8087F8A0->mHead == 0) {
+    if (m4C == 0 || lbl_8087F8A0 == 0 || lbl_8087F8A0->mHead == 0) {
         return;
     }
     atn::Vector3 pos = lbl_8087F8A0->mHead->mPos;
@@ -165,11 +169,7 @@ void MiniMapTask::vf14() {
     if (pos.y <= m1604 && pos.x > m15F4 && pos.x < m15F4 + m15FC && pos.z > m15F8 && pos.z < m15F8 + m1600) {
         lower = 1;
     }
-    if (lower) {
-        m1608 = MINIMAP_MAX_UNK(0.2f, m1608 - 0.05f);
-    } else {
-        m1608 = MINIMAP_MIN_UNK(1.0f, 0.05f + m1608);
-    }
+    m1608 = lower ? MINIMAP_MAX_UNK(0.2f, m1608 - 0.05f) : MINIMAP_MIN_UNK(1.0f, 0.05f + m1608);
     m208.mFlags &= ~0x10;
     // inferred: alpha of the house/line/road materials (rgb kept): translucent below 0.99 (draw mode 3 and the
     // model flag 0x10), else mode 1
@@ -177,9 +177,7 @@ void MiniMapTask::vf14() {
         float alpha = m1608;
         Material_unk* material = m208.fn_80092954("m_house_alpha");
         if (material != 0) {
-            ColorF_unk color(fn_8000DD98(material));
-            color.a = alpha;
-            material->mColor = color.ToGX();
+            MiniMapSetAlpha_unk(material, alpha);
             if (alpha < 0.99f) {
                 material->fn_8007FAF0(3);
                 m208.mFlags |= 0x10;
@@ -192,9 +190,7 @@ void MiniMapTask::vf14() {
         float alpha = m1608;
         Material_unk* material = m208.fn_80092954("m_line_alpha");
         if (material != 0) {
-            ColorF_unk color(fn_8000DD98(material));
-            color.a = alpha;
-            material->mColor = color.ToGX();
+            MiniMapSetAlpha_unk(material, alpha);
             if (alpha < 0.99f) {
                 material->fn_8007FAF0(3);
                 m208.mFlags |= 0x10;
@@ -207,9 +203,7 @@ void MiniMapTask::vf14() {
         float alpha = m1608;
         Material_unk* material = m208.fn_80092954("m_road_alpha");
         if (material != 0) {
-            ColorF_unk color(fn_8000DD98(material));
-            color.a = alpha;
-            material->mColor = color.ToGX();
+            MiniMapSetAlpha_unk(material, alpha);
             if (alpha < 0.99f) {
                 material->fn_8007FAF0(3);
                 m208.mFlags |= 0x10;
@@ -222,16 +216,17 @@ void MiniMapTask::vf14() {
         fn_804A9EB4();
         return;
     }
-    float scale = m5F4 * (m5E4 * 0.0078125f);
+    float scale = m5F4 * (m5E4 / 128.0f);
     atn::Vector3 center(0.5f * m5E4 + m5DC, 0.5f * m5E8 + m5E0, 0.0f);
+    float cx = center.x;
+    float cy = center.y;
     float arrowSize = m630;
     float markerSize = m638;
     float arrowShineSize = m634;
     float pointSize = m63C;
     for (unsigned int i = 0; i < m1538.mCount; i++) {
-        MiniMapArea_unk& area = m1538.mData[i];
-        if (pos.x > area.mMin.x && pos.x < area.mMin.x + area.mMax.x && pos.z > area.mMin.y &&
-            pos.z < area.mMin.y + area.mMax.y) {
+        if (pos.x > m1538.mData[i].mMin.x && pos.x < m1538.mData[i].mMin.x + m1538.mData[i].mMax.x &&
+            pos.z > m1538.mData[i].mMin.y && pos.z < m1538.mData[i].mMin.y + m1538.mData[i].mMax.y) {
             return;
         }
     }
@@ -243,9 +238,7 @@ void MiniMapTask::vf14() {
         break;
     case 2: {
         atn::Camera& camera = atn::RenderManager::instance_->mCamera;
-        atn::Vector3 dir = camera.mTarget - camera.mPos;
-        atn::Vector3 rot = dir.GetNormalize().ToRotation_unk();
-        angle = -rot.y - 3.1415927f;
+        angle = -(camera.mTarget - camera.mPos).GetNormalize().ToRotation_unk().y - 3.1415927f;
         break;
     }
     }
@@ -268,8 +261,7 @@ void MiniMapTask::vf14() {
         atn::Vector3 markerPos(m->mPos.x, 0.0f, m->mPos.z);
         atn::Vector3 d = markerPos - pos;
         d.Length_unk();
-        atn::Vector3 local = d * (1.0f / m5FC);
-        atn::Vector3 v = local * scale;
+        atn::Vector3 v = d * (1.0f / m5FC) * scale;
         PSMTXMultVec(mtx.m, &v, &v);
         int inside = 0;
         if (v.x > 0.5f * -m5E4 + 3.0f && v.x < 0.5f * m5E4 - 3.0f && v.z > 0.5f * -m5E8 + 3.0f &&
@@ -287,17 +279,17 @@ void MiniMapTask::vf14() {
             atn::Vector3 dir(n.x, 0.0f, -n.z);
             dir.fn_80139F60();
             float rot = dir.y;
-            lbl_8087EEB0->fn_8005EDF0(m610.ToU32(), &m178, 1, 1, center.x + v.x, center.y + v.z, 10.0f,
+            lbl_8087EEB0->fn_8005EDF0(m610.ToU32(), &m178, 1, 1, cx + v.x, cy + v.z, 10.0f,
                                       arrowShineSize * m->mScale, arrowShineSize * m->mScale, rot, 0.0f, 0.0f, 1.0f, 1.0f);
-            lbl_8087EEB0->fn_8005EE38(m->mColor.ToU32(), &m88, &m118, 0, center.x + v.x, center.y + v.z, 10.0f,
+            lbl_8087EEB0->fn_8005EE38(m->mColor.ToU32(), &m88, &m118, 0, cx + v.x, cy + v.z, 10.0f,
                                       arrowSize * m->mScale, arrowSize * m->mScale, rot, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f,
                                       1.0f, 1.0f);
         } else {
-            lbl_8087EEB0->fn_8005E3E4(m620.ToU32(), &m1A8, center.x + v.x - 0.5f * pointSize * m->mScale,
-                                      center.y + v.z - 0.5f * pointSize * m->mScale, 10.0f, pointSize * m->mScale,
+            lbl_8087EEB0->fn_8005E3E4(m620.ToU32(), &m1A8, cx + v.x - 0.5f * pointSize * m->mScale,
+                                      cy + v.z - 0.5f * pointSize * m->mScale, 10.0f, pointSize * m->mScale,
                                       pointSize * m->mScale, 0.0f, 0.0f, 1.0f, 1.0f, 1, 1);
-            lbl_8087EEB0->fn_8005E7F4(m->mColor.ToU32(), &mB8, &m148, center.x + v.x - 0.5f * markerSize * m->mScale,
-                                      center.y + v.z - 0.5f * markerSize * m->mScale, 10.0f, markerSize * m->mScale,
+            lbl_8087EEB0->fn_8005E7F4(m->mColor.ToU32(), &mB8, &m148, cx + v.x - 0.5f * markerSize * m->mScale,
+                                      cy + v.z - 0.5f * markerSize * m->mScale, 10.0f, markerSize * m->mScale,
                                       markerSize * m->mScale, 0.0f, 0.0f, 1.0f, 1.0f);
         }
     }
@@ -307,7 +299,7 @@ void MiniMapTask::vf14() {
     m640.mUp.x = 0.0f;
     m640.mUp.y = 0.0f;
     m640.mUp.z = -1.0f;
-    float h = m5FC * (float)GetGraphics_unk()->mHeight / scale * (m5E8 * 0.00390625f);
+    float h = m5FC * (float)GetGraphics_unk()->mHeight / scale * (m5E8 / 256.0f);
     float aspect = (float)GetGraphics_unk()->mWidth / (float)GetGraphics_unk()->mHeight;
     m640.mTop = 0.5f * h;
     m640.mBottom = 0.5f * -h;
