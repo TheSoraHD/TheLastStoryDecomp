@@ -14,11 +14,6 @@
 
 
 
-extern "C" void fn_8047F6E4(void* object);
-extern "C" void fn_8047F8B0(void* object);
-extern "C" void fn_8047F850(void* object, int start, int colorStart, int colorEnd);
-extern "C" void fn_8047F88C(void* object, int frame);
-extern "C" void fn_8047F994(void* object, int arg1, int arg2);
 namespace Event {
 // inferred: processor of each kind of action (.bss of this file)
 ActionProcessor* sProcessors_unk[56];
