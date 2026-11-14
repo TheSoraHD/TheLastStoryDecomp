@@ -347,9 +347,11 @@ extern "C" __declspec(noinline) inline atn::Texture_unk* fn_804ABF44(atn::Render
     return &view->m74C;
 }
 
-// DRAFT: written for the weak copies; not checked against the original
-// NONMATCHING: draft - draws the minimap into a temporary 256x256 texture (the transparent parts in a
-// second pass) and draws it on the screen through the mask texture m58[3]
+// inferred: draws the minimap into a temporary 256x256 texture (the transparent parts in a second pass) and
+// draws it on the screen through the mask texture m58[3]
+// NONMATCHING: 0% - equivalent (checked call by call against the original), but here it is under the inlining
+// budget and inlines every accessor, while the original calls them all (about 36 statements of candidates short:
+// an artificial first candidate of 36-40 statements puts it over)
 void MiniMapTask::vf10(atn::RenderManager* view) {
     if (fn_804A9E44(this) != 0) {
         fn_804ABF84(view);
@@ -414,8 +416,19 @@ void MiniMapTask::vf10(atn::RenderManager* view) {
     fn_80071D68(GetGraphics_unk(), fn_804ABEE4(&saved)->m);
 }
 
-// DRAFT: written for the weak copies; not checked against the original
-// NONMATCHING: draft - draws the minimap model with its orthographic camera: the transparent parts first
+// inferred: camera setters (declared in atn/Camera_unk.h; weak copies 0x804A9E54/0x804A9E64)
+inline void atn::Camera::SetPosition(float x, float y, float z) {
+    mPos.x = x;
+    mPos.y = y;
+    mPos.z = z;
+}
+inline void atn::Camera::SetTarget(float x, float y, float z) {
+    mTarget.x = x;
+    mTarget.y = y;
+    mTarget.z = z;
+}
+
+// NONMATCHING: draws the minimap model with its orthographic camera: the transparent parts first
 // (alpha 0.6, house/line/road hidden), then the rest, and restores the camera of the view
 void MiniMapTask::fn_804ABF84(atn::RenderManager* view) {
     atn::Camera saved(*view->fn_800F7258());
@@ -427,10 +440,8 @@ void MiniMapTask::fn_804ABF84(atn::RenderManager* view) {
     fn_804A9EA4(&camera, 0.5f * -h * aspect);
     fn_804A9EAC(&camera, 0.5f * h * aspect);
     fn_804A9E4C(&camera, 1);
-    // inferred: the original calls Camera::SetPosition(float, float, float) and SetTarget(float, float, float)
-    // (weak copies 0x804A9E54/0x804A9E64); a new inline in atn/Camera_unk.h renumbers 187 units
-    camera.mPos.Set_unk(50.0f, 100.0f, -70.0f);
-    camera.mTarget.Set_unk(50.0f, 0.0f, -70.0f);
+    camera.SetPosition(50.0f, 100.0f, -70.0f);
+    camera.SetTarget(50.0f, 0.0f, -70.0f);
     fn_804A9E74(&camera, 0.0f, 0.0f, -1.0f);
     camera.fn_8004B378();
     view->SetCamera_unk(camera);

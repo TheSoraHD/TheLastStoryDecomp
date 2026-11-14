@@ -45,6 +45,10 @@ struct Camera {
     const Vector3* GetTarget_unk() const { return &mTarget; }
     void SetTarget_unk(const Vector3& v) { mTarget = v; }
     void SetPosition(const Vector3& v) { mPos = v; }
+    // inferred: RSO name SetPosition__Q23atn6CameraFfff; weak copies 0x804A9E54/0x804A9E64 (defined in
+    // game/MiniMapTask.cpp, their only user; declared without parameter names: no @N in the other units)
+    void SetPosition(float, float, float);
+    void SetTarget(float, float, float);
     const Vector3* GetRot_unk() const { return &mRot; }
     float GetFovy_unk() const { return mFovy; }
     void SetUpVector(const Vector3&); // inferred: weak copy 0x80382A08 (defined in game/GameCamera_unk.cpp)
