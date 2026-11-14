@@ -156,6 +156,10 @@ static int ParseCAT_unk(unsigned int tag, int size, const char* data, ParserStat
 // inferred: settings of the sequence ("SEQU" and "SEQ2" records, 0x28 bytes; the flags moved in "SEQ2")
 // inferred: flags of the sequence as stored in the file (copied to Sequence::m58)
 struct SequenceStateRec_unk {
+    SequenceStateRec_unk() {}
+    // inferred: memberwise copy (the original loads the three fields, stores them to the sequence and only
+    // then to the dead temporary)
+    SequenceStateRec_unk(const SequenceStateRec_unk& o) : m00(o.m00), m02(o.m02), m03(o.m03) {}
     unsigned short m00;
     unsigned char m02;
     unsigned char m03;
@@ -176,8 +180,8 @@ inline void SetFlag7_unk(Sequence* seq, int on) { seq->m98_7 = on != 0; }
 inline void SetFlag8_unk(Sequence* seq, int on) { seq->m98_8 = on != 0; }
 inline void SetFlag9_unk(Sequence* seq, int on) { seq->m98_9 = on != 0; }
 
-// NONMATCHING: the copy of the state (m58) loads its bytes in reverse order and stores a temporary late
-// (also tried a raw buffer and memberwise copies); the rest matches
+// NONMATCHING: 98.4% - registers only (the addresses of the two vectors are r5/r6 in the original, the flags
+// temporaries r7); the copy of the state goes through the memberwise copy constructor of SequenceStateRec_unk
 static int ParseSEQ2_unk(unsigned int tag, int size, const char* data, ParserState_unk* state) {
     Sequence* seq = sState_unk->m10;
     sState_unk->m14 = 0;
