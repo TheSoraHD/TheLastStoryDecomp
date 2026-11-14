@@ -74,7 +74,7 @@ class PostFxRain : public IPostFx {
 public:
     PostFxRain();
     virtual ~PostFxRain() {}
-    virtual void vf10(void* camera);
+    virtual void vf10(RenderManager* view);
     int fn_800B0A48(); // inferred: drops or heat waves active
     void fn_800B0A70();
     void fn_800B0CD4();
@@ -258,7 +258,7 @@ static inline GXColor RainARGB_unk(unsigned int argb) {
 
 // NONMATCHING: 99.72% - `this`, the screen size and the 0xFFFFFF of GXSetCopyClear in other saved registers
 // (~16 variants; the colors built by inline helpers give the stack slots of the original)
-void PostFxRain::vf10(void* camera) {
+void PostFxRain::vf10(RenderManager* view) {
     if (!fn_800B0A48()) {
         return;
     }

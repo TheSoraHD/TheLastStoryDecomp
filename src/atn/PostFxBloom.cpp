@@ -122,7 +122,7 @@ class PostFxBloom : public IPostFx {
 public:
     PostFxBloom();
     virtual ~PostFxBloom() {}
-    virtual void vf10(void* camera);
+    virtual void vf10(RenderManager* view);
 
     GXTexObj m04;
     GXTexObj m24;
@@ -132,7 +132,7 @@ PostFxBloom::PostFxBloom() {}
 
 // NONMATCHING: 85.65% - register allocation and the u16 width/height expressions of the copies; the
 // original keeps more values in f28-f31 (blur factors and the additive color)
-void PostFxBloom::vf10(void* camera) {
+void PostFxBloom::vf10(RenderManager* view) {
     int fullW = lbl_8087EEE0->mWidth;
     int fullH = lbl_8087EEE0->mHeight;
     int div = 1 << lbl_8087EFA8->m5C;

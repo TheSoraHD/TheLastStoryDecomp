@@ -118,7 +118,7 @@ class PostFxGamma : public IPostFx {
 public:
     PostFxGamma();
     virtual ~PostFxGamma() {}
-    virtual void vf10(void* camera);
+    virtual void vf10(RenderManager* view);
     void fn_800AD340();
     void fn_800AD484();
     void fn_800AD648();
@@ -210,7 +210,7 @@ void PostFxGamma::fn_800AD648() {
 
 // NONMATCHING: 97.09% - register allocation of the log2 helpers and of the downsampling loop (the original
 // does not reuse cw * 2 across the viewport and the copy)
-void PostFxGamma::vf10(void* camera) {
+void PostFxGamma::vf10(RenderManager* view) {
     if (lbl_8087EFA8->mGamma.mEnable == 0) {
         return;
     }

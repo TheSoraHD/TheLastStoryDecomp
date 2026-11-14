@@ -38,12 +38,22 @@ ActionActorPosition (`vf0C__Q25Event19ActionActorPosition`, 98,67 % en HEAD) y P
 - Re-emparejado: pdbatch de las tres unidades + lblmap en Em206CocoonMp y Em203GreaterDaemonRedMp;
   `lbl_808841C0` (solo lo usa Em206CocoonMp) -> `@18117` local.
 
+## 3a. `PostFx*::vf10` sobrescribe `IRender::vf10(RenderManager*)`
+
+- Las ocho `PostFx*` (Bloom, ColorMatrix, Damage, Dof, Gamma, GodRay, MotionBlur, Rain) declaraban
+  `vf10(void*)`: una virtual nueva en la ranura 0x20 y la 0x10 pura (vtable de 0x40 frente a 0x20 del original).
+  Ahora `vf10(RenderManager* view)`: vtable igual que el original (0x20, vf10 en 0x10). `symbols.txt`: los ocho
+  `vf10__Q23atn<N>PostFx<X>FPv` -> `...FPQ23atn13RenderManager`. Porcentajes iguales; precommit OK.
+
 ## Decisiones tomadas sin el usuario
 
 - Punto 1 dejado como estaba (la forma con locales reales baja en las tres unidades).
 - Notas comunes `docs/cabeceras-20261114.md`: ya venia modificado en la copia (dos lineas quitadas) sin ser mio; no lo incluyo en mis commits.
 
 ## Para el port
+
+- `atn::PostFx*::vf10(void*)` -> `vf10(RenderManager*)` (ahora sobrescribe `IRender::vf10`; antes la vtable
+  tenia una ranura de mas). Ninguna unidad del port.
 
 - `fn_802A4170`/`fn_802A4184` ya no existen: son `std::vector<EnemyTask*>::vector()` y `operator[]`
   (instanciacion explicita en Em203GreaterDaemonRedMp). Ninguna unidad del port cambia.

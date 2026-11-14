@@ -45,7 +45,7 @@ class PostFxDof : public IPostFx {
 public:
     PostFxDof();
     virtual ~PostFxDof() {}
-    virtual void vf10(void* camera);
+    virtual void vf10(RenderManager* view);
     void fn_800ACCB8();
 
     int m04;        // 0x04: inferred: last mE0
@@ -66,7 +66,7 @@ PostFxDof::PostFxDof() : m6C(-1), m70(-1), m74(-1), m78(-1) {
     GXInitTexObjLOD(&m48, 1, 1, 0.0f, 0.0f, 0.0f, 0, 0, 0);
 }
 
-void PostFxDof::vf10(void* camera) {
+void PostFxDof::vf10(RenderManager* view) {
     int fullW = lbl_8087EEE0->mWidth;
     int fullH = lbl_8087EEE0->mHeight;
     int w = lbl_8087EFA8->mF4;

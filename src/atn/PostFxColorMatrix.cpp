@@ -64,7 +64,7 @@ class PostFxColorMatrix : public IPostFx {
 public:
     PostFxColorMatrix();
     virtual ~PostFxColorMatrix() {}
-    virtual void vf10(void* camera);
+    virtual void vf10(RenderManager* view);
     void fn_800AA8DC();
     void fn_800AAE20();
 
@@ -140,7 +140,7 @@ static inline GXColor ToGXColorF_unk(const ColorF_unk& v) {
 
 // NONMATCHING: 97.12% - FPR allocation only (0.0f of the columns, copy of the column and clamp limits in other
 // registers); the clamps are expressions on the globals (the limit is loaded just before its comparison)
-void PostFxColorMatrix::vf10(void* camera) {
+void PostFxColorMatrix::vf10(RenderManager* view) {
     atn::RenderManager::instance_->fn_800C0508(1);
     GXInvalidateTexAll();
     GXSetNumTexGens(1);
