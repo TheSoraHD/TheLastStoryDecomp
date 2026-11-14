@@ -66,3 +66,29 @@ Agente Q, rama `agent-Q`. Lista: `near.txt` (unidades fuera de la ruta con una s
 - Los avisos de `poolcheck` por constantes de una copia debil (WrapAngle_unk, ToRotation...) no impiden enlazar: el
   enlazador descarta la copia repetida y sus constantes.
 - "frsp de z otra vez" en un ToRotation inlineado: probar `ToRotationZ_unk()` (CopyRobotTask vf10).
+
+## Segunda lista (`near2.txt`, dos funciones por debajo del 100 %)
+
+Rama al dia con `port-decomp-20261114` (fb6791f) y referencia nueva en `$REF` (15421). Ninguna unidad nueva
+enlaza; nada se commitea en codigo.
+
+- `atn/LipSync_unk` fn_8007A7BC (99,70 %): 5 variantes del clamp (sin `cur`, limite en local, objetivo en local,
+  delta reasignado, suma invertida); los FPR de `cur`/`m2C` siguen cruzados.
+- `chr/ControlDropDown` ctor (98,04 %): con `mChara->m574.Assign_unk(v);` (copia con z primero) sale el `frsp` y el
+  z guardado del original y sube a **99,37 %**; queda mChara en r4 por r6 y las direcciones de los temporales
+  (r5/r6 por r4/r5). 8 variantes mas sin cambio (local para mChara, `chara->` en lugar de `mChara->`, Assign_unk de
+  mStart, `v` asignado aparte). No se guarda: vf0C (98,2 %, huecos de pila) bloquea la unidad igualmente.
+- `game/Em205Ogre` fn_802B98B0 (98,61 %): `asgwrap.py` llega a 99,02 % (4 asignaciones con VecAssign_unk), no al 100.
+- `game/CostumeEditChara` vf10 (99,99 %): una de sus dos diferencias es de nombre: `lbl_8087F580` es
+  `MenuCommonTask::sInstance` (vista local `CostumeEditCursor_unk` con `mOffset` 0x1EC / `mSize` 0x1F4 =
+  `m1EC..m1F8` de `MenuCommonTask`). Pendiente (regla 10): usar `MenuCommonTask::sInstance`; requiere dar a
+  `MenuCommonTask` los dos `atn::Vector2_unk` (cabecera compartida, ~20 unidades) o leer los floats sueltos. No
+  tocado porque vf14 (98,90 %) sigue bloqueando la unidad.
+- Sin probar mas (bloqueo anotado en `docs/mwcc-blockers.md` o en notas previas): TextureCacheManager8x32 (par
+  contador/desplazamiento), MapIdTable_unk, PaletteTable_unk, PostFxDamage (comentarios con ~8-12 variantes),
+  EnemySeaLizerd, Brazier, BoneCalc_unk, LH_Model, D3Anime, ArenaTask, Em001Necromancer, OnOff, Em312DarkServant,
+  NewCampPartsTop (solo registros), CharaParam_unk (cambio de `std/string.h` que baja D2A_Message).
+
+## Hallazgos (segunda lista)
+
+- Copia de vuelta de un Vector3 temporal con `frsp` de z en el original: probar `Assign_unk` (z primero).
