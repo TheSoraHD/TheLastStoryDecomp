@@ -66,8 +66,18 @@ Inicio: 2026-11-14 02:59 CET. Rama `agent-B`. Unidades: `game/BattleTask`, `game
 
 ## Pendientes
 
-- `fn_80103FD4` (odio por personaje, 5,4 KB, 18 registros de coma flotante; lee mas campos del bloque "Hate" de
-  GameConfig desde 0x350 de los que tiene `HateConfig_unk`: +0x28, +0x2C + 4 * tipo, +0x54 + 4 * tipo).
+- `fn_80103FD4` (odio por personaje, 5,4 KB, 18 registros de coma flotante): asm leido entero, sin escribir.
+  Esquema: `HateConfig_unk` (vista local de GameConfig desde 0x350) necesita `mPlayerMinusHate` (+0x24),
+  `mIgnoreLongHate` (+0x28), `mIgnoreLongHateValue[10]` (+0x2C) y `mIgnoreLongHateRand[10]` (+0x54), indexados por
+  `(signed char)chara->m5C->m121`; `fn_80210220(cfg->mParamIndex)` sin usar el resultado; `m363B4` es un contador
+  (`int`, decrementa si > 0). Bucle por `mCharas[i]` con `mMarkers.mItems[i]`: si el personaje no puede actuar
+  (CanAct o flag 0x2000 de m54C) limpia `mCharas[k].m08[idx]` (k < 72), resetea la entrada si `m92F`, limpia el
+  marcador conservando el bit 1 de `mFlags`, `m808 = 60` si esta agarrado y `fn_8017A5D8(0)`; si puede, recorre los
+  rivales (`m6E4[j]` con m6DC/m6E0, distancias en `m24C[j]` con PSVECMag, `m36C[j]` del odio con fn_80164EF4,
+  `mF8`/`m48C`/`m5AC`/`m80C[j]` con los bonus 0x7D0, (n+1)*200, 70/35, 0xAF, 3000), elige objetivo (r30) y
+  `m930 = target->mFD8`; al final ajusta `m248` con 1/15, 1/75 segun tipo y estado. Constantes (sdata2):
+  0, 1, 0.8, 1000, 2000, 240, 60, 12000, 15000, 0.05, 1/300, 32767, 70, 1.5, 50, 100, 25, 0.4, 0.7, 10, 0.5.
+- `BattleCharaTask::fn_800E4278` (5,6 KB): sin empezar.
 - `HitInfo_unk::m50/m54` como floats (ver arriba).
 - `CharaC58_unk::m140` -> `float[24]`, `m1A0` -> `int[4]` y `CharaRes_unk::m64-m84` como 9 floats en
   `game/CharaTask.h` (cabecera de otra familia, muy incluida): con eso fn_80017128 deberia acercarse al 100 %.
