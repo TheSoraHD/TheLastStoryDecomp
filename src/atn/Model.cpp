@@ -906,9 +906,9 @@ void Model::fn_8008CD60() {
 
 void ModelBase::vf18(RenderManager* view) {
     if (m20C_31_24 == 8) {
-        fn_8008D78C();
+        fn_8008D78C(view);
         if (mFlag6_unk) {
-            fn_80091684(*(const Mtx*)((char*)view + 0x15C), mLods[m50].m10.mData);
+            fn_80091684(view->mCamera.mView.m, mLods[m50].m10.mData);
         }
         if (m20C_0) {
             fn_80095CD0();
