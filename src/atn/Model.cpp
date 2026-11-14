@@ -834,10 +834,53 @@ void ModelBase::fn_8008C950() {
     CalcMatrixStack(0, ModelNodeCallback_unk());
 }
 
+extern "C" void fn_8006FEBC(AABB_unk* screen, const AABB_unk* box); // inferred: screen rectangle of a box (atn/Geometry_unk.cpp)
+
+// inferred: the occlusion data of the model needs no test (flag 2, no occlusion data, or ready), as in
+// fn_8008CD60; name invented
+static inline bool IsReady_unk(ModelBase* model) {
+    bool ready = true;
+    bool noOcclusion = true;
+    if ((model->mFlags & 2) != 2 && fn_80476194(&model->mLods[0].mHandle) == 0) {
+        noOcclusion = false;
+    }
+    if (!noOcclusion && fn_804761B0(&model->mLods[0].mHandle) == 0) {
+        ready = false;
+    }
+    return ready;
+}
+
+// inferred: flag tests of mFlags (names invented)
+static inline bool HasFlag_unk(ModelBase* model, unsigned int flag) {
+    return (model->mFlags & flag) == flag;
+}
+
+// inferred: the model is drawn in the reflection pass (flags 0x400 or 0x800, and the scene reflects the
+// characters or flag 0x1000), as in fn_8008CD60; name invented
+static inline bool IsReflected_unk(ModelBase* model) {
+    bool reflect = false;
+    bool mirror = (model->mFlags & 0x400) == 0x400 || (model->mFlags & 0x800) == 0x800;
+    if (mirror) {
+        Scene* scene = model->m1DC;
+        if (scene == 0) {
+            scene = RenderManager::instance_->mScene;
+        }
+        bool chara = true;
+        if (scene->mReflectChara == 0 && (model->mFlags & 0x1000) != 0x1000) {
+            chara = false;
+        }
+        if (chara) {
+            reflect = true;
+        }
+    }
+    return reflect;
+}
+
 // inferred: queues the model in the render passes of its flags (only the occlusion pass while its occlusion
 // data is pending); updates the scene of the bounding sphere and draws the debug joints and sphere
-// NONMATCHING: 95.8% - the original keeps the flag tests as bool values (0/1 in registers: the test of 0x10000,
-// the occlusion and reflection conditions) and reloads mFlags for each pass test
+// NONMATCHING: 97.3% - the test of 0x10000 is materialized as a value in the original (subf/or/srwi) and mFlags is
+// reloaded for each pass test (the occlusion and reflection conditions are the inline bools IsReady_unk and
+// IsReflected_unk, shared with fn_8008D78C)
 void Model::fn_8008CD60() {
     if (fn_804761B0(&mLods[0].mHandle)) {
         RenderManager::instance_->AddRender(this, 0, m98);
@@ -854,22 +897,13 @@ void Model::fn_8008CD60() {
         RenderManager::instance_->AddRender(this, 0x10, m98);
         return;
     }
-    bool noOcclusion = (mFlags & 2) == 2 || fn_80476194(&mLods[0].mHandle);
-    bool occluder = noOcclusion || fn_804761B0(&mLods[0].mHandle);
-    if (occluder) {
+    if (IsReady_unk(this)) {
         RenderManager::instance_->AddRender(this, 0, m98);
     } else if (lbl_8087EFA8->m014 == 0) {
         if ((mFlags & 4) == 4) {
             RenderManager::instance_->AddRender(this, 3, m98);
         }
-        bool reflect = false;
-        if ((mFlags & 0x400) == 0x400 || (mFlags & 0x800) == 0x800) {
-            Scene* scene = (m1DC != 0) ? m1DC : RenderManager::instance_->mScene;
-            if (scene->mReflectChara != 0 || (mFlags & 0x1000) == 0x1000) {
-                reflect = true;
-            }
-        }
-        if (reflect) {
+        if (IsReflected_unk(this)) {
             RenderManager::instance_->AddRender(this, 4, m98);
         }
         if ((mFlags & 0x1000000) != 0x1000000 && (mFlags & 0x10) == 0x10) {
@@ -913,6 +947,117 @@ void ModelBase::vf18(RenderManager* view) {
         if (m20C_0) {
             fn_80095CD0();
         }
+    }
+}
+
+// inferred: element-wise matrix sum and scale (the arguments of the constructor are evaluated from
+// the last one); names invented
+static inline Matrix3x4 MtxAdd_unk(const Matrix3x4& a, const Matrix3x4& b) {
+    return Matrix3x4(a.m[0][0] + b.m[0][0], a.m[0][1] + b.m[0][1], a.m[0][2] + b.m[0][2], a.m[0][3] + b.m[0][3],
+                     a.m[1][0] + b.m[1][0], a.m[1][1] + b.m[1][1], a.m[1][2] + b.m[1][2], a.m[1][3] + b.m[1][3],
+                     a.m[2][0] + b.m[2][0], a.m[2][1] + b.m[2][1], a.m[2][2] + b.m[2][2], a.m[2][3] + b.m[2][3]);
+}
+static inline Matrix3x4 MtxScale_unk(const Matrix3x4& a, float s) {
+    return Matrix3x4(a.m[0][0] * s, a.m[0][1] * s, a.m[0][2] * s, a.m[0][3] * s, a.m[1][0] * s, a.m[1][1] * s,
+                     a.m[1][2] * s, a.m[1][3] * s, a.m[2][0] * s, a.m[2][1] * s, a.m[2][2] * s, a.m[2][3] * s);
+}
+
+// inferred: bounding sphere of the shadow model m1C4 (its box, not scaled) in world space, with the matrix of
+// fn_80094F98 (expanded by the original in vf14); name invented
+static inline Sphere ShadowSphere_unk(ModelBase* model) {
+    ModelBase::Res_unk* res = (ModelBase::Res_unk*)model->m1C4.m08;
+    Sphere sphere;
+    sphere.mCenter = (res->GetMax_unk() + res->GetMin_unk()) * 0.5f;
+    sphere.mRadius = 0.5f * (res->GetMax_unk() - res->GetMin_unk()).Length_unk();
+    Matrix3x4 mtx = model->mMtx;
+    if (model->mB0 >= 0) {
+        if (model->mB4 >= 0) {
+            mtx = MtxScale_unk(MtxAdd_unk(model->mMtx.mNodes.mData[model->mB0], model->mMtx.mNodes.mData[model->mB4]),
+                               0.5f);
+        } else {
+            mtx = model->mMtx.mNodes.mData[model->mB0];
+        }
+    }
+    Vector3 center = sphere.mCenter;
+    PSMTXMultVec(mtx.m, &center, &center);
+    sphere.mCenter = center;
+    return sphere;
+}
+
+// inferred: visibility result of the entry of a map tree (visible when the entry is not set); name invented
+static inline int IsVisible_unk(const AABBTree::Handle& handle) {
+    int valid = 0;
+    if (handle.mTree != 0 && handle.mNode != 0) {
+        valid = 1;
+    }
+    if (valid) {
+        return handle.mTree->mVisible.mData[handle.mNode->mIndex];
+    }
+    return 1;
+}
+
+// inferred: visibility of the model for the view (called by vf18; mFlag6_unk is what vf10 and fn_8008E818 draw
+// by): the result of its entry in the map tree (m200), then the frustum test of its bounding sphere (or of the
+// shadow model), the occlusion test or the distance / screen size culling, the reflection pass, and the flags
+// 0x40000 (asks for the screen copy) and 0x400000 (always visible)
+// NONMATCHING: 96.4% - stack layout and registers (the address registers of the inlined matrices), the test of
+// flag 1 is materialized as a value in the original (subfic/or/srwi after reloading mFlags) and the box of the
+// sphere is built in place
+void ModelBase::fn_8008D78C(RenderManager* view) {
+    Sphere sphere = GetModel_unk()->fn_80094F98();
+    mFlag6_unk = IsVisible_unk(m200);
+    if (mFlag6_unk && !fn_8004FF58(&view->mCamera.mFrustum, &sphere)) {
+        mFlag6_unk = 0;
+        if (mFlag5_unk && mFlag4_unk) {
+            Sphere shadow = ShadowSphere_unk(this);
+            if (fn_8004FF58(&view->mCamera.mFrustum, &shadow)) {
+                mFlag6_unk = 1;
+            }
+        }
+    }
+    if (mFlag6_unk && !IsReady_unk(this)) {
+        if (lbl_8087EFA8->m1D0 != 0 && view->m2F8 != 0 && (mFlags & 0x2000000) != 0x2000000) {
+            AABB_unk box;
+            if (!HasFlag_unk(this, 1)) {
+                float r = sphere.mRadius;
+                box = AABB_unk(sphere.mCenter - Vector3(r, r, r), sphere.mCenter + Vector3(r, r, r));
+            } else {
+                box = GetModel_unk()->fn_80095300();
+            }
+            mFlag6_unk = RenderManager::instance_->fn_800C0A50(&box);
+        }
+    } else if (mFlag6_unk && IsReady_unk(this)) {
+        if ((view->mCamera.mPos - sphere.mCenter).Length_unk() - sphere.mRadius > lbl_8087EFA8->m1EC) {
+            mFlag6_unk = 0;
+        } else {
+            AABB_unk box = GetModel_unk()->fn_80095300();
+            AABB_unk screen;
+            fn_8006FEBC(&screen, &box);
+            if ((screen.mMax.x - screen.mMin.x) * (screen.mMax.y - screen.mMin.y) <
+                lbl_8087EFA8->m1F0 * lbl_8087EFA8->m1F0) {
+                mFlag6_unk = 0;
+            }
+        }
+    }
+    if (!mFlag6_unk) {
+        if (IsReflected_unk(this) && HasFlag_unk(this, 0x400)) {
+            Scene* scene = m1DC;
+            if (scene == 0) {
+                scene = RenderManager::instance_->mScene;
+            }
+            Vector3 center = sphere.mCenter;
+            PSMTXMultVec(scene->mReflect.m, &center, &center);
+            Sphere mirrored(center, sphere.mRadius);
+            if (fn_8004FF58(&view->mCamera.mFrustum, &mirrored)) {
+                mFlag6_unk = 1;
+            }
+        }
+    }
+    if (mFlag6_unk && (mFlags & 0x40000) == 0x40000) {
+        view->m54960 = 1;
+    }
+    if ((mFlags & 0x400000) == 0x400000) {
+        mFlag6_unk = 1;
     }
 }
 
@@ -1068,10 +1213,10 @@ extern "C" void fn_8008E818(atn::ModelBase* model, atn::RenderManager* view) {
 inline atn::AABB_unk fn_8008F5F8(const atn::AABB_unk& box, const atn::Matrix3x4& m);
 
 // inferred: adds to `out` the world boxes of the joints of the tree from `node` (and its next siblings) whose
-// bounding sphere is in the frustum; `arg` is passed down unused. fn_8008F5F8 is inline (the original
+// bounding sphere is in the frustum; `arg` (the view matrix of vf14) is passed down unused. fn_8008F5F8 is inline (the original
 // expands it here and keeps its weak copy right after this function)
 // NONMATCHING: 80.4% - copies of the box corners and registers of the inlined fn_8008F5F8
-extern "C" void fn_8008EEDC(atn::ModelBase* model, const atn::ModelBase::NodeRes_unk* node, int arg,
+extern "C" void fn_8008EEDC(atn::ModelBase* model, const atn::ModelBase::NodeRes_unk* node, const atn::Matrix3x4* arg,
                             const Frustum_unk* frustum, atn::AABB_unk* out) {
     using namespace atn;
     ModelLod_unk* lod = &model->mLods[model->m50];
@@ -1130,6 +1275,46 @@ inline atn::AABB_unk fn_8008F5F8(const atn::AABB_unk& box, const atn::Matrix3x4&
 }
 
 namespace atn {
+
+// inferred: sets both corners of a box (name invented)
+static inline void SetBox_unk(AABB_unk* box, const Vector3& min, const Vector3& max) {
+    box->mMin = min;
+    box->mMax = max;
+}
+
+// inferred: shadow caster test of atn/LayerShadow.cpp: bounding sphere of the model in world space (the one
+// of the shadow model in the shadow pass), culled by the frustum and by the shadow distance from the camera
+// position `pos`; when `bounds` is given, writes the box of the caster: the box of the sphere for a small
+// model, else the boxes of the visible joints (fn_8008EEDC, which gets `view` unused)
+// NONMATCHING: 98.2% - registers (the original keeps the level of detail in r31 and this in r26), the address
+// registers of the inlined matrix of fn_80094F98 and the stack slot of the copy of the shadow sphere center
+int ModelBase::vf14(const Matrix3x4* view, const Vector3* pos, const Frustum_unk* frustum, AABB_unk* bounds) {
+    ModelLod_unk* lod;
+    Sphere sphere;
+    lod = &mLods[m50];
+    if (mFlag5_unk && mFlag4_unk && RenderManager::instance_->GetPass_unk() == 3) {
+        sphere = ShadowSphere_unk(this);
+    } else {
+        sphere = GetModel_unk()->fn_80094F98();
+    }
+    if (!fn_8004FF58(frustum, &sphere)) {
+        return 0;
+    }
+    if ((*pos - sphere.mCenter).Length_unk() > lbl_8087EFA8->m104.mCullDist) {
+        return 0;
+    }
+    if (bounds != 0) {
+        if (sphere.mRadius < 15.0f * mAC) {
+            float r = sphere.mRadius;
+            *bounds = AABB_unk(sphere.mCenter - Vector3(r, r, r), sphere.mCenter + Vector3(r, r, r));
+        } else {
+            NodeRes_unk* root = ((Res_unk*)lod->m08)->m48[0];
+            SetBox_unk(bounds, Vector3(1e16f, 1e16f, 1e16f), Vector3(-1e16f, -1e16f, -1e16f));
+            fn_8008EEDC(this, root, view, frustum, bounds);
+        }
+    }
+    return 1;
+}
 
 void ModelBase::vf1C() {
 }
@@ -2146,18 +2331,6 @@ void Model::fn_80094F14(float u, float v) {
     for (unsigned int i = 0; i < m104.mMaterials.mSize; i++) {
         m104.mMaterials.mData[i]->fn_80081514(u, v);
     }
-}
-
-// inferred: element-wise matrix sum and scale (the arguments of the constructor are evaluated from
-// the last one); names invented
-static inline Matrix3x4 MtxAdd_unk(const Matrix3x4& a, const Matrix3x4& b) {
-    return Matrix3x4(a.m[0][0] + b.m[0][0], a.m[0][1] + b.m[0][1], a.m[0][2] + b.m[0][2], a.m[0][3] + b.m[0][3],
-                     a.m[1][0] + b.m[1][0], a.m[1][1] + b.m[1][1], a.m[1][2] + b.m[1][2], a.m[1][3] + b.m[1][3],
-                     a.m[2][0] + b.m[2][0], a.m[2][1] + b.m[2][1], a.m[2][2] + b.m[2][2], a.m[2][3] + b.m[2][3]);
-}
-static inline Matrix3x4 MtxScale_unk(const Matrix3x4& a, float s) {
-    return Matrix3x4(a.m[0][0] * s, a.m[0][1] * s, a.m[0][2] * s, a.m[0][3] * s, a.m[1][0] * s, a.m[1][1] * s,
-                     a.m[1][2] * s, a.m[1][3] * s, a.m[2][0] * s, a.m[2][1] * s, a.m[2][2] * s, a.m[2][3] * s);
 }
 
 // inferred: bounding sphere in world space: the center of the box through the world matrix, or the
