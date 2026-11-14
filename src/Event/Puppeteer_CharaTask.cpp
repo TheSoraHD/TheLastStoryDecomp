@@ -1779,9 +1779,3 @@ void Actor::fn_80013558() {
 }
 
 } // namespace Event
-
-namespace atn {
-// inferred: inline and empty in atn::Task (its only copy is weak, here at 0x80013CAC); defined here and not
-// in atn/Task.h because the inline body there renumbers the @N labels of the 367 units that include it
-inline void Task::vf18(Task*) {}
-} // namespace atn

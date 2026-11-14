@@ -23,6 +23,19 @@ Rama `agent-D`. Referencia: `$REF` = `/home/claude/ref-D` (15424 / 18109).
 - `@enum$6816ControlAppear_cpp` -> `@enum$6922ControlAppear_cpp` (8 lineas de `symbols.txt`): el numero cambia en
   el `.o` de ControlAppear al incluir la cabecera; sin renombrar se perdian `invoke`/`manage` de su `boost::function`.
 
+### `atn/Task.h` (punto 2)
+
+- `Task::vf18(Task*) {}` inline en la clase (sin nombre de parametro); fuera de `Event/Puppeteer_CharaTask.cpp`.
+  La copia debil 0x80013CAC sigue saliendo en Puppeteer_CharaTask al 100 %.
+- Renumera +4 las `@N` de las 367 unidades que incluyen la cabecera: `pdbatch.sh` de las 367, `lblmap.py` en 36
+  que seguian peor y despues desplazamiento uniforme +4 desde las etiquetas de HEAD (script de una vez en el
+  scratch) para los flotantes repetidos que `lblmap` emparejo mal (28 lineas: BattleTask, GameCamera_unk, PacketPack,
+  GameUI, GameEventScript, StrapTask...).
+- `@enum$6922ControlAppear_cpp` -> `@enum$6926ControlAppear_cpp`.
+- Revertidos los renombrados que no son `@N` de `pairdata`/`lblmap` (20 + 11: `sPath`, `sPath__2db`,
+  `sSeLogName_unk`, `sSizeFormat__3atn`, `@STRING@...`): solo se aceptan `@N` y `@stringBase0`.
+- Neutro: 15424 -> 15424, lost 0, sin bajadas; labelcheck 46 unidades / 205 etiquetas -> 37 / 168.
+
 ## Decisiones tomadas sin el usuario
 
 - Puntos 1 y 3 en un solo commit: los dos tocan `atn/Model_unk.h` y cada re-emparejado en lote cuesta ~25 min.
@@ -36,7 +49,12 @@ Rama `agent-D`. Referencia: `$REF` = `/home/claude/ref-D` (15424 / 18109).
   definiciones de `Event/Puppeteer_CharaTask.cpp`, `atn/Model.cpp`, `game/CharaTask.cpp`, `game/EnemyTasha.cpp`,
   `chr/ControlMountle.cpp`, `game/MotionCommand_unk.cpp`. Sin cambios de firma ni de layout.
 
+- `atn::Task::vf18` inline en `include/atn/Task.h` (quitar su definicion de `Event/Puppeteer_CharaTask.cpp`).
+
 ## Hallazgos
+
+- Tras un cambio de cabecera el desplazamiento de las `@N` suele ser uniforme por unidad (+4 con `Task::vf18`):
+  aplicar `HEAD + d` es mas fiable que `lblmap.py` con flotantes repetidos.
 
 - `pdbatch.sh` con la lista de `ninja -n` pierde las unidades ya recompiladas a mano: sacar la lista antes de compilar
   nada (o anadirlas luego).
