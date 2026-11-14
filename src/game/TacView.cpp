@@ -95,11 +95,13 @@ static const int sTexts[6] = {0x1B0, 0x1B1, 0x1B2, 0x1B3, 0x1B4, 0x1B5};
 static const int sNames2[6] = {0x135, 0x136, 0x137, 0x138, -1, -1};
 static const int sTexts2[6] = {0x139, 0x13A, 0x13B, 0x13C, -1, -1};
 
+// inferred: whole aiming block cleared (TacView constructor), radius -1
+inline TacViewAim_unk::TacViewAim_unk() : mMode(0), mPos(0.0f, 0.0f, 0.0f), mRadius(-1.0f), mA(0), mB(0) {}
+
 // NONMATCHING: 99.5% - register coloring of the constants 0/2 and of the end of the mSlots loop
 TacView::TacView(atn::Task* parent)
     : atn::Task(parent), mA70(0), mA74(0), mA78(6), mA7C(0), mA80(0), mA84(0),
-      m158C(0), m1590(0), m1594(0), m1598(0), m15A8(0), m15AC(0), m15D4(0), m15D8(0), m15DC(0.0f, 0.0f, 0.0f),
-      m15E8(-1.0f), m15EC(0), m15ED(0) {
+      m158C(0), m1590(0), m1594(0), m1598(0), m15A8(0), m15AC(0), m15D4(0) {
     (mLayouts.mSelect = fn_801F3FF8(this, "/data/d2anime/ui_command_select.d2a", 0))->fn_800D246C(1);
     (mLayouts.mHpFlash = fn_801F3FF8(this, "/data/d2anime/ui_command_hp_flash.d2a", 0))->fn_800D246C(1);
     (mLayouts.mFace = fn_801F3FF8(this, "/data/d2anime/ui_command_face.d2a", 0))->fn_800D246C(1);
@@ -174,16 +176,16 @@ static inline void TacViewClose_unk(TacView* v) {
     v->m48.mState = 2;
     v->m48.m04 = 0;
     v->m48.mTarget = 0;
-    v->m15D8 = 0;
-    v->m15DC.x = 0.0f;
-    v->m15DC.y = 0.0f;
-    v->m15DC.z = 0.0f;
-    v->m15E8 = -1.0f;
-    v->m15EC = 0;
-    v->m15ED = 0;
-    v->m15F0.mState = 2;
-    v->m15F0.m04 = 0;
-    v->m15F0.mTarget = 0;
+    v->mAim.mMode = 0;
+    v->mAim.mPos.x = 0.0f;
+    v->mAim.mPos.y = 0.0f;
+    v->mAim.mPos.z = 0.0f;
+    v->mAim.mRadius = -1.0f;
+    v->mAim.mA = 0;
+    v->mAim.mB = 0;
+    v->mAim.mCursor.mState = 2;
+    v->mAim.mCursor.m04 = 0;
+    v->mAim.mCursor.mTarget = 0;
     fn_800CB5C8(&v->m16C0, 15, 0);
     v->mLayouts.m1C = 0;
     v->mLayouts.m20 = 0;
@@ -272,14 +274,14 @@ void TacView::vf10() {
         if (--mA84 > 0) {
             return;
         }
-        if (m15D8 == 1) {
+        if (mAim.mMode == 1) {
             m15A8 = 1;
             if ((CharaTask*)m15AC != m48.m04) {
                 m15AC = (int)m48.m04;
                 m159C = camera->m8A4;
             }
             ChangeMode_unk(4);
-        } else if (m15D8 == 2) {
+        } else if (mAim.mMode == 2) {
             CharaTask* target = m48.mState == 0 ? m48.m04->mC58.mC4 : 0;
             ChangeMode_unk(1);
             if (target != 0) {
@@ -387,7 +389,7 @@ void TacView::vf10() {
             atn::Vector3 d(m159C.x - camera->m8A4.x, m159C.y - camera->m8A4.y, m159C.z - camera->m8A4.z);
             if ((float)sqrt(d.x * d.x + d.z * d.z) > 2.0f) {
                 bool moving = false;
-                if (m15D8 == 1 && m15A8 > 0) {
+                if (mAim.mMode == 1 && m15A8 > 0) {
                     moving = true;
                 }
                 if (!moving) {
@@ -400,13 +402,13 @@ void TacView::vf10() {
         camera->fn_8037F744();
         if (lbl_8087F0A8->mInput.fn_801231D0(0) != 0) {
             lbl_8087EE68->fn_800183E0(m54.mChara, m48.m04, (HitInfo_unk*)m54.m54[m54.m4C], 0);
-            m15D8 = 0;
+            mAim.mMode = 0;
             TacViewNextSlot_unk(this);
             mLayouts.m1C = 0;
             mLayouts.m20 = 0;
             fn_805A70D4(1, 1.0f);
         } else if (lbl_8087F0A8->mInput.fn_801231D0(1) != 0) {
-            m15D8 = 0;
+            mAim.mMode = 0;
             ChangeMode_unk(0);
             TacViewSelectSlot_unk(this);
             TacViewUndo_unk(this, m48.m04);
@@ -458,12 +460,12 @@ void TacView::vf10() {
         case 0: {
             decide = 1;
             bool held = false;
-            if (m15EC == 0 && lbl_8087F0A8->mInput.fn_801240B4(9) == 0) {
+            if (mAim.mA == 0 && lbl_8087F0A8->mInput.fn_801240B4(9) == 0) {
                 held = true;
             }
             if (!held) {
                 bool on = false;
-                if (m15EC != 0 && lbl_8087F0A8->mInput.fn_801231D0(0) != 0) {
+                if (mAim.mA != 0 && lbl_8087F0A8->mInput.fn_801231D0(0) != 0) {
                     on = true;
                 }
                 if (!on) {
@@ -475,7 +477,7 @@ void TacView::vf10() {
         case 1: {
             decide = 0;
             bool on = false;
-            if (m1598 != 0 || m15EC != 0) {
+            if (m1598 != 0 || mAim.mA != 0) {
                 on = true;
             }
             if (on && lbl_8087F0A8->mInput.fn_801231D0(0) != 0) {
@@ -491,7 +493,7 @@ void TacView::vf10() {
             atn::Vector3 pos = camera->m8A4;
             PlayerState_unk state(6);
             state.m0C = pos;
-            if (m15EC == 0) {
+            if (mAim.mA == 0) {
                 BattleCharaTask* player = (BattleCharaTask*)lbl_8087F8A0->mHead;
                 state.m0C.y = player->mPos.y;
                 player->SetState_unk(state);
@@ -520,7 +522,7 @@ void TacView::vf10() {
                     break;
                 }
                 static_cast<BattleCharaTask*>(m48.m04)->SetState_unk(state);
-                m15D8 = 0;
+                mAim.mMode = 0;
                 fn_805A70D4(1, 1.0f);
                 TacViewNextSlot_unk(this);
                 mLayouts.m1C = 0;
@@ -528,11 +530,11 @@ void TacView::vf10() {
             }
             m159C = camera->m8A4;
         } else if (lbl_8087F0A8->mInput.fn_801231D0(1) != 0) {
-            if (m15EC == 0) {
+            if (mAim.mA == 0) {
                 TacViewClose_unk(this);
                 lbl_8087F430->m5674 = 0;
             } else {
-                m15D8 = 0;
+                mAim.mMode = 0;
                 ChangeMode_unk(0);
                 TacViewSelectSlot_unk(this);
                 mLayouts.m1C = 0;
@@ -613,23 +615,31 @@ void TacView::vf14() {}
 
 extern "C" int fn_8021A888(HitInfo_unk* hit); // inferred: the skill is an attack magic
 extern "C" atn::Vector3 lbl_807C7030;          // inferred: zero vector
-// inferred: aiming state of the view (m15D8-m15F8; name invented)
-inline void TacViewSetAim_unk(TacView* v, int mode, const atn::Vector3& pos, float radius, unsigned char a,
-                              unsigned char b) {
-    v->m15D8 = mode;
-    v->m15DC = pos;
-    v->m15E8 = radius;
-    v->m15EC = a;
-    v->m15ED = b;
-    v->m15F0.mState = 2;
-    v->m15F0.m04 = 0;
-    v->m15F0.mTarget = 0;
+// inferred: starts the aiming of the view (names invented). mB keeps the 0 of the constructor (the original
+// stores it with the constructor stores); only the areas of 0x179A-0x179C set it afterwards
+inline void TacViewSetAim_unk(TacView* v, int mode, const atn::Vector3& pos, float radius, unsigned char a) {
+    TacViewAim_unk aim;
+    aim.mMode = mode;
+    aim.mPos = pos;
+    aim.mRadius = radius;
+    aim.mA = a;
+    v->mAim = aim;
+}
+inline void TacViewSetAimB_unk(TacView* v, int mode, const atn::Vector3& pos, float radius, unsigned char a,
+                               unsigned char b) {
+    TacViewAim_unk aim;
+    aim.mMode = mode;
+    aim.mPos = pos;
+    aim.mRadius = radius;
+    aim.mA = a;
+    aim.mB = b;
+    v->mAim = aim;
 }
 
 // inferred: gives `chara` the command of the direction `dir` of the character entry m54: target, skill and AI
 // order; skills that are aimed (areas, sub bullets) start the aiming of the view
-// NONMATCHING: 80.6% - the original builds the aiming state (m15D8-m15F8) in a local struct and copies it, and
-// orders the compares of the commands differently
+// NONMATCHING: 98.3% - registers (cmd and extra swapped, the vector addresses of the player states) and the
+// compares of cmd 8-11 in the AI branch, which the original makes on the cmd - 6 of the first test
 void TacView::fn_805A96D4(CharaTask* chara, int dir) {
     m54.m4C = dir;
     m54.mType = (int)chara;
@@ -739,29 +749,29 @@ void TacView::fn_805A96D4(CharaTask* chara, int dir) {
     }
     user->mStatus.fn_8012D180();
     if (skill->m70 > 0) {
-        if (fn_80219E6C(skill->m70)->m02 == 7) {
-            TacViewSetAim_unk(this, 1, chara->mPos, 100.0f, 1, 0);
+        if ((signed char)fn_80219E6C(skill->m70)->m02 == 7) {
+            TacViewSetAim_unk(this, 1, chara->mPos, 100.0f, 1);
         }
         return;
     }
     if (user->mType == 0) {
         switch (skill->m04) {
+        case 0x1788:
+        case 0x1791:
+            TacViewSetAim_unk(this, 1, chara->mPos, skill->m58, 1);
+            break;
         case 0x179A:
         case 0x179B:
         case 0x179C:
-            TacViewSetAim_unk(this, 1, chara->mPos, skill->m58, 1, 1);
-            break;
-        case 0x1788:
-        case 0x1791:
-            TacViewSetAim_unk(this, 1, chara->mPos, skill->m58, 1, 0);
+            TacViewSetAimB_unk(this, 1, chara->mPos, skill->m58, 1, 1);
             break;
         case 0x4FBB:
         case 0x1789:
-            TacViewSetAim_unk(this, 1, chara->mPos, skill->m58, 1, 0);
+            TacViewSetAim_unk(this, 1, chara->mPos, skill->m58, 1);
             break;
         }
     } else if (skill->m04 == 0x4FBB || skill->m04 == 0x1789) {
-        TacViewSetAim_unk(this, 1, chara->mPos, skill->m58, 1, 0);
+        TacViewSetAim_unk(this, 1, chara->mPos, skill->m58, 1);
     } else if ((fn_8021A888(skill) != 0 || skill->m04 == 0x1788 || skill->m04 == 0x1791) && chara->mType != 2) {
         int count = 0;
         for (EnemyTask* e = EnemyManager::sInstance != 0 ? EnemyManager::sInstance->mHead : 0; e != 0;
@@ -772,7 +782,7 @@ void TacView::fn_805A96D4(CharaTask* chara, int dir) {
             }
         }
         if (count > 0) {
-            TacViewSetAim_unk(this, 2, lbl_807C7030, 0.0f, 1, 0);
+            TacViewSetAim_unk(this, 2, lbl_807C7030, 0.0f, 1);
         }
     }
 }
@@ -936,7 +946,7 @@ void TacView::fn_805AA4E4() {
     m159C = lbl_8087F430->mCamera.m8A4;
     m15AC = 0;
     mCharas.clear();
-    if (m15D8 == 1) {
+    if (mAim.mMode == 1) {
         ChangeMode_unk(4);
     } else {
         ChangeMode_unk(0);
@@ -1813,7 +1823,7 @@ void TacView::fn_805ADF50(CharaTask* chara) {
 
 void TacView::fn_805AE034(TacViewTarget_unk* target) {
     if (target != 0) {
-        TacViewSel_unk old = m15F0;
+        TacViewSel_unk old = mAim.mCursor;
         if (old.mState == 2 || (old.mState == 1 && old.mTarget != target)) {
             if (target->m08->mType == 2) {
                 fn_805A70D4(8, 1.0f);
@@ -1821,15 +1831,15 @@ void TacView::fn_805AE034(TacViewTarget_unk* target) {
                 fn_805A70D4(7, 1.0f);
             }
         }
-        m15F0.mState = 1;
-        m15F0.mTarget = target;
+        mAim.mCursor.mState = 1;
+        mAim.mCursor.mTarget = target;
     } else {
-        if (m15F0.mState != 2) {
+        if (mAim.mCursor.mState != 2) {
             fn_805A70D4(9, 1.0f);
         }
-        m15F0.mState = 2;
-        m15F0.m04 = 0;
-        m15F0.mTarget = 0;
+        mAim.mCursor.mState = 2;
+        mAim.mCursor.m04 = 0;
+        mAim.mCursor.mTarget = 0;
     }
 }
 

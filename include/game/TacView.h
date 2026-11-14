@@ -77,6 +77,18 @@ struct TacViewCursor_unk : public TacViewSel_unk {
     }
 };
 
+// inferred: aiming state of the view (0x24 bytes at 0x15D8): fn_805A96D4 builds one on the stack and copies
+// it; the constructor of TacView initialises the whole block in this order. Names invented.
+struct TacViewAim_unk {
+    inline TacViewAim_unk(); // inferred: defined in game/TacView.cpp
+    int mMode;            // inferred: cursor shown by the view (chr/ControlCharge.cpp)
+    atn::Vector3 mPos;
+    float mRadius;
+    unsigned char mA;
+    unsigned char mB;
+    TacViewCursor_unk mCursor; // inferred: target under the cursor (fn_805AE034)
+};
+
 // inferred: 0x2C-byte entry of TacView (64 at 0xA8C; also a local of fn_805AB828); the constructor
 // (weak copy 0x805A7600) clears the whole entry after the cursor state. Names invented.
 struct TacViewSlot_unk {
@@ -153,7 +165,7 @@ public:
     bool IsIdle_unk() const { return m48.mState == 0; }
     // inferred: weak copies in game/GameUI.cpp (0x803D718C, 0x803D7194); names invented
     int GetOpen_unk() const { return mA70; }
-    int* GetCursor_unk() { return &m15D8; }
+    int* GetCursor_unk() { return &mAim.mMode; }
 
     // inferred: cursor of the view (state compared with 0 and 2 by GameUI::fn_803DCA84; m04 is the
     // character under the cursor); copied from the entries of mSlots
@@ -176,12 +188,7 @@ public:
     int m15AC;
     TacViewLayouts_unk mLayouts; // 0x15B0
     unsigned char m15D4;
-    int m15D8;            // inferred: cursor shown by the view (chr/ControlCharge.cpp)
-    atn::Vector3 m15DC;
-    float m15E8;
-    unsigned char m15EC;
-    unsigned char m15ED;
-    TacViewCursor_unk m15F0; // inferred: target under the cursor (fn_805AE034)
+    TacViewAim_unk mAim; // 0x15D8
     atn::FixedArray_unk<TacViewEntry_unk, 16> mEntries; // 0x15FC
     atn::SoundRef m16C0;
     int m16C4;

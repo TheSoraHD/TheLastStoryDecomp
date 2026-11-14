@@ -3643,7 +3643,7 @@ static inline void SafeNormalize_unk(atn::Vector3* v) {
 // inferred: the view moves to its point (TacView::m159C)
 static inline bool TacViewMoving_unk(TacView* view) {
     bool moving = false;
-    if (view->m15D8 == 1 && view->m15A8 > 0) {
+    if (view->mAim.mMode == 1 && view->m15A8 > 0) {
         moving = true;
     }
     return moving;
@@ -3684,7 +3684,7 @@ void GameCamera::fn_80390A88() {
     AddViewHeight_unk(&pos);
     if (lbl_8087F9F8 != 0 && lbl_8087F9F8->mA70 != 0) {
         TacViewSel_unk sel = lbl_8087F9F8->m48;
-        if (lbl_8087F9F8->m15D8 == 1) {
+        if (lbl_8087F9F8->mAim.mMode == 1) {
             free = 1;
         }
         lbl_8087F9F8->fn_805AA94C(&m8A4, &move, free, m8D4);
@@ -3704,11 +3704,11 @@ void GameCamera::fn_80390A88() {
         }
         atn::Vector3 center = m8BC;
         int follow = 1;
-        if (lbl_8087F9F8->m15D8 == 1) {
+        if (lbl_8087F9F8->mAim.mMode == 1) {
             if (!TacViewMoving_unk(lbl_8087F9F8)) {
                 minDist = 0.001f;
-                maxDist = lbl_8087F9F8->m15ED ? 600.0f : 200.0f;
-                center = lbl_8087F9F8->m15DC;
+                maxDist = lbl_8087F9F8->mAim.mB ? 600.0f : 200.0f;
+                center = lbl_8087F9F8->mAim.mPos;
             } else {
                 follow = 0;
             }
@@ -3757,7 +3757,7 @@ void GameCamera::fn_80390A88() {
                 if (sub && !((TacViewTask_unk*)lbl_8087F9F8->m15AC)->IsIdle_unk()) {
                     aimed = true;
                 }
-                int floor = aimed ? lbl_8087F9F8->m15DC.y : m8BC.y;
+                int floor = aimed ? lbl_8087F9F8->mAim.mPos.y : m8BC.y;
                 do {
                     if (fn_8004D388(lbl_8087EE98, &result, &pos, &move, mask, 0, -1, radius)) {
                         atn::Vector3 d = result.m10 - pos;
