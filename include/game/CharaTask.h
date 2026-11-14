@@ -301,7 +301,7 @@ struct MotionCommand_unk {
     int m04;                // 0x04: inferred: motion id of the selected track
     int m08;                // 0x08: inferred: selected track (largest weight)
     int m0C;
-    unsigned char m10;      // inferred: enabled
+    bool m10;              // inferred: enabled (stored as `x == 1` without a mask, Actor::fn_8000FAE8)
     unsigned char m11;      // inferred: sounds enabled
     unsigned char m12;      // inferred: a command was found on the last update (run again)
     atn::LH_MotionCommandData mLoader; // 0x14
