@@ -108,22 +108,13 @@ struct BattleLineEff_unk {
     atn::EffFile mHead; // 0x0C
 };
 
-// inferred: markers and resources of the target lines (BattleTask+0x367B8..0x389F4); names invented. The
-// methods are defined inline in game/BattleTask.cpp and declared here without parameter names.
+// inferred: markers of the target lines (BattleTask+0x367B8): only the array (the method takes the entry at
+// offset 0; the effects and the texture of the lines are members of BattleTask, destroyed one by one); names
+// invented
 struct BattleMarkers_unk {
-    BattleMarkers_unk() : mHideLines(1) {}
     BattleMarker_unk* fn_800F8538(int); // weak copy 0x800F8538
-    atn::EffFile* GetEfp_unk(int);
-    atn::Texture* GetTex_unk();
 
     BattleMarker_unk mItems[72];
-    // inferred: effects of the line (GetEfp_unk: 0/1 base and head toward an enemy, 2/3 appearance, 4/5 base
-    // and head toward the own side); three members, not an array (constructed and destroyed one by one)
-    BattleLineEff_unk mEnemyLine;  // 0x38978
-    BattleLineEff_unk mAppearLine; // 0x38990
-    BattleLineEff_unk mOwnLine;    // 0x389A8
-    int mHideLines;                // 0x389C0: inferred: nonzero hides the lines (sets mode 1)
-    atn::Texture mTex;             // 0x389C4: inferred: texture of the line (DrawHelper::fn_80064F00)
 };
 
 // inferred: entry of BattleTask::mStuns (0xC bytes): character with a timed effect (groups 0x3E9/0x3EA)
@@ -181,21 +172,24 @@ struct BattleTimer_unk {
     int m04; // inferred: frames left
 };
 
+// inferred: fixed array {count, entries} of BattleTask::mTimers (0xCBAC); names invented
+struct BattleTimers_unk {
+    BattleTimers_unk() : mCount(0) {}
+    unsigned int mCount;
+    BattleTimer_unk mItems[8];
+};
+
 struct BattleStun_unk {
     CharaTask* mChara;
     int mTimer;   // inferred: frames left
     int mStarted; // inferred: the loop effect was started
 };
 
-// inferred: hate of each character toward each other (BattleTask::m391E0, fn_8010C948), cleared row by row
-// by its constructor; name invented
-struct BattleHate_unk {
-    BattleHate_unk() {
-        for (int i = 0; i < 0x48; i++) {
-            memset(m[i], 0, sizeof(m[i]));
-        }
-    }
-    int m[0x48][0x48];
+// inferred: row of BattleTask::m391E0 (hate of one character toward each entry of mCharas), cleared by its
+// constructor; name invented
+struct BattleHateRow_unk {
+    BattleHateRow_unk() { memset(m, 0, sizeof(m)); }
+    int m[0x48];
 };
 
 class BattleTask : public atn::Task {
@@ -382,8 +376,7 @@ public:
     atn::Vector3 mCB64;            // inferred: aimed direction smoothed by vf14 (turns the arrow)
     atn::Vector3 mCB70;            // inferred: screen direction to the aimed position (fn_8010D320)
     atn::Texture mCB7C;            // inferred: texture of the reticle
-    unsigned int mCBAC;            // inferred: entries of mCBB0
-    BattleTimer_unk mCBB0[8];      // inferred: timers counted down by vf10
+    BattleTimers_unk mTimers;      // 0xCBAC: inferred: timers counted down by vf10
     BattleChara_unk mCharas[0x48]; // 0xCBF0: inferred: characters known to the battle (CharaTask::fn_80176E30)
     int m36290[72]; // inferred: times each entry of mCharas was chosen as a target (fn_80103600)
     int mCharaCount;               // 0x363B0
@@ -411,6 +404,11 @@ public:
     int m367B0; // inferred: copied from GameTask::m5618 at the end of a map change; debug "DrawHateArrow"
     int m367B4; // inferred: debug "DrawHateNumber"
     BattleMarkers_unk mMarkers; // 0x367B8: inferred: target lines
+    BattleLineEff_unk mEnemyLine;  // 0x38978: inferred: base and head of a line toward an enemy
+    BattleLineEff_unk mAppearLine; // 0x38990: inferred: appearance of a line
+    BattleLineEff_unk mOwnLine;    // 0x389A8: inferred: base and head of a line toward the own side
+    int mHideLines;                // 0x389C0: inferred: nonzero hides the lines (sets mode 1)
+    atn::Texture mLineTex;         // 0x389C4: inferred: texture of the lines (DrawHelper::fn_80064F00)
     atn::EffFile m389F4; // inferred: chant effect (its address is the owner tag)
     int m38A00; // inferred: nonzero draws the target lines of every friend (fn_801055A8)
     float m38A04; // inferred: gauge value, clamped to [0, m38A0C]
@@ -476,7 +474,7 @@ public:
     int m38CCC; // inferred: result of the comparison of the totals (1, 3; 2 when GameTask::fn_80375184 fails)
     int m38CD0; // inferred: previous m38CCC
     BattleShots_unk mShots; // 0x38CD4
-    BattleHate_unk m391E0;
+    BattleHateRow_unk m391E0[0x48]; // inferred: hate of each character toward each other (fn_8010C948)
     int m3E2E0; // inferred: character under the cursor
     CharaTask* m3E2E4; // inferred: object under the cursor
     atn::ColliBase* m3E2E8; // inferred: cursor target

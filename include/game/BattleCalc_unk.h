@@ -14,8 +14,9 @@ extern "C" void fn_800E2A24(BattleCalcParam_unk*);
 
 struct BattleCalcParam_unk {
     // inferred: inlined in the constructor of BattleTask (0x800F1430)
-    BattleCalcParam_unk() : m64(0), m68(0), m6C(0), m70(0), m74(0), m78(-1), m7C(-1) {
+    BattleCalcParam_unk() : m64(0), m68(0), m6C(0), m70(0), m74(0), m78(-1) {
         m80 &= 0x0FFFFFFF;
+        m7C = -1;
         fn_800E2A24(this);
     }
     int m00;          // inferred: effect id (BattleTask::fn_800FDE60)

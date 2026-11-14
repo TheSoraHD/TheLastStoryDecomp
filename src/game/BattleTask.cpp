@@ -52,6 +52,7 @@
 #include "game/CrossbowMenuTask.h"
 #include "atn/GraphicsDevice.h"
 #include "atn/Font_unk.h"
+#include "game/PickTask.h"
 #include <boost/bind.hpp>
 #include <boost/function.hpp>
 
@@ -127,6 +128,47 @@ BattleTask* BattleTask::fn_800F13BC(atn::Task* parent) {
     return lbl_8087F048;
 }
 
+extern "C" PopupTask* fn_8054A6E8(atn::Task* parent); // inferred: creates the popup task (game/PopupTask.cpp)
+extern "C" const char* const lbl_80881464; // inferred: "ef_neb01o.model" (.sdata2 of this file)
+
+BattleTask::BattleTask(atn::Task* parent)
+    : atn::Task(parent), mBulletId(0), mCB34(0), mCharaCount(0), m363B4(0), m363B8(0), m363BC(40),
+      m367B0(2), m367B4(0), mHideLines(1), m38A00(0), m38A04(0.0f), m38A08(0), m38A0C(120.0f), m38A10(0.333f), m38A14(80.0f),
+      m38A18(0.0f), m38A1C(80.0f), m38A20(20.0f), m38A24(10.0f), m38A28(0.0f), m38A2C(0.0f), m38A30(0.0f),
+      m38A34(0.0f), m38A38(1.5f), m38A3C(1.0f), m38A40(1.0f), m38A44(0.006f), m38A48(0.01f), m38A4C(0.05f),
+      m38A50(0.012f), m38A54(0.005f), m38C74(0), m38C78(0.0f), m38C7C(0.0f), m38C80(0.0f), m38C84(0.0f),
+      m38C88(0.0f), m38C8C(1.0f), m3E2E0(0), m3E2E4(0), m3E2E8(0), m3E2EC(0), m3E2F8(0), m3E2FC(0.1f), m3E300(0),
+      mStunCount(0), m3E390(0), m3E394(0), m3E398(0), m3E39C(0), m3E3A0(4.0f), m3E3A4(0.1f), m3E3A8(6.0f) {
+    SkillEffectManager::fn_8059AB98(this);
+    fn_8054A6E8(this);
+    LogMessageTask::fn_80478714(this);
+    PickTask::fn_80548D54(this);
+    fn_800F39A4();
+    fn_80100BF0();
+    for (unsigned int i = 0; i < 8; i++) {
+        mSlots[i].mModel.fn_8008AD4C(lbl_80881464, 0);
+        mSlots[i].mUsed = 0;
+        mSlots[i].mChara = 0;
+    }
+    mCB38.x = 0.0f;
+    mCB38.y = 0.0f;
+    mCB40.x = 0.0f;
+    mCB40.y = 0.0f;
+    mCB50.x = 0.0f;
+    mCB50.y = 0.0f;
+    mCB48.x = 0.0f;
+    mCB48.y = 0.0f;
+    mCB58 = 0;
+    mCB5C = 0.0f;
+    mCB64 = atn::Vector3(0.0f, 0.0f, 1.0f);
+    atn::VecAssign_unk(mCB70, atn::Vector3(0.0f, 0.0f, 1.0f));
+    m3E304 = EffectColor_unk(1.0f, 1.0f, 1.0f, 0.0f);
+}
+
+BattleTask::~BattleTask() {
+    lbl_8087F048 = 0;
+}
+
 // inferred: setup: waits for the effects and the d2anime tasks, then binds the node callback of the effect
 // models (the nodes follow the character the model is drawn on)
 int BattleTask::vf0C() {
@@ -183,12 +225,6 @@ extern "C" void fn_800F29D0(atn::Model* model, NodeCallback_unk callback) {
 // inferred: weak copy 0x800F8538; name invented
 inline BattleMarker_unk* BattleMarkers_unk::fn_800F8538(int i) {
     return &mItems[i];
-}
-inline atn::EffFile* BattleMarkers_unk::GetEfp_unk(int i) {
-    return &mEnemyLine.mBase + i; // inferred: the six effects of the three lines in a row
-}
-inline atn::Texture* BattleMarkers_unk::GetTex_unk() {
-    return &mTex;
 }
 
 extern "C" const char* lbl_808813F4; // inferred: "/effect/hateline/hate_line_01a.eff" (.sdata of this file)
@@ -519,13 +555,13 @@ int BattleTask::fn_800F3490() {
 // inferred: load requests of the battle resources (called by the constructor): the target lines, the
 // d2anime tasks, the splash and palette effects
 void BattleTask::fn_800F39A4() {
-    mMarkers.GetEfp_unk(0)->LoadRequest(lbl_808813F4);
-    mMarkers.GetEfp_unk(1)->LoadRequest(lbl_808813F8);
-    mMarkers.GetEfp_unk(4)->LoadRequest(lbl_808813FC);
-    mMarkers.GetEfp_unk(5)->LoadRequest(lbl_80881400);
-    mMarkers.GetEfp_unk(2)->LoadRequest(lbl_80881404);
-    mMarkers.GetEfp_unk(3)->LoadRequest(lbl_80881408);
-    mMarkers.GetTex_unk()->fn_800D5908("/battle/hatemove.texture");
+    mEnemyLine.mBase.LoadRequest(lbl_808813F4);
+    mEnemyLine.mHead.LoadRequest(lbl_808813F8);
+    mOwnLine.mBase.LoadRequest(lbl_808813FC);
+    mOwnLine.mHead.LoadRequest(lbl_80881400);
+    mAppearLine.mBase.LoadRequest(lbl_80881404);
+    mAppearLine.mHead.LoadRequest(lbl_80881408);
+    mLineTex.fn_800D5908("/battle/hatemove.texture");
     mCB30 = fn_801F3FF8(this, lbl_808813D4, 0);
     mCB30->fn_800D246C(1);
     mCB60 = fn_801F3FF8(this, lbl_808813D8, 0);
@@ -544,9 +580,9 @@ void BattleTask::fn_800F39A4() {
 }
 
 // inferred: both effects of a line pair are loading (inlined); name invented
-inline bool IsLoading_unk(BattleMarkers_unk& markers, int first) {
+inline bool IsLoading_unk(BattleLineEff_unk& line) {
     bool loading = false;
-    if (markers.GetEfp_unk(first)->IsLoading() || markers.GetEfp_unk(first + 1)->IsLoading()) {
+    if (line.mBase.IsLoading() || line.mHead.IsLoading()) {
         loading = true;
     }
     return loading;
@@ -555,14 +591,14 @@ inline bool IsLoading_unk(BattleMarkers_unk& markers, int first) {
 // inferred: nonzero while the resources requested by fn_800F39A4 load
 int BattleTask::fn_800F3B4C() {
     int loading = 0;
-    if (IsLoading_unk(mMarkers, 0) || IsLoading_unk(mMarkers, 4)) {
+    if (IsLoading_unk(mEnemyLine) || IsLoading_unk(mOwnLine)) {
         loading = 1;
     }
-    if (IsLoading_unk(mMarkers, 2)) {
+    if (IsLoading_unk(mAppearLine)) {
         loading = 1;
     }
     // inferred: the texture is seen through GimmickUvOwner_unk, as in the other callers of fn_800D59B8
-    if (((GimmickUvOwner_unk*)mMarkers.GetTex_unk())->fn_800D59B8()) {
+    if (((GimmickUvOwner_unk*)&mLineTex)->fn_800D59B8()) {
         loading = 1;
     }
     if (!mCB30->IsFlag_unk(2)) {
@@ -603,13 +639,13 @@ extern "C" void fn_800F3D28(BattleTask* mgr) {
         mgr->mCharas[i].m92E = 0;
         mgr->mCharas[i].m92F = 0;
         mgr->mCharas[i].fn_801081D8();
-        memset(mgr->m391E0.m[i], 0, sizeof(mgr->m391E0.m[i]));
+        memset(mgr->m391E0[i].m, 0, sizeof(mgr->m391E0[i].m));
         mgr->mMarkers.mItems[i].m70 = 0;
         mgr->mMarkers.mItems[i].mFlags = 0;
         mgr->mMarkers.mItems[i].mMode = 0;
     }
     mgr->mCharaCount = 0;
-    mgr->mCBAC = 0;
+    mgr->mTimers.mCount = 0;
     mgr->mStunCount = 0;
     for (int i = 0; i < 8; i++) {
         mgr->mSlots[i].mChara = 0;
@@ -870,7 +906,7 @@ inline void BattleTask::BetoModel::SetMtx_unk(const atn::Matrix3x4& mtx) {
 
 // inferred: update of the battle every frame: rebuilds the lock-on targets (mTargets: enemies, near NPCs and
 // friends), the nearest opponent of every enemy and friend (BattleChara_unk::m04), the "alert" sound of the
-// enemies near the leader, the mE0_12 flag of the friends, updates the bullets, the timers of mCBB0, the hate,
+// enemies near the leader, the mE0_12 flag of the friends, updates the bullets, the timers of mTimers.mItems, the hate,
 // the morale gauge, the debug shot records and the models of mSlots
 // NONMATCHING: 98.5% - registers of the shot ring loop (the original reloads the iterator from the stack), base
 // register of the slot model (r29) and stack slots of the column temporaries
@@ -1046,14 +1082,14 @@ void BattleTask::vf10() {
         }
     }
 
-    BattleTimer_unk* it = mCBB0;
-    while (it != mCBB0 + mCBAC) {
+    BattleTimer_unk* it = mTimers.mItems;
+    while (it != mTimers.mItems + mTimers.mCount) {
         if (--it->m04 <= 0) {
-            unsigned int i = it - mCBB0;
-            for (; i < mCBAC - 1; i++) {
-                mCBB0[i] = mCBB0[i + 1];
+            unsigned int i = it - mTimers.mItems;
+            for (; i < mTimers.mCount - 1; i++) {
+                mTimers.mItems[i] = mTimers.mItems[i + 1];
             }
-            mCBAC = mCBAC - 1;
+            mTimers.mCount = mTimers.mCount - 1;
         } else {
             it++;
         }
@@ -1105,7 +1141,7 @@ inline CharaTask* BattleTask::GetHated_unk(CharaTask* chara) {
     }
     int best = 0;
     int found = -1;
-    int* row = m391E0.m[i];
+    int* row = m391E0[i].m;
     for (int j = 0; j < mCharaCount; j++) {
         if (best < row[j]) {
             best = row[j];
@@ -1313,7 +1349,7 @@ void BattleTask::vf14() {
                     }
                     unsigned int color = hated == other ? 0xAFFFAFAF : 0xAFFFFFFF;
                     wchar_t wtext[256];
-                    swprintf(wtext, 256, L"%d", m391E0.m[i][j]);
+                    swprintf(wtext, 256, L"%d", m391E0[i].m[j]);
                     fn_800F7250()->fn_80061824(x, y, 0.0f, 12.0f, 12.0f, 0.0f, 0.0f, 0.0f, wtext, color, 1, 1, 0, 0,
                                                0xFF000000);
                     char text[256];
@@ -1457,7 +1493,7 @@ void BattleTask::fn_800F72F4(BattleCharaTask* chara, int arg) {
     marker->mFlags |= 1;
     int changed = 0;
     int mode = 0;
-    if (markers->mHideLines != 0 || (target->IsPlayer() && fn_800F5300(target) != 0) || fn_800F7F90() != 0) {
+    if (mHideLines != 0 || (target->IsPlayer() && fn_800F5300(target) != 0) || fn_800F7F90() != 0) {
         mode = 1;
     } else if (fn_800F5300(fn_8000D9E8()->GetHead_unk()) != 0) {
         mode = 3;
@@ -1481,10 +1517,10 @@ void BattleTask::fn_800F72F4(BattleCharaTask* chara, int arg) {
         if ((marker->mFlags & 0x10) != 0x10) {
             fn_800F7F98(fn_800F7FA0(), 1);
             fn_800F7FA8(fn_800F7FA0(), marker, 0);
-            fn_8023A680(fn_800F7FA0(), (EffectRes_unk*)&markers->mAppearLine.mBase, -1, 5, (int)marker, 0, 0, 0, 0, -1, 1, 1.0f);
-            fn_8023A680(fn_800F7FA0(), (EffectRes_unk*)&markers->mAppearLine.mHead, -1, 5, (int)&marker->mMtx2, 0, 0, 0, 0, -1, 1, 2.0f);
+            fn_8023A680(fn_800F7FA0(), (EffectRes_unk*)&mAppearLine.mBase, -1, 5, (int)marker, 0, 0, 0, 0, -1, 1, 1.0f);
+            fn_8023A680(fn_800F7FA0(), (EffectRes_unk*)&mAppearLine.mHead, -1, 5, (int)&marker->mMtx2, 0, 0, 0, 0, -1, 1, 2.0f);
             if (((Player_unk*)chara)->GetM146C_unk() == 0x12 || ((Player_unk*)chara)->GetM146C_unk() == 0x11) {
-                fn_8023A680(fn_800F7FA0(), (EffectRes_unk*)&markers->mAppearLine.mBase, -1, 5, (int)marker, 0, 0, 0, 0, -1, 1, 1.0f);
+                fn_8023A680(fn_800F7FA0(), (EffectRes_unk*)&mAppearLine.mBase, -1, 5, (int)marker, 0, 0, 0, 0, -1, 1, 1.0f);
             }
             fn_800F7F98(fn_800F7FA0(), 0);
         }
@@ -1534,7 +1570,7 @@ void BattleTask::fn_800F72F4(BattleCharaTask* chara, int arg) {
         break;
     }
     marker->m70--;
-    if (markers->mHideLines == 0 && marker->m70 >= 0) {
+    if (mHideLines == 0 && marker->m70 >= 0) {
         float t = (float)(marker->m70 - 6) / 6.0f;
         size = 0.0f > t ? 0.0f : (float)(marker->m70 - 6) / 6.0f;
         to = atn::Lerp_unk(to, marker->m60, size);
@@ -1570,7 +1606,7 @@ void BattleTask::fn_800F72F4(BattleCharaTask* chara, int arg) {
             verts[i].mColor = color.ToU32();
             v->mUV = fn_800F84D8(atn::Vec2_unk(1.0f, 0.0f), atn::Vec2_unk(0.0f, 0.0f), (float)i / (float)count);
         }
-        fn_800F7250()->fn_80064F00(verts, count + 1, 0xA0, 0, (int)&markers->mTex, 0.0f);
+        fn_800F7250()->fn_80064F00(verts, count + 1, 0xA0, 0, (int)&mLineTex, 0.0f);
         if (marker->m70 == 8) {
             if (info->mC4->IsPlayer()) {
                 if (fn_800F5300(info->mC4)) {
@@ -1598,7 +1634,7 @@ void BattleTask::fn_800F72F4(BattleCharaTask* chara, int arg) {
         }
         marker->mMtx = fn_800F80A8(&clipped.mStart);
         fn_800F80B8(marker->mMtx.m, &rot);
-        if (markers->mHideLines != 0) {
+        if (mHideLines != 0) {
             fn_800F8290(marker->mMtx.m, 3.0f, 3.0f, scale);
         } else {
             fn_800F8290(marker->mMtx.m, size, size, scale);
@@ -1609,7 +1645,7 @@ void BattleTask::fn_800F72F4(BattleCharaTask* chara, int arg) {
         marker->m6C = last;
     }
     if (fn_80239D58(fn_800F7FA0(), marker, 0) == 0) {
-        atn::EffFile* res = (mode == 1 || mode == 3) ? &markers->mOwnLine.mBase : &markers->mEnemyLine.mBase;
+        atn::EffFile* res = (mode == 1 || mode == 3) ? &mOwnLine.mBase : &mEnemyLine.mBase;
         fn_800F7F98(fn_800F7FA0(), 1);
         fn_800F84D0(fn_800F7FA0(), 5);
         fn_800F7FA8(fn_800F7FA0(), marker, 0);
@@ -5019,9 +5055,9 @@ inline BattleCharaTask* NextFriend_unk(BattleCharaTask* chara) {
 
 // inferred: draws the target lines of the frame (option SetConfig::mBattleDrawHateLine: 1 only while the leader
 // has mFlag28, 2 always, 3 friends and enemies but not the leader) and stops the effects of the lines not drawn
-// this frame; `arg` hides the lines (mMarkers.mHideLines)
+// this frame; `arg` hides the lines (mHideLines)
 void BattleTask::fn_801055A8(int arg) {
-    mMarkers.mHideLines = arg;
+    mHideLines = arg;
     for (unsigned int i = 0; i < 72; i++) {
         BattleMarker_unk* marker = &mMarkers.mItems[i];
         if ((marker->mFlags & 1) == 1) {
@@ -6888,9 +6924,9 @@ extern "C" void fn_8010C00C(BattleTask* mgr, CharaTask* chara) {
 void BattleTask::fn_8010C3E4() {
     for (int i = 0; i < mCharaCount; i++) {
         CharaTask* chara = GetCharaAt_unk(this, i);
-        int* row = m391E0.m[i];
+        int* row = m391E0[i].m;
         if (!chara->CanAct_unk()) {
-            memset(row, 0, sizeof(m391E0.m[i]));
+            memset(row, 0, sizeof(m391E0[i].m));
             continue;
         }
         for (int j = 0; j < mCharaCount; j++) {
@@ -6954,7 +6990,7 @@ CharaTask* BattleTask::fn_8010C948(CharaTask* chara) {
     }
     int best = 0;
     int found = -1;
-    int* row = m391E0.m[i];
+    int* row = m391E0[i].m;
     for (int j = 0; j < mCharaCount; j++) {
         if (best < row[j]) {
             best = row[j];
