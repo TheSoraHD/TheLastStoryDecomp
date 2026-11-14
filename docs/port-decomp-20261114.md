@@ -20,3 +20,6 @@ Re-emparejado: `pairdata` llamo `__vt__...`/`sInstance__9SetConfig` a cadenas y 
 
 ## Colas y agentes
 
+- 02:59: lanzados A (HUD), B (combate), C (camaras), D (modelos) desde a1e3f0c.
+- 04:25 integrada B (merge limpio). 04:30 integrada C: conflictos de `symbols.txt` solo de etiquetas `@N` (C renumero -10 las 148 unidades que incluyen `GameCamera.h`; B re-emparejo BattleTask): version de la integracion + `pdbatch.sh` de BattleTask/AiTarget/AiCommon_unk + `pairdata99.py` de la cola B en BattleTask (rep100 183 -> 138). 04:38 integrada D (merge limpio). Total 15389 -> 15392, lost 0, sin bajadas, rep100 143 -> 138, labelcheck 45 -> 44 (ff62b19, push).
+- 04:42: lanzados E (carga/dibujo de modelos), F (oclusion, LH_Motion_cont) y H (segunda pasada de combate: BattleCharaTask fn_800E4278 y BattleTask) desde ff62b19.
