@@ -8,7 +8,16 @@ struct HitInfo_unk;
 
 // inferred: layout from the stores of fn_800E2A24 only; field meanings unknown
 // (BattleTask keeps one at 0x38A5C, filled by BattleTask::fn_800FDE60)
+struct BattleCalcParam_unk;
+// inferred: resets the block (game/BattleCalc_unk.cpp)
+extern "C" void fn_800E2A24(BattleCalcParam_unk*);
+
 struct BattleCalcParam_unk {
+    // inferred: inlined in the constructor of BattleTask (0x800F1430)
+    BattleCalcParam_unk() : m64(0), m68(0), m6C(0), m70(0), m74(0), m78(-1), m7C(-1) {
+        m80 &= 0x0FFFFFFF;
+        fn_800E2A24(this);
+    }
     int m00;          // inferred: effect id (BattleTask::fn_800FDE60)
     CharaTask* m04;   // inferred: character
     HitInfo_unk* m08; // inferred: bullet data
@@ -42,8 +51,5 @@ struct BattleCalcParam_unk {
     int m90;
     int m94;
 };
-
-// inferred: resets the block (game/BattleCalc_unk.cpp)
-extern "C" void fn_800E2A24(BattleCalcParam_unk* p);
 
 #endif

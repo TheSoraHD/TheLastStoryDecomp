@@ -185,10 +185,10 @@ inline BattleMarker_unk* BattleMarkers_unk::fn_800F8538(int i) {
     return &mItems[i];
 }
 inline atn::EffFile* BattleMarkers_unk::GetEfp_unk(int i) {
-    return (atn::EffFile*)mEfp[i];
+    return &mEnemyLine.mBase + i; // inferred: the six effects of the three lines in a row
 }
 inline atn::Texture* BattleMarkers_unk::GetTex_unk() {
-    return (atn::Texture*)mTex;
+    return &mTex;
 }
 
 extern "C" const char* lbl_808813F4; // inferred: "/effect/hateline/hate_line_01a.eff" (.sdata of this file)
@@ -203,14 +203,6 @@ extern "C" const char* const lbl_80735988[3]; // inferred: splash effects (.roda
 extern "C" const char* fn_8020BD78(int index); // inferred: name of an effect palette
 extern "C" int sprintf(char* s, const char* format, ...);
 
-// inferred: the atn::EffFile and atn::Texture members of BattleTask are raw storage in the header (see
-// BattleMarkers_unk); names invented
-inline atn::EffFile* AsEffFile_unk(unsigned char* p) {
-    return (atn::EffFile*)p;
-}
-inline atn::Texture* AsTexture_unk(unsigned char* p) {
-    return (atn::Texture*)p;
-}
 extern "C" void fn_800D58A4(atn::Texture* tex); // inferred: releases the texture (as game/GameUI.cpp)
 // inferred: names of the battle effect files (const pointers of .sdata2 of this file to strings of .rodata)
 extern "C" const char* const lbl_808813DC;
@@ -265,60 +257,60 @@ extern "C" void fn_800F2C9C(BattleTask* mgr) {
             } else {
                 sprintf(path, "/effect/ef_hm001c.eff\0");
             }
-            AsEffFile_unk(mgr->mHitEff[i][j])->LoadRequest(path);
+            mgr->mHitEff[i][j].LoadRequest(path);
         }
     }
     for (int i = 0; i < 5; i++) {
         sprintf(path, "/effect/hit/ef_hs000_%02d.eff\0", i);
-        AsEffFile_unk(mgr->mEff3651C[i])->LoadRequest(path);
+        (&mgr->mEff3651C[i])->LoadRequest(path);
         sprintf(path, "/effect/hit/ef_hs001_%02d.eff\0", i);
-        AsEffFile_unk(mgr->mEff36558[i])->LoadRequest(path);
+        (&mgr->mEff36558[i])->LoadRequest(path);
     }
     for (int i = 0; i < 3; i++) {
-        AsEffFile_unk(mgr->mEff36594[i])->LoadRequest(lbl_80735A94[i]);
+        (&mgr->mEff36594[i])->LoadRequest(lbl_80735A94[i]);
     }
-    mgr->mEfp365B8[0].LoadRequest(lbl_80881474);
-    mgr->mEfp365B8[1].LoadRequest("ef_bs072h.efp");
-    mgr->mEfp363C0[0].LoadRequest(lbl_808813E0);
-    mgr->mEfp363C0[1].LoadRequest(lbl_808813E4);
-    mgr->mEfp363C0[2].LoadRequest(lbl_808813E8);
-    mgr->mEfp363C0[3].LoadRequest(lbl_808813EC);
-    AsTexture_unk(mgr->mCB7C)->fn_800D5908(lbl_808813DC);
+    mgr->mEfp365B8.LoadRequest(lbl_80881474);
+    mgr->mEfp365C4.LoadRequest("ef_bs072h.efp");
+    mgr->mEfp363C0.LoadRequest(lbl_808813E0);
+    mgr->mEfp363CC.LoadRequest(lbl_808813E4);
+    mgr->mEfp363D8.LoadRequest(lbl_808813E8);
+    mgr->mEfp363E4.LoadRequest(lbl_808813EC);
+    mgr->mCB7C.fn_800D5908(lbl_808813DC);
     mgr->mEfp364EC.LoadRequest(lbl_808813F0);
-    mgr->mEfp38AF4[0].LoadRequest(lbl_8088140C);
-    mgr->mEfp38AF4[1].LoadRequest("ef_bu044a.efp");
-    mgr->mEfp38AF4[2].LoadRequest(lbl_80881410);
-    mgr->mEfp38AF4[3].LoadRequest(lbl_80881414);
-    mgr->mEfp38AF4[4].LoadRequest(lbl_80881418);
-    mgr->mEfp38AF4[5].LoadRequest("ef_bu044d.efp");
-    mgr->mEfp38AF4[6].LoadRequest(lbl_8088141C);
-    mgr->mEfp38AF4[7].LoadRequest("ef_bu044b.efp");
-    mgr->mEfp38AF4[8].LoadRequest(lbl_80881420);
-    mgr->mEfp38AF4[9].LoadRequest("ef_bu044e.efp");
-    mgr->mEfp38AF4[10].LoadRequest(lbl_80881424);
-    mgr->mEfp38AF4[11].LoadRequest(lbl_80881428);
-    mgr->mEfp38AF4[12].LoadRequest(lbl_8088142C);
-    mgr->mEfp38AF4[13].LoadRequest(lbl_80881424);
-    mgr->mEfp38AF4[14].LoadRequest(lbl_80881428);
-    mgr->mEfp38AF4[15].LoadRequest(lbl_8088142C);
-    mgr->mEfp38AF4[16].LoadRequest(lbl_80881434);
-    mgr->mEfp38AF4[17].LoadRequest(lbl_80881438);
-    mgr->mEfp38AF4[18].LoadRequest(lbl_80881438);
-    mgr->mEfp38AF4[19].LoadRequest(lbl_8088143C);
-    mgr->mEfp38AF4[20].LoadRequest(lbl_80881440);
-    mgr->mEfp38AF4[21].LoadRequest(lbl_80881444);
-    mgr->mEfp38AF4[22].LoadRequest(lbl_80881448);
-    mgr->mEfp38AF4[23].LoadRequest(lbl_8088144C);
-    mgr->mEfp38AF4[25].LoadRequest(lbl_80881450);
-    mgr->mEfp38AF4[26].LoadRequest(lbl_80881454);
-    mgr->mEfp38AF4[27].LoadRequest(lbl_80881458);
-    mgr->mEfp38AF4[28].LoadRequest(lbl_8088145C);
-    AsEffFile_unk(mgr->m389F4)->LoadRequest(lbl_80881430);
-    mgr->mEfp38AF4[29].LoadRequest(lbl_80881460);
-    mgr->mEfp38AF4[30].LoadRequest("ef_uc067.efp");
-    mgr->mEfp38AF4[31].LoadRequest(lbl_80881468);
-    mgr->mEfp365B8[2].LoadRequest(lbl_8088146C);
-    mgr->mEfp365B8[3].LoadRequest(lbl_80881470);
+    mgr->mEfp38AF4.LoadRequest(lbl_8088140C);
+    mgr->mEfp38B00.LoadRequest("ef_bu044a.efp");
+    mgr->mEfp38B0C[0].LoadRequest(lbl_80881410);
+    mgr->mEfp38B0C[1].LoadRequest(lbl_80881414);
+    mgr->mEfp38B0C[2].LoadRequest(lbl_80881418);
+    mgr->mEfp38B30.LoadRequest("ef_bu044d.efp");
+    mgr->mEfp38B3C.LoadRequest(lbl_8088141C);
+    mgr->mEfp38B48.LoadRequest("ef_bu044b.efp");
+    mgr->mEfp38B54.LoadRequest(lbl_80881420);
+    mgr->mEfp38B60.LoadRequest("ef_bu044e.efp");
+    mgr->mEfp38B6C[0].LoadRequest(lbl_80881424);
+    mgr->mEfp38B6C[1].LoadRequest(lbl_80881428);
+    mgr->mEfp38B6C[2].LoadRequest(lbl_8088142C);
+    mgr->mEfp38B90[0].LoadRequest(lbl_80881424);
+    mgr->mEfp38B90[1].LoadRequest(lbl_80881428);
+    mgr->mEfp38B90[2].LoadRequest(lbl_8088142C);
+    mgr->mEfp38BB4.LoadRequest(lbl_80881434);
+    mgr->mEfp38BC0.LoadRequest(lbl_80881438);
+    mgr->mEfp38BCC.LoadRequest(lbl_80881438);
+    mgr->mEfp38BD8.LoadRequest(lbl_8088143C);
+    mgr->mEfp38BE4.LoadRequest(lbl_80881440);
+    mgr->mEfp38BF0.LoadRequest(lbl_80881444);
+    mgr->mEfp38BFC.LoadRequest(lbl_80881448);
+    mgr->mEfp38C08.LoadRequest(lbl_8088144C);
+    mgr->mEfp38C20.LoadRequest(lbl_80881450);
+    mgr->mEfp38C2C.LoadRequest(lbl_80881454);
+    mgr->mEfp38C38.LoadRequest(lbl_80881458);
+    mgr->mEfp38C44.LoadRequest(lbl_8088145C);
+    mgr->m389F4.LoadRequest(lbl_80881430);
+    mgr->mEfp38C50.LoadRequest(lbl_80881460);
+    mgr->mEfp38C5C.LoadRequest("ef_uc067.efp");
+    mgr->mEfp38C68.LoadRequest(lbl_80881468);
+    mgr->mEfp365D0.LoadRequest(lbl_8088146C);
+    mgr->mEfp365DC.LoadRequest(lbl_80881470);
     for (int i = 0; i < 7; i++) {
         mgr->mEfp365E8[i].LoadRequest(lbl_80735A48[i]);
     }
@@ -341,56 +333,56 @@ extern "C" void fn_800F3170(BattleTask* mgr) {
     mgr->m3E394 = 0;
     for (int i = 0; i < 3; i++) {
         for (int j = 0; j < 7; j++) {
-            AsEffFile_unk(mgr->mHitEff[i][j])->Destroy();
+            mgr->mHitEff[i][j].Destroy();
         }
     }
     for (int i = 0; i < 5; i++) {
-        AsEffFile_unk(mgr->mEff3651C[i])->Destroy();
-        AsEffFile_unk(mgr->mEff36558[i])->Destroy();
+        (&mgr->mEff3651C[i])->Destroy();
+        (&mgr->mEff36558[i])->Destroy();
     }
     for (int i = 0; i < 3; i++) {
-        AsEffFile_unk(mgr->mEff36594[i])->Destroy();
+        (&mgr->mEff36594[i])->Destroy();
     }
-    mgr->mEfp365B8[0].Destroy();
-    mgr->mEfp365B8[1].Destroy();
-    mgr->mEfp363C0[0].Destroy();
-    mgr->mEfp363C0[1].Destroy();
-    mgr->mEfp363C0[2].Destroy();
-    mgr->mEfp363C0[3].Destroy();
-    fn_800D58A4(AsTexture_unk(mgr->mCB7C));
+    mgr->mEfp365B8.Destroy();
+    mgr->mEfp365C4.Destroy();
+    mgr->mEfp363C0.Destroy();
+    mgr->mEfp363CC.Destroy();
+    mgr->mEfp363D8.Destroy();
+    mgr->mEfp363E4.Destroy();
+    fn_800D58A4(&mgr->mCB7C);
     mgr->mEfp364EC.Destroy();
-    mgr->mEfp38AF4[0].Destroy();
-    mgr->mEfp38AF4[1].Destroy();
+    mgr->mEfp38AF4.Destroy();
+    mgr->mEfp38B00.Destroy();
     for (int i = 0; i < 3; i++) {
-        (&mgr->mEfp38AF4[2])[i].Destroy();
+        (&mgr->mEfp38B0C[0])[i].Destroy();
     }
-    mgr->mEfp38AF4[5].Destroy();
-    mgr->mEfp38AF4[6].Destroy();
-    mgr->mEfp38AF4[7].Destroy();
-    mgr->mEfp38AF4[8].Destroy();
-    mgr->mEfp38AF4[9].Destroy();
+    mgr->mEfp38B30.Destroy();
+    mgr->mEfp38B3C.Destroy();
+    mgr->mEfp38B48.Destroy();
+    mgr->mEfp38B54.Destroy();
+    mgr->mEfp38B60.Destroy();
     for (int i = 0; i < 3; i++) {
-        (&mgr->mEfp38AF4[10])[i].Destroy();
-        (&mgr->mEfp38AF4[13])[i].Destroy();
+        (&mgr->mEfp38B6C[0])[i].Destroy();
+        (&mgr->mEfp38B90[0])[i].Destroy();
     }
-    mgr->mEfp38AF4[16].Destroy();
-    mgr->mEfp38AF4[20].Destroy();
-    mgr->mEfp38AF4[21].Destroy();
-    mgr->mEfp38AF4[22].Destroy();
-    mgr->mEfp38AF4[17].Destroy();
-    mgr->mEfp38AF4[18].Destroy();
-    mgr->mEfp38AF4[19].Destroy();
-    mgr->mEfp38AF4[23].Destroy();
-    mgr->mEfp38AF4[25].Destroy();
-    mgr->mEfp38AF4[26].Destroy();
-    mgr->mEfp38AF4[27].Destroy();
-    mgr->mEfp38AF4[28].Destroy();
-    AsEffFile_unk(mgr->m389F4)->Destroy();
-    mgr->mEfp38AF4[29].Destroy();
-    mgr->mEfp38AF4[30].Destroy();
-    mgr->mEfp38AF4[31].Destroy();
-    mgr->mEfp365B8[2].Destroy();
-    mgr->mEfp365B8[3].Destroy();
+    mgr->mEfp38BB4.Destroy();
+    mgr->mEfp38BE4.Destroy();
+    mgr->mEfp38BF0.Destroy();
+    mgr->mEfp38BFC.Destroy();
+    mgr->mEfp38BC0.Destroy();
+    mgr->mEfp38BCC.Destroy();
+    mgr->mEfp38BD8.Destroy();
+    mgr->mEfp38C08.Destroy();
+    mgr->mEfp38C20.Destroy();
+    mgr->mEfp38C2C.Destroy();
+    mgr->mEfp38C38.Destroy();
+    mgr->mEfp38C44.Destroy();
+    mgr->m389F4.Destroy();
+    mgr->mEfp38C50.Destroy();
+    mgr->mEfp38C5C.Destroy();
+    mgr->mEfp38C68.Destroy();
+    mgr->mEfp365D0.Destroy();
+    mgr->mEfp365DC.Destroy();
     for (int i = 0; i < 7; i++) {
         mgr->mEfp365E8[i].Destroy();
     }
@@ -413,90 +405,90 @@ int BattleTask::fn_800F3490() {
     }
     for (int i = 0; i < 3; i++) {
         for (int j = 0; j < 7; j++) {
-            if (AsEffFile_unk(mHitEff[i][j])->IsLoading()) {
+            if (mHitEff[i][j].IsLoading()) {
                 loading = 1;
             }
         }
     }
     for (int i = 0; i < 5; i++) {
-        if (AsEffFile_unk(mEff3651C[i])->IsLoading()) {
+        if ((&mEff3651C[i])->IsLoading()) {
             loading = 1;
         }
-        if (AsEffFile_unk(mEff36558[i])->IsLoading()) {
+        if ((&mEff36558[i])->IsLoading()) {
             loading = 1;
         }
     }
     for (int i = 0; i < 3; i++) {
-        if (AsEffFile_unk(mEff36594[i])->IsLoading()) {
+        if ((&mEff36594[i])->IsLoading()) {
             loading = 1;
         }
     }
-    if (mEfp365B8[0].IsLoading() || mEfp365B8[1].IsLoading()) {
+    if (mEfp365B8.IsLoading() || mEfp365C4.IsLoading()) {
         loading = 1;
     }
-    if (mEfp363C0[0].IsLoading()) {
+    if (mEfp363C0.IsLoading()) {
         loading = 1;
     }
-    if (mEfp363C0[1].IsLoading()) {
+    if (mEfp363CC.IsLoading()) {
         loading = 1;
     }
-    if (mEfp363C0[2].IsLoading()) {
+    if (mEfp363D8.IsLoading()) {
         loading = 1;
     }
-    if (mEfp363C0[3].IsLoading()) {
+    if (mEfp363E4.IsLoading()) {
         loading = 1;
     }
     // inferred: atn::Texture "is loading" (0x800D59B8, named as GimmickUvOwner_unk like gmk/AutomaticDoor.cpp)
-    if (((GimmickUvOwner_unk*)mCB7C)->fn_800D59B8()) {
+    if (((GimmickUvOwner_unk*)&mCB7C)->fn_800D59B8()) {
         loading = 1;
     }
     if (mEfp364EC.IsLoading()) {
         loading = 1;
     }
-    if (mEfp38AF4[0].IsLoading() || mEfp38AF4[1].IsLoading()) {
+    if (mEfp38AF4.IsLoading() || mEfp38B00.IsLoading()) {
         loading = 1;
     }
     for (int i = 0; i < 3; i++) {
-        if ((&mEfp38AF4[2])[i].IsLoading()) {
+        if ((&mEfp38B0C[0])[i].IsLoading()) {
             loading = 1;
         }
     }
-    if (mEfp38AF4[5].IsLoading()) {
+    if (mEfp38B30.IsLoading()) {
         loading = 1;
     }
-    if (mEfp38AF4[6].IsLoading() || mEfp38AF4[8].IsLoading()) {
+    if (mEfp38B3C.IsLoading() || mEfp38B54.IsLoading()) {
         loading = 1;
     }
-    if (mEfp38AF4[7].IsLoading() || mEfp38AF4[9].IsLoading()) {
+    if (mEfp38B48.IsLoading() || mEfp38B60.IsLoading()) {
         loading = 1;
     }
     for (int i = 0; i < 3; i++) {
-        if ((&mEfp38AF4[10])[i].IsLoading() || (&mEfp38AF4[13])[i].IsLoading()) {
+        if ((&mEfp38B6C[0])[i].IsLoading() || (&mEfp38B90[0])[i].IsLoading()) {
             loading = 1;
         }
     }
-    if (mEfp38AF4[16].IsLoading() || mEfp38AF4[17].IsLoading() || mEfp38AF4[18].IsLoading() ||
-        mEfp38AF4[19].IsLoading() || mEfp38AF4[20].IsLoading() || mEfp38AF4[21].IsLoading() ||
-        mEfp38AF4[22].IsLoading() || mEfp38AF4[23].IsLoading() || mEfp38AF4[25].IsLoading() ||
-        mEfp38AF4[26].IsLoading() || mEfp38AF4[27].IsLoading() || mEfp38AF4[28].IsLoading()) {
+    if (mEfp38BB4.IsLoading() || mEfp38BC0.IsLoading() || mEfp38BCC.IsLoading() ||
+        mEfp38BD8.IsLoading() || mEfp38BE4.IsLoading() || mEfp38BF0.IsLoading() ||
+        mEfp38BFC.IsLoading() || mEfp38C08.IsLoading() || mEfp38C20.IsLoading() ||
+        mEfp38C2C.IsLoading() || mEfp38C38.IsLoading() || mEfp38C44.IsLoading()) {
         loading = 1;
     }
-    if (AsEffFile_unk(m389F4)->IsLoading()) {
+    if (m389F4.IsLoading()) {
         loading = 1;
     }
-    if (mEfp38AF4[29].IsLoading()) {
+    if (mEfp38C50.IsLoading()) {
         loading = 1;
     }
-    if (mEfp38AF4[30].IsLoading()) {
+    if (mEfp38C5C.IsLoading()) {
         loading = 1;
     }
-    if (mEfp38AF4[31].IsLoading()) {
+    if (mEfp38C68.IsLoading()) {
         loading = 1;
     }
-    if (mEfp365B8[2].IsLoading()) {
+    if (mEfp365D0.IsLoading()) {
         loading = 1;
     }
-    if (mEfp365B8[3].IsLoading()) {
+    if (mEfp365DC.IsLoading()) {
         loading = 1;
     }
     for (int i = 0; i < 7; i++) {
@@ -543,7 +535,7 @@ void BattleTask::fn_800F39A4() {
     for (int i = 0; i < 3; i++) {
         mSplashEfp[i].LoadRequest(lbl_80735988[i]);
     }
-    mEfp38AF4[24].LoadRequest("data/eff/ef_sc024.efp");
+    mEfp38C14.LoadRequest("data/eff/ef_sc024.efp");
     for (unsigned int i = 0; i < 31; i++) {
         char path[256];
         sprintf(path, "/data/efp/ef_%s.efp", fn_8020BD78(i));
@@ -587,7 +579,7 @@ int BattleTask::fn_800F3B4C() {
             loading = 1;
         }
     }
-    if (mEfp38AF4[24].IsLoading()) {
+    if (mEfp38C14.IsLoading()) {
         loading = 1;
     }
     for (unsigned int i = 0; i < 31; i++) {
@@ -611,7 +603,7 @@ extern "C" void fn_800F3D28(BattleTask* mgr) {
         mgr->mCharas[i].m92E = 0;
         mgr->mCharas[i].m92F = 0;
         mgr->mCharas[i].fn_801081D8();
-        memset(mgr->m391E0[i], 0, sizeof(mgr->m391E0[i]));
+        memset(mgr->m391E0.m[i], 0, sizeof(mgr->m391E0.m[i]));
         mgr->mMarkers.mItems[i].m70 = 0;
         mgr->mMarkers.mItems[i].mFlags = 0;
         mgr->mMarkers.mItems[i].mMode = 0;
@@ -1113,7 +1105,7 @@ inline CharaTask* BattleTask::GetHated_unk(CharaTask* chara) {
     }
     int best = 0;
     int found = -1;
-    int* row = m391E0[i];
+    int* row = m391E0.m[i];
     for (int j = 0; j < mCharaCount; j++) {
         if (best < row[j]) {
             best = row[j];
@@ -1321,7 +1313,7 @@ void BattleTask::vf14() {
                     }
                     unsigned int color = hated == other ? 0xAFFFAFAF : 0xAFFFFFFF;
                     wchar_t wtext[256];
-                    swprintf(wtext, 256, L"%d", m391E0[i][j]);
+                    swprintf(wtext, 256, L"%d", m391E0.m[i][j]);
                     fn_800F7250()->fn_80061824(x, y, 0.0f, 12.0f, 12.0f, 0.0f, 0.0f, 0.0f, wtext, color, 1, 1, 0, 0,
                                                0xFF000000);
                     char text[256];
@@ -1489,10 +1481,10 @@ void BattleTask::fn_800F72F4(BattleCharaTask* chara, int arg) {
         if ((marker->mFlags & 0x10) != 0x10) {
             fn_800F7F98(fn_800F7FA0(), 1);
             fn_800F7FA8(fn_800F7FA0(), marker, 0);
-            fn_8023A680(fn_800F7FA0(), (EffectRes_unk*)markers->mEfp[2], -1, 5, (int)marker, 0, 0, 0, 0, -1, 1, 1.0f);
-            fn_8023A680(fn_800F7FA0(), (EffectRes_unk*)markers->mEfp[3], -1, 5, (int)&marker->mMtx2, 0, 0, 0, 0, -1, 1, 2.0f);
+            fn_8023A680(fn_800F7FA0(), (EffectRes_unk*)&markers->mAppearLine.mBase, -1, 5, (int)marker, 0, 0, 0, 0, -1, 1, 1.0f);
+            fn_8023A680(fn_800F7FA0(), (EffectRes_unk*)&markers->mAppearLine.mHead, -1, 5, (int)&marker->mMtx2, 0, 0, 0, 0, -1, 1, 2.0f);
             if (((Player_unk*)chara)->GetM146C_unk() == 0x12 || ((Player_unk*)chara)->GetM146C_unk() == 0x11) {
-                fn_8023A680(fn_800F7FA0(), (EffectRes_unk*)markers->mEfp[2], -1, 5, (int)marker, 0, 0, 0, 0, -1, 1, 1.0f);
+                fn_8023A680(fn_800F7FA0(), (EffectRes_unk*)&markers->mAppearLine.mBase, -1, 5, (int)marker, 0, 0, 0, 0, -1, 1, 1.0f);
             }
             fn_800F7F98(fn_800F7FA0(), 0);
         }
@@ -1578,7 +1570,7 @@ void BattleTask::fn_800F72F4(BattleCharaTask* chara, int arg) {
             verts[i].mColor = color.ToU32();
             v->mUV = fn_800F84D8(atn::Vec2_unk(1.0f, 0.0f), atn::Vec2_unk(0.0f, 0.0f), (float)i / (float)count);
         }
-        fn_800F7250()->fn_80064F00(verts, count + 1, 0xA0, 0, (int)markers->mTex, 0.0f);
+        fn_800F7250()->fn_80064F00(verts, count + 1, 0xA0, 0, (int)&markers->mTex, 0.0f);
         if (marker->m70 == 8) {
             if (info->mC4->IsPlayer()) {
                 if (fn_800F5300(info->mC4)) {
@@ -1617,7 +1609,7 @@ void BattleTask::fn_800F72F4(BattleCharaTask* chara, int arg) {
         marker->m6C = last;
     }
     if (fn_80239D58(fn_800F7FA0(), marker, 0) == 0) {
-        atn::EffFile* res = (mode == 1 || mode == 3) ? (atn::EffFile*)markers->mEfp[4] : (atn::EffFile*)markers->mEfp[0];
+        atn::EffFile* res = (mode == 1 || mode == 3) ? &markers->mOwnLine.mBase : &markers->mEnemyLine.mBase;
         fn_800F7F98(fn_800F7FA0(), 1);
         fn_800F84D0(fn_800F7FA0(), 5);
         fn_800F7FA8(fn_800F7FA0(), marker, 0);
@@ -4024,7 +4016,7 @@ extern "C" void fn_80101434(BattleTask* mgr, const atn::Vector3* pos, const atn:
     if (flag) {
         fn_800F7FA0()->mSystem.m78 = 1;
     }
-    fn_8023A680(fn_800F7FA0(), (EffectRes_unk*)mgr->mHitEff[level - 1][kind], -1, 0, 0, pos, rot, 0, 0, -1, 1, 1.0f);
+    fn_8023A680(fn_800F7FA0(), (EffectRes_unk*)&mgr->mHitEff[level - 1][kind], -1, 0, 0, pos, rot, 0, 0, -1, 1, 1.0f);
     if (flag) {
         fn_800F7FA0()->mSystem.m78 = 0;
     }
@@ -4050,19 +4042,19 @@ extern "C" void fn_80101524(BattleTask* mgr, const atn::Vector3* pos, const atn:
     }
     if (added & 1) {
         fn_80232B7C((unsigned int)mgr, 0);
-        fn_8023A680(lbl_8087F3C0, (EffectRes_unk*)mgr->mEff36594[0], -1, 0, 0, pos, rot, 0, 0, -1, 1, 1.0f);
+        fn_8023A680(lbl_8087F3C0, (EffectRes_unk*)&mgr->mEff36594[0], -1, 0, 0, pos, rot, 0, 0, -1, 1, 1.0f);
     }
     if (added & 0x400000) {
         fn_80232B7C((unsigned int)mgr, 0);
-        fn_8023A680(lbl_8087F3C0, (EffectRes_unk*)mgr->mEff36594[1], -1, 0, 0, pos, rot, 0, 0, -1, 1, 1.0f);
+        fn_8023A680(lbl_8087F3C0, (EffectRes_unk*)&mgr->mEff36594[1], -1, 0, 0, pos, rot, 0, 0, -1, 1, 1.0f);
     }
     if (added & 0x40) {
         fn_80232B7C((unsigned int)mgr, 0);
-        fn_8023A680(lbl_8087F3C0, (EffectRes_unk*)mgr->mEff36594[2], -1, 0, 0, pos, rot, 0, 0, -1, 1, 1.0f);
+        fn_8023A680(lbl_8087F3C0, (EffectRes_unk*)&mgr->mEff36594[2], -1, 0, 0, pos, rot, 0, 0, -1, 1, 1.0f);
     }
     if ((added & 0x1800000) && chara != 0) {
         fn_80232B7C((unsigned int)mgr, 0);
-        PlayEfp_unk((added & 0x80000) ? &mgr->mEfp365B8[1] : &mgr->mEfp365B8[0], chara->GetModel_unk());
+        PlayEfp_unk((added & 0x80000) ? &mgr->mEfp365C4 : &mgr->mEfp365B8, chara->GetModel_unk());
     }
     added &= 0xFE5FE7DF;
     removed &= 0xFE5FE7DF;
@@ -4105,7 +4097,7 @@ void BattleTask::fn_801018E4(BattleCalcParam_unk* param) {
     if (chara != 0 && (chara->mStatus.m0C & 0x20) == 0x20) {
         int level = attacker != 0 ? attacker->fn_8017A160() : 0;
         fn_80232B7C((unsigned int)this, 0);
-        fn_8023A680(lbl_8087F3C0, (EffectRes_unk*)mEff36558[level], -1, 0, 0, &param->m1C, &rot, 0, 0, -1, 1,
+        fn_8023A680(lbl_8087F3C0, (EffectRes_unk*)&mEff36558[level], -1, 0, 0, &param->m1C, &rot, 0, 0, -1, 1,
                     1.0f);
         return;
     }
@@ -4119,14 +4111,14 @@ void BattleTask::fn_801018E4(BattleCalcParam_unk* param) {
             return;
         }
         fn_80232B7C((unsigned int)this, 0);
-        fn_8023A680(lbl_8087F3C0, (EffectRes_unk*)mHitEff[effect - 1][5], -1, 0, 0, &param->m1C, &rot,
+        fn_8023A680(lbl_8087F3C0, (EffectRes_unk*)&mHitEff[effect - 1][5], -1, 0, 0, &param->m1C, &rot,
                     0, 0, -1, 1, 1.0f);
         return;
     }
     int strong = (param->m0C >> 7) & 1;
     int level = attacker != 0 ? attacker->fn_8017A160() : 0;
     fn_80232B7C((unsigned int)this, 0);
-    fn_8023A680(lbl_8087F3C0, strong ? (EffectRes_unk*)mEff36558[level] : (EffectRes_unk*)mEff3651C[level], -1, 0,
+    fn_8023A680(lbl_8087F3C0, strong ? (EffectRes_unk*)&mEff36558[level] : (EffectRes_unk*)&mEff3651C[level], -1, 0,
                 0, &param->m1C, &rot, 0, 0, -1, 1, 1.0f);
 }
 
@@ -5099,7 +5091,7 @@ void BattleTask::fn_801058F8() {
 
 void BattleTask::fn_80105950(void* owner, atn::Model* model) {
     fn_80232B7C((unsigned int)owner, 0);
-    PlayEfp_unk(&mEfp363C0[0], model);
+    PlayEfp_unk(&mEfp363C0, model);
 }
 
 void BattleTask::fn_801059F8(CharaTask* chara) {
@@ -5108,12 +5100,12 @@ void BattleTask::fn_801059F8(CharaTask* chara) {
 
 void BattleTask::fn_80105A08(void* owner, atn::Model* model) {
     fn_80232B7C((unsigned int)owner, 0);
-    PlayEfp_unk(&mEfp363C0[1], model);
+    PlayEfp_unk(&mEfp363CC, model);
 }
 
 void BattleTask::fn_80105AB0(void* owner, atn::Model* model, const EffectColor_unk& color) {
     fn_80232B7C((unsigned int)owner, 0);
-    fn_8023A8B4(lbl_8087F3C0, &mEfp363C0[2], model, 0, lbl_807C7030, lbl_807C7030, color, -1, -1, 1, 1.0f);
+    fn_8023A8B4(lbl_8087F3C0, &mEfp363D8, model, 0, lbl_807C7030, lbl_807C7030, color, -1, -1, 1, 1.0f);
 }
 
 void BattleTask::fn_80105B3C(CharaTask* chara) {
@@ -5122,7 +5114,7 @@ void BattleTask::fn_80105B3C(CharaTask* chara) {
 
 void BattleTask::fn_80105B4C(void* owner, atn::Model* model, const EffectColor_unk* color) {
     fn_80232B7C((unsigned int)owner, 0);
-    fn_8023A8B4(lbl_8087F3C0, &mEfp363C0[3], model, 0, lbl_807C7030, lbl_807C7030, *color, -1, -1, 1, 1.0f);
+    fn_8023A8B4(lbl_8087F3C0, &mEfp363E4, model, 0, lbl_807C7030, lbl_807C7030, *color, -1, -1, 1, 1.0f);
 }
 
 void BattleTask::fn_80105BD8(atn::Model* model) {
@@ -5135,9 +5127,9 @@ void BattleTask::fn_80105BD8(atn::Model* model) {
 void BattleTask::fn_80105C9C(CharaTask* chara, atn::Model* model) {
     fn_80232B7C((unsigned int)chara, 3);
     if (fn_80219558(chara->m50) == 2) {
-        PlayEfp_unk(&mEfp38AF4[1], model);
+        PlayEfp_unk(&mEfp38B00, model);
     } else {
-        PlayEfp_unk(&mEfp38AF4[0], model);
+        PlayEfp_unk(&mEfp38AF4, model);
     }
 }
 
@@ -5145,9 +5137,9 @@ void BattleTask::fn_80105C9C(CharaTask* chara, atn::Model* model) {
 void BattleTask::fn_80105DCC(CharaTask* chara, atn::Model* model, int level) {
     fn_80232B7C((unsigned int)chara, 4);
     if (fn_80219558(chara->m50) == 2) {
-        PlayEfp_unk(&mEfp38AF4[5], model);
+        PlayEfp_unk(&mEfp38B30, model);
     } else {
-        PlayEfp_unk(&mEfp38AF4[2] + MIN((unsigned int)MAX(level, 0), 3u), model);
+        PlayEfp_unk(&mEfp38B0C[0] + MIN((unsigned int)MAX(level, 0), 3u), model);
     }
 }
 
@@ -5158,9 +5150,9 @@ void BattleTask::fn_80105F3C(void* owner) {
 void BattleTask::fn_80105F4C(CharaTask* chara, atn::Model* model) {
     fn_80232B7C((unsigned int)chara, 3);
     if (fn_80219558(chara->m50) == 2) {
-        PlayEfp_unk(&mEfp38AF4[7], model);
+        PlayEfp_unk(&mEfp38B48, model);
     } else {
-        PlayEfp_unk(&mEfp38AF4[6], model);
+        PlayEfp_unk(&mEfp38B3C, model);
     }
 }
 
@@ -5171,9 +5163,9 @@ void BattleTask::fn_8010607C(void* owner) {
 void BattleTask::fn_8010608C(CharaTask* chara, atn::Model* model) {
     fn_80232B7C((unsigned int)chara, 3);
     if (fn_80219558(chara->m50) == 2) {
-        PlayEfp_unk(&mEfp38AF4[9], model);
+        PlayEfp_unk(&mEfp38B60, model);
     } else {
-        PlayEfp_unk(&mEfp38AF4[8], model);
+        PlayEfp_unk(&mEfp38B54, model);
     }
 }
 
@@ -5188,10 +5180,10 @@ extern "C" void fn_801061BC(BattleTask* mgr, CharaTask* chara, atn::Model* model
     fn_80232B7C((unsigned int)chara, 30);
     lbl_8087F3C0->mSystem.m78 = 1;
     if (fn_80219558(chara->m50) == 2) {
-        fn_8023A8B4(lbl_8087F3C0, &mgr->mEfp38AF4[13] + level, model, 0, lbl_807C7030, lbl_807C7030,
+        fn_8023A8B4(lbl_8087F3C0, &mgr->mEfp38B90[0] + level, model, 0, lbl_807C7030, lbl_807C7030,
                     EffectColor_unk(1.0f, 0.0f, 0.0f, 1.0f), -1, -1, 1, 1.0f);
     } else {
-        PlayEfp_unk(&mgr->mEfp38AF4[10] + level, model);
+        PlayEfp_unk(&mgr->mEfp38B6C[0] + level, model);
     }
     lbl_8087F3C0->mSystem.m78 = 0;
     if (level >= 1) {
@@ -5221,7 +5213,7 @@ void BattleTask::fn_8010652C(void* owner) {
 
 void BattleTask::fn_8010653C(void* owner, atn::Model* model) {
     fn_80232B7C((unsigned int)owner, 6);
-    PlayEfp_unk(&mEfp38AF4[29], model);
+    PlayEfp_unk(&mEfp38C50, model);
 }
 
 void BattleTask::fn_801065E4(void* owner) {
@@ -5230,23 +5222,23 @@ void BattleTask::fn_801065E4(void* owner) {
 
 void BattleTask::fn_801065F4(CharaTask* chara, atn::Model* model, const ColorF_unk* color) {
     fn_80232B7C((unsigned int)chara, 7);
-    fn_8023A8B4(lbl_8087F3C0, &mEfp38AF4[30], model, 0, lbl_807C7030, lbl_807C7030, *(const EffectColor_unk*)color,
+    fn_8023A8B4(lbl_8087F3C0, &mEfp38C5C, model, 0, lbl_807C7030, lbl_807C7030, *(const EffectColor_unk*)color,
                 -1, -1, 1, 1.0f);
 }
 
 void BattleTask::fn_80106680(void* owner, atn::Model* model) {
     fn_80232B7C((unsigned int)owner, 8);
-    PlayEfp_unk(&mEfp38AF4[31], model);
+    PlayEfp_unk(&mEfp38C68, model);
 }
 
 void BattleTask::fn_80106728(int arg, atn::Model* model) {
     fn_80232B7C(0, 0);
-    PlayEfp_unk(&mEfp365B8[2], model);
+    PlayEfp_unk(&mEfp365D0, model);
 }
 
 void BattleTask::fn_801067D0(CharaTask* chara, atn::Model* model) {
     fn_80232B7C(0, 0);
-    PlayEfp_unk(&mEfp365B8[3], model);
+    PlayEfp_unk(&mEfp365DC, model);
 }
 
 extern "C" std::string fn_8006B174(const std::string& path); // inferred: file name of a path (as game/CharaTask.cpp)
@@ -5354,13 +5346,13 @@ void BattleTask::fn_8010743C(const atn::Vector3* pos, int changed, float f) {
     m3E300 = 1;
     lbl_8087F3C0->mSystem.mReplaying = 1;
     if (changed != 0) {
-        fn_80239DAC(lbl_8087F3C0, (unsigned int)m389F4, 0, 0);
+        fn_80239DAC(lbl_8087F3C0, (unsigned int)&m389F4, 0, 0);
     }
-    if (changed != 0 || !fn_80239D58(lbl_8087F3C0, m389F4, 0)) {
+    if (changed != 0 || !fn_80239D58(lbl_8087F3C0, &m389F4, 0)) {
         EffectColor_unk color = m3E304;
         color.a = m3E2FC;
-        fn_80232B7C((unsigned int)m389F4, 0);
-        fn_8023A680(lbl_8087F3C0, (EffectRes_unk*)m389F4, -1, 6, (int)pos, 0, 0, &color, 0, -1, 1, f / 15.0f);
+        fn_80232B7C((unsigned int)&m389F4, 0);
+        fn_8023A680(lbl_8087F3C0, (EffectRes_unk*)&m389F4, -1, 6, (int)pos, 0, 0, &color, 0, -1, 1, f / 15.0f);
     }
     lbl_8087F3C0->mSystem.mReplaying = 0;
 }
@@ -5379,7 +5371,7 @@ void BattleTask::fn_80107584() {
         color.g = m3E304.g;
         color.b = m3E304.b;
         color.a = m3E2FC;
-        lbl_8087F3C0->fn_8023A184((unsigned int)m389F4, 0, &color);
+        lbl_8087F3C0->fn_8023A184((unsigned int)&m389F4, 0, &color);
         break;
     }
     case 2: {
@@ -5389,9 +5381,9 @@ void BattleTask::fn_80107584() {
         color.g = m3E304.g;
         color.b = m3E304.b;
         color.a = m3E2FC;
-        lbl_8087F3C0->fn_8023A184((unsigned int)m389F4, 0, &color);
+        lbl_8087F3C0->fn_8023A184((unsigned int)&m389F4, 0, &color);
         if (m3E2FC < 0.001f) {
-            fn_80239DAC(lbl_8087F3C0, (unsigned int)m389F4, 0, 0);
+            fn_80239DAC(lbl_8087F3C0, (unsigned int)&m389F4, 0, 0);
             m3E300 = 0;
         }
         break;
@@ -5403,7 +5395,7 @@ void BattleTask::fn_80107584() {
 void BattleTask::fn_801076D0(void* owner, atn::Model* model) {
     if (fn_80239D58(lbl_8087F3C0, owner, 20) == 0) {
         fn_80232B7C((unsigned int)owner, 20);
-        PlayEfp_unk(&mEfp38AF4[16], model);
+        PlayEfp_unk(&mEfp38BB4, model);
     }
 }
 
@@ -5413,7 +5405,7 @@ void BattleTask::fn_80107798(void* owner, int flag) {
 
 void BattleTask::fn_801077A8(void* owner, atn::Model* model) {
     fn_80232B7C((unsigned int)owner, 21);
-    PlayEfp_unk(&mEfp38AF4[17], model);
+    PlayEfp_unk(&mEfp38BC0, model);
 }
 
 void BattleTask::fn_80107850(void* owner) {
@@ -5422,12 +5414,12 @@ void BattleTask::fn_80107850(void* owner) {
 
 void BattleTask::fn_80107860(void* owner, atn::Model* model) {
     fn_80232B7C((unsigned int)owner, 22);
-    PlayEfp_unk(&mEfp38AF4[19], model);
+    PlayEfp_unk(&mEfp38BD8, model);
 }
 
 void BattleTask::fn_80107908(void* owner, atn::Model* model) {
     fn_80232B7C((unsigned int)owner, 23);
-    PlayEfp_unk(&mEfp38AF4[20], model);
+    PlayEfp_unk(&mEfp38BE4, model);
 }
 
 void BattleTask::fn_801079B0(void* owner) {
@@ -5436,7 +5428,7 @@ void BattleTask::fn_801079B0(void* owner) {
 
 void BattleTask::fn_801079C0(void* owner, atn::Model* model) {
     fn_80232B7C((unsigned int)owner, 24);
-    PlayEfp_unk(&mEfp38AF4[22], model);
+    PlayEfp_unk(&mEfp38BFC, model);
 }
 
 void BattleTask::fn_80107A68(void* owner) {
@@ -5445,7 +5437,7 @@ void BattleTask::fn_80107A68(void* owner) {
 
 void BattleTask::fn_80107A78(void* owner, atn::Model* model) {
     fn_80232B7C((unsigned int)owner, 25);
-    PlayEfp_unk(&mEfp38AF4[18], model);
+    PlayEfp_unk(&mEfp38BCC, model);
 }
 
 void BattleTask::fn_80107B20(void* owner) {
@@ -5454,7 +5446,7 @@ void BattleTask::fn_80107B20(void* owner) {
 
 void BattleTask::fn_80107B30(void* owner, atn::Model* model) {
     fn_80232B7C((unsigned int)owner, 26);
-    PlayEfp_unk(&mEfp38AF4[23], model);
+    PlayEfp_unk(&mEfp38C08, model);
 }
 
 void BattleTask::fn_80107BD8(void* owner) {
@@ -5464,7 +5456,7 @@ void BattleTask::fn_80107BD8(void* owner) {
 void BattleTask::fn_80107BE8(void* owner, atn::Model* model) {
     lbl_8087F3C0->mSystem.mLayer = 2;
     fn_80232B7C((unsigned int)owner, 27);
-    PlayEfp_unk(&mEfp38AF4[24], model);
+    PlayEfp_unk(&mEfp38C14, model);
     lbl_8087F3C0->mSystem.mLayer = 0;
 }
 
@@ -5477,7 +5469,7 @@ void BattleTask::fn_80107CA8(void* owner, int flag) {
 void BattleTask::fn_80107CEC(void* owner, atn::Model* model, float scale) {
     fn_80232B7C((unsigned int)owner, 28);
     EffectColor_unk color(1.0f, 1.0f, 1.0f, 1.0f);
-    fn_8023A8B4(lbl_8087F3C0, &mEfp38AF4[25], model, 0, lbl_807C7030, lbl_807C7030, color, -1, -1, 1, scale);
+    fn_8023A8B4(lbl_8087F3C0, &mEfp38C20, model, 0, lbl_807C7030, lbl_807C7030, color, -1, -1, 1, scale);
 }
 
 void BattleTask::fn_80107D94(void* owner) {
@@ -5491,7 +5483,7 @@ void BattleTask::fn_80107DA4(void* owner, atn::Model* model, float scale, const 
     color.g = 1.0f;
     color.b = 1.0f;
     color.a = 1.0f;
-    fn_8023A8B4(lbl_8087F3C0, &mEfp38AF4[26], model, 0, pos, lbl_807C7030, color, -1, -1, 1, scale);
+    fn_8023A8B4(lbl_8087F3C0, &mEfp38C2C, model, 0, pos, lbl_807C7030, color, -1, -1, 1, scale);
 }
 
 void BattleTask::fn_80107E58(void* owner) {
@@ -5500,7 +5492,7 @@ void BattleTask::fn_80107E58(void* owner) {
 
 void BattleTask::fn_80107E68(void* owner, atn::Model* model) {
     fn_80232B7C((unsigned int)owner, 30);
-    PlayEfp_unk(&mEfp38AF4[21], model);
+    PlayEfp_unk(&mEfp38BF0, model);
 }
 
 void BattleTask::fn_80107F10(void* owner) {
@@ -5510,7 +5502,7 @@ void BattleTask::fn_80107F10(void* owner) {
 void BattleTask::fn_80107F20(void* owner, atn::Model* model, float scale) {
     fn_80232B7C((unsigned int)owner, 31);
     EffectColor_unk color(1.0f, 1.0f, 1.0f, 1.0f);
-    fn_8023A8B4(lbl_8087F3C0, &mEfp38AF4[27], model, 0, lbl_807C7030, lbl_807C7030, color, -1, -1, 1, scale);
+    fn_8023A8B4(lbl_8087F3C0, &mEfp38C38, model, 0, lbl_807C7030, lbl_807C7030, color, -1, -1, 1, scale);
 }
 
 void BattleTask::fn_80107FC8(void* owner) {
@@ -5519,7 +5511,7 @@ void BattleTask::fn_80107FC8(void* owner) {
 
 void BattleTask::fn_80107FD8(void* owner, atn::Model* model) {
     fn_80232B7C((unsigned int)owner, 32);
-    PlayEfp_unk(&mEfp38AF4[28], model);
+    PlayEfp_unk(&mEfp38C44, model);
 }
 
 void BattleTask::fn_80108080(void* owner) {
@@ -6896,9 +6888,9 @@ extern "C" void fn_8010C00C(BattleTask* mgr, CharaTask* chara) {
 void BattleTask::fn_8010C3E4() {
     for (int i = 0; i < mCharaCount; i++) {
         CharaTask* chara = GetCharaAt_unk(this, i);
-        int* row = m391E0[i];
+        int* row = m391E0.m[i];
         if (!chara->CanAct_unk()) {
-            memset(row, 0, sizeof(m391E0[i]));
+            memset(row, 0, sizeof(m391E0.m[i]));
             continue;
         }
         for (int j = 0; j < mCharaCount; j++) {
@@ -6962,7 +6954,7 @@ CharaTask* BattleTask::fn_8010C948(CharaTask* chara) {
     }
     int best = 0;
     int found = -1;
-    int* row = m391E0[i];
+    int* row = m391E0.m[i];
     for (int j = 0; j < mCharaCount; j++) {
         if (best < row[j]) {
             best = row[j];
