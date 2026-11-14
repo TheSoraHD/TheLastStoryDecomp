@@ -345,6 +345,9 @@ public:
     // inferred: nearest target of `chara` in the cone `theta` around `dir` within `range`
     CharaTask* fn_800FFE68(CharaTask* chara, const atn::Vector3* dir, int a, int b, float range, float theta);
     void fn_80109828(const wchar_t* text); // inferred: debug log message
+    // inferred: place of the character in the ring around its leader (CharaTask::fn_80145334, Em315Coffin; does not
+    // use this)
+    atn::Vector3 fn_80109950(CharaTask*);
     void fn_80109864(struct SpEffect_unk*, CharaTask*); // inferred: log message of a status effect
     void fn_8010AB34();
     void fn_8010AB94();

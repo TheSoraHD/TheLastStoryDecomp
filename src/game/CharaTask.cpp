@@ -186,11 +186,6 @@ extern "C" Field_unk* lbl_8087F430;
 extern "C" void PSMTXTrans(Mtx m, float x, float y, float z);
 extern "C" void PSMTXScale(Mtx m, float x, float y, float z);
 
-// inferred: the battle manager under the name game/BattleTask.cpp still defines fn_80109950 with (as a member
-// of Effect_unk; pending there)
-struct Effect_unk {
-    atn::Vector3 fn_80109950(CharaTask* chara); // inferred: a position for the character
-};
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
 
 extern "C" void fn_800FD658(BattleTask* mgr, CharaTask* a, CharaTask* b, void* bullet, int arg4, int arg5, int arg6);
@@ -1504,7 +1499,7 @@ int CharaTask::fn_8013A4E8(float* a, atn::Vector3* rot, float* b) {
                 break;
             }
             if (fn_800F52F8()->fn_8013C434()->m00 != 0) {
-                atn::Vector3 pos = ((Effect_unk*)fn_8013A194())->fn_80109950(this);
+                atn::Vector3 pos = fn_8013A194()->fn_80109950(this);
                 atn::Vector3 dir2 = pos - mPos;
                 *a = dir2.Length_unk();
                 if (*a > 0.0f) {

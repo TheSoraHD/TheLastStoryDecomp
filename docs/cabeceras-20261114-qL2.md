@@ -61,6 +61,17 @@
   declaracion local (incluir la cabecera renumera); varias tienen tipos distintos (`int`/`void*` en vez de
   `CharaTask*`/`HitInfo_unk*`, Bullet con `fn_800FAB80` devolviendo `int` y los float antes de dos int).
 
+### 4. `fn_80109950` -> `BattleTask` (pendiente de la cola L)
+
+- BattleTask.cpp: fuera la vista `Effect_unk`, `atn::Vector3 BattleTask::fn_80109950(CharaTask*)` (declarada en
+  `BattleTask.h` sin nombre de parametro); `symbols.txt` `fn_80109950__10Effect_unkFP9CharaTask` ->
+  `fn_80109950__10BattleTaskFP9CharaTask`. CharaTask y Em315Coffin: fuera sus vistas `Effect_unk` y el molde
+  (`fn_8013A194()->fn_80109950(this)`); Em315Coffin incluye ahora `game/BattleTask.h` (y pierde sus declaraciones
+  locales de las funciones C del paso 3). Em312DarkServant: `class BattleTask;` en vez de `struct Effect_unk;`.
+- `pdbatch.sh` de las cuatro; el re-emparejado de BattleTask dejo 14 floats de .sdata2 con el nombre de otro valor:
+  `scratch-L2/shiftfix.py` (nombre de HEAD menos k, k = 0..3, el primero cuyo objeto en nuestro .o tiene los
+  mismos bytes que el .dol) los arregla; Em315Coffin 0x80884D4C @9459 -> @9927 (+468, HEAD). precommit OK.
+
 ## Decisiones tomadas sin el usuario
 
 - La cola pedia la declaracion sin nombres de parametro; la ya existente tenia `chara` y se ha movido tal cual:
@@ -71,8 +82,10 @@
 - `game/BattleTask.h` declara `extern "C"` (sin nombres): `fn_800F8548`, `fn_800F8574`, `fn_800FAB80`, `fn_800FB4B0`,
   `fn_80108F38`, `fn_801092C8`, `fn_8010A308` (tipos de la definicion). Las unidades que incluyen la cabecera ya no
   las declaran; `fn_80108F38` recibe `const atn::Vector3*` en todas (antes `&` en CharaStatus, DamageCalc_unk,
-  Em308ParmCrab, Em308ParmCrab) y `fn_800FAB80` punteros en EnemyQuarkSecond. Unidad del port tocada:
+  Em308ParmCrab) y `fn_800FAB80` punteros en EnemyQuarkSecond. Unidad del port tocada:
   BattleCharaTask (solo quitar sus declaraciones locales).
+- `Effect_unk::fn_80109950(CharaTask*)` -> `BattleTask::fn_80109950(CharaTask*)` (BattleTask.cpp, solo el nombre de
+  clase; no usa `this`).
 - Vistas de `lbl_8087F048` quitadas (GameScene, ControlAppear, AiCommon_unk, ArenaTask, GameSoundControl,
   ControlWallUp, CharaEquip_unk, PickTask, DropItem): ahora `BattleTask*`; ninguna unidad del port salvo GameScene
   (no es del port). `PickTask` usa un inline `GetBattleChara_unk(BattleChara_unk*, int)` local.

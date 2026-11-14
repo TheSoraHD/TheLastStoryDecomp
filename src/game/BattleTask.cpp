@@ -6193,18 +6193,12 @@ void BattleTask::fn_80109864(SpEffect_unk* effect, CharaTask* chara) {
     }
 }
 
-// inferred: view of the battle manager under the name the callers use (CharaTask::fn_80145334 and
-// Em315Coffin call fn_8013A194()->fn_80109950(this)); `this` is not read
-struct Effect_unk {
-    atn::Vector3 fn_80109950(CharaTask* chara);
-};
-
 // NONMATCHING: 97.5% - register allocation (center/ring and the loop pointers, best/offset floats permuted) and
 // the index loop keeps its pointer out of the loop
 // inferred: place of `chara` in the ring of characters around its leader (mC58.mC4; the ring is m125C of the leader,
 // entries {angle, character}): the characters between the nearest (or the player-side one) and `chara` take
 // their width (vfA0) scaled to a full turn, on one side or the other; its own position when it is not in the ring
-atn::Vector3 Effect_unk::fn_80109950(CharaTask* chara) {
+atn::Vector3 BattleTask::fn_80109950(CharaTask* chara) {
     CharaTask* center = chara->mC58.mC4;
     if (center == 0) {
         return chara->mPos;
