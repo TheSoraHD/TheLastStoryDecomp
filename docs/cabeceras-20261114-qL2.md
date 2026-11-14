@@ -79,6 +79,12 @@
   `scratch-L2/shiftfix.py` (nombre de HEAD menos k, k = 0..3, el primero cuyo objeto en nuestro .o tiene los
   mismos bytes que el .dol) los arregla; Em315Coffin 0x80884D4C @9459 -> @9927 (+468, HEAD). precommit OK.
 
+### 5. Moldes sobrantes
+
+- BattleCharaTask: fuera cinco `((BattleTask*)mgr)->fn_800FFE68(...)` con `mgr` ya `BattleTask*`. Neutro.
+- Tras la cola no queda ninguna declaracion de `lbl_8087F048` con otro tipo que `BattleTask*`, ni moldes
+  `(BattleTask*)`/`(Effect_unk*)` sobre el, ni vistas `Effect_unk` del gestor.
+
 ## Decisiones tomadas sin el usuario
 
 - La cola pedia la declaracion sin nombres de parametro; la ya existente tenia `chara` y se ha movido tal cual:
