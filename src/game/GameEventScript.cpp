@@ -155,7 +155,6 @@ extern "C" int sprintf(char* buf, const char* format, ...);
 extern "C" void fn_801092C8(BattleTask* battle, int kind, int arg, int value, int arg4); // inferred: battle log entry
 extern "C" void* lbl_8087EF70;                                     // inferred: pad input
 extern "C" int fn_800A555C(void* pad, int port, int button);       // inferred: button triggered
-extern "C" void fn_80392D2C(Camera_unk* camera, const Camera_unk* from, float rate); // inferred: blends back
 extern "C" unsigned int fn_800DC6B4(const char* s); // inferred: string hash
 extern "C" void fn_8044441C(Inventory* inv, int id, int num); // inferred: removes items
 extern "C" float PSVECSquareMag(const atn::Vector3* v);
@@ -3675,7 +3674,7 @@ void GameEventScript::fn_803A1DB0(ScriptResult_unk& result, const ScriptCmd_unk*
                 break;
             case 2:
                 lbl_8087F430->fn_8037529C(0xFFFFFFFF, 0xFFFFFF, 5, 0, 10);
-                fn_80392D2C(&lbl_8087F430->mCamera.mCamera, lbl_8087F540->GetCamera_unk(), 0.05f);
+                lbl_8087F430->mCamera.fn_80392D2C(lbl_8087F540->GetCamera_unk(), 0.05f);
                 lbl_8087F430->mCamera.fn_8037EF30(1, 1, -1.0f);
                 break;
             default:

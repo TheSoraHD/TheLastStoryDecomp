@@ -192,7 +192,6 @@ struct QuarkStickControl_unk {
     unsigned char m00[0x24];
     boost::function<void()> m24;
 };
-extern "C" void fn_80392D2C(Camera_unk* camera, const Camera_unk* from, float rate); // inferred: blends back
 extern "C" double tan(double x);
 extern "C" double atan(double x);
 // inferred: xsca camera curves (atn/Xsca_unk.cpp, atn/XsfParser_unk.cpp); only the members called here
@@ -1813,7 +1812,7 @@ void EnemyQuarkStand::fn_8034DE90() {
         camera.fn_8004B378();
         atn::RenderManager::instance_->mCamera = camera;
         if (done != 0 || mMotion.mTracks[0].m08 >= curve->m14) {
-            fn_80392D2C(&lbl_8087F430->m06C, &camera, 0.05f);
+            ((GameTask*)lbl_8087F430)->mCamera.fn_80392D2C(&camera, 0.05f);
             m1714 = 0;
         }
     }

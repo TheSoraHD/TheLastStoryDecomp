@@ -1071,7 +1071,6 @@ void LastCocoonImago::fn_8045D224() {
     }
 }
 
-extern "C" void fn_80392D2C(atn::Camera* camera, const atn::Camera* from, float rate); // inferred: blends back
 extern "C" double tan(double x);
 extern "C" double atan(double x);
 extern "C" void PSMTXTrans(Mtx m, float x, float y, float z);
@@ -1172,7 +1171,7 @@ void LastCocoonImago::fn_8045D3A4() {
         ((ImagoEventState_unk*)lbl_8087EFA8)->m240 = 0;
     }
     if (mMotion.mTracks[0].m08 >= 200.0f && (mStatus.m0C & 0x20) != 0x20) {
-        fn_80392D2C(&lbl_8087F430->m006C, &camera, 0.033333335f);
+        ((GameTask*)lbl_8087F430)->mCamera.fn_80392D2C(&camera, 0.033333335f);
         m14BC = 0;
         m14C0 = 0;
         m590 = fn_800F8548(lbl_8087F048);
