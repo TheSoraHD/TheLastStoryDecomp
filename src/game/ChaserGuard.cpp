@@ -12,6 +12,7 @@
 #include "game/GameTask.h"
 #include "math/VecAssign_unk.h"
 #include "game/MiniMapTask.h"
+#include "atn/ColliBase.h"
 
 extern "C" unsigned long strlen(const char* s);
 extern "C" int strcmp(const char* a, const char* b);
@@ -81,21 +82,8 @@ extern "C" Settings_unk* lbl_8087F0A8;
 inline ChaseParam_unk* GetChaseParam_unk() {
     return &lbl_8087F0A8->mChase;
 }
-extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
-// inferred: collision world and its ray test (see CharaTask.cpp)
-struct CollResult_unk {
-    CollResult_unk() : m34(0), m38(0), m3C(0), m40(0) {}
-    unsigned char m00[0x04];
-    atn::Vector3 m04; // inferred: hit position
-    unsigned char m10[0x34 - 0x10];
-    void* m34;
-    void* m38;
-    int m3C;
-    void* m40;
-    unsigned char m44[0x50 - 0x44];
-};
-extern "C" void* lbl_8087EE98;
-extern "C" int fn_8004ED34(void* colli, CollResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
+extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; extern "C" void* lbl_8087EE98;
+extern "C" int fn_8004ED34(void* colli, atn::ColliResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg7); // inferred: ray test
 // inferred: debug drawing (lbl_8087EEB0), font (lbl_8087EEC8) and camera (atn::RenderManager::instance_)
 extern "C" void* lbl_8087EEC8;
@@ -540,7 +528,7 @@ void ChaserGuard::fn_8017F4A0(int state) {
                     atn::Vector3 end = to;
                     from.y += 5.0f;
                     end.y += 5.0f;
-                    CollResult_unk result;
+                    atn::ColliResult_unk result;
                     if (fn_8004ED34(lbl_8087EE98, &result, &from, &end, 0x80000000, 0, 0) == 0) {
                         m1510 = to - dir * 5.0f;
                         break;
@@ -630,7 +618,7 @@ bool ChaserGuard::fn_8017FBEC() {
         PSMTXMultVec(m, &front, &front);
         float angle = acos(PSVECDotProduct(&front.GetNormalize(), &dir));
         if (angle < 0.5f * lbl_8087F0A8->mChase.m4E8) {
-            CollResult_unk result;
+            atn::ColliResult_unk result;
             seen = fn_8004ED34(lbl_8087EE98, &result, &eye, &target, 0x80000000, 0, 0) == 0;
             if (lbl_8087F0A8->mChase.m4DC != 0) {
                 if (!seen) {

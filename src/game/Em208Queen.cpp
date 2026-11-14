@@ -57,23 +57,10 @@ struct QueenDamage_unk {
 };
 extern "C" void fn_80108C10(Effect_unk* effect, QueenDamage_unk* damage, const atn::Vector3& pos,
                             CharaTask* attacker, CharaTask* chara, int b, int c);
-// inferred: collision world and its ray test (as in game/Em101LittleZesya.cpp)
-struct CollResult_unk {
-    CollResult_unk() : m34(0), m38(0), m3C(0), m40(0) {}
-    unsigned char m00[0x10];
-    atn::Vector3 m10; // inferred: hit position
-    unsigned char m1C[0x28 - 0x1C];
-    atn::Vector3 m28; // inferred: offset added to the hit position
-    void* m34;
-    atn::ColliBase* m38; // inferred: object hit
-    int m3C;
-    void* m40;
-    unsigned char m44[0x50 - 0x44];
-};
-extern "C" int fn_8004ED34(void* colli, CollResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
+extern "C" int fn_8004ED34(void* colli, atn::ColliResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg7); // inferred: ray test
 extern "C" void* lbl_8087EE98; // inferred: collision world
-extern "C" void fn_8004D388(void* mgr, CollResult_unk* result, CharaTask::Sphere_unk* sphere, atn::Vector3* move,
+extern "C" void fn_8004D388(void* mgr, atn::ColliResult_unk* result, CharaTask::Sphere_unk* sphere, atn::Vector3* move,
                             unsigned int mask, void* ignore, int arg, float radius); // inferred: sweep test
 // inferred: frame rate (as in chr/ControlTurnQuadruped.cpp)
 struct System_unk {
@@ -688,7 +675,7 @@ void Em208Queen::fn_802CA490() {
             atn::Vector3 move = m1530;
             int fps = lbl_8087F0A8->mFrameRate;
             move.y += -98.1f / (float)(fps * fps);
-            CollResult_unk result;
+            atn::ColliResult_unk result;
             CharaTask::Sphere_unk sphere = fn_80176548(mPos);
             fn_8004D388(lbl_8087EE98, &result, &sphere, &move, 0x20000000, &mColli, 0, sphere.mRadius);
             mPos = result.m10;
@@ -885,7 +872,7 @@ void Em208Queen::fn_802CB1CC() {
         from.y += 3.0f;
         atn::Vector3 to = m14D0->mPos;
         to.y += 3.0f;
-        CollResult_unk result;
+        atn::ColliResult_unk result;
         if (fn_8004ED34(lbl_8087EE98, &result, &from, &to, 0x80000000, 0, 0) != 0 &&
             (result.m38->mFlags & 4) == 4) {
             result.m10 += result.m28;
@@ -1011,7 +998,7 @@ void Em208Queen::fn_802CB8A0() {
         from.y += 10.0f;
         atn::Vector3 to = m151C;
         to.y += 10.0f;
-        CollResult_unk result;
+        atn::ColliResult_unk result;
         if (fn_8004ED34(lbl_8087EE98, &result, &from, &to, 0x20000000, 0, 0) != 0) {
             m14C0 = 1;
             fn_802CC19C(1, &atn::Vector3(m151C));

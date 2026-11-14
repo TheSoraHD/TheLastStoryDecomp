@@ -62,7 +62,7 @@ void LayerPostFx::vf20() {
     fn_80076174(lbl_8087EEE0, 1);
 }
 
-void LayerPostFx::vf10() {}
+void LayerPostFx::vf10(void*) {}
 
 LayerPostFx::~LayerPostFx() {}
 

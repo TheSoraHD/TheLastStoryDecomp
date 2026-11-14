@@ -2,22 +2,11 @@
 #include "game/GameTask.h"
 #include "game/GameVoice.h"
 #include "macros.h"
+#include "atn/ColliBase.h"
 
 extern "C" int rand();
-// inferred: result of the ray test fn_8004ED34 (as in game/ChaserNpc.cpp)
-struct CollResult_unk {
-    CollResult_unk() : m34(0), m38(0), m3C(0), m40(0) {}
-    unsigned char m00[0x04];
-    atn::Vector3 m04; // inferred: hit position
-    unsigned char m10[0x34 - 0x10];
-    void* m34;
-    void* m38;
-    int m3C;
-    void* m40;
-    unsigned char m44[0x50 - 0x44];
-};
 extern "C" void* lbl_8087EE98;
-extern "C" int fn_8004ED34(void* colli, CollResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
+extern "C" int fn_8004ED34(void* colli, atn::ColliResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg7); // inferred: ray test
 // inferred: field (lbl_8087F430, as in game/CharaTask.cpp)
 struct Field_unk;
@@ -55,7 +44,7 @@ ControlStagger::ControlStagger(Chara_unk* chara, int time, int kind)
     if (mChara->mFlag6) {
         mChara->fn_80155DAC(0);
     }
-    CollResult_unk result;
+    atn::ColliResult_unk result;
     int motion = 0x11;
     int loop = 1;
     atn::Vector3 from = mChara->mPos;

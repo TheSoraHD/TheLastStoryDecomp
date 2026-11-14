@@ -192,7 +192,9 @@ struct SkillRef_unk;
 // inferred: object at CharaTask+0xD2C; its +0x218 points to an object whose +0x8C is a character
 // (GameUI::fn_803DCA84 compares it with the character). Names invented.
 struct CharaLinkTarget_unk {
-    unsigned char m00[0x8C];
+    unsigned char m00[0x04];
+    int m04; // inferred: group id (shown as "GroupID" by AIManager::vf14)
+    unsigned char m08[0x8C - 0x08];
     CharaTask* m8C;
 };
 struct CharaLink_unk {
@@ -241,7 +243,7 @@ struct CharaC58_unk {
     int m114; // 0xD6C: inferred: copied from CharaRes_unk::m88 (fn_80154C08)
     int m118; // 0xD70: inferred: copied from CharaRes_unk::m8C
     CharaD74_unk m11C;  // 0xD74
-    unsigned char m140[0x60]; // inferred: cleared together by fn_8011BE54
+    float m140[24]; // inferred: values kept by the AI scripts (shown as L01-L24 by AIManager::vf14); cleared by fn_8011BE54
     unsigned char m1A0[0x10];
     unsigned char m1B0[0x100];
     int m2B0; // 0xF08: inferred: counter of frames without moving (EnemyLizerdBlade tackle)
@@ -480,7 +482,9 @@ public:
     // chr::ControlWallUp::vf10)
     virtual boost::function<void()> vfB4(CharaTask* chara) { return boost::function<void()>(); } // weak copy 0x800EF310
     virtual int vfB8(wchar_t* name); // inferred: copies the character name
-    virtual int vfBC() { return 1; } // weak copy 0x800EF308
+    // inferred: the collision object under the cursor (BattleTask::m3E2E8, or 0) is not this one;
+    // LastCocoonImago compares it with its sphere m18FC (GameUI 0x803DBD44)
+    virtual int vfBC(atn::ColliBase*) { return 1; } // weak copy 0x800EF308
     virtual void vfC0(void* draw) {} // inferred: Np131LivingArmor passes `draw` to fn_803E2A30 (weak copy 0x800EF304)
     virtual bool vfC4();
     virtual atn::Vector3 GetTacViewPosition() const { return mPos; } // RSO name (weak copy 0x800EF2F0)
@@ -697,7 +701,7 @@ public:
     // inferred: inlined in vf34 (names invented)
     float GetF94Rate_unk() { return 1.0f - (float)mF94 / (float)mF98; }
     bool HasRideParts_unk();
-    bool IsLanded_unk(const struct CollResult_unk& result);
+    bool IsLanded_unk(const atn::ColliResult_unk& result);
     void fn_80145334();
     void fn_80149A30(); // inferred: debug display and visibility update
     int fn_8014FB60();

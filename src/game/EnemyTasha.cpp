@@ -6,6 +6,7 @@
 #include "game/PlayerTask.h"
 #include "math/Vec.h"
 #include "chr/ControlDamage.h"
+#include "atn/ColliBase.h"
 
 extern "C" int sprintf(char* buf, const char* fmt, ...);
 extern "C" int strcmp(const char* a, const char* b);
@@ -55,20 +56,8 @@ extern "C" int fn_800FBA9C(Effect_unk* mgr, CharaTask* chara, CharaTask* owner, 
                            float f);
 // inferred: skill effect manager (lbl_8087F9E8; weak copy 0x80356FFC is its accessor)
 
-// inferred: collision world and its ray test (as in game/EnemyTrista.cpp)
-struct CollResult_unk {
-    CollResult_unk() : m34(0), m38(0), m3C(0), m40(0) {}
-    unsigned char m00[0x04];
-    atn::Vector3 m04; // inferred: hit position
-    unsigned char m10[0x34 - 0x10];
-    void* m34;
-    void* m38;
-    int m3C;
-    void* m40;
-    unsigned char m44[0x50 - 0x44];
-};
 extern "C" void* lbl_8087EE98;
-extern "C" int fn_8004ED34(void* colli, CollResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
+extern "C" int fn_8004ED34(void* colli, atn::ColliResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg7); // inferred: ray test
 
 // DRAFT: not checked against the original (draft without a description)
@@ -1239,7 +1228,7 @@ int EnemyTasha::fn_8035A9F4() {
     float dist = PSVECMag(&dir);
     if (dist > 12.0f) {
         PSVECNormalize(&dir, &dir);
-        CollResult_unk result;
+        atn::ColliResult_unk result;
         atn::Vector3 from = mPos;
         from.y += 5.0f;
         atn::Vector3 to = from;

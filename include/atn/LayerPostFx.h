@@ -21,7 +21,7 @@ class LayerPostFx : public IRenderLayer {
 public:
     LayerPostFx();
     virtual ~LayerPostFx();
-    virtual void vf10();
+    virtual void vf10(void*);
     virtual void vf14(void* arg);
     virtual void vf1C();
     virtual void vf20();

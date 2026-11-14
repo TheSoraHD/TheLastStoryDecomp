@@ -14,6 +14,7 @@
 #include "game/BattleTask.h"
 #include "game/GameTask.h"
 #include "math/VecAssign_unk.h"
+#include "atn/ColliBase.h"
 
 extern "C" unsigned long strlen(const char* s);
 extern "C" int atoi(const char* s);
@@ -29,21 +30,7 @@ extern "C" int strncmp(const char* a, const char* b, unsigned long n);
 // inferred: std::string concatenation (weak copy 0x8006AFF8)
 extern "C" std::string fn_8006AFF8(const std::string& a, const std::string& b);
 
-extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
-// inferred: collision world and its tests (see game/ChaserNpc.cpp and chr/ControlJumpAt.cpp)
-struct CollResult_unk {
-    CollResult_unk() : m34(0), m38(0), m3C(0), m40(0) {}
-    unsigned char m00[0x04];
-    atn::Vector3 m04; // inferred: hit position
-    atn::Vector3 m10; // inferred: position after the sweep (as in gmk/Lemon.h)
-    unsigned char m1C[0x34 - 0x1C];
-    int m34;
-    int m38;
-    int m3C;
-    void* m40;
-    unsigned char m44[0x50 - 0x44];
-};
-extern "C" void* lbl_8087EE98;
+extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; extern "C" void* lbl_8087EE98;
 struct Effect_unk;
 extern "C" void fn_800F8574(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* data, const atn::Vector3* pos,
                             const atn::Vector3* dir, HomingParam_unk* param, int arg6, int arg7, float a,
@@ -60,9 +47,9 @@ struct ControlMagic_unk {
 };
 extern "C" void fn_800F8C6C(Effect_unk* mgr, int a, int b, CharaTask* chara, HitInfo_unk* data, int id, int time,
                             int c, float f); // inferred: moves a bullet with the character
-extern "C" int fn_8004ED34(void* colli, CollResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
+extern "C" int fn_8004ED34(void* colli, atn::ColliResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg7); // inferred: ray test
-extern "C" int fn_8004D388(void* world, CollResult_unk* result, const atn::Vector3* center, const atn::Vector3* move,
+extern "C" int fn_8004D388(void* world, atn::ColliResult_unk* result, const atn::Vector3* center, const atn::Vector3* move,
                            unsigned int mask, void* ignore, int arg, float radius); // inferred: sweep test
 extern "C" double cos(double x);
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
@@ -1172,7 +1159,7 @@ void Em003LesserDaemon::fn_8024E7E4() {
         d.x *= MIN(dist, 5.0f);
         d.y *= MIN(dist, 5.0f);
         d.z *= MIN(dist, 5.0f);
-        CollResult_unk result;
+        atn::ColliResult_unk result;
         Sphere_unk sphere = fn_80176548(mPos);
         fn_8004D388(lbl_8087EE98, &result, &sphere.mCenter, &d, 0x80000000, &mColli, 0, sphere.mRadius);
         atn::Vector3 pos = result.m10;
@@ -1399,7 +1386,7 @@ int Em003LesserDaemon::fn_8024F9B8() {
     atn::Vector3 pos;
     atn::Vector3 off = d * 8.0f;
     to -= off;
-    CollResult_unk result;
+    atn::ColliResult_unk result;
     void* colli = lbl_8087EE98;
     if (fn_8004ED34(colli, &result, &from, &to, fn_80179D44() | 0x80000000, 0, 0) == 0) {
         from = to;

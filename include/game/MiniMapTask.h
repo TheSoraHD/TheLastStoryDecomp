@@ -10,6 +10,7 @@
 #include "atn/Task.h"
 #include "atn/Texture_unk.h"
 #include "game/CharaStatus.h"
+#include "game/ResHandle.h"
 
 class CharaTask;
 namespace atn {
@@ -69,7 +70,17 @@ public:
 
     int m4C;                           // inferred: initialized to 1
     atn::LH_Binary m50;               // inferred: minimap resource
-    atn::Texture_unk m58[9];          // inferred: nine minimap textures
+    // inferred: nine minimap textures (separate members: the constructor and the destructor call the
+    // constructor/destructor of each one, no array loop)
+    atn::Texture_unk m58;
+    atn::Texture_unk m88;
+    atn::Texture_unk mB8;
+    atn::Texture_unk mE8; // inferred: mask of the minimap (vf10)
+    atn::Texture_unk m118;
+    atn::Texture_unk m148;
+    atn::Texture_unk m178;
+    atn::Texture_unk m1A8;
+    atn::Texture_unk m1D8;
     atn::Model m208;                  // inferred: minimap model, flags 0x00A00001/0x20
     atn::D2A_Task* m5D8;              // inferred: d2anime of the minimap frame ("basePos", "rot01"...)
     float m5DC;                       // inferred: rectangle of the minimap on the screen (x, y, w, h)
@@ -92,7 +103,7 @@ public:
     MiniMapMarker_unk mMarkers[64];   // 0x834: inferred: point markers (ChaseManager, fn_804AAD68)
     FixedArray_unk<MiniMapCharaMark_unk, 64> mCharaMarks; // 0x1334: inferred: characters with a marker
     FixedArray_unk<MiniMapArea_unk, 8> m1538; // inferred: "OFF_AREA" rectangles
-    atn::Task* m15BC;                 // inferred: debug menu group
+    ResHandle m15BC;                  // inferred: debug menu group (released by the destructor)
     float m15C0;                      // inferred: initialized to 3000
     atn::Texture_unk m15C4;           // inferred: final texture
     float m15F4;                      // inferred: "LOWER_LAYER" values (m1608 is set to 1)

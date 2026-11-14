@@ -3,6 +3,7 @@
 
 #include "game/GimmickCommon.h"
 #include "atn/Sphere.h"
+#include "atn/ColliBase.h"
 
 // inferred: shared data of a model instance (atn/ModelInstance.cpp); only what is used here
 struct InstData_unk {
@@ -39,21 +40,6 @@ public:
 
 } // namespace atn
 
-// inferred: result of the collision tests of lbl_8087EE98 (0x50 bytes, see game/CharaTask.cpp)
-struct CollResult_unk {
-    CollResult_unk() : m34(0), m38(0), m3C(0), m40(0) {}
-    int m00; // inferred: 1 when filled by a bullet that reached its range (game/Bullet)
-    atn::Vector3 m04; // inferred: hit position
-    atn::Vector3 m10; // inferred: position after the sweep
-    atn::Vector3 m1C; // inferred: normal
-    atn::Vector3 m28; // inferred: normal of the hit (gmk::Cannonball)
-    void* m34;
-    void* m38;
-    unsigned int m3C;
-    int m40;
-    atn::Vector3 m44;
-};
-
 namespace gmk {
 
 // inferred: building model (gmXXX_XXX.building) that is knocked away by message 3 and bounces on
@@ -74,7 +60,7 @@ public:
     virtual int vf60();
     virtual void vf6C(void* menu);
     void fn_80415F6C(); // inferred: moves while flying
-    int fn_80416268(CollResult_unk* out, const atn::Vector3* pos, const atn::Vector3* vel, float radius);
+    int fn_80416268(atn::ColliResult_unk* out, const atn::Vector3* pos, const atn::Vector3* vel, float radius);
 
     atn::ModelInstance mInst; // 0xF4
     atn::Vector3 mVel;        // 0x17C

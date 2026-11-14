@@ -608,7 +608,7 @@ void Em206CocoonMp::vf54() {
     }
 }
 
-extern "C" int fn_8004D388(void* world, CollResult_unk* result, CharaTask::Sphere_unk* sphere, atn::Vector3* move,
+extern "C" int fn_8004D388(void* world, atn::ColliResult_unk* result, CharaTask::Sphere_unk* sphere, atn::Vector3* move,
                            unsigned int mask, void* ignore, int arg, float radius); // inferred: sweep test
 extern "C" void* lbl_8087EE98; // inferred: collision world
 extern "C" GameConfig_unk* lbl_8087F0A8; // inferred: game settings
@@ -659,7 +659,7 @@ void Em206CocoonMp::fn_802BC4EC(const atn::Vector3& target, float move, float sp
     if (vel.y < -12.0f) {
         vel.y = -12.0f;
     }
-    CollResult_unk result;
+    atn::ColliResult_unk result;
     atn::Vector3 oldPos = pos;
     Sphere_unk sphere;
     sphere.mCenter = m614;
@@ -1163,7 +1163,7 @@ void Em206CocoonMp::fn_802BEE44() {
     if (vel.y < -6.0f) {
         vel.y = -6.0f;
     }
-    CollResult_unk result;
+    atn::ColliResult_unk result;
     Sphere_unk sphere = fn_80176548(pos);
     fn_8004D388(lbl_8087EE98, &result, &sphere, &vel, fn_80179D44() | 0x80000000, &mColli, 0, sphere.mRadius);
     pos = result.m10;
@@ -1258,7 +1258,7 @@ void Em206CocoonMp::fn_802BF5C0() {
     if (vel.y < -6.0f) {
         vel.y = -6.0f;
     }
-    CollResult_unk result;
+    atn::ColliResult_unk result;
     Sphere_unk sphere = fn_80176548(pos);
     fn_8004D388(lbl_8087EE98, &result, &sphere, &vel, fn_80179D44() | 0x80000000, &mColli, 0, sphere.mRadius);
     pos = result.m10;

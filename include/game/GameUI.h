@@ -219,6 +219,10 @@ struct GameUIName0C_unk {
     const wchar_t* m0C;
 };
 
+// inferred: skill shown by the level-up marker and object aimed at by the aim lines; defined in game/GameUI.cpp
+struct GameUISkill_unk;
+struct GameUIAimTarget_unk;
+
 // inferred: 0x7C-byte element of the arrays at 0x1174 and 0x15BC (names invented)
 struct GameUIElem7C_unk {
     GameUIElem7C_unk() : m78(0.0f) {}
@@ -319,6 +323,7 @@ public:
     void fn_803D8344();
     void fn_803D83A8();
     void fn_803DAB4C(int, int);
+    void fn_803DBD44(); // inferred: windows of the overlook view
     void fn_803DE648(); // inferred: updates the markers of the skill effects
     void fn_803DE89C(SkillEffect* bullet, int index);
     void fn_803DEE24(SkillEffect* bullet, GameUIColor_unk* add, GameUIColor_unk* mul); // inferred: colours of a marker
@@ -372,7 +377,7 @@ public:
     void fn_803D2A6C(); // inferred: updates the HUD
     void fn_803DCA84(CharaTask* chara, float* fade);
     void fn_803DCD34(CharaTask*, int, int, int); // inferred: party window of a character
-    void fn_803E0E10(CharaTask* chara, GameUIElem60_unk* window, int index); // inferred: updates a window
+    static void fn_803E0E10(CharaTask* chara, GameUIElem60_unk* window, int index); // inferred: updates a window
     void fn_803E3468(atn::D2A_Task* a, atn::D2A_Task* b, GameUIElem1C_unk* button, int arg);
     void fn_803E2410(CharaTask*); // inferred: magic point gauge of a character
     void fn_803E2A30(int, int, atn::Vector3, int, int); // inferred: next magic point gauge of the HUD
@@ -501,9 +506,9 @@ public:
     atn::Texture_unk mE04;                     // 0xE04
     atn::Texture_unk mE34;                     // 0xE34
     atn::Texture_unk mE64;                     // 0xE64
-    unsigned char mE94[0xF14 - 0xE94];
+    float mE94[32]; // inferred: fade of the rings under the enemies (fn_803DCA84)
     atn::Task* mF14[32]; // inferred: D2A_TaskInstanceBase<64, 8>, windows of the overlook view (fn_803D0B20)
-    int mF94[32];
+    CharaTask* mF94[32]; // inferred: enemies of the windows of the overlook view (fn_803DBD44)
     int m1014[32];
     float m1094[8];
     GameUIInst_unk* m10B4[8]; // inferred: effect markers (fn_803DE648)
@@ -523,8 +528,8 @@ public:
     int m1124;
     int m1128;
     int m112C;
-    int m1130;
-    unsigned char m1134[0x1140 - 0x1134];
+    int m1130;                // inferred: count of m1134
+    GameUISkill_unk* m1134[3]; // inferred: skills learnt shown by the level-up marker (fn_803D83A8)
     atn::D2A_Task* m1140;
     atn::D2A_Task* m1144;
     atn::D2A_Task* m1148;
@@ -533,11 +538,11 @@ public:
     int m1154;
     atn::EffFile m1158;                       // 0x1158
     atn::EffFile m1164;                       // 0x1164
-    int m1170;
+    GameUIAimTarget_unk* m1170; // inferred: target of the aim lines (AIManager::m458, fn_803D83A8)
     GameUIElem7C_unk m1174[8];                 // 0x1174
     atn::EffFile m1554[4];                    // 0x1554
     atn::EffFile m1584[4];                    // 0x1584
-    int m15B4;
+    CharaTask* m15B4; // inferred: target of the hate lines of the last frame (fn_803D83A8)
     int m15B8;
     GameUIElem7C_unk m15BC[32];                // 0x15BC
     int m253C;

@@ -4,7 +4,9 @@
 // inferred: global resource manager (lbl_8087EF10). fn_8008937C loads a resource by name
 // through the manager's member at 0x10; fn_800897D8 releases it.
 struct ResManager {
-    unsigned char m00[0x10];
+    unsigned char m00[0x04];
+    int m04; // inferred: nonzero while the menu is open (AIManager::vf14 ignores the keys then)
+    unsigned char m08[0x08];
     unsigned char m10[1];
 };
 extern "C" ResManager* lbl_8087EF10;

@@ -7,6 +7,7 @@
 #include "atn/RenderManager.h"
 #include "atn/Scene.h"
 #include "math/VecAssign_unk.h"
+#include "atn/ColliBase.h"
 
 extern "C" int sprintf(char* buf, const char* fmt, ...);
 extern "C" int strcmp(const char* a, const char* b);
@@ -21,20 +22,8 @@ extern "C" ColliAttrData_unk* fn_8020B1E0(int id);
 extern "C" int fn_8020B208(int kind); // inferred: sound index of a kind
 extern "C" int fn_8020B27C(int kind); // inferred: effect index of a kind
 
-// inferred: result of the ray test fn_8004ED34 (as in game/ChaserNpc.cpp)
-struct CollResult_unk {
-    CollResult_unk() : m34(0), m38(0), m3C(0), m40(0) {}
-    unsigned char m00[0x10];
-    atn::Vector3 mPos; // 0x10: inferred: hit position
-    unsigned char m1C[0x34 - 0x1C];
-    int* m34;          // inferred: attribute of the hit face
-    void* m38;
-    int m3C;
-    void* m40;
-    unsigned char m44[0x50 - 0x44];
-};
 extern "C" void* lbl_8087EE98;
-extern "C" int fn_8004ED34(void* colli, CollResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
+extern "C" int fn_8004ED34(void* colli, atn::ColliResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg7); // inferred: ray test
 
 namespace atn {
@@ -219,11 +208,11 @@ void ColliAttrManager::fn_80184188(int index, CharaTask* chara, int useNode, int
     unsigned int b = ToU8_unk(info->m02C.b);
     unsigned int a = ToU8_unk(info->m02C.a);
     unsigned int argb = (b | (g << 8)) | ((a << 24) | (r << 16));
-    CollResult_unk result;
+    atn::ColliResult_unk result;
     int attr = fn_80184864(&result, chara, useNode, node);
     if (attr >= 0 && (unsigned int)(attr - 0x1C) > 1) {
         // inferred: through the reference returned by operator= (a plain assignment swaps r4/r5 of the copy)
-        atn::Vector3& p = (pos = result.mPos + *ofs);
+        atn::Vector3& p = (pos = result.m10 + *ofs);
         if ((unsigned int)(attr - 0x14) <= 1) {
             p.y = -chara->GetLens_unk()->mPlane.mDist * chara->GetLens_unk()->mPlane.mNormal.y + 0.01f;
         }
@@ -245,12 +234,12 @@ void ColliAttrManager::fn_80184548(int kind, CharaTask* chara, int useNode, int 
     if (mEnabled == 0) {
         return;
     }
-    CollResult_unk result;
+    atn::ColliResult_unk result;
     int attr = fn_80184864(&result, chara, useNode, node);
     if (attr < 0) {
         return;
     }
-    atn::Vector3 hit = result.mPos + *ofs;
+    atn::Vector3 hit = result.m10 + *ofs;
     atn::Vector3 pos = hit;
     if (mLoading != 0) {
         return;
@@ -296,7 +285,7 @@ void ColliAttrManager::fn_801847C0(CharaTask* chara) {
 }
 
 
-int ColliAttrManager::fn_80184864(CollResult_unk* result, CharaTask* chara, int useNode, int node) {
+int ColliAttrManager::fn_80184864(atn::ColliResult_unk* result, CharaTask* chara, int useNode, int node) {
     atn::Vector3 from;
     atn::Vector3 to;
     if (useNode) {
@@ -307,14 +296,14 @@ int ColliAttrManager::fn_80184864(CollResult_unk* result, CharaTask* chara, int 
     }
     to = from + atn::Vector3(0.0f, -15.0f, 0.0f);
     if (mForceAttr >= 0) {
-        result->mPos = from;
-        result->mPos.y = 0.0f;
+        result->m10 = from;
+        result->m10.y = 0.0f;
         return mForceAttr;
     }
     void* colli = lbl_8087EE98;
     if (fn_8004ED34(colli, result, &from, &to, chara->fn_80179D44(), &chara->mColli, 0)) {
         if (result->m34 != 0) {
-            return *result->m34;
+            return *(int*)result->m34;
         }
         return -1;
     }

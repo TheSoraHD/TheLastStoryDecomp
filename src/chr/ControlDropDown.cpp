@@ -3,6 +3,7 @@
 #include "game/GameScene.h"
 #include "game/CharaManager.h"
 #include "game/GameTask.h"
+#include "atn/ColliBase.h"
 
 extern "C" int rand();
 extern "C" void PSVECCrossProduct(const atn::Vector3* a, const atn::Vector3* b, atn::Vector3* axb);
@@ -26,21 +27,8 @@ struct DropCamera_unk {
     float m3A4;
 };
 extern "C" DropCamera_unk* lbl_8087EFA8;
-// inferred: result of the ray test fn_8004ED34
-struct DropCollResult_unk {
-    DropCollResult_unk() : m34(0), m38(0), m3C(0), m40(0) {}
-    unsigned char m00[0x10];
-    atn::Vector3 mPos; // 0x10
-    unsigned char m1C[0x28 - 0x1C];
-    atn::Vector3 mNormal; // 0x28
-    int m34;
-    int m38;
-    int m3C;
-    int m40;
-    unsigned char m44[0x50 - 0x44];
-};
 extern "C" void* lbl_8087EE98;
-extern "C" int fn_8004ED34(void* colli, DropCollResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
+extern "C" int fn_8004ED34(void* colli, atn::ColliResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg7); // inferred: ray test
 
 // inferred: random float in [0, 1] (name invented)
@@ -180,31 +168,31 @@ int ControlDropDown::vf0C() {
                         atn::Vector3 side;
                         PSVECCrossProduct(&up, &fwd, &side);
                         SafeNormalize_unk(&side);
-                        DropCollResult_unk result;
+                        atn::ColliResult_unk result;
                         for (int i = 0; i < 4; i++) {
                             float t = 30.0f * (i + 1);
                             if (fn_8004ED34(lbl_8087EE98, &result, &(mStart + up * t),
                                             &(mStart + fwd * t - up * t * 2.0f), 0x80000000, 0, 0) &&
-                                PSVECDotProduct(&result.mNormal, &up) >= 0.8660254f) {
-                                mChara->mPos = result.mPos;
+                                PSVECDotProduct(&result.m28, &up) >= 0.8660254f) {
+                                mChara->mPos = result.m10;
                                 break;
                             }
                             if (fn_8004ED34(lbl_8087EE98, &result, &(mStart + up * t),
                                             &(mStart - fwd * t - up * t * 2.0f), 0x80000000, 0, 0) &&
-                                PSVECDotProduct(&result.mNormal, &up) >= 0.8660254f) {
-                                mChara->mPos = result.mPos;
+                                PSVECDotProduct(&result.m28, &up) >= 0.8660254f) {
+                                mChara->mPos = result.m10;
                                 break;
                             }
                             if (fn_8004ED34(lbl_8087EE98, &result, &(mStart + up * t),
                                             &(mStart + side * t - up * t * 2.0f), 0x80000000, 0, 0) &&
-                                PSVECDotProduct(&result.mNormal, &up) >= 0.8660254f) {
-                                mChara->mPos = result.mPos;
+                                PSVECDotProduct(&result.m28, &up) >= 0.8660254f) {
+                                mChara->mPos = result.m10;
                                 break;
                             }
                             if (fn_8004ED34(lbl_8087EE98, &result, &(mStart + up * t),
                                             &(mStart - side * t - up * t * 2.0f), 0x80000000, 0, 0) &&
-                                PSVECDotProduct(&result.mNormal, &up) >= 0.8660254f) {
-                                mChara->mPos = result.mPos;
+                                PSVECDotProduct(&result.m28, &up) >= 0.8660254f) {
+                                mChara->mPos = result.m10;
                                 break;
                             }
                         }

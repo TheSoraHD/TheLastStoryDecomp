@@ -49,6 +49,7 @@ struct PopupD2A_unk : public atn::Task {
     unsigned int mFlagFC_29 : 1;
     unsigned int mFlagFC2 : 1;
     unsigned int mFlagFC_lo : 28;
+    float mFrame_unk; // 0x100: inferred: frame (PopupTask::vf14)
 };
 
 // inferred: a d2anime of the popups and its state (0xC bytes; PopupEntry_unk::m9C points to one)

@@ -86,10 +86,13 @@ public:
 
     // inferred: adds an item to the result (at most two; name invented)
     void AddItem_unk(int id) {
-        if (mItemCount < 2) {
+        if (ItemCount_unk() < 2) {
             PushItem_unk(id);
         }
     }
+    // inferred: the count read through an accessor (the slot address reloads mItemCount, BattleCharaTask
+    // fn_800EE360); name invented
+    unsigned int ItemCount_unk() const { return mItemCount; }
     void PushItem_unk(int id) {
         new (&mItems[mItemCount]) int(id);
         mItemCount++;

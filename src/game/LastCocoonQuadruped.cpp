@@ -18,6 +18,7 @@
 #include <boost/tokenizer.hpp>
 #include <boost/bind.hpp>
 #include <boost/function.hpp>
+#include "atn/ColliBase.h"
 
 struct Effect_unk;
 extern "C" Effect_unk* lbl_8087F048;
@@ -173,24 +174,10 @@ static inline void PlayEfp_unk(atn::EfpFile* efp, void* model) {
 }
 
 extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
-extern "C" void* lbl_8087EE98; // inferred: collision manager
-// inferred: result of the ray test (as in game/Em309Ghoul.cpp)
-struct QuadCollResult_unk {
-    QuadCollResult_unk() : m34(0), m38(0), m3C(0), m40(0) {}
-    unsigned char m00[0x04];
-    atn::Vector3 m04; // inferred: hit position
-    atn::Vector3 m10; // inferred: position after the sweep
-    unsigned char m1C[0x34 - 0x1C];
-    void* m34;
-    void* m38;
-    unsigned int m3C;
-    int m40;
-    atn::Vector3 m44;
-};
-extern "C" int fn_8004ED34(void* colli, QuadCollResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
+extern "C" void* lbl_8087EE98; extern "C" int fn_8004ED34(void* colli, atn::ColliResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg7); // inferred: ray test
 
-extern "C" int fn_8004D388(void* world, QuadCollResult_unk* result, const atn::Vector3* from,
+extern "C" int fn_8004D388(void* world, atn::ColliResult_unk* result, const atn::Vector3* from,
                            const atn::Vector3* to, unsigned int mask, void* ignore, int arg,
                            float radius); // inferred: sphere sweep
 // inferred: RouteTable_unk::FindPlace_unk on the field table with the array read inside the loop
@@ -733,7 +720,7 @@ void LastCocoonQuadruped::fn_80462038(const atn::Vector3& target, int arg, float
     }
     int keepRot = 1;
     atn::Vector3 oldPos(pos);
-    QuadCollResult_unk result;
+    atn::ColliResult_unk result;
     CharaTask::Sphere_unk sphere = fn_80176548(pos);
     unsigned int mask = arg != 0 ? 0x80000000 : 0;
     if (mType == 0) {
@@ -1109,7 +1096,7 @@ void LastCocoonQuadruped::fn_80463C58() {
         mMotion.mTracks[0].m20 = 1.0f;
         mMotion.mTracks[0].m0C = 1.0f;
         mMotion.fn_80097C08(0, 0x140, 0, 0, 1, 1.0f, 0.1f);
-        QuadCollResult_unk res;
+        atn::ColliResult_unk res;
         mPos = m14D4;
         atn::Vector3 offset(0.0f, -1000.0f, 0.0f);
         atn::Vector3 to = offset + m14D4;
@@ -1199,8 +1186,8 @@ void LastCocoonQuadruped::fn_80464CF0() {
         return;
     }
     if (m14C0 < 24) {
-        QuadCollResult_unk result;
-        QuadCollResult_unk unused;
+        atn::ColliResult_unk result;
+        atn::ColliResult_unk unused;
         atn::Vector3 move = m1568;
         move.y += -98.1f / (float)(lbl_8087F0A8->m030 * lbl_8087F0A8->m030);
         CharaTask::Sphere_unk sphere = fn_80176548(mPos);
@@ -1219,12 +1206,12 @@ void LastCocoonQuadruped::fn_80464CF0() {
         int id = fn_800F8548(lbl_8087F048);
         fn_800F8C6C(lbl_8087F048, 0, 0, this, fn_80219E6C(0x5B5), id, 30, -1, rotY);
     } else {
-        QuadCollResult_unk result;
+        atn::ColliResult_unk result;
         atn::Vector3 move(0.0f, -98.1f / (float)(lbl_8087F0A8->m030 * lbl_8087F0A8->m030), 1.0f);
         atn::Matrix3x4 m;
         QuadRotationZYX_unk(m, mRot);
         PSMTXMultVec(m.m, &move, &move);
-        QuadCollResult_unk unused;
+        atn::ColliResult_unk unused;
         CharaTask::Sphere_unk sphere = fn_80176548(mPos);
         sphere.mRadius += 30.0f;
         sphere.mCenter.y += 30.0f;
@@ -1625,7 +1612,7 @@ int LastCocoonQuadruped::fn_80468038(int* count, atn::Vector3* pos, float* angle
                 atn::Vector3 from = p->mPos;
                 from.y += 20.0f;
                 atn::Vector3 to = from + dir * 1000.0f;
-                QuadCollResult_unk result;
+                atn::ColliResult_unk result;
                 if (fn_8004ED34(lbl_8087EE98, &result, &from, &to, 0, &p->mColli, 0) != 0 &&
                     (((atn::ColliBase*)result.m38)->mFlags & 2) == 2 &&
                     ((atn::ColliBase*)result.m38)->m0C == (int)this) {
@@ -1664,7 +1651,7 @@ void LastCocoonQuadruped::fn_80468534(atn::Vector3* pos, float* angle, const atn
                                       float dist) {
     atn::Vector3 dir;
     dir.z = dist;
-    QuadCollResult_unk result;
+    atn::ColliResult_unk result;
     atn::Vector3 from = at;
     dir.x = 0.0f;
     from.y += m620;

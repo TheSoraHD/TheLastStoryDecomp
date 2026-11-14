@@ -28,7 +28,7 @@ public:
     IRenderLayer(const char* name, int arg0C = -1, int arg10 = -1) : m04(1), mName(name), m0C(arg0C), m10(arg10) {}
     virtual ~IRenderLayer() {}
     virtual void vf0C(void* menu) { fn_80087994(menu, mName, &m04, 0, 0); } // 0x800B320C (weak)
-    virtual void vf10() = 0;
+    virtual void vf10(void*) = 0; // inferred: queues the draw list (LayerShadow and LayerOcclusionCPU read it)
     virtual void vf14(void* arg) = 0;
     virtual void vf18() {} // 0x800B3208 (weak)
     virtual void vf1C() = 0;
@@ -45,7 +45,7 @@ class Layer3D : public IRenderLayer {
 public:
     Layer3D(const char* name, int arg0C = -1, int arg10 = -1) : IRenderLayer(name, arg0C, arg10), m14(1), m18(0) {}
     virtual ~Layer3D() {}
-    virtual void vf10() {} // 0x800B3870 (weak)
+    virtual void vf10(void*) {} // 0x800B3870 (weak)
     virtual void vf14(void* arg);
     virtual void vf18();
     virtual void vf1C();
@@ -61,7 +61,7 @@ class Layer2D : public IRenderLayer {
 public:
     Layer2D(const char* name, int arg0C = -1, int arg10 = -1) : IRenderLayer(name, arg0C, arg10) {}
     virtual ~Layer2D() {}
-    virtual void vf10() {} // 0x800B3228 (weak)
+    virtual void vf10(void*) {} // 0x800B3228 (weak)
     virtual void vf14(void* arg); // 0x800B3464
     virtual void vf1C();          // 0x800B34C0
     virtual void vf20();          // 0x800B35F4
@@ -72,7 +72,7 @@ public:
 class LayerPrerender : public IRenderLayer {
 public:
     LayerPrerender() : IRenderLayer("Prerender") {}
-    virtual void vf10() {}
+    virtual void vf10(void*) {}
     virtual void vf14(void* arg);
     virtual void vf1C();
     virtual void vf20();

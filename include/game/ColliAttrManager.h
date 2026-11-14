@@ -9,7 +9,9 @@
 #include "math/Vec.h"
 
 class CharaTask;
-struct CollResult_unk;
+namespace atn {
+struct ColliResult_unk;
+}
 
 // inferred: effects and sounds of the collision attributes of the ground (footsteps, landing...).
 // Singleton task; each entry is loaded from the attribute table (fn_8020B1E0).
@@ -41,7 +43,7 @@ public:
     void fn_80184548(int kind, CharaTask* chara, int useNode, int node, const atn::Vector3* ofs, int side,
                      float volume);
     void fn_801847C0(CharaTask* chara);
-    int fn_80184864(CollResult_unk* result, CharaTask* chara, int useNode, int node);
+    int fn_80184864(atn::ColliResult_unk* result, CharaTask* chara, int useNode, int node);
 
     // inferred: releases the resources of the entries
     void Release_unk() {

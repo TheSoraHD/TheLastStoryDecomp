@@ -194,13 +194,23 @@ static inline GameScene* GetScene_unk() {
     return lbl_8087F430 != 0 ? lbl_8087F430->m10D8 : (lbl_8087F540->m1A6C != 0 ? lbl_8087F540->m1A6C : 0);
 }
 
+// inferred: accessors of the render settings (as in game/GameTask.cpp)
+inline ColorMatrixParam_unk* RenderSetting_unk::GetColorMatrix_unk() {
+    return &m324;
+}
+inline void RenderSetting_unk::SetColorMatrix(const ColorMatrixParam_unk& p) {
+    m324 = p;
+}
+
 // inferred: start of the event: stops the characters and the managers the event hides
+// NONMATCHING: 99.95% - register of the party leader at the end (r30 in the original)
 void Sequence::fn_8053E8D0() {
     if (lbl_8087F540 == 0) {
         return;
     }
     if (m50 == 1 || m50 == 3) {
-        EventIdEntry_unk* entry = EventIdTable_unk::fn_8020F130()->fn_8020F71C(m190);
+        int id = m190;
+        EventIdEntry_unk* entry = EventIdTable_unk::fn_8020F130()->fn_8020F71C(id);
         if (entry != 0) {
             GameScene* scene = GetScene_unk();
             if ((entry->mFlags & 1) == 1 && lbl_8087F8A0 != 0) {
@@ -253,11 +263,11 @@ void Sequence::fn_8053E8D0() {
     }
     if (m50 == 1 || m50 == 3) {
         lbl_8087F540->fn_80482ED8();
-        RenderSetting_unk* rs = lbl_8087EFA8;
-        if (rs != 0) {
-            rs->m324.mMono = 0;
-            rs->m324.mMonoRate = 0.0f;
-            lbl_8087EFA8->m324 = rs->m324;
+        if (lbl_8087EFA8 != 0) {
+            ColorMatrixParam_unk* cm = lbl_8087EFA8->GetColorMatrix_unk();
+            cm->mMono = 0;
+            cm->mMonoRate = 0.0f;
+            lbl_8087EFA8->SetColorMatrix(*cm);
         }
         for (int i = 0; i < 4; i++) {
             lbl_8087F540->mCameras[i].fn_80112784();
@@ -291,7 +301,7 @@ void Sequence::fn_8053ED4C() {
     }
     if (m50 == 1 || m50 == 3) {
         if (lbl_8087F0A8->m194 == 0 || m190 != 0x19D) {
-            lbl_8087F540->fn_80483714(GetFlag7_unk(), GetFlag15_unk());
+            lbl_8087F540->fn_80483714(GetFlag7_unk(), m98_15);
         }
         for (int i = 0; i < 4; i++) {
             lbl_8087F540->mCameras[i].fn_80112784();
@@ -850,14 +860,16 @@ Label* Sequence::fn_805412A8(int index) {
 
 inline Cut* Sequence::FindCutByIndex_unk(int index) {
     for (int i = 0; i < (int)mB8.size(); i++) {
-        if (index == mB8[i]->mIndex) {
-            return mB8[i].get();
+        Cut* cut = mB8[i].get();
+        if (index == cut->mIndex) {
+            return cut;
         }
     }
     return 0;
 }
 
 // inferred: jumps to a label (0x8000: to the start of a cut)
+// NONMATCHING: 99.2% - registers of the two inlined searches (cut in r5, index in r6 in the original)
 void Sequence::fn_8054136C(int label) {
     if (label == -1) {
         return;
@@ -1024,17 +1036,19 @@ float Sequence::fn_80541CF0(float yaw) {
 }
 
 // inferred: an actor named after a character of kind `kind` ("np", "em", "fr") and number `num` exists
+// NONMATCHING: 88.3% - the original tests the long-string bit of m08 again at every access (ours keeps
+// !is_long() in a register: the accessors of std/string.h)
 int Sequence::fn_80541CFC(int kind, int num) {
     for (int i = 0; i < (int)m164.size(); i++) {
         Actor* actor = &m164[i];
         if (actor->m08.size() == 0) {
             continue;
         }
-        if (actor->m08.c_str()[0] == '!') {
+        if (actor->m08[0] == '!') {
             continue;
         }
         int match = 0;
-        switch ((unsigned short)((actor->m08.c_str()[0] << 8) | actor->m08.c_str()[1])) {
+        switch ((unsigned short)((actor->m08[0] << 8) | actor->m08[1])) {
         case 'em':
             match = kind == 2;
             break;
@@ -1052,10 +1066,10 @@ int Sequence::fn_80541CFC(int kind, int num) {
         memset(buf, 0, sizeof(buf));
         char* p = buf;
         int n = 0;
-        for (int j = 2; j < actor->m08.size(); j++) {
-            if (actor->m08.c_str()[j] >= '0' && actor->m08.c_str()[j] <= '9') {
+        for (int j = 2; j < (int)actor->m08.size(); j++) {
+            if (actor->m08[j] >= '0' && actor->m08[j] <= '9') {
                 n++;
-                *p++ = actor->m08.c_str()[j];
+                *p++ = actor->m08[j];
             }
         }
         if (atoi(buf) == num) {

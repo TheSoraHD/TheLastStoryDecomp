@@ -11,6 +11,7 @@
 #include "std/string_members.h"
 #include "game/BattleTask.h"
 #include "game/GameTask.h"
+#include "atn/ColliBase.h"
 
 // inferred: empty release assert (the original functions are not auto-inlined)
 #define ASSERT_UNK(x) ((void)0)
@@ -25,21 +26,8 @@ struct Field_unk {
     RouteTable_unk* m10D8;
 };
 extern "C" Field_unk* lbl_8087F430;
-// inferred: collision world and its ray test (as in game/ChaserNpc.cpp)
-struct CollResult_unk {
-    CollResult_unk() : m34(0), m38(0), m3C(0), m40(0) {}
-    unsigned char m00[0x04];
-    atn::Vector3 m04; // inferred: hit position
-    atn::Vector3 m10;
-    unsigned char m1C[0x34 - 0x1C];
-    void* m34;
-    void* m38;
-    int m3C;
-    int m40;
-    unsigned char m44[0x50 - 0x44];
-};
 extern "C" void* lbl_8087EE98;
-extern "C" int fn_8004ED34(void* colli, CollResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
+extern "C" int fn_8004ED34(void* colli, atn::ColliResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg7); // inferred: ray test
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" int strncmp(const char* a, const char* b, unsigned long n);
@@ -321,7 +309,7 @@ inline void Em101LittleZesya::WarpNear_unk(CharaTask* target, atn::Vector3* dest
     e.y = 0.0f;
     if (PSVECMag(&e) > 40.0f) {
         *dest = target->mPos + e.GetNormalize() * 40.0f;
-        CollResult_unk result;
+        atn::ColliResult_unk result;
         atn::Vector3 to = atn::Vector3(0.0f, -500.0f, 0.0f) + *dest;
         if (fn_8004ED34(lbl_8087EE98, &result, dest, &to, 0x80000000, &mColli, 0) != 0) {
             *dest = result.m10;
@@ -553,7 +541,7 @@ void Em101LittleZesya::fn_8025E100() {
             e.y = 0.0f;
             if (PSVECMag(&e) > 40.0f) {
                 *dest = target->mPos + e.GetNormalize() * 40.0f;
-                CollResult_unk result;
+                atn::ColliResult_unk result;
                 atn::Vector3 to = atn::Vector3(0.0f, -500.0f, 0.0f) + *dest;
                 if (fn_8004ED34(lbl_8087EE98, &result, dest, &to, 0x80000000, &mColli, 0) != 0) {
                     *dest = result.m10;

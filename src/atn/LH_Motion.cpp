@@ -2,17 +2,20 @@
 #include "atn/LoadCore.h"
 #include "std/string.h"
 #include "atn/Loader_unk.h"
+#include "atn/LoadManager.h"
 #include "atn/LoadMotion.h"
 
 extern "C" int fn_800DC500(const char* name, unsigned long len); // inferred: name to id
 extern "C" char* strrchr(const char* s, int c);               // inferred: strrchr
-extern "C" void* lbl_8087F518;                                    // inferred: resource manager
-// inferred: get/load a motion = Loader::Get_unk<LoadMotion> (weak copy emitted by this file at
-// 0x804766B0, see atn/LH_Motion_cont.cpp)
-extern "C" void* fn_804766B0(void* manager, const char* path, int arg);
 
 
 namespace atn {
+
+// The weak copy of Loader::Get_unk<LoadMotion> that this file emits at 0x804766B0 is compiled
+// in atn/LH_Motion_cont.cpp (NONMATCHING); declared here so that vf0C calls it without
+// instantiating it.
+template <>
+LoadMotion* Loader::Get_unk<LoadMotion>(const char*, int);
 
 // inferred: file name part of a path (after the last '\\' or '/')
 inline const char* __FileName_unk(const char* path) {
@@ -61,7 +64,7 @@ void LoadMotion::vf0C() {
 
 void LH_Motion::vf0C(const char* path) {
     fn_80473F88();
-    mCore = fn_804766B0(lbl_8087F518, path, 1);
+    mCore = lbl_8087F518->Get_unk<LoadMotion>(path, 1);
 }
 
 } // namespace atn

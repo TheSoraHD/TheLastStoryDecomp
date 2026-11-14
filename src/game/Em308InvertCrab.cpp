@@ -8,6 +8,7 @@
 #include "atn/DrawHelper.h"
 #include "game/BattleTask.h"
 #include "math/VecAssign_unk.h"
+#include "atn/ColliBase.h"
 
 extern "C" unsigned long strlen(const char* s);
 extern "C" int strcmp(const char* a, const char* b);
@@ -62,18 +63,6 @@ struct CrabSettings_unk {
     int mFps;
 };
 extern "C" CrabSettings_unk* lbl_8087F0A8;
-// inferred: ray test result (as in game/Em303KrakenFoot.cpp)
-struct CollResult_unk {
-    CollResult_unk() : m34(0), m38(0), m3C(0), m40(0) {}
-    unsigned char m00[0x10];
-    atn::Vector3 m10; // inferred: hit position
-    unsigned char m1C[0x34 - 0x1C];
-    int* m34; // inferred: attribute of the hit
-    void* m38;
-    int m3C;
-    int m40;
-    unsigned char m44[0x50 - 0x44];
-};
 // inferred: skill effect manager (lbl_8087F9E8, as in gmk/HealPoint.cpp); fn_8059C6DC tests whether the
 // skill is already running for the user; the callback is empty here
 struct CrabSkill_unk;
@@ -133,7 +122,7 @@ struct CrabWeights_unk {
 };
 // inferred: debug drawing (lbl_8087EEB0, as in gmk/Brazier.cpp)
 extern "C" void* lbl_8087EE98;
-extern "C" int fn_8004ED34(void* colli, CollResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
+extern "C" int fn_8004ED34(void* colli, atn::ColliResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg7); // inferred: ray test
 
 // NONMATCHING: 99.81% - r26/r27 of the second std::string constructor (known blocker of the string
@@ -502,9 +491,9 @@ int Em308InvertCrab::fn_802F2C50() {
     from.y += 5.0f;
     to = mPos;
     to.y -= 100.0f;
-    CollResult_unk result;
+    atn::ColliResult_unk result;
     if (fn_8004ED34(lbl_8087EE98, &result, &from, &to, 0x20000000, 0, 0) != 0 && result.m34 != 0) {
-        unsigned int attr = *result.m34;
+        unsigned int attr = *(int*)result.m34;
         if (attr == 0x14 || attr == 0x15 || attr - 0x1A <= 3) {
             ret = 1;
         }
@@ -1001,7 +990,7 @@ void Em308InvertCrab::fn_802F566C() {
     int landed = 0;
     atn::Vector3 vel = m574;
     vel.y += Gravity_unk(lbl_8087F0A8);
-    CollResult_unk result;
+    atn::ColliResult_unk result;
     Sphere_unk sphere = fn_80176548(mPos);
     atn::Vector3 next = mPos + vel;
     if (next.y <= sphere.mRadius) {

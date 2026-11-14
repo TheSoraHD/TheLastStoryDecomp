@@ -6,6 +6,7 @@
 #include "std/string_members.h"
 #include <boost/function.hpp>
 #include "math/VecAssign_unk.h"
+#include "atn/ColliBase.h"
 
 extern "C" unsigned long strlen(const char* s);
 extern "C" int strcmp(const char* a, const char* b);
@@ -72,20 +73,8 @@ struct PlayerManager_unk {
     CharaTask* mHead;
 };
 extern "C" PlayerManager_unk* lbl_8087F8A0;
-// inferred: ray test result (as in game/Em308InvertCrab.cpp)
-struct CollResult_unk {
-    CollResult_unk() : m34(0), m38(0), m3C(0), m40(0) {}
-    unsigned char m00[0x10];
-    atn::Vector3 m10;
-    unsigned char m1C[0x34 - 0x1C];
-    int* m34; // inferred: attribute of the hit
-    void* m38;
-    int m3C;
-    int m40;
-    unsigned char m44[0x50 - 0x44];
-};
 extern "C" void* lbl_8087EE98;
-extern "C" int fn_8004ED34(void* colli, CollResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
+extern "C" int fn_8004ED34(void* colli, atn::ColliResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg7); // inferred: ray test
 // inferred: skill effects (as in game/Em308InvertCrab.cpp)
 struct CrabSkill_unk;
@@ -275,9 +264,9 @@ inline int Em308ParmCrab::OnWater_unk() {
     from.y += 5.0f;
     to = mPos;
     to.y -= 5.0f;
-    CollResult_unk result;
+    atn::ColliResult_unk result;
     if (fn_8004ED34(lbl_8087EE98, &result, &from, &to, 0x80000000, 0, 0) != 0 && result.m34 != 0) {
-        unsigned int attr = *result.m34;
+        unsigned int attr = *(int*)result.m34;
         if (attr == 0x14 || attr == 0x15 || attr - 0x1A <= 3) {
             ret = 1;
         }

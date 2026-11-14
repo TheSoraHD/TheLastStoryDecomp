@@ -662,3 +662,15 @@ Al añadir un hallazgo: una línea, con el ejemplo (unidad o dirección) entre p
 - `paralelo-20261112`: escribir una funcion grande no inline del mismo fichero puede hacer que sus llamadores pasen el presupuesto de inlining y cuadren con el original (NewCampTask::vf0C 33 -> 99,5 %).
 - `paralelo-20261112`: las cadenas literales escritas dentro de un helper inline van a un pool `@STRING@` propio, no a `@stringBase0`.
 - `paralelo-20261112`: en el pool, `"texto\0"` dentro de `sprintf` reproduce cadenas del original que llevan un nulo extra (NewCampPartsMapSelect::vf48).
+- `port-decomp-20261114`: cualquier cosa nueva en una cabecera consume `@N`/`@enum$N` en cada unidad que la incluye: una inline (tambien virtual sin constantes, `vf2C() { return 1; }`), un literal float en un ctor inline, una especializacion explicita aunque no se use, y tambien **quitar** nombres de parametro de una declaracion. Las declaraciones adelantadas y los miembros de datos no.
+- `port-decomp-20261114`: tras renumerar, re-emparejar en lote: `pdbatch.sh` + `lblmap.py`; en unidades con funciones grandes NONMATCHING, `pairdata.py` limitado a funciones >= 99 % (si no, parejas ambiguas); mapear por offset entre el `.o` viejo y el nuevo cuando hay floats repetidos. Despues devolver a mano lo que pairdata nombra mal (cadenas como `__vt__...`, `sInstance__9SetConfig` en 0x80885CB0, `lbl_8087D6E8/EC`).
+- `port-decomp-20261114`: objdiff no compara valores de constantes: una funcion "al 99,95 %" puede pasar 0.0f donde el original pasa 1.0f (comparar valores de `.sdata2` aparte).
+- `port-decomp-20261114`: una anonima `union { struct { bitfields }; Tipo mState; }` compila igual que los campos sueltos en MWCC (Material_unk).
+- `port-decomp-20261114`: `x / 4.0f` da `fmuls` con los operandos al reves que `x * 0.25f`; `20.0f * 3.5f` se pliega pero `float r = 20.0f; r * 3.5f` no.
+- `port-decomp-20261114`: un local declarado dentro de un bloque anidado gasta presupuesto de inlining; el mismo local en el ambito de la funcion no.
+- `port-decomp-20261114`: `0 < x && x <= N` evita el rango `subi/cmplwi` que MWCC hace con `x > 0 && x <= N`.
+- `port-decomp-20261114`: copia de `Matrix3x4` con r4/r5 cruzados en `__MtxCopy`: inline `MtxAssign_unk(dst, src)`, como `VecAssign_unk`.
+- `port-decomp-20261114`: una `static` de fichero se compila en su sitio del fuente (y sus cadenas van a `@stringBase0`); una `static inline` o `inline` no (cadenas a `@STRING@<funcion>`).
+- `port-decomp-20261114`: una cadena `""` sin referencias tras un formato en el pool del original = el formato acababa en `\0`.
+- `port-decomp-20261114`: miembros que el ctor construye con llamadas sueltas (sin `__construct_array`) no son arrays en el original; MWCC pela la primera iteracion de los bucles de construccion de arrays con ctor inline.
+- `port-decomp-20261114`: un dtor que llama al dtor de la base en offset 0 con -1 indica un miembro, no una base (GameCamera / atn::Camera).

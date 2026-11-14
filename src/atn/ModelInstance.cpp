@@ -113,7 +113,7 @@ public:
     virtual ~ModelInstance();
     virtual int GetRenderType_unk() { return 1; }
     virtual void vf10(RenderManager* view); // inferred: draw
-    virtual int vf14(void* arg1, void* arg2, void* frustum) { return 1; }
+    virtual int vf14(const Matrix3x4*, const Vector3*, const Frustum_unk*, AABB_unk*) { return 1; }
     virtual void vf18(RenderManager* view) {
         if (mData->mModel.mType == 8 && mVisible && lbl_8087EFA8->m1D0 != 0) {
             mVisible = view->fn_800C0A50(&mBox);

@@ -5,6 +5,7 @@
 #include "math/Vec.h"
 #include "std/string.h"
 #include "std/string_members.h"
+#include "atn/ColliBase.h"
 
 extern "C" unsigned long strlen(const char* s);
 extern "C" int strcmp(const char* a, const char* b);
@@ -47,20 +48,8 @@ extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the nex
 struct Effect_unk;
 extern "C" Effect_unk* lbl_8087F048;
 extern "C" void fn_80108F38(Effect_unk* mgr, const atn::Vector3* pos, int arg);
-// inferred: collision world and its ray test (as in game/EnemySeaLizerd.cpp)
-struct CollResult_unk {
-    CollResult_unk() : m34(0), m38(0), m3C(0), m40(0) {}
-    unsigned char m00[0x04];
-    atn::Vector3 m04; // inferred: hit position
-    unsigned char m10[0x34 - 0x10];
-    void* m34;
-    void* m38;
-    int m3C;
-    int m40;
-    unsigned char m44[0x50 - 0x44];
-};
 extern "C" void* lbl_8087EE98;
-extern "C" int fn_8004ED34(void* colli, CollResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
+extern "C" int fn_8004ED34(void* colli, atn::ColliResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg7); // inferred: ray test
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 
@@ -496,7 +485,7 @@ void Em305VampireMp::vf11C() {
             atn::Vector3 to = m14F4->mPos;
             from.y += 3.0f;
             to.y += 3.0f;
-            CollResult_unk result;
+            atn::ColliResult_unk result;
             if (fn_8004ED34(lbl_8087EE98, &result, &from, &to, 0x80000000, &mColli, 0) == 0) {
                 atn::Vector3 dir = to - from;
                 dir.Normalize_unk();

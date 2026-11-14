@@ -1,0 +1,132 @@
+# port-decomp-20261114, cola E (carga y dibujo de modelos: atn/LH_Model, atn/ModelDraw_unk, atn/GraphicsDevice)
+
+Inicio 2026-11-14 04:41.
+
+## Resumen (antes -> despues, objdiff)
+
+| Funcion | Antes | Despues |
+|---|---|---|
+| `LoadModel::fn_80474F0C` (0x80474F0C) | sin escribir | 98,55 % (equivalente) |
+| `fn_8009BB9C` (0x8009BB9C) | 95,64 % | 95,64 % (equivalente, solo registros) |
+| `fn_8009B9E8` (0x8009B9E8) | 98,30 % | 98,30 % (equivalente, solo registros) |
+| `fn_8009D58C` (0x8009D58C) | 83,57 % | 94,56 % (equivalente) |
+| `fn_8009BF3C` (0x8009BF3C) | 99,99 % | 99,99 % (una constante `.sdata2` de menos) |
+| `fn_8009DE60` (0x8009DE60) | 97,48 % | 99,04 % (**fallo de offsets corregido**) |
+| ctor `DrawEntry_unk` (0x8009E1E4) | 89,56 % | 96,75 % (equivalente) |
+| `fn_80074EC8` (0x80074EC8) | 98,55 % | 99,28 % (equivalente) |
+| `fn_80073194`, `fn_80073A6C`, `fn_800742C8`, `fn_800748D8`, `fn_80074B24` | 96,99-99,88 % | igual (equivalentes) |
+
+Ninguna llega al 100 %: lo que queda es reparto de registros/pila. `report.json`: 15392 / 18109, lost 0.
+
+## Resultado por funcion
+
+- `atn::LoadModel::fn_80474F0C` (0x80474F0C, 3820 bytes, formatos y arrays de vertices): escrita (antes sin
+  escribir), NONMATCHING 98,55 % (huecos de pila de los temporales de agregado: el original pone los dos
+  terminadores justo tras los iniciales; un `mulli` del bloque de normales de version 1; la carga de
+  `lbl_8087EEE0` antes del temporal `VtxFormat_unk`). Firma final: `void atn::LoadModel::fn_80474F0C(ModelData_unk* model)` (la de antes).
+  - **Logica frente al asm (para el port):** la version funcional del port es equivalente. Detalles que el port
+    tiene igual o de mas: el original solo crea `m84` (las listas de 27 `DrawArray_unk` de las mallas de
+    version 1) con la **primera** malla (`i == 0`); el `|| m84.mData == 0` del port es una proteccion de mas, no
+    esta en el original. En la rama de version 1 el original escribe tambien `fmt.mList[n]` (lo mismo que se
+    vuelve a escribir despues para todas las versiones): redundante. Tablas `.rodata` (0x80755DB4, 0x80755DE0)
+    con **11** entradas (tipos 9 rgba6 -> 4/3 bytes y 10 rgbx8 -> 2/4 bytes), no 9 como en el port: los tipos
+    9 y 10 en el port leen fuera de la tabla.
+  - Hallazgo: los 14 bloques de 16 bytes de `.rodata` 0x80755E10-0x80755EF0 son inicializadores de agregado
+    locales (`GXVtxAttrFmtList f = {9, 1, tipo, frac}`, `DrawArray_unk a = {9, datos, paso}`), uno por sitio, con
+    los campos no constantes a 0; para que el temporal de `DrawArray_unk` se materialice como en el original en
+    colores/texturas hace falta `= {attr, 0, 0}` y luego asignar los campos.
+  - Hallazgo: `mTextures[i] = fn_80076C44(lbl_8087EEE0, VtxFormat_unk(desc, fmt))` con `operator[]` (la direccion
+    del destino se calcula antes de la llamada): 92 -> 96 %; `m84[i].mList` (operator[]) 96,4 -> 97,7 %; los dos
+    colores de la rama de version 2 como bucle `for (k < 2)` (desenrollado por el compilador) -> 98,55 %: la
+    malla tiene `int mClr[2]` y `int mTex[8]` (en la decomp siguen `m24`/`m28`/`m2C[8]`).
+
+- `fn_8009BB9C` (0x8009BB9C, matrices de textura): **equivalente** al asm (revisado entero); sigue
+  NONMATCHING 95,6 % (solo registros: el `cos` en f24 y las constantes 0/1 en f30/f31 del original).
+  Para el port: modo 0 sin skinning carga la matriz UV como **2x4** (`GXLoadTexMtxImm(uvm, gen->m18, 1)`); con
+  skinning (`mesh->m14 == -1`) la carga como 3x4 en la matriz posterior `0x40 + 3k` (GX_PTTEXMTX: el texgen
+  tiene que ir en modo dual / post-transform). Modos 1-4 (proyectados): sin skinning, la matriz de la malla sin
+  traslacion (modo 4: con traslacion) en `gen->m18` y siempre `uvm` (con las columnas 2 y 3 intercambiadas en
+  las filas 0 y 1) x `fn_800C0900(src->m10, m14, m18, 0)` en la posterior `0x40 + 3k`.
+- `fn_8009B9E8` (0x8009B9E8, matrices de posicion/normal): **equivalente** (revisado); NONMATCHING 98,3 %
+  (registros de los dos bucles). Para el port: sin skinning carga la matriz en PNMTX0, su inversa traspuesta
+  sin traslacion como normal 0 **y tambien como matriz de posicion 3**, y `GXSetCurrentMtx(0)`; con skinning
+  carga `mtx[sub->m10[i]]` en `i*3` (hasta 10 o -1) solo si cambio respecto a `cache[i]`, y con luz (ni sombra
+  ni `lbl_8087EFA8->m234`) la normal en `i*3` y la misma normal como textura en `30 + i*3` (GX_TEXMTX0+i, 3x4).
+  El indice de matriz lo manda cada vertice (atributo GX_VA_PNMTXIDX directo, tipo 4 de la descripcion de la
+  malla en `LoadModel::fn_80474F0C`): si el port no lo respeta, los vertices salen con PNMTX0 (prismas).
+- `fn_8009D58C` (0x8009D58C, encola la malla): **equivalente** (revisado); 83,6 -> 94,6 % con
+  `DrawColor_unk` = `atn::Color` (la copia del color va por lfs/stfs), `int ef` y `m48 & 2u` (signo de las
+  comparaciones) y `mat->m49` leido antes del `if`. Falta el idiomatico `orc/srwi` de la prueba
+  `mCmds.mSize < 0x1000` (un `>=` sin signo materializado) y registros de las copias de `Push_unk`.
+- `fn_8009BF3C` (0x8009BF3C): sigue 99,99 %. Unico fallo: el original tiene **dos** constantes `0xFFFFFFFF`
+  en `.sdata2` (0x80880C50 y 0x80880C54), una por cada expansion de `SetMatColor_unk` (el blanco de
+  `GXSetTevKColor(1, ...)`); nuestra inline comparte una. Probado: `static` sin `inline` (no se inlinea).
+
+- `atn/GraphicsDevice` `fn_80074EC8` (texgen y TEV del material): **equivalente** (diferencias solo de
+  registros y orden); 98,55 -> 99,28 % con `int mode = 1; if (lbl_8087EFA8->m18C != 0) mode = 2;`. Quedan el
+  `mulli` recalculado de la fila de `sTevCosts` en la prueba sin dual y el orden de un `stw`.
+  Para el port: con `flags & 1` (dual = malla con skinning, `DrawCmd` bit 0) los texgen de tipo 0 usan
+  `GXSetTexCoordGen2(coord, func, src, GX_IDENTITY (0x3C), 0, 0x40 + 3k)` y los de tipo 1-4 la matriz del
+  texgen con normalizacion (salvo tipo 4) y la posterior `0x40 + 3k`; el contador `k` avanza en el mismo
+  orden que `fn_8009BB9C` carga las matrices posteriores. Sin dual, tipo 0 usa `texGen.mMtx` y `GX_PTIDENTITY`
+  (0x7D). En dual las coordenadas se renumeran: tipo 0 desde 0, tipos 1-3 desde 4, tipo 4 desde 6 (las
+  ordenes TEV y las indirectas usan `coords[...]`, no el indice del texgen).
+- Las que llama `fn_80074EC8` (`fn_80073194` 96,99 %, `fn_80073A6C` 99,88 %, `fn_800742C8` 99,39 %,
+  `fn_800748D8` 99,73 %, `fn_80074B24` 99,64 %, `fn_80072F64` 100 %): revisadas con un diff que ignora los
+  nombres de registro: **equivalentes** (solo registros, orden de cargas y operandos conmutados).
+
+- **`fn_8009DE60` (0x8009DE60, dibujo de una malla): fallo de logica en la decomp (y en el port).** El
+  `GXSetTevColorOp` de la ultima etapa leia la vista `DrawDesc_unk::m1BC_pad[last]` con los campos a +0x2C,
+  +0x30, +0x38, +0x3C desde 0x1BC (= 0x1E8...), cuando el original lee 0x1BC/0x1C0/0x1C8/0x1CC + `last*0x88`:
+  las etapas TEV empiezan en **0x194** (`atn::ShaderDesc_unk::mTevStages`) y los campos son `mColorOp` (0x28),
+  `mColorBias` (0x2C), `mColorClamp` (0x34), `mColorReg` (0x38). Se leia la etapa equivocada desplazada
+  (operacion/bias/clamp/registro de color basura en la ultima etapa del material). Corregido:
+  `DrawDesc_unk::m194[16]` y `DrawTevStage_unk` con `m28/m2C/m34/m38`. El port tiene el mismo error
+  (`port/src/atn/ModelDraw_unk.cpp`, `static_assert(offsetof(DrawDesc_unk, m1BC_pad) == 0x1BC)` y la linea de
+  `GXSetTevColorOp`). 97,48 -> 99,04 % (`int flags`, `cmd->m20` leido antes del `if`, orden de locales).
+- Resto de `ModelDraw_unk` revisado con el diff sin registros: `fn_8009B93C`, `fn_8009C508`, `fn_8009C688`,
+  `fn_8009C84C`, `fn_8009CC28`, `fn_8009D1A4`, `fn_8009DCE0`: **equivalentes** (registros, orden, recargas).
+  Ctor de `DrawEntry_unk` (0x8009E1E4): **equivalente**; 89,6 -> 96,75 % con `MAX(x, MAX(y, z))` de `macros.h`
+  (el original evalua dos veces el maximo interior: es la macro, no una inline) y `m08->fn_80475DF8()` (el
+  miembro, no el parametro). `MaxF_unk` quitada.
+
+## Cambios de firma / layout (para el port)
+
+- `fn_80076C44` (`include/atn/GraphicsDevice.h`, `src/atn/GraphicsDevice.cpp`): el formato pasa de
+  `const VtxFormat_unk*` a `const VtxFormat_unk&` (LoadModel le pasa un temporal). Mismo codigo en la Wii.
+- `LoadModel` (`src/atn/LH_Model.cpp`): `mTextures` pasa a `SimpleArray<int>` (indices de la cache de formatos)
+  y `m84` a `SimpleArray<LoadModel::MeshArrays_unk>` (27 `DrawArray_unk`, 0x144 bytes; su `Resize_unk` tiene
+  su propio par de `""` en `.sdata`, 0x8087E058/5C, que confirma el tipo).
+- Nueva cabecera `include/atn/ModelVtx_unk.h`: `DrawArray_unk` (sacada de `ModelDraw_unk.cpp`),
+  `LoadVtxAttr_unk`, `LoadVtxDesc_unk`, `LoadVtxStream_unk` (mismos nombres que el port).
+- `include/atn/ModelPose_unk.h`: `ModelNode_unk` (el chunk 'mesh') con sus campos (`m04` version, `m18`
+  descripcion, `m1C`/`m20`/`m24`/`m28`/`m2C[8]` streams, `m54` arrays); `ModelData_unk::m28/m2C` (streams) en
+  lugar del relleno. Sin cambio de offsets.
+
+- `include/atn/DrawCmd_unk.h`: `DrawColor_unk` pasa de `struct { float m[4]; }` a `typedef atn::Color`
+  (mismo layout; `RenderSystem_unk.cpp` usa `m24.r/g/b/a`). El ctor de `DrawEntry_unk` cambia de nombre
+  mangled (`...PQ23atn5Color...`), renombrado en `symbols.txt`.
+
+- `src/atn/ModelDraw_unk.cpp`: `DrawDesc_unk` = etapas en `m194[16]` (antes `m194` relleno + `m1BC_pad[1]`),
+  `DrawTevStage_unk` con los campos a 0x28/0x2C/0x34/0x38.
+
+## Pistas para el port (rayas y prismas)
+
+- Prismas: con skinning (`mesh->m14 == -1`) cada vertice manda su `GX_VA_PNMTXIDX` (tipo 4 de la descripcion
+  de la malla, `GX_DIRECT`) y `fn_8009B9E8` carga hasta 10 matrices en `PNMTX0..9` (ids `3*i`). Si el backend
+  ignora el indice por vertice, todo sale con PNMTX0. Ojo tambien con la cache `int cache[10]` (a -1 por
+  malla en `fn_8009DE60`): salta las cargas repetidas.
+- Rayas: los tipos 5 de la descripcion son `GX_VA_TEX0MTXIDX + n` directos por vertice; con luz,
+  `fn_8009B9E8` carga la normal de cada hueso tambien como matriz de textura `30 + 3*i` (GX_TEXMTX0..9), y
+  `fn_80074EC8` (dual) usa `texGen.mMtx` + post `0x40 + 3k` en los tipos 1-4 y `GX_IDENTITY` + post en el tipo
+  0. Si el backend no aplica el `TEXnMTXIDX` por vertice ni las matrices posteriores (dual tex), las
+  coordenadas salen mal. En `LoadModel` el formato de cada `TEXn` sale del **primer** atributo de su stream
+  (tipo, `frac`) y el paso es `2 * tamano`; las tablas de tipos tienen 11 entradas (no 9).
+- `fn_8009DE60` del port lee mal la ultima etapa TEV (ver arriba): corregir `DrawDesc_unk`/`DrawTevStage_unk`.
+
+## Decisiones tomadas sin el usuario
+
+- `symbols.txt`: tras `pd.sh` se devolvieron `lbl_8087D6E8/EC`; se aceptan los renombrados de la unidad
+  (`@STRING@Resize_unk...MeshArrays_unk...` en 0x8087E058/5C y los `@N` de `.sdata2`).
+- RenderSystem_unk: tras el typedef sus `@N` de `.sdata2` 0x808810B0-C8 subieron 2; `pd.sh` no los renombra
+  (nombres repetidos en `symbols.txt`), desplazados a mano +2 conservando las repeticiones que ya habia.

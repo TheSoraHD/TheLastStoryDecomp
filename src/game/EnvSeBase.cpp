@@ -8,6 +8,7 @@
 #include <boost/tokenizer.hpp>
 #include "atn/DrawHelper.h"
 #include "game/GameTask.h"
+#include "atn/ColliBase.h"
 
 extern "C" int sprintf(char* s, const char* format, ...);
 extern "C" int atoi(const char* s);
@@ -56,18 +57,7 @@ struct EnvSeSegment_unk {
     atn::Vector3 mStart;
     atn::Vector3 mEnd;
 };
-// inferred: result of the segment test (only the members used here)
-struct EnvSeHit_unk {
-    EnvSeHit_unk() : m34(0), m38(0), m3C(0), m40(0) {}
-    unsigned char m00[0x10];
-    atn::Vector3 mPos; // 0x10
-    unsigned char m1C[0x34 - 0x1C];
-    int m34;
-    int m38;
-    int m3C;
-    int m40;
-};
-extern "C" int fn_8005454C(EnvSeHit_unk* hit, const EnvSeSegment_unk* seg, const void* box); // inferred: segment / box
+extern "C" int fn_8005454C(atn::ColliResult_unk* hit, const EnvSeSegment_unk* seg, const void* box); // inferred: segment / box
 
 // inferred: creates the debug menu group `name` under `root` once (names invented)
 inline void* LoadMenu_unk(ResHandle& handle, void* root, const char* name) {
@@ -410,9 +400,9 @@ void EnvSeBox::vf10() {
             EnvSeSegment_unk seg;
             seg.mStart = center + d;
             seg.mEnd = mMtx.GetTrans_unk();
-            EnvSeHit_unk hit;
+            atn::ColliResult_unk hit;
             if (fn_8005454C(&hit, &seg, &mSize)) {
-                mData->mPos = hit.mPos;
+                mData->mPos = hit.m10;
             } else {
                 mData->mPos = mMtx.GetTrans_unk();
             }

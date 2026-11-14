@@ -13,7 +13,7 @@ public:
     virtual int vf0C();
     virtual void vf10();
     virtual void vf14();
-    virtual void vf3C(HitInfo_unk* hit) {} // 0x801CCCFC
+    virtual void vf3C(HitInfo_unk* hit); // 0x801CCCFC
     void fn_801CCD00(int state); // inferred: changes the copy mode
 
     int m14B0; // inferred: copy mode

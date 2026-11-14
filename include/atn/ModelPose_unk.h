@@ -3,6 +3,7 @@
 
 #include "math/Vec.h"
 #include <boost/function.hpp>
+#include "atn/ModelVtx_unk.h"
 
 namespace atn {
 class Matrix3x4;
@@ -25,14 +26,15 @@ struct ModelJoint_unk {
     int m24;          // inferred: next sibling (-1: none)
     unsigned char m28[0x2C - 0x28];
     int m2C; // inferred: nonzero when the joint has meshes (atn::Model fn_8008EEDC)
-    unsigned char m30[0x34 - 0x30];
+    int m30; // inferred: nonzero: the joint does not inherit the scale of its parent (only its position is scaled)
     atn::Vector3 m34; // inferred: initial scale
     atn::Vector3 m40; // inferred: initial rotation (euler)
     atn::Vector3 m4C; // inferred: initial position
     atn::Vector3 m58; // inferred: bounding box of the meshes of the joint (min, max; fn_8008EEDC)
     atn::Vector3 m64;
     int m70; // inferred: > 0 for the joints kept by atn::LoadModel (atn/LH_Model.cpp)
-    // inferred: bind pose by value (defined in atn/Model.cpp, used by fn_80099010); names invented
+    // inferred: bind pose by value (defined in atn/Model.cpp and atn/BoneCalc_unk.cpp, used by fn_80099010 and
+    // the joint walks); names invented
     inline atn::Vector3 GetScale_unk() const;
     inline atn::Vector3 GetRot_unk() const;
     inline atn::Vector3 GetTrans_unk() const;
@@ -55,7 +57,7 @@ struct ModelMtxBlock_unk {
     int mRigidCount;
     ModelRigidSkin_unk* mRigid;
     int mSkin2Count;
-    const SkinWeight2_unk* mSkin2;
+    SkinWeight2_unk* mSkin2;
     int mSkin3Count;
     const SkinWeight3_unk* mSkin3;
     int mSkin4Count;
@@ -63,10 +65,20 @@ struct ModelMtxBlock_unk {
 };
 
 // inferred: node of the model data (atn/LH_Model.cpp)
+// inferred: 'mesh' chunk (ModelDraw_unk's DrawMesh_unk): vertex description and the stream of each
+// attribute (indices into ModelData_unk::m2C, -1: none); fields from LoadModel::fn_80474F0C
 struct ModelNode_unk {
-    unsigned char m00[0x24];
-    int m24;
-    int m28;
+    unsigned char m00[4];
+    unsigned int m04;       // inferred: version
+    unsigned char m08[0x18 - 0x08];
+    LoadVtxDesc_unk* m18;   // inferred: indices sent by the display lists
+    int m1C;                // inferred: position stream
+    int m20;                // inferred: normal stream
+    int m24;                // inferred: color 0 stream
+    int m28;                // inferred: color 1 stream
+    int m2C[8];             // inferred: texture coordinate streams
+    unsigned char m4C[0x54 - 0x4C];
+    DrawArray_unk* m54;     // inferred: vertex arrays of the file (version 2)
 };
 
 // inferred: model data of the loaded file (the 'modl' chunk)
@@ -78,7 +90,8 @@ struct ModelData_unk {
     unsigned char m00[0x10];
     atn::Vector3 mMin; // 0x10: inferred: bounding box (MapPartsModel::vf24)
     atn::Vector3 mMax; // 0x1C
-    unsigned char m28[0x30 - 0x28];
+    int m28;                   // inferred: number of vertex streams
+    LoadVtxStream_unk** m2C;   // inferred: vertex streams ('strm' chunks)
     int m30; // inferred: number of materials
     atn::ShaderDesc_unk** m34; // inferred: shader descriptions of the materials (m30 of them)
     ModelMtxBlock_unk* m38;
@@ -93,7 +106,7 @@ struct ModelData_unk {
 // inferred: pose of a model, built on the stack to compute the joint matrices (constructor
 // 0x800904E0; 0x58 bytes); its two callbacks are destroyed inline. Names invented.
 struct ModelPose_unk {
-    ModelPose_unk(ModelData_unk* model, atn::Matrix3x4* matrices, const int* remap, boost::function<void()> callback,
+    ModelPose_unk(ModelData_unk* model, atn::Matrix3x4* matrices, const int* remap, atn::ModelNodeCallback_unk callback,
                   const unsigned int* extra, int extraCount);
     void fn_80090584(atn::ModelNodeCallback_unk callback); // inferred: sets the node callback
     // inferred: node edits (names invented)
@@ -111,7 +124,7 @@ struct ModelPose_unk {
     const short* m0C;
     const void* m10; // inferred: node edits (Event::PoseKey_unk)
     unsigned int m14;
-    boost::function<void()> m18;
+    atn::ModelNodeCallback_unk m18; // inferred: node callback of the sorted nodes m40 (same nonnull 0x8009B938 as m2C)
     atn::ModelNodeCallback_unk m2C;
     const unsigned int* m40; // inferred: sorted nodes with the callback enabled (Model::mCC)
     int m44;
@@ -120,8 +133,9 @@ struct ModelPose_unk {
 };
 
 // inferred: joint walks of atn/BoneCalc_unk.cpp
-extern "C" void fn_8009A5CC(ModelPose_unk* pose, int joint, const atn::Matrix3x4* parent, int arg);
+// (the parameter names are kept: removing them renumbers the @N and @enum$N of every unit that includes this)
+extern "C" void fn_8009A5CC(ModelPose_unk* pose, int joint, const atn::Matrix3x4* parent, const atn::Matrix3x4* scale);
 extern "C" void fn_8009ADA4(ModelPose_unk* pose, int joint, const atn::MotionBuffer* motion, const atn::Matrix3x4* parent,
-                            int arg);
+                            const atn::Matrix3x4* scale);
 
 #endif

@@ -2,6 +2,7 @@
 #include "game/CharaTask.h"
 #include "atn/Memory.h"
 #include <boost/bind.hpp>
+#include "atn/ColliBase.h"
 
 extern "C" int rand();
 
@@ -23,20 +24,8 @@ struct Unk_8087F0A8 {
     Input_unk mInput; // 0x48C
 };
 
-// inferred: collision query result (as in chr/ControlTurnQuadruped.cpp)
-struct GrappleCollResult_unk {
-    GrappleCollResult_unk() : m34(0), m38(0), m3C(0), m40(0) {}
-    unsigned char m00[0x10];
-    atn::Vector3 mPos; // 0x10
-    unsigned char m1C[0x34 - 0x1C];
-    int m34;
-    int m38;
-    int m3C;
-    int m40;
-    atn::Vector3 m44;
-};
 extern "C" void* lbl_8087EE98;
-extern "C" void fn_8004D388(void* mgr, GrappleCollResult_unk* result, chr::Chara_unk::Sphere_unk* sphere,
+extern "C" void fn_8004D388(void* mgr, atn::ColliResult_unk* result, chr::Chara_unk::Sphere_unk* sphere,
                             atn::Vector3* move, unsigned int mask, void* ignore, int arg,
                             float radius); // inferred: sweep test
 
@@ -243,10 +232,10 @@ int ControlGrappleThrown::vf0C() {
         atn::Matrix3x4 m;
         RotZYX_unk(m, chara->mRot);
         PSMTXMultVec(m.m, &move, &move);
-        GrappleCollResult_unk result;
+        atn::ColliResult_unk result;
         Chara_unk::Sphere_unk sphere = mChara->fn_80176548(mChara->mPos);
         fn_8004D388(lbl_8087EE98, &result, &sphere, &move, 0x80000000, &mChara->mColli, 0, sphere.mRadius);
-        atn::Vector3 pos = result.mPos;
+        atn::Vector3 pos = result.m10;
         Chara_unk* c = mChara;
         pos -= c->m5A4;
         pos.y -= sphere.mRadius;

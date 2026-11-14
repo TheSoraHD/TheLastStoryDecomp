@@ -601,6 +601,11 @@ int LastCocoonImago::vfB8(wchar_t* name) {
     return 0;
 }
 
+// inferred: false while the cursor is on its own sphere m18FC (GameUI 0x803DBD44)
+int LastCocoonImago::vfBC(atn::ColliBase* target) {
+    return target != &m18FC;
+}
+
 // NONMATCHING: 98% - stack slots of the temporaries (the zero vector of the Item14_unk constructor)
 // inferred: damage spheres: the three attack nodes (between the two nodes when both exist) and m1948
 void LastCocoonImago::vf50() {
@@ -657,7 +662,7 @@ void LastCocoonImago::vf54() {
     }
 }
 
-extern "C" int fn_8004D388(void* world, CollResult_unk* result, CharaTask::Sphere_unk* sphere, atn::Vector3* move,
+extern "C" int fn_8004D388(void* world, atn::ColliResult_unk* result, CharaTask::Sphere_unk* sphere, atn::Vector3* move,
                            unsigned int mask, void* ignore, int arg, float radius); // inferred: sweep test
 extern "C" void* lbl_8087EE98; // inferred: collision world
 // inferred: game state (as in game/LastCocoonQuadruped.cpp); names invented
@@ -715,7 +720,7 @@ void LastCocoonImago::fn_8045ABB4(const atn::Vector3& target, float move, float 
     if (vel.y < -12.0f) {
         vel.y = -12.0f;
     }
-    CollResult_unk result;
+    atn::ColliResult_unk result;
     atn::Vector3 oldPos = pos;
     Sphere_unk sphere;
     sphere.mCenter = m614;

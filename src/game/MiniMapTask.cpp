@@ -16,6 +16,11 @@
 #include "game/GameTask.h"
 #include "game/CharaManager.h"
 #include "game/PlayerTask.h"
+#include "game/GimmickCommon.h"
+#include "game/GameConfig_unk.h"
+
+extern "C" void fn_8008771C(void* menu, const char* name, float* value, float min, float max, float step,
+                            void (*func)(void*, void*), void* arg); // inferred: AddFloat of the debug menu
 
 extern "C" MiniMapTask* fn_804A7EA4(atn::Task* parent, const char* path) {
     if (parent != 0) {
@@ -24,38 +29,110 @@ extern "C" MiniMapTask* fn_804A7EA4(atn::Task* parent, const char* path) {
     return 0;
 }
 
-// NONMATCHING: 21.93% - resource setup and record initialization are incomplete.
+// inferred: loads the resource, the eight textures (m58 is not loaded), the radar model and the frame d2anime
+// (started stopped), and registers the debug menu "Minimap"
 MiniMapTask::MiniMapTask(atn::Task* parent, const char* path)
-    : atn::Task(parent), m4C(1), m50(), m58(), m208(0x00A00001, 0x20), m640(0, 0), m15C4(), m160C(0) {
+    : atn::Task(parent), m4C(1), m208(0x00A00001, 0x20), m5DC(0.0f), m5E0(0.0f), m5E4(0.0f), m5E8(0.0f),
+      m5EC(0.0f), m5F0(0.0f), m5F4(0.0f), m5F8(0.0f), m5FC(500.0f), m600(1.0f, 1.0f, 1.0f, 0.0f),
+      m610(1.0f, 1.0f, 1.0f, 1.0f), m620(1.0f, 1.0f, 1.0f, 1.0f), m630(16.0f), m634(20.0f), m638(8.0f), m63C(12.0f),
+      m640(0, 0), m15C0(3000.0f), m160C(0) {
     m50.vf0C(path);
+    mE8.fn_800D5908("common/mmap_base_mask.texture");
+    mB8.fn_800D5908("common/mmap_circle01.texture");
+    m148.fn_800D5908("common/mmap_circle01_mask.texture");
+    m88.fn_800D5908("common/mmap_triangle01.texture");
+    m118.fn_800D5908("common/mmap_triangle01_mask.texture");
+    m1A8.fn_800D5908("common/mmap_shine_circle.texture");
+    m178.fn_800D5908("common/mmap_shine_triangle.texture");
+    m1D8.fn_800D5908("data/texture/mmap_arrow.texture");
+    m208.fn_8008AD4C("data/model/radar.model", 0);
+    (m5D8 = fn_801F3FF8(this, "mmap_arrow.d2a", 0))->fn_800D246C(1);
+    void* group = m15BC.Load("Minimap");
+    fn_80087994(group, "Enable", &m4C, 0, 0);
+    fn_8008771C(group, "CamLength", &m15C0, 0.0f, 1000000.0f, 1.0f, 0, 0);
+    fn_80087994(group, "DrawAll", &m160C, 0, 0);
 }
 
-// NONMATCHING: 55.67% - target destructor releases resources and owned tasks.
 MiniMapTask::~MiniMapTask() {}
 
-// NONMATCHING: 1.75% - target handles the resource completion callback.
+// inferred: the textures are still loading (atn::Texture method at 0x800D59B8, named in symbols.txt as a method of
+// GimmickUvOwner_unk, the view of atn::Texture of game/GimmickCommon.h)
+static inline int IsTextureLoading_unk(atn::Texture_unk& texture) {
+    return ((GimmickUvOwner_unk*)&texture)->fn_800D59B8();
+}
+
+// inferred: waits for the resource, the nine textures, the task and the model; then starts the frame d2anime
+// (repeat, stopped) and reads the csv
 int MiniMapTask::vf0C() {
+    int loading = 0;
+    if (m50.fn_80473F50() || IsTextureLoading_unk(m58) || IsTextureLoading_unk(m88) ||
+        IsTextureLoading_unk(mB8) || IsTextureLoading_unk(mE8) || IsTextureLoading_unk(m118) ||
+        IsTextureLoading_unk(m148) || IsTextureLoading_unk(m178) || IsTextureLoading_unk(m1A8) ||
+        IsTextureLoading_unk(m1D8) || !fn_800D3FA4() || m208.fn_8008B140()) {
+        loading = 1;
+    }
+    if (!loading) {
+        m5D8->fn_800D246C(0);
+        m5D8->mRepeat = 1;
+        m5D8->mFlags |= 4;
+        fn_804AA490();
+        return 1;
+    }
     return 0;
 }
 
-// NONMATCHING: 0.62% - target updates minimap animation/state.
-void MiniMapTask::vf10() {}
+#define MINIMAP_MAX_UNK(a, b) ((a) > (b) ? (a) : (b))
+// inferred: column of a matrix (as in gmk/PigeonManager.cpp)
+inline atn::Vector3 MiniMapCol_unk(const atn::Matrix3x4& m, int i) {
+    return atn::Vector3(m.m[0][i], m.m[1][i], m.m[2][i]);
+}
+// inferred: largest scale axis of a matrix (as in gmk/PigeonManager.cpp)
+inline float MiniMapMaxScale_unk(const atn::Matrix3x4& mtx) {
+    atn::Vector3 s;
+    atn::Vector3 az = MiniMapCol_unk(mtx, 2);
+    float sz = PSVECMag(&az);
+    atn::Vector3 ay = MiniMapCol_unk(mtx, 1);
+    float sy = PSVECMag(&ay);
+    atn::Vector3 ax = MiniMapCol_unk(mtx, 0);
+    float sx = PSVECMag(&ax);
+    s.x = sx;
+    s.y = sy;
+    s.z = sz;
+    return MINIMAP_MAX_UNK(s.x, MINIMAP_MAX_UNK(s.y, s.z));
+}
+extern "C" atn::Matrix3x4 lbl_807C7060; // inferred: identity matrix
 
-// NONMATCHING: 70.76% - target preserves direct float-to-integer conversion details.
+// inferred: moves the markers of the marked characters to them (shown while the character can act) and updates
+// the matrices of the minimap model at the identity
+void MiniMapTask::vf10() {
+    for (unsigned int i = 0; i < mCharaMarks.mCount; i++) {
+        int marker = mCharaMarks.mData[i].mMarker;
+        mMarkers[marker].mPos = mCharaMarks.mData[i].mChara->mPos;
+        if (mCharaMarks.mData[i].mChara->CanAct_unk()) {
+            mMarkers[marker].m00 = 1;
+        } else {
+            mMarkers[marker].m00 = 0;
+        }
+    }
+    const atn::Matrix3x4& mtx = lbl_807C7060;
+    static_cast<atn::Matrix3x4&>(m208.mMtx) = mtx;
+    m208.m54 = MiniMapMaxScale_unk(mtx);
+    m208.CalcMatrixStack(atn::ModelNodeCallback_unk());
+}
+
+// inferred: GXColor of a float colour (the bytes are stored one by one and read back as a word)
 extern "C" unsigned int fn_804A88C8(const float* rgba) {
-    const unsigned int r = (int)(rgba[0] * 255.0f);
-    const unsigned int g = (int)(rgba[1] * 255.0f);
-    const unsigned int b = (int)(rgba[2] * 255.0f);
-    const unsigned int a = (int)(rgba[3] * 255.0f);
-    return (r << 24) | (g << 16) | (b << 8) | a;
+    GXColor c;
+    c.r = (int)(255.0f * rgba[0]);
+    c.g = (int)(255.0f * rgba[1]);
+    c.b = (int)(255.0f * rgba[2]);
+    c.a = (int)(255.0f * rgba[3]);
+    return *(unsigned int*)&c;
 }
 
 extern "C" void fn_804A893C(unsigned int* object, unsigned int flags) {
     object[1] |= flags;
 }
-
-// NONMATCHING: 0.07% - target performs the main minimap draw/update pass.
-void MiniMapTask::vf14() {}
 
 extern "C" atn::GraphicsDevice_unk* lbl_8087EEE0;
 extern "C" float fn_80076FF8(atn::GraphicsDevice_unk* device); // inferred: screen aspect ratio
@@ -64,6 +141,175 @@ inline atn::GraphicsDevice_unk* GetGraphics_unk() {
 }
 extern "C" GameTask* lbl_8087F430;
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
+extern "C" GameConfig_unk* lbl_8087F0A8;
+
+// inferred: keeps the rgb of the material colour and sets its alpha
+static inline void MiniMapSetAlpha_unk(Material_unk* material, float alpha) {
+    ColorF_unk color(fn_8000DD98(material));
+    color.a = alpha;
+    material->mColor = color.ToGX();
+}
+
+#define MINIMAP_MIN_UNK(a, b) ((a) < (b) ? (a) : (b))
+
+// NONMATCHING: 94.2% - float register allocation in the marker loop (the original keeps the centre in f30/f31
+// and the constants in f24-f29) and scheduling around the draw calls; the leader check is a bne/b pair in the
+// original
+// inferred: per frame: fades the house/line/road layers out while the leader is in the "LOWER_LAYER" box,
+// hides the minimap in the "OFF_AREA" boxes, turns the map with the leader or the camera (mode of the game
+// config), draws the player arrow and the markers (inside: point and marker; outside: arrow on the edge
+// toward the marker, if m24 is set) and places the orthographic camera m640 over the leader
+void MiniMapTask::vf14() {
+    m5D8->mFlags |= 4;
+    if (m4C == 0 || lbl_8087F8A0 == 0 || lbl_8087F8A0->mHead == 0) {
+        return;
+    }
+    atn::Vector3 pos = lbl_8087F8A0->mHead->mPos;
+    int lower = 0;
+    if (pos.y <= m1604 && pos.x > m15F4 && pos.x < m15F4 + m15FC && pos.z > m15F8 && pos.z < m15F8 + m1600) {
+        lower = 1;
+    }
+    m1608 = lower ? MINIMAP_MAX_UNK(0.2f, m1608 - 0.05f) : MINIMAP_MIN_UNK(1.0f, 0.05f + m1608);
+    m208.mFlags &= ~0x10;
+    // inferred: alpha of the house/line/road materials (rgb kept): translucent below 0.99 (draw mode 3 and the
+    // model flag 0x10), else mode 1
+    {
+        float alpha = m1608;
+        Material_unk* material = m208.fn_80092954("m_house_alpha");
+        if (material != 0) {
+            MiniMapSetAlpha_unk(material, alpha);
+            if (alpha < 0.99f) {
+                material->fn_8007FAF0(3);
+                m208.mFlags |= 0x10;
+            } else {
+                material->fn_8007FAF0(1);
+            }
+        }
+    }
+    {
+        float alpha = m1608;
+        Material_unk* material = m208.fn_80092954("m_line_alpha");
+        if (material != 0) {
+            MiniMapSetAlpha_unk(material, alpha);
+            if (alpha < 0.99f) {
+                material->fn_8007FAF0(3);
+                m208.mFlags |= 0x10;
+            } else {
+                material->fn_8007FAF0(1);
+            }
+        }
+    }
+    {
+        float alpha = m1608;
+        Material_unk* material = m208.fn_80092954("m_road_alpha");
+        if (material != 0) {
+            MiniMapSetAlpha_unk(material, alpha);
+            if (alpha < 0.99f) {
+                material->fn_8007FAF0(3);
+                m208.mFlags |= 0x10;
+            } else {
+                material->fn_8007FAF0(1);
+            }
+        }
+    }
+    if (m160C != 0) {
+        fn_804A9EB4();
+        return;
+    }
+    float scale = m5F4 * (m5E4 / 128.0f);
+    atn::Vector3 center(0.5f * m5E4 + m5DC, 0.5f * m5E8 + m5E0, 0.0f);
+    float cx = center.x;
+    float cy = center.y;
+    float arrowSize = m630;
+    float markerSize = m638;
+    float arrowShineSize = m634;
+    float pointSize = m63C;
+    for (unsigned int i = 0; i < m1538.mCount; i++) {
+        if (pos.x > m1538.mData[i].mMin.x && pos.x < m1538.mData[i].mMin.x + m1538.mData[i].mMax.x &&
+            pos.z > m1538.mData[i].mMin.y && pos.z < m1538.mData[i].mMin.y + m1538.mData[i].mMax.y) {
+            return;
+        }
+    }
+    pos.y = 0.0f;
+    float angle = 0.0f;
+    switch (lbl_8087F0A8->mTitle.m24) { // inferred: rotation mode of the minimap
+    case 1:
+        angle = lbl_8087F8A0->mHead->mRot.y - 3.1415927f;
+        break;
+    case 2: {
+        atn::Camera& camera = atn::RenderManager::instance_->mCamera;
+        angle = -(camera.mTarget - camera.mPos).GetNormalize().ToRotation_unk().y - 3.1415927f;
+        break;
+    }
+    }
+    atn::Matrix3x4 mtx = atn::Matrix3x4::RotY_unk(angle);
+    atn::Vector3 front(0.0f, 0.0f, -1.0f);
+    PSMTXMultVec(mtx.m, &front, &front);
+    atn::Vector3 frontRot(front.x, 0.0f, -front.z);
+    frontRot.fn_80139F60(); // inferred: not used afterwards
+    lbl_8087EEB0->fn_8005EE38(0xFF395A83, &lbl_8087EEB0->m10, &m1D8, 0, 0.5f * m5E4 + m5DC, 0.5f * m5E8 + m5E0, 10.0f, 12.0f, 12.0f,
+                              -(lbl_8087F8A0->mHead->mRot.y - 3.1415927f), 0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f,
+                              1.0f, 1.0f);
+    for (unsigned int i = 0; i < 64; i++) {
+        MiniMapMarker_unk* m = &mMarkers[i];
+        if (m->m00 != 1) {
+            continue;
+        }
+        if (m->m04 != -1 && !lbl_8087F430->fn_80370174(m->m04)) {
+            continue;
+        }
+        atn::Vector3 markerPos(m->mPos.x, 0.0f, m->mPos.z);
+        atn::Vector3 d = markerPos - pos;
+        d.Length_unk();
+        atn::Vector3 v = d * (1.0f / m5FC) * scale;
+        PSMTXMultVec(mtx.m, &v, &v);
+        int inside = 0;
+        if (v.x > 0.5f * -m5E4 + 3.0f && v.x < 0.5f * m5E4 - 3.0f && v.z > 0.5f * -m5E8 + 3.0f &&
+            v.z < 0.5f * m5E8 - 3.0f) {
+            inside = 1;
+        }
+        if (!inside) {
+            if (m->m24 == 0) {
+                continue;
+            }
+            v.x = MINIMAP_MAX_UNK(0.5f * -m5E4 + 3.0f, MINIMAP_MIN_UNK(0.5f * m5E4 - 3.0f, v.x));
+            v.z = MINIMAP_MAX_UNK(0.5f * -m5E8 + 3.0f, MINIMAP_MIN_UNK(0.5f * m5E8 - 3.0f, v.z));
+            atn::Vector3 n = d.GetNormalize() * scale;
+            PSMTXMultVec(mtx.m, &n, &n);
+            atn::Vector3 dir(n.x, 0.0f, -n.z);
+            dir.fn_80139F60();
+            float rot = dir.y;
+            lbl_8087EEB0->fn_8005EDF0(m610.ToU32(), &m178, 1, 1, cx + v.x, cy + v.z, 10.0f,
+                                      arrowShineSize * m->mScale, arrowShineSize * m->mScale, rot, 0.0f, 0.0f, 1.0f, 1.0f);
+            lbl_8087EEB0->fn_8005EE38(m->mColor.ToU32(), &m88, &m118, 0, cx + v.x, cy + v.z, 10.0f,
+                                      arrowSize * m->mScale, arrowSize * m->mScale, rot, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f,
+                                      1.0f, 1.0f);
+        } else {
+            lbl_8087EEB0->fn_8005E3E4(m620.ToU32(), &m1A8, cx + v.x - 0.5f * pointSize * m->mScale,
+                                      cy + v.z - 0.5f * pointSize * m->mScale, 10.0f, pointSize * m->mScale,
+                                      pointSize * m->mScale, 0.0f, 0.0f, 1.0f, 1.0f, 1, 1);
+            lbl_8087EEB0->fn_8005E7F4(m->mColor.ToU32(), &mB8, &m148, cx + v.x - 0.5f * markerSize * m->mScale,
+                                      cy + v.z - 0.5f * markerSize * m->mScale, 10.0f, markerSize * m->mScale,
+                                      markerSize * m->mScale, 0.0f, 0.0f, 1.0f, 1.0f);
+        }
+    }
+    m640.mProjType = 1;
+    m640.SetPosition(pos.x, 100.0f, pos.z);
+    m640.SetTarget(pos.x, 0.0f, pos.z);
+    m640.mUp.x = 0.0f;
+    m640.mUp.y = 0.0f;
+    m640.mUp.z = -1.0f;
+    float h = m5FC * (float)GetGraphics_unk()->mHeight / scale * (m5E8 / 256.0f);
+    float aspect = (float)GetGraphics_unk()->mWidth / (float)GetGraphics_unk()->mHeight;
+    m640.mTop = 0.5f * h;
+    m640.mBottom = 0.5f * -h;
+    m640.mRight = 0.5f * h * aspect;
+    m640.mLeft = 0.5f * -h * aspect;
+    m640.fn_8004B378();
+    atn::RenderManager::instance_->AddRender(this, 2, 0.0f);
+    atn::RenderManager::instance_->AddRender(this, 16, 0.0f);
+}
+
 extern "C" unsigned int fn_800DC6B4(const char* s); // inferred: string hash
 extern "C" void fn_801FECE0(void* layout, unsigned int hash, float value); // inferred: sets a value of a pane
 inline void atn::D2A_Task::SetLayoutValue_unk(const char* name, float value) {
@@ -110,10 +356,10 @@ void MiniMapTask::fn_804A9EB4() {
             continue;
         }
         atn::Vector3 screen = MiniMapToScreen_unk(m->mPos, sx, scale);
-        lbl_8087EEB0->fn_8005E3E4(m620.ToU32(), &m58[7], screen.x - 0.5f * m63C * m->mScale,
+        lbl_8087EEB0->fn_8005E3E4(m620.ToU32(), &m1A8, screen.x - 0.5f * m63C * m->mScale,
                                   screen.z - 0.5f * m63C * m->mScale, 10.0f, m63C * m->mScale, m63C * m->mScale,
                                   0.0f, 0.0f, 1.0f, 1.0f, 1, 1);
-        lbl_8087EEB0->fn_8005E7F4(m->mColor.ToU32(), &m58[2], &m58[5], screen.x - 0.5f * m638 * m->mScale,
+        lbl_8087EEB0->fn_8005E7F4(m->mColor.ToU32(), &mB8, &m148, screen.x - 0.5f * m638 * m->mScale,
                                   screen.z - 0.5f * m638 * m->mScale, 10.0f, m638 * m->mScale, m638 * m->mScale,
                                   0.0f, 0.0f, 1.0f, 1.0f);
     }
@@ -241,9 +487,13 @@ void MiniMapTask::fn_804AAFCC(CharaTask* chara) {
     }
 }
 
-// NONMATCHING: 0.22% - target builds and submits minimap render data.
+// inferred: second draw pass of the minimap model with the minimap camera
+// NONMATCHING: 98.5% - scheduling of the inlined implicit copies of atn::Camera (as its weak copy constructor)
 void MiniMapTask::vf18(atn::RenderManager* view) {
-    (void)view;
+    atn::Camera saved(view->mCamera);
+    view->SetCamera_unk(m640);
+    m208.vf18(view);
+    view->SetCamera_unk(saved);
 }
 
 
@@ -347,9 +597,11 @@ extern "C" __declspec(noinline) inline atn::Texture_unk* fn_804ABF44(atn::Render
     return &view->m74C;
 }
 
-// DRAFT: written for the weak copies; not checked against the original
-// NONMATCHING: draft - draws the minimap into a temporary 256x256 texture (the transparent parts in a
-// second pass) and draws it on the screen through the mask texture m58[3]
+// inferred: draws the minimap into a temporary 256x256 texture (the transparent parts in a second pass) and
+// draws it on the screen through the mask texture mE8
+// NONMATCHING: 0% - equivalent (checked call by call against the original), but here it is under the inlining
+// budget and inlines every accessor, while the original calls them all (about 36 statements of candidates short:
+// an artificial first candidate of 36-40 statements puts it over)
 void MiniMapTask::vf10(atn::RenderManager* view) {
     if (fn_804A9E44(this) != 0) {
         fn_804ABF84(view);
@@ -403,7 +655,7 @@ void MiniMapTask::vf10(atn::RenderManager* view) {
     cmd.m04 = 1;
     cmd.mVertex = verts;
     cmd.mTex0 = (atn::Texture_unk*)&tex;
-    cmd.mTex1 = (atn::Texture_unk*)fn_804ABF40(&m58[3]);
+    cmd.mTex1 = (atn::Texture_unk*)fn_804ABF40(&mE8);
     cmd.m14 = 0;
     cmd.m18 = 0;
     cmd.vf10(view);
@@ -414,8 +666,19 @@ void MiniMapTask::vf10(atn::RenderManager* view) {
     fn_80071D68(GetGraphics_unk(), fn_804ABEE4(&saved)->m);
 }
 
-// DRAFT: written for the weak copies; not checked against the original
-// NONMATCHING: draft - draws the minimap model with its orthographic camera: the transparent parts first
+// inferred: camera setters (declared in atn/Camera_unk.h; weak copies 0x804A9E54/0x804A9E64)
+inline void atn::Camera::SetPosition(float x, float y, float z) {
+    mPos.x = x;
+    mPos.y = y;
+    mPos.z = z;
+}
+inline void atn::Camera::SetTarget(float x, float y, float z) {
+    mTarget.x = x;
+    mTarget.y = y;
+    mTarget.z = z;
+}
+
+// NONMATCHING: draws the minimap model with its orthographic camera: the transparent parts first
 // (alpha 0.6, house/line/road hidden), then the rest, and restores the camera of the view
 void MiniMapTask::fn_804ABF84(atn::RenderManager* view) {
     atn::Camera saved(*view->fn_800F7258());
@@ -427,10 +690,8 @@ void MiniMapTask::fn_804ABF84(atn::RenderManager* view) {
     fn_804A9EA4(&camera, 0.5f * -h * aspect);
     fn_804A9EAC(&camera, 0.5f * h * aspect);
     fn_804A9E4C(&camera, 1);
-    // inferred: the original calls Camera::SetPosition(float, float, float) and SetTarget(float, float, float)
-    // (weak copies 0x804A9E54/0x804A9E64); a new inline in atn/Camera_unk.h renumbers 187 units
-    camera.mPos.Set_unk(50.0f, 100.0f, -70.0f);
-    camera.mTarget.Set_unk(50.0f, 0.0f, -70.0f);
+    camera.SetPosition(50.0f, 100.0f, -70.0f);
+    camera.SetTarget(50.0f, 0.0f, -70.0f);
     fn_804A9E74(&camera, 0.0f, 0.0f, -1.0f);
     camera.fn_8004B378();
     view->SetCamera_unk(camera);

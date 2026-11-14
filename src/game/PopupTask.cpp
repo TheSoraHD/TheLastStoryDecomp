@@ -1,6 +1,6 @@
 // inferred: popups of the battle HUD (combo, critical, weapon skill, headshot, steal... d2anime
 // files in .rodata). Class from RTTI "PopupTask" (vtable 0x80794A84: dtor, vf0C, vf10, vf14).
-// vf14 (0x8054B324, 9 KB) is still asm. Names invented.
+// Names invented.
 #include "game/PopupTask.h"
 #include "atn/FixedArray.h"
 #include "atn/Task.h"
@@ -13,6 +13,11 @@
 #include "game/GameUI.h"
 #include "game/GameConfig_unk.h"
 #include "atn/SoundRef.h"
+#include "atn/RenderManager.h"
+#include "atn/GraphicsDevice.h"
+#include "atn/DrawHelper.h"
+#include "game/PlayerTask.h"
+#include "game/CharaManager.h"
 
 extern "C" int rand();
 extern "C" GameTask* lbl_8087F430;
@@ -243,6 +248,432 @@ void PopupTask::vf10() {
             mEntries.erase(e);
         } else {
             e++;
+        }
+    }
+}
+
+// inferred: the player aims (flag 31 and +0xC48; name invented)
+static inline bool IsAiming_unk(PlayerTask* p) {
+    bool r = false;
+    if (p->mFlag31 && p->mC48 != 0) {
+        r = true;
+    }
+    return r;
+}
+// inferred: alpha of a popup that fades in and out over `n` frames (name invented)
+static inline float PopupFade_unk(PopupEntry_unk* e, float n) {
+    float a = 1.0f;
+    if ((float)e->m00 < n) {
+        a = (float)e->m00 / n;
+    } else if (e->m04 - (float)e->m00 < n) {
+        a = (e->m04 - (float)e->m00) / n;
+    }
+    return a;
+}
+// inferred: progress of a popup (frame / duration; name invented)
+static inline float PopupRate_unk(PopupEntry_unk* e) {
+    float r = 1.0f;
+    if (e->m04 > 0.0f) {
+        r = (float)e->m00 / e->m04;
+    }
+    return r;
+}
+// inferred: places a d2anime of a popup: frame, base point (position, scale, depth); names invented
+static inline void PopupPlace_unk(PopupEntry_unk* e, PopupAnime_unk* PopupEntry_unk::*anime, float x, float y,
+                                  float sx, float sy, float z) {
+    SetPaneValue_unk((e->*anime)->mTask->mLayout, "basePoint", 0, x);
+    SetPaneValue_unk((e->*anime)->mTask->mLayout, "basePoint", 1, y);
+    SetPaneValue_unk((e->*anime)->mTask->mLayout, "basePoint", 2, sx);
+    SetPaneValue_unk((e->*anime)->mTask->mLayout, "basePoint", 3, sy);
+    SetPaneValue_unk((e->*anime)->mTask->mLayout, "basePoint", 4, z);
+}
+extern "C" void fn_801FECE0(void* layout, unsigned int hash, float value);
+extern "C" void fn_801FEE08(void* layout, unsigned int hash, const wchar_t* text);
+extern "C" void fn_801F4484(PopupD2A_unk* task); // inferred: updates the d2anime
+extern "C" void fn_801F465C(PopupD2A_unk* task, int arg); // inferred: draws the d2anime
+extern "C" wchar_t* wcscpy(wchar_t* dst, const wchar_t* src);
+extern "C" atn::GraphicsDevice_unk* lbl_8087EEE0;
+extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
+extern "C" void* lbl_8087EEC8;                    // inferred: font
+extern "C" float fn_8006EF48(void* font, float size, const wchar_t* text, float f2, int a, int b); // inferred: width
+extern "C" void* fn_801FEC74(void* layout, const char* name); // inferred: finds a pane
+extern "C" std::basic_string<wchar_t> fn_800A4450(void* pane, int a, int b); // inferred: text of a pane
+// inferred: message table (lbl_8087F1E4; as MP/MpCampMsgTable_unk.h, whose header conflicts here)
+extern "C" const wchar_t lbl_808813D0[2]; // inferred: empty text
+struct PopupMsgTable_unk {
+    const wchar_t* Get_unk(int id) { return mText[id] != 0 ? mText[id] : lbl_808813D0; }
+    const wchar_t* mText[1];
+};
+extern "C" PopupMsgTable_unk* lbl_8087F1E4;
+inline void SetPaneFloat_unk(void* layout, const char* name, float value) {
+    fn_801FECE0(layout, fn_800DC6B4(name), value);
+}
+inline void SetPaneText_unk(void* layout, const char* name, const wchar_t* text) {
+    fn_801FEE08(layout, fn_800DC6B4(name), text);
+}
+
+// inferred: draws the popups: the text of each one (damage, heal, text kinds 3/4/5/8) over its screen
+// position, then its animes (level up, damage, critical, combo, element...) stacked above it, and the
+// notices of its flags (steal, headshot...)
+// NONMATCHING: 97.3% - the original keeps more float constants spilled as doubles on the stack (30, 60, 72...)
+// and reloads them; float registers and scheduling of the popup loop
+void PopupTask::vf14() {
+    PlayerTask* player = lbl_8087F8A0->mHead;
+    float z = 150.0f;
+    if (player != 0) {
+        if (player->mFlag6 || (player->mFlag31 && IsAiming_unk(player))) {
+            z = -5.0f;
+        }
+    }
+    for (PopupEntry_unk* e = mEntries.begin(); e != mEntries.end(); e++) {
+        atn::Vector3 pos = e->m60;
+        if (e->mB0 != 0) {
+            MtxPtr m = (MtxPtr)e->mB0;
+            atn::Vector3 trans(m[0][3], m[1][3], m[2][3]);
+            pos += trans;
+        }
+        atn::Vector3 screen = atn::RenderManager::instance_->GetScreenPosition(pos);
+        screen.x += e->m6C.x;
+        screen.y += e->m6C.y;
+        screen.z += e->m6C.z;
+        if (screen.z < 0.0f || screen.z > 1.0f) {
+            continue;
+        }
+        float size = 16.0f;
+        if (e->m1C == 0) {
+            size *= 1.5f;
+        } else if (e->m1C == 2) {
+            size *= 0.75f;
+        }
+        float mul = 1.0f;
+        if (lbl_8087F430->mFinish.m00 != 0 && (e->m10 == 0 || e->m10 == 4)) {
+            mul *= 2.0f;
+        }
+        size *= mul;
+        unsigned int alpha = 0xFF000000;
+        if (((unsigned int)e->m14 & 0x40000) == 0x40000) {
+            // inferred: kept inside the screen
+            atn::Vector3 center(0.5f * (float)lbl_8087EEE0->mWidth, 0.5f * (float)lbl_8087EEE0->mHeight, 0.0f);
+            float radius = 0.5f * (0.9f * (float)lbl_8087EEE0->mWidth);
+            float width = fn_8006EF48(lbl_8087EEC8, size, e->m20.mStr, 0.0f, 1, 1);
+            atn::Vector3 d = screen - center;
+            if (d.Length_unk() > radius) {
+                d.Normalize_unk();
+                screen = center + d * radius;
+            }
+            float margin = 30.0f + width;
+            if (screen.x < margin) {
+                screen.x = margin;
+            } else if (screen.x > (float)lbl_8087EEE0->mWidth - margin) {
+                screen.x = (float)lbl_8087EEE0->mWidth - margin;
+            }
+            if (screen.y < 60.0f) {
+                screen.y = 60.0f;
+            } else if (screen.y > (float)lbl_8087EEE0->mHeight - (30.0f + size)) {
+                screen.y = (float)lbl_8087EEE0->mHeight - (30.0f + size);
+            }
+        }
+        float y = screen.y;
+        float x;
+        switch (e->m10) {
+        case 0:
+        case 1:
+            if (((unsigned int)e->m14 & 8) != 8) {
+                alpha = (unsigned int)(255.0f * PopupFade_unk(e, 10.0f)) << 24;
+            } else {
+                alpha = (unsigned int)(255.0f * PopupFade_unk(e, 10.0f)) << 24;
+            }
+            break;
+        case 3: {
+            float fade = PopupFade_unk(e, 10.0f);
+            float rise = 20.0f * PopupRate_unk(e);
+            alpha = (unsigned int)(160.0f * fade) << 24;
+            float width = fn_8006EF48(lbl_8087EEC8, size, e->m20.mStr, 0.0f, 1, 1);
+            y -= rise;
+            x = screen.x - 0.5f * width;
+            unsigned int color = 0x33CC00;
+            if (e->m10 == 3) {
+                color = e->m78 & 0xFFFFFF;
+            }
+            lbl_8087EEB0->fn_80061824(2.0f + x, 2.0f + y, z, size, size, 0.0f, 0.0f, 0.0f, e->m20.mStr, 0xA0000000,
+                                      1, 1, 0, 0, 0xFF000000);
+            lbl_8087EEB0->fn_80061824(x, y, z, size, size, 0.0f, 0.0f, 0.0f, e->m20.mStr, color | alpha, 1, 1, 0, 0,
+                                      0xFF000000);
+            break;
+        }
+        case 4: {
+            float width = fn_8006EF48(lbl_8087EEC8, size, e->m20.mStr, 0.0f, 1, 1);
+            y -= 1.2f * size;
+            x = screen.x - 0.5f * width;
+            lbl_8087EEB0->fn_80061824(1.5f + x, y, 1e-4f + z, size, size, 0.0f, 0.0f, 0.0f, e->m20.mStr, alpha, 1, 4,
+                                      0, 0, 0xFF000000);
+            lbl_8087EEB0->fn_80061824(x, 1.5f + y, 1e-4f + z, size, size, 0.0f, 0.0f, 0.0f, e->m20.mStr, alpha, 1, 4,
+                                      0, 0, 0xFF000000);
+            lbl_8087EEB0->fn_80061824(x - 1.5f, y, 1e-4f + z, size, size, 0.0f, 0.0f, 0.0f, e->m20.mStr, alpha, 1, 4,
+                                      0, 0, 0xFF000000);
+            lbl_8087EEB0->fn_80061824(x, y - 1.5f, 1e-4f + z, size, size, 0.0f, 0.0f, 0.0f, e->m20.mStr, alpha, 1, 4,
+                                      0, 0, 0xFF000000);
+            lbl_8087EEB0->fn_80061824(x, y, z, size, size, 0.0f, 0.0f, 0.0f, e->m20.mStr, alpha | 0xFFC040, 1, 4, 0, 0,
+                                      0xFF000000);
+            break;
+        }
+        case 5: {
+            float fade = PopupFade_unk(e, 6.0f);
+            float rise = 15.0f * (1.0f < (float)e->m00 / 6.0f ? 1.0f : (float)e->m00 / 6.0f);
+            alpha = (unsigned int)(160.0f * fade) << 24;
+            float width = fn_8006EF48(lbl_8087EEC8, size, e->m20.mStr, 0.0f, 1, 1);
+            y -= rise;
+            x = screen.x - 0.5f * width;
+            unsigned int color = e->m78 & 0xFFFFFF;
+            lbl_8087EEB0->fn_80061824(2.0f + x, 2.0f + y, z, size, size, 0.0f, 0.0f, 0.0f, e->m20.mStr, 0xA0000000,
+                                      1, 4, 0, 0, 0xFF000000);
+            lbl_8087EEB0->fn_80061824(x, y, z, size, size, 0.0f, 0.0f, 0.0f, e->m20.mStr, color | alpha, 1, 4, 0, 0,
+                                      0xFF000000);
+            break;
+        }
+        case 8: {
+            int value = e->m78;
+            float fade = PopupFade_unk(e, 10.0f);
+            float rise = 30.0f * PopupRate_unk(e);
+            alpha = (unsigned int)(240.0f * fade) << 24;
+            size *= 3.0f;
+            float width = fn_8006EF48(lbl_8087EEC8, size, e->m20.mStr, 0.0f, 1, 1);
+            x = screen.x - 0.5f * width;
+            if (value > 0) {
+                y -= rise;
+            } else {
+                y += rise;
+            }
+            unsigned int color = value > 0 ? 0xFFFFFF : 0x888888;
+            lbl_8087EEB0->fn_80061824(2.0f + x, 2.0f + y, z, size, size, 0.0f, 0.0f, 0.0f, e->m20.mStr, 0xA0000000,
+                                      1, 4, 0, 0, 0xFF000000);
+            lbl_8087EEB0->fn_80061824(x, y, z, size, size, 0.0f, 0.0f, 0.0f, e->m20.mStr, color | alpha, 1, 4, 0, 0,
+                                      0xFF000000);
+            break;
+        }
+        }
+        if (e->mA4 != 0) {
+            e->mA4->mTask->mFrame_unk = (float)e->m00;
+            PopupPlace_unk(e, &PopupEntry_unk::mA4, screen.x, y, mul, mul, z);
+            SetPaneFloat_unk(e->mA4->mTask->mLayout, "data", (float)(unsigned int)e->m78);
+            fn_801F4484(e->mA4->mTask);
+            fn_801F465C(e->mA4->mTask, 1);
+            y -= 20.0f * mul;
+        }
+        if (e->m9C != 0) {
+            if (e->m0C != 0 && 10.0f <= (float)e->m00 - e->m08) {
+                e->m00 = (int)e->m04 - 10;
+                e->m0C = 0;
+            }
+            e->m9C->mTask->mFrame_unk = 0.0f > (float)e->m00 - e->m08 ? 0.0f : (float)e->m00 - e->m08;
+            PopupPlace_unk(e, &PopupEntry_unk::m9C, screen.x, y, mul, mul, z);
+            SetPaneText_unk(e->m9C->mTask->mLayout, "damage", e->m20.mStr);
+            SetPaneText_unk(e->m9C->mTask->mLayout, "damageSub", e->m20.mStr);
+            fn_801F4484(e->m9C->mTask);
+            fn_801F465C(e->m9C->mTask, 1);
+            y -= 20.0f * mul;
+        }
+        if (e->mA0 != 0) {
+            e->mA0->mTask->mFrame_unk = (float)e->m00;
+            PopupPlace_unk(e, &PopupEntry_unk::mA0, screen.x, y, mul, mul, z);
+            SetPaneText_unk(e->mA0->mTask->mLayout, "damage", e->m20.mStr);
+            float width = fn_8006EF48(lbl_8087EEC8, 20.0f, e->m20.mStr, 0.0f, 1, 4);
+            SetPaneFloat_unk(e->mA0->mTask->mLayout, "ofs", width);
+            fn_801F4484(e->mA0->mTask);
+            fn_801F465C(e->mA0->mTask, 1);
+            y -= 20.0f * mul;
+        }
+        wchar_t text[32];
+        if (e->m18 != 0) {
+            unsigned int color = e->m18 > 0 ? 0x7FFF7F : 0xFF0000;
+            color |= alpha;
+            fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0x69));
+            float width = fn_8006EF48(lbl_8087EEC8, size, text, 0.0f, 1, 1);
+            y -= 1.2f * size;
+            x = screen.x - 0.5f * width;
+            lbl_8087EEB0->fn_80061824(2.0f + x, 2.0f + y, z, size, size, 0.0f, 0.0f, 0.0f, text, alpha, 1, 4, 0, 0,
+                                      0xFF000000);
+            lbl_8087EEB0->fn_80061824(x, y, z, size, size, 0.0f, 0.0f, 0.0f, text, color, 1, 4, 0, 0, 0xFF000000);
+        }
+        if (e->m94 != 0) {
+            y -= 3.0f;
+            e->m94->mTask->mFrame_unk = (float)e->m00;
+            SetPaneValue_unk(e->m94->mTask->mLayout, "basePoint", 0, screen.x);
+            SetPaneValue_unk(e->m94->mTask->mLayout, "basePoint", 1, y);
+            if (e->m88 != 0 && ((CharaTask*)e->m88)->mType == 0) {
+                SetPaneValue_unk(e->m94->mTask->mLayout, "basePoint", 2, 1.9f);
+                SetPaneValue_unk(e->m94->mTask->mLayout, "basePoint", 3, 1.9f);
+            } else {
+                SetPaneValue_unk(e->m94->mTask->mLayout, "basePoint", 2, 1.0f);
+                SetPaneValue_unk(e->m94->mTask->mLayout, "basePoint", 3, 1.0f);
+            }
+            wchar_t combo[4];
+            if (e->m84 < 100) {
+                fn_800DD3FC(combo, L"%d", e->m84);
+                SetPaneFloat_unk(e->m94->mTask->mLayout, "showMul", 1.0f);
+            } else {
+                fn_800DD3FC(combo, L"MAX");
+                SetPaneFloat_unk(e->m94->mTask->mLayout, "showMul", 0.0f);
+            }
+            SetPaneText_unk(e->m94->mTask->mLayout, "comboNum", combo);
+            SetPaneText_unk(e->m94->mTask->mLayout, "comboNum2", combo);
+            if (e->m84 < 10) {
+                SetPaneFloat_unk(e->m94->mTask->mLayout, "ofsX", 18.0f);
+            } else {
+                SetPaneFloat_unk(e->m94->mTask->mLayout, "ofsX", 0.0f);
+            }
+            fn_801F4484(e->m94->mTask);
+            fn_801F465C(e->m94->mTask, 1);
+            y -= 20.0f;
+        }
+        if (e->mA8 != 0) {
+            y -= 3.0f;
+            e->mA8->mTask->mFrame_unk = (float)e->m00;
+            PopupPlace_unk(e, &PopupEntry_unk::mA8, screen.x, y, 1.5f * mul, 1.5f * mul, z);
+            switch (e->m80) {
+            case 0:
+                SetPaneFloat_unk(e->mA8->mTask->mLayout, "colR", 255.0f);
+                SetPaneFloat_unk(e->mA8->mTask->mLayout, "colG", 155.0f);
+                SetPaneFloat_unk(e->mA8->mTask->mLayout, "colB", 55.0f);
+                break;
+            case 1:
+                SetPaneFloat_unk(e->mA8->mTask->mLayout, "colR", 100.0f);
+                SetPaneFloat_unk(e->mA8->mTask->mLayout, "colG", 150.0f);
+                SetPaneFloat_unk(e->mA8->mTask->mLayout, "colB", 200.0f);
+                break;
+            case 3:
+                SetPaneFloat_unk(e->mA8->mTask->mLayout, "colR", 50.0f);
+                SetPaneFloat_unk(e->mA8->mTask->mLayout, "colG", 200.0f);
+                SetPaneFloat_unk(e->mA8->mTask->mLayout, "colB", 50.0f);
+                break;
+            case 4:
+                SetPaneFloat_unk(e->mA8->mTask->mLayout, "colR", 255.0f);
+                SetPaneFloat_unk(e->mA8->mTask->mLayout, "colG", 255.0f);
+                SetPaneFloat_unk(e->mA8->mTask->mLayout, "colB", 200.0f);
+                break;
+            case 6:
+                SetPaneFloat_unk(e->mA8->mTask->mLayout, "colR", 0.0f);
+                SetPaneFloat_unk(e->mA8->mTask->mLayout, "colG", 100.0f);
+                SetPaneFloat_unk(e->mA8->mTask->mLayout, "colB", 200.0f);
+                break;
+            case 5:
+                SetPaneFloat_unk(e->mA8->mTask->mLayout, "colR", 150.0f);
+                SetPaneFloat_unk(e->mA8->mTask->mLayout, "colG", 50.0f);
+                SetPaneFloat_unk(e->mA8->mTask->mLayout, "colB", 150.0f);
+                break;
+            default:
+                SetPaneFloat_unk(e->mA8->mTask->mLayout, "colR", 255.0f);
+                SetPaneFloat_unk(e->mA8->mTask->mLayout, "colG", 255.0f);
+                SetPaneFloat_unk(e->mA8->mTask->mLayout, "colB", 255.0f);
+                break;
+            }
+            fn_801F4484(e->mA8->mTask);
+            fn_801F465C(e->mA8->mTask, 1);
+            y -= 20.0f * mul;
+        }
+        if (e->m90 != 0) {
+            y -= 3.0f;
+            e->m90->mTask->mFrame_unk = (float)e->m00;
+            PopupPlace_unk(e, &PopupEntry_unk::m90, screen.x, y, 1.5f * mul, 1.5f * mul, z);
+            fn_801F4484(e->m90->mTask);
+            fn_801F465C(e->m90->mTask, 1);
+            y -= 20.0f * mul;
+        }
+        if (e->m98 != 0) {
+            y -= 3.0f;
+            e->m98->mTask->mFrame_unk = (float)e->m00;
+            SetPaneValue_unk(e->m98->mTask->mLayout, "basePoint", 0, screen.x);
+            SetPaneValue_unk(e->m98->mTask->mLayout, "basePoint", 1, y);
+            SetPaneValue_unk(e->m98->mTask->mLayout, "basePoint", 4, z);
+            float w = fn_8006EF48(lbl_8087EEC8, 16.0f,
+                                  fn_800A4450(fn_801FEC74(e->m98->mTask->mLayout, "string0007"), 0, 0).c_str(), 0.0f,
+                                  1, 1);
+            w /= 72.0f;
+            SetPaneValue_unk(e->m98->mTask->mLayout, "basePoint", 2, 1.5f * w);
+            SetPaneValue_unk(e->m98->mTask->mLayout, "pos0007", 2, 11.0f / w);
+            SetPaneValue_unk(e->m98->mTask->mLayout, "pos0001", 2, 96.0f / w);
+            SetPaneValue_unk(e->m98->mTask->mLayout, "pos0002", 2, 63.0f / w);
+            SetPaneValue_unk(e->m98->mTask->mLayout, "pos0003", 2, 41.0f / w);
+            SetPaneValue_unk(e->m98->mTask->mLayout, "pos0004", 2, 84.0f / w);
+            SetPaneValue_unk(e->m98->mTask->mLayout, "pos0004", 0, -35.0f / w);
+            SetPaneValue_unk(e->m98->mTask->mLayout, "pos0005", 2, 72.0f / w);
+            SetPaneValue_unk(e->m98->mTask->mLayout, "pos0006", 2, -21.0f / w);
+            SetPaneValue_unk(e->m98->mTask->mLayout, "pos0008", 2, -15.0f / w);
+            SetPaneValue_unk(e->m98->mTask->mLayout, "pos00010", 2, 20.0f / w);
+            SetPaneValue_unk(e->m98->mTask->mLayout, "pos00011", 2, 40.0f / w);
+            fn_801F4484(e->m98->mTask);
+            fn_801F465C(e->m98->mTask, 1);
+            y -= 20.0f;
+        }
+        if (e->mAC != 0) {
+            y -= 3.0f;
+            e->mAC->mTask->mFrame_unk = (float)e->m00;
+            SetPaneValue_unk(e->mAC->mTask->mLayout, "basePoint", 0, screen.x);
+            SetPaneValue_unk(e->mAC->mTask->mLayout, "basePoint", 1, y);
+            SetPaneValue_unk(e->mAC->mTask->mLayout, "basePoint", 4, z);
+            fn_801F4484(e->mAC->mTask);
+            fn_801F465C(e->mAC->mTask, 1);
+            y -= 20.0f;
+        }
+        if (((unsigned int)e->m14 & 0x400) == 0x400) {
+            wcscpy(text, lbl_8087F1E4->Get_unk(0x6B));
+            float s = 0.6f * size;
+            float width = fn_8006EF48(lbl_8087EEC8, s, text, 0.0f, 1, 1);
+            y -= 1.2f * s;
+            x = screen.x - 0.5f * width;
+            lbl_8087EEB0->fn_80061824(2.0f + x, 2.0f + y, z, s, s, 0.0f, 0.0f, 0.0f, text, alpha, 1, 4, 0, 0,
+                                      0xFF000000);
+            lbl_8087EEB0->fn_80061824(x, y, z, s, s, 0.0f, 0.0f, 0.0f, text, alpha | 0xFFC040, 1, 4, 0, 0, 0xFF000000);
+        }
+        if (((unsigned int)e->m14 & 1) != 1 && (((unsigned int)e->m14 & 8) == 8 || ((unsigned int)e->m14 & 0x8000) == 0x8000 ||
+                                  ((unsigned int)e->m14 & 0x40000000) == 0x40000000 || ((unsigned int)e->m14 & 0x100) == 0x100)) {
+            if (((unsigned int)e->m14 & 0x8000) == 0x8000) {
+                wcscpy(text, lbl_8087F1E4->Get_unk(0x73));
+            } else if (((unsigned int)e->m14 & 0x40000000) == 0x40000000) {
+                wcscpy(text, lbl_8087F1E4->Get_unk(0x83));
+            } else if (((unsigned int)e->m14 & 0x100) == 0x100) {
+                wcscpy(text, lbl_8087F1E4->Get_unk(0x85));
+            } else {
+                wcscpy(text, lbl_8087F1E4->Get_unk(0x6F));
+            }
+            float s = 0.8f * size;
+            float width = fn_8006EF48(lbl_8087EEC8, s, text, 0.0f, 1, 1);
+            y -= 1.2f * s;
+            x = screen.x - 0.5f * width;
+            lbl_8087EEB0->fn_80061824(1.5f + x, y, 1e-4f + z, s, s, 0.0f, 0.0f, 0.0f, text, alpha, 1, 4, 0, 0,
+                                      0xFF000000);
+            lbl_8087EEB0->fn_80061824(x, 1.5f + y, 1e-4f + z, s, s, 0.0f, 0.0f, 0.0f, text, alpha, 1, 4, 0, 0,
+                                      0xFF000000);
+            lbl_8087EEB0->fn_80061824(x - 1.5f, y, 1e-4f + z, s, s, 0.0f, 0.0f, 0.0f, text, alpha, 1, 4, 0, 0,
+                                      0xFF000000);
+            lbl_8087EEB0->fn_80061824(x, y - 1.5f, 1e-4f + z, s, s, 0.0f, 0.0f, 0.0f, text, alpha, 1, 4, 0, 0,
+                                      0xFF000000);
+            lbl_8087EEB0->fn_80061824(x, y, z, s, s, 0.0f, 0.0f, 0.0f, text, alpha | 0xFFC040, 1, 4, 0, 0, 0xFF000000);
+        }
+        if (((unsigned int)e->m14 & 0x4000) == 0x4000) {
+            wcscpy(text, lbl_8087F1E4->Get_unk(0x75));
+            float s = 0.6f * size;
+            float width = fn_8006EF48(lbl_8087EEC8, s, text, 0.0f, 1, 1);
+            y -= 1.2f * s;
+            x = screen.x - 0.5f * width;
+            lbl_8087EEB0->fn_80061824(2.0f + x, 2.0f + y, z, s, s, 0.0f, 0.0f, 0.0f, text, 0, 1, 4, 0, 0, 0xFF000000);
+            lbl_8087EEB0->fn_80061824(x, y, z, s, s, 0.0f, 0.0f, 0.0f, text, alpha | 0xFFC040, 1, 4, 0, 0, 0xFF000000);
+        }
+        if (((unsigned int)e->m14 & 0x200000) == 0x200000) {
+            wcscpy(text, lbl_8087F1E4->Get_unk(0x77));
+            float width = fn_8006EF48(lbl_8087EEC8, size, text, 0.0f, 1, 1);
+            y -= 1.2f * size;
+            x = screen.x - 0.5f * width;
+            lbl_8087EEB0->fn_80061824(1.5f + x, y, 1e-4f + z, size, size, 0.0f, 0.0f, 0.0f, text, alpha, 1, 4, 0, 0,
+                                      0xFF000000);
+            lbl_8087EEB0->fn_80061824(x, 1.5f + y, 1e-4f + z, size, size, 0.0f, 0.0f, 0.0f, text, alpha, 1, 4, 0, 0,
+                                      0xFF000000);
+            lbl_8087EEB0->fn_80061824(x - 1.5f, y, 1e-4f + z, size, size, 0.0f, 0.0f, 0.0f, text, alpha, 1, 4, 0, 0,
+                                      0xFF000000);
+            lbl_8087EEB0->fn_80061824(x, y - 1.5f, 1e-4f + z, size, size, 0.0f, 0.0f, 0.0f, text, alpha, 1, 4, 0, 0,
+                                      0xFF000000);
+            lbl_8087EEB0->fn_80061824(x, y, z, size, size, 0.0f, 0.0f, 0.0f, text, alpha | 0xFFC040, 1, 4, 0, 0,
+                                      0xFF000000);
         }
     }
 }

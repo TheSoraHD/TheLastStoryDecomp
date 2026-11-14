@@ -13,6 +13,7 @@
 #include "game/EnemyQuarkSecond.h"
 #include "chr/ControlDamage.h"
 #include "atn/SoundRef.h"
+#include "atn/ColliBase.h"
 
 extern "C" int sprintf(char* buf, const char* fmt, ...);
 extern "C" int strcmp(const char* a, const char* b);
@@ -89,16 +90,7 @@ extern "C" int fn_800F8548(Effect_unk* mgr); // inferred: new bullet id
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 // inferred: collision world and its ray test (see game/ChaserNpc.cpp)
 extern "C" void* lbl_8087EE98;
-struct CollResult_unk {
-    CollResult_unk() : m34(0), m38(0), m3C(0), m40(0) {}
-    unsigned char m00[0x34];
-    int m34;
-    int m38;
-    int m3C;
-    void* m40;
-    unsigned char m44[0x50 - 0x44];
-};
-extern "C" int fn_8004ED34(void* colli, CollResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
+extern "C" int fn_8004ED34(void* colli, atn::ColliResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg7);
 // inferred: debug menu entries (as in game/Em315Coffin.cpp)
 extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3, int arg4);
@@ -1038,7 +1030,7 @@ int EnemyQuarkFirst::fn_803383E4() {
     float dist = PSVECMag(&dir);
     if (dist > 12.0f) {
         PSVECNormalize(&dir, &dir);
-        CollResult_unk result;
+        atn::ColliResult_unk result;
         atn::Vector3 from = mPos;
         from.y += 5.0f;
         atn::Vector3 to = from;

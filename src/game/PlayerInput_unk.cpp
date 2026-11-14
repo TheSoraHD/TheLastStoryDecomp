@@ -414,7 +414,8 @@ extern "C" int fn_801231C8(SetConfig* config) {
     return config->mWindKey;
 }
 
-// NONMATCHING: 99.5% - actions 39/40: the original places the `return 0` before the call
+// The unsigned range test of actions 39/40 gives the `return 0` before the call. The forms of
+// cases 13 and 18 decide the numbering of the @N constants of the function (objdiff compares them).
 int Input_unk::fn_801231D0(int action) {
     SettingsOpt_unk* opt = fn_801231B0(fn_800F52F8());
     switch (action) {
@@ -436,15 +437,9 @@ int Input_unk::fn_801231D0(int action) {
     case 18: {
         int result;
         if (fn_80122280(GetSetConfig_unk())->m10 == 0) {
-            result = 0;
-            if (fn_8012216C(9, 1) && m00 == 10) {
-                result = 1;
-            }
+            result = fn_8012216C(9, 1) && m00 == 10;
         } else {
-            result = 0;
-            if (fn_8012216C(6, 1) && m00 == 10) {
-                result = 1;
-            }
+            result = fn_8012216C(6, 1) && m00 == 10;
         }
         return result;
     }
@@ -484,8 +479,10 @@ int Input_unk::fn_801231D0(int action) {
         }
         break;
     case 13:
-        if (!fn_80121F08(fn_80122C70(0), 1) && fn_80121FD4(fn_80122C70(0), 1)) {
-            return 1;
+        if (!fn_80121F08(fn_80122C70(0), 1)) {
+            if (fn_80121FD4(fn_80122C70(0), 1)) {
+                return 1;
+            }
         }
         break;
     case 32:
@@ -547,8 +544,8 @@ int Input_unk::fn_801231D0(int action) {
     case 39:
     case 40: {
         int skip = fn_801237E8(GetSetConfig_unk())->m08;
-        if (skip < 1 || skip > 2) {
-            break;
+        if ((unsigned int)(skip - 1) > 1) {
+            return 0;
         }
         return fn_80121F08(fn_80122C70(action), 1);
     }
@@ -637,7 +634,6 @@ int Input_unk::fn_8012476C(int action) {
     return 0;
 }
 
-// NONMATCHING: 95.7% - scheduling of the stores of the stick vector and of the result
 float Input_unk::fn_801248DC(atn::Vector3* dir) const {
     atn::Vector3 v;
     v.x = -fn_800A56A8(GetPad_unk(), 0, 0, 0);

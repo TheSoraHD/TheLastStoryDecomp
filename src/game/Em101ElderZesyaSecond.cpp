@@ -12,6 +12,7 @@
 #include "std/string_members.h"
 #include "game/BattleTask.h"
 #include "game/GameTask.h"
+#include "atn/ColliBase.h"
 
 extern "C" unsigned long strlen(const char* s);
 extern "C" int strcmp(const char* a, const char* b);
@@ -51,22 +52,8 @@ extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* m
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
 extern "C" int rand();
-extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
-// inferred: collision world and its ray test (see game/ChaserNpc.cpp)
-struct CollResult_unk {
-    CollResult_unk() : m34(0), m38(0), m3C(0), m40(0) {}
-    unsigned char m00[0x04];
-    atn::Vector3 m04; // inferred: hit position
-    atn::Vector3 m10; // inferred: position after the sweep (as in gmk/Lemon.h)
-    unsigned char m1C[0x34 - 0x1C];
-    void* m34;
-    void* m38;
-    int m3C;
-    void* m40;
-    unsigned char m44[0x50 - 0x44];
-};
-extern "C" void* lbl_8087EE98;
-extern "C" int fn_8004ED34(void* colli, CollResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
+extern "C" float PSVECSquareMag(const atn::Vector3* v); extern "C" void* lbl_8087EE98;
+extern "C" int fn_8004ED34(void* colli, atn::ColliResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg7); // inferred: ray test
 extern "C" int atoi(const char* s);
 extern "C" int fn_800DC12C(const char* s);   // inferred: string to int
@@ -597,7 +584,7 @@ void Em101ElderZesyaSecond::fn_8025BF58() {
         m14E4 = m14D0->mPos;
         atn::Vector3 from = m14E4 + atn::Vector3(0.0f, 1.0f, 0.0f);
         atn::Vector3 to = m14E4 + atn::Vector3(0.0f, -100.0f, 0.0f);
-        CollResult_unk result;
+        atn::ColliResult_unk result;
         if (fn_8004ED34(lbl_8087EE98, &result, &from, &to, 0x80000000, 0, 0) != 0) {
             m14E4 = result.m10;
         }
@@ -650,7 +637,7 @@ void Em101ElderZesyaSecond::fn_8025C460() {
     mMotion.mTracks[0].m0C = 1.0f;
     mMotion.fn_80097C08(0, 0x1EA, 0, 0, 1, 0.0f, 0.1f);
     fn_8025C7A8(&m1508, &m1514);
-    CollResult_unk result;
+    atn::ColliResult_unk result;
     mPos = m1508;
     atn::Vector3 to = atn::Vector3(0.0f, -100.0f, 0.0f) + m1508;
     if (fn_8004ED34(lbl_8087EE98, &result, &m1508, &to, 0x80000000, &mColli, 0) != 0) {

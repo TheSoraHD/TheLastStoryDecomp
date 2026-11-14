@@ -88,7 +88,7 @@ struct ModelBase : public IRender {
     virtual ~ModelBase();              // 0x8008A76C
     virtual int GetRenderType_unk();                 // 0x80099F68
     virtual void vf10(RenderManager* view);         // 0x8008E304: inferred: draw
-    virtual int vf14(void* arg1, void* arg2, void* frustum); // 0x8008FA24
+    virtual int vf14(const Matrix3x4*, const Vector3*, const Frustum_unk*, AABB_unk*); // 0x8008FA24: shadow test
     virtual void vf18(RenderManager* view);         // 0x8008D6C0
     virtual void vf1C();                             // 0x800902BC
     virtual int vf20();                              // 0x8008B96C: inferred: still loading
@@ -104,7 +104,8 @@ struct ModelBase : public IRender {
     void fn_8008B978(int unbound);               // inferred: binds the textures of the materials
     void fn_8008C62C(int lod);                   // inferred: maps the materials of a level to the main ones
     void fn_8008C950();                          // inferred: sets up the nodes after loading
-    void fn_8008D78C();                          // inferred
+    void fn_8008D78C(RenderManager*);            // inferred: visibility (writes mFlag6_unk); view in r4 (left by vf18)
+    void fn_8008E818(RenderManager*);            // inferred: draws the meshes (called by vf10)
     void fn_8009076C(const Mtx m);               // inferred: applies m to the world and node matrices
     void fn_80091684(const Mtx m, const int* remap); // inferred: builds the skinning matrices
     void fn_80091A90(const Mtx m);                   // inferred: updates the skinning matrices for m
@@ -165,7 +166,7 @@ struct ModelBase : public IRender {
     float mAC; // inferred: draw distance scale (CharaTask sets 1.0 or 1.3, 0x80149A30)
     int mB0; // inferred: compared with 0 by CharaTask::fn_8013655C
     int mB4;
-    boost::function<void()> mB8; // inferred: signature
+    ModelNodeCallback_unk mB8; // inferred: node callback of the sorted nodes mCC (passed to ModelPose_unk::m18)
     SimpleVector<unsigned int> mCC; // inferred: sorted nodes with the node callback enabled (fn_800920B8)
     SimpleVector<NodeEdit_unk> mD8; // inferred: node edits
     SimpleArray<short> mE4; // inferred: one entry per node (-1 at load)
@@ -197,7 +198,7 @@ struct ModelBase : public IRender {
     int m20C_31_24 : 8; // inferred: load state (8 = ready)
     int m20C_23_16 : 8; // inferred: LOD counter (gmk::SwingObject::vf10 restores m50 from it)
     unsigned int m20C_15_8 : 8; // inferred: saved copy of m50 (CharaTask::fn_80145334)
-    unsigned int m20C_7 : 1;
+    int m20C_7 : 1; // inferred: signed (read with srawi by fn_8008E818)
     int mFlag6_unk : 1; // inferred: tested by gmk::SwingObject::vf10
     int mFlag5_unk : 1;          // inferred: tested by CharaTask::fn_8013655C
     int mFlag4_unk : 1; // inferred: set together with the equipment
@@ -327,6 +328,7 @@ struct Model : public ModelBase {
     void fn_800920B8(unsigned int hash);
     // inferred: samples the fading track 3 (fn_80097E80)
     void fn_80098DD8(int advance);
+    void fn_800991D0(int); // inferred: samples the additive tracks 4 and 5 (called by fn_80097E80)
 
     // inferred: accessors called out of line from CharaTask (names keep the address)
     Node_unk* fn_80147A00();

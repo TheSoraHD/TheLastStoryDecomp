@@ -7,6 +7,7 @@
 #include "atn/LayerPost3D.h"
 #include "atn/LayerPostFx.h"
 #include "atn/LayerReflect.h"
+#include "atn/LayerShadow.h"
 #include "atn/Memory.h"
 #include "atn/Array_unk.h"
 #include "atn/GraphicsDevice.h"
@@ -67,18 +68,12 @@ extern "C" unsigned int VIGetDTVStatus();
 extern "C" void* memset(void* dest, int value, unsigned long size);
 void operator delete[](void* ptr);
 namespace atn {
-// inferred: declared here only for their constructors; the classes are in atn/LayerShadow.cpp and
-// atn/LayerOcclusionCPU.cpp, which use local copies of IRenderLayer (vf10 takes an argument there).
-// Pending: one header for the layer classes.
-class LayerShadow : public Layer3D {
-public:
-    LayerShadow(); // 0x800B6604 ("Shadow")
-    unsigned char m5C[0x500 - 0x5C];
-};
+// inferred: declared here only for its constructor; the class is in atn/LayerOcclusionCPU.cpp, which uses
+// the IRenderLayer of atn/Layer3D.h.
 class LayerOcclusionCPU : public IRenderLayer {
 public:
     LayerOcclusionCPU();
-    virtual void vf10();
+    virtual void vf10(void*);
     virtual void vf14(void* arg);
     virtual void vf1C();
     virtual void vf20();
@@ -256,10 +251,10 @@ inline DrawCmd_unk::DrawCmd_unk() {
     m18 = 0;
     m1C = 0;
     m20 = 0;
-    m24.m[0] = 1.0f;
-    m24.m[1] = 1.0f;
-    m24.m[2] = 1.0f;
-    m24.m[3] = 1.0f;
+    m24.r = 1.0f;
+    m24.g = 1.0f;
+    m24.b = 1.0f;
+    m24.a = 1.0f;
     m34 = 0;
     m38 = (void*)lbl_8087D81C;
     m3C.mFunc1 = 0;

@@ -135,9 +135,7 @@ inline void SetModelMtx_unk(atn::Model* model, const Mtx mtx) {
     model->m54 = MAX(s.x, MAX(s.y, s.z));
 }
 
-// NONMATCHING: 99.8% - the inlined ToRotation_unk converts z again (frsp f2) instead of reusing the converted
-// value (fmr f2, f7); tried named result, Assign_unk, inline fn_80139F60, chained assignment, a new
-// local for the direction, explicit copy, PSMTXMultVec in place, const ref, ToRotation of the temporary.
+// ToRotationZ_unk (z rounded once) gives the fmr f2, f7 of the original
 // inferred: copies the pose and the motion tracks of another character (mode 0: whole pose of m14B4,
 // mode 1: mirrored motion of m14B8, modes 2-3: motion and position of m14B8)
 void CopyRobotTask::vf10() {
@@ -204,7 +202,7 @@ void CopyRobotTask::vf10() {
         }
         PSMTXRotRad(rot2, 'y', angle);
         dir = MultVec_unk(rot2, atn::Vector3(0.0f, 0.0f, 1.0f));
-        mRot = dir.ToRotation_unk();
+        mRot = dir.ToRotationZ_unk();
         fn_80145334();
         mColli.mFlags &= ~1;
         break;
@@ -243,6 +241,8 @@ void CopyRobotTask::vf14() {
         lbl_8087EEB0->fn_80063484(20, 0xFFFF0000, mPos.x, 3.0f + mPos.y, mPos.z, mRot.y, 0.0f, 12.0f, 1.5707964f);
     }
 }
+
+void CopyRobotTask::vf3C(HitInfo_unk* hit) {}
 
 void CopyRobotTask::fn_801CCD00(int state) {
     if (state != m14B0) {

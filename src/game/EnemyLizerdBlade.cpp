@@ -2,6 +2,7 @@
 #include "atn/Csv.h"
 #include "std/string.h"
 #include "std/string_members.h"
+#include "atn/ColliBase.h"
 
 extern "C" char* strstr(const char* s, const char* sub);
 extern "C" int strcmp(const char* a, const char* b);
@@ -14,20 +15,8 @@ extern "C" int fn_800F8548(BulletMgr_unk* mgr); // inferred: new bullet id
 extern "C" void fn_800FAB80(BulletMgr_unk* mgr, CharaTask* owner, HitInfo_unk* bullet, int id,
                             const atn::Vector3* pos, const atn::Vector3* rot, int arg6, int arg7, int arg8,
                             int arg9, float arg10, float arg11);
-// inferred: collision world and its ray test (as in game/ChaserNpc.cpp)
-struct CollResult_unk {
-    CollResult_unk() : m34(0), m38(0), m3C(0), m40(0) {}
-    unsigned char m00[0x04];
-    atn::Vector3 m04; // inferred: hit position
-    unsigned char m10[0x34 - 0x10];
-    void* m34;
-    void* m38;
-    int m3C;
-    void* m40;
-    unsigned char m44[0x50 - 0x44];
-};
 extern "C" void* lbl_8087EE98;
-extern "C" int fn_8004ED34(void* colli, CollResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
+extern "C" int fn_8004ED34(void* colli, atn::ColliResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg7); // inferred: ray test
 // inferred: game timer (m3A4: frame time)
 struct Timer_unk {
@@ -138,7 +127,7 @@ void EnemyLizerdBlade::fn_80333C40() {
     atn::Vector3 to(mC58.mC4->mPos);
     from.y += 8.0f;
     to.y += 8.0f;
-    CollResult_unk result;
+    atn::ColliResult_unk result;
     if (fn_8004ED34(lbl_8087EE98, &result, &from, &to, fn_80179D44() | 0x80000000, 0, 0) != 0) {
         m14C8 -= 30;
     } else {
@@ -226,7 +215,7 @@ void EnemyLizerdBlade::fn_803342EC() {
         m14BC -= 30;
         return;
     }
-    CollResult_unk result;
+    atn::ColliResult_unk result;
     if (fn_8004ED34(lbl_8087EE98, &result, &from, &to, fn_80179D44() | 0x80000000, 0, 0) != 0) {
         m14BC -= 30;
     } else {
@@ -274,7 +263,7 @@ void EnemyLizerdBlade::fn_80334460() {
             from.y += 5.0f;
             atn::Vector3 to(m14E8);
             to.y -= 5.0f;
-            CollResult_unk result;
+            atn::ColliResult_unk result;
             if (fn_8004ED34(lbl_8087EE98, &result, &from, &to, fn_80179D44() | 0x80000000, 0, 0) != 0) {
                 m14E8.y = result.m04.y;
             }

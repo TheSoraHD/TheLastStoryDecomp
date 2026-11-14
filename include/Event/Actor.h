@@ -11,6 +11,7 @@
 #include "std/vector.h"
 #include "game/IntVector_unk.h"
 #include "atn/ColorF_unk.h"
+#include "Event/PoseKey_unk.h"
 
 extern "C" void* memset(void* dst, int c, unsigned long n);
 
@@ -29,17 +30,6 @@ class Action;
 class Path;
 class Sequence;
 
-// inferred: 0x2C-byte key of the animation lists of an actor (a constructor: built with
-// __construct_new_array); content unknown
-struct ActorKey2C_unk {
-    ActorKey2C_unk() {}
-    int m00;
-    atn::Vector3 m04;
-    atn::Vector3 m10;
-    atn::Vector3 m1C;
-    float m28;
-};
-
 // inferred: 0x10-byte key of the lists of an actor (built with __construct_new_array): offset saved for a
 // node of the model (ActionActorNode::vf08)
 struct ActorKey10_unk {
@@ -56,7 +46,7 @@ struct ActorPair_unk {
 
 // inferred: animation state of an actor (0x34 bytes at 0x24)
 struct ActorAnim_unk {
-    atn::SimpleVector<ActorKey2C_unk> m00;
+    atn::SimpleVector<PoseKey_unk> m00; // inferred: saved node edits of the model (fn_8000F1EC)
     int m0C; // inferred: saved by fn_8000F1EC, given back with CharaTask::fn_8014DEE4 (-1: none)
     // inferred: saved position (0x10) and rotation (0x1C) of the character, two atn::Vector3: as Vector3
     // members the implicit constructor of the actor renumbers the @N labels of Event/Sequence and

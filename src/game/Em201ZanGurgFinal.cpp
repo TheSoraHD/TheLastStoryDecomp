@@ -14,6 +14,7 @@
 #include "std/string.h"
 #include "std/string_members.h"
 #include "game/Input_unk.h"
+#include "atn/ColliBase.h"
 
 extern "C" unsigned long strlen(const char* s);
 extern "C" int strcmp(const char* a, const char* b);
@@ -99,23 +100,10 @@ struct ZanSystem_unk {
     unsigned char mPad[1];
 };
 extern "C" ZanSystem_unk* lbl_8087F0A8;
-// inferred: collision world and its ray test (see game/Em101ElderZesyaSecond.cpp)
-struct CollResult_unk {
-    CollResult_unk() : m34(0), m38(0), m3C(0), m40(0) {}
-    unsigned char m00[0x04];
-    atn::Vector3 m04; // inferred: hit position
-    atn::Vector3 m10; // inferred: position after the sweep
-    unsigned char m1C[0x34 - 0x1C];
-    int m34;
-    atn::ColliBase* m38; // inferred: object hit
-    int m3C;
-    void* m40;
-    unsigned char m44[0x50 - 0x44];
-};
 extern "C" void* lbl_8087EE98;
-extern "C" int fn_8004ED34(void* colli, CollResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
+extern "C" int fn_8004ED34(void* colli, atn::ColliResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg7); // inferred: ray test
-extern "C" void fn_8004D388(void* mgr, CollResult_unk* result, CharaTask::Sphere_unk* sphere, atn::Vector3* move,
+extern "C" void fn_8004D388(void* mgr, atn::ColliResult_unk* result, CharaTask::Sphere_unk* sphere, atn::Vector3* move,
                             unsigned int mask, void* ignore, int arg, float radius); // inferred: sweep test
 // inferred: damage record (as QueenDamage_unk of game/Em208Queen.cpp)
 struct ZanDamage_unk {
@@ -1567,7 +1555,7 @@ void Em201ZanGurgFinal::fn_8026860C() {
 
 
 // inferred: puts the character on the result of the sweep test (name invented)
-inline void SetPos_unk(CharaTask* c, const CollResult_unk& result, const CharaTask::Sphere_unk& sphere) {
+inline void SetPos_unk(CharaTask* c, const atn::ColliResult_unk& result, const CharaTask::Sphere_unk& sphere) {
     atn::Vector3 pos = result.m10;
     pos -= c->m5A4;
     pos.y -= sphere.mRadius;
@@ -1626,7 +1614,7 @@ void Em201ZanGurgFinal::fn_80268CB4() {
     atn::Matrix3x4 m;
     ZanRotZYX4_unk(m, mRot);
     PSMTXMultVec(m.m, &move, &move);
-    CollResult_unk result;
+    atn::ColliResult_unk result;
     CharaTask::Sphere_unk sphere = fn_80176548(mPos);
     fn_8004D388(lbl_8087EE98, &result, &sphere, &move, 0x80000000, &mColli, 0, sphere.mRadius);
     SetPos_unk(this, result, sphere);
@@ -1865,7 +1853,7 @@ void Em201ZanGurgFinal::fn_8026A010() {
     atn::Vector3 move = m1530 * speed;
     int fps = lbl_8087F0A8->mFrameRate;
     move.y += -98.1f / (float)(fps * fps);
-    CollResult_unk result;
+    atn::ColliResult_unk result;
     CharaTask::Sphere_unk sphere = fn_80176548(mPos);
     fn_8004D388(lbl_8087EE98, &result, &sphere, &move, 0x80000000, &mColli, 0, sphere.mRadius);
     SetPos_unk(this, result, sphere);
@@ -2405,7 +2393,7 @@ void Em201ZanGurgFinal::fn_8026D0F8(int mode) {
         from.y += 10.0f;
         atn::Vector3 to = from;
         to.y -= 30.0f;
-        CollResult_unk result;
+        atn::ColliResult_unk result;
         if (fn_8004ED34(lbl_8087EE98, &result, &from, &to, 0x80000000, 0, 0)) {
             m1678 = result.m04;
         }
@@ -2427,7 +2415,7 @@ void Em201ZanGurgFinal::fn_8026D0F8(int mode) {
         atn::Matrix3x4 rot = ShieldMtx_unk(m1624).GetRotation_unk();
         PSMTXMultVec(rot.m, &v, &v);
         m1664 = v.ToRotation_unk().x - 2.984513f;
-        CollResult_unk result;
+        atn::ColliResult_unk result;
         atn::Vector3 from = prev == 3 ? leader->mPos : mPos;
         from.y += 10.0f;
         atn::Vector3 to = from;
@@ -2546,7 +2534,7 @@ void Em201ZanGurgFinal::fn_8026DB8C() {
         PSMTXConcat(m.m, r.m, m.m);
         SetShieldMtx_unk(m1624, m);
         if (hit) {
-            CollResult_unk result;
+            atn::ColliResult_unk result;
             if (fn_8004ED34(lbl_8087EE98, &result, &from, &to, 2, &mColli, 0) && result.m38 != 0 &&
                 (result.m38->mFlags & 2) == 2) {
                 atn::Vector3 at = result.m04;
@@ -2697,7 +2685,7 @@ void Em201ZanGurgFinal::fn_8026F38C(int point, atn::Vector3* pos, float* rot) {
         pos->y += 10.0f;
         break;
     }
-    CollResult_unk result;
+    atn::ColliResult_unk result;
     atn::Vector3 to = atn::Vector3(0.0f, -100.0f, 0.0f) + *pos;
     if (fn_8004ED34(lbl_8087EE98, &result, pos, &to, 0x80000000, &mColli, 0)) {
         *pos = result.m10;
@@ -2713,7 +2701,7 @@ void Em201ZanGurgFinal::fn_8026F9BC(const char* node) {
     PSMTXRotRad(m, 'y', y);
     PSMTXMultVec(m, &v, &v);
     atn::Vector3 pos = mPos + v;
-    CollResult_unk result;
+    atn::ColliResult_unk result;
     atn::Vector3 to = atn::Vector3(0.0f, -100.0f, 0.0f) + pos;
     if (fn_8004ED34(lbl_8087EE98, &result, &pos, &to, 0x80000000, &mColli, 0)) {
         atn::Vector3* hit = &result.m10;

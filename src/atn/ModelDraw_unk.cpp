@@ -5,6 +5,7 @@
 #include "atn/GXDecl.h"
 #include "atn/LH_Model.h"
 #include "atn/Material_unk.h"
+#include "atn/LayerShadow.h"
 #include "atn/Shader_unk.h"
 #include "atn/Sphere.h"
 #include "atn/Texture_unk.h"
@@ -16,6 +17,8 @@
 #include "atn/RenderManager.h"
 #include "atn/Layer3D.h"
 #include "atn/ColorMatrixParam_unk.h"
+#include "atn/ModelVtx_unk.h"
+#include "macros.h"
 
 // inferred: up to four lights sorted by distance (atn/LightUtil_unk.cpp). The two selectors are
 // called here on uninitialized temporaries: they return the set by value (declared here as
@@ -97,14 +100,15 @@ struct DrawIndMtx_unk {
 };
 
 // inferred: TEV stage of a description (0x88 bytes)
+// inferred: TEV stage of the description (atn::ShaderTevStage_unk of atn/Shader_unk.h)
 struct DrawTevStage_unk {
-    unsigned char m00[0x2C];
-    int m2C; // inferred: colour op
-    int m30; // inferred: colour bias
-    unsigned char m34[0x38 - 0x34];
-    int m38; // inferred: colour clamp
-    int m3C; // inferred: colour register
-    unsigned char m40[0x88 - 0x40];
+    unsigned char m00[0x28];
+    int m28; // inferred: colour op
+    int m2C; // inferred: colour bias
+    unsigned char m30[0x34 - 0x30];
+    int m34; // inferred: colour clamp
+    int m38; // inferred: colour register
+    unsigned char m3C[0x88 - 0x3C];
 };
 
 // inferred: material description (atn::ShaderDesc_unk of atn/Shader_unk.h)
@@ -128,8 +132,7 @@ struct DrawDesc_unk {
     DrawIndMtx_unk m140[4];
     int m180_pad[4];
     int m190; // inferred: number of TEV stages
-    unsigned char m194[0x1BC - 0x194];
-    DrawTevStage_unk m1BC_pad[1];
+    DrawTevStage_unk m194[16]; // inferred: TEV stages
 };
 
 // inferred: shader of a material (ShaderTex_unk of atn/Shader_unk.h)
@@ -156,12 +159,7 @@ static inline TexStage_unk* FindStage_unk(Material_unk* mat, DrawTexEntry_unk* e
 }
 
 
-// inferred: mesh of a model
-struct DrawArray_unk {
-    int m00; // inferred: attribute (0xFF ends the list)
-    void* m04;
-    int m08;
-};
+// inferred: mesh of a model (DrawArray_unk: atn/ModelVtx_unk.h)
 struct DrawList_unk {
     unsigned char m00[0x10];
     unsigned int m10;
@@ -297,7 +295,7 @@ extern "C" void fn_800761A8(DrawRender_unk* rs);
 extern "C" void fn_800763C0(DrawRender_unk* rs, int stage, void* texture);
 extern "C" void fn_8007642C(DrawRender_unk* rs, int index, void* light);
 extern "C" void fn_80076760(DrawRender_unk* rs, int state, int value);
-extern "C" void fn_80076A28(DrawRender_unk* rs, void* blend);
+extern "C" void fn_80076A28(DrawRender_unk* rs, const atn::GXStateBits_unk* state);
 extern "C" void fn_80076BE4(DrawRender_unk* rs, void* vtx);
 extern "C" void fn_80074EC8(DrawRender_unk* rs, DrawDesc_unk* desc, unsigned int flags, void* light, void* shadow,
                             void* arg);
@@ -373,9 +371,15 @@ static inline unsigned char SwapG_unk(SwapTable_unk c) { return c.g; }
 static inline unsigned char SwapB_unk(SwapTable_unk c) { return c.b; }
 static inline unsigned char SwapA_unk(SwapTable_unk c) { return c.a; }
 
-// NONMATCHING: 98.37% - r4/r5 swapped in the dead copy of the camera matrix (__MtxCopy, as the __VecCopy family)
+// inferred: matrix copy through one more inline level (as atn::VecAssign_unk: gives the r4/r5 order of the
+// original)
+static inline void MtxAssign_unk(atn::Matrix3x4& dst, const atn::Matrix3x4& src) {
+    dst = src;
+}
+
 void fn_8009B93C(DrawEntry_unk* entry) {
-    atn::Matrix3x4 view = atn::RenderManager::instance_->mCamera.mView;
+    atn::Matrix3x4 view;
+    MtxAssign_unk(view, atn::RenderManager::instance_->mCamera.mView);
     if ((entry->m04 & 0x20000) && lbl_8087EFB0 == 0) {
         sSecondPass_unk = 1;
         fn_8009E448(entry, entry->m0C->m48[0]);
@@ -599,7 +603,7 @@ void fn_8009BF3C(DrawMesh_unk* mesh, Material_unk* mat, atn::Scene* lens, DrawCo
     fn_8009C688(mat);
     fn_8009C84C(mat);
     DrawRender_unk* rs = lbl_8087EEE0;
-    fn_80076A28(rs, (unsigned char*)mat + 0x14);
+    fn_80076A28(rs, &mat->mState);
     GXSetTevSwapModeTable(3, SwapR_unk(mat->m38), SwapG_unk(mat->m38), SwapB_unk(mat->m38), SwapA_unk(mat->m38));
     if (atn::RenderManager::instance_->m2F8 == 4 && (int)mat->m14_19 == 1) {
         fn_80076760(rs, 6, 2);
@@ -832,7 +836,7 @@ void fn_8009CC28(DrawMesh_unk* mesh, Material_unk* mat, DrawShader_unk* shader, 
     }
 }
 
-// NONMATCHING: 99.84% - stage and texture registers swapped in the width loop
+// inferred: mip test draw (texture of the size of the first texture stage)
 void fn_8009D1A4(Material_unk* mat) {
     GXColor white = {0xFF, 0xFF, 0xFF, 0xFF};
     GXSetChanMatColor(4, white);
@@ -859,11 +863,13 @@ void fn_8009D1A4(Material_unk* mat) {
         fn_800D594C(&sMip1024, "common/mip1024.texture");
     }
     TexStage_unk* stage;
+    atn::Texture_unk* t;
     int width = 0;
     for (int i = 0; i < ((DrawShader_unk*)mat->m08)->mDesc->m0E4; i++) {
         stage = &mat->m0C[i];
         if (stage->mId == 0) {
-            if (TexReady_unk(stage->mTexture)) {
+            t = stage->mTexture;
+            if (TexReady_unk(t)) {
                 width = GXGetTexObjWidth(&stage->mTexture->mObj);
             }
             break;
@@ -900,7 +906,8 @@ static inline int IsShadowB_unk(DrawEntry_unk* entry, atn::Scene* lens) {
     return (lens->mLightMask & 2) == 2 && (entry->m04 & 8) == 8;
 }
 
-// NONMATCHING: 83.57% - flag tests and the queue capacity test (orc/srwi idiom) not reproduced, register allocation
+// NONMATCHING: 94.6% - the queue capacity test (orc/srwi idiom of an
+// unsigned >= materialized as a value) not reproduced, register allocation
 void fn_8009D58C(DrawEntry_unk* entry, DrawNode_unk* node, DrawPart_unk* part, int visible) {
     int index;
     DrawRemap_unk* remap = entry->m24;
@@ -922,12 +929,12 @@ void fn_8009D58C(DrawEntry_unk* entry, DrawNode_unk* node, DrawPart_unk* part, i
     if (mat == 0) {
         return;
     }
-    if (sSecondPass_unk != 0 && (mat->m48 & 2) != 2) {
+    if (sSecondPass_unk != 0 && (mat->m48 & 2u) != 2u) {
         return;
     }
     atn::IRenderLayer* pass = atn::RenderManager::instance_->mLayers[atn::RenderManager::instance_->m2F8];
+    unsigned char m = mat->m49;
     if (lbl_8087EFB0 == 0) {
-        unsigned char m = mat->m49;
         if (m != (m & (unsigned int)pass->m0C)) {
             return;
         }
@@ -940,14 +947,14 @@ void fn_8009D58C(DrawEntry_unk* entry, DrawNode_unk* node, DrawPart_unk* part, i
     if (p->m148 != 0) {
         flags |= 4;
     } else {
-        unsigned int ef = entry->m04;
+        int ef = entry->m04;
         if (((ef & 8) == 8 && p->m104 != 0) || p->m13C != 0) {
             if (visible) {
                 if (p->m184 != 0) {
                     flags |= 2;
                 } else if (p->m188 != 0) {
                     flags |= 0x10;
-                } else if ((ef & 0x8000) == 0x8000 || (mat->m48 & 1) == 1) {
+                } else if ((ef & 0x8000) == 0x8000 || (mat->m48 & 1u) == 1u) {
                     flags |= 0x10;
                 } else {
                     flags |= 2;
@@ -1006,9 +1013,9 @@ void fn_8009D58C(DrawEntry_unk* entry, DrawNode_unk* node, DrawPart_unk* part, i
     cmd.m38 = entry->m0C->m50[part->m00];
     float dist = 0.0f;
     if (lbl_8087EFB0 != 0) {
-        DrawPass_unk* view = (DrawPass_unk*)atn::RenderManager::instance_->mLayers[3]; // pending: view of the layer (LayerShadow)
-        atn::Vector3 d(view->m7C.x - entry->m30.mCenter.x, view->m7C.y - entry->m30.mCenter.y,
-                       view->m7C.z - entry->m30.mCenter.z);
+        atn::LayerShadow* shadow = (atn::LayerShadow*)atn::RenderManager::instance_->mLayers[3];
+        atn::Vector3 d(shadow->mCamera.mPos.x - entry->m30.mCenter.x, shadow->mCamera.mPos.y - entry->m30.mCenter.y,
+                       shadow->mCamera.mPos.z - entry->m30.mCenter.z);
         dist = PSVECMag(&d);
     }
     if (flags & 4) {
@@ -1066,16 +1073,23 @@ void fn_8009DCE0(Material_unk* mat) {
     }
 }
 
-// NONMATCHING: 97.48% - register allocation
+// inferred: sets a vertex array of the list (inline: the attribute is loaded again for the call)
+static inline void SetArray_unk(const DrawArray_unk* a) {
+    GXSetArray(a->m00, a->m04, a->m08);
+}
+
+// inferred: draws a mesh command (shader declared first: its register is r31, though loaded last)
 void fn_8009DE60(DrawCmd_unk* cmd, float dist) {
+    DrawShader_unk* shader;
+    int flags;
     Material_unk* mat = cmd->m08;
-    atn::Scene* lens = cmd->m10;
-    unsigned int flags = cmd->m04;
+    flags = cmd->m04;
     DrawMesh_unk* mesh = cmd->m0C;
     void* vtx = cmd->m18;
     DrawArray_unk* arrays = cmd->m1C;
+    atn::Scene* lens = cmd->m10;
     Mtx* mtx = cmd->m14;
-    DrawShader_unk* shader = (DrawShader_unk*)mat->m08;
+    shader = (DrawShader_unk*)mat->m08;
     atn::RenderManager::instance_->fn_800BDB40(lens);
     if (cmd->m3C.mFunc1 != 0) {
         cmd->m3C.mFunc1(cmd->m3C.mArg1, cmd->m3C.mArg2);
@@ -1093,20 +1107,21 @@ void fn_8009DE60(DrawCmd_unk* cmd, float dist) {
             fn_80076760(rs, 2, 0xC0);
             fn_800761A8(rs);
         }
+        void* light = cmd->m20;
         if (mesh->m20 != -1) {
             lbl_8087EFA8->m18C = 0;
         } else {
             lbl_8087EFA8->m18C = 1;
         }
-        fn_80074EC8(lbl_8087EEE0, shader->mDesc, flags, cmd->m20, lens->GetLight_unk(), cmd->m34);
+        fn_80074EC8(lbl_8087EEE0, shader->mDesc, flags, light, lens->GetLight_unk(), cmd->m34);
         DrawDesc_unk* desc = shader->mDesc;
         int last = desc->m190 - 1;
-        DrawTevStage_unk* st = &desc->m1BC_pad[last];
-        GXSetTevColorOp(last, st->m2C, st->m30, mat->m34, st->m38, st->m3C);
+        DrawTevStage_unk* st = &desc->m194[last];
+        GXSetTevColorOp(last, st->m28, st->m2C, mat->m34, st->m34, st->m38);
     }
     fn_80076BE4(lbl_8087EEE0, vtx);
     for (; arrays->m00 != 0xFF; arrays++) {
-        GXSetArray(arrays->m00, arrays->m04, arrays->m08);
+        SetArray_unk(arrays);
     }
     if (lbl_8087EFB0 == 0 && lbl_8087EFA8->m234 == 0) {
         fn_8009BB9C(mat, mesh, mtx);
@@ -1127,7 +1142,7 @@ void fn_8009DE60(DrawCmd_unk* cmd, float dist) {
             fn_8009B9E8(mat, mesh, sub, mtx, cache);
             GXCallDisplayList(sub->m38->m14, sub->m38->m10);
         }
-        fn_80076A28(rs, (unsigned char*)mat + 0x14);
+        fn_80076A28(rs, &mat->mState);
         fn_800761A8(rs);
     } else {
         for (int i = 0; i < mesh->m4C; i++) {
@@ -1142,21 +1157,22 @@ void fn_8009DE60(DrawCmd_unk* cmd, float dist) {
     sShadowRecv_unk = 0;
 }
 
-static inline const float& MaxF_unk(const float& a, const float& b) { return a > b ? a : b; }
 
-// NONMATCHING: 87.64% - order of the copies of the light set and of the scale vector
+// NONMATCHING: 96.75% - stack slots of the temporaries of the three column lengths and of the centre, and
+// the copy of the callbacks (one word at a time in the original)
 DrawEntry_unk::DrawEntry_unk(atn::LH_Model* model, Mtx* mtx, Mtx* nodes, int m18, DrawColor_unk* color,
                              DrawMaterials_unk* mats, DrawRemap_unk* remap, const atn::Sphere* sphere, int* m40,
                              unsigned int flags, atn::Scene* lens, int m98, const DrawCallback_unk* cb)
     : m00(-1), m04(flags), m08(model), m10(mtx), m14(nodes), m18(m18), m1C(color), m20(mats), m24(remap), m28(0),
       m30(*sphere), m40(m40), m44(0), m48(0), m4C(0), m50(0), m54(0), m58(0), m5C(0),
       m60(), m84(lens), m88(*cb), m98(m98) {
-    m0C = (DrawModel_unk*)model->fn_80475DF8();
+    m0C = (DrawModel_unk*)m08->fn_80475DF8();
     Mtx& m = *m10;
     atn::Vector3 scale(atn::Vector3(m[0][0], m[1][0], m[2][0]).Length_unk(),
                        atn::Vector3(m[0][1], m[1][1], m[2][1]).Length_unk(),
                        atn::Vector3(m[0][2], m[1][2], m[2][2]).Length_unk());
-    m2C = MaxF_unk(scale.x, MaxF_unk(scale.y, scale.z));
+    // inferred: MAX macro (the inner maximum is evaluated twice in the original)
+    m2C = MAX(scale.x, MAX(scale.y, scale.z));
     if (m30.mRadius < 15.0f || (m04 & 4) == 4) {
         m28 = 1;
     }

@@ -12,6 +12,7 @@
 #include "std/string.h"
 #include "std/string_members.h"
 #include "game/BattleTask.h"
+#include "atn/ColliBase.h"
 
 extern "C" unsigned long strlen(const char* s);
 extern "C" int strcmp(const char* a, const char* b);
@@ -64,21 +65,8 @@ extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* m
 extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
 extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the next effects
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
-// inferred: collision world and its ray test (see game/Em101ElderZesyaSecond.cpp)
-struct CollResult_unk {
-    CollResult_unk() : m34(0), m38(0), m3C(0), m40(0) {}
-    unsigned char m00[0x04];
-    atn::Vector3 m04; // inferred: hit position
-    atn::Vector3 m10; // inferred: position after the sweep
-    unsigned char m1C[0x34 - 0x1C];
-    void* m34;
-    void* m38;
-    int m3C;
-    void* m40;
-    unsigned char m44[0x50 - 0x44];
-};
 extern "C" void* lbl_8087EE98;
-extern "C" int fn_8004ED34(void* colli, CollResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
+extern "C" int fn_8004ED34(void* colli, atn::ColliResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg7); // inferred: ray test
 // inferred: camera and projection to the screen (as in game/Em208Queen.cpp)
 // inferred: panes of a d2anime layout (as in include/MP/D2AMpMenu_unk.h)
@@ -867,7 +855,7 @@ void Em001Necromancer::fn_80246E48() {
         }
     }
     fn_800C344C("SE_SP014_001", &mPos, 0, -1, 1.0f);
-    CollResult_unk result;
+    atn::ColliResult_unk result;
     mPos = m155C;
     atn::Vector3 to = atn::Vector3(0.0f, -100.0f, 0.0f) + m155C;
     if (fn_8004ED34(lbl_8087EE98, &result, &m155C, &to, 0x80000000, &mColli, 0) != 0) {
@@ -934,7 +922,7 @@ void Em001Necromancer::fn_80247258() {
             pos += off;
             atn::Vector3 from;
             atn::Vector3 to;
-            CollResult_unk result;
+            atn::ColliResult_unk result;
             from = pos;
             from.y += 10.0f;
             to = pos;

@@ -126,7 +126,7 @@ inline void* fn_801404F8() {
 }
 extern "C" int fn_8004ECC0(void* world, atn::Vector3* hit, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg); // inferred: ray test
-extern "C" int fn_8004ED34(void* world, CollResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
+extern "C" int fn_8004ED34(void* world, atn::ColliResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg); // inferred: ray test
 // inferred: dot product
 extern "C" inline float fn_801A03E8(const atn::Vector3& a, const atn::Vector3& b) {
@@ -422,7 +422,7 @@ void Cannonball::vf10() {
             if (mDesc->m20 == 1) {
                 mask |= 0x80000000;
             }
-            CollResult_unk res;
+            atn::ColliResult_unk res;
             if (fn_8004ED34(fn_801404F8(), &res, &from, &m6C, mask, mIgnore, 0) != 0) {
                 if (mDesc->m20 == 1) {
                     if (fn_801A03E8(res.m28, atn::Vector3(0.0f, 1.0f, 0.0f)) < 0.70710677f) {

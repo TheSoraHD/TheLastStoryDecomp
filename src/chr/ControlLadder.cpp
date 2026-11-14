@@ -8,23 +8,10 @@
 #include "macros.h"
 #include "game/CharaManager.h"
 #include "game/PlayerTask.h"
+#include "atn/ColliBase.h"
 
-// inferred: collision world and its ray test (as in chr/ControlWallUp.cpp)
-struct LadderCollResult_unk {
-    LadderCollResult_unk() : m34(0), m38(0), m3C(0), m40(0) {}
-    unsigned char m00[0x04];
-    atn::Vector3 m04; // inferred: hit position
-    atn::Vector3 m08_unk;
-    unsigned char m1C[0x28 - 0x1C];
-    atn::Vector3 mNormal; // 0x28: inferred: normal of the hit wall
-    int m34;
-    int m38;
-    int m3C;
-    int m40;
-    unsigned char m44[0x50 - 0x44];
-};
 extern "C" void* lbl_8087EE98;
-extern "C" int fn_8004ED34(void* colli, LadderCollResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
+extern "C" int fn_8004ED34(void* colli, atn::ColliResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg7);
 
 extern "C" void* lbl_8087EF70; // inferred: pad
@@ -190,7 +177,7 @@ int ControlLadder::vf0C() {
                 ClimbVoice_unk(this);
             }
         }
-        LadderCollResult_unk result;
+        atn::ColliResult_unk result;
         if (move) {
             atn::Vector3 from = pos - Front_unk(mChara) * 8.0f;
             atn::Vector3 to = pos + Front_unk(mChara) * 8.0f;
@@ -199,7 +186,7 @@ int ControlLadder::vf0C() {
             if (fn_8004ED34(lbl_8087EE98, &result, &from, &to, 0x80000000, 0, 0)) {
                 pos.x = result.m04.x;
                 pos.z = result.m04.z;
-                atn::Vector3 n(-result.mNormal.x, -result.mNormal.y, -result.mNormal.z);
+                atn::Vector3 n(-result.m28.x, -result.m28.y, -result.m28.z);
                 rot = n.ToRotationZ_unk();
             }
         }
@@ -396,7 +383,7 @@ ControlClimbDeck::ControlClimbDeck(Chara_unk* chara, const atn::Vector3& rot) : 
     from.y += 40.0f;
     from += front * 15.0f;
     to += front * 15.0f;
-    LadderCollResult_unk result;
+    atn::ColliResult_unk result;
     m18 = mChara->mPos + front * 10.0f;
     if (fn_8004ED34(lbl_8087EE98, &result, &from, &to, 0x80000000, 0, 0)) {
         from = mChara->mPos;

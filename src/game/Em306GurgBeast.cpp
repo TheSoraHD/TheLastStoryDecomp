@@ -10,6 +10,7 @@
 #include "math/Vec.h"
 #include "atn/RenderManager.h"
 #include "game/BattleTask.h"
+#include "atn/ColliBase.h"
 
 extern "C" int sprintf(char* buf, const char* fmt, ...);
 extern "C" int strcmp(const char* a, const char* b);
@@ -50,19 +51,7 @@ extern "C" BeastParams_unk* lbl_8087EFA8;
 extern "C" BeastSettings_unk* lbl_8087F0A8;
 extern "C" void* lbl_8087EE98; // inferred: collision world
 extern "C" double sqrt(double x);
-// inferred: sweep result (as in gmk/Cannonball.cpp); the constructor is called out of line
-struct CollResult_unk {
-    CollResult_unk() : m34(0), m38(0), m3C(0), m40(0) {}
-    unsigned char m00[0x10];
-    atn::Vector3 m10; // inferred: position reached
-    unsigned char m1C[0x34 - 0x1C];
-    int* m34; // inferred: attribute of the hit (copied to CharaTask::m634)
-    void* m38;
-    unsigned int m3C; // inferred: flags (bit 0: on the ground)
-    void* m40;
-    unsigned char m44[0x50 - 0x44];
-};
-extern "C" int fn_8004D388(void* world, CollResult_unk* result, atn::Vector3* sphere, atn::Vector3* move,
+extern "C" int fn_8004D388(void* world, atn::ColliResult_unk* result, atn::Vector3* sphere, atn::Vector3* move,
                            unsigned int mask, void* ignore, int arg, float radius); // inferred: sweep test
 extern "C" void fn_800F8C6C(Effect_unk* mgr, int a, int b, CharaTask* chara, HitInfo_unk* data, int id, int time,
                             int c, float f); // inferred: attack hit
@@ -790,7 +779,7 @@ void Em306GurgBeast::vf108() {
             float scale = fn_802F0988(fn_802F0990());
             atn::Vector3 move = m14D8 * k;
             move *= scale;
-            CollResult_unk result;
+            atn::ColliResult_unk result;
             fn_8004D388(fn_801404F8(), &result, &m614, &move, 0x80, &mColli, 0, m620);
             mPos = result.m10;
             mPos -= m5A4;
@@ -886,7 +875,7 @@ void Em306GurgBeast::fn_802F09D4(const atn::Vector3* target, float rate) {
         m152C->mColli.mFlags &= ~1;
     }
     atn::Vector3 start(pos);
-    CollResult_unk result;
+    atn::ColliResult_unk result;
     Sphere_unk sphere = fn_80176548(pos);
     int hit = fn_8004D388(lbl_8087EE98, &result, &sphere.mCenter, &vel, fn_80179D44(), &mColli, 0, sphere.mRadius);
     pos = result.m10;
@@ -895,7 +884,7 @@ void Em306GurgBeast::fn_802F09D4(const atn::Vector3* target, float rate) {
     if (hit && (result.m3C & 1) == 1) {
         vel.y = 0.0f;
     }
-    m634 = result.m34 != 0 ? *result.m34 : -1;
+    m634 = result.m34 != 0 ? *(int*)result.m34 : -1;
     if (m152C != 0) {
         m152C->mColli.mFlags |= 1;
     }
