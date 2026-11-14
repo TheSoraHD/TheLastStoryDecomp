@@ -46,14 +46,14 @@ Inicio: 2026-11-14 06:25 CET. Rama `agent-K`. Unidades: `game/AiTarget`, `game/B
   `atn/Model_unk.h`.
 
 - `fn_800F8C6C` (0x800F8C6C, 6272 bytes, unidad BattleTask): **escrita, NONMATCHING 89 %** (fnstat; antes 0 %).
-  Firma `extern "C" int fn_800F8C6C(BattleTask* mgr, MeleeResult_unk* out, int outCount, CharaTask* chara,
+  Firma `extern "C" int fn_800F8C6C(BattleTask* mgr, HitResult_unk* out, int outCount, CharaTask* chara,
   HitInfo_unk* data, int id, float angle, int time, int max)` (el float va antes de `time`/`max`, como ya
   declaraba EnemyTrista; devuelve el numero de personajes golpeados). Ataque cuerpo a cuerpo: jugadores y enemigos
   alcanzados (`fn_800FBA9C`) en un `std::vector<MeleeTarget_unk>` ({personaje, esfera, distancia x (3 - 2 cos)}),
   `std::sort` por esa puntuacion y golpe en orden (`fn_800FC410`) hasta `max`; por golpe valido
   (`m38A5C.m64` 1/4/5) los estados del atacante disparan balas (0x28 -> 0x2329, 0x2F -> 0x232A, 0x32 -> 0x232B,
   0x3E -> la bala del estado), efectos (0x34 -> 0x232D) o curan (7-9 -> 0x232F y 0x2330 al atacante y, con 8, a los
-  jugadores); `out[i] = {chara, m38A5C.m94}`. Despues mensaje de golpe a los gimmicks dentro del arco (tipo 1 con
+  jugadores); `out[i] = {chara, m38A5C.m94}` (banderas del golpe, 8 = critico). Despues mensaje de golpe a los gimmicks dentro del arco (tipo 1 con
   nivel >= 2, tipo 0x10 si el atacante es jugador), sube el medidor (`m38A14`) y registra el golpe en `mShots`.
   Sigue `extern "C"` con el `BattleTask*` delante (la llaman ~40 unidades con nombre C): deuda de la regla 10.
   Resto: el `push_back` del vector va inline en el original (crecimiento de MSL con `fprintf`/`abort`), registros.
@@ -80,8 +80,13 @@ Inicio: 2026-11-14 06:25 CET. Rama `agent-K`. Unidades: `game/AiTarget`, `game/B
 
 ## Decisiones y hallazgos
 
-- `fn_800F8C6C`: estructuras nuevas locales de BattleTask.cpp `MeleeTarget_unk`, `MeleeTargetLess_unk`,
-  `MeleeResult_unk` (nombres inventados). `HitInfo_unk::m50` (bytes) se lee como dos floats (angulo del arco y
+- `fn_800F8C6C`: estructuras nuevas locales de BattleTask.cpp `MeleeTarget_unk`, `MeleeTargetLess_unk` y
+  `HitResult_unk` (la misma vista que `HitResult_unk` de `game/BattleCharaTask.cpp`: pendiente llevarla a
+  `BattleTask.h`, renumera las `@N` de las ~57 unidades que la incluyen).
+- **Port (x86-64):** de las 43 declaraciones `extern "C"` de `fn_800F8C6C` en otras unidades, 39 ponen el float al
+  final (`..., int time, int max, float angle)`) y 3 en septimo lugar (EnemyTrista y otras). En PowerPC da igual
+  (el float va en f1), pero en el ABI de Windows x64 los argumentos van por posicion: el port debe declararla con
+  el float en septimo lugar, como la definicion (`id, float angle, int time, int max`). `HitInfo_unk::m50` (bytes) se lee como dos floats (angulo del arco y
   altura): pendiente tiparlo en `HitInfo_unk.h` (`float m50; float m54;`, ya apuntado por la cola B).
 - poolcheck de BattleTask: el float 2.44346 de `vfA0__9CharaTask` ya salia antes (no es de esta cola).
 

@@ -1731,10 +1731,11 @@ struct MeleeTarget_unk {
 struct MeleeTargetLess_unk {
     bool operator()(const MeleeTarget_unk& a, const MeleeTarget_unk& b) const { return a.mScore < b.mScore; }
 };
-// inferred: result written for the caller by fn_800F8C6C (attacker and damage of the hit); names invented
-struct MeleeResult_unk {
-    CharaTask* mAttacker;
-    int mDamage;
+// inferred: result written for the caller by fn_800F8C6C (same view as HitResult_unk of game/BattleCharaTask.cpp:
+// the attacker and the flags of the hit, BattleCalcParam_unk::m94, 8 = critical); names invented
+struct HitResult_unk {
+    CharaTask* mChara;
+    unsigned int mFlags;
 };
 
 template <class T>
@@ -1912,7 +1913,7 @@ inline void PlayRowEffect_unk(int id, atn::Model* model, const atn::Vector3& pos
 // effects (0x34) or heal (7-9: the attacker, and the players with status 8). Then the gimmicks inside the arc get
 // a hit message, the gauge of a player rises and the attack is recorded in the debug ring. Returns the number of
 // characters hit. C name, called by the enemies as extern "C"
-extern "C" int fn_800F8C6C(BattleTask* mgr, MeleeResult_unk* out, int outCount, CharaTask* chara, HitInfo_unk* data,
+extern "C" int fn_800F8C6C(BattleTask* mgr, HitResult_unk* out, int outCount, CharaTask* chara, HitInfo_unk* data,
                            int id, float angle, int time, int max) {
     if (data == 0) {
         return 0;
@@ -2049,8 +2050,8 @@ extern "C" int fn_800F8C6C(BattleTask* mgr, MeleeResult_unk* out, int outCount, 
             }
         }
         if (count < outCount) {
-            out[count].mAttacker = chara;
-            out[count].mDamage = mgr->m38A5C.m94;
+            out[count].mChara = chara;
+            out[count].mFlags = mgr->m38A5C.m94;
         }
     }
     int power = data->m14;
