@@ -1,5 +1,6 @@
 #include "game/SkillEffectManager.h"
 #include "game/Em403WarLion.h"
+#include "Event/PathSpline.h"
 #include "atn/LoadHandle.h"
 #include "chr/ControlBase.h"
 #include "chr/ControlStickByQuark.h"
@@ -1753,18 +1754,6 @@ extern "C" void fn_8032AC1C(WarLionPoints_unk* v, const atn::Vector3* p);   // i
 extern "C" void fn_8032AF90(WarLionPath_unk* path, WarLionPoints_unk* pts); // inferred: builds the path
 // NONMATCHING: 99.96% - only the message of __allocate (lbl_80779F68, a pool of another file)
 extern "C" void fn_8032B314(std::vector<WarLionCubic_unk>* v, unsigned int n); // inferred: resize
-// inferred: raw storage of a std::vector<float> (the builder constructs and destroys it through the weak
-// copies, as PathVec_unk in game/PathData_unk.cpp)
-struct WarLionFloats_unk {
-    float* Data_unk() { return mData; }
-    std::vector<float>& Vec_unk() { return *(std::vector<float>*)this; }
-    float* mData;
-    unsigned int mSize;
-    unsigned int mCap;
-};
-// NONMATCHING: 99.84% - only the message of __allocate (lbl_80775A88, a pool of another file)
-extern "C" WarLionFloats_unk* fn_8032B6F8(WarLionFloats_unk* v, unsigned int n); // inferred: vector(n)
-extern "C" void fn_8000D844(WarLionFloats_unk* v, int flag);                 // inferred: ~vector<float>
 // NONMATCHING: 87.22% - register allocation of the unrolled back substitution and of the three vectors
 extern "C" void fn_8032B7F0(WarLionPath_unk* path, const float* y, WarLionCubic_unk* out); // inferred: solve
 // NONMATCHING: 99.86% - the capacity of the dead __recommend_cap_unk in r28 instead of r31, and the message
@@ -1830,20 +1819,17 @@ inline void WarLionBuild_unk(WarLionPath_unk* path, const atn::Vector3* pts, int
     fn_8032B314(&path->m20, n - 1);
     fn_8032B314(&path->m2C, n - 1);
     fn_8032B314(&path->m38, n - 1);
-    WarLionFloats_unk xs;
-    WarLionFloats_unk ys;
-    WarLionFloats_unk zs;
-    fn_8032B6F8(&xs, n);
-    fn_8032B6F8(&ys, n);
-    fn_8032B6F8(&zs, n);
+    Event::PathLengths_unk xs(n);
+    Event::PathLengths_unk ys(n);
+    Event::PathLengths_unk zs(n);
     for (int i = 0; i < n; i++) {
-        xs.mData[i] = pts[i].x;
-        ys.mData[i] = pts[i].y;
-        zs.mData[i] = pts[i].z;
+        xs.begin()[i] = pts[i].x;
+        ys.begin()[i] = pts[i].y;
+        zs.begin()[i] = pts[i].z;
     }
-    fn_8032B7F0(path, xs.Data_unk(), path->m20.begin());
-    fn_8032B7F0(path, ys.Data_unk(), path->m2C.begin());
-    fn_8032B7F0(path, zs.Data_unk(), path->m38.begin());
+    fn_8032B7F0(path, xs.begin(), path->m20.begin());
+    fn_8032B7F0(path, ys.begin(), path->m2C.begin());
+    fn_8032B7F0(path, zs.begin(), path->m38.begin());
     path->m08 = pts[0];
     path->m14 = pts[n - 1];
     path->m04 = 0.0f;
@@ -1852,9 +1838,6 @@ inline void WarLionBuild_unk(WarLionPath_unk* path, const atn::Vector3* pts, int
         path->m44[i] = fn_8032C1EC(path, i);
         path->m04 += path->m44[i];
     }
-    fn_8000D844(&zs, -1);
-    fn_8000D844(&ys, -1);
-    fn_8000D844(&xs, -1);
 }
 
 extern "C" inline void fn_8032AF90(WarLionPath_unk* path, WarLionPoints_unk* list) {
@@ -1865,15 +1848,6 @@ extern "C" inline void fn_8032AF90(WarLionPath_unk* path, WarLionPoints_unk* lis
 
 extern "C" inline void fn_8032B314(std::vector<WarLionCubic_unk>* v, unsigned int n) {
     v->resize(n);
-}
-
-// inferred: std::vector<float>(n) (weak copy; written out because placement new adds a null check)
-extern "C" inline WarLionFloats_unk* fn_8032B6F8(WarLionFloats_unk* v, unsigned int n) {
-    v->mData = 0;
-    v->mSize = 0;
-    v->mCap = 0;
-    v->Vec_unk().__init_n_unk(n);
-    return v;
 }
 
 // inferred: natural cubic spline with unit spacing: tridiagonal system for the first derivatives `c`, then

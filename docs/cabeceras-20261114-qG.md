@@ -1,6 +1,9 @@
 # cabeceras-20261114, cola G: deuda de la regla 10 en cabeceras
 
-Rama `agent-G`. Inicio 16:10. Referencia `$REF` = `/home/claude/ref-G` (15433 / 18109).
+Rama `agent-G`. Inicio 16:10, fin ~17:55. Referencia `$REF` = `/home/claude/ref-G` (15433 / 18109). Resultado:
+**15433 -> 15433** (cola de deuda de la regla 10: sin funciones nuevas al 100 %), lost 0, sin bajadas,
+labelcheck/rep100 igual, `main.dol: OK` en cada commit. Suben de fuzzy `BattleCharaTask::fn_800E589C`
+(97,22 -> 97,96), `fn_800E9ED8` (97,93 -> 98,50) y `fn_8032AF90` de Em403WarLion (97,73 -> 97,80).
 
 ## Resultado
 
@@ -83,6 +86,28 @@ Rama `agent-G`. Inicio 16:10. Referencia `$REF` = `/home/claude/ref-G` (15433 / 
   `PostFx*`/`PostFxManager` en LinearAllocator y de `TextureComposite` en CompositeIntensityTintMulti; y
   `include/atn/VideoTHP.h` (vista sin bases de `VideoTHP` para Event::MovieTask/TutorialTask).
 
+### 6. `PathLengths_unk`: destructor 0x8000D844 y constructor 0x8032B6F8
+
+- `include/Event/PathSpline.h`: `Event::PathLengths_unk` (derivada de `std::vector<float>`) recibe
+  `PathLengths_unk() {}`, `~PathLengths_unk()` con cinco asertos vacios `((void)0)` (umbral de autoinline, como los
+  de Em403WarLion: sin ellos el destructor se inlinea en el constructor del trazado y el original lo llama) y
+  `PathLengths_unk(unsigned int n) : std::vector<float>(n) {}`. `symbols.txt`: `fn_8032B6F8` ->
+  `__ct__Q25Event15PathLengths_unkFUi` (0x8000D844 ya era `__dt__Q25Event15PathLengths_unkFv`).
+- `game/Em403WarLion.cpp`: `WarLionBuild_unk` usa `Event::PathLengths_unk xs(n), ys(n), zs(n)` (fuera
+  `WarLionFloats_unk`, la definicion C `fn_8032B6F8` y las llamadas a `fn_8000D844`); el constructor debil sale de
+  la unidad con su nombre real (100 %), `fn_8032AF90` 97,73 -> 97,80 %. Escritura por `xs.begin()[i]`
+  (`xs[i]` da 76 %; el `operator[]` cambia el desenrollado).
+- **No hecho** en gmk/WindyItem, game/PathData_unk y Event/ActionActorPosition: con locales `PathLengths_unk`
+  sus constructores del trazado bajan mucho (95,6 -> 43 %, 98,7 -> 19,9 %, 94,7 -> 62,7 %): alli el
+  constructor y el destructor son los unicos candidatos a inline (el resto de ayudantes son `extern "C"` sin
+  cuerpo), caben en el presupuesto y se inlinean; en el original todos los ayudantes (`resize`, `solve`...) eran
+  inline y el presupuesto se pasaba. Siguen con sus `extern "C" fn_8032B6F8`/`fn_8000D844` (nombres que ya no
+  existen en `symbols.txt`). Las versiones probadas quedan en `scratch-G/*_pl.cpp`.
+- Re-emparejado: `pdbatch.sh` de las 38 unidades que incluyen `PathSpline.h` (directa o indirectamente) y
+  `lblmap.py` en 9 (ActionCameraMode, DebugInfo_unk, Node, Sequence, GameEventScript, GameTask, GameUI,
+  NewCampPartsMapSelect, NewCampTask); `lbl_8087D6E8/EC` devueltos a mano otra vez. Neutro: 15433, lost 0, sin
+  bajadas, labelcheck/rep100 igual, `main.dol: OK`; poolcheck de Em403WarLion/ActionActorPosition igual que HEAD.
+
 ## Decisiones tomadas sin el usuario
 
 - Llamadas por molde `(BattleTask*)lbl_8087F048` en vez de cambiar el tipo de `lbl_8087F048` en las 41 unidades:
@@ -109,7 +134,16 @@ Rama `agent-G`. Inicio 16:10. Referencia `$REF` = `/home/claude/ref-G` (15433 / 
 - Firmas de virtuales de `atn::IRender` en Rain, TextureComposite, VideoTHP (ver punto 5): `vf14` con los cuatro
   argumentos de `IRender.h` y `vf18(RenderManager*)`. Ninguna es unidad del port.
 
+- `Event::PathLengths_unk` tiene ahora constructor por defecto, destructor y `PathLengths_unk(unsigned int)`
+  (= 0x8032B6F8, antes `extern "C" fn_8032B6F8` definido inline en Em403WarLion). Layout igual. **El port pierde
+  la definicion C `fn_8032B6F8`**: WindyItem, PathData_unk y ActionActorPosition la siguen llamando (y
+  `fn_8000D844`, que ya era un stub): en el port, cambiar esos tres trazados a locales
+  `Event::PathLengths_unk xs(n)` (mismo comportamiento; aqui no se hace porque baja el emparejado).
+
 ## Hallazgos
+
+- Un destructor inline de una sola linea se inlinea (R5) donde el original lo llama: unos asertos vacios
+  `((void)0)` en su cuerpo lo sacan del umbral sin cambiar el codigo (Em403WarLion, `PathLengths_unk`).
 
 - Una `union` anonima nueva dentro de un `struct` de una cabecera compartida renumera las `@N` de todas las
   unidades que la incluyen (un miembro de datos normal no).
