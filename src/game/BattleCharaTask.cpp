@@ -1319,13 +1319,13 @@ void BattleCharaTask::fn_800E62AC(Field_unk* field, int a, int b) {
                 } else if ((unsigned int)(m50 - 0xAAE76) <= 1) {
                     if (lbl_8087F0A8->mInput.fn_801237F0(0x17)) {
                         CrossbowMenuTask::sInstance->fn_801E9ECC(-1, 1);
-                        fn_800C31F4(sBattleSe_unk[4], 1.0f, 0, -1);
+                        fn_800C31F4(sBattleSe_unk[4], 0, -1, 1.0f);
                     } else if (lbl_8087F0A8->mInput.fn_801237F0(0x18)) {
                         CrossbowMenuTask::sInstance->fn_801E9ECC(1, 1);
-                        fn_800C31F4(sBattleSe_unk[4], 1.0f, 0, -1);
+                        fn_800C31F4(sBattleSe_unk[4], 0, -1, 1.0f);
                     } else if (lbl_8087F0A8->mInput.fn_801237F0(0x1A)) {
                         CrossbowMenuTask::sInstance->fn_801E97DC();
-                        fn_800C31F4(sBattleSe_unk[4], 1.0f, 0, -1);
+                        fn_800C31F4(sBattleSe_unk[4], 0, -1, 1.0f);
                     } else if (lbl_8087F0A8->mInput.fn_801237F0(0x1B)) {
                     }
                     if (lbl_8087F0A8->mInput.fn_801231D0(6) && m640 <= 0 && mFB0 <= 0) {
@@ -2821,7 +2821,7 @@ void BattleCharaTask::fn_800EBD00(int mode, int prev) {
         if (mode == 1) {
             lbl_8087F8A0->mHead->fn_8014EEC4(0);
             mMotion.m34C = 1;
-            mMotion.fn_80097C08(0, 2, 1, 0, 1, 0.0f, 0.1f);
+            mMotion.fn_80097C08(0, 2, 1, 0, 1, 1.0f, 0.1f);
             for (int i = 0; i < 0x23A; i++) {
                 mMotion.fn_80097A20(i);
             }

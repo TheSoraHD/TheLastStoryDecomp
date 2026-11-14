@@ -1469,7 +1469,7 @@ extern "C" int fn_800197A4(AIManager* ai, atn::Vector3* out, int* kind, CharaTas
                 if (e < 900.0f && enemyDist > e) {
                     continue;
                 }
-                if (enemyDist > 6400.0f && 3.0f * (3.0f * enemyDist) < e) {
+                if (enemyDist > 6400.0f && 2.0f * (2.0f * enemyDist) < e) {
                     continue;
                 }
                 if (PSVECDotProduct(&away, &b) < 0.0f) {
