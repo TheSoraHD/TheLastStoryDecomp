@@ -1005,7 +1005,7 @@
   "classes": [
    "CopyRobotTask"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "game/CosEditBase.cpp",
