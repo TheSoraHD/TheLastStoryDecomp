@@ -371,9 +371,15 @@ static inline unsigned char SwapG_unk(SwapTable_unk c) { return c.g; }
 static inline unsigned char SwapB_unk(SwapTable_unk c) { return c.b; }
 static inline unsigned char SwapA_unk(SwapTable_unk c) { return c.a; }
 
-// NONMATCHING: 98.37% - r4/r5 swapped in the dead copy of the camera matrix (__MtxCopy, as the __VecCopy family)
+// inferred: matrix copy through one more inline level (as atn::VecAssign_unk: gives the r4/r5 order of the
+// original)
+static inline void MtxAssign_unk(atn::Matrix3x4& dst, const atn::Matrix3x4& src) {
+    dst = src;
+}
+
 void fn_8009B93C(DrawEntry_unk* entry) {
-    atn::Matrix3x4 view = atn::RenderManager::instance_->mCamera.mView;
+    atn::Matrix3x4 view;
+    MtxAssign_unk(view, atn::RenderManager::instance_->mCamera.mView);
     if ((entry->m04 & 0x20000) && lbl_8087EFB0 == 0) {
         sSecondPass_unk = 1;
         fn_8009E448(entry, entry->m0C->m48[0]);
@@ -830,7 +836,7 @@ void fn_8009CC28(DrawMesh_unk* mesh, Material_unk* mat, DrawShader_unk* shader, 
     }
 }
 
-// NONMATCHING: 99.84% - stage and texture registers swapped in the width loop
+// inferred: mip test draw (texture of the size of the first texture stage)
 void fn_8009D1A4(Material_unk* mat) {
     GXColor white = {0xFF, 0xFF, 0xFF, 0xFF};
     GXSetChanMatColor(4, white);
@@ -857,11 +863,13 @@ void fn_8009D1A4(Material_unk* mat) {
         fn_800D594C(&sMip1024, "common/mip1024.texture");
     }
     TexStage_unk* stage;
+    atn::Texture_unk* t;
     int width = 0;
     for (int i = 0; i < ((DrawShader_unk*)mat->m08)->mDesc->m0E4; i++) {
         stage = &mat->m0C[i];
         if (stage->mId == 0) {
-            if (TexReady_unk(stage->mTexture)) {
+            t = stage->mTexture;
+            if (TexReady_unk(t)) {
                 width = GXGetTexObjWidth(&stage->mTexture->mObj);
             }
             break;
@@ -1065,17 +1073,23 @@ void fn_8009DCE0(Material_unk* mat) {
     }
 }
 
-// NONMATCHING: 99.04% - registers of mat/shader (r29/r31 in the original) and the attribute of GXSetArray
-// reloaded in the original (here the value of the loop test is reused)
+// inferred: sets a vertex array of the list (inline: the attribute is loaded again for the call)
+static inline void SetArray_unk(const DrawArray_unk* a) {
+    GXSetArray(a->m00, a->m04, a->m08);
+}
+
+// inferred: draws a mesh command (shader declared first: its register is r31, though loaded last)
 void fn_8009DE60(DrawCmd_unk* cmd, float dist) {
+    DrawShader_unk* shader;
+    int flags;
     Material_unk* mat = cmd->m08;
-    int flags = cmd->m04;
-    DrawShader_unk* shader = (DrawShader_unk*)mat->m08;
+    flags = cmd->m04;
     DrawMesh_unk* mesh = cmd->m0C;
     void* vtx = cmd->m18;
     DrawArray_unk* arrays = cmd->m1C;
     atn::Scene* lens = cmd->m10;
     Mtx* mtx = cmd->m14;
+    shader = (DrawShader_unk*)mat->m08;
     atn::RenderManager::instance_->fn_800BDB40(lens);
     if (cmd->m3C.mFunc1 != 0) {
         cmd->m3C.mFunc1(cmd->m3C.mArg1, cmd->m3C.mArg2);
@@ -1107,7 +1121,7 @@ void fn_8009DE60(DrawCmd_unk* cmd, float dist) {
     }
     fn_80076BE4(lbl_8087EEE0, vtx);
     for (; arrays->m00 != 0xFF; arrays++) {
-        GXSetArray(arrays->m00, arrays->m04, arrays->m08);
+        SetArray_unk(arrays);
     }
     if (lbl_8087EFB0 == 0 && lbl_8087EFA8->m234 == 0) {
         fn_8009BB9C(mat, mesh, mtx);

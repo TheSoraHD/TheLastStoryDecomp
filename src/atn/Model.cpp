@@ -237,6 +237,18 @@ extern "C" void fn_8008A00C(atn::SimpleVector<atn::Model::NodeEdit_unk>* edits, 
 
 namespace atn {
 
+// inferred: pose buffer shared by every model (0x400 nodes of Model::Node_unk, allocated by the first model)
+static Model::Node_unk* sNodePoses;
+
+// inferred: allocates the pose buffer (name invented). A static helper compiled here and inlined in Model::Model:
+// the weak constructor of Node_unk is emitted at 0x8008A4B0, right after fn_8008A00C, as in the original (the
+// "" that follows "NODE_EDIT" in the original pool still does not come out of it)
+static void NewNodePoses_unk() {
+    if (sNodePoses == 0) {
+        sNodePoses = new ((MemoryTag)6, "", "", 0) Model::Node_unk[0x400];
+    }
+}
+
 ModelBase::ModelBase(unsigned int flags)
     : mFlags(flags), m40(1.0f, 1.0f, 1.0f, 1.0f), m50(0), m54(1.0f), m58(0), m5C(0), m94(6), m98(0.0f), m134(0),
       m138(0), m14C(1.0f), m150(1.0f), m154(0.0f), m158(1.0f), m15C(0), m160(0), m1DC(0), m1E0(0), m1F0(0), m1F4(0),
@@ -1334,7 +1346,7 @@ void ModelBase::CalcMatrixStack(const MotionBuffer* motion, ModelNodeCallback_un
 } // namespace atn
 
 ModelPose_unk::ModelPose_unk(ModelData_unk* model, atn::Matrix3x4* matrices, const int* remap,
-                             boost::function<void()> callback, const unsigned int* extra, int extraCount)
+                             atn::ModelNodeCallback_unk callback, const unsigned int* extra, int extraCount)
     : m00(model), m04(matrices), m08(remap), m0C(0), m10(0), m14(0), m18(callback), m40(extra), m44(extraCount),
       m48(0) {}
 
@@ -1682,11 +1694,6 @@ inline void PushBone_unk(Model* model, PBoneInterface* bone) {
 }
 
 // NONMATCHING: 83% - the copy of dir is scheduled before the arguments
-// inferred: node pose of the shared pose buffer (implicit constructor 0x8008A4B0); name invented
-struct NodePose_unk : public MotionPose_unk {};
-
-// inferred: pose buffer shared by every model (0x400 nodes, allocated by the first model)
-static NodePose_unk* sNodePoses;
 } // namespace atn
 
 // inferred: out[i] = root * b[i] * a[i]
@@ -2488,9 +2495,7 @@ Model::Model(int flags, int motions)
     : ModelBase(flags), m34C(1), m350(1.0f), m384(0), m3A8(0.0f, 0.0f, 0.0f), m3B4(0.0f), m3B8(0.0f), m3BC(0),
       m3C0(-1), m3C4(0.0f) {
     m3C8[0] = 0;
-    if (sNodePoses == 0) {
-        sNodePoses = new ((MemoryTag)6, "", "", 0) NodePose_unk[0x400];
-    }
+    NewNodePoses_unk();
     for (int i = 0; i < 6; i++) {
         mTracks[i].m00 = -1;
         mTracks[i].m08 = 0.0f;

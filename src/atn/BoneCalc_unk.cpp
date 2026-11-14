@@ -71,12 +71,6 @@ static inline atn::Matrix3x4 MulMtx_unk(const atn::Matrix3x4& a, const atn::Matr
     return r;
 }
 
-// inferred: the node callback m18 (its type is ModelNodeCallback_unk: the safe bool test uses the nonnull of
-// that boost::function, 0x8009B938; the header still declares it as boost::function<void()>)
-static inline const atn::ModelNodeCallback_unk& NodeCallback_unk(const ModelPose_unk* pose) {
-    return reinterpret_cast<const atn::ModelNodeCallback_unk&>(pose->m18);
-}
-
 // inferred: computes the matrices of the joint `joint`, its next siblings and their children from the bind pose
 // of the model data (scale, euler rotation, position) and the node edits of the pose; `scale` is the scale
 // inherited from the parent (null: none). Runs the node callback m18 on the nodes of the sorted list m40.
@@ -134,13 +128,13 @@ extern "C" void fn_8009A5CC(ModelPose_unk* pose, int joint, const atn::Matrix3x4
             s.z = s.z * edit->m20.z;
         }
 
-        if (NodeCallback_unk(pose)) {
+        if (pose->m18) {
             for (unsigned int k = pose->m48; k < pose->m44; k++) {
                 if ((unsigned int)index == pose->m40[k]) {
                     ModelNodeCallbackContext ctx;
                     ctx.mParent = &base;
                     ctx.mRot = &quat;
-                    NodeCallback_unk(pose)(&local, *(const NodeChunk*)node, ctx);
+                    pose->m18(&local, *(const NodeChunk*)node, ctx);
                     pose->m48 = k + 1;
                     break;
                 }
@@ -244,13 +238,13 @@ extern "C" void fn_8009ADA4(ModelPose_unk* pose, int joint, const atn::MotionBuf
             }
         }
 
-        if (NodeCallback_unk(pose)) {
+        if (pose->m18) {
             for (unsigned int k = pose->m48; k < pose->m44; k++) {
                 if ((unsigned int)index == pose->m40[k]) {
                     ModelNodeCallbackContext ctx;
                     ctx.mParent = &base;
                     ctx.mRot = &quat;
-                    NodeCallback_unk(pose)(&local, *(const NodeChunk*)node, ctx);
+                    pose->m18(&local, *(const NodeChunk*)node, ctx);
                     pose->m48 = k + 1;
                     break;
                 }

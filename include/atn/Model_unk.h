@@ -166,7 +166,7 @@ struct ModelBase : public IRender {
     float mAC; // inferred: draw distance scale (CharaTask sets 1.0 or 1.3, 0x80149A30)
     int mB0; // inferred: compared with 0 by CharaTask::fn_8013655C
     int mB4;
-    boost::function<void()> mB8; // inferred: signature
+    ModelNodeCallback_unk mB8; // inferred: node callback of the sorted nodes mCC (passed to ModelPose_unk::m18)
     SimpleVector<unsigned int> mCC; // inferred: sorted nodes with the node callback enabled (fn_800920B8)
     SimpleVector<NodeEdit_unk> mD8; // inferred: node edits
     SimpleArray<short> mE4; // inferred: one entry per node (-1 at load)

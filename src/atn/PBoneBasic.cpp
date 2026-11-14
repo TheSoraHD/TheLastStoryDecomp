@@ -173,7 +173,7 @@ void PBoneBasic::vf10() {
     SetTrans_unk(root, rootPos);
     SetTrans_unk(m64->GetNodeMtx_unk(m3C), rootPos + m14);
     ModelJoint_unk* joint = m64->m16C->m48[m3C];
-    ModelPose_unk pose(m64->m16C, m64->mNodeMtx, 0, boost::function<void()>(), 0, 0);
+    ModelPose_unk pose(m64->m16C, m64->mNodeMtx, 0, atn::ModelNodeCallback_unk(), 0, 0);
     fn_8009ADA4(&pose, m3C, (const atn::MotionBuffer*)m64->m220, m64->GetNodeMtx_unk(joint->m1C), 0);
     m08 = rootPos;
     m2C = lbl_807C7030;

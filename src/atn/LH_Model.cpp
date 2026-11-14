@@ -67,7 +67,7 @@ void LoadModel::vf0C() {
         ModelData_unk* model = (ModelData_unk*)m5C;
         if (model != 0) {
             mMatrices.Resize_unk(model->m44, 6);
-            ModelPose_unk pose(model, mMatrices.mData, 0, boost::function<void()>(), 0, 0);
+            ModelPose_unk pose(model, mMatrices.mData, 0, atn::ModelNodeCallback_unk(), 0, 0);
             Matrix3x4 mtx;
             mtx.SetIdentity();
             pose.fn_8009A584(mtx);
