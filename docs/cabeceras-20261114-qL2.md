@@ -67,7 +67,7 @@
   Em314Ivy (`shiftfix.py`: 2 floats), EnemyQuarkStand. precommit OK.
 - No hechas por tipos que no casan con la definicion: `fn_800FDB20` (un `float` de mas en ZanGurgFinal/Em206EggMonster frente a un `int`
   de la definicion), `fn_800FB1BC` (SkillEffectManager sin el `float` final), `fn_80101524` (5 argumentos frente a
-  6), `fn_8010CF28`, `fn_800FD658` (`void*` donde la definicion tiene `HitInfo_unk*`), `fn_80102EAC` (Em101ElderZesya
+  6), `fn_8010CF28`, `fn_80102EAC` (Em101ElderZesya
   pasa `int` donde la definicion tiene `CharaTask*`), `fn_801004FC`/`fn_8010089C` (`BattleAim_unk` solo existe en
   BattleTask.cpp; BattleCharaTask usa otra vista), `fn_8010D320` (GameUI, `void*` y `Vector3` por valor).
 - No hechas: `fn_80108C10` (cada unidad tiene su vista del dano: `DaemonDamage_unk`, `QueenDamage_unk`...; unificar
@@ -113,3 +113,19 @@
 
 - `BattleTask::fn_80108378(CharaTask*)` -> `BattleChara_unk::fn_80108378(CharaTask*)` (no usa `this`). Unidad del
   port tocada: BattleTask (solo el nombre de clase de la definicion).
+
+## Cifras
+
+- 15450 / 18109 al 100 % antes y despues (lost 0, sin bajadas), funciones al 0 % 199 -> 199, labelcheck/rep100
+  igual que `ref-L2`. Sube DropItem vf10 90,70 -> 91,74.
+
+## Hallazgos
+
+- El re-emparejado (`pd.sh`/`pdbatch.sh`) vuelve a poner `@STRING@Resize_unk...` en `lbl_8087D6E8/EC` y `sInstance`
+  en 0x8087EE78, y entonces el enlace falla (multiply-defined): devolverlos por linea tras cada pd
+  (`scratch-L2/fixsym.py`).
+- Tras quitar declaraciones con nombres de parametro, pd puede dejar floats de .sdata2 con el nombre de otro valor o
+  sin nombre; `lblmap.py` en GameEventScript lo empeoro (66 sin nombre). Funciona tomar el nombre de HEAD menos k y
+  comprobar que el objeto de nuestro .o tiene los bytes del `.dol` (`scratch-L2/shiftfix.py`).
+- MWCC copia un struct de miembros mixtos miembro a miembro (`lfs`/`lwz`); un inline que devuelve el struct por
+  valor (`Bullet::GetShot_unk`) mete un temporal mas: para la copia del original, asignar los miembros a mano.
