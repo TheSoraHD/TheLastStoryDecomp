@@ -4916,8 +4916,14 @@ inline float GetMpRate_unk(CharaTask* c) {
 
 // inferred: party window `index` of a character (-1: the leader): name, level, hit points (the shown value
 // follows the real one over 20 frames), experience, magic points, the time bar, the face of its job and the
-// level-up and lives marks
-// NONMATCHING: written from the asm
+// level-up and lives marks; static: the original takes the character in r3 (no this)
+// NONMATCHING: 85% - the original passes `base` to fn_801F6E78 by address (its declaration in GameUI took a
+// reference or pointer; atn/D2A_TaskInstanceC.h has it by value for the definition, and MWCC rejects a second
+// extern "C" declaration), so here every call copies the rectangle (frame 0x180 instead of 0xE0); the texture
+// rectangle of the face is copied with paired singles in the original (a UV type with a psq copy, as
+// ShopUV_unk), `--lives` keeps a ble/b pair and the m560 29/30 check is joined in a subi/cmplwi range here.
+// The rate of the chant is computed and left unused, as in the original (its fcmpo is followed by no use of
+// f3: no missing panel)
 void GameUI::fn_803E0E10(CharaTask* chara, GameUIElem60_unk* window, int index) {
     if (lbl_8087F610 != 0 && (lbl_8087F610->m50C != 0 || lbl_8087F610->m4FC != 30)) {
         return;
