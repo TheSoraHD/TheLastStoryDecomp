@@ -17,6 +17,8 @@
 #include "atn/RenderManager.h"
 #include "atn/Layer3D.h"
 #include "atn/ColorMatrixParam_unk.h"
+#include "atn/ModelVtx_unk.h"
+#include "macros.h"
 
 // inferred: up to four lights sorted by distance (atn/LightUtil_unk.cpp). The two selectors are
 // called here on uninitialized temporaries: they return the set by value (declared here as
@@ -98,14 +100,15 @@ struct DrawIndMtx_unk {
 };
 
 // inferred: TEV stage of a description (0x88 bytes)
+// inferred: TEV stage of the description (atn::ShaderTevStage_unk of atn/Shader_unk.h)
 struct DrawTevStage_unk {
-    unsigned char m00[0x2C];
-    int m2C; // inferred: colour op
-    int m30; // inferred: colour bias
-    unsigned char m34[0x38 - 0x34];
-    int m38; // inferred: colour clamp
-    int m3C; // inferred: colour register
-    unsigned char m40[0x88 - 0x40];
+    unsigned char m00[0x28];
+    int m28; // inferred: colour op
+    int m2C; // inferred: colour bias
+    unsigned char m30[0x34 - 0x30];
+    int m34; // inferred: colour clamp
+    int m38; // inferred: colour register
+    unsigned char m3C[0x88 - 0x3C];
 };
 
 // inferred: material description (atn::ShaderDesc_unk of atn/Shader_unk.h)
@@ -129,8 +132,7 @@ struct DrawDesc_unk {
     DrawIndMtx_unk m140[4];
     int m180_pad[4];
     int m190; // inferred: number of TEV stages
-    unsigned char m194[0x1BC - 0x194];
-    DrawTevStage_unk m1BC_pad[1];
+    DrawTevStage_unk m194[16]; // inferred: TEV stages
 };
 
 // inferred: shader of a material (ShaderTex_unk of atn/Shader_unk.h)
@@ -157,12 +159,7 @@ static inline TexStage_unk* FindStage_unk(Material_unk* mat, DrawTexEntry_unk* e
 }
 
 
-// inferred: mesh of a model
-struct DrawArray_unk {
-    int m00; // inferred: attribute (0xFF ends the list)
-    void* m04;
-    int m08;
-};
+// inferred: mesh of a model (DrawArray_unk: atn/ModelVtx_unk.h)
 struct DrawList_unk {
     unsigned char m00[0x10];
     unsigned int m10;
@@ -901,7 +898,8 @@ static inline int IsShadowB_unk(DrawEntry_unk* entry, atn::Scene* lens) {
     return (lens->mLightMask & 2) == 2 && (entry->m04 & 8) == 8;
 }
 
-// NONMATCHING: 83.57% - flag tests and the queue capacity test (orc/srwi idiom) not reproduced, register allocation
+// NONMATCHING: 94.6% - the queue capacity test (orc/srwi idiom of an
+// unsigned >= materialized as a value) not reproduced, register allocation
 void fn_8009D58C(DrawEntry_unk* entry, DrawNode_unk* node, DrawPart_unk* part, int visible) {
     int index;
     DrawRemap_unk* remap = entry->m24;
@@ -923,12 +921,12 @@ void fn_8009D58C(DrawEntry_unk* entry, DrawNode_unk* node, DrawPart_unk* part, i
     if (mat == 0) {
         return;
     }
-    if (sSecondPass_unk != 0 && (mat->m48 & 2) != 2) {
+    if (sSecondPass_unk != 0 && (mat->m48 & 2u) != 2u) {
         return;
     }
     atn::IRenderLayer* pass = atn::RenderManager::instance_->mLayers[atn::RenderManager::instance_->m2F8];
+    unsigned char m = mat->m49;
     if (lbl_8087EFB0 == 0) {
-        unsigned char m = mat->m49;
         if (m != (m & (unsigned int)pass->m0C)) {
             return;
         }
@@ -941,14 +939,14 @@ void fn_8009D58C(DrawEntry_unk* entry, DrawNode_unk* node, DrawPart_unk* part, i
     if (p->m148 != 0) {
         flags |= 4;
     } else {
-        unsigned int ef = entry->m04;
+        int ef = entry->m04;
         if (((ef & 8) == 8 && p->m104 != 0) || p->m13C != 0) {
             if (visible) {
                 if (p->m184 != 0) {
                     flags |= 2;
                 } else if (p->m188 != 0) {
                     flags |= 0x10;
-                } else if ((ef & 0x8000) == 0x8000 || (mat->m48 & 1) == 1) {
+                } else if ((ef & 0x8000) == 0x8000 || (mat->m48 & 1u) == 1u) {
                     flags |= 0x10;
                 } else {
                     flags |= 2;
@@ -1067,16 +1065,17 @@ void fn_8009DCE0(Material_unk* mat) {
     }
 }
 
-// NONMATCHING: 97.48% - register allocation
+// NONMATCHING: 99.04% - registers of mat/shader (r29/r31 in the original) and the attribute of GXSetArray
+// reloaded in the original (here the value of the loop test is reused)
 void fn_8009DE60(DrawCmd_unk* cmd, float dist) {
     Material_unk* mat = cmd->m08;
-    atn::Scene* lens = cmd->m10;
-    unsigned int flags = cmd->m04;
+    int flags = cmd->m04;
+    DrawShader_unk* shader = (DrawShader_unk*)mat->m08;
     DrawMesh_unk* mesh = cmd->m0C;
     void* vtx = cmd->m18;
     DrawArray_unk* arrays = cmd->m1C;
+    atn::Scene* lens = cmd->m10;
     Mtx* mtx = cmd->m14;
-    DrawShader_unk* shader = (DrawShader_unk*)mat->m08;
     atn::RenderManager::instance_->fn_800BDB40(lens);
     if (cmd->m3C.mFunc1 != 0) {
         cmd->m3C.mFunc1(cmd->m3C.mArg1, cmd->m3C.mArg2);
@@ -1094,16 +1093,17 @@ void fn_8009DE60(DrawCmd_unk* cmd, float dist) {
             fn_80076760(rs, 2, 0xC0);
             fn_800761A8(rs);
         }
+        void* light = cmd->m20;
         if (mesh->m20 != -1) {
             lbl_8087EFA8->m18C = 0;
         } else {
             lbl_8087EFA8->m18C = 1;
         }
-        fn_80074EC8(lbl_8087EEE0, shader->mDesc, flags, cmd->m20, lens->GetLight_unk(), cmd->m34);
+        fn_80074EC8(lbl_8087EEE0, shader->mDesc, flags, light, lens->GetLight_unk(), cmd->m34);
         DrawDesc_unk* desc = shader->mDesc;
         int last = desc->m190 - 1;
-        DrawTevStage_unk* st = &desc->m1BC_pad[last];
-        GXSetTevColorOp(last, st->m2C, st->m30, mat->m34, st->m38, st->m3C);
+        DrawTevStage_unk* st = &desc->m194[last];
+        GXSetTevColorOp(last, st->m28, st->m2C, mat->m34, st->m34, st->m38);
     }
     fn_80076BE4(lbl_8087EEE0, vtx);
     for (; arrays->m00 != 0xFF; arrays++) {
@@ -1143,21 +1143,22 @@ void fn_8009DE60(DrawCmd_unk* cmd, float dist) {
     sShadowRecv_unk = 0;
 }
 
-static inline const float& MaxF_unk(const float& a, const float& b) { return a > b ? a : b; }
 
-// NONMATCHING: 87.64% - order of the copies of the light set and of the scale vector
+// NONMATCHING: 96.75% - stack slots of the temporaries of the three column lengths and of the centre, and
+// the copy of the callbacks (one word at a time in the original)
 DrawEntry_unk::DrawEntry_unk(atn::LH_Model* model, Mtx* mtx, Mtx* nodes, int m18, DrawColor_unk* color,
                              DrawMaterials_unk* mats, DrawRemap_unk* remap, const atn::Sphere* sphere, int* m40,
                              unsigned int flags, atn::Scene* lens, int m98, const DrawCallback_unk* cb)
     : m00(-1), m04(flags), m08(model), m10(mtx), m14(nodes), m18(m18), m1C(color), m20(mats), m24(remap), m28(0),
       m30(*sphere), m40(m40), m44(0), m48(0), m4C(0), m50(0), m54(0), m58(0), m5C(0),
       m60(), m84(lens), m88(*cb), m98(m98) {
-    m0C = (DrawModel_unk*)model->fn_80475DF8();
+    m0C = (DrawModel_unk*)m08->fn_80475DF8();
     Mtx& m = *m10;
     atn::Vector3 scale(atn::Vector3(m[0][0], m[1][0], m[2][0]).Length_unk(),
                        atn::Vector3(m[0][1], m[1][1], m[2][1]).Length_unk(),
                        atn::Vector3(m[0][2], m[1][2], m[2][2]).Length_unk());
-    m2C = MaxF_unk(scale.x, MaxF_unk(scale.y, scale.z));
+    // inferred: MAX macro (the inner maximum is evaluated twice in the original)
+    m2C = MAX(scale.x, MAX(scale.y, scale.z));
     if (m30.mRadius < 15.0f || (m04 & 4) == 4) {
         m28 = 1;
     }

@@ -251,10 +251,10 @@ inline DrawCmd_unk::DrawCmd_unk() {
     m18 = 0;
     m1C = 0;
     m20 = 0;
-    m24.m[0] = 1.0f;
-    m24.m[1] = 1.0f;
-    m24.m[2] = 1.0f;
-    m24.m[3] = 1.0f;
+    m24.r = 1.0f;
+    m24.g = 1.0f;
+    m24.b = 1.0f;
+    m24.a = 1.0f;
     m34 = 0;
     m38 = (void*)lbl_8087D81C;
     m3C.mFunc1 = 0;

@@ -1450,7 +1450,7 @@ CharaLightData_unk* lbl_8087EEEC; // inferred: projector of the effect of flag b
 
 // inferred: sets up the TEV for a material and the effects of the flags (bit 0: texture coordinates
 // split by type; bits 1-5: effects added after the material). The last setup is cached in the device.
-// NONMATCHING: 98.55% - the original recomputes the row of sTevCosts (mulli) for the coordinate sum of mode 1/2; order of the cache stores
+// NONMATCHING: 99.28% - the original recomputes the row of sTevCosts (mulli) for the coordinate sum of mode 1/2; order of the cache stores
 extern "C" void fn_80074EC8(GraphicsDevice_unk* device, const atn::ShaderDesc_unk* desc, int flags,
                             CharaLightData_unk* light, CharaLightData_unk* light2, atn::ShadowMap_unk* shadow) {
     if (lbl_8087EFA8->m204 != 0 && device->mShaderDesc != 0 && device->mShaderDesc == desc && device->mShaderFlags == flags &&
@@ -1592,11 +1592,9 @@ extern "C" void fn_80074EC8(GraphicsDevice_unk* device, const atn::ShaderDesc_un
                 device->mShaderFlags &= ~2;
             }
         } else if (flags & 0x10) {
-            int mode;
+            int mode = 1;
             if (lbl_8087EFA8->m18C != 0) {
                 mode = 2;
-            } else {
-                mode = 1;
             }
             if (FitsTev_unk(&stats, mode)) {
                 if (mode == 2) {
@@ -1971,18 +1969,18 @@ extern "C" void fn_80076BE4(GraphicsDevice_unk* device, const VtxFormat_unk* for
 }
 
 // inferred: finds or adds a vertex format in the cache; returns its index
-extern "C" int fn_80076C44(GraphicsDevice_unk* device, const VtxFormat_unk* format) {
+extern "C" int fn_80076C44(GraphicsDevice_unk* device, const VtxFormat_unk& format) {
     int freeSlot = 256;
     for (int i = 0; i < 256; i++) {
         if (freeSlot == 256 && device->mVtxFormats[i].mFormat == 0) {
             freeSlot = i;
         }
-        if (device->mVtxFormats[i].mFormat != 0 && fn_80071088(format, device->mVtxFormats[i].mFormat)) {
+        if (device->mVtxFormats[i].mFormat != 0 && fn_80071088(&format, device->mVtxFormats[i].mFormat)) {
             device->mVtxFormats[i].mRefs++;
             return i;
         }
     }
-    device->mVtxFormats[freeSlot].mFormat = new ((MemoryTag)6, "", "", 0) VtxFormat_unk(*format);
+    device->mVtxFormats[freeSlot].mFormat = new ((MemoryTag)6, "", "", 0) VtxFormat_unk(format);
     device->mVtxFormats[freeSlot].mRefs = 1;
     return freeSlot;
 }
