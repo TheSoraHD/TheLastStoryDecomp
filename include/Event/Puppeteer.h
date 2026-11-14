@@ -25,6 +25,13 @@ public:
     }
     T* GetTarget_unk() { return m48; } // inferred: weak copy 0x8000DE3C for CharaTask
     void SetFlag0_unk(int on) { m4C_0 = on != 0; } // inferred: inlined in Event::Actor::fn_8001256C
+    // inferred: inlined in Event::Actor::fn_8001122C (names invented)
+    void SetMtx_unk(const atn::Matrix3x4& mtx) { m58 = atn::Matrix3x4(mtx); }
+    void SetNode_unk(MtxPtr node, int keepPos, int keepRot) {
+        m54 = (atn::Matrix3x4*)node;
+        mB8 = keepPos;
+        mB9 = keepRot;
+    }
     virtual int vf0C();
     virtual void vf10();
     virtual void vf14();

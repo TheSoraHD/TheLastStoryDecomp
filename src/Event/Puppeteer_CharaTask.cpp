@@ -1091,25 +1091,20 @@ atn::Vector3 Actor::fn_80010B68() const {
 }
 
 // inferred: places the actor on the matrix `mtx`, optionally relative to the node matrix `node`
-// NONMATCHING: the original keeps the compares of the empty cases 2 and 4 and copies the matrix through a
-// stack copy interleaved with the stores to m58 (probably inlines that are not known)
+// NONMATCHING: 58.8% - the original keeps the compares of the empty cases 2 and 4 and copies the matrix
+// with the six loads first and the stores to the stack temporary interleaved with those to m58
 void Actor::fn_8001122C(MtxPtr node, int arg2, int arg3, const atn::Matrix3x4& mtx) {
     switch (m20) {
     case 7:
     case 1: {
-        atn::Matrix3x4 m(mtx);
-        ((Puppeteer<CharaTask>*)m1C)->m58 = m;
-        ((Puppeteer<CharaTask>*)m1C)->m54 = (atn::Matrix3x4*)node;
-        ((Puppeteer<CharaTask>*)m1C)->mB8 = arg2;
-        ((Puppeteer<CharaTask>*)m1C)->mB9 = arg3;
+        ((Puppeteer<CharaTask>*)m1C)->SetMtx_unk(mtx);
+        ((Puppeteer<CharaTask>*)m1C)->SetNode_unk(node, arg2, arg3);
         break;
     }
     case 2:
         break;
     case 3:
-        ((Puppeteer<atn::Model>*)m1C)->m54 = (atn::Matrix3x4*)node;
-        ((Puppeteer<atn::Model>*)m1C)->mB8 = arg2;
-        ((Puppeteer<atn::Model>*)m1C)->mB9 = arg3;
+        ((Puppeteer<atn::Model>*)m1C)->SetNode_unk(node, arg2, arg3);
         break;
     case 4:
         break;
