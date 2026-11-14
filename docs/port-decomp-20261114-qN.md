@@ -83,13 +83,17 @@ Unidades: `game/BattleTask`, `game/BattleCharaTask`, `game/AiTarget`, `chr/Contr
   hueco sale sola. Renumera `@N` de BattleResult, GameTask, GameEventScript y BattleCharaTask (maprelabel, 205).
   `GameEventScript::fn_803A6B9C` (cola ajena, mismo `AddItem_unk`) sube 92,3 -> 93,6 % sin tocarlo (su
   comentario sigue diciendo 92,3 %).
+- Cadenas `""` sin referencias en el pool del original (tras "%.2f", "Timer:%d/%d", "Range: %d",
+  "Range: Infinity", "HateAtt: Lv%d" de vf14): los formatos acaban en `\0` (`"%.2f\0"`), como los de
+  `fn_800F39A4`. `fn_80100BF0` (99,4 %) y `fn_801061BC` (99,95 %) -> **100 %** (solo eran offsets del pool).
+  BattleTask 161 -> 163/212.
 - Intentado sin exito: `fn_800FDB20` con constructor inline en `BattleDamage_unk` (baja), `asgwrap` en
   `fn_800E932C` (sin mejora), `fn_800F72F4` separando el `||` de la salida temprana (baja).
 
 ## Resumen de cifras
 
-- Funciones al 100 % (report.json): 15396 -> 15403 (mas `fn_800EBD00`, que report.json ya daba al 100 % por
-  etiqueta). BattleTask 156 -> 161/212, BattleCharaTask 69 -> 71/88, AiTarget 34 -> 35/44. lost 0, sin bajadas.
+- Funciones al 100 % (report.json): 15396 -> 15405 (mas `fn_800EBD00`, que report.json ya daba al 100 % por
+  etiqueta). BattleTask 156 -> 163/212, BattleCharaTask 69 -> 71/88, AiTarget 34 -> 35/44. lost 0, sin bajadas.
 
 ## Cambios de firma o de layout (para el port)
 
@@ -107,10 +111,9 @@ Unidades: `game/BattleTask`, `game/BattleCharaTask`, `game/AiTarget`, `chr/Contr
 ## Pendientes
 
 - `game/GameUI.cpp` (`GetCursorTarget_unk`) usa `RayObj_unk`: cambiarlo a `atn::ColliBase*` y quitar el typedef.
-- BattleTask vf14: el original tiene 5 cadenas `""` sin referencias en `@stringBase0` (tras "%.2f",
-  "Timer:%d/%d", "Range: %d", "Range: Infinity", "HateAtt: Lv%d"); faltan en el nuestro y desplazan 5 bytes las
-  cadenas siguientes: por eso `fn_80100BF0` (99,4 %), `fn_801061BC` (99,95 %) y otras no llegan. Origen sin
-  encontrar (no es `char text[] = ""`; quiza un macro de depuracion con "" que el optimizador quita).
+- BattleTask: al final de `@stringBase0` faltan 3 cadenas de `basic_string` ("basic_string::reserve
+  length_error", "basic_string: out_of_range", "basic_string: length_error") y "Event::ActionProcessor"
+  (`poolorder.py`): plantillas de `std::string` o RTTI que nuestro fuente no instancia.
 - `BattleCharaTask::fn_800E9110` (98,7 %): `CharaStatus::m2CC` + `m2D0[4]` son un `FixedArray_unk<
   CharaStatusPair_unk, 4>` en el original (base 0xAA0 = &mStatus.m2CC). Toca `game/CharaStatus.h` (~200
   unidades): no hecho.
@@ -129,5 +132,6 @@ Unidades: `game/BattleTask`, `game/BattleCharaTask`, `game/AiTarget`, `chr/Contr
 - MWCC pela la primera iteracion de los bucles de construccion de arrays de clases con constructor inline.
 - objdiff no ve el valor de las constantes: `valdiff` encontro un 0.0f por 1.0f (funcion "al 99,95 % por el
   pool"), argumentos desordenados y un 3.0f por 2.0f.
+- Una cadena `""` sin referencias tras un formato en el pool del original = el formato acaba en `\0`.
 - Una recarga del contador entre la comprobacion y la direccion del hueco = la comprobacion pasa por un accesor
   inline (`ItemCount_unk()`).
