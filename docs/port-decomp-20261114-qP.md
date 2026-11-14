@@ -27,6 +27,14 @@ Rama `agent-P`. Referencia: `report.json` de `$REF` (15401).
   `"seatpoint"` (`GetNodeMtx_unk`), no `"set_y"`/`"z"` (offsets 0x48/0x55 del pool del original). **Port**: el
   mismo error en `src/Event/Puppeteer_CharaTask.cpp` lineas 861 y 887.
 
+- `Actor::fn_8001122C` 50,3 -> 58,8 %: inlines `Puppeteer::SetMtx_unk`/`SetNode_unk` (nuevas en
+  `Event/Puppeteer.h`, que solo incluye esta unidad): la recarga de `m1C` del original sale igual.
+- `Actor::fn_8000F1EC` 96,3 -> 96,7 %: las pruebas de `mFlag3`/`mFlag5` por `CharaTask::IsFlag3_unk`/`IsFlag5_unk`
+  (el original recarga la palabra para borrar el bit).
+- Pendiente: `Actor::fn_8000FAE8` guarda `m18_22 == 1` en `CharaTask::m1220.m10` sin mascara de 8 bits
+  (`cntlzw; srwi 5; stb`): apunta a que `MotionCommand_unk::m10` es `bool`, no `unsigned char`
+  (`game/CharaTask.h`, 217 unidades: no tocado).
+
 ### Event/ActionActorPosition (34/51 al 100 %, sin cambios; solo NONMATCHING)
 
 - `ActionActorEyes::fn_80553A74` 95,8 -> 98,5 %, `ActionActorEyes::vf08` 92,4 -> 94,8 %, `ActionActorEyes::vf0C`
@@ -72,6 +80,14 @@ Rama `agent-P`. Referencia: `report.json` de `$REF` (15401).
 
 - `dtor_80014250` (0 %): destructor de un `{T* m00; int m04}` con `delete` escalar que solo usa MSL `locale.cpp`
   (tabla de excepciones); sin tipo en el juego del que sacarlo, sin escribir.
+
+## Para el port (enlace)
+
+- `fn_8000D9E8`/`fn_8000DB1C` (Puppeteer_CharaTask) y `fn_80011220` son `extern "C" inline`: con otro compilador
+  no se emiten fuera de linea y los llamadores de otras unidades (game/GameUI, Em306GurgBeast, Em312DarkServant)
+  quedan como stubs en `stubs_auto.S`. Ademas GameUI llama `fn_8000D9F8`, que ahora es
+  `CharaTask::GetCharaNo_unk` (nombre viejo).
+- `fn_8000D844` (ActionActorPosition y Em403WarLion): nombre inexistente, ver arriba.
 
 ## Decisiones sin el usuario
 
