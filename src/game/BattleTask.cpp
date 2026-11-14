@@ -1745,6 +1745,7 @@ inline void MeleeSwap_unk(T& a, T& b) {
 }
 
 // inferred: MSL __sort3 (median of three of std::sort, 0x800FA9F4; iterators by reference)
+// NONMATCHING: 76.8% - order of the comparisons and of the swaps of the 12-byte elements
 template <class T, class Compare>
 void MeleeMedian3_unk(T*& a, T*& b, T*& c, Compare& comp) {
     bool ac = !comp(*c, *a);
@@ -1768,6 +1769,8 @@ void MeleeMedian3_unk(T*& a, T*& b, T*& c, Compare& comp) {
 
 // inferred: MSL __sort (std::sort, 0x800FA4FC): selection sort up to 20 elements, else quicksort around the
 // median of three entries picked with a rotating offset (as Sort_unk of atn/RenderSystem_unk.cpp)
+// NONMATCHING: 64.5% - the original keeps the iterators in memory (references) and inlines the selection sort
+// differently
 template <class T, class Compare>
 void MeleeSort_unk(T*& first, T*& last, Compare& comp) {
     static int sOffset = -4; // inferred: lbl_8087D978
@@ -1900,9 +1903,8 @@ inline void PlayRowEffect_unk(int id, atn::Model* model, const atn::Vector3& pos
     }
 }
 
-// NONMATCHING: draft - the push_back of the target vector is inlined in the original with the MSL growth
-// (length checks with fprintf/abort); written from the assembly, not compared yet
-// DRAFT: equivalent version, not compared instruction by instruction
+// NONMATCHING: 88.5% - the push_back of the target vector is inlined in the original with the MSL growth (length
+// checks with fprintf/abort, our std/vector.h calls its helpers), and registers
 // inferred: melee attack `data` of `chara` (arc turned by `angle` from its facing): every player and enemy reached
 // (fn_800FBA9C) is sorted by its distance weighted by the angle (3 - 2 cos) and hit in that order (fn_800FC410), at
 // most `max` of them (all when negative), writing the attacker and the damage of each hit in `out` (up to
