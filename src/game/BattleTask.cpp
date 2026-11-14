@@ -3288,7 +3288,7 @@ struct HitDamage_unk : public BattleDamage_unk {
     }
 };
 
-// NONMATCHING: 95.7% - the original keeps the bools of the inlined CanAct_unk/IsFree_unk (li/cmpwi), stack slots of
+// NONMATCHING: 96.0% - the original keeps the bools of the inlined CanAct_unk/IsFree_unk (li/cmpwi), stack slots of
 // several blocks (the head shot locals at 0x50/0x5C) and of the HitPos_unk temporaries
 // inferred: applies the attack `param` (attacker m00, target m04, bullet m08): back attacks (m0C 0x10), head shots
 // (0x80000000), guard/critical/status flags, steal of the target's item (status 0x3C), drain (0x31, 0x23, 7, 8, 9,
@@ -3360,7 +3360,7 @@ int BattleTask::fn_800FDF14(BattleCalcParam_unk* p) {
                                 entry->m92E = 1;
                                 fn_80109864((SpEffect_unk*)attacker->mStatus.fn_80133EE8(0x3C), attacker);
                                 wchar_t text[256];
-                                fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0x1F), attacker->m60->m04, data->mName, count);
+                                fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0x1F), attacker->GetInfo_unk()->m04, data->mName, count);
                                 if (lbl_8087F0A8->m06C > 0 && LogMessageTask::sInstance != 0) {
                                     LogMessageTask::sInstance->fn_8047961C(text, -0x3301, 0, 0);
                                 }
@@ -3470,7 +3470,7 @@ int BattleTask::fn_800FDF14(BattleCalcParam_unk* p) {
                 ClearHitFlag_unk(p, 0x2000000);
             }
         }
-        if (p->m64 != 1 || (p->m94 & 0x8000) == 0x8000) {
+        if (p->m64 != 1 || (p->m94 & 0x8000u) == 0x8000u) {
             attacker->mStatus.mEntries.mCount = 0;
             ClearHitFlag_unk(p, 0x2000000);
         }
@@ -3577,7 +3577,7 @@ int BattleTask::fn_800FDF14(BattleCalcParam_unk* p) {
             if (attacker != 0 && attacker->mType == 0 && attacker->m648 != 0 && attacker->m648->m04 != 1) {
                 value = 200;
             }
-            if ((m38A5C.m94 & 0x10) == 0x10) {
+            if ((m38A5C.m94 & 0x10u) == 0x10u) {
                 value <<= 1;
             }
             if (attacker != 0 && attacker->mFlag28) {
@@ -3754,7 +3754,7 @@ int BattleTask::fn_800FDF14(BattleCalcParam_unk* p) {
         float add = m38A24 * (target->mFlag28 ? m38A38 : 1.0f);
         m38A04 = MAX(0.0f, MIN(m38A04 + add, m38A0C));
     }
-    if (attacker != 0 && !(p->m80 >> 31) && p->m44 == 0 && (target->m5C->mParam.m9C & 0x8000) == 0x8000) {
+    if (attacker != 0 && !(p->m80 >> 31) && p->m44 == 0 && (target->m5C->mParam.m9C & 0x8000u) == 0x8000u) {
         attacker->mStatus.fn_8012F440(0x400000, 0, 0, 0, 0, 0, 1);
     }
     if (lbl_8087F610 != 0 && attacker != 0 && attacker->m648 != 0 && p->m44 == 0 && attacker->m648->m28C != 0) {

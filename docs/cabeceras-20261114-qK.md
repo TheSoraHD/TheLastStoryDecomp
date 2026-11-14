@@ -25,13 +25,18 @@
   funcion) renumera los `@N` de la unidad: hace falta `precommit.sh --pd`. Ademas, el par duplicado `@37207`
   (0x8088157C/0x80881580, dos nombres iguales en symbols.txt, de antes) no lo arregla pd: renombrado a mano.
 
-### 3. `fn_800FDF14` 94,3 -> 95,7 %
+### 3. `fn_800FDF14` 94,3 -> 96,0 %
 - El marco de pila 0x100 mayor venia de que MWCC convertia en escalares el `HitDamage_unk` del bloque de la
   absorcion de odio (nunca se pasa por direccion): pasando `damage.m04` (y no `heal`) a `fn_8012DF7C` el struct
   queda en memoria y el marco es 0x450 como el original (94,27 -> 94,38).
 - `HitPos_unk(CharaTask*, const int& index)`: el original relee `p->m40` en la segunda llamada (94,38 -> 94,99).
 - Textos de los paneles `hpUpNum`/`hpUpSubNum` por una inline de fichero `SetPaneText_unk` (el layout se evalua
-  antes del hash, como `SetPaneValue_unk`) (-> 95,59); `radius` antes de `d` en el tiro a la cabeza (-> 95,65).
+  antes del hash, como `SetPaneValue_unk`) (-> 95,59); `radius` antes de `d` en el tiro a la cabeza (-> 95,65);
+  `attacker->GetInfo_unk()->m04` en el mensaje del robo (el original carga `m60` antes del texto, -> 95,75);
+  literales sin signo en `(p->m94 & 0x8000u) == 0x8000u`, `(m38A5C.m94 & 0x10u) == 0x10u` y `m9C & 0x8000u`
+  (el original compara con `cmplwi` y sin el `addis r0, r3, 0` del nuestro, -> 95,95).
+- `target->vf3C(p)`: el original pone `r5 = 1` antes de la llamada (vf3C con un segundo argumento?); no se toca
+  (firma compartida de `CharaTask`, port).
 - Queda: booleanos materializados del original en `CanAct_unk`/`IsFree_unk` (li/cmpwi; el nuestro los pliega),
   ranuras de pila de varios bloques (en el original los locales del tiro a la cabeza estan en 0x50/0x5C) y la
   temporal de `HitPos_unk` (0xA0 frente a 0x88).
