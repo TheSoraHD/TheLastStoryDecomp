@@ -20,6 +20,7 @@
 #include "atn/Light_unk.h"
 #include "atn/DrawEntry_unk.h"
 #include "atn/DrawHelper.h"
+#include "atn/EulerToQuat_unk.h"
 
 extern "C" char* strcpy(char* dst, const char* src);
 extern "C" int strcmp(const char* a, const char* b);
@@ -99,7 +100,7 @@ extern "C" void fn_800910D4(atn::Matrix3x4** out, const atn::Matrix3x4* mats, co
 #include "atn/MotionCmd_unk.h"
 extern "C" void fn_800A0A68(atn::MotionCmd_unk* cmd, atn::Model* model, const atn::LH_Motion* src); // inferred: copies
 extern "C" float fn_800A08D4(atn::LH_Motion* motion); // inferred: length of the motion
-extern "C" void fn_800991D0(atn::Model* model, int advance); // inferred: applies the node edits/physics (not written)
+extern "C" void fn_800991D0(atn::Model* model, int advance); // inferred: samples the additive tracks 4 and 5
 
 namespace atn {
 
@@ -116,27 +117,6 @@ inline atn::Vector3 ModelJoint_unk::GetRot_unk() const {
 
 inline atn::Vector3 ModelJoint_unk::GetTrans_unk() const {
     return m4C;
-}
-
-// inferred: rotation from euler angles (same as Quaternion_unk::fn_801498F0 of game/CharaTask.cpp); name
-// invented
-inline Quaternion_unk EulerToQuat_unk(const Vector3& rot) {
-    Quaternion_unk q;
-    float rx = rot.x;
-    float ry = rot.y;
-    float rz = rot.z;
-    float cx, cy, cz;
-    float sx, sy, sz;
-    nw4r::math::SinCosRad(&sx, &cx, rx / 2.0f);
-    nw4r::math::SinCosRad(&sy, &cy, ry / 2.0f);
-    nw4r::math::SinCosRad(&sz, &cz, rz / 2.0f);
-    float cycz = cy * cz;
-    float sysz = sy * sz;
-    q.w = cx * cycz + sx * sysz;
-    q.x = sx * cycz - cx * sysz;
-    q.y = cz * (cx * sy) + sz * (sx * cy);
-    q.z = sz * (cx * cy) - cz * (sx * sy);
-    return q;
 }
 
 inline NodeWork_unk::NodeWork_unk() {
@@ -3067,6 +3047,98 @@ extern "C" void fn_80099010(MotionPose_unk* pose, const ModelJoint_unk* joint) {
     if ((pose->m00 & 4) != 4) {
         pose->mScale = joint->GetScale_unk();
         pose->m00 |= 4;
+    }
+}
+
+extern "C" int fn_800A0548(atn::LH_Motion* motion, MotionPose_unk* pose, unsigned int hash, atn::NodeWork_unk* work,
+                           float frame); // inferred: samples a motion on a node by name hash (atn/Motion_unk.cpp)
+
+// inferred: samples the additive tracks 4 and 5 (after the main tracks and the fading track 3): with full weight
+// the motion replaces the node poses, else it is blended in with the track weight m10 (and the previous motion
+// m24 with its weight m2C while it fades out); the parts the motion does not set come from the bind pose of the
+// joint (fn_80099010). After track 4 the node pose callback m370 runs. extern "C" with the model first: as a
+// member it would need a new declaration in atn/Model_unk.h
+// NONMATCHING: 99.6% - registers of the index and of the inlined fn_80099010 (r23/r22 in the original) and the
+// loop invariant stack addresses kept in saved registers
+extern "C" void fn_800991D0(atn::Model* model, int advance) {
+    using namespace atn;
+    const int* remap;
+    ModelBase::Res_unk* res = (ModelBase::Res_unk*)model->mLods[model->m50].m08;
+    remap = model->mLods[model->m50].m10.mData;
+    MotionPose_unk pose;
+    MotionPose_unk prev;
+    float speed = lbl_8087EFA8->m3A4;
+    float dt = model->m350 * speed;
+    for (int i = 4; i <= 5; i++) {
+        Model::Track_unk* t = &model->mTracks[i];
+        LH_Motion* motion = t->m04;
+        if (motion != 0) {
+            if (advance) {
+                t->m10 += t->m14;
+            }
+            if (t->m10 > t->m1C) {
+                t->m10 = t->m1C;
+            }
+            if (advance) {
+                t->m2C -= t->m14;
+            }
+            if (t->m2C < 0.0f) {
+                t->m2C = 0.0f;
+                t->m24 = 0;
+            }
+            bool full = Abs_unk(t->m10 - 1.0f) < 1.1920929e-7f;
+            for (int j = 0; j < res->m44; j++) {
+                ModelBase::NodeRes_unk* joint = res->m48[j];
+                int index = (remap != 0) ? remap[joint->m18] : joint->m18;
+                if (full) {
+                    fn_800A0548(motion, &model->m21C.mData[index], joint->m14, &model->m214.mData[index], t->m08);
+                    continue;
+                }
+                pose.m00 = 0;
+                if (fn_800A0548(motion, &pose, joint->m14, &model->m214.mData[index], t->m08) == 0) {
+                    continue;
+                }
+                fn_80099010(&model->m21C.mData[index], joint);
+                fn_80099010(&pose, joint);
+                if (t->m24 != 0 && t->m2C > 0.0f) {
+                    prev.m00 = 0;
+                    if (fn_800A0548(t->m24, &prev, joint->m14, &model->m214.mData[index], t->m28) != 0) {
+                        fn_80099010(&prev, joint);
+                        fn_80098948(&model->m21C.mData[index], 1, &model->m21C.mData[index], &prev, t->m2C);
+                    }
+                }
+                fn_80098948(&model->m21C.mData[index], 1, &model->m21C.mData[index], &pose, t->m10);
+            }
+            if (advance) {
+                t->m08 += t->m0C * dt;
+            }
+            if (t->m18 && t->m08 >= fn_800A08D4(motion)) {
+                t->m08 -= fn_800A08D4(motion);
+            }
+        } else if (t->m24 != 0) {
+            if (advance) {
+                t->m2C -= t->m14;
+            }
+            if (t->m2C < 0.0f) {
+                t->m2C = 0.0f;
+                t->m24 = 0;
+                continue;
+            }
+            for (int j = 0; j < res->m44; j++) {
+                ModelBase::NodeRes_unk* joint = res->m48[j];
+                int index = (remap != 0) ? remap[joint->m18] : joint->m18;
+                pose.m00 = 0;
+                if (fn_800A0548(t->m24, &pose, joint->m14, &model->m214.mData[index], t->m28) == 0) {
+                    continue;
+                }
+                fn_80099010(&model->m21C.mData[index], joint);
+                fn_80099010(&pose, joint);
+                fn_80098948(&model->m21C.mData[index], 1, &model->m21C.mData[index], &pose, t->m2C);
+            }
+        }
+        if (i == 4 && model->m370) {
+            model->m370((MotionBuffer*)model->m21C.mData, model->GetRes_unk()->m44);
+        }
     }
 }
 

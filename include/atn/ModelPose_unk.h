@@ -25,14 +25,15 @@ struct ModelJoint_unk {
     int m24;          // inferred: next sibling (-1: none)
     unsigned char m28[0x2C - 0x28];
     int m2C; // inferred: nonzero when the joint has meshes (atn::Model fn_8008EEDC)
-    unsigned char m30[0x34 - 0x30];
+    int m30; // inferred: nonzero: the joint does not inherit the scale of its parent (only its position is scaled)
     atn::Vector3 m34; // inferred: initial scale
     atn::Vector3 m40; // inferred: initial rotation (euler)
     atn::Vector3 m4C; // inferred: initial position
     atn::Vector3 m58; // inferred: bounding box of the meshes of the joint (min, max; fn_8008EEDC)
     atn::Vector3 m64;
     int m70; // inferred: > 0 for the joints kept by atn::LoadModel (atn/LH_Model.cpp)
-    // inferred: bind pose by value (defined in atn/Model.cpp, used by fn_80099010); names invented
+    // inferred: bind pose by value (defined in atn/Model.cpp and atn/BoneCalc_unk.cpp, used by fn_80099010 and
+    // the joint walks); names invented
     inline atn::Vector3 GetScale_unk() const;
     inline atn::Vector3 GetRot_unk() const;
     inline atn::Vector3 GetTrans_unk() const;
@@ -120,8 +121,9 @@ struct ModelPose_unk {
 };
 
 // inferred: joint walks of atn/BoneCalc_unk.cpp
-extern "C" void fn_8009A5CC(ModelPose_unk* pose, int joint, const atn::Matrix3x4* parent, int arg);
+// (the parameter names are kept: removing them renumbers the @N and @enum$N of every unit that includes this)
+extern "C" void fn_8009A5CC(ModelPose_unk* pose, int joint, const atn::Matrix3x4* parent, const atn::Matrix3x4* scale);
 extern "C" void fn_8009ADA4(ModelPose_unk* pose, int joint, const atn::MotionBuffer* motion, const atn::Matrix3x4* parent,
-                            int arg);
+                            const atn::Matrix3x4* scale);
 
 #endif
