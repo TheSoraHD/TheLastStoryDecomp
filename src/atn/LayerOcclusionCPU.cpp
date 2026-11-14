@@ -134,9 +134,7 @@ public:
 
 } // namespace atn
 
-// NONMATCHING: not decompiled - handwritten paired-single assembly (polygon clipping with
-// ps_madds0/fres and mcrf)
-// inferred: clips the polygon `in` (count vertices) by `plane` into `out`
+// inferred: clips the polygon `in` (count vertices) by `plane` into `out` (see the definition)
 extern "C" void fn_800B4390(const Plane_unk* plane, const atn::Vector3* in, int count, atn::Vector3* out,
                             int* outCount);
 // inferred: draws the triangles of an occluder (see the definition)
@@ -184,6 +182,9 @@ static void fn_800B3978(float* dst, const float* src, int w, int h) {
 // by the __sinit at 0x800B6684) and the index of each slot (0xFFFF: empty)
 atn::Vector3 lbl_807C74A0[16];
 unsigned short lbl_807C7560[16];
+// inferred: (0, 1) pair loaded by fn_800B4390: 0 is the threshold of the plane side, 1 the w of the
+// vertices
+extern "C" float lbl_807790A8[2] = {0.0f, 1.0f};
 static bool sTexReady;
 static unsigned char* sTexData;
 static GXTexObj sTexObj;
@@ -282,6 +283,41 @@ void LayerOcclusionCPU::vf20() {
         fn_800C0D4C(sTexData, 1, 32, 32);
         lbl_8087EEB0->fn_8005DF90(-1, &sTexObj, 0, 16.0f, 32.0f, 0.0f, 128.0f, 128.0f);
     }
+}
+
+// NONMATCHING: written as C++ - the original is handwritten paired-single assembly (mfcr/mtcrf,
+// ps_cmpo0, mcrf, ps_madds0, the intersection divides with fres), not approved
+// inferred: Sutherland-Hodgman step: clips the convex polygon `in` (count vertices) by `plane` and
+// writes the part on the negative side of the plane (n.p + d < 0) to `out` and its vertex count to
+// `outCount`
+extern "C" void fn_800B4390(const Plane_unk* plane, const atn::Vector3* in, int count, atn::Vector3* out,
+                            int* outCount) {
+    int n = 0;
+    const atn::Vector3* prev = in;
+    float dPrev = -(plane->mNormal.x * prev->x + plane->mNormal.y * prev->y + plane->mNormal.z * prev->z +
+                    plane->mDist * lbl_807790A8[1]);
+    for (int i = 1; i <= count; i++) {
+        const atn::Vector3* cur = i == count ? in : &in[i];
+        float dCur = -(plane->mNormal.x * cur->x + plane->mNormal.y * cur->y + plane->mNormal.z * cur->z +
+                       plane->mDist * lbl_807790A8[1]);
+        bool prevIn = lbl_807790A8[0] < dPrev;
+        bool curIn = lbl_807790A8[0] < dCur;
+        if (prevIn != curIn) {
+            float t = dPrev / (dPrev - dCur);
+            out->x = prev->x + (cur->x - prev->x) * t;
+            out->y = prev->y + (cur->y - prev->y) * t;
+            out->z = prev->z + (cur->z - prev->z) * t;
+            out++;
+            n++;
+        }
+        if (curIn) {
+            *out++ = *cur;
+            n++;
+        }
+        prev = cur;
+        dPrev = dCur;
+    }
+    *outCount = n;
 }
 
 void LayerOcclusionCPU::fn_800B448C(const OccTree_unk* tree, void* frustum, int index) {
