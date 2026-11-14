@@ -2,6 +2,22 @@
 
 Inicio 2026-11-14 04:41.
 
+## Resumen (antes -> despues, objdiff)
+
+| Funcion | Antes | Despues |
+|---|---|---|
+| `LoadModel::fn_80474F0C` (0x80474F0C) | sin escribir | 98,55 % (equivalente) |
+| `fn_8009BB9C` (0x8009BB9C) | 95,64 % | 95,64 % (equivalente, solo registros) |
+| `fn_8009B9E8` (0x8009B9E8) | 98,30 % | 98,30 % (equivalente, solo registros) |
+| `fn_8009D58C` (0x8009D58C) | 83,57 % | 94,56 % (equivalente) |
+| `fn_8009BF3C` (0x8009BF3C) | 99,99 % | 99,99 % (una constante `.sdata2` de menos) |
+| `fn_8009DE60` (0x8009DE60) | 97,48 % | 99,04 % (**fallo de offsets corregido**) |
+| ctor `DrawEntry_unk` (0x8009E1E4) | 89,56 % | 96,75 % (equivalente) |
+| `fn_80074EC8` (0x80074EC8) | 98,55 % | 99,28 % (equivalente) |
+| `fn_80073194`, `fn_80073A6C`, `fn_800742C8`, `fn_800748D8`, `fn_80074B24` | 96,99-99,88 % | igual (equivalentes) |
+
+Ninguna llega al 100 %: lo que queda es reparto de registros/pila. `report.json`: 15392 / 18109, lost 0.
+
 ## Resultado por funcion
 
 - `atn::LoadModel::fn_80474F0C` (0x80474F0C, 3820 bytes, formatos y arrays de vertices): escrita (antes sin
@@ -93,6 +109,20 @@ Inicio 2026-11-14 04:41.
 
 - `src/atn/ModelDraw_unk.cpp`: `DrawDesc_unk` = etapas en `m194[16]` (antes `m194` relleno + `m1BC_pad[1]`),
   `DrawTevStage_unk` con los campos a 0x28/0x2C/0x34/0x38.
+
+## Pistas para el port (rayas y prismas)
+
+- Prismas: con skinning (`mesh->m14 == -1`) cada vertice manda su `GX_VA_PNMTXIDX` (tipo 4 de la descripcion
+  de la malla, `GX_DIRECT`) y `fn_8009B9E8` carga hasta 10 matrices en `PNMTX0..9` (ids `3*i`). Si el backend
+  ignora el indice por vertice, todo sale con PNMTX0. Ojo tambien con la cache `int cache[10]` (a -1 por
+  malla en `fn_8009DE60`): salta las cargas repetidas.
+- Rayas: los tipos 5 de la descripcion son `GX_VA_TEX0MTXIDX + n` directos por vertice; con luz,
+  `fn_8009B9E8` carga la normal de cada hueso tambien como matriz de textura `30 + 3*i` (GX_TEXMTX0..9), y
+  `fn_80074EC8` (dual) usa `texGen.mMtx` + post `0x40 + 3k` en los tipos 1-4 y `GX_IDENTITY` + post en el tipo
+  0. Si el backend no aplica el `TEXnMTXIDX` por vertice ni las matrices posteriores (dual tex), las
+  coordenadas salen mal. En `LoadModel` el formato de cada `TEXn` sale del **primer** atributo de su stream
+  (tipo, `frac`) y el paso es `2 * tamano`; las tablas de tipos tienen 11 entradas (no 9).
+- `fn_8009DE60` del port lee mal la ultima etapa TEV (ver arriba): corregir `DrawDesc_unk`/`DrawTevStage_unk`.
 
 ## Decisiones tomadas sin el usuario
 
