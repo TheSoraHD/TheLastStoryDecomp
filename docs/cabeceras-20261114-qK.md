@@ -67,6 +67,9 @@
   quedan por debajo de todo; en el nuestro, por encima de las temporales) y 0x30 bytes sin usar en 0xD8 de
   fn_800FC410.
 
+- `fn_800FD658` 93,44 -> 99,75 %: `atn::Vector3(-n.x, -n.y, -n.z)` en lugar de `-n` (el `operator-` unario no se
+  expandia: llamada a `__mi__Q23atn7Vector3CFv`; el original niega en linea, como en fn_800FC410).
+
 ### Otras probadas sin exito
 - `fn_80105DCC` y `fn_800FB1BC`: el original carga `lbl_8087F3C0` antes de elegir el EFP / de los argumentos (la
   llamada escrita a mano o el color temporal empeoran); `fn_80106878`: marco 0x10 mayor (orden de la temporal
@@ -77,7 +80,7 @@
 ## Resumen de cifras
 - BattleTask: 165 -> 168 / 212 funciones al 100 % (`fn_801002DC`, `fn_800F80B8`, `fn_800F8290`; `report.json`
   15447 -> 15450 en total), 0 al 0 % antes y despues. Subidas: MeleeSort_unk 73,3 -> 92,5, fn_800FDF14 94,3 -> 96,0,
-  fn_800FC410 99,46 -> 99,82, fn_800FCD24 98,10 -> 98,46, fn_800F8574 99,58 -> 99,61, fn_800FD658 93,16 -> 93,44.
+  fn_800FC410 99,46 -> 99,82, fn_800FCD24 98,10 -> 98,46, fn_800F8574 99,58 -> 99,61, fn_800FD658 93,16 -> 99,75.
 - `.data` sin cambios (ver paso 1).
 
 ## Decisiones tomadas sin el usuario
@@ -94,5 +97,7 @@
   mayor); leer el campo del struct en vez de la variable de la que se copio lo deja en memoria (fn_800FDF14).
 - Un parametro `const int&` en una inline hace que el original relea el campo en cada uso (`p->m40`).
 - La rotacion z-y-x dentro de una inline propia deja las temporales de las tres rotaciones en orden ascendente.
+- `atn::Vector3::operator-()` unario sale como llamada (`__mi__Q23atn7Vector3CFv`); el original construye
+  `Vector3(-x, -y, -z)` en linea.
 - Un float que el original guarda en la pila con `stfs` + `frsp` al entrar: los argumentos se copian a un
   `atn::Vector3` local (fn_800F8290).

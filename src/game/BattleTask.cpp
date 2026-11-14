@@ -3083,7 +3083,7 @@ inline atn::Vector3 HitCenter_unk(CharaTask* chara) {
 // inferred: hit of `attacker` on `chara` with `data`: fills the attack parameters m38A5C (the point of the hit
 // on the surface of `chara`, toward the attacker or else along the facing of `chara`, and the direction) and
 // runs them through fn_800FDF14. Called as extern "C" by CharaTask and Em314Ivy.
-// NONMATCHING: 93.4% - stack slots (one vector less in the original), .sdata2 pool
+// NONMATCHING: 99.75% - stack slots: `n` and the negated copy are below the other locals in the original
 extern "C" int fn_800FD658(BattleTask* mgr, CharaTask* attacker, CharaTask* chara, HitInfo_unk* data, int a, int flag,
                            int b) {
     fn_800E2A24(&mgr->m38A5C);
@@ -3107,14 +3107,14 @@ extern "C" int fn_800FD658(BattleTask* mgr, CharaTask* attacker, CharaTask* char
             dir.y = 0.0f;
             dir.z = radius;
             atn::Matrix3x4 m;
-        MakeRotZYX_unk(&m, chara->mRot);
+            MakeRotZYX_unk(&m, chara->mRot);
             PSMTXMultVec(m.m, &dir, &dir);
             mgr->m38A5C.m1C = dir + HitCenter_unk(chara);
         }
     }
     atn::Vector3 n = dir;
     PSVECNormalize(&n, &n);
-    mgr->m38A5C.m28 = -n;
+    mgr->m38A5C.m28 = atn::Vector3(-n.x, -n.y, -n.z);
     mgr->m38A5C.m34 = a;
     mgr->m38A5C.m38 = b;
     mgr->m38A5C.m44 = 3;
