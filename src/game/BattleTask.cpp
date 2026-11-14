@@ -848,14 +848,36 @@ extern "C" inline atn::Matrix3x4 fn_800F80A8(const atn::Vector3* pos) {
     PSMTXTrans(m.m, pos->x, pos->y, pos->z);
     return m;
 }
+
+// inferred: rotation z, y, x from the angles `rot` into `*p` (name invented; inlined by fn_800F80B8, fn_800F8574,
+// fn_800FC410 and fn_800FCD24; the temporaries of the rotations get the stack slots of the original)
+inline void MakeRotZYX_unk(atn::Matrix3x4* p, const atn::Vector3& rot) {
+    p->SetIdentity();
+    if (0.0f != rot.z) {
+        atn::Matrix3x4::RotateAxis_unk(*p, 'z', rot.z);
+    }
+    if (0.0f != rot.y) {
+        atn::Matrix3x4::RotateAxis_unk(*p, 'y', rot.y);
+    }
+    if (0.0f != rot.x) {
+        atn::Matrix3x4::RotateAxis_unk(*p, 'x', rot.x);
+    }
+}
+
 // inferred: mtx = mtx * rot_z * rot_y * rot_x
 extern "C" inline void fn_800F80B8(MtxPtr mtx, const atn::Vector3* rot) {
-    ((atn::Matrix3x4*)mtx)->RotateZYX_unk(*rot);
+    atn::Matrix3x4 t;
+    atn::Matrix3x4 m;
+    atn::Matrix3x4* p = &m;
+    MakeRotZYX_unk(p, *rot);
+    PSMTXConcat(mtx, p->m, t.m);
+    *(atn::Matrix3x4*)mtx = t;
 }
 // inferred: mtx = mtx * scale
 extern "C" inline void fn_800F8290(MtxPtr mtx, float x, float y, float z) {
+    atn::Vector3 v(x, y, z);
     Mtx s;
-    PSMTXScale(s, x, y, z);
+    PSMTXScale(s, v.x, v.y, v.z);
     Mtx t;
     PSMTXConcat(mtx, s, t);
     __MtxCopy(mtx, t);
@@ -1783,27 +1805,10 @@ extern "C" atn::EffFile* fn_800EFD04(int id);     // inferred: bullet effect of 
 extern "C" bool fn_8021A888(HitInfo_unk* data);   // inferred: db/ParseUtil_unk (takes the record as BulletParam_unk)
 extern "C" float fn_8010B250(BattleTask* mgr, int level, BattleCalcParam_unk* param);
 
-// inferred: rotation z, y, x from the angles `rot` into `m` (name invented; inlined by fn_800F8574, fn_800FC410 and fn_800FCD24)
-inline atn::Matrix3x4 MakeRotZYX_unk(const atn::Vector3& rot) {
-    atn::Matrix3x4 m;
-    atn::Matrix3x4* p = &m;
-    p->SetIdentity();
-    if (0.0f != rot.z) {
-        atn::Matrix3x4::RotateAxis_unk(*p, 'z', rot.z);
-    }
-    if (0.0f != rot.y) {
-        atn::Matrix3x4::RotateAxis_unk(*p, 'y', rot.y);
-    }
-    if (0.0f != rot.x) {
-        atn::Matrix3x4::RotateAxis_unk(*p, 'x', rot.x);
-    }
-    return m;
-}
-
 // inferred: fires the `data->m48` bullets of `data` from `pos` along `dir` (homing bullets with `homing`), spread
 // randomly by the aim instability of `owner` (m12CC, raised by 0.33 up to 1 after the shot); plays the firing sound
 // (louder for the player with fn_8021A888). C name, called by enemies as extern "C"
-// NONMATCHING: 99.3% - stack slots of the rotation temporaries (allocated the other way), of the rotation copy
+// NONMATCHING: 99.6% - stack slots: `rot` and the loop vector `v` swapped, and the matrices of the loop
 extern "C" int fn_800F8574(BattleTask* mgr, CharaTask* owner, HitInfo_unk* data, const atn::Vector3* pos,
                            const atn::Vector3* dir, const HomingParam_unk* homing, unsigned int flags, int arg,
                            float a, float b) {
@@ -1819,7 +1824,8 @@ extern "C" int fn_800F8574(BattleTask* mgr, CharaTask* owner, HitInfo_unk* data,
         fn_800C344C(sound, pos, 0, -1, volume);
     }
     atn::Vector3 rot = dir->ToRotation_unk();
-    atn::Matrix3x4 m = MakeRotZYX_unk(rot);
+    atn::Matrix3x4 m;
+    MakeRotZYX_unk(&m, rot);
     for (int i = 0; i < data->m48; i++) {
         atn::Vector3 v(0.0f, 0.0f, 1.0f);
         float spread = 0.017453292f * (owner->mStatus.mParamB.m2C * (1.0f - owner->m12CC));
@@ -2866,7 +2872,8 @@ inline atn::Vector3 HitCenterAt_unk(CharaTask* chara, int index) {
 // against `chara`, raised by the critical and combo states and the count of the control, lowered by some states
 // of `chara`, or the fixed level of the hit; push away from `attacker`, scaled by GameConfig::mForceRatio with a
 // minimum for the characters with mFlag10) go through fn_800FDF14. C name, called by CharaTask as extern "C"
-// NONMATCHING: 99.3% - stack slots of the rotation temporaries (allocated the other way, as in fn_800FD658)
+// NONMATCHING: 99.8% - stack slots: in the original `n` and the matrix of the else branch are below the other
+// locals, and 0x30 bytes at 0xD8 are not used
 extern "C" void fn_800FC410(BattleTask* mgr, CharaTask* attacker, CharaTask* chara, int index, HitInfo_unk* hit, int id,
                             int frames) {
     fn_800E2A24(&mgr->m38A5C);
@@ -2884,7 +2891,8 @@ extern "C" void fn_800FC410(BattleTask* mgr, CharaTask* attacker, CharaTask* cha
         dir.x = 0.0f;
         dir.y = 0.0f;
         dir.z = radius;
-        atn::Matrix3x4 m = MakeRotZYX_unk(chara->mRot);
+        atn::Matrix3x4 m;
+        MakeRotZYX_unk(&m, chara->mRot);
         PSMTXMultVec(m.m, &dir, &dir);
         mgr->m38A5C.m1C = dir + HitCenterAt_unk(chara, index);
     }
@@ -2977,7 +2985,7 @@ extern "C" void fn_800FC410(BattleTask* mgr, CharaTask* attacker, CharaTask* cha
 // from `pos` scaled by the level of the bullet against `chara`; no push for the bullet 0x139 of a character with
 // mFlag31) go through fn_800FDF14 and are copied to `out`. In multiplayer a guarding character takes the bullets
 // 0x131 and 0x142 as a "guard" popup. C name
-// NONMATCHING: 98.0% - stack slots of the rotation temporaries (allocated the other way), copy of the record pairs
+// NONMATCHING: 98.5% - stack slots of the locals (as in fn_800FC410), copy of the record pairs
 extern "C" void fn_800FCD24(BattleTask* mgr, CharaTask* attacker, CharaTask* chara, int index, HitInfo_unk* data, int id,
                             const atn::Vector3* pos, int time, BattleCalcParam_unk* out, float, float rate) {
     if (lbl_8087F610 != 0 && (chara->mStatus.m14 & 1u) == 1 && data != 0 && (data->m04 == 0x142 || data->m04 == 0x131)) {
@@ -3009,7 +3017,8 @@ extern "C" void fn_800FCD24(BattleTask* mgr, CharaTask* attacker, CharaTask* cha
         dir.x = 0.0f;
         dir.y = 0.0f;
         dir.z = radius;
-        atn::Matrix3x4 m = MakeRotZYX_unk(chara->mRot);
+        atn::Matrix3x4 m;
+        MakeRotZYX_unk(&m, chara->mRot);
         PSMTXMultVec(m.m, &dir, &dir);
         mgr->m38A5C.m1C = dir + HitCenterAt_unk(chara, index);
     }
@@ -3074,7 +3083,7 @@ inline atn::Vector3 HitCenter_unk(CharaTask* chara) {
 // inferred: hit of `attacker` on `chara` with `data`: fills the attack parameters m38A5C (the point of the hit
 // on the surface of `chara`, toward the attacker or else along the facing of `chara`, and the direction) and
 // runs them through fn_800FDF14. Called as extern "C" by CharaTask and Em314Ivy.
-// NONMATCHING: 93.0% - stack slots (the rotation temporaries go the other way, one vector less), .sdata2 pool
+// NONMATCHING: 93.4% - stack slots (one vector less in the original), .sdata2 pool
 extern "C" int fn_800FD658(BattleTask* mgr, CharaTask* attacker, CharaTask* chara, HitInfo_unk* data, int a, int flag,
                            int b) {
     fn_800E2A24(&mgr->m38A5C);
@@ -3097,7 +3106,8 @@ extern "C" int fn_800FD658(BattleTask* mgr, CharaTask* attacker, CharaTask* char
             dir.x = 0.0f;
             dir.y = 0.0f;
             dir.z = radius;
-            atn::Matrix3x4 m = MakeRotZYX_unk(chara->mRot);
+            atn::Matrix3x4 m;
+        MakeRotZYX_unk(&m, chara->mRot);
             PSMTXMultVec(m.m, &dir, &dir);
             mgr->m38A5C.m1C = dir + HitCenter_unk(chara);
         }
@@ -3278,7 +3288,8 @@ struct HitDamage_unk : public BattleDamage_unk {
     }
 };
 
-// NONMATCHING: written from the assembly, not compared yet
+// NONMATCHING: 95.7% - the original keeps the bools of the inlined CanAct_unk/IsFree_unk (li/cmpwi), stack slots of
+// several blocks (the head shot locals at 0x50/0x5C) and of the HitPos_unk temporaries
 // inferred: applies the attack `param` (attacker m00, target m04, bullet m08): back attacks (m0C 0x10), head shots
 // (0x80000000), guard/critical/status flags, steal of the target's item (status 0x3C), drain (0x31, 0x23, 7, 8, 9,
 // 0x47), the damage popup, the effect and the sound (fn_801018E4/fn_80101CDC), hate (fn_80102EAC), the tension
@@ -3832,7 +3843,6 @@ CharaTask* BattleTask::fn_800FFE68(CharaTask* chara, const atn::Vector3* rot, in
     return found;
 }
 
-// NONMATCHING: 99.7% - stack: the original puts the difference at 0x14 and the scaled sum at 0x20 (swapped)
 // inferred: the score of an entry is its distance to the surface plus a penalty that grows away from `dir`
 CharaTask* BattleTask::fn_801002DC(CharaTask* chara, const atn::Vector3* pos, const atn::Vector3* dir, int all,
                                     float range, float angle) {

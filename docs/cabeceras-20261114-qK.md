@@ -46,6 +46,10 @@
   emparejar); se corrigen por desplazamiento y valor con un script (mismo desplazamiento y mismo valor en el .o
   original y el nuestro, hasta 0x80881594; despues el pool diverge por el float de mas).
 
+- `fn_800F80B8` 97,41 -> **100 %**: la rotacion z-y-x por la inline de fichero `MakeRotZYX_unk(atn::Matrix3x4* p,
+  const atn::Vector3&)` (en lugar de `Matrix3x4::RotateZYX_unk` de `Vec.h`) y la concatenacion con `p`.
+- `fn_800F8290` 82,57 -> **100 %**: la escala pasa por un `atn::Vector3 v(x, y, z)` local (el original guarda los
+  tres floats en la pila con `frsp`).
 - Rotacion z-y-x de `chara->mRot`/`rot` (identidad + tres `RotateAxis_unk`) en una inline de fichero
   `MakeRotZYX_unk(const atn::Vector3&)` que devuelve la matriz: las temporales de las rotaciones salen en el orden del
   original. `fn_800FC410` 99,46 -> 99,82 %, `fn_800FCD24` 98,10 -> 98,46 %, `fn_800F8574` 99,58 -> 99,61 %. Queda
