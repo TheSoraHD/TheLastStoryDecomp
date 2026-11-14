@@ -55,6 +55,7 @@
 #include "game/PickTask.h"
 #include <boost/bind.hpp>
 #include <boost/function.hpp>
+#include "std/string_members.h"
 
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
 extern "C" GameConfig_unk* lbl_8087F0A8;
@@ -121,6 +122,152 @@ inline void PlayEfp_unk(atn::EfpFile* efp, atn::Model* model) {
     fn_8023A8B4(lbl_8087F3C0, efp, model, 0, pos, rot, color, -1, -1, 1, 1.0f);
 }
 
+// inferred: data of this file, in the order of its .rodata/.sdata2: names of the effect files and of the
+// battle sounds (const pointers of .sdata2 to strings of .rodata), tables of .rodata
+extern "C" const char* const lbl_808813D4 = "/data/d2anime/ui_seek.d2a";
+extern "C" const char* const lbl_808813D8 = "/data/d2anime/ui_seek_arow.d2a";
+extern "C" const char* const lbl_808813DC = "/d2anime/res/icon_damage.texture";
+extern "C" const char* const lbl_808813E0 = "/effect/ef_sp004a2.efp";
+extern "C" const char* const lbl_808813E4 = "/effect/ef_sp004d2.efp";
+extern "C" const char* const lbl_808813E8 = "/effect/ef_sp019a.efp";
+extern "C" const char* const lbl_808813EC = "/effect/ef_sp019b.efp";
+extern "C" const char* const lbl_808813F0 = "/effect/ef_cm007.efp";
+// inferred: hate lines (enemy, own, appear: base and head)
+extern "C" const char* const lbl_808813F4 = "/effect/hateline/hate_line_01a.eff";
+extern "C" const char* const lbl_808813F8 = "/effect/hateline/hate_line_01b.eff";
+extern "C" const char* const lbl_808813FC = "/effect/hateline/hate_line_07a.eff";
+extern "C" const char* const lbl_80881400 = "/effect/hateline/hate_line_07b.eff";
+extern "C" const char* const lbl_80881404 = "/effect/hateline/hate_line_03a.eff";
+extern "C" const char* const lbl_80881408 = "/effect/hateline/hate_line_03b.eff";
+extern "C" const char* const lbl_8088140C = "/effect/ef_sp002a.efp";
+extern "C" const char* const lbl_80881410 = "/effect/ef_sp010a.efp";
+extern "C" const char* const lbl_80881414 = "/effect/ef_sp011a.efp";
+extern "C" const char* const lbl_80881418 = "/effect/ef_sp012a.efp";
+extern "C" const char* const lbl_8088141C = "/effect/ef_sp002d.efp";
+extern "C" const char* const lbl_80881420 = "/effect/ef_sp002e.efp";
+extern "C" const char* const lbl_80881424 = "/effect/ef_sp017a.efp";
+extern "C" const char* const lbl_80881428 = "/effect/ef_sp017b.efp";
+extern "C" const char* const lbl_8088142C = "/effect/ef_sp017c.efp";
+extern "C" const char* const lbl_80881430 = "/effect/hateline/ef_ui001.eff";
+extern "C" const char* const lbl_80881434 = "effect/ef_sc003_01a.efp";
+extern "C" const char* const lbl_80881438 = "effect/ef_sc004a.efp";
+extern "C" const char* const lbl_8088143C = "effect/ef_sc005a.efp";
+extern "C" const char* const lbl_80881440 = "effect/ef_sc035a.efp";
+extern "C" const char* const lbl_80881444 = "effect/ef_sc010a.efp";
+extern "C" const char* const lbl_80881448 = "effect/ef_sc012.efp";
+extern "C" const char* const lbl_8088144C = "effect/ef_sc015.efp";
+extern "C" const char* const lbl_80881450 = "effect/ef_sc030.efp";
+extern "C" const char* const lbl_80881454 = "effect/ef_sc031.efp";
+extern "C" const char* const lbl_80881458 = "ef_sc038a.efp";
+extern "C" const char* const lbl_8088145C = "ef_sc039.efp";
+// inferred: splash effects
+extern "C" const char* const lbl_80735988[3] = {
+    "ef_cm015.efp",
+    "ef_uc036.efp",
+    "ef_cm020.efp",
+};
+extern "C" const char* const lbl_80881460 = "ef_bs007a.efp";
+extern "C" const char* const lbl_80881464 = "ef_neb01o.model";
+extern "C" const char* const lbl_80881468 = "ef_sc017.efp";
+extern "C" const char* const lbl_8088146C = "ef_cm008.efp";
+extern "C" const char* const lbl_80881470 = "ef_cm008.efp";
+// inferred: effect files of mEfp365E8
+extern "C" const char* const lbl_80735A48[7] = {
+    "ef_ws000_00.efp",
+    "ef_ws000_01.efp",
+    "ef_ws000_02.efp",
+    "ef_ws000_04.efp",
+    "ef_ws000_05.efp",
+    "ef_ws000_07.efp",
+    "ef_ws000_14.efp",
+};
+// inferred: status effect files
+extern "C" const char* const lbl_80735A94[3] = {
+    "ef_hm003c.eff",
+    "ef_hm004c.eff",
+    "ef_hm002c.eff",
+};
+extern "C" const char* const lbl_80881474 = "ef_sp017h.efp";
+// inferred: log message definitions (.rodata of this file, 0x80735AB0): message of the table, kind and flags
+// passed to LogMessageTask::fn_8047961C; names invented
+struct BattleLogDef_unk {
+    int mMsg;
+    int mKind;
+    int mFlags;
+};
+extern "C" const BattleLogDef_unk lbl_80735AB0[32] = {
+    {0x0, 0xFFFFCCFF, 0x0},
+    {0x1, 0xFF7FFF7F, 0x0},
+    {0x2, 0xFF7FFF7F, 0x0},
+    {0x3, 0xFF7FFF7F, 0x0},
+    {0x4, 0xFF7FFF7F, 0x0},
+    {0x6, 0xFFFF7F7F, 0x0},
+    {0x7, 0xFF7FFFFF, 0x0},
+    {0x8, 0xFFFF7F7F, 0x1},
+    {0x9, 0xFF7FFFFF, 0x0},
+    {0xA, 0xFFFF7F7F, 0x0},
+    {0xB, 0xFF7FFFFF, 0x0},
+    {0xC, 0xFFFF7F7F, 0x0},
+    {0xD, 0xFFFF7F7F, 0x0},
+    {0xE, 0xFF7FFFFF, 0x0},
+    {0xE, 0xFF7FFFFF, 0x0},
+    {0x11, 0xFF7F7FFF, 0x0},
+    {0x12, 0xFFFFD700, 0x0},
+    {0x13, 0xFFFFD700, 0x0},
+    {0x14, 0xFFFFD700, 0x0},
+    {0x15, 0xFFFFD700, 0x0},
+    {0x16, 0xFFFFD700, 0x0},
+    {0x0, 0xFFFFD700, 0x0},
+    {0x1E, 0xFF7FFF7F, 0x0},
+    {0xF3, 0xFFFFD700, 0x0},
+    {0xF4, 0xFFFFD700, 0x0},
+    {0xF5, 0xFFFFD700, 0x0},
+    {0xF6, 0xFFFFD700, 0x0},
+    {0xF7, 0xFFFFD700, 0x0},
+    {0xF8, 0xFFFFD700, 0x0},
+    {0xFF, 0xFFFFD700, 0x0},
+    {0x100, 0xFFFFD700, 0x0},
+    {0x101, 0xFFFFD700, 0x0},
+};
+// inferred: sound names of the markers
+extern "C" const char* const lbl_80735DD0[26] = {
+    "SE_UI001_008",
+    "SE_UI001_009",
+    "SE_BTCOM_002",
+    "SE_BTCOM_002_2",
+    "SE_BTCOM_002_3",
+    "SE_BTCOM_004",
+    "SE_BTCOM_005",
+    "SE_BTCOM_110",
+    "SE_BTCOM_114",
+    "SE_BTCOM_120",
+    "SE_BTCOM_121",
+    "SE_BTCOM_122",
+    "SE_BTCOM_123",
+    "SE_BTCOM_124",
+    "SE_BTCOM_125",
+    "SE_BTCOM_126",
+    "SE_PC010_004",
+    "SE_BTCOM_015",
+    "SE_BTCOM_015_2",
+    "SE_BTCOM_015_3",
+    "SE_BTCOM_140",
+    "SE_SP005_001",
+    "SE_UI001_019",
+    "SE_BTCOM_090",
+    "SE_BTCOM_095",
+    "SE_BTCOM_040",
+};
+// inferred: characters whose head shots do not count (bosses); name invented
+static const char sNoHead0_unk[] = "em002_bs00_03";
+static const char sNoHead1_unk[] = "em002_bs00_13";
+static const char sNoHead2_unk[] = "np131_bs00_03";
+static const char sNoHead3_unk[] = "np131_bs00_07";
+static const char sNoHead4_unk[] = "np131_bs00_11";
+static const char sNoHead5_unk[] = "np131_bs00_18";
+static const char* const sNoHead_unk[] = {sNoHead0_unk, sNoHead1_unk, sNoHead2_unk,
+                                          sNoHead3_unk, sNoHead4_unk, sNoHead5_unk};
+
 BattleTask* BattleTask::fn_800F13BC(atn::Task* parent) {
     if (parent != 0 && lbl_8087F048 == 0) {
         lbl_8087F048 = new ((MemoryTag)1, "", "", 0) BattleTask(parent);
@@ -129,7 +276,6 @@ BattleTask* BattleTask::fn_800F13BC(atn::Task* parent) {
 }
 
 extern "C" PopupTask* fn_8054A6E8(atn::Task* parent); // inferred: creates the popup task (game/PopupTask.cpp)
-extern "C" const char* const lbl_80881464; // inferred: "ef_neb01o.model" (.sdata2 of this file)
 
 BattleTask::BattleTask(atn::Task* parent)
     : atn::Task(parent), mBulletId(0), mCB34(0), mCharaCount(0), m363B4(0), m363B8(0), m363BC(40),
@@ -227,54 +373,10 @@ inline BattleMarker_unk* BattleMarkers_unk::fn_800F8538(int i) {
     return &mItems[i];
 }
 
-extern "C" const char* lbl_808813F4; // inferred: "/effect/hateline/hate_line_01a.eff" (.sdata of this file)
-extern "C" const char* lbl_808813F8; // inferred: "/effect/hateline/hate_line_01b.eff"
-extern "C" const char* lbl_808813FC; // inferred: "/effect/hateline/hate_line_07a.eff"
-extern "C" const char* lbl_80881400; // inferred: "/effect/hateline/hate_line_07b.eff"
-extern "C" const char* lbl_80881404; // inferred: "/effect/hateline/hate_line_03a.eff"
-extern "C" const char* lbl_80881408; // inferred: "/effect/hateline/hate_line_03b.eff"
-extern "C" const char* lbl_808813D4; // inferred: "/data/d2anime/ui_seek.d2a"
-extern "C" const char* lbl_808813D8; // inferred: "/data/d2anime/ui_seek_arow.d2a"
-extern "C" const char* const lbl_80735988[3]; // inferred: splash effects (.rodata of this file)
 extern "C" const char* fn_8020BD78(int index); // inferred: name of an effect palette
 extern "C" int sprintf(char* s, const char* format, ...);
 
 extern "C" void fn_800D58A4(atn::Texture* tex); // inferred: releases the texture (as game/GameUI.cpp)
-// inferred: names of the battle effect files (const pointers of .sdata2 of this file to strings of .rodata)
-extern "C" const char* const lbl_808813DC;
-extern "C" const char* const lbl_808813E0;
-extern "C" const char* const lbl_808813E4;
-extern "C" const char* const lbl_808813E8;
-extern "C" const char* const lbl_808813EC;
-extern "C" const char* const lbl_808813F0;
-extern "C" const char* const lbl_8088140C;
-extern "C" const char* const lbl_80881410;
-extern "C" const char* const lbl_80881414;
-extern "C" const char* const lbl_80881418;
-extern "C" const char* const lbl_8088141C;
-extern "C" const char* const lbl_80881420;
-extern "C" const char* const lbl_80881424;
-extern "C" const char* const lbl_80881428;
-extern "C" const char* const lbl_8088142C;
-extern "C" const char* const lbl_80881430;
-extern "C" const char* const lbl_80881434;
-extern "C" const char* const lbl_80881438;
-extern "C" const char* const lbl_8088143C;
-extern "C" const char* const lbl_80881440;
-extern "C" const char* const lbl_80881444;
-extern "C" const char* const lbl_80881448;
-extern "C" const char* const lbl_8088144C;
-extern "C" const char* const lbl_80881450;
-extern "C" const char* const lbl_80881454;
-extern "C" const char* const lbl_80881458;
-extern "C" const char* const lbl_8088145C;
-extern "C" const char* const lbl_80881460;
-extern "C" const char* const lbl_80881468;
-extern "C" const char* const lbl_8088146C;
-extern "C" const char* const lbl_80881470;
-extern "C" const char* const lbl_80881474;
-extern "C" const char* const lbl_80735A94[3]; // inferred: status effect files (.rodata of this file)
-extern "C" const char* const lbl_80735A48[7]; // inferred: effect files of mEfp365E8 (.rodata of this file)
 
 // inferred: load requests of the battle effects, once (m3E394); fn_800F3170 releases them. C name, called by
 // GameTask as extern "C"
@@ -698,7 +800,6 @@ extern "C" PlayerManager* fn_8000D9E8(); // inferred: player manager (weak copy 
 inline PlayerTask* PlayerManager::GetHead_unk() {
     return mHead;
 }
-extern "C" const char* const lbl_80735DD0[]; // inferred: sound names of the markers (.rodata of this file)
 extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float volume);
 extern "C" void PSMTXTrans(Mtx m, float x, float y, float z);
 extern "C" void PSMTXScale(Mtx m, float x, float y, float z);
@@ -3126,15 +3227,6 @@ struct BattleItem_unk {
 };
 extern "C" BattleItem_unk* fn_80211480(int id);
 
-// inferred: characters whose head shots do not count (bosses); name invented
-static const char sNoHead0_unk[] = "em002_bs00_03";
-static const char sNoHead1_unk[] = "em002_bs00_13";
-static const char sNoHead2_unk[] = "np131_bs00_03";
-static const char sNoHead3_unk[] = "np131_bs00_07";
-static const char sNoHead4_unk[] = "np131_bs00_11";
-static const char sNoHead5_unk[] = "np131_bs00_18";
-static const char* const sNoHead_unk[] = {sNoHead0_unk, sNoHead1_unk, sNoHead2_unk,
-                                          sNoHead3_unk, sNoHead4_unk, sNoHead5_unk};
 // inferred: the character is one of sNoHead_unk (inlined; name invented)
 inline bool IsNoHead_unk(CharaTask* chara) {
     if (chara == 0) {
@@ -5948,14 +6040,6 @@ struct BattleState_unk {
     unsigned char m00[0xC];
     const wchar_t* mName;
 };
-// inferred: log message definitions (.rodata of this file, 0x80735AB0): message of the table, kind and flags
-// passed to LogMessageTask::fn_8047961C; names invented
-struct BattleLogDef_unk {
-    int mMsg;
-    int mKind;
-    int mFlags;
-};
-extern "C" const BattleLogDef_unk lbl_80735AB0[];
 extern "C" BattleItem_unk* fn_80211480(int id);
 extern "C" BattleWeapon_unk* fn_80206C50(int id);
 extern "C" BattleState_unk* fn_8021AF50(int id);
