@@ -21,6 +21,28 @@ por debajo del 100 %, el resto al 100 %): 147 unidades. Referencia `$REF` = `/ho
   inverso en local, `chara` local, velocidad aparte, `Assign_unk`, referencia a mPos: r3/r4 del __VecCopy siguen
   cruzados.
 - `atn/D2A_Frame` vf18 (99,85 %): copia de oc antes del test, ToU32, ctor de 4 floats, operator=, alpha en local.
+- `gmk/Brazier` fn_80407D24 (99,83 %, mRadius en f3): radio antes del `+=`, local, `y = y + r`, Assign_unk,
+  `m6C = m6C + ...`, velocidad aparte, orden de res/sphere. La unidad tiene ademas vf40 (r27/r28) y el orden
+  de 0.5f/2.5f en `.sdata2` de vf10/vf14.
+- `game/Em201ZanGurg` ctor (99,77 %): una sola declaracion, copy-init, `const`, literal en puntero: sin cambio.
+  Es el bloqueo del segundo `std::string` comun a ~10 ctores de enemigos (Em003, Em101*, Em203, Em301,
+  Em308, Em201ZanGurgFinal...); `Em316LastLaser` tiene el mismo par y casa, asi que depende del contexto
+  (despues viene `atn::Csv` en vez del tokenizer), no de la forma del ctor de `std/string.h`.
+- `chr/ControlTurnQuadruped` ctor (99,92 %): el original guarda el double sin convertir (`stfs f1`) y hace
+  `frsp` aparte para la comparacion; probado `mAngle < 0`, `(double)` / `0.0`, cast, local float, inline
+  `IsNeg_unk(float)` (da `mfcr`), ternario, comparacion antes, `mAngle(angle)` en la lista (queda en f3 y
+  cambia el orden), puntero al miembro.
+- `game/CrossbowMenuTask` fn_801E9544 (99,82 %): Inventory directo, clave en local, referencia, indice
+  unsigned (99,46), aritmetica de punteros, declaraciones de `inventory`/`i` en varios sitios.
+- `chr/ControlDetect`, `gmk/OnOff` fn_803F8324 (copia de mBoxPos/mMtx: `=`, operator=, Assign_unk, ctor de
+  Matrix3x4, orden), `MP/D2AMpMenuSetRule` fn_804CECEC (SetTaskText_unk, texto antes de los arrays, layout
+  local, ternario a mano), `db/ChaseParam_unk` (char*, sin `len`), `game/GameSaveLoadCommon` (cuerpo del
+  inline escrito en el bucle en 3 formas: cambia la pila y sigue el `bne`), `game/Em205Ogre` vf108 (asgwrap:
+  99,688 -> 99,71, no se guarda): sin cambio.
+- Sin probar mas por notas previas exhaustivas: OS (OSInit, solo relocs de la 0x80004000), dwc_transport,
+  dwc_ranking, LH_* `Get_unk` (plantilla de `atn/LoadManager.h`, cabecera compartida), Texture_unk,
+  MapIdTable_unk, SelectMember, MotionData, Event/Label, HealPoint, Em002_02SkeltonKing ctor (carga de
+  `info->m20` antes del prologo), LastCocoonChrysalis/GimmickManager (presupuesto de inline).
 
 ## Decisiones tomadas sin el usuario
 
@@ -29,6 +51,11 @@ por debajo del 100 %, el resto al 100 %): 147 unidades. Referencia `$REF` = `/ho
 ## Para el port
 
 - Nada.
+
+## Pendientes (cabeceras compartidas, fuera de esta cola)
+
+- `game/CostumeEditChara` vf10: `lbl_8087F580` = `MenuCommonTask::sInstance` (nota de la cola Q).
+- `db/ArrowSet_unk`, `Event/Section`: `push_back` de `std/vector.h`.
 
 ## Hallazgos
 
