@@ -848,14 +848,36 @@ extern "C" inline atn::Matrix3x4 fn_800F80A8(const atn::Vector3* pos) {
     PSMTXTrans(m.m, pos->x, pos->y, pos->z);
     return m;
 }
+
+// inferred: rotation z, y, x from the angles `rot` into `*p` (name invented; inlined by fn_800F80B8, fn_800F8574,
+// fn_800FC410 and fn_800FCD24; the temporaries of the rotations get the stack slots of the original)
+inline void MakeRotZYX_unk(atn::Matrix3x4* p, const atn::Vector3& rot) {
+    p->SetIdentity();
+    if (0.0f != rot.z) {
+        atn::Matrix3x4::RotateAxis_unk(*p, 'z', rot.z);
+    }
+    if (0.0f != rot.y) {
+        atn::Matrix3x4::RotateAxis_unk(*p, 'y', rot.y);
+    }
+    if (0.0f != rot.x) {
+        atn::Matrix3x4::RotateAxis_unk(*p, 'x', rot.x);
+    }
+}
+
 // inferred: mtx = mtx * rot_z * rot_y * rot_x
 extern "C" inline void fn_800F80B8(MtxPtr mtx, const atn::Vector3* rot) {
-    ((atn::Matrix3x4*)mtx)->RotateZYX_unk(*rot);
+    atn::Matrix3x4 t;
+    atn::Matrix3x4 m;
+    atn::Matrix3x4* p = &m;
+    MakeRotZYX_unk(p, *rot);
+    PSMTXConcat(mtx, p->m, t.m);
+    *(atn::Matrix3x4*)mtx = t;
 }
 // inferred: mtx = mtx * scale
 extern "C" inline void fn_800F8290(MtxPtr mtx, float x, float y, float z) {
+    atn::Vector3 v(x, y, z);
     Mtx s;
-    PSMTXScale(s, x, y, z);
+    PSMTXScale(s, v.x, v.y, v.z);
     Mtx t;
     PSMTXConcat(mtx, s, t);
     __MtxCopy(mtx, t);
@@ -961,11 +983,16 @@ inline BattleShots_unk::iterator BattleShots_unk::erase(iterator it) {
 
 extern "C" unsigned int fn_800DC6B4(const char* s); // inferred: string hash
 extern "C" void fn_801FECE0(void* layout, unsigned int hash, float value);
+extern "C" void fn_801FEE08(void* layout, unsigned int hash, const wchar_t* text); // inferred: text of a pane
 extern "C" void fn_801FED24(void* layout, unsigned int hash, int index, float value);
 
 // inferred: values of the panes of a d2anime layout (names invented, as game/BattleResult.cpp)
 inline void SetPaneValue_unk(void* layout, const char* name, float value) {
     fn_801FECE0(layout, fn_800DC6B4(name), value);
+}
+// inferred: text of a pane (as MP::SetPaneText_unk; the layout is evaluated before the hash, 0x800FEC3C)
+inline void SetPaneText_unk(void* layout, const char* name, const wchar_t* text) {
+    fn_801FEE08(layout, fn_800DC6B4(name), text);
 }
 inline void SetPaneValue_unk(void* layout, const char* name, int index, float value) {
     fn_801FED24(layout, fn_800DC6B4(name), index, value);
@@ -1781,7 +1808,7 @@ extern "C" float fn_8010B250(BattleTask* mgr, int level, BattleCalcParam_unk* pa
 // inferred: fires the `data->m48` bullets of `data` from `pos` along `dir` (homing bullets with `homing`), spread
 // randomly by the aim instability of `owner` (m12CC, raised by 0.33 up to 1 after the shot); plays the firing sound
 // (louder for the player with fn_8021A888). C name, called by enemies as extern "C"
-// NONMATCHING: 99.3% - stack slots of the rotation temporaries (allocated the other way), of the rotation copy
+// NONMATCHING: 99.6% - stack slots: `rot` and the loop vector `v` swapped, and the matrices of the loop
 extern "C" int fn_800F8574(BattleTask* mgr, CharaTask* owner, HitInfo_unk* data, const atn::Vector3* pos,
                            const atn::Vector3* dir, const HomingParam_unk* homing, unsigned int flags, int arg,
                            float a, float b) {
@@ -1798,17 +1825,7 @@ extern "C" int fn_800F8574(BattleTask* mgr, CharaTask* owner, HitInfo_unk* data,
     }
     atn::Vector3 rot = dir->ToRotation_unk();
     atn::Matrix3x4 m;
-    atn::Matrix3x4* p = &m;
-    p->SetIdentity();
-    if (0.0f != rot.z) {
-        atn::Matrix3x4::RotateAxis_unk(*p, 'z', rot.z);
-    }
-    if (0.0f != rot.y) {
-        atn::Matrix3x4::RotateAxis_unk(*p, 'y', rot.y);
-    }
-    if (0.0f != rot.x) {
-        atn::Matrix3x4::RotateAxis_unk(*p, 'x', rot.x);
-    }
+    MakeRotZYX_unk(&m, rot);
     for (int i = 0; i < data->m48; i++) {
         atn::Vector3 v(0.0f, 0.0f, 1.0f);
         float spread = 0.017453292f * (owner->mStatus.mParamB.m2C * (1.0f - owner->m12CC));
@@ -1899,8 +1916,8 @@ void MeleeMedian3_unk(T*& a, T*& b, T*& c, Compare& comp) {
 
 // inferred: MSL __sort (std::sort, 0x800FA4FC): selection sort up to 20 elements, else quicksort around the
 // median of three entries picked with a rotating offset (as Sort_unk of atn/RenderSystem_unk.cpp)
-// NONMATCHING: 73.3% - the original keeps the iterators in memory (references) and inlines the selection sort
-// differently
+// NONMATCHING: 92.6% - the original tests `i < j` at the end of both partition loops as a materialized bool
+// (xor/cntlzw/slw, 0x800FA788 and 0x800FA904) and decrements j before loading *j
 template <class T, class Compare>
 void MeleeSort_unk(T*& first, T*& last, Compare& comp) {
     static int sOffset = -4; // inferred: lbl_8087D978
@@ -1910,11 +1927,18 @@ void MeleeSort_unk(T*& first, T*& last, Compare& comp) {
             return;
         }
         if (n <= 20) {
-            if (first != last) {
-                for (T* it = first; it != last - 1; it++) {
+            // inferred: selection sort on copies of the iterators (read once, 0x800FA52C)
+            T* it = first;
+            T* end = last;
+            if (it == end) {
+                return;
+            }
+            T* stop = end - 1;
+            if (it != stop) {
+                for (; it != stop; it++) {
                     T* min = it;
-                    if (it != last) {
-                        for (T* j = it + 1; j != last; j++) {
+                    if (it != end) {
+                        for (T* j = it + 1; j != end; j++) {
                             if (comp(*j, *min)) {
                                 min = j;
                             }
@@ -1931,12 +1955,15 @@ void MeleeSort_unk(T*& first, T*& last, Compare& comp) {
         if (++sOffset >= 5) {
             sOffset = -4;
         }
-        T* b = first + (n * 3 / 4 + sOffset % 5);
+        T* b = first + n * 3 / 4 + sOffset % 5;
         if (++sOffset >= 5) {
             sOffset = -4;
         }
         T* pivot = last - 1;
-        MeleeMedian3_unk(a, b, pivot, comp);
+        T* ma = a;
+        T* mb = b;
+        T* mc = pivot;
+        MeleeMedian3_unk(ma, mb, mc, comp);
         T* i = first;
         T* j = pivot;
         while (comp(*i, *pivot)) {
@@ -1961,9 +1988,9 @@ void MeleeSort_unk(T*& first, T*& last, Compare& comp) {
             }
         }
         if (i == first) {
-            T* back = last - 1;
             MeleeSwap_unk(*i, *pivot);
             i++;
+            T* back = last - 1;
             if (!comp(*first, *back)) {
                 while (i != last && !comp(*first, *i)) {
                     i++;
@@ -1989,10 +2016,14 @@ void MeleeSort_unk(T*& first, T*& last, Compare& comp) {
             }
             first = i;
         } else if (i - first < last - i) {
-            MeleeSort_unk(first, i, comp);
+            T* f = first;
+            T* m = i;
+            MeleeSort_unk(f, m, comp);
             first = i;
         } else {
-            MeleeSort_unk(i, last, comp);
+            T* m = i;
+            T* l = last;
+            MeleeSort_unk(m, l, comp);
             last = i;
         }
     }
@@ -2841,7 +2872,8 @@ inline atn::Vector3 HitCenterAt_unk(CharaTask* chara, int index) {
 // against `chara`, raised by the critical and combo states and the count of the control, lowered by some states
 // of `chara`, or the fixed level of the hit; push away from `attacker`, scaled by GameConfig::mForceRatio with a
 // minimum for the characters with mFlag10) go through fn_800FDF14. C name, called by CharaTask as extern "C"
-// NONMATCHING: 99.3% - stack slots of the rotation temporaries (allocated the other way, as in fn_800FD658)
+// NONMATCHING: 99.8% - stack slots: in the original `n` and the matrix of the else branch are below the other
+// locals, and 0x30 bytes at 0xD8 are not used
 extern "C" void fn_800FC410(BattleTask* mgr, CharaTask* attacker, CharaTask* chara, int index, HitInfo_unk* hit, int id,
                             int frames) {
     fn_800E2A24(&mgr->m38A5C);
@@ -2860,18 +2892,8 @@ extern "C" void fn_800FC410(BattleTask* mgr, CharaTask* attacker, CharaTask* cha
         dir.y = 0.0f;
         dir.z = radius;
         atn::Matrix3x4 m;
-        atn::Matrix3x4* p = &m;
-        p->SetIdentity();
-        if (0.0f != chara->mRot.z) {
-            atn::Matrix3x4::RotateAxis_unk(*p, 'z', chara->mRot.z);
-        }
-        if (0.0f != chara->mRot.y) {
-            atn::Matrix3x4::RotateAxis_unk(*p, 'y', chara->mRot.y);
-        }
-        if (0.0f != chara->mRot.x) {
-            atn::Matrix3x4::RotateAxis_unk(*p, 'x', chara->mRot.x);
-        }
-        PSMTXMultVec(p->m, &dir, &dir);
+        MakeRotZYX_unk(&m, chara->mRot);
+        PSMTXMultVec(m.m, &dir, &dir);
         mgr->m38A5C.m1C = dir + HitCenterAt_unk(chara, index);
     }
     atn::Vector3 n = dir;
@@ -2963,7 +2985,7 @@ extern "C" void fn_800FC410(BattleTask* mgr, CharaTask* attacker, CharaTask* cha
 // from `pos` scaled by the level of the bullet against `chara`; no push for the bullet 0x139 of a character with
 // mFlag31) go through fn_800FDF14 and are copied to `out`. In multiplayer a guarding character takes the bullets
 // 0x131 and 0x142 as a "guard" popup. C name
-// NONMATCHING: 98.0% - stack slots of the rotation temporaries (allocated the other way), copy of the record pairs
+// NONMATCHING: 98.5% - stack slots of the locals (as in fn_800FC410), copy of the record pairs
 extern "C" void fn_800FCD24(BattleTask* mgr, CharaTask* attacker, CharaTask* chara, int index, HitInfo_unk* data, int id,
                             const atn::Vector3* pos, int time, BattleCalcParam_unk* out, float, float rate) {
     if (lbl_8087F610 != 0 && (chara->mStatus.m14 & 1u) == 1 && data != 0 && (data->m04 == 0x142 || data->m04 == 0x131)) {
@@ -2996,18 +3018,8 @@ extern "C" void fn_800FCD24(BattleTask* mgr, CharaTask* attacker, CharaTask* cha
         dir.y = 0.0f;
         dir.z = radius;
         atn::Matrix3x4 m;
-        atn::Matrix3x4* p = &m;
-        p->SetIdentity();
-        if (0.0f != chara->mRot.z) {
-            atn::Matrix3x4::RotateAxis_unk(*p, 'z', chara->mRot.z);
-        }
-        if (0.0f != chara->mRot.y) {
-            atn::Matrix3x4::RotateAxis_unk(*p, 'y', chara->mRot.y);
-        }
-        if (0.0f != chara->mRot.x) {
-            atn::Matrix3x4::RotateAxis_unk(*p, 'x', chara->mRot.x);
-        }
-        PSMTXMultVec(p->m, &dir, &dir);
+        MakeRotZYX_unk(&m, chara->mRot);
+        PSMTXMultVec(m.m, &dir, &dir);
         mgr->m38A5C.m1C = dir + HitCenterAt_unk(chara, index);
     }
     atn::Vector3 n = dir;
@@ -3071,7 +3083,7 @@ inline atn::Vector3 HitCenter_unk(CharaTask* chara) {
 // inferred: hit of `attacker` on `chara` with `data`: fills the attack parameters m38A5C (the point of the hit
 // on the surface of `chara`, toward the attacker or else along the facing of `chara`, and the direction) and
 // runs them through fn_800FDF14. Called as extern "C" by CharaTask and Em314Ivy.
-// NONMATCHING: 93.0% - stack slots (the rotation temporaries go the other way, one vector less), .sdata2 pool
+// NONMATCHING: 99.75% - stack slots: `n` and the negated copy are below the other locals in the original
 extern "C" int fn_800FD658(BattleTask* mgr, CharaTask* attacker, CharaTask* chara, HitInfo_unk* data, int a, int flag,
                            int b) {
     fn_800E2A24(&mgr->m38A5C);
@@ -3095,24 +3107,14 @@ extern "C" int fn_800FD658(BattleTask* mgr, CharaTask* attacker, CharaTask* char
             dir.y = 0.0f;
             dir.z = radius;
             atn::Matrix3x4 m;
-            atn::Matrix3x4* p = &m;
-            p->SetIdentity();
-            if (0.0f != chara->mRot.z) {
-                atn::Matrix3x4::RotateAxis_unk(*p, 'z', chara->mRot.z);
-            }
-            if (0.0f != chara->mRot.y) {
-                atn::Matrix3x4::RotateAxis_unk(*p, 'y', chara->mRot.y);
-            }
-            if (0.0f != chara->mRot.x) {
-                atn::Matrix3x4::RotateAxis_unk(*p, 'x', chara->mRot.x);
-            }
-            PSMTXMultVec(p->m, &dir, &dir);
+            MakeRotZYX_unk(&m, chara->mRot);
+            PSMTXMultVec(m.m, &dir, &dir);
             mgr->m38A5C.m1C = dir + HitCenter_unk(chara);
         }
     }
     atn::Vector3 n = dir;
     PSVECNormalize(&n, &n);
-    mgr->m38A5C.m28 = -n;
+    mgr->m38A5C.m28 = atn::Vector3(-n.x, -n.y, -n.z);
     mgr->m38A5C.m34 = a;
     mgr->m38A5C.m38 = b;
     mgr->m38A5C.m44 = 3;
@@ -3200,7 +3202,6 @@ extern "C" ArenaTask* lbl_8087EE78; // inferred: the arena (ArenaTask's sInstanc
 extern "C" int fn_80444020(Inventory* party, int item, int a, int b, int c, int d, int* outA, int* outB,
                            int* outC); // inferred: adds an item (as in game/BattleResult.cpp)
 extern "C" int fn_8021E48C(int item, int arg); // inferred: count of the item given at once
-extern "C" void fn_801FEE08(void* layout, unsigned int hash, const wchar_t* text); // inferred: text of a pane
 extern "C" int rand();
 
 // inferred: camp message table (lbl_8087F1E4, as in game/CosEditItemList_unk.cpp)
@@ -3267,7 +3268,7 @@ inline bool IsSpecialHit_unk(HitInfo_unk* hit) {
     return false;
 }
 // inferred: center of the hit sphere `index` of `chara`, or its position (names invented)
-inline atn::Vector3 HitPos_unk(CharaTask* chara, int index) {
+inline atn::Vector3 HitPos_unk(CharaTask* chara, const int& index) {
     if (chara->fn_80148B0C(index) != 0) {
         return chara->fn_80148B0C(index)->m04.mCenter;
     }
@@ -3287,7 +3288,8 @@ struct HitDamage_unk : public BattleDamage_unk {
     }
 };
 
-// NONMATCHING: written from the assembly, not compared yet
+// NONMATCHING: 96.0% - the original keeps the bools of the inlined CanAct_unk/IsFree_unk (li/cmpwi), stack slots of
+// several blocks (the head shot locals at 0x50/0x5C) and of the HitPos_unk temporaries
 // inferred: applies the attack `param` (attacker m00, target m04, bullet m08): back attacks (m0C 0x10), head shots
 // (0x80000000), guard/critical/status flags, steal of the target's item (status 0x3C), drain (0x31, 0x23, 7, 8, 9,
 // 0x47), the damage popup, the effect and the sound (fn_801018E4/fn_80101CDC), hate (fn_80102EAC), the tension
@@ -3319,8 +3321,8 @@ int BattleTask::fn_800FDF14(BattleCalcParam_unk* p) {
         MtxPtr head = target->GetModel_unk()->GetNodeMtx_unk("head");
         if (head != 0 && target->mFlag22 != 1 && !IsNoHead_unk(target)) {
             atn::Vector3 pos(head[0][3], head[1][3], head[2][3]);
-            atn::Vector3 d = pos - p->m1C;
             float radius = target->m5B4 * 0.25f;
+            atn::Vector3 d = pos - p->m1C;
             if (PSVECSquareMag(&d) < radius * radius) {
                 SetHitFlag_unk(p, 0x80000000);
             }
@@ -3358,7 +3360,7 @@ int BattleTask::fn_800FDF14(BattleCalcParam_unk* p) {
                                 entry->m92E = 1;
                                 fn_80109864((SpEffect_unk*)attacker->mStatus.fn_80133EE8(0x3C), attacker);
                                 wchar_t text[256];
-                                fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0x1F), attacker->m60->m04, data->mName, count);
+                                fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0x1F), attacker->GetInfo_unk()->m04, data->mName, count);
                                 if (lbl_8087F0A8->m06C > 0 && LogMessageTask::sInstance != 0) {
                                     LogMessageTask::sInstance->fn_8047961C(text, -0x3301, 0, 0);
                                 }
@@ -3468,7 +3470,7 @@ int BattleTask::fn_800FDF14(BattleCalcParam_unk* p) {
                 ClearHitFlag_unk(p, 0x2000000);
             }
         }
-        if (p->m64 != 1 || (p->m94 & 0x8000) == 0x8000) {
+        if (p->m64 != 1 || (p->m94 & 0x8000u) == 0x8000u) {
             attacker->mStatus.mEntries.mCount = 0;
             ClearHitFlag_unk(p, 0x2000000);
         }
@@ -3487,7 +3489,7 @@ int BattleTask::fn_800FDF14(BattleCalcParam_unk* p) {
         int heal = -(int)(p->m68 * lbl_8087F0A8->mHateAbsorbHpRate);
         HitDamage_unk damage;
         damage.m04 = heal;
-        attacker->mStatus.fn_8012DF7C(heal, 0, 0);
+        attacker->mStatus.fn_8012DF7C(damage.m04, 0, 0);
         if (lbl_8087F0A8->mShowPlayerUI != 0 && p->m90 != 0) {
             if (heal != m3E2F8) {
                 m3E2F4->Rewind_unk();
@@ -3495,8 +3497,8 @@ int BattleTask::fn_800FDF14(BattleCalcParam_unk* p) {
             }
             wchar_t num[8];
             fn_800DD3FC(num, L"%d", -heal);
-            fn_801FEE08(&m3E2F4->mData.m10, fn_800DC6B4("hpUpNum"), num);
-            fn_801FEE08(&m3E2F4->mData.m10, fn_800DC6B4("hpUpSubNum"), num);
+            SetPaneText_unk(&m3E2F4->mData.m10, "hpUpNum", num);
+            SetPaneText_unk(&m3E2F4->mData.m10, "hpUpSubNum", num);
             SetPaneValue_unk(&m3E2F4->mData.m10, "hpRate",
                              attacker->mStatus.m04 / (float)attacker->mStatus.mParamB.m84);
             m3E2F4->MeltTask();
@@ -3575,7 +3577,7 @@ int BattleTask::fn_800FDF14(BattleCalcParam_unk* p) {
             if (attacker != 0 && attacker->mType == 0 && attacker->m648 != 0 && attacker->m648->m04 != 1) {
                 value = 200;
             }
-            if ((m38A5C.m94 & 0x10) == 0x10) {
+            if ((m38A5C.m94 & 0x10u) == 0x10u) {
                 value <<= 1;
             }
             if (attacker != 0 && attacker->mFlag28) {
@@ -3752,7 +3754,7 @@ int BattleTask::fn_800FDF14(BattleCalcParam_unk* p) {
         float add = m38A24 * (target->mFlag28 ? m38A38 : 1.0f);
         m38A04 = MAX(0.0f, MIN(m38A04 + add, m38A0C));
     }
-    if (attacker != 0 && !(p->m80 >> 31) && p->m44 == 0 && (target->m5C->mParam.m9C & 0x8000) == 0x8000) {
+    if (attacker != 0 && !(p->m80 >> 31) && p->m44 == 0 && (target->m5C->mParam.m9C & 0x8000u) == 0x8000u) {
         attacker->mStatus.fn_8012F440(0x400000, 0, 0, 0, 0, 0, 1);
     }
     if (lbl_8087F610 != 0 && attacker != 0 && attacker->m648 != 0 && p->m44 == 0 && attacker->m648->m28C != 0) {
@@ -3841,7 +3843,6 @@ CharaTask* BattleTask::fn_800FFE68(CharaTask* chara, const atn::Vector3* rot, in
     return found;
 }
 
-// NONMATCHING: 99.7% - stack: the original puts the difference at 0x14 and the scaled sum at 0x20 (swapped)
 // inferred: the score of an entry is its distance to the surface plus a penalty that grows away from `dir`
 CharaTask* BattleTask::fn_801002DC(CharaTask* chara, const atn::Vector3* pos, const atn::Vector3* dir, int all,
                                     float range, float angle) {
@@ -3855,7 +3856,8 @@ CharaTask* BattleTask::fn_801002DC(CharaTask* chara, const atn::Vector3* pos, co
         if (all == 0 && mTargets.mData[i]->IsPartyMember_unk()) {
             continue;
         }
-        atn::Vector3 d = (mTargets.mData[i]->mColli.m3C + mTargets.mData[i]->mColli.m48) * 0.5f - *pos;
+        atn::Vector3 center = (mTargets.mData[i]->mColli.m3C + mTargets.mData[i]->mColli.m48) * 0.5f;
+        atn::Vector3 d = center - *pos;
         float dist = PSVECMag(&d);
         if (dist < 10.0f || dist > range) {
             continue;
@@ -6107,13 +6109,13 @@ extern "C" void fn_801092C8(BattleTask* mgr, int id, CharaTask* chara, int value
     case 10:
     case 11:
     case 0x16:
-        fn_800DD3FC(text, lbl_8087F1E4->GetPair_unk(def->mMsg), chara->m60->m04);
+        fn_800DD3FC(text, lbl_8087F1E4->GetPair_unk(def->mMsg), chara->GetInfo_unk()->m04);
         break;
     case 0xC:
     case 0xD: {
         HitInfo_unk* skill = fn_80219E6C(value);
         if (skill != 0 && chara != 0 && chara->m60 != 0) {
-            fn_800DD3FC(text, lbl_8087F1E4->GetPair_unk(def->mMsg), chara->m60->m04, skill->m08);
+            fn_800DD3FC(text, lbl_8087F1E4->GetPair_unk(def->mMsg), chara->GetInfo_unk()->m04, skill->m08);
         } else {
             fn_800DD3FC(text, lbl_8087F1E4->GetPair_unk(0x18), value);
         }
@@ -6122,7 +6124,7 @@ extern "C" void fn_801092C8(BattleTask* mgr, int id, CharaTask* chara, int value
     case 0xE: {
         BattleState_unk* state = fn_8021AF50(value);
         if (state != 0 && chara != 0 && chara->m60 != 0) {
-            fn_800DD3FC(text, lbl_8087F1E4->GetPair_unk(def->mMsg), chara->m60->m04,
+            fn_800DD3FC(text, lbl_8087F1E4->GetPair_unk(def->mMsg), chara->GetInfo_unk()->m04,
                         state->mName != 0 ? state->mName : lbl_808813D0);
         } else {
             fn_800DD3FC(text, lbl_8087F1E4->GetPair_unk(0x18), value);
@@ -6131,7 +6133,7 @@ extern "C" void fn_801092C8(BattleTask* mgr, int id, CharaTask* chara, int value
     }
     case 0x10:
         if (chara != 0 && chara->m60 != 0) {
-            fn_800DD3FC(text, lbl_8087F1E4->GetPair_unk(def->mMsg), chara->m60->m04, value);
+            fn_800DD3FC(text, lbl_8087F1E4->GetPair_unk(def->mMsg), chara->GetInfo_unk()->m04, value);
         }
         break;
     case 0x11:
@@ -6148,12 +6150,12 @@ extern "C" void fn_801092C8(BattleTask* mgr, int id, CharaTask* chara, int value
     case 0x1D:
     case 0x1E:
     case 0x1F:
-        fn_800DD3FC(text, lbl_8087F1E4->GetPair_unk(def->mMsg), chara->m60->m04, value);
+        fn_800DD3FC(text, lbl_8087F1E4->GetPair_unk(def->mMsg), chara->GetInfo_unk()->m04, value);
         break;
     case 0x14: {
         BattleState_unk* state = fn_8021AF50(value);
         if (chara != 0 && chara->m60 != 0 && state != 0) {
-            fn_800DD3FC(text, lbl_8087F1E4->GetPair_unk(def->mMsg), chara->m60->m04,
+            fn_800DD3FC(text, lbl_8087F1E4->GetPair_unk(def->mMsg), chara->GetInfo_unk()->m04,
                         state->mName != 0 ? state->mName : lbl_808813D0);
         }
         break;
@@ -6184,7 +6186,7 @@ void BattleTask::fn_80109864(SpEffect_unk* effect, CharaTask* chara) {
     wchar_t name[0x100];
     memset(name, 0, sizeof(name));
     if (fn_8021BE98(name, effect)) {
-        fn_800DD3FC(text, format, chara->m60->m04, name);
+        fn_800DD3FC(text, format, chara->GetInfo_unk()->m04, name);
     }
     if (text[0] != 0) {
         LogMessageTask::sInstance->fn_8047961C(text, -0x333334, 2, 0);
@@ -7225,7 +7227,7 @@ extern "C" void fn_8010CF28(BattleTask* mgr, int kind, CharaTask* chara, CharaTa
         wchar_t text[256];
         BattleItem_unk* data = fn_80211480(got);
         if (data != 0) {
-            fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0x1F), chara->m60->m04, data->mName, count);
+            fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0x1F), chara->GetInfo_unk()->m04, data->mName, count);
         } else {
             fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0x2F), got);
         }
