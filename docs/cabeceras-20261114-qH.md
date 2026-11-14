@@ -34,6 +34,11 @@ Rama `agent-H`, referencia `/home/claude/ref-H` (15433 / 18109 tras integrar A+B
 4. `lblmap.py game/Em305Vampire`: tres etiquetas de `.sdata2` renombradas (solo renombrados), `fn_802EBBA8`
    99,98 -> 100 en `objdiff-cli` (el report ya la daba al 100 %: no cambia el total, 15441).
 
+5. **`NewCampCategoryLess_unk`** (NewCampPartsItem): `db->mKind` antes que `da->mKind` y los dos nombres en
+   variables (b primero) antes de los `wcscmp`: comparador 98,1 -> 99,75, mediana 98,5 -> 99,8 y la seleccion
+   fuera de linea 96,15 -> **96,57**, con lo que **desaparece la bajada** del punto 1. `PRECOMMIT OK`.
+   Queda el reparto de registros de esos dos nombres (r29/r30 del original).
+
 ## Sin resolver (probado)
 
 - `GameTask::fn_80371790` (99,15): marco 0x10 mayor y ranuras de las matrices de RotateYXZ_unk; no tocado.
@@ -55,8 +60,8 @@ Rama `agent-H`, referencia `/home/claude/ref-H` (15433 / 18109 tras integrar A+B
 
 ## Decisiones tomadas sin el usuario
 
-- Aceptada la bajada de 0,7 % de `MslSelectionSort_unk<NewCampItemEntry_unk>` (0x8051AD54) a cambio de 3
-  funciones al 100 % y 14 subidas: se probaron 16 variantes de la seleccion (`end(last - 1)` / `--end`, retorno
+- (Resuelto en el punto 5.) Aceptada en el primer commit la bajada de 0,7 % de
+  `MslSelectionSort_unk<NewCampItemEntry_unk>` (0x8051AD54) a cambio de 3 funciones al 100 % y 14 subidas: se probaron 16 variantes de la seleccion (`end(last - 1)` / `--end`, retorno
   temprano, `while`, cuatro formas de `min_element`); ninguna sube todas. `precommit.sh` da FAIL solo por esa
   bajada (main.dol OK, lost 0, labelcheck/rep100 igual).
 
