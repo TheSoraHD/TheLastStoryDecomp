@@ -24,7 +24,19 @@ Inicio 20:06. Referencia: `/home/claude/ref-M` (15447 funciones).
 - `Event::Sequence::fn_8053E8D0`: 99,95 -> 100 %. El lider del grupo no es una local: `lbl_8087F8A0->mHead != 0`
   dentro de la condicion y `&lbl_8087F8A0->mHead->mPos` en una local `const atn::Vector3*`.
 
+- `GameCamera::fn_8038C5B0` 48,6 -> 99,6 %: el desplazamiento lateral y el objetivo van antes del primer `MIN`
+  (el `MIN` cierra el bloque basico), `MIN(1.0f, x)` con los argumentos al reves, `Cross_unk(front, up) * side`
+  (temporal del inline, no local con nombre), `VecAssign_unk(target, LerpV_unk(m818, target, t))` y un segundo
+  `t2 = MIN(...)` para la fovy. Queda el registro del 50.0f y de la negacion de `front`. Etiquetas de la unidad
+  re-emparejadas (`lblmap.py` desde las de HEAD; `pd.sh` y `lblfix.py` las dejaban peor).
+
 ## NONMATCHING (intentado, sin 100 %)
+
+- `FinishCamera_unk::fn_80379104` (99,70): registros r26/r27 de la matriz y del vector girado; `Mtx rot` fuera
+  del bucle: igual; `AddCurve_unk` escrito a mano: baja.
+- `fn_80392A04` y `PostSequence::vf10`: registros de los punteros del bucle de copia de `mPlanes` (origen antes
+  que destino en el original); `Plane_unk::operator=` explicito: igual.
+- `GameCamera::fn_8038C5B0`: `-front`, vector construido en sitio y otro orden de `pos.y += 50`: igual o peor.
 
 - `GameCamera::fn_80382A1C` (99,92 en report): el original llama a `fn_8013A13C` sobre un temporal sin
   constructor: `static Matrix3x4 fn_8013A13C(float)` que devuelve la matriz (ya lo dice qB2). Cambiar la firma
