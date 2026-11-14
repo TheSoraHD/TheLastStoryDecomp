@@ -1217,7 +1217,7 @@ void BattleTask::vf14() {
         fn_800F7250()->fn_80060D58(30.0f, 30.0f, 20.0f, width, height, 0xFFFF0033);
         fn_800F7250()->fn_80060D58(30.0f, 30.0f, 20.0f, width * m38A04 / m38A0C, height, 0xFF0066FF);
         char text[16];
-        sprintf(text, "%.2f", m38A04);
+        sprintf(text, "%.2f\0", m38A04);
         fn_800F7250()->fn_800616C0(32.0f + width * m38A04 / m38A0C, 30.0f, 20.0f, 14.0f, 14.0f, text, 0xFFFFFFFF,
                                    0.0f, 1, 1, 0);
     }
@@ -1272,7 +1272,7 @@ void BattleTask::vf14() {
                 char text[256];
                 wchar_t wtext[256];
                 if (mode == 1) {
-                    sprintf(text, "Timer:%d/%d", entry->m6DC, entry->m6E0);
+                    sprintf(text, "Timer:%d/%d\0", entry->m6DC, entry->m6E0);
                     fn_8006F2F0(lbl_8087EEC8, wtext, text, 256);
                     fn_800F7250()->fn_80061824(60.0f + x, y, 0.0f, 12.0f, 12.0f, 0.0f, 0.0f, 0.0f, wtext, 0xAFFFFFFF, 1,
                                                1, 0, 0, 0xFF000000);
@@ -1372,9 +1372,9 @@ void BattleTask::vf14() {
             fn_800F7250()->fn_80062C8C(32, 0x2288AAFF, pos.x, pos.y, pos.z, 0.0f, (float)range, 20.0f);
             atn::Vector3 screen = atn::RenderManager::instance_->GetScreenPosition(pos + atn::Vector3(0.0f, 10.0f, 0.0f));
             if (m363BC <= 300) {
-                sprintf(text, "Range: %d", m363BC);
+                sprintf(text, "Range: %d\0", m363BC);
             } else {
-                sprintf(text, "Range: Infinity");
+                sprintf(text, "Range: Infinity\0");
             }
             fn_800F7250()->fn_800616C0(15.0f + screen.x, screen.y, 0.0f, 14.0f, 14.0f, text, 0xFFFFFFFF, 0.0f, 1, 1,
                                        0);
@@ -1389,7 +1389,7 @@ void BattleTask::vf14() {
             if (screen.z < 0.0f || 1.0f < screen.z) {
                 continue;
             }
-            sprintf(text, "HateAtt: Lv%d", mCharas[i].mChara->mStatus.m430);
+            sprintf(text, "HateAtt: Lv%d\0", mCharas[i].mChara->mStatus.m430);
             fn_800F7250()->fn_800616C0(15.0f + screen.x, screen.y, 0.0f, 14.0f, 14.0f, text, 0xFFFFFFFF, 0.0f, 1, 1,
                                        0);
         }
@@ -3945,7 +3945,6 @@ extern "C" void fn_80087994(void* folder, const char* name, int* value, void (*f
                             void* arg); // inferred: AddBool
 
 // inferred: debug menu "Battle": target lines, reticle, morale (gauge) and tension parameters
-// NONMATCHING: 99.4% - only the offsets of the strings in @stringBase0 (strings of unwritten functions missing)
 void BattleTask::fn_80100BF0() {
     void* folder = m38A58.Load("Battle");
     fn_800874C8(folder, "DrawHateArrow", &m367B0, 0, 3, 1, fn_80100BC0, this);
@@ -5212,7 +5211,6 @@ extern "C" void fn_800CB518(atn::SoundRef* sound, int frames);            // inf
 // inferred: level up of a status of `chara` (CharaStatus): the effect of the level (red for the party members of
 // kind 2), the level up sounds (the second one a semitone higher per level) and the "level up" popup over the
 // neck of the model. C name, called by game/CharaStatus as extern "C"
-// NONMATCHING: offset of "neck" in the string pool of the file (incomplete)
 extern "C" void fn_801061BC(BattleTask* mgr, CharaTask* chara, atn::Model* model, int level) {
     fn_80232B7C((unsigned int)chara, 30);
     lbl_8087F3C0->mSystem.m78 = 1;
