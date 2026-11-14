@@ -897,7 +897,8 @@ static inline int IsShadowB_unk(DrawEntry_unk* entry, atn::Scene* lens) {
     return (lens->mLightMask & 2) == 2 && (entry->m04 & 8) == 8;
 }
 
-// NONMATCHING: 83.57% - flag tests and the queue capacity test (orc/srwi idiom) not reproduced, register allocation
+// NONMATCHING: 94.6% - the queue capacity test (orc/srwi idiom of an
+// unsigned >= materialized as a value) not reproduced, register allocation
 void fn_8009D58C(DrawEntry_unk* entry, DrawNode_unk* node, DrawPart_unk* part, int visible) {
     int index;
     DrawRemap_unk* remap = entry->m24;
@@ -919,12 +920,12 @@ void fn_8009D58C(DrawEntry_unk* entry, DrawNode_unk* node, DrawPart_unk* part, i
     if (mat == 0) {
         return;
     }
-    if (sSecondPass_unk != 0 && (mat->m48 & 2) != 2) {
+    if (sSecondPass_unk != 0 && (mat->m48 & 2u) != 2u) {
         return;
     }
     atn::IRenderLayer* pass = atn::RenderManager::instance_->mLayers[atn::RenderManager::instance_->m2F8];
+    unsigned char m = mat->m49;
     if (lbl_8087EFB0 == 0) {
-        unsigned char m = mat->m49;
         if (m != (m & (unsigned int)pass->m0C)) {
             return;
         }
@@ -937,14 +938,14 @@ void fn_8009D58C(DrawEntry_unk* entry, DrawNode_unk* node, DrawPart_unk* part, i
     if (p->m148 != 0) {
         flags |= 4;
     } else {
-        unsigned int ef = entry->m04;
+        int ef = entry->m04;
         if (((ef & 8) == 8 && p->m104 != 0) || p->m13C != 0) {
             if (visible) {
                 if (p->m184 != 0) {
                     flags |= 2;
                 } else if (p->m188 != 0) {
                     flags |= 0x10;
-                } else if ((ef & 0x8000) == 0x8000 || (mat->m48 & 1) == 1) {
+                } else if ((ef & 0x8000) == 0x8000 || (mat->m48 & 1u) == 1u) {
                     flags |= 0x10;
                 } else {
                     flags |= 2;

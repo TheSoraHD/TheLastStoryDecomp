@@ -2,6 +2,7 @@
 #define ATN_DRAWCMD_UNK_H
 
 #include "atn/GXDecl.h"
+#include "atn/Color.h"
 
 // inferred: draw queue of atn::RenderManager (0x958 and 0x895C), filled by atn/ModelDraw_unk.cpp.
 // The constructor of DrawCmd_unk and DrawQueue_unk::push_back are defined in atn/ModelDraw_unk.cpp
@@ -22,9 +23,9 @@ struct DrawCallback_unk {
     void* mArg2;
 };
 
-struct DrawColor_unk {
-    float m[4];
-};
+// inferred: the colour of a draw is an atn::Color (Model passes its m40; copies through Color's copy
+// constructor, lfs/stfs, in fn_8009D58C)
+typedef atn::Color DrawColor_unk;
 
 // inferred: draw command of a mesh (0x4C bytes; 0x1000 of them built by the constructor 0x800BC874)
 struct DrawCmd_unk {
