@@ -272,20 +272,7 @@ int BattleCharaTask::vf0C() {
     return ok;
 }
 
-// inferred: ray result (0x50 bytes, as CollResult_unk in game/CharaTask.cpp)
-struct RayResult_unk {
-    RayResult_unk() : m34(0), m38(0), m3C(0), m40(0) {}
-    unsigned char m00[0x04];
-    atn::Vector3 m04; // inferred: hit position
-    atn::Vector3 m10; // inferred: position of the sweep
-    unsigned char m1C[0x34 - 0x1C];
-    int m34;
-    RayObj_unk* m38;
-    int m3C;
-    int m40;
-    unsigned char m44[0x50 - 0x44];
-};
-extern "C" int fn_8004ED34(void* colli, RayResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
+extern "C" int fn_8004ED34(void* colli, atn::ColliResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg7); // inferred: ray test
 extern "C" void* lbl_8087EE98;
 atn::Vector3 fn_8017C9AC(CharaTask* chara); // inferred: position of the character's eyes
@@ -496,7 +483,7 @@ void BattleCharaTask::fn_800E3F5C() {
     if (field == 0 || lbl_8087F048 == 0) {
         return;
     }
-    RayObj_unk* obj = 0;
+    atn::ColliBase* obj = 0;
     int enemy = 0;
     int b = 0;
     BattleArea_unk* area = field->m10D8;
@@ -511,15 +498,15 @@ void BattleCharaTask::fn_800E3F5C() {
         atn::Vector3 start;
         atn::VecAssign_unk(start, from);
         atn::Vector3 to = from + dir * range;
-        RayResult_unk result;
+        atn::ColliResult_unk result;
         unsigned int mask = 4;
         if (area != 0 && area->m64 != 0 && area->m64->m48 == 1) {
             mask = 0x10;
         }
         int found = 0;
         if (fn_8004ED34(lbl_8087EE98, &result, &start, &to, mask, &mColli, 0) != 0 && result.m38 != 0 &&
-            (result.m38->m08 & 2) == 2) {
-            CharaTask* chara = result.m38->m0C;
+            (result.m38->mFlags & 2) == 2) {
+            CharaTask* chara = (CharaTask*)result.m38->m0C;
             enemy = 0;
             if (!chara->fn_8016F3D0(this, 1) && !chara->IsPartyMember_unk()) {
                 enemy = 1;
@@ -999,11 +986,6 @@ void BattleCharaTask::fn_800E4278(GameTask* task) {
     }
 }
 
-// inferred: one hit of fn_800F8C6C (names invented)
-struct HitResult_unk {
-    CharaTask* mChara;
-    unsigned int mFlags; // inferred: 8 = critical
-};
 extern "C" int fn_800F8C6C(Effect_unk* mgr, HitResult_unk* results, int count, CharaTask* chara, HitInfo_unk* data,
                            int id, int time, int hits, float angle); // inferred: deals a hit, returns the hits
 
@@ -2193,7 +2175,7 @@ void BattleCharaTask::fn_800E932C(atn::Vector3* pos, atn::Vector3* dir, int from
             *dir = AimDir_unk(field);
             *pos = fn_8017C9AC(this);
             if (m648 != 0 && m648->m04 != 0) {
-                RayResult_unk result;
+                atn::ColliResult_unk result;
                 atn::Vector3 to = *pos + *dir * 800.0f;
                 if (fn_8004ED34(lbl_8087EE98, &result, pos, &to, 4, &mColli, 0)) {
                     if (fromShot) {
@@ -2219,7 +2201,7 @@ void BattleCharaTask::fn_800E932C(atn::Vector3* pos, atn::Vector3* dir, int from
         *dir = AimDir_unk(field);
         *pos = fn_8017C9AC(this);
         if (m648 != 0) {
-            RayResult_unk result;
+            atn::ColliResult_unk result;
             atn::Vector3 to = *pos + *dir * 800.0f;
             if (fn_8004ED34(lbl_8087EE98, &result, pos, &to, 4, &mColli, 0)) {
                 if (fromShot) {
@@ -3037,7 +3019,7 @@ __declspec(noinline) int BattleCharaTask::fn_800EE640(CharaTask* chara) {
 }
 
 extern "C" int fn_8021A984(HitInfo_unk* skill); // inferred: the skill heals
-extern "C" int fn_8004D388(void* world, RayResult_unk* result, const atn::Vector3* center, const atn::Vector3* move,
+extern "C" int fn_8004D388(void* world, atn::ColliResult_unk* result, const atn::Vector3* center, const atn::Vector3* move,
                            unsigned int mask, void* ignore, int arg, float radius); // inferred: sweep test
 
 // NONMATCHING: 98.9% - registers and stack slots
@@ -3141,7 +3123,7 @@ int BattleCharaTask::fn_800EE794(SkillEffect* effect) {
         atn::Vector3 to = from + atn::Vector3(0.0f, -400.0f, 0.0f);
         from.y += 10.0f;
         void* world = lbl_8087EE98;
-        RayResult_unk result;
+        atn::ColliResult_unk result;
         if (fn_8004ED34(world, &result, &from, &to, fn_80179D44() | 0x80000000, 0, 0)) {
             state.m0C = result.m04;
         }

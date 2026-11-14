@@ -12,7 +12,6 @@
 class CharaTask;
 struct ColorF_unk;
 struct HitInfo_unk;
-struct RayObj_unk;
 class PlayerTask;
 namespace atn {
 struct Vector3;
@@ -24,13 +23,17 @@ struct ModelNodeCallbackContext;
 struct Model;
 struct EffFile;
 class Texture;
+class ColliBase;
 }
 
-// inferred: object hit by the cursor ray (as game/BattleCharaTask.cpp)
-struct RayObj_unk {
-    unsigned char m00[0x08];
-    unsigned int m08; // inferred: flags (2: the object is a character, 8: another object)
-    CharaTask* m0C;
+// old name of the object hit by the cursor ray (atn::ColliBase), still used by game/GameUI.cpp
+typedef atn::ColliBase RayObj_unk;
+
+// inferred: one hit written for the caller by fn_800F8C6C (0x800F8C6C): the attacker and the flags of the
+// hit (BattleCalcParam_unk::m94, 8 = critical); names invented
+struct HitResult_unk {
+    CharaTask* mChara;
+    unsigned int mFlags;
 };
 
 // inferred: 0x934-byte entry of BattleTask::mCharas (constructor 0x80108090, built by __construct_array)
@@ -240,7 +243,7 @@ public:
     // inferred: target of the camera: entry of mTargets nearest to `pos` in the cone `angle` around `dir`
     CharaTask* fn_801002DC(CharaTask*, const atn::Vector3*, const atn::Vector3*, int, float, float);
     int fn_80100BB8(CharaTask** out, CharaTask* chara, const atn::Vector3* dir, float range, float theta);
-    void fn_801021B4(RayObj_unk* obj, int a, int b); // inferred: cursor target
+    void fn_801021B4(atn::ColliBase* obj, int a, int b); // inferred: cursor target
     void fn_80102824(CharaTask* chara, PlayerTask* leader);
     void fn_801031D0(CharaTask* chara, CharaTask* other, int all); // inferred: removes the hate entries of `other`
     void fn_8010337C(CharaTask* chara, CharaTask* other);
@@ -411,7 +414,7 @@ public:
     int m391E0[0x48][0x48]; // inferred: hate of each character toward each other (fn_8010C948)
     int m3E2E0; // inferred: character under the cursor
     CharaTask* m3E2E4; // inferred: object under the cursor
-    RayObj_unk* m3E2E8; // inferred: cursor target
+    atn::ColliBase* m3E2E8; // inferred: cursor target
     int m3E2EC;
     int m3E2F0;
     atn::D2A_Task* m3E2F4; // inferred: d2anime task (made by fn_800F39A4)

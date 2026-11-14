@@ -1731,12 +1731,6 @@ struct MeleeTarget_unk {
 struct MeleeTargetLess_unk {
     bool operator()(const MeleeTarget_unk& a, const MeleeTarget_unk& b) const { return a.mScore < b.mScore; }
 };
-// inferred: result written for the caller by fn_800F8C6C (same view as HitResult_unk of game/BattleCharaTask.cpp:
-// the attacker and the flags of the hit, BattleCalcParam_unk::m94, 8 = critical); names invented
-struct HitResult_unk {
-    CharaTask* mChara;
-    unsigned int mFlags;
-};
 
 template <class T>
 inline void MeleeSwap_unk(T& a, T& b) {
@@ -4241,17 +4235,17 @@ void BattleTask::fn_80101CDC(BattleCalcParam_unk* param) {
     }
 }
 
-void BattleTask::fn_801021B4(RayObj_unk* obj, int a, int b) {
+void BattleTask::fn_801021B4(atn::ColliBase* obj, int a, int b) {
     m3E2E8 = obj;
     m3E2E0 = 0;
     m3E2E4 = 0;
     m3E2EC = b;
     m3E2F0 = a;
     if (obj != 0) {
-        if ((obj->m08 & 2) == 2) {
-            m3E2E0 = (int)obj->m0C;
-        } else if ((obj->m08 & 8) == 8) {
-            m3E2E4 = obj->m0C;
+        if ((obj->mFlags & 2) == 2) {
+            m3E2E0 = obj->m0C;
+        } else if ((obj->mFlags & 8) == 8) {
+            m3E2E4 = (CharaTask*)obj->m0C;
         }
     }
 }
@@ -6218,23 +6212,8 @@ atn::Vector3 Effect_unk::fn_80109950(CharaTask* chara) {
     return chara->mPos;
 }
 
-// inferred: result of the collision tests of lbl_8087EE98 (0x50 bytes; same layout as include/gmk/Lemon.h and
-// game/CharaTask.cpp, here with the constructor inlined)
-struct CollResult_unk {
-    CollResult_unk() : m34(0), m38(0), m3C(0), m40(0) {}
-    int m00;
-    atn::Vector3 m04; // inferred: hit position
-    atn::Vector3 m10;
-    atn::Vector3 m1C;
-    atn::Vector3 m28;
-    unsigned int* m34; // inferred: collision attribute of the hit (first word: kind, 0x1B water)
-    void* m38;
-    unsigned int m3C;
-    void* m40;
-    atn::Vector3 m44;
-};
 extern "C" void* lbl_8087EE98; // inferred: collision manager
-extern "C" int fn_8004ED34(void* colli, CollResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
+extern "C" int fn_8004ED34(void* colli, atn::ColliResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg7); // inferred: ray test
 
 // inferred: the character is in one of the busy controls (6: 4..11, 29, 30); inlined, name invented
@@ -6325,9 +6304,9 @@ void BattleTask::fn_80109F7C() {
 // inferred: splash when the segment from..to crosses water (attribute 0x1B); `size` picks the effect and
 // its scale. C name, called by other files as extern "C"
 extern "C" void fn_8010A308(BattleTask* mgr, const atn::Vector3* from, const atn::Vector3* to, float size) {
-    CollResult_unk result;
+    atn::ColliResult_unk result;
     if (fn_8004ED34(lbl_8087EE98, &result, from, to, 0x80000000, 0, 0) != 0 && result.m34 != 0 &&
-        result.m34[0] == 0x1B) {
+        *(unsigned int*)result.m34 == 0x1B) {
         int kind = 1;
         if (size < 6.0f) {
             kind = 0;
