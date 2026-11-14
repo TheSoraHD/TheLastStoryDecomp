@@ -65,10 +65,10 @@ struct CollResult_unk {
     unsigned char m00[0x10];
     atn::Vector3 m10; // inferred: hit position
     unsigned char m1C[0x34 - 0x1C];
-    int m34;
+    void* m34;
     CollPoly_unk* m38;
     int m3C;
-    int m40;
+    void* m40;
     unsigned char m44[0x50 - 0x44];
 };
 extern "C" void* lbl_8087EE98; // inferred: collision world

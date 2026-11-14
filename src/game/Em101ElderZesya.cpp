@@ -183,7 +183,7 @@ struct CollResult_unk {
     int m34;
     int m38;
     int m3C;
-    int m40;
+    void* m40;
     unsigned char m44[0x50 - 0x44];
 };
 extern "C" void* lbl_8087EE98;

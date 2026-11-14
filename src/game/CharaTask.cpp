@@ -2244,7 +2244,7 @@ struct CollResult_unk {
     unsigned int* m34; // inferred: hit object (its first word is a kind)
     CollObj_unk* m38;  // inferred: hit character (fn_8013CB68)
     unsigned int m3C;  // inferred: flags (1 ground, 2 character, 4 ceiling, 0x40/0x80/0x200 bullets)
-    int m40;
+    void* m40;
     atn::Vector3 m44; // inferred: position copied to CharaTask::m13A0 (fn_8013CB68)
 };
 extern "C" int fn_8004ED34(void* colli, CollResult_unk* result, const atn::Vector3* from, const atn::Vector3* to, unsigned int mask,
