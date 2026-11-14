@@ -3,6 +3,14 @@
 Inicio: 2026-11-14 06:25 CET. Rama `agent-K`. Unidades: `game/AiTarget`, `game/BattleTask`, `game/GameTask`,
 `game/MiniMapTask`.
 
+## Resumen
+
+Funciones al 0 % (fnstat) de las unidades de la cola: AiTarget 2 -> 0, GameTask 2 -> 0, BattleTask 10 -> 5
+(quedan el constructor y el destructor de `BattleTask`, sus copias debiles `__dt__12HomingBullet` y
+`__dt__Q210BattleTask9BetoModel`, y `vf2C__Q23chr11ControlBase`), MiniMapTask 3 -> 3. Al 100 % (fnstat):
+BattleTask 105 -> 156/212 por el re-emparejado de etiquetas. Partida 15395 / 18109 sin cambios (las cuatro
+unidades no enlazan), lost 0, sin bajadas, labelcheck/rep100 iguales.
+
 ## Resultado por funcion
 
 - `AIManager::vf14` (0x80014A5C, 7724 bytes, antes `fn_80014A5C`): **escrita, NONMATCHING 93 %** (objdiff; fnstat
@@ -63,6 +71,22 @@ Inicio: 2026-11-14 06:25 CET. Rama `agent-K`. Unidades: `game/AiTarget`, `game/B
   es `lbl_8087D978`.
 - Re-emparejado de BattleTask (`pd.sh` + `pairdata99.py --relabel`): fnstat 105 -> 156/212 al 100 % (etiquetas
   `@N` viejas); `@STRING@__allocate__...vector<MeleeTarget_unk>` coincide con `lbl_80779DD8` del original.
+
+- `GameTask::fn_803729B4` (pose de victoria multijugador, 98,9 %): borrador comprobado contra el original (solo
+  difiere el constructor de `atn::Matrix3x4` llamado fuera de linea y registros); quitado el `DRAFT`.
+
+## Pendientes (otras familias o cabeceras compartidas)
+
+- Constructor/destructor de `BattleTask` (y las dos copias debiles): tipar los `atn::EffFile`/`atn::Texture` de
+  `BattleTask.h` (renumera las `@N` de ~57 unidades).
+- `vf2C__Q23chr11ControlBaseFv`: `virtual int vf2C() { return 1; }` inline en `chr/ControlBase.h`.
+- MiniMapTask `vf10(RenderManager*)` y sus copias debiles (`SetPosition`/`SetTarget` de `atn::Camera`,
+  `fn_804ABF74` = constructor de `ComDrawTextureMask`): sin tocar; dependen de `atn/RenderManager.h`
+  (`SetCamera_unk` inline) y del constructor de copia de `atn::Camera` (cabeceras de otra familia).
+- Constructores de `Inventory::ExpEntry_unk`/`LevelUpResult_unk` en `game/Inventory.h` (`fn_80371790`).
+- Setters inline de `atn::Model` (`fn_80139F24`, `fn_8013C554`, `SetMotionSpeed`, `SetMotionFrame`) en
+  `atn/Model_unk.h` (`fn_80371790`, `fn_803729B4`).
+- Bloqueo de las conversiones int -> float de `AIManager::fn_80017128`/`fn_8001794C` (ver hallazgos).
 
 ## Cambios de firma / layout (para el port)
 

@@ -4434,9 +4434,9 @@ inline ColorMatrixParam_unk* RenderSetting_unk::GetColorMatrix_unk() {
     return &m324;
 }
 
-// DRAFT: not checked against the original (draft of the victory pose)
-// NONMATCHING: draft - victory pose of the multiplayer battle (places the members around the leader and
-// starts the finish camera); every inline is called out of line in the original (R3)
+// NONMATCHING: 98.9% - the default constructor of the atn::Matrix3x4 of the ray loop is called out of line here
+// (the original emits nothing for it), and registers. Victory pose of the multiplayer battle (places the members
+// around the leader and starts the finish camera); every inline is called out of line in the original (R3)
 void GameTask::fn_803729B4(CharaTask* chara) {
     if (chara == 0) {
         return;
