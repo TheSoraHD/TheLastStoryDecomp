@@ -30,10 +30,7 @@ extern "C" std::string fn_8006AFF8(const std::string& a, const std::string& b);
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
 extern "C" double cos(double x);
-// inferred: effect/bullet manager (lbl_8087F048); class unknown
-struct Effect_unk;
-extern "C" Effect_unk* lbl_8087F048;
-extern "C" int fn_800F8548(Effect_unk* mgr); // inferred: new bullet id
+extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
 // inferred: effect manager (class unknown), global instance at 0x8087F3C0
 struct EffectMgr_unk;
 extern "C" EffectMgr_unk* lbl_8087F3C0;
@@ -108,18 +105,9 @@ extern "C" CrabMessage_unk* lbl_8087F490;
 extern "C" void* lbl_8087EF70; // inferred: pad
 extern "C" int fn_800A555C(void* pad, int port, int button); // inferred: button triggered
 extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float volume); // inferred: 2D sound
-extern "C" void fn_800F8C6C(Effect_unk* mgr, int a, int b, CharaTask* chara, HitInfo_unk* data, int id, int time,
-                            int c, float f); // inferred: attack hit
-extern "C" void fn_800F8574(Effect_unk* mgr, CharaTask* chara, HitInfo_unk* data, const atn::Vector3* pos,
-                            const atn::Vector3* dir, int a, int b, int c, float f1, float f2); // inferred: bullet
 extern "C" double sqrt(double x);
 extern "C" int fn_8004D314(void* world, int arg, const atn::Vector3* pos, const atn::Vector3* dir, unsigned int mask,
                            void* ignore, int arg7, float radius); // inferred: sphere/ray test (as in gmk/Brazier.cpp)
-// inferred: per-player weights of an effect (floats at +0x128, as in game/Em309Ghoul.cpp); names invented
-struct CrabWeights_unk {
-    unsigned char m00[0x128];
-    float mWeight[72]; // inferred: cleared in a loop of 72 (unrolled 8 x 9)
-};
 // inferred: debug drawing (lbl_8087EEB0, as in gmk/Brazier.cpp)
 extern "C" void* lbl_8087EE98;
 extern "C" int fn_8004ED34(void* colli, atn::ColliResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
@@ -299,7 +287,7 @@ void Em308InvertCrab::vf10() {
             }
             if (mMotion.mTracks[0].m08 >= 12.0f && mMotion.mTracks[0].m08 <= 17.0f) {
                 fn_80144710();
-                fn_800F8C6C(lbl_8087F048, 0, 0, this, m1528, m590, 30, -1, 0.0f);
+                lbl_8087F048->fn_800F8C6C(0, 0, this, m1528, m590, 0.0f, 30, -1);
             }
             break;
         case 8:
@@ -836,9 +824,9 @@ void Em308InvertCrab::fn_802F42CC() {
             fn_802F693C((CharaTask*)m1580);
             break;
         }
-        CrabWeights_unk* w = (CrabWeights_unk*)((BattleTask*)lbl_8087F048)->fn_80103F60(this);
+        BattleChara_unk* w = lbl_8087F048->fn_80103F60(this);
         for (int j = 0; j < 72; j++) {
-            w->mWeight[j] = 1.0f;
+            w->m128[j] = 1.0f;
         }
     } else {
         float f = mMotion.mTracks[0].m08;
@@ -1151,12 +1139,12 @@ int Em308InvertCrab::fn_802F62A0(CharaTask* target, int next) {
     m1534 = 0;
     m1530 = next;
     m1588 = target;
-    CrabWeights_unk* w = (CrabWeights_unk*)((BattleTask*)lbl_8087F048)->fn_80103F60(this);
+    BattleChara_unk* w = lbl_8087F048->fn_80103F60(this);
     if (w != 0) {
-        int i = ((BattleTask*)w)->fn_80108378(target);
+        int i = w->fn_80108378(target);
         for (int j = 0; j < 72; j++) {
             if (j != i) {
-                w->mWeight[j] = 0.0f;
+                w->m128[j] = 0.0f;
             }
         }
     }

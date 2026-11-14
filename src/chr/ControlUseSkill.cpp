@@ -1,21 +1,11 @@
 #include "chr/ControlUseSkill.h"
 #include "game/GameTask.h"
 #include "math/VecAssign_unk.h"
+#include "game/BattleTask.h"
 
-// inferred: effect/bullet manager (lbl_8087F048, as in game/CharaTask.cpp); class unknown
-struct Effect_unk;
-extern "C" Effect_unk* lbl_8087F048;
+extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
 extern "C" void* lbl_8087F430; // inferred: field manager (as in game/CharaTask.cpp)
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
-extern "C" int fn_800F8548(Effect_unk* mgr);
-// inferred: fire the skill (bullet, area or simple effect); argument names unknown
-extern "C" void fn_800F8574(Effect_unk* mgr, CharaTask* chara, HitInfo_unk* data, const atn::Vector3* pos,
-                            const atn::Vector3* dir, int a, int b, int c, float f1, float f2);
-extern "C" void fn_800F8C6C(Effect_unk* mgr, int a, int b, CharaTask* chara, HitInfo_unk* data, int id, int time,
-                            int c, float f);
-extern "C" void fn_800FB4B0(Effect_unk* mgr, CharaTask* chara, HitInfo_unk* data, int id, const atn::Vector3* pos,
-                            int a, int time, int b, int c);
-extern "C" void fn_801092C8(Effect_unk* effect, int msg, CharaTask* chara, int value, int arg);
 // inferred: parameters of fn_8003EA3C (defined in game/CharaTask.cpp)
 struct HitParam_unk;
 extern "C" HitParam_unk lbl_807C6B90; // inferred: default parameters
@@ -98,15 +88,15 @@ int ControlUseSkill::vf0C() {
             }
             fn_800F8574(lbl_8087F048, mChara, data, &pos, &d, 0, 0, 0, 0.0f, 1.0f);
         } else if (data->m01 == 0) {
-            fn_800F8C6C(lbl_8087F048, 0, 0, mChara, data, fn_800F8548(lbl_8087F048), 30, -1, 0.0f);
+            lbl_8087F048->fn_800F8C6C(0, 0, mChara, data, fn_800F8548(lbl_8087F048), 0.0f, 30, -1);
         } else if ((data->mAC & 0x100000) == 0x100000) {
             DamageResult_unk res;
             fn_8003EA3C(&res, data, mChara, mChara, 0, &lbl_807C6B90, 0, 0);
         } else {
-            Effect_unk* mgr = lbl_8087F048;
+            BattleTask* mgr = lbl_8087F048;
             fn_800FB4B0(mgr, mChara, data, fn_800F8548(mgr), &mChara->mPos, 0, 30, -1, 1);
         }
-        if (lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->fn_80375184() && data->m04 == mChara->mStatus.m2D0[3].m[0]) {
+        if (lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->fn_80375184() && data->m04 == mChara->mStatus.m2CC[3].m[0]) {
             if (mChara->mType == 2) {
                 fn_801092C8(lbl_8087F048, 0xC, mChara, data->m04, 0);
             } else {

@@ -23,7 +23,7 @@ struct HitInfo_unk {
     signed char m03; // inferred: chance (percent) of applying the status flags m90 (fn_80040B44)
     int m04; // inferred: id (0x1789 tested by CharaTask::vf4C; shown by fn_80149A30 "CIRCLE [%d:%s]")
     const char* m08;
-    unsigned char m0C[0x10 - 0x0C];
+    const wchar_t* m0C; // inferred: description text (game/TacView)
     // inferred: damage parameters (game/DamageCalc_unk.cpp; same fields as BulletParam_unk)
     int m10;
     int m14;   // inferred: base physical power
@@ -42,7 +42,8 @@ struct HitInfo_unk {
     float m44; // inferred: range used otherwise
     int m48; // inferred: added to CharaTask::mFB4 by chr::ControlShoot
     float m4C; // inferred: speed of the bullet (gmk::FlamingArrow)
-    unsigned char m50[0x58 - 0x50];
+    float m50; // inferred: arc angle of the attack (BattleTask, Em202Spider)
+    float m54; // inferred: half height of the attack (BattleTask)
     float m58; // inferred: passed to chr::ControlChant (CharaTask::fn_8015F568)
     int m5C; // inferred: duration of the hit (CharaTask::fn_801784BC)
     unsigned char m60[0x64 - 0x60];

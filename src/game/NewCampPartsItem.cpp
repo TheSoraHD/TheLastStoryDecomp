@@ -409,8 +409,8 @@ struct NewCampCategoryLess_unk {
         if (ca != cb) {
             return ca < cb;
         }
-        short ka = da->mKind;
         short kb = db->mKind;
+        short ka = da->mKind;
         if (ka != kb) {
             return ka < kb;
         }
@@ -456,10 +456,12 @@ struct NewCampCategoryLess_unk {
         }
         if (wcscmp(sa, sb) == 0) {
             if (a.m08 == 0 && b.m08 == 0) {
-                if (wcscmp(da->mName, db->mName) == 0) {
+                const wchar_t* mb = db->mName;
+                const wchar_t* ma = da->mName;
+                if (wcscmp(ma, mb) == 0) {
                     return a.m04 < b.m04;
                 }
-                return wcscmp(da->mName, db->mName) < 0;
+                return wcscmp(ma, mb) < 0;
             }
             int la = wcslen(na);
             int lb = wcslen(nb);

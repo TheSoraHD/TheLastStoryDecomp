@@ -7,8 +7,8 @@
 #include "Event/SequenceRoot.h"
 #include "Event/PostSequence.h"
 #include "Event/Manager.h"
-#include "Event/MovieState_unk.h"
 #include "atn/DrawHelper.h"
+#include "atn/VideoTHP.h"
 #include "macros.h"
 #include "Event/Sequence.h"
 #include "atn/Light_unk.h"
@@ -125,7 +125,7 @@ inline void SetLayoutValue_unk(void* layout, const char* name, int index, float 
 inline void SetLayoutValue_unk(void* layout, const char* name, float value) {
     fn_801FECE0(layout, fn_800DC6B4(name), value);
 }
-extern "C" void* lbl_8087F048;              // inferred: bullet manager
+extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
 extern "C" atn::SoundEngine_unk* lbl_8087EE90; // inferred: sound engine
 // inferred: items of the debug menu (atn/MindowsCommon.h)
 extern "C" void fn_80087994(void* folder, const char* name, int* value, void* func, void* arg);
@@ -608,7 +608,7 @@ int Manager::fn_8047EA34(int id, atn::Vector3 pos, int arg, float rot) {
         m1EA8 = 0;
         if (seq->m50 == 1) {
             if (lbl_8087F048 != 0) {
-                ((BattleTask*)lbl_8087F048)->fn_801011B8();
+                lbl_8087F048->fn_801011B8();
             }
             if (lbl_8087F9E8 != 0) {
                 lbl_8087F9E8->fn_8059C32C(0);
@@ -2524,7 +2524,7 @@ void Sort_unk(T* first, T* last, Compare comp) {
 }
 
 
-// NONMATCHING: 93.4% - one more saved register in the original (the action loop has a first test)
+// NONMATCHING: 94.6% - one more saved register in the original (the action loop has a first test)
 // inferred: collects the voices of the sequence (audio channels of the sections of kind 1), from the
 // current cut, with their start frames; the same stream twice in a row is kept once in event 0xE19
 void Manager::fn_80488E00(Sequence* seq) {
@@ -2542,11 +2542,11 @@ void Manager::fn_80488E00(Sequence* seq) {
                         for (int k = 0; k < (int)channel->mActions.size(); k++) {
                             Action* action = channel->GetAction_unk(k);
                             StringData* data = seq->m114.Find_unk(action->GetParam_unk(0)->m04.i);
-                            if (data != 0 && data->m08.size() != 0 &&
-                                (lbl_8087EE90 == 0 || fn_80049B74(lbl_8087EE90, data->m08.c_str()) != 0)) {
+                            if (data != 0 && data->GetName_unk().size() != 0 &&
+                                (lbl_8087EE90 == 0 || fn_80049B74(lbl_8087EE90, data->GetName_unk().c_str()) != 0)) {
                                 if (mVoices.size() == 0 || seq->m190 != 0xE19 ||
-                                    !(seq->m114.Find_unk(mVoices[mVoices.size() - 1].mAction->GetParam_unk(0)->m04.i)->m08 ==
-                                      data->m08)) {
+                                    !(seq->m114.Find_unk(mVoices[mVoices.size() - 1].mAction->GetParam_unk(0)->m04.i)->GetName_unk() ==
+                                      data->GetName_unk())) {
                                     mVoices.push_back(ManagerEntry_unk(action, frame + action->m10));
                                 }
                             }
@@ -2946,7 +2946,7 @@ void Manager::fn_8048E904() {
 }
 
 // inferred: movie shown by the event and its fade time
-void Manager::fn_8048E9A4(MovieState_unk* movie, int frames) {
+void Manager::fn_8048E9A4(atn::VideoTHP* movie, int frames) {
     m1F70 = movie;
     m1F6C = 1.0f + (float)frames;
 }

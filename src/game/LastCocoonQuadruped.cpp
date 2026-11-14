@@ -20,9 +20,7 @@
 #include <boost/function.hpp>
 #include "atn/ColliBase.h"
 
-struct Effect_unk;
-extern "C" Effect_unk* lbl_8087F048;
-extern "C" int fn_800F8548(Effect_unk* mgr); // inferred: new bullet id
+extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
 // inferred: field (lbl_8087F430): camera shake and event flags (as in gmk/ShakeCamera.cpp)
 struct QuadField_unk {
     void Shake_unk(int frame, float x, float y) {
@@ -111,16 +109,11 @@ struct QuadDamage_unk {
     unsigned int m1C : 4;
     unsigned int m1C_rest : 28;
 };
-extern "C" void fn_80108C10(Effect_unk* effect, QuadDamage_unk* damage, const atn::Vector3& pos, CharaTask* from,
+extern "C" void fn_80108C10(BattleTask* effect, QuadDamage_unk* damage, const atn::Vector3& pos, CharaTask* from,
                             CharaTask* to, int b, int c);
 
-extern "C" void fn_800FAB80(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* bullet, int id, const atn::Vector3* pos,
-                            const atn::Vector3* rot, int arg6, int arg7, int arg8, int arg9, float arg10,
-                            float arg11); // inferred: fires a bullet (as in game/BattleCharaTask.cpp)
 
 struct HitResult_unk;
-extern "C" int fn_800F8C6C(Effect_unk* mgr, HitResult_unk* results, int count, CharaTask* chara, HitInfo_unk* data,
-                           int id, int time, int hits, float angle); // inferred: deals a hit, returns the hits
 // inferred: as in game/Em206EggMonster.cpp (name invented)
 inline float WrapDeg_unk(float deg) {
     float d = fmod(deg, 360.0);
@@ -1084,7 +1077,7 @@ void LastCocoonQuadruped::fn_804638A4() {
         float f = mMotion.mTracks[0].m08;
         if (f >= 19.0f && f <= 26.0f) {
             fn_80144710();
-            fn_800F8C6C(lbl_8087F048, 0, 0, this, fn_80219E6C(0x5B4), m590, 30, -1, 0.0f);
+            lbl_8087F048->fn_800F8C6C(0, 0, this, fn_80219E6C(0x5B4), m590, 0.0f, 30, -1);
         }
     }
 }
@@ -1125,7 +1118,7 @@ void LastCocoonQuadruped::fn_80463F20() {
     if (m14C0 >= 45) {
         SetMode_unk(0);
         if (m1800 != 0) {
-            ((BattleTask*)lbl_8087F048)->fn_80107A68(&mMotion);
+            lbl_8087F048->fn_80107A68(&mMotion);
             m1800 = 0;
         }
         return;
@@ -1134,7 +1127,7 @@ void LastCocoonQuadruped::fn_80463F20() {
     mRot = (mPos - m1504.GetPos_unk(1.0f / 45.0f * (m14C0 - 1))).ToRotationZ_unk();
     fn_80144710();
     HitInfo_unk* bullet = fn_80219E6C(0x5B4);
-    fn_800F8C6C(lbl_8087F048, 0, 0, this, bullet, m590, 30, -1, 0.0f);
+    lbl_8087F048->fn_800F8C6C(0, 0, this, bullet, m590, 0.0f, 30, -1);
     if (m18F4 != 0) {
         lbl_8087EEB0->fn_80063D3C(mPos, mStatus.mParamB.m28 + bullet->m40, 0.0f, 0xFFFF0000);
     }
@@ -1146,7 +1139,7 @@ void LastCocoonQuadruped::fn_80464608() {
     if (m14C0 >= 33) {
         SetMode_unk(0);
         if (m1800 != 0) {
-            ((BattleTask*)lbl_8087F048)->fn_80107A68(&mMotion);
+            lbl_8087F048->fn_80107A68(&mMotion);
             m1800 = 0;
         }
         return;
@@ -1155,7 +1148,7 @@ void LastCocoonQuadruped::fn_80464608() {
     mRot = (mPos - m1504.GetPos_unk(1.0f / 45.0f * (m14C0 - 1))).ToRotationZ_unk();
     fn_80144710();
     HitInfo_unk* bullet = fn_80219E6C(0x5B4);
-    fn_800F8C6C(lbl_8087F048, 0, 0, this, bullet, m590, 30, -1, 0.0f);
+    lbl_8087F048->fn_800F8C6C(0, 0, this, bullet, m590, 0.0f, 30, -1);
     if (m18F4 != 0) {
         lbl_8087EEB0->fn_80063D3C(mPos, mStatus.mParamB.m28 + bullet->m40, 0.0f, 0xFFFF0000);
     }
@@ -1179,7 +1172,7 @@ void LastCocoonQuadruped::fn_80464CF0() {
         } else {
             SetMode_unk(0);
             if (m1800 != 0) {
-                ((BattleTask*)lbl_8087F048)->fn_80107A68(&mMotion);
+                lbl_8087F048->fn_80107A68(&mMotion);
                 m1800 = 0;
             }
         }
@@ -1204,7 +1197,7 @@ void LastCocoonQuadruped::fn_80464CF0() {
         m1574 = 0;
         float rotY = mRot.y;
         int id = fn_800F8548(lbl_8087F048);
-        fn_800F8C6C(lbl_8087F048, 0, 0, this, fn_80219E6C(0x5B5), id, 30, -1, rotY);
+        lbl_8087F048->fn_800F8C6C(0, 0, this, fn_80219E6C(0x5B5), id, rotY, 30, -1);
     } else {
         atn::ColliResult_unk result;
         atn::Vector3 move(0.0f, -98.1f / (float)(lbl_8087F0A8->m030 * lbl_8087F0A8->m030), 1.0f);
@@ -1310,9 +1303,6 @@ struct QuadHoming_unk : public HomingParam_unk {
         mCount = -1;
     }
 };
-extern "C" void fn_800F8574(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* data, const atn::Vector3* pos,
-                            const atn::Vector3* dir, HomingParam_unk* param, int arg6, int arg7, float a,
-                            float b); // inferred: fires a homing bullet (as in game/Em203GreaterDaemon.cpp)
 
 // inferred: copy of the shot parameters of a bullet built in place (Bullet::GetShot_unk makes one more
 // copy); name invented
@@ -1406,7 +1396,7 @@ void LastCocoonQuadruped::fn_80465B88() {
         m14BC = 1;
     }
     for (int i = 0; i < 32; i++) {
-        HomingBullet* b = &((BattleTask*)lbl_8087F048)->mHomings[i];
+        HomingBullet* b = &lbl_8087F048->mHomings[i];
         if (b->HasFlag_unk(0x10000) && QuadShot_unk(*b).m0C != 0 && QuadShot_unk(*b).m0C->m04 == 0x5BA &&
             b->m88 != this) {
             b->m04 |= 0x800;
@@ -1424,7 +1414,7 @@ void LastCocoonQuadruped::fn_80466370() {
             mPos += m15BC;
         } else if (20.0f < f && f < 24.0f && m14BC == 0) {
             HitInfo_unk* skill = fn_80219E6C(0x5B5);
-            Effect_unk* mgr = lbl_8087F048;
+            BattleTask* mgr = lbl_8087F048;
             fn_800FAB80(mgr, this, skill, m590, &mPos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
             m14BC = 1;
         }
@@ -1443,13 +1433,13 @@ void LastCocoonQuadruped::fn_804666D8() {
         float f = mMotion.mTracks[0].m08;
         if (f > 80.0f) {
             if (m1800 != 0) {
-                ((BattleTask*)lbl_8087F048)->fn_80107A68(&mMotion);
+                lbl_8087F048->fn_80107A68(&mMotion);
                 m1800 = 0;
             }
             mMotion.mTracks[0].m0C = 1.0f;
         } else if (f > 60.0f) {
             if (m1800 == 0) {
-                ((BattleTask*)lbl_8087F048)->fn_801079C0(&mMotion, &mMotion);
+                lbl_8087F048->fn_801079C0(&mMotion, &mMotion);
                 m1800 = 1;
             }
             mMotion.mTracks[0].m0C = 0.075f;
@@ -1467,7 +1457,7 @@ void LastCocoonQuadruped::fn_80466868() {
     if (frame >= mMotion.fn_80097D7C(0)) {
         SetMode_unk(0);
         if (m1800 != 0) {
-            ((BattleTask*)lbl_8087F048)->fn_80107A68(&mMotion);
+            lbl_8087F048->fn_80107A68(&mMotion);
             m1800 = 0;
         }
     }
@@ -1476,7 +1466,7 @@ void LastCocoonQuadruped::fn_80466868() {
 void LastCocoonQuadruped::fn_80466974() {
     SetMode_unk(0);
     if (m1800 != 0) {
-        ((BattleTask*)lbl_8087F048)->fn_80107A68(&mMotion);
+        lbl_8087F048->fn_80107A68(&mMotion);
         m1800 = 0;
     }
 }
@@ -1572,10 +1562,6 @@ void LastCocoonQuadruped::fn_80467F50() {
     fn_800C344C("SE_EM206_001", &mPos, 0, -1, 1.0f);
 }
 
-extern "C" int fn_800FBA9C(Effect_unk* mgr, CharaTask* chara, CharaTask* target, HitInfo_unk* data, int arg,
-                           float f); // inferred: the attack reaches the target
-extern "C" int fn_800FBE70(Effect_unk* mgr, CharaTask* chara, CharaTask* target, HitInfo_unk* data, int arg,
-                           atn::Vector3* dir, int a, int b); // inferred: the attack in `dir` reaches the target
 
 // NONMATCHING: 97.7% - `m560 == 4 || m560 == 5` becomes a range test (two compares in the original), which
 // shifts the registers r23-r31

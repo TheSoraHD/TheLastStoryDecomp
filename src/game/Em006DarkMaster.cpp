@@ -8,7 +8,7 @@
 
 extern "C" int sprintf(char* buf, const char* fmt, ...);
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
-extern "C" void* lbl_8087F048; // inferred: effect manager of the characters
+extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: length
 // inferred: field (lbl_8087F430); m10D8: route tables
@@ -159,7 +159,7 @@ void Em006DarkMaster::vf40(HitInfo_unk* hit) {
         }
         vf100(8);
     } else if (lbl_8087F048 != 0) {
-        ((BattleTask*)lbl_8087F048)->fn_8010653C(this, &mMotion);
+        lbl_8087F048->fn_8010653C(this, &mMotion);
     }
 }
 
@@ -195,7 +195,7 @@ void Em006DarkMaster::vf100(int state) {
     case 8: {
         fn_805A4F1C(0x1EA, 0, 1, 1.0f, 0.0f);
         if (lbl_8087F048 != 0) {
-            ((BattleTask*)lbl_8087F048)->fn_8010653C(this, &mMotion);
+            lbl_8087F048->fn_8010653C(this, &mMotion);
         }
         void* routes = lbl_8087F430 != 0 ? lbl_8087F430->m10D8 : 0;
         AIManager* search = lbl_8087EE68;
@@ -295,7 +295,7 @@ void Em006DarkMaster::vf108() {
                     }
                     mMotion.fn_80097C08(0, 0x1EA, 0, 0, 1, 0.0f, 0.1f);
                     if (lbl_8087F048 != 0) {
-                        ((BattleTask*)lbl_8087F048)->fn_8010653C(this, &mMotion);
+                        lbl_8087F048->fn_8010653C(this, &mMotion);
                     }
                     m14BC++;
                     return;

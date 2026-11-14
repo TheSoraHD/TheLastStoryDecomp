@@ -52,8 +52,6 @@ struct Field_unk {
     float m974; // inferred: shake strength
     float m978;
 };
-struct Effect_unk;
-extern "C" void fn_801092C8(Effect_unk* effect, int msg, CharaTask* chara, int value, int arg);
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 // inferred: damage record sent to the effect manager (layout of game/CharaStatus.cpp)
 struct ShadeDamage_unk {
@@ -72,7 +70,7 @@ struct ShadeDamage_unk {
     unsigned int m1C : 4;
     unsigned int m1C_rest : 28;
 };
-extern "C" void fn_80108C10(Effect_unk* effect, ShadeDamage_unk* damage, const atn::Vector3& pos, int a, CharaTask* chara,
+extern "C" void fn_80108C10(BattleTask* effect, ShadeDamage_unk* damage, const atn::Vector3& pos, int a, CharaTask* chara,
                             int b, int c);
 struct EffectMgr_unk;
 extern "C" void fn_8023A680(EffectMgr_unk* mgr, void* res, int a, int b, atn::Vector3* pos, int c, int d, const float* color,
@@ -110,10 +108,7 @@ extern "C" Field_unk* lbl_8087F430;
 extern "C" Field_unk* fn_80121F00();
 extern "C" CharaManager<EnemyTask>* fn_801A03E0(); // inferred: enemy manager
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
-// inferred: effect/bullet manager (lbl_8087F048, as in chr/ControlUseSkill.cpp); class unknown
-struct Effect_unk;
-extern "C" Effect_unk* lbl_8087F048;
-extern "C" int fn_800F8548(Effect_unk* mgr); // inferred: new bullet id
+extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
 extern "C" int fn_800DD3FC(wchar_t* s, const wchar_t* format, ...); // inferred: wide sprintf
 extern "C" const wchar_t lbl_808813D0[2]; // inferred: empty text
 // inferred: camp message table (lbl_8087F1E4, as in game/Em309Ghoul.cpp)
@@ -139,9 +134,6 @@ extern "C" int fn_8021A888(HitInfo_unk* hit);
 extern "C" SkillEffectManager* lbl_8087F9E8;
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 extern "C" HitInfo_unk* fn_80219E6C(int id); // inferred: bullet/skill data by id
-extern "C" void fn_800FAB80(Effect_unk* mgr, CharaTask* chara, HitInfo_unk* bullet, int arg3, const atn::Vector3* pos,
-                            const atn::Vector3* rot, int arg6, int arg7, int arg8, int arg9, float arg10,
-                            float arg11);
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
 extern "C" void* lbl_8087EE98;
 extern "C" int fn_8004ED34(void* colli, atn::ColliResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
@@ -208,11 +200,6 @@ inline atn::Vector3 GetNodePos_unk(MtxPtr m) {
 }
 
 extern "C" int rand();
-// inferred: battle state (fn_80103F60 returns a record per party member; m128: weights)
-struct BattleSlots_unk {
-    unsigned char m000[0x128];
-    float m128[1];
-};
 
 // inferred: float color converted from/to GXColor (as in game/GimmickCommon.cpp); names invented
 struct ShadeColor_unk {
@@ -264,7 +251,7 @@ inline void Em301LShade::ShowMessage_unk(int id) {
     wchar_t text[256];
     memset(text, 0, sizeof(text));
     fn_800DD3FC(text, lbl_8087F1E4->Get_unk(id), *(const wchar_t**)((char*)m60 + 4));
-    ((BattleTask*)lbl_8087F048)->fn_80109828(text);
+    lbl_8087F048->fn_80109828(text);
 }
 
 inline bool Em301LShade::IsMotionEnd_unk() {
@@ -760,9 +747,9 @@ void Em301LShade::vf10() {
     }
     fn_8014C540();
     fn_80145334();
-    BattleSlots_unk* slots = (BattleSlots_unk*)((BattleTask*)lbl_8087F048)->fn_80103F60(this);
+    BattleChara_unk* slots = lbl_8087F048->fn_80103F60(this);
     for (CharaTask* c = lbl_8087F8A0->mHead; c != 0; c = NextChara_unk(c)) {
-        int i = ((BattleTask*)slots)->fn_80108378(c);
+        int i = slots->fn_80108378(c);
         if (c->fn_8016E484() == 0) {
             slots->m128[i] = 0.0f;
         } else {
@@ -1176,7 +1163,7 @@ int Em301LShade::fn_802D404C() {
         for (CharaTask* c = lbl_8087F8A0->mHead; c != 0; c = NextChara_unk(c)) {
             c->mC58.mC4 = 0;
             c->mC58.mC8 = 0;
-            ((BattleTask*)lbl_8087F048)->fn_80103600(c);
+            lbl_8087F048->fn_80103600(c);
             if (fn_8021A888(c->m638)) {
                 c->fn_80160170(c->m638, c->mC58.mC4);
             }
@@ -1258,7 +1245,7 @@ void Em301LShade::fn_802D4378() {
     if (m14E8 == 65) {
         fn_800FAB80(lbl_8087F048, this, skill, m590, &m153C, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
         fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0x115), *(const wchar_t**)((char*)m60 + 4));
-        ((BattleTask*)lbl_8087F048)->fn_80109828(text);
+        lbl_8087F048->fn_80109828(text);
         fn_800C344C("SE_EM301_002", &m153C, 0, -1, 1.0f);
     }
 }
@@ -1311,7 +1298,7 @@ void Em301LShade::fn_802D4628() {
             total -= (int)(chara->mStatus.m04 * rate) + 1;
             chara->mStatus.fn_8012DF7C(hp + 1, 0, 0);
             fn_80108C10(lbl_8087F048, &damage, chara->vfAC(), (int)this, chara, 0, 0);
-            ((BattleTask*)lbl_8087F048)->fn_80107850((atn::Model*)&chara->mMotion);
+            lbl_8087F048->fn_80107850((atn::Model*)&chara->mMotion);
             atn::Vector3 rot = chara->mRot.ToRotation_unk();
             atn::Vector3 dir = rot * -1.0f;
             dir.Normalize_unk();
@@ -1645,8 +1632,8 @@ void Em301LShade::fn_802D67F8(int index) {
             }
             EnemyTask* e = enemies[i];
             RoutePlace_unk* place = places[i];
-            ((BattleTask*)lbl_8087F048)->fn_80107850((atn::Model*)&e->mMotion);
-            ((BattleTask*)lbl_8087F048)->fn_801077A8((atn::Model*)&e->mMotion, (atn::Model*)&e->mMotion);
+            lbl_8087F048->fn_80107850((atn::Model*)&e->mMotion);
+            lbl_8087F048->fn_801077A8((atn::Model*)&e->mMotion, (atn::Model*)&e->mMotion);
             fn_80232B7C(e, 1000);
             PlayEffect_unk(&m1520, (atn::Model*)&e->mMotion);
             e->mFlag15 = 0;
@@ -1666,7 +1653,7 @@ void Em301LShade::fn_802D67F8(int index) {
         wchar_t text[256];
         memset(text, 0, sizeof(text));
         fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0x127), *(const wchar_t**)((char*)m60 + 4));
-        ((BattleTask*)lbl_8087F048)->fn_80109828(text);
+        lbl_8087F048->fn_80109828(text);
     }
 }
 

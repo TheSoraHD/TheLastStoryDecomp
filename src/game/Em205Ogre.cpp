@@ -10,6 +10,7 @@
 #include "game/CharaStatus.h"
 #include <boost/bind.hpp>
 #include "game/MapTask.h"
+#include "game/BattleTask.h"
 
 extern "C" int sprintf(char* buf, const char* fmt, ...);
 extern "C" int strcmp(const char* a, const char* b);
@@ -20,16 +21,8 @@ extern "C" int fn_8021A984(HitInfo_unk* hit);
 extern "C" SkillEffectManager* lbl_8087F9E8;
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 extern "C" int rand();
-// inferred: effect/bullet manager (lbl_8087F048, as in chr/ControlUseSkill.cpp); class unknown
-struct Effect_unk;
-extern "C" Effect_unk* lbl_8087F048;
-extern "C" int fn_800F8548(Effect_unk* mgr); // inferred: new bullet id
-extern "C" void fn_800F8C6C(Effect_unk* mgr, int a, int b, CharaTask* chara, HitInfo_unk* data, int id, int time,
-                            int c, float f);
+extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
 struct HomingParam_unk;
-extern "C" void fn_800F8574(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* data, const atn::Vector3* pos,
-                            const atn::Vector3* dir, HomingParam_unk* param, int arg6, int arg7, float a,
-                            float b); // inferred: fires a bullet (as in game/Em003LesserDaemon.cpp)
 // inferred: effect manager (class unknown), global instance at 0x8087F3C0
 struct EffectMgr_unk;
 extern "C" EffectMgr_unk* lbl_8087F3C0;
@@ -475,7 +468,7 @@ void Em205Ogre::vf108() {
                 if (mMotion.mTracks[0].m08 >= 26.0f) {
                     m14BC++;
                     HitInfo_unk* skill = fn_80219E6C(m14E8);
-                    fn_800F8C6C(lbl_8087F048, 0, 0, this, skill, fn_800F8548(lbl_8087F048), 30, -1, 0.0f);
+                    lbl_8087F048->fn_800F8C6C(0, 0, this, skill, fn_800F8548(lbl_8087F048), 0.0f, 30, -1);
                     if (m1514) {
                         GimmickCommon* g = GimmickManager::instance_ != 0 ? GimmickManager::instance_->fn_803EEE10(0x41B, 1) : 0;
                         if (g != 0) {
@@ -511,7 +504,7 @@ void Em205Ogre::vf108() {
                               ? SWING_MAX0_UNK((mMotion.mTracks[0].m08 - 20.0f) / 7.0f)
                               : 1.0f;
                 float s = 3.1415927f;
-                fn_800F8C6C(lbl_8087F048, 0, 0, this, skill, m14C8, 30, -1, 1.5707964f - t * s);
+                lbl_8087F048->fn_800F8C6C(0, 0, this, skill, m14C8, 1.5707964f - t * s, 30, -1);
                 if (mMotion.mTracks[0].m08 >= 27.0f) {
                     m14BC++;
                 }

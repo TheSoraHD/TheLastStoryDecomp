@@ -40,23 +40,7 @@ struct GameState_unk {
 extern "C" GameState_unk* lbl_8087EFA8;
 // inferred: RGBA colour of the effects
 typedef EffectColor_unk Color4f_unk;
-// inferred: effect manager of the characters (lbl_8087F048)
-struct Effect_unk {
-};
-extern "C" Effect_unk* lbl_8087F048;
-extern "C" void fn_801070C8(Effect_unk* effect, int id, int a, int b, chr::Motion_unk* motion,
-                            const atn::Vector3* pos, const atn::Vector3* rot, const Color4f_unk& color, float scale);
-extern "C" void fn_80107168(Effect_unk* effect, int id, int a, int b, chr::Motion_unk* motion,
-                            const atn::Vector3* pos, const atn::Vector3* rot, const Color4f_unk& color, float scale);
-extern "C" int fn_800F8548(Effect_unk* mgr);
-extern "C" void fn_800F8574(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* data, const atn::Vector3* pos,
-                            const atn::Vector3* dir, HomingParam_unk* param, int arg6, int arg7, float a,
-                            float b); // inferred: fires a bullet
-extern "C" void fn_800FAB80(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* bullet, int arg3, const atn::Vector3* pos,
-                            const atn::Vector3* rot, int arg6, int arg7, int arg8, int arg9, float arg10, float arg11);
-extern "C" void fn_800FB4B0(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* bullet, int arg3, const atn::Vector3* pos,
-                            int arg5, int arg6, int arg7, int arg8);
-extern "C" void fn_801092C8(Effect_unk* effect, int msg, CharaTask* chara, int value, int arg);
+extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
 // inferred: result of a damage computation (names invented, as in game/EnemyTasha.cpp)
 struct MagicDamage_unk {
     MagicDamage_unk() : m00(0), m04(0), m08(0), m0C(0), m10(0), m14(-1), m18(-1), m1C_28(0) {}
@@ -84,7 +68,7 @@ extern "C" void fn_8003EA3C(MagicDamage_unk* result, HitInfo_unk* data, CharaTas
                             int flags, const void* options, atn::Vector3* a, atn::Vector3* b);
 extern "C" void fn_8003F030(MagicDamage_unk* result, HitInfo_unk* data, CharaTask* attacker, const atn::Vector3* pos,
                             const atn::Vector3* rot, int flags);
-extern "C" void fn_80108C10(Effect_unk* effect, MagicDamage_unk* damage, const atn::Vector3& pos, CharaTask* attacker,
+extern "C" void fn_80108C10(BattleTask* effect, MagicDamage_unk* damage, const atn::Vector3& pos, CharaTask* attacker,
                             CharaTask* target, int a, int b);
 // inferred: one line of the voice table (defined in atn/ptr_string_base_char_0.cpp)
 struct VoiceEntry_unk {
@@ -235,7 +219,7 @@ ControlChant::ControlChant(Chara_unk* chara, CharaTask* target, const atn::Vecto
     model->mTracks[0].m0C = 1.0f;
     m3C = mChara->m638;
     if (lbl_8087F048) {
-        ((BattleTask*)lbl_8087F048)->fn_80105AB0(mChara, model, ElementColor_unk(mChara));
+        lbl_8087F048->fn_80105AB0(mChara, model, ElementColor_unk(mChara));
     }
     m30 = fn_800C344C(sChantSe, &mChara->mPos, 0, -1, 1.0f);
     m08 = pos;
@@ -268,7 +252,7 @@ ControlChant::~ControlChant() {
 int ControlChant::vf0C() {
     int done = 0;
     Motion_unk* model = &mChara->mMotion;
-    float rate = ((BattleTask*)lbl_8087F048)->fn_8010CB2C(mChara, m40);
+    float rate = lbl_8087F048->fn_8010CB2C(mChara, m40);
     HitInfo_unk* hit;
     if (lbl_8087F9F8 && ((TacView*)lbl_8087F9F8)->fn_805ADCC0(mChara, mChara->m638, 0)) {
         if ((mChara->m638->mAC & 0x40000) != 0x40000) {
@@ -414,7 +398,7 @@ int ControlChant::vf0C() {
         if (mChara->mType == 0) {
             color.a = 0.3f;
         }
-        ((BattleTask*)lbl_8087F048)->fn_80105B4C(mChara, model, &color);
+        lbl_8087F048->fn_80105B4C(mChara, model, &color);
     }
     if (mChara->mType == 3 && hit && m34 && !m34->CanAct_unk() && mChara->mC58.mC4 &&
         !mChara->fn_8016F3D0(m34, 1)) {
@@ -466,11 +450,11 @@ ControlMagic::ControlMagic(Chara_unk* chara, CharaTask* target, float f, const a
             case 6:
                 model->fn_80097C08(0, 0x17A, 0, 0, 1, 0.0f, 0.1f);
                 model->mTracks[0].m0C = 1.2f;
-                ((BattleTask*)lbl_8087F048)->fn_80105B3C(mChara);
+                lbl_8087F048->fn_80105B3C(mChara);
                 m1F = true;
                 if (hit->mB0) {
-                    fn_801070C8(lbl_8087F048, hit->mB0, 0, 0, &mChara->mMotion, &chr::lbl_807C7030, &chr::lbl_807C7030,
-                                Color4f_unk(1.0f, 1.0f, 1.0f, 1.0f), 1.0f);
+                    lbl_8087F048->fn_801070C8(hit->mB0, 0, 0, &mChara->mMotion, &chr::lbl_807C7030, &chr::lbl_807C7030,
+                                &Color4f_unk(1.0f, 1.0f, 1.0f, 1.0f), 1.0f);
                 }
                 break;
             case 1:
@@ -479,12 +463,12 @@ ControlMagic::ControlMagic(Chara_unk* chara, CharaTask* target, float f, const a
             case 10:
                 model->fn_80097C08(0, 0x17B, 0, 0, 1, 0.0f, 0.1f);
                 if (lbl_8087F048) {
-                    ((BattleTask*)lbl_8087F048)->fn_80105B3C(mChara);
+                    lbl_8087F048->fn_80105B3C(mChara);
                 }
                 m1F = true;
                 if (hit->mB0) {
-                    fn_801070C8(lbl_8087F048, hit->mB0, 0, 0, &mChara->mMotion, &chr::lbl_807C7030, &chr::lbl_807C7030,
-                                Color4f_unk(1.0f, 1.0f, 1.0f, 1.0f), 1.0f);
+                    lbl_8087F048->fn_801070C8(hit->mB0, 0, 0, &mChara->mMotion, &chr::lbl_807C7030, &chr::lbl_807C7030,
+                                &Color4f_unk(1.0f, 1.0f, 1.0f, 1.0f), 1.0f);
                 }
                 break;
             default:
@@ -681,9 +665,9 @@ int ControlMagic::vf0C() {
                 MagicDamage_unk damage;
                 fn_8003EA3C(&damage, hit, player, player, 0, lbl_807C6B90, 0, 0);
                 if (hit->mB0) {
-                    fn_80107168(lbl_8087F048, hit->mB0, 0, 0, &player->mMotion, &chr::lbl_807C7030,
-                                &chr::lbl_807C7030, Color4f_unk(1.0f, 1.0f, 1.0f, 1.0f), 1.0f);
-                    ((BattleTask*)lbl_8087F048)->fn_80107208(hit->mB0, &mChara->mPos, 1.0f);
+                    lbl_8087F048->fn_80107168(hit->mB0, 0, 0, &player->mMotion, &chr::lbl_807C7030,
+                                &chr::lbl_807C7030, &Color4f_unk(1.0f, 1.0f, 1.0f, 1.0f), 1.0f);
+                    lbl_8087F048->fn_80107208(hit->mB0, &mChara->mPos, 1.0f);
                 }
                 player->mStatus.m08 = player->mStatus.mParamB.m88;
             } else {
@@ -710,9 +694,9 @@ int ControlMagic::vf0C() {
                     fn_8003F030(&damage, hit, mChara, &pos, &mChara->mRot, 0);
                 }
                 if (hit->mB0) {
-                    fn_801070C8(lbl_8087F048, hit->mB0, 0, 0, 0, &mChara->mPos, &mChara->mRot,
-                                Color4f_unk(1.0f, 1.0f, 1.0f, 1.0f), 1.0f);
-                    ((BattleTask*)lbl_8087F048)->fn_80107208(hit->mB0, &mChara->mPos, 1.0f);
+                    lbl_8087F048->fn_801070C8(hit->mB0, 0, 0, 0, &mChara->mPos, &mChara->mRot,
+                                &Color4f_unk(1.0f, 1.0f, 1.0f, 1.0f), 1.0f);
+                    lbl_8087F048->fn_80107208(hit->mB0, &mChara->mPos, 1.0f);
                 }
             }
             if ((mChara->mType == 0 || mChara->mType == 3) && fn_8021A984(hit) &&
@@ -755,7 +739,7 @@ int ControlMagic::vf0C() {
         }
         if ((fn_8021A8D0(hit) || fn_8021A918(hit)) && lbl_8087F048) {
             CharaTask* chara = mChara;
-            chara->mStatus.fn_8012F034(((BattleTask*)lbl_8087F048)->fn_8010CCD8(chara));
+            chara->mStatus.fn_8012F034(lbl_8087F048->fn_8010CCD8(chara));
         }
         if ((hit->mAC & 0x40000) == 0x40000) {
             mChara->mStatus.m228 = 0.0f;

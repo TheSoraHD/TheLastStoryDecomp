@@ -11,18 +11,11 @@
 extern "C" int sprintf(char* buf, const char* fmt, ...);
 extern "C" unsigned long strlen(const char* s);
 
-// inferred: effect/bullet manager (lbl_8087F048, as in game/CharaTask.cpp); class unknown
-struct Effect_unk;
-extern "C" Effect_unk* lbl_8087F048;
+extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
 extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float volume);
 // inferred: RGBA colour (names invented)
 typedef EffectColor_unk Color4f_unk;
-extern "C" int fn_800F8548(Effect_unk* mgr);
-extern "C" void fn_800FB4B0(Effect_unk* mgr, CharaTask* chara, HitInfo_unk* data, int id, const atn::Vector3* pos,
-                            int a, int time, int b, int c);
-extern "C" void fn_800FAB80(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* bullet, int arg3, const atn::Vector3* pos,
-                            const atn::Vector3* rot, int a, int time, int b, int c, float f1, float f2);
 // inferred: one line of the voice table (defined in atn/ptr_string_base_char_0.cpp)
 struct VoiceEntry_unk {
     const char* fn_8021FD7C(int kind) const;
@@ -74,8 +67,8 @@ ControlAttractHateCharge::ControlAttractHateCharge(Chara_unk* chara) : ControlBa
     mTime = motion->fn_80097D7C(0);
     fn_800C344C(sSe[0], &mChara->mPos, 0, -1, 1.0f);
     mChara->fn_801446F0();
-    ((BattleTask*)lbl_8087F048)->fn_80105C9C(mChara, motion);
-    ((BattleTask*)lbl_8087F048)->fn_80105DCC(mChara, motion, 1);
+    lbl_8087F048->fn_80105C9C(mChara, motion);
+    lbl_8087F048->fn_80105DCC(mChara, motion, 1);
 }
 
 int ControlAttractHateCharge::vf0C() {
@@ -96,7 +89,7 @@ int ControlAttractHateCharge::vf0C() {
                 shade.m0C = settings->m254;
                 mChara->fn_80164B00(shade);
             }
-            ((BattleTask*)lbl_8087F048)->fn_80102A40(0, mChara, rec->m28, rec->m2C);
+            lbl_8087F048->fn_80102A40(0, mChara, rec->m28, rec->m2C);
             for (GimmickCommon* g = GimmickManager::instance_->mHead; g != 0; g = g->m5C) {
                 switch (g->m50) {
                 case 0x2B: {
@@ -125,8 +118,8 @@ int ControlAttractHateCharge::vf0C() {
 }
 
 void ControlAttractHateCharge::vf1C() {
-    ((BattleTask*)lbl_8087F048)->fn_8010607C(mChara);
-    ((BattleTask*)lbl_8087F048)->fn_80105F3C(mChara);
+    lbl_8087F048->fn_8010607C(mChara);
+    lbl_8087F048->fn_80105F3C(mChara);
 }
 
 ControlOverdrive::ControlOverdrive(Chara_unk* chara, int skill)
@@ -146,7 +139,7 @@ ControlOverdrive::ControlOverdrive(Chara_unk* chara, int skill)
         HitInfo_unk* hit = fn_80219E6C(mSkill);
         if (lbl_8087F048 != 0) {
             Color4f_unk color(1.0f, 1.0f, 1.0f, 1.0f);
-            ((BattleTask*)lbl_8087F048)->fn_801070C8(hit->mB0, 0, 0, &mChara->mMotion, &lbl_807C7030, &lbl_807C7030, &color, 1.0f);
+            lbl_8087F048->fn_801070C8(hit->mB0, 0, 0, &mChara->mMotion, &lbl_807C7030, &lbl_807C7030, &color, 1.0f);
         }
     }
     if (mChara->m7C != 0 && ((VoiceEntry_unk*)mChara->m7C)->fn_8021FD7C(0x24) != 0) {
@@ -180,14 +173,14 @@ int ControlOverdrive::vf0C() {
         int time = hit->m5C * rate;
         mChara->mStatus.m2F4 = time;
         mChara->mStatus.m2F8 = time;
-        Effect_unk* mgr = lbl_8087F048;
+        BattleTask* mgr = lbl_8087F048;
         fn_800FB4B0(mgr, mChara, hit, fn_800F8548(mgr), &mChara->mPos, 0, 30, -1, 0);
         mChara->mStatus.m228 = 0.0f;
         if (lbl_8087EE68 != 0 && lbl_8087EE68->fn_800185B4(mChara, hit)) {
             lbl_8087EE68->fn_80018608(mChara, hit);
         }
         if (lbl_8087F0A8->m304 != 0) {
-            Effect_unk* mgr2 = lbl_8087F048;
+            BattleTask* mgr2 = lbl_8087F048;
             fn_800FAB80(mgr2, mChara, fn_80219E6C(0x1F6), fn_800F8548(mgr2), &mChara->mPos, &mChara->mRot, 0, 30, -1, -1,
                         0.0f, 1.0f);
         }

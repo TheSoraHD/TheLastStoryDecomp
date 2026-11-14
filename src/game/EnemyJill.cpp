@@ -8,6 +8,7 @@
 #include "std/string_members.h"
 #include "game/GameTask.h"
 #include "math/VecAssign_unk.h"
+#include "game/BattleTask.h"
 
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" int atoi(const char* s);
@@ -28,10 +29,7 @@ struct JillParams_unk {
     JillColMat_unk m324;
 };
 extern "C" JillParams_unk* lbl_8087EFA8;
-// inferred: effect/bullet manager (lbl_8087F048, as in chr/ControlUseSkill.cpp); class unknown
-struct Effect_unk;
-extern "C" Effect_unk* lbl_8087F048;
-extern "C" int fn_800F8548(Effect_unk* mgr); // inferred: new bullet id
+extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
 
 // inferred: const info (the load of info->m20 is scheduled into the prologue only through a const pointer)
 EnemyJill::EnemyJill(atn::Task* parent, const EnemyInfo_unk* info)
@@ -260,10 +258,7 @@ extern "C" inline PlayerMgr_unk* fn_8000D9E8() {
 extern "C" inline CharaTask* fn_8000DCF4(PlayerMgr_unk* mgr) {
     return mgr->mHead;
 }
-Effect_unk* fn_8013A194();
-extern "C" void fn_800FAB80(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* bullet, int arg3, const atn::Vector3* pos,
-                            const atn::Vector3* rot, int arg6, int arg7, int arg8, int arg9, float arg10,
-                            float arg11);
+BattleTask* fn_8013A194();
 
 // NONMATCHING: 99.79% - r29/r30 of the current event and of the rotation pointer in the event damage (the
 // rest matches)
@@ -755,14 +750,6 @@ void EnemyJill::fn_8032FFF8() {
     }
 }
 
-// inferred: the float argument is declared before the last int: the order of the arguments (evaluated right to
-// left) puts the load of the last int after the float; the ABI is the same with any position of the float
-// inferred: the real prototype ends with (int c, float f) as in the other units; here the float is declared
-// first because only this order gives the load order of the original at the three call sites (fn_80330218,
-// fn_8033135C: with (int, float) they drop to 99.45% / 96.87%, the same residue as EnemyTrista::fn_8035CF78).
-// The registers are the same (r10 and f1), so the call is equivalent.
-extern "C" int fn_800F8C6C(Effect_unk* mgr, int a, int b, CharaTask* chara, HitInfo_unk* data, int id, int time,
-                           float f, int c);
 extern "C" int fn_80041A28(int arg, CharaTask* chara, CharaTask* target); // inferred: kind of attack
 
 // inferred: turns toward the target by `t` of the angle and starts the normal attack (inlined twice in
@@ -826,7 +813,7 @@ void EnemyJill::fn_80330218() {
                 }
                 if (m594 != 0) {
                     fn_80144710();
-                    int n = fn_800F8C6C(lbl_8087F048, 0, 0, this, m638, m590, 30, 0.0f, m594);
+                    int n = lbl_8087F048->fn_800F8C6C(0, 0, this, m638, m590, 0.0f, 30, m594);
                     if (n != 0) {
                         CharaTask* player = lbl_8087F8A0->mHead;
                         if (player != 0 && player->mFlag5) {
@@ -1056,7 +1043,7 @@ inline void JillRotZYX_unk(atn::Matrix3x4& m, const atn::Vector3& rot) {
 
 // inferred: fires the hit `data` (names invented)
 inline void EnemyJill::FireHit_unk(HitInfo_unk* data) {
-    fn_800F8C6C(lbl_8087F048, 0, 0, this, data, m590, 10, 0.0f, m594);
+    lbl_8087F048->fn_800F8C6C(0, 0, this, data, m590, 0.0f, 10, m594);
 }
 
 void EnemyJill::fn_8033135C() {
@@ -1076,7 +1063,7 @@ void EnemyJill::fn_8033135C() {
         } else if (mMotion.mTracks[0].m08 >= 27.0f && mMotion.mTracks[0].m08 <= 32.0f) {
             FireHit_unk(m14E0);
         } else if (mMotion.mTracks[0].m08 >= 46.0f && mMotion.mTracks[0].m08 <= 51.0f) {
-            if (fn_800F8C6C(lbl_8087F048, 0, 0, this, m14D0, m590, 10, 0.0f, m594) != 0) {
+            if (lbl_8087F048->fn_800F8C6C(0, 0, this, m14D0, m590, 0.0f, 10, m594) != 0) {
                 CharaTask* player = lbl_8087F8A0->mHead;
                 if (player != 0 && player->mFlag5) {
                     m1590 = 1;

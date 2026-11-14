@@ -79,18 +79,7 @@ extern "C" inline Field_unk* fn_80121F00() {
 }
 extern "C" PlayerManager* lbl_8087F8A0; // inferred: player manager
 extern "C" atn::Vector3 lbl_807C7030;   // inferred: zero vector
-// inferred: effect/bullet manager (lbl_8087F048, as in chr/ControlUseSkill.cpp); class unknown
-struct Effect_unk;
-extern "C" Effect_unk* lbl_8087F048;
-extern "C" int fn_800F8548(Effect_unk* mgr); // inferred: new bullet id
-extern "C" void fn_800FAB80(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* bullet, int id, const atn::Vector3* pos,
-                            const atn::Vector3* rot, int arg6, int arg7, int arg8, int arg9, float arg10,
-                            float arg11); // inferred: fires a bullet
-extern "C" void fn_800F8574(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* data, const atn::Vector3* pos,
-                            const atn::Vector3* dir, HomingParam_unk* param, int arg6, int arg7, float a,
-                            float b); // inferred: fires a homing bullet
-extern "C" void fn_800F8C6C(Effect_unk* mgr, int a, int b, CharaTask* chara, HitInfo_unk* data, int id, int time,
-                            int c, float f); // inferred: moves a bullet with the character
+extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
 extern "C" int fn_800DD3FC(wchar_t* s, const wchar_t* format, ...); // inferred: wide sprintf
 extern "C" const wchar_t lbl_808813D0[2]; // inferred: empty text
 // inferred: camp message table (lbl_8087F1E4, as in game/Em101ElderZesya.cpp)
@@ -1016,7 +1005,7 @@ void Em203GreaterDaemonRedMp::fn_8029FD34() {
                 thunder.mPos = pos;
                 thunder.mFrame = m160C;
             }
-            Effect_unk* effect = lbl_8087F048;
+            BattleTask* effect = lbl_8087F048;
             int id = fn_800F8548(effect);
             fn_800FAB80(effect, this, m1504, id, &thunder.mPos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
             m1600.push_back(thunder);
@@ -1028,7 +1017,7 @@ void Em203GreaterDaemonRedMp::fn_8029FD34() {
     }
     for (unsigned int i = 0; i < m1600.mSize; i++) {
         if (m160C == m16C4 + m1600[i].mFrame) {
-            Effect_unk* effect = lbl_8087F048;
+            BattleTask* effect = lbl_8087F048;
             int id = fn_800F8548(effect);
             fn_800FAB80(effect, this, m1500, id, &m1600[i].mPos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
             if (i % 2 == 0) {
@@ -1091,7 +1080,7 @@ void Em203GreaterDaemonRedMp::fn_802A0818() {
                (mMotion.mTracks[0].m08 > 56.0f && mMotion.mTracks[0].m08 < 60.0f)) {
         atn::Vector3 spine = GetNodePos_unk(mMotion.GetNodeMtx_unk("spine"));
         spine += Front_unk(mRot.y) * 35.0f;
-        fn_800F8C6C(lbl_8087F048, 0, 0, this, m14F0, m590, 30, -1, 0.0f);
+        lbl_8087F048->fn_800F8C6C(0, 0, this, m14F0, m590, 0.0f, 30, -1);
     } else {
         m590 = fn_800F8548(lbl_8087F048);
     }
@@ -1522,10 +1511,14 @@ extern "C" EnemyTask* fn_802A4094(EnemyTask* enemy);
 extern "C" unsigned int fn_802A409C(BattleCharaTask* chara);
 extern "C" float fn_802A40A8(float min, float max);
 extern "C" void fn_802A4120(HomingParam_unk* param);
-extern "C" EnemyTask** fn_802A4184(std::vector<EnemyTask*>* candidates, int index);
 extern "C" EnemyTask* fn_801A0408(CharaManager<EnemyTask>* mgr); // inferred: first enemy
 extern "C" EnemyTask* fn_801A03EC(EnemyTask* enemy);            // inferred: next enemy
-Effect_unk* fn_8013A194(); // inferred: bullet manager (lbl_8087F048)
+BattleTask* fn_8013A194(); // inferred: bullet manager (lbl_8087F048)
+
+// inferred: weak copies of the vector of candidate enemies of fn_802A3D80 (called out of line there in the
+// original, which is over the inline budget)
+template std::vector<EnemyTask*>::vector();
+template EnemyTask*& std::vector<EnemyTask*>::operator[](size_type i);
 
 // inferred: fires the laser (m14E8) at the leader (single) or at every player and every other enemy
 // that can act (names invented)
@@ -1554,7 +1547,7 @@ void Em203GreaterDaemonRedMp::fn_802A3D80(int single) {
         }
     }
     for (unsigned int i = 0; i < fn_800E0AA8((const IntVector_unk*)&targets); i++) {
-        CharaTask* target = *fn_802A4184(&targets, i);
+        CharaTask* target = targets[i];
         atn::Vector3 pos = ((atn::Matrix3x4*)GetModel_unk()->GetNodeMtx_unk("spine"))->GetTrans_unk();
         atn::Vector3 offset(0.0f, 0.0f, 30.0f);
         offset.fn_80011410(fn_800109E0(mRot));
@@ -1617,17 +1610,6 @@ extern "C" int fn_802A4168(CharaManager<EnemyTask>* manager) {
     return manager->mCount;
 }
 
-// inferred: default construction of the temporary vector of candidate enemies in fn_802A3D80.
-extern "C" void fn_802A4170(std::vector<EnemyTask*>* candidates) {
-    candidates->mData = 0;
-    candidates->mSize = 0;
-    candidates->mCap = 0;
-}
-
-// inferred: address of the indexed candidate pointer in a vector.
-extern "C" EnemyTask** fn_802A4184(std::vector<EnemyTask*>* candidates, int index) {
-    return &candidates->mData[index];
-}
 
 int Em203GreaterDaemonRedMp::fn_802A4194(int arg) {
     if (m15A8.size() == 0) {

@@ -90,8 +90,9 @@ struct OccMeshList_unk {
     int mCount;            // 0x10
     OccMesh_unk** mMeshes; // 0x14
 };
-struct OccModel_unk {
-    unsigned char m000[0x3C];
+// inferred: render object (RenderObj_unk of atn/Layer3D.h) of the occluder models
+struct OccModel_unk : public RenderObj_unk {
+    unsigned char m004[0x3C - 0x4];
     Mtx* mMtx;              // 0x3C
     unsigned char m040[0x164 - 0x40];
     unsigned char m164[8];  // 0x164: inferred: occluder data
@@ -100,16 +101,6 @@ struct OccModel_unk {
 extern "C" OccMeshList_unk* fn_80476194(void* data);
 extern "C" OccTree_unk* fn_804761B0(void* data);
 
-// inferred: object of the render list (see atn/Layer3D.h); vf0C returns nonzero when hidden
-struct OccObj_unk {
-    virtual void vf08();
-    virtual int vf0C();
-};
-struct OccRenderNode_unk {
-    OccModel_unk* mObj;
-    float m04;
-    OccRenderNode_unk* mNext;
-};
 
 // inferred: software occlusion buffer (32x32 depth with 4 smaller levels)
 class LayerOcclusionCPU : public IRenderLayer {
@@ -213,9 +204,9 @@ LayerOcclusionCPU::~LayerOcclusionCPU() {
 // NONMATCHING: 99.4% - the model and mesh list pointers get r23/r28 swapped, and the frustum
 // and child loop counter r30/r31 swapped
 void LayerOcclusionCPU::vf14(void* arg) {
-    for (OccRenderNode_unk* node = (OccRenderNode_unk*)arg; node != 0; node = node->mNext) {
-        if (((OccObj_unk*)node->mObj)->vf0C() == 0) {
-            OccModel_unk* model = node->mObj;
+    for (RenderNode_unk* node = (RenderNode_unk*)arg; node != 0; node = node->mNext) {
+        if (node->mObj->vf0C() == 0) {
+            OccModel_unk* model = static_cast<OccModel_unk*>(node->mObj);
             OccMeshList_unk* meshes = fn_80476194(model->m164);
             const OccTree_unk* tree = fn_804761B0(model->m164);
             if (meshes != 0) {

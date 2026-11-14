@@ -120,10 +120,8 @@ public:
     MenuD2A_unk* m1D8[2]; // inferred: ui_abtn_reaction_opcl.d2a
     MenuD2A_unk* m1E0[2]; // inferred: ui_abtn_reaction_loop.d2a
     ResHandle m1E8;     // inferred: debug menu group
-    float m1EC;         // inferred: "EquipFace Ofs" (2 floats)
-    float m1F0;
-    float m1F4;         // inferred: "EquipFace Scl" (2 floats)
-    float m1F8;
+    atn::Vector2_unk m1EC; // inferred: "EquipFace Ofs" (copied as a pair by CostumeEditChara::vf10)
+    atn::Vector2_unk m1F4; // inferred: "EquipFace Scl"
     float m1FC;         // inferred: "4:3 Desc Ofs"
 };
 

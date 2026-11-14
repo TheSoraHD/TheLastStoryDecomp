@@ -3,10 +3,9 @@
 #include "macros.h"
 #include "game/CrossbowMenuTask.h"
 
-// inferred: effect/bullet manager (lbl_8087F048, as in game/CharaTask.cpp); class unknown
-struct Effect_unk;
-extern "C" Effect_unk* lbl_8087F048;
-extern "C" void fn_800F8574(Effect_unk* mgr, CharaTask* chara, HitInfo_unk* data, const atn::Vector3* pos,
+class BattleTask;
+extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
+extern "C" void fn_800F8574(BattleTask* mgr, CharaTask* chara, HitInfo_unk* data, const atn::Vector3* pos,
                             const atn::Vector3* dir, int a, int b, int c, float f1, float f2);
 // inferred: field (lbl_8087F430, as in game/CharaTask.cpp); names invented
 struct Field_unk {

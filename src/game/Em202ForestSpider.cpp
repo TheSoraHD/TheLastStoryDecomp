@@ -63,12 +63,7 @@ extern "C" int fn_800C3118(const char* group); // inferred: nonzero when the sou
 extern "C" atn::SoundRef fn_800C344C(const char* name, const atn::Vector3& pos, int arg2, int arg3, float volume);
 extern "C" double sqrt(double x);
 extern "C" HitInfo_unk* fn_80219E6C(int id);  // inferred: skill data
-// inferred: effect/bullet manager (lbl_8087F048); class unknown
-struct Effect_unk;
-extern "C" Effect_unk* lbl_8087F048;
-extern "C" int fn_800F8548(Effect_unk* mgr); // inferred: new bullet id
-extern "C" void fn_800F8C6C(Effect_unk* mgr, int a, int b, CharaTask* chara, HitInfo_unk* data, int id, int time,
-                            int c, float f);
+extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
 // inferred: effect manager (class unknown), global instance at 0x8087F3C0 (as in game/Em202Spider.cpp)
 struct EffectMgr_unk;
 extern "C" EffectMgr_unk* lbl_8087F3C0;
@@ -82,7 +77,6 @@ struct Color4f_unk {
 extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
-extern "C" void fn_80108F38(Effect_unk* mgr, const atn::Vector3* pos, int arg);
 extern "C" void fn_8023A680(EffectMgr_unk* mgr, atn::EffFile* eff, int a, int b, const atn::Matrix3x4* mtx, int c,
                             int d, int e, float scale); // inferred: effect on a matrix
 extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3, int arg4); // debug menu
@@ -663,7 +657,7 @@ void Em202ForestSpider::vf108() {
     float f = mMotion.mTracks[0].m08;
     if (f >= 17.0f && f <= 22.0f) {
         int id = m590;
-        fn_800F8C6C(lbl_8087F048, 0, 0, this, fn_80219E6C(m1508), id, 30, -1, 0.0f);
+        lbl_8087F048->fn_800F8C6C(0, 0, this, fn_80219E6C(m1508), id, 0.0f, 30, -1);
     }
 }
 
@@ -675,7 +669,7 @@ void Em202ForestSpider::vf10C() {
     float f = mMotion.mTracks[0].m08;
     if (f >= 12.0f && f <= 17.0f) {
         int id = m590;
-        fn_800F8C6C(lbl_8087F048, 0, 0, this, fn_80219E6C(m150C), id, 30, -1, 0.0f);
+        lbl_8087F048->fn_800F8C6C(0, 0, this, fn_80219E6C(m150C), id, 0.0f, 30, -1);
     }
 }
 
@@ -706,7 +700,7 @@ void Em202ForestSpider::vf110() {
             memset(text, 0, sizeof(text));
             const wchar_t* name = m18EC->m60->m04;
             fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0xB5), name);
-            ((BattleTask*)lbl_8087F048)->fn_80109828(text);
+            lbl_8087F048->fn_80109828(text);
             ((GameTask*)lbl_8087F430)->fn_80370AE4(0x6E, m18EC->mType == 0 ? 10 : m18EC->m58);
             vf148();
             return;
@@ -817,7 +811,7 @@ void Em202ForestSpider::vf118() {
         memset(text, 0, sizeof(text));
         CharaInfo_unk* info = m18EC->m60;
         fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0xB7), info->m04);
-        ((BattleTask*)lbl_8087F048)->fn_80109828(text);
+        lbl_8087F048->fn_80109828(text);
         m14E0 = 600;
         m1908.push_back(m18EC);
         m18EC->fn_801765D8();
@@ -1135,7 +1129,7 @@ void Em202ForestSpider::vf16C() {
     mMotion.fn_80097C08(0, 2, 1, 1, 1, 0.0f, 0.1f);
     fn_80232B7C(this, 200);
     PlayEffectOrigin_unk(lbl_8087F3C0, &m192C, &mMotion);
-    Effect_unk* mgr = lbl_8087F048;
+    BattleTask* mgr = lbl_8087F048;
     atn::Vector3 p = fn_801781B0();
     fn_80108F38(mgr, &p, 0x80);
 }
@@ -1235,7 +1229,7 @@ void Em202ForestSpider::fn_80277DC4() {
         wchar_t text[256];
         memset(text, 0, sizeof(text));
         fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0xB9), m60->m04);
-        ((BattleTask*)lbl_8087F048)->fn_80109828(text);
+        lbl_8087F048->fn_80109828(text);
     }
 }
 

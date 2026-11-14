@@ -19,18 +19,12 @@ extern "C" void fn_8008771C(void* group, const char* name, float* value, int arg
                             float step);
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 extern "C" atn::Vector3 lbl_807C7030;              // inferred: zero vector
-// inferred: effect/bullet manager (lbl_8087F048, as in chr/ControlUseSkill.cpp); class unknown
-struct Effect_unk;
-extern "C" Effect_unk* lbl_8087F048;
-extern "C" int fn_800F8548(Effect_unk* mgr); // inferred: new bullet id
+extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
 extern "C" int rand();
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 extern "C" double acos(double x);
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
 extern "C" void* memset(void* dst, int c, unsigned long n);
-extern "C" void fn_800FAB80(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* bullet, int id, const atn::Vector3* pos,
-                            const atn::Vector3* rot, int arg6, int arg7, int arg8, int arg9, float arg10,
-                            float arg11); // inferred: fires a bullet (as in game/Em305Vampire.cpp)
 extern "C" int fn_800DD3FC(wchar_t* s, const wchar_t* format, ...); // inferred: wide sprintf
 struct Field_unk;
 // inferred: damage description shown by fn_80108C10 (as StatusDamage_unk of game/CharaStatus.cpp)
@@ -55,7 +49,7 @@ struct QueenDamage_unk {
     unsigned int m1C : 4;
     unsigned int m1C_rest : 28;
 };
-extern "C" void fn_80108C10(Effect_unk* effect, QueenDamage_unk* damage, const atn::Vector3& pos,
+extern "C" void fn_80108C10(BattleTask* effect, QueenDamage_unk* damage, const atn::Vector3& pos,
                             CharaTask* attacker, CharaTask* chara, int b, int c);
 extern "C" int fn_8004ED34(void* colli, atn::ColliResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg7); // inferred: ray test
@@ -154,7 +148,7 @@ inline RoutePlace_unk* FindRoutePlace3_unk(int id) {
 // inferred: shows the battle message `id` with the name of the queen (as in game/Em309Ghoul.cpp)
 inline void ShowMessage_unk(Em208Queen* queen, wchar_t* text, int id) {
     fn_800DD3FC(text, lbl_8087F1E4->Get_unk(id), *(const wchar_t**)((char*)queen->m60 + 4));
-    ((BattleTask*)lbl_8087F048)->fn_80109828(text);
+    lbl_8087F048->fn_80109828(text);
 }
 // inferred: as AngleDiffDeg_unk of game/Em201ZanGurg.cpp
 inline float AngleDiffDeg_unk(float a, float b) {
@@ -342,7 +336,7 @@ void Em208Queen::vf10() {
         case 10:
             if (m14BC >= 120) {
                 if (m14D0 != 0 && m14D0->mType != 2) {
-                    ((BattleTask*)lbl_8087F048)->fn_801031D0(this, m14D0, 1);
+                    lbl_8087F048->fn_801031D0(this, m14D0, 1);
                     int motion = m14D0->mMotion.mTracks[0].m00;
                     if (motion != 0x220 && motion != 0x221) {
                         SetState_unk(13);
@@ -688,13 +682,13 @@ void Em208Queen::fn_802CA490() {
     if (mMotion.mTracks[0].m08 >= 56.0f && mMotion.mTracks[0].m08 <= 59.0f) {
         HitInfo_unk* bullet = fn_80219E6C(0x67C);
         atn::Vector3 pos = mPos;
-        Effect_unk* mgr = lbl_8087F048;
+        BattleTask* mgr = lbl_8087F048;
         fn_800FAB80(mgr, this, bullet, m590, &mPos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
     }
     if (mMotion.mTracks[0].m08 >= 59.0f && mMotion.mTracks[0].m08 <= 65.0f) {
         HitInfo_unk* bullet = fn_80219E6C(0x67C);
         atn::Vector3 pos = GetNodePos_unk(mMotion.GetNodeMtx_unk("rightfoot"));
-        Effect_unk* mgr = lbl_8087F048;
+        BattleTask* mgr = lbl_8087F048;
         fn_800FAB80(mgr, this, bullet, m590, &mPos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
     }
     if (mMotion.mTracks[0].m08 >= 36.0f && mMotion.mTracks[0].m08 <= 56.0f) {
@@ -837,7 +831,7 @@ void Em208Queen::fn_802CAFB8() {
             pos += atn::Vector3(0.0f, 15.0f, 0.0f);
             mStatus.fn_8012DF7C(damage.m04, 0, 0);
             fn_80108C10(lbl_8087F048, &damage, pos, this, m14D0, 0, 0);
-            ((BattleTask*)lbl_8087F048)->fn_80105BD8(&m14D0->mMotion);
+            lbl_8087F048->fn_80105BD8(&m14D0->mMotion);
             m14D0->vf9C(1);
             m14D0->vf44();
             m14D0->mFlag15 = 1;
@@ -932,7 +926,7 @@ void Em208Queen::fn_802CB74C() {
         if (m14BC >= 180) {
             m14B8 = 2;
             PlayMotion_unk(0x14C);
-            ((BattleTask*)lbl_8087F048)->fn_80107A68(&mMotion);
+            lbl_8087F048->fn_80107A68(&mMotion);
         }
     } else if (m14B8 == 2) {
         float frame = mMotion.mTracks[0].m08;
@@ -955,7 +949,7 @@ void Em208Queen::fn_802CB8A0() {
     fn_8013CB68(rot, 0, speed, m568 * scale);
     if (m570 > 0.05f) {
         HitInfo_unk* bullet = fn_80219E6C(0x67E);
-        Effect_unk* mgr = lbl_8087F048;
+        BattleTask* mgr = lbl_8087F048;
         fn_800FAB80(mgr, this, bullet, m590, &mPos, &mRot, 0, 60, -1, -1, 0.0f, 1.0f);
     }
     fn_802CC834(mPos, 35.0f, 6.2831855f, 100);
@@ -968,7 +962,7 @@ void Em208Queen::fn_802CB8A0() {
                 memset(text, 0, sizeof(text));
                 ShowMessage_unk(this, text, 0xFF);
                 for (PlayerTask* p = lbl_8087F8A0->mHead; p != 0; p = (PlayerTask*)p->mNext) {
-                    ((BattleTask*)lbl_8087F048)->fn_801031D0(this, p, 1);
+                    lbl_8087F048->fn_801031D0(this, p, 1);
                 }
             }
             switch (m1518) {
@@ -1068,7 +1062,7 @@ void Em208Queen::fn_802CC39C() {
         }
         m14D0 = 0;
     }
-    ((BattleTask*)lbl_8087F048)->fn_801079C0(&mMotion, &mMotion);
+    lbl_8087F048->fn_801079C0(&mMotion, &mMotion);
 }
 
 inline int Em208Queen::CollectPoints_unk(int* ids) {

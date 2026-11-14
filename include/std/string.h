@@ -100,10 +100,11 @@ public:
     // inferred: range replace used by the constructors/assign (0x80013F78, char). The last
     // argument is an iterator-tag object passed by value; the tags derive from each other
     // (random_access : bidirectional : forward : input), so Tag() is not zero-initialised.
-    // NONMATCHING (standalone compile with -ipa file, 54 differing lines of 182): the original
-    // does not reuse n2 for the memmove of the new characters (it recomputes j2 - j1), keeps
-    // new_data + pos in a register of its own (one more saved register) and does not fold
-    // tmp.size() for the empty temporary (it tests word 0 and reloads byte 0).
+    // NONMATCHING: 99.3% (Event/Puppeteer_CharaTask) - the original does not reuse n2 for the
+    // memmove of the new characters (it recomputes j2 - j1) and keeps new_data + pos in a register
+    // of its own (one more saved register); an inline taking the pointers by reference gives the
+    // subtraction but splits cap in two (97.3%). The string offsets also differ: 7 strings of the
+    // pool of Puppeteer_CharaTask have no references (a function removed by the linker).
     basic_string& do_replace(size_type pos, size_type n1, const T* j1, const T* j2, random_access_iterator_tag tag);
 
     // inferred: inlined at 0x80512944: size() is evaluated in assign, the iterator tag copy and
@@ -223,6 +224,10 @@ public:
     friend basic_string<T2, Tr2, A2> operator+(const basic_string<T2, Tr2, A2>& lhs, const T2* rhs);
     template <class T2, class Tr2, class A2>
     friend basic_string<T2, Tr2, A2> operator+(const T2* lhs, const basic_string<T2, Tr2, A2>& rhs);
+    // inferred: weak copy 0x805ADB28 (wchar_t, game/TacView): data and size of each string from one test.
+    // Unnamed parameters: named ones would renumber the @N of every file that includes this header.
+    template <class T2, class Tr2, class A2>
+    friend basic_string<T2, Tr2, A2> operator+(const basic_string<T2, Tr2, A2>&, const basic_string<T2, Tr2, A2>&);
     // inferred: one character (atn/WordWrap_unk 0x800DFB40: size() then the range replace of &c)
     basic_string& operator+=(T c) { return do_replace(size(), 0, &c, &c + 1, random_access_iterator_tag()); }
     // inferred: inlined in operator==(const basic_string&, const T*) (0x8000EB8C, char)
@@ -429,6 +434,34 @@ basic_string<T, Tr, A> operator+(const T* lhs, const basic_string<T, Tr, A>& rhs
     }
     tmp.reserve(n + sz);
     tmp.replace(0, 0, lhs, lhs + n).replace(n, 0, p, p + sz);
+    return tmp;
+}
+
+// weak copy 0x805ADB28 (wchar_t, game/TacView): zeroes the result, data and size of each string from one
+// test, reserve, then two range replaces
+template <class T, class Tr, class A>
+basic_string<T, Tr, A> operator+(const basic_string<T, Tr, A>& lhs, const basic_string<T, Tr, A>& rhs) {
+    basic_string<T, Tr, A> tmp;
+    typename basic_string<T, Tr, A>::size_type lsz;
+    typename basic_string<T, Tr, A>::size_type rsz;
+    const T* lp;
+    const T* rp;
+    if (!lhs.is_long()) {
+        lp = (const T*)&lhs + 1;
+        lsz = lhs.mShort.mSize & 0x7F;
+    } else {
+        lp = lhs.mLong.mData;
+        lsz = lhs.mLong.mSize;
+    }
+    if (!rhs.is_long()) {
+        rp = (const T*)&rhs + 1;
+        rsz = rhs.mShort.mSize & 0x7F;
+    } else {
+        rp = rhs.mLong.mData;
+        rsz = rhs.mLong.mSize;
+    }
+    tmp.reserve(lsz + rsz);
+    tmp.replace(0, 0, lp, lp + lsz).replace(lsz, 0, rp, rp + rsz);
     return tmp;
 }
 

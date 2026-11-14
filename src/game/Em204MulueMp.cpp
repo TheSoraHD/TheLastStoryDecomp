@@ -25,17 +25,7 @@ extern "C" std::string fn_8006AFF8(const std::string& a, const std::string& b);
 extern "C" HitInfo_unk* fn_80219E6C(int id); // inferred: bullet/skill data by id
 // inferred: debug menu helper (as in game/CharaTask.cpp)
 extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3, int arg4);
-// inferred: effect/bullet manager (lbl_8087F048, as in chr/ControlUseSkill.cpp); class unknown
-struct Effect_unk;
-extern "C" Effect_unk* lbl_8087F048;
-extern "C" int fn_800F8548(Effect_unk* mgr); // inferred: new bullet id
-extern "C" void fn_800F8C6C(Effect_unk* mgr, int a, int b, CharaTask* chara, HitInfo_unk* data, int id, int time,
-                            int c, float f); // inferred: attack hit
-extern "C" void fn_800F8574(Effect_unk* mgr, CharaTask* chara, HitInfo_unk* data, const atn::Vector3* pos,
-                            const atn::Vector3* dir, int a, int b, int c, float f1, float f2); // inferred: bullet
-extern "C" void fn_800FAB80(Effect_unk* mgr, CharaTask* chara, HitInfo_unk* bullet, int arg3, const atn::Vector3* pos,
-                            const atn::Vector3* rot, int arg6, int arg7, int arg8, int arg9, float arg10,
-                            float arg11); // inferred: fires a bullet
+extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
 // inferred: effect manager (class unknown), global instance at 0x8087F3C0 (two flags at 0xC4/0xC8 are
 // set around the spin effect, as in game/Em209SmallGolem.cpp)
 struct EffectMgr_unk {
@@ -534,7 +524,7 @@ void Em204MulueMp::vf104() {
                 Rest_unk();
             }
             if (mMotion.mTracks[0].m08 >= 23.0f && mMotion.mTracks[0].m08 <= 27.0f) {
-                fn_800F8C6C(lbl_8087F048, 0, 0, this, m1674, m590, 30, -1, 0.0f);
+                lbl_8087F048->fn_800F8C6C(0, 0, this, m1674, m590, 0.0f, 30, -1);
             }
             break;
         case 8:
@@ -659,7 +649,7 @@ void Em204MulueMp::vf104() {
                 n.y = 0.0f;
                 mPos += n * 10.0f;
                 atn::Vector3 pos = GetNodePos_unk(mMotion.GetNodeMtx_unk("hips"));
-                Effect_unk* mgr = lbl_8087F048;
+                BattleTask* mgr = lbl_8087F048;
                 fn_800FAB80(mgr, this, fn_80219E6C(0x4B5), 1000, &pos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
             }
             if ((float)m14E0 <= 35.0f) {
@@ -913,7 +903,7 @@ void Em204MulueMp::fn_802B55B0(int aimed, int arg) {
             if (player != 0 && player->mD0_hi == 1 && player->m00 != 0) {
                 atn::Vector3 pos = GetNodePos_unk(player->m00->mMotion.GetNodeMtx_unk("hips"));
                 atn::Vector3 to = (pos - hips).GetNormalize();
-                Bullet* bullet = ((BattleTask*)lbl_8087F048)->fn_801010A0();
+                Bullet* bullet = lbl_8087F048->fn_801010A0();
                 if (bullet == 0) {
                     return;
                 }
@@ -971,7 +961,7 @@ void Em204MulueMp::fn_802B596C() {
         atn::Vector3 n = d.GetNormalize();
         mPos += n * 10.0f;
         atn::Vector3 pos = GetNodePos_unk(mMotion.GetNodeMtx_unk("hips"));
-        Effect_unk* mgr = lbl_8087F048;
+        BattleTask* mgr = lbl_8087F048;
         fn_800FAB80(mgr, this, fn_80219E6C(0x4B5), 1000, &pos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
     }
 }

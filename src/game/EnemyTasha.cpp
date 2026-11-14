@@ -7,6 +7,7 @@
 #include "math/Vec.h"
 #include "chr/ControlDamage.h"
 #include "atn/ColliBase.h"
+#include "game/BattleTask.h"
 
 extern "C" int sprintf(char* buf, const char* fmt, ...);
 extern "C" int strcmp(const char* a, const char* b);
@@ -43,17 +44,8 @@ extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* m
                             int arg8, int arg9, float scale);
 extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
 extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the next effects
-// inferred: effect/bullet manager (lbl_8087F048, as in chr/ControlUseSkill.cpp); class unknown
-struct Effect_unk;
-extern "C" Effect_unk* lbl_8087F048;
-Effect_unk* fn_8013A194();
-extern "C" int fn_800F8548(Effect_unk* mgr); // inferred: new bullet id
-extern "C" void fn_800FAB80(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* bullet, int arg3, const atn::Vector3* pos,
-                            const atn::Vector3* rot, int arg6, int arg7, int arg8, int arg9, float arg10,
-                            float arg11); // inferred: fires a bullet (as in game/EnemyJill.cpp)
-// inferred: the bullet of `owner` that hits `chara` (index, negative if none)
-extern "C" int fn_800FBA9C(Effect_unk* mgr, CharaTask* chara, CharaTask* owner, HitInfo_unk* hit, int arg,
-                           float f);
+extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
+BattleTask* fn_8013A194();
 // inferred: skill effect manager (lbl_8087F9E8; weak copy 0x80356FFC is its accessor)
 
 extern "C" void* lbl_8087EE98;
@@ -213,7 +205,7 @@ inline void EnemyTasha::FireEvent_unk() {
     Mtx m;
     PSMTXRotRad(m, 'y', target->mRot.y);
     PSMTXMultVec(m, &dir, &dir);
-    Effect_unk* mgr = lbl_8087F048;
+    BattleTask* mgr = lbl_8087F048;
     atn::Vector3 pos = mC58.mC4->mPos + dir;
     fn_800FAB80(mgr, this, m1584, fn_800F8548(mgr), &pos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
 }
@@ -648,8 +640,6 @@ inline void TashaPlayEffect_unk(atn::EfpFile* efp, atn::Model* model) {
     fn_8023A8B4(lbl_8087F3C0, efp, model, 0, pos, rot, color, -1, -1, 1, 1.0f);
 }
 
-extern "C" int fn_800F8C6C(Effect_unk* mgr, int a, int b, CharaTask* chara, HitInfo_unk* data, int id, int time,
-                           int c, float f); // inferred: fires an attack (number of hits, as in game/Em201ZanGurg.cpp)
 
 // inferred: state setter (weak copy 0x802657FC of game/Em201ZanGurgFinal.cpp)
 extern "C" void fn_802657FC(CharaTask* chara, int state);
@@ -768,10 +758,6 @@ void EnemyTasha::vf100(int state) {
         vf44();
         break;
     }
-}
-
-void atn::Model::SetMotionFrame(int track, float frame) {
-    mTracks[track].m08 = frame;
 }
 
 // NONMATCHING: 99.88% - r29/r30 swapped for the attack count and the turn temporary, r3/r4 of the
@@ -975,7 +961,7 @@ void EnemyTasha::vf108() {
         }
         if (mMotion.mTracks[0].m08 >= 9.0f && mMotion.mTracks[0].m08 <= 10.0f) {
             fn_80144710();
-            if (fn_800F8C6C(lbl_8087F048, 0, 0, this, m155C, m590, 30, -1, 0.0f) > 0 && m14E0 == 0 &&
+            if (lbl_8087F048->fn_800F8C6C(0, 0, this, m155C, m590, 0.0f, 30, -1) > 0 && m14E0 == 0 &&
                 fn_805A49E4((SpecialFlag_unk*)&m16AC) == 0) {
                 fn_805A4A1C((SpecialFlag_unk*)&m16AC, 1);
             }
@@ -989,10 +975,10 @@ void EnemyTasha::vf108() {
             mFlag31 = 1;
         }
         if (mMotion.mTracks[0].m08 >= 9.0f && mMotion.mTracks[0].m08 <= 10.0f) {
-            hits = fn_800F8C6C(lbl_8087F048, 0, 0, this, m1560, m590, 3, -1, 0.0f);
+            hits = lbl_8087F048->fn_800F8C6C(0, 0, this, m1560, m590, 0.0f, 3, -1);
         }
         if (mMotion.mTracks[0].m08 >= 14.0f && mMotion.mTracks[0].m08 <= 15.0f) {
-            hits += fn_800F8C6C(lbl_8087F048, 0, 0, this, m155C, m590, 30, -1, 0.0f);
+            hits += lbl_8087F048->fn_800F8C6C(0, 0, this, m155C, m590, 0.0f, 30, -1);
         }
         if (hits > 0 && m14E0 == 0 && fn_805A49E4((SpecialFlag_unk*)&m16AC) == 0) {
             fn_805A4A1C((SpecialFlag_unk*)&m16AC, 1);
@@ -1056,7 +1042,7 @@ void EnemyTasha::vf108() {
                 mMotion.mTracks[0].m0C = 1.0f;
                 mMotion.fn_80097C08(0, 0x156, 0, 0, 1, 0.0f, 0.1f);
             } else if (m14BC == 0 && mMotion.mTracks[0].m08 >= 9.0f && mMotion.mTracks[0].m08 <= 10.0f) {
-                m598 += fn_800F8C6C(lbl_8087F048, 0, 0, this, m156C, m590, 5, -1, 0.0f);
+                m598 += lbl_8087F048->fn_800F8C6C(0, 0, this, m156C, m590, 0.0f, 5, -1);
             }
             break;
         case 1:
@@ -1068,7 +1054,7 @@ void EnemyTasha::vf108() {
                 mMotion.mTracks[0].m0C = 1.0f;
                 mMotion.fn_80097C08(0, 0x15A, 0, 0, 1, 0.0f, 0.1f);
             } else if (m14BC == 1 && mMotion.mTracks[0].m08 >= 9.0f && mMotion.mTracks[0].m08 <= 10.0f) {
-                m598 += fn_800F8C6C(lbl_8087F048, 0, 0, this, m156C, m590, 5, -1, 0.0f);
+                m598 += lbl_8087F048->fn_800F8C6C(0, 0, this, m156C, m590, 0.0f, 5, -1);
             }
             break;
         case 2:
@@ -1076,7 +1062,7 @@ void EnemyTasha::vf108() {
                 (frame = mMotion.mTracks[0].m08, frame >= mMotion.fn_80097D7C(0))) {
                 mFlag31 = 1;
             } else if (m14BC == 2 && mMotion.mTracks[0].m08 >= 15.0f && mMotion.mTracks[0].m08 <= 16.0f) {
-                m598 += fn_800F8C6C(lbl_8087F048, 0, 0, this, m1570, m590, 5, -1, 0.0f);
+                m598 += lbl_8087F048->fn_800F8C6C(0, 0, this, m1570, m590, 0.0f, 5, -1);
             }
             break;
         }
@@ -1110,7 +1096,7 @@ void EnemyTasha::vf108() {
                 mPos += ofs;
             }
             if (mMotion.mTracks[0].m08 >= 24.0f && mMotion.mTracks[0].m08 <= 25.0f) {
-                m598 += fn_800F8C6C(lbl_8087F048, 0, 0, this, m1574, m590, 30, -1, 0.0f);
+                m598 += lbl_8087F048->fn_800F8C6C(0, 0, this, m1574, m590, 0.0f, 30, -1);
             }
         }
         if (m14BC == 1) {
@@ -1144,7 +1130,7 @@ void EnemyTasha::vf108() {
             mFlag31 = 1;
         }
         if (mMotion.mTracks[0].m08 >= 25.0f && mMotion.mTracks[0].m08 <= 27.0f) {
-            fn_800F8C6C(lbl_8087F048, 0, 0, this, m1568, m590, 30, -1, 0.0f);
+            lbl_8087F048->fn_800F8C6C(0, 0, this, m1568, m590, 0.0f, 30, -1);
         }
         if (mMotion.mTracks[0].m08 >= 10.0f && mMotion.mTracks[0].m08 < 24.0f) {
             zero = 1.0f;
@@ -1207,7 +1193,7 @@ void EnemyTasha::vf108() {
                 }
             }
             if (mMotion.mTracks[0].m08 >= 21.0f && mMotion.mTracks[0].m08 <= 25.0f) {
-                fn_800F8C6C(lbl_8087F048, 0, 0, this, m155C, m590, 30, -1, 0.0f);
+                lbl_8087F048->fn_800F8C6C(0, 0, this, m155C, m590, 0.0f, 30, -1);
             }
         } else if (frame = mMotion.mTracks[0].m08, frame >= mMotion.fn_80097D7C(0)) {
             mFlag31 = 1;

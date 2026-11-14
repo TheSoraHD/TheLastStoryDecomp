@@ -839,7 +839,7 @@ void FinishCamera_unk::fn_803792F0() {
     if (m394 != 0) {
         m368->fn_803903E0(&target, m368->m8A0, 1);
         m368->fn_8037F744();
-        atn::RenderManager::instance_->SetCamera_unk(*m368);
+        atn::RenderManager::instance_->SetCamera_unk(m368->mCamera);
     } else {
         atn::RenderManager::instance_->SetCamera_unk(mCamera);
     }

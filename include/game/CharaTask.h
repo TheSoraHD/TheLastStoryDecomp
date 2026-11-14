@@ -117,7 +117,7 @@ struct CharaObj1208_unk {
 };
 
 // inferred: objects registered in CharaTask::m120C by fn_805989A4 (class unknown); m04 is compared
-// with the skill data of CharaStatus::m2D0 by CharaTask::fn_80176428
+// with the skill data of CharaStatus::m2CC by CharaTask::fn_80176428
 struct CharaAttach_unk {
     int m00;
     HitInfo_unk* m04;
@@ -301,7 +301,7 @@ struct MotionCommand_unk {
     int m04;                // 0x04: inferred: motion id of the selected track
     int m08;                // 0x08: inferred: selected track (largest weight)
     int m0C;
-    unsigned char m10;      // inferred: enabled
+    bool m10;              // inferred: enabled (stored as `x == 1` without a mask, Actor::fn_8000FAE8)
     unsigned char m11;      // inferred: sounds enabled
     unsigned char m12;      // inferred: a command was found on the last update (run again)
     atn::LH_MotionCommandData mLoader; // 0x14

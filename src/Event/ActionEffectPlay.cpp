@@ -2,7 +2,6 @@
 #include "Event/ActionProcessors_unk.h"
 #include "game/GameTask.h"
 #include "Event/Manager.h"
-#include "Event/MovieState_unk.h"
 #include "game/NewStaffRoll.h"
 #include "game/GameVoice.h"
 #include "game/GameBgm.h"
@@ -24,6 +23,7 @@
 #include "game/SongManager.h"
 #include "game/GameConfig_unk.h"
 #include "atn/RenderManager.h"
+#include "atn/VideoTHP.h"
 #include "atn/Sphere.h"
 #include "Event/Dialog.h"
 #include "game/GameChoiceWindow.h"
@@ -164,11 +164,6 @@ inline AnimEntry_unk* FindAnim_unk(EventManager_unk* manager, int id) {
     return 0;
 }
 
-// inferred: movie of the event (found by id)
-struct MovieRes_unk {
-    unsigned char m00[0x4C];
-    MovieState_unk* m4C;
-};
 typedef MovieData MovieEntry_unk;
 
 // inferred: movie `id` of the event (as EventManager_unk::FindActor_unk)
@@ -956,8 +951,8 @@ inline bool HasSound_unk(const char* name) {
 
 // inferred: plays the voice of an actor: with lip sync on its character (or on the balloon head when
 // the event shows dialog heads, flag 0x00800000), or without when it has none
-// NONMATCHING: 97.4% - arg in r27 (r28 in the original) and the long-string test of size() is shared
-// with c_str() here (the original tests it again); tried size()/length()/empty() forms and Keep_unk
+// NONMATCHING: 98.6% - arg in r27 (r28 in the original) and registers; the name is read through
+// CommonData::GetName_unk (the long-string test is then made again by c_str())
 int ActionVoicePlay::vf0C(Action* arg, int phase) {
     switch (phase) {
     case 0: {
@@ -967,10 +962,10 @@ int ActionVoicePlay::vf0C(Action* arg, int phase) {
         if (entry == 0) {
             break;
         }
-        if (entry->m08.size() == 0) {
+        if (entry->GetName_unk().size() == 0) {
             break;
         }
-        if (lbl_8087EE90 != 0 && !HasSound_unk(entry->m08.c_str())) {
+        if (lbl_8087EE90 != 0 && !HasSound_unk(entry->GetName_unk().c_str())) {
             break;
         }
         atn::Vector3 pos = arg->fn_805384CC(2);
@@ -979,7 +974,7 @@ int ActionVoicePlay::vf0C(Action* arg, int phase) {
         float pitch = arg->GetParam_unk(9)->m04.f;
         int noKeep = arg->GetParam_unk(10)->m04.i;
         int lipSync = arg->GetParam_unk(11)->m04.i;
-        if (lbl_8087F498->fn_803EB2A4(entry->m08.c_str()) == 0) {
+        if (lbl_8087F498->fn_803EB2A4(entry->GetName_unk().c_str()) == 0) {
             lbl_8087F540->fn_80489A2C();
         }
         if (lbl_8087F0A8->mVoiceLimitLevel >= 3) {
@@ -993,9 +988,9 @@ int ActionVoicePlay::vf0C(Action* arg, int phase) {
         }
         if (entry != 0) {
             if (lipSync != 0 && chara != 0) {
-                sound = lbl_8087F498->fn_803EA09C(chara, entry->m08.c_str(), 0, 1, 0, volume);
+                sound = lbl_8087F498->fn_803EA09C(chara, entry->GetName_unk().c_str(), 0, 1, 0, volume);
             } else {
-                sound = lbl_8087F498->fn_803E9608(entry->m08.c_str(), 0, 1, volume);
+                sound = lbl_8087F498->fn_803E9608(entry->GetName_unk().c_str(), 0, 1, volume);
             }
         }
         lbl_8087F540->fn_80489A50(arg, 0);
@@ -1090,15 +1085,14 @@ int ActionMoviePlay::vf0C(Action* arg, int phase) {
         int loop = arg->GetParam_unk(2)->m04.i;
         float volume = arg->GetParam_unk(3)->m04.f;
         MovieEntry_unk* entry = FindMovie_unk(manager, id);
-        // inferred: the player seen through its own view (atn::VideoTHP declares vf3C without arguments)
-        MovieState_unk* movie = entry != 0 ? (MovieState_unk*)entry->m18->m4C : 0;
+        atn::VideoTHP* movie = entry != 0 ? entry->m18->m4C : 0;
         if (movie != 0) {
             if (loop != 0) {
                 movie->m0C = 1;
             } else {
                 movie->m0C = 0;
             }
-            movie->vf3C(arg->m18, volume);
+            movie->vf3C(volume, arg->m18);
             int stopBgm = 1;
             GameBgm* bgm = GameBgm::sInstance;
             if (bgm != 0) {
@@ -1129,7 +1123,7 @@ int ActionMoviePlay::vf0C(Action* arg, int phase) {
             EventManager_unk* manager = arg->fn_805381C8();
             MovieEntry_unk* entry = FindMovie_unk(manager, arg->GetParam_unk(0)->m04.i);
             if (entry != 0 && entry->m18->m4C != 0) {
-                ((MovieState_unk*)entry->m18->m4C)->vf3C(arg->m1C, 1.0f);
+                entry->m18->m4C->vf3C(1.0f, arg->m1C);
             }
         }
         break;
@@ -1139,7 +1133,7 @@ int ActionMoviePlay::vf0C(Action* arg, int phase) {
         EventManager_unk* manager = arg->fn_805381C8();
         MovieEntry_unk* entry = FindMovie_unk(manager, arg->GetParam_unk(0)->m04.i);
         if (entry != 0) {
-            MovieState_unk* movie = (MovieState_unk*)entry->m18->m4C;
+            atn::VideoTHP* movie = entry->m18->m4C;
             if (movie != 0 && movie->m08 == 4) {
                 movie->m08 = 1;
             }
@@ -1169,7 +1163,7 @@ int ActionMoviePlay::vf08(Action* arg) {
             return 3;
         }
     } else if (entry != 0) {
-        MovieState_unk* state = (MovieState_unk*)entry->m18->m4C;
+        atn::VideoTHP* state = entry->m18->m4C;
         if (state != 0 && state->m08 == 2) {
             vf0C(arg, 3);
         }

@@ -1,4 +1,5 @@
 #include "game/Em315Coffin.h"
+#include "game/BattleTask.h"
 #include "atn/Csv.h"
 #include "atn/Material_unk.h"
 #include "atn/Memory.h"
@@ -19,10 +20,8 @@ extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); /
 extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, int arg6,
                             int arg7);
 
-// inferred: effect/bullet manager (lbl_8087F048, as in chr/ControlUseSkill.cpp); class unknown
-struct Effect_unk;
-extern "C" Effect_unk* lbl_8087F048;
-extern "C" int fn_800F8548(Effect_unk* mgr); // inferred: new bullet id
+class BattleTask;
+extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 // inferred: game settings (as in game/CharaTask.cpp); names invented
 struct CoffinBlock454_unk {
@@ -34,11 +33,7 @@ struct Settings_unk {
     CoffinBlock454_unk* fn_8013C434();
 };
 extern "C" Settings_unk* fn_800F52F8();
-// inferred: effect manager methods (as in game/CharaTask.cpp)
-struct Effect_unk {
-    atn::Vector3 fn_80109950(CharaTask* chara); // inferred: a position for the character
-};
-Effect_unk* fn_8013A194();
+BattleTask* fn_8013A194();
 extern "C" float fn_80011220(float x); // inferred: fabs (weak copy of another helper)
 extern "C" int fn_80267B20(CharaTask* chara); // inferred: returns m55C
 extern "C" int fn_80267B28(CharaTask* chara); // inferred: returns m560
@@ -60,9 +55,6 @@ extern "C" void PSMTXTrans(Mtx m, float x, float y, float z);
 extern "C" void PSMTXScale(Mtx m, float x, float y, float z);
 extern "C" void fn_80276AE4(EffectMgr_unk* mgr, atn::EfpFile* efp, int arg, const atn::Vector3* pos,
                             const atn::Vector3* rot, int a, int b, int c, float scale);
-extern "C" void fn_800FAB80(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* bullet, int arg3, const atn::Vector3* pos,
-                            const atn::Vector3* rot, int arg6, int arg7, int arg8, int arg9, float arg10,
-                            float arg11);
 void* fn_801404F8();
 extern "C" int fn_8004ED34(void* colli, atn::ColliResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg7); // inferred: ray test

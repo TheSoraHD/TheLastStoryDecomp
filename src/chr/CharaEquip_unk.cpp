@@ -3,6 +3,7 @@
 #include "chr/CharaEquip_unk.h"
 #include "game/GameTask.h"
 #include "game/CharaTask.h"
+#include "game/BattleTask.h"
 #include "game/GameConfig_unk.h"
 #include "game/Inventory.h"
 #include "db/EquipParam_unk.h"
@@ -31,13 +32,7 @@ extern "C" GameConfig_unk* lbl_8087F0A8;
 struct Arena_unk;
 extern "C" Arena_unk* lbl_8087F610; // inferred: arena session
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
-// inferred: battle task (lbl_8087F048, __vt__10BattleTask; no header yet): effect of the colour mark of
-// each party member at 0x3663C
-struct BulletMgr_unk {
-    unsigned char m00000[0x3663C];
-    atn::EfpFile mMarkEfp[7];
-};
-extern "C" BulletMgr_unk* lbl_8087F048;
+extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
 // inferred: equipment of an arena character (local view as in game/CharaTask.cpp, names invented)
 struct ArenaEquip_unk {
     int mId;
@@ -587,7 +582,7 @@ void CharaEquip_unk::fn_805660DC() {
             fn_80239DAC(lbl_8087F3C0, (unsigned int)this, 0, 1);
             fn_80232B7C((unsigned int)this, 0);
             if (lbl_8087F048 != 0) {
-                PlayEffect_unk(&lbl_8087F048->mMarkEfp[mark], m40C->GetModel_unk());
+                PlayEffect_unk(&lbl_8087F048->mEfp3663C[mark], m40C->GetModel_unk());
             }
             if (lbl_8087F430 != 0 && lbl_8087F430->fn_803754C4()) {
                 lbl_8087F3C0->mSystem.mLayer = 0;

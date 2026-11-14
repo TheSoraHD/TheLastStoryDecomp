@@ -14,6 +14,7 @@
 #include "chr/ControlDamage.h"
 #include "atn/SoundRef.h"
 #include "atn/ColliBase.h"
+#include "game/BattleTask.h"
 
 extern "C" int sprintf(char* buf, const char* fmt, ...);
 extern "C" int strcmp(const char* a, const char* b);
@@ -82,10 +83,7 @@ struct Field_unk {
     QuarkLook_unk m97C;
 };
 extern "C" Field_unk* lbl_8087F430;
-// inferred: effect/bullet manager (lbl_8087F048, as in chr/ControlUseSkill.cpp); class unknown
-struct Effect_unk;
-extern "C" Effect_unk* lbl_8087F048;
-extern "C" int fn_800F8548(Effect_unk* mgr); // inferred: new bullet id
+extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
 // inferred: skill effect manager (lbl_8087F9E8); fn_8059C2A8 shows the skill of a character
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 // inferred: collision world and its ray test (see game/ChaserNpc.cpp)
@@ -143,7 +141,7 @@ int EnemyQuarkFirst::vf0C() {
     vfFC();
     mStatus.fn_80134674(2);
     mStatus.fn_80134674(3);
-    mStatus.m2D0[3] = CharaStatusPair_unk(m151C->m04);
+    mStatus.m2CC[3] = CharaStatusPair_unk(m151C->m04);
     mStatus.m2FC = 2.0f;
     return 1;
 }
@@ -683,13 +681,6 @@ void EnemyQuarkFirst::vf104() {
 
 extern "C" void fn_8023A108(EffectMgr_unk* mgr, atn::EfpFile* efp, int id, int arg); // inferred: effect fade
 extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float volume); // inferred: plays a sound
-extern "C" int fn_800F8C6C(Effect_unk* mgr, int a, int b, CharaTask* chara, HitInfo_unk* data, int id, int time,
-                           int c, float f); // inferred: hit test of the current attack
-extern "C" void fn_800FAB80(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* bullet, int id, const atn::Vector3* pos,
-                            const atn::Vector3* rot, int arg6, int arg7, int arg8, int arg9, float arg10,
-                            float arg11); // inferred: fires a bullet
-extern "C" int fn_800FBA9C(Effect_unk* mgr, CharaTask* chara, CharaTask* target, HitInfo_unk* data, int arg,
-                           float f); // inferred: the attack reaches the target (>= 0)
 
 // inferred: the counter attack reaches m14E4 (name invented)
 inline bool EnemyQuarkFirst::CanHitTarget_unk(HitInfo_unk* hit) {
@@ -822,7 +813,7 @@ void EnemyQuarkFirst::vf108() {
                 }
                 float cur = mMotion.mTracks[0].m08;
                 if (cur >= 21.0f && cur <= 25.0f) {
-                    fn_800F8C6C(lbl_8087F048, 0, 0, this, m1518, m590, 30, -1, 0.0f);
+                    lbl_8087F048->fn_800F8C6C(0, 0, this, m1518, m590, 0.0f, 30, -1);
                 }
             } else if (m14BC == 1) {
                 float frame = mMotion.mTracks[0].m08;
@@ -876,7 +867,7 @@ void EnemyQuarkFirst::vf108() {
                     fn_8023A108(lbl_8087F3C0, &m1534, 0, 10);
                     fn_800C31F4("SE_DG040_105", 0, -1, 1.0f);
                     CharaTask* head = lbl_8087F8A0->mHead;
-                    Effect_unk* mgr = lbl_8087F048;
+                    BattleTask* mgr = lbl_8087F048;
                     int id = fn_800F8548(mgr);
                     fn_800FAB80(mgr, head, fn_80219E6C(0x780), id, &mPos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
                     return;
@@ -962,7 +953,7 @@ void EnemyQuarkFirst::vf108() {
                     m14E4->mMotion.mTracks[0].m08 = mMotion.mTracks[0].m08;
                 }
             }
-            if (fn_800F8C6C(lbl_8087F048, 0, 0, this, m638, m590, 30, -1, 0.0f) > 0 && m14D8 == 0 &&
+            if (lbl_8087F048->fn_800F8C6C(0, 0, this, m638, m590, 0.0f, 30, -1) > 0 && m14D8 == 0 &&
                 fn_805A49E4((SpecialFlag_unk*)&m1564) == 0) {
                 fn_805A4A1C((SpecialFlag_unk*)&m1564, 1);
             }

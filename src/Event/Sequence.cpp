@@ -1036,19 +1036,19 @@ float Sequence::fn_80541CF0(float yaw) {
 }
 
 // inferred: an actor named after a character of kind `kind` ("np", "em", "fr") and number `num` exists
-// NONMATCHING: 88.3% - the original tests the long-string bit of m08 again at every access (ours keeps
-// !is_long() in a register: the accessors of std/string.h)
+// inferred: the name is read through CommonData::GetName_unk (the long-string bit is tested again at every
+// access) and the digits are copied with buf[n++] (the counter stays next to the strength-reduced pointer)
 int Sequence::fn_80541CFC(int kind, int num) {
     for (int i = 0; i < (int)m164.size(); i++) {
         Actor* actor = &m164[i];
-        if (actor->m08.size() == 0) {
+        if (actor->GetName_unk().size() == 0) {
             continue;
         }
-        if (actor->m08[0] == '!') {
+        if (actor->GetName_unk()[0] == '!') {
             continue;
         }
         int match = 0;
-        switch ((unsigned short)((actor->m08[0] << 8) | actor->m08[1])) {
+        switch ((unsigned short)((actor->GetName_unk()[0] << 8) | actor->GetName_unk()[1])) {
         case 'em':
             match = kind == 2;
             break;
@@ -1064,15 +1064,14 @@ int Sequence::fn_80541CFC(int kind, int num) {
         }
         char buf[0x20];
         memset(buf, 0, sizeof(buf));
-        char* p = buf;
         int n = 0;
-        for (int j = 2; j < (int)actor->m08.size(); j++) {
-            if (actor->m08[j] >= '0' && actor->m08[j] <= '9') {
-                n++;
-                *p++ = actor->m08[j];
+        for (int j = 2; j < (int)actor->GetName_unk().size(); j++) {
+            if (actor->GetName_unk()[j] >= '0' && actor->GetName_unk()[j] <= '9') {
+                buf[n++] = actor->GetName_unk()[j];
             }
         }
-        if (atoi(buf) == num) {
+        int value = atoi(buf);
+        if (value == num) {
             return 1;
         }
     }

@@ -455,7 +455,7 @@ void fn_801F6D7C(D2A_TaskInstance32_unk* inst, const char* name, int index, floa
     inst->SetValue1_unk(name, index, value);
 }
 
-void fn_801F6E78(D2A_TaskInstance32_unk* inst, const char* name, atn::D2A_DrawRect r) {
+void fn_801F6E78(D2A_TaskInstance32_unk* inst, const char* name, atn::D2A_DrawRect& r) {
     inst->SetValue1_unk(name, 0, r.x);
     inst->SetValue1_unk(name, 1, r.y);
     inst->SetValue1_unk(name, 2, r.w);

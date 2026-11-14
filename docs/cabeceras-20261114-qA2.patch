@@ -1,0 +1,275 @@
+diff --git a/include/std/vector.h b/include/std/vector.h
+index a54fd70..2f92d8b 100644
+--- a/include/std/vector.h
++++ b/include/std/vector.h
+@@ -11,6 +11,13 @@
+ 
+ namespace std {
+ 
++// inferred: the allocator lives at the address of the capacity (empty member of a compressed pair):
++// its construct is a weak copy called with that address (0x80542684, 0x80482400)
++template <class T>
++struct __vec_allocator_unk {
++    void construct(T* p, const T& x) { new (p) T(x); }
++};
++
+ template <class T>
+ struct __vec_storage_unk {
+     __vec_storage_unk() : mData(0), mSize(0), mCap(0) {}
+@@ -57,6 +64,7 @@ struct __vec_storage_unk {
+         memset(first, 0, n * sizeof(T));
+         mSize += n;
+     }
++    __vec_allocator_unk<T>& __alloc_unk() { return *(__vec_allocator_unk<T>*)&mCap; }
+ 
+     T* mData;
+     unsigned int mSize;
+@@ -236,6 +244,17 @@ struct __vec_split_unk : public __vec_split_gbase_unk<T> {
+             __append_n_unk(1, x);
+         }
+     }
++    // inferred: appends n copies of x (push_back)
++    void __append_copies_unk(unsigned int n, const T& x) {
++        if (((__builtin_trivial_members(T) & 7) == 7)) {
++            for (; n != 0; n--) {
++                begin()[this->mSize] = x;
++                this->mSize++;
++            }
++        } else {
++            __append_n_unk(n, x);
++        }
++    }
+     // inferred: appends n copies of x (resize, weak copy 0x8032B314)
+     void __append_n_unk(unsigned int n, const T& x) {
+         T* p = begin() + this->mSize;
+@@ -287,6 +306,12 @@ struct __vec_split_unk<T*> : public __vec_split_base_unk<T*> {
+         begin()[this->mSize] = x;
+         this->mSize++;
+     }
++    void __append_copies_unk(unsigned int n, T* const& x) {
++        for (; n != 0; n--) {
++            begin()[this->mSize] = x;
++            this->mSize++;
++        }
++    }
+     // inferred: moves [first, last) in front of the stored elements
+     void __push_front_resize_unk(T** first, T** last) { __push_front_unk(first, last); }
+     void __push_front_unk(T** first, T** last) {
+@@ -320,6 +345,11 @@ struct __vec_split_unk<int> : public __vec_split_base_unk<int> {
+         begin()[this->mSize] = x;
+         this->mSize++;
+     }
++    void __append_copies_unk(unsigned int n, const int& x) {
++        for (; n != 0; n--) {
++            push_back(x);
++        }
++    }
+     void __push_front_resize_unk(int* first, int* last) { __push_front_unk(first, last); }
+     void __push_front_unk(int* first, int* last) {
+         unsigned int n = ((char*)last - (char*)first) / (int)sizeof(int);
+@@ -354,6 +384,11 @@ struct __vec_split_unk<float> : public __vec_split_base_unk<float> {
+         begin()[this->mSize] = x;
+         this->mSize++;
+     }
++    void __append_copies_unk(unsigned int n, const float& x) {
++        for (; n != 0; n--) {
++            push_back(x);
++        }
++    }
+     void __append_n_unk(unsigned int n, const float&) {
+         memset(begin() + this->mSize, 0, n * sizeof(float));
+         this->mSize += n;
+@@ -441,6 +476,9 @@ public:
+     // original loads the size before the capacity (and keeps the capacity in r5); tried accessors,
+     // the comparison reversed, if/else forms and a helper for the length check.
+     void push_back(const T& x);
++    void __push_back_slow_unk(const T& x);
++    bool __expand_by_unk(size_type n);
++    void __insert_realloc_unk(size_type n, const T& x);
+     // inferred: erase of a POD element, moving the next ones with memmove (inlined in
+     // Event::Manager::fn_80485028, 0x80485090)
+     T* erase(T* pos) {
+@@ -620,13 +658,27 @@ void vector<T>::push_back(const T& x) {
+         this->__push_fast_unk(n, x);
+         return;
+     }
+-    if (max_size() - this->mCap < 1) {
+-        __msl_error("vector length error");
++    __push_back_slow_unk(x);
++}
++
++template <class T>
++void vector<T>::__push_back_slow_unk(const T& x) {
++    if (__expand_by_unk(1)) {
++        this->__alloc_unk().construct(this->mData + this->mSize, x);
++        ++this->mSize;
++        return;
+     }
+-    __recommend_unk(1);
++    __insert_realloc_unk(1, x);
++}
++
++template <class T>
++void vector<T>::__insert_realloc_unk(size_type n, const T& x) {
+     __vec_split_unk<T> buf(&this->mCap);
+-    __vec_set_buf_unk(buf, __grow_cap_unk(this->mSize + 1 - this->mCap));
+-    buf.push_back(x);
++    size_type cap = __grow_cap_unk(this->mSize + n - this->mCap);
++    buf.mData = __vec_alloc_sel_unk<T>::alloc(cap);
++    buf.mCap = cap;
++    buf.mStart = this->mSize;
++    buf.__append_copies_unk(n, x);
+     __swap_out_unk(buf);
+ }
+ 
+@@ -752,6 +804,22 @@ typename vector<T>::size_type vector<T>::__grow_cap_unk(size_type n) {
+     return cap;
+ }
+ 
++template <class T>
++bool vector<T>::__expand_by_unk(size_type n) {
++    size_type cap = this->mCap;
++    if (n > max_size() - cap) {
++        __msl_error("vector length error");
++    }
++    if (cap < max_size() / 3) {
++        cap += __vec_max_unk(size_type((cap + 1) * 3 / 5), n);
++    } else if (cap < max_size() / 3 * 2) {
++        cap += __vec_max_unk(size_type((cap + 1) / 2), n);
++    } else {
++        cap = max_size();
++    }
++    return false;
++}
++
+ // inferred: resize of float elements (weak copy 0x8032BE88)
+ template <>
+ inline void vector<float>::__append_unk(size_type n) {
+diff --git a/include/std/vector_string.h b/include/std/vector_string.h
+index 0833d0d..d61e5cf 100644
+--- a/include/std/vector_string.h
++++ b/include/std/vector_string.h
+@@ -48,6 +48,11 @@ struct __vec_split_unk<string> : public __vec_split_base_unk<string> {
+         new (begin() + this->mSize) string(x);
+         this->mSize++;
+     }
++    void __append_copies_unk(unsigned int n, const string& x) {
++        for (; n != 0; n--) {
++            push_back(x);
++        }
++    }
+     // inferred: moves [first, last) in front of the stored elements as raw bytes
+     void __push_front_unk(string* first, string* last) {
+         int n = last - first;
+diff --git a/include/std/vector_wstring.h b/include/std/vector_wstring.h
+index 62575c9..6093f32 100644
+--- a/include/std/vector_wstring.h
++++ b/include/std/vector_wstring.h
+@@ -48,6 +48,11 @@ struct __vec_split_unk<basic_string<wchar_t> > : public __vec_split_base_unk<bas
+         new (begin() + this->mSize) basic_string<wchar_t>(x);
+         this->mSize++;
+     }
++    void __append_copies_unk(unsigned int n, const basic_string<wchar_t>& x) {
++        for (; n != 0; n--) {
++            push_back(x);
++        }
++    }
+     // inferred: moves [first, last) in front of the stored elements as raw bytes
+     void __push_front_unk(basic_string<wchar_t>* first, basic_string<wchar_t>* last) {
+         // inferred: a byte difference, so that (data + size) - data is not folded (0x805AD480)
+diff --git a/src/MP/D2ACommonDialog.cpp b/src/MP/D2ACommonDialog.cpp
+index fe4126c..0b0d175 100644
+--- a/src/MP/D2ACommonDialog.cpp
++++ b/src/MP/D2ACommonDialog.cpp
+@@ -26,6 +26,11 @@ struct __vec_split_unk<basic_string<wchar_t> > : public __vec_storage_unk<basic_
+         new (begin() + this->mSize) T(x);
+         this->mSize++;
+     }
++    void __append_copies_unk(unsigned int n, const T& x) {
++        for (; n != 0; n--) {
++            push_back(x);
++        }
++    }
+     void __push_front_unk(T* first, T* last) {
+         int n = last - first;
+         mStart -= n;
+diff --git a/src/atn/D2A_Manager.cpp b/src/atn/D2A_Manager.cpp
+index 75894b5..52de7c3 100644
+--- a/src/atn/D2A_Manager.cpp
++++ b/src/atn/D2A_Manager.cpp
+@@ -129,6 +129,11 @@ struct __vec_split_unk<D2A_MsgPiece_unk> : public __vec_storage_unk<D2A_MsgPiece
+         new (begin() + this->mSize) T(x);
+         this->mSize++;
+     }
++    void __append_copies_unk(unsigned int n, const T& x) {
++        for (; n != 0; n--) {
++            push_back(x);
++        }
++    }
+     void __push_front_unk(T* first, T* last) {
+         T* p = begin();
+         while (last > first) {
+diff --git a/src/atn/D2A_MessageTable_unk.cpp b/src/atn/D2A_MessageTable_unk.cpp
+index 3f207c5..c2ded88 100644
+--- a/src/atn/D2A_MessageTable_unk.cpp
++++ b/src/atn/D2A_MessageTable_unk.cpp
+@@ -71,6 +71,11 @@ struct __vec_split_unk<D2A_TextLine_unk> : public __vec_storage_unk<D2A_TextLine
+         new (begin() + this->mSize) T(x);
+         this->mSize++;
+     }
++    void __append_copies_unk(unsigned int n, const T& x) {
++        for (; n != 0; n--) {
++            push_back(x);
++        }
++    }
+     void __push_front_unk(T* first, T* last) {
+         int n = last - first;
+         mStart -= n;
+diff --git a/src/atn/Xsca_unk.cpp b/src/atn/Xsca_unk.cpp
+index 6d7a86e..3ab947b 100644
+--- a/src/atn/Xsca_unk.cpp
++++ b/src/atn/Xsca_unk.cpp
+@@ -123,6 +123,11 @@ struct __vec_split_unk<XscaEntry_unk> : public __vec_split_base_unk<XscaEntry_un
+         begin()[this->mSize] = x;
+         this->mSize++;
+     }
++    void __append_copies_unk(unsigned int n, const XscaEntry_unk& x) {
++        for (; n != 0; n--) {
++            push_back(x);
++        }
++    }
+     void __push_front_unk(XscaEntry_unk* first, XscaEntry_unk* last) {
+         unsigned int n = ((char*)last - (char*)first) / (int)sizeof(XscaEntry_unk);
+         mStart -= n;
+diff --git a/src/game/MenuCommonTask.cpp b/src/game/MenuCommonTask.cpp
+index 5a073a4..ff356f3 100644
+--- a/src/game/MenuCommonTask.cpp
++++ b/src/game/MenuCommonTask.cpp
+@@ -424,6 +424,11 @@ struct __vec_split_unk<basic_string<wchar_t> > : public __vec_storage_unk<basic_
+         new (begin() + this->mSize) T(x);
+         this->mSize++;
+     }
++    void __append_copies_unk(unsigned int n, const T& x) {
++        for (; n != 0; n--) {
++            push_back(x);
++        }
++    }
+     void __push_front_unk(T* first, T* last) {
+         int n = last - first;
+         mStart -= n;
+diff --git a/src/game/U16Table_unk.cpp b/src/game/U16Table_unk.cpp
+index 6792287..bbc5468 100644
+--- a/src/game/U16Table_unk.cpp
++++ b/src/game/U16Table_unk.cpp
+@@ -41,6 +41,11 @@ struct __vec_split_unk<U16RunPair_unk> : public __vec_split_base_unk<U16RunPair_
+         begin()[this->mSize] = x;
+         this->mSize++;
+     }
++    void __append_copies_unk(unsigned int n, const U16RunPair_unk& x) {
++        for (; n != 0; n--) {
++            push_back(x);
++        }
++    }
+     void __push_front_unk(U16RunPair_unk* first, U16RunPair_unk* last) {
+         U16RunPair_unk* p = begin();
+         while (last > first) {

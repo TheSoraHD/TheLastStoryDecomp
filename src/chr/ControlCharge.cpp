@@ -40,10 +40,7 @@ inline bool IsArenaMode_unk(int mode) {
     return result;
 }
 
-// inferred: effect manager (lbl_8087F048, as in game/CharaTask.cpp)
-struct Effect_unk {
-};
-extern "C" Effect_unk* lbl_8087F048;
+extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
 extern "C" void* lbl_8087EF70; // inferred: pad
 extern "C" int fn_800A55D4(void* pad, int port, int button); // inferred: button held
 // inferred: cursor shown by the tactical view (lbl_8087F9F8 + 0x15D8); names invented
@@ -85,11 +82,6 @@ struct VoiceEntry_unk {
 };
 extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float volume);
 extern "C" float fn_800A56A8(void* pad, int port, int axis, int arg); // inferred: stick axis
-extern "C" int fn_800F8548(Effect_unk* mgr);
-extern "C" void fn_800FAB80(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* bullet, int arg3, const atn::Vector3* pos,
-                            const atn::Vector3* rot, int arg6, int arg7, int arg8, int arg9, float arg10, float arg11);
-extern "C" void fn_800FB4B0(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* bullet, int arg3, const atn::Vector3* pos,
-                            int arg5, int arg6, int arg7, int arg8);
 // inferred: game state (lbl_8087EFA8, as in game/CharaTask.cpp); names invented
 struct GameState_unk {
     unsigned char m000[0x3A4];
@@ -160,7 +152,7 @@ ControlCharge::ControlCharge(Chara_unk* chara, int a, const atn::Vector3* target
         mChara->fn_801539E0();
     }
     if (lbl_8087F048 != 0 && mChara->m648 != 0) {
-        ((BattleTask*)lbl_8087F048)->fn_80105950(mChara, &mChara->mMotion);
+        lbl_8087F048->fn_80105950(mChara, &mChara->mMotion);
     }
     m40 = mChara->m638;
     HitInfo_unk* hit;
@@ -225,7 +217,7 @@ int ControlCharge::vf0C() {
     bonus += rate * mChara->mStatus.fn_80134168(0x2B, -1) / 100.0f;
     rate += bonus;
     if (((unsigned int)mChara->mStatus.m14 & 0x2000) == 0x2000) {
-        rate *= ((BattleTask*)lbl_8087F048)->fn_8010CA24();
+        rate *= lbl_8087F048->fn_8010CA24();
     }
     m2C += rate * lbl_8087EFA8->m3A4;
     if (mChara->mType == 0) {
@@ -246,8 +238,8 @@ int ControlCharge::vf0C() {
         if (m34 == 0 && m2C >= base->mC0) {
             m34 = 1;
             if (lbl_8087F048 != 0) {
-                ((BattleTask*)lbl_8087F048)->fn_801059F8(mChara);
-                ((BattleTask*)lbl_8087F048)->fn_80105A08(mChara, &mChara->mMotion);
+                lbl_8087F048->fn_801059F8(mChara);
+                lbl_8087F048->fn_80105A08(mChara, &mChara->mMotion);
             }
         }
         atn::Vector3 pos(mChara->mPos);
@@ -275,7 +267,7 @@ int ControlCharge::vf0C() {
             if (m3C == 0 && !IsCursorPlayer_unk(this)) {
                 if (m2C >= hit->mC0) {
                     if (m2C < base->mC0) {
-                        ((BattleTask*)lbl_8087F048)->fn_801059F8(mChara);
+                        lbl_8087F048->fn_801059F8(mChara);
                     }
                     m30 = 1;
                 } else {
@@ -327,7 +319,7 @@ int ControlCharge::vf0C() {
                 }
             }
             if (m2C >= hit->mC0) {
-                ((BattleTask*)lbl_8087F048)->fn_801059F8(mChara);
+                lbl_8087F048->fn_801059F8(mChara);
                 m30 = 1;
                 done = 1;
             }
@@ -578,12 +570,12 @@ int ControlChargeAttack::vf0C() {
         m28 = 1;
         mChara->fn_8016DA4C();
         CharaTask* chara = mChara;
-        Effect_unk* fx = lbl_8087F048;
+        BattleTask* fx = lbl_8087F048;
         HitInfo_unk* hit = chara->m638;
         fn_800FAB80(fx, mChara, hit, fn_800F8548(fx), &chara->mPos, &chara->mRot, 0, 30, -1, -1, 0.0f, 1.0f);
         if (mChara->mStatus.HasTimer_unk()) {
             HitInfo_unk* extra = fn_80219E6C(0x1395);
-            Effect_unk* fx2 = lbl_8087F048;
+            BattleTask* fx2 = lbl_8087F048;
             fn_800FB4B0(fx2, mChara, extra, fn_800F8548(fx2), &mChara->mPos, 0, 30, -1, 1);
             if (mChara->fn_801789D8(0x1395, 0)) {
                 mChara->fn_80178864(extra, mChara);
@@ -634,7 +626,7 @@ ControlHighJumpAttack::ControlHighJumpAttack(Chara_unk* chara, const atn::Vector
         mChara->mRot = atn::Vector3(0.0f, d.ToRotation_unk().y, 0.0f);
     }
     if (lbl_8087F048 != 0) {
-        ((BattleTask*)lbl_8087F048)->fn_8010653C(mChara, &mChara->mMotion);
+        lbl_8087F048->fn_8010653C(mChara, &mChara->mMotion);
     }
     if (lbl_8087F498 != 0) {
         lbl_8087F498->fn_803EA77C(mChara, 0x20, 0, 1.0f, 10.0f);
@@ -668,7 +660,7 @@ int ControlHighJumpAttack::vf0C() {
             CharaTask* chara = mChara;
             HitInfo_unk* hit = chara->m638;
             atn::Vector3 at = mChara->mPos + FrontDir_unk(chara->mRot) * 10.0f;
-            Effect_unk* fx = lbl_8087F048;
+            BattleTask* fx = lbl_8087F048;
             fn_800FAB80(fx, mChara, hit, fn_800F8548(fx), &at, &chara->mRot, 0, 30, -1, -1, 0.0f, 1.0f);
             if ((hit->mAC & 0x40000) == 0x40000) {
                 mChara->mStatus.m228 = 0.0f;
@@ -692,7 +684,7 @@ int ControlHighJumpAttack::vf0C() {
     float frame = motion->mTracks[0].m08;
     if (frame >= motion->fn_80097D7C(0)) {
         if (lbl_8087F048 != 0) {
-            ((BattleTask*)lbl_8087F048)->fn_801065E4(mChara);
+            lbl_8087F048->fn_801065E4(mChara);
         }
         CharaTask* chara = mChara;
         if (chara->mType == 2 || chara->mType == 3) {
@@ -706,7 +698,7 @@ int ControlHighJumpAttack::vf0C() {
 
 void ControlHighJumpAttack::vf1C() {
     if (lbl_8087F048 != 0) {
-        ((BattleTask*)lbl_8087F048)->fn_801065E4(mChara);
+        lbl_8087F048->fn_801065E4(mChara);
     }
 }
 
@@ -779,7 +771,7 @@ int ControlQuarkSeirenAttack::vf0C() {
         CharaTask* chara = mChara;
         HitInfo_unk* hit = chara->m638;
         atn::Vector3 at = mChara->mPos + FrontDir_unk(chara->mRot) * 10.0f;
-        Effect_unk* fx = lbl_8087F048;
+        BattleTask* fx = lbl_8087F048;
         fn_800FAB80(fx, mChara, hit, fn_800F8548(fx), &at, &chara->mRot, 0, 30, -1, -1, 0.0f, 1.0f);
         if ((hit->mAC & 0x40000) == 0x40000) {
             mChara->mStatus.m228 = 0.0f;
@@ -850,7 +842,7 @@ int ControlZanTackle::vf0C() {
             }
         }
         atn::Vector3 at = mChara->mPos + FrontDir_unk(mChara->mRot) * 5.0f;
-        Effect_unk* fx = lbl_8087F048;
+        BattleTask* fx = lbl_8087F048;
         fn_800FAB80(fx, mChara, fn_80219E6C(0xA4), m08, &at, &rot, 0, 30, -1, -1, 0.0f, 1.0f);
     } else {
         float frame = motion->mTracks[0].m08;

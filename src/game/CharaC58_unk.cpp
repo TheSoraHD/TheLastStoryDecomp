@@ -186,15 +186,15 @@ void CharaC58_unk::fn_8011C46C(CharaTask* chara, int time) {
 
 void CharaC58_unk::fn_8011C4AC(CharaTask* chara) {
     if (chara->mType == 3 && chara->fn_8016E484() == 0 && chara->mStatus.m228 >= 1.0f &&
-        chara->mStatus.m2D0[3].m[0] > 0) {
+        chara->mStatus.m2CC.mData[3].m[0] > 0) {
         if (mC4 != 0 && mC4->fn_8016F4D8(chara)) {
             mC4->fn_8016F5EC(chara);
         }
         CharaTask* target = mC4;
         fn_8011C074(chara, 7);
         m10C = target;
-        if ((unsigned int)chara->mStatus.m2CC > 3) {
-            mDC = (SkillRef_unk*)&chara->mStatus.m2D0[3];
+        if (chara->mStatus.m2CC.mCount > 3) {
+            mDC = (SkillRef_unk*)&chara->mStatus.m2CC[3];
         }
     } else {
         fn_8011C074(chara, 5);
@@ -220,8 +220,8 @@ void CharaC58_unk::fn_8011C610(CharaTask* chara, int count) {
 void CharaC58_unk::fn_8011C650(CharaTask* chara, unsigned int skill, CharaTask* target) {
     fn_8011C074(chara, 7);
     m10C = target;
-    if (skill < (unsigned int)chara->mStatus.m2CC) {
-        mDC = (SkillRef_unk*)&chara->mStatus.m2D0[skill];
+    if (skill < chara->mStatus.m2CC.mCount) {
+        mDC = (SkillRef_unk*)&chara->mStatus.m2CC[skill];
     }
 }
 

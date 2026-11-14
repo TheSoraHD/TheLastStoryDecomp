@@ -15,6 +15,7 @@
 #include "game/GameTask.h"
 #include "math/VecAssign_unk.h"
 #include "atn/ColliBase.h"
+#include "game/BattleTask.h"
 
 // inferred: point the camera looks at (lbl_8087F430 + 0x97C, as in game/Em101ElderZesya.cpp); names invented
 struct EggLook_unk {
@@ -145,10 +146,7 @@ extern "C" chr::CharaData_unk* fn_8020A81C(const char* name);
 extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3, int arg4); // debug menu
 // inferred: name table of the field (lbl_8087F430 + 0x54F4) (as in game/CharaTask.cpp)
 extern "C" wchar_t* wcscpy(wchar_t* dst, const wchar_t* src);
-// inferred: effect/bullet manager (lbl_8087F048); class unknown
-struct Effect_unk;
-extern "C" Effect_unk* lbl_8087F048;
-extern "C" int fn_800F8548(Effect_unk* mgr); // inferred: new bullet id
+extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
 // inferred: effect manager (class unknown), global instance at 0x8087F3C0
 struct EffectMgr_unk;
 extern "C" EffectMgr_unk* lbl_8087F3C0;
@@ -163,8 +161,6 @@ struct Color4f_unk {
 };
 
 extern "C" HitInfo_unk* fn_80219E6C(int id); // inferred: skill data
-extern "C" void fn_800F8C6C(Effect_unk* mgr, int a, int b, CharaTask* chara, HitInfo_unk* data, int id, int time,
-                            int c, float f);
 extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
 extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
@@ -357,8 +353,6 @@ static const EggWave_unk sWaves_unk[3] = {
 };
 extern "C" void PSMTXScale(Mtx m, float x, float y, float z);
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
-extern "C" void fn_800FAB80(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* bullet, int arg3, const atn::Vector3* pos,
-                            const atn::Vector3* rot, int arg6, int arg7, int arg8, int arg9, float arg10, float arg11);
 
 // inferred: scale matrix and matrix product by value (names invented, as in gmk/Leaf.cpp)
 inline atn::Matrix3x4 ScaleMtx_unk(const atn::Vector3& s) {
@@ -457,7 +451,7 @@ void Em206EggMonster::vf10() {
                 if (((GameTask*)lbl_8087F430)->fn_80370A78(0xF8) == 0) {
                     ((GameTask*)lbl_8087F430)->fn_80370AE4(0xF8, 1);
                 }
-                Effect_unk* mgr = lbl_8087F048;
+                BattleTask* mgr = lbl_8087F048;
                 HitInfo_unk* data = fn_80219E6C(0x57C);
                 fn_800FAB80(mgr, this, data, m590, &mPos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
             }
@@ -1072,7 +1066,7 @@ void Em206EggMonster::fn_802C42D4() {
             data = fn_80219E6C(0x578);
         }
         fn_80144710();
-        fn_800F8C6C(lbl_8087F048, 0, 0, this, data, m590, 30, -1, 0.0f);
+        lbl_8087F048->fn_800F8C6C(0, 0, this, data, m590, 0.0f, 30, -1);
     } else if (mMotion.mTracks[0].m08 >= 71.0f && mMotion.mTracks[0].m08 <= 76.0f) {
         mMotion.mTracks[0].m0C = 0.3f;
     } else if (atn::Abs_unk(mMotion.mTracks[0].m08 - 1.0f) < 1.1920929e-7f) {
@@ -1111,7 +1105,7 @@ void Em206EggMonster::fn_802C4480() {
             data = fn_80219E6C(0x57A);
         }
         fn_80144710();
-        fn_800F8C6C(lbl_8087F048, 0, 0, this, data, m590, 30, -1, 0.0f);
+        lbl_8087F048->fn_800F8C6C(0, 0, this, data, m590, 0.0f, 30, -1);
     }
 }
 
@@ -1441,9 +1435,8 @@ __declspec(noinline) int Em206EggMonster::fn_802C69BC() {
 extern "C" int fn_8004ED34(void* world, atn::ColliResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg); // inferred: ray test
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
-extern "C" void fn_800FDB20(Effect_unk* mgr, CharaTask* owner, CharaTask* target, int arg, HitInfo_unk* data, int id,
+extern "C" void fn_800FDB20(BattleTask* mgr, CharaTask* owner, CharaTask* target, int arg, HitInfo_unk* data, int id,
                             const atn::Vector3* pos, const atn::Vector3* dir, int time, float scale);
-extern "C" void fn_80101434(Effect_unk* mgr, const atn::Vector3* pos, const atn::Vector3* rot, int a, int b);
 
 // NONMATCHING: 98.4% - stack slots of the local vectors and matrices
 // inferred: flight of the thrown egg (m14F4): it explodes after m14D8 frames, sticks to the character it

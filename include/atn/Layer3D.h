@@ -10,7 +10,7 @@ namespace atn {
 // inferred: node of the list of render objects passed to IRenderLayer::vf14 (names invented)
 struct RenderObj_unk {
     virtual void vf08();
-    virtual void vf0C();
+    virtual int vf0C();           // inferred: nonzero when hidden (atn/LayerOcclusionCPU.cpp)
     virtual void vf10(void* arg); // draw
     virtual void vf14();
     virtual void vf18(void* arg); // pre-render

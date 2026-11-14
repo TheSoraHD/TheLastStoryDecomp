@@ -3,6 +3,7 @@
 #include "math/Vec.h"
 #include "game/FriendManager.h"
 #include "game/CharaStatus.h"
+#include "game/BattleTask.h"
 
 // inferred: field (lbl_8087F430): route tables at 0x10D8 (as in game/Em306GurgBeast.cpp)
 struct Field_unk {
@@ -11,10 +12,7 @@ struct Field_unk {
 };
 extern "C" Field_unk* lbl_8087F430;
 
-// inferred: effect/bullet manager (lbl_8087F048); class unknown
-struct Effect_unk;
-extern "C" Effect_unk* lbl_8087F048;
-extern "C" int fn_800F8548(Effect_unk* mgr); // inferred: new bullet id
+extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
 // inferred: effect manager (class unknown), global instance at 0x8087F3C0
 struct EffectMgr_unk;
 extern "C" EffectMgr_unk* lbl_8087F3C0;
@@ -48,14 +46,8 @@ struct Color4f_unk {
 extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
-extern "C" void fn_80108F38(Effect_unk* mgr, const atn::Vector3* pos, int arg);
-extern "C" void fn_800F8C6C(Effect_unk* mgr, int a, int b, CharaTask* chara, HitInfo_unk* data, int id, int time,
-                            int c, float f);
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
 struct HomingParam_unk;
-extern "C" void fn_800F8574(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* data, const atn::Vector3* pos,
-                            const atn::Vector3* dir, HomingParam_unk* param, int arg6, int arg7, float a,
-                            float b); // inferred: fires a bullet (as in game/Em003LesserDaemon.cpp)
 
 // inferred: route points the spider escapes to
 static const int sSpotIds_unk[6] = {0xB2, 0x7A, 0x7F, 0x6D, 0x7D, 0x70};
@@ -165,7 +157,7 @@ void Em202_01_BSpider::vf10() {
                     fn_80144710();
                     int id = m590;
                     HitInfo_unk* skill = fn_80219E6C(0x3F3);
-                    fn_800F8C6C(lbl_8087F048, 0, 0, this, skill, id, 30, -1, 0.0f);
+                    lbl_8087F048->fn_800F8C6C(0, 0, this, skill, id, 0.0f, 30, -1);
                 }
             }
             break;
@@ -179,7 +171,7 @@ void Em202_01_BSpider::vf10() {
                 if (f >= 12.0f && f <= 17.0f) {
                     int id = m590;
                     HitInfo_unk* skill = fn_80219E6C(0x3F5);
-                    fn_800F8C6C(lbl_8087F048, 0, 0, this, skill, id, 30, -1, 0.0f);
+                    lbl_8087F048->fn_800F8C6C(0, 0, this, skill, id, 0.0f, 30, -1);
                 }
             }
             break;
@@ -357,7 +349,7 @@ void Em202_01_BSpider::vf40(HitInfo_unk* hit) {
         color.b = 1.0f;
         color.a = 1.0f;
         fn_8023A8B4(lbl_8087F3C0, &m1530, &mMotion, 0, pos, rot, color, -1, -1, 1, 1.0f);
-        Effect_unk* mgr = lbl_8087F048;
+        BattleTask* mgr = lbl_8087F048;
         atn::Vector3 p = fn_801781B0();
         fn_80108F38(mgr, &p, 0x80);
     }
@@ -478,7 +470,7 @@ void Em202_01_BSpider::fn_80271104() {
             Mtx r;
             PSMTXRotRad(r, 'y', mRot.y);
             PSMTXMultVec(r, &dir, &dir);
-            Effect_unk* mgr = lbl_8087F048;
+            BattleTask* mgr = lbl_8087F048;
             fn_800F8574(mgr, this, fn_80219E6C(0x3F2), &pos, &dir, 0, 0, 0, 0.0f, 1.0f);
         }
         break;

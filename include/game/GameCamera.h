@@ -86,8 +86,9 @@ struct CameraShake_unk {
 // Camera of the field (GameTask + 0x6C, constructed by the GameTask constructor; code in
 // game/GameCamera_unk.cpp). Real name from the RSO (__ct__10GameCameraFv, Update__10GameCameraFPC9CharaTask,
 // StartRollBack__10GameCameraFiif...); the constructor 0x8037D8B8 builds two atn::Camera at 0x00 and 0x1F4.
+// The atn::Camera at 0x00 is a member, not the base: the destructor 0x8037DC68 destroys it with -1.
 // Size inferred from the next member of GameTask (FinishCamera_unk at 0xD18). Member names invented.
-class GameCamera : public atn::Camera {
+class GameCamera {
 public:
     GameCamera(); // 0x8037D8B8
     ~GameCamera(); // 0x8037DC68
@@ -115,6 +116,9 @@ public:
     void fn_803903E0(const atn::Vector3* target, float angle, int arg); // inferred: turns toward `target`
     void fn_80392C94(GameCameraState_unk* state) const; // inferred: saves the mode
     void fn_80392CE0(const GameCameraState_unk* state); // inferred: restores it
+    // inferred: makes the render camera blend back from the given camera (weight 1, decreased by the rate every
+    // frame); 0x80392D2C
+    void fn_80392D2C(const atn::Camera*, float);
     void fn_803933A4(); // inferred: reset of the event state
     void fn_8037F744(); // inferred: update of the camera mode (tables 0x8074E018 and 0x8074E114)
     void fn_8037ECF0(const char* name, void* menu, GameCameraParam_unk* param); // inferred: debug menu of a mode
@@ -171,6 +175,7 @@ public:
     void fn_8038DDE0(const CharaTask* chara);
     void fn_8038DF5C(const CharaTask* chara);
 
+    atn::Camera mCamera;   // 0x000: inferred: camera moved by the modes
     atn::Camera m1F4;      // 0x1F4: inferred: camera given to the render manager
     GameCameraParam_unk m3E8; // inferred: blend of the mode parameters with m430 and m46C (fn_8037F9AC)
     GameCameraTimer_unk m424; // inferred: blend of the event camera (fn_8038CD94)

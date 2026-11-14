@@ -83,6 +83,10 @@ public:
     void UpdateCamera_unk();          // inferred: resets the camera and goes to the top parts
     void fn_8053032C(atn::Vector3 pos, atn::Vector3 rot); // inferred: starts a camera path
     NewCampPair_unk& fn_80530384(int id);
+    // inferred: number of pairs of m1224 and one of them (weak copies 0x801DA2F0 and 0x801DA2F8 of
+    // game/CosEditItemList_unk, bodies in game/NewCampPairs_unk.h); names invented
+    unsigned int GetPairCount_unk() const;
+    NewCampPair_unk& GetPair_unk(int);
     void fn_805303D0(); // inferred: reads camp_config.csv (damage effect of the camp)
     void fn_805305D0();
     void fn_80530CD0(int duration); // inferred: fades out

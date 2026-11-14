@@ -37,7 +37,9 @@ public:
     // 0x8004312C and 0x80043128)
     virtual void vf10() {}
     virtual void vf14() {}
-    virtual void vf18(Task* child); // inferred: notification that `child` was removed (see SequenceControl)
+    // inferred: notification that `child` was removed (see SequenceControl); inline and empty (only weak copy
+    // 0x80013CAC, first emitted by Event/Puppeteer_CharaTask)
+    virtual void vf18(Task*) {}
 
     void fn_800D3F28(Task* child); // inferred: attaches `child` (null detaches)
     int fn_800D3FA4(); // inferred: non-virtual, returns nonzero on success (called by many vf0C)

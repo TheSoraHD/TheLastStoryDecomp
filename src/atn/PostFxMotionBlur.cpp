@@ -35,7 +35,7 @@ class PostFxMotionBlur : public IPostFx {
 public:
     PostFxMotionBlur();
     virtual ~PostFxMotionBlur() {}
-    virtual void vf10(void* camera);
+    virtual void vf10(RenderManager* view);
     void fn_800AFEBC(int div);
 
     GXTexObj mTex[4];  // 0x04: inferred: ring of the last frames
@@ -79,7 +79,7 @@ void PostFxMotionBlur::fn_800AFEBC(int div) {
 
 // NONMATCHING: 99.78% - registers only: the parameter block/flag at the start (r4/r6) and the FPRs of the
 // fade loop (~14 variants)
-void PostFxMotionBlur::vf10(void* camera) {
+void PostFxMotionBlur::vf10(RenderManager* view) {
     if (mA4 != lbl_8087EFA8->m240) {
         mA4 = lbl_8087EFA8->m240;
         if (lbl_8087EFA8->m240 != 0) {

@@ -8,6 +8,7 @@
 #include "std/string_members.h"
 #include "game/GameTask.h"
 #include "atn/ColliBase.h"
+#include "game/BattleTask.h"
 
 extern "C" unsigned long strlen(const char* s);
 extern "C" int strcmp(const char* a, const char* b);
@@ -19,10 +20,7 @@ extern "C" double strtod(const char* str);
 extern "C" int fn_800DC12C(const char* s); // inferred: string to int
 extern "C" HitInfo_unk* fn_80219E6C(int id); // inferred: bullet/skill data by id
 
-// inferred: effect/bullet manager (lbl_8087F048, as in chr/ControlUseSkill.cpp); class unknown
-struct Effect_unk;
-extern "C" Effect_unk* lbl_8087F048;
-extern "C" int fn_800F8548(Effect_unk* mgr); // inferred: new bullet id
+extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
 // inferred: effect manager (class unknown), global instance at 0x8087F3C0
 struct EffectMgr_unk;
 extern "C" EffectMgr_unk* lbl_8087F3C0;
@@ -35,10 +33,8 @@ extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* m
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
 extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the next effects
-extern "C" void fn_80108F38(Effect_unk* mgr, const atn::Vector3* pos, int arg);
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
-extern "C" int fn_800F8C6C(Effect_unk* mgr, int a, int b, CharaTask* chara, HitInfo_unk* data, int id, int time,
-                           int c, float f); extern "C" void* lbl_8087EE98;
+ extern "C" void* lbl_8087EE98;
 extern "C" int fn_8004D388(void* world, atn::ColliResult_unk* result, const atn::Vector3* center, const atn::Vector3* move,
                            unsigned int mask, void* ignore, int arg, float radius); // inferred: sweep test
 // inferred: debug menu entries (as in game/CharaTask.cpp and game/NewCampPartsHint.cpp)
@@ -73,9 +69,6 @@ extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2
 extern "C" int fn_800CB58C(atn::SoundRef* sound);                           // inferred: nonzero while playing
 extern "C" void fn_800CB6E4(atn::SoundRef* sound, const atn::Vector3* pos); // inferred: moves the sound
 
-extern "C" void fn_800FAB80(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* bullet, int id, const atn::Vector3* pos,
-                            const atn::Vector3* rot, int arg6, int arg7, int arg8, int arg9, float arg10,
-                            float arg11); // inferred: fires a bullet (as in gmk/Coffin.cpp)
 // inferred: field (lbl_8087F430); m10D8: route tables; fn_80370AE4 sets a counter (as in gmk/Coffin.cpp)
 struct VampireField_unk {
     unsigned char m0000[0x10D8];
@@ -138,7 +131,7 @@ Em305Vampire::~Em305Vampire() {
     fn_800CB5C8(&m15A4, 5, 0);
 }
 
-// NONMATCHING: 93.89% - same as Em305VampireMp::vf0C: the inlined std::vector push_back of the two routes
+// NONMATCHING: 98.95% - same as Em305VampireMp::vf0C: the inlined std::vector push_back of the two routes
 // (known open case) and registers
 int Em305Vampire::vf0C() {
     if (m1564.IsLoading() == 0 && (m1438 == 0 || (m1438->mFlags & 2) == 2) && m1570.IsLoading() == 0 &&
@@ -223,7 +216,7 @@ inline void Em305Vampire::Tackle_unk() {
     if (31.0f <= f && f <= 33.0f) {
         int id = m590;
         HitInfo_unk* data = m1510;
-        fn_800F8C6C(lbl_8087F048, 0, 0, this, data, id, 60, 5, 0.0f);
+        lbl_8087F048->fn_800F8C6C(0, 0, this, data, id, 0.0f, 60, 5);
     }
     if (m14F4 != 0) {
         atn::Vector3 d = m14F4->mPos - mPos;
@@ -250,7 +243,7 @@ inline void Em305Vampire::Rolling_unk() {
     if (m1528 != 0) {
         float f = mMotion.mTracks[0].m08;
         if (80.0f <= f && f <= 83.0f) {
-            Effect_unk* mgr = lbl_8087F048;
+            BattleTask* mgr = lbl_8087F048;
             fn_800FAB80(mgr, this, m1514, fn_800F8548(mgr), &mPos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
             ((GameTask*)lbl_8087F430)->fn_80370AE4(5, 1);
             m1528 = 0;
@@ -443,7 +436,7 @@ inline void Em305Vampire::StartStun_unk() {
     mMotion.fn_80097C08(0, 2, 1, 1, 1, 0.0f, 0.1f);
     fn_80232B7C(this, 100);
     PlayEffect_unk(&m1594, &mMotion);
-    Effect_unk* mgr = lbl_8087F048;
+    BattleTask* mgr = lbl_8087F048;
     atn::Vector3 pos = fn_801781B0();
     fn_80108F38(mgr, &pos, 0x80);
 }
@@ -658,7 +651,7 @@ void Em305Vampire::fn_802EAC70() {
     if (31.0f <= f && f <= 33.0f) {
         int id = m590;
         HitInfo_unk* data = m1510;
-        fn_800F8C6C(lbl_8087F048, 0, 0, this, data, id, 60, 5, 0.0f);
+        lbl_8087F048->fn_800F8C6C(0, 0, this, data, id, 0.0f, 60, 5);
     }
     if (m14F4 != 0) {
         atn::Vector3 d = m14F4->mPos - mPos;
@@ -688,7 +681,7 @@ void Em305Vampire::fn_802EAF68() {
             hit = 1;
         }
         fn_80144710();
-        if (fn_800F8C6C(lbl_8087F048, 0, 0, this, m150C, m590, 10, 5, 0.0f) != 0) {
+        if (lbl_8087F048->fn_800F8C6C(0, 0, this, m150C, m590, 0.0f, 10, 5) != 0) {
             hit = 1;
         }
         if (hit) {
@@ -894,7 +887,7 @@ void Em305Vampire::fn_802EC160() {
     mMotion.fn_80097C08(0, 2, 1, 1, 1, 0.0f, 0.1f);
     fn_80232B7C(this, 100);
     PlayEffect_unk(&m1594, &mMotion);
-    Effect_unk* mgr = lbl_8087F048;
+    BattleTask* mgr = lbl_8087F048;
     atn::Vector3 pos = fn_801781B0();
     fn_80108F38(mgr, &pos, 0x80);
 }

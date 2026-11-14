@@ -43,6 +43,7 @@ struct GameUIGauge_unk : public atn::D2A_Task {};
 #include "game/Arms.h"
 #include "std/vector.h"
 #include "atn/RenderSetting_unk.h"
+#include "db/PlayerParam_unk.h"
 extern "C" int sprintf(char* s, const char* format, ...);
 
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
@@ -3002,12 +3003,7 @@ struct GameUISkill_unk {
     const wchar_t* m14; // inferred: description
 };
 extern "C" GameUISkill_unk* fn_8021AF50(int bit); // inferred: skill of a status bit
-// inferred: skills of a character (a flag byte per status bit from +2) for its level (name invented)
-struct GameUISkillTable_unk {
-    unsigned char m00[2];
-    unsigned char mLearnt[128];
-};
-extern "C" GameUISkillTable_unk* fn_80219160(int member, int level);
+extern "C" PlayerParam_unk* fn_80219160(int member, int level); // db/PlayerParam_unk.cpp
 // inferred: object aimed at by AIManager::m458 (only the members read here; a scale and a radius)
 struct GameUIAimTarget_unk {
     unsigned char m00[0x28];
@@ -3462,12 +3458,12 @@ void GameUI::fn_803D83A8() {
                 SetLevelUp_unk(m1114, m110C, e);
                 if (m1120 == 0) {
                     if (m110C->fn_8016E484() != 0) {
-                        GameUISkillTable_unk* table =
+                        PlayerParam_unk* table =
                             fn_80219160(fn_80219558(m110C->m50), m110C->mStatus.mParamA.m78 - e->mLevelUp);
                         if (table != 0 && lbl_8087F0A8->m194 == 0) {
                             int n = 0;
                             for (int i = 0; i < 128; i++) {
-                                if (table->mLearnt[i] == 0 && m110C->mStatus.fn_801346C8(i, 0)) {
+                                if (table->mSkills[i] == 0 && m110C->mStatus.fn_801346C8(i, 0)) {
                                     new (&m1134[m1130]) GameUISkill_unk*(fn_8021AF50(i));
                                     m1130++;
                                     if (++n >= 2) {
@@ -3765,7 +3761,7 @@ inline bool HasCursorChara_unk() {
     }
     return r;
 }
-// inferred: RayObj_unk (BattleTask.h) is the atn::ColliBase hit by the cursor ray (flags at 0x08, owner at 0x0C)
+// inferred: the atn::ColliBase hit by the cursor ray (flags at 0x08, owner at 0x0C)
 inline atn::ColliBase* GetCursorTarget_unk() {
     return lbl_8087F048 != 0 ? (atn::ColliBase*)lbl_8087F048->m3E2E8 : 0;
 }
@@ -4096,8 +4092,8 @@ void GameUI::fn_803DCD34(CharaTask* chara, int slot, int other, int fixed) {
         }
         HitInfo_unk* skill = 0;
         if (lbl_8087F610 == 0) {
-            if (chara->mStatus.m2D0[0].m[0] != 0) {
-                skill = fn_80219E6C(chara->mStatus.m2D0[0].m[0]);
+            if (chara->mStatus.m2CC[0].m[0] != 0) {
+                skill = fn_80219E6C(chara->mStatus.m2CC[0].m[0]);
             } else if (chara->m648 != 0) {
                 skill = ((Arms*)chara->m648)->fn_80044C30(0);
             }
@@ -4917,9 +4913,7 @@ inline float GetMpRate_unk(CharaTask* c) {
 // inferred: party window `index` of a character (-1: the leader): name, level, hit points (the shown value
 // follows the real one over 20 frames), experience, magic points, the time bar, the face of its job and the
 // level-up and lives marks; static: the original takes the character in r3 (no this)
-// NONMATCHING: 85% - the original passes `base` to fn_801F6E78 by address (its declaration in GameUI took a
-// reference or pointer; atn/D2A_TaskInstanceC.h has it by value for the definition, and MWCC rejects a second
-// extern "C" declaration), so here every call copies the rectangle (frame 0x180 instead of 0xE0); the texture
+// NONMATCHING: 93.5% - the texture
 // rectangle of the face is copied with paired singles in the original (a UV type with a psq copy, as
 // ShopUV_unk), `--lives` keeps a ble/b pair and the m560 29/30 check is joined in a subi/cmplwi range here.
 // The rate of the chant is computed and left unused, as in the original (its fcmpo is followed by no use of
@@ -5038,7 +5032,7 @@ void GameUI::fn_803E0E10(CharaTask* chara, GameUIElem60_unk* window, int index) 
     if (chara->fn_8016E484() != 0) {
         skill = fn_80219344(chara, 5);
     } else {
-        skill = chara->mStatus.m2D0[3].m[0] > 0 ? fn_80219E6C(chara->mStatus.m2D0[3].m[0]) : 0;
+        skill = chara->mStatus.m2CC[3].m[0] > 0 ? fn_80219E6C(chara->mStatus.m2CC[3].m[0]) : 0;
     }
     float tp = 1.0f < chara->mStatus.m228 ? 1.0f : chara->mStatus.m228;
     if (on != 0 && (tp >= 1.0f || chara->mStatus.m2F4 > 0.0f)) {

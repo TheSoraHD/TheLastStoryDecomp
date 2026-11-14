@@ -15,6 +15,7 @@
 #include "game/DamageCalc_unk.h"
 #include "game/HitInfo_unk.h"
 #include "game/MslSort_unk.h"
+#include "game/InventoryExp_unk.h"
 
 extern "C" const char* fn_8020BD3C(int index); // inferred: name of the group of a colour (db/PaletteTable_unk)
 extern "C" const char* fn_8020BD78(int index); // inferred: name of an effect palette
@@ -216,13 +217,14 @@ struct ItemTable_unk {
 extern "C" ItemTable_unk* fn_8021E444(int table);
 extern "C" int fn_8021E5A4(ItemTable_unk* table, int flags); // inferred: draws an entry
 extern "C" HitInfo_unk* fn_80219E6C(int id);                // inferred: bullet data by id
-extern "C" void* lbl_8087F048;                              // BattleTask
+class BattleTask;
+extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
 extern "C" void* lbl_8087F610;                              // inferred: multiplayer session
 // inferred: shows a damage on the battle UI (game/BattleTask)
-extern "C" void fn_80108C10(void* battle, DamageResult_unk* damage, const atn::Vector3* pos, CharaTask* attacker,
+extern "C" void fn_80108C10(BattleTask* battle, DamageResult_unk* damage, const atn::Vector3* pos, CharaTask* attacker,
                             CharaTask* target, int arg5, int arg6);
 // inferred: message of an item got (game/BattleTask; 1 item, 2 weapon, 3 money)
-extern "C" void fn_801092C8(void* battle, int kind, int arg, int code, int count);
+extern "C" void fn_801092C8(BattleTask* battle, int kind, int arg, int code, int count);
 extern "C" int fn_80444EFC(CharaTask* chara);
 
 // inferred: gets the entry `index` (drawn when negative) of the drop table `table`: the items used at once
@@ -254,7 +256,7 @@ extern "C" int fn_80444020(Inventory* inventory, int table, int message, int ind
         if (leader != 0 && hit != 0) {
             DamageResult_unk result;
             fn_8003EA3C(&result, hit, leader, leader, 0, &lbl_807C6B90, 0, 0);
-            void* battle = lbl_8087F048;
+            BattleTask* battle = lbl_8087F048;
             if (battle != 0 && (hit->mAC & 0x80000) != 0x80000 &&
                 (lbl_8087F610 == 0 || (hit->m04 != 6004 && hit->m04 != 20428))) {
                 atn::Vector3 pos = leader->vfAC();
@@ -813,7 +815,7 @@ struct WeaponCandidateLess_unk {
             return wa->mEC > wb->mEC;
         }
         if (wa->mId != wb->mId) {
-            return wb->mId > wa->mId;
+            return wa->mId < wb->mId;
         }
         return wb > wa;
     }
@@ -827,7 +829,7 @@ struct EquipCandidateLess_unk {
             return ea->mBC > eb->mBC;
         }
         if (ea->mId != eb->mId) {
-            return eb->mId > ea->mId;
+            return ea->mId < eb->mId;
         }
         return eb > ea;
     }
@@ -1262,16 +1264,14 @@ struct ExpOrderLess_unk {
     }
 };
 
-// NONMATCHING: the original constructs the entries with a constructor (mChara, memset of mResult, the
-// four counters) in the local array of 8 and in the temporary of the push_back; here they are cleared with
-// memset (ExpEntry_unk has no constructor: a new inline in Inventory.h would renumber its 58 includers)
+// NONMATCHING: registers (r26-r30 rotated) and the place of the experience reads; the entries are built with
+// the constructor of ExpEntry_unk (game/InventoryExp_unk.h) as in the original
 // inferred: shares the experience of the battle (m6014/m6018) among the party members that can act and
 // adds it to the list of the last battle (sorted for game/BattleResult)
 void Inventory::fn_80449ABC(int killer, int level) {
     atn::FixedArray_unk<ExpEntry_unk, 8> party;
     party.clear();
     ExpEntry_unk entry;
-    memset(&entry, 0, sizeof(entry)); // inferred: the original zeroes it with a constructor
     for (PlayerTask* chara = lbl_8087F8A0->mHead; chara != 0; chara = chara->mNext) {
         if (chara->IsActive_unk() && (chara->m54C & 0x2000) != 0x2000 && chara->mC54 != 0 &&
             chara->fn_8016E484() && party.size() < 8) {
@@ -1311,7 +1311,6 @@ void Inventory::fn_80449ABC(int killer, int level) {
         }
         if (p == 0 && mExpEntries.size() < 8) {
             ExpEntry_unk added;
-            memset(&added, 0, sizeof(added));
             added.mChara = e.mChara;
             mExpEntries.push_back(added);
             p = &mExpEntries[mExpEntries.size() - 1];

@@ -37,8 +37,9 @@ extern "C" PlayerManager* lbl_8087F8A0; // inferred: the party
 extern "C" void* fn_8044D034(Inventory* party, int index); // inferred: equipment data
 extern "C" void fn_8044D104(Inventory* party, int slot, int item, int upgrade, int chara); // inferred: sets a weapon
 extern "C" int fn_80219544(int member); // inferred: character id of a party member
-extern "C" void* lbl_8087F048; // inferred: effect manager of the characters
-extern "C" void fn_8010C00C(void* mgr, CharaTask* chara);
+class BattleTask;
+extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
+extern "C" void fn_8010C00C(BattleTask* mgr, CharaTask* chara);
 extern "C" bool fn_802124B4(ItemParamEntry_unk* item, int level); // inferred: the item can be upgraded
 extern "C" int fn_80211940(ItemParamEntry_unk* item, int level);   // inferred: makes the upgraded item
 extern "C" int fn_80444564(Inventory* party, int id); // inferred: number of equipment items
@@ -1458,8 +1459,8 @@ void ShopUpGrade::fn_8058DB10() {
     fn_8058AABC();
 }
 
-// NONMATCHING: 90% - push_back: the original stores the entry by the POD path of MSL (size first), here the
-// placement copy of a class with a constructor
+// NONMATCHING: 99.7% - registers of the inlined push_back (POD path of MSL since the class has a trivial
+// copy, see std/vector.h)
 void ShopUpGrade::fn_805969D4(int code, int member, int slot, int have) {
     ShopUpGradeEntry_unk entry;
     ItemParamEntry_unk* item = fn_80211480(code);

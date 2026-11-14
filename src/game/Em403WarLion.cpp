@@ -1,5 +1,6 @@
 #include "game/SkillEffectManager.h"
 #include "game/Em403WarLion.h"
+#include "Event/PathSpline.h"
 #include "atn/LoadHandle.h"
 #include "chr/ControlBase.h"
 #include "chr/ControlStickByQuark.h"
@@ -30,10 +31,7 @@ extern "C" const WarLionPlace_unk lbl_80749B00[10] = {
 };
 
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
-// inferred: effect/bullet manager of the characters (class unknown)
-struct Effect_unk;
-extern "C" Effect_unk* lbl_8087F048;
-extern "C" int fn_800F8548(Effect_unk* mgr); // inferred: new bullet id
+extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
 // inferred: settings (lbl_8087F0A8) and debug drawing (lbl_8087EEB0), as in game/CopyRobotTask.cpp
 struct Settings_unk {
     unsigned char m00[0x30];
@@ -89,11 +87,6 @@ inline float Clamp01_unk(float x) {
     return x;
 }
 extern "C" HitInfo_unk* fn_80219E6C(int id);
-extern "C" void fn_800FAB80(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* bullet, int arg3, const atn::Vector3* pos,
-                            const atn::Vector3* rot, int arg6, int arg7, int arg8, int arg9, float arg10,
-                            float arg11);
-extern "C" void fn_800F8C6C(Effect_unk* mgr, int a, int b, CharaTask* chara, HitInfo_unk* data, int id, int time,
-                            int c, float f);
 // inferred: effect manager (class unknown), global instance at 0x8087F3C0
 struct EffectMgr_unk;
 struct Color4f_unk {
@@ -206,12 +199,7 @@ extern "C" CharaTask* fn_802A4094(CharaTask* chara);
 // inferred: model matrix (weak copy 0x80266154)
 extern "C" atn::Matrix3x4* fn_80266154(atn::Model* model);
 extern "C" float fn_80011220(float x); // inferred: fabs (weak copy of another helper)
-Effect_unk* fn_8013A194();
-// inferred: AI data of an ally (class unknown): weights by enemy at 0x128
-struct AllyAi_unk {
-    unsigned char m000[0x128];
-    float m128[1];
-};
+BattleTask* fn_8013A194();
 
 // inferred: singleton accessor (weak copy, also called by game/GameUI.cpp)
 extern "C" inline FriendManager* fn_80323C2C() {
@@ -359,9 +347,9 @@ void Em403WarLion::vf10() {
         }
     }
     for (CharaTask* c = fn_80323C2C()->fn_8036554C(); c != 0; c = fn_802A4094(c)) {
-        AllyAi_unk* ai = (AllyAi_unk*)((BattleTask*)fn_8013A194())->fn_80103F60(c);
+        BattleChara_unk* ai = fn_8013A194()->fn_80103F60(c);
         if (ai != 0) {
-            int i = ((BattleTask*)ai)->fn_80108378(this);
+            int i = ai->fn_80108378(this);
             if (i >= 0) {
                 if (m14CC - 1U <= 1) {
                     ai->m128[i] = 0.0f;
@@ -467,8 +455,8 @@ void Em403WarLion::vf40(HitInfo_unk* hit) {
             mMotion.mTracks[0].m0C = 0.2f;
             mMotion.fn_80097C08(0, 0x2E, 0, 0, 1, 0.0f, 0.1f);
             m15F4 = 0;
-            ((BattleTask*)lbl_8087F048)->fn_80107A68(&mMotion);
-            ((BattleTask*)lbl_8087F048)->fn_801079C0(&mMotion, &mMotion);
+            lbl_8087F048->fn_80107A68(&mMotion);
+            lbl_8087F048->fn_801079C0(&mMotion, &mMotion);
             ((GameTask*)lbl_8087F430)->fn_80370AE4(0x5B, 1);
         }
     }
@@ -1199,7 +1187,7 @@ void Em403WarLion::fn_80327EF0() {
     frame = mMotion.mTracks[0].m08;
     if (frame >= 19.0f && frame <= 26.0f) {
         fn_80144710();
-        fn_800F8C6C(lbl_8087F048, 0, 0, this, fn_80219E6C(0x672), m590, 30, -1, 0.0f);
+        lbl_8087F048->fn_800F8C6C(0, 0, this, fn_80219E6C(0x672), m590, 0.0f, 30, -1);
     }
 }
 
@@ -1366,7 +1354,7 @@ void Em403WarLion::fn_80328C6C() {
     frame = mMotion.mTracks[0].m08;
     if (frame >= 5.0f && frame <= 25.0f) {
         fn_80144710();
-        fn_800F8C6C(lbl_8087F048, 0, 0, this, fn_80219E6C(0x674), m15F8, 30, -1, 0.0f);
+        lbl_8087F048->fn_800F8C6C(0, 0, this, fn_80219E6C(0x674), m15F8, 0.0f, 30, -1);
     }
 }
 
@@ -1380,7 +1368,7 @@ void Em403WarLion::fn_8032932C() {
     float f = mMotion.mTracks[0].m08;
     if (f >= 5.0f && f <= 25.0f) {
         fn_80144710();
-        fn_800F8C6C(lbl_8087F048, 0, 0, this, fn_80219E6C(0x674), m590, 30, -1, 0.0f);
+        lbl_8087F048->fn_800F8C6C(0, 0, this, fn_80219E6C(0x674), m590, 0.0f, 30, -1);
     }
 }
 
@@ -1414,7 +1402,7 @@ void Em403WarLion::fn_8032943C() {
         } else {
             mPos += m150C;
             fn_80144710();
-            fn_800F8C6C(lbl_8087F048, 0, 0, this, fn_80219E6C(0x674), m590, 30, -1, 0.0f);
+            lbl_8087F048->fn_800F8C6C(0, 0, this, fn_80219E6C(0x674), m590, 0.0f, 30, -1);
             CollHit_unk hit;
             atn::Vector3 from(mPos);
             atn::Vector3 to(mPos);
@@ -1532,7 +1520,7 @@ void Em403WarLion::fn_80329D7C() {
         m14CC = 0;
         m15DC = 1;
         m15F0 = 0;
-        ((BattleTask*)lbl_8087F048)->fn_80107A68(&mMotion);
+        lbl_8087F048->fn_80107A68(&mMotion);
         SetState_unk(6);
     }
 }
@@ -1570,11 +1558,6 @@ struct CollObj_unk {
     unsigned int m08;
     CharaTask* m0C;
 };
-// inferred: the magic `data` of `chara` targets `target` (bullet manager); returns < 0 when not
-extern "C" int fn_800FBA9C(Effect_unk* mgr, CharaTask* chara, CharaTask* target, HitInfo_unk* data, int arg,
-                           float f);
-extern "C" int fn_800FBE70(Effect_unk* mgr, CharaTask* chara, CharaTask* target, HitInfo_unk* data, int arg,
-                           atn::Vector3* pos, int a, int b);
 
 // NONMATCHING: 98.28% - asignacion de GPR (this en r27 en el original) y el id del control releido
 // inferred: looks for a player that attacks the war lion (magic, arrows or the gun) and gives the
@@ -1755,18 +1738,6 @@ extern "C" void fn_8032AC1C(WarLionPoints_unk* v, const atn::Vector3* p);   // i
 extern "C" void fn_8032AF90(WarLionPath_unk* path, WarLionPoints_unk* pts); // inferred: builds the path
 // NONMATCHING: 99.96% - only the message of __allocate (lbl_80779F68, a pool of another file)
 extern "C" void fn_8032B314(std::vector<WarLionCubic_unk>* v, unsigned int n); // inferred: resize
-// inferred: raw storage of a std::vector<float> (the builder constructs and destroys it through the weak
-// copies, as PathVec_unk in game/PathData_unk.cpp)
-struct WarLionFloats_unk {
-    float* Data_unk() { return mData; }
-    std::vector<float>& Vec_unk() { return *(std::vector<float>*)this; }
-    float* mData;
-    unsigned int mSize;
-    unsigned int mCap;
-};
-// NONMATCHING: 99.84% - only the message of __allocate (lbl_80775A88, a pool of another file)
-extern "C" WarLionFloats_unk* fn_8032B6F8(WarLionFloats_unk* v, unsigned int n); // inferred: vector(n)
-extern "C" void fn_8000D844(WarLionFloats_unk* v, int flag);                 // inferred: ~vector<float>
 // NONMATCHING: 87.22% - register allocation of the unrolled back substitution and of the three vectors
 extern "C" void fn_8032B7F0(WarLionPath_unk* path, const float* y, WarLionCubic_unk* out); // inferred: solve
 // NONMATCHING: 99.86% - the capacity of the dead __recommend_cap_unk in r28 instead of r31, and the message
@@ -1832,20 +1803,17 @@ inline void WarLionBuild_unk(WarLionPath_unk* path, const atn::Vector3* pts, int
     fn_8032B314(&path->m20, n - 1);
     fn_8032B314(&path->m2C, n - 1);
     fn_8032B314(&path->m38, n - 1);
-    WarLionFloats_unk xs;
-    WarLionFloats_unk ys;
-    WarLionFloats_unk zs;
-    fn_8032B6F8(&xs, n);
-    fn_8032B6F8(&ys, n);
-    fn_8032B6F8(&zs, n);
+    Event::PathLengths_unk xs(n);
+    Event::PathLengths_unk ys(n);
+    Event::PathLengths_unk zs(n);
     for (int i = 0; i < n; i++) {
-        xs.mData[i] = pts[i].x;
-        ys.mData[i] = pts[i].y;
-        zs.mData[i] = pts[i].z;
+        xs.begin()[i] = pts[i].x;
+        ys.begin()[i] = pts[i].y;
+        zs.begin()[i] = pts[i].z;
     }
-    fn_8032B7F0(path, xs.Data_unk(), path->m20.begin());
-    fn_8032B7F0(path, ys.Data_unk(), path->m2C.begin());
-    fn_8032B7F0(path, zs.Data_unk(), path->m38.begin());
+    fn_8032B7F0(path, xs.begin(), path->m20.begin());
+    fn_8032B7F0(path, ys.begin(), path->m2C.begin());
+    fn_8032B7F0(path, zs.begin(), path->m38.begin());
     path->m08 = pts[0];
     path->m14 = pts[n - 1];
     path->m04 = 0.0f;
@@ -1854,9 +1822,6 @@ inline void WarLionBuild_unk(WarLionPath_unk* path, const atn::Vector3* pts, int
         path->m44[i] = fn_8032C1EC(path, i);
         path->m04 += path->m44[i];
     }
-    fn_8000D844(&zs, -1);
-    fn_8000D844(&ys, -1);
-    fn_8000D844(&xs, -1);
 }
 
 extern "C" inline void fn_8032AF90(WarLionPath_unk* path, WarLionPoints_unk* list) {
@@ -1867,15 +1832,6 @@ extern "C" inline void fn_8032AF90(WarLionPath_unk* path, WarLionPoints_unk* lis
 
 extern "C" inline void fn_8032B314(std::vector<WarLionCubic_unk>* v, unsigned int n) {
     v->resize(n);
-}
-
-// inferred: std::vector<float>(n) (weak copy; written out because placement new adds a null check)
-extern "C" inline WarLionFloats_unk* fn_8032B6F8(WarLionFloats_unk* v, unsigned int n) {
-    v->mData = 0;
-    v->mSize = 0;
-    v->mCap = 0;
-    v->Vec_unk().__init_n_unk(n);
-    return v;
 }
 
 // inferred: natural cubic spline with unit spacing: tridiagonal system for the first derivatives `c`, then

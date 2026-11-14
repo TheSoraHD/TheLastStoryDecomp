@@ -1,4 +1,5 @@
 #include "atn/Csv.h"
+#include "db/PlayerParam_unk.h"
 #include "atn/Memory.h"
 
 extern "C" int strcmp(const char* a, const char* b);
@@ -29,19 +30,11 @@ struct PlayerChara_unk {
     int mLevel; // inferred: 0x874
 };
 
-// inferred: skills of a player from a level on (0x88 bytes, 32 per player, 7 players); the inline
-// constructor is emitted out of line (fn_80219018) for __construct_new_array
-struct PlayerParam_unk {
-    PlayerParam_unk() : mPlayer(-1), mLevel(0) {
-        memset(mSkills, 0, sizeof(mSkills));
-        memset(mSlots, 0, sizeof(mSlots));
-    }
-
-    signed char mPlayer;
-    signed char mLevel;
-    bool mSkills[0x80];      // inferred: skill growth ids learnt
-    signed char mSlots[6];   // inferred: skill growth id of each slot
-};
+// inferred: the constructor is emitted out of line (fn_80219018) for __construct_new_array
+inline PlayerParam_unk::PlayerParam_unk() : mPlayer(-1), mLevel(0) {
+    memset(mSkills, 0, sizeof(mSkills));
+    memset(mSlots, 0, sizeof(mSlots));
+}
 
 static const char sFileNameStr[] = "/boot/player_param.csv";
 static const char sDemoFileNameStr[] = "/boot/player_param_demo.csv";

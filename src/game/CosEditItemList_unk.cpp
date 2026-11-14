@@ -14,6 +14,8 @@
 #include "atn/SoundManager.h"
 #include "db/EquipParam_unk.h"
 #include "game/MslSort_unk.h"
+#include "game/InventoryEquip_unk.h"
+#include "game/NewCampPairs_unk.h"
 #include "macros.h"
 
 // Third file of CosEditProtector (inferred file name, game/CosEditProtector.cpp and
@@ -612,11 +614,12 @@ struct CosEditArmourLess_unk {
             }
             return false;
         }
-        float va = ((EquipParamEntry_unk*)a.mItem)->m08;
         float vb = ((EquipParamEntry_unk*)b.mItem)->m08;
+        float va = ((EquipParamEntry_unk*)a.mItem)->m08;
         if ((float)__fabs(va - vb) < 1.1920929e-7f) {
-            return wcscmp(((CosEditListName_unk*)fn_80211480(fn_8020EF80(a.mItem)))->mName,
-                          ((CosEditListName_unk*)fn_80211480(fn_8020EF80(b.mItem)))->mName) < 0;
+            CosEditListName_unk* na = (CosEditListName_unk*)fn_80211480(fn_8020EF80(a.mItem));
+            CosEditListName_unk* nb = (CosEditListName_unk*)fn_80211480(fn_8020EF80(b.mItem));
+            return wcscmp(na->mName, nb->mName) < 0;
         }
         return va > vb;
     }
@@ -632,11 +635,12 @@ struct CosEditRobeLess_unk {
             }
             return false;
         }
-        float va = ((EquipParamEntry_unk*)a.mItem)->m0C;
         float vb = ((EquipParamEntry_unk*)b.mItem)->m0C;
+        float va = ((EquipParamEntry_unk*)a.mItem)->m0C;
         if ((float)__fabs(va - vb) < 1.1920929e-7f) {
-            return wcscmp(((CosEditListName_unk*)fn_80211480(fn_8020EF80(a.mItem)))->mName,
-                          ((CosEditListName_unk*)fn_80211480(fn_8020EF80(b.mItem)))->mName) < 0;
+            CosEditListName_unk* na = (CosEditListName_unk*)fn_80211480(fn_8020EF80(a.mItem));
+            CosEditListName_unk* nb = (CosEditListName_unk*)fn_80211480(fn_8020EF80(b.mItem));
+            return wcscmp(na->mName, nb->mName) < 0;
         }
         return va > vb;
     }
@@ -1334,20 +1338,20 @@ CosEditWeaponItem_unk* CosEditProtector::fn_801DD12C(NewCampPair_unk* member, in
 // inferred: builds the lists of the two protector slots for the member: the pieces worn by the party
 // (enabled when both can swap them), then the free pieces of the inventory that the member can wear
 // (one entry per item, after the worn copies of the same piece); finally sorts them
-// NONMATCHING: 94.7% - the original is over the inlining budget (R3: vector/FixedArray accessors and the
-// CosEditItem_unk constructor 0x801D8C90 called out of line)
+// (over the inlining budget as the original: Inventory::Order, Inventory::GetEquip_unk, the pair accessors of
+// NewCampTask and the CosEditItem_unk constructor 0x801D8C90 are called out of line)
 void CosEditProtector::fn_801DD26C(int member) {
     std::vector<CosEditItem_unk> worn[2];
     for (int i = 0; i < 2; i++) {
         mB34[i].clear();
     }
-    Inventory::Equip_unk* equip = &Inventory::Order()->mEquip[member];
+    Inventory::Equip_unk* equip = Inventory::Order()->GetEquip_unk(member);
     if (Inventory::Order() != 0) {
         for (int slot = 0; slot < 2; slot++) {
             void* cur = fn_801CFAA8(member, slot);
-            for (int j = 0; j < (int)((NewCampTask*)m48)->m1224.size(); j++) {
-                NewCampPair_unk* pair = &((NewCampTask*)m48)->m1224[j];
-                Inventory::Equip_unk* other = &Inventory::Order()->mEquip[pair->mId];
+            for (int j = 0; j < (int)((NewCampTask*)m48)->GetPairCount_unk(); j++) {
+                NewCampPair_unk* pair = &((NewCampTask*)m48)->GetPair_unk(j);
+                Inventory::Equip_unk* other = Inventory::Order()->GetEquip_unk(pair->mId);
                 int chara = fn_80219544(pair->mId);
                 EquipParamEntry_unk* entry = fn_8020ED84(slot, other->mProtectors[slot].mId);
                 CosEditItem_unk item;
@@ -1532,11 +1536,12 @@ struct CosEditWeaponArmourLess_unk {
             }
             return false;
         }
-        float va = ((CosEditWeaponStat_unk*)a.mItem)->mAttack;
         float vb = ((CosEditWeaponStat_unk*)b.mItem)->mAttack;
+        float va = ((CosEditWeaponStat_unk*)a.mItem)->mAttack;
         if ((float)__fabs(va - vb) < 1.1920929e-7f) {
-            return wcscmp(((CosEditListName_unk*)fn_80211480(fn_80206BE4(a.mItem)))->mName,
-                          ((CosEditListName_unk*)fn_80211480(fn_80206BE4(b.mItem)))->mName) < 0;
+            CosEditListName_unk* na = (CosEditListName_unk*)fn_80211480(fn_80206BE4(a.mItem));
+            CosEditListName_unk* nb = (CosEditListName_unk*)fn_80211480(fn_80206BE4(b.mItem));
+            return wcscmp(na->mName, nb->mName) < 0;
         }
         return va > vb;
     }
@@ -1555,11 +1560,12 @@ struct CosEditWeaponRobeLess_unk {
             }
             return false;
         }
-        float va = ((CosEditWeaponStat_unk*)a.mItem)->mMagic;
         float vb = ((CosEditWeaponStat_unk*)b.mItem)->mMagic;
+        float va = ((CosEditWeaponStat_unk*)a.mItem)->mMagic;
         if ((float)__fabs(va - vb) < 1.1920929e-7f) {
-            return wcscmp(((CosEditListName_unk*)fn_80211480(fn_80206BE4(a.mItem)))->mName,
-                          ((CosEditListName_unk*)fn_80211480(fn_80206BE4(b.mItem)))->mName) < 0;
+            CosEditListName_unk* na = (CosEditListName_unk*)fn_80211480(fn_80206BE4(a.mItem));
+            CosEditListName_unk* nb = (CosEditListName_unk*)fn_80211480(fn_80206BE4(b.mItem));
+            return wcscmp(na->mName, nb->mName) < 0;
         }
         return va > vb;
     }
@@ -1568,21 +1574,21 @@ struct CosEditWeaponRobeLess_unk {
 // inferred: builds the weapon list of the hand for the member: the weapons worn by the party (mB58, enabled
 // when both can swap them), then the free weapons of the inventory that the member can hold (one entry per
 // item, after the worn copies of the same weapon); finally sorts it
-// NONMATCHING: 97.2% - over the inlining budget as the original (asserts of the weapon begin()/end()); the
-// original also calls the Inventory accessor of mEquip (weak copy 0x801D80A0, a member of Inventory that is not
-// declared: Inventory.h is included by 58 units) and keeps the two entries in one stack slot
+// (over the inlining budget as the original: asserts of the weapon begin()/end(); the unused
+// Inventory::GetEquip_unk call stays; one entry for both loops, as the single stack slot of the original)
 void CosEditProtector::fn_801E07A4(int member, int slot) {
     mB4C.clear();
     mB58.clear();
     void* cur = fn_801CFA5C(member, slot);
-    for (int j = 0; j < (int)((NewCampTask*)m48)->m1224.size(); j++) {
-        NewCampPair_unk* pair = &((NewCampTask*)m48)->m1224[j];
-        Inventory::Order()->mEquip[pair->mId];
+    CosEditWeaponItem_unk item;
+    for (int j = 0; j < (int)((NewCampTask*)m48)->GetPairCount_unk(); j++) {
+        NewCampPair_unk* pair = &((NewCampTask*)m48)->GetPair_unk(j);
+        Inventory::Order()->GetEquip_unk(pair->mId);
         for (int k = 0; k < 4; k++) {
             void* weapon = fn_801CFA5C(pair->mId, k);
-            CosEditWeaponItem_unk item;
+            int id = fn_80206BE4(weapon);
             item.mItem = weapon;
-            item.mId = fn_80206BE4(weapon);
+            item.mId = id;
             item.mIndex = -1;
             item.m14 = k;
             item.mOwner = fn_80219544(pair->mId);
@@ -1623,7 +1629,6 @@ void CosEditProtector::fn_801E07A4(int member, int slot) {
         }
         int count = fn_8044453C(Inventory::Order(), k);
         for (int j = 0; j < count; j++) {
-            CosEditWeaponItem_unk item;
             item.mItem = weapon;
             item.mId = param->mId;
             item.mIndex = -1;

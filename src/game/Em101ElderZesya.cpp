@@ -147,7 +147,6 @@ struct Field_unk {
     RouteTable_unk* m10D8;
 };
 extern "C" Field_unk* lbl_8087F430;
-struct Effect_unk;
 // inferred: result of fn_8003EA3C (as DamageResult_unk in game/Em002Skelton.cpp); names invented
 struct ElderDamage_unk {
     ElderDamage_unk() : m00(0), m04(0), m08(0), m0C(0), m10(0), m14(-1) {
@@ -168,11 +167,8 @@ struct HitParam_unk;
 extern "C" HitParam_unk lbl_807C6B90; // inferred: default parameters
 extern "C" void fn_8003EA3C(ElderDamage_unk* result, HitInfo_unk* data, CharaTask* attacker, CharaTask* owner,
                             unsigned int flags, const HitParam_unk* param, int arg, int arg2); // inferred: damage
-// inferred: effect/bullet manager (lbl_8087F048, as in chr/ControlUseSkill.cpp); class unknown
-struct Effect_unk;
-extern "C" Effect_unk* lbl_8087F048;
-extern "C" int fn_800F8548(Effect_unk* mgr); // inferred: new bullet id
-extern "C" void fn_80102EAC(Effect_unk* mgr, int id, CharaTask* attacker, int arg, int arg2);
+extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
+extern "C" void fn_80102EAC(BattleTask* mgr, int id, CharaTask* attacker, int arg, int arg2);
 
 extern "C" void* lbl_8087EE98;
 extern "C" int fn_8004ED34(void* colli, atn::ColliResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
@@ -210,9 +206,6 @@ inline void PlayEffect_unk(atn::EfpFile* efp, atn::Model* model) {
 }
 
 extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float volume);
-extern "C" void fn_800FAB80(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* bullet, int id, const atn::Vector3* pos,
-                            const atn::Vector3* rot, int arg6, int arg7, int arg8, int arg9, float arg10,
-                            float arg11); // inferred: fires a bullet (as in gmk/Coffin.cpp)
 
 extern "C" int fn_800DD3FC(wchar_t* s, const wchar_t* format, ...); // inferred: wide sprintf
 extern "C" void* memset(void* dst, int c, unsigned long n);
@@ -235,9 +228,6 @@ extern "C" void fn_8025D704(int zesya); // inferred: Em101LittleZesya goes back 
 
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 extern "C" atn::Vector3 lbl_807C7030;              // inferred: zero vector
-extern "C" void fn_800F8574(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* data, const atn::Vector3* pos,
-                            const atn::Vector3* dir, HomingParam_unk* param, int arg6, int arg7, float a,
-                            float b); // inferred: fires a bullet (as in game/Em101LittleZesyaSecond.cpp)
 extern "C" void PSMTXRotAxisRad(Mtx m, const atn::Vector3* axis, float rad);
 extern "C" int rand();
 // inferred: fields of the running magic control (class unknown; as in game/Em003LesserDaemon.cpp)
@@ -583,9 +573,9 @@ void Em101ElderZesya::vf10() {
         for (PlayerTask* p = lbl_8087F8A0->mHead; p != 0; p = p->mNext) {
             AiTarget* r = lbl_8087EE68 != 0 ? lbl_8087EE68->fn_800185B4(p, 0) : 0;
             if (r != 0 && r->m08 == 0 && r->m0C == this) {
-                ((BattleTask*)lbl_8087F048)->fn_801028E4(p, this, 0x30D40);
+                lbl_8087F048->fn_801028E4(p, this, 0x30D40);
             } else {
-                ((BattleTask*)lbl_8087F048)->fn_801028E4(p, (CharaTask*)m16A0, 0x30D40);
+                lbl_8087F048->fn_801028E4(p, (CharaTask*)m16A0, 0x30D40);
             }
         }
         int wait = m14D4;
@@ -907,7 +897,7 @@ void Em101ElderZesya::fn_80258574() {
         wchar_t text[256];
         memset(text, 0, sizeof(text));
         fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0x9F), *(const wchar_t**)((char*)m60 + 4));
-        ((BattleTask*)lbl_8087F048)->fn_80109828(text);
+        lbl_8087F048->fn_80109828(text);
         fn_802598DC();
         fn_8016D74C(m1510, 0, &m1694);
         ElderOrder_unk order;

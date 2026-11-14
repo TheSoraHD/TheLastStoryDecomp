@@ -147,17 +147,8 @@ public:
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
 extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the next effects
-// inferred: effect/bullet manager (lbl_8087F048)
-struct Effect_unk;
-extern "C" Effect_unk* lbl_8087F048;
-extern "C" int fn_800F8548(Effect_unk* mgr); // inferred: new bullet id
-extern "C" void fn_800F8C6C(Effect_unk* mgr, int a, int b, CharaTask* chara, HitInfo_unk* data, int id, int time,
-                            int arg, float f); // inferred: fires a melee hit
-extern "C" void fn_800F8574(Effect_unk* mgr, CharaTask* chara, HitInfo_unk* data, const atn::Vector3* pos,
-                            const atn::Vector3* dir, HomingParam_unk* param, int flags, int arg, float f1,
-                            float f2); // inferred: fires a homing bullet
-Effect_unk* fn_8013A194(); // inferred: bullet manager (returns lbl_8087F048)
-extern "C" float fn_8010B250(Effect_unk* mgr, int kind, int arg); // inferred: scale of the bullet
+extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
+BattleTask* fn_8013A194(); // inferred: bullet manager (returns lbl_8087F048)
 extern "C" int fn_800EFD04(int id); // inferred: effect resources of a bullet
 extern "C" int fn_800EFDA0(int id);
 extern "C" float fn_800F8524(const float* a, const float* b, float t); // inferred: lerp of two floats
@@ -168,9 +159,6 @@ extern "C" void fn_8023A680(EffectMgr_unk* mgr, atn::EffFile* res, int arg2, int
 extern "C" void fn_80276AE4(EffectMgr_unk* mgr, atn::EfpFile* efp, void* model, const atn::Vector3* pos,
                             const atn::Vector3* rot, int a, int b, int c, float scale);
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
-extern "C" void fn_800FAB80(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* bullet, int arg3, const atn::Vector3* pos,
-                            const atn::Vector3* rot, int arg6, int arg7, int arg8, int arg9, float arg10,
-                            float arg11); // inferred: fires a bullet at a point
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume); // 3D sound
 // inferred: game state (lbl_8087EFA8): the frame time at 0x3A4 (as in game/Em301LShade.cpp)
 struct QuarkGame_unk {
@@ -183,18 +171,12 @@ extern "C" int fn_8004ED34(void* colli, void* result, const atn::Vector3* from, 
                            unsigned int mask, void* ignore, int arg7); // inferred: segment test
 extern "C" void fn_8023A108(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: effect fade
 extern "C" GameUI* lbl_8087F490; // inferred: game UI
-// inferred: per-player weights of an effect (floats at +0x128, as GhoulWeights_unk of game/Em309Ghoul.cpp)
-struct QuarkWeights_unk {
-    unsigned char m00[0x128];
-    float mWeight[4];
-};
 // inferred: the stuck control keeps the action to run at its end (boost::function at +0x24; name
 // invented)
 struct QuarkStickControl_unk {
     unsigned char m00[0x24];
     boost::function<void()> m24;
 };
-extern "C" void fn_80392D2C(Camera_unk* camera, const Camera_unk* from, float rate); // inferred: blends back
 extern "C" double tan(double x);
 extern "C" double atan(double x);
 // inferred: xsca camera curves (atn/Xsca_unk.cpp, atn/XsfParser_unk.cpp); only the members called here
@@ -249,7 +231,7 @@ extern "C" int fn_80267B28(CharaTask* chara);                    // inferred: re
 class EnemyQuarkStand;
 extern "C" void fn_80353EE4(EnemyQuarkStand* self); // inferred: releases the camera
 extern "C" void fn_80353F0C(EnemyQuarkStand* self); // inferred: frees the character stuck by the sword
-// inferred: stores a pair in CharaStatus::m2D0 (weak copy in game/EnemyQuarkSecond.cpp)
+// inferred: stores a pair in CharaStatus::m2CC (weak copy in game/EnemyQuarkSecond.cpp)
 extern "C" void fn_803396FC(CharaStatus* status, int index, const CharaStatusPair_unk& pair);
 extern "C" HitInfo_unk* fn_80219E6C(int id);
 
@@ -1143,7 +1125,7 @@ void EnemyQuarkStand::fn_80348FF4() {
             atn::Vector3 pos(0.0f, 0.0f, 20.0f);
             pos.fn_80011410(*(atn::Matrix3x4*)mMotion.GetNodeMtx_unk("head"));
             fn_803489F4(pos);
-            Bullet* bullet = ((BattleTask*)fn_8013A194())->fn_801010A0();
+            Bullet* bullet = fn_8013A194()->fn_801010A0();
             if (bullet != 0) {
                 QuarkBulletShot_unk shot;
                 shot.m00 = fn_8010B250(fn_8013A194(), m152C->m3C, 0);
@@ -1332,7 +1314,7 @@ void EnemyQuarkStand::fn_8034A194() {
             TurnTo_unk(1.0f);
         }
         if (mMotion.mTracks[0].m08 >= 21.0f) {
-            fn_800F8C6C(lbl_8087F048, 0, 0, this, m1548, fn_800F8548(lbl_8087F048), 30, -1, 0.0f);
+            lbl_8087F048->fn_800F8C6C(0, 0, this, m1548, fn_800F8548(lbl_8087F048), 0.0f, 30, -1);
             Field_unk* field = lbl_8087F430;
             field->m96C %= 2;
             field->m970 = 10;
@@ -1356,7 +1338,7 @@ void EnemyQuarkStand::fn_8034A644() {
             TurnTo_unk(1.0f);
         }
         if (mMotion.mTracks[0].m08 >= 33.0f) {
-            fn_800F8C6C(lbl_8087F048, 0, 0, this, m1544, fn_800F8548(lbl_8087F048), 30, -1, 0.0f);
+            lbl_8087F048->fn_800F8C6C(0, 0, this, m1544, fn_800F8548(lbl_8087F048), 0.0f, 30, -1);
             Field_unk* field = lbl_8087F430;
             field->m96C %= 2;
             field->m970 = 10;
@@ -1369,7 +1351,7 @@ void EnemyQuarkStand::fn_8034A644() {
             TurnTo_unk(1.0f);
         }
         if (mMotion.mTracks[0].m08 >= 61.0f) {
-            fn_800F8C6C(lbl_8087F048, 0, 0, this, m1548, fn_800F8548(lbl_8087F048), 30, -1, 0.0f);
+            lbl_8087F048->fn_800F8C6C(0, 0, this, m1548, fn_800F8548(lbl_8087F048), 0.0f, 30, -1);
             Field_unk* field = lbl_8087F430;
             field->m96C %= 2;
             field->m970 = 10;
@@ -1412,7 +1394,7 @@ void EnemyQuarkStand::fn_8034AE48() {
         float t = QS_MAX_unk(0.0f, QS_MIN_unk(1.0f, (mMotion.mTracks[0].m08 - 24.0f) / 6.0f));
         mPos = QuarkLerp_unk(m15DC.mStart, m15DC.mTarget, t);
         if (mMotion.mTracks[0].m08 >= 30.0f) {
-            fn_800F8C6C(lbl_8087F048, 0, 0, this, m1534, fn_800F8548(lbl_8087F048), 30, -1, 0.0f);
+            lbl_8087F048->fn_800F8C6C(0, 0, this, m1534, fn_800F8548(lbl_8087F048), 0.0f, 30, -1);
             Field_unk* field = lbl_8087F430;
             field->m96C %= 2;
             field->m970 = 10;
@@ -1426,7 +1408,7 @@ void EnemyQuarkStand::fn_8034AE48() {
         float t = QS_MAX_unk(0.0f, QS_MIN_unk(1.0f, (mMotion.mTracks[0].m08 - 30.0f) / 9.0f));
         mPos = QuarkLerp_unk(m15DC.mStart, m15DC.mTarget, t);
         if (mMotion.mTracks[0].m08 >= 39.0f) {
-            fn_800F8C6C(lbl_8087F048, 0, 0, this, m1538, fn_800F8548(lbl_8087F048), 30, -1, 0.0f);
+            lbl_8087F048->fn_800F8C6C(0, 0, this, m1538, fn_800F8548(lbl_8087F048), 0.0f, 30, -1);
             Field_unk* field = lbl_8087F430;
             field->m96C %= 2;
             field->m970 = 10;
@@ -1489,7 +1471,7 @@ void EnemyQuarkStand::fn_8034B8CC() {
             if (m17E4 != 0 && m17EC == 0) {
                 atn::Vector3 front = QuarkFrontOf_unk(this);
                 atn::Vector3 pos = m17E4->mPos - front * 0.5f;
-                Effect_unk* mgr = lbl_8087F048;
+                BattleTask* mgr = lbl_8087F048;
                 fn_800FAB80(mgr, this, m154C, fn_800F8548(mgr), &pos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
             }
             m14B4++;
@@ -1815,7 +1797,7 @@ void EnemyQuarkStand::fn_8034DE90() {
         camera.fn_8004B378();
         atn::RenderManager::instance_->mCamera = camera;
         if (done != 0 || mMotion.mTracks[0].m08 >= curve->m14) {
-            fn_80392D2C(&lbl_8087F430->m06C, &camera, 0.05f);
+            ((GameTask*)lbl_8087F430)->mCamera.fn_80392D2C(&camera, 0.05f);
             m1714 = 0;
         }
     }
@@ -1896,7 +1878,7 @@ void EnemyQuarkStand::fn_8034ECE8() {
             fn_80232B7C(this, 0x3EE);
             QuarkPlayEffect_unk(&m1690, &mMotion);
             CharaTask* leader = lbl_8087F8A0->mHead;
-            Effect_unk* mgr = lbl_8087F048;
+            BattleTask* mgr = lbl_8087F048;
             int id = fn_800F8548(mgr);
             fn_800FAB80(mgr, leader, fn_80219E6C(0x780), id, &mPos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
             m14C4->mStatus.m2FC = 1.0f;
@@ -2406,7 +2388,7 @@ void EnemyQuarkStand::fn_803526A8() {
             }
             if (it->m0C <= 0.0f) {
                 fn_80239DAC(lbl_8087F3C0, &m1CAC, it->m11, 1);
-                Effect_unk* mgr = lbl_8087F048;
+                BattleTask* mgr = lbl_8087F048;
                 fn_800FAB80(mgr, this, m155C, fn_800F8548(mgr), &it->m00, &lbl_807C7030, 0, 30, -1, -1, 0.0f,
                             1.0f);
                 m1CB8++;
@@ -2575,20 +2557,20 @@ void EnemyQuarkStand::fn_8035359C() {
             m17E4 = 0;
         }
     }
-    QuarkWeights_unk* w = (QuarkWeights_unk*)((BattleTask*)lbl_8087F048)->fn_80103F60(this);
+    BattleChara_unk* w = lbl_8087F048->fn_80103F60(this);
     if (m17E4 != 0) {
         for (CharaTask* p = lbl_8087F8A0->mHead; p != 0; p = ((PlayerTask*)p)->mNext) {
-            int i = ((BattleTask*)w)->fn_80108378(p);
+            int i = w->fn_80108378(p);
             if (p == m17E4) {
-                w->mWeight[i] = 100.0f;
+                w->m128[i] = 100.0f;
             } else {
-                w->mWeight[i] = 0.0f;
+                w->m128[i] = 0.0f;
             }
         }
     } else {
         for (CharaTask* p = lbl_8087F8A0->mHead; p != 0; p = ((PlayerTask*)p)->mNext) {
-            int i = ((BattleTask*)w)->fn_80108378(p);
-            w->mWeight[i] = 1.0f;
+            int i = w->fn_80108378(p);
+            w->m128[i] = 1.0f;
         }
     }
 }

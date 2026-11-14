@@ -19378,7 +19378,7 @@
    "-DHBM_VERSION=20090303"
   ],
   "category": "sdk",
-  "matching": false
+  "matching": true
  },
  {
   "name": "key/src/revolution/WPAD/WPADHIDParser.c",

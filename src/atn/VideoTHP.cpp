@@ -2,7 +2,9 @@
 #include "atn/MemoryManager.h"
 #include "std/string_members.h"
 #include "atn/RenderManager.h"
+#include "atn/IRender.h"
 #include "atn/Layer3D.h"
+#include "atn/VideoTHP.h"
 
 // inferred: THP player of the SDK sample library (automatic names)
 extern "C" int fn_805B55A8(int audio);            // THPPlayerInit
@@ -41,22 +43,18 @@ extern "C" DebugMenu_unk* lbl_8087EF10;
 extern "C" void* fn_8008937C(void* parent, const char* name);
 extern "C" void fn_800897D8(DebugMenu_unk* menu, void* group);
 
-// inferred: owning handle to a debug menu group (like game/ResHandle.h, without constructor)
-struct DebugGroup_unk {
-    ~DebugGroup_unk() {
-        if (mGroup != 0 && lbl_8087EF10 != 0) {
-            fn_800897D8(lbl_8087EF10, mGroup);
-        }
+inline DebugGroup_unk::~DebugGroup_unk() {
+    if (mGroup != 0 && lbl_8087EF10 != 0) {
+        fn_800897D8(lbl_8087EF10, mGroup);
     }
-    void* Create(const char* name) {
-        if (mGroup == 0 && lbl_8087EF10 != 0) {
-            mGroup = fn_8008937C(lbl_8087EF10->m10, name);
-            return mGroup;
-        }
-        return 0;
+}
+inline void* DebugGroup_unk::Create(const char* name) {
+    if (mGroup == 0 && lbl_8087EF10 != 0) {
+        mGroup = fn_8008937C(lbl_8087EF10->m10, name);
+        return mGroup;
     }
-    void* mGroup;
-};
+    return 0;
+}
 
 extern "C" unsigned long strlen(const char* s);
 extern "C" void* memcpy(void* dst, const void* src, unsigned long n);
@@ -75,77 +73,14 @@ extern "C" void* lbl_8087EE90;
 
 namespace atn {
 
-class VideoTHP;
+inline Video::Video() : m04(0), m08(0), m0C(0), m10(0.0f), m14(0.0f), m18(0.0f), m1C(0) {}
+inline Video::~Video() {}
 
-struct Vector2f_unk {
-    float x, y;
-};
-
-// inferred: renderer interface (RTTI 0x80777518, emitted with its key function in another file)
-class IRender {
-public:
-    virtual ~IRender() {}
-    virtual int vf0C(); // 0x80046218
-    virtual void vf10();
-    virtual int vf14() = 0;
-    virtual void vf18() = 0;
-    virtual void vf1C(); // 0x800461FC
-};
-
-// inferred: video player interface (RTTI emitted here)
-class Video : public IRender {
-public:
-    Video() : m04(0), m08(0), m0C(0), m10(0.0f), m14(0.0f), m18(0.0f), m1C(0) {}
-    virtual ~Video() {}
-    virtual void vf20() = 0;
-    virtual void vf24() = 0;
-    virtual void vf28() = 0;
-    virtual float vf2C() = 0;
-    virtual unsigned int vf30() = 0;
-    virtual unsigned int vf34() = 0;
-    virtual void vf38(float volume, int time) = 0;
-    virtual void vf3C(float volume, int time) = 0;
-
-    int m04;   // inferred: layout mode
-    int m08;   // inferred: state
-    int m0C;   // inferred: loop
-    float m10; // inferred: alpha
-    float m14; // inferred: x
-    float m18; // inferred: y
-    int m1C;   // inferred: finished
-};
-
-class VideoTHP : public Video {
-public:
-    VideoTHP(const char* name);
-    virtual ~VideoTHP();
-    virtual void vf10();
-    virtual int vf14();
-    virtual void vf18();
-    virtual void vf20();
-    virtual void vf24();
-    virtual void vf28();
-    virtual float vf2C();
-    virtual unsigned int vf30();
-    virtual unsigned int vf34();
-    virtual void vf38(float volume, int time);
-    virtual void vf3C(float volume, int time);
-
-    void SetName_unk(const char* name) {
-        if (name != mName) {
-            memcpy(mName, name, strlen(name) + 1);
-        }
+inline void VideoTHP::SetName_unk(const char* name) {
+    if (name != mName) {
+        memcpy(mName, name, strlen(name) + 1);
     }
-
-    unsigned int m20[3];     // THPVideoInfo
-    unsigned int m2C[4];     // THPAudioInfo
-    void* m3C;               // inferred: THP work buffer
-    char mName[0x40];        // 0x40
-    unsigned int m80;        // inferred: current frame
-    Vector2f_unk m84;        // inferred: scale
-    Vector2f_unk m8C;        // inferred: offset
-    DebugGroup_unk m94;      // inferred: debug menu group
-};
+}
 
 } // namespace atn
 
@@ -205,7 +140,7 @@ void VideoTHP::vf28() {
 
 // NONMATCHING: 99.28% - only volatile register choices differ (r8/r9 for the converted height,
 // r6/r8 for the converted draw height, and one lis/addi pair); tried variable orders and temporaries
-void VideoTHP::vf10() {
+void VideoTHP::vf10(RenderManager*) {
     switch (m08) {
     case 3:
         fn_805B5E7C(1);
@@ -280,7 +215,7 @@ void VideoTHP::vf10() {
     atn::RenderManager::instance_->mLayers[18]->vf1C(); // inferred: layer "2D Object"
 }
 
-void VideoTHP::vf18() {}
+void VideoTHP::vf18(RenderManager*) {}
 
 void VideoTHP::vf3C(float volume, int time) {
     fn_805B6AE0((int)(127.0f * volume), time * 1000 / 30);
@@ -302,7 +237,7 @@ float VideoTHP::vf2C() {
     return fn_805B6930();
 }
 
-int VideoTHP::vf14() {
+int VideoTHP::vf14(const Matrix3x4*, const Vector3*, const Frustum_unk*, AABB_unk*) {
     return 1;
 }
 

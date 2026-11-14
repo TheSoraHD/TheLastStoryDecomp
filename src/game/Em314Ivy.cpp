@@ -23,13 +23,8 @@ extern "C" int rand();
 extern "C" float fn_800DC288(const char* s); // inferred: string to float
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
-// inferred: effect/bullet manager (lbl_8087F048, as in chr/ControlUseSkill.cpp); class unknown
-struct Effect_unk;
-extern "C" Effect_unk* lbl_8087F048;
-extern "C" int fn_800F8548(Effect_unk* mgr); // inferred: new bullet id
+extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
 extern "C" HitInfo_unk* fn_80219E6C(int id); // inferred: bullet/skill data by id
-extern "C" void fn_800FD658(Effect_unk* mgr, CharaTask* a, CharaTask* b, void* bullet, int arg4, int arg5, int arg6);
-extern "C" void fn_801092C8(Effect_unk* effect, int msg, CharaTask* chara, int value, int arg);
 // inferred: color as four floats (name invented)
 typedef EffectColor_unk IvyColor_unk;
 extern "C" void fn_8044D6AC(void* mgr, int money); // inferred: adds money (gmk/RandomMerchant.cpp)
@@ -551,7 +546,7 @@ void Em314Ivy::vf108() {
         }
         if (m14C0 > (int)((float)m14F8 / mStatus.fn_8012DB04())) {
             m14C0 = 0;
-            Effect_unk* effect = lbl_8087F048;
+            BattleTask* effect = lbl_8087F048;
             if (effect != 0 && m14EC > 0) {
                 int id = fn_800F8548(effect);
                 fn_800FD658(effect, 0, m14E4, fn_80219E6C(m14EC), id, 0, 30);
@@ -561,7 +556,7 @@ void Em314Ivy::vf108() {
                 if (m14E4 != 0 && m14E4->mType == 0 && m15AC != 0 && Inventory::instance_ != 0) {
                     fn_8044D6AC(Inventory::instance_, 10);
                     effect = lbl_8087F048;
-                    ((BattleTask*)effect)->fn_80107168(0x232D, 0, 0, 0, &m14E4->fn_801781B0(),
+                    effect->fn_80107168(0x232D, 0, 0, 0, &m14E4->fn_801781B0(),
                                                             &chr::lbl_807C7030, &IvyColor_unk(1.0f, 1.0f, 1.0f, 1.0f),
                                                             1.0f);
                     fn_801092C8(lbl_8087F048, 4, 0, 10, 0);
@@ -686,7 +681,7 @@ void Em314Ivy::fn_8031319C(CharaTask* target) {
 // NONMATCHING: 99.50% - saved registers of money/counter/effect manager (r28/r27/r29 in the original) and the
 // stack slots of the color and the position of the effect loop; ~20 variants
 void Em314Ivy::fn_803132D0() {
-    Effect_unk* effect;
+    BattleTask* effect;
     if (m14E4 != 0) {
         Mtx m;
         atn::Vector3 dir;
@@ -695,7 +690,7 @@ void Em314Ivy::fn_803132D0() {
             fn_8044D6AC(Inventory::instance_, money);
             for (int i = 0; i < 5; i++) {
                 effect = lbl_8087F048;
-                ((BattleTask*)effect)->fn_80107168(0x232D, 0, 0, 0, &m14E4->fn_801781B0(), &chr::lbl_807C7030,
+                effect->fn_80107168(0x232D, 0, 0, 0, &m14E4->fn_801781B0(), &chr::lbl_807C7030,
                             &IvyColor_unk(1.0f, 1.0f, 1.0f, 1.0f), 1.0f);
             }
             fn_801092C8(lbl_8087F048, 4, 0, money, 0);

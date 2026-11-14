@@ -7,6 +7,7 @@
 #include "macros.h"
 #include <boost/bind.hpp>
 #include "atn/ColliBase.h"
+#include "game/BattleTask.h"
 
 extern "C" int rand();
 extern "C" double cos(double x);
@@ -43,12 +44,7 @@ extern "C" int fn_8004ED34(void* colli, atn::ColliResult_unk* result, const atn:
 extern "C" int fn_8004D388(void* world, atn::ColliResult_unk* result, CharaTask::Sphere_unk* sphere, atn::Vector3* move,
                            unsigned int mask, void* ignore, int arg, float radius); // inferred: sweep test
 
-// inferred: effect/bullet manager (lbl_8087F048); class unknown
-struct MountleEffect_unk;
-extern "C" MountleEffect_unk* lbl_8087F048;
-extern "C" int fn_800F8548(MountleEffect_unk* mgr); // inferred: new bullet id
-extern "C" int fn_800F8C6C(MountleEffect_unk* mgr, int a, int b, CharaTask* chara, HitInfo_unk* data, int id, int time,
-                           int c, float f); // inferred: deals a hit
+extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
 
 
 // inferred: inline in the original (weak copies 0x8013C3B4, 0x8013C394, 0x8013C38C, 0x8013C460,
@@ -67,15 +63,6 @@ inline atn::Vector3* CharaTask::fn_8013C38C() {
 }
 inline void CharaTask::fn_8013C460(int value) {
     mFlag5 = value;
-}
-inline void atn::Model::fn_80139F24(int value) {
-    m34C = value;
-}
-inline void atn::Model::fn_8013C554(int track, float weight) {
-    mTracks[track].m20 = weight;
-}
-inline void atn::Model::SetMotionSpeed(int track, float speed) {
-    mTracks[track].m0C = speed;
 }
 
 // inferred: front of a character with the rotation `rot` (as in game/Em306GurgBeast.cpp); name
@@ -203,7 +190,7 @@ void ControlMountleQuadruped::vf60() {
     float frame = mChara->mMotion.mTracks[0].m08;
     if (frame > 22.0f && frame <= 26.0f) {
         int id = fn_800F8548(lbl_8087F048);
-        fn_800F8C6C(lbl_8087F048, 0, 0, mChara, mChara->m638, id, 0x1E, -1, 0.0f);
+        lbl_8087F048->fn_800F8C6C(0, 0, mChara, mChara->m638, id, 0.0f, 0x1E, -1);
     }
 }
 

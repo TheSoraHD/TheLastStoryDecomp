@@ -9,6 +9,7 @@
 #include "game/PlayerTask.h"
 #include "math/Vec.h"
 #include "atn/ColliBase.h"
+#include "game/BattleTask.h"
 
 extern "C" int sprintf(char* buf, const char* fmt, ...);
 extern "C" char* strstr(const char* s, const char* sub);
@@ -29,10 +30,8 @@ extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared len
 extern "C" double cos(double x);
 extern "C" double acos(double x);
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
-// inferred: effect/bullet manager (lbl_8087F048, as in chr/ControlUseSkill.cpp); class unknown
-struct Effect_unk;
-extern "C" Effect_unk* lbl_8087F048;
-extern "C" int fn_800F8548(Effect_unk* mgr); extern "C" void* lbl_8087EE98;
+extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
+extern "C" int fn_800F8548(BattleTask* mgr); extern "C" void* lbl_8087EE98;
 extern "C" int fn_8004ED34(void* colli, atn::ColliResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg7); // inferred: ray test
 // inferred: effect manager (class unknown), global instance at 0x8087F3C0 (as in game/Em303KrakenFootMp.cpp)
@@ -46,8 +45,6 @@ extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* m
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
 extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the next effects
-extern "C" void fn_800F8C6C(Effect_unk* mgr, int a, int b, CharaTask* chara, HitInfo_unk* data, int id, int time,
-                            int c, float f); // inferred: attack hit (as in game/Em201ZanGurg.cpp)
 // inferred: node position (name invented, as in game/Em303KrakenFootMp.cpp)
 inline atn::Vector3 GetNodePos_unk(MtxPtr m) {
     return atn::Vector3(m[0][3], m[1][3], m[2][3]);
@@ -238,7 +235,7 @@ void Em303KrakenFoot::vf10() {
                 }
             } else if (mMotion.mTracks[0].m08 >= 19.0f && mMotion.mTracks[0].m08 <= 23.0f) {
                 int id = m590;
-                fn_800F8C6C(lbl_8087F048, 0, 0, this, m14D8, id, 30, -1, 0.0f);
+                lbl_8087F048->fn_800F8C6C(0, 0, this, m14D8, id, 0.0f, 30, -1);
             }
             break;
         case 13:
@@ -248,7 +245,7 @@ void Em303KrakenFoot::vf10() {
             } else if (mMotion.mTracks[0].m08 >= 24.0f && mMotion.mTracks[0].m08 <= 28.0f) {
                 int id = m590;
                 HitInfo_unk* data = m14DC;
-                fn_800F8C6C(lbl_8087F048, 0, 0, this, data, id, 30, -1, 0.0f);
+                lbl_8087F048->fn_800F8C6C(0, 0, this, data, id, 0.0f, 30, -1);
             }
             break;
         case 14:
@@ -258,7 +255,7 @@ void Em303KrakenFoot::vf10() {
             } else if (mMotion.mTracks[0].m08 >= 19.0f && mMotion.mTracks[0].m08 <= 22.0f) {
                 int id = m590;
                 HitInfo_unk* data = m14DC;
-                fn_800F8C6C(lbl_8087F048, 0, 0, this, data, id, 30, -1, 0.0f);
+                lbl_8087F048->fn_800F8C6C(0, 0, this, data, id, 0.0f, 30, -1);
             }
             break;
         case 15:

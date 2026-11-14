@@ -22,6 +22,10 @@ public:
     virtual int vf10() const;
     // inferred: inlined by the readers of Event/EventParser_unk.cpp ("..NA" chunks); name invented
     void SetName_unk(const std::string& name) { m08 = name; }
+    // inferred: the readers of the name test the long-string bit again at every access
+    // (Sequence::fn_80541CFC, Manager::fn_80488E00, ActionVoicePlay::vf0C): the name is taken through
+    // an inline getter, not from the member; name invented
+    const std::string& GetName_unk() const { return m08; }
 
     Sequence* m04; // inferred: owner (the sequence of the data)
     std::string m08;    // inferred: file name

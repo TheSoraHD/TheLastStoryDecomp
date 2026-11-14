@@ -634,7 +634,7 @@ game/BattleResult.cpp:
 
 game/BattleTask.cpp:
 	.text       start:0x800F13BC end:0x8010D98C
-	.rodata     start:0x807355C8 end:0x80736548
+	.rodata     start:0x807355C8 end:0x80736530
 	.data       start:0x80779CE0 end:0x80779E28
 	.bss        start:0x807C7840 end:0x807C7858
 	.sdata      start:0x8087D978 end:0x8087D980
@@ -644,6 +644,8 @@ game/BattleTask.cpp:
 Event/Behavior_unk.cpp:
 	.text       start:0x8010D98C end:0x8010DB94
 	.ctors      start:0x8072D2CC end:0x8072D2D0
+	.rodata     start:0x80736530 end:0x80736548
+	.data       start:0x80779E28 end:0x80779E30
 	.bss        start:0x807C7858 end:0x807C7888
 	.sbss       start:0x8087F050 end:0x8087F068
 

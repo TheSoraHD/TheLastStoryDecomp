@@ -46,8 +46,7 @@ struct Field_unk {
 };
 extern "C" Field_unk* lbl_8087F430;
 
-struct ArmsEffectMgr_unk;
-extern "C" ArmsEffectMgr_unk* lbl_8087F048; // inferred: effect manager of the characters
+extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
 
 
 Arms::Arms(int kind, int id, int arg0C, CharaTask* chara, int arg5)
@@ -337,7 +336,7 @@ int Arms::fn_80044FBC(ArmsCond_unk* cond, int a, int b, unsigned int flags, Char
     if (user == 0 || chara == 0) {
         return 0;
     }
-    int effect = lbl_8087F048 != 0 ? ((BattleTask*)lbl_8087F048)->fn_8010D770(hit) : 0;
+    int effect = lbl_8087F048 != 0 ? lbl_8087F048->fn_8010D770(hit) : 0;
     int state = user->m55C;
     int sub = user->m560;
     switch (cond->m08) {

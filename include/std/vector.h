@@ -115,7 +115,7 @@ struct __vec_imp_unk : public __vec_storage_unk<T> {
     // incremented, as pointers (vector<KrakenCommand_unk>::push_back 0x802D8854); the others are
     // copy-constructed in place (0x80476ED4)
     void __push_fast_unk(unsigned int n, const T& x) {
-        if (__builtin_is_pod(T)) {
+        if (((__builtin_trivial_members(T) & 7) == 7)) {
             this->mSize = n + 1;
             this->mData[this->mSize - 1] = x;
         } else {
@@ -229,7 +229,7 @@ struct __vec_split_unk : public __vec_split_gbase_unk<T> {
     enum { __clear_src_unk = __builtin_trivial_members(T) & 1 };
     T* begin() { return this->mData + mStart; }
     void push_back(const T& x) {
-        if (__builtin_is_pod(T)) {
+        if (((__builtin_trivial_members(T) & 7) == 7)) {
             begin()[this->mSize] = x;
             this->mSize++;
         } else {
@@ -247,7 +247,7 @@ struct __vec_split_unk : public __vec_split_gbase_unk<T> {
     // inferred: moves [first, last) in front of the stored elements, last one first
     void __push_front_unk(T* first, T* last) {
         // inferred: POD elements and elements with a destructor take the loop of resize
-        if (__builtin_is_pod(T) || !(__builtin_trivial_members(T) & 1)) {
+        if (((__builtin_trivial_members(T) & 7) == 7) || !(__builtin_trivial_members(T) & 1)) {
             __push_front_resize_unk(first, last);
             return;
         }

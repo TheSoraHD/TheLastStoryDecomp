@@ -32,13 +32,7 @@ extern "C" Field_unk* fn_80121F00();
 extern "C" CharaManager<EnemyTask>* fn_801A03E0(); // inferred: enemy manager
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
-// inferred: effect/bullet manager (lbl_8087F048, as in chr/ControlUseSkill.cpp); class unknown
-struct Effect_unk;
-extern "C" Effect_unk* lbl_8087F048;
-extern "C" int fn_800F8548(Effect_unk* mgr); // inferred: new bullet id
-extern "C" void fn_800FAB80(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* bullet, int id, const atn::Vector3* pos,
-                            const atn::Vector3* rot, int arg6, int arg7, int arg8, int arg9, float arg10,
-                            float arg11); // inferred: fires a bullet (as in gmk/Coffin.cpp)
+extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
 // inferred: skill effects (as in gmk/HealPoint.cpp); the callback is empty here
 struct SkillEffect;
 extern "C" void* lbl_8087F9E8;
@@ -472,7 +466,7 @@ void Em001Necromancer::vf10() {
                 mColli.mFlags &= ~1;
                 if (m1434 > 0) {
                     if (--m1434 == 40) {
-                        ((BattleTask*)lbl_8087F048)->fn_80105BD8(&mMotion);
+                        lbl_8087F048->fn_80105BD8(&mMotion);
                     }
                 } else {
                     vf44();
@@ -629,7 +623,7 @@ void Em001Necromancer::vf40(HitInfo_unk* hit) {
             if (PSVECMag(&d) < 30.0f) {
                 pos = mPos;
                 pos.y += 8.0f;
-                Effect_unk* mgr = lbl_8087F048;
+                BattleTask* mgr = lbl_8087F048;
                 int id = fn_800F8548(mgr);
                 fn_800FAB80(mgr, this, fn_80219E6C(0x69D), id, &mPos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
                 Die_unk(this);
@@ -744,7 +738,7 @@ void Em001Necromancer::fn_80246594() {
     HitInfo_unk* hit = m638 = m1520[m152C];
     mFBC = (float)hit->mC0;
     if (mFB8 < (float)hit->mC0) {
-        float r = ((BattleTask*)lbl_8087F048)->fn_8010CB2C(this, 1.0f);
+        float r = lbl_8087F048->fn_8010CB2C(this, 1.0f);
         mFB8 += lbl_8087EFA8->GetTime_unk() * (r * r);
         if (mFB8 >= (float)m638->mC0) {
             done = 1;
@@ -958,7 +952,7 @@ void Em001Necromancer::fn_80247258() {
         CharaInfo_unk* info = first->m60;
         fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0x93), *(const wchar_t**)((char*)m60 + 4),
                     *(const wchar_t**)((char*)info + 4));
-        ((BattleTask*)lbl_8087F048)->fn_80109828(text);
+        lbl_8087F048->fn_80109828(text);
     }
 }
 

@@ -1,6 +1,8 @@
 #include "atn/Texture_unk.h"
 #include "std/vector.h"
 #include "atn/RenderManager.h"
+#include "atn/IRender.h"
+#include "atn/TextureComposite.h"
 #include "atn/PostFxManager.h"
 
 // inferred: GX/OS functions not in atn/GXDecl.h (enums as int)
@@ -117,89 +119,6 @@ extern "C" void fn_800D6E48(const unsigned char* src, unsigned char* dst, int wi
 }
 
 namespace atn {
-
-// inferred: RGBA color (name invented)
-struct CompositeColor_unk {
-    CompositeColor_unk() {}
-    CompositeColor_unk(float r_, float g_, float b_, float a_) : r(r_), g(g_), b(b_), a(a_) {}
-    CompositeColor_unk operator*(float f) const { return CompositeColor_unk(r * f, g * f, b * f, a * f); }
-    GXColor ToGX() const;
-    float r, g, b, a;
-};
-
-// inferred: renderer interface (see atn/VideoTHP.cpp)
-class IRender {
-public:
-    virtual ~IRender() {}
-    virtual int vf0C(); // 0x80046218
-    virtual void vf10(RenderManager* camera) = 0;
-    virtual int vf14() = 0;
-    virtual void vf18() = 0;
-    virtual void vf1C(); // 0x800461FC
-};
-
-// inferred from __vt__Q23atn23TextureCompositeCommand: one pass drawn into the composite
-class TextureCompositeCommand {
-public:
-    virtual ~TextureCompositeCommand() {}
-    virtual void vf0C() = 0; // inferred: draw
-};
-
-// note: the original emits the weak destructors of the commands in the order Mask, Copy, CopyAlpha
-// and their vtables in the reverse order; this declaration order gives the vtables
-// inferred from __vt__Q23atn35TextureCompositeMaskIntensitySingle
-class TextureCompositeMaskIntensitySingle : public TextureCompositeCommand {
-public:
-    virtual ~TextureCompositeMaskIntensitySingle() {}
-    virtual void vf0C();
-
-    Texture_unk* m04;
-    Texture_unk* m08;
-    Texture_unk* m0C;
-    CompositeColor_unk m10;
-    CompositeColor_unk m20;
-};
-
-// inferred from __vt__Q23atn20TextureCompositeCopy
-class TextureCompositeCopy : public TextureCompositeCommand {
-public:
-    virtual ~TextureCompositeCopy() {}
-    virtual void vf0C();
-
-    Texture_unk* m04;
-    CompositeColor_unk m08;
-};
-
-// inferred from __vt__Q23atn25TextureCompositeCopyAlpha
-class TextureCompositeCopyAlpha : public TextureCompositeCommand {
-public:
-    virtual ~TextureCompositeCopyAlpha() {}
-    virtual void vf0C();
-
-    Texture_unk* m04;
-    CompositeColor_unk m08;
-};
-
-// inferred: list of commands (one more destructor level than std::vector in the original)
-struct TextureCompositeCommandList_unk : public std::vector<TextureCompositeCommand*> {};
-
-// inferred from __vt__Q23atn16TextureComposite: renders its commands into a texture (with mipmaps)
-class TextureComposite : public IRender {
-public:
-    TextureComposite();
-    virtual ~TextureComposite();
-    virtual void vf10(RenderManager* camera);
-    virtual int vf14() { return 1; }
-    virtual void vf18() {}
-
-    void Request_unk(Texture_unk* texture, int format);
-
-    int m04; // inferred: done
-    int m08; // inferred: copy format (-1: RGBA8)
-    Texture_unk* m0C;
-    Texture_unk* m10; // inferred: 4-bit alpha texture
-    TextureCompositeCommandList_unk mCommands; // 0x14
-};
 
 TextureComposite::TextureComposite() : m04(1), m0C(0), m10(0) {}
 
