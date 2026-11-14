@@ -9,16 +9,16 @@ extern "C" int strcmp(const char* a, const char* b);
 extern "C" int atoi(const char* s);
 extern "C" double sqrt(double x);
 // inferred: bullets (as in gmk/LandMine.cpp)
-struct BulletMgr_unk;
-extern "C" BulletMgr_unk* lbl_8087F048;
-extern "C" int fn_800F8548(BulletMgr_unk* mgr); // inferred: new bullet id
-extern "C" void fn_800FAB80(BulletMgr_unk* mgr, CharaTask* owner, HitInfo_unk* bullet, int id,
+class BattleTask;
+extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
+extern "C" int fn_800F8548(BattleTask* mgr); // inferred: new bullet id
+extern "C" void fn_800FAB80(BattleTask* mgr, CharaTask* owner, HitInfo_unk* bullet, int id,
                             const atn::Vector3* pos, const atn::Vector3* rot, int arg6, int arg7, int arg8,
                             int arg9, float arg10, float arg11);
-extern "C" void fn_800F8574(BulletMgr_unk* mgr, CharaTask* owner, HitInfo_unk* bullet, const atn::Vector3* pos,
+extern "C" void fn_800F8574(BattleTask* mgr, CharaTask* owner, HitInfo_unk* bullet, const atn::Vector3* pos,
                             const atn::Vector3* vel, int arg5, int arg6, int arg7, float arg8,
                             float arg9); // inferred: throws a bullet
-extern "C" void fn_8010A308(BulletMgr_unk* mgr, const atn::Vector3* from, const atn::Vector3* to,
+extern "C" void fn_8010A308(BattleTask* mgr, const atn::Vector3* from, const atn::Vector3* to,
                             float arg); extern "C" void* lbl_8087EE98;
 extern "C" int fn_8004ED34(void* colli, atn::ColliResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg7); // inferred: ray test
@@ -100,7 +100,7 @@ void EnemySeaLizerd::vf10() {
             m6B8.z = 0.0f;
             fn_80161570(0x140, 0, 0, -1.0f, -1.0f);
             HitInfo_unk* bullet = fn_80219E6C(m14F0);
-            BulletMgr_unk* mgr = lbl_8087F048;
+            BattleTask* mgr = lbl_8087F048;
             atn::Vector3 pos(mPos);
             pos.y += 5.0f;
             fn_800FAB80(mgr, this, bullet, fn_800F8548(mgr), &pos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);

@@ -28,6 +28,7 @@ class NewStaffRoll;
 struct ColorMatrixParam_unk;
 namespace atn {
 class Scene;
+class VideoTHP;
 }
 
 namespace Event {
@@ -36,7 +37,6 @@ class Action;
 class Cut;
 class Sequence;
 struct EffectLists_unk;
-struct MovieState_unk;
 
 // inferred: entry of the queue of sequences to start (fn_8047E964)
 struct QueuedSequence_unk {
@@ -236,7 +236,7 @@ public:
     void fn_80484E88();
     void fn_80484088(ColorMatrixParam_unk* param, float rate);
     void fn_804881B8(Sequence* seq, const char* name, int fade, int stopBgm, int a, int b, int c, float volume, int d, int flags);
-    void fn_8048E9A4(MovieState_unk* movie, int frames);
+    void fn_8048E9A4(atn::VideoTHP* movie, int frames);
     void fn_8048EC7C();
     void fn_80488B5C(int fade); // inferred: stops the multi audio
     void fn_80489A2C(); // inferred: stops the voice of the event
@@ -376,7 +376,7 @@ public:
     int m1F64; // inferred: debug menu "MAStartDelay"
     float m1F68;
     float m1F6C; // inferred: movie fade time
-    MovieState_unk* m1F70; // inferred: movie being shown (fn_8048E9A4)
+    atn::VideoTHP* m1F70; // inferred: movie being shown (fn_8048E9A4)
     atn::FixedArray_unk<ManagerEntry_unk, 128> mVoices; // 0x1F74: inferred: voices of the event (sorted by frame)
     int m2378;
     int m237C;

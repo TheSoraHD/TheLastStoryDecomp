@@ -46,10 +46,10 @@ struct Params_unk {
 };
 extern "C" Params_unk* lbl_8087EFA8;
 // inferred: bullets
-struct BulletMgr_unk;
-extern "C" BulletMgr_unk* lbl_8087F048;
-extern "C" int fn_800F8548(BulletMgr_unk* mgr);
-extern "C" void fn_800FAB80(BulletMgr_unk* mgr, int arg1, void* bullet, int arg3, const atn::Vector3* pos,
+class BattleTask;
+extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
+extern "C" int fn_800F8548(BattleTask* mgr);
+extern "C" void fn_800FAB80(BattleTask* mgr, int arg1, void* bullet, int arg3, const atn::Vector3* pos,
                             const atn::Vector3* rot, int arg6, int arg7, int arg8, int arg9, float arg10,
                             float arg11);
 extern "C" void* lbl_8087F610; // inferred: arena mode
@@ -339,7 +339,7 @@ int SparkCube::vf40(GimmickMsg_unk* msg) {
                 mFades[i].mReverse = 0;
             }
         }
-        BulletMgr_unk* mgr = lbl_8087F048;
+        BattleTask* mgr = lbl_8087F048;
         if (mgr != 0) {
             atn::Vector3 pos;
             atn::Vector3 rot;

@@ -2,7 +2,6 @@
 #include "Event/ActionProcessors_unk.h"
 #include "game/GameTask.h"
 #include "Event/Manager.h"
-#include "Event/MovieState_unk.h"
 #include "game/NewStaffRoll.h"
 #include "game/GameVoice.h"
 #include "game/GameBgm.h"
@@ -24,6 +23,7 @@
 #include "game/SongManager.h"
 #include "game/GameConfig_unk.h"
 #include "atn/RenderManager.h"
+#include "atn/VideoTHP.h"
 #include "atn/Sphere.h"
 #include "Event/Dialog.h"
 #include "game/GameChoiceWindow.h"
@@ -164,11 +164,6 @@ inline AnimEntry_unk* FindAnim_unk(EventManager_unk* manager, int id) {
     return 0;
 }
 
-// inferred: movie of the event (found by id)
-struct MovieRes_unk {
-    unsigned char m00[0x4C];
-    MovieState_unk* m4C;
-};
 typedef MovieData MovieEntry_unk;
 
 // inferred: movie `id` of the event (as EventManager_unk::FindActor_unk)
@@ -1090,15 +1085,14 @@ int ActionMoviePlay::vf0C(Action* arg, int phase) {
         int loop = arg->GetParam_unk(2)->m04.i;
         float volume = arg->GetParam_unk(3)->m04.f;
         MovieEntry_unk* entry = FindMovie_unk(manager, id);
-        // inferred: the player seen through its own view (atn::VideoTHP declares vf3C without arguments)
-        MovieState_unk* movie = entry != 0 ? (MovieState_unk*)entry->m18->m4C : 0;
+        atn::VideoTHP* movie = entry != 0 ? entry->m18->m4C : 0;
         if (movie != 0) {
             if (loop != 0) {
                 movie->m0C = 1;
             } else {
                 movie->m0C = 0;
             }
-            movie->vf3C(arg->m18, volume);
+            movie->vf3C(volume, arg->m18);
             int stopBgm = 1;
             GameBgm* bgm = GameBgm::sInstance;
             if (bgm != 0) {
@@ -1129,7 +1123,7 @@ int ActionMoviePlay::vf0C(Action* arg, int phase) {
             EventManager_unk* manager = arg->fn_805381C8();
             MovieEntry_unk* entry = FindMovie_unk(manager, arg->GetParam_unk(0)->m04.i);
             if (entry != 0 && entry->m18->m4C != 0) {
-                ((MovieState_unk*)entry->m18->m4C)->vf3C(arg->m1C, 1.0f);
+                entry->m18->m4C->vf3C(1.0f, arg->m1C);
             }
         }
         break;
@@ -1139,7 +1133,7 @@ int ActionMoviePlay::vf0C(Action* arg, int phase) {
         EventManager_unk* manager = arg->fn_805381C8();
         MovieEntry_unk* entry = FindMovie_unk(manager, arg->GetParam_unk(0)->m04.i);
         if (entry != 0) {
-            MovieState_unk* movie = (MovieState_unk*)entry->m18->m4C;
+            atn::VideoTHP* movie = entry->m18->m4C;
             if (movie != 0 && movie->m08 == 4) {
                 movie->m08 = 1;
             }
@@ -1169,7 +1163,7 @@ int ActionMoviePlay::vf08(Action* arg) {
             return 3;
         }
     } else if (entry != 0) {
-        MovieState_unk* state = (MovieState_unk*)entry->m18->m4C;
+        atn::VideoTHP* state = entry->m18->m4C;
         if (state != 0 && state->m08 == 2) {
             vf0C(arg, 3);
         }

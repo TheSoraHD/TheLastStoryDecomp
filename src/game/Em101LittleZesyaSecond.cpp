@@ -116,14 +116,12 @@ struct Control1C_unk {
     unsigned char m00[0x1C];
     int m1C;
 };
-// inferred: effect/bullet manager (lbl_8087F048, as in chr/ControlUseSkill.cpp); class unknown
-struct Effect_unk;
-extern "C" Effect_unk* lbl_8087F048;
-extern "C" int fn_800F8548(Effect_unk* mgr); // inferred: new bullet id
+extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
+extern "C" int fn_800F8548(BattleTask* mgr); // inferred: new bullet id
 // inferred: effect manager (class unknown), global instance at 0x8087F3C0
 struct EffectMgr_unk;
 extern "C" EffectMgr_unk* lbl_8087F3C0;
-extern "C" void fn_800FAB80(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* bullet, int id, const atn::Vector3* pos,
+extern "C" void fn_800FAB80(BattleTask* mgr, CharaTask* owner, HitInfo_unk* bullet, int id, const atn::Vector3* pos,
                             const atn::Vector3* rot, int arg6, int arg7, int arg8, int arg9, float arg10,
                             float arg11); // inferred: fires a bullet (as in game/Em101ElderZesyaSecond.cpp)
 extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the next effects
@@ -136,7 +134,7 @@ extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* m
                             int arg8, int arg9, float scale);
 extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
-extern "C" void fn_800F8574(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* data, const atn::Vector3* pos,
+extern "C" void fn_800F8574(BattleTask* mgr, CharaTask* owner, HitInfo_unk* data, const atn::Vector3* pos,
                             const atn::Vector3* dir, HomingParam_unk* param, int arg6, int arg7, float a, float b);
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
 extern "C" int rand();
@@ -258,7 +256,7 @@ inline void Em101LittleZesyaSecond::Cast_unk() {
                 m590 = fn_800F8548(lbl_8087F048);
             }
             fn_80144710();
-            ((BattleTask*)lbl_8087F048)->fn_800F8C6C(0, 0, this, m638, m590, 0.0f, 30, -1);
+            lbl_8087F048->fn_800F8C6C(0, 0, this, m638, m590, 0.0f, 30, -1);
         }
     }
 }
@@ -385,7 +383,7 @@ void Em101LittleZesyaSecond::vf10() {
         case 10: {
             float frame = mMotion.mTracks[0].m08;
             if (17.0f < frame && frame <= 19.0f) {
-                ((BattleTask*)lbl_8087F048)->fn_800F8C6C(0, 0, this, fn_80219E6C(0x5E8), m590, 0.0f, 30, -1);
+                lbl_8087F048->fn_800F8C6C(0, 0, this, fn_80219E6C(0x5E8), m590, 0.0f, 30, -1);
             } else {
                 frame = mMotion.mTracks[0].m08;
                 if (frame >= mMotion.fn_80097D7C(0)) {

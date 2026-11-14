@@ -21,12 +21,10 @@ extern "C" int fn_8021A984(HitInfo_unk* hit);
 extern "C" SkillEffectManager* lbl_8087F9E8;
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 extern "C" int rand();
-// inferred: effect/bullet manager (lbl_8087F048, as in chr/ControlUseSkill.cpp); class unknown
-struct Effect_unk;
-extern "C" Effect_unk* lbl_8087F048;
-extern "C" int fn_800F8548(Effect_unk* mgr); // inferred: new bullet id
+extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
+extern "C" int fn_800F8548(BattleTask* mgr); // inferred: new bullet id
 struct HomingParam_unk;
-extern "C" void fn_800F8574(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* data, const atn::Vector3* pos,
+extern "C" void fn_800F8574(BattleTask* mgr, CharaTask* owner, HitInfo_unk* data, const atn::Vector3* pos,
                             const atn::Vector3* dir, HomingParam_unk* param, int arg6, int arg7, float a,
                             float b); // inferred: fires a bullet (as in game/Em003LesserDaemon.cpp)
 // inferred: effect manager (class unknown), global instance at 0x8087F3C0
@@ -474,7 +472,7 @@ void Em205Ogre::vf108() {
                 if (mMotion.mTracks[0].m08 >= 26.0f) {
                     m14BC++;
                     HitInfo_unk* skill = fn_80219E6C(m14E8);
-                    ((BattleTask*)lbl_8087F048)->fn_800F8C6C(0, 0, this, skill, fn_800F8548(lbl_8087F048), 0.0f, 30, -1);
+                    lbl_8087F048->fn_800F8C6C(0, 0, this, skill, fn_800F8548(lbl_8087F048), 0.0f, 30, -1);
                     if (m1514) {
                         GimmickCommon* g = GimmickManager::instance_ != 0 ? GimmickManager::instance_->fn_803EEE10(0x41B, 1) : 0;
                         if (g != 0) {
@@ -510,7 +508,7 @@ void Em205Ogre::vf108() {
                               ? SWING_MAX0_UNK((mMotion.mTracks[0].m08 - 20.0f) / 7.0f)
                               : 1.0f;
                 float s = 3.1415927f;
-                ((BattleTask*)lbl_8087F048)->fn_800F8C6C(0, 0, this, skill, m14C8, 1.5707964f - t * s, 30, -1);
+                lbl_8087F048->fn_800F8C6C(0, 0, this, skill, m14C8, 1.5707964f - t * s, 30, -1);
                 if (mMotion.mTracks[0].m08 >= 27.0f) {
                     m14BC++;
                 }

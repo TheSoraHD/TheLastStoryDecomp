@@ -19,17 +19,15 @@
 extern "C" int strncmp(const char* a, const char* b, unsigned long n);
 extern "C" std::string fn_8006AFF8(const std::string& a, const std::string& b); // inferred: a + b
 extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3, int arg4); // debug menu
-// inferred: effect/bullet manager (lbl_8087F048); class unknown
-struct Effect_unk;
-extern "C" Effect_unk* lbl_8087F048;
-extern "C" int fn_800F8548(Effect_unk* mgr); // inferred: new bullet id
-extern "C" void fn_800FAB80(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* bullet, int id, const atn::Vector3* pos,
+extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
+extern "C" int fn_800F8548(BattleTask* mgr); // inferred: new bullet id
+extern "C" void fn_800FAB80(BattleTask* mgr, CharaTask* owner, HitInfo_unk* bullet, int id, const atn::Vector3* pos,
                             const atn::Vector3* rot, int arg6, int arg7, int arg8, int arg9, float arg10,
                             float arg11); // inferred: shoots a bullet
-extern "C" void fn_800F8574(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* data, const atn::Vector3* pos,
+extern "C" void fn_800F8574(BattleTask* mgr, CharaTask* owner, HitInfo_unk* data, const atn::Vector3* pos,
                             const atn::Vector3* dir, void* param, int arg6, int arg7, float a,
                             float b); // inferred: fires a bullet (as in game/Em003LesserDaemon.cpp)
-extern "C" void fn_80108F38(Effect_unk* mgr, const atn::Vector3* pos, int arg);
+extern "C" void fn_80108F38(BattleTask* mgr, const atn::Vector3* pos, int arg);
 extern "C" HitInfo_unk* fn_80219E6C(int id); // inferred: skill data
 // inferred: effect manager (class unknown), global instance at 0x8087F3C0
 struct EffectMgr_unk;
@@ -193,7 +191,7 @@ inline void Em206CocoonMp::Die_unk() {
     PlayEffectM_unk(lbl_8087F3C0, &m191C, &mMotion);
     m574 = lbl_807C7030;
     ((GameTask*)lbl_8087F430)->fn_80370AE4(0x65, 1);
-    Effect_unk* mgr = lbl_8087F048;
+    BattleTask* mgr = lbl_8087F048;
     CharaTask* player = lbl_8087F8A0->mHead;
     int id = fn_800F8548(mgr);
     fn_800FAB80(mgr, player, fn_80219E6C(0x5C3), id, &mPos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
@@ -313,7 +311,7 @@ void Em206CocoonMp::vf40(HitInfo_unk* hit) {
         mMotion.mTracks[0].m20 = 1.0f;
         mMotion.fn_80097C08(0, 0x16A, 0, 0, 1, 0.0f, 0.025f);
         mMotion.mTracks[0].m0C = 0.1f;
-        Effect_unk* mgr = lbl_8087F048;
+        BattleTask* mgr = lbl_8087F048;
         atn::Vector3 pos = vfAC();
         fn_80108F38(mgr, &pos, 0x4000);
     }
@@ -1010,7 +1008,7 @@ void Em206CocoonMp::fn_802BE180() {
     } else if (mMotion.mTracks[0].m08 >= 57.0f && mMotion.mTracks[0].m08 <= 65.0f) {
         HitInfo_unk* data = fn_80219E6C(0x5BF);
         fn_80144710();
-        ((BattleTask*)lbl_8087F048)->fn_800F8C6C(0, 0, this, data, m590, 0.0f, 30, -1);
+        lbl_8087F048->fn_800F8C6C(0, 0, this, data, m590, 0.0f, 30, -1);
         if (m192C != 0) {
             lbl_8087EEB0->fn_80063D3C(mPos, mStatus.mParamB.m28 + data->m40, 0.0f, 0xFFFF0000);
         }
@@ -1038,7 +1036,7 @@ void Em206CocoonMp::fn_802BE2A0() {
             HitInfo_unk* data = fn_80219E6C(0x5BE);
             fn_80144710();
             int id = m590;
-            ((BattleTask*)lbl_8087F048)->fn_800F8C6C(0, 0, this, data, id, 0.0f, 30, -1);
+            lbl_8087F048->fn_800F8C6C(0, 0, this, data, id, 0.0f, 30, -1);
         }
         fn_802BC4EC(fwd.ToRotation_unk(), 1.0f, 1.5f * (3.75f * k));
     }
@@ -1055,7 +1053,7 @@ void Em206CocoonMp::fn_802BE7EC() {
             atn::Model* model = &mC58.mC4->mMotion;
             atn::Vector3 to = GetNodePos_unk(model->GetNodeMtx_unk("hips"));
             atn::Vector3 dir = (to - from).GetNormalize();
-            Effect_unk* mgr = lbl_8087F048;
+            BattleTask* mgr = lbl_8087F048;
             fn_800F8574(mgr, this, fn_80219E6C(0x5C5), &from, &dir, 0, 0, 0, 0.0f, 1.0f);
         }
     } else {
@@ -1078,7 +1076,7 @@ void Em206CocoonMp::fn_802BE9C8() {
             ((GameTask*)lbl_8087F430)->fn_80370AE4(0x96, 1);
         }
         m1520 = m1520 == 0;
-        Effect_unk* mgr = lbl_8087F048;
+        BattleTask* mgr = lbl_8087F048;
         fn_800FAB80(mgr, this, fn_80219E6C(0x57C), m590, &mPos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
         m1904 = 900;
     }
@@ -1177,7 +1175,7 @@ void Em206CocoonMp::fn_802BEE44() {
     PSMTXMultVec(m.m, &front, &front);
     mPos -= front * 5.0f;
     int id = m590;
-    ((BattleTask*)lbl_8087F048)->fn_800F8C6C(0, 0, this, fn_80219E6C(0x5C0), id, 0.0f, 60, -1);
+    lbl_8087F048->fn_800F8C6C(0, 0, this, fn_80219E6C(0x5C0), id, 0.0f, 60, -1);
     mPos = saved;
     if (++m1504 > 60) {
         CharaTask* target = mC58.mC4;
@@ -1293,7 +1291,7 @@ void Em206CocoonMp::fn_802C0058() {
     float frame = mMotion.mTracks[0].m08;
     if (frame >= mMotion.fn_80097D7C(0)) {
         mStatus.fn_8013322C(0x4000);
-        ((BattleTask*)lbl_8087F048)->fn_80107A68(&mMotion);
+        lbl_8087F048->fn_80107A68(&mMotion);
         if (m14F4 > 1200) {
             SetState_unk(16);
             mMotion.m34C = 1;
@@ -1320,7 +1318,7 @@ void Em206CocoonMp::fn_802C0458() {
             mMotion.fn_80097C08(0, 0x169, 0, 0, 1, 0.0f, 0.1f);
         }
         if (m14DC == 0 && mMotion.mTracks[0].m08 >= 21.0f) {
-            Effect_unk* mgr = lbl_8087F048;
+            BattleTask* mgr = lbl_8087F048;
             fn_800FAB80(mgr, this, fn_80219E6C(0x5C1), fn_800F8548(mgr), &m1514, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
             m14DC++;
         }
@@ -1390,7 +1388,7 @@ void Em206CocoonMp::vf114(const SpecialState_unk* state) {
             }
         }
         if (s->m00 == 15 && m58C != 15) {
-            Effect_unk* mgr = lbl_8087F048;
+            BattleTask* mgr = lbl_8087F048;
             atn::Vector3 pos = vfAC();
             fn_80108F38(mgr, &pos, 0x4000);
         }

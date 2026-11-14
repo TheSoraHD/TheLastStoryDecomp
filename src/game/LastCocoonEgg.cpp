@@ -29,11 +29,10 @@ extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, void* model, 
 extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
 extern "C" void fn_80232B7C(void* owner, int arg);
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
-struct Effect_unk;
-extern "C" Effect_unk* lbl_8087F048;
-extern "C" int fn_800F8548(Effect_unk* mgr); // inferred: new bullet id
+extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
+extern "C" int fn_800F8548(BattleTask* mgr); // inferred: new bullet id
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
-extern "C" void fn_800FAB80(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* bullet, int id, const atn::Vector3* pos,
+extern "C" void fn_800FAB80(BattleTask* mgr, CharaTask* owner, HitInfo_unk* bullet, int id, const atn::Vector3* pos,
                             const atn::Vector3* rot, int arg6, int arg7, int arg8, int arg9, float arg10,
                             float arg11); // inferred: fires a bullet (as in gmk/Coffin.cpp)               // inferred: popup text manager
 // inferred: camera shake request of the field (lbl_8087F430); as in gmk/ShakeCamera.cpp
@@ -625,7 +624,7 @@ struct EggDamage_unk {
     unsigned int m1C : 4;
     unsigned int m1C_rest : 28;
 };
-extern "C" void fn_80108C10(Effect_unk* effect, EggDamage_unk* damage, const atn::Vector3& pos, CharaTask* attacker,
+extern "C" void fn_80108C10(BattleTask* effect, EggDamage_unk* damage, const atn::Vector3& pos, CharaTask* attacker,
                             CharaTask* chara, int b, int c);
 // inferred: plays an effect bound to a matrix (kind 5; as in game/EnemyQuarkSecond.cpp)
 extern "C" void fn_8023A680(EffectMgr_unk* mgr, atn::EffFile* res, int arg2, int kind, const void* target,
@@ -685,7 +684,7 @@ void LastCocoonEgg::fn_80455638() {
         part.m10 = state;
         part.m04 = 0.0f;
         if (EggIsTarget_unk(part.m00)) {
-            part.m04 = (float)((BattleTask*)lbl_8087F048)->fn_80101340(part.m00);
+            part.m04 = (float)lbl_8087F048->fn_80101340(part.m00);
         }
         if (part.m04 <= 0.0f) {
             part.m08 = 0;
@@ -819,7 +818,7 @@ void LastCocoonEgg::fn_80456194() {
                         1.0f);
         }
     } else if (m14C0 > 15) {
-        Effect_unk* mgr = lbl_8087F048;
+        BattleTask* mgr = lbl_8087F048;
         fn_800FAB80(mgr, this, fn_80219E6C(0x5AA), m590, &m1968, &m1974, 0, 30, -1, -1, 0.0f, 1.0f);
         m14BC = 0;
         m14C0 = 0;
@@ -834,7 +833,7 @@ void LastCocoonEgg::fn_80456194() {
 extern "C" int rand();
 extern "C" int fn_80053BD0(atn::ColliResult_unk* r, const atn::ColliCapsuleShape_unk* c,
                            const atn::ColliCapsuleShape_unk* capsule); // inferred: segment against capsule
-extern "C" void fn_800F8574(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* data, const atn::Vector3* pos,
+extern "C" void fn_800F8574(BattleTask* mgr, CharaTask* owner, HitInfo_unk* data, const atn::Vector3* pos,
                             const atn::Vector3* dir, void* param, int arg6, int arg7, float a,
                             float b); // inferred: fires a bullet (as in game/EnemyQuarkSecond.cpp)
 // inferred: segment of a shot (a capsule shape without radius; as Segment_unk of chr/ControlPushedDown.cpp)
@@ -854,7 +853,7 @@ inline void EggShoot_unk(LastCocoonEgg* egg, atn::Vector3 dir) {
                     (const atn::ColliCapsuleShape_unk*)&egg->mColli.m3C) != 0) {
         from = result.m04;
     }
-    Effect_unk* mgr = lbl_8087F048;
+    BattleTask* mgr = lbl_8087F048;
     fn_800F8574(mgr, egg, fn_80219E6C(0x5AB), &from, &dir, 0, 0x24, 0, 0.0f, 1.0f);
 }
 // inferred: rotation matrix z, y, x with the angle compared on the right (as in game/EnemyQuarkSecond.cpp)

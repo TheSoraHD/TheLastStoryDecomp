@@ -4,8 +4,7 @@
 #include "game/BattleTask.h"
 #include "MP/MpCharaRef_unk.h"
 
-struct BulletMgr_unk;
-extern "C" BulletMgr_unk* lbl_8087F048; // inferred: bullet manager (see gmk/Coffin.cpp)
+extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
 // inferred: effect/bullet of `chara` along `dir` (also called by chr::ControlDamage, CharaStatus)
 
 // inferred: multiplayer session manager (lbl_8087F610, see MP/D2AMpMenuCockpit.cpp)
@@ -32,7 +31,7 @@ void MpCharaRef_unk::fn_805010C0() {
         fn_8014F8F4()->mEnabled = 0;
         if (lbl_8087F048 != 0) {
             atn::Vector3 dir(0.0f, 1.0f, 0.0f);
-            ((BattleTask*)lbl_8087F048)->fn_800FDE60(0, mChara, dir);
+            lbl_8087F048->fn_800FDE60(0, mChara, dir);
         }
         fn_8014F8F4()->mEnabled = 1;
     }

@@ -76,14 +76,12 @@ extern "C" inline Field_unk* fn_80121F00() {
 }
 extern "C" PlayerManager* lbl_8087F8A0; // inferred: player manager
 extern "C" atn::Vector3 lbl_807C7030;   // inferred: zero vector
-// inferred: effect/bullet manager (lbl_8087F048, as in chr/ControlUseSkill.cpp); class unknown
-struct Effect_unk;
-extern "C" Effect_unk* lbl_8087F048;
-extern "C" int fn_800F8548(Effect_unk* mgr); // inferred: new bullet id
-extern "C" void fn_800FAB80(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* bullet, int id, const atn::Vector3* pos,
+extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
+extern "C" int fn_800F8548(BattleTask* mgr); // inferred: new bullet id
+extern "C" void fn_800FAB80(BattleTask* mgr, CharaTask* owner, HitInfo_unk* bullet, int id, const atn::Vector3* pos,
                             const atn::Vector3* rot, int arg6, int arg7, int arg8, int arg9, float arg10,
                             float arg11); // inferred: fires a bullet
-extern "C" void fn_800F8574(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* data, const atn::Vector3* pos,
+extern "C" void fn_800F8574(BattleTask* mgr, CharaTask* owner, HitInfo_unk* data, const atn::Vector3* pos,
                             const atn::Vector3* dir, HomingParam_unk* param, int arg6, int arg7, float a,
                             float b); // inferred: fires a homing bullet
 extern "C" int fn_800DD3FC(wchar_t* s, const wchar_t* format, ...); // inferred: wide sprintf
@@ -488,7 +486,7 @@ void Em203GreaterDaemonRed::vf10() {
             if (player == 0) {
                 player = lbl_8087F8A0->mHead;
             }
-            Effect_unk* effect = lbl_8087F048;
+            BattleTask* effect = lbl_8087F048;
             int id = fn_800F8548(effect);
             fn_800FAB80(effect, player, fn_80219E6C(0x6C2), id, &mPos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
         }
@@ -978,7 +976,7 @@ void Em203GreaterDaemonRed::fn_80297114() {
             wchar_t text[256];
             memset(text, 0, sizeof(text));
             fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0xD5), *(const wchar_t**)((char*)m60 + 4));
-            ((BattleTask*)lbl_8087F048)->fn_80109828(text);
+            lbl_8087F048->fn_80109828(text);
             atn::Vector3 pos = GetNodePos_unk(mMotion.GetNodeMtx_unk("chin"));
             atn::Vector3 dir = m14B0->mPos - pos;
             PSVECNormalize(&dir, &dir);
@@ -1051,7 +1049,7 @@ void Em203GreaterDaemonRed::fn_80297474() {
             wchar_t text[256];
             memset(text, 0, sizeof(text));
             fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0xD9), *(const wchar_t**)((char*)m60 + 4));
-            ((BattleTask*)lbl_8087F048)->fn_80109828(text);
+            lbl_8087F048->fn_80109828(text);
             fn_80239DAC(lbl_8087F3C0, this, 1002, 1);
             fn_80232B7C(this, 1002);
             atn::Vector3 pos(0.0f, 0.0f, 0.0f);
@@ -1166,7 +1164,7 @@ void Em203GreaterDaemonRed::fn_8029795C() {
     for (unsigned int i = 0; i < m15D4.mSize; i++) {
         if (m15E0 == m169C + m15D4[i].mFrame) {
             fn_80239DAC(lbl_8087F3C0, this, i + 1000, 1);
-            Effect_unk* effect = lbl_8087F048;
+            BattleTask* effect = lbl_8087F048;
             int id = fn_800F8548(effect);
             fn_800FAB80(effect, this, m14FC[m14C8], id, &m15D4[i].mPos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
             if (i % 3 == 0) {
@@ -1235,7 +1233,7 @@ void Em203GreaterDaemonRed::fn_80298850() {
                (mMotion.mTracks[0].m08 > 56.0f && mMotion.mTracks[0].m08 < 60.0f)) {
         atn::Vector3 spine = GetNodePos_unk(mMotion.GetNodeMtx_unk("spine"));
         spine += Front_unk(mRot.y) * 20.0f;
-        ((BattleTask*)lbl_8087F048)->fn_800F8C6C(0, 0, this, m14E4[m14C8], m590, 0.0f, 30, -1);
+        lbl_8087F048->fn_800F8C6C(0, 0, this, m14E4[m14C8], m590, 0.0f, 30, -1);
     } else {
         m590 = fn_800F8548(lbl_8087F048);
     }

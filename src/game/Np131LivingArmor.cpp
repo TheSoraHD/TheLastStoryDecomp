@@ -27,10 +27,9 @@ extern "C" void fn_8023A8B4(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Mod
                             int arg7, int arg8, int arg9, float scale);
 extern "C" void fn_80232B7C(void* owner, int arg);
 // inferred: bullets (as in gmk/LandMine.cpp)
-struct BulletMgr_unk;
-extern "C" BulletMgr_unk* lbl_8087F048;
-extern "C" int fn_800F8548(BulletMgr_unk* mgr); // inferred: new bullet id
-extern "C" void fn_800FAB80(BulletMgr_unk* mgr, CharaTask* owner, HitInfo_unk* bullet, int id,
+extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
+extern "C" int fn_800F8548(BattleTask* mgr); // inferred: new bullet id
+extern "C" void fn_800FAB80(BattleTask* mgr, CharaTask* owner, HitInfo_unk* bullet, int id,
                             const atn::Vector3* pos, const atn::Vector3* rot, int arg6, int arg7, int arg8,
                             int arg9, float arg10, float arg11);
 // inferred: field (lbl_8087F430); the event flags are read with fn_80370A78 and written with fn_80370AE4
@@ -161,7 +160,7 @@ void Np131LivingArmor::vf10() {
                 atn::Vector3 pos(mPos);
                 pos.y += 8.0f;
                 fn_80239DAC(lbl_8087F3C0, &m14B8, 0, 1);
-                BulletMgr_unk* mgr = lbl_8087F048;
+                BattleTask* mgr = lbl_8087F048;
                 fn_800FAB80(mgr, this, fn_80219E6C(0x7F1), fn_800F8548(mgr), &mPos, &mRot, 0, 30, -1, -1, 0.0f,
                             1.0f);
                 vf44();
@@ -176,7 +175,7 @@ void Np131LivingArmor::vf10() {
             fn_80145334();
             fn_8014C540();
         } else {
-            ((BattleTask*)lbl_8087F048)->fn_80105BD8(&mMotion);
+            lbl_8087F048->fn_80105BD8(&mMotion);
             GimmickCommon* stand = PickArmorStand_unk();
             fn_8016E4C4(0);
             m14DC = stand;

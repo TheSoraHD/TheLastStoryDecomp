@@ -37,8 +37,9 @@ extern "C" PlayerManager* lbl_8087F8A0; // inferred: the party
 extern "C" void* fn_8044D034(Inventory* party, int index); // inferred: equipment data
 extern "C" void fn_8044D104(Inventory* party, int slot, int item, int upgrade, int chara); // inferred: sets a weapon
 extern "C" int fn_80219544(int member); // inferred: character id of a party member
-extern "C" void* lbl_8087F048; // inferred: effect manager of the characters
-extern "C" void fn_8010C00C(void* mgr, CharaTask* chara);
+class BattleTask;
+extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
+extern "C" void fn_8010C00C(BattleTask* mgr, CharaTask* chara);
 extern "C" bool fn_802124B4(ItemParamEntry_unk* item, int level); // inferred: the item can be upgraded
 extern "C" int fn_80211940(ItemParamEntry_unk* item, int level);   // inferred: makes the upgraded item
 extern "C" int fn_80444564(Inventory* party, int id); // inferred: number of equipment items

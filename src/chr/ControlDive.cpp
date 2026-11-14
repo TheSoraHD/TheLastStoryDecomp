@@ -15,8 +15,7 @@ extern "C" GameTask* lbl_8087F430; // inferred: the field
 // inferred: nearest route point (stored in RouteWalker_unk::mDestPoint)
 // inferred: finds the ledge of route link `link` near `chara`
 
-// inferred: camera/character manager (lbl_8087F048, class unknown)
-extern "C" void* lbl_8087F048;
+extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
 
 
 // inferred: game state (lbl_8087EFA8): m3A4 is the time scale
@@ -89,7 +88,7 @@ ControlDive::ControlDive(Chara_unk* chara, const atn::Vector3& dir) : ControlBas
 int ControlDive::vf0C() {
     int ret = 0;
     Motion_unk* motion = &mChara->mMotion;
-    float speed = ((BattleTask*)lbl_8087F048)->fn_8010CA3C(mChara, 1.5f);
+    float speed = lbl_8087F048->fn_8010CA3C(mChara, 1.5f);
     motion->mTracks[0].m0C = speed / 1.5f;
     float frame = motion->mTracks[0].m08;
     if (frame >= motion->fn_80097D7C(0) - 5.0f) {
@@ -291,7 +290,7 @@ int ControlBackStep::vf0C() {
 
 void ControlBackStep::vf1C() {
     if (lbl_8087F048 != 0) {
-        ((BattleTask*)lbl_8087F048)->fn_801065E4(mChara);
+        lbl_8087F048->fn_801065E4(mChara);
     }
     mChara->mPos = m08;
 }
@@ -305,7 +304,7 @@ ControlWarp::ControlWarp(Chara_unk* chara, const atn::Vector3& pos, const atn::V
     }
     PlayDiveMotion_unk(m, 0x1EA, 1.0f);
     if (lbl_8087F048 != 0) {
-        ((BattleTask*)lbl_8087F048)->fn_8010653C(mChara, &mChara->mMotion);
+        lbl_8087F048->fn_8010653C(mChara, &mChara->mMotion);
     }
 }
 
@@ -331,7 +330,7 @@ int ControlWarp::vf0C() {
                 mChara->mC58.m0C.mDestPoint = FindRoutePoint_unk(lbl_8087F430->m10D8, chara);
             }
             if (lbl_8087F048 != 0) {
-                ((BattleTask*)lbl_8087F048)->fn_801065E4(mChara);
+                lbl_8087F048->fn_801065E4(mChara);
             }
             ret = 1;
         }
@@ -343,7 +342,7 @@ int ControlWarp::vf0C() {
 
 void ControlWarp::vf1C() {
     if (lbl_8087F048 != 0) {
-        ((BattleTask*)lbl_8087F048)->fn_801065E4(mChara);
+        lbl_8087F048->fn_801065E4(mChara);
     }
 }
 

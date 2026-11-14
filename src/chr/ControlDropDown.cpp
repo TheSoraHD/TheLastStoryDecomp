@@ -11,8 +11,9 @@ extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: length
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0;    // inferred: player manager
 extern "C" void* lbl_8087F610;
-extern "C" void* lbl_8087F048;
-extern "C" void fn_8010A308(void* mgr, const atn::Vector3* from, const atn::Vector3* to, float radius);
+class BattleTask;
+extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
+extern "C" void fn_8010A308(BattleTask* mgr, const atn::Vector3* from, const atn::Vector3* to, float radius);
 // inferred: field (lbl_8087F430): a task (its flag 2 is tested) with the route tables at 0x10D8
 struct DropField_unk {
     unsigned char m0000[0x38];

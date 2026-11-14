@@ -17,11 +17,9 @@ extern "C" int rand();
 extern "C" std::string fn_8006AFF8(const std::string& a, const std::string& b);
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 extern "C" atn::Vector3 lbl_807C7030;              // inferred: zero vector
-// inferred: effect/bullet manager (lbl_8087F048, as in chr/ControlUseSkill.cpp); class unknown
-struct Effect_unk;
-extern "C" Effect_unk* lbl_8087F048;
-extern "C" int fn_800F8548(Effect_unk* mgr); // inferred: new bullet id
-extern "C" void fn_800F8574(Effect_unk* mgr, CharaTask* chara, HitInfo_unk* data, const atn::Vector3* pos,
+extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
+extern "C" int fn_800F8548(BattleTask* mgr); // inferred: new bullet id
+extern "C" void fn_800F8574(BattleTask* mgr, CharaTask* chara, HitInfo_unk* data, const atn::Vector3* pos,
                             const atn::Vector3* dir, int a, int b, int c, float f1, float f2);
 // inferred: effect manager (class unknown), global instance at 0x8087F3C0
 struct EffectMgr_unk;
@@ -406,7 +404,7 @@ void Em201ZanGurg::fn_8026442C() {
         HitInfo_unk* data = fn_80219E6C(m16D4);
         fn_80144710();
         int id = m590;
-        ((BattleTask*)lbl_8087F048)->fn_800F8C6C(0, 0, this, data, id, 0.0f, 30, -1);
+        lbl_8087F048->fn_800F8C6C(0, 0, this, data, id, 0.0f, 30, -1);
     }
     if (mMotion.mTracks[0].m08 >= 1.0f && mMotion.mTracks[0].m08 <= 14.0f) {
         atn::Vector3 d = m14B8->mPos - mPos;
@@ -475,7 +473,7 @@ void Em201ZanGurg::fn_80264C88() {
         HitInfo_unk* data = fn_80219E6C(m16D4);
         fn_80144710();
         m59F = 1;
-        ((BattleTask*)lbl_8087F048)->fn_800F8C6C(0, 0, this, data, m590, 0.0f, 30, -1);
+        lbl_8087F048->fn_800F8C6C(0, 0, this, data, m590, 0.0f, 30, -1);
         m59F = 0;
     } else if (atn::Abs_unk(mMotion.mTracks[0].m08 - 10.0f) < 1.1920929e-7f) {
         if (++m16D0 > 2) {

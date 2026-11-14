@@ -147,15 +147,13 @@ public:
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
 extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the next effects
-// inferred: effect/bullet manager (lbl_8087F048)
-struct Effect_unk;
-extern "C" Effect_unk* lbl_8087F048;
-extern "C" int fn_800F8548(Effect_unk* mgr); // inferred: new bullet id
-extern "C" void fn_800F8574(Effect_unk* mgr, CharaTask* chara, HitInfo_unk* data, const atn::Vector3* pos,
+extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
+extern "C" int fn_800F8548(BattleTask* mgr); // inferred: new bullet id
+extern "C" void fn_800F8574(BattleTask* mgr, CharaTask* chara, HitInfo_unk* data, const atn::Vector3* pos,
                             const atn::Vector3* dir, HomingParam_unk* param, int flags, int arg, float f1,
                             float f2); // inferred: fires a homing bullet
-Effect_unk* fn_8013A194(); // inferred: bullet manager (returns lbl_8087F048)
-extern "C" float fn_8010B250(Effect_unk* mgr, int kind, int arg); // inferred: scale of the bullet
+BattleTask* fn_8013A194(); // inferred: bullet manager (returns lbl_8087F048)
+extern "C" float fn_8010B250(BattleTask* mgr, int kind, int arg); // inferred: scale of the bullet
 extern "C" int fn_800EFD04(int id); // inferred: effect resources of a bullet
 extern "C" int fn_800EFDA0(int id);
 extern "C" float fn_800F8524(const float* a, const float* b, float t); // inferred: lerp of two floats
@@ -166,7 +164,7 @@ extern "C" void fn_8023A680(EffectMgr_unk* mgr, atn::EffFile* res, int arg2, int
 extern "C" void fn_80276AE4(EffectMgr_unk* mgr, atn::EfpFile* efp, void* model, const atn::Vector3* pos,
                             const atn::Vector3* rot, int a, int b, int c, float scale);
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
-extern "C" void fn_800FAB80(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* bullet, int arg3, const atn::Vector3* pos,
+extern "C" void fn_800FAB80(BattleTask* mgr, CharaTask* owner, HitInfo_unk* bullet, int arg3, const atn::Vector3* pos,
                             const atn::Vector3* rot, int arg6, int arg7, int arg8, int arg9, float arg10,
                             float arg11); // inferred: fires a bullet at a point
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume); // 3D sound
@@ -1140,7 +1138,7 @@ void EnemyQuarkStand::fn_80348FF4() {
             atn::Vector3 pos(0.0f, 0.0f, 20.0f);
             pos.fn_80011410(*(atn::Matrix3x4*)mMotion.GetNodeMtx_unk("head"));
             fn_803489F4(pos);
-            Bullet* bullet = ((BattleTask*)fn_8013A194())->fn_801010A0();
+            Bullet* bullet = fn_8013A194()->fn_801010A0();
             if (bullet != 0) {
                 QuarkBulletShot_unk shot;
                 shot.m00 = fn_8010B250(fn_8013A194(), m152C->m3C, 0);
@@ -1329,7 +1327,7 @@ void EnemyQuarkStand::fn_8034A194() {
             TurnTo_unk(1.0f);
         }
         if (mMotion.mTracks[0].m08 >= 21.0f) {
-            ((BattleTask*)lbl_8087F048)->fn_800F8C6C(0, 0, this, m1548, fn_800F8548(lbl_8087F048), 0.0f, 30, -1);
+            lbl_8087F048->fn_800F8C6C(0, 0, this, m1548, fn_800F8548(lbl_8087F048), 0.0f, 30, -1);
             Field_unk* field = lbl_8087F430;
             field->m96C %= 2;
             field->m970 = 10;
@@ -1353,7 +1351,7 @@ void EnemyQuarkStand::fn_8034A644() {
             TurnTo_unk(1.0f);
         }
         if (mMotion.mTracks[0].m08 >= 33.0f) {
-            ((BattleTask*)lbl_8087F048)->fn_800F8C6C(0, 0, this, m1544, fn_800F8548(lbl_8087F048), 0.0f, 30, -1);
+            lbl_8087F048->fn_800F8C6C(0, 0, this, m1544, fn_800F8548(lbl_8087F048), 0.0f, 30, -1);
             Field_unk* field = lbl_8087F430;
             field->m96C %= 2;
             field->m970 = 10;
@@ -1366,7 +1364,7 @@ void EnemyQuarkStand::fn_8034A644() {
             TurnTo_unk(1.0f);
         }
         if (mMotion.mTracks[0].m08 >= 61.0f) {
-            ((BattleTask*)lbl_8087F048)->fn_800F8C6C(0, 0, this, m1548, fn_800F8548(lbl_8087F048), 0.0f, 30, -1);
+            lbl_8087F048->fn_800F8C6C(0, 0, this, m1548, fn_800F8548(lbl_8087F048), 0.0f, 30, -1);
             Field_unk* field = lbl_8087F430;
             field->m96C %= 2;
             field->m970 = 10;
@@ -1409,7 +1407,7 @@ void EnemyQuarkStand::fn_8034AE48() {
         float t = QS_MAX_unk(0.0f, QS_MIN_unk(1.0f, (mMotion.mTracks[0].m08 - 24.0f) / 6.0f));
         mPos = QuarkLerp_unk(m15DC.mStart, m15DC.mTarget, t);
         if (mMotion.mTracks[0].m08 >= 30.0f) {
-            ((BattleTask*)lbl_8087F048)->fn_800F8C6C(0, 0, this, m1534, fn_800F8548(lbl_8087F048), 0.0f, 30, -1);
+            lbl_8087F048->fn_800F8C6C(0, 0, this, m1534, fn_800F8548(lbl_8087F048), 0.0f, 30, -1);
             Field_unk* field = lbl_8087F430;
             field->m96C %= 2;
             field->m970 = 10;
@@ -1423,7 +1421,7 @@ void EnemyQuarkStand::fn_8034AE48() {
         float t = QS_MAX_unk(0.0f, QS_MIN_unk(1.0f, (mMotion.mTracks[0].m08 - 30.0f) / 9.0f));
         mPos = QuarkLerp_unk(m15DC.mStart, m15DC.mTarget, t);
         if (mMotion.mTracks[0].m08 >= 39.0f) {
-            ((BattleTask*)lbl_8087F048)->fn_800F8C6C(0, 0, this, m1538, fn_800F8548(lbl_8087F048), 0.0f, 30, -1);
+            lbl_8087F048->fn_800F8C6C(0, 0, this, m1538, fn_800F8548(lbl_8087F048), 0.0f, 30, -1);
             Field_unk* field = lbl_8087F430;
             field->m96C %= 2;
             field->m970 = 10;
@@ -1486,7 +1484,7 @@ void EnemyQuarkStand::fn_8034B8CC() {
             if (m17E4 != 0 && m17EC == 0) {
                 atn::Vector3 front = QuarkFrontOf_unk(this);
                 atn::Vector3 pos = m17E4->mPos - front * 0.5f;
-                Effect_unk* mgr = lbl_8087F048;
+                BattleTask* mgr = lbl_8087F048;
                 fn_800FAB80(mgr, this, m154C, fn_800F8548(mgr), &pos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
             }
             m14B4++;
@@ -1893,7 +1891,7 @@ void EnemyQuarkStand::fn_8034ECE8() {
             fn_80232B7C(this, 0x3EE);
             QuarkPlayEffect_unk(&m1690, &mMotion);
             CharaTask* leader = lbl_8087F8A0->mHead;
-            Effect_unk* mgr = lbl_8087F048;
+            BattleTask* mgr = lbl_8087F048;
             int id = fn_800F8548(mgr);
             fn_800FAB80(mgr, leader, fn_80219E6C(0x780), id, &mPos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
             m14C4->mStatus.m2FC = 1.0f;
@@ -2403,7 +2401,7 @@ void EnemyQuarkStand::fn_803526A8() {
             }
             if (it->m0C <= 0.0f) {
                 fn_80239DAC(lbl_8087F3C0, &m1CAC, it->m11, 1);
-                Effect_unk* mgr = lbl_8087F048;
+                BattleTask* mgr = lbl_8087F048;
                 fn_800FAB80(mgr, this, m155C, fn_800F8548(mgr), &it->m00, &lbl_807C7030, 0, 30, -1, -1, 0.0f,
                             1.0f);
                 m1CB8++;
@@ -2572,7 +2570,7 @@ void EnemyQuarkStand::fn_8035359C() {
             m17E4 = 0;
         }
     }
-    QuarkWeights_unk* w = (QuarkWeights_unk*)((BattleTask*)lbl_8087F048)->fn_80103F60(this);
+    QuarkWeights_unk* w = (QuarkWeights_unk*)lbl_8087F048->fn_80103F60(this);
     if (m17E4 != 0) {
         for (CharaTask* p = lbl_8087F8A0->mHead; p != 0; p = ((PlayerTask*)p)->mNext) {
             int i = ((BattleTask*)w)->fn_80108378(p);

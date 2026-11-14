@@ -809,15 +809,16 @@ struct ItemDamage_unk {
     unsigned int mFlags31_28 : 4;
     unsigned int mFlags27_0 : 28;
 };
-extern "C" void* lbl_8087F048;              // inferred: effect/bullet manager
+class BattleTask;
+extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0;
-extern "C" void fn_801092C8(void* mgr, int arg1, int arg2, int item, int num); // inferred: take message
+extern "C" void fn_801092C8(BattleTask* mgr, int arg1, int arg2, int item, int num); // inferred: take message
 extern "C" HitInfo_unk* fn_80219E6C(int id);                                     // inferred: skill data
 extern "C" int fn_80206B9C(int code);                                            // inferred: weapon code
 extern "C" void fn_8003EA3C(ItemDamage_unk* result, HitInfo_unk* data, CharaTask* attacker, CharaTask* owner,
                             unsigned int flags, const void* param, int arg, int arg2); // inferred: computes the damage
 extern "C" unsigned char lbl_807C6B90[]; // inferred: default parameters of fn_8003EA3C
-extern "C" void fn_80108C10(void* effect, ItemDamage_unk* damage, const atn::Vector3& pos, int a, CharaTask* chara,
+extern "C" void fn_80108C10(BattleTask* effect, ItemDamage_unk* damage, const atn::Vector3& pos, int a, CharaTask* chara,
                             int b, int c);
 
 namespace gmk {
@@ -840,7 +841,7 @@ void ItemSlotAnime::fn_80450778() {
                 if (leader != 0 && skill != 0 && (lbl_8087F610 == 0 || leader->CanAct_unk())) {
                     ItemDamage_unk result;
                     fn_8003EA3C(&result, skill, leader, leader, 0, lbl_807C6B90, 0, 0);
-                    void* effect = lbl_8087F048;
+                    BattleTask* effect = lbl_8087F048;
                     if (effect != 0) {
                         fn_80108C10(effect, &result, leader->vfAC(), 0, 0, 0, 1);
                     }

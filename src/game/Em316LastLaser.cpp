@@ -26,10 +26,9 @@ extern "C" EffectMgr_unk* lbl_8087F3C0;
 extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
 extern "C" int fn_80239D58(EffectMgr_unk* mgr, void* owner, int id); // inferred: the effect is playing
 extern "C" void fn_800CB5C8(atn::SoundRef* sound, int frames, int arg); // inferred: stops the sound
-// inferred: effect/bullet manager of the characters (class unknown)
-struct BulletMgr_unk;
-extern "C" BulletMgr_unk* lbl_8087F048;
-extern "C" int fn_800F8548(BulletMgr_unk* mgr); // inferred: new bullet id
+class BattleTask;
+extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
+extern "C" int fn_800F8548(BattleTask* mgr); // inferred: new bullet id
 
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" int rand();
@@ -476,9 +475,9 @@ inline atn::Vector3 atn::Vector3::operator-() const {
     return atn::Vector3(-x, -y, -z);
 }
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
-extern "C" void fn_800FDB20(BulletMgr_unk* mgr, CharaTask* owner, CharaTask* target, int arg, HitInfo_unk* data, int id,
+extern "C" void fn_800FDB20(BattleTask* mgr, CharaTask* owner, CharaTask* target, int arg, HitInfo_unk* data, int id,
                             const atn::Vector3* pos, const atn::Vector3* dir, int time, float scale);
-extern "C" void fn_80101434(BulletMgr_unk* mgr, const atn::Vector3* pos, const atn::Vector3* rot, int a, int b);
+extern "C" void fn_80101434(BattleTask* mgr, const atn::Vector3* pos, const atn::Vector3* rot, int a, int b);
 
 // inferred: state 9: the laser sweeps from m150C along m1524 for 90 frames and hurts the character it hits (skill
 // 0x76E); then back to the wait with a new delay

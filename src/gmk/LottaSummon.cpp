@@ -38,7 +38,7 @@ extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* m
                             int arg8, int arg9, float scale);
 extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
 extern "C" void fn_80232B7C(void* owner, int arg);
-extern "C" void* lbl_8087F048; // inferred: effect manager of the characters
+extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
 
 // inferred: field object (class unknown)
 struct Field_unk {
@@ -275,7 +275,7 @@ int LottaSummon::vf40(GimmickMsg_unk* msg) {
         if (mNpc != 0) {
             mNpc->fn_80155A88(m6C - atn::Vector3(0.0f, 50.0f, 0.0f), 0);
             if (lbl_8087F048 != 0) {
-                ((BattleTask*)lbl_8087F048)->fn_8010653C(mNpc, &mNpc->mMotion);
+                lbl_8087F048->fn_8010653C(mNpc, &mNpc->mMotion);
             }
         }
         break;
@@ -300,7 +300,7 @@ int LottaSummon::vf40(GimmickMsg_unk* msg) {
                 mNpc->mMotion.fn_80097C08(0, 0x153, 1, 0, 1, 0.0f, 0.1f);
                 mNpc->fn_80155A88(m6C, 0);
                 if (lbl_8087F048 != 0) {
-                    ((BattleTask*)lbl_8087F048)->fn_8010653C(mNpc, &mNpc->mMotion);
+                    lbl_8087F048->fn_8010653C(mNpc, &mNpc->mMotion);
                 }
                 mTimer = 5;
             }

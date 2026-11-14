@@ -44,10 +44,8 @@ extern "C" int fn_8004ED34(void* colli, atn::ColliResult_unk* result, const atn:
 extern "C" int fn_8004D388(void* world, atn::ColliResult_unk* result, CharaTask::Sphere_unk* sphere, atn::Vector3* move,
                            unsigned int mask, void* ignore, int arg, float radius); // inferred: sweep test
 
-// inferred: effect/bullet manager (lbl_8087F048); class unknown
-struct MountleEffect_unk;
-extern "C" MountleEffect_unk* lbl_8087F048;
-extern "C" int fn_800F8548(MountleEffect_unk* mgr); // inferred: new bullet id
+extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
+extern "C" int fn_800F8548(BattleTask* mgr); // inferred: new bullet id
 
 
 // inferred: inline in the original (weak copies 0x8013C3B4, 0x8013C394, 0x8013C38C, 0x8013C460,
@@ -193,7 +191,7 @@ void ControlMountleQuadruped::vf60() {
     float frame = mChara->mMotion.mTracks[0].m08;
     if (frame > 22.0f && frame <= 26.0f) {
         int id = fn_800F8548(lbl_8087F048);
-        ((BattleTask*)lbl_8087F048)->fn_800F8C6C(0, 0, mChara, mChara->m638, id, 0.0f, 0x1E, -1);
+        lbl_8087F048->fn_800F8C6C(0, 0, mChara, mChara->m638, id, 0.0f, 0x1E, -1);
     }
 }
 

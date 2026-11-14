@@ -9,10 +9,10 @@ extern "C" int strcmp(const char* a, const char* b);
 extern "C" int atoi(const char* s);
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 // inferred: bullets (as in gmk/LandMine.cpp)
-struct BulletMgr_unk;
-extern "C" BulletMgr_unk* lbl_8087F048;
-extern "C" int fn_800F8548(BulletMgr_unk* mgr); // inferred: new bullet id
-extern "C" void fn_800FAB80(BulletMgr_unk* mgr, CharaTask* owner, HitInfo_unk* bullet, int id,
+class BattleTask;
+extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
+extern "C" int fn_800F8548(BattleTask* mgr); // inferred: new bullet id
+extern "C" void fn_800FAB80(BattleTask* mgr, CharaTask* owner, HitInfo_unk* bullet, int id,
                             const atn::Vector3* pos, const atn::Vector3* rot, int arg6, int arg7, int arg8,
                             int arg9, float arg10, float arg11);
 extern "C" void* lbl_8087EE98;
@@ -180,7 +180,7 @@ void EnemyLizerdBlade::fn_80333D68() {
         atn::Vector3 move(mPos);
         fn_8013CB68(mRot, 1, 1.0f, 1.8f);
         atn::Vector3 pos = mPos + GetFront_unk(this) * 14.0f;
-        BulletMgr_unk* mgr = lbl_8087F048;
+        BattleTask* mgr = lbl_8087F048;
         fn_800FAB80(mgr, this, fn_80219E6C(m14D0), m590, &pos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
         move -= mPos;
         move.y = 0.0f;
@@ -273,7 +273,7 @@ void EnemyLizerdBlade::fn_80334460() {
             mPos = LerpBA_unk(m14DC, m14E8, t);
             if (mMotion.mTracks[0].m08 >= 51.0f) {
                 m14B8++;
-                BulletMgr_unk* mgr = lbl_8087F048;
+                BattleTask* mgr = lbl_8087F048;
                 fn_800FAB80(mgr, this, fn_80219E6C(m14C4), fn_800F8548(mgr), &mPos, &mRot, 0, 30, -1, -1, 0.0f,
                             1.0f);
             }

@@ -30,10 +30,8 @@ extern "C" HitInfo_unk* fn_80219E6C(int id); // inferred: bullet/skill data by i
 extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3, int arg4);
 extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, int arg6,
                             int arg7);
-// inferred: effect/bullet manager (lbl_8087F048, as in chr/ControlUseSkill.cpp); class unknown
-struct Effect_unk;
-extern "C" Effect_unk* lbl_8087F048;
-extern "C" int fn_800F8548(Effect_unk* mgr); // inferred: new bullet id
+extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
+extern "C" int fn_800F8548(BattleTask* mgr); // inferred: new bullet id
 extern "C" int fn_800DD3FC(wchar_t* s, const wchar_t* format, ...); // inferred: wide sprintf
 extern "C" const wchar_t lbl_808813D0[2]; // inferred: empty text
 // inferred: camp message table (lbl_8087F1E4, as in game/Em302Kraken.cpp)
@@ -42,7 +40,7 @@ struct MulueMsgTable_unk {
     const wchar_t* mText[1];
 };
 extern "C" MulueMsgTable_unk* lbl_8087F1E4;
-extern "C" void fn_800FAB80(Effect_unk* mgr, CharaTask* chara, HitInfo_unk* bullet, int arg3, const atn::Vector3* pos,
+extern "C" void fn_800FAB80(BattleTask* mgr, CharaTask* chara, HitInfo_unk* bullet, int arg3, const atn::Vector3* pos,
                             const atn::Vector3* rot, int arg6, int arg7, int arg8, int arg9, float arg10,
                             float arg11); // inferred: fires a bullet
 // inferred: effect manager (class unknown), global instance at 0x8087F3C0 (two flags at 0xC4/0xC8 are
@@ -128,7 +126,7 @@ struct MulueDamage_unk {
     unsigned int m1C : 4;
     unsigned int m1C_rest : 28;
 };
-extern "C" void fn_80108C10(Effect_unk* effect, MulueDamage_unk* damage, const atn::Vector3& pos, CharaTask* a,
+extern "C" void fn_80108C10(BattleTask* effect, MulueDamage_unk* damage, const atn::Vector3& pos, CharaTask* a,
                             CharaTask* chara, int b, int c);
 extern "C" void fn_8003EA3C(MulueDamage_unk* result, HitInfo_unk* data, CharaTask* attacker, CharaTask* owner,
                             unsigned int flags, const void* param, int arg, int arg2); // inferred: computes the damage
@@ -273,7 +271,7 @@ inline void Em204Mulue::ShowMessage_unk(int id) {
     wchar_t text[256];
     memset(text, 0, sizeof(text));
     fn_800DD3FC(text, lbl_8087F1E4->Get_unk(id), *(const wchar_t**)((char*)m60 + 4));
-    ((BattleTask*)lbl_8087F048)->fn_80109828(text);
+    lbl_8087F048->fn_80109828(text);
 }
 // inferred: turn toward `target` (frames and direction)
 inline void Em204Mulue::SetTurn_unk(atn::Vector3 target) {
@@ -458,7 +456,7 @@ void Em204Mulue::vf10() {
                 Rest_unk();
             }
             if (mMotion.mTracks[0].m08 >= 23.0f && mMotion.mTracks[0].m08 <= 27.0f) {
-                ((BattleTask*)lbl_8087F048)->fn_800F8C6C(0, 0, this, m166C, m590, 0.0f, 30, -1);
+                lbl_8087F048->fn_800F8C6C(0, 0, this, m166C, m590, 0.0f, 30, -1);
             }
             break;
         case 10:
@@ -998,10 +996,10 @@ void Em204Mulue::fn_802A8BBC() {
             memset(text, 0, sizeof(text));
             if (lbl_8087F8A0->mHead->m560 == 17) {
                 fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0xE5), *(const wchar_t**)((char*)m60 + 4));
-                ((BattleTask*)lbl_8087F048)->fn_80109828(text);
+                lbl_8087F048->fn_80109828(text);
             } else {
                 fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0xE7), *(const wchar_t**)((char*)m60 + 4));
-                ((BattleTask*)lbl_8087F048)->fn_80109828(text);
+                lbl_8087F048->fn_80109828(text);
             }
         } else {
             SetState_unk(20);
@@ -1155,7 +1153,7 @@ void Em204Mulue::fn_802A9ADC(int aimed, int skipKind3) {
                 atn::Model* cm = &c->mMotion;
                 atn::Vector3 pos = GetNodePos_unk(cm->GetNodeMtx_unk("hips"));
                 atn::Vector3 to = (pos - hips).GetNormalize();
-                Bullet* bullet = ((BattleTask*)lbl_8087F048)->fn_801010A0();
+                Bullet* bullet = lbl_8087F048->fn_801010A0();
                 if (bullet == 0) {
                     return;
                 }
@@ -1169,7 +1167,7 @@ void Em204Mulue::fn_802A9ADC(int aimed, int skipKind3) {
         }
     } else {
         for (int i = 0; i < m1678->m48; i++) {
-            Bullet* bullet = ((BattleTask*)lbl_8087F048)->fn_801010A0();
+            Bullet* bullet = lbl_8087F048->fn_801010A0();
             if (bullet == 0) {
                 return;
             }
@@ -1256,7 +1254,7 @@ void Em204Mulue::fn_802AA1B8() {
         n.y = 0.0f;
         mPos += n * 10.0f;
         atn::Vector3 pos = GetNodePos_unk(mMotion.GetNodeMtx_unk("hips"));
-        Effect_unk* mgr = lbl_8087F048;
+        BattleTask* mgr = lbl_8087F048;
         fn_800FAB80(mgr, this, m167C, 1000, &pos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
     }
     fn_800CB6E4(&m1538, &mPos);
@@ -1286,7 +1284,7 @@ void Em204Mulue::fn_802AA534() {
         n.y = 0.0f;
         mPos += n * 10.0f;
         atn::Vector3 pos = GetNodePos_unk(mMotion.GetNodeMtx_unk("hips"));
-        Effect_unk* mgr = lbl_8087F048;
+        BattleTask* mgr = lbl_8087F048;
         fn_800FAB80(mgr, this, fn_80219E6C(0x4B5), 1000, &pos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
     }
     if (m1648 > 0 && (float)m14C0 <= 35.0f) {

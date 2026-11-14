@@ -20,9 +20,8 @@ struct Settings_unk {
 };
 extern "C" Settings_unk* lbl_8087F0A8;
 
-struct Effect_unk;
-extern "C" Effect_unk* lbl_8087F048;
-extern "C" void fn_80101524(Effect_unk* mgr, const atn::Vector3* pos, const atn::Vector3* rot, int id, int arg);
+extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
+extern "C" void fn_80101524(BattleTask* mgr, const atn::Vector3* pos, const atn::Vector3* rot, int id, int arg);
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: length
 extern "C" int fn_800DD3FC(wchar_t* dst, const wchar_t* fmt, ...); // inferred: swprintf
@@ -102,7 +101,7 @@ int ControlCdnStone::vf0C() {
                 PSMTXRotRad(mtx, 'y', 3.1415927f);
                 PSMTXMultVec(mtx, &m14, &m14);
                 m14.y = 6.0f;
-                ((BattleTask*)lbl_8087F048)->fn_80107860(motion, motion);
+                lbl_8087F048->fn_80107860(motion, motion);
             }
         }
         if (m14.y > 0.0f) {
@@ -187,7 +186,7 @@ ControlCdnParalyzed::ControlCdnParalyzed(Chara_unk* chara) : ControlBase(chara) 
     motion->mTracks[0].m20 = 1.0f;
     motion->fn_80097C08(0, 0x1DC, 1, 0, 1, 0.0f, 0.1f);
     motion->mTracks[0].m0C = 1.0f;
-    ((BattleTask*)lbl_8087F048)->fn_801076D0(motion, motion);
+    lbl_8087F048->fn_801076D0(motion, motion);
 }
 
 int ControlCdnParalyzed::vf0C() {
@@ -197,7 +196,7 @@ int ControlCdnParalyzed::vf0C() {
 void ControlCdnParalyzed::vf1C() {
     if (mChara != 0 && lbl_8087F048 != 0) {
         mChara->mStatus.fn_8013322C(0x80);
-        ((BattleTask*)lbl_8087F048)->fn_80107798(&mChara->mMotion, 1);
+        lbl_8087F048->fn_80107798(&mChara->mMotion, 1);
     }
 }
 
@@ -210,7 +209,7 @@ ControlCdnRestoreParalyzed::ControlCdnRestoreParalyzed(Chara_unk* chara) : Contr
     chara->m58C = 0;
     mChara->m560 = 0x33;
     mChara->mStatus.fn_8013322C(0x80);
-    ((BattleTask*)lbl_8087F048)->fn_80107798(&mChara->mMotion, 1);
+    lbl_8087F048->fn_80107798(&mChara->mMotion, 1);
     fn_800C344C("SE_BTCOM_074", &mChara->mPos, 0, -1, 1.0f);
 }
 
@@ -235,19 +234,19 @@ ControlCdnBetray::ControlCdnBetray(Chara_unk* chara, int a, int b) : ControlBase
     wchar_t text[64];
     CharaInfo_unk* info = mChara->m60;
     fn_800DD3FC(text, lbl_8087F1E4->mDC != 0 ? lbl_8087F1E4->mDC : lbl_808813D0, info->m04);
-    ((BattleTask*)lbl_8087F048)->fn_80109828(text);
+    lbl_8087F048->fn_80109828(text);
     Motion_unk* motion = &mChara->mMotion;
     motion->m34C = 1;
     motion->mTracks[0].m20 = 1.0f;
     motion->fn_80097C08(0, m0C != 0 ? 0x72 : 0x40, 0, 0, 1, 0.0f, 0.1f);
     motion->mTracks[0].m0C = 1.0f;
     if (m0C != 0) {
-        ((BattleTask*)lbl_8087F048)->fn_80107A78(motion, motion);
+        lbl_8087F048->fn_80107A78(motion, motion);
     } else {
-        ((BattleTask*)lbl_8087F048)->fn_801077A8(motion, motion);
+        lbl_8087F048->fn_801077A8(motion, motion);
     }
     fn_800C344C("SE_BTCOM_075", &mChara->mPos, 0, -1, 1.0f);
-    ((BattleTask*)lbl_8087F048)->fn_801028E4(0, mChara, 0);
+    lbl_8087F048->fn_801028E4(0, mChara, 0);
 }
 
 int ControlCdnBetray::vf0C() {
@@ -257,7 +256,7 @@ int ControlCdnBetray::vf0C() {
             return 1;
         }
     } else if ((mChara->mStatus.m0C & 0x100) != 0x100) {
-        ((BattleTask*)lbl_8087F048)->fn_80107850(motion);
+        lbl_8087F048->fn_80107850(motion);
         return 1;
     }
     float frame = motion->mTracks[0].m08;
@@ -316,14 +315,14 @@ ControlCdnSleep::ControlCdnSleep(Chara_unk* chara) : ControlBase(chara), m08(0),
     motion->fn_80097C08(0, 7, 0, 0, 1, 0.0f, 0.1f);
     motion->mTracks[0].m0C = 1.0f;
     if (lbl_8087F048 != 0) {
-        ((BattleTask*)lbl_8087F048)->fn_80107FD8(motion, motion);
+        lbl_8087F048->fn_80107FD8(motion, motion);
     }
 }
 
 ControlCdnSleep::~ControlCdnSleep() {
     mChara->mStatus.fn_8013322C(0x10);
     if (lbl_8087F048 != 0) {
-        ((BattleTask*)lbl_8087F048)->fn_80108080(&mChara->mMotion);
+        lbl_8087F048->fn_80108080(&mChara->mMotion);
     }
 }
 
@@ -347,7 +346,7 @@ ControlCdnRestoreSleep::ControlCdnRestoreSleep(Chara_unk* chara) : ControlBase(c
     motion->fn_80097C08(0, 8, 0, 0, 1, 0.0f, 0.1f);
     motion->mTracks[0].m0C = 1.0f;
     if (lbl_8087F048 != 0) {
-        ((BattleTask*)lbl_8087F048)->fn_80108080(motion);
+        lbl_8087F048->fn_80108080(motion);
     }
 }
 
@@ -395,7 +394,7 @@ ControlCdnPiyo::ControlCdnPiyo(Chara_unk* chara, const atn::Vector3& dir, int ti
     }
     mChara->fn_801446F0();
     if (lbl_8087F048 != 0) {
-        ((BattleTask*)lbl_8087F048)->fn_801079C0(motion, motion);
+        lbl_8087F048->fn_801079C0(motion, motion);
     }
 }
 
@@ -403,7 +402,7 @@ ControlCdnPiyo::~ControlCdnPiyo() {
     mChara->mStatus.fn_8013322C(0x4000);
     Motion_unk* motion = &mChara->mMotion;
     if (lbl_8087F048 != 0) {
-        ((BattleTask*)lbl_8087F048)->fn_80107A68(motion);
+        lbl_8087F048->fn_80107A68(motion);
     }
 }
 

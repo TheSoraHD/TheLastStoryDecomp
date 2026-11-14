@@ -1,4 +1,5 @@
 #include "gmk/FragileObject.h"
+#include "game/BattleTask.h"
 #include "game/GameTask.h"
 #include "atn/Csv.h"
 #include "atn/Material_unk.h"
@@ -45,16 +46,11 @@ struct Settings_unk {
 extern "C" Settings_unk* lbl_8087F0A8;
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 extern "C" void* lbl_8087F610; // inferred: arena mode
-// inferred: bullets; m3E39C is set while a gimmick fires one
-struct BulletMgr_unk {
-    unsigned char m00000[0x3E39C];
-    int m3E39C;
-};
-extern "C" BulletMgr_unk* lbl_8087F048;
+extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
 struct HitInfo_unk;
 extern "C" HitInfo_unk* fn_80219E6C(int id); // inferred: bullet data by id
-extern "C" int fn_800F8548(BulletMgr_unk* mgr);
-extern "C" void fn_800FAB80(BulletMgr_unk* mgr, int arg1, HitInfo_unk* bullet, int arg3, const atn::Vector3* pos,
+extern "C" int fn_800F8548(BattleTask* mgr);
+extern "C" void fn_800FAB80(BattleTask* mgr, int arg1, HitInfo_unk* bullet, int arg3, const atn::Vector3* pos,
                             const atn::Vector3* rot, int arg6, int arg7, int arg8, int arg9, float arg10,
                             float arg11);
 // inferred: map id test of the "IF" blocks (see game/GimmickStateCommand.cpp)
@@ -283,7 +279,7 @@ void FragileObject::vf10() {
                     chara = (int)lbl_8087F8A0->mHead;
                 }
                 lbl_8087F048->m3E39C = 1;
-                BulletMgr_unk* mgr = lbl_8087F048;
+                BattleTask* mgr = lbl_8087F048;
                 fn_800FAB80(mgr, chara, fn_80219E6C(mExplode), fn_800F8548(mgr), &pos, &m78, 0, 30, -1, -1,
                             mExplodeScale, 1.0f);
                 lbl_8087F048->m3E39C = 0;

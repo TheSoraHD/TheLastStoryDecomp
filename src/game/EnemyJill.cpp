@@ -29,10 +29,8 @@ struct JillParams_unk {
     JillColMat_unk m324;
 };
 extern "C" JillParams_unk* lbl_8087EFA8;
-// inferred: effect/bullet manager (lbl_8087F048, as in chr/ControlUseSkill.cpp); class unknown
-struct Effect_unk;
-extern "C" Effect_unk* lbl_8087F048;
-extern "C" int fn_800F8548(Effect_unk* mgr); // inferred: new bullet id
+extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
+extern "C" int fn_800F8548(BattleTask* mgr); // inferred: new bullet id
 
 // inferred: const info (the load of info->m20 is scheduled into the prologue only through a const pointer)
 EnemyJill::EnemyJill(atn::Task* parent, const EnemyInfo_unk* info)
@@ -261,8 +259,8 @@ extern "C" inline PlayerMgr_unk* fn_8000D9E8() {
 extern "C" inline CharaTask* fn_8000DCF4(PlayerMgr_unk* mgr) {
     return mgr->mHead;
 }
-Effect_unk* fn_8013A194();
-extern "C" void fn_800FAB80(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* bullet, int arg3, const atn::Vector3* pos,
+BattleTask* fn_8013A194();
+extern "C" void fn_800FAB80(BattleTask* mgr, CharaTask* owner, HitInfo_unk* bullet, int arg3, const atn::Vector3* pos,
                             const atn::Vector3* rot, int arg6, int arg7, int arg8, int arg9, float arg10,
                             float arg11);
 
@@ -819,7 +817,7 @@ void EnemyJill::fn_80330218() {
                 }
                 if (m594 != 0) {
                     fn_80144710();
-                    int n = ((BattleTask*)lbl_8087F048)->fn_800F8C6C(0, 0, this, m638, m590, 0.0f, 30, m594);
+                    int n = lbl_8087F048->fn_800F8C6C(0, 0, this, m638, m590, 0.0f, 30, m594);
                     if (n != 0) {
                         CharaTask* player = lbl_8087F8A0->mHead;
                         if (player != 0 && player->mFlag5) {
@@ -1049,7 +1047,7 @@ inline void JillRotZYX_unk(atn::Matrix3x4& m, const atn::Vector3& rot) {
 
 // inferred: fires the hit `data` (names invented)
 inline void EnemyJill::FireHit_unk(HitInfo_unk* data) {
-    ((BattleTask*)lbl_8087F048)->fn_800F8C6C(0, 0, this, data, m590, 0.0f, 10, m594);
+    lbl_8087F048->fn_800F8C6C(0, 0, this, data, m590, 0.0f, 10, m594);
 }
 
 void EnemyJill::fn_8033135C() {
@@ -1069,7 +1067,7 @@ void EnemyJill::fn_8033135C() {
         } else if (mMotion.mTracks[0].m08 >= 27.0f && mMotion.mTracks[0].m08 <= 32.0f) {
             FireHit_unk(m14E0);
         } else if (mMotion.mTracks[0].m08 >= 46.0f && mMotion.mTracks[0].m08 <= 51.0f) {
-            if (((BattleTask*)lbl_8087F048)->fn_800F8C6C(0, 0, this, m14D0, m590, 0.0f, 10, m594) != 0) {
+            if (lbl_8087F048->fn_800F8C6C(0, 0, this, m14D0, m590, 0.0f, 10, m594) != 0) {
                 CharaTask* player = lbl_8087F8A0->mHead;
                 if (player != 0 && player->mFlag5) {
                     m1590 = 1;

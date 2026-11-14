@@ -5,8 +5,8 @@
 #include "game/FriendManager.h"
 #include "game/GimmickCommon.h"
 
-extern "C" void* lbl_8087F048; // inferred: effect/bullet manager of the characters
-extern "C" int fn_800F8548(void* mgr); // inferred: new bullet id
+extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
+extern "C" int fn_800F8548(BattleTask* mgr); // inferred: new bullet id
 extern "C" void fn_801092C8(void* mgr, int arg, CharaTask* chara, int a, int b);
 // inferred: field (lbl_8087F430); the event flags are read with fn_80370A78 and written with fn_80370AE4
 struct Field_unk;
@@ -155,7 +155,7 @@ void Em002_01BlackSkelton::vf10() {
                 mColli.mFlags &= ~1;
                 if (m1434 > 0) {
                     if (--m1434 == 15) {
-                        ((BattleTask*)lbl_8087F048)->fn_80105BD8(&mMotion);
+                        lbl_8087F048->fn_80105BD8(&mMotion);
                         vf9C(1);
                     }
                 } else {

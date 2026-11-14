@@ -19,14 +19,13 @@ extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 extern "C" void* lbl_8087F610;                     // inferred: arena mode (see game/CharaTask.cpp)
 struct Field_unk;
 extern "C" Field_unk* lbl_8087F430;
-struct Effect_unk;
-extern "C" Effect_unk* lbl_8087F048; // inferred: effect manager of the characters
-extern "C" int fn_800F8548(Effect_unk* mgr);
-extern "C" void fn_800FB4B0(Effect_unk* mgr, CharaTask* chara, HitInfo_unk* data, int id, const atn::Vector3* pos,
+extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
+extern "C" int fn_800F8548(BattleTask* mgr);
+extern "C" void fn_800FB4B0(BattleTask* mgr, CharaTask* chara, HitInfo_unk* data, int id, const atn::Vector3* pos,
                             int a, int time, int b, int c);
-extern "C" void fn_800FBA30(Effect_unk* mgr, CharaTask* chara, CharaTask* user, HitInfo_unk* data, int id,
+extern "C" void fn_800FBA30(BattleTask* mgr, CharaTask* chara, CharaTask* user, HitInfo_unk* data, int id,
                             const atn::Vector3* pos, const atn::Vector3* rot);
-extern "C" void fn_800FB1BC(Effect_unk* mgr, CharaTask* chara, HitInfo_unk* data, const atn::Vector3* pos,
+extern "C" void fn_800FB1BC(BattleTask* mgr, CharaTask* chara, HitInfo_unk* data, const atn::Vector3* pos,
                             const atn::Vector3* rot, int a, int b);
 typedef EffectColor_unk Color4f_unk;
 struct Motion_unk;
@@ -382,12 +381,12 @@ void SkillEffectManager::fn_8059B8A8(const HitInfo_unk* skill, CharaTask* user, 
     }
     for (int i = 0; i < heals.size(); i++) {
         if (!user->mFlag2 || fn_8021A9CC(heals[i].first)) {
-            Effect_unk* mgr = lbl_8087F048;
+            BattleTask* mgr = lbl_8087F048;
             fn_800FB4B0(mgr, heals[i].second, heals[i].first, fn_800F8548(mgr), pos, 1, 30, -1, 0);
             if (heals[i].first != 0 && user != 0) {
-                ((BattleTask*)lbl_8087F048)->fn_801070C8(heals[i].first->mB0, 0, 0, 0, &user->mPos, &user->mRot,
+                lbl_8087F048->fn_801070C8(heals[i].first->mB0, 0, 0, 0, &user->mPos, &user->mRot,
                             &Color4f_unk(1.0f, 1.0f, 1.0f, 1.0f), 1.0f);
-                ((BattleTask*)lbl_8087F048)->fn_80107208(heals[i].first->mB0, &user->mPos, 1.0f);
+                lbl_8087F048->fn_80107208(heals[i].first->mB0, &user->mPos, 1.0f);
             }
         }
         if (lbl_8087F490 != 0) {
@@ -396,7 +395,7 @@ void SkillEffectManager::fn_8059B8A8(const HitInfo_unk* skill, CharaTask* user, 
     }
     for (int i = 0; i < hits.size(); i++) {
         if (!user->mFlag2) {
-            Effect_unk* mgr = lbl_8087F048;
+            BattleTask* mgr = lbl_8087F048;
             fn_800FBA30(mgr, hits[i].second, user, hits[i].first, fn_800F8548(mgr), pos, &user->mRot);
         }
         if (lbl_8087F490 != 0) {
