@@ -1190,19 +1190,30 @@ void ModelBase::fn_8008E818(RenderManager* view) {
 
 inline atn::AABB_unk fn_8008F5F8(const atn::AABB_unk& box, const atn::Matrix3x4& m);
 
+// inferred: corners of the box of the meshes of a joint by value (names invented)
+static inline atn::Vector3 JointBoxMin_unk(const ModelJoint_unk* joint) {
+    return joint->m58;
+}
+static inline atn::Vector3 JointBoxMax_unk(const ModelJoint_unk* joint) {
+    return joint->m64;
+}
+
 // inferred: adds to `out` the world boxes of the joints of the tree from `node` (and its next siblings) whose
 // bounding sphere is in the frustum; `arg` (the view matrix of vf14) is passed down unused. fn_8008F5F8 is inline (the original
 // expands it here and keeps its weak copy right after this function)
-// NONMATCHING: 80.4% - copies of the box corners and registers of the inlined fn_8008F5F8
+// NONMATCHING: 87.9% - copies of the box corners (the original copies the box to the scaled one in place) and
+// registers of the inlined fn_8008F5F8
 extern "C" void fn_8008EEDC(atn::ModelBase* model, const atn::ModelBase::NodeRes_unk* node, const atn::Matrix3x4* arg,
                             const Frustum_unk* frustum, atn::AABB_unk* out) {
     using namespace atn;
     ModelLod_unk* lod = &model->mLods[model->m50];
     while (node != 0) {
-        if (node->m70 != 0 && node->m2C != 0) {
+        bool mesh = node->m2C != 0;
+        bool visible = node->m70 != 0 && mesh;
+        if (visible) {
             Sphere sphere;
-            sphere.mCenter = (node->m58 + node->m64) * 0.5f;
-            Vector3 d = node->m58 - node->m64;
+            sphere.mCenter = (JointBoxMin_unk(node) + JointBoxMax_unk(node)) * 0.5f;
+            Vector3 d = JointBoxMin_unk(node) - JointBoxMax_unk(node);
             sphere.mRadius = PSVECMag(&d) * 0.5f;
             sphere.mRadius *= model->mAC;
             PSMTXMultVec(model->mMtx.mNodes.mData[node->m18].m, &sphere.mCenter, &sphere.mCenter);
@@ -1422,13 +1433,13 @@ inline void AddMtx_unk(atn::Matrix3x4& d, const atn::Matrix3x4& a) {
 }
 
 // inferred: out[i] = mats[a] * wa + mats[b] * wb for each weight
-// NONMATCHING: 45% - the original computes and stores the first matrix before loading the second one
-// (8 saved float registers instead of 17)
-extern "C" void fn_800909B0(atn::Matrix3x4* out, const atn::Matrix3x4* mats, const SkinWeight2_unk* w, int n) {
+// NONMATCHING: 79.2% - scheduling of the second scaled matrix (the original stores it whole before the sum); the
+// matrices and weights are not const (with const pointers MWCC moves the loads of the second matrix above the
+// stores of the first one: 45%)
+extern "C" void fn_800909B0(atn::Matrix3x4* out, atn::Matrix3x4* mats, SkinWeight2_unk* w, int n) {
     for (int i = 0; i < n; i++) {
         *out = ScaleMtx_unk(mats[w->mIndex0], w->mWeight0);
-        atn::Matrix3x4 t = ScaleMtx_unk(mats[w->mIndex1], w->mWeight1);
-        AddMtx_unk(*out, t);
+        AddMtx_unk(*out, ScaleMtx_unk(mats[w->mIndex1], w->mWeight1));
         w++;
         out++;
     }

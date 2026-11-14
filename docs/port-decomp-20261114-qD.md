@@ -29,6 +29,9 @@ Inicio 2026-11-14 02:59. Unidades: atn/Model, atn/BoneCalc_unk.
 - `Model::fn_8008CD60` (ya escrita): 95,8 -> 97,3 % con las inline `IsReady_unk`/`IsReflected_unk` compartidas
   con fn_8008D78C (bools `li 1 ... li 0` del original).
 
+- Parciales de Model: `fn_8008EEDC` 80,4 -> 87,9 % (`bool mesh = m2C != 0` calculado antes y esquinas de la caja
+  por valor, `JointBoxMin_unk/JointBoxMax_unk`); `fn_800909B0` 45,3 -> 79,2 % (matrices y pesos sin `const`).
+
 ## Cambios de firma / layout (para el port)
 
 - `fn_8008EEDC` (extern "C" local de Model.cpp): el tercer argumento pasa de `int` a `const atn::Matrix3x4*`
@@ -37,6 +40,9 @@ Inicio 2026-11-14 02:59. Unidades: atn/Model, atn/BoneCalc_unk.
   `const atn::Matrix3x4* scale` (escala heredada del padre; los llamadores pasan 0). Se mantienen los nombres de
   parametro: quitarlos renumera los `@N`/`@enum$N` de todas las unidades (ControlAppear perdia 2 funciones).
   `ModelJoint_unk::m30` pasa de relleno a `int` (el joint no hereda la escala del padre).
+- `fn_800909B0` (extern "C" local): `mats` y `w` pasan a no `const` (`atn::Matrix3x4*`, `SkinWeight2_unk*`), y
+  `ModelMtxBlock_unk::mSkin2` (`atn/ModelPose_unk.h`) a `SkinWeight2_unk*`; los de 3 y 4 juntas siguen `const`
+  (sin `const` bajan).
 - **Para el port**: `ModelPose_unk::m18` es en realidad un `ModelNodeCallback_unk` (mismo `nonnull` 0x8009B938 que
   `m2C`), y por lo tanto `ModelBase::mB8` tambien; la cabecera los declara `boost::function<void()>` y BoneCalc
   los lee con `reinterpret_cast` (`NodeCallback_unk`). Cambiar el tipo toca `atn/Model_unk.h` (muy incluida): no hecho.
@@ -59,6 +65,9 @@ Inicio 2026-11-14 02:59. Unidades: atn/Model, atn/BoneCalc_unk.
 - 255.0f de `.sdata2` (0x80880C14) renombrada a mano otra vez (`@22090`); `lbl_8087D6E8/EC` devueltos tras pd.
 
 ## Hallazgos
+
+- Con un puntero `const T*` MWCC adelanta las cargas a traves de los stores a otro puntero (supone que no se
+  solapan); si el original carga despues de los stores, el parametro no era `const` (fn_800909B0 45 -> 79 %).
 
 - Quitar nombres de parametro de una declaracion de cabecera tambien renumera los `@N`/`@enum$N` de las unidades que
   la incluyen (lo inverso del hallazgo de paralelo-20261112); igual con cuerpos de inline nuevos.

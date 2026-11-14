@@ -56,7 +56,7 @@ struct ModelMtxBlock_unk {
     int mRigidCount;
     ModelRigidSkin_unk* mRigid;
     int mSkin2Count;
-    const SkinWeight2_unk* mSkin2;
+    SkinWeight2_unk* mSkin2;
     int mSkin3Count;
     const SkinWeight3_unk* mSkin3;
     int mSkin4Count;
