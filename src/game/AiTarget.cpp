@@ -36,6 +36,11 @@ extern "C" void fn_8001C1B4(); // inferred: AI/AI_archer_attack01.cpp (empty)
 extern "C" void fn_8001C1B8();
 extern "C" void fn_8001C1BC();
 extern "C" int rand();
+extern "C" AiScriptInput_unk* fn_8001C260();  // inferred: input block of the AI scripts (AI/AI_archer_attack01.cpp)
+extern "C" AiScriptOutput_unk* fn_8001C26C(); // inferred: output block
+extern "C" void fn_8001C1C0(void* script);    // inferred: runs an AI script
+extern "C" void fn_800142C4(CharaTask* chara); // inferred: sets the character of the script
+extern "C" void fn_800142CC(void* link);       // inferred: sets the link of the script
 
 // inferred: link of the friend list (CharaTask + 0x14AC, as in game/Em301LShade.cpp)
 struct CharaListNode_unk {
@@ -249,6 +254,135 @@ int AIManager::fn_80017064(CharaTask* chara) {
         }
     }
     return ret;
+}
+
+// inferred: one step of the AI script of a character: fills the input block (state, targets, parameters of the
+// character data, life and mana in percent, the values kept in CharaC58_unk::m140/m1A0 and AIManager::m9C), runs
+// the script (fn_8001C1C0 on the script of the character data) and reads back the new state, the part to hold
+// and the kept values
+// inferred: AI block of a character (inlined accessor, as fn_800F530C of game/BattleTask.cpp)
+inline CharaC58_unk* GetAi_unk(CharaTask* chara) {
+    return &chara->mC58;
+}
+
+int AIManager::fn_80017128(CharaTask* chara) {
+    GameScene* scene = lbl_8087F430->m10D8;
+    CharaC58_unk* ai = GetAi_unk(chara);
+    CharaRes_unk* res = chara->m64;
+    if (scene == 0 || res == 0) {
+        return 0;
+    }
+    int state = ai->m00;
+    float targetDist = 9999.0f;
+    if (ai->mC4 != 0) {
+        atn::Vector3 d = chara->mPos - ai->mC4->mPos;
+        targetDist = PSVECMag(&d) - ai->mC4->m5B0;
+    }
+    float followDist = 9999.0f;
+    if (ai->mCC != 0) {
+        atn::Vector3 d = chara->mPos - ai->mCC->mPos;
+        followDist = PSVECMag(&d);
+    }
+    float life = 0.0f;
+    float mana = 0.0f;
+    if ((chara->mStatus.m0C & 0x20) != 0x20) {
+        if (chara->mStatus.mParamB.m84 > 0) {
+            life = 100.0f * chara->mStatus.m04 / (float)chara->mStatus.mParamB.m84;
+        }
+        if (chara->mStatus.mParamB.m88 > 0) {
+            mana = 100.0f * chara->mStatus.m08 / (float)chara->mStatus.mParamB.m88;
+        }
+    }
+    if (ai->m00 == 0) {
+        int type = ai->m0C.mA0;
+        ai->m0C.mDestPoint = scene->fn_803C1560(&chara->mPos, chara->fn_80179D44(), ai->mB4, type, 1, -1.0f);
+    }
+    AiScriptInput_unk* in = fn_8001C260();
+    in->mChara = chara;
+    in->mState = ai->m00;
+    in->mDone = ai->mDone_unk;
+    in->mFrame = ai->m04;
+    in->mPos = chara->mPos;
+    in->mTargetDist = targetDist;
+    in->mTarget = ai->mC4;
+    in->mFollowDist = followDist;
+    in->mFollow = ai->mCC;
+    in->mHasGimmick = ai->mD0 != 0;
+    in->m30[0] = res->m58;
+    in->m30[1] = res->m5C;
+    in->m30[2] = res->m60;
+    in->m3C[0] = res->m30;
+    in->m3C[1] = res->m34;
+    in->m3C[2] = res->m38;
+    if (chara->mType == 3 && lbl_8087F430 != 0 && lbl_8087F430->fn_80370174(10) > 0) {
+        in->m3C[1] *= 3;
+        in->m3C[2] *= 3;
+    }
+    in->m48[0] = res->m44;
+    in->m48[1] = res->m48;
+    in->m48[2] = res->m3C;
+    in->m48[3] = res->m40;
+    const float* f = (const float*)res->m64_unk; // inferred: m64-m84 are read as floats here
+    for (int i = 0; i < 9; i++) {
+        in->m7C[i] = f[i];
+    }
+    in->mLife = life;
+    in->mMana = mana;
+    in->m60[0] = ai->m08;
+    in->m60[1] = ai->m0C.mLink;
+    in->m60[2] = chara->m674;
+    in->m60[3] = ai->mC0;
+    const float* kept = (const float*)ai->m140; // inferred: floats
+    for (int i = 0; i < 24; i++) {
+        in->mA8[i] = kept[i];
+    }
+    for (int i = 0; i < 16; i++) {
+        in->m10C[i] = m9C[i];
+    }
+    const int* words = (const int*)ai->m1A0;
+    for (int i = 0; i < 4; i++) {
+        in->m170[i] = words[i];
+    }
+    fn_800142C4(chara);
+    fn_800142CC(ai->mD4);
+    fn_8001C1C0(&res->m08_unk);
+    fn_800142C4(0);
+    fn_800142CC(0);
+    AiScriptOutput_unk* out = fn_8001C26C();
+    if (out->mValid > 0) {
+        ai->m00 = out->mState;
+        if (out->mPart != chara->m674) {
+            if (out->mPart >= 0) {
+                if (out->mPart < (int)chara->mParts.mCount) {
+                    chara->fn_8014DEE4(out->mPart, 0, 0);
+                }
+            } else {
+                chara->fn_8014EEC4(0);
+            }
+        }
+        ai->mC0 = out->mC0;
+        float* keptOut = (float*)ai->m140;
+        for (int i = 0; i < 24; i++) {
+            keptOut[i] = out->m18[i];
+        }
+        for (int i = 0; i < 16; i++) {
+            m9C[i] = out->m7C[i];
+        }
+        int* wordsOut = (int*)ai->m1A0;
+        for (int i = 0; i < 4; i++) {
+            wordsOut[i] = out->mE0[i];
+        }
+    }
+    if (state != ai->m00) {
+        ai->m04 = 0;
+        ai->mDone_unk = 0;
+    } else {
+        ai->m04++;
+    }
+    if (ai->mD0 != 0 && ai->mD0->vf5C() == 0) {
+        ai->mD0 = 0;
+    }
+    return 1;
 }
 
 void AIManager::fn_80017E90(CharaTask* chara, CharaTask* target) {
