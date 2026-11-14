@@ -3770,7 +3770,7 @@
   "classes": [
    "Input_unk"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "game/GameConfig_unk.cpp",
