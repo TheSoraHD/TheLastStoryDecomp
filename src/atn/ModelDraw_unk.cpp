@@ -371,9 +371,15 @@ static inline unsigned char SwapG_unk(SwapTable_unk c) { return c.g; }
 static inline unsigned char SwapB_unk(SwapTable_unk c) { return c.b; }
 static inline unsigned char SwapA_unk(SwapTable_unk c) { return c.a; }
 
-// NONMATCHING: 98.37% - r4/r5 swapped in the dead copy of the camera matrix (__MtxCopy, as the __VecCopy family)
+// inferred: matrix copy through one more inline level (as atn::VecAssign_unk: gives the r4/r5 order of the
+// original)
+static inline void MtxAssign_unk(atn::Matrix3x4& dst, const atn::Matrix3x4& src) {
+    dst = src;
+}
+
 void fn_8009B93C(DrawEntry_unk* entry) {
-    atn::Matrix3x4 view = atn::RenderManager::instance_->mCamera.mView;
+    atn::Matrix3x4 view;
+    MtxAssign_unk(view, atn::RenderManager::instance_->mCamera.mView);
     if ((entry->m04 & 0x20000) && lbl_8087EFB0 == 0) {
         sSecondPass_unk = 1;
         fn_8009E448(entry, entry->m0C->m48[0]);
