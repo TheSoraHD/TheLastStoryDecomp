@@ -30,7 +30,10 @@ Inicio 2026-11-14 02:59. Unidades: atn/Model, atn/BoneCalc_unk.
   con fn_8008D78C (bools `li 1 ... li 0` del original).
 
 - Parciales de Model: `fn_8008EEDC` 80,4 -> 87,9 % (`bool mesh = m2C != 0` calculado antes y esquinas de la caja
-  por valor, `JointBoxMin_unk/JointBoxMax_unk`); `fn_800909B0` 45,3 -> 79,2 % (matrices y pesos sin `const`).
+  por valor, `JointBoxMin_unk/JointBoxMax_unk`); `fn_800909B0` 45,3 -> 79,2 % (matrices y pesos sin `const`);
+  **`Model::fn_80097A9C` al 100 %** (94,6: sobraba la copia de `m08`, ya la hace el `operator=` implicito de
+  `LH_Motion`; mnemcheck limpio); `vf10` 92,0 -> 92,3 % (cuerpo dentro de `if (... == 8 && mFlag6_unk)`);
+  `fn_8008E818` 93,9 -> 94,5 % (`m20C_7` con signo).
 
 ## Cambios de firma / layout (para el port)
 
@@ -43,6 +46,7 @@ Inicio 2026-11-14 02:59. Unidades: atn/Model, atn/BoneCalc_unk.
 - `fn_800909B0` (extern "C" local): `mats` y `w` pasan a no `const` (`atn::Matrix3x4*`, `SkinWeight2_unk*`), y
   `ModelMtxBlock_unk::mSkin2` (`atn/ModelPose_unk.h`) a `SkinWeight2_unk*`; los de 3 y 4 juntas siguen `const`
   (sin `const` bajan).
+- `ModelBase::m20C_7` (`atn/Model_unk.h`) pasa a `int m20C_7 : 1` (con signo: fn_8008E818 lo lee con `srawi`).
 - **Para el port**: `ModelPose_unk::m18` es en realidad un `ModelNodeCallback_unk` (mismo `nonnull` 0x8009B938 que
   `m2C`), y por lo tanto `ModelBase::mB8` tambien; la cabecera los declara `boost::function<void()>` y BoneCalc
   los lee con `reinterpret_cast` (`NodeCallback_unk`). Cambiar el tipo toca `atn/Model_unk.h` (muy incluida): no hecho.

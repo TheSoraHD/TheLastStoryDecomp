@@ -198,7 +198,7 @@ struct ModelBase : public IRender {
     int m20C_31_24 : 8; // inferred: load state (8 = ready)
     int m20C_23_16 : 8; // inferred: LOD counter (gmk::SwingObject::vf10 restores m50 from it)
     unsigned int m20C_15_8 : 8; // inferred: saved copy of m50 (CharaTask::fn_80145334)
-    unsigned int m20C_7 : 1;
+    int m20C_7 : 1; // inferred: signed (read with srawi by fn_8008E818)
     int mFlag6_unk : 1; // inferred: tested by gmk::SwingObject::vf10
     int mFlag5_unk : 1;          // inferred: tested by CharaTask::fn_8013655C
     int mFlag4_unk : 1; // inferred: set together with the equipment

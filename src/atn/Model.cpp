@@ -1043,39 +1043,38 @@ void ModelBase::fn_8008D78C(RenderManager* view) {
 
 // inferred: draw: picks the level of detail (with the LOD bias of the render settings in the shadow and
 // reflection passes), updates the skinning matrices for the view and draws (fn_8008E818)
-// NONMATCHING: 92.0% - scheduling of the inlined sphere (fn_80094F98) and the early return layout
+// NONMATCHING: 92.3% - scheduling of the inlined sphere (fn_80094F98)
 void ModelBase::vf10(RenderManager* view) {
-    if (m20C_31_24 != 8 || !mFlag6_unk) {
-        return;
-    }
-    int lod = m50;
-    Sphere sphere = GetModel_unk()->fn_80094F98();
-    if (view->GetPass_unk() == 3 || view->GetPass_unk() == 4) {
-        m50 += lbl_8087EFA8->m178;
-        if (m50 >= m20C_23_16) {
-            m50 = m20C_23_16 - 1;
+    if (m20C_31_24 == 8 && mFlag6_unk) {
+        int lod = m50;
+        Sphere sphere = GetModel_unk()->fn_80094F98();
+        if (view->GetPass_unk() == 3 || view->GetPass_unk() == 4) {
+            m50 += lbl_8087EFA8->m178;
+            if (m50 >= m20C_23_16) {
+                m50 = m20C_23_16 - 1;
+            }
         }
-    }
-    Matrix3x4 mtx = view->mCamera.mView;
-    if ((mFlags & 0x400) == 0x400 && view->GetPass_unk() == 4) {
-        Scene* scene = m1DC;
-        if (scene == 0) {
-            scene = RenderManager::instance_->mScene;
+        Matrix3x4 mtx = view->mCamera.mView;
+        if ((mFlags & 0x400) == 0x400 && view->GetPass_unk() == 4) {
+            Scene* scene = m1DC;
+            if (scene == 0) {
+                scene = RenderManager::instance_->mScene;
+            }
+            Matrix3x4 t;
+            PSMTXConcat(mtx.m, scene->mReflect.m, t.m);
+            mtx = t;
         }
-        Matrix3x4 t;
-        PSMTXConcat(mtx.m, scene->mReflect.m, t.m);
-        mtx = t;
+        if (view->GetPass_unk() != 10) {
+            fn_80091A90(mtx.m);
+        }
+        fn_8008E818(view);
+        const int* remap = mLods[m50].m10.mData;
+        if (view->GetPass_unk() == 10) {
+            CalcMatrixStack(0, ModelNodeCallback_unk());
+            fn_80091684(view->mCamera.mView.m, remap);
+        }
+        m50 = lod;
     }
-    if (view->GetPass_unk() != 10) {
-        fn_80091A90(mtx.m);
-    }
-    fn_8008E818(view);
-    const int* remap = mLods[m50].m10.mData;
-    if (view->GetPass_unk() == 10) {
-        CalcMatrixStack(0, ModelNodeCallback_unk());
-        fn_80091684(view->mCamera.mView.m, remap);
-    }
-    m50 = lod;
 }
 } // namespace atn
 
@@ -1117,9 +1116,9 @@ static inline void SetDrawNodes_unk(DrawEntry_unk& entry, short* nodes, unsigned
 
 // inferred: draws the meshes of the model: level of detail (the shadow model in the shadow pass), materials
 // of the pass, world matrix and bounding sphere, then the draw state DrawEntry_unk (atn/ModelDraw_unk.cpp)
-// NONMATCHING: 93.9% - the original reads m50 and the colour m40 through the matrix block (GetMtx_unk + 0x48 /
-// + 0x38, as fn_80091684), m20C_7 is a signed bit there (srawi), the store of the blink value is scheduled after
-// the colour and the order of the stack arguments of the constructor
+// NONMATCHING: 94.5% - the original reads m50 and the colour m40 through the matrix block (GetMtx_unk + 0x48 /
+// + 0x38, as fn_80091684), the store of the blink value is scheduled after the colour and the order of the
+// stack arguments of the constructor
 namespace atn {
 void ModelBase::fn_8008E818(RenderManager* view) {
     ModelBase::Mtx_unk* mtx = GetMtx_unk();
@@ -2599,7 +2598,6 @@ void Model::fn_80097A9C(int motion, const LH_Motion* src) {
     }
     LH_Motion* slot = &m224.mData[motion].GetMotion_unk();
     *slot = *src;
-    slot->m08 = src->m08;
     fn_800A0A68(&m354.mData[motion], this, src);
 }
 
