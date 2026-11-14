@@ -24,13 +24,13 @@ extern "C" LemonSettings_unk* lbl_8087F0A8;
 // inferred: collision manager (lbl_8087EE98) with a buffer of results at 0x4008
 struct LemonColli_unk {
     unsigned char m00[0x4008];
-    CollResult_unk mResults[0x100]; // 0x4008
+    GmkCollResult_unk mResults[0x100]; // 0x4008
 };
 extern "C" LemonColli_unk* lbl_8087EE98;
-extern "C" int fn_8004ED34(void* colli, CollResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
+extern "C" int fn_8004ED34(void* colli, GmkCollResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg7); // inferred: ray test
 // inferred: sphere test, returns the number of results
-extern "C" int fn_8004CCA0(void* colli, CollResult_unk* results, int max, const void* sphere, unsigned int mask,
+extern "C" int fn_8004CCA0(void* colli, GmkCollResult_unk* results, int max, const void* sphere, unsigned int mask,
                            void* ignore, int arg7);
 // inferred: object that sends message 3 (its velocity at 0x574)
 struct LemonHitter_unk {
@@ -221,7 +221,7 @@ void Lemon::fn_80415F6C() {
     }
     mVel.y += -98.1f / (float)(lbl_8087F0A8->mFps * lbl_8087F0A8->mFps);
     LemonSegment_unk seg(m6C, m6C + atn::Vector3(0.0f, mRadius, 0.0f));
-    CollResult_unk res;
+    GmkCollResult_unk res;
     LemonSphere_unk sphere;
     sphere.mPos = m6C;
     sphere.mPos.y += mRadius;
@@ -244,10 +244,10 @@ void Lemon::fn_80415F6C() {
 
 // NONMATCHING: 85.7% - stack layout and register allocation: the original has three dead float
 // stores (0x98, 0xC, 0x1C) of unknown temporaries and a 16-byte bigger frame
-int Lemon::fn_80416268(CollResult_unk* out, const atn::Vector3* pos, const atn::Vector3* vel, float radius) {
+int Lemon::fn_80416268(atn::ColliResult_unk* out, const atn::Vector3* pos, const atn::Vector3* vel, float radius) {
     int hit = 0;
     int count = 0;
-    CollResult_unk* results = lbl_8087EE98->mResults;
+    GmkCollResult_unk* results = lbl_8087EE98->mResults;
     void* obj = 0;
     unsigned int flags = 0;
     atn::Vector3 v = *vel;
@@ -255,7 +255,7 @@ int Lemon::fn_80416268(CollResult_unk* out, const atn::Vector3* pos, const atn::
     sphere.mPos = *pos;
     sphere.mRadius = radius;
     if (PSVECSquareMag(&v) > 0.25f * (radius * radius)) {
-        CollResult_unk res;
+        GmkCollResult_unk res;
         atn::Vector3 to = *pos + v;
         if (fn_8004ED34(lbl_8087EE98, &res, pos, &to, 0xE, 0, 0) != 0) {
             v = (res.m04 - *pos) + res.m1C * radius * 0.5f;
@@ -270,7 +270,7 @@ int Lemon::fn_80416268(CollResult_unk* out, const atn::Vector3* pos, const atn::
         }
         float minDist = 1e16f;
         int best = -1;
-        CollResult_unk* r = results;
+        GmkCollResult_unk* r = results;
         for (int i = 0; i < n; i++) {
             atn::Vector3 d = prev - r->m04;
             float dist = PSVECSquareMag(&d);
@@ -283,7 +283,7 @@ int Lemon::fn_80416268(CollResult_unk* out, const atn::Vector3* pos, const atn::
         if (best < 0) {
             break;
         }
-        CollResult_unk* e = &results[best];
+        GmkCollResult_unk* e = &results[best];
         hit = 1;
         count++;
         v = sphere.mPos - e->m10;

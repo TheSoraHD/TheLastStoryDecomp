@@ -69,7 +69,7 @@ struct Field_unk {
     void* m10D8; // inferred: collision of the walls
 };
 extern "C" Field_unk* lbl_8087F430;
-extern "C" int fn_8004D388(void* colli, CollResult_unk* result, const atn::Vector3* pos, const atn::Vector3* move,
+extern "C" int fn_8004D388(void* colli, GmkCollResult_unk* result, const atn::Vector3* pos, const atn::Vector3* move,
                            unsigned int mask, void* ignore, int arg7); // inferred: sweep test
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
@@ -98,7 +98,7 @@ struct GameState_unk {
 extern "C" GameState_unk* lbl_8087EFA8;
 
 extern "C" void* lbl_8087EE98;
-extern "C" int fn_8004ED34(void* colli, CollResult_unk* result, const atn::Vector3& from, const atn::Vector3& to,
+extern "C" int fn_8004ED34(void* colli, GmkCollResult_unk* result, const atn::Vector3& from, const atn::Vector3& to,
                            unsigned int mask, void* ignore, int arg7); // inferred: ray test
 
 // inferred: facing direction of the rotation `rot` (name invented, as in chr/ControlCdnStone.cpp)
@@ -195,7 +195,7 @@ ControlCharge::ControlCharge(Chara_unk* chara, int a, const atn::Vector3* target
     motion->mTracks[0].m20 = 1.0f;
     motion->fn_80097C08(0, 0x173, 0, 0, 1, 0.0f, 0.1f);
     motion->mTracks[0].m0C = 1.0f;
-    CollResult_unk res;
+    GmkCollResult_unk res;
     atn::Vector3 from(m14);
     atn::Vector3 to(m14);
     from.y += 5.0f;
@@ -417,7 +417,7 @@ void ControlChargeAttackBase::fn_801A4E08(Chara_unk* chara, const atn::Vector3& 
         return;
     }
     PSVECNormalize(&dir, &dir);
-    CollResult_unk res;
+    GmkCollResult_unk res;
     unsigned int mask = chara->fn_80179D44() | 0x80000000;
     atn::Vector3 a(from);
     atn::Vector3 b(target);
@@ -535,7 +535,7 @@ void ControlChargeAttackBase::fn_801A4E08(Chara_unk* chara, const atn::Vector3& 
         arena = true;
     }
     if (arena && ((GameTask*)lbl_8087F430)->GetCurrentMap()->mId == 1 && ((GameTask*)lbl_8087F430)->GetCurrentMap()->mSubId == 5) {
-        CollResult_unk floor;
+        GmkCollResult_unk floor;
         atn::Vector3 top(target);
         atn::Vector3 bottom(target);
         top.y += 3.0f;
@@ -620,7 +620,7 @@ ControlHighJumpAttack::ControlHighJumpAttack(Chara_unk* chara, const atn::Vector
             from.y += 10.0f;
             atn::Vector3 to(from);
             to.y -= 30.0f;
-            CollResult_unk res;
+            GmkCollResult_unk res;
             if (fn_8004ED34(lbl_8087EE98, &res, from, to, mChara->fn_80179D44() | 0x80000000, 0, 0) != 0) {
                 m08 = res.m04;
             }
@@ -730,7 +730,7 @@ ControlQuarkSeirenAttack::ControlQuarkSeirenAttack(Chara_unk* chara, const atn::
             from.y += 10.0f;
             atn::Vector3 to(from);
             to.y -= 30.0f;
-            CollResult_unk res;
+            GmkCollResult_unk res;
             if (fn_8004ED34(lbl_8087EE98, &res, from, to, mChara->fn_80179D44() | 0x80000000, 0, 0) != 0) {
                 m08 = res.m04;
             }

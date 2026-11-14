@@ -1,3 +1,4 @@
+#include "game/CollResult_unk.h"
 #include "game/SetConfig.h"
 #include "db/StrategyAiTable_unk.h"
 #include "game/AiTarget.h"
@@ -2218,42 +2219,22 @@ struct GameState_unk {
 };
 extern "C" GameState_unk* lbl_8087EFA8;
 
-// inferred: object hit by a sweep test (the character is at 0x0C); name invented
-struct CollObj_unk {
-    unsigned char m00[0x08];
-    unsigned int m08; // inferred: flags (2: the object is a character, CharaTask::fn_8016AFE8)
-    CharaTask* m0C;
-};
-
-// inferred: collision query result (0x50 bytes; see also chr/ControlTurnQuadruped.cpp)
-struct CollResult_unk {
-    CollResult_unk(); // 0x80140500
-    // inferred: true when the hit object is of kind 0x1A (name invented)
-    bool IsKind1A_unk() const {
-        bool result = false;
-        if (m34 != 0 && *m34 == 0x1A) {
-            result = true;
-        }
-        return result;
-    }
-    unsigned char m00[0x04];
-    atn::Vector3 m04; // inferred: hit position (fn_801591E8)
-    atn::Vector3 m10; // inferred: position after the sweep (fn_8013CB68)
-    unsigned char m1C[0x28 - 0x1C];
-    atn::Vector3 m28; // inferred: hit normal (fn_801591E8)
-    unsigned int* m34; // inferred: hit object (its first word is a kind)
-    CollObj_unk* m38;  // inferred: hit character (fn_8013CB68)
-    unsigned int m3C;  // inferred: flags (1 ground, 2 character, 4 ceiling, 0x40/0x80/0x200 bullets)
-    void* m40;
-    atn::Vector3 m44; // inferred: position copied to CharaTask::m13A0 (fn_8013CB68)
-};
 extern "C" int fn_8004ED34(void* colli, CollResult_unk* result, const atn::Vector3* from, const atn::Vector3* to, unsigned int mask,
                            void* ignore, int arg7); // inferred: ray test
 
+// inferred: true when the attribute of the hit has id 0x1A (name invented)
+inline bool IsKind1A_unk(const atn::ColliResult_unk& result) {
+    bool kind = false;
+    if (result.m34 != 0 && *(unsigned int*)result.m34 == 0x1A) {
+        kind = true;
+    }
+    return kind;
+}
+
 // inferred: name invented
-inline bool CharaTask::IsLanded_unk(const CollResult_unk& result) {
+inline bool CharaTask::IsLanded_unk(const atn::ColliResult_unk& result) {
     bool hit = false;
-    if (result.IsKind1A_unk() && !fn_8013C404(0x4000000)) {
+    if (IsKind1A_unk(result) && !fn_8013C404(0x4000000)) {
         hit = true;
     }
     return hit;
@@ -2645,7 +2626,7 @@ void CharaTask::fn_8013CB68(const atn::Vector3& target, int arg, float speed, fl
         if ((m54C & 0x200000) == 0x200000) {
             mFlag3 = 1;
         }
-        m634 = result.m34 != 0 ? *result.m34 : -1;
+        m634 = result.m34 != 0 ? *(unsigned int*)result.m34 : -1;
         if (hitResult != 0 && (result.m3C & 2) == 2 && m55C == 7) {
             m141C = MIN(1.0f + m141C, 90.0f);
             if (!mFlagB0 && m141C > 45.0f) {
@@ -2660,7 +2641,7 @@ void CharaTask::fn_8013CB68(const atn::Vector3& target, int arg, float speed, fl
             }
         }
         if (hitResult != 0 && (result.m3C & 2) == 2) {
-            other = result.m38->m0C;
+            other = (CharaTask*)result.m38->m0C;
             if (IsPlayer() && m648 != 0 && mC58.mC0 == 0 && lbl_8087F430 != 0 && other->mType == 3 &&
                 ((GameTask*)lbl_8087F430)->fn_80370174(1000) >= 0x30) {
                 ((GameTask*)lbl_8087F430)->fn_803750E4(0x132);
@@ -2886,7 +2867,7 @@ void* fn_801404F8() {
 }
 
 // inferred: out-of-line copy at 0x80140500 (called by fn_8015076C and other files)
-CollResult_unk::CollResult_unk() : m34(0), m38(0), m3C(0), m40(0) {}
+CollResult_unk::CollResult_unk() {}
 
 bool CharaTask::fn_80140518() {
     return mType == 3;
@@ -3024,7 +3005,7 @@ void CharaTask::fn_80140588(void* target, float a, float b) {
         if (fn_8013C404(0x200000)) {
             mFlag3 = 1;
         }
-        m634 = result.m34 != 0 ? *result.m34 : -1;
+        m634 = result.m34 != 0 ? *(unsigned int*)result.m34 : -1;
         bool fall = false;
         if ((!hit || (result.m3C & 1) != 1) && !mStatus.mParamB.fn_801404E0(0x20) && !fn_8013C404(0x200000) &&
             !IsPartyMember_unk() && m55C != 6) {
@@ -3411,7 +3392,7 @@ void CharaTask::fn_801426A4(void* target, float a, float b) {
         if (fn_8013C404(0x200000)) {
             mFlag3 = 1;
         }
-        m634 = result.m34 != 0 ? *result.m34 : -1;
+        m634 = result.m34 != 0 ? *(unsigned int*)result.m34 : -1;
         bool fall = false;
         if ((!hit || (result.m3C & 1) != 1) && !mStatus.mParamB.fn_801404E0(0x20) && !fn_8013C404(0x200000) &&
             !IsPartyMember_unk() && m55C != 6) {
@@ -9366,8 +9347,8 @@ inline CharaTask* FindSwapTarget_unk(CharaTask* chara, const atn::Vector3& dir) 
     from.y += 5.0f;
     atn::Vector3 to = from + dir * 20.0f;
     if (fn_8004ED34(lbl_8087EE98, &result, &from, &to, 0x20, &chara->mColli, 0) && result.m38 != 0 &&
-        (result.m38->m08 & 2) == 2) {
-        CharaTask* target = result.m38->m0C;
+        (result.m38->mFlags & 2) == 2) {
+        CharaTask* target = (CharaTask*)result.m38->m0C;
         if (target->fn_8016ADF4(chara)) {
             return target;
         }
@@ -10056,8 +10037,8 @@ int CharaTask::fn_801725EC(atn::Vector3* pos, atn::Vector3* vel, CharaTask** out
     CollResult_unk result;
     to += dir * (3.0f + m620);
     if (fn_8004ED34(lbl_8087EE98, &result, &from, &to, 0, &mColli, 0) != 0 && result.m38 != 0 &&
-        (result.m38->m08 & 2) == 2) {
-        CharaTask* other = result.m38->m0C;
+        (result.m38->mFlags & 2) == 2) {
+        CharaTask* other = (CharaTask*)result.m38->m0C;
         if (!other->fn_8016F368(mType)) {
             return 0;
         }

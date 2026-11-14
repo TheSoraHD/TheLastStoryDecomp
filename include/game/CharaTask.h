@@ -697,7 +697,7 @@ public:
     // inferred: inlined in vf34 (names invented)
     float GetF94Rate_unk() { return 1.0f - (float)mF94 / (float)mF98; }
     bool HasRideParts_unk();
-    bool IsLanded_unk(const struct CollResult_unk& result);
+    bool IsLanded_unk(const atn::ColliResult_unk& result);
     void fn_80145334();
     void fn_80149A30(); // inferred: debug display and visibility update
     int fn_8014FB60();

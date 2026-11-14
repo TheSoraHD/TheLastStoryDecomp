@@ -45,7 +45,7 @@ extern "C" void* lbl_8087EE98; // inferred: collision world
 inline void* fn_801404F8() {
     return lbl_8087EE98;
 }
-extern "C" int fn_8004ED34(void* colli, CollResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
+extern "C" int fn_8004ED34(void* colli, GmkCollResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg7); // inferred: ray test
 extern "C" std::string fn_8006B174(const std::string& path); // inferred: file name of a path
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
@@ -321,7 +321,7 @@ int ControlKnockdown::vf0C() {
             PSMTXRotRad(mtx, 'y', 3.1415927f + m08.y);
             PSMTXMultVec(mtx, &to, &to);
             to += from;
-            CollResult_unk res;
+            GmkCollResult_unk res;
             if (fn_8004ED34(fn_801404F8(), &res, &from, &to, mChara->fn_80179D44() | 0x80000000, 0, 0)) {
                 atn::ColliBase* colli = (atn::ColliBase*)res.m38;
                 if ((colli->mFlags & 8) == 8 && m20) {
@@ -408,7 +408,7 @@ int ControlKnockdown::vf0C() {
                 from.y += 3.0f;
                 to.y -= 3.0f;
             }
-            CollResult_unk res;
+            GmkCollResult_unk res;
             if (fn_8004ED34(fn_801404F8(), &res, &from, &to, mChara->fn_80179D44() | 0x80000000, 0, 0) && res.m34) {
                 int attr = *(int*)res.m34;
                 if ((attr >= 0x14 && attr <= 0x15) || (attr >= 0x1C && attr <= 0x1D)) {
@@ -593,7 +593,7 @@ int ControlFallDead::vf0C() {
         atn::Vector3 to = from;
         to.y -= mChara->mColli.m54;
         to.y += mChara->m574.y;
-        CollResult_unk res;
+        GmkCollResult_unk res;
         if (fn_8004ED34(fn_801404F8(), &res, &from, &to, mChara->fn_80179D44() | 0x80000000, 0, 0) &&
             (mChara->m54C & 0x400) == 0x400 && res.m34 && *(unsigned int*)res.m34 == 0x1A) {
             mChara->fn_8015495C(0, 1, 1, 1);
