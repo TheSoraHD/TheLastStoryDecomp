@@ -16,6 +16,7 @@
 #include "game/GameTask.h"
 #include "game/CharaManager.h"
 #include "game/PlayerTask.h"
+#include "game/GimmickCommon.h"
 
 extern "C" MiniMapTask* fn_804A7EA4(atn::Task* parent, const char* path) {
     if (parent != 0) {
@@ -33,13 +34,70 @@ MiniMapTask::MiniMapTask(atn::Task* parent, const char* path)
 // NONMATCHING: 55.67% - target destructor releases resources and owned tasks.
 MiniMapTask::~MiniMapTask() {}
 
-// NONMATCHING: 1.75% - target handles the resource completion callback.
+// inferred: the textures are still loading (atn::Texture method at 0x800D59B8, named in symbols.txt as a method of
+// GimmickUvOwner_unk, the view of atn::Texture of game/GimmickCommon.h)
+static inline int IsTextureLoading_unk(atn::Texture_unk& texture) {
+    return ((GimmickUvOwner_unk*)&texture)->fn_800D59B8();
+}
+
+// inferred: waits for the resource, the nine textures, the task and the model; then starts the frame d2anime
+// (repeat, stopped) and reads the csv
 int MiniMapTask::vf0C() {
+    int loading = 0;
+    if (m50.fn_80473F50() || IsTextureLoading_unk(m58[0]) || IsTextureLoading_unk(m58[1]) ||
+        IsTextureLoading_unk(m58[2]) || IsTextureLoading_unk(m58[3]) || IsTextureLoading_unk(m58[4]) ||
+        IsTextureLoading_unk(m58[5]) || IsTextureLoading_unk(m58[6]) || IsTextureLoading_unk(m58[7]) ||
+        IsTextureLoading_unk(m58[8]) || !fn_800D3FA4() || m208.fn_8008B140()) {
+        loading = 1;
+    }
+    if (!loading) {
+        m5D8->fn_800D246C(0);
+        m5D8->mRepeat = 1;
+        m5D8->mFlags |= 4;
+        fn_804AA490();
+        return 1;
+    }
     return 0;
 }
 
-// NONMATCHING: 0.62% - target updates minimap animation/state.
-void MiniMapTask::vf10() {}
+#define MINIMAP_MAX_UNK(a, b) ((a) > (b) ? (a) : (b))
+// inferred: column of a matrix (as in gmk/PigeonManager.cpp)
+inline atn::Vector3 MiniMapCol_unk(const atn::Matrix3x4& m, int i) {
+    return atn::Vector3(m.m[0][i], m.m[1][i], m.m[2][i]);
+}
+// inferred: largest scale axis of a matrix (as in gmk/PigeonManager.cpp)
+inline float MiniMapMaxScale_unk(const atn::Matrix3x4& mtx) {
+    atn::Vector3 s;
+    atn::Vector3 az = MiniMapCol_unk(mtx, 2);
+    float sz = PSVECMag(&az);
+    atn::Vector3 ay = MiniMapCol_unk(mtx, 1);
+    float sy = PSVECMag(&ay);
+    atn::Vector3 ax = MiniMapCol_unk(mtx, 0);
+    float sx = PSVECMag(&ax);
+    s.x = sx;
+    s.y = sy;
+    s.z = sz;
+    return MINIMAP_MAX_UNK(s.x, MINIMAP_MAX_UNK(s.y, s.z));
+}
+extern "C" atn::Matrix3x4 lbl_807C7060; // inferred: identity matrix
+
+// inferred: moves the markers of the marked characters to them (shown while the character can act) and updates
+// the matrices of the minimap model at the identity
+void MiniMapTask::vf10() {
+    for (unsigned int i = 0; i < mCharaMarks.mCount; i++) {
+        int marker = mCharaMarks.mData[i].mMarker;
+        mMarkers[marker].mPos = mCharaMarks.mData[i].mChara->mPos;
+        if (mCharaMarks.mData[i].mChara->CanAct_unk()) {
+            mMarkers[marker].m00 = 1;
+        } else {
+            mMarkers[marker].m00 = 0;
+        }
+    }
+    const atn::Matrix3x4& mtx = lbl_807C7060;
+    static_cast<atn::Matrix3x4&>(m208.mMtx) = mtx;
+    m208.m54 = MiniMapMaxScale_unk(mtx);
+    m208.CalcMatrixStack(atn::ModelNodeCallback_unk());
+}
 
 // NONMATCHING: 70.76% - target preserves direct float-to-integer conversion details.
 extern "C" unsigned int fn_804A88C8(const float* rgba) {
