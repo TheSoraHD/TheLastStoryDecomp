@@ -39,6 +39,17 @@ Unidades: game/GameUI, game/PopupTask, game/TacView, game/GameCamera_unk, game/F
   `TacView.cpp` (no en `std/string.h`, para no renumerar); necesita acceso a los miembros privados (un `friend` en
   `std/string.h`) para leer datos y tamano con una sola prueba. symbols.txt renombrado a `__pl<w,...>__3std...`.
 
+- `TacView::vf10` (0x805A781C): 94,50 -> **94,87 %**. `IsPadPressed_unk` devuelve `bool` (el original convierte
+  el resultado del ternario con neg/or/srwi); los llamadores sin `!= 0`. Equivalente; resto: registros y la
+  conversion a bool en el `||`.
+- Revisadas sin cambios (diferencias solo de registros, pila y orden; equivalentes): `GameUI::fn_803DAB4C`
+  (96,3 %; `mFrame >= mEndFrame` directo en el caso 3 baja a 96,2), `PopupTask::vf14` (97,3 %).
+- `GameCamera::fn_80385B48`: sin escribir. No es una copia de fn_80384188 con otros offsets: usa el bloque de
+  parametros m60C (m610 fovy, m624, m60C distancia), lee `chara->mF80`, m12A4, m674 y m538 (rotacion y), y el
+  original inlinea `fn_80392964` (fn_8004B378, fn_80392A04, fn_803918EC, fn_803920C8, fn_803928C0, SetCamera_unk),
+  `fn_800109E0` (tres RotRad + Concat) y `ToRotation_unk` (atan2), con PSMTX44MultVec: unas 170 diferencias de
+  logica frente a fn_80384188; con el mismo problema de presupuesto de inline no pasaria del ~30 %.
+
 ## Cambios de firma o de layout (para el port)
 
 - `GameUI.h`: `float mE94[32]` (antes `unsigned char mE94[0x80]`): fundido de los anillos de los enemigos.

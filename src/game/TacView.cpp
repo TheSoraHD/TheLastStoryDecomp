@@ -191,7 +191,7 @@ static inline void TacViewClose_unk(TacView* v) {
     }
 }
 // inferred: the pad button is pressed (no pad: 0; name invented)
-static inline int IsPadPressed_unk(int button) {
+static inline bool IsPadPressed_unk(int button) {
     return lbl_8087EF70 != 0 ? fn_800A555C(lbl_8087EF70, 0, button) : 0;
 }
 // inferred: the cursor takes the slot m158C, none when out of range (name invented)
@@ -328,23 +328,23 @@ void TacView::vf10() {
             int cancel = 0;
             int dir = -1;
             CharaTask* chara = m48.m04;
-            if (mA74 == 0 && (IsPadPressed_unk(0) != 0 || IsPadPressed_unk(0x1A) != 0) && m54.m50[0] != 0) {
+            if (mA74 == 0 && (IsPadPressed_unk(0) || IsPadPressed_unk(0x1A)) && m54.m50[0] != 0) {
                 dir = 0;
-            } else if (mA74 == 0 && (IsPadPressed_unk(2) != 0 || IsPadPressed_unk(0x17) != 0) && m54.m50[1] != 0) {
+            } else if (mA74 == 0 && (IsPadPressed_unk(2) || IsPadPressed_unk(0x17)) && m54.m50[1] != 0) {
                 dir = 1;
-            } else if (mA74 == 0 && (IsPadPressed_unk(3) != 0 || IsPadPressed_unk(0x18) != 0) && m54.m50[2] != 0) {
+            } else if (mA74 == 0 && (IsPadPressed_unk(3) || IsPadPressed_unk(0x18)) && m54.m50[2] != 0) {
                 dir = 2;
-            } else if (mA74 == 0 && (IsPadPressed_unk(1) != 0 || IsPadPressed_unk(0x19) != 0) && m54.m50[3] != 0) {
+            } else if (mA74 == 0 && (IsPadPressed_unk(1) || IsPadPressed_unk(0x19)) && m54.m50[3] != 0) {
                 dir = 3;
             }
             if (dir >= 0) {
                 fn_805A96D4(chara, dir);
                 confirm = 1;
             }
-            if (IsPadPressed_unk(4) != 0) {
+            if (IsPadPressed_unk(4)) {
                 confirm = 1;
             }
-            if (IsPadPressed_unk(5) != 0) {
+            if (IsPadPressed_unk(5)) {
                 cancel = 1;
             }
             if (confirm != 0) {
@@ -550,7 +550,7 @@ void TacView::vf10() {
         if (lbl_8087F490 != 0) {
             lbl_8087F490->m764 = end;
         }
-        if (IsPadPressed_unk(4) != 0) {
+        if (IsPadPressed_unk(4)) {
             mA7C = 20;
             fn_805A70D4(3, 1.0f);
             m1594++;
@@ -584,7 +584,7 @@ void TacView::vf10() {
             if (any != 0) {
                 lbl_8087F8A0->mHead->mStatus.m08 = 0.0f;
             }
-        } else if (IsPadPressed_unk(5) != 0) {
+        } else if (IsPadPressed_unk(5)) {
             ChangeMode_unk(0);
             if (m158C < 0) {
                 m158C++;
