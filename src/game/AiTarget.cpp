@@ -6,6 +6,8 @@
 #include <boost/function.hpp>
 #include <typeinfo>
 #include "game/AiTarget.h"
+#include "atn/DrawHelper.h"
+#include "atn/Keyboard.h"
 #include "atn/Memory.h"
 #include "game/BattleTask.h"
 #include "game/CharaManager.h"
@@ -27,6 +29,7 @@
 
 extern "C" void* memset(void* dst, int c, unsigned long n);
 extern "C" void* memcpy(void* dst, const void* src, unsigned long n);
+extern "C" int sprintf(char* buf, const char* fmt, ...);
 extern "C" void fn_80087994(void* menu, const char* name, int* flag, int arg3, int arg4); // AddBool
 extern "C" void fn_800874C8(void* menu, const char* name, int* value, int min, int max, int step, int func,
                             int arg); // AddInt
@@ -60,8 +63,55 @@ struct FrameTime_unk {
 };
 extern "C" FrameTime_unk* lbl_8087EFA8;
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
-extern "C" void* lbl_8087F048;  // BattleTask
+extern "C" BattleTask* lbl_8087F048;
 extern "C" GameTask* lbl_8087F430;
+
+// inferred: names shown by AIManager::vf14 (file statics addressed from the start of .rodata): states of
+// CharaC58_unk::m00, modes of CharaC58_unk::mMode and kinds of character (AIManager::m78)
+static const char* const sStateNames_unk[] = {
+    "\x8F\x89\x8A\xFA\x8F\xF3\x91\xD4", // initial state
+    "\x91\xD2\x8B\x40",                 // wait
+    "\x83\x8F\x81\x5B\x83\x76",         // warp
+    "\x83\x7C\x83\x43\x83\x93\x83\x67\x88\xDA\x93\xAE", // point move
+    "\x89\x42\x82\xEA\x88\xDA\x93\xAE", // hide move
+    "\x83\x6F\x83\x67\x83\x8B\x88\xDA\x93\xAE", // battle move
+    "\x92\xC7\x90\xD5",                 // chase
+    "\x89\x42\x82\xEA\x82\xE9",         // hide
+    "\x8B\xDF\x8B\x97\x97\xA3\x8D\x55\x8C\x82", // short range attack
+    "\x89\x93\x8B\x97\x97\xA3\x8D\x55\x8C\x82", // long range attack
+    "\x93\xA6\x82\xB0\x82\xE9",         // run away
+    "\x83\x41\x83\x43\x83\x68\x83\x8A\x83\x93\x83\x4F", // idling
+    "\x89\xF1\x95\x9C",                 // heal
+    "\x96\x68\x8C\xE4\x91\xCC\x90\xA8", // guard stance
+    0,
+};
+static const char* const sModeNames_unk[] = {
+    "\x91\xD2\x8B\x40",                 // wait
+    "\x96\xDA\x93\x49\x92\x6E\x88\xDA\x93\xAE", // move to the destination
+    "\x89\x42\x82\xEA\x82\xE9\x88\xDA\x93\xAE", // hide move
+    "\x83\x4C\x83\x83\x83\x89\x88\xDA\x93\xAE", // chara move
+    "\x83\x6F\x83\x67\x83\x8B\x88\xDA\x93\xAE", // battle move
+    "\x8B\xDF\x8B\x97\x97\xA3\x8D\x55\x8C\x82", // short range attack
+    "\x89\x93\x8B\x97\x97\xA3\x8D\x55\x8C\x82", // long range attack
+    "\x83\x58\x83\x4C\x83\x8B",         // skill
+    "\x83\x7C\x83\x43\x83\x93\x83\x67\x83\x4B\x81\x5B\x83\x68", // point guard
+    "\x83\x4C\x83\x83\x83\x89\x83\x4B\x81\x5B\x83\x68", // chara guard
+    "\x83\x5F\x83\x43\x83\x75",         // dive
+    "\x83\x8F\x81\x5B\x83\x76",         // warp
+    "\x83\x8F\x81\x5B\x83\x76\x83\x7C\x83\x43\x83\x93\x83\x67\x88\xDA\x93\xAE", // warp point move
+    "\x83\x4C\x83\x83\x83\x89\x92\xC7\x90\xD5", // chara chase
+    "\x89\xF1\x95\x9C\x83\x54\x81\x5B\x83\x4E\x83\x8B\x88\xDA\x93\xAE", // heal circle move
+    "\x89\xF1\x95\x9C\x83\x54\x81\x5B\x83\x4E\x83\x8B\x83\x4B\x81\x5B\x83\x68", // heal circle guard
+    "\x8B\x92\x93\x5F\x83\x47\x83\x8A\x83\x41\x88\xDA\x93\xAE", // base area move
+    "\x96\x68\x8C\xE4\x91\xCC\x90\xA8", // guard stance
+    "\x83\x4C\x83\x83\x83\x89\x88\xDA\x93\xAE+ROT", // chara move + rot
+    "\x8C\xB3\x82\xCC\x88\xCA\x92\x75\x82\xC9\x96\xDF\x82\xE9", // back to the original position
+    "1\x83\x82\x81\x5B\x83\x56\x83\x87\x83\x93", // 1 motion
+    "2\x83\x82\x81\x5B\x83\x56\x83\x87\x83\x93", // 2 motions
+    "3\x83\x82\x81\x5B\x83\x56\x83\x87\x83\x93", // 3 motions
+    0,
+};
+static const char* const sKindNames_unk[] = {"[TPC]", "[Enemy]", "[Friend]", "[Player]", "[NPC]", 0};
 
 AIManager* AIManager::fn_800144FC(atn::Task* parent) {
     if (lbl_8087EE68 == 0) {
@@ -108,6 +158,401 @@ void AIManager::vf10() {
     mDC = 300;
     m90 = (m90 + 1) % 4;
     fn_80018834();
+}
+
+// NONMATCHING: 93% - register allocation of the pointers (this/chara/scene/res...), argument order of the
+// flag words of "Task"/"Action" and the load of the cone angle
+// inferred: debug view of the AI (DebugMode): the keys of the USB keyboard pick a character of the kind m78
+// and its AI state is drawn in a panel, with its route points and its view cone; DrawHate lists its hate
+// toward the characters of the battle. The third flag (m58) shows the values kept by the AI scripts.
+// Names of the locals invented.
+void AIManager::vf14() {
+    if (m50 != 0 && (lbl_8087EF10 == 0 || lbl_8087EF10->m04 == 0)) {
+        if (atn::Keyboard::Order()->Press(atn::Keyboard::PORT0_unk, 0xF1B8) ||
+            atn::Keyboard::Order()->Press(atn::Keyboard::PORT0_unk, 0xF1B2)) {
+            if (atn::Keyboard::Order()->Press(atn::Keyboard::PORT0_unk, 0xF1B8)) {
+                if (--m78 < 0) {
+                    m78 = 4;
+                }
+            } else if (atn::Keyboard::Order()->Press(atn::Keyboard::PORT0_unk, 0xF1B2)) {
+                if (++m78 >= 5) {
+                    m78 = 0;
+                }
+            }
+        } else if (atn::Keyboard::Order()->Press(atn::Keyboard::PORT4_unk, 0xF1B4)) {
+            switch (m78) {
+            case 0:
+                if (m88 != 0) {
+                    NpcTask* npc = m88->fn_80547E44();
+                    while (npc != 0 && npc->m1428 == 0) {
+                        npc = npc->fn_80547E44();
+                    }
+                    if (npc == 0) {
+                        npc = NpcManager::sInstance->Last_unk();
+                        while (npc != m88 || npc->m1428 == 0) {
+                            npc = npc->fn_80547E44();
+                        }
+                    }
+                    m88 = npc;
+                }
+                break;
+            case 1:
+                if (m8C != 0) {
+                    if (m8C->fn_8035B854() != 0) {
+                        m8C = m8C->fn_8035B854();
+                    } else {
+                        m8C = EnemyManager::sInstance->Last_unk();
+                    }
+                }
+                break;
+            case 2:
+                if (m80 != 0) {
+                    if (((PlayerTask*)m80)->fn_8054A68C() != 0) {
+                        m80 = ((PlayerTask*)m80)->fn_8054A68C();
+                    } else {
+                        m80 = lbl_8087F8A0->Last_unk();
+                    }
+                }
+                break;
+            case 4:
+                if (m84 != 0) {
+                    NpcTask* npc = m84->fn_80547E44();
+                    while (npc != 0 && npc->m1428 != 0) {
+                        npc = npc->fn_80547E44();
+                    }
+                    if (npc == 0) {
+                        npc = NpcManager::sInstance->Last_unk();
+                        while (npc != 0 && npc != m84 || npc->m1428 != 0) {
+                            npc = npc->fn_80547E44();
+                        }
+                    }
+                    m84 = npc;
+                }
+                break;
+            }
+        } else if (atn::Keyboard::Order()->Press(atn::Keyboard::PORT4_unk, 0xF1B6)) {
+            switch (m78) {
+            case 0:
+                if (m88 != 0) {
+                    NpcTask* npc = m88->mNext;
+                    while (npc != 0 && npc->m1428 == 0) {
+                        npc = npc->mNext;
+                    }
+                    if (npc == 0) {
+                        npc = NpcManager::sInstance->mHead;
+                        while (npc->m1428 == 0) {
+                            npc = npc->mNext;
+                        }
+                    }
+                    m88 = npc;
+                }
+                break;
+            case 1:
+                if (m8C != 0) {
+                    if (m8C->mNext != 0) {
+                        m8C = m8C->mNext;
+                    } else {
+                        m8C = EnemyManager::sInstance->mHead;
+                    }
+                }
+                break;
+            case 2:
+                if (m80 != 0) {
+                    if (NextChara_unk(m80) != 0) {
+                        m80 = NextChara_unk(m80);
+                    } else {
+                        m80 = FriendManager::sInstance->fn_8036554C();
+                    }
+                }
+                break;
+            case 4:
+                if (m84 != 0) {
+                    NpcTask* npc = m84->mNext;
+                    while (npc != 0 && npc->m1428 != 0) {
+                        npc = npc->mNext;
+                    }
+                    if (npc == 0) {
+                        npc = NpcManager::sInstance->mHead;
+                        while (npc != 0 && npc->m1428 != 0) {
+                            npc = npc->mNext;
+                        }
+                    }
+                    m84 = npc;
+                }
+                break;
+            }
+        }
+    }
+
+    if (m50 != 0) {
+        atn::DrawHelper* dh = lbl_8087EEB0;
+        GameScene* scene = lbl_8087F430->m10D8;
+        if (dh == 0 || scene == 0) {
+            return;
+        }
+        char buf[256];
+        float z = -100.0f;
+        float left = 10.0f;
+        float width = 250.0f;
+        float height = 430.0f;
+        float step = 15.0f;
+        float size = 12.0f;
+        dh->fn_80060D58(left, left, z, width, height, 0x90000000);
+        float x0 = 5.0f + left;
+        float x1 = 5.0f + (0.5f * width + left);
+        float y = step;
+        float v0 = 82.0f + left;
+        float v1 = 82.0f + (0.5f * width + left);
+        unsigned int labelColor = 0xD0FFFFAA;
+        CharaTask* chara = 0;
+        switch (m78) {
+        case 0:
+            chara = m88;
+            break;
+        case 1:
+            chara = m8C;
+            break;
+        case 2:
+            chara = m80;
+            break;
+        case 3:
+            chara = m7C;
+            break;
+        case 4:
+            chara = m84;
+            break;
+        }
+        dh->fn_800616C0(x0, y, z - 1.0f, size, size, sKindNames_unk[m78], 0xFFFFFFFF, 0.0f, 1, 1, 0);
+        y += step;
+        if (chara != 0) {
+            chr::CharaData_unk* data = chara->m5C;
+            CharaRes_unk* res = chara->m64;
+            CharaC58_unk* ai = &chara->mC58;
+            dh->fn_800616C0(x0, y, z - 1.0f, size, size, "CharaID", 0xD0FFFFAA, 0.0f, 1, 1, 0);
+            sprintf(buf, "%s\0", chara->fn_8017C904());
+            dh->fn_800616C0(v0, y, z - 1.0f, size, size, buf, 0xD0FFFFFF, 0.0f, 1, 1, 0);
+            y += step;
+            dh->fn_800616C0(x0, y, z - 1.0f, size, size, "Name", 0xD0FFFFAA, 0.0f, 1, 1, 0);
+            sprintf(buf, "%s\0", chara->m60->m0C);
+            dh->fn_800616C0(v0, y, z - 1.0f, size, size, buf, 0xD0FFFFFF, 0.0f, 1, 1, 0);
+            y += step;
+            dh->fn_800616C0(x0, y, z - 1.0f, size, size, "ScriptID", 0xD0FFFFAA, 0.0f, 1, 1, 0);
+            sprintf(buf, "%d\0", chara->m58);
+            dh->fn_800616C0(v0, y, z - 1.0f, size, size, buf, 0xD0FFFFFF, 0.0f, 1, 1, 0);
+            dh->fn_800616C0(x1, y, z - 1.0f, size, size, "Unique", 0xD0FFFFAA, 0.0f, 1, 1, 0);
+            sprintf(buf, "%d\0", chara->mId);
+            dh->fn_800616C0(v1, y, z - 1.0f, size, size, buf, 0xD0FFFFFF, 0.0f, 1, 1, 0);
+            y += step;
+            dh->fn_800616C0(x0, y, z - 1.0f, size, size, "AI", 0xD0FFFFAA, 0.0f, 1, 1, 0);
+            if (res != 0) {
+                // inferred: the name of the AI script follows the id
+                sprintf(buf, "%04d_%02d (%s)\0", res->m04 / 100, res->m04 % 100, (const char*)res->m08_unk);
+                dh->fn_800616C0(v0, y, z - 1.0f, size, size, buf, 0xD0FFFFFF, 0.0f, 1, 1, 0);
+            }
+            y += step;
+            y += 5.0f;
+            dh->fn_800616C0(x0, y, z - 1.0f, size, size, "State", 0xD0FFFFAA, 0.0f, 1, 1, 0);
+            if (0 <= ai->m00 && ai->m00 < 14) {
+                sprintf(buf, "%s\0", sStateNames_unk[ai->m00]);
+            } else {
+                sprintf(buf, "%d\0", ai->m00);
+            }
+            dh->fn_800616C0(v0, y, z - 1.0f, size, size, buf, 0xD0FFFFFF, 0.0f, 1, 1, 0);
+            y += step;
+            dh->fn_800616C0(x0, y, z - 1.0f, size, size, "ActMode", 0xD0FFFFAA, 0.0f, 1, 1, 0);
+            if (0 <= ai->mMode && ai->mMode < 23 && 0 <= ai->mE4 && ai->mE4 < 23) {
+                sprintf(buf, "Now:%s Old:%s Sub:%d\0", sModeNames_unk[ai->mMode], sModeNames_unk[ai->mE4], ai->mStep);
+            } else {
+                sprintf(buf, "Now:%d Old:%d Sub:%d\0", ai->mMode, ai->mE4, ai->mStep);
+            }
+            dh->fn_800616C0(v0, y, z - 1.0f, size, size, buf, 0xD0FFFFFF, 0.0f, 1, 1, 0);
+            y += step;
+            dh->fn_800616C0(x0, y, z - 1.0f, size, size, "ActCount", 0xD0FFFFAA, 0.0f, 1, 1, 0);
+            sprintf(buf, "%d\0", ai->mEC);
+            dh->fn_800616C0(v0, y, z - 1.0f, size, size, buf, 0xD0FFFFFF, 0.0f, 1, 1, 0);
+            dh->fn_800616C0(x1, y, z - 1.0f, size, size, "ActEndFlg", 0xD0FFFFAA, 0.0f, 1, 1, 0);
+            sprintf(buf, "%d\0", ai->mDone_unk);
+            dh->fn_800616C0(v1, y, z - 1.0f, size, size, buf, 0xD0FFFFFF, 0.0f, 1, 1, 0);
+            y += step;
+            dh->fn_800616C0(x0, y, z - 1.0f, size, size, "Now", 0xD0FFFFAA, 0.0f, 1, 1, 0);
+            if (ai->m0C.mDestPoint > 0) {
+                sprintf(buf, "%d\0", scene->m98.mData[ai->m0C.mDestPoint - 1].mId);
+            } else {
+                sprintf(buf, "%d\0", 0);
+            }
+            dh->fn_800616C0(v0, y, z - 1.0f, size, size, buf, 0xD0FFFFFF, 0.0f, 1, 1, 0);
+            dh->fn_800616C0(x1, y, z - 1.0f, size, size, "Next", 0xD0FFFFAA, 0.0f, 1, 1, 0);
+            if (ai->m0C.mPointA > 0) {
+                sprintf(buf, "%d\0", scene->m98.mData[ai->m0C.mPointA - 1].mId);
+            } else {
+                sprintf(buf, "%d\0", 0);
+            }
+            dh->fn_800616C0(v1, y, z - 1.0f, size, size, buf, 0xD0FFFFFF, 0.0f, 1, 1, 0);
+            y += step;
+            dh->fn_800616C0(x0, y, z - 1.0f, size, size, "Dest", 0xD0FFFFAA, 0.0f, 1, 1, 0);
+            if (ai->m0C.mPointB > 0) {
+                sprintf(buf, "%d\0", scene->m98.mData[ai->m0C.mPointB - 1].mId);
+            } else {
+                sprintf(buf, "%d\0", 0);
+            }
+            dh->fn_800616C0(v0, y, z - 1.0f, size, size, buf, 0xD0FFFFFF, 0.0f, 1, 1, 0);
+            dh->fn_800616C0(x1, y, z - 1.0f, size, size, "Hide", 0xD0FFFFAA, 0.0f, 1, 1, 0);
+            if (ai->m0C.mLink > 0) {
+                sprintf(buf, "%d\0", scene->mAC.mData[ai->m0C.mLink - 1].mId);
+            } else {
+                sprintf(buf, "%d\0", 0);
+            }
+            dh->fn_800616C0(v1, y, z - 1.0f, size, size, buf, 0xD0FFFFFF, 0.0f, 1, 1, 0);
+            y += step;
+            dh->fn_800616C0(x0, y, z - 1.0f, size, size, "Time", 0xD0FFFFAA, 0.0f, 1, 1, 0);
+            sprintf(buf, "%d\0", ai->mBC);
+            dh->fn_800616C0(v0, y, z - 1.0f, size, size, buf, 0xD0FFFFFF, 0.0f, 1, 1, 0);
+            y += step;
+            dh->fn_800616C0(x0, y, z - 1.0f, size, size, "StateTimer", 0xD0FFFFAA, 0.0f, 1, 1, 0);
+            sprintf(buf, "%d\0", ai->m04);
+            dh->fn_800616C0(v0, y, z - 1.0f, size, size, buf, 0xD0FFFFFF, 0.0f, 1, 1, 0);
+            y += step;
+            dh->fn_800616C0(x0, y, z - 1.0f, size, size, "AreaID", 0xD0FFFFAA, 0.0f, 1, 1, 0);
+            sprintf(buf, "%d / %d\0", ai->mB4, ai->mB8);
+            dh->fn_800616C0(v0, y, z - 1.0f, size, size, buf, 0xD0FFFFFF, 0.0f, 1, 1, 0);
+            dh->fn_800616C0(x1, y, z - 1.0f, size, size, "ShootAreaID", 0xD0FFFFAA, 0.0f, 1, 1, 0);
+            if (scene->fn_803C1884(ai->mB4) != 0) {
+                sprintf(buf, "%d\0", scene->fn_803C1884(ai->mB4)->m28);
+            } else {
+                sprintf(buf, "0\0");
+            }
+            dh->fn_800616C0(v1, y, z - 1.0f, size, size, buf, 0xD0FFFFFF, 0.0f, 1, 1, 0);
+            y += step;
+            dh->fn_800616C0(x0, y, z - 1.0f, size, size, "ArmsNo", 0xD0FFFFAA, 0.0f, 1, 1, 0);
+            sprintf(buf, "%d\0", chara->m674 + 1);
+            dh->fn_800616C0(v0, y, z - 1.0f, size, size, buf, 0xD0FFFFFF, 0.0f, 1, 1, 0);
+            dh->fn_800616C0(x1, y, z - 1.0f, size, size, "GroupID", 0xD0FFFFAA, 0.0f, 1, 1, 0);
+            if (ai->mD4 != 0) {
+                int group = ai->mD4->m218 != 0 ? ai->mD4->m218->m04 : 0;
+                sprintf(buf, "%d\0", group);
+                dh->fn_800616C0(v1, y, z - 1.0f, size, size, buf, 0xD0FFFFFF, 0.0f, 1, 1, 0);
+            }
+            y += step;
+            dh->fn_800616C0(x0, y, z - 1.0f, size, size, "BattleMode", 0xD0FFFFAA, 0.0f, 1, 1, 0);
+            sprintf(buf, "%d\0", ai->mC0);
+            dh->fn_800616C0(v0, y, z - 1.0f, size, size, buf, 0xD0FFFFFF, 0.0f, 1, 1, 0);
+            dh->fn_800616C0(x1, y, z - 1.0f, size, size, "ActionFlag", 0xD0FFFFAA, 0.0f, 1, 1, 0);
+            sprintf(buf, "%d\0", ai->mD8);
+            dh->fn_800616C0(v1, y, z - 1.0f, size, size, buf, 0xD0FFFFFF, 0.0f, 1, 1, 0);
+            y += step;
+            y += 5.0f;
+            for (unsigned int i = 0; i < 8; i++) {
+                sprintf(buf, "L%02d=%.1f\0", i + 1, ai->m140[i]);
+                dh->fn_800616C0(x0, y, z - 1.0f, size, size, buf, 0xD0FFFFFF, 0.0f, 1, 1, 0);
+                sprintf(buf, "L%02d=%.1f\0", i + 9, ai->m140[i + 8]);
+                dh->fn_800616C0(75.0f + x0, y, z - 1.0f, size, size, buf, 0xD0FFFFFF, 0.0f, 1, 1, 0);
+                sprintf(buf, "L%02d=%.1f\0", i + 17, ai->m140[i + 16]);
+                dh->fn_800616C0(150.0f + x0, y, z - 1.0f, size, size, buf, 0xD0FFFFFF, 0.0f, 1, 1, 0);
+                y += step;
+            }
+            y += 5.0f;
+            dh->fn_800616C0(x0, y, z - 1.0f, size, size, "Task", 0xD0FFFFAA, 0.0f, 1, 1, 0);
+            sprintf(buf, "Q:%d P:%d F:%d\0", chara->IsFlag_unk(2), chara->IsFlag_unk(1), chara->IsFlag_unk(4));
+            dh->fn_800616C0(v0, y, z - 1.0f, size, size, buf, 0xD0FFFFFF, 0.0f, 1, 1, 0);
+            y += step;
+            dh->fn_800616C0(x0, y, z - 1.0f, size, size, "CtrlMode", 0xD0FFFFAA, 0.0f, 1, 1, 0);
+            sprintf(buf, "Now:%d Old:%d Sub:%d\0", chara->m55C, chara->m560, chara->m564);
+            dh->fn_800616C0(v0, y, z - 1.0f, size, size, buf, 0xD0FFFFFF, 0.0f, 1, 1, 0);
+            y += step;
+            dh->fn_800616C0(x0, y, z - 1.0f, size, size, "Action", 0xD0FFFFAA, 0.0f, 1, 1, 0);
+            sprintf(buf, "Hide:%d Crouch:%d Guard:%d\0", chara->mFlag31, chara->mFlag6, chara->mFlag5);
+            dh->fn_800616C0(v0, y, z - 1.0f, size, size, buf, 0xD0FFFFFF, 0.0f, 1, 1, 0);
+            y += step;
+            dh->fn_800616C0(x0, y, z - 1.0f, size, size, "Comment", 0xD0FFFFAA, 0.0f, 1, 1, 0);
+            sprintf(buf, "%s\0", (const char*)ai->m1B0);
+            dh->fn_800616C0(v0, y, z - 1.0f, size, size, buf, 0xD0FFFFFF, 0.0f, 1, 1, 0);
+
+            if (ai->m0C.mDestPoint > 0 && ai->m0C.mDestPoint <= scene->m74) {
+                gs::MovePoint* p = &scene->m98.mData[ai->m0C.mDestPoint - 1];
+                dh->fn_80062C8C(12, 0xFF99FF99, p->mPos.x, 4.0f + p->mPos.y, p->mPos.z, 0.0f, p->m14, 1.0f);
+            }
+            if (ai->m0C.mPointA > 0 && ai->m0C.mPointA <= scene->m74) {
+                gs::MovePoint* p = &scene->m98.mData[ai->m0C.mPointA - 1];
+                dh->fn_80062C8C(12, 0xFF9999FF, p->mPos.x, 3.0f + p->mPos.y, p->mPos.z, 0.0f, p->m14, 1.0f);
+            }
+            if (ai->m0C.mPointB > 0 && ai->m0C.mPointB <= scene->m74) {
+                gs::MovePoint* p = &scene->m98.mData[ai->m0C.mPointB - 1];
+                dh->fn_80062C8C(12, 0xFFFF9999, p->mPos.x, 2.0f + p->mPos.y, p->mPos.z, 0.0f, p->m14, 1.0f);
+            }
+            if (ai->m0C.mLink > 0 && ai->m0C.mLink <= scene->mA8) {
+                gs::HidePoint* p = &scene->mAC.mData[ai->m0C.mLink - 1];
+                dh->fn_80062C8C(12, 0xFFFFFF99, p->mPos.x, 2.0f + p->mPos.y, p->mPos.z, 0.0f, 3.0f, 1.0f);
+            }
+            atn::Vector3 top = chara->mPos;
+            top.y += 17.0f;
+            dh->fn_800638B0(0.0f, 7.0f, top + atn::Vector3(0.0f, 15.0f, 0.0f), top, 0xFF00FFFF);
+            if (data != 0 && res != 0) {
+                atn::Vector3 pos = chara->mPos;
+                float angle = 0.017453292f * res->m50;
+                atn::Vector3 rot = chara->mRot;
+                dh->fn_80063484(12, 0xFFFFFF00, pos.x, 3.0f + pos.y, pos.z, rot.y, z, res->m4C, angle);
+                dh->fn_80063200(12, 0xFFFF9900, pos.x, 3.0f + pos.y, pos.z, z, res->m58);
+            }
+            if (ai->m0C.mLink > 0) {
+                dh->fn_80062C8C(12, 0xFF88FFFF, ai->m0C.m10.x, ai->m0C.m10.y, ai->m0C.m10.z, 0.0f, 1.0f, 10.0f);
+            }
+
+            if (m54 != 0) {
+                dh->fn_80060D58(left + width, left, z, 180.0f, height, 0x90000000);
+                x0 += width;
+                dh->fn_800616C0(x0, step, z, size, size, "Hate", labelColor, 0.0f, 1, 1, 0);
+                y = step + step;
+                BattleChara_unk* other = lbl_8087F048->mCharas;
+                int index = lbl_8087F048->fn_80102890(chara);
+                if (index >= 0) {
+                    BattleChara_unk* self = &other[index];
+                    for (int i = 0; i < lbl_8087F048->mCharaCount; i++, other++) {
+                        int hate = self->fn_801083D8(i);
+                        sprintf(buf, "%s: %d, %.2f, %.2f\0", other->mChara->fn_8017C904(), hate, self->m128[i],
+                                other->m248);
+                        CharaTask* c = other->mChara;
+                        if (c->CanAct_unk() && (c->mType == 0 || c->mC58.mC0 != 0)) {
+                            unsigned int color = 0xFFFFFFFF;
+                            if (chara->fn_8016F3D0(c, 1)) {
+                                color = 0x80FFFFFF;
+                            }
+                            if (ai->mC4 == c) {
+                                color = 0xFFFFB0B0;
+                            }
+                            dh->fn_800616C0(x0, y, z, size, size, buf, color, 0.0f, 1, 1, 0);
+                            y += step;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    if (m58 != 0) {
+        atn::DrawHelper* dh = lbl_8087EEB0;
+        if (dh != 0) {
+            char buf[256];
+            float z = -100.0f;
+            float x = 10.0f;
+            float y = 330.0f;
+            float step = 14.0f;
+            float size = 13.0f;
+            dh->fn_80060D58(x, y, z, 320.0f, 120.0f, 0x44000000);
+            x += 5.0f;
+            y += 5.0f;
+            for (int i = 0; i < 4; i++) {
+                sprintf(buf, "G%02d=%.1f\0", i + 1, m9C[i]);
+                dh->fn_800616C0(x, y, z - 1.0f, size, size, buf, 0xFFFFFFFF, 0.0f, 1, 1, 0);
+                sprintf(buf, "G%02d=%.1f\0", i + 5, m9C[i + 4]);
+                dh->fn_800616C0(75.0f + x, y, z - 1.0f, size, size, buf, 0xFFFFFFFF, 0.0f, 1, 1, 0);
+                sprintf(buf, "G%02d=%.1f\0", i + 9, m9C[i + 8]);
+                dh->fn_800616C0(150.0f + x, y, z - 1.0f, size, size, buf, 0xFFFFFFFF, 0.0f, 1, 1, 0);
+                sprintf(buf, "G%02d=%.1f\0", i + 13, m9C[i + 12]);
+                dh->fn_800616C0(225.0f + x, y, z - 1.0f, size, size, buf, 0xFFFFFFFF, 0.0f, 1, 1, 0);
+                y += step;
+            }
+        }
+    }
 }
 
 // inferred: places every character at a random point of its route group, runs their AI once
@@ -385,9 +830,75 @@ int AIManager::fn_80017128(CharaTask* chara) {
     return 1;
 }
 
+// NONMATCHING: 97.8% - the int -> float conversions of the output loops store the 0x4330 word once in the
+// prologue (the original stores it before each element in a slot shared with the float -> int ones, so the loops
+// unroll by 6/4 instead of 8; same blocker as fn_80017128)
+// inferred: AI step of the NPCs (characters of type 1 with mC50 == 1): runs every fourth frame (by the unique id),
+// with a reduced input block (state, position, the floats of the character data and the kept values) and reads
+// back the state and the kept values. Same script calls as fn_80017128.
+int AIManager::fn_8001794C(CharaTask* chara) {
+    if (m90 != chara->mId % 4) {
+        chara->mC58.m04++;
+        return 0;
+    }
+    GameScene* scene = lbl_8087F430->m10D8;
+    CharaC58_unk* ai = GetAi_unk(chara);
+    CharaRes_unk* res = chara->m64;
+    if (scene == 0 || res == 0) {
+        return 0;
+    }
+    int state = ai->m00;
+    if (state == 0) {
+        int type = ai->m0C.mA0;
+        ai->m0C.mDestPoint = scene->fn_803C1560(&chara->mPos, chara->fn_80179D44(), ai->mB4, type, 1, -1.0f);
+    }
+    AiScriptInput_unk* in = fn_8001C260();
+    in->mChara = chara;
+    in->mState = ai->m00;
+    in->mDone = ai->mDone_unk;
+    in->mFrame = ai->m04;
+    in->mPos = chara->mPos;
+    in->m30[0] = res->m58;
+    in->m30[1] = res->m5C;
+    in->m30[2] = res->m60;
+    const float* f = (const float*)res->m64_unk; // inferred: m64-m84 are read as floats here
+    for (int i = 0; i < 9; i++) {
+        in->m7C[i] = f[i];
+    }
+    in->m60[0] = ai->m08;
+    for (int i = 0; i < 24; i++) {
+        in->mA8[i] = ai->m140[i];
+    }
+    for (int i = 0; i < 16; i++) {
+        in->m10C[i] = m9C[i];
+    }
+    fn_800142C4(chara);
+    fn_800142CC(ai->mD4);
+    fn_8001C1C0(&res->m08_unk);
+    fn_800142C4(0);
+    fn_800142CC(0);
+    AiScriptOutput_unk* out = fn_8001C26C();
+    if (out->mValid > 0) {
+        ai->m00 = out->mState;
+        for (int i = 0; i < 24; i++) {
+            ai->m140[i] = out->m18[i];
+        }
+        for (int i = 0; i < 16; i++) {
+            m9C[i] = out->m7C[i];
+        }
+    }
+    if (state != ai->m00) {
+        ai->m04 = 0;
+        ai->mDone_unk = 0;
+    } else {
+        ai->m04++;
+    }
+    return 1;
+}
+
 void AIManager::fn_80017E90(CharaTask* chara, CharaTask* target) {
     if (lbl_8087F048 != 0) {
-        ((BattleTask*)lbl_8087F048)->fn_80102A40(chara, target, 100000, -1);
+        lbl_8087F048->fn_80102A40(chara, target, 100000, -1);
     }
 }
 

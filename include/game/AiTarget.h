@@ -99,6 +99,7 @@ public:
     virtual ~AIManager();
     virtual int vf0C();
     virtual void vf10();
+    virtual void vf14(); // inferred: debug view of the selected character (DebugMode, DrawHate)
 
     static AIManager* fn_800144FC(atn::Task* parent); // inferred: creates the singleton
 
@@ -137,11 +138,11 @@ public:
     atn::LH_Binary m5C;
     atn::LH_Binary m64;
     std::vector<int> m6C; // inferred: element type unknown (no destructor)
-    int m78;
+    int m78; // inferred: kind of character shown by vf14 (0 TPC, 1 enemy, 2 friend, 3 player, 4 NPC)
     PlayerTask* m7C; // inferred: iterators of the character lists (fn_80016888)
     CharaTask* m80;
     NpcTask* m84;
-    int m88;
+    NpcTask* m88; // inferred: NPC shown as "[TPC]" (m1428 != 0)
     EnemyTask* m8C;
     int m90;
     float m94;

@@ -192,7 +192,9 @@ struct SkillRef_unk;
 // inferred: object at CharaTask+0xD2C; its +0x218 points to an object whose +0x8C is a character
 // (GameUI::fn_803DCA84 compares it with the character). Names invented.
 struct CharaLinkTarget_unk {
-    unsigned char m00[0x8C];
+    unsigned char m00[0x04];
+    int m04; // inferred: group id (shown as "GroupID" by AIManager::vf14)
+    unsigned char m08[0x8C - 0x08];
     CharaTask* m8C;
 };
 struct CharaLink_unk {
@@ -241,7 +243,7 @@ struct CharaC58_unk {
     int m114; // 0xD6C: inferred: copied from CharaRes_unk::m88 (fn_80154C08)
     int m118; // 0xD70: inferred: copied from CharaRes_unk::m8C
     CharaD74_unk m11C;  // 0xD74
-    unsigned char m140[0x60]; // inferred: cleared together by fn_8011BE54
+    float m140[24]; // inferred: values kept by the AI scripts (shown as L01-L24 by AIManager::vf14); cleared by fn_8011BE54
     unsigned char m1A0[0x10];
     unsigned char m1B0[0x100];
     int m2B0; // 0xF08: inferred: counter of frames without moving (EnemyLizerdBlade tackle)
