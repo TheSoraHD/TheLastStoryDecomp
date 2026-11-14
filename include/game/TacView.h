@@ -100,8 +100,8 @@ struct TacViewLayouts_unk {
     atn::D2A_Task* mHpFlash; // ui_command_hp_flash.d2a
     // inferred: ui_select_4_u/l/r/d.d2a (layout anime tasks made by fn_801F64D0)
     atn::D2A_TaskInstanceBase<32, 8>* mDirs[4];
-    atn::Task* m1C;
-    atn::Task* m20;
+    atn::D2A_TaskInstanceBase<32, 8>* m1C; // inferred: command pane chosen (fn_805AC758)
+    int m20;                               // inferred: frames of the fade in (0..15)
 };
 
 // inferred: tactical view of the battle (game/TacView.cpp, 0x805A6D20-0x805AE26C; instance lbl_8087F9F8).
@@ -121,6 +121,7 @@ public:
     void fn_805AA014(CharaTask* chara, int type); // inferred: type 6 when a redirection ends (AIManager)
     int fn_805AA390(CharaTask* chara); // inferred: kind of the charged skill (1 normal, 2 special, 3 other)
     void fn_805ABE74(); // inferred: commands of the character under the cursor (m54)
+    void fn_805AC758(); // inferred: windows of the character under the cursor
     void fn_805AA4C8(SkillEffect* effect);
     void fn_805AA4E4(); // inferred: opens the view
     void fn_805AA734(); // inferred: closes the view
@@ -136,6 +137,7 @@ public:
         fn_800CB5C8(&m16C0, 15, 0);
     }
     void fn_805AA82C(atn::Vector3* pos); // inferred: moves `pos` toward m159C
+    void fn_805AA94C(atn::Vector3*, atn::Vector3*, int, int); // inferred: cursor moved by the stick (GameCamera)
     void fn_805ADC00();
     void fn_805ADC10();
     // inferred: an entry for the character (and hit, if given) exists; `active` selects the state

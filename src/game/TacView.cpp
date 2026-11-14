@@ -17,6 +17,8 @@
 #include "game/SetConfig.h"
 #include "game/BattleCharaTask.h"
 #include "game/GameConfig_unk.h"
+#include "atn/Sphere.h"
+#include "atn/RenderManager.h"
 
 // inferred: sector (0 ahead, 1-7 clockwise, 8 none) of the direction `dir` seen from above
 int fn_805A6D20(const atn::Vector3& dir) {
@@ -159,7 +161,7 @@ extern "C" void fn_804A5E40(MenuCommonTask* menu, int type, const float* ofs, in
 extern "C" int fn_80219558(int id); // inferred: party member of a character id
 extern "C" int fn_8021A77C(HitInfo_unk* hit); // inferred: kind test of a skill
 // inferred: not written yet; they take the view as first argument (symbols without a C++ name)
-extern "C" void fn_805AC758(TacView* view);
+extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 
 // inferred: closes the view (body of fn_805AA734, inlined by vf10; name invented)
 static inline void TacViewClose_unk(TacView* v) {
@@ -189,7 +191,7 @@ static inline void TacViewClose_unk(TacView* v) {
     }
 }
 // inferred: the pad button is pressed (no pad: 0; name invented)
-static inline int IsPadPressed_unk(int button) {
+static inline bool IsPadPressed_unk(int button) {
     return lbl_8087EF70 != 0 ? fn_800A555C(lbl_8087EF70, 0, button) : 0;
 }
 // inferred: the cursor takes the slot m158C, none when out of range (name invented)
@@ -265,7 +267,7 @@ void TacView::vf10() {
     }
     GameCamera* camera = &lbl_8087F430->mCamera;
     if (mA84 > 0) {
-        fn_805AC758(this);
+        fn_805AC758();
         if (--mA84 > 0) {
             return;
         }
@@ -320,36 +322,36 @@ void TacView::vf10() {
         }
         camera->fn_8037F744();
         fn_805ABE74();
-        fn_805AC758(this);
+        fn_805AC758();
         if (m48.mState == 0) {
             int confirm = 0;
             int cancel = 0;
             int dir = -1;
             CharaTask* chara = m48.m04;
-            if (mA74 == 0 && (IsPadPressed_unk(0) != 0 || IsPadPressed_unk(0x1A) != 0) && m54.m50[0] != 0) {
+            if (mA74 == 0 && (IsPadPressed_unk(0) || IsPadPressed_unk(0x1A)) && m54.m50[0] != 0) {
                 dir = 0;
-            } else if (mA74 == 0 && (IsPadPressed_unk(2) != 0 || IsPadPressed_unk(0x17) != 0) && m54.m50[1] != 0) {
+            } else if (mA74 == 0 && (IsPadPressed_unk(2) || IsPadPressed_unk(0x17)) && m54.m50[1] != 0) {
                 dir = 1;
-            } else if (mA74 == 0 && (IsPadPressed_unk(3) != 0 || IsPadPressed_unk(0x18) != 0) && m54.m50[2] != 0) {
+            } else if (mA74 == 0 && (IsPadPressed_unk(3) || IsPadPressed_unk(0x18)) && m54.m50[2] != 0) {
                 dir = 2;
-            } else if (mA74 == 0 && (IsPadPressed_unk(1) != 0 || IsPadPressed_unk(0x19) != 0) && m54.m50[3] != 0) {
+            } else if (mA74 == 0 && (IsPadPressed_unk(1) || IsPadPressed_unk(0x19)) && m54.m50[3] != 0) {
                 dir = 3;
             }
             if (dir >= 0) {
                 fn_805A96D4(chara, dir);
                 confirm = 1;
             }
-            if (IsPadPressed_unk(4) != 0) {
+            if (IsPadPressed_unk(4)) {
                 confirm = 1;
             }
-            if (IsPadPressed_unk(5) != 0) {
+            if (IsPadPressed_unk(5)) {
                 cancel = 1;
             }
             if (confirm != 0) {
                 if (mCharas.size() < 16) {
                     mCharas.push_back(m54);
                 }
-                mLayouts.m1C = dir >= 0 ? (atn::Task*)mLayouts.mDirs[dir] : 0;
+                mLayouts.m1C = dir >= 0 ? mLayouts.mDirs[dir] : 0;
                 mLayouts.m20 = 0;
                 if (mLayouts.m1C != 0) {
                     mA84 = 15;
@@ -366,7 +368,7 @@ void TacView::vf10() {
                     fn_805ABE74();
                     mLayouts.m1C = 0;
                     mLayouts.m20 = 0;
-                    fn_805AC758(this);
+                    fn_805AC758();
                 } else {
                     TacViewClose_unk(this);
                 }
@@ -548,7 +550,7 @@ void TacView::vf10() {
         if (lbl_8087F490 != 0) {
             lbl_8087F490->m764 = end;
         }
-        if (IsPadPressed_unk(4) != 0) {
+        if (IsPadPressed_unk(4)) {
             mA7C = 20;
             fn_805A70D4(3, 1.0f);
             m1594++;
@@ -582,7 +584,7 @@ void TacView::vf10() {
             if (any != 0) {
                 lbl_8087F8A0->mHead->mStatus.m08 = 0.0f;
             }
-        } else if (IsPadPressed_unk(5) != 0) {
+        } else if (IsPadPressed_unk(5)) {
             ChangeMode_unk(0);
             if (m158C < 0) {
                 m158C++;
@@ -984,6 +986,180 @@ void TacView::fn_805AA82C(atn::Vector3* pos) {
     *pos += d;
 }
 
+// inferred: hit data of an effect as the overview window names it (the shared kinds of the skills; names
+// invented)
+static inline HitInfo_unk* TacViewInfoHit_unk(HitInfo_unk* hit, const TacViewSel_unk& sel) {
+    if (hit != 0) {
+        switch (hit->m04) {
+        case 7:
+        case 10:
+        case 13:
+        case 16:
+        case 17:
+        case 18:
+        case 20:
+        case 0x6D8:
+        case 0x4EF8:
+            hit = fn_80219E6C(30001);
+            break;
+        }
+        if (hit->m04 == 0x4EF9) {
+            hit = fn_80219E6C(30002);
+        }
+        if ((hit->m04 == 0x4EEC || hit->m04 == 0x4EED) && sel.mTarget->m08 != 0 && sel.mTarget->m08->mType == 2) {
+            hit = fn_80219E6C(3007);
+        }
+        if ((signed char)hit->m02 == 4 || (signed char)hit->m02 == 0) {
+            hit = 0;
+        }
+    }
+    return hit;
+}
+
+// inferred: moves the cursor of the view with the stick `move` (mode 1: to the nearest slot in that direction, or
+// along the links of the current one; `reset` forces it), or, in modes 0 and 4 with the hints on (`free`), shows
+// the info window of the effect or enemy nearest to `pos`
+// NONMATCHING: 97.4% - register allocation (best distance f0/f9, r31/r25) and the scheduling of the first
+// distance of the effect loop
+void TacView::fn_805AA94C(atn::Vector3* pos, atn::Vector3* move, int free, int reset) {
+    if (mA78 == 0 || mA78 == 4) {
+        if (SetConfig::sInstance->mTacviewHint != 0 && free != 0 && lbl_8087F490->mD90.m00 == 0) {
+            TacViewCursor_unk sel;
+            float best = 1e16f;
+            CharaTask* head = lbl_8087F8A0->mHead;
+            for (unsigned int i = 0; lbl_8087F9E8->GetBullet_unk(i) != 0; i++) {
+                SkillEffect* e = lbl_8087F9E8->GetBullet_unk(i);
+                if (e->m08 != 0 && e->m08->mC58.mB4 > 0 && head->mC58.mB4 > 0 &&
+                    e->m08->mC58.mB4 != head->mC58.mB4) {
+                    continue;
+                }
+                atn::Vector3 center = e->m10;
+                float r = e->m5C * e->m28;
+                float dist = (*pos - center).LengthSqXZ_unk();
+                if (r >= 15.0f && dist < r * r && dist < best) {
+                    best = dist;
+                    sel.m04 = 0;
+                    sel.mState = 1;
+                    sel.mTarget = (TacViewTarget_unk*)e;
+                }
+            }
+            for (EnemyTask* c = EnemyManager::sInstance->mHead; c != 0; c = c->mNext) {
+                if ((c->mFlags & 4) != 4 && (c->mStatus.m0C & 0x20) != 0x20 && (c->m54C & 0x2000) != 0x2000 &&
+                    static_cast<BattleCharaTask*>((CharaTask*)c)->m146C != 0x29) {
+                    atn::Vector3 cpos = c->mPos;
+                    float r = 2.2f * c->m5B0;
+                    float dist = (*pos - cpos).LengthSqXZ_unk();
+                    if (dist < r * r && dist < best) {
+                        best = dist;
+                        sel.mTarget = 0;
+                        sel.mState = 0;
+                        sel.m04 = c;
+                    }
+                }
+            }
+            if (sel.mState != 2 && sel.mState != 0) {
+                SkillEffect* e = (SkillEffect*)sel.mTarget;
+                HitInfo_unk* hit = TacViewInfoHit_unk(e->GetHit_unk(), sel);
+                if (hit != 0) {
+                    HitInfo_unk* link = e->GetHit_unk();
+                    if (link != 0 && (link->m04 == 0x4EF8 || link->m04 == 0x4EF9)) {
+                        link = fn_80219E6C(30000);
+                    }
+                    if ((link->m04 == 0x4EEC || link->m04 == 0x4EED) && e->m08 != 0 && e->m08->mType == 2) {
+                        link = fn_80219E6C(3007);
+                    }
+                    lbl_8087F490->fn_803E4A20((int)hit, (int)link);
+                    m15D4 = 1;
+                }
+            }
+        }
+    } else if (mA78 == 1) {
+        if (mA80 > 0) {
+            mA80--;
+        }
+        TacViewSel_unk cur = m48;
+        if ((PSVECSquareMag(move) > 0.0f && mA80 <= 0) || reset != 0) {
+            atn::Vector3 dir = *move;
+            if (dir.LengthSq_unk() < 0.09f) {
+                dir *= 0.0f;
+            } else {
+                dir.Normalize_unk();
+            }
+            Mtx m;
+            PSMTXRotRad(m, 'y', -lbl_8087F430->mCamera.m8A0);
+            PSMTXMultVec(m, &dir, &dir);
+            int sector = fn_805A6D20(atn::Vector3(dir));
+            if (sector == 8) {
+                return;
+            }
+            if (cur.mState == 2) {
+                TacViewSlot_unk* nearest[8];
+                memset(nearest, 0, sizeof(nearest));
+                float bestDist[8];
+                for (int k = 0; k < 8; k++) {
+                    bestDist[k] = 1e16f;
+                }
+                for (unsigned int i = 0; i < mSlots.mSize; i++) {
+                    TacViewSlot_unk* slot = &mSlots.mData[i];
+                    if (slot->mSel.mState == 2) {
+                        continue;
+                    }
+                    if (mA78 == 1 && slot->mSel.mState == 0 &&
+                        ((CharaTask*)m54.mType)->fn_8016F3D0(slot->mSel.m04, 1)) {
+                        continue;
+                    }
+                    // inferred: the slot starts as TacViewChara_unk (type, character, object), as in fn_805AB828
+                    atn::Vector3 d = ((const TacViewChara_unk*)slot)->fn_805AE138() - *pos;
+                    float len = d.x * d.x + d.z * d.z;
+                    if (len > 0.0f) {
+                        d.Normalize_unk();
+                    }
+                    int k = fn_805A6D20(atn::Vector3(d));
+                    if (k != 8 && len < bestDist[k]) {
+                        nearest[k] = slot;
+                        bestDist[k] = len;
+                    }
+                }
+                TacViewSlot_unk* slot = nearest[sector];
+                if (slot != 0) {
+                    m48 = slot->mSel;
+                    mA80 = 10;
+                    fn_805A70D4(8, 1.0f);
+                }
+            } else {
+                TacViewSlot_unk* slot = mSlots.mData;
+                for (unsigned int i = 0; i < mSlots.mSize; i++, slot++) {
+                    bool same;
+                    if (slot->mSel.mState == 0 && cur.mState == 0) {
+                        same = slot->mSel.m04 == cur.m04;
+                    } else if (slot->mSel.mState == 1 && cur.mState == 1) {
+                        same = true;
+                    } else {
+                        same = false;
+                    }
+                    if (same) {
+                        int order[3];
+                        order[0] = sector;
+                        order[1] = (sector + 1) % 8;
+                        order[2] = sector > 0 ? sector - 1 : 7;
+                        for (int k = 0; k < 3; k++) {
+                            TacViewSlot_unk* next = slot->mNear[order[k]];
+                            if (next != 0 && !(mA78 == 1 && next->mSel.mState == 0 &&
+                                               ((CharaTask*)m54.mType)->fn_8016F3D0(next->mSel.m04, 1))) {
+                                m48 = next->mSel;
+                                mA80 = 10;
+                                fn_805A70D4(8, 1.0f);
+                                return;
+                            }
+                        }
+                        return;
+                    }
+                }
+            }
+        }
+    }
+}
+
 // ---- fn_805AB828: list of the targets of the view (over the inlining budget: the accessors are weak copies) ----
 // inferred: player manager and character lists (weak copies of other files, as in gmk/Cannonball.cpp)
 extern "C" inline PlayerManager* fn_8000D9E8() {
@@ -1332,6 +1508,191 @@ void TacView::fn_805ABE74() {
             m54.m50[i] = 0;
         }
     }
+}
+
+// ---- fn_805AC758: windows of the character under the cursor ----
+extern "C" unsigned int fn_800DC6B4(const char* s); // inferred: string hash
+extern "C" void fn_801FECE0(atn::D2A_Layout_unk* layout, unsigned int hash, float value);
+extern "C" void fn_801FED24(atn::D2A_Layout_unk* layout, unsigned int hash, int index, float value);
+extern "C" void fn_801FEE08(atn::D2A_Layout_unk* layout, unsigned int hash, const wchar_t* text);
+// inferred: layout parameters by name (as the free helpers of game/GameUI.cpp; names invented)
+inline void SetLayoutValue_unk(atn::D2A_Layout_unk* layout, const char* name, float value) {
+    fn_801FECE0(layout, fn_800DC6B4(name), value);
+}
+inline void SetLayoutValue_unk(atn::D2A_Layout_unk* layout, const char* name, int index, float value) {
+    fn_801FED24(layout, fn_800DC6B4(name), index, value);
+}
+inline void SetLayoutText_unk(atn::D2A_Layout_unk* layout, const char* name, const wchar_t* text) {
+    fn_801FEE08(layout, fn_800DC6B4(name), text);
+}
+// inferred: rectangle of a pane of a d2anime task (as MP code reads it)
+extern "C" atn::D2A_DrawRect fn_801F4E8C(atn::D2A_Task* task, unsigned int hash);
+inline atn::D2A_DrawRect GetPaneRect_unk(atn::D2A_Task* task, const char* name) {
+    return fn_801F4E8C(task, fn_800DC6B4(name));
+}
+extern "C" void fn_801F6C80(atn::D2A_TaskInstanceBase<32, 8>* inst, const char* name, float value); // inferred: value
+extern "C" void fn_801F837C(atn::Task* task, const char* name, const wchar_t* text); // inferred: sets a text
+extern "C" void fn_804A4AEC(atn::D2A_Task* task, CharaInfo_unk* info, int cols, int rows); // inferred: name pane size
+extern "C" void fn_803DDD54(atn::D2A_TaskInstanceBase<32, 8>* inst, int job); // inferred: job icon (game/GameUI.cpp)
+extern "C" void* lbl_8087EEC8; // inferred: font
+extern "C" float fn_8006EF48(void* font, float size, const wchar_t* text, float space, int a, int b); // inferred: width
+extern "C" int fn_800DD3FC(wchar_t* s, const wchar_t* format, ...); // inferred: wide sprintf
+extern "C" unsigned long wcslen(const wchar_t* s);
+
+namespace std {
+// inferred: operator+ of the MSL string (weak copy 0x805ADB28, only used here); not in std/string.h, where a new
+// template renumbers the @N labels of every unit that includes it
+// NONMATCHING: 62% - the original reads data and size of each string from one test (private members: needs a
+// friend declaration in std/string.h)
+template <class T, class Traits, class Alloc>
+basic_string<T, Traits, Alloc> operator+(const basic_string<T, Traits, Alloc>& lhs,
+                                         const basic_string<T, Traits, Alloc>& rhs) {
+    basic_string<T, Traits, Alloc> r;
+    const T* ld = lhs.data();
+    typename basic_string<T, Traits, Alloc>::size_type ln = lhs.size();
+    const T* rd = rhs.data();
+    typename basic_string<T, Traits, Alloc>::size_type rn = rhs.size();
+    r.reserve(ln + rn);
+    r.do_replace(0, 0, ld, ld + ln, random_access_iterator_tag());
+    r.do_replace(ln, 0, rd, rd + rn, random_access_iterator_tag());
+    return r;
+}
+} // namespace std
+
+// inferred: windows of the character under the cursor (m48): the select window over its position with the
+// four command panes (mDirs) placed on its anchors, the tension mark, the fade in (mLayouts.m20 frames), the
+// name, the hit points (colour by the rate), the counters m224/m300 of its status, and for each command its
+// name, icon and state; with the hints on, the skill names and descriptions go to the message of GameUI
+// NONMATCHING: 90.6% - the growth path of std::vector::push_back (std/vector.h moves the strings one by one, the
+// original with memcpy), an unused test of lbl_8087F8A0 at the start, and the stack slot of `pos`
+void TacView::fn_805AC758() {
+    if (m48.mState == 0 && m48.m04->mType != 2) {
+        CharaTask* chara = m48.m04;
+        atn::Vector3 pos = ((const TacViewChara_unk*)&m48)->fn_805AE138();
+        atn::Vector3 screen = atn::RenderManager::instance_->GetScreenPosition(pos);
+        mLayouts.mSelect->MeltTask();
+        mLayouts.mSelect->mFrame = 15.0f;
+        SetLayoutValue_unk(&mLayouts.mSelect->mData.m10, "basePoint", 0, 320.0f);
+        SetLayoutValue_unk(&mLayouts.mSelect->mData.m10, "basePoint", 1, 220.0f);
+        atn::D2A_DrawRect rect;
+        rect = GetPaneRect_unk(mLayouts.mSelect, "select_center");
+        mLayouts.mHpFlash->SetParam1_unk("basePoint", &rect.x);
+        rect = GetPaneRect_unk(mLayouts.mSelect, "select_left");
+        mLayouts.mDirs[1]->SetValues1Rect_unk("basePoint", rect);
+        rect = GetPaneRect_unk(mLayouts.mSelect, "select_right");
+        mLayouts.mDirs[2]->SetValues1Rect_unk("basePoint", rect);
+        rect = GetPaneRect_unk(mLayouts.mSelect, "select_up");
+        mLayouts.mDirs[0]->SetValues1Rect_unk("basePoint", rect);
+        rect = GetPaneRect_unk(mLayouts.mSelect, "select_down");
+        mLayouts.mDirs[3]->SetValues1Rect_unk("basePoint", rect);
+        if (chara->mStatus.m228 < 1.0f) {
+            fn_801F6C80(mLayouts.mDirs[0], "tensionOn", 0.3f);
+        } else {
+            fn_801F6C80(mLayouts.mDirs[0], "tensionOn", 1.0f);
+        }
+        float fade = (0.0f > (1.0f < mLayouts.m20 / 12.0f ? 1.0f : mLayouts.m20 / 12.0f))
+                         ? 0.0f
+                         : (1.0f < mLayouts.m20 / 12.0f ? 1.0f : mLayouts.m20 / 12.0f);
+        if (mLayouts.m1C == 0) {
+            SetLayoutValue_unk(&mLayouts.mSelect->mData.m10, "fade", fade);
+            SetLayoutValue_unk(&mLayouts.mHpFlash->mData.m10, "fade", fade);
+        } else {
+            fade = 1.0f - fade;
+            SetLayoutValue_unk(&mLayouts.mSelect->mData.m10, "fade", fade);
+            SetLayoutValue_unk(&mLayouts.mHpFlash->mData.m10, "fade", fade);
+        }
+        CharaInfo_unk* info = chara->m60;
+        if (info != 0) {
+            mLayouts.mFace->MeltTask();
+            SetLayoutText_unk(&mLayouts.mFace->mData.m10, "chara_name", (const wchar_t*)info->m08);
+            fn_804A4AEC(mLayouts.mFace, info, 4, 2);
+        }
+        float rate = chara->mStatus.m04 / (float)chara->mStatus.mParamB.m84;
+        int count = chara->mStatus.m224;
+        int wait = chara->mStatus.m300;
+        mLayouts.mSelect->SetNumber_unk("nowHP", (int)chara->mStatus.m04, 0);
+        SetLayoutValue_unk(&mLayouts.mSelect->mData.m10, "hpRate", rate);
+        if (rate < 0.3f) {
+            mLayouts.mHpFlash->MeltTask();
+            mLayouts.mSelect->SetColor_unk("barColor", 255.0f, 0.0f, 0.0f);
+            mLayouts.mHpFlash->SetColor_unk("flashColor", 255.0f, 0.0f, 0.0f);
+        } else if (rate < 0.6f) {
+            mLayouts.mHpFlash->MeltTask();
+            mLayouts.mSelect->SetColor_unk("barColor", 255.0f, 180.0f, 20.0f);
+            mLayouts.mHpFlash->SetColor_unk("flashColor", 255.0f, 180.0f, 20.0f);
+        } else {
+            mLayouts.mSelect->SetColor_unk("barColor", 255.0f, 255.0f, 255.0f);
+            mLayouts.mHpFlash->SetColor_unk("flashColor", 255.0f, 255.0f, 255.0f);
+        }
+        if (wait <= 0) {
+            SetLayoutValue_unk(&mLayouts.mSelect->mData.m10, "colOn", 1.0f);
+            mLayouts.mSelect->mFrame = 20.0f * (5 - count) + 30.0f;
+        } else {
+            SetLayoutValue_unk(&mLayouts.mSelect->mData.m10, "colOn", 0.0f);
+            mLayouts.mSelect->mFrame = 0.0f > 15.0f * (2 - wait) ? 0.0f : 15.0f * (2 - wait);
+        }
+        if (count <= 1) {
+            SetLayoutValue_unk(&mLayouts.mSelect->mData.m10, "colR", 255.0f);
+            SetLayoutValue_unk(&mLayouts.mSelect->mData.m10, "colG", 0.0f);
+            SetLayoutValue_unk(&mLayouts.mSelect->mData.m10, "colB", 0.0f);
+        } else if (count <= 2) {
+            SetLayoutValue_unk(&mLayouts.mSelect->mData.m10, "colR", 255.0f);
+            SetLayoutValue_unk(&mLayouts.mSelect->mData.m10, "colG", 180.0f);
+            SetLayoutValue_unk(&mLayouts.mSelect->mData.m10, "colB", 0.0f);
+        } else {
+            SetLayoutValue_unk(&mLayouts.mSelect->mData.m10, "colR", 0.0f);
+            SetLayoutValue_unk(&mLayouts.mSelect->mData.m10, "colG", 255.0f);
+            SetLayoutValue_unk(&mLayouts.mSelect->mData.m10, "colB", 100.0f);
+        }
+        for (int i = 0; i < 4; i++) {
+            HitInfo_unk* skill = (HitInfo_unk*)m54.m54[i];
+            if (skill != 0) {
+                mLayouts.mDirs[i]->MeltTask();
+                atn::D2A_DrawRect text = mLayouts.mDirs[i]->GetRect_unk("TextMain");
+                fn_801F6C80(mLayouts.mDirs[i], "msgLen",
+                            fn_8006EF48(lbl_8087EEC8, text.w, (const wchar_t*)((HitInfo_unk*)m54.m54[i])->m08,
+                                        0.0f, 1, 1));
+                fn_801F837C(mLayouts.mDirs[i], "text", (const wchar_t*)((HitInfo_unk*)m54.m54[i])->m08);
+                fn_801F837C(mLayouts.mDirs[i], "textSub", (const wchar_t*)((HitInfo_unk*)m54.m54[i])->m08);
+                if (i == (int)m54.mObj) {
+                    fn_801F6C80(mLayouts.mDirs[i], "skipSelect", 1.0f);
+                } else {
+                    fn_801F6C80(mLayouts.mDirs[i], "skipSelect", 0.0f);
+                }
+                if (m54.m84[i] < 0) {
+                    fn_801F6C80(mLayouts.mDirs[i], "iconOn", 0.0f);
+                } else {
+                    fn_801F6C80(mLayouts.mDirs[i], "iconOn", 1.0f);
+                    fn_803DDD54(mLayouts.mDirs[i], m54.m84[i]);
+                }
+                fn_801F6C80(mLayouts.mDirs[i], "canSelect", m54.m50[i]);
+                if (mLayouts.m1C == 0) {
+                    mLayouts.mDirs[i]->mFrame = mLayouts.m20;
+                } else if (mLayouts.mDirs[i] == mLayouts.m1C) {
+                    mLayouts.mDirs[i]->mFrame = mLayouts.m20 + 16;
+                } else {
+                    mLayouts.mDirs[i]->mFrame = mLayouts.m20 + 31;
+                }
+            }
+        }
+        if (SetConfig::sInstance->mTacviewHint != 0) {
+            std::vector<std::basic_string<wchar_t> > lines;
+            for (int i = 0; i < 4; i++) {
+                HitInfo_unk* skill = (HitInfo_unk*)m54.m54[i];
+                if (skill != 0) {
+                    wchar_t text[0x100];
+                    fn_800DD3FC(text, L"%s\xFF1A%s\n", skill->m08, *(const wchar_t* const*)skill->m0C); // inferred: description at 0x0C
+                    lines.push_back(std::basic_string<wchar_t>(text));
+                }
+            }
+            while (lines.size() < 3) {
+                lines.push_back(std::basic_string<wchar_t>(L""));
+            }
+            lbl_8087F490->fn_803E4978((lines[0] + lines[1] + lines[2]).c_str());
+        }
+    }
+    int frame = mLayouts.m20 + 1;
+    mLayouts.m20 = (frame > 0 ? frame : 0) < 15 ? (frame > 0 ? frame : 0) : 15;
 }
 
 void TacView::fn_805ADC00() {
