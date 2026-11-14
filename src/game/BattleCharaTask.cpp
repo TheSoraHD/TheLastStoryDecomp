@@ -41,6 +41,8 @@
 #include "game/MapTask.h"
 #include "chr/CharaEquip_unk.h"
 #include "game/BattleTask.h"
+#include "gmk/Item.h"
+#include "math/VecAssign_unk.h"
 
 extern "C" GameConfig_unk* lbl_8087F0A8;
 // inferred: field (lbl_8087F430); only its address is used here
@@ -547,6 +549,443 @@ void BattleCharaTask::vf14() {
 
 void BattleCharaTask::fn_800E426C() {
     fn_8010220C(lbl_8087F048, 0);
+}
+
+// inferred: translation of a node matrix (name invented)
+inline atn::Vector3 NodePos_unk(MtxPtr m) {
+    return atn::Vector3(m[0][3], m[1][3], m[2][3]);
+}
+
+extern "C" float fn_800A56A8(void* pad, int port, int axis, int arg); // inferred: stick axis (as in game/GameTask.cpp)
+extern "C" void* lbl_8087EF70; // inferred: pad of the stick
+// inferred: target in front of the character for the cover actions (game/BattleTask.cpp, BattleAim_unk)
+extern "C" int fn_8010089C(Effect_unk* mgr, BattleTarget_unk* out, CharaTask* chara, const atn::Vector3* rot,
+                           float range, float angle);
+extern "C" void fn_801092C8(Effect_unk* mgr, int kind, CharaTask* chara, int item, int num); // inferred: battle message
+extern "C" int fn_80211734(HitInfo_unk* item);                 // inferred: infinite item
+extern "C" void fn_8044441C(Inventory* inv, int id, int num);  // inferred: removes items
+extern "C" int fn_804444E8(Inventory* inv, int id);            // inferred: number of items
+extern "C" HitInfo_unk* fn_80211480(int code);                 // inferred: entry of an item code (db/ItemParam_unk.h)
+extern "C" void fn_80108C10(Effect_unk* mgr, DamageResult_unk* damage, const atn::Vector3& pos, CharaTask* attacker,
+                            CharaTask* chara, unsigned int flags, int skipEmpty); // inferred: shows the damage
+extern "C" EnemyTask* fn_8036DDD4(GameTask* task); // inferred: enemy in reach of the leader (game/GameTask.cpp)
+
+// inferred: button of the cover attack (2 with the attack type A); name invented
+// inferred: dot product of two vectors passed by reference (name invented)
+static inline float Dot_unk(const atn::Vector3& a, const atn::Vector3& b) {
+    return PSVECDotProduct(&a, &b);
+}
+// inferred: a x b and -v returned by value (names invented)
+static inline atn::Vector3 Cross_unk(const atn::Vector3& a, const atn::Vector3& b) {
+    atn::Vector3 r;
+    PSVECCrossProduct(&a, &b, &r);
+    return r;
+}
+static inline atn::Vector3 Neg_unk(const atn::Vector3& v) {
+    return atn::Vector3(-v.x, -v.y, -v.z);
+}
+static inline bool IsAttackTypeA_unk() {
+    return SetConfig::sInstance->mAttackType == 0;
+}
+static inline int AttackButton_unk() {
+    bool typeA = IsAttackTypeA_unk();
+    int button = 4;
+    if (typeA) {
+        button = 2;
+    }
+    return button;
+}
+
+// NONMATCHING: 99.5% - r0/r3 swapped in the target checks, the lock-on input reloads lbl_8087F0A8 (here config),
+// store order of the direction to the target, the camera mode loads and the flag word reload before mFlag5
+// inferred: input of the leader (called by GameTask::fn_8036CC90): lock-on, cover actions, gimmicks and items
+// in reach, the button hint of the HUD (GameUI::m764) and the input of the weapon (fn_800E62AC/fn_800E7650)
+void BattleCharaTask::fn_800E4278(GameTask* task) {
+    int lockOn = 1;
+    if (m55C == 1) {
+        lockOn = 0;
+    }
+    if (m55C == 6 && ((unsigned int)(m560 - 0x3C) <= 1 || m560 == 0x62)) {
+        lockOn = 0;
+    }
+    if (m55C == 5 && mFlag6 && lbl_8087F0A8->mInput.fn_801240B4(0x15)) {
+        lockOn = 0;
+    }
+    lbl_8087F0A8->mInput.fn_80122330(lockOn);
+    GameUI* ui = lbl_8087F490;
+    GameUIElem1C_unk action;
+    action.m00 = ui->m764.m00;
+    GameCamera* camera = &task->mCamera;
+    GameConfig_unk* config = lbl_8087F0A8;
+    int a = ui->m748.m00;
+    int b = ui->m748.m14;
+    int done = 0;
+    if (mFC4 != 0) {
+        if (!CanActB_unk(mFC4) || mFlag31 || mFlag6 || (mFC4->m54C & 0x2000) == 0x2000) {
+            fn_8016DC14(0, 0);
+        } else if (!mFlag5 && lbl_8087F0A8->mInput.fn_801240B4(0x11)) {
+            fn_8016DC14(0, 0);
+        } else if (m55C == 6 && m560 == 0x1D) {
+            fn_8016DC14(0, 0);
+        }
+    }
+    if (m55C == 1 && !mFlagB9) {
+        GameScene* scene;
+        if (mFlag6) {
+            if (camera->m800 == camera->m7FC) {
+                atn::Vector3 rot = mRot;
+                rot.y = 3.1415927f + camera->mRot.y;
+                mRot = rot;
+            }
+            if (mFlag3) {
+                fn_80155DAC(0);
+            }
+            if (m648 != 0 && m648->m04 == 1) {
+                action.m00 = 0xB;
+            }
+        } else if (m1208 == 0 && !mFlag3 && mF54 == 0) {
+            if (mFlag31) {
+                if (mC48 != 0) {
+                    if (!lbl_8087F0A8->mInput.fn_801240B4(0x15)) {
+                        fn_80154344();
+                    }
+                    if (m648 != 0 && m648->m04 == 1) {
+                        action.m00 = 0xB;
+                    }
+                } else {
+                    m143C--;
+                    if (!mFlag5) {
+                        int shown = 0;
+                        int side = fn_80153B44();
+                        atn::Vector3 stick;
+                        stick.x = -fn_800A56A8(lbl_8087EF70, 0, 0, 0);
+                        stick.y = 0.0f;
+                        stick.z = -fn_800A56A8(lbl_8087EF70, 0, 1, 0);
+                        float len = PSVECMag(&stick);
+                        atn::Vector3 dir = fn_80178018();
+                        float angle = atn::WrapAngle_unk(dir.y - mRot.y);
+                        if (len > 0.4f) {
+                            if (side != 0 && (side != 3 || mC40 == 1) && fn_80179FA8() && m139C == 0) {
+                                BattleTarget_unk target;
+                                int found = fn_8010089C(lbl_8087F048, &target, this, &dir, 80.0f, 1.5707964f);
+                                if (found) {
+                                    action.m00 = 10;
+                                    shown = 1;
+                                    action.m0C = target.mChara;
+                                }
+                                if (found && a == 10 && lbl_8087F0A8->mInput.fn_801231D0(AttackButton_unk())) {
+                                    int mode = 0;
+                                    if (side == 3) {
+                                        mode = 2;
+                                    }
+                                    atn::Vector3 to(target.mPos.x - mPos.x, 0.0f, target.mPos.z - mPos.z);
+                                    if (PSVECSquareMag(&to) > 0.001f) {
+                                        PSVECNormalize(&to, &to);
+                                    } else {
+                                        atn::VecAssign_unk(to, FrontDir_unk(mRot));
+                                    }
+                                    if (side == 3) {
+                                        if (Dot_unk(to, FrontDir_unk(mRot)) < 0.0f) {
+                                            mode = 0;
+                                        }
+                                    } else if (side == 2) {
+                                        if (Dot_unk(to, FrontDir_unk(mRot)) > 0.0f) {
+                                            mPos += mC14 * 5.0f;
+                                        }
+                                    } else if (side == 1) {
+                                        if (Dot_unk(to, FrontDir_unk(mRot)) > 0.0f) {
+                                            mPos += mC14 * -5.0f;
+                                        }
+                                    }
+                                    fn_801539E0();
+                                    fn_800E8688(0xCB, 0, target.mChara, &target.mPos, mode, 0);
+                                    done = 1;
+                                }
+                            }
+                            int kind = -1;
+                            atn::Vector3 pos;
+                            int link;
+                            if ((side == 2 && angle > 0.7853982f && angle < 2.3561945f) ||
+                                (side == 1 && angle < -0.7853982f && angle > -2.3561945f)) {
+                                if (task->fn_8036DB3C(&pos, &link, this)) {
+                                    kind = 3;
+                                } else if (m139C == 0) {
+                                    kind = 2;
+                                }
+                            }
+                            if (kind == -1 && m139C == 0 && (unsigned int)(side - 1) <= 1 &&
+                                atn::Abs_unk(angle) < 0.7853982f) {
+                                kind = 5;
+                            }
+                            if (kind == -1 && m139C == 0 && side == 3 && atn::Abs_unk(angle) < 0.7853982f &&
+                                mC40 == 1) {
+                                kind = 4;
+                            }
+                            if (kind != -1) {
+                                if (!shown) {
+                                    action.m00 = kind;
+                                    if (kind == 5) {
+                                        action.m00 = 2;
+                                    }
+                                    shown = 1;
+                                }
+                                if (!done && lbl_8087F0A8->mInput.fn_801231D0(2)) {
+                                    if (kind == 4) {
+                                        vf74(Cross_unk(mC14, atn::Vector3(0.0f, 1.0f, 0.0f)));
+                                    } else if (kind == 5) {
+                                        fn_801551AC();
+                                    } else if (kind == 2) {
+                                        fn_80155790(fn_80153B44() == 1 ? Neg_unk(mC14) : mC14);
+                                    } else if (kind == 3) {
+                                        fn_80154EC4(pos, link);
+                                        m143C = 8;
+                                    }
+                                    done = 1;
+                                }
+                            }
+                        }
+                        if (!shown) {
+                            action.m00 = 1;
+                            if (lbl_8087F0A8->mInput.fn_801231D0(0x13)) {
+                                fn_801539E0();
+                                m14A0 = 2;
+                                done = 1;
+                            }
+                        }
+                    }
+                    if (mFlag31 && m139C == 0 && lbl_8087F0A8->mInput.fn_801240B4(0x15) && m143C <= 0) {
+                        fn_80153FA0();
+                    }
+                    if (!mFlag6 && !HasC48_unk() && m139C == 0 && fn_80153B44() != 0 &&
+                        !lbl_8087F0A8->mInput.fn_80124B60() && ((GameTask*)lbl_8087F430)->fn_80370174(0xD0) == 0) {
+                        GameUI* hud = lbl_8087F490;
+                        GameUIElem1C_unk hint;
+                        hint.m00 = 0xD;
+                        hud->m7C0 = hint;
+                    }
+                }
+            } else {
+                int shown = 0;
+                if (action.m00 == -1 && m139C == 0) {
+                    GimmickCommon* gimmick = task->fn_8036E098();
+                    if (gimmick != 0) {
+                        int press = 0;
+                        int type = gimmick->m50;
+                        if (type == 0x10) {
+                            shown = 1;
+                            press = 0;
+                            action.m00 = gimmick->mE8;
+                            action.m04 = gimmick->mEC;
+                            if (lbl_8087F0A8->mInput.fn_801231D0(2) || lbl_8087F0A8->mInput.fn_801231D0(4)) {
+                                press = 1;
+                            }
+                        } else if (type == 0x3F || type == 0x3B || type == 0x3C || type == 0x27) {
+                            shown = 1;
+                            press = 0;
+                            action.m00 = gimmick->mE8;
+                            action.m04 = gimmick->mEC;
+                            if (lbl_8087F0A8->mInput.fn_801231D0(2) || lbl_8087F0A8->mInput.fn_801231D0(0)) {
+                                press = 1;
+                            }
+                        } else if (type == 8) {
+                            int ok = !mFlag5;
+                            if (config->mNewDiveMode == 2 && m648 != 0 && lbl_8087F0A8->mInput.fn_801248DC(0) > 0.4f) {
+                                ok = 0;
+                            }
+                            if (ok) {
+                                ((gmk::Item*)gimmick)->fn_803FC870();
+                                shown = 1;
+                                press = lbl_8087F0A8->mInput.fn_801231D0(2);
+                            }
+                        } else {
+                            int ok = !mFlag5;
+                            if (config->mNewDiveMode == 2 && m648 != 0 && lbl_8087F0A8->mInput.fn_801248DC(0) > 0.4f) {
+                                ok = 0;
+                            }
+                            if (ok) {
+                                shown = 1;
+                                action.m00 = gimmick->mE8;
+                                action.m04 = gimmick->mEC;
+                                press = lbl_8087F0A8->mInput.fn_801231D0(2);
+                            }
+                        }
+                        if (shown && press) {
+                            if (gimmick->m50 == 0x10) {
+                                fn_800E8688(200, 0, 0, &gimmick->m6C, 0, 0);
+                            } else {
+                                gimmick->vf4C(this);
+                            }
+                            done = 1;
+                        }
+                    }
+                }
+                if (!shown && b == 0) {
+                    if (!mFlag5) {
+                        GameSceneRoute_unk route;
+                        if (task->fn_8036DAF4(&route, this, 1, 0)) {
+                            action.m00 = 0;
+                            shown = 1;
+                            if (lbl_8087F0A8->mInput.fn_801231D0(0x13)) {
+                                fn_80153698(&route, 0);
+                                m143C = 8;
+                                done = 1;
+                            }
+                        }
+                    }
+                    if (m14A4 <= 0 && (action.m00 == -1 || lbl_8087F0A8->mTouchHelp != 0) && m139C == 0) {
+                        EnemyTask* enemy = fn_8036DDD4(task);
+                        if (enemy != 0) {
+                            FixedArray_unk<HitInfo_unk*, 4> items;
+                            if (enemy->mStatus.IsState_unk(0x20) && enemy->mStatus.m224 > 0) {
+                                if (task->fn_803761BC() && fn_80219558(m50) == 0 && mFlag28) {
+                                    action.m00 = 9;
+                                }
+                            } else if (enemy->mStatus.IsState_unk(0x40)) {
+                                int num = fn_804444E8(Inventory::instance_, 400);
+                                if (num > 0) {
+                                    HitInfo_unk* item = fn_80211480(400);
+                                    items.PushBack_unk(item);
+                                    if (!shown) {
+                                        action.m08 = num;
+                                        action.m10 = (int)item;
+                                        action.m00 = 0xC;
+                                    }
+                                }
+                            }
+                            if (lbl_8087F0A8->mTouchHelp != 0 || lbl_8087F0A8->mInput.fn_801231D0(2)) {
+                                if (action.m00 == 9) {
+                                    HitInfo_unk* data = fn_80219E6C(0x2711);
+                                    if (!enemy->mStatus.IsState_unk(0x20)) {
+                                        enemy->mStatus.fn_8013310C(0x20, 0);
+                                    }
+                                    DamageResult_unk result;
+                                    fn_8003EA3C(&result, data, this, enemy, 0, &lbl_807C6B90, 0, 0);
+                                    fn_801092C8(lbl_8087F048, 0x16, enemy, 0, 0);
+                                    HitInfo_unk* hit = fn_80219E6C(0x4FBF);
+                                    if (hit != 0) {
+                                        enemy->fn_80178668(hit, 0, hit->m5C, this, 0);
+                                        if ((enemy->mType == 0 || enemy->mType == 3) && lbl_8087F8A8 != 0) {
+                                            wchar_t text[2] = {0, 0};
+                                            atn::Vector3 pos(0.0f, 2.0f, 0.0f);
+                                            if (enemy->GetModel_unk()->GetNodeMtx_unk("hips") != 0) {
+                                                pos += NodePos_unk(enemy->GetModel_unk()->GetNodeMtx_unk("hips"));
+                                            }
+                                            lbl_8087F8A8->fn_8054D794(7, text, &pos, 0, 0, 1, 0, 0, 0, 1, -1, -1);
+                                        }
+                                    }
+                                    done = 1;
+                                } else if (items.mCount != 0) {
+                                    unsigned int count = items.mCount;
+                                    for (unsigned int i = 0; i < count; i++) {
+                                        if (!fn_80211734(items.mData[i])) {
+                                            fn_8044441C(Inventory::instance_, items.mData[i]->m04, 1);
+                                        }
+                                        DamageResult_unk result;
+                                        fn_8003F1E4(&result, items.mData[i], this, enemy, 0);
+                                        if (items.mData[i]->m04 != 400) {
+                                            fn_80108C10(lbl_8087F048, &result, enemy->mPos + atn::Vector3(0.0f, 15.0f, 0.0f),
+                                                        this, 0, 1, 0);
+                                        }
+                                    }
+                                    m14A4 = 60;
+                                    done = 1;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        GameUI* hud = lbl_8087F490;
+        if (hud->m7C0.m00 == 0xD ||
+            (hud->m7C0.m00 == -1 && !mFlag6 && !HasC48_unk() && !mFlag31 && !lbl_8087F0A8->mInput.fn_80124B60())) {
+            if (lbl_8087F430 != 0 && lbl_8087F490 != 0) {
+                scene = ((GameTask*)lbl_8087F430)->m10D8;
+                if (scene != 0 && !scene->fn_803CCC4C() && scene->fn_803CC77C() > 0 && !mFlag3) {
+                    GameUIElem1C_unk& hint = hud->m7C0;
+                    hint.m00 = 0x11;
+                    lbl_8087F490->m7C0 = hint;
+                }
+            }
+        }
+        if (task->fn_80370174(0x8F) == 1 && task->fn_80370174(0xA9) == 0 && (mFlag6 || HasC48_unk()) &&
+            mMotion.mTracks[0].m10 >= 0.99f) {
+            ((GameTask*)lbl_8087F430)->fn_80370320(0xA9, 1, 0);
+        }
+    } else if (m55C == 6) {
+        switch (m560) {
+        case 0xF:
+            action.m00 = 10;
+            break;
+        case 0x62:
+            if (mFlag6) {
+                if (camera->m800 == camera->m7FC) {
+                    atn::Vector3 rot = mRot;
+                    rot.y = 3.1415927f + camera->mRot.y;
+                    mRot = rot;
+                }
+            }
+            action.m00 = 0xB;
+            break;
+        case 0x79:
+            action.m00 = 0x10;
+            break;
+        }
+    } else if (m55C == 2) {
+        done = 1;
+    }
+    if (!lbl_8087F0A8->mInput.fn_80124B60()) {
+        lbl_8087F490->m764 = action;
+    }
+    if (!lbl_8087F0A8->mInput.fn_80124B60() && (m55C == 1 || m55C == 6)) {
+        if (mStatus.IsState_unk(0x80) || mStatus.IsState_unk(0x100) || (mStatus.IsState_unk(0x40) && mF94 == 0) ||
+            mStatus.IsState_unk(0x4000) || mStatus.IsState_unk(0x20000)) {
+            lbl_8087F490->m728 = 1;
+        }
+    }
+    if (!done) {
+        switch (m58C) {
+        default:
+            if (m648 != 0) {
+                if (m648->m04 == 0) {
+                    fn_800E62AC((Field_unk*)task, a, b);
+                } else if (m648->m04 == 1) {
+                    fn_800E7650((Field_unk*)task, a, b);
+                }
+            } else if (mFlag6) {
+                if (!lbl_8087F0A8->mInput.fn_801240B4(0x12)) {
+                    fn_80155DAC(0);
+                }
+            } else if (!mFlag31) {
+                mFlag5 = 0;
+                if (lbl_8087F0A8->mInput.fn_801231D0(0x11)) {
+                    camera->fn_8037EF30(0, 1, -1.0f);
+                    mFC0 = 0;
+                }
+                if (lbl_8087F0A8->mInput.fn_801240B4(0x12)) {
+                    if (m55C == 6) {
+                        if ((unsigned int)(m560 - 0x3C) <= 1) {
+                            fn_8016E970(m564);
+                            fn_80155DAC(1);
+                        }
+                    } else if (!mFlag3) {
+                        fn_80155DAC(1);
+                    }
+                }
+            }
+            break;
+        case 3:
+            if (m55C != 6) {
+                fn_80166544();
+            }
+            break;
+        case 4:
+            if (m55C != 6) {
+                fn_80166A54();
+            }
+            break;
+        }
+    }
 }
 
 // inferred: one hit of fn_800F8C6C (names invented)
@@ -1124,7 +1563,7 @@ int BattleCharaTask::fn_800E73EC(Field_unk* field, int b, int c) {
     return ret;
 }
 
-void BattleCharaTask::fn_800E7650(Field_unk* field) {
+void BattleCharaTask::fn_800E7650(Field_unk* field, int, int) {
     GameConfig_unk* config = lbl_8087F0A8;
     void* obj = &field->m006C;
     mFlag5 = 0;
@@ -1686,9 +2125,6 @@ inline atn::Vector3 AimDir_unk(Field_unk* field) {
     return dir;
 }
 // inferred: translation of a node matrix (name invented)
-inline atn::Vector3 NodePos_unk(MtxPtr m) {
-    return atn::Vector3(m[0][3], m[1][3], m[2][3]);
-}
 
 // NONMATCHING: 99% - stack slots; the string pool offsets wait for fn_800E4278/fn_800E62AC ("hips")
 // inferred: start point and direction of a shot: in front of the character, or along the aim camera (crossbow,
