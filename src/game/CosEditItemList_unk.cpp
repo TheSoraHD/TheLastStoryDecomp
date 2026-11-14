@@ -1334,8 +1334,8 @@ CosEditWeaponItem_unk* CosEditProtector::fn_801DD12C(NewCampPair_unk* member, in
 // inferred: builds the lists of the two protector slots for the member: the pieces worn by the party
 // (enabled when both can swap them), then the free pieces of the inventory that the member can wear
 // (one entry per item, after the worn copies of the same piece); finally sorts them
-// NONMATCHING: 94.7% - the original is over the inlining budget (R3: vector/FixedArray accessors and the
-// CosEditItem_unk constructor 0x801D8C90 called out of line)
+// NONMATCHING: 96.6% - the original is over the inlining budget (R3: Inventory::Order and fn_801D80A0 called
+// out of line; the CosEditItem_unk constructor 0x801D8C90 is called out of line here too)
 void CosEditProtector::fn_801DD26C(int member) {
     std::vector<CosEditItem_unk> worn[2];
     for (int i = 0; i < 2; i++) {

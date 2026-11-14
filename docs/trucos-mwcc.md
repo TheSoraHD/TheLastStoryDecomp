@@ -674,3 +674,4 @@ Al añadir un hallazgo: una línea, con el ejemplo (unidad o dirección) entre p
 - `port-decomp-20261114`: una cadena `""` sin referencias tras un formato en el pool del original = el formato acababa en `\0`.
 - `port-decomp-20261114`: miembros que el ctor construye con llamadas sueltas (sin `__construct_array`) no son arrays en el original; MWCC pela la primera iteracion de los bucles de construccion de arrays con ctor inline.
 - `port-decomp-20261114`: un dtor que llama al dtor de la base en offset 0 con -1 indica un miembro, no una base (GameCamera / atn::Camera).
+- `std::vector::push_back` de MSL toma el camino POD (tamano primero, sin prueba de nulo) si destructor, asignacion y copia son triviales (`(__builtin_trivial_members(T) & 7) == 7` en `std/vector.h`), aunque el tipo tenga constructores; copia `lfs/stfs` campo a campo en el `new (p) T(x)`: constructor copia escrito a mano (ColorF_unk). (`cabeceras-20261114` qA)

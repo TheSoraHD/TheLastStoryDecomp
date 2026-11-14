@@ -1458,8 +1458,8 @@ void ShopUpGrade::fn_8058DB10() {
     fn_8058AABC();
 }
 
-// NONMATCHING: 90% - push_back: the original stores the entry by the POD path of MSL (size first), here the
-// placement copy of a class with a constructor
+// NONMATCHING: 99.7% - registers of the inlined push_back (POD path of MSL since the class has a trivial
+// copy, see std/vector.h)
 void ShopUpGrade::fn_805969D4(int code, int member, int slot, int have) {
     ShopUpGradeEntry_unk entry;
     ItemParamEntry_unk* item = fn_80211480(code);

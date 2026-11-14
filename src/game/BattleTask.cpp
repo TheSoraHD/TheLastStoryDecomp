@@ -1775,7 +1775,6 @@ inline void MeleeSwap_unk(T& a, T& b) {
 }
 
 // inferred: MSL __sort3 (median of three of std::sort, 0x800FA9F4; iterators by reference)
-// NONMATCHING: 76.8% - order of the comparisons and of the swaps of the 12-byte elements
 template <class T, class Compare>
 void MeleeMedian3_unk(T*& a, T*& b, T*& c, Compare& comp) {
     bool ac = !comp(*c, *a);
@@ -1799,7 +1798,7 @@ void MeleeMedian3_unk(T*& a, T*& b, T*& c, Compare& comp) {
 
 // inferred: MSL __sort (std::sort, 0x800FA4FC): selection sort up to 20 elements, else quicksort around the
 // median of three entries picked with a rotating offset (as Sort_unk of atn/RenderSystem_unk.cpp)
-// NONMATCHING: 64.5% - the original keeps the iterators in memory (references) and inlines the selection sort
+// NONMATCHING: 73.3% - the original keeps the iterators in memory (references) and inlines the selection sort
 // differently
 template <class T, class Compare>
 void MeleeSort_unk(T*& first, T*& last, Compare& comp) {

@@ -23,6 +23,18 @@ camino POD con `(__builtin_trivial_members(T) & 7) == 7` (destructor, asignacion
   fn_805969D4 90,37 -> 99,74.
 - Total: 15424 -> 15428, lost 0, sin bajadas de fuzzy.
 
+Por unidad (100 % / 0 %): game/BattleTask 163/0 -> 164/0; game/CosEditItemList_unk 52/2 -> 55/1
+(`__ct__15CosEditItem_unkFv`, `MslSwap_unk<CosEditItem_unk>`, `MslMedian3_unk<..., CosEditEquipLess_unk>`).
+Commits: 81d50d7 (cabecera + re-emparejado), y el de comentarios/notas.
+
+## Paso 2: forma del original (inline pequena + construir + reallocar): no intentado
+
+Sin tiempo para una via nueva frente a las 22 variantes de qL y el relleno de 300-600 asserts (bloqueo de
+presupuesto de inline, `docs/mwcc-blockers.md`). Las 26 copias debiles de Event/Sequence (0x8054372C-0x80545C3C,
+0x80542684, 0x805428A8), EventParser_unk (fn_8057DB14/DC38/E274) y Event/Manager (fn_80482400/8049003C/80490098)
+siguen sin escribir. Con el paso 1 no cambia ninguna de esas unidades (EffectEntry24_unk, Actor y Path no son
+triviales). El ctor de `CosEditItem_unk` si sale (paso 1).
+
 ## Para el port
 
 - `include/std/vector.h`: solo la condicion del camino rapido (sin firmas ni layouts).
