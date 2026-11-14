@@ -55,6 +55,14 @@ Rama `agent-G`. Inicio 16:10. Referencia `$REF` = `/home/claude/ref-G` (15433 / 
   (una union anonima renumera las `@N` de las ~25 unidades que incluyen `AiTarget.h`: BattleTask, CharaTask,
   GameEventScript, GameUI...).
 
+### 4. `OccObj_unk`/`OccRenderNode_unk` de LayerOcclusionCPU
+
+- `atn/Layer3D.h`: `RenderObj_unk::vf0C` devuelve `int` (antes `void`; distinto de cero si el objeto esta
+  oculto, como la leia LayerOcclusionCPU). Nadie mas la llamaba.
+- `atn/LayerOcclusionCPU.cpp`: fuera `OccObj_unk` y `OccRenderNode_unk`; `vf14` recorre la lista como
+  `RenderNode_unk` y `OccModel_unk` deriva de `RenderObj_unk` (relleno 0x04-0x3C, mismo layout), con
+  `static_cast<OccModel_unk*>(node->mObj)`. Neutro (fnstat igual, `vf14` sigue 99,4 %), labelcheck igual.
+
 ## Decisiones tomadas sin el usuario
 
 - Llamadas por molde `(BattleTask*)lbl_8087F048` en vez de cambiar el tipo de `lbl_8087F048` en las 41 unidades:
@@ -75,6 +83,8 @@ Rama `agent-G`. Inicio 16:10. Referencia `$REF` = `/home/claude/ref-G` (15433 / 
   `game/AiTarget.h`; layout sin cambios). En el port, `mE0[0]` de la salida guarda un `CharaTask*` en
   AI_archer_attack01 (`(int)` puntero): en x64 se trunca; AiTarget copia las cuatro palabras a
   `CharaC58_unk::m1A0`. Pendiente en el port: un tipo de puntero para esa palabra (una union aqui renumera `@N`).
+- `atn::RenderObj_unk::vf0C`: `void` -> `int`. `LayerOcclusionCPU::vf14` (unidad del port) usa
+  `atn::RenderNode_unk`/`RenderObj_unk`; `OccModel_unk` ahora deriva de `RenderObj_unk` (mismo tamano y offsets).
 
 ## Hallazgos
 
