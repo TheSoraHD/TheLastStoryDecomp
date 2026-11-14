@@ -7,6 +7,7 @@
 #include <boost/bind.hpp>
 #include "game/Input_unk.h"
 #include "game/MapTask.h"
+#include "atn/ColliBase.h"
 
 extern "C" int rand();
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
@@ -31,20 +32,8 @@ struct WallInput_unk {
 };
 extern "C" WallInput_unk* lbl_8087F0A8;
 
-// inferred: collision world and its ray test (see game/ChaserNpc.cpp)
-struct WallCollResult_unk {
-    WallCollResult_unk() : m34(0), m38(0), m3C(0), m40(0) {}
-    unsigned char m00[0x04];
-    atn::Vector3 m04; // inferred: hit position
-    unsigned char m10[0x34 - 0x10];
-    int m34;
-    int m38;
-    int m3C;
-    int m40;
-    unsigned char m44[0x50 - 0x44];
-};
 extern "C" void* lbl_8087EE98;
-extern "C" int fn_8004ED34(void* colli, WallCollResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
+extern "C" int fn_8004ED34(void* colli, atn::ColliResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg7);
 
 // inferred: color (four floats) of the effect manager behind lbl_8087F048; names invented
@@ -164,7 +153,7 @@ int ControlWallUp::vf0C() {
         from.y = 10.0f + m14.y;
         atn::Vector3 to = m08;
         to.y += 10.0f;
-        WallCollResult_unk result;
+        atn::ColliResult_unk result;
         if (fn_8004ED34(lbl_8087EE98, &result, &from, &to, 0x80000020, 0, 0)) {
             lbl_8087F048->m3E304 = WallColor_unk(0.6f, 0.6f, 0.6f, 1.0f);
         } else {
@@ -190,7 +179,7 @@ int ControlWallUp::vf0C() {
         pos.y = m14.y;
         ControlChargeAttackBase::fn_801A4E08(mChara, pos, m08);
         if (lbl_8087F610 == 0 && ((GameTask*)lbl_8087F430)->GetCurrentMap()->mId == 40 && ((GameTask*)lbl_8087F430)->GetCurrentMap()->mSubId == 8) {
-            WallCollResult_unk result;
+            atn::ColliResult_unk result;
             atn::Vector3 top = m08;
             atn::Vector3 bottom = m08;
             top.y += 3.0f;

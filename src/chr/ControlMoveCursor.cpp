@@ -1,6 +1,7 @@
 #include "chr/ControlMoveCursor.h"
 #include "atn/RenderManager.h"
 #include "atn/Camera_unk.h"
+#include "atn/ColliBase.h"
 
 extern "C" double sqrt(double x);
 extern "C" double cos(double x);
@@ -50,20 +51,8 @@ struct CursorField_unk {
 };
 extern "C" CursorField_unk* lbl_8087F430;
 
-// inferred: collision world and ray test (see gmk/MotionObject.cpp)
-struct CollResult_unk {
-    CollResult_unk() : m34(0), m38(0), m3C(0), m40(0) {}
-    unsigned char m00[0x04];
-    atn::Vector3 m04; // inferred: hit position
-    unsigned char m10[0x34 - 0x10];
-    void* m34;
-    void* m38;
-    unsigned int m3C;
-    void* m40;
-    unsigned char m44[0x50 - 0x44];
-};
 extern "C" void* lbl_8087EE98;
-extern "C" int fn_8004ED34(void* colli, CollResult_unk* result, const atn::Vector3& from, const atn::Vector3& to,
+extern "C" int fn_8004ED34(void* colli, atn::ColliResult_unk* result, const atn::Vector3& from, const atn::Vector3& to,
                            unsigned int mask, void* ignore, int arg7); // inferred: ray test
 atn::Vector3 fn_8017C9AC(CharaTask* chara); // inferred: position of the character's eyes
 
@@ -164,7 +153,7 @@ void ControlMoveCursor::fn_801C346C(const CursorTarget_unk* target, float maxDis
 }
 
 // NONMATCHING: 96.6% - scheduling of the stores of the ray end point (`from + dir * dist`) around the
-// CollResult_unk constructor. `to` is named so that this function stays out of the autoinline
+// atn::ColliResult_unk constructor. `to` is named so that this function stays out of the autoinline
 // threshold of fn_801C3458 (with a temporary, fn_801C3458 inlines it); as a temporary the stack matches
 // better.
 void ControlMoveCursor::fn_801C3944(const CursorTarget_unk* target, float a, float dist, float c) {
@@ -174,7 +163,7 @@ void ControlMoveCursor::fn_801C3944(const CursorTarget_unk* target, float a, flo
     }
     atn::Vector3 dir = field->m268.GetDir_unk();
     atn::Vector3 from = fn_8017C9AC(mChara);
-    CollResult_unk res;
+    atn::ColliResult_unk res;
     atn::Vector3 to = from + dir * dist;
     if (fn_8004ED34(lbl_8087EE98, &res, from, to, 4, &mChara->mColli, 0) != 0) {
         m08 = res.m04;

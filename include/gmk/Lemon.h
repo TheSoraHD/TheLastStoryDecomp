@@ -40,13 +40,6 @@ public:
 
 } // namespace atn
 
-// inferred: result of the collision tests of lbl_8087EE98 as the gimmicks and the files that
-// include this header declare it: the layout is atn::ColliResult_unk (0x50 bytes) and the constructor
-// is inline (name invented; see also game/CollResult_unk.h)
-struct GmkCollResult_unk : public atn::ColliResult_unk {
-    GmkCollResult_unk() {}
-};
-
 namespace gmk {
 
 // inferred: building model (gmXXX_XXX.building) that is knocked away by message 3 and bounces on

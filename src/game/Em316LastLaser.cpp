@@ -9,6 +9,7 @@
 #include "std/string.h"
 #include "std/string_members.h"
 #include <boost/tokenizer.hpp>
+#include "atn/ColliBase.h"
 
 extern "C" int strncmp(const char* a, const char* b, unsigned long n);
 // inferred: std::string concatenation (weak copy 0x8006AFF8)
@@ -33,23 +34,8 @@ extern "C" int fn_800F8548(BulletMgr_unk* mgr); // inferred: new bullet id
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" int rand();
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
-extern "C" CharaManager<PlayerTask>* lbl_8087F8A0;   // inferred: player manager
-// inferred: collision result and ray test (as in game/Em403WarLion.cpp)
-struct CollResult_unk {
-    CollResult_unk() : m34(0), m38(0), m3C(0), m40(0) {}
-    unsigned char m00[0x04];
-    atn::Vector3 m04; // inferred: hit position
-    atn::Vector3 m10; // inferred: position of the hit
-    unsigned char m1C[0x28 - 0x1C];
-    atn::Vector3 m28; // inferred: normal of the hit
-    int m34;
-    atn::ColliBase* m38; // inferred: collision object hit (its m0C is the owner)
-    int m3C;
-    void* m40;
-    unsigned char m44[0x50 - 0x44];
-};
-extern "C" void* lbl_8087EE98; // inferred: collision world
-extern "C" int fn_8004ED34(void* world, CollResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
+extern "C" CharaManager<PlayerTask>* lbl_8087F8A0;   extern "C" void* lbl_8087EE98; // inferred: collision world
+extern "C" int fn_8004ED34(void* world, atn::ColliResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg); // inferred: ray test
 extern "C" int atoi(const char* s);
 extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3, int arg4);
@@ -376,7 +362,7 @@ void Em316LastLaser::vf10() {
         MakeRotationZYX_unk(m, mRot);
         PSMTXMultVec(m.m, &dir, &dir);
         atn::Vector3 to = mPos + dir;
-        CollResult_unk result;
+        atn::ColliResult_unk result;
         if (fn_8004ED34(lbl_8087EE98, &result, &mPos, &to, 0x80000004, &mColli, 0) != 0) {
             to = result.m10;
             m1538.fn_8031E8BC(to, result.m28);
@@ -514,7 +500,7 @@ void Em316LastLaser::fn_8031CA30() {
         MakeRotationZYX_unk(m, mRot);
         PSMTXMultVec(m.m, &dir, &dir);
         atn::Vector3 to = mPos + dir;
-        CollResult_unk result;
+        atn::ColliResult_unk result;
         if (fn_8004ED34(lbl_8087EE98, &result, &mPos, &to, 0x40000000, &mColli, 0) != 0 && result.m38 != 0 &&
             (result.m38->mFlags & 2) == 2) {
             HitInfo_unk* skill = fn_80219E6C(0x76E);
@@ -644,7 +630,7 @@ void Em316LastLaser::fn_8031D350() {
     m150C = *m14B8->fn_8013C38C() - m1524 * 40.0f;
     dir = (m150C - mPos).GetNormalize();
     atn::Vector3 to = mPos + dir * 1000.0f;
-    CollResult_unk result;
+    atn::ColliResult_unk result;
     if (fn_8004ED34(fn_801404F8(), &result, &mPos, &to, 0x80000004, &mColli, 0) != 0) {
         fn_8031D6DC(&m1538, result.m10, result.m28);
         mRot = (result.m10 - mPos).GetNormalize().ToRotation_unk();

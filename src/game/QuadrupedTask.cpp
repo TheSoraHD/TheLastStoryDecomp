@@ -14,6 +14,7 @@
 #include "atn/DrawHelper.h"
 #include "atn/RenderManager.h"
 #include "game/GameTask.h"
+#include "atn/ColliBase.h"
 
 // inferred: node position (as in game/Em205Ogre.cpp; name invented)
 inline atn::Vector3 GetNodePos_unk(MtxPtr m) {
@@ -50,22 +51,8 @@ typedef boost::function<void(atn::Matrix3x4*, const atn::NodeChunk&, const atn::
     NodeCallback_unk;
 extern "C" void fn_800F29D0(atn::Model* model, NodeCallback_unk callback);
 
-extern "C" void fn_8031F2A4(atn::Model* model, boost::function<void(atn::MotionBuffer*, int)> callback); // inferred: sets the node pose callback (game/Em401_01_WhiteLeoPard.cpp)
-// inferred: collision result and sweep test (as in game/Em003LesserDaemon.cpp)
-struct CollResult_unk {
-    CollResult_unk() : m34(0), m38(0), m3C(0), m40(0) {}
-    unsigned char m00[0x04];
-    atn::Vector3 m04; // inferred: hit position
-    atn::Vector3 m10; // inferred: position after the sweep
-    unsigned char m1C[0x34 - 0x1C];
-    int m34;
-    void* m38;
-    int m3C;
-    void* m40;
-    unsigned char m44[0x50 - 0x44];
-};
-extern "C" void* lbl_8087EE98; // inferred: collision world
-extern "C" int fn_8004D388(void* world, CollResult_unk* result, CharaTask::Sphere_unk* sphere, atn::Vector3* move,
+extern "C" void fn_8031F2A4(atn::Model* model, boost::function<void(atn::MotionBuffer*, int)> callback); extern "C" void* lbl_8087EE98; // inferred: collision world
+extern "C" int fn_8004D388(void* world, atn::ColliResult_unk* result, CharaTask::Sphere_unk* sphere, atn::Vector3* move,
                            unsigned int mask, void* ignore, int arg, float radius); // inferred: sweep test
 // inferred: effect/bullet manager (lbl_8087F048); class unknown
 struct Effect_unk;
@@ -562,7 +549,7 @@ void QuadrupedTask::fn_80567968(const atn::Vector3& target, int arg, float speed
     }
     int keepRot = 1;
     atn::Vector3 oldPos(pos);
-    CollResult_unk result;
+    atn::ColliResult_unk result;
     Sphere_unk sphere = fn_80176548(pos);
     unsigned int mask = arg != 0 ? 0x80000000 : 0;
     if (mType == 0) {

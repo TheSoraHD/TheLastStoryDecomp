@@ -657,7 +657,7 @@ void LastCocoonImago::vf54() {
     }
 }
 
-extern "C" int fn_8004D388(void* world, GmkCollResult_unk* result, CharaTask::Sphere_unk* sphere, atn::Vector3* move,
+extern "C" int fn_8004D388(void* world, atn::ColliResult_unk* result, CharaTask::Sphere_unk* sphere, atn::Vector3* move,
                            unsigned int mask, void* ignore, int arg, float radius); // inferred: sweep test
 extern "C" void* lbl_8087EE98; // inferred: collision world
 // inferred: game state (as in game/LastCocoonQuadruped.cpp); names invented
@@ -715,7 +715,7 @@ void LastCocoonImago::fn_8045ABB4(const atn::Vector3& target, float move, float 
     if (vel.y < -12.0f) {
         vel.y = -12.0f;
     }
-    GmkCollResult_unk result;
+    atn::ColliResult_unk result;
     atn::Vector3 oldPos = pos;
     Sphere_unk sphere;
     sphere.mCenter = m614;

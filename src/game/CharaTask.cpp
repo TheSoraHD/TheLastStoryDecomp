@@ -1,4 +1,3 @@
-#include "game/CollResult_unk.h"
 #include "game/SetConfig.h"
 #include "db/StrategyAiTable_unk.h"
 #include "game/AiTarget.h"
@@ -2219,7 +2218,7 @@ struct GameState_unk {
 };
 extern "C" GameState_unk* lbl_8087EFA8;
 
-extern "C" int fn_8004ED34(void* colli, CollResult_unk* result, const atn::Vector3* from, const atn::Vector3* to, unsigned int mask,
+extern "C" int fn_8004ED34(void* colli, atn::ColliResult_unk* result, const atn::Vector3* from, const atn::Vector3* to, unsigned int mask,
                            void* ignore, int arg7); // inferred: ray test
 
 // inferred: true when the attribute of the hit has id 0x1A (name invented)
@@ -2277,7 +2276,7 @@ void CharaTask::vf34(const atn::Vector3& rot, int arg, float a, float b) {
     if (fn_8013C3A8()) {
         m13AC = 0;
         if (mC48 != 0) {
-            CollResult_unk result;
+            atn::ColliResult_unk result;
             atn::Vector3 to;
             atn::Vector3 from;
             from = mPos;
@@ -2342,7 +2341,7 @@ void CharaTask::vf34(const atn::Vector3& rot, int arg, float a, float b) {
 
 extern "C" int fn_8004ECC0(void* world, atn::Vector3* hit, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg); // inferred: line check
-extern "C" int fn_8004D388(void* world, CollResult_unk* result, CharaTask::Sphere_unk* sphere, atn::Vector3* move,
+extern "C" int fn_8004D388(void* world, atn::ColliResult_unk* result, CharaTask::Sphere_unk* sphere, atn::Vector3* move,
                            unsigned int mask, void* ignore, int arg, float radius); // inferred: sweep test
 extern "C" int fn_8004D314(void* world, int arg, const atn::Vector3* pos, const atn::Vector3* dir, unsigned int mask,
                            int arg5, int arg6, float radius); // inferred: sphere test
@@ -2571,7 +2570,7 @@ void CharaTask::fn_8013CB68(const atn::Vector3& target, int arg, float speed, fl
                 }
             }
         }
-        CollResult_unk result;
+        atn::ColliResult_unk result;
         atn::Vector3 oldPos(pos);
         Sphere_unk sphere = fn_80176548(pos);
         if (mFlagB0) {
@@ -2866,8 +2865,6 @@ void* fn_801404F8() {
     return lbl_8087EE98;
 }
 
-// inferred: out-of-line copy at 0x80140500 (called by fn_8015076C and other files)
-CollResult_unk::CollResult_unk() {}
 
 bool CharaTask::fn_80140518() {
     return mType == 3;
@@ -2952,7 +2949,7 @@ void CharaTask::fn_80140588(void* target, float a, float b) {
     }
     bool updateRot = true;
     if (LengthSq_unk(atn::RenderManager::instance_->mCamera.mPos - mPos) < 202500.0f) {
-        CollResult_unk result;
+        atn::ColliResult_unk result;
         atn::Vector3 start(pos);
         Sphere_unk sphere = fn_80176548(pos);
         unsigned int mask = fn_80179D44();
@@ -3195,7 +3192,7 @@ void CharaTask::fn_80141674(void* target, float a, float b) {
     if (vel.y < -6.0f) {
         vel.y = -6.0f;
     }
-    CollResult_unk result;
+    atn::ColliResult_unk result;
     atn::Vector3 start(pos);
     atn::Vector3 fwd = fn_8014052C();
     Sphere_unk sphere = fn_80176548(pos);
@@ -3206,7 +3203,7 @@ void CharaTask::fn_80141674(void* target, float a, float b) {
     pos -= sphere.mCenter - start;
     pos.y = start.y;
     vel.y = 0.0f;
-    CollResult_unk wall;
+    atn::ColliResult_unk wall;
     unsigned int mask = fn_80179D44() | 0x40000000;
     sphere = fn_80176548(pos);
     sphere.mCenter += fwd * 2.0f;
@@ -3332,7 +3329,7 @@ void CharaTask::fn_801426A4(void* target, float a, float b) {
                 pos.y = hitPos.y;
             }
         }
-        CollResult_unk result;
+        atn::ColliResult_unk result;
         atn::Vector3 start(pos);
         Sphere_unk sphere = fn_80176548(pos);
         unsigned int mask = fn_80179D44();
@@ -4048,7 +4045,7 @@ void CharaTask::fn_80145334() {
             atn::Vector3 n = dir.GetNormalize();
             atn::Vector3 front = fn_8014052C();
             if (PSVECDotProduct(&n, &front) > 0.5f) {
-                CollResult_unk result;
+                atn::ColliResult_unk result;
                 unsigned int mask = fn_80179D44() | 0x80000000;
                 Sphere_unk sphere;
                 sphere.mCenter = m614;
@@ -6866,7 +6863,7 @@ void CharaTask::fn_8015076C(int id, const atn::Vector3& dir, const atn::Vector3&
         fn_8014DEE4(0, 0, 0);
     }
     if (((GameTask*)fn_80121F00())->fn_80370174(0x67) && IsPlayer() && !mStatus.fn_80139F4C()) {
-        CollResult_unk result;
+        atn::ColliResult_unk result;
         atn::Vector3 from = mPos + atn::Vector3(0.0f, 5.0f, 0.0f);
         atn::Vector3 to = (mPos + atn::Vector3(0.0f, 5.0f, 0.0f)) + dir * 8.0f;
         if (fn_8004ED34(fn_801404F8(), &result, &from, &to, 0x80000000, 0, 0) && (result.m3C & 4U) == 4U) {
@@ -6885,7 +6882,7 @@ void CharaTask::fn_8015076C(int id, const atn::Vector3& dir, const atn::Vector3&
         float limit = fn_8013A158() ? 5.0f : 7.0f;
         if ((m137C & 2) == 2) {
             atn::Vector3 rot(mRot);
-            CollResult_unk result;
+            atn::ColliResult_unk result;
             atn::Vector3 from = mPos + fn_8014052C() * 10.0f;
             atn::Vector3 to = mPos + fn_8014052C() * -10.0f;
             from.y -= 10.0f;
@@ -8314,7 +8311,7 @@ static void StartWallUp_unk(CharaTask* chara, const atn::Vector3& pos, const atn
 
 // inferred: climbs the wall found in direction `dir`
 void CharaTask::fn_801591E8(const atn::Vector3& dir) {
-    CollResult_unk result;
+    atn::ColliResult_unk result;
     atn::Vector3 from(mPos.x, 18.0f + mPos.y, mPos.z);
     atn::Vector3 to = from + dir * m620 * 2.0f;
     if (fn_8004ED34(lbl_8087EE98, &result, &from, &to, 0x80000020, 0, 0)) {
@@ -9342,7 +9339,7 @@ bool CharaTask::fn_8016ADF4(CharaTask* other) {
 
 // inferred: the character found ahead along `dir` if it can swap places with `chara` (name invented)
 inline CharaTask* FindSwapTarget_unk(CharaTask* chara, const atn::Vector3& dir) {
-    CollResult_unk result;
+    atn::ColliResult_unk result;
     atn::Vector3 from(chara->mPos);
     from.y += 5.0f;
     atn::Vector3 to = from + dir * 20.0f;
@@ -9991,7 +9988,7 @@ int CharaTask::fn_801720AC(atn::Vector3* pos, atn::Vector3* vel) {
     from.y += 10.0f;
     to.y += 10.0f;
     to += dir * (3.0f + m620);
-    CollResult_unk result;
+    atn::ColliResult_unk result;
     if (fn_8004ED34(lbl_8087EE98, &result, &from, &to, 0x80000000, 0, 0) == 0) {
         from = *pos;
         to = *pos;
@@ -10009,7 +10006,7 @@ int CharaTask::fn_801720AC(atn::Vector3* pos, atn::Vector3* vel) {
 
 // inferred: climbs onto the character in front (it gets chr::ControlStool); `out` receives it
 // NONMATCHING: ~95% - only the scheduling of the line-check setup differs (copies of *pos, the
-// CollResult_unk zero stores and the lbl_8087EE98 load); tried the result declared at each point,
+// atn::ColliResult_unk zero stores and the lbl_8087EE98 load); tried the result declared at each point,
 // copy constructor / operator= / Assign_unk copies, a world local, a distance local, early return.
 int CharaTask::fn_801725EC(atn::Vector3* pos, atn::Vector3* vel, CharaTask** out) {
     atn::Vector3 dir(vel->x, 0.0f, vel->z);
@@ -10034,7 +10031,7 @@ int CharaTask::fn_801725EC(atn::Vector3* pos, atn::Vector3* vel, CharaTask** out
     atn::Vector3 to(*pos);
     from.y += 5.0f;
     to.y += 5.0f;
-    CollResult_unk result;
+    atn::ColliResult_unk result;
     to += dir * (3.0f + m620);
     if (fn_8004ED34(lbl_8087EE98, &result, &from, &to, 0, &mColli, 0) != 0 && result.m38 != 0 &&
         (result.m38->mFlags & 2) == 2) {
@@ -10200,7 +10197,7 @@ int CharaTask::fn_80172EFC(atn::Vector3* pos, atn::Vector3* move) {
     from.y += 10.0f;
     to.y += 10.0f;
     to += dir * (5.0f + (3.0f + m620));
-    CollResult_unk result;
+    atn::ColliResult_unk result;
     if (fn_8004ED34(lbl_8087EE98, &result, &from, &to, 0x80000020, 0, 0) != 0) {
         if (++m13AC > limit && ((GameScene*)lbl_8087F430->m10D8)->fn_803CC3BC(pos, &dir, this) != 0 &&
             PSVECDotProduct(&result.m28, &-dir) > 0.8660254f) {
@@ -10266,7 +10263,7 @@ int CharaTask::fn_8017380C(atn::Vector3* pos, atn::Vector3* move) {
     from.y += 5.0f;
     to.y += 5.0f;
     to += dir * (3.0f + m620);
-    CollResult_unk result;
+    atn::ColliResult_unk result;
     if (fn_8004ED34(lbl_8087EE98, &result, &from, &to, 0x80000020, 0, 0) != 0 &&
         ((result.m3C & 0x400) == 0x400 || lbl_8087F0A8->m2C0 != 0)) {
         if (PSVECDotProduct(&result.m28, &-dir) > limit) {
@@ -10309,14 +10306,14 @@ int CharaTask::fn_80174104(atn::Vector3* pos, atn::Vector3* move) {
     from.y += 5.0f;
     to.y += 5.0f;
     to += dir * (1.154f * m620);
-    CollResult_unk result;
+    atn::ColliResult_unk result;
     if (fn_8004ED34(lbl_8087EE98, &result, &from, &to, 0x80000000, 0, 0) != 0 && (result.m3C & 4) != 4) {
         if ((result.m3C & 0x10) == 0x10) {
             return 0;
         }
         float dot = PSVECDotProduct(&result.m28, &-dir);
         if (dot > (float)cos(0.34906587f) && (result.m3C & 0x800) == 0x800) {
-            CollResult_unk result2;
+            atn::ColliResult_unk result2;
             atn::Vector3 off = Cross_unk(dir, atn::Vector3(0.0f, 1.0f, 0.0f)) * 3.0f;
             result.m3C = 0;
             if (fn_8004ED34(lbl_8087EE98, &result2, &(from + off), &(to + off), 0x80000000, 0, 0) != 0 &&
@@ -12149,7 +12146,7 @@ atn::Vector3 CharaTask::vfD8(CharaTask* target) {
         dir.z = 1.0f;
     }
     atn::Vector3 pos = base - dir * 15.0f;
-    CollResult_unk coll;
+    atn::ColliResult_unk coll;
     Mtx rot;
     for (unsigned int i = 0; i < 8; i++) {
         PSMTXRotRad(rot, 'y', 3.1415927f * (float)i / 4.0f);

@@ -11,6 +11,7 @@
 #include "game/BattleTask.h"
 #include "game/GameTask.h"
 #include "math/VecAssign_unk.h"
+#include "atn/ColliBase.h"
 
 // inferred: empty release assert (some state functions of the original are not auto-inlined)
 #define ASSERT_UNK(x) ((void)0)
@@ -194,24 +195,11 @@ extern "C" inline atn::Matrix3x4 fn_800109E0(const atn::Vector3& rot) {
     }
     return m;
 }
-// inferred: Matrix3x4 assignment out of line (weak copy 0x8008CD1C of atn/Model.cpp)
-// inferred: collision world and its ray test (as in game/Em003LesserDaemon.cpp)
-struct CollResult_unk {
-    CollResult_unk() : m34(0), m38(0), m3C(0), m40(0) {}
-    unsigned char m00[0x04];
-    atn::Vector3 m04; // inferred: hit position
-    unsigned char m10[0x34 - 0x10];
-    void* m34;
-    void* m38;
-    int m3C;
-    int m40;
-    unsigned char m44[0x50 - 0x44];
-};
 extern "C" void* lbl_8087EE98;
 inline void* fn_801404F8() {
     return lbl_8087EE98;
 }
-extern "C" int fn_8004ED34(void* colli, CollResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
+extern "C" int fn_8004ED34(void* colli, atn::ColliResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg7); // inferred: ray test
 // inferred: effect/bullet manager (weak copy 0x8013A194 of another file)
 inline Effect_unk* fn_8013A194() {
@@ -1260,7 +1248,7 @@ void Em203GreaterDaemon::fn_8028CB38() {
                 atn::Vector3 to;
                 from = pos;
                 to = from + dir * 1000.0f;
-                CollResult_unk result;
+                atn::ColliResult_unk result;
                 if (fn_8004ED34(fn_801404F8(), &result, &from, &to, 0x80000000, 0, 0) != 0) {
                     atn::Vector3 hit(result.m04);
                     fn_800FAB80(fn_8013A194(), this, m14D0, m1550, &hit, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);

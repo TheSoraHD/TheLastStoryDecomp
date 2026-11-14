@@ -1,4 +1,5 @@
 #include "chr/ControlTurnQuadruped.h"
+#include "atn/ColliBase.h"
 
 
 // inferred: globals of unknown classes
@@ -10,22 +11,10 @@ struct Params_unk {
     unsigned char m000[0x3A4];
     float mTimeScale; // 0x3A4
 };
-// inferred: collision query result (0x44 bytes)
-struct CollResult_unk {
-    CollResult_unk() : m34(0), m38(0), m3C(0), m40(0) {}
-    unsigned char m00[0x10];
-    atn::Vector3 mPos; // 0x10
-    unsigned char m1C[0x34 - 0x1C];
-    void* m34;
-    void* m38;
-    int m3C;
-    void* m40;
-    int m44;
-};
 extern "C" System_unk* lbl_8087F0A8;
 extern "C" Params_unk* lbl_8087EFA8;
 extern "C" void* lbl_8087EE98;
-extern "C" void fn_8004D388(void* mgr, CollResult_unk* result, chr::Chara_unk::Sphere_unk* sphere, atn::Vector3* move,
+extern "C" void fn_8004D388(void* mgr, atn::ColliResult_unk* result, chr::Chara_unk::Sphere_unk* sphere, atn::Vector3* move,
                             unsigned int mask, void* ignore, int arg, float radius); // inferred: sweep test
 
 namespace chr {
@@ -89,15 +78,15 @@ int ControlTurnQuadruped::vf0C() {
     move.y += -98.1f / (float)(fps * fps);
     move.y *= scale;
     move.z *= scale;
-    CollResult_unk result;
+    atn::ColliResult_unk result;
     Chara_unk::Sphere_unk sphere = mChara->fn_80176548(mChara->mPos);
     fn_8004D388(lbl_8087EE98, &result, &sphere, &move, 0x80000080, &mChara->mColli, 0, sphere.mRadius);
     Chara_unk* chara = mChara;
-    result.mPos.x -= chara->m5A4.x;
-    result.mPos.y -= chara->m5A4.y;
-    result.mPos.y -= sphere.mRadius;
-    result.mPos.z -= chara->m5A4.z;
-    chara->mPos = result.mPos;
+    result.m10.x -= chara->m5A4.x;
+    result.m10.y -= chara->m5A4.y;
+    result.m10.y -= sphere.mRadius;
+    result.m10.z -= chara->m5A4.z;
+    chara->mPos = result.m10;
     return 0;
 }
 

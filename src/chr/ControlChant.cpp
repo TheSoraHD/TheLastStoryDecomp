@@ -105,7 +105,7 @@ extern "C" Field_unk* lbl_8087F430;
 // inferred: party manager (as in game/CharaTask.cpp)
 extern "C" PlayerManager* lbl_8087F8A0;
 extern "C" void* lbl_8087EE98; // inferred: collision world
-extern "C" int fn_8004ED34(void* colli, GmkCollResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
+extern "C" int fn_8004ED34(void* colli, atn::ColliResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg7); // inferred: ray test
 extern "C" int fn_8004ECC0(void* world, atn::Vector3* hit, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg); // inferred: ray test
@@ -243,7 +243,7 @@ ControlChant::ControlChant(Chara_unk* chara, CharaTask* target, const atn::Vecto
     m14 = mChara->mPos;
     m34 = target;
     m38 = time;
-    GmkCollResult_unk res;
+    atn::ColliResult_unk res;
     atn::Vector3 from(mChara->mPos);
     atn::Vector3 to(mChara->mPos);
     from.y += 5.0f;

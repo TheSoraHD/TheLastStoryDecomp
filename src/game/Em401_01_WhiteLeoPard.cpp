@@ -11,6 +11,7 @@
 #include "atn/Material_unk.h"
 #include "atn/RenderManager.h"
 #include "game/GameTask.h"
+#include "atn/ColliBase.h"
 
 // inferred: event flags counted by fn_8031FE4C (lbl_80749898) and route places of the retreat
 // (lbl_807498A4)
@@ -277,21 +278,8 @@ void Em401_01_WhiteLeoPard::fn_8031FD34(HitMsg_unk* msg) {
     }
 }
 
-// inferred: collision result and sweep test (as in game/Em003LesserDaemon.cpp)
-struct CollResult_unk {
-    CollResult_unk() : m34(0), m38(0), m3C(0), m40(0) {}
-    unsigned char m00[0x04];
-    atn::Vector3 m04; // inferred: hit position
-    atn::Vector3 m10; // inferred: position after the sweep
-    unsigned char m1C[0x34 - 0x1C];
-    int m34;
-    void* m38;
-    int m3C;
-    void* m40;
-    unsigned char m44[0x50 - 0x44];
-};
 extern "C" void* lbl_8087EE98; // inferred: collision world
-extern "C" int fn_8004D388(void* world, CollResult_unk* result, CharaTask::Sphere_unk* sphere, atn::Vector3* move,
+extern "C" int fn_8004D388(void* world, atn::ColliResult_unk* result, CharaTask::Sphere_unk* sphere, atn::Vector3* move,
                            unsigned int mask, void* ignore, int arg, float radius); // inferred: sweep test
 // inferred: effect/bullet manager (lbl_8087F048); class unknown
 struct Effect_unk;
@@ -594,7 +582,7 @@ void Em401_01_WhiteLeoPard::fn_803209E0(const atn::Vector3& target, int arg, flo
     }
     int keepRot = 1;
     atn::Vector3 oldPos(pos);
-    CollResult_unk result;
+    atn::ColliResult_unk result;
     Sphere_unk sphere = fn_80176548(pos);
     unsigned int mask = arg != 0 ? 0x80000000 : 0;
     if (mType == 0) {
@@ -924,7 +912,7 @@ void Em401_01_WhiteLeoPard::fn_80322AD4() {
     m1588 += 0.3f;
     m1588 = LeoMax_unk(m1588, 6.0f);
     atn::Vector3 move(m157C * (float)m1588);
-    CollResult_unk result;
+    atn::ColliResult_unk result;
     Sphere_unk sphere = fn_80176548(mPos);
     fn_8004D388(lbl_8087EE98, &result, &sphere, &move, 0x80000080, &mColli, 0, sphere.mRadius);
     mPos = result.m10;

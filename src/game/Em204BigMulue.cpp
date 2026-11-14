@@ -63,20 +63,7 @@ extern "C" GameUI* lbl_8087F490;
 extern "C" bool fn_80051A88(const CharaTask::Sphere_unk* sphere, const atn::Vector3* point); // inferred: point in sphere
 struct Field_unk;
 extern "C" Field_unk* lbl_8087F430;
-// inferred: debug drawing (lbl_8087EEB0)
-// inferred: ray tests (as in game/Em208Queen.cpp and gmk/Brazier.cpp)
-struct BigMulueColl_unk {
-    BigMulueColl_unk() : m34(0), m38(0), m3C(0), m40(0) {}
-    unsigned char m00[0x10];
-    atn::Vector3 m10; // inferred: hit position
-    unsigned char m1C[0x34 - 0x1C];
-    int m34;
-    void* m38;
-    int m3C;
-    int m40;
-    unsigned char m44[0x50 - 0x44];
-};
-extern "C" int fn_8004ED34(void* world, BigMulueColl_unk* result, const atn::Vector3* from, const atn::Vector3* to,
+extern "C" int fn_8004ED34(void* world, atn::ColliResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg7); // inferred: ray test
 extern "C" int fn_8004D314(void* world, atn::Vector3* hit, const atn::Vector3* pos, const atn::Vector3* move,
                            unsigned int mask, void* ignore, int arg, float radius); // inferred: sphere sweep
@@ -967,7 +954,7 @@ int Em204BigMulue::fn_802B0430(int state, float* over) {
             *over = dist - (float)far;
         }
     }
-    BigMulueColl_unk res;
+    atn::ColliResult_unk res;
     atn::Vector3 from(mPos);
     atn::Vector3 dir(0.0f, 0.0f, 300.0f);
     atn::Matrix3x4 m;

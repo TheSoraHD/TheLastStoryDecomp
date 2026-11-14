@@ -464,7 +464,7 @@ int EnemyJill::fn_8032F0EC() {
 
 // inferred: collision world and its ray test (as in game/EnemyTrista.cpp)
 extern "C" void* lbl_8087EE98;
-extern "C" int fn_8004ED34(void* colli, GmkCollResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
+extern "C" int fn_8004ED34(void* colli, atn::ColliResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg7); // inferred: ray test
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: length
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
@@ -497,7 +497,7 @@ int EnemyJill::fn_8032F314() {
     void* world;
     unsigned int i;
     int result = 0;
-    GmkCollResult_unk hit;
+    atn::ColliResult_unk hit;
     float base = 6.2831855f * (rand() % 1001 / 1000.0f) + -3.1415927f;
     CharaTask* target = mC58.mC4;
     atn::Vector3 to = target->mPos - mPos;

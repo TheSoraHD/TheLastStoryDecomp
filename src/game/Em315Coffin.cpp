@@ -4,6 +4,7 @@
 #include "atn/Memory.h"
 #include "math/Vec.h"
 #include "math/VecAssign_unk.h"
+#include "atn/ColliBase.h"
 
 extern "C" int sprintf(char* buf, const char* fmt, ...);
 extern "C" int strcmp(const char* a, const char* b);
@@ -63,14 +64,7 @@ extern "C" void fn_800FAB80(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* bull
                             const atn::Vector3* rot, int arg6, int arg7, int arg8, int arg9, float arg10,
                             float arg11);
 void* fn_801404F8();
-// inferred: result of the collision ray test (as in game/CharaTask.cpp)
-struct CollResult_unk {
-    CollResult_unk(); // 0x80140500
-    unsigned char m00[0x04];
-    atn::Vector3 m04; // inferred: hit position
-    unsigned char m10[0x40];
-};
-extern "C" int fn_8004ED34(void* colli, CollResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
+extern "C" int fn_8004ED34(void* colli, atn::ColliResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg7); // inferred: ray test
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
 extern "C" float fn_800DC288(const char* s); // inferred: string to float
@@ -561,7 +555,7 @@ void Em315Coffin::vf108() {
             if (m14BC == 0) {
                 atn::Vector3 hips = ((atn::Matrix3x4*)mMotion.GetNodeMtx_unk("hips"))->GetTrans_unk();
                 m15F8 = *m161C->fn_8013C38C() - fn_8014052C() * 10.0f;
-                CollResult_unk result;
+                atn::ColliResult_unk result;
                 atn::Vector3 from = m15F8;
                 from.y += 1.0f;
                 atn::Vector3 to = from;

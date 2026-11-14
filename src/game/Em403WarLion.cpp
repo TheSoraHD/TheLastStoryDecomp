@@ -65,7 +65,7 @@ struct GameState_unk {
     float m3A4; // inferred: time of a frame
 };
 extern "C" GameState_unk* lbl_8087EFA8;
-extern "C" int fn_8004D388(void* world, GmkCollResult_unk* result, CharaTask::Sphere_unk* sphere, atn::Vector3* move,
+extern "C" int fn_8004D388(void* world, atn::ColliResult_unk* result, CharaTask::Sphere_unk* sphere, atn::Vector3* move,
                            unsigned int mask, void* ignore, int arg, float radius); // inferred: sweep test
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 extern "C" double sin(double x);
@@ -111,7 +111,7 @@ extern "C" void* lbl_8087EE98;
 void* fn_801404F8();
 extern "C" int fn_8004ECC0(void* world, atn::Vector3* hit, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg); // inferred: ray test
-extern "C" int fn_8004ED34(void* world, GmkCollResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
+extern "C" int fn_8004ED34(void* world, atn::ColliResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg); // inferred: ray test
 
 // inferred: plays an effect on the model (name invented, as in game/Em002Skelton.cpp)
@@ -635,7 +635,7 @@ void Em403WarLion::fn_80324A38(const atn::Vector3& target, int arg, float speed,
     }
     int keepRot = 1;
     atn::Vector3 oldPos(pos);
-    GmkCollResult_unk result;
+    atn::ColliResult_unk result;
     Sphere_unk sphere = fn_80176548(pos);
     unsigned int mask = arg != 0 ? 0x80000000 : 0;
     if (mType == 0) {
@@ -930,7 +930,7 @@ void Em403WarLion::vf54() {
 }
 
 // inferred: chooses the next action of the walk mode (m14CC)
-// NONMATCHING: 99.93% - f30/f31 de la distancia y del angulo, huecos de pila de los GmkCollResult_unk
+// NONMATCHING: 99.93% - f30/f31 de la distancia y del angulo, huecos de pila de los atn::ColliResult_unk
 // (el original llama fuera de linea a los helpers de Vector3: supera el presupuesto de inline)
 void Em403WarLion::fn_803267E8() {
     if (m15D4 != 0) {
@@ -956,7 +956,7 @@ void Em403WarLion::fn_803267E8() {
                 }
                 int done = 0;
                 if (rand() % 50 < 10) {
-                    GmkCollResult_unk result;
+                    atn::ColliResult_unk result;
                     atn::Vector3 from(mPos);
                     from.y += 10.0f;
                     atn::Vector3 to = from + d.GetNormalize() * 500.0f;
@@ -976,7 +976,7 @@ void Em403WarLion::fn_803267E8() {
                 }
             } else if (IsRaging_unk()) {
                 if (rand() % 3 != 0) {
-                    GmkCollResult_unk result;
+                    atn::ColliResult_unk result;
                     atn::Vector3 from(mPos);
                     from.y += 10.0f;
                     atn::Vector3 to = from + d.GetNormalize() * 500.0f;
@@ -1212,7 +1212,7 @@ void Em403WarLion::fn_80328270() {
             mMotion.mTracks[0].m20 = 1.0f;
             mMotion.mTracks[0].m0C = 1.0f;
             mMotion.fn_80097C08(0, 0x140, 0, 0, 1, 1.0f, 0.1f);
-            GmkCollResult_unk result;
+            atn::ColliResult_unk result;
             atn::Vector3 pos(-18.0f, 30.0f, 600.0f);
             RoutePlace_unk* place = fn_80121F00()->fn_8013C504()->FindPlace_unk(0x262);
             if (place != 0) {
@@ -1255,7 +1255,7 @@ void Em403WarLion::fn_8032853C() {
             mMotion.mTracks[0].m20 = 1.0f;
             mMotion.mTracks[0].m0C = 1.0f;
             mMotion.fn_80097C08(0, 0x140, 0, 0, 1, 1.0f, 0.1f);
-            GmkCollResult_unk result;
+            atn::ColliResult_unk result;
             atn::Vector3 pos(-18.0f, 30.0f, 600.0f);
             RoutePlace_unk* place = fn_80121F00()->fn_8013C504()->FindPlace_unk(0x262);
             if (place != 0) {
@@ -1330,7 +1330,7 @@ void Em403WarLion::fn_803289EC() {
         mMotion.mTracks[0].m20 = 1.0f;
         mMotion.fn_80097C08(0, 0x140, 0, 0, 1, 1.0f, 0.1f);
         mMotion.mTracks[0].m0C = 2.0f;
-        GmkCollResult_unk result;
+        atn::ColliResult_unk result;
         mPos = m14DC;
         atn::Vector3 down(0.0f, -100.0f, 0.0f);
         atn::Vector3 to = down + m14DC;
@@ -1608,7 +1608,7 @@ int Em403WarLion::fn_80329ED8(int* count, atn::Vector3* pos, float* angle) {
             atn::Vector3 from(c->mPos);
             from.y += 20.0f;
             atn::Vector3 to = from + dir * 1000.0f;
-            GmkCollResult_unk result;
+            atn::ColliResult_unk result;
             if (fn_8004ED34(lbl_8087EE98, &result, &from, &to, 0, &c->mColli, 0) == 0) {
                 continue;
             }
@@ -1651,7 +1651,7 @@ void Em403WarLion::fn_8032A3D4(atn::Vector3* pos, float* angle, const atn::Vecto
     atn::Vector3 ofs(0.0f, 0.0f, dist);
     atn::Vector3 from(*target);
     float best = 0.0f;
-    GmkCollResult_unk result;
+    atn::ColliResult_unk result;
     atn::Vector3 found;
     from.y += m620;
     float a = mRot.y;

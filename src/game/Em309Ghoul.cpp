@@ -13,6 +13,7 @@
 #include "atn/RenderManager.h"
 #include "game/BattleTask.h"
 #include "math/VecAssign_unk.h"
+#include "atn/ColliBase.h"
 
 // inferred: effect/bullet manager (lbl_8087F048); class unknown
 struct Effect_unk;
@@ -1076,23 +1077,8 @@ struct GhoulParams_unk {
 };
 extern "C" GhoulParams_unk* lbl_8087EFA8;
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
-extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
-// inferred: result of the collision tests of lbl_8087EE98 (0x50 bytes, as in gmk/MotionObject.cpp)
-struct GhoulCollResult_unk {
-    GhoulCollResult_unk() : m34(0), m38(0), m3C(0), m40(0) {}
-    unsigned char m00[0x04];
-    atn::Vector3 m04; // inferred: hit position
-    atn::Vector3 m10_unk; // inferred: position after the sweep
-    unsigned char m1C[0x28 - 0x1C];
-    atn::Vector3 m28_unk; // inferred: normal of the hit (as in gmk/Lemon.h)
-    void* m34;
-    void* m38;
-    unsigned int m3C; // inferred: material flags (0x20: wall)
-    int m40;
-    unsigned char m44[0x50 - 0x44];
-};
-extern "C" void* lbl_8087EE98;
-extern "C" int fn_8004ED34(void* colli, GhoulCollResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
+extern "C" atn::Vector3 lbl_807C7030; extern "C" void* lbl_8087EE98;
+extern "C" int fn_8004ED34(void* colli, atn::ColliResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg7); // inferred: ray test
 extern "C" double tan(double x);
 extern "C" double atan(double x);
@@ -1225,7 +1211,7 @@ void Em309Ghoul::vfEC() {
     }
     PSMTXMultVec(m.m, &eye, &eye);
     PSMTXMultVec(m.m, &target, &target);
-    GhoulCollResult_unk res;
+    atn::ColliResult_unk res;
     if (fn_8004ED34(lbl_8087EE98, &res, &target, &eye, 0x80000008, 0, 0) != 0) {
         eye.Assign_unk(res.m04);
     } else {
@@ -1497,7 +1483,7 @@ void Em309Ghoul::fn_80302B84() {
     }
 }
 
-extern "C" int fn_8004D388(void* world, GhoulCollResult_unk* result, CharaTask::Sphere_unk* sphere,
+extern "C" int fn_8004D388(void* world, atn::ColliResult_unk* result, CharaTask::Sphere_unk* sphere,
                            atn::Vector3* move, unsigned int mask, void* ignore, int arg); // inferred: sweep test
 extern "C" void PSMTXRotAxisRad(Mtx m, const atn::Vector3* axis, float rad);
 // inferred: camera shake of the field (lbl_8087F430 + 0x96C, as in game/Em301LShade.cpp)
@@ -1623,31 +1609,31 @@ void Em309Ghoul::fn_80302F94() {
         }
         PSMTXMultVec(m2.m, &m15D8, &m15D8);
         int hit = 0;
-        GhoulCollResult_unk res;
+        atn::ColliResult_unk res;
         CharaTask::Sphere_unk sphere;
         sphere.mCenter = mPos;
         sphere.mCenter.y += 16.0f * (1.0f - scale);
         sphere.mRadius = m16E0;
         if (fn_8004D388(lbl_8087EE98, &res, &sphere, &m15D8, 0x80000000, &mColli, 0) != 0 && (res.m3C & 0x20) == 0x20) {
-            fn_800C344C("SE_EM309_016", &res.m10_unk, 0, -1, 1.0f);
+            fn_800C344C("SE_EM309_016", &res.m10, 0, -1, 1.0f);
             atn::Vector3 dir;
             atn::Vector3 n = m15D8;
             n.Normalize_unk();
-            GhoulCollResult_unk wall;
+            atn::ColliResult_unk wall;
             if (fn_8004ED34(lbl_8087EE98, &wall, &sphere.mCenter, &(sphere.mCenter + n * 50.0f), 0x80000000, 0, 0) !=
                 0) {
                 dir = m15D8;
                 dir.y = 0.0f;
-                PSMTXRotAxisRad(axisRot, &wall.m28_unk, 3.1415927f);
+                PSMTXRotAxisRad(axisRot, &wall.m28, 3.1415927f);
                 PSMTXMultVec(axisRot, &dir, &dir);
                 dir = atn::Vector3(-dir.x, -dir.y, -dir.z);
                 dir.Normalize_unk();
             } else {
-                dir = res.m10_unk - (sphere.mCenter + m15D8);
+                dir = res.m10 - (sphere.mCenter + m15D8);
                 dir.y = 0.0f;
                 dir.Normalize_unk();
             }
-            mPos = res.m10_unk;
+            mPos = res.m10;
             hit = 1;
             mPos.y -= 16.0f * (1.0f - scale);
             atn::Vector3 home(m1608.x - mPos.x, 0.0f, m1608.z - mPos.z);
@@ -1692,7 +1678,7 @@ void Em309Ghoul::fn_80302F94() {
             }
             m15D8.Set_unk(0.0f, 0.0f, 25.0f + h);
             PSMTXMultVec(m3.m, &m15D8, &m15D8);
-            m1618 = res.m10_unk;
+            m1618 = res.m10;
             m15F4 = m15D8;
             GhoulShake_unk_Set(1, 0.5f, 0.5f);
             m15E4++;

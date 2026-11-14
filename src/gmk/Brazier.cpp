@@ -41,7 +41,7 @@ extern "C" void fn_800CB6E4(atn::SoundRef* sound, const atn::Vector3* pos); // i
 extern "C" void* lbl_8087EE98;
 extern "C" int fn_8004D314(void* world, int arg, const atn::Vector3* pos, const atn::Vector3* dir, unsigned int mask,
                            int arg5, int arg6, float radius); // inferred: sphere test
-extern "C" int fn_8004D388(void* world, GmkCollResult_unk* result, CharaTask::Sphere_unk* sphere, atn::Vector3* move,
+extern "C" int fn_8004D388(void* world, atn::ColliResult_unk* result, CharaTask::Sphere_unk* sphere, atn::Vector3* move,
                            unsigned int mask, void* ignore, int arg); // inferred: sweep test
 // inferred: debug drawing (lbl_8087EEB0)
 // inferred: game settings
@@ -450,7 +450,7 @@ void Brazier::fn_80407D24() {
         return;
     }
     m6C += mDir * mSpeed;
-    GmkCollResult_unk res;
+    atn::ColliResult_unk res;
     CharaTask::Sphere_unk sphere;
     sphere.mCenter = m6C;
     sphere.mCenter.y += mRadius;
