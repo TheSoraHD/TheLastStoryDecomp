@@ -77,6 +77,8 @@ Agente F, rama `agent-F`. Unidades: `atn/LayerOcclusionCPU`, `atn/LH_Motion_cont
 
 - Probado en `fn_800B4694` (90,6 %): el ternario del ultimo argumento en la llamada, `bool`, la forma sin local de
   la forma; en todas MWCC la inlinea en `vf14` (62 %): se deja como estaba.
+- Probado en `fn_800B3978` (96,9 %): asignar `b, c, e` antes que `m` deja los stores en el orden del original pero
+  cruza f2/f3 (96,5 %); otras declaraciones/inicializaciones 96,3-96,8 %, punteros de fila 68 %: se deja como estaba.
 
 ## Pendientes
 
