@@ -80,3 +80,17 @@ Inicio 2026-11-14 02:59. Unidades: atn/Model, atn/BoneCalc_unk.
 - `bool r = true; bool a = true; if (!A && !f()) a = false; if (!a && !g()) r = false;` reproduce los dos
   `li rX,1` iniciales del original (fn_8008D78C, fn_8008CD60).
 - Una prueba de `mFlags` en una inline `bool` (`HasFlag_unk`) fuerza la recarga de la palabra como en el original.
+
+## Pendientes
+
+- `ModelPose_unk::m18` y `ModelBase::mB8` como `ModelNodeCallback_unk` en las cabeceras (hoy `boost::function<void()>`
+  y `reinterpret_cast` en BoneCalc): toca `atn/Model_unk.h`, re-emparejar en lote.
+- Las pruebas `empty()` materializadas (`cntlzw`) de BoneCalc: no salen con `if (f)`, `!= 0`, bool local, inline
+  ni niveles de inline (probado en fichero suelto); queda abierto.
+- Orden de `@stringBase0` de Model: el original tiene `""` justo detras de "NODE_EDIT" (antes de "material"); no
+  sale de ninguna funcion entre 0x8008A00C y 0x8008AD4C (ninguna referencia la pool). Lo arrastran fn_800973C0
+  (solo eso), fn_80095750, el constructor de Model y otras.
+- Cada re-emparejado de Model vuelve a dejar sin renombrar el 255.0f (0x80880C14, ahora `@22692`) y renombra
+  `lbl_8087D6E8/EC`: devueltos a mano en cada commit.
+
+Fin: 2026-11-14 04:40 (1 h 40 min).
