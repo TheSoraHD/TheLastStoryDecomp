@@ -99,14 +99,15 @@ struct DrawIndMtx_unk {
 };
 
 // inferred: TEV stage of a description (0x88 bytes)
+// inferred: TEV stage of the description (atn::ShaderTevStage_unk of atn/Shader_unk.h)
 struct DrawTevStage_unk {
-    unsigned char m00[0x2C];
-    int m2C; // inferred: colour op
-    int m30; // inferred: colour bias
-    unsigned char m34[0x38 - 0x34];
-    int m38; // inferred: colour clamp
-    int m3C; // inferred: colour register
-    unsigned char m40[0x88 - 0x40];
+    unsigned char m00[0x28];
+    int m28; // inferred: colour op
+    int m2C; // inferred: colour bias
+    unsigned char m30[0x34 - 0x30];
+    int m34; // inferred: colour clamp
+    int m38; // inferred: colour register
+    unsigned char m3C[0x88 - 0x3C];
 };
 
 // inferred: material description (atn::ShaderDesc_unk of atn/Shader_unk.h)
@@ -130,8 +131,7 @@ struct DrawDesc_unk {
     DrawIndMtx_unk m140[4];
     int m180_pad[4];
     int m190; // inferred: number of TEV stages
-    unsigned char m194[0x1BC - 0x194];
-    DrawTevStage_unk m1BC_pad[1];
+    DrawTevStage_unk m194[16]; // inferred: TEV stages
 };
 
 // inferred: shader of a material (ShaderTex_unk of atn/Shader_unk.h)
@@ -1064,16 +1064,17 @@ void fn_8009DCE0(Material_unk* mat) {
     }
 }
 
-// NONMATCHING: 97.48% - register allocation
+// NONMATCHING: 99.04% - registers of mat/shader (r29/r31 in the original) and the attribute of GXSetArray
+// reloaded in the original (here the value of the loop test is reused)
 void fn_8009DE60(DrawCmd_unk* cmd, float dist) {
     Material_unk* mat = cmd->m08;
-    atn::Scene* lens = cmd->m10;
-    unsigned int flags = cmd->m04;
+    int flags = cmd->m04;
+    DrawShader_unk* shader = (DrawShader_unk*)mat->m08;
     DrawMesh_unk* mesh = cmd->m0C;
     void* vtx = cmd->m18;
     DrawArray_unk* arrays = cmd->m1C;
+    atn::Scene* lens = cmd->m10;
     Mtx* mtx = cmd->m14;
-    DrawShader_unk* shader = (DrawShader_unk*)mat->m08;
     atn::RenderManager::instance_->fn_800BDB40(lens);
     if (cmd->m3C.mFunc1 != 0) {
         cmd->m3C.mFunc1(cmd->m3C.mArg1, cmd->m3C.mArg2);
@@ -1091,16 +1092,17 @@ void fn_8009DE60(DrawCmd_unk* cmd, float dist) {
             fn_80076760(rs, 2, 0xC0);
             fn_800761A8(rs);
         }
+        void* light = cmd->m20;
         if (mesh->m20 != -1) {
             lbl_8087EFA8->m18C = 0;
         } else {
             lbl_8087EFA8->m18C = 1;
         }
-        fn_80074EC8(lbl_8087EEE0, shader->mDesc, flags, cmd->m20, lens->GetLight_unk(), cmd->m34);
+        fn_80074EC8(lbl_8087EEE0, shader->mDesc, flags, light, lens->GetLight_unk(), cmd->m34);
         DrawDesc_unk* desc = shader->mDesc;
         int last = desc->m190 - 1;
-        DrawTevStage_unk* st = &desc->m1BC_pad[last];
-        GXSetTevColorOp(last, st->m2C, st->m30, mat->m34, st->m38, st->m3C);
+        DrawTevStage_unk* st = &desc->m194[last];
+        GXSetTevColorOp(last, st->m28, st->m2C, mat->m34, st->m34, st->m38);
     }
     fn_80076BE4(lbl_8087EEE0, vtx);
     for (; arrays->m00 != 0xFF; arrays++) {

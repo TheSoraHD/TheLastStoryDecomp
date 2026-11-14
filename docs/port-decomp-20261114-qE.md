@@ -59,6 +59,19 @@ Inicio 2026-11-14 04:41.
   `fn_800748D8` 99,73 %, `fn_80074B24` 99,64 %, `fn_80072F64` 100 %): revisadas con un diff que ignora los
   nombres de registro: **equivalentes** (solo registros, orden de cargas y operandos conmutados).
 
+- **`fn_8009DE60` (0x8009DE60, dibujo de una malla): fallo de logica en la decomp (y en el port).** El
+  `GXSetTevColorOp` de la ultima etapa leia la vista `DrawDesc_unk::m1BC_pad[last]` con los campos a +0x2C,
+  +0x30, +0x38, +0x3C desde 0x1BC (= 0x1E8...), cuando el original lee 0x1BC/0x1C0/0x1C8/0x1CC + `last*0x88`:
+  las etapas TEV empiezan en **0x194** (`atn::ShaderDesc_unk::mTevStages`) y los campos son `mColorOp` (0x28),
+  `mColorBias` (0x2C), `mColorClamp` (0x34), `mColorReg` (0x38). Se leia la etapa equivocada desplazada
+  (operacion/bias/clamp/registro de color basura en la ultima etapa del material). Corregido:
+  `DrawDesc_unk::m194[16]` y `DrawTevStage_unk` con `m28/m2C/m34/m38`. El port tiene el mismo error
+  (`port/src/atn/ModelDraw_unk.cpp`, `static_assert(offsetof(DrawDesc_unk, m1BC_pad) == 0x1BC)` y la linea de
+  `GXSetTevColorOp`). 97,48 -> 99,04 % (`int flags`, `cmd->m20` leido antes del `if`, orden de locales).
+- Resto de `ModelDraw_unk` revisado con el diff sin registros: `fn_8009B93C`, `fn_8009C508`, `fn_8009C688`,
+  `fn_8009C84C`, `fn_8009CC28`, `fn_8009D1A4`, `fn_8009DCE0`: **equivalentes** (registros, orden, recargas).
+  El ctor de `DrawEntry_unk` (89,6 %) no se ha revisado.
+
 ## Cambios de firma / layout (para el port)
 
 - `fn_80076C44` (`include/atn/GraphicsDevice.h`, `src/atn/GraphicsDevice.cpp`): el formato pasa de
@@ -75,6 +88,9 @@ Inicio 2026-11-14 04:41.
 - `include/atn/DrawCmd_unk.h`: `DrawColor_unk` pasa de `struct { float m[4]; }` a `typedef atn::Color`
   (mismo layout; `RenderSystem_unk.cpp` usa `m24.r/g/b/a`). El ctor de `DrawEntry_unk` cambia de nombre
   mangled (`...PQ23atn5Color...`), renombrado en `symbols.txt`.
+
+- `src/atn/ModelDraw_unk.cpp`: `DrawDesc_unk` = etapas en `m194[16]` (antes `m194` relleno + `m1BC_pad[1]`),
+  `DrawTevStage_unk` con los campos a 0x28/0x2C/0x34/0x38.
 
 ## Decisiones tomadas sin el usuario
 
