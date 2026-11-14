@@ -19,6 +19,7 @@
 #include "game/ChaseManager.h"
 #include "game/Input_unk.h"
 #include "chr/ControlBase.h"
+#include "chr/ControlChant.h"
 #include "game/TacView.h"
 #include "game/BattleTask.h"
 #include "atn/Csv.h"
@@ -1728,6 +1729,253 @@ void GameCamera::fn_80384188(const CharaTask* chara) {
         }
     }
     mFovy = fovy;
+    fn_8004B378();
+    fn_80392964(1, 1, 0, 0);
+}
+
+// inferred: aim mode (m60C): the eye stays m874 (+ the zoom mC1C, growing while the field flag 0x6A is set)
+// behind the character, turned by its yaw and by half of the pitch of the view, and turns with both sticks
+// (fn_80383F7C, mA18/mA1C; the inverted axes of the options; not while a magic is cast: control 30 once it is
+// fired, control 31); the pitch is limited to 70 degrees, the eye is kept out of the walls and of the head of
+// the character (lowered by m60C.m18 with the flag 6 and part m674), and the held button 0x24 zooms (fovy
+// down to 0.6 of m60C.m04, or of 60 degrees without the flag 6) or, in control 29 of state 6, locks on the
+// nearest enemy (m860, blended in m864); with m858 or in state 5 it only blends the target from m84C to m840
+// NONMATCHING: 98.4% - stack slots of the named locals and temporaries (the blend of the first block is a named
+// local here, a temporary in the original), the reload of SetConfig::sInstance before its null test, and the
+// order of the first fovy blend; the function is just under the inlining budget: SetTarget_unk instead of the
+// direct store, or no local for the blended target, puts it over (every Vector3 operator called, 31%)
+void GameCamera::fn_80385B48(const CharaTask* chara) {
+    if (++m808 < 0) {
+        return;
+    }
+    if (m858 != 0 || chara->m55C == 5) {
+        if (m838 != 0) {
+            if (++m83C > 6) {
+                m83C = 6;
+            }
+            float t = (float)m83C / 6.0f;
+            atn::Vector3 v = (m840 - m84C) * t + m84C;
+            mFovy = fn_800F8524(m85C, 0.6f * m60C.m04, t);
+            mTarget = v;
+            fn_8004B378();
+            fn_80392964(1, 1, 0, 0);
+        }
+        return;
+    }
+    int zoom = 0;
+    if (lbl_8087F0A8->mInput.fn_801240B4(0x24) && !lbl_8087F0A8->mInput.fn_801231D0(0x24)) {
+        zoom = 1;
+    }
+    atn::Vector3 pos(mPos);
+    atn::Vector3 target(mTarget);
+    atn::Vector3 up(mUp);
+    atn::Vector3 dir;
+    dir = mTarget - mPos;
+    PSVECNormalize(&dir, &dir);
+    atn::Vector3 side;
+    PSVECCrossProduct(&dir, &up, &side);
+    atn::Vector3 view = m818 - m80C;
+    PSVECNormalize(&view, &view);
+    if (PSVECSquareMag(&side) < 0.01f) {
+        side.x = 0.0f;
+        side.y = 0.0f;
+        side.z = 1.0f;
+    }
+    float x = fn_800A56A8(lbl_8087EF70, 0, 0, 0);
+    if (fn_800A58D0(lbl_8087EF70, 0)) {
+        x += fn_800A56A8(lbl_8087EF70, 0, 2, 0);
+    }
+    if (((unsigned int)SetConfig::sInstance->m50 & 8) == 8) {
+        x *= -1.0f;
+    }
+    if (SetConfig::sInstance != 0) {
+        x *= 0.3f * (SetConfig::sInstance->mCameraRotSpeed - 1.0f) + 1.0f;
+    }
+    x = GAMECAMERA_MIN_UNK(1.0f, GAMECAMERA_MAX_UNK(-1.0f, x));
+    float y = fn_800A56A8(lbl_8087EF70, 0, 1, 0);
+    if (fn_800A58D0(lbl_8087EF70, 0)) {
+        y += fn_800A56A8(lbl_8087EF70, 0, 3, 0);
+    }
+    if (((unsigned int)SetConfig::sInstance->m50 & 4) == 4) {
+        y *= -1.0f;
+    }
+    if (SetConfig::sInstance != 0) {
+        y *= 0.3f * (SetConfig::sInstance->mCameraRotSpeed - 1.0f) + 1.0f;
+    }
+    y = GAMECAMERA_MIN_UNK(1.0f, GAMECAMERA_MAX_UNK(-1.0f, y));
+    int casting = 0;
+    if (chara->m55C == 6) {
+        switch (chara->m560) {
+        case 30:
+            if (chara->mControl.get() != 0 && static_cast<chr::ControlMagic*>(chara->mControl.get())->m1D) {
+                casting = 1;
+            }
+            break;
+        case 31:
+            casting = 1;
+            break;
+        }
+    }
+    if (casting) {
+        x = 0.0f;
+        zoom = 0;
+        y = x;
+    }
+    float rate = x * x + y * y;
+    atn::Vector3 down(-up.x, -up.y, -up.z);
+    fn_80383F7C(&mA18, &target, &pos, &down, &m60C, zoom, x, rate);
+    fn_80383F7C(&mA1C, &target, &pos, &side, &m60C, zoom, y, rate);
+    if (chara->m55C == 6 && chara->m560 == 29 && lbl_8087F048 != 0 && lbl_8087F0A8->mInput.fn_801231D0(0x24)) {
+        m860 = lbl_8087F048->fn_801002DC(const_cast<CharaTask*>(chara), &pos, &dir, 1, 1000000.0f, 0.9424779f);
+        if (m860 != 0) {
+            m840 = (m860->mColli.m3C + m860->mColli.m48) * 0.5f;
+            m864 = 0.0f;
+        }
+    }
+    if (m860 != 0) {
+        m864 += 0.1f;
+        float t = 1.0f < m864 ? 1.0f : m864;
+        target = (m840 - target) * t + target;
+        if (m864 > 1.0f) {
+            m860 = 0;
+        }
+    }
+    dir = target - pos;
+    PSVECNormalize(&dir, &dir);
+    atn::Vector3 angle(dir);
+    angle.fn_80139F60();
+    float limit = 1.2217305f;
+    if ((float)__fabs(angle.x) > limit) {
+        angle.x = angle.x > 0.0f ? limit : -limit;
+        dir.x = 0.0f;
+        dir.y = 0.0f;
+        dir.z = 1.0f;
+        atn::Matrix3x4 m = fn_800109E0(angle);
+        PSMTXMultVec(m.m, &dir, &dir);
+        target = dir * mDist;
+    }
+    const atn::Vector3& hips = chara->mPos;
+    float ox = m874.x;
+    float oy = m874.y;
+    if (chara->mFlag6 && chara->m674 >= 0) {
+        oy -= m60C.m18;
+    }
+    atn::Vector3 offset(ox, oy, m874.z);
+    float step = -2.0f;
+    if (lbl_8087F430 != 0 && lbl_8087F430->fn_80370174(0x6A)) {
+        step = 2.0f;
+    }
+    mC1C += step;
+    mC1C = GAMECAMERA_MIN_UNK(GAMECAMERA_MAX_UNK(0.0f, mC1C), 10.0f);
+    offset.z += mC1C;
+    {
+        atn::Matrix3x4 m = fn_800109E0(atn::Vector3(0.5f * angle.x, chara->mRot.y, 0.0f));
+        PSMTXMultVec(m.m, &offset, &offset);
+    }
+    pos = hips + offset;
+    target = dir * m60C.m00 + pos;
+    atn::ColliResult_unk result;
+    atn::Vector3 from(hips);
+    from.y += oy;
+    atn::Vector3 beside(ox > 0.0f ? 3.0f + ox : ox - 3.0f, 0.0f, 0.0f);
+    {
+        Mtx m;
+        PSMTXRotRad(m, 'y', chara->mRot.y);
+        PSMTXMultVec(m, &beside, &beside);
+    }
+    atn::Vector3 to = from + beside;
+    if (fn_8004ED34(lbl_8087EE98, &result, &from, &to, 0x80000008, 0, 0)) {
+        float len = 0.01f > PSVECMag(&(result.m04 - from)) - 3.0f ? 0.01f : PSVECMag(&(result.m04 - from)) - 3.0f;
+        float z = (m874.z + mC1C) * (float)__fabs(len / ox);
+        offset.x = ox > 0.0f ? len : -len;
+        offset.y = oy;
+        offset.z = z;
+        {
+            atn::Matrix3x4 m = fn_800109E0(atn::Vector3(0.5f * angle.x, chara->mRot.y, 0.0f));
+            PSMTXMultVec(m.m, &offset, &offset);
+        }
+        pos = hips + offset;
+        target = dir * m60C.m00 + pos;
+    }
+    atn::Vector3 flat(dir.x, 0.0f, dir.z);
+    if (PSVECSquareMag(&flat) > 0.00001f) {
+        PSVECNormalize(&flat, &flat);
+        atn::Vector3 line[2];
+        line[0] = pos;
+        line[1] = flat;
+        atn::Vector3 near;
+        fn_80050900(&hips, line, &near);
+        from = near;
+        to = pos;
+        if (fn_8004ED34(lbl_8087EE98, &result, &from, &to, 0x80000008, 0, 0)) {
+            pos = result.m04 + result.m28;
+            target = dir * m60C.m00 + pos;
+        }
+        if (fn_8004D388(lbl_8087EE98, &result, &pos, &lbl_807C7030, 0x80000008, 0, 0, 2.0f)) {
+            pos = result.m10;
+            target = dir * m60C.m00 + pos;
+        }
+    }
+    from = pos;
+    atn::Vector3 back;
+    back = to = pos + dir * -(m874.z + mC1C);
+    if (fn_8004ED34(lbl_8087EE98, &result, &from, &to, 0x80000008, 0, 0)) {
+        back = result.m04 + result.m28;
+    }
+    from = back;
+    to = pos;
+    if (fn_8004ED34(lbl_8087EE98, &result, &from, &to, 0x80000008, 0, 0)) {
+        pos = result.m04 + result.m28;
+        target = dir * m60C.m00 + pos;
+    }
+    if (fn_8004D388(lbl_8087EE98, &result, &pos, &lbl_807C7030, 0x80000008, 0, 0, 3.0f)) {
+        pos = result.m10;
+        target = dir * m60C.m00 + pos;
+    }
+    if (chara->m520 >= 0) {
+        atn::Vector3 line[2];
+        line[0] = pos;
+        line[1] = target;
+        MtxPtr node = chara->mMotion.GetNodeMtx_unk(chara->m520);
+        CameraSphere_unk head;
+        head.mCenter = atn::Vector3(node[0][3], node[1][3], node[2][3]);
+        head.mRadius = 2.1f;
+        if (fn_80051B70(line, &head)) {
+            atn::Vector3 front(0.0f, 0.0f, 1.0f);
+            float radius = head.mRadius;
+            Mtx m;
+            PSMTXRotRad(m, 'y', chara->mRot.y);
+            PSMTXMultVec(m, &front, &front);
+            atn::Vector3 p = head.mCenter + front * radius;
+            atn::Vector3 d = p - pos;
+            float len = PSVECMag(&d);
+            if (len > 0.0001f) {
+                PSVECNormalize(&d, &d);
+                from = pos;
+                to = from + dir * (3.0f + len) * PSVECDotProduct(&dir, &d);
+                if (chara->m674 >= 0 || !fn_8004ED34(lbl_8087EE98, &result, &from, &to, 0x80000008, 0, 0)) {
+                    pos += dir * len * PSVECDotProduct(&dir, &d);
+                    target = dir * m60C.m00 + pos;
+                }
+            }
+        }
+    }
+    mPos = pos;
+    mTarget = target;
+    float cur = mFovy;
+    float fovy = !chara->mFlag6 ? 1.0471976f : m60C.m04;
+    if (zoom) {
+        cur = cur - 0.1f * fovy;
+        if (cur < 0.6f * fovy) {
+            cur = 0.6f * fovy;
+        }
+    } else {
+        cur = 0.1f * fovy + cur;
+        if (cur > fovy) {
+            cur = fovy;
+        }
+    }
+    mFovy = cur;
     fn_8004B378();
     fn_80392964(1, 1, 0, 0);
 }
