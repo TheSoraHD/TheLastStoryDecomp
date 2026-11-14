@@ -19,6 +19,17 @@ Inicio: 2026-11-14 04:41 CET. Rama `agent-H`. Unidades: `game/BattleCharaTask`, 
   con `m50 < 100`), reparte la vuelta completa por los anchos `vfA0` y recorre el anillo hacia un lado y el otro hasta
   `chara`; devuelve el centro mas `(0, 0, m64->m30)` girado, con la y de `chara`, o `mPos` si no esta. Resto:
   asignacion de registros (centro/anillo, punteros de los bucles, floats `best`/`offset`).
+- `BattleTask::fn_800FDF14` (0x800FDF14, 8020 bytes): **escrita, NONMATCHING 92,3 %** (antes 0 %). Firma `int
+  fn_800FDF14(BattleCalcParam_unk*)` (sin cambio; devuelve 0 sin objetivo/datos, con el objetivo intocable 0x2000
+  sin el bit 0x20000 del bullet o si `fn_8010B180` falla, y 1 si se aplica). Aplica el golpe `m38A5C`: espalda
+  (m0C 0x10, coseno de 120 grados), tiro a la cabeza (nodo "head", radio `m5B4 * 0.25`, salvo los seis jefes
+  `em002_bs00_03`...`np131_bs00_18`), robo del objeto del objetivo (estado 0x3C, `Inventory::mDB10`), criticos
+  (`fn_80134168(4)` + `mParamB.m18`, x1,5), estados 0x13/0x18/0x1A/0x23, `vf3C`, drenajes (bit 8 del bullet:
+  la mitad; `mHateAbsorbHpRate` con el texto "hpUpNum"/"hpUpSubNum"/"hpRate" de `m3E2F4`; 0x23; 7/8/9/0x47 a la
+  lista de 16), popup de dano, efecto y sonido, odio (`fn_80102EAC`, valores 100/200/20/10), tension
+  (`fn_8012F034`, tabla por tipo de personaje con el jumptable), la arena y la moral `m38A04`. Resto: el original
+  usa el ancla de `.rodata` (`lbl_807355C8`, r31) porque `lbl_80735DD0` aun es `extern` (deuda de la regla 10),
+  `vf3C` recibe un segundo argumento (1) que `CharaTask.h` no declara, y 0x100 bytes de pila / registros.
 
 ## Cambios de firma / layout (para el port)
 
@@ -29,6 +40,16 @@ Inicio: 2026-11-14 04:41 CET. Rama `agent-H`. Unidades: `game/BattleCharaTask`, 
 - `fn_80108C10` declarado en BattleCharaTask.cpp con `const atn::Vector3&` (como en Em203GreaterDaemon), no puntero.
 
 ## Decisiones y hallazgos
+
+- `BattleTask::m3E2F8` pasa de `unsigned char[4]` a `int` (ultimo valor de recuperacion mostrado; el port lo
+  pone a 0 con memset, sigue valiendo). Sin nombres nuevos en cabeceras: labelcheck sin cambios en otras unidades.
+- `BattleMsg_unk`/`lbl_8087F1E4` y `BattleItem_unk`/`fn_80211480` suben en BattleTask.cpp por encima de
+  `fn_800FDF14` (solo se movieron las definiciones). Nuevas: `HitDamage_unk` (BattleDamage_unk con constructor),
+  `SetHitFlag_unk`/`ClearHitFlag_unk`, `IsNoHead_unk`, `IsSpecialHit_unk`, `HitPos_unk` y la tabla `sNoHead_unk`.
+- Pendientes de cabeceras ajenas: `CharaTask::vf3C` tiene dos argumentos (`(param, 1)` en fn_800FDF14);
+  `lbl_80735DD0` (sonidos) deberia definirse en BattleTask.cpp.
+- Re-emparejado de BattleTask tras fn_800FDF14: deltas +1468 / +2100 (y @13868 -> @14031 por las cabeceras nuevas
+  GameVoice.h/ArenaTask.h); labelcheck "missing 2" como la referencia.
 
 - `Effect_unk` se define como vista minima en BattleTask.cpp solo para `fn_80109950` (CharaTask.cpp y Em315Coffin
   la llaman con ese nombre mangled); pendiente unificar con `BattleTask` cuando se toquen esas unidades.
