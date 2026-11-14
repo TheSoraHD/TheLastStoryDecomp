@@ -3765,7 +3765,7 @@ inline bool HasCursorChara_unk() {
     }
     return r;
 }
-// inferred: RayObj_unk (BattleTask.h) is the atn::ColliBase hit by the cursor ray (flags at 0x08, owner at 0x0C)
+// inferred: the atn::ColliBase hit by the cursor ray (flags at 0x08, owner at 0x0C)
 inline atn::ColliBase* GetCursorTarget_unk() {
     return lbl_8087F048 != 0 ? (atn::ColliBase*)lbl_8087F048->m3E2E8 : 0;
 }

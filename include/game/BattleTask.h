@@ -29,9 +29,6 @@ class Texture;
 class ColliBase;
 }
 
-// old name of the object hit by the cursor ray (atn::ColliBase), still used by game/GameUI.cpp
-typedef atn::ColliBase RayObj_unk;
-
 // inferred: one hit written for the caller by fn_800F8C6C (0x800F8C6C): the attacker and the flags of the
 // hit (BattleCalcParam_unk::m94, 8 = critical); names invented
 struct HitResult_unk {
