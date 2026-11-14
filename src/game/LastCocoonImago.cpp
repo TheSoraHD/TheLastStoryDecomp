@@ -601,6 +601,11 @@ int LastCocoonImago::vfB8(wchar_t* name) {
     return 0;
 }
 
+// inferred: false while the cursor is on its own sphere m18FC (GameUI 0x803DBD44)
+int LastCocoonImago::vfBC(atn::ColliBase* target) {
+    return target != &m18FC;
+}
+
 // NONMATCHING: 98% - stack slots of the temporaries (the zero vector of the Item14_unk constructor)
 // inferred: damage spheres: the three attack nodes (between the two nodes when both exist) and m1948
 void LastCocoonImago::vf50() {
