@@ -212,6 +212,7 @@ struct MpSettings_unk {
 };
 #include "game/ErrorManager.h"
 #include "game/InventoryExp_unk.h"
+#include "db/PlayerParam_unk.h"
 extern "C" Collision_unk* lbl_8087EE98;
 extern "C" void* lbl_8087F610; // inferred: multiplayer session (null in single player)
 extern "C" atn::EffectManager* lbl_8087F3C0;
@@ -3977,12 +3978,7 @@ inline void RotateYXZ_unk(atn::Matrix3x4& mtx, const atn::Vector3& rot);
 inline void Scale_unk(atn::Matrix3x4& mtx, const atn::Vector3& s);
 extern "C" inline atn::Matrix3x4 fn_800F80A8(const atn::Vector3* pos);
 extern "C" inline void fn_80316E38(atn::Model* model, const atn::Matrix3x4* mtx);
-// inferred: skills learnt per level of a kind of character (as in game/CharaStatus.cpp); names invented
-struct LevelSkills_unk {
-    unsigned char m00[2];
-    unsigned char m02[128]; // inferred: 0 for every status bit that the level gives
-};
-extern "C" LevelSkills_unk* fn_80219160(int kind, int level);
+extern "C" PlayerParam_unk* fn_80219160(int kind, int level); // db/PlayerParam_unk.cpp
 
 // NONMATCHING: the stack frame (0x20 bytes more in the original) and the registers of the copy of mDF30; the
 // local copy of the party is built with the constructor of ExpEntry_unk (game/InventoryExp_unk.h) as in the
@@ -4051,10 +4047,10 @@ void GameTask::fn_80371790() {
             if (c->m50 == 1) {
                 int kind = fn_80219558(c->m50);
                 for (int level = 1; level <= e->mLevelUp; level++) {
-                    LevelSkills_unk* skills = fn_80219160(kind, c->mStatus.mParamA.m78 - level);
+                    PlayerParam_unk* skills = fn_80219160(kind, c->mStatus.mParamA.m78 - level);
                     if (skills != 0) {
                         for (int bit = 0; bit < 128; bit++) {
-                            if (skills->m02[bit] == 0 && c->mStatus.fn_801346C8(bit, 0)) {
+                            if (skills->mSkills[bit] == 0 && c->mStatus.fn_801346C8(bit, 0)) {
                                 learnt = 1;
                                 break;
                             }
@@ -4066,11 +4062,11 @@ void GameTask::fn_80371790() {
                 }
             }
             int skillCount = 0;
-            LevelSkills_unk* skills =
+            PlayerParam_unk* skills =
                 fn_80219160(fn_80219558(c->m50), c->mStatus.mParamA.m78 - (*party)[i].mLevelUp);
             if (skills != 0) {
                 for (int bit = 0; bit < 128; bit++) {
-                    if (skills->m02[bit] == 0 && c->mStatus.fn_801346C8(bit, 0)) {
+                    if (skills->mSkills[bit] == 0 && c->mStatus.fn_801346C8(bit, 0)) {
                         skillCount++;
                     }
                 }

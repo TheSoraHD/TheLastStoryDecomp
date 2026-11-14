@@ -7,6 +7,7 @@
 #include "game/CharaTask.h"
 #include "game/ResHandle.h"
 #include "game/HitInfo_unk.h"
+#include "db/PlayerParam_unk.h"
 #include "macros.h"
 #include "chr/CharaEquip_unk.h"
 #include "game/BattleTask.h"
@@ -91,14 +92,8 @@ extern "C" void fn_801061BC(Effect_unk* effect, chr::Chara_unk* chara, void* mod
 extern "C" void fn_801092C8(Effect_unk* effect, int msg, CharaTask* chara, int value, int arg);
 extern "C" float fn_80040588(void* obj, CharaStatus* status, int arg);
 
-// inferred: per-kind equipment table (fn_80219160); names invented
-struct EquipSet_unk {
-    unsigned char m00[2];
-    unsigned char m02[128]; // inferred: one entry per bit of CharaStatusData_unk::mBits
-    signed char m82[6];
-};
 extern "C" int fn_80219558(int kind);
-extern "C" EquipSet_unk* fn_80219160(int kind, int level);
+extern "C" PlayerParam_unk* fn_80219160(int kind, int level); // db/PlayerParam_unk.cpp
 extern "C" int fn_8021AF98(int slot);
 extern "C" int fn_8021AFF4(int slot);
 
@@ -387,7 +382,7 @@ inline void CharaStatus::ClearBit_unk(int bit) {
 // NONMATCHING: 96.3% - only the registers of the inlined set/clear of a bit differ (same problem as
 // fn_80134674).
 void CharaStatus::fn_8012CE4C(int kind) {
-    EquipSet_unk* set = fn_80219160(kind, mParamA.m78);
+    PlayerParam_unk* set = fn_80219160(kind, mParamA.m78);
     if (set == 0) {
         return;
     }
@@ -439,10 +434,10 @@ void CharaStatus::fn_8012CE4C(int kind) {
                 break;
             }
         }
-        if (allowed && set->m02[i] != 0 && !fn_801346C8(i)) {
+        if (allowed && set->mSkills[i] != 0 && !fn_801346C8(i)) {
             fn_80134674(i);
         }
-        if (!allowed || set->m02[i] == 0) {
+        if (!allowed || set->mSkills[i] == 0) {
             if (fn_801346C8(i)) {
                 ClearBit_unk(i);
             }
@@ -457,7 +452,7 @@ void CharaStatus::fn_8012D180() {
     if (kind < 0 || 7 <= kind) {
         return;
     }
-    EquipSet_unk* set = fn_80219160(kind, mParamA.m78);
+    PlayerParam_unk* set = fn_80219160(kind, mParamA.m78);
     if (set == 0) {
         return;
     }
@@ -469,8 +464,8 @@ void CharaStatus::fn_8012D180() {
     int items[6];
     int owned[6];
     for (int i = 0; i < 6; i++) {
-        ids[i] = fn_8021AF98(set->m82[i]);
-        items[i] = fn_8021AFF4(set->m82[i]);
+        ids[i] = fn_8021AF98(set->mSlots[i]);
+        items[i] = fn_8021AFF4(set->mSlots[i]);
         bool ok = false;
         if (lbl_8087EE68 != 0 && items[i] != 0) {
             ok = true;

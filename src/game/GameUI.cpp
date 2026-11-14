@@ -43,6 +43,7 @@ struct GameUIGauge_unk : public atn::D2A_Task {};
 #include "game/Arms.h"
 #include "std/vector.h"
 #include "atn/RenderSetting_unk.h"
+#include "db/PlayerParam_unk.h"
 extern "C" int sprintf(char* s, const char* format, ...);
 
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
@@ -3002,12 +3003,7 @@ struct GameUISkill_unk {
     const wchar_t* m14; // inferred: description
 };
 extern "C" GameUISkill_unk* fn_8021AF50(int bit); // inferred: skill of a status bit
-// inferred: skills of a character (a flag byte per status bit from +2) for its level (name invented)
-struct GameUISkillTable_unk {
-    unsigned char m00[2];
-    unsigned char mLearnt[128];
-};
-extern "C" GameUISkillTable_unk* fn_80219160(int member, int level);
+extern "C" PlayerParam_unk* fn_80219160(int member, int level); // db/PlayerParam_unk.cpp
 // inferred: object aimed at by AIManager::m458 (only the members read here; a scale and a radius)
 struct GameUIAimTarget_unk {
     unsigned char m00[0x28];
@@ -3462,12 +3458,12 @@ void GameUI::fn_803D83A8() {
                 SetLevelUp_unk(m1114, m110C, e);
                 if (m1120 == 0) {
                     if (m110C->fn_8016E484() != 0) {
-                        GameUISkillTable_unk* table =
+                        PlayerParam_unk* table =
                             fn_80219160(fn_80219558(m110C->m50), m110C->mStatus.mParamA.m78 - e->mLevelUp);
                         if (table != 0 && lbl_8087F0A8->m194 == 0) {
                             int n = 0;
                             for (int i = 0; i < 128; i++) {
-                                if (table->mLearnt[i] == 0 && m110C->mStatus.fn_801346C8(i, 0)) {
+                                if (table->mSkills[i] == 0 && m110C->mStatus.fn_801346C8(i, 0)) {
                                     new (&m1134[m1130]) GameUISkill_unk*(fn_8021AF50(i));
                                     m1130++;
                                     if (++n >= 2) {
