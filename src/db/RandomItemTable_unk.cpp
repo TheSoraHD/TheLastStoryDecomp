@@ -32,19 +32,14 @@ struct RandomItem_unk {
 
 RandomItem_unk::~RandomItem_unk() {}
 
-// NONMATCHING (weak destructor of atn::FixedArray_unk<RandomItem_unk, 8>, 0x8021D58C): 96.30% - the
-// original tests the address of the element array again before __destroy_arr (one more beq);
-// a user-declared empty destructor in include/atn/FixedArray.h does not change it. A derived
-// struct (or a member/base with its own inline destructor) gives the two beq, but MWCC then also
-// emits an unreferenced weak copy of the inner destructor (0x68 bytes) that the original lacks
-// (same as game/GimmickStateCommand and game/LogMessageTask)
-typedef atn::FixedArray_unk<RandomItem_unk, 8> RandomSlot_unk;
+// inferred: one slot of up to eight items. Its destructor (0x8021D58C) inlines the one of the
+// atn::FixedArray_unk (second null test before __destroy_arr)
+struct RandomSlot_unk : public atn::FixedArray_unk<RandomItem_unk, 8> {};
 
 // inferred: a "begin,Random" block of /boot/random_item_table.csv (0x3E0 bytes): id, level range
 // and five slots of up to eight items
 struct RandomTable_unk {
     RandomTable_unk() : mId(0), mMin(0), mMax(0) {}
-    ~RandomTable_unk() {}
 
     int mId;
     int mMin;
@@ -55,7 +50,6 @@ struct RandomTable_unk {
 // inferred: a "begin,Wind" block of /boot/random_item_table.csv (0x3DC bytes)
 struct WindTable_unk {
     WindTable_unk() : mMin(0), mMax(0) {}
-    ~WindTable_unk() {}
 
     int mMin;
     int mMax;

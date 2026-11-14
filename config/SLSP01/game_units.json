@@ -1380,7 +1380,7 @@
  {
   "name": "db/RandomItemTable_unk.cpp",
   "classes": [],
-  "matching": false
+  "matching": true
  },
  {
   "name": "atn/ptr_string_base_char_0.cpp",
