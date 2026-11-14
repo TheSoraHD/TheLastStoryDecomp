@@ -5,19 +5,8 @@
 #include "atn/DrawHelper.h"
 #include "atn/RenderManager.h"
 #include "atn/Scene.h"
+#include "atn/LayerShadow.h"
 
-namespace atn {
-
-// inferred: axis aligned box (min, max), as in atn/Geometry_unk.cpp
-struct AABB_unk {
-    AABB_unk() {}
-    AABB_unk(const Vector3& min, const Vector3& max) : mMin(min), mMax(max) {}
-    AABB_unk Merge_unk(const AABB_unk& o) const; // 0x80070C98: union of both boxes
-    Vector3 mMin;
-    Vector3 mMax;
-};
-
-} // namespace atn
 
 extern "C" void* memset(void* dst, int c, unsigned long n);
 extern "C" double ceil(double x);
@@ -29,7 +18,6 @@ extern "C" void GXSetViewport(float x, float y, float w, float h, float n, float
 extern "C" void GXSetColorUpdate(unsigned char enable);
 
 // inferred: registers a debug toggle `name` bound to `flag` (see atn/Layer3D.h)
-extern "C" void fn_80087994(void* menu, const char* name, int* flag, int arg3, int arg4);
 
 // render settings (atn/RenderSetting_unk.cpp)
 extern "C" RenderSetting_unk* lbl_8087EFA8;
@@ -176,67 +164,6 @@ inline atn::AABB_unk TransformBox_unk(const Mtx m, const atn::AABB_unk* box) {
 
 namespace atn {
 
-// inferred: local copies of atn::IRenderLayer / atn::Layer3D (atn/Layer3D.h): this layer shows that
-// vf10 takes the render list
-class IRenderLayer {
-public:
-    IRenderLayer(const char* name, int arg0C = -1, int arg10 = -1) : m04(1), mName(name), m0C(arg0C), m10(arg10) {}
-    virtual ~IRenderLayer() {}
-    virtual void vf0C(void* menu) { fn_80087994(menu, mName, &m04, 0, 0); }
-    virtual void vf10(void* arg) = 0;
-    virtual void vf14(void* arg) = 0;
-    virtual void vf18() {}
-    virtual void vf1C() = 0;
-    virtual void vf20() = 0;
-
-    int m04;
-    const char* mName; // 0x08
-    int m0C;
-    int m10;
-};
-
-class Layer3D : public IRenderLayer {
-public:
-    Layer3D(const char* name, int arg0C = -1, int arg10 = -1) : IRenderLayer(name, arg0C, arg10), m14(1), m18(0) {}
-    virtual ~Layer3D() {}
-    virtual void vf10(void* arg) {}
-    virtual void vf14(void* arg);
-    virtual void vf18();
-    virtual void vf1C();
-    virtual void vf20();
-
-    int m14;
-    unsigned int m18;
-    void* m1C[16];
-};
-
-// inferred: shadow map layer (depth from the light camera)
-class LayerShadow : public Layer3D {
-public:
-    LayerShadow();
-    virtual ~LayerShadow();
-    virtual void vf10(void* arg);
-    virtual void vf1C();
-    virtual void vf20();
-
-    AABB_unk fn_800B6C70(float step, const AABB_unk& box);
-    Camera_unk fn_800B7090(const AABB_unk& box, const Vector3& dir);
-    // inferred: copies the frame buffer at half size into mImage; name invented
-    void CopyHalf_unk(unsigned short w, unsigned short h) {
-        GXSetTexCopySrc(0, 0, w, h);
-        GXSetTexCopyDst(w / 2, h / 2, 4, 1);
-        GXCopyTex(mImage, 1);
-    }
-
-    AABB_unk mBox;            // 0x5C: inferred: shadow receiver box
-    Camera_unk mCamera;       // 0x74: inferred: view camera of the frame
-    Camera_unk mLightCamera;  // 0x268
-    void* mImage;             // 0x45C
-    GXTexObj mTex;            // 0x460
-    GXTexObj mDepthTex;       // 0x480
-    Matrix3x4 mDepthMtx;      // 0x4A0: inferred: view space to light depth
-    Matrix3x4 mTexMtx;        // 0x4D0: inferred: view space to shadow texture
-};
 
 LayerShadow::LayerShadow() : Layer3D("Shadow") {}
 
