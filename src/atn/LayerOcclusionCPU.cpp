@@ -6,13 +6,14 @@
 #include "atn/DrawHelper.h"
 #include "atn/RenderManager.h"
 #include "atn/AABB_unk.h"
+#include "atn/Color.h"
+#include "atn/Layer3D.h"
+#include "atn/RenderSetting_unk.h"
 
 extern "C" int memcmp(const void* a, const void* b, unsigned long n);
 extern "C" unsigned int GXGetTexBufferSize(unsigned short width, unsigned short height, unsigned int format,
                                            unsigned char mipmap, unsigned char maxLod);
 
-// inferred: registers a debug toggle `name` bound to `flag` (see atn/Layer3D.h)
-extern "C" void fn_80087994(void* menu, const char* name, int* flag, int arg3, int arg4);
 // inferred: aligned array allocation (size, align, heap, name, file, line)
 extern "C" void* fn_800848B4(unsigned long size, int align, int heap, const char* name, const char* file, int line);
 
@@ -27,13 +28,7 @@ extern "C" void fn_80075F58(RenderState_unk* rs, int x, int y, int w, int h); //
 extern "C" void fn_80075DEC(RenderState_unk* rs);
 extern "C" void fn_800C0D4C(void* data, int arg1, int w, int h); // inferred: flushes a texture
 
-// inferred: global render settings; m1DC enables the occlusion buffer view
-struct RenderSettings_unk {
-    unsigned char m000[0x1D8];
-    float m1D8; // inferred: depth bias of the occlusion tests ("ZBias")
-    int m1DC;
-};
-extern "C" RenderSettings_unk* lbl_8087EFA8;
+extern "C" RenderSetting_unk* lbl_8087EFA8; // inferred: render settings (atn/RenderSetting_unk.h)
 
 
 // inferred: identity matrix (.bss)
@@ -116,31 +111,12 @@ struct OccRenderNode_unk {
     OccRenderNode_unk* mNext;
 };
 
-// inferred: render layer interface. Local copy of atn::IRenderLayer (atn/Layer3D.h): this layer
-// shows that vf10 takes an argument.
-class IRenderLayer {
-public:
-    IRenderLayer(const char* name, int arg0C = -1, int arg10 = -1) : m04(1), mName(name), m0C(arg0C), m10(arg10) {}
-    virtual ~IRenderLayer() {}
-    virtual void vf0C(void* menu) { fn_80087994(menu, mName, &m04, 0, 0); }
-    virtual void vf10(int arg) = 0;
-    virtual void vf14(void* arg) = 0;
-    virtual void vf18() {}
-    virtual void vf1C() = 0;
-    virtual void vf20() = 0;
-
-    int m04;
-    const char* mName; // 0x08
-    int m0C;
-    int m10;
-};
-
 // inferred: software occlusion buffer (32x32 depth with 4 smaller levels)
 class LayerOcclusionCPU : public IRenderLayer {
 public:
     LayerOcclusionCPU();
     virtual ~LayerOcclusionCPU();
-    virtual void vf10(int arg);
+    virtual void vf10(void* arg);
     virtual void vf14(void* arg);
     virtual void vf1C();
     virtual void vf20();
@@ -160,11 +136,12 @@ public:
 
 // NONMATCHING: not decompiled - handwritten paired-single assembly (polygon clipping with
 // ps_madds0/fres and mcrf)
-extern "C" void fn_800B4390(const float* plane, const float* in, int count, float* out, int* outCount);
-// NONMATCHING: not decompiled - rasterizer written with GQR setup (mtspr GQR6) and the locked
-// cache, calls fn_800B4390
-extern "C" void fn_800B47AC(atn::LayerOcclusionCPU* layer, const unsigned short* indices, int count, int stride,
-                            int format, void* vertices, int clip, Mtx* mtx);
+// inferred: clips the polygon `in` (count vertices) by `plane` into `out`
+extern "C" void fn_800B4390(const Plane_unk* plane, const atn::Vector3* in, int count, atn::Vector3* out,
+                            int* outCount);
+// inferred: draws the triangles of an occluder (see the definition)
+extern "C" void fn_800B47AC(atn::LayerOcclusionCPU* layer, const unsigned short* indices, int count, int type,
+                            int frac, const void* vertices, int clip, const Mtx* mtx);
 
 // inferred: std::min
 template <class T>
@@ -200,7 +177,13 @@ static void fn_800B3978(float* dst, const float* src, int w, int h) {
 // Note on the constants: the original .sdata2 starts with 0.5f, 255.0f and 0.0f before the 1.0f
 // used by the constructor (the first function that loads a constant). They must come from a function placed
 // before the constructor and removed by the linker; it is not reconstructed, so every function
-// that loads 1.0f, 16.0f, 32.0f or 128.0f points at a different offset.
+// that loads 1.0f, 16.0f, 32.0f or 128.0f points at a different offset. 0.5f, 255.0f, 0.0f, 1.0f is
+// the reverse of the order of the constants of atn::ColorToU8_unk (used by fn_800B47AC); here
+// they stay in order of first use (1.0f, 0.0f, 255.0f, 16.0f, 32.0f, 128.0f, 0.5f).
+// inferred: screen positions of the last 16 vertices (cache of fn_800B47AC, slot = index % 16; built
+// by the __sinit at 0x800B6684) and the index of each slot (0xFFFF: empty)
+atn::Vector3 lbl_807C74A0[16];
+unsigned short lbl_807C7560[16];
 static bool sTexReady;
 static unsigned char* sTexData;
 static GXTexObj sTexObj;
@@ -244,8 +227,8 @@ void LayerOcclusionCPU::vf14(void* arg) {
     }
 }
 
-// NONMATCHING: 99.9% - .sdata2 offset of 1.0f (see the note on the constants)
-void LayerOcclusionCPU::vf10(int arg) {
+// 100% in objdiff; the .sdata2 offset of 1.0f differs (see the note on the constants)
+void LayerOcclusionCPU::vf10(void* arg) {
     if (arg != 0) {
         return;
     }
@@ -258,7 +241,7 @@ void LayerOcclusionCPU::vf10(int arg) {
     }
 }
 
-// NONMATCHING: 99.9% - .sdata2 offset of 1.0f (see the note on the constants)
+// 100% in objdiff; the .sdata2 offset of 1.0f differs (see the note on the constants)
 void LayerOcclusionCPU::vf1C() {
     float* buf = mBuffers[0];
     for (int i = 0; i < 32 * 32; i++) {
@@ -340,6 +323,136 @@ void LayerOcclusionCPU::fn_800B4694(OccModel_unk* model, OccMeshList_unk* list) 
         fn_800B47AC(this, mesh->mIndices, mesh->mCount, shape->m14->m1C->m0C, shape->m14->m1C->m14, shape->m1C, 1, m);
     }
 }
+
+void fn_800B5528(LayerOcclusionCPU* layer, const float* verts, int count);
+
+} // namespace atn
+
+extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
+
+
+// inferred: vertex of an occluder mesh stored as three s16 with `frac` fractional bits. The original
+// loads them with psq_l through GQR6 (set with mtspr from `frac`), not approved: written as the
+// equivalent scale.
+inline void LoadS16Vtx_unk(atn::Vector3& v, const short* p, int frac) {
+    float scale = 1.0f / (float)(1 << frac);
+    v.x = p[0] * scale;
+    v.y = p[1] * scale;
+    v.z = p[2] * scale;
+}
+
+// NONMATCHING: 77.6% - written as C++: the original sets GQR6 with mtspr and dequantizes the s16
+// vertices with psq_l (asm not approved, see LoadS16Vtx_unk), so here the int to float conversions
+// take a larger frame and other registers; the rest has the same structure
+// inferred: draws `count` / 3 triangles of an occluder into the occlusion buffer. type 4: vertices of
+// three floats; type 1: three s16 with `frac` fractional bits. Each triangle is transformed by `mtx`
+// (if any); the ones facing away from the camera are skipped (green debug lines). The others are
+// clipped by the six planes of the frustum (clip != 0) or go through a cache of 16 projected vertices,
+// are projected to the screen and drawn by fn_800B5528. The polygons are built in the locked cache
+// (0xE0000000 and 0xE00000C0), the spans of the rows at 0xE0000180.
+extern "C" void fn_800B47AC(atn::LayerOcclusionCPU* layer, const unsigned short* indices, int count, int type,
+                            int frac, const void* vertices, int clip, const Mtx* mtx) {
+    atn::Vector3* polys[2];
+    polys[0] = (atn::Vector3*)0xE0000000;
+    polys[1] = (atn::Vector3*)0xE00000C0;
+    layer->m28 = (atn::LayerOcclusionCPU::Span_unk*)0xE0000180;
+    for (int i = 0; i < 16; i++) {
+        lbl_807C7560[i] = 0xFFFF;
+    }
+    for (int t = 0; t < count / 3; t++) {
+        unsigned short i0 = indices[0];
+        unsigned short i1 = indices[1];
+        unsigned short i2 = indices[2];
+        indices += 3;
+        atn::Vector3 v0;
+        atn::Vector3 v1;
+        atn::Vector3 v2;
+        if (type == 4) {
+            v0 = ((const atn::Vector3*)vertices)[i0];
+            v1 = ((const atn::Vector3*)vertices)[i1];
+            v2 = ((const atn::Vector3*)vertices)[i2];
+        } else if (type == 1) {
+            LoadS16Vtx_unk(v0, (const short*)vertices + i0 * 3, frac);
+            LoadS16Vtx_unk(v1, (const short*)vertices + i1 * 3, frac);
+            LoadS16Vtx_unk(v2, (const short*)vertices + i2 * 3, frac);
+        }
+        if (mtx != 0) {
+            PSMTXMultVec(*mtx, &v0, &v0);
+            PSMTXMultVec(*mtx, &v1, &v1);
+            PSMTXMultVec(*mtx, &v2, &v2);
+        }
+        atn::RenderManager* rm = atn::RenderManager::instance_;
+        atn::Vector3 eye = v0 - rm->mCamera.mPos;
+        atn::Vector3 e1 = v1 - v0;
+        atn::Vector3 e2 = v2 - v0;
+        atn::Vector3 normal;
+        PSVECCrossProduct(&e1, &e2, &normal);
+        if (PSVECDotProduct(&normal, &eye) < 0.0f) {
+            if (lbl_8087EFA8->m1E0 != 0) {
+                atn::Color green(0.0f, 1.0f, 0.0f, 1.0f);
+                lbl_8087EEB0->fn_80063764(v0, v1, 0.0f, green.ToU32());
+                lbl_8087EEB0->fn_80063764(v1, v2, 0.0f, green.ToU32());
+                lbl_8087EEB0->fn_80063764(v2, v0, 0.0f, green.ToU32());
+            }
+            continue;
+        }
+        atn::Vector3* poly = polys[0];
+        poly[0] = v0;
+        poly[1] = v1;
+        poly[2] = v2;
+        if (lbl_8087EFA8->m1E0 != 0) {
+            atn::Color white(1.0f, 1.0f, 1.0f, 1.0f);
+            lbl_8087EEB0->fn_80063764(v0, v1, 0.0f, white.ToU32());
+            lbl_8087EEB0->fn_80063764(v1, v2, 0.0f, white.ToU32());
+            lbl_8087EEB0->fn_80063764(v2, v0, 0.0f, white.ToU32());
+        }
+        int n = 3;
+        if (clip != 0) {
+            const Plane_unk* plane = rm->mCamera.mFrustum.mPlanes;
+            for (int i = 0; i < 6 && n >= 3; i++, plane++) {
+                int out = 0;
+                fn_800B4390(plane, polys[i % 2], n, polys[(i + 1) % 2], &out);
+                n = out;
+            }
+            if (n < 3) {
+                continue;
+            }
+            atn::Vector3* p = polys[0];
+            for (int i = 0; i < n; i++) {
+                atn::Vector3 pos = p[i];
+                p[i] = atn::RenderManager::instance_->GetScreenPosition(pos);
+            }
+        } else {
+            unsigned short s0 = i0 % 16;
+            unsigned short s1 = i1 % 16;
+            unsigned short s2 = i2 % 16;
+            if (i0 == lbl_807C7560[s0]) {
+                polys[0][0] = lbl_807C74A0[s0];
+            } else {
+                polys[0][0] = atn::RenderManager::instance_->GetScreenPosition(polys[0][0]);
+                lbl_807C7560[s0] = i0;
+                lbl_807C74A0[s0] = polys[0][0];
+            }
+            if (i1 == lbl_807C7560[s1]) {
+                polys[0][1] = lbl_807C74A0[s1];
+            } else {
+                polys[0][1] = atn::RenderManager::instance_->GetScreenPosition(polys[0][1]);
+                lbl_807C7560[s1] = i1;
+                lbl_807C74A0[s1] = polys[0][1];
+            }
+            if (i2 == lbl_807C7560[s2]) {
+                polys[0][2] = lbl_807C74A0[s2];
+            } else {
+                polys[0][2] = atn::RenderManager::instance_->GetScreenPosition(polys[0][2]);
+                lbl_807C7560[s2] = i2;
+                lbl_807C74A0[s2] = polys[0][2];
+            }
+        }
+        atn::fn_800B5528(layer, &polys[0][0].x, n);
+    }
+}
+
+namespace atn {
 
 // inferred: walks the edge (x0, y0)-(x1, y1) and stores its x on each row (left or right end of the span),
 // from row y0 + skip
@@ -506,6 +619,114 @@ int lbl_8087D8C0 = 0;
 int lbl_8087D8C4 = 31;
 }
 
+extern "C" void fn_8006FEBC(AABB_unk* screen, const AABB_unk* box); // inferred: projects a box
+extern "C" void fn_800704DC(AABB_unk* screen, const AABB_unk* box); // inferred: projects a view space box
+extern "C" void fn_8006FE08(const AABB_unk* box, unsigned int color);  // inferred: debug box
+extern "C" void PSMTXMultVecArray(const Mtx m, const atn::Vector3* src, atn::Vector3* dst, unsigned long count);
+extern "C" double floor(double x);
+extern "C" double ceil(double x);
+int fn_800B64DC(LayerOcclusionCPU* layer, int x0, int y0, int x1, int y1, float depth, int level);
+
+// inferred: clamps v to [lo, hi]
+inline float ClampF_unk(float v, const float& lo, const float& hi) {
+    return v < lo ? lo : (v > hi ? hi : v);
+}
+
+// inferred: bounds of the 8 corners of the box transformed by m (same as the inline ProjectBox_unk of
+// atn/Geometry_unk.cpp with a 3x4 matrix); name invented
+inline AABB_unk ViewBox_unk(const Mtx m, const AABB_unk* box) {
+    float maxZ = box->mMax.z;
+    float maxY = box->mMax.y;
+    float maxX = box->mMax.x;
+    float minX = box->mMin.x;
+    float minY = box->mMin.y;
+    float minZ = box->mMin.z;
+    Vector3 corners[8];
+    corners[0] = Vector3(maxX, maxY, maxZ);
+    corners[1] = Vector3(minX, maxY, maxZ);
+    corners[2] = Vector3(maxX, minY, maxZ);
+    corners[3] = Vector3(minX, minY, maxZ);
+    corners[4] = Vector3(maxX, maxY, minZ);
+    corners[5] = Vector3(minX, maxY, minZ);
+    corners[6] = Vector3(maxX, minY, minZ);
+    corners[7] = Vector3(minX, minY, minZ);
+    PSMTXMultVecArray(m, corners, corners, 8);
+    Vector3 max(corners[0]);
+    Vector3 min(corners[0]);
+    __VecMinMax(&min.x, &max.x, &min.x, &max.x, &corners[1].x);
+    __VecMinMax(&min.x, &max.x, &min.x, &max.x, &corners[2].x);
+    __VecMinMax(&min.x, &max.x, &min.x, &max.x, &corners[3].x);
+    __VecMinMax(&min.x, &max.x, &min.x, &max.x, &corners[4].x);
+    __VecMinMax(&min.x, &max.x, &min.x, &max.x, &corners[5].x);
+    __VecMinMax(&min.x, &max.x, &min.x, &max.x, &corners[6].x);
+    __VecMinMax(&min.x, &max.x, &min.x, &max.x, &corners[7].x);
+    return AABB_unk(min, max);
+}
+
+// NONMATCHING: 93.2% - scheduling of the box reads and of the corner temporaries, registers of the
+// screen width/height
+// inferred: the box (world coordinates) is hidden by the occlusion buffer: bounds of its corners in view
+// space, outside the near/far range -> visible; screen rectangle, too small -> hidden, too large ->
+// visible, else tested against the buffer pyramid from its smallest level (fn_800B64DC)
+extern "C" int fn_800B5994(atn::LayerOcclusionCPU* layer, const atn::AABB_unk* box) {
+    if (layer->m2C == 0) {
+        return 0;
+    }
+    atn::AABB_unk view = ViewBox_unk(atn::RenderManager::instance_->mCamera.mView.m, box);
+    atn::RenderManager* rm = atn::RenderManager::instance_;
+    if (view.mMin.z < -rm->mCamera.mFar || view.mMax.z > -rm->mCamera.mNear) {
+        if (lbl_8087EFA8->m1DC != 0) {
+            fn_8006FE08(box, 0xFFFFFFFF);
+        }
+        return 0;
+    }
+    atn::AABB_unk screen;
+    fn_800704DC(&screen, &view);
+    float width = lbl_8087EEE0->mWidth;
+    float height = lbl_8087EEE0->mHeight;
+    screen.mMin.x = atn::ClampF_unk(screen.mMin.x, lbl_8087D898, width);
+    screen.mMin.y = atn::ClampF_unk(screen.mMin.y, lbl_8087D89C, height);
+    screen.mMax.x = atn::ClampF_unk(screen.mMax.x, lbl_8087D8A0, width);
+    screen.mMax.y = atn::ClampF_unk(screen.mMax.y, lbl_8087D8A4, height);
+    float h = screen.mMax.y - screen.mMin.y;
+    float w = screen.mMax.x - screen.mMin.x;
+    float minSize = lbl_8087EFA8->m1F4;
+    if (w < minSize && h < minSize && w * h < minSize) {
+        if (lbl_8087EFA8->m1DC != 0) {
+            lbl_8087EEB0->fn_800610A4(0xFFFFFF00, screen.mMin.x, screen.mMin.y, 0.0f, w, h);
+        }
+        return 1;
+    }
+    float scaleX = 32.0f / lbl_8087EEE0->mWidth;
+    float scaleY = 32.0f / lbl_8087EEE0->mHeight;
+    int x0 = atn::ClampRow_unk((int)(float)floor(screen.mMin.x * scaleX), lbl_8087D8A8, lbl_8087D8AC);
+    int y0 = atn::ClampRow_unk((int)(float)floor(screen.mMin.y * scaleY), lbl_8087D8B0, lbl_8087D8B4);
+    int x1 = atn::ClampRow_unk((int)(float)ceil(screen.mMax.x * scaleX), lbl_8087D8B8, lbl_8087D8BC);
+    int y1 = atn::ClampRow_unk((int)(float)ceil(screen.mMax.y * scaleY), lbl_8087D8C0, lbl_8087D8C4);
+    if (x1 - x0 >= 31 || y1 - y0 >= 31) {
+        if (lbl_8087EFA8->m1E4 != 0) {
+            fn_8006FE08(box, 0xFF0000FF);
+        }
+        return 0;
+    }
+    if (atn::fn_800B64DC(layer, x0, y0, x1, y1, screen.mMin.z, 4) != 0) {
+        if (lbl_8087EFA8->m1DC != 0) {
+            lbl_8087EEB0->fn_800610A4(0xFFFF0000, screen.mMin.x, screen.mMin.y, 0.0f, w, h);
+        }
+        if (lbl_8087EFA8->m1E4 != 0) {
+            fn_8006FE08(box, 0xFF00FFFF);
+        }
+        return 1;
+    }
+    if (lbl_8087EFA8->m1DC != 0) {
+        lbl_8087EEB0->fn_800610A4(0xFF7F7F7F, screen.mMin.x, screen.mMin.y, 0.0f, w, h);
+    }
+    if (lbl_8087EFA8->m1E4 != 0) {
+        fn_8006FE08(box, 0xFF00FF00);
+    }
+    return 0;
+}
+
 extern "C" {
 float lbl_8087D8C8 = 0.0f;
 float lbl_8087D8CC = 0.0f;
@@ -521,15 +742,7 @@ int lbl_8087D8F0 = 0;
 int lbl_8087D8F4 = 31;
 }
 
-extern "C" void fn_8006FEBC(AABB_unk* screen, const AABB_unk* box); // inferred: projects a box
-extern "C" double floor(double x);
-extern "C" double ceil(double x);
 float fn_800B65B4(LayerOcclusionCPU* layer, int x0, int y0, int x1, int y1, float depth);
-
-// inferred: clamps v to [lo, hi]
-inline float ClampF_unk(float v, const float& lo, const float& hi) {
-    return v < lo ? lo : (v > hi ? hi : v);
-}
 
 // NONMATCHING: 99.6% - only the data: the zero limits go to .sbss here (the original keeps them in .sdata, as
 // with explicit_zero_data, which is only approved for atn/PostFxColorMatrix)
@@ -594,7 +807,3 @@ __declspec(noinline) float fn_800B65B4(LayerOcclusionCPU* layer, int x0, int y0,
 }
 
 } // namespace atn
-
-// inferred: scratch vertices (16 Vector3; built by the __sinit at 0x800B6684, used by the clipping
-// code at 0x800B47AC-0x800B6218 that is not reconstructed)
-atn::Vector3 lbl_807C74A0[16];
