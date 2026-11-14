@@ -69,7 +69,7 @@ extern "C" void* memset(void* dest, int value, unsigned long size);
 void operator delete[](void* ptr);
 namespace atn {
 // inferred: declared here only for its constructor; the class is in atn/LayerOcclusionCPU.cpp, which uses
-// a local copy of IRenderLayer (vf10 takes an int there).
+// the IRenderLayer of atn/Layer3D.h.
 class LayerOcclusionCPU : public IRenderLayer {
 public:
     LayerOcclusionCPU();
