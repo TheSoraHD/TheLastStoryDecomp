@@ -38,6 +38,8 @@ Inicio: 2026-11-14 04:41 CET. Rama `agent-H`. Unidades: `game/BattleCharaTask`, 
   `fn_800F8C6C` (6 KB, con `fn_800FA4FC`/`fn_800FA9F4` de `std::sort`) usa `std::vector<{CharaTask*, int, float}>`
   con el `push_back` de `std/vector.h` que sigue pendiente (docs/SIGUIENTE_sesion.md). `vf2C__Q23chr11ControlBaseFv`
   (8 bytes) sale con alguna de ellas.
+- `vf2C__Q23chr11ControlBaseFv` (0x800FCD1C, `li r3, 1; blr`): unica copia del DOL, dentro de BattleTask; pide
+  `virtual int vf2C() { return 1; }` inline en `chr/ControlBase.h` (cabecera de otra familia): pendiente.
 - No tocadas: las NONMATCHING de la cola B (`vf14` 85 %, `AIManager::fn_80017128` 89,9 %, `vf10` 98,5 %,
   `fn_80103FD4` 98,3 %): no dio tiempo tras las tres funciones nuevas.
 
