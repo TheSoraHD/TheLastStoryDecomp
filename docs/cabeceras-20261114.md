@@ -38,3 +38,12 @@ merge final aunque el port siga activo; notas para el port solo en el proyecto (
   push_back (fast + slow + expand_by + realloc) sube 37 funciones (Event/Manager fn_80481B9C 58 -> 96 %, Section/Cut/
   Channel 69 -> 92 %) pero baja RenderManager::RenderManager 88,7 -> 46,3 % (presupuesto de inline), ParsePATH_unk
   72,7 -> 16,5 %, ParseACID_unk y DataList_unk<Actor>::Add_unk. **Para revisar:** aceptar esas bajadas o otra pasada.
+- 18:18 integradas H (sorts de MslSort_unk.h, CosEditItemList_unk sin funciones al 0 %, ItemManager_unk +6,
+  ShopBase +1), G (fn_800F8C6C miembro de BattleTask, AiScriptIO_unk.h, RenderNode/RenderObj en LayerOcclusionCPU,
+  sin copias locales de IRender, ctor de PathLengths_unk) e I (fn_80392D2C miembro de GameCamera,
+  MenuCommonTask::sInstance en CostumeEditChara; LevelUpResult_unk != CharaStatusData_unk). Conflictos @N: version de
+  la integracion; **ojo**: en los bloques en conflicto se perdian renombrados no @N de la rama del agente
+  (fn_800F8C6C -> undefined al enlazar): `scratch/reapply.py <rama>` los vuelve a aplicar. pdbatch en 85 unidades y
+  lblmap en 22. Total **15446**, lost 0, sin bajadas, rep100 138, labelcheck 20.
+  Por cierto: GameTask fn_80371790 sube con los ctores de la cola C; EnemyQuarkStand 49->58, GameEventScript 102->108,
+  LastCocoonImago 14->20 funciones con etiquetas al dia tras pdbatch.
