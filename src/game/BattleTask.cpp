@@ -1899,8 +1899,8 @@ void MeleeMedian3_unk(T*& a, T*& b, T*& c, Compare& comp) {
 
 // inferred: MSL __sort (std::sort, 0x800FA4FC): selection sort up to 20 elements, else quicksort around the
 // median of three entries picked with a rotating offset (as Sort_unk of atn/RenderSystem_unk.cpp)
-// NONMATCHING: 73.3% - the original keeps the iterators in memory (references) and inlines the selection sort
-// differently
+// NONMATCHING: 92.6% - the original tests `i < j` at the end of both partition loops as a materialized bool
+// (xor/cntlzw/slw, 0x800FA788 and 0x800FA904) and decrements j before loading *j
 template <class T, class Compare>
 void MeleeSort_unk(T*& first, T*& last, Compare& comp) {
     static int sOffset = -4; // inferred: lbl_8087D978
@@ -1910,11 +1910,18 @@ void MeleeSort_unk(T*& first, T*& last, Compare& comp) {
             return;
         }
         if (n <= 20) {
-            if (first != last) {
-                for (T* it = first; it != last - 1; it++) {
+            // inferred: selection sort on copies of the iterators (read once, 0x800FA52C)
+            T* it = first;
+            T* end = last;
+            if (it == end) {
+                return;
+            }
+            T* stop = end - 1;
+            if (it != stop) {
+                for (; it != stop; it++) {
                     T* min = it;
-                    if (it != last) {
-                        for (T* j = it + 1; j != last; j++) {
+                    if (it != end) {
+                        for (T* j = it + 1; j != end; j++) {
                             if (comp(*j, *min)) {
                                 min = j;
                             }
@@ -1931,12 +1938,15 @@ void MeleeSort_unk(T*& first, T*& last, Compare& comp) {
         if (++sOffset >= 5) {
             sOffset = -4;
         }
-        T* b = first + (n * 3 / 4 + sOffset % 5);
+        T* b = first + n * 3 / 4 + sOffset % 5;
         if (++sOffset >= 5) {
             sOffset = -4;
         }
         T* pivot = last - 1;
-        MeleeMedian3_unk(a, b, pivot, comp);
+        T* ma = a;
+        T* mb = b;
+        T* mc = pivot;
+        MeleeMedian3_unk(ma, mb, mc, comp);
         T* i = first;
         T* j = pivot;
         while (comp(*i, *pivot)) {
@@ -1961,9 +1971,9 @@ void MeleeSort_unk(T*& first, T*& last, Compare& comp) {
             }
         }
         if (i == first) {
-            T* back = last - 1;
             MeleeSwap_unk(*i, *pivot);
             i++;
+            T* back = last - 1;
             if (!comp(*first, *back)) {
                 while (i != last && !comp(*first, *i)) {
                     i++;
@@ -1989,10 +1999,14 @@ void MeleeSort_unk(T*& first, T*& last, Compare& comp) {
             }
             first = i;
         } else if (i - first < last - i) {
-            MeleeSort_unk(first, i, comp);
+            T* f = first;
+            T* m = i;
+            MeleeSort_unk(f, m, comp);
             first = i;
         } else {
-            MeleeSort_unk(i, last, comp);
+            T* m = i;
+            T* l = last;
+            MeleeSort_unk(m, l, comp);
             last = i;
         }
     }
