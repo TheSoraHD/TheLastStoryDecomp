@@ -26,6 +26,7 @@
 #include "game/SkillEffectManager.h"
 #include "game/TacView.h"
 #include "game/TeamAIManager.h"
+#include "math/VecAssign_unk.h"
 
 extern "C" void* memset(void* dst, int c, unsigned long n);
 extern "C" void* memcpy(void* dst, const void* src, unsigned long n);
@@ -959,14 +960,13 @@ struct ColliBox_unk {
 };
 extern "C" int fn_80051E90(const ColliSegment_unk* seg, const ColliBox_unk* box); // inferred: segment hits box
 
-// NONMATCHING: 99.7% - r3/r5 swapped for the addresses of the first sum and seg.mFrom
 // inferred: zero when a vertical segment through `chara` crosses an AI area of its group
 int AIManager::fn_80018078(CharaTask* chara) {
     GameScene* scene = lbl_8087F430->m10D8;
     int ret = 0;
     if (scene != 0 && chara->mC58.mB8 > 0) {
         ColliSegment_unk seg;
-        seg.mFrom = chara->mPos + atn::Vector3(0.0f, 20.0f, 0.0f);
+        atn::VecAssign_unk(seg.mFrom, chara->mPos + atn::Vector3(0.0f, 20.0f, 0.0f));
         seg.mTo = chara->mPos + atn::Vector3(0.0f, -20.0f, 0.0f);
         for (unsigned int i = 0; i < scene->mF4.size(); i++) {
             gs::AiArea& area = scene->mF4[i];
