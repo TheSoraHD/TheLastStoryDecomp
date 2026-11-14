@@ -312,6 +312,14 @@ struct CharaData_unk {
 } // namespace chr
 
 // inferred: block of CharaStatusBase cleared with memset (0x1A8, 0x7C bytes); name invented
+// inferred: last 0x28 bytes of CharaStatusData_unk: copied as one block in 8-byte pairs (GameTask::fn_80367A40,
+// fn_8036F268), so a struct of its own; name invented
+struct CharaStatusTail_unk {
+    unsigned int m00; // 0x1FC: inferred: index into a table of 5 factors (fn_8012F034)
+    int m04;
+    unsigned char m08[0x28 - 0x08];
+};
+
 struct CharaStatusData_unk {
     int m00;
     int mExp;              // 0x1AC: inferred: experience (fn_8012B028)
@@ -324,9 +332,7 @@ struct CharaStatusData_unk {
     int m20;
     unsigned char m24[0x44 - 0x24];
     unsigned int mBits[4]; // 0x1EC: inferred: 128 flags (fn_80134674, fn_801346C8)
-    unsigned int m54;      // 0x1FC: inferred: index into a table of 5 factors (fn_8012F034)
-    int m58;
-    unsigned char m5C[0x7C - 0x5C];
+    CharaStatusTail_unk m54; // 0x1FC
 };
 
 // inferred: stat differences after levelling up (CharaStatus::fn_8013354C; 0x7C bytes, kept in

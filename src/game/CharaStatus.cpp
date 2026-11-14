@@ -937,7 +937,7 @@ void CharaStatus::fn_8012F034(float amount) {
     float old = m228;
     amount *= 1.0f + (float)SumRefs_unk(mRefs, 53) / 100.0f;
     if (mChara != 0 && mChara->m50 == 1) {
-        amount *= sFactors[m1A8.m54 > 4 ? 4 : m1A8.m54];
+        amount *= sFactors[m1A8.m54.m00 > 4 ? 4 : m1A8.m54.m00];
     }
     m228 += amount;
     if (old < 1.0f && m228 >= 1.0f) {
@@ -1794,11 +1794,11 @@ void CharaStatus::fn_801342D0(const StatusItem_unk* item, int stat) {
         msg = 0x17;
         break;
     case 8:
-        m1A8.m54 += (int)value;
+        m1A8.m54.m00 += (int)value;
         msg = 0x1D;
         break;
     case 9:
-        m1A8.m58 += (int)value;
+        m1A8.m54.m04 += (int)value;
         msg = 0x1E;
         break;
     case 11:
