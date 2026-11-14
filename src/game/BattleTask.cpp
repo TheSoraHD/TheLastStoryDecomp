@@ -1154,11 +1154,24 @@ inline CharaTask* BattleTask::GetHated_unk(CharaTask* chara) {
     return mCharas[found].mChara;
 }
 
+// inferred: m50/m54 of the attack data read as floats: angle of the arc and half height of the attack
+// (pending: type them in game/HitInfo_unk.h); names invented
+inline float HitArc_unk(const HitInfo_unk* data) { return *(const float*)&data->m50[0]; }
+inline float HitHeight_unk(const HitInfo_unk* data) { return *(const float*)&data->m50[4]; }
+
+// inferred: rotates `v` around y by `rad` (inlined in vf14, a matrix per call; name invented)
+inline void RotateY_unk(atn::Vector3& v, float rad) {
+    atn::Matrix3x4 m;
+    m.fn_8013A13C(rad);
+    PSMTXMultVec(m.m, &v, &v);
+}
+
 // inferred: draw of the battle every frame: the reticle (d2anime mCB30 and the arrow mCB60 turned toward the
 // aimed direction), the debug displays (morale gauge, enemies aiming at the leader, hate tables, hate range,
 // shot records), the models of mSlots and the end of the d2anime m3E2F4
-// NONMATCHING: 85% - register allocation of the debug loops (the original keeps the base of mCharas and the
-// constants in other registers, index registers in the shot loop) and stack layout (0x100 bytes more)
+// NONMATCHING: 90.1% - register allocation of the debug loops (the original keeps the base of mCharas and the
+// constants in other registers) and stack layout (0x10 bytes more; the locals of the inlined fn_80139F60 are
+// below the matrices of the shot loop, `aim` below the first text buffer)
 void BattleTask::vf14() {
     atn::Vector3 aim = mCB70;
     if (mCB34 != 0) {
@@ -1202,9 +1215,7 @@ void BattleTask::vf14() {
     mCB64 = atn::Lerp_unk(mCB64, aim, 0.15f);
     float rot = 0.0f;
     if (!mCB64.IsZero_unk()) {
-        atn::Vector3 r(mCB64);
-        r.fn_80139F60();
-        rot = 57.295776f * r.y;
+        rot = 57.295776f * mCB64.ToRotation_unk().y;
     }
     SetPaneValue_unk(&mCB30->mData.m10, "arrowRot", rot);
     SetPaneValue_unk(&mCB60->mData.m10, "arrowRot", rot);
@@ -1247,8 +1258,9 @@ void BattleTask::vf14() {
     int mode = lbl_8087F0A8->mDrawHateInfo;
     if (mode > 0) {
         if (mode == 1 || mode == 2) {
+            BattleChara_unk* charas = mCharas;
             for (int i = 0; i < mCharaCount; i++) {
-                BattleChara_unk* entry = &mCharas[i];
+                BattleChara_unk* entry = &charas[i];
                 if (entry->mChara == 0 || !entry->mChara->IsActive_unk()) {
                     continue;
                 }
@@ -1262,7 +1274,7 @@ void BattleTask::vf14() {
                 }
                 int count = 0;
                 for (int j = 0; j < mCharaCount; j++) {
-                    CharaTask* other = mCharas[j].mChara;
+                    CharaTask* other = charas[j].mChara;
                     if (other != 0 && other->IsActive_unk() && !other->fn_8016F3D0(entry->mChara, 1)) {
                         count++;
                     }
@@ -1278,18 +1290,18 @@ void BattleTask::vf14() {
                                                1, 0, 0, 0xFF000000);
                     y += 12.0f;
                     for (int j = 0; j < mCharaCount; j++) {
-                        CharaTask* other = mCharas[j].mChara;
+                        CharaTask* other = charas[j].mChara;
                         if (other == 0 || !other->IsActive_unk() || other->fn_8016F3D0(entry->mChara, 1)) {
                             continue;
                         }
                         unsigned int color = 0xAFFFFFFF;
-                        if (entry->mChara->mC58.mC4 == mCharas[j].mChara) {
+                        if (entry->mChara->mC58.mC4 == charas[j].mChara) {
                             color = 0xAFAFFFAF;
                         }
-                        swprintf(wtext, 256, L"%d", fn_80103484(entry->mChara, mCharas[j].mChara));
+                        swprintf(wtext, 256, L"%d", fn_80103484(entry->mChara, charas[j].mChara));
                         fn_800F7250()->fn_80061824(x, y, 0.0f, 12.0f, 12.0f, 0.0f, 0.0f, 0.0f, wtext, color, 1, 1, 0,
                                                    0, 0xFF000000);
-                        sprintf(text, "[%d: %s]", mCharas[j].mChara->m58, mCharas[j].mChara->m60->m0C);
+                        sprintf(text, "[%d: %s]", charas[j].mChara->m58, charas[j].mChara->m60->m0C);
                         fn_8006F2F0(lbl_8087EEC8, wtext, text, 256);
                         fn_800F7250()->fn_80061824(30.0f + x, y, 0.0f, 12.0f, 12.0f, 0.0f, 0.0f, 0.0f, wtext, color, 1,
                                                    1, 0, 0, 0xFF000000);
@@ -1297,18 +1309,18 @@ void BattleTask::vf14() {
                     }
                 } else if (mode == 2) {
                     for (int j = 0; j < mCharaCount; j++) {
-                        CharaTask* other = mCharas[j].mChara;
+                        CharaTask* other = charas[j].mChara;
                         if (other == 0 || !other->IsActive_unk() || other->fn_8016F3D0(entry->mChara, 1)) {
                             continue;
                         }
                         unsigned int color = 0xAFFFFFFF;
-                        if (mCharas[j].mChara->mC58.mC4 == entry->mChara) {
+                        if (charas[j].mChara->mC58.mC4 == entry->mChara) {
                             color = 0xAFFFAFAF;
                         }
-                        swprintf(wtext, 256, L"%d", fn_80103484(mCharas[j].mChara, entry->mChara));
+                        swprintf(wtext, 256, L"%d", fn_80103484(charas[j].mChara, entry->mChara));
                         fn_800F7250()->fn_80061824(x, y, 0.0f, 12.0f, 12.0f, 0.0f, 0.0f, 0.0f, wtext, color, 1, 1, 0,
                                                    0, 0xFF000000);
-                        sprintf(text, "[%d: %s]", mCharas[j].mChara->m58, mCharas[j].mChara->m60->m0C);
+                        sprintf(text, "[%d: %s]", charas[j].mChara->m58, charas[j].mChara->m60->m0C);
                         fn_8006F2F0(lbl_8087EEC8, wtext, text, 256);
                         fn_800F7250()->fn_80061824(30.0f + x, y, 0.0f, 12.0f, 12.0f, 0.0f, 0.0f, 0.0f, wtext, color, 1,
                                                    1, 0, 0, 0xFF000000);
@@ -1317,8 +1329,9 @@ void BattleTask::vf14() {
                 }
             }
         } else if (mode == 3) {
+            BattleChara_unk* charas = mCharas;
             for (int i = 0; i < mCharaCount; i++) {
-                CharaTask* chara = (i < 0 || mCharaCount <= i) ? 0 : mCharas[i].mChara;
+                CharaTask* chara = (i < 0 || mCharaCount <= i) ? 0 : charas[i].mChara;
                 if (chara == 0 || chara->IsFlag_unk(4) || chara->mType != 3) {
                     continue;
                 }
@@ -1332,7 +1345,7 @@ void BattleTask::vf14() {
                 }
                 int count = 0;
                 for (int j = 0; j < mCharaCount; j++) {
-                    CharaTask* other = (j < 0 || mCharaCount <= j) ? 0 : mCharas[j].mChara;
+                    CharaTask* other = (j < 0 || mCharaCount <= j) ? 0 : charas[j].mChara;
                     if (other != 0 && !other->IsFlag_unk(4) && (other->m54C & 0x2000) != 0x2000 &&
                         other->fn_8016F3D0(chara, 1)) {
                         count++;
@@ -1342,7 +1355,7 @@ void BattleTask::vf14() {
                 float y = (screen.y - 50.0f) - 12.0f * (float)count;
                 CharaTask* hated = GetHated_unk(chara);
                 for (int j = 0; j < mCharaCount; j++) {
-                    CharaTask* other = (j < 0 || mCharaCount <= j) ? 0 : mCharas[j].mChara;
+                    CharaTask* other = (j < 0 || mCharaCount <= j) ? 0 : charas[j].mChara;
                     if (other == 0 || other->IsFlag_unk(4) || (other->m54C & 0x2000) == 0x2000 ||
                         !other->fn_8016F3D0(chara, 1)) {
                         continue;
@@ -1379,8 +1392,9 @@ void BattleTask::vf14() {
             fn_800F7250()->fn_800616C0(15.0f + screen.x, screen.y, 0.0f, 14.0f, 14.0f, text, 0xFFFFFFFF, 0.0f, 1, 1,
                                        0);
         }
+        BattleChara_unk* charas = mCharas;
         for (int i = 0; i < mCharaCount; i++) {
-            CharaTask* chara = mCharas[i].mChara;
+            CharaTask* chara = charas[i].mChara;
             if (chara == 0 || !(chara->mStatus.m430 > 0)) {
                 continue;
             }
@@ -1389,7 +1403,7 @@ void BattleTask::vf14() {
             if (screen.z < 0.0f || 1.0f < screen.z) {
                 continue;
             }
-            sprintf(text, "HateAtt: Lv%d\0", mCharas[i].mChara->mStatus.m430);
+            sprintf(text, "HateAtt: Lv%d\0", charas[i].mChara->mStatus.m430);
             fn_800F7250()->fn_800616C0(15.0f + screen.x, screen.y, 0.0f, 14.0f, 14.0f, text, 0xFFFFFFFF, 0.0f, 1, 1,
                                        0);
         }
@@ -1404,42 +1418,34 @@ void BattleTask::vf14() {
             unsigned int alpha = (unsigned int)(255.0f * fade) << 24;
             if (shot->mKind == 0) {
                 unsigned int color = alpha | 0xFFFF00;
-                HitInfo_unk* data = shot->mData;
-                float angle = *(float*)&data->m50[0];
                 atn::Vector3 top = shot->mPos;
                 atn::Vector3 bottom = shot->mPos;
                 top.y = top.y + shot->mRadius;
                 bottom.y = bottom.y - shot->mRadius;
-                fn_800F7250()->fn_80063484(16, color, top.x, top.y, top.z, shot->mDir.y, 0.0f, shot->mRadius, angle);
+                fn_800F7250()->fn_80063484(16, color, top.x, top.y, top.z, shot->mDir.y, 0.0f, shot->mRadius,
+                                           HitArc_unk(shot->mData));
                 fn_800F7250()->fn_80063484(16, color, bottom.x, bottom.y, bottom.z, shot->mDir.y, 0.0f,
-                                           shot->mRadius, angle);
+                                           shot->mRadius, HitArc_unk(shot->mData));
                 fn_800F7250()->fn_80063764(top, bottom, 0.0f, color);
                 atn::Vector3 v(0.0f, 0.0f, shot->mRadius);
-                atn::Matrix3x4 m;
-                PSMTXRotRad(m.m, 'y', shot->mDir.y - 0.5f * angle);
-                PSMTXMultVec(m.m, &v, &v);
+                RotateY_unk(v, shot->mDir.y - 0.5f * HitArc_unk(shot->mData));
                 fn_800F7250()->fn_80063764(top + v, bottom + v, 0.0f, color);
-                PSMTXRotRad(m.m, 'y', angle);
-                PSMTXMultVec(m.m, &v, &v);
+                RotateY_unk(v, HitArc_unk(shot->mData));
                 fn_800F7250()->fn_80063764(top + v, bottom + v, 0.0f, color);
-                float width = *(float*)&data->m50[4];
-                if (width > 0.0f && angle > 0.0f && shot->mRadius * (float)sin(0.5f * angle) > width) {
-                    float inner = width / (float)sin(0.5f * angle);
-                    float side = (float)asin(width / shot->mRadius);
+                if (HitHeight_unk(shot->mData) > 0.0f && HitArc_unk(shot->mData) > 0.0f &&
+                    shot->mRadius * (float)sin(0.5f * HitArc_unk(shot->mData)) > HitHeight_unk(shot->mData)) {
+                    float inner = HitHeight_unk(shot->mData) / (float)sin(0.5f * HitArc_unk(shot->mData));
+                    float side = (float)asin(HitHeight_unk(shot->mData) / shot->mRadius);
                     atn::Vector3 a(0.0f, 0.0f, inner);
-                    PSMTXRotRad(m.m, 'y', shot->mDir.y - 0.5f * angle);
-                    PSMTXMultVec(m.m, &a, &a);
+                    RotateY_unk(a, shot->mDir.y - 0.5f * HitArc_unk(shot->mData));
                     atn::Vector3 b(0.0f, 0.0f, shot->mRadius);
-                    PSMTXRotRad(m.m, 'y', shot->mDir.y - side);
-                    PSMTXMultVec(m.m, &b, &b);
+                    RotateY_unk(b, shot->mDir.y - side);
                     fn_800F7250()->fn_80063764(top + a, top + b, 0.0f, color);
                     fn_800F7250()->fn_80063764(bottom + a, bottom + b, 0.0f, color);
                     fn_800F7250()->fn_80063764(top + a, bottom + a, 0.0f, color);
                     fn_800F7250()->fn_80063764(top + b, bottom + b, 0.0f, color);
-                    PSMTXRotRad(m.m, 'y', angle);
-                    PSMTXMultVec(m.m, &a, &a);
-                    PSMTXRotRad(m.m, 'y', 2.0f * side);
-                    PSMTXMultVec(m.m, &b, &b);
+                    RotateY_unk(a, HitArc_unk(shot->mData));
+                    RotateY_unk(b, 2.0f * side);
                     fn_800F7250()->fn_80063764(top + a, top + b, 0.0f, color);
                     fn_800F7250()->fn_80063764(bottom + a, bottom + b, 0.0f, color);
                     fn_800F7250()->fn_80063764(top + a, bottom + a, 0.0f, color);
