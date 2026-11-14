@@ -31,6 +31,9 @@ Rama `agent-H`, referencia `/home/claude/ref-H` (15433 / 18109 tras integrar A+B
    BagLess 94,9 -> 96,7, Event/Node 78,5 -> 79,0. Queda la recarga de first/last tras `last - first` en la
    seleccion inline (probados `end(last - 1)`, `end = last`, `while`).
 
+4. `lblmap.py game/Em305Vampire`: tres etiquetas de `.sdata2` renombradas (solo renombrados), `fn_802EBBA8`
+   99,98 -> **100**. Total **15441 -> 15442** (en report tras ninja).
+
 ## Sin resolver (probado)
 
 - `GameTask::fn_80371790` (99,15): marco 0x10 mayor y ranuras de las matrices de RotateYXZ_unk; no tocado.
@@ -43,6 +46,10 @@ Rama `agent-H`, referencia `/home/claude/ref-H` (15433 / 18109 tras integrar A+B
 - `push_back` de vector (CosEdit 99,76, Em305Vampire vf0C, ShopUpGrade): ranuras de pila del `n` de
   `__grow_cap_unk` frente a los temporales de max(); el orden cambia segun la unidad (CosEdit al reves que
   ShopUpGrade). Probados max(n, x), `const size_type&` y alias por referencia: peor.
+- `GameTask::fn_803729B4` (98,9): el original llama a `fn_802A4170`/`fn_802A4184` (las copias debiles
+  `vector<EnemyTask*>` ctor y `operator[]` de Em203GreaterDaemonRedMp, hoy `extern "C"` con self alli: deuda de la
+  regla 10, unidad fuera de la cola) y no llama al ctor vacio de `Matrix3x4`.
+- `GameTask::fn_80370C2C` (99,06, 64 bytes): el original reusa r4 para mFrame; probados orden, local, `?:`, bool.
 - `ShopUpGrade::fn_805969D4`: ademas el pool de cadenas anchas del original tiene un L"" sin referencia antes de
   L"+99" (offset 8, nuestro 6).
 
