@@ -3765,15 +3765,17 @@ inline bool HasCursorChara_unk() {
     }
     return r;
 }
-inline RayObj_unk* GetCursorTarget_unk() {
-    return lbl_8087F048 != 0 ? lbl_8087F048->m3E2E8 : 0;
+// inferred: RayObj_unk (BattleTask.h) is the atn::ColliBase hit by the cursor ray (flags at 0x08, owner at 0x0C)
+inline atn::ColliBase* GetCursorTarget_unk() {
+    return lbl_8087F048 != 0 ? (atn::ColliBase*)lbl_8087F048->m3E2E8 : 0;
 }
 
 // inferred: windows of the overlook view: the rings under the enemies (fn_803DCA84), the windows of the
 // enemies sorted by their screen height (m1014), the party window of each one (fn_803DCD34) and the
 // description window of the enemy under the cursor (m1140..m1148, text cut in five lines)
-// NONMATCHING: 97.7% - CharaTask::vfBC takes an argument in the original (GetCursorTarget_unk(), dropped
-// here as dead code); the else branch of the text lines keeps its literal in a register
+// NONMATCHING: 97.6% - the original reloads lbl_8087F048 for m3E2E0 and computes mF94[m1014[i]] for vfBC
+// after its argument (ours keeps the first load and hoists the object above the argument); the else branch
+// of the text lines keeps its literal in a register
 void GameUI::fn_803DBD44() {
     if (mDC8 == 0) {
         return;
@@ -3880,8 +3882,7 @@ void GameUI::fn_803DBD44() {
             if (HasCursorChara_unk() && (CharaTask*)lbl_8087F048->m3E2E0 == mF94[m1014[i]]) {
                 selected = true;
             }
-            GetCursorTarget_unk(); // inferred: argument of vfBC in the original (see above)
-            if (!mF94[m1014[i]]->vfBC()) {
+            if (!mF94[m1014[i]]->vfBC(GetCursorTarget_unk())) {
                 selected = false;
             }
             if (mDCC < 1 || selected) {

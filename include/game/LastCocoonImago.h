@@ -28,6 +28,7 @@ public:
     virtual void vf80(const atn::Vector3& pos, const atn::Vector3& dir); // 0x8045C83C
     virtual float vf90();                                    // 0x8045F998
     virtual int vfB8(wchar_t* name);                         // 0x80459F24
+    virtual int vfBC(atn::ColliBase*);                       // 0x80459FB8
     virtual void vfCC(atn::Vector3* out, const atn::Vector3& dir); // 0x8045F6E0
     virtual atn::Vector3 vfD8(CharaTask* target);            // 0x8045F884
     void fn_8045B82C(); // inferred: walk of the mode 7

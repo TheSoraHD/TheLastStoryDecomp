@@ -480,7 +480,9 @@ public:
     // chr::ControlWallUp::vf10)
     virtual boost::function<void()> vfB4(CharaTask* chara) { return boost::function<void()>(); } // weak copy 0x800EF310
     virtual int vfB8(wchar_t* name); // inferred: copies the character name
-    virtual int vfBC() { return 1; } // weak copy 0x800EF308
+    // inferred: the collision object under the cursor (BattleTask::m3E2E8, or 0) is not this one;
+    // LastCocoonImago compares it with its sphere m18FC (GameUI 0x803DBD44)
+    virtual int vfBC(atn::ColliBase*) { return 1; } // weak copy 0x800EF308
     virtual void vfC0(void* draw) {} // inferred: Np131LivingArmor passes `draw` to fn_803E2A30 (weak copy 0x800EF304)
     virtual bool vfC4();
     virtual atn::Vector3 GetTacViewPosition() const { return mPos; } // RSO name (weak copy 0x800EF2F0)
