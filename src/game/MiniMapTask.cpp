@@ -320,9 +320,13 @@ void MiniMapTask::fn_804AAFCC(CharaTask* chara) {
     }
 }
 
-// NONMATCHING: 0.22% - target builds and submits minimap render data.
+// inferred: second draw pass of the minimap model with the minimap camera
+// NONMATCHING: 98.5% - scheduling of the inlined implicit copies of atn::Camera (as its weak copy constructor)
 void MiniMapTask::vf18(atn::RenderManager* view) {
-    (void)view;
+    atn::Camera saved(view->mCamera);
+    view->SetCamera_unk(m640);
+    m208.vf18(view);
+    view->SetCamera_unk(saved);
 }
 
 
