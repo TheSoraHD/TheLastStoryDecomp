@@ -14,3 +14,11 @@ merge final aunque el port siga activo; notas para el port solo en el proyecto (
 2. Fuera `typedef atn::ColliBase RayObj_unk` (BattleTask.h); GameUI ya usaba `atn::ColliBase*`.
 3. `fn_801F6E78(inst, name, atn::D2A_DrawRect& r)` (no const: con `const&` la definicion baja a 99,28 %; con `&` sigue
    al 100 %). `GameUI::fn_803E0E10` 85 -> 93,5 %. Los temporales de la copia consumian `@N`: lblmap en GameUI.
+
+## Agentes e integraciones
+
+- 14:00 primera tanda: A (push_back de vector.h), B (string.h/string_members.h), C (CharaStatus.h), D (Model_unk.h/Task.h).
+  Referencia de las copias tras la fase 0: labelcheck 46, rep100 139.
+- 15:16 integrada C (CharaStatus.h: m2CC FixedArray, CharaStatusTail_unk, MotionCommand_unk::m10 bool, ctores de
+  ExpEntry_unk/LevelUpResult_unk en InventoryExp_unk.h, db/PlayerParam_unk.h = EquipSet/LevelSkills/GameUISkillTable):
+  15424 -> 15426, sin conflictos. Notas: docs/cabeceras-20261114-qC.md.
