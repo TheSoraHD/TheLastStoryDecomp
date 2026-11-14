@@ -489,7 +489,7 @@ void BattleCharaTask::fn_800E2FE0() {
 }
 
 // inferred: looks for the character under the camera ray
-// NONMATCHING: 99.84% - stack slots of the two vector temporaries swapped, r3/r4 of the copy
+// NONMATCHING: 99.96% - stack slots of the two vector temporaries swapped
 // of the start crossed (~12 forms)
 void BattleCharaTask::fn_800E3F5C() {
     Field_unk* field = lbl_8087F430;
@@ -2137,7 +2137,7 @@ inline atn::Vector3 AimDir_unk(Field_unk* field) {
 }
 // inferred: translation of a node matrix (name invented)
 
-// NONMATCHING: 99% - stack slots; the string pool offsets wait for fn_800E4278/fn_800E62AC ("hips")
+// NONMATCHING: 99.86% - stack slots (the locals sit 0x30 lower than in the original)
 // inferred: start point and direction of a shot: in front of the character, or along the aim camera (crossbow,
 // mFlag31 with a cover side, or mFlag6) corrected towards the point it hits
 void BattleCharaTask::fn_800E932C(atn::Vector3* pos, atn::Vector3* dir, int fromShot) {

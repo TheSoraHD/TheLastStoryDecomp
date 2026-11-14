@@ -41,6 +41,9 @@ Inicio: 2026-11-14 04:41 CET. Rama `agent-H`. Unidades: `game/BattleCharaTask`, 
 - No tocadas: las NONMATCHING de la cola B (`vf14` 85 %, `AIManager::fn_80017128` 89,9 %, `vf10` 98,5 %,
   `fn_80103FD4` 98,3 %): no dio tiempo tras las tres funciones nuevas.
 
+- Mejoras sin llegar al 100 %: `fn_800E3F5C` 99,84 -> 99,96 % y `fn_800E932C` 99,81 -> 99,86 % (copias de
+  `Vector3` por `atn::VecAssign_unk`; queda el orden de huecos de pila).
+
 ## Cambios de firma / layout (para el port)
 
 - `BattleCharaTask::fn_800E4278(GameTask*)` nuevo miembro en `include/game/BattleCharaTask.h`; `GameTask::fn_8036CC90`
