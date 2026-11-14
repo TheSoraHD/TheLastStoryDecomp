@@ -34,7 +34,11 @@
 - `pdbatch.sh` de las ocho (GameScene 150 -> 153, AiCommon 33 -> 35 en fnstat). El re-emparejado volvia a poner
   `@STRING@Resize_unk...` en `lbl_8087D6E8/EC` y `sInstance` en 0x8087EE78 (y el enlace fallaba): devueltos por
   linea. Neutro: precommit OK, 15450, lost 0, sin bajadas, labelcheck/rep100 igual.
-- Queda DropItem (`DropBulletMgr_unk`: vista de `Bullet` desplazada 4 bytes y con `DropAttack_unk` = `BulletShot_unk`).
+- DropItem (`DropBulletMgr_unk`/`DropBullet_unk`/`DropAttack_unk`/`DropBulletOwner_unk`): era una vista de
+  `BattleTask::mBullets` (`Bullet`, 0xA0) contada desde `Bullet+4`. Ahora `Bullet*` con `m04` (flags), `m08`
+  (posicion), `m20` (velocidad), `m88->mType` (dueno jugador) y `BulletShot_unk` copiado miembro a miembro de
+  `m5C..m74`; `IsBlocked_unk(BulletShot_unk)` mira `HitInfo_unk::mAC`. Con `GetShot_unk()` vf10 bajaba
+  (90,70 -> 90,22: un temporal mas); con la copia explicita sube 90,70 -> 91,74. pd + precommit OK.
 
 ## Decisiones tomadas sin el usuario
 
