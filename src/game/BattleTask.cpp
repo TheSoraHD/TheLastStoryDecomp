@@ -3869,7 +3869,8 @@ CharaTask* BattleTask::fn_801002DC(CharaTask* chara, const atn::Vector3* pos, co
         if (all == 0 && mTargets.mData[i]->IsPartyMember_unk()) {
             continue;
         }
-        atn::Vector3 d = (mTargets.mData[i]->mColli.m3C + mTargets.mData[i]->mColli.m48) * 0.5f - *pos;
+        atn::Vector3 center = (mTargets.mData[i]->mColli.m3C + mTargets.mData[i]->mColli.m48) * 0.5f;
+        atn::Vector3 d = center - *pos;
         float dist = PSVECMag(&d);
         if (dist < 10.0f || dist > range) {
             continue;

@@ -25,8 +25,18 @@
   funcion) renumera los `@N` de la unidad: hace falta `precommit.sh --pd`. Ademas, el par duplicado `@37207`
   (0x8088157C/0x80881580, dos nombres iguales en symbols.txt, de antes) no lo arregla pd: renombrado a mano.
 
+### 4. Funciones al 99,x %
+- `BattleTask::fn_801002DC` 99,93 -> **100 %**: el punto medio de la capsula en un `atn::Vector3 center` con nombre
+  (ordena las ranuras de pila como el original).
+- Probadas sin exito (asignacion de registros o ranuras de pila): `fn_800FBA9C` (`frsp` del `__fabs`),
+  `fn_800FDB20` (orden de los campos del dano), `fn_800F8574` (ranuras de `rot`/`v`/matrices), `fn_8010089C`
+  (`center.y += m5B0`), `fn_80101524` (la carga de `lbl_8087F3C0` antes del ternario del efecto).
+- Etiquetas: tras `pd.sh` quedan nombres `@N` duplicados o viejos en `.sdata2` (pd no renombra los que no puede
+  emparejar); se corrigen por desplazamiento y valor con un script (mismo desplazamiento y mismo valor en el .o
+  original y el nuestro, hasta 0x80881594; despues el pool diverge por el float de mas).
+
 ## Decisiones tomadas sin el usuario
-- `symbols.txt`: solo renombrados de `@N` de BattleTask (pd.sh) y el par duplicado `@37207` -> `@37148`/`@37149`.
+- `symbols.txt`: solo renombrados de `@N` de BattleTask (pd.sh, y a mano/por script los duplicados que pd deja).
 
 ## Para el port
 - Sin cambios de firmas, tipos ni layouts (solo cuerpos de funciones de `game/BattleTask.cpp`).
