@@ -73,3 +73,8 @@ merge final aunque el port siga activo; notas para el port solo en el proyecto (
   Effect_unk/void*; BattleTask::fn_8013A19C(int); Event/MovieState_unk.h fuera: Manager usa atn::VideoTHP).
   Sin conflictos. 15450, lost 0, sin bajadas, rep100 138, labelcheck 19. Reinicio del servidor ~20:43 (K, L, M
   reanudados solos).
+- 21:32 cola M **no integrada** (rama aparte `cabeceras-20261114-m`, sobre 470dd42): `Frustum_unk::mBounds` como
+  subobjeto (la copia de atn::Camera usa un puntero base) y GameCamera::fn_8038C5B0 48,6 -> 99,6 %: +5 funciones al
+  100 % (fn_80392D2C, copia debil de SetCamera_unk, Camera(const Camera&), NewCampTask fn_8052C6CC,
+  Sequence::fn_8053E8D0), pero bajan NewCampTask fn_8052E1A0 71,31 -> 70,81 y fn_8052FA44 73,22 -> 73,12, y el merge
+  exige cero bajadas. **Para revisar.** Renumera 253 unidades (+2 @N); notas: docs/cabeceras-20261114-qM.md (en esa rama).
