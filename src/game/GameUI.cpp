@@ -3597,7 +3597,7 @@ void GameUI::fn_803DAB4C(int show, int keep) {
                 if (tac->m48.mState != 2) {
                     mDD0 -= 0.12566371f;
                     mDD0 = WrapAngleF_unk(mDD0);
-                } else if (tac->m15D8 != 0) {
+                } else if (tac->mAim.mMode != 0) {
                     mDD0 -= 0.06283186f;
                     mDD0 = WrapAngleF_unk(mDD0);
                 } else {
@@ -3608,7 +3608,7 @@ void GameUI::fn_803DAB4C(int show, int keep) {
                 atn::Vector3 scale(radius * 3.5f, radius * 3.5f, radius * 3.5f);
                 center.y += 1.0f;
                 atn::Vector3 screen = atn::RenderManager::instance_->GetScreenPosition(center);
-                if (lbl_8087F9F8->m48.mState != 0 && lbl_8087F9F8->m15D8 == 0) {
+                if (lbl_8087F9F8->m48.mState != 0 && lbl_8087F9F8->mAim.mMode == 0) {
                     m10F4->MeltTask();
                     SetLayoutValue_unk(&m10F4->mData.m10, "base_pos", 0, screen.x);
                     SetLayoutValue_unk(&m10F4->mData.m10, "base_pos", 1, screen.y);
@@ -3616,11 +3616,11 @@ void GameUI::fn_803DAB4C(int show, int keep) {
                         m10F4->mFrame = 5.0f;
                     }
                 }
-                if (lbl_8087F9F8->m15D8 != 0) {
+                if (lbl_8087F9F8->mAim.mMode != 0) {
                     atn::Vector3 pos = lbl_8087F430->m910;
                     bool colored = true;
                     SkillEffect* best = 0;
-                    if (lbl_8087F9F8->m15D8 == 1) {
+                    if (lbl_8087F9F8->mAim.mMode == 1) {
                         float bestDist = 1e16f;
                         for (unsigned int i = 0; i < 32; i++) {
                             SkillEffect* e = lbl_8087F9E8->GetBullet_unk(i);
@@ -3648,7 +3648,7 @@ void GameUI::fn_803DAB4C(int show, int keep) {
                         colored = false;
                     }
                     bool busy = false;
-                    if (lbl_8087F9F8->m1598 != 0 || lbl_8087F9F8->m15EC != 0) {
+                    if (lbl_8087F9F8->m1598 != 0 || lbl_8087F9F8->mAim.mA != 0) {
                         busy = true;
                     }
                     if (!busy) {
@@ -3798,7 +3798,7 @@ void GameUI::fn_803DBD44() {
     if (mDCC < 1) {
         bool rings = true;
         if (lbl_8087F9F8 != 0) {
-            if (lbl_8087F9F8->m15D8 == 1 && lbl_8087F9F8->m15EC == 0) {
+            if (lbl_8087F9F8->mAim.mMode == 1 && lbl_8087F9F8->mAim.mA == 0) {
                 rings = false;
             }
             if (GetTacView_unk()->mA70 == 0) {
@@ -3870,7 +3870,7 @@ void GameUI::fn_803DBD44() {
     if (lbl_8087F430->m54E4 == 8 && lbl_8087F540 != 0 && lbl_8087F540->fn_80481654() != 0) {
         windows = false;
     }
-    if (lbl_8087F9F8 != 0 && lbl_8087F9F8->mA70 != 0 && lbl_8087F9F8->m15D8 == 1) {
+    if (lbl_8087F9F8 != 0 && lbl_8087F9F8->mA70 != 0 && lbl_8087F9F8->mAim.mMode == 1) {
         windows = false;
     }
     CharaTask* cursor = 0;
@@ -3998,7 +3998,7 @@ void GameUI::fn_803DCA84(CharaTask* chara, float* fade) {
     int kind = chara->m5C->m122;
     TacView* tac = lbl_8087F9F8;
     if (tac != 0 && tac->mA70 != 0 && tac->m48.mState != 2 && tac->IsIdle_unk() && tac->m48.m04 == chara &&
-        tac->m15D8 == 0) {
+        tac->mAim.mMode == 0) {
         selected = true;
     }
     if (selected) {
@@ -4028,7 +4028,7 @@ void GameUI::fn_803DCA84(CharaTask* chara, float* fade) {
         color = rgb | 0x80000000;
         white |= 0x20000000;
     }
-    if ((lbl_8087F9F8 == 0 || lbl_8087F9F8->m15D8 == 0) && lbl_8087F610 == 0) {
+    if ((lbl_8087F9F8 == 0 || lbl_8087F9F8->mAim.mMode == 0) && lbl_8087F610 == 0) {
         atn::Vector2_unk uv0(0.0f, 0.0f);
         atn::Vector2_unk uv1(1.0f, 1.0f);
         atn::Vector3 scale(size, size, size);
@@ -4461,7 +4461,7 @@ void GameUI::fn_803DE89C(SkillEffect* bullet, int index) {
     bool hasCenter = false;
     GameUIField_unk* field = lbl_8087F430;
     if (field != 0) {
-        if (lbl_8087F9F8->m15D8 == 1) {
+        if (lbl_8087F9F8->mAim.mMode == 1) {
             center.Assign_unk(field->m910);
             hasCenter = true;
         } else if (field->m868 == 7) {
