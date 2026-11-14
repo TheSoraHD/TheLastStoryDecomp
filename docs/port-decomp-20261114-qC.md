@@ -20,9 +20,9 @@ Agente C, rama `agent-C`. Unidades: `game/GameCamera_unk`, `game/FinishCamera_un
   fijado de enemigo m860 con BattleTask::fn_801002DC): escrita desde el asm (no estaba en el port), sin DRAFT,
   NONMATCHING ~33 %: aqui pasa el presupuesto de inlining y llama a todos los operadores de Vector3, el original
   lo inlinea todo. Bisecado: el corte esta en el bloque del limite de pitch + offset + primera colision (tres
-  fn_800109E0 y dos fn_80139F60); helpers inline para el codigo repetido no bastan. Sospecha: las copias de
-  Vector3 (`__VecCopy` asm inline en Vec.h) cuentan como candidatos aqui y en el original eran copias del
-  compilador. Dudas: `fn_80050900(p, line, out)` (punto mas cercano de la recta) y `target = dir * mDist` en el
+  fn_800109E0 y dos fn_80139F60); helpers inline para el codigo repetido no bastan, y copias de Vector3 sin
+  `__VecCopy` (probado con una copia de `include/` aparte) tampoco: sigue sin saberse que lo deja por debajo en
+  el original. Dudas: `fn_80050900(p, line, out)` (punto mas cercano de la recta) y `target = dir * mDist` en el
   limite de pitch (sin sumar pos; asi en el asm).
 - `GameCamera::fn_80385B48` (gemela de fn_80384188): sin escribir (mismo problema de presupuesto).
 
@@ -75,7 +75,9 @@ Agente C, rama `agent-C`. Unidades: `game/GameCamera_unk`, `game/FinishCamera_un
 ## Hallazgos de una linea
 
 - FinishCamera fn_803792F0: con `AddCurve_unk` (inline con copia de Vector3) la funcion pasa el presupuesto de
-  inlining (38 %); con las curvas sumadas a mano lo inlinea todo (94 %). Las copias `__VecCopy` pesan.
+  inlining (38 %); con las curvas sumadas a mano lo inlinea todo (94 %).
+- `remap.py` (scratch, por pares de instrucciones de objdiff) empareja `@N` que pairdata deja ambiguos, pero hay
+  que aplicarlo una sola vez por split: los nombres del asm objetivo son los del ultimo `configure`.
 
 - Una funcion inline definida en una cabecera consume `@N` en cada unidad que la incluye (aqui 10 por
   `fn_8037F830` con tres parametros con nombre; la declaracion con nombres consume 3, sin nombres 0).
