@@ -81,6 +81,7 @@ Inicio: 2026-11-14 04:41 CET. Rama `agent-H`. Unidades: `game/BattleCharaTask`, 
 ## Resumen
 
 Funciones al 0 % escritas: 3 (`fn_800E4278` 0 -> 99,5 %, `fn_80109950` 0 -> 97,5 %, `fn_800FDF14` 0 -> 92,3 %).
-Funciones al 100 %: sin cambios en estas unidades (report.json 15392 -> 15394: `GameTask::fn_8036CC90` al
-100 % al llamar al miembro, y `fn_800EBD00` cuenta 100 en el report con objdiff 99,95 %). lost 0, sin bajadas de fuzzy.
+Funciones al 100 %: +1, `BattleCharaTask::vf2C` (0x800EBF1C, 99,87 -> 100 %: el pool `@stringBase0` ya tiene
+"hips" de fn_800E4278; quitado su NONMATCHING). report.json 15392 -> 15394 (la otra es `fn_800EBD00`, 100 en el
+report con objdiff 99,95 %). lost 0, sin bajadas de fuzzy.
 precommit: `labelcheck/rep100: peor` solo por `fn_800EBD00` (ver arriba).
