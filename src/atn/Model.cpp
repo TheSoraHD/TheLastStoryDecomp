@@ -546,14 +546,17 @@ int ModelBase::vf20() {
 void ModelBase::vf24() {
 }
 
-// NONMATCHING: 92.3% - stack layout (the path strings are above the boost::function temporaries)
+// NONMATCHING: 99.3% - stack slots (the path strings are above the boost::function temporaries); the directory
+// string lives in its own block (destroyed before the state is set, as in the original)
 void ModelBase::fn_8008B978(int unbound) {
     mFlag3_unk = unbound;
     if (!mFlag3_unk) {
-        std::string dir = fn_8006B0C8(std::string(fn_8008B130()));
-        for (unsigned int i = 0; i < m104.mMaterials.size(); i++) {
-            TexGetter_unk getter = boost::bind(&ModelBase::fn_80095B08, this, _1);
-            m104.mMaterials.mData[i]->fn_80080C20(dir, getter);
+        {
+            std::string dir = fn_8006B0C8(std::string(fn_8008B130()));
+            for (unsigned int i = 0; i < m104.mMaterials.size(); i++) {
+                TexGetter_unk getter = boost::bind(&ModelBase::fn_80095B08, this, _1);
+                m104.mMaterials.mData[i]->fn_80080C20(dir, getter);
+            }
         }
         m20C_31_24 = 4;
         mFlag2_unk = 1;

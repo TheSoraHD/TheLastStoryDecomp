@@ -33,7 +33,8 @@ Inicio 2026-11-14 02:59. Unidades: atn/Model, atn/BoneCalc_unk.
   por valor, `JointBoxMin_unk/JointBoxMax_unk`); `fn_800909B0` 45,3 -> 79,2 % (matrices y pesos sin `const`);
   **`Model::fn_80097A9C` al 100 %** (94,6: sobraba la copia de `m08`, ya la hace el `operator=` implicito de
   `LH_Motion`; mnemcheck limpio); `vf10` 92,0 -> 92,3 % (cuerpo dentro de `if (... == 8 && mFlag6_unk)`);
-  `fn_8008E818` 93,9 -> 94,5 % (`m20C_7` con signo).
+  `fn_8008E818` 93,9 -> 94,5 % (`m20C_7` con signo); `fn_8008B978` 92,7 -> 99,3 % (la cadena del directorio en
+  su propio bloque: se destruye antes de poner el estado).
 
 ## Cambios de firma / layout (para el port)
 
