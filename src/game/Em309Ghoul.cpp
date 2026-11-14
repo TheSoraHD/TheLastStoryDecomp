@@ -798,7 +798,7 @@ void Em309Ghoul::fn_802FFFF8() {
         } else if (leadXZ < 50.0f && atn::Abs_unk(leadAngle) < atn::DegToRad_unk(60.0f)) {
             attack = 2;
         } else if (homeDist < m1694) {
-            if (tgtXZ < 0.7f * fn_80219E6C(0x64A)->m58 && atn::Abs_unk(tgtAngle) < *(float*)&fn_80219E6C(0x64A)->m50[0]) {
+            if (tgtXZ < 0.7f * fn_80219E6C(0x64A)->m58 && atn::Abs_unk(tgtAngle) < fn_80219E6C(0x64A)->m50) {
                 attack = 1;
             }
         } else if (atn::Abs_unk(tgtAngle) < atn::DegToRad_unk(30.0f)) {
@@ -806,7 +806,7 @@ void Em309Ghoul::fn_802FFFF8() {
         }
     } else if (m14F4 > m1698) {
         if (homeDist < m1694) {
-            if (tgtXZ < 0.7f * fn_80219E6C(0x64A)->m58 && atn::Abs_unk(tgtAngle) < *(float*)&fn_80219E6C(0x64A)->m50[0]) {
+            if (tgtXZ < 0.7f * fn_80219E6C(0x64A)->m58 && atn::Abs_unk(tgtAngle) < fn_80219E6C(0x64A)->m50) {
                 attack = 1;
             }
         } else if (atn::Abs_unk(tgtAngle) < atn::DegToRad_unk(30.0f)) {

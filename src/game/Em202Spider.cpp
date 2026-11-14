@@ -642,7 +642,7 @@ inline void Em202Spider::Dash_unk(const atn::Vector3& rot) {
     Mtx m;
     PSMTXRotRad(m, 'y', mRot.y);
     PSMTXMultVec(m, &fwd, &fwd);
-    fn_805A5078(&pos, &fwd, 20, m1514->m58, *(float*)&m1514->m50[0]);
+    fn_805A5078(&pos, &fwd, 20, m1514->m58, m1514->m50);
     fn_800F8C6C(lbl_8087F048, 0, 0, this, m1514, m590, 30, -1, rot.y - mRot.y);
 }
 

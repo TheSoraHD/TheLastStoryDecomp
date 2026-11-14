@@ -1702,7 +1702,7 @@ void TacView::fn_805AC758() {
                 HitInfo_unk* skill = (HitInfo_unk*)m54.m54[i];
                 if (skill != 0) {
                     wchar_t text[0x100];
-                    fn_800DD3FC(text, L"%s\xFF1A%s\n", skill->m08, *(const wchar_t* const*)skill->m0C); // inferred: description at 0x0C
+                    fn_800DD3FC(text, L"%s\xFF1A%s\n", skill->m08, skill->m0C); // inferred: description at 0x0C
                     lines.push_back(std::basic_string<wchar_t>(text));
                 }
             }

@@ -1154,10 +1154,8 @@ inline CharaTask* BattleTask::GetHated_unk(CharaTask* chara) {
     return mCharas[found].mChara;
 }
 
-// inferred: m50/m54 of the attack data read as floats: angle of the arc and half height of the attack
-// (pending: type them in game/HitInfo_unk.h); names invented
-inline float HitArc_unk(const HitInfo_unk* data) { return *(const float*)&data->m50[0]; }
-inline float HitHeight_unk(const HitInfo_unk* data) { return *(const float*)&data->m50[4]; }
+inline float HitArc_unk(const HitInfo_unk* data) { return data->m50; }
+inline float HitHeight_unk(const HitInfo_unk* data) { return data->m54; }
 
 // inferred: rotates `v` around y by `rad` (inlined in vf14, a matrix per call; name invented)
 inline void RotateY_unk(atn::Vector3& v, float rad) {
@@ -2106,10 +2104,10 @@ extern "C" int fn_800F8C6C(BattleTask* mgr, HitResult_unk* out, int outCount, Ch
             if (!(dist <= range)) {
                 continue;
             }
-            if (!(dot >= (float)cos(0.5f * *(float*)&data->m50[0]))) {
+            if (!(dot >= (float)cos(0.5f * data->m50))) {
                 continue;
             }
-            float height = *(float*)&data->m50[4];
+            float height = data->m54;
             if (height > 0.0f) {
                 float s = sqrt(1.0f - dot * dot);
                 float r = sqrt(sq);
@@ -2541,9 +2539,8 @@ extern "C" int fn_800FBA9C(BattleTask* mgr, CharaTask* attacker, CharaTask* char
     int found = -1;
     float best = 1e16f;
     float reach = data->m40 + attacker->mStatus.mParamB.m28;
-    // inferred: m50/m54 are floats (arc angle, height); HitInfo_unk keeps them as bytes (as game/Em202Spider)
-    float arc = *(float*)&data->m50[0];
-    float height = *(float*)&data->m50[4];
+    float arc = data->m50;
+    float height = data->m54;
     for (unsigned int i = 0; i < chara->m624.mSize; i++) {
         CharaTask::Item14_unk* item = chara->fn_80148B0C(i);
         if (item == 0 || IsSkipped_unk(data, item)) {
