@@ -12,9 +12,7 @@ extern "C" int fn_8006AA20(const char* path); // inferred: the file exists
 extern "C" float fn_800DC288(const char* s);  // inferred: string to float
 extern "C" int fn_800DC12C(const char* s);    // inferred: string to int
 extern "C" void fn_8032AF90(gmk::PathData_unk* path, std::vector<atn::Vector3>* points); // inferred: builds the path
-// inferred: std::vector<atn::Vector3>::push_back, first emitted in game/Em403WarLion.cpp (declared there with
-// this name, so vf20 calls it the same way)
-extern "C" void fn_8032AC1C(std::vector<atn::Vector3>* v, const atn::Vector3* p);
+#include "std/vector_vec3_unk.h"
 extern "C" void fn_80087E9C(void* group, const char* name, atn::Vector3* value, int arg3, int arg4, float min,
                             float max, float step);
 extern "C" void fn_80088724(void* group, const char* name, atn::Vector3* value, int arg3, int arg4, float min,
@@ -160,7 +158,7 @@ static GmkChara* CreateChara_unk(atn::Task* parent, const std::string& path);
 
 // The original goes over the inline budget (docs/inlining.md; here with the empty asserts of fn_8043E07C): the path reset, the
 // clears, the CSV constructor (fn_803EFCA8), the string/vector members (fn_8003E4A4,
-// fn_8020A780, fn_801207D4, fn_8032AC1C, fn_8004212C, fn_800E0AA8), the character creation
+// fn_8020A780, fn_801207D4, push_back 0x8032AC1C, fn_8004212C, fn_800E0AA8), the character creation
 // (0x8043E134) and push_back (0x8043E1F0) are all called out of line, as here.
 void CharaPathMove::vf20() {
     mPath.fn_8043E07C();
@@ -192,7 +190,7 @@ void CharaPathMove::vf20() {
             point.x = fn_800DC288(csv.fn_8005B9CC());
             point.y = fn_800DC288(csv.fn_8005B9CC());
             point.z = fn_800DC288(csv.fn_8005B9CC());
-            fn_8032AC1C(&mPoints, &point);
+            mPoints.push_back(point);
         } else if (strcmp(field, "MOVE_SPEED") == 0) {
             mSpeed = fn_800DC288(csv.fn_8005B9CC());
         } else if (strcmp(field, "PARAM") == 0) {

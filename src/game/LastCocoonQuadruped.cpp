@@ -1725,27 +1725,17 @@ atn::Vector3 LastCocoonQuadruped::fn_80468A08(int id, int* next) {
     return pos;
 }
 
-// inferred: points of the path, a std::vector<atn::Vector3> handled through the weak copies of
-// game/Em403WarLion.cpp (C names)
-struct QuadPoints_unk {
-    atn::Vector3* mData;
-    unsigned int mSize;
-    unsigned int mCap;
-};
-extern "C" void fn_8032AB90(QuadPoints_unk* v);                         // inferred: constructor
-extern "C" QuadPoints_unk* fn_8032ABA4(QuadPoints_unk* v, int flag);    // inferred: destructor
-extern "C" void fn_8032AC1C(QuadPoints_unk* v, const atn::Vector3* p);  // inferred: push_back
-extern "C" void fn_8032AF90(QuadRoutes_unk* path, QuadPoints_unk* pts); // inferred: builds the path
+#include "std/vector_vec3_unk.h"
+extern "C" void fn_8032AF90(QuadRoutes_unk* path, std::vector<atn::Vector3>* pts); // inferred: builds the path
 
-// NONMATCHING: the original is over the inlining budget (docs/inlining.md R3) and calls the Vector3
-// copies and RouteTable_unk::FindPlace_unk; the points are a std::vector<atn::Vector3> whose weak copies
-// (C names) live in game/Em403WarLion.cpp, so here they are plain calls and the budget is not reached
+// inferred: over the inlining budget (docs/inlining.md R3, push_back of std/vector_vec3_unk.h): the Vector3
+// copies, RouteTable_unk::FindPlace_unk and the vector members (weak copies of game/Em403WarLion.cpp) are calls
 int LastCocoonQuadruped::fn_80468B68(QuadRoutes_unk* path, int id, int* next, int last) {
+    int id2 = 0;
+    int id1 = 0;
     atn::Vector3 pos1 = lbl_807C7030;
     atn::Vector3 pos2 = lbl_807C7030;
     atn::Vector3 pos0 = lbl_807C7030;
-    int id2 = 0;
-    int id1 = 0;
     for (int i = 0; i < 10; i++) {
         if (id == sQuadPlaces[i].mId) {
             int j = i + 1;
@@ -1777,16 +1767,14 @@ int LastCocoonQuadruped::fn_80468B68(QuadRoutes_unk* path, int id, int* next, in
     if (place != 0) {
         pos2 = place->mPos;
     }
-    QuadPoints_unk points;
-    fn_8032AB90(&points);
-    fn_8032AC1C(&points, &pos0);
-    fn_8032AC1C(&points, &pos1);
-    fn_8032AC1C(&points, &pos2);
+    std::vector<atn::Vector3> points;
+    points.push_back(pos0);
+    points.push_back(pos1);
+    points.push_back(pos2);
     fn_8032AF90(path, &points);
     if (next != 0) {
         *next = id2;
     }
-    fn_8032ABA4(&points, -1);
     return 1;
 }
 
