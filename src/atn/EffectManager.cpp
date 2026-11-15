@@ -539,6 +539,83 @@ int EffectManager::fn_8023B724(EffectEvent_unk* event) {
 
 } // namespace atn
 
+// MSL_C math (sign and class of a double)
+extern "C" int __signbitd(double);
+extern "C" int __fpclassifyd(double);
+
+namespace std {
+
+// inferred: upper case of a range (MSL inline)
+inline const char* ctype<char>::toupper(char* low, const char* high) const {
+    return do_toupper(low, high);
+}
+
+// inferred: the three float formats of a finite value into a string (weak copies, not written yet): general
+// (0x802407CC), scientific (0x802411B8) and fixed (0x80241CB8); names invented
+template <class C>
+void __put_float_general_unk(ios_base&, basic_string<C>&, long double);
+template <class C>
+void __put_float_scientific_unk(ios_base&, basic_string<C>&, long double);
+template <class C>
+void __put_float_fixed_unk(ios_base&, basic_string<C>&, long double);
+
+// inferred: a finite value formatted fixed, scientific or general after the flags, else nan or inf (inlined by
+// do_put(long double); name invented)
+template <class C>
+inline void __put_float_unk(ios_base& str, basic_string<C>& s, long double v) {
+    if (__fpclassifyd(v) > 2) {
+        switch (str.flags() & (__fixed_unk | __scientific_unk)) {
+        case __fixed_unk:
+            __put_float_fixed_unk(str, s, v);
+            break;
+        case __scientific_unk:
+            __put_float_scientific_unk(str, s, v);
+            break;
+        default:
+            __put_float_general_unk(str, s, v);
+            break;
+        }
+    } else {
+        if (__fpclassifyd(v) == 1) {
+            s = __literal("nan", C());
+        } else {
+            s = __literal("inf", C());
+        }
+        if ((str.flags() & __uppercase_unk) != 0) {
+            const ctype<C>& ct = use_facet<ctype<C> >(str.getloc());
+            ct.toupper((C*)s.data(), s.data() + s.size());
+        }
+    }
+}
+
+// NONMATCHING: 85.8% - the string is passed through a saved register in the original, registers of the facet
+// (the replace of use_facet), stack slots of the iterator tags of the string assignments (90.2% with the
+// ostreambuf_iterator::operator= of docs/paralelo-20261113-qD2.patch, which renumbers GameEventScript)
+// inferred: float output (0x8023F5E0): the sign (or + with showpos) as a prefix; a finite value formatted fixed,
+// scientific or general after the flags; else nan or inf (upper case with uppercase); then padded like the
+// integers
+template <class C, class O>
+typename num_put<C, O>::iter_type num_put<C, O>::do_put(iter_type out, ios_base& str, char_type fill,
+                                                        long double v) const {
+    const ctype<C>& ct = use_facet<ctype<C> >(str.getloc());
+    C pre[1];
+    int npre = 0;
+    bool neg = __signbitd(v);
+    if (!neg && (str.flags() & __showpos_unk) != 0) {
+        npre = 1;
+        pre[0] = ct.widen('+');
+    } else if (neg) {
+        npre = 1;
+        pre[0] = ct.widen('-');
+        v = -v;
+    }
+    basic_string<C> s;
+    __put_float_unk(str, s, v);
+    return __put_padded_unk(out, str, fill, pre, npre, s.data(), (int)s.size());
+}
+
+} // namespace std
+
 // inferred: weak copies of the MSL numeric facets used by the stream output of this file (its code that
 // used them is not in the DOL), in the order of the DOL
 namespace std {
@@ -552,6 +629,8 @@ template num_put<char>::iter_type num_put<char>::do_put(iter_type out, ios_base&
 template num_put<char>::iter_type num_put<char>::do_put(iter_type out, ios_base& str, char fill,
                                                          unsigned long long v) const;
 template num_put<char>::iter_type num_put<char>::do_put(iter_type out, ios_base& str, char fill, double v) const;
+template num_put<char>::iter_type num_put<char>::do_put(iter_type out, ios_base& str, char fill,
+                                                         long double v) const;
 template num_put<char>::iter_type num_put<char>::do_put(iter_type out, ios_base& str, char fill,
                                                          const void* v) const;
 template numpunct<char>::string_type numpunct<char>::truename() const;

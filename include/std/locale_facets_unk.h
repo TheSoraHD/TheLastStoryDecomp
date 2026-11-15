@@ -125,10 +125,12 @@ inline string __literal(const char* s, char) {
 // inferred: the ios_base flags used by num_put (only used here; dec 0x02, hex 0x08, oct 0x40)
 enum {
     __boolalpha_unk = 0x01,
+    __fixed_unk = 0x04,
     __hex_unk = 0x08,
     __internal_unk = 0x10,
     __left_unk = 0x20,
     __oct_unk = 0x40,
+    __scientific_unk = 0x100,
     __basefield_unk = 0x4A,
     __adjustfield_unk = 0xB0,
     __showbase_unk = 0x200,
@@ -146,6 +148,7 @@ class ctype<char> : public locale::facet {
 public:
     explicit ctype(const unsigned short* tab = 0, bool del = false, size_t refs = 0);
     char widen(char c) const { return do_widen(c); }
+    const char* toupper(char*, const char*) const;
 
     static locale::id id;
 
