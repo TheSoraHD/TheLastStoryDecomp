@@ -9,6 +9,8 @@ class CharaStatus;
 struct NewCampPair_unk;
 namespace atn {
 struct D2ATask_unk;
+template <int N, int M>
+class D2A_TaskInstanceBase;
 }
 
 // inferred: cell of the palette and part grids (0x10 bytes); names invented
@@ -150,7 +152,7 @@ public:
     int mB7C;
     int mB80;
     atn::D2ATask_unk* mSort;      // 0xB84: camp_sort.d2a
-    atn::Task* mB88;              // inferred: deleted by vf28 (fn_800D2338)
+    atn::D2A_TaskInstanceBase<32, 8>* mB88; // inferred: "equip_face.d2a"; deleted by vf28 (fn_800D2338)
     int mB8C;
     atn::D3Anime* mIconCursor;                // 0xB90: equip_color_icon_cursor.d2a
     atn::D3AnimeInstance* mPalettes[9];       // 0xB94: inferred: palette marks (the last one is the cursor)

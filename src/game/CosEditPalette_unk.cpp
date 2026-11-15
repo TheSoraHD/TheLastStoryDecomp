@@ -607,7 +607,7 @@ void CosEditProtector::fn_801D6C1C(int cursor) {
     }
     int member = fn_801CF334()->mFace;
     for (int i = 0; i < m8C; i++) {
-        atn::D2A_TaskInstanceBase<32, 8>* item = (atn::D2A_TaskInstanceBase<32, 8>*)mLists[2].mItems[i]->GetTask();
+        atn::D2A_TaskInstanceBase<32, 8>* item = mLists[2].mItems[i]->GetTask();
         int index = m88 + i;
         if (index >= 0 && index < (int)mPartLists[n].mSize) {
             CosEditPart_unk& part = mPartLists[n].mData[index];
@@ -663,7 +663,7 @@ void CosEditProtector::fn_801D6F84() {
     }
     fn_801CF334();
     for (int i = 0; i < 10; i++) {
-        atn::D2A_TaskInstanceBase<32, 8>* item = (atn::D2A_TaskInstanceBase<32, 8>*)mLists[1].mItems[i]->GetTask();
+        atn::D2A_TaskInstanceBase<32, 8>* item = mLists[1].mItems[i]->GetTask();
         if (i < m84) {
             wchar_t text[64];
             fn_800DD3FC(text, L"%02d", i + 1);
@@ -799,7 +799,7 @@ void CosEditProtector::fn_801D77A4(int* ids, atn::D3AnimeInstance** items, NewCa
         fn_805112A8(entry, mark, atn::Vector3(0.0f, 0.0f, 0.0f), atn::Vector3(1.0f, 1.0f, 1.0f), "reference");
         char name[0x40];
         sprintf(name, "palette%02d", i);
-        atn::D2A_DrawRect rect = ((atn::D2A_TaskInstanceBase<32, 8>*)base->GetTask())->GetRect_unk(name);
+        atn::D2A_DrawRect rect = base->GetTask()->GetRect_unk(name);
         mark->GetTask()->SetValues1_unk("base_pos", rect);
         OptionPalette_unk* palette = fn_8020BCEC(ids[fn_80117214(i)]);
         if (palette) {

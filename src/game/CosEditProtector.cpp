@@ -86,11 +86,6 @@ struct CosEditD2A_unk : public atn::Task {
     float mFrame; // 0x100
     float mSpeed; // 0x104
 };
-// inferred: layout anime task (as ShopLayout_unk in game/ShopBase.h)
-struct CosEditLayout_unk : public atn::Task {
-    unsigned char m48[0x4E - 0x48];
-    unsigned char m4E;
-};
 // inferred: field (lbl_8087F430): chapter at 0x10D0
 struct Field_unk {
     unsigned char m0000[0x10D0];
@@ -488,8 +483,8 @@ void CosEditProtector::vf24() {
         fn_800D2338(mB88);
         mB88 = 0;
     }
-    (mB88 = (atn::Task*)D2A_TaskInstance32_unk::Create(this, "data/d2anime/equip_face.d2a"))->fn_800D246C(1);
-    ((CosEditLayout_unk*)mB88)->m4E = 0;
+    (mB88 = D2A_TaskInstance32_unk::Create(this, "data/d2anime/equip_face.d2a"))->fn_800D246C(1);
+    mB88->mVisible = 0;
     m1C54.clear();
 }
 
