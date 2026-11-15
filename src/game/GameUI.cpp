@@ -5479,21 +5479,30 @@ void GameUI::fn_803E2A30(int kind, int frames, atn::Vector3 pos, int count, int 
     }
 }
 
-// NONMATCHING: 92.3% - the original addresses the members of the temporary mark with separate registers
-// (addi rN, r1, off for each vector) instead of one base; tried init list, body assignments, by-value
-// constructor, placement new without the temporary (5 variants)
+// inferred: the mark is a local filled member by member (each vector copy gets its own stack address, as in
+// the original; a constructor addresses them from one base)
 void GameUI::fn_803E3050(atn::Vector3 pos, atn::Vector3 screen, atn::Vector2_unk size, float dist) {
     for (GameUIMark24_unk* it = m8D0.begin(); it != m8D0.end(); it++) {
         if (dist < it->mDist) {
             if (m8D0.full()) {
                 m8D0.mCount--;
             }
-            m8D0.insert(it, GameUIMark24_unk(pos, screen, size, dist));
+            GameUIMark24_unk mark;
+            mark.mPos = pos;
+            mark.mScreen = screen;
+            mark.mSize = size;
+            mark.mDist = dist;
+            m8D0.insert(it, mark);
             return;
         }
     }
     if (!m8D0.full()) {
-        m8D0.PushBack_unk(GameUIMark24_unk(pos, screen, size, dist));
+        GameUIMark24_unk mark;
+        mark.mPos = pos;
+        mark.mScreen = screen;
+        mark.mSize = size;
+        mark.mDist = dist;
+        m8D0.PushBack_unk(mark);
     }
 }
 
