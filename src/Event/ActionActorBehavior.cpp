@@ -394,6 +394,8 @@ inline void LeaveCut_unk(Sequence* seq, int run) {
 // inferred: applies a pending jump (m1B0: 1 to a cut, 2 to a frame of the cut; m1B4 cut, m1B8 frame)
 // NONMATCHING: 99.8% - the list clear of the second LeaveCut_unk gives node/end r30/r29 (original r29/r30,
 // as in the first one). Tried: a manual copy in the else branch, actor loop by reference/unsigned, m190 local.
+// A manual copy in the else branch with erase(begin(), end()) (non-const end) fixes that clear, but then the
+// actor loop rematerializes its null (li r4, 0 instead of mr r4, r6; 99.2%), with any form of the loop.
 void Sequence::fn_8054FBE0(int run) {
     if (m1B0 == 0) {
         return;

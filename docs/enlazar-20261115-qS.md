@@ -28,7 +28,12 @@ Agente S, rama `agent-S`. Primera pasada: `docs/enlazar-20261115-qA.md`.
   (rama else) da nodo/fin en r30/r29 (original r29/r30, como el primero). Probado ademas de lo de qA: las
   comprobaciones de `CutAt_unk` escritas, copia manual en el else con `mgr` local / sin local / referencia a la
   lista / `erase(begin, end)`, `Manager* manager` declarado arriba, `Sequence* self`, contador unsigned del
-  bucle de actores (98,4), `m198` duplicado en las dos ramas del else (88,7).
+  bucle de actores (98,4), `m198` duplicado en las dos ramas del else (88,7), `LeaveCut_unk` static / no
+  inline, iteradores con nombre, `erase` en las dos llamadas o solo en la primera (99,0). Casi: copia manual en
+  el else con `erase(l.begin(), mgr->mB8.end())` o `erase(begin(), end())` (fin no const) arregla ese `clear`,
+  pero entonces el bucle de actores de la primera rama rematerializa el nulo (`li r4, 0` en vez de
+  `mr r4, r6`, 99,2 %) con cualquier forma del bucle (while, `++i`, orden de los stores, `Action* none`,
+  helper inline, `actor` declarado fuera).
 - `__sinit_\Label_cpp` 93,8 % (y Channel/Cut/Sequence): ver Hallazgos. Probado ademas de lo de qA: `mHash`
   `const`, tabla `const`, `ParamValue_unk(0)` explicito, la funcion quitada de delante con mas cuerpo o
   leyendo la tabla (detras de ella). En ficheros sueltos (try.sh): POD + casts `(int)""` (pasa a estatico),
@@ -67,6 +72,10 @@ ActionActorBehavior, que no son del port).
   da `cmpw r3, rB` donde la llamada en la condicion da `cmpw rB, r3` (fn_80550254).
 
 ## Pendientes
+
+- `Event/Manager fn_80488E00` (94,6 %, "un registro salvado mas en el original") usa `GetSection_unk`/
+  `GetChannel_unk`/`GetAction_unk` en sus bucles: probar el truco de las comprobaciones escritas (fuera de
+  esta cola).
 
 - `__sinit` de las tablas `ParamDef_unk` (Label, Channel, Cut, Sequence): el original guarda el default
   del ultimo atributo antes que su hash (y este tras restaurar r31); estas cuatro son las unicas funciones del
