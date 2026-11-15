@@ -787,7 +787,7 @@ void LastCocoonImago::vf20() {
 
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
-// NONMATCHING: 97% - the dead store of toPlace.y and registers
+// NONMATCHING: 99.9% - stack slots of the locals of the ToRotation_unk expansions (0xC lower than the original)
 // inferred: walk of the mode 7: towards the place m18F4 while the leader is the target and the place is
 // nearer (and ahead), otherwise towards the target; stops near it
 void LastCocoonImago::fn_8045B82C() {
@@ -801,7 +801,7 @@ void LastCocoonImago::fn_8045B82C() {
     if (m55C == 7) {
         int done = 0;
         if (m18EC != 0 && m14B8 == lbl_8087F8A0->mHead) {
-            atn::Vector3 toPlace = m18F4->mPos - mPos;
+            atn::Vector3 toPlace(m18F4->mPos.x - mPos.x, m18F4->mPos.y - mPos.y, m18F4->mPos.z - mPos.z);
             atn::Vector3 toTarget(m14B8->mPos.x - mPos.x, 0.0f, m14B8->mPos.z - mPos.z);
             toPlace.y = 0.0f;
             if (toPlace.LengthSq_unk() < toTarget.LengthSq_unk()) {
@@ -821,7 +821,8 @@ void LastCocoonImago::fn_8045B82C() {
             }
         }
         if (done == 0) {
-            atn::Vector3 dir = m14B8->mPos - mPos;
+            atn::Vector3 dir;
+            dir = m14B8->mPos - mPos;
             dir.Normalize_unk();
             atn::Vector3 d = m14B8->mPos - mPos;
             move = d.Length_unk() < 60.0f ? 0.0f : 1.0f;
