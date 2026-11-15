@@ -23,11 +23,14 @@
 
 - dwc_match `DWCi_CloseUnacknowledgedClients` 99,13 %: en el original el `i` del segundo bucle va primero en el
   coloreado (r31) y `validPidLen` despues (r29); en el nuestro al reves. Probado ademas (sin cambio): `i` declarado
-  primero con otra variable `j` para el primer bucle (los bucles 2 y 3 con la `i`); `validPid[i]` en vez del local
+  primero con otra variable `j` para el primer bucle (los bucles 2 y 3 con la `i`); contadores `u32`; asignaciones
+  separadas de las declaraciones; `validPidLen > i`; puntero `pid` explicito en el segundo bucle (da el r25 del
+  original al puntero, 26 lineas, sigue el cruce); `!node` primero (peor); `validPid[i]` en vez del local
   `profileID` (peor: `cmpw` invertido); compiladores Wii/1.1, Wii/1.3 (igual) y GC/3.0a5.2 (peor).
 - dwc_match `DWCi_ProcessMatchCommand` 99,995 %: en RESERVATION el original pone `matchType` en r26 (= `port`) y
   `topology` en r28 (= `ip` de TELL_ADDR), igual que el nuestro; en TELL_ADDR nuestro `ip` reutiliza r30 (`data`,
-  muerto) y el original no, como si `data` siguiera vivo. Probado: inicializador `{ data[0] }` (no vale en C).
+  muerto) y el original no, como si `data` siguiera vivo. Probado sin cambio: puntero local `d = data`, `(u16)` en
+  `port`, `ip` tras `port` con `sin_port` antes de `sin_addr` (peor), `u32 ip`; inicializador `{ data[0] }` no vale en C.
 - GameSaveBanner `fn_803B9638` 99,18 %: el incremento del desplazamiento de icono (0x1200) va el ultimo en el
   original (tras `i`); probado sin cambio: puntero fuente local, `shift` local, contador `k` aparte para el indice
   del icono (`for (...; i++, k++)`). Los argumentos de `NANDInitBanner` y de `memcpy` se calculan del ultimo al
