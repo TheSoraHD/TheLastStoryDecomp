@@ -32,6 +32,7 @@
 #include "game/NewCampPartsBase.h"
 #include "atn/Csv.h"
 #include "std/vector_assign.h"
+#include "atn/Lerp_unk.h"
 
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 extern "C" atn::SoundRef fn_80117228(int id); // inferred: plays a system sound effect
@@ -644,8 +645,8 @@ void NewCampTask::fn_8052D468() {
             m12EC = m12B0.GetPos_unk(m12D0);
             m12F8 = m12B0.GetPos_unk(m12D0);
         } else {
-            m12EC = atn::Lerp_unk(m12EC, m12D4, 0.3f);
-            m12F8 = atn::Lerp_unk(m12F8, m12E0, 0.3f);
+            m12EC = atn::Lerp_unk<atn::Vector3>(m12EC, m12D4, 0.3f);
+            m12F8 = atn::Lerp_unk<atn::Vector3>(m12F8, m12E0, 0.3f);
         }
         if (m11F8 == 0) {
             atn::Vector3 parts((m136C != 0 && m11F0 != 0) ? fn_8052DEA4(m11F0) : lbl_807C7030);
@@ -661,7 +662,7 @@ void NewCampTask::fn_8052D468() {
             atn::Vector3 prev((m136C != 0 && m11F4 != 0) ? fn_8052DEA4(m11F4) : lbl_807C7030);
             cur += (m136C == 0 && m11F0 != 0) ? fn_8052DEB8(m11F0) : lbl_807C7030;
             prev += (m136C == 0 && m11F4 != 0) ? fn_8052DEB8(m11F4) : lbl_807C7030;
-            atn::Vector3 parts = atn::Lerp_unk(prev, cur, m458 / fn_8052DECC(curves));
+            atn::Vector3 parts = atn::Lerp_unk<atn::Vector3>(prev, cur, m458 / fn_8052DECC(curves));
             mCamera.SetPosition(m11FC + m12EC + ofs + parts);
             mCamera.SetTarget_unk(m1208 + m12F8 + ofs + parts);
             if (m458 > fn_8052DECC(curves) || m458 < 0.0f) {

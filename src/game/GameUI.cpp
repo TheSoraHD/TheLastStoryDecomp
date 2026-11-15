@@ -44,6 +44,7 @@ struct GameUIGauge_unk : public atn::D2A_Task {};
 #include "std/vector.h"
 #include "atn/RenderSetting_unk.h"
 #include "db/PlayerParam_unk.h"
+#include "atn/Lerp_unk.h"
 extern "C" int sprintf(char* s, const char* format, ...);
 
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
@@ -2469,7 +2470,7 @@ void GameUI::fn_803D2A6C() {
                         float range = m2670 > (m2674 < dist ? m2674 : dist) ? m2670 : (m2674 < dist ? m2674 : dist);
                         float t = range / (m2674 - m2670);
                         atn::Vector3 scale(1.0f, 1.0f, 1.0f);
-                        scale = atn::Lerp_unk(far, near, t);
+                        scale = atn::Lerp_unk<atn::Vector3>(far, near, t);
                         if (open != 0) {
                             open->SetPosition_unk(pos);
                             atn::Matrix3x4 m;

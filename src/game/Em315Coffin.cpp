@@ -6,6 +6,7 @@
 #include "math/Vec.h"
 #include "math/VecAssign_unk.h"
 #include "atn/ColliBase.h"
+#include "atn/Lerp_unk.h"
 
 extern "C" int sprintf(char* buf, const char* fmt, ...);
 extern "C" int strcmp(const char* a, const char* b);
@@ -576,7 +577,7 @@ void Em315Coffin::vf108() {
             } else if (m14BC == 1) {
                 if (frame >= 36.0f) {
                     float t = (frame - 35.0f) / 4.0f;
-                    mPos = atn::Lerp_unk(m1610, m15F8, 1.0f < t ? 1.0f : t);
+                    mPos = atn::Lerp_unk<atn::Vector3>(m1610, m15F8, 1.0f < t ? 1.0f : t);
                 }
                 if (frame >= 39.0f) {
                     HitInfo_unk* bullet;

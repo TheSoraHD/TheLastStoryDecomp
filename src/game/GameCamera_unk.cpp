@@ -24,6 +24,7 @@
 #include "game/BattleTask.h"
 #include "atn/Csv.h"
 #include "atn/GraphicsDevice.h"
+#include "atn/Lerp_unk.h"
 
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 extern "C" GameConfig_unk* lbl_8087F0A8;
@@ -1291,13 +1292,13 @@ void GameCamera::fn_80382A1C(const CharaTask* chara) {
             pos += (target - pos).GetNormalize() * 0.1f;
             m880 = 10;
             if ((pos - *mCamera.GetPosition_unk()).LengthSq_unk() > 0.00001f && m8EC == 0) {
-                pos = atn::Lerp_unk(*mCamera.GetPosition_unk(), pos, 0.25f);
+                pos = atn::Lerp_unk<atn::Vector3>(*mCamera.GetPosition_unk(), pos, 0.25f);
             }
         }
     } else if (m880 > 0) {
         m880--;
         if ((pos - *mCamera.GetPosition_unk()).LengthSq_unk() > 0.00001f) {
-            pos = atn::Lerp_unk(*mCamera.GetPosition_unk(), pos, 1.0f - (float)m880 / 10.0f);
+            pos = atn::Lerp_unk<atn::Vector3>(*mCamera.GetPosition_unk(), pos, 1.0f - (float)m880 / 10.0f);
         }
     }
     if (fn_8004D388(fn_801404F8(), &result, &pos, &lbl_807C7030, 0x80000008, 0, 0, 3.0f)) {

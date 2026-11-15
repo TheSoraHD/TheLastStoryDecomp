@@ -58,6 +58,7 @@
 #include <boost/bind.hpp>
 #include <boost/function.hpp>
 #include "std/string_members.h"
+#include "atn/Lerp_unk.h"
 
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
 extern "C" GameConfig_unk* lbl_8087F0A8;
@@ -1340,7 +1341,7 @@ void BattleTask::vf14() {
         aim = atn::Vector3(0.0f, 0.0f, 1.0f);
     }
 
-    mCB64 = atn::Lerp_unk(mCB64, aim, 0.15f);
+    mCB64 = atn::Lerp_unk<atn::Vector3>(mCB64, aim, 0.15f);
     float rot = 0.0f;
     if (!mCB64.IsZero_unk()) {
         rot = 57.295776f * mCB64.ToRotation_unk().y;
@@ -1708,7 +1709,7 @@ void BattleTask::fn_800F72F4(BattleCharaTask* chara, int arg) {
     if (mHideLines == 0 && marker->m70 >= 0) {
         float t = (float)(marker->m70 - 6) / 6.0f;
         size = 0.0f > t ? 0.0f : (float)(marker->m70 - 6) / 6.0f;
-        to = atn::Lerp_unk(to, marker->m60, size);
+        to = atn::Lerp_unk<atn::Vector3>(to, marker->m60, size);
         dir = to - from;
         scale = (dir.Length_unk() - 4.0f) / 50.0f;
         scale = fn_800F8524(&scale, &marker->m6C, size);
@@ -1736,7 +1737,7 @@ void BattleTask::fn_800F72F4(BattleCharaTask* chara, int arg) {
         for (int i = 0; i < count; i++) {
             atn::DrawTexVertex_unk* v = &verts[i + 1];
             float f = (float)(count - i - 1) / 6.0f;
-            v->mPos = atn::Lerp_unk(to, marker->m60, f);
+            v->mPos = atn::Lerp_unk<atn::Vector3>(to, marker->m60, f);
             v->mPos += (v->mPos - from).GetNormalize() * (4.0f * (1.0f - f * f));
             verts[i + 1].mColor = color.ToU32();
             v->mUV = fn_800F84D8(atn::Vec2_unk(1.0f, 0.0f), atn::Vec2_unk(0.0f, 0.0f), (float)i / (float)count);

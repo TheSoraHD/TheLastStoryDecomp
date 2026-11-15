@@ -387,7 +387,7 @@ void SceneSetting_unk::fn_8047CB74(atn::Scene* scene, float t) {
     scene->GetLS_unk() = atn::Lerp_unk(mLS, scene->GetLS_unk(), t);
     *scene->fn_8047C778() = atn::Lerp_unk(m3C, *scene->fn_8047C778(), t);
     scene->fn_8047C780()->mColor = atn::Lerp_unk(mGodRay.mColor, scene->fn_8047C780()->mColor, t);
-    scene->fn_8047C780()->mPos = atn::Lerp_unk(mGodRay.mPos, scene->fn_8047C780()->mPos, t);
+    scene->fn_8047C780()->mPos = atn::Lerp_unk<atn::Vector3>(mGodRay.mPos, scene->fn_8047C780()->mPos, t);
     scene->fn_8047C780()->mRadialScale = fn_800F8524(&mGodRay.mRadialScale, &scene->fn_8047C780()->mRadialScale, t);
     *scene->fn_8047C7D4() = mShadow;
     for (unsigned int i = 0; i < 4; i++) {
@@ -1994,7 +1994,7 @@ void Manager::vf10() {
             m2434 = MAX(0.0f, m2434 - 0.1f);
         }
         m2438->SetLayoutValue_unk("arrowA", m2434);
-        m243C = atn::Lerp_unk(m243C, dir, 0.15f);
+        m243C = atn::Lerp_unk<atn::Vector3>(m243C, dir, 0.15f);
         float angle = 0.0f;
         if (!m243C.IsZero_unk()) {
             angle = fn_802A7964(m243C.ToRotation_unk().y);
