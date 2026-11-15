@@ -461,7 +461,7 @@ public:
         MarkerList_unk() : mCount(0) {}
         // inferred: same members as FixedArray_unk (game/CharaStatus.h)
         bool full() const { return mCount >= 8; }
-        GameUIMarker_unk& operator[](int i) { return m[i]; } // inferred: weak copy 0x803D73A4
+        GameUIMarker_unk& operator[](unsigned int i) { return m[i]; } // inferred: weak copy 0x803D73A4
         void insert(GameUIMarker_unk* it, const GameUIMarker_unk& x) {
             unsigned int pos = it - m;
             for (unsigned int i = mCount; i > pos; i--) {
