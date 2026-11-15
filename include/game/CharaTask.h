@@ -414,8 +414,10 @@ struct CharaPair_unk {
 // parameters are unknown.
 class CharaTask : public atn::Task {
 public:
-    // RTTI (boost::_bi::value<CharaTask::CONTROL_MODE>, chr/ControlCdnStone.cpp): type of m564;
-    // enumerator names unknown (1 and 2 are set by gmk::InteractionSpot and gmk::MeetingSpot)
+    // RTTI (boost::_bi::value<CharaTask::CONTROL_MODE>, chr/ControlCdnStone.cpp): type of the 2
+    // bound for fn_8016E970 in ControlCdnBetray::vf10; m564 is an int (the bind of m564 in
+    // ControlBase::vf10 has value<int>, as the 1 of ControlThrownBreakSkelton::vf10). Enumerator names
+    // unknown (1 and 2 are set by gmk::InteractionSpot and gmk::MeetingSpot)
     enum CONTROL_MODE {};
     CharaTask(atn::Task* parent, int type, void* data); // 0x801354B4
     virtual ~CharaTask();                               // 0x80136138
@@ -1127,7 +1129,7 @@ public:
     atn::Vector3 m550;
     int m55C; // inferred: state compared with 6 by the grapple controls
     int m560;
-    CONTROL_MODE m564; // inferred: set to 1 or 2 by gmk::InteractionSpot; passed to fn_8016E970
+    int m564; // inferred: a CONTROL_MODE, set to 1 or 2 by gmk::InteractionSpot; passed to fn_8016E970
     float m568;
     float m56C;
     float m570;

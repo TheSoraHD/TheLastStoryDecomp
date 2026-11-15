@@ -3745,7 +3745,7 @@
    "chr::ControlCdnPsycho",
    "chr::ControlCdnRestorePsycho"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "chr/ControlBase.cpp",
