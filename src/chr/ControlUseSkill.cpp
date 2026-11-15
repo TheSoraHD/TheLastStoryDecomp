@@ -86,21 +86,21 @@ int ControlUseSkill::vf0C() {
             if (!(atn::Abs_unk(PSVECSquareMag(&d)) < 1.1920929e-7f)) {
                 PSVECNormalize(&d, &d);
             }
-            fn_800F8574(lbl_8087F048, mChara, data, &pos, &d, 0, 0, 0, 0.0f, 1.0f);
+            lbl_8087F048->fn_800F8574(mChara, data, &pos, &d, 0, 0, 0, 0.0f, 1.0f);
         } else if (data->m01 == 0) {
-            lbl_8087F048->fn_800F8C6C(0, 0, mChara, data, fn_800F8548(lbl_8087F048), 0.0f, 30, -1);
+            lbl_8087F048->fn_800F8C6C(0, 0, mChara, data, lbl_8087F048->fn_800F8548(), 0.0f, 30, -1);
         } else if ((data->mAC & 0x100000) == 0x100000) {
             DamageResult_unk res;
             fn_8003EA3C(&res, data, mChara, mChara, 0, &lbl_807C6B90, 0, 0);
         } else {
             BattleTask* mgr = lbl_8087F048;
-            fn_800FB4B0(mgr, mChara, data, fn_800F8548(mgr), &mChara->mPos, 0, 30, -1, 1);
+            mgr->fn_800FB4B0(mChara, data, mgr->fn_800F8548(), &mChara->mPos, 0, 30, -1, 1);
         }
         if (lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->fn_80375184() && data->m04 == mChara->mStatus.m2CC[3].m[0]) {
             if (mChara->mType == 2) {
-                fn_801092C8(lbl_8087F048, 0xC, mChara, data->m04, 0);
+                lbl_8087F048->fn_801092C8(0xC, mChara, data->m04, 0);
             } else {
-                fn_801092C8(lbl_8087F048, 0xD, mChara, data->m04, 0);
+                lbl_8087F048->fn_801092C8(0xD, mChara, data->m04, 0);
             }
         }
         if ((data->mAC & 0x40000) == 0x40000) {

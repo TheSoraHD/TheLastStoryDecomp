@@ -466,7 +466,7 @@ inline bool Em203GreaterDaemon::IsMotionNearEnd_unk(float margin) {
 inline void Em203GreaterDaemon::ResetState_unk() {
     m14B4 = 0;
     m14B8 = 0;
-    m590 = fn_800F8548(lbl_8087F048);
+    m590 = lbl_8087F048->fn_800F8548();
     m1510 = 0.0f;
     m15D4 = 0;
 }
@@ -488,7 +488,7 @@ inline void Em203GreaterDaemon::FaceCenter_unk() {
 inline void Em203GreaterDaemon::StartFly_unk() {
     m14B4 = 0;
     m14B8 = 0;
-    m590 = fn_800F8548(lbl_8087F048);
+    m590 = lbl_8087F048->fn_800F8548();
     m1510 = 0.0f;
     m15D4 = 0;
     m58C = 17;
@@ -640,7 +640,7 @@ void Em203GreaterDaemon::vf3C(HitInfo_unk* hit, int) {
                 ResetState_unk();
                 fn_8016E970(6);
                 m560 = 4;
-                m590 = fn_800F8548(lbl_8087F048);
+                m590 = lbl_8087F048->fn_800F8548();
                 PlayMotion_unk(0x37, 0, 0, 0.5f);
                 m14B4 = 0;
                 m151C = atn::Vector3(0.0f, -80.0f, 0.0f);
@@ -1157,7 +1157,7 @@ void Em203GreaterDaemon::fn_8028C834() {
             atn::Vector3 pos = ((atn::Matrix3x4*)mMotion.GetNodeMtx_unk("chin"))->GetTrans_unk();
             atn::Vector3 dir = m14B0->mPos - pos;
             dir.GetNormalize(); // inferred: the result is not used (the original fires along dir)
-            fn_800F8574(lbl_8087F048, this, m15D0, &pos, &dir, 0, 0x100, 0, 0.0f, 1.0f);
+            lbl_8087F048->fn_800F8574(this, m15D0, &pos, &dir, 0, 0x100, 0, 0.0f, 1.0f);
             m14B4 = 2;
         }
     } else {
@@ -1196,8 +1196,8 @@ void Em203GreaterDaemon::fn_8028CB38() {
             mMotion.fn_80097C08(0, 0x14F, 0, 0, 1, 0.0f, 0.1f);
             fn_80290674();
             m14B8 = 0;
-            m1550 = fn_800F8548(fn_8013A194());
-            m1554 = fn_800F8548(fn_8013A194());
+            m1550 = fn_8013A194()->fn_800F8548();
+            m1554 = fn_8013A194()->fn_800F8548();
             if (((GameTask*)fn_80121F00())->fn_80370A78(0x96) == 0) {
                 ((GameTask*)fn_80121F00())->fn_80370AE4(0x96, 1);
             }
@@ -1240,7 +1240,7 @@ void Em203GreaterDaemon::fn_8028CB38() {
                 atn::ColliResult_unk result;
                 if (fn_8004ED34(fn_801404F8(), &result, &from, &to, 0x80000000, 0, 0) != 0) {
                     atn::Vector3 hit(result.m04);
-                    fn_800FAB80(fn_8013A194(), this, m14D0, m1550, &hit, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
+                    fn_8013A194()->fn_800FAB80(this, m14D0, m1550, &hit, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
                 }
             }
             fn_8028CFB8(fn_80122550(fn_80121F00()), 1, 0.1f, 0.1f);
@@ -1337,7 +1337,7 @@ void Em203GreaterDaemon::fn_8028D5C8() {
             param.mMaxSpeed = m199C;
             param.mTime = (float)m14CC->m5C;
             param.mTurn = 0.017453292f * m19A0;
-            fn_800F8574(lbl_8087F048, m1630, m14D8, &head, &dir, &param, 4, 0, 0.0f, 1.0f);
+            lbl_8087F048->fn_800F8574(m1630, m14D8, &head, &dir, &param, 4, 0, 0.0f, 1.0f);
             fn_80232B7C(0, 0);
             atn::Vector3 pos(0.0f, 0.0f, 0.0f);
             atn::Vector3 rot(0.0f, 0.0f, 0.0f);
@@ -1388,7 +1388,7 @@ inline void Em203GreaterDaemon::StartTackle_unk() {
     ResetState_unk();
     fn_8016E970(6);
     m560 = 4;
-    m590 = fn_800F8548(lbl_8087F048);
+    m590 = lbl_8087F048->fn_800F8548();
     PlayMotion_unk(0x153, 1, 0, 1.0f);
 }
 
@@ -1411,7 +1411,7 @@ void Em203GreaterDaemon::fn_8028DF34() {
     }
     if (m14DC != 0 && mMotion.mTracks[0].m08 < 44.0f) {
         atn::Vector3 pos = ((atn::Matrix3x4*)mMotion.GetNodeMtx_unk("neck"))->GetTrans_unk();
-        fn_800FAB80(lbl_8087F048, this, m14DC, m590, &pos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
+        lbl_8087F048->fn_800FAB80(this, m14DC, m590, &pos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
     }
 }
 
@@ -1435,7 +1435,7 @@ void Em203GreaterDaemon::fn_8028E1A0() {
         spine += FrontM_unk(mRot.y) * 20.0f;
         lbl_8087F048->fn_800F8C6C(0, 0, this, m14E0, m590, 0.0f, 30, -1);
     } else {
-        m590 = fn_800F8548(lbl_8087F048);
+        m590 = lbl_8087F048->fn_800F8548();
     }
 }
 
@@ -1656,7 +1656,7 @@ inline void Em203GreaterDaemon::StartAction_unk(int state) {
     ResetState_unk();
     fn_8016E970(6);
     m560 = 29;
-    m590 = fn_800F8548(lbl_8087F048);
+    m590 = lbl_8087F048->fn_800F8548();
 }
 
 // inferred: starts state 9 (flare)
@@ -1670,12 +1670,12 @@ void Em203GreaterDaemon::fn_8028F8E4() {
     m58C = 9;
     m14B4 = 0;
     m14B8 = 0;
-    m590 = fn_800F8548(lbl_8087F048);
+    m590 = lbl_8087F048->fn_800F8548();
     m1510 = 0.0f;
     m15D4 = 0;
     fn_8016E970(6);
     m560 = 29;
-    m590 = fn_800F8548(lbl_8087F048);
+    m590 = lbl_8087F048->fn_800F8548();
     mMotion.m34C = 1;
     mMotion.mTracks[0].m20 = 1.0f;
     mMotion.mTracks[0].m0C = 1.0f;
@@ -1693,12 +1693,12 @@ void Em203GreaterDaemon::fn_8028F998() {
     m58C = 10;
     m14B4 = 0;
     m14B8 = 0;
-    m590 = fn_800F8548(lbl_8087F048);
+    m590 = lbl_8087F048->fn_800F8548();
     m1510 = 0.0f;
     m15D4 = 0;
     fn_8016E970(6);
     m560 = 29;
-    m590 = fn_800F8548(lbl_8087F048);
+    m590 = lbl_8087F048->fn_800F8548();
     mMotion.m34C = 1;
     mMotion.mTracks[0].m20 = 1.0f;
     mMotion.mTracks[0].m0C = 1.0f;
@@ -1720,12 +1720,12 @@ void Em203GreaterDaemon::fn_8028FA60() {
     m58C = 11;
     m14B4 = 0;
     m14B8 = 0;
-    m590 = fn_800F8548(lbl_8087F048);
+    m590 = lbl_8087F048->fn_800F8548();
     m1510 = 0.0f;
     m15D4 = 0;
     fn_8016E970(6);
     m560 = 29;
-    m590 = fn_800F8548(lbl_8087F048);
+    m590 = lbl_8087F048->fn_800F8548();
     m14B4 = 0;
     mMotion.m34C = 1;
     mMotion.mTracks[0].m20 = 1.0f;
@@ -1753,7 +1753,7 @@ void Em203GreaterDaemon::fn_8028FB30() {
     ResetState_unk();
     fn_8016E970(6);
     m560 = 4;
-    m590 = fn_800F8548(lbl_8087F048);
+    m590 = lbl_8087F048->fn_800F8548();
     PlayMotion_unk(0x13F, 0, 0, 1.0f);
     wchar_t text[256];
     fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0xCD), *(const wchar_t**)((char*)m60 + 4));
@@ -1773,7 +1773,7 @@ void Em203GreaterDaemon::fn_8028FC28() {
     m153C = 0;
     fn_8016E970(6);
     m560 = 4;
-    m590 = fn_800F8548(lbl_8087F048);
+    m590 = lbl_8087F048->fn_800F8548();
     PlayMotion_unk(0x15E, 0, 0, 1.0f);
     atn::Vector3 target = m1978;
     target.y = 200.0f;
@@ -1795,7 +1795,7 @@ void Em203GreaterDaemon::fn_8028FDB0() {
     ResetState_unk();
     fn_8016E970(6);
     m560 = 4;
-    m590 = fn_800F8548(lbl_8087F048);
+    m590 = lbl_8087F048->fn_800F8548();
     PlayMotion_unk(0x15F, 0, 0, 1.0f);
     atn::Vector3 target = m14B0->mPos;
     atn::Vector3 dir = target - mPos;
@@ -1816,7 +1816,7 @@ void Em203GreaterDaemon::fn_80290088() {
     m58C = 16;
     m14B4 = 0;
     m14B8 = 0;
-    m590 = fn_800F8548(lbl_8087F048);
+    m590 = lbl_8087F048->fn_800F8548();
     m1510 = 0.0f;
     m15D4 = 0;
     atn::Vector3 target = m14B0->mPos;
@@ -1848,7 +1848,7 @@ void Em203GreaterDaemon::fn_8029055C() {
     ResetState_unk();
     fn_8016E970(6);
     m560 = 4;
-    m590 = fn_800F8548(lbl_8087F048);
+    m590 = lbl_8087F048->fn_800F8548();
     m14B8 = 0;
     m14B4 = 0;
     PlayMotion_unk(0x13F, 0, 0, 0.8f);
@@ -1922,7 +1922,7 @@ void Em203GreaterDaemon::fn_80290AB4() {
         param.mMaxSpeed = m199C;
         param.mTime = (float)m14CC->m5C;
         param.mTurn = 0.017453292f * m19A0;
-        fn_800F8574(lbl_8087F048, this, m14CC, &pos, &dir, &param, 0x504, 0, 0.0f, 1.0f);
+        lbl_8087F048->fn_800F8574(this, m14CC, &pos, &dir, &param, 0x504, 0, 0.0f, 1.0f);
         i++;
     }
 }
@@ -1950,7 +1950,7 @@ void Em203GreaterDaemon::fn_8029101C(PlayerTask* target, float angle) {
     param.mMaxSpeed = m199C;
     param.mTime = (float)m14CC->m5C;
     param.mTurn = 0.017453292f * m19A0;
-    fn_800F8574(lbl_8087F048, this, m14E4, &pos, &dir, &param, 4, 0, 0.0f, 1.0f);
+    lbl_8087F048->fn_800F8574(this, m14E4, &pos, &dir, &param, 4, 0, 0.0f, 1.0f);
 }
 
 // inferred: sets the magic in use (m15D0, and the one of CharaTask when it is not null)

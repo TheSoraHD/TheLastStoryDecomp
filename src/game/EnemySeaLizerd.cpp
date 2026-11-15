@@ -3,6 +3,7 @@
 #include "std/string.h"
 #include "std/string_members.h"
 #include "atn/ColliBase.h"
+#include "game/BattleTask.h"
 
 extern "C" char* strstr(const char* s, const char* sub);
 extern "C" int strcmp(const char* a, const char* b);
@@ -11,15 +12,7 @@ extern "C" double sqrt(double x);
 // inferred: bullets (as in gmk/LandMine.cpp)
 class BattleTask;
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
-extern "C" int fn_800F8548(BattleTask* mgr); // inferred: new bullet id
-extern "C" void fn_800FAB80(BattleTask* mgr, CharaTask* owner, HitInfo_unk* bullet, int id,
-                            const atn::Vector3* pos, const atn::Vector3* rot, int arg6, int arg7, int arg8,
-                            int arg9, float arg10, float arg11);
-extern "C" void fn_800F8574(BattleTask* mgr, CharaTask* owner, HitInfo_unk* bullet, const atn::Vector3* pos,
-                            const atn::Vector3* vel, int arg5, int arg6, int arg7, float arg8,
-                            float arg9); // inferred: throws a bullet
-extern "C" void fn_8010A308(BattleTask* mgr, const atn::Vector3* from, const atn::Vector3* to,
-                            float arg); extern "C" void* lbl_8087EE98;
+extern "C" void* lbl_8087EE98;
 extern "C" int fn_8004ED34(void* colli, atn::ColliResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg7); // inferred: ray test
 // inferred: game settings (m30: frames per second)
@@ -103,7 +96,7 @@ void EnemySeaLizerd::vf10() {
             BattleTask* mgr = lbl_8087F048;
             atn::Vector3 pos(mPos);
             pos.y += 5.0f;
-            fn_800FAB80(mgr, this, bullet, fn_800F8548(mgr), &pos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
+            mgr->fn_800FAB80(this, bullet, mgr->fn_800F8548(), &pos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
         }
         fn_80145334();
         fn_8014C540();
@@ -192,7 +185,7 @@ void EnemySeaLizerd::fn_80354EE4() {
             dir.y = vy;
             dir.z *= speed;
             dir *= 1.0f / bullet->m4C;
-            fn_800F8574(lbl_8087F048, this, bullet, &head, &dir, 0, 0, 0, 0.0f, 1.0f);
+            lbl_8087F048->fn_800F8574(this, bullet, &head, &dir, 0, 0, 0, 0.0f, 1.0f);
         }
     }
     float frame = mMotion.mTracks[0].m08;
@@ -246,7 +239,7 @@ void EnemySeaLizerd::fn_80355390() {
     from = mPos;
     to = mPos;
     from.y += 30.0f;
-    fn_8010A308(lbl_8087F048, &from, &to, 5.0f);
+    lbl_8087F048->fn_8010A308(&from, &to, 5.0f);
 }
 
 // inferred: linear interpolation (name invented)

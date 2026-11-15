@@ -15,6 +15,7 @@ extern "C" void* memset(void*, int, unsigned long);
 class CharaTask;
 struct ColorF_unk;
 struct HitInfo_unk;
+struct BattleTarget_unk; // game/BattleTarget_unk.h
 class PlayerTask;
 namespace atn {
 struct Vector3;
@@ -281,6 +282,38 @@ public:
     void fn_80103600(CharaTask* chara);
     BattleChara_unk* fn_80103F60(CharaTask* chara); // inferred: entry of the character, null if missing
     void fn_80103FD4();
+    // inferred: once C functions taking the manager first (declared without parameter names)
+    void fn_800F2C9C();
+    void fn_800F3170();
+    void fn_800F3D28();
+    int fn_800F8548();
+    int fn_800F8574(CharaTask*, HitInfo_unk*, const atn::Vector3*, const atn::Vector3*, const HomingParam_unk*, unsigned int, int, float, float);
+    int fn_800FAB80(CharaTask*, HitInfo_unk*, int, const atn::Vector3*, const atn::Vector3*, int, int, int, int, float, float);
+    void fn_800FB1BC(CharaTask*, HitInfo_unk*, const atn::Vector3*, const atn::Vector3*, unsigned int, int, float);
+    int fn_800FB4B0(CharaTask*, HitInfo_unk*, int, const atn::Vector3*, int, int, int, int);
+    int fn_800FBA30(CharaTask*, CharaTask*, HitInfo_unk*, int, const atn::Vector3*, const atn::Vector3*);
+    int fn_800FBA9C(CharaTask*, CharaTask*, HitInfo_unk*, int, float);
+    int fn_800FBE70(CharaTask*, CharaTask*, HitInfo_unk*, int, const atn::Vector3*, int, int);
+    void fn_800FC410(CharaTask*, CharaTask*, int, HitInfo_unk*, int, int);
+    void fn_800FCD24(CharaTask*, CharaTask*, int, HitInfo_unk*, int, const atn::Vector3*, int, BattleCalcParam_unk*, float, float);
+    int fn_800FD658(CharaTask*, CharaTask*, HitInfo_unk*, int, int, int);
+    int fn_800FDB20(CharaTask*, CharaTask*, int, HitInfo_unk*, int, const atn::Vector3*, const atn::Vector3*, int, float);
+    int fn_801004FC(BattleTarget_unk*, CharaTask*, const atn::Vector3*, float, float);
+    int fn_8010089C(BattleTarget_unk*, CharaTask*, const atn::Vector3*, float, float);
+    void fn_80101434(const atn::Vector3*, const atn::Vector3*, int, int);
+    void fn_80101524(const atn::Vector3*, const atn::Vector3*, unsigned int, unsigned int, CharaTask*);
+    void fn_8010220C(int);
+    void fn_80102EAC(CharaTask*, CharaTask*, int, int);
+    void fn_801061BC(CharaTask*, atn::Model*, int);
+    void fn_80106878(CharaTask*);
+    void fn_80108F38(const atn::Vector3*, int);
+    void fn_801092C8(int, CharaTask*, int, int);
+    void fn_8010A308(const atn::Vector3*, const atn::Vector3*, float);
+    void fn_8010A4A8(CharaTask*);
+    float fn_8010B250(int, BattleCalcParam_unk*);
+    void fn_8010C00C(CharaTask*);
+    void fn_8010CF28(int, CharaTask*, CharaTask*);
+    void fn_8010D320(atn::Vector3);
     void UpdateAlert_unk(CharaTask*, PlayerTask*); // inferred: inline, defined in game/BattleTask.cpp
     void fn_80109F7C(); // inferred: wakes up the enemies that see the player, are hurt or have a busy ally near
     void fn_8010A868(); // inferred: updates mStuns
@@ -502,51 +535,5 @@ public:
     float m3E3A8; // inferred: debug "ReticleCenterOfs"
     unsigned char m3E3AC[0x3E3B0 - 0x3E3AC]; // inferred: size 0x3E3B0 (new of fn_800F13BC)
 };
-
-// C functions of game/BattleTask.cpp called by other units (no parameter names: a named parameter in a header
-// declaration takes an @N in every unit that includes it)
-// inferred: next bullet id
-extern "C" int fn_800F8548(BattleTask*);
-// inferred: fires a homing bullet (mgr, owner, data, pos, dir, homing, flags, arg, a, b)
-extern "C" int fn_800F8574(BattleTask*, CharaTask*, HitInfo_unk*, const atn::Vector3*, const atn::Vector3*,
-                           const HomingParam_unk*, unsigned int, int, float, float);
-// inferred: fires a bullet (mgr, attacker, data, id, pos, rot, any, time, -, type, f1, f2)
-extern "C" int fn_800FAB80(BattleTask*, CharaTask*, HitInfo_unk*, int, const atn::Vector3*, const atn::Vector3*, int,
-                           int, int, int, float, float);
-// inferred: hit of a skill (mgr, attacker, data, id, pos, a, b, -, effect)
-extern "C" int fn_800FB4B0(BattleTask*, CharaTask*, HitInfo_unk*, int, const atn::Vector3*, int, int, int, int);
-// inferred: log message of a status at a position
-extern "C" void fn_80108F38(BattleTask*, const atn::Vector3*, int);
-// inferred: log message (mgr, id, chara, value, arg)
-extern "C" void fn_801092C8(BattleTask*, int, CharaTask*, int, int);
-// inferred: splash on water between two points
-extern "C" void fn_8010A308(BattleTask*, const atn::Vector3*, const atn::Vector3*, float);
-// inferred: hit of a melee attack (mgr, attacker, chara, data, id, angle)
-extern "C" int fn_800FBA9C(BattleTask*, CharaTask*, CharaTask*, HitInfo_unk*, int, float);
-// inferred: hit at a position (mgr, attacker, chara, data, id, pos, any, type)
-extern "C" int fn_800FBE70(BattleTask*, CharaTask*, CharaTask*, HitInfo_unk*, int, const atn::Vector3*, int, int);
-// inferred: hit effect (mgr, pos, rot, level, kind)
-extern "C" void fn_80101434(BattleTask*, const atn::Vector3*, const atn::Vector3*, int, int);
-// inferred: removes the character from the battle
-extern "C" void fn_8010C00C(BattleTask*, CharaTask*);
-// inferred: called by GameTask; fn_800F3170 releases the battle effects (clears m3E394)
-extern "C" void fn_800F2C9C(BattleTask*);
-extern "C" void fn_800F3170(BattleTask*);
-// inferred: clears the bullets and the stunned characters (GameTask)
-extern "C" void fn_800F3D28(BattleTask*);
-// inferred: arguments (mgr, chara, user, data, id, pos, rot), names of the definition
-extern "C" int fn_800FBA30(BattleTask*, CharaTask*, CharaTask*, HitInfo_unk*, int, const atn::Vector3*,
-                           const atn::Vector3*);
-// inferred: arguments (mgr, attacker, chara, index, hit, id, frames), names of the definition
-extern "C" void fn_800FC410(BattleTask*, CharaTask*, CharaTask*, int, HitInfo_unk*, int, int);
-// inferred: updates the reticle
-extern "C" void fn_8010220C(BattleTask*, int);
-extern "C" void fn_80106878(BattleTask*, CharaTask*);
-// inferred: works on the entry of the character in mStuns
-extern "C" void fn_8010A4A8(BattleTask*, CharaTask*);
-// inferred: hit of a bullet (mgr, attacker, chara, data, a, flag, b), names of the definition
-extern "C" int fn_800FD658(BattleTask*, CharaTask*, CharaTask*, HitInfo_unk*, int, int, int);
-// inferred: scale of a bullet of the level (the callers pass no attack parameters)
-extern "C" float fn_8010B250(BattleTask*, int, BattleCalcParam_unk*);
 
 #endif

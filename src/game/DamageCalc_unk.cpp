@@ -29,8 +29,6 @@ extern "C" SkillEffect* fn_8059B66C(void* mgr, HitInfo_unk* skill, CharaTask* us
                                     boost::function<void(SkillEffect*)> callback, float rate);
 
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
-extern "C" void fn_800FB1BC(BattleTask* mgr, CharaTask* owner, HitInfo_unk* data, const atn::Vector3* pos,
-                            const atn::Vector3* rot, int a, int b, float scale); // inferred: hit effect
 
 // inferred: field (lbl_8087F430)
 struct Field_unk {
@@ -205,7 +203,7 @@ int fn_8003F030(DamageResult_unk* result, HitInfo_unk* data, CharaTask* attacker
         fn_80040B44(result, data, GetDummyStatus_unk(), GetDummyStatus_unk(), flags, &lbl_807C6B90);
     }
     if (data != 0 && result != 0 && result->IsHit_unk()) {
-        fn_800FB1BC(lbl_8087F048, attacker, data, pos, rot, flags, 1, attacker ? attacker->fn_8017AC24() : 1.0f);
+        lbl_8087F048->fn_800FB1BC(attacker, data, pos, rot, flags, 1, attacker ? attacker->fn_8017AC24() : 1.0f);
     }
     return result->mType;
 }
@@ -711,7 +709,7 @@ int fn_80040B44(DamageResult_unk* result, HitInfo_unk* data, CharaStatus* attack
             BattleTask* effect = lbl_8087F048;
             status |= 0x20;
             if (effect != 0) {
-                fn_80108F38(effect, &target->mChara->fn_801781B0(), 0x20);
+                effect->fn_80108F38(&target->mChara->fn_801781B0(), 0x20);
             }
         }
         if (attacker->fn_80133EE8(0x11)) {
@@ -938,7 +936,7 @@ int fn_800417E8(int kind, CharaTask* chara, CharaTask* target) {
     }
     if (kind == 1) {
         if (lbl_8087F048 != 0 && lbl_8087F048->fn_8010CD3C(3, chara, target)) {
-            fn_801092C8(lbl_8087F048, 0xE, chara, 3, 0);
+            lbl_8087F048->fn_801092C8(0xE, chara, 3, 0);
             chance = 1.0f;
         }
         if (chara->mStatus.fn_80134134(0xC)) {

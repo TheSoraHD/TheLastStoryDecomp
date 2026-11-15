@@ -1580,7 +1580,6 @@ extern "C" BattleTask* lbl_8087F048;
 inline BattleTask* fn_8013A194() {
     return lbl_8087F048;
 }
-extern "C" void fn_8010D320(void* obj, atn::Vector3 pos); // inferred: aims at a position
 // inferred: names of the places (db/MapLink_unk.cpp)
 extern "C" const wchar_t* fn_802168BC(int place);
 extern "C" int fn_80216908(int place);
@@ -2255,7 +2254,7 @@ void GameUI::fn_803D2A6C() {
 
             // inferred: marks of the targets
             if (!m8D0.empty() && fn_8013A194() != 0) {
-                fn_8010D320(fn_8013A194(), atn::Vector3(m8D0[0].mPos));
+                fn_8013A194()->fn_8010D320(atn::Vector3(m8D0[0].mPos));
             }
             for (unsigned int i = 0; i < fn_80372574(&m8D0); i++) {
                 if (m8D0[i].mScreen.x >= -200.0f && 1000.0f >= m8D0[i].mScreen.x && m8D0[i].mScreen.y >= -200.0f &&

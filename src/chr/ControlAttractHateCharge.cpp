@@ -174,14 +174,14 @@ int ControlOverdrive::vf0C() {
         mChara->mStatus.m2F4 = time;
         mChara->mStatus.m2F8 = time;
         BattleTask* mgr = lbl_8087F048;
-        fn_800FB4B0(mgr, mChara, hit, fn_800F8548(mgr), &mChara->mPos, 0, 30, -1, 0);
+        mgr->fn_800FB4B0(mChara, hit, mgr->fn_800F8548(), &mChara->mPos, 0, 30, -1, 0);
         mChara->mStatus.m228 = 0.0f;
         if (lbl_8087EE68 != 0 && lbl_8087EE68->fn_800185B4(mChara, hit)) {
             lbl_8087EE68->fn_80018608(mChara, hit);
         }
         if (lbl_8087F0A8->m304 != 0) {
             BattleTask* mgr2 = lbl_8087F048;
-            fn_800FAB80(mgr2, mChara, fn_80219E6C(0x1F6), fn_800F8548(mgr2), &mChara->mPos, &mChara->mRot, 0, 30, -1, -1,
+            mgr2->fn_800FAB80(mChara, fn_80219E6C(0x1F6), mgr2->fn_800F8548(), &mChara->mPos, &mChara->mRot, 0, 30, -1, -1,
                         0.0f, 1.0f);
         }
     }

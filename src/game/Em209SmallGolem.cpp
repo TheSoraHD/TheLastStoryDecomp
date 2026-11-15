@@ -262,7 +262,7 @@ inline atn::Vector3 GetNodePos_unk(MtxPtr m) {
 inline void Em209SmallGolem::SetState_unk(int state) {
     m14BC = 0;
     m14C0 = 0;
-    m590 = fn_800F8548(lbl_8087F048);
+    m590 = lbl_8087F048->fn_800F8548();
     m58C = state;
     fn_8016E970(3);
 }
@@ -319,7 +319,7 @@ void Em209SmallGolem::vf10() {
                 atn::Vector3 pos = GetNodePos_unk(mMotion.GetNodeMtx_unk("rightwepoint"));
                 m14CC = (m14D8 - pos).GetNormalize();
                 BattleTask* mgr = lbl_8087F048;
-                fn_800F8574(mgr, this, fn_80219E6C(m1514), &pos, &m14CC, 0, 0, 0, 0.0f, 1.0f);
+                mgr->fn_800F8574(this, fn_80219E6C(m1514), &pos, &m14CC, 0, 0, 0, 0.0f, 1.0f);
             }
         } else if (m58C == 2) {
             vfEC();
@@ -339,7 +339,7 @@ void Em209SmallGolem::vf10() {
                     atn::Vector3 pos = GetNodePos_unk(mMotion.GetNodeMtx_unk("rightwepoint"));
                     m14CC = (m14D8 - pos).GetNormalize();
                     BattleTask* mgr = lbl_8087F048;
-                    fn_800F8574(mgr, this, fn_80219E6C(m1514), &pos, &m14CC, 0, 0, 0, 0.0f, 1.0f);
+                    mgr->fn_800F8574(this, fn_80219E6C(m1514), &pos, &m14CC, 0, 0, 0, 0.0f, 1.0f);
                 }
             }
             break;
@@ -419,7 +419,7 @@ void Em209SmallGolem::vf10() {
                 vf44();
                 m14BC = 0;
                 m14C0 = 0;
-                m590 = fn_800F8548(lbl_8087F048);
+                m590 = lbl_8087F048->fn_800F8548();
                 vf48();
                 fn_80178A6C();
                 fn_8015495C(0, 1, 1, 1);
@@ -473,7 +473,7 @@ void Em209SmallGolem::vf40(HitInfo_unk* hit) {
     if ((mStatus.m0C & 0x20) == 0x20) {
         m14BC = 0;
         m14C0 = 0;
-        m590 = fn_800F8548(lbl_8087F048);
+        m590 = lbl_8087F048->fn_800F8548();
         vf48();
         fn_80178A6C();
         fn_8015495C(0, 1, 1, 1);
@@ -563,7 +563,7 @@ void Em209SmallGolem::vf54() {
 void Em209SmallGolem::vf80(const atn::Vector3& pos, const atn::Vector3& offset) {
     m14BC = 0;
     m14C0 = 0;
-    m590 = fn_800F8548(lbl_8087F048);
+    m590 = lbl_8087F048->fn_800F8548();
     m58C = 9;
     fn_8016E970(3);
     mMotion.m34C = 1;
@@ -578,7 +578,7 @@ void Em209SmallGolem::vf80(const atn::Vector3& pos, const atn::Vector3& offset) 
 void Em209SmallGolem::vf84(int motion, float blend) {
     m14BC = 0;
     m14C0 = 0;
-    m590 = fn_800F8548(lbl_8087F048);
+    m590 = lbl_8087F048->fn_800F8548();
     m58C = 10;
     fn_8016E970(3);
 }
@@ -651,7 +651,7 @@ void Em209SmallGolem::fn_802CF3AC() {
             if (dist < m1518) {
                 m14BC = 0;
                 m14C0 = 0;
-                m590 = fn_800F8548(lbl_8087F048);
+                m590 = lbl_8087F048->fn_800F8548();
                 m58C = 8;
                 fn_8016E970(3);
                 mMotion.m34C = 1;
@@ -701,7 +701,7 @@ void Em209SmallGolem::fn_802CF728() {
         mStatus.m224 = mStatus.mParamB.m98;
         m14BC = 0;
         m14C0 = 0;
-        m590 = fn_800F8548(lbl_8087F048);
+        m590 = lbl_8087F048->fn_800F8548();
         m58C = 0;
         fn_8016E970(3);
     }
@@ -749,14 +749,14 @@ void Em209SmallGolem::vfEC() {
 extern "C" void fn_802CFAE4(Em209SmallGolem* golem) {
     golem->m14BC = 0;
     golem->m14C0 = 0;
-    golem->m590 = fn_800F8548(lbl_8087F048);
+    golem->m590 = lbl_8087F048->fn_800F8548();
 }
 
 // inferred: starts the needle attack (state 6) aimed at the hips of the target
 void Em209SmallGolem::fn_802CFB24() {
     m14BC = 0;
     m14C0 = 0;
-    m590 = fn_800F8548(lbl_8087F048);
+    m590 = lbl_8087F048->fn_800F8548();
     m58C = 6;
     fn_8016E970(3);
     mMotion.m34C = 1;

@@ -468,7 +468,7 @@ void Em205Ogre::vf108() {
                 if (mMotion.mTracks[0].m08 >= 26.0f) {
                     m14BC++;
                     HitInfo_unk* skill = fn_80219E6C(m14E8);
-                    lbl_8087F048->fn_800F8C6C(0, 0, this, skill, fn_800F8548(lbl_8087F048), 0.0f, 30, -1);
+                    lbl_8087F048->fn_800F8C6C(0, 0, this, skill, lbl_8087F048->fn_800F8548(), 0.0f, 30, -1);
                     if (m1514) {
                         GimmickCommon* g = GimmickManager::instance_ != 0 ? GimmickManager::instance_->fn_803EEE10(0x41B, 1) : 0;
                         if (g != 0) {
@@ -495,7 +495,7 @@ void Em205Ogre::vf108() {
                 }
             } else if (m14BC == 2) {
                 if (mMotion.mTracks[0].m08 >= 20.0f) {
-                    m14C8 = fn_800F8548(lbl_8087F048);
+                    m14C8 = lbl_8087F048->fn_800F8548();
                     m14BC++;
                 }
             } else if (m14BC == 3) {
@@ -534,7 +534,7 @@ void Em205Ogre::vf108() {
                         dir = m14D4->mColli.m48 - pos;
                         SafeNormalize_unk(&dir);
                     }
-                    fn_800F8574(lbl_8087F048, this, skill, &pos, &dir, 0, 0, 0, 0.0f, 1.0f);
+                    lbl_8087F048->fn_800F8574(this, skill, &pos, &dir, 0, 0, 0, 0.0f, 1.0f);
                 }
             } else {
                 float frame = mMotion.mTracks[0].m08;

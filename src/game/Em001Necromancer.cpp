@@ -402,7 +402,7 @@ template void std::vector<EnemyTask*>::push_back(EnemyTask* const& x);
 inline void Em001Necromancer::SetState_unk(int state) {
     m1514 = 0;
     m1518 = 0;
-    m590 = fn_800F8548(lbl_8087F048);
+    m590 = lbl_8087F048->fn_800F8548();
     m58C = state;
     fn_8016E970(3);
 }
@@ -624,8 +624,8 @@ void Em001Necromancer::vf40(HitInfo_unk* hit) {
                 pos = mPos;
                 pos.y += 8.0f;
                 BattleTask* mgr = lbl_8087F048;
-                int id = fn_800F8548(mgr);
-                fn_800FAB80(mgr, this, fn_80219E6C(0x69D), id, &mPos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
+                int id = mgr->fn_800F8548();
+                mgr->fn_800FAB80(this, fn_80219E6C(0x69D), id, &mPos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
                 Die_unk(this);
             }
         }
@@ -767,11 +767,11 @@ void Em001Necromancer::fn_80246594() {
 void Em001Necromancer::fn_8024675C(int index) {
     m1514 = 0;
     m1518 = 0;
-    m590 = fn_800F8548(lbl_8087F048);
+    m590 = lbl_8087F048->fn_800F8548();
     m58C = 7;
     fn_8016E970(6);
     m560 = 29;
-    m590 = fn_800F8548(lbl_8087F048);
+    m590 = lbl_8087F048->fn_800F8548();
     m152C = index;
     m638 = m1520[index];
     m1540 = mPos;

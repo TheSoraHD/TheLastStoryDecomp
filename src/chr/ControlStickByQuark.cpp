@@ -17,6 +17,7 @@
 #include <boost/bind.hpp>
 #include "math/VecAssign_unk.h"
 #include "atn/ColliBase.h"
+#include "game/BattleTask.h"
 
 
 // inferred: input state embedded at +0x48C of the object behind lbl_8087F0A8
@@ -70,9 +71,6 @@ extern "C" int rand();
 extern "C" void PSMTXTrans(Mtx m, float x, float y, float z);
 class BattleTask;
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
-extern "C" int fn_800F8548(BattleTask* mgr);
-extern "C" void fn_800FAB80(BattleTask* mgr, CharaTask* owner, HitInfo_unk* bullet, int arg3, const atn::Vector3* pos,
-                            const atn::Vector3* rot, int a, int time, int b, int c, float f1, float f2);
 extern "C" HitInfo_unk* fn_80219E6C(int id); // inferred: bullet data by id
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
 extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float volume);
@@ -241,25 +239,25 @@ static inline float Frame_unk(Motion_unk* m) {
 // inferred: fires `hit` from `pos` (name invented)
 static inline void ShootHit_unk(BattleTask* mgr, CharaTask* chara, HitInfo_unk* hit, const atn::Vector3& pos,
                                 const atn::Vector3* rot) {
-    fn_800FAB80(mgr, chara, hit, fn_800F8548(mgr), &pos, rot, 0, 0x1E, -1, -1, 0.0f, 1.0f);
+    mgr->fn_800FAB80(chara, hit, mgr->fn_800F8548(), &pos, rot, 0, 0x1E, -1, -1, 0.0f, 1.0f);
 }
 
 // inferred: fires the bullet `id` from `pos` (name invented)
 static inline void ShootFrom_unk(BattleTask* mgr, CharaTask* chara, int id, int arg, const atn::Vector3& pos,
                                  const atn::Vector3* rot) {
-    fn_800FAB80(mgr, chara, fn_80219E6C(id), arg, &pos, rot, 0, 0x1E, -1, -1, 0.0f, 1.0f);
+    mgr->fn_800FAB80(chara, fn_80219E6C(id), arg, &pos, rot, 0, 0x1E, -1, -1, 0.0f, 1.0f);
 }
 
 // inferred: fires the bullet `id` from `pos` (name invented)
 static inline void ShootIdFrom_unk(BattleTask* mgr, CharaTask* chara, int id, const atn::Vector3& pos,
                                    const atn::Vector3* rot) {
-    fn_800FAB80(mgr, chara, fn_80219E6C(id), fn_800F8548(mgr), &pos, rot, 0, 0x1E, -1, -1, 0.0f, 1.0f);
+    mgr->fn_800FAB80(chara, fn_80219E6C(id), mgr->fn_800F8548(), &pos, rot, 0, 0x1E, -1, -1, 0.0f, 1.0f);
 }
 
 // inferred: fires the bullet `id` from a character (name invented)
 static inline void Shoot_unk(BattleTask* mgr, CharaTask* chara, int id, const atn::Vector3* pos,
                              const atn::Vector3* rot) {
-    fn_800FAB80(mgr, chara, fn_80219E6C(id), fn_800F8548(mgr), pos, rot, 0, 0x1E, -1, -1, 0.0f, 1.0f);
+    mgr->fn_800FAB80(chara, fn_80219E6C(id), mgr->fn_800F8548(), pos, rot, 0, 0x1E, -1, -1, 0.0f, 1.0f);
 }
 
 // inferred: front of a character (z axis turned by its yaw; name invented)
@@ -510,7 +508,7 @@ int ControlThrustForCrab::vf0C() {
     if (m->mTracks[0].m08 >= 41.0f && m->mTracks[0].m08 < 43.0f) {
         CharaTask* c = mChara;
         BattleTask* mgr = lbl_8087F048;
-        fn_800FAB80(mgr, mChara, fn_80219E6C(0xD1), 1000, &c->mPos, &c->mRot, 0, 0x1E, -1, -1, 0.0f, 1.0f);
+        mgr->fn_800FAB80(mChara, fn_80219E6C(0xD1), 1000, &c->mPos, &c->mRot, 0, 0x1E, -1, -1, 0.0f, 1.0f);
         lbl_8087F430->Shake_unk(10, 0.3f, 0.3f);
     }
     return Frame_unk(m) >= m->fn_80097D7C(0);
@@ -2163,7 +2161,7 @@ int ControlReflectLaser::vf0C() {
             if (obj != 0 && fn_801A03F4(obj)) {
                 CharaTask* hit = fn_801A0400((CollObj_unk*)result.m38);
                 if (hit != 0 && hit->fn_8013A158() && hit->CanAct_unk()) {
-                    fn_800FAB80(fn_8013A194(), mChara, fn_80219E6C(0x76F), fn_800F8548(fn_8013A194()), &result.m04,
+                    fn_8013A194()->fn_800FAB80(mChara, fn_80219E6C(0x76F), fn_8013A194()->fn_800F8548(), &result.m04,
                                 &lbl_807C7030, 0, 0x1E, -1, -1, 0.0f, 1.0f);
                 }
             }

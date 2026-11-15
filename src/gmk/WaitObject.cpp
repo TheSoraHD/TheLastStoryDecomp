@@ -10,6 +10,7 @@
 #include "game/PlayerTask.h"
 #include "atn/RenderManager.h"
 #include "game/MapTask.h"
+#include "game/BattleTask.h"
 
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
@@ -51,10 +52,6 @@ extern "C" void fn_80232B7C(void* owner, int arg);
 class BattleTask;
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
 extern "C" HitInfo_unk* fn_80219E6C(int id); // inferred: bullet data by id
-extern "C" int fn_800F8548(BattleTask* mgr);
-extern "C" void fn_800FAB80(BattleTask* mgr, CharaTask* owner, HitInfo_unk* bullet, int arg3,
-                            const atn::Vector3* pos, const atn::Vector3* rot, int arg6, int arg7, int arg8, int arg9,
-                            float arg10, float arg11);
 // inferred: bullet that hit the object (GimmickHitMsg_unk + 0x2C; names invented)
 struct WaitHitBullet_unk {
     unsigned char m00[0x04];
@@ -492,7 +489,7 @@ int WaitObject::vf44(GimmickHitMsg_unk* msg) {
         if (mgr != 0 && bullet > 0 && hit->mId != bullet) {
             atn::Vector3 pos = ((WaitTarget_unk*)GetColli_unk(m54))->mPos;
             atn::Vector3 rot(0.0f, 0.0f, 0.0f);
-            fn_800FAB80(mgr, 0, fn_80219E6C(bullet), fn_800F8548(mgr), &pos, &rot, 0, 30, -1, -1, 0.0f, 1.0f);
+            mgr->fn_800FAB80(0, fn_80219E6C(bullet), mgr->fn_800F8548(), &pos, &rot, 0, 30, -1, -1, 0.0f, 1.0f);
         }
         GimmickMsg_unk next(t->mNext);
         vf40(&next);

@@ -208,7 +208,7 @@ inline atn::Vector3 GetNodePos_unk(MtxPtr m) {
 inline void Em302Kraken::Reset_unk() {
     m14C8 = 0;
     m14C4 = 0;
-    m590 = fn_800F8548(lbl_8087F048);
+    m590 = lbl_8087F048->fn_800F8548();
     m58C = 0;
     fn_8016E970(3);
     fn_800CB5C8(&m1588, 0, 0);
@@ -708,7 +708,7 @@ int Em302Kraken::vfB0(atn::Vector3* out) {
 boost::function<void()> Em302Kraken::vfB4(CharaTask* chara) {
     m14C8 = 0;
     m14C4 = 0;
-    m590 = fn_800F8548(lbl_8087F048);
+    m590 = lbl_8087F048->fn_800F8548();
     m58C = 15;
     fn_8016E970(3);
     m1600 = 0;
@@ -812,7 +812,7 @@ void Em302Kraken::fn_802DA174() {
                 if (m14D4 > 0) {
                     m14C8 = 0;
                     m14C4 = 0;
-                    m590 = fn_800F8548(lbl_8087F048);
+                    m590 = lbl_8087F048->fn_800F8548();
                     m58C = 8;
                     fn_8016E970(3);
                     fn_800C344C("SE_EM302_013", &m614, 0, -1, 1.0f);
@@ -835,7 +835,7 @@ void Em302Kraken::fn_802DA174() {
             m14DC = n;
             m14C8 = 0;
             m14C4 = 0;
-            m590 = fn_800F8548(lbl_8087F048);
+            m590 = lbl_8087F048->fn_800F8548();
             m58C = 10;
             fn_8016E970(3);
             mMotion.fn_80097CCC(0, 0.0f);
@@ -892,7 +892,7 @@ void Em302Kraken::fn_802DA174() {
             if (m1604 != 0) {
                 m14C8 = 0;
                 m14C4 = 0;
-                m590 = fn_800F8548(lbl_8087F048);
+                m590 = lbl_8087F048->fn_800F8548();
                 m58C = 13;
                 fn_8016E970(3);
                 mMotion.m34C = 1;
@@ -962,7 +962,7 @@ void Em302Kraken::fn_802DA718() {
     }
     if (m14C4 == 65) {
         atn::Vector3 pos = m14FC + sOffset_unk;
-        fn_800FAB80(lbl_8087F048, this, skill, m590, &pos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
+        lbl_8087F048->fn_800FAB80(this, skill, m590, &pos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
         fn_800C344C("SE_EM301_002", &m14FC, 0, -1, 1.0f);
     }
 }
@@ -1114,7 +1114,7 @@ void Em302Kraken::fn_802DB534() {
     }
     if (m14C4 - 100U <= 14) {
         HitInfo_unk* skill = fn_80219E6C(m1584);
-        fn_800FAB80(lbl_8087F048, this, skill, m590, (atn::Vector3*)&m15DC, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
+        lbl_8087F048->fn_800FAB80(this, skill, m590, (atn::Vector3*)&m15DC, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
         BreakPillars_unk(this);
     }
 }
@@ -1151,7 +1151,7 @@ void Em302Kraken::fn_802DB7C8() {
     } else if (m14C4 >= 90) {
         m14C8 = 0;
         m14C4 = 0;
-        m590 = fn_800F8548(lbl_8087F048);
+        m590 = lbl_8087F048->fn_800F8548();
         m58C = 14;
         fn_8016E970(3);
         mMotion.m34C = 1;
@@ -1186,7 +1186,7 @@ void Em302Kraken::fn_802DBA3C() {
         HitInfo_unk* skill = fn_80219E6C(m1608);
         MtxPtr head = mMotion.GetNodeMtx_unk("head");
         atn::Vector3 pos = GetNodePos_unk(head);
-        fn_800FAB80(lbl_8087F048, this, skill, m590, &pos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
+        lbl_8087F048->fn_800FAB80(this, skill, m590, &pos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
     } else if (m14C4 >= 180) {
         fn_80239DAC(lbl_8087F3C0, this, 101, 1);
     }
@@ -1229,7 +1229,7 @@ void Em302Kraken::vfEC() {
 void Em302Kraken::fn_802DBE70(int kind) {
     m14C8 = 0;
     m14C4 = 0;
-    m590 = fn_800F8548(lbl_8087F048);
+    m590 = lbl_8087F048->fn_800F8548();
     m58C = 6;
     fn_8016E970(3);
     m157C = kind;
@@ -1254,7 +1254,7 @@ void Em302Kraken::fn_802DBE70(int kind) {
 void Em302Kraken::fn_802DC014() {
     m14C8 = 0;
     m14C4 = 0;
-    m590 = fn_800F8548(lbl_8087F048);
+    m590 = lbl_8087F048->fn_800F8548();
     m58C = 7;
     fn_8016E970(3);
     mMotion.m34C = 1;
@@ -1274,7 +1274,7 @@ void Em302Kraken::fn_802DC014() {
 void Em302Kraken::fn_802DC1C0() {
     m14C8 = 0;
     m14C4 = 0;
-    m590 = fn_800F8548(lbl_8087F048);
+    m590 = lbl_8087F048->fn_800F8548();
     m58C = 11;
     fn_8016E970(3);
     mMotion.m34C = 1;
@@ -1297,7 +1297,7 @@ void Em302Kraken::fn_802DC1C0() {
 void Em302Kraken::fn_802DC3D0() {
     m14C8 = 0;
     m14C4 = 0;
-    m590 = fn_800F8548(lbl_8087F048);
+    m590 = lbl_8087F048->fn_800F8548();
     m58C = 12;
     fn_8016E970(3);
     mMotion.m34C = 1;
@@ -1328,7 +1328,7 @@ void Em302Kraken::fn_802DC3D0() {
 void Em302Kraken::fn_802DC5B4(int arg) {
     m14C8 = 0;
     m14C4 = 0;
-    m590 = fn_800F8548(lbl_8087F048);
+    m590 = lbl_8087F048->fn_800F8548();
     m58C = 15;
     fn_8016E970(3);
     m1600 = arg;
@@ -1338,7 +1338,7 @@ void Em302Kraken::fn_802DC5B4(int arg) {
 void Em302Kraken::fn_802DC618() {
     m14C8 = 0;
     m14C4 = 0;
-    m590 = fn_800F8548(lbl_8087F048);
+    m590 = lbl_8087F048->fn_800F8548();
     vf48();
     fn_80178A6C();
     fn_8015495C(0, 1, 1, 1);
@@ -1362,7 +1362,7 @@ void Em302Kraken::fn_802DC618() {
     fn_80239DAC(lbl_8087F3C0, this, 100, 1);
     fn_80239DAC(lbl_8087F3C0, this, 101, 1);
     if (lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->fn_80375184() != 0 && mType == 2) {
-        fn_801092C8(lbl_8087F048, 6, this, 0, 0);
+        lbl_8087F048->fn_801092C8(6, this, 0, 0);
     }
     KrakenBlur_unk blur;
     KrakenGame_unk* game = lbl_8087EFA8;

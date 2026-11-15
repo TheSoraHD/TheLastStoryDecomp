@@ -576,7 +576,7 @@ void LastCocoonEgg::vf40(HitInfo_unk* hit) {
     if (--m1924 < 0) {
         m14BC = 0;
         m14C0 = 0;
-        m590 = fn_800F8548(lbl_8087F048);
+        m590 = lbl_8087F048->fn_800F8548();
         m58C = 8;
         fn_8016E970(3);
         fn_80239DAC(lbl_8087F3C0, this, 1000, 0);
@@ -939,10 +939,10 @@ void LastCocoonEgg::fn_80456194() {
         }
     } else if (m14C0 > 15) {
         BattleTask* mgr = lbl_8087F048;
-        fn_800FAB80(mgr, this, fn_80219E6C(0x5AA), m590, &m1968, &m1974, 0, 30, -1, -1, 0.0f, 1.0f);
+        mgr->fn_800FAB80(this, fn_80219E6C(0x5AA), m590, &m1968, &m1974, 0, 30, -1, -1, 0.0f, 1.0f);
         m14BC = 0;
         m14C0 = 0;
-        m590 = fn_800F8548(lbl_8087F048);
+        m590 = lbl_8087F048->fn_800F8548();
         m58C = 0;
         fn_8016E970(3);
         m2558 = 0;
@@ -971,7 +971,7 @@ inline void EggShoot_unk(LastCocoonEgg* egg, atn::Vector3 dir) {
         from = result.m04;
     }
     BattleTask* mgr = lbl_8087F048;
-    fn_800F8574(mgr, egg, fn_80219E6C(0x5AB), &from, &dir, 0, 0x24, 0, 0.0f, 1.0f);
+    mgr->fn_800F8574(egg, fn_80219E6C(0x5AB), &from, &dir, 0, 0x24, 0, 0.0f, 1.0f);
 }
 // inferred: rotation matrix z, y, x with the angle compared on the right (as in game/EnemyQuarkSecond.cpp)
 inline void EggRotate2_unk(Mtx m, char axis, float rad) {
@@ -1048,7 +1048,7 @@ void LastCocoonEgg::fn_804562E4() {
             m12CC = 0.0f;
             m14BC = 0;
             m14C0 = 0;
-            m590 = fn_800F8548(lbl_8087F048);
+            m590 = lbl_8087F048->fn_800F8548();
             m58C = 0;
             fn_8016E970(3);
             m2558 = 0;
@@ -1076,7 +1076,7 @@ void LastCocoonEgg::fn_80456DB8() {
 void LastCocoonEgg::fn_80456E1C(CharaTask* target) {
     m14BC = 0;
     m14C0 = 0;
-    m590 = fn_800F8548(lbl_8087F048);
+    m590 = lbl_8087F048->fn_800F8548();
     m58C = 6;
     fn_8016E970(3);
     fn_800C344C("SE_EM206_027", &mPos, 0, -1, 1.0f);
@@ -1086,7 +1086,7 @@ void LastCocoonEgg::fn_80456E1C(CharaTask* target) {
 void LastCocoonEgg::fn_80456F04() {
     m14BC = 0;
     m14C0 = 0;
-    m590 = fn_800F8548(lbl_8087F048);
+    m590 = lbl_8087F048->fn_800F8548();
     m58C = 7;
     fn_8016E970(3);
     m2548.Shake_unk(50, 1.5f * m14D0, 1.5f * m14D0);
@@ -1096,7 +1096,7 @@ void LastCocoonEgg::fn_80456F04() {
 void LastCocoonEgg::fn_80456F94() {
     m14BC = 0;
     m14C0 = 0;
-    m590 = fn_800F8548(lbl_8087F048);
+    m590 = lbl_8087F048->fn_800F8548();
     m58C = 8;
     fn_8016E970(3);
     fn_80239DAC(lbl_8087F3C0, this, 1000, 0);

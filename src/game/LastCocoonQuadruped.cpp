@@ -189,7 +189,7 @@ inline RoutePlace_unk* FindQuadPlace_unk(int id) {
 inline void LastCocoonQuadruped::SetMode_unk(int mode) {
     m14BC = 0;
     m14C0 = 0;
-    m590 = fn_800F8548(lbl_8087F048);
+    m590 = lbl_8087F048->fn_800F8548();
     if (lbl_8087F430 != 0) {
         ((GameTask*)lbl_8087F430)->fn_80370AE4(0x8C, 0);
     }
@@ -1196,7 +1196,7 @@ void LastCocoonQuadruped::fn_80464CF0() {
         fn_80144710();
         m1574 = 0;
         float rotY = mRot.y;
-        int id = fn_800F8548(lbl_8087F048);
+        int id = lbl_8087F048->fn_800F8548();
         lbl_8087F048->fn_800F8C6C(0, 0, this, fn_80219E6C(0x5B5), id, rotY, 30, -1);
     } else {
         atn::ColliResult_unk result;
@@ -1368,7 +1368,7 @@ void LastCocoonQuadruped::fn_80465B88() {
             param.mTurn = 0.12566371f;
             param.mDelay = 0.0f;
             param.mTime = dist / data->m4C;
-            fn_800F8574(lbl_8087F048, this, data, &pos, &dir, &param, 0x100, 0, 0.0f, 1.0f);
+            lbl_8087F048->fn_800F8574(this, data, &pos, &dir, &param, 0x100, 0, 0.0f, 1.0f);
         }
     } else if (m14BC == 2) {
         float frame = mMotion.mTracks[3].m08;
@@ -1415,7 +1415,7 @@ void LastCocoonQuadruped::fn_80466370() {
         } else if (20.0f < f && f < 24.0f && m14BC == 0) {
             HitInfo_unk* skill = fn_80219E6C(0x5B5);
             BattleTask* mgr = lbl_8087F048;
-            fn_800FAB80(mgr, this, skill, m590, &mPos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
+            mgr->fn_800FAB80(this, skill, m590, &mPos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
             m14BC = 1;
         }
         atn::Vector3 dir = m15BC;
@@ -1582,7 +1582,7 @@ int LastCocoonQuadruped::fn_80468038(int* count, atn::Vector3* pos, float* angle
             continue;
         }
         if (p->m560 == 4 || p->m560 == 5) {
-            if (fn_800FBA9C(lbl_8087F048, p, this, p->m638, -1, 0.0f) >= 0) {
+            if (lbl_8087F048->fn_800FBA9C(p, this, p->m638, -1, 0.0f) >= 0) {
                 at = p->mPos;
                 found = 1;
                 dist = 30.0f;
@@ -1611,7 +1611,7 @@ int LastCocoonQuadruped::fn_80468038(int* count, atn::Vector3* pos, float* angle
             }
         } else if (p->m560 == 14) {
             atn::Vector3 dir = p->fn_80158E1C();
-            if (fn_800FBE70(lbl_8087F048, p, this, p->m638, -1, &dir, 1, -1) >= 0) {
+            if (lbl_8087F048->fn_800FBE70(p, this, p->m638, -1, &dir, 1, -1) >= 0) {
                 at = dir;
                 found = 1;
                 yaw = p->mRot.y;

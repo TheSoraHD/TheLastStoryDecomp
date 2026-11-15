@@ -11,6 +11,7 @@
 #include "atn/FixedArray.h"
 #include "math/Vec.h"
 #include "std/string.h"
+#include "game/BattleTask.h"
 
 extern "C" int sprintf(char* s, const char* format, ...);
 extern "C" wchar_t* wcsstr(const wchar_t* s, const wchar_t* sub);
@@ -39,7 +40,6 @@ extern "C" void fn_8044D104(Inventory* party, int slot, int item, int upgrade, i
 extern "C" int fn_80219544(int member); // inferred: character id of a party member
 class BattleTask;
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
-extern "C" void fn_8010C00C(BattleTask* mgr, CharaTask* chara);
 extern "C" bool fn_802124B4(ItemParamEntry_unk* item, int level); // inferred: the item can be upgraded
 extern "C" int fn_80211940(ItemParamEntry_unk* item, int level);   // inferred: makes the upgraded item
 extern "C" int fn_80444564(Inventory* party, int id); // inferred: number of equipment items
@@ -805,7 +805,7 @@ void ShopUpGrade::fn_8058CF60() {
                     mReload[i].mEquip->fn_805659B4();
                     if (lbl_8087F048 != 0) {
                         mReload[i].mChara->mStatus.fn_8013407C();
-                        fn_8010C00C(lbl_8087F048, mReload[i].mChara);
+                        lbl_8087F048->fn_8010C00C(mReload[i].mChara);
                     }
                     mReload[i].mChara->mStatus.fn_8012B988();
                     if (mReload[i].mChara->m674 < 0) {

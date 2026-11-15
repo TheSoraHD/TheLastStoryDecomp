@@ -415,7 +415,7 @@ inline void Em308ParmCrab::ResetAttack_unk() {
     m14B0 = 0;
     m15CC = 0;
     m15D4 = m14F4 != 0 ? m14F4->m68 : 90;
-    m590 = fn_800F8548(lbl_8087F048);
+    m590 = lbl_8087F048->fn_800F8548();
     StopAttack_unk();
 }
 
@@ -528,7 +528,7 @@ void Em308ParmCrab::vf40(HitInfo_unk* hit) {
         color.a = 1.0f;
         fn_8023A8B4(lbl_8087F3C0, &m1600, &mMotion, 0, pos, rot, color, -1, -1, 1, 1.0f);
         BattleTask* fx = lbl_8087F048;
-        fn_80108F38(fx, &fn_801781B0(), 0x80);
+        fx->fn_80108F38(&fn_801781B0(), 0x80);
     }
 }
 
@@ -759,7 +759,7 @@ void Em308ParmCrab::fn_802F97B8() {
                 atn::Vector3 dir(0.0f, 0.0f, 3.0f);
                 PSMTXMultVec(m.m, &dir, &dir);
                 if (m14F4 != 0) {
-                    fn_800F8574(lbl_8087F048, this, m14F4, &pos, &dir, 0, 0, 0, 0.0f, 1.0f);
+                    lbl_8087F048->fn_800F8574(this, m14F4, &pos, &dir, 0, 0, 0, 0.0f, 1.0f);
                 }
             }
         }
@@ -997,7 +997,7 @@ void Em308ParmCrab::fn_802FB6AC(CharaTask* target) {
         m58C = 7;
         fn_8016E970(6);
         m560 = 4;
-        m590 = fn_800F8548(lbl_8087F048);
+        m590 = lbl_8087F048->fn_800F8548();
         atn::Vector3 tpos = target->mPos;
         atn::Vector3 dir = atn::Vector3(tpos - mPos);
         PSVECNormalize(&dir, &dir);

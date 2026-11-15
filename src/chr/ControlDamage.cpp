@@ -635,7 +635,7 @@ int ControlFallDead::vf0C() {
         atn::Vector3 from = m1C;
         atn::Vector3 to = mChara->mColli.m48;
         if (lbl_8087F048) {
-            fn_8010A308(lbl_8087F048, &from, &to, mChara->m5B0);
+            lbl_8087F048->fn_8010A308(&from, &to, mChara->m5B0);
         }
     }
     m1C = mChara->mColli.m48;

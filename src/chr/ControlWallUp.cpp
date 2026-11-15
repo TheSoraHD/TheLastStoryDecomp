@@ -272,11 +272,11 @@ int ControlWallSlash::vf0C() {
             CharaTask* chara = mChara;
             BattleTask* effect = lbl_8087F048;
             HitInfo_unk* hit = chara->m638;
-            fn_800FAB80(effect, mChara, hit, fn_800F8548(effect), &chara->mPos, &chara->mRot, 0, 30, -1, -1, 0.0f, 1.0f);
+            effect->fn_800FAB80(mChara, hit, effect->fn_800F8548(), &chara->mPos, &chara->mRot, 0, 30, -1, -1, 0.0f, 1.0f);
             if (mChara->mStatus.HasTimer_unk()) {
                 HitInfo_unk* bullet = fn_80219E6C(0x1395);
                 BattleTask* effect2 = lbl_8087F048;
-                fn_800FB4B0(effect2, mChara, bullet, fn_800F8548(effect2), &mChara->mPos, 0, 30, -1, 1);
+                effect2->fn_800FB4B0(mChara, bullet, effect2->fn_800F8548(), &mChara->mPos, 0, 30, -1, 1);
                 if (mChara->fn_801789D8(0x1395, 0)) {
                     mChara->fn_80178864(bullet, mChara);
                 }

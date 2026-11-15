@@ -15,6 +15,7 @@
 #include "atn/RenderManager.h"
 #include "MP/MpSession_unk.h"
 #include <string.h>
+#include "game/BattleTask.h"
 
 extern "C" bool fn_80213E60(gmk::ItemSlotItem_unk* item, int kind, int sub, int num); // inferred: db/ItemRare_unk.cpp
 extern "C" GameTask* lbl_8087F430; // inferred: the field task
@@ -812,7 +813,6 @@ struct ItemDamage_unk {
 class BattleTask;
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0;
-extern "C" void fn_801092C8(BattleTask* mgr, int arg1, int arg2, int item, int num); // inferred: take message
 extern "C" HitInfo_unk* fn_80219E6C(int id);                                     // inferred: skill data
 extern "C" int fn_80206B9C(int code);                                            // inferred: weapon code
 extern "C" void fn_8003EA3C(ItemDamage_unk* result, HitInfo_unk* data, CharaTask* attacker, CharaTask* owner,
@@ -833,7 +833,7 @@ void ItemSlotAnime::fn_80450778() {
             if (m20->mId == 10004 || m20->mId == 10009) {
                 inventory->AddMoney(m24);
                 if (lbl_8087F048 != 0) {
-                    fn_801092C8(lbl_8087F048, 3, 0, m24, 0);
+                    lbl_8087F048->fn_801092C8(3, 0, m24, 0);
                 }
             } else if (m20 != 0 && (m20->mC0 == 3 || (m20->mAC & 0x100) == 0x100)) {
                 PlayerTask* leader = lbl_8087F8A0->mHead;
@@ -850,9 +850,9 @@ void ItemSlotAnime::fn_80450778() {
                 inventory->AddItem(m20->mId, m24, mFlag30, 0, 0, 1, 1);
                 if (lbl_8087F048 != 0) {
                     if (fn_80206B9C(m20->mId) && !mFlag30) {
-                        fn_801092C8(lbl_8087F048, 2, 0, m20->mId, m24);
+                        lbl_8087F048->fn_801092C8(2, 0, m20->mId, m24);
                     } else if (m20->mBC != 6) {
-                        fn_801092C8(lbl_8087F048, 1, 0, m20->mId, m24);
+                        lbl_8087F048->fn_801092C8(1, 0, m20->mId, m24);
                     }
                 }
             }

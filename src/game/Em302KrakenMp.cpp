@@ -227,7 +227,7 @@ inline void SendGimmick_unk(KrakenMpGimmick_unk* g, int kind) {
 inline void Em302KrakenMp::Reset_unk() {
     m14EC = 0;
     m14E8 = 0;
-    m590 = fn_800F8548(lbl_8087F048);
+    m590 = lbl_8087F048->fn_800F8548();
     m58C = 0;
     fn_8016E970(3);
 }
@@ -563,7 +563,7 @@ void Em302KrakenMp::vf100(int state) {
     case 8:
         m14EC = 0;
         m14E8 = 0;
-        m590 = fn_800F8548(lbl_8087F048);
+        m590 = lbl_8087F048->fn_800F8548();
         m58C = 8;
         fn_8016E970(3);
         fn_800C344C("SE_EM302_013", &m614, 0, -1, 1.0f);
@@ -840,7 +840,7 @@ void Em302KrakenMp::fn_802E03F0() {
                 if (m14F8 > 0) {
                     m14EC = 0;
                     m14E8 = 0;
-                    m590 = fn_800F8548(lbl_8087F048);
+                    m590 = lbl_8087F048->fn_800F8548();
                     m58C = 8;
                     fn_8016E970(3);
                     fn_800C344C("SE_EM302_013", &m614, 0, -1, 1.0f);
@@ -957,7 +957,7 @@ void Em302KrakenMp::fn_802E094C() {
         m1504.z += 0.3f;
         atn::Vector3 pos = m1504 + sOffset_unk;
         BattleTask* mgr = lbl_8087F048;
-        fn_800FAB80(mgr, this, fn_80219E6C(0x716), 0, &pos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
+        mgr->fn_800FAB80(this, fn_80219E6C(0x716), 0, &pos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
         PlayEffectAt_unk(this, 500, &m152C, m1504, 1.0f);
     }
     if (m14E8 == 30) {
@@ -965,7 +965,7 @@ void Em302KrakenMp::fn_802E094C() {
     }
     if (m14E8 == 65) {
         atn::Vector3 pos = m1504 + sOffset_unk;
-        fn_800FAB80(lbl_8087F048, this, skill, m590, &pos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
+        lbl_8087F048->fn_800FAB80(this, skill, m590, &pos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
         fn_800C344C("SE_EM301_002", &m1504, 0, -1, 1.0f);
     }
 }
@@ -1004,12 +1004,12 @@ void Em302KrakenMp::fn_802E0C60() {
     }
     if (m14E8 - 100U <= 14) {
         HitInfo_unk* skill = fn_80219E6C(m155C);
-        fn_800FAB80(lbl_8087F048, this, skill, m590, (atn::Vector3*)&m15B4, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
+        lbl_8087F048->fn_800FAB80(this, skill, m590, (atn::Vector3*)&m15B4, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
         atn::Vector3 pos;
         pos.Set_unk(1530.0f, 20.0f, -1760.0f);
-        fn_800FAB80(lbl_8087F048, this, skill, m590, &pos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
+        lbl_8087F048->fn_800FAB80(this, skill, m590, &pos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
         pos.Set_unk(1400.0f, 20.0f, -1810.0f);
-        fn_800FAB80(lbl_8087F048, this, skill, m590, &pos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
+        lbl_8087F048->fn_800FAB80(this, skill, m590, &pos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
         m1554 = 2;
     }
 }
@@ -1054,7 +1054,7 @@ void Em302KrakenMp::vfEC() {
 void Em302KrakenMp::fn_802E10D8(int kind) {
     m14EC = 0;
     m14E8 = 0;
-    m590 = fn_800F8548(lbl_8087F048);
+    m590 = lbl_8087F048->fn_800F8548();
     m58C = 6;
     fn_8016E970(3);
     m1538 = kind;
@@ -1082,7 +1082,7 @@ void Em302KrakenMp::fn_802E10D8(int kind) {
 void Em302KrakenMp::fn_802E1290() {
     m14EC = 0;
     m14E8 = 0;
-    m590 = fn_800F8548(lbl_8087F048);
+    m590 = lbl_8087F048->fn_800F8548();
     m58C = 7;
     fn_8016E970(3);
     mMotion.m34C = 1;
@@ -1101,7 +1101,7 @@ void Em302KrakenMp::fn_802E1290() {
 void Em302KrakenMp::fn_802E1414() {
     m14EC = 0;
     m14E8 = 0;
-    m590 = fn_800F8548(lbl_8087F048);
+    m590 = lbl_8087F048->fn_800F8548();
     m58C = 9;
     fn_8016E970(3);
     mMotion.m34C = 1;
@@ -1124,7 +1124,7 @@ void Em302KrakenMp::fn_802E1414() {
 void Em302KrakenMp::fn_802E1624() {
     m14EC = 0;
     m14E8 = 0;
-    m590 = fn_800F8548(lbl_8087F048);
+    m590 = lbl_8087F048->fn_800F8548();
     m58C = 10;
     fn_8016E970(3);
     mMotion.m34C = 1;
@@ -1144,7 +1144,7 @@ void Em302KrakenMp::fn_802E177C() {
     m1650 = 1;
     m14EC = 0;
     m14E8 = 0;
-    m590 = fn_800F8548(lbl_8087F048);
+    m590 = lbl_8087F048->fn_800F8548();
     vf48();
     fn_80178A6C();
     fn_8015495C(0, 1, 1, 1);
@@ -1170,7 +1170,7 @@ void Em302KrakenMp::fn_802E177C() {
     fn_80239DAC(lbl_8087F3C0, this, 100, 1);
     fn_80239DAC(lbl_8087F3C0, this, 101, 1);
     if (lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->fn_80375184() != 0 && mType == 2) {
-        fn_801092C8(lbl_8087F048, 6, this, 0, 0);
+        lbl_8087F048->fn_801092C8(6, this, 0, 0);
     }
     fn_800C31F4("SE_EM302_020", 0, -1, 1.0f);
     fn_800EB7A0();

@@ -2,11 +2,10 @@
 #include "game/GameTask.h"
 #include "macros.h"
 #include "game/CrossbowMenuTask.h"
+#include "game/BattleTask.h"
 
 class BattleTask;
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
-extern "C" void fn_800F8574(BattleTask* mgr, CharaTask* chara, HitInfo_unk* data, const atn::Vector3* pos,
-                            const atn::Vector3* dir, int a, int b, int c, float f1, float f2);
 // inferred: field (lbl_8087F430, as in game/CharaTask.cpp); names invented
 struct Field_unk {
     unsigned char m000[0x96C];
@@ -96,29 +95,29 @@ ControlShoot::ControlShoot(Chara_unk* chara, int id, const atn::Vector3& from, c
         }
     }
     if ((unsigned int)(mData->m04 - 0x148) <= 2) {
-        fn_800F8574(lbl_8087F048, mChara, mData, &mFrom, &mTo, 0, 0xA00000, 0, 0.0f, 1.0f);
+        lbl_8087F048->fn_800F8574(mChara, mData, &mFrom, &mTo, 0, 0xA00000, 0, 0.0f, 1.0f);
         Field_unk* field = lbl_8087F430;
         ((GameTask*)field)->fn_80370320(0xCF7, ((GameTask*)field)->fn_80370174(0xCF7) + 1, 0);
     } else if (mData->m04 == 0x144) {
-        fn_800F8574(lbl_8087F048, mChara, mData, &mFrom, &mTo, 0, 0x40, 0, 0.0f, 1.0f);
+        lbl_8087F048->fn_800F8574(mChara, mData, &mFrom, &mTo, 0, 0x40, 0, 0.0f, 1.0f);
     } else if (mChara->m50 == 700023) {
-        fn_800F8574(lbl_8087F048, mChara, mData, &mFrom, &mTo, 0, 0, 0, 0.0f, 1.0f);
+        lbl_8087F048->fn_800F8574(mChara, mData, &mFrom, &mTo, 0, 0, 0, 0.0f, 1.0f);
         {
             Mtx m;
             PSMTXRotRad(m, 'y', 0.47123894f);
             atn::Vector3 to = mTo;
             PSMTXMultVec(m, &to, &to);
-            fn_800F8574(lbl_8087F048, mChara, mData, &mFrom, &to, 0, 0, 0, 0.0f, 1.0f);
+            lbl_8087F048->fn_800F8574(mChara, mData, &mFrom, &to, 0, 0, 0, 0.0f, 1.0f);
         }
         {
             Mtx m;
             PSMTXRotRad(m, 'y', -0.47123894f);
             atn::Vector3 to = mTo;
             PSMTXMultVec(m, &to, &to);
-            fn_800F8574(lbl_8087F048, mChara, mData, &mFrom, &to, 0, 0, 0, 0.0f, 1.0f);
+            lbl_8087F048->fn_800F8574(mChara, mData, &mFrom, &to, 0, 0, 0, 0.0f, 1.0f);
         }
     } else {
-        fn_800F8574(lbl_8087F048, mChara, mData, &mFrom, &mTo, 0, 0, 0, 0.0f, 1.0f);
+        lbl_8087F048->fn_800F8574(mChara, mData, &mFrom, &mTo, 0, 0, 0, 0.0f, 1.0f);
     }
     int level = mChara->mStatus.mParamB.m94;
     CharaStatus* status = &mChara->mStatus;

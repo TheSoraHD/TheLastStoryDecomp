@@ -242,7 +242,7 @@ inline float MAX_unk(float a, float b) {
 }
 inline void Em301LShade::SetState_unk(int state) {
     m14E8 = 0;
-    m590 = fn_800F8548(lbl_8087F048);
+    m590 = lbl_8087F048->fn_800F8548();
     m58C = state;
     fn_8016E970(3);
 }
@@ -506,7 +506,7 @@ void Em301LShade::vf10() {
             }
             if (m14E8 > 90) {
                 m14E8 = 0;
-                m590 = fn_800F8548(lbl_8087F048);
+                m590 = lbl_8087F048->fn_800F8548();
                 m58C = 0;
                 fn_8016E970(3);
             }
@@ -525,7 +525,7 @@ void Em301LShade::vf10() {
             float end = mMotion.mTracks[0].m08;
             if (end >= mMotion.fn_80097D7C(0)) {
                 m14E8 = 0;
-                m590 = fn_800F8548(lbl_8087F048);
+                m590 = lbl_8087F048->fn_800F8548();
                 m58C = 0;
                 fn_8016E970(3);
             }
@@ -534,7 +534,7 @@ void Em301LShade::vf10() {
                 fn_80144710();
                 atn::Vector3 pos = mPos;
                 pos.y += 13.0f * m540.x;
-                fn_800FAB80(lbl_8087F048, this, skill, m590, &pos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
+                lbl_8087F048->fn_800FAB80(this, skill, m590, &pos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
             }
             break;
         }
@@ -1243,7 +1243,7 @@ void Em301LShade::fn_802D4378() {
         fn_8023A8B4(lbl_8087F3C0, &m1554, 0, 0, m153C, lbl_807C7030, color, -1, -1, 1, 1.0f);
     }
     if (m14E8 == 65) {
-        fn_800FAB80(lbl_8087F048, this, skill, m590, &m153C, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
+        lbl_8087F048->fn_800FAB80(this, skill, m590, &m153C, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
         fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0x115), *(const wchar_t**)((char*)m60 + 4));
         lbl_8087F048->fn_80109828(text);
         fn_800C344C("SE_EM301_002", &m153C, 0, -1, 1.0f);
@@ -1450,7 +1450,7 @@ fn_80232B7C(this, 20);
 // string pool offsets; 4 variants
 void Em301LShade::fn_802D57B8() {
     m14E8 = 0;
-    m590 = fn_800F8548(lbl_8087F048);
+    m590 = lbl_8087F048->fn_800F8548();
     vf48();
     fn_80178A6C();
     fn_8015495C(0, 1, 1, 1);
@@ -1476,7 +1476,7 @@ void Em301LShade::fn_802D57B8() {
         fn_8023A8B4(mgr, &m1608, (atn::Model*)&mMotion, 0, pos, lbl_807C7030, color, -1, -1, 1, 1.0f);
     }
     if (lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->fn_80375184() != 0 && mType == 2) {
-        fn_801092C8(lbl_8087F048, 6, this, 0, 0);
+        lbl_8087F048->fn_801092C8(6, this, 0, 0);
     }
     fn_800EB7A0();
     m15E8 = 0;

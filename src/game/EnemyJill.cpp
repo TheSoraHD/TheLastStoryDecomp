@@ -62,7 +62,7 @@ EnemyJill::EnemyJill(atn::Task* parent, const EnemyInfo_unk* info)
 inline void EnemyJill::SetStep_unk() {
     m14B8 = 0;
     m14BC = 0;
-    m590 = fn_800F8548(lbl_8087F048);
+    m590 = lbl_8087F048->fn_800F8548();
     m594 = 1;
     m598 = 0;
     if (m58C != 6 && m58C != 7 && m58C != 14) {
@@ -299,8 +299,8 @@ void EnemyJill::vf10() {
                     if (m14E8 != 0) {
                         atn::Vector3* rot = GetRot_unk();
                         atn::Vector3 pos = *mC58.mC4->fn_8013C38C() + mC58.mC4->fn_8014052C();
-                        int id = fn_800F8548(fn_8013A194());
-                        fn_800FAB80(fn_8013A194(), this, m14E8, id, &pos, rot, 0, 30, -1, -1, 0.0f, 1.0f);
+                        int id = fn_8013A194()->fn_800F8548();
+                        fn_8013A194()->fn_800FAB80(this, m14E8, id, &pos, rot, 0, 30, -1, -1, 0.0f, 1.0f);
                     }
                 }
                 m1570 = -1;
@@ -809,7 +809,7 @@ void EnemyJill::fn_80330218() {
                 if (mControl && mControl->vf30() > m598) {
                     m598 = mControl->vf30();
                     m594 = 1;
-                    m590 = fn_800F8548(lbl_8087F048);
+                    m590 = lbl_8087F048->fn_800F8548();
                 }
                 if (m594 != 0) {
                     fn_80144710();

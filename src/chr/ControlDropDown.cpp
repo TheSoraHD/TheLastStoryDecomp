@@ -4,6 +4,7 @@
 #include "game/CharaManager.h"
 #include "game/GameTask.h"
 #include "atn/ColliBase.h"
+#include "game/BattleTask.h"
 
 extern "C" int rand();
 extern "C" void PSVECCrossProduct(const atn::Vector3* a, const atn::Vector3* b, atn::Vector3* axb);
@@ -13,7 +14,6 @@ extern "C" CharaManager<PlayerTask>* lbl_8087F8A0;    // inferred: player manage
 extern "C" void* lbl_8087F610;
 class BattleTask;
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
-extern "C" void fn_8010A308(BattleTask* mgr, const atn::Vector3* from, const atn::Vector3* to, float radius);
 // inferred: field (lbl_8087F430): a task (its flag 2 is tested) with the route tables at 0x10D8
 struct DropField_unk {
     unsigned char m0000[0x38];
@@ -234,7 +234,7 @@ int ControlDropDown::vf0C() {
         atn::Vector3 from = pos;
         atn::Vector3 to = mChara->mPos;
         if (lbl_8087F048 != 0) {
-            fn_8010A308(lbl_8087F048, &from, &to, mChara->m5B0);
+            lbl_8087F048->fn_8010A308(&from, &to, mChara->m5B0);
         }
     }
     return 0;

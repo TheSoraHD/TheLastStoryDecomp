@@ -41,6 +41,7 @@
 #include "game/MapTask.h"
 #include "chr/CharaEquip_unk.h"
 #include "game/BattleTask.h"
+#include "game/BattleTarget_unk.h"
 #include "gmk/Item.h"
 #include "math/VecAssign_unk.h"
 
@@ -131,21 +132,11 @@ static inline atn::Vector3 FrontDir_unk(const atn::Vector3& rot) {
 // inferred: target in front of the character within radius/theta
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
 // inferred: target searches of the effect manager (in front / around)
-extern "C" int fn_801004FC(BattleTask* mgr, CharaTask** out, CharaTask* chara, const atn::Vector3* dir, float range,
-                           float theta);
 extern "C" double cos(double x);
 extern "C" double sin(double x);
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 extern "C" int fn_80041A28(int arg, CharaTask* chara, CharaTask* target); // inferred: kind of attack
-// inferred: target found by fn_800E7214 with its position (only the character is filled here)
-struct BattleTarget_unk {
-    BattleTarget_unk() : mChara(0), m04(0), m08(0), mPos(0.0f, 0.0f, 0.0f) {}
-    CharaTask* mChara;
-    int m04;
-    int m08;
-    atn::Vector3 mPos;
-};
 extern "C" HitInfo_unk* fn_80219344(CharaTask* chara, int arg);
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 // inferred: experience of a kill (as in gmk/FlyObjManager.cpp)
@@ -526,7 +517,7 @@ void BattleCharaTask::vf14() {
 }
 
 void BattleCharaTask::fn_800E426C() {
-    fn_8010220C(lbl_8087F048, 0);
+    lbl_8087F048->fn_8010220C(0);
 }
 
 // inferred: translation of a node matrix (name invented)
@@ -537,8 +528,6 @@ inline atn::Vector3 NodePos_unk(MtxPtr m) {
 extern "C" float fn_800A56A8(void* pad, int port, int axis, int arg); // inferred: stick axis (as in game/GameTask.cpp)
 extern "C" void* lbl_8087EF70; // inferred: pad of the stick
 // inferred: target in front of the character for the cover actions (game/BattleTask.cpp, BattleAim_unk)
-extern "C" int fn_8010089C(BattleTask* mgr, BattleTarget_unk* out, CharaTask* chara, const atn::Vector3* rot,
-                           float range, float angle);
 extern "C" int fn_80211734(HitInfo_unk* item);                 // inferred: infinite item
 extern "C" void fn_8044441C(Inventory* inv, int id, int num);  // inferred: removes items
 extern "C" int fn_804444E8(Inventory* inv, int id);            // inferred: number of items
@@ -653,7 +642,7 @@ void BattleCharaTask::fn_800E4278(GameTask* task) {
                         if (len > 0.4f) {
                             if (side != 0 && (side != 3 || mC40 == 1) && fn_80179FA8() && m139C == 0) {
                                 BattleTarget_unk target;
-                                int found = fn_8010089C(lbl_8087F048, &target, this, &dir, 80.0f, 1.5707964f);
+                                int found = lbl_8087F048->fn_8010089C(&target, this, &dir, 80.0f, 1.5707964f);
                                 if (found) {
                                     action.m00 = 10;
                                     shown = 1;
@@ -847,7 +836,7 @@ void BattleCharaTask::fn_800E4278(GameTask* task) {
                                     }
                                     DamageResult_unk result;
                                     fn_8003EA3C(&result, data, this, enemy, 0, &lbl_807C6B90, 0, 0);
-                                    fn_801092C8(lbl_8087F048, 0x16, enemy, 0, 0);
+                                    lbl_8087F048->fn_801092C8(0x16, enemy, 0, 0);
                                     HitInfo_unk* hit = fn_80219E6C(0x4FBF);
                                     if (hit != 0) {
                                         enemy->fn_80178668(hit, 0, hit->m5C, this, 0);
@@ -1129,7 +1118,7 @@ void BattleCharaTask::fn_800E589C() {
             if (mControl && mControl->vf30() > m598) {
                 m598 = mControl->vf30();
                 m594 = 1;
-                m590 = fn_800F8548(lbl_8087F048);
+                m590 = lbl_8087F048->fn_800F8548();
             }
             if (m594 != 0) {
                 fn_80144710();
@@ -1489,7 +1478,7 @@ int BattleCharaTask::fn_800E7214(CharaTask** out, int keep) {
         range *= 1.2f;
     }
     if (ok) {
-        if (fn_801004FC(lbl_8087F048, out, this, &dir, range, config->m24C)) {
+        if (lbl_8087F048->fn_801004FC((BattleTarget_unk*)out, this, &dir, range, config->m24C)) {
             if (keep == 0 || (CharaTask*)m1440 != *out || SetConfig::sInstance->mAttackType != 0) {
                 m1440 = (int)*out;
                 return 1;
@@ -1741,7 +1730,7 @@ void BattleCharaTask::fn_800E7F04() {
             }
             if (skill != 0) {
                 BattleTask* mgr = lbl_8087F048;
-                fn_800FAB80(mgr, this, skill, fn_800F8548(mgr), &mPos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
+                mgr->fn_800FAB80(this, skill, mgr->fn_800F8548(), &mPos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
                 Color4f_unk color(1.0f, 1.0f, 1.0f, 1.0f);
                 lbl_8087F048->fn_80107168(skill->m04, 0, 0, m1428->GetModel_unk(), &lbl_807C7030, &lbl_807C7030,
                             &color, 1.0f);
@@ -1760,7 +1749,7 @@ void BattleCharaTask::fn_800E7F04() {
                     if (targets.mCount < 7) {
                         count = 7;
                     }
-                    int id = fn_800F8548(lbl_8087F048);
+                    int id = lbl_8087F048->fn_800F8548();
                     for (int i = 0; i < count; i++) {
                         atn::Matrix3x4 rot;
                         PSMTXRotRad(rot.m, 'y', i * (6.2831855f / count));
@@ -1779,10 +1768,10 @@ void BattleCharaTask::fn_800E7F04() {
                             homing.mDelay = 0.0f;
                             homing.mCount = id;
                             BattleTask* mgr = lbl_8087F048;
-                            fn_800F8574(mgr, this, sub, &fn_801781B0(), &pos, &homing, 0x2006, 0, 0.0f, 1.0f);
+                            mgr->fn_800F8574(this, sub, &fn_801781B0(), &pos, &homing, 0x2006, 0, 0.0f, 1.0f);
                         } else {
                             BattleTask* mgr = lbl_8087F048;
-                            fn_800F8574(mgr, this, sub, &fn_801781B0(), &pos, 0, 2, 0, 0.0f, 1.0f);
+                            mgr->fn_800F8574(this, sub, &fn_801781B0(), &pos, 0, 2, 0, 0.0f, 1.0f);
                         }
                     }
                 }
@@ -1858,7 +1847,7 @@ void BattleCharaTask::fn_800E8688(int id, int b, CharaTask* target, const atn::V
                 case 8: {
                     atn::Vector3 dir(target->mPos.x - mPos.x, 0.0f, target->mPos.z - mPos.z);
                     PSVECNormalize(&dir, &dir);
-                    m590 = fn_800F8548(lbl_8087F048);
+                    m590 = lbl_8087F048->fn_800F8548();
                     m594 = 1;
                     m598 = 0;
                     m59C = 0;
@@ -1878,7 +1867,7 @@ void BattleCharaTask::fn_800E8688(int id, int b, CharaTask* target, const atn::V
                 case 12: {
                     atn::Vector3 dir(target->mPos.x - mPos.x, 0.0f, target->mPos.z - mPos.z);
                     PSVECNormalize(&dir, &dir);
-                    m590 = fn_800F8548(lbl_8087F048);
+                    m590 = lbl_8087F048->fn_800F8548();
                     m594 = 1;
                     m598 = 0;
                     m59C = 0;
@@ -1989,7 +1978,7 @@ void BattleCharaTask::fn_800E8688(int id, int b, CharaTask* target, const atn::V
     }
     m58C = 1;
     if (lbl_8087F048 != 0) {
-        m590 = fn_800F8548(lbl_8087F048);
+        m590 = lbl_8087F048->fn_800F8548();
     }
     mFlag5 = 0;
     if (id == 0xD0 || id == 0xE5) {
@@ -2370,7 +2359,7 @@ void BattleCharaTask::fn_800E9ED8() {
                             mC14 = side;
                             m58C = 1;
                             if (lbl_8087F048 != 0) {
-                                m590 = fn_800F8548(lbl_8087F048);
+                                m590 = lbl_8087F048->fn_800F8548();
                             }
                             m594 = -1;
                             CharaTask* target = mC58.mC4;
@@ -2407,7 +2396,7 @@ void BattleCharaTask::fn_800E9ED8() {
             if (mControl && mControl->vf30() > m598) {
                 m598 = mControl->vf30();
                 m594 = 1;
-                m590 = fn_800F8548(lbl_8087F048);
+                m590 = lbl_8087F048->fn_800F8548();
             }
             if (m594 != 0) {
                 fn_80144710();
@@ -2627,7 +2616,7 @@ void BattleCharaTask::fn_800EB270(int id) {
     atn::Vector3 pos;
     m58C = 1;
     if (lbl_8087F048 != 0) {
-        m590 = fn_800F8548(lbl_8087F048);
+        m590 = lbl_8087F048->fn_800F8548();
     }
     m594 = id == 200 ? config->m270 : -1;
     m598 = 0;

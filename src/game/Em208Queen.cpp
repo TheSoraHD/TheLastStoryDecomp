@@ -244,7 +244,7 @@ int Em208Queen::vf0C() {
 inline void Em208Queen::SetState_unk(int state) {
     m14B8 = 0;
     m14BC = 0;
-    m590 = fn_800F8548(lbl_8087F048);
+    m590 = lbl_8087F048->fn_800F8548();
     m58C = state;
     fn_8016E970(3);
 }
@@ -683,13 +683,13 @@ void Em208Queen::fn_802CA490() {
         HitInfo_unk* bullet = fn_80219E6C(0x67C);
         atn::Vector3 pos = mPos;
         BattleTask* mgr = lbl_8087F048;
-        fn_800FAB80(mgr, this, bullet, m590, &mPos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
+        mgr->fn_800FAB80(this, bullet, m590, &mPos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
     }
     if (mMotion.mTracks[0].m08 >= 59.0f && mMotion.mTracks[0].m08 <= 65.0f) {
         HitInfo_unk* bullet = fn_80219E6C(0x67C);
         atn::Vector3 pos = GetNodePos_unk(mMotion.GetNodeMtx_unk("rightfoot"));
         BattleTask* mgr = lbl_8087F048;
-        fn_800FAB80(mgr, this, bullet, m590, &mPos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
+        mgr->fn_800FAB80(this, bullet, m590, &mPos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
     }
     if (mMotion.mTracks[0].m08 >= 36.0f && mMotion.mTracks[0].m08 <= 56.0f) {
         atn::Vector3 pos = GetNodePos_unk(mMotion.GetNodeMtx_unk("center_chara"));
@@ -950,7 +950,7 @@ void Em208Queen::fn_802CB8A0() {
     if (m570 > 0.05f) {
         HitInfo_unk* bullet = fn_80219E6C(0x67E);
         BattleTask* mgr = lbl_8087F048;
-        fn_800FAB80(mgr, this, bullet, m590, &mPos, &mRot, 0, 60, -1, -1, 0.0f, 1.0f);
+        mgr->fn_800FAB80(this, bullet, m590, &mPos, &mRot, 0, 60, -1, -1, 0.0f, 1.0f);
     }
     fn_802CC834(mPos, 35.0f, 6.2831855f, 100);
     atn::Vector3 left = mPos - m151C;
@@ -1046,7 +1046,7 @@ void Em208Queen::fn_802CC19C(int arg, const atn::Vector3* pos) {
 void Em208Queen::fn_802CC39C() {
     m14B8 = 0;
     m14BC = 0;
-    m590 = fn_800F8548(lbl_8087F048);
+    m590 = lbl_8087F048->fn_800F8548();
     m58C = 14;
     fn_8016E970(3);
     mMotion.m34C = 1;

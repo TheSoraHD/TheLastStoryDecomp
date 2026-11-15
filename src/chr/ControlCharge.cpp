@@ -572,11 +572,11 @@ int ControlChargeAttack::vf0C() {
         CharaTask* chara = mChara;
         BattleTask* fx = lbl_8087F048;
         HitInfo_unk* hit = chara->m638;
-        fn_800FAB80(fx, mChara, hit, fn_800F8548(fx), &chara->mPos, &chara->mRot, 0, 30, -1, -1, 0.0f, 1.0f);
+        fx->fn_800FAB80(mChara, hit, fx->fn_800F8548(), &chara->mPos, &chara->mRot, 0, 30, -1, -1, 0.0f, 1.0f);
         if (mChara->mStatus.HasTimer_unk()) {
             HitInfo_unk* extra = fn_80219E6C(0x1395);
             BattleTask* fx2 = lbl_8087F048;
-            fn_800FB4B0(fx2, mChara, extra, fn_800F8548(fx2), &mChara->mPos, 0, 30, -1, 1);
+            fx2->fn_800FB4B0(mChara, extra, fx2->fn_800F8548(), &mChara->mPos, 0, 30, -1, 1);
             if (mChara->fn_801789D8(0x1395, 0)) {
                 mChara->fn_80178864(extra, mChara);
             }
@@ -661,7 +661,7 @@ int ControlHighJumpAttack::vf0C() {
             HitInfo_unk* hit = chara->m638;
             atn::Vector3 at = mChara->mPos + FrontDir_unk(chara->mRot) * 10.0f;
             BattleTask* fx = lbl_8087F048;
-            fn_800FAB80(fx, mChara, hit, fn_800F8548(fx), &at, &chara->mRot, 0, 30, -1, -1, 0.0f, 1.0f);
+            fx->fn_800FAB80(mChara, hit, fx->fn_800F8548(), &at, &chara->mRot, 0, 30, -1, -1, 0.0f, 1.0f);
             if ((hit->mAC & 0x40000) == 0x40000) {
                 mChara->mStatus.m228 = 0.0f;
                 if (lbl_8087EE68 != 0 && lbl_8087EE68->fn_800185B4(mChara, hit) != 0) {
@@ -772,7 +772,7 @@ int ControlQuarkSeirenAttack::vf0C() {
         HitInfo_unk* hit = chara->m638;
         atn::Vector3 at = mChara->mPos + FrontDir_unk(chara->mRot) * 10.0f;
         BattleTask* fx = lbl_8087F048;
-        fn_800FAB80(fx, mChara, hit, fn_800F8548(fx), &at, &chara->mRot, 0, 30, -1, -1, 0.0f, 1.0f);
+        fx->fn_800FAB80(mChara, hit, fx->fn_800F8548(), &at, &chara->mRot, 0, 30, -1, -1, 0.0f, 1.0f);
         if ((hit->mAC & 0x40000) == 0x40000) {
             mChara->mStatus.m228 = 0.0f;
             if (lbl_8087EE68 != 0 && lbl_8087EE68->fn_800185B4(mChara, hit) != 0) {
@@ -817,7 +817,7 @@ ControlZanTackle::ControlZanTackle(Chara_unk* chara) : ControlBase(chara) {
     motion->fn_80097C08(0, 0x14A, 0, 0, 1, 0.0f, 0.1f);
     motion->mTracks[0].m0C = 1.0f;
     m0C = mChara->m56C;
-    m08 = fn_800F8548(lbl_8087F048);
+    m08 = lbl_8087F048->fn_800F8548();
 }
 
 // inferred: tackle of Zangurg, steered with the stick while button 9 is held
@@ -843,7 +843,7 @@ int ControlZanTackle::vf0C() {
         }
         atn::Vector3 at = mChara->mPos + FrontDir_unk(mChara->mRot) * 5.0f;
         BattleTask* fx = lbl_8087F048;
-        fn_800FAB80(fx, mChara, fn_80219E6C(0xA4), m08, &at, &rot, 0, 30, -1, -1, 0.0f, 1.0f);
+        fx->fn_800FAB80(mChara, fn_80219E6C(0xA4), m08, &at, &rot, 0, 30, -1, -1, 0.0f, 1.0f);
     } else {
         float frame = motion->mTracks[0].m08;
         if (frame >= motion->fn_80097D7C(0)) {

@@ -394,7 +394,7 @@ int Brazier::vf40(GimmickMsg_unk* msg) {
         if (lbl_8087F048 != 0) {
             lbl_8087F048->m3E39C = 1;
             mgr = lbl_8087F048;
-            fn_800FAB80(mgr, player, fn_80219E6C(mBulletId), fn_800F8548(mgr), &m6C, &m78, 0, 30, -1, -1, 4.0f,
+            mgr->fn_800FAB80(player, fn_80219E6C(mBulletId), mgr->fn_800F8548(), &m6C, &m78, 0, 30, -1, -1, 4.0f,
                         1.0f);
             lbl_8087F048->m3E39C = 0;
         }

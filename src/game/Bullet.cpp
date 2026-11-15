@@ -13,6 +13,7 @@
 #include "atn/SoundManager.h"
 #include "gmk/Lemon.h"
 #include "game/ReplayBuffer.h"
+#include "game/BattleTask.h"
 
 // inferred: game settings (lbl_8087F0A8); only the fields read here
 struct BootSettings_unk {
@@ -53,17 +54,9 @@ extern "C" BulletTime_unk* lbl_8087EFA8;
 
 class BattleTask;
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
-extern "C" void fn_800F8574(BattleTask* mgr, CharaTask* owner, HitInfo_unk* data, const atn::Vector3* pos,
-                            const atn::Vector3* dir, void* param, int arg6, int arg7, float a, float b);
-extern "C" void fn_800FB4B0(BattleTask* mgr, CharaTask* owner, HitInfo_unk* data, int id, const atn::Vector3* pos,
-                            int a, int b, int c, int d); // inferred: hit effect on the collision
 extern "C" void* lbl_8087EE98; // inferred: collision manager
 extern "C" int fn_8004ED34(void* colli, atn::ColliResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg);
-extern "C" void fn_800FB1BC(BattleTask* mgr, CharaTask* owner, HitInfo_unk* data, const atn::Vector3* pos,
-                            const atn::Vector3* rot, int a, int b, float scale); // inferred: hit effect
-extern "C" int fn_800FAB80(BattleTask* mgr, CharaTask* owner, HitInfo_unk* data, int id, const atn::Vector3* pos,
-                           const atn::Vector3* rot, int a, int b, float c, float d, int e, int f); // inferred: hit effect
 extern "C" int fn_8004D388(void* colli, atn::ColliResult_unk* result, const atn::Vector3* center, const atn::Vector3* move,
                            unsigned int mask, void* ignore, int arg, HitInfo_unk* data, float radius); // inferred: sphere sweep
 
@@ -88,7 +81,6 @@ struct CollOwner_unk {
 static const char* const sSeNames_unk[] = {
     "SE_BTCOM_006", "SE_BTCOM_007", "SE_BTCOM_016", "SE_SP015_001", "SE_BTCOM_102", 0,
 };
-extern "C" int fn_800F8548(BattleTask* mgr); // inferred: new bullet id
 
 extern "C" void fn_800F80B8(atn::Matrix3x4* mtx, const atn::Vector3* rot); // inferred: rotates by the angles
 extern "C" void PSMTXTrans(Mtx m, float x, float y, float z);
@@ -175,7 +167,7 @@ void Bullet::fn_8010F018(BulletShot_unk* shot, const atn::Vector3* pos, const at
     }
     lbl_8087F3C0->mB8 = 0;
     if (count < 0) {
-        m7C = fn_800F8548(lbl_8087F048);
+        m7C = lbl_8087F048->fn_800F8548();
     } else {
         m7C = count;
     }
@@ -379,9 +371,9 @@ void Bullet::vf10() {
                 atn::Vector3 rot = dir.ToRotation_unk();
                 int id = 0;
                 if (HasFlag_unk(0x1000)) {
-                    fn_800FB1BC(lbl_8087F048, m88, m68, &pos, &rot, 0, 0, 1.0f);
+                    lbl_8087F048->fn_800FB1BC(m88, m68, &pos, &rot, 0, 0, 1.0f);
                 } else {
-                    id = fn_800FAB80(lbl_8087F048, m88, m68, m7C, &pos, &rot, 0, 30, m5C, m74, -1, -1);
+                    id = lbl_8087F048->fn_800FAB80(m88, m68, m7C, &pos, &rot, 0, 30, -1, -1, m5C, m74);
                 }
                 ((GameTask*)lbl_8087F430)->fn_80373164(m88, &pos, id);
             }
@@ -555,7 +547,7 @@ void Bullet::vf20(CharaTask* chara, const atn::Vector3* pos, atn::Vector3* dir) 
     atn::Vector3 target = m88->vf64(2);
     *dir = target - *pos;
     dir->GetNormalize();
-    fn_800F8574(lbl_8087F048, chara, m68, pos, dir, 0, 0, 0, 0.0f, 1.0f);
+    lbl_8087F048->fn_800F8574(chara, m68, pos, dir, 0, 0, 0, 0.0f, 1.0f);
 }
 
 // fn_80110858 (0x1858 bytes, the bullet hits a character or the background) is not decompiled yet.
@@ -568,7 +560,7 @@ void Bullet::fn_801120B0() {
     }
     atn::ColliResult_unk res;
     if (fn_8004ED34(lbl_8087EE98, &res, &m14, &m08, mask, 0, 0) != 0) {
-        fn_800FB4B0(lbl_8087F048, m88, m68, m7C, &m08, 0, 0x1E, -1, 1);
+        lbl_8087F048->fn_800FB4B0(m88, m68, m7C, &m08, 0, 0x1E, -1, 1);
         vf0C(1, 0);
     }
 }

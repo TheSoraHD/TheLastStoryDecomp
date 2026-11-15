@@ -899,7 +899,7 @@ void Em202ForestSpider::vf134() {
 void Em202ForestSpider::fn_8027688C() {
     m14D8 = 0;
     m14DC = 0;
-    m590 = fn_800F8548(lbl_8087F048);
+    m590 = lbl_8087F048->fn_800F8548();
 }
 
 void Em202ForestSpider::vf138() {
@@ -1131,7 +1131,7 @@ void Em202ForestSpider::vf16C() {
     PlayEffectOrigin_unk(lbl_8087F3C0, &m192C, &mMotion);
     BattleTask* mgr = lbl_8087F048;
     atn::Vector3 p = fn_801781B0();
-    fn_80108F38(mgr, &p, 0x80);
+    mgr->fn_80108F38(&p, 0x80);
 }
 
 void Em202ForestSpider::vf130() {

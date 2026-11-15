@@ -548,8 +548,8 @@ void Em314Ivy::vf108() {
             m14C0 = 0;
             BattleTask* effect = lbl_8087F048;
             if (effect != 0 && m14EC > 0) {
-                int id = fn_800F8548(effect);
-                fn_800FD658(effect, 0, m14E4, fn_80219E6C(m14EC), id, 0, 30);
+                int id = effect->fn_800F8548();
+                effect->fn_800FD658(0, m14E4, fn_80219E6C(m14EC), id, 0, 30);
                 if (m14E4 != 0 && lbl_8087F498 != 0 && rand() % 2 == 0) {
                     lbl_8087F498->fn_803EA77C(m14E4, 0x2A, 0, 1.0f, 10.0f);
                 }
@@ -559,7 +559,7 @@ void Em314Ivy::vf108() {
                     effect->fn_80107168(0x232D, 0, 0, 0, &m14E4->fn_801781B0(),
                                                             &chr::lbl_807C7030, &IvyColor_unk(1.0f, 1.0f, 1.0f, 1.0f),
                                                             1.0f);
-                    fn_801092C8(lbl_8087F048, 4, 0, 10, 0);
+                    lbl_8087F048->fn_801092C8(4, 0, 10, 0);
                 }
             }
         }
@@ -693,7 +693,7 @@ void Em314Ivy::fn_803132D0() {
                 effect->fn_80107168(0x232D, 0, 0, 0, &m14E4->fn_801781B0(), &chr::lbl_807C7030,
                             &IvyColor_unk(1.0f, 1.0f, 1.0f, 1.0f), 1.0f);
             }
-            fn_801092C8(lbl_8087F048, 4, 0, money, 0);
+            lbl_8087F048->fn_801092C8(4, 0, money, 0);
         }
         dir.x = 0.0f;
         dir.y = 0.0f;
