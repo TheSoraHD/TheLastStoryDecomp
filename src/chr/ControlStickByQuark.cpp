@@ -1429,7 +1429,7 @@ int ControlThrownBreakSkelton::vf0C() {
 
 // inferred: revives as a skeleton
 boost::function<void()> ControlThrownBreakSkelton::vf10() const {
-    return boost::bind(&CharaTask::fn_8015EFAC, (CharaTask*)mChara, (CharaTask::CONTROL_MODE)1);
+    return boost::bind(&CharaTask::fn_8015EFAC, (CharaTask*)mChara, 1);
 }
 
 extern "C" void fn_800CB5C8(atn::SoundRef* sound, int frames, int arg); // inferred: stops the sound

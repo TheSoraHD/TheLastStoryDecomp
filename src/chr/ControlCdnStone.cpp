@@ -61,6 +61,16 @@ inline atn::Vector3 FrontDir_unk(const atn::Vector3& rot) {
 
 namespace chr {
 
+// inferred: function removed by the linker (no reference in the DOL): its constants 150.0f and
+// 450.0f (time of the dizziness, as in the ControlCdnPiyo ctor) stay first in .sdata2. Name and
+// body invented.
+float ControlCdnPiyo::Stripped1_unk(int flag) {
+    if (flag == 0) {
+        return 150.0f;
+    }
+    return 450.0f;
+}
+
 ControlCdnStone::ControlCdnStone(Chara_unk* chara, int a) : ControlBase(chara), m08(0.0f, 0.0f, 0.0f), m24(a) {
     chara->m58C = 3;
     mChara->m560 = 0x30;
@@ -276,7 +286,7 @@ int ControlCdnBetray::vf0C() {
 
 boost::function<void()> ControlCdnBetray::vf10() const {
     if (mChara->mType == 0) {
-        return boost::bind(&CharaTask::fn_8016E970, (CharaTask*)mChara, 2);
+        return boost::bind(&CharaTask::fn_8016E970, (CharaTask*)mChara, (CharaTask::CONTROL_MODE)2);
     }
     return boost::bind(&CharaTask::fn_8016E970, (CharaTask*)mChara, mChara->m564);
 }
