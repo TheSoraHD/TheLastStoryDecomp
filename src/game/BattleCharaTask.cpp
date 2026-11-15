@@ -456,9 +456,12 @@ void BattleCharaTask::fn_800E2FE0() {
     }
 }
 
+// inferred: view direction of the camera (inline; name invented)
+static inline void ViewDir_unk(atn::Vector3& dir, atn::RenderManager* camera) {
+    dir = camera->mCamera.mTarget - camera->mCamera.mPos;
+    dir.Normalize_unk();
+}
 // inferred: looks for the character under the camera ray
-// NONMATCHING: 99.96% - stack slots of the two vector temporaries swapped
-// of the start crossed (~12 forms)
 void BattleCharaTask::fn_800E3F5C() {
     Field_unk* field = lbl_8087F430;
     if (field == 0 || lbl_8087F048 == 0) {
@@ -473,8 +476,7 @@ void BattleCharaTask::fn_800E3F5C() {
         atn::RenderManager* camera = atn::RenderManager::instance_;
         atn::Vector3 from = fn_8017C9AC(this);
         atn::Vector3 dir;
-        dir = camera->mCamera.mTarget - camera->mCamera.mPos;
-        dir.Normalize_unk();
+        ViewDir_unk(dir, camera);
         float range = 800.0f > mStatus.mParamB.m28 ? 800.0f : mStatus.mParamB.m28;
         atn::Vector3 start;
         atn::VecAssign_unk(start, from);
