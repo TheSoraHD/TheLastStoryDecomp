@@ -123,3 +123,4 @@ Una fila por rama mergeada en `main`. El detalle (resultado por unidad, decision
 | `decisiones-20261115` (decisiones de cabeceras-20261114: push_back original, cola M) | 2026-11-15 | 15460 / 18109 | +10, lost 0, 10 bajadas de registros aceptadas; `docs/decisiones-20261115.md` |
 | `ceros-20261115` (10 h, hasta 4 agentes, 15 colas; funciones al 0 % y gameplay) | 2026-11-15 | 15547 / 18109 | +87, lost 0, sin bajadas; 0 % 199 -> 150; rep100 138 -> 35, labelcheck 20 -> 16; `docs/ceros-20261115.md` |
 | `parches-20261115` (parches qK, qL-redmp y qJ de ceros-20261115, aprobados) | 2026-11-15 | 15550 / 18109 | +3, lost 0, 8 bajadas de fuzzy aceptadas; 0 % 150 -> 149; rep100 34; `docs/ceros-20261115.md` |
+| `enlazar-20261115` (10 h, hasta 4 agentes, 26 colas; enlazar unidades) | 2026-11-15 | 15631 / 18109 | +81, lost 0, sin bajadas; datos enlazados 67,45 -> 74,57 % (+101944 B), unidades 670 -> 697; rep100 34; `docs/enlazar-20261115.md` |
