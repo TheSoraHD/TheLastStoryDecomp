@@ -830,7 +830,8 @@ void CharaTask::fn_801371AC() {
             strcpy(path, csv.fn_8005B9CC());
             mMotion.fn_80097A88(fn_802180A8(csv.fn_8005B9CC()), path);
         } else if (strcmp(key, "MOTION_SET") == 0) {
-            std::string path(csv.fn_8005B9CC());
+            const char* n = csv.fn_8005B9CC();
+            std::string path(n);
             fn_8006AD24(path, "mchr");
             if (path.find("na000_00.mchr") != std::string::npos && IsTownField_unk()) {
                 path = fn_8006B0C8(path) + "/na000_00_town.mchr";

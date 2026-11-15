@@ -699,7 +699,7 @@ extern "C" void fn_8008BD10(atn::ModelBase* model) {
         model->fn_8008C62C(i);
     }
     if ((model->mFlags & 0x200) == 0x200) {
-        void* folder = ModelFolder_unk(model->m210, fn_8006B174(std::string(model->fn_8008B130())).c_str());
+        void* folder = ModelFolder_unk(model->m210, fn_8006B174(std::string(model->mLods[0].mHandle.fn_80473F18())).c_str());
         for (unsigned int i = 0; i < model->m104.mMaterials.size(); i++) {
             const char* matched = 0;
             if (model->mFC.fn_80473EFC() == 3) {

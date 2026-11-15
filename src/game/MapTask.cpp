@@ -731,7 +731,6 @@ MapInstance_unk* MapTask::fn_804A0614(const std::string& name) {
     return 0;
 }
 
-// NONMATCHING: 99.91% - string and length registers of the type-0 std::string swapped (as fn_804A0BCC)
 // inferred: part of type `type` (models and locator sets) whose file name is the one of `name`
 MapPartsBase* MapTask::fn_804A06B4(int type, const char* name) {
     if (type == -1) {
@@ -741,7 +740,8 @@ MapPartsBase* MapTask::fn_804A06B4(int type, const char* name) {
     for (MapPartsBase* part = mParts; part != 0; part = part->mNext) {
         if (type == part->mType) {
             if (type == 0) {
-                std::string file = fn_8006B2D8(fn_8006B174(std::string(((MapPartsModel*)part)->mModel.fn_8008B130())));
+                const char* n = ((MapPartsModel*)part)->mModel.fn_8008B130();
+                std::string file = fn_8006B2D8(fn_8006B174(std::string(n)));
                 if (file == key) {
                     return part;
                 }
@@ -755,8 +755,6 @@ MapPartsBase* MapTask::fn_804A06B4(int type, const char* name) {
     }
     return 0;
 }
-// NONMATCHING: 99.80% - string and length registers of the type-0 std::string swapped (as in the
-// MapPartsLocatorSet constructor)
 // inferred: part of type `type` (models and locator sets) whose file name has the hash `hash`
 MapPartsBase* MapTask::fn_804A0BCC(int type, unsigned int hash) {
     if (type == -1) {
@@ -765,7 +763,8 @@ MapPartsBase* MapTask::fn_804A0BCC(int type, unsigned int hash) {
     for (MapPartsBase* part = mParts; part != 0; part = part->mNext) {
         if (type == part->mType) {
             if (type == 0) {
-                std::string file = fn_8006B2D8(fn_8006B174(std::string(((MapPartsModel*)part)->mModel.fn_8008B130())));
+                const char* n = ((MapPartsModel*)part)->mModel.fn_8008B130();
+                std::string file = fn_8006B2D8(fn_8006B174(std::string(n)));
                 if (hash == fn_800DC6B4(file.c_str())) {
                     return part;
                 }
