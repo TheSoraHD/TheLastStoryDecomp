@@ -372,84 +372,144 @@ void QuadrupedTask::fn_80567424(CharaTask* target) {
     }
 }
 
+// The original calls every inline helper and AI state of fn_805675FC out of line (over the inline budget);
+// these empty asserts in a helper that it calls carry the missing cost.
+#define QUAD_ASSERT_UNK(x) ((void)0)
+// inferred: fabs (weak copy 0x80011220, as in Event/Puppeteer_CharaTask.cpp)
+extern "C" inline float fn_80011220(float x) {
+    QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0); 
+    QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0); 
+    QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0); 
+    QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0); 
+    QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0); 
+    QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0); 
+    QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0); 
+    QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0); 
+    QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0); 
+    QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0); 
+    QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0); 
+    QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0); 
+    QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0); 
+    QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0); 
+    QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0); 
+    QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0); 
+    QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0); 
+    QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0); 
+    QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0); 
+    QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0); 
+    QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0); 
+    QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0); 
+    QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0); 
+    QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0); 
+    QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0); 
+    QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0); 
+    QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0); 
+    QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0); 
+    QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0); 
+    QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0); 
+    QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0); 
+    QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0); 
+    QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0); 
+    QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0); 
+    QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0); 
+    QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0); 
+    QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0); 
+    QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0); 
+    QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0); 
+    QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0); 
+    QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0); 
+    QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0); 
+    QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0); 
+    QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0); 
+    QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0); 
+    QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0); 
+    QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0); 
+    QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0); 
+    QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0); 
+    QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0); 
+    QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0); 
+    QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0); 
+    QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0); 
+    QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0); 
+    QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0); 
+    QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0); 
+    QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0); 
+    QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0); 
+    QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0); 
+    QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0);     QUAD_ASSERT_UNK(0); 
+    double r = __fabs(x);
+    return r;
+}
+
 // inferred: moves the character with the AI state (mC58) or along the route
-// NONMATCHING: 0% - the original rejects every inline candidate (R3 of docs/inlining.md: Vector3 copies, WrapAngle_unk, DegToRad_unk x8, Abs, Length_unk, GetNormalize, ToRotation_unk and the AI states are all called with bl), ours inlines the AI states 0-2 and the helpers; this also shifts the .sdata2 pool (1.309 = 75 degrees) of every later function
 void QuadrupedTask::fn_805675FC() {
     atn::Vector3 rot(mRot);
     float speed = 0.0f;
+    float scale = 1.0f;
     if (m55C == 0 || m55C == 5 || m55C == 9 || mFlag2) {
         rot = mRot;
-    } else {
-        switch (m55C) {
-        case 1:
-            rot = mRot;
+    } else if (m55C == 1) {
+        rot = mRot;
+    } else if (m55C == 4) {
+        speed = 0.0f;
+        rot = mRot;
+        if (mC58.m00 == 0) {
+            fn_80567424(this);
+        }
+        fn_80567424(this);
+        switch (mC58.mMode) {
+        case 0:
+            fn_80568EE0(&speed, &rot);
             break;
-        case 4: {
+        case 1:
+            fn_80568F10(&speed, &rot);
+            break;
+        case 2:
+            fn_805693CC(&speed, &rot);
+            break;
+        case 3:
+            fn_80569660(&speed, &rot);
+            break;
+        case 4:
+            fn_8056A03C(&speed, &rot);
+            break;
+        }
+        float diff = atn::WrapAngle_unk(rot.y - mRot.y);
+        if ((unsigned short)(mC58.mMode - 3) <= 1) {
+            if (fn_80011220(diff) >= atn::DegToRad_unk(75.0f)) {
+                fn_8016D454(diff);
+                return;
+            }
+        } else if (mC58.mMode == 1) {
+            if (fn_80011220(diff) >= atn::DegToRad_unk(45.0f)) {
+                float a = atn::DegToRad_unk(90.0f) < diff ? atn::DegToRad_unk(90.0f) : diff;
+                float b = atn::DegToRad_unk(-90.0f) > a
+                              ? atn::DegToRad_unk(-90.0f)
+                              : (atn::DegToRad_unk(90.0f) < diff ? atn::DegToRad_unk(90.0f) : diff);
+                fn_8016D454(b);
+                return;
+            }
+        }
+    } else if (m55C == 7) {
+        if (mStatus.fn_80139F4C()) {
             speed = 0.0f;
             rot = mRot;
-            if (mC58.m00 == 0) {
-                fn_80567424(this);
-            }
-            fn_80567424(this);
-            switch (mC58.mMode) {
-            case 0:
-                fn_80568EE0(&speed, &rot);
-                break;
-            case 1:
-                fn_80568F10(&speed, &rot);
-                break;
-            case 2:
-                fn_805693CC(&speed, &rot);
-                break;
-            case 3:
-                fn_80569660(&speed, &rot);
-                break;
-            case 4:
-                fn_8056A03C(&speed, &rot);
-                break;
-            }
-            short mode = mC58.mMode;
-            float diff = atn::WrapAngle_unk(rot.y - mRot.y);
-            if ((unsigned short)(mode - 3) <= 1) {
-                if (atn::Abs_unk(diff) >= atn::DegToRad_unk(75.0f)) {
-                    fn_8016D454(diff);
-                    return;
-                }
-            } else if (mode == 1) {
-                if (atn::Abs_unk(diff) >= atn::DegToRad_unk(45.0f)) {
-                    float a = diff > atn::DegToRad_unk(90.0f) ? atn::DegToRad_unk(90.0f) : diff;
-                    float b = atn::DegToRad_unk(-90.0f) > a
-                                  ? atn::DegToRad_unk(-90.0f)
-                                  : (diff > atn::DegToRad_unk(90.0f) ? atn::DegToRad_unk(90.0f) : diff);
-                    fn_8016D454(b);
-                    return;
-                }
-            }
-            break;
-        }
-        case 7:
-            if (mStatus.fn_80139F4C()) {
-                speed = 0.0f;
-                rot = mRot;
+        } else {
+            mRoute.fn_80126214();
+            atn::Vector3 v(*mRoute.fn_80139F58());
+            speed = v.Length_unk();
+            if (speed > 0.0001f) {
+                rot = v.GetNormalize().ToRotation_unk();
             } else {
-                mRoute.fn_80126214();
-                atn::Vector3 v(*mRoute.fn_80139F58());
-                speed = v.Length_unk();
-                if (speed > 0.0001f) {
-                    rot = v.GetNormalize().ToRotation_unk();
-                } else {
-                    rot = mRot;
-                }
+                rot = mRot;
             }
-            break;
-        case 6:
-            fn_8013A258();
-            return;
-        default:
-            return;
         }
+    } else if (m55C == 6) {
+        fn_8013A258();
+        return;
     }
-    vf34(rot, 0, speed, 1.0f * mStatus.fn_8012DB04());
+    scale *= mStatus.fn_8012DB04();
+    vf34(rot, 0, speed, scale);
 }
 
 void QuadrupedTask::vf34(const atn::Vector3& rot, int arg, float a, float b) {
