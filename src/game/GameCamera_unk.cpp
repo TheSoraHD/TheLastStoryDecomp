@@ -2952,8 +2952,6 @@ void GameCamera::fn_8038C070(const CharaTask* chara) {
 // inferred: low camera beside the character (50 above it, m648.m0C to the side) looking at 12 above it; the target and
 // the fovy (m7B0.m04) are blended in 10 frames; then back to the sub mode with m83C = 6. The eye position is
 // computed but not used
-// NONMATCHING: 99.6% - float registers of the negated front (the original keeps -y and -x in the registers of y
-// and x and loads 50.0f into f5); tried the unary minus, the vector built in place and other statement orders
 void GameCamera::fn_8038C5B0(const CharaTask* chara) {
     if (m808 == 0) {
         m80C = mCamera.mPos;
@@ -2970,7 +2968,8 @@ void GameCamera::fn_8038C5B0(const CharaTask* chara) {
     PSMTXMultVec(m.m, &front, &front);
     front = Negate_unk(front);
     pos = chara->mPos;
-    pos.y += 50.0f;
+    float height = 50.0f;
+    pos.y += height;
     float side = m648.m0C;
     pos += Cross_unk(front, up) * side;
     target = chara->mPos;
