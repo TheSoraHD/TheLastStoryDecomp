@@ -534,7 +534,6 @@ void fn_80511668(int a, int b, int c);
 void fn_80511704();
 void fn_8051170C();
 
-// NONMATCHING: 78.8% - the bit fields of the D2A task and the casts of GetTask()
 extern "C" void fn_805113E8(atn::D3Anime* anime, int visible, int loop, float frame, float speed) {
     if (anime != 0) {
         anime->fn_800D246C(0);
@@ -544,26 +543,34 @@ extern "C" void fn_805113E8(atn::D3Anime* anime, int visible, int loop, float fr
             task->mRepeat = loop;
             ((atn::D2A_Task*)anime->GetTask())->mSpeed = speed;
             ((atn::D2A_Task*)anime->GetTask())->mFrame = frame;
-            ((atn::D2A_Task*)anime->GetTask())->mData.m9C = (void (*)(atn::D2A_Common*, atn::D2A_DrawColor*, void*))fn_80511668;
-            ((atn::D2A_Task*)anime->GetTask())->mData.mA0 = (void*)fn_80511704;
-            ((atn::D2A_Task*)anime->GetTask())->mData.mA4 = (int)fn_8051170C;
+            // inferred: one task pointer per callback (GetTask() is called before each address is loaded)
+            atn::D2A_Task* t0 = (atn::D2A_Task*)anime->GetTask();
+            t0->mData.m9C = (void (*)(atn::D2A_Common*, atn::D2A_DrawColor*, void*))fn_80511668;
+            atn::D2A_Task* t1 = (atn::D2A_Task*)anime->GetTask();
+            t1->mData.mA0 = (void*)fn_80511704;
+            atn::D2A_Task* t2 = (atn::D2A_Task*)anime->GetTask();
+            t2->mData.mA4 = (int)fn_8051170C;
         }
     }
 }
 
-// NONMATCHING: 72.9% - see fn_805113E8
 extern "C" void fn_805114D4(atn::D3AnimeInstance* anime, int visible, int loop, float frame, float speed) {
     typedef atn::D2A_TaskInstanceBase<32, 8> Inst;
     if (anime != 0) {
         anime->fn_800D246C(0);
         anime->mVisible = visible;
         if (anime->GetTask() != 0) {
-            ((Inst*)anime->GetTask())->mLoop = loop != 0;
+            Inst* tl = (Inst*)anime->GetTask();
+            tl->mLoop = loop != 0;
             ((Inst*)anime->GetTask())->mSpeed = speed;
             ((Inst*)anime->GetTask())->mFrame = frame;
-            ((Inst*)anime->GetTask())->GetData()->m9C = (void (*)(atn::D2A_Common*, atn::D2A_DrawColor*, void*))fn_80511668;
-            ((Inst*)anime->GetTask())->GetData()->mA0 = (void*)fn_80511704;
-            ((Inst*)anime->GetTask())->GetData()->mA4 = (int)fn_8051170C;
+            // inferred: one data pointer per callback (as in fn_805113E8)
+            atn::D2A_Data* d0 = ((Inst*)anime->GetTask())->GetData();
+            d0->m9C = (void (*)(atn::D2A_Common*, atn::D2A_DrawColor*, void*))fn_80511668;
+            atn::D2A_Data* d1 = ((Inst*)anime->GetTask())->GetData();
+            d1->mA0 = (void*)fn_80511704;
+            atn::D2A_Data* d2 = ((Inst*)anime->GetTask())->GetData();
+            d2->mA4 = (int)fn_8051170C;
         }
     }
 }
