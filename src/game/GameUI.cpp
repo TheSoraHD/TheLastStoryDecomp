@@ -6526,9 +6526,15 @@ void GameUI::fn_803E6850(CharaTask* chara, int count, int max, int arg) {
     }
 }
 
+// inferred: number of skill icons (read through a const inline: the original reloads it for the slot)
+static inline unsigned int GameUIIconCount_unk(const GameUI::W2568_unk* a) {
+    return a->m00;
+}
+
 // inferred: adds the icon of a skill that hit (SkillEffectManager)
-// NONMATCHING: 98.5% - the original reloads the count for the new slot after the search loop (and so
-// allocates r7/r8/r9 differently); tried Find/Push/Full inlines on the list (6 variants)
+// NONMATCHING: 99.2% - registers of the count, the first flag and the icon (r8/r9/r7 in the original); the
+// reload of the count for the slot comes from GameUIIconCount_unk (tried the icon declared first, the inline
+// in the first test or in the loop)
 void GameUI::fn_803E6890(CharaTask* chara, HitInfo_unk* hit) {
     if (m2568.m00 >= 8 || hit == 0) {
         return;
@@ -6596,7 +6602,7 @@ void GameUI::fn_803E6890(CharaTask* chara, HitInfo_unk* hit) {
             return;
         }
     }
-    new (&m2568.m[m2568.m00]) GameUIElem0C_unk(icon, chara, hit);
+    new (&m2568.m[GameUIIconCount_unk(&m2568)]) GameUIElem0C_unk(icon, chara, hit);
     m2568.m00++;
     if (first && m2564 != 0) {
         m2564->mFrame = 0.0f;
@@ -6626,7 +6632,13 @@ void GameUI::fn_803E6BB4(CharaTask* id) {
     }
 }
 
-// NONMATCHING: 90.4% - the original reloads the count for the slot and stores the temporary after it
+// inferred: number of timed entries (name invented)
+static inline unsigned int GameUIEntryCount_unk(const FixedArray_unk<GameUIEntry_unk, 32>* a) {
+    return a->mCount;
+}
+
+// inferred: the slot is indexed with the count read through a const inline (the original reloads it there
+// and keeps the loop count for the capacity test)
 void GameUI::fn_803E6BF0(unsigned int id, int value) {
     for (unsigned int i = 0; i < m3F0.mCount; i++) {
         unsigned int v = m3F0.mData[i].m08;
@@ -6638,10 +6650,11 @@ void GameUI::fn_803E6BF0(unsigned int id, int value) {
     }
     if (m3F0.mCount < 32) {
         GameUIEntry_unk e;
-        e.m00 = value;
         e.mFrames = 0;
+        e.m00 = value;
         e.m08 = id;
-        m3F0.PushBack_unk(e);
+        new (&m3F0.mData[GameUIEntryCount_unk(&m3F0)]) GameUIEntry_unk(e);
+        m3F0.mCount++;
     }
 }
 
