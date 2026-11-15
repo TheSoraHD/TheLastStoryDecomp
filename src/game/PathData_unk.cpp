@@ -2,19 +2,24 @@
 // "pos_y", "pos_z" and "rot_y" keys of their points.
 #include "Event/Node.h"
 #include "Event/Sequence.h"
+#include "Event/PathSpline.h"
 #include "math/Vec.h"
 #include "std/vector.h"
 
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 
-// inferred: cubic of one segment and axis: a0 + a1 u + a2 u^2 + a3 u^3
-struct PathCubic_unk {
-    float Eval_unk(float u) const { return u * (u * (m3 * u + m2) + m1) + m0; }
-    float m0;
-    float m1;
-    float m2;
-    float m3;
-};
+// inferred: cubic of one segment and axis (the class of Event::PathSpline_unk: the weak vector code of the
+// spline is shared with game/Em403WarLion.cpp)
+using Event::PathCubic_unk;
+// inferred: value of the cubic at `u` (this file evaluates it from the highest power)
+inline float EvalCubic_unk(const PathCubic_unk& c, float u) { return u * (u * (c.m3 * u + c.m2) + c.m1) + c.m0; }
+// inferred: clear of a vector of elements without destructor (as PathVec_unk::Clear_unk)
+template <class T>
+inline void ClearVec_unk(std::vector<T>& v) {
+    unsigned int n = v.mSize;
+    unsigned int& size = v.mSize;
+    size -= n;
+}
 
 // inferred: std::vector layout (data, size, capacity)
 template <class T>
@@ -64,65 +69,55 @@ struct PathPoint_unk {
 
 struct PathSpline_unk;
 // inferred: helpers of the spline (another unit; C names)
-extern "C" void fn_8032B314(PathVec_unk<PathCubic_unk>* v, int n); // inferred: resize
-extern "C" void fn_8032B6F8(PathVec_unk<float>* v, int n);         // inferred: vector<float>(n)
-extern "C" void fn_8000D844(PathVec_unk<float>* v, int flag);      // inferred: ~vector<float>
 extern "C" void fn_8032B7F0(PathSpline_unk* spline, const float* values, PathCubic_unk* cubics); // inferred: solve
-extern "C" void fn_8032BE88(PathVec_unk<float>* v, int n);         // inferred: resize
 extern "C" float fn_8032C1EC(PathSpline_unk* spline, int i);       // inferred: length of a segment
 
 // inferred: natural cubic spline through the points (names invented)
 struct PathSpline_unk {
     void Build_unk(const atn::Vector3* pts, int n) {
         mNumSegments = n;
-        fn_8032B314(&mX, n - 1);
-        fn_8032B314(&mY, n - 1);
-        fn_8032B314(&mZ, n - 1);
-        PathVec_unk<float> zs;
-        PathVec_unk<float> ys;
-        PathVec_unk<float> xs;
-        fn_8032B6F8(&xs, n);
-        fn_8032B6F8(&ys, n);
-        fn_8032B6F8(&zs, n);
+        mX.resize(n - 1);
+        mY.resize(n - 1);
+        mZ.resize(n - 1);
+        Event::PathLengths_unk xs(n);
+        Event::PathLengths_unk ys(n);
+        Event::PathLengths_unk zs(n);
         for (int i = 0; i < n; i++) {
-            xs.mData[i] = pts[i].x;
-            ys.mData[i] = pts[i].y;
-            zs.mData[i] = pts[i].z;
+            xs.begin()[i] = pts[i].x;
+            ys.begin()[i] = pts[i].y;
+            zs.begin()[i] = pts[i].z;
         }
-        fn_8032B7F0(this, xs.Data_unk(), mX.Data_unk());
-        fn_8032B7F0(this, ys.Data_unk(), mY.Data_unk());
-        fn_8032B7F0(this, zs.Data_unk(), mZ.Data_unk());
+        fn_8032B7F0(this, xs.begin(), mX.begin());
+        fn_8032B7F0(this, ys.begin(), mY.begin());
+        fn_8032B7F0(this, zs.begin(), mZ.begin());
         mStart = pts[0];
         mEnd = pts[n - 1];
         mLength = 0.0f;
-        fn_8032BE88(&mLengths, n - 1);
+        mLengths.resize(n - 1);
         for (int i = 0; i < n - 1; i++) {
             mLengths[i] = fn_8032C1EC(this, i);
             mLength += mLengths[i];
         }
-        fn_8000D844(&zs, -1);
-        fn_8000D844(&ys, -1);
-        fn_8000D844(&xs, -1);
     }
     void Clear_unk() {
         mNumSegments = 0;
         mLength = 0.0f;
         mStart = lbl_807C7030;
         mEnd = lbl_807C7030;
-        mX.Clear_unk();
-        mY.Clear_unk();
-        mZ.Clear_unk();
-        mLengths.Clear_unk();
+        ClearVec_unk(mX);
+        ClearVec_unk(mY);
+        ClearVec_unk(mZ);
+        ClearVec_unk(mLengths);
     }
 
     int mNumSegments;                    // 0x00
     float mLength;                       // 0x04
     atn::Vector3 mStart;                 // 0x08
     atn::Vector3 mEnd;                   // 0x14
-    PathVec_unk<PathCubic_unk> mX;       // 0x20
-    PathVec_unk<PathCubic_unk> mY;       // 0x2C
-    PathVec_unk<PathCubic_unk> mZ;       // 0x38
-    PathVec_unk<float> mLengths;         // 0x44
+    std::vector<PathCubic_unk> mX;       // 0x20
+    std::vector<PathCubic_unk> mY;       // 0x2C
+    std::vector<PathCubic_unk> mZ;       // 0x38
+    std::vector<float> mLengths;         // 0x44
 };
 
 // inferred: path data (names invented)
@@ -139,9 +134,9 @@ struct PathData_unk {
             return lbl_807C7030;
         }
         atn::Vector3 p;
-        p.x = mSpline.mX.mData[i].Eval_unk(u);
-        p.y = mSpline.mY.mData[i].Eval_unk(u);
-        p.z = mSpline.mZ.mData[i].Eval_unk(u);
+        p.x = EvalCubic_unk(mSpline.mX.mData[i], u);
+        p.y = EvalCubic_unk(mSpline.mY.mData[i], u);
+        p.z = EvalCubic_unk(mSpline.mZ.mData[i], u);
         return p;
     }
     unsigned char m00[0x04];
@@ -212,7 +207,8 @@ extern "C" void fn_8054875C(PathData_unk* path) {
             for (int i = 0; i < (int)path->mPoints.mSize; i++) {
                 pts[i] = path->mPoints.mData[i].mPos;
             }
-            path->mSpline.Build_unk(&pts[0], pts.size());
+            PathSpline_unk* spline = &path->mSpline;
+            spline->Build_unk(&pts[0], pts.size());
         } else {
             path->mSpline.Clear_unk();
         }

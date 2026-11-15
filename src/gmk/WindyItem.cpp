@@ -147,7 +147,7 @@ inline atn::Vector3 Eval_unk(const gmk::WindyPath_unk& path, float t) {
     }
     float d = path.mScale * t;
     for (int i = 0; i < path.mCount - 1; i++) {
-        float len = path.mLength.mData[i].v;
+        float len = path.mLength.mData[i];
         if (d <= len) {
             float u;
             if (0.0f == d) {
@@ -168,9 +168,9 @@ inline atn::Vector3 Eval_unk(const gmk::WindyPath_unk& path, float t) {
             const gmk::WindyCoef_unk& y = path.mY.mData[i];
             const gmk::WindyCoef_unk& z = path.mZ.mData[i];
             atn::Vector3 r;
-            r.x = x.a + u * (x.b + u * (x.c + x.d * u));
-            r.y = y.a + u * (y.b + u * (y.c + y.d * u));
-            r.z = z.a + u * (z.b + u * (z.c + z.d * u));
+            r.x = x.m0 + u * (x.m1 + u * (x.m2 + x.m3 * u));
+            r.y = y.m0 + u * (y.m1 + u * (y.m2 + y.m3 * u));
+            r.z = z.m0 + u * (z.m1 + u * (z.m2 + z.m3 * u));
             return r;
         }
         d -= len;
@@ -542,18 +542,8 @@ void gmk::WindyItem::fn_804392C0() {
     }
 }
 
-// inferred: raw storage of a std::vector<float> (constructed and destroyed through the weak copies,
-// as PathFloats_unk of Event/ActionActorPosition.cpp)
-struct WindyFloats_unk {
-    float* mData;
-    unsigned int mSize;
-    unsigned int mCap;
-};
 // inferred: helpers of the spline compiled in another file (weak copies, C names as in
 // Event/ActionActorPosition.cpp and game/Em403WarLion.cpp)
-extern "C" void fn_8032B314(std::vector<gmk::WindyCoef_unk>* v, unsigned int n);      // inferred: resize
-extern "C" WindyFloats_unk* fn_8032B6F8(WindyFloats_unk* v, unsigned int n);          // inferred: vector(n)
-extern "C" void fn_8000D844(WindyFloats_unk* v, int flag);                            // inferred: ~vector<float>
 extern "C" void fn_8032B7F0(gmk::WindyPath_unk* path, const float* y, gmk::WindyCoef_unk* out); // inferred: solve
 extern "C" void fn_8032BE88(gmk::WindyLengths_unk* v, unsigned int n);                // inferred: resize
 extern "C" float fn_8032C1EC(gmk::WindyPath_unk* path, int i);                        // inferred: segment length
@@ -561,34 +551,28 @@ extern "C" float fn_8032C1EC(gmk::WindyPath_unk* path, int i);                  
 // inferred: builds the spline through the points (same code as Event::PathSpline_unk::Build_unk)
 inline void gmk::WindyPath_unk::Build_unk(const atn::Vector3* pts, int n) {
     mCount = n;
-    fn_8032B314(&mX, n - 1);
-    fn_8032B314(&mY, n - 1);
-    fn_8032B314(&mZ, n - 1);
-    WindyFloats_unk zs;
-    WindyFloats_unk ys;
-    WindyFloats_unk xs;
-    fn_8032B6F8(&xs, n);
-    fn_8032B6F8(&ys, n);
-    fn_8032B6F8(&zs, n);
+    mX.resize(n - 1);
+    mY.resize(n - 1);
+    mZ.resize(n - 1);
+    Event::PathLengths_unk xs(n);
+    Event::PathLengths_unk ys(n);
+    Event::PathLengths_unk zs(n);
     for (int i = 0; i < n; i++) {
-        xs.mData[i] = pts[i].x;
-        ys.mData[i] = pts[i].y;
-        zs.mData[i] = pts[i].z;
+        xs.begin()[i] = pts[i].x;
+        ys.begin()[i] = pts[i].y;
+        zs.begin()[i] = pts[i].z;
     }
-    fn_8032B7F0(this, xs.mData, mX.begin());
-    fn_8032B7F0(this, ys.mData, mY.begin());
-    fn_8032B7F0(this, zs.mData, mZ.begin());
+    fn_8032B7F0(this, xs.begin(), mX.begin());
+    fn_8032B7F0(this, ys.begin(), mY.begin());
+    fn_8032B7F0(this, zs.begin(), mZ.begin());
     mStart = pts[0];
     mEnd = pts[n - 1];
     mScale = 0.0f;
-    fn_8032BE88(&mLength, n - 1);
+    mLength.resize(n - 1);
     for (int i = 0; i < n - 1; i++) {
-        mLength[i].v = fn_8032C1EC(this, i);
-        mScale += mLength[i].v;
+        mLength[i] = fn_8032C1EC(this, i);
+        mScale += mLength[i];
     }
-    fn_8000D844(&zs, -1);
-    fn_8000D844(&ys, -1);
-    fn_8000D844(&xs, -1);
 }
 
 // inferred: segment [a, b] (name invented)

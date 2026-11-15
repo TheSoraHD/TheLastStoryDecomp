@@ -1727,27 +1727,27 @@ atn::Vector3 Em403WarLion::fn_8032A894(int id, int* next) {
 // NONMATCHING: 97.80% - r30/r31 of the points and the count swapped, and the order of the two loads of the
 // points (the PathData_unk.cpp version of this builder has the same residue)
 extern "C" void fn_8032AF90(WarLionPath_unk* path, std::vector<atn::Vector3>* pts); // inferred: builds the path
-// NONMATCHING: 99.96% - only the message of __allocate (lbl_80779F68, a pool of another file)
-extern "C" void fn_8032B314(std::vector<WarLionCubic_unk>* v, unsigned int n); // inferred: resize
 // NONMATCHING: 87.22% - register allocation of the unrolled back substitution and of the three vectors
 extern "C" void fn_8032B7F0(WarLionPath_unk* path, const float* y, WarLionCubic_unk* out); // inferred: solve
-// NONMATCHING: 99.86% - the capacity of the dead __recommend_cap_unk in r28 instead of r31, and the message
-// of __allocate (lbl_80775A88)
-extern "C" void fn_8032BE88(std::vector<float>* v, unsigned int n);         // inferred: resize
 // NONMATCHING: 99.83% - r27/r28 of the two points swapped
 extern "C" float fn_8032C1EC(WarLionPath_unk* path, int i);                 // inferred: segment length
 
 // inferred: instantiated here (weak copies 0x8032AB90 and 0x8032ABA4, right after their first use)
 template std::vector<atn::Vector3>::vector();
 template std::vector<atn::Vector3>::~vector();
+// inferred: weak copy 0x8032B314, right after fn_8032AF90 (99.96%: only the message of __allocate,
+// lbl_80779F68, a pool of another file). The resize of the lengths (std::vector<float>, weak copy 0x8032BE88)
+// follows fn_8032B7F0 by itself (99.86%: the capacity of the dead __recommend_cap_unk in r28 instead of r31,
+// and the message of __allocate, lbl_80775A88)
+template void std::vector<WarLionCubic_unk>::resize(unsigned int);
 
 // inferred: builds the spline through the points (one cubic per segment and axis, then the lengths)
 // inferred: same code as PathSpline_unk::Build_unk of game/PathData_unk.cpp
 inline void WarLionBuild_unk(WarLionPath_unk* path, const atn::Vector3* pts, int n) {
     path->m00 = n;
-    fn_8032B314(&path->m20, n - 1);
-    fn_8032B314(&path->m2C, n - 1);
-    fn_8032B314(&path->m38, n - 1);
+    path->m20.resize(n - 1);
+    path->m2C.resize(n - 1);
+    path->m38.resize(n - 1);
     Event::PathLengths_unk xs(n);
     Event::PathLengths_unk ys(n);
     Event::PathLengths_unk zs(n);
@@ -1762,7 +1762,7 @@ inline void WarLionBuild_unk(WarLionPath_unk* path, const atn::Vector3* pts, int
     path->m08 = pts[0];
     path->m14 = pts[n - 1];
     path->m04 = 0.0f;
-    fn_8032BE88(&path->m44, n - 1);
+    path->m44.resize(n - 1);
     for (int i = 0; i < n - 1; i++) {
         path->m44[i] = fn_8032C1EC(path, i);
         path->m04 += path->m44[i];
@@ -1773,10 +1773,6 @@ extern "C" inline void fn_8032AF90(WarLionPath_unk* path, std::vector<atn::Vecto
     int n = list->mSize;
     const atn::Vector3* p = list->mData;
     WarLionBuild_unk(path, p, n);
-}
-
-extern "C" inline void fn_8032B314(std::vector<WarLionCubic_unk>* v, unsigned int n) {
-    v->resize(n);
 }
 
 // inferred: natural cubic spline with unit spacing: tridiagonal system for the first derivatives `c`, then
@@ -1807,10 +1803,6 @@ extern "C" inline void fn_8032B7F0(WarLionPath_unk* path, const float* y, WarLio
         y++;
         out++;
     }
-}
-
-extern "C" inline void fn_8032BE88(std::vector<float>* v, unsigned int n) {
-    v->resize(n);
 }
 
 // inferred: length of segment `i` as the sum of 64 chords

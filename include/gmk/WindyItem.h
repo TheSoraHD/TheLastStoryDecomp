@@ -7,6 +7,7 @@
 #include "game/GimmickCommon.h"
 #include "gmk/ItemSlotAnime.h"
 #include "std/vector.h"
+#include "Event/PathSpline.h"
 
 extern "C" int rand();
 extern "C" atn::Matrix3x4 lbl_807C7060; // inferred: identity matrix
@@ -29,19 +30,13 @@ struct WindyArea_unk {
     atn::Matrix3x4 mMtx;   // 0x34: inferred: box matrix
 };
 
-// inferred: cubic segment of a path (x(t) = a + t * (b + t * (c + t * d))); names invented
-struct WindyCoef_unk {
-    float a, b, c, d;
-};
-
-// inferred: length of a segment (name invented)
-struct WindyLength_unk {
-    float v;
-};
+// inferred: cubic segment of a path (the class of Event::PathSpline_unk: the weak vector code of the spline
+// is shared with game/Em403WarLion.cpp)
+typedef Event::PathCubic_unk WindyCoef_unk;
 
 // inferred: one more class level than the other vectors (four null tests in the destructor of
-// WindySlot_unk); name invented
-struct WindyLengths_unk : public std::vector<WindyLength_unk> {};
+// WindySlot_unk); name invented. Lengths of the segments (std::vector<float>: resize 0x8032BE88)
+struct WindyLengths_unk : public std::vector<float> {};
 
 // inferred: path followed by a blown item; 0x5C bytes. Names invented.
 struct WindyPath_unk {
