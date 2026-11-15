@@ -6300,15 +6300,19 @@ void GameUI::fn_803E5C60(CharaTask* chara) {
     }
 }
 
-// NONMATCHING: 99.7% - r5/r6 of the message kind and of the value of kind 11 swapped (locals for both, int
-// and bool flag, declaration orders: 10 variants)
+// inferred: value of the effect of an item (float field read as int; name invented)
+static inline int GameUIItemValue_unk(const GameUIItem_unk* item) {
+    return item->mB8;
+}
+
+// inferred: the value of the item is read through a const inline (registers of the original)
 void GameUI::fn_803E5E64(int itemId, int count, int rare) {
     GameUIItem_unk* item = itemId > 0 ? fn_80211480(itemId) : 0;
     if (item != 0 && count != 0) {
         wchar_t text[0x100];
         int plural = item->m64 == 2;
         if (item->mB4 != 0) {
-            int value = item->mB8;
+            int value = GameUIItemValue_unk(item);
             switch (item->mB4) {
             case 1:
                 if (plural) {
