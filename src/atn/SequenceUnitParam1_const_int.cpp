@@ -63,6 +63,14 @@ struct DebugMap_unk {
     GameTask::Option mOption;
 };
 
+// inferred: registers the BootTask sequence. Inline and defined first: the boost::function
+// invoker/manager of fn_8010EB58 are emitted at the start of the file (0x805727A4) while the
+// SequenceUnit constructor is emitted with the users of fn_80572BA0; the name comes from the
+// constructor so that "BootTask" stays in @stringBase0 (an inline puts it in @STRING@)
+inline void SequenceBoot_unk::RegistBoot_unk(const char* name) {
+    mHolders[0]->Regist_unk(SequenceHolder::SequenceUnit(name, fn_8010EB58));
+}
+
 // inferred: debug start callback of "Noon Town"
 static void fn_8057285C(void* field) {
     ((GameTask*)field)->fn_80370320(0x14, 0x64, 0);
@@ -71,22 +79,6 @@ static void fn_8057285C(void* field) {
 }
 
 SequenceBoot_unk* sSequenceBoot_unk;
-
-// inferred: not inline (its literals are in @stringBase0); always inlined, the copy is stripped
-SequenceBoot_unk::SequenceBoot_unk(Task* parent) : mParent(parent) {
-    mHolders[0] = new ((MemoryTag)1, "", "", 0) SequenceHolder;
-    mHolders[1] = new ((MemoryTag)1, "", "", 0) SequenceHolder;
-    mHolders[2] = new ((MemoryTag)1, "", "", 0) SequenceHolder;
-    mHolders[3] = new ((MemoryTag)1, "", "", 0) SequenceHolder;
-    SequenceControl::fn_800C3610(mParent, mHolders[0]);
-    if (lbl_8087F0A8->mBootMode == 2) {
-        mHolders[0]->Regist_unk(SequenceHolder::SequenceUnit("BootTask", fn_8010EB58));
-    } else {
-        fn_80572BA0();
-    }
-    fn_80574918();
-    SetNext_unk("BootTask");
-}
 
 void SequenceBoot_unk::Create_unk(Task* parent) {
     if (sSequenceBoot_unk == 0) {
@@ -215,6 +207,23 @@ void SequenceBoot_unk::fn_80572BA0() {
     mHolders[0]->Regist_unk(SequenceHolder::SequenceUnitParam1<const GameTask::Option>(
         "Game", fn_80365708, GameTask::Option(2, 4, 1, 0x18A88, -1, 1, 0)));
     mHolders[0]->Regist_unk(SequenceHolder::SequenceUnit("BootTask", fn_8010EB58));
+}
+
+// inferred: not inline (its literals are in @stringBase0); defined after its caller Create_unk, which
+// inlines it, so that no out-of-line copy and no weak copies are emitted here (order of the .dol)
+SequenceBoot_unk::SequenceBoot_unk(Task* parent) : mParent(parent) {
+    mHolders[0] = new ((MemoryTag)1, "", "", 0) SequenceHolder;
+    mHolders[1] = new ((MemoryTag)1, "", "", 0) SequenceHolder;
+    mHolders[2] = new ((MemoryTag)1, "", "", 0) SequenceHolder;
+    mHolders[3] = new ((MemoryTag)1, "", "", 0) SequenceHolder;
+    SequenceControl::fn_800C3610(mParent, mHolders[0]);
+    if (lbl_8087F0A8->mBootMode == 2) {
+        RegistBoot_unk("BootTask");
+    } else {
+        fn_80572BA0();
+    }
+    fn_80574918();
+    SetNext_unk("BootTask");
 }
 
 void SequenceBoot_unk::fn_80574918() {

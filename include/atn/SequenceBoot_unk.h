@@ -16,6 +16,7 @@ public:
     void SetNext_unk(const char* name); // inferred: goes to the named sequence
     void fn_80572BA0();
     void fn_80574918();
+    void RegistBoot_unk(const char*);
 
     atn::Task* mParent;                // 0x00
     atn::SequenceHolder* mHolders[4];  // 0x04
