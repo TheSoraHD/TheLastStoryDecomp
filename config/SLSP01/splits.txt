@@ -1389,6 +1389,7 @@ db/MotionCommandCommon.cpp:
 	.text       start:0x80218720 end:0x802188B4
 	.rodata     start:0x80742330 end:0x80742370
 	.data       start:0x807830C0 end:0x807830F8
+	.sbss       start:0x8087F2A8 end:0x8087F2B0
 	.sdata2     start:0x80882F40 end:0x80882F48
 
 db/PlayerPriority_unk.cpp:
@@ -2053,8 +2054,8 @@ game/GameLoadTask.cpp:
 	.rodata     start:0x8074FB78 end:0x8074FC08
 	.data       start:0x8078B3A0 end:0x8078B400
 	.bss        start:0x807C84F0 end:0x807C8600
-	.sdata      start:0x8087DD68 end:0x8087DD70
-	.sbss       start:0x8087F458 end:0x8087F460
+	.sdata      start:0x8087DD60 end:0x8087DD70
+	.sbss       start:0x8087F458 end:0x8087F468
 	.sdata2     start:0x80885C00 end:0x80885C18
 
 game/GameLoadBackground.cpp:
@@ -3199,6 +3200,7 @@ game/NpcManager.cpp:
 	.text       start:0x805477C8 end:0x80547C28
 	.rodata     start:0x8075E380 end:0x8075E398
 	.data       start:0x80794738 end:0x80794780
+	.sbss       start:0x8087F890 end:0x8087F898
 
 game/NpcTask.cpp:
 	.text       start:0x80547C28 end:0x80547EA0
@@ -3298,6 +3300,7 @@ game/ReplayBuffer.cpp:
 game/GameSystem_unk.cpp:
 	.text       start:0x80570B48 end:0x8057162C
 	.rodata     start:0x8075FFB0 end:0x8075FFB8
+	.sbss       start:0x8087F9A0 end:0x8087F9A8
 	.sdata2     start:0x80888058 end:0x80888060
 
 game/SelectMember.cpp:

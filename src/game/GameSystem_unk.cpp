@@ -31,6 +31,11 @@ extern "C" atn::Task* lbl_8087F530; // inferred: root task (parent of the fade)
 
 #include "game/ErrorManager.h"
 
+// inferred: the ResetShutdown instance is defined here (just before this unit in the .sbss of the .dol)
+extern "C" {
+ResetShutdown* lbl_8087F9A0;
+}
+
 // inferred: game settings (lbl_8087F0A8), only the member read here
 struct GameSettings_unk {
     unsigned char m000[0x194];
