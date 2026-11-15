@@ -44,9 +44,6 @@ public:
     void fn_803FB870(const atn::Vector3* pos, CharaTask* owner, int flag); // inferred: explodes
     void fn_803FBC34(const atn::Vector3* pos); // inferred: hits a wall while thrown
     void SetM520_unk(unsigned char value) { m520 = value; } // inferred: name invented
-    // inferred: name invented; its out-of-line copy has the code (and the address) of
-    // CharaObj1208_unk::fn_8013A18C, which is probably the same accessor
-    int IsShown_unk() const { return m9C; }
 
     atn::Model mModel;              // 0xF4: "MODEL"
     GimmickDesc_unk* mDesc;        // 0x4C4

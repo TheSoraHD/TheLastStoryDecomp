@@ -218,6 +218,10 @@ public:
     void fn_803EDB0C(GimmickUvOwner_unk* owner, GimmickUvTable_unk* table);
     void fn_803EDB18(atn::Model* model);                 // inferred: UV scroll
     void fn_803EDCF4();                                 // inferred: debug draw
+    // inferred: accessors of m54 and m9C; copies at 0x8013A184/0x8013A18C in game/CharaTask (called on
+    // CharaTask::m1208), called out of line by gmk::Cannonball::vf10; names keep the addresses
+    int fn_8013A184();
+    int fn_8013A18C();
 
     int mId;           // 0x48: inferred: ids below 1000 are scaled by 1000
     int m4C;

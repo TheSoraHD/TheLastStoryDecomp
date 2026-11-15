@@ -10,6 +10,7 @@
 #include "game/EnemyTask.h"
 #include "game/HitInfo_unk.h"
 #include "game/PlayerTask.h"
+#include "game/PlayerManager.h"
 #include "gmk/Lemon.h"
 #include "game/MapTask.h"
 #include "math/VecAssign_unk.h"
@@ -41,6 +42,9 @@ extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2
 extern "C" void fn_800CB5C8(atn::SoundRef* sound, int frames, int arg); // inferred: stops the sound
 extern "C" void fn_800CB6E4(atn::SoundRef* sound, const atn::Vector3* pos); // inferred: moves the sound
 struct Field_unk {
+    // inferred: weak copy 0x803D6E24 (name from symbols.txt)
+    int GetState_unk() const { return m54E4; }
+
     unsigned char m0000[0x54E4];
     int m54E4; // inferred: state (8-11 while an event runs)
 };
@@ -48,9 +52,6 @@ extern "C" Field_unk* lbl_8087F430;
 // inferred: accessors (weak copies elsewhere; names keep the addresses)
 extern "C" inline Field_unk* fn_80121F00() {
     return lbl_8087F430;
-}
-extern "C" inline int fn_803D6E24(Field_unk* field) {
-    return field->m54E4;
 }
 // inferred: arena (lbl_8087F610)
 struct CannonArena_unk;
@@ -68,17 +69,17 @@ inline int IsArenaBattle_unk() {
     return ret;
 }
 // inferred: character managers and lists (accessors, names keep the addresses)
-extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
+extern "C" PlayerManager* lbl_8087F8A0; // inferred: player manager
 // inferred: link of the character lists of the managers (CharaTask + 0x14AC)
 struct CannonCharaNode_unk {
     unsigned char m0000[0x14AC];
     CharaTask* mNext;
 };
-extern "C" inline CharaManager<PlayerTask>* fn_8000D9E8() {
+extern "C" inline PlayerManager* fn_8000D9E8() {
     return lbl_8087F8A0;
 }
-extern "C" inline CharaTask* fn_8000DCF4(CharaManager<PlayerTask>* mgr) {
-    return mgr->mHead;
+inline PlayerTask* PlayerManager::GetHead_unk() {
+    return mHead;
 }
 extern "C" inline CharaTask* fn_802A36B0(CharaManager<PlayerTask>* mgr) {
     return mgr->mHead;
@@ -328,17 +329,14 @@ void Cannonball::Start() {
     vf40(&msg);
 }
 
-// NONMATCHING: 99.92% - the m9C accessor is called as IsShown_unk (the original calls the copy
-// named CharaObj1208_unk::fn_8013A18C), the boost::function destructor is fn_8000D3A8 in the
-// original, and the radius sums of the case 7 loops use other registers. As in the original,
-// nothing is inlined in this function (the inline budget is exhausted), so the accessors, the
-// Vector3 operators and the helpers are called out of line.
+// As in the original, nothing is inlined in this function (the inline budget is exhausted), so the
+// accessors, the Vector3 operators and the helpers are called out of line.
 void Cannonball::vf10() {
     if (mDesc->m7C == 0) {
         return;
     }
-    if (fn_80121F00() != 0 && (unsigned int)(fn_803D6E24(fn_80121F00()) - 8) <= 3) {
-        if (IsShown_unk() != 0) {
+    if (fn_80121F00() != 0 && (unsigned int)(fn_80121F00()->GetState_unk() - 8) <= 3) {
+        if (fn_8013A18C() != 0) {
             GimmickMsg_unk msg(8);
             vf40(&msg);
             mTimer = 0;
@@ -378,11 +376,11 @@ void Cannonball::vf10() {
         }
         if (mTimer <= 0) {
             if (m54 == 2) {
-                fn_803FB870(&m6C, fn_8000DCF4(fn_8000D9E8()), 1);
+                fn_803FB870(&m6C, fn_8000D9E8()->GetHead_unk(), 1);
             } else if (m54 == 6) {
-                fn_803FB870(&m6C, fn_8000DCF4(fn_8000D9E8()), 1);
+                fn_803FB870(&m6C, fn_8000D9E8()->GetHead_unk(), 1);
             } else {
-                fn_803FB870(&m6C, fn_8000DCF4(fn_8000D9E8()), 0);
+                fn_803FB870(&m6C, fn_8000D9E8()->GetHead_unk(), 0);
             }
             return;
         }
@@ -427,12 +425,12 @@ void Cannonball::vf10() {
                         return;
                     }
                 } else if (mCanExplode != 0) {
-                    fn_803FB870(&res.m04, fn_8000DCF4(fn_8000D9E8()), 0);
+                    fn_803FB870(&res.m04, fn_8000D9E8()->GetHead_unk(), 0);
                     return;
                 }
             }
             if (m6C.y - mDesc->mPos.y < -500.0f) {
-                fn_803FB870(&m6C, fn_8000DCF4(fn_8000D9E8()), 0);
+                fn_803FB870(&m6C, fn_8000D9E8()->GetHead_unk(), 0);
                 return;
             }
             mIgnore = 0;
@@ -449,7 +447,8 @@ void Cannonball::vf10() {
                 for (CharaTask* chara = fn_802A36B0(fn_8000D9E8()); chara != 0; chara = fn_802A4094(chara)) {
                     if (chara->CanAct_unk()) {
                         atn::Vector3 d = *chara->fn_8013C38C() - m6C;
-                        float r = fn_80315644(chara->GetColli_unk())->m18 + 1.0f;
+                        float r = fn_80315644(chara->GetColli_unk())->m18;
+                        r += 1.0f;
                         if (d.LengthSq_unk() < r * r) {
                             fn_803FB870(&m6C, 0, 0);
                         }
@@ -458,7 +457,8 @@ void Cannonball::vf10() {
                 for (CharaTask* chara = fn_801A0408(fn_801A03E0()); chara != 0; chara = fn_801A03EC(chara)) {
                     if (chara->CanAct_unk()) {
                         atn::Vector3 d = *chara->fn_8013C38C() - m6C;
-                        float r = fn_80315644(chara->GetColli_unk())->m18 + 8.0f;
+                        float r = fn_80315644(chara->GetColli_unk())->m18;
+                        r += 8.0f;
                         if (d.LengthSq_unk() < r * r) {
                             fn_803FB870(&m6C, 0, 0);
                         }
@@ -478,7 +478,7 @@ void Cannonball::vf14() {
     if (mDesc->m7C == 0) {
         return;
     }
-    if (fn_80121F00() != 0 && (unsigned int)(fn_803D6E24(fn_80121F00()) - 8) <= 3) {
+    if (fn_80121F00() != 0 && (unsigned int)(fn_80121F00()->GetState_unk() - 8) <= 3) {
         return;
     }
     if (vf38() != 0) {
