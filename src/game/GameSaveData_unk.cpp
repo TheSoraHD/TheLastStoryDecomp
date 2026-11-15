@@ -502,7 +502,6 @@ static inline void RestorePlayer_unk(const GameSavePlayer_unk* entry, PlayerTask
     }
 }
 
-// NONMATCHING: 99.83% - the original loads the id of the entry before the one of the player in the search
 // inferred: restores the players: each one takes the entry with its id (or a free entry with id 0 when it has
 // none), its position, state, ledge and route
 void GameSavePlayers_unk::fn_803BA620() {
@@ -512,7 +511,8 @@ void GameSavePlayers_unk::fn_803BA620() {
     for (PlayerTask* player = lbl_8087F8A0->mHead; player; player = player->mNext) {
         int index = -1;
         for (int i = 0; i < 16; i++) {
-            if ((mEntries[i].mFlags & 1) == 1 && mEntries[i].m04 == player->m58) {
+            GameSavePlayer_unk* e = &mEntries[i];
+            if ((e->mFlags & 1) == 1 && e->m04 == player->m58) {
                 index = i;
                 break;
             }
