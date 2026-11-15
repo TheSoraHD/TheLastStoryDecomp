@@ -338,7 +338,7 @@ __declspec(noinline) float FinishCamera_unk::fn_80379104(XsfCurveSet_unk* curve,
 // the ends; 6 = the same around all of them at once. The camera is then set to the render manager (or the field
 // camera is moved to the target when it is taken over, m394). The curves are added by hand (AddCurve_unk as a
 // candidate puts the function over the inlining budget)
-// NONMATCHING: 94.4% - stack slots and float registers of the temporaries (the original keeps the curve matrices
+// NONMATCHING: 95.2% - stack slots and float registers of the temporaries (the original keeps the curve matrices
 // in r29), five more saved gprs here
 void FinishCamera_unk::fn_803792F0() {
     if (m00 == 0) {
@@ -389,8 +389,8 @@ void FinishCamera_unk::fn_803792F0() {
         target.y += mOffsetY;
         float t = 0.5f * (float)sin(0.5f * (3.1415927f * (2.0f * ((float)(m354 - m350) / (float)m354) - 1.0f))) +
                   0.5f;
-        eye = (m32C - m320) * t + m320;
-        target = (target - m338) * t + m338;
+        eye = FinishLerp_unk(m320, m32C, t);
+        target = FinishLerp_unk(m338, target, t);
         m368->fn_803903E0(&m368->m8A4, 0.62831855f * (1.0f - m3A0) + m39C, 1);
         m350--;
     } else {
