@@ -97,6 +97,12 @@ extern "C" inline atn::Matrix3x4 fn_800109E0(const atn::Vector3& rot) {
     return m;
 }
 
+// inferred: rotation matrix of a pitch and a yaw (name invented; the rotation vector is its temporary, so it goes
+// below the matrices of fn_800109E0 on the stack, as in the original)
+static inline atn::Matrix3x4 RotXY_unk(float x, float y) {
+    return fn_800109E0(atn::Vector3(x, y, 0.0f));
+}
+
 static inline atn::Vector3 Negate_unk(const atn::Vector3& v) {
     return atn::Vector3(-v.x, -v.y, -v.z);
 }
@@ -457,8 +463,8 @@ void GameCamera::fn_8037EF30(int a, int b, float f) {
 // inferred: camera behind the character (or looking from it to its target mFC4/mFC0) at the parameters m51C;
 // with `place` the camera is put there at once (out of the walls), with `reset` the turn speeds mA0C are cleared;
 // `speed` < 0 takes SetConfig::mTurnSpeed
-// NONMATCHING: 99.2% - stack slots: the original puts the temporaries of fn_800109E0 (rotation vector and the
-// z/y/x matrices) in the reverse order (as fn_8038C070)
+// NONMATCHING: 99.96% - registers r3/r4 of the copy of the hit point (pos = result.m10; VecAssign_unk, a named
+// copy or by members: same or worse)
 void GameCamera::fn_8037EF48(CharaTask* chara, int place, int reset, float speed) {
     if (m7FC != 0 && m7FC != 8) {
         return;
@@ -501,7 +507,7 @@ void GameCamera::fn_8037EF48(CharaTask* chara, int place, int reset, float speed
         pos.x = 0.0f;
         pos.y = 0.0f;
         pos.z = 1.0f;
-        atn::Matrix3x4 m = fn_800109E0(atn::Vector3(-m51C.m08, 3.1415927f + chara->mRot.y, 0.0f));
+        atn::Matrix3x4 m = RotXY_unk(-m51C.m08, 3.1415927f + chara->mRot.y);
         PSMTXMultVec(m.m, &pos, &pos);
         pos *= m51C.m00;
         pos += target;
@@ -2901,8 +2907,6 @@ void GameCamera::fn_8038BD78(const CharaTask* chara) {
 // inferred: camera going to the tactical view: m684.m00 behind the point m8A4 (plus the offset m690) turned by
 // the pitch m684.m08 and the yaw -m8A0, looking at m8A4; blended with an eased curve in 45 frames (10 without the
 // field or in its states 7 and 14); then back to the sub mode with m83C = 6
-// NONMATCHING: 98% - stack slots: the original puts the z rotation of fn_800109E0 highest and the x one lowest
-// (reversed here; swapping the temporaries of fn_800109E0 only fixes y and costs fn_803918EC), one more saved fpr
 void GameCamera::fn_8038C070(const CharaTask* chara) {
     int frames = 45;
     if (lbl_8087F430 == 0 || lbl_8087F430->m54E4 == 7 || lbl_8087F430->m54E4 == 14) {
@@ -2914,14 +2918,13 @@ void GameCamera::fn_8038C070(const CharaTask* chara) {
         m830 = mCamera.mFovy;
     }
     atn::Vector3 pos(0.0f, 0.0f, -m684.m00);
-    atn::Vector3 rot(m684.m08, -m8A0, 0.0f);
-    atn::Matrix3x4 m = fn_800109E0(rot);
+    atn::Matrix3x4 m = RotXY_unk(m684.m08, -m8A0);
     PSMTXMultVec(m.m, &pos, &pos);
     pos += atn::Vector3(m684.m0C, m684.m10, m684.m14);
     pos += m8A4;
-    float t = (1.0f - (float)cos(3.1415927f * (float)m808 / (float)frames)) * 0.5f;
-    atn::Vector3 eye = (pos - m80C) * t + m80C;
-    atn::Vector3 look = (m8A4 - m818) * t + m818;
+    float t = (1.0f - (float)cos(3.1415927f * (float)m808 / (float)frames)) / 2.0f;
+    atn::Vector3 eye = LerpV_unk(m80C, pos, t);
+    atn::Vector3 look = LerpV_unk(m818, m8A4, t);
     float fovy = t * (m684.m04 - m830) + m830;
     if (m8E4 != 0) {
         fn_8038E9B0(chara, &m684, &eye, &look, &look);
@@ -4126,7 +4129,7 @@ void GameCamera::fn_803918EC() {
     atn::Vector3 view = dir.ToRotationZ_unk();
     angle += view;
     atn::Vector3 front(0.0f, 0.0f, 1.0f);
-    atn::Matrix3x4 m2 = fn_800109E0(atn::Vector3(angle.x, angle.y, 0.0f));
+    atn::Matrix3x4 m2 = RotXY_unk(angle.x, angle.y);
     PSMTXMultVec(m2.m, &front, &front);
     dir = front.GetNormalize();
     atn::Vector3 move;
