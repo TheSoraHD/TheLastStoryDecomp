@@ -707,7 +707,6 @@ inline EggColor_unk EggLerp_unk(const EggColor_unk& a, const EggColor_unk& b, fl
 // inferred: base color of the glow of fn_8045531C (static object, initialized in __sinit)
 static atn::Vector4_unk sGlowColor_unk(0.8f, 0.8f, 0.8f, 1.0f);
 
-// NONMATCHING: 99.8% - float registers of the glow factor
 // inferred: color of the material "light": brightened in mode 8, else pulsing every 120 units of m14D8
 void LastCocoonEgg::fn_8045531C() {
     Material_unk* material = mMotion.fn_80094B6C("light");
@@ -722,8 +721,8 @@ void LastCocoonEgg::fn_8045531C() {
                 if (m14D8 > 120.0f) {
                     m14D8 -= 120.0f;
                 }
-                float s = (float)sin(6.2831855f * (m14D8 / 120.0f));
-                color = sGlowColor_unk * (0.5f * s + 0.5f);
+                float k = 0.5f * (float)sin(6.2831855f * (m14D8 / 120.0f)) + 0.5f;
+                color = sGlowColor_unk * k;
             }
             color.a = 1.0f;
         }
@@ -907,15 +906,14 @@ void LastCocoonEgg::fn_80455F2C() {
     }
 }
 
-// NONMATCHING: 80% - float registers and the order of the copies of the collision center
 void LastCocoonEgg::fn_804560A4() {
-    float radius = m5B0 * m14D0;
+    m620 = m5B0 * m14D0;
     m614 = mPos + m5A4;
-    m620 = radius;
+    float radius = m620;
     atn::Vector3 a = m614;
-    atn::Vector3 b = m614;
+    atn::Vector3 b = a;
     float h = m14D0 * m5B4 - 2.0f * radius;
-    b.y += h > 0.0f ? h : 0.0f;
+    b.y += h > 1.0f ? h : 1.0f;
     mColli.m3C = a;
     mColli.m48 = b;
     mColli.m54 = radius;
