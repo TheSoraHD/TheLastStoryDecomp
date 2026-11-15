@@ -16,6 +16,9 @@
 extern "C" void* memset(void* dst, int c, unsigned long n);
 
 class CharaTask;
+namespace chr {
+class CharaEquip_unk;
+}
 namespace atn {
 class Task;
 }
@@ -38,6 +41,11 @@ struct ActorKey10_unk {
     atn::Vector3 m04; // inferred: offset (position in m118, rotation in m124)
 };
 
+// inferred: equipment parts waiting to be attached to the character (list at 0x148, Puppeteer<CharaTask>):
+// a class of its own derived from a vector (its copy, weak copy 0x80544294, is not the one of
+// IntVector_unk, 0x805444C0, and its destructor tests the address four times). Name invented.
+struct EquipList_unk : public std::vector<chr::CharaEquip_unk*> {};
+
 // inferred: 8-byte entry of the list at 0xAC of an actor
 struct ActorPair_unk {
     int m00;
@@ -48,10 +56,8 @@ struct ActorPair_unk {
 struct ActorAnim_unk {
     atn::SimpleVector<PoseKey_unk> m00; // inferred: saved node edits of the model (fn_8000F1EC)
     int m0C; // inferred: saved by fn_8000F1EC, given back with CharaTask::fn_8014DEE4 (-1: none)
-    // inferred: saved position (0x10) and rotation (0x1C) of the character, two atn::Vector3: as Vector3
-    // members the implicit constructor of the actor renumbers the @N labels of Event/Sequence and
-    // Event/EventParser_unk (see docs/paralelo-20261113-qG2.md)
-    unsigned char m10[0x28 - 0x10];
+    atn::Vector3 m10; // inferred: saved position of the character
+    atn::Vector3 m1C; // inferred: saved rotation of the character
     IntVector_unk m28; // inferred: saved states of the physics bones
 };
 
@@ -188,7 +194,7 @@ struct Actor : public CommonData {
     unsigned char m144; // inferred: 1 after construction
     unsigned char m145;
     unsigned char m146;
-    IntVector_unk m148;
+    EquipList_unk m148;
     int m154;
     std::vector<ColorF_unk> m158; // inferred: material colors of the model (Actor::vf08)
     IntVector_unk m164; // inferred: materials shown (Actor::vf08)
