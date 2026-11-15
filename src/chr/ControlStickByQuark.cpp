@@ -1336,12 +1336,12 @@ int ControlThrownAvoid::vf0C() {
     return 0;
 }
 
-// NONMATCHING: 93.7% - scheduling of the constants and of mChara
 // inferred: point below the feet, turned with the character
 atn::Vector3 ControlThrownAvoid::vf14() const {
     atn::Vector3 v(0.0f, -5.0f, 0.5f);
     Mtx m;
-    PSMTXRotRad(m, 'y', mChara->mRot.y);
+    float a = mChara->mRot.y;
+    PSMTXRotRad(m, 'y', a);
     PSMTXMultVec(m, &v, &v);
     v += mChara->mPos;
     return v;
