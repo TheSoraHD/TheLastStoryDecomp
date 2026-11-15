@@ -9,6 +9,7 @@
 #include "game/ResHandle.h"
 #include "math/Vec.h"
 #include "std/string.h"
+#include "std/vector.h"
 
 // inferred: list {data, count} freed with delete (GameUI 0x30C); names invented. The three levels
 // give the three null checks of the inlined destructor (0x803CF79C).
@@ -21,38 +22,12 @@ class D2A_TaskInstanceBase;
 // inferred: d2anime instances of the HUD (atn::D2A_TaskInstanceBase<32, 8>, frame at 0x50)
 typedef atn::D2A_TaskInstanceBase<32, 8> GameUIInst_unk;
 
-struct GameUIListBase_unk {
-    ~GameUIListBase_unk() {
-        if (mData != 0) {
-            Clear_unk();
-            delete mData;
-        }
-    }
-    void Clear_unk(); // 0x803CF78C
-    unsigned char* begin_unk() { return mData; }
-    unsigned char* end_unk() { return mData + mCount; }
-    // inferred: 8-byte entries {index, character} (weak copies 0x803D738C, 0x803D739C); names invented
-    struct Entry_unk {
-        int m00;
-        CharaTask* m04;
-    };
-    Entry_unk* At_unk(unsigned int i) { return (Entry_unk*)mData + i; }
-    unsigned int Size_unk() const { return mCount; }
-
-    unsigned char* mData;
-    unsigned int mCount;
-};
-struct GameUIListMid_unk {
-    GameUIListBase_unk mBase;
-};
-struct GameUIList_unk {
-    GameUIList_unk() {
-        mMid.mBase.mData = 0;
-        mMid.mBase.mCount = 0;
-        m08 = 0;
-    }
-    GameUIListMid_unk mMid;
-    unsigned int m08; // inferred: capacity
+// inferred: 8-byte entries {index, character} of the list GameUI::m30C (a std::vector: its push_back is
+// inlined in GameUI::fn_803E2110; weak copies of clear 0x803CF78C, operator[] 0x803D738C, size 0x803D739C);
+// names invented
+struct GameUIListEntry_unk {
+    int m00;
+    CharaTask* m04;
 };
 
 struct GameUIBufferOwner_unk {
@@ -392,7 +367,7 @@ public:
     GameUIElem60_unk m50;                      // 0x50
     GameUIElem60_unk mB0[6];                   // 0xB0
     FixedArray_unk<GameUIElem60_unk*, 6> m2F0; // inferred: active entries of mB0 (fn_803DF5B4)
-    GameUIList_unk m30C;                       // 0x30C
+    std::vector<GameUIListEntry_unk> m30C;     // 0x30C
     GameUIElem20_unk m318[6];                  // 0x318
     atn::D2A_Task* m3D8;
     GameUIInst_unk* m3DC[4];
