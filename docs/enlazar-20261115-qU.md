@@ -1,6 +1,6 @@
 # enlazar-20261115, cola U (trucos de la sesion en sitios apuntados fuera de alcance)
 
-Agente U, rama `agent-U`, 2026-11-15 19:52-21:10.
+Agente U, rama `agent-U`, 2026-11-15 19:52-20:40.
 
 ## Resultado por unidad
 
@@ -51,6 +51,18 @@ Ninguna.
 - `gmk/OnOff fn_803F8324` (99,16 %): getter de `mBoxPos` por valor (inline libre, con y sin local), asignacion,
   `mtx = mMtx`, `Matrix3x4 mtx(mMtx)`. El original lee la z de `mBoxPos` como `0x97c(r31)`: la direccion se
   forma desde `this` ya en r31, aqui desde r3.
+- `gmk/ShakeCamera vf10` (98,18 %): en RandRange_unk `(max - min) * t + min`, `t` local (98,11: el
+  `fmadds` cambia de operandos, el resto igual), `d` local (93,3), referencias const + `t` (81,4), puntero
+  del campo en local antes o despues de rate (88,4 antes; igual despues), min/max locales (88,3). En el
+  original el puntero del campo (r5) se numera antes que el calculo de `rand() % 1001` y rate ocupa el
+  registro de `min` (f31).
+- `chr/ControlGmkCoffinOpening` ctor de ControlGmkBreakArmor (99,71 %, fuera de la cola, mirado por el
+  patron qE): `Chara_unk* cN = mChara` antes de cada sentencia o de las dos, rot antes de dir,
+  declaracion y asignacion separadas, `VecAssign_unk(rot, ...)` (94,4), copia `d` de dir, resultado de
+  `ToRotationZ_unk` en local, dir como temporal, `atn::Vector3(dir)` (94,4), `c->mRot = rot`.
+- `game/Em206EggMonster fn_802C6878` (segunda pasada, con el accesor `int`): rot/vel construidos antes,
+  `SetRot_unk` de CharaTask.h, `CharaTask* c` antes de las copias o de la llamada final: igual (el x del
+  temporal de mRot y el `mr r3, r30` del original van antes del `psq_l` de `pos`).
 - `gmk/Brazier fn_80407D24` (99,83 %): radio local antes/despues de la copia, helper `SetSphereUp_unk`,
   mRadius antes de `y +=`, `y = y + r`, `sphere` antes de `res`, `mSpeed * mDir`, paso en local.
 
@@ -77,6 +89,12 @@ Nada (Event/Manager solo cambia un bucle local de `fn_8047BFF4`).
   accesor con `int` (Em206EggMonster `fn_802C6878`, `mFlag25`).
 - Una inline estatica con referencias de salida (`JumpTarget_unk(..., Cut*&, int&)`) cruza registros del
   `FindCutByIndex_unk` inlinado que la misma logica como macro no cruza (Event `fn_8047B768`).
+
+- Event/DebugInfo_unk: el `""` que el original pone en `@stringBase0+0x14` (tras "vector length error")
+  no lo referencia ninguna funcion anterior a `fn_80221FA4` por `@stringBase0+0x14`; esa funcion usa
+  `String_unk::sEmpty_unk` (no un literal) cuando no hay evento. El original tiene ademas
+  `Cut::GetSection_unk`, `Section::GetChannel_unk` y `Channel::GetAction_unk` fuera de linea (debiles) en
+  esta unidad.
 
 ## Pendientes
 
