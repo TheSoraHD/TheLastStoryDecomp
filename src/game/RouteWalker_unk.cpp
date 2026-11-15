@@ -6,6 +6,7 @@
 #include "game/ResHandle.h"
 #include "game/GameConfig_unk.h"
 #include "math/VecAssign_unk.h"
+#include "game/GameTask.h"
 
 // inferred: field objects that own the route tables
 struct RouteField_unk {
@@ -253,6 +254,192 @@ int RouteWalker_unk::fn_801255C8() {
     }
     m2C = 1;
     return 0;
+}
+
+// NONMATCHING: 98.2% - registers only: `this` and the route table swap r31/r30 (and the volatile registers of the
+// inlined fn_80127D8C follow); the squared lengths are written with PSVECSquareMag (with LengthSq_unk and
+// Abs_unk the function goes over the inline budget and calls fn_80127D8C and the helpers)
+// inferred: update of the walk (every frame): stops when the route is no longer valid; otherwise updates the
+// direction to the goal of the current step, advances to the next point of the route when the character is
+// near it, handles the links (hide routes), the goals of the modes and replans when the character is stuck
+void RouteWalker_unk::fn_80126214() {
+    if (fn_80125474() == 0) {
+        fn_80127D8C(0, 0, 0);
+        return;
+    }
+    RouteTable_unk* table = GetRouteTable_unk();
+    m58 = m4C - mChara->mPos;
+    switch (mMode) {
+    case 0:
+        if (m44 == 4) {
+            const atn::Vector3* pos = &mTarget->mPos;
+            mPointB = ((GameScene*)table)->fn_803C1560(pos, mChara->fn_80179D44(), 0, mA0, 1, -1.0f);
+        } else if (m44 == 5) {
+            mPointB = ((GameScene*)table)->fn_803C1560(&m30, mChara->fn_80179D44(), 0, mA0, 1, -1.0f);
+        } else if (m44 == 7) {
+            atn::Vector3 pos = mTarget->mPos;
+            atn::Vector3 dir(0.0f, 0.0f, 1.0f);
+            Mtx rot;
+            PSMTXRotRad(rot, 'y', mTarget->mRot.y);
+            PSMTXMultVec(rot, &dir, &dir);
+            Mtx rot2;
+            PSMTXRotRad(rot2, 'y', m9C);
+            PSMTXMultVec(rot2, &dir, &dir);
+            pos += dir * 15.0f;
+            mPointB = ((GameScene*)table)->fn_803C1560(&pos, mChara->fn_80179D44(), 0, mA0, 1, -1.0f);
+        }
+        if (PSVECSquareMag(&m58) < 100.0f) {
+            m90 = 0;
+            if (mPointA == mPointB || fn_80128CF8() != 0) {
+                fn_80129144();
+                break;
+            }
+            mDestPoint = mPointA;
+            mPointA = fn_803CD958((RoutePath_unk*)((char*)table->mPaths + (mDestPoint - 1) * 8), mPointB - 1);
+            if (mPointA > 0) {
+                m4C = GetPointPosAt_unk(this, mPointA);
+            } else {
+                m4C = mChara->mPos;
+            }
+            m58 = m4C - mChara->mPos;
+        } else if (m44 == 4) {
+            atn::Vector3 d = mTarget->mPos - mChara->mPos;
+            if ((float)__fabs(d.y) > 30.0f) {
+                d.y = 0.0f;
+            }
+            if (PSVECSquareMag(&d) < mRadius * mRadius) {
+                fn_80127D8C(0, 0, 0);
+            }
+        } else if (m44 == 5) {
+            atn::Vector3 d = mChara->mPos - m30;
+            if (PSVECSquareMag(&d) < mRadius * mRadius) {
+                fn_80129144();
+            }
+        } else if (m44 == 6) {
+            atn::Vector3 d = mChara->mPos - mTarget->mPos;
+            if (PSVECSquareMag(&d) < mRadius * mRadius) {
+                fn_80129144();
+            }
+        }
+        break;
+    case 1: {
+        float radius = mChara->m5B0;
+        if (PSVECSquareMag(&m58) < 2.0f * (2.0f * radius * radius) ||
+            ((float)__fabs(m58.y) < 10.0f &&
+             (m58.x * m58.x + m58.z * m58.z) < 1.5f * (1.5f * mChara->m5B0 * mChara->m5B0))) {
+            GameSceneRoute_unk route;
+            if (((GameTask*)lbl_8087F430)->fn_8036DAF4(&route, mChara, 0, mLink) != 0) {
+                mChara->fn_80153698(&route, 0);
+                if (m1C == 3) {
+                    fn_80127D8C(1, 0, 0);
+                } else {
+                    if (m1C == 1) {
+                        mChara->mFlag29 = 1;
+                    } else {
+                        mChara->mFlag29 = 0;
+                    }
+                    m4C = table->mLinks[mLink - 1].mPos;
+                    m58 = m1C == 1 ? route.mDir : atn::Vector3(-route.mDir.x, -route.mDir.y, -route.mDir.z);
+                    mMode = 2;
+                }
+            }
+        }
+        break;
+    }
+    case 2:
+        m90++;
+        if ((PSVECSquareMag(&m58) < 2.0f && m90 > 1) || m90 > 90) {
+            fn_80127D8C(1, 0, 0);
+        }
+        break;
+    case 3:
+        if (PSVECSquareMag(&m58) < mRadius * mRadius) {
+            RoutePlace_unk* place = table->FindPlace_unk(mPlace);
+            float angle = atn::WrapAngle_unk(place->m14 - mChara->mRot.y);
+            if (((unsigned int)m48 & 8) == 8 || (float)__fabs(angle) < 0.20943952f) {
+                fn_80127D8C(0, 0, 0);
+            } else {
+                m4C = mChara->mPos;
+                atn::Vector3 dir(0.0f, 0.0f, 0.1f);
+                Mtx rot;
+                PSMTXRotRad(rot, 'y', place->m14);
+                PSMTXMultVec(rot, &dir, &dir);
+                m4C += dir;
+                m58 = m4C - mChara->mPos;
+            }
+        }
+        break;
+    case 4: {
+        if (PSVECSquareMag(&m58) < mRadius * mRadius ||
+            ((float)__fabs(m58.y) > 30.0f && (m58.x * m58.x + m58.z * m58.z) < mRadius * mRadius)) {
+            fn_80127D8C(0, 0, 0);
+        } else {
+            m4C = mTarget->mPos;
+            m58 = m4C - mChara->mPos;
+        }
+        break;
+    }
+    case 5:
+        if (PSVECSquareMag(&m58) < mRadius * mRadius) {
+            float angle = atn::WrapAngle_unk(m3C - mChara->mRot.y);
+            if (((unsigned int)m48 & 8) == 8 || (float)__fabs(angle) < 0.20943952f) {
+                fn_80127D8C(0, 0, 0);
+            } else {
+                m4C = mChara->mPos;
+                atn::Vector3 dir(0.0f, 0.0f, 0.1f);
+                Mtx rot;
+                PSMTXRotRad(rot, 'y', m3C);
+                PSMTXMultVec(rot, &dir, &dir);
+                m4C += dir;
+                m58 = m4C - mChara->mPos;
+            }
+        } else {
+            m4C = m30;
+            m58 = m4C - mChara->mPos;
+        }
+        break;
+    case 6: {
+        m58 = lbl_807C7030;
+        atn::Vector3 d = mChara->mPos - mTarget->mPos;
+        if (PSVECSquareMag(&d) >= 1.2f * (1.2f * (mRadius * mRadius))) {
+            const atn::Vector3* pos = &mTarget->mPos;
+            int point = ((GameScene*)table)->fn_803C1560(pos, mChara->fn_80179D44(), 0, mA0, 1, -1.0f);
+            if (point != mPointB) {
+                fn_80128090();
+            }
+        }
+        break;
+    }
+    case 7:
+        if (PSVECSquareMag(&m58) < mRadius * mRadius) {
+            fn_80127D8C(0, 0, 0);
+        } else {
+            m4C = mTarget->mPos;
+            atn::Vector3 dir(0.0f, 0.0f, 1.0f);
+            Mtx rot;
+            PSMTXRotRad(rot, 'y', mTarget->mRot.y);
+            PSMTXMultVec(rot, &dir, &dir);
+            Mtx rot2;
+            PSMTXRotRad(rot2, 'y', m9C);
+            PSMTXMultVec(rot2, &dir, &dir);
+            m4C += dir * 15.0f;
+            m58 = m4C - mChara->mPos;
+        }
+        break;
+    }
+    m70 = fn_80129670(mDestPoint, mPointA);
+    if (((unsigned int)m48 & 0x20) != 0x20) {
+        atn::Vector3 d = m64 - mChara->mPos;
+        float moved = PSVECSquareMag(&d);
+        if (moved < 0.25f * PSVECSquareMag(&mChara->m574)) {
+            if (++m98 > 30) {
+                fn_80128090();
+            }
+        } else {
+            m98 = 0;
+        }
+    }
+    m64 = mChara->mPos;
 }
 
 // NONMATCHING: 98.65% - stack slots of the vectors of modes 4, 5 and 7 (the original has them in the opposite
