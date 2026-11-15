@@ -1,0 +1,73 @@
+diff --git a/include/std/vector.h b/include/std/vector.h
+index f458f72..4f9422c 100644
+--- a/include/std/vector.h
++++ b/include/std/vector.h
+@@ -318,7 +318,7 @@ struct __vec_split_unk : public __vec_split_gbase_unk<T> {
+     // inferred: same loop for the reallocation of resize (0x8032B314 keeps the two decrements apart)
+     void __push_front_resize_unk(T* first, T* last) {
+         T* p = begin();
+-        while (last > first) {
++        while (first < last) {
+             --p;
+             --last;
+             new (p) T(*last);
+@@ -902,16 +902,18 @@ void vector<T>::__init_unk(const T* first, const T* last) {
+ 
+ template <class T>
+ typename vector<T>::size_type vector<T>::__grow_cap_unk(size_type n) {
+-    if (n > max_size() - this->mCap) {
++    size_type m = max_size();
++    size_type cap = this->mCap;
++    if (n > m - cap) {
+         __msl_error("vector length error");
+     }
+-    size_type cap = this->mCap;
+-    if (cap < max_size() / 3) {
++    size_type third = m / 3;
++    if (cap < third) {
+         cap += __vec_max_unk(size_type((cap + 1) * 3 / 5), n);
+-    } else if (cap < max_size() / 3 * 2) {
++    } else if (cap < third * 2) {
+         cap += __vec_max_unk(size_type((cap + 1) / 2), n);
+     } else {
+-        cap = max_size();
++        cap = m;
+     }
+     if (cap > max_size()) {
+         __msl_error("vector length error");
+@@ -921,10 +923,19 @@ typename vector<T>::size_type vector<T>::__grow_cap_unk(size_type n) {
+ 
+ template <class T>
+ bool vector<T>::__expand_by_unk(size_type n) {
+-    if (n > max_size() - this->mCap) {
++    size_type m = max_size();
++    size_type cap = this->mCap;
++    if (n > m - cap) {
+         __msl_error("vector length error");
+     }
+-    __recommend_ref_unk(n);
++    size_type third = m / 3;
++    if (cap < third) {
++        cap += __vec_max_unk(size_type((cap + 1) * 3 / 5), n);
++    } else if (cap < third * 2) {
++        cap += __vec_max_unk(size_type((cap + 1) / 2), n);
++    } else {
++        cap = m;
++    }
+     return false;
+ }
+ 
+diff --git a/src/Event/Section.cpp b/src/Event/Section.cpp
+index 06a2991..8e8fa31 100644
+--- a/src/Event/Section.cpp
++++ b/src/Event/Section.cpp
+@@ -11,8 +11,7 @@ Section::Section(Cut* cut, int index) : mCut(cut), m0C(0), m10(0), m14(1) {}
+ // (the original keeps max_size() in a register and divides it at run time, and keeps an
+ // unreachable copy of the fast path after the length check).
+ Channel* Section::fn_8053C788() {
+-    boost::shared_ptr<Channel> channel(new ((MemoryTag)4, "", "", 0) Channel(this));
+-    mChannels.push_back(channel);
++    mChannels.push_back(boost::shared_ptr<Channel>(new ((MemoryTag)4, "", "", 0) Channel(this)));
+     return mChannels[mChannels.size() - 1].get();
+ }
+ 

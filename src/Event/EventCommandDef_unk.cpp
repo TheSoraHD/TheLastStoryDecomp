@@ -1504,7 +1504,9 @@ static int sCommandCount_unk = sizeof(sCommands_unk) / sizeof(sCommands_unk[0]);
 // inferred: definition of the command `id`
 // NONMATCHING: 94% - the original sets the index (li r5, 0) after the address of the table, here
 // before it; fn_80008210 with the same loop matches. Tried: operands swapped, `table + i`, a
-// local count, a pointer walk, while, break + single return.
+// local count, a pointer walk, while, break + single return. Also tried (enlazar-20261115): pointer walk
+// plus index, local table pointer, unsigned index, `continue`, reference/temporary for mId,
+// inline getter, `&table[0] + i`, result variable + break, while(true).
 extern "C" const Event::CommandDef_unk* fn_800081C0(int id) {
     for (int i = 0; i < Event::sCommandCount_unk; i++) {
         if (id == Event::sCommands_unk[i].mId) {
