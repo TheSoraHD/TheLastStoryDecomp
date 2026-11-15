@@ -170,16 +170,18 @@ int NewCampPartsBase::fn_8050FD20() {
     return ((NewCampCamp_unk*)m48)->mCurrent == this;
 }
 
-// NONMATCHING: 91.4% - registers of the two loops
 void NewCampPartsBase::fn_8050FD38(NewCampScene_unk* scene, NewCampPartsEntry_unk* entries,
                                    const NewCampPartsFile_unk* file, int count, const char* name) {
     if (count > 0) {
+        const NewCampPartsFile_unk* f;
+        NewCampPartsEntry_unk* e;
         for (NewCampNode_unk* node = scene->mNodes; node != 0; node = node->mNext) {
             if (node->mType == 4) {
-                const NewCampPartsFile_unk* f = file;
-                NewCampPartsEntry_unk* e = entries;
+                f = file;
+                e = entries;
+                const char* nodeName = node->mName;
                 for (int i = 0; i < count; i++) {
-                    if (strstr(node->mName, name) != 0) {
+                    if (strstr(nodeName, name) != 0) {
                         fn_8050FE44(node, e, f);
                     }
                     f++;
