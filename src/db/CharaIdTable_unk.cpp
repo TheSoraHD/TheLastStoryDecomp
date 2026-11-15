@@ -193,10 +193,9 @@ extern "C" void fn_80208BE0() {
 }
 
 // inferred: loads the character id table (UTF-16 CSV)
-// NONMATCHING: 99.62% - over the inline budget as the original (empty asserts of Align2_unk): it calls
-// fn_802088A4, fn_802089C4, fn_80208A3C, fn_80209184 and the atn::CsvU constructor (weak copy fn_80209048)
-// out of line. Left: the two widePos results of the second loop go to two registers here (r27, r29),
-// one in the original (declaration order and a named temporary do not change it).
+// Over the inline budget as the original (empty asserts of Align2_unk): it calls fn_802088A4,
+// fn_802089C4, fn_80208A3C, fn_80209184 and the atn::CsvU constructor (weak copy fn_80209048) out of
+// line. The sizes of the first loop are reused as the write positions of the second one.
 extern "C" void fn_80208BE8(const char* path) {
     unsigned long size = 0;
     void* data = fn_8006BA8C(path, &size, 0);
@@ -238,8 +237,8 @@ extern "C" void fn_80208BE8(const char* path) {
     csv.SetData((const wchar_t*)data, size / 2);
     sWideTexts = new ((MemoryTag)3, "", "", 0) wchar_t[wideSize];
     sTexts = new ((MemoryTag)3, "", "", 0) char[textSize];
-    int widePos = 0;
-    int textPos = 0;
+    wideSize = 0;
+    textSize = 0;
     int i = 0;
     while (csv.fn_8005BBF8() != 0) {
         if (wcscmp(csv.fn_8005B9CC(), L"") != 0) {
@@ -251,20 +250,20 @@ extern "C" void fn_80208BE8(const char* path) {
         }
         CharaIdEntry_unk* entry = &sEntries[i];
         entry->mId = fn_80209184(field);
-        widePos = fn_802089C4(&entry->mName, csv.fn_8005B9CC(), sWideTexts, widePos);
-        widePos = fn_802089C4(&entry->mShortName, csv.fn_8005B9CC(), sWideTexts, widePos);
+        wideSize = fn_802089C4(&entry->mName, csv.fn_8005B9CC(), sWideTexts, wideSize);
+        wideSize = fn_802089C4(&entry->mShortName, csv.fn_8005B9CC(), sWideTexts, wideSize);
         if (fn_8006BA30() != 0) {
             entry->mShortName = entry->mName;
         }
-        textPos = fn_80208A3C(&entry->m0C, csv.fn_8005B9CC(), sTexts, textPos);
-        textPos = fn_80208A3C(&entry->m10, csv.fn_8005B9CC(), sTexts, textPos);
-        textPos = fn_80208A3C(&entry->m14, csv.fn_8005B9CC(), sTexts, textPos);
-        textPos = fn_80208A3C(&entry->m18, csv.fn_8005B9CC(), sTexts, textPos);
-        textPos = fn_80208A3C(&entry->m1C, csv.fn_8005B9CC(), sTexts, textPos);
-        textPos = fn_80208A3C(&entry->m20, csv.fn_8005B9CC(), sTexts, textPos);
+        textSize = fn_80208A3C(&entry->m0C, csv.fn_8005B9CC(), sTexts, textSize);
+        textSize = fn_80208A3C(&entry->m10, csv.fn_8005B9CC(), sTexts, textSize);
+        textSize = fn_80208A3C(&entry->m14, csv.fn_8005B9CC(), sTexts, textSize);
+        textSize = fn_80208A3C(&entry->m18, csv.fn_8005B9CC(), sTexts, textSize);
+        textSize = fn_80208A3C(&entry->m1C, csv.fn_8005B9CC(), sTexts, textSize);
+        textSize = fn_80208A3C(&entry->m20, csv.fn_8005B9CC(), sTexts, textSize);
         fn_802088A4(text, csv.fn_8005B9CC(), 0x40);
         entry->m24 = fn_805A52F4(text);
-        textPos = fn_80208A3C(&entry->m28, csv.fn_8005B9CC(), sTexts, textPos);
+        textSize = fn_80208A3C(&entry->m28, csv.fn_8005B9CC(), sTexts, textSize);
         entry->m2C = fn_800DC1DC(csv.fn_8005B9CC());
         i++;
     }

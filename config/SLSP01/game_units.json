@@ -1255,7 +1255,7 @@
  {
   "name": "db/CharaIdTable_unk.cpp",
   "classes": [],
-  "matching": false
+  "matching": true
  },
  {
   "name": "db/PaletteTable_unk.cpp",
