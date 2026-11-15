@@ -4400,8 +4400,8 @@ static GameUIButtonHelp_unk sButtonHelp2_unk[23] = {
     {0, 6, 0xBA, atn::Vector4_unk(0.0f, 0.0f, 0.0f, 0.0f)},
 };
 
-// NONMATCHING: 95.5% - register allocation: the original keeps the zero of the first loop in r31 and
-// reuses it as the offset into m10D4 (this in r30); here this stays in r31 (4 variants)
+// inferred: the hit of the bullet is read in place (not through SkillEffect::GetHit_unk: one inline level
+// less gives the hit the lowest saved register, as in the original)
 void GameUI::fn_803DE648() {
     if (mDC8 == 0) {
         return;
@@ -4425,11 +4425,13 @@ void GameUI::fn_803DE648() {
             break;
         }
         SkillEffect* bullet = lbl_8087F9E8->GetBullet_unk(i);
-        HitInfo_unk* hit = bullet->GetHit_unk();
+        HitInfo_unk* hit = bullet->m04;
+        if (bullet->fn_8059A264()) {
+            hit = bullet->GetOwnHit_unk();
+        }
         if (bullet->IsActive_unk() && hit != 0 && fn_8021A9CC(hit) && bullet->m5C * bullet->m28 >= limit &&
             (signed char)hit->m02 != 4 && (signed char)hit->m02 != 0) {
-            m10D4[count] = bullet;
-            count++;
+            m10D4[count++] = bullet;
         }
     }
     for (int i = 0; i < count; i++) {
