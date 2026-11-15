@@ -289,7 +289,7 @@
   "classes": [
    "atn::NandManager"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "atn/ParseTree.cpp",
