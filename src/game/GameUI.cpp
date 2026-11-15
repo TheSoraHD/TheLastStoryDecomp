@@ -286,7 +286,7 @@ GameUI* GameUI::fn_803CE910(atn::Task* parent) {
 // node earlier); (2) the zero of the resets after the 0x5BC loop is materialised twice in the original (r3
 // up to mB08, r30 from mB20 on, across the memset) and once here (r30). Wrapper structs with constructors
 // (W262C_unk, W25CC_unk, W2568_unk, MarkerList_unk) were needed for the scheduling windows and the loop
-// bounds of the arrays; `m30C.mMid.mBase.mCount -= (int)...` reproduces the lwz/subf of the inlined Clear.
+// bounds of the arrays; `m30C.clear()` is the lwz/subf of the inlined clear.
 GameUI::GameUI(atn::Task* parent)
     : atn::Task(parent), m48(0.0f), m4C(-1.0f), m834(0), mD84(0), mD88(0),
       mD8C(0), mDA4(0), mDA8(0), mDAC(0), mDB0(0), mDC8(0), m1118(0), m1130(0), m1140(0), m1144(0), m1148(0), m114C(0), m1150(0), m1154(0), m1170(0), m15B4(0), m15B8(0),
@@ -300,7 +300,7 @@ GameUI::GameUI(atn::Task* parent)
         m318[i].mInst[3] = 0;
         m318[i].mInst[4] = 0;
     }
-    m30C.mMid.mBase.mCount -= (int)m30C.mMid.mBase.mCount;
+    m30C.clear();
     m3D8 = 0;
     m3DC[0] = 0;
     m3DC[1] = 0;
@@ -455,9 +455,6 @@ void GameUI::fn_803CF74C() {
     mD3C = 0;
 }
 
-void GameUIListBase_unk::Clear_unk() {
-    mCount -= end_unk() - begin_unk();
-}
 
 
 GameUI::~GameUI() {
@@ -2178,9 +2175,9 @@ void GameUI::fn_803D2A6C() {
                                     m318[i].m1C = -1;
                                 }
                             }
-                            for (unsigned int j = 0; j < m30C.mMid.mBase.Size_unk(); j++) {
-                                if (m30C.mMid.mBase.At_unk(j)->m04 == c) {
-                                    int k = m30C.mMid.mBase.At_unk(j)->m00;
+                            for (unsigned int j = 0; j < m30C.size(); j++) {
+                                if (m30C[j].m04 == c) {
+                                    int k = m30C[j].m00;
                                     m318[i].m1C = k;
                                     m318[i].mInst[k]->Rewind_unk();
                                     fn_801F837C(m318[i].mInst[k], "voiceMsg", GetMsgTable_unk()->GetEntry_unk(k + 0xE3));
@@ -2203,7 +2200,7 @@ void GameUI::fn_803D2A6C() {
                         }
                     }
                 }
-                m30C.mMid.mBase.Clear_unk();
+                m30C.clear();
             }
 
             // inferred: gauges of the bosses
@@ -4895,7 +4892,7 @@ void GameUI::fn_803E0D84() {
             }
         }
     }
-    m30C.mMid.mBase.mCount -= (int)m30C.mMid.mBase.mCount;
+    m30C.clear();
 }
 
 // inferred: global object at lbl_8087F098 (class unknown, as in game/CharaTask.cpp); m48 nonzero shows all
@@ -5250,49 +5247,13 @@ void GameUI::fn_803E0E10(CharaTask* chara, GameUIElem60_unk* window, int index) 
     window->m58 = chara->mStatus.mParamA.m78;
 }
 
-// inferred: appends {index, chara} to the list m30C, growing it as the MSL vector does (3/5 more, then
-// half more; name invented)
-static inline void GameUIListPush_unk(GameUIList_unk* list, int index, CharaTask* chara) {
-    GameUIListBase_unk& base = list->mMid.mBase;
-    if (base.mCount < list->m08) {
-        base.mCount++;
-        base.At_unk(base.mCount - 1)->m00 = index;
-        base.At_unk(base.mCount - 1)->m04 = chara;
-        return;
-    }
-    unsigned int cap = list->m08;
-    unsigned int need = base.mCount + 1 - cap;
-    if (cap < 0x0AAAAAAA) {
-        unsigned int grow = (cap + 1) * 3 / 5;
-        cap += grow < need ? need : grow;
-    } else if (cap < 0x15555554) {
-        unsigned int grow = (cap + 1) / 2;
-        cap += grow < need ? need : grow;
-    } else {
-        cap = 0x1FFFFFFF;
-    }
-    GameUIListBase_unk::Entry_unk* data = (GameUIListBase_unk::Entry_unk*)::operator new(cap * 8);
-    data[base.mCount].m00 = index;
-    data[base.mCount].m04 = chara;
-    for (unsigned int i = 0; i < base.mCount; i++) {
-        data[i] = *base.At_unk(i);
-    }
-    unsigned int count = base.mCount + 1;
-    unsigned char* old = base.mData;
-    base.mData = (unsigned char*)data;
-    base.mCount = count;
-    list->m08 = cap;
-    if (old != 0) {
-        delete old;
-    }
-}
-
 // inferred: HUD notice about a character: characters of kind 3 are added to the list m30C
-// NONMATCHING: written by hand; the original inlines MSL's vector<T>::push_back (m30C is likely a std::vector of
-// {index, chara}, with the length checks that call fprintf/abort)
+// NONMATCHING: 99.8% - size and capacity of the inlined push_back fast path in swapped registers (r7/r6 in the
+// original; known residue of std/vector.h, docs/mwcc-blockers.md)
 void GameUI::fn_803E2110(int index, CharaTask* chara) {
     if (chara->mType == 3) {
-        GameUIListPush_unk(&m30C, index, chara);
+        GameUIListEntry_unk e = {index, chara};
+        m30C.push_back(e);
     }
 }
 
@@ -6012,7 +5973,7 @@ void GameUI::fn_803E454C() {
     m25CC.m00 = 0;
     m2568.m00 = 0;
     fn_803E32EC();
-    m30C.mMid.mBase.mCount -= (int)m30C.mMid.mBase.mCount;
+    m30C.clear();
     m85C.mCount = 0;
     m1150 = 0;
     if (m1140 != 0) {
