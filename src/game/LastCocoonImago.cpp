@@ -621,7 +621,11 @@ void LastCocoonImago::vf50() {
     m624.push_back(item);
 }
 
-// NONMATCHING: 98.5% - stack slots of the temporaries of the two branches (and the load order of the nodes)
+// inferred: a + (b - a) * t (name invented)
+inline atn::Vector3 ImagoLerp_unk(const atn::Vector3& a, const atn::Vector3& b, float t) {
+    return (b - a) * t + a;
+}
+// NONMATCHING: 99.2% - stack slot of the forward vector of the first branch and the load order of the nodes
 void LastCocoonImago::vf54() {
     if (m624.mSize != 0) {
         for (int i = 0; i < 3; i++) {
@@ -642,7 +646,7 @@ void LastCocoonImago::vf54() {
                     if (b != 0) {
                         atn::Vector3 pb = ((atn::Matrix3x4*)b)->GetTrans_unk();
                         atn::Vector3 pa = ((atn::Matrix3x4*)a)->GetTrans_unk();
-                        m624.mData[i].m04.mCenter = pa + (pb - pa) * 0.6f;
+                        m624.mData[i].m04.mCenter = ImagoLerp_unk(pa, pb, 0.6f);
                     } else {
                         m624.mData[i].m04.mCenter = ((atn::Matrix3x4*)a)->GetTrans_unk();
                     }
@@ -1206,14 +1210,14 @@ struct ImagoUIHint_unk : public GameUIElem1C_unk {
     }
 };
 
-// NONMATCHING: 97% - stack slots and scheduling of the temporaries of the first lerp of the gimmick position
+// NONMATCHING: 99.7% - stack slots of the bullet direction (below the temporaries of the lerp in the original)
 // inferred: mode 11: carries the gimmick m18F8 (its position follows the imago at the height m1948.y),
 // shoots the skill 0x5BD from frame 85 and then waits for the player to thrust (chr::ControlThrustForCocoon)
 void LastCocoonImago::fn_8045DF34() {
     if (m14BC == 0) {
         if (mMotion.mTracks[0].m08 < 60.0f) {
             atn::Vector3 pos = m18F8->m6C;
-            pos = (mPos - pos) * 0.05f + pos;
+            pos = ImagoLerp_unk(pos, mPos, 0.05f);
             pos.y = m1948.y;
             m18F8->m6C = pos;
             m1948 = pos;
