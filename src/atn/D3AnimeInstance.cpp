@@ -58,8 +58,8 @@ D3AnimeInstance::~D3AnimeInstance() {}
 
 int D3AnimeInstance::Load() {
     mState = 1;
-    mTask = (atn::D2AInstance_unk*)D2A_TaskInstance32_unk::Create(this, mName);
-    mTask->m4E = 0;
+    mTask = D2AInstance_unk::Create(this, mName);
+    mTask->mVisible = 0;
     mTask->fn_800D246C(1);
     return 1;
 }
@@ -133,7 +133,7 @@ void D3AnimeInstance::vf14() {
     }
     CalcMtx_unk(mMtx, mRot, mPos, mScale);
     if (mTask != 0) {
-        ((D2A_TaskInstance32_unk*)mTask)->Update();
+        mTask->Update();
     }
     if (mVisible) {
         if (IsVisible_unk(mPos)) {
@@ -242,7 +242,7 @@ void D3AnimeInstance::Draw() {
     lbl_8087EEB0->mA0 = 0xD;
     lbl_8087EEB0->mA4 = m;
     if (mTask != 0) {
-        ((D2A_TaskInstance32_unk*)mTask)->Draw();
+        mTask->Draw();
     }
     lbl_8087EEB0->mA0 = mode;
     lbl_8087EEB0->mA4 = savedModel;

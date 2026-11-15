@@ -4,17 +4,12 @@
 #include "atn/Task.h"
 #include "math/Vec.h"
 #include "atn/D3Anime.h"
+#include "atn/D2A_TaskInstanceC.h"
 
 namespace atn {
 
-// inferred: d2anime instance task (D2A_TaskInstanceBase<32, 8>::Create); only the members used here
-struct D2AInstance_unk : public Task {
-    unsigned char m48[0x4D - 0x48];
-    unsigned char mLoop; // 0x4D: inferred: D2A_TaskInstanceBase::mLoop
-    unsigned char m4E;
-    float mFrame;        // 0x50: inferred: D2A_TaskInstanceBase::mFrame
-    float mSpeed;        // 0x54
-};
+// inferred: d2anime instance task of a D3AnimeInstance (D2A_TaskInstanceBase<32, 8>::Create)
+typedef D2A_TaskInstanceBase<32, 8> D2AInstance_unk;
 
 // inferred: instance of a d2anime layout drawn in 3D (same layout as D3Anime)
 class D3AnimeInstance : public Task {

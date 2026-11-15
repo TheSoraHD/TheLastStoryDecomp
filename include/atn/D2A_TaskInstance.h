@@ -78,7 +78,11 @@ public:
             int i;
         } mValue; // 0x08
     };
+    // inferred: the constructor and destructor of each instantiation are explicit specializations
+    // (defined in atn/D2A_TaskInstanceBase_64_8.cpp after the members of the instantiation)
     struct Text_unk {
+        Text_unk();
+        ~Text_unk();
         unsigned int mHash;                // 0x00
         std::basic_string<wchar_t> mText; // 0x04
     };
