@@ -58,7 +58,7 @@ inline void SetPaneValue_unk(void* layout, const char* name, int index, float va
     fn_801FED24(layout, fn_800DC6B4(name), index, value);
 }
 inline ShopLayout_unk* CreateLayout_unk(atn::Task* parent, const char* path) {
-    return (ShopLayout_unk*)D2A_TaskInstance32_unk::Create(parent, path);
+    return D2A_TaskInstance32_unk::Create(parent, path);
 }
 
 // inferred: item data (fn_80211480)
@@ -518,38 +518,38 @@ void ShopIdentify::fn_80589AF4() {
         char name[0x40];
         sprintf(name, "list_point%d", i + 1);
         pos = GetPanePos_unk(mListBase, name);
-        ((D2A_TaskInstance32_unk*)mList[i])->SetValues1_unk("basePos", *(atn::D2A_DrawRect*)&pos);
-        ((D2A_TaskInstance32_unk*)mList[i])->SetColor_unk("itemCol", 255.0f, 255.0f, 255.0f);
+        mList[i]->SetValues1_unk("basePos", *(atn::D2A_DrawRect*)&pos);
+        mList[i]->SetColor_unk("itemCol", 255.0f, 255.0f, 255.0f);
         int index = i + mScroll.mTop;
         if (index < (int)mItems.size()) {
             ShopIdentifyEntry_unk* entry = &mItems[index];
             int icon;
             ShopItem_unk* item = fn_80211480(entry->mItem);
             if (entry->mDone != 0) {
-                ((D2A_TaskInstance32_unk*)mList[i])->SetText_unk("itemName", item->mName);
-                ((D2A_TaskInstance32_unk*)mList[i])->SetValue0_unk("showPrice", 0.0f);
-                ((D2A_TaskInstance32_unk*)mList[i])->SetValue0_unk("nonePrice", 1.0f);
-                ((D2A_TaskInstance32_unk*)mList[i])->SetText_unk("price", lbl_8087E690);
-                ((D2A_TaskInstance32_unk*)mList[i])->SetText_unk("num", lbl_8087E690 + 1);
+                mList[i]->SetText_unk("itemName", item->mName);
+                mList[i]->SetValue0_unk("showPrice", 0.0f);
+                mList[i]->SetValue0_unk("nonePrice", 1.0f);
+                mList[i]->SetText_unk("price", lbl_8087E690);
+                mList[i]->SetText_unk("num", lbl_8087E690 + 1);
                 icon = fn_80444BE8(Inventory::instance_, item);
                 if (fn_80211648(item) == 0 || fn_804444E8(Inventory::instance_, entry->mItem) <= 0) {
-                    ((D2A_TaskInstance32_unk*)mList[i])->SetColor_unk("itemCol", 128.0f, 128.0f, 128.0f);
+                    mList[i]->SetColor_unk("itemCol", 128.0f, 128.0f, 128.0f);
                 }
             } else {
                 ShopWeapon_unk* weapon = fn_80206C50(entry->mItem);
                 if (weapon != 0) {
-                    ((D2A_TaskInstance32_unk*)mList[i])->SetText_unk("itemName", lbl_8087F1E4->GetPair_unk(weapon->mKind + 0xEB));
+                    mList[i]->SetText_unk("itemName", lbl_8087F1E4->GetPair_unk(weapon->mKind + 0xEB));
                 } else {
-                    ((D2A_TaskInstance32_unk*)mList[i])->SetText_unk("itemName", lbl_8087E690 + 3);
+                    mList[i]->SetText_unk("itemName", lbl_8087E690 + 3);
                 }
-                ((D2A_TaskInstance32_unk*)mList[i])->SetValue0_unk("showPrice", 1.0f);
-                ((D2A_TaskInstance32_unk*)mList[i])->SetValue0_unk("nonePrice", 0.0f);
-                ((D2A_TaskInstance32_unk*)mList[i])->SetNumber_unk("price", entry->mPrice, 0);
-                ((D2A_TaskInstance32_unk*)mList[i])->SetText_unk("num", lbl_8087E690 + 1);
+                mList[i]->SetValue0_unk("showPrice", 1.0f);
+                mList[i]->SetValue0_unk("nonePrice", 0.0f);
+                mList[i]->SetNumber_unk("price", entry->mPrice, 0);
+                mList[i]->SetText_unk("num", lbl_8087E690 + 1);
                 icon = fn_80444C48(Inventory::instance_);
             }
             ShopUV_unk uv = fn_80444C50(Inventory::instance_, icon);
-            ((D2A_TaskInstance32_unk*)mList[i])->SetValues2_unk("iconUv", uv);
+            mList[i]->SetValues2_unk("iconUv", uv);
             mList[i]->mFlags &= ~4;
         }
     }
