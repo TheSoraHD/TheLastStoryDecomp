@@ -11,7 +11,9 @@
   enlazador quita las constantes que nada usa (igual que el `200.0f` de `KPADSetBtnRepeat`). Build limpio:
   `main.dol: OK`; poolcheck: solo constantes que el enlazador quita (200, 0.02, 0.04 y las tres de `get_kobj`);
   poolorder sin pool de cadenas.
-- `dwc_match`, `GameSaveBanner`: no empezadas (tope de tiempo de la sesion tras el reinicio del servidor).
+- `msc/src/RVL_SDK/dwc/dwc_match` (99/101, sin cambio): `DWCi_CloseUnacknowledgedClients` 99,13 % y
+  `DWCi_ProcessMatchCommand` 99,995 % (ver NONMATCHING).
+- `game/GameSaveBanner` (8/9, sin cambio): `fn_803B9638` 99,18 % (ver NONMATCHING).
 
 ## Unidades que enlazan (bytes)
 
@@ -19,7 +21,17 @@
 
 ## NONMATCHING con motivo
 
-Ninguno nuevo.
+- dwc_match `DWCi_CloseUnacknowledgedClients` 99,13 %: en el original el `i` del segundo bucle va primero en el
+  coloreado (r31) y `validPidLen` despues (r29); en el nuestro al reves. Probado ademas (sin cambio): `i` declarado
+  primero con otra variable `j` para el primer bucle (los bucles 2 y 3 con la `i`); `validPid[i]` en vez del local
+  `profileID` (peor: `cmpw` invertido); compiladores Wii/1.1, Wii/1.3 (igual) y GC/3.0a5.2 (peor).
+- dwc_match `DWCi_ProcessMatchCommand` 99,995 %: en RESERVATION el original pone `matchType` en r26 (= `port`) y
+  `topology` en r28 (= `ip` de TELL_ADDR), igual que el nuestro; en TELL_ADDR nuestro `ip` reutiliza r30 (`data`,
+  muerto) y el original no, como si `data` siguiera vivo. Probado: inicializador `{ data[0] }` (no vale en C).
+- GameSaveBanner `fn_803B9638` 99,18 %: el incremento del desplazamiento de icono (0x1200) va el ultimo en el
+  original (tras `i`); probado sin cambio: puntero fuente local, `shift` local, contador `k` aparte para el indice
+  del icono (`for (...; i++, k++)`). Los argumentos de `NANDInitBanner` y de `memcpy` se calculan del ultimo al
+  primero en el original: mismo fenomeno.
 
 ## Cambios de splits
 
