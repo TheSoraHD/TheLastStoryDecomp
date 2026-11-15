@@ -689,7 +689,7 @@ inline void atn::Camera::SetTarget(float x, float y, float z) {
     mTarget.z = z;
 }
 
-// NONMATCHING: draws the minimap model with its orthographic camera: the transparent parts first
+// inferred: draws the minimap model with its orthographic camera: the transparent parts first
 // (alpha 0.6, house/line/road hidden), then the rest, and restores the camera of the view
 void MiniMapTask::fn_804ABF84(atn::RenderManager* view) {
     atn::Camera saved(*view->fn_800F7258());
@@ -715,7 +715,8 @@ void MiniMapTask::fn_804ABF84(atn::RenderManager* view) {
     fn_804A893C((unsigned int*)&m208, 0x10);
     for (unsigned int i = 0; i < fn_804AC3C8(&m208)->mMaterials.size(); i++) {
         Material_unk* material = fn_804AC3C8(&m208)->mMaterials[i];
-        ColorF_unk color(fn_8000DD98(material));
+        GXColor base = fn_8000DD98(material);
+        ColorF_unk color(base);
         color.a *= 0.6f;
         unsigned int c = fn_804A88C8(&color.r);
         fn_80316F9C(material, (const GXColor*)&c);
@@ -737,7 +738,8 @@ void MiniMapTask::fn_804ABF84(atn::RenderManager* view) {
     m208.vf10(view);
     for (unsigned int i = 0; i < fn_804AC3C8(&m208)->mMaterials.size(); i++) {
         Material_unk* material = fn_804AC3C8(&m208)->mMaterials[i];
-        ColorF_unk color(fn_8000DD98(material));
+        GXColor base = fn_8000DD98(material);
+        ColorF_unk color(base);
         color.a = 1.0f;
         unsigned int c = fn_804A88C8(&color.r);
         fn_80316F9C(material, (const GXColor*)&c);
