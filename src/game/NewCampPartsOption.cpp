@@ -157,7 +157,7 @@ inline void SetPaneFloat_unk(void* layout, const char* name, float value) {
 inline void NewCampOptionPage_unk::Load_unk() {
     mAnime->Load(1);
     for (int j = 0; j < mCount; j++) {
-        mItems[j].mAnime->Load();
+        mItems[j].mAnime->Load(1);
     }
 }
 
@@ -175,7 +175,6 @@ NewCampPartsOption* NewCampPartsOption::fn_80521E1C(atn::Task* parent) {
     return 0;
 }
 
-// NONMATCHING: 99.81% - the original sets r4 = 1 before D3AnimeInstance::Load() (Fv) in the load loop
 NewCampPartsOption::NewCampPartsOption(atn::Task* parent)
     : NewCampPartsBase(parent), mD4(0.0f), mD8(0), mDC(0), mE0(0), mE8(0), m180(0.0f), mMove(292.0f, 0.0f, 0.0f) {
     m98 = "option_board";

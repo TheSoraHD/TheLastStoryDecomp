@@ -150,14 +150,13 @@ void NewCampPartsBase::fn_8050FC04(int count, NewCampPartsMotion_unk* motions,
     }
 }
 
-// NONMATCHING: 85.3% - the original passes `load` in r4 to D3AnimeInstance::Load() too, and the
-// loop registers differ
+// NONMATCHING: 87.8% - the loop registers differ
 void NewCampPartsBase::fn_8050FC88(int count, NewCampPartsEntry_unk* entries, int load) {
     for (int i = 0; i < count; i++) {
         if (entries->m04 == 1) {
             atn::D3AnimeInstance* anime = (atn::D3AnimeInstance*)entries->mAnime;
             if (anime != 0) {
-                anime->Load();
+                anime->Load(load);
             }
         } else {
             atn::D3Anime* anime = entries->mAnime;

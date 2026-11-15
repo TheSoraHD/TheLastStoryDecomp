@@ -50,13 +50,13 @@ D3AnimeInstance::D3AnimeInstance(Task* parent, const char* name, int load)
     mMtx.SetIdentity();
     strcpy(mName, name);
     if (load) {
-        Load();
+        Load(load);
     }
 }
 
 D3AnimeInstance::~D3AnimeInstance() {}
 
-int D3AnimeInstance::Load() {
+int D3AnimeInstance::Load(int) {
     mState = 1;
     mTask = D2AInstance_unk::Create(this, mName);
     mTask->mVisible = 0;
