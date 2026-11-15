@@ -49,7 +49,7 @@ public:
     void fn_8045CB24(); // inferred: colours of the body parts
     void fn_8045D224(); // inferred: mode update: holds the gimmick motion, frame 120 disables the capsules
     void fn_8045EB60();
-    inline void Knockback_unk(const atn::Vector3& dir, int mode, int motion);
+    inline void Knockback_unk(atn::Vector3 dir, int mode, int motion);
     void fn_8045F4CC(); // inferred: sends message 4 to the gimmicks of type 1 touching the body // inferred: mode 2 (motion 0x37, or 0x31 from frame 200 after mode 14)
     void fn_8045ECC4(); // inferred: mode 12 (motion 0x31), stops and sends message 5 to m18F8
     // inferred: starts a mode (names invented)

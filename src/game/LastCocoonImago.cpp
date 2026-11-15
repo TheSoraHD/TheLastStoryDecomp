@@ -445,8 +445,7 @@ extern "C" inline float fn_8029F3AC(CharaStatus* status) {
     return 0.0f;
 }
 // inferred: starts a knockback mode (7 or 8) pushed along `dir` (name invented)
-inline void LastCocoonImago::Knockback_unk(const atn::Vector3& dir, int mode, int motion) {
-    atn::Vector3 v = dir;
+inline void LastCocoonImago::Knockback_unk(atn::Vector3 dir, int mode, int motion) {
     m14BC = 0;
     m14C0 = 0;
     m590 = fn_800F8548(lbl_8087F048);
@@ -456,16 +455,14 @@ inline void LastCocoonImago::Knockback_unk(const atn::Vector3& dir, int mode, in
     mMotion.mTracks[0].m20 = 1.0f;
     mMotion.mTracks[0].m0C = 1.0f;
     mMotion.fn_80097C08(0, motion, 0, 1, 1, 0.0f, 0.025f);
-    atn::Vector3 n = v;
+    atn::Vector3 n = dir;
     n.Normalize_unk();
-    atn::Vector3 push = n;
+    atn::Vector3 push = dir;
     push.y *= 0.3f;
     SetM6B8_unk(push);
-    atn::Vector3 back(-n.x, -n.y, -n.z);
-    m14E0 = back.ToRotation_unk();
+    m14E0 = atn::Vector3(-n.x, -n.y, -n.z).ToRotation_unk();
 }
 
-// NONMATCHING: 97% - stack slots of the two knockbacks (the inline keeps the mode in a register)
 // inferred: hit reaction: the attack 0x1791 pushes it (towards the place m18F4 while m18EC is set), the
 // hits of part 1 with a power of 3 or more knock it back; asks for help at 70 % of the hit points
 void LastCocoonImago::vf40(HitInfo_unk* hit) {
@@ -499,7 +496,8 @@ void LastCocoonImago::vf40(HitInfo_unk* hit) {
         }
     } else if (*(int*)&msg->m3C[4] == 1) {
         if (msg->mData->m3C >= 3 && m58C != 7) {
-            atn::Vector3 dir(msg->m28.x * 5.0f, 0.0f, msg->m28.z * 5.0f);
+            atn::Vector3 dir = msg->m28 * 5.0f;
+            dir.y = 0.0f;
             if (m18EC != 0) {
                 dir *= 0.1f;
             }
