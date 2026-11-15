@@ -209,7 +209,8 @@ int CampSaveLoad::vf0C() {
                 if (slot->fn_803BEAB4() != 0) {
                     MapId_unk* map = fn_8021771C(slot->m30, slot->m32, slot->m31);
                     if (map != 0 && strcmp(map->m70, "") != 0) {
-                        std::string path = "data/texture/";
+                        const char* dir = "data/texture/";
+                        std::string path(dir);
                         path += map->m70;
                         path += ".texture";
                         mTextures[i].fn_800D5908(path.c_str());
