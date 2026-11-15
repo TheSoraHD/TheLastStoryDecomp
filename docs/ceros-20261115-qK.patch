@@ -1,0 +1,13 @@
+diff --git a/include/atn/DrawCommand_unk.h b/include/atn/DrawCommand_unk.h
+index 2ad9c0d..4c3ba8f 100644
+--- a/include/atn/DrawCommand_unk.h
++++ b/include/atn/DrawCommand_unk.h
+@@ -63,7 +63,7 @@ public:
+     Texture_unk* mTex1;          // 0x10
+     unsigned char m14;
+     int m18;
+-    int m1C;
++    // int m1C;
+ };
+ 
+ } // namespace atn

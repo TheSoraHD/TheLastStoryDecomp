@@ -561,7 +561,16 @@ extern "C" __declspec(noinline) inline int fn_804A9E44(MiniMapTask* task) {
     return task->m160C;
 }
 // inferred: flag 4 of the model (the model has transparent parts)
-extern "C" __declspec(noinline) inline unsigned int fn_804ABF08(atn::Model* model) {
+// inferred: empty release assert
+#define MM_ASSERT_UNK(x) ((void)0)
+#define MM_ASSERT10_UNK(x) MM_ASSERT_UNK(x); MM_ASSERT_UNK(x); MM_ASSERT_UNK(x); MM_ASSERT_UNK(x); MM_ASSERT_UNK(x); MM_ASSERT_UNK(x); MM_ASSERT_UNK(x); MM_ASSERT_UNK(x); MM_ASSERT_UNK(x); MM_ASSERT_UNK(x)
+#define MM_ASSERT100_UNK(x) MM_ASSERT10_UNK(x); MM_ASSERT10_UNK(x); MM_ASSERT10_UNK(x); MM_ASSERT10_UNK(x); MM_ASSERT10_UNK(x); MM_ASSERT10_UNK(x); MM_ASSERT10_UNK(x); MM_ASSERT10_UNK(x); MM_ASSERT10_UNK(x); MM_ASSERT10_UNK(x)
+// inferred: the release build keeps the cost of the empty asserts of this accessor, which puts vf10 over the
+// inlining budget (the original calls every inline of vf10 out of line); about 280 are needed
+extern "C" inline unsigned int fn_804ABF08(atn::Model* model) {
+    MM_ASSERT100_UNK(model != 0);
+    MM_ASSERT100_UNK(model != 0);
+    MM_ASSERT100_UNK(model != 0);
     return (*(unsigned int*)((char*)model + 4) >> 4) & 1;
 }
 namespace atn {
@@ -599,9 +608,9 @@ extern "C" __declspec(noinline) inline atn::Texture_unk* fn_804ABF44(atn::Render
 
 // inferred: draws the minimap into a temporary 256x256 texture (the transparent parts in a second pass) and
 // draws it on the screen through the mask texture mE8
-// NONMATCHING: 0% - equivalent (checked call by call against the original), but here it is under the inlining
-// budget and inlines every accessor, while the original calls them all (about 36 statements of candidates short:
-// an artificial first candidate of 36-40 statements puts it over)
+// NONMATCHING: 99.9% - stack offsets only: the original command is 0x1C bytes on the stack (cmd at 0x84, the
+// texture right behind it at 0xA0), while atn::DrawHelper allocates it with 0x20 (m1C, never used): with m1C
+// removed this is 100% but the allocations of fn_8005E838/fn_8005F36C go down (see docs/ceros-20261115-qK.md)
 void MiniMapTask::vf10(atn::RenderManager* view) {
     if (fn_804A9E44(this) != 0) {
         fn_804ABF84(view);
@@ -645,11 +654,13 @@ void MiniMapTask::vf10(atn::RenderManager* view) {
     fn_800763FC(GetGraphics_unk(), fn_804ABF40(fn_804ABF44(view)), 0);
     view->fn_800BFB70();
     atn::DrawMaskVertex_unk verts[4];
-    verts[0].Set_unk(atn::Vector3(m5DC, m5E0, 0.0f), 0xFFFFFFFF, atn::Vector4_unk(0.0f, 0.0f, 0.0f, 0.0f));
-    verts[1].Set_unk(atn::Vector3(m5DC + m5E4, m5E0, 0.0f), 0xFFFFFFFF, atn::Vector4_unk(1.0f, 0.0f, 1.0f, 0.0f));
+    float zero = 0.0f;
+    float one = 1.0f;
+    verts[0].Set_unk(atn::Vector3(m5DC, m5E0, 0.0f), 0xFFFFFFFF, atn::Vector4_unk(zero, zero, zero, zero));
+    verts[1].Set_unk(atn::Vector3(m5DC + m5E4, m5E0, 0.0f), 0xFFFFFFFF, atn::Vector4_unk(one, zero, 1.0f, 0.0f));
     verts[2].Set_unk(atn::Vector3(m5DC + m5E4, m5E0 + m5E8, 0.0f), 0xFFFFFFFF,
-                     atn::Vector4_unk(1.0f, 1.0f, 1.0f, 1.0f));
-    verts[3].Set_unk(atn::Vector3(m5DC, m5E0 + m5E8, 0.0f), 0xFFFFFFFF, atn::Vector4_unk(0.0f, 1.0f, 0.0f, 1.0f));
+                     atn::Vector4_unk(one, one, 1.0f, 1.0f));
+    verts[3].Set_unk(atn::Vector3(m5DC, m5E0 + m5E8, 0.0f), 0xFFFFFFFF, atn::Vector4_unk(zero, one, 0.0f, 1.0f));
     fn_804ABF28(GetGraphics_unk(), 1);
     atn::DrawHelper::ComDrawTextureMask cmd;
     cmd.m04 = 1;
