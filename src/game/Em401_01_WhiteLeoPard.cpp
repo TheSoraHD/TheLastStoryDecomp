@@ -673,7 +673,7 @@ void Em401_01_WhiteLeoPard::vf24() {
     } else {
         blend = 2.0f;
         walkSpeed = 0.0f;
-        dashSpeed = 1.0f + 0.5f * (rate / dashMin - 1.0f);
+        dashSpeed = 1.0f + 0.1f * (rate / dashMin - 1.0f);
     }
     if (PSVECSquareMag(&(atn::RenderManager::instance_->mCamera.mPos - mPos)) > 62500.0f) {
         mMotion.m34C = 1;
