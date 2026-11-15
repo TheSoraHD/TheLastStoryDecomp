@@ -28,7 +28,7 @@ public:
     virtual void vf8C(atn::Vector3* pos);
 
     void fn_80566FB4(); // inferred: state machine (m58C)
-    void fn_80567424(CharaTask* target);
+    int fn_80567424(CharaTask* target);
     void fn_805675FC();
     void fn_80567968(const atn::Vector3& target, int arg, float speed, float rate); // inferred: as Em403WarLion::fn_80324A38
     void fn_805686F0(atn::MotionBuffer* nodes, int count); // inferred: node pose callback

@@ -324,11 +324,11 @@ void QuadrupedTask::fn_80566FB4() {
 
 
 // inferred: chooses the move of the AI state (mC58) from the distance to its target
-// NONMATCHING: 88.00% - order of the distance checks and of the stack temporaries
-void QuadrupedTask::fn_80567424(CharaTask* target) {
+// NONMATCHING: 90.6% - the original keeps &target->mC58.m0C in r27 from the start (one more saved GPR)
+int QuadrupedTask::fn_80567424(CharaTask* target) {
     RouteTable_unk* table = lbl_8087F430->m10D8;
     if (table == 0) {
-        return;
+        return 0;
     }
     CharaTask* other = (CharaTask*)target->mC58.mC4;
     short mode = target->mC58.mMode;
@@ -369,6 +369,7 @@ void QuadrupedTask::fn_80567424(CharaTask* target) {
     if (mode != target->mC58.mMode) {
         target->mC58.mDone_unk = 0;
     }
+    return 1;
 }
 
 // The original calls every inline helper and AI state of fn_805675FC out of line (over the inline budget);
