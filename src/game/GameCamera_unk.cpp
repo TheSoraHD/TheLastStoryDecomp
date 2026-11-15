@@ -3185,21 +3185,21 @@ void GameCamera::fn_8038D854(const CharaTask* chara) {
     m834 = 0;
 }
 
-// NONMATCHING: 89.3% - stack slots and registers of the temporaries
+// NONMATCHING: 99.4% - registers r4-r7 of the save block (the original keeps the character only in r29)
 // inferred: one frame of the "hips" camera after saving the current camera in m80C-m830; then goes back
 // to the sub mode with m83C = 6
 void GameCamera::fn_8038DBE4(const CharaTask* chara) {
     if (m808 == 0) {
         m80C = mCamera.mPos;
         m818 = mCamera.mTarget;
+        float fovy = mCamera.mFovy;
         m824 = m818 - m80C;
-        m830 = mCamera.mFovy;
+        m830 = fovy;
     }
     const atn::Model* model = &chara->mMotion;
     const atn::Matrix3x4* node = (const atn::Matrix3x4*)model->GetNodeMtx_unk(model->GetNodeNoByName("hips", 0));
     atn::Vector3 target = node->GetTrans_unk();
-    atn::Vector3 offset(0.0f, 50.0f, 0.0f);
-    atn::Vector3 pos = const_cast<CharaTask*>(chara)->fn_80178088() + offset;
+    atn::Vector3 pos = const_cast<CharaTask*>(chara)->fn_80178088() + atn::Vector3(0.0f, 50.0f, 0.0f);
     mCamera.SetPosition(pos);
     mCamera.SetTarget_unk(target);
     mCamera.fn_8004B378();
