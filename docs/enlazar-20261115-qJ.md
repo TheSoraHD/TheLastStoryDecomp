@@ -14,6 +14,13 @@
 
 ## NONMATCHING con motivo
 
+- `game/GameSaveBanner fn_803B9638` 99,18 % (ultima funcion de la unidad; enlazaria 352 + 8 bytes): sin cambio con
+  `2 * i` y cast `(unsigned short)` (forma de `NANDSetIconSpeed`), puntero fuente local antes del `memcpy`,
+  indices con signo, `speed` local con `&=`/`|=`, `|` invertido, `struct NANDBanner*`/`void*`/`const unsigned
+  short*` en `NANDInitBanner`, inline `InitBanner_unk` (con y sin `memset`) y todo el cuerpo en una inline con
+  puntero. Siguen los registros r26/r27 (3 y desplazamiento), el incremento del desplazamiento de icono al final
+  y los argumentos de `NANDInitBanner` calculados del ultimo al primero.
+
 ## Cambios de splits
 
 - `smg2/src/RVL_SDK/wud/WUD.c` `.bss` con `align:32`. Prueba: WUD.c tiene `__WUDHandlerStack[0x1000] ATTRIBUTE_ALIGN(32)` (nuestro WUD.o compilado da `.bss` con alineacion 32) y `_wcb` esta en 0x8082DE00; `gap_08_8082DDF0_bss` no tiene referencias. WUD no enlaza, asi que se usa su objeto generado por dtk, que llevaba alineacion 8: con WPADHIDParser desde fuente (`.bss` 0x50) `_wcb` caia en 0x8082DDF0. Con `align:32` build limpio `main.dol: OK`.
@@ -32,6 +39,8 @@
 ## Decisiones tomadas sin el usuario
 
 - `align:32` en el `.bss` de WUD (ver arriba) en lugar de anadir un array falso de 0x10 a WPADHIDParser.
+- `strlen` (J.3) y `Csv()` (J.2) no integrados: el primero baja dos funciones enlazadas; el segundo da +8 bytes a cambio de re-emparejar 267 unidades. Quedan como parches en `docs/`.
+- `gmk::CreateChara_unk` definida `inline` en CharaObj.cpp y en CharaPathMove.cpp (no en `GmkChara.h`): en la cabecera CharaPathMove la emite antes que sus otras debiles y sale fuera de orden.
 
 ## Hallazgos (una linea cada uno)
 
@@ -39,6 +48,17 @@
 - Una inline definida en el `.cpp` despues de su uso (declarada antes) sale fuera de linea en el sitio de la definicion, igual que una `static`, pero sus literales pasan a ser debiles (CharaPathMove `CreateChara_unk`).
 
 - La nota de qD ("el enlazador no alinea por encima de 16 en `.bss`") era falsa: se enlazaba el objeto generado de WUD (alineacion 8), no el compilado.
+
+## Tramos `auto_*` (cola J.2)
+
+De los 49 tramos (924 B), los que reciben unidades enlazadas: LinearAllocator, SequenceControl, EnemyManager,
+GameTimer (`.sbss`, +32) y CharaObj (`.sdata`, +8). Los demas, revisados con el orden de `.text` y las
+referencias (`owners.py`/`between.py` en scratch-J):
+- Rellenos de ceros sin simbolo entre dos enlazadas con la siguiente alineada a 8 (0x80734180 Sound3dListener|Sound3dEngine, 0x807773A0 antes de Arms): son datos de 8 bytes de una de las dos (sin referencias), no se pueden absorber sin inventar el objeto.
+- 0x807A9AE0 (192 B, tras OSNet): cadenas de las versiones debiles de NWC24 (`NWC24iPrepareShutdown`, `/dev/net/kd/request`...) que el `OSNet.c` del SDK define con `DECL_WEAK`; el enlazador quita las funciones (ganan las de NWC24System.c) y deja las cadenas. Probado el `OSNet.c` completo de `libs/RVL_SDK` adaptado a las cabeceras de smg2: `__OSInitNet` inlinea las debiles (0x360 bytes en vez de 0xC0) y el orden del pool cambia; revertido (20 min).
+- 0x8087D720 (`" \t"` de `Csv()`, tras AudioDevice): con el literal en `include/atn/Csv.h` sale como debil `@STRING@__ct__Q23atn3CsvFv` en AudioDevice y el `.dol` da OK (+8), pero el literal consume un `@N` en las 267 unidades que incluyen Csv.h: `pdbatch` de todas reescribe ~6200 lineas de `symbols.txt` y aun quedan labelcheck peores y un `ninja` roto. No integrado; parche `docs/enlazar-20261115-qJ-csv.patch`.
+- `lbl_8087D710` (`" "`, tras 0x8087D708): lo usan ~60 fuentes con `extern` explicito (Arms el primero enlazado); seria la misma operacion con mas ficheros.
+- El resto: el dueno (primer usuario de la debil o clase del estatico) no enlaza: stored_vtable de boost (ControlWall*, ControlAppear...), `@STRING@` de SimpleVector/D2A_Buffer, `lbl_8087F430/34` y `lbl_8087DCC8/CC` (GameTask), `CrowdSimulation::sInstance` (CrowdSimulation), `lbl_8087F498` (GameVoice), `lbl_8087EFE8` (SoundManager), `lbl_8087F8A8` (PopupTask), `lbl_8087EE68` (AiCommon_unk), `RenderManager::instance_` y vecinos (RenderSystem_unk), `GameSoundControl::sInstance`.
 
 ## Medicion de `strlen` intrinseca (cola J.3)
 
@@ -51,3 +71,7 @@ incluidos `libs/boost/msl_shim/string` y `stdexcept`), build completo frente al 
 - Lectura: el original trae `strlen` intrinseca en unas unidades (las que bajan) y no en otras (las que suben); no es una propiedad de la cabecera compartida sino de lo que incluya cada fichero. Lo correcto es por unidad: `#include "std/msl_common.h"` antes de `std/string.h` donde haga falta (como hizo qA en Sequence).
 
 ## Pendientes
+
+- `GameSoundControl::sInstance` (0x8087F480) y `CrowdSimulation::sInstance` (0x8087F130), `lbl_8087F498` (GameVoice), `lbl_8087EFE8` (SoundManager): anadir su `.sbss` a esas unidades cuando se trabajen (no enlazan; sin ganancia ahora).
+- `Csv()`/`CsvTab(const void*)`/`Csv(text, len)` con literales en `Csv.h` (0x8087D720/D710/D708): solo merece la pena en un lote que re-empareje todo de una vez (consume un `@N` en cada unidad que incluye Csv.h).
+- `OSNet.c` con las funciones debiles de NWC24 (192 B): falta una version cuyas debiles no se inlineen en `__OSInitNet`.
