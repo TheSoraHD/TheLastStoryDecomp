@@ -35,6 +35,9 @@ Inicio 13:22 (servidor reiniciado a las 13:43; seguido desde el estado de la cop
   en su `.sdata2` (0.5, 0.7, 15, 2.44, 20): la unidad no enlazaria aunque la funcion llegara al 100 %. No se guarda.
 - `db/TreasureBoxTable_unk` fn_8021E5A4: 98,91 % sin cambio (`(int)flags` en el primer bucle 96,9, parametro int /
   `const&` / `unsigned long`, producto invertido). Las mascaras salen en orden inverso al original en los dos bucles.
+- Tercera pasada (barridos automaticos): MapEnvSeTable 20 combinaciones de bucle exterior/interior (mejor la
+  actual), CrossbowMenuTask 54 (inventario fuera/dentro/inicializado, indice/puntero/clave, int/unsigned, orden
+  de la comparacion): ninguna pasa de 99,82; Em201ZanGurg: copy-init, `const std::string`, `static const char*`.
 - Sin intentar (ya documentadas o con datos que no enlazan): `db/ArrowSet_unk` (push_back de vector.h compartido),
   `db/WeaponParam_unk` (`__pp` de boost::token_iterator, plantilla de cabecera), `MP/CryptMP` (double 0.0 en .bss),
   `game/StrapTask` (registros FPR), `game/PickTask`, `game/CrowdSimulation`, `game/MapPartsRain` (poolcheck 1),
