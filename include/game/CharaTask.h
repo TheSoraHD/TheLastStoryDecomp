@@ -160,7 +160,7 @@ struct CharaListener_unk {
 struct CharaListenerList_unk : public std::vector<CharaListener_unk> {};
 struct CharaListeners_unk {
     CharaListeners_unk() : mEnabled(1) {}
-    void fn_8014F860(int id, CharaTask* chara, void* arg); // inferred: notifies the listeners of `id` (arg: event data)
+    void fn_8014F860(int id, CharaTask* chara, void* arg) const; // inferred: notifies the listeners of `id` (arg: event data)
 
     CharaListenerList_unk mList;
     int mEnabled;

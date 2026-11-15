@@ -1819,9 +1819,9 @@ int ControlCliffhangZanGurg::vf0C() {
     return 0;
 }
 
-// NONMATCHING: 75.3% - the original loads mChara before saving r31 (as StickByQuark::vf10)
 atn::Vector3 ControlCliffhangZanGurg::vf14() const {
-    atn::Vector3 pos = ((atn::Matrix3x4*)mChara->mMotion.GetNodeMtx_unk("hips"))->GetTrans_unk();
+    const Motion_unk& m = mChara->mMotion;
+    atn::Vector3 pos = ((atn::Matrix3x4*)m.GetNodeMtx_unk("hips"))->GetTrans_unk();
     pos.y -= 15.0f;
     return pos;
 }
@@ -1858,10 +1858,12 @@ int ControlEndCliffhangZanGurg::vf0C() {
     return 0;
 }
 
-// NONMATCHING: 86.5% - the original loads mChara before saving r31; node pointer in r4
+// NONMATCHING: 99.3% - node pointer in r4 and the temporary of LerpTo_unk in r3 (swapped); tried a
+// node local, VecAssign_unk, a named result, t local, const chara for mPos
 atn::Vector3 ControlEndCliffhangZanGurg::vf14() const {
+    const CharaTask* chara = mChara; // inferred: read through a const pointer (frame loaded before the prologue)
     Motion_unk* m = &mChara->mMotion;
-    float frame = Frame_unk(m);
+    float frame = chara->mMotion.mTracks[0].m08;
     float end = m->fn_80097D7C(0);
     atn::Vector3 pos = ((atn::Matrix3x4*)m->GetNodeMtx_unk("hips"))->GetTrans_unk();
     pos.y -= 15.0f;
@@ -1913,9 +1915,9 @@ int ControlStickZanGurgStand::vf0C() {
     return frame >= m->fn_80097D7C(0);
 }
 
-// NONMATCHING: 75.3% - the original loads mChara before saving r31 (as StickByQuark::vf10)
 atn::Vector3 ControlStickZanGurgStand::vf14() const {
-    atn::Vector3 pos = ((atn::Matrix3x4*)mChara->mMotion.GetNodeMtx_unk("hips"))->GetTrans_unk();
+    const Motion_unk& m = mChara->mMotion;
+    atn::Vector3 pos = ((atn::Matrix3x4*)m.GetNodeMtx_unk("hips"))->GetTrans_unk();
     pos.y -= 15.0f;
     return pos;
 }
@@ -1964,9 +1966,9 @@ int ControlStickZanGurgCliff::vf0C() {
     return Frame_unk(m) >= m->fn_80097D7C(0);
 }
 
-// NONMATCHING: 75.3% - the original loads mChara before saving r31 (as StickByQuark::vf10)
 atn::Vector3 ControlStickZanGurgCliff::vf14() const {
-    atn::Vector3 pos = ((atn::Matrix3x4*)mChara->mMotion.GetNodeMtx_unk("hips"))->GetTrans_unk();
+    const Motion_unk& m = mChara->mMotion;
+    atn::Vector3 pos = ((atn::Matrix3x4*)m.GetNodeMtx_unk("hips"))->GetTrans_unk();
     pos.y -= 15.0f;
     return pos;
 }
