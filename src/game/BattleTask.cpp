@@ -105,8 +105,9 @@ extern "C" void fn_8023A8B4(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Mod
                             const atn::Vector3& pos, const atn::Vector3& rot, const EffectColor_unk& color, int arg7,
                             int arg8, int arg9, float scale);
 
-// inferred: plays an EFP effect at the model, without offset (as gmk/Coffin.cpp)
-inline void PlayEfp_unk(atn::EfpFile* efp, atn::Model* model) {
+// inferred: plays an EFP effect at the model, without offset (as gmk/Coffin.cpp); the manager is an argument
+// (fn_80101524 loads it before choosing the effect)
+inline void PlayEfp_unk(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Model* model) {
     atn::Vector3 pos;
     atn::Vector3 rot;
     EffectColor_unk color;
@@ -120,7 +121,7 @@ inline void PlayEfp_unk(atn::EfpFile* efp, atn::Model* model) {
     color.g = 1.0f;
     color.b = 1.0f;
     color.a = 1.0f;
-    fn_8023A8B4(lbl_8087F3C0, efp, model, 0, pos, rot, color, -1, -1, 1, 1.0f);
+    fn_8023A8B4(mgr, efp, model, 0, pos, rot, color, -1, -1, 1, 1.0f);
 }
 
 // inferred: data of this file, in the order of its .rodata/.sdata2: names of the effect files and of the
@@ -2509,8 +2510,6 @@ extern "C" bool fn_8021A9CC(HitInfo_unk* data); // inferred: db/ParseUtil_unk (t
 // hit reaches (fn_800FD658, or CharaTask::fn_80178668 for the kinds of fn_8021A9CC), with the effects when
 // `effect`; a hit by a player raises the gauge m38A04. Returns whether something was hit. Called
 // by game/Bullet, game/EnemyTrista, SkillEffectManager and the controls.
-// NONMATCHING: 97.6% - the original keeps the addresses of the attacker position and rotation in registers
-// before the closing effect and sound; .sdata2 pool
 int BattleTask::fn_800FB4B0(CharaTask* attacker, HitInfo_unk* data, int id, const atn::Vector3* pos,
                            int a, int b, int, int effect) {
     if (data == 0 || attacker == 0) {
@@ -2578,8 +2577,12 @@ int BattleTask::fn_800FB4B0(CharaTask* attacker, HitInfo_unk* data, int id, cons
     }
     if (effect != 0) {
         EffectColor_unk color(1.0f, 1.0f, 1.0f, 1.0f);
-        fn_801070C8(data->mB0, 0, 0, 0, &attacker->mPos, &attacker->mRot, &color, 1.0f);
-        fn_80107208(data->mB0, &attacker->mPos, 1.0f);
+        // inferred: the addresses are locals (the original keeps them in registers before the inlined calls)
+        const atn::Vector3* r = &attacker->mRot;
+        const atn::Vector3* p = &attacker->mPos;
+        fn_801070C8(data->mB0, 0, 0, 0, p, r, &color, 1.0f);
+        const atn::Vector3* p2 = &attacker->mPos;
+        fn_80107208(data->mB0, p2, 1.0f);
     }
     if (hit && attacker != 0 && attacker->mType == 0) {
         float add = m38A1C * (attacker->mFlag28 ? m38A38 : 1.0f);
@@ -4105,7 +4108,6 @@ void BattleTask::fn_80101434(const atn::Vector3* pos, const atn::Vector3* rot, i
 // effects of the poison (1), the curse (0x400000) and 0x40 states, the stone effect (0x1800000, on the model of
 // `chara`), and one sound for the states gained or else for the states lost (flags 0x20 mutes it). called by
 // CharaStatus and chr::ControlCdnStone
-// NONMATCHING: 98.95% - the original loads the effect manager before choosing the stone effect; string pool offsets
 void BattleTask::fn_80101524(const atn::Vector3* pos, const atn::Vector3* rot, unsigned int old,
                             unsigned int flags, CharaTask* chara) {
     if ((flags & 0x20) != 0) {
@@ -4133,7 +4135,7 @@ void BattleTask::fn_80101524(const atn::Vector3* pos, const atn::Vector3* rot, u
     }
     if ((added & 0x1800000) && chara != 0) {
         fn_80232B7C((unsigned int)this, 0);
-        PlayEfp_unk((added & 0x80000) ? &mEfp365C4 : &mEfp365B8, chara->GetModel_unk());
+        PlayEfp_unk(lbl_8087F3C0, (added & 0x80000) ? &mEfp365C4 : &mEfp365B8, chara->GetModel_unk());
     }
     added &= 0xFE5FE7DF;
     removed &= 0xFE5FE7DF;
@@ -5170,7 +5172,7 @@ void BattleTask::fn_801058F8() {
 
 void BattleTask::fn_80105950(void* owner, atn::Model* model) {
     fn_80232B7C((unsigned int)owner, 0);
-    PlayEfp_unk(&mEfp363C0, model);
+    PlayEfp_unk(lbl_8087F3C0, &mEfp363C0, model);
 }
 
 void BattleTask::fn_801059F8(CharaTask* chara) {
@@ -5179,7 +5181,7 @@ void BattleTask::fn_801059F8(CharaTask* chara) {
 
 void BattleTask::fn_80105A08(void* owner, atn::Model* model) {
     fn_80232B7C((unsigned int)owner, 0);
-    PlayEfp_unk(&mEfp363CC, model);
+    PlayEfp_unk(lbl_8087F3C0, &mEfp363CC, model);
 }
 
 void BattleTask::fn_80105AB0(void* owner, atn::Model* model, const EffectColor_unk& color) {
@@ -5199,26 +5201,25 @@ void BattleTask::fn_80105B4C(void* owner, atn::Model* model, const EffectColor_u
 void BattleTask::fn_80105BD8(atn::Model* model) {
     lbl_8087F3C0->mSystem.m78 = 1;
     fn_80232B7C(0, 0);
-    PlayEfp_unk(&mEfp364EC, model);
+    PlayEfp_unk(lbl_8087F3C0, &mEfp364EC, model);
     lbl_8087F3C0->mSystem.m78 = 0;
 }
 
 void BattleTask::fn_80105C9C(CharaTask* chara, atn::Model* model) {
     fn_80232B7C((unsigned int)chara, 3);
     if (fn_80219558(chara->m50) == 2) {
-        PlayEfp_unk(&mEfp38B00, model);
+        PlayEfp_unk(lbl_8087F3C0, &mEfp38B00, model);
     } else {
-        PlayEfp_unk(&mEfp38AF4, model);
+        PlayEfp_unk(lbl_8087F3C0, &mEfp38AF4, model);
     }
 }
 
-// NONMATCHING: 90% - the original loads the effect manager before the clamp of the level
 void BattleTask::fn_80105DCC(CharaTask* chara, atn::Model* model, int level) {
     fn_80232B7C((unsigned int)chara, 4);
     if (fn_80219558(chara->m50) == 2) {
-        PlayEfp_unk(&mEfp38B30, model);
+        PlayEfp_unk(lbl_8087F3C0, &mEfp38B30, model);
     } else {
-        PlayEfp_unk(&mEfp38B0C[0] + MIN((unsigned int)MAX(level, 0), 3u), model);
+        PlayEfp_unk(lbl_8087F3C0, &mEfp38B0C[0] + MIN((unsigned int)MAX(level, 0), 3u), model);
     }
 }
 
@@ -5229,9 +5230,9 @@ void BattleTask::fn_80105F3C(void* owner) {
 void BattleTask::fn_80105F4C(CharaTask* chara, atn::Model* model) {
     fn_80232B7C((unsigned int)chara, 3);
     if (fn_80219558(chara->m50) == 2) {
-        PlayEfp_unk(&mEfp38B48, model);
+        PlayEfp_unk(lbl_8087F3C0, &mEfp38B48, model);
     } else {
-        PlayEfp_unk(&mEfp38B3C, model);
+        PlayEfp_unk(lbl_8087F3C0, &mEfp38B3C, model);
     }
 }
 
@@ -5242,9 +5243,9 @@ void BattleTask::fn_8010607C(void* owner) {
 void BattleTask::fn_8010608C(CharaTask* chara, atn::Model* model) {
     fn_80232B7C((unsigned int)chara, 3);
     if (fn_80219558(chara->m50) == 2) {
-        PlayEfp_unk(&mEfp38B60, model);
+        PlayEfp_unk(lbl_8087F3C0, &mEfp38B60, model);
     } else {
-        PlayEfp_unk(&mEfp38B54, model);
+        PlayEfp_unk(lbl_8087F3C0, &mEfp38B54, model);
     }
 }
 
@@ -5261,7 +5262,7 @@ void BattleTask::fn_801061BC(CharaTask* chara, atn::Model* model, int level) {
         fn_8023A8B4(lbl_8087F3C0, &mEfp38B90[0] + level, model, 0, lbl_807C7030, lbl_807C7030,
                     EffectColor_unk(1.0f, 0.0f, 0.0f, 1.0f), -1, -1, 1, 1.0f);
     } else {
-        PlayEfp_unk(&mEfp38B6C[0] + level, model);
+        PlayEfp_unk(lbl_8087F3C0, &mEfp38B6C[0] + level, model);
     }
     lbl_8087F3C0->mSystem.m78 = 0;
     if (level >= 1) {
@@ -5291,7 +5292,7 @@ void BattleTask::fn_8010652C(void* owner) {
 
 void BattleTask::fn_8010653C(void* owner, atn::Model* model) {
     fn_80232B7C((unsigned int)owner, 6);
-    PlayEfp_unk(&mEfp38C50, model);
+    PlayEfp_unk(lbl_8087F3C0, &mEfp38C50, model);
 }
 
 void BattleTask::fn_801065E4(void* owner) {
@@ -5306,17 +5307,17 @@ void BattleTask::fn_801065F4(CharaTask* chara, atn::Model* model, const ColorF_u
 
 void BattleTask::fn_80106680(void* owner, atn::Model* model) {
     fn_80232B7C((unsigned int)owner, 8);
-    PlayEfp_unk(&mEfp38C68, model);
+    PlayEfp_unk(lbl_8087F3C0, &mEfp38C68, model);
 }
 
 void BattleTask::fn_80106728(int arg, atn::Model* model) {
     fn_80232B7C(0, 0);
-    PlayEfp_unk(&mEfp365D0, model);
+    PlayEfp_unk(lbl_8087F3C0, &mEfp365D0, model);
 }
 
 void BattleTask::fn_801067D0(CharaTask* chara, atn::Model* model) {
     fn_80232B7C(0, 0);
-    PlayEfp_unk(&mEfp365DC, model);
+    PlayEfp_unk(lbl_8087F3C0, &mEfp365DC, model);
 }
 
 extern "C" std::string fn_8006B174(const std::string& path); // inferred: file name of a path (as game/CharaTask.cpp)
@@ -5358,7 +5359,7 @@ void BattleTask::fn_80106878(CharaTask* chara) {
         return;
     }
     fn_80232B7C((unsigned int)chara, 9);
-    PlayEfp_unk(&mEfp365E8[kind], model);
+    PlayEfp_unk(lbl_8087F3C0, &mEfp365E8[kind], model);
     if (chara->m648 != 0 && HasCond_unk((Arms*)chara->m648, 2, 0x22)) {
         EffectColor_unk white(1.0f, 1.0f, 1.0f, 1.0f);
         fn_801070C8(0x232C, (unsigned int)chara, 9, model, &lbl_807C7030, &lbl_807C7030, &white, 1.0f);
@@ -5473,7 +5474,7 @@ void BattleTask::fn_80107584() {
 void BattleTask::fn_801076D0(void* owner, atn::Model* model) {
     if (fn_80239D58(lbl_8087F3C0, owner, 20) == 0) {
         fn_80232B7C((unsigned int)owner, 20);
-        PlayEfp_unk(&mEfp38BB4, model);
+        PlayEfp_unk(lbl_8087F3C0, &mEfp38BB4, model);
     }
 }
 
@@ -5483,7 +5484,7 @@ void BattleTask::fn_80107798(void* owner, int flag) {
 
 void BattleTask::fn_801077A8(void* owner, atn::Model* model) {
     fn_80232B7C((unsigned int)owner, 21);
-    PlayEfp_unk(&mEfp38BC0, model);
+    PlayEfp_unk(lbl_8087F3C0, &mEfp38BC0, model);
 }
 
 void BattleTask::fn_80107850(void* owner) {
@@ -5492,12 +5493,12 @@ void BattleTask::fn_80107850(void* owner) {
 
 void BattleTask::fn_80107860(void* owner, atn::Model* model) {
     fn_80232B7C((unsigned int)owner, 22);
-    PlayEfp_unk(&mEfp38BD8, model);
+    PlayEfp_unk(lbl_8087F3C0, &mEfp38BD8, model);
 }
 
 void BattleTask::fn_80107908(void* owner, atn::Model* model) {
     fn_80232B7C((unsigned int)owner, 23);
-    PlayEfp_unk(&mEfp38BE4, model);
+    PlayEfp_unk(lbl_8087F3C0, &mEfp38BE4, model);
 }
 
 void BattleTask::fn_801079B0(void* owner) {
@@ -5506,7 +5507,7 @@ void BattleTask::fn_801079B0(void* owner) {
 
 void BattleTask::fn_801079C0(void* owner, atn::Model* model) {
     fn_80232B7C((unsigned int)owner, 24);
-    PlayEfp_unk(&mEfp38BFC, model);
+    PlayEfp_unk(lbl_8087F3C0, &mEfp38BFC, model);
 }
 
 void BattleTask::fn_80107A68(void* owner) {
@@ -5515,7 +5516,7 @@ void BattleTask::fn_80107A68(void* owner) {
 
 void BattleTask::fn_80107A78(void* owner, atn::Model* model) {
     fn_80232B7C((unsigned int)owner, 25);
-    PlayEfp_unk(&mEfp38BCC, model);
+    PlayEfp_unk(lbl_8087F3C0, &mEfp38BCC, model);
 }
 
 void BattleTask::fn_80107B20(void* owner) {
@@ -5524,7 +5525,7 @@ void BattleTask::fn_80107B20(void* owner) {
 
 void BattleTask::fn_80107B30(void* owner, atn::Model* model) {
     fn_80232B7C((unsigned int)owner, 26);
-    PlayEfp_unk(&mEfp38C08, model);
+    PlayEfp_unk(lbl_8087F3C0, &mEfp38C08, model);
 }
 
 void BattleTask::fn_80107BD8(void* owner) {
@@ -5534,7 +5535,7 @@ void BattleTask::fn_80107BD8(void* owner) {
 void BattleTask::fn_80107BE8(void* owner, atn::Model* model) {
     lbl_8087F3C0->mSystem.mLayer = 2;
     fn_80232B7C((unsigned int)owner, 27);
-    PlayEfp_unk(&mEfp38C14, model);
+    PlayEfp_unk(lbl_8087F3C0, &mEfp38C14, model);
     lbl_8087F3C0->mSystem.mLayer = 0;
 }
 
@@ -5570,7 +5571,7 @@ void BattleTask::fn_80107E58(void* owner) {
 
 void BattleTask::fn_80107E68(void* owner, atn::Model* model) {
     fn_80232B7C((unsigned int)owner, 30);
-    PlayEfp_unk(&mEfp38BF0, model);
+    PlayEfp_unk(lbl_8087F3C0, &mEfp38BF0, model);
 }
 
 void BattleTask::fn_80107F10(void* owner) {
@@ -5589,7 +5590,7 @@ void BattleTask::fn_80107FC8(void* owner) {
 
 void BattleTask::fn_80107FD8(void* owner, atn::Model* model) {
     fn_80232B7C((unsigned int)owner, 32);
-    PlayEfp_unk(&mEfp38C44, model);
+    PlayEfp_unk(lbl_8087F3C0, &mEfp38C44, model);
 }
 
 void BattleTask::fn_80108080(void* owner) {

@@ -2508,7 +2508,6 @@ void BattleCharaTask::vfEC() {
     }
 }
 
-// NONMATCHING: 97.3% - the original reloads the flag word for mFlag25 after the mFlag16 test (as CharaTask::vf34)
 // inferred: end of the knock-down: after m1450 frames down the character dies (event 0x1B7 for type 3)
 void BattleCharaTask::vfF0() {
     if (fn_8015EB2C() == 0) {
@@ -2517,7 +2516,8 @@ void BattleCharaTask::vfF0() {
         return;
     }
     mColli.mFlags &= ~1;
-    if (mFlag16) {
+    // inferred: read through a const view (the original reloads the flag word for mFlag25 after the test)
+    if (((const BattleCharaTask*)this)->mFlag16) {
         if (mF50 == 0 && !fn_80175AEC() && !(m55C == 6 && m560 == 0x65)) {
             if (m1450 > 0) {
                 if (lbl_8087F430 == 0 || ((GameTask*)lbl_8087F430)->fn_80370174(0xAC) == 0) {
