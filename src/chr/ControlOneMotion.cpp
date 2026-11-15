@@ -5,9 +5,8 @@
 namespace chr {
 
 // inferred: common end of the constructors (stops track 3 and the movement); name invented
-// The local c2 before the m570 store gives the original r4/r5 order (lbl_807C7030 in r4, mChara in r5).
-// NONMATCHING (ControlOneMotionTransition ctor only, 99.26%): there r4/r5 are still swapped, with or
-// without c2. Tried: plain global, reference/pointer locals, a parameter, __VecCopy.
+// The locals c2/c3 before the m570/m574 stores give the original r4/r5 order (lbl_807C7030 in r4,
+// mChara in r5).
 inline void ResetMove_unk(ControlBase* control, const atn::Vector3& vel) {
     Chara_unk* c = control->mChara;
     c->m580 = 0.0f;
@@ -17,7 +16,8 @@ inline void ResetMove_unk(ControlBase* control, const atn::Vector3& vel) {
     chara->m12BC = -1;
     Chara_unk* c2 = control->mChara;
     c2->m570 = 0.0f;
-    control->mChara->m574 = vel;
+    Chara_unk* c3 = control->mChara;
+    c3->m574 = vel;
 }
 
 ControlOneMotion::ControlOneMotion(Chara_unk* chara, int motion, int a, int b, float start, float end)

@@ -826,7 +826,7 @@
    "chr::ControlDetectHateAtt",
    "chr::ControlDetect"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "chr/ControlDive.cpp",
@@ -936,7 +936,7 @@
    "chr::ControlOneMotionTarget",
    "chr::ControlOneMotion"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "chr/ControlPushedDown.cpp",
