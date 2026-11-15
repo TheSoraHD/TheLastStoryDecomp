@@ -10,7 +10,7 @@ game/NewCampPartsGmk. Agente W, 20:17 -> 22:45.
 |---|---|---|---|
 | db/PaletteTable_unk | 12/14 | 13/14 | `fn_8020BB0C` 100 %; `fn_8020B2BC` 98,03 -> 99,96 (solo registros) |
 | game/GameConfig_unk | 12/15 | 13/15 | `DialogConfig_unk::fn_801856B8` 100 % |
-| game/EnemyQuarkFirst | 12/15 | 13/15 | `vf104` 100 % |
+| game/EnemyQuarkFirst | 12/15 | 13/15 | `vf104` 100 % (`world` local + 2 `VecAssign_unk`) |
 | chr/ControlDamage | 38/41 | 38/41 | `ControlDamageLastOne::vf0C` 99,4 -> 99,64 sin commit (ver Pendientes) |
 | atn/THPPlayer_unk | 18/22 | 18/22 | probadas sin cambio |
 | chr/ControlInteractionBase | 18/21 | 18/21 | probadas sin cambio |
@@ -66,5 +66,12 @@ Nada (ninguna unidad del port tocada).
   huecos de pila de `d` (estado 9-11) y `back` cruzados.
 - THPSimpleSetBuffer: el original comparte el registro del 0 entre isValid y validSample; probado como C,
   `long` en u32/s32 (SDK), BOOL en validSample.
+- PaletteTable `fn_8020B2BC`: con la llamada directa `sPalettes[index].SetName_unk(csv.fn_8005B9CC())` en el
+  bloque 2 quedan nombre/destino cruzados (r28/r30); con local `text` el nombre cae en r25 (el de `index`, que
+  en el original sigue vivo tras la llamada). Variantes del cuerpo de `SetName_unk` (src/dst): sin cambio.
+- ControlKnockdown ctor: `std::string(path, strlen(path))` peor (98,7).
+- ControlInteractionBase DiveIntoWater ctor/vf0C: `GetBodyPos_unk` por valor, `c->mPos`, `VecAssign_unk`,
+  local `pos`: sin mejora (el original da r31 a `ret`/`this` y el registro mas bajo a la direccion de `pos`).
+- EnemyQuarkFirst: tras `pd` hizo falta renombrar a mano `@10681` -> `@10699` (0x808851B0, como en qL2).
 - THPSimpleDecode 99,81: 120 permutaciones de las declaraciones, `readBuffer` local y AudioDecode inline:
   sin cambio.
