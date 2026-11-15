@@ -465,7 +465,8 @@ void Bullet::vf14(const Mtx m) {
     fn_8010F4BC();
 }
 
-// NONMATCHING: 95.3% - stack layout (frame 0x10 larger) and the temporaries of the reflection
+// NONMATCHING: 99.6% - stack layout (frame 0x10 larger: the original keeps fewer vector temporaries) and r29/r28
+// swapped between `hit` and the owner of the hit object
 // inferred: hit test against the characters: a bullet that reaches a shield (skill effect with the
 // flag 0x400000) of another side is reflected (or bounced back with vf20), otherwise it tests the
 // collision and hits with fn_80110858
@@ -489,7 +490,8 @@ void Bullet::fn_801100A0() {
                 }
                 PSVECMag(&m20);
                 float dot = PSVECDotProduct(&normal, &m20);
-                atn::Vector3 dir = m20 - normal * 2.0f * dot + m20 * 0.75f;
+                atn::Vector3 dir = m20 - normal * 2.0f * dot;
+                dir += m20 * 0.75f;
                 float t = 0.4f * ((float)(rand() % 1001) / 1000.0f) - 0.2f;
                 atn::Vector3 up(0.0f, 1.0f, 0.0f);
                 atn::Vector3 side;
