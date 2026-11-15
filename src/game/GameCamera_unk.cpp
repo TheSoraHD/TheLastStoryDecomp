@@ -3125,7 +3125,7 @@ void GameCamera::fn_8038D1C0(const CharaTask* chara) {
 
 // inferred: blends in 10 frames to a camera 40 behind the target (the character) along the line from the point
 // 5 under its head; then back to the sub mode with m83C = 6
-// NONMATCHING: 85.8% - the original adds the offset to the head after the first blend (more float registers)
+// NONMATCHING: 87.9% - the original adds the offset to the head after the first blend (more float registers)
 void GameCamera::fn_8038D4D4(const CharaTask* chara) {
     if (m808 == 0) {
         m80C = mCamera.mPos;
@@ -3133,10 +3133,9 @@ void GameCamera::fn_8038D4D4(const CharaTask* chara) {
         m830 = mCamera.mFovy;
     }
     atn::Vector3 target = chara->mPos;
-    atn::Vector3 offset(0.0f, -5.0f, 0.0f);
-    atn::Vector3 head = const_cast<CharaTask*>(chara)->fn_80178088();
-    target = (target - m818) * ((float)m808 / 10.0f) + m818;
-    atn::Vector3 dir = (target - (head + offset)).GetNormalize();
+    atn::Vector3 head = const_cast<CharaTask*>(chara)->fn_80178088() + atn::Vector3(0.0f, -5.0f, 0.0f);
+    target = LerpV_unk(m818, target, (float)m808 / 10.0f);
+    atn::Vector3 dir = (target - head).GetNormalize();
     atn::Vector3 pos = target + dir * 40.0f;
     pos = LerpV_unk(m80C, pos, ((float)m808 / 10.0f));
     mCamera.SetPosition(pos);
