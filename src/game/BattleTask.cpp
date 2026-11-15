@@ -4496,7 +4496,6 @@ void BattleTask::fn_80102A40(CharaTask* chara, CharaTask* target, int damage, in
     }
 }
 
-// NONMATCHING: 99.6% - registers of the entry and of the list pointer swapped (r29/r30)
 // inferred: adds hate `value` of `chara` toward `attacker`, and of the characters that follow `chara` (mode 0x11)
 // on its side; a player hit outside multiplayer rounds the value; the last argument is not read (-1 from
 // Em101ElderZesya). called by other files
@@ -4508,10 +4507,11 @@ void BattleTask::fn_80102EAC(CharaTask* chara, CharaTask* attacker, int value, i
     int a = this->FindChara_unk(chara);
     int b = this->FindChara_unk(attacker);
     if (b >= 0 && a >= 0) {
+        BattleChara_unk* p;
         BattleChara_unk* entry = &mCharas[a];
         if (entry->mChara != 0 && entry->mChara->CanAct_unk()) {
             entry->fn_801088B8(b, value);
-            BattleChara_unk* p = mCharas;
+            p = mCharas;
             for (int i = 0; i < mCharaCount; i++) {
                 if (p->mChara != 0 && p->mChara->CanAct_unk() && p->mChara->fn_8016F3D0(chara, 1) &&
                     p->mChara->mC58.mMode == 0x11 && p->mChara->mC58.mCC == chara) {
