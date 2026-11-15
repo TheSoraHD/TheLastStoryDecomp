@@ -436,7 +436,7 @@ inline void EffOrigin_unk(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* mod
 // inferred: hits: the head spear (0x134) or a hit while weak (m40 == 1 outside state 10) knock the ghoul back
 // and start the rolling state 10 away from the attacker (bent towards the home place); other hits only do
 // damage while the ghoul is under the coffin (state 12)
-void Em309Ghoul::vf3C(HitInfo_unk* hit) {
+void Em309Ghoul::vf3C(HitInfo_unk* hit, int) {
     HitMsg_unk* msg = (HitMsg_unk*)hit;
     int weak = *(int*)&msg->m3C[4]; // inferred: HitMsg_unk+0x40 (as in game/Em205Ogre.cpp)
     if ((weak == 1 && m58C != 10) || msg->mData->m04 == 0x134) {

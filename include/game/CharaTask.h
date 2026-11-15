@@ -430,7 +430,7 @@ public:
     virtual void vf30(void* menu); // inferred: debug menu (the symbol is still named vf30__9CharaTaskFv)
     virtual void vf34(const atn::Vector3& rot, int arg, float a, float b); // inferred: turns to rot and moves
     virtual void vf38(int arg) {} // inferred: fn_801765D8 passes 0 (weak copy 0x800EF3D8)
-    virtual void vf3C(HitInfo_unk* hit);
+    virtual void vf3C(HitInfo_unk* hit, int);
     virtual void vf40(HitInfo_unk* hit);
     virtual void vf44();
     virtual void vf48();

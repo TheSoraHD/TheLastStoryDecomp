@@ -3443,7 +3443,7 @@ int BattleTask::fn_800FDF14(BattleCalcParam_unk* p) {
     if (attacker != 0 && attacker->mStatus.fn_80133EE8(0x40)) {
         p->m0C |= 0x8000;
     }
-    target->vf3C((HitInfo_unk*)p);
+    target->vf3C((HitInfo_unk*)p, 1);
     if (attacker != 0) {
         if (attacker->mStatus.fn_80133F6C(-1, 0x1A) > 0) {
             if (!(p->m80 >> 31)) {

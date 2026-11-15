@@ -391,7 +391,7 @@ void Em101ElderZesyaSecond::vf14() {
     fn_80149A30();
 }
 
-void Em101ElderZesyaSecond::vf3C(HitInfo_unk* hit) {
+void Em101ElderZesyaSecond::vf3C(HitInfo_unk* hit, int) {
     HitMsg_unk* msg = (HitMsg_unk*)hit;
     if (m58C - 10U <= 1) {
         msg->m90 = 1;

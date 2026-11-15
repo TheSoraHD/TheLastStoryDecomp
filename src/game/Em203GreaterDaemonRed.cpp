@@ -652,7 +652,7 @@ void Em203GreaterDaemonRed::fn_802953C8() {
     }
 }
 
-void Em203GreaterDaemonRed::vf3C(HitInfo_unk* hit) {
+void Em203GreaterDaemonRed::vf3C(HitInfo_unk* hit, int) {
     HitMsg_unk* msg = (HitMsg_unk*)hit;
     if (m58C == 22 || m58C == 2 || m58C == 23) {
         return;

@@ -205,7 +205,7 @@ void QuadrupedTask::vf14() {
     }
 }
 
-void QuadrupedTask::vf3C(HitInfo_unk* hit) {
+void QuadrupedTask::vf3C(HitInfo_unk* hit, int) {
     HitMsg_unk* msg = (HitMsg_unk*)hit;
     fn_80151448(msg);
     m638 = 0;

@@ -27,7 +27,7 @@ public:
     virtual int vf0C();
     virtual void vf10();
     virtual void vf14();
-    virtual void vf3C(HitInfo_unk* hit);
+    virtual void vf3C(HitInfo_unk* hit, int);
     virtual void vf40(HitInfo_unk* hit);
     virtual int vf68(CharaTask* attacker);
     virtual void vf6C(int kind, CharaTask* other);

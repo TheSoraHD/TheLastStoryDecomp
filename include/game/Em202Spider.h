@@ -41,7 +41,7 @@ public:
     virtual int vf0C();                                  // 0x8027CF28
     virtual void vf10();                                 // 0x8027D838
     virtual void vf14();                                 // 0x8027E19C
-    virtual void vf3C(HitInfo_unk* hit);                 // 0x8027E410
+    virtual void vf3C(HitInfo_unk* hit, int);                 // 0x8027E410
     virtual void vf40(HitInfo_unk* hit);                 // 0x8027E678
     virtual void vf54();                                 // 0x8027E8EC
     virtual void vf7C(int arg);                          // 0x8027EA84

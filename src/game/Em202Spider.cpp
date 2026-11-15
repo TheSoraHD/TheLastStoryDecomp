@@ -485,7 +485,7 @@ inline float FrontDot_unk(CharaTask* self, const atn::Vector3& pos) {
     return PSVECDotProduct(&d, &fwd);
 }
 
-void Em202Spider::vf3C(HitInfo_unk* hit) {
+void Em202Spider::vf3C(HitInfo_unk* hit, int) {
     HitMsg_unk* msg = (HitMsg_unk*)hit;
     bool down = true;
     unsigned int flags = mStatus.m0C;

@@ -442,7 +442,7 @@ void Em209SmallGolem::vf14() {
     fn_80149A30();
 }
 
-void Em209SmallGolem::vf3C(HitInfo_unk* hit) {
+void Em209SmallGolem::vf3C(HitInfo_unk* hit, int) {
     HitMsg_unk* msg = (HitMsg_unk*)hit;
     if (m58C == 7) {
         msg->m68 = 0;

@@ -790,7 +790,7 @@ void Em101LittleZesya::fn_8025F754() {
     fn_80139560();
 }
 
-void Em101LittleZesya::vf3C(HitInfo_unk* hit) {
+void Em101LittleZesya::vf3C(HitInfo_unk* hit, int) {
     HitMsg_unk* msg = (HitMsg_unk*)hit;
     if (m58C - 11U > 2) {
         if (m58C == 10) {

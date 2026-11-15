@@ -375,7 +375,7 @@ void LastCocoonEgg::vf14() {
     }
 }
 
-void LastCocoonEgg::vf3C(HitInfo_unk* hit) {
+void LastCocoonEgg::vf3C(HitInfo_unk* hit, int) {
     vf40(hit);
 }
 

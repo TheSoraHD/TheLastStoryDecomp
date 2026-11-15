@@ -655,7 +655,7 @@ void Em206EggMonster::fn_802C1FEC() {
     m15FC++;
 }
 
-void Em206EggMonster::vf3C(HitInfo_unk* hit) {
+void Em206EggMonster::vf3C(HitInfo_unk* hit, int) {
     HitMsg_unk* msg = (HitMsg_unk*)hit;
     if (msg->mAttacker == this) {
         msg->m90 = 0;

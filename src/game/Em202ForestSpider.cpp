@@ -437,7 +437,7 @@ void Em202ForestSpider::vf14() {
     fn_80149A30();
 }
 
-void Em202ForestSpider::vf3C(HitInfo_unk* hit) {
+void Em202ForestSpider::vf3C(HitInfo_unk* hit, int) {
     HitMsg_unk* msg = (HitMsg_unk*)hit;
     bool down = true;
     unsigned int flags = mStatus.m0C;

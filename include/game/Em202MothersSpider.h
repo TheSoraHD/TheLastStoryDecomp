@@ -11,7 +11,7 @@ public:
     virtual ~Em202MothersSpider();                              // 0x80279930
     virtual int vf0C();                                         // 0x802799C0
     virtual void vf10();                                        // 0x8027A478
-    virtual void vf3C(HitInfo_unk* hit);                        // 0x8027AC38
+    virtual void vf3C(HitInfo_unk* hit, int);                        // 0x8027AC38
     virtual void vf40(HitInfo_unk* hit);                        // 0x8027AF4C
     virtual int vf4C(void* attacker, HitInfo_unk* hit, int arg, const atn::Vector3* dir); // 0x8027B118
     virtual void vfF8();   // 0x8027B1A4 inferred: chooses the target

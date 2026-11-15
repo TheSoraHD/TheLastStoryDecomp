@@ -649,7 +649,7 @@ void Em302Kraken::vf14() {
     fn_80149A30();
 }
 
-void Em302Kraken::vf3C(HitInfo_unk* hit) {
+void Em302Kraken::vf3C(HitInfo_unk* hit, int) {
     HitMsg_unk* msg = (HitMsg_unk*)hit;
     msg->m50 |= 0x10;
     msg->m10 *= 0.0f;

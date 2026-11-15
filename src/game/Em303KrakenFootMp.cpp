@@ -384,7 +384,7 @@ void Em303KrakenFootMp::vf104() {
 
 void Em303KrakenFootMp::vf108() {}
 
-void Em303KrakenFootMp::vf3C(HitInfo_unk* hit) {
+void Em303KrakenFootMp::vf3C(HitInfo_unk* hit, int) {
     HitMsg_unk* msg = (HitMsg_unk*)hit;
     if (m58C != 7 && msg->m44 != 1) {
         fn_80151448(msg);

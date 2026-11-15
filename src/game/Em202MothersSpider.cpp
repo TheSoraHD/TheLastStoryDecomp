@@ -366,7 +366,7 @@ void Em202MothersSpider::vf10() {
 }
 
 // NONMATCHING: 99.3% - stack slots of fwd/d and operand order of m1514 * 0.5f (as Em202ForestSpider::vf3C)
-void Em202MothersSpider::vf3C(HitInfo_unk* hit) {
+void Em202MothersSpider::vf3C(HitInfo_unk* hit, int) {
     HitMsg_unk* msg = (HitMsg_unk*)hit;
     if (fn_8021A888(msg->mData) != 0 && msg->mAttacker->mType == 3 && fn_80277B84(msg->mAttacker) == 0 &&
         msg->mData->m74.m10 > 0.0f) {

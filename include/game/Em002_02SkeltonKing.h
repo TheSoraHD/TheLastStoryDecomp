@@ -12,7 +12,7 @@ public:
     virtual int vf0C();
     virtual void vf10();
     virtual void vf20();
-    virtual void vf3C(HitInfo_unk* hit);
+    virtual void vf3C(HitInfo_unk* hit, int);
 
     CharaTask* fn_80249224(); // inferred: nearest skeleton that can be grabbed
     void fn_80249394();       // inferred: state 6, walks to the target

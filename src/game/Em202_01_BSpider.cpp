@@ -275,7 +275,7 @@ inline float FrontDot_unk(CharaTask* self, const atn::Vector3& pos) {
 }
 
 // inferred: the spider guards the hits from the front (from the back in the states 9 and 10)
-void Em202_01_BSpider::vf3C(HitInfo_unk* hit) {
+void Em202_01_BSpider::vf3C(HitInfo_unk* hit, int) {
     HitMsg_unk* msg = (HitMsg_unk*)hit;
     if (m58C - 9U <= 1) {
         msg->m10 = lbl_807C7030;

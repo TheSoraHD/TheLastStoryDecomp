@@ -923,7 +923,7 @@ inline void Em201ZanGurgFinal::ToIdle_unk() {
 }
 
 // NONMATCHING: r6/r7 of the data of the hit and of the sword flag (rest matches; 6 variants)
-void Em201ZanGurgFinal::vf3C(HitInfo_unk* hit) {
+void Em201ZanGurgFinal::vf3C(HitInfo_unk* hit, int) {
     HitMsg_unk* msg = (HitMsg_unk*)hit;
     m1688++;
     if (m58C == 16) {

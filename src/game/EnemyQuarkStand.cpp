@@ -632,7 +632,7 @@ inline void QuarkPlayEffect_unk(atn::EfpFile* efp, atn::Model* model) {
 }
 
 // inferred: the state 1 of the vf3C reaction (hits while rising); the hit is reduced to nothing
-void EnemyQuarkStand::vf3C(HitInfo_unk* hit) {
+void EnemyQuarkStand::vf3C(HitInfo_unk* hit, int) {
     HitMsg_unk* msg = (HitMsg_unk*)hit;
     if (m1809 == 0) {
         msg->m10 *= 0.0f;

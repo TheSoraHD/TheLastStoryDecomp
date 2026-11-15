@@ -195,7 +195,7 @@ void Em002_01BlackSkelton::vf14() {
     }
 }
 
-void Em002_01BlackSkelton::vf3C(HitInfo_unk* hit) {
+void Em002_01BlackSkelton::vf3C(HitInfo_unk* hit, int) {
     if (m58C == 0 || m58C == 3 || m58C == 4) {
         return;
     }

@@ -679,7 +679,7 @@ void Em302KrakenMp::vf104() {
 
 void Em302KrakenMp::vf108() {}
 
-void Em302KrakenMp::vf3C(HitInfo_unk* hit) {
+void Em302KrakenMp::vf3C(HitInfo_unk* hit, int) {
     HitMsg_unk* msg = (HitMsg_unk*)hit;
     if (m14DC == 3) {
         msg->m68 = 0;

@@ -304,7 +304,7 @@ void Em303KrakenFoot::vf14() {
     fn_80149A30();
 }
 
-void Em303KrakenFoot::vf3C(HitInfo_unk* hit) {
+void Em303KrakenFoot::vf3C(HitInfo_unk* hit, int) {
     HitMsg_unk* msg = (HitMsg_unk*)hit;
     if (m58C == 7 || m58C == 10) {
         return;

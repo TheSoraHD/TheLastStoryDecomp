@@ -294,7 +294,7 @@ void EnemyLizerdBlade::vf24() {
     CharaTask::vf24();
 }
 
-void EnemyLizerdBlade::vf3C(HitInfo_unk* hit) {
+void EnemyLizerdBlade::vf3C(HitInfo_unk* hit, int) {
     HitMsg_unk* msg = (HitMsg_unk*)hit;
     msg->m10 *= 0.0f;
     fn_80151448(msg);

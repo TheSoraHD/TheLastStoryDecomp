@@ -233,7 +233,7 @@ void Em401_01_WhiteLeoPard::fn_8031FAA4() {
     }
 }
 
-void Em401_01_WhiteLeoPard::vf3C(HitInfo_unk* hit) {
+void Em401_01_WhiteLeoPard::vf3C(HitInfo_unk* hit, int) {
     HitMsg_unk* msg = (HitMsg_unk*)hit;
     if (m1594 != 0) {
         if (msg->m44 == 1) {

@@ -384,7 +384,7 @@ int EnemyJill::vfA8(int kind) {
     return result;
 }
 
-void EnemyJill::vf3C(HitInfo_unk* hit) {
+void EnemyJill::vf3C(HitInfo_unk* hit, int arg) {
     HitMsg_unk* msg = (HitMsg_unk*)hit;
     switch (m58C) {
     case 20:
@@ -398,7 +398,7 @@ void EnemyJill::vf3C(HitInfo_unk* hit) {
         }
         break;
     }
-    CharaTask::vf3C(hit);
+    CharaTask::vf3C(hit, arg);
     m1590 = 0;
     m17BC++;
     if (m55C == 6 && (m560 == 22 || m560 == 23 || m560 == 20)) {

@@ -47,7 +47,7 @@ public:
     virtual int vf0C();                                        // 0x80338FD0
     virtual void vf10();                                       // 0x80339760
     virtual void vf24();                                       // 0x8033C364
-    virtual void vf3C(HitInfo_unk* hit);                       // 0x80339F8C
+    virtual void vf3C(HitInfo_unk* hit, int);                       // 0x80339F8C
     virtual void vf40(HitInfo_unk* hit);                       // 0x8033A154
     virtual int vf4C(void* attacker, HitInfo_unk* hit, int arg, const atn::Vector3* dir); // 0x80344BD8
     virtual void vf50();                                       // 0x8033ACB0

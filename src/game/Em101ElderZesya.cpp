@@ -1094,7 +1094,7 @@ void Em101ElderZesya::fn_8025941C() {
 
 // inferred: hit handling: in states 9, 12 and 13 the hits are ignored; while a barrier is up a hit on the
 // barrier (m40 != 0) breaks it if the attack matches its kind
-void Em101ElderZesya::vf3C(HitInfo_unk* hit) {
+void Em101ElderZesya::vf3C(HitInfo_unk* hit, int arg) {
     HitMsg_unk* msg = (HitMsg_unk*)hit;
     if (m58C == 12 || m58C == 13 || m58C == 9) {
         msg->m10 *= 0.0f;
@@ -1128,7 +1128,7 @@ void Em101ElderZesya::vf3C(HitInfo_unk* hit) {
         }
         return;
     }
-    CharaTask::vf3C(hit);
+    CharaTask::vf3C(hit, arg);
     m14C8 += 30;
     m14F0 += msg->m68;
     if ((float)m14F0 / (float)mStatus.mParamB.m84 > 0.1f) {

@@ -363,7 +363,7 @@ inline void SetSeg_unk(atn::ColliCapsule& c, const atn::Vector3& a, const atn::V
 }
 
 // inferred: reaction to the hit (0x134: silver arrow, 0x1791: stun)
-void Em305Vampire::vf3C(HitInfo_unk* hit) {
+void Em305Vampire::vf3C(HitInfo_unk* hit, int) {
     HitMsg_unk* msg = (HitMsg_unk*)hit;
     if (msg->mData->m04 == 10000) {
         fn_80151448(msg);

@@ -374,7 +374,7 @@ void Em316LastLaser::vf14() {
     fn_80149A30();
 }
 
-void Em316LastLaser::vf3C(HitInfo_unk* hit) {
+void Em316LastLaser::vf3C(HitInfo_unk* hit, int) {
     fn_80151448((HitMsg_unk*)hit);
     vf40(hit);
 }

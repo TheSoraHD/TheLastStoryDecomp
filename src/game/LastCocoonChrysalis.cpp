@@ -146,6 +146,6 @@ void LastCocoonChrysalis::vf10() {
 
 void LastCocoonChrysalis::vf14() {}
 
-void LastCocoonChrysalis::vf3C(HitInfo_unk* hit) {}
+void LastCocoonChrysalis::vf3C(HitInfo_unk* hit, int) {}
 
 void LastCocoonChrysalis::vf40(HitInfo_unk* hit) {}

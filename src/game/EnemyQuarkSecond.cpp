@@ -630,7 +630,7 @@ inline void EnemyQuarkSecond::PlayMotion_unk(int motion, int loop, float speed) 
     mMotion.fn_80097C08(0, motion, loop, 0, 1, 0.0f, 0.1f);
 }
 
-void EnemyQuarkSecond::vf3C(HitInfo_unk* hit) {
+void EnemyQuarkSecond::vf3C(HitInfo_unk* hit, int) {
     HitMsg_unk* msg = (HitMsg_unk*)hit;
     if (m16B4 != 0) {
         return;

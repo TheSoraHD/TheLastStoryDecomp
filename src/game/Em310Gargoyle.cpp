@@ -447,14 +447,14 @@ void Em310Gargoyle::vf14() {
 
 // NONMATCHING: 99.95% - only .sdata2 offsets: the pool here keeps the constants of the weak copies (ToU32 255,
 // fn_8028AC70 -3/3/5, WrapAngle_unk pi/2pi) that the original linker stripped with them
-void Em310Gargoyle::vf3C(HitInfo_unk* hit) {
+void Em310Gargoyle::vf3C(HitInfo_unk* hit, int arg) {
     HitMsg_unk* msg = (HitMsg_unk*)hit;
     switch (m15E0) {
     case 1:
         if (msg->mData != 0 && msg->mData->m04 == 0x13C) {
             msg->m0C |= 0x880;
         }
-        CharaTask::vf3C(hit);
+        CharaTask::vf3C(hit, arg);
         break;
     case 2:
     case 0: {

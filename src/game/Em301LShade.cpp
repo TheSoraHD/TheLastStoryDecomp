@@ -770,7 +770,7 @@ void Em301LShade::vf14() {
     fn_80149A30();
 }
 
-void Em301LShade::vf3C(HitInfo_unk* hit) {
+void Em301LShade::vf3C(HitInfo_unk* hit, int) {
     HitMsg_unk* msg = (HitMsg_unk*)hit;
     if (msg->mData->m04 == 10000) {
         fn_80151448(msg);

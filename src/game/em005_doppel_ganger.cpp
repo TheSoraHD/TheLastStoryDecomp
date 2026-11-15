@@ -734,7 +734,7 @@ void Em005DoppelGanger::vf14() {
 
 // NONMATCHING: 98.98% - the original keeps an unreachable `b` after the `return` of the id test (5
 // variants: switch, else if, goto, empty branch, double return)
-void Em005DoppelGanger::vf3C(HitInfo_unk* hit) {
+void Em005DoppelGanger::vf3C(HitInfo_unk* hit, int) {
     HitMsg_unk* msg = (HitMsg_unk*)hit;
     if (m14BC == 0) {
         if (msg->mAttacker != m1504) {

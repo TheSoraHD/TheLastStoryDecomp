@@ -492,7 +492,7 @@ int Em308InvertCrab::fn_802F2C50() {
 // NONMATCHING: 98.80% - r5/r6 of the down test and of the direction temporaries, stack slots of the two
 // vectors (~10 forms)
 // inferred: the crab only takes knockback while it is down or from behind (guard angle m152C)
-void Em308InvertCrab::vf3C(HitInfo_unk* hit) {
+void Em308InvertCrab::vf3C(HitInfo_unk* hit, int) {
     HitMsg_unk* msg = (HitMsg_unk*)hit;
     if (msg->mData->m04 != 0xD1 && m58C - 14U <= 4) {
         msg->m68 = 0;

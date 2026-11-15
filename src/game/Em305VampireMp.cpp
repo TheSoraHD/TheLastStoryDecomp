@@ -382,7 +382,7 @@ void Em305VampireMp::vf14() {
     fn_80149A30();
 }
 
-void Em305VampireMp::vf3C(HitInfo_unk* hit) {
+void Em305VampireMp::vf3C(HitInfo_unk* hit, int) {
     HitMsg_unk* msg = (HitMsg_unk*)hit;
     if (m1524 <= 0 && msg->mData->m04 != 0x134) {
         msg->m68 = 0;

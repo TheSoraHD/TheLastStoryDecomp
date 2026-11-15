@@ -7018,7 +7018,7 @@ int fn_80151270(CharaTask* chara) {
 
 extern "C" int fn_8021AA48(const char* name); // inferred
 
-void CharaTask::vf3C(HitInfo_unk* hit) {
+void CharaTask::vf3C(HitInfo_unk* hit, int) {
     if (!IsFlag_unk(1) || fn_8021AA48(hit->m08) != 0) {
         fn_80151448((HitMsg_unk*)hit); // inferred: the parameter of vf3C is the hit message
         vf40(hit);

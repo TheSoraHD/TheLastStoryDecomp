@@ -430,7 +430,7 @@ void Em101LittleZesyaSecond::vf10() {
     fn_80145334();
 }
 
-void Em101LittleZesyaSecond::vf3C(HitInfo_unk* hit) {
+void Em101LittleZesyaSecond::vf3C(HitInfo_unk* hit, int) {
     HitMsg_unk* msg = (HitMsg_unk*)hit;
     switch (m58C) {
     case 6:

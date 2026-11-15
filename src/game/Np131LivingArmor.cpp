@@ -287,7 +287,7 @@ void Np131LivingArmor::fn_80546B84() {
     m624.mData[0].m04.mRadius = 3.0f;
 }
 
-void Np131LivingArmor::vf3C(HitInfo_unk* hit) {
+void Np131LivingArmor::vf3C(HitInfo_unk* hit, int) {
     HitMsg_unk* msg = (HitMsg_unk*)hit;
     if (m58C == 6) {
         msg->m64 = 3;

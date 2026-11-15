@@ -580,7 +580,7 @@ void Em001Necromancer::vf14() {
     }
 }
 
-void Em001Necromancer::vf3C(HitInfo_unk* hit) {
+void Em001Necromancer::vf3C(HitInfo_unk* hit, int) {
     HitMsg_unk* msg = (HitMsg_unk*)hit;
     if (m15AC != 0) {
         goto ignore;

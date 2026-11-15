@@ -667,7 +667,7 @@ void Em204Mulue::vf14() {
     fn_80149A30();
 }
 
-void Em204Mulue::vf3C(HitInfo_unk* hit) {
+void Em204Mulue::vf3C(HitInfo_unk* hit, int) {
     HitMsg_unk* msg = (HitMsg_unk*)hit;
     if (m58C == 22) {
         return;

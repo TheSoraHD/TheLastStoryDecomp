@@ -714,7 +714,7 @@ inline bool HasHit_unk(FixedArray_unk<HitInfo_unk*, 8>& hits, HitInfo_unk* hit) 
 
 // NONMATCHING: 95.0% - the original keeps r5 (a second argument of vf3C, unused by CharaTask::vf3C)
 // and passes it to CharaTask::vf3C
-void EnemyTrista::vf3C(HitInfo_unk* hit) {
+void EnemyTrista::vf3C(HitInfo_unk* hit, int arg) {
     HitMsg_unk* msg = (HitMsg_unk*)hit;
     if (msg->m44 == 1) {
         msg->m0C |= 0x8008;
@@ -742,7 +742,7 @@ void EnemyTrista::vf3C(HitInfo_unk* hit) {
             m14DC = 1;
         }
     }
-    CharaTask::vf3C(hit);
+    CharaTask::vf3C(hit, arg);
     m14B8 += m15A8;
     ClampHp_unk();
 }

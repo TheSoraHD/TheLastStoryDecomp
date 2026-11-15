@@ -455,7 +455,7 @@ void Em308ParmCrab::vf20() {
 // state 14 (stunned) the knockback is cancelled
 // NONMATCHING: 98.84% - r5/r6 of the down test and of the direction temporaries (as Em308InvertCrab::vf3C)
 // and the load order of m1534 / 0.5f before cos (~12 forms)
-void Em308ParmCrab::vf3C(HitInfo_unk* hit) {
+void Em308ParmCrab::vf3C(HitInfo_unk* hit, int) {
     HitMsg_unk* msg = (HitMsg_unk*)hit;
     if (!IsDown_unk()) {
         if (m58C == 8) {

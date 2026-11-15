@@ -267,7 +267,7 @@ void EnemySeaLizerd::vf28() {
     }
 }
 
-void EnemySeaLizerd::vf3C(HitInfo_unk* hit) {
+void EnemySeaLizerd::vf3C(HitInfo_unk* hit, int) {
     if (m58C != 6) {
         fn_80151448((HitMsg_unk*)hit);
         vf40(hit);

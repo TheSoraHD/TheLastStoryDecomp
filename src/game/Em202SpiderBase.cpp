@@ -389,7 +389,7 @@ void Em202SpiderBase::vf14() {
 
 // NONMATCHING: 99.89% - only the .sdata2 offsets (constants of the unwritten functions)
 // inferred: the spider guards the hits inside the angle m1534 from the front (from the back in state 8)
-void Em202SpiderBase::vf3C(HitInfo_unk* hit) {
+void Em202SpiderBase::vf3C(HitInfo_unk* hit, int) {
     HitMsg_unk* msg = (HitMsg_unk*)hit;
     bool down = true;
     unsigned int flags = mStatus.m0C;

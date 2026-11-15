@@ -442,7 +442,7 @@ void Em208Queen::vf14() {
     m1544 = 0;
 }
 
-void Em208Queen::vf3C(HitInfo_unk* hit) {
+void Em208Queen::vf3C(HitInfo_unk* hit, int) {
     HitMsg_unk* msg = (HitMsg_unk*)hit;
     if (msg->mAttacker == this) {
         msg->m68 = 0;

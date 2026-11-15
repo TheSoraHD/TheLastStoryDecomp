@@ -8,7 +8,7 @@ class Em209BigGolem : public Em209SmallGolem {
 public:
     Em209BigGolem(atn::Task* parent, EnemyInfo_unk* info);
     virtual ~Em209BigGolem();
-    virtual void vf3C(HitInfo_unk* hit);
+    virtual void vf3C(HitInfo_unk* hit, int);
     virtual void vf40(HitInfo_unk* hit);
     virtual void vf20();
     virtual void vfEC();

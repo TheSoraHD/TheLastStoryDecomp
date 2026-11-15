@@ -56,7 +56,7 @@ public:
     virtual ~Em101ElderZesya();
     virtual int vf0C();
     virtual void vf10();
-    virtual void vf3C(HitInfo_unk* hit);
+    virtual void vf3C(HitInfo_unk* hit, int);
     virtual int vf4C(void* attacker, HitInfo_unk* hit, int arg, const atn::Vector3* dir);
     virtual void vf50();
     virtual void vf54();

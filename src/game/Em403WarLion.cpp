@@ -384,7 +384,7 @@ void Em403WarLion::vf14() {
     }
 }
 
-void Em403WarLion::vf3C(HitInfo_unk* hit) {
+void Em403WarLion::vf3C(HitInfo_unk* hit, int) {
     HitMsg_unk* msg = (HitMsg_unk*)hit;
     if (msg->mData->m04 == 10000) {
         fn_80151448(msg);

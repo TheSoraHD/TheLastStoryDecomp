@@ -377,7 +377,7 @@ void LastCocoonImago::vf10() {
     }
 }
 
-void LastCocoonImago::vf3C(HitInfo_unk* hit) {
+void LastCocoonImago::vf3C(HitInfo_unk* hit, int) {
     HitMsg_unk* msg = (HitMsg_unk*)hit;
     if (m58C == 12 && msg->mData->m04 != 0x5BC) {
         return;

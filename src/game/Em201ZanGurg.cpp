@@ -256,7 +256,7 @@ inline void Em201ZanGurg::StartCounter_unk(CharaTask* attacker) {
     }
 }
 
-void Em201ZanGurg::vf3C(HitInfo_unk* hit) {
+void Em201ZanGurg::vf3C(HitInfo_unk* hit, int) {
     HitMsg_unk* msg = (HitMsg_unk*)hit;
     msg->m10 *= 0.0f;
     if (m16CC == 1) {

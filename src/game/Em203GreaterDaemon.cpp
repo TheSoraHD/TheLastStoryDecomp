@@ -619,7 +619,7 @@ void Em203GreaterDaemon::vf14() {
 }
 
 // inferred: the daemon is not knocked back; the absorb skill and the hits after the 10% rage do no damage
-void Em203GreaterDaemon::vf3C(HitInfo_unk* hit) {
+void Em203GreaterDaemon::vf3C(HitInfo_unk* hit, int) {
     HitMsg_unk* msg = (HitMsg_unk*)hit;
     int down = (mStatus.m0C >> 2) & 1;
     msg->m10 *= 0.0f;

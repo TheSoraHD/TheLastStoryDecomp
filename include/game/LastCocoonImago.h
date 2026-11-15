@@ -20,7 +20,7 @@ public:
     virtual void vf20();                                     // 0x8045B594
     virtual void vf24();                                     // 0x8045B40C
     virtual void vf38(int enable);                           // 0x8045D1EC
-    virtual void vf3C(HitInfo_unk* hit);                     // 0x80459358
+    virtual void vf3C(HitInfo_unk* hit, int);                     // 0x80459358
     virtual void vf40(HitInfo_unk* hit);                     // 0x804596E8
     virtual void vf50();                                     // 0x80459FD0
     virtual void vf54(); // 0x8045A8F0: inferred: places the hit spheres of the attacks

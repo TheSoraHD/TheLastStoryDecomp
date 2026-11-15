@@ -260,7 +260,7 @@ void Em206CocoonMp::vf10() {
     fn_802BDA04();
 }
 
-void Em206CocoonMp::vf3C(HitInfo_unk* hit) {
+void Em206CocoonMp::vf3C(HitInfo_unk* hit, int) {
     HitMsg_unk* msg = (HitMsg_unk*)hit;
     bool down = true;
     msg->m10 *= 0.0f;

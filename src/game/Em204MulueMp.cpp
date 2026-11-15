@@ -451,7 +451,7 @@ void Em204MulueMp::vf14() {
     fn_80149A30();
 }
 
-void Em204MulueMp::vf3C(HitInfo_unk* hit) {
+void Em204MulueMp::vf3C(HitInfo_unk* hit, int) {
     HitMsg_unk* msg = (HitMsg_unk*)hit;
     msg->m10 = lbl_807C7030;
     msg->m50 |= 0x10;
