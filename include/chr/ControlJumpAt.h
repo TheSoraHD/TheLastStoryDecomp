@@ -24,7 +24,7 @@ public:
     ControlGrapple(Chara_unk* chara, Chara_unk* target) : ControlBase(chara), mTarget(target) {
         chara->m560 = 0x7C;
         mChara->mColli.mFlags |= 1;
-        Motion_unk* motion = &mChara->mMotion;
+        Motion_unk* motion = mChara->GetModel_unk();
         motion->m34C = 1;
         motion->mTracks[0].m20 = 1.0f;
         motion->fn_80097C08(0, 0x147, 1, 0, 1, 0.0f, 0.1f);
@@ -52,7 +52,7 @@ class ControlGrappleThrown : public ControlBase {
 public:
     ControlGrappleThrown(Chara_unk* chara, Chara_unk* target) : ControlBase(chara), mTarget(target) {
         chara->m560 = 0x7E;
-        Motion_unk* motion = &mChara->mMotion;
+        Motion_unk* motion = mChara->GetModel_unk();
         motion->m34C = 1;
         motion->mTracks[0].m20 = 1.0f;
         motion->fn_80097C08(0, 0x148, 0, 0, 1, 0.0f, 0.1f);

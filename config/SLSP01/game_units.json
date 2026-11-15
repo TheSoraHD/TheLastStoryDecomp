@@ -848,7 +848,7 @@
    "chr::ControlDraggedStart",
    "chr::ControlDraggingStart"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "chr/ControlDropDown.cpp",
