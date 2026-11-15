@@ -33,7 +33,7 @@ public:
     virtual void vf20();
     virtual void vf24();
     virtual void Start();
-    virtual atn::Model* vf38() { return &mModel; }
+    virtual atn::Model* vf38(); // defined after vf70 (0x803FBEE4, before the destructor)
     virtual int vf40(GimmickMsg_unk* msg);
     virtual int vf48(const atn::Vector3* pos, const atn::Vector3* dir, int flag);
     virtual int vf60();

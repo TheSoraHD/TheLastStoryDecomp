@@ -175,6 +175,21 @@ inline CharaListeners_unk* fn_8014F8F4() {
     static CharaListeners_unk sListeners;
     return &sListeners;
 }
+inline atn::Vector3 VelTo_unk(const atn::Vector3& d, float frames) {
+    float inv = 1.0f / frames;
+    return d * inv;
+}
+// inferred: inlined copy of CharaListeners_unk::fn_8014F860 (as in gmk/SparkCube; name invented)
+inline void NotifyListeners_unk(CharaListeners_unk* listeners, int id, void* chara, void* arg) {
+    if (listeners->mEnabled != 0) {
+        for (int i = 0; i < (int)listeners->mList.size(); i++) {
+            CharaListener_unk& listener = listeners->mList[i];
+            if (listener.mId == -1 || id == listener.mId) {
+                listener.mFunc(id, (CharaTask*)chara, arg);
+            }
+        }
+    }
+}
 
 static const char* const sSe[4] = {"SE_BTCOM_036", "SE_BTCOM_037", "SE_BTCOM_038"};
 
@@ -586,8 +601,7 @@ int Cannonball::vf40(GimmickMsg_unk* msg) {
         mTimer = msg->m04;
         mTarget = msg->mVec;
         float frames = (float)mTimer;
-        float inv = 1.0f / frames;
-        mVel = (mTarget - m6C) * inv;
+        mVel = VelTo_unk(mTarget - m6C, frames);
         float g = fn_802F0998(fn_800F52F8());
         mVel.y -= 0.5f * (frames * (1.5f * g));
         fn_800C344C(sSe[2], &m6C, 0, -1, 1.0f);
@@ -610,15 +624,7 @@ int Cannonball::vf40(GimmickMsg_unk* msg) {
     if (msg->m0C != 1 && m54 == 3) {
         msg->mVec = m6C;
     }
-    CharaListeners_unk* listeners = fn_8014F8F4();
-    if (listeners->mEnabled != 0) {
-        for (int i = 0; i < (int)listeners->mList.size(); i++) {
-            CharaListener_unk& listener = listeners->mList[i];
-            if (listener.mId == -1 || listener.mId == 11) {
-                listener.mFunc(11, (CharaTask*)this, msg);
-            }
-        }
-    }
+    NotifyListeners_unk(fn_8014F8F4(), 11, this, msg);
     return m54;
 }
 
@@ -726,6 +732,10 @@ void Cannonball::vf70(int state) {
         msg.mType = 1;
     }
     vf40(&msg);
+}
+
+atn::Model* Cannonball::vf38() {
+    return &mModel;
 }
 
 } // namespace gmk
