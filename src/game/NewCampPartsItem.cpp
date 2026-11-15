@@ -573,7 +573,7 @@ extern "C" NewCampItemUV_unk fn_80444C50(Inventory* party, int icon);
 // it in the original), so the pool address takes one more register; same offsets of @stringBase0
 void NewCampPartsItem::fn_8051B164() {
     for (int i = 0; i < 10; i++) {
-        atn::Task* task = mItems[i]->GetTask();
+        D2A_TaskInstance32_unk* task = mItems[i]->GetTask();
         if (task == 0) {
             continue;
         }
@@ -586,21 +586,21 @@ void NewCampPartsItem::fn_8051B164() {
                 int icon;
                 if (entry->m08 != 0) {
                     if (fn_8021175C(item)) {
-                        ((D2A_TaskInstance32_unk*)task)->SetText_unk("num", L"--");
+                        task->SetText_unk("num", L"--");
                     } else {
-                        ((D2A_TaskInstance32_unk*)task)->SetNumber_unk("num", fn_804444E8(Inventory::instance_, item->mCountId), 0);
+                        task->SetNumber_unk("num", fn_804444E8(Inventory::instance_, item->mCountId), 0);
                     }
-                    ((D2A_TaskInstance32_unk*)task)->SetText_unk("item", item->mName);
+                    task->SetText_unk("item", item->mName);
                     icon = fn_80444BE8(Inventory::instance_, item);
                     NewCampItemUV_unk uv = fn_80444C50(Inventory::instance_, icon);
                 } else {
                     NewCampWeapon_unk* weapon = fn_80206C50(item->mCountId);
-                    ((D2A_TaskInstance32_unk*)task)->SetText_unk("num", L"1");
-                    ((D2A_TaskInstance32_unk*)task)->SetText_unk("item", lbl_8087F1E4->GetPair_unk(weapon->mKind + 0xEB));
+                    task->SetText_unk("num", L"1");
+                    task->SetText_unk("item", lbl_8087F1E4->GetPair_unk(weapon->mKind + 0xEB));
                     icon = fn_80444C48(Inventory::instance_);
                 }
                 NewCampItemUV_unk uv = fn_80444C50(Inventory::instance_, icon);
-                ((D2A_TaskInstance32_unk*)task)->SetValues2_unk("iconUv", uv);
+                task->SetValues2_unk("iconUv", uv);
                 shown = 1;
             }
         }
@@ -703,7 +703,7 @@ void NewCampPartsItem::vf48() {
         if (entry->m04 == 1) {
             atn::D3AnimeInstance* anime = (atn::D3AnimeInstance*)entry->mAnime;
             if (anime != 0 && anime->GetTask() != 0) {
-                ((D2A_TaskInstance32_unk*)(atn::Task*)((atn::D3AnimeInstance*)m50[i].mAnime)->GetTask())->SetValue0_unk("frameOn", value);
+                ((atn::D3AnimeInstance*)m50[i].mAnime)->GetTask()->SetValue0_unk("frameOn", value);
             }
         } else {
             atn::D3Anime* anime = entry->mAnime;

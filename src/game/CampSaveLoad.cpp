@@ -170,7 +170,7 @@ CampSaveLoad::CampSaveLoad(atn::Task* parent)
         m74[i] = 0;
         (m94[i] = fn_801F3FF8(this, "/data/d2anime/save_select_icon.d2a", 0))->fn_800D246C(1);
         (mB4[i] = fn_801F3FF8(this, "/data/d2anime/save_select_nodata.d2a", 0))->fn_800D246C(1);
-        (mF4[i] = (atn::Task*)D2A_TaskInstance32_unk::Create(this, clearPath))->fn_800D246C(1);
+        (mF4[i] = D2A_TaskInstance32_unk::Create(this, clearPath))->fn_800D246C(1);
         mD4[i] = 0;
     }
     (m114 = fn_801F3FF8(this, "/data/d2anime/save_select_icon2.d2a", 0))->fn_800D246C(1);
@@ -960,7 +960,7 @@ void CampSaveLoad::fn_8011AD38() {
         pos.w = 1.0f;
         pos.h = 1.0f;
         fn_801F4728(m74[i], "basePoint", &pos.x);
-        ((D2A_TaskInstance32_unk*)mF4[i])->SetValues1_unk("basePoint", *(atn::D2A_DrawRect*)&pos);
+        mF4[i]->SetValues1_unk("basePoint", *(atn::D2A_DrawRect*)&pos);
         atn::D2A_Task* frame = m74[i];
         float cur = frame->mFrame;
         float end = frame->mData.mEndFrame;
@@ -974,10 +974,10 @@ void CampSaveLoad::fn_8011AD38() {
             SetPaneValue_unk(&m74[i]->mData.m10, "basePoint", 1, 160.0f);
             SetPaneValue_unk(&m74[i]->mData.m10, "basePoint", 2, 1.5f);
             SetPaneValue_unk(&m74[i]->mData.m10, "basePoint", 3, 1.5f);
-            ((D2A_TaskInstance32_unk*)mF4[i])->SetValue1_unk("basePoint", 0, 270.0f);
-            ((D2A_TaskInstance32_unk*)mF4[i])->SetValue1_unk("basePoint", 1, 160.0f);
-            ((D2A_TaskInstance32_unk*)mF4[i])->SetValue1_unk("basePoint", 2, 1.5f);
-            ((D2A_TaskInstance32_unk*)mF4[i])->SetValue1_unk("basePoint", 3, 1.5f);
+            mF4[i]->SetValue1_unk("basePoint", 0, 270.0f);
+            mF4[i]->SetValue1_unk("basePoint", 1, 160.0f);
+            mF4[i]->SetValue1_unk("basePoint", 2, 1.5f);
+            mF4[i]->SetValue1_unk("basePoint", 3, 1.5f);
         } else {
             frame->mFrame = MAX(15.0f, cur - 1.0f);
         }

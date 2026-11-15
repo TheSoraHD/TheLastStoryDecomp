@@ -535,7 +535,7 @@ void CosEditProtector::vf48() {
         if (entry->m04 == 1) {
             atn::D3AnimeInstance* anime = (atn::D3AnimeInstance*)entry->mAnime;
             if (anime != 0 && anime->GetTask() != 0) {
-                ((D2A_TaskInstance32_unk*)(atn::Task*)((atn::D3AnimeInstance*)m50[i].mAnime)->GetTask())->SetValue0_unk("frameOn", value);
+                ((atn::D3AnimeInstance*)m50[i].mAnime)->GetTask()->SetValue0_unk("frameOn", value);
             }
         } else {
             atn::D3Anime* anime = entry->mAnime;
@@ -1190,16 +1190,16 @@ void CosEditProtector::fn_801D3DF4() {
         if (m80 >= 0 && m84 > 0) {
             sprintf(name, "camp_cursor%d", m80 - m88 + 1);
             pos = GetPaneRect_unk(mLists[0].mBase->GetTask(), name);
-            atn::Task* bar = mLists[0].mScrollBar->GetTask();
+            D2A_TaskInstance32_unk* bar = mLists[0].mScrollBar->GetTask();
             if (bar != 0) {
-                ((D2A_TaskInstance32_unk*)bar)->SetValue0_unk("s_hightMax", 210.0f);
+                bar->SetValue0_unk("s_hightMax", 210.0f);
                 fn_804A4930(bar, m88, m84, m8C);
             }
             fn_805119C8(mLists[0].mItems[m80 - m88]->GetTask(), 0, &m50[1], (const NewCampPartsPoint_unk&)pos, 0);
         } else {
-            atn::Task* bar = mLists[0].mScrollBar->GetTask();
+            D2A_TaskInstance32_unk* bar = mLists[0].mScrollBar->GetTask();
             if (bar != 0) {
-                ((D2A_TaskInstance32_unk*)bar)->SetValue0_unk("s_hightMax", 210.0f);
+                bar->SetValue0_unk("s_hightMax", 210.0f);
                 fn_804A4930(bar, 0, 1, 1);
             }
         }
@@ -1208,16 +1208,16 @@ void CosEditProtector::fn_801D3DF4() {
         if (m80 >= 0 && m84 > 0) {
             sprintf(name, "camp_cursor%d", m80 - m88 + 1);
             pos = GetPaneRect_unk(mLists[2].mBase->GetTask(), name);
-            atn::Task* bar = mLists[2].mScrollBar->GetTask();
+            D2A_TaskInstance32_unk* bar = mLists[2].mScrollBar->GetTask();
             if (bar != 0) {
-                ((D2A_TaskInstance32_unk*)bar)->SetValue0_unk("s_hightMax", 270.0f);
+                bar->SetValue0_unk("s_hightMax", 270.0f);
                 fn_804A4930(bar, m88, m84, m8C);
             }
             fn_805119C8(mLists[2].mItems[m80 - m88]->GetTask(), 0, &m50[8], (const NewCampPartsPoint_unk&)pos, 0);
         } else {
-            atn::Task* bar = mLists[2].mScrollBar->GetTask();
+            D2A_TaskInstance32_unk* bar = mLists[2].mScrollBar->GetTask();
             if (bar != 0) {
-                ((D2A_TaskInstance32_unk*)bar)->SetValue0_unk("s_hightMax", 210.0f);
+                bar->SetValue0_unk("s_hightMax", 210.0f);
                 fn_804A4930(bar, 0, 1, 1);
             }
         }

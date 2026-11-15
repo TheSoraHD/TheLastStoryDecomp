@@ -6,12 +6,13 @@
 #include "game/GimmickCommon.h"
 #include "gmk/ItemSlotAnime.h"
 
-// inferred: layout anime task of the item prompt (made by D2A_TaskInstanceBase<32, 8>::Create); only the members used here
-struct DropLayout_unk : public atn::Task {
-    unsigned char m48[0x50 - 0x48];
-    float m50; // inferred: frame
-    float m54; // inferred: speed
-};
+// inferred: layout anime task of the item prompt (made by D2A_TaskInstanceBase<32, 8>::Create; full class in
+// atn/D2A_TaskInstanceC.h)
+namespace atn {
+template <int N, int M>
+class D2A_TaskInstanceBase;
+}
+typedef atn::D2A_TaskInstanceBase<32, 8> DropLayout_unk;
 
 // inferred: item data returned by fn_80211480 (only the members used here)
 struct DropItemData_unk {

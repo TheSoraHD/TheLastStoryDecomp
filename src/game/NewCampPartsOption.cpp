@@ -39,22 +39,14 @@ struct NewCampOptionD2A_unk : public atn::Task {
     float mFrame;                        // 0x100
     float mSpeed;                        // 0x104
 };
-// inferred: d2anime instance task of the D3AnimeInstance objects; only the members used here
-struct NewCampOptionInst_unk : public atn::Task {
-    bool IsEnd_unk(); // inferred: the frame reached the last one (name invented)
-    unsigned char m48[0x50 - 0x48];
-    float mFrame; // 0x50
-    float mSpeed; // 0x54
-};
+// inferred: d2anime instance task of the D3AnimeInstance objects
+typedef D2A_TaskInstance32_unk NewCampOptionInst_unk;
 extern "C" NewCampOptionD2A_unk* fn_801F3FF8(atn::Task* parent, const char* path, int loop); // inferred: d2anime task
-inline bool NewCampOptionInst_unk::IsEnd_unk() {
-    return mFrame >= ((D2A_TaskInstance32_unk*)this)->GetEndFrame();
-}
 inline NewCampOptionD2A_unk* GetD2A_unk(atn::D3Anime* anime) {
     return (NewCampOptionD2A_unk*)anime->GetTask();
 }
 inline NewCampOptionInst_unk* GetInst_unk(atn::D3AnimeInstance* anime) {
-    return (NewCampOptionInst_unk*)anime->GetTask();
+    return anime->GetTask();
 }
 extern "C" NewCampPartsPoint_unk fn_801F4E8C(atn::Task* layout, unsigned int hash);
 extern "C" void fn_801F4728(atn::Task* task, const char* name, const NewCampPartsPoint_unk* pos);
@@ -501,13 +493,13 @@ void NewCampPartsOption::vf14() {
     if (inst != 0 && type->mChoices != 0) {
         if (IsMoving_unk(type) && inst->mSpeed > 0.0f) {
             if (classic - 1 >= 0) {
-                ((D2A_TaskInstance32_unk*)inst)->SetText_unk("conf_before", fn_80116EB8(&type->mChoices[classic - 1]));
+                inst->SetText_unk("conf_before", fn_80116EB8(&type->mChoices[classic - 1]));
             }
-            ((D2A_TaskInstance32_unk*)inst)->SetText_unk("conf_after", fn_80116EB8(&type->mChoices[classic]));
+            inst->SetText_unk("conf_after", fn_80116EB8(&type->mChoices[classic]));
         } else {
-            ((D2A_TaskInstance32_unk*)inst)->SetText_unk("conf_before", fn_80116EB8(&type->mChoices[classic]));
+            inst->SetText_unk("conf_before", fn_80116EB8(&type->mChoices[classic]));
             if (classic + 1 < type->mCount) {
-                ((D2A_TaskInstance32_unk*)inst)->SetText_unk("conf_after", fn_80116EB8(&type->mChoices[classic + 1]));
+                inst->SetText_unk("conf_after", fn_80116EB8(&type->mChoices[classic + 1]));
             }
         }
     }
@@ -616,10 +608,10 @@ void NewCampPartsOption::vf14() {
             case 6:
             case 7:
                 if (mD8 == 2) {
-                    ((D2A_TaskInstance32_unk*)GetInst_unk(item->mAnime))->SetValue1_unk("pos0012(1)", 0, -94.0f);
-                    ((D2A_TaskInstance32_unk*)GetInst_unk(item->mAnime))->SetValue1_unk("pos0006(1)", 0, 92.5f);
-                    ((D2A_TaskInstance32_unk*)GetInst_unk(item->mAnime))->SetValue1_unk("pos0001(1)", 0, -87.0f);
-                    ((D2A_TaskInstance32_unk*)GetInst_unk(item->mAnime))->SetValue1_unk("pos0001(1)", 2, 1.73f);
+                    GetInst_unk(item->mAnime)->SetValue1_unk("pos0012(1)", 0, -94.0f);
+                    GetInst_unk(item->mAnime)->SetValue1_unk("pos0006(1)", 0, 92.5f);
+                    GetInst_unk(item->mAnime)->SetValue1_unk("pos0001(1)", 0, -87.0f);
+                    GetInst_unk(item->mAnime)->SetValue1_unk("pos0001(1)", 2, 1.73f);
                 }
             case 8:
             case 9:
@@ -1180,11 +1172,11 @@ void NewCampPartsOption::fn_80525A08(int count, int ofs) {
                     if (item->IsBar_unk()) {
                         int value = item->mValue;
                         if (item->mAnime != 0 && item->mAnime->GetTask() != 0 && !item->IsBar_unk()) {
-                            ((D2A_TaskInstance32_unk*)GetInst_unk(item->mAnime))->SetValue0_unk("bar_idx", value);
+                            GetInst_unk(item->mAnime)->SetValue0_unk("bar_idx", value);
                         }
                     } else {
                         NewCampOptionInst_unk* inst = GetInst_unk(item->mAnime);
-                        inst->mFrame = ((D2A_TaskInstance32_unk*)inst)->GetEndFrame();
+                        inst->mFrame = inst->GetEndFrame();
                         GetInst_unk(item->mAnime)->mSpeed = -1.0f;
                     }
                 }
@@ -1193,7 +1185,7 @@ void NewCampPartsOption::fn_80525A08(int count, int ofs) {
                     if (item->IsBar_unk()) {
                         int value = item->mValue;
                         if (item->mAnime != 0 && item->mAnime->GetTask() != 0 && !item->IsBar_unk()) {
-                            ((D2A_TaskInstance32_unk*)GetInst_unk(item->mAnime))->SetValue0_unk("bar_idx", value);
+                            GetInst_unk(item->mAnime)->SetValue0_unk("bar_idx", value);
                         }
                     } else {
                         GetInst_unk(item->mAnime)->mFrame = 0.0f;
@@ -1207,14 +1199,14 @@ void NewCampPartsOption::fn_80525A08(int count, int ofs) {
                 if (item->IsBar_unk()) {
                     int value = item->mValue;
                     if (item->mAnime != 0 && item->mAnime->GetTask() != 0 && !item->IsBar_unk()) {
-                        ((D2A_TaskInstance32_unk*)GetInst_unk(item->mAnime))->SetValue0_unk("bar_idx", value);
+                        GetInst_unk(item->mAnime)->SetValue0_unk("bar_idx", value);
                     }
                 } else if (diff < 0) {
                     GetInst_unk(item->mAnime)->mFrame = 0.0f;
                     GetInst_unk(item->mAnime)->mSpeed = 1.0f;
                 } else if (diff > 0) {
                     NewCampOptionInst_unk* inst = GetInst_unk(item->mAnime);
-                        inst->mFrame = ((D2A_TaskInstance32_unk*)inst)->GetEndFrame();
+                        inst->mFrame = inst->GetEndFrame();
                     GetInst_unk(item->mAnime)->mSpeed = -1.0f;
                 }
             }
@@ -1313,7 +1305,7 @@ void NewCampOptionItem_unk::fn_80526358(int cursor, atn::D3Anime* page) {
     char name[0x20];
     sprintf(name, "list_point%02d", mIndex);
     NewCampPartsPoint_unk pos = GetPanePos_unk(GetD2A_unk(page), name);
-    ((D2A_TaskInstance32_unk*)inst)->SetValues1_unk("base_pos", *(atn::D2A_DrawRect*)&pos);
+    inst->SetValues1_unk("base_pos", *(atn::D2A_DrawRect*)&pos);
     if (IsBar_unk()) {
         inst->mSpeed = 0.0f;
         if (cursor != 0) {
@@ -1321,31 +1313,31 @@ void NewCampOptionItem_unk::fn_80526358(int cursor, atn::D3Anime* page) {
         } else {
             inst->mFrame = 1.0f;
         }
-        ((D2A_TaskInstance32_unk*)inst)->SetValue0_unk("point", mValue);
+        inst->SetValue0_unk("point", mValue);
     }
     int value = mValue;
     NewCampOptionInst_unk* text = GetInst_unk(mAnime);
     if (text != 0 && mChoices != 0) {
         if (IsMoving_unk(this) && text->mSpeed > 0.0f) {
             if (value - 1 >= 0) {
-                ((D2A_TaskInstance32_unk*)text)->SetText_unk("conf_before", fn_80116EB8(&mChoices[value - 1]));
+                text->SetText_unk("conf_before", fn_80116EB8(&mChoices[value - 1]));
             }
-            ((D2A_TaskInstance32_unk*)text)->SetText_unk("conf_after", fn_80116EB8(&mChoices[value]));
+            text->SetText_unk("conf_after", fn_80116EB8(&mChoices[value]));
         } else {
-            ((D2A_TaskInstance32_unk*)text)->SetText_unk("conf_before", fn_80116EB8(&mChoices[value]));
+            text->SetText_unk("conf_before", fn_80116EB8(&mChoices[value]));
             if (value + 1 < mCount) {
-                ((D2A_TaskInstance32_unk*)text)->SetText_unk("conf_after", fn_80116EB8(&mChoices[value + 1]));
+                text->SetText_unk("conf_after", fn_80116EB8(&mChoices[value + 1]));
             }
         }
     }
     if (inst != 0 && mChoices != 0) {
-        ((D2A_TaskInstance32_unk*)inst)->SetValue0_unk("arrowR", 0.0f);
-        ((D2A_TaskInstance32_unk*)inst)->SetValue0_unk("arrowL", 0.0f);
+        inst->SetValue0_unk("arrowR", 0.0f);
+        inst->SetValue0_unk("arrowL", 0.0f);
         if (cursor != 0 && mEnabled != 0) {
-            ((D2A_TaskInstance32_unk*)inst)->SetValue0_unk("arrowL", 1.0f);
-            ((D2A_TaskInstance32_unk*)inst)->SetValue0_unk("arrowR", 1.0f);
+            inst->SetValue0_unk("arrowL", 1.0f);
+            inst->SetValue0_unk("arrowR", 1.0f);
         }
-        ((D2A_TaskInstance32_unk*)inst)->SetValue0_unk("show", mShow != 0 ? 1.0f : 0.0f);
+        inst->SetValue0_unk("show", mShow != 0 ? 1.0f : 0.0f);
     }
 }
 
