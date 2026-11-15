@@ -16,6 +16,8 @@
 
 // inferred: empty release assert (some state functions of the original are not auto-inlined)
 #define ASSERT_UNK(x) ((void)0)
+#define ASSERT10_UNK(x) ASSERT_UNK(x); ASSERT_UNK(x); ASSERT_UNK(x); ASSERT_UNK(x); ASSERT_UNK(x); ASSERT_UNK(x); ASSERT_UNK(x); ASSERT_UNK(x); ASSERT_UNK(x); ASSERT_UNK(x)
+#define ASSERT100_UNK(x) ASSERT10_UNK(x); ASSERT10_UNK(x); ASSERT10_UNK(x); ASSERT10_UNK(x); ASSERT10_UNK(x); ASSERT10_UNK(x); ASSERT10_UNK(x); ASSERT10_UNK(x); ASSERT10_UNK(x); ASSERT10_UNK(x)
 
 extern "C" unsigned long strlen(const char* s);
 extern "C" int strcmp(const char* a, const char* b);
@@ -160,7 +162,12 @@ extern "C" inline float fn_801C3910(const atn::Vector3& v) {
 extern "C" inline unsigned int fn_800E0AA8(const IntVector_unk* v) {
     return v->mSize;
 }
+// inferred: the empty asserts only count for the inline budget of fn_8028B47C (the original calls all its inline
+// functions out of line, docs/inlining.md R3)
 extern "C" inline bool fn_800E0AB0(const IntVector_unk* v) {
+    ASSERT100_UNK(v != 0); ASSERT100_UNK(v != 0); ASSERT100_UNK(v != 0); ASSERT100_UNK(v != 0); ASSERT100_UNK(v != 0);
+    ASSERT100_UNK(v != 0); ASSERT100_UNK(v != 0); ASSERT100_UNK(v != 0); ASSERT100_UNK(v != 0); ASSERT100_UNK(v != 0);
+    ASSERT100_UNK(v != 0); ASSERT100_UNK(v != 0);
     return v->mSize == 0;
 }
 // std::vector<int>::operator[] is emitted out of line here (weak copy 0x8028B74C, also called by
@@ -955,12 +962,14 @@ void Em203GreaterDaemon::fn_8028AFD8(int moving) {
 
 // inferred: chooses the next action (m14C0: 0 flight, 1 hovering, 2 skills of the step, 3 rest,
 // 4 grand attack)
-// NONMATCHING: 77.21% - same calls; shape of the inlined fn_800E0AA8 differs
+// inferred: over the inline budget (asserts of fn_800E0AB0): every inline is called out of line, so the hit
+// point ratio is written out (HpRate_unk would be called)
 void Em203GreaterDaemon::fn_8028B47C() {
     if (m14B0 == 0) {
         return;
     }
-    (atn::Vector3(*m14B0->fn_8013C38C()) - mPos).Length_unk();
+    atn::Vector3 target(*m14B0->fn_8013C38C());
+    (target - mPos).Length_unk();
     if (m14C8 != 0) {
         fn_80292C9C();
         fn_8028F560();
@@ -993,7 +1002,7 @@ void Em203GreaterDaemon::fn_8028B47C() {
         if (!fn_800E0AB0(list)) {
             switch ((*list)[m1628]) {
             case 1:
-                if (HpRate_unk() < 0.4f) {
+                if (mStatus.m04 / (float)mStatus.mParamB.m84 < 0.4f) {
                     fn_8029055C();
                 } else if (fn_80291390(m14D4)) {
                     fn_8028F8E4();
@@ -1006,7 +1015,8 @@ void Em203GreaterDaemon::fn_8028B47C() {
                 fn_8028FA60();
                 break;
             case 3:
-                if (HpRate_unk() < 0.5f) {
+                float hp = mStatus.m04;
+                if (hp / mStatus.mParamB.m84 < 0.5f) {
                     fn_8028F998();
                 } else if (fn_80291390(m14D4)) {
                     fn_8028F8E4();
@@ -1018,8 +1028,9 @@ void Em203GreaterDaemon::fn_8028B47C() {
                 m1628 = 0;
             }
             if (m1628 == 0) {
+                int done = ((GameTask*)fn_80121F00())->fn_80370A78(0x9B);
                 state = 1;
-                if (((GameTask*)fn_80121F00())->fn_80370A78(0x9B) == 0) {
+                if (done == 0) {
                     state = 2;
                 }
             }

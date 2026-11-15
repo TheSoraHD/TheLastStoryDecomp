@@ -11881,19 +11881,8 @@ inline RouteTable_unk* GetRouteTable_unk() {
 }
 
 
-// inferred: reports a point move to a missing warp point (name invented)
-static void ReportPointMove_unk(CharaTask* chara, int id) {
-    if (lbl_8087EEB8 != 0) {
-        char message[0x100];
-        sprintf(message, "error: invalid pointmove chara[%d:%s] -> warppoint[%d]\n", chara->m58, chara->fn_8017C904(), id);
-        ((DebugMessages_unk*)lbl_8087EEB8)->fn_800697D8(message);
-    }
-}
-
-// NONMATCHING: ~94% (32/518 lines, 8 of them the ptmf/string pool noise) - the route table and the
-// loop offset swap r31/r30, and the m5B0 load goes to f31 instead of f2; tried locals in other orders,
-// the ternary written inline, the m5B0 accessor.
-// inferred: moves the character (or its rider, m13FC) to the next place of the list m1400
+// inferred: the point move of the end is fn_8017039C inlined once (its forward to the rider m13FC and the reset of
+// the rider stay calls, as in the original)
 void CharaTask::fn_8017B434() {
     if (m1400.mSize < 2) {
         return;
@@ -11904,8 +11893,8 @@ void CharaTask::fn_8017B434() {
     }
     float best = 1e16f;
     RoutePlace_unk* nearest = 0;
-    for (unsigned int i = 0; i < m1400.mSize; i++) {
-        RoutePlace_unk* place = table->FindPlace_unk(m1400.mData[i]);
+    for (unsigned int i = 0; i < m1400.size(); i++) {
+        RoutePlace_unk* place = table->FindPlace_unk(m1400[i]);
         if (place != 0) {
             float dist = LengthSq_unk(place->mPos - mPos);
             if (dist < best) {
@@ -11918,46 +11907,12 @@ void CharaTask::fn_8017B434() {
     if (m140C < 0) {
         return;
     }
-    if (LengthSq_unk(nearest->mPos - mPos) < (1.2f * fn_8013C42C()) * (1.2f * fn_8013C42C())) {
+    float dist = LengthSq_unk(nearest->mPos - mPos);
+    float range = 1.2f * fn_8013C42C();
+    if (dist < range * range) {
         m140C = (m140C + 1) % m1400.mSize;
     }
-    int id = m1400.mData[m140C];
-    CharaTask* rider = (CharaTask*)m13FC;
-    if (rider != 0) {
-        if (rider->m13FC != 0) {
-            ((CharaTask*)rider->m13FC)->fn_8017039C(id, 8);
-            return;
-        }
-        if (GetRouteTable_unk() == 0) {
-            return;
-        }
-        if (id > 0) {
-            rider->mRoute.fn_80128818(id, &rider->mPos, 8);
-            if (rider->mRoute.fn_801255C8()) {
-                rider->fn_801718F8();
-                return;
-            }
-        }
-        ReportPointMove_unk(rider, id);
-        return;
-    }
-    if (GetRouteTable_unk() == 0) {
-        return;
-    }
-    if (id > 0) {
-        mRoute.fn_80128818(id, &mPos, 8);
-        if (mRoute.fn_801255C8()) {
-            Reset_unk(0, 1, 1, 1);
-            mC58.fn_8011C044(0);
-            lbl_8087EE68->fn_80017064(this);
-            fn_8016E970(7);
-            if (m1208 != 0) {
-                fn_801750FC();
-            }
-            return;
-        }
-    }
-    ReportPointMove_unk(this, id);
+    fn_8017039C(m1400.mData[m140C], 8);
 }
 
 void CharaTask::fn_8017BC4C() {

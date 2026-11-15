@@ -1315,7 +1315,6 @@ void Em203GreaterDaemonRedMp::fn_802A254C() {
     PlayMotion_unk(0x13F, 0, 0, 1.0f);
 }
 
-// NONMATCHING: 99.8% - r5/r6 crossing on the psq copy into m1560 (known blocker, as Red fn_8029A788)
 // inferred: starts state 12 (dives on the target, stopping 85 units before it)
 void Em203GreaterDaemonRedMp::fn_802A2600() {
     m58C = 12;
@@ -1330,7 +1329,7 @@ void Em203GreaterDaemonRedMp::fn_802A2600() {
     PlayMotion_unk(0x15E, 0, 0, 1.0f);
     atn::Vector3 target = m14D4->mPos;
     target.y = 0.0f;
-    m1560 = target - mPos;
+    atn::VecAssign_unk(m1560, target - mPos);
     atn::Vector3 dir(m1560.x, 0.0f, m1560.z);
     dir.Normalize_unk();
     m1560 -= dir * 85.0f;
