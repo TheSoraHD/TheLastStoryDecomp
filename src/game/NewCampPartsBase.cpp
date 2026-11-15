@@ -150,21 +150,20 @@ void NewCampPartsBase::fn_8050FC04(int count, NewCampPartsMotion_unk* motions,
     }
 }
 
-// NONMATCHING: 87.8% - the loop registers differ
 void NewCampPartsBase::fn_8050FC88(int count, NewCampPartsEntry_unk* entries, int load) {
     for (int i = 0; i < count; i++) {
-        if (entries->m04 == 1) {
-            atn::D3AnimeInstance* anime = (atn::D3AnimeInstance*)entries->mAnime;
+        NewCampPartsEntry_unk* e = &entries[i];
+        if (e->m04 == 1) {
+            atn::D3AnimeInstance* anime = (atn::D3AnimeInstance*)e->mAnime;
             if (anime != 0) {
                 anime->Load(load);
             }
         } else {
-            atn::D3Anime* anime = entries->mAnime;
+            atn::D3Anime* anime = e->mAnime;
             if (anime != 0) {
                 anime->Load(load);
             }
         }
-        entries++;
     }
 }
 
