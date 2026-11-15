@@ -114,39 +114,38 @@ NewCampPartsBase::NewCampPartsBase(atn::Task* parent)
 
 NewCampPartsBase::~NewCampPartsBase() {}
 
-// NONMATCHING: 97.75% - saved registers of the loop (entries/file/counter); the empty name is the "\0"
-// literal right after the "" of Create_unk
+// The empty name is the "\0" literal right after the "" of Create_unk
 void NewCampPartsBase::fn_8050FB38(int count, NewCampPartsEntry_unk* entries, const NewCampPartsFile_unk* file,
                                    int load, int kind) {
     for (int i = 0; i < count; i++) {
-        if (strcmp(file->mAnime, "\0") == 0) {
-            entries->mAnime = 0;
+        const NewCampPartsFile_unk* f = &file[i];
+        NewCampPartsEntry_unk* e = &entries[i];
+        if (strcmp(f->mAnime, "\0") == 0) {
+            e->mAnime = 0;
         } else {
-            entries->m04 = kind;
-            if (entries->m04 == 1) {
-                entries->mAnime = (atn::D3Anime*)atn::D3AnimeInstance::Create(this, file->mAnime, load);
-                entries->mAnime->fn_800D246C(1);
+            e->m04 = kind;
+            if (e->m04 == 1) {
+                e->mAnime = (atn::D3Anime*)atn::D3AnimeInstance::Create(this, f->mAnime, load);
+                e->mAnime->fn_800D246C(1);
             } else {
-                entries->mAnime = atn::D3Anime::Create(this, file->mAnime, load);
-                entries->mAnime->fn_800D246C(1);
+                e->mAnime = atn::D3Anime::Create(this, f->mAnime, load);
+                e->mAnime->fn_800D246C(1);
             }
         }
-        file++;
-        entries++;
     }
 }
 
-// NONMATCHING: 97.42% - loop registers (see fn_8050FB38)
 void NewCampPartsBase::fn_8050FC04(int count, NewCampPartsMotion_unk* motions,
                                    const NewCampPartsMotionFile_unk* file) {
+    const char* path;
     for (int i = 0; i < count; i++) {
-        const char* path = file->mPath;
+        const NewCampPartsMotionFile_unk* f = &file[i];
+        NewCampPartsMotion_unk* m = &motions[i];
+        path = f->mPath;
         if (strcmp(path, "\0") != 0) {
-            motions->mMotion.fn_800A03E4(path);
-            motions->mHash = fn_800DC6B4(file->mNode);
+            m->mMotion.fn_800A03E4(path);
+            m->mHash = fn_800DC6B4(f->mNode);
         }
-        file++;
-        motions++;
     }
 }
 
