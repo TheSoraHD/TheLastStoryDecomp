@@ -21,7 +21,6 @@ struct Settings_unk {
 extern "C" Settings_unk* lbl_8087F0A8;
 
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
-extern "C" void fn_80101524(BattleTask* mgr, const atn::Vector3* pos, const atn::Vector3* rot, int id, int arg);
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: length
 extern "C" int fn_800DD3FC(wchar_t* dst, const wchar_t* fmt, ...); // inferred: swprintf
@@ -142,7 +141,7 @@ inline ControlCdnRestoreStone::ControlCdnRestoreStone(Chara_unk* chara) : Contro
     mChara->mF94 = -1;
     mChara->mMotion.mTracks[0].m0C = 0.0f;
     if (lbl_8087F048 != 0) {
-        fn_80101524(lbl_8087F048, &mChara->mPos, &mChara->mRot, 0x40, 0);
+        lbl_8087F048->fn_80101524(&mChara->mPos, &mChara->mRot, 0x40, 0, mChara);
     }
 }
 

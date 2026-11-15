@@ -189,7 +189,7 @@ ControlMountle::~ControlMountle() {}
 void ControlMountleQuadruped::vf60() {
     float frame = mChara->mMotion.mTracks[0].m08;
     if (frame > 22.0f && frame <= 26.0f) {
-        int id = fn_800F8548(lbl_8087F048);
+        int id = lbl_8087F048->fn_800F8548();
         lbl_8087F048->fn_800F8C6C(0, 0, mChara, mChara->m638, id, 0.0f, 0x1E, -1);
     }
 }

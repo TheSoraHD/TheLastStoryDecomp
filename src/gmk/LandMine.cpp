@@ -3,6 +3,7 @@
 #include "atn/Memory.h"
 #include "atn/SoundRef.h"
 #include "game/CharaManager.h"
+#include "game/BattleTask.h"
 
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" void* memset(void* dst, int c, unsigned long n);
@@ -46,11 +47,7 @@ extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 // inferred: bullets
 class BattleTask;
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
-extern "C" void* fn_80219E6C(int id); // inferred: bullet data by id
-extern "C" int fn_800F8548(BattleTask* mgr);
-extern "C" void fn_800FAB80(BattleTask* mgr, int arg1, void* bullet, int arg3, const atn::Vector3* pos,
-                            const atn::Vector3* rot, int arg6, int arg7, int arg8, int arg9, float arg10,
-                            float arg11);
+extern "C" HitInfo_unk* fn_80219E6C(int id); // inferred: bullet data by id
 
 namespace gmk {
 
@@ -202,9 +199,9 @@ int LandMine::vf44(GimmickHitMsg_unk* msg) {
         return 0;
     }
     if (m54 == 2) {
-        void* bullet = fn_80219E6C(mBulletId);
+        HitInfo_unk* bullet = fn_80219E6C(mBulletId);
         if (bullet != 0) {
-            fn_800FAB80(lbl_8087F048, 0, bullet, fn_800F8548(lbl_8087F048), &m6C, &m78, 0, 30, -1, 2, 6.0f, 1.0f);
+            lbl_8087F048->fn_800FAB80(0, bullet, lbl_8087F048->fn_800F8548(), &m6C, &m78, 0, 30, -1, 2, 6.0f, 1.0f);
             fn_800C344C("SE_DG011_004_2", &m6C, 0, -1, 1.0f);
             mTimer = 0;
             if (lbl_8087F3C0 != 0) {

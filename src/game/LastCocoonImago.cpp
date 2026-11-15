@@ -144,7 +144,7 @@ extern "C" double cos(double x);
 inline void LastCocoonImago::PlayMode_unk(int mode, int motion) {
     m14BC = 0;
     m14C0 = 0;
-    m590 = fn_800F8548(lbl_8087F048);
+    m590 = lbl_8087F048->fn_800F8548();
     m58C = mode;
     fn_8016E970(3);
     mMotion.m34C = 1;
@@ -182,7 +182,7 @@ inline void LastCocoonImago::Charge_unk() {
 inline void LastCocoonImago::EndMode_unk() {
     m14BC = 0;
     m14C0 = 0;
-    m590 = fn_800F8548(lbl_8087F048);
+    m590 = lbl_8087F048->fn_800F8548();
     m58C = 0;
     fn_8016E970(3);
 }
@@ -287,7 +287,7 @@ void LastCocoonImago::vf10() {
                     atn::Vector3 dir = hips - hand;
                     dir.Normalize_unk();
                     BattleTask* mgr = lbl_8087F048;
-                    fn_800F8574(mgr, this, fn_80219E6C(0x5B7), &hand, &dir, 0, 0x24, 0, 0.0f, 1.0f);
+                    mgr->fn_800F8574(this, fn_80219E6C(0x5B7), &hand, &dir, 0, 0x24, 0, 0.0f, 1.0f);
                 }
             } else {
                 if (mMotion.mTracks[0].m08 >= mMotion.fn_80097D7C(0)) {
@@ -397,7 +397,7 @@ void LastCocoonImago::vf3C(HitInfo_unk* hit, int) {
                 gm.mType = 3;
                 m14BC = 0;
                 m14C0 = 0;
-                m590 = fn_800F8548(lbl_8087F048);
+                m590 = lbl_8087F048->fn_800F8548();
                 m58C = 14;
                 fn_8016E970(3);
                 mMotion.m34C = 1;
@@ -448,7 +448,7 @@ extern "C" inline float fn_8029F3AC(CharaStatus* status) {
 inline void LastCocoonImago::Knockback_unk(atn::Vector3 dir, int mode, int motion) {
     m14BC = 0;
     m14C0 = 0;
-    m590 = fn_800F8548(lbl_8087F048);
+    m590 = lbl_8087F048->fn_800F8548();
     m58C = mode;
     fn_8016E970(3);
     mMotion.m34C = 1;
@@ -571,7 +571,7 @@ inline void LastCocoonImago::ResetAttacks_unk() {
 inline void LastCocoonImago::SetMode_unk(int mode) {
     m14BC = 0;
     m14C0 = 0;
-    m590 = fn_800F8548(lbl_8087F048);
+    m590 = lbl_8087F048->fn_800F8548();
     vf48();
     fn_80178A6C();
     fn_8015495C(0, 1, 1, 1);
@@ -912,7 +912,7 @@ void LastCocoonImago::fn_8045BFFC() {
 void LastCocoonImago::vf80(const atn::Vector3& pos, const atn::Vector3& dir) {
     m14BC = 0;
     m14C0 = 0;
-    m590 = fn_800F8548(lbl_8087F048);
+    m590 = lbl_8087F048->fn_800F8548();
     m58C = 6;
     fn_8016E970(3);
     mMotion.m34C = 1;
@@ -1176,7 +1176,7 @@ void LastCocoonImago::fn_8045D3A4() {
         ((GameTask*)lbl_8087F430)->mCamera.fn_80392D2C(&camera, 0.033333335f);
         m14BC = 0;
         m14C0 = 0;
-        m590 = fn_800F8548(lbl_8087F048);
+        m590 = lbl_8087F048->fn_800F8548();
         m58C = 14;
         fn_8016E970(3);
         mMotion.m34C = 1;
@@ -1244,7 +1244,7 @@ void LastCocoonImago::fn_8045DF34() {
                 atn::Vector3 at = mPos + dir;
                 CharaTask* player = lbl_8087F8A0->mHead;
                 BattleTask* mgr = lbl_8087F048;
-                fn_800FAB80(mgr, player, bullet, fn_800F8548(mgr), &at, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
+                mgr->fn_800FAB80(player, bullet, mgr->fn_800F8548(), &at, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
             }
         }
     } else if (m14BC == 1) {
@@ -1327,7 +1327,7 @@ void LastCocoonImago::fn_8045E548() {
             atn::Vector3 pos = dir;
             m14BC = 0;
             m14C0 = 0;
-            m590 = fn_800F8548(lbl_8087F048);
+            m590 = lbl_8087F048->fn_800F8548();
             m58C = 10;
             fn_8016E970(3);
             mMotion.m34C = 1;
@@ -1350,7 +1350,7 @@ void LastCocoonImago::fn_8045E780() {
     if (end >= mMotion.fn_80097D7C(0)) {
         m14BC = 0;
         m14C0 = 0;
-        m590 = fn_800F8548(lbl_8087F048);
+        m590 = lbl_8087F048->fn_800F8548();
         m58C = 0;
         fn_8016E970(3);
     }

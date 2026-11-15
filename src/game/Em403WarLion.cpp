@@ -129,7 +129,7 @@ inline void PlayEffect_unk(atn::EfpFile* efp, atn::Model* model) {
 inline void Em403WarLion::SetState_unk(int state) {
     m14C4 = 0;
     m14C8 = 0;
-    m590 = fn_800F8548(lbl_8087F048);
+    m590 = lbl_8087F048->fn_800F8548();
     m58C = state;
     fn_8016E970(3);
 }
@@ -258,7 +258,7 @@ void Em403WarLion::vf10() {
                     m14F8 = rand() % 3 + 4;
                     fn_8032C3CC(&m14F8, m14FC);
                     m14D0 = 0;
-                    m15F8 = fn_800F8548(fn_8013A194());
+                    m15F8 = fn_8013A194()->fn_800F8548();
                 } else {
                     m14DC = v;
                     m14E8.Set_unk(0.0f, angle, 0.0f);
@@ -463,7 +463,7 @@ void Em403WarLion::vf40(HitInfo_unk* hit) {
     if ((mStatus.m0C & 0x20) == 0x20) {
         m14C4 = 0;
         m14C8 = 0;
-        m590 = fn_800F8548(lbl_8087F048);
+        m590 = lbl_8087F048->fn_800F8548();
         vf48();
         fn_80178A6C();
         fn_8015495C(0, 1, 1, 1);
@@ -1002,7 +1002,7 @@ void Em403WarLion::fn_803267E8() {
                 m14F8--;
                 fn_8032A9F4(&m1524, m14FC, &m14FC);
                 if (m14F8 % 3 == 0) {
-                    m15F8 = fn_800F8548(fn_8013A194());
+                    m15F8 = fn_8013A194()->fn_800F8548();
                 }
                 fn_803272A8();
             }
@@ -1222,7 +1222,7 @@ void Em403WarLion::fn_80328270() {
             mMotion.fn_80097C08(0, 0x14A, 0, 0, 1, 0.0f, 0.1f);
         } else if (mMotion.mTracks[0].m08 <= 10.0f) {
             fn_80144710();
-            fn_800FAB80(lbl_8087F048, this, fn_80219E6C(0x673), m590, &mPos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
+            lbl_8087F048->fn_800FAB80(this, fn_80219E6C(0x673), m590, &mPos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
         }
     } else {
         float frame = mMotion.mTracks[0].m08;
@@ -1265,7 +1265,7 @@ void Em403WarLion::fn_8032853C() {
             mMotion.fn_80097C08(0, 0x14D, 0, 0, 1, 0.0f, 0.1f);
         } else if (mMotion.mTracks[0].m08 <= 10.0f) {
             fn_80144710();
-            fn_800FAB80(lbl_8087F048, this, fn_80219E6C(0x673), m590, &mPos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
+            lbl_8087F048->fn_800FAB80(this, fn_80219E6C(0x673), m590, &mPos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
         }
     } else {
         float frame = mMotion.mTracks[0].m08;
@@ -1292,7 +1292,7 @@ void Em403WarLion::fn_803288C4() {
     if (m14C4 == 0) {
         if (mMotion.mTracks[0].m08 >= 40.0f) {
             m14C4 = 1;
-            fn_800FAB80(lbl_8087F048, this, fn_80219E6C(0x675), m590, &mPos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
+            lbl_8087F048->fn_800FAB80(this, fn_80219E6C(0x675), m590, &mPos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
             Field_unk* field = lbl_8087F430;
             field->m96C %= 2;
             field->m970 = 10;
@@ -1575,7 +1575,7 @@ int Em403WarLion::fn_80329ED8(int* count, atn::Vector3* pos, float* angle) {
             continue;
         }
         if (c->m560 == 4 || c->m560 == 5) {
-            if (fn_800FBA9C(lbl_8087F048, c, this, c->m638, -1, 0.0f) < 0) {
+            if (lbl_8087F048->fn_800FBA9C(c, this, c->m638, -1, 0.0f) < 0) {
                 continue;
             }
             found = 1;
@@ -1606,7 +1606,7 @@ int Em403WarLion::fn_80329ED8(int* count, atn::Vector3* pos, float* angle) {
             break;
         } else if (c->m560 == 14) {
             atn::Vector3 dir = c->fn_80158E1C();
-            if (fn_800FBE70(lbl_8087F048, c, this, c->m638, -1, &dir, 1, -1) < 0) {
+            if (lbl_8087F048->fn_800FBE70(c, this, c->m638, -1, &dir, 1, -1) < 0) {
                 continue;
             }
             found = 1;

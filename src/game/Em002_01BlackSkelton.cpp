@@ -74,7 +74,7 @@ int Em002_01BlackSkelton::vf0C() {
     if (fn_8013655C() == 0 && m14D0.IsLoading() == 0) {
         m14B0 = 0;
         m14B4 = 0;
-        m590 = fn_800F8548(lbl_8087F048);
+        m590 = lbl_8087F048->fn_800F8548();
         m58C = 0;
         mFlag25 = 1;
         mFlag15 = 1;
@@ -118,7 +118,7 @@ void Em002_01BlackSkelton::vf10() {
             if (frame >= mMotion.fn_80097D7C(0) && m14B8 != 0) {
                 m14B0 = 0;
                 m14B4 = 0;
-                m590 = fn_800F8548(lbl_8087F048);
+                m590 = lbl_8087F048->fn_800F8548();
                 m58C = 2;
                 fn_8017547C(m14B8);
                 switch (fn_80219558(m14B8->m50)) {
@@ -159,7 +159,7 @@ void Em002_01BlackSkelton::vf10() {
                 } else {
                     m14B0 = 0;
                     m14B4 = 0;
-                    m590 = fn_800F8548(lbl_8087F048);
+                    m590 = lbl_8087F048->fn_800F8548();
                     m58C = 0;
                     mFlag15 = 1;
                     mFlag25 = 1;
@@ -315,7 +315,7 @@ void Em002_01BlackSkelton::fn_80247FB0() {
             m14B0 = 0;
             mColli.mFlags &= ~1;
             m14B4 = 0;
-            m590 = fn_800F8548(lbl_8087F048);
+            m590 = lbl_8087F048->fn_800F8548();
             m58C = 3;
             GimmickMsg_unk msg(4);
             m14C8->vf40(&msg);
@@ -366,7 +366,7 @@ void Em002_01BlackSkelton::fn_80248854(CharaTask* target, GimmickCommon* mirror)
     if (target != 0) {
         m14B0 = 0;
         m14B4 = 0;
-        m590 = fn_800F8548(lbl_8087F048);
+        m590 = lbl_8087F048->fn_800F8548();
         m58C = 1;
         m14B8 = target;
         m14C8 = mirror;
@@ -395,7 +395,7 @@ void Em002_01BlackSkelton::fn_80248854(CharaTask* target, GimmickCommon* mirror)
 void Em002_01BlackSkelton::fn_80248A4C(int arg) {
     m14B0 = 0;
     m14B4 = 0;
-    m590 = fn_800F8548(lbl_8087F048);
+    m590 = lbl_8087F048->fn_800F8548();
     m58C = 4;
     vf48();
     fn_80178A6C();
@@ -404,7 +404,7 @@ void Em002_01BlackSkelton::fn_80248A4C(int arg) {
     mFC0 = 0;
     m1434 = 30;
     if (arg && lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->fn_80375184()) {
-        fn_801092C8(lbl_8087F048, 6, this, 0, 0);
+        lbl_8087F048->fn_801092C8(6, this, 0, 0);
     }
     if (mF54 != 0) {
         fn_80175A38();

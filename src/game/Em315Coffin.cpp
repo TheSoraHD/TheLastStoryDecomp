@@ -262,7 +262,7 @@ void Em315Coffin::vf100(int state) {
     case 9:
         fn_805A4F1C(0x142, 0, 1, 1.0f, 0.0f);
         mFlag30 = 0;
-        m14C8 = fn_800F8548(lbl_8087F048);
+        m14C8 = lbl_8087F048->fn_800F8548();
         m15D8.Reset_unk();
         m15C8.Reset_unk();
         m161C = mC58.mC4;
@@ -582,7 +582,7 @@ void Em315Coffin::vf108() {
                     HitInfo_unk* bullet;
                     CoffinCapsule_unk* capsule = fn_80315644(&mColli);
                     bullet = fn_80219E6C(m15D8.mId);
-                    fn_800FAB80(fn_8013A194(), this, bullet, m14C8, (atn::Vector3*)capsule, &lbl_807C7030, 0,
+                    fn_8013A194()->fn_800FAB80(this, bullet, m14C8, (atn::Vector3*)capsule, &lbl_807C7030, 0,
                                 30, -1, -1, 0.0f, 1.0f);
                     m14BC++;
                 }

@@ -162,7 +162,7 @@ inline atn::Vector3 GetNodePos_unk(MtxPtr m) {
 inline void Em206CocoonMp::SetState_unk(int state) {
     m14DC = 0;
     m14E0 = 0;
-    m590 = fn_800F8548(lbl_8087F048);
+    m590 = lbl_8087F048->fn_800F8548();
     m58C = state;
 }
 
@@ -185,8 +185,8 @@ inline void Em206CocoonMp::Die_unk() {
     ((GameTask*)lbl_8087F430)->fn_80370AE4(0x65, 1);
     BattleTask* mgr = lbl_8087F048;
     CharaTask* player = lbl_8087F8A0->mHead;
-    int id = fn_800F8548(mgr);
-    fn_800FAB80(mgr, player, fn_80219E6C(0x5C3), id, &mPos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
+    int id = mgr->fn_800F8548();
+    mgr->fn_800FAB80(player, fn_80219E6C(0x5C3), id, &mPos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
     m1914 = 1;
 }
 
@@ -305,7 +305,7 @@ void Em206CocoonMp::vf40(HitInfo_unk* hit) {
         mMotion.mTracks[0].m0C = 0.1f;
         BattleTask* mgr = lbl_8087F048;
         atn::Vector3 pos = vfAC();
-        fn_80108F38(mgr, &pos, 0x4000);
+        mgr->fn_80108F38(&pos, 0x4000);
     }
 }
 
@@ -1041,7 +1041,7 @@ void Em206CocoonMp::fn_802BE7EC() {
             atn::Vector3 to = GetNodePos_unk(model->GetNodeMtx_unk("hips"));
             atn::Vector3 dir = (to - from).GetNormalize();
             BattleTask* mgr = lbl_8087F048;
-            fn_800F8574(mgr, this, fn_80219E6C(0x5C5), &from, &dir, 0, 0, 0, 0.0f, 1.0f);
+            mgr->fn_800F8574(this, fn_80219E6C(0x5C5), &from, &dir, 0, 0, 0, 0.0f, 1.0f);
         }
     } else {
         float frame = mMotion.mTracks[0].m08;
@@ -1064,7 +1064,7 @@ void Em206CocoonMp::fn_802BE9C8() {
         }
         m1520 = m1520 == 0;
         BattleTask* mgr = lbl_8087F048;
-        fn_800FAB80(mgr, this, fn_80219E6C(0x57C), m590, &mPos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
+        mgr->fn_800FAB80(this, fn_80219E6C(0x57C), m590, &mPos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
         m1904 = 900;
     }
 }
@@ -1306,7 +1306,7 @@ void Em206CocoonMp::fn_802C0458() {
         }
         if (m14DC == 0 && mMotion.mTracks[0].m08 >= 21.0f) {
             BattleTask* mgr = lbl_8087F048;
-            fn_800FAB80(mgr, this, fn_80219E6C(0x5C1), fn_800F8548(mgr), &m1514, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
+            mgr->fn_800FAB80(this, fn_80219E6C(0x5C1), mgr->fn_800F8548(), &m1514, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
             m14DC++;
         }
     } else {
@@ -1377,7 +1377,7 @@ void Em206CocoonMp::vf114(const SpecialState_unk* state) {
         if (s->m00 == 15 && m58C != 15) {
             BattleTask* mgr = lbl_8087F048;
             atn::Vector3 pos = vfAC();
-            fn_80108F38(mgr, &pos, 0x4000);
+            mgr->fn_80108F38(&pos, 0x4000);
         }
     }
     m58C = s->m00;

@@ -14,6 +14,7 @@
 #include "game/BattleTask.h"
 #include "game/GameTask.h"
 #include "math/VecAssign_unk.h"
+#include "game/DamageResult_unk.h"
 
 extern "C" unsigned long strlen(const char* s);
 extern "C" int strcmp(const char* a, const char* b);
@@ -105,26 +106,7 @@ struct Field_unk {
     RouteTable_unk* m10D8;
 };
 extern "C" Field_unk* lbl_8087F430;
-// inferred: damage record sent to the effect manager (as in game/Em302Kraken.cpp)
-struct MulueDamage_unk {
-    MulueDamage_unk() : m04(0), m08(0), m0C(0), m10(0), m14(-1) {
-        m1C = 0;
-        m18 = -1;
-        m00 = 1;
-    }
-    int m00;
-    int m04;
-    int m08;
-    int m0C;
-    int m10;
-    int m14;
-    int m18;
-    unsigned int m1C : 4;
-    unsigned int m1C_rest : 28;
-};
-extern "C" void fn_80108C10(BattleTask* effect, MulueDamage_unk* damage, const atn::Vector3& pos, CharaTask* a,
-                            CharaTask* chara, int b, int c);
-extern "C" void fn_8003EA3C(MulueDamage_unk* result, HitInfo_unk* data, CharaTask* attacker, CharaTask* owner,
+extern "C" void fn_8003EA3C(DamageResult_unk* result, HitInfo_unk* data, CharaTask* attacker, CharaTask* owner,
                             unsigned int flags, const void* param, int arg, int arg2); // inferred: computes the damage
 struct HitParam_unk;
 extern "C" HitParam_unk lbl_807C6B90;
@@ -204,7 +186,7 @@ inline void Em204Mulue::SetState_unk(int state) {
     m58C = state;
     fn_8016E970(6);
     m560 = 4;
-    m590 = fn_800F8548(lbl_8087F048);
+    m590 = lbl_8087F048->fn_800F8548();
 }
 // inferred: plays a motion on track 0 (as in game/Em208Queen.cpp)
 inline void Em204Mulue::PlayMotion_unk(int motion, int loop, float speed) {
@@ -919,7 +901,7 @@ void Em204Mulue::fn_802A820C() {
             fn_8004D124(lbl_8087EE98);
         }
         atn::Vector3 pos = GetNodePos_unk(mMotion.GetNodeMtx_unk("head"));
-        fn_800FAB80(lbl_8087F048, this, m1664, 1000, &pos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
+        lbl_8087F048->fn_800FAB80(this, m1664, 1000, &pos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
     }
 }
 
@@ -950,7 +932,7 @@ void Em204Mulue::fn_802A8718() {
             fn_8004D124(lbl_8087EE98);
         }
         atn::Vector3 pos = GetNodePos_unk(mMotion.GetNodeMtx_unk("hips"));
-        fn_800FAB80(lbl_8087F048, this, m1668, 1000, &pos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
+        lbl_8087F048->fn_800FAB80(this, m1668, 1000, &pos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
     }
 }
 
@@ -1022,9 +1004,10 @@ void Em204Mulue::fn_802A91D0() {
         m1644->mStatus.fn_8012DF7C(dmg, 0, 0);
         atn::Vector3 pos(m1644->fn_80148B0C(0)->m04.mCenter);
         pos += atn::Vector3(0.0f, 15.0f, 0.0f);
-        MulueDamage_unk damage;
-        damage.m04 = dmg;
-        fn_80108C10(lbl_8087F048, &damage, pos, this, m1644, 0, 0);
+        DamageResult_unk damage;
+        damage.mType = 1;
+        damage.mDamage = dmg;
+        lbl_8087F048->fn_80108C10(&damage, pos, this, m1644, 0, 0);
     }
     Release_unk();
 }
@@ -1035,13 +1018,14 @@ void Em204Mulue::fn_802A94C8() {
         Rest_unk();
     }
     if (m1644 != 0 && mMotion.mTracks[0].m08 > 31.0f && mMotion.mTracks[0].m08 <= 32.0f) {
-        MulueDamage_unk damage;
+        DamageResult_unk damage;
+        damage.mType = 1;
         HitInfo_unk* skill = fn_80219E6C(0x4B4);
         fn_80144710();
         fn_8003EA3C(&damage, skill, this, m14B0, 0, &lbl_807C6B90, 0, 0);
         atn::Vector3 pos(m14B0->fn_80148B0C(0)->m04.mCenter);
         pos += atn::Vector3(0.0f, 15.0f, 0.0f);
-        fn_80108C10(lbl_8087F048, &damage, pos, this, m1644, 0, 0);
+        lbl_8087F048->fn_80108C10(&damage, pos, this, m1644, 0, 0);
         atn::Vector3 dir(0.0f, 0.0f, 10.0f);
         Mtx m;
         PSMTXRotRad(m, 'y', mRot.y);
@@ -1091,10 +1075,10 @@ void Em204Mulue::fn_802A97C8() {
             Rest_unk();
         }
         if (mMotion.mTracks[0].m08 >= 17.0f && mMotion.mTracks[0].m08 <= 19.0f) {
-            fn_800FAB80(lbl_8087F048, this, m1670, m590, &pos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
+            lbl_8087F048->fn_800FAB80(this, m1670, m590, &pos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
         }
         if (mMotion.mTracks[0].m08 >= 20.0f && mMotion.mTracks[0].m08 <= 22.0f) {
-            fn_800FAB80(lbl_8087F048, this, m1674, m590, &pos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
+            lbl_8087F048->fn_800FAB80(this, m1674, m590, &pos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
         }
     }
 }
@@ -1251,7 +1235,7 @@ void Em204Mulue::fn_802AA1B8() {
         mPos += n * 10.0f;
         atn::Vector3 pos = GetNodePos_unk(mMotion.GetNodeMtx_unk("hips"));
         BattleTask* mgr = lbl_8087F048;
-        fn_800FAB80(mgr, this, m167C, 1000, &pos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
+        mgr->fn_800FAB80(this, m167C, 1000, &pos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
     }
     fn_800CB6E4(&m1538, &mPos);
 }
@@ -1281,7 +1265,7 @@ void Em204Mulue::fn_802AA534() {
         mPos += n * 10.0f;
         atn::Vector3 pos = GetNodePos_unk(mMotion.GetNodeMtx_unk("hips"));
         BattleTask* mgr = lbl_8087F048;
-        fn_800FAB80(mgr, this, fn_80219E6C(0x4B5), 1000, &pos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
+        mgr->fn_800FAB80(this, fn_80219E6C(0x4B5), 1000, &pos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
     }
     if (m1648 > 0 && (float)m14C0 <= 35.0f) {
         fn_802A9ADC(m14C0 % 10 == 5, m1648 >= 1);
@@ -1344,7 +1328,7 @@ void Em204Mulue::fn_802AABD8() {
     m14C0 = 0;
     m58C = 7;
     fn_8016E970(3);
-    m590 = fn_800F8548(lbl_8087F048);
+    m590 = lbl_8087F048->fn_800F8548();
     PlayMotion_unk(0x14, 1, 3.0f);
     m14B8 = 0;
     SetTurn_unk(m15D4);
@@ -1354,7 +1338,7 @@ void Em204Mulue::fn_802AAF2C() {
     m14C0 = 0;
     m58C = 8;
     fn_8016E970(3);
-    m590 = fn_800F8548(lbl_8087F048);
+    m590 = lbl_8087F048->fn_800F8548();
     PlayMotion_unk(0x1C7, 1, 3.0f);
     m14B8 = 0;
     SetTurn_unk(m15D4);

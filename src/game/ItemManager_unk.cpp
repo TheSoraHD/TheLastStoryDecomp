@@ -16,6 +16,7 @@
 #include "game/HitInfo_unk.h"
 #include "game/MslSort_unk.h"
 #include "game/InventoryExp_unk.h"
+#include "game/BattleTask.h"
 
 extern "C" const char* fn_8020BD3C(int index); // inferred: name of the group of a colour (db/PaletteTable_unk)
 extern "C" const char* fn_8020BD78(int index); // inferred: name of an effect palette
@@ -370,10 +371,7 @@ class BattleTask;
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
 extern "C" void* lbl_8087F610;                              // inferred: multiplayer session
 // inferred: shows a damage on the battle UI (game/BattleTask)
-extern "C" void fn_80108C10(BattleTask* battle, DamageResult_unk* damage, const atn::Vector3* pos, CharaTask* attacker,
-                            CharaTask* target, int arg5, int arg6);
 // inferred: message of an item got (game/BattleTask; 1 item, 2 weapon, 3 money)
-extern "C" void fn_801092C8(BattleTask* battle, int kind, int arg, int code, int count);
 extern "C" int fn_80444EFC(CharaTask* chara);
 
 // inferred: gets the entry `index` (drawn when negative) of the drop table `table`: the items used at once
@@ -409,7 +407,7 @@ extern "C" int fn_80444020(Inventory* inventory, int table, int message, int ind
             if (battle != 0 && (hit->mAC & 0x80000) != 0x80000 &&
                 (lbl_8087F610 == 0 || (hit->m04 != 6004 && hit->m04 != 20428))) {
                 atn::Vector3 pos = leader->vfAC();
-                fn_80108C10(battle, &result, &pos, leader, leader, 0, 0);
+                battle->fn_80108C10(&result, pos, leader, leader, 0, 0);
             }
         }
         if (outCode != 0) {
@@ -428,9 +426,9 @@ extern "C" int fn_80444020(Inventory* inventory, int table, int message, int ind
             Inventory::instance_->AddItem(code, count, arg, 1, &added, 1, 1);
             if (message != 0) {
                 if (fn_80206B9C(code) && added == 0) {
-                    fn_801092C8(lbl_8087F048, 2, 0, code, count);
+                    lbl_8087F048->fn_801092C8(2, 0, code, count);
                 } else if (item->mBC != 6) {
-                    fn_801092C8(lbl_8087F048, 1, 0, code, count);
+                    lbl_8087F048->fn_801092C8(1, 0, code, count);
                 }
             }
             if (outCode != 0) {
@@ -449,7 +447,7 @@ extern "C" int fn_80444020(Inventory* inventory, int table, int message, int ind
             }
             Inventory::instance_->AddMoney(money);
             if (message != 0) {
-                fn_801092C8(lbl_8087F048, 3, 0, money, 0);
+                lbl_8087F048->fn_801092C8(3, 0, money, 0);
             }
             if (outCode != 0) {
                 *outCode = code;

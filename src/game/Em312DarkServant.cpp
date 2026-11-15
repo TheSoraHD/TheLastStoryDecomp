@@ -6,6 +6,7 @@
 #include "game/Em006DarkMaster.h"
 #include "game/PlayerTask.h"
 #include "math/Vec.h"
+#include "game/BattleTask.h"
 
 extern "C" int sprintf(char* buf, const char* fmt, ...);
 extern "C" char* strstr(const char* s, const char* sub);
@@ -32,7 +33,6 @@ extern "C" float fn_80011220(float x); // inferred: fabs (weak copy of another h
 // inferred: effect manager methods (as in game/CharaTask.cpp)
 class BattleTask;
 BattleTask* fn_8013A194();
-extern "C" int fn_800F8548(BattleTask* mgr); // inferred: new bullet id
 extern "C" void fn_802F0964(BattleTask* mgr, CharaTask* owner, HitInfo_unk* bullet, int id, int arg7, int arg8,
                             float arg9); // inferred: fires a bullet (weak copy, game/Em306GurgBeast.cpp)
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
@@ -619,7 +619,7 @@ void Em312DarkServant::vf108() {
                         rot = dir.ToRotation_unk();
                     }
                     if (frame >= range->m04) {
-                        int id = range->m08 >= 0 ? range->m08 : fn_800F8548(fn_8013A194());
+                        int id = range->m08 >= 0 ? range->m08 : fn_8013A194()->fn_800F8548();
                         HitInfo_unk* bullet = fn_80219E6C(atk->mSkillId);
                         fn_802F0964(fn_8013A194(), this, bullet, id, 30, -1, 0.0f);
                         m14BC++;
@@ -675,7 +675,7 @@ void Em312DarkServant::vf108() {
                     rot = dir.ToRotation_unk();
                 }
                 if (frame >= range->m04) {
-                    int id = range->m08 >= 0 ? range->m08 : fn_800F8548(fn_8013A194());
+                    int id = range->m08 >= 0 ? range->m08 : fn_8013A194()->fn_800F8548();
                     HitInfo_unk* bullet = fn_80219E6C(atk->mSkillId);
                     fn_802F0964(fn_8013A194(), this, bullet, id, 30, -1, 0.0f);
                     m14BC++;

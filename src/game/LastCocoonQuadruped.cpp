@@ -19,6 +19,7 @@
 #include <boost/bind.hpp>
 #include <boost/function.hpp>
 #include "atn/ColliBase.h"
+#include "game/DamageResult_unk.h"
 
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
 // inferred: field (lbl_8087F430): camera shake and event flags (as in gmk/ShakeCamera.cpp)
@@ -91,26 +92,6 @@ inline float LengthSq_unk(const atn::Vector3& v) {
     return PSVECSquareMag(&v);
 }
 
-// inferred: damage record shown by fn_80108C10 (as StatusDamage_unk of game/CharaStatus.cpp)
-struct QuadDamage_unk {
-    QuadDamage_unk(int damage) : m08(0), m0C(0), m10(0), m14(-1) {
-        m1C = 0;
-        m18 = -1;
-        m04 = damage;
-        m00 = 1;
-    }
-    int m00;
-    int m04;
-    int m08;
-    int m0C;
-    int m10;
-    int m14;
-    int m18;
-    unsigned int m1C : 4;
-    unsigned int m1C_rest : 28;
-};
-extern "C" void fn_80108C10(BattleTask* effect, QuadDamage_unk* damage, const atn::Vector3& pos, CharaTask* from,
-                            CharaTask* to, int b, int c);
 
 
 struct HitResult_unk;
@@ -189,7 +170,7 @@ inline RoutePlace_unk* FindQuadPlace_unk(int id) {
 inline void LastCocoonQuadruped::SetMode_unk(int mode) {
     m14BC = 0;
     m14C0 = 0;
-    m590 = fn_800F8548(lbl_8087F048);
+    m590 = lbl_8087F048->fn_800F8548();
     if (lbl_8087F430 != 0) {
         ((GameTask*)lbl_8087F430)->fn_80370AE4(0x8C, 0);
     }
@@ -1196,7 +1177,7 @@ void LastCocoonQuadruped::fn_80464CF0() {
         fn_80144710();
         m1574 = 0;
         float rotY = mRot.y;
-        int id = fn_800F8548(lbl_8087F048);
+        int id = lbl_8087F048->fn_800F8548();
         lbl_8087F048->fn_800F8C6C(0, 0, this, fn_80219E6C(0x5B5), id, rotY, 30, -1);
     } else {
         atn::ColliResult_unk result;
@@ -1233,14 +1214,16 @@ void LastCocoonQuadruped::fn_80465294() {
         fn_80239DAC(lbl_8087F3C0, this, 1000, 0);
     } else if (m14C0 % 30 == 0) {
         float drain = 50.0f;
-        QuadDamage_unk damage((int)drain);
-        m1574->mStatus.fn_8012DF7C(damage.m04, 0, 0);
-        fn_80108C10(lbl_8087F048, &damage, m1574->mPos + atn::Vector3(0.0f, 15.0f, 0.0f), this, m1574, 0, 0);
-        damage.m04 /= -1;
+        DamageResult_unk damage;
+        damage.mDamage = (int)drain;
+        damage.mType = 1;
+        m1574->mStatus.fn_8012DF7C(damage.mDamage, 0, 0);
+        lbl_8087F048->fn_80108C10(&damage, m1574->mPos + atn::Vector3(0.0f, 15.0f, 0.0f), this, m1574, 0, 0);
+        damage.mDamage /= -1;
         atn::Vector3 pos = fn_80148B0C(0)->m04.mCenter;
         pos += atn::Vector3(0.0f, 15.0f, 0.0f);
-        mStatus.fn_8012DF7C(damage.m04, 0, 0);
-        fn_80108C10(lbl_8087F048, &damage, pos, this, this, 0, 0);
+        mStatus.fn_8012DF7C(damage.mDamage, 0, 0);
+        lbl_8087F048->fn_80108C10(&damage, pos, this, this, 0, 0);
     }
 }
 
@@ -1368,7 +1351,7 @@ void LastCocoonQuadruped::fn_80465B88() {
             param.mTurn = 0.12566371f;
             param.mDelay = 0.0f;
             param.mTime = dist / data->m4C;
-            fn_800F8574(lbl_8087F048, this, data, &pos, &dir, &param, 0x100, 0, 0.0f, 1.0f);
+            lbl_8087F048->fn_800F8574(this, data, &pos, &dir, &param, 0x100, 0, 0.0f, 1.0f);
         }
     } else if (m14BC == 2) {
         float frame = mMotion.mTracks[3].m08;
@@ -1415,7 +1398,7 @@ void LastCocoonQuadruped::fn_80466370() {
         } else if (20.0f < f && f < 24.0f && m14BC == 0) {
             HitInfo_unk* skill = fn_80219E6C(0x5B5);
             BattleTask* mgr = lbl_8087F048;
-            fn_800FAB80(mgr, this, skill, m590, &mPos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
+            mgr->fn_800FAB80(this, skill, m590, &mPos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
             m14BC = 1;
         }
         atn::Vector3 dir = m15BC;
@@ -1582,7 +1565,7 @@ int LastCocoonQuadruped::fn_80468038(int* count, atn::Vector3* pos, float* angle
             continue;
         }
         if (p->m560 == 4 || p->m560 == 5) {
-            if (fn_800FBA9C(lbl_8087F048, p, this, p->m638, -1, 0.0f) >= 0) {
+            if (lbl_8087F048->fn_800FBA9C(p, this, p->m638, -1, 0.0f) >= 0) {
                 at = p->mPos;
                 found = 1;
                 dist = 30.0f;
@@ -1611,7 +1594,7 @@ int LastCocoonQuadruped::fn_80468038(int* count, atn::Vector3* pos, float* angle
             }
         } else if (p->m560 == 14) {
             atn::Vector3 dir = p->fn_80158E1C();
-            if (fn_800FBE70(lbl_8087F048, p, this, p->m638, -1, &dir, 1, -1) >= 0) {
+            if (lbl_8087F048->fn_800FBE70(p, this, p->m638, -1, &dir, 1, -1) >= 0) {
                 at = dir;
                 found = 1;
                 yaw = p->mRot.y;

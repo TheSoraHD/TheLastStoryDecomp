@@ -63,8 +63,6 @@ extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
 extern "C" void* lbl_8087EE98; // inferred: collision manager
 extern "C" int fn_8004ED34(void* colli, atn::ColliResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg);
-extern "C" void fn_800FB1BC(BattleTask* mgr, CharaTask* owner, HitInfo_unk* data, const atn::Vector3* pos,
-                            const atn::Vector3* rot, int a, int b, float scale); // inferred: hit effect
 extern "C" int fn_8004D388(void* colli, atn::ColliResult_unk* result, const atn::Vector3* center, const atn::Vector3* move,
                            unsigned int mask, void* ignore, int arg, HitInfo_unk* data, float radius); // inferred: sphere sweep
 
@@ -175,7 +173,7 @@ void Bullet::fn_8010F018(BulletShot_unk* shot, const atn::Vector3* pos, const at
     }
     lbl_8087F3C0->mB8 = 0;
     if (count < 0) {
-        m7C = fn_800F8548(lbl_8087F048);
+        m7C = lbl_8087F048->fn_800F8548();
     } else {
         m7C = count;
     }
@@ -367,10 +365,10 @@ inline void PlayHitEffect_unk(Bullet* bullet, const atn::Vector3& pos, const atn
     atn::Vector3 angle = dir.ToRotation_unk();
     int id = 0;
     if ((bullet->m04 & 0x1000) == 0x1000) {
-        fn_800FB1BC(lbl_8087F048, bullet->m88, bullet->m68, &pos, &angle, 0, 0, 1.0f);
+        lbl_8087F048->fn_800FB1BC(bullet->m88, bullet->m68, &pos, &angle, 0, 0, 1.0f);
     } else {
-        id = fn_800FAB80(lbl_8087F048, bullet->m88, bullet->m68, bullet->m7C, &pos, &angle, 0, 30, -1, -1,
-                         bullet->m5C, bullet->m74);
+        id = lbl_8087F048->fn_800FAB80(bullet->m88, bullet->m68, bullet->m7C, &pos, &angle, 0, 30, -1, -1,
+                                          bullet->m5C, bullet->m74);
     }
     ((GameTask*)lbl_8087F430)->fn_80373164(bullet->m88, &pos, id);
 }
@@ -563,7 +561,7 @@ void Bullet::vf20(CharaTask* chara, const atn::Vector3* pos, atn::Vector3* dir) 
     atn::Vector3 target = m88->vf64(2);
     *dir = target - *pos;
     dir->GetNormalize();
-    fn_800F8574(lbl_8087F048, chara, m68, pos, dir, 0, 0, 0, 0.0f, 1.0f);
+    lbl_8087F048->fn_800F8574(chara, m68, pos, dir, 0, 0, 0, 0.0f, 1.0f);
 }
 
 extern "C" void fn_8023A108(BulletEffectMgr_unk* mgr, void* owner, int group, int flags); // inferred: effect flags on
@@ -855,7 +853,7 @@ void Bullet::fn_801120B0() {
     }
     atn::ColliResult_unk res;
     if (fn_8004ED34(lbl_8087EE98, &res, &m14, &m08, mask, 0, 0) != 0) {
-        fn_800FB4B0(lbl_8087F048, m88, m68, m7C, &m08, 0, 0x1E, -1, 1);
+        lbl_8087F048->fn_800FB4B0(m88, m68, m7C, &m08, 0, 0x1E, -1, 1);
         vf0C(1, 0);
     }
 }

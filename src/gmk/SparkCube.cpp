@@ -2,6 +2,7 @@
 #include "atn/Csv.h"
 #include "atn/Memory.h"
 #include "game/CharaTask.h"
+#include "game/BattleTask.h"
 
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" char* strcpy(char* dst, const char* src);
@@ -48,10 +49,6 @@ extern "C" Params_unk* lbl_8087EFA8;
 // inferred: bullets
 class BattleTask;
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
-extern "C" int fn_800F8548(BattleTask* mgr);
-extern "C" void fn_800FAB80(BattleTask* mgr, int arg1, void* bullet, int arg3, const atn::Vector3* pos,
-                            const atn::Vector3* rot, int arg6, int arg7, int arg8, int arg9, float arg10,
-                            float arg11);
 extern "C" void* lbl_8087F610; // inferred: arena mode
 
 // inferred: resource data of the spark model (atn::ModelBase::GetRes_unk): material names (names invented)
@@ -352,7 +349,7 @@ int SparkCube::vf40(GimmickMsg_unk* msg) {
             pos.x = x;
             pos.y = y;
             pos.z = z;
-            fn_800FAB80(mgr, 0, fn_80219E6C(mSkill), fn_800F8548(mgr), &pos, &rot, 0, 30, -1, -1, 0.0f, 1.0f);
+            mgr->fn_800FAB80(0, fn_80219E6C(mSkill), mgr->fn_800F8548(), &pos, &rot, 0, 30, -1, -1, 0.0f, 1.0f);
         }
         mWait = GetWait_unk(m54);
         mColli.mFlags &= ~1;

@@ -467,7 +467,7 @@ void Em401_01_WhiteLeoPard::fn_803202E0() {
                     m58C = 6;
                     fn_8016E970(6);
                     m560 = 4;
-                    m590 = fn_800F8548(lbl_8087F048);
+                    m590 = lbl_8087F048->fn_800F8548();
                     mMotion.m34C = 1;
                     mMotion.mTracks[0].m20 = 1.0f;
                     mMotion.mTracks[0].m0C = 1.0f;
@@ -871,7 +871,7 @@ void Em401_01_WhiteLeoPard::fn_803227A0() {
     m58C = 7;
     fn_8016E970(6);
     m560 = 4;
-    m590 = fn_800F8548(lbl_8087F048);
+    m590 = lbl_8087F048->fn_800F8548();
     mMotion.m34C = 1;
     mMotion.mTracks[0].m20 = 1.0f;
     mMotion.mTracks[0].m0C = 2.0f;

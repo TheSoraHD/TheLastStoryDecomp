@@ -16,6 +16,7 @@
 #include "game/MapTask.h"
 #include "game/BattleTask.h"
 #include "atn/ColliBase.h"
+#include "game/DamageResult_unk.h"
 
 extern "C" unsigned long strlen(const char* s);
 extern "C" int strcmp(const char* a, const char* b);
@@ -53,25 +54,6 @@ struct Field_unk {
     float m978;
 };
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
-// inferred: damage record sent to the effect manager (layout of game/CharaStatus.cpp)
-struct ShadeDamage_unk {
-    ShadeDamage_unk() : m04(0), m08(0), m0C(0), m10(0), m14(-1) {
-        m1C = 0;
-        m18 = -1;
-        m00 = 1;
-    }
-    int m00;
-    int m04;
-    int m08;
-    int m0C;
-    int m10;
-    int m14;
-    int m18;
-    unsigned int m1C : 4;
-    unsigned int m1C_rest : 28;
-};
-extern "C" void fn_80108C10(BattleTask* effect, ShadeDamage_unk* damage, const atn::Vector3& pos, int a, CharaTask* chara,
-                            int b, int c);
 struct EffectMgr_unk;
 extern "C" void fn_8023A680(EffectMgr_unk* mgr, void* res, int a, int b, atn::Vector3* pos, int c, int d, const float* color,
                             float scale, int e, int f, int g);
@@ -242,7 +224,7 @@ inline float MAX_unk(float a, float b) {
 }
 inline void Em301LShade::SetState_unk(int state) {
     m14E8 = 0;
-    m590 = fn_800F8548(lbl_8087F048);
+    m590 = lbl_8087F048->fn_800F8548();
     m58C = state;
     fn_8016E970(3);
 }
@@ -506,7 +488,7 @@ void Em301LShade::vf10() {
             }
             if (m14E8 > 90) {
                 m14E8 = 0;
-                m590 = fn_800F8548(lbl_8087F048);
+                m590 = lbl_8087F048->fn_800F8548();
                 m58C = 0;
                 fn_8016E970(3);
             }
@@ -525,7 +507,7 @@ void Em301LShade::vf10() {
             float end = mMotion.mTracks[0].m08;
             if (end >= mMotion.fn_80097D7C(0)) {
                 m14E8 = 0;
-                m590 = fn_800F8548(lbl_8087F048);
+                m590 = lbl_8087F048->fn_800F8548();
                 m58C = 0;
                 fn_8016E970(3);
             }
@@ -534,7 +516,7 @@ void Em301LShade::vf10() {
                 fn_80144710();
                 atn::Vector3 pos = mPos;
                 pos.y += 13.0f * m540.x;
-                fn_800FAB80(lbl_8087F048, this, skill, m590, &pos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
+                lbl_8087F048->fn_800FAB80(this, skill, m590, &pos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
             }
             break;
         }
@@ -1243,7 +1225,7 @@ void Em301LShade::fn_802D4378() {
         fn_8023A8B4(lbl_8087F3C0, &m1554, 0, 0, m153C, lbl_807C7030, color, -1, -1, 1, 1.0f);
     }
     if (m14E8 == 65) {
-        fn_800FAB80(lbl_8087F048, this, skill, m590, &m153C, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
+        lbl_8087F048->fn_800FAB80(this, skill, m590, &m153C, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
         fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0x115), *(const wchar_t**)((char*)m60 + 4));
         lbl_8087F048->fn_80109828(text);
         fn_800C344C("SE_EM301_002", &m153C, 0, -1, 1.0f);
@@ -1285,7 +1267,8 @@ void Em301LShade::fn_802D4628() {
     }
     if (m14E8 > 100) {
         fn_80239DAC(lbl_8087F3C0, this, 12, 0);
-        ShadeDamage_unk damage;
+        DamageResult_unk damage;
+        damage.mType = 1;
         int total = 0;
         for (unsigned int i = 0; i < m15AC.size(); i++) {
             CharaTask* chara = m15AC[i].mChara;
@@ -1294,10 +1277,10 @@ void Em301LShade::fn_802D4628() {
                 rate = m156C;
             }
             int hp = (int)chara->mStatus.m04;
-            damage.m04 = hp + 1;
+            damage.mDamage = hp + 1;
             total -= (int)(chara->mStatus.m04 * rate) + 1;
             chara->mStatus.fn_8012DF7C(hp + 1, 0, 0);
-            fn_80108C10(lbl_8087F048, &damage, chara->vfAC(), (int)this, chara, 0, 0);
+            lbl_8087F048->fn_80108C10(&damage, chara->vfAC(), this, chara, 0, 0);
             lbl_8087F048->fn_80107850((atn::Model*)&chara->mMotion);
             atn::Vector3 rot = chara->mRot.ToRotation_unk();
             atn::Vector3 dir = rot * -1.0f;
@@ -1307,10 +1290,10 @@ void Em301LShade::fn_802D4628() {
             chara->m13B0 = (int)this;
         }
         if (total < 0) {
-            damage.m04 = total;
+            damage.mDamage = total;
             atn::Vector3 pos = fn_80148B0C(0)->m04.mCenter + atn::Vector3(0.0f, 15.0f, 0.0f);
             mStatus.fn_8012DF7C(total, 0, 0);
-            fn_80108C10(lbl_8087F048, &damage, pos, 0, this, 0, 0);
+            lbl_8087F048->fn_80108C10(&damage, pos, 0, this, 0, 0);
             m1560++;
         }
         SetState_unk(0);
@@ -1450,7 +1433,7 @@ fn_80232B7C(this, 20);
 // string pool offsets; 4 variants
 void Em301LShade::fn_802D57B8() {
     m14E8 = 0;
-    m590 = fn_800F8548(lbl_8087F048);
+    m590 = lbl_8087F048->fn_800F8548();
     vf48();
     fn_80178A6C();
     fn_8015495C(0, 1, 1, 1);
@@ -1476,7 +1459,7 @@ void Em301LShade::fn_802D57B8() {
         fn_8023A8B4(mgr, &m1608, (atn::Model*)&mMotion, 0, pos, lbl_807C7030, color, -1, -1, 1, 1.0f);
     }
     if (lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->fn_80375184() != 0 && mType == 2) {
-        fn_801092C8(lbl_8087F048, 6, this, 0, 0);
+        lbl_8087F048->fn_801092C8(6, this, 0, 0);
     }
     fn_800EB7A0();
     m15E8 = 0;

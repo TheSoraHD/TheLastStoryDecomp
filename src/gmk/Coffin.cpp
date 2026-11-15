@@ -6,6 +6,7 @@
 #include "game/EnemyTask.h"
 #include "game/PlayerTask.h"
 #include "game/GameTask.h"
+#include "game/BattleTask.h"
 
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" char* strcpy(char* dst, const char* src);
@@ -34,10 +35,6 @@ class BattleTask;
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
 struct HitInfo_unk;
 extern "C" HitInfo_unk* fn_80219E6C(int id); // inferred: bullet data by id
-extern "C" int fn_800F8548(BattleTask* mgr);
-extern "C" void fn_800FAB80(BattleTask* mgr, int arg1, HitInfo_unk* bullet, int arg3, const atn::Vector3* pos,
-                            const atn::Vector3* rot, int arg6, int arg7, int arg8, int arg9, float arg10,
-                            float arg11);
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
 
 // inferred: field counter of the character inside each coffin (by GimmickCommon::m4C)
@@ -236,10 +233,10 @@ void Coffin::vf10() {
                     HitInfo_unk* bullet = fn_80219E6C(4004);
                     if (bullet != 0) {
                         fn_800C344C("SE_MB003_003", &m6C, 0, -1, 1.0f);
-                        int id = fn_800F8548(lbl_8087F048);
+                        int id = lbl_8087F048->fn_800F8548();
                         atn::Vector3 pos(m6C);
                         pos.y += 20.0f;
-                        fn_800FAB80(lbl_8087F048, 0, bullet, id, &pos, &m78, 0, 30, -1, 2, 3.0f, 1.0f);
+                        lbl_8087F048->fn_800FAB80(0, bullet, id, &pos, &m78, 0, 30, -1, 2, 3.0f, 1.0f);
                     }
                     open = 1;
                 } else if (mChara != 0 && mChara->fn_8016A7EC()) {

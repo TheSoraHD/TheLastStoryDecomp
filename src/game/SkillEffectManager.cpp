@@ -20,8 +20,6 @@ extern "C" void* lbl_8087F610;                     // inferred: arena mode (see 
 struct Field_unk;
 extern "C" Field_unk* lbl_8087F430;
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
-extern "C" void fn_800FB1BC(BattleTask* mgr, CharaTask* chara, HitInfo_unk* data, const atn::Vector3* pos,
-                            const atn::Vector3* rot, int a, int b);
 typedef EffectColor_unk Color4f_unk;
 struct Motion_unk;
 
@@ -377,7 +375,7 @@ void SkillEffectManager::fn_8059B8A8(const HitInfo_unk* skill, CharaTask* user, 
     for (int i = 0; i < heals.size(); i++) {
         if (!user->mFlag2 || fn_8021A9CC(heals[i].first)) {
             BattleTask* mgr = lbl_8087F048;
-            fn_800FB4B0(mgr, heals[i].second, heals[i].first, fn_800F8548(mgr), pos, 1, 30, -1, 0);
+            mgr->fn_800FB4B0(heals[i].second, heals[i].first, mgr->fn_800F8548(), pos, 1, 30, -1, 0);
             if (heals[i].first != 0 && user != 0) {
                 lbl_8087F048->fn_801070C8(heals[i].first->mB0, 0, 0, 0, &user->mPos, &user->mRot,
                             &Color4f_unk(1.0f, 1.0f, 1.0f, 1.0f), 1.0f);
@@ -391,7 +389,7 @@ void SkillEffectManager::fn_8059B8A8(const HitInfo_unk* skill, CharaTask* user, 
     for (int i = 0; i < hits.size(); i++) {
         if (!user->mFlag2) {
             BattleTask* mgr = lbl_8087F048;
-            fn_800FBA30(mgr, hits[i].second, user, hits[i].first, fn_800F8548(mgr), pos, &user->mRot);
+            mgr->fn_800FBA30(hits[i].second, user, hits[i].first, mgr->fn_800F8548(), pos, &user->mRot);
         }
         if (lbl_8087F490 != 0) {
             GameUI::Get_unk()->fn_803E6890(hits[i].second, hits[i].first);
@@ -399,9 +397,9 @@ void SkillEffectManager::fn_8059B8A8(const HitInfo_unk* skill, CharaTask* user, 
     }
     for (int i = 0; i < subs.size(); i++) {
         if (!user->mFlag2) {
-            subs[i].first->fn_80599FB4(1);
+            float scale = subs[i].first->fn_80599FB4(1);
             SkillEffect* bullet = subs[i].first;
-            fn_800FB1BC(lbl_8087F048, bullet->m08, subs[i].second, &bullet->m10, &bullet->m1C, 0, 0);
+            lbl_8087F048->fn_800FB1BC(bullet->m08, subs[i].second, &bullet->m10, &bullet->m1C, 0, 0, scale);
         }
         if (lbl_8087F490 != 0) {
             GameUI::Get_unk()->fn_803E6890(subs[i].first->m08, subs[i].second);

@@ -487,7 +487,7 @@ GameTask::GameTask(atn::Task* parent, const Option& option)
         }
     }
     if (!fn_8036555C(option.mType, option.mMap, option.mSub)) {
-        fn_800F2C9C(lbl_8087F048);
+        lbl_8087F048->fn_800F2C9C();
         lbl_8087F8A8->fn_8054A9A8();
     }
     ((PostFxMgrView_unk*)lbl_8087EF8C)->mMotionBlur.fn_800AFEBC(IsSpecialField_unk(option.mType, option.mMap, option.mSub) ? 4 : 2);
@@ -1349,7 +1349,7 @@ void GameTask::vf10() {
             NpcManager::sInstance->fn_800D246C(1);
             lbl_8087F9E8->fn_8059C32C(1);
             lbl_8087F9E8->FreezeTask();
-            fn_800F3D28(lbl_8087F048);
+            lbl_8087F048->fn_800F3D28();
             BattleResult::sInstance->fn_800F13B0();
             lbl_8087F8A8->fn_8054E51C();
             LogMessageTask::sInstance->mEntries.mSize = 0;
@@ -1390,7 +1390,7 @@ void GameTask::vf10() {
             m56D4 = 0;
             m56D8 = 0;
             if (fn_8036555C(m550C.mType, m550C.mId, m550C.mSub)) {
-                fn_800F3170(lbl_8087F048);
+                lbl_8087F048->fn_800F3170();
                 lbl_8087F8A8->fn_8054AF08();
                 lbl_8087F490->fn_803D11B4();
             }
@@ -1476,7 +1476,7 @@ void GameTask::vf10() {
                 ->mMotionBlur.fn_800AFEBC(IsSpecialField_unk(m550C.mType, m550C.mId, m550C.mSub) ? 4 : 2);
             fn_800EFA18(m550C.mType, m550C.mId);
             if (!fn_8036555C(m550C.mType, m550C.mId, m550C.mSub)) {
-                fn_800F2C9C(lbl_8087F048);
+                lbl_8087F048->fn_800F2C9C();
                 lbl_8087F8A8->fn_8054A9A8();
                 lbl_8087F490->fn_803D0B20();
             }
@@ -3540,7 +3540,7 @@ extern "C" void fn_803701E0(CharaTask* chara, int bit, int on) {
             if (on) {
                 data->mBits[bit / 32] |= 1 << (bit % 32);
                 if (lbl_8087F048 != 0) {
-                    fn_801092C8(lbl_8087F048, 0x14, chara, bit, 0);
+                    lbl_8087F048->fn_801092C8(0x14, chara, bit, 0);
                 }
             } else {
                 data->mBits[bit / 32] &= ~(1 << (bit % 32));

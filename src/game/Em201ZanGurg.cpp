@@ -165,13 +165,13 @@ inline void Em201ZanGurg::SelectAttack_unk() {
                 m58C = 8;
                 fn_8016E970(6);
                 m560 = 4;
-                m590 = fn_800F8548(lbl_8087F048);
+                m590 = lbl_8087F048->fn_800F8548();
                 PlayMotion_unk(&mMotion, 0x141, 0, 0);
             } else {
                 m58C = 9;
                 fn_8016E970(6);
                 m560 = 0x1D;
-                m590 = fn_800F8548(lbl_8087F048);
+                m590 = lbl_8087F048->fn_800F8548();
                 PlayMotion_unk(&mMotion, 0x145, 1, 0);
                 mFB8 = 0.0f;
                 fn_80232B7C(this, 0);
@@ -244,7 +244,7 @@ void Em201ZanGurg::vf14() {
 
 // inferred: inlined in vf3C (state 12); name invented
 inline void Em201ZanGurg::StartCounter_unk(CharaTask* attacker) {
-    m590 = fn_800F8548(lbl_8087F048);
+    m590 = lbl_8087F048->fn_800F8548();
     m58C = 12;
     fn_8016E970(6);
     m560 = 10;
@@ -449,7 +449,7 @@ void Em201ZanGurg::fn_802648CC() {
         atn::Vector3 pos = GetNodePos_unk(mMotion.GetNodeMtx_unk("rightwepoint"));
         atn::Vector3 dir = m16EC - pos;
         dir.Normalize_unk();
-        fn_800F8574(lbl_8087F048, this, m638, &pos, &dir, 0, 0, 0, 0.0f, 1.0f);
+        lbl_8087F048->fn_800F8574(this, m638, &pos, &dir, 0, 0, 0, 0.0f, 1.0f);
         mFB8 = 0.0f;
     }
     float frame = mMotion.mTracks[0].m08;

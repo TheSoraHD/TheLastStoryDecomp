@@ -157,7 +157,7 @@ void Np131LivingArmor::vf10() {
                 pos.y += 8.0f;
                 fn_80239DAC(lbl_8087F3C0, &m14B8, 0, 1);
                 BattleTask* mgr = lbl_8087F048;
-                fn_800FAB80(mgr, this, fn_80219E6C(0x7F1), fn_800F8548(mgr), &mPos, &mRot, 0, 30, -1, -1, 0.0f,
+                mgr->fn_800FAB80(this, fn_80219E6C(0x7F1), mgr->fn_800F8548(), &mPos, &mRot, 0, 30, -1, -1, 0.0f,
                             1.0f);
                 vf44();
                 m14E0 = 2;

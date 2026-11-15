@@ -590,16 +590,19 @@ void AIManager::fn_80016888() {
     }
 }
 
-// NONMATCHING: 99.4% - stack slots of the local position and of the returned temporary swapped
-// inferred: puts `chara` at a random point of its route group, facing a random direction
-void AIManager::fn_80016A94(CharaTask* chara, boost::function<int(gs::MovePoint*)> filter) {
-    int point = fn_80016C10(chara->mC58.mB4, filter);
+// inferred: puts the character at the move point facing a random direction (inline; name invented)
+static inline void PlaceAt_unk(CharaTask* chara, int point) {
     atn::Vector3 pos;
     pos = lbl_8087F430->m10D8->fn_803C11A4(point);
     atn::Vector3 rot = chara->mRot;
     rot.y = 6.2831855f * ((rand() % 1001) / 1000.0f) - 3.1415927f;
     chara->mPos = pos;
     chara->mRot = rot;
+}
+// inferred: puts `chara` at a random point of its route group, facing a random direction
+void AIManager::fn_80016A94(CharaTask* chara, boost::function<int(gs::MovePoint*)> filter) {
+    int point = fn_80016C10(chara->mC58.mB4, filter);
+    PlaceAt_unk(chara, point);
 }
 
 // inferred: weight of a move point (m14 plus five times m1C, at most 100); name invented

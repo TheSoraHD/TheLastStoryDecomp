@@ -16,6 +16,7 @@
 #include "game/Input_unk.h"
 #include "atn/ColliBase.h"
 #include "game/BattleTask.h"
+#include "game/DamageResult_unk.h"
 
 extern "C" unsigned long strlen(const char* s);
 extern "C" int strcmp(const char* a, const char* b);
@@ -95,22 +96,6 @@ extern "C" int fn_8004ED34(void* colli, atn::ColliResult_unk* result, const atn:
                            unsigned int mask, void* ignore, int arg7); // inferred: ray test
 extern "C" void fn_8004D388(void* mgr, atn::ColliResult_unk* result, CharaTask::Sphere_unk* sphere, atn::Vector3* move,
                             unsigned int mask, void* ignore, int arg, float radius); // inferred: sweep test
-// inferred: damage record (as QueenDamage_unk of game/Em208Queen.cpp)
-struct ZanDamage_unk {
-    ZanDamage_unk() : m00(0), m04(0), m08(0), m0C(0), m10(0), m14(-1) {
-        m1C = 0;
-        m18 = -1;
-    }
-    int m00;
-    int m04;
-    int m08;
-    int m0C;
-    int m10;
-    int m14;
-    int m18;
-    unsigned int m1C : 4;
-    unsigned int m1C_rest : 28;
-};
 // inferred: hit parameters (as in game/CharaTask.cpp); names invented
 struct HitParam_unk {
     int m00;
@@ -121,16 +106,12 @@ struct HitParam_unk {
     int m14;
 };
 extern "C" HitParam_unk lbl_807C6B90; // inferred: default parameters
-extern "C" void fn_8003EA3C(ZanDamage_unk* result, HitInfo_unk* data, CharaTask* attacker, CharaTask* owner,
+extern "C" void fn_8003EA3C(DamageResult_unk* result, HitInfo_unk* data, CharaTask* attacker, CharaTask* owner,
                             unsigned int flags, const HitParam_unk* param, int arg, int arg2);
-extern "C" void fn_80108C10(BattleTask* effect, ZanDamage_unk* damage, const atn::Vector3& pos, CharaTask* a,
-                            CharaTask* chara, int b, int c);
 // inferred: item manager (Inventory::instance_)
 extern "C" int fn_80206BE4(void* item); // inferred: item id
 extern "C" void fn_8044D104(void* mgr, int kind, int id, int arg, int chara);
 extern "C" int fn_80219558(int id); // inferred: party member kind of a character id
-extern "C" void fn_800FDB20(BattleTask* mgr, CharaTask* owner, CharaTask* target, int arg, HitInfo_unk* data, int id,
-                            const atn::Vector3* pos, const atn::Vector3* dir, float scale);
 
 // inferred: small inline helpers whose weak copies are emitted in this file (other files call them by these
 // automatic names)
@@ -910,7 +891,7 @@ void Em201ZanGurgFinal::vf14() {
 // inferred: starts state `state` (names invented)
 inline void Em201ZanGurgFinal::SetState_unk(int state, int control) {
     m14BC = 0;
-    m590 = fn_800F8548(lbl_8087F048);
+    m590 = lbl_8087F048->fn_800F8548();
     m14C4 = 0;
     mFlag5 = 0;
     m58C = state;
@@ -1500,7 +1481,7 @@ struct ZanHoming_unk : public HomingParam_unk {
 // inferred: fires bullet `skill` (name invented)
 inline void Shoot_unk(CharaTask* owner, int skill, const atn::Vector3* pos, const atn::Vector3* dir, HomingParam_unk* param) {
     BattleTask* mgr = lbl_8087F048;
-    fn_800F8574(mgr, owner, fn_80219E6C(skill), pos, dir, param, 0, 0, 0.0f, 1.0f);
+    mgr->fn_800F8574(owner, fn_80219E6C(skill), pos, dir, param, 0, 0, 0.0f, 1.0f);
 }
 
 void Em201ZanGurgFinal::fn_8026860C() {
@@ -1668,7 +1649,7 @@ void Em201ZanGurgFinal::fn_802692B4() {
         m14C4++;
         HitInfo_unk* data = fn_80219E6C(0x61D);
         BattleTask* mgr = lbl_8087F048;
-        fn_800FAB80(mgr, this, data, fn_800F8548(mgr), &mPos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
+        mgr->fn_800FAB80(this, data, mgr->fn_800F8548(), &mPos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
         FixedArray_unk<CharaTask*, 32> targets;
         for (PlayerTask* p = lbl_8087F8A0->mHead; p != 0; p = (PlayerTask*)p->mNext) {
             if (IsTarget2_unk(p) && (p->m54C & 0x2000) != 0x2000 && !fn_8016F3D0(p, 1) && p->mC58.mC0 != 0) {
@@ -1679,7 +1660,7 @@ void Em201ZanGurgFinal::fn_802692B4() {
         if (n < 7) {
             n = 7;
         }
-        int id = fn_800F8548(lbl_8087F048);
+        int id = lbl_8087F048->fn_800F8548();
         for (int i = 0; i < (int)n; i++) {
             Mtx m;
             atn::Vector3 dir;
@@ -1696,7 +1677,7 @@ void Em201ZanGurgFinal::fn_802692B4() {
                 param.mCount = id;
                 BattleTask* mgr = lbl_8087F048;
                 atn::Vector3 pos = fn_801781B0();
-                fn_800F8574(mgr, this, fn_80219E6C(data->m6C), &pos, &dir, &param, 0x2006, 0, 0.0f, 1.0f);
+                mgr->fn_800F8574(this, fn_80219E6C(data->m6C), &pos, &dir, &param, 0x2006, 0, 0.0f, 1.0f);
             }
         }
     }
@@ -1753,14 +1734,14 @@ void Em201ZanGurgFinal::fn_802696F8() {
         if (m14EC > 0) {
             fn_8026F9BC("leftwepoint");
         }
-        ZanDamage_unk damage;
+        DamageResult_unk damage;
         fn_8003EA3C(&damage, fn_80219E6C(0x61E), this, m150C, 0, &lbl_807C6B90, 0, 0);
         if ((m150C->mStatus.m0C & 0x20) == 0x20) {
             m150C->vf44();
         }
         atn::Vector3 pos = m150C->fn_80148B0C(0)->m04.mCenter;
         pos += atn::Vector3(0.0f, 15.0f, 0.0f);
-        fn_80108C10(lbl_8087F048, &damage, pos, this, m150C, 0, 0);
+        lbl_8087F048->fn_80108C10(&damage, pos, this, m150C, 0, 0);
     }
 }
 
@@ -2132,7 +2113,7 @@ void Em201ZanGurgFinal::fn_8026AC8C() {
                     3.0f);
         HitInfo_unk* data = fn_80219E6C(0x619);
         BattleTask* mgr = lbl_8087F048;
-        fn_800FAB80(mgr, this, data, fn_800F8548(mgr), &pos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
+        mgr->fn_800FAB80(this, data, mgr->fn_800F8548(), &pos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
         fn_800C344C("SE_MB099_003", &pos, 0, -1, 1.0f);
     }
     float frame = mMotion.mTracks[0].m08;
@@ -2143,7 +2124,7 @@ void Em201ZanGurgFinal::fn_8026AC8C() {
 
 void Em201ZanGurgFinal::fn_8026AF24() {
     m14BC = 0;
-    m590 = fn_800F8548(lbl_8087F048);
+    m590 = lbl_8087F048->fn_800F8548();
     m14C4 = 0;
     mFlag5 = 0;
 }
@@ -2387,7 +2368,7 @@ void Em201ZanGurgFinal::fn_8026D0F8(int mode) {
             m1678 = result.m04;
         }
         m1678.y = mPos.y + 3.0f;
-        m1684 = fn_800F8548(lbl_8087F048);
+        m1684 = lbl_8087F048->fn_800F8548();
         break;
     }
     case 1: {
@@ -2498,12 +2479,12 @@ void Em201ZanGurgFinal::fn_8026DB8C() {
             if (m1668 >= 2.0f) {
                 m1660 = 2;
                 m1668 = 2.0f;
-                int id = fn_800F8548(lbl_8087F048);
+                int id = lbl_8087F048->fn_800F8548();
                 HitInfo_unk* data = fn_80219E6C(0x61A);
                 fn_80232B7C(this, 1000);
                 Color4f_unk color(1.0f, 1.0f, 1.0f, 1.0f);
                 fn_8023A8B4(lbl_8087F3C0, &m157C, 0, 0, m1678, mRot, color, -1, -1, 1, 1.0f);
-                fn_800FAB80(lbl_8087F048, this, data, id, &m1678, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
+                lbl_8087F048->fn_800FAB80(this, data, id, &m1678, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
                 fn_800C344C("SE_SP016_002", &to, 0, -1, 1.0f);
             }
         }
@@ -2537,18 +2518,18 @@ void Em201ZanGurgFinal::fn_8026DB8C() {
                     r2 = 2;
                 }
                 if (r2 != 0) {
-                    float scale = fn_8010B250(lbl_8087F048, data->m3C - chara->mStatus.mParamB.m34, 0);
+                    float scale = lbl_8087F048->fn_8010B250(data->m3C - chara->mStatus.mParamB.m34, 0);
                     atn::Vector3 v = dir * scale;
                     chara->fn_8015D8C0(0.1f, v * 4.0f, (int)this);
                     fn_800C344C("SE_BTCOM_015", &at, 0, -1, 2.0f);
                     fn_8026D0F8(1);
                     m1644 = 1;
                 } else {
-                    float scale = fn_8010B250(lbl_8087F048, data->m3C, 0);
+                    float scale = lbl_8087F048->fn_8010B250(data->m3C, 0);
                     atn::Vector3 n = d0;
                     PSVECNormalize(&n, &n);
-                    fn_800FDB20(lbl_8087F048, this, chara, 0, data, m1684, &at, &n, scale);
-                    fn_80101434(lbl_8087F048, &at, &rot, 0, 0);
+                    lbl_8087F048->fn_800FDB20(this, chara, 0, data, m1684, &at, &n, 0, scale);
+                    lbl_8087F048->fn_80101434(&at, &rot, 0, 0);
                     fn_800C344C("SE_BTCOM_006", &at, 0, -1, 1.0f);
                 }
             }
@@ -2696,11 +2677,11 @@ void Em201ZanGurgFinal::fn_8026F9BC(const char* node) {
         atn::Vector3* hit = &result.m10;
         pos = *hit;
     }
-    int id = fn_800F8548(lbl_8087F048);
+    int id = lbl_8087F048->fn_800F8548();
     HitInfo_unk* data = fn_80219E6C(0x616);
     fn_80232B7C(this, 1000);
     fn_8023A8B4(lbl_8087F3C0, &m157C, 0, 0, pos, mRot, Color4f_unk(1.0f, 1.0f, 1.0f, 1.0f), -1, -1, 1, 1.0f);
-    fn_800FAB80(lbl_8087F048, this, data, id, &pos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
+    lbl_8087F048->fn_800FAB80(this, data, id, &pos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
     fn_800C344C("SE_SP016_002", &pos, 0, -1, 1.0f);
     m14F0 = 10;
 }

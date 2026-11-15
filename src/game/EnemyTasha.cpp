@@ -207,7 +207,7 @@ inline void EnemyTasha::FireEvent_unk() {
     PSMTXMultVec(m, &dir, &dir);
     BattleTask* mgr = lbl_8087F048;
     atn::Vector3 pos = mC58.mC4->mPos + dir;
-    fn_800FAB80(mgr, this, m1584, fn_800F8548(mgr), &pos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
+    mgr->fn_800FAB80(this, m1584, mgr->fn_800F8548(), &pos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
 }
 
 inline bool EnemyTasha::IsHaste_unk() {
@@ -220,7 +220,7 @@ inline bool EnemyTasha::IsHaste_unk() {
 // inferred: the target is attacking with a bullet that reaches this enemy
 inline bool EnemyTasha::IsCountered_unk(CharaTask* target) {
     if (target->IsActive_unk() && target->m55C == 6 && (target->vf78() || target->fn_80158CA4())) {
-        if (fn_800FBA9C(lbl_8087F048, target, this, target->m638, -1, 0.0f) >= 0) {
+        if (lbl_8087F048->fn_800FBA9C(target, this, target->m638, -1, 0.0f) >= 0) {
             return true;
         }
     }
@@ -719,7 +719,7 @@ void EnemyTasha::vf100(int state) {
         fn_8016E970(2);
         fn_8013C460(0);
         fn_8035738C(1.0f, 0.0f);
-        m590 = fn_800F8548(fn_8013A194());
+        m590 = fn_8013A194()->fn_800F8548();
         fn_8035ACB8(0x1D2, 0, 1.0f);
         break;
     case 13:
@@ -1028,7 +1028,7 @@ void EnemyTasha::vf108() {
         }
         if (m14BC == 0 && mMotion.mTracks[0].m08 >= 22.0f) {
             m14BC++;
-            fn_800FAB80(lbl_8087F048, this, m1564, m590, &mPos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
+            lbl_8087F048->fn_800FAB80(this, m1564, m590, &mPos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
         }
         break;
     case 12:

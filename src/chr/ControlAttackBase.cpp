@@ -320,7 +320,7 @@ ControlAttack::ControlAttack(Chara_unk* chara, const atn::Vector3& dir) : Contro
             break;
         }
     }
-    fn_80106878(lbl_8087F048, mChara);
+    lbl_8087F048->fn_80106878(mChara);
     LoadTable_unk();
     if (lbl_8087F498 != 0 && rand() % 2 == 0) {
         lbl_8087F498->fn_803EA77C(mChara, 0, 0, 1.0f, 10.0f);
@@ -446,7 +446,7 @@ ControlAttackNext::ControlAttackNext(Chara_unk* chara, const atn::Vector3& dir) 
             break;
         }
     }
-    fn_80106878(lbl_8087F048, mChara);
+    lbl_8087F048->fn_80106878(mChara);
     LoadTable_unk();
     if (lbl_8087F498 != 0 && rand() % 2 == 0) {
         lbl_8087F498->fn_803EA77C(mChara, 0, 0, 1.0f, 10.0f);
@@ -691,7 +691,7 @@ ControlMultiAttack::ControlMultiAttack(Chara_unk* chara, const atn::Vector3& dir
     float frame = sAttackLevel[MIN(5, MAX(0, c->mStatus.mParamB.m94 / 100))].mFrame;
     float speed = c->mMotion.mTracks[0].m0C;
     motion->mTracks[0].m08 = frame * MIN(1.0f, speed);
-    fn_80106878(lbl_8087F048, mChara);
+    lbl_8087F048->fn_80106878(mChara);
     LoadTable_unk();
     if (lbl_8087F498 != 0 && rand() % 2 == 0) {
         lbl_8087F498->fn_803EA77C(mChara, 2, 0, 1.0f, 10.0f);
@@ -961,9 +961,9 @@ ControlAttackLastOne::ControlAttackLastOne(Chara_unk* chara, const atn::Vector3&
         motion->fn_80097C08(0, 0x170, 0, 1, 1, 0.0f, 0.1f);
         break;
     }
-    fn_80106878(lbl_8087F048, mChara);
+    lbl_8087F048->fn_80106878(mChara);
     LoadTable_unk();
-    mBulletId = fn_800F8548(lbl_8087F048);
+    mBulletId = lbl_8087F048->fn_800F8548();
     mWindow = 0;
     HitInfo_unk* hit = fn_80219E6C(0xE3);
     Chara_unk* c = mChara;
@@ -1006,7 +1006,7 @@ int ControlAttackLastOne::vf0C() {
     }
     if (vf24() != 0) {
         if (mWindow < vf30()) {
-            mBulletId = fn_800F8548(lbl_8087F048);
+            mBulletId = lbl_8087F048->fn_800F8548();
             mWindow = vf30();
         }
         if (mHit == 0) {

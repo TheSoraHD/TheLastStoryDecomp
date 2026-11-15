@@ -377,7 +377,7 @@ void Em306GurgBeast::vf100(int state) {
     case 10:
     case 11:
         fn_805A4F1C(0x13F, 0, 1, 1.0f, 0.0f);
-        m14C8 = fn_800F8548(lbl_8087F048);
+        m14C8 = lbl_8087F048->fn_800F8548();
         mRot.y = m14D8.ToRotation_unk().y;
         mFlag30 = 0;
         break;
@@ -935,7 +935,7 @@ void Em306GurgBeast::fn_802F0F60() {
     }
     if (--m1544 < 0) {
         m1544 = 30;
-        m1540 = fn_800F8548(lbl_8087F048);
+        m1540 = lbl_8087F048->fn_800F8548();
     }
 }
 

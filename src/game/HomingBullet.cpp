@@ -7,6 +7,8 @@
 #include "game/CharaStatus.h"
 #include "game/PlayerTask.h"
 #include "game/CharaManager.h"
+#include "game/BattleTask.h"
+#include "game/DamageResult_unk.h"
 
 extern "C" void PSMTXRotAxisRad(Mtx m, const atn::Vector3* axis, float rad);
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
@@ -34,29 +36,6 @@ extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 
 class BattleTask;
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
-extern "C" void fn_800F8574(BattleTask* mgr, CharaTask* owner, HitInfo_unk* data, const atn::Vector3* pos,
-                            const atn::Vector3* dir, HomingParam_unk* param, int arg6, int arg7, float a, float b);
-// inferred: damage record shown by fn_80108C10 (as StatusDamage_unk of game/CharaStatus.cpp)
-struct HomingDamage_unk {
-    HomingDamage_unk() : m04(0), m08(0), m0C(0), m10(0), m14(-1) {
-        m1C = 0;
-        m18 = -1;
-        m00 = 1;
-    }
-    int m00;
-    int m04;
-    int m08;
-    int m0C;
-    int m10;
-    int m14;
-    int m18;
-    unsigned int m1C : 4;
-    unsigned int m1C_rest : 28;
-};
-extern "C" void fn_80108C10(BattleTask* mgr, HomingDamage_unk* damage, const atn::Vector3& pos, CharaTask* a,
-                            CharaTask* chara, int b, int c);
-extern "C" void fn_8010CF28(BattleTask* mgr, int id, CharaTask* chara, CharaTask* owner); // inferred: counter event
-extern "C" float fn_8010B250(BattleTask* mgr, int kind, int arg); // inferred: scale of the bullet
 extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float volume);
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
 
@@ -281,14 +260,15 @@ int HomingBullet::vf1C(CharaTask* chara, const atn::Vector3* pos, void* arg) {
                 at = chara->mPos;
             }
             at += atn::Vector3(0.0f, 15.0f, 0.0f);
-            HomingDamage_unk damage;
-            fn_80108C10(lbl_8087F048, &damage, at, m88, chara, 0x80008, 0);
+            DamageResult_unk damage;
+            damage.mType = 1;
+            lbl_8087F048->fn_80108C10(&damage, at, m88, chara, 0x80008, 0);
             if (res == 2) {
                 int id = 0x2F;
                 if (chara->mType == 0) {
                     id = 0x2E;
                 }
-                fn_8010CF28(lbl_8087F048, id, chara, m88);
+                lbl_8087F048->fn_8010CF28(id, chara, m88);
                 chr::ControlHitBackBullet* control =
                     new ((MemoryTag)3, "", "", 0) chr::ControlHitBackBullet(chara, atn::Vector3(-m20.x, -m20.y, -m20.z), this);
                 chara->fn_80178208(control);
@@ -343,7 +323,7 @@ int HomingBullet::vf1C(CharaTask* chara, const atn::Vector3* pos, void* arg) {
                             id = 0x5F0;
                         }
                         BattleTask* mgr = lbl_8087F048;
-                        fn_800F8574(mgr, chara, fn_80219E6C(id), &p, &off, &mA0, 0, 0, 0.0f, 1.0f);
+                        mgr->fn_800F8574(chara, fn_80219E6C(id), &p, &off, &mA0, 0, 0, 0.0f, 1.0f);
                     }
                     if (chara->mFlag22 == 1 && lbl_8087F430 != 0 && lbl_8087F430->fn_80370A78(0xCC) == 0) {
                         lbl_8087F430->fn_80370AE4(0xCC, 1);
@@ -356,7 +336,7 @@ int HomingBullet::vf1C(CharaTask* chara, const atn::Vector3* pos, void* arg) {
                 if (chara->mType == 0) {
                     id = 7;
                 }
-                fn_8010CF28(lbl_8087F048, id, chara, m88);
+                lbl_8087F048->fn_8010CF28(id, chara, m88);
                 atn::Vector3 d = m20;
                 PSVECNormalize(&d, &d);
                 d.x *= -1.0f;
@@ -370,7 +350,7 @@ int HomingBullet::vf1C(CharaTask* chara, const atn::Vector3* pos, void* arg) {
                 mA0.mTime = 0.0f;
                 fn_8010F4BC();
                 if (res == 1) {
-                    float scale = fn_8010B250(lbl_8087F048, m68->m3C - chara->mStatus.mParamB.m34, 0);
+                    float scale = lbl_8087F048->fn_8010B250(m68->m3C - chara->mStatus.mParamB.m34, 0);
                     atn::Vector3 push = dir * scale * 5.0f;
                     chara->fn_8015D8C0(0.1f, push, (int)m88);
                     fn_800C344C("SE_BTCOM_015", pos, 0, -1, 2.0f);
@@ -386,7 +366,7 @@ void HomingBullet::vf20(CharaTask* chara, const atn::Vector3* pos, atn::Vector3*
     m88->vf64(2);
     mA0.mTarget = m88;
     mA0.m08 = 0.5f * m80;
-    fn_800F8574(lbl_8087F048, chara, m68, pos, dir, &mA0, 0, 0, 0.0f, 1.0f);
+    lbl_8087F048->fn_800F8574(chara, m68, pos, dir, &mA0, 0, 0, 0.0f, 1.0f);
 }
 
 CharaTask* HomingBullet::vf24() {
