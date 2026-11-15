@@ -6,7 +6,7 @@
 #include "atn/Memory.h"
 #include "atn/SoundRef.h"
 #include "game/GameUI.h"
-
+#include "atn/D2A_TaskInstanceC.h"
 extern "C" unsigned long wcslen(const wchar_t* s);
 extern "C" wchar_t* wcscpy(wchar_t* dst, const wchar_t* src);
 extern "C" int fn_800DC1DC(const wchar_t* s);                 // inferred: wide string to int
@@ -174,11 +174,7 @@ extern "C" atn::SoundRef fn_803B4338(int index, float volume) {
     return fn_803B42E8(sSounds_unk[index], volume);
 }
 
-extern "C" GameLayout_unk* fn_801F64D0(atn::Task* parent, const char* path); // inferred: creates a layout
-extern "C" void fn_801F6C80(GameLayout_unk* layout, const char* name, float value);
-extern "C" float fn_801F6C2C(GameLayout_unk* layout); // inferred: end frame
 // inferred: sets a texture rectangle (D2A_TaskInstanceBase<32, 8>::SetValues2_unk; the rectangle is copied)
-extern "C" void fn_801F7590(GameLayout_unk* layout, const char* name, ButtonUv_unk uv);
 extern "C" int fn_800A555C(void* pad, int port, int button); // inferred: button triggered
 extern "C" void* lbl_8087EF70; // inferred: pad
 // inferred: settings (lbl_8087F0A8); only the member used here
@@ -199,16 +195,16 @@ GameChoiceWindow* GameChoiceWindow::Create_unk(atn::Task* parent) {
 
 GameChoiceWindow::GameChoiceWindow(atn::Task* parent)
     : atn::Task(parent), mMessage(0), mTimer(0), mState(0), mChoice(0), mCount(0) {
-    mMain = fn_801F64D0(this, "/data/d2anime/ui_select_4.d2a");
+    mMain = (GameLayout_unk*)D2A_TaskInstance32_unk::Create(this, "/data/d2anime/ui_select_4.d2a");
     mMain->mLoop = 0;
     mMain->fn_800D246C(1);
-    mOptions[0] = fn_801F64D0(this, "/data/d2anime/ui_select_4_l.d2a");
+    mOptions[0] = (GameLayout_unk*)D2A_TaskInstance32_unk::Create(this, "/data/d2anime/ui_select_4_l.d2a");
     mOptions[0]->fn_800D246C(1);
-    mOptions[1] = fn_801F64D0(this, "/data/d2anime/ui_select_4_r.d2a");
+    mOptions[1] = (GameLayout_unk*)D2A_TaskInstance32_unk::Create(this, "/data/d2anime/ui_select_4_r.d2a");
     mOptions[1]->fn_800D246C(1);
-    mOptions[2] = fn_801F64D0(this, "/data/d2anime/ui_select_4_u.d2a");
+    mOptions[2] = (GameLayout_unk*)D2A_TaskInstance32_unk::Create(this, "/data/d2anime/ui_select_4_u.d2a");
     mOptions[2]->fn_800D246C(1);
-    mOptions[3] = fn_801F64D0(this, "/data/d2anime/ui_select_4_d.d2a");
+    mOptions[3] = (GameLayout_unk*)D2A_TaskInstance32_unk::Create(this, "/data/d2anime/ui_select_4_d.d2a");
     mOptions[3]->fn_800D246C(1);
     mSelected = 0;
 }
@@ -318,20 +314,20 @@ void GameChoiceWindow::vf10() {
     atn::D2A_DrawRect rect;
     rect = mMain->GetRect_unk("select_left");
     mOptions[0]->SetValues1Rect_unk("basePoint", rect);
-    fn_801F6C80(mOptions[0], "canSelect", 1.0f);
-    fn_801F6C80(mOptions[0], "skipSelect", 0.0f);
+    ((D2A_TaskInstance32_unk*)mOptions[0])->SetValue0_unk("canSelect", 1.0f);
+    ((D2A_TaskInstance32_unk*)mOptions[0])->SetValue0_unk("skipSelect", 0.0f);
     rect = mMain->GetRect_unk("select_right");
     mOptions[1]->SetValues1Rect_unk("basePoint", rect);
-    fn_801F6C80(mOptions[1], "canSelect", 1.0f);
-    fn_801F6C80(mOptions[1], "skipSelect", 0.0f);
+    ((D2A_TaskInstance32_unk*)mOptions[1])->SetValue0_unk("canSelect", 1.0f);
+    ((D2A_TaskInstance32_unk*)mOptions[1])->SetValue0_unk("skipSelect", 0.0f);
     rect = mMain->GetRect_unk("select_up");
     mOptions[2]->SetValues1Rect_unk("basePoint", rect);
-    fn_801F6C80(mOptions[2], "canSelect", 1.0f);
-    fn_801F6C80(mOptions[2], "skipSelect", 0.0f);
+    ((D2A_TaskInstance32_unk*)mOptions[2])->SetValue0_unk("canSelect", 1.0f);
+    ((D2A_TaskInstance32_unk*)mOptions[2])->SetValue0_unk("skipSelect", 0.0f);
     rect = mMain->GetRect_unk("select_down");
     mOptions[3]->SetValues1Rect_unk("basePoint", rect);
-    fn_801F6C80(mOptions[3], "canSelect", 1.0f);
-    fn_801F6C80(mOptions[3], "skipSelect", 0.0f);
+    ((D2A_TaskInstance32_unk*)mOptions[3])->SetValue0_unk("canSelect", 1.0f);
+    ((D2A_TaskInstance32_unk*)mOptions[3])->SetValue0_unk("skipSelect", 0.0f);
 }
 
 int GameChoiceWindow::fn_803B4C24() {
@@ -355,7 +351,7 @@ GameMessageWindow* GameMessageWindow::fn_803B5470(atn::Task* parent) {
 
 
 GameMessageWindow::GameMessageWindow(atn::Task* parent) : atn::Task(parent), mMessage(0), mState(0), mTimer(0) {
-    mLayout = fn_801F64D0(this, sMessageLayout_unk);
+    mLayout = (GameLayout_unk*)D2A_TaskInstance32_unk::Create(this, sMessageLayout_unk);
     mLayout->mLoop = 0;
     mLayout->fn_800D246C(1);
     mChoices = this != 0 ? new ((MemoryTag)1, "", "", 0) GameChoiceWindow(this) : 0;
@@ -376,7 +372,7 @@ void GameMessageWindow::vf10() {
     switch (mState) {
     case 1: {
         float frame = mLayout->mFrame;
-        if (frame >= fn_801F6C2C(mLayout)) {
+        if (frame >= ((D2A_TaskInstance32_unk*)mLayout)->GetEndFrame()) {
             mState = 2;
         }
         break;
@@ -395,8 +391,8 @@ void GameMessageWindow::vf10() {
         break;
     }
     ButtonUv_unk uv = lbl_8087F0A8->mInput.fn_80124C6C(0);
-    fn_801F7590(mLayout, "btnUv", uv);
-    fn_801F7590(mLayout, "btnUvMask", uv);
+    ((D2A_TaskInstance32_unk*)mLayout)->SetValues2_unk("btnUv", uv);
+    ((D2A_TaskInstance32_unk*)mLayout)->SetValues2_unk("btnUvMask", uv);
 }
 
 void GameMessageWindow::fn_803B5774(GameMessage* msg, int time) {
@@ -472,7 +468,7 @@ GameTextMessageWindow* GameTextMessageWindow::fn_803B612C(atn::Task* parent) {
 GameTextMessageWindow::GameTextMessageWindow(atn::Task* parent)
     : atn::Task(parent), mLayout(0), m4C(0), mState(0), m54(0), m58(0), m5C(0), m60(0.0f), m64(15), m68(0.0f), m70(0),
       m71(0), m74(0), m78(0), m7C(0), m80(0), m84(0), m88(0), m8C(0), mAC(0), mB0(0), mCount(0), mHead(0) {
-    mLayout = fn_801F64D0(this, sTextLayout_unk);
+    mLayout = (GameLayout_unk*)D2A_TaskInstance32_unk::Create(this, sTextLayout_unk);
     mLayout->mLoop = 0;
     mLayout->fn_800D246C(1);
 }

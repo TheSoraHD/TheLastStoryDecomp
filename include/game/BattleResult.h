@@ -3,6 +3,7 @@
 
 #include "atn/Task.h"
 #include "atn/FixedArray.h"
+#include "atn/D2A_TaskInstanceC.h"
 
 // inferred: d2anime task (made by fn_801F3FF8); only the members used here
 struct ResultD2A_unk : public atn::Task {
@@ -24,7 +25,7 @@ struct ResultD2A_unk : public atn::Task {
     float mSpeed; // 0x104
 };
 
-// inferred: layout anime task (made by fn_801F64D0); only the members used here
+// inferred: layout anime task (made by D2A_TaskInstanceBase<32, 8>::Create); only the members used here
 struct ResultLayout_unk : public atn::Task {
     bool IsEnd_unk(); // inferred: the frame reached the last one (name invented)
     unsigned char m48[0x4D - 0x48];
@@ -34,10 +35,9 @@ struct ResultLayout_unk : public atn::Task {
     float mSpeed; // 0x54
 };
 
-extern "C" float fn_801F6C2C(atn::Task* layout); // inferred: last frame
 
 inline bool ResultLayout_unk::IsEnd_unk() {
-    return mFrame >= fn_801F6C2C(this);
+    return mFrame >= ((D2A_TaskInstance32_unk*)this)->GetEndFrame();
 }
 
 // inferred: experience bar of one member (0x10 bytes); names invented

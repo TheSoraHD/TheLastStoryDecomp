@@ -17,6 +17,7 @@
 #include "game/PlayerTask.h"
 #include "atn/RenderManager.h"
 #include "atn/Lerp_unk.h"
+#include "atn/D2A_TaskInstanceC.h"
 
 // First file of CosEditProtector (game/CosEditPalette_unk.cpp has the palette and part pages).
 extern "C" int sprintf(char* s, const char* format, ...);
@@ -67,7 +68,6 @@ extern "C" int fn_800A555C(void* pad, int port, int button); // inferred: button
 extern "C" int fn_800A58D0(void* pad, int port);              // inferred: second stick available
 extern "C" atn::SoundRef fn_80117228(int id);                 // inferred: plays a system sound effect
 extern "C" void fn_801FECE0(void* layout, unsigned int hash, float value);
-extern "C" void fn_801F6C80(atn::Task* layout, const char* name, float value); // inferred: sets a value
 inline void SetPaneFloat_unk(void* layout, const char* name, float value) {
     fn_801FECE0(layout, fn_800DC6B4(name), value);
 }
@@ -80,7 +80,6 @@ struct CosEditTaskLayout_unk : public atn::Task {
 inline void SetTaskFloat_unk(void* task, const char* name, float value) {
     fn_801FECE0(((CosEditTaskLayout_unk*)task)->mLayout, fn_800DC6B4(name), value);
 }
-extern "C" atn::Task* fn_801F64D0(atn::Task* parent, const char* path); // inferred: layout anime
 // inferred: d2anime task seen through its frame and speed (as ShopD2A_unk in game/ShopBase.h)
 struct CosEditD2A_unk : public atn::Task {
     unsigned char m48[0x100 - 0x48];
@@ -489,7 +488,7 @@ void CosEditProtector::vf24() {
         fn_800D2338(mB88);
         mB88 = 0;
     }
-    (mB88 = fn_801F64D0(this, "data/d2anime/equip_face.d2a"))->fn_800D246C(1);
+    (mB88 = (atn::Task*)D2A_TaskInstance32_unk::Create(this, "data/d2anime/equip_face.d2a"))->fn_800D246C(1);
     ((CosEditLayout_unk*)mB88)->m4E = 0;
     m1C54.clear();
 }
@@ -536,7 +535,7 @@ void CosEditProtector::vf48() {
         if (entry->m04 == 1) {
             atn::D3AnimeInstance* anime = (atn::D3AnimeInstance*)entry->mAnime;
             if (anime != 0 && anime->GetTask() != 0) {
-                fn_801F6C80((atn::Task*)((atn::D3AnimeInstance*)m50[i].mAnime)->GetTask(), "frameOn", value);
+                ((D2A_TaskInstance32_unk*)(atn::Task*)((atn::D3AnimeInstance*)m50[i].mAnime)->GetTask())->SetValue0_unk("frameOn", value);
             }
         } else {
             atn::D3Anime* anime = entry->mAnime;
@@ -639,7 +638,6 @@ struct CosEditItemName_unk {
 };
 extern "C" CosEditItemName_unk* fn_802091E8(int id);
 extern "C" void fn_80511ADC(atn::D2A_Task* task, CharaStatus* status, int chara, int full); // inferred: status board
-extern "C" void fn_801F6E78(atn::Task* inst, const char* name, atn::D2A_DrawRect& rect);   // inferred: places a pane
 extern "C" float fn_800A08D4(atn::LH_Motion* motion);                                     // inferred: motion length
 extern "C" float fn_804A4264(MenuCommonTask* menu);
 extern "C" float fn_804A4280(MenuCommonTask* menu);
@@ -975,7 +973,7 @@ void CosEditProtector::vf64() {
                     char name[0x40];
                     sprintf(name, "palette%02d", i);
                     atn::D2A_DrawRect rect = GetPaneRect_unk(select, name);
-                    fn_801F6E78((atn::Task*)mPalettes[i]->GetTask(), "base_pos", rect);
+                    ((D2A_TaskInstance32_unk*)(atn::Task*)mPalettes[i]->GetTask())->SetValues1_unk("base_pos", rect);
                 }
             }
             fn_801D7560(member, status, &m50[mB8C], palette);
@@ -1194,14 +1192,14 @@ void CosEditProtector::fn_801D3DF4() {
             pos = GetPaneRect_unk(mLists[0].mBase->GetTask(), name);
             atn::Task* bar = mLists[0].mScrollBar->GetTask();
             if (bar != 0) {
-                fn_801F6C80(bar, "s_hightMax", 210.0f);
+                ((D2A_TaskInstance32_unk*)bar)->SetValue0_unk("s_hightMax", 210.0f);
                 fn_804A4930(bar, m88, m84, m8C);
             }
             fn_805119C8(mLists[0].mItems[m80 - m88]->GetTask(), 0, &m50[1], (const NewCampPartsPoint_unk&)pos, 0);
         } else {
             atn::Task* bar = mLists[0].mScrollBar->GetTask();
             if (bar != 0) {
-                fn_801F6C80(bar, "s_hightMax", 210.0f);
+                ((D2A_TaskInstance32_unk*)bar)->SetValue0_unk("s_hightMax", 210.0f);
                 fn_804A4930(bar, 0, 1, 1);
             }
         }
@@ -1212,14 +1210,14 @@ void CosEditProtector::fn_801D3DF4() {
             pos = GetPaneRect_unk(mLists[2].mBase->GetTask(), name);
             atn::Task* bar = mLists[2].mScrollBar->GetTask();
             if (bar != 0) {
-                fn_801F6C80(bar, "s_hightMax", 270.0f);
+                ((D2A_TaskInstance32_unk*)bar)->SetValue0_unk("s_hightMax", 270.0f);
                 fn_804A4930(bar, m88, m84, m8C);
             }
             fn_805119C8(mLists[2].mItems[m80 - m88]->GetTask(), 0, &m50[8], (const NewCampPartsPoint_unk&)pos, 0);
         } else {
             atn::Task* bar = mLists[2].mScrollBar->GetTask();
             if (bar != 0) {
-                fn_801F6C80(bar, "s_hightMax", 210.0f);
+                ((D2A_TaskInstance32_unk*)bar)->SetValue0_unk("s_hightMax", 210.0f);
                 fn_804A4930(bar, 0, 1, 1);
             }
         }

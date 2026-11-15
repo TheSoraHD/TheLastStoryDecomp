@@ -12,11 +12,11 @@
 #include "math/Vec.h"
 #include "std/string.h"
 #include "game/BattleTask.h"
+#include "atn/D2A_TaskInstanceC.h"
 
 extern "C" int sprintf(char* s, const char* format, ...);
 extern "C" wchar_t* wcsstr(const wchar_t* s, const wchar_t* sub);
 extern "C" ShopD2A_unk* fn_801F3FF8(atn::Task* parent, const char* path, int loop); // inferred: d2anime task
-extern "C" ShopLayout_unk* fn_801F64D0(atn::Task* parent, const char* path);      // inferred: layout anime
 extern "C" atn::SoundRef fn_80117228(int id); // inferred: plays a system sound effect
 extern "C" void fn_804A5824(MenuCommonTask* menu, atn::Task* anime, const char* name, int end);
 extern "C" void fn_804A39EC(ShopD2A_unk* anime, int arg1, int repeat, float frame, float speed);
@@ -70,21 +70,9 @@ inline void SetPaneFloat_unk(void* layout, const char* name, float value) {
 inline void SetPaneValue_unk(void* layout, const char* name, int index, float value) {
     fn_801FED24(layout, fn_800DC6B4(name), index, value);
 }
-extern "C" void fn_801F6E78(atn::Task* task, const char* name, const ShopPoint_unk* pos);
-extern "C" void fn_801F6C80(atn::Task* layout, const char* name, float value);    // inferred: sets a value
-extern "C" void fn_801F837C(atn::Task* layout, const char* name, const wchar_t* text); // inferred: sets a text
-extern "C" void fn_801F8598(atn::Task* layout, const char* name, int value, int arg); // inferred: sets a number
-extern "C" void fn_801F7DF0(atn::Task* layout, const char* name, float r, float g, float b); // inferred: sets a colour
 extern "C" void fn_804A4CE4(atn::Task* task, int face, int a, int b); // inferred: sets the face of a member
 // inferred: texture rectangle (as MenuUV_unk in game/MenuCommonTask.cpp)
-struct ShopUV_unk {
-    ShopUV_unk() {}
-    ShopUV_unk(const ShopUV_unk& o) {
-        __Vec4Copy(&u0, &o.u0);
-    }
-    float u0, v0, u1, v1;
-};
-extern "C" void fn_801F7590(atn::Task* layout, const char* name, ShopUV_unk uv); // inferred: sets a rectangle
+typedef atn::Vector4_unk ShopUV_unk; // inferred: texture rectangle
 extern "C" int fn_80444BE8(Inventory* party, ItemParamEntry_unk* item); // inferred: icon of an item
 extern "C" int fn_80444C48(Inventory* party);                          // inferred: icon of an unknown item
 extern "C" ShopUV_unk fn_80444C50(Inventory* party, int icon);
@@ -171,7 +159,7 @@ static const ShopUpGradeMenu_unk sMenus[4] = {
 ShopUpGrade* ShopUpGrade::sInstance;
 
 inline ShopLayout_unk* CreateLayout_unk(atn::Task* parent, const char* path) {
-    return fn_801F64D0(parent, path);
+    return (ShopLayout_unk*)D2A_TaskInstance32_unk::Create(parent, path);
 }
 
 inline WeaponParamEntry_unk::~WeaponParamEntry_unk() {}
@@ -1580,7 +1568,7 @@ void ShopUpGrade::fn_80597268(int show) {
         char name[0x40];
         sprintf(name, "list_point%d", i + 1);
         pos = GetPanePos_unk(mListBase, name);
-        fn_801F6E78(mList[i], "basePos", &pos);
+        ((D2A_TaskInstance32_unk*)mList[i])->SetValues1_unk("basePos", *(atn::D2A_DrawRect*)&pos);
         int index = i + mScroll.mTop;
         if (index < (int)mItems.size()) {
             ShopUpGradeEntry_unk* entry = &mItems[index];
@@ -1588,22 +1576,22 @@ void ShopUpGrade::fn_80597268(int show) {
             int num = fn_804444E8(party, item->mId);
             if (show) {
                 if (entry->mMember < 0) {
-                    fn_801F6C80(mList[i], "faceOn", 0.0f);
+                    ((D2A_TaskInstance32_unk*)mList[i])->SetValue0_unk("faceOn", 0.0f);
                 } else {
                     fn_804A4CE4(mList[i], entry->mMember, 4, 2);
-                    fn_801F6C80(mList[i], "faceOn", 1.0f);
+                    ((D2A_TaskInstance32_unk*)mList[i])->SetValue0_unk("faceOn", 1.0f);
                     num = -1;
                 }
                 if (entry->mCanUpgrade != 0) {
-                    fn_801F7DF0(mList[i], "itemCol", 255.0f, 255.0f, 255.0f);
-                    fn_801F6C80(mList[i], "subColorR", 180.0f);
-                    fn_801F6C80(mList[i], "subColorR", 180.0f);
-                    fn_801F6C80(mList[i], "subColorR", 180.0f);
+                    ((D2A_TaskInstance32_unk*)mList[i])->SetColor_unk("itemCol", 255.0f, 255.0f, 255.0f);
+                    ((D2A_TaskInstance32_unk*)mList[i])->SetValue0_unk("subColorR", 180.0f);
+                    ((D2A_TaskInstance32_unk*)mList[i])->SetValue0_unk("subColorR", 180.0f);
+                    ((D2A_TaskInstance32_unk*)mList[i])->SetValue0_unk("subColorR", 180.0f);
                 } else {
-                    fn_801F7DF0(mList[i], "itemCol", 128.0f, 128.0f, 128.0f);
-                    fn_801F6C80(mList[i], "subColorR", 100.0f);
-                    fn_801F6C80(mList[i], "subColorR", 100.0f);
-                    fn_801F6C80(mList[i], "subColorR", 100.0f);
+                    ((D2A_TaskInstance32_unk*)mList[i])->SetColor_unk("itemCol", 128.0f, 128.0f, 128.0f);
+                    ((D2A_TaskInstance32_unk*)mList[i])->SetValue0_unk("subColorR", 100.0f);
+                    ((D2A_TaskInstance32_unk*)mList[i])->SetValue0_unk("subColorR", 100.0f);
+                    ((D2A_TaskInstance32_unk*)mList[i])->SetValue0_unk("subColorR", 100.0f);
                 }
                 fn_80598530(mList[i], item, -1, num, -1, entry->mHave);
             } else {
@@ -1620,21 +1608,21 @@ void ShopUpGrade::fn_80597554(ShopUpGradeEntry_unk* entry) {
     ((atn::D2A_Task*)mContent)->SetNumber_unk("upgradeMoney", entry->mPrice, 0);
     ShopPoint_unk pos;
     pos = GetPanePos_unk(mContent, "AfterItem");
-    fn_801F6E78(mColor, "basePos", &pos);
-    fn_801F6C80(mColor, "faceOn", 0.0f);
-    fn_801F6E78(mColorNoItem, "basePos", &pos);
+    ((D2A_TaskInstance32_unk*)mColor)->SetValues1_unk("basePos", *(atn::D2A_DrawRect*)&pos);
+    ((D2A_TaskInstance32_unk*)mColor)->SetValue0_unk("faceOn", 0.0f);
+    ((D2A_TaskInstance32_unk*)mColorNoItem)->SetValues1_unk("basePos", *(atn::D2A_DrawRect*)&pos);
     char name[0x40];
     for (int i = 0; i < 2; i++) {
         sprintf(name, "skill_point%d", i + 1);
         pos = GetPanePos_unk(mContent, name);
-        fn_801F6E78(mSkill[i], "basePos", &pos);
-        fn_801F6E78(mSkillBlue[i], "basePos", &pos);
+        ((D2A_TaskInstance32_unk*)mSkill[i])->SetValues1_unk("basePos", *(atn::D2A_DrawRect*)&pos);
+        ((D2A_TaskInstance32_unk*)mSkillBlue[i])->SetValues1_unk("basePos", *(atn::D2A_DrawRect*)&pos);
     }
     for (int i = 0; i < 3; i++) {
         sprintf(name, "NeedItem%d", i + 1);
         pos = GetPanePos_unk(mContent, name);
-        fn_801F6E78(mColors[i], "basePos", &pos);
-        fn_801F6C80(mColors[i], "faceOn", 0.0f);
+        ((D2A_TaskInstance32_unk*)mColors[i])->SetValues1_unk("basePos", *(atn::D2A_DrawRect*)&pos);
+        ((D2A_TaskInstance32_unk*)mColors[i])->SetValue0_unk("faceOn", 0.0f);
     }
     ItemParamEntry_unk* item = fn_80211480(entry->mCode);
     ItemParamEntry_unk* next = fn_80211480(item->m134);
@@ -1677,16 +1665,16 @@ void ShopUpGrade::fn_80597554(ShopUpGradeEntry_unk* entry) {
     if (entry->mCanUpgrade != 0) {
         int have = fn_804444E8(party, next->mId) < 0 ? 0 : fn_804444E8(party, next->mId);
         fn_80598530(mColor, next, -1, have, -1, 1);
-        fn_801F7DF0(mColor, "itemCol", 255.0f, 255.0f, 255.0f);
+        ((D2A_TaskInstance32_unk*)mColor)->SetColor_unk("itemCol", 255.0f, 255.0f, 255.0f);
         if (stone) {
             ItemParamEntry_unk* need = fn_80211480(0x143);
             if (need != 0) {
                 int num = fn_804444E8(party, need->mId);
                 fn_80598530(mColors[0], need, -1, 1, num, 1);
                 if (num >= 1) {
-                    fn_801F7DF0(mColors[0], "itemCol", 255.0f, 255.0f, 255.0f);
+                    ((D2A_TaskInstance32_unk*)mColors[0])->SetColor_unk("itemCol", 255.0f, 255.0f, 255.0f);
                 } else {
-                    fn_801F7DF0(mColors[0], "itemCol", 128.0f, 128.0f, 128.0f);
+                    ((D2A_TaskInstance32_unk*)mColors[0])->SetColor_unk("itemCol", 128.0f, 128.0f, 128.0f);
                 }
             }
         } else {
@@ -1696,9 +1684,9 @@ void ShopUpGrade::fn_80597554(ShopUpGradeEntry_unk* entry) {
                     int num = fn_804444E8(party, need->mId);
                     fn_80598530(mColors[i], need, -1, (signed char)item->m12C[i], num, 1);
                     if ((signed char)item->m12C[i] <= num) {
-                        fn_801F7DF0(mColors[i], "itemCol", 255.0f, 255.0f, 255.0f);
+                        ((D2A_TaskInstance32_unk*)mColors[i])->SetColor_unk("itemCol", 255.0f, 255.0f, 255.0f);
                     } else {
-                        fn_801F7DF0(mColors[i], "itemCol", 128.0f, 128.0f, 128.0f);
+                        ((D2A_TaskInstance32_unk*)mColors[i])->SetColor_unk("itemCol", 128.0f, 128.0f, 128.0f);
                     }
                 }
             }
@@ -1717,7 +1705,7 @@ void ShopUpGrade::fn_80597554(ShopUpGradeEntry_unk* entry) {
         wchar_t text[0x100];
         if (entry->mCanUpgrade != 0 && entry->mHave != 0 && skill != 0 && fn_8021C6A4(text, skill)) {
             mSkill[i]->mFlags &= ~4;
-            fn_801F837C(mSkill[i], "skillName", text);
+            ((D2A_TaskInstance32_unk*)mSkill[i])->SetText_unk("skillName", text);
         } else {
             mSkillBlue[i]->mFrame = 0.0f;
         }
@@ -1830,7 +1818,7 @@ void ShopUpGrade::fn_80597554(ShopUpGradeEntry_unk* entry) {
             sprintf(posName, "param%02d_updw_pos", i);
             ShopPoint_unk arrowPos = GetPanePos_unk(mContent, posName);
             arrow->mFlags &= ~4;
-            fn_801F6E78(arrow, "basePos", &arrowPos);
+            ((D2A_TaskInstance32_unk*)arrow)->SetValues1_unk("basePos", *(atn::D2A_DrawRect*)&arrowPos);
         }
     }
     if (lbl_8087F0A8->m488 != 0) {
@@ -1848,40 +1836,40 @@ void ShopUpGrade::fn_80598530(ShopLayout_unk* layout, ItemParamEntry_unk* item, 
         if (have == 0) {
             WeaponParamEntry_unk* weapon = fn_80206C50(item->mId);
             if (weapon != 0) {
-                fn_801F837C(layout, "itemName", lbl_8087F1E4->GetPair_unk(weapon->mType + 0xEB));
+                ((D2A_TaskInstance32_unk*)layout)->SetText_unk("itemName", lbl_8087F1E4->GetPair_unk(weapon->mType + 0xEB));
             } else {
-                fn_801F837C(layout, "itemName", L"--");
+                ((D2A_TaskInstance32_unk*)layout)->SetText_unk("itemName", L"--");
             }
-            fn_801F837C(layout, "needNum", L"-");
-            fn_801F6C80(layout, "showNum2", 0.0f);
-            fn_801F837C(layout, "num", L"");
+            ((D2A_TaskInstance32_unk*)layout)->SetText_unk("needNum", L"-");
+            ((D2A_TaskInstance32_unk*)layout)->SetValue0_unk("showNum2", 0.0f);
+            ((D2A_TaskInstance32_unk*)layout)->SetText_unk("num", L"");
             icon = fn_80444C48(Inventory::instance_);
         } else {
-            fn_801F837C(layout, "itemName", item->mName);
+            ((D2A_TaskInstance32_unk*)layout)->SetText_unk("itemName", item->mName);
             if (need < 0) {
-                fn_801F837C(layout, "needNum", L"-");
+                ((D2A_TaskInstance32_unk*)layout)->SetText_unk("needNum", L"-");
             } else {
-                fn_801F8598(layout, "needNum", need, 0);
+                ((D2A_TaskInstance32_unk*)layout)->SetNumber_unk("needNum", need, 0);
             }
             if (num < 0) {
-                fn_801F6C80(layout, "showNum2", 0.0f);
-                fn_801F837C(layout, "num", L"");
+                ((D2A_TaskInstance32_unk*)layout)->SetValue0_unk("showNum2", 0.0f);
+                ((D2A_TaskInstance32_unk*)layout)->SetText_unk("num", L"");
             } else {
-                fn_801F6C80(layout, "showNum2", 1.0f);
-                fn_801F8598(layout, "num", num, 0);
+                ((D2A_TaskInstance32_unk*)layout)->SetValue0_unk("showNum2", 1.0f);
+                ((D2A_TaskInstance32_unk*)layout)->SetNumber_unk("num", num, 0);
             }
             icon = fn_80444BE8(Inventory::instance_, item);
         }
     }
     if (price < 0) {
-        fn_801F6C80(layout, "showPrice", 0.0f);
-        fn_801F837C(layout, "price", L"");
+        ((D2A_TaskInstance32_unk*)layout)->SetValue0_unk("showPrice", 0.0f);
+        ((D2A_TaskInstance32_unk*)layout)->SetText_unk("price", L"");
     } else {
-        fn_801F6C80(layout, "showPrice", 1.0f);
-        fn_801F8598(layout, "price", price, 0);
+        ((D2A_TaskInstance32_unk*)layout)->SetValue0_unk("showPrice", 1.0f);
+        ((D2A_TaskInstance32_unk*)layout)->SetNumber_unk("price", price, 0);
     }
     ShopUV_unk uv = fn_80444C50(Inventory::instance_, icon);
-    fn_801F7590(layout, "iconUv", uv);
+    ((D2A_TaskInstance32_unk*)layout)->SetValues2_unk("iconUv", uv);
 }
 
 void ShopUpGrade::vf40() {

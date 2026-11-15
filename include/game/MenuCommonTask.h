@@ -45,12 +45,12 @@ struct MenuD2A_unk : public atn::Task {
     int m108;       // inferred: draw priority
 };
 
-// inferred: data of a layout anime (returned by fn_801F6C10); only the callback is known
+// inferred: data of a layout anime (returned by D2A_TaskInstanceBase<32, 8>::GetData); only the callback is known
 struct MenuLayoutData_unk {
     unsigned char m00[0x9C];
     void (*mCallback)(int, int, int); // 0x9C
 };
-// inferred: layout anime task (made by fn_801F64D0); only the members used here
+// inferred: layout anime task (made by D2A_TaskInstanceBase<32, 8>::Create); only the members used here
 struct MenuLayout_unk : public atn::Task {
     unsigned char m48[0x4D - 0x48];
     bool mRepeat;   // 0x4D

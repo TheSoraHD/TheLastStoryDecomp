@@ -6,14 +6,13 @@
 #include "atn/RenderManager.h"
 #include "chr/CharaEquip_unk.h"
 #include "game/MenuCommonTask.h"
+#include "atn/D2A_TaskInstanceC.h"
 
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
-extern "C" atn::Task* fn_801F64D0(atn::Task* parent, const char* path); // inferred: d2anime task
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 extern "C" void PSMTXTrans(Mtx m, float x, float y, float z);
 extern "C" void PSMTXScale(Mtx m, float x, float y, float z);
 extern "C" unsigned int fn_800119B8(); // inferred: number of equipment slots
-extern "C" void fn_801F6D7C(atn::Task* task, const char* name, int index, float value);
 extern "C" void fn_804A4CE4(atn::Task* task, int face, int a, int b);
 
 #define __MAX_unk(a, b) ((a) > (b) ? (a) : (b))
@@ -106,7 +105,7 @@ CostumeEditChara::CostumeEditChara(atn::Task* parent, CharaTask* chara, int face
     mChara = chara;
     mMtx.SetIdentity();
     if (chara == 0) {
-        (mFaceIcon = (CostumeEditFace_unk*)fn_801F64D0(this, "data/d2anime/equip_face.d2a"))->fn_800D246C(1);
+        (mFaceIcon = (CostumeEditFace_unk*)(atn::Task*)D2A_TaskInstance32_unk::Create(this, "data/d2anime/equip_face.d2a"))->fn_800D246C(1);
     }
     mShadow.fn_8008AD4C("/map/cosedit/hk_shadow1.model", 0);
 }
@@ -186,10 +185,10 @@ void CostumeEditChara::vf10() {
         screen.y = 220.0f;
         atn::Vector2_unk offset = MenuCommonTask::sInstance->m1EC;
         atn::Vector2_unk size = MenuCommonTask::sInstance->m1F4;
-        fn_801F6D7C(mFaceIcon, "BasePos", 0, screen.x + offset.x);
-        fn_801F6D7C(mFaceIcon, "BasePos", 1, screen.y + offset.y);
-        fn_801F6D7C(mFaceIcon, "BasePos", 2, size.x);
-        fn_801F6D7C(mFaceIcon, "BasePos", 3, size.y);
+        ((D2A_TaskInstance32_unk*)mFaceIcon)->SetValue1_unk("BasePos", 0, screen.x + offset.x);
+        ((D2A_TaskInstance32_unk*)mFaceIcon)->SetValue1_unk("BasePos", 1, screen.y + offset.y);
+        ((D2A_TaskInstance32_unk*)mFaceIcon)->SetValue1_unk("BasePos", 2, size.x);
+        ((D2A_TaskInstance32_unk*)mFaceIcon)->SetValue1_unk("BasePos", 3, size.y);
         fn_804A4CE4(mFaceIcon, mFace, 4, 2);
         if (mShadow.fn_8008B140() == 0) {
             atn::Matrix3x4 mtx;

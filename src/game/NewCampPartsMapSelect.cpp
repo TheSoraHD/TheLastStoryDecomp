@@ -20,6 +20,7 @@
 #include "atn/RenderManager.h"
 #include "atn/DrawHelper.h"
 #include "macros.h"
+#include "atn/D2A_TaskInstanceC.h"
 
 extern "C" GameTask* lbl_8087F430; // inferred: the field
 
@@ -611,7 +612,6 @@ static const MapSelectRouteEffect_unk sBackRanges_unk[6] = {
     {0, 400000, 999999}, {0, 0, 400000}, {0, 0, 999999}, {1, 203000, 999999}, {0, 501000, 999999}, {2, 408000, 999999},
 };
 extern "C" void fn_801FEEFC(void* layout, unsigned int hash, int value); // inferred: sets an item of a pane
-extern "C" void fn_801F6C80(atn::D2AInstance_unk* task, const char* name, float value); // inferred: sets a pane value
 // inferred: offset of the camera of the camp (inline setters of NewCampTask; names invented)
 inline void SetCampPos_unk(NewCampTask* camp, atn::Vector3 pos) {
     camp->m12D4 = pos;
@@ -728,8 +728,8 @@ void NewCampPartsMapSelect::vf14() {
         }
         if (point->m1C != 0) {
             point->m1C->mAnime->mVisible = 1;
-            fn_801F6C80(((atn::D3AnimeInstance*)point->m1C->mAnime)->GetTask(), "wRate", 1.18f);
-            fn_801F6C80(((atn::D3AnimeInstance*)point->m1C->mAnime)->GetTask(), "hRate", 1.28f);
+            ((D2A_TaskInstance32_unk*)((atn::D3AnimeInstance*)point->m1C->mAnime)->GetTask())->SetValue0_unk("wRate", 1.18f);
+            ((D2A_TaskInstance32_unk*)((atn::D3AnimeInstance*)point->m1C->mAnime)->GetTask())->SetValue0_unk("hRate", 1.28f);
             vf54(point->m1C, "reference");
             vf5C(point->m1C);
             if (m19A4 == point->m00 && m1998 == 0) {
@@ -754,8 +754,8 @@ void NewCampPartsMapSelect::vf14() {
         }
         if (point->m20 != 0) {
             point->m20->mAnime->mVisible = 1;
-            fn_801F6C80(((atn::D3AnimeInstance*)point->m20->mAnime)->GetTask(), "wRate", 1.18f);
-            fn_801F6C80(((atn::D3AnimeInstance*)point->m20->mAnime)->GetTask(), "hRate", 1.28f);
+            ((D2A_TaskInstance32_unk*)((atn::D3AnimeInstance*)point->m20->mAnime)->GetTask())->SetValue0_unk("wRate", 1.18f);
+            ((D2A_TaskInstance32_unk*)((atn::D3AnimeInstance*)point->m20->mAnime)->GetTask())->SetValue0_unk("hRate", 1.28f);
             vf54(point->m20, "reference");
             vf5C(point->m20);
             if (m19A4 == point->m00 && m1998 == 0 && mGo != 0 && mGo->GetTask() != 0) {
@@ -770,10 +770,8 @@ void NewCampPartsMapSelect::vf14() {
             point->m24->mAnime->mVisible = 1;
             ((atn::D3AnimeInstance*)point->m24->mAnime)->GetTask()->mSpeed = 0.0f;
             ((atn::D3AnimeInstance*)point->m24->mAnime)->GetTask()->mFrame = 0.0f;
-            fn_801F6C80(((atn::D3AnimeInstance*)point->m24->mAnime)->GetTask(),
-                        "wRate", 1.18f);
-            fn_801F6C80(((atn::D3AnimeInstance*)point->m24->mAnime)->GetTask(),
-                        "hRate", 1.28f);
+            ((D2A_TaskInstance32_unk*)((atn::D3AnimeInstance*)point->m24->mAnime)->GetTask())->SetValue0_unk("wRate", 1.18f);
+            ((D2A_TaskInstance32_unk*)((atn::D3AnimeInstance*)point->m24->mAnime)->GetTask())->SetValue0_unk("hRate", 1.28f);
             vf54(point->m24, "reference");
             vf5C(point->m24);
         }

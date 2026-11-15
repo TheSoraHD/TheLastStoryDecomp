@@ -4,6 +4,7 @@
 #include "atn/Task.h"
 #include "atn/D2A_Common.h"
 #include "std/string.h"
+#include "atn/Vector4_unk.h"
 
 namespace atn {
 
@@ -101,9 +102,9 @@ public:
     void SetValue0_unk(const char* name, float value);
     void SetValue1_unk(const char* name, int index, float value);
     void SetValue2_unk(const char* name, int index, float value);
-    void SetValues1_unk(const char* name, D2A_DrawRect r);
+    void SetValues1_unk(const char* name, D2A_DrawRect& r);
     void SetValues1Rect_unk(const char* name, D2A_DrawRect& r); // inferred: x, y and z only
-    void SetValues2_unk(const char* name, D2A_DrawColor c);
+    void SetValues2_unk(const char* name, Vector4_unk uv); // inferred: texture rectangle
     void SetValue3_unk(const char* name, int index, float value);
     void SetColor_unk(const char* name, unsigned int color);
     void SetColor_unk(const char* name, float r, float g, float b);
@@ -123,9 +124,9 @@ public:
     void SetFrame_unk(float frame) { mFrame = frame; }
     // inferred: const accessor (Update tests it without reusing the load, 0x801F69A8)
     bool HasTask_unk() const { return mTask != 0; }
-    // inferred: weak copies 0x803D215C and 0x803D733C; defined for <32, 8> in atn/D2A_TaskInstanceC.h
-    inline void SetEnd_unk();
-    inline bool IsEnd_unk();
+    // inferred: weak copies 0x803D215C and 0x803D733C
+    void SetEnd_unk() { mFrame = GetEndFrame(); }
+    bool IsEnd_unk() { return mFrame >= GetEndFrame(); }
 
     D2A_Task* mTask;                         // 0x48
     unsigned char mPlaying;                  // 0x4C
@@ -139,7 +140,6 @@ public:
 
 } // namespace atn
 
-// The automatic names of some members of D2A_TaskInstanceBase<32, 8> are declared in
-// atn/D2A_TaskInstanceC.h.
+// The instantiation <32, 8> is used by the menus (atn/D2A_TaskInstanceC.h).
 
 #endif

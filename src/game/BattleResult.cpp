@@ -7,14 +7,10 @@
 #include "atn/SoundRef.h"
 #include "string.h"
 #include "game/GameTask.h"
+#include "atn/D2A_TaskInstanceC.h"
 
 extern "C" int sprintf(char* s, const char* format, ...);
 extern "C" ResultD2A_unk* fn_801F3FF8(atn::Task* parent, const char* path, int loop); // inferred: d2anime task
-extern "C" ResultLayout_unk* fn_801F64D0(atn::Task* parent, const char* path);      // inferred: layout anime
-extern "C" void fn_801F6C80(atn::Task* layout, const char* name, float value);      // inferred: sets a value
-extern "C" void fn_801F6D7C(atn::Task* layout, const char* name, int index, float value);
-extern "C" void fn_801F837C(atn::Task* layout, const char* name, const char* text); // inferred: sets a text
-extern "C" void fn_801F8598(atn::Task* layout, const char* name, int value, int arg); // inferred: sets a number
 extern "C" void fn_801FED24(void* layout, unsigned int hash, int index, float value);
 extern "C" unsigned int fn_800DC6B4(const char* s); // inferred: string hash
 extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float volume); // inferred: plays a sound
@@ -43,9 +39,9 @@ public:
     static ResultLog_unk* sInstance;
 };
 
-// inferred: wrapper of fn_801F64D0 (the paths given to it are hoisted out of the loops); name invented
+// inferred: wrapper of D2A_TaskInstanceBase<32, 8>::Create (the paths given to it are hoisted out of the loops); name invented
 inline ResultLayout_unk* CreateLayout_unk(atn::Task* parent, const char* path) {
-    return fn_801F64D0(parent, path);
+    return (ResultLayout_unk*)D2A_TaskInstance32_unk::Create(parent, path);
 }
 
 // inferred: plays `anime`; at its end it shows `next` instead (name invented)
@@ -81,8 +77,8 @@ BattleResult::BattleResult(atn::Task* parent)
         (mLvUpOp[i] = CreateLayout_unk(this, "/data/d2anime/ui_result_LvUP_op_xx.d2a"))->fn_800D246C(1);
         (mLvUpLoop[i] = CreateLayout_unk(this, "/data/d2anime/ui_result_LvUP_loop_xx.d2a"))->fn_800D246C(1);
     }
-    (mItemOp = fn_801F64D0(this, "/data/d2anime/ui_result_item_op.d2a"))->fn_800D246C(1);
-    (mItemLoop = fn_801F64D0(this, "/data/d2anime/ui_result_item_loop.d2a"))->fn_800D246C(1);
+    (mItemOp = (ResultLayout_unk*)D2A_TaskInstance32_unk::Create(this, "/data/d2anime/ui_result_item_op.d2a"))->fn_800D246C(1);
+    (mItemLoop = (ResultLayout_unk*)D2A_TaskInstance32_unk::Create(this, "/data/d2anime/ui_result_item_loop.d2a"))->fn_800D246C(1);
     memset(mLvUp, 0, sizeof(mLvUp));
     mExp.mSize = 0;
     mItemA = -1;
@@ -101,19 +97,19 @@ int BattleResult::vf0C() {
         mBase->mRepeat = 0;
         mBase->mFlags |= 4;
         for (unsigned int i = 0; i < 7; i++) {
-            fn_801F6C80(mExpOp[i], "line", i);
+            ((D2A_TaskInstance32_unk*)mExpOp[i])->SetValue0_unk("line", i);
             mExpOp[i]->fn_800D246C(0);
             mExpOp[i]->mRepeat = 0;
             mExpOp[i]->mFlags |= 4;
-            fn_801F6C80(mExpLoop[i], "line", i);
+            ((D2A_TaskInstance32_unk*)mExpLoop[i])->SetValue0_unk("line", i);
             mExpLoop[i]->fn_800D246C(0);
             mExpLoop[i]->mRepeat = 1;
             mExpLoop[i]->mFlags |= 4;
-            fn_801F6C80(mLvUpOp[i], "line", i);
+            ((D2A_TaskInstance32_unk*)mLvUpOp[i])->SetValue0_unk("line", i);
             mLvUpOp[i]->fn_800D246C(0);
             mLvUpOp[i]->mRepeat = 0;
             mLvUpOp[i]->mFlags |= 4;
-            fn_801F6C80(mLvUpLoop[i], "line", i);
+            ((D2A_TaskInstance32_unk*)mLvUpLoop[i])->SetValue0_unk("line", i);
             mLvUpLoop[i]->fn_800D246C(0);
             mLvUpLoop[i]->mFlags |= 4;
         }
@@ -191,11 +187,11 @@ void BattleResult::vf10() {
                     mBase->mFrame = mBase->mLastFrame;
                     mBase->mSpeed = -1.0f;
                     for (unsigned int i = 0; i < mCount; i++) {
-                        mExpOp[i]->mFrame = fn_801F6C2C(mExpOp[i]) - 1.0f;
+                        mExpOp[i]->mFrame = ((D2A_TaskInstance32_unk*)mExpOp[i])->GetEndFrame() - 1.0f;
                         mExpOp[i]->mSpeed = -1.0f;
                     }
                 }
-                mItemOp->mFrame = fn_801F6C2C(mItemOp) - 1.0f;
+                mItemOp->mFrame = ((D2A_TaskInstance32_unk*)mItemOp)->GetEndFrame() - 1.0f;
                 mItemOp->mSpeed = -1.0f;
             }
         }
@@ -227,12 +223,12 @@ void BattleResult::vf14() {
         float rate = t * (exp->mRateTo - exp->mRateFrom) + exp->mRateFrom;
 
         if (mExpOp[i] != 0) {
-            fn_801F8598(mExpOp[i], "nowExp", value, 0);
-            fn_801F6C80(mExpOp[i], "expRate", rate);
+            ((D2A_TaskInstance32_unk*)mExpOp[i])->SetNumber_unk("nowExp", value, 0);
+            ((D2A_TaskInstance32_unk*)mExpOp[i])->SetValue0_unk("expRate", rate);
         }
         if (mExpLoop[i] != 0) {
-            fn_801F8598(mExpLoop[i], "nowExp", value, 0);
-            fn_801F6C80(mExpLoop[i], "expRate", rate);
+            ((D2A_TaskInstance32_unk*)mExpLoop[i])->SetNumber_unk("nowExp", value, 0);
+            ((D2A_TaskInstance32_unk*)mExpLoop[i])->SetValue0_unk("expRate", rate);
         }
     }
 }
@@ -259,9 +255,9 @@ void BattleResult::fn_800F0D14(int mode) {
     }
     SetPaneValue_unk(mBase->m58, "base_point", 4, base);
     for (unsigned int i = 0; i < 7; i++) {
-        fn_801F6D7C(mExpOp[i], "base_point", 4, line);
-        fn_801F6D7C(mExpLoop[i], "base_point", 4, line);
-        fn_801F6D7C(mLvUpOp[i], "base_point", 4, line);
+        ((D2A_TaskInstance32_unk*)mExpOp[i])->SetValue1_unk("base_point", 4, line);
+        ((D2A_TaskInstance32_unk*)mExpLoop[i])->SetValue1_unk("base_point", 4, line);
+        ((D2A_TaskInstance32_unk*)mLvUpOp[i])->SetValue1_unk("base_point", 4, line);
     }
     atn::FixedArray_unk<Inventory::ExpEntry_unk, 8>* members = &Inventory::instance_->mExpEntries;
     mCount = members->size();
@@ -306,20 +302,20 @@ void BattleResult::fn_800F0D14(int mode) {
             exp.mTo = left;
         }
         mExp.push_back(exp);
-        fn_801F837C(mExpOp[i], "name", chara->m60->m08);
-        fn_801F837C(mExpLoop[i], "name", chara->m60->m08);
-        fn_801F837C(mExpLoop[i], "name_sdw", chara->m60->m08);
+        ((D2A_TaskInstance32_unk*)mExpOp[i])->SetText_unk("name", (const wchar_t*)chara->m60->m08);
+        ((D2A_TaskInstance32_unk*)mExpLoop[i])->SetText_unk("name", (const wchar_t*)chara->m60->m08);
+        ((D2A_TaskInstance32_unk*)mExpLoop[i])->SetText_unk("name_sdw", (const wchar_t*)chara->m60->m08);
     }
     float count = members->size();
     mHasItems = 0;
     mItemOp->mFrame = 0.0f;
-    fn_801F6C80(mItemOp, "line", count);
-    fn_801F837C(mItemOp, "item00", lbl_8087D970);
-    fn_801F837C(mItemOp, "item01", lbl_8087D970);
+    ((D2A_TaskInstance32_unk*)mItemOp)->SetValue0_unk("line", count);
+    ((D2A_TaskInstance32_unk*)mItemOp)->SetText_unk("item00", (const wchar_t*)lbl_8087D970);
+    ((D2A_TaskInstance32_unk*)mItemOp)->SetText_unk("item01", (const wchar_t*)lbl_8087D970);
     mItemLoop->mFrame = 0.0f;
-    fn_801F6C80(mItemLoop, "line", count);
-    fn_801F837C(mItemLoop, "item00", lbl_8087D970);
-    fn_801F837C(mItemLoop, "item01", lbl_8087D970);
+    ((D2A_TaskInstance32_unk*)mItemLoop)->SetValue0_unk("line", count);
+    ((D2A_TaskInstance32_unk*)mItemLoop)->SetText_unk("item00", (const wchar_t*)lbl_8087D970);
+    ((D2A_TaskInstance32_unk*)mItemLoop)->SetText_unk("item01", (const wchar_t*)lbl_8087D970);
     mItemA = -1;
     mItemB = 0;
     mItemC = 1;
@@ -335,8 +331,8 @@ void BattleResult::fn_800F0D14(int mode) {
                 char text[0x80];
                 memset(text, 0, sizeof(text));
                 fn_80444CF8(text, a, b, c);
-                fn_801F837C(mItemOp, name, text);
-                fn_801F837C(mItemLoop, name, text);
+                ((D2A_TaskInstance32_unk*)mItemOp)->SetText_unk(name, (const wchar_t*)text);
+                ((D2A_TaskInstance32_unk*)mItemLoop)->SetText_unk(name, (const wchar_t*)text);
                 if (shown >= 1) {
                     mItemA = a;
                     mItemB = b;
@@ -354,12 +350,12 @@ void BattleResult::fn_800F0D14(int mode) {
         char text[0x80];
         memset(text, 0, sizeof(text));
         fn_80444CF8(text, 0x143, 5, 1);
-        fn_801F837C(mItemOp, "item01", text);
-        fn_801F837C(mItemLoop, "item01", text);
+        ((D2A_TaskInstance32_unk*)mItemOp)->SetText_unk("item01", (const wchar_t*)text);
+        ((D2A_TaskInstance32_unk*)mItemLoop)->SetText_unk("item01", (const wchar_t*)text);
         shown++;
     }
-    fn_801F6C80(mItemOp, "multiItem", shown >= 2 ? 1.0f : 0.0f);
-    fn_801F6C80(mItemLoop, "multiItem", shown >= 2 ? 1.0f : 0.0f);
+    ((D2A_TaskInstance32_unk*)mItemOp)->SetValue0_unk("multiItem", shown >= 2 ? 1.0f : 0.0f);
+    ((D2A_TaskInstance32_unk*)mItemLoop)->SetValue0_unk("multiItem", shown >= 2 ? 1.0f : 0.0f);
     mItemCount = 0;
 }
 

@@ -6,12 +6,12 @@
 #include "atn/Memory.h"
 #include "atn/SoundRef.h"
 #include "std/string_members.h"
+#include "atn/D2A_TaskInstanceC.h"
 
 extern "C" int sprintf(char* s, const char* format, ...);
 extern "C" char* strcat(char* dst, const char* src);
 extern "C" wchar_t* wcscpy(wchar_t* dst, const wchar_t* src);
 
-extern "C" atn::Task* fn_801F64D0(atn::Task* parent, const char* path); // inferred: creates a layout anime
 extern "C" void fn_804A39EC(atn::D2A_Task* anime, int arg1, int repeat, float frame, float speed);
 extern "C" void fn_804A3A68(MenuLayout_unk* layout, int arg1, int repeat, float frame, float speed);
 extern "C" void fn_804A4494(int* cursor, int* top, int count, int page, int arg4, int sound);
@@ -30,9 +30,6 @@ extern "C" int fn_800DC1DC(const wchar_t* s); // inferred: wide string to int
 extern "C" void fn_801FECE0(void* layout, unsigned int hash, float value);
 extern "C" void fn_801FED24(void* layout, unsigned int hash, int index, float value);
 extern "C" void fn_801FEE08(void* layout, unsigned int hash, const wchar_t* text);
-extern "C" void fn_801F6E78(MenuLayout_unk* layout, const char* name, const atn::D2A_DrawRect* rect);
-extern "C" void fn_801F6C80(MenuLayout_unk* layout, const char* name, float value);
-extern "C" void fn_801F837C(MenuLayout_unk* layout, const char* name, const wchar_t* text);
 extern "C" void* lbl_8087EEC8; // inferred: font
 extern "C" float fn_8006EF48(void* font, float size, const wchar_t* text, float f2, int a, int b); // inferred: width
 extern "C" void fn_8006F420(void* font, char* out, const wchar_t* in, int size); // inferred: wide to multibyte
@@ -97,7 +94,7 @@ LibraryTask::LibraryTask(atn::Task* parent) : atn::Task(parent), mPrevState(2), 
     m54->fn_800D246C(1);
     const char* list = "/data/d2anime/library_list.d2a";
     for (int i = 0; i < 10; i++) {
-        MenuLayout_unk* item = (MenuLayout_unk*)fn_801F64D0(this, list);
+        MenuLayout_unk* item = (MenuLayout_unk*)(atn::Task*)D2A_TaskInstance32_unk::Create(this, list);
         m58[i] = item;
         item->fn_800D246C(1);
     }
@@ -105,7 +102,7 @@ LibraryTask::LibraryTask(atn::Task* parent) : atn::Task(parent), mPrevState(2), 
     m84->fn_800D246C(1);
     m88 = fn_801F3FF8(this, "/data/d2anime/library_arrow_r.d2a", 0);
     m88->fn_800D246C(1);
-    m80 = (MenuLayout_unk*)fn_801F64D0(this, "scroll_bar.d2a");
+    m80 = (MenuLayout_unk*)(atn::Task*)D2A_TaskInstance32_unk::Create(this, "scroll_bar.d2a");
     m80->fn_800D246C(1);
     mFile.vf0C("database/library/book_table_xx.u16");
     fn_800C3094("GROUP_EV1605");
@@ -258,8 +255,8 @@ void LibraryTask::fn_80469AB8() {
             fn_804A55FC(MenuCommonTask::sInstance, m58[mCursor - mTop], 0, &rect, 0);
         }
         atn::D2A_DrawRect pos = GetPanePos_unk(m54, "sb_null");
-        fn_801F6E78(m80, "basePos", &pos);
-        fn_801F6C80(m80, "s_hightMax", 250.0f);
+        ((D2A_TaskInstance32_unk*)m80)->SetValues1_unk("basePos", *(atn::D2A_DrawRect*)&pos);
+        ((D2A_TaskInstance32_unk*)m80)->SetValue0_unk("s_hightMax", 250.0f);
         m80->mFlags &= ~4;
         fn_804A4930(m80, mTop, mBooks.size(), 10);
     }
@@ -325,13 +322,13 @@ void LibraryTask::fn_8046A20C() {
         char name[0x40];
         sprintf(name, "list_point%d", i + 1);
         pos = GetPanePos_unk(m54, name);
-        fn_801F6E78(m58[i], "basePos", &pos);
+        ((D2A_TaskInstance32_unk*)m58[i])->SetValues1_unk("basePos", *(atn::D2A_DrawRect*)&pos);
         int index = i + mTop;
         if (index < (int)mBooks.size()) {
             LibraryBook_unk* book = &mBooks[index];
             isNew = book->mId > 0 && ((GameTask*)lbl_8087F430)->fn_80370174(book->mId) == 1;
-            fn_801F837C(m58[i], "bookName", book->mTitle);
-            fn_801F6C80(m58[i], "newIcon", isNew ? 1.0f : 0.0f);
+            ((D2A_TaskInstance32_unk*)m58[i])->SetText_unk("bookName", book->mTitle);
+            ((D2A_TaskInstance32_unk*)m58[i])->SetValue0_unk("newIcon", isNew ? 1.0f : 0.0f);
             m58[i]->mFlags &= ~4;
         }
     }

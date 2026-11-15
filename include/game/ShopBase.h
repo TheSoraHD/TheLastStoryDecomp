@@ -27,7 +27,7 @@ struct ShopD2A_unk : public atn::Task {
     float mFrame; // 0x100
     float mSpeed; // 0x104
 };
-// inferred: layout anime task (made by fn_801F64D0); only the members used by the shops
+// inferred: layout anime task (made by D2A_TaskInstanceBase<32, 8>::Create); only the members used by the shops
 struct ShopLayout_unk : public atn::Task {
     unsigned char m48[0x4D - 0x48];
     bool mRepeat; // 0x4D

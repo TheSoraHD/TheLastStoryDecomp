@@ -6,7 +6,7 @@
 #include "game/GimmickCommon.h"
 #include "gmk/ItemSlotAnime.h"
 
-// inferred: layout anime task of the item prompt (made by fn_801F64D0); only the members used here
+// inferred: layout anime task of the item prompt (made by D2A_TaskInstanceBase<32, 8>::Create); only the members used here
 struct DropLayout_unk : public atn::Task {
     unsigned char m48[0x50 - 0x48];
     float m50; // inferred: frame

@@ -7,7 +7,7 @@
 
 namespace atn {
 
-// inferred: d2anime instance task (fn_801F64D0); only the members used here
+// inferred: d2anime instance task (D2A_TaskInstanceBase<32, 8>::Create); only the members used here
 struct D2AInstance_unk : public Task {
     unsigned char m48[0x4D - 0x48];
     unsigned char mLoop; // 0x4D: inferred: D2A_TaskInstanceBase::mLoop

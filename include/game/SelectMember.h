@@ -4,7 +4,7 @@
 #include "atn/Task.h"
 #include "game/CharaStatus.h"
 
-// inferred: d2anime task of the member selection (fn_801F3FF8/fn_801F64D0); names invented
+// inferred: d2anime task of the member selection (fn_801F3FF8/D2A_TaskInstanceBase<32, 8>::Create); names invented
 class SelectMemberAnim_unk : public atn::Task {
 public:
     unsigned char m48[0x4D - 0x48];
