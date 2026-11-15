@@ -36,9 +36,9 @@ extern "C" int fn_80051B14(const atn::ColliSphereShape_unk* s, const atn::ColliC
 extern "C" int strncmp(const char* a, const char* b, unsigned long n);
 extern "C" std::string fn_8006AFF8(const std::string& a, const std::string& b); // inferred: a + b
 
-// NONMATCHING: the original is over the inlining budget (docs/inlining.md R3) and calls every inline
-// (LH_Binary, Vector3, LH_Xsca and ResHandle constructors, the strings, the tokenizer); this one stays under it
-// and inlines them (same problem as the constructor of LastCocoonChrysalis, docs/close-one-func.md)
+// The original is over the inlining budget (docs/inlining.md R3) and calls every inline (LH_Binary, Vector3,
+// LH_Xsca and ResHandle constructors, the strings, the tokenizer): the locals of the token loop carry the cost
+// (a local in a nested block costs budget; with one of them less it stays under and inlines everything)
 LastCocoonImago::LastCocoonImago(atn::Task* parent, EnemyInfo_unk* info)
     : EnemyTask(parent, info->m20), m14B8(0), m14BC(0), m14C0(0), m14C4(0), m14D0(5), m18C8(1), m18CC(1),
       m18D0(0), m18EC(0), m18F0(0), m1960(0), m1978(0), m197C(0), m1984(0), m1988(40.0f) {
@@ -49,8 +49,11 @@ LastCocoonImago::LastCocoonImago(atn::Task* parent, EnemyInfo_unk* info)
     typedef boost::tokenizer<boost::char_separator<char> > Tokenizer;
     Tokenizer tok(params, boost::char_separator<char>(";"));
     for (Tokenizer::iterator it = tok.begin(); it != tok.end(); ++it) {
-        if (strncmp(it->c_str(), "db_name=", 8) == 0) {
-            name = it->c_str() + 8;
+        const char* key = it->c_str();
+        int cmp = strncmp(key, "db_name=", 8);
+        if (cmp == 0) {
+            const char* value = it->c_str();
+            name = value + 8;
         }
     }
     std::string path = fn_8006AFF8(dir, name);
