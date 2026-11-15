@@ -39,8 +39,6 @@ ControlDetectHateAtt::ControlDetectHateAtt(Chara_unk* chara) : ControlBase(chara
     }
 }
 
-// NONMATCHING: 99.9% - copying the moved position back into mPos swaps r3/r4 (source temporary and
-// mChara)
 int ControlDetectHateAtt::vf0C() {
     float spd;
     float speed = 0.0f;
@@ -55,7 +53,9 @@ int ControlDetectHateAtt::vf0C() {
         }
         if (motion->fn_80097D7C(0) > 0.0f) {
             spd = motion->mTracks[0].m0C;
-            mChara->mPos = mChara->mPos - dir * 7.0f * (1.0f / motion->fn_80097D7C(0)) * spd;
+            float inv = 1.0f / motion->fn_80097D7C(0);
+            Chara_unk* c = mChara;
+            c->mPos = c->mPos - dir * 7.0f * inv * spd;
         }
         atn::Vector3 newRot = mChara->mRot;
         newRot.y = dir.ToRotation_unk().y;
