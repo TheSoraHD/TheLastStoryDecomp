@@ -104,6 +104,17 @@ inline CharaListeners_unk* fn_8014F8F4() {
     static CharaListeners_unk sListeners;
     return &sListeners;
 }
+// inferred: inlined copy of CharaListeners_unk::fn_8014F860 (as in gmk/SparkCube; name invented)
+inline void NotifyListeners_unk(CharaListeners_unk* listeners, int id, void* chara, void* arg) {
+    if (listeners->mEnabled != 0) {
+        for (int i = 0; i < (int)listeners->mList.size(); i++) {
+            CharaListener_unk& listener = listeners->mList[i];
+            if (listener.mId == -1 || id == listener.mId) {
+                listener.mFunc(id, (CharaTask*)chara, arg);
+            }
+        }
+    }
+}
 
 static const char* const sSe[] = {"SE_DGCOM_004", "SE_DGCOM_005"};
 
@@ -326,8 +337,9 @@ void Brazier::Start() {
     vf40(&msg);
 }
 
-// NONMATCHING: 99.82% - player/bullet manager registers swapped (r27/r28) in case 5, and the
-// registration object of the listeners static (lbl_807C8878) is a local symbol here
+// The listeners are notified through the inline copy of CharaListeners_unk::fn_8014F860 (with the loop
+// written here the player/bullet manager registers of case 5 were swapped). The registration object of the
+// listeners static (lbl_807C8878) is a local symbol here.
 int Brazier::vf40(GimmickMsg_unk* msg) {
     if (msg == 0) {
         return 0;
@@ -403,15 +415,7 @@ int Brazier::vf40(GimmickMsg_unk* msg) {
     }
     }
     m54 = msg->mType;
-    CharaListeners_unk* listeners = fn_8014F8F4();
-    if (listeners->mEnabled != 0) {
-        for (int i = 0; i < (int)listeners->mList.size(); i++) {
-            CharaListener_unk& listener = listeners->mList[i];
-            if (listener.mId == -1 || listener.mId == 11) {
-                listener.mFunc(11, (CharaTask*)this, msg);
-            }
-        }
-    }
+    NotifyListeners_unk(fn_8014F8F4(), 11, this, msg);
     return m54;
 }
 
