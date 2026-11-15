@@ -23,7 +23,7 @@ namespace atn {
 
 // inferred: parameters of a text (same layout as DialogText_unk of Event/Dialog, plus m44)
 struct TextAnimEntry_unk {
-    int mSlot;                          // 0x00
+    unsigned int mSlot;                 // 0x00
     float m04;                          // 0x04: time of the fade in
     std::basic_string<wchar_t> mText;   // 0x08
     float mPos[2];                      // 0x14
@@ -398,8 +398,8 @@ extern "C" void fn_800DAA3C(TextAnimation* self, int arg) {
     }
 }
 
-// NONMATCHING: 99.15% - el original usa constantes de .sdata para los push_back (lbl_8087D940/44);
-// registros.
+// NONMATCHING: 99.4% - operandos del mullw; el original llama al destructor de vector<float> por la copia
+// 0x8000D844, que symbols.txt llama Event::PathLengths_unk::~PathLengths_unk (Event/Puppeteer_CharaTask)
 // inferred: adds a text
 extern "C" void fn_800DAB68(TextAnimation* self, TextAnimEntry_unk* text) {
     int restart = 0;
@@ -422,7 +422,7 @@ extern "C" void fn_800DAB68(TextAnimation* self, TextAnimEntry_unk* text) {
     self->m60.push_back(times);
     float speed = text->m3C;
     if (speed <= 0.0f) {
-        speed = 1.0f;
+        speed = 0.1f;
     }
     float delay = self->mA8 / speed;
     float fade = floorf((self->mA8 * self->mAC) / speed);
