@@ -4,6 +4,9 @@
 
 extern "C" double sin(double x);
 extern "C" double cos(double x);
+// inferred: float wrappers of sin/cos (inlined: the target reloads lbl_8087EFA8 after each call)
+static inline float SinF_unk(float x) { return sin(x); }
+static inline float CosF_unk(float x) { return cos(x); }
 
 // inferred: globals of unknown classes
 struct RenderMgr_unk {
@@ -16,6 +19,9 @@ struct DebugParams_unk {
     float m418; // inferred: blur scale X
     float m41C; // inferred: blur scale Y
     float m420; // inferred: blur angle
+    // inferred: accessors (read after the sin/cos call of each argument, as in the target)
+    float GetScaleX_unk() const { return m418; }
+    float GetScaleY_unk() const { return m41C; }
 };
 extern "C" RenderMgr_unk* lbl_8087EEE0;
 extern "C" DebugParams_unk* lbl_8087EFA8;
@@ -41,9 +47,7 @@ void Layer2DBlur::vf1C() {
     Layer2D::vf1C();
 }
 
-// NONMATCHING: 89.6% - our compiler treats sin/cos as pure: it keeps lbl_8087EFA8 and m418 across
-// the calls (target reloads both), and it also shares w * 2 between the viewport and copy calls,
-// which costs two extra saved GPRs. Possibly a compiler version difference (see the psq copies).
+// The copy size is (unsigned short)w * 2: with w * 2 it is shared with the viewport call.
 void Layer2DBlur::vf20() {
     int w = lbl_8087EEE0->mWidth;
     int h = lbl_8087EEE0->mHeight;
@@ -70,14 +74,14 @@ void Layer2DBlur::vf20() {
     fn_800763FC(lbl_8087EEE0, &atn::RenderManager::instance_->m74C.mObj, 0);
     fn_80075F58(lbl_8087EEE0, 0, 0, w * 2, h * 2);
     atn::RenderManager::instance_->fn_800BFB70();
-    GXSetTexCopySrc(0, 0, w * 2, h * 2);
+    GXSetTexCopySrc(0, 0, (unsigned short)w * 2, (unsigned short)h * 2);
     GXSetTexCopyDst(w, h, 6, 1);
     GXCopyTex(image0, 1);
     GXPixModeSync();
-    fn_800A981C(&obj0, image1, w, h, 6, 0, 0, (float)cos(lbl_8087EFA8->m420) * lbl_8087EFA8->m418,
-                -(float)sin(lbl_8087EFA8->m420) * lbl_8087EFA8->m418);
-    fn_800A981C(&obj1, image0, w, h, 6, 0, 0, -(float)sin(lbl_8087EFA8->m420) * lbl_8087EFA8->m41C,
-                (float)cos(lbl_8087EFA8->m420) * lbl_8087EFA8->m41C);
+    fn_800A981C(&obj0, image1, w, h, 6, 0, 0, CosF_unk(lbl_8087EFA8->m420) * lbl_8087EFA8->GetScaleX_unk(),
+                -SinF_unk(lbl_8087EFA8->m420) * lbl_8087EFA8->GetScaleX_unk());
+    fn_800A981C(&obj1, image0, w, h, 6, 0, 0, -SinF_unk(lbl_8087EFA8->m420) * lbl_8087EFA8->GetScaleY_unk(),
+                CosF_unk(lbl_8087EFA8->m420) * lbl_8087EFA8->GetScaleY_unk());
     GXSetNumTexGens(1);
     GXSetNumChans(0);
     GXSetNumTevStages(1);
