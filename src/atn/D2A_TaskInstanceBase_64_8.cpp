@@ -278,7 +278,7 @@ void D2A_TaskInstanceBase<N, M>::SetValue2_unk(const char* name, int index, floa
 }
 
 template <int N, int M>
-void D2A_TaskInstanceBase<N, M>::SetValues1_unk(const char* name, D2A_DrawRect r) {
+void D2A_TaskInstanceBase<N, M>::SetValues1_unk(const char* name, D2A_DrawRect& r) {
     SetValue1_unk(name, 0, r.x);
     SetValue1_unk(name, 1, r.y);
     SetValue1_unk(name, 2, r.w);
@@ -294,11 +294,11 @@ void D2A_TaskInstanceBase<N, M>::SetValues1Rect_unk(const char* name, D2A_DrawRe
 }
 
 template <int N, int M>
-void D2A_TaskInstanceBase<N, M>::SetValues2_unk(const char* name, D2A_DrawColor c) {
-    SetValue2_unk(name, 0, c.r);
-    SetValue2_unk(name, 1, c.g);
-    SetValue2_unk(name, 2, c.b);
-    SetValue2_unk(name, 3, c.a);
+void D2A_TaskInstanceBase<N, M>::SetValues2_unk(const char* name, Vector4_unk uv) {
+    SetValue2_unk(name, 0, uv.x);
+    SetValue2_unk(name, 1, uv.y);
+    SetValue2_unk(name, 2, uv.z);
+    SetValue2_unk(name, 3, uv.w);
 }
 
 template <int N, int M>
@@ -390,6 +390,7 @@ void D2A_TaskInstanceBase<N, M>::SetFloat_unk(const char* name, float value) {
     SetText_unk(name, text);
 }
 
+// inferred: the members of the three instantiations that the original keeps, in its order
 template D2A_TaskInstanceBase<64, 8>* D2A_TaskInstanceBase<64, 8>::Create(Task* parent, const char* path);
 template D2A_TaskInstanceBase<64, 8>::~D2A_TaskInstanceBase();
 template int D2A_TaskInstanceBase<64, 8>::vf0C();
@@ -398,116 +399,35 @@ template void D2A_TaskInstanceBase<64, 8>::vf14();
 template void D2A_TaskInstanceBase<64, 8>::Apply();
 template void D2A_TaskInstanceBase<64, 8>::SetValue0_unk(const char* name, float value);
 template void D2A_TaskInstanceBase<64, 8>::SetValue1_unk(const char* name, int index, float value);
-template void D2A_TaskInstanceBase<64, 8>::SetValues2_unk(const char* name, D2A_DrawColor c);
+template void D2A_TaskInstanceBase<64, 8>::SetValues2_unk(const char* name, Vector4_unk uv);
 template void D2A_TaskInstanceBase<64, 8>::SetColor255_unk(const char* name, D2A_RGB_unk rgb);
 template void D2A_TaskInstanceBase<64, 8>::SetText_unk(const char* name, const wchar_t* text);
 template void D2A_TaskInstanceBase<64, 8>::SetNumber_unk(const char* name, int value, int digits);
 template void D2A_TaskInstanceBase<64, 8>::SetInt_unk(const char* name, int value);
 
-} // namespace atn
-
-// The members of D2A_TaskInstanceBase<32, 8> that other files call keep their automatic names
-// (extern "C" wrappers around the inlined member; the callers still use these names).
-typedef atn::D2A_TaskInstanceBase<32, 8> D2A_TaskInstance32_unk;
-
-D2A_TaskInstance32_unk* fn_801F64D0(atn::Task* parent, const char* path) {
-    if (parent != 0) {
-        return new ((MemoryTag)8, "", "", 0) D2A_TaskInstance32_unk(parent, path);
-    }
-    return 0;
-}
-
-template atn::D2A_TaskInstanceBase<32, 8>::~D2A_TaskInstanceBase();
-template int atn::D2A_TaskInstanceBase<32, 8>::vf0C();
-template void atn::D2A_TaskInstanceBase<32, 8>::vf10();
-template void atn::D2A_TaskInstanceBase<32, 8>::vf14();
-
-void fn_801F69A8(D2A_TaskInstance32_unk* inst) {
-    inst->Update();
-}
-
-void fn_801F6A38(D2A_TaskInstance32_unk* inst) {
-    inst->Draw();
-}
-
-template void atn::D2A_TaskInstanceBase<32, 8>::Apply();
-
-atn::D2A_Data* fn_801F6C10(D2A_TaskInstance32_unk* inst) {
-    return inst->GetData();
-}
-
-float fn_801F6C2C(D2A_TaskInstance32_unk* inst) {
-    return inst->GetEndFrame();
-}
-
-void* fn_801F6C38(D2A_TaskInstance32_unk* inst, const char* name) {
-    return inst->GetTrack_unk(name);
-}
-
-void fn_801F6C80(D2A_TaskInstance32_unk* inst, const char* name, float value) {
-    inst->SetValue0_unk(name, value);
-}
-
-void fn_801F6D7C(D2A_TaskInstance32_unk* inst, const char* name, int index, float value) {
-    inst->SetValue1_unk(name, index, value);
-}
-
-void fn_801F6E78(D2A_TaskInstance32_unk* inst, const char* name, atn::D2A_DrawRect& r) {
-    inst->SetValue1_unk(name, 0, r.x);
-    inst->SetValue1_unk(name, 1, r.y);
-    inst->SetValue1_unk(name, 2, r.w);
-    inst->SetValue1_unk(name, 3, r.h);
-    inst->SetValue1_unk(name, 4, r.z);
-}
-
-template void atn::D2A_TaskInstanceBase<32, 8>::SetValues1Rect_unk(const char* name, D2A_DrawRect& r);
-
-void fn_801F7590(D2A_TaskInstance32_unk* inst, const char* name, atn::D2A_DrawColor c) {
-    inst->SetValue2_unk(name, 0, c.r);
-    inst->SetValue2_unk(name, 1, c.g);
-    inst->SetValue2_unk(name, 2, c.b);
-    inst->SetValue2_unk(name, 3, c.a);
-}
-
-void fn_801F791C(D2A_TaskInstance32_unk* inst, const char* name, int index, float value) {
-    inst->SetValue3_unk(name, index, value);
-}
-
-template void atn::D2A_TaskInstanceBase<32, 8>::SetColor_unk(const char* name, unsigned int color);
-
-void fn_801F7DF0(D2A_TaskInstance32_unk* inst, const char* name, float r, float g, float b) {
-    inst->SetValue3_unk(name, 1, r);
-    inst->SetValue3_unk(name, 2, g);
-    inst->SetValue3_unk(name, 3, b);
-}
-
-template void atn::D2A_TaskInstanceBase<32, 8>::SetColor255_unk(const char* name, D2A_RGB_unk rgb);
-
-void fn_801F837C(D2A_TaskInstance32_unk* inst, const char* name, const wchar_t* text) {
-    D2A_TaskInstance32_unk::Text_unk t;
-    t.mHash = fn_800DC6B4(name);
-    t.mText = text;
-    atn::AddText_unk(inst, t);
-}
-
-void fn_801F8598(D2A_TaskInstance32_unk* inst, const char* name, int value, int digits) {
-    // inferred: each wide literal of the original pool ends with two terminators
-    wchar_t text[0x100];
-    wchar_t format[0x20];
-    if (digits > 0) {
-        fn_800DD3FC(format, L"%%%dd\0", digits);
-    } else if (digits < 0) {
-        fn_800DD3FC(format, L"%%0%dd\0", -digits);
-    } else {
-        fn_800DD3FC(format, L"%%d\0");
-    }
-    fn_800DD3FC(text, format, value);
-    fn_801F837C(inst, name, text);
-}
-
-template atn::D2A_DrawRect atn::D2A_TaskInstanceBase<32, 8>::GetRect_unk(const char* name);
-
-namespace atn {
+template D2A_TaskInstanceBase<32, 8>* D2A_TaskInstanceBase<32, 8>::Create(Task* parent, const char* path);
+template D2A_TaskInstanceBase<32, 8>::~D2A_TaskInstanceBase();
+template int D2A_TaskInstanceBase<32, 8>::vf0C();
+template void D2A_TaskInstanceBase<32, 8>::vf10();
+template void D2A_TaskInstanceBase<32, 8>::vf14();
+template void D2A_TaskInstanceBase<32, 8>::Update();
+template void D2A_TaskInstanceBase<32, 8>::Draw();
+template void D2A_TaskInstanceBase<32, 8>::Apply();
+template D2A_Data* D2A_TaskInstanceBase<32, 8>::GetData();
+template float D2A_TaskInstanceBase<32, 8>::GetEndFrame();
+template void* D2A_TaskInstanceBase<32, 8>::GetTrack_unk(const char* name);
+template void D2A_TaskInstanceBase<32, 8>::SetValue0_unk(const char* name, float value);
+template void D2A_TaskInstanceBase<32, 8>::SetValue1_unk(const char* name, int index, float value);
+template void D2A_TaskInstanceBase<32, 8>::SetValues1_unk(const char* name, D2A_DrawRect& r);
+template void D2A_TaskInstanceBase<32, 8>::SetValues1Rect_unk(const char* name, D2A_DrawRect& r);
+template void D2A_TaskInstanceBase<32, 8>::SetValues2_unk(const char* name, Vector4_unk uv);
+template void D2A_TaskInstanceBase<32, 8>::SetValue3_unk(const char* name, int index, float value);
+template void D2A_TaskInstanceBase<32, 8>::SetColor_unk(const char* name, unsigned int color);
+template void D2A_TaskInstanceBase<32, 8>::SetColor_unk(const char* name, float r, float g, float b);
+template void D2A_TaskInstanceBase<32, 8>::SetColor255_unk(const char* name, D2A_RGB_unk rgb);
+template void D2A_TaskInstanceBase<32, 8>::SetText_unk(const char* name, const wchar_t* text);
+template void D2A_TaskInstanceBase<32, 8>::SetNumber_unk(const char* name, int value, int digits);
+template D2A_DrawRect D2A_TaskInstanceBase<32, 8>::GetRect_unk(const char* name);
 
 template D2A_TaskInstanceBase<8, 2>* D2A_TaskInstanceBase<8, 2>::Create(Task* parent, const char* path);
 template D2A_TaskInstanceBase<8, 2>::~D2A_TaskInstanceBase();

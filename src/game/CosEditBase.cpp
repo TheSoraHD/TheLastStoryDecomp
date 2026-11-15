@@ -19,6 +19,7 @@
 #include "string.h"
 #include "chr/CharaEquip_unk.h"
 #include "game/BattleTask.h"
+#include "atn/D2A_TaskInstanceC.h"
 
 extern "C" int sprintf(char* s, const char* format, ...);
 extern "C" char* strstr(const char* s, const char* sub);
@@ -64,7 +65,6 @@ struct D2APoint_unk {
     float m10;
 };
 extern "C" D2APoint_unk fn_801F4E8C(atn::Task* layout, unsigned int hash);
-extern "C" void fn_801F6E78(atn::Task* task, const char* name, const void* pos);
 
 // inferred: game state (lbl_8087EFA8): camera override of the costume menu at 0x240
 struct CosEditCamera_unk {
@@ -398,7 +398,7 @@ void CosEditBase::fn_801CDA00(CosEditList_unk* list) {
                     sprintf(name, "scroll_point");
                     atn::Task* task = base->GetTask();
                     pos = fn_801F4E8C(task, fn_800DC6B4(name));
-                    fn_801F6E78(scroll->GetTask(), "basePos", &pos);
+                    ((D2A_TaskInstance32_unk*)scroll->GetTask())->SetValues1_unk("basePos", *(atn::D2A_DrawRect*)&pos);
                 }
             }
             for (int i = 0; i < 13; i++) {
@@ -412,7 +412,7 @@ void CosEditBase::fn_801CDA00(CosEditList_unk* list) {
                     sprintf(name, "camp_list%d", i + 1);
                     atn::Task* task = base->GetTask();
                     pos = fn_801F4E8C(task, fn_800DC6B4(name));
-                    fn_801F6E78(item->GetTask(), "base_point", &pos);
+                    ((D2A_TaskInstance32_unk*)item->GetTask())->SetValues1_unk("base_point", *(atn::D2A_DrawRect*)&pos);
                 }
             }
         }

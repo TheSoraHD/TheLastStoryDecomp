@@ -7,14 +7,8 @@
 #include "atn/D3Anime.h"
 #include "atn/D3AnimeInstance.h"
 #include "std/string_members.h"
-
+#include "atn/D2A_TaskInstanceC.h"
 extern "C" int sprintf(char* s, const char* format, ...);
-extern "C" void fn_801F6E78(atn::Task* task, const char* name, const void* pos);
-extern "C" void fn_801F6C80(atn::Task* task, const char* name, float value); // inferred: sets a value
-extern "C" void fn_801F837C(atn::Task* task, const char* name, const wchar_t* text); // inferred: sets a text
-extern "C" void fn_801F7590(atn::Task* task, const char* name, const NewCampColor_unk& value);
-extern "C" void fn_801F7DF0(atn::Task* task, const char* name, float r, float g, float b); // inferred: sets a colour
-extern "C" void fn_801F791C(atn::Task* task, const char* name, int index, float value);
 extern "C" void fn_801FEE08(void* layout, unsigned int hash, const wchar_t* text); // inferred: sets a text
 extern "C" void fn_801FECE0(void* layout, unsigned int hash, float value);
 extern "C" unsigned int fn_800DC6B4(const char* s); // inferred: string hash
@@ -244,7 +238,7 @@ void NewCampPartsHint::vf14() {
             if (mItems[i]->GetTask() != 0) {
                 sprintf(name, "item_list%d", i + 1);
                 pos = GetPanePos_unk(mBase->GetTask(), name);
-                fn_801F6E78(mItems[i]->GetTask(), "base_point", &pos);
+                ((D2A_TaskInstance32_unk*)mItems[i]->GetTask())->SetValues1_unk("base_point", *(atn::D2A_DrawRect*)&pos);
                 fn_805112A8(base, mItems[i], atn::Vector3(0.0f, 0.0f, 0.0f), atn::Vector3(1.0f, 1.0f, 1.0f), "reference");
             }
         }
@@ -258,8 +252,8 @@ void NewCampPartsHint::vf14() {
         if (mScroll->GetTask() != 0) {
             sprintf(name, "scroll_point");
             pos = GetPanePos_unk(mBase->GetTask(), name);
-            fn_801F6E78(mScroll->GetTask(), "basePos", &pos);
-            fn_801F6C80(mScroll->GetTask(), "s_hightMax", 245.0f);
+            ((D2A_TaskInstance32_unk*)mScroll->GetTask())->SetValues1_unk("basePos", *(atn::D2A_DrawRect*)&pos);
+            ((D2A_TaskInstance32_unk*)mScroll->GetTask())->SetValue0_unk("s_hightMax", 245.0f);
             fn_804A4930(mScroll->GetTask(), mTop, mList.size(), 10);
         }
     }
@@ -513,18 +507,18 @@ void NewCampPartsHint::fn_80516544() {
             NewCampTutorial_unk* tutorial;
             if (index < (int)mList.size() && (tutorial = mList[index]) != 0 &&
                 ((GameTask*)lbl_8087F430)->fn_80370174(tutorial->mFlag) >= 1) {
-                fn_801F837C(task, "item", tutorial->mName);
+                ((D2A_TaskInstance32_unk*)task)->SetText_unk("item", tutorial->mName);
                 if (tutorial->mSeen != 0) {
-                    fn_801F7590(task, "iconUvMask", NewCampColor_unk(0.5f, 0.0f, 1.0f, 1.0f));
-                    fn_801F7DF0(task, "iconCol", 200.0f, 230.0f, 255.0f);
+                    ((D2A_TaskInstance32_unk*)task)->SetValues2_unk("iconUvMask", atn::Vector4_unk(0.5f, 0.0f, 1.0f, 1.0f));
+                    ((D2A_TaskInstance32_unk*)task)->SetColor_unk("iconCol", 200.0f, 230.0f, 255.0f);
                 } else {
-                    fn_801F7590(task, "iconUvMask", NewCampColor_unk(0.0f, 0.0f, 0.5f, 1.0f));
-                    fn_801F7DF0(task, "iconCol", 244.0f, 233.0f, 192.0f);
+                    ((D2A_TaskInstance32_unk*)task)->SetValues2_unk("iconUvMask", atn::Vector4_unk(0.0f, 0.0f, 0.5f, 1.0f));
+                    ((D2A_TaskInstance32_unk*)task)->SetColor_unk("iconCol", 244.0f, 233.0f, 192.0f);
                 }
                 if (mMode == 1 && index == mCursor) {
-                    fn_801F791C(task, "pushCol", 0, 255.0f);
+                    ((D2A_TaskInstance32_unk*)task)->SetValue3_unk("pushCol", 0, 255.0f);
                 } else {
-                    fn_801F791C(task, "pushCol", 0, 0.0f);
+                    ((D2A_TaskInstance32_unk*)task)->SetValue3_unk("pushCol", 0, 0.0f);
                 }
                 visible = 1;
             }

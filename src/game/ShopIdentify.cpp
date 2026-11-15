@@ -4,15 +4,11 @@
 #include "atn/SoundRef.h"
 #include "math/Vec.h"
 #include "std/string.h"
+#include "atn/D2A_TaskInstanceC.h"
 
 extern "C" int sprintf(char* s, const char* format, ...);
 extern "C" unsigned int fn_800DC6B4(const char* s); // inferred: string hash
 extern "C" ShopD2A_unk* fn_801F3FF8(atn::Task* parent, const char* path, int loop); // inferred: d2anime task
-extern "C" ShopLayout_unk* fn_801F64D0(atn::Task* parent, const char* path);      // inferred: layout anime
-extern "C" void fn_801F6C80(atn::Task* layout, const char* name, float value);    // inferred: sets a value
-extern "C" void fn_801F837C(atn::Task* layout, const char* name, const wchar_t* text); // inferred: sets a text
-extern "C" void fn_801F8598(atn::Task* layout, const char* name, int value, int arg); // inferred: sets a number
-extern "C" void fn_801F7DF0(atn::Task* layout, const char* name, float r, float g, float b); // inferred: sets a colour
 extern "C" void fn_801FEE08(void* layout, unsigned int hash, const wchar_t* text); // inferred: sets a text
 extern "C" void fn_801FECE0(void* layout, unsigned int hash, float value);
 extern "C" void fn_801FED24(void* layout, unsigned int hash, int index, float value);
@@ -43,22 +39,14 @@ struct ShopPoint_unk {
     float x, y, w, h, z;
 };
 extern "C" ShopPoint_unk fn_801F4E8C(atn::Task* layout, unsigned int hash);
-extern "C" void fn_801F6E78(atn::Task* task, const char* name, const ShopPoint_unk* pos);
 inline ShopPoint_unk GetPanePos_unk(atn::Task* layout, const char* name) {
     return fn_801F4E8C(layout, fn_800DC6B4(name));
 }
 // inferred: texture rectangle (as MenuUV_unk in game/MenuCommonTask.cpp)
-struct ShopUV_unk {
-    ShopUV_unk() {}
-    ShopUV_unk(const ShopUV_unk& o) {
-        __Vec4Copy(&u0, &o.u0);
-    }
-    float u0, v0, u1, v1;
-};
+typedef atn::Vector4_unk ShopUV_unk; // inferred: texture rectangle
 // inferred: sets a texture rectangle (the rectangle is passed by value)
-extern "C" void fn_801F7590(atn::Task* layout, const char* name, ShopUV_unk uv);
 inline void SetUV_unk(atn::D2A_Task* anime, const char* name, ShopUV_unk uv) {
-    anime->SetParam2_unk(name, &uv.u0);
+    anime->SetParam2_unk(name, &uv.x);
 }
 inline void SetPaneText_unk(void* layout, const char* name, const wchar_t* text) {
     fn_801FEE08(layout, fn_800DC6B4(name), text);
@@ -70,7 +58,7 @@ inline void SetPaneValue_unk(void* layout, const char* name, int index, float va
     fn_801FED24(layout, fn_800DC6B4(name), index, value);
 }
 inline ShopLayout_unk* CreateLayout_unk(atn::Task* parent, const char* path) {
-    return fn_801F64D0(parent, path);
+    return (ShopLayout_unk*)D2A_TaskInstance32_unk::Create(parent, path);
 }
 
 // inferred: item data (fn_80211480)
@@ -530,38 +518,38 @@ void ShopIdentify::fn_80589AF4() {
         char name[0x40];
         sprintf(name, "list_point%d", i + 1);
         pos = GetPanePos_unk(mListBase, name);
-        fn_801F6E78(mList[i], "basePos", &pos);
-        fn_801F7DF0(mList[i], "itemCol", 255.0f, 255.0f, 255.0f);
+        ((D2A_TaskInstance32_unk*)mList[i])->SetValues1_unk("basePos", *(atn::D2A_DrawRect*)&pos);
+        ((D2A_TaskInstance32_unk*)mList[i])->SetColor_unk("itemCol", 255.0f, 255.0f, 255.0f);
         int index = i + mScroll.mTop;
         if (index < (int)mItems.size()) {
             ShopIdentifyEntry_unk* entry = &mItems[index];
             int icon;
             ShopItem_unk* item = fn_80211480(entry->mItem);
             if (entry->mDone != 0) {
-                fn_801F837C(mList[i], "itemName", item->mName);
-                fn_801F6C80(mList[i], "showPrice", 0.0f);
-                fn_801F6C80(mList[i], "nonePrice", 1.0f);
-                fn_801F837C(mList[i], "price", lbl_8087E690);
-                fn_801F837C(mList[i], "num", lbl_8087E690 + 1);
+                ((D2A_TaskInstance32_unk*)mList[i])->SetText_unk("itemName", item->mName);
+                ((D2A_TaskInstance32_unk*)mList[i])->SetValue0_unk("showPrice", 0.0f);
+                ((D2A_TaskInstance32_unk*)mList[i])->SetValue0_unk("nonePrice", 1.0f);
+                ((D2A_TaskInstance32_unk*)mList[i])->SetText_unk("price", lbl_8087E690);
+                ((D2A_TaskInstance32_unk*)mList[i])->SetText_unk("num", lbl_8087E690 + 1);
                 icon = fn_80444BE8(Inventory::instance_, item);
                 if (fn_80211648(item) == 0 || fn_804444E8(Inventory::instance_, entry->mItem) <= 0) {
-                    fn_801F7DF0(mList[i], "itemCol", 128.0f, 128.0f, 128.0f);
+                    ((D2A_TaskInstance32_unk*)mList[i])->SetColor_unk("itemCol", 128.0f, 128.0f, 128.0f);
                 }
             } else {
                 ShopWeapon_unk* weapon = fn_80206C50(entry->mItem);
                 if (weapon != 0) {
-                    fn_801F837C(mList[i], "itemName", lbl_8087F1E4->GetPair_unk(weapon->mKind + 0xEB));
+                    ((D2A_TaskInstance32_unk*)mList[i])->SetText_unk("itemName", lbl_8087F1E4->GetPair_unk(weapon->mKind + 0xEB));
                 } else {
-                    fn_801F837C(mList[i], "itemName", lbl_8087E690 + 3);
+                    ((D2A_TaskInstance32_unk*)mList[i])->SetText_unk("itemName", lbl_8087E690 + 3);
                 }
-                fn_801F6C80(mList[i], "showPrice", 1.0f);
-                fn_801F6C80(mList[i], "nonePrice", 0.0f);
-                fn_801F8598(mList[i], "price", entry->mPrice, 0);
-                fn_801F837C(mList[i], "num", lbl_8087E690 + 1);
+                ((D2A_TaskInstance32_unk*)mList[i])->SetValue0_unk("showPrice", 1.0f);
+                ((D2A_TaskInstance32_unk*)mList[i])->SetValue0_unk("nonePrice", 0.0f);
+                ((D2A_TaskInstance32_unk*)mList[i])->SetNumber_unk("price", entry->mPrice, 0);
+                ((D2A_TaskInstance32_unk*)mList[i])->SetText_unk("num", lbl_8087E690 + 1);
                 icon = fn_80444C48(Inventory::instance_);
             }
             ShopUV_unk uv = fn_80444C50(Inventory::instance_, icon);
-            fn_801F7590(mList[i], "iconUv", uv);
+            ((D2A_TaskInstance32_unk*)mList[i])->SetValues2_unk("iconUv", uv);
             mList[i]->mFlags &= ~4;
         }
     }

@@ -14,16 +14,13 @@
 #include "game/PlayerTask.h"
 #include "atn/RenderManager.h"
 #include "game/MapTask.h"
+#include "atn/D2A_TaskInstanceC.h"
 
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" int rand();
 extern "C" char lbl_8087D710[2]; // inferred: field separators of the tab CSV
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 extern "C" float PSVECMag(const atn::Vector3* v);
-extern "C" atn::Task* fn_801F64D0(atn::Task* parent, const char* path); // inferred: d2anime task
-extern "C" void fn_801F6D7C(atn::Task* task, const char* name, int index, float value);
-extern "C" void fn_801F837C(atn::Task* task, const char* name, const wchar_t* text); // inferred: sets a text
-extern "C" void fn_801F791C(atn::Task* task, const char* name, int index, float value);
 extern "C" int fn_800DD3FC(wchar_t* s, const wchar_t* format, ...); // inferred: wide sprintf
 extern "C" void fn_80444CF8(wchar_t* text, int item, int count, int rare); // inferred: item name
 extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float volume);
@@ -184,11 +181,11 @@ DropItem::DropItem(atn::Task* parent, int id, int arg)
     mSlot.mFlag29 = 0;
     mSlot.mFlag28 = 0;
     mSlot.mFlag24 = 1;
-    DropLayout_unk* layout = (DropLayout_unk*)fn_801F64D0(this, "/data/d2anime/ui_slot_ok.d2b");
+    DropLayout_unk* layout = (DropLayout_unk*)(atn::Task*)D2A_TaskInstance32_unk::Create(this, "/data/d2anime/ui_slot_ok.d2b");
     if (mLayouts.size() < 2) {
         mLayouts.push_back(layout);
     }
-    layout = (DropLayout_unk*)fn_801F64D0(this, "/data/d2anime/ui_slot_ok_rare.d2b");
+    layout = (DropLayout_unk*)(atn::Task*)D2A_TaskInstance32_unk::Create(this, "/data/d2anime/ui_slot_ok_rare.d2b");
     if (mLayouts.size() < 2) {
         mLayouts.push_back(layout);
     }
@@ -519,35 +516,35 @@ void DropItem::vf14() {
     }
     for (DropLayout_unk** it = &mLayouts.mData[0]; it != &mLayouts.mData[mLayouts.mSize]; it++) {
         if (*it != 0) {
-            fn_801F6D7C(*it, sPosPane, 0, screen.x);
+            ((D2A_TaskInstance32_unk*)*it)->SetValue1_unk(sPosPane, 0, screen.x);
         }
     }
     for (DropLayout_unk** it = &mLayouts.mData[0]; it != &mLayouts.mData[mLayouts.mSize]; it++) {
         if (*it != 0) {
-            fn_801F6D7C(*it, sPosPane, 1, screen.y);
+            ((D2A_TaskInstance32_unk*)*it)->SetValue1_unk(sPosPane, 1, screen.y);
         }
     }
     for (DropLayout_unk** it = &mLayouts.mData[0]; it != &mLayouts.mData[mLayouts.mSize]; it++) {
         if (*it != 0) {
-            fn_801F6D7C(*it, sPosPane, 2, scale);
+            ((D2A_TaskInstance32_unk*)*it)->SetValue1_unk(sPosPane, 2, scale);
         }
     }
     for (DropLayout_unk** it = &mLayouts.mData[0]; it != &mLayouts.mData[mLayouts.mSize]; it++) {
         if (*it != 0) {
-            fn_801F6D7C(*it, sPosPane, 3, scale);
+            ((D2A_TaskInstance32_unk*)*it)->SetValue1_unk(sPosPane, 3, scale);
         }
     }
     for (unsigned int i = 0; i < 3; i++) {
         if (i == 0) {
             for (DropLayout_unk** it = &mLayouts.mData[0]; it != &mLayouts.mData[mLayouts.mSize]; it++) {
                 if (*it != 0) {
-                    fn_801F837C(*it, sTextPanes[i], text);
+                    ((D2A_TaskInstance32_unk*)*it)->SetText_unk(sTextPanes[i], text);
                 }
             }
         } else {
             for (DropLayout_unk** it = &mLayouts.mData[0]; it != &mLayouts.mData[mLayouts.mSize]; it++) {
                 if (*it != 0) {
-                    fn_801F837C(*it, sTextPanes[i], L"");
+                    ((D2A_TaskInstance32_unk*)*it)->SetText_unk(sTextPanes[i], L"");
                 }
             }
         }
@@ -556,7 +553,7 @@ void DropItem::vf14() {
         float alpha = 255.0f * mAlpha;
         for (DropLayout_unk** it = &mLayouts.mData[0]; it != &mLayouts.mData[mLayouts.mSize]; it++) {
             if (*it != 0) {
-                fn_801F791C(*it, sColorPanes[i], 0, alpha);
+                ((D2A_TaskInstance32_unk*)*it)->SetValue3_unk(sColorPanes[i], 0, alpha);
             }
         }
     }

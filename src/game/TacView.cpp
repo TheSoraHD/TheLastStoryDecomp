@@ -20,6 +20,7 @@
 #include "atn/Sphere.h"
 #include "atn/RenderManager.h"
 #include "std/vector_wstring.h"
+#include "atn/D2A_TaskInstanceC.h"
 
 // inferred: sector (0 ahead, 1-7 clockwise, 8 none) of the direction `dir` seen from above
 int fn_805A6D20(const atn::Vector3& dir) {
@@ -67,7 +68,6 @@ atn::SoundRef fn_805A70D4(int id, float volume) {
 static SkillParam_unk sSkillParams_unk[6];
 
 // inferred: layout anime task (declared with other return types by game/CosEditProtector.cpp and others)
-extern "C" atn::D2A_TaskInstanceBase<32, 8>* fn_801F64D0(atn::Task* parent, const char* path);
 
 // inferred: message table (lbl_8087F1E4) as the view reads it: {id, text} entries (8 bytes each)
 extern "C" const wchar_t lbl_808813D0[2]; // inferred: empty text
@@ -105,10 +105,10 @@ TacView::TacView(atn::Task* parent)
     (mLayouts.mSelect = fn_801F3FF8(this, "/data/d2anime/ui_command_select.d2a", 0))->fn_800D246C(1);
     (mLayouts.mHpFlash = fn_801F3FF8(this, "/data/d2anime/ui_command_hp_flash.d2a", 0))->fn_800D246C(1);
     (mLayouts.mFace = fn_801F3FF8(this, "/data/d2anime/ui_command_face.d2a", 0))->fn_800D246C(1);
-    (mLayouts.mDirs[0] = fn_801F64D0(this, "/data/d2anime/ui_select_4_u.d2a"))->fn_800D246C(1);
-    (mLayouts.mDirs[3] = fn_801F64D0(this, "/data/d2anime/ui_select_4_d.d2a"))->fn_800D246C(1);
-    (mLayouts.mDirs[1] = fn_801F64D0(this, "/data/d2anime/ui_select_4_l.d2a"))->fn_800D246C(1);
-    (mLayouts.mDirs[2] = fn_801F64D0(this, "/data/d2anime/ui_select_4_r.d2a"))->fn_800D246C(1);
+    (mLayouts.mDirs[0] = D2A_TaskInstance32_unk::Create(this, "/data/d2anime/ui_select_4_u.d2a"))->fn_800D246C(1);
+    (mLayouts.mDirs[3] = D2A_TaskInstance32_unk::Create(this, "/data/d2anime/ui_select_4_d.d2a"))->fn_800D246C(1);
+    (mLayouts.mDirs[1] = D2A_TaskInstance32_unk::Create(this, "/data/d2anime/ui_select_4_l.d2a"))->fn_800D246C(1);
+    (mLayouts.mDirs[2] = D2A_TaskInstance32_unk::Create(this, "/data/d2anime/ui_select_4_r.d2a"))->fn_800D246C(1);
     for (int i = 0; i < 6; i++) {
         sSkillParams_unk[i].mId = sIds[i];
         sSkillParams_unk[i].m64 = 0;
@@ -1548,8 +1548,6 @@ extern "C" atn::D2A_DrawRect fn_801F4E8C(atn::D2A_Task* task, unsigned int hash)
 inline atn::D2A_DrawRect GetPaneRect_unk(atn::D2A_Task* task, const char* name) {
     return fn_801F4E8C(task, fn_800DC6B4(name));
 }
-extern "C" void fn_801F6C80(atn::D2A_TaskInstanceBase<32, 8>* inst, const char* name, float value); // inferred: value
-extern "C" void fn_801F837C(atn::Task* task, const char* name, const wchar_t* text); // inferred: sets a text
 extern "C" void fn_804A4AEC(atn::D2A_Task* task, CharaInfo_unk* info, int cols, int rows); // inferred: name pane size
 extern "C" void fn_803DDD54(atn::D2A_TaskInstanceBase<32, 8>* inst, int job); // inferred: job icon (game/GameUI.cpp)
 extern "C" void* lbl_8087EEC8; // inferred: font
@@ -1588,9 +1586,9 @@ void TacView::fn_805AC758() {
         rect = GetPaneRect_unk(mLayouts.mSelect, "select_down");
         mLayouts.mDirs[3]->SetValues1Rect_unk("basePoint", rect);
         if (chara->mStatus.m228 < 1.0f) {
-            fn_801F6C80(mLayouts.mDirs[0], "tensionOn", 0.3f);
+            ((D2A_TaskInstance32_unk*)mLayouts.mDirs[0])->SetValue0_unk("tensionOn", 0.3f);
         } else {
-            fn_801F6C80(mLayouts.mDirs[0], "tensionOn", 1.0f);
+            ((D2A_TaskInstance32_unk*)mLayouts.mDirs[0])->SetValue0_unk("tensionOn", 1.0f);
         }
         float fade = (0.0f > (1.0f < mLayouts.m20 / 12.0f ? 1.0f : mLayouts.m20 / 12.0f))
                          ? 0.0f
@@ -1651,23 +1649,22 @@ void TacView::fn_805AC758() {
             if (skill != 0) {
                 mLayouts.mDirs[i]->MeltTask();
                 atn::D2A_DrawRect text = mLayouts.mDirs[i]->GetRect_unk("TextMain");
-                fn_801F6C80(mLayouts.mDirs[i], "msgLen",
-                            fn_8006EF48(lbl_8087EEC8, text.w, (const wchar_t*)((HitInfo_unk*)m54.m54[i])->m08,
+                ((D2A_TaskInstance32_unk*)mLayouts.mDirs[i])->SetValue0_unk("msgLen", fn_8006EF48(lbl_8087EEC8, text.w, (const wchar_t*)((HitInfo_unk*)m54.m54[i])->m08,
                                         0.0f, 1, 1));
-                fn_801F837C(mLayouts.mDirs[i], "text", (const wchar_t*)((HitInfo_unk*)m54.m54[i])->m08);
-                fn_801F837C(mLayouts.mDirs[i], "textSub", (const wchar_t*)((HitInfo_unk*)m54.m54[i])->m08);
+                ((D2A_TaskInstance32_unk*)mLayouts.mDirs[i])->SetText_unk("text", (const wchar_t*)((HitInfo_unk*)m54.m54[i])->m08);
+                ((D2A_TaskInstance32_unk*)mLayouts.mDirs[i])->SetText_unk("textSub", (const wchar_t*)((HitInfo_unk*)m54.m54[i])->m08);
                 if (i == (int)m54.mObj) {
-                    fn_801F6C80(mLayouts.mDirs[i], "skipSelect", 1.0f);
+                    ((D2A_TaskInstance32_unk*)mLayouts.mDirs[i])->SetValue0_unk("skipSelect", 1.0f);
                 } else {
-                    fn_801F6C80(mLayouts.mDirs[i], "skipSelect", 0.0f);
+                    ((D2A_TaskInstance32_unk*)mLayouts.mDirs[i])->SetValue0_unk("skipSelect", 0.0f);
                 }
                 if (m54.m84[i] < 0) {
-                    fn_801F6C80(mLayouts.mDirs[i], "iconOn", 0.0f);
+                    ((D2A_TaskInstance32_unk*)mLayouts.mDirs[i])->SetValue0_unk("iconOn", 0.0f);
                 } else {
-                    fn_801F6C80(mLayouts.mDirs[i], "iconOn", 1.0f);
+                    ((D2A_TaskInstance32_unk*)mLayouts.mDirs[i])->SetValue0_unk("iconOn", 1.0f);
                     fn_803DDD54(mLayouts.mDirs[i], m54.m84[i]);
                 }
-                fn_801F6C80(mLayouts.mDirs[i], "canSelect", m54.m50[i]);
+                ((D2A_TaskInstance32_unk*)mLayouts.mDirs[i])->SetValue0_unk("canSelect", m54.m50[i]);
                 if (mLayouts.m1C == 0) {
                     mLayouts.mDirs[i]->mFrame = mLayouts.m20;
                 } else if (mLayouts.mDirs[i] == mLayouts.m1C) {

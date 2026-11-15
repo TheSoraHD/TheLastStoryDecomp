@@ -13,13 +13,13 @@
 #include "game/GameLoadBackground.h"
 #include "atn/GraphicsDevice.h"
 #include "atn/DrawHelper.h"
+#include "atn/D2A_TaskInstanceC.h"
 
 extern "C" unsigned long strlen(const char* s);
 extern "C" void* memcpy(void* dst, const void* src, unsigned long n);
 
 // inferred: creates a d2anime task playing `path` (returns the task)
 // inferred: creates a d2anime task (other variant of fn_801F3FF8, no extra argument)
-extern "C" atn::Task* fn_801F64D0(atn::Task* parent, const char* path);
 
 
 // inferred: field data (lbl_8087F430)
@@ -53,13 +53,11 @@ extern "C" int sprintf(char* s, const char* format, ...);
 extern "C" unsigned int fn_800DC6B4(const char* s); // inferred: string hash
 // inferred: 2D point of a d2anime pane (names invented)
 // inferred: position of the pane `hash` of `layout`
-extern "C" void fn_801F6E78(atn::Task* task, const char* name, const atn::D2A_DrawRect* pos);
 extern "C" void fn_801FED24(void* layout, unsigned int hash, int index, float value);
 // inferred: sets the value `index` of the pane `name` (name invented)
 inline void SetPaneValue_unk(void* layout, const char* name, int index, float value) {
     fn_801FED24(layout, fn_800DC6B4(name), index, value);
 }
-extern "C" void fn_801F6D7C(atn::Task* task, const char* name, int index, float value);
 extern "C" int wcscmp(const wchar_t* a, const wchar_t* b);
 extern "C" int fn_800DC1DC(const wchar_t* s); // inferred: wide string to int
 
@@ -172,7 +170,7 @@ CampSaveLoad::CampSaveLoad(atn::Task* parent)
         m74[i] = 0;
         (m94[i] = fn_801F3FF8(this, "/data/d2anime/save_select_icon.d2a", 0))->fn_800D246C(1);
         (mB4[i] = fn_801F3FF8(this, "/data/d2anime/save_select_nodata.d2a", 0))->fn_800D246C(1);
-        (mF4[i] = fn_801F64D0(this, clearPath))->fn_800D246C(1);
+        (mF4[i] = (atn::Task*)D2A_TaskInstance32_unk::Create(this, clearPath))->fn_800D246C(1);
         mD4[i] = 0;
     }
     (m114 = fn_801F3FF8(this, "/data/d2anime/save_select_icon2.d2a", 0))->fn_800D246C(1);
@@ -961,7 +959,7 @@ void CampSaveLoad::fn_8011AD38() {
         pos.w = 1.0f;
         pos.h = 1.0f;
         fn_801F4728(m74[i], "basePoint", &pos.x);
-        fn_801F6E78(mF4[i], "basePoint", &pos);
+        ((D2A_TaskInstance32_unk*)mF4[i])->SetValues1_unk("basePoint", *(atn::D2A_DrawRect*)&pos);
         atn::D2A_Task* frame = m74[i];
         float cur = frame->mFrame;
         float end = frame->mData.mEndFrame;
@@ -975,10 +973,10 @@ void CampSaveLoad::fn_8011AD38() {
             SetPaneValue_unk(&m74[i]->mData.m10, "basePoint", 1, 160.0f);
             SetPaneValue_unk(&m74[i]->mData.m10, "basePoint", 2, 1.5f);
             SetPaneValue_unk(&m74[i]->mData.m10, "basePoint", 3, 1.5f);
-            fn_801F6D7C(mF4[i], "basePoint", 0, 270.0f);
-            fn_801F6D7C(mF4[i], "basePoint", 1, 160.0f);
-            fn_801F6D7C(mF4[i], "basePoint", 2, 1.5f);
-            fn_801F6D7C(mF4[i], "basePoint", 3, 1.5f);
+            ((D2A_TaskInstance32_unk*)mF4[i])->SetValue1_unk("basePoint", 0, 270.0f);
+            ((D2A_TaskInstance32_unk*)mF4[i])->SetValue1_unk("basePoint", 1, 160.0f);
+            ((D2A_TaskInstance32_unk*)mF4[i])->SetValue1_unk("basePoint", 2, 1.5f);
+            ((D2A_TaskInstance32_unk*)mF4[i])->SetValue1_unk("basePoint", 3, 1.5f);
         } else {
             frame->mFrame = MAX(15.0f, cur - 1.0f);
         }

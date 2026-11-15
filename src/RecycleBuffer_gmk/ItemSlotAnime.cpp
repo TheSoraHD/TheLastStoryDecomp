@@ -17,6 +17,7 @@
 #include <string.h>
 #include "game/BattleTask.h"
 #include "game/DamageResult_unk.h"
+#include "atn/D2A_TaskInstanceC.h"
 
 extern "C" bool fn_80213E60(gmk::ItemSlotItem_unk* item, int kind, int sub, int num); // inferred: db/ItemRare_unk.cpp
 extern "C" GameTask* lbl_8087F430; // inferred: the field task
@@ -196,7 +197,6 @@ ItemSlotAnime::~ItemSlotAnime() {
     Release_unk();
 }
 
-extern "C" atn::Task* fn_801F64D0(atn::Task* parent, const char* path); // inferred: d2anime task
 
 // DRAFT: the creation of the ItemSlotTextCache (lbl_8087F4FC)
 // NONMATCHING: draft - the creation of the ItemSlotTextCache (lbl_8087F4FC) is missing; written for the
@@ -212,16 +212,16 @@ void ItemSlotAnime::fn_8044D9BC(void* owner) {
         buf = lbl_8087F4F8;
         for (unsigned int i = 0; i < buf->mNum; i++) {
             RecycleBufferEntry_unk& e = buf->mEntries[i];
-            e.m00 = (ItemSlotTask_unk*)fn_801F64D0(buf, "/data/d2anime/ui_slot_base.d2b");
+            e.m00 = (ItemSlotTask_unk*)(atn::Task*)D2A_TaskInstance32_unk::Create(buf, "/data/d2anime/ui_slot_base.d2b");
             for (int j = 0; j < 3; j++) {
-                e.m04.push_back((ItemSlotTask_unk*)fn_801F64D0(buf, "/data/d2anime/ui_slot_h.d2b"));
-                e.m14.push_back((ItemSlotTask_unk*)fn_801F64D0(buf, "/data/d2anime/ui_slot_l.d2b"));
+                e.m04.push_back((ItemSlotTask_unk*)(atn::Task*)D2A_TaskInstance32_unk::Create(buf, "/data/d2anime/ui_slot_h.d2b"));
+                e.m14.push_back((ItemSlotTask_unk*)(atn::Task*)D2A_TaskInstance32_unk::Create(buf, "/data/d2anime/ui_slot_l.d2b"));
             }
-            e.m24.push_back((ItemSlotTask_unk*)fn_801F64D0(buf, "/data/d2anime/ui_slot_ok.d2b"));
-            e.m24.push_back((ItemSlotTask_unk*)fn_801F64D0(buf, "/data/d2anime/ui_slot_ok_rare.d2b"));
-            e.m30.push_back((ItemSlotTask_unk*)fn_801F64D0(buf, "/data/d2anime/ui_item_pop.d2b"));
-            e.m30.push_back((ItemSlotTask_unk*)fn_801F64D0(buf, "/data/d2anime/ui_item_pop_rare.d2b"));
-            e.m3C = (ItemSlotTask_unk*)fn_801F64D0(buf, "/data/d2anime/ui_slot_rare.d2b");
+            e.m24.push_back((ItemSlotTask_unk*)(atn::Task*)D2A_TaskInstance32_unk::Create(buf, "/data/d2anime/ui_slot_ok.d2b"));
+            e.m24.push_back((ItemSlotTask_unk*)(atn::Task*)D2A_TaskInstance32_unk::Create(buf, "/data/d2anime/ui_slot_ok_rare.d2b"));
+            e.m30.push_back((ItemSlotTask_unk*)(atn::Task*)D2A_TaskInstance32_unk::Create(buf, "/data/d2anime/ui_item_pop.d2b"));
+            e.m30.push_back((ItemSlotTask_unk*)(atn::Task*)D2A_TaskInstance32_unk::Create(buf, "/data/d2anime/ui_item_pop_rare.d2b"));
+            e.m3C = (ItemSlotTask_unk*)(atn::Task*)D2A_TaskInstance32_unk::Create(buf, "/data/d2anime/ui_slot_rare.d2b");
             for (unsigned int j = 0; j < e.m04.size(); j++) {
                 e.mTasks.push_back(e.m04[j]);
                 e.mTasks.push_back(e.m14[j]);
@@ -286,8 +286,6 @@ int ItemSlotAnime::fn_8044E610() {
     return mState == 2 && m20 != 0 && m24 > 0;
 }
 
-extern "C" float fn_801F6C2C(atn::Task* layout);                                    // inferred: last frame
-extern "C" void fn_801F791C(atn::Task* task, const char* name, int index, float value); // inferred: pane alpha
 
 // inferred: panes of the slot layouts (names invented but sColorPane)
 static const char* const sSlotTextPanes[7] = {"string0009(1)", "string0008(1)", "string0007(1)", "string0006(1)",
@@ -343,12 +341,12 @@ void ItemSlotAnime::fn_8044E88C() {
             m00 = lbl_8087F4F8->Alloc_unk();
         }
         ItemSlotTask_unk* base = m00->m00;
-        base->m50 = fn_801F6C2C(base);
+        base->m50 = ((D2A_TaskInstance32_unk*)base)->GetEndFrame();
         for (int i = 0; i < 3; i++) {
             ItemSlotTask_unk* t = m00->m14[i];
             t->m50 = i * 3.0f + 2.0f;
             t->m54 = 1.0f;
-            fn_801F791C(t, sColorPane, 0, 200.0f);
+            ((D2A_TaskInstance32_unk*)t)->SetValue3_unk(sColorPane, 0, 200.0f);
         }
         fn_8044F96C();
     }
@@ -391,7 +389,7 @@ void ItemSlotAnime::fn_8044EA34(int shown) {
             }
         } else {
             ItemSlotTask_unk* base = m00->m00;
-            base->m50 = fn_801F6C2C(base);
+            base->m50 = ((D2A_TaskInstance32_unk*)base)->GetEndFrame();
             atn::FixedArray_unk<ItemSlotTask_unk*, 2>& oks = m00->m24;
             for (ItemSlotTask_unk** it = oks.begin(); it != oks.end(); it++) {
                 if (*it != 0) {
@@ -417,7 +415,7 @@ void ItemSlotAnime::fn_8044EA34(int shown) {
 
 // inferred: the layout animation of `task` reached its last frame (name invented)
 static inline bool IsAnimeEnd_unk(ItemSlotTask_unk* task) {
-    return task->m50 >= fn_801F6C2C(task);
+    return task->m50 >= ((D2A_TaskInstance32_unk*)task)->GetEndFrame();
 }
 
 // NONMATCHING: 96.4% - the state test of IsState56_unk (the original keeps mState in r4 from the start
@@ -569,8 +567,6 @@ void ItemSlotAnime::fn_8044F434() {
     }
 }
 
-extern "C" void fn_801F6D7C(atn::Task* task, const char* name, int index, float value); // inferred: pane value
-extern "C" void fn_801F837C(atn::Task* task, const char* name, const wchar_t* text);    // inferred: pane text
 
 // inferred: the "take" layout shown for the item (name invented)
 inline ItemSlotTask_unk* ItemSlotAnime::OkTask_unk() const {
@@ -594,7 +590,7 @@ static inline float FadeOut_unk(float frame) {
 
 // inferred: clears a text pane (name invented)
 inline void ItemSlotAnime::ClearText_unk(ItemSlotTask_unk* task, const char* pane) {
-    fn_801F837C(task, pane, L"");
+    ((D2A_TaskInstance32_unk*)task)->SetText_unk(pane, L"");
 }
 
 // NONMATCHING: 99.27% - registers of the iterator loops (iterator and end base swapped) and of the selected
@@ -631,28 +627,28 @@ void ItemSlotAnime::fn_8044F96C() {
         atn::FixedArray_unk<ItemSlotTask_unk*, 16>& t0 = m00->mTasks;
         for (ItemSlotTask_unk** it = t0.begin(); it != t0.end(); it++) {
             if (*it != 0) {
-                fn_801F6D7C(*it, sPosPane, 0, x);
+                ((D2A_TaskInstance32_unk*)*it)->SetValue1_unk(sPosPane, 0, x);
             }
         }
         float y = screen.y;
         atn::FixedArray_unk<ItemSlotTask_unk*, 16>& t1 = m00->mTasks;
         for (ItemSlotTask_unk** it = t1.begin(); it != t1.end(); it++) {
             if (*it != 0) {
-                fn_801F6D7C(*it, sPosPane, 1, y);
+                ((D2A_TaskInstance32_unk*)*it)->SetValue1_unk(sPosPane, 1, y);
             }
         }
         float sx = mScale;
         atn::FixedArray_unk<ItemSlotTask_unk*, 16>& t2 = m00->mTasks;
         for (ItemSlotTask_unk** it = t2.begin(); it != t2.end(); it++) {
             if (*it != 0) {
-                fn_801F6D7C(*it, sPosPane, 2, sx);
+                ((D2A_TaskInstance32_unk*)*it)->SetValue1_unk(sPosPane, 2, sx);
             }
         }
         float sy = mScale;
         atn::FixedArray_unk<ItemSlotTask_unk*, 16>& t3 = m00->mTasks;
         for (ItemSlotTask_unk** it = t3.begin(); it != t3.end(); it++) {
             if (*it != 0) {
-                fn_801F6D7C(*it, sPosPane, 3, sy);
+                ((D2A_TaskInstance32_unk*)*it)->SetValue1_unk(sPosPane, 3, sy);
             }
         }
     }
@@ -678,7 +674,7 @@ void ItemSlotAnime::fn_8044F96C() {
             if (m00->m00->m50 >= 10.0f) {
                 slot->MeltTask();
                 for (int j = 0; j < 7; j++) {
-                    fn_801F837C(slot, sSlotTextPanes[j], mTexts[i].mStr);
+                    ((D2A_TaskInstance32_unk*)slot)->SetText_unk(sSlotTextPanes[j], mTexts[i].mStr);
                 }
             }
         }
@@ -692,7 +688,7 @@ void ItemSlotAnime::fn_8044F96C() {
                 ItemSlotTask_unk* arrow = m00->m14[i];
                 arrow->MeltTask();
                 if (mState == 4 || i != 1) {
-                    fn_801F837C(arrow, sArrowPane, mTexts[i].mStr);
+                    ((D2A_TaskInstance32_unk*)arrow)->SetText_unk(sArrowPane, mTexts[i].mStr);
                 } else {
                     ClearText_unk(arrow, sArrowPane);
                 }
@@ -706,12 +702,12 @@ void ItemSlotAnime::fn_8044F96C() {
                 float rate = FadeIn_unk(ok->m50) < 1.0f ? FadeIn_unk(ok->m50) : 1.0f;
                 float alpha = 200.0f * rate;
                 for (int i = 0; i < 3; i++) {
-                    fn_801F791C(m00->m14[i], sColorPane, 0, alpha);
+                    ((D2A_TaskInstance32_unk*)m00->m14[i])->SetValue3_unk(sColorPane, 0, alpha);
                 }
                 for (int i = 0; i < 3; i++) {
-                    fn_801F791C(ok, sOkColorPanes[i], 0, alpha);
+                    ((D2A_TaskInstance32_unk*)ok)->SetValue3_unk(sOkColorPanes[i], 0, alpha);
                     if (mFlag29 || i != 0) {
-                fn_801F837C(ok, sOkTextPanes[i], mTexts[1].mStr);
+                ((D2A_TaskInstance32_unk*)ok)->SetText_unk(sOkTextPanes[i], mTexts[1].mStr);
             } else {
                 ClearText_unk(ok, sOkTextPanes[i]);
             }
@@ -729,12 +725,12 @@ void ItemSlotAnime::fn_8044F96C() {
         float rate = FadeOut_unk(ok->m50) < 1.0f ? FadeOut_unk(ok->m50) : 1.0f;
         float alpha = 200.0f * rate;
         for (int i = 0; i < 3; i++) {
-            fn_801F791C(m00->m14[i], sColorPane, 0, alpha);
+            ((D2A_TaskInstance32_unk*)m00->m14[i])->SetValue3_unk(sColorPane, 0, alpha);
         }
         for (int i = 0; i < 3; i++) {
-            fn_801F791C(ok, sOkColorPanes[i], 0, 200.0f);
+            ((D2A_TaskInstance32_unk*)ok)->SetValue3_unk(sOkColorPanes[i], 0, 200.0f);
             if (mFlag29 || i != 0) {
-                fn_801F837C(ok, sOkTextPanes[i], mTexts[1].mStr);
+                ((D2A_TaskInstance32_unk*)ok)->SetText_unk(sOkTextPanes[i], mTexts[1].mStr);
             } else {
                 ClearText_unk(ok, sOkTextPanes[i]);
             }
@@ -743,7 +739,7 @@ void ItemSlotAnime::fn_8044F96C() {
         ItemSlotTask_unk* pop = PopTask_unk();
         pop->MeltTask();
         for (int i = 0; i < 3; i++) {
-            fn_801F837C(pop, sPopTextPanes[i], mTexts[0].mStr);
+            ((D2A_TaskInstance32_unk*)pop)->SetText_unk(sPopTextPanes[i], mTexts[0].mStr);
         }
     }
 }

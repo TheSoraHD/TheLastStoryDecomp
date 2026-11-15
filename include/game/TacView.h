@@ -110,7 +110,7 @@ struct TacViewLayouts_unk {
     atn::D2A_Task* mSelect;  // ui_command_select.d2a
     atn::D2A_Task* mFace;    // ui_command_face.d2a
     atn::D2A_Task* mHpFlash; // ui_command_hp_flash.d2a
-    // inferred: ui_select_4_u/l/r/d.d2a (layout anime tasks made by fn_801F64D0)
+    // inferred: ui_select_4_u/l/r/d.d2a (layout anime tasks made by D2A_TaskInstanceBase<32, 8>::Create)
     atn::D2A_TaskInstanceBase<32, 8>* mDirs[4];
     atn::D2A_TaskInstanceBase<32, 8>* m1C; // inferred: command pane chosen (fn_805AC758)
     int m20;                               // inferred: frames of the fade in (0..15)

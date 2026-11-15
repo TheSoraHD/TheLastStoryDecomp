@@ -17,6 +17,7 @@
 #include "game/InventoryEquip_unk.h"
 #include "game/NewCampPairs_unk.h"
 #include "macros.h"
+#include "atn/D2A_TaskInstanceC.h"
 
 // Third file of CosEditProtector (inferred file name, game/CosEditProtector.cpp and
 // game/CosEditPalette_unk.cpp have the rest): the equipment lists of the costume menu (states 0, 2,
@@ -1652,26 +1653,15 @@ void CosEditProtector::fn_801E07A4(int member, int slot) {
     }
 }
 
-// Members of atn::D2A_TaskInstanceBase<32, 8> with automatic names (as in game/CosEditPalette_unk.cpp)
+// Layout of the list: atn::D2A_TaskInstanceBase<32, 8> (as in game/CosEditPalette_unk.cpp)
 typedef atn::D2A_TaskInstanceBase<32, 8> CosEditListLayout_unk;
-extern "C" void fn_801F7590(CosEditListLayout_unk* inst, const char* name, const float* uv);
-extern "C" void fn_801F837C(CosEditListLayout_unk* inst, const char* name, const wchar_t* text);
 // inferred: texture rectangle (u0, v0, u1, v1), passed by value (as in game/CosEditPalette_unk.cpp)
-struct CosEditListUV_unk {
-    CosEditListUV_unk() {}
-    CosEditListUV_unk(float u0_, float v0_, float u1_, float v1_) : u0(u0_), v0(v0_), u1(u1_), v1(v1_) {}
-    CosEditListUV_unk(const CosEditListUV_unk& o) { __Vec4Copy(&u0, &o.u0); }
-    CosEditListUV_unk& operator=(const CosEditListUV_unk& o) {
-        __Vec4Copy(&u0, &o.u0);
-        return *this;
-    }
-    float u0, v0, u1, v1;
-};
+typedef atn::Vector4_unk CosEditListUV_unk; // inferred: texture rectangle
 extern "C" int fn_80444B64(Inventory* inv, int id);                    // inferred: icon of an item
 extern "C" CosEditListUV_unk fn_80444C50(Inventory* inv, int icon);    // inferred: texture rectangle of an icon
 // inferred: sets a rectangle of the layout (the name comes first, as SetUV_unk of CosEditPalette_unk)
-inline void SetListUV_unk(const char* name, CosEditListLayout_unk* inst, CosEditListUV_unk uv) {
-    fn_801F7590(inst, name, &uv.u0);
+inline void SetListUV_unk(const char* name, CosEditListLayout_unk* inst, const CosEditListUV_unk& uv) {
+    ((D2A_TaskInstance32_unk*)inst)->SetValues2_unk(name, uv);
 }
 
 // inferred: draws the page of the equipment list m1E4 (names, icons, face of the member who wears
@@ -1705,9 +1695,9 @@ void CosEditProtector::fn_801E6714() {
             CosEditListUV_unk face(1.0f, 1.0f, 1.0f, 1.0f);
             CosEditListUV_unk uv = fn_80444C50(Inventory::instance_, fn_80444B64(Inventory::instance_, id));
             if (data != 0) {
-                fn_801F837C(task, "item01", data->mName);
+                ((D2A_TaskInstance32_unk*)task)->SetText_unk("item01", data->mName);
             } else if (e->mItem != 0) {
-                fn_801F837C(task, "item01", ((CosEditEquip_unk*)e->mItem)->mName);
+                ((D2A_TaskInstance32_unk*)task)->SetText_unk("item01", ((CosEditEquip_unk*)e->mItem)->mName);
             }
             SetListUV_unk("iconUv01", task, uv);
             if (e->mOwner >= 0) {
@@ -1767,10 +1757,10 @@ void CosEditProtector::fn_801E6B10() {
                 int icon;
                 if (e->mIndex < 0) {
                     icon = fn_80444BE8(Inventory::instance_, data);
-                    fn_801F837C(task, "item01", data->mName);
+                    ((D2A_TaskInstance32_unk*)task)->SetText_unk("item01", data->mName);
                 } else {
                     icon = fn_80444C48(Inventory::instance_);
-                    fn_801F837C(task, "item01", lbl_8087F1E4->GetPair_unk(prot->mKind + 0xEB));
+                    ((D2A_TaskInstance32_unk*)task)->SetText_unk("item01", lbl_8087F1E4->GetPair_unk(prot->mKind + 0xEB));
                 }
                 CosEditListUV_unk uv = fn_80444C50(Inventory::instance_, icon);
                 SetListUV_unk("iconUv01", task, uv);
@@ -1894,7 +1884,7 @@ inline void SetListText_unk(atn::D2A_Task* task, const char* name, const wchar_t
 }
 // inferred: sets a texture rectangle of the task (by value, as SetUV_unk of game/CosEditProtector.cpp)
 inline void SetTaskUV_unk(atn::D2A_Task* task, const char* name, CosEditListUV_unk uv) {
-    task->SetParam2_unk(name, &uv.u0);
+    task->SetParam2_unk(name, &uv.x);
 }
 
 // inferred: shows the weapons and the protectors that the member wears (names and icons)
