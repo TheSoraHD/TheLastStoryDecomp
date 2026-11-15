@@ -471,6 +471,8 @@ void Sequence::fn_8053F1B4() {
     }
 }
 
+// NONMATCHING: 99.84% - register of the counter of the second loop (r29 in the original, ours r27; with the
+// counters declared at the top, in any order or shared, r28)
 void Sequence::vf14() {
     if (m194 == 10) {
         for (int i = 0; i < 4; i++) {
