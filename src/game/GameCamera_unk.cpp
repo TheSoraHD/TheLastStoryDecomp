@@ -464,8 +464,6 @@ void GameCamera::fn_8037EF30(int a, int b, float f) {
 // inferred: camera behind the character (or looking from it to its target mFC4/mFC0) at the parameters m51C;
 // with `place` the camera is put there at once (out of the walls), with `reset` the turn speeds mA0C are cleared;
 // `speed` < 0 takes SetConfig::mTurnSpeed
-// NONMATCHING: 99.96% - registers r3/r4 of the copy of the hit point (pos = result.m10; VecAssign_unk, a named
-// copy or by members: same or worse)
 void GameCamera::fn_8037EF48(CharaTask* chara, int place, int reset, float speed) {
     if (m7FC != 0 && m7FC != 8) {
         return;
@@ -514,7 +512,8 @@ void GameCamera::fn_8037EF48(CharaTask* chara, int place, int reset, float speed
         pos += target;
         atn::ColliResult_unk result;
         if (fn_8004ED34(lbl_8087EE98, &result, &target, &pos, 0x80000008, 0, 0)) {
-            pos = result.m10;
+            const atn::Vector3& hit = result.m10;
+            pos = hit;
         }
         mCamera.SetPosition(pos);
         mCamera.SetTarget_unk(target);
@@ -2317,7 +2316,6 @@ void GameCamera::fn_80388A88(const CharaTask* chara) {
 
 // inferred: event camera (see fn_8038CD94) kept out of the walls: when the ray from the target to the eye hits,
 // the eye is moved to the wall over 10 frames (m880), and back when it stops hitting
-// NONMATCHING: 99.9% - registers r3/r4 of the copy of the hit point (pos = result.m10, as fn_8037EF48)
 void GameCamera::fn_80388C44(const CharaTask* chara) {
     float yaw = atn::DegToRad_unk(m774.m28);
     atn::Vector3 offset(m774.m0C, m774.m10, m774.m14);
@@ -2335,7 +2333,8 @@ void GameCamera::fn_80388C44(const CharaTask* chara) {
     atn::Vector3 pos = target + front * m774.m00;
     atn::ColliResult_unk result;
     if (fn_8004ED34(lbl_8087EE98, &result, &target, &pos, 0x80000008, 0, 0)) {
-        pos = result.m10;
+        const atn::Vector3& hit = result.m10;
+        pos = hit;
         pos += Negate_unk(front) * 0.1f;
         if (m880 < 10) {
             m880++;
@@ -2953,8 +2952,6 @@ void GameCamera::fn_8038C070(const CharaTask* chara) {
 // inferred: low camera beside the character (50 above it, m648.m0C to the side) looking at 12 above it; the target and
 // the fovy (m7B0.m04) are blended in 10 frames; then back to the sub mode with m83C = 6. The eye position is
 // computed but not used
-// NONMATCHING: 99.6% - float registers of the negated front (the original keeps -y and -x in the registers of y
-// and x and loads 50.0f into f5); tried the unary minus, the vector built in place and other statement orders
 void GameCamera::fn_8038C5B0(const CharaTask* chara) {
     if (m808 == 0) {
         m80C = mCamera.mPos;
@@ -2971,7 +2968,8 @@ void GameCamera::fn_8038C5B0(const CharaTask* chara) {
     PSMTXMultVec(m.m, &front, &front);
     front = Negate_unk(front);
     pos = chara->mPos;
-    pos.y += 50.0f;
+    float height = 50.0f;
+    pos.y += height;
     float side = m648.m0C;
     pos += Cross_unk(front, up) * side;
     target = chara->mPos;
@@ -3044,7 +3042,8 @@ void GameCamera::fn_8038C928(const CharaTask* chara) {
 
 // inferred: event camera at m774.m0C from the head of the character (turned by m774.m28 degrees, facing it), looking
 // m774.m00 away with the pitch m774.m08 and the fovy m774.m04; blended with an eased curve while the timer m424 runs
-// NONMATCHING: 97.4% - scheduling of the head + offset sum and of the front vector (front before pos: worse)
+// NONMATCHING: 97.4% - scheduling of the head + offset sum against the stores of the front vector (target,
+// front and pos declared as in fn_80388C44; the eye and the target were swapped before)
 void GameCamera::fn_8038CD94(const CharaTask* chara) {
     if (m808 == 0) {
         m80C = mCamera.mPos;
@@ -3056,7 +3055,7 @@ void GameCamera::fn_8038CD94(const CharaTask* chara) {
     Mtx m;
     PSMTXRotRad(m, 'y', 3.1415927f + yaw);
     PSMTXMultVec(m, &offset, &offset);
-    atn::Vector3 pos = const_cast<CharaTask*>(chara)->fn_80178088() + offset;
+    atn::Vector3 target = const_cast<CharaTask*>(chara)->fn_80178088() + offset;
     atn::Vector3 front(0.0f, 0.0f, 1.0f);
     Mtx m2;
     PSMTXRotRad(m2, 'x', -m774.m08);
@@ -3064,7 +3063,7 @@ void GameCamera::fn_8038CD94(const CharaTask* chara) {
     Mtx m3;
     PSMTXRotRad(m3, 'y', 3.1415927f + yaw);
     PSMTXMultVec(m3, &front, &front);
-    atn::Vector3 target = pos + front * m774.m00;
+    atn::Vector3 pos = target + front * m774.m00;
     float t = 1.0f;
     if (m424.fn_803829C0()) {
         m424.fn_803829D4();
@@ -3154,13 +3153,15 @@ void GameCamera::fn_8038D4D4(const CharaTask* chara) {
 
 // inferred: blends in 23 frames to a camera 30 away from the target (20.451 above the character) along a
 // fixed direction turned with the character; then back to the sub mode with m83C = 6
-// NONMATCHING: 94.2% - temporaries of the direction
+// NONMATCHING: 99.8% - stack slot of the normalized direction (a temporary below the one of m824 in the original;
+// as a named local, a reference to it or a named source vector it stays above)
 void GameCamera::fn_8038D854(const CharaTask* chara) {
     if (m808 == 0) {
         m80C = mCamera.mPos;
         m818 = mCamera.mTarget;
+        float fovy = mCamera.mFovy;
         m824 = m818 - m80C;
-        m830 = mCamera.mFovy;
+        m830 = fovy;
     }
     atn::Vector3 target = chara->mPos;
     target.y += 20.451f;
@@ -3186,21 +3187,21 @@ void GameCamera::fn_8038D854(const CharaTask* chara) {
     m834 = 0;
 }
 
-// NONMATCHING: 89.3% - stack slots and registers of the temporaries
+// NONMATCHING: 99.4% - registers r4-r7 of the save block (the original keeps the character only in r29)
 // inferred: one frame of the "hips" camera after saving the current camera in m80C-m830; then goes back
 // to the sub mode with m83C = 6
 void GameCamera::fn_8038DBE4(const CharaTask* chara) {
     if (m808 == 0) {
         m80C = mCamera.mPos;
         m818 = mCamera.mTarget;
+        float fovy = mCamera.mFovy;
         m824 = m818 - m80C;
-        m830 = mCamera.mFovy;
+        m830 = fovy;
     }
     const atn::Model* model = &chara->mMotion;
     const atn::Matrix3x4* node = (const atn::Matrix3x4*)model->GetNodeMtx_unk(model->GetNodeNoByName("hips", 0));
     atn::Vector3 target = node->GetTrans_unk();
-    atn::Vector3 offset(0.0f, 50.0f, 0.0f);
-    atn::Vector3 pos = const_cast<CharaTask*>(chara)->fn_80178088() + offset;
+    atn::Vector3 pos = const_cast<CharaTask*>(chara)->fn_80178088() + atn::Vector3(0.0f, 50.0f, 0.0f);
     mCamera.SetPosition(pos);
     mCamera.SetTarget_unk(target);
     mCamera.fn_8004B378();

@@ -117,6 +117,15 @@ inline void AddCurve_unk(atn::Vector3& pos, Mtx rot, XsfCurveSet_unk* curve, flo
     pos += w;
 }
 
+// inferred: the curve vector turned by `rot`
+inline atn::Vector3 CurveVec_unk(Mtx rot, XsfCurveSet_unk* curve, float time, int x, int y, int z) {
+    atn::Vector3 v;
+    curve->fn_805BF410(time, &v.x, x, y, z);
+    atn::Vector3 w = v;
+    PSMTXMultVec(rot, &w, &w);
+    return w;
+}
+
 FinishCamera_unk::FinishCamera_unk()
     : m00(0), mCamera(0, 0), mPos(0.0f, 0.0f, 0.0f), mRot(0.0f, 0.0f, 0.0f), m35C(0), m360(0), m368(0), m394(0),
       m3A8(0), m3AC(0.0f), m3B0(0.0f), m3B4(0) {
@@ -309,7 +318,6 @@ void FinishCamera_unk::fn_80378D34(atn::Vector3* eye, const atn::Vector3* target
     }
 }
 
-// NONMATCHING: 99.7% - register order of the offset computation
 // inferred: called with bl by fn_803792F0, where MWCC would inline it (accepted __declspec(noinline), rule 2)
 __declspec(noinline) float FinishCamera_unk::fn_80379104(XsfCurveSet_unk* curve, const atn::Vector3* pos, float time, float angle) {
     atn::ColliResult_unk hit;
@@ -320,7 +328,7 @@ __declspec(noinline) float FinishCamera_unk::fn_80379104(XsfCurveSet_unk* curve,
         atn::Vector3 to = *pos;
         offset = 3.1415927f * (float)i / 4.0f;
         PSMTXRotRad(rot, 'y', angle + offset);
-        AddCurve_unk(to, rot, curve, time, 1, 2, 3);
+        to += CurveVec_unk(rot, curve, time, 1, 2, 3);
         atn::Vector3 a = from;
         atn::Vector3 b = to;
         if (fn_8004ED34(lbl_8087EE98, &hit, &a, &b, 0x80000008, 0, 0) == 0) {
