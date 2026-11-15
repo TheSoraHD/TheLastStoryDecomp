@@ -32,6 +32,12 @@ extern "C" void fn_8004D388(void* mgr, atn::ColliResult_unk* result, chr::Chara_
 extern "C" Unk_8087F490* lbl_8087F490;
 extern "C" Unk_8087F0A8* lbl_8087F0A8;
 
+// inferred: `from` moved toward `to` by the fraction `t` (name invented, as in
+// chr/ControlChaseCaught.cpp)
+inline atn::Vector3 Approach_unk(const atn::Vector3& from, const atn::Vector3& to, float t) {
+    return (to - from) * t + from;
+}
+
 namespace chr {
 
 ControlJumpAt::ControlJumpAt(Chara_unk* chara, const atn::Vector3& start, Chara_unk* target)
@@ -46,13 +52,14 @@ ControlJumpAt::ControlJumpAt(Chara_unk* chara, const atn::Vector3& start, Chara_
     mChara->mPos = start;
 }
 
-// NONMATCHING: 98.4% - the two operator temporaries get swapped stack slots (and float registers).
+// inferred: the character jumps from mStart to the target (linear, by the motion frame)
 int ControlJumpAt::vf0C() {
     Motion_unk* motion = &mChara->mMotion;
     float frame = motion->mTracks[0].m08;
     float t = frame / motion->fn_80097D7C(0);
-    atn::Vector3 pos = (mTarget->mPos - mStart) * t + mStart;
-    mChara->mPos = pos;
+    atn::Vector3 pos = Approach_unk(mStart, mTarget->mPos, t);
+    Chara_unk* c1 = mChara;
+    c1->mPos = pos;
     atn::Vector3 rot = mTarget->mRot;
     rot.y += 3.1415927f;
     mChara->mRot = rot;
