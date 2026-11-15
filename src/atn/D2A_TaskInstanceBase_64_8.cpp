@@ -382,13 +382,15 @@ D2A_DrawRect D2A_TaskInstanceBase<N, M>::GetRect_unk(const char* name) {
     return rect;
 }
 
-// inferred: removed by the linker (its format L"%f\0" is left in the wide string pool)
-template <int N, int M>
-void D2A_TaskInstanceBase<N, M>::SetFloat_unk(const char* name, float value) {
-    wchar_t text[0x100];
-    fn_800DD3FC(text, L"%f\0", value);
-    SetText_unk(name, text);
-}
+// inferred: the constructor and destructor of the texts are explicit specializations of each instantiation:
+// an implicit copy would be emitted right after Create (its first user), and the original has them after
+// the last member of each instantiation, where these definitions are
+template <> D2A_TaskInstanceBase<64, 8>::Text_unk::Text_unk();
+template <> D2A_TaskInstanceBase<64, 8>::Text_unk::~Text_unk();
+template <> D2A_TaskInstanceBase<32, 8>::Text_unk::Text_unk();
+template <> D2A_TaskInstanceBase<32, 8>::Text_unk::~Text_unk();
+template <> D2A_TaskInstanceBase<8, 2>::Text_unk::Text_unk();
+template <> D2A_TaskInstanceBase<8, 2>::Text_unk::~Text_unk();
 
 // inferred: the members of the three instantiations that the original keeps, in its order
 template D2A_TaskInstanceBase<64, 8>* D2A_TaskInstanceBase<64, 8>::Create(Task* parent, const char* path);
@@ -404,6 +406,8 @@ template void D2A_TaskInstanceBase<64, 8>::SetColor255_unk(const char* name, D2A
 template void D2A_TaskInstanceBase<64, 8>::SetText_unk(const char* name, const wchar_t* text);
 template void D2A_TaskInstanceBase<64, 8>::SetNumber_unk(const char* name, int value, int digits);
 template void D2A_TaskInstanceBase<64, 8>::SetInt_unk(const char* name, int value);
+template <> D2A_TaskInstanceBase<64, 8>::Text_unk::Text_unk() {}
+template <> D2A_TaskInstanceBase<64, 8>::Text_unk::~Text_unk() {}
 
 template D2A_TaskInstanceBase<32, 8>* D2A_TaskInstanceBase<32, 8>::Create(Task* parent, const char* path);
 template D2A_TaskInstanceBase<32, 8>::~D2A_TaskInstanceBase();
@@ -428,6 +432,8 @@ template void D2A_TaskInstanceBase<32, 8>::SetColor255_unk(const char* name, D2A
 template void D2A_TaskInstanceBase<32, 8>::SetText_unk(const char* name, const wchar_t* text);
 template void D2A_TaskInstanceBase<32, 8>::SetNumber_unk(const char* name, int value, int digits);
 template D2A_DrawRect D2A_TaskInstanceBase<32, 8>::GetRect_unk(const char* name);
+template <> D2A_TaskInstanceBase<32, 8>::Text_unk::Text_unk() {}
+template <> D2A_TaskInstanceBase<32, 8>::Text_unk::~Text_unk() {}
 
 template D2A_TaskInstanceBase<8, 2>* D2A_TaskInstanceBase<8, 2>::Create(Task* parent, const char* path);
 template D2A_TaskInstanceBase<8, 2>::~D2A_TaskInstanceBase();
@@ -438,6 +444,17 @@ template void D2A_TaskInstanceBase<8, 2>::Apply();
 template void D2A_TaskInstanceBase<8, 2>::SetValue0_unk(const char* name, float value);
 template void D2A_TaskInstanceBase<8, 2>::SetValue1_unk(const char* name, int index, float value);
 template void D2A_TaskInstanceBase<8, 2>::SetNumber_unk(const char* name, int value, int digits);
-template void D2A_TaskInstanceBase<8, 2>::SetFloat_unk(const char* name, float value);
+
+// inferred: only <8, 2> has it; removed by the linker (its format L"%f\0" is left in the wide string pool).
+// An explicit specialization is not forced into the link as an explicit instantiation is
+template <>
+void D2A_TaskInstanceBase<8, 2>::SetFloat_unk(const char* name, float value) {
+    wchar_t text[0x100];
+    fn_800DD3FC(text, L"%f\0", value);
+    SetText_unk(name, text);
+}
+
+template <> D2A_TaskInstanceBase<8, 2>::Text_unk::Text_unk() {}
+template <> D2A_TaskInstanceBase<8, 2>::Text_unk::~Text_unk() {}
 
 } // namespace atn
