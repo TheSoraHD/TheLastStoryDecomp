@@ -27,7 +27,7 @@ Inicio 15:18 CET.
 ## Unidades que enlazan (bytes)
 
 - `game/MenuCommon_unk`: 1524 bytes de datos (`measures.total_data`); complete_data 1005158 -> 1006682,
-  complete_units 685 -> 686. Build incremental con `main.dol: OK`; poolcheck y poolorder limpios.
+  complete_units 685 -> 686. Build limpio (ninja -j1) con `main.dol: OK`; poolcheck y poolorder limpios.
 
 ## NONMATCHING con motivo
 
