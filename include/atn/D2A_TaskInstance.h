@@ -121,6 +121,8 @@ public:
     void Rewind_unk() { mFrame = 0.0f; }
     float GetFrame_unk() const { return mFrame; }
     void SetFrame_unk(float frame) { mFrame = frame; }
+    // inferred: const accessor (Update tests it without reusing the load, 0x801F69A8)
+    bool HasTask_unk() const { return mTask != 0; }
     // inferred: weak copies 0x803D215C and 0x803D733C; defined for <32, 8> in atn/D2A_TaskInstanceC.h
     inline void SetEnd_unk();
     inline bool IsEnd_unk();
