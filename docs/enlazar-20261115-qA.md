@@ -25,7 +25,8 @@ Ninguna.
 
 - `fn_800081C0` (EventCommandDef_unk) 94 %: `li r5, 0` antes del `addi` de la tabla. Probado ademas: puntero
   que avanza + indice, puntero local a la tabla (const), indice unsigned, `continue`, referencia/temporal para
-  mId, getter inline, `&tabla[0] + i`, variable resultado + break, while(true), `0L`.
+  mId, getter inline, `&tabla[0] + i`, variable resultado + break, while(true), `0L`, do-while con guarda
+  (63 %), `tabla + i` con cast del 0, resultado nulo en local.
 - `__sinit_\Label_cpp` 93,8 % (y Channel 93,6, Cut 97,4, Sequence 98,1 con lo mismo): el original guarda el
   default del ultimo atributo (`stw r31`) antes del hash, restaura r31 y guarda el hash despues. Probado: tabla
   `const` (sin efecto, tambien referenciada desde una funcion), ctor de `ParamValue_unk` con asignacion en el
@@ -88,6 +89,8 @@ Nada (no hay cambios de tipos, firmas ni layouts).
   que despues se sobrescribe o se usa en la comprobacion de longitud; `m / 3` en otra local para el `slwi`.
 
 ## Pendientes
+
+- `std/msl_common.h` delante en MotionData y EventLoader_unk: sin efecto (sus bloqueos son otros).
 
 - Revisar si renombrar `include/std/string.h` (o incluir msl_common antes) arregla mas funciones con un global
   que el original recarga tras `strlen` (Event/Manager usa `strlen(m1F38.c_str())` tres veces); cabecera muy
