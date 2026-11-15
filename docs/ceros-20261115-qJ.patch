@@ -1,0 +1,436 @@
+diff --git a/include/gmk/WindyItem.h b/include/gmk/WindyItem.h
+index c041250..57c1adf 100644
+--- a/include/gmk/WindyItem.h
++++ b/include/gmk/WindyItem.h
+@@ -7,6 +7,7 @@
+ #include "game/GimmickCommon.h"
+ #include "gmk/ItemSlotAnime.h"
+ #include "std/vector.h"
++#include "Event/PathSpline.h"
+ 
+ extern "C" int rand();
+ extern "C" atn::Matrix3x4 lbl_807C7060; // inferred: identity matrix
+@@ -29,19 +30,13 @@ struct WindyArea_unk {
+     atn::Matrix3x4 mMtx;   // 0x34: inferred: box matrix
+ };
+ 
+-// inferred: cubic segment of a path (x(t) = a + t * (b + t * (c + t * d))); names invented
+-struct WindyCoef_unk {
+-    float a, b, c, d;
+-};
+-
+-// inferred: length of a segment (name invented)
+-struct WindyLength_unk {
+-    float v;
+-};
++// inferred: cubic segment of a path (the class of Event::PathSpline_unk: the weak vector code of the spline
++// is shared with game/Em403WarLion.cpp)
++typedef Event::PathCubic_unk WindyCoef_unk;
+ 
+ // inferred: one more class level than the other vectors (four null tests in the destructor of
+-// WindySlot_unk); name invented
+-struct WindyLengths_unk : public std::vector<WindyLength_unk> {};
++// WindySlot_unk); name invented. Lengths of the segments (std::vector<float>: resize 0x8032BE88)
++struct WindyLengths_unk : public std::vector<float> {};
+ 
+ // inferred: path followed by a blown item; 0x5C bytes. Names invented.
+ struct WindyPath_unk {
+diff --git a/include/std/vector.h b/include/std/vector.h
+index 26b1d53..f458f72 100644
+--- a/include/std/vector.h
++++ b/include/std/vector.h
+@@ -538,7 +538,10 @@ public:
+     void reserve(size_type n) { __reserve_unk(n, (T*)0); }
+     // inferred: inlined in the d2anime loader (0x801FFA04, float* elements): new elements are
+     // zeroed, removed ones are dropped through __shrink_unk
+-    void resize(size_type n) {
++    // inferred: one inline level more than the growth (MSL resize(n) forwards; the weak copies 0x8032B314 and
++    // 0x8032BE88 have the stack slots of the growth temporaries of an inlined resize)
++    void resize(size_type n) { __resize_unk(n); }
++    void __resize_unk(size_type n) {
+         if (n > this->mSize) {
+             __append_unk(n - this->mSize);
+         } else if (n < this->mSize) {
+diff --git a/src/Event/ActionActorPosition.cpp b/src/Event/ActionActorPosition.cpp
+index 545841c..e7c7b40 100644
+--- a/src/Event/ActionActorPosition.cpp
++++ b/src/Event/ActionActorPosition.cpp
+@@ -460,17 +460,7 @@ void ActionActorPosition::fn_80551194(Action* arg, float t) {
+ }
+ 
+ // inferred: helpers of the spline compiled in another file (weak copies, C names as in game/Em403WarLion.cpp)
+-// inferred: raw storage of a std::vector<float> (constructed and destroyed through the weak copies)
+-struct PathFloats_unk {
+-    float* mData;
+-    unsigned int mSize;
+-    unsigned int mCap;
+-};
+-extern "C" void fn_8032B314(std::vector<PathCubic_unk>* v, unsigned int n);          // inferred: resize
+-extern "C" PathFloats_unk* fn_8032B6F8(PathFloats_unk* v, unsigned int n);           // inferred: vector(n)
+-extern "C" void fn_8000D844(PathFloats_unk* v, int flag);                            // inferred: ~vector<float>
+ extern "C" void fn_8032B7F0(PathSpline_unk* spline, const float* y, PathCubic_unk* out); // inferred: solve
+-extern "C" void fn_8032BE88(std::vector<float>* v, unsigned int n);                  // inferred: resize
+ extern "C" float fn_8032C1EC(PathSpline_unk* spline, int i);                         // inferred: segment length
+ 
+ inline Path* EventManager_unk::FindPath_unk(int id) {
+@@ -486,34 +476,28 @@ inline Path* EventManager_unk::FindPath_unk(int id) {
+ // inferred: builds the spline through the points (same code as WarLionBuild_unk of game/Em403WarLion.cpp)
+ inline void PathSpline_unk::Build_unk(const atn::Vector3* pts, int n) {
+     mNumSegments = n;
+-    fn_8032B314(&mX, n - 1);
+-    fn_8032B314(&mY, n - 1);
+-    fn_8032B314(&mZ, n - 1);
+-    PathFloats_unk zs;
+-    PathFloats_unk ys;
+-    PathFloats_unk xs;
+-    fn_8032B6F8(&xs, n);
+-    fn_8032B6F8(&ys, n);
+-    fn_8032B6F8(&zs, n);
++    mX.resize(n - 1);
++    mY.resize(n - 1);
++    mZ.resize(n - 1);
++    PathLengths_unk xs(n);
++    PathLengths_unk ys(n);
++    PathLengths_unk zs(n);
+     for (int i = 0; i < n; i++) {
+-        xs.mData[i] = pts[i].x;
+-        ys.mData[i] = pts[i].y;
+-        zs.mData[i] = pts[i].z;
++        xs.begin()[i] = pts[i].x;
++        ys.begin()[i] = pts[i].y;
++        zs.begin()[i] = pts[i].z;
+     }
+-    fn_8032B7F0(this, xs.mData, mX.begin());
+-    fn_8032B7F0(this, ys.mData, mY.begin());
+-    fn_8032B7F0(this, zs.mData, mZ.begin());
++    fn_8032B7F0(this, xs.begin(), mX.begin());
++    fn_8032B7F0(this, ys.begin(), mY.begin());
++    fn_8032B7F0(this, zs.begin(), mZ.begin());
+     mStart = pts[0];
+     mEnd = pts[n - 1];
+     mLength = 0.0f;
+-    fn_8032BE88(&mLengths, n - 1);
++    mLengths.resize(n - 1);
+     for (int i = 0; i < n - 1; i++) {
+         mLengths[i] = fn_8032C1EC(this, i);
+         mLength += mLengths[i];
+     }
+-    fn_8000D844(&zs, -1);
+-    fn_8000D844(&ys, -1);
+-    fn_8000D844(&xs, -1);
+ }
+ 
+ // inferred: the path of the actor follows the points of an event path
+diff --git a/src/game/Em403WarLion.cpp b/src/game/Em403WarLion.cpp
+index 2a36b26..6adfaa3 100644
+--- a/src/game/Em403WarLion.cpp
++++ b/src/game/Em403WarLion.cpp
+@@ -1727,27 +1727,27 @@ atn::Vector3 Em403WarLion::fn_8032A894(int id, int* next) {
+ // NONMATCHING: 97.80% - r30/r31 of the points and the count swapped, and the order of the two loads of the
+ // points (the PathData_unk.cpp version of this builder has the same residue)
+ extern "C" void fn_8032AF90(WarLionPath_unk* path, std::vector<atn::Vector3>* pts); // inferred: builds the path
+-// NONMATCHING: 99.96% - only the message of __allocate (lbl_80779F68, a pool of another file)
+-extern "C" void fn_8032B314(std::vector<WarLionCubic_unk>* v, unsigned int n); // inferred: resize
+ // NONMATCHING: 87.22% - register allocation of the unrolled back substitution and of the three vectors
+ extern "C" void fn_8032B7F0(WarLionPath_unk* path, const float* y, WarLionCubic_unk* out); // inferred: solve
+-// NONMATCHING: 99.86% - the capacity of the dead __recommend_cap_unk in r28 instead of r31, and the message
+-// of __allocate (lbl_80775A88)
+-extern "C" void fn_8032BE88(std::vector<float>* v, unsigned int n);         // inferred: resize
+ // NONMATCHING: 99.83% - r27/r28 of the two points swapped
+ extern "C" float fn_8032C1EC(WarLionPath_unk* path, int i);                 // inferred: segment length
+ 
+ // inferred: instantiated here (weak copies 0x8032AB90 and 0x8032ABA4, right after their first use)
+ template std::vector<atn::Vector3>::vector();
+ template std::vector<atn::Vector3>::~vector();
++// inferred: weak copy 0x8032B314, right after fn_8032AF90 (99.96%: only the message of __allocate,
++// lbl_80779F68, a pool of another file). The resize of the lengths (std::vector<float>, weak copy 0x8032BE88)
++// follows fn_8032B7F0 by itself (99.86%: the capacity of the dead __recommend_cap_unk in r28 instead of r31,
++// and the message of __allocate, lbl_80775A88)
++template void std::vector<WarLionCubic_unk>::resize(unsigned int);
+ 
+ // inferred: builds the spline through the points (one cubic per segment and axis, then the lengths)
+ // inferred: same code as PathSpline_unk::Build_unk of game/PathData_unk.cpp
+ inline void WarLionBuild_unk(WarLionPath_unk* path, const atn::Vector3* pts, int n) {
+     path->m00 = n;
+-    fn_8032B314(&path->m20, n - 1);
+-    fn_8032B314(&path->m2C, n - 1);
+-    fn_8032B314(&path->m38, n - 1);
++    path->m20.resize(n - 1);
++    path->m2C.resize(n - 1);
++    path->m38.resize(n - 1);
+     Event::PathLengths_unk xs(n);
+     Event::PathLengths_unk ys(n);
+     Event::PathLengths_unk zs(n);
+@@ -1762,7 +1762,7 @@ inline void WarLionBuild_unk(WarLionPath_unk* path, const atn::Vector3* pts, int
+     path->m08 = pts[0];
+     path->m14 = pts[n - 1];
+     path->m04 = 0.0f;
+-    fn_8032BE88(&path->m44, n - 1);
++    path->m44.resize(n - 1);
+     for (int i = 0; i < n - 1; i++) {
+         path->m44[i] = fn_8032C1EC(path, i);
+         path->m04 += path->m44[i];
+@@ -1775,10 +1775,6 @@ extern "C" inline void fn_8032AF90(WarLionPath_unk* path, std::vector<atn::Vecto
+     WarLionBuild_unk(path, p, n);
+ }
+ 
+-extern "C" inline void fn_8032B314(std::vector<WarLionCubic_unk>* v, unsigned int n) {
+-    v->resize(n);
+-}
+-
+ // inferred: natural cubic spline with unit spacing: tridiagonal system for the first derivatives `c`, then
+ // the coefficients of each segment (a + b u + c u^2 + d u^3)
+ extern "C" inline void fn_8032B7F0(WarLionPath_unk* path, const float* y, WarLionCubic_unk* out) {
+@@ -1809,10 +1805,6 @@ extern "C" inline void fn_8032B7F0(WarLionPath_unk* path, const float* y, WarLio
+     }
+ }
+ 
+-extern "C" inline void fn_8032BE88(std::vector<float>* v, unsigned int n) {
+-    v->resize(n);
+-}
+-
+ // inferred: length of segment `i` as the sum of 64 chords
+ extern "C" inline float fn_8032C1EC(WarLionPath_unk* path, int i) {
+     float len = 0.0f;
+diff --git a/src/game/PathData_unk.cpp b/src/game/PathData_unk.cpp
+index 9669c7e..351b41a 100644
+--- a/src/game/PathData_unk.cpp
++++ b/src/game/PathData_unk.cpp
+@@ -2,19 +2,24 @@
+ // "pos_y", "pos_z" and "rot_y" keys of their points.
+ #include "Event/Node.h"
+ #include "Event/Sequence.h"
++#include "Event/PathSpline.h"
+ #include "math/Vec.h"
+ #include "std/vector.h"
+ 
+ extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
+ 
+-// inferred: cubic of one segment and axis: a0 + a1 u + a2 u^2 + a3 u^3
+-struct PathCubic_unk {
+-    float Eval_unk(float u) const { return u * (u * (m3 * u + m2) + m1) + m0; }
+-    float m0;
+-    float m1;
+-    float m2;
+-    float m3;
+-};
++// inferred: cubic of one segment and axis (the class of Event::PathSpline_unk: the weak vector code of the
++// spline is shared with game/Em403WarLion.cpp)
++using Event::PathCubic_unk;
++// inferred: value of the cubic at `u` (this file evaluates it from the highest power)
++inline float EvalCubic_unk(const PathCubic_unk& c, float u) { return u * (u * (c.m3 * u + c.m2) + c.m1) + c.m0; }
++// inferred: clear of a vector of elements without destructor (as PathVec_unk::Clear_unk)
++template <class T>
++inline void ClearVec_unk(std::vector<T>& v) {
++    unsigned int n = v.mSize;
++    unsigned int& size = v.mSize;
++    size -= n;
++}
+ 
+ // inferred: std::vector layout (data, size, capacity)
+ template <class T>
+@@ -64,65 +69,55 @@ struct PathPoint_unk {
+ 
+ struct PathSpline_unk;
+ // inferred: helpers of the spline (another unit; C names)
+-extern "C" void fn_8032B314(PathVec_unk<PathCubic_unk>* v, int n); // inferred: resize
+-extern "C" void fn_8032B6F8(PathVec_unk<float>* v, int n);         // inferred: vector<float>(n)
+-extern "C" void fn_8000D844(PathVec_unk<float>* v, int flag);      // inferred: ~vector<float>
+ extern "C" void fn_8032B7F0(PathSpline_unk* spline, const float* values, PathCubic_unk* cubics); // inferred: solve
+-extern "C" void fn_8032BE88(PathVec_unk<float>* v, int n);         // inferred: resize
+ extern "C" float fn_8032C1EC(PathSpline_unk* spline, int i);       // inferred: length of a segment
+ 
+ // inferred: natural cubic spline through the points (names invented)
+ struct PathSpline_unk {
+     void Build_unk(const atn::Vector3* pts, int n) {
+         mNumSegments = n;
+-        fn_8032B314(&mX, n - 1);
+-        fn_8032B314(&mY, n - 1);
+-        fn_8032B314(&mZ, n - 1);
+-        PathVec_unk<float> zs;
+-        PathVec_unk<float> ys;
+-        PathVec_unk<float> xs;
+-        fn_8032B6F8(&xs, n);
+-        fn_8032B6F8(&ys, n);
+-        fn_8032B6F8(&zs, n);
++        mX.resize(n - 1);
++        mY.resize(n - 1);
++        mZ.resize(n - 1);
++        Event::PathLengths_unk xs(n);
++        Event::PathLengths_unk ys(n);
++        Event::PathLengths_unk zs(n);
+         for (int i = 0; i < n; i++) {
+-            xs.mData[i] = pts[i].x;
+-            ys.mData[i] = pts[i].y;
+-            zs.mData[i] = pts[i].z;
++            xs.begin()[i] = pts[i].x;
++            ys.begin()[i] = pts[i].y;
++            zs.begin()[i] = pts[i].z;
+         }
+-        fn_8032B7F0(this, xs.Data_unk(), mX.Data_unk());
+-        fn_8032B7F0(this, ys.Data_unk(), mY.Data_unk());
+-        fn_8032B7F0(this, zs.Data_unk(), mZ.Data_unk());
++        fn_8032B7F0(this, xs.begin(), mX.begin());
++        fn_8032B7F0(this, ys.begin(), mY.begin());
++        fn_8032B7F0(this, zs.begin(), mZ.begin());
+         mStart = pts[0];
+         mEnd = pts[n - 1];
+         mLength = 0.0f;
+-        fn_8032BE88(&mLengths, n - 1);
++        mLengths.resize(n - 1);
+         for (int i = 0; i < n - 1; i++) {
+             mLengths[i] = fn_8032C1EC(this, i);
+             mLength += mLengths[i];
+         }
+-        fn_8000D844(&zs, -1);
+-        fn_8000D844(&ys, -1);
+-        fn_8000D844(&xs, -1);
+     }
+     void Clear_unk() {
+         mNumSegments = 0;
+         mLength = 0.0f;
+         mStart = lbl_807C7030;
+         mEnd = lbl_807C7030;
+-        mX.Clear_unk();
+-        mY.Clear_unk();
+-        mZ.Clear_unk();
+-        mLengths.Clear_unk();
++        ClearVec_unk(mX);
++        ClearVec_unk(mY);
++        ClearVec_unk(mZ);
++        ClearVec_unk(mLengths);
+     }
+ 
+     int mNumSegments;                    // 0x00
+     float mLength;                       // 0x04
+     atn::Vector3 mStart;                 // 0x08
+     atn::Vector3 mEnd;                   // 0x14
+-    PathVec_unk<PathCubic_unk> mX;       // 0x20
+-    PathVec_unk<PathCubic_unk> mY;       // 0x2C
+-    PathVec_unk<PathCubic_unk> mZ;       // 0x38
+-    PathVec_unk<float> mLengths;         // 0x44
++    std::vector<PathCubic_unk> mX;       // 0x20
++    std::vector<PathCubic_unk> mY;       // 0x2C
++    std::vector<PathCubic_unk> mZ;       // 0x38
++    std::vector<float> mLengths;         // 0x44
+ };
+ 
+ // inferred: path data (names invented)
+@@ -139,9 +134,9 @@ struct PathData_unk {
+             return lbl_807C7030;
+         }
+         atn::Vector3 p;
+-        p.x = mSpline.mX.mData[i].Eval_unk(u);
+-        p.y = mSpline.mY.mData[i].Eval_unk(u);
+-        p.z = mSpline.mZ.mData[i].Eval_unk(u);
++        p.x = EvalCubic_unk(mSpline.mX.mData[i], u);
++        p.y = EvalCubic_unk(mSpline.mY.mData[i], u);
++        p.z = EvalCubic_unk(mSpline.mZ.mData[i], u);
+         return p;
+     }
+     unsigned char m00[0x04];
+@@ -212,7 +207,8 @@ extern "C" void fn_8054875C(PathData_unk* path) {
+             for (int i = 0; i < (int)path->mPoints.mSize; i++) {
+                 pts[i] = path->mPoints.mData[i].mPos;
+             }
+-            path->mSpline.Build_unk(&pts[0], pts.size());
++            PathSpline_unk* spline = &path->mSpline;
++            spline->Build_unk(&pts[0], pts.size());
+         } else {
+             path->mSpline.Clear_unk();
+         }
+diff --git a/src/gmk/WindyItem.cpp b/src/gmk/WindyItem.cpp
+index d8a4470..8c74985 100644
+--- a/src/gmk/WindyItem.cpp
++++ b/src/gmk/WindyItem.cpp
+@@ -147,7 +147,7 @@ inline atn::Vector3 Eval_unk(const gmk::WindyPath_unk& path, float t) {
+     }
+     float d = path.mScale * t;
+     for (int i = 0; i < path.mCount - 1; i++) {
+-        float len = path.mLength.mData[i].v;
++        float len = path.mLength.mData[i];
+         if (d <= len) {
+             float u;
+             if (0.0f == d) {
+@@ -168,9 +168,9 @@ inline atn::Vector3 Eval_unk(const gmk::WindyPath_unk& path, float t) {
+             const gmk::WindyCoef_unk& y = path.mY.mData[i];
+             const gmk::WindyCoef_unk& z = path.mZ.mData[i];
+             atn::Vector3 r;
+-            r.x = x.a + u * (x.b + u * (x.c + x.d * u));
+-            r.y = y.a + u * (y.b + u * (y.c + y.d * u));
+-            r.z = z.a + u * (z.b + u * (z.c + z.d * u));
++            r.x = x.m0 + u * (x.m1 + u * (x.m2 + x.m3 * u));
++            r.y = y.m0 + u * (y.m1 + u * (y.m2 + y.m3 * u));
++            r.z = z.m0 + u * (z.m1 + u * (z.m2 + z.m3 * u));
+             return r;
+         }
+         d -= len;
+@@ -542,18 +542,8 @@ void gmk::WindyItem::fn_804392C0() {
+     }
+ }
+ 
+-// inferred: raw storage of a std::vector<float> (constructed and destroyed through the weak copies,
+-// as PathFloats_unk of Event/ActionActorPosition.cpp)
+-struct WindyFloats_unk {
+-    float* mData;
+-    unsigned int mSize;
+-    unsigned int mCap;
+-};
+ // inferred: helpers of the spline compiled in another file (weak copies, C names as in
+ // Event/ActionActorPosition.cpp and game/Em403WarLion.cpp)
+-extern "C" void fn_8032B314(std::vector<gmk::WindyCoef_unk>* v, unsigned int n);      // inferred: resize
+-extern "C" WindyFloats_unk* fn_8032B6F8(WindyFloats_unk* v, unsigned int n);          // inferred: vector(n)
+-extern "C" void fn_8000D844(WindyFloats_unk* v, int flag);                            // inferred: ~vector<float>
+ extern "C" void fn_8032B7F0(gmk::WindyPath_unk* path, const float* y, gmk::WindyCoef_unk* out); // inferred: solve
+ extern "C" void fn_8032BE88(gmk::WindyLengths_unk* v, unsigned int n);                // inferred: resize
+ extern "C" float fn_8032C1EC(gmk::WindyPath_unk* path, int i);                        // inferred: segment length
+@@ -561,34 +551,28 @@ extern "C" float fn_8032C1EC(gmk::WindyPath_unk* path, int i);
+ // inferred: builds the spline through the points (same code as Event::PathSpline_unk::Build_unk)
+ inline void gmk::WindyPath_unk::Build_unk(const atn::Vector3* pts, int n) {
+     mCount = n;
+-    fn_8032B314(&mX, n - 1);
+-    fn_8032B314(&mY, n - 1);
+-    fn_8032B314(&mZ, n - 1);
+-    WindyFloats_unk zs;
+-    WindyFloats_unk ys;
+-    WindyFloats_unk xs;
+-    fn_8032B6F8(&xs, n);
+-    fn_8032B6F8(&ys, n);
+-    fn_8032B6F8(&zs, n);
++    mX.resize(n - 1);
++    mY.resize(n - 1);
++    mZ.resize(n - 1);
++    Event::PathLengths_unk xs(n);
++    Event::PathLengths_unk ys(n);
++    Event::PathLengths_unk zs(n);
+     for (int i = 0; i < n; i++) {
+-        xs.mData[i] = pts[i].x;
+-        ys.mData[i] = pts[i].y;
+-        zs.mData[i] = pts[i].z;
++        xs.begin()[i] = pts[i].x;
++        ys.begin()[i] = pts[i].y;
++        zs.begin()[i] = pts[i].z;
+     }
+-    fn_8032B7F0(this, xs.mData, mX.begin());
+-    fn_8032B7F0(this, ys.mData, mY.begin());
+-    fn_8032B7F0(this, zs.mData, mZ.begin());
++    fn_8032B7F0(this, xs.begin(), mX.begin());
++    fn_8032B7F0(this, ys.begin(), mY.begin());
++    fn_8032B7F0(this, zs.begin(), mZ.begin());
+     mStart = pts[0];
+     mEnd = pts[n - 1];
+     mScale = 0.0f;
+-    fn_8032BE88(&mLength, n - 1);
++    mLength.resize(n - 1);
+     for (int i = 0; i < n - 1; i++) {
+-        mLength[i].v = fn_8032C1EC(this, i);
+-        mScale += mLength[i].v;
++        mLength[i] = fn_8032C1EC(this, i);
++        mScale += mLength[i];
+     }
+-    fn_8000D844(&zs, -1);
+-    fn_8000D844(&ys, -1);
+-    fn_8000D844(&xs, -1);
+ }
+ 
+ // inferred: segment [a, b] (name invented)
