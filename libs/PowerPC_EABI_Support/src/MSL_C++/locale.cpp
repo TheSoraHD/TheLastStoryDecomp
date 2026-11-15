@@ -108,9 +108,9 @@ locale& locale::__global() throw() {
 }
 
 ctype<char>::ctype(const mask* tab, bool del, size_t refs)
-    : locale::facet(refs), table_(tab), lower_(lbl_80765538), upper_(lbl_80765638), del_(del) {
+    : locale::facet(refs), table_(tab), lower_(__lower_mapC), upper_(__upper_mapC), del_(del) {
     if (table_ == 0) {
-        table_ = lbl_80765338;
+        table_ = __ctype_mapC;
         del_ = false;
     }
 }

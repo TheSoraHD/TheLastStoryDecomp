@@ -1284,6 +1284,7 @@ atn/ptr_string_base_wchar_t_0.cpp:
 	.text       start:0x8020C028 end:0x8020C4C8
 	.rodata     start:0x8073F5A0 end:0x8073F600
 	.data       start:0x80782FF0 end:0x80783010
+	.sbss       start:0x8087F1E0 end:0x8087F1E8
 
 db/OptionParts_unk.cpp:
 	.text       start:0x8020C4C8 end:0x8020DF88
@@ -1389,6 +1390,7 @@ db/MotionCommandCommon.cpp:
 	.text       start:0x80218720 end:0x802188B4
 	.rodata     start:0x80742330 end:0x80742370
 	.data       start:0x807830C0 end:0x807830F8
+	.sbss       start:0x8087F2A8 end:0x8087F2B0
 	.sdata2     start:0x80882F40 end:0x80882F48
 
 db/PlayerPriority_unk.cpp:
@@ -1992,14 +1994,15 @@ game/SystemErrorMessage_unk.cpp:
 
 game/FriendArganan.cpp:
 	.text       start:0x80365390 end:0x80365464
-	.rodata     start:0x8074D968 end:0x8074D978
-	.data       start:0x80789ED8 end:0x8078A008
+	.rodata     start:0x8074D968 end:0x8074D988
+	.data       start:0x80789ED8 end:0x8078A038
 	.sdata2     start:0x80885700 end:0x80885708
 
 game/FriendManager.cpp:
 	.text       start:0x80365464 end:0x8036555C
 	.rodata     start:0x8074D988 end:0x8074D9A0
 	.data       start:0x8078A038 end:0x8078A070
+	.sbss       start:0x8087F428 end:0x8087F430
 
 game/GameTask.cpp:
 	.text       start:0x8036555C end:0x80376B68
@@ -2053,8 +2056,8 @@ game/GameLoadTask.cpp:
 	.rodata     start:0x8074FB78 end:0x8074FC08
 	.data       start:0x8078B3A0 end:0x8078B400
 	.bss        start:0x807C84F0 end:0x807C8600
-	.sdata      start:0x8087DD68 end:0x8087DD70
-	.sbss       start:0x8087F458 end:0x8087F460
+	.sdata      start:0x8087DD60 end:0x8087DD70
+	.sbss       start:0x8087F458 end:0x8087F468
 	.sdata2     start:0x80885C00 end:0x80885C18
 
 game/GameLoadBackground.cpp:
@@ -2373,8 +2376,8 @@ gmk/Courtyard.cpp:
 
 gmk/Fireworks.cpp:
 	.text       start:0x8041CD24 end:0x8041DDE4
-	.rodata     start:0x80753188 end:0x807531E0
-	.data       start:0x8078DE58 end:0x8078DEF0
+	.rodata     start:0x80753168 end:0x807531E0
+	.data       start:0x8078DE50 end:0x8078DEF0
 	.sdata      start:0x8087DF90 end:0x8087DF98
 	.sdata2     start:0x80886558 end:0x80886570
 
@@ -3199,6 +3202,7 @@ game/NpcManager.cpp:
 	.text       start:0x805477C8 end:0x80547C28
 	.rodata     start:0x8075E380 end:0x8075E398
 	.data       start:0x80794738 end:0x80794780
+	.sbss       start:0x8087F890 end:0x8087F898
 
 game/NpcTask.cpp:
 	.text       start:0x80547C28 end:0x80547EA0
@@ -3298,6 +3302,7 @@ game/ReplayBuffer.cpp:
 game/GameSystem_unk.cpp:
 	.text       start:0x80570B48 end:0x8057162C
 	.rodata     start:0x8075FFB0 end:0x8075FFB8
+	.sbss       start:0x8087F9A0 end:0x8087F9A8
 	.sdata2     start:0x80888058 end:0x80888060
 
 game/SelectMember.cpp:
@@ -3788,7 +3793,7 @@ RVL_SDK/src/revolution/os/OSContext.c:
 RVL_SDK/src/revolution/os/OSError.c:
 	.text       start:0x805EE0D0 end:0x805EE820
 	.data       start:0x8079C678 end:0x8079C958
-	.bss        start:0x807CB2B0 end:0x807CB2F8
+	.bss        start:0x807CB2B0 end:0x807CB300
 	.sdata      start:0x8087E770 end:0x8087E778
 
 smg2/src/RVL_SDK/os/OSExec.c:
@@ -3898,7 +3903,7 @@ RVL_SDK/src/revolution/os/OSNandbootInfo.c:
 smg2/src/RVL_SDK/os/OSPlayTime.c:
 	.text       start:0x805F7C50 end:0x805F8430
 	.data       start:0x807A9BBC end:0x807A9C00
-	.bss        start:0x807CC340 end:0x807CC370
+	.bss        start:0x807CC340 end:0x807CC380
 	.sdata      start:0x8087E7B0 end:0x8087E7B8
 	.sbss       start:0x8087FCB8 end:0x8087FCD0
 	.sdata2     start:0x80888540 end:0x80888550
@@ -3942,7 +3947,7 @@ smg2/src/RVL_SDK/dvd/dvdfs.c:
 	.text       start:0x805F9EC0 end:0x805FA800
 	.data       start:0x807A9C00 end:0x807A9D68
 	.sdata      start:0x8087E7C0 end:0x8087E7D0
-	.sbss       start:0x8087FCD0 end:0x8087FCF0
+	.sbss       start:0x8087FCD0 end:0x8087FD00
 
 RVL_SDK/src/revolution/dvd/dvd.c:
 	.text       start:0x805FA800 end:0x805FF4F0
@@ -3953,7 +3958,7 @@ RVL_SDK/src/revolution/dvd/dvd.c:
 
 RVL_SDK/src/revolution/dvd/dvdqueue.c:
 	.text       start:0x805FF4F0 end:0x805FF770
-	.bss        start:0x807D1030 end:0x807D1050
+	.bss        start:0x807D1030 end:0x807D1060
 
 RVL_SDK/src/revolution/dvd/dvderror.c:
 	.text       start:0x805FF770 end:0x80600190
@@ -4054,6 +4059,13 @@ RVL_SDK/src/revolution/ax/AXVPB.c:
 	.bss        start:0x807D5840 end:0x807E6F40
 	.sbss       start:0x80880008 end:0x80880028
 	.sdata2     start:0x808885A0 end:0x808885C0
+
+RVL_SDK/src/revolution/ax/AXComp.c:
+	.data       start:0x807AC6A0 end:0x807AD660
+
+RVL_SDK/src/revolution/ax/DSPCode.c:
+	.data       start:0x807AD660 end:0x807AF660
+	.sdata      start:0x8087E850 end:0x8087E858
 
 RVL_SDK/src/revolution/ax/AXProf.c:
 	.text       start:0x8060B090 end:0x8060B0D0
@@ -4327,6 +4339,19 @@ smg2/src/RVL_SDK/bte/uusb_ppc.c:
 	.bss        start:0x8081C280 end:0x8081E2E0
 	.sdata      start:0x8087EA78 end:0x8087EA88
 	.sbss       start:0x80880158 end:0x80880170
+
+smg2/src/RVL_SDK/bte/bta_dm_cfg.c:
+	.rodata     start:0x80764C58 end:0x80764CE8
+	.sdata      start:0x8087EA88 end:0x8087EAA0
+	.sbss2      start:0x808893A0 end:0x808893A8
+
+smg2/src/RVL_SDK/bte/bta_hh_cfg.c:
+	.rodata     start:0x80764CE8 end:0x80764CF8
+	.sdata      start:0x8087EAA0 end:0x8087EAB0
+
+smg2/src/RVL_SDK/bte/bta_sys_cfg.c:
+	.sdata      start:0x8087EAB0 end:0x8087EAB8
+	.sdata2     start:0x80888850 end:0x80888858
 
 smg2/src/RVL_SDK/bte/bte_hcisu.c:
 	.text       start:0x80629650 end:0x80629720
@@ -4776,6 +4801,9 @@ PowerPC_EABI_Support/src/MSL_C/MSL_Common/alloc.c:
 	.bss        start:0x80832468 end:0x808324A0
 	.sbss       start:0x80880340 end:0x80880348
 
+PowerPC_EABI_Support/src/MSL_C/MSL_Common/errno.c:
+	.sbss       start:0x80880348 end:0x80880350
+
 PowerPC_EABI_Support/src/MSL_C/MSL_Common/ansi_files.c:
 	.text       start:0x8067B46C end:0x8067B600
 	.data       start:0x807BAF28 end:0x807BB068
@@ -4786,6 +4814,14 @@ PowerPC_EABI_Support/src/MSL_C/MSL_Common_Embedded/ansi_fp.c:
 	.rodata     start:0x80765258 end:0x80765338
 	.data       start:0x807BB068 end:0x807BB1D0
 	.sdata2     start:0x80888A60 end:0x80888A98
+
+PowerPC_EABI_Support/src/MSL_C/MSL_Common/ctype.c:
+	.rodata     start:0x80765338 end:0x80765738
+
+PowerPC_EABI_Support/src/MSL_C/MSL_Common/locale.c:
+	.rodata     start:0x80765738 end:0x80765840
+	.data       start:0x807BB1D0 end:0x807BB3C8
+	.sdata2     start:0x80888A98 end:0x80888AB0
 
 PowerPC_EABI_Support/src/MSL_C/MSL_Common/arith.c:
 	.text       start:0x8067CE80 end:0x8067CE90
@@ -4848,10 +4884,16 @@ PowerPC_EABI_Support/src/MSL_C/MSL_Common/string.c:
 	.sdata      start:0x8087EBF8 end:0x8087EC00
 	.sdata2     start:0x80888AB8 end:0x80888AC0
 
+PowerPC_EABI_Support/src/MSL_C/MSL_Common/float.c:
+	.sdata      start:0x8087EC00 end:0x8087EC10
+
 PowerPC_EABI_Support/src/MSL_C/MSL_Common/strtold.c:
 	.text       start:0x80682830 end:0x80683BB0
 	.rodata     start:0x80765890 end:0x807658A0
 	.sdata2     start:0x80888AC0 end:0x80888AE0
+
+PowerPC_EABI_Support/src/MSL_C/MSL_Common/wctype.c:
+	.rodata     start:0x807658A0 end:0x80765EA0
 
 PowerPC_EABI_Support/src/MSL_C/MSL_Common/strtoul.c:
 	.text       start:0x80683BB0 end:0x806846C4
@@ -5835,7 +5877,7 @@ nw4r/src/snd/snd_SoundHeap.cpp:
 
 ss_nw4r/src/snd/snd_SoundPlayer.cpp:
 	.text       start:0x80717990 end:0x80718470
-	.bss        start:0x808632C0 end:0x808638D0
+	.bss        start:0x808632C0 end:0x808638E0
 	.sbss       start:0x808804E0 end:0x808804E8
 	.sdata2     start:0x80889260 end:0x80889268
 
@@ -5852,7 +5894,7 @@ nw4r/src/snd/snd_SoundSystem.cpp:
 
 ss_nw4r/src/snd/snd_SoundThread.cpp:
 	.text       start:0x807187D0 end:0x80718ED0
-	.bss        start:0x80879200 end:0x808795A8
+	.bss        start:0x80879200 end:0x808795C0
 	.sbss       start:0x808804F0 end:0x808804F8
 
 nw4r/src/snd/snd_StrmChannel.cpp:
