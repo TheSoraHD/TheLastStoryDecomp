@@ -280,7 +280,7 @@ struct OptionParts_unk;
 
 namespace chr {
 // inferred: data of an equipped part (CharaPart_unk::m274): starts with the parameters it adds
-// (fn_8012B988); mF0 is tested by ClearFlags_unk
+// (fn_8012B988); mF0 is tested by UpdatePartFlag_unk
 struct CharaPartData_unk {
     CharaParam_unk mParam;
     unsigned char mC0[0xF0 - 0xC0];
@@ -520,12 +520,8 @@ public:
     void fn_8012D714(CharaParam_unk* dst, const CharaParam_unk* a, const CharaParam_unk* b);
     void fn_8012F034(float amount);
     void fn_8013322C(unsigned int flags);
-    // inferred: inlined in fn_8012D8B8 and fn_8012DD70 (defined after them as fn_8013322C, too big to
-    // be inlined from below), so it is an inline member; name invented.
-    // NONMATCHING (in every user): our compiler turns the parts loop into a ctr loop with the count
-    // read once; the original reloads mChara->m650 each time and keeps an index and an offset.
-    // Tried: int and unsigned index, break instead of return, a local chara pointer, a bool helper,
-    // a found flag, nested inline helpers.
+    // inferred: no longer defined (fn_8013322C is auto-inlined instead); the declaration stays so that the
+    // labels of the units that include this header do not move. Name invented.
     void ClearFlags_unk(unsigned int flags);
     void fn_8012D8B8();
     void fn_8012DD70();

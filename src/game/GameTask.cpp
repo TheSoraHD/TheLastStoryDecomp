@@ -2369,9 +2369,16 @@ void GameTask::fn_8036CA60(int warp) {
     }
 }
 
+// inferred: stores the depth of field through a reference (the reload of lbl_8087EFA8 in fn_8036CC90); name
+// invented
+inline void SetDof_unk(RenderSetting_unk* r, const DofParam_unk& d) {
+    r->mDof = d;
+}
+
 // inferred: update of the field in state 0 (camera, leader input, depth of field, skip of the tutorial)
-// NONMATCHING: 98.7% - the original reloads lbl_8087EFA8 before storing the depth of field and keeps the camera
-// distance in f4
+// NONMATCHING: 99.97% - the first store of the depth of field still goes through the old copy of lbl_8087EFA8
+// (r8) instead of the reloaded one (r3); tried a value or non-const parameter, a local pointer, a reference
+// local, the setter in both branches (same helper in fn_80371334 drops it 98.9 -> 98.3)
 void GameTask::fn_8036CC90() {
     PlayerTask* leader = lbl_8087F8A0->mHead;
     mCamera.fn_8038F52C(leader);
@@ -2385,11 +2392,12 @@ void GameTask::fn_8036CC90() {
         lbl_8087EFA8->mDof = dof;
     } else if (GetCurrentMap() != 0) {
         dof.mNearEnd = GetCurrentMap()->mF0;
-        if (mCamera.mCamera.mDist < 25.0f) {
-            float t = mCamera.mCamera.mDist / 25.0f;
-            dof.mNearEnd = t * (GetCurrentMap()->mF0 - lbl_8087DCD4) + lbl_8087DCD4;
+        float dist = mCamera.mCamera.mDist;
+        if (dist < 25.0f) {
+            dist /= 25.0f;
+            dof.mNearEnd = dist * (GetCurrentMap()->mF0 - lbl_8087DCD4) + lbl_8087DCD4;
         }
-        lbl_8087EFA8->mDof = dof;
+        SetDof_unk(lbl_8087EFA8, dof);
     }
     if (lbl_8087F610 != 0) {
         lbl_8087EFA8->mDof.mEnabled = 0;
@@ -3088,9 +3096,12 @@ void GameTask::fn_8036EA6C(int state) {
     }
 }
 
+// inferred: menu states that keep the menu tasks running when fn_8036EE0C leaves them; name invented
+inline bool KeepMenu_unk(int s) {
+    return s == 1 || s == 3 || s == 4 || s == 5 || s == 14;
+}
+
 // inferred: leaves the menu state entered by fn_8036EA6C and goes back to the previous state
-// NONMATCHING: 98.5% - the original tests m5680 against {1, 3, 4, 5, 14} with a bit mask and the 1..5 range with
-// two compares; ours merges 3..5 into a range test (tried switch, if chains in several orders, a local)
 void GameTask::fn_8036EE0C() {
     switch (m54E4) {
     case 1:
@@ -3151,11 +3162,7 @@ void GameTask::fn_8036EE0C() {
         lbl_8087F8A0->mHead->m54C &= ~0x10;
         break;
     }
-    int keep = 0;
-    int prev = m5680;
-    if (prev == 1 || prev == 3 || prev == 4 || prev == 5 || prev == 14) {
-        keep = 1;
-    }
+    int keep = KeepMenu_unk(m5680);
     if (!keep) {
         MenuCommonTask::sInstance->fn_804A2FBC();
         GameTimer::sInstance->MeltTask();
@@ -3169,7 +3176,7 @@ void GameTask::fn_8036EE0C() {
         MarketTask::sInstance->MeltTask();
     }
     MenuCommonTask::sInstance->fn_804A313C();
-    if (m5680 < 1 || m5680 > 5) {
+    if (m5680 < 1 || 5 < m5680) {
         lbl_8087EFE8->fn_800D0518(1, 1.0f, 30);
         lbl_8087EFE8->m34D4 = 1;
         lbl_8087EFE8->fn_800CFBA0(8, 0, 4, 15);
@@ -3530,29 +3537,41 @@ int GameTask::fn_80370174(unsigned int index) {
     return mGlobalFlags[index];
 }
 
+// inferred: status bits of CharaStatusData_unk (the test reads through a const pointer: the original does not
+// reuse the word address of the set); names invented
+inline void SetBit_unk(CharaStatusData_unk* d, int bit) {
+    d->mBits[bit / 32] |= 1 << (bit % 32);
+}
+inline void ClearBit_unk(CharaStatusData_unk* d, int bit) {
+    d->mBits[bit / 32] &= ~(1 << (bit % 32));
+}
+inline bool TestBit_unk(const CharaStatusData_unk* d, int bit) {
+    return (d->mBits[bit / 32] & (1 << (bit % 32))) == (1 << (bit % 32));
+}
+
 // inferred: sets or clears status bit `bit` of the party member `chara` in the inventory and on the character
-// NONMATCHING: 75% - the range test of the member and the register order of the bit math
 extern "C" void fn_803701E0(CharaTask* chara, int bit, int on) {
+    if (chara == 0) {
+        return;
+    }
+    int member = fn_80219558(chara->m50);
+    if (member < 0 || 7 <= member) {
+        return;
+    }
+    CharaStatusData_unk* data = &Inventory::instance_->mPlayers[member].m1A8;
+    if (on) {
+        SetBit_unk(data, bit);
+        if (lbl_8087F048 != 0) {
+            lbl_8087F048->fn_801092C8(0x14, chara, bit, 0);
+        }
+    } else {
+        ClearBit_unk(data, bit);
+    }
     if (chara != 0) {
-        int member = fn_80219558(chara->m50);
-        if (member >= 0 && member < 7) {
-            CharaStatusData_unk* data = &Inventory::instance_->mPlayers[member].m1A8;
-            if (on) {
-                data->mBits[bit / 32] |= 1 << (bit % 32);
-                if (lbl_8087F048 != 0) {
-                    lbl_8087F048->fn_801092C8(0x14, chara, bit, 0);
-                }
-            } else {
-                data->mBits[bit / 32] &= ~(1 << (bit % 32));
-            }
-            if (chara != 0) {
-                unsigned int mask = 1 << (bit % 32);
-                if ((data->mBits[bit / 32] & mask) == mask) {
-                    chara->mStatus.m1A8.mBits[bit / 32] |= mask;
-                } else {
-                    chara->mStatus.m1A8.mBits[bit / 32] &= ~mask;
-                }
-            }
+        if (TestBit_unk(data, bit)) {
+            SetBit_unk(&chara->mStatus.m1A8, bit);
+        } else {
+            ClearBit_unk(&chara->mStatus.m1A8, bit);
         }
     }
 }
@@ -4720,7 +4739,8 @@ struct ReplayHit_unk {
 };
 
 // inferred: update of the replay rewind (field state 0 with m5598 frames to rewind)
-// NONMATCHING: 99.1% - registers of the colour matrix block (left count and render settings swapped)
+// NONMATCHING: 99.5% - registers of the colour matrix block (left count and render settings swapped; tried
+// m55A0-- first, --m55A0, the copy constructor); the store through SetColorMatrix is the original one
 void GameTask::fn_80373AE8() {
     if (m5598 > 0) {
         if (m559C > 0) {
@@ -4766,7 +4786,7 @@ void GameTask::fn_80373AE8() {
             } else {
                 cm.mMonoRate = (float)left * step;
             }
-            lbl_8087EFA8->m324 = cm;
+            lbl_8087EFA8->SetColorMatrix(cm);
             mFinish.fn_803792F0();
             return;
         }
@@ -5436,8 +5456,12 @@ void GameTask::fn_8037624C(int value) {
     mGlobalFlags[44] = value;
 }
 
+// inferred: stores the motion blur through a reference (as SetDof_unk); name invented
+inline void SetBlur_unk(RenderSetting_unk* r, const MotionBlurParam_unk& b) {
+    r->m240 = b;
+}
+
 // inferred: starts the blur effect of the field (vf10 counts it down); called by game/Em309Ghoul
-// NONMATCHING: 97.4% - r4/r8 swapped (render settings pointer and the copied blur)
 void GameTask::fn_80376254(int delay, int frames) {
     m569C = delay;
     m56A4 = frames;
@@ -5445,15 +5469,15 @@ void GameTask::fn_80376254(int delay, int frames) {
         MotionBlurParam_unk blur = lbl_8087EFA8->m240;
         m56A8 = blur;
         blur.mEnabled = 1;
-        lbl_8087EFA8->m240 = blur;
+        SetBlur_unk(lbl_8087EFA8, blur);
         float speed = lbl_8087EFA8->m3A4;
         m56CC = speed;
         lbl_8087EFA8->m3A4 = 0.2f;
     }
 }
 
-// inferred: shows the help `id` (queued while another help is shown)
-// NONMATCHING: 99% - the original reloads the queue count after loading its head
+// inferred: shows the help `id` (queued while another help is shown); the count is tested through a const
+// reference (the original reloads it for the push)
 void GameTask::fn_80376324(int id) {
     TutorialData_unk* data = fn_8021F09C(id);
     if (data == 0) {
@@ -5461,13 +5485,14 @@ void GameTask::fn_80376324(int id) {
     }
     if (data->m04 != 0) {
         if (m56F0 != 0 || m56EC != 0) {
-            if ((unsigned int)m571C.mCount < 8) {
+            const MP::Queue_unk<int, 8>& queue = m571C;
+            if ((unsigned int)queue.mCount < 8) {
                 m571C.Push_unk(id);
             }
         } else {
             m56F0 = TutorialPopup::fn_805BC6C8(this, id, lbl_8087F8A0->mHead);
             if (id == 0x8E && fn_80370174(id) > 1) {
-                m56F0->mSpeed = 1.5f;
+                m56F0->mSpeed = 3.0f;
             }
             if (lbl_8087F540->fn_80481668()) {
                 m56F0->fn_800D246C(1);
