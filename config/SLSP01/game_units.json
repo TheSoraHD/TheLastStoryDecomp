@@ -1906,7 +1906,7 @@
   "classes": [
    "ErrorManager"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "game/FriendArganan.cpp",
