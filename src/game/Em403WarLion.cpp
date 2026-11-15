@@ -700,7 +700,7 @@ void Em403WarLion::vf24() {
     } else {
         blend = 2.0f;
         walkSpeed = 0.0f;
-        dashSpeed = 1.0f + 0.5f * (rate / dashMin - 1.0f);
+        dashSpeed = 1.0f + 0.1f * (rate / dashMin - 1.0f);
     }
     if (PSVECSquareMag(&(atn::RenderManager::instance_->mCamera.mPos - mPos)) > 62500.0f) {
         mMotion.m34C = 1;
@@ -1580,7 +1580,7 @@ int Em403WarLion::fn_80329ED8(int* count, atn::Vector3* pos, float* angle) {
                 continue;
             }
             found = 1;
-            dist = 100.0f;
+            dist = 15.0f;
             target = c->mPos;
             rot = c->mRot.y;
             break;
