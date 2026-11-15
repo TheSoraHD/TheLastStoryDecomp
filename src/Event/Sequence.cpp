@@ -1117,11 +1117,6 @@ void Sequence::fn_8054204C(int id, const EffectLists_unk& lists) {
 void Sequence::fn_80542684() {
 }
 
-// DRAFT: empty stub; not a method of Sequence: weak copy of the reallocation of vector<EffectEntry24_unk>::push_back
-// (vector, value) called by fn_8054204C
-// NONMATCHING: stub
-void Sequence::fn_805428A8() {
-}
 
 // inferred: effect lists of the entry `id` of the list at 0x184
 EffectLists_unk* Sequence::fn_80543060(int id) {

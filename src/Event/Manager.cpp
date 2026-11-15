@@ -1387,9 +1387,8 @@ void SceneSetting_unk::Get_unk(atn::Scene* scene) {
     mLight = *scene->GetLight(0);
 }
 
-// NONMATCHING: 58.4% - std::vector::push_back: the original takes another path for this element
-// (in-place copy when size < cap, else the length check fn_8049003C, which returns 0, and the
-// reallocation fn_80490098; copies through fn_80482400), not the one of include/std/vector.h
+// NONMATCHING: 96.0% - registers and stack slots; same shape as the original with include/std/vector.h (fast path
+// inlined, weak copies construct 0x80482400, __expand_by_unk 0x8049003C and __insert_realloc_unk 0x80490098)
 // inferred: adds the light settings of a map area to the event settings (callback, see 0x804834E4)
 void fn_80481B9C(MapArea* area, void* arg) {
     EventConfig_unk* config = (EventConfig_unk*)arg;

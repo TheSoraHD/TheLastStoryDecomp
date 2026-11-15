@@ -297,7 +297,6 @@ public:
     void fn_80541F18();
     void fn_8054204C(int id, const EffectLists_unk& lists); // inferred: adds the curve `id` (list at 0x184)
     void fn_80542684();
-    void fn_805428A8();
     EffectLists_unk* fn_80543060(int id);
     void fn_805430A0(unsigned int index, int key, void* owner);
     void* fn_805430BC(unsigned int index, int key);
