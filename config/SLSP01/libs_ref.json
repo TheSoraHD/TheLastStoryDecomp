@@ -31,7 +31,7 @@
    "-func_align 16"
   ],
   "category": "sdk",
-  "matching": false
+  "matching": true
  },
  {
   "name": "msc/src/RVL_SDK/kpad/KPADMpls_unk.c",
