@@ -243,14 +243,14 @@ void NewCampPartsTop::vf14() {
             sprintf(name, "ListPoint%02d", i);
         }
         NewCampPartsPoint_unk pos = GetPanePos_unk(m50[0].mAnime->GetTask(), name);
-        ((D2A_TaskInstance32_unk*)entry->mList->GetTask())->SetValues1_unk("basePoint", *(atn::D2A_DrawRect*)&pos);
-        ((D2A_TaskInstance32_unk*)entry->mList->GetTask())->SetValue0_unk("index", entry->mInfo.mIndex);
-        ((D2A_TaskInstance32_unk*)entry->mList->GetTask())->SetText_unk("title", fn_80116FC0(0, entry->mInfo.mTitle));
-        ((D2A_TaskInstance32_unk*)entry->mList->GetTask())->SetText_unk("titleSub", fn_80116FC0(0, entry->mInfo.mTitle));
-        ((D2A_TaskInstance32_unk*)entry->mList->GetTask())->SetText_unk("titleLang", fn_80116FC0(0, entry->mInfo.mTitleLang));
-        ((D2A_TaskInstance32_unk*)entry->mShine->GetTask())->SetValues1_unk("basePoint", *(atn::D2A_DrawRect*)&pos);
-        ((D2A_TaskInstance32_unk*)entry->mShine->GetTask())->SetText_unk("title", fn_80116FC0(0, entry->mInfo.mTitle));
-        ((D2A_TaskInstance32_unk*)entry->mShine->GetTask())->SetValue0_unk("index", entry->mInfo.mIndex);
+        entry->mList->GetTask()->SetValues1_unk("basePoint", *(atn::D2A_DrawRect*)&pos);
+        entry->mList->GetTask()->SetValue0_unk("index", entry->mInfo.mIndex);
+        entry->mList->GetTask()->SetText_unk("title", fn_80116FC0(0, entry->mInfo.mTitle));
+        entry->mList->GetTask()->SetText_unk("titleSub", fn_80116FC0(0, entry->mInfo.mTitle));
+        entry->mList->GetTask()->SetText_unk("titleLang", fn_80116FC0(0, entry->mInfo.mTitleLang));
+        entry->mShine->GetTask()->SetValues1_unk("basePoint", *(atn::D2A_DrawRect*)&pos);
+        entry->mShine->GetTask()->SetText_unk("title", fn_80116FC0(0, entry->mInfo.mTitle));
+        entry->mShine->GetTask()->SetValue0_unk("index", entry->mInfo.mIndex);
         if (i == m80) {
             ((NewCampTopLayout_unk*)entry->mList->GetTask())->mFrame = 0.0f;
             entry->mShine->mVisible = 0;

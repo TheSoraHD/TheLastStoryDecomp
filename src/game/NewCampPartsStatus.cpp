@@ -470,16 +470,16 @@ void NewCampPartsStatus::fn_80527938() {
         fn_804A4AEC(base, info, 4, 2);
         fn_80511D9C(param, status, set.mChara, task == 0);
         CharaParam_unk p = fn_80134800(status, set.mChara, 0, 0, 0, 0, 0, 0);
-        ((D2A_TaskInstance32_unk*)param)->SetNumber_unk("atk_param", (int)p.m00, 0);
-        ((D2A_TaskInstance32_unk*)param)->SetNumber_unk("def_param", (int)p.m08, 0);
-        ((D2A_TaskInstance32_unk*)param)->SetNumber_unk("matk_param", (int)p.m04, 0);
-        ((D2A_TaskInstance32_unk*)param)->SetNumber_unk("mdef_param", (int)p.m0C, 0);
-        ((D2A_TaskInstance32_unk*)param)->SetNumber_unk("agi_param", p.m94, 0);
-        ((D2A_TaskInstance32_unk*)param)->SetValue0_unk("atk_updw_disp", 0.0f);
-        ((D2A_TaskInstance32_unk*)param)->SetValue0_unk("def_updw_disp", 0.0f);
-        ((D2A_TaskInstance32_unk*)param)->SetValue0_unk("matk_updw_disp", 0.0f);
-        ((D2A_TaskInstance32_unk*)param)->SetValue0_unk("mdef_updw_disp", 0.0f);
-        ((D2A_TaskInstance32_unk*)param)->SetValue0_unk("agi_updw_disp", 0.0f);
+        param->SetNumber_unk("atk_param", (int)p.m00, 0);
+        param->SetNumber_unk("def_param", (int)p.m08, 0);
+        param->SetNumber_unk("matk_param", (int)p.m04, 0);
+        param->SetNumber_unk("mdef_param", (int)p.m0C, 0);
+        param->SetNumber_unk("agi_param", p.m94, 0);
+        param->SetValue0_unk("atk_updw_disp", 0.0f);
+        param->SetValue0_unk("def_updw_disp", 0.0f);
+        param->SetValue0_unk("matk_updw_disp", 0.0f);
+        param->SetValue0_unk("mdef_updw_disp", 0.0f);
+        param->SetValue0_unk("agi_updw_disp", 0.0f);
         char name[0x20];
         for (int j = 0; j < 9; j++) {
             sprintf(name, "skillOn%02d", j);
@@ -795,7 +795,7 @@ void NewCampPartsStatus::fn_80528BF0() {
             pos = GetPanePos_unk(mPages[i].mBase->GetTask(), "status_point");
         }
         if (mPages[i].mParam->GetTask() != 0) {
-            ((D2A_TaskInstance32_unk*)mPages[i].mParam->GetTask())->SetValues1_unk("basePos", *(atn::D2A_DrawRect*)&pos);
+            mPages[i].mParam->GetTask()->SetValues1_unk("basePos", *(atn::D2A_DrawRect*)&pos);
         }
         fn_80511258(entry, mPages[i].mBase, atn::Vector3(0.0f, 0.0f, 0.0f), atn::Vector3(1.0f, 1.0f, 1.0f), "reference");
         fn_805112A8(entry, mPages[i].mParam, atn::Vector3(0.0f, 0.0f, 0.0f), atn::Vector3(1.0f, 1.0f, 1.0f), "reference");

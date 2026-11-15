@@ -208,7 +208,7 @@ void NewCampPartsItem::vf14() {
             if (mItems[i]->GetTask() != 0) {
                 sprintf(name, "item_list%d", i + 1);
                 pos = GetPanePos_unk(mBase->GetTask(), name);
-                ((D2A_TaskInstance32_unk*)mItems[i]->GetTask())->SetValues1_unk("base_point", *(atn::D2A_DrawRect*)&pos);
+                mItems[i]->GetTask()->SetValues1_unk("base_point", *(atn::D2A_DrawRect*)&pos);
                 fn_805112A8(&m50[1], mItems[i], atn::Vector3(0.0f, 0.0f, 0.0f), atn::Vector3(1.0f, 1.0f, 1.0f),
                             "reference");
             }
@@ -222,8 +222,8 @@ void NewCampPartsItem::vf14() {
         if (mScroll->GetTask() != 0) {
             sprintf(name, "scroll_point");
             pos = GetPanePos_unk(mBase->GetTask(), name);
-            ((D2A_TaskInstance32_unk*)mScroll->GetTask())->SetValues1_unk("basePos", *(atn::D2A_DrawRect*)&pos);
-            ((D2A_TaskInstance32_unk*)mScroll->GetTask())->SetValue0_unk("s_hightMax", 245.0f);
+            mScroll->GetTask()->SetValues1_unk("basePos", *(atn::D2A_DrawRect*)&pos);
+            mScroll->GetTask()->SetValue0_unk("s_hightMax", 245.0f);
             fn_804A4930(mScroll->GetTask(), mE8, mList.size(), 10);
         }
     }

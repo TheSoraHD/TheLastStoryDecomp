@@ -1586,9 +1586,9 @@ void TacView::fn_805AC758() {
         rect = GetPaneRect_unk(mLayouts.mSelect, "select_down");
         mLayouts.mDirs[3]->SetValues1Rect_unk("basePoint", rect);
         if (chara->mStatus.m228 < 1.0f) {
-            ((D2A_TaskInstance32_unk*)mLayouts.mDirs[0])->SetValue0_unk("tensionOn", 0.3f);
+            mLayouts.mDirs[0]->SetValue0_unk("tensionOn", 0.3f);
         } else {
-            ((D2A_TaskInstance32_unk*)mLayouts.mDirs[0])->SetValue0_unk("tensionOn", 1.0f);
+            mLayouts.mDirs[0]->SetValue0_unk("tensionOn", 1.0f);
         }
         float fade = (0.0f > (1.0f < mLayouts.m20 / 12.0f ? 1.0f : mLayouts.m20 / 12.0f))
                          ? 0.0f
@@ -1649,22 +1649,22 @@ void TacView::fn_805AC758() {
             if (skill != 0) {
                 mLayouts.mDirs[i]->MeltTask();
                 atn::D2A_DrawRect text = mLayouts.mDirs[i]->GetRect_unk("TextMain");
-                ((D2A_TaskInstance32_unk*)mLayouts.mDirs[i])->SetValue0_unk("msgLen", fn_8006EF48(lbl_8087EEC8, text.w, (const wchar_t*)((HitInfo_unk*)m54.m54[i])->m08,
+                mLayouts.mDirs[i]->SetValue0_unk("msgLen", fn_8006EF48(lbl_8087EEC8, text.w, (const wchar_t*)((HitInfo_unk*)m54.m54[i])->m08,
                                         0.0f, 1, 1));
-                ((D2A_TaskInstance32_unk*)mLayouts.mDirs[i])->SetText_unk("text", (const wchar_t*)((HitInfo_unk*)m54.m54[i])->m08);
-                ((D2A_TaskInstance32_unk*)mLayouts.mDirs[i])->SetText_unk("textSub", (const wchar_t*)((HitInfo_unk*)m54.m54[i])->m08);
+                mLayouts.mDirs[i]->SetText_unk("text", (const wchar_t*)((HitInfo_unk*)m54.m54[i])->m08);
+                mLayouts.mDirs[i]->SetText_unk("textSub", (const wchar_t*)((HitInfo_unk*)m54.m54[i])->m08);
                 if (i == (int)m54.mObj) {
-                    ((D2A_TaskInstance32_unk*)mLayouts.mDirs[i])->SetValue0_unk("skipSelect", 1.0f);
+                    mLayouts.mDirs[i]->SetValue0_unk("skipSelect", 1.0f);
                 } else {
-                    ((D2A_TaskInstance32_unk*)mLayouts.mDirs[i])->SetValue0_unk("skipSelect", 0.0f);
+                    mLayouts.mDirs[i]->SetValue0_unk("skipSelect", 0.0f);
                 }
                 if (m54.m84[i] < 0) {
-                    ((D2A_TaskInstance32_unk*)mLayouts.mDirs[i])->SetValue0_unk("iconOn", 0.0f);
+                    mLayouts.mDirs[i]->SetValue0_unk("iconOn", 0.0f);
                 } else {
-                    ((D2A_TaskInstance32_unk*)mLayouts.mDirs[i])->SetValue0_unk("iconOn", 1.0f);
+                    mLayouts.mDirs[i]->SetValue0_unk("iconOn", 1.0f);
                     fn_803DDD54(mLayouts.mDirs[i], m54.m84[i]);
                 }
-                ((D2A_TaskInstance32_unk*)mLayouts.mDirs[i])->SetValue0_unk("canSelect", m54.m50[i]);
+                mLayouts.mDirs[i]->SetValue0_unk("canSelect", m54.m50[i]);
                 if (mLayouts.m1C == 0) {
                     mLayouts.mDirs[i]->mFrame = mLayouts.m20;
                 } else if (mLayouts.mDirs[i] == mLayouts.m1C) {

@@ -973,7 +973,7 @@ void CosEditProtector::vf64() {
                     char name[0x40];
                     sprintf(name, "palette%02d", i);
                     atn::D2A_DrawRect rect = GetPaneRect_unk(select, name);
-                    ((D2A_TaskInstance32_unk*)(atn::Task*)mPalettes[i]->GetTask())->SetValues1_unk("base_pos", rect);
+                    mPalettes[i]->GetTask()->SetValues1_unk("base_pos", rect);
                 }
             }
             fn_801D7560(member, status, &m50[mB8C], palette);

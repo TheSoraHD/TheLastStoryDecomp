@@ -285,7 +285,7 @@ void NewCampPartsOption::vf1C(NewCampScene_unk* scene) {
 void NewCampOptionItem_unk::SetDef_unk(const NewCampOptionDef_unk* def) {
     mChoices = def->mChoices;
     mCount = def->mCount;
-    ((D2A_TaskInstance32_unk*)mAnime->GetTask())->SetText_unk("name", fn_80116EB8(&def->mName));
+    mAnime->GetTask()->SetText_unk("name", fn_80116EB8(&def->mName));
 }
 
 // NONMATCHING: 96.10% - the original keeps the font and &name in registers across the loop (r22/r25)
