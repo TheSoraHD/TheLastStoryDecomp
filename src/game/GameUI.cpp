@@ -6075,7 +6075,7 @@ float GameUI::fn_803E4A48() {
 }
 
 // inferred: enemies around the leader that pass `filter`, sorted by distance (farthest first)
-// NONMATCHING: 99.9% - r4/r5 of the result flags of the inlined state checks swapped
+// inferred: the state check is CharaTask::CanAct_unk (the result flags of CanActB_unk come out in other registers)
 void GameUI::fn_803E4A5C(GameUIDistList_unk* list, bool (*filter)(CharaTask*)) {
     atn::Vector3 pos;
     PlayerTask* player = lbl_8087F8A0->mHead;
@@ -6084,7 +6084,7 @@ void GameUI::fn_803E4A5C(GameUIDistList_unk* list, bool (*filter)(CharaTask*)) {
     }
     list->mCount = 0;
     for (EnemyTask* e = EnemyManager::sInstance->mHead; e != 0; e = e->mNext) {
-        if (CanActB_unk(e) && (e->m54C & 0x2000) != 0x2000 && e->mC58.mC0 != 0 && e->mFlag26 == 1) {
+        if (e->CanAct_unk() && (e->m54C & 0x2000) != 0x2000 && e->mC58.mC0 != 0 && e->mFlag26 == 1) {
             float dist = (pos - e->mPos).LengthSq_unk();
             bool ok = false;
             if (filter != 0 && filter(e)) {
