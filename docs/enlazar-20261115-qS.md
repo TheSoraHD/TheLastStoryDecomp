@@ -41,11 +41,15 @@ Agente S, rama `agent-S`. Primera pasada: `docs/enlazar-20261115-qA.md`.
   `PV(int v = 0)` con el default omitido: siempre hash y luego default.
 - `MovieData::vf08` 99,8 %: `MovieKind_unk` con ternario (96,5), con `kind` sin `pos` (98,5), `if/return`
   (96,5), `size_type pos` (igual), `inline` (94,4); `kind` local en el ctor (91,0); `pos` local para "RTMV"
-  (38); `npos != find` (igual).
+  (38); `npos != find` (igual); tambien: MovieKind escrito en el ctor (ternario 96,5; con if el ctor deja de
+  inlinearse, 38), `MovieKind_unk` definida tras el ctor, orden de declaracion de `parent`/`task`, la cadena de
+  `fn_8006B174` en un local (93,1), la creacion en una inline (97,5).
 - `Section::fn_8053C788`: con el parche de qA, la condicion de `__expand_by_unk` negada en
   `__push_back_slow_unk` baja a 92 %. Quedan unas 60 instrucciones distintas (huecos de pila de los dos
   grupos, `m` en r25, orden de los stores del buffer, registros del bucle del destructor, lectura de
-  `buf.mData` por puntero): no atacado mas.
+  `buf.mData` por puntero): no atacado mas. Tras la reserva del buffer el original lee `buf.mSize` antes
+  de guardar `buf.mData` y calcula `mSize * 8` antes que `mData + mStart * 8` (aqui al reves:
+  `begin() + mSize` de `__append_n_unk`).
 
 ## Cambios de splits
 
