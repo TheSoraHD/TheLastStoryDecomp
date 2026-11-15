@@ -1,6 +1,9 @@
 The Last Story — Decompilación
 ==============================
 
+[![Code](https://bytematch.dev/TheSoraHD/TheLastStoryDecomp.svg?mode=shield&label=Code&measure=matched_code_percent)](https://bytematch.dev/TheSoraHD/TheLastStoryDecomp)
+[![Functions](https://bytematch.dev/TheSoraHD/TheLastStoryDecomp.svg?mode=shield&label=Functions&measure=matched_functions)](https://bytematch.dev/TheSoraHD/TheLastStoryDecomp)
+
 Decompilación de **The Last Story** (Wii, versión europea `SLSP01`). El objetivo es un código C/C++ que,
 compilado con los compiladores originales de Metrowerks, produzca un `main.dol` idéntico byte a byte al del juego.
 
