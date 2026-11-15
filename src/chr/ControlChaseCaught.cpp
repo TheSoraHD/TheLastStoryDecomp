@@ -6,6 +6,7 @@
 #include "game/PlayerTask.h"
 #include <boost/bind.hpp>
 #include "game/GameTask.h"
+#include "math/VecAssign_unk.h"
 
 // inferred: game settings (as in chr/ControlCdnStone.cpp)
 struct Input_unk {
@@ -205,7 +206,6 @@ ControlChaseAssist::ControlChaseAssist(Chara_unk* chara) : ControlBase(chara), m
     mChara->mF1C = 0;
 }
 
-// NONMATCHING: 99.9% - r3/r4 swapped around the frame counter.
 // inferred: walks to the side of the leader, then turns like it
 int ControlChaseAssist::vf0C() {
     CharaTask* leader = lbl_8087F098->mF8;
@@ -224,7 +224,8 @@ int ControlChaseAssist::vf0C() {
             motion->mTracks[0].m20 = 1.0f;
             motion->fn_80097C08(0, 0x8A, 1, 0, 1, 0.0f, 0.1f);
             motion->mTracks[0].m0C = 1.0f;
-            d = leader->mPos - mChara->mPos;
+            Chara_unk* c1 = mChara;
+            atn::VecAssign_unk(d, leader->mPos - c1->mPos);
             d.y = 0.0f;
             mChara->mRot = d.ToRotation_unk();
         } else {
