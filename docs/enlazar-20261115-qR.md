@@ -36,6 +36,9 @@ Commit: ver `git log` (`Link atn/D2A_TaskInstanceBase_64_8`).
   avisos conocidos (2.44346, 25, 15, 0.7 en Em305VampireMp/SpecialEnemyBase; GameUI 0.0174533; `B?atn::Csv` de
   NewCampPartsMapSelect).
 
+- `CostumeEditFace_unk` (`include/game/CostumeEditChara.h`) -> `typedef D2A_TaskInstance32_unk`
+  (`m4D/m50/m54` -> `mLoop/mFrame/mSpeed`); CostumeEditChara sin casts. PRECOMMIT OK (sin cambios de etiquetas).
+
 ## NONMATCHING con motivo
 
 Ninguna nueva.

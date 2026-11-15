@@ -607,10 +607,10 @@ void CosEditBase::fn_801CE5B0(int b, int c) {
     if (b != m1E8) {
         vf74(m1E4, b);
         if (mE8) {
-            ((CostumeEditFace_unk*)mE8)->m50 = 0.0f;
+            ((CostumeEditFace_unk*)mE8)->mFrame = 0.0f;
         }
         if (mEC) {
-            ((CostumeEditFace_unk*)mEC)->m50 = 0.0f;
+            ((CostumeEditFace_unk*)mEC)->mFrame = 0.0f;
         }
         m1F0 = c;
     }

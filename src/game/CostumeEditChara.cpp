@@ -105,7 +105,7 @@ CostumeEditChara::CostumeEditChara(atn::Task* parent, CharaTask* chara, int face
     mChara = chara;
     mMtx.SetIdentity();
     if (chara == 0) {
-        (mFaceIcon = (CostumeEditFace_unk*)(atn::Task*)D2A_TaskInstance32_unk::Create(this, "data/d2anime/equip_face.d2a"))->fn_800D246C(1);
+        (mFaceIcon = CostumeEditFace_unk::Create(this, "data/d2anime/equip_face.d2a"))->fn_800D246C(1);
     }
     mShadow.fn_8008AD4C("/map/cosedit/hk_shadow1.model", 0);
 }
@@ -137,9 +137,9 @@ int CostumeEditChara::vf0C() {
         }
         if (mFaceIcon != 0) {
             mFaceIcon->fn_800D246C(0);
-            mFaceIcon->m54 = -2.0f;
-            mFaceIcon->m4D = 0;
-            mFaceIcon->m50 = 0.0f;
+            mFaceIcon->mSpeed = -2.0f;
+            mFaceIcon->mLoop = 0;
+            mFaceIcon->mFrame = 0.0f;
             mFaceIcon->mFlags |= 4;
         }
         return 1;
@@ -177,18 +177,18 @@ void CostumeEditChara::vf10() {
     }
     if (mFaceIcon != 0) {
         if (fn_801E91B4() && mVisible != 0) {
-            mFaceIcon->m54 = 2.0f;
+            mFaceIcon->mSpeed = 2.0f;
         } else {
-            mFaceIcon->m54 = -2.0f;
+            mFaceIcon->mSpeed = -2.0f;
         }
         atn::Vector3 screen = atn::RenderManager::instance_->GetScreenPosition(mPos);
         screen.y = 220.0f;
         atn::Vector2_unk offset = MenuCommonTask::sInstance->m1EC;
         atn::Vector2_unk size = MenuCommonTask::sInstance->m1F4;
-        ((D2A_TaskInstance32_unk*)mFaceIcon)->SetValue1_unk("BasePos", 0, screen.x + offset.x);
-        ((D2A_TaskInstance32_unk*)mFaceIcon)->SetValue1_unk("BasePos", 1, screen.y + offset.y);
-        ((D2A_TaskInstance32_unk*)mFaceIcon)->SetValue1_unk("BasePos", 2, size.x);
-        ((D2A_TaskInstance32_unk*)mFaceIcon)->SetValue1_unk("BasePos", 3, size.y);
+        mFaceIcon->SetValue1_unk("BasePos", 0, screen.x + offset.x);
+        mFaceIcon->SetValue1_unk("BasePos", 1, screen.y + offset.y);
+        mFaceIcon->SetValue1_unk("BasePos", 2, size.x);
+        mFaceIcon->SetValue1_unk("BasePos", 3, size.y);
         fn_804A4CE4(mFaceIcon, mFace, 4, 2);
         if (mShadow.fn_8008B140() == 0) {
             atn::Matrix3x4 mtx;
