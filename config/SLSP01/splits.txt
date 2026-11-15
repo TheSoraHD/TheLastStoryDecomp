@@ -4055,6 +4055,13 @@ RVL_SDK/src/revolution/ax/AXVPB.c:
 	.sbss       start:0x80880008 end:0x80880028
 	.sdata2     start:0x808885A0 end:0x808885C0
 
+RVL_SDK/src/revolution/ax/AXComp.c:
+	.data       start:0x807AC6A0 end:0x807AD660
+
+RVL_SDK/src/revolution/ax/DSPCode.c:
+	.data       start:0x807AD660 end:0x807AF660
+	.sdata      start:0x8087E850 end:0x8087E858
+
 RVL_SDK/src/revolution/ax/AXProf.c:
 	.text       start:0x8060B090 end:0x8060B0D0
 	.sbss       start:0x80880028 end:0x80880038
