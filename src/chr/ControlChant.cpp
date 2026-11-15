@@ -17,6 +17,7 @@
 #include "game/Input_unk.h"
 #include "game/BattleTask.h"
 #include "atn/EffectSystem_unk.h"
+#include "game/DamageResult_unk.h"
 
 // inferred: game settings (lbl_8087F0A8, as in chr/ControlCharge.cpp); names invented
 struct Settings_unk {
@@ -42,18 +43,6 @@ extern "C" GameState_unk* lbl_8087EFA8;
 typedef EffectColor_unk Color4f_unk;
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
 // inferred: result of a damage computation (names invented, as in game/EnemyTasha.cpp)
-struct MagicDamage_unk {
-    MagicDamage_unk() : m00(0), m04(0), m08(0), m0C(0), m10(0), m14(-1), m18(-1), m1C_28(0) {}
-    int m00;
-    int m04;
-    int m08;
-    int m0C;
-    int m10;
-    int m14;
-    int m18;
-    unsigned int m1C_31_28 : 4;
-    unsigned int m1C_28 : 28;
-};
 // inferred: options of the damage computation (names invented)
 struct MagicDamageOpt_unk {
     int m00;
@@ -64,12 +53,10 @@ struct MagicDamageOpt_unk {
     int m14;
 };
 extern "C" char lbl_807C6B90[0x18]; // inferred: default options of the damage computation
-extern "C" void fn_8003EA3C(MagicDamage_unk* result, HitInfo_unk* data, CharaTask* attacker, CharaTask* target,
+extern "C" void fn_8003EA3C(DamageResult_unk* result, HitInfo_unk* data, CharaTask* attacker, CharaTask* target,
                             int flags, const void* options, atn::Vector3* a, atn::Vector3* b);
-extern "C" void fn_8003F030(MagicDamage_unk* result, HitInfo_unk* data, CharaTask* attacker, const atn::Vector3* pos,
+extern "C" void fn_8003F030(DamageResult_unk* result, HitInfo_unk* data, CharaTask* attacker, const atn::Vector3* pos,
                             const atn::Vector3* rot, int flags);
-extern "C" void fn_80108C10(BattleTask* effect, MagicDamage_unk* damage, const atn::Vector3& pos, CharaTask* attacker,
-                            CharaTask* target, int a, int b);
 // inferred: one line of the voice table (defined in atn/ptr_string_base_char_0.cpp)
 struct VoiceEntry_unk {
     const char* fn_8021FD7C(int kind) const;
@@ -662,7 +649,7 @@ int ControlMagic::vf0C() {
                 lbl_8087F048->fn_800FB4B0(mChara, hit, lbl_8087F048->fn_800F8548(), &mChara->mPos, 0, 30, -1, 1);
             } else if (hit->m04 == 0x179F) {
                 CharaTask* player = lbl_8087F8A0->mHead;
-                MagicDamage_unk damage;
+                DamageResult_unk damage;
                 fn_8003EA3C(&damage, hit, player, player, 0, lbl_807C6B90, 0, 0);
                 if (hit->mB0) {
                     lbl_8087F048->fn_80107168(hit->mB0, 0, 0, &player->mMotion, &chr::lbl_807C7030,
@@ -671,7 +658,7 @@ int ControlMagic::vf0C() {
                 }
                 player->mStatus.m08 = player->mStatus.mParamB.m88;
             } else {
-                MagicDamage_unk damage;
+                DamageResult_unk damage;
                 if (!m1E) {
                     MagicDamageOpt_unk opt;
                     opt.m00 = 1;
@@ -687,7 +674,7 @@ int ControlMagic::vf0C() {
                     } else {
                         fn_8003EA3C(&damage, hit, mChara, m14, 0, lbl_807C6B90, 0, 0);
                     }
-                    fn_80108C10(lbl_8087F048, &damage, m14->mPos + atn::Vector3(0.0f, 15.0f, 0.0f), mChara, m14, 0,
+                    lbl_8087F048->fn_80108C10(&damage, m14->mPos + atn::Vector3(0.0f, 15.0f, 0.0f), mChara, m14, 0,
                                 1);
                 } else {
                     atn::Vector3 pos(m08);

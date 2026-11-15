@@ -16,6 +16,7 @@ class CharaTask;
 struct ColorF_unk;
 struct HitInfo_unk;
 struct BattleTarget_unk; // game/BattleTarget_unk.h
+struct DamageResult_unk; // game/DamageCalc_unk.h
 class PlayerTask;
 namespace atn {
 struct Vector3;
@@ -306,6 +307,7 @@ public:
     void fn_80102EAC(CharaTask*, CharaTask*, int, int);
     void fn_801061BC(CharaTask*, atn::Model*, int);
     void fn_80106878(CharaTask*);
+    void fn_80108C10(DamageResult_unk*, const atn::Vector3&, CharaTask*, CharaTask*, unsigned int, int);
     void fn_80108F38(const atn::Vector3*, int);
     void fn_801092C8(int, CharaTask*, int, int);
     void fn_8010A308(const atn::Vector3*, const atn::Vector3*, float);

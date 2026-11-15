@@ -371,8 +371,6 @@ class BattleTask;
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
 extern "C" void* lbl_8087F610;                              // inferred: multiplayer session
 // inferred: shows a damage on the battle UI (game/BattleTask)
-extern "C" void fn_80108C10(BattleTask* battle, DamageResult_unk* damage, const atn::Vector3* pos, CharaTask* attacker,
-                            CharaTask* target, int arg5, int arg6);
 // inferred: message of an item got (game/BattleTask; 1 item, 2 weapon, 3 money)
 extern "C" int fn_80444EFC(CharaTask* chara);
 
@@ -409,7 +407,7 @@ extern "C" int fn_80444020(Inventory* inventory, int table, int message, int ind
             if (battle != 0 && (hit->mAC & 0x80000) != 0x80000 &&
                 (lbl_8087F610 == 0 || (hit->m04 != 6004 && hit->m04 != 20428))) {
                 atn::Vector3 pos = leader->vfAC();
-                fn_80108C10(battle, &result, &pos, leader, leader, 0, 0);
+                battle->fn_80108C10(&result, pos, leader, leader, 0, 0);
             }
         }
         if (outCode != 0) {

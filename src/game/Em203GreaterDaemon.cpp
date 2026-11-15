@@ -12,6 +12,7 @@
 #include "game/GameTask.h"
 #include "math/VecAssign_unk.h"
 #include "atn/ColliBase.h"
+#include "game/DamageResult_unk.h"
 
 // inferred: empty release assert (some state functions of the original are not auto-inlined)
 #define ASSERT_UNK(x) ((void)0)
@@ -255,24 +256,6 @@ struct EffectMgrD0_unk {
     unsigned char m00[0xD0];
     int mD0;
 };
-// inferred: damage record shown by fn_80108C10 (as StatusDamage_unk of game/CharaStatus.cpp)
-struct DaemonDamage_unk {
-    DaemonDamage_unk() : m00(0), m04(0), m08(0), m0C(0), m10(0), m14(-1) {
-        m1C = 0;
-        m18 = -1;
-    }
-    int m00;
-    int m04;
-    int m08;
-    int m0C;
-    int m10;
-    int m14;
-    int m18;
-    unsigned int m1C : 4;
-    unsigned int m1C_rest : 28;
-};
-extern "C" void fn_80108C10(BattleTask* effect, DaemonDamage_unk* damage, const atn::Vector3& pos, CharaTask* attacker,
-                            CharaTask* chara, int b, int c);
 
 // NONMATCHING: 99.86% - register swap on the second std::string temporary (known)
 Em203GreaterDaemon::Em203GreaterDaemon(atn::Task* parent, EnemyInfo_unk* info)
@@ -1319,12 +1302,12 @@ void Em203GreaterDaemon::fn_8028D5C8() {
         done = 0;
         if (m14B8 > m19A8 * 30) {
             m14B8 = 0;
-            DaemonDamage_unk damage;
-            damage.m04 = m19B0;
-            damage.m00 = 1;
+            DamageResult_unk damage;
+            damage.mDamage = m19B0;
+            damage.mType = 1;
             CharaStatusBase status(m1630->mStatus);
-            status.m04 -= (float)damage.m04;
-            fn_80108C10(lbl_8087F048, &damage, m1630->mPos + atn::Vector3(0.0f, 15.0f, 0.0f), this, m1630, 0, 0);
+            status.m04 -= (float)damage.mDamage;
+            lbl_8087F048->fn_80108C10(&damage, m1630->mPos + atn::Vector3(0.0f, 15.0f, 0.0f), this, m1630, 0, 0);
             atn::Vector3 head = ((atn::Matrix3x4*)m1630->mMotion.GetNodeMtx_unk("spine"))->GetTrans_unk();
             atn::Vector3 spine = ((atn::Matrix3x4*)mMotion.GetNodeMtx_unk("spine"))->GetTrans_unk();
             atn::Vector3 dir = spine - head;

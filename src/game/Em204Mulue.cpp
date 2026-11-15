@@ -14,6 +14,7 @@
 #include "game/BattleTask.h"
 #include "game/GameTask.h"
 #include "math/VecAssign_unk.h"
+#include "game/DamageResult_unk.h"
 
 extern "C" unsigned long strlen(const char* s);
 extern "C" int strcmp(const char* a, const char* b);
@@ -105,26 +106,7 @@ struct Field_unk {
     RouteTable_unk* m10D8;
 };
 extern "C" Field_unk* lbl_8087F430;
-// inferred: damage record sent to the effect manager (as in game/Em302Kraken.cpp)
-struct MulueDamage_unk {
-    MulueDamage_unk() : m04(0), m08(0), m0C(0), m10(0), m14(-1) {
-        m1C = 0;
-        m18 = -1;
-        m00 = 1;
-    }
-    int m00;
-    int m04;
-    int m08;
-    int m0C;
-    int m10;
-    int m14;
-    int m18;
-    unsigned int m1C : 4;
-    unsigned int m1C_rest : 28;
-};
-extern "C" void fn_80108C10(BattleTask* effect, MulueDamage_unk* damage, const atn::Vector3& pos, CharaTask* a,
-                            CharaTask* chara, int b, int c);
-extern "C" void fn_8003EA3C(MulueDamage_unk* result, HitInfo_unk* data, CharaTask* attacker, CharaTask* owner,
+extern "C" void fn_8003EA3C(DamageResult_unk* result, HitInfo_unk* data, CharaTask* attacker, CharaTask* owner,
                             unsigned int flags, const void* param, int arg, int arg2); // inferred: computes the damage
 struct HitParam_unk;
 extern "C" HitParam_unk lbl_807C6B90;
@@ -1022,9 +1004,10 @@ void Em204Mulue::fn_802A91D0() {
         m1644->mStatus.fn_8012DF7C(dmg, 0, 0);
         atn::Vector3 pos(m1644->fn_80148B0C(0)->m04.mCenter);
         pos += atn::Vector3(0.0f, 15.0f, 0.0f);
-        MulueDamage_unk damage;
-        damage.m04 = dmg;
-        fn_80108C10(lbl_8087F048, &damage, pos, this, m1644, 0, 0);
+        DamageResult_unk damage;
+        damage.mType = 1;
+        damage.mDamage = dmg;
+        lbl_8087F048->fn_80108C10(&damage, pos, this, m1644, 0, 0);
     }
     Release_unk();
 }
@@ -1035,13 +1018,14 @@ void Em204Mulue::fn_802A94C8() {
         Rest_unk();
     }
     if (m1644 != 0 && mMotion.mTracks[0].m08 > 31.0f && mMotion.mTracks[0].m08 <= 32.0f) {
-        MulueDamage_unk damage;
+        DamageResult_unk damage;
+        damage.mType = 1;
         HitInfo_unk* skill = fn_80219E6C(0x4B4);
         fn_80144710();
         fn_8003EA3C(&damage, skill, this, m14B0, 0, &lbl_807C6B90, 0, 0);
         atn::Vector3 pos(m14B0->fn_80148B0C(0)->m04.mCenter);
         pos += atn::Vector3(0.0f, 15.0f, 0.0f);
-        fn_80108C10(lbl_8087F048, &damage, pos, this, m1644, 0, 0);
+        lbl_8087F048->fn_80108C10(&damage, pos, this, m1644, 0, 0);
         atn::Vector3 dir(0.0f, 0.0f, 10.0f);
         Mtx m;
         PSMTXRotRad(m, 'y', mRot.y);

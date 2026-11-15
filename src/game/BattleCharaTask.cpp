@@ -532,8 +532,6 @@ extern "C" int fn_80211734(HitInfo_unk* item);                 // inferred: infi
 extern "C" void fn_8044441C(Inventory* inv, int id, int num);  // inferred: removes items
 extern "C" int fn_804444E8(Inventory* inv, int id);            // inferred: number of items
 extern "C" HitInfo_unk* fn_80211480(int code);                 // inferred: entry of an item code (db/ItemParam_unk.h)
-extern "C" void fn_80108C10(BattleTask* mgr, DamageResult_unk* damage, const atn::Vector3& pos, CharaTask* attacker,
-                            CharaTask* chara, unsigned int flags, int skipEmpty); // inferred: shows the damage
 extern "C" EnemyTask* fn_8036DDD4(GameTask* task); // inferred: enemy in reach of the leader (game/GameTask.cpp)
 
 // inferred: button of the cover attack (2 with the attack type A); name invented
@@ -859,7 +857,7 @@ void BattleCharaTask::fn_800E4278(GameTask* task) {
                                         DamageResult_unk result;
                                         fn_8003F1E4(&result, items.mData[i], this, enemy, 0);
                                         if (items.mData[i]->m04 != 400) {
-                                            fn_80108C10(lbl_8087F048, &result, enemy->mPos + atn::Vector3(0.0f, 15.0f, 0.0f),
+                                            lbl_8087F048->fn_80108C10(&result, enemy->mPos + atn::Vector3(0.0f, 15.0f, 0.0f),
                                                         this, 0, 1, 0);
                                         }
                                     }

@@ -16,6 +16,7 @@
 #include "game/Input_unk.h"
 #include "atn/ColliBase.h"
 #include "game/BattleTask.h"
+#include "game/DamageResult_unk.h"
 
 extern "C" unsigned long strlen(const char* s);
 extern "C" int strcmp(const char* a, const char* b);
@@ -95,22 +96,6 @@ extern "C" int fn_8004ED34(void* colli, atn::ColliResult_unk* result, const atn:
                            unsigned int mask, void* ignore, int arg7); // inferred: ray test
 extern "C" void fn_8004D388(void* mgr, atn::ColliResult_unk* result, CharaTask::Sphere_unk* sphere, atn::Vector3* move,
                             unsigned int mask, void* ignore, int arg, float radius); // inferred: sweep test
-// inferred: damage record (as QueenDamage_unk of game/Em208Queen.cpp)
-struct ZanDamage_unk {
-    ZanDamage_unk() : m00(0), m04(0), m08(0), m0C(0), m10(0), m14(-1) {
-        m1C = 0;
-        m18 = -1;
-    }
-    int m00;
-    int m04;
-    int m08;
-    int m0C;
-    int m10;
-    int m14;
-    int m18;
-    unsigned int m1C : 4;
-    unsigned int m1C_rest : 28;
-};
 // inferred: hit parameters (as in game/CharaTask.cpp); names invented
 struct HitParam_unk {
     int m00;
@@ -121,10 +106,8 @@ struct HitParam_unk {
     int m14;
 };
 extern "C" HitParam_unk lbl_807C6B90; // inferred: default parameters
-extern "C" void fn_8003EA3C(ZanDamage_unk* result, HitInfo_unk* data, CharaTask* attacker, CharaTask* owner,
+extern "C" void fn_8003EA3C(DamageResult_unk* result, HitInfo_unk* data, CharaTask* attacker, CharaTask* owner,
                             unsigned int flags, const HitParam_unk* param, int arg, int arg2);
-extern "C" void fn_80108C10(BattleTask* effect, ZanDamage_unk* damage, const atn::Vector3& pos, CharaTask* a,
-                            CharaTask* chara, int b, int c);
 // inferred: item manager (Inventory::instance_)
 extern "C" int fn_80206BE4(void* item); // inferred: item id
 extern "C" void fn_8044D104(void* mgr, int kind, int id, int arg, int chara);
@@ -1751,14 +1734,14 @@ void Em201ZanGurgFinal::fn_802696F8() {
         if (m14EC > 0) {
             fn_8026F9BC("leftwepoint");
         }
-        ZanDamage_unk damage;
+        DamageResult_unk damage;
         fn_8003EA3C(&damage, fn_80219E6C(0x61E), this, m150C, 0, &lbl_807C6B90, 0, 0);
         if ((m150C->mStatus.m0C & 0x20) == 0x20) {
             m150C->vf44();
         }
         atn::Vector3 pos = m150C->fn_80148B0C(0)->m04.mCenter;
         pos += atn::Vector3(0.0f, 15.0f, 0.0f);
-        fn_80108C10(lbl_8087F048, &damage, pos, this, m150C, 0, 0);
+        lbl_8087F048->fn_80108C10(&damage, pos, this, m150C, 0, 0);
     }
 }
 

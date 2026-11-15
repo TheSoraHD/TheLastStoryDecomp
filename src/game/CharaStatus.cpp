@@ -11,6 +11,7 @@
 #include "macros.h"
 #include "chr/CharaEquip_unk.h"
 #include "game/BattleTask.h"
+#include "game/DamageResult_unk.h"
 
 // inferred: input state embedded at +0x48C of the object behind lbl_8087F0A8 (class unknown)
 struct Input_unk {
@@ -733,23 +734,6 @@ int CharaStatus::fn_8012E534() {
 
 extern "C" int fn_80219344(chr::Chara_unk* chara, int arg);
 
-// inferred: damage description built for status damage (fn_8012E540); name invented
-struct StatusDamage_unk {
-    StatusDamage_unk() : m04(0), m08(0), m0C(0), m10(0), m14(-1) {
-        m1C = 0;
-        m18 = -1;
-        m00 = 1;
-    }
-    int m00;
-    int m04;
-    int m08;
-    int m0C;
-    int m10;
-    int m14;
-    int m18;
-    unsigned int m1C : 4;
-    unsigned int m1C_rest : 28;
-};
 struct FrameTime_unk {
     unsigned char m000[0x3A4];
     float m3A4; // inferred: time of a frame
@@ -758,8 +742,6 @@ struct FrameTime_unk {
 extern "C" FrameTime_unk* lbl_8087EFA8;
 extern "C" atn::Task* lbl_8087F9E8;
 extern "C" int fn_8021A960(HitInfo_unk* hit);
-extern "C" void fn_80108C10(BattleTask* effect, StatusDamage_unk* damage, const atn::Vector3& pos, int a, CharaTask* chara,
-                            int b, int c);
 
 // inferred: status update run every frame (regeneration, status timers, refs timers)
 // NONMATCHING: 97.6% - the original reloads m0C for the second flag test of the first condition,
@@ -872,19 +854,20 @@ void CharaStatus::fn_8012E540() {
                 }
             }
             if (bit == (bit & 0x400000) && m24C[i] % 90 == 0) {
-                StatusDamage_unk damage;
-                damage.m04 = MAX(mParamB.m84 / 20, 1);
-                if (m04 <= damage.m04) {
-                    damage.m04 = (int)(m04 - 1.0f);
+                DamageResult_unk damage;
+                damage.mType = 1;
+                damage.mDamage = MAX(mParamB.m84 / 20, 1);
+                if (m04 <= damage.mDamage) {
+                    damage.mDamage = (int)(m04 - 1.0f);
                 }
-                if (damage.m04 > 0) {
+                if (damage.mDamage > 0) {
                     BattleTask* effect = lbl_8087F048;
                     if (effect != 0) {
                         CharaTask* chara = mChara;
-                        fn_80108C10(effect, &damage, chara->vfAC(), 0, chara, 0, 0);
+                        effect->fn_80108C10(&damage, chara->vfAC(), 0, chara, 0, 0);
                     }
                     if (mChara == 0 || !mChara->mFlag2) {
-                        fn_8012DF7C(damage.m04, 0, 0);
+                        fn_8012DF7C(damage.mDamage, 0, 0);
                     }
                 }
             }

@@ -15,6 +15,7 @@
 #include "std/string_members.h"
 #include "game/BattleTask.h"
 #include "atn/ColliBase.h"
+#include "game/DamageResult_unk.h"
 
 extern "C" unsigned long strlen(const char* s);
 extern "C" int strcmp(const char* a, const char* b);
@@ -74,25 +75,6 @@ extern "C" Field_unk* lbl_8087F430;
 extern "C" void* lbl_8087EE98;
 extern "C" int fn_8004ED34(void* colli, atn::ColliResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg7);
-// inferred: damage record sent to the effect manager (layout of game/CharaStatus.cpp)
-struct KrakenDamage_unk {
-    KrakenDamage_unk() : m04(0), m08(0), m0C(0), m10(0), m14(-1) {
-        m1C = 0;
-        m18 = -1;
-        m00 = 1;
-    }
-    int m00;
-    int m04;
-    int m08;
-    int m0C;
-    int m10;
-    int m14;
-    int m18;
-    unsigned int m1C : 4;
-    unsigned int m1C_rest : 28;
-};
-extern "C" void fn_80108C10(BattleTask* effect, KrakenDamage_unk* damage, const atn::Vector3& pos, int a, CharaTask* chara,
-                            int b, int c);
 extern "C" int rand();
 extern "C" void fn_8023A680(EffectMgr_unk* mgr, void* res, int a, int b, atn::Vector3* pos, int c, int d, const float* color,
                             float scale, int e, int f, int g);
@@ -1004,15 +986,16 @@ void Em302Kraken::fn_802DAA38() {
         fn_80239DAC(lbl_8087F3C0, this, 102, 0);
         fn_80232B7C(0, 0);
         PlayEffect_unk(&m1548, (atn::Model*)&mMotion);
-        KrakenDamage_unk damage;
+        DamageResult_unk damage;
+        damage.mType = 1;
         int total = 0;
         for (unsigned int i = 0; i < m1554.size(); i++) {
             CharaTask* chara = m1554[i].mChara;
             int hp = (int)chara->mStatus.m04;
-            damage.m04 = hp + 1;
+            damage.mDamage = hp + 1;
             total -= (int)(m1514 * chara->mStatus.m04) + 1;
             chara->mStatus.fn_8012DF7C(hp + 1, 0, 0);
-            fn_80108C10(lbl_8087F048, &damage, chara->mPos + atn::Vector3(0.0f, 15.0f, 0.0f), (int)this, chara, 0, 0);
+            lbl_8087F048->fn_80108C10(&damage, chara->mPos + atn::Vector3(0.0f, 15.0f, 0.0f), this, chara, 0, 0);
             lbl_8087F048->fn_80107850(&chara->mMotion);
             atn::Vector3 rot = chara->mRot.ToRotation_unk();
             atn::Vector3 dir = rot * -1.0f;
@@ -1021,10 +1004,10 @@ void Em302Kraken::fn_802DAA38() {
             chara->fn_8015E7A0(dir, -1, 0);
         }
         if (total < 0) {
-            damage.m04 = total;
+            damage.mDamage = total;
             atn::Vector3 pos = fn_80148B0C(0)->m04.mCenter + atn::Vector3(0.0f, 15.0f, 0.0f);
             mStatus.fn_8012DF7C(total, 0, 0);
-            fn_80108C10(lbl_8087F048, &damage, pos, 0, this, 0, 0);
+            lbl_8087F048->fn_80108C10(&damage, pos, 0, this, 0, 0);
             wchar_t text[256];
             memset(text, 0, sizeof(text));
             fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0x12F), *(const wchar_t**)((char*)m60 + 4));

@@ -19,6 +19,7 @@
 #include <boost/bind.hpp>
 #include <boost/function.hpp>
 #include "atn/ColliBase.h"
+#include "game/DamageResult_unk.h"
 
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
 // inferred: field (lbl_8087F430): camera shake and event flags (as in gmk/ShakeCamera.cpp)
@@ -91,26 +92,6 @@ inline float LengthSq_unk(const atn::Vector3& v) {
     return PSVECSquareMag(&v);
 }
 
-// inferred: damage record shown by fn_80108C10 (as StatusDamage_unk of game/CharaStatus.cpp)
-struct QuadDamage_unk {
-    QuadDamage_unk(int damage) : m08(0), m0C(0), m10(0), m14(-1) {
-        m1C = 0;
-        m18 = -1;
-        m04 = damage;
-        m00 = 1;
-    }
-    int m00;
-    int m04;
-    int m08;
-    int m0C;
-    int m10;
-    int m14;
-    int m18;
-    unsigned int m1C : 4;
-    unsigned int m1C_rest : 28;
-};
-extern "C" void fn_80108C10(BattleTask* effect, QuadDamage_unk* damage, const atn::Vector3& pos, CharaTask* from,
-                            CharaTask* to, int b, int c);
 
 
 struct HitResult_unk;
@@ -1233,14 +1214,16 @@ void LastCocoonQuadruped::fn_80465294() {
         fn_80239DAC(lbl_8087F3C0, this, 1000, 0);
     } else if (m14C0 % 30 == 0) {
         float drain = 50.0f;
-        QuadDamage_unk damage((int)drain);
-        m1574->mStatus.fn_8012DF7C(damage.m04, 0, 0);
-        fn_80108C10(lbl_8087F048, &damage, m1574->mPos + atn::Vector3(0.0f, 15.0f, 0.0f), this, m1574, 0, 0);
-        damage.m04 /= -1;
+        DamageResult_unk damage;
+        damage.mDamage = (int)drain;
+        damage.mType = 1;
+        m1574->mStatus.fn_8012DF7C(damage.mDamage, 0, 0);
+        lbl_8087F048->fn_80108C10(&damage, m1574->mPos + atn::Vector3(0.0f, 15.0f, 0.0f), this, m1574, 0, 0);
+        damage.mDamage /= -1;
         atn::Vector3 pos = fn_80148B0C(0)->m04.mCenter;
         pos += atn::Vector3(0.0f, 15.0f, 0.0f);
-        mStatus.fn_8012DF7C(damage.m04, 0, 0);
-        fn_80108C10(lbl_8087F048, &damage, pos, this, this, 0, 0);
+        mStatus.fn_8012DF7C(damage.mDamage, 0, 0);
+        lbl_8087F048->fn_80108C10(&damage, pos, this, this, 0, 0);
     }
 }
 

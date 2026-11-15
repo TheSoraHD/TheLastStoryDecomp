@@ -2,6 +2,7 @@
 // effect start/stop functions are reconstructed so far.
 #include "game/BattleTask.h"
 #include "game/BattleTarget_unk.h"
+#include "game/DamageResult_unk.h"
 #include "atn/Memory.h"
 #include "atn/EffectManager.h"
 #include "atn/EffectSystem_unk.h"
@@ -2819,20 +2820,6 @@ int BattleTask::fn_800FC1D0(CharaTask* attacker, CharaTask* chara, HitInfo_unk* 
     return found;
 }
 
-// inferred: damage record shown by fn_80108C10 (local view, as StatusDamage_unk/DaemonDamage_unk of other files)
-struct BattleDamage_unk {
-    int m00; // inferred: kind (1, 4 and 5 are shown)
-    int m04; // inferred: value (negative: recovery)
-    int m08;
-    int m0C;
-    int m10;
-    int m14;
-    int m18;
-    unsigned int m1C_28 : 4; // inferred: cleared by fn_800FDB20 (the rest of the word is left as it is)
-    unsigned int m1C_0 : 28;
-};
-extern "C" void fn_80108C10(BattleTask* mgr, BattleDamage_unk* damage, const atn::Vector3* pos, CharaTask* attacker,
-                            CharaTask* chara, unsigned int flags, int skipEmpty);
 extern "C" bool fn_8021A8D0(HitInfo_unk* data); // inferred: db/ParseUtil_unk (takes BulletParam_unk)
 
 // inferred: center of the hit sphere `index` of `chara` (the middle height of its collision capsule for the first
@@ -2973,16 +2960,10 @@ void BattleTask::fn_800FC410(CharaTask* attacker, CharaTask* chara, int index, H
 void BattleTask::fn_800FCD24(CharaTask* attacker, CharaTask* chara, int index, HitInfo_unk* data, int id,
                             const atn::Vector3* pos, int time, BattleCalcParam_unk* out, float, float rate) {
     if (lbl_8087F610 != 0 && (chara->mStatus.m14 & 1u) == 1 && data != 0 && (data->m04 == 0x142 || data->m04 == 0x131)) {
-        BattleDamage_unk damage;
-        damage.m08 = 0;
-        damage.m0C = 0;
-        damage.m10 = 0;
-        damage.m14 = -1;
-        damage.m1C_28 = 0;
-        damage.m18 = -1;
-        damage.m04 = 0;
-        damage.m00 = 1;
-        fn_80108C10(this, &damage, pos, attacker, chara, 0x108, 0);
+        DamageResult_unk damage;
+        damage.mDamage = 0;
+        damage.mType = 1;
+        fn_80108C10(&damage, *pos, attacker, chara, 0x108, 0);
         return;
     }
     fn_800E2A24(&m38A5C);
@@ -3120,16 +3101,10 @@ int BattleTask::fn_800FDB20(CharaTask* attacker, CharaTask* chara, int arg, HitI
         if (attacker != 0 && attacker->m60->m24 == 0x14) {
             lbl_8087F430->fn_803750E4(0x13C);
         }
-        BattleDamage_unk damage;
-        damage.m08 = 0;
-        damage.m0C = 0;
-        damage.m10 = 0;
-        damage.m14 = -1;
-        damage.m1C_28 = 0;
-        damage.m18 = -1;
-        damage.m04 = 0;
-        damage.m00 = 1;
-        fn_80108C10(this, &damage, pos, attacker, chara, 0x108, 0);
+        DamageResult_unk damage;
+        damage.mDamage = 0;
+        damage.mType = 1;
+        fn_80108C10(&damage, *pos, attacker, chara, 0x108, 0);
         return 4;
     }
     fn_800E2A24(&m38A5C);
@@ -3259,16 +3234,9 @@ inline atn::Vector3 HitPos_unk(CharaTask* chara, const int& index) {
     return chara->mPos;
 }
 // inferred: damage record of fn_80108C10 built with its inline constructor (name invented)
-struct HitDamage_unk : public BattleDamage_unk {
+struct HitDamage_unk : public DamageResult_unk {
     HitDamage_unk() {
-        m04 = 0;
-        m08 = 0;
-        m0C = 0;
-        m10 = 0;
-        m14 = -1;
-        m1C_28 = 0;
-        m18 = -1;
-        m00 = 1;
+        mType = 1;
     }
 };
 
@@ -3461,19 +3429,19 @@ int BattleTask::fn_800FDF14(BattleCalcParam_unk* p) {
     }
     if (attacker != 0 && (hit->mAC & 8)) {
         HitDamage_unk damage;
-        damage.m04 = -(int)(0.5f * p->m68);
-        attacker->mStatus.fn_8012DF7C(damage.m04, 0, 0);
+        damage.mDamage = -(int)(0.5f * p->m68);
+        attacker->mStatus.fn_8012DF7C(damage.mDamage, 0, 0);
         if (p->m90 != 0) {
             atn::Vector3 pos = HitPos_unk(attacker, p->m40);
             pos += atn::Vector3(0.0f, 15.0f, 0.0f);
-            fn_80108C10(this, &damage, &pos, attacker, attacker, 0, 0);
+            fn_80108C10(&damage, pos, attacker, attacker, 0, 0);
         }
     }
     if (attacker != 0 && attacker->mFlag28 && p->m68 > 0 && lbl_8087F0A8->mHateAbsorbHpRate > 0.0f) {
         int heal = -(int)(p->m68 * lbl_8087F0A8->mHateAbsorbHpRate);
         HitDamage_unk damage;
-        damage.m04 = heal;
-        attacker->mStatus.fn_8012DF7C(damage.m04, 0, 0);
+        damage.mDamage = heal;
+        attacker->mStatus.fn_8012DF7C(damage.mDamage, 0, 0);
         if (lbl_8087F0A8->mShowPlayerUI != 0 && p->m90 != 0) {
             if (heal != m3E2F8) {
                 m3E2F4->Rewind_unk();
@@ -3492,11 +3460,11 @@ int BattleTask::fn_800FDF14(BattleCalcParam_unk* p) {
         HitDamage_unk damage;
         int value = attacker->mStatus.fn_80133F18(0x23, -1);
         float rate = value > 0 ? (float)value / 100.0f : 2.0f;
-        damage.m04 -= (int)(p->m68 * rate);
-        target->mStatus.fn_8012DF7C(damage.m04, 0, 0);
+        damage.mDamage -= (int)(p->m68 * rate);
+        target->mStatus.fn_8012DF7C(damage.mDamage, 0, 0);
         atn::Vector3 pos = HitPos_unk(target, p->m40);
         pos += atn::Vector3(0.0f, 10.0f, 0.0f);
-        fn_80108C10(this, &damage, &pos, target, target, 0, 0);
+        fn_80108C10(&damage, pos, target, target, 0, 0);
     }
     if (attacker != 0) {
         CharaStatus* status = &attacker->mStatus;
@@ -3525,14 +3493,14 @@ int BattleTask::fn_800FDF14(BattleCalcParam_unk* p) {
         if (count != 0) {
             if (value > 0) {
                 HitDamage_unk damage;
-                damage.m04 = -value;
+                damage.mDamage = -value;
                 for (unsigned int i = 0; i < count; i++) {
                     CharaTask* c = list.mData[i];
-                    c->mStatus.fn_8012DF7C(damage.m04, 0, 0);
+                    c->mStatus.fn_8012DF7C(damage.mDamage, 0, 0);
                     if (p->m90 != 0) {
                         atn::Vector3 pos = HitPos_unk(c, p->m40);
                         pos += atn::Vector3(0.0f, 10.0f, 0.0f);
-                        fn_80108C10(this, &damage, &pos, c, c, 0, 0);
+                        fn_80108C10(&damage, pos, c, c, 0, 0);
                     }
                 }
             }
@@ -3547,7 +3515,7 @@ int BattleTask::fn_800FDF14(BattleCalcParam_unk* p) {
     if (p->m4C != 0 && p->m90 != 0) {
         atn::Vector3 pos = HitPos_unk(target, p->m40);
         pos += atn::Vector3(0.0f, 15.0f, 0.0f);
-        fn_80108C10(this, (BattleDamage_unk*)&p->m64, &pos, attacker, target, p->m94, 0);
+        fn_80108C10((DamageResult_unk*)&p->m64, pos, attacker, target, p->m94, 0);
     }
     fn_801018E4(p);
     fn_80101CDC(p);
@@ -5855,8 +5823,6 @@ void BattleTask::fn_80108A5C(CharaTask* chara, const atn::Vector3* dir) {
 }
 
 // inferred: the early return as !(a) || !(b) gives the bne over a blr of the original
-// inferred: damage record shown by fn_80108C10 (as StatusDamage_unk of game/CharaStatus.cpp); only the members
-// used here
 extern "C" int fn_804EB7C4(Arena_unk* arena, CharaTask* chara); // inferred: player of a multiplayer session
 extern "C" int fn_804EB814(Arena_unk* arena, CharaTask* chara); // inferred: team of a multiplayer session
 extern "C" int swprintf(wchar_t* s, unsigned int n, const wchar_t* format, ...);
@@ -5870,12 +5836,12 @@ inline bool IsPopupKind_unk(int kind) {
 // before its mode test; the format string is in the wide string table of the file (not complete)
 // inferred: shows the damage popup of `damage` dealt by `attacker` to `chara` at `pos`, unless the options hide the
 // popups of that side. called by other files
-extern "C" void fn_80108C10(BattleTask* mgr, BattleDamage_unk* damage, const atn::Vector3* pos, CharaTask* attacker,
-                            CharaTask* chara, unsigned int flags, int skipEmpty) {
-    if (!IsPopupKind_unk(damage->m00)) {
+void BattleTask::fn_80108C10(DamageResult_unk* damage, const atn::Vector3& pos, CharaTask* attacker, CharaTask* chara,
+                             unsigned int flags, int skipEmpty) {
+    if (!IsPopupKind_unk(damage->mType)) {
         return;
     }
-    if (skipEmpty != 0 && damage->m04 == 0 && damage->m0C == 0) {
+    if (skipEmpty != 0 && damage->mDamage == 0 && damage->m0C == 0) {
         return;
     }
     if (lbl_8087F610 == 0) {
@@ -5914,7 +5880,7 @@ extern "C" void fn_80108C10(BattleTask* mgr, BattleDamage_unk* damage, const atn
             }
         }
     }
-    int value = damage->m04;
+    int value = damage->mDamage;
     int recover = 0;
     if (value < 0) {
         recover = 1;
@@ -5933,7 +5899,7 @@ extern "C" void fn_80108C10(BattleTask* mgr, BattleDamage_unk* damage, const atn
     wchar_t text[32];
     memset(text, 0, sizeof(text));
     swprintf(text, 32, L"%d", value);
-    lbl_8087F8A8->fn_8054D794(recover, text, pos, 0, flags, damage->m10, damage->m0C != 0, attacker, chara, big,
+    lbl_8087F8A8->fn_8054D794(recover, text, &pos, 0, flags, damage->m10, damage->m0C != 0, attacker, chara, big,
                               damage->m14, damage->m18);
 }
 

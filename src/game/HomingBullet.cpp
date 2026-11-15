@@ -8,6 +8,7 @@
 #include "game/PlayerTask.h"
 #include "game/CharaManager.h"
 #include "game/BattleTask.h"
+#include "game/DamageResult_unk.h"
 
 extern "C" void PSMTXRotAxisRad(Mtx m, const atn::Vector3* axis, float rad);
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
@@ -35,25 +36,6 @@ extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 
 class BattleTask;
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
-// inferred: damage record shown by fn_80108C10 (as StatusDamage_unk of game/CharaStatus.cpp)
-struct HomingDamage_unk {
-    HomingDamage_unk() : m04(0), m08(0), m0C(0), m10(0), m14(-1) {
-        m1C = 0;
-        m18 = -1;
-        m00 = 1;
-    }
-    int m00;
-    int m04;
-    int m08;
-    int m0C;
-    int m10;
-    int m14;
-    int m18;
-    unsigned int m1C : 4;
-    unsigned int m1C_rest : 28;
-};
-extern "C" void fn_80108C10(BattleTask* mgr, HomingDamage_unk* damage, const atn::Vector3& pos, CharaTask* a,
-                            CharaTask* chara, int b, int c);
 extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float volume);
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
 
@@ -278,8 +260,9 @@ int HomingBullet::vf1C(CharaTask* chara, const atn::Vector3* pos, void* arg) {
                 at = chara->mPos;
             }
             at += atn::Vector3(0.0f, 15.0f, 0.0f);
-            HomingDamage_unk damage;
-            fn_80108C10(lbl_8087F048, &damage, at, m88, chara, 0x80008, 0);
+            DamageResult_unk damage;
+            damage.mType = 1;
+            lbl_8087F048->fn_80108C10(&damage, at, m88, chara, 0x80008, 0);
             if (res == 2) {
                 int id = 0x2F;
                 if (chara->mType == 0) {

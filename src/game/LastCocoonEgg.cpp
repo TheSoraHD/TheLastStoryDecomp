@@ -11,6 +11,7 @@
 #include "atn/Material_unk.h"
 #include "macros.h"
 #include "game/BattleTask.h"
+#include "game/DamageResult_unk.h"
 
 // inferred: effect manager (class unknown), global instance at 0x8087F3C0
 struct EffectMgr_unk {
@@ -730,24 +731,6 @@ void LastCocoonEgg::fn_8045531C() {
     }
 }
 
-// inferred: damage record shown by fn_80108C10 (as DaemonDamage_unk of game/Em203GreaterDaemon.cpp)
-struct EggDamage_unk {
-    EggDamage_unk() : m00(0), m04(0), m08(0), m0C(0), m10(0), m14(-1) {
-        m1C = 0;
-        m18 = -1;
-    }
-    int m00;
-    int m04;
-    int m08;
-    int m0C;
-    int m10;
-    int m14;
-    int m18;
-    unsigned int m1C : 4;
-    unsigned int m1C_rest : 28;
-};
-extern "C" void fn_80108C10(BattleTask* effect, EggDamage_unk* damage, const atn::Vector3& pos, CharaTask* attacker,
-                            CharaTask* chara, int b, int c);
 // inferred: plays an effect bound to a matrix (kind 5; as in game/EnemyQuarkSecond.cpp)
 extern "C" void fn_8023A680(EffectMgr_unk* mgr, atn::EffFile* res, int arg2, int kind, const void* target,
                             const atn::Vector3* pos, const atn::Vector3* rot, int arg7, int arg8, int arg9,
@@ -811,14 +794,14 @@ void LastCocoonEgg::fn_80455638() {
         if (part.m04 <= 0.0f) {
             part.m08 = 0;
         } else if (++part.m08 % 40 == 0) {
-            EggDamage_unk damage;
+            DamageResult_unk damage;
             LastCocoonEggSeg_unk* seg = LastCocoonEgg_FreeSeg_unk(this);
             if (seg != 0) {
                 float amount = MIN(50.0f * part.m04, part.m00->mStatus.m04 - 1.0f);
-                damage.m00 = 1;
-                damage.m04 = (int)amount;
-                part.m00->mStatus.fn_8012DF7C(damage.m04, 0, 0);
-                fn_80108C10(lbl_8087F048, &damage, part.m00->mPos + atn::Vector3(0.0f, 15.0f, 0.0f), this,
+                damage.mType = 1;
+                damage.mDamage = (int)amount;
+                part.m00->mStatus.fn_8012DF7C(damage.mDamage, 0, 0);
+                lbl_8087F048->fn_80108C10(&damage, part.m00->mPos + atn::Vector3(0.0f, 15.0f, 0.0f), this,
                             part.m00, 0, 0);
                 PlayEfp_unk(&m1988, &part.m00->mMotion);
                 seg->m14 = EggNodePos_unk(part.m00->mMotion.GetNodeMtx_unk("spine"));
@@ -853,13 +836,13 @@ void LastCocoonEgg::fn_80455638() {
             atn::Vector3 diff(seg->m04.x - seg->m20.x, seg->m04.y - seg->m20.y, seg->m04.z - seg->m20.z);
             if (PSVECSquareMag(&diff) < 1.0f) {
                 fn_80239DAC(lbl_8087F3C0, seg, 0, 0);
-                EggDamage_unk damage;
-                damage.m00 = 1;
-                damage.m04 = (int)-seg->m10;
+                DamageResult_unk damage;
+                damage.mType = 1;
+                damage.mDamage = (int)-seg->m10;
                 atn::Vector3 pos = fn_80148B0C(0)->m04.mCenter;
                 pos += atn::Vector3(0.0f, 15.0f, 0.0f);
-                mStatus.fn_8012DF7C(damage.m04, 0, 0);
-                fn_80108C10(lbl_8087F048, &damage, pos, this, this, 0, 0);
+                mStatus.fn_8012DF7C(damage.mDamage, 0, 0);
+                lbl_8087F048->fn_80108C10(&damage, pos, this, this, 0, 0);
                 seg->m00 = 0;
             }
         }

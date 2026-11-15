@@ -18,6 +18,7 @@
 #include "math/VecAssign_unk.h"
 #include "atn/ColliBase.h"
 #include "game/BattleTask.h"
+#include "game/DamageResult_unk.h"
 
 
 // inferred: input state embedded at +0x48C of the object behind lbl_8087F0A8
@@ -79,28 +80,10 @@ extern "C" int fn_8004ED34(void* colli, atn::ColliResult_unk* result, const atn:
                            unsigned int mask, void* ignore, int arg7);
 extern "C" int fn_8004D388(void* world, atn::ColliResult_unk* result, CharaTask::Sphere_unk* sphere, atn::Vector3* move,
                            unsigned int mask, void* ignore, int arg, float radius); // inferred: sweep test
-// inferred: damage record shown by fn_80108C10 (as DaemonDamage_unk of game/Em203GreaterDaemon.cpp)
-struct Damage_unk {
-    Damage_unk() : m00(0), m04(0), m08(0), m0C(0), m10(0), m14(-1) {
-        m1C = 0;
-        m18 = -1;
-    }
-    int m00;
-    int m04;
-    int m08;
-    int m0C;
-    int m10;
-    int m14;
-    int m18;
-    unsigned int m1C : 4;
-    unsigned int m1C_rest : 28;
-};
-extern "C" void fn_80108C10(BattleTask* effect, Damage_unk* damage, const atn::Vector3& pos, CharaTask* attacker,
-                            CharaTask* chara, int b, int c);
 // inferred: the damage computation (game/DamageCalc_unk.h, with the record above)
 struct DamageParam_unk;
 extern "C" DamageParam_unk lbl_807C6B90;
-extern "C" int fn_8003EA3C(Damage_unk* result, HitInfo_unk* data, CharaTask* attacker, CharaTask* target,
+extern "C" int fn_8003EA3C(DamageResult_unk* result, HitInfo_unk* data, CharaTask* attacker, CharaTask* target,
                            unsigned int flags, const DamageParam_unk* param, const atn::Vector3* pos,
                            const atn::Vector3* rot);
 extern "C" int swprintf(wchar_t* buf, unsigned long size, const wchar_t* format, ...);
@@ -1135,10 +1118,10 @@ int ControlMatHoldDamage::vf0C() {
         mChara->mPos = pos;
     }
     if (Frame_unk(m) >= m->fn_80097D7C(0)) {
-        Damage_unk damage;
-        damage.m04 = 10000;
-        damage.m00 = 1;
-        fn_80108C10(lbl_8087F048, &damage, mChara->mPos + atn::Vector3(0.0f, 15.0f, 0.0f), 0, mChara, 0, 0);
+        DamageResult_unk damage;
+        damage.mDamage = 10000;
+        damage.mType = 1;
+        lbl_8087F048->fn_80108C10(&damage, mChara->mPos + atn::Vector3(0.0f, 15.0f, 0.0f), 0, mChara, 0, 0);
         mChara->vf44();
         return 1;
     }
@@ -1700,16 +1683,16 @@ int ControlAbsorbedHP::vf0C() {
     } else {
         if (--mTimer < 0) {
             mTimer = 30;
-            Damage_unk damage;
+            DamageResult_unk damage;
             fn_8003EA3C(&damage, mHit, mOther, mChara, 0, &lbl_807C6B90, 0, 0);
             atn::Vector3 pos = mChara->fn_80148B0C(0)->m04.mCenter;
             pos += atn::Vector3(0.0f, 15.0f, 0.0f);
-            fn_80108C10(lbl_8087F048, &damage, pos, mOther, mChara, 0, 0);
-            mOther->mStatus.fn_8012DF7C(-damage.m04, 0, 0);
+            lbl_8087F048->fn_80108C10(&damage, pos, mOther, mChara, 0, 0);
+            mOther->mStatus.fn_8012DF7C(-damage.mDamage, 0, 0);
             pos = mOther->fn_80148B0C(0)->m04.mCenter;
             pos += atn::Vector3(0.0f, 15.0f, 0.0f);
             wchar_t text[0x20];
-            swprintf(text, 0x20, L"%d", damage.m04);
+            swprintf(text, 0x20, L"%d", damage.mDamage);
             lbl_8087F8A8->fn_8054D794(1, text, &pos, 0, 0, 1, 0, 0, 0, 1, -1, -1);
         }
         if (mChara->mType == 0) {
