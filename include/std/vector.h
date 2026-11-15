@@ -538,7 +538,10 @@ public:
     void reserve(size_type n) { __reserve_unk(n, (T*)0); }
     // inferred: inlined in the d2anime loader (0x801FFA04, float* elements): new elements are
     // zeroed, removed ones are dropped through __shrink_unk
-    void resize(size_type n) {
+    // inferred: one inline level more than the growth (MSL resize(n) forwards; the weak copies 0x8032B314 and
+    // 0x8032BE88 have the stack slots of the growth temporaries of an inlined resize)
+    void resize(size_type n) { __resize_unk(n); }
+    void __resize_unk(size_type n) {
         if (n > this->mSize) {
             __append_unk(n - this->mSize);
         } else if (n < this->mSize) {

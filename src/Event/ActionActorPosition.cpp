@@ -460,17 +460,7 @@ void ActionActorPosition::fn_80551194(Action* arg, float t) {
 }
 
 // inferred: helpers of the spline compiled in another file (weak copies, C names as in game/Em403WarLion.cpp)
-// inferred: raw storage of a std::vector<float> (constructed and destroyed through the weak copies)
-struct PathFloats_unk {
-    float* mData;
-    unsigned int mSize;
-    unsigned int mCap;
-};
-extern "C" void fn_8032B314(std::vector<PathCubic_unk>* v, unsigned int n);          // inferred: resize
-extern "C" PathFloats_unk* fn_8032B6F8(PathFloats_unk* v, unsigned int n);           // inferred: vector(n)
-extern "C" void fn_8000D844(PathFloats_unk* v, int flag);                            // inferred: ~vector<float>
 extern "C" void fn_8032B7F0(PathSpline_unk* spline, const float* y, PathCubic_unk* out); // inferred: solve
-extern "C" void fn_8032BE88(std::vector<float>* v, unsigned int n);                  // inferred: resize
 extern "C" float fn_8032C1EC(PathSpline_unk* spline, int i);                         // inferred: segment length
 
 inline Path* EventManager_unk::FindPath_unk(int id) {
@@ -486,34 +476,28 @@ inline Path* EventManager_unk::FindPath_unk(int id) {
 // inferred: builds the spline through the points (same code as WarLionBuild_unk of game/Em403WarLion.cpp)
 inline void PathSpline_unk::Build_unk(const atn::Vector3* pts, int n) {
     mNumSegments = n;
-    fn_8032B314(&mX, n - 1);
-    fn_8032B314(&mY, n - 1);
-    fn_8032B314(&mZ, n - 1);
-    PathFloats_unk zs;
-    PathFloats_unk ys;
-    PathFloats_unk xs;
-    fn_8032B6F8(&xs, n);
-    fn_8032B6F8(&ys, n);
-    fn_8032B6F8(&zs, n);
+    mX.resize(n - 1);
+    mY.resize(n - 1);
+    mZ.resize(n - 1);
+    PathLengths_unk xs(n);
+    PathLengths_unk ys(n);
+    PathLengths_unk zs(n);
     for (int i = 0; i < n; i++) {
-        xs.mData[i] = pts[i].x;
-        ys.mData[i] = pts[i].y;
-        zs.mData[i] = pts[i].z;
+        xs.begin()[i] = pts[i].x;
+        ys.begin()[i] = pts[i].y;
+        zs.begin()[i] = pts[i].z;
     }
-    fn_8032B7F0(this, xs.mData, mX.begin());
-    fn_8032B7F0(this, ys.mData, mY.begin());
-    fn_8032B7F0(this, zs.mData, mZ.begin());
+    fn_8032B7F0(this, xs.begin(), mX.begin());
+    fn_8032B7F0(this, ys.begin(), mY.begin());
+    fn_8032B7F0(this, zs.begin(), mZ.begin());
     mStart = pts[0];
     mEnd = pts[n - 1];
     mLength = 0.0f;
-    fn_8032BE88(&mLengths, n - 1);
+    mLengths.resize(n - 1);
     for (int i = 0; i < n - 1; i++) {
         mLengths[i] = fn_8032C1EC(this, i);
         mLength += mLengths[i];
     }
-    fn_8000D844(&zs, -1);
-    fn_8000D844(&ys, -1);
-    fn_8000D844(&xs, -1);
 }
 
 // inferred: the path of the actor follows the points of an event path

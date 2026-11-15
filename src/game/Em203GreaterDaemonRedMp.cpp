@@ -30,6 +30,8 @@ extern "C" double sqrt(double x);
 extern "C" double sin(double x);
 // inferred: empty release assert (some functions of the original are not auto-inlined)
 #define ASSERT_UNK(x) ((void)0)
+#define ASSERT10_UNK(x) ASSERT_UNK(x); ASSERT_UNK(x); ASSERT_UNK(x); ASSERT_UNK(x); ASSERT_UNK(x); ASSERT_UNK(x); ASSERT_UNK(x); ASSERT_UNK(x); ASSERT_UNK(x); ASSERT_UNK(x)
+#define ASSERT100_UNK(x) ASSERT10_UNK(x); ASSERT10_UNK(x); ASSERT10_UNK(x); ASSERT10_UNK(x); ASSERT10_UNK(x); ASSERT10_UNK(x); ASSERT10_UNK(x); ASSERT10_UNK(x); ASSERT10_UNK(x); ASSERT10_UNK(x)
 
 extern "C" int rand();
 
@@ -1493,8 +1495,10 @@ int Em203GreaterDaemonRedMp::fn_802A36B8() {
 }
 
 // inferred: rotation-matrix helper for the Z angle in fn_802A3D80.
-extern "C" void fn_802A3D64(Mtx m, float rad) {
-    PSMTXRotRad(m, 'z', rad);
+extern "C" atn::Matrix3x4 fn_802A3D64(float rad) {
+    atn::Matrix3x4 m;
+    PSMTXRotRad(m.m, 'z', rad);
+    return m;
 }
 
 int Em203GreaterDaemonRedMp::fn_802A3D6C(HitInfo_unk* skill) {
@@ -1506,13 +1510,41 @@ int Em203GreaterDaemonRedMp::fn_802A3D6C(HitInfo_unk* skill) {
 extern "C" CharaManager<PlayerTask>* fn_8000D9E8();
 extern "C" CharaTask* fn_802A36B0(CharaManager<PlayerTask>* mgr);
 extern "C" int fn_802A4168(CharaManager<EnemyTask>* manager);
-extern "C" EnemyTask* fn_802A4094(EnemyTask* enemy);
-extern "C" unsigned int fn_802A409C(BattleCharaTask* chara);
-extern "C" float fn_802A40A8(float min, float max);
-extern "C" void fn_802A4120(HomingParam_unk* param);
 extern "C" EnemyTask* fn_801A0408(CharaManager<EnemyTask>* mgr); // inferred: first enemy
 extern "C" EnemyTask* fn_801A03EC(EnemyTask* enemy);            // inferred: next enemy
 BattleTask* fn_8013A194(); // inferred: bullet manager (lbl_8087F048)
+
+// inferred: next EnemyTask link used by the daemon's homing target search.
+extern "C" inline EnemyTask* fn_802A4094(EnemyTask* enemy) {
+    return enemy->mNext;
+}
+
+// inferred: whether the C25 battle-character flag is set.
+extern "C" inline unsigned int fn_802A409C(BattleCharaTask* chara) {
+    return chara->mFlagC25;
+}
+
+// inferred: random value between min and max (used by fn_802A3D80)
+extern "C" inline float fn_802A40A8(float min, float max) {
+    return (max - min) * ((float)rand() / 32767.0f) + min;
+}
+
+// inferred: default homing parameters of the shots of fn_802A3D80 (as DaemonHoming_unk of
+// game/Em203GreaterDaemon.cpp)
+// inferred: the empty asserts only count for the inline budget of fn_802A3D80 (the original calls every
+// inline function out of line there, docs/inlining.md R3)
+extern "C" inline void fn_802A4120(HomingParam_unk* param) {
+    ASSERT100_UNK(param != 0); ASSERT100_UNK(param != 0); ASSERT100_UNK(param != 0);
+    param->mTarget = 0;
+    param->mAccel = 0.0f;
+    param->m08 = -1.0f;
+    param->mMaxSpeed = 10.0f;
+    param->mTurn = 0.09424778f;
+    param->mTime = 300.0f;
+    param->mDelay = 5.0f;
+    param->mNode = 0;
+    param->mCount = -1;
+}
 
 // inferred: weak copies of the vector of candidate enemies of fn_802A3D80 (called out of line there in the
 // original, which is over the inline budget)
@@ -1521,9 +1553,10 @@ template EnemyTask*& std::vector<EnemyTask*>::operator[](size_type i);
 
 // inferred: fires the laser (m14E8) at the leader (single) or at every player and every other enemy
 // that can act (names invented)
-// NONMATCHING: 0% - over the inline budget in the original (R3 of docs/inlining.md: every helper,
-// push_back, CanAct_unk, GetTrans_unk, DegToRad_unk... is called with bl); ours inlines push_back and
-// CanAct_unk (with the helpers of this file as inline candidates it still inlines all of them)
+// inferred: over the inline budget in the original (R3 of docs/inlining.md: every helper, push_back,
+// CanAct_unk, GetTrans_unk, DegToRad_unk... is called with bl): the asserts of fn_802A4120 put it there
+// NONMATCHING: 99.9% - only the name of the destructor relocation of the list (the original calls the copy
+// named __dt__18NecroPlaceList_unkFv in symbols.txt, emitted by Em001Necromancer; as Em206CocoonMp::vf104)
 void Em203GreaterDaemonRedMp::fn_802A3D80(int single) {
     if (m14E8 == 0) {
         return;
@@ -1531,8 +1564,7 @@ void Em203GreaterDaemonRedMp::fn_802A3D80(int single) {
     fn_802A4168((CharaManager<EnemyTask>*)fn_8000D9E8());
     std::vector<EnemyTask*> targets;
     if (single != 0) {
-        EnemyTask* head = (EnemyTask*)((PlayerManager*)fn_8000D9E8())->GetHead_unk();
-        targets.push_back(head);
+        targets.push_back((EnemyTask*)((PlayerManager*)fn_8000D9E8())->GetHead_unk());
     } else {
         for (EnemyTask* p = (EnemyTask*)fn_802A36B0(fn_8000D9E8()); p != 0; p = fn_802A4094(p)) {
             if (p->CanAct_unk()) {
@@ -1545,23 +1577,24 @@ void Em203GreaterDaemonRedMp::fn_802A3D80(int single) {
             }
         }
     }
+    fn_800E0AA8((const IntVector_unk*)&targets);
     for (unsigned int i = 0; i < fn_800E0AA8((const IntVector_unk*)&targets); i++) {
+        HomingParam_unk param;
         CharaTask* target = targets[i];
         atn::Vector3 pos = ((atn::Matrix3x4*)GetModel_unk()->GetNodeMtx_unk("spine"))->GetTrans_unk();
         atn::Vector3 offset(0.0f, 0.0f, 30.0f);
-        offset.fn_80011410(fn_800109E0(mRot));
-        offset.fn_80011410(((atn::Matrix3x4*)GetModel_unk()->GetNodeMtx_unk("spine"))->GetRotation_unk());
+        atn::Matrix3x4 rot = fn_800109E0(mRot);
+        offset.fn_80011410(rot);
+        atn::Matrix3x4 spine = ((atn::Matrix3x4*)GetModel_unk()->GetNodeMtx_unk("spine"))->GetRotation_unk();
+        offset.fn_80011410(spine);
         pos += offset;
         float angle = fn_802A40A8(0.0f, 180.0f);
         atn::Vector3 dir(0.0f, 0.0f, 10.0f);
-        atn::Matrix3x4 ry;
-        ry.fn_8013A13C(atn::DegToRad_unk(90.0f));
-        dir.fn_80011410(ry);
-        atn::Matrix3x4 rz;
-        fn_802A3D64(rz.m, atn::DegToRad_unk(angle));
-        dir.fn_80011410(rz);
+        Mtx ry;
+        ((atn::Matrix3x4*)ry)->fn_8013A13C(atn::DegToRad_unk(90.0f));
+        dir.fn_80011410(*(atn::Matrix3x4*)ry);
+        dir.fn_80011410(fn_802A3D64(atn::DegToRad_unk(angle)));
         dir.fn_80011410(fn_800109E0(mRot));
-        HomingParam_unk param;
         fn_802A4120(&param);
         param.mTarget = target;
         param.mDelay = 10.0f;
@@ -1571,35 +1604,6 @@ void Em203GreaterDaemonRedMp::fn_802A3D80(int single) {
         param.mTurn = atn::DegToRad_unk(m1694);
         fn_8013A194()->fn_800F8574(this, m14E8, &pos, &dir, &param, 0x104, 0, 0.0f, 1.0f);
     }
-}
-
-// inferred: next EnemyTask link used by the daemon's homing target search.
-extern "C" EnemyTask* fn_802A4094(EnemyTask* enemy) {
-    return enemy->mNext;
-}
-
-// inferred: whether the C25 battle-character flag is set.
-extern "C" unsigned int fn_802A409C(BattleCharaTask* chara) {
-    return chara->mFlagC25;
-}
-
-// inferred: random value between min and max (used by fn_802A3D80)
-extern "C" float fn_802A40A8(float min, float max) {
-    return (max - min) * ((float)rand() / 32767.0f) + min;
-}
-
-// inferred: default homing parameters of the shots of fn_802A3D80 (as DaemonHoming_unk of
-// game/Em203GreaterDaemon.cpp)
-extern "C" void fn_802A4120(HomingParam_unk* param) {
-    param->mTarget = 0;
-    param->mAccel = 0.0f;
-    param->m08 = -1.0f;
-    param->mMaxSpeed = 10.0f;
-    param->mTurn = 0.09424778f;
-    param->mTime = 300.0f;
-    param->mDelay = 5.0f;
-    param->mNode = 0;
-    param->mCount = -1;
 }
 
 // NONMATCHING: 99.29% - loop counter registers swapped (r29/r30, as Red fn_8029C564)
