@@ -116,12 +116,9 @@ inline atn::Vector3 GetFrontDir_unk(const chr::ControlBase* control) {
     return dir;
 }
 
-// inferred: starts motion `id` on track 0 (name invented)
-inline void PlayMotion_unk(chr::Motion_unk* m, int id, float speed) {
-    m->m34C = 1;
-    m->mTracks[0].m20 = 1.0f;
-    m->fn_80097C08(0, id, 0, 0, 1, 0.0f, 0.1f);
-    m->mTracks[0].m0C = speed;
+// inferred: weak copy 0x8013C38C (address of the position), inlined here
+inline atn::Vector3* CharaTask::fn_8013C38C() {
+    return &mPos;
 }
 
 namespace chr {
@@ -223,8 +220,9 @@ int ControlCannonLift::vf0C() {
     return 0;
 }
 
-// NONMATCHING: 98.92% - register allocation of the inlined ControlCannonTarget constructor (the
-// new object is in r28, ours r31) and the r3/r4 swap of the __VecCopy of m08.
+// NONMATCHING: 99.26% - saved registers of the inlined ControlCannonTarget constructor (the original
+// keeps this/result/zero/new object in r31/r30/r29/r28, ours r30/r29/r28/r31). Tried: `next` local,
+// ControlBase* local, mChara without the cast.
 boost::function<void()> ControlCannonLift::vf10() const {
     if (m0C) {
         return boost::bind(&CharaTask::fn_80178208, (CharaTask*)mChara,
@@ -319,13 +317,16 @@ int ControlCannonThrow::vf0C() {
     return 0;
 }
 
-// NONMATCHING: 99.6% - r3/r4 swapped in the __VecCopy of the front point (documented __VecCopy
-// blocker).
+// The position is read through the accessor 0x8013C38C (puts the sum address in r3 and mChara in r4).
 ControlCannonTarget::ControlCannonTarget(Chara_unk* chara) : ControlMoveCursor(chara), m2C(0) {
     Chara_unk* c = mChara;
     c->m560 = 0x21;
-    PlayMotion_unk(&mChara->mMotion, 0x6F, 1.0f);
-    m08 = mChara->mPos + GetFrontDir_unk(this) * 30.0f;
+    Motion_unk* motion = mChara->GetModel_unk();
+    motion->m34C = 1;
+    motion->mTracks[0].m20 = 1.0f;
+    motion->fn_80097C08(0, 0x6F, 0, 0, 1, 0.0f, 0.1f);
+    motion->mTracks[0].m0C = 1.0f;
+    m08 = *mChara->fn_8013C38C() + GetFrontDir_unk(this) * 30.0f;
     m28 = ((gmk::Cannonball*)mChara->m1208)->fn_803FB830();
     SetAim_unk();
 }
