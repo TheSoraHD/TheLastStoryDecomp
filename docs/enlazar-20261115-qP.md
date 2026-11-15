@@ -29,6 +29,10 @@ Total: 15587 -> 15590 en `report.json` (lost 0, sin bajadas).
   llamadas. Un `Chara_unk* chara = mChara;` antes del `if` usado en `m570 = leader->m570` lo reproduce (54 -> 46
   lineas) y `chara->m570` en la ultima rama baja a 45; quedan f29/f30 y r3/r4 de la copia a `m6B8` (probado
   `VecAssign_unk`, `chara->`, locales, `(-d).GetNormalize()`). Sin commitear (solo fuzzy).
+- ControlChaseCatch::vf0C (98,1): escribir `FrontDir_unk` a mano en la funcion con `Mtx scale; Mtx rm;` declarados
+  en ese orden tras `front` deja la pila como el original (88 -> 60 lineas); quedan los registros salvados
+  (original: motion r28, mChara r30, `p` r31). Probado: `chara` local antes/despues de `m`/`p`, sin `p`,
+  `RotZYX_unk(p, ...)` como en ControlBase, `done` antes de `motion`, `&mChara->mMotion`. Sin commitear.
 - ControlGrappleThrown::vf0C (99,77): r6/r7 de `mChara` en los argumentos de `fn_8004D388` y r3/r4 en la copia de
   `result.m10`; probado `VecAssign_unk`, `pos(result.m10)`, `c0` local, orden de `c`/`pos`.
 - ControlGrappled::vf10 (99,44): huecos de pila de los dos `Mtx`; probado `Mtx` primero, bloque `{}` para la
