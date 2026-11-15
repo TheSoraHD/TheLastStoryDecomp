@@ -368,6 +368,8 @@ extern "C" int fn_80363C28(wchar_t* dst, const char* src, unsigned int size) {
     return i + 1;
 }
 
+ErrorManager* lbl_8087F420;
+
 // inferred: creates the instance
 extern "C" void fn_80363CE4() {
     if (lbl_8087F420 == 0) {
@@ -405,13 +407,15 @@ static inline void DrawString_unk(ErrorManager* m, const char* msg, int y) {
         int cx;
         void* image;
         p = OSGetFontTexture(p, &image, &cx, &cy, &width);
-        SysFont_unk* font = (SysFont_unk*)m->mFont.get();
+        // inferred: not get(); a reference to get() here emits its weak copy behind fn_803646C4 (the original has
+        // it behind fn_80364BE8)
+        SysFont_unk* font = (SysFont_unk*)&*m->mFont;
         GXTexObj obj;
         GXInitTexObj(&obj, image, font->m1E, font->m20, font->m18, 0, 0, 0);
         GXInitTexObjLOD(&obj, 1, 1, 0.0f, 0.0f, 0.0f, 0, 0, 0);
         GXLoadTexObj(&obj, 0);
         SysMtx mtx;
-        PSMTXScale(mtx, 1.0f / ((SysFont_unk*)m->mFont.get())->m1E, 1.0f / ((SysFont_unk*)m->mFont.get())->m20, 1.0f);
+        PSMTXScale(mtx, 1.0f / ((SysFont_unk*)&*m->mFont)->m1E, 1.0f / ((SysFont_unk*)&*m->mFont)->m20, 1.0f);
         GXLoadTexMtxImm(mtx, 30, 1);
         GXSetNumTexGens(1);
         GXSetTexCoordGen2(0, 1, 4, 30, 0, 125);
@@ -641,27 +645,23 @@ struct ErrColor_unk {
     float r, g, b, a;
 };
 
-// inferred: draws the message with the OS font when the layouts are not available (name invented)
-static inline void DrawFontMessage_unk(ErrorManager* m) {
-    int y;
-    unsigned int i;
+// inferred: draws one line of the message with the OS font (name invented; DrawString_unk has to be inlined
+// one level deeper for its locals to get the original registers and stack slots)
+static inline void DrawLine_unk(ErrorManager* m, const char* msg, int y) {
+    DrawString_unk(m, msg, y);
+}
+
+// inferred: clears the screen before drawing the message with the OS font when the layouts are not available
+// (name invented; gfx has to come from an inline for the loop registers to match)
+static inline SysGraphics_unk* BeginFontDraw_unk() {
     SysGraphics_unk* gfx;
     gfx = lbl_8087EEE0;
     gfx->mClearColor = ErrColor_unk(0.0f, 0.0f, 0.0f, 1.0f).ToARGB_unk();
     fn_8007192C(gfx);
     fn_80075DEC(gfx);
-    for (i = 0, y = 50; i < 4; i++, y += 30) {
-        DrawString_unk(m, sMessages[fn_8006BA30()][m->mError][i], y);
-    }
-    fn_80071AFC(gfx);
-    fn_80071D60(gfx, 1);
+    return gfx;
 }
 
-// NONMATCHING: 99.86% - the loop counter of DrawFontMessage_unk and its strength-reduced index swapped
-// (r27/r29 in the original). Also tried (enlazar-20261115 qL): row pointer or message in a local, the language
-// in a local, `(&row[0])[i]`, flat index `err * 4 + i`, while loop, increments swapped, both inlines as
-// members of ErrorManager. qX: inline accessors (line, row, language table, mError, font, gfx), loop in its own
-// inline, loop written in the function with i/y at function scope, pointer to the line, row + index, y type.
 void ErrorManager::fn_803646C4() {
     if (!IsBusy_unk()) {
         if (mError == 0) {
@@ -681,7 +681,12 @@ void ErrorManager::fn_803646C4() {
             return;
         }
         if (mFont) {
-            DrawFontMessage_unk(this);
+            SysGraphics_unk* gfx = BeginFontDraw_unk();
+            for (unsigned int i = 0; i < 4; i++) {
+                DrawLine_unk(this, sMessages[fn_8006BA30()][mError][i], i * 30 + 50);
+            }
+            fn_80071AFC(gfx);
+            fn_80071D60(gfx, 1);
         } else if (mReady == 0 || mWindow->IsFlag_unk(4)) {
             fn_80364BE8();
         }
