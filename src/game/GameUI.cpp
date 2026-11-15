@@ -5924,7 +5924,7 @@ bool GameUI::fn_803E43A4() {
     return m1130 != 0;
 }
 
-void GameUI::fn_803E43B8(int on) {
+void GameUI::fn_803E43B8(int on, int) {
     if (on) {
         mD8C = 1;
         mD84 = 0;
@@ -5937,7 +5937,7 @@ void GameUI::fn_803E43B8(int on) {
     }
 }
 
-void GameUI::fn_803E4434(int on) {
+void GameUI::fn_803E4434(int on, int) {
     if (on) {
         mD8C = 2;
         mD84 = 0;
@@ -6034,10 +6034,10 @@ void GameUI::fn_803E454C() {
     fn_803CF74C();
     fn_803E4510();
     if (mD8C == 1) {
-        fn_803E43B8(0);
+        fn_803E43B8(0, -1);
     }
     if (mD8C == 2) {
-        fn_803E4434(0);
+        fn_803E4434(0, -1);
     }
 }
 

@@ -3636,13 +3636,13 @@ void GameTask::fn_80370320(int index, int value, int arg) {
                     if ((unsigned int)m56F4.mCount < 8) {
                         m56F4.Push_unk(index);
                     }
-                    lbl_8087F490->fn_803E43B8(1);
+                    lbl_8087F490->fn_803E43B8(1, index);
                 }
             }
         }
     }
     if (index == 0xAC && value != 0) {
-        lbl_8087F490->fn_803E4434(1);
+        lbl_8087F490->fn_803E4434(1, -1);
     }
     if (index == 0x6D && value != 0) {
         CrossbowMenuTask::sInstance->fn_801E97DC();

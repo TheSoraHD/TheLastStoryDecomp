@@ -346,8 +346,8 @@ public:
     void fn_803E4100();
     void fn_803E41AC(CharaTask* chara);
     bool fn_803E43A4();
-    void fn_803E43B8(int on);
-    void fn_803E4434(int on); // inferred: names invented for the fields set here
+    void fn_803E43B8(int on, int); // inferred: second argument unused (GameTask::fn_80370320 passes the flag index)
+    void fn_803E4434(int on, int); // inferred: names invented for the fields set here
     void fn_803E4478();
     void fn_803E44C4(int on, int id, int count);
     void fn_803E4510();
