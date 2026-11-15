@@ -1,0 +1,1892 @@
+diff --git a/include/Event/Channel.h b/include/Event/Channel.h
+index 53fb4f4..b571cf0 100644
+--- a/include/Event/Channel.h
++++ b/include/Event/Channel.h
+@@ -4,7 +4,7 @@
+ #include "Event/Node.h"
+ #include <boost/shared_ptr.hpp>
+ #include "std/vector.h"
+-#include "std/string.h"
++#include "std/basic_string.h"
+ 
+ namespace Event {
+ 
+diff --git a/include/Event/CommonData.h b/include/Event/CommonData.h
+index d00a343..b71ee42 100644
+--- a/include/Event/CommonData.h
++++ b/include/Event/CommonData.h
+@@ -1,7 +1,7 @@
+ #ifndef EVENT_COMMONDATA_H
+ #define EVENT_COMMONDATA_H
+ 
+-#include "std/string.h"
++#include "std/basic_string.h"
+ 
+ namespace Event {
+ 
+diff --git a/include/Event/Cut.h b/include/Event/Cut.h
+index 3e53aa1..23e4fae 100644
+--- a/include/Event/Cut.h
++++ b/include/Event/Cut.h
+@@ -3,7 +3,7 @@
+ 
+ #include "Event/Section.h"
+ #include "Event/Label.h"
+-#include "std/string.h"
++#include "std/basic_string.h"
+ 
+ namespace Event {
+ 
+diff --git a/include/Event/Label.h b/include/Event/Label.h
+index 4fea14d..41c1e38 100644
+--- a/include/Event/Label.h
++++ b/include/Event/Label.h
+@@ -2,7 +2,7 @@
+ #define EVENT_LABEL_H
+ 
+ #include "Event/Node.h"
+-#include "std/string.h"
++#include "std/basic_string.h"
+ 
+ namespace Event {
+ 
+diff --git a/include/Event/Manager.h b/include/Event/Manager.h
+index 4a61dc4..199030b 100644
+--- a/include/Event/Manager.h
++++ b/include/Event/Manager.h
+@@ -9,7 +9,7 @@
+ #include "std/vector.h"
+ #include "game/IntVector_unk.h"
+ #include "game/MapTask.h"
+-#include "std/string.h"
++#include "std/basic_string.h"
+ #include "std/list.h"
+ #include "atn/Sphere.h"
+ #include "atn/ColorMatrixParam_unk.h"
+diff --git a/include/Event/MotionData.h b/include/Event/MotionData.h
+index 398e620..ed47455 100644
+--- a/include/Event/MotionData.h
++++ b/include/Event/MotionData.h
+@@ -9,7 +9,7 @@
+ #include "atn/Array_unk.h"
+ #include "atn/LH_Motion.h"
+ #include "math/Vec.h"
+-#include "std/string.h"
++#include "std/basic_string.h"
+ #include "Event/PoseKey_unk.h"
+ 
+ namespace atn {
+diff --git a/include/Event/Path.h b/include/Event/Path.h
+index 32acfb9..1d9d665 100644
+--- a/include/Event/Path.h
++++ b/include/Event/Path.h
+@@ -3,7 +3,7 @@
+ 
+ #include "Event/CommonData.h"
+ #include "atn/Camera_unk.h"
+-#include "std/string.h"
++#include "std/basic_string.h"
+ #include "std/vector.h"
+ #include "Event/PathSpline.h"
+ #include "macros.h"
+diff --git a/include/Event/Section.h b/include/Event/Section.h
+index fe7fff0..c0f1717 100644
+--- a/include/Event/Section.h
++++ b/include/Event/Section.h
+@@ -2,7 +2,7 @@
+ #define EVENT_SECTION_H
+ 
+ #include "Event/Channel.h"
+-#include "std/string.h"
++#include "std/basic_string.h"
+ 
+ namespace Event {
+ 
+diff --git a/include/Event/Sequence.h b/include/Event/Sequence.h
+index f2cda51..dc0771e 100644
+--- a/include/Event/Sequence.h
++++ b/include/Event/Sequence.h
+@@ -7,7 +7,7 @@
+ #include "atn/SoundRef.h"
+ #include "atn/static_string.h"
+ #include "math/Vec.h"
+-#include "std/string.h"
++#include "std/basic_string.h"
+ #include "std/vector.h"
+ #include <boost/shared_ptr.hpp>
+ #include "Event/Node.h"
+diff --git a/include/MP/D2AMpMenu_unk.h b/include/MP/D2AMpMenu_unk.h
+index f2ddb68..949687c 100644
+--- a/include/MP/D2AMpMenu_unk.h
++++ b/include/MP/D2AMpMenu_unk.h
+@@ -9,7 +9,7 @@
+ #include "atn/FixedArray.h"
+ #include "atn/Memory.h"
+ #include "atn/SoundRef.h"
+-#include "std/string.h"
++#include "std/basic_string.h"
+ 
+ namespace atn {
+ // inferred: the d2anime task, declared here with only the members used by the menus
+diff --git a/include/atn/D2A_Data.h b/include/atn/D2A_Data.h
+index 0b3e752..b343ca0 100644
+--- a/include/atn/D2A_Data.h
++++ b/include/atn/D2A_Data.h
+@@ -3,7 +3,7 @@
+ 
+ #include "atn/D2A_Common.h"
+ #include "atn/Memory.h"
+-#include "std/string.h"
++#include "std/basic_string.h"
+ 
+ namespace atn {
+ 
+diff --git a/include/atn/D2A_Message.h b/include/atn/D2A_Message.h
+index 8806cce..dd82413 100644
+--- a/include/atn/D2A_Message.h
++++ b/include/atn/D2A_Message.h
+@@ -3,7 +3,7 @@
+ 
+ #include "atn/D2A_Common.h"
+ #include "atn/D2A_Data.h"
+-#include "std/string.h"
++#include "std/basic_string.h"
+ 
+ namespace atn {
+ 
+diff --git a/include/atn/D2A_TaskInstance.h b/include/atn/D2A_TaskInstance.h
+index 5d43b61..cfa28bc 100644
+--- a/include/atn/D2A_TaskInstance.h
++++ b/include/atn/D2A_TaskInstance.h
+@@ -3,7 +3,7 @@
+ 
+ #include "atn/Task.h"
+ #include "atn/D2A_Common.h"
+-#include "std/string.h"
++#include "std/basic_string.h"
+ 
+ namespace atn {
+ 
+diff --git a/include/atn/FileList.h b/include/atn/FileList.h
+index cae377f..c21b30d 100644
+--- a/include/atn/FileList.h
++++ b/include/atn/FileList.h
+@@ -1,7 +1,7 @@
+ #ifndef ATN_FILELIST_H
+ #define ATN_FILELIST_H
+ 
+-#include "std/string.h"
++#include "std/basic_string.h"
+ #include "std/vector.h"
+ 
+ namespace atn {
+diff --git a/include/atn/LoadManager.h b/include/atn/LoadManager.h
+index e2c830b..892506c 100644
+--- a/include/atn/LoadManager.h
++++ b/include/atn/LoadManager.h
+@@ -4,7 +4,7 @@
+ #include "atn/LoadCore.h"
+ #include "atn/Memory.h"
+ #include "std/list.h"
+-#include "std/string.h"
++#include "std/basic_string.h"
+ #include "atn/Task.h"
+ #include "game/ResHandle.h"
+ 
+diff --git a/include/atn/MapModelCache_unk.h b/include/atn/MapModelCache_unk.h
+index 9a9118e..0217e24 100644
+--- a/include/atn/MapModelCache_unk.h
++++ b/include/atn/MapModelCache_unk.h
+@@ -5,7 +5,7 @@
+ // tells whether one is still loading). atn::ModelInstance and game/MapPartsLocatorSet keep pointers to them.
+ #include "atn/LH_Binary.h"
+ #include "atn/Model_unk.h"
+-#include "std/string.h"
++#include "std/basic_string.h"
+ 
+ extern "C" unsigned int fn_800DC6B4(const char* s); // inferred: string hash
+ extern "C" std::basic_string<char> fn_8006B174(const std::basic_string<char>& path);
+diff --git a/include/atn/Material_unk.h b/include/atn/Material_unk.h
+index 31c4b05..50363c6 100644
+--- a/include/atn/Material_unk.h
++++ b/include/atn/Material_unk.h
+@@ -8,7 +8,7 @@
+ #include "atn/Memory.h"
+ #include "atn/Texture_unk.h"
+ #include "math/Vec.h"
+-#include "std/string.h"
++#include "std/basic_string.h"
+ #include <boost/function.hpp>
+ 
+ extern "C" unsigned long strlen(const char* s);
+diff --git a/include/atn/Model_unk.h b/include/atn/Model_unk.h
+index c864399..f179c57 100644
+--- a/include/atn/Model_unk.h
++++ b/include/atn/Model_unk.h
+@@ -45,7 +45,7 @@ struct ModelCamera_unk;
+ // material of a model node (returned by atn::Model::fn_80092954; include/atn/Material_unk.h)
+ struct Material_unk;
+ struct ShaderLOD_unk; // include/atn/Shader_unk.h
+-#include "std/string.h"
++#include "std/basic_string.h"
+ namespace atn {
+ class Texture;
+ typedef Texture Texture_unk;
+diff --git a/include/atn/PBone.h b/include/atn/PBone.h
+index 2f7ab5b..bbf4b3a 100644
+--- a/include/atn/PBone.h
++++ b/include/atn/PBone.h
+@@ -5,7 +5,7 @@
+ // created by atn::Model::fn_800973C0 from the "BONE" lines of the model CSV.
+ #include "atn/Csv.h"
+ #include "math/Vec.h"
+-#include "std/string.h"
++#include "std/basic_string.h"
+ 
+ // inferred: view of the model used by the bones (defined in atn/PBoneBasic.cpp)
+ struct PBoneModel_unk;
+diff --git a/include/atn/RenderManager.h b/include/atn/RenderManager.h
+index 340c3ac..ea2f426 100644
+--- a/include/atn/RenderManager.h
++++ b/include/atn/RenderManager.h
+@@ -6,7 +6,7 @@
+ #include "atn/Sphere.h"
+ #include "atn/Color.h"
+ #include "atn/DrawCmd_unk.h"
+-#include "std/string.h"
++#include "std/basic_string.h"
+ #include <boost/function.hpp>
+ 
+ namespace atn {
+diff --git a/include/atn/WordWrap_unk.h b/include/atn/WordWrap_unk.h
+index 2199e28..e11051e 100644
+--- a/include/atn/WordWrap_unk.h
++++ b/include/atn/WordWrap_unk.h
+@@ -4,7 +4,7 @@
+ // inferred: word wrap of the texts (atn/WordWrap_unk.cpp). One declaration for the callers: they
+ // declared fn_800E0000 with the arguments in other orders (same registers on the Wii, not in every
+ // PC ABI). atn/D2A_Message keeps its own for now: with this one vf18 loses 0.01 of fuzzy.
+-#include "std/string.h"
++#include "std/basic_string.h"
+ #include "std/vector.h"
+ 
+ // inferred: measures one character; returns < 0 to use the font
+diff --git a/include/atn/net/Manager.h b/include/atn/net/Manager.h
+index 8cca062..99e4a5d 100644
+--- a/include/atn/net/Manager.h
++++ b/include/atn/net/Manager.h
+@@ -5,7 +5,7 @@
+ // atn/NetManager.cpp). MP::ManagerMP derives from it; the instance is lbl_8087F628. Member names are
+ // invented; offsets checked against 0x80508B74 (constructor) and the methods of atn/NetManager.cpp.
+ 
+-#include "std/string.h"
++#include "std/basic_string.h"
+ #include "atn/MemoryManager.h"
+ #include "std/new.h"
+ #include "atn/FixedArray.h"
+diff --git a/include/db/EventIdTable_unk.h b/include/db/EventIdTable_unk.h
+index 2f21974..bd6b2d2 100644
+--- a/include/db/EventIdTable_unk.h
++++ b/include/db/EventIdTable_unk.h
+@@ -3,7 +3,7 @@
+ 
+ #include "atn/Array_unk.h"
+ #include "gmk/SeTable.h"
+-#include "std/string.h"
++#include "std/basic_string.h"
+ 
+ // inferred: one row of /boot/event_id_table.csv (0x60 bytes)
+ struct EventIdEntry_unk {
+diff --git a/include/game/CampSaveLoad.h b/include/game/CampSaveLoad.h
+index 04cefc2..cb58fcc 100644
+--- a/include/game/CampSaveLoad.h
++++ b/include/game/CampSaveLoad.h
+@@ -6,7 +6,7 @@
+ #include "atn/Texture_unk.h"
+ #include "atn/LH_Binary.h"
+ #include "atn/Array_unk.h"
+-#include "std/string.h"
++#include "std/basic_string.h"
+ #include "game/GameSaveTask.h"
+ #include "atn/ResRef_unk.h"
+ 
+diff --git a/include/game/Em204Mulue.h b/include/game/Em204Mulue.h
+index e9d6b4e..65cd3ef 100644
+--- a/include/game/Em204Mulue.h
++++ b/include/game/Em204Mulue.h
+@@ -8,7 +8,7 @@
+ #include "game/EnemyTask.h"
+ #include "game/ResHandle.h"
+ #include "game/SpecialEnemyBase.h"
+-#include "std/string.h"
++#include "std/basic_string.h"
+ #include "std/vector.h"
+ 
+ struct RoutePlace_unk;
+diff --git a/include/game/EnemyJill.h b/include/game/EnemyJill.h
+index d6f9889..8c4970e 100644
+--- a/include/game/EnemyJill.h
++++ b/include/game/EnemyJill.h
+@@ -7,7 +7,7 @@
+ #include "atn/SoundRef.h"
+ #include "game/EnemyTask.h"
+ #include "game/ResHandle.h"
+-#include "std/string.h"
++#include "std/basic_string.h"
+ #include "math/Vec.h"
+ 
+ // inferred: line "Event" of the data file: two event flags, a hit point ratio and the index of a voice
+diff --git a/include/game/GameEventScript.h b/include/game/GameEventScript.h
+index b587b1e..b2c90f2 100644
+--- a/include/game/GameEventScript.h
++++ b/include/game/GameEventScript.h
+@@ -8,7 +8,7 @@
+ #include "std/vector.h"
+ #include "std/tree.h"
+ #include "std/msl_common.h"
+-#include "std/string.h"
++#include "std/basic_string.h"
+ 
+ class CharaTask;
+ class GameScene;
+diff --git a/include/game/GameUI.h b/include/game/GameUI.h
+index 66c14c0..ae7eeb8 100644
+--- a/include/game/GameUI.h
++++ b/include/game/GameUI.h
+@@ -8,7 +8,7 @@
+ #include "game/CharaStatus.h"
+ #include "game/ResHandle.h"
+ #include "math/Vec.h"
+-#include "std/string.h"
++#include "std/basic_string.h"
+ #include "std/vector.h"
+ 
+ // inferred: list {data, count} freed with delete (GameUI 0x30C); names invented. The three levels
+diff --git a/include/game/LibraryTask.h b/include/game/LibraryTask.h
+index b6beda2..3675e37 100644
+--- a/include/game/LibraryTask.h
++++ b/include/game/LibraryTask.h
+@@ -8,7 +8,7 @@
+ #include "atn/Texture_unk.h"
+ #include "game/MenuCommonTask.h"
+ #include "game/ResHandle.h"
+-#include "std/string.h"
++#include "std/basic_string.h"
+ #include "std/vector.h"
+ 
+ // inferred: entry of the book list (0x98 bytes, read from book_table_xx.u16); names invented
+diff --git a/include/game/MapTask.h b/include/game/MapTask.h
+index 522eaac..2723439 100644
+--- a/include/game/MapTask.h
++++ b/include/game/MapTask.h
+@@ -9,7 +9,7 @@
+ #include "atn/Task.h"
+ #include "game/ResHandle.h"
+ #include "atn/ResRef_unk.h"
+-#include "std/string.h"
++#include "std/basic_string.h"
+ 
+ #define MAPTASK_ASSERT_UNK(x) ((void)0)
+ 
+diff --git a/include/game/NewCampPartsBase.h b/include/game/NewCampPartsBase.h
+index 25fe54e..c9a48df 100644
+--- a/include/game/NewCampPartsBase.h
++++ b/include/game/NewCampPartsBase.h
+@@ -3,7 +3,7 @@
+ 
+ #include "atn/Task.h"
+ #include "atn/Memory.h"
+-#include "std/string.h"
++#include "std/basic_string.h"
+ #include "math/Vec.h"
+ #include "atn/LH_Xsca.h"
+ 
+diff --git a/include/game/TownTask.h b/include/game/TownTask.h
+index 1275235..6bc3286 100644
+--- a/include/game/TownTask.h
++++ b/include/game/TownTask.h
+@@ -5,7 +5,7 @@
+ #include "game/ResHandle.h"
+ #include "math/Vec.h"
+ #include "atn/LH_Binary.h"
+-#include "std/string.h"
++#include "std/basic_string.h"
+ #include "std/vector.h"
+ 
+ class TownTpcLoader;
+diff --git a/include/gmk/GmkChara.h b/include/gmk/GmkChara.h
+index 8d28365..14399ce 100644
+--- a/include/gmk/GmkChara.h
++++ b/include/gmk/GmkChara.h
+@@ -2,7 +2,7 @@
+ #define GMK_GMKCHARA_H
+ 
+ #include "game/CharaTask.h"
+-#include "std/string.h"
++#include "std/basic_string.h"
+ 
+ namespace gmk {
+ 
+diff --git a/include/gmk/MapLift.h b/include/gmk/MapLift.h
+index ea5a716..464cc25 100644
+--- a/include/gmk/MapLift.h
++++ b/include/gmk/MapLift.h
+@@ -4,7 +4,7 @@
+ #include "atn/Array_unk.h"
+ #include "atn/MotionSlot_unk.h"
+ #include "game/GimmickCommon.h"
+-#include "std/string.h"
++#include "std/basic_string.h"
+ #include "std/vector.h"
+ 
+ namespace gmk {
+diff --git a/include/gmk/RandomMerchant.h b/include/gmk/RandomMerchant.h
+index a6d6d4e..f6a8244 100644
+--- a/include/gmk/RandomMerchant.h
++++ b/include/gmk/RandomMerchant.h
+@@ -7,7 +7,7 @@
+ #include "game/CharaTask.h"
+ #include "game/GimmickCommon.h"
+ #include "gmk/SeTable.h"
+-#include "std/string.h"
++#include "std/basic_string.h"
+ 
+ extern "C" unsigned long strlen(const char* s);
+ extern "C" void* memcpy(void* dst, const void* src, unsigned long n);
+diff --git a/include/std/string.h b/include/std/basic_string.h
+similarity index 100%
+rename from include/std/string.h
+rename to include/std/basic_string.h
+diff --git a/include/std/locale_facets_unk.h b/include/std/locale_facets_unk.h
+index a9ecc78..e0e7fe7 100644
+--- a/include/std/locale_facets_unk.h
++++ b/include/std/locale_facets_unk.h
+@@ -6,7 +6,7 @@
+ // copies: numpunct<char> (0x30 bytes: the two characters at 0x08/0x09 and the grouping, true and false names
+ // at 0x0C/0x18/0x24), num_put (8 bytes, do_put slots 0x0C-0x28) and the stream iterator (one pointer).
+ 
+-#include "std/string.h"
++#include "std/basic_string.h"
+ #include "std/locale.h"
+ #include "std/streambuf.h"
+ #include "std/ostream.h"
+diff --git a/include/std/streambuf.h b/include/std/streambuf.h
+index 7f204db..36fccda 100644
+--- a/include/std/streambuf.h
++++ b/include/std/streambuf.h
+@@ -6,7 +6,7 @@
+ // LastWorld_tools.rso. Data member names are invented (the six area pointers in the standard
+ // order, then the locale).
+ 
+-#include "std/string.h"
++#include "std/basic_string.h"
+ #include "std/ios_base.h"
+ #include "std/locale.h"
+ 
+diff --git a/include/std/string_members.h b/include/std/string_members.h
+index 97a40ef..c49db50 100644
+--- a/include/std/string_members.h
++++ b/include/std/string_members.h
+@@ -8,7 +8,7 @@
+ // game/EquipItemData.cpp have their messages in their pools, so they include this file (the weak
+ // copies are dropped by the linker).
+ 
+-#include "std/string.h"
++#include "std/basic_string.h"
+ 
+ namespace std {
+ 
+diff --git a/include/std/vector_string.h b/include/std/vector_string.h
+index d61e5cf..260d722 100644
+--- a/include/std/vector_string.h
++++ b/include/std/vector_string.h
+@@ -6,7 +6,7 @@
+ // bytes (memcpy + memset, as for pointer elements) and the old storage and the temporary buffer are
+ // then cleared element by element. Names invented.
+ 
+-#include "std/string.h"
++#include "std/basic_string.h"
+ #include "std/vector.h"
+ 
+ namespace std {
+diff --git a/include/std/vector_wstring.h b/include/std/vector_wstring.h
+index 6093f32..31246e7 100644
+--- a/include/std/vector_wstring.h
++++ b/include/std/vector_wstring.h
+@@ -4,7 +4,7 @@
+ // inferred: std::vector<std::wstring>, same reallocation as std::vector<std::string> (std/vector_string.h).
+ // A header of its own: the specialization renumbers the @N labels of every unit that sees it.
+ 
+-#include "std/string.h"
++#include "std/basic_string.h"
+ #include "std/vector.h"
+ 
+ namespace std {
+diff --git a/libs/boost/msl_shim/stdexcept b/libs/boost/msl_shim/stdexcept
+index c3b55f0..400c04e 100644
+--- a/libs/boost/msl_shim/stdexcept
++++ b/libs/boost/msl_shim/stdexcept
+@@ -1,6 +1,6 @@
+ #ifndef SHIM_STDEXCEPT
+ #define SHIM_STDEXCEPT
+ #include <exception>
+-#include "std/string.h"
++#include "std/basic_string.h"
+ #include "std/stdexcept.h"
+ #endif
+diff --git a/libs/boost/msl_shim/string b/libs/boost/msl_shim/string
+index c35a426..83bd7cb 100644
+--- a/libs/boost/msl_shim/string
++++ b/libs/boost/msl_shim/string
+@@ -2,5 +2,5 @@
+ #define SHIM_STRING
+ // Stand-in for MSL C++ <string>: the reconstruction in std/string.h.
+ #include <cstring>
+-#include "std/string.h"
++#include "std/basic_string.h"
+ #endif
+diff --git a/src/AI/AI_archer_attack01.cpp b/src/AI/AI_archer_attack01.cpp
+index 1228112..a79e588 100644
+--- a/src/AI/AI_archer_attack01.cpp
++++ b/src/AI/AI_archer_attack01.cpp
+@@ -3,7 +3,7 @@
+ #include "game/CharaManager.h"
+ #include "game/PlayerTask.h"
+ #include "game/SkillEffectManager.h"
+-#include "std/string.h"
++#include "std/basic_string.h"
+ #include "std/new.h"
+ #include "std/tree.h"
+ #include "atn/Memory.h"
+diff --git a/src/AI/AiCommon_unk.cpp b/src/AI/AiCommon_unk.cpp
+index b2e22ec..5567fe2 100644
+--- a/src/AI/AiCommon_unk.cpp
++++ b/src/AI/AiCommon_unk.cpp
+@@ -8,7 +8,7 @@
+ #include "game/CharaManager.h"
+ #include "game/PlayerTask.h"
+ #include "game/SkillEffectManager.h"
+-#include "std/string.h"
++#include "std/basic_string.h"
+ #include "game/GameTask.h"
+ 
+ extern "C" int rand();
+diff --git a/src/Event/ActionEffectPlay.cpp b/src/Event/ActionEffectPlay.cpp
+index 72926ff..2130ef8 100644
+--- a/src/Event/ActionEffectPlay.cpp
++++ b/src/Event/ActionEffectPlay.cpp
+@@ -9,7 +9,7 @@
+ #include "atn/Bgm.h"
+ #include "atn/SoundRef.h"
+ #include "Event/Cut.h"
+-#include "std/string.h"
++#include "std/basic_string.h"
+ #include <boost/bind.hpp>
+ #include "game/MapManager.h"
+ #include "game/EnvSeManager.h"
+diff --git a/src/Event/Dialog.cpp b/src/Event/Dialog.cpp
+index 8127b6e..970ec98 100644
+--- a/src/Event/Dialog.cpp
++++ b/src/Event/Dialog.cpp
+@@ -13,7 +13,7 @@
+ #include "Event/DialogHead.h"
+ #include "atn/LipSync_unk.h"
+ #include "game/GimmickCommon.h"
+-#include "std/string.h"
++#include "std/basic_string.h"
+ #include "atn/DrawHelper.h"
+ #include "std/string_members.h"
+ #include "Event/Dialog.h"
+diff --git a/src/Event/DialogHead.cpp b/src/Event/DialogHead.cpp
+index 32e946c..c4537e9 100644
+--- a/src/Event/DialogHead.cpp
++++ b/src/Event/DialogHead.cpp
+@@ -5,7 +5,7 @@
+ #include "atn/LipSync_unk.h"
+ #include "atn/DrawHelper.h"
+ #include "atn/Memory.h"
+-#include "std/string.h"
++#include "std/basic_string.h"
+ #include "macros.h"
+ #include <boost/function.hpp>
+ #include "std/string_members.h"
+diff --git a/src/atn/AudioDevice.cpp b/src/atn/AudioDevice.cpp
+index 4d5ba57..e870291 100644
+--- a/src/atn/AudioDevice.cpp
++++ b/src/atn/AudioDevice.cpp
+@@ -8,7 +8,7 @@
+ #include "atn/Array_unk.h"
+ #include "atn/MemoryManager.h"
+ #include "atn/Csv.h"
+-#include "std/string.h"
++#include "std/basic_string.h"
+ #include "std/msl_common.h"
+ #include "std/new.h"
+ #include <boost/function.hpp>
+diff --git a/src/atn/D2A_ParamTable_unk.cpp b/src/atn/D2A_ParamTable_unk.cpp
+index b3e03be..9f936b7 100644
+--- a/src/atn/D2A_ParamTable_unk.cpp
++++ b/src/atn/D2A_ParamTable_unk.cpp
+@@ -1,5 +1,5 @@
+ #include "atn/D2A_Common.h"
+-#include "std/string.h"
++#include "std/basic_string.h"
+ 
+ // Keyed parameter tables of the D2A elements: {key, value} pairs sorted by key, with a setter and
+ // an interpolated getter for each value type (int, float, wide string). Name of the file invented
+diff --git a/src/atn/D2A_Task.cpp b/src/atn/D2A_Task.cpp
+index 5617401..a677d4e 100644
+--- a/src/atn/D2A_Task.cpp
++++ b/src/atn/D2A_Task.cpp
+@@ -1,6 +1,6 @@
+ #include "atn/D2A_Task.h"
+ #include "atn/Memory.h"
+-#include "std/string.h"
++#include "std/basic_string.h"
+ #include "std/string_members.h"
+ #include "atn/DrawHelper.h"
+ 
+diff --git a/src/atn/D2A_TaskInstanceBase_64_8.cpp b/src/atn/D2A_TaskInstanceBase_64_8.cpp
+index bde85a9..1723cbf 100644
+--- a/src/atn/D2A_TaskInstanceBase_64_8.cpp
++++ b/src/atn/D2A_TaskInstanceBase_64_8.cpp
+@@ -1,7 +1,7 @@
+ #include "atn/D2A_TaskInstanceC.h"
+ #include "atn/D2A_Task.h"
+ #include "atn/Memory.h"
+-#include "std/string.h"
++#include "std/basic_string.h"
+ #include "std/string_members.h"
+ 
+ // Instances of d2anime files: each one keeps its own frame and pane values and applies them to the
+diff --git a/src/atn/D2A_Texture.cpp b/src/atn/D2A_Texture.cpp
+index eb064cd..9608bb7 100644
+--- a/src/atn/D2A_Texture.cpp
++++ b/src/atn/D2A_Texture.cpp
+@@ -3,7 +3,7 @@
+ #include "atn/D2A_Data.h"
+ #include "atn/D2A_Message.h"
+ #include "math/Vec.h"
+-#include "std/string.h"
++#include "std/basic_string.h"
+ #include "atn/DrawHelper.h"
+ 
+ extern "C" int sprintf(char* s, const char* format, ...);
+diff --git a/src/atn/DrawHelper.cpp b/src/atn/DrawHelper.cpp
+index 81ec240..f58abd0 100644
+--- a/src/atn/DrawHelper.cpp
++++ b/src/atn/DrawHelper.cpp
+@@ -9,7 +9,7 @@
+ #include "atn/LoadHandle.h"
+ #include "atn/Memory.h"
+ #include "math/Vec.h"
+-#include "std/string.h"
++#include "std/basic_string.h"
+ #include <boost/scoped_array.hpp>
+ #include "math/VecAssign_unk.h"
+ 
+diff --git a/src/atn/FileList.cpp b/src/atn/FileList.cpp
+index 6e7e4e8..ded1f16 100644
+--- a/src/atn/FileList.cpp
++++ b/src/atn/FileList.cpp
+@@ -1,7 +1,7 @@
+ #include "atn/FileList.h"
+ #include "atn/MemoryManager.h"
+ #include "atn/Memory.h"
+-#include "std/string.h"
++#include "std/basic_string.h"
+ #include "std/string_members.h"
+ #include <stdarg.h>
+ 
+diff --git a/src/atn/FileSystem_unk.cpp b/src/atn/FileSystem_unk.cpp
+index 97cfea5..4a7c718 100644
+--- a/src/atn/FileSystem_unk.cpp
++++ b/src/atn/FileSystem_unk.cpp
+@@ -5,7 +5,7 @@
+ #include "atn/PfsArchive_unk.h"
+ #include <string.h>
+ #include <ctype.h>
+-#include "std/string.h"
++#include "std/basic_string.h"
+ 
+ extern "C" int sprintf(char* s, const char* format, ...);
+ struct DebugMessages_unk { void fn_800698DC(const char* path); }; // inferred: see atn/FileUtil_unk.cpp
+diff --git a/src/atn/LH_Effect.cpp b/src/atn/LH_Effect.cpp
+index 4a930c6..c928499 100644
+--- a/src/atn/LH_Effect.cpp
++++ b/src/atn/LH_Effect.cpp
+@@ -3,7 +3,7 @@
+ #include "atn/LoadManager.h"
+ #include "atn/Texture_unk.h"
+ #include "atn/Model_unk.h"
+-#include "std/string.h"
++#include "std/basic_string.h"
+ #include "std/string_members.h"
+ 
+ extern "C" int strcmp(const char* a, const char* b);
+diff --git a/src/atn/LH_Motion.cpp b/src/atn/LH_Motion.cpp
+index e8aa23b..ac97a95 100644
+--- a/src/atn/LH_Motion.cpp
++++ b/src/atn/LH_Motion.cpp
+@@ -1,6 +1,6 @@
+ #include "atn/LH_Motion.h"
+ #include "atn/LoadCore.h"
+-#include "std/string.h"
++#include "std/basic_string.h"
+ #include "atn/Loader_unk.h"
+ #include "atn/LoadManager.h"
+ #include "atn/LoadMotion.h"
+diff --git a/src/atn/Loader.cpp b/src/atn/Loader.cpp
+index 8da0ebc..09ddb35 100644
+--- a/src/atn/Loader.cpp
++++ b/src/atn/Loader.cpp
+@@ -6,7 +6,7 @@
+ #include "atn/LH_Binary.h"
+ #include "atn/PfsArchive_unk.h"
+ #include "atn/FileList.h"
+-#include "std/string.h"
++#include "std/basic_string.h"
+ #include <string.h>
+ 
+ extern "C" char* strstr(const char* s, const char* sub);
+diff --git a/src/atn/MaterialParser_unk.cpp b/src/atn/MaterialParser_unk.cpp
+index 1aa8f5a..528e84b 100644
+--- a/src/atn/MaterialParser_unk.cpp
++++ b/src/atn/MaterialParser_unk.cpp
+@@ -7,7 +7,7 @@
+ #include "atn/RenderSetting_unk.h"
+ #include "atn/Shader_unk.h"
+ #include "game/GimmickCommon.h"
+-#include "std/string.h"
++#include "std/basic_string.h"
+ #include "std/string_members.h"
+ 
+ extern "C" RenderSetting_unk* lbl_8087EFA8;
+diff --git a/src/atn/Model.cpp b/src/atn/Model.cpp
+index 2c90402..eaea15c 100644
+--- a/src/atn/Model.cpp
++++ b/src/atn/Model.cpp
+@@ -8,7 +8,7 @@
+ #include "atn/Csv.h"
+ #include "atn/Shader_unk.h"
+ #include "atn/MemoryManager.h"
+-#include "std/string.h"
++#include "std/basic_string.h"
+ #include "atn/AABB_unk.h"
+ #include "atn/PBone.h"
+ #include "atn/RenderManager.h"
+diff --git a/src/atn/Motion_unk.cpp b/src/atn/Motion_unk.cpp
+index 9b50b6a..91dce3b 100644
+--- a/src/atn/Motion_unk.cpp
++++ b/src/atn/Motion_unk.cpp
+@@ -12,7 +12,7 @@
+ #include "atn/Memory.h"
+ #include "game/MotionCmdData_unk.h"
+ #include "gmk/MapLift.h"
+-#include "std/string.h"
++#include "std/basic_string.h"
+ #include "std/string_members.h"
+ #include "std/vector.h"
+ #include "std/tree.h"
+diff --git a/src/atn/NandManager.cpp b/src/atn/NandManager.cpp
+index c1eb3d1..307b79f 100644
+--- a/src/atn/NandManager.cpp
++++ b/src/atn/NandManager.cpp
+@@ -6,7 +6,7 @@
+ #include "atn/D2A_Message.h"
+ #include "atn/D2A_Task.h"
+ #include "atn/Memory.h"
+-#include "std/string.h"
++#include "std/basic_string.h"
+ #include "std/string_members.h"
+ 
+ extern "C" {
+diff --git a/src/atn/NetFriend_unk.cpp b/src/atn/NetFriend_unk.cpp
+index 4525cad..722450f 100644
+--- a/src/atn/NetFriend_unk.cpp
++++ b/src/atn/NetFriend_unk.cpp
+@@ -4,7 +4,7 @@
+ // (0x16, 0x18, 0x20) where ours has one: extra copies from code that is not in the DOL, so the
+ // functions that use the pool are NONMATCHING only by their offsets.
+ 
+-#include "std/string.h"
++#include "std/basic_string.h"
+ #include "std/string_members.h"
+ 
+ extern "C" void* memset(void* dst, int c, unsigned long n);
+diff --git a/src/atn/PBoneBasic.cpp b/src/atn/PBoneBasic.cpp
+index 5c78207..05961e6 100644
+--- a/src/atn/PBoneBasic.cpp
++++ b/src/atn/PBoneBasic.cpp
+@@ -2,7 +2,7 @@
+ #include "atn/PBone.h"
+ #include "atn/Model_unk.h"
+ #include "math/Vec.h"
+-#include "std/string.h"
++#include "std/basic_string.h"
+ #include <boost/function.hpp>
+ #include "atn/DrawHelper.h"
+ #include "std/string_members.h"
+diff --git a/src/atn/TextAnimation.cpp b/src/atn/TextAnimation.cpp
+index 8ff8edb..f9a1072 100644
+--- a/src/atn/TextAnimation.cpp
++++ b/src/atn/TextAnimation.cpp
+@@ -1,6 +1,6 @@
+ #include "atn/Task.h"
+ #include "atn/RenderSetting_unk.h"
+-#include "std/string.h"
++#include "std/basic_string.h"
+ #include "std/vector.h"
+ #include "std/new.h"
+ #include "atn/Memory.h"
+diff --git a/src/atn/VideoTHP.cpp b/src/atn/VideoTHP.cpp
+index be61008..76bbdf2 100644
+--- a/src/atn/VideoTHP.cpp
++++ b/src/atn/VideoTHP.cpp
+@@ -1,4 +1,4 @@
+-#include "std/string.h"
++#include "std/basic_string.h"
+ #include "atn/MemoryManager.h"
+ #include "std/string_members.h"
+ #include "atn/RenderManager.h"
+diff --git a/src/atn/WordWrap_unk.cpp b/src/atn/WordWrap_unk.cpp
+index 3cff97f..10876d4 100644
+--- a/src/atn/WordWrap_unk.cpp
++++ b/src/atn/WordWrap_unk.cpp
+@@ -7,7 +7,7 @@
+ //
+ // atn/WordWrap_unk.cpp: word wrap of the game texts (file name invented). Line breaks follow the
+ // Japanese kinsoku rules (table of characters that cannot start or end a line).
+-#include "std/string.h"
++#include "std/basic_string.h"
+ #include "std/vector.h"
+ #include "std/string_members.h"
+ #include "atn/WordWrap_unk.h"
+diff --git a/src/atn/Xsca_unk.cpp b/src/atn/Xsca_unk.cpp
+index 3ab947b..189306c 100644
+--- a/src/atn/Xsca_unk.cpp
++++ b/src/atn/Xsca_unk.cpp
+@@ -2,7 +2,7 @@
+ // the loaded data). The file is a list of named chunks; every chunk holds the name of a curve set
+ // and its keys, read on demand by fn_805BDCBC. Names invented.
+ 
+-#include "std/string.h"
++#include "std/basic_string.h"
+ #include "atn/Memory.h"
+ #include "std/string_members.h"
+ #include "std/vector.h"
+diff --git a/src/atn/XsfParser_unk.cpp b/src/atn/XsfParser_unk.cpp
+index 64a2c57..449f813 100644
+--- a/src/atn/XsfParser_unk.cpp
++++ b/src/atn/XsfParser_unk.cpp
+@@ -2,7 +2,7 @@
+ // magic is "@FSX") and the curves read from them (one MSL std::map<float, key> per channel, laid out
+ // by hand as in game/GameEventScript.h). Names invented.
+ 
+-#include "std/string.h"
++#include "std/basic_string.h"
+ #include "std/tree.h"
+ #include "std/new.h"
+ 
+diff --git a/src/atn/ptr_string_base_char_0.cpp b/src/atn/ptr_string_base_char_0.cpp
+index 658aae0..e3ec679 100644
+--- a/src/atn/ptr_string_base_char_0.cpp
++++ b/src/atn/ptr_string_base_char_0.cpp
+@@ -1,7 +1,7 @@
+ #include "atn/Csv.h"
+ #include "atn/Memory.h"
+ #include "atn/Array_unk.h"
+-#include "std/string.h"
++#include "std/basic_string.h"
+ #include "std/string_members.h"
+ #include "std/new.h"
+ #include "std/tree.h"
+diff --git a/src/chr/CharaEquip_unk.cpp b/src/chr/CharaEquip_unk.cpp
+index e2cb2c1..8478048 100644
+--- a/src/chr/CharaEquip_unk.cpp
++++ b/src/chr/CharaEquip_unk.cpp
+@@ -11,7 +11,7 @@
+ #include "atn/EffectManager.h"
+ #include "atn/ModelCamera_unk.h"
+ #include "atn/Csv.h"
+-#include "std/string.h"
++#include "std/basic_string.h"
+ #include "std/string_members.h"
+ #include "Event/Manager.h"
+ #include "atn/RenderManager.h"
+diff --git a/src/chr/ControlDamage.cpp b/src/chr/ControlDamage.cpp
+index 81eb868..edc67a9 100644
+--- a/src/chr/ControlDamage.cpp
++++ b/src/chr/ControlDamage.cpp
+@@ -11,7 +11,7 @@
+ #include "gmk/Lemon.h"
+ #include "atn/LoadHandle.h"
+ #include "atn/SoundRef.h"
+-#include "std/string.h"
++#include "std/basic_string.h"
+ #include "std/string_members.h"
+ #include <boost/bind.hpp>
+ #include "game/BattleTask.h"
+diff --git a/src/db/AiTable_unk.cpp b/src/db/AiTable_unk.cpp
+index 7f9c50e..b251184 100644
+--- a/src/db/AiTable_unk.cpp
++++ b/src/db/AiTable_unk.cpp
+@@ -1,6 +1,6 @@
+ #include "atn/Csv.h"
+ #include "atn/Memory.h"
+-#include "std/string.h"
++#include "std/basic_string.h"
+ #include "std/string_members.h"
+ 
+ extern "C" int strcmp(const char* a, const char* b);
+diff --git a/src/db/CharaIdTable_unk.cpp b/src/db/CharaIdTable_unk.cpp
+index b99020f..5637af7 100644
+--- a/src/db/CharaIdTable_unk.cpp
++++ b/src/db/CharaIdTable_unk.cpp
+@@ -1,7 +1,7 @@
+ #include "atn/Csv.h"
+ #include "atn/FileList.h"
+ #include "atn/Memory.h"
+-#include "std/string.h"
++#include "std/basic_string.h"
+ #include "std/string_members.h"
+ 
+ extern "C" int strcmp(const char* a, const char* b);
+diff --git a/src/db/CharaMotionParam_unk.cpp b/src/db/CharaMotionParam_unk.cpp
+index f0b690b..26ac7f4 100644
+--- a/src/db/CharaMotionParam_unk.cpp
++++ b/src/db/CharaMotionParam_unk.cpp
+@@ -1,7 +1,7 @@
+ #include "atn/Csv.h"
+ #include "atn/FileList.h"
+ #include "atn/Memory.h"
+-#include "std/string.h"
++#include "std/basic_string.h"
+ #include "std/string_members.h"
+ 
+ extern "C" int strcmp(const char* a, const char* b);
+diff --git a/src/db/CharaParam_unk.cpp b/src/db/CharaParam_unk.cpp
+index 44d3bc5..f60a989 100644
+--- a/src/db/CharaParam_unk.cpp
++++ b/src/db/CharaParam_unk.cpp
+@@ -1,6 +1,6 @@
+ #include "atn/Csv.h"
+ #include "atn/Memory.h"
+-#include "std/string.h"
++#include "std/basic_string.h"
+ #include "std/string_members.h"
+ #include <boost/tokenizer.hpp>
+ 
+diff --git a/src/db/EquipParam_unk.cpp b/src/db/EquipParam_unk.cpp
+index 0c3d977..0d5224f 100644
+--- a/src/db/EquipParam_unk.cpp
++++ b/src/db/EquipParam_unk.cpp
+@@ -3,7 +3,7 @@
+ #include "atn/Memory.h"
+ #include "db/EquipParam_unk.h"
+ #include "gmk/SeTable.h"
+-#include "std/string.h"
++#include "std/basic_string.h"
+ #include "std/string_members.h"
+ #include <boost/tokenizer.hpp>
+ 
+diff --git a/src/db/HairBackControl_unk.cpp b/src/db/HairBackControl_unk.cpp
+index 392de3c..faf7474 100644
+--- a/src/db/HairBackControl_unk.cpp
++++ b/src/db/HairBackControl_unk.cpp
+@@ -2,7 +2,7 @@
+ #include "atn/Csv.h"
+ #include "atn/LH_Binary.h"
+ #include "atn/Memory.h"
+-#include "std/string.h"
++#include "std/basic_string.h"
+ #include "std/string_members.h"
+ 
+ extern "C" char* strstr(const char* s, const char* sub);
+diff --git a/src/db/OptionParts_unk.cpp b/src/db/OptionParts_unk.cpp
+index b38c0c8..f10a49f 100644
+--- a/src/db/OptionParts_unk.cpp
++++ b/src/db/OptionParts_unk.cpp
+@@ -2,7 +2,7 @@
+ #include "atn/Memory.h"
+ #include "db/OptionParts_unk.h"
+ #include "gmk/SeTable.h"
+-#include "std/string.h"
++#include "std/basic_string.h"
+ #include "std/string_members.h"
+ 
+ extern "C" int strcmp(const char* a, const char* b);
+diff --git a/src/db/ParseUtil_unk.cpp b/src/db/ParseUtil_unk.cpp
+index b95c9bb..4ef3026 100644
+--- a/src/db/ParseUtil_unk.cpp
++++ b/src/db/ParseUtil_unk.cpp
+@@ -1,7 +1,7 @@
+ #include "atn/Csv.h"
+ #include "atn/Memory.h"
+ #include "db/ParseUtil_unk.h"
+-#include "std/string.h"
++#include "std/basic_string.h"
+ #include "std/string_members.h"
+ #include <boost/tokenizer.hpp>
+ 
+diff --git a/src/db/TutorialTable_unk.cpp b/src/db/TutorialTable_unk.cpp
+index f81daa3..6b61aed 100644
+--- a/src/db/TutorialTable_unk.cpp
++++ b/src/db/TutorialTable_unk.cpp
+@@ -1,7 +1,7 @@
+ #include "atn/Csv.h"
+ #include "atn/Memory.h"
+ #include "gmk/SeTable.h"
+-#include "std/string.h"
++#include "std/basic_string.h"
+ 
+ extern "C" unsigned long wcslen(const wchar_t* s);
+ extern "C" wchar_t* wmemcpy(wchar_t* dst, const wchar_t* src, unsigned long n);
+diff --git a/src/db/VoiceLengthTable_unk.cpp b/src/db/VoiceLengthTable_unk.cpp
+index eb8efe9..c578174 100644
+--- a/src/db/VoiceLengthTable_unk.cpp
++++ b/src/db/VoiceLengthTable_unk.cpp
+@@ -1,6 +1,6 @@
+ #include "atn/Csv.h"
+ #include "atn/Memory.h"
+-#include "std/string.h"
++#include "std/basic_string.h"
+ #include "std/string_members.h"
+ 
+ extern "C" int atoi(const char* s);
+diff --git a/src/db/WeaponParam_unk.cpp b/src/db/WeaponParam_unk.cpp
+index 17db85c..5fc9ef6 100644
+--- a/src/db/WeaponParam_unk.cpp
++++ b/src/db/WeaponParam_unk.cpp
+@@ -4,7 +4,7 @@
+ #include "atn/Memory.h"
+ #include "db/WeaponParam_unk.h"
+ #include "gmk/SeTable.h"
+-#include "std/string.h"
++#include "std/basic_string.h"
+ #include "std/string_members.h"
+ #include <boost/tokenizer.hpp>
+ #include "game/GameTask.h"
+diff --git a/src/game/AreaEffConfig.cpp b/src/game/AreaEffConfig.cpp
+index b5bb691..3630201 100644
+--- a/src/game/AreaEffConfig.cpp
++++ b/src/game/AreaEffConfig.cpp
+@@ -2,7 +2,7 @@
+ #include "atn/Csv.h"
+ #include "atn/Memory.h"
+ #include "std/vector.h"
+-#include "std/string.h"
++#include "std/basic_string.h"
+ #include "std/string_members.h"
+ 
+ extern "C" int strcmp(const char* a, const char* b);
+diff --git a/src/game/Arms.cpp b/src/game/Arms.cpp
+index 109de58..edb236f 100644
+--- a/src/game/Arms.cpp
++++ b/src/game/Arms.cpp
+@@ -4,7 +4,7 @@
+ #include "atn/Memory.h"
+ #include "game/CharaTask.h"
+ #include "game/HitInfo_unk.h"
+-#include "std/string.h"
++#include "std/basic_string.h"
+ #include "std/string_members.h"
+ #include "game/BattleTask.h"
+ #include "game/ReplayBuffer.h"
+diff --git a/src/game/BattleCharaTask.cpp b/src/game/BattleCharaTask.cpp
+index e75d8b1..0bdfa0f 100644
+--- a/src/game/BattleCharaTask.cpp
++++ b/src/game/BattleCharaTask.cpp
+@@ -24,7 +24,7 @@
+ #include "game/SetConfig.h"
+ #include "game/CrossbowMenuTask.h"
+ #include "game/Inventory.h"
+-#include "std/string.h"
++#include "std/basic_string.h"
+ #include "std/string_members.h"
+ #include "atn/Csv.h"
+ #include <boost/tokenizer.hpp>
+diff --git a/src/game/CharaTask.cpp b/src/game/CharaTask.cpp
+index a51a912..4c5ab74 100644
+--- a/src/game/CharaTask.cpp
++++ b/src/game/CharaTask.cpp
+@@ -57,7 +57,7 @@
+ #include "game/GimmickCommon.h"
+ #include "game/HitInfo_unk.h"
+ #include <boost/scoped_ptr.hpp>
+-#include "std/string.h"
++#include "std/basic_string.h"
+ #include "std/string_members.h"
+ #include "atn/Csv.h"
+ #include "game/EquipItemData.h"
+diff --git a/src/game/CopyRobotTask.cpp b/src/game/CopyRobotTask.cpp
+index ea764c8..8479dbb 100644
+--- a/src/game/CopyRobotTask.cpp
++++ b/src/game/CopyRobotTask.cpp
+@@ -1,6 +1,6 @@
+ #include "game/CopyRobotTask.h"
+ #include "game/Inventory.h"
+-#include "std/string.h"
++#include "std/basic_string.h"
+ #include "macros.h"
+ #include "atn/DrawHelper.h"
+ #include "std/string_members.h"
+diff --git a/src/game/CosEditBase.cpp b/src/game/CosEditBase.cpp
+index ee2c4ff..9663389 100644
+--- a/src/game/CosEditBase.cpp
++++ b/src/game/CosEditBase.cpp
+@@ -14,7 +14,7 @@
+ #include "atn/SoundRef.h"
+ #include "atn/Memory.h"
+ #include "atn/Model_unk.h"
+-#include "std/string.h"
++#include "std/basic_string.h"
+ #include "std/string_members.h"
+ #include "string.h"
+ #include "chr/CharaEquip_unk.h"
+diff --git a/src/game/Em001Necromancer.cpp b/src/game/Em001Necromancer.cpp
+index a133717..e41dd9e 100644
+--- a/src/game/Em001Necromancer.cpp
++++ b/src/game/Em001Necromancer.cpp
+@@ -9,7 +9,7 @@
+ #include "game/PlayerTask.h"
+ #include "math/Vec.h"
+ #include "std/new.h"
+-#include "std/string.h"
++#include "std/basic_string.h"
+ #include "std/string_members.h"
+ #include "game/BattleTask.h"
+ #include "atn/ColliBase.h"
+diff --git a/src/game/Em003LesserDaemon.cpp b/src/game/Em003LesserDaemon.cpp
+index 8faf55d..178b83b 100644
+--- a/src/game/Em003LesserDaemon.cpp
++++ b/src/game/Em003LesserDaemon.cpp
+@@ -7,7 +7,7 @@
+ #include "game/PlayerTask.h"
+ #include "game/HomingBullet.h"
+ #include "atn/Csv.h"
+-#include "std/string.h"
++#include "std/basic_string.h"
+ #include "std/string_members.h"
+ #include "macros.h"
+ #include "atn/Material_unk.h"
+diff --git a/src/game/Em101ElderZesya.cpp b/src/game/Em101ElderZesya.cpp
+index bd53d65..bf1a551 100644
+--- a/src/game/Em101ElderZesya.cpp
++++ b/src/game/Em101ElderZesya.cpp
+@@ -11,7 +11,7 @@
+ #include "game/EnemyManager.h"
+ #include "game/HomingBullet.h"
+ #include "game/Em101LittleZesya.h"
+-#include "std/string.h"
++#include "std/basic_string.h"
+ #include "std/string_members.h"
+ #include "game/BattleTask.h"
+ #include "game/GameTask.h"
+diff --git a/src/game/Em101ElderZesyaSecond.cpp b/src/game/Em101ElderZesyaSecond.cpp
+index ae94098..be9913d 100644
+--- a/src/game/Em101ElderZesyaSecond.cpp
++++ b/src/game/Em101ElderZesyaSecond.cpp
+@@ -8,7 +8,7 @@
+ #include "chr/ControlBase.h"
+ #include "atn/Csv.h"
+ #include "atn/Memory.h"
+-#include "std/string.h"
++#include "std/basic_string.h"
+ #include "std/string_members.h"
+ #include "game/BattleTask.h"
+ #include "game/GameTask.h"
+diff --git a/src/game/Em101LittleZesya.cpp b/src/game/Em101LittleZesya.cpp
+index 64f1e36..fcd531a 100644
+--- a/src/game/Em101LittleZesya.cpp
++++ b/src/game/Em101LittleZesya.cpp
+@@ -7,7 +7,7 @@
+ #include "game/HomingBullet.h"
+ #include "math/Vec.h"
+ #include "atn/Csv.h"
+-#include "std/string.h"
++#include "std/basic_string.h"
+ #include "std/string_members.h"
+ #include "game/BattleTask.h"
+ #include "game/GameTask.h"
+diff --git a/src/game/Em101LittleZesyaSecond.cpp b/src/game/Em101LittleZesyaSecond.cpp
+index f68ca84..f6c449d 100644
+--- a/src/game/Em101LittleZesyaSecond.cpp
++++ b/src/game/Em101LittleZesyaSecond.cpp
+@@ -5,7 +5,7 @@
+ #include "game/PlayerTask.h"
+ #include "chr/ControlBase.h"
+ #include "atn/Csv.h"
+-#include "std/string.h"
++#include "std/basic_string.h"
+ #include "std/string_members.h"
+ #include "game/GameTask.h"
+ #include "atn/ColliBase.h"
+diff --git a/src/game/Em201ZanGurg.cpp b/src/game/Em201ZanGurg.cpp
+index 8d36286..03bb6e3 100644
+--- a/src/game/Em201ZanGurg.cpp
++++ b/src/game/Em201ZanGurg.cpp
+@@ -3,7 +3,7 @@
+ #include "atn/Csv.h"
+ #include "game/CharaManager.h"
+ #include "math/Vec.h"
+-#include "std/string.h"
++#include "std/basic_string.h"
+ #include "std/string_members.h"
+ #include "game/GameTask.h"
+ #include "game/BattleTask.h"
+diff --git a/src/game/Em201ZanGurgFinal.cpp b/src/game/Em201ZanGurgFinal.cpp
+index 9fcda0f..f194ad1 100644
+--- a/src/game/Em201ZanGurgFinal.cpp
++++ b/src/game/Em201ZanGurgFinal.cpp
+@@ -11,7 +11,7 @@
+ #include "game/PlayerManager.h"
+ #include "game/PlayerTask.h"
+ #include "math/Vec.h"
+-#include "std/string.h"
++#include "std/basic_string.h"
+ #include "std/string_members.h"
+ #include "game/Input_unk.h"
+ #include "atn/ColliBase.h"
+diff --git a/src/game/Em202ForestSpider.cpp b/src/game/Em202ForestSpider.cpp
+index 0fb751e..71a02ba 100644
+--- a/src/game/Em202ForestSpider.cpp
++++ b/src/game/Em202ForestSpider.cpp
+@@ -11,7 +11,7 @@
+ #include "game/PlayerManager.h"
+ #include "game/FriendManager.h"
+ #include "math/Vec.h"
+-#include "std/string.h"
++#include "std/basic_string.h"
+ #include "std/string_members.h"
+ #include "game/BattleTask.h"
+ #include "atn/ColliBase.h"
+diff --git a/src/game/Em202Spider.cpp b/src/game/Em202Spider.cpp
+index c4011eb..56b778c 100644
+--- a/src/game/Em202Spider.cpp
++++ b/src/game/Em202Spider.cpp
+@@ -4,7 +4,7 @@
+ #include "game/FriendManager.h"
+ #include "game/CharaStatus.h"
+ #include "atn/Csv.h"
+-#include "std/string.h"
++#include "std/basic_string.h"
+ #include "std/string_members.h"
+ #include "atn/ColliBase.h"
+ #include "game/BattleTask.h"
+diff --git a/src/game/Em202SpiderBase.cpp b/src/game/Em202SpiderBase.cpp
+index 6b5dd04..f1d11ca 100644
+--- a/src/game/Em202SpiderBase.cpp
++++ b/src/game/Em202SpiderBase.cpp
+@@ -4,7 +4,7 @@
+ #include "game/CharaStatus.h"
+ #include "math/Vec.h"
+ #include "atn/Csv.h"
+-#include "std/string.h"
++#include "std/basic_string.h"
+ #include "std/string_members.h"
+ #include "math/VecAssign_unk.h"
+ #include "game/BattleTask.h"
+diff --git a/src/game/Em203GreaterDaemon.cpp b/src/game/Em203GreaterDaemon.cpp
+index fdc2b95..6b72cd1 100644
+--- a/src/game/Em203GreaterDaemon.cpp
++++ b/src/game/Em203GreaterDaemon.cpp
+@@ -5,7 +5,7 @@
+ #include "game/PlayerTask.h"
+ #include "math/Vec.h"
+ #include "game/HomingBullet.h"
+-#include "std/string.h"
++#include "std/basic_string.h"
+ #include "std/string_members.h"
+ #include "atn/DrawHelper.h"
+ #include "game/BattleTask.h"
+diff --git a/src/game/Em203GreaterDaemonRed.cpp b/src/game/Em203GreaterDaemonRed.cpp
+index a6ab313..7bc3c14 100644
+--- a/src/game/Em203GreaterDaemonRed.cpp
++++ b/src/game/Em203GreaterDaemonRed.cpp
+@@ -7,7 +7,7 @@
+ #include "game/PlayerManager.h"
+ #include "math/Vec.h"
+ #include "game/HomingBullet.h"
+-#include "std/string.h"
++#include "std/basic_string.h"
+ #include "std/string_members.h"
+ #include "game/MapTask.h"
+ #include "game/BattleTask.h"
+diff --git a/src/game/Em203GreaterDaemonRedMp.cpp b/src/game/Em203GreaterDaemonRedMp.cpp
+index 1fbe8d5..6697cfb 100644
+--- a/src/game/Em203GreaterDaemonRedMp.cpp
++++ b/src/game/Em203GreaterDaemonRedMp.cpp
+@@ -9,7 +9,7 @@
+ #include "math/Vec.h"
+ #include "game/GameBgm.h"
+ #include "game/HomingBullet.h"
+-#include "std/string.h"
++#include "std/basic_string.h"
+ #include "std/string_members.h"
+ #include "std/vector.h"
+ #include "game/MapTask.h"
+diff --git a/src/game/Em204Mulue.cpp b/src/game/Em204Mulue.cpp
+index 5873adb..eea56b3 100644
+--- a/src/game/Em204Mulue.cpp
++++ b/src/game/Em204Mulue.cpp
+@@ -9,7 +9,7 @@
+ #include "game/GameUI.h"
+ #include "math/Vec.h"
+ #include "macros.h"
+-#include "std/string.h"
++#include "std/basic_string.h"
+ #include "std/string_members.h"
+ #include "game/BattleTask.h"
+ #include "game/GameTask.h"
+diff --git a/src/game/Em204MulueMp.cpp b/src/game/Em204MulueMp.cpp
+index c36de05..d6b9114 100644
+--- a/src/game/Em204MulueMp.cpp
++++ b/src/game/Em204MulueMp.cpp
+@@ -8,7 +8,7 @@
+ #include "game/Bullet.h"
+ #include "game/GameBgm.h"
+ #include "math/Vec.h"
+-#include "std/string.h"
++#include "std/basic_string.h"
+ #include "std/string_members.h"
+ #include "math/VecAssign_unk.h"
+ 
+diff --git a/src/game/Em206CocoonMp.cpp b/src/game/Em206CocoonMp.cpp
+index 3bfe8fd..8f1e140 100644
+--- a/src/game/Em206CocoonMp.cpp
++++ b/src/game/Em206CocoonMp.cpp
+@@ -7,7 +7,7 @@
+ #include "math/Vec.h"
+ #include "atn/DrawHelper.h"
+ #include "chr/ControlBase.h"
+-#include "std/string.h"
++#include "std/basic_string.h"
+ #include "std/string_members.h"
+ #include <boost/tokenizer.hpp>
+ #include "game/BattleTask.h"
+diff --git a/src/game/Em209SmallGolem.cpp b/src/game/Em209SmallGolem.cpp
+index 2290ffd..2f48eda 100644
+--- a/src/game/Em209SmallGolem.cpp
++++ b/src/game/Em209SmallGolem.cpp
+@@ -4,7 +4,7 @@
+ #include "game/GameUI.h"
+ #include "chr/Motion_unk.h"
+ #include "atn/Csv.h"
+-#include "std/string.h"
++#include "std/basic_string.h"
+ #include "std/string_members.h"
+ #include <boost/tokenizer.hpp>
+ #include "game/Input_unk.h"
+diff --git a/src/game/Em301LShade.cpp b/src/game/Em301LShade.cpp
+index a4c07af..5382877 100644
+--- a/src/game/Em301LShade.cpp
++++ b/src/game/Em301LShade.cpp
+@@ -11,7 +11,7 @@
+ #include "game/PlayerTask.h"
+ #include "game/SkillEffectManager.h"
+ #include "math/Vec.h"
+-#include "std/string.h"
++#include "std/basic_string.h"
+ #include "std/string_members.h"
+ #include "game/MapTask.h"
+ #include "game/BattleTask.h"
+diff --git a/src/game/Em302Kraken.cpp b/src/game/Em302Kraken.cpp
+index d0f754c..ea782f7 100644
+--- a/src/game/Em302Kraken.cpp
++++ b/src/game/Em302Kraken.cpp
+@@ -11,7 +11,7 @@
+ #include "game/GimmickManager.h"
+ #include "game/GimmickCommon.h"
+ #include "math/Vec.h"
+-#include "std/string.h"
++#include "std/basic_string.h"
+ #include "std/string_members.h"
+ #include "game/BattleTask.h"
+ #include "atn/ColliBase.h"
+diff --git a/src/game/Em302KrakenMp.cpp b/src/game/Em302KrakenMp.cpp
+index 2219734..f632122 100644
+--- a/src/game/Em302KrakenMp.cpp
++++ b/src/game/Em302KrakenMp.cpp
+@@ -12,7 +12,7 @@
+ #include "game/EnemyManager.h"
+ #include "game/PlayerTask.h"
+ #include "math/Vec.h"
+-#include "std/string.h"
++#include "std/basic_string.h"
+ #include "std/string_members.h"
+ #include "game/BattleTask.h"
+ #include "atn/ColliBase.h"
+diff --git a/src/game/Em305Vampire.cpp b/src/game/Em305Vampire.cpp
+index 18d164f..7072d49 100644
+--- a/src/game/Em305Vampire.cpp
++++ b/src/game/Em305Vampire.cpp
+@@ -4,7 +4,7 @@
+ #include "game/CharaStatus.h"
+ #include "game/GimmickCommon.h"
+ #include "game/GimmickManager.h"
+-#include "std/string.h"
++#include "std/basic_string.h"
+ #include "std/string_members.h"
+ #include "game/GameTask.h"
+ #include "atn/ColliBase.h"
+diff --git a/src/game/Em305VampireMp.cpp b/src/game/Em305VampireMp.cpp
+index e88fe38..c02c3eb 100644
+--- a/src/game/Em305VampireMp.cpp
++++ b/src/game/Em305VampireMp.cpp
+@@ -3,7 +3,7 @@
+ #include "atn/Material_unk.h"
+ #include "atn/Csv.h"
+ #include "math/Vec.h"
+-#include "std/string.h"
++#include "std/basic_string.h"
+ #include "std/string_members.h"
+ #include "atn/ColliBase.h"
+ #include "game/BattleTask.h"
+diff --git a/src/game/Em308InvertCrab.cpp b/src/game/Em308InvertCrab.cpp
+index b50fe65..533db14 100644
+--- a/src/game/Em308InvertCrab.cpp
++++ b/src/game/Em308InvertCrab.cpp
+@@ -2,7 +2,7 @@
+ #include "game/Em308InvertCrab.h"
+ #include "atn/Csv.h"
+ #include "math/Vec.h"
+-#include "std/string.h"
++#include "std/basic_string.h"
+ #include "std/string_members.h"
+ #include <boost/function.hpp>
+ #include "atn/DrawHelper.h"
+diff --git a/src/game/Em308ParmCrab.cpp b/src/game/Em308ParmCrab.cpp
+index d74936d..0542801 100644
+--- a/src/game/Em308ParmCrab.cpp
++++ b/src/game/Em308ParmCrab.cpp
+@@ -2,7 +2,7 @@
+ #include "atn/Material_unk.h"
+ #include "game/HitInfo_unk.h"
+ #include "atn/Csv.h"
+-#include "std/string.h"
++#include "std/basic_string.h"
+ #include "std/string_members.h"
+ #include <boost/function.hpp>
+ #include "math/VecAssign_unk.h"
+diff --git a/src/game/Em316LaserSphere.cpp b/src/game/Em316LaserSphere.cpp
+index f04e35e..4e7ffda 100644
+--- a/src/game/Em316LaserSphere.cpp
++++ b/src/game/Em316LaserSphere.cpp
+@@ -9,7 +9,7 @@
+ #include "math/VecAssign_unk.h"
+ #include "chr/ControlBase.h"
+ #include "game/BattleCharaTask.h"
+-#include "std/string.h"
++#include "std/basic_string.h"
+ #include "std/vector.h"
+ #include "std/string_members.h"
+ #include <boost/tokenizer.hpp>
+diff --git a/src/game/Em316LastLaser.cpp b/src/game/Em316LastLaser.cpp
+index 350fa35..df5b108 100644
+--- a/src/game/Em316LastLaser.cpp
++++ b/src/game/Em316LastLaser.cpp
+@@ -6,7 +6,7 @@
+ #include "atn/Memory.h"
+ #include "game/HitInfo_unk.h"
+ #include "math/Vec.h"
+-#include "std/string.h"
++#include "std/basic_string.h"
+ #include "std/string_members.h"
+ #include <boost/tokenizer.hpp>
+ #include "atn/ColliBase.h"
+diff --git a/src/game/EnemyFieldMagician.cpp b/src/game/EnemyFieldMagician.cpp
+index 405abbf..173d269 100644
+--- a/src/game/EnemyFieldMagician.cpp
++++ b/src/game/EnemyFieldMagician.cpp
+@@ -1,7 +1,7 @@
+ #include "game/EnemyFieldMagician.h"
+ #include "atn/Csv.h"
+ #include "atn/SoundManager.h"
+-#include "std/string.h"
++#include "std/basic_string.h"
+ #include "std/string_members.h"
+ #include "game/GameTask.h"
+ 
+diff --git a/src/game/EnemyLizerdBlade.cpp b/src/game/EnemyLizerdBlade.cpp
+index f06cbc9..7c896f0 100644
+--- a/src/game/EnemyLizerdBlade.cpp
++++ b/src/game/EnemyLizerdBlade.cpp
+@@ -1,6 +1,6 @@
+ #include "game/EnemyLizerdBlade.h"
+ #include "atn/Csv.h"
+-#include "std/string.h"
++#include "std/basic_string.h"
+ #include "std/string_members.h"
+ #include "atn/ColliBase.h"
+ #include "game/BattleTask.h"
+diff --git a/src/game/EnemyQuarkSecond.cpp b/src/game/EnemyQuarkSecond.cpp
+index 6f8a066..84f9337 100644
+--- a/src/game/EnemyQuarkSecond.cpp
++++ b/src/game/EnemyQuarkSecond.cpp
+@@ -14,7 +14,7 @@
+ #include "game/PlayerManager.h"
+ #include "game/PlayerTask.h"
+ #include "math/Vec.h"
+-#include "std/string.h"
++#include "std/basic_string.h"
+ #include "std/vector.h"
+ #include "std/string_members.h"
+ #include "game/EquipItemData.h"
+diff --git a/src/game/EnemyQuarkStand.cpp b/src/game/EnemyQuarkStand.cpp
+index 83313ce..105f370 100644
+--- a/src/game/EnemyQuarkStand.cpp
++++ b/src/game/EnemyQuarkStand.cpp
+@@ -18,7 +18,7 @@
+ #include "game/GimmickManager.h"
+ #include "game/PlayerTask.h"
+ #include "math/Vec.h"
+-#include "std/string.h"
++#include "std/basic_string.h"
+ #include "std/string_members.h"
+ #include <boost/tokenizer.hpp>
+ #include "game/Input_unk.h"
+diff --git a/src/game/EnemySeaLizerd.cpp b/src/game/EnemySeaLizerd.cpp
+index 9b37401..c49511a 100644
+--- a/src/game/EnemySeaLizerd.cpp
++++ b/src/game/EnemySeaLizerd.cpp
+@@ -1,6 +1,6 @@
+ #include "game/EnemySeaLizerd.h"
+ #include "atn/Csv.h"
+-#include "std/string.h"
++#include "std/basic_string.h"
+ #include "std/string_members.h"
+ #include "atn/ColliBase.h"
+ #include "game/BattleTask.h"
+diff --git a/src/game/EnvSeBase.cpp b/src/game/EnvSeBase.cpp
+index 630d0e5..f28ad8b 100644
+--- a/src/game/EnvSeBase.cpp
++++ b/src/game/EnvSeBase.cpp
+@@ -2,7 +2,7 @@
+ #include "atn/RenderManager.h"
+ #include "atn/SoundManager.h"
+ #include "atn/Memory.h"
+-#include "std/string.h"
++#include "std/basic_string.h"
+ #include "std/string_members.h"
+ #include "std/vector.h"
+ #include <boost/tokenizer.hpp>
+diff --git a/src/game/EnvSeManager.cpp b/src/game/EnvSeManager.cpp
+index 605ff7f..e9e627b 100644
+--- a/src/game/EnvSeManager.cpp
++++ b/src/game/EnvSeManager.cpp
+@@ -6,7 +6,7 @@
+ #include "game/GameConfig_unk.h"
+ #include "atn/Memory.h"
+ #include "atn/SoundManager.h"
+-#include "std/string.h"
++#include "std/basic_string.h"
+ #include "atn/DrawHelper.h"
+ #include "std/string_members.h"
+ #include "game/MapTask.h"
+diff --git a/src/game/EquipItemData.cpp b/src/game/EquipItemData.cpp
+index 6c51805..0a80af5 100644
+--- a/src/game/EquipItemData.cpp
++++ b/src/game/EquipItemData.cpp
+@@ -1,5 +1,5 @@
+ #include "game/EquipItemData.h"
+-#include "std/string.h"
++#include "std/basic_string.h"
+ #include "std/string_members.h"
+ #include <boost/function.hpp>
+ 
+diff --git a/src/game/GameEventScript.cpp b/src/game/GameEventScript.cpp
+index c54e2cd..a3564a7 100644
+--- a/src/game/GameEventScript.cpp
++++ b/src/game/GameEventScript.cpp
+@@ -65,7 +65,7 @@
+ 
+ #include <exception>
+ #include <typeinfo>
+-#include "std/string.h"
++#include "std/basic_string.h"
+ #include "std/string_members.h"
+ #include "std/istream.h"
+ 
+diff --git a/src/game/GameScene.cpp b/src/game/GameScene.cpp
+index f515134..9a424dc 100644
+--- a/src/game/GameScene.cpp
++++ b/src/game/GameScene.cpp
+@@ -23,7 +23,7 @@
+ #include "atn/Memory.h"
+ #include "atn/Model_unk.h"
+ #include "atn/SoundCore.h"
+-#include "std/string.h"
++#include "std/basic_string.h"
+ #include "std/vector.h"
+ #include "game/IntVector_unk.h"
+ #include "atn/MemoryManager.h"
+diff --git a/src/game/GimmickManager.cpp b/src/game/GimmickManager.cpp
+index dc48cae..e423751 100644
+--- a/src/game/GimmickManager.cpp
++++ b/src/game/GimmickManager.cpp
+@@ -5,7 +5,7 @@
+ #include "atn/Csv.h"
+ #include "atn/LH_Binary.h"
+ #include "atn/Memory.h"
+-#include "std/string.h"
++#include "std/basic_string.h"
+ #include "std/string_members.h"
+ #include <boost/bind.hpp>
+ #include <boost/function.hpp>
+diff --git a/src/game/LastCocoonChrysalis.cpp b/src/game/LastCocoonChrysalis.cpp
+index b6b6ead..1a1b76e 100644
+--- a/src/game/LastCocoonChrysalis.cpp
++++ b/src/game/LastCocoonChrysalis.cpp
+@@ -2,7 +2,7 @@
+ #include "atn/Csv.h"
+ #include "game/EnemyManager.h"
+ #include "game/PlayerTask.h"
+-#include "std/string.h"
++#include "std/basic_string.h"
+ #include "std/string_members.h"
+ #include <boost/tokenizer.hpp>
+ #include "atn/DrawHelper.h"
+diff --git a/src/game/LastCocoonEgg.cpp b/src/game/LastCocoonEgg.cpp
+index 8e9291c..378328c 100644
+--- a/src/game/LastCocoonEgg.cpp
++++ b/src/game/LastCocoonEgg.cpp
+@@ -5,7 +5,7 @@
+ #include "game/GameTask.h"
+ #include <boost/tokenizer.hpp>
+ #include "std/string_members.h"
+-#include "std/string.h"
++#include "std/basic_string.h"
+ #include "atn/Keyboard.h"
+ #include "atn/Vector4_unk.h"
+ #include "atn/Material_unk.h"
+diff --git a/src/game/LastCocoonImago.cpp b/src/game/LastCocoonImago.cpp
+index e88b91c..1c6ab27 100644
+--- a/src/game/LastCocoonImago.cpp
++++ b/src/game/LastCocoonImago.cpp
+@@ -10,7 +10,7 @@
+ #include "chr/ControlStickByQuark.h"
+ #include <boost/tokenizer.hpp>
+ #include "std/string_members.h"
+-#include "std/string.h"
++#include "std/basic_string.h"
+ #include "macros.h"
+ #include "atn/DrawHelper.h"
+ #include "gmk/Lemon.h"
+diff --git a/src/game/LastCocoonQuadruped.cpp b/src/game/LastCocoonQuadruped.cpp
+index cd70a22..79ebeb1 100644
+--- a/src/game/LastCocoonQuadruped.cpp
++++ b/src/game/LastCocoonQuadruped.cpp
+@@ -13,7 +13,7 @@
+ #include "atn/DrawHelper.h"
+ #include "game/GameConfig_unk.h"
+ #include "atn/Csv.h"
+-#include "std/string.h"
++#include "std/basic_string.h"
+ #include "std/string_members.h"
+ #include <boost/tokenizer.hpp>
+ #include <boost/bind.hpp>
+diff --git a/src/game/LogMessageTask.cpp b/src/game/LogMessageTask.cpp
+index 912f07d..6baec67 100644
+--- a/src/game/LogMessageTask.cpp
++++ b/src/game/LogMessageTask.cpp
+@@ -1,6 +1,6 @@
+ #include "game/LogMessageTask.h"
+ #include "atn/Memory.h"
+-#include "std/string.h"
++#include "std/basic_string.h"
+ #include "macros.h"
+ #include "atn/SoundRef.h"
+ #include "atn/DrawHelper.h"
+diff --git a/src/game/MapPartsBase.cpp b/src/game/MapPartsBase.cpp
+index 3264cf4..4f0dc31 100644
+--- a/src/game/MapPartsBase.cpp
++++ b/src/game/MapPartsBase.cpp
+@@ -17,7 +17,7 @@
+ #include "atn/DrawHelper.h"
+ #include "atn/Light_unk.h"
+ #include "game/AreaEffConfig.h"
+-#include "std/string.h"
++#include "std/basic_string.h"
+ #include "std/string_members.h"
+ #include "std/new.h"
+ #include "std/vector.h"
+diff --git a/src/game/MapPartsGimmickLoc.cpp b/src/game/MapPartsGimmickLoc.cpp
+index d5b74c0..83f88ba 100644
+--- a/src/game/MapPartsGimmickLoc.cpp
++++ b/src/game/MapPartsGimmickLoc.cpp
+@@ -10,7 +10,7 @@
+ #include "game/GimmickManager.h"
+ #include "game/TownTask.h"
+ #include "atn/Loader_unk.h"
+-#include "std/string.h"
++#include "std/basic_string.h"
+ #include "std/string_members.h"
+ #include "std/vector.h"
+ #include "game/MapInstance_unk.h"
+diff --git a/src/game/MapPartsLocatorSet.cpp b/src/game/MapPartsLocatorSet.cpp
+index e11559d..362b6c3 100644
+--- a/src/game/MapPartsLocatorSet.cpp
++++ b/src/game/MapPartsLocatorSet.cpp
+@@ -4,7 +4,7 @@
+ #include "atn/Loader_unk.h"
+ #include "atn/Memory.h"
+ #include "game/GimmickCommon.h"
+-#include "std/string.h"
++#include "std/basic_string.h"
+ #include "std/string_members.h"
+ #include <boost/function.hpp>
+ #include "atn/RenderManager.h"
+diff --git a/src/game/MapPartsModel.cpp b/src/game/MapPartsModel.cpp
+index a4e35ec..eaa0aa9 100644
+--- a/src/game/MapPartsModel.cpp
++++ b/src/game/MapPartsModel.cpp
+@@ -1,6 +1,6 @@
+ #include "game/MapPartsModel.h"
+ #include "atn/Memory.h"
+-#include "std/string.h"
++#include "std/basic_string.h"
+ #include "std/string_members.h"
+ #include <boost/function.hpp>
+ #include "atn/RenderManager.h"
+diff --git a/src/game/MenuCommon_unk.cpp b/src/game/MenuCommon_unk.cpp
+index 3d9a300..866bc2d 100644
+--- a/src/game/MenuCommon_unk.cpp
++++ b/src/game/MenuCommon_unk.cpp
+@@ -1,6 +1,6 @@
+ // inferred file name (splits-auto): shared menu helpers (texts of the message manager, system sounds,
+ // item category table, colors). The real name is unknown.
+-#include "std/string.h"
++#include "std/basic_string.h"
+ #include "atn/SoundManager.h"
+ #include "atn/SoundRef.h"
+ 
+diff --git a/src/game/MotionCommand_unk.cpp b/src/game/MotionCommand_unk.cpp
+index f671be0..134ae78 100644
+--- a/src/game/MotionCommand_unk.cpp
++++ b/src/game/MotionCommand_unk.cpp
+@@ -7,7 +7,7 @@
+ #include "atn/Csv.h"
+ #include "atn/LH_Motion.h"
+ #include "std/vector.h"
+-#include "std/string.h"
++#include "std/basic_string.h"
+ #include "std/string_members.h"
+ #include "game/MapTask.h"
+ 
+diff --git a/src/game/NewCampPartsOption.cpp b/src/game/NewCampPartsOption.cpp
+index 12bc825..1c0b878 100644
+--- a/src/game/NewCampPartsOption.cpp
++++ b/src/game/NewCampPartsOption.cpp
+@@ -6,7 +6,7 @@
+ #include "atn/D3AnimeInstance.h"
+ #include "atn/Csv.h"
+ #include "game/SetConfig.h"
+-#include "std/string.h"
++#include "std/basic_string.h"
+ #include "std/string_members.h"
+ #include "game/GameTask.h"
+ 
+diff --git a/src/game/ShopBuySell.cpp b/src/game/ShopBuySell.cpp
+index c9ab902..9801b2a 100644
+--- a/src/game/ShopBuySell.cpp
++++ b/src/game/ShopBuySell.cpp
+@@ -3,7 +3,7 @@
+ #include "atn/Memory.h"
+ #include "atn/SoundRef.h"
+ #include "math/Vec.h"
+-#include "std/string.h"
++#include "std/basic_string.h"
+ #include "std/string_members.h"
+ 
+ extern "C" int sprintf(char* s, const char* format, ...);
+diff --git a/src/game/ShopIdentify.cpp b/src/game/ShopIdentify.cpp
+index 040f3c9..ac00f24 100644
+--- a/src/game/ShopIdentify.cpp
++++ b/src/game/ShopIdentify.cpp
+@@ -3,7 +3,7 @@
+ #include "atn/Memory.h"
+ #include "atn/SoundRef.h"
+ #include "math/Vec.h"
+-#include "std/string.h"
++#include "std/basic_string.h"
+ 
+ extern "C" int sprintf(char* s, const char* format, ...);
+ extern "C" unsigned int fn_800DC6B4(const char* s); // inferred: string hash
+diff --git a/src/game/ShopUpGrade.cpp b/src/game/ShopUpGrade.cpp
+index ba6b305..7f349de 100644
+--- a/src/game/ShopUpGrade.cpp
++++ b/src/game/ShopUpGrade.cpp
+@@ -10,7 +10,7 @@
+ #include "atn/SoundRef.h"
+ #include "atn/FixedArray.h"
+ #include "math/Vec.h"
+-#include "std/string.h"
++#include "std/basic_string.h"
+ #include "game/BattleTask.h"
+ 
+ extern "C" int sprintf(char* s, const char* format, ...);
+diff --git a/src/game/SpecialEnemyBase.cpp b/src/game/SpecialEnemyBase.cpp
+index c5c59b0..fcc2f74 100644
+--- a/src/game/SpecialEnemyBase.cpp
++++ b/src/game/SpecialEnemyBase.cpp
+@@ -8,7 +8,7 @@
+ #include "game/CharaManager.h"
+ #include "game/EnemyManager.h"
+ #include "math/Vec.h"
+-#include "std/string.h"
++#include "std/basic_string.h"
+ #include "std/string_members.h"
+ 
+ #include "game/ChaserGuard.h"
+diff --git a/src/game/StrapTask.cpp b/src/game/StrapTask.cpp
+index 7199cff..b6040ed 100644
+--- a/src/game/StrapTask.cpp
++++ b/src/game/StrapTask.cpp
+@@ -1,6 +1,6 @@
+ #include "game/StrapTask.h"
+ #include "atn/Memory.h"
+-#include "std/string.h"
++#include "std/basic_string.h"
+ #include "std/vector.h"
+ #include "atn/WordWrap_unk.h"
+ #include "macros.h"
+diff --git a/src/game/TutorialTask.cpp b/src/game/TutorialTask.cpp
+index 2c389a6..56016e3 100644
+--- a/src/game/TutorialTask.cpp
++++ b/src/game/TutorialTask.cpp
+@@ -10,7 +10,7 @@
+ #include "game/SetConfig.h"
+ #include "game/Input_unk.h"
+ #include "game/EnvSeManager.h"
+-#include "std/string.h"
++#include "std/basic_string.h"
+ #include "std/string_members.h"
+ #include "game/MenuCommonTask.h"
+ #include "atn/RenderManager.h"
+diff --git a/src/game/em005_doppel_ganger.cpp b/src/game/em005_doppel_ganger.cpp
+index 059add6..5781037 100644
+--- a/src/game/em005_doppel_ganger.cpp
++++ b/src/game/em005_doppel_ganger.cpp
+@@ -6,7 +6,7 @@
+ #include "game/SkillEffectManager.h"
+ #include "chr/ControlBase.h"
+ #include "atn/Csv.h"
+-#include "std/string.h"
++#include "std/basic_string.h"
+ #include "std/string_members.h"
+ #include "game/BattleTask.h"
+ #include "atn/ColliBase.h"
+diff --git a/src/game/main.cpp b/src/game/main.cpp
+index 3c88642..b55672a 100644
+--- a/src/game/main.cpp
++++ b/src/game/main.cpp
+@@ -8,7 +8,7 @@
+ #include "atn/Task.h"
+ #include "atn/SequenceBoot_unk.h"
+ #include "game/HeapInfo_unk.h"
+-#include "std/string.h"
++#include "std/basic_string.h"
+ #include "std/string_members.h"
+ #include <boost/bind.hpp>
+ #include <boost/function.hpp>

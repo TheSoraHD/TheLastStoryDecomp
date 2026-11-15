@@ -61,6 +61,16 @@ inline atn::Vector3 FrontDir_unk(const atn::Vector3& rot) {
 
 namespace chr {
 
+// inferred: function removed by the linker (no reference in the DOL): its constants 150.0f and
+// 450.0f (time of the dizziness, as in the ControlCdnPiyo ctor) stay first in .sdata2. Name and
+// body invented.
+float ControlCdnPiyo::Stripped1_unk(int flag) {
+    if (flag == 0) {
+        return 150.0f;
+    }
+    return 450.0f;
+}
+
 ControlCdnStone::ControlCdnStone(Chara_unk* chara, int a) : ControlBase(chara), m08(0.0f, 0.0f, 0.0f), m24(a) {
     chara->m58C = 3;
     mChara->m560 = 0x30;
@@ -276,18 +286,18 @@ int ControlCdnBetray::vf0C() {
 
 boost::function<void()> ControlCdnBetray::vf10() const {
     if (mChara->mType == 0) {
-        return boost::bind(&CharaTask::fn_8016E970, (CharaTask*)mChara, 2);
+        return boost::bind(&CharaTask::fn_8016E970, (CharaTask*)mChara, (CharaTask::CONTROL_MODE)2);
     }
     return boost::bind(&CharaTask::fn_8016E970, (CharaTask*)mChara, mChara->m564);
 }
 
-// NONMATCHING: 99.2% - r5/r6 swapped between the status flags and m0C.
 void ControlCdnBetray::vf1C() {
     if (mChara != 0) {
         mChara->fn_8015495C(0, 1, 1, 1);
         if (!mChara->mStatus.IsState_unk(0x20)) {
-            if ((m0C != 0 && mChara->mStatus.IsState_unk(0x10000)) || (m0C == 0 && mChara->mStatus.IsState_unk(0x100))) {
-                mChara->mC58.mC4 = 0;
+            Chara_unk* c = mChara;
+            if ((m0C != 0 && c->mStatus.IsState_unk(0x10000)) || (m0C == 0 && c->mStatus.IsState_unk(0x100))) {
+                c->mC58.mC4 = 0;
                 mChara->SetSide_unk(m08);
             }
         }
@@ -329,7 +339,6 @@ int ControlCdnSleep::vf0C() {
     return 0;
 }
 
-// NONMATCHING: 99.75% - r29/r30 swapped for the functor allocated by boost::function.
 boost::function<void()> ControlCdnSleep::vf10() const {
     ControlCdnRestoreSleep* next = new ((MemoryTag)0, "", "", 0) ControlCdnRestoreSleep(mChara);
     return boost::bind(&CharaTask::fn_80178208, (CharaTask*)mChara, next);
@@ -339,7 +348,7 @@ ControlCdnRestoreSleep::ControlCdnRestoreSleep(Chara_unk* chara) : ControlBase(c
     chara->m58C = 0;
     mChara->m560 = 0x6B;
     mChara->mStatus.fn_8013322C(0x10);
-    Motion_unk* motion = &mChara->mMotion;
+    Motion_unk* motion = mChara->GetModel_unk();
     motion->m34C = 1;
     motion->mTracks[0].m20 = 1.0f;
     motion->fn_80097C08(0, 8, 0, 0, 1, 0.0f, 0.1f);

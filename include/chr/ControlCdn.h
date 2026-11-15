@@ -50,6 +50,7 @@ public:
     virtual int vf0C();
     virtual boost::function<void()> vf10() const;
     virtual void vf1C();
+    static const std::type_info* Stripped1_unk(); // inferred: removed by the linker
     int m08; // inferred: side the character switches to (CharaTask::mF14)
     int m0C; // inferred: nonzero selects control 0x35 instead of 0x34
 };
@@ -74,6 +75,7 @@ public:
 class ControlCdnPiyo : public ControlBase {
 public:
     ControlCdnPiyo(Chara_unk* chara, const atn::Vector3& dir, int time, int flag); // 0x80191170
+    static float Stripped1_unk(int); // inferred: removed by the linker
     virtual ~ControlCdnPiyo();
     virtual int vf0C();
     virtual boost::function<void()> vf10() const;

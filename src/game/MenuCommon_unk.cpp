@@ -21,7 +21,8 @@ struct MenuMsgEntry_unk {
     const wchar_t* mText;
 };
 struct MenuMsgTable_unk {
-    const wchar_t* Get_unk(int id) { return mEntries[id].mText != 0 ? mEntries[id].mText : lbl_808813D0; }
+    // const: the table stays in r0 and the index in r3 (add r3, r0, r3) as in the original
+    const wchar_t* Get_unk(int id) const { return mEntries[id].mText != 0 ? mEntries[id].mText : lbl_808813D0; }
     MenuMsgEntry_unk mEntries[1];
 };
 extern "C" MenuMsgTable_unk* lbl_8087F1E4;
@@ -88,14 +89,10 @@ struct MenuTextRef_unk {
     int mId;
 };
 
-// NONMATCHING: 99.7% - same as fn_80116FC0 (inlined)
 extern "C" const wchar_t* fn_80116EB8(const MenuTextRef_unk* ref) {
     return fn_80116FC0(ref->mKind, ref->mId);
 }
 
-// NONMATCHING: 99.7% - in the message table lookup the original keeps the table in r0 and the index
-// in r3 (`add r3, r0, r3`); here they are swapped (tried: local entry pointer, pointer arithmetic,
-// index on the left, an inline wrapper)
 extern "C" const wchar_t* fn_80116FC0(int kind, int id) {
     lbl_807C78E4 = L"";
     if (kind == 0) {
@@ -114,7 +111,6 @@ extern "C" const wchar_t* fn_80116FC0(int kind, int id) {
     return lbl_8088171C;
 }
 
-// NONMATCHING: 99.7% - same as fn_80116FC0 (inlined)
 // inferred: formats the text `id` with one argument
 extern "C" const wchar_t* fn_801170C8(int kind, int id, int arg) {
     memset(lbl_807C78F0, 0, sizeof(lbl_807C78F0));

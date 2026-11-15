@@ -20,7 +20,7 @@ public:
     void fn_Stripped_unk(std::string& path); // inferred: stripped by the linker (see Channel.cpp)
     // inferred: index check of the actions (inlined in Event/Sequence.cpp; name invented)
     bool IsActionIndex_unk(int i) const { return i >= 0 && i < (int)mActions.size(); }
-    // inferred: checked accessor (inlined in Event/EventLoader_unk.cpp; name invented)
+    // inferred: checked accessor (inlined in several Event units; name invented)
     Action* GetAction_unk(unsigned int i) {
         if (IsActionIndex_unk(i)) {
             return mActions[i].get();

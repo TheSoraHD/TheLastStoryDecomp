@@ -1307,12 +1307,14 @@ static void fn_8066F2B0(s32 result, NANDCommandBlock* block) {
 }
 
 static inline void WUDiOpenWiiFitFile(void) {
+    const char* path = "/title/00010004/52464e4a/data/RPHealth.dat";
+
     if (_nandBusy) {
         return;
     }
 
     _nandBusy = TRUE;
-    NANDOpenAsync("/title/00010004/52464e4a/data/RPHealth.dat", &_nandFileInfo, NAND_ACCESS_WRITE, fn_8066F150, &_nandBlock);
+    NANDOpenAsync(path, &_nandFileInfo, NAND_ACCESS_WRITE, fn_8066F150, &_nandBlock);
 }
 
 static inline void WUDiSeekWiiFitFile(void) {
@@ -1513,7 +1515,8 @@ static void SyncHandler(void) {
     case WUD_STATE_SYNC_6:
     case WUD_STATE_SYNC_13:
     case WUD_STATE_SYNC_CANCEL_SEARCH: {
-        break;
+        // inferred: return, not break (these cases stay in the compare tree)
+        return;
     }
 
     case WUD_STATE_SYNC_11:
@@ -1709,7 +1712,7 @@ static void DeleteAllHandler(void) {
     }
 
     case WUD_STATE_DELETE_7: {
-        break;
+        return;
     }
     }
 }
@@ -1876,7 +1879,7 @@ static u8 WUDiDelaySearch() {
     return 29;
 }
 
-// NONMATCHING: 96.7% - register allocation around the inlined WUDiGetNewDevInfo
+// NONMATCHING: 98.5% - register allocation around the inlined WUDiGetNewDevInfo
 static u8 WUDiGetRegisteredDevice() {
     int i;
     int j;
@@ -3119,10 +3122,10 @@ inline WUDDevInfo* WUDiGetNewDevInfo(void) {
     BOOL enabled;
     int i;
 
-    pInfo = NULL;
     enabled = OSDisableInterrupts();
 
     if (p->syncType == WUD_SYNC_TYPE_STANDARD) {
+        pInfo = NULL;
         for (i = 0; i < WUD_MAX_DEV_ENTRY_FOR_STD; i++) {
             if (p->stdDevs[i].status == 0) {
                 DEBUGPrint("new entry index is %d\n", i);

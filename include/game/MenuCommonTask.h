@@ -45,19 +45,18 @@ struct MenuD2A_unk : public atn::Task {
     int m108;       // inferred: draw priority
 };
 
-// inferred: data of a layout anime (returned by fn_801F6C10); only the callback is known
+// inferred: data of a layout anime (returned by D2A_TaskInstanceBase<32, 8>::GetData); only the callback is known
 struct MenuLayoutData_unk {
     unsigned char m00[0x9C];
     void (*mCallback)(int, int, int); // 0x9C
 };
-// inferred: layout anime task (made by fn_801F64D0); only the members used here
-struct MenuLayout_unk : public atn::Task {
-    unsigned char m48[0x4D - 0x48];
-    bool mRepeat;   // 0x4D
-    unsigned char m4E[0x50 - 0x4E];
-    float mFrame;   // 0x50
-    float mSpeed;   // 0x54
-};
+// inferred: layout anime task of the menus (made by D2A_TaskInstanceBase<32, 8>::Create; full class in
+// atn/D2A_TaskInstanceC.h)
+namespace atn {
+template <int N, int M>
+class D2A_TaskInstanceBase;
+}
+typedef atn::D2A_TaskInstanceBase<32, 8> MenuLayout_unk;
 
 // inferred: cursor task (made by fn_80202A6C); only the members used here
 struct MenuCursor_unk : public atn::Task {

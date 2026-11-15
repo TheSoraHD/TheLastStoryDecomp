@@ -77,8 +77,9 @@ static void AddReqInfo(IPCRequestEx* req) {
             IpcReqTimeArray[i] = OSGetTime();
 
             if ((u32)IpcReqArray[i].type == IPC_REQ_OPEN) {
+                char* src = OSPhysicalToCached((u32)IpcReqArray[i].open.path);
                 char* path = IpcReqPathArray[i];
-                strncpy(path, OSPhysicalToCached((u32)IpcReqArray[i].open.path), 47);
+                strncpy(path, src, 47);
                 IpcReqPathArray[i][47] = '\0';
                 IpcReqArray[i].open.path = path;
             }

@@ -6,6 +6,8 @@ namespace db {
 static const char sPathStr[] = "/boot/motion_command_common.csv";
 static const char* const sPath = sPathStr; // inferred: separate .rodata array + .sdata2 pointer
 
+MotionCommandCommon* MotionCommandCommon::sInstance;
+
 inline MotionCommandCommon::MotionCommandCommon(atn::Task* parent) : atn::Task(parent) {
     atn::LoadHandle* loader = &mLoader;
     mData = 0;

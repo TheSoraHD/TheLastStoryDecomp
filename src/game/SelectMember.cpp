@@ -6,6 +6,7 @@
 #include "macros.h"
 #include "game/MenuCommonTask.h"
 #include "game/GameTask.h"
+#include "atn/D2A_TaskInstanceC.h"
 
 // Only the two members called here (the full class is in atn/D2A_Task.h, whose extern "C" declarations
 // clash with the local ones of this file).
@@ -20,7 +21,6 @@ public:
 extern "C" int sprintf(char* s, const char* format, ...);
 extern "C" unsigned int fn_800DC6B4(const char* s); // inferred: string hash
 extern "C" SelectMemberAnim_unk* fn_801F3FF8(atn::Task* parent, const char* path, int arg); // inferred: d2anime task
-extern "C" SelectMemberAnim_unk* fn_801F64D0(atn::Task* parent, const char* path); // inferred: d2anime list item
 extern "C" void fn_801FEF40(void* layout, int arg);
 extern "C" void fn_801FEE08(void* layout, unsigned int hash, const wchar_t* text); // inferred: sets a text
 // inferred: plays a system sound effect
@@ -40,11 +40,7 @@ struct SelectMemberPoint_unk {
     float m10;
 };
 extern "C" SelectMemberPoint_unk fn_801F4E8C(atn::Task* layout, unsigned int hash);
-extern "C" void fn_801F6E78(atn::Task* task, const char* name, const SelectMemberPoint_unk* pos);
 extern "C" void fn_804A53D4(void* cursor, int a, int b, const SelectMemberPoint_unk* pos, int c);
-extern "C" void fn_801F837C(atn::Task* task, const char* name, int text); // inferred: sets a text id
-extern "C" void fn_801F8598(atn::Task* task, const char* name, int value, int arg);
-extern "C" void fn_801F6C80(atn::Task* task, const char* name, float value);
 extern "C" const wchar_t* fn_80116FC0(int a, int id); // inferred: message text
 extern "C" const wchar_t lbl_808813D0[2]; // inferred: empty text
 // inferred: message table (lbl_8087F1E4); name invented
@@ -124,7 +120,7 @@ SelectMember::SelectMember(atn::Task* parent, int type, unsigned char save)
     (mAnims[0] = fn_801F3FF8(this, "/data/d2anime/member_select_base.d2a", 0))->fn_800D246C(1);
     const char* list = "/data/d2anime/member_select_list.d2a";
     for (int i = 0; i < 7; i++) {
-        (mAnims[1 + i] = fn_801F64D0(this, list))->fn_800D246C(1);
+        (mAnims[1 + i] = (SelectMemberAnim_unk*)D2A_TaskInstance32_unk::Create(this, list))->fn_800D246C(1);
     }
     (mAnims[8] = fn_801F3FF8(this, "/data/d2anime/member_select_info.d2a", 0))->fn_800D246C(1);
     mMax = 0;
@@ -410,20 +406,20 @@ void SelectMember::fn_80572450() {
         char name[64];
         sprintf(name, "member%02d", i);
         pos = __GetPos_unk(mAnims[0], name);
-        fn_801F6E78(mAnims[1 + i], "base_pos", &pos);
+        ((D2A_TaskInstance32_unk*)mAnims[1 + i])->SetValues1_unk("base_pos", *(atn::D2A_DrawRect*)&pos);
         Member_unk* member = &mMembers.mData[(unsigned int)i];
         SelectMemberInfo_unk* info = fn_8020924C(fn_80219544(member->mId));
         mAnims[1 + i]->mFlags &= ~4;
-        fn_801F837C(mAnims[1 + i], "name(1)", info->m08);
+        ((D2A_TaskInstance32_unk*)mAnims[1 + i])->SetText_unk("name(1)", (const wchar_t*)info->m08);
         SelectMemberChara_unk* chara = ((PlayerManager*)lbl_8087F8A0)->fn_8054A33C(member->mId);
         CharaStatus* status = chara != 0 ? &chara->mStatus : Inventory::instance_->GetPlayerStatusInfo(member->mId);
         CharaParam_unk param = fn_80134800(status, member->mId, 0, 0, 0, 0, 0, 0);
-        fn_801F8598(mAnims[1 + i], "nowLv", param.m78, 0);
+        ((D2A_TaskInstance32_unk*)mAnims[1 + i])->SetNumber_unk("nowLv", param.m78, 0);
         float rate = (float)status->m1A8.mExp / MAX(1.0f, (float)(status->m1A8.mExp + status->fn_8012B028()));
         if (param.m78 >= 99) {
             rate = 0.0f;
         }
-        fn_801F6C80(mAnims[1 + i], "expRate", rate);
+        ((D2A_TaskInstance32_unk*)mAnims[1 + i])->SetValue0_unk("expRate", rate);
         if (member->mSelected != 0) {
             mAnims[1 + i]->m54 = 2.0f;
         } else {

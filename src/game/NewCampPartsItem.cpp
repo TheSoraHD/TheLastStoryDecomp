@@ -10,6 +10,7 @@
 #include "game/GameConfig_unk.h"
 #include "game/Inventory.h"
 #include "game/MslSort_unk.h"
+#include "atn/D2A_TaskInstanceC.h"
 
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 extern "C" void* lbl_8087EF70;                                // inferred: pad
@@ -36,8 +37,6 @@ extern "C" bool fn_8021175C(NewCampItemData_unk* item); // inferred: the item ha
 // D2A_Data.h gives a warning)
 extern "C" NewCampItemD2A_unk* fn_801F3FF8(atn::Task* parent, const char* path, int loop);
 extern "C" int sprintf(char* s, const char* format, ...);
-extern "C" void fn_801F6E78(atn::Task* task, const char* name, const void* pos);
-extern "C" void fn_801F6C80(atn::Task* task, const char* name, float value); // inferred: sets a value
 extern "C" void fn_804A4930(atn::Task* task, int top, int count, int page); // inferred: scroll bar
 extern "C" NewCampPartsPoint_unk fn_801F4E8C(atn::Task* layout, unsigned int hash);
 extern "C" unsigned int fn_800DC6B4(const char* s); // inferred: string hash
@@ -209,7 +208,7 @@ void NewCampPartsItem::vf14() {
             if (mItems[i]->GetTask() != 0) {
                 sprintf(name, "item_list%d", i + 1);
                 pos = GetPanePos_unk(mBase->GetTask(), name);
-                fn_801F6E78(mItems[i]->GetTask(), "base_point", &pos);
+                mItems[i]->GetTask()->SetValues1_unk("base_point", *(atn::D2A_DrawRect*)&pos);
                 fn_805112A8(&m50[1], mItems[i], atn::Vector3(0.0f, 0.0f, 0.0f), atn::Vector3(1.0f, 1.0f, 1.0f),
                             "reference");
             }
@@ -223,8 +222,8 @@ void NewCampPartsItem::vf14() {
         if (mScroll->GetTask() != 0) {
             sprintf(name, "scroll_point");
             pos = GetPanePos_unk(mBase->GetTask(), name);
-            fn_801F6E78(mScroll->GetTask(), "basePos", &pos);
-            fn_801F6C80(mScroll->GetTask(), "s_hightMax", 245.0f);
+            mScroll->GetTask()->SetValues1_unk("basePos", *(atn::D2A_DrawRect*)&pos);
+            mScroll->GetTask()->SetValue0_unk("s_hightMax", 245.0f);
             fn_804A4930(mScroll->GetTask(), mE8, mList.size(), 10);
         }
     }
@@ -564,26 +563,17 @@ static inline void ShowHelp_unk(NewCampItemEntry_unk* entry) {
 }
 
 // inferred: icon and weapon data (as in game/ShopIdentify.cpp)
-struct NewCampItemUV_unk {
-    NewCampItemUV_unk() {}
-    NewCampItemUV_unk(const NewCampItemUV_unk& o) {
-        __Vec4Copy(&u0, &o.u0);
-    }
-    float u0, v0, u1, v1;
-};
+typedef atn::Vector4_unk NewCampItemUV_unk; // inferred: texture rectangle
 extern "C" int fn_804444E8(Inventory* party, int id); // inferred: number of items
 extern "C" int fn_80444BE8(Inventory* party, NewCampItemData_unk* item);
 extern "C" int fn_80444C48(Inventory* party);
 extern "C" NewCampItemUV_unk fn_80444C50(Inventory* party, int icon);
-extern "C" void fn_801F7590(atn::Task* layout, const char* name, NewCampItemUV_unk uv);
-extern "C" void fn_801F837C(atn::Task* layout, const char* name, const wchar_t* text);
-extern "C" void fn_801F8598(atn::Task* layout, const char* name, int value, int digits);
 
 // NONMATCHING: 98% - L"--" is the first wide literal here (L"%s" of fn_80517B3C, not written yet, goes before
 // it in the original), so the pool address takes one more register; same offsets of @stringBase0
 void NewCampPartsItem::fn_8051B164() {
     for (int i = 0; i < 10; i++) {
-        atn::Task* task = mItems[i]->GetTask();
+        D2A_TaskInstance32_unk* task = mItems[i]->GetTask();
         if (task == 0) {
             continue;
         }
@@ -596,21 +586,21 @@ void NewCampPartsItem::fn_8051B164() {
                 int icon;
                 if (entry->m08 != 0) {
                     if (fn_8021175C(item)) {
-                        fn_801F837C(task, "num", L"--");
+                        task->SetText_unk("num", L"--");
                     } else {
-                        fn_801F8598(task, "num", fn_804444E8(Inventory::instance_, item->mCountId), 0);
+                        task->SetNumber_unk("num", fn_804444E8(Inventory::instance_, item->mCountId), 0);
                     }
-                    fn_801F837C(task, "item", item->mName);
+                    task->SetText_unk("item", item->mName);
                     icon = fn_80444BE8(Inventory::instance_, item);
                     NewCampItemUV_unk uv = fn_80444C50(Inventory::instance_, icon);
                 } else {
                     NewCampWeapon_unk* weapon = fn_80206C50(item->mCountId);
-                    fn_801F837C(task, "num", L"1");
-                    fn_801F837C(task, "item", lbl_8087F1E4->GetPair_unk(weapon->mKind + 0xEB));
+                    task->SetText_unk("num", L"1");
+                    task->SetText_unk("item", lbl_8087F1E4->GetPair_unk(weapon->mKind + 0xEB));
                     icon = fn_80444C48(Inventory::instance_);
                 }
                 NewCampItemUV_unk uv = fn_80444C50(Inventory::instance_, icon);
-                fn_801F7590(task, "iconUv", uv);
+                task->SetValues2_unk("iconUv", uv);
                 shown = 1;
             }
         }
@@ -713,7 +703,7 @@ void NewCampPartsItem::vf48() {
         if (entry->m04 == 1) {
             atn::D3AnimeInstance* anime = (atn::D3AnimeInstance*)entry->mAnime;
             if (anime != 0 && anime->GetTask() != 0) {
-                fn_801F6C80((atn::Task*)((atn::D3AnimeInstance*)m50[i].mAnime)->GetTask(), "frameOn", value);
+                ((atn::D3AnimeInstance*)m50[i].mAnime)->GetTask()->SetValue0_unk("frameOn", value);
             }
         } else {
             atn::D3Anime* anime = entry->mAnime;

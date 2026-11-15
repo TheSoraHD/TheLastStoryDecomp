@@ -17,9 +17,12 @@ extern "C" int fn_800A555C(void* pad, int port, int button); // inferred: button
 extern "C" int fn_800A55AC(void* pad, int port, int button); // inferred: button repeated
 extern "C" void fn_800D2338(atn::Task* task);                // inferred: removes the task
 extern "C" void* fn_8006BA8C(const char* path, int* size, int flag); // inferred: loads a file
-extern "C" MP::SaveData_unk* lbl_8087F460; // inferred: current save data (game/GameSaveData_unk)
-extern "C" int lbl_8087DD60;               // inferred: slot of the current save data
-extern "C" int lbl_8087DD64;               // inferred: format of the current save data
+// inferred: defined here (between GameEventScript and GameLoadTask in .sdata/.sbss of the .dol)
+extern "C" {
+MP::SaveData_unk* lbl_8087F460; // inferred: current save data (game/GameSaveData_unk)
+int lbl_8087DD60 = -1;          // inferred: slot of the current save data
+int lbl_8087DD64 = -1;          // inferred: format of the current save data
+}
 extern "C" int lbl_8087F630;               // inferred: number of LAN match players
 // inferred: called after the save data is loaded (game/GameSaveData_unk.cpp)
 extern "C" void fn_803BE850(MP::SaveData_unk* data);

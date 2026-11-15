@@ -72,8 +72,16 @@ DialogConfig_unk::DialogConfig_unk() : mUseWaitMotion(1), mUseLipSync(1) {
 
 DialogSide_unk::DialogSide_unk() {}
 
-// NONMATCHING: 99.67% - register allocation (the Left/Right folder gets r29 instead of r31, the names
-// pointer of the loop is set up after the scenes)
+// inferred: debug menu of one side of the dialog
+static inline void AddSideMenu_unk(atn::MindowsFolder* group, DialogSide_unk& side) {
+    fn_80087BB4(group, "V Pos", &side.mVPos.x, -1000.0f, 1000.0f, 1.0f, 0, 0);
+    fn_80087BB4(group, "V Size", &side.mVSize.x, -1000.0f, 1000.0f, 1.0f, 0, 0);
+    fn_80087E9C(group, "Pos", &side.mPos.x, -1000.0f, 1000.0f, 1.0f, 0, 0);
+    fn_80087E9C(group, "Cam Pos", &side.mCamPos.x, -1000.0f, 1000.0f, 1.0f, 0, 0);
+    fn_80087E9C(group, "Cam Target", &side.mCamTarget.x, -1000.0f, 1000.0f, 1.0f, 0, 0);
+    fn_80087858(group, "Cam AngleOfView", &side.mCamAngleOfView, -360.0f, 360.0f, 1.0f, 0, 0);
+}
+
 void DialogConfig_unk::fn_801856B8(void* menu) {
     atn::MindowsFolder* group;
     atn::Scene* scene;
@@ -83,26 +91,13 @@ void DialogConfig_unk::fn_801856B8(void* menu) {
     dialog = fn_8008937C((atn::MindowsFolder*)menu, "Dialog");
     fn_80087994(dialog, "UseWaitMotion", &mUseWaitMotion, 0, 0);
     fn_80087994(dialog, "UseLipSync", &mUseLipSync, 0, 0);
-    group = fn_8008937C(dialog, "Left");
-    fn_80087BB4(group, "V Pos", &mLeft.mVPos.x, -1000.0f, 1000.0f, 1.0f, 0, 0);
-    fn_80087BB4(group, "V Size", &mLeft.mVSize.x, -1000.0f, 1000.0f, 1.0f, 0, 0);
-    fn_80087E9C(group, "Pos", &mLeft.mPos.x, -1000.0f, 1000.0f, 1.0f, 0, 0);
-    fn_80087E9C(group, "Cam Pos", &mLeft.mCamPos.x, -1000.0f, 1000.0f, 1.0f, 0, 0);
-    fn_80087E9C(group, "Cam Target", &mLeft.mCamTarget.x, -1000.0f, 1000.0f, 1.0f, 0, 0);
-    fn_80087858(group, "Cam AngleOfView", &mLeft.mCamAngleOfView, -360.0f, 360.0f, 1.0f, 0, 0);
-    group = fn_8008937C(dialog, "Right");
-    fn_80087BB4(group, "V Pos", &mRight.mVPos.x, -1000.0f, 1000.0f, 1.0f, 0, 0);
-    fn_80087BB4(group, "V Size", &mRight.mVSize.x, -1000.0f, 1000.0f, 1.0f, 0, 0);
-    fn_80087E9C(group, "Pos", &mRight.mPos.x, -1000.0f, 1000.0f, 1.0f, 0, 0);
-    fn_80087E9C(group, "Cam Pos", &mRight.mCamPos.x, -1000.0f, 1000.0f, 1.0f, 0, 0);
-    fn_80087E9C(group, "Cam Target", &mRight.mCamTarget.x, -1000.0f, 1000.0f, 1.0f, 0, 0);
-    fn_80087858(group, "Cam AngleOfView", &mRight.mCamAngleOfView, -360.0f, 360.0f, 1.0f, 0, 0);
+    AddSideMenu_unk(fn_8008937C(dialog, "Left"), mLeft);
+    AddSideMenu_unk(fn_8008937C(dialog, "Right"), mRight);
     const char* names[2] = {"SceneLeft", "SceneRight"};
-    scene = &mScenes[0][0];
-    dark = &mScenes[0][1];
-    for (i = 0; i < 2; i++, scene += 2, dark += 2) {
-        
+    for (i = 0; i < 2; i++) {
         group = fn_8008937C(dialog, names[i]);
+        scene = &mScenes[i][0];
+        dark = &mScenes[i][1];
         fn_80088FAC(group, "Ambient", &scene->mAmbient.r, 0.0f, 1.0f, 0.01f, 0, 0);
         fn_80088FAC(group, "LS", &scene->mLS.r, 0.0f, 1.0f, 0.01f, 0, 0);
         fn_80088FAC(group, "AmbientDark", &dark->mAmbient.r, 0.0f, 1.0f, 0.01f, 0, 0);

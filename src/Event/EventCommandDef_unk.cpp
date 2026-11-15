@@ -1502,9 +1502,14 @@ static int sCommandCount_unk = sizeof(sCommands_unk) / sizeof(sCommands_unk[0]);
 } // namespace Event
 
 // inferred: definition of the command `id`
-// NONMATCHING: 94% - the original sets the index (li r5, 0) after the address of the table, here
-// before it; fn_80008210 with the same loop matches. Tried: operands swapped, `table + i`, a
-// local count, a pointer walk, while, break + single return.
+// inferred: a function stripped by the linker came before fn_800081C0 in the source: as the first
+// function of the file MWCC schedules `li r5, 0` before the `addi` of the table, after any function
+// that computes on its arguments it keeps the order of the original. Reconstructed minimally (an
+// accessor by index of the table); its body is a guess.
+extern "C" const Event::CommandDef_unk* fn_Stripped_unk(int i) {
+    return &Event::sCommands_unk[i];
+}
+
 extern "C" const Event::CommandDef_unk* fn_800081C0(int id) {
     for (int i = 0; i < Event::sCommandCount_unk; i++) {
         if (id == Event::sCommands_unk[i].mId) {

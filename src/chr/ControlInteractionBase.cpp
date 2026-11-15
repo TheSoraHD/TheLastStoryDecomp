@@ -48,17 +48,18 @@ ControlInteractionBase::ControlInteractionBase(Chara_unk* chara, int id, int mot
     m->mTracks[0].m0C = 1.0f;
 }
 
-// NONMATCHING: 99.4% - r6/r7 swapped (character pointer / temporary vector address).
 int ControlInteractionBase::vf0C() {
-    Motion_unk* motion = &mChara->mMotion;
+    Chara_unk* chara = mChara;
+    Motion_unk* motion = &chara->mMotion;
     if (m08 > 0) {
         m08--;
         float t = m08 / 3.0f;
-        mChara->mPos = LerpInteraction_unk(m0C, m18, t);
+        chara->mPos = LerpInteraction_unk(m0C, m18, t);
         m0C += m24 * m3C;
         m18 += m24 * m3C;
     }
-    mChara->mPos = mChara->mPos + m24 * m3C;
+    Chara_unk* c2 = mChara;
+    c2->mPos = mChara->mPos + m24 * m3C;
     float frame = motion->mTracks[0].m08;
     if (frame >= motion->fn_80097D7C(0)) {
         return 1;

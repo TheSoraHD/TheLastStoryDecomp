@@ -37,16 +37,18 @@ struct PaletteColorInit_unk : public PaletteColor_unk {
 struct Palette_unk {
     Palette_unk() { mName[0] = 0; }
     ~Palette_unk() {}
-    void SetName_unk(const wchar_t* name) {
-        if (name != mName) {
-            wmemcpy(mName, name, wcslen(name) + 1);
-        }
-    }
 
     int m00;
     PaletteColor_unk mColor;
     wchar_t mName[0x20];
 };
+
+// inferred: copies a UTF-16 name into a fixed buffer (the original passes the CSV field directly)
+static inline void CopyName_unk(wchar_t* dst, const wchar_t* src) {
+    if (src != dst) {
+        wmemcpy(dst, src, wcslen(src) + 1);
+    }
+}
 
 struct PaletteSet_unk {
     Palette_unk mPalettes[64];
@@ -100,34 +102,7 @@ static PaletteSlots_unk* sPresets;
 static PaletteIds_unk* sPaletteIds;
 static EffPaletteIds_unk* sEffPaletteIds;
 
-// inferred: index of a colour name, -1 if unknown
-static inline int FindColor_unk(const char* name) {
-    int index = -1;
-    for (int i = 0; i < 64; i++) {
-        if (strcmp(name, sColorNames[i]) == 0) {
-            index = i;
-            break;
-        }
-    }
-    return index;
-}
-
-// inferred: index of an effect colour name, -1 if unknown
-static inline int FindEffColor_unk(const char* name) {
-    int index = -1;
-    for (int i = 0; i < 32; i++) {
-        if (strcmp(name, sEffNames[i]) == 0) {
-            index = i;
-            break;
-        }
-    }
-    return index;
-}
-
 // inferred: loads the colour palettes of the costume editor (ids, colours and names)
-// NONMATCHING: 98.03% - register allocation (zero constant, data pointer) and one byte less in the
-// string pool; tried static helpers per block (not inlined then). The UTF-16 CSV address is now in
-// a saved register as in the original (empty ~CsvBase())
 extern "C" void fn_8020B2BC() {
     if (sPaletteIds == 0) {
         sPaletteIds = new ((MemoryTag)1, "", "", 0) PaletteIds_unk;
@@ -152,7 +127,13 @@ extern "C" void fn_8020B2BC() {
             char name[8];
             strcpy(name, field);
             int id = fn_800DC12C(csv.fn_8005B9CC());
-            int index = FindColor_unk(name);
+            int index = -1;
+            for (int i = 0; i < 64; i++) {
+                if (strcmp(name, sColorNames[i]) == 0) {
+                    index = i;
+                    break;
+                }
+            }
             if (index < 0) {
                 continue;
             }
@@ -182,11 +163,17 @@ extern "C" void fn_8020B2BC() {
             }
             char name[8];
             fn_8006F420(lbl_8087EEC8, name, field, 8);
-            int index = FindColor_unk(name);
+            int index = -1;
+            for (int i = 0; i < 64; i++) {
+                if (strcmp(name, sColorNames[i]) == 0) {
+                    index = i;
+                    break;
+                }
+            }
             if (index < 0) {
                 continue;
             }
-            sPalettes[index].SetName_unk(csv.fn_8005B9CC());
+            CopyName_unk(sPalettes[index].mName, csv.fn_8005B9CC());
         }
         fn_8046DD20(lbl_8087F518, data);
     }
@@ -213,7 +200,13 @@ extern "C" void fn_8020B2BC() {
             char name[8];
             strcpy(name, field);
             int id = fn_800DC12C(csv.fn_8005B9CC());
-            int index = FindEffColor_unk(name);
+            int index = -1;
+            for (int i = 0; i < 32; i++) {
+                if (strcmp(name, sEffNames[i]) == 0) {
+                    index = i;
+                    break;
+                }
+            }
             if (index < 0) {
                 continue;
             }
@@ -238,19 +231,23 @@ extern "C" void fn_8020B2BC() {
             }
             char name[8];
             fn_8006F420(lbl_8087EEC8, name, field, 8);
-            int index = FindEffColor_unk(name);
+            int index = -1;
+            for (int i = 0; i < 32; i++) {
+                if (strcmp(name, sEffNames[i]) == 0) {
+                    index = i;
+                    break;
+                }
+            }
             if (index < 0) {
                 continue;
             }
-            sEffPalettes[index].SetName_unk(csv.fn_8005B9CC());
+            CopyName_unk(sEffPalettes[index].mName, csv.fn_8005B9CC());
         }
         fn_8046DD20(lbl_8087F518, data);
     }
 }
 
 // inferred: loads the colour presets (7 colour names per row)
-// NONMATCHING: 99.41% - the original has unused locals below the path (floats 1.0f stored at
-// 0x14, 0x28, 0x3c and 0x40 of the frame, stack 0x7B0); their type is unknown
 extern "C" void fn_8020BB0C() {
     if (sPresets == 0) {
         sPresets = new ((MemoryTag)1, "", "", 0) PaletteSlots_unk;
@@ -260,18 +257,22 @@ extern "C" void fn_8020BB0C() {
     unsigned long size;
     void* data = fn_8046DC5C(lbl_8087F518, path, &size, 0x20);
     atn::Csv csv((const char*)data, size);
-    PaletteColorInit_unk colors[4]; // inferred: not used
+    // inferred: unused local array (4-byte elements set to 1.0f; the original frame keeps them)
+    struct Alpha_unk {
+        Alpha_unk() { a = 1.0f; }
+        float a;
+    } alphas[4];
     int preset = 0;
     while (csv.fn_8005BBF8() != 0) {
-        const char* field = csv.fn_8005B9CC();
-        if (*field == ';' || *field == '#') {
+        const char* name = csv.fn_8005B9CC();
+        if (*name == ';' || *name == '#') {
             continue;
         }
-        if (strcmp(field, "") == 0) {
+        if (strcmp(name, "") == 0) {
             continue;
         }
         for (int slot = 0; slot < 7; slot++) {
-            const char* name = csv.fn_8005B9CC();
+            name = csv.fn_8005B9CC();
             sPresets->mSlots[slot][preset] = -1;
             for (int i = 0; i < 64; i++) {
                 if (strcmp(name, sColorNames[i]) == 0) {

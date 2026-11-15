@@ -1,0 +1,46 @@
+diff --git a/config/SLSP01/game_units.json b/config/SLSP01/game_units.json
+index 9fbce12..926ed8c 100644
+--- a/config/SLSP01/game_units.json
++++ b/config/SLSP01/game_units.json
+@@ -3745,7 +3745,7 @@
+    "chr::ControlCdnPsycho",
+    "chr::ControlCdnRestorePsycho"
+   ],
+-  "matching": false
++  "matching": true
+  },
+  {
+   "name": "chr/ControlBase.cpp",
+diff --git a/include/chr/ControlCdn.h b/include/chr/ControlCdn.h
+index f6e286b..a4ebbe1 100644
+--- a/include/chr/ControlCdn.h
++++ b/include/chr/ControlCdn.h
+@@ -74,6 +74,7 @@ public:
+ class ControlCdnPiyo : public ControlBase {
+ public:
+     ControlCdnPiyo(Chara_unk* chara, const atn::Vector3& dir, int time, int flag); // 0x80191170
++    static float Stripped1_unk(int); // inferred: removed by the linker
+     virtual ~ControlCdnPiyo();
+     virtual int vf0C();
+     virtual boost::function<void()> vf10() const;
+diff --git a/src/chr/ControlCdnStone.cpp b/src/chr/ControlCdnStone.cpp
+index eb011ff..a86121b 100644
+--- a/src/chr/ControlCdnStone.cpp
++++ b/src/chr/ControlCdnStone.cpp
+@@ -61,6 +61,16 @@ inline atn::Vector3 FrontDir_unk(const atn::Vector3& rot) {
+ 
+ namespace chr {
+ 
++// inferred: function removed by the linker (no reference in the DOL): its constants 150.0f and
++// 450.0f (time of the dizziness, as in the ControlCdnPiyo ctor) stay first in .sdata2. Name and
++// body invented.
++float ControlCdnPiyo::Stripped1_unk(int flag) {
++    if (flag == 0) {
++        return 150.0f;
++    }
++    return 450.0f;
++}
++
+ ControlCdnStone::ControlCdnStone(Chara_unk* chara, int a) : ControlBase(chara), m08(0.0f, 0.0f, 0.0f), m24(a) {
+     chara->m58C = 3;
+     mChara->m560 = 0x30;

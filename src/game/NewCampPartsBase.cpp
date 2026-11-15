@@ -562,9 +562,9 @@ extern "C" void fn_805114D4(atn::D3AnimeInstance* anime, int visible, int loop, 
             ((Inst*)anime->GetTask())->mLoop = loop != 0;
             ((Inst*)anime->GetTask())->mSpeed = speed;
             ((Inst*)anime->GetTask())->mFrame = frame;
-            fn_801F6C10((Inst*)anime->GetTask())->m9C = (void (*)(atn::D2A_Common*, atn::D2A_DrawColor*, void*))fn_80511668;
-            fn_801F6C10((Inst*)anime->GetTask())->mA0 = (void*)fn_80511704;
-            fn_801F6C10((Inst*)anime->GetTask())->mA4 = (int)fn_8051170C;
+            ((Inst*)anime->GetTask())->GetData()->m9C = (void (*)(atn::D2A_Common*, atn::D2A_DrawColor*, void*))fn_80511668;
+            ((Inst*)anime->GetTask())->GetData()->mA0 = (void*)fn_80511704;
+            ((Inst*)anime->GetTask())->GetData()->mA4 = (int)fn_8051170C;
         }
     }
 }
@@ -618,8 +618,7 @@ void NewCampPartsBase::vf48() {
         if (entry->m04 == 1) {
             atn::D3AnimeInstance* anime = (atn::D3AnimeInstance*)entry->mAnime;
             if (anime != 0 && anime->GetTask() != 0) {
-                fn_801F6C80((atn::D2A_TaskInstanceBase<32, 8>*)((atn::D3AnimeInstance*)m50[i].mAnime)->GetTask(),
-                            "frameOn", 0.0f);
+                ((atn::D3AnimeInstance*)m50[i].mAnime)->GetTask()->SetValue0_unk("frameOn", 0.0f);
             }
         } else {
             atn::D3Anime* anime = entry->mAnime;
@@ -678,16 +677,16 @@ extern "C" void fn_80511D9C(atn::D2A_TaskInstanceBase<32, 8>* task, CharaStatus*
             exp = 0.0f;
         }
         if (full != 0) {
-            fn_801F8598(task, "nowHP", p.m84, 0);
-            fn_801F6C80(task, "hpRate", 1.0f);
+            task->SetNumber_unk("nowHP", p.m84, 0);
+            task->SetValue0_unk("hpRate", 1.0f);
         } else {
-            fn_801F8598(task, "nowHP", (int)status->m04, 0);
-            fn_801F6C80(task, "hpRate", status->m04 / __MAX_unk((float)p.m84, 1.0f));
+            task->SetNumber_unk("nowHP", (int)status->m04, 0);
+            task->SetValue0_unk("hpRate", status->m04 / __MAX_unk((float)p.m84, 1.0f));
         }
-        fn_801F8598(task, "nowLv", p.m78, 0);
-        fn_801F6C80(task, "expRate", exp);
-        fn_801F6C80(task, "tpRate", __MIN_unk(__MAX_unk(status->m228, 0.0f), 1.0f));
-        fn_801F6C80(task, "tpOn", fn_8021946C(chara, status->mParamA.m78, 5) != 0);
+        task->SetNumber_unk("nowLv", p.m78, 0);
+        task->SetValue0_unk("expRate", exp);
+        task->SetValue0_unk("tpRate", __MIN_unk(__MAX_unk(status->m228, 0.0f), 1.0f));
+        task->SetValue0_unk("tpOn", fn_8021946C(chara, status->mParamA.m78, 5) != 0);
     }
 }
 

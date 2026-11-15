@@ -191,6 +191,9 @@ typedef void (*qr2_clientconnectedcallback_t)(SOCKET gamesocket,
                                               struct sockaddr_in* remoteaddr,
                                               void* userdata);
 
+// inferred: the TLS SDK version has a "host registered" callback (libs/gamespy/include/qr2/qr2.h)
+typedef void (*qr2_hostregisteredcallback_t)(void* userdata);
+
 //#if defined(QR2_IP_FILTER)
 typedef void (*qr2_denyqr2responsetoipcallback_t)(void* userdata,
                                                   unsigned int sender_ip,
@@ -396,14 +399,17 @@ struct qr2_implementation_s {
   qr2_natnegcallback_t nn_callback;        // 0xa0
   qr2_clientmessagecallback_t cm_callback; // 0xa4
   qr2_publicaddresscallback_t pa_callback; // 0xa8
-  gsi_time lastheartbeat;                  // 0xac
-  gsi_time lastka;                         // 0xb0
-  int userstatechangerequested;            // 0xb4
-  int listed_state;                        // 0xb8
-  int ispublic;                            // 0xbc
-  int qport;                               // 0xc0
-  int read_socket;                         // 0xc4
-  int nat_negotiate;                       // 0xc8
+  // inferred: TLS layout, userstatechangerequested at 0xbc (DWCi_MatchProcess, 0x806B82F4)
+  qr2_clientconnectedcallback_t cc_callback; // 0xac
+  qr2_hostregisteredcallback_t hr_callback;  // 0xb0
+  gsi_time lastheartbeat;                  // 0xb4
+  gsi_time lastka;                         // 0xb8
+  int userstatechangerequested;            // 0xbc
+  int listed_state;                        // 0xc0
+  int ispublic;                            // 0xc4
+  int qport;                               // 0xc8
+  int read_socket;                         // 0xcc
+  int nat_negotiate;                       // 0xd0
   struct sockaddr_in hbaddr;
   cdkey_process_t cdkeyprocess;
   int client_message_keys[RECENT_CLIENT_MESSAGES_TO_TRACK];

@@ -2,6 +2,7 @@
 #include "atn/Memory.h"
 #include "atn/DrawHelper.h"
 #include "atn/RenderManager.h"
+#include "atn/D2A_TaskInstanceC.h"
 
 extern "C" char* strcpy(char* dst, const char* src);
 extern "C" void* memset(void* dst, int c, unsigned long n);
@@ -10,9 +11,6 @@ extern "C" void PSMTXScale(Mtx m, float x, float y, float z);
 extern "C" void PSMTXTrans(Mtx m, float x, float y, float z);
 
 // inferred: d2anime task functions (automatic names)
-extern "C" atn::D2AInstance_unk* fn_801F64D0(atn::Task* parent, const char* path);
-extern "C" void fn_801F69A8(atn::D2AInstance_unk* task);
-extern "C" void fn_801F6A38(atn::D2AInstance_unk* task, int arg);
 
 
 // inferred: globals of unknown classes
@@ -60,8 +58,8 @@ D3AnimeInstance::~D3AnimeInstance() {}
 
 int D3AnimeInstance::Load() {
     mState = 1;
-    mTask = fn_801F64D0(this, mName);
-    mTask->m4E = 0;
+    mTask = D2AInstance_unk::Create(this, mName);
+    mTask->mVisible = 0;
     mTask->fn_800D246C(1);
     return 1;
 }
@@ -135,7 +133,7 @@ void D3AnimeInstance::vf14() {
     }
     CalcMtx_unk(mMtx, mRot, mPos, mScale);
     if (mTask != 0) {
-        fn_801F69A8(mTask);
+        mTask->Update();
     }
     if (mVisible) {
         if (IsVisible_unk(mPos)) {
@@ -244,7 +242,7 @@ void D3AnimeInstance::Draw() {
     lbl_8087EEB0->mA0 = 0xD;
     lbl_8087EEB0->mA4 = m;
     if (mTask != 0) {
-        fn_801F6A38(mTask, 1);
+        mTask->Draw();
     }
     lbl_8087EEB0->mA0 = mode;
     lbl_8087EEB0->mA4 = savedModel;

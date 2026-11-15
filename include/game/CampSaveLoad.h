@@ -9,6 +9,7 @@
 #include "std/string.h"
 #include "game/GameSaveTask.h"
 #include "atn/ResRef_unk.h"
+#include "atn/D2A_TaskInstanceC.h"
 
 
 // inferred: entry of CampSaveLoad::mEntries, one row of the list read by fn_8011B8D4 (0x18 bytes;
@@ -105,7 +106,7 @@ public:
     atn::D2A_Task* m94[8];          // 0x94: inferred: slot icons
     atn::D2A_Task* mB4[8];          // 0xB4: inferred: "no data" panels
     int mD4[8];
-    atn::Task* mF4[8];          // 0xF4: inferred: "clear" marks
+    D2A_TaskInstance32_unk* mF4[8]; // 0xF4: inferred: "clear" marks
     atn::D2A_Task* m114;
     CampArrow_unk mArrows[2];   // 0x118: inferred: left and right arrows
     int m128;                   // 0x128: inferred: selected slot

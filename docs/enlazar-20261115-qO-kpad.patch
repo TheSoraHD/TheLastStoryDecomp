@@ -1,0 +1,126 @@
+diff --git a/config/SLSP01/libs_ref.json b/config/SLSP01/libs_ref.json
+index c0c7a28..04a3241 100644
+--- a/config/SLSP01/libs_ref.json
++++ b/config/SLSP01/libs_ref.json
+@@ -31,7 +31,7 @@
+    "-func_align 16"
+   ],
+   "category": "sdk",
+-  "matching": false
++  "matching": true
+  },
+  {
+   "name": "msc/src/RVL_SDK/kpad/KPADMpls_unk.c",
+diff --git a/config/SLSP01/symbols.txt b/config/SLSP01/symbols.txt
+index 3f94195..15e23a2 100644
+--- a/config/SLSP01/symbols.txt
++++ b/config/SLSP01/symbols.txt
+@@ -28438,7 +28438,7 @@ jumptable_807B88F0 = .data:0x807B88F0; // type:object size:0x20 scope:local
+ jumptable_807B8910 = .data:0x807B8910; // type:object size:0x20 scope:local
+ lbl_807B8930 = .data:0x807B8930; // type:object size:0x2B data:string
+ lbl_807B8960 = .data:0x807B8960; // type:object size:0x47 data:string
+-@4029 = .data:0x807B89A8; // type:object size:0x54 scope:local
++@4056 = .data:0x807B89A8; // type:object size:0x54 scope:local
+ @LOCAL@KPADiSamplingCallback__Fl@table = .data:0x807B89FC; // type:object size:0x2C
+ kp_mpls_unk_tbl_a = .data:0x807B8A28; // type:object size:0x24
+ kp_mpls_unk_tbl_b = .data:0x807B8A4C; // type:object size:0x24
+@@ -40498,32 +40498,32 @@ lbl_8088888B = .sdata2:0x8088888B; // type:object size:0x1 data:byte
+ lbl_8088888C = .sdata2:0x8088888C; // type:object size:0x1 data:byte
+ lbl_8088888D = .sdata2:0x8088888D; // type:object size:0x1 data:byte
+ BT_BD_ANY = .sdata2:0x80888890; // type:object size:0x8
+-@3847 = .sdata2:0x80888898; // type:object size:0x4 scope:local align:4 data:float
+-@3848 = .sdata2:0x8088889C; // type:object size:0x4 scope:local align:4 data:float
+-@3871 = .sdata2:0x808888A0; // type:object size:0x4 scope:local align:4 data:float
+-@3872 = .sdata2:0x808888A4; // type:object size:0x4 scope:local align:4 data:float
+-@3873 = .sdata2:0x808888A8; // type:object size:0x4 scope:local align:4 data:float
+-@3874 = .sdata2:0x808888AC; // type:object size:0x4 scope:local align:4 data:float
+-@3958 = .sdata2:0x808888B0; // type:object size:0x4 scope:local align:4 data:float
+-@4030 = .sdata2:0x808888B8; // type:object size:0x8 scope:local align:8 data:double
+-@4210 = .sdata2:0x808888C0; // type:object size:0x4 scope:local align:4 data:float
+-@4211 = .sdata2:0x808888C4; // type:object size:0x4 scope:local align:4 data:float
+-@4212 = .sdata2:0x808888C8; // type:object size:0x4 scope:local align:4 data:float
+-@4570 = .sdata2:0x808888D0; // type:object size:0x8 scope:local align:8 data:double
+-@4571 = .sdata2:0x808888D8; // type:object size:0x4 scope:local align:4 data:float
+-@4572 = .sdata2:0x808888E0; // type:object size:0x8 scope:local align:8 data:double
+-@4573 = .sdata2:0x808888E8; // type:object size:0x8 scope:local align:8 data:double
+-@4574 = .sdata2:0x808888F0; // type:object size:0x8 scope:local align:8 data:double
+-@4575 = .sdata2:0x808888F8; // type:object size:0x8 scope:local align:8 data:double
+-@4576 = .sdata2:0x80888900; // type:object size:0x8 scope:local align:8 data:double
+-@4582 = .sdata2:0x80888908; // type:object size:0x8 scope:local align:8 data:double
+-@4723 = .sdata2:0x80888910; // type:object size:0x8 scope:local align:8 data:double
+-@4729 = .sdata2:0x80888918; // type:object size:0x4 scope:local align:4 data:float
+-@4786 = .sdata2:0x8088891C; // type:object size:0x4 scope:local align:4 data:float
+-@5067 = .sdata2:0x80888920; // type:object size:0x4 scope:local align:4 data:float
+-@5066 = .sdata2:0x80888924; // type:object size:0x4 scope:local align:4 data:float
+-@2623 = .sdata2:0x80888928; // type:object size:0x6 scope:local data:2byte
+-@5068 = .sdata2:0x80888930; // type:object size:0x4 scope:local align:4 data:float
++@3874 = .sdata2:0x80888898; // type:object size:0x4 scope:local align:4 data:float
++@3875 = .sdata2:0x8088889C; // type:object size:0x4 scope:local align:4 data:float
++@3898 = .sdata2:0x808888A0; // type:object size:0x4 scope:local align:4 data:float
++@3899 = .sdata2:0x808888A4; // type:object size:0x4 scope:local align:4 data:float
++@3900 = .sdata2:0x808888A8; // type:object size:0x4 scope:local align:4 data:float
++@3901 = .sdata2:0x808888AC; // type:object size:0x4 scope:local align:4 data:float
++@3985 = .sdata2:0x808888B0; // type:object size:0x4 scope:local align:4 data:float
++@4057 = .sdata2:0x808888B8; // type:object size:0x8 scope:local align:8 data:double
++@4237 = .sdata2:0x808888C0; // type:object size:0x4 scope:local align:4 data:float
++@4238 = .sdata2:0x808888C4; // type:object size:0x4 scope:local align:4 data:float
++@4239 = .sdata2:0x808888C8; // type:object size:0x4 scope:local align:4 data:float
++@4597 = .sdata2:0x808888D0; // type:object size:0x8 scope:local align:8 data:double
++@4598 = .sdata2:0x808888D8; // type:object size:0x4 scope:local align:4 data:float
++@4599 = .sdata2:0x808888E0; // type:object size:0x8 scope:local align:8 data:double
++@4600 = .sdata2:0x808888E8; // type:object size:0x8 scope:local align:8 data:double
++@4601 = .sdata2:0x808888F0; // type:object size:0x8 scope:local align:8 data:double
++@4602 = .sdata2:0x808888F8; // type:object size:0x8 scope:local align:8 data:double
++@4603 = .sdata2:0x80888900; // type:object size:0x8 scope:local align:8 data:double
++@4609 = .sdata2:0x80888908; // type:object size:0x8 scope:local align:8 data:double
++@4750 = .sdata2:0x80888910; // type:object size:0x8 scope:local align:8 data:double
++@4756 = .sdata2:0x80888918; // type:object size:0x4 scope:local align:4 data:float
++@4813 = .sdata2:0x8088891C; // type:object size:0x4 scope:local align:4 data:float
++@4887 = .sdata2:0x80888920; // type:object size:0x4 scope:local align:4 data:float
++@4888 = .sdata2:0x80888924; // type:object size:0x4 scope:local align:4 data:float
++@2645 = .sdata2:0x80888928; // type:object size:0x6 scope:local data:2byte
++@5104 = .sdata2:0x80888930; // type:object size:0x4 scope:local align:4 data:float
+ @2158 = .sdata2:0x80888938; // type:object size:0x4 scope:local align:4 data:float
+ @2159 = .sdata2:0x8088893C; // type:object size:0x4 scope:local align:4 data:float
+ @2160 = .sdata2:0x80888940; // type:object size:0x4 scope:local align:4 data:float
+diff --git a/libs/msc/src/RVL_SDK/kpad/KPAD.c b/libs/msc/src/RVL_SDK/kpad/KPAD.c
+index 70af058..f8767c8 100644
+--- a/libs/msc/src/RVL_SDK/kpad/KPAD.c
++++ b/libs/msc/src/RVL_SDK/kpad/KPAD.c
+@@ -2299,6 +2299,36 @@ static void fn_80658300(WPADChannel chan, WPADResult result)
+     kp->unk_0x677 = 0;
+ }
+ 
++// Body from the public SDK (2009-12-11 decomp, robojumper/sdk_2009-12-11), without the asserts.
++// inferred: the linker drops it (not in the .dol), but its 0.005f and 0.01f put those two constants in .sdata2
++// ahead of the {1, 1, 1} of KPADiSamplingCallback, as in the original (0x80888920); 0.02f and 0.04f are dropped
++// with it because nothing else uses them.
++void KMPLSGetZeroDriftParam(KPADChannel chan, f32* radius, s32* count, f32* power);
++
++void KPADGetMplsZeroDriftMode(KPADChannel chan, s32* mode)
++{
++    f32 radius;
++    s32 count;
++    f32 power;
++    if (mode == NULL)
++    {
++        return;
++    }
++    KMPLSGetZeroDriftParam(chan, &radius, &count, &power);
++    if (radius == 0.005f && power == 0.01f)
++    {
++        *mode = 2; // KPAD_MPLS_ZERO_DRIFT_TIGHT
++    }
++    else if (radius == 0.02f && power == 0.04f)
++    {
++        *mode = 0; // KPAD_MPLS_ZERO_DRIFT_LOOSE
++    }
++    else
++    {
++        *mode = 1; // KPAD_MPLS_ZERO_DRIFT_STANDARD
++    }
++}
++
+ static void KPADiSamplingCallback(s32 chan)
+ {
+     KPADInsideStatus* kp = &inside_kpads[chan];

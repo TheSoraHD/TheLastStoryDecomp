@@ -3,6 +3,8 @@
 
 namespace atn {
 
+SequenceControl* SequenceControl::sInstance;
+
 SequenceControl* SequenceControl::fn_800C3610(Task* parent, SequenceHolder* table) {
     if (sInstance == 0) {
         return new ((MemoryTag)1, "", "", 0) SequenceControl(parent, table);

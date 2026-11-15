@@ -592,31 +592,31 @@ void GameUI::fn_803CFC78() {
 // NONMATCHING: 99.5% - register allocation of the loops (the original gives the hoisted paths the higher
 // registers and the induction pointers the lower ones)
 void GameUI::fn_803D022C() {
-    m50.m0C = fn_801F64D0(this, "/data/d2anime/ui_player_hpmp.d2a");
+    m50.m0C = D2A_TaskInstance32_unk::Create(this, "/data/d2anime/ui_player_hpmp.d2a");
     m50.m0C->fn_800D246C(1);
-    m50.m10 = fn_801F64D0(this, "/data/d2anime/ui_player_tp_shine.d2a");
+    m50.m10 = D2A_TaskInstance32_unk::Create(this, "/data/d2anime/ui_player_tp_shine.d2a");
     m50.m10->fn_800D246C(1);
     if (lbl_8087F610 != 0 && !lbl_8087F610->IsShowLevel_unk()) {
         m50.m14 = 0;
     } else {
-        m50.m14 = fn_801F64D0(this, "/data/d2anime/ui_player_lv.d2a");
+        m50.m14 = D2A_TaskInstance32_unk::Create(this, "/data/d2anime/ui_player_lv.d2a");
         m50.m14->fn_800D246C(1);
     }
-    m50.m18 = fn_801F64D0(this, "/data/d2anime/ui_player_icon_help_loop.d2a");
+    m50.m18 = D2A_TaskInstance32_unk::Create(this, "/data/d2anime/ui_player_icon_help_loop.d2a");
     m50.m18->fn_800D246C(1);
     if (lbl_8087F610 != 0 && !lbl_8087F610->IsShowLevel_unk()) {
         m50.m1C = 0;
     } else {
-        m50.m1C = fn_801F64D0(this, "/data/d2anime/ui_player_last.d2a");
+        m50.m1C = D2A_TaskInstance32_unk::Create(this, "/data/d2anime/ui_player_last.d2a");
         m50.m1C->fn_800D246C(1);
     }
-    m50.m20 = fn_801F64D0(this, "/data/d2anime/ui_player_heal.d2a");
+    m50.m20 = D2A_TaskInstance32_unk::Create(this, "/data/d2anime/ui_player_heal.d2a");
     m50.m20->fn_800D246C(1);
-    m50.m24 = fn_801F64D0(this, "/data/d2anime/ui_player_icon_hate_loop.d2a");
+    m50.m24 = D2A_TaskInstance32_unk::Create(this, "/data/d2anime/ui_player_icon_hate_loop.d2a");
     m50.m24->fn_800D246C(1);
-    m50.m28 = fn_801F64D0(this, "/data/d2anime/ui_player_wind_shine.d2a");
+    m50.m28 = D2A_TaskInstance32_unk::Create(this, "/data/d2anime/ui_player_wind_shine.d2a");
     m50.m28->fn_800D246C(1);
-    m50.m2C = fn_801F64D0(this, "/data/d2anime/ui_player_lvup.d2a");
+    m50.m2C = D2A_TaskInstance32_unk::Create(this, "/data/d2anime/ui_player_lvup.d2a");
     m50.m2C->fn_800D246C(1);
     for (int i = 0; i < 6; i++) {
         const char* hpmp = "/data/d2anime/ui_friend_hpmp.d2a";
@@ -626,37 +626,37 @@ void GameUI::fn_803D022C() {
         const char* lvup = "/data/d2anime/ui_friend_lvup.d2a";
         const char* magStart = "data/d2anime/ui_friend_icon_mag_start.d2a";
         const char* magDefault = "data/d2anime/ui_friend_icon_default.d2a";
-        mB0[i].m0C = fn_801F64D0(this, hpmp);
+        mB0[i].m0C = D2A_TaskInstance32_unk::Create(this, hpmp);
         mB0[i].m0C->fn_800D246C(1);
-        mB0[i].m10 = fn_801F64D0(this, tpShine);
+        mB0[i].m10 = D2A_TaskInstance32_unk::Create(this, tpShine);
         mB0[i].m10->fn_800D246C(1);
         if (lbl_8087F610 != 0 && !lbl_8087F610->IsShowLevel_unk()) {
             mB0[i].m14 = 0;
         } else {
-            mB0[i].m14 = fn_801F64D0(this, "/data/d2anime/ui_friend_lv.d2a");
+            mB0[i].m14 = D2A_TaskInstance32_unk::Create(this, "/data/d2anime/ui_friend_lv.d2a");
             mB0[i].m14->fn_800D246C(1);
         }
-        mB0[i].m18 = fn_801F64D0(this, help);
+        mB0[i].m18 = D2A_TaskInstance32_unk::Create(this, help);
         mB0[i].m18->fn_800D246C(1);
         if (lbl_8087F610 != 0 && !lbl_8087F610->IsShowLevel_unk()) {
             mB0[i].m1C = 0;
         } else {
-            mB0[i].m1C = fn_801F64D0(this, "/data/d2anime/ui_friend_last.d2a");
+            mB0[i].m1C = D2A_TaskInstance32_unk::Create(this, "/data/d2anime/ui_friend_last.d2a");
             mB0[i].m1C->fn_800D246C(1);
         }
-        mB0[i].m20 = fn_801F64D0(this, heal);
+        mB0[i].m20 = D2A_TaskInstance32_unk::Create(this, heal);
         mB0[i].m20->fn_800D246C(1);
-        mB0[i].m2C = fn_801F64D0(this, lvup);
+        mB0[i].m2C = D2A_TaskInstance32_unk::Create(this, lvup);
         mB0[i].m2C->fn_800D246C(1);
-        m318[i].m14 = fn_801F64D0(this, magStart);
+        m318[i].m14 = D2A_TaskInstance32_unk::Create(this, magStart);
         m318[i].m14->fn_800D246C(0);
-        m318[i].m18 = fn_801F64D0(this, magDefault);
+        m318[i].m18 = D2A_TaskInstance32_unk::Create(this, magDefault);
         m318[i].m18->fn_800D246C(0);
         for (int j = 0; j < 5; j++) {
             if (j == 0) {
                 m318[i].mInst[j] = m318[i].m14;
             } else if (j == 1) {
-                m318[i].mInst[j] = fn_801F64D0(this, "/data/d2anime/ui_friend_icon_mag_broken.d2a");
+                m318[i].mInst[j] = D2A_TaskInstance32_unk::Create(this, "/data/d2anime/ui_friend_icon_mag_broken.d2a");
                 m318[i].mInst[j]->fn_800D246C(1);
             } else {
                 m318[i].mInst[j] = m318[i].m18;
@@ -669,9 +669,9 @@ void GameUI::fn_803D022C() {
     for (int i = 0; i < 8; i++) {
         const char* hp = "/data/d2anime/ui_hp.d2a";
         const char* shine = "/data/d2anime/ui_hp_shine.d2a";
-        m574[i] = fn_801F64D0(this, hp);
+        m574[i] = D2A_TaskInstance32_unk::Create(this, hp);
         m574[i]->fn_800D246C(1);
-        m594[i] = fn_801F64D0(this, shine);
+        m594[i] = D2A_TaskInstance32_unk::Create(this, shine);
         m594[i]->fn_800D246C(1);
     }
     m5B8 = fn_801F3FF8(this, "/data/d2anime/ui_hp.d2a", 0);
@@ -680,12 +680,12 @@ void GameUI::fn_803D022C() {
     m3D8->fn_800D246C(1);
     for (int i = 0; i < 4; i++) {
         const char* path = "/data/d2anime/ui_boss_hp.d2a";
-        m3DC[i] = fn_801F64D0(this, path);
+        m3DC[i] = D2A_TaskInstance32_unk::Create(this, path);
         m3DC[i]->fn_800D246C(1);
     }
     for (int i = 0; i < 6; i++) {
         const char* path = "/data/d2anime/ui_point_down_op.d2a";
-        m6FC[i] = fn_801F64D0(this, path);
+        m6FC[i] = D2A_TaskInstance32_unk::Create(this, path);
         m6FC[i]->fn_800D246C(1);
     }
     m714[0] = fn_801F3FF8(this, "/data/d2anime/ui_lever_open.d2a", 0);
@@ -702,7 +702,7 @@ void GameUI::fn_803D022C() {
     m730->fn_800D246C(1);
     for (int i = 0; i < 12; i++) {
         const char* path = "/data/d2anime/ui_object_lock.d2a";
-        m8A0[i] = fn_801F64D0(this, path);
+        m8A0[i] = D2A_TaskInstance32_unk::Create(this, path);
         m8A0[i]->fn_800D246C(1);
     }
     mA84 = fn_801F3FF8(this, "/data/d2anime/ui_aspect_event.d2a", 0);
@@ -795,7 +795,7 @@ void GameUI::fn_803D0B20() {
             const char* point = "/data/d2anime/ui_magic_point.d2a";
             const char* speed = "/data/d2anime/ui_magic_speed.d2a";
             const char* giga = "/data/d2anime/ui_magic_point_giga.d2a";
-            mA90[i] = fn_801F64D0(this, point);
+            mA90[i] = D2A_TaskInstance32_unk::Create(this, point);
             mA90[i]->fn_800D246C(1);
             mAB8[i] = atn::D2A_TaskInstanceBase<8, 2>::Create(this, speed);
             mAB8[i]->fn_800D246C(1);
@@ -811,7 +811,7 @@ void GameUI::fn_803D0B20() {
         }
         for (int i = 0; i < 8; i++) {
             const char* path = "/data/d2anime/ui_overlook_skill.d2a";
-            m10B4[i] = fn_801F64D0(this, path);
+            m10B4[i] = D2A_TaskInstance32_unk::Create(this, path);
             m10B4[i]->fn_800D246C(1);
             m10D4[i] = 0;
         }
@@ -827,14 +827,14 @@ void GameUI::fn_803D0B20() {
         m848[0]->fn_800D246C(1);
         for (int i = 0; i < 4; i++) {
             const char* path = "/data/d2anime/ui_point_slash.d2a";
-            m848[i + 1] = fn_801F64D0(this, path);
+            m848[i + 1] = D2A_TaskInstance32_unk::Create(this, path);
             m848[i + 1]->fn_800D246C(1);
         }
         m874[0] = fn_801F3FF8(this, "/data/d2anime/ui_point_slash.d2a", 0);
         m874[0]->fn_800D246C(1);
         for (int i = 0; i < 4; i++) {
             const char* path = "/data/d2anime/ui_point_slash.d2a";
-            m874[i + 1] = fn_801F64D0(this, path);
+            m874[i + 1] = D2A_TaskInstance32_unk::Create(this, path);
             m874[i + 1]->fn_800D246C(1);
         }
         mB08[0] = fn_801F3FF8(this, "data/d2anime/ui_replay_open.d2a", 0);
@@ -1140,7 +1140,7 @@ void GameUI::fn_803D164C() {
     for (int i = 0; i < 4; i++) {
         m3DC[i]->fn_800D246C(0);
         m3DC[i]->FreezeTask();
-        fn_801F6C80(m3DC[i], "line", i);
+        m3DC[i]->SetValue0_unk("line", i);
     }
     for (int i = 0; i < 6; i++) {
         m6FC[i]->fn_800D246C(0);
@@ -1774,10 +1774,10 @@ void GameUI::fn_803D2A6C() {
             fn_803E4100();
             for (unsigned int i = 0; i < fn_80372574(&m8D0); i++) {
                 m8A0[i]->MeltTask();
-                fn_801F6D7C(m8A0[i], "base_point", 0, m8D0[i].mScreen.x);
-                fn_801F6D7C(m8A0[i], "base_point", 1, m8D0[i].mScreen.y);
-                fn_801F6D7C(m8A0[i], "base_scale", 2, 0.01f * m8D0[i].mSize.x);
-                fn_801F6D7C(m8A0[i], "base_scale", 3, 0.01f * m8D0[i].mSize.y);
+                m8A0[i]->SetValue1_unk("base_point", 0, m8D0[i].mScreen.x);
+                m8A0[i]->SetValue1_unk("base_point", 1, m8D0[i].mScreen.y);
+                m8A0[i]->SetValue1_unk("base_scale", 2, 0.01f * m8D0[i].mSize.x);
+                m8A0[i]->SetValue1_unk("base_scale", 3, 0.01f * m8D0[i].mSize.y);
             }
             ((GameUICounter_unk*)&m8D0)->fn_803CF734();
         } else if (eventShown || fn_80121F00()->GetState_unk() == 0) {
@@ -1981,8 +1981,8 @@ void GameUI::fn_803D2A6C() {
                             if (screen.z >= 0.0f && screen.z <= 1.0f) {
                                 GameUIInst_unk* mark = static_cast<GameUIInst_unk*>(m848[i + 1]);
                                 mark->MeltTask();
-                                fn_801F6D7C(mark, "base_point", 0, screen.x);
-                                fn_801F6D7C(mark, "base_point", 1, screen.y);
+                                mark->SetValue1_unk("base_point", 0, screen.x);
+                                mark->SetValue1_unk("base_point", 1, screen.y);
                             }
                         }
                     }
@@ -2029,8 +2029,8 @@ void GameUI::fn_803D2A6C() {
                             GameUIInst_unk* mark = static_cast<GameUIInst_unk*>(m874[count + 1]);
                             mark->MeltTask();
                             atn::Vector3 screen = fn_8008B964()->GetScreenPosition(targets[i].mPos);
-                            fn_801F6D7C(mark, "base_point", 0, screen.x);
-                            fn_801F6D7C(mark, "base_point", 1, screen.y);
+                            mark->SetValue1_unk("base_point", 0, screen.x);
+                            mark->SetValue1_unk("base_point", 1, screen.y);
                             count++;
                         }
                         if (count >= 4) {
@@ -2157,7 +2157,7 @@ void GameUI::fn_803D2A6C() {
                             if (msg >= 0) {
                                 GameUIInst_unk* inst = m318[i].mInst[msg];
                                 inst->MeltTask();
-                                fn_801F6C80(inst, "line", (float)(int)i);
+                                inst->SetValue0_unk("line", (float)(int)i);
                                 if (msg == 0) {
                                     int time = (int)(c->GetFBC_unk() - c->GetFB8_unk());
                                     int sec = fn_803CE8A8(time);
@@ -2165,11 +2165,11 @@ void GameUI::fn_803D2A6C() {
                                     if (min < 0) {
                                         min = 0;
                                     }
-                                    fn_801F8598(inst, "num", min, 0);
-                                    fn_801F8598(inst, "num01", min, 0);
-                                    fn_801F8598(inst, "num02", min, 0);
+                                    inst->SetNumber_unk("num", min, 0);
+                                    inst->SetNumber_unk("num01", min, 0);
+                                    inst->SetNumber_unk("num02", min, 0);
                                     float frame = inst->GetFrame_unk();
-                                    float end = fn_801F6C2C(inst);
+                                    float end = inst->GetEndFrame();
                                     if (c->GetFB8_unk() <= 0.0f && frame < end) {
                                         inst->SetEnd_unk();
                                     } else if (frame >= 44.0f) {
@@ -2185,7 +2185,7 @@ void GameUI::fn_803D2A6C() {
                                     int k = m30C[j].m00;
                                     m318[i].m1C = k;
                                     m318[i].mInst[k]->Rewind_unk();
-                                    fn_801F837C(m318[i].mInst[k], "voiceMsg", GetMsgTable_unk()->GetEntry_unk(k + 0xE3));
+                                    m318[i].mInst[k]->SetText_unk("voiceMsg", GetMsgTable_unk()->GetEntry_unk(k + 0xE3));
                                     if (k == 1) {
                                         mSeMask |= 0x40;
                                     }
@@ -2242,11 +2242,11 @@ void GameUI::fn_803D2A6C() {
                                 m3D8->SetLayoutValue_unk("frameOn", 0.0f);
                             }
                             m3DC[n]->MeltTask();
-                            fn_801F6C80(m3DC[n], "hpRate", rate);
+                            m3DC[n]->SetValue0_unk("hpRate", rate);
                             if (st->mParamB.m8C > 0.0f && rate < 1.0f) {
-                                fn_801F6C80(m3DC[n], "heal", 1.0f);
+                                m3DC[n]->SetValue0_unk("heal", 1.0f);
                             } else {
-                                fn_801F6C80(m3DC[n], "heal", 0.0f);
+                                m3DC[n]->SetValue0_unk("heal", 0.0f);
                             }
                             n++;
                         }
@@ -2262,10 +2262,10 @@ void GameUI::fn_803D2A6C() {
                 if (m8D0[i].mScreen.x >= -200.0f && 1000.0f >= m8D0[i].mScreen.x && m8D0[i].mScreen.y >= -200.0f &&
                     1000.0f >= m8D0[i].mScreen.y && m8D0[i].mScreen.z >= 0.0f && 1.0f >= m8D0[i].mScreen.z) {
                     m8A0[i]->MeltTask();
-                    fn_801F6D7C(m8A0[i], "base_point", 0, m8D0[i].mScreen.x);
-                    fn_801F6D7C(m8A0[i], "base_point", 1, m8D0[i].mScreen.y);
-                    fn_801F6D7C(m8A0[i], "base_scale", 2, 0.01f * m8D0[i].mSize.x);
-                    fn_801F6D7C(m8A0[i], "base_scale", 3, 0.01f * m8D0[i].mSize.y);
+                    m8A0[i]->SetValue1_unk("base_point", 0, m8D0[i].mScreen.x);
+                    m8A0[i]->SetValue1_unk("base_point", 1, m8D0[i].mScreen.y);
+                    m8A0[i]->SetValue1_unk("base_scale", 2, 0.01f * m8D0[i].mSize.x);
+                    m8A0[i]->SetValue1_unk("base_scale", 3, 0.01f * m8D0[i].mSize.y);
                 }
             }
             ((GameUICounter_unk*)&m8D0)->fn_803CF734();
@@ -2379,7 +2379,7 @@ void GameUI::fn_803D2A6C() {
                         case 5:
                             open = mB38[i].m00;
                             loop = mB38[i].m04;
-                            frame = fn_801F6C2C((GameUIInst_unk*)open->GetTask());
+                            frame = open->GetTask()->GetEndFrame();
                             break;
                         case 2:
                             open = mB38[i].m08;
@@ -2399,39 +2399,39 @@ void GameUI::fn_803D2A6C() {
                             break;
                         }
                         if (open != 0 && loop != 0) {
-                            GameUIInst_unk* openInst = (GameUIInst_unk*)open->GetTask();
+                            GameUIInst_unk* openInst = open->GetTask();
                             if (mk->m18 != 0) {
                                 if (mk->m00 == 5) {
-                                    ((GameUIInst_unk*)loop->GetTask())->SetLoop_unk(0);
-                                    float end = fn_801F6C2C((GameUIInst_unk*)loop->GetTask());
-                                    if (((GameUIInst_unk*)loop->GetTask())->GetFrame_unk() < end) {
+                                    loop->GetTask()->SetLoop_unk(0);
+                                    float end = loop->GetTask()->GetEndFrame();
+                                    if (loop->GetTask()->GetFrame_unk() < end) {
                                         loop->MeltTask();
                                     }
-                                    ((GameUIInst_unk*)open->GetTask())->Rewind_unk();
+                                    open->GetTask()->Rewind_unk();
                                 } else {
-                                    if (((GameUIInst_unk*)open->GetTask())->GetFrame_unk() < frame) {
-                                        ((GameUIInst_unk*)open->GetTask())->SetFrame_unk(frame);
+                                    if (open->GetTask()->GetFrame_unk() < frame) {
+                                        open->GetTask()->SetFrame_unk(frame);
                                     }
                                     open->MeltTask();
-                                    ((GameUIInst_unk*)loop->GetTask())->Rewind_unk();
+                                    loop->GetTask()->Rewind_unk();
                                 }
                             } else if (mk->m14 != 0) {
                                 if (mk->m00 == 5) {
-                                    ((GameUIInst_unk*)loop->GetTask())->SetLoop_unk(0);
-                                    float end = fn_801F6C2C((GameUIInst_unk*)loop->GetTask());
-                                    if (((GameUIInst_unk*)loop->GetTask())->GetFrame_unk() < end) {
+                                    loop->GetTask()->SetLoop_unk(0);
+                                    float end = loop->GetTask()->GetEndFrame();
+                                    if (loop->GetTask()->GetFrame_unk() < end) {
                                         loop->MeltTask();
                                     }
                                 } else {
-                                    float end = fn_801F6C2C((GameUIInst_unk*)open->GetTask());
-                                    if (((GameUIInst_unk*)open->GetTask())->GetFrame_unk() < end) {
+                                    float end = open->GetTask()->GetEndFrame();
+                                    if (open->GetTask()->GetFrame_unk() < end) {
                                         open->MeltTask();
                                     }
-                                    ((GameUIInst_unk*)loop->GetTask())->Rewind_unk();
+                                    loop->GetTask()->Rewind_unk();
                                 }
                             } else {
-                                if (mk->m00 != 5 && ((GameUIInst_unk*)open->GetTask())->GetFrame_unk() > frame) {
-                                    ((GameUIInst_unk*)open->GetTask())->Rewind_unk();
+                                if (mk->m00 != 5 && open->GetTask()->GetFrame_unk() > frame) {
+                                    open->GetTask()->Rewind_unk();
                                 }
                                 unsigned int active = fn_80372574(&mC38);
                                 for (unsigned int j = 0; j < fn_80372574(&mC38); j++) {
@@ -2440,15 +2440,15 @@ void GameUI::fn_803D2A6C() {
                                     }
                                 }
                                 if (mk->m00 == 5 && mD6C > 0 && mD6C >= (int)active &&
-                                    0.0f == ((GameUIInst_unk*)open->GetTask())->GetFrame_unk()) {
-                                    ((GameUIInst_unk*)open->GetTask())->SetFrame_unk(frame);
+                                    0.0f == open->GetTask()->GetFrame_unk()) {
+                                    open->GetTask()->SetFrame_unk(frame);
                                 }
-                                if (((GameUIInst_unk*)open->GetTask())->GetFrame_unk() < frame) {
+                                if (open->GetTask()->GetFrame_unk() < frame) {
                                     if (m814[0]->IsEnd_unk() || m814[0]->IsFrozen_unk()) {
                                         open->MeltTask();
                                     }
-                                } else if (((GameUIInst_unk*)open->GetTask())->GetFrame_unk() >= frame) {
-                                    ((GameUIInst_unk*)loop->GetTask())->SetLoop_unk(1);
+                                } else if (open->GetTask()->GetFrame_unk() >= frame) {
+                                    loop->GetTask()->SetLoop_unk(1);
                                     loop->MeltTask();
                                 }
                             }
@@ -2478,11 +2478,11 @@ void GameUI::fn_803D2A6C() {
                             m.fn_8013A13C(rot.y);
                             open->SetRotation_unk(m);
                             open->SetScale_unk(scale);
-                            fn_801F6D7C((GameUIInst_unk*)open->GetTask(), "basePos", 0, 0.0f);
-                            fn_801F6D7C((GameUIInst_unk*)open->GetTask(), "basePos", 1, 0.0f);
-                            fn_801F6D7C((GameUIInst_unk*)open->GetTask(), "basePos", 4, range);
-                            fn_801F6C80((GameUIInst_unk*)open->GetTask(), "moveU", rot.y / 1.5707964f);
-                            fn_801F6C80((GameUIInst_unk*)open->GetTask(), "moveV", rot.y / 1.5707964f);
+                            open->GetTask()->SetValue1_unk("basePos", 0, 0.0f);
+                            open->GetTask()->SetValue1_unk("basePos", 1, 0.0f);
+                            open->GetTask()->SetValue1_unk("basePos", 4, range);
+                            open->GetTask()->SetValue0_unk("moveU", rot.y / 1.5707964f);
+                            open->GetTask()->SetValue0_unk("moveV", rot.y / 1.5707964f);
                         }
                         if (loop != 0) {
                             loop->SetPosition_unk(pos);
@@ -2490,21 +2490,21 @@ void GameUI::fn_803D2A6C() {
                             m.fn_8013A13C(rot.y);
                             loop->SetRotation_unk(m);
                             loop->SetScale_unk(scale);
-                            fn_801F6D7C((GameUIInst_unk*)loop->GetTask(), "basePos", 0, 0.0f);
-                            fn_801F6D7C((GameUIInst_unk*)loop->GetTask(), "basePos", 1, 0.0f);
-                            fn_801F6D7C((GameUIInst_unk*)loop->GetTask(), "basePos", 4, range);
-                            fn_801F6C80((GameUIInst_unk*)loop->GetTask(), "moveU", rot.y / 1.5707964f);
-                            fn_801F6C80((GameUIInst_unk*)loop->GetTask(), "moveV", rot.y / 1.5707964f);
+                            loop->GetTask()->SetValue1_unk("basePos", 0, 0.0f);
+                            loop->GetTask()->SetValue1_unk("basePos", 1, 0.0f);
+                            loop->GetTask()->SetValue1_unk("basePos", 4, range);
+                            loop->GetTask()->SetValue0_unk("moveU", rot.y / 1.5707964f);
+                            loop->GetTask()->SetValue0_unk("moveV", rot.y / 1.5707964f);
                         }
                     } else {
-                        ((GameUIInst_unk*)mB38[i].m00->GetTask())->Rewind_unk();
-                        ((GameUIInst_unk*)mB38[i].m04->GetTask())->Rewind_unk();
-                        ((GameUIInst_unk*)mB38[i].m08->GetTask())->Rewind_unk();
-                        ((GameUIInst_unk*)mB38[i].m0C->GetTask())->Rewind_unk();
-                        ((GameUIInst_unk*)mB38[i].m18->GetTask())->Rewind_unk();
-                        ((GameUIInst_unk*)mB38[i].m1C->GetTask())->Rewind_unk();
-                        ((GameUIInst_unk*)mB38[i].m10->GetTask())->Rewind_unk();
-                        ((GameUIInst_unk*)mB38[i].m14->GetTask())->Rewind_unk();
+                        mB38[i].m00->GetTask()->Rewind_unk();
+                        mB38[i].m04->GetTask()->Rewind_unk();
+                        mB38[i].m08->GetTask()->Rewind_unk();
+                        mB38[i].m0C->GetTask()->Rewind_unk();
+                        mB38[i].m18->GetTask()->Rewind_unk();
+                        mB38[i].m1C->GetTask()->Rewind_unk();
+                        mB38[i].m10->GetTask()->Rewind_unk();
+                        mB38[i].m14->GetTask()->Rewind_unk();
                     }
                 }
             }
@@ -2705,34 +2705,33 @@ void GameUI::fn_803D2A6C() {
                         if (0.0f < screen.z && screen.z < 1.0f) {
                             GameUIInst_unk* gauge = m574[i];
                             gauge->MeltTask();
-                            fn_801F6D7C(gauge, "base_point", 0, screen.x);
-                            fn_801F6D7C(gauge, "base_point", 1, screen.y);
-                            fn_801F6C80(gauge, "leaderOn", 0.0f);
-                            fn_801F6C80(gauge, "hpRate",
-                                        c->GetStatus_unk()->m244 / (float)c->GetStatus_unk()->mParamB.m84);
+                            gauge->SetValue1_unk("base_point", 0, screen.x);
+                            gauge->SetValue1_unk("base_point", 1, screen.y);
+                            gauge->SetValue0_unk("leaderOn", 0.0f);
+                            gauge->SetValue0_unk("hpRate", c->GetStatus_unk()->m244 / (float)c->GetStatus_unk()->mParamB.m84);
                             if (c->IsPlayer() || c->fn_80140518()) {
-                                fn_801F6C80(gauge, "hpColR", 130.0f);
-                                fn_801F6C80(gauge, "hpColG", 208.0f);
-                                fn_801F6C80(gauge, "hpColB", 80.0f);
+                                gauge->SetValue0_unk("hpColR", 130.0f);
+                                gauge->SetValue0_unk("hpColG", 208.0f);
+                                gauge->SetValue0_unk("hpColB", 80.0f);
                             } else {
-                                fn_801F6C80(gauge, "hpColR", 200.0f);
-                                fn_801F6C80(gauge, "hpColG", 50.0f);
-                                fn_801F6C80(gauge, "hpColB", 50.0f);
+                                gauge->SetValue0_unk("hpColR", 200.0f);
+                                gauge->SetValue0_unk("hpColG", 50.0f);
+                                gauge->SetValue0_unk("hpColB", 50.0f);
                                 if (c->GetHitFlag7_unk()) {
-                                    fn_801F6C80(gauge, "leaderOn", 1.0f);
+                                    gauge->SetValue0_unk("leaderOn", 1.0f);
                                 }
                             }
                             unsigned int heal = c->fn_801799BC();
                             if ((heal & 1) == 1 || (heal & 4) == 4) {
-                                fn_801F6C80(gauge, "heal", 1.0f);
+                                gauge->SetValue0_unk("heal", 1.0f);
                             } else {
                                 gauge->Rewind_unk();
-                                fn_801F6C80(gauge, "heal", 0.0f);
+                                gauge->SetValue0_unk("heal", 0.0f);
                             }
                             if (c->GetHitFlag7_unk()) {
                                 m594[i]->MeltTask();
-                                fn_801F6D7C(m594[i], "base_point", 0, screen.x);
-                                fn_801F6D7C(m594[i], "base_point", 1, screen.y);
+                                m594[i]->SetValue1_unk("base_point", 0, screen.x);
+                                m594[i]->SetValue1_unk("base_point", 1, screen.y);
                             }
                         }
                     }
@@ -2751,8 +2750,8 @@ void GameUI::fn_803D2A6C() {
                         atn::Vector3 tmp2 = fn_8008B964()->GetScreenPosition(hips);
                         screen = tmp2;
                         if (0.0f < screen.z && screen.z < 1.0f) {
-                            fn_801F6D7C(m6FC[n], "base_point", 0, screen.x);
-                            fn_801F6D7C(m6FC[n], "base_point", 1, screen.y);
+                            m6FC[n]->SetValue1_unk("base_point", 0, screen.x);
+                            m6FC[n]->SetValue1_unk("base_point", 1, screen.y);
                             if (c->GetStatus_unk()->fn_80139F4C()) {
                                 m6FC[n]->MeltTask();
                                 m6FC[n]->SetSpeed_unk(1.0f);
@@ -2760,13 +2759,13 @@ void GameUI::fn_803D2A6C() {
                                     m6FC[n]->SetFrame_unk(50.0f);
                                 }
                                 if (c->GetStatus_unk()->m224 > 0) {
-                                    fn_801F837C(m6FC[n], "string0002", GetMsgTable_unk()->GetEntry_unk(0xE8));
-                                    fn_801F837C(m6FC[n], "string0006(1)", GetMsgTable_unk()->GetEntry_unk(0xE8));
-                                    fn_801F837C(m6FC[n], "string0007(1)", GetMsgTable_unk()->GetEntry_unk(0xE8));
+                                    m6FC[n]->SetText_unk("string0002", GetMsgTable_unk()->GetEntry_unk(0xE8));
+                                    m6FC[n]->SetText_unk("string0006(1)", GetMsgTable_unk()->GetEntry_unk(0xE8));
+                                    m6FC[n]->SetText_unk("string0007(1)", GetMsgTable_unk()->GetEntry_unk(0xE8));
                                 } else {
-                                    fn_801F837C(m6FC[n], "string0002", GetMsgTable_unk()->GetEntry_unk(0xE9));
-                                    fn_801F837C(m6FC[n], "string0006(1)", GetMsgTable_unk()->GetEntry_unk(0xE9));
-                                    fn_801F837C(m6FC[n], "string0007(1)", GetMsgTable_unk()->GetEntry_unk(0xE9));
+                                    m6FC[n]->SetText_unk("string0002", GetMsgTable_unk()->GetEntry_unk(0xE9));
+                                    m6FC[n]->SetText_unk("string0006(1)", GetMsgTable_unk()->GetEntry_unk(0xE9));
+                                    m6FC[n]->SetText_unk("string0007(1)", GetMsgTable_unk()->GetEntry_unk(0xE9));
                                 }
                             }
                         }
@@ -2785,8 +2784,8 @@ void GameUI::fn_803D2A6C() {
                             atn::Vector3 tmp2 = fn_8008B964()->GetScreenPosition(hips);
                             screen = tmp2;
                             if (0.0f < screen.z && screen.z < 1.0f) {
-                                fn_801F6D7C(m6FC[n], "base_point", 0, screen.x);
-                                fn_801F6D7C(m6FC[n], "base_point", 1, screen.y);
+                                m6FC[n]->SetValue1_unk("base_point", 0, screen.x);
+                                m6FC[n]->SetValue1_unk("base_point", 1, screen.y);
                                 if (c->GetStatus_unk()->fn_80139F4C()) {
                                     m6FC[n]->MeltTask();
                                     m6FC[n]->SetSpeed_unk(1.0f);
@@ -2794,13 +2793,13 @@ void GameUI::fn_803D2A6C() {
                                         m6FC[n]->SetFrame_unk(50.0f);
                                     }
                                     if (c->GetStatus_unk()->m224 > 0) {
-                                        fn_801F837C(m6FC[n], "string0002", GetMsgTable_unk()->GetEntry_unk(0xE8));
-                                        fn_801F837C(m6FC[n], "string0006(1)", GetMsgTable_unk()->GetEntry_unk(0xE8));
-                                        fn_801F837C(m6FC[n], "string0007(1)", GetMsgTable_unk()->GetEntry_unk(0xE8));
+                                        m6FC[n]->SetText_unk("string0002", GetMsgTable_unk()->GetEntry_unk(0xE8));
+                                        m6FC[n]->SetText_unk("string0006(1)", GetMsgTable_unk()->GetEntry_unk(0xE8));
+                                        m6FC[n]->SetText_unk("string0007(1)", GetMsgTable_unk()->GetEntry_unk(0xE8));
                                     } else {
-                                        fn_801F837C(m6FC[n], "string0002", GetMsgTable_unk()->GetEntry_unk(0xE9));
-                                        fn_801F837C(m6FC[n], "string0006(1)", GetMsgTable_unk()->GetEntry_unk(0xE9));
-                                        fn_801F837C(m6FC[n], "string0007(1)", GetMsgTable_unk()->GetEntry_unk(0xE9));
+                                        m6FC[n]->SetText_unk("string0002", GetMsgTable_unk()->GetEntry_unk(0xE9));
+                                        m6FC[n]->SetText_unk("string0006(1)", GetMsgTable_unk()->GetEntry_unk(0xE9));
+                                        m6FC[n]->SetText_unk("string0007(1)", GetMsgTable_unk()->GetEntry_unk(0xE9));
                                     }
                                 }
                             }
@@ -4257,68 +4256,68 @@ extern "C" void fn_803DDD54(GameUIInst_unk* inst, int job) {
     atn::Color* colors = lbl_807C8628;
     switch (job) {
     case 0:
-        fn_801F7590(inst, "jobUv01ma", atn::Color(0.75f, 0.0f, 1.0f, 0.25f));
-        fn_801F7590(inst, "jobUv01mb", atn::Color(0.75f, 0.0f, 1.0f, 0.25f));
+        inst->SetValues2_unk("jobUv01ma", atn::Vector4_unk(0.75f, 0.0f, 1.0f, 0.25f));
+        inst->SetValues2_unk("jobUv01mb", atn::Vector4_unk(0.75f, 0.0f, 1.0f, 0.25f));
         SetInstColor_unk(inst, "jobCol01a", colors[0]);
         SetInstColor_unk(inst, "jobGradation", colors[0]);
         break;
     case 1:
-        fn_801F7590(inst, "jobUv01ma", atn::Color(0.5f, 0.0f, 0.75f, 0.25f));
-        fn_801F7590(inst, "jobUv01mb", atn::Color(0.5f, 0.0f, 0.75f, 0.25f));
+        inst->SetValues2_unk("jobUv01ma", atn::Vector4_unk(0.5f, 0.0f, 0.75f, 0.25f));
+        inst->SetValues2_unk("jobUv01mb", atn::Vector4_unk(0.5f, 0.0f, 0.75f, 0.25f));
         SetInstColor_unk(inst, "jobCol01a", colors[4]);
         SetInstColor_unk(inst, "jobGradation", colors[4]);
         break;
     case 2:
-        fn_801F7590(inst, "jobUv01ma", atn::Color(0.25f, 0.5f, 0.5f, 0.75f));
-        fn_801F7590(inst, "jobUv01mb", atn::Color(0.25f, 0.5f, 0.5f, 0.75f));
+        inst->SetValues2_unk("jobUv01ma", atn::Vector4_unk(0.25f, 0.5f, 0.5f, 0.75f));
+        inst->SetValues2_unk("jobUv01mb", atn::Vector4_unk(0.25f, 0.5f, 0.5f, 0.75f));
         SetInstColor_unk(inst, "jobCol01a", colors[6]);
         SetInstColor_unk(inst, "jobGradation", colors[6]);
         break;
     case 3:
-        fn_801F7590(inst, "jobUv01ma", atn::Color(0.25f, 0.0f, 0.5f, 0.25f));
-        fn_801F7590(inst, "jobUv01mb", atn::Color(0.25f, 0.0f, 0.5f, 0.25f));
+        inst->SetValues2_unk("jobUv01ma", atn::Vector4_unk(0.25f, 0.0f, 0.5f, 0.25f));
+        inst->SetValues2_unk("jobUv01mb", atn::Vector4_unk(0.25f, 0.0f, 0.5f, 0.25f));
         SetInstColor_unk(inst, "jobCol01a", colors[2]);
         SetInstColor_unk(inst, "jobGradation", colors[2]);
         break;
     case 4:
-        fn_801F7590(inst, "jobUv01ma", atn::Color(0.25f, 0.0f, 0.5f, 0.25f));
-        fn_801F7590(inst, "jobUv01mb", atn::Color(0.25f, 0.0f, 0.5f, 0.25f));
+        inst->SetValues2_unk("jobUv01ma", atn::Vector4_unk(0.25f, 0.0f, 0.5f, 0.25f));
+        inst->SetValues2_unk("jobUv01mb", atn::Vector4_unk(0.25f, 0.0f, 0.5f, 0.25f));
         SetInstColor_unk(inst, "jobCol01a", colors[3]);
         SetInstColor_unk(inst, "jobGradation", colors[3]);
         break;
     case 5:
-        fn_801F7590(inst, "jobUv01ma", atn::Color(0.25f, 0.25f, 0.5f, 0.5f));
-        fn_801F7590(inst, "jobUv01mb", atn::Color(0.25f, 0.25f, 0.5f, 0.5f));
+        inst->SetValues2_unk("jobUv01ma", atn::Vector4_unk(0.25f, 0.25f, 0.5f, 0.5f));
+        inst->SetValues2_unk("jobUv01mb", atn::Vector4_unk(0.25f, 0.25f, 0.5f, 0.5f));
         SetInstColor_unk(inst, "jobCol01a", colors[7]);
         SetInstColor_unk(inst, "jobGradation", colors[7]);
         break;
     case 6:
-        fn_801F7590(inst, "jobUv01ma", atn::Color(0.5f, 0.25f, 0.75f, 0.5f));
-        fn_801F7590(inst, "jobUv01mb", atn::Color(0.5f, 0.25f, 0.75f, 0.5f));
+        inst->SetValues2_unk("jobUv01ma", atn::Vector4_unk(0.5f, 0.25f, 0.75f, 0.5f));
+        inst->SetValues2_unk("jobUv01mb", atn::Vector4_unk(0.5f, 0.25f, 0.75f, 0.5f));
         SetInstColor_unk(inst, "jobCol01a", colors[8]);
         SetInstColor_unk(inst, "jobGradation", colors[8]);
         break;
     case 7:
-        fn_801F7590(inst, "jobUv01ma", atn::Color(0.75f, 0.25f, 1.0f, 0.5f));
-        fn_801F7590(inst, "jobUv01mb", atn::Color(0.75f, 0.25f, 1.0f, 0.5f));
+        inst->SetValues2_unk("jobUv01ma", atn::Vector4_unk(0.75f, 0.25f, 1.0f, 0.5f));
+        inst->SetValues2_unk("jobUv01mb", atn::Vector4_unk(0.75f, 0.25f, 1.0f, 0.5f));
         SetInstColor_unk(inst, "jobCol01a", colors[9]);
         SetInstColor_unk(inst, "jobGradation", colors[9]);
         break;
     case 8:
-        fn_801F7590(inst, "jobUv01ma", atn::Color(0.0f, 0.5f, 0.25f, 0.75f));
-        fn_801F7590(inst, "jobUv01mb", atn::Color(0.0f, 0.5f, 0.25f, 0.75f));
+        inst->SetValues2_unk("jobUv01ma", atn::Vector4_unk(0.0f, 0.5f, 0.25f, 0.75f));
+        inst->SetValues2_unk("jobUv01mb", atn::Vector4_unk(0.0f, 0.5f, 0.25f, 0.75f));
         SetInstColor_unk(inst, "jobCol01a", colors[11]);
         SetInstColor_unk(inst, "jobGradation", colors[11]);
         break;
     case 9:
-        fn_801F7590(inst, "jobUv01ma", atn::Color(0.0f, 0.25f, 0.25f, 0.5f));
-        fn_801F7590(inst, "jobUv01mb", atn::Color(0.0f, 0.25f, 0.25f, 0.5f));
+        inst->SetValues2_unk("jobUv01ma", atn::Vector4_unk(0.0f, 0.25f, 0.25f, 0.5f));
+        inst->SetValues2_unk("jobUv01mb", atn::Vector4_unk(0.0f, 0.25f, 0.25f, 0.5f));
         SetInstColor_unk(inst, "jobCol01a", colors[10]);
         SetInstColor_unk(inst, "jobGradation", colors[10]);
         break;
     default:
-        fn_801F7590(inst, "jobUv01ma", atn::Color(0.75f, 0.0f, 1.0f, 0.25f));
-        fn_801F7590(inst, "jobUv01mb", atn::Color(0.75f, 0.0f, 1.0f, 0.25f));
+        inst->SetValues2_unk("jobUv01ma", atn::Vector4_unk(0.75f, 0.0f, 1.0f, 0.25f));
+        inst->SetValues2_unk("jobUv01mb", atn::Vector4_unk(0.75f, 0.0f, 1.0f, 0.25f));
         SetInstColor_unk(inst, "jobCol01a", colors[5]);
         SetInstColor_unk(inst, "jobGradation", colors[5]);
         break;
@@ -4483,11 +4482,11 @@ void GameUI::fn_803DE89C(SkillEffect* bullet, int index) {
     if (near) {
         m10B4[index]->MeltTask();
         m10B4[index]->SetSpeed_unk(1.0f);
-        fn_801F6D7C(m10B4[index], "base_point", 4, index + 1);
+        m10B4[index]->SetValue1_unk("base_point", 4, index + 1);
     } else {
         m10B4[index]->MeltTask();
         m10B4[index]->SetSpeed_unk(-1.0f);
-        fn_801F6D7C(m10B4[index], "base_point", 4, index + 100);
+        m10B4[index]->SetValue1_unk("base_point", 4, index + 100);
     }
     atn::Vector3 pos = bullet->m10;
     HitInfo_unk* hit = bullet->GetHit_unk();
@@ -4501,8 +4500,8 @@ void GameUI::fn_803DE89C(SkillEffect* bullet, int index) {
         m10B4[index]->FreezeTask();
         return;
     }
-    fn_801F6D7C(m10B4[index], "base_point", 0, screen.x);
-    fn_801F6D7C(m10B4[index], "base_point", 1, screen.y);
+    m10B4[index]->SetValue1_unk("base_point", 0, screen.x);
+    m10B4[index]->SetValue1_unk("base_point", 1, screen.y);
     HitInfo_unk* skill = bullet->GetHit_unk();
     if (skill != 0) {
         switch (skill->m04) {
@@ -4521,15 +4520,15 @@ void GameUI::fn_803DE89C(SkillEffect* bullet, int index) {
         if (skill->m04 == 0x4EF9) {
             skill = fn_80219E6C(30002);
         }
-        fn_801F837C(m10B4[index], "skill_name", (const wchar_t*)skill->m08);
+        m10B4[index]->SetText_unk("skill_name", (const wchar_t*)skill->m08);
     }
     const wchar_t* link = fn_803DF2DC(bullet);
     GameUIColor_unk color = fn_803DF138(bullet);
-    fn_801F7DF0(m10B4[index], "backColor01", 255.0f * color.r, 255.0f * color.g, 255.0f * color.b);
-    fn_801F7DF0(m10B4[index], "backColor02", 255.0f * color.r, 255.0f * color.g, 255.0f * color.b);
-    fn_801F7DF0(m10B4[index], "backColor03", 255.0f * color.r, 255.0f * color.g, 255.0f * color.b);
-    fn_801F7DF0(m10B4[index], "backColor04", 255.0f * color.r, 255.0f * color.g, 255.0f * color.b);
-    fn_801F837C(m10B4[index], "link_name", link);
+    m10B4[index]->SetColor_unk("backColor01", 255.0f * color.r, 255.0f * color.g, 255.0f * color.b);
+    m10B4[index]->SetColor_unk("backColor02", 255.0f * color.r, 255.0f * color.g, 255.0f * color.b);
+    m10B4[index]->SetColor_unk("backColor03", 255.0f * color.r, 255.0f * color.g, 255.0f * color.b);
+    m10B4[index]->SetColor_unk("backColor04", 255.0f * color.r, 255.0f * color.g, 255.0f * color.b);
+    m10B4[index]->SetText_unk("link_name", link);
 }
 
 void GameUI::fn_803DEE24(SkillEffect* bullet, GameUIColor_unk* add, GameUIColor_unk* mul) {
@@ -5063,34 +5062,34 @@ void GameUI::fn_803E0E10(CharaTask* chara, GameUIElem60_unk* window, int index) 
     }
     atn::D2A_DrawRect base;
     if (window->m0C != 0) {
-        fn_801F6C80(window->m0C, "line", (float)index);
-        fn_801F6C80(window->m0C, "join", join);
+        window->m0C->SetValue0_unk("line", (float)index);
+        window->m0C->SetValue0_unk("join", join);
         base = window->m0C->GetRect_unk("base_point");
         window->m0C->MeltTask();
-        fn_801F837C(window->m0C, "chara_name", (const wchar_t*)chara->m60->m08);
-        fn_801F6C80(window->m0C, "hpRate", window->m3C);
-        fn_801F6C80(window->m0C, "expRate", expRate);
-        fn_801F8598(window->m0C, "nowLv", chara->mStatus.mParamB.m78, 0);
-        fn_801F8598(window->m0C, "maxLv", chara->mStatus.mParamA.m78, 0);
-        fn_801F8598(window->m0C, "nowHP", window->m38, 0);
-        fn_801F8598(window->m0C, "maxHP", chara->mStatus.mParamB.m84, 0);
+        window->m0C->SetText_unk("chara_name", (const wchar_t*)chara->m60->m08);
+        window->m0C->SetValue0_unk("hpRate", window->m3C);
+        window->m0C->SetValue0_unk("expRate", expRate);
+        window->m0C->SetNumber_unk("nowLv", chara->mStatus.mParamB.m78, 0);
+        window->m0C->SetNumber_unk("maxLv", chara->mStatus.mParamA.m78, 0);
+        window->m0C->SetNumber_unk("nowHP", window->m38, 0);
+        window->m0C->SetNumber_unk("maxHP", chara->mStatus.mParamB.m84, 0);
         if (lbl_8087F610 != 0) {
-            fn_801F837C(window->m0C, "nowLv", lbl_8078C638 + 41);
-            fn_801F837C(window->m0C, "string0016", lbl_8078C638 + 41);
+            window->m0C->SetText_unk("nowLv", lbl_8078C638 + 41);
+            window->m0C->SetText_unk("string0016", lbl_8078C638 + 41);
         }
         if (chara->mStatus.mParamB.m8C > 0.0f && window->m3C < 1.0f) {
-            fn_801F6C80(window->m0C, "heal", 1.0f);
-            fn_801F7DF0(window->m0C, "flashColor", 255.0f, 255.0f, 255.0f);
+            window->m0C->SetValue0_unk("heal", 1.0f);
+            window->m0C->SetColor_unk("flashColor", 255.0f, 255.0f, 255.0f);
         } else {
             if (window->m48 > 0) {
-                fn_801F6C80(window->m0C, "heal", 1.0f);
+                window->m0C->SetValue0_unk("heal", 1.0f);
             } else {
-                fn_801F6C80(window->m0C, "heal", 0.0f);
+                window->m0C->SetValue0_unk("heal", 0.0f);
             }
             if (window->m50 != 0) {
-                fn_801F7DF0(window->m0C, "flashColor", 255.0f, 0.0f, 0.0f);
+                window->m0C->SetColor_unk("flashColor", 255.0f, 0.0f, 0.0f);
             } else {
-                fn_801F7DF0(window->m0C, "flashColor", 0.0f, 255.0f, 0.0f);
+                window->m0C->SetColor_unk("flashColor", 0.0f, 255.0f, 0.0f);
             }
         }
         if (chara->mStatus.IsState_unk(0x20)) {
@@ -5098,55 +5097,55 @@ void GameUI::fn_803E0E10(CharaTask* chara, GameUIElem60_unk* window, int index) 
         } else {
             window->m0C->SetColor_unk("faceColor", 0xFFFFFFFF);
         }
-        atn::Color uv(0.0f, 0.0f, 0.125f, 0.25f);
+        atn::Vector4_unk uv(0.0f, 0.0f, 0.125f, 0.25f);
         if (0 < job && job <= 26) {
-            uv = atn::Color(0.125f * (float)(job % 8), 0.25f * (float)(job / 8), 0.125f * (float)(job % 8 + 1),
+            uv = atn::Vector4_unk(0.125f * (float)(job % 8), 0.25f * (float)(job / 8), 0.125f * (float)(job % 8 + 1),
                             0.25f * (float)(job / 8 + 1));
         }
-        fn_801F7590(window->m0C, "faceUV", uv);
-        fn_801F7590(window->m0C, "faceMUV", uv);
+        window->m0C->SetValues2_unk("faceUV", uv);
+        window->m0C->SetValues2_unk("faceMUV", uv);
         if (skill != 0 && skill->m04 > 0 && lbl_8087F610 == 0) {
-            fn_801F6C80(window->m0C, "tpBarOn", 1.0f);
+            window->m0C->SetValue0_unk("tpBarOn", 1.0f);
             if (chara->mStatus.m2F4 > 0.0f) {
-                fn_801F6C80(window->m0C, "tpRate", chara->mStatus.m2F4 / (1e-5f + chara->mStatus.m2F8));
+                window->m0C->SetValue0_unk("tpRate", chara->mStatus.m2F4 / (1e-5f + chara->mStatus.m2F8));
             } else {
-                fn_801F6C80(window->m0C, "tpRate", tp);
+                window->m0C->SetValue0_unk("tpRate", tp);
             }
         } else {
-            fn_801F6C80(window->m0C, "tpBarOn", 0.0f);
+            window->m0C->SetValue0_unk("tpBarOn", 0.0f);
         }
         if (mp != 0) {
             float rate = GetMpRate_unk(chara);
-            fn_801F6C80(window->m0C, "mpBarOn", 1.0f);
-            fn_801F6C80(window->m0C, "mpRate", rate);
-            fn_801F6C80(window->m0C, "mpMax01", rate < 0.25f ? 0.0f : 1.0f);
-            fn_801F6C80(window->m0C, "mpMax02", rate < 0.5f ? 0.0f : 1.0f);
-            fn_801F6C80(window->m0C, "mpMax03", rate < 0.75f ? 0.0f : 1.0f);
-            fn_801F6C80(window->m0C, "mpMax04", rate < 1.0f ? 0.0f : 1.0f);
+            window->m0C->SetValue0_unk("mpBarOn", 1.0f);
+            window->m0C->SetValue0_unk("mpRate", rate);
+            window->m0C->SetValue0_unk("mpMax01", rate < 0.25f ? 0.0f : 1.0f);
+            window->m0C->SetValue0_unk("mpMax02", rate < 0.5f ? 0.0f : 1.0f);
+            window->m0C->SetValue0_unk("mpMax03", rate < 0.75f ? 0.0f : 1.0f);
+            window->m0C->SetValue0_unk("mpMax04", rate < 1.0f ? 0.0f : 1.0f);
         } else {
-            fn_801F6C80(window->m0C, "mpBarOn", 0.0f);
+            window->m0C->SetValue0_unk("mpBarOn", 0.0f);
         }
     }
     if (window->m10 != 0) {
-        fn_801F6E78(window->m10, "base_pos", base);
+        window->m10->SetValues1_unk("base_pos", base);
         if (skill != 0 && skill->m04 > 0) {
-            fn_801F6C80(window->m10, "faceU", 0.125f * (float)(job % 8));
-            fn_801F6C80(window->m10, "faceV", 0.25f * (float)(job / 8));
+            window->m10->SetValue0_unk("faceU", 0.125f * (float)(job % 8));
+            window->m10->SetValue0_unk("faceV", 0.25f * (float)(job / 8));
             if (chara->mStatus.m2F4 > 0.0f) {
-                fn_801F6C80(window->m10, "tpRate", chara->mStatus.m2F4 / (1e-5f + chara->mStatus.m2F8));
+                window->m10->SetValue0_unk("tpRate", chara->mStatus.m2F4 / (1e-5f + chara->mStatus.m2F8));
             } else {
-                fn_801F6C80(window->m10, "tpRate", 1.0f);
+                window->m10->SetValue0_unk("tpRate", 1.0f);
             }
         }
     }
     if (window->m14 != 0) {
-        fn_801F6E78(window->m14, "base_pos", base);
+        window->m14->SetValues1_unk("base_pos", base);
         window->m14->MeltTask();
         if (window->m4C > 0) {
             window->m4C--;
             window->m14->mSpeed = 1.0f;
-            fn_801F8598(window->m14, "beforeLife", lives + 1, 0);
-            fn_801F8598(window->m14, "afterLife", lives, 0);
+            window->m14->SetNumber_unk("beforeLife", lives + 1, 0);
+            window->m14->SetNumber_unk("afterLife", lives, 0);
         } else {
             window->m14->mSpeed = 0.0f;
             if (lives <= 0) {
@@ -5154,30 +5153,30 @@ void GameUI::fn_803E0E10(CharaTask* chara, GameUIElem60_unk* window, int index) 
             } else {
                 window->m14->mFrame = 0.0f > 15.0f * (float)(2 - lives) ? 0.0f : 15.0f * (float)(2 - lives);
             }
-            fn_801F8598(window->m14, "beforeLife", lives, 0);
-            fn_801F8598(window->m14, "afterLife", lives, 0);
+            window->m14->SetNumber_unk("beforeLife", lives, 0);
+            window->m14->SetNumber_unk("afterLife", lives, 0);
         }
         if (lives <= 0) {
-            fn_801F6C80(window->m14, "colOn", 1.0f);
+            window->m14->SetValue0_unk("colOn", 1.0f);
         } else {
-            fn_801F6C80(window->m14, "colOn", 0.0f);
+            window->m14->SetValue0_unk("colOn", 0.0f);
         }
         if (count <= 1) {
-            fn_801F6C80(window->m14, "colR", 255.0f);
-            fn_801F6C80(window->m14, "colG", 0.0f);
-            fn_801F6C80(window->m14, "colB", 0.0f);
+            window->m14->SetValue0_unk("colR", 255.0f);
+            window->m14->SetValue0_unk("colG", 0.0f);
+            window->m14->SetValue0_unk("colB", 0.0f);
         } else if (count <= 2) {
-            fn_801F6C80(window->m14, "colR", 255.0f);
-            fn_801F6C80(window->m14, "colG", 180.0f);
-            fn_801F6C80(window->m14, "colB", 0.0f);
+            window->m14->SetValue0_unk("colR", 255.0f);
+            window->m14->SetValue0_unk("colG", 180.0f);
+            window->m14->SetValue0_unk("colB", 0.0f);
         } else {
-            fn_801F6C80(window->m14, "colR", 0.0f);
-            fn_801F6C80(window->m14, "colG", 255.0f);
-            fn_801F6C80(window->m14, "colB", 100.0f);
+            window->m14->SetValue0_unk("colR", 0.0f);
+            window->m14->SetValue0_unk("colG", 255.0f);
+            window->m14->SetValue0_unk("colB", 100.0f);
         }
     }
     if (window->m18 != 0) {
-        fn_801F6E78(window->m18, "base_pos", base);
+        window->m18->SetValues1_unk("base_pos", base);
         if (chara->mStatus.IsState_unk(0x20)) {
             window->m18->MeltTask();
             window->m18->mSpeed = 1.0f;
@@ -5187,36 +5186,36 @@ void GameUI::fn_803E0E10(CharaTask* chara, GameUIElem60_unk* window, int index) 
             window->m18->mSpeed = 1.4f;
         }
         if (0 < job && job <= 26) {
-            fn_801F6C80(window->m18, "faceU", 0.125f * (float)(job % 8));
-            fn_801F6C80(window->m18, "faceV", 0.25f * (float)(job / 8));
+            window->m18->SetValue0_unk("faceU", 0.125f * (float)(job % 8));
+            window->m18->SetValue0_unk("faceV", 0.25f * (float)(job / 8));
         } else {
-            fn_801F6C80(window->m18, "faceU", 0.0f);
-            fn_801F6C80(window->m18, "faceV", 0.0f);
+            window->m18->SetValue0_unk("faceU", 0.0f);
+            window->m18->SetValue0_unk("faceV", 0.0f);
         }
-        fn_801F837C(window->m18, "chara_name", (const wchar_t*)chara->m60->m08);
-        fn_801F8598(window->m18, "nowLv", chara->mStatus.mParamB.m78, 0);
+        window->m18->SetText_unk("chara_name", (const wchar_t*)chara->m60->m08);
+        window->m18->SetNumber_unk("nowLv", chara->mStatus.mParamB.m78, 0);
     }
     if (window->m24 != 0) {
-        fn_801F6E78(window->m24, "base_pos", base);
+        window->m24->SetValues1_unk("base_pos", base);
         if (chara->mFlag28) {
             window->m24->MeltTask();
         }
         if (0 < job && job <= 26) {
-            fn_801F6C80(window->m24, "faceU", 0.125f * (float)(job % 8));
-            fn_801F6C80(window->m24, "faceV", 0.25f * (float)(job / 8));
+            window->m24->SetValue0_unk("faceU", 0.125f * (float)(job % 8));
+            window->m24->SetValue0_unk("faceV", 0.25f * (float)(job / 8));
         } else {
-            fn_801F6C80(window->m24, "faceU", 0.0f);
-            fn_801F6C80(window->m24, "faceV", 0.0f);
+            window->m24->SetValue0_unk("faceU", 0.0f);
+            window->m24->SetValue0_unk("faceV", 0.0f);
         }
     }
     if (window->m28 != 0 && mp != 0) {
-        fn_801F6E78(window->m28, "base_pos", base);
+        window->m28->SetValues1_unk("base_pos", base);
         if (GetMpRate_unk(chara) >= 1.0f) {
             window->m28->MeltTask();
         }
     }
     if (window->m1C != 0) {
-        fn_801F6E78(window->m1C, "base_pos", base);
+        window->m1C->SetValues1_unk("base_pos", base);
         window->m1C->mSpeed = 1.4f;
         if (chara->mStatus.m224 == 1 && window->m4C == 0) {
             window->m1C->MeltTask();
@@ -5230,21 +5229,21 @@ void GameUI::fn_803E0E10(CharaTask* chara, GameUIElem60_unk* window, int index) 
         window->m58 = chara->mStatus.mParamA.m78;
     }
     if (window->m20 != 0) {
-        fn_801F6E78(window->m20, "base_pos", base);
+        window->m20->SetValues1_unk("base_pos", base);
         float frame;
         if ((window->m54 < level && chara->m648 != 0 && window->m58 == chara->mStatus.mParamA.m78) ||
-            ((frame = window->m20->mFrame) > 0.0f && frame < fn_801F6C2C(window->m20))) {
-            fn_801F8598(window->m20, "nowLv", level, 0);
+            ((frame = window->m20->mFrame) > 0.0f && frame < window->m20->GetEndFrame())) {
+            window->m20->SetNumber_unk("nowLv", level, 0);
             window->m20->MeltTask();
         }
     }
     if (window->m2C != 0) {
-        fn_801F6E78(window->m2C, "base_pos", base);
+        window->m2C->SetValues1_unk("base_pos", base);
         if (window->m58 < chara->mStatus.mParamA.m78) {
             window->m2C->mFrame = 0.0f;
         }
         GameUIInst_unk* up = window->m2C;
-        if (!(up->mFrame >= fn_801F6C2C(up))) {
+        if (!(up->mFrame >= up->GetEndFrame())) {
             window->m2C->MeltTask();
         }
     }
@@ -5402,16 +5401,16 @@ void GameUI::fn_803E2A30(int kind, int frames, atn::Vector3 pos, int count, int 
         GameUISmallInst_unk* giga = AsSmallInst_unk(mAB8[mA8C]);
         GameUISmallInst_unk* gauge = AsSmallInst_unk(mAE0[mA8C]);
         point->MeltTask();
-        fn_801F6D7C(point, "basePoint", 0, pos.x);
-        fn_801F6D7C(point, "basePoint", 1, pos.y);
+        point->SetValue1_unk("basePoint", 0, pos.x);
+        point->SetValue1_unk("basePoint", 1, pos.y);
         giga->SetValue1_unk("basePoint", 0, pos.x);
         giga->SetValue1_unk("basePoint", 1, pos.y);
         gauge->SetValue1_unk("basePoint", 0, pos.x);
         gauge->SetValue1_unk("basePoint", 1, pos.y);
         if (frames == 0) {
-            fn_801F837C(point, "damage", lbl_8078C638 + 42);
+            point->SetText_unk("damage", lbl_8078C638 + 42);
         } else {
-            fn_801F8598(point, "damage", seconds, 0);
+            point->SetNumber_unk("damage", seconds, 0);
         }
         bool lit = false;
         bool many = false;
@@ -5447,16 +5446,16 @@ void GameUI::fn_803E2A30(int kind, int frames, atn::Vector3 pos, int count, int 
             color = GameUIColor_unk(240, 170, 0, 255);
         }
         SetInstColorU_unk(point, "baseColor", color);
-        fn_801F6C80(point, "colOn", 0.0f);
-        fn_801F6C80(point, "colR", 255.0f * color.r);
-        fn_801F6C80(point, "colG", 255.0f * color.g);
-        fn_801F6C80(point, "colB", 255.0f * color.b);
+        point->SetValue0_unk("colOn", 0.0f);
+        point->SetValue0_unk("colR", 255.0f * color.r);
+        point->SetValue0_unk("colG", 255.0f * color.g);
+        point->SetValue0_unk("colB", 255.0f * color.b);
         for (int i = 0; i < 12; i++) {
             char name[64];
             sprintf(name, "pointCol%02d", i + 1);
-            fn_801F791C(point, name, 0, (lit && i < max) ? 255.0f : 0.0f);
+            point->SetValue3_unk(name, 0, (lit && i < max) ? 255.0f : 0.0f);
         }
-        fn_801F791C(point, "hateCol", 0, many ? 255.0f : 0.0f);
+        point->SetValue3_unk("hateCol", 0, many ? 255.0f : 0.0f);
         if (many) {
             giga->MeltTask();
             giga->SetValue0_unk("colOn", 0.0f);
@@ -6112,7 +6111,7 @@ inline atn::Color GameUIColorU32_unk(unsigned int rgba) {
 // inferred: the d2anime instance behind a D3AnimeInstance (D3AnimeInstance::GetTask returns the partial view
 // D2AInstance_unk of atn/D3AnimeInstance.h)
 inline GameUIInst_unk* GetIconInst_unk(atn::D3AnimeInstance* icon) {
-    return (GameUIInst_unk*)icon->GetTask();
+    return icon->GetTask();
 }
 
 // inferred: icon over a character (position by fn_803E5200, colour by the kind of attack the character
@@ -6194,9 +6193,9 @@ void GameUI::fn_803E5200(atn::D3AnimeInstance* icon, CharaTask* chara, atn::Vect
     mtx.fn_8013A13C(rot.y);
     icon->SetRotation_unk(mtx);
     icon->SetScale_unk(scale);
-    fn_801F6D7C(GetIconInst_unk(icon), "pos0003", 0, 0.0f);
-    fn_801F6D7C(GetIconInst_unk(icon), "pos0003", 1, 0.0f);
-    fn_801F6D7C(GetIconInst_unk(icon), "pos0003", 4, d);
+    (GetIconInst_unk(icon))->SetValue1_unk("pos0003", 0, 0.0f);
+    (GetIconInst_unk(icon))->SetValue1_unk("pos0003", 1, 0.0f);
+    (GetIconInst_unk(icon))->SetValue1_unk("pos0003", 4, d);
 }
 
 void GameUI::fn_803E58CC() {
@@ -6694,50 +6693,50 @@ extern "C" void fn_803E6D4C(GameUIWindow_unk* task, chr::CharaData_unk* data) {
     int attr = (signed char)data->m120[0];
     if (attr == 2) {
         task->SetValue0_unk("attr01", 1.0f);
-        task->SetValues2_unk("attrUv01ma", atn::Color(0.25f, 0.25f, 0.5f, 0.5f));
-        task->SetValues2_unk("attrUv01mb", atn::Color(0.25f, 0.25f, 0.5f, 0.5f));
+        task->SetValues2_unk("attrUv01ma", atn::Vector4_unk(0.25f, 0.25f, 0.5f, 0.5f));
+        task->SetValues2_unk("attrUv01mb", atn::Vector4_unk(0.25f, 0.25f, 0.5f, 0.5f));
         SetWindowColor_unk(task, "attrCol01a", colors[7]);
         SetWindowColor_unk(task, "attrCol01b", colors[14]);
         task->SetInt_unk("attrBlend", 0);
     } else if (attr == 1) {
         task->SetValue0_unk("attr01", 1.0f);
-        task->SetValues2_unk("attrUv01ma", atn::Color(0.5f, 0.25f, 0.75f, 0.5f));
-        task->SetValues2_unk("attrUv01mb", atn::Color(0.5f, 0.25f, 0.75f, 0.5f));
+        task->SetValues2_unk("attrUv01ma", atn::Vector4_unk(0.5f, 0.25f, 0.75f, 0.5f));
+        task->SetValues2_unk("attrUv01mb", atn::Vector4_unk(0.5f, 0.25f, 0.75f, 0.5f));
         SetWindowColor_unk(task, "attrCol01a", colors[8]);
         SetWindowColor_unk(task, "attrCol01b", colors[14]);
         task->SetInt_unk("attrBlend", 0);
     } else if (attr == 4) {
         task->SetValue0_unk("attr01", 1.0f);
-        task->SetValues2_unk("attrUv01ma", atn::Color(0.75f, 0.25f, 1.0f, 0.5f));
-        task->SetValues2_unk("attrUv01mb", atn::Color(0.75f, 0.25f, 1.0f, 0.5f));
+        task->SetValues2_unk("attrUv01ma", atn::Vector4_unk(0.75f, 0.25f, 1.0f, 0.5f));
+        task->SetValues2_unk("attrUv01mb", atn::Vector4_unk(0.75f, 0.25f, 1.0f, 0.5f));
         SetWindowColor_unk(task, "attrCol01a", colors[9]);
         SetWindowColor_unk(task, "attrCol01b", colors[14]);
         task->SetInt_unk("attrBlend", 0);
     } else if (attr == 3) {
         task->SetValue0_unk("attr01", 1.0f);
-        task->SetValues2_unk("attrUv01ma", atn::Color(0.0f, 0.5f, 0.25f, 0.75f));
-        task->SetValues2_unk("attrUv01mb", atn::Color(0.0f, 0.5f, 0.25f, 0.75f));
+        task->SetValues2_unk("attrUv01ma", atn::Vector4_unk(0.0f, 0.5f, 0.25f, 0.75f));
+        task->SetValues2_unk("attrUv01mb", atn::Vector4_unk(0.0f, 0.5f, 0.25f, 0.75f));
         SetWindowColor_unk(task, "attrCol01a", colors[11]);
         SetWindowColor_unk(task, "attrCol01b", colors[14]);
         task->SetInt_unk("attrBlend", 0);
     } else if (attr == 5) {
         task->SetValue0_unk("attr01", 1.0f);
-        task->SetValues2_unk("attrUv01ma", atn::Color(0.0f, 0.25f, 0.25f, 0.5f));
-        task->SetValues2_unk("attrUv01mb", atn::Color(0.0f, 0.25f, 0.25f, 0.5f));
+        task->SetValues2_unk("attrUv01ma", atn::Vector4_unk(0.0f, 0.25f, 0.25f, 0.5f));
+        task->SetValues2_unk("attrUv01mb", atn::Vector4_unk(0.0f, 0.25f, 0.25f, 0.5f));
         SetWindowColor_unk(task, "attrCol01a", colors[10]);
         SetWindowColor_unk(task, "attrCol01b", colors[14]);
         task->SetInt_unk("attrBlend", 0);
     } else if (attr == 6) {
         task->SetValue0_unk("attr01", 1.0f);
-        task->SetValues2_unk("attrUv01ma", atn::Color(0.5f, 0.5f, 0.75f, 0.75f));
-        task->SetValues2_unk("attrUv01mb", atn::Color(0.5f, 0.5f, 0.75f, 0.75f));
+        task->SetValues2_unk("attrUv01ma", atn::Vector4_unk(0.5f, 0.5f, 0.75f, 0.75f));
+        task->SetValues2_unk("attrUv01mb", atn::Vector4_unk(0.5f, 0.5f, 0.75f, 0.75f));
         SetWindowColor_unk(task, "attrCol01a", colors[12]);
         SetWindowColor_unk(task, "attrCol01b", colors[15]);
         task->SetInt_unk("attrBlend", 3);
     } else if (attr == 7) {
         task->SetValue0_unk("attr01", 1.0f);
-        task->SetValues2_unk("attrUv01ma", atn::Color(0.75f, 0.5f, 1.0f, 0.75f));
-        task->SetValues2_unk("attrUv01mb", atn::Color(0.75f, 0.5f, 1.0f, 0.75f));
+        task->SetValues2_unk("attrUv01ma", atn::Vector4_unk(0.75f, 0.5f, 1.0f, 0.75f));
+        task->SetValues2_unk("attrUv01mb", atn::Vector4_unk(0.75f, 0.5f, 1.0f, 0.75f));
         SetWindowColor_unk(task, "attrCol01a", colors[13]);
         SetWindowColor_unk(task, "attrCol01b", colors[15]);
         task->SetInt_unk("attrBlend", 3);
@@ -6751,28 +6750,28 @@ extern "C" void fn_803E6D4C(GameUIWindow_unk* task, chr::CharaData_unk* data) {
 extern "C" void fn_803E746C(GameUIWindow_unk* task, int job) {
     atn::Color* colors = lbl_807C8628;
     if (job == 4) {
-        task->SetValues2_unk("jobUv01ma", atn::Color(0.5f, 0.0f, 0.75f, 0.25f));
-        task->SetValues2_unk("jobUv01mb", atn::Color(0.5f, 0.0f, 0.75f, 0.25f));
+        task->SetValues2_unk("jobUv01ma", atn::Vector4_unk(0.5f, 0.0f, 0.75f, 0.25f));
+        task->SetValues2_unk("jobUv01mb", atn::Vector4_unk(0.5f, 0.0f, 0.75f, 0.25f));
         SetWindowColor_unk(task, "jobCol01a", colors[4]);
         SetWindowColor_unk(task, "jobGradation", colors[4]);
     } else if (job == 2) {
-        task->SetValues2_unk("jobUv01ma", atn::Color(0.0f, 0.0f, 0.25f, 0.25f));
-        task->SetValues2_unk("jobUv01mb", atn::Color(0.0f, 0.0f, 0.25f, 0.25f));
+        task->SetValues2_unk("jobUv01ma", atn::Vector4_unk(0.0f, 0.0f, 0.25f, 0.25f));
+        task->SetValues2_unk("jobUv01mb", atn::Vector4_unk(0.0f, 0.0f, 0.25f, 0.25f));
         SetWindowColor_unk(task, "jobCol01a", colors[1]);
         SetWindowColor_unk(task, "jobGradation", colors[1]);
     } else if (job == 3) {
-        task->SetValues2_unk("jobUv01ma", atn::Color(0.25f, 0.0f, 0.5f, 0.25f));
-        task->SetValues2_unk("jobUv01mb", atn::Color(0.25f, 0.0f, 0.5f, 0.25f));
+        task->SetValues2_unk("jobUv01ma", atn::Vector4_unk(0.25f, 0.0f, 0.5f, 0.25f));
+        task->SetValues2_unk("jobUv01mb", atn::Vector4_unk(0.25f, 0.0f, 0.5f, 0.25f));
         SetWindowColor_unk(task, "jobCol01a", colors[2]);
         SetWindowColor_unk(task, "jobGradation", colors[2]);
     } else if (job == 1) {
-        task->SetValues2_unk("jobUv01ma", atn::Color(0.75f, 0.0f, 1.0f, 0.25f));
-        task->SetValues2_unk("jobUv01mb", atn::Color(0.75f, 0.0f, 1.0f, 0.25f));
+        task->SetValues2_unk("jobUv01ma", atn::Vector4_unk(0.75f, 0.0f, 1.0f, 0.25f));
+        task->SetValues2_unk("jobUv01mb", atn::Vector4_unk(0.75f, 0.0f, 1.0f, 0.25f));
         SetWindowColor_unk(task, "jobCol01a", colors[0]);
         SetWindowColor_unk(task, "jobGradation", colors[0]);
     } else {
-        task->SetValues2_unk("jobUv01ma", atn::Color(0.75f, 0.0f, 1.0f, 0.25f));
-        task->SetValues2_unk("jobUv01mb", atn::Color(0.75f, 0.0f, 1.0f, 0.25f));
+        task->SetValues2_unk("jobUv01ma", atn::Vector4_unk(0.75f, 0.0f, 1.0f, 0.25f));
+        task->SetValues2_unk("jobUv01mb", atn::Vector4_unk(0.75f, 0.0f, 1.0f, 0.25f));
         SetWindowColor_unk(task, "jobCol01a", colors[5]);
         SetWindowColor_unk(task, "jobGradation", colors[5]);
     }

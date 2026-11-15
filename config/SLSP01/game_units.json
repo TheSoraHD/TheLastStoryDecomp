@@ -826,7 +826,7 @@
    "chr::ControlDetectHateAtt",
    "chr::ControlDetect"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "chr/ControlDive.cpp",
@@ -848,7 +848,7 @@
    "chr::ControlDraggedStart",
    "chr::ControlDraggingStart"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "chr/ControlDropDown.cpp",
@@ -936,7 +936,7 @@
    "chr::ControlOneMotionTarget",
    "chr::ControlOneMotion"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "chr/ControlPushedDown.cpp",
@@ -1124,7 +1124,7 @@
    "atn::D2A_TaskInstanceBase<32, 8>",
    "atn::D2A_TaskInstanceBase<64, 8>"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "atn/D2A_Texture.cpp",
@@ -1255,12 +1255,12 @@
  {
   "name": "db/CharaIdTable_unk.cpp",
   "classes": [],
-  "matching": false
+  "matching": true
  },
  {
   "name": "db/PaletteTable_unk.cpp",
   "classes": [],
-  "matching": false
+  "matching": true
  },
  {
   "name": "db/CharaParam_unk.cpp",
@@ -1537,7 +1537,7 @@
   "classes": [
    "Em201ZanGurg"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "game/Em201ZanGurgFinal.cpp",
@@ -1906,7 +1906,7 @@
   "classes": [
    "ErrorManager"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "game/FriendArganan.cpp",
@@ -3142,7 +3142,7 @@
    "atn::SequenceHolder::SequenceUnitParam1<const GameTask::Option>",
    "atn::SequenceHolder::SequenceUnitParam1<const int>"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "game/SetConfig.cpp",
@@ -3431,7 +3431,7 @@
  {
   "name": "game/MenuCommon_unk.cpp",
   "classes": [],
-  "matching": false
+  "matching": true
  },
  {
   "name": "chr/ControlMoveCursor.cpp",
@@ -3518,7 +3518,7 @@
   "classes": [
    "atn::PostFxDof"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "atn/SequenceHolder.cpp",
@@ -3610,7 +3610,7 @@
  {
   "name": "Event/EventLoader_unk.cpp",
   "classes": [],
-  "matching": false
+  "matching": true
  },
  {
   "name": "Event/EventParser_unk.cpp",
@@ -3728,7 +3728,7 @@
  {
   "name": "Event/EventCommandDef_unk.cpp",
   "classes": [],
-  "matching": false
+  "matching": true
  },
  {
   "name": "chr/ControlCdnStone.cpp",
@@ -3745,7 +3745,7 @@
    "chr::ControlCdnPsycho",
    "chr::ControlCdnRestorePsycho"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "chr/ControlBase.cpp",

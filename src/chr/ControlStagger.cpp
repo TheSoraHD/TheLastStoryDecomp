@@ -115,22 +115,20 @@ ControlStagger::ControlStagger(Chara_unk* chara, int time, int kind)
     }
 }
 
-// NONMATCHING: 99.3% - mChara, the track flag and the motion id get r5/r4/r6 instead of r6/r5/r4
-// (mTime-- before the copy of the rotation gives mChara in r6 but moves the decrement: 92.8%)
 int ControlStagger::vf0C() {
     float frame;
     float speed = 0.0f;
     float rate = 1.0f;
-    atn::Vector3 rot = mChara->mRot;
-    mTime--;
     Chara_unk* chara = mChara;
+    atn::Vector3 rot = chara->mRot;
+    mTime--;
     unsigned char flag = chara->mMotion.mTracks[0].m18;
-    int id = chara->mMotion.mTracks[0].m00;
+    int id = chara->mMotion.fn_80139F2C(0);
     if (flag == 0) {
         if (id == 0x51) {
-            atn::Vector3 pos = mChara->mPos;
+            atn::Vector3 pos = chara->mPos;
             pos += mDir * mSpeed;
-            mChara->mPos = pos;
+            chara->mPos = pos;
         }
         Motion_unk* motion = &mChara->mMotion;
         frame = motion->mTracks[0].m08;
@@ -144,8 +142,7 @@ int ControlStagger::vf0C() {
     return 0;
 }
 
-// NONMATCHING: 99.7% - the r3/r4 swap of the common movement reset (see chr/ControlOneMotion.cpp); the
-// facing direction through Front4_unk(&mDir, mChara) fixed the scheduling of the mChara load
+// the facing direction through Front4_unk(&mDir, mChara) fixes the scheduling of the mChara load
 // inferred: facing direction of `c` (name invented)
 static inline void Front4_unk(atn::Vector3* out, Chara_unk* c) {
     atn::Vector3 dir(0.0f, 0.0f, 1.0f);
@@ -186,8 +183,10 @@ ControlSlip::ControlSlip(Chara_unk* chara, int stop) : ControlBase(chara), mStop
         Chara_unk* chara2 = mChara;
         chara2->mMotion.fn_80097CCC(3, 0.0f);
         chara2->m12BC = -1;
-        mChara->m570 = 0.0f;
-        mChara->m574 = lbl_807C7030;
+        Chara_unk* c2 = mChara;
+        c2->m570 = 0.0f;
+        Chara_unk* c3 = mChara;
+        c3->m574 = lbl_807C7030;
     }
 }
 

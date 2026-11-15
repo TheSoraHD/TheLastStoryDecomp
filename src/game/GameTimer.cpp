@@ -5,6 +5,8 @@
 // inferred: timer display object and its setters (class unknown)
 extern "C" void* lbl_8087F430;
 
+GameTimer* GameTimer::sInstance;
+
 GameTimer* GameTimer::fn_803CE4B0(atn::Task* parent) {
     if (parent != 0 && sInstance == 0) {
         sInstance = new ((MemoryTag)1, "", "", 0) GameTimer(parent);

@@ -2013,6 +2013,7 @@ void DWCi_MatchProcess(BOOL fullSpec)
     {
         s_sbCallbackLevel = 0;
         s_needSbFree = FALSE;
+        s_nnProcessing = 1;
         ServerBrowserThink(DWCi_GetMatchCnt()->sbObj);
         if (s_needSbFree)
         {
@@ -2029,9 +2030,9 @@ void DWCi_MatchProcess(BOOL fullSpec)
             DWC_Printf(DWC_REPORTFLAG_SB_UPDATE, "ServerBrowserLimitUpdate timeout.\n");
         }
     }
-    DWCi_SendStateChanged(DWCi_GetMatchCnt()->qr2Obj);
     s_needNNFree = FALSE;
     s_nnProcessing = 1;
+    DWCi_SendStateChanged(DWCi_GetMatchCnt()->qr2Obj);
     NNThink();
     s_nnProcessing = 0;
     if (s_needNNFree == TRUE)
@@ -2965,6 +2966,7 @@ int DWCi_SendMatchCommand(u8 command, int profileID, u32 ip, u16 port,
 BOOL DWCi_ProcessMatchCommand(u8 command, int srcPid, u32 srcIP, u16 srcPort, const u32* data, int len)
 {
     u16 port;
+    u32 ip;
     u32 senddata[DWC_MAX_MATCH_IDX_LIST + 1];
     int sendlen = 0;
     int result;
@@ -3247,9 +3249,8 @@ BOOL DWCi_ProcessMatchCommand(u8 command, int srcPid, u32 srcIP, u16 srcPort, co
         break;
     case DWC_MATCH_COMMAND_TELL_ADDR:
     {
-        SOInAddr ip;
         struct sockaddr_in remoteaddr;
-        ip.addr = data[0];
+        ip = data[0];
         port = DWCi_LEtoHl(data[1]);
         if (!DWCi_GetMatchCnt()->serverNode.profileID)
         {
@@ -3257,7 +3258,7 @@ BOOL DWCi_ProcessMatchCommand(u8 command, int srcPid, u32 srcIP, u16 srcPort, co
             break;
         }
         DWC_Printf(DWC_REPORTFLAG_MATCH_NN,
-            "NN parent is behind same NAT as me. Received IP %x & port %d\n", ip.addr, port);
+            "NN parent is behind same NAT as me. Received IP %x & port %d\n", ip, port);
         if (DWCi_GetMatchCnt()->topology != 2
             && DWCi_GetMatchCnt()->matchType == DWC_MATCH_TYPE_SC_CL
             && !DWCi_GetMatchCnt()->meshConnecting)
@@ -3275,7 +3276,7 @@ BOOL DWCi_ProcessMatchCommand(u8 command, int srcPid, u32 srcIP, u16 srcPort, co
             break;
         }
         DWCi_GetMatchCnt()->cmdCnt.command = DWC_MATCH_COMMAND_DUMMY;
-        remoteaddr.sin_addr = ip;
+        remoteaddr.sin_addr.addr = ip;
         remoteaddr.sin_port = SOHtoNs(port);
         DWCi_GetMatchCnt()->nnInfo.isQR2 = TRUE;
         DWCi_NNCompletedCallback(nr_success, gt2GetSocketSOCKET(*DWCi_GetMatchCnt()->pGt2Socket),
@@ -4289,7 +4290,7 @@ void DWCi_CancelMatchingProcess(void)
         DWCi_FinishCancelMatching();
         return;
     }
-    hasConnections = DWCi_GT2GetConnectionListIdx() ? TRUE : FALSE;
+    hasConnections = DWCi_GT2GetConnectionListIdx() != 0;
     DWCi_GetMatchCnt()->cancelState = DWC_MATCH_CANCEL_STATE_EXEC;
     if (DWCi_GetMatchCnt()->matchType == DWC_MATCH_TYPE_SC_CL)
     {
@@ -4396,6 +4397,13 @@ void DWCi_RestartFromCancel(DWCMatchResetLevel level)
     }
 }
 
+/* inferred: accessor of the pending server node (name invented; as an inline the registers of
+   DWCi_CloseUnacknowledgedClients come out as in the original) */
+static inline DWCNodeInfo* DWCi_GetServerNode_unk(void)
+{
+    return &DWCi_GetMatchCnt()->serverNode;
+}
+
 BOOL DWCi_CloseUnacknowledgedClients(u32 bitmap)
 {
     u32 senddata[DWC_MAX_CONNECTIONS];
@@ -4437,7 +4445,7 @@ BOOL DWCi_CloseUnacknowledgedClients(u32 bitmap)
         int profileID = validPid[i];
         DWCNodeInfo* pending;
         DWCNodeInfo* node = DWCi_GetNodeByProfileID(profileID);
-        pending = &DWCi_GetMatchCnt()->serverNode;
+        pending = DWCi_GetServerNode_unk();
         if (pending->profileID && !node && profileID == pending->profileID)
             node = pending;
         if (node)

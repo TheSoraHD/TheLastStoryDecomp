@@ -6,14 +6,13 @@
 #include "atn/RenderManager.h"
 #include "chr/CharaEquip_unk.h"
 #include "game/MenuCommonTask.h"
+#include "atn/D2A_TaskInstanceC.h"
 
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
-extern "C" atn::Task* fn_801F64D0(atn::Task* parent, const char* path); // inferred: d2anime task
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 extern "C" void PSMTXTrans(Mtx m, float x, float y, float z);
 extern "C" void PSMTXScale(Mtx m, float x, float y, float z);
 extern "C" unsigned int fn_800119B8(); // inferred: number of equipment slots
-extern "C" void fn_801F6D7C(atn::Task* task, const char* name, int index, float value);
 extern "C" void fn_804A4CE4(atn::Task* task, int face, int a, int b);
 
 #define __MAX_unk(a, b) ((a) > (b) ? (a) : (b))
@@ -106,7 +105,7 @@ CostumeEditChara::CostumeEditChara(atn::Task* parent, CharaTask* chara, int face
     mChara = chara;
     mMtx.SetIdentity();
     if (chara == 0) {
-        (mFaceIcon = (CostumeEditFace_unk*)fn_801F64D0(this, "data/d2anime/equip_face.d2a"))->fn_800D246C(1);
+        (mFaceIcon = CostumeEditFace_unk::Create(this, "data/d2anime/equip_face.d2a"))->fn_800D246C(1);
     }
     mShadow.fn_8008AD4C("/map/cosedit/hk_shadow1.model", 0);
 }
@@ -138,9 +137,9 @@ int CostumeEditChara::vf0C() {
         }
         if (mFaceIcon != 0) {
             mFaceIcon->fn_800D246C(0);
-            mFaceIcon->m54 = -2.0f;
-            mFaceIcon->m4D = 0;
-            mFaceIcon->m50 = 0.0f;
+            mFaceIcon->mSpeed = -2.0f;
+            mFaceIcon->mLoop = 0;
+            mFaceIcon->mFrame = 0.0f;
             mFaceIcon->mFlags |= 4;
         }
         return 1;
@@ -178,18 +177,18 @@ void CostumeEditChara::vf10() {
     }
     if (mFaceIcon != 0) {
         if (fn_801E91B4() && mVisible != 0) {
-            mFaceIcon->m54 = 2.0f;
+            mFaceIcon->mSpeed = 2.0f;
         } else {
-            mFaceIcon->m54 = -2.0f;
+            mFaceIcon->mSpeed = -2.0f;
         }
         atn::Vector3 screen = atn::RenderManager::instance_->GetScreenPosition(mPos);
         screen.y = 220.0f;
         atn::Vector2_unk offset = MenuCommonTask::sInstance->m1EC;
         atn::Vector2_unk size = MenuCommonTask::sInstance->m1F4;
-        fn_801F6D7C(mFaceIcon, "BasePos", 0, screen.x + offset.x);
-        fn_801F6D7C(mFaceIcon, "BasePos", 1, screen.y + offset.y);
-        fn_801F6D7C(mFaceIcon, "BasePos", 2, size.x);
-        fn_801F6D7C(mFaceIcon, "BasePos", 3, size.y);
+        mFaceIcon->SetValue1_unk("BasePos", 0, screen.x + offset.x);
+        mFaceIcon->SetValue1_unk("BasePos", 1, screen.y + offset.y);
+        mFaceIcon->SetValue1_unk("BasePos", 2, size.x);
+        mFaceIcon->SetValue1_unk("BasePos", 3, size.y);
         fn_804A4CE4(mFaceIcon, mFace, 4, 2);
         if (mShadow.fn_8008B140() == 0) {
             atn::Matrix3x4 mtx;

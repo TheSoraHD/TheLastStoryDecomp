@@ -18,9 +18,6 @@
 
 extern "C" int sprintf(char* s, const char* format, ...);
 extern "C" int fn_800DD3FC(wchar_t* s, const wchar_t* format, ...); // inferred: swprintf
-extern "C" void fn_801F6E78(atn::Task* task, const char* name, const void* pos);
-extern "C" void fn_801F6C80(atn::Task* layout, const char* name, float value);   // inferred: sets a value
-extern "C" void fn_801F837C(atn::Task* layout, const char* name, const wchar_t* text); // inferred: sets a text
 extern "C" void fn_801FEE08(void* layout, unsigned int hash, const wchar_t* text); // inferred: sets a text
 extern "C" void fn_801FECE0(void* layout, unsigned int hash, float value);
 extern "C" void fn_801FED24(void* layout, unsigned int hash, int index, float value);
@@ -99,6 +96,7 @@ public:
 };
 #include "atn/SequenceBoot_unk.h"
 #include "std/string_members.h"
+#include "atn/D2A_TaskInstanceC.h"
 class MenuCommonTask {
 public:
     static MenuCommonTask* sInstance;
@@ -245,14 +243,14 @@ void NewCampPartsTop::vf14() {
             sprintf(name, "ListPoint%02d", i);
         }
         NewCampPartsPoint_unk pos = GetPanePos_unk(m50[0].mAnime->GetTask(), name);
-        fn_801F6E78(entry->mList->GetTask(), "basePoint", &pos);
-        fn_801F6C80(entry->mList->GetTask(), "index", entry->mInfo.mIndex);
-        fn_801F837C(entry->mList->GetTask(), "title", fn_80116FC0(0, entry->mInfo.mTitle));
-        fn_801F837C(entry->mList->GetTask(), "titleSub", fn_80116FC0(0, entry->mInfo.mTitle));
-        fn_801F837C(entry->mList->GetTask(), "titleLang", fn_80116FC0(0, entry->mInfo.mTitleLang));
-        fn_801F6E78(entry->mShine->GetTask(), "basePoint", &pos);
-        fn_801F837C(entry->mShine->GetTask(), "title", fn_80116FC0(0, entry->mInfo.mTitle));
-        fn_801F6C80(entry->mShine->GetTask(), "index", entry->mInfo.mIndex);
+        entry->mList->GetTask()->SetValues1_unk("basePoint", *(atn::D2A_DrawRect*)&pos);
+        entry->mList->GetTask()->SetValue0_unk("index", entry->mInfo.mIndex);
+        entry->mList->GetTask()->SetText_unk("title", fn_80116FC0(0, entry->mInfo.mTitle));
+        entry->mList->GetTask()->SetText_unk("titleSub", fn_80116FC0(0, entry->mInfo.mTitle));
+        entry->mList->GetTask()->SetText_unk("titleLang", fn_80116FC0(0, entry->mInfo.mTitleLang));
+        entry->mShine->GetTask()->SetValues1_unk("basePoint", *(atn::D2A_DrawRect*)&pos);
+        entry->mShine->GetTask()->SetText_unk("title", fn_80116FC0(0, entry->mInfo.mTitle));
+        entry->mShine->GetTask()->SetValue0_unk("index", entry->mInfo.mIndex);
         if (i == m80) {
             ((NewCampTopLayout_unk*)entry->mList->GetTask())->mFrame = 0.0f;
             entry->mShine->mVisible = 0;

@@ -4,18 +4,12 @@
 #include "atn/Task.h"
 #include "atn/Model_unk.h"
 #include "math/Vec.h"
+#include "atn/D2A_TaskInstanceC.h"
 
 class CharaTask;
 
-// inferred: d2anime task of the face icon ("data/d2anime/equip_face.d2a"); names invented
-class CostumeEditFace_unk : public atn::Task {
-public:
-    unsigned char m48[0x4D - 0x48];
-    unsigned char m4D;
-    unsigned char m4E[0x50 - 0x4E];
-    float m50;
-    float m54;
-};
+// inferred: d2anime instance of the face icon ("data/d2anime/equip_face.d2a")
+typedef D2A_TaskInstance32_unk CostumeEditFace_unk;
 
 // inferred from __vt__16CostumeEditChara (0x807828C8): character shown by the costume edit menu
 // (game/CosEditBase.cpp), with its shadow model and face icon

@@ -34,7 +34,7 @@ public:
     // inferred: index checks of the lists (inlined in Event/Sequence.cpp; names invented)
     bool IsLabelIndex_unk(int i) const { return i >= 0 && i < (int)mLabels.size(); }
     bool IsSectionIndex_unk(int i) const { return i >= 0 && i < (int)mSections.size(); }
-    // inferred: checked accessor (inlined in Event/EventLoader_unk.cpp; name invented)
+    // inferred: checked accessor (inlined in several Event units; name invented)
     Section* GetSection_unk(unsigned int i) {
         if (IsSectionIndex_unk(i)) {
             return mSections[i].get();

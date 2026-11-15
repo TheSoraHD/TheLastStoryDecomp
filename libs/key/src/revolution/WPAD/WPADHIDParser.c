@@ -1836,12 +1836,15 @@ static void __parse_dpd_data(WPADChannel chan, WPADStatus **status,
 	{
 		if (status[0]->obj[i].x != 0 || status[0]->obj[i].y != DPD_MAX_Y)
 		{
+			DPDObject *obj;
+
 			fx = (f32)status[0]->obj[i].x + _wpadCalibrationX[chan]
 			   - _wpadCenterX[chan];
 			fy = (f32)status[0]->obj[i].y + _wpadCalibrationY[chan]
 			   - _wpadCenterY[chan];
+			obj = &status[0]->obj[i];
 
-			status[0]->obj[i].x = _wpadCenterX[chan]
+			obj->x = _wpadCenterX[chan]
 			                    + ((fx * (f32)cos(_wpadRolag[chan] * -1.0f))
 			                       - (fy * (f32)sin(_wpadRolag[chan] * -1.0f)));
 

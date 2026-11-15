@@ -48,6 +48,7 @@ template <class T>
 struct char_traits {
     typedef T char_type;
     typedef int int_type;
+    static unsigned long length(const T* s) { return strlen(s); }
 };
 
 template <class T, class Traits = char_traits<T>, class Alloc = allocator<T> >
@@ -96,7 +97,7 @@ public:
 
     // 0x80013DC4 (char): same instructions as the original (only the string pool offset differs
     // in a test file), checked with a standalone compile.
-    void reserve(size_type res_arg);
+    void reserve(size_type);
     // inferred: range replace used by the constructors/assign (0x80013F78, char). The last
     // argument is an iterator-tag object passed by value; the tags derive from each other
     // (random_access : bidirectional : forward : input), so Tag() is not zero-initialised.
@@ -120,7 +121,7 @@ public:
     // inferred: inlined at 0x80476220 (strlen, reserve, then the range replace)
     basic_string(const T* s) {
         __zero();
-        size_type n = strlen(s);
+        size_type n = Traits::length(s);
         reserve(n);
         do_replace(0, 0, s, s + n, random_access_iterator_tag());
     }

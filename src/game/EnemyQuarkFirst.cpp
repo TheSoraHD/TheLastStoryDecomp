@@ -1,3 +1,4 @@
+#include "math/VecAssign_unk.h"
 #include "game/SkillEffectManager.h"
 #include "game/GameVoice.h"
 #include "game/EnemyQuarkFirst.h"
@@ -543,25 +544,25 @@ void EnemyQuarkFirst::vf100(int state) {
 // 12 units, tested with a ray; name invented
 inline int EnemyQuarkFirst::FindJumpPlace_unk() {
     atn::Vector3 target = mC58.mC4->mPos;
+    void* world; // inferred: read before the mask call in the original
     for (int i = 0; i < 8; i++) {
         atn::Vector3 d(0.0f, 0.0f, 12.0f);
         Mtx m;
         PSMTXRotRad(m, 'y', 3.1415927f * (float)((i + 2) % 8) / 4.0f);
         PSMTXMultVec(m, &d, &d);
-        m14EC = atn::Vector3(target.x + d.x, target.y + d.y, target.z + d.z);
+        atn::VecAssign_unk(m14EC, atn::Vector3(target.x + d.x, target.y + d.y, target.z + d.z));
         atn::Vector3 from = target;
         from.y += 3.0f;
         atn::Vector3 to = m14EC;
         to.y += 3.0f;
-        if (fn_8004ED34(lbl_8087EE98, 0, &from, &to, fn_80179D44() | 0x80000000, 0, 0) == 0) {
+        world = lbl_8087EE98;
+        if (fn_8004ED34(world, 0, &from, &to, fn_80179D44() | 0x80000000, 0, 0) == 0) {
             return 1;
         }
     }
     return 0;
 }
 
-// NONMATCHING: ~99% - r23/r24 and r26/r27 swapped in the search of a place around the target (the
-// collision world against the loop counter) and r3/r4 of the target distance; 12 variants
 void EnemyQuarkFirst::vf104() {
     m14C0++;
     float dt = lbl_8087EFA8->m3A4;
@@ -571,7 +572,7 @@ void EnemyQuarkFirst::vf104() {
     }
     atn::Vector3 dir;
     if (mC58.mC4 != 0) {
-        dir = mC58.mC4->mPos - mPos;
+        atn::VecAssign_unk(dir, mC58.mC4->mPos - mPos);
     }
     switch (m58C) {
     case 0:

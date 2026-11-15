@@ -8,7 +8,7 @@
 #include "atn/D3Anime.h"
 #include "atn/D3AnimeInstance.h"
 #include "atn/D2A_Task.h"
-#include "atn/D2A_TaskInstance.h"
+#include "atn/D2A_TaskInstanceC.h"
 #include "atn/SoundRef.h"
 #include "atn/SoundManager.h"
 #include "db/EquipParam_unk.h"
@@ -40,35 +40,26 @@ extern "C" int fn_80444828(Inventory* inv, int palette); // inferred: item of a 
 extern "C" int fn_8044493C(Inventory* inv, int part);    // inferred: item of a part
 extern "C" int fn_80444B64(Inventory* inv, int id);      // inferred: icon of an item
 
-// Members of atn::D2A_TaskInstanceBase<32, 8> with automatic names (atn/D2A_TaskInstanceC.h). The
-// rectangle and the UV are passed by address here: the same local is passed twice without a copy.
+// Layout of the palettes: atn::D2A_TaskInstanceBase<32, 8> (atn/D2A_TaskInstanceC.h). The
+// rectangle is passed by reference (the same local twice without a copy) and the UV by value.
 typedef atn::D2A_TaskInstanceBase<32, 8> CosEditLayout_unk;
-extern "C" void fn_801F6C80(CosEditLayout_unk* inst, const char* name, float value);
-extern "C" void fn_801F6E78(CosEditLayout_unk* inst, const char* name, const atn::D2A_DrawRect& r);
-extern "C" void fn_801F7590(CosEditLayout_unk* inst, const char* name, const float* uv);
-extern "C" void fn_801F7DF0(CosEditLayout_unk* inst, const char* name, float r, float g, float b);
-extern "C" void fn_801F837C(CosEditLayout_unk* inst, const char* name, const wchar_t* text);
 
 // inferred: texture rectangle (u0, v0, u1, v1), passed by value (as MenuUV_unk in game/MenuCommonTask.cpp)
-struct CosEditUV_unk {
-    CosEditUV_unk() {}
-    CosEditUV_unk(float u0_, float v0_, float u1_, float v1_) : u0(u0_), v0(v0_), u1(u1_), v1(v1_) {}
-    CosEditUV_unk(const CosEditUV_unk& o) { __Vec4Copy(&u0, &o.u0); }
-    CosEditUV_unk& operator=(const CosEditUV_unk& o) {
-        __Vec4Copy(&u0, &o.u0);
-        return *this;
-    }
-    float u0, v0, u1, v1;
-};
+typedef atn::Vector4_unk CosEditUV_unk; // inferred: texture rectangle
 extern "C" CosEditUV_unk fn_80444C50(Inventory* inv, int icon); // inferred: texture rectangle of an icon
 
 // inferred: setters taking the rectangle by value (as SetUV_unk in game/MenuCommonTask.cpp); the name
 // comes first (the copy and the task are evaluated before it)
-inline void SetUV_unk(const char* name, atn::D2A_TaskInstanceBase<32, 8>* inst, CosEditUV_unk uv) {
-    fn_801F7590(inst, name, &uv.u0);
+inline void SetUV_unk(const char* name, atn::D2A_TaskInstanceBase<32, 8>* inst, const CosEditUV_unk& uv) {
+    inst->SetValues2_unk(name, uv);
 }
 inline void SetUV_unk(const char* name, atn::D2A_Task* task, CosEditUV_unk uv) {
-    task->SetParam2_unk(name, &uv.u0);
+    task->SetParam2_unk(name, &uv.x);
+}
+
+// inferred: the rectangle is passed by reference (a returned rectangle binds to it); name invented
+inline void SetPos_unk(const char* name, D2A_TaskInstance32_unk* inst, const atn::D2A_DrawRect& r) {
+    inst->SetValues1_unk(name, (atn::D2A_DrawRect&)r);
 }
 
 // inferred: rectangle of a pane by name (as in include/MP/D2AMpMenu_unk.h)
@@ -616,7 +607,7 @@ void CosEditProtector::fn_801D6C1C(int cursor) {
     }
     int member = fn_801CF334()->mFace;
     for (int i = 0; i < m8C; i++) {
-        atn::D2A_TaskInstanceBase<32, 8>* item = (atn::D2A_TaskInstanceBase<32, 8>*)mLists[2].mItems[i]->GetTask();
+        atn::D2A_TaskInstanceBase<32, 8>* item = mLists[2].mItems[i]->GetTask();
         int index = m88 + i;
         if (index >= 0 && index < (int)mPartLists[n].mSize) {
             CosEditPart_unk& part = mPartLists[n].mData[index];
@@ -626,7 +617,7 @@ void CosEditProtector::fn_801D6C1C(int cursor) {
             OptionParts_unk* parts = fn_801CE7E8(slot);
             OptionLevelList_unk* levels = fn_8020DB18(equip->m414->GetLetter_unk(), slot);
             OptionLevel_unk* level = &levels->mLevels[part.mIndex];
-            fn_801F837C(item, "item01", level->mName.mStr);
+            item->SetText_unk("item01", level->mName.mStr);
             int set = 1;
             if (bits) {
                 for (unsigned int k = 0; k < 3; k++) {
@@ -640,10 +631,10 @@ void CosEditProtector::fn_801D6C1C(int cursor) {
             }
             if (set) {
                 item->mFrame = 1.0f;
-                fn_801F6C80(item, "check", 1.0f);
+                item->SetValue0_unk("check", 1.0f);
             } else {
                 item->mFrame = 3.0f;
-                fn_801F6C80(item, "check", 0.0f);
+                item->SetValue0_unk("check", 0.0f);
             }
             if (slot == 2) {
                 slot = 0;
@@ -672,11 +663,11 @@ void CosEditProtector::fn_801D6F84() {
     }
     fn_801CF334();
     for (int i = 0; i < 10; i++) {
-        atn::D2A_TaskInstanceBase<32, 8>* item = (atn::D2A_TaskInstanceBase<32, 8>*)mLists[1].mItems[i]->GetTask();
+        atn::D2A_TaskInstanceBase<32, 8>* item = mLists[1].mItems[i]->GetTask();
         if (i < m84) {
             wchar_t text[64];
             fn_800DD3FC(text, L"%02d", i + 1);
-            fn_801F837C(item, "setName", text);
+            item->SetText_unk("setName", text);
             item->mFrame = 1.0f;
         } else {
             item->mFrame = 0.0f;
@@ -700,12 +691,10 @@ void CosEditProtector::fn_801D70EC(atn::D3Anime* base) {
                 char name[0x40];
                 sprintf(name, "slt_palette%d%d", x, y);
                 pos = fn_801F4E8C(task, fn_800DC6B4(name));
-                fn_801F6E78((atn::D2A_TaskInstanceBase<32, 8>*)cell.mIcon->GetTask(), "base_pos", pos);
-                fn_801F6E78((atn::D2A_TaskInstanceBase<32, 8>*)cell.mFrame->GetTask(), "base_pos", pos);
+                cell.mIcon->GetTask()->SetValues1_unk("base_pos", pos);
+                cell.mFrame->GetTask()->SetValues1_unk("base_pos", pos);
                 if (palette) {
-                    fn_801F7DF0((atn::D2A_TaskInstanceBase<32, 8>*)cell.mIcon->GetTask(), "paletteColor",
-                                255.0f * (0.25f * palette->mColor.r), 255.0f * (0.25f * palette->mColor.g),
-                                255.0f * (0.25f * palette->mColor.b));
+                    cell.mIcon->GetTask()->SetColor_unk("paletteColor", 255.0f * (0.25f * palette->mColor.r), 255.0f * (0.25f * palette->mColor.g), 255.0f * (0.25f * palette->mColor.b));
                     int item = fn_80444828(Inventory::instance_, cell.mId);
                     if (fn_804444E8(Inventory::instance_, item) > 0 || item == 0) {
                         cell.mEnabled = 1;
@@ -713,8 +702,8 @@ void CosEditProtector::fn_801D70EC(atn::D3Anime* base) {
                 } else {
                     cell.mEnabled = 1;
                 }
-                fn_801F6C80((atn::D2A_TaskInstanceBase<32, 8>*)cell.mIcon->GetTask(), "unlock", cell.mEnabled);
-                fn_801F6C80((atn::D2A_TaskInstanceBase<32, 8>*)cell.mFrame->GetTask(), "unlock", cell.mEnabled);
+                cell.mIcon->GetTask()->SetValue0_unk("unlock", cell.mEnabled);
+                cell.mFrame->GetTask()->SetValue0_unk("unlock", cell.mEnabled);
             }
         }
     }
@@ -736,8 +725,8 @@ void CosEditProtector::fn_801D7354(atn::D3Anime* base) {
                 char name[0x40];
                 sprintf(name, "slt_palette%d%d", x, y);
                 pos = fn_801F4E8C(task, fn_800DC6B4(name));
-                fn_801F6E78((atn::D2A_TaskInstanceBase<32, 8>*)cell.mIcon->GetTask(), "base_pos", pos);
-                fn_801F6E78((atn::D2A_TaskInstanceBase<32, 8>*)cell.mFrame->GetTask(), "base_pos", pos);
+                cell.mIcon->GetTask()->SetValues1_unk("base_pos", pos);
+                cell.mFrame->GetTask()->SetValues1_unk("base_pos", pos);
                 if (part) {
                     if (fn_804444E8(Inventory::instance_, fn_8044493C(Inventory::instance_, cell.mId)) > 0 ||
                         cell.mId == 0x1F) {
@@ -746,8 +735,8 @@ void CosEditProtector::fn_801D7354(atn::D3Anime* base) {
                 } else {
                     cell.mEnabled = 1;
                 }
-                fn_801F6C80((atn::D2A_TaskInstanceBase<32, 8>*)cell.mIcon->GetTask(), "unlock", cell.mEnabled);
-                fn_801F6C80((atn::D2A_TaskInstanceBase<32, 8>*)cell.mFrame->GetTask(), "unlock", cell.mEnabled);
+                cell.mIcon->GetTask()->SetValue0_unk("unlock", cell.mEnabled);
+                cell.mFrame->GetTask()->SetValue0_unk("unlock", cell.mEnabled);
             }
         }
     }
@@ -767,18 +756,16 @@ void CosEditProtector::fn_801D7560(int member, CharaStatus* status, NewCampParts
     if (inst && inst->GetTask()) {
         inst->mVisible = 1;
         fn_805112A8(entry, inst, atn::Vector3(0.0f, 0.0f, 0.0f), atn::Vector3(1.0f, 1.0f, 1.0f), "reference");
-        fn_801F6E78((atn::D2A_TaskInstanceBase<32, 8>*)inst->GetTask(), "base_pos",
-                    fn_801F4E8C(task, fn_800DC6B4(name)));
+        SetPos_unk("base_pos", inst->GetTask(), fn_801F4E8C(task, fn_800DC6B4(name)));
     }
     if (m1378->GetTask()) {
         m1378->mVisible = 1;
         fn_805112A8(entry, m1378, atn::Vector3(0.0f, 0.0f, 0.0f), atn::Vector3(1.0f, 1.0f, 1.0f), "reference");
-        fn_801F6E78((atn::D2A_TaskInstanceBase<32, 8>*)m1378->GetTask(), "base_pos",
-                    fn_801F4E8C(task, fn_800DC6B4(name)));
+        SetPos_unk("base_pos", m1378->GetTask(), fn_801F4E8C(task, fn_800DC6B4(name)));
         if (mark > 0) {
-            fn_801F6C80((atn::D2A_TaskInstanceBase<32, 8>*)m1378->GetTask(), "unlock", 1.0f);
+            m1378->GetTask()->SetValue0_unk("unlock", 1.0f);
         } else {
-            fn_801F6C80((atn::D2A_TaskInstanceBase<32, 8>*)m1378->GetTask(), "unlock", 0.0f);
+            m1378->GetTask()->SetValue0_unk("unlock", 0.0f);
         }
     }
 }
@@ -804,24 +791,22 @@ void CosEditProtector::fn_801D77A4(int* ids, atn::D3AnimeInstance** items, NewCa
             uv = CosEditUV_unk(0.25f * x, 0.5f * y, 0.25f * (x + 1), 0.5f * (y + 1));
         }
     }
-    SetUV_unk("uv0001", (atn::D2A_TaskInstanceBase<32, 8>*)base->GetTask(), uv);
-    SetUV_unk("mask_uv0001", (atn::D2A_TaskInstanceBase<32, 8>*)base->GetTask(), uv);
+    base->GetTask()->SetValues2_unk("uv0001", uv);
+    base->GetTask()->SetValues2_unk("mask_uv0001", uv);
     for (int i = 0; i < 8; i++) {
         atn::D3AnimeInstance* mark = items[i];
         mark->mVisible = 1;
         fn_805112A8(entry, mark, atn::Vector3(0.0f, 0.0f, 0.0f), atn::Vector3(1.0f, 1.0f, 1.0f), "reference");
         char name[0x40];
         sprintf(name, "palette%02d", i);
-        fn_801F6E78((atn::D2A_TaskInstanceBase<32, 8>*)mark->GetTask(), "base_pos",
-                    ((atn::D2A_TaskInstanceBase<32, 8>*)base->GetTask())->GetRect_unk(name));
+        atn::D2A_DrawRect rect = base->GetTask()->GetRect_unk(name);
+        mark->GetTask()->SetValues1_unk("base_pos", rect);
         OptionPalette_unk* palette = fn_8020BCEC(ids[fn_80117214(i)]);
         if (palette) {
-            fn_801F6C80((atn::D2A_TaskInstanceBase<32, 8>*)mark->GetTask(), "unlock", 1.0f);
-            fn_801F7DF0((atn::D2A_TaskInstanceBase<32, 8>*)mark->GetTask(), "paletteColor",
-                        255.0f * (0.25f * palette->mColor.r), 255.0f * (0.25f * palette->mColor.g),
-                        255.0f * (0.25f * palette->mColor.b));
+            mark->GetTask()->SetValue0_unk("unlock", 1.0f);
+            mark->GetTask()->SetColor_unk("paletteColor", 255.0f * (0.25f * palette->mColor.r), 255.0f * (0.25f * palette->mColor.g), 255.0f * (0.25f * palette->mColor.b));
         } else {
-            fn_801F6C80((atn::D2A_TaskInstanceBase<32, 8>*)mark->GetTask(), "unlock", 0.0f);
+            mark->GetTask()->SetValue0_unk("unlock", 0.0f);
         }
     }
     items[8]->mVisible = 0;
@@ -851,16 +836,14 @@ void CosEditProtector::fn_801D7AC0(int* ids, atn::D3AnimeInstance** items, NewCa
         fn_805112A8(entry, mark, atn::Vector3(0.0f, 0.0f, 0.0f), atn::Vector3(1.0f, 1.0f, 1.0f), "reference");
         char name[0x40];
         sprintf(name, "palette%02d", i);
-        fn_801F6E78((atn::D2A_TaskInstanceBase<32, 8>*)mark->GetTask(), "base_pos",
-                    GetRect_unk((atn::D2A_Task*)base->GetTask(), name));
+        atn::D2A_DrawRect rect = GetRect_unk((atn::D2A_Task*)base->GetTask(), name);
+        mark->GetTask()->SetValues1_unk("base_pos", rect);
         OptionPalette_unk* palette = fn_8020BCEC(ids[fn_80117214(i)]);
         if (palette) {
-            fn_801F6C80((atn::D2A_TaskInstanceBase<32, 8>*)mark->GetTask(), "unlock", 1.0f);
-            fn_801F7DF0((atn::D2A_TaskInstanceBase<32, 8>*)mark->GetTask(), "paletteColor",
-                        255.0f * (0.25f * palette->mColor.r), 255.0f * (0.25f * palette->mColor.g),
-                        255.0f * (0.25f * palette->mColor.b));
+            mark->GetTask()->SetValue0_unk("unlock", 1.0f);
+            mark->GetTask()->SetColor_unk("paletteColor", 255.0f * (0.25f * palette->mColor.r), 255.0f * (0.25f * palette->mColor.g), 255.0f * (0.25f * palette->mColor.b));
         } else {
-            fn_801F6C80((atn::D2A_TaskInstanceBase<32, 8>*)mark->GetTask(), "unlock", 0.0f);
+            mark->GetTask()->SetValue0_unk("unlock", 0.0f);
         }
     }
     items[8]->mVisible = 0;

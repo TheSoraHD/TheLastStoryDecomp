@@ -11,7 +11,7 @@
 // game/GameChoiceWindow.cpp (0x803B35FC-0x803B7944): the message table of a scene and the message,
 // choice and text windows (class names from the RTTI; member names invented).
 
-// inferred: layout anime task of the windows (made by fn_801F64D0)
+// inferred: layout anime task of the windows (made by D2A_TaskInstanceBase<32, 8>::Create)
 typedef atn::D2A_TaskInstanceBase<32, 8> GameLayout_unk;
 
 #include "game/GameMessageList.h"
