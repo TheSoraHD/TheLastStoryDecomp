@@ -281,13 +281,13 @@ boost::function<void()> ControlCdnBetray::vf10() const {
     return boost::bind(&CharaTask::fn_8016E970, (CharaTask*)mChara, mChara->m564);
 }
 
-// NONMATCHING: 99.2% - r5/r6 swapped between the status flags and m0C.
 void ControlCdnBetray::vf1C() {
     if (mChara != 0) {
         mChara->fn_8015495C(0, 1, 1, 1);
         if (!mChara->mStatus.IsState_unk(0x20)) {
-            if ((m0C != 0 && mChara->mStatus.IsState_unk(0x10000)) || (m0C == 0 && mChara->mStatus.IsState_unk(0x100))) {
-                mChara->mC58.mC4 = 0;
+            Chara_unk* c = mChara;
+            if ((m0C != 0 && c->mStatus.IsState_unk(0x10000)) || (m0C == 0 && c->mStatus.IsState_unk(0x100))) {
+                c->mC58.mC4 = 0;
                 mChara->SetSide_unk(m08);
             }
         }

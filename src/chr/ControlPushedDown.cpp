@@ -366,15 +366,16 @@ ControlOttotto::ControlOttotto(Chara_unk* chara, const atn::Vector3* dir, int ti
     }
 }
 
-// NONMATCHING: 99.74% - the counter goes to r0 instead of r5 and the stack slots of the negated
-// direction, its rotation and the normalized direction differ.
+// NONMATCHING: 99.8% - the stack slots of the negated direction and its rotation differ, and the
+// mChara/result temporary of the position update are in r3/r4 swapped (IsPlayer() fixed the counter
+// register, GetNormalize() the slots of the normalized direction).
 int ControlOttotto::vf0C() {
     int count = --m14;
     Motion_unk* motion = &mChara->mMotion;
-    if (mChara->mType == 0) {
+    if (mChara->IsPlayer()) {
         if (count <= 0) {
             atn::Vector3 target = mChara->fn_80178018();
-            atn::Vector3 dir = motion->mTracks[0].m00 == 0x52 ? Neg_unk(m08) : m08;
+            atn::Vector3 dir = motion->fn_80139F2C(0) == 0x52 ? Neg_unk(m08) : m08;
             atn::Vector3 rot = dir.ToRotationZ_unk();
             float a = atn::WrapAngle_unk(target.y - rot.y);
             if (mChara->fn_80178078() > 0.4f && a < 1.5707964f) {
@@ -385,9 +386,7 @@ int ControlOttotto::vf0C() {
         return 1;
     }
     if (motion->mTracks[0].m00 == 0x52 && motion->mTracks[0].m08 < 10.0f) {
-        atn::Vector3 d = m08;
-        PSVECNormalize(&d, &d);
-        mChara->mPos = mChara->mPos - d * 0.3f;
+        mChara->mPos = mChara->mPos - m08.GetNormalize() * 0.3f;
     }
     float frame = motion->mTracks[0].m08;
     if (frame >= motion->fn_80097D7C(0)) {

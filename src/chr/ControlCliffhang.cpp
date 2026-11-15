@@ -201,7 +201,6 @@ boost::function<void()> ControlCliffhang::vf10() const {
     return boost::bind(&CharaTask::fn_801696E0, (CharaTask*)mChara);
 }
 
-// NONMATCHING: 99.9% - registers r3/r4 swapped in the copy of m14/rot (state 1).
 void ControlCliffhang::fn_801AB6B8(int route, int first, float angle) {
     Motion_unk* motion = &mChara->mMotion;
     if (fn_801AB9E4(route) == 0) {
@@ -236,7 +235,10 @@ void ControlCliffhang::fn_801AB6B8(int route, int first, float angle) {
         break;
     }
     case 1:
-        mChara->mPos = m14;
+        {
+            Chara_unk* c1 = mChara;
+            c1->mPos = m14;
+        }
         mChara->mRot = rot;
         if (m78 != 0) {
             motion->fn_80097C08(0, m44[m10], 0, 1, 1, 0.0f, 0.1f);
