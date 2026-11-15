@@ -170,8 +170,10 @@ public:
 
 } // namespace atn
 
-extern "C" atn::PostFxManager* lbl_8087EF8C; // inferred: instance
-extern "C" unsigned long lbl_8087EF88;       // inferred: largest use of the temporary buffer
+extern "C" {
+unsigned long lbl_8087EF88;       // inferred: largest use of the temporary buffer
+atn::PostFxManager* lbl_8087EF8C; // inferred: instance
+}
 
 namespace atn {
 

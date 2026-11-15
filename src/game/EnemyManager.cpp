@@ -1,6 +1,8 @@
 #include "game/EnemyManager.h"
 #include "atn/Memory.h"
 
+EnemyManager* EnemyManager::sInstance;
+
 EnemyManager* EnemyManager::fn_80334B38(atn::Task* parent) {
     if (parent != 0 && sInstance == 0) {
         sInstance = new ((MemoryTag)3, "", "", 0) EnemyManager(parent);
