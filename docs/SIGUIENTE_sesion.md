@@ -4,22 +4,18 @@
 > 23:30 (inicio 13:20). Notas: `docs/cabeceras-20261114.md` y `docs/cabeceras-20261114-q*.md`. Para el port:
 > `claude/port-cabeceras-20261114.md` (proyecto).
 
-Estado: **15424 -> 15450 / 18109**, lost 0, sin bajadas, rep100 138, labelcheck 19, `main.dol: OK`. Funciones al 0 %:
+Estado (tras decisiones-20261115): **15460 / 18109** (15424 -> 15450 en la sesion, +10 con las decisiones), lost 0, sin bajadas, rep100 138, labelcheck 19, `main.dol: OK`. Funciones al 0 %:
 **199**. 34 DRAFT (0 en la ruta). Enlazan 143 unidades del juego y del motor (como antes) y, entre las librerias, HBMBase.
 
-## Decisiones pendientes del usuario
+## Decisiones (aplicadas en decisiones-20261115)
 
-- **Parche de `push_back`** (`docs/cabeceras-20261114-qA5.patch`, colas A2-A5): forma original de MSL; +5 al 100 %,
-  +45 funciones de fuzzy (Event/Manager fn_80481B9C 58 -> 96 %, Sequence::fn_8054204C 10 -> 93 %), 8 bajadas de
-  registros (<= 0,64). Si se acepta: aplicar, `pdbatch.sh` completo, `@enum$...ControlAppear_cpp`.
-- **Cola M** (rama `cabeceras-20261114-m`): `Frustum_unk::mBounds` subobjeto, +5 al 100 %, bajan NewCampTask
-  fn_8052E1A0 (-0,5) y fn_8052FA44 (-0,1). Arreglo real: `operator=` de `vector<atn::Light>`/`vector<atn::Camera>`.
-- Split de la cola E ("Event::ActionProcessor" a Behavior_unk).
+- Parche de `push_back` y cola M integrados en `main` (15460, `docs/decisiones-20261115.md`); split de la cola E se queda.
+- Siguiente sesion: `claude/prompt-10h-ceros.md` (proyecto): funciones al 0 % y despues camara, batalla, personajes e interfaz.
 
 ## Siguiente
 
 - Sincronizacion del port con esta rama (lista de cambios en `claude/port-cabeceras-20261114.md`).
-- Con el parche de push_back: las 26 copias debiles de Event/Sequence, EventParser_unk y Event/Manager;
+- Ya con el push_back original: las 26 copias debiles de Event/Sequence, EventParser_unk y Event/Manager;
   `PathLengths_unk` (= `vector<float>`) en WindyItem/PathData_unk/ActionActorPosition; `BattleTask::fn_800F8C6C`.
 - Funciones C de BattleTask que aun no estan en `BattleTask.h` (tipos distintos por unidad: `fn_80108C10` con
   `BattleDamage_unk`, `fn_800FDB20`, `fn_800FB1BC`, `fn_80101524`, `fn_8010CF28`, `fn_80102EAC`, `BattleAim_unk`); pasar a

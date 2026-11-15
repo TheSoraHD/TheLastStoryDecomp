@@ -129,6 +129,11 @@ struct __vec_split_unk<D2A_MsgPiece_unk> : public __vec_storage_unk<D2A_MsgPiece
         new (begin() + this->mSize) T(x);
         this->mSize++;
     }
+    void __append_copies_unk(unsigned int n, const T& x) {
+        for (; n != 0; n--) {
+            push_back(x);
+        }
+    }
     void __push_front_unk(T* first, T* last) {
         T* p = begin();
         while (last > first) {

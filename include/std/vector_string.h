@@ -48,6 +48,11 @@ struct __vec_split_unk<string> : public __vec_split_base_unk<string> {
         new (begin() + this->mSize) string(x);
         this->mSize++;
     }
+    void __append_copies_unk(unsigned int n, const string& x) {
+        for (; n != 0; n--) {
+            push_back(x);
+        }
+    }
     // inferred: moves [first, last) in front of the stored elements as raw bytes
     void __push_front_unk(string* first, string* last) {
         int n = last - first;

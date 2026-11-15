@@ -2938,8 +2938,8 @@ void GameCamera::fn_8038C070(const CharaTask* chara) {
 // inferred: low camera beside the character (50 above it, m648.m0C to the side) looking at 12 above it; the target and
 // the fovy (m7B0.m04) are blended in 10 frames; then back to the sub mode with m83C = 6. The eye position is
 // computed but not used
-// NONMATCHING: 48% - here fn_80392964 and its callees (fn_803920C8, fn_803928C0...) are all inlined, while the
-// original calls them as in fn_8038BD78
+// NONMATCHING: 99.6% - float registers of the negated front (the original keeps -y and -x in the registers of y
+// and x and loads 50.0f into f5); tried the unary minus, the vector built in place and other statement orders
 void GameCamera::fn_8038C5B0(const CharaTask* chara) {
     if (m808 == 0) {
         m80C = mCamera.mPos;
@@ -2958,15 +2958,14 @@ void GameCamera::fn_8038C5B0(const CharaTask* chara) {
     pos = chara->mPos;
     pos.y += 50.0f;
     float side = m648.m0C;
-    atn::Vector3 cross;
-    PSVECCrossProduct(&front, &up, &cross);
-    float t = MIN((float)m808 / 10.0f, 1.0f);
-    pos += cross * side;
+    pos += Cross_unk(front, up) * side;
     target = chara->mPos;
     target.y += 12.0f;
-    target = (target - m818) * t + m818;
+    float t = MIN(1.0f, (float)m808 / 10.0f);
+    atn::VecAssign_unk(target, LerpV_unk(m818, target, t));
     mCamera.SetTarget_unk(target);
-    mCamera.mFovy = MIN((float)m808 / 10.0f, 1.0f) * (m7B0.m04 - m830) + m830;
+    float t2 = MIN(1.0f, (float)m808 / 10.0f);
+    mCamera.mFovy = t2 * (m7B0.m04 - m830) + m830;
     mCamera.fn_8004B378();
     fn_80392964(0, 1, 0, 0);
     if (++m808 > 10) {
@@ -4218,7 +4217,8 @@ void GameCamera::fn_80392964(int a, int b, int c, int d) {
     fn_8008B964()->SetCamera_unk(m1F4);
 }
 
-// NONMATCHING: 98% - registers and order of the copy of the frustum planes
+// NONMATCHING: 99.4% - registers of the pointers of the copies of the frustum bounds and planes (r6-r9 in
+// the reverse order)
 extern "C" void fn_80392A04(atn::Camera* dst, const atn::Camera* src) {
     *dst = *src;
 }
@@ -4241,7 +4241,6 @@ void GameCamera::fn_80392CE0(const GameCameraState_unk* state) {
     m830 = state->m24;
 }
 
-// NONMATCHING: 98.8% - the copy of the camera, as fn_80392A04
 // inferred: makes the render camera blend back from `from` (weight 1, decreased by `rate` every frame);
 // called with the camera of the field (EnemyQuarkStand, GameEventScript)
 void GameCamera::fn_80392D2C(const atn::Camera* from, float rate) {

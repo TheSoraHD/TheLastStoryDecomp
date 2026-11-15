@@ -203,7 +203,6 @@ inline void RenderSetting_unk::SetColorMatrix(const ColorMatrixParam_unk& p) {
 }
 
 // inferred: start of the event: stops the characters and the managers the event hides
-// NONMATCHING: 99.95% - register of the party leader at the end (r30 in the original)
 void Sequence::fn_8053E8D0() {
     if (lbl_8087F540 == 0) {
         return;
@@ -281,11 +280,10 @@ void Sequence::fn_8053E8D0() {
         if (m280 != 0) {
             m280->fn_80228FD8();
         }
-        if (lbl_8087F430 != 0 && lbl_8087F430->GetCurrentMap() != 0 && lbl_8087F8A0 != 0) {
-            PlayerTask* leader = lbl_8087F8A0->mHead;
-            if (leader != 0) {
-                lbl_8087F430->GetCurrentMap()->fn_804A0580(1, &leader->mPos);
-            }
+        if (lbl_8087F430 != 0 && lbl_8087F430->GetCurrentMap() != 0 && lbl_8087F8A0 != 0 &&
+            lbl_8087F8A0->mHead != 0) {
+            const atn::Vector3* pos = &lbl_8087F8A0->mHead->mPos;
+            lbl_8087F430->GetCurrentMap()->fn_804A0580(1, pos);
         }
     }
 }
