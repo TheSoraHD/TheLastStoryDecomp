@@ -360,20 +360,27 @@ void CharaStatus::fn_8012C6D4(CharaParam_unk* param, int level, int arg, int id)
     }
 }
 
+inline bool TestBit_unk(const unsigned int* bits, int bit) {
+    unsigned int mask = 1 << (bit % 32);
+    return (bits[bit / 32] & mask) == mask;
+}
+inline void SetBit_unk(unsigned int* bits, int bit) {
+    bits[bit / 32] |= 1 << (bit % 32);
+}
+
 // inferred: counterpart of fn_80134674 (never emitted on its own); name invented
 inline void CharaStatus::ClearBit_unk(int bit) {
     if ((unsigned int)bit > 127) {
         return;
     }
-    unsigned int* word = &m1A8.mBits[bit / 32];
-    unsigned int mask = 1 << (bit % 32);
-    if ((*word & mask) == mask) {
-        *word &= ~mask;
+    if (TestBit_unk(m1A8.mBits, bit)) {
+        m1A8.mBits[bit / 32] &= ~(1 << (bit % 32));
     }
 }
 
-// NONMATCHING: 96.3% - only the registers of the inlined set/clear of a bit differ (same problem as
-// fn_80134674).
+// NONMATCHING: 99.1% - only the registers of the inlined set/clear of a bit differ (same problem as
+// fn_80134674: the constant 1 and the word index). The clear tests through the const TestBit_unk, as the set
+// does (the original reloads the word before the store).
 void CharaStatus::fn_8012CE4C(int kind) {
     PlayerParam_unk* set = fn_80219160(kind, mParamA.m78);
     if (set == 0) {
@@ -1690,13 +1697,6 @@ bool CharaStatus::fn_801342B0() {
     return mChara->m5C->m122 == 3;
 }
 
-inline bool TestBit_unk(const unsigned int* bits, int bit) {
-    unsigned int mask = 1 << (bit % 32);
-    return (bits[bit / 32] & mask) == mask;
-}
-inline void SetBit_unk(unsigned int* bits, int bit) {
-    bits[bit / 32] |= 1 << (bit % 32);
-}
 
 extern "C" int rand();
 
