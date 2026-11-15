@@ -129,21 +129,86 @@ extern "C" atn::Color fn_800F8014(unsigned int rgba);       // inferred: colour 
 inline ColorMatrixParam_unk* RenderSetting_unk::GetColorMatrix_unk() {
     return &m324;
 }
+// The original calls every inline helper of vf0C and vf10 out of line (over the inline budget, their weak
+// copies follow each function); these empty asserts in an accessor that each of them calls carry the missing cost.
+#define EGG_ASSERT_UNK(x) ((void)0)
 // inferred: bloom settings of the render settings (weak copy 0x80453DB4; name of the original unknown)
 extern "C" inline BloomParam_unk* fn_80453DB4(RenderSetting_unk* rs) {
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
     return &rs->m054;
 }
-// NONMATCHING: the original is over the inlining budget (every inline call is a weak copy: fn_80453C88,
-// fn_80453DB4, fn_80453DBC, push_back fn_80453E20, Vector4_unk, fn_8045817C); ours inlines them all. Adding
-// candidates (a helper per post effect) tips it over, but then the helper is called too.
+// NONMATCHING: 97.6% - the colours of fn_800F8014 are passed to Color::operator= from r3 in the original (a
+// temporary here): fn_800F8014 is a constructor `atn::Color::Color(unsigned int)` (constructors return `this`),
+// not declared in atn/Color.h (shared header; see game/BattleTask fn_800F72F4, same difference)
 int LastCocoonEgg::vf0C() {
     if (fn_8013655C() == 0 && m14B0.fn_80473F50() == 0 && m14EC.fn_8008B140() == 0 && m1928.IsLoading() == 0 &&
         m1934.IsLoading() == 0 && m1940.IsLoading() == 0 && m1950.IsLoading() == 0 && m195C.IsLoading() == 0 &&
         m1988.IsLoading() == 0 && m1994.IsLoading() == 0 && m252C.IsLoading() == 0 && m2538.IsLoading() == 0) {
         mStatus.m18 |= 0x1C0;
         mStatus.m18 |= 0x10000;
-        mStatus.m18 |= 0x400015;
-        mStatus.m18 |= 0x388C208;
+        mStatus.m18 |= 0x15;
+        mStatus.m18 |= 0x400000;
+        mStatus.m18 |= 0xC208;
+        mStatus.m18 |= 0x3880000;
         fn_8045817C();
         if (m14B0.fn_80470580() != 0 && fn_80121F00() != 0 && fn_80121F00()->fn_8013C504() != 0) {
             atn::Csv csv((const char*)m14B0.fn_80470580(), m14B0.fn_8047059C());
@@ -224,21 +289,84 @@ int LastCocoonEgg::vf0C() {
     return 0;
 }
 
+// push_back is defined out of the class (include/std/vector.h): instantiated here so that it is emitted
+// behind vf0C and its "vector length error" goes to the pool before the literals of the next functions
+template void std::vector<LastCocoonEggPart_unk>::push_back(const LastCocoonEggPart_unk& x);
+
 // ---- vf10: update of the egg (over the inlining budget: the accessors are weak copies) ----
 extern "C" double floor(double x);
 // inferred: hit point ratio (weak copy 0x8029F3AC of game/Em203GreaterDaemonRedMp.cpp)
 extern "C" inline float fn_8029F3AC(CharaStatus* status) {
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
     if (status->mParamB.m84 > 0) {
         return status->m04 / status->mParamB.m84;
     }
     return 0.0f;
 }
 // inferred: weak copy 0x80454514 (name invented)
-extern "C" __declspec(noinline) inline float fn_80454514(float x) {
+extern "C" inline float fn_80454514(float x) {
     return floor(x);
 }
 
-// NONMATCHING: draft - the original is over the inlining budget (its accessors and Keyboard::Press are called)
 void LastCocoonEgg::vf10() {
     fn_80455E20();
     if (m2A44 != 0) {
@@ -306,7 +434,7 @@ void LastCocoonEgg::vf10() {
                 }
                 for (unsigned int i = 0; i < m19A0.size(); i++) {
                     atn::Vector3 d = *m19A0[i].m00->fn_8013C38C() - mPos;
-                    if (d.LengthSq_unk() < 2500.0f && m19A0[i].m00 != m190C) {
+                    if (d.LengthSq_unk() < 2500.0f && m190C != m19A0[i].m00) {
                         fn_804570F4(m19A0[i].m00);
                         m190C = m19A0[i].m00;
                         m1910 = 120;
@@ -318,7 +446,7 @@ void LastCocoonEgg::vf10() {
         }
         if (m58C != 8) {
             m14D0 = 1.0f + fn_8029F3AC(&mStatus);
-            m14D0 = fn_80454514(2.0f * m14D0) * 0.5f;
+            m14D0 = fn_80454514(2.0f * m14D0) / 2.0f;
         }
         fn_80455638();
         m2548.fn_80454538();
@@ -579,8 +707,7 @@ inline EggColor_unk EggLerp_unk(const EggColor_unk& a, const EggColor_unk& b, fl
 // inferred: base color of the glow of fn_8045531C (static object, initialized in __sinit)
 static atn::Vector4_unk sGlowColor_unk(0.8f, 0.8f, 0.8f, 1.0f);
 
-// NONMATCHING: 99.5% - offset of "light" in the string pool (the strings of the unwritten functions are
-// missing) and the float register of the glow factor
+// NONMATCHING: 99.8% - float registers of the glow factor
 // inferred: color of the material "light": brightened in mode 8, else pulsing every 120 units of m14D8
 void LastCocoonEgg::fn_8045531C() {
     Material_unk* material = mMotion.fn_80094B6C("light");
@@ -767,7 +894,6 @@ void LastCocoonEgg::fn_80455E20() {
 }
 
 // inferred: the shield breaks (as vf40 without the popup text)
-// NONMATCHING: pool offset of the string (the constructor and its literals are missing)
 // inferred: after 45 frames, repeats the attack of fn_80456E1C twice and then starts the shake of fn_80456F04
 void LastCocoonEgg::fn_80455F2C() {
     if (m14C0 > 45) {
@@ -948,7 +1074,6 @@ void LastCocoonEgg::fn_80456DB8() {
     }
 }
 
-// NONMATCHING: pool offset of the string (the constructor and its literals are missing)
 // inferred: starts the state 6 (sound and effect m1950); the target is not read
 void LastCocoonEgg::fn_80456E1C(CharaTask* target) {
     m14BC = 0;
