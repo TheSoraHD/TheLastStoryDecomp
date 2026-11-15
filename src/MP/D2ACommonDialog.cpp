@@ -26,6 +26,11 @@ struct __vec_split_unk<basic_string<wchar_t> > : public __vec_storage_unk<basic_
         new (begin() + this->mSize) T(x);
         this->mSize++;
     }
+    void __append_copies_unk(unsigned int n, const T& x) {
+        for (; n != 0; n--) {
+            push_back(x);
+        }
+    }
     void __push_front_unk(T* first, T* last) {
         int n = last - first;
         mStart -= n;

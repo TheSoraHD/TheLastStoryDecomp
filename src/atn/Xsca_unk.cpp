@@ -123,6 +123,11 @@ struct __vec_split_unk<XscaEntry_unk> : public __vec_split_base_unk<XscaEntry_un
         begin()[this->mSize] = x;
         this->mSize++;
     }
+    void __append_copies_unk(unsigned int n, const XscaEntry_unk& x) {
+        for (; n != 0; n--) {
+            push_back(x);
+        }
+    }
     void __push_front_unk(XscaEntry_unk* first, XscaEntry_unk* last) {
         unsigned int n = ((char*)last - (char*)first) / (int)sizeof(XscaEntry_unk);
         mStart -= n;

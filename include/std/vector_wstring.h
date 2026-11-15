@@ -48,6 +48,11 @@ struct __vec_split_unk<basic_string<wchar_t> > : public __vec_split_base_unk<bas
         new (begin() + this->mSize) basic_string<wchar_t>(x);
         this->mSize++;
     }
+    void __append_copies_unk(unsigned int n, const basic_string<wchar_t>& x) {
+        for (; n != 0; n--) {
+            push_back(x);
+        }
+    }
     // inferred: moves [first, last) in front of the stored elements as raw bytes
     void __push_front_unk(basic_string<wchar_t>* first, basic_string<wchar_t>* last) {
         // inferred: a byte difference, so that (data + size) - data is not folded (0x805AD480)

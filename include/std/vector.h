@@ -11,6 +11,27 @@
 
 namespace std {
 
+// inferred: the allocator lives at the address of the capacity (empty member of a compressed pair):
+// its construct is a weak copy called with that address (0x80542684, 0x80482400)
+template <class T>
+struct __vec_allocator_unk {
+    void construct(T* p, const T& x) { new (p) T(x); }
+};
+
+// inferred: assertions of the MSL vector compiled out (they only count for the inlining budget)
+#define MSL_VEC_ASSERT_UNK(x) ((void)0)
+#define MSL_VEC_ASSERT10_UNK                                                                                      \
+    MSL_VEC_ASSERT_UNK(0);                                                                                          \
+    MSL_VEC_ASSERT_UNK(0);                                                                                          \
+    MSL_VEC_ASSERT_UNK(0);                                                                                          \
+    MSL_VEC_ASSERT_UNK(0);                                                                                          \
+    MSL_VEC_ASSERT_UNK(0);                                                                                          \
+    MSL_VEC_ASSERT_UNK(0);                                                                                          \
+    MSL_VEC_ASSERT_UNK(0);                                                                                          \
+    MSL_VEC_ASSERT_UNK(0);                                                                                          \
+    MSL_VEC_ASSERT_UNK(0);                                                                                          \
+    MSL_VEC_ASSERT_UNK(0)
+
 template <class T>
 struct __vec_storage_unk {
     __vec_storage_unk() : mData(0), mSize(0), mCap(0) {}
@@ -57,6 +78,7 @@ struct __vec_storage_unk {
         memset(first, 0, n * sizeof(T));
         mSize += n;
     }
+    __vec_allocator_unk<T>& __alloc_unk() { return *(__vec_allocator_unk<T>*)&mCap; }
 
     T* mData;
     unsigned int mSize;
@@ -106,6 +128,25 @@ struct __vec_alloc_sel_unk<int> {
 template <>
 struct __vec_alloc_sel_unk<float> {
     static float* alloc(unsigned int n) { return (float*)__vec_word_alloc_unk::__allocate(n); }
+};
+
+// inferred: pointer, int and float elements (the word types of __vec_word_alloc_unk) are copied with
+// memmove (vector<int> member of Event::Path, 0x8057E244)
+template <class T>
+struct __vec_word_unk {
+    enum { value = 0 };
+};
+template <class T>
+struct __vec_word_unk<T*> {
+    enum { value = 1 };
+};
+template <>
+struct __vec_word_unk<int> {
+    enum { value = 1 };
+};
+template <>
+struct __vec_word_unk<float> {
+    enum { value = 1 };
 };
 
 template <class T>
@@ -216,13 +257,18 @@ struct __vec_split_unk : public __vec_split_gbase_unk<T> {
     __vec_split_unk(void* alloc) : __vec_split_gbase_unk<T>(alloc), mStart(0) {}
     ~__vec_split_unk() {
         if (!(__builtin_trivial_members(T) & 1)) {
-            T* first = begin();
-            T* last = first + this->mSize;
-            while (last > first) {
-                (--last)->~T();
-            }
-            this->mSize = 0;
+            __destroy_front_unk();
         }
+    }
+    // inferred: out of the destructor so that its dead loop (elements without a destructor) stays cheap for
+    // the inlining budget (R3) of the constructor of atn::RenderManager (push_back<atn::Light>, 0x800BC874)
+    void __destroy_front_unk() {
+        T* first = begin();
+        T* last = first + this->mSize;
+        while (last > first) {
+            (--last)->~T();
+        }
+        this->mSize = 0;
     }
     // inferred: the vector forgets its old elements before the swap only when they have no destructor
     // (otherwise the buffer destroys them, 0x80576F70)
@@ -234,6 +280,17 @@ struct __vec_split_unk : public __vec_split_gbase_unk<T> {
             this->mSize++;
         } else {
             __append_n_unk(1, x);
+        }
+    }
+    // inferred: appends n copies of x (push_back)
+    void __append_copies_unk(unsigned int n, const T& x) {
+        if (((__builtin_trivial_members(T) & 7) == 7)) {
+            for (; n != 0; n--) {
+                begin()[this->mSize] = x;
+                this->mSize++;
+            }
+        } else {
+            __append_n_unk(n, x);
         }
     }
     // inferred: appends n copies of x (resize, weak copy 0x8032B314)
@@ -287,6 +344,12 @@ struct __vec_split_unk<T*> : public __vec_split_base_unk<T*> {
         begin()[this->mSize] = x;
         this->mSize++;
     }
+    void __append_copies_unk(unsigned int n, T* const& x) {
+        for (; n != 0; n--) {
+            begin()[this->mSize] = x;
+            this->mSize++;
+        }
+    }
     // inferred: moves [first, last) in front of the stored elements
     void __push_front_resize_unk(T** first, T** last) { __push_front_unk(first, last); }
     void __push_front_unk(T** first, T** last) {
@@ -319,6 +382,11 @@ struct __vec_split_unk<int> : public __vec_split_base_unk<int> {
     void push_back(const int& x) {
         begin()[this->mSize] = x;
         this->mSize++;
+    }
+    void __append_copies_unk(unsigned int n, const int& x) {
+        for (; n != 0; n--) {
+            push_back(x);
+        }
     }
     void __push_front_resize_unk(int* first, int* last) { __push_front_unk(first, last); }
     void __push_front_unk(int* first, int* last) {
@@ -353,6 +421,11 @@ struct __vec_split_unk<float> : public __vec_split_base_unk<float> {
     void push_back(const float& x) {
         begin()[this->mSize] = x;
         this->mSize++;
+    }
+    void __append_copies_unk(unsigned int n, const float& x) {
+        for (; n != 0; n--) {
+            push_back(x);
+        }
     }
     void __append_n_unk(unsigned int n, const float&) {
         memset(begin() + this->mSize, 0, n * sizeof(float));
@@ -415,7 +488,15 @@ public:
     void __init_n_unk(size_type n);
     template <class Iterator> vector(Iterator first, Iterator last);
     // inferred: weak copies 0x80513D34 and 0x80513EC4 (game/NewCampPartsGmk.cpp)
-    vector(const vector& x) { __init_unk(x.mData, x.mData + x.mSize); }
+    // inferred: the release-mode assertions of the copy only count for the inlining budget (R3): without
+    // them the copy constructors of Event::Path (0x8057DC38) and Event::Actor are cheaper than in the
+    // original, push_back<Path> takes its candidates and Event::Actor inlines the copies of its members
+    // (Event/EventParser_unk ParsePATH_unk, Event/Sequence DataList_unk<Actor>::Add_unk)
+    vector(const vector& x) {
+        MSL_VEC_ASSERT10_UNK;
+        MSL_VEC_ASSERT10_UNK;
+        __init_unk(x.mData, x.mData + x.mSize);
+    }
     ~vector() {}
     // declared only: weak copies 0x8052E980 (atn::Light) and 0x8052EEBC (atn::Camera), first used by
     // game/NewCampTask.cpp (the copy of an atn::Scene)
@@ -441,6 +522,9 @@ public:
     // original loads the size before the capacity (and keeps the capacity in r5); tried accessors,
     // the comparison reversed, if/else forms and a helper for the length check.
     void push_back(const T& x);
+    void __push_back_slow_unk(const T& x);
+    bool __expand_by_unk(size_type n);
+    void __insert_realloc_unk(size_type n, const T& x);
     // inferred: erase of a POD element, moving the next ones with memmove (inlined in
     // Event::Manager::fn_80485028, 0x80485090)
     T* erase(T* pos) {
@@ -547,7 +631,34 @@ private:
     void __check_grow_unk(size_type n);
     void __check_append_unk(size_type n);
     void __init_unk(const T* first, const T* last);
-    size_type __grow_cap_unk(size_type n);
+    // inferred: copies [first, last) behind the stored elements: scalar elements with memmove (copy of
+    // a vector<int> in the copy constructor of Event::Path, 0x8057E244), the others one by one
+    void __construct_at_end_unk(const T*& first, const T* const& last) {
+        if (__vec_word_unk<T>::value) {
+            memmove(this->mData + this->mSize, first, (last - first) * sizeof(T));
+            this->mSize += last - first;
+        } else {
+            T* p = this->mData + this->mSize;
+            for (; first != last; ++first, ++p) {
+                new (p) T(*first);
+                ++this->mSize;
+            }
+        }
+    }
+    // inferred: dead growth of expand_by, with the n of expand_by by reference: the original drops it
+    // whole (no stack slot, compares against 1 left) when push_back is inlined in a loop (Em301LShade
+    // fn_802D6004, Event/Manager fn_80484088) and keeps the 1 on the stack otherwise (lights of Event/Manager)
+    size_type __recommend_ref_unk(const size_type& n) {
+        size_type cap = this->mCap;
+        if (cap < max_size() / 3) {
+            cap += __vec_max_unk(size_type((cap + 1) * 3 / 5), n);
+        } else if (cap < max_size() / 3 * 2) {
+            cap += __vec_max_unk(size_type((cap + 1) / 2), n);
+        } else {
+            cap = max_size();
+        }
+        return cap;
+    }
     // inferred: growth without the length checks; push_back computes it once for one element and drops the
     // result (dead code that stays when push_back is inlined into a large function, CrowdManager 0x801EB188)
     size_type __recommend_unk(size_type n) {
@@ -598,6 +709,14 @@ private:
         __vec_swap_unk(this->mSize, buf.mSize);
     }
 public:
+    size_type __grow_cap_unk(size_type n);
+    // inferred: allocation of the buffer of realloc for pointer, int and float elements (see __vec_grow_sel_unk)
+    void __alloc_split_unk(__vec_split_unk<T>& buf, size_type n) {
+        size_type cap = __grow_cap_unk(this->mSize + n - this->mCap);
+        buf.mData = __vec_alloc_sel_unk<T>::alloc(cap);
+        buf.mCap = cap;
+        buf.mStart = this->mSize;
+    }
     // inferred: also used directly by the weak copy 0x8032B6F8 (game/Em403WarLion.cpp)
     static T* __allocate(size_type n) {
         T* p = (T*)::operator new(n * sizeof(T));
@@ -613,6 +732,39 @@ struct __vec_alloc_sel_unk {
     static T* alloc(unsigned int n) { return vector<T>::__allocate(n); }
 };
 
+// inferred: each inline level reverses the stack slots of the callee (docs/trucos-mwcc.md): the slots of
+// __grow_cap_unk (n, then the two max temporaries) come out as in the original with one more level for
+// generic elements (ColorF_unk push_back 0x8000DE44: n at 0x8; KrakenCommand_unk 0x802D8854) and one level
+// less for pointer, int and float elements (vector<int>::push_back, n at 0x10): an even number of levels
+// (two) for those
+template <class T>
+struct __vec_grow_sel_unk {
+    static void __alloc_split_unk(vector<T>& v, __vec_split_unk<T>& buf, unsigned int n) {
+        unsigned int cap = v.__grow_cap_unk(v.mSize + n - v.mCap);
+        buf.mData = __vec_alloc_sel_unk<T>::alloc(cap);
+        buf.mCap = cap;
+        buf.mStart = v.mSize;
+    }
+};
+template <class T>
+struct __vec_grow_sel_unk<T*> {
+    static void __alloc_split_unk(vector<T*>& v, __vec_split_unk<T*>& buf, unsigned int n) {
+        v.__alloc_split_unk(buf, n);
+    }
+};
+template <>
+struct __vec_grow_sel_unk<int> {
+    static void __alloc_split_unk(vector<int>& v, __vec_split_unk<int>& buf, unsigned int n) {
+        v.__alloc_split_unk(buf, n);
+    }
+};
+template <>
+struct __vec_grow_sel_unk<float> {
+    static void __alloc_split_unk(vector<float>& v, __vec_split_unk<float>& buf, unsigned int n) {
+        v.__alloc_split_unk(buf, n);
+    }
+};
+
 template <class T>
 void vector<T>::push_back(const T& x) {
     size_type n = this->mSize;
@@ -620,13 +772,28 @@ void vector<T>::push_back(const T& x) {
         this->__push_fast_unk(n, x);
         return;
     }
-    if (max_size() - this->mCap < 1) {
-        __msl_error("vector length error");
+    __push_back_slow_unk(x);
+}
+
+// inferred: slow path of push_back (0x805428A8; Event/Manager fn_80481B9C calls expand_by 0x8049003C, construct
+// 0x80482400 and realloc 0x80490098). The size is incremented after the call (0x804823C0); it fits in the
+// budget of the constructor of atn::RenderManager (0x800BC874) since the dead loop of ~__vec_split_unk is
+// out of line
+template <class T>
+void vector<T>::__push_back_slow_unk(const T& x) {
+    if (__expand_by_unk(1)) {
+        this->__alloc_unk().construct(this->mData + this->mSize, x);
+        ++this->mSize;
+    } else {
+        __insert_realloc_unk(1, x);
     }
-    __recommend_unk(1);
+}
+
+template <class T>
+void vector<T>::__insert_realloc_unk(size_type n, const T& x) {
     __vec_split_unk<T> buf(&this->mCap);
-    __vec_set_buf_unk(buf, __grow_cap_unk(this->mSize + 1 - this->mCap));
-    buf.push_back(x);
+    __vec_grow_sel_unk<T>::__alloc_split_unk(*this, buf, n);
+    buf.__append_copies_unk(n, x);
     __swap_out_unk(buf);
 }
 
@@ -725,11 +892,7 @@ void vector<T>::__init_unk(const T* first, const T* last) {
         }
         this->mData = __vec_alloc_sel_unk<T>::alloc(n);
         this->mCap = n;
-        T* p = this->mData + this->mSize;
-        for (; first != last; ++first, ++p) {
-            new (p) T(*first);
-            ++this->mSize;
-        }
+        __construct_at_end_unk(first, last);
     }
 }
 
@@ -750,6 +913,15 @@ typename vector<T>::size_type vector<T>::__grow_cap_unk(size_type n) {
         __msl_error("vector length error");
     }
     return cap;
+}
+
+template <class T>
+bool vector<T>::__expand_by_unk(size_type n) {
+    if (n > max_size() - this->mCap) {
+        __msl_error("vector length error");
+    }
+    __recommend_ref_unk(n);
+    return false;
 }
 
 // inferred: resize of float elements (weak copy 0x8032BE88)

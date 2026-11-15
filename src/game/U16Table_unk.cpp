@@ -41,6 +41,11 @@ struct __vec_split_unk<U16RunPair_unk> : public __vec_split_base_unk<U16RunPair_
         begin()[this->mSize] = x;
         this->mSize++;
     }
+    void __append_copies_unk(unsigned int n, const U16RunPair_unk& x) {
+        for (; n != 0; n--) {
+            push_back(x);
+        }
+    }
     void __push_front_unk(U16RunPair_unk* first, U16RunPair_unk* last) {
         U16RunPair_unk* p = begin();
         while (last > first) {
@@ -50,6 +55,15 @@ struct __vec_split_unk<U16RunPair_unk> : public __vec_split_base_unk<U16RunPair_
         }
     }
     unsigned int mStart;
+};
+
+// inferred: realloc of push_back inlined in fn_803CCF68/fn_803CD598 with the stack slots of __grow_cap_unk of
+// the pointer elements (see __vec_grow_sel_unk)
+template <>
+struct __vec_grow_sel_unk<U16RunPair_unk> {
+    static void __alloc_split_unk(vector<U16RunPair_unk>& v, __vec_split_unk<U16RunPair_unk>& buf, unsigned int n) {
+        v.__alloc_split_unk(buf, n);
+    }
 };
 
 } // namespace std
