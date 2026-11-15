@@ -54,6 +54,147 @@ void Inventory::fn_80442F68() {
     }
 }
 
+// inferred: settings (lbl_8087F0A8); only the members used here
+struct InventorySettings_unk {
+    unsigned char m000[0xD4];
+    int mD4; // inferred: mode of the level scaling of the rewards (3: by tenths; fn_80449448)
+    unsigned char m0D8[0x160 - 0xD8];
+    int m160; // inferred: debug: fixed protectors (fn_8044D208)
+    unsigned char m164[0x18C - 0x164];
+    int m18C; // inferred: debug: random protectors (fn_8044D208)
+    unsigned char m190[0x194 - 0x190];
+    int m194; // inferred: the party starts with the debug equipment and items (constructor)
+    unsigned char m198[0x280 - 0x198];
+    int m280; // inferred: experience is shared (fn_80449A18)
+    int m284; // inferred: the rewards are scaled by the difference of levels (fn_80449448)
+    unsigned char m288[0x298 - 0x288];
+    int m298; // inferred: the killer gets 1.2 times the experience (fn_80449ABC)
+};
+extern "C" InventorySettings_unk* lbl_8087F0A8;
+
+// inferred: settings of the drops (db/InitSetting_unk.cpp, InitSetting_unk; only the members used here)
+struct DropSetting_unk {
+    struct {
+        int mCode;
+        int mCount;
+    } mItems[32]; // 0x000: "InitItem", the items of a new game
+    int mRate[10];  // 0x100: "DropItem", by item kind (mBC)
+    float mRare[3]; // 0x128: "DropItemRare"
+};
+extern "C" DropSetting_unk* fn_80210AC4();
+
+// inferred: equipment of a new game (protectors, weapons) by player; the debug one with m194 (defined with the
+// rates below)
+extern const int lbl_80754650[7][4];
+extern const int lbl_807546C0[7][4];
+extern "C" int* fn_8020C000(int slot); // inferred: colours of the default costume of a player (db/PaletteTable_unk)
+extern "C" int fn_80444828(Inventory* inventory, int palette);
+
+// inferred: sets the count of the item at `index` of the bag (separate compares of the bounds); name invented
+static inline void SetCount_unk(Inventory* inventory, int index, int count) {
+    if (0 <= index && index < 0x600) {
+        inventory->mItems[index].mCount = count;
+    }
+}
+
+// inferred: the other members built by the Inventory constructor (only used here)
+inline Inventory::Item_unk::Item_unk() : mCode(0), mCount(0), m08(0), m0C(0) {}
+
+inline Inventory::EquipSet_unk::EquipSet_unk() {
+    int* ids = &mProtectors[0].mId;
+    for (int i = 0; i < 8; i++) {
+        ids[i] = -1;
+    }
+    memset(mWeapons, 0, 0x20);
+}
+
+inline InventoryFinish_unk::InventoryFinish_unk() : mChara(0) {
+    memset(&mData, 0, sizeof(mData));
+    m80 = 0;
+    m84 = 0;
+    m88 = 0;
+    m8C = 0;
+    m90 = 0;
+}
+
+// NONMATCHING: 96.6% - registers (the original keeps a dead k * 4 in the last loop and adds the offset of the
+// player before the one of the array)
+Inventory::Inventory()
+    : mLoaded(1), mDB0C(1), mDB10(1), mDB14(0), mDB18(-1), mDB1C(-1), mDB20(-1), mDB24(0), mDB28(0) {
+    mMoney = 1000;
+    memset(m6004, 0, sizeof(m6004));
+    memset(&m600C, 0, 8);
+    mExpEntries.clear();
+    m6014 = 0;
+    m6018 = 0;
+    for (int i = 0; i < 19; i++) {
+        mOrder[i] = i;
+    }
+    for (int i = 0; i < 0x600; i++) {
+        ItemParamEntry_unk* entry = fn_802114E0(i);
+        if (entry != 0) {
+            mItems[i].mCode = entry->mId;
+            mItems[i].mCount = 0;
+            mItems[i].m08 = i;
+        } else {
+            mItems[i].mCode = -1;
+            mItems[i].mCount = 0;
+            mItems[i].m08 = 0;
+        }
+    }
+    DropSetting_unk* setting = fn_80210AC4();
+    if (setting != 0) {
+        for (int i = 0; i < 32; i++) {
+            if (setting->mItems[i].mCode > 0) {
+                AddItem(setting->mItems[i].mCode, setting->mItems[i].mCount, 1, 0, 0, 1, 1);
+            }
+        }
+        if (lbl_8087F0A8->m194 != 0) {
+            AddItem(100313, 1, 1, 0, 0, 1, 1);
+            AddItem(100320, 1, 1, 0, 0, 1, 1);
+            AddItem(100665, 1, 1, 0, 0, 1, 1);
+            AddItem(200061, 1, 1, 0, 0, 1, 1);
+            AddItem(201061, 1, 1, 0, 0, 1, 1);
+            AddItem(450, 1, 1, 0, 0, 1, 1);
+            AddItem(451, 1, 1, 0, 0, 1, 1);
+        }
+    }
+    const int(*equip)[4] = lbl_80754650;
+    if (lbl_8087F0A8->m194 != 0) {
+        equip = lbl_807546C0;
+    }
+    for (int p = 0; p < 7; p++) {
+        for (int j = 0; j < 4; j++) {
+            mEquip[p].mProtectors[j].mId = equip[p][j % 2];
+            mEquip[p].mProtectors[j].m04 = p * 4 + j;
+            if (j < 2) {
+                mEquip[p].mWeapons[j].mId = equip[p][j + 2];
+                mEquip[p].mWeapons[j].m04 = -1;
+            } else {
+                mEquip[p].mWeapons[j].mId = -1;
+                mEquip[p].mWeapons[j].m04 = -1;
+            }
+        }
+    }
+    for (int p = 0; p < 7; p++) {
+        int* colors = fn_8020C000(p);
+        if (colors != 0) {
+            for (int k = 0; k < 8; k++) {
+                (&mEquipSetB[p].mProtectors[0].mId)[k] = colors[k];
+            }
+        }
+    }
+    for (int p = 0; p < 7; p++) {
+        int* colors = fn_8020C000(p);
+        if (colors != 0) {
+            for (int k = 0; k < 8; k++) {
+                (&mEquipShown[p].mProtectors[0].mId)[k] = colors[k];
+                SetCount_unk(this, fn_8021150C(fn_80444828(this, colors[k])), 1);
+            }
+        }
+    }
+}
+
 int Inventory::fn_8044386C() {
     if (mLoaded != 0) {
         return 0;
@@ -79,6 +220,14 @@ void Inventory::fn_804438E0(int code) {
 // inferred: chance of finding a weapon by rank (the second one once the weapon was found)
 static const int sWeaponRate0_unk[5] = {0, 0, 100, 100, 100};
 static const int sWeaponRate1_unk[5] = {0, 100, 100, 100, 100};
+const int lbl_80754650[7][4] = {
+    {0x12D, 0x245, 0, 0}, {0x1FF, -1, 0x14, 0x14}, {0x12D, -1, 0x14, 0x14}, {0x134, 0x134, 0, 0},
+    {0x1FF, -1, 0, 0},    {0x1FF, -1, 0x64, 0x64}, {0x1FF, -1, 0, 0},
+};
+const int lbl_807546C0[7][4] = {
+    {0x292, 0x245, 0, 0}, {0x1FF, -1, 0x15, 0x15}, {0x12D, -1, 0x14, 0x14}, {0x134, 0x196, 0, 0},
+    {0x1FF, -1, 0, 0},    {0x1FF, -1, 0x64, 0x64}, {0x1FF, -1, 0, 0},
+};
 
 extern "C" int rand();
 extern "C" int fn_80445130(Inventory* inventory, int* code, int* count, int arg); // inferred: random item
@@ -599,13 +748,6 @@ extern "C" int fn_80444EFC(CharaTask* chara) {
     return (int)(rate * (level * 3 * RandScale_unk(8.0f)));
 }
 
-// inferred: settings of the drops (db/InitSetting_unk.cpp, InitSetting_unk; only the members used here)
-struct DropSetting_unk {
-    unsigned char m000[0x100];
-    int mRate[10];  // 0x100: "DropItem", by item kind (mBC)
-    float mRare[3]; // 0x128: "DropItemRare"
-};
-extern "C" DropSetting_unk* fn_80210AC4();
 extern "C" bool fn_80213B78(int code, int type, int id, int sub); // db/ItemRare_unk: rare item of a place
 
 // inferred: candidate of a random item (0xC bytes; names invented)
@@ -1126,22 +1268,6 @@ int Inventory::fn_80448F9C(int code) {
     return rate;
 }
 
-
-// inferred: settings (lbl_8087F0A8); only the member used here
-struct InventorySettings_unk {
-    unsigned char m000[0xD4];
-    int mD4; // inferred: mode of the level scaling of the rewards (3: by tenths; fn_80449448)
-    unsigned char m0D8[0x160 - 0xD8];
-    int m160; // inferred: debug: fixed protectors (fn_8044D208)
-    unsigned char m164[0x18C - 0x164];
-    int m18C; // inferred: debug: random protectors (fn_8044D208)
-    unsigned char m190[0x280 - 0x190];
-    int m280; // inferred: experience is shared (fn_80449A18)
-    int m284; // inferred: the rewards are scaled by the difference of levels (fn_80449448)
-    unsigned char m288[0x298 - 0x288];
-    int m298; // inferred: the killer gets 1.2 times the experience (fn_80449ABC)
-};
-extern "C" InventorySettings_unk* lbl_8087F0A8;
 
 int Inventory::fn_8044909C() {
     int flags = 0;

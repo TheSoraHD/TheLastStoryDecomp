@@ -498,8 +498,9 @@ public:
         __init_unk(x.mData, x.mData + x.mSize);
     }
     ~vector() {}
-    // declared only: weak copies 0x8052E980 (atn::Light) and 0x8052EEBC (atn::Camera), first used by
-    // game/NewCampTask.cpp (the copy of an atn::Scene)
+    // inferred: weak copies 0x8052E980 (atn::Light) and 0x8052EEBC (atn::Camera), first used by
+    // game/NewCampTask.cpp (the copy of an atn::Scene); defined in std/vector_assign.h (only included by
+    // that file: a body here takes @N labels in every unit that includes this header)
     vector& operator=(const vector&);
 
     T* begin() { return this->mData; }

@@ -756,7 +756,7 @@ void GameSaveInventory_unk::fn_803BB584() {
     for (int i = 0; i < 0x100; i++) {
         mIdentify[i] = inv->fn_8044D530(i) - 100000;
     }
-    // inferred: the order is 19 words from Inventory::mOrder (it goes on into m64C8)
+    // inferred: the order is the 19 words of Inventory::mOrder
     const int* order = inv->mOrder;
     for (int i = 0; i < 3; i++) {
         for (int j = 0; j < 6; j++) {
@@ -836,10 +836,10 @@ void GameSaveInventory_unk::fn_803BC2D4() {
     }
     if (lbl_8087DD64 >= 3) {
         for (int i = 0; i < 16; i++) {
-            inv->mEquipSetA[i] = AsEquip_unk(m0004[i]);
+            static_cast<Inventory::Equip_unk&>(inv->mEquipSetA[i]) = AsEquip_unk(m0004[i]);
         }
         for (int i = 0; i < 7; i++) {
-            inv->mEquipShown[i] = AsEquip_unk(mExtras[i]);
+            static_cast<Inventory::Equip_unk&>(inv->mEquipShown[i]) = AsEquip_unk(mExtras[i]);
         }
         for (int i = 0; i < 28; i++) {
             CopyUpgrade_unk(inv->mUpgrades[i], mUpgrades[i]);

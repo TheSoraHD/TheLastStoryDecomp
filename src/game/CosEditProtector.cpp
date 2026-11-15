@@ -13,6 +13,10 @@
 #include "atn/D2A_Task.h"
 #include "atn/SoundRef.h"
 #include "std/string_members.h"
+#include "game/CharaManager.h"
+#include "game/PlayerTask.h"
+#include "atn/RenderManager.h"
+#include "atn/Lerp_unk.h"
 
 // First file of CosEditProtector (game/CosEditPalette_unk.cpp has the palette and part pages).
 extern "C" int sprintf(char* s, const char* format, ...);
@@ -37,9 +41,7 @@ extern "C" void fn_801FEE08(void* layout, unsigned int hash, const wchar_t* text
 inline void SetPaneText_unk(void* layout, const char* name, const wchar_t* text) {
     fn_801FEE08(layout, fn_800DC6B4(name), text);
 }
-// inferred: wide literals of this file kept in .sdata (L"", L"???", four U+2015 bars), as in
-// game/ShopIdentify.cpp
-extern "C" const wchar_t lbl_8087DA58[12];
+// inferred: the wide literals of this file (L"", L"???", four U+2015 bars) go to .sdata (@wstringBase0)
 // inferred: texture rectangle (as ShopUV_unk in game/ShopIdentify.cpp)
 struct CosEditUV_unk {
     CosEditUV_unk() {}
@@ -585,6 +587,587 @@ inline atn::D2A_DrawRect GetPaneRect_unk(atn::Task* layout, const char* name) {
     return fn_801F4E8C((atn::D2A_Task*)layout, fn_800DC6B4(name));
 }
 
+// inferred: helpers of vf64 (names invented)
+extern "C" void fn_801FED24(void* layout, unsigned int hash, int index, float value); // inferred: sets a vector item
+extern "C" void fn_801FEDBC(void* layout, unsigned int hash, int index, float value); // inferred: sets a colour item
+inline void SetPaneVec_unk(void* layout, const char* name, int index, float value) {
+    fn_801FED24(layout, fn_800DC6B4(name), index, value);
+}
+// inferred: sets a text of the layout of a task (the layout address is taken after the hash)
+inline void SetTaskText_unk(void* task, const char* name, const wchar_t* text) {
+    fn_801FEE08(((CosEditTaskLayout_unk*)task)->mLayout, fn_800DC6B4(name), text);
+}
+inline void SetTaskColor_unk(void* task, const char* name, int index, float value) {
+    fn_801FEDBC(((CosEditTaskLayout_unk*)task)->mLayout, fn_800DC6B4(name), index, value);
+}
+// inferred: text of the layout of a d2anime task (the layout address is taken after the hash)
+inline void SetText_unk(atn::D2ATask_unk* task, const char* name, const wchar_t* text) {
+    fn_801FEE08(((CosEditTaskLayout_unk*)task)->mLayout, fn_800DC6B4(name), text);
+}
+extern "C" const wchar_t* fn_80116FC0(int a, int id); // inferred: system text
+extern "C" const wchar_t lbl_808813D0[2];             // inferred: empty text
+// inferred: camp message table (lbl_8087F1E4, as in game/CosEditPalette_unk.cpp)
+struct CosEditMsgTable_unk {
+    const wchar_t* Get_unk(int id) { return mText[id] != 0 ? mText[id] : lbl_808813D0; }
+    const wchar_t* mText[1];
+};
+extern "C" CosEditMsgTable_unk* lbl_8087F1E4;
+extern "C" int fn_80444A50(Inventory* inv, int kind);    // inferred: item of a kind
+extern "C" int fn_804444E8(Inventory* inv, int id);      // inferred: number of items
+extern "C" int fn_80444828(Inventory* inv, int palette); // inferred: item of a palette colour
+extern "C" int fn_8044493C(Inventory* inv, int part);    // inferred: item of a part
+// inferred: number of dye items of a kind (as in game/CosEditPalette_unk.cpp)
+inline int GetDyeCount_unk(int kind) {
+    Inventory* inv = Inventory::instance_;
+    return fn_804444E8(inv, fn_80444A50(inv, kind));
+}
+inline bool HasDye_unk(int kind) {
+    return GetDyeCount_unk(kind) > 0;
+}
+// inferred: name of a colour or effect palette (0x14 in the entries of db/PaletteTable_unk; the rest of the
+// entries is declared in db/OptionParts_unk.h and game/CosEditPalette_unk.cpp)
+struct CosEditPaletteName_unk {
+    unsigned char m00[0x14];
+    wchar_t mName[1]; // 0x14
+};
+extern "C" CosEditPaletteName_unk* fn_8020BCEC(int index); // inferred: colour palette
+extern "C" CosEditPaletteName_unk* fn_8020BD14(int index); // inferred: part palette
+// inferred: item data with its name (fn_802091E8, as in game/CosEditPalette_unk.cpp)
+struct CosEditItemName_unk {
+    unsigned char m00[0x08];
+    const wchar_t* mName; // 0x08
+};
+extern "C" CosEditItemName_unk* fn_802091E8(int id);
+extern "C" void fn_80511ADC(atn::D2A_Task* task, CharaStatus* status, int chara, int full); // inferred: status board
+extern "C" void fn_801F6E78(atn::Task* inst, const char* name, atn::D2A_DrawRect& rect);   // inferred: places a pane
+extern "C" float fn_800A08D4(atn::LH_Motion* motion);                                     // inferred: motion length
+extern "C" float fn_804A4264(MenuCommonTask* menu);
+extern "C" float fn_804A4280(MenuCommonTask* menu);
+extern "C" void fn_804A65A0(MenuCommonTask* menu, const wchar_t* text); // inferred: help text
+extern "C" void fn_804A5E40(MenuCommonTask* menu, int a, atn::Vector3* pos, int b);
+extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
+// inferred: the character is not a party member (its status is its own)
+inline int IsGuest_unk(CharaTask* chara) {
+    return chara != 0 && !chara->IsPartyMember_unk();
+}
+
+// NONMATCHING: 99% - stack slots of some Vector3 temporaries, registers, the dye flags of mNaked and the last
+// argument of fn_80511ADC computed after the call to GetTask (before it in the original)
+// inferred: places the boards, the lists, the palettes and the cursors of the costume menu every frame
+void CosEditProtector::vf64() {
+    atn::Vector3 target = lbl_807C7030;
+    if (fn_801D6A88() != 0) {
+        target = sOffset;
+    }
+    m1B84 = atn::Lerp_unk<atn::Vector3>(m1B84, target, 0.35f);
+    m478 = lbl_807C7030;
+    if (fn_801D6A88() != 0) {
+        switch (m1BA0) {
+        case 0:
+        case 1:
+        case 2:
+        case 3:
+            m478 = mCharaUpperOfs;
+            break;
+        case 4:
+        case 5:
+        case 6:
+        case 7:
+            m478 = mCharaLowerOfs;
+            break;
+        case 8:
+        case 9:
+        case 10:
+        case 11:
+        case 12:
+            m478 = mCharaZoomOfs;
+            break;
+        }
+    }
+    mSelect->mVisible = 0;
+    mListParts->mVisible = 0;
+    mListBase->mVisible = 0;
+    mColorSelect->mVisible = 0;
+    mColorPalette->mVisible = 0;
+    mEffectPalette->mVisible = 0;
+    mLists[0].m3C = -1;
+    mLists[0].m40 = -1;
+    mLists[1].m3C = -1;
+    mLists[1].m40 = -1;
+    mLists[2].m3C = -1;
+    mLists[2].m40 = -1;
+    mB8C = -1;
+    for (int i = 0; i < m4C; i++) {
+        NewCampPartsEntry_unk* entry = &m50[i];
+        NewCampPartsMotion_unk* motion = &m54[i];
+        float step = -1.0f;
+        if (i == 1) {
+            entry->mAnime = 0;
+            step = 0.5f;
+            if (m1F0 != 0) {
+                switch (m1EC) {
+                case 1:
+                    entry->mAnime = mListParts;
+                    mListParts->mVisible = 1;
+                    break;
+                case 2:
+                case 3:
+                    mLists[0].m3C = 1;
+                    mLists[0].m40 = 11;
+                    break;
+                default:
+                    entry->mAnime = mSelect;
+                    mSelect->mVisible = 1;
+                    break;
+                }
+                motion = (NewCampPartsMotion_unk*)mE8;
+            } else {
+                switch (m1E8) {
+                case 1:
+                    entry->mAnime = mListParts;
+                    mListParts->mVisible = 1;
+                    break;
+                case 2:
+                case 3:
+                    mLists[0].m3C = 1;
+                    mLists[0].m40 = 1;
+                    break;
+                default:
+                    entry->mAnime = mSelect;
+                    mSelect->mVisible = 1;
+                    break;
+                }
+            }
+        } else if (i == 2) {
+            entry->mAnime = 0;
+            step = 0.5f;
+            if (m1F0 != 0) {
+                switch (m1E8) {
+                case 1:
+                    entry->mAnime = mListParts;
+                    mListParts->mVisible = 1;
+                    break;
+                case 2:
+                case 3:
+                    mLists[0].m3C = 2;
+                    mLists[0].m40 = 12;
+                    break;
+                default:
+                    entry->mAnime = mSelect;
+                    mSelect->mVisible = 1;
+                    break;
+                }
+                motion = (NewCampPartsMotion_unk*)mEC;
+            }
+        } else if (i == 8) {
+            entry->mAnime = 0;
+            step = 0.5f;
+            if (m1F0 != 0) {
+                fn_801D463C(&entry->mAnime, mLists, m1EC, 8, 11);
+                motion = (NewCampPartsMotion_unk*)mE8;
+            } else {
+                fn_801D463C(&entry->mAnime, mLists, m1E8, 8, 1);
+            }
+        } else if (i == 9) {
+            entry->mAnime = 0;
+            step = 0.5f;
+            if (m1F0 != 0) {
+                fn_801D463C(&entry->mAnime, mLists, m1E8, 9, 12);
+                motion = (NewCampPartsMotion_unk*)mEC;
+            }
+        } else if (sBoardAnimes[i].m0C != 0 && fn_8050FD20() != 0 && ((NewCampTask*)m48)->m458 >= 25.0f) {
+            step = 1.0f;
+        }
+        vf60(entry, motion, 7, step);
+        if (entry->GetInstance_unk() != 0 && sBoardAnimes[i].m10 != 0) {
+            atn::Matrix3x4& m = entry->GetInstance_unk()->mMtx;
+            atn::Vector3 pos(m.m[0][3] + m1B84.x, m.m[1][3] + m1B84.y, m.m[2][3] + m1B84.z);
+            atn::Matrix3x4 mtx = entry->GetInstance_unk()->mMtx;
+            mtx.m[0][3] = pos.x;
+            mtx.m[1][3] = pos.y;
+            mtx.m[2][3] = pos.z;
+            entry->GetInstance_unk()->fn_8009EE30(mtx);
+        }
+        vf58(entry, "reference");
+        vf54(entry, "reference");
+    }
+
+    mBestTask->mFlags |= 4;
+    SetPaneVec_unk(((CosEditTaskLayout_unk*)mBestTask)->mLayout, "pos0002(1)", 0, 180.0f);
+    SetPaneVec_unk(((CosEditTaskLayout_unk*)mBestTask)->mLayout, "pos0002(1)", 1, 340.0f);
+    if (m7C == 11) {
+        ((CosEditD2A_unk*)mBestTask)->mSpeed = 3.0f;
+        mBestTask->mFlags &= ~4;
+    } else {
+        ((CosEditD2A_unk*)mBestTask)->mSpeed = -3.0f;
+        if (((CosEditD2A_unk*)mBestTask)->mFrame > 0.0f) {
+            mBestTask->mFlags &= ~4;
+        }
+    }
+    mNaked->mFlags |= 4;
+    SetPaneVec_unk(((CosEditTaskLayout_unk*)mNaked)->mLayout, "basePos", 0, 180.0f);
+    SetPaneVec_unk(((CosEditTaskLayout_unk*)mNaked)->mLayout, "basePos", 1, 300.0f);
+    int upper = HasDye_unk(0);
+    int lower = HasDye_unk(1);
+    SetPaneFloat_unk(((CosEditTaskLayout_unk*)mNaked)->mLayout, "invUpper", upper ? 1.0f : 0.0f);
+    SetPaneFloat_unk(((CosEditTaskLayout_unk*)mNaked)->mLayout, "invLower", lower ? 1.0f : 0.0f);
+    if (m7C == 14) {
+        ((CosEditD2A_unk*)mNaked)->mSpeed = 3.0f;
+        mNaked->mFlags &= ~4;
+    } else {
+        ((CosEditD2A_unk*)mNaked)->mSpeed = -3.0f;
+        if (((CosEditD2A_unk*)mNaked)->mFrame > 0.0f) {
+            mNaked->mFlags &= ~4;
+        }
+    }
+    fn_80511258(&m50[3], mEquipStatus, atn::Vector3(0.0f, 0.0f, 0.0f), atn::Vector3(1.0f, 1.0f, 1.0f), "reference");
+    fn_80511258(&m50[3], mCampStatus, atn::Vector3(0.0f, 0.0f, 0.0f), atn::Vector3(1.0f, 1.0f, 1.0f), "reference");
+    fn_80511258(&m50[10], mSortBase, atn::Vector3(0.0f, 0.0f, 0.0f), atn::Vector3(1.0f, 1.0f, 1.0f), "reference");
+    fn_801D3DF4();
+
+    if (mColorPalette != 0 && mColorPalette->GetTask() != 0) {
+        CosEditCell_unk* cell = fn_801D8040();
+        if (cell != 0) {
+            CosEditPaletteName_unk* palette = fn_8020BCEC(cell->mId);
+            int code = fn_80444828(Inventory::instance_, cell->mId);
+            CosEditItemData_unk* item = fn_80211480(code);
+            if (palette != 0 && item != 0 && fn_804444E8(Inventory::instance_, code) > 0) {
+                SetText_unk(mColorPalette->GetTask(), "colorName", palette->mName);
+                SetText_unk(mColorPalette->GetTask(), "colorNameSub", palette->mName);
+                SetText_unk(mColorPalette->GetTask(), "itemName00", item->mName);
+                SetText_unk(mColorPalette->GetTask(), "itemName01", L"");
+            } else {
+                SetText_unk(mColorPalette->GetTask(), "colorName", L"???");
+                SetText_unk(mColorPalette->GetTask(), "colorNameSub", L"???");
+                SetText_unk(mColorPalette->GetTask(), "itemName00", L"");
+                SetText_unk(mColorPalette->GetTask(), "itemName01", L"");
+            }
+        }
+    }
+    if (mEffectPalette != 0 && mEffectPalette->GetTask() != 0) {
+        CosEditCell_unk* cell = fn_801D8060();
+        if (cell != 0) {
+            CosEditPaletteName_unk* palette = fn_8020BD14(cell->mId);
+            int code = fn_8044493C(Inventory::instance_, cell->mId);
+            CosEditItemData_unk* item = fn_80211480(code);
+            if (cell->mId == 0x1F) {
+                SetText_unk(mEffectPalette->GetTask(), "colorName", fn_80116FC0(0, 0x2740));
+                SetText_unk(mEffectPalette->GetTask(), "colorNameSub", fn_80116FC0(0, 0x2740));
+                SetText_unk(mEffectPalette->GetTask(), "itemName00", L"");
+                SetText_unk(mEffectPalette->GetTask(), "itemName01", L"");
+            } else if (palette != 0 && item != 0 && fn_804444E8(Inventory::instance_, code) > 0) {
+                SetText_unk(mEffectPalette->GetTask(), "colorName", palette->mName);
+                SetText_unk(mEffectPalette->GetTask(), "colorNameSub", palette->mName);
+                SetText_unk(mEffectPalette->GetTask(), "itemName00", L"");
+                SetText_unk(mEffectPalette->GetTask(), "itemName01", L"");
+            } else {
+                SetText_unk(mEffectPalette->GetTask(), "colorName", L"???");
+                SetText_unk(mEffectPalette->GetTask(), "colorNameSub", L"???");
+                SetText_unk(mEffectPalette->GetTask(), "itemName00", L"");
+                SetText_unk(mEffectPalette->GetTask(), "itemName01", L"");
+            }
+        }
+    }
+
+    for (int r = 0; r < 8; r++) {
+        for (int c = 0; c < 8; c++) {
+            CosEditCell_unk* cell = &mColorCells[r][c];
+            if (cell->mIcon == 0) {
+                continue;
+            }
+            if (mB8C >= 0 && (m7C == 5 || m7C == 8)) {
+                if (cell->mEnabled != 0) {
+                    cell->mIcon->mVisible = 1;
+                    cell->mFrame->mVisible = 0;
+                    fn_805112A8(&m50[mB8C], cell->mIcon, atn::Vector3(0.0f, 0.0f, 0.0f),
+                                atn::Vector3(1.0f, 1.0f, 1.0f), "reference");
+                } else {
+                    cell->mIcon->mVisible = 0;
+                    cell->mFrame->mVisible = 1;
+                    fn_805112A8(&m50[mB8C], cell->mFrame, atn::Vector3(0.0f, 0.0f, 0.0f),
+                                atn::Vector3(1.0f, 1.0f, 1.0f), "reference");
+                }
+            } else {
+                cell->mIcon->mVisible = 0;
+                cell->mFrame->mVisible = 0;
+            }
+        }
+    }
+    for (int r = 0; r < 8; r++) {
+        for (int c = 0; c < 4; c++) {
+            CosEditCell_unk* cell = &mPartCells[r][c];
+            if (cell->mIcon == 0) {
+                continue;
+            }
+            if (mB8C >= 0 && (m7C == 5 || m7C == 9)) {
+                if (cell->mEnabled != 0) {
+                    cell->mIcon->mVisible = 1;
+                    cell->mFrame->mVisible = 1;
+                    fn_805112A8(&m50[mB8C], cell->mIcon, atn::Vector3(0.0f, 0.0f, 0.0f),
+                                atn::Vector3(1.0f, 1.0f, 1.0f), "reference");
+                    fn_805112A8(&m50[mB8C], cell->mFrame, atn::Vector3(0.0f, 0.0f, 0.0f),
+                                atn::Vector3(1.0f, 1.0f, 1.0f), "reference");
+                } else {
+                    cell->mIcon->mVisible = 0;
+                    cell->mFrame->mVisible = 1;
+                    fn_805112A8(&m50[mB8C], cell->mFrame, atn::Vector3(0.0f, 0.0f, 0.0f),
+                                atn::Vector3(1.0f, 1.0f, 1.0f), "reference");
+                }
+            } else {
+                cell->mIcon->mVisible = 0;
+                cell->mFrame->mVisible = 0;
+            }
+        }
+    }
+
+    int member = fn_801CF334() != 0 ? fn_801CF334()->mFace : -1;
+    CharaTask* chara = fn_801CF334() != 0 ? fn_801CF334()->mChara : 0;
+    if (chara == 0 && member < 0) {
+        chara = lbl_8087F8A0->mHead;
+        member = fn_80219558(chara->m50);
+    }
+    if (member >= 0) {
+        CharaStatus* status =
+            IsGuest_unk(chara) ? chara->GetStatus_unk() : Inventory::instance_->GetPlayerStatusInfo(member);
+        atn::D2ATask_unk* task = mEquipStatus != 0 ? mEquipStatus->GetTask() : 0;
+        if (task != 0) {
+            atn::D2A_DrawRect pos;
+            pos = GetPaneRect_unk(task, "null_status");
+            fn_801F4728((atn::D2A_Task*)mCampStatus->GetTask(), "basePos", &pos.x);
+        }
+        if (mLoadCount == 0 && mA88 <= 0 && fn_801CE4CC() == 0) {
+            int full = !IsGuest_unk(chara);
+            fn_80511ADC((atn::D2A_Task*)mCampStatus->GetTask(), status, member, full);
+            fn_801E714C(member, (atn::D2A_Task*)mSelect->GetTask());
+            CosEditItemName_unk* info = fn_802091E8(member);
+            if (info != 0 && mEquipStatus != 0 && mEquipStatus->GetTask() != 0) {
+                SetText_unk(mEquipStatus->GetTask(), "nowName", info->mName);
+                SetText_unk(mEquipStatus->GetTask(), "nowNameSub", info->mName);
+            }
+            m50[3].mAnime = mCampStatus;
+            fn_801E75F8(member, status, 0, &m50[3]);
+            m50[3].mAnime = 0;
+        }
+        atn::D3Anime* palette = 0;
+        switch (m7C) {
+        case 5:
+            palette = mColorPalette;
+            break;
+        case 4:
+        case 14:
+            palette = mColorSelect;
+            break;
+        }
+        for (int i = 0; i < 9; i++) {
+            mPalettes[i]->mVisible = 0;
+        }
+        for (int i = 0; i < 32; i++) {
+            mColorMarks[i]->mVisible = 0;
+        }
+        m1378->mVisible = 0;
+        if (palette != 0) {
+            for (int i = 0; i < 9; i++) {
+                mPalettes[i]->mVisible = 1;
+                fn_805112A8(&m50[mB8C], mPalettes[i], atn::Vector3(0.0f, 0.0f, 0.0f), atn::Vector3(1.0f, 1.0f, 1.0f),
+                            "reference");
+                if (mColorSelect != 0 && mColorSelect->GetTask() != 0) {
+                    atn::D2ATask_unk* select = mColorSelect->GetTask();
+                    char name[0x40];
+                    sprintf(name, "palette%02d", i);
+                    atn::D2A_DrawRect rect = GetPaneRect_unk(select, name);
+                    fn_801F6E78((atn::Task*)mPalettes[i]->GetTask(), "base_pos", rect);
+                }
+            }
+            fn_801D7560(member, status, &m50[mB8C], palette);
+        }
+    }
+
+    if (mColorSelect != 0 && mColorSelect->GetTask() != 0) {
+        if (GetDyeCount_unk(0) > 0 || GetDyeCount_unk(1) > 0) {
+            SetTaskColor_unk(mColorSelect->GetTask(), "selectInvCol", 0, 255.0f);
+        } else {
+            SetTaskColor_unk(mColorSelect->GetTask(), "selectInvCol", 0, 64.0f);
+        }
+    }
+    for (int i = 0; i < 10; i++) {
+        for (int j = 0; j < 8; j++) {
+            mBB8[i][j]->mVisible = 0;
+        }
+    }
+    mSortBase->mVisible = m7C == 6;
+    if (mB8C >= 0 && (unsigned int)(m7C - 6) <= 1) {
+        fn_80511258(&m50[mB8C], mSortBase, atn::Vector3(0.0f, 0.0f, 0.0f), atn::Vector3(1.0f, 1.0f, 1.0f),
+                    "reference");
+        char name[0x20];
+        sprintf(name, "sort_null");
+        atn::D2A_DrawRect rect = GetPaneRect_unk(mLists[1].mBase->GetTask(), name);
+        fn_801F4728((atn::D2A_Task*)mSortBase->GetTask(), "basePos", &rect.x);
+        SetTaskFloat_unk(mSortBase->GetTask(), "titleType", 4.0f);
+        SetText_unk(mSortBase->GetTask(), "string0001(1)(1)", lbl_8087F1E4->Get_unk(0x345));
+        SetText_unk(mSortBase->GetTask(), "sortMainName", lbl_8087F1E4->Get_unk(0x347));
+        SetText_unk(mSortBase->GetTask(), "sortSubName", lbl_8087F1E4->Get_unk(0x349));
+        if (m1BB0 == 0) {
+            SetTaskFloat_unk(mSortBase->GetTask(), "sortID", 1.0f);
+            SetTaskFloat_unk(mSortBase->GetTask(), "sortSub", 0.0f);
+            for (int i = 0; i < 10; i++) {
+                fn_801D77A0(&Inventory::instance_->mEquipSetA[i].mProtectors[0].mId, mBB8[i], &m50[mB8C],
+                            (atn::D3AnimeInstance*)mLists[1].mItems[i], -1);
+            }
+        } else {
+            SetTaskFloat_unk(mSortBase->GetTask(), "sortID", 0.0f);
+            SetTaskFloat_unk(mSortBase->GetTask(), "sortSub", 1.0f);
+            for (unsigned int i = 0; i < (unsigned int)mSetCount; i++) {
+                fn_801D77A0(&Inventory::instance_->mEquipSetB[mSets[i].mId].mProtectors[0].mId, mBB8[i], &m50[mB8C],
+                            (atn::D3AnimeInstance*)mLists[1].mItems[i], mSets[i].m04);
+            }
+        }
+    }
+
+    if (m1F0 != 0) {
+        NewCampPartsMotion_unk* motion = &m54[11];
+        int done;
+        if (motion->mMotion.m08 != 0 && motion->mFrame < fn_800A08D4(&motion->mMotion)) {
+            done = 0;
+        } else {
+            done = 1;
+        }
+        if (done != 0) {
+            m1F0 = 0;
+        }
+    }
+    mCharaSelect->mFlags |= 4;
+    mCharaSelect2->mFlags |= 4;
+    int count = m1E0 == 0 ? ((NewCampTask*)m48)->m1224.size() : ((NewCampTask*)m48)->m1268.size();
+    if (((NewCampTask*)m48)->m11F0 == this && ((NewCampTask*)m48)->m11F8 != 1 && count > 1) {
+        if (m1E0 == 0) {
+            mCharaSelect->mFlags &= ~4;
+        } else {
+            mCharaSelect2->mFlags &= ~4;
+        }
+        if (mChara[0] != 0 && (m7C == 0 || m7C == 4)) {
+            ((CosEditD2A_unk*)mCharaSelect)->mSpeed = 1.0f;
+            ((CosEditD2A_unk*)mCharaSelect2)->mSpeed = 1.0f;
+            if (mF4 == 0) {
+                atn::Vector3 pos = atn::RenderManager::instance_->GetScreenPosition(mChara[0]->mTarget +
+                                                                                  mChara[0]->mOffsetTarget);
+                pos.x -= 4.0f;
+                if (m1E0 == 0) {
+                    pos.y = 220.0f;
+                } else {
+                    pos.y = 250.0f;
+                }
+                SetPaneVec_unk(((CosEditTaskLayout_unk*)mCharaSelect)->mLayout, "base_point", 0, pos.x);
+                SetPaneVec_unk(((CosEditTaskLayout_unk*)mCharaSelect)->mLayout, "base_point", 1, pos.y);
+                SetPaneVec_unk(((CosEditTaskLayout_unk*)mCharaSelect2)->mLayout, "base_point", 0, pos.x);
+                SetPaneVec_unk(((CosEditTaskLayout_unk*)mCharaSelect2)->mLayout, "base_point", 1, pos.y);
+            }
+        } else {
+            ((CosEditD2A_unk*)mCharaSelect)->mSpeed = -1.0f;
+            ((CosEditD2A_unk*)mCharaSelect2)->mSpeed = -1.0f;
+        }
+        SetPaneFloat_unk(((CosEditTaskLayout_unk*)mCharaSelect)->mLayout, "arrowL", 0.0f);
+        SetPaneFloat_unk(((CosEditTaskLayout_unk*)mCharaSelect)->mLayout, "arrowR", 0.0f);
+        SetPaneFloat_unk(((CosEditTaskLayout_unk*)mCharaSelect2)->mLayout, "arrowL", 0.0f);
+        SetPaneFloat_unk(((CosEditTaskLayout_unk*)mCharaSelect2)->mLayout, "arrowR", 0.0f);
+        if (mF8 > 0.0f) {
+            SetPaneFloat_unk(((CosEditTaskLayout_unk*)mCharaSelect)->mLayout, "arrowR", mF8);
+            SetPaneFloat_unk(((CosEditTaskLayout_unk*)mCharaSelect2)->mLayout, "arrowR", mF8);
+        } else if (mF8 < 0.0f) {
+            SetPaneFloat_unk(((CosEditTaskLayout_unk*)mCharaSelect)->mLayout, "arrowL", -mF8);
+            SetPaneFloat_unk(((CosEditTaskLayout_unk*)mCharaSelect2)->mLayout, "arrowL", -mF8);
+        }
+    } else {
+        ((CosEditD2A_unk*)mCharaSelect)->mFrame = 0.0f;
+        ((CosEditD2A_unk*)mCharaSelect)->mSpeed = 1.0f;
+        ((CosEditD2A_unk*)mCharaSelect2)->mFrame = 0.0f;
+        ((CosEditD2A_unk*)mCharaSelect2)->mSpeed = 1.0f;
+    }
+
+    if (mSort != 0) {
+        int face = fn_801CF334() != 0 ? fn_801CF334()->mFace : -1;
+        mSort->mFlags |= 4;
+        if ((unsigned int)(m7C - 2) <= 1) {
+            atn::D2A_DrawRect pos;
+            pos.x = 515.0f;
+            pos.y = 360.0f;
+            pos.w = 1.0f;
+            pos.h = 1.0f;
+            pos.z = 0.0f;
+            fn_801F4728((atn::D2A_Task*)mSort, "basePos", &pos.x);
+            if (m7C == 3) {
+                if (mB4C.size() != 0 && m80 < (int)mB4C.size()) {
+                    if (fn_804A4264(MenuCommonTask::sInstance) >= -5.0f) {
+                        mSort->mFlags &= ~4;
+                    }
+                    switch (face) {
+                    case 0:
+                    case 2:
+                    case 3:
+                    case 6:
+                        SetPaneText_unk(((CosEditTaskLayout_unk*)mSort)->mLayout, "sortMainName", fn_80116FC0(0, 0x191));
+                        break;
+                    case 1:
+                    case 4:
+                    case 5:
+                        SetPaneText_unk(((CosEditTaskLayout_unk*)mSort)->mLayout, "sortMainName", fn_80116FC0(0, 0x193));
+                        break;
+                    }
+                    SetPaneText_unk(((CosEditTaskLayout_unk*)mSort)->mLayout, "sortSubName", fn_80116FC0(0, 0x196));
+                    if (mB80 == 1) {
+                        SetPaneFloat_unk(((CosEditTaskLayout_unk*)mSort)->mLayout, "sortID", 0.0f);
+                        SetPaneFloat_unk(((CosEditTaskLayout_unk*)mSort)->mLayout, "sortSub", 1.0f);
+                    } else if (mB80 == 0) {
+                        SetPaneFloat_unk(((CosEditTaskLayout_unk*)mSort)->mLayout, "sortID", 1.0f);
+                        SetPaneFloat_unk(((CosEditTaskLayout_unk*)mSort)->mLayout, "sortSub", 0.0f);
+                    }
+                }
+            } else if (m7C == 2) {
+                if (mB34[m1E4].size() != 0 && m80 < (int)mB34[m1E4].size()) {
+                    if (fn_804A4264(MenuCommonTask::sInstance) >= -5.0f) {
+                        mSort->mFlags &= ~4;
+                    }
+                    switch (face) {
+                    case 0:
+                    case 2:
+                    case 3:
+                    case 6:
+                        SetPaneText_unk(((CosEditTaskLayout_unk*)mSort)->mLayout, "sortMainName", fn_80116FC0(0, 0x192));
+                        break;
+                    case 1:
+                    case 4:
+                    case 5:
+                        SetPaneText_unk(((CosEditTaskLayout_unk*)mSort)->mLayout, "sortMainName", fn_80116FC0(0, 0x194));
+                        break;
+                    }
+                    SetPaneText_unk(((CosEditTaskLayout_unk*)mSort)->mLayout, "sortSubName", fn_80116FC0(0, 0x196));
+                    if (mB7C == 1) {
+                        SetPaneFloat_unk(((CosEditTaskLayout_unk*)mSort)->mLayout, "sortID", 0.0f);
+                        SetPaneFloat_unk(((CosEditTaskLayout_unk*)mSort)->mLayout, "sortSub", 1.0f);
+                    } else if (mB7C == 0) {
+                        SetPaneFloat_unk(((CosEditTaskLayout_unk*)mSort)->mLayout, "sortID", 1.0f);
+                        SetPaneFloat_unk(((CosEditTaskLayout_unk*)mSort)->mLayout, "sortSub", 0.0f);
+                    }
+                }
+            }
+        }
+    }
+
+    int busy;
+    if (mLoadCount != 0 || mA88 > 0 || fn_801CE4CC() != 0) {
+        busy = 1;
+    } else {
+        busy = m7C == 13;
+    }
+    if (busy != 0) {
+        fn_804A65A0(MenuCommonTask::sInstance, lbl_8087F1E4->Get_unk(0x21B));
+    }
+    if (fn_8050FD20() != 0 && ((NewCampTask*)m48)->m458 >= 25.0f && fn_801CF334() != 0 &&
+        fn_801CF334()->mChara != 0) {
+        atn::Vector3 v(0.0f, -(60.0f * fn_804A4280(MenuCommonTask::sInstance)), 0.0f);
+        fn_804A5E40(MenuCommonTask::sInstance, 0x10, &v, 0);
+    }
+}
+
 // inferred: places the cursor of the current state (select, list or palette cursor) and the icon
 // cursor of the palettes
 // NONMATCHING: 97.2% - the original keeps dead stores of 0.0f/1.0f in twelve stack temporaries at the start
@@ -962,7 +1545,7 @@ void CosEditProtector::fn_801D4E74(int member, atn::D2ATask_unk* task, int mode)
             } else {
                 fn_80444C48(Inventory::instance_);
                 uv = CosEditUV_unk(0.0f, 0.0f, 0.0f, 0.0f);
-                name = lbl_8087DA58 + 5;
+                name = L"\x2015\x2015\x2015\x2015";
             }
         } else if ((unsigned int)(mode - 2) <= 1) {
             int slot = mode - 2;
@@ -978,7 +1561,7 @@ void CosEditProtector::fn_801D4E74(int member, atn::D2ATask_unk* task, int mode)
             }
         } else if (mode < 0) {
             uv = CosEditUV_unk(0.0f, 0.0f, 0.0f, 0.0f);
-            name = lbl_8087DA58 + 5;
+            name = L"\x2015\x2015\x2015\x2015";
         } else {
             int id = fn_8020EF80((EquipParamEntry_unk*)fn_801CFAA8(member, 2));
             CosEditItemData_unk* data = fn_80211480(id);

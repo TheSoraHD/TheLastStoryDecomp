@@ -197,6 +197,7 @@ NewTitleTask::NewTitleTask(atn::Task* parent, int index)
 }
 
 #include "game/ResetShutdown.h"
+#include "std/vector_assign.h"
 
 // inferred: as in game/GameTask.cpp
 inline void RenderSetting_unk::SetDamage_unk(DamageEffectParam_unk p) {
