@@ -19768,7 +19768,7 @@
    "-ipa file"
   ],
   "category": "sdk",
-  "matching": false
+  "matching": true
  },
  {
   "name": "key/src/revolution/WPAD/WPADEncrypt.c",
