@@ -509,10 +509,10 @@ void PopupTask::vf14() {
             }
             wchar_t combo[4];
             if (e->m84 < 100) {
-                fn_800DD3FC(combo, L"%d", e->m84);
+                fn_800DD3FC(combo, L"%d\0", e->m84);
                 SetPaneFloat_unk(e->m94->mTask->mLayout, "showMul", 1.0f);
             } else {
-                fn_800DD3FC(combo, L"MAX");
+                fn_800DD3FC(combo, L"MAX\0");
                 SetPaneFloat_unk(e->m94->mTask->mLayout, "showMul", 0.0f);
             }
             SetPaneText_unk(e->m94->mTask->mLayout, "comboNum", combo);

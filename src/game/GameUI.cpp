@@ -1280,10 +1280,22 @@ inline atn::D2A_TaskInstanceBase<64, 8>* AsWindow_unk(atn::Task* task) {
     return static_cast<atn::D2A_TaskInstanceBase<64, 8>*>(task);
 }
 
+// inferred: stops the gauges mA90/mAB8/mAE0 (inlined in fn_803D2194 and fn_803D83A8: as a separate inline
+// level the unrolled loop gets the counter and pointer registers of the original; name invented)
+inline void GameUIFreezeGauges_unk(GameUI* ui) {
+    ui->mA8C = 0;
+    for (int i = 0; i < 10; i++) {
+        ui->mA90[i]->FreezeTask();
+        if (ui->mAB8[i]->IsFlag_unk(4)) {
+            AsSmallInst_unk(ui->mAB8[i])->Rewind_unk();
+        }
+        ui->mAB8[i]->FreezeTask();
+        ui->mAE0[i]->FreezeTask();
+    }
+}
+
 // inferred: hides and stops every part of the HUD created by fn_803D022C/fn_803D0B20 (called by
 // game/GameTask)
-// NONMATCHING: 99.9% - the unrolled second loop swaps r4/r5 (counter and pointer); tried the counter outside
-// the loop and unsigned
 void GameUI::fn_803D2194() {
     if (mDC8 != 0) {
         for (int i = 0; i < 16; i++) {
@@ -1301,15 +1313,7 @@ void GameUI::fn_803D2194() {
             mAE0[i]->fn_800D246C(0);
             AsSmallInst_unk(mAE0[i])->SetSpeed_unk(0.0f);
         }
-        mA8C = 0;
-        for (int i = 0; i < 10; i++) {
-            mA90[i]->FreezeTask();
-            if (mAB8[i]->IsFlag_unk(4)) {
-                AsSmallInst_unk(mAB8[i])->Rewind_unk();
-            }
-            mAB8[i]->FreezeTask();
-            mAE0[i]->FreezeTask();
-        }
+        GameUIFreezeGauges_unk(this);
         for (int i = 0; i < 32; i++) {
             mF14[i]->fn_800D246C(0);
             AsWindow_unk(mF14[i])->SetLoop_unk(0);
@@ -3123,15 +3127,7 @@ void GameUI::fn_803D83A8() {
             m2628->FreezeTask();
         }
         mDC4->FreezeTask();
-        mA8C = 0;
-        for (int i = 0; i < 10; i++) {
-            mA90[i]->FreezeTask();
-            if (mAB8[i]->IsFlag_unk(4)) {
-                AsSmallInst_unk(mAB8[i])->Rewind_unk();
-            }
-            mAB8[i]->FreezeTask();
-            mAE0[i]->FreezeTask();
-        }
+        GameUIFreezeGauges_unk(this);
 
         GameUIField_unk* field = lbl_8087F430;
         bool event = false;
