@@ -6478,9 +6478,13 @@ void GameUI::fn_803E65F8() {
     }
 }
 
+// inferred: end frame of a d2anime task (name invented)
+static inline float GameUIEndFrame_unk(const atn::D2A_Task* t) {
+    return t->mData.mEndFrame;
+}
+
 // inferred: update of the shop animations (called by vf10)
-// NONMATCHING: 99.7% - f1/f2 of the end frame and the frame swapped in the alpha (the original loads the
-// frame first into f1); tried locals in both orders, -(a - b), min as if/ternary (12 variants)
+// inferred: both frames are read through const inlines (the original loads the frame first, into f1)
 void GameUI::fn_803E668C() {
     if (m262C.m00 == 0 || m262C.m04 == 0 || m262C.m08 == 0) {
         return;
@@ -6507,8 +6511,7 @@ void GameUI::fn_803E668C() {
         }
     }
     atn::D2A_Task* task = m262C.m00;
-    float frame = task->mFrame;
-    float alpha = (task->mData.mEndFrame - frame) / 7.0f;
+    float alpha = (GameUIEndFrame_unk(task) - task->GetFrame_unk()) / 7.0f;
     fn_801FECE0(&task->mData.m10, fn_800DC6B4("alpha"), 1.0f < alpha ? 1.0f : alpha);
 }
 
