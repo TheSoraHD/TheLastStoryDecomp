@@ -41,7 +41,7 @@ public:
 
 // inferred: wrapper of D2A_TaskInstanceBase<32, 8>::Create (the paths given to it are hoisted out of the loops); name invented
 inline ResultLayout_unk* CreateLayout_unk(atn::Task* parent, const char* path) {
-    return (ResultLayout_unk*)D2A_TaskInstance32_unk::Create(parent, path);
+    return D2A_TaskInstance32_unk::Create(parent, path);
 }
 
 // inferred: plays `anime`; at its end it shows `next` instead (name invented)
@@ -77,8 +77,8 @@ BattleResult::BattleResult(atn::Task* parent)
         (mLvUpOp[i] = CreateLayout_unk(this, "/data/d2anime/ui_result_LvUP_op_xx.d2a"))->fn_800D246C(1);
         (mLvUpLoop[i] = CreateLayout_unk(this, "/data/d2anime/ui_result_LvUP_loop_xx.d2a"))->fn_800D246C(1);
     }
-    (mItemOp = (ResultLayout_unk*)D2A_TaskInstance32_unk::Create(this, "/data/d2anime/ui_result_item_op.d2a"))->fn_800D246C(1);
-    (mItemLoop = (ResultLayout_unk*)D2A_TaskInstance32_unk::Create(this, "/data/d2anime/ui_result_item_loop.d2a"))->fn_800D246C(1);
+    (mItemOp = D2A_TaskInstance32_unk::Create(this, "/data/d2anime/ui_result_item_op.d2a"))->fn_800D246C(1);
+    (mItemLoop = D2A_TaskInstance32_unk::Create(this, "/data/d2anime/ui_result_item_loop.d2a"))->fn_800D246C(1);
     memset(mLvUp, 0, sizeof(mLvUp));
     mExp.mSize = 0;
     mItemA = -1;
@@ -97,27 +97,27 @@ int BattleResult::vf0C() {
         mBase->mRepeat = 0;
         mBase->mFlags |= 4;
         for (unsigned int i = 0; i < 7; i++) {
-            ((D2A_TaskInstance32_unk*)mExpOp[i])->SetValue0_unk("line", i);
+            mExpOp[i]->SetValue0_unk("line", i);
             mExpOp[i]->fn_800D246C(0);
-            mExpOp[i]->mRepeat = 0;
+            mExpOp[i]->mLoop = 0;
             mExpOp[i]->mFlags |= 4;
-            ((D2A_TaskInstance32_unk*)mExpLoop[i])->SetValue0_unk("line", i);
+            mExpLoop[i]->SetValue0_unk("line", i);
             mExpLoop[i]->fn_800D246C(0);
-            mExpLoop[i]->mRepeat = 1;
+            mExpLoop[i]->mLoop = 1;
             mExpLoop[i]->mFlags |= 4;
-            ((D2A_TaskInstance32_unk*)mLvUpOp[i])->SetValue0_unk("line", i);
+            mLvUpOp[i]->SetValue0_unk("line", i);
             mLvUpOp[i]->fn_800D246C(0);
-            mLvUpOp[i]->mRepeat = 0;
+            mLvUpOp[i]->mLoop = 0;
             mLvUpOp[i]->mFlags |= 4;
-            ((D2A_TaskInstance32_unk*)mLvUpLoop[i])->SetValue0_unk("line", i);
+            mLvUpLoop[i]->SetValue0_unk("line", i);
             mLvUpLoop[i]->fn_800D246C(0);
             mLvUpLoop[i]->mFlags |= 4;
         }
         mItemOp->fn_800D246C(0);
-        mItemOp->mRepeat = 0;
+        mItemOp->mLoop = 0;
         mItemOp->mFlags |= 4;
         mItemLoop->fn_800D246C(0);
-        mItemLoop->mRepeat = 1;
+        mItemLoop->mLoop = 1;
         mItemLoop->mFlags |= 4;
         mItemCount = 0;
         return 1;
@@ -187,11 +187,11 @@ void BattleResult::vf10() {
                     mBase->mFrame = mBase->mLastFrame;
                     mBase->mSpeed = -1.0f;
                     for (unsigned int i = 0; i < mCount; i++) {
-                        mExpOp[i]->mFrame = ((D2A_TaskInstance32_unk*)mExpOp[i])->GetEndFrame() - 1.0f;
+                        mExpOp[i]->mFrame = mExpOp[i]->GetEndFrame() - 1.0f;
                         mExpOp[i]->mSpeed = -1.0f;
                     }
                 }
-                mItemOp->mFrame = ((D2A_TaskInstance32_unk*)mItemOp)->GetEndFrame() - 1.0f;
+                mItemOp->mFrame = mItemOp->GetEndFrame() - 1.0f;
                 mItemOp->mSpeed = -1.0f;
             }
         }
@@ -223,12 +223,12 @@ void BattleResult::vf14() {
         float rate = t * (exp->mRateTo - exp->mRateFrom) + exp->mRateFrom;
 
         if (mExpOp[i] != 0) {
-            ((D2A_TaskInstance32_unk*)mExpOp[i])->SetNumber_unk("nowExp", value, 0);
-            ((D2A_TaskInstance32_unk*)mExpOp[i])->SetValue0_unk("expRate", rate);
+            mExpOp[i]->SetNumber_unk("nowExp", value, 0);
+            mExpOp[i]->SetValue0_unk("expRate", rate);
         }
         if (mExpLoop[i] != 0) {
-            ((D2A_TaskInstance32_unk*)mExpLoop[i])->SetNumber_unk("nowExp", value, 0);
-            ((D2A_TaskInstance32_unk*)mExpLoop[i])->SetValue0_unk("expRate", rate);
+            mExpLoop[i]->SetNumber_unk("nowExp", value, 0);
+            mExpLoop[i]->SetValue0_unk("expRate", rate);
         }
     }
 }
@@ -255,9 +255,9 @@ void BattleResult::fn_800F0D14(int mode) {
     }
     SetPaneValue_unk(mBase->m58, "base_point", 4, base);
     for (unsigned int i = 0; i < 7; i++) {
-        ((D2A_TaskInstance32_unk*)mExpOp[i])->SetValue1_unk("base_point", 4, line);
-        ((D2A_TaskInstance32_unk*)mExpLoop[i])->SetValue1_unk("base_point", 4, line);
-        ((D2A_TaskInstance32_unk*)mLvUpOp[i])->SetValue1_unk("base_point", 4, line);
+        mExpOp[i]->SetValue1_unk("base_point", 4, line);
+        mExpLoop[i]->SetValue1_unk("base_point", 4, line);
+        mLvUpOp[i]->SetValue1_unk("base_point", 4, line);
     }
     atn::FixedArray_unk<Inventory::ExpEntry_unk, 8>* members = &Inventory::instance_->mExpEntries;
     mCount = members->size();
@@ -302,20 +302,20 @@ void BattleResult::fn_800F0D14(int mode) {
             exp.mTo = left;
         }
         mExp.push_back(exp);
-        ((D2A_TaskInstance32_unk*)mExpOp[i])->SetText_unk("name", (const wchar_t*)chara->m60->m08);
-        ((D2A_TaskInstance32_unk*)mExpLoop[i])->SetText_unk("name", (const wchar_t*)chara->m60->m08);
-        ((D2A_TaskInstance32_unk*)mExpLoop[i])->SetText_unk("name_sdw", (const wchar_t*)chara->m60->m08);
+        mExpOp[i]->SetText_unk("name", (const wchar_t*)chara->m60->m08);
+        mExpLoop[i]->SetText_unk("name", (const wchar_t*)chara->m60->m08);
+        mExpLoop[i]->SetText_unk("name_sdw", (const wchar_t*)chara->m60->m08);
     }
     float count = members->size();
     mHasItems = 0;
     mItemOp->mFrame = 0.0f;
-    ((D2A_TaskInstance32_unk*)mItemOp)->SetValue0_unk("line", count);
-    ((D2A_TaskInstance32_unk*)mItemOp)->SetText_unk("item00", (const wchar_t*)lbl_8087D970);
-    ((D2A_TaskInstance32_unk*)mItemOp)->SetText_unk("item01", (const wchar_t*)lbl_8087D970);
+    mItemOp->SetValue0_unk("line", count);
+    mItemOp->SetText_unk("item00", (const wchar_t*)lbl_8087D970);
+    mItemOp->SetText_unk("item01", (const wchar_t*)lbl_8087D970);
     mItemLoop->mFrame = 0.0f;
-    ((D2A_TaskInstance32_unk*)mItemLoop)->SetValue0_unk("line", count);
-    ((D2A_TaskInstance32_unk*)mItemLoop)->SetText_unk("item00", (const wchar_t*)lbl_8087D970);
-    ((D2A_TaskInstance32_unk*)mItemLoop)->SetText_unk("item01", (const wchar_t*)lbl_8087D970);
+    mItemLoop->SetValue0_unk("line", count);
+    mItemLoop->SetText_unk("item00", (const wchar_t*)lbl_8087D970);
+    mItemLoop->SetText_unk("item01", (const wchar_t*)lbl_8087D970);
     mItemA = -1;
     mItemB = 0;
     mItemC = 1;
@@ -331,8 +331,8 @@ void BattleResult::fn_800F0D14(int mode) {
                 char text[0x80];
                 memset(text, 0, sizeof(text));
                 fn_80444CF8(text, a, b, c);
-                ((D2A_TaskInstance32_unk*)mItemOp)->SetText_unk(name, (const wchar_t*)text);
-                ((D2A_TaskInstance32_unk*)mItemLoop)->SetText_unk(name, (const wchar_t*)text);
+                mItemOp->SetText_unk(name, (const wchar_t*)text);
+                mItemLoop->SetText_unk(name, (const wchar_t*)text);
                 if (shown >= 1) {
                     mItemA = a;
                     mItemB = b;
@@ -350,12 +350,12 @@ void BattleResult::fn_800F0D14(int mode) {
         char text[0x80];
         memset(text, 0, sizeof(text));
         fn_80444CF8(text, 0x143, 5, 1);
-        ((D2A_TaskInstance32_unk*)mItemOp)->SetText_unk("item01", (const wchar_t*)text);
-        ((D2A_TaskInstance32_unk*)mItemLoop)->SetText_unk("item01", (const wchar_t*)text);
+        mItemOp->SetText_unk("item01", (const wchar_t*)text);
+        mItemLoop->SetText_unk("item01", (const wchar_t*)text);
         shown++;
     }
-    ((D2A_TaskInstance32_unk*)mItemOp)->SetValue0_unk("multiItem", shown >= 2 ? 1.0f : 0.0f);
-    ((D2A_TaskInstance32_unk*)mItemLoop)->SetValue0_unk("multiItem", shown >= 2 ? 1.0f : 0.0f);
+    mItemOp->SetValue0_unk("multiItem", shown >= 2 ? 1.0f : 0.0f);
+    mItemLoop->SetValue0_unk("multiItem", shown >= 2 ? 1.0f : 0.0f);
     mItemCount = 0;
 }
 

@@ -25,20 +25,8 @@ struct ResultD2A_unk : public atn::Task {
     float mSpeed; // 0x104
 };
 
-// inferred: layout anime task (made by D2A_TaskInstanceBase<32, 8>::Create); only the members used here
-struct ResultLayout_unk : public atn::Task {
-    bool IsEnd_unk(); // inferred: the frame reached the last one (name invented)
-    unsigned char m48[0x4D - 0x48];
-    bool mRepeat; // 0x4D
-    unsigned char m4E[0x50 - 0x4E];
-    float mFrame; // 0x50
-    float mSpeed; // 0x54
-};
-
-
-inline bool ResultLayout_unk::IsEnd_unk() {
-    return mFrame >= ((D2A_TaskInstance32_unk*)this)->GetEndFrame();
-}
+// inferred: layout anime task of the result window (made by D2A_TaskInstanceBase<32, 8>::Create)
+typedef D2A_TaskInstance32_unk ResultLayout_unk;
 
 // inferred: experience bar of one member (0x10 bytes); names invented
 struct ResultExp_unk {
