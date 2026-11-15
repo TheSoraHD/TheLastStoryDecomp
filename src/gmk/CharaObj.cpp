@@ -16,9 +16,17 @@ extern "C" void fn_80087E9C(void* group, const char* name, atn::Vector3* value, 
                             float max, float step);
 extern "C" void fn_80088724(void* group, const char* name, atn::Vector3* value, int arg3, int arg4, float min,
                             float max, float step);
-// inferred: empty names passed to operator new (in .sdata of another file)
-extern "C" char lbl_8087DFC0[4];
-extern "C" char lbl_8087DFC4[4];
+namespace gmk {
+// inferred: creates the character of the file `path` (name invented). Also defined in gmk/CharaPathMove.cpp:
+// inline in both files, its two empty names are weak .sdata objects emitted here (0x8087DFC0); in
+// CharaPathMove it is defined after its use and stays out of line (0x8043E134).
+inline GmkChara* CreateChara_unk(atn::Task* parent, const std::string& path) {
+    if (parent != 0) {
+        return new ((MemoryTag)1, "", "", 0) GmkChara(parent, path);
+    }
+    return 0;
+}
+}
 // inferred: game settings
 struct Settings_unk {
     unsigned char m00[0x74];
@@ -103,7 +111,7 @@ void CharaObj::vf20() {
             if (fn_8006AA20(path) != 0) {
                 {
                     std::string name(path);
-                    mChara = this != 0 ? new ((MemoryTag)1, lbl_8087DFC4, lbl_8087DFC0, 0) GmkChara(this, name) : 0;
+                    mChara = CreateChara_unk(this, name);
                 }
                 mChara->fn_800D246C(1);
             }

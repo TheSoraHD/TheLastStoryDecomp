@@ -22,9 +22,6 @@ extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3,
 extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3, int arg4);
 // inferred: debug drawing
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
-// inferred: empty names passed to operator new (in .sdata of another file)
-extern "C" char lbl_8087DFC0[4];
-extern "C" char lbl_8087DFC4[4];
 // inferred: game settings
 struct Settings_unk {
     unsigned char m00[0x74];
@@ -154,7 +151,7 @@ int CharaPathMove::vf1C() {
     return 0;
 }
 
-static GmkChara* CreateChara_unk(atn::Task* parent, const std::string& path);
+inline GmkChara* CreateChara_unk(atn::Task* parent, const std::string& path);
 
 // The original goes over the inline budget (docs/inlining.md; here with the empty asserts of fn_8043E07C): the path reset, the
 // clears, the CSV constructor (fn_803EFCA8), the string/vector members (fn_8003E4A4,
@@ -299,10 +296,11 @@ inline PathChara_unk::PathChara_unk(CharaPathMove* owner)
     : mOwner(owner), mState(0), mChara(0), m0C(lbl_807C7030), m18(lbl_807C7030), mSpeed(0.2f), mPoint(0),
       mTimer(0) {}
 
-// inferred: creates the character of the file `path` (name invented)
-static GmkChara* CreateChara_unk(atn::Task* parent, const std::string& path) {
+// inferred: creates the character of the file `path` (name invented; also inline in gmk/CharaObj.cpp,
+// which emits its weak empty names)
+inline GmkChara* CreateChara_unk(atn::Task* parent, const std::string& path) {
     if (parent != 0) {
-        return new ((MemoryTag)1, lbl_8087DFC4, lbl_8087DFC0, 0) GmkChara(parent, path);
+        return new ((MemoryTag)1, "", "", 0) GmkChara(parent, path);
     }
     return 0;
 }

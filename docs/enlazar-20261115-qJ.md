@@ -10,6 +10,7 @@
 
 - `WPADHIDParser`: +544 (`complete_data` 1005158 -> 1005702).
 - `.sbss` absorbidos por unidades enlazadas: LinearAllocator +8, SequenceControl +8, EnemyManager +8, GameTimer +8 (`complete_data` 1005702 -> 1005734).
+- `gmk/CharaObj` +8: los dos `""` de `new` de `gmk::CreateChara_unk` (0x8087DFC0) (`complete_data` 1005734 -> 1005742).
 
 ## NONMATCHING con motivo
 
@@ -21,6 +22,7 @@
   - `atn/SequenceControl.cpp` 0x8087EFC0-0x8087EFC8: `SequenceControl::sInstance`.
   - `game/EnemyManager.cpp` 0x8087F408-0x8087F410: `EnemyManager::sInstance`.
   - `game/GameTimer.cpp` 0x8087F488-0x8087F490: `GameTimer::sInstance`.
+  - `gmk/CharaObj.cpp` `.sdata` 0x8087DFC0-0x8087DFC8: los dos `""` que pasan `gmk::CreateChara_unk` a `operator new`. Prueba: los usan CharaObj (inline en vf20) y CharaPathMove (fuera de linea, 0x8043E134), asi que son objetos debiles `@STRING@CreateChara_unk__3gmk...` (no literales locales); CharaObj es el primero en el orden de enlace con un uso (FloatingBox, entre OpenBoard y CharaObj, no lo usa). `CreateChara_unk` pasa de `static` a `inline` en CharaPathMove (mismo codigo y orden) y se define inline tambien en CharaObj.cpp; simbolos renombrados de `lbl_8087DFC0/C4`.
   - `game/GameSaveBanner.cpp` 0x8087F470-0x8087F478: `GameSaveBanner::sInstance` (ya definido en el fuente; la unidad no enlaza, fn_803B9638 al 99,18 %).
 
 ## Para el port
@@ -32,6 +34,9 @@
 - `align:32` en el `.bss` de WUD (ver arriba) en lugar de anadir un array falso de 0x10 a WPADHIDParser.
 
 ## Hallazgos (una linea cada uno)
+
+- Literales de una funcion `inline` (expandida o no) salen como objetos debiles `@STRING@<funcion>[@0]` en `.sdata` si miden <= 4: un `""` compartido por dos unidades sin ser `@stringBase0` es eso; los define la primera unidad del orden de enlace que usa la inline (CharaObj 0x8087DFC0).
+- Una inline definida en el `.cpp` despues de su uso (declarada antes) sale fuera de linea en el sitio de la definicion, igual que una `static`, pero sus literales pasan a ser debiles (CharaPathMove `CreateChara_unk`).
 
 - La nota de qD ("el enlazador no alinea por encima de 16 en `.bss`") era falsa: se enlazaba el objeto generado de WUD (alineacion 8), no el compilado.
 

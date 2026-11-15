@@ -2497,6 +2497,7 @@ gmk/CharaObj.cpp:
 	.text       start:0x8042CE30 end:0x8042D628
 	.rodata     start:0x807538B8 end:0x80753960
 	.data       start:0x8078E8A0 end:0x8078EA40
+	.sdata      start:0x8087DFC0 end:0x8087DFC8
 	.sdata2     start:0x80886798 end:0x808867C0
 
 gmk/PassBoard.cpp:
