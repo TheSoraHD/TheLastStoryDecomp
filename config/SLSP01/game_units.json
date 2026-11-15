@@ -936,7 +936,7 @@
    "chr::ControlOneMotionTarget",
    "chr::ControlOneMotion"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "chr/ControlPushedDown.cpp",
