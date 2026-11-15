@@ -65,8 +65,6 @@ int ControlJumpAt::vf0C() {
     return 0;
 }
 
-// NONMATCHING: 99.67% (scheduling only) - in the inlined ControlGrapple constructor the original
-// reads mTarget after storing the ControlBase part, as in chr::ControlRideBeast::vf10.
 boost::function<void()> ControlJumpAt::vf10() const {
     ControlGrapple* next = new ((MemoryTag)0, "", "", 0) ControlGrapple(mChara, mTarget);
     return boost::bind(&CharaTask::fn_80178208, (CharaTask*)mChara, next);

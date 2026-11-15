@@ -28,7 +28,7 @@ class ControlDragged : public ControlBase {
 public:
     ControlDragged(Chara_unk* chara) : ControlBase(chara) {
         chara->m560 = 0x59;
-        Motion_unk* motion = &mChara->mMotion;
+        Motion_unk* motion = mChara->GetModel_unk();
         motion->m34C = 1;
         motion->mTracks[0].m20 = 1.0f;
         motion->fn_80097C08(0, 0x21B, 1, 0, 1, 0.0f, 0.1f);

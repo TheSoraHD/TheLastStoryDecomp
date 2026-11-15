@@ -329,7 +329,6 @@ int ControlCdnSleep::vf0C() {
     return 0;
 }
 
-// NONMATCHING: 99.75% - r29/r30 swapped for the functor allocated by boost::function.
 boost::function<void()> ControlCdnSleep::vf10() const {
     ControlCdnRestoreSleep* next = new ((MemoryTag)0, "", "", 0) ControlCdnRestoreSleep(mChara);
     return boost::bind(&CharaTask::fn_80178208, (CharaTask*)mChara, next);
@@ -339,7 +338,7 @@ ControlCdnRestoreSleep::ControlCdnRestoreSleep(Chara_unk* chara) : ControlBase(c
     chara->m58C = 0;
     mChara->m560 = 0x6B;
     mChara->mStatus.fn_8013322C(0x10);
-    Motion_unk* motion = &mChara->mMotion;
+    Motion_unk* motion = mChara->GetModel_unk();
     motion->m34C = 1;
     motion->mTracks[0].m20 = 1.0f;
     motion->fn_80097C08(0, 8, 0, 0, 1, 0.0f, 0.1f);
