@@ -2379,7 +2379,7 @@ void GameUI::fn_803D2A6C() {
                         case 5:
                             open = mB38[i].m00;
                             loop = mB38[i].m04;
-                            frame = ((GameUIInst_unk*)open->GetTask())->GetEndFrame();
+                            frame = open->GetTask()->GetEndFrame();
                             break;
                         case 2:
                             open = mB38[i].m08;
@@ -2399,39 +2399,39 @@ void GameUI::fn_803D2A6C() {
                             break;
                         }
                         if (open != 0 && loop != 0) {
-                            GameUIInst_unk* openInst = (GameUIInst_unk*)open->GetTask();
+                            GameUIInst_unk* openInst = open->GetTask();
                             if (mk->m18 != 0) {
                                 if (mk->m00 == 5) {
-                                    ((GameUIInst_unk*)loop->GetTask())->SetLoop_unk(0);
-                                    float end = ((GameUIInst_unk*)loop->GetTask())->GetEndFrame();
-                                    if (((GameUIInst_unk*)loop->GetTask())->GetFrame_unk() < end) {
+                                    loop->GetTask()->SetLoop_unk(0);
+                                    float end = loop->GetTask()->GetEndFrame();
+                                    if (loop->GetTask()->GetFrame_unk() < end) {
                                         loop->MeltTask();
                                     }
-                                    ((GameUIInst_unk*)open->GetTask())->Rewind_unk();
+                                    open->GetTask()->Rewind_unk();
                                 } else {
-                                    if (((GameUIInst_unk*)open->GetTask())->GetFrame_unk() < frame) {
-                                        ((GameUIInst_unk*)open->GetTask())->SetFrame_unk(frame);
+                                    if (open->GetTask()->GetFrame_unk() < frame) {
+                                        open->GetTask()->SetFrame_unk(frame);
                                     }
                                     open->MeltTask();
-                                    ((GameUIInst_unk*)loop->GetTask())->Rewind_unk();
+                                    loop->GetTask()->Rewind_unk();
                                 }
                             } else if (mk->m14 != 0) {
                                 if (mk->m00 == 5) {
-                                    ((GameUIInst_unk*)loop->GetTask())->SetLoop_unk(0);
-                                    float end = ((GameUIInst_unk*)loop->GetTask())->GetEndFrame();
-                                    if (((GameUIInst_unk*)loop->GetTask())->GetFrame_unk() < end) {
+                                    loop->GetTask()->SetLoop_unk(0);
+                                    float end = loop->GetTask()->GetEndFrame();
+                                    if (loop->GetTask()->GetFrame_unk() < end) {
                                         loop->MeltTask();
                                     }
                                 } else {
-                                    float end = ((GameUIInst_unk*)open->GetTask())->GetEndFrame();
-                                    if (((GameUIInst_unk*)open->GetTask())->GetFrame_unk() < end) {
+                                    float end = open->GetTask()->GetEndFrame();
+                                    if (open->GetTask()->GetFrame_unk() < end) {
                                         open->MeltTask();
                                     }
-                                    ((GameUIInst_unk*)loop->GetTask())->Rewind_unk();
+                                    loop->GetTask()->Rewind_unk();
                                 }
                             } else {
-                                if (mk->m00 != 5 && ((GameUIInst_unk*)open->GetTask())->GetFrame_unk() > frame) {
-                                    ((GameUIInst_unk*)open->GetTask())->Rewind_unk();
+                                if (mk->m00 != 5 && open->GetTask()->GetFrame_unk() > frame) {
+                                    open->GetTask()->Rewind_unk();
                                 }
                                 unsigned int active = fn_80372574(&mC38);
                                 for (unsigned int j = 0; j < fn_80372574(&mC38); j++) {
@@ -2440,15 +2440,15 @@ void GameUI::fn_803D2A6C() {
                                     }
                                 }
                                 if (mk->m00 == 5 && mD6C > 0 && mD6C >= (int)active &&
-                                    0.0f == ((GameUIInst_unk*)open->GetTask())->GetFrame_unk()) {
-                                    ((GameUIInst_unk*)open->GetTask())->SetFrame_unk(frame);
+                                    0.0f == open->GetTask()->GetFrame_unk()) {
+                                    open->GetTask()->SetFrame_unk(frame);
                                 }
-                                if (((GameUIInst_unk*)open->GetTask())->GetFrame_unk() < frame) {
+                                if (open->GetTask()->GetFrame_unk() < frame) {
                                     if (m814[0]->IsEnd_unk() || m814[0]->IsFrozen_unk()) {
                                         open->MeltTask();
                                     }
-                                } else if (((GameUIInst_unk*)open->GetTask())->GetFrame_unk() >= frame) {
-                                    ((GameUIInst_unk*)loop->GetTask())->SetLoop_unk(1);
+                                } else if (open->GetTask()->GetFrame_unk() >= frame) {
+                                    loop->GetTask()->SetLoop_unk(1);
                                     loop->MeltTask();
                                 }
                             }
@@ -2478,11 +2478,11 @@ void GameUI::fn_803D2A6C() {
                             m.fn_8013A13C(rot.y);
                             open->SetRotation_unk(m);
                             open->SetScale_unk(scale);
-                            ((GameUIInst_unk*)open->GetTask())->SetValue1_unk("basePos", 0, 0.0f);
-                            ((GameUIInst_unk*)open->GetTask())->SetValue1_unk("basePos", 1, 0.0f);
-                            ((GameUIInst_unk*)open->GetTask())->SetValue1_unk("basePos", 4, range);
-                            ((GameUIInst_unk*)open->GetTask())->SetValue0_unk("moveU", rot.y / 1.5707964f);
-                            ((GameUIInst_unk*)open->GetTask())->SetValue0_unk("moveV", rot.y / 1.5707964f);
+                            open->GetTask()->SetValue1_unk("basePos", 0, 0.0f);
+                            open->GetTask()->SetValue1_unk("basePos", 1, 0.0f);
+                            open->GetTask()->SetValue1_unk("basePos", 4, range);
+                            open->GetTask()->SetValue0_unk("moveU", rot.y / 1.5707964f);
+                            open->GetTask()->SetValue0_unk("moveV", rot.y / 1.5707964f);
                         }
                         if (loop != 0) {
                             loop->SetPosition_unk(pos);
@@ -2490,21 +2490,21 @@ void GameUI::fn_803D2A6C() {
                             m.fn_8013A13C(rot.y);
                             loop->SetRotation_unk(m);
                             loop->SetScale_unk(scale);
-                            ((GameUIInst_unk*)loop->GetTask())->SetValue1_unk("basePos", 0, 0.0f);
-                            ((GameUIInst_unk*)loop->GetTask())->SetValue1_unk("basePos", 1, 0.0f);
-                            ((GameUIInst_unk*)loop->GetTask())->SetValue1_unk("basePos", 4, range);
-                            ((GameUIInst_unk*)loop->GetTask())->SetValue0_unk("moveU", rot.y / 1.5707964f);
-                            ((GameUIInst_unk*)loop->GetTask())->SetValue0_unk("moveV", rot.y / 1.5707964f);
+                            loop->GetTask()->SetValue1_unk("basePos", 0, 0.0f);
+                            loop->GetTask()->SetValue1_unk("basePos", 1, 0.0f);
+                            loop->GetTask()->SetValue1_unk("basePos", 4, range);
+                            loop->GetTask()->SetValue0_unk("moveU", rot.y / 1.5707964f);
+                            loop->GetTask()->SetValue0_unk("moveV", rot.y / 1.5707964f);
                         }
                     } else {
-                        ((GameUIInst_unk*)mB38[i].m00->GetTask())->Rewind_unk();
-                        ((GameUIInst_unk*)mB38[i].m04->GetTask())->Rewind_unk();
-                        ((GameUIInst_unk*)mB38[i].m08->GetTask())->Rewind_unk();
-                        ((GameUIInst_unk*)mB38[i].m0C->GetTask())->Rewind_unk();
-                        ((GameUIInst_unk*)mB38[i].m18->GetTask())->Rewind_unk();
-                        ((GameUIInst_unk*)mB38[i].m1C->GetTask())->Rewind_unk();
-                        ((GameUIInst_unk*)mB38[i].m10->GetTask())->Rewind_unk();
-                        ((GameUIInst_unk*)mB38[i].m14->GetTask())->Rewind_unk();
+                        mB38[i].m00->GetTask()->Rewind_unk();
+                        mB38[i].m04->GetTask()->Rewind_unk();
+                        mB38[i].m08->GetTask()->Rewind_unk();
+                        mB38[i].m0C->GetTask()->Rewind_unk();
+                        mB38[i].m18->GetTask()->Rewind_unk();
+                        mB38[i].m1C->GetTask()->Rewind_unk();
+                        mB38[i].m10->GetTask()->Rewind_unk();
+                        mB38[i].m14->GetTask()->Rewind_unk();
                     }
                 }
             }
@@ -6111,7 +6111,7 @@ inline atn::Color GameUIColorU32_unk(unsigned int rgba) {
 // inferred: the d2anime instance behind a D3AnimeInstance (D3AnimeInstance::GetTask returns the partial view
 // D2AInstance_unk of atn/D3AnimeInstance.h)
 inline GameUIInst_unk* GetIconInst_unk(atn::D3AnimeInstance* icon) {
-    return (GameUIInst_unk*)icon->GetTask();
+    return icon->GetTask();
 }
 
 // inferred: icon over a character (position by fn_803E5200, colour by the kind of attack the character
