@@ -431,8 +431,8 @@ void CosEditProtector::vf1C(NewCampScene_unk* scene) {
     fn_805113E8(mBest, 1, 0, 0.0f, -1.0f);
     fn_805115D0(mBestTask, 1, 0, 0.0f, -1.0f);
     fn_805115D0(mNaked, 1, 0, 0.0f, -1.0f);
-    mE8 = (atn::Task*)&m54[11];
-    mEC = (atn::Task*)&m54[12];
+    mE8 = &m54[11];
+    mEC = &m54[12];
     vf34(0);
     vf74(0, 0);
 }
@@ -718,7 +718,7 @@ void CosEditProtector::vf64() {
                     mSelect->mVisible = 1;
                     break;
                 }
-                motion = (NewCampPartsMotion_unk*)mE8;
+                motion = mE8;
             } else {
                 switch (m1E8) {
                 case 1:
@@ -755,14 +755,14 @@ void CosEditProtector::vf64() {
                     mSelect->mVisible = 1;
                     break;
                 }
-                motion = (NewCampPartsMotion_unk*)mEC;
+                motion = mEC;
             }
         } else if (i == 8) {
             entry->mAnime = 0;
             step = 0.5f;
             if (m1F0 != 0) {
                 fn_801D463C(&entry->mAnime, mLists, m1EC, 8, 11);
-                motion = (NewCampPartsMotion_unk*)mE8;
+                motion = mE8;
             } else {
                 fn_801D463C(&entry->mAnime, mLists, m1E8, 8, 1);
             }
@@ -771,7 +771,7 @@ void CosEditProtector::vf64() {
             step = 0.5f;
             if (m1F0 != 0) {
                 fn_801D463C(&entry->mAnime, mLists, m1E8, 9, 12);
-                motion = (NewCampPartsMotion_unk*)mEC;
+                motion = mEC;
             }
         } else if (sBoardAnimes[i].m0C != 0 && fn_8050FD20() != 0 && ((NewCampTask*)m48)->m458 >= 25.0f) {
             step = 1.0f;
