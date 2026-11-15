@@ -5823,8 +5823,8 @@ void GameUI::fn_803E3BE8(void* msg, int arg, float time) {
     }
 }
 
-// NONMATCHING: 99.3% - the original walks the first search with a pointer from 0xC3C and the check of the
-// earlier selected markers with an offset (here both the other way round)
+// inferred: the check of the earlier selected markers goes through MarkerList_unk::operator[] (unsigned index:
+// the loop walks an offset)
 void GameUI::fn_803E3C78(const GameUIMarker_unk& marker) {
     if (marker.m00 == 0) {
         if (marker.m14 != 0) {
@@ -5855,8 +5855,8 @@ void GameUI::fn_803E3C78(const GameUIMarker_unk& marker) {
     }
     if (index >= 0 && marker.m14 != 0) {
         for (int i = 0; i < index; i++) {
-            if (mC38.m[i].m14 != 0) {
-                mC38.m[index].m14 = 0;
+            if (mC38[i].m14 != 0) {
+                mC38[index].m14 = 0;
                 break;
             }
         }
