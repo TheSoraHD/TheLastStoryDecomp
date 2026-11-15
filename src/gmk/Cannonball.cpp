@@ -501,9 +501,8 @@ void Cannonball::vf14() {
     }
 }
 
-// NONMATCHING: 98.79% - .sdata2 has an extra 1.1920929e-7f (from the weak copy of
-// Vector3::ToRotation_unk emitted after vf10), so 5.0f and -0.5f are at other addresses; in case 6
-// the registers of 1.0f, frames and 1/frames differ
+// The .sdata2 of this file also has the 1.1920929e-7f of the weak copy of Vector3::ToRotation_unk
+// (emitted after vf10, discarded by the linker with its constant)
 int Cannonball::vf40(GimmickMsg_unk* msg) {
     if (msg == 0) {
         return 0;
@@ -712,7 +711,6 @@ void Cannonball::fn_803FBC34(const atn::Vector3* pos) {
     fn_800CB5C8(&mSound, 10, 0);
 }
 
-// NONMATCHING: 99.86% - 625.0f and 0.25881904f are shifted in .sdata2 (see vf40)
 int Cannonball::vf48(const atn::Vector3* pos, const atn::Vector3* dir, int flag) {
     if (vf60() != 0 && flag == 0 && (m54 == 1 || m54 == 7 || m54 == 4)) {
         atn::Vector3 d = m6C - *pos;
