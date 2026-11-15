@@ -7,7 +7,7 @@
 // inferred from __vt__19Em002_02SkeltonKing (0x80783F78): grabs other skeletons and throws them
 class Em002_02SkeltonKing : public EnemyTask {
 public:
-    Em002_02SkeltonKing(atn::Task* parent, EnemyInfo_unk* info); // 0x80248E88
+    Em002_02SkeltonKing(atn::Task* parent, const EnemyInfo_unk* info); // 0x80248E88
     virtual ~Em002_02SkeltonKing();
     virtual int vf0C();
     virtual void vf10();
