@@ -2013,6 +2013,7 @@ void DWCi_MatchProcess(BOOL fullSpec)
     {
         s_sbCallbackLevel = 0;
         s_needSbFree = FALSE;
+        s_nnProcessing = 1;
         ServerBrowserThink(DWCi_GetMatchCnt()->sbObj);
         if (s_needSbFree)
         {
@@ -2029,9 +2030,9 @@ void DWCi_MatchProcess(BOOL fullSpec)
             DWC_Printf(DWC_REPORTFLAG_SB_UPDATE, "ServerBrowserLimitUpdate timeout.\n");
         }
     }
-    DWCi_SendStateChanged(DWCi_GetMatchCnt()->qr2Obj);
     s_needNNFree = FALSE;
     s_nnProcessing = 1;
+    DWCi_SendStateChanged(DWCi_GetMatchCnt()->qr2Obj);
     NNThink();
     s_nnProcessing = 0;
     if (s_needNNFree == TRUE)
