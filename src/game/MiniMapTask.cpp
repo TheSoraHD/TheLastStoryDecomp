@@ -313,28 +313,36 @@ void MiniMapTask::vf14() {
 extern "C" unsigned int fn_800DC6B4(const char* s); // inferred: string hash
 extern "C" void fn_801FECE0(void* layout, unsigned int hash, float value); // inferred: sets a value of a pane
 inline void atn::D2A_Task::SetLayoutValue_unk(const char* name, float value) {
-    fn_801FECE0(&mData.m10, fn_800DC6B4(name), value);
+    float v = value;
+    atn::D2A_Layout_unk* layout = &mData.m10;
+    fn_801FECE0(layout, fn_800DC6B4(name), v);
 }
 
 // inferred: position of a point of the map on the screen (x and z of the map, 52 / m5FC pixels per unit)
-inline atn::Vector3 MiniMapToScreen_unk(const atn::Vector3& p, float sx, float scale) {
-    atn::Vector3 d((p.x + -50.0f) * sx * scale, 0.0f * scale, (p.z + 70.0f) * scale);
-    return atn::Vector3(0.5f * GetGraphics_unk()->GetWidth_unk() + d.x, d.y,
-                        0.5f * GetGraphics_unk()->GetHeight_unk() + d.z);
+inline void MiniMapToScreen_unk(atn::Vector3& out, const atn::Vector3& p, float sx, float scale) {
+    float y = 0.0f * scale;
+    float x = (p.x + -50.0f) * sx * scale;
+    float z = (p.z + 70.0f) * scale;
+    out.y = y;
+    out.x = 0.5f * GetGraphics_unk()->GetWidth_unk() + x;
+    out.z = 0.5f * GetGraphics_unk()->GetHeight_unk() + z;
 }
 
-// NONMATCHING: 82% - stack layout (the original keeps the leader position at 0x1c and has fewer
-// temporaries) and order of the float operations; tried the frame shown before/after the conversion
+// NONMATCHING: 97.4% - scheduling of the conversion of the leader position and some GPRs (stringBase0 in r30
+// instead of r26); the original multiplies 0.0f * scale at run time (with the 0.0f as a parameter of the inline
+// it does, but the head is scheduled worse: 94.5%)
 // inferred: places the frame of the minimap (position of the leader on the map, turned with it) and draws
 // the active markers (a point of the size m63C in the colour m620 under each, then the marker in its colour
 // through the mask textures)
 void MiniMapTask::fn_804A9EB4() {
+    float sx;
     float scale = 52.0f / m5FC;
     float aspect = fn_80076FF8(GetGraphics_unk());
-    float sx = 1.0f / (aspect / ((float)GetGraphics_unk()->GetWidth_unk() / (float)GetGraphics_unk()->GetHeight_unk()));
+    sx = 1.0f / (aspect / ((float)GetGraphics_unk()->GetWidth_unk() / (float)GetGraphics_unk()->GetHeight_unk()));
     CharaTask* leader = lbl_8087F8A0->mHead;
     atn::Vector3 pos = leader->mPos;
-    pos = MiniMapToScreen_unk(pos, sx, scale);
+    float rot = leader->mRot.y - 3.1415927f;
+    MiniMapToScreen_unk(pos, pos, sx, scale);
     m5D8->MeltTask();
     float base[5];
     base[0] = pos.x;
@@ -343,7 +351,6 @@ void MiniMapTask::fn_804A9EB4() {
     base[3] = 1.0f;
     base[4] = 10.0f;
     fn_801F4728(m5D8, "basePos", base);
-    float rot = leader->mRot.y - 3.1415927f;
     m5D8->SetLayoutValue_unk("rot01", 57.295776f * -rot);
     m5D8->SetLayoutValue_unk("rot02", 57.295776f * -rot);
     m5D8->SetLayoutValue_unk("rot03", 57.295776f * -rot);
@@ -355,7 +362,8 @@ void MiniMapTask::fn_804A9EB4() {
         if (m->m04 != -1 && !lbl_8087F430->fn_80370174(m->m04)) {
             continue;
         }
-        atn::Vector3 screen = MiniMapToScreen_unk(m->mPos, sx, scale);
+        atn::Vector3 screen;
+        MiniMapToScreen_unk(screen, m->mPos, sx, scale);
         lbl_8087EEB0->fn_8005E3E4(m620.ToU32(), &m1A8, screen.x - 0.5f * m63C * m->mScale,
                                   screen.z - 0.5f * m63C * m->mScale, 10.0f, m63C * m->mScale, m63C * m->mScale,
                                   0.0f, 0.0f, 1.0f, 1.0f, 1, 1);
@@ -561,7 +569,16 @@ extern "C" __declspec(noinline) inline int fn_804A9E44(MiniMapTask* task) {
     return task->m160C;
 }
 // inferred: flag 4 of the model (the model has transparent parts)
-extern "C" __declspec(noinline) inline unsigned int fn_804ABF08(atn::Model* model) {
+// inferred: empty release assert
+#define MM_ASSERT_UNK(x) ((void)0)
+#define MM_ASSERT10_UNK(x) MM_ASSERT_UNK(x); MM_ASSERT_UNK(x); MM_ASSERT_UNK(x); MM_ASSERT_UNK(x); MM_ASSERT_UNK(x); MM_ASSERT_UNK(x); MM_ASSERT_UNK(x); MM_ASSERT_UNK(x); MM_ASSERT_UNK(x); MM_ASSERT_UNK(x)
+#define MM_ASSERT100_UNK(x) MM_ASSERT10_UNK(x); MM_ASSERT10_UNK(x); MM_ASSERT10_UNK(x); MM_ASSERT10_UNK(x); MM_ASSERT10_UNK(x); MM_ASSERT10_UNK(x); MM_ASSERT10_UNK(x); MM_ASSERT10_UNK(x); MM_ASSERT10_UNK(x); MM_ASSERT10_UNK(x)
+// inferred: the release build keeps the cost of the empty asserts of this accessor, which puts vf10 over the
+// inlining budget (the original calls every inline of vf10 out of line); about 280 are needed
+extern "C" inline unsigned int fn_804ABF08(atn::Model* model) {
+    MM_ASSERT100_UNK(model != 0);
+    MM_ASSERT100_UNK(model != 0);
+    MM_ASSERT100_UNK(model != 0);
     return (*(unsigned int*)((char*)model + 4) >> 4) & 1;
 }
 namespace atn {
@@ -599,9 +616,9 @@ extern "C" __declspec(noinline) inline atn::Texture_unk* fn_804ABF44(atn::Render
 
 // inferred: draws the minimap into a temporary 256x256 texture (the transparent parts in a second pass) and
 // draws it on the screen through the mask texture mE8
-// NONMATCHING: 0% - equivalent (checked call by call against the original), but here it is under the inlining
-// budget and inlines every accessor, while the original calls them all (about 36 statements of candidates short:
-// an artificial first candidate of 36-40 statements puts it over)
+// NONMATCHING: 99.9% - stack offsets only: the original command is 0x1C bytes on the stack (cmd at 0x84, the
+// texture right behind it at 0xA0), while atn::DrawHelper allocates it with 0x20 (m1C, never used): with m1C
+// removed this is 100% but the allocations of fn_8005E838/fn_8005F36C go down (see docs/ceros-20261115-qK.md)
 void MiniMapTask::vf10(atn::RenderManager* view) {
     if (fn_804A9E44(this) != 0) {
         fn_804ABF84(view);
@@ -645,11 +662,13 @@ void MiniMapTask::vf10(atn::RenderManager* view) {
     fn_800763FC(GetGraphics_unk(), fn_804ABF40(fn_804ABF44(view)), 0);
     view->fn_800BFB70();
     atn::DrawMaskVertex_unk verts[4];
-    verts[0].Set_unk(atn::Vector3(m5DC, m5E0, 0.0f), 0xFFFFFFFF, atn::Vector4_unk(0.0f, 0.0f, 0.0f, 0.0f));
-    verts[1].Set_unk(atn::Vector3(m5DC + m5E4, m5E0, 0.0f), 0xFFFFFFFF, atn::Vector4_unk(1.0f, 0.0f, 1.0f, 0.0f));
+    float zero = 0.0f;
+    float one = 1.0f;
+    verts[0].Set_unk(atn::Vector3(m5DC, m5E0, 0.0f), 0xFFFFFFFF, atn::Vector4_unk(zero, zero, zero, zero));
+    verts[1].Set_unk(atn::Vector3(m5DC + m5E4, m5E0, 0.0f), 0xFFFFFFFF, atn::Vector4_unk(one, zero, 1.0f, 0.0f));
     verts[2].Set_unk(atn::Vector3(m5DC + m5E4, m5E0 + m5E8, 0.0f), 0xFFFFFFFF,
-                     atn::Vector4_unk(1.0f, 1.0f, 1.0f, 1.0f));
-    verts[3].Set_unk(atn::Vector3(m5DC, m5E0 + m5E8, 0.0f), 0xFFFFFFFF, atn::Vector4_unk(0.0f, 1.0f, 0.0f, 1.0f));
+                     atn::Vector4_unk(one, one, 1.0f, 1.0f));
+    verts[3].Set_unk(atn::Vector3(m5DC, m5E0 + m5E8, 0.0f), 0xFFFFFFFF, atn::Vector4_unk(zero, one, 0.0f, 1.0f));
     fn_804ABF28(GetGraphics_unk(), 1);
     atn::DrawHelper::ComDrawTextureMask cmd;
     cmd.m04 = 1;
@@ -678,7 +697,7 @@ inline void atn::Camera::SetTarget(float x, float y, float z) {
     mTarget.z = z;
 }
 
-// NONMATCHING: draws the minimap model with its orthographic camera: the transparent parts first
+// inferred: draws the minimap model with its orthographic camera: the transparent parts first
 // (alpha 0.6, house/line/road hidden), then the rest, and restores the camera of the view
 void MiniMapTask::fn_804ABF84(atn::RenderManager* view) {
     atn::Camera saved(*view->fn_800F7258());
@@ -704,7 +723,8 @@ void MiniMapTask::fn_804ABF84(atn::RenderManager* view) {
     fn_804A893C((unsigned int*)&m208, 0x10);
     for (unsigned int i = 0; i < fn_804AC3C8(&m208)->mMaterials.size(); i++) {
         Material_unk* material = fn_804AC3C8(&m208)->mMaterials[i];
-        ColorF_unk color(fn_8000DD98(material));
+        GXColor base = fn_8000DD98(material);
+        ColorF_unk color(base);
         color.a *= 0.6f;
         unsigned int c = fn_804A88C8(&color.r);
         fn_80316F9C(material, (const GXColor*)&c);
@@ -726,7 +746,8 @@ void MiniMapTask::fn_804ABF84(atn::RenderManager* view) {
     m208.vf10(view);
     for (unsigned int i = 0; i < fn_804AC3C8(&m208)->mMaterials.size(); i++) {
         Material_unk* material = fn_804AC3C8(&m208)->mMaterials[i];
-        ColorF_unk color(fn_8000DD98(material));
+        GXColor base = fn_8000DD98(material);
+        ColorF_unk color(base);
         color.a = 1.0f;
         unsigned int c = fn_804A88C8(&color.r);
         fn_80316F9C(material, (const GXColor*)&c);
