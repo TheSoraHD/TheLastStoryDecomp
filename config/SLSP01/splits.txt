@@ -1993,8 +1993,8 @@ game/SystemErrorMessage_unk.cpp:
 
 game/FriendArganan.cpp:
 	.text       start:0x80365390 end:0x80365464
-	.rodata     start:0x8074D968 end:0x8074D978
-	.data       start:0x80789ED8 end:0x8078A008
+	.rodata     start:0x8074D968 end:0x8074D988
+	.data       start:0x80789ED8 end:0x8078A038
 	.sdata2     start:0x80885700 end:0x80885708
 
 game/FriendManager.cpp:
@@ -2374,8 +2374,8 @@ gmk/Courtyard.cpp:
 
 gmk/Fireworks.cpp:
 	.text       start:0x8041CD24 end:0x8041DDE4
-	.rodata     start:0x80753188 end:0x807531E0
-	.data       start:0x8078DE58 end:0x8078DEF0
+	.rodata     start:0x80753168 end:0x807531E0
+	.data       start:0x8078DE50 end:0x8078DEF0
 	.sdata      start:0x8087DF90 end:0x8087DF98
 	.sdata2     start:0x80886558 end:0x80886570
 
