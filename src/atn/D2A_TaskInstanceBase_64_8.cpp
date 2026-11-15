@@ -122,8 +122,6 @@ int D2A_TaskInstanceBase<N, M>::vf0C() {
     return 0;
 }
 
-// NONMATCHING: 97.18% (all three) - Update inlined: the original loads mTask again after the
-// frame update instead of reusing the value of the test
 template <int N, int M>
 void D2A_TaskInstanceBase<N, M>::vf10() {
     if (mVisible) {
@@ -152,10 +150,9 @@ float D2A_TaskInstanceBase<N, M>::GetEndFrame() {
     return mTask->mData.mEndFrame;
 }
 
-// NONMATCHING (fn_801F69A8): 96.94% - same reload of mTask as vf10
 template <int N, int M>
 void D2A_TaskInstanceBase<N, M>::Update() {
-    if (mTask != 0 && mPlaying) {
+    if (HasTask_unk() && mPlaying) {
         mFrame += mSpeed;
         if (mFrame >= GetEndFrame()) {
             if (mLoop) {
