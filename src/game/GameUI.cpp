@@ -4709,7 +4709,8 @@ inline T* GameUIMinElement_unk(T* first, T* last, Compare& comp) {
     T* result = first;
     if (first != last) {
         for (it = first + 1; it != last; it++) {
-            if (comp(*it, *result)) {
+            T best = *result;
+            if (comp(*it, best)) {
                 result = it;
             }
         }
@@ -4717,9 +4718,7 @@ inline T* GameUIMinElement_unk(T* first, T* last, Compare& comp) {
     return result;
 }
 
-// NONMATCHING: 99.94% (both instantiations) - in the inlined min_element the original keeps *it in r28 and
-// *result in r29 (swapped here); as game/CharaTask.cpp; tried the loop forms of game/CharaTask.cpp and
-// include/game/MslSort_unk.h, `end` local, the predicate by const reference
+// inferred: the min_element above reads *result into a local (the original keeps *it in r28, *result in r29)
 // inferred: MSL __sort of the HUD windows (quicksort with a selection sort below 21 elements; the pivots
 // move with a counter of each instantiation, lbl_8087DEF0 and lbl_8087DEF4); as game/GameTask.cpp
 template <class T, class Compare>
