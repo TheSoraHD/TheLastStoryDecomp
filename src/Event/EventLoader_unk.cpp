@@ -86,29 +86,26 @@ void Sequence::fn_80576030(const char* path, void* arg) {
 
 // inferred: a reader of ".xml" event files was stripped by the linker; only its literal is left in
 // @stringBase0 (before the basic_string messages of the instantiated members). Reconstructed
-// minimally so that the pool keeps its layout.
-static int fn_Stripped_unk(const char* path) {
+// minimally so that the pool keeps its layout (not static: an unused static function is dropped by
+// the compiler together with its literal).
+int fn_Stripped_unk(const char* path) {
     return strstr(path, ".xml") != 0;
 }
 
 // inferred: flags the cuts that contain actions of kinds 0x10, 0x2F, 0x11 and 0x12
-// NONMATCHING: 99.0% - Get_unk with an unsigned index gives the counter-first increments and `cut`
-// declared before the loop leaves the counters in r31..r28 as in the original; only the volatile
-// pointers differ (original: cut r9, group r10, track r11, cut offset r12; here r12/r9/r10/r11).
-// Tried: pointers declared at the top in both orders, `i` declared first (back to cut in r31),
-// operator[], a reference to the cut vector, int/unsigned outer counter.
+// (the index checks written out: with the checked accessors of Cut/Section/Channel the volatile
+// registers of the pointers come out rotated)
 void Sequence::fn_80576258() {
-    Cut* cut;
     for (unsigned int i = 0; i < mB8.size(); i++) {
-        cut = mB8[i].get();
+        Cut* cut = mB8[i].get();
         for (int j = 0; j < (int)cut->mSections.size(); j++) {
-            Section* section = cut->GetSection_unk(j);
+            Section* section = cut->IsSectionIndex_unk(j) ? cut->mSections[j].get() : 0;
             if (section->m14 != 0) {
                 for (int k = 0; k < (int)section->mChannels.size(); k++) {
-                    Channel* channel = section->GetChannel_unk(k);
+                    Channel* channel = section->IsChannelIndex_unk(k) ? section->mChannels[k].get() : 0;
                     if (channel->m10 != 0) {
                         for (int l = 0; l < (int)channel->mActions.size(); l++) {
-                            Action* action = channel->GetAction_unk(l);
+                            Action* action = channel->IsActionIndex_unk(l) ? channel->mActions[l].get() : 0;
                             int kind = action->m0C;
                             if (kind == 0x10) {
                                 cut->mLightFlags.m00 = 1;
