@@ -10,8 +10,8 @@ extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 struct Field_unk;
 extern "C" Field_unk* lbl_8087F430;
 
-// NONMATCHING: 93.8% - the load of info->m20 is scheduled after `mr r30, r3` (original: first instruction)
-Em002_02SkeltonKing::Em002_02SkeltonKing(atn::Task* parent, EnemyInfo_unk* info)
+// inferred: const info (as EnemyJill): the load of info->m20 is scheduled before the register saves
+Em002_02SkeltonKing::Em002_02SkeltonKing(atn::Task* parent, const EnemyInfo_unk* info)
     : EnemyTask(parent, info->m20), mTarget(0), mLastTarget(0), mWalkTime(0) {
     m54C |= 0x2000000;
 }
