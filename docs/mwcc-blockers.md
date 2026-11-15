@@ -131,6 +131,8 @@ El original coloca el `CXUncompressRL` inline detras de las tres llamadas de col
 
 Solo registros (r28/r30 en ProcessMatchCommand, base de `.data` en r31/r30 en CancelMatchingProcess, contadores en CloseUnacknowledgedClients). Probado: cinco ordenes de declaracion en CloseUnacknowledgedClients.
 
+**Resuelto (enlazar-20261115 qX, la unidad enlaza):** ProcessMatchCommand con `u32 ip` en el ambito de la funcion tras `u16 port` (`SOInAddr` en el bloque del caso, o `u32` en el bloque, no bastaban); CloseUnacknowledgedClients con `pending = DWCi_GetServerNode_unk()` (accesor inline de `&DWCi_GetMatchCnt()->serverNode`).
+
 ## WUD `fn_80670C70` (0x80670C70)
 
 El `switch (_nandStep)` de 6 casos es un arbol en el original (cadena en Wii/1.0-1.3 y 0x4201_127; GC/3.0a5.2 baja otras funciones) y el bucle de suma de RPHealth.dat se desenrolla x4 (nuestro x8). Probado: casos 6/0xFF explicitos, indexado `ptr[i]`.

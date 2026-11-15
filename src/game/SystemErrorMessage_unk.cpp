@@ -660,7 +660,8 @@ static inline void DrawFontMessage_unk(ErrorManager* m) {
 // NONMATCHING: 99.86% - the loop counter of DrawFontMessage_unk and its strength-reduced index swapped
 // (r27/r29 in the original). Also tried (enlazar-20261115 qL): row pointer or message in a local, the language
 // in a local, `(&row[0])[i]`, flat index `err * 4 + i`, while loop, increments swapped, both inlines as
-// members of ErrorManager.
+// members of ErrorManager. qX: inline accessors (line, row, language table, mError, font, gfx), loop in its own
+// inline, loop written in the function with i/y at function scope, pointer to the line, row + index, y type.
 void ErrorManager::fn_803646C4() {
     if (!IsBusy_unk()) {
         if (mError == 0) {
