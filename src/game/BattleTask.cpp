@@ -5794,10 +5794,9 @@ void BattleTask::fn_80108A54(CharaTask* chara) {
     fn_80108A5C(chara, &chara->mRot);
 }
 
-// NONMATCHING: 99.5% - the config pointer is allocated below the parameters in the original
 void BattleTask::fn_80108A5C(CharaTask* chara, const atn::Vector3* dir) {
     CharaTask* target = chara->mFC0;
-    GameConfig_unk* config = lbl_8087F0A8;
+    GameConfig_unk* config = fn_800F52F8();
     if (target != 0) {
         if (!target->CanAct_unk()) {
             target = 0;
