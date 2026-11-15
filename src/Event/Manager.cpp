@@ -288,7 +288,7 @@ int fn_8047BBBC(Sequence* seq, Cut* cut) {
 }
 #undef JUMP_LENGTH_UNK
 
-// NONMATCHING: 99.5% - registers only (original: section index r30, section count r12)
+// inferred: the channel count is read in the loop test (a local count swaps the registers)
 // inferred: first action of kind 0x2B (channels of the sections of kind 1) whose first parameter is
 // 0, following the cuts from the current one. Names invented.
 Action* fn_8047BFF4(Sequence* seq) {
@@ -298,8 +298,7 @@ Action* fn_8047BFF4(Sequence* seq) {
         for (int i = 0; i < count; i++) {
             Section* section = cut->GetSection_unk(i);
             if (section->m0C == 1) {
-                int channels = section->mChannels.size();
-                for (int j = 0; j < channels; j++) {
+                for (int j = 0; j < (int)section->mChannels.size(); j++) {
                     Channel* channel = section->GetChannel_unk(j);
                     if (channel->m0C == 0x2B) {
                         for (int k = 0; k < (int)channel->mActions.size(); k++) {
