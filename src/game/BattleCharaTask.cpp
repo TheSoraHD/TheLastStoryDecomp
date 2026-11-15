@@ -269,7 +269,8 @@ extern "C" SkillEffect* fn_8059B66C(void* mgr, HitInfo_unk* skill, CharaTask* us
                                     const atn::Vector3* pos, const atn::Vector3* rot,
                                     boost::function<void(SkillEffect*)> callback, float rate);
 
-// NONMATCHING: 99.2% - `mType == 3 || mType == 2` becomes a range compare; stack slots 4 bytes apart
+// NONMATCHING: 99.4% - stack slots 4 bytes apart (PlayerState_unk temporaries), registers of the state copy;
+// `!(mType != 3 && mType != 2)` keeps the two compares of the original
 // inferred: per-frame update of the player characters: runs the pending state m1470 (skills, combined
 // attack, charge...) when the timer m1474 ends, then the weapons, the movement and the falls of the guests
 void BattleCharaTask::fn_800E2FE0() {
@@ -277,7 +278,7 @@ void BattleCharaTask::fn_800E2FE0() {
     m14A4 = m14A4 - 1 < 0 ? 0 : m14A4 - 1;
     if (m1470 != 0 && --m1474 < 0) {
         if ((mType == 0 && m55C == 1) ||
-            ((mType == 3 || mType == 2) && (m55C == 2 || (m55C == 7 && mC58.m11C.fn_8011D1FC() && m1470 == 12)))) {
+            (!(mType != 3 && mType != 2) && (m55C == 2 || (m55C == 7 && mC58.m11C.fn_8011D1FC() && m1470 == 12)))) {
             switch (m1470) {
             case 1:
                 fn_80155A88(m147C, m1472 == 8);
@@ -994,8 +995,8 @@ inline float HitFrame_unk(int motion) {
     return frame;
 }
 
-// NONMATCHING: 97% - `m560 >= 4 && m560 < 12` becomes a range compare; this/config in r29/r30 instead of
-// r30/r31
+// NONMATCHING: 98.2% - this/config in r29/r30 instead of r30/r31 (and other registers); `4 <= m560` keeps the
+// two compares of the original
 // inferred: update of the player characters with a weapon (states 0-4 of m58C: idle, attack, ...)
 void BattleCharaTask::fn_800E589C() {
     GameConfig_unk* config = lbl_8087F0A8;
@@ -1024,12 +1025,8 @@ void BattleCharaTask::fn_800E589C() {
             mFlagC30 = 0;
             m58C = 0;
             int attack = 0;
-            if (m55C == 6) {
-                if (m560 >= 4) {
-                    if (m560 < 12) {
-                        attack = 1;
-                    }
-                }
+            if (m55C == 6 && 4 <= m560 && m560 < 12) {
+                attack = 1;
             }
             if (attack) {
                 fn_8016E970(1);
