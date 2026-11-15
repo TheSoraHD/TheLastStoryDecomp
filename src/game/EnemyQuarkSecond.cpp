@@ -611,7 +611,7 @@ inline void EnemyQuarkSecond::ResetState_unk() {
     m14B4 = 0;
     m14B8 = 0;
     m14C0 = 0;
-    m590 = fn_800F8548(lbl_8087F048);
+    m590 = lbl_8087F048->fn_800F8548();
     fn_80239DAC(lbl_8087F3C0, this, 0x3E8, 1);
     fn_80239DAC(lbl_8087F3C0, this, 0x3E9, 0);
     fn_80239DAC(lbl_8087F3C0, this, 0x3EA, 1);
@@ -630,7 +630,7 @@ inline void EnemyQuarkSecond::PlayMotion_unk(int motion, int loop, float speed) 
     mMotion.fn_80097C08(0, motion, loop, 0, 1, 0.0f, 0.1f);
 }
 
-void EnemyQuarkSecond::vf3C(HitInfo_unk* hit) {
+void EnemyQuarkSecond::vf3C(HitInfo_unk* hit, int) {
     HitMsg_unk* msg = (HitMsg_unk*)hit;
     if (m16B4 != 0) {
         return;
@@ -1156,7 +1156,7 @@ void EnemyQuarkSecond::fn_8033C490() {
             fn_80232B7C(this, 0x3E8);
             fn_8023A680(lbl_8087F3C0, &m15C8, -1, 5, &m15E0, 0, 0, 0, 0, -1, 1, 1.0f);
             fn_80144710();
-            fn_800F8574(lbl_8087F048, this, m14D0, &pos, &m15D4, 0, 0, 0, 0.0f, 1.0f);
+            lbl_8087F048->fn_800F8574(this, m14D0, &pos, &m15D4, 0, 0, 0, 0.0f, 1.0f);
             fn_800C31F4("SE_EM211_009_2", 0, -1, 1.0f);
         }
     } else {
@@ -1217,7 +1217,7 @@ void EnemyQuarkSecond::fn_8033D040() {
             QuarkRotZYX_unk(m, mRot);
             PSMTXMultVec(m.m, &ofs, &ofs);
             m1644 = 1;
-            m1658 = fn_800F8548(lbl_8087F048);
+            m1658 = lbl_8087F048->fn_800F8548();
             m164C = mPos + ofs;
             m164C.y = 0.0f;
             mStatus.m228 = 0.0f;
@@ -1313,7 +1313,7 @@ void EnemyQuarkSecond::fn_8033DB8C() {
         if (mMotion.mTracks[0].m08 >= 45.0f) {
             m14B4++;
             BattleTask* mgr = lbl_8087F048;
-            fn_800FAB80(mgr, this, m14CC, fn_800F8548(mgr), &mPos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
+            mgr->fn_800FAB80(this, m14CC, mgr->fn_800F8548(), &mPos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
             FixedArray_unk<CharaTask*, 32> targets;
             for (PlayerTask* p = lbl_8087F8A0->mHead; p != 0; p = (PlayerTask*)p->mNext) {
                 if (IsBurstTarget_unk(p) && (p->m54C & 0x2000) != 0x2000 && !fn_8016F3D0(p, 1) &&
@@ -1325,7 +1325,7 @@ void EnemyQuarkSecond::fn_8033DB8C() {
             if (n < 7) {
                 n = 7;
             }
-            int id = fn_800F8548(lbl_8087F048);
+            int id = lbl_8087F048->fn_800F8548();
             for (int i = 0; i < (int)n; i++) {
                 atn::Vector3 dir;
                 Mtx m;
@@ -1345,7 +1345,7 @@ void EnemyQuarkSecond::fn_8033DB8C() {
                     param.mCount = id;
                     BattleTask* mgr2 = lbl_8087F048;
                     atn::Vector3 pos = fn_801781B0();
-                    fn_800F8574(mgr2, this, fn_80219E6C(m14CC->m6C), &pos, &dir, &param, 0x2006, 0, 0.0f, 1.0f);
+                    mgr2->fn_800F8574(this, fn_80219E6C(m14CC->m6C), &pos, &dir, &param, 0x2006, 0, 0.0f, 1.0f);
                 }
             }
         }
@@ -1584,8 +1584,8 @@ void EnemyQuarkSecond::fn_8033EF90() {
                     param.mMaxSpeed = 8.0f;
                     param.mTurn = 0.62831855f;
                     param.mDelay = 6.0f;
-                    param.mCount = fn_800F8548(lbl_8087F048);
-                    fn_800F8574(lbl_8087F048, this, m14DC, &pos, &dir, &param, 0x104, 0, 0.0f, 1.0f);
+                    param.mCount = lbl_8087F048->fn_800F8548();
+                    lbl_8087F048->fn_800F8574(this, m14DC, &pos, &dir, &param, 0x104, 0, 0.0f, 1.0f);
                 }
             }
             fn_800C31F4("SE_EM211_012", 0, -1, 1.0f);
@@ -1712,7 +1712,7 @@ void EnemyQuarkSecond::fn_8033F7FC() {
                     PSVECNormalize(&dir, &dir);
                     atn::Vector3 from = pos + dir * QuarkRand_unk(30.0f, -10.0f);
                     BattleTask* mgr = lbl_8087F048;
-                    fn_800F8574(mgr, this, m14E4[rand() % 2], &from, &dir, 0, 0x1000000, 0, 0.0f, 1.0f);
+                    mgr->fn_800F8574(this, m14E4[rand() % 2], &from, &dir, 0, 0x1000000, 0, 0.0f, 1.0f);
                 }
             }
             if (mMotion.mTracks[0].m08 >= 70.0f) {
@@ -1845,7 +1845,7 @@ void EnemyQuarkSecond::fn_803405C0() {
                                     10.0f * ((float)rand() / 32767.0f) + -5.0f,
                                     10.0f * ((float)rand() / 32767.0f) + -5.0f);
                 PSVECNormalize(&dir, &dir);
-                fn_800F8574(lbl_8087F048, this, data, &head, &dir, 0, 0, 0, 0.0f, 1.0f);
+                lbl_8087F048->fn_800F8574(this, data, &head, &dir, 0, 0, 0, 0.0f, 1.0f);
             }
         }
     } else {
@@ -2036,7 +2036,7 @@ void EnemyQuarkSecond::fn_803412AC() {
             m1758->mMotion.mTracks[0].m0C = mMotion.mTracks[0].m0C;
             PlayerTask* lead = lbl_8087F8A0->mHead;
             BattleTask* mgr = lbl_8087F048;
-            fn_800FAB80(mgr, lead, fn_80219E6C(0x780), fn_800F8548(mgr), &mPos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
+            mgr->fn_800FAB80(lead, fn_80219E6C(0x780), mgr->fn_800F8548(), &mPos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
             fn_80232B7C(&m168C, 0);
             PlayEffectB_unk(&m168C, &mMotion);
             ((atn::EffectManager*)lbl_8087F3C0)->fn_8023A254((unsigned int)&m168C, 0, 0.5f);
@@ -2156,7 +2156,7 @@ void EnemyQuarkSecond::fn_80342674() {
     ResetState_unk();
     fn_8016E970(3);
     m58C = 8;
-    m590 = fn_800F8548(lbl_8087F048);
+    m590 = lbl_8087F048->fn_800F8548();
     PlayMotion_unk(0x13F, 0, 1.0f);
     RouteTable_unk* table = lbl_8087F430->m10D8;
     RoutePlace_unk* p3 = table->FindPlace_unk(3);
@@ -2180,7 +2180,7 @@ void EnemyQuarkSecond::fn_80342BC8() {
     ResetState_unk();
     fn_8016E970(3);
     m58C = 9;
-    m590 = fn_800F8548(lbl_8087F048);
+    m590 = lbl_8087F048->fn_800F8548();
     PlayMotion_unk(0x156, 0, 1.0f);
     atn::Vector3 target = m14B0->mPos;
     SetJump_unk(target);
@@ -2209,7 +2209,7 @@ void EnemyQuarkSecond::fn_80342FB4() {
     ResetState_unk();
     fn_8016E970(3);
     m58C = 14;
-    m590 = fn_800F8548(lbl_8087F048);
+    m590 = lbl_8087F048->fn_800F8548();
     PlayMotion_unk(0x15C, 0, 1.0f);
     m16C8 = 0;
     fn_80232B7C(this, 0x3F0);
@@ -2222,7 +2222,7 @@ void EnemyQuarkSecond::fn_8034315C() {
     ResetState_unk();
     fn_8016E970(3);
     m58C = 10;
-    m590 = fn_800F8548(lbl_8087F048);
+    m590 = lbl_8087F048->fn_800F8548();
     PlayMotion_unk(0x142, 0, 1.0f);
     atn::Vector3 target = m14B0->mPos;
     SetJump_unk(target);
@@ -2259,7 +2259,7 @@ void EnemyQuarkSecond::fn_80343B0C() {
     ResetState_unk();
     fn_8016E970(3);
     m58C = 16;
-    m590 = fn_800F8548(lbl_8087F048);
+    m590 = lbl_8087F048->fn_800F8548();
     PlayMotion_unk(0x13F, 0, 1.0f);
     RouteTable_unk* table = lbl_8087F430->m10D8;
     RoutePlace_unk* p3 = table->FindPlace_unk(3);
@@ -2296,7 +2296,7 @@ void EnemyQuarkSecond::fn_803441AC() {
         Mtx m;
         PSMTXRotRad(m, 'y', angle);
         PSMTXMultVec(m, &dir, &dir);
-        fn_800FAB80(lbl_8087F048, this, m14D8, m1658, &(m164C + dir), &atn::Vector3(0.0f, angle, 0.0f), 0, 30, -1, -1,
+        lbl_8087F048->fn_800FAB80(this, m14D8, m1658, &(m164C + dir), &atn::Vector3(0.0f, angle, 0.0f), 0, 30, -1, -1,
                     3.0f, 1.0f);
         if (m1760 != 0) {
             lbl_8087EEB0->fn_80063D3C(m164C + dir, m14D8->m58, 1000.0f, 0xFF000000);

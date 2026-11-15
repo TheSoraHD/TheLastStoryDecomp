@@ -8,7 +8,7 @@ class FriendArganan : public PlayerTask {
 public:
     FriendArganan(atn::Task* parent, int type, void* data);
     virtual ~FriendArganan();
-    virtual void vf3C(HitInfo_unk* hit);
+    virtual void vf3C(HitInfo_unk* hit, int);
 };
 
 #endif

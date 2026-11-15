@@ -249,7 +249,7 @@ int Em309Ghoul::vf0C() {
 inline void Em309Ghoul::StartAttack_unk() {
     m14F0 = 0;
     m14F4 = 0;
-    m590 = fn_800F8548(lbl_8087F048);
+    m590 = lbl_8087F048->fn_800F8548();
     mMotion.fn_80097CCC(2, 0.0f);
     m58C = 7;
     fn_8016E970(3);
@@ -267,7 +267,7 @@ inline void Em309Ghoul::StartAttack_unk() {
 inline void Em309Ghoul::ResetState_unk() {
     m14F0 = 0;
     m14F4 = 0;
-    m590 = fn_800F8548(lbl_8087F048);
+    m590 = lbl_8087F048->fn_800F8548();
     mMotion.fn_80097CCC(2, 0.0f);
     m58C = 0;
     fn_8016E970(3);
@@ -402,7 +402,7 @@ void Em309Ghoul::vf10() {
 inline void Em309Ghoul::Die_unk(int motion, int flag) {
     m14F0 = 0;
     m14F4 = 0;
-    m590 = fn_800F8548(lbl_8087F048);
+    m590 = lbl_8087F048->fn_800F8548();
     mMotion.fn_80097CCC(2, 0.0f);
     m58C = 2;
     fn_8016E970(3);
@@ -436,7 +436,7 @@ inline void EffOrigin_unk(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* mod
 // inferred: hits: the head spear (0x134) or a hit while weak (m40 == 1 outside state 10) knock the ghoul back
 // and start the rolling state 10 away from the attacker (bent towards the home place); other hits only do
 // damage while the ghoul is under the coffin (state 12)
-void Em309Ghoul::vf3C(HitInfo_unk* hit) {
+void Em309Ghoul::vf3C(HitInfo_unk* hit, int) {
     HitMsg_unk* msg = (HitMsg_unk*)hit;
     int weak = *(int*)&msg->m3C[4]; // inferred: HitMsg_unk+0x40 (as in game/Em205Ogre.cpp)
     if ((weak == 1 && m58C != 10) || msg->mData->m04 == 0x134) {
@@ -584,7 +584,7 @@ void Em309Ghoul::vf44() {
     m1434 = 80;
     m15B0 = 30;
     if (lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->fn_80375184() != 0 && mType == 2) {
-        fn_801092C8(lbl_8087F048, 6, this, 0, 0);
+        lbl_8087F048->fn_801092C8(6, this, 0, 0);
     }
 }
 
@@ -825,7 +825,7 @@ void Em309Ghoul::fn_802FFFF8() {
 void Em309Ghoul::fn_80300654() {
     m14F0 = 0;
     m14F4 = 0;
-    m590 = fn_800F8548(lbl_8087F048);
+    m590 = lbl_8087F048->fn_800F8548();
     mMotion.fn_80097CCC(2, 0.0f);
     m58C = 1;
     fn_8016E970(3);
@@ -842,7 +842,7 @@ void Em309Ghoul::fn_80300654() {
 void Em309Ghoul::fn_8030073C() {
     m14F0 = 0;
     m14F4 = 0;
-    m590 = fn_800F8548(lbl_8087F048);
+    m590 = lbl_8087F048->fn_800F8548();
     mMotion.fn_80097CCC(2, 0.0f);
     m58C = 6;
     fn_8016E970(3);
@@ -858,7 +858,7 @@ void Em309Ghoul::fn_8030073C() {
 void Em309Ghoul::fn_803009F4() {
     m14F0 = 0;
     m14F4 = 0;
-    m590 = fn_800F8548(lbl_8087F048);
+    m590 = lbl_8087F048->fn_800F8548();
     mMotion.fn_80097CCC(2, 0.0f);
     m58C = 9;
     fn_8016E970(3);
@@ -875,7 +875,7 @@ void Em309Ghoul::fn_803009F4() {
 void Em309Ghoul::fn_80300AD8() {
     m14F0 = 0;
     m14F4 = 0;
-    m590 = fn_800F8548(lbl_8087F048);
+    m590 = lbl_8087F048->fn_800F8548();
     mMotion.fn_80097CCC(2, 0.0f);
     m58C = 10;
     fn_8016E970(3);
@@ -943,7 +943,7 @@ void Em309Ghoul::fn_80300AD8() {
 void Em309Ghoul::fn_80300DF4() {
     m14F0 = 0;
     m14F4 = 0;
-    m590 = fn_800F8548(lbl_8087F048);
+    m590 = lbl_8087F048->fn_800F8548();
     mMotion.fn_80097CCC(2, 0.0f);
     m58C = 11;
     fn_8016E970(3);
@@ -1004,7 +1004,7 @@ void Em309Ghoul::fn_80300DF4() {
 void Em309Ghoul::fn_803010BC() {
     m14F0 = 0;
     m14F4 = 0;
-    m590 = fn_800F8548(lbl_8087F048);
+    m590 = lbl_8087F048->fn_800F8548();
     mMotion.fn_80097CCC(2, 0.0f);
     m58C = 12;
     fn_8016E970(3);
@@ -1027,7 +1027,7 @@ void Em309Ghoul::fn_803010BC() {
 void Em309Ghoul::fn_80301200() {
     m14F0 = 0;
     m14F4 = 0;
-    m590 = fn_800F8548(lbl_8087F048);
+    m590 = lbl_8087F048->fn_800F8548();
     mMotion.fn_80097CCC(2, 0.0f);
     m58C = 13;
     fn_8016E970(3);
@@ -1123,7 +1123,7 @@ void Em309Ghoul::vfEC() {
                     fn_80232B7C(0, 0);
                     GhoulEffect2_unk(lbl_8087F3C0, &m1534, &mMotion);
                     fn_800C344C("SE_EM309_001", &mPos, 0, -1, 1.0f);
-                    fn_800F8548(lbl_8087F048);
+                    lbl_8087F048->fn_800F8548();
                 }
             } else if (m1434 == 50) {
                 fn_8016E4C4(0);
@@ -1396,8 +1396,8 @@ void Em309Ghoul::fn_803026F0() {
         }
         BattleTask* mgr = lbl_8087F048;
         atn::Vector3 pos = mPos + dir * (float)m14F4;
-        int id = fn_800F8548(mgr);
-        fn_800FAB80(mgr, this, fn_80219E6C(0x64C), id, &pos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
+        int id = mgr->fn_800F8548();
+        mgr->fn_800FAB80(this, fn_80219E6C(0x64C), id, &pos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
         fn_80239DAC(lbl_8087F3C0, this, m15B4, 0);
         m15B4++;
         fn_80232B7C(this, m15B4);
@@ -1410,7 +1410,7 @@ void Em309Ghoul::fn_80302B84() {
     if (end >= mMotion.fn_80097D7C(0)) {
         m14F0 = 0;
         m14F4 = 0;
-        m590 = fn_800F8548(lbl_8087F048);
+        m590 = lbl_8087F048->fn_800F8548();
         mMotion.fn_80097CCC(2, 0.0f);
         m58C = 0;
         fn_8016E970(3);
@@ -1460,7 +1460,7 @@ void Em309Ghoul::fn_80302B84() {
         if (dist < 20.0f) {
             atn::Vector3 pos = lbl_8087F8A0->mHead->mPos + ofs;
             BattleTask* mgr = lbl_8087F048;
-            fn_800FAB80(mgr, this, fn_80219E6C(0x64E), 1000, &pos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
+            mgr->fn_800FAB80(this, fn_80219E6C(0x64E), 1000, &pos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
         }
         mRot.y += 0.11219973f;
         if (m1690 != 0) {
@@ -1712,7 +1712,7 @@ void Em309Ghoul::fn_80302F94() {
         if (m14F4 > m16E4) {
             atn::Vector3 pos = GetNodePos_unk(mMotion.GetNodeMtx_unk("hips"));
             BattleTask* mgr = lbl_8087F048;
-            fn_800FAB80(mgr, this, fn_80219E6C(0x64D), 1000, &pos, &mRot, 0, m16E8, -1, -1, 0.0f, 1.0f);
+            mgr->fn_800FAB80(this, fn_80219E6C(0x64D), 1000, &pos, &mRot, 0, m16E8, -1, -1, 0.0f, 1.0f);
         }
     } else if (m14F0 == 1) {
         mPos = m1608;
@@ -1877,7 +1877,7 @@ void Em309Ghoul::fn_803041C8() {
             fn_8028CFB8(fn_80122550(fn_80121F00()), 1, 0.5f, 0.5f);
         }
         atn::Vector3 pos = ((atn::Matrix3x4*)mMotion.GetNodeMtx_unk("hips"))->GetTrans_unk();
-        fn_800FAB80(fn_8013A194(), this, fn_80219E6C(0x64D), 1000, &pos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
+        fn_8013A194()->fn_800FAB80(this, fn_80219E6C(0x64D), 1000, &pos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
     }
 }
 
@@ -2088,9 +2088,9 @@ void Em309Ghoul::fn_80304FC0() {
     d0.y = 10.0f;
     d1.y = 10.0f;
     d2.y = 10.0f;
-    fn_800FAB80(fn_8013A194(), this, fn_80219E6C(0x64C), 2000, &(mPos + d0), &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
-    fn_800FAB80(fn_8013A194(), this, fn_80219E6C(0x64C), 2000, &(mPos + d1), &rot1, 0, 30, -1, -1, 0.0f, 1.0f);
-    fn_800FAB80(fn_8013A194(), this, fn_80219E6C(0x64C), 2000, &(mPos + d2), &rot2, 0, 30, -1, -1, 0.0f, 1.0f);
+    fn_8013A194()->fn_800FAB80(this, fn_80219E6C(0x64C), 2000, &(mPos + d0), &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
+    fn_8013A194()->fn_800FAB80(this, fn_80219E6C(0x64C), 2000, &(mPos + d1), &rot1, 0, 30, -1, -1, 0.0f, 1.0f);
+    fn_8013A194()->fn_800FAB80(this, fn_80219E6C(0x64C), 2000, &(mPos + d2), &rot2, 0, 30, -1, -1, 0.0f, 1.0f);
     if (m15BC % 2 == 0) {
         fn_80239DAC(lbl_8087F3C0, this, m15B4 - 3, 1);
     }

@@ -19,6 +19,7 @@
 #include <boost/bind.hpp>
 #include <boost/function.hpp>
 #include "atn/ColliBase.h"
+#include "game/DamageResult_unk.h"
 
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
 // inferred: field (lbl_8087F430): camera shake and event flags (as in gmk/ShakeCamera.cpp)
@@ -91,26 +92,6 @@ inline float LengthSq_unk(const atn::Vector3& v) {
     return PSVECSquareMag(&v);
 }
 
-// inferred: damage record shown by fn_80108C10 (as StatusDamage_unk of game/CharaStatus.cpp)
-struct QuadDamage_unk {
-    QuadDamage_unk(int damage) : m08(0), m0C(0), m10(0), m14(-1) {
-        m1C = 0;
-        m18 = -1;
-        m04 = damage;
-        m00 = 1;
-    }
-    int m00;
-    int m04;
-    int m08;
-    int m0C;
-    int m10;
-    int m14;
-    int m18;
-    unsigned int m1C : 4;
-    unsigned int m1C_rest : 28;
-};
-extern "C" void fn_80108C10(BattleTask* effect, QuadDamage_unk* damage, const atn::Vector3& pos, CharaTask* from,
-                            CharaTask* to, int b, int c);
 
 
 struct HitResult_unk;
@@ -189,7 +170,7 @@ inline RoutePlace_unk* FindQuadPlace_unk(int id) {
 inline void LastCocoonQuadruped::SetMode_unk(int mode) {
     m14BC = 0;
     m14C0 = 0;
-    m590 = fn_800F8548(lbl_8087F048);
+    m590 = lbl_8087F048->fn_800F8548();
     if (lbl_8087F430 != 0) {
         ((GameTask*)lbl_8087F430)->fn_80370AE4(0x8C, 0);
     }
@@ -450,7 +431,7 @@ void LastCocoonQuadruped::vf14() {
     fn_80149A30();
 }
 
-void LastCocoonQuadruped::vf3C(HitInfo_unk* hit) {
+void LastCocoonQuadruped::vf3C(HitInfo_unk* hit, int) {
     HitMsg_unk* msg = (HitMsg_unk*)hit;
     if (m14C4 != 7 && m58C != 8) {
         if (m14C4 == 6 || m14C4 == 1 || (m58C >= 17 && m58C <= 19)) {
@@ -1196,7 +1177,7 @@ void LastCocoonQuadruped::fn_80464CF0() {
         fn_80144710();
         m1574 = 0;
         float rotY = mRot.y;
-        int id = fn_800F8548(lbl_8087F048);
+        int id = lbl_8087F048->fn_800F8548();
         lbl_8087F048->fn_800F8C6C(0, 0, this, fn_80219E6C(0x5B5), id, rotY, 30, -1);
     } else {
         atn::ColliResult_unk result;
@@ -1233,14 +1214,16 @@ void LastCocoonQuadruped::fn_80465294() {
         fn_80239DAC(lbl_8087F3C0, this, 1000, 0);
     } else if (m14C0 % 30 == 0) {
         float drain = 50.0f;
-        QuadDamage_unk damage((int)drain);
-        m1574->mStatus.fn_8012DF7C(damage.m04, 0, 0);
-        fn_80108C10(lbl_8087F048, &damage, m1574->mPos + atn::Vector3(0.0f, 15.0f, 0.0f), this, m1574, 0, 0);
-        damage.m04 /= -1;
+        DamageResult_unk damage;
+        damage.mDamage = (int)drain;
+        damage.mType = 1;
+        m1574->mStatus.fn_8012DF7C(damage.mDamage, 0, 0);
+        lbl_8087F048->fn_80108C10(&damage, m1574->mPos + atn::Vector3(0.0f, 15.0f, 0.0f), this, m1574, 0, 0);
+        damage.mDamage /= -1;
         atn::Vector3 pos = fn_80148B0C(0)->m04.mCenter;
         pos += atn::Vector3(0.0f, 15.0f, 0.0f);
-        mStatus.fn_8012DF7C(damage.m04, 0, 0);
-        fn_80108C10(lbl_8087F048, &damage, pos, this, this, 0, 0);
+        mStatus.fn_8012DF7C(damage.mDamage, 0, 0);
+        lbl_8087F048->fn_80108C10(&damage, pos, this, this, 0, 0);
     }
 }
 
@@ -1368,7 +1351,7 @@ void LastCocoonQuadruped::fn_80465B88() {
             param.mTurn = 0.12566371f;
             param.mDelay = 0.0f;
             param.mTime = dist / data->m4C;
-            fn_800F8574(lbl_8087F048, this, data, &pos, &dir, &param, 0x100, 0, 0.0f, 1.0f);
+            lbl_8087F048->fn_800F8574(this, data, &pos, &dir, &param, 0x100, 0, 0.0f, 1.0f);
         }
     } else if (m14BC == 2) {
         float frame = mMotion.mTracks[3].m08;
@@ -1415,7 +1398,7 @@ void LastCocoonQuadruped::fn_80466370() {
         } else if (20.0f < f && f < 24.0f && m14BC == 0) {
             HitInfo_unk* skill = fn_80219E6C(0x5B5);
             BattleTask* mgr = lbl_8087F048;
-            fn_800FAB80(mgr, this, skill, m590, &mPos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
+            mgr->fn_800FAB80(this, skill, m590, &mPos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
             m14BC = 1;
         }
         atn::Vector3 dir = m15BC;
@@ -1582,7 +1565,7 @@ int LastCocoonQuadruped::fn_80468038(int* count, atn::Vector3* pos, float* angle
             continue;
         }
         if (p->m560 == 4 || p->m560 == 5) {
-            if (fn_800FBA9C(lbl_8087F048, p, this, p->m638, -1, 0.0f) >= 0) {
+            if (lbl_8087F048->fn_800FBA9C(p, this, p->m638, -1, 0.0f) >= 0) {
                 at = p->mPos;
                 found = 1;
                 dist = 30.0f;
@@ -1611,7 +1594,7 @@ int LastCocoonQuadruped::fn_80468038(int* count, atn::Vector3* pos, float* angle
             }
         } else if (p->m560 == 14) {
             atn::Vector3 dir = p->fn_80158E1C();
-            if (fn_800FBE70(lbl_8087F048, p, this, p->m638, -1, &dir, 1, -1) >= 0) {
+            if (lbl_8087F048->fn_800FBE70(p, this, p->m638, -1, &dir, 1, -1) >= 0) {
                 at = dir;
                 found = 1;
                 yaw = p->mRot.y;
@@ -1725,27 +1708,17 @@ atn::Vector3 LastCocoonQuadruped::fn_80468A08(int id, int* next) {
     return pos;
 }
 
-// inferred: points of the path, a std::vector<atn::Vector3> handled through the weak copies of
-// game/Em403WarLion.cpp (C names)
-struct QuadPoints_unk {
-    atn::Vector3* mData;
-    unsigned int mSize;
-    unsigned int mCap;
-};
-extern "C" void fn_8032AB90(QuadPoints_unk* v);                         // inferred: constructor
-extern "C" QuadPoints_unk* fn_8032ABA4(QuadPoints_unk* v, int flag);    // inferred: destructor
-extern "C" void fn_8032AC1C(QuadPoints_unk* v, const atn::Vector3* p);  // inferred: push_back
-extern "C" void fn_8032AF90(QuadRoutes_unk* path, QuadPoints_unk* pts); // inferred: builds the path
+#include "std/vector_vec3_unk.h"
+extern "C" void fn_8032AF90(QuadRoutes_unk* path, std::vector<atn::Vector3>* pts); // inferred: builds the path
 
-// NONMATCHING: the original is over the inlining budget (docs/inlining.md R3) and calls the Vector3
-// copies and RouteTable_unk::FindPlace_unk; the points are a std::vector<atn::Vector3> whose weak copies
-// (C names) live in game/Em403WarLion.cpp, so here they are plain calls and the budget is not reached
+// inferred: over the inlining budget (docs/inlining.md R3, push_back of std/vector_vec3_unk.h): the Vector3
+// copies, RouteTable_unk::FindPlace_unk and the vector members (weak copies of game/Em403WarLion.cpp) are calls
 int LastCocoonQuadruped::fn_80468B68(QuadRoutes_unk* path, int id, int* next, int last) {
+    int id2 = 0;
+    int id1 = 0;
     atn::Vector3 pos1 = lbl_807C7030;
     atn::Vector3 pos2 = lbl_807C7030;
     atn::Vector3 pos0 = lbl_807C7030;
-    int id2 = 0;
-    int id1 = 0;
     for (int i = 0; i < 10; i++) {
         if (id == sQuadPlaces[i].mId) {
             int j = i + 1;
@@ -1777,16 +1750,14 @@ int LastCocoonQuadruped::fn_80468B68(QuadRoutes_unk* path, int id, int* next, in
     if (place != 0) {
         pos2 = place->mPos;
     }
-    QuadPoints_unk points;
-    fn_8032AB90(&points);
-    fn_8032AC1C(&points, &pos0);
-    fn_8032AC1C(&points, &pos1);
-    fn_8032AC1C(&points, &pos2);
+    std::vector<atn::Vector3> points;
+    points.push_back(pos0);
+    points.push_back(pos1);
+    points.push_back(pos2);
     fn_8032AF90(path, &points);
     if (next != 0) {
         *next = id2;
     }
-    fn_8032ABA4(&points, -1);
     return 1;
 }
 

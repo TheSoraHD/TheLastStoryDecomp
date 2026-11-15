@@ -16,7 +16,7 @@ public:
     virtual void vf10();
     virtual void vf14();
     virtual void vfC0(void* draw);
-    virtual void vf3C(HitInfo_unk* hit);
+    virtual void vf3C(HitInfo_unk* hit, int);
     virtual void vf40(HitInfo_unk* hit);
 
     void fn_80546B84(); // inferred: moves to the armor stand m14DC (state 6)

@@ -231,20 +231,20 @@ inline void Em305Vampire::Rolling_unk() {
         m1500 = 0;
         m14F8 = 0;
         m14FC = 0;
-        m590 = fn_800F8548(lbl_8087F048);
+        m590 = lbl_8087F048->fn_800F8548();
         m58C = 0;
         fn_8016E970(3);
     } else {
         float f = mMotion.mTracks[0].m08;
         if (45.0f <= f) {
-            fn_800FAB80(lbl_8087F048, this, m1514, m590, &mPos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
+            lbl_8087F048->fn_800FAB80(this, m1514, m590, &mPos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
         }
     }
     if (m1528 != 0) {
         float f = mMotion.mTracks[0].m08;
         if (80.0f <= f && f <= 83.0f) {
             BattleTask* mgr = lbl_8087F048;
-            fn_800FAB80(mgr, this, m1514, fn_800F8548(mgr), &mPos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
+            mgr->fn_800FAB80(this, m1514, mgr->fn_800F8548(), &mPos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
             ((GameTask*)lbl_8087F430)->fn_80370AE4(5, 1);
             m1528 = 0;
             m1540 = 0;
@@ -363,7 +363,7 @@ inline void SetSeg_unk(atn::ColliCapsule& c, const atn::Vector3& a, const atn::V
 }
 
 // inferred: reaction to the hit (0x134: silver arrow, 0x1791: stun)
-void Em305Vampire::vf3C(HitInfo_unk* hit) {
+void Em305Vampire::vf3C(HitInfo_unk* hit, int) {
     HitMsg_unk* msg = (HitMsg_unk*)hit;
     if (msg->mData->m04 == 10000) {
         fn_80151448(msg);
@@ -407,7 +407,7 @@ void Em305Vampire::vf3C(HitInfo_unk* hit) {
 inline void Em305Vampire::StartWeaken_unk() {
     m14F8 = 0;
     m14FC = 0;
-    m590 = fn_800F8548(lbl_8087F048);
+    m590 = lbl_8087F048->fn_800F8548();
     m58C = 13;
     mMotion.m34C = 1;
     mMotion.mTracks[0].m20 = 1.0f;
@@ -427,7 +427,7 @@ inline void Em305Vampire::StartWeaken_unk() {
 inline void Em305Vampire::StartStun_unk() {
     m14F8 = 0;
     m14FC = 0;
-    m590 = fn_800F8548(lbl_8087F048);
+    m590 = lbl_8087F048->fn_800F8548();
     m58C = 15;
     fn_8016E970(3);
     mMotion.m34C = 1;
@@ -438,7 +438,7 @@ inline void Em305Vampire::StartStun_unk() {
     PlayEffect_unk(&m1594, &mMotion);
     BattleTask* mgr = lbl_8087F048;
     atn::Vector3 pos = fn_801781B0();
-    fn_80108F38(mgr, &pos, 0x80);
+    mgr->fn_80108F38(&pos, 0x80);
 }
 
 void Em305Vampire::vf40(HitInfo_unk* hit) {
@@ -492,7 +492,7 @@ void Em305Vampire::vf20() {
 inline void Em305Vampire::StartTackle_unk() {
     m14F8 = 0;
     m14FC = 0;
-    m590 = fn_800F8548(lbl_8087F048);
+    m590 = lbl_8087F048->fn_800F8548();
     m58C = 6;
     fn_8016E970(6);
     m560 = 4;
@@ -505,7 +505,7 @@ inline void Em305Vampire::StartTackle_unk() {
 inline void Em305Vampire::StartFlee_unk() {
     m14F8 = 0;
     m14FC = 0;
-    m590 = fn_800F8548(lbl_8087F048);
+    m590 = lbl_8087F048->fn_800F8548();
     m58C = 14;
     m152C = 0.0f;
     m1530 = 0;
@@ -559,7 +559,7 @@ void Em305Vampire::fn_802EA490() {
                 atn::Vector3 dest = to->mPos;
                 m14F8 = 0;
                 m14FC = 0;
-                m590 = fn_800F8548(lbl_8087F048);
+                m590 = lbl_8087F048->fn_800F8548();
                 m58C = 8;
                 fn_8016E970(6);
                 m560 = 4;
@@ -810,7 +810,7 @@ void Em305Vampire::vfEC() {
 void Em305Vampire::fn_802EBABC() {
     m14F8 = 0;
     m14FC = 0;
-    m590 = fn_800F8548(lbl_8087F048);
+    m590 = lbl_8087F048->fn_800F8548();
     m58C = 0;
     fn_8016E970(3);
 }
@@ -826,7 +826,7 @@ void Em305Vampire::fn_802EBBA8() {
     }
     m14F8 = 0;
     m14FC = 0;
-    m590 = fn_800F8548(lbl_8087F048);
+    m590 = lbl_8087F048->fn_800F8548();
     m58C = 7;
     fn_8016E970(6);
     m560 = 4;
@@ -854,7 +854,7 @@ void Em305Vampire::fn_802EBBA8() {
 void Em305Vampire::fn_802EBF40() {
     m14F8 = 0;
     m14FC = 0;
-    m590 = fn_800F8548(lbl_8087F048);
+    m590 = lbl_8087F048->fn_800F8548();
     m58C = 13;
     mMotion.m34C = 1;
     mMotion.mTracks[0].m20 = 1.0f;
@@ -878,7 +878,7 @@ void Em305Vampire::fn_802EC098() {
 void Em305Vampire::fn_802EC160() {
     m14F8 = 0;
     m14FC = 0;
-    m590 = fn_800F8548(lbl_8087F048);
+    m590 = lbl_8087F048->fn_800F8548();
     m58C = 15;
     fn_8016E970(3);
     mMotion.m34C = 1;
@@ -889,13 +889,13 @@ void Em305Vampire::fn_802EC160() {
     PlayEffect_unk(&m1594, &mMotion);
     BattleTask* mgr = lbl_8087F048;
     atn::Vector3 pos = fn_801781B0();
-    fn_80108F38(mgr, &pos, 0x80);
+    mgr->fn_80108F38(&pos, 0x80);
 }
 
 void Em305Vampire::fn_802EC280() {
     m14F8 = 0;
     m14FC = 0;
-    m590 = fn_800F8548(lbl_8087F048);
+    m590 = lbl_8087F048->fn_800F8548();
     vf48();
     fn_80178A6C();
     fn_8015495C(0, 1, 1, 1);

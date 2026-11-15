@@ -230,6 +230,9 @@ public:
     friend basic_string<T2, Tr2, A2> operator+(const basic_string<T2, Tr2, A2>&, const basic_string<T2, Tr2, A2>&);
     // inferred: one character (atn/WordWrap_unk 0x800DFB40: size() then the range replace of &c)
     basic_string& operator+=(T c) { return do_replace(size(), 0, &c, &c + 1, random_access_iterator_tag()); }
+    // inferred: one character in place (atn/EffectManager 0x80241CB8, atn/TextAnimation 0x800D9960); defined in
+    // those files (a definition here would renumber the @N of every file that includes this header)
+    basic_string& operator=(T);
     // inferred: inlined in operator==(const basic_string&, const T*) (0x8000EB8C, char)
     // inferred: matches the weak copy 0x8000EB8C: n2 copied to a local that stays in a register
     // (n2 itself is passed by address to __min), the first __min takes the size first, and the

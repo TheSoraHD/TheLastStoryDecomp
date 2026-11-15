@@ -15,6 +15,7 @@
 #include "Event/Actor.h"
 #include "atn/RenderManager.h"
 #include "math/VecAssign_unk.h"
+#include "atn/Lerp_unk.h"
 
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 
@@ -914,8 +915,8 @@ void EventCamera_unk::fn_801162A4(int arg) {
         float t = 1.0f;
         m638 += t;
         t = MIN(t, m638 / m63C);
-        SetPosition(atn::Lerp_unk(*m444.GetPosition_unk(), *GetPosition_unk(), t));
-        SetTarget_unk(atn::Lerp_unk(*m444.GetTarget_unk(), *GetTarget_unk(), t));
+        SetPosition(atn::Lerp_unk<atn::Vector3>(*m444.GetPosition_unk(), *GetPosition_unk(), t));
+        SetTarget_unk(atn::Lerp_unk<atn::Vector3>(*m444.GetTarget_unk(), *GetTarget_unk(), t));
         float fovy = GetFovy_unk();
         float fovy2 = m444.GetFovy_unk();
         SetFovy_unk(fn_800F8524(&fovy2, &fovy, t));

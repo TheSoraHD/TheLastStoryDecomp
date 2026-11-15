@@ -387,7 +387,7 @@ void SceneSetting_unk::fn_8047CB74(atn::Scene* scene, float t) {
     scene->GetLS_unk() = atn::Lerp_unk(mLS, scene->GetLS_unk(), t);
     *scene->fn_8047C778() = atn::Lerp_unk(m3C, *scene->fn_8047C778(), t);
     scene->fn_8047C780()->mColor = atn::Lerp_unk(mGodRay.mColor, scene->fn_8047C780()->mColor, t);
-    scene->fn_8047C780()->mPos = atn::Lerp_unk(mGodRay.mPos, scene->fn_8047C780()->mPos, t);
+    scene->fn_8047C780()->mPos = atn::Lerp_unk<atn::Vector3>(mGodRay.mPos, scene->fn_8047C780()->mPos, t);
     scene->fn_8047C780()->mRadialScale = fn_800F8524(&mGodRay.mRadialScale, &scene->fn_8047C780()->mRadialScale, t);
     *scene->fn_8047C7D4() = mShadow;
     for (unsigned int i = 0; i < 4; i++) {
@@ -1387,9 +1387,8 @@ void SceneSetting_unk::Get_unk(atn::Scene* scene) {
     mLight = *scene->GetLight(0);
 }
 
-// NONMATCHING: 58.4% - std::vector::push_back: the original takes another path for this element
-// (in-place copy when size < cap, else the length check fn_8049003C, which returns 0, and the
-// reallocation fn_80490098; copies through fn_80482400), not the one of include/std/vector.h
+// NONMATCHING: 96.0% - registers and stack slots; same shape as the original with include/std/vector.h (fast path
+// inlined, weak copies construct 0x80482400, __expand_by_unk 0x8049003C and __insert_realloc_unk 0x80490098)
 // inferred: adds the light settings of a map area to the event settings (callback, see 0x804834E4)
 void fn_80481B9C(MapArea* area, void* arg) {
     EventConfig_unk* config = (EventConfig_unk*)arg;
@@ -1995,7 +1994,7 @@ void Manager::vf10() {
             m2434 = MAX(0.0f, m2434 - 0.1f);
         }
         m2438->SetLayoutValue_unk("arrowA", m2434);
-        m243C = atn::Lerp_unk(m243C, dir, 0.15f);
+        m243C = atn::Lerp_unk<atn::Vector3>(m243C, dir, 0.15f);
         float angle = 0.0f;
         if (!m243C.IsZero_unk()) {
             angle = fn_802A7964(m243C.ToRotation_unk().y);
@@ -2647,8 +2646,6 @@ inline float Integral_unk(atn::Curve* curve, float a, float b) {
     return integral->vf10(b) - va;
 }
 
-// NONMATCHING: 99.91% - only the relocations of the std::vector<atn::Vector3> weak copies (fn_8032AB90,
-// fn_8032AC1C, fn_8032ABA4: extern "C" in game/Em403WarLion.cpp) and of the jump table
 void Curve_unk::fn_80489D08(int type) {
     if (m04 != 0) {
         delete m04;

@@ -32,7 +32,7 @@ public:
     virtual void vf10();                                   // 0x802E9590
     virtual void vf14();                                   // 0x802E9D38
     virtual void vf20();                                   // 0x802EA27C
-    virtual void vf3C(HitInfo_unk* hit);                   // 0x802E9DEC
+    virtual void vf3C(HitInfo_unk* hit, int);                   // 0x802E9DEC
     virtual void vf40(HitInfo_unk* hit);                   // 0x802E9FC8
     virtual void vfEC();                                   // 0x802EB9F8
     virtual void vfFC();                                   // 0x802EC66C

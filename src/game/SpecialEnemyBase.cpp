@@ -183,7 +183,7 @@ int SpecialEnemyBase::vf10C(HitMsg_unk* msg) {
     return 1;
 }
 
-void SpecialEnemyBase::vf3C(HitInfo_unk* hit) {
+void SpecialEnemyBase::vf3C(HitInfo_unk* hit, int) {
     if (m58C != 2 && vf10C((HitMsg_unk*)hit) != 0) {
         fn_80151448((HitMsg_unk*)hit);
         if (!mFlag2) {

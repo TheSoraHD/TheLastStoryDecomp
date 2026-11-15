@@ -117,6 +117,15 @@ inline void AddCurve_unk(atn::Vector3& pos, Mtx rot, XsfCurveSet_unk* curve, flo
     pos += w;
 }
 
+// inferred: the curve vector turned by `rot`
+inline atn::Vector3 CurveVec_unk(Mtx rot, XsfCurveSet_unk* curve, float time, int x, int y, int z) {
+    atn::Vector3 v;
+    curve->fn_805BF410(time, &v.x, x, y, z);
+    atn::Vector3 w = v;
+    PSMTXMultVec(rot, &w, &w);
+    return w;
+}
+
 FinishCamera_unk::FinishCamera_unk()
     : m00(0), mCamera(0, 0), mPos(0.0f, 0.0f, 0.0f), mRot(0.0f, 0.0f, 0.0f), m35C(0), m360(0), m368(0), m394(0),
       m3A8(0), m3AC(0.0f), m3B0(0.0f), m3B4(0) {
@@ -309,7 +318,6 @@ void FinishCamera_unk::fn_80378D34(atn::Vector3* eye, const atn::Vector3* target
     }
 }
 
-// NONMATCHING: 99.7% - register order of the offset computation
 // inferred: called with bl by fn_803792F0, where MWCC would inline it (accepted __declspec(noinline), rule 2)
 __declspec(noinline) float FinishCamera_unk::fn_80379104(XsfCurveSet_unk* curve, const atn::Vector3* pos, float time, float angle) {
     atn::ColliResult_unk hit;
@@ -320,7 +328,7 @@ __declspec(noinline) float FinishCamera_unk::fn_80379104(XsfCurveSet_unk* curve,
         atn::Vector3 to = *pos;
         offset = 3.1415927f * (float)i / 4.0f;
         PSMTXRotRad(rot, 'y', angle + offset);
-        AddCurve_unk(to, rot, curve, time, 1, 2, 3);
+        to += CurveVec_unk(rot, curve, time, 1, 2, 3);
         atn::Vector3 a = from;
         atn::Vector3 b = to;
         if (fn_8004ED34(lbl_8087EE98, &hit, &a, &b, 0x80000008, 0, 0) == 0) {
@@ -338,7 +346,7 @@ __declspec(noinline) float FinishCamera_unk::fn_80379104(XsfCurveSet_unk* curve,
 // the ends; 6 = the same around all of them at once. The camera is then set to the render manager (or the field
 // camera is moved to the target when it is taken over, m394). The curves are added by hand (AddCurve_unk as a
 // candidate puts the function over the inlining budget)
-// NONMATCHING: 94.4% - stack slots and float registers of the temporaries (the original keeps the curve matrices
+// NONMATCHING: 95.2% - stack slots and float registers of the temporaries (the original keeps the curve matrices
 // in r29), five more saved gprs here
 void FinishCamera_unk::fn_803792F0() {
     if (m00 == 0) {
@@ -389,8 +397,8 @@ void FinishCamera_unk::fn_803792F0() {
         target.y += mOffsetY;
         float t = 0.5f * (float)sin(0.5f * (3.1415927f * (2.0f * ((float)(m354 - m350) / (float)m354) - 1.0f))) +
                   0.5f;
-        eye = (m32C - m320) * t + m320;
-        target = (target - m338) * t + m338;
+        eye = FinishLerp_unk(m320, m32C, t);
+        target = FinishLerp_unk(m338, target, t);
         m368->fn_803903E0(&m368->m8A4, 0.62831855f * (1.0f - m3A0) + m39C, 1);
         m350--;
     } else {

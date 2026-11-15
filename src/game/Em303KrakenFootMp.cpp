@@ -65,7 +65,7 @@ void Em303KrakenFootMp::fn_802E5B30(int value) {
 inline void Em303KrakenFootMp::SetState_unk(int state) {
     m14DC = 0;
     m14E0 = 0;
-    m590 = fn_800F8548(lbl_8087F048);
+    m590 = lbl_8087F048->fn_800F8548();
     m58C = state;
     fn_8016E970(3);
 }
@@ -93,7 +93,7 @@ inline void Em303KrakenFootMp::FaceTarget_unk() {
 inline void Em303KrakenFootMp::Reset_unk() {
     m14DC = 0;
     m14E0 = 0;
-    m590 = fn_800F8548(lbl_8087F048);
+    m590 = lbl_8087F048->fn_800F8548();
     m58C = 0;
     fn_8016E970(3);
 }
@@ -128,7 +128,7 @@ int Em303KrakenFootMp::vf0C() {
     mRoute.mA0 = 1;
     m14DC = 0;
     m14E0 = 0;
-    m590 = fn_800F8548(lbl_8087F048);
+    m590 = lbl_8087F048->fn_800F8548();
     m58C = 0;
     fn_8016E970(3);
     return 1;
@@ -213,7 +213,7 @@ void Em303KrakenFootMp::vf100(int state) {
     case 7:
         m14DC = 0;
         m14E0 = 0;
-        m590 = fn_800F8548(lbl_8087F048);
+        m590 = lbl_8087F048->fn_800F8548();
         m58C = 7;
         fn_8016E970(3);
         fn_8016E4C4(1);
@@ -384,7 +384,7 @@ void Em303KrakenFootMp::vf104() {
 
 void Em303KrakenFootMp::vf108() {}
 
-void Em303KrakenFootMp::vf3C(HitInfo_unk* hit) {
+void Em303KrakenFootMp::vf3C(HitInfo_unk* hit, int) {
     HitMsg_unk* msg = (HitMsg_unk*)hit;
     if (m58C != 7 && msg->m44 != 1) {
         fn_80151448(msg);
@@ -413,7 +413,7 @@ void Em303KrakenFootMp::vf40(HitInfo_unk* hit) {
     } else {
         m14DC = 0;
         m14E0 = 0;
-        m590 = fn_800F8548(lbl_8087F048);
+        m590 = lbl_8087F048->fn_800F8548();
         m58C = 11;
         fn_8016E970(3);
         mMotion.m34C = 1;
@@ -510,7 +510,7 @@ void Em303KrakenFootMp::fn_802E8084(int kind) {
     m1508 = 1;
     m14DC = 0;
     m14E0 = 0;
-    m590 = fn_800F8548(lbl_8087F048);
+    m590 = lbl_8087F048->fn_800F8548();
     vf48();
     fn_80178A6C();
     fn_8015495C(0, 1, 1, 1);
@@ -577,7 +577,7 @@ void Em303KrakenFootMp::vf24() {
 void Em303KrakenFootMp::vf80(const atn::Vector3& pos, const atn::Vector3& offset) {
     m14DC = 0;
     m14E0 = 0;
-    m590 = fn_800F8548(lbl_8087F048);
+    m590 = lbl_8087F048->fn_800F8548();
     m58C = 7;
     fn_8016E970(3);
     fn_8016E4C4(1);

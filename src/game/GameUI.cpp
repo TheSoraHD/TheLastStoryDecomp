@@ -44,6 +44,7 @@ struct GameUIGauge_unk : public atn::D2A_Task {};
 #include "std/vector.h"
 #include "atn/RenderSetting_unk.h"
 #include "db/PlayerParam_unk.h"
+#include "atn/Lerp_unk.h"
 extern "C" int sprintf(char* s, const char* format, ...);
 
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
@@ -286,7 +287,7 @@ GameUI* GameUI::fn_803CE910(atn::Task* parent) {
 // node earlier); (2) the zero of the resets after the 0x5BC loop is materialised twice in the original (r3
 // up to mB08, r30 from mB20 on, across the memset) and once here (r30). Wrapper structs with constructors
 // (W262C_unk, W25CC_unk, W2568_unk, MarkerList_unk) were needed for the scheduling windows and the loop
-// bounds of the arrays; `m30C.mMid.mBase.mCount -= (int)...` reproduces the lwz/subf of the inlined Clear.
+// bounds of the arrays; `m30C.clear()` is the lwz/subf of the inlined clear.
 GameUI::GameUI(atn::Task* parent)
     : atn::Task(parent), m48(0.0f), m4C(-1.0f), m834(0), mD84(0), mD88(0),
       mD8C(0), mDA4(0), mDA8(0), mDAC(0), mDB0(0), mDC8(0), m1118(0), m1130(0), m1140(0), m1144(0), m1148(0), m114C(0), m1150(0), m1154(0), m1170(0), m15B4(0), m15B8(0),
@@ -300,7 +301,7 @@ GameUI::GameUI(atn::Task* parent)
         m318[i].mInst[3] = 0;
         m318[i].mInst[4] = 0;
     }
-    m30C.mMid.mBase.mCount -= (int)m30C.mMid.mBase.mCount;
+    m30C.clear();
     m3D8 = 0;
     m3DC[0] = 0;
     m3DC[1] = 0;
@@ -455,9 +456,6 @@ void GameUI::fn_803CF74C() {
     mD3C = 0;
 }
 
-void GameUIListBase_unk::Clear_unk() {
-    mCount -= end_unk() - begin_unk();
-}
 
 
 GameUI::~GameUI() {
@@ -1283,10 +1281,22 @@ inline atn::D2A_TaskInstanceBase<64, 8>* AsWindow_unk(atn::Task* task) {
     return static_cast<atn::D2A_TaskInstanceBase<64, 8>*>(task);
 }
 
+// inferred: stops the gauges mA90/mAB8/mAE0 (inlined in fn_803D2194 and fn_803D83A8: as a separate inline
+// level the unrolled loop gets the counter and pointer registers of the original; name invented)
+inline void GameUIFreezeGauges_unk(GameUI* ui) {
+    ui->mA8C = 0;
+    for (int i = 0; i < 10; i++) {
+        ui->mA90[i]->FreezeTask();
+        if (ui->mAB8[i]->IsFlag_unk(4)) {
+            AsSmallInst_unk(ui->mAB8[i])->Rewind_unk();
+        }
+        ui->mAB8[i]->FreezeTask();
+        ui->mAE0[i]->FreezeTask();
+    }
+}
+
 // inferred: hides and stops every part of the HUD created by fn_803D022C/fn_803D0B20 (called by
 // game/GameTask)
-// NONMATCHING: 99.9% - the unrolled second loop swaps r4/r5 (counter and pointer); tried the counter outside
-// the loop and unsigned
 void GameUI::fn_803D2194() {
     if (mDC8 != 0) {
         for (int i = 0; i < 16; i++) {
@@ -1304,15 +1314,7 @@ void GameUI::fn_803D2194() {
             mAE0[i]->fn_800D246C(0);
             AsSmallInst_unk(mAE0[i])->SetSpeed_unk(0.0f);
         }
-        mA8C = 0;
-        for (int i = 0; i < 10; i++) {
-            mA90[i]->FreezeTask();
-            if (mAB8[i]->IsFlag_unk(4)) {
-                AsSmallInst_unk(mAB8[i])->Rewind_unk();
-            }
-            mAB8[i]->FreezeTask();
-            mAE0[i]->FreezeTask();
-        }
+        GameUIFreezeGauges_unk(this);
         for (int i = 0; i < 32; i++) {
             mF14[i]->fn_800D246C(0);
             AsWindow_unk(mF14[i])->SetLoop_unk(0);
@@ -1580,7 +1582,6 @@ extern "C" BattleTask* lbl_8087F048;
 inline BattleTask* fn_8013A194() {
     return lbl_8087F048;
 }
-extern "C" void fn_8010D320(void* obj, atn::Vector3 pos); // inferred: aims at a position
 // inferred: names of the places (db/MapLink_unk.cpp)
 extern "C" const wchar_t* fn_802168BC(int place);
 extern "C" int fn_80216908(int place);
@@ -2179,9 +2180,9 @@ void GameUI::fn_803D2A6C() {
                                     m318[i].m1C = -1;
                                 }
                             }
-                            for (unsigned int j = 0; j < m30C.mMid.mBase.Size_unk(); j++) {
-                                if (m30C.mMid.mBase.At_unk(j)->m04 == c) {
-                                    int k = m30C.mMid.mBase.At_unk(j)->m00;
+                            for (unsigned int j = 0; j < m30C.size(); j++) {
+                                if (m30C[j].m04 == c) {
+                                    int k = m30C[j].m00;
                                     m318[i].m1C = k;
                                     m318[i].mInst[k]->Rewind_unk();
                                     fn_801F837C(m318[i].mInst[k], "voiceMsg", GetMsgTable_unk()->GetEntry_unk(k + 0xE3));
@@ -2204,7 +2205,7 @@ void GameUI::fn_803D2A6C() {
                         }
                     }
                 }
-                m30C.mMid.mBase.Clear_unk();
+                m30C.clear();
             }
 
             // inferred: gauges of the bosses
@@ -2255,7 +2256,7 @@ void GameUI::fn_803D2A6C() {
 
             // inferred: marks of the targets
             if (!m8D0.empty() && fn_8013A194() != 0) {
-                fn_8010D320(fn_8013A194(), atn::Vector3(m8D0[0].mPos));
+                fn_8013A194()->fn_8010D320(atn::Vector3(m8D0[0].mPos));
             }
             for (unsigned int i = 0; i < fn_80372574(&m8D0); i++) {
                 if (m8D0[i].mScreen.x >= -200.0f && 1000.0f >= m8D0[i].mScreen.x && m8D0[i].mScreen.y >= -200.0f &&
@@ -2470,7 +2471,7 @@ void GameUI::fn_803D2A6C() {
                         float range = m2670 > (m2674 < dist ? m2674 : dist) ? m2670 : (m2674 < dist ? m2674 : dist);
                         float t = range / (m2674 - m2670);
                         atn::Vector3 scale(1.0f, 1.0f, 1.0f);
-                        scale = atn::Lerp_unk(far, near, t);
+                        scale = atn::Lerp_unk<atn::Vector3>(far, near, t);
                         if (open != 0) {
                             open->SetPosition_unk(pos);
                             atn::Matrix3x4 m;
@@ -2905,6 +2906,9 @@ void GameUI::fn_803D2A6C() {
     }
 }
 
+// inferred: the copy of push_back (and its "vector length error") follows the weak copies of fn_803D2A6C
+template void std::vector<std::basic_string<wchar_t> >::push_back(const std::basic_string<wchar_t>& x);
+
 // inferred: centre and radius of a character for the hate lines (the battle collision when bit C31 of
 // BattleCharaTask::m14A8 is set; names invented)
 inline const atn::Vector3& GetLineCenter_unk(CharaTask* c) {
@@ -3124,15 +3128,7 @@ void GameUI::fn_803D83A8() {
             m2628->FreezeTask();
         }
         mDC4->FreezeTask();
-        mA8C = 0;
-        for (int i = 0; i < 10; i++) {
-            mA90[i]->FreezeTask();
-            if (mAB8[i]->IsFlag_unk(4)) {
-                AsSmallInst_unk(mAB8[i])->Rewind_unk();
-            }
-            mAB8[i]->FreezeTask();
-            mAE0[i]->FreezeTask();
-        }
+        GameUIFreezeGauges_unk(this);
 
         GameUIField_unk* field = lbl_8087F430;
         bool event = false;
@@ -3983,19 +3979,25 @@ void GameUI::fn_803DBD44() {
     }
 }
 
+// inferred: the view is changing mode (state 2); name invented
+static inline bool TacBusy_unk(const TacView* t) {
+    return t->m48.mState == 2;
+}
+
 // inferred: ring drawn under a character (textures mE34 and mE64); it spins while the tactical view points
 // at the character, and `fade` goes up or down by one each frame (0..8) and widens it
-// NONMATCHING: 98.7% - the original loads TacView::m48 once and compares it with 2 and then with 0 (MWCC
-// folds the two compares or reloads the member); register numbers follow
+// inferred: the state of the view is tested through two const inlines (busy, then idle): one load and two
+// compares, as in the original (written directly MWCC folds them; with one inline it reloads)
 void GameUI::fn_803DCA84(CharaTask* chara, float* fade) {
-    bool selected = false;
     atn::Vector3 pos = ((atn::Matrix3x4*)chara->mMotion.mMtx.m)->GetTrans_unk();
     atn::Vector3 rot(-1.5707964f, 0.0f, 0.0f);
-    float size = 3.5f * (2.0f * chara->m5B0);
+    float radius = chara->m5B0;
+    float size = 3.5f * (2.0f * radius);
     pos.y += 6.0f;
     int kind = chara->m5C->m122;
+    bool selected = false;
     TacView* tac = lbl_8087F9F8;
-    if (tac != 0 && tac->mA70 != 0 && tac->m48.mState != 2 && tac->IsIdle_unk() && tac->m48.m04 == chara &&
+    if (tac != 0 && tac->mA70 != 0 && !TacBusy_unk(tac) && tac->IsIdle_unk() && tac->m48.m04 == chara &&
         tac->mAim.mMode == 0) {
         selected = true;
     }
@@ -4044,7 +4046,6 @@ extern "C" void fn_803E6D4C(GameUIWindow_unk* window, chr::CharaData_unk* data);
 
 // inferred: fills the window of party slot `slot` with `chara` (leader mark, position over the head or at
 // the bottom of the screen when `fixed`, level and skill name)
-// NONMATCHING: 99.4% - only the offsets into the string pool (the functions before it are not written yet)
 void GameUI::fn_803DCD34(CharaTask* chara, int slot, int other, int fixed) {
     if (chara != 0) {
         GameUIWindow_unk* window = static_cast<GameUIWindow_unk*>(mF14[m1014[slot]]);
@@ -4406,8 +4407,8 @@ static GameUIButtonHelp_unk sButtonHelp2_unk[23] = {
     {0, 6, 0xBA, atn::Vector4_unk(0.0f, 0.0f, 0.0f, 0.0f)},
 };
 
-// NONMATCHING: 95.5% - register allocation: the original keeps the zero of the first loop in r31 and
-// reuses it as the offset into m10D4 (this in r30); here this stays in r31 (4 variants)
+// inferred: the hit of the bullet is read in place (not through SkillEffect::GetHit_unk: one inline level
+// less gives the hit the lowest saved register, as in the original)
 void GameUI::fn_803DE648() {
     if (mDC8 == 0) {
         return;
@@ -4431,11 +4432,13 @@ void GameUI::fn_803DE648() {
             break;
         }
         SkillEffect* bullet = lbl_8087F9E8->GetBullet_unk(i);
-        HitInfo_unk* hit = bullet->GetHit_unk();
+        HitInfo_unk* hit = bullet->m04;
+        if (bullet->fn_8059A264()) {
+            hit = bullet->GetOwnHit_unk();
+        }
         if (bullet->IsActive_unk() && hit != 0 && fn_8021A9CC(hit) && bullet->m5C * bullet->m28 >= limit &&
             (signed char)hit->m02 != 4 && (signed char)hit->m02 != 0) {
-            m10D4[count] = bullet;
-            count++;
+            m10D4[count++] = bullet;
         }
     }
     for (int i = 0; i < count; i++) {
@@ -4707,7 +4710,8 @@ inline T* GameUIMinElement_unk(T* first, T* last, Compare& comp) {
     T* result = first;
     if (first != last) {
         for (it = first + 1; it != last; it++) {
-            if (comp(*it, *result)) {
+            T best = *result;
+            if (comp(*it, best)) {
                 result = it;
             }
         }
@@ -4715,9 +4719,7 @@ inline T* GameUIMinElement_unk(T* first, T* last, Compare& comp) {
     return result;
 }
 
-// NONMATCHING: 99.94% (both instantiations) - in the inlined min_element the original keeps *it in r28 and
-// *result in r29 (swapped here); as game/CharaTask.cpp; tried the loop forms of game/CharaTask.cpp and
-// include/game/MslSort_unk.h, `end` local, the predicate by const reference
+// inferred: the min_element above reads *result into a local (the original keeps *it in r28, *result in r29)
 // inferred: MSL __sort of the HUD windows (quicksort with a selection sort below 21 elements; the pivots
 // move with a counter of each instantiation, lbl_8087DEF0 and lbl_8087DEF4); as game/GameTask.cpp
 template <class T, class Compare>
@@ -4895,7 +4897,7 @@ void GameUI::fn_803E0D84() {
             }
         }
     }
-    m30C.mMid.mBase.mCount -= (int)m30C.mMid.mBase.mCount;
+    m30C.clear();
 }
 
 // inferred: global object at lbl_8087F098 (class unknown, as in game/CharaTask.cpp); m48 nonzero shows all
@@ -5250,49 +5252,13 @@ void GameUI::fn_803E0E10(CharaTask* chara, GameUIElem60_unk* window, int index) 
     window->m58 = chara->mStatus.mParamA.m78;
 }
 
-// inferred: appends {index, chara} to the list m30C, growing it as the MSL vector does (3/5 more, then
-// half more; name invented)
-static inline void GameUIListPush_unk(GameUIList_unk* list, int index, CharaTask* chara) {
-    GameUIListBase_unk& base = list->mMid.mBase;
-    if (base.mCount < list->m08) {
-        base.mCount++;
-        base.At_unk(base.mCount - 1)->m00 = index;
-        base.At_unk(base.mCount - 1)->m04 = chara;
-        return;
-    }
-    unsigned int cap = list->m08;
-    unsigned int need = base.mCount + 1 - cap;
-    if (cap < 0x0AAAAAAA) {
-        unsigned int grow = (cap + 1) * 3 / 5;
-        cap += grow < need ? need : grow;
-    } else if (cap < 0x15555554) {
-        unsigned int grow = (cap + 1) / 2;
-        cap += grow < need ? need : grow;
-    } else {
-        cap = 0x1FFFFFFF;
-    }
-    GameUIListBase_unk::Entry_unk* data = (GameUIListBase_unk::Entry_unk*)::operator new(cap * 8);
-    data[base.mCount].m00 = index;
-    data[base.mCount].m04 = chara;
-    for (unsigned int i = 0; i < base.mCount; i++) {
-        data[i] = *base.At_unk(i);
-    }
-    unsigned int count = base.mCount + 1;
-    unsigned char* old = base.mData;
-    base.mData = (unsigned char*)data;
-    base.mCount = count;
-    list->m08 = cap;
-    if (old != 0) {
-        delete old;
-    }
-}
-
 // inferred: HUD notice about a character: characters of kind 3 are added to the list m30C
-// NONMATCHING: written by hand; the original inlines MSL's vector<T>::push_back (m30C is likely a std::vector of
-// {index, chara}, with the length checks that call fprintf/abort)
+// NONMATCHING: 99.8% - size and capacity of the inlined push_back fast path in swapped registers (r7/r6 in the
+// original; known residue of std/vector.h, docs/mwcc-blockers.md)
 void GameUI::fn_803E2110(int index, CharaTask* chara) {
     if (chara->mType == 3) {
-        GameUIListPush_unk(&m30C, index, chara);
+        GameUIListEntry_unk e = {index, chara};
+        m30C.push_back(e);
     }
 }
 
@@ -5520,21 +5486,30 @@ void GameUI::fn_803E2A30(int kind, int frames, atn::Vector3 pos, int count, int 
     }
 }
 
-// NONMATCHING: 92.3% - the original addresses the members of the temporary mark with separate registers
-// (addi rN, r1, off for each vector) instead of one base; tried init list, body assignments, by-value
-// constructor, placement new without the temporary (5 variants)
+// inferred: the mark is a local filled member by member (each vector copy gets its own stack address, as in
+// the original; a constructor addresses them from one base)
 void GameUI::fn_803E3050(atn::Vector3 pos, atn::Vector3 screen, atn::Vector2_unk size, float dist) {
     for (GameUIMark24_unk* it = m8D0.begin(); it != m8D0.end(); it++) {
         if (dist < it->mDist) {
             if (m8D0.full()) {
                 m8D0.mCount--;
             }
-            m8D0.insert(it, GameUIMark24_unk(pos, screen, size, dist));
+            GameUIMark24_unk mark;
+            mark.mPos = pos;
+            mark.mScreen = screen;
+            mark.mSize = size;
+            mark.mDist = dist;
+            m8D0.insert(it, mark);
             return;
         }
     }
     if (!m8D0.full()) {
-        m8D0.PushBack_unk(GameUIMark24_unk(pos, screen, size, dist));
+        GameUIMark24_unk mark;
+        mark.mPos = pos;
+        mark.mScreen = screen;
+        mark.mSize = size;
+        mark.mDist = dist;
+        m8D0.PushBack_unk(mark);
     }
 }
 
@@ -5591,7 +5566,9 @@ void GameUI::fn_803E3468(atn::D2A_Task* task, atn::D2A_Task* arrows, GameUIElem1
     int sub = button->m04;
     task->SetLayoutValue_unk("item", sButtonHelp_unk[kind].m00 == 1 ? 1.0f : 0.0f);
     char num[64];
-    sprintf(num, "%d", button->m08);
+    // inferred: the original pool has one more NUL after these formats ("%d", the two d2anime paths), as if
+    // they were written with a trailing \0
+    sprintf(num, "%d\0", button->m08);
     task->SetText_unk("item_num", (int)num);
     if (button->m10 != 0) {
         SetLayoutText_unk(&task->mData.m10, "item_name", ((GameUINamed_unk*)button->m10)->mName);
@@ -5819,8 +5796,8 @@ void GameUI::fn_803E3BE8(void* msg, int arg, float time) {
     }
 }
 
-// NONMATCHING: 99.3% - the original walks the first search with a pointer from 0xC3C and the check of the
-// earlier selected markers with an offset (here both the other way round)
+// inferred: the check of the earlier selected markers goes through MarkerList_unk::operator[] (unsigned index:
+// the loop walks an offset)
 void GameUI::fn_803E3C78(const GameUIMarker_unk& marker) {
     if (marker.m00 == 0) {
         if (marker.m14 != 0) {
@@ -5851,8 +5828,8 @@ void GameUI::fn_803E3C78(const GameUIMarker_unk& marker) {
     }
     if (index >= 0 && marker.m14 != 0) {
         for (int i = 0; i < index; i++) {
-            if (mC38.m[i].m14 != 0) {
-                mC38.m[index].m14 = 0;
+            if (mC38[i].m14 != 0) {
+                mC38[index].m14 = 0;
                 break;
             }
         }
@@ -5887,7 +5864,6 @@ void GameUI::fn_803E4100() {
 
 
 // inferred: starts the marker over the head of a character
-// NONMATCHING: code matches; only the offsets of its strings in the pool differ (earlier strings unwritten)
 void GameUI::fn_803E41AC(CharaTask* chara) {
     if (m1104 != 0) {
         m1104->mFrame = 0.0f;
@@ -5924,7 +5900,7 @@ bool GameUI::fn_803E43A4() {
     return m1130 != 0;
 }
 
-void GameUI::fn_803E43B8(int on) {
+void GameUI::fn_803E43B8(int on, int) {
     if (on) {
         mD8C = 1;
         mD84 = 0;
@@ -5937,7 +5913,7 @@ void GameUI::fn_803E43B8(int on) {
     }
 }
 
-void GameUI::fn_803E4434(int on) {
+void GameUI::fn_803E4434(int on, int) {
     if (on) {
         mD8C = 2;
         mD84 = 0;
@@ -6011,7 +5987,7 @@ void GameUI::fn_803E454C() {
     m25CC.m00 = 0;
     m2568.m00 = 0;
     fn_803E32EC();
-    m30C.mMid.mBase.mCount -= (int)m30C.mMid.mBase.mCount;
+    m30C.clear();
     m85C.mCount = 0;
     m1150 = 0;
     if (m1140 != 0) {
@@ -6034,10 +6010,10 @@ void GameUI::fn_803E454C() {
     fn_803CF74C();
     fn_803E4510();
     if (mD8C == 1) {
-        fn_803E43B8(0);
+        fn_803E43B8(0, -1);
     }
     if (mD8C == 2) {
-        fn_803E4434(0);
+        fn_803E4434(0, -1);
     }
 }
 
@@ -6072,7 +6048,7 @@ float GameUI::fn_803E4A48() {
 }
 
 // inferred: enemies around the leader that pass `filter`, sorted by distance (farthest first)
-// NONMATCHING: 99.9% - r4/r5 of the result flags of the inlined state checks swapped
+// inferred: the state check is CharaTask::CanAct_unk (the result flags of CanActB_unk come out in other registers)
 void GameUI::fn_803E4A5C(GameUIDistList_unk* list, bool (*filter)(CharaTask*)) {
     atn::Vector3 pos;
     PlayerTask* player = lbl_8087F8A0->mHead;
@@ -6081,7 +6057,7 @@ void GameUI::fn_803E4A5C(GameUIDistList_unk* list, bool (*filter)(CharaTask*)) {
     }
     list->mCount = 0;
     for (EnemyTask* e = EnemyManager::sInstance->mHead; e != 0; e = e->mNext) {
-        if (CanActB_unk(e) && (e->m54C & 0x2000) != 0x2000 && e->mC58.mC0 != 0 && e->mFlag26 == 1) {
+        if (e->CanAct_unk() && (e->m54C & 0x2000) != 0x2000 && e->mC58.mC0 != 0 && e->mFlag26 == 1) {
             float dist = (pos - e->mPos).LengthSq_unk();
             bool ok = false;
             if (filter != 0 && filter(e)) {
@@ -6243,7 +6219,6 @@ bool GameUI::fn_803E5940() {
     return false;
 }
 
-// NONMATCHING: code matches; only the offsets of its strings in the pool differ (earlier strings unwritten)
 void GameUI::fn_803E598C(int index, int value, int skill) {
     if (index < 0) {
         return;
@@ -6309,7 +6284,6 @@ void GameUI::fn_803E598C(int index, int value, int skill) {
 }
 
 // inferred: shows the time left over a character (TacView)
-// NONMATCHING: code matches; only the offsets of its strings in the pool differ (earlier strings unwritten)
 void GameUI::fn_803E5C60(CharaTask* chara) {
     if (chara == 0 || m254C == 0) {
         return;
@@ -6327,15 +6301,19 @@ void GameUI::fn_803E5C60(CharaTask* chara) {
     }
 }
 
-// NONMATCHING: 99.7% - r5/r6 of the message kind and of the value of kind 11 swapped (locals for both, int
-// and bool flag, declaration orders: 10 variants)
+// inferred: value of the effect of an item (float field read as int; name invented)
+static inline int GameUIItemValue_unk(const GameUIItem_unk* item) {
+    return item->mB8;
+}
+
+// inferred: the value of the item is read through a const inline (registers of the original)
 void GameUI::fn_803E5E64(int itemId, int count, int rare) {
     GameUIItem_unk* item = itemId > 0 ? fn_80211480(itemId) : 0;
     if (item != 0 && count != 0) {
         wchar_t text[0x100];
         int plural = item->m64 == 2;
         if (item->mB4 != 0) {
-            int value = item->mB8;
+            int value = GameUIItemValue_unk(item);
             switch (item->mB4) {
             case 1:
                 if (plural) {
@@ -6402,25 +6380,26 @@ void GameUI::fn_803E5E64(int itemId, int count, int rare) {
     }
 }
 
-// NONMATCHING: code matches; only the offsets of its strings in the pool differ (earlier strings unwritten)
+// inferred: the original pool has one more NUL after these formats ("%d", the two d2anime paths), as if
+// they were written with a trailing \0
 void GameUI::fn_803E627C(int town) {
     char path[0x100];
     if (m262C.m00 == 0) {
-        sprintf(path, "/data/d2anime/ui_shop_town%02d_op.d2a", town - 1);
+        sprintf(path, "/data/d2anime/ui_shop_town%02d_op.d2a\0", town - 1);
         m262C.m00 = fn_801F3FF8(this, path, 0);
         m262C.m00->fn_800D246C(1);
         m262C.m00->mRepeat = 0;
         m262C.m00->mBlend = 18;
     }
     if (m262C.m04 == 0) {
-        sprintf(path, "/data/d2anime/ui_shop_town%02d_op.d2a", town - 1);
+        sprintf(path, "/data/d2anime/ui_shop_town%02d_op.d2a\0", town - 1);
         m262C.m04 = fn_801F3FF8(this, path, 0);
         m262C.m04->fn_800D246C(1);
         m262C.m04->mRepeat = 0;
         m262C.m04->mBlend = 15;
     }
     if (m262C.m08 == 0) {
-        sprintf(path, "/data/d2anime/ui_shop_town%02d_loop.d2a", town - 1);
+        sprintf(path, "/data/d2anime/ui_shop_town%02d_loop.d2a\0", town - 1);
         m262C.m08 = fn_801F3FF8(this, path, 0);
         m262C.m08->fn_800D246C(1);
         m262C.m08->mRepeat = 1;
@@ -6504,9 +6483,13 @@ void GameUI::fn_803E65F8() {
     }
 }
 
+// inferred: end frame of a d2anime task (name invented)
+static inline float GameUIEndFrame_unk(const atn::D2A_Task* t) {
+    return t->mData.mEndFrame;
+}
+
 // inferred: update of the shop animations (called by vf10)
-// NONMATCHING: 99.7% - f1/f2 of the end frame and the frame swapped in the alpha (the original loads the
-// frame first into f1); tried locals in both orders, -(a - b), min as if/ternary (12 variants)
+// inferred: both frames are read through const inlines (the original loads the frame first, into f1)
 void GameUI::fn_803E668C() {
     if (m262C.m00 == 0 || m262C.m04 == 0 || m262C.m08 == 0) {
         return;
@@ -6533,8 +6516,7 @@ void GameUI::fn_803E668C() {
         }
     }
     atn::D2A_Task* task = m262C.m00;
-    float frame = task->mFrame;
-    float alpha = (task->mData.mEndFrame - frame) / 7.0f;
+    float alpha = (GameUIEndFrame_unk(task) - task->GetFrame_unk()) / 7.0f;
     fn_801FECE0(&task->mData.m10, fn_800DC6B4("alpha"), 1.0f < alpha ? 1.0f : alpha);
 }
 
@@ -6545,9 +6527,15 @@ void GameUI::fn_803E6850(CharaTask* chara, int count, int max, int arg) {
     }
 }
 
+// inferred: number of skill icons (read through a const inline: the original reloads it for the slot)
+static inline unsigned int GameUIIconCount_unk(const GameUI::W2568_unk* a) {
+    return a->m00;
+}
+
 // inferred: adds the icon of a skill that hit (SkillEffectManager)
-// NONMATCHING: 98.5% - the original reloads the count for the new slot after the search loop (and so
-// allocates r7/r8/r9 differently); tried Find/Push/Full inlines on the list (6 variants)
+// NONMATCHING: 99.2% - registers of the count, the first flag and the icon (r8/r9/r7 in the original); the
+// reload of the count for the slot comes from GameUIIconCount_unk (tried the icon declared first, the inline
+// in the first test or in the loop)
 void GameUI::fn_803E6890(CharaTask* chara, HitInfo_unk* hit) {
     if (m2568.m00 >= 8 || hit == 0) {
         return;
@@ -6615,7 +6603,7 @@ void GameUI::fn_803E6890(CharaTask* chara, HitInfo_unk* hit) {
             return;
         }
     }
-    new (&m2568.m[m2568.m00]) GameUIElem0C_unk(icon, chara, hit);
+    new (&m2568.m[GameUIIconCount_unk(&m2568)]) GameUIElem0C_unk(icon, chara, hit);
     m2568.m00++;
     if (first && m2564 != 0) {
         m2564->mFrame = 0.0f;
@@ -6623,8 +6611,6 @@ void GameUI::fn_803E6890(CharaTask* chara, HitInfo_unk* hit) {
     }
 }
 
-// NONMATCHING: 99.8% - code matches; only the offset of "basePos" in the string pool (the strings
-// of the earlier functions are not written yet)
 void GameUI::fn_803E6ADC(const atn::Vector3& a, const atn::Vector3& b) {
     if (mA84 != 0) {
         mA84->mFrame = 0.0f;
@@ -6647,7 +6633,13 @@ void GameUI::fn_803E6BB4(CharaTask* id) {
     }
 }
 
-// NONMATCHING: 90.4% - the original reloads the count for the slot and stores the temporary after it
+// inferred: number of timed entries (name invented)
+static inline unsigned int GameUIEntryCount_unk(const FixedArray_unk<GameUIEntry_unk, 32>* a) {
+    return a->mCount;
+}
+
+// inferred: the slot is indexed with the count read through a const inline (the original reloads it there
+// and keeps the loop count for the capacity test)
 void GameUI::fn_803E6BF0(unsigned int id, int value) {
     for (unsigned int i = 0; i < m3F0.mCount; i++) {
         unsigned int v = m3F0.mData[i].m08;
@@ -6659,10 +6651,11 @@ void GameUI::fn_803E6BF0(unsigned int id, int value) {
     }
     if (m3F0.mCount < 32) {
         GameUIEntry_unk e;
-        e.m00 = value;
         e.mFrames = 0;
+        e.m00 = value;
         e.m08 = id;
-        m3F0.PushBack_unk(e);
+        new (&m3F0.mData[GameUIEntryCount_unk(&m3F0)]) GameUIEntry_unk(e);
+        m3F0.mCount++;
     }
 }
 

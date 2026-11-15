@@ -22,7 +22,7 @@ public:
     EnemyTrista(atn::Task* parent, const EnemyInfo_unk* info);
     virtual int vf0C();
     virtual void vf10();
-    virtual void vf3C(HitInfo_unk* hit);
+    virtual void vf3C(HitInfo_unk* hit, int);
     virtual void vf44();
     virtual int vfA8(int kind);
 

@@ -67,11 +67,19 @@ extern "C" void fn_8056A84C(float angle, atn::Matrix3x4* mtx, const atn::NodeChu
     }
 }
 
+// inferred: blend of the motion tracks given to fn_8056A9E4 (halfway between two frames of the replay; names
+// invented)
+struct ReplayBlend_unk {
+    int mBlend; // inferred: 1 to use the frames and weights below
+    float mFrames[4];
+    float mWeights[4];
+};
+
 // DRAFT: the pose of the nodes, the saved callbacks of the model and `out`
 // NONMATCHING: draft - only the node callback of the upper body; the pose of the nodes (`data`, `count`), the
 // saved callbacks of the model and `out` are missing. Written for the weak copies of the boost::function of
 // the callback (0x8056B2C0 invoker, 0x8056B2E0 manager).
-extern "C" __declspec(noinline) void fn_8056A9E4(atn::Model* model, void* data, int count, Mtx mtx, void** out, ReplayChara_unk* entry,
+extern "C" __declspec(noinline) void fn_8056A9E4(atn::Model* model, void* data, int count, Mtx mtx, ReplayBlend_unk* out, ReplayChara_unk* entry,
                             float angle) {
     if (entry != 0 && entry->m07 != 0) {
         model->CalcMatrixStack(boost::bind(&fn_8056A84C, angle, _1, _2, _3));
@@ -226,7 +234,8 @@ void ReplayRecorder_unk::fn_8056BD34() {
             mtx[r][c] = FromHalf_unk(entry->mMtx[r][c]);
         }
         float angle = FromHalf_unk(entry->mAngle);
-        void* out = 0;
+        ReplayBlend_unk out;
+        out.mBlend = 0;
         Mtx world;
         PSMTXConcat(m464.m, mtx, world);
         fn_8056A9E4(model, entry->mTracks, 4, world, &out, entry, angle);
@@ -551,6 +560,268 @@ void ReplayBuffer::fn_8056D8C8(int frame, int restore, int replay) {
     }
 }
 
+// NONMATCHING: 94% - stack slots of the matrices and blends (the original puts the ones of the blended path
+// highest), registers, and the order of two float products by 0.5
+// inferred: puts the frame `frame` / 2 frames back: the characters and the gimmick models; an even frame is
+// halfway to the next one (the matrices, the upper body angle and the tracks of the same motion are averaged)
+void ReplayBuffer::fn_8056DACC(int frame) {
+    int back = frame / 2;
+    int even = frame % 2 == 0;
+    int oldest = 1 - m4517C;
+    int b = -1 < (back > oldest ? back : oldest) ? -1 : (back > oldest ? back : oldest);
+    int idx = m45178 + b;
+    if (idx < 0) {
+        idx += 45;
+    }
+    if (!even || b == 0) {
+        ReplayFrame_unk* cur = &mFrames[idx];
+        int i = 0;
+        if (cur->mNumCharas > 0) {
+        for (; i < cur->mNumCharas; i++) {
+            ReplayChara_unk* entry = &cur->mCharas[i];
+            atn::Model* model = &entry->mChara->mMotion;
+            int node = entry->mNode;
+            model->m20C_15_8 = model->m50;
+            model->m50 = node;
+            model->m34C = entry->m06;
+            Mtx mtx;
+            for (unsigned int j = 0; j < 12; j++) {
+                unsigned int r = j >> 2;
+                unsigned int c = j & 3;
+                mtx[r][c] = FromHalf_unk(entry->mMtx[r][c]);
+            }
+            float angle = FromHalf_unk(entry->mAngle);
+            ReplayBlend_unk blend;
+            blend.mBlend = 0;
+            Mtx world;
+            PSMTXConcat(cur->mLeaderMtx.m, mtx, world);
+            fn_8056A9E4(model, entry->mTracks, 4, world, &blend, entry, angle);
+            atn::Vector3 pos(model->mMtx.m[0][3], model->mMtx.m[1][3], model->mMtx.m[2][3]);
+            atn::Vector3 d = atn::RenderManager::instance_->mCamera.mPos - pos;
+            float dist = d.LengthSq_unk();
+            if (entry->mMotion >= 0) {
+                entry->mChara->fn_8014DEE4(entry->mMotion, 1, 0);
+            } else {
+                entry->mChara->fn_8014EEC4(1);
+            }
+            entry->mChara->fn_80148B38(dist);
+        }
+        }
+        for (int i = 0; i < cur->mNumModels; i++) {
+            ReplayModel_unk* entry = &cur->mModels[i];
+            atn::Model* model = entry->mModel;
+            Mtx mtx;
+            for (unsigned int j = 0; j < 12; j++) {
+                unsigned int r = j >> 2;
+                unsigned int c = j & 3;
+                mtx[r][c] = FromHalf_unk(entry->mMtx[r][c]);
+            }
+            ReplayBlend_unk blend;
+            blend.mBlend = 0;
+            Mtx world;
+            PSMTXConcat(cur->mLeaderMtx.m, mtx, world);
+            fn_8056A9E4(model, &entry->mTrack, 1, world, &blend, 0, 0.0f);
+        }
+        return;
+    }
+    ReplayFrame_unk* cur = &mFrames[idx];
+    ReplayFrame_unk* next = &mFrames[(idx + 1) % 45];
+    for (int i = 0; i < cur->mNumCharas; i++) {
+        ReplayChara_unk* entry = &cur->mCharas[i];
+        CharaTask* chara = entry->mChara;
+        atn::Model* model = &chara->mMotion;
+        ReplayChara_unk* other = 0;
+        ReplayChara_unk* p = next->mCharas;
+        for (int j = 0; j < next->mNumCharas; j++, p++) {
+            if (p->mChara == chara) {
+                other = p;
+                break;
+            }
+        }
+        Mtx mtx;
+        for (unsigned int j = 0; j < 12; j++) {
+            unsigned int r = j >> 2;
+            unsigned int c = j & 3;
+            mtx[r][c] = FromHalf_unk(entry->mMtx[r][c]);
+        }
+        Mtx world;
+        PSMTXConcat(cur->mLeaderMtx.m, mtx, world);
+        float angle = FromHalf_unk(entry->mAngle);
+        ReplayBlend_unk blend;
+        blend.mBlend = 0;
+        if (other != 0) {
+            Mtx mtx2;
+            for (unsigned int j = 0; j < 12; j++) {
+                unsigned int r = j >> 2;
+                unsigned int c = j & 3;
+                mtx2[r][c] = FromHalf_unk(other->mMtx[r][c]);
+            }
+            Mtx world2;
+            PSMTXConcat(next->mLeaderMtx.m, mtx2, world2);
+            world[0][0] = (world[0][0] + world2[0][0]) * 0.5f;
+            world[0][1] = (world[0][1] + world2[0][1]) * 0.5f;
+            world[0][2] = (world[0][2] + world2[0][2]) * 0.5f;
+            world[0][3] = (world[0][3] + world2[0][3]) * 0.5f;
+            world[1][0] = (world[1][0] + world2[1][0]) * 0.5f;
+            world[1][1] = (world[1][1] + world2[1][1]) * 0.5f;
+            world[1][2] = (world[1][2] + world2[1][2]) * 0.5f;
+            world[1][3] = (world[1][3] + world2[1][3]) * 0.5f;
+            world[2][0] = (world[2][0] + world2[2][0]) * 0.5f;
+            world[2][1] = (world[2][1] + world2[2][1]) * 0.5f;
+            world[2][2] = (world[2][2] + world2[2][2]) * 0.5f;
+            world[2][3] = (world[2][3] + world2[2][3]) * 0.5f;
+            angle = fmod(angle + (FromHalf_unk(other->mAngle) - angle) * 0.5f, 6.283185307179586);
+            if (angle > 3.1415927f) {
+                angle -= 6.2831855f;
+            }
+            if (angle < -3.1415927f) {
+                angle += 6.2831855f;
+            }
+            blend.mBlend = 1;
+            for (int k = 0; k < 4; k++) {
+                ReplayTrack_unk& t = entry->mTracks[k];
+                ReplayTrack_unk& o = other->mTracks[k];
+                blend.mFrames[k] = FromHalf_unk(t.mFrame);
+                blend.mWeights[k] = t.m11 / 255.0f;
+                if (t.mMotion == o.mMotion) {
+                    blend.mFrames[k] += FromHalf_unk(o.mFrame);
+                    float weight = o.m11 / 255.0f;
+                    blend.mFrames[k] *= 0.5f;
+                    blend.mWeights[k] = (blend.mWeights[k] + weight) * 0.5f;
+                }
+            }
+        }
+        int node = entry->mNode;
+        model->m20C_15_8 = model->m50;
+        model->m50 = node;
+        model->m34C = entry->m06;
+        fn_8056A9E4(model, entry->mTracks, 4, world, &blend, entry, angle);
+        atn::Vector3 pos(model->mMtx.m[0][3], model->mMtx.m[1][3], model->mMtx.m[2][3]);
+        atn::Vector3 d = atn::RenderManager::instance_->mCamera.mPos - pos;
+        float dist = d.LengthSq_unk();
+        if (entry->mMotion >= 0) {
+            entry->mChara->fn_8014DEE4(entry->mMotion, 1, 0);
+        } else {
+            entry->mChara->fn_8014EEC4(1);
+        }
+        entry->mChara->fn_80148B38(dist);
+    }
+    for (int i = 0; i < cur->mNumModels; i++) {
+        ReplayModel_unk* entry = &cur->mModels[i];
+        atn::Model* model = entry->mModel;
+        ReplayModel_unk* other = 0;
+        ReplayModel_unk* p = next->mModels;
+        for (int j = 0; j < next->mNumModels; j++, p++) {
+            if (p->mModel == model) {
+                other = p;
+                break;
+            }
+        }
+        Mtx mtx;
+        for (unsigned int j = 0; j < 12; j++) {
+            unsigned int r = j >> 2;
+            unsigned int c = j & 3;
+            mtx[r][c] = FromHalf_unk(entry->mMtx[r][c]);
+        }
+        Mtx world;
+        PSMTXConcat(cur->mLeaderMtx.m, mtx, world);
+        ReplayBlend_unk blend;
+        blend.mBlend = 0;
+        if (other != 0) {
+            Mtx mtx2;
+            for (unsigned int j = 0; j < 12; j++) {
+                unsigned int r = j >> 2;
+                unsigned int c = j & 3;
+                mtx2[r][c] = FromHalf_unk(other->mMtx[r][c]);
+            }
+            Mtx world2;
+            PSMTXConcat(next->mLeaderMtx.m, mtx2, world2);
+            world[0][0] = (world[0][0] + world2[0][0]) * 0.5f;
+            world[0][1] = (world[0][1] + world2[0][1]) * 0.5f;
+            world[0][2] = (world[0][2] + world2[0][2]) * 0.5f;
+            world[0][3] = (world[0][3] + world2[0][3]) * 0.5f;
+            world[1][0] = (world[1][0] + world2[1][0]) * 0.5f;
+            world[1][1] = (world[1][1] + world2[1][1]) * 0.5f;
+            world[1][2] = (world[1][2] + world2[1][2]) * 0.5f;
+            world[1][3] = (world[1][3] + world2[1][3]) * 0.5f;
+            world[2][0] = (world[2][0] + world2[2][0]) * 0.5f;
+            world[2][1] = (world[2][1] + world2[2][1]) * 0.5f;
+            world[2][2] = (world[2][2] + world2[2][2]) * 0.5f;
+            world[2][3] = (world[2][3] + world2[2][3]) * 0.5f;
+            blend.mBlend = 1;
+            blend.mFrames[0] = FromHalf_unk(entry->mTrack.mFrame);
+            blend.mWeights[0] = entry->mTrack.m11 / 255.0f;
+            if (entry->mTrack.mMotion == other->mTrack.mMotion) {
+                blend.mFrames[0] += FromHalf_unk(other->mTrack.mFrame);
+                float weight = other->mTrack.m11 / 255.0f;
+                blend.mFrames[0] *= 0.5f;
+                blend.mWeights[0] = (blend.mWeights[0] + weight) * 0.5f;
+            }
+        }
+        fn_8056A9E4(model, &entry->mTrack, 1, world, &blend, 0, 0.0f);
+    }
+}
+
+// inferred: world matrix of a recorded homing bullet (as in fn_8056FC24); name invented
+static inline void BulletMtx_unk(ReplayBullet_unk* entry, Mtx trans) {
+    PSMTXTrans(trans, entry->mPos.x, entry->mPos.y, entry->mPos.z);
+    atn::Vector3 rot(FromHalf_unk(entry->mRot[0]), FromHalf_unk(entry->mRot[1]), FromHalf_unk(entry->mRot[2]));
+    atn::Matrix3x4 m;
+    m.SetIdentity();
+    __MtxRotate(m.m, 'z', rot.z);
+    __MtxRotate(m.m, 'y', rot.y);
+    __MtxRotate(m.m, 'x', rot.x);
+    Mtx world;
+    PSMTXConcat(trans, m.m, world);
+    __MtxCopy(trans, world);
+}
+
+// NONMATCHING: 88.9% - stack slots of the matrices of __MtxRotate (the original puts them in the opposite order),
+// the addresses of the locals kept in registers, the address of mHomings[i] and the order of the products by 0.5
+// inferred: puts the homing bullets of the frame `frame` / 2 frames back; an even frame is halfway to the next one
+// (the matrices are averaged)
+void ReplayBuffer::fn_8056E918(int frame) {
+    int back = frame / 2;
+    int even = frame % 2 == 0;
+    int oldest = 1 - m4517C;
+    int b = -1 < (back > oldest ? back : oldest) ? -1 : (back > oldest ? back : oldest);
+    int idx = m45178 + b;
+    if (idx < 0) {
+        idx += 45;
+    }
+    if (!even || b >= -1) {
+        ReplayFrame_unk* cur = &mFrames[idx];
+        for (int i = 0; i < 32; i++) {
+            Mtx trans;
+            BulletMtx_unk(GetBullet_unk(cur, i), trans);
+            lbl_8087F048->mHomings[i].vf14(trans);
+        }
+        return;
+    }
+    ReplayFrame_unk* cur = &mFrames[idx];
+    ReplayFrame_unk* next = &mFrames[(idx + 1) % 45];
+    for (int i = 0; i < 32; i++) {
+        Mtx trans;
+        BulletMtx_unk(GetBullet_unk(cur, i), trans);
+        Mtx trans2;
+        BulletMtx_unk(GetBullet_unk(next, i), trans2);
+        Mtx mtx;
+        mtx[0][0] = (trans[0][0] + trans2[0][0]) * 0.5f;
+        mtx[0][1] = (trans[0][1] + trans2[0][1]) * 0.5f;
+        mtx[0][2] = (trans[0][2] + trans2[0][2]) * 0.5f;
+        mtx[0][3] = (trans[0][3] + trans2[0][3]) * 0.5f;
+        mtx[1][0] = (trans[1][0] + trans2[1][0]) * 0.5f;
+        mtx[1][1] = (trans[1][1] + trans2[1][1]) * 0.5f;
+        mtx[1][2] = (trans[1][2] + trans2[1][2]) * 0.5f;
+        mtx[1][3] = (trans[1][3] + trans2[1][3]) * 0.5f;
+        mtx[2][0] = (trans[2][0] + trans2[2][0]) * 0.5f;
+        mtx[2][1] = (trans[2][1] + trans2[2][1]) * 0.5f;
+        mtx[2][2] = (trans[2][2] + trans2[2][2]) * 0.5f;
+        mtx[2][3] = (trans[2][3] + trans2[2][3]) * 0.5f;
+        lbl_8087F048->mHomings[i].vf14(mtx);
+    }
+}
+
 // inferred: index of the frame `frames` / 2 frames back
 void ReplayBuffer::fn_8056F2F8(int frames) {
     int back = frames / 2;
@@ -656,7 +927,8 @@ void ReplayBuffer::fn_8056FC24(int charasOnly) {
             mtx[r][c] = FromHalf_unk(entry->mMtx[r][c]);
         }
         float angle = FromHalf_unk(entry->mAngle);
-        void* out = 0;
+        ReplayBlend_unk out;
+        out.mBlend = 0;
         Mtx world;
         PSMTXConcat(frame->mLeaderMtx.m, mtx, world);
         fn_8056A9E4(model, entry->mTracks, 4, world, &out, entry, angle);
@@ -683,7 +955,8 @@ void ReplayBuffer::fn_8056FC24(int charasOnly) {
             unsigned int c = j & 3;
             mtx[r][c] = FromHalf_unk(entry->mMtx[r][c]);
         }
-        void* out = 0;
+        ReplayBlend_unk out;
+        out.mBlend = 0;
         Mtx world;
         PSMTXConcat(frame->mLeaderMtx.m, mtx, world);
         fn_8056A9E4(model, &entry->mTrack, 1, world, &out, 0, 0.0f);

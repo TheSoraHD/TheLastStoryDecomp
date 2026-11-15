@@ -74,7 +74,7 @@ public:
     virtual int vf0C();                                    // 0x8045374C
     virtual void vf10();                                   // 0x804541A0
     virtual void vf14();                                   // 0x8045456C
-    virtual void vf3C(HitInfo_unk* hit);                   // 0x804549E8
+    virtual void vf3C(HitInfo_unk* hit, int);                   // 0x804549E8
     virtual void vf40(HitInfo_unk* hit);                   // 0x804549F8
     virtual atn::Vector3 vf64(int center);                 // 0x80454D08
     void fn_80455D80();

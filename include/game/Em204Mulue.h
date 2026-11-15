@@ -60,7 +60,7 @@ public:
     virtual int vf0C();                                 // 0x802A51F4
     virtual void vf10();                                // 0x802A5A1C
     virtual void vf14();                                // 0x802A6B90
-    virtual void vf3C(HitInfo_unk* hit);                // 0x802A6D58
+    virtual void vf3C(HitInfo_unk* hit, int);                // 0x802A6D58
     virtual void vf40(HitInfo_unk* hit);                // 0x802A6E80
     virtual void vf7C(int arg);                         // 0x802A7118
     virtual void vf54();                                // 0x802A7F9C
@@ -378,7 +378,7 @@ public:
     virtual int vf0C();                                   // 0x802B28BC
     virtual void vf10();                                  // 0x802B2F64
     virtual void vf14();                                  // 0x802B3248
-    virtual void vf3C(HitInfo_unk* hit);                  // 0x802B3498
+    virtual void vf3C(HitInfo_unk* hit, int);                  // 0x802B3498
     virtual void vf40(HitInfo_unk* hit);                  // 0x802B3534
     virtual void vfFC();                                  // 0x802B3684
     virtual void vf104();                                 // 0x802B3764

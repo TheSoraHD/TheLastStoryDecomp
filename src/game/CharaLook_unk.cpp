@@ -3,6 +3,7 @@
 #include "chr/ControlBase.h"
 #include "game/CharaTask.h"
 #include "game/ResHandle.h"
+#include "atn/Lerp_unk.h"
 
 // inferred: debug menu entries; the last two arguments are a callback and its argument
 typedef void (*MenuCallback_unk)(void* arg);
@@ -142,7 +143,7 @@ void CharaLook_unk::fn_80129A6C() {
             rot.x = rot.x > 0.0f ? limit.x : -limit.x;
         }
     }
-    mRot = atn::Lerp_unk(mRot, rot, mSpeed);
+    mRot = atn::Lerp_unk<atn::Vector3>(mRot, rot, mSpeed);
     m34 = 0;
     if (mType == 3) {
         m34 = 1;
@@ -200,7 +201,7 @@ void CharaLook_unk::fn_80129A6C() {
     }
     m35 = 0;
     for (int i = 0; i < 2; i++) {
-        mEyeRot[i] = atn::Lerp_unk(mEyeRot[i], eyeRot[i], mEyeSpeed);
+        mEyeRot[i] = atn::Lerp_unk<atn::Vector3>(mEyeRot[i], eyeRot[i], mEyeSpeed);
         if (mEyeType == 3) {
             m35 = 1;
         } else if (atn::Abs_unk(mEyeRot[i].x) > 0.001f || atn::Abs_unk(mEyeRot[i].y) > 0.001f) {

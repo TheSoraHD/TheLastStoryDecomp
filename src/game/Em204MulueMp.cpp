@@ -157,7 +157,7 @@ inline void Em204MulueMp::SetState_unk(int state) {
     m58C = state;
     fn_8016E970(6);
     m560 = 4;
-    m590 = fn_800F8548(lbl_8087F048);
+    m590 = lbl_8087F048->fn_800F8548();
 }
 // inferred: plays a motion on track 0 (as in game/Em204Mulue.cpp)
 inline void Em204MulueMp::PlayMotion_unk(int motion, int loop, float speed) {
@@ -451,7 +451,7 @@ void Em204MulueMp::vf14() {
     fn_80149A30();
 }
 
-void Em204MulueMp::vf3C(HitInfo_unk* hit) {
+void Em204MulueMp::vf3C(HitInfo_unk* hit, int) {
     HitMsg_unk* msg = (HitMsg_unk*)hit;
     msg->m10 = lbl_807C7030;
     msg->m50 |= 0x10;
@@ -650,7 +650,7 @@ void Em204MulueMp::vf104() {
                 mPos += n * 10.0f;
                 atn::Vector3 pos = GetNodePos_unk(mMotion.GetNodeMtx_unk("hips"));
                 BattleTask* mgr = lbl_8087F048;
-                fn_800FAB80(mgr, this, fn_80219E6C(0x4B5), 1000, &pos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
+                mgr->fn_800FAB80(this, fn_80219E6C(0x4B5), 1000, &pos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
             }
             if ((float)m14E0 <= 35.0f) {
                 fn_802B55B0(m14E0 % 10 == 0, 0);
@@ -852,10 +852,10 @@ void Em204MulueMp::fn_802B52D8() {
             Rest_unk();
         }
         if (mMotion.mTracks[0].m08 >= 17.0f && mMotion.mTracks[0].m08 <= 19.0f) {
-            fn_800FAB80(lbl_8087F048, this, m1678, m590, &pos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
+            lbl_8087F048->fn_800FAB80(this, m1678, m590, &pos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
         }
         if (mMotion.mTracks[0].m08 >= 20.0f && mMotion.mTracks[0].m08 <= 22.0f) {
-            fn_800FAB80(lbl_8087F048, this, m167C, m590, &pos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
+            lbl_8087F048->fn_800FAB80(this, m167C, m590, &pos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
         }
     }
 }
@@ -944,7 +944,7 @@ void Em204MulueMp::fn_802B596C() {
             atn::Vector3 pos = GetNodePos_unk(model->GetNodeMtx_unk("hips"));
             if (m14E0 == 10) {
                 atn::Vector3 dir(0.0f, -1.0f, 0.000001f);
-                fn_800F8574(lbl_8087F048, this, m1688, &pos, &dir, 0, 0, 0, 0.0f, 1.0f);
+                lbl_8087F048->fn_800F8574(this, m1688, &pos, &dir, 0, 0, 0, 0.0f, 1.0f);
             } else {
                 atn::Vector3 dir(0.0f, -1.0f, 2.0f);
                 Mtx m1;
@@ -954,7 +954,7 @@ void Em204MulueMp::fn_802B596C() {
                 PSMTXRotRad(m2, 'x', 0.09424778f * (rand() / 32767.0f) + -0.04712389f);
                 PSMTXMultVec(m2, &dir, &dir);
                 PSVECNormalize(&dir, &dir);
-                fn_800F8574(lbl_8087F048, this, m168C, &pos, &dir, 0, 0, 0, 0.0f, 1.0f);
+                lbl_8087F048->fn_800F8574(this, m168C, &pos, &dir, 0, 0, 0, 0.0f, 1.0f);
             }
         }
     } else {
@@ -962,7 +962,7 @@ void Em204MulueMp::fn_802B596C() {
         mPos += n * 10.0f;
         atn::Vector3 pos = GetNodePos_unk(mMotion.GetNodeMtx_unk("hips"));
         BattleTask* mgr = lbl_8087F048;
-        fn_800FAB80(mgr, this, fn_80219E6C(0x4B5), 1000, &pos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
+        mgr->fn_800FAB80(this, fn_80219E6C(0x4B5), 1000, &pos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
     }
 }
 
@@ -1019,7 +1019,7 @@ void Em204MulueMp::fn_802B5DA4() {
         n.y = 0.0f;
         mPos += n * 10.0f;
         atn::Vector3 pos = GetNodePos_unk(mMotion.GetNodeMtx_unk("hips"));
-        fn_800FAB80(lbl_8087F048, this, m1684, 1000, &pos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
+        lbl_8087F048->fn_800FAB80(this, m1684, 1000, &pos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
     }
 }
 
@@ -1096,7 +1096,7 @@ void Em204MulueMp::fn_802B6104() {
                 atn::Vector3 pos = GetNodePos_unk(model->GetNodeMtx_unk("hips"));
                 if (m14E0 == 10) {
                     atn::Vector3 dir(0.0f, -1.0f, 0.000001f);
-                    fn_800F8574(lbl_8087F048, this, m1518 == 1 ? m1690 : m1688, &pos, &dir, 0, 0, 0, 0.0f, 1.0f);
+                    lbl_8087F048->fn_800F8574(this, m1518 == 1 ? m1690 : m1688, &pos, &dir, 0, 0, 0, 0.0f, 1.0f);
                 } else {
                     atn::Vector3 dir(0.0f, -1.0f, 2.0f);
                     Mtx m1;
@@ -1106,7 +1106,7 @@ void Em204MulueMp::fn_802B6104() {
                     PSMTXRotRad(m2, 'x', 0.09424778f * (rand() / 32767.0f) + -0.04712389f);
                     PSMTXMultVec(m2, &dir, &dir);
                     PSVECNormalize(&dir, &dir);
-                    fn_800F8574(lbl_8087F048, this, m1518 == 1 ? m1694 : m168C, &pos, &dir, 0, 0, 0, 0.0f, 1.0f);
+                    lbl_8087F048->fn_800F8574(this, m1518 == 1 ? m1694 : m168C, &pos, &dir, 0, 0, 0, 0.0f, 1.0f);
                 }
             }
         }
@@ -1114,7 +1114,7 @@ void Em204MulueMp::fn_802B6104() {
         atn::Vector3 n = d.GetNormalize();
         mPos += n * 10.0f;
         atn::Vector3 pos = GetNodePos_unk(mMotion.GetNodeMtx_unk("hips"));
-        fn_800FAB80(lbl_8087F048, this, m1684, 1000, &pos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
+        lbl_8087F048->fn_800FAB80(this, m1684, 1000, &pos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
     }
 }
 

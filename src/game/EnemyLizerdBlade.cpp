@@ -3,6 +3,7 @@
 #include "std/string.h"
 #include "std/string_members.h"
 #include "atn/ColliBase.h"
+#include "game/BattleTask.h"
 
 extern "C" char* strstr(const char* s, const char* sub);
 extern "C" int strcmp(const char* a, const char* b);
@@ -11,10 +12,6 @@ extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared len
 // inferred: bullets (as in gmk/LandMine.cpp)
 class BattleTask;
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
-extern "C" int fn_800F8548(BattleTask* mgr); // inferred: new bullet id
-extern "C" void fn_800FAB80(BattleTask* mgr, CharaTask* owner, HitInfo_unk* bullet, int id,
-                            const atn::Vector3* pos, const atn::Vector3* rot, int arg6, int arg7, int arg8,
-                            int arg9, float arg10, float arg11);
 extern "C" void* lbl_8087EE98;
 extern "C" int fn_8004ED34(void* colli, atn::ColliResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg7); // inferred: ray test
@@ -172,7 +169,7 @@ void EnemyLizerdBlade::fn_80333D68() {
             mMotion.mTracks[0].m0C = 1.5f;
             m14D4 = 0.0f;
             m14B8++;
-            m590 = fn_800F8548(lbl_8087F048);
+            m590 = lbl_8087F048->fn_800F8548();
             mC58.m2B0 = 0;
         }
     } else if (m14B8 == 1) {
@@ -181,7 +178,7 @@ void EnemyLizerdBlade::fn_80333D68() {
         fn_8013CB68(mRot, 1, 1.0f, 1.8f);
         atn::Vector3 pos = mPos + GetFront_unk(this) * 14.0f;
         BattleTask* mgr = lbl_8087F048;
-        fn_800FAB80(mgr, this, fn_80219E6C(m14D0), m590, &pos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
+        mgr->fn_800FAB80(this, fn_80219E6C(m14D0), m590, &pos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
         move -= mPos;
         move.y = 0.0f;
         if (m570 > 1.0f && LengthSq_unk(move) < 0.2f) {
@@ -274,7 +271,7 @@ void EnemyLizerdBlade::fn_80334460() {
             if (mMotion.mTracks[0].m08 >= 51.0f) {
                 m14B8++;
                 BattleTask* mgr = lbl_8087F048;
-                fn_800FAB80(mgr, this, fn_80219E6C(m14C4), fn_800F8548(mgr), &mPos, &mRot, 0, 30, -1, -1, 0.0f,
+                mgr->fn_800FAB80(this, fn_80219E6C(m14C4), mgr->fn_800F8548(), &mPos, &mRot, 0, 30, -1, -1, 0.0f,
                             1.0f);
             }
         }
@@ -294,7 +291,7 @@ void EnemyLizerdBlade::vf24() {
     CharaTask::vf24();
 }
 
-void EnemyLizerdBlade::vf3C(HitInfo_unk* hit) {
+void EnemyLizerdBlade::vf3C(HitInfo_unk* hit, int) {
     HitMsg_unk* msg = (HitMsg_unk*)hit;
     msg->m10 *= 0.0f;
     fn_80151448(msg);

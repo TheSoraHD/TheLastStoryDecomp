@@ -18,6 +18,7 @@
 #include "std/string_members.h"
 #include "string.h"
 #include "chr/CharaEquip_unk.h"
+#include "game/BattleTask.h"
 
 extern "C" int sprintf(char* s, const char* format, ...);
 extern "C" char* strstr(const char* s, const char* sub);
@@ -32,7 +33,6 @@ extern "C" void fn_8046EED8(void* obj);
 extern "C" atn::SoundRef fn_80117228(int id);      // inferred: plays a system sound effect
 class BattleTask;
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
-extern "C" void fn_8010C00C(BattleTask* mgr, CharaTask* chara);
 extern "C" void fn_800D2338(atn::Task* task); // inferred: removes the task
 extern "C" void fn_80087E9C(void* group, const char* name, atn::Vector3* value, int arg3, int arg4, float min,
                             float max, float step);
@@ -224,7 +224,7 @@ void CosEditBase::vf10() {
                     mLoads[i].mEquip->fn_805659B4();
                     if (lbl_8087F048) {
                         mLoads[i].mChara->mStatus.fn_8013407C();
-                        fn_8010C00C(lbl_8087F048, mLoads[i].mChara);
+                        lbl_8087F048->fn_8010C00C(mLoads[i].mChara);
                     }
                     mLoads[i].mChara->mStatus.fn_8012B988();
                     CharaTask* chara = mLoads[i].mChara;

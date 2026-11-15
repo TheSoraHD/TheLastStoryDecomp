@@ -632,7 +632,7 @@ inline void QuarkPlayEffect_unk(atn::EfpFile* efp, atn::Model* model) {
 }
 
 // inferred: the state 1 of the vf3C reaction (hits while rising); the hit is reduced to nothing
-void EnemyQuarkStand::vf3C(HitInfo_unk* hit) {
+void EnemyQuarkStand::vf3C(HitInfo_unk* hit, int) {
     HitMsg_unk* msg = (HitMsg_unk*)hit;
     if (m1809 == 0) {
         msg->m10 *= 0.0f;
@@ -1117,7 +1117,7 @@ void EnemyQuarkStand::fn_80348FF4() {
             fn_8023A680(fn_800F7FA0(), &m1648, -1, 5, &m1660, 0, 0, 0, 0, -1, 1, 1.0f);
             fn_800C31F4("SE_EM211_009_2", 0, -1, 1.0f);
             m1A24 = 0;
-            m1A20 = fn_800F8548(fn_8013A194());
+            m1A20 = fn_8013A194()->fn_800F8548();
             m14B4++;
         }
     } else if (m14B4 == 2) {
@@ -1128,7 +1128,7 @@ void EnemyQuarkStand::fn_80348FF4() {
             Bullet* bullet = fn_8013A194()->fn_801010A0();
             if (bullet != 0) {
                 QuarkBulletShot_unk shot;
-                shot.m00 = fn_8010B250(fn_8013A194(), m152C->m3C, 0);
+                shot.m00 = fn_8013A194()->fn_8010B250(m152C->m3C, 0);
                 shot.m04 = fn_800EFD04(m152C->mB0);
                 shot.m08 = fn_800EFDA0(m152C->mB0);
                 shot.m0C = m152C;
@@ -1203,7 +1203,7 @@ void EnemyQuarkStand::fn_803494AC() {
             QuarkRotationZYX_unk(m, mRot);
             PSMTXMultVec(m.m, &off, &off);
             m16D8 = 1;
-            m16EC = fn_800F8548(lbl_8087F048);
+            m16EC = lbl_8087F048->fn_800F8548();
             m16E0 = mPos + off;
             m16E0.y = 0.0f;
             mStatus.m228 = 0.0f;
@@ -1292,8 +1292,8 @@ void EnemyQuarkStand::fn_80349BA0() {
                 param.mDelay = 8.0f;
                 param.mNode = 0;
                 param.mCount = -1;
-                param.mCount = fn_800F8548(lbl_8087F048);
-                fn_800F8574(lbl_8087F048, this, m1540, &pos, &dir, &param, 0x104, 0, 0.0f, 1.0f);
+                param.mCount = lbl_8087F048->fn_800F8548();
+                lbl_8087F048->fn_800F8574(this, m1540, &pos, &dir, &param, 0x104, 0, 0.0f, 1.0f);
             }
             fn_800C31F4("SE_EM211_012", 0, -1, 1.0f);
             m14B4++;
@@ -1314,7 +1314,7 @@ void EnemyQuarkStand::fn_8034A194() {
             TurnTo_unk(1.0f);
         }
         if (mMotion.mTracks[0].m08 >= 21.0f) {
-            lbl_8087F048->fn_800F8C6C(0, 0, this, m1548, fn_800F8548(lbl_8087F048), 0.0f, 30, -1);
+            lbl_8087F048->fn_800F8C6C(0, 0, this, m1548, lbl_8087F048->fn_800F8548(), 0.0f, 30, -1);
             Field_unk* field = lbl_8087F430;
             field->m96C %= 2;
             field->m970 = 10;
@@ -1338,7 +1338,7 @@ void EnemyQuarkStand::fn_8034A644() {
             TurnTo_unk(1.0f);
         }
         if (mMotion.mTracks[0].m08 >= 33.0f) {
-            lbl_8087F048->fn_800F8C6C(0, 0, this, m1544, fn_800F8548(lbl_8087F048), 0.0f, 30, -1);
+            lbl_8087F048->fn_800F8C6C(0, 0, this, m1544, lbl_8087F048->fn_800F8548(), 0.0f, 30, -1);
             Field_unk* field = lbl_8087F430;
             field->m96C %= 2;
             field->m970 = 10;
@@ -1351,7 +1351,7 @@ void EnemyQuarkStand::fn_8034A644() {
             TurnTo_unk(1.0f);
         }
         if (mMotion.mTracks[0].m08 >= 61.0f) {
-            lbl_8087F048->fn_800F8C6C(0, 0, this, m1548, fn_800F8548(lbl_8087F048), 0.0f, 30, -1);
+            lbl_8087F048->fn_800F8C6C(0, 0, this, m1548, lbl_8087F048->fn_800F8548(), 0.0f, 30, -1);
             Field_unk* field = lbl_8087F430;
             field->m96C %= 2;
             field->m970 = 10;
@@ -1394,7 +1394,7 @@ void EnemyQuarkStand::fn_8034AE48() {
         float t = QS_MAX_unk(0.0f, QS_MIN_unk(1.0f, (mMotion.mTracks[0].m08 - 24.0f) / 6.0f));
         mPos = QuarkLerp_unk(m15DC.mStart, m15DC.mTarget, t);
         if (mMotion.mTracks[0].m08 >= 30.0f) {
-            lbl_8087F048->fn_800F8C6C(0, 0, this, m1534, fn_800F8548(lbl_8087F048), 0.0f, 30, -1);
+            lbl_8087F048->fn_800F8C6C(0, 0, this, m1534, lbl_8087F048->fn_800F8548(), 0.0f, 30, -1);
             Field_unk* field = lbl_8087F430;
             field->m96C %= 2;
             field->m970 = 10;
@@ -1408,7 +1408,7 @@ void EnemyQuarkStand::fn_8034AE48() {
         float t = QS_MAX_unk(0.0f, QS_MIN_unk(1.0f, (mMotion.mTracks[0].m08 - 30.0f) / 9.0f));
         mPos = QuarkLerp_unk(m15DC.mStart, m15DC.mTarget, t);
         if (mMotion.mTracks[0].m08 >= 39.0f) {
-            lbl_8087F048->fn_800F8C6C(0, 0, this, m1538, fn_800F8548(lbl_8087F048), 0.0f, 30, -1);
+            lbl_8087F048->fn_800F8C6C(0, 0, this, m1538, lbl_8087F048->fn_800F8548(), 0.0f, 30, -1);
             Field_unk* field = lbl_8087F430;
             field->m96C %= 2;
             field->m970 = 10;
@@ -1472,7 +1472,7 @@ void EnemyQuarkStand::fn_8034B8CC() {
                 atn::Vector3 front = QuarkFrontOf_unk(this);
                 atn::Vector3 pos = m17E4->mPos - front * 0.5f;
                 BattleTask* mgr = lbl_8087F048;
-                fn_800FAB80(mgr, this, m154C, fn_800F8548(mgr), &pos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
+                mgr->fn_800FAB80(this, m154C, mgr->fn_800F8548(), &pos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
             }
             m14B4++;
         }
@@ -1642,7 +1642,7 @@ void EnemyQuarkStand::fn_8034C714() {
                     PSVECNormalize(&dir, &dir);
                     float len = QuarkRand_unk(-10.0f, 30.0f);
                     atn::Vector3 from(at.x + dir.x * len, at.y + dir.y * len, at.z + dir.z * len);
-                    fn_800F8574(lbl_8087F048, this, m1554[rand() % 2], &from, &dir, 0, 0x1000000, 0, 0.0f, 1.0f);
+                    lbl_8087F048->fn_800F8574(this, m1554[rand() % 2], &from, &dir, 0, 0x1000000, 0, 0.0f, 1.0f);
                 }
             }
             if (frame >= 70.0f) {
@@ -1879,8 +1879,8 @@ void EnemyQuarkStand::fn_8034ECE8() {
             QuarkPlayEffect_unk(&m1690, &mMotion);
             CharaTask* leader = lbl_8087F8A0->mHead;
             BattleTask* mgr = lbl_8087F048;
-            int id = fn_800F8548(mgr);
-            fn_800FAB80(mgr, leader, fn_80219E6C(0x780), id, &mPos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
+            int id = mgr->fn_800F8548();
+            mgr->fn_800FAB80(leader, fn_80219E6C(0x780), id, &mPos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
             m14C4->mStatus.m2FC = 1.0f;
         }
     } else if (m14B4 == 1) {
@@ -1964,7 +1964,7 @@ void EnemyQuarkStand::fn_8034F384() {
     m14B8 = 0;
     m14C0 = 0;
     m17E8 = 0;
-    m590 = fn_800F8548(lbl_8087F048);
+    m590 = lbl_8087F048->fn_800F8548();
     fn_80239DAC(lbl_8087F3C0, this, 0x3EA, 1);
     fn_80239DAC(lbl_8087F3C0, this, 0x3E8, 1);
     fn_80239DAC(lbl_8087F3C0, this, 0x3ED, 1);
@@ -2053,7 +2053,7 @@ void EnemyQuarkStand::fn_8034FB50() {
     fn_8034F384();
     fn_8016E970(3);
     m58C = 8;
-    m590 = fn_800F8548(lbl_8087F048);
+    m590 = lbl_8087F048->fn_800F8548();
     QuarkPlayMotion_unk(&mMotion, 0x14D, 0, 0, 0.7f);
     RouteTable_unk* table = lbl_8087F430->m10D8;
     RoutePlace_unk* place3 = table->FindPlace_unk(3);
@@ -2081,7 +2081,7 @@ void EnemyQuarkStand::fn_80350070() {
     fn_8034F384();
     fn_8016E970(3);
     m58C = 9;
-    m590 = fn_800F8548(lbl_8087F048);
+    m590 = lbl_8087F048->fn_800F8548();
     QuarkPlayMotion_unk(&mMotion, 0x15C, 0, 0, 1.0f);
     AimAt_unk();
     if (lbl_8087F498 != 0 && rand() % 2 == 0) {
@@ -2095,7 +2095,7 @@ void EnemyQuarkStand::fn_80350464() {
     fn_8034F384();
     fn_8016E970(3);
     m58C = 10;
-    m590 = fn_800F8548(lbl_8087F048);
+    m590 = lbl_8087F048->fn_800F8548();
     QuarkPlayMotion_unk(&mMotion, 0x156, 0, 0, 1.0f);
     AimAt_unk();
     if (lbl_8087F498 != 0) {
@@ -2109,7 +2109,7 @@ void EnemyQuarkStand::fn_8035083C() {
     fn_8034F384();
     fn_8016E970(3);
     m58C = 11;
-    m590 = fn_800F8548(lbl_8087F048);
+    m590 = lbl_8087F048->fn_800F8548();
     QuarkPlayMotion_unk(&mMotion, 0x142, 0, 0, 1.0f);
     AimAt_unk();
 }
@@ -2122,7 +2122,7 @@ void EnemyQuarkStand::fn_80350BF0() {
     fn_8034F384();
     fn_8016E970(3);
     m58C = 12;
-    m590 = fn_800F8548(lbl_8087F048);
+    m590 = lbl_8087F048->fn_800F8548();
     QuarkPlayMotion_unk(&mMotion, 0x14A, 0, 0, 1.0f);
     mMotion.mTracks[0].m08 = 5.0f;
     m14B0 = (int)m17E4;
@@ -2322,7 +2322,7 @@ void EnemyQuarkStand::fn_8035223C() {
         Mtx m;
         PSMTXRotRad(m, 'y', rot);
         PSMTXMultVec(m, &off, &off);
-        fn_800FAB80(lbl_8087F048, this, m153C, m16EC, &(m16E0 + off), &atn::Vector3(0.0f, rot, 0.0f), 0, 30, -1,
+        lbl_8087F048->fn_800FAB80(this, m153C, m16EC, &(m16E0 + off), &atn::Vector3(0.0f, rot, 0.0f), 0, 30, -1,
                     -1, 3.0f, 1.0f);
         if (m1CC4 != 0) {
             lbl_8087EEB0->fn_80063D3C(m16E0 + off, m153C->m58, 1000.0f, 0xFF000000);
@@ -2350,7 +2350,7 @@ void EnemyQuarkStand::fn_803524E4() {
             float dt = lbl_8087EFA8->m3A4;
             it->m00 -= dt;
             if (it->m00 <= 0.0f) {
-                fn_800FAB80(lbl_8087F048, this, m1530, m1A20, &it->m04, &lbl_807C7030, 0, 30, -1, -1, 0.0f, 1.0f);
+                lbl_8087F048->fn_800FAB80(this, m1530, m1A20, &it->m04, &lbl_807C7030, 0, 30, -1, -1, 0.0f, 1.0f);
                 m1A24++;
                 if (m1A24 % 4 == 0) {
                     fn_800C344C("SE_MB003_003", &it->m04, 0, -1, 1.0f);
@@ -2389,7 +2389,7 @@ void EnemyQuarkStand::fn_803526A8() {
             if (it->m0C <= 0.0f) {
                 fn_80239DAC(lbl_8087F3C0, &m1CAC, it->m11, 1);
                 BattleTask* mgr = lbl_8087F048;
-                fn_800FAB80(mgr, this, m155C, fn_800F8548(mgr), &it->m00, &lbl_807C7030, 0, 30, -1, -1, 0.0f,
+                mgr->fn_800FAB80(this, m155C, mgr->fn_800F8548(), &it->m00, &lbl_807C7030, 0, 30, -1, -1, 0.0f,
                             1.0f);
                 m1CB8++;
                 if (m1CB8 % 3 == 0) {

@@ -138,7 +138,7 @@ inline void Em202SpiderBase::ResetAttack_unk() {
     m14B0 = 0;
     m158C = 0;
     m1594 = m14F4 != 0 ? m14F4->m68 : 90;
-    m590 = fn_800F8548(lbl_8087F048);
+    m590 = lbl_8087F048->fn_800F8548();
     fn_800CB5C8(&m151C, 15, 0);
     fn_80239DAC(lbl_8087F3C0, this, 200, 0);
 }
@@ -389,7 +389,7 @@ void Em202SpiderBase::vf14() {
 
 // NONMATCHING: 99.89% - only the .sdata2 offsets (constants of the unwritten functions)
 // inferred: the spider guards the hits inside the angle m1534 from the front (from the back in state 8)
-void Em202SpiderBase::vf3C(HitInfo_unk* hit) {
+void Em202SpiderBase::vf3C(HitInfo_unk* hit, int) {
     HitMsg_unk* msg = (HitMsg_unk*)hit;
     bool down = true;
     unsigned int flags = mStatus.m0C;
@@ -471,7 +471,7 @@ void Em202SpiderBase::vf40(HitInfo_unk* hit) {
         fn_8023A8B4(lbl_8087F3C0, &m15B0, &mMotion, 0, pos, rot, color, -1, -1, 1, 1.0f);
         BattleTask* mgr = lbl_8087F048;
         atn::Vector3 p = fn_801781B0();
-        fn_80108F38(mgr, &p, 0x80);
+        mgr->fn_80108F38(&p, 0x80);
     }
 }
 
@@ -501,7 +501,7 @@ void Em202SpiderBase::vf7C(int arg) {
     m14B0 = 0;
     m158C = 0;
     m1594 = m14F4 != 0 ? m14F4->m68 : 90;
-    m590 = fn_800F8548(lbl_8087F048);
+    m590 = lbl_8087F048->fn_800F8548();
     fn_800CB5C8(&m151C, 15, 0);
     fn_80239DAC(lbl_8087F3C0, this, 200, 0);
     m58C = 14;
@@ -667,7 +667,7 @@ void Em202SpiderBase::fn_80285064() {
                 atn::Vector3 dir(0.0f, 0.0f, 3.0f);
                 PSMTXMultVec(m.m, &dir, &dir);
                 if (m14F4 != 0) {
-                    fn_800F8574(lbl_8087F048, this, m14F4, &pos, &dir, 0, 0, 0, 0.0f, 1.0f);
+                    lbl_8087F048->fn_800F8574(this, m14F4, &pos, &dir, 0, 0, 0, 0.0f, 1.0f);
                 }
             }
         }
@@ -910,7 +910,7 @@ void Em202SpiderBase::fn_80286CB0(CharaTask* target) {
         m58C = 7;
         fn_8016E970(6);
         m560 = 4;
-        m590 = fn_800F8548(lbl_8087F048);
+        m590 = lbl_8087F048->fn_800F8548();
         atn::Vector3 pos(target->mPos);
         atn::Vector3 rot = (pos - mPos).GetNormalize().ToRotation_unk();
         mRot = rot;
@@ -982,7 +982,7 @@ void Em202SpiderBase::fn_80287788() {
     m14B0 = 0;
     m158C = 0;
     m1594 = m14F4 != 0 ? m14F4->m68 : 90;
-    m590 = fn_800F8548(lbl_8087F048);
+    m590 = lbl_8087F048->fn_800F8548();
     fn_800CB5C8(&m151C, 15, 0);
     fn_80239DAC(lbl_8087F3C0, this, 200, 0);
     vf48();

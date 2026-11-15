@@ -119,7 +119,7 @@ int Em202_01_BSpider::vf0C() {
 // inferred: back to state 0 (names invented, as in game/Em202Spider.cpp)
 inline void ResetState_unk(Em202_01_BSpider* self) {
     self->m14B4 = 0;
-    self->m590 = fn_800F8548(lbl_8087F048);
+    self->m590 = lbl_8087F048->fn_800F8548();
     self->m58C = 0;
     self->fn_8016E970(3);
     fn_800CB5C8(&self->m153C, 15, 0);
@@ -275,7 +275,7 @@ inline float FrontDot_unk(CharaTask* self, const atn::Vector3& pos) {
 }
 
 // inferred: the spider guards the hits from the front (from the back in the states 9 and 10)
-void Em202_01_BSpider::vf3C(HitInfo_unk* hit) {
+void Em202_01_BSpider::vf3C(HitInfo_unk* hit, int) {
     HitMsg_unk* msg = (HitMsg_unk*)hit;
     if (m58C - 9U <= 1) {
         msg->m10 = lbl_807C7030;
@@ -317,7 +317,7 @@ void Em202_01_BSpider::vf40(HitInfo_unk* hit) {
     if (m55C == 6 && m560 - 22U <= 1) {
         m58C = 0;
         m14B4 = 0;
-        m590 = fn_800F8548(lbl_8087F048);
+        m590 = lbl_8087F048->fn_800F8548();
         fn_800CB5C8(&m153C, 15, 0);
         fn_80239DAC(lbl_8087F3C0, this, 200, 0);
     }
@@ -327,7 +327,7 @@ void Em202_01_BSpider::vf40(HitInfo_unk* hit) {
     }
     if (msg->mData != 0 && msg->mData->m04 == 0x1791) {
         m14B4 = 0;
-        m590 = fn_800F8548(lbl_8087F048);
+        m590 = lbl_8087F048->fn_800F8548();
         m58C = 14;
         fn_8016E970(3);
         mMotion.m34C = 1;
@@ -351,7 +351,7 @@ void Em202_01_BSpider::vf40(HitInfo_unk* hit) {
         fn_8023A8B4(lbl_8087F3C0, &m1530, &mMotion, 0, pos, rot, color, -1, -1, 1, 1.0f);
         BattleTask* mgr = lbl_8087F048;
         atn::Vector3 p = fn_801781B0();
-        fn_80108F38(mgr, &p, 0x80);
+        mgr->fn_80108F38(&p, 0x80);
     }
 }
 
@@ -383,7 +383,7 @@ void Em202_01_BSpider::fn_80270B8C() {
 
 void Em202_01_BSpider::vf7C(int arg) {
     m14B4 = 0;
-    m590 = fn_800F8548(lbl_8087F048);
+    m590 = lbl_8087F048->fn_800F8548();
     m58C = 13;
     fn_8016E970(6);
     m560 = 0x16;
@@ -471,7 +471,7 @@ void Em202_01_BSpider::fn_80271104() {
             PSMTXRotRad(r, 'y', mRot.y);
             PSMTXMultVec(r, &dir, &dir);
             BattleTask* mgr = lbl_8087F048;
-            fn_800F8574(mgr, this, fn_80219E6C(0x3F2), &pos, &dir, 0, 0, 0, 0.0f, 1.0f);
+            mgr->fn_800F8574(this, fn_80219E6C(0x3F2), &pos, &dir, 0, 0, 0, 0.0f, 1.0f);
         }
         break;
     }
@@ -552,7 +552,7 @@ void Em202_01_BSpider::fn_8027179C(CharaTask* target) {
         return;
     }
     m14B4 = 0;
-    m590 = fn_800F8548(lbl_8087F048);
+    m590 = lbl_8087F048->fn_800F8548();
     m58C = 6;
     fn_8016E970(6);
     m560 = 4;
@@ -574,11 +574,11 @@ void Em202_01_BSpider::fn_80271AA4(CharaTask* target) {
         return;
     }
     m14B4 = 0;
-    m590 = fn_800F8548(lbl_8087F048);
+    m590 = lbl_8087F048->fn_800F8548();
     m58C = 8;
     fn_8016E970(6);
     m560 = 4;
-    m590 = fn_800F8548(lbl_8087F048);
+    m590 = lbl_8087F048->fn_800F8548();
     atn::Vector3 pos(target->mPos);
     atn::Vector3 rot = (pos - mPos).GetNormalize().ToRotation_unk();
     mRot = rot;
@@ -599,7 +599,7 @@ void Em202_01_BSpider::fn_80271DAC(CharaTask* target) {
         return;
     }
     m14B4 = 0;
-    m590 = fn_800F8548(lbl_8087F048);
+    m590 = lbl_8087F048->fn_800F8548();
     m58C = 10;
     fn_8016E970(6);
     m560 = 4;

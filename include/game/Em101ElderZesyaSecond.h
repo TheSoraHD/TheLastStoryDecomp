@@ -23,7 +23,7 @@ public:
     virtual int vf0C();
     virtual void vf10(); // 0x8025ACA0
     virtual void vf14();                                            // 0x8025B5D4
-    virtual void vf3C(HitInfo_unk* hit);
+    virtual void vf3C(HitInfo_unk* hit, int);
     virtual void vf40(HitInfo_unk* hit);
     // inferred: returns 4 (hit refused) unless the hit has the range of the current mode
     virtual int vf4C(void* attacker, HitInfo_unk* hit, int arg, const atn::Vector3* dir); // 0x8025C92C

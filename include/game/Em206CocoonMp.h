@@ -19,7 +19,7 @@ public:
     virtual void vf20();                                    // 0x802BCE84
     virtual void vf24();                                    // 0x802BCD3C
     virtual void vf38(int arg);                             // 0x802BDF68
-    virtual void vf3C(HitInfo_unk* hit);                    // 0x802BAFAC
+    virtual void vf3C(HitInfo_unk* hit, int);                    // 0x802BAFAC
     virtual void vf40(HitInfo_unk* hit);                    // 0x802BB104
     virtual void vf50();                                    // 0x802BBCDC
     virtual void vf54();                                    // 0x802BC240

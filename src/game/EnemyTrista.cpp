@@ -291,7 +291,7 @@ inline void EnemyTrista::FireEvent_unk() {
     PSMTXMultVec(m, &dir, &dir);
     BattleTask* mgr = lbl_8087F048;
     atn::Vector3 pos = mC58.mC4->mPos + dir;
-    fn_800FB4B0(mgr, this, m14F4, fn_800F8548(mgr), &pos, 0, 30, -1, 1);
+    mgr->fn_800FB4B0(this, m14F4, mgr->fn_800F8548(), &pos, 0, 30, -1, 1);
 }
 
 inline void EnemyTrista::StartEvent_unk() {
@@ -427,7 +427,7 @@ void EnemyTrista::fn_8035C8CC() {
         if (m560 == 10) {
             m58C = 7;
             m14B8 = 0;
-            m590 = fn_800F8548(lbl_8087F048);
+            m590 = lbl_8087F048->fn_800F8548();
             m598 = 0;
             m59D = 0;
             m59C = 0;
@@ -508,7 +508,7 @@ void EnemyTrista::fn_8035C8CC() {
                 if (jump) {
                     m58C = 8;
                     m14B8 = 0;
-                    m590 = fn_800F8548(lbl_8087F048);
+                    m590 = lbl_8087F048->fn_800F8548();
                     m594 = 1;
                     m598 = 0;
                     mFlag5 = 0;
@@ -526,7 +526,7 @@ void EnemyTrista::fn_8035C8CC() {
 __declspec(noinline) void EnemyTrista::fn_8035CE58() {
     m58C = 7;
     m14B8 = 0;
-    m590 = fn_800F8548(lbl_8087F048);
+    m590 = lbl_8087F048->fn_800F8548();
     m594 = 1;
     m598 = 0;
     if ((mC58.mC4->mPos - mPos).Length_unk() < 25.0f) {
@@ -555,7 +555,7 @@ void EnemyTrista::fn_8035CF78() {
                 if (mControl && mControl->vf30() > m598) {
                     m598 = mControl->vf30();
                     m594 = 1;
-                    m590 = fn_800F8548(lbl_8087F048);
+                    m590 = lbl_8087F048->fn_800F8548();
                 }
                 if (m594 != 0) {
                     fn_80144710();
@@ -714,7 +714,7 @@ inline bool HasHit_unk(FixedArray_unk<HitInfo_unk*, 8>& hits, HitInfo_unk* hit) 
 
 // NONMATCHING: 95.0% - the original keeps r5 (a second argument of vf3C, unused by CharaTask::vf3C)
 // and passes it to CharaTask::vf3C
-void EnemyTrista::vf3C(HitInfo_unk* hit) {
+void EnemyTrista::vf3C(HitInfo_unk* hit, int arg) {
     HitMsg_unk* msg = (HitMsg_unk*)hit;
     if (msg->m44 == 1) {
         msg->m0C |= 0x8008;
@@ -742,7 +742,7 @@ void EnemyTrista::vf3C(HitInfo_unk* hit) {
             m14DC = 1;
         }
     }
-    CharaTask::vf3C(hit);
+    CharaTask::vf3C(hit, arg);
     m14B8 += m15A8;
     ClampHp_unk();
 }

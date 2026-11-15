@@ -168,7 +168,6 @@ extern "C" HitParam_unk lbl_807C6B90; // inferred: default parameters
 extern "C" void fn_8003EA3C(ElderDamage_unk* result, HitInfo_unk* data, CharaTask* attacker, CharaTask* owner,
                             unsigned int flags, const HitParam_unk* param, int arg, int arg2); // inferred: damage
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
-extern "C" void fn_80102EAC(BattleTask* mgr, int id, CharaTask* attacker, int arg, int arg2);
 
 extern "C" void* lbl_8087EE98;
 extern "C" int fn_8004ED34(void* colli, atn::ColliResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
@@ -631,7 +630,7 @@ void Em101ElderZesya::vf10() {
                 mF7C = mC58.mC4;
                 mF6C = mC58.mC4->mPos;
                 m14C8 = 0;
-                m590 = fn_800F8548(lbl_8087F048);
+                m590 = lbl_8087F048->fn_800F8548();
                 m14D0 = 0;
                 m1660 = 0;
                 m58C = 11;
@@ -832,7 +831,7 @@ inline void PlayEffectB_unk(atn::EfpFile* efp, atn::Model* model) {
 // inferred: starts the magic of state 10 (name invented)
 inline void Em101ElderZesya::StartMagic_unk() {
     m14C8 = 0;
-    m590 = fn_800F8548(lbl_8087F048);
+    m590 = lbl_8087F048->fn_800F8548();
     m14D0 = 0;
     m1660 = 0;
     m58C = 10;
@@ -862,7 +861,7 @@ void Em101ElderZesya::fn_80258574() {
     switch (m14CC) {
     case 0:
         m14C8 = 0;
-        m590 = fn_800F8548(lbl_8087F048);
+        m590 = lbl_8087F048->fn_800F8548();
         m14D0 = 0;
         m1660 = 0;
         m58C = 12;
@@ -877,7 +876,7 @@ void Em101ElderZesya::fn_80258574() {
         break;
     case 1:
         m14C8 = 0;
-        m590 = fn_800F8548(lbl_8087F048);
+        m590 = lbl_8087F048->fn_800F8548();
         m14D0 = 0;
         m1660 = 0;
         m58C = 14;
@@ -891,7 +890,7 @@ void Em101ElderZesya::fn_80258574() {
     case 2: {
         m58C = 9;
         m14C8 = 0;
-        m590 = fn_800F8548(lbl_8087F048);
+        m590 = lbl_8087F048->fn_800F8548();
         m14D0 = 0;
         m1660 = 0;
         wchar_t text[256];
@@ -985,7 +984,7 @@ void Em101ElderZesya::fn_80258A50() {
                     }
                     param.mDelay = rand() % 3 + 5;
                     param.mTurn = 0.18849556f;
-                    fn_800F8574(lbl_8087F048, this, hit, &pos, &dir, &param, 0x44, 0, 0.0f, 1.0f);
+                    lbl_8087F048->fn_800F8574(this, hit, &pos, &dir, &param, 0x44, 0, 0.0f, 1.0f);
                 }
             } else {
                 float frame = mMotion.mTracks[0].m08;
@@ -1028,7 +1027,7 @@ void Em101ElderZesya::fn_80258F1C() {
     } else if ((float)__fabs(mMotion.mTracks[0].m08 - 62.0f) < 1.1920929e-7f) {
         fn_80232B7C(this, 1000);
         fn_8023A8B4(lbl_8087F3C0, &m1610, 0, 0, m1674, mRot, Color4f_unk(1.0f, 1.0f, 1.0f, 1.0f), -1, -1, 1, 1.0f);
-        fn_800FAB80(lbl_8087F048, this, m638, m590, &m1674, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
+        lbl_8087F048->fn_800FAB80(this, m638, m590, &m1674, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
     }
 }
 
@@ -1071,7 +1070,7 @@ void Em101ElderZesya::fn_8025922C() {
 
 void Em101ElderZesya::fn_8025941C() {
     m14C8 = 0;
-    m590 = fn_800F8548(lbl_8087F048);
+    m590 = lbl_8087F048->fn_800F8548();
     m14D0 = 0;
     m1660 = 0;
     m58C = 13;
@@ -1094,7 +1093,7 @@ void Em101ElderZesya::fn_8025941C() {
 
 // inferred: hit handling: in states 9, 12 and 13 the hits are ignored; while a barrier is up a hit on the
 // barrier (m40 != 0) breaks it if the attack matches its kind
-void Em101ElderZesya::vf3C(HitInfo_unk* hit) {
+void Em101ElderZesya::vf3C(HitInfo_unk* hit, int arg) {
     HitMsg_unk* msg = (HitMsg_unk*)hit;
     if (m58C == 12 || m58C == 13 || m58C == 9) {
         msg->m10 *= 0.0f;
@@ -1128,7 +1127,7 @@ void Em101ElderZesya::vf3C(HitInfo_unk* hit) {
         }
         return;
     }
-    CharaTask::vf3C(hit);
+    CharaTask::vf3C(hit, arg);
     m14C8 += 30;
     m14F0 += msg->m68;
     if ((float)m14F0 / (float)mStatus.mParamB.m84 > 0.1f) {
@@ -1143,7 +1142,7 @@ void Em101ElderZesya::vf3C(HitInfo_unk* hit) {
         }
     }
     if (msg->m68 > 0) {
-        fn_80102EAC(lbl_8087F048, m16A0, msg->mAttacker, 100, -1);
+        lbl_8087F048->fn_80102EAC((CharaTask*)m16A0, msg->mAttacker, 100, -1);
     }
     if (m55C == 6) {
         switch (m560) {
@@ -1155,7 +1154,7 @@ void Em101ElderZesya::vf3C(HitInfo_unk* hit) {
         reset:
             m58C = 0;
             m14C8 = 0;
-            m590 = fn_800F8548(lbl_8087F048);
+            m590 = lbl_8087F048->fn_800F8548();
             m14D0 = 0;
             m1660 = 0;
             break;

@@ -8,6 +8,7 @@
 #include <string.h>
 #include "atn/DrawHelper.h"
 #include "game/GameTask.h"
+#include "game/BattleTask.h"
 
 extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3, int arg4);
 extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, int arg6,
@@ -224,7 +225,6 @@ extern "C" unsigned short fn_803CD958(RoutePath_unk* path, int point); // inferr
 // inferred: fn_8010A308 moves a hit capsule (as in game/EnemySeaLizerd.cpp)
 class BattleTask;
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
-extern "C" void fn_8010A308(BattleTask* mgr, const atn::Vector3* from, const atn::Vector3* to, float radius);
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
 // inferred: wraps an angle to [-180, 180] (0x802A7910 of game/Em204Mulue.cpp; constants not in this pool)
@@ -233,9 +233,6 @@ extern "C" HitInfo_unk* fn_80219E6C(int id); // inferred: skill data by id
 // inferred: bullet manager accessor (CharaTask.cpp) and bullet launcher (as in game/Em203GreaterDaemon.cpp)
 BattleTask* fn_8013A194();
 struct HomingParam_unk;
-extern "C" void fn_800F8574(BattleTask* mgr, CharaTask* owner, HitInfo_unk* data, const atn::Vector3* pos,
-                            const atn::Vector3* dir, HomingParam_unk* param, int arg6, int arg7, float a,
-                            float b); // inferred: fires a bullet
 // inferred: model matrix (weak copy 0x80266154, as in gmk/Cannonball.cpp)
 extern "C" inline atn::Matrix3x4* fn_80266154(atn::Model* model) {
     return (atn::Matrix3x4*)model->mMtx.m;
@@ -447,14 +444,14 @@ void Em310Gargoyle::vf14() {
 
 // NONMATCHING: 99.95% - only .sdata2 offsets: the pool here keeps the constants of the weak copies (ToU32 255,
 // fn_8028AC70 -3/3/5, WrapAngle_unk pi/2pi) that the original linker stripped with them
-void Em310Gargoyle::vf3C(HitInfo_unk* hit) {
+void Em310Gargoyle::vf3C(HitInfo_unk* hit, int arg) {
     HitMsg_unk* msg = (HitMsg_unk*)hit;
     switch (m15E0) {
     case 1:
         if (msg->mData != 0 && msg->mData->m04 == 0x13C) {
             msg->m0C |= 0x880;
         }
-        CharaTask::vf3C(hit);
+        CharaTask::vf3C(hit, arg);
         break;
     case 2:
     case 0: {
@@ -682,7 +679,7 @@ void Em310Gargoyle::fn_8030C490() {
         m.fn_8010F668();
         atn::Vector3 dir(0.0f, -1.0f, 1.0f);
         dir.fn_80011410(m);
-        fn_800F8574(fn_8013A194(), this, skill, &pos, &dir, 0, 0, 0, 0.0f, 1.0f);
+        fn_8013A194()->fn_800F8574(this, skill, &pos, &dir, 0, 0, 0, 0.0f, 1.0f);
         m14D0 = 0;
         m14D4++;
     }
@@ -797,7 +794,7 @@ void Em310Gargoyle::fn_8030CBC0() {
         }
     }
     atn::Vector3 neck = GetNodePos_unk(mMotion.GetNodeMtx_unk("neck"));
-    fn_8010A308(lbl_8087F048, &m15E4, &neck, m5B0);
+    lbl_8087F048->fn_8010A308(&m15E4, &neck, m5B0);
     m15E4 = neck;
 }
 

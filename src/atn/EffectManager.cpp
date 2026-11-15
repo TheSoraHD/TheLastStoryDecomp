@@ -539,6 +539,332 @@ int EffectManager::fn_8023B724(EffectEvent_unk* event) {
 
 } // namespace atn
 
+// MSL_C math (sign and class of a double)
+extern "C" int __signbitd(double);
+extern "C" int __fpclassifyd(double);
+
+namespace std {
+
+// inferred: upper case of a range (MSL inline)
+inline const char* ctype<char>::toupper(char* low, const char* high) const {
+    return do_toupper(low, high);
+}
+
+// inferred: the decimal digits of a double (MSL locale.cpp, 0x80693884; see libs/.../MSL_C++/locale.cpp)
+struct __decimal_unk {
+    __decimal_unk(double);
+    int __round_dir_unk(size_t) const;
+    string __round_unk(int, long&) const;
+
+    string digits;
+    short exp;
+    short cls;
+};
+
+// inferred: MSL inlines
+template <class C>
+inline typename numpunct<C>::char_type numpunct<C>::decimal_point() const {
+    return do_decimal_point();
+}
+template <class C>
+inline typename numpunct<C>::char_type numpunct<C>::thousands_sep() const {
+    return do_thousands_sep();
+}
+// inferred: weak copy 0x80241C20 (a copy of the string)
+inline string ctype<char>::widen(const string& s) const {
+    return s;
+}
+
+// inferred: one character in place of the contents (MSL inline, declared in std/string.h)
+template <class T, class Tr, class A>
+inline basic_string<T, Tr, A>& basic_string<T, Tr, A>::operator=(T c) {
+    T* p;
+    if (is_long()) {
+        mLong.mSize = 1;
+        p = mLong.mData;
+    } else {
+        mShortFlags.mSize = 1;
+        p = mShort.mData;
+    }
+    p[0] = c;
+    p[1] = T();
+    return *this;
+}
+
+// NONMATCHING: 81.5% - written from the original, not tuned (registers, stack slots of the iterator tags)
+// inferred: scientific format of a finite value (0x802411B8): first digit, the decimal point (with showpoint or a
+// precision), precision digits, e or E, the sign and at least two exponent digits; returns the exponent (name
+// invented)
+template <class C>
+int __put_float_scientific_unk(ios_base& str, basic_string<C>& s, long double v) {
+    locale loc = str.getloc();
+    const ctype<C>& ct = use_facet<ctype<C> >(loc);
+    const numpunct<C>& np = use_facet<numpunct<C> >(loc);
+    C zero = ct.widen('0');
+    C dp = np.decimal_point();
+    C e;
+    if ((str.flags() & __uppercase_unk) != 0) {
+        e = ct.widen('E');
+    } else {
+        e = ct.widen('e');
+    }
+    int prec = str.mPrecision;
+    if (v == 0.0) {
+        s = zero;
+        if ((str.flags() & __showpoint_unk) != 0 || prec > 0) {
+            s += dp;
+        }
+        if (prec > 0) {
+            s.replace(s.size(), 0, prec, zero);
+        }
+        s += e;
+        s += ct.widen('+');
+        s.replace(s.size(), 0, 2, zero);
+        return 0;
+    }
+    __decimal_unk d(v);
+    long exp;
+    s = ct.widen(d.__round_unk(prec + 1, exp));
+    int result = exp;
+    int point = 0;
+    if ((str.flags() & __showpoint_unk) != 0 || prec > 0) {
+        s.replace(1, 0, 1, dp);
+        point = 1;
+    }
+    if (prec + point + 1 > (int)s.size()) {
+        s.replace(s.size(), 0, prec + point + 1 - s.size(), zero);
+    }
+    s += e;
+    if (exp < 0) {
+        s += ct.widen('-');
+        exp = -exp;
+    } else {
+        s += ct.widen('+');
+    }
+    if (exp < 10) {
+        s += ct.widen('0');
+        s += ct.widen((char)('0' + exp));
+    } else {
+        typename basic_string<C>::size_type start = s.size();
+        for (; exp > 0; exp /= 10) {
+            s += ct.widen((char)('0' + exp % 10));
+        }
+        __reverse_unk(&s[0] + start, &s[0] + s.size());
+    }
+    return result;
+}
+
+// NONMATCHING: 85.8% - written from the original, not tuned (registers, stack slots of the iterator tags)
+// inferred: fixed format of a finite value (0x80241CB8): the digits rounded to precision places after the
+// decimal point, zeros before them for a small value, the decimal point (with showpoint or a precision) and
+// the thousands separators of the numpunct (name invented)
+template <class C>
+void __put_float_fixed_unk(ios_base& str, basic_string<C>& s, long double v) {
+    locale loc = str.getloc();
+    const ctype<C>& ct = use_facet<ctype<C> >(loc);
+    const numpunct<C>& np = use_facet<numpunct<C> >(loc);
+    C zero = ct.widen('0');
+    C one = ct.widen('1');
+    C dp = np.decimal_point();
+    int prec = str.mPrecision;
+    if (v == 0.0) {
+        s = zero;
+        if ((str.flags() & __showpoint_unk) != 0 || prec > 0) {
+            s += dp;
+        }
+        s.replace(s.size(), 0, prec, zero);
+        return;
+    }
+    __decimal_unk d(v);
+    long exp = d.exp;
+    int n = prec + exp + 1;
+    if (n < 0) {
+        int p = str.mPrecision;
+        s = zero;
+        if ((str.flags() & __showpoint_unk) != 0 || p > 0) {
+            s += dp;
+        }
+        s.replace(s.size(), 0, p, zero);
+        return;
+    }
+    if (n == 0) {
+        if (exp == -1) {
+            if (d.__round_dir_unk(0) == 1) {
+                s = one;
+            } else {
+                s = zero;
+            }
+            if ((str.flags() & __showpoint_unk) != 0) {
+                s += dp;
+            }
+        } else {
+            s = zero;
+            s += dp;
+            if (exp < -2) {
+                s.replace(s.size(), 0, -2 - exp, zero);
+            }
+            if (d.__round_dir_unk(0) == 1) {
+                s += one;
+            } else {
+                s += zero;
+            }
+        }
+        return;
+    }
+    s = ct.widen(d.__round_unk(n, exp));
+    if (exp < 0) {
+        basic_string<C> t;
+        t = zero;
+        t += dp;
+        if (exp < -1) {
+            t.replace(t.size(), 0, -1 - exp, zero);
+        }
+        t += s;
+        s = t;
+        if (prec + 2 - t.size() == 1) {
+            s += zero;
+        }
+    } else {
+        s.replace(s.size(), 0, prec + exp + 1 - s.size(), zero);
+        if ((str.flags() & __showpoint_unk) != 0 || prec > 0) {
+            s.replace(exp + 1, 0, 1, dp);
+        }
+        __put_grouping_float(dp, np.thousands_sep(), np.grouping(), s);
+    }
+}
+
+// NONMATCHING: 81.1% - written from the original, not tuned (the last character is dropped in place there)
+// inferred: general format (0x802407CC): scientific with precision - 1 digits after the point, turned into the
+// fixed form when the exponent is in [-4, precision); without showpoint the trailing zeros and a trailing
+// decimal point are removed; the format of the stream is saved and restored (name invented)
+template <class C>
+void __put_float_general_unk(ios_base& str, basic_string<C>& s, long double v) {
+    __save_format_unk save(str);
+    int prec = str.mPrecision;
+    if (prec == 0) {
+        prec = 1;
+    }
+    str.mPrecision = prec - 1;
+    int exp = __put_float_scientific_unk(str, s, v);
+    locale loc = str.getloc();
+    const ctype<C>& ct = use_facet<ctype<C> >(loc);
+    const numpunct<C>& np = use_facet<numpunct<C> >(loc);
+    C zero = ct.widen('0');
+    C dp = np.decimal_point();
+    if (exp >= -4 && exp < prec) {
+        if (s.data()[1] == dp) {
+            s.erase(prec + 1);
+        } else {
+            s.erase(1);
+        }
+        if (exp < 0) {
+            if (s.data()[1] == dp) {
+                s.erase(1, 1);
+            }
+            s.replace(0, 0, -exp, zero);
+            s.replace(1, 0, 1, dp);
+        } else if (exp > 0) {
+            s.erase(1, 1);
+            if (exp < prec - 1 || (str.flags() & __showpoint_unk) != 0) {
+                s.replace(exp + 1, 0, 1, dp);
+            }
+        }
+        if ((str.flags() & __showpoint_unk) == 0 && s.find(dp) != basic_string<C>::npos) {
+            const C* end = s.data() + s.size();
+            const C* q = end - 1;
+            while (*q == zero) {
+                --q;
+            }
+            ++q;
+            if (q != end) {
+                s.erase(q - s.data(), end - q);
+            }
+            if (s.data()[s.size() - 1] == dp) {
+                s.erase(s.size() - 1);
+            }
+        }
+        __put_grouping_float(dp, np.thousands_sep(), np.grouping(), s);
+    } else {
+        if ((str.flags() & __showpoint_unk) == 0 && s.data()[1] == dp) {
+            C e;
+            if ((str.flags() & __uppercase_unk) != 0) {
+                e = ct.widen('E');
+            } else {
+                e = ct.widen('e');
+            }
+            const C* p = s.data() + s.find(e);
+            const C* q = p - 1;
+            while (*q == zero) {
+                --q;
+            }
+            ++q;
+            if (q != p) {
+                s.erase(q - s.data(), p - q);
+            }
+            if (s.data()[2] == e) {
+                s.erase(1, 1);
+            }
+        }
+    }
+}
+
+// inferred: a finite value formatted fixed, scientific or general after the flags, else nan or inf (inlined by
+// do_put(long double); name invented)
+template <class C>
+inline void __put_float_unk(ios_base& str, basic_string<C>& s, long double v) {
+    if (__fpclassifyd(v) > 2) {
+        switch (str.flags() & (__fixed_unk | __scientific_unk)) {
+        case __fixed_unk:
+            __put_float_fixed_unk(str, s, v);
+            break;
+        case __scientific_unk:
+            __put_float_scientific_unk(str, s, v);
+            break;
+        default:
+            __put_float_general_unk(str, s, v);
+            break;
+        }
+    } else {
+        if (__fpclassifyd(v) == 1) {
+            s = __literal("nan", C());
+        } else {
+            s = __literal("inf", C());
+        }
+        if ((str.flags() & __uppercase_unk) != 0) {
+            const ctype<C>& ct = use_facet<ctype<C> >(str.getloc());
+            ct.toupper((C*)s.data(), s.data() + s.size());
+        }
+    }
+}
+
+// NONMATCHING: 85.8% - the string is passed through a saved register in the original, registers of the facet
+// (the replace of use_facet), stack slots of the iterator tags of the string assignments (90.2% with the
+// ostreambuf_iterator::operator= of docs/paralelo-20261113-qD2.patch, which renumbers GameEventScript)
+// inferred: float output (0x8023F5E0): the sign (or + with showpos) as a prefix; a finite value formatted fixed,
+// scientific or general after the flags; else nan or inf (upper case with uppercase); then padded like the
+// integers
+template <class C, class O>
+typename num_put<C, O>::iter_type num_put<C, O>::do_put(iter_type out, ios_base& str, char_type fill,
+                                                        long double v) const {
+    const ctype<C>& ct = use_facet<ctype<C> >(str.getloc());
+    C pre[1];
+    int npre = 0;
+    bool neg = __signbitd(v);
+    if (!neg && (str.flags() & __showpos_unk) != 0) {
+        npre = 1;
+        pre[0] = ct.widen('+');
+    } else if (neg) {
+        npre = 1;
+        pre[0] = ct.widen('-');
+        v = -v;
+    }
+    basic_string<C> s;
+    __put_float_unk(str, s, v);
+    return __put_padded_unk(out, str, fill, pre, npre, s.data(), (int)s.size());
+}
+
+} // namespace std
+
 // inferred: weak copies of the MSL numeric facets used by the stream output of this file (its code that
 // used them is not in the DOL), in the order of the DOL
 namespace std {
@@ -552,6 +878,8 @@ template num_put<char>::iter_type num_put<char>::do_put(iter_type out, ios_base&
 template num_put<char>::iter_type num_put<char>::do_put(iter_type out, ios_base& str, char fill,
                                                          unsigned long long v) const;
 template num_put<char>::iter_type num_put<char>::do_put(iter_type out, ios_base& str, char fill, double v) const;
+template num_put<char>::iter_type num_put<char>::do_put(iter_type out, ios_base& str, char fill,
+                                                         long double v) const;
 template num_put<char>::iter_type num_put<char>::do_put(iter_type out, ios_base& str, char fill,
                                                          const void* v) const;
 template numpunct<char>::string_type numpunct<char>::truename() const;

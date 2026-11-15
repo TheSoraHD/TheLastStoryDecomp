@@ -17,6 +17,7 @@
 #include "game/Input_unk.h"
 #include "game/BattleTask.h"
 #include "atn/EffectSystem_unk.h"
+#include "game/DamageResult_unk.h"
 
 // inferred: game settings (lbl_8087F0A8, as in chr/ControlCharge.cpp); names invented
 struct Settings_unk {
@@ -42,18 +43,6 @@ extern "C" GameState_unk* lbl_8087EFA8;
 typedef EffectColor_unk Color4f_unk;
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
 // inferred: result of a damage computation (names invented, as in game/EnemyTasha.cpp)
-struct MagicDamage_unk {
-    MagicDamage_unk() : m00(0), m04(0), m08(0), m0C(0), m10(0), m14(-1), m18(-1), m1C_28(0) {}
-    int m00;
-    int m04;
-    int m08;
-    int m0C;
-    int m10;
-    int m14;
-    int m18;
-    unsigned int m1C_31_28 : 4;
-    unsigned int m1C_28 : 28;
-};
 // inferred: options of the damage computation (names invented)
 struct MagicDamageOpt_unk {
     int m00;
@@ -64,12 +53,10 @@ struct MagicDamageOpt_unk {
     int m14;
 };
 extern "C" char lbl_807C6B90[0x18]; // inferred: default options of the damage computation
-extern "C" void fn_8003EA3C(MagicDamage_unk* result, HitInfo_unk* data, CharaTask* attacker, CharaTask* target,
+extern "C" void fn_8003EA3C(DamageResult_unk* result, HitInfo_unk* data, CharaTask* attacker, CharaTask* target,
                             int flags, const void* options, atn::Vector3* a, atn::Vector3* b);
-extern "C" void fn_8003F030(MagicDamage_unk* result, HitInfo_unk* data, CharaTask* attacker, const atn::Vector3* pos,
+extern "C" void fn_8003F030(DamageResult_unk* result, HitInfo_unk* data, CharaTask* attacker, const atn::Vector3* pos,
                             const atn::Vector3* rot, int flags);
-extern "C" void fn_80108C10(BattleTask* effect, MagicDamage_unk* damage, const atn::Vector3& pos, CharaTask* attacker,
-                            CharaTask* target, int a, int b);
 // inferred: one line of the voice table (defined in atn/ptr_string_base_char_0.cpp)
 struct VoiceEntry_unk {
     const char* fn_8021FD7C(int kind) const;
@@ -566,7 +553,7 @@ int ControlMagic::vf0C() {
         case 9:
             if (hit->m04 == 0x179A) {
                 atn::Vector3 pos = m1E ? m08 : m14->mPos;
-                fn_800FAB80(lbl_8087F048, mChara, hit, fn_800F8548(lbl_8087F048), &pos, &chr::lbl_807C7030, 0, 30, -1,
+                lbl_8087F048->fn_800FAB80(mChara, hit, lbl_8087F048->fn_800F8548(), &pos, &chr::lbl_807C7030, 0, 30, -1,
                             -1, 0.0f, 1.0f);
             } else if ((unsigned int)(hit->m04 - 0x179B) <= 3) {
                 atn::Vector3 flat(dir.x, 0.0f, dir.z);
@@ -593,7 +580,7 @@ int ControlMagic::vf0C() {
                     if (i < 3) {
                         flags |= 0x1000;
                     }
-                    fn_800F8574(lbl_8087F048, mChara, hit, &from, &d, 0, flags, i * 15, len, 1.0f);
+                    lbl_8087F048->fn_800F8574(mChara, hit, &from, &d, 0, flags, i * 15, len, 1.0f);
                 }
             } else if (follow) {
                 MagicHoming_unk param;
@@ -601,9 +588,9 @@ int ControlMagic::vf0C() {
                 param.mTurn = 0.12566371f;
                 param.mDelay = 0.0f;
                 param.mTime = dist / hit->m4C;
-                fn_800F8574(lbl_8087F048, mChara, hit, &from, &dir, &param, 0x100, 0, 0.0f, 1.0f);
+                lbl_8087F048->fn_800F8574(mChara, hit, &from, &dir, &param, 0x100, 0, 0.0f, 1.0f);
             } else {
-                fn_800F8574(lbl_8087F048, mChara, hit, &from, &dir, 0, 0, 0, 0.0f, m20);
+                lbl_8087F048->fn_800F8574(mChara, hit, &from, &dir, 0, 0, 0, 0.0f, m20);
             }
             break;
         case 8:
@@ -643,26 +630,26 @@ int ControlMagic::vf0C() {
                     PSMTXMultVec(mtx, &shot, &shot);
                     param.mDelay = rand() % 5 + 15;
                     param.mNode = fn_800DC6B4(nodes[i]);
-                    fn_800F8574(lbl_8087F048, mChara, hit, &from, &shot, &param, 2, 0, 0.0f, 1.0f);
+                    lbl_8087F048->fn_800F8574(mChara, hit, &from, &shot, &param, 2, 0, 0.0f, 1.0f);
                 }
                 if (hit->m04 == 0x179A) {
                     atn::Vector3 pos = m1E ? m08 : m14->mPos;
-                    fn_800FAB80(lbl_8087F048, mChara, fn_80219E6C(0x17A1), fn_800F8548(lbl_8087F048), &pos,
+                    lbl_8087F048->fn_800FAB80(mChara, fn_80219E6C(0x17A1), lbl_8087F048->fn_800F8548(), &pos,
                                 &chr::lbl_807C7030, 0, 30, -1, -1, 0.0f, 1.0f);
                     model->mTracks[0].m0C = 0.5f;
                 }
             } else {
                 MagicHoming_unk param;
                 param.mTarget = m14;
-                fn_800F8574(lbl_8087F048, mChara, hit, &from, &dir, &param, 0, 0, 0.0f, 1.0f);
+                lbl_8087F048->fn_800F8574(mChara, hit, &from, &dir, &param, 0, 0, 0.0f, 1.0f);
             }
             break;
         default:
             if (hit->m04 == 0x177F) {
-                fn_800FB4B0(lbl_8087F048, mChara, hit, fn_800F8548(lbl_8087F048), &mChara->mPos, 0, 30, -1, 1);
+                lbl_8087F048->fn_800FB4B0(mChara, hit, lbl_8087F048->fn_800F8548(), &mChara->mPos, 0, 30, -1, 1);
             } else if (hit->m04 == 0x179F) {
                 CharaTask* player = lbl_8087F8A0->mHead;
-                MagicDamage_unk damage;
+                DamageResult_unk damage;
                 fn_8003EA3C(&damage, hit, player, player, 0, lbl_807C6B90, 0, 0);
                 if (hit->mB0) {
                     lbl_8087F048->fn_80107168(hit->mB0, 0, 0, &player->mMotion, &chr::lbl_807C7030,
@@ -671,7 +658,7 @@ int ControlMagic::vf0C() {
                 }
                 player->mStatus.m08 = player->mStatus.mParamB.m88;
             } else {
-                MagicDamage_unk damage;
+                DamageResult_unk damage;
                 if (!m1E) {
                     MagicDamageOpt_unk opt;
                     opt.m00 = 1;
@@ -687,7 +674,7 @@ int ControlMagic::vf0C() {
                     } else {
                         fn_8003EA3C(&damage, hit, mChara, m14, 0, lbl_807C6B90, 0, 0);
                     }
-                    fn_80108C10(lbl_8087F048, &damage, m14->mPos + atn::Vector3(0.0f, 15.0f, 0.0f), mChara, m14, 0,
+                    lbl_8087F048->fn_80108C10(&damage, m14->mPos + atn::Vector3(0.0f, 15.0f, 0.0f), mChara, m14, 0,
                                 1);
                 } else {
                     atn::Vector3 pos(m08);
@@ -729,9 +716,9 @@ int ControlMagic::vf0C() {
         }
         if (lbl_8087F430 && ((GameTask*)lbl_8087F430)->fn_80375184()) {
             if (mChara->mType == 2) {
-                fn_801092C8(lbl_8087F048, 0xC, mChara, hit->m04, 0);
+                lbl_8087F048->fn_801092C8(0xC, mChara, hit->m04, 0);
             } else {
-                fn_801092C8(lbl_8087F048, 0xD, mChara, hit->m04, 0);
+                lbl_8087F048->fn_801092C8(0xD, mChara, hit->m04, 0);
             }
         }
         if (lbl_8087F498 && (fn_8021A8D0(hit) || fn_8021A918(hit)) && mChara->mType == 2) {

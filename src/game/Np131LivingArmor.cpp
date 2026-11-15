@@ -157,7 +157,7 @@ void Np131LivingArmor::vf10() {
                 pos.y += 8.0f;
                 fn_80239DAC(lbl_8087F3C0, &m14B8, 0, 1);
                 BattleTask* mgr = lbl_8087F048;
-                fn_800FAB80(mgr, this, fn_80219E6C(0x7F1), fn_800F8548(mgr), &mPos, &mRot, 0, 30, -1, -1, 0.0f,
+                mgr->fn_800FAB80(this, fn_80219E6C(0x7F1), mgr->fn_800F8548(), &mPos, &mRot, 0, 30, -1, -1, 0.0f,
                             1.0f);
                 vf44();
                 m14E0 = 2;
@@ -287,7 +287,7 @@ void Np131LivingArmor::fn_80546B84() {
     m624.mData[0].m04.mRadius = 3.0f;
 }
 
-void Np131LivingArmor::vf3C(HitInfo_unk* hit) {
+void Np131LivingArmor::vf3C(HitInfo_unk* hit, int) {
     HitMsg_unk* msg = (HitMsg_unk*)hit;
     if (m58C == 6) {
         msg->m64 = 3;

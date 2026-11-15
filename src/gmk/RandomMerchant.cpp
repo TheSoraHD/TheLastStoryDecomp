@@ -9,6 +9,7 @@
 #include "game/MarketTask.h"
 #include "game/PlayerTask.h"
 #include "std/string_members.h"
+#include "game/BattleTask.h"
 
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" int atoi(const char* s);
@@ -70,7 +71,6 @@ extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 extern "C" void fn_8044D6AC(void* mgr, int price);
 class BattleTask;
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
-extern "C" void fn_801092C8(BattleTask* mgr, int arg1, int arg2, int item, int num);
 extern "C" GameUI* lbl_8087F490;
 
 // inferred: rotation matrix z * y * x (same as GimmickCommon.cpp)
@@ -438,7 +438,7 @@ int RandomMerchant::vf40(GimmickMsg_unk* msg) {
             fn_8044D6AC(Inventory::instance_, mPrice);
             Inventory::instance_->AddItem(mItemId, mItemNum, 0, 0, 0, 1, 1);
             if (lbl_8087F048 != 0) {
-                fn_801092C8(lbl_8087F048, 1, 0, mItemId, mItemNum);
+                lbl_8087F048->fn_801092C8(1, 0, mItemId, mItemNum);
             }
             lbl_8087F490->fn_803E5E64(mItemId, mItemNum, 1);
             fn_800C31F4("SE_UICOM_008", 0, -1, 1.0f);

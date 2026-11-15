@@ -251,7 +251,7 @@ inline void Em202Spider::Attack_unk(HitInfo_unk* const& skill) {
 // inferred: back to state 0 (names invented)
 inline void Em202Spider::ResetState_unk() {
     m14D8 = 0;
-    m590 = fn_800F8548(lbl_8087F048);
+    m590 = lbl_8087F048->fn_800F8548();
     m58C = 0;
     fn_8016E970(3);
     fn_800CB5C8(&m15A8, 15, 0);
@@ -485,7 +485,7 @@ inline float FrontDot_unk(CharaTask* self, const atn::Vector3& pos) {
     return PSVECDotProduct(&d, &fwd);
 }
 
-void Em202Spider::vf3C(HitInfo_unk* hit) {
+void Em202Spider::vf3C(HitInfo_unk* hit, int) {
     HitMsg_unk* msg = (HitMsg_unk*)hit;
     bool down = true;
     unsigned int flags = mStatus.m0C;
@@ -530,7 +530,7 @@ void Em202Spider::vf40(HitInfo_unk* hit) {
     if (m55C == 6 && m560 - 22U <= 1) {
         m58C = 0;
         m14D8 = 0;
-        m590 = fn_800F8548(lbl_8087F048);
+        m590 = lbl_8087F048->fn_800F8548();
         fn_800CB5C8(&m15A8, 15, 0);
         fn_80239DAC(lbl_8087F3C0, this, 200, 0);
     }
@@ -540,7 +540,7 @@ void Em202Spider::vf40(HitInfo_unk* hit) {
     }
     if (msg->mData != 0 && msg->mData->m04 == 0x1791) {
         m14D8 = 0;
-        m590 = fn_800F8548(lbl_8087F048);
+        m590 = lbl_8087F048->fn_800F8548();
         m58C = 12;
         fn_8016E970(3);
         mMotion.m34C = 1;
@@ -564,7 +564,7 @@ void Em202Spider::vf40(HitInfo_unk* hit) {
         fn_8023A8B4(lbl_8087F3C0, &m158C, &mMotion, 0, pos, rot, color, -1, -1, 1, 1.0f);
         BattleTask* mgr = lbl_8087F048;
         atn::Vector3 p = fn_801781B0();
-        fn_80108F38(mgr, &p, 0x80);
+        mgr->fn_80108F38(&p, 0x80);
     }
     switch (m14E4) {
     case 0:
@@ -603,7 +603,7 @@ void Em202Spider::vf54() {
 
 void Em202Spider::vf7C(int arg) {
     m14D8 = 0;
-    m590 = fn_800F8548(lbl_8087F048);
+    m590 = lbl_8087F048->fn_800F8548();
     m58C = 11;
     fn_8016E970(6);
     m560 = 0x16;
@@ -799,7 +799,7 @@ void Em202Spider::fn_8027F8A8() {
         int place = m14BC;
         if (m14B8 > 0) {
             m14D8 = 0;
-            m590 = fn_800F8548(lbl_8087F048);
+            m590 = lbl_8087F048->fn_800F8548();
             m58C = 6;
             fn_8016E970(6);
             m560 = 4;
@@ -815,7 +815,7 @@ void Em202Spider::fn_8027F8A8() {
     }
     default:
         m14D8 = 0;
-        m590 = fn_800F8548(lbl_8087F048);
+        m590 = lbl_8087F048->fn_800F8548();
         m58C = 0;
         fn_8016E970(3);
         fn_800CB5C8(&m15A8, 15, 0);
@@ -866,7 +866,7 @@ void Em202Spider::fn_8027FA7C() {
             Mtx r;
             PSMTXRotRad(r, 'y', mRot.y);
             PSMTXMultVec(r, &dir, &dir);
-            fn_800F8574(lbl_8087F048, this, m1518, &pos, &dir, 0, 0, 0, 0.0f, 1.0f);
+            lbl_8087F048->fn_800F8574(this, m1518, &pos, &dir, 0, 0, 0, 0.0f, 1.0f);
             break;
         }
         float f = mMotion.mTracks[0].m08;
@@ -887,7 +887,7 @@ void Em202Spider::fn_8027FA7C() {
                 CharaTask* target = m14EC;
                 if (target != 0) {
                     m14D8 = 0;
-                    m590 = fn_800F8548(lbl_8087F048);
+                    m590 = lbl_8087F048->fn_800F8548();
                     m58C = 6;
                     fn_8016E970(6);
                     m560 = 4;
@@ -1007,7 +1007,7 @@ void Em202Spider::fn_80281054(CharaTask* target) {
         return;
     }
     m14D8 = 0;
-    m590 = fn_800F8548(lbl_8087F048);
+    m590 = lbl_8087F048->fn_800F8548();
     m58C = 1;
     fn_8016E970(6);
     m560 = 4;
@@ -1024,7 +1024,7 @@ void Em202Spider::fn_80281344(CharaTask* target) {
         return;
     }
     m14D8 = 0;
-    m590 = fn_800F8548(lbl_8087F048);
+    m590 = lbl_8087F048->fn_800F8548();
     m58C = 3;
     fn_8016E970(6);
     m560 = 4;
@@ -1038,7 +1038,7 @@ void Em202Spider::fn_80281344(CharaTask* target) {
 
 void Em202Spider::fn_80281634(CharaTask* target, int next) {
     m14D8 = 0;
-    m590 = fn_800F8548(lbl_8087F048);
+    m590 = lbl_8087F048->fn_800F8548();
     m58C = 4;
     fn_8016E970(3);
     m1528 = next;
@@ -1058,7 +1058,7 @@ void Em202Spider::fn_80281924(CharaTask* target) {
         return;
     }
     m14D8 = 0;
-    m590 = fn_800F8548(lbl_8087F048);
+    m590 = lbl_8087F048->fn_800F8548();
     m58C = 5;
     fn_8016E970(3);
     atn::Vector3 center;
@@ -1094,7 +1094,7 @@ void Em202Spider::fn_80281924(CharaTask* target) {
 void Em202Spider::fn_80281ED8() {
     if (m14B8 > 0) {
         m14D8 = 0;
-        m590 = fn_800F8548(lbl_8087F048);
+        m590 = lbl_8087F048->fn_800F8548();
         m58C = 7;
         m1504 = m14B8;
         fn_8017039C(m14B8, 2);
@@ -1204,7 +1204,7 @@ void Em202Spider::fn_80281F88() {
     m1504 = m14CC[outer]->mId;
     fn_8017039C(m1504, 2);
     m14D8 = 0;
-    m590 = fn_800F8548(lbl_8087F048);
+    m590 = lbl_8087F048->fn_800F8548();
     m58C = 8;
     m1520 = 0;
     m151C = 1;
@@ -1228,7 +1228,7 @@ int Em202Spider::fn_802826A0(CharaTask* target, int arg) {
     m1538 = arg;
     m1540 = target;
     m14D8 = 0;
-    m590 = fn_800F8548(lbl_8087F048);
+    m590 = lbl_8087F048->fn_800F8548();
     m58C = 9;
     mMotion.m34C = 1;
     mMotion.mTracks[0].m20 = 1.0f;

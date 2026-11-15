@@ -1,27 +1,30 @@
-# Siguiente sesion (tras cabeceras-20261114)
+# Siguiente sesion (tras ceros-20261115)
 
-> Sesion `cabeceras-20261114` (10 h, hasta 4 agentes, colas A-N + segundas pasadas) cerrada el 2026-11-14 hacia las
-> 23:30 (inicio 13:20). Notas: `docs/cabeceras-20261114.md` y `docs/cabeceras-20261114-q*.md`. Para el port:
-> `claude/port-cabeceras-20261114.md` (proyecto).
+> Sesion `ceros-20261115` (10 h, hasta 4 agentes, 15 colas) del 2026-11-15, 01:36 -> ~11:40. Notas:
+> `docs/ceros-20261115.md` y `docs/ceros-20261115-q*.md`. Para el port: `claude/port-ceros-20261115.md` (proyecto).
 
-Estado (tras decisiones-20261115): **15460 / 18109** (15424 -> 15450 en la sesion, +10 con las decisiones), lost 0, sin bajadas, rep100 138, labelcheck 19, `main.dol: OK`. Funciones al 0 %:
-**199**. 34 DRAFT (0 en la ruta). Enlazan 143 unidades del juego y del motor (como antes) y, entre las librerias, HBMBase.
+Estado: **15547 / 18109**, lost 0, sin bajadas, rep100 35, labelcheck 16, `main.dol: OK`. Funciones al 0 %: **150**
+(26 fuera de PacketPack, iostream, auto_03_* e ipc). 32 DRAFT (0 en la ruta).
 
-## Decisiones (aplicadas en decisiones-20261115)
+## Decisiones pendientes (parches en `docs/`)
 
-- Parche de `push_back` y cola M integrados en `main` (15460, `docs/decisiones-20261115.md`); split de la cola E se queda.
-- Siguiente sesion: `claude/prompt-10h-ceros.md` (proyecto): funciones al 0 % y despues camara, batalla, personajes e interfaz.
+- `ceros-20261115-qK.patch`: quitar `ComDrawTextureMask::m1C` (`atn/DrawCommand_unk.h`) pone MiniMapTask `vf10` al 100 %;
+  `DrawHelper::fn_8005E838`/`fn_8005F36C` (ya NONMATCHING ~99 %) bajan un poco de fuzzy.
+- `ceros-20261115-qL-redmp.patch`: RedMp `fn_802A3D80` a 99,97 (rep100 +1). Mejor: el `~vector<T*>` del MSL original
+  (0x7C, 0x80244674) en `std/vector.h`; arreglaria tambien `Em206CocoonMp::vf104` y `GameTask::fn_803729B4`.
+- `ceros-20261115-qJ.patch`: `resize` con un nivel de inline mas en `vector.h` (+1 al 100, 4 bajadas de fuzzy).
+- `ceros-20261115-f0c.patch`: `static Matrix3x4 fn_8013A13C(float)`, descartado (baja 32).
 
 ## Siguiente
 
-- Sincronizacion del port con esta rama (lista de cambios en `claude/port-cabeceras-20261114.md`).
-- Ya con el push_back original: las 26 copias debiles de Event/Sequence, EventParser_unk y Event/Manager;
-  `PathLengths_unk` (= `vector<float>`) en WindyItem/PathData_unk/ActionActorPosition; `BattleTask::fn_800F8C6C`.
-- Funciones C de BattleTask que aun no estan en `BattleTask.h` (tipos distintos por unidad: `fn_80108C10` con
-  `BattleDamage_unk`, `fn_800FDB20`, `fn_800FB1BC`, `fn_80101524`, `fn_8010CF28`, `fn_80102EAC`, `BattleAim_unk`); pasar a
-  miembros todas las funciones C de BattleTask necesita aprobacion (unidad del port).
-- Firmas del port pendientes de aprobacion: `GameUI::fn_803E43B8/fn_803E4434` con segundo argumento (GameTask
-  fn_80370320), `CharaTask::vf3C` con segundo argumento (BattleTask fn_800FDF14), `static Matrix3x4 fn_8013A13C(float)`
-  (GameCamera fn_80382A1C).
-- `ordercheck` de GameEventScript (`__dt__15GameEventScriptFv` fuera de orden, ya en `main`).
-- Bloqueos nuevos en `docs/mwcc-blockers.md` (seccion cabeceras-20261114).
+- Ceros que quedan (26): Event/Sequence 5, EventParser_unk 1, Manager 2, Puppeteer 1 (dependen de `vector.h`),
+  WordWrap 3, SmallAllocator_8 2, LH_Binary 2 (GQR6), LayerOcclusionCPU 1 (GQR6), Em206CocoonMp 2, GimmickManager 2,
+  LastCocoonChrysalis 1, RedMp 1, NewCampTask 1 (`RenderConfig::GodRay::operator=`, tipos `Override_unk<>`),
+  AI_archer_attack01 1. Ver `docs/mwcc-blockers.md` (seccion ceros-20261115).
+- Gameplay por debajo del 100 %: GameCamera_unk 58/90 (ctor vacio de `Matrix3x4`), BattleTask 175/212, CharaTask
+  386/436, GameUI 154/181, TacView 39/46, PopupTask 10/14, CharaStatus 43/55, GameTask 113/133.
+- `HitMsg_unk::m64..m80` de `CharaTask.h` como `DamageResult_unk`; `extern "C"` sin gestor que quedan en BattleTask.cpp.
+- Quitar la declaracion sin cuerpo de `CharaStatus::ClearFlags_unk` y el ctor de 4 argumentos de `GameUIMark24_unk` en
+  un lote de cabeceras (renumeran).
+- Constantes equivocadas en Em401_01_WhiteLeoPard y Em403WarLion (dash 0.5 en vez de 0.1, como QuadrupedTask `vf24`).
+- Sincronizar el port con `claude/port-ceros-20261115.md`.

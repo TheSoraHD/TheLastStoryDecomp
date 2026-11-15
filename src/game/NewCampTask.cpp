@@ -31,6 +31,8 @@
 #include "atn/GraphicsDevice.h"
 #include "game/NewCampPartsBase.h"
 #include "atn/Csv.h"
+#include "std/vector_assign.h"
+#include "atn/Lerp_unk.h"
 
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 extern "C" atn::SoundRef fn_80117228(int id); // inferred: plays a system sound effect
@@ -564,10 +566,10 @@ extern "C" inline void fn_8052D3D0(RenderSetting_unk* settings, const MotionBlur
 }
 // inferred: closes the camp: restores the scene, the camera and the post effects saved when the camp opened
 // (mB1C), closes the parts and turns off the effects of the camp
-// NONMATCHING: 78% - the implicit atn::Scene::operator= is over the inlining budget in the original (R3/R5):
-// the copies of Texture, GodRay, HazeParam_unk and ColorMatrixParam_unk are called (weak copies 0x8052E8D4,
-// 0x8052BBEC, 0x8047C7FC, 0x80453DBC); here they are inlined (vector/CharaLightData_unk operator= are only
-// declared, so they are no candidates); registers of the camera copy as fn_8052C6CC
+// NONMATCHING: 98.8% - the copies of the Override_unk members of the scene (GodRay, HazeParam_unk and
+// ColorMatrixParam_unk: weak copies 0x8052BBEC, 0x8047C7FC, 0x80453DBC in the original, other types here) and
+// registers of the camera copy as fn_8052C6CC; the copies of Texture and of the vectors are called as in the
+// original since the operator= of std::vector is defined (std/vector_assign.h)
 void NewCampTask::fn_8052CA6C() {
     if (lbl_8087F430 != 0) {
         fn_8036E624((GameTask*)lbl_8087F430);
@@ -643,8 +645,8 @@ void NewCampTask::fn_8052D468() {
             m12EC = m12B0.GetPos_unk(m12D0);
             m12F8 = m12B0.GetPos_unk(m12D0);
         } else {
-            m12EC = atn::Lerp_unk(m12EC, m12D4, 0.3f);
-            m12F8 = atn::Lerp_unk(m12F8, m12E0, 0.3f);
+            m12EC = atn::Lerp_unk<atn::Vector3>(m12EC, m12D4, 0.3f);
+            m12F8 = atn::Lerp_unk<atn::Vector3>(m12F8, m12E0, 0.3f);
         }
         if (m11F8 == 0) {
             atn::Vector3 parts((m136C != 0 && m11F0 != 0) ? fn_8052DEA4(m11F0) : lbl_807C7030);
@@ -660,7 +662,7 @@ void NewCampTask::fn_8052D468() {
             atn::Vector3 prev((m136C != 0 && m11F4 != 0) ? fn_8052DEA4(m11F4) : lbl_807C7030);
             cur += (m136C == 0 && m11F0 != 0) ? fn_8052DEB8(m11F0) : lbl_807C7030;
             prev += (m136C == 0 && m11F4 != 0) ? fn_8052DEB8(m11F4) : lbl_807C7030;
-            atn::Vector3 parts = atn::Lerp_unk(prev, cur, m458 / fn_8052DECC(curves));
+            atn::Vector3 parts = atn::Lerp_unk<atn::Vector3>(prev, cur, m458 / fn_8052DECC(curves));
             mCamera.SetPosition(m11FC + m12EC + ofs + parts);
             mCamera.SetTarget_unk(m1208 + m12F8 + ofs + parts);
             if (m458 > fn_8052DECC(curves) || m458 < 0.0f) {
@@ -761,9 +763,7 @@ void NewCampTask::fn_8052DEEC(int state) {
 }
 
 // inferred: saves the scene, the camera and the post effects of the game (done when the camp opens)
-// NONMATCHING: 71% - the implicit atn::Scene::operator= is over the inlining budget in the original (R3/R5):
-// the copies of Texture, GodRay, HazeParam_unk and ColorMatrixParam_unk are called (weak copies 0x8052E8D4,
-// 0x8052BBEC, 0x8047C7FC, 0x80453DBC); here they are inlined (as fn_8052CA6C)
+// NONMATCHING: 97.6% - the copies of the Override_unk members of the scene (as fn_8052CA6C)
 void NewCampView_unk::fn_8052E1A0() {
     mScene = *atn::RenderManager::instance_->fn_800C16B4();
     mCamera = atn::RenderManager::instance_->mCamera;
@@ -776,9 +776,7 @@ void NewCampView_unk::fn_8052E1A0() {
 }
 
 // inferred: sets the scene, the camera and the post effects of the view
-// NONMATCHING: 73% - the implicit atn::Scene::operator= is over the inlining budget in the original (R3/R5):
-// the copies of Texture, GodRay, HazeParam_unk and ColorMatrixParam_unk are called (weak copies 0x8052E8D4,
-// 0x8052BBEC, 0x8047C7FC, 0x80453DBC); here they are inlined (as fn_8052CA6C)
+// NONMATCHING: 98.5% - the copies of the Override_unk members of the scene (as fn_8052CA6C)
 void NewCampView_unk::fn_8052FA44() {
     *atn::RenderManager::instance_->fn_800C16B4() = mScene;
     atn::RenderManager::instance_->SetCamera_unk(mCamera);

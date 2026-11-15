@@ -478,7 +478,7 @@ void Em101LittleZesya::fn_8025DE7C() {
             if (mControl && mControl->vf30() > m598) {
                 m598 = mControl->vf30();
                 m594 = 1;
-                m590 = fn_800F8548(lbl_8087F048);
+                m590 = lbl_8087F048->fn_800F8548();
             }
             fn_80144710();
             lbl_8087F048->fn_800F8C6C(0, 0, this, m638, m590, 0.0f, 30, -1);
@@ -696,7 +696,7 @@ void Em101LittleZesya::fn_8025EAE4() {
             param.mMaxSpeed = 2.5f;
             param.mTurn = 0.5235988f;
             param.mTime = (float)m1524->m5C;
-            fn_800F8574(lbl_8087F048, this, m1524, &pos, &dir, &param, 0x24, 30, 0.0f, 1.0f);
+            lbl_8087F048->fn_800F8574(this, m1524, &pos, &dir, &param, 0x24, 30, 0.0f, 1.0f);
             i++;
         }
     }
@@ -790,7 +790,7 @@ void Em101LittleZesya::fn_8025F754() {
     fn_80139560();
 }
 
-void Em101LittleZesya::vf3C(HitInfo_unk* hit) {
+void Em101LittleZesya::vf3C(HitInfo_unk* hit, int) {
     HitMsg_unk* msg = (HitMsg_unk*)hit;
     if (m58C - 11U > 2) {
         if (m58C == 10) {

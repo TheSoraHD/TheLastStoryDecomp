@@ -6,6 +6,7 @@
 #include "math/Vec.h"
 #include "math/VecAssign_unk.h"
 #include "atn/ColliBase.h"
+#include "atn/Lerp_unk.h"
 
 extern "C" int sprintf(char* buf, const char* fmt, ...);
 extern "C" int strcmp(const char* a, const char* b);
@@ -262,7 +263,7 @@ void Em315Coffin::vf100(int state) {
     case 9:
         fn_805A4F1C(0x142, 0, 1, 1.0f, 0.0f);
         mFlag30 = 0;
-        m14C8 = fn_800F8548(lbl_8087F048);
+        m14C8 = lbl_8087F048->fn_800F8548();
         m15D8.Reset_unk();
         m15C8.Reset_unk();
         m161C = mC58.mC4;
@@ -576,13 +577,13 @@ void Em315Coffin::vf108() {
             } else if (m14BC == 1) {
                 if (frame >= 36.0f) {
                     float t = (frame - 35.0f) / 4.0f;
-                    mPos = atn::Lerp_unk(m1610, m15F8, 1.0f < t ? 1.0f : t);
+                    mPos = atn::Lerp_unk<atn::Vector3>(m1610, m15F8, 1.0f < t ? 1.0f : t);
                 }
                 if (frame >= 39.0f) {
                     HitInfo_unk* bullet;
                     CoffinCapsule_unk* capsule = fn_80315644(&mColli);
                     bullet = fn_80219E6C(m15D8.mId);
-                    fn_800FAB80(fn_8013A194(), this, bullet, m14C8, (atn::Vector3*)capsule, &lbl_807C7030, 0,
+                    fn_8013A194()->fn_800FAB80(this, bullet, m14C8, (atn::Vector3*)capsule, &lbl_807C7030, 0,
                                 30, -1, -1, 0.0f, 1.0f);
                     m14BC++;
                 }

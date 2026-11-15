@@ -15,6 +15,8 @@
 #include "atn/RenderManager.h"
 #include "MP/MpSession_unk.h"
 #include <string.h>
+#include "game/BattleTask.h"
+#include "game/DamageResult_unk.h"
 
 extern "C" bool fn_80213E60(gmk::ItemSlotItem_unk* item, int kind, int sub, int num); // inferred: db/ItemRare_unk.cpp
 extern "C" GameTask* lbl_8087F430; // inferred: the field task
@@ -793,33 +795,14 @@ void ItemSlotAnime::fn_80450590() {
 
 } // namespace gmk
 
-// inferred: damage result of fn_8003EA3C (as TashaDamage_unk of game/EnemyTasha.cpp; names invented)
-struct ItemDamage_unk {
-    ItemDamage_unk() : m00(0), m04(0), m08(0), m0C(0), m10(0), m14(-1) {
-        mFlags31_28 = 0;
-        m18 = -1;
-    }
-    int m00;
-    int m04;
-    int m08;
-    int m0C;
-    int m10;
-    int m14;
-    int m18;
-    unsigned int mFlags31_28 : 4;
-    unsigned int mFlags27_0 : 28;
-};
 class BattleTask;
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0;
-extern "C" void fn_801092C8(BattleTask* mgr, int arg1, int arg2, int item, int num); // inferred: take message
 extern "C" HitInfo_unk* fn_80219E6C(int id);                                     // inferred: skill data
 extern "C" int fn_80206B9C(int code);                                            // inferred: weapon code
-extern "C" void fn_8003EA3C(ItemDamage_unk* result, HitInfo_unk* data, CharaTask* attacker, CharaTask* owner,
+extern "C" void fn_8003EA3C(DamageResult_unk* result, HitInfo_unk* data, CharaTask* attacker, CharaTask* owner,
                             unsigned int flags, const void* param, int arg, int arg2); // inferred: computes the damage
 extern "C" unsigned char lbl_807C6B90[]; // inferred: default parameters of fn_8003EA3C
-extern "C" void fn_80108C10(BattleTask* effect, ItemDamage_unk* damage, const atn::Vector3& pos, int a, CharaTask* chara,
-                            int b, int c);
 
 namespace gmk {
 
@@ -833,26 +816,26 @@ void ItemSlotAnime::fn_80450778() {
             if (m20->mId == 10004 || m20->mId == 10009) {
                 inventory->AddMoney(m24);
                 if (lbl_8087F048 != 0) {
-                    fn_801092C8(lbl_8087F048, 3, 0, m24, 0);
+                    lbl_8087F048->fn_801092C8(3, 0, m24, 0);
                 }
             } else if (m20 != 0 && (m20->mC0 == 3 || (m20->mAC & 0x100) == 0x100)) {
                 PlayerTask* leader = lbl_8087F8A0->mHead;
                 HitInfo_unk* skill = m20->mC4 > 0 ? fn_80219E6C(m20->mC4) : 0;
                 if (leader != 0 && skill != 0 && (lbl_8087F610 == 0 || leader->CanAct_unk())) {
-                    ItemDamage_unk result;
+                    DamageResult_unk result;
                     fn_8003EA3C(&result, skill, leader, leader, 0, lbl_807C6B90, 0, 0);
                     BattleTask* effect = lbl_8087F048;
                     if (effect != 0) {
-                        fn_80108C10(effect, &result, leader->vfAC(), 0, 0, 0, 1);
+                        effect->fn_80108C10(&result, leader->vfAC(), 0, 0, 0, 1);
                     }
                 }
             } else {
                 inventory->AddItem(m20->mId, m24, mFlag30, 0, 0, 1, 1);
                 if (lbl_8087F048 != 0) {
                     if (fn_80206B9C(m20->mId) && !mFlag30) {
-                        fn_801092C8(lbl_8087F048, 2, 0, m20->mId, m24);
+                        lbl_8087F048->fn_801092C8(2, 0, m20->mId, m24);
                     } else if (m20->mBC != 6) {
-                        fn_801092C8(lbl_8087F048, 1, 0, m20->mId, m24);
+                        lbl_8087F048->fn_801092C8(1, 0, m20->mId, m24);
                     }
                 }
             }

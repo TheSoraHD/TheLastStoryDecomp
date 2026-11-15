@@ -41,6 +41,7 @@
 #include "game/MapTask.h"
 #include "chr/CharaEquip_unk.h"
 #include "game/BattleTask.h"
+#include "game/BattleTarget_unk.h"
 #include "gmk/Item.h"
 #include "math/VecAssign_unk.h"
 
@@ -131,21 +132,11 @@ static inline atn::Vector3 FrontDir_unk(const atn::Vector3& rot) {
 // inferred: target in front of the character within radius/theta
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
 // inferred: target searches of the effect manager (in front / around)
-extern "C" int fn_801004FC(BattleTask* mgr, CharaTask** out, CharaTask* chara, const atn::Vector3* dir, float range,
-                           float theta);
 extern "C" double cos(double x);
 extern "C" double sin(double x);
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 extern "C" int fn_80041A28(int arg, CharaTask* chara, CharaTask* target); // inferred: kind of attack
-// inferred: target found by fn_800E7214 with its position (only the character is filled here)
-struct BattleTarget_unk {
-    BattleTarget_unk() : mChara(0), m04(0), m08(0), mPos(0.0f, 0.0f, 0.0f) {}
-    CharaTask* mChara;
-    int m04;
-    int m08;
-    atn::Vector3 mPos;
-};
 extern "C" HitInfo_unk* fn_80219344(CharaTask* chara, int arg);
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 // inferred: experience of a kill (as in gmk/FlyObjManager.cpp)
@@ -278,7 +269,8 @@ extern "C" SkillEffect* fn_8059B66C(void* mgr, HitInfo_unk* skill, CharaTask* us
                                     const atn::Vector3* pos, const atn::Vector3* rot,
                                     boost::function<void(SkillEffect*)> callback, float rate);
 
-// NONMATCHING: 99.2% - `mType == 3 || mType == 2` becomes a range compare; stack slots 4 bytes apart
+// NONMATCHING: 99.4% - stack slots 4 bytes apart (PlayerState_unk temporaries), registers of the state copy;
+// `!(mType != 3 && mType != 2)` keeps the two compares of the original
 // inferred: per-frame update of the player characters: runs the pending state m1470 (skills, combined
 // attack, charge...) when the timer m1474 ends, then the weapons, the movement and the falls of the guests
 void BattleCharaTask::fn_800E2FE0() {
@@ -286,7 +278,7 @@ void BattleCharaTask::fn_800E2FE0() {
     m14A4 = m14A4 - 1 < 0 ? 0 : m14A4 - 1;
     if (m1470 != 0 && --m1474 < 0) {
         if ((mType == 0 && m55C == 1) ||
-            ((mType == 3 || mType == 2) && (m55C == 2 || (m55C == 7 && mC58.m11C.fn_8011D1FC() && m1470 == 12)))) {
+            (!(mType != 3 && mType != 2) && (m55C == 2 || (m55C == 7 && mC58.m11C.fn_8011D1FC() && m1470 == 12)))) {
             switch (m1470) {
             case 1:
                 fn_80155A88(m147C, m1472 == 8);
@@ -465,9 +457,12 @@ void BattleCharaTask::fn_800E2FE0() {
     }
 }
 
+// inferred: view direction of the camera (inline; name invented)
+static inline void ViewDir_unk(atn::Vector3& dir, atn::RenderManager* camera) {
+    dir = camera->mCamera.mTarget - camera->mCamera.mPos;
+    dir.Normalize_unk();
+}
 // inferred: looks for the character under the camera ray
-// NONMATCHING: 99.96% - stack slots of the two vector temporaries swapped
-// of the start crossed (~12 forms)
 void BattleCharaTask::fn_800E3F5C() {
     Field_unk* field = lbl_8087F430;
     if (field == 0 || lbl_8087F048 == 0) {
@@ -482,8 +477,7 @@ void BattleCharaTask::fn_800E3F5C() {
         atn::RenderManager* camera = atn::RenderManager::instance_;
         atn::Vector3 from = fn_8017C9AC(this);
         atn::Vector3 dir;
-        dir = camera->mCamera.mTarget - camera->mCamera.mPos;
-        dir.Normalize_unk();
+        ViewDir_unk(dir, camera);
         float range = 800.0f > mStatus.mParamB.m28 ? 800.0f : mStatus.mParamB.m28;
         atn::Vector3 start;
         atn::VecAssign_unk(start, from);
@@ -526,7 +520,7 @@ void BattleCharaTask::vf14() {
 }
 
 void BattleCharaTask::fn_800E426C() {
-    fn_8010220C(lbl_8087F048, 0);
+    lbl_8087F048->fn_8010220C(0);
 }
 
 // inferred: translation of a node matrix (name invented)
@@ -537,14 +531,10 @@ inline atn::Vector3 NodePos_unk(MtxPtr m) {
 extern "C" float fn_800A56A8(void* pad, int port, int axis, int arg); // inferred: stick axis (as in game/GameTask.cpp)
 extern "C" void* lbl_8087EF70; // inferred: pad of the stick
 // inferred: target in front of the character for the cover actions (game/BattleTask.cpp, BattleAim_unk)
-extern "C" int fn_8010089C(BattleTask* mgr, BattleTarget_unk* out, CharaTask* chara, const atn::Vector3* rot,
-                           float range, float angle);
 extern "C" int fn_80211734(HitInfo_unk* item);                 // inferred: infinite item
 extern "C" void fn_8044441C(Inventory* inv, int id, int num);  // inferred: removes items
 extern "C" int fn_804444E8(Inventory* inv, int id);            // inferred: number of items
 extern "C" HitInfo_unk* fn_80211480(int code);                 // inferred: entry of an item code (db/ItemParam_unk.h)
-extern "C" void fn_80108C10(BattleTask* mgr, DamageResult_unk* damage, const atn::Vector3& pos, CharaTask* attacker,
-                            CharaTask* chara, unsigned int flags, int skipEmpty); // inferred: shows the damage
 extern "C" EnemyTask* fn_8036DDD4(GameTask* task); // inferred: enemy in reach of the leader (game/GameTask.cpp)
 
 // inferred: button of the cover attack (2 with the attack type A); name invented
@@ -653,7 +643,7 @@ void BattleCharaTask::fn_800E4278(GameTask* task) {
                         if (len > 0.4f) {
                             if (side != 0 && (side != 3 || mC40 == 1) && fn_80179FA8() && m139C == 0) {
                                 BattleTarget_unk target;
-                                int found = fn_8010089C(lbl_8087F048, &target, this, &dir, 80.0f, 1.5707964f);
+                                int found = lbl_8087F048->fn_8010089C(&target, this, &dir, 80.0f, 1.5707964f);
                                 if (found) {
                                     action.m00 = 10;
                                     shown = 1;
@@ -847,7 +837,7 @@ void BattleCharaTask::fn_800E4278(GameTask* task) {
                                     }
                                     DamageResult_unk result;
                                     fn_8003EA3C(&result, data, this, enemy, 0, &lbl_807C6B90, 0, 0);
-                                    fn_801092C8(lbl_8087F048, 0x16, enemy, 0, 0);
+                                    lbl_8087F048->fn_801092C8(0x16, enemy, 0, 0);
                                     HitInfo_unk* hit = fn_80219E6C(0x4FBF);
                                     if (hit != 0) {
                                         enemy->fn_80178668(hit, 0, hit->m5C, this, 0);
@@ -870,7 +860,7 @@ void BattleCharaTask::fn_800E4278(GameTask* task) {
                                         DamageResult_unk result;
                                         fn_8003F1E4(&result, items.mData[i], this, enemy, 0);
                                         if (items.mData[i]->m04 != 400) {
-                                            fn_80108C10(lbl_8087F048, &result, enemy->mPos + atn::Vector3(0.0f, 15.0f, 0.0f),
+                                            lbl_8087F048->fn_80108C10(&result, enemy->mPos + atn::Vector3(0.0f, 15.0f, 0.0f),
                                                         this, 0, 1, 0);
                                         }
                                     }
@@ -1005,8 +995,8 @@ inline float HitFrame_unk(int motion) {
     return frame;
 }
 
-// NONMATCHING: 97% - `m560 >= 4 && m560 < 12` becomes a range compare; this/config in r29/r30 instead of
-// r30/r31
+// NONMATCHING: 98.2% - this/config in r29/r30 instead of r30/r31 (and other registers); `4 <= m560` keeps the
+// two compares of the original
 // inferred: update of the player characters with a weapon (states 0-4 of m58C: idle, attack, ...)
 void BattleCharaTask::fn_800E589C() {
     GameConfig_unk* config = lbl_8087F0A8;
@@ -1035,12 +1025,8 @@ void BattleCharaTask::fn_800E589C() {
             mFlagC30 = 0;
             m58C = 0;
             int attack = 0;
-            if (m55C == 6) {
-                if (m560 >= 4) {
-                    if (m560 < 12) {
-                        attack = 1;
-                    }
-                }
+            if (m55C == 6 && 4 <= m560 && m560 < 12) {
+                attack = 1;
             }
             if (attack) {
                 fn_8016E970(1);
@@ -1129,7 +1115,7 @@ void BattleCharaTask::fn_800E589C() {
             if (mControl && mControl->vf30() > m598) {
                 m598 = mControl->vf30();
                 m594 = 1;
-                m590 = fn_800F8548(lbl_8087F048);
+                m590 = lbl_8087F048->fn_800F8548();
             }
             if (m594 != 0) {
                 fn_80144710();
@@ -1489,7 +1475,7 @@ int BattleCharaTask::fn_800E7214(CharaTask** out, int keep) {
         range *= 1.2f;
     }
     if (ok) {
-        if (fn_801004FC(lbl_8087F048, out, this, &dir, range, config->m24C)) {
+        if (lbl_8087F048->fn_801004FC((BattleTarget_unk*)out, this, &dir, range, config->m24C)) {
             if (keep == 0 || (CharaTask*)m1440 != *out || SetConfig::sInstance->mAttackType != 0) {
                 m1440 = (int)*out;
                 return 1;
@@ -1741,7 +1727,7 @@ void BattleCharaTask::fn_800E7F04() {
             }
             if (skill != 0) {
                 BattleTask* mgr = lbl_8087F048;
-                fn_800FAB80(mgr, this, skill, fn_800F8548(mgr), &mPos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
+                mgr->fn_800FAB80(this, skill, mgr->fn_800F8548(), &mPos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
                 Color4f_unk color(1.0f, 1.0f, 1.0f, 1.0f);
                 lbl_8087F048->fn_80107168(skill->m04, 0, 0, m1428->GetModel_unk(), &lbl_807C7030, &lbl_807C7030,
                             &color, 1.0f);
@@ -1760,7 +1746,7 @@ void BattleCharaTask::fn_800E7F04() {
                     if (targets.mCount < 7) {
                         count = 7;
                     }
-                    int id = fn_800F8548(lbl_8087F048);
+                    int id = lbl_8087F048->fn_800F8548();
                     for (int i = 0; i < count; i++) {
                         atn::Matrix3x4 rot;
                         PSMTXRotRad(rot.m, 'y', i * (6.2831855f / count));
@@ -1779,10 +1765,10 @@ void BattleCharaTask::fn_800E7F04() {
                             homing.mDelay = 0.0f;
                             homing.mCount = id;
                             BattleTask* mgr = lbl_8087F048;
-                            fn_800F8574(mgr, this, sub, &fn_801781B0(), &pos, &homing, 0x2006, 0, 0.0f, 1.0f);
+                            mgr->fn_800F8574(this, sub, &fn_801781B0(), &pos, &homing, 0x2006, 0, 0.0f, 1.0f);
                         } else {
                             BattleTask* mgr = lbl_8087F048;
-                            fn_800F8574(mgr, this, sub, &fn_801781B0(), &pos, 0, 2, 0, 0.0f, 1.0f);
+                            mgr->fn_800F8574(this, sub, &fn_801781B0(), &pos, 0, 2, 0, 0.0f, 1.0f);
                         }
                     }
                 }
@@ -1858,7 +1844,7 @@ void BattleCharaTask::fn_800E8688(int id, int b, CharaTask* target, const atn::V
                 case 8: {
                     atn::Vector3 dir(target->mPos.x - mPos.x, 0.0f, target->mPos.z - mPos.z);
                     PSVECNormalize(&dir, &dir);
-                    m590 = fn_800F8548(lbl_8087F048);
+                    m590 = lbl_8087F048->fn_800F8548();
                     m594 = 1;
                     m598 = 0;
                     m59C = 0;
@@ -1878,7 +1864,7 @@ void BattleCharaTask::fn_800E8688(int id, int b, CharaTask* target, const atn::V
                 case 12: {
                     atn::Vector3 dir(target->mPos.x - mPos.x, 0.0f, target->mPos.z - mPos.z);
                     PSVECNormalize(&dir, &dir);
-                    m590 = fn_800F8548(lbl_8087F048);
+                    m590 = lbl_8087F048->fn_800F8548();
                     m594 = 1;
                     m598 = 0;
                     m59C = 0;
@@ -1989,7 +1975,7 @@ void BattleCharaTask::fn_800E8688(int id, int b, CharaTask* target, const atn::V
     }
     m58C = 1;
     if (lbl_8087F048 != 0) {
-        m590 = fn_800F8548(lbl_8087F048);
+        m590 = lbl_8087F048->fn_800F8548();
     }
     mFlag5 = 0;
     if (id == 0xD0 || id == 0xE5) {
@@ -2370,7 +2356,7 @@ void BattleCharaTask::fn_800E9ED8() {
                             mC14 = side;
                             m58C = 1;
                             if (lbl_8087F048 != 0) {
-                                m590 = fn_800F8548(lbl_8087F048);
+                                m590 = lbl_8087F048->fn_800F8548();
                             }
                             m594 = -1;
                             CharaTask* target = mC58.mC4;
@@ -2407,7 +2393,7 @@ void BattleCharaTask::fn_800E9ED8() {
             if (mControl && mControl->vf30() > m598) {
                 m598 = mControl->vf30();
                 m594 = 1;
-                m590 = fn_800F8548(lbl_8087F048);
+                m590 = lbl_8087F048->fn_800F8548();
             }
             if (m594 != 0) {
                 fn_80144710();
@@ -2519,7 +2505,6 @@ void BattleCharaTask::vfEC() {
     }
 }
 
-// NONMATCHING: 97.3% - the original reloads the flag word for mFlag25 after the mFlag16 test (as CharaTask::vf34)
 // inferred: end of the knock-down: after m1450 frames down the character dies (event 0x1B7 for type 3)
 void BattleCharaTask::vfF0() {
     if (fn_8015EB2C() == 0) {
@@ -2528,7 +2513,8 @@ void BattleCharaTask::vfF0() {
         return;
     }
     mColli.mFlags &= ~1;
-    if (mFlag16) {
+    // inferred: read through a const view (the original reloads the flag word for mFlag25 after the test)
+    if (((const BattleCharaTask*)this)->mFlag16) {
         if (mF50 == 0 && !fn_80175AEC() && !(m55C == 6 && m560 == 0x65)) {
             if (m1450 > 0) {
                 if (lbl_8087F430 == 0 || ((GameTask*)lbl_8087F430)->fn_80370174(0xAC) == 0) {
@@ -2627,7 +2613,7 @@ void BattleCharaTask::fn_800EB270(int id) {
     atn::Vector3 pos;
     m58C = 1;
     if (lbl_8087F048 != 0) {
-        m590 = fn_800F8548(lbl_8087F048);
+        m590 = lbl_8087F048->fn_800F8548();
     }
     m594 = id == 200 ? config->m270 : -1;
     m598 = 0;

@@ -215,7 +215,7 @@ void EnemyQuarkFirst::vf10() {
                 m59D = 0;
                 m59C = 0;
                 m59F = 1;
-                m590 = fn_800F8548(lbl_8087F048);
+                m590 = lbl_8087F048->fn_800F8548();
                 SetHit_unk(fn_80219E6C(0xE5));
                 ((int*)mControl.get())[7] = 1;
                 m58C = 1;
@@ -304,7 +304,7 @@ void EnemyQuarkFirst::vf40(HitInfo_unk* hit) {
         fn_8015E4B0(m6B8, -1);
     }
     if (m560 == 10 && m58C != 1) {
-        m590 = fn_800F8548(lbl_8087F048);
+        m590 = lbl_8087F048->fn_800F8548();
         m594 = 8;
         m59C = 0;
         m59D = 0;
@@ -433,7 +433,7 @@ void EnemyQuarkFirst::vf100(int state) {
         break;
     case 1:
         mFlag5 = 0;
-        m590 = fn_800F8548(lbl_8087F048);
+        m590 = lbl_8087F048->fn_800F8548();
         m594 = 8;
         m598 = 0;
         m59C = 0;
@@ -511,7 +511,7 @@ void EnemyQuarkFirst::vf100(int state) {
         }
         break;
     case 11:
-        m590 = fn_800F8548(lbl_8087F048);
+        m590 = lbl_8087F048->fn_800F8548();
         m594 = 8;
         m598 = 0;
         m59C = 0;
@@ -684,7 +684,7 @@ extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float
 
 // inferred: the counter attack reaches m14E4 (name invented)
 inline bool EnemyQuarkFirst::CanHitTarget_unk(HitInfo_unk* hit) {
-    return m14E4->IsActive_unk() && fn_800FBA9C(lbl_8087F048, this, m14E4, hit, -1, 0.0f) >= 0;
+    return m14E4->IsActive_unk() && lbl_8087F048->fn_800FBA9C(this, m14E4, hit, -1, 0.0f) >= 0;
 }
 
 // inferred: TurnTo_unk that also tells whether the turn is at least 0 degrees (always true; the test
@@ -868,8 +868,8 @@ void EnemyQuarkFirst::vf108() {
                     fn_800C31F4("SE_DG040_105", 0, -1, 1.0f);
                     CharaTask* head = lbl_8087F8A0->mHead;
                     BattleTask* mgr = lbl_8087F048;
-                    int id = fn_800F8548(mgr);
-                    fn_800FAB80(mgr, head, fn_80219E6C(0x780), id, &mPos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
+                    int id = mgr->fn_800F8548();
+                    mgr->fn_800FAB80(head, fn_80219E6C(0x780), id, &mPos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
                     return;
                 }
                 break;
@@ -939,7 +939,7 @@ void EnemyQuarkFirst::vf108() {
             if (mControl && mControl->vf30() > m598) {
                 m598 = mControl->vf30();
                 m594 = 8;
-                m590 = fn_800F8548(lbl_8087F048);
+                m590 = lbl_8087F048->fn_800F8548();
             }
             fn_80144710();
             if (m560 == 0x8D && mMotion.mTracks[0].m00 == 0x16E && mControl->vf30() == 0 && !m14E4->mFlag5 &&

@@ -17,6 +17,8 @@
 #include <boost/bind.hpp>
 #include "math/VecAssign_unk.h"
 #include "atn/ColliBase.h"
+#include "game/BattleTask.h"
+#include "game/DamageResult_unk.h"
 
 
 // inferred: input state embedded at +0x48C of the object behind lbl_8087F0A8
@@ -70,9 +72,6 @@ extern "C" int rand();
 extern "C" void PSMTXTrans(Mtx m, float x, float y, float z);
 class BattleTask;
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
-extern "C" int fn_800F8548(BattleTask* mgr);
-extern "C" void fn_800FAB80(BattleTask* mgr, CharaTask* owner, HitInfo_unk* bullet, int arg3, const atn::Vector3* pos,
-                            const atn::Vector3* rot, int a, int time, int b, int c, float f1, float f2);
 extern "C" HitInfo_unk* fn_80219E6C(int id); // inferred: bullet data by id
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
 extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float volume);
@@ -81,28 +80,10 @@ extern "C" int fn_8004ED34(void* colli, atn::ColliResult_unk* result, const atn:
                            unsigned int mask, void* ignore, int arg7);
 extern "C" int fn_8004D388(void* world, atn::ColliResult_unk* result, CharaTask::Sphere_unk* sphere, atn::Vector3* move,
                            unsigned int mask, void* ignore, int arg, float radius); // inferred: sweep test
-// inferred: damage record shown by fn_80108C10 (as DaemonDamage_unk of game/Em203GreaterDaemon.cpp)
-struct Damage_unk {
-    Damage_unk() : m00(0), m04(0), m08(0), m0C(0), m10(0), m14(-1) {
-        m1C = 0;
-        m18 = -1;
-    }
-    int m00;
-    int m04;
-    int m08;
-    int m0C;
-    int m10;
-    int m14;
-    int m18;
-    unsigned int m1C : 4;
-    unsigned int m1C_rest : 28;
-};
-extern "C" void fn_80108C10(BattleTask* effect, Damage_unk* damage, const atn::Vector3& pos, CharaTask* attacker,
-                            CharaTask* chara, int b, int c);
 // inferred: the damage computation (game/DamageCalc_unk.h, with the record above)
 struct DamageParam_unk;
 extern "C" DamageParam_unk lbl_807C6B90;
-extern "C" int fn_8003EA3C(Damage_unk* result, HitInfo_unk* data, CharaTask* attacker, CharaTask* target,
+extern "C" int fn_8003EA3C(DamageResult_unk* result, HitInfo_unk* data, CharaTask* attacker, CharaTask* target,
                            unsigned int flags, const DamageParam_unk* param, const atn::Vector3* pos,
                            const atn::Vector3* rot);
 extern "C" int swprintf(wchar_t* buf, unsigned long size, const wchar_t* format, ...);
@@ -241,25 +222,25 @@ static inline float Frame_unk(Motion_unk* m) {
 // inferred: fires `hit` from `pos` (name invented)
 static inline void ShootHit_unk(BattleTask* mgr, CharaTask* chara, HitInfo_unk* hit, const atn::Vector3& pos,
                                 const atn::Vector3* rot) {
-    fn_800FAB80(mgr, chara, hit, fn_800F8548(mgr), &pos, rot, 0, 0x1E, -1, -1, 0.0f, 1.0f);
+    mgr->fn_800FAB80(chara, hit, mgr->fn_800F8548(), &pos, rot, 0, 0x1E, -1, -1, 0.0f, 1.0f);
 }
 
 // inferred: fires the bullet `id` from `pos` (name invented)
 static inline void ShootFrom_unk(BattleTask* mgr, CharaTask* chara, int id, int arg, const atn::Vector3& pos,
                                  const atn::Vector3* rot) {
-    fn_800FAB80(mgr, chara, fn_80219E6C(id), arg, &pos, rot, 0, 0x1E, -1, -1, 0.0f, 1.0f);
+    mgr->fn_800FAB80(chara, fn_80219E6C(id), arg, &pos, rot, 0, 0x1E, -1, -1, 0.0f, 1.0f);
 }
 
 // inferred: fires the bullet `id` from `pos` (name invented)
 static inline void ShootIdFrom_unk(BattleTask* mgr, CharaTask* chara, int id, const atn::Vector3& pos,
                                    const atn::Vector3* rot) {
-    fn_800FAB80(mgr, chara, fn_80219E6C(id), fn_800F8548(mgr), &pos, rot, 0, 0x1E, -1, -1, 0.0f, 1.0f);
+    mgr->fn_800FAB80(chara, fn_80219E6C(id), mgr->fn_800F8548(), &pos, rot, 0, 0x1E, -1, -1, 0.0f, 1.0f);
 }
 
 // inferred: fires the bullet `id` from a character (name invented)
 static inline void Shoot_unk(BattleTask* mgr, CharaTask* chara, int id, const atn::Vector3* pos,
                              const atn::Vector3* rot) {
-    fn_800FAB80(mgr, chara, fn_80219E6C(id), fn_800F8548(mgr), pos, rot, 0, 0x1E, -1, -1, 0.0f, 1.0f);
+    mgr->fn_800FAB80(chara, fn_80219E6C(id), mgr->fn_800F8548(), pos, rot, 0, 0x1E, -1, -1, 0.0f, 1.0f);
 }
 
 // inferred: front of a character (z axis turned by its yaw; name invented)
@@ -510,7 +491,7 @@ int ControlThrustForCrab::vf0C() {
     if (m->mTracks[0].m08 >= 41.0f && m->mTracks[0].m08 < 43.0f) {
         CharaTask* c = mChara;
         BattleTask* mgr = lbl_8087F048;
-        fn_800FAB80(mgr, mChara, fn_80219E6C(0xD1), 1000, &c->mPos, &c->mRot, 0, 0x1E, -1, -1, 0.0f, 1.0f);
+        mgr->fn_800FAB80(mChara, fn_80219E6C(0xD1), 1000, &c->mPos, &c->mRot, 0, 0x1E, -1, -1, 0.0f, 1.0f);
         lbl_8087F430->Shake_unk(10, 0.3f, 0.3f);
     }
     return Frame_unk(m) >= m->fn_80097D7C(0);
@@ -1137,10 +1118,10 @@ int ControlMatHoldDamage::vf0C() {
         mChara->mPos = pos;
     }
     if (Frame_unk(m) >= m->fn_80097D7C(0)) {
-        Damage_unk damage;
-        damage.m04 = 10000;
-        damage.m00 = 1;
-        fn_80108C10(lbl_8087F048, &damage, mChara->mPos + atn::Vector3(0.0f, 15.0f, 0.0f), 0, mChara, 0, 0);
+        DamageResult_unk damage;
+        damage.mDamage = 10000;
+        damage.mType = 1;
+        lbl_8087F048->fn_80108C10(&damage, mChara->mPos + atn::Vector3(0.0f, 15.0f, 0.0f), 0, mChara, 0, 0);
         mChara->vf44();
         return 1;
     }
@@ -1336,12 +1317,12 @@ int ControlThrownAvoid::vf0C() {
     return 0;
 }
 
-// NONMATCHING: 93.7% - scheduling of the constants and of mChara
 // inferred: point below the feet, turned with the character
 atn::Vector3 ControlThrownAvoid::vf14() const {
     atn::Vector3 v(0.0f, -5.0f, 0.5f);
     Mtx m;
-    PSMTXRotRad(m, 'y', mChara->mRot.y);
+    float a = mChara->mRot.y;
+    PSMTXRotRad(m, 'y', a);
     PSMTXMultVec(m, &v, &v);
     v += mChara->mPos;
     return v;
@@ -1702,16 +1683,16 @@ int ControlAbsorbedHP::vf0C() {
     } else {
         if (--mTimer < 0) {
             mTimer = 30;
-            Damage_unk damage;
+            DamageResult_unk damage;
             fn_8003EA3C(&damage, mHit, mOther, mChara, 0, &lbl_807C6B90, 0, 0);
             atn::Vector3 pos = mChara->fn_80148B0C(0)->m04.mCenter;
             pos += atn::Vector3(0.0f, 15.0f, 0.0f);
-            fn_80108C10(lbl_8087F048, &damage, pos, mOther, mChara, 0, 0);
-            mOther->mStatus.fn_8012DF7C(-damage.m04, 0, 0);
+            lbl_8087F048->fn_80108C10(&damage, pos, mOther, mChara, 0, 0);
+            mOther->mStatus.fn_8012DF7C(-damage.mDamage, 0, 0);
             pos = mOther->fn_80148B0C(0)->m04.mCenter;
             pos += atn::Vector3(0.0f, 15.0f, 0.0f);
             wchar_t text[0x20];
-            swprintf(text, 0x20, L"%d", damage.m04);
+            swprintf(text, 0x20, L"%d", damage.mDamage);
             lbl_8087F8A8->fn_8054D794(1, text, &pos, 0, 0, 1, 0, 0, 0, 1, -1, -1);
         }
         if (mChara->mType == 0) {
@@ -1819,9 +1800,9 @@ int ControlCliffhangZanGurg::vf0C() {
     return 0;
 }
 
-// NONMATCHING: 75.3% - the original loads mChara before saving r31 (as StickByQuark::vf10)
 atn::Vector3 ControlCliffhangZanGurg::vf14() const {
-    atn::Vector3 pos = ((atn::Matrix3x4*)mChara->mMotion.GetNodeMtx_unk("hips"))->GetTrans_unk();
+    const Motion_unk& m = mChara->mMotion;
+    atn::Vector3 pos = ((atn::Matrix3x4*)m.GetNodeMtx_unk("hips"))->GetTrans_unk();
     pos.y -= 15.0f;
     return pos;
 }
@@ -1858,10 +1839,12 @@ int ControlEndCliffhangZanGurg::vf0C() {
     return 0;
 }
 
-// NONMATCHING: 86.5% - the original loads mChara before saving r31; node pointer in r4
+// NONMATCHING: 99.3% - node pointer in r4 and the temporary of LerpTo_unk in r3 (swapped); tried a
+// node local, VecAssign_unk, a named result, t local, const chara for mPos
 atn::Vector3 ControlEndCliffhangZanGurg::vf14() const {
+    const CharaTask* chara = mChara; // inferred: read through a const pointer (frame loaded before the prologue)
     Motion_unk* m = &mChara->mMotion;
-    float frame = Frame_unk(m);
+    float frame = chara->mMotion.mTracks[0].m08;
     float end = m->fn_80097D7C(0);
     atn::Vector3 pos = ((atn::Matrix3x4*)m->GetNodeMtx_unk("hips"))->GetTrans_unk();
     pos.y -= 15.0f;
@@ -1913,9 +1896,9 @@ int ControlStickZanGurgStand::vf0C() {
     return frame >= m->fn_80097D7C(0);
 }
 
-// NONMATCHING: 75.3% - the original loads mChara before saving r31 (as StickByQuark::vf10)
 atn::Vector3 ControlStickZanGurgStand::vf14() const {
-    atn::Vector3 pos = ((atn::Matrix3x4*)mChara->mMotion.GetNodeMtx_unk("hips"))->GetTrans_unk();
+    const Motion_unk& m = mChara->mMotion;
+    atn::Vector3 pos = ((atn::Matrix3x4*)m.GetNodeMtx_unk("hips"))->GetTrans_unk();
     pos.y -= 15.0f;
     return pos;
 }
@@ -1964,9 +1947,9 @@ int ControlStickZanGurgCliff::vf0C() {
     return Frame_unk(m) >= m->fn_80097D7C(0);
 }
 
-// NONMATCHING: 75.3% - the original loads mChara before saving r31 (as StickByQuark::vf10)
 atn::Vector3 ControlStickZanGurgCliff::vf14() const {
-    atn::Vector3 pos = ((atn::Matrix3x4*)mChara->mMotion.GetNodeMtx_unk("hips"))->GetTrans_unk();
+    const Motion_unk& m = mChara->mMotion;
+    atn::Vector3 pos = ((atn::Matrix3x4*)m.GetNodeMtx_unk("hips"))->GetTrans_unk();
     pos.y -= 15.0f;
     return pos;
 }
@@ -2163,7 +2146,7 @@ int ControlReflectLaser::vf0C() {
             if (obj != 0 && fn_801A03F4(obj)) {
                 CharaTask* hit = fn_801A0400((CollObj_unk*)result.m38);
                 if (hit != 0 && hit->fn_8013A158() && hit->CanAct_unk()) {
-                    fn_800FAB80(fn_8013A194(), mChara, fn_80219E6C(0x76F), fn_800F8548(fn_8013A194()), &result.m04,
+                    fn_8013A194()->fn_800FAB80(mChara, fn_80219E6C(0x76F), fn_8013A194()->fn_800F8548(), &result.m04,
                                 &lbl_807C7030, 0, 0x1E, -1, -1, 0.0f, 1.0f);
                 }
             }

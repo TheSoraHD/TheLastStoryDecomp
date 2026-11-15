@@ -73,3 +73,9 @@ Sin argumentos recorren todas las unidades del juego sin enlazar que tienen fuen
 - `lblpair.py <unidad> <funciones...>`: lo mismo a partir del diff de objdiff de esas funciones (para pools
   distintos del original: lo que avisa `precommit.sh` como `REP+` con un solo `@N` cambiado).
 - `ruta_arranque.py`: tablas de la ruta de arranque (unidades y librerias) para `docs/ruta-arranque.md`.
+- Re-emparejado por valor tras un merge (`ceros-20261115`): `lblval.py <unidades>` compara los bytes de cada `@N`
+  del `.o` original con el nuestro (BAD/UNP; nombres repetidos con `#`); `lblseq.py <unidad> --apply` alinea las
+  `.sdata2` por secuencia de valores; `valfix.py` renombra las `@N` de `.sdata2` que faltan a la nuestra del mismo
+  valor; `fixbad.py <unidad> [--apply]` corrige las BAD de `lblval.py`; `datafix.py` renombra las `@N` de
+  `.data/.rodata` que faltan por offset; `datasplit.py <unidad> [--apply]` parte objetos `@N` que dtk funde y nuestro
+  `.o` emite por separado (constantes ptmf de 12 bytes: report.json da 100 % y objdiff-cli no).

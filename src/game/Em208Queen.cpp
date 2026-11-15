@@ -12,6 +12,7 @@
 #include "game/BattleTask.h"
 #include "game/GameTask.h"
 #include "math/VecAssign_unk.h"
+#include "game/DamageResult_unk.h"
 
 // inferred: debug menu entries (as in game/Em101LittleZesya.cpp)
 extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3, int arg4);
@@ -27,30 +28,11 @@ extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
 extern "C" void* memset(void* dst, int c, unsigned long n);
 extern "C" int fn_800DD3FC(wchar_t* s, const wchar_t* format, ...); // inferred: wide sprintf
 struct Field_unk;
-// inferred: damage description shown by fn_80108C10 (as StatusDamage_unk of game/CharaStatus.cpp)
-// (fields as DamageResult_unk of game/Em002Skelton.cpp)
-struct QueenDamage_unk {
-    QueenDamage_unk() : m00(0), m04(0), m08(0), m0C(0), m10(0), m14(-1) {
-        m1C = 0;
-        m18 = -1;
-    }
-    // inferred: kind and value (name invented)
-    void Set_unk(int kind, int value) {
-        m00 = kind;
-        m04 = value;
-    }
-    int m00;
-    int m04;
-    int m08;
-    int m0C;
-    int m10;
-    int m14;
-    int m18;
-    unsigned int m1C : 4;
-    unsigned int m1C_rest : 28;
-};
-extern "C" void fn_80108C10(BattleTask* effect, QueenDamage_unk* damage, const atn::Vector3& pos,
-                            CharaTask* attacker, CharaTask* chara, int b, int c);
+// inferred: kind and value of a damage record (inline; name invented)
+inline void SetDamage_unk(DamageResult_unk& damage, int kind, int value) {
+    damage.mType = kind;
+    damage.mDamage = value;
+}
 extern "C" int fn_8004ED34(void* colli, atn::ColliResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg7); // inferred: ray test
 extern "C" void* lbl_8087EE98; // inferred: collision world
@@ -244,7 +226,7 @@ int Em208Queen::vf0C() {
 inline void Em208Queen::SetState_unk(int state) {
     m14B8 = 0;
     m14BC = 0;
-    m590 = fn_800F8548(lbl_8087F048);
+    m590 = lbl_8087F048->fn_800F8548();
     m58C = state;
     fn_8016E970(3);
 }
@@ -442,7 +424,7 @@ void Em208Queen::vf14() {
     m1544 = 0;
 }
 
-void Em208Queen::vf3C(HitInfo_unk* hit) {
+void Em208Queen::vf3C(HitInfo_unk* hit, int) {
     HitMsg_unk* msg = (HitMsg_unk*)hit;
     if (msg->mAttacker == this) {
         msg->m68 = 0;
@@ -683,13 +665,13 @@ void Em208Queen::fn_802CA490() {
         HitInfo_unk* bullet = fn_80219E6C(0x67C);
         atn::Vector3 pos = mPos;
         BattleTask* mgr = lbl_8087F048;
-        fn_800FAB80(mgr, this, bullet, m590, &mPos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
+        mgr->fn_800FAB80(this, bullet, m590, &mPos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
     }
     if (mMotion.mTracks[0].m08 >= 59.0f && mMotion.mTracks[0].m08 <= 65.0f) {
         HitInfo_unk* bullet = fn_80219E6C(0x67C);
         atn::Vector3 pos = GetNodePos_unk(mMotion.GetNodeMtx_unk("rightfoot"));
         BattleTask* mgr = lbl_8087F048;
-        fn_800FAB80(mgr, this, bullet, m590, &mPos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
+        mgr->fn_800FAB80(this, bullet, m590, &mPos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
     }
     if (mMotion.mTracks[0].m08 >= 36.0f && mMotion.mTracks[0].m08 <= 56.0f) {
         atn::Vector3 pos = GetNodePos_unk(mMotion.GetNodeMtx_unk("center_chara"));
@@ -818,19 +800,19 @@ void Em208Queen::fn_802CA8C0() {
     }
 }
 
-// NONMATCHING: 99.92% - r0/r5 of the bit field of the damage record (kind/value set through Set_unk)
+// NONMATCHING: 99.92% - r0/r5 of the bit field of the damage record (kind/value set through SetDamage_unk)
 void Em208Queen::fn_802CAFB8() {
     float frame = mMotion.mTracks[0].m08;
     if (frame >= mMotion.fn_80097D7C(0)) {
         SetState_unk(6);
     } else if (m14BC == 5 && m14D0 != 0) {
         if (m14D0->mType == 2) {
-            QueenDamage_unk damage;
-            damage.Set_unk(1, (int)(0.2f * -m14D0->mStatus.m04));
+            DamageResult_unk damage;
+            SetDamage_unk(damage, 1, (int)(0.2f * -m14D0->mStatus.m04));
             atn::Vector3 pos = fn_80148B0C(0)->m04.mCenter;
             pos += atn::Vector3(0.0f, 15.0f, 0.0f);
-            mStatus.fn_8012DF7C(damage.m04, 0, 0);
-            fn_80108C10(lbl_8087F048, &damage, pos, this, m14D0, 0, 0);
+            mStatus.fn_8012DF7C(damage.mDamage, 0, 0);
+            lbl_8087F048->fn_80108C10(&damage, pos, this, m14D0, 0, 0);
             lbl_8087F048->fn_80105BD8(&m14D0->mMotion);
             m14D0->vf9C(1);
             m14D0->vf44();
@@ -902,9 +884,9 @@ void Em208Queen::fn_802CB43C() {
             offset = atn::Vector3(0.0f, 15.0f, 10.0f);
             PSMTXMultVec(r, &offset, &offset);
             pos += offset;
-            QueenDamage_unk info;
-            info.Set_unk(1, damage);
-            fn_80108C10(lbl_8087F048, &info, pos, this, m14D0, 0, 0);
+            DamageResult_unk info;
+            SetDamage_unk(info, 1, damage);
+            lbl_8087F048->fn_80108C10(&info, pos, this, m14D0, 0, 0);
         }
         m14CC = m14CC < 1.0f ? m14CC : 1.0f;
     } else if (m14BC == 12) {
@@ -950,7 +932,7 @@ void Em208Queen::fn_802CB8A0() {
     if (m570 > 0.05f) {
         HitInfo_unk* bullet = fn_80219E6C(0x67E);
         BattleTask* mgr = lbl_8087F048;
-        fn_800FAB80(mgr, this, bullet, m590, &mPos, &mRot, 0, 60, -1, -1, 0.0f, 1.0f);
+        mgr->fn_800FAB80(this, bullet, m590, &mPos, &mRot, 0, 60, -1, -1, 0.0f, 1.0f);
     }
     fn_802CC834(mPos, 35.0f, 6.2831855f, 100);
     atn::Vector3 left = mPos - m151C;
@@ -1046,7 +1028,7 @@ void Em208Queen::fn_802CC19C(int arg, const atn::Vector3* pos) {
 void Em208Queen::fn_802CC39C() {
     m14B8 = 0;
     m14BC = 0;
-    m590 = fn_800F8548(lbl_8087F048);
+    m590 = lbl_8087F048->fn_800F8548();
     m58C = 14;
     fn_8016E970(3);
     mMotion.m34C = 1;

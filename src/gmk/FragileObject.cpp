@@ -276,7 +276,7 @@ void FragileObject::vf10() {
                 }
                 lbl_8087F048->m3E39C = 1;
                 BattleTask* mgr = lbl_8087F048;
-                fn_800FAB80(mgr, chara, fn_80219E6C(mExplode), fn_800F8548(mgr), &pos, &m78, 0, 30, -1, -1,
+                mgr->fn_800FAB80(chara, fn_80219E6C(mExplode), mgr->fn_800F8548(), &pos, &m78, 0, 30, -1, -1,
                             mExplodeScale, 1.0f);
                 lbl_8087F048->m3E39C = 0;
             }

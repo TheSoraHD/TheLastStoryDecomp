@@ -8,7 +8,7 @@ FriendArganan::~FriendArganan() {}
 
 // inferred: Arganan takes no damage nor knockback (the parameter is the hit message, as in
 // CharaTask::vf3C)
-void FriendArganan::vf3C(HitInfo_unk* hit) {
+void FriendArganan::vf3C(HitInfo_unk* hit, int) {
     HitMsg_unk* msg = (HitMsg_unk*)hit;
     msg->m10.x *= 0.0f;
     msg->m10.y *= 0.0f;

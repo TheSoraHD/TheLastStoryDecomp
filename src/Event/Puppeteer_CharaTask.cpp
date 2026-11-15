@@ -602,9 +602,9 @@ inline bool Actor::IsState6_unk() const {
 }
 
 // inferred: an equipment part of the list is still loading (inlined; name invented)
-inline bool IsEquipLoading_unk(IntVector_unk& list) {
+inline bool IsEquipLoading_unk(EquipList_unk& list) {
     for (unsigned int i = 0; i < list.size(); i++) {
-        if (((chr::CharaEquip_unk*)list[i])->fn_8056405C() != 0) {
+        if (list[i]->fn_8056405C() != 0) {
             return true;
         }
     }
@@ -667,17 +667,12 @@ void Actor::fn_8000EE8C() {
         if (!IsEquipLoading_unk(m148)) {
             chara = GetChara_unk();
             for (unsigned int j = 0; j < m148.size(); j++) {
-                chara->fn_80150178(((chr::CharaEquip_unk*)m148[j])->m000, (chr::CharaEquip_unk*)m148[j]);
-                ((chr::CharaEquip_unk*)m148[j])->fn_80566010();
+                chara->fn_80150178(m148[j]->m000, m148[j]);
+                m148[j]->fn_80566010();
             }
             m148.clear();
         }
     }
-}
-
-// inferred: saved vectors of ActorAnim_unk, written by fn_8000F1EC (see Event/Actor.h; name invented)
-inline atn::Vector3& SavedVecRef_unk(unsigned char* p) {
-    return *(atn::Vector3*)p;
 }
 
 // inferred: nonzero to bool (inlined; name invented)
@@ -721,8 +716,8 @@ void Actor::fn_8000F1EC() {
         CharaTask* chara = GetChara_unk();
         m24.m00 = chara->GetModel_unk()->mD8;
         m24.m0C = GetChara_unk()->m674;
-        SavedVecRef_unk(&m24.m10[0x00]) = GetChara_unk()->mPos;
-        SavedVecRef_unk(&m24.m10[0x0C]) = GetChara_unk()->mRot;
+        m24.m10 = GetChara_unk()->mPos;
+        m24.m1C = GetChara_unk()->mRot;
         m24.m28.clear();
         atn::Model* bones = GetChara_unk()->GetModel_unk();
         for (int i = 0; i < (int)bones->m384; i++) {
@@ -787,11 +782,6 @@ inline void SetFlagBit_unk(unsigned int& flags, unsigned int bit, unsigned int o
     } else {
         flags &= ~bit;
     }
-}
-
-// inferred: saved vectors of ActorAnim_unk (see Event/Actor.h; name invented)
-inline const atn::Vector3& SavedVec_unk(const unsigned char* p) {
-    return *(const atn::Vector3*)p;
 }
 
 // inferred: stores a saved bit into a bool (inlined; name invented)
@@ -866,8 +856,8 @@ void Actor::fn_8000FAE8() {
                 GetChara_unk()->fn_8014DEE4(m24.m0C, 0, 0);
             }
             if (GetSequence_unk()->m98_9) {
-                GetChara_unk()->mPos = SavedVec_unk(&m24.m10[0x00]);
-                GetChara_unk()->mRot = SavedVec_unk(&m24.m10[0x0C]);
+                GetChara_unk()->mPos = m24.m10;
+                GetChara_unk()->mRot = m24.m1C;
                 GetChara_unk()->fn_80144710();
                 GetChara_unk()->GetModel_unk()->CalcMatrixStack(atn::ModelNodeCallback_unk());
                 GetChara_unk()->fn_80148B38(0.0f);
@@ -1386,7 +1376,8 @@ void Actor::fn_80012540(int arg) {
     }
 }
 
-// NONMATCHING: registers of the case 3 (r3/r4/r5)
+// NONMATCHING: 98.91% - registers of the case 3 (the original loads the puppeteer into r5 first; tried a local
+// pointer, `show != 0`, `show ? 1 : 0`, bool casts and ToBool_unk)
 void Actor::fn_8001256C(int show) {
     switch (m20) {
     case 7:

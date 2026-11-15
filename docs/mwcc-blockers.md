@@ -286,3 +286,14 @@ en variable antes de la llamada. Pista sin probar del todo: en `fn_804C23E4` el 
   pliegan el offset (qC, qI).
 - **`@wstringBase0` de BattleTask**: un `L""` sin referencias y un segundo `L"%d"` sin fusionar (qK).
 - **`.data` de BattleTask** 0x174 frente a 0x148: RTTI de Task/TaskBase y `@STRING@` debiles, como en unidades enlazadas (qK).
+
+## ceros-20261115
+
+- `static Matrix3x4 fn_8013A13C(float)` por valor (en vez del miembro): MWCC la inlinea en 17 unidades (ControlAttackBase, ControlDamage, PBoneBasic, Sound3dListener, varios Em*) donde el original la llama: 32 funciones perdidas y `GameCamera::fn_80382A1C` sigue al 99,92 (parche `docs/ceros-20261115-f0c.patch`). El bloqueo de GameCamera (`fn_80382A1C`, `fn_80387910`) es la llamada al ctor vacio de `Matrix3x4` sobre el temporal.
+- `atn/SmallAllocator_8` (2 al 0 %): el original inlinea el ctor del gestor de memoria en todas salvo `operator delete` y los destructores; cinco colocaciones del ctor cortan el ciclo ctor -> dtor -> delete -> Instance en otro sitio (cola B).
+- `atn/WordWrap_unk` `setstate`: escrita sube a 98,4 % pero el sentry de ostream baja de 35 a 1,1 % (cola B). El ctor copia y el thunk `@8@60@` vienen de vtables de iostream que nuestra WordWrap no emite.
+- `Em206CocoonMp` (ctor y `ResHandle::ResHandle`) y `GimmickManager` (`LoadSeTableTask::vf0C`, `fn_803EF3B0`): presupuesto de inline con todas las inline candidatas en cabeceras compartidas (probablemente asserts en el ctor de `atn::Csv` del original) (cola L).
+- `Em203GreaterDaemonRedMp::fn_802A3D80` 99,97 %: llama a 0x80244674 (`__dt__18NecroPlaceList_unkFv`), casi seguro el `~vector<EnemyTask*>` del MSL original (0x7C; el nuestro mide 0x78). Mismo caso en `Em206CocoonMp::vf104` y `GameTask::fn_803729B4` (parche `docs/ceros-20261115-qL-redmp.patch`).
+- `AI_archer_attack01::fn_8001C088`: MWCC desenrolla las copias en todas las variantes probadas (colas E y L).
+- TacView `fn_805AB828`: llama a copias debiles de `size()` que el original comparte entre tipos distintos (probablemente una base no plantilla de `SimpleVector`/`FixedArray_unk`) (cola I).
+- `vector.h`: el `resize` con un nivel de inline mas (cola J, `docs/ceros-20261115-qJ.patch`) sube EffectSystem `fn_8022BEAC` a 100 pero baja ActionActorPosition `vf0C`, PathData `fn_8054875C`, D2Anime `fn_801FFA04` y EffectSystem `fn_8022B850`.

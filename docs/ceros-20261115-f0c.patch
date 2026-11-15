@@ -1,0 +1,1260 @@
+diff --git a/include/math/Vec.h b/include/math/Vec.h
+index 6778e1d..776502b 100644
+--- a/include/math/Vec.h
++++ b/include/math/Vec.h
+@@ -325,8 +325,12 @@ public:
+         m[0][1] = m[0][2] = m[0][3] = m[1][0] = m[1][2] = m[1][3] = m[2][0] = m[2][1] = m[2][3] = 0.0f;
+         m[0][0] = m[1][1] = m[2][2] = 1.0f;
+     }
+-    // inferred: rotation around y (weak copy 0x8013A13C)
+-    void fn_8013A13C(float rad) { PSMTXRotRad(m, 'y', rad); }
++    // inferred: rotation around y returned by value (weak copy 0x8013A13C; callers pass the result slot in r3)
++    static Matrix3x4 fn_8013A13C(float rad) {
++        Matrix3x4 r;
++        PSMTXRotRad(r.m, 'y', rad);
++        return r;
++    }
+     void fn_8010F668(); // inferred: clears the translation (weak copy 0x8010F668, game/Bullet.cpp)
+     void Translate_unk(const Vector3& v); // inferred: *this = *this * trans(v) (weak copy 0x8010F67C, game/Bullet.cpp)
+     void fn_80144ED4(float rad); // inferred: *this = *this * rot_z(rad)
+@@ -388,12 +392,6 @@ public:
+     }
+     // inferred: translation (weak copy 0x8000D0F8); name invented
+     Vector3 GetTrans_unk() const { return Vector3(m[0][3], m[1][3], m[2][3]); }
+-    // inferred: rotation around y by value (inlined by fn_80139F60); name invented
+-    static Matrix3x4 RotY_unk(float rad) {
+-        Matrix3x4 r;
+-        r.fn_8013A13C(rad);
+-        return r;
+-    }
+     // inferred: name invented (inlined by fn_80139F60)
+     Vector3 GetRow_unk(int i) const { return Vector3(m[i][0], m[i][1], m[i][2]); }
+     // inferred: copy without the translation (weak copy 0x8001336C); name invented
+@@ -509,7 +507,7 @@ inline void Vector3::fn_80139F60() {
+     } else {
+         r.y = atan2(x, z);
+     }
+-    Matrix44_unk m44(Matrix3x4::RotY_unk(-r.y));
++    Matrix44_unk m44(Matrix3x4::fn_8013A13C(-r.y));
+     Vector3 v(*this);
+     PSMTX44MultVec(m44.m, &v, &v);
+     if (Abs_unk(v.z) < 1.1920929e-7f) {
+@@ -529,7 +527,7 @@ inline void Vector3::RotZ_unk() {
+     } else {
+         r.y = atan2(x, fz);
+     }
+-    Matrix44_unk m44(Matrix3x4::RotY_unk(-r.y));
++    Matrix44_unk m44(Matrix3x4::fn_8013A13C(-r.y));
+     Vector3 v(*this);
+     PSMTX44MultVec(m44.m, &v, &v);
+     if (Abs_unk(v.z) < 1.1920929e-7f) {
+diff --git a/src/Event/Manager.cpp b/src/Event/Manager.cpp
+index 0dd379b..fc80357 100644
+--- a/src/Event/Manager.cpp
++++ b/src/Event/Manager.cpp
+@@ -1980,8 +1980,7 @@ void Manager::vf10() {
+                     dir.Set_unk(0.0f, 0.0f, 1.0f);
+                 }
+                 dir.Normalize_unk();
+-                atn::Matrix3x4 rot;
+-                rot.fn_8013A13C(target.ToRotation_unk().y);
++                atn::Matrix3x4 rot = atn::Matrix3x4::fn_8013A13C(target.ToRotation_unk().y);
+                 dir = dir - target;
+                 dir.fn_80011410(Inverse_unk(rot));
+                 dir.z = 0.0f;
+diff --git a/src/Event/Puppeteer_CharaTask.cpp b/src/Event/Puppeteer_CharaTask.cpp
+index c3d6862..65cc2e1 100644
+--- a/src/Event/Puppeteer_CharaTask.cpp
++++ b/src/Event/Puppeteer_CharaTask.cpp
+@@ -1119,15 +1119,13 @@ atn::Vector3 Actor::fn_800112E0() {
+     case 7:
+     case 1: {
+         front.Set_unk(0.0f, 0.0f, 1.0f);
+-        atn::Matrix3x4 m;
+-        m.fn_8013A13C(GetChara_unk()->mRot.y);
++        atn::Matrix3x4 m = atn::Matrix3x4::fn_8013A13C(GetChara_unk()->mRot.y);
+         front.fn_80011410(m);
+         break;
+     }
+     case 2: {
+         front.Set_unk(0.0f, 0.0f, 1.0f);
+-        atn::Matrix3x4 m;
+-        m.fn_8013A13C(((GimmickCommon*)m1C)->m78.y);
++        atn::Matrix3x4 m = atn::Matrix3x4::fn_8013A13C(((GimmickCommon*)m1C)->m78.y);
+         front.fn_80011410(m);
+         break;
+     }
+diff --git a/src/atn/EffectSystem_unk.cpp b/src/atn/EffectSystem_unk.cpp
+index f6a1c4e..946efa2 100644
+--- a/src/atn/EffectSystem_unk.cpp
++++ b/src/atn/EffectSystem_unk.cpp
+@@ -1554,14 +1554,12 @@ extern "C" void fn_80231508(EffectSlot_unk* slot) {
+             if (slot->mD0 != 0.0f) {
+                 atn::Matrix3x4 m;
+                 atn::Matrix3x4 rx;
+-                atn::Matrix3x4 ry;
+-                ry.fn_8013A13C(slot->mD4);
++                atn::Matrix3x4 ry = atn::Matrix3x4::fn_8013A13C(slot->mD4);
+                 PSMTXRotRad(rx.m, 'x', slot->mD0);
+                 PSMTXConcat(ry.m, rx.m, m.m);
+                 rot = m;
+             } else {
+-                atn::Matrix3x4 ry;
+-                ry.fn_8013A13C(slot->mD4);
++                atn::Matrix3x4 ry = atn::Matrix3x4::fn_8013A13C(slot->mD4);
+                 rot = ry;
+             }
+         } else {
+diff --git a/src/atn/PBoneBasic.cpp b/src/atn/PBoneBasic.cpp
+index 5c78207..a89ef3e 100644
+--- a/src/atn/PBoneBasic.cpp
++++ b/src/atn/PBoneBasic.cpp
+@@ -54,16 +54,14 @@ void fn_800A73A4(atn::Vector3* rot, atn::Vector3* dir) {
+         rot->z = 0.0f;
+     } else if (dir->x < 0.0f) {
+         rot->y = -(float)atan2(dir->z, -dir->x);
+-        atn::Matrix3x4 m;
+-        m.fn_8013A13C(rot->y);
++        atn::Matrix3x4 m = atn::Matrix3x4::fn_8013A13C(rot->y);
+         atn::Vector3 v(*dir);
+         PSMTXMultVec(m.m, &v, &v);
+         atn::Vector3 r = dir->ToRotation_unk();
+         rot->z = Atan2_unk(v.y, v.x);
+     } else {
+         rot->y = -(float)atan2(dir->z, dir->x);
+-        atn::Matrix3x4 m;
+-        m.fn_8013A13C(-rot->y);
++        atn::Matrix3x4 m = atn::Matrix3x4::fn_8013A13C(-rot->y);
+         atn::Vector3 v(*dir);
+         PSMTXMultVec(m.m, &v, &v);
+         atn::Vector3 r = dir->ToRotation_unk();
+diff --git a/src/atn/Sound3dListener.cpp b/src/atn/Sound3dListener.cpp
+index 77678ea..55d194a 100644
+--- a/src/atn/Sound3dListener.cpp
++++ b/src/atn/Sound3dListener.cpp
+@@ -65,7 +65,7 @@ void Sound3dListener::fn_800C7F08(const Vector3& pos, const Vector3& rot) {
+     Matrix3x4 rotY;
+     Matrix3x4 view;
+     Vector3 dir(0.0f, 0.0f, 1.0f);
+-    rotY.fn_8013A13C(mRot.y);
++    rotY = atn::Matrix3x4::fn_8013A13C(mRot.y);
+     PSMTXMultVec(rotY.m, &dir, &dir);
+     Vector3 target;
+     Vector3 up(0.0f, 1.0f, 0.0f);
+diff --git a/src/chr/ControlAttackBase.cpp b/src/chr/ControlAttackBase.cpp
+index dcc06c8..6383e5f 100644
+--- a/src/chr/ControlAttackBase.cpp
++++ b/src/chr/ControlAttackBase.cpp
+@@ -85,8 +85,7 @@ static inline bool UseAuto_unk(bool on, CharaTask* chara) {
+ // inferred: front direction for a rotation around y (name invented)
+ static inline atn::Vector3 GetFront_unk(const atn::Vector3& rot) {
+     atn::Vector3 v(0.0f, 0.0f, 1.0f);
+-    atn::Matrix3x4 m;
+-    m.fn_8013A13C(rot.y);
++    atn::Matrix3x4 m = atn::Matrix3x4::fn_8013A13C(rot.y);
+     PSMTXMultVec(m.m, &v, &v);
+     return v;
+ }
+@@ -264,8 +263,7 @@ ControlAttack::ControlAttack(Chara_unk* chara, const atn::Vector3& dir) : Contro
+     if (self->mFlag31) {
+         id = self->m484[24];
+         atn::Vector3 front(0.0f, 0.0f, 1.0f);
+-        atn::Matrix3x4 m;
+-        m.fn_8013A13C(self->mRot.y);
++        atn::Matrix3x4 m = atn::Matrix3x4::fn_8013A13C(self->mRot.y);
+         PSMTXMultVec(m.m, &front, &front);
+         mDir = front;
+     } else {
+@@ -829,8 +827,7 @@ int ControlHitBackBullet::vf0C() {
+     Motion_unk* motion = &mChara->mMotion;
+     if (vf24() != 0) {
+         atn::Vector3 front(0.0f, 0.0f, 1.0f);
+-        atn::Matrix3x4 m;
+-        m.fn_8013A13C(mChara->mRot.y);
++        atn::Matrix3x4 m = atn::Matrix3x4::fn_8013A13C(mChara->mRot.y);
+         PSMTXMultVec(m.m, &front, &front);
+         for (unsigned int i = 0; i < mBullets.mCount; i++) {
+             HomingBullet* bullet = mBullets.mData[i];
+diff --git a/src/chr/ControlCharge.cpp b/src/chr/ControlCharge.cpp
+index 6466e8f..7815db1 100644
+--- a/src/chr/ControlCharge.cpp
++++ b/src/chr/ControlCharge.cpp
+@@ -96,8 +96,7 @@ extern "C" int fn_8004ED34(void* colli, atn::ColliResult_unk* result, const atn:
+ // inferred: facing direction of the rotation `rot` (name invented, as in chr/ControlCdnStone.cpp)
+ inline atn::Vector3 FrontDir_unk(const atn::Vector3& rot) {
+     atn::Vector3 v(0.0f, 0.0f, 1.0f);
+-    atn::Matrix3x4 mtx;
+-    mtx.fn_8013A13C(rot.y);
++    atn::Matrix3x4 mtx = atn::Matrix3x4::fn_8013A13C(rot.y);
+     PSMTXMultVec(mtx.m, &v, &v);
+     return v;
+ }
+diff --git a/src/chr/ControlChaseCaught.cpp b/src/chr/ControlChaseCaught.cpp
+index 4a793f0..6f5a846 100644
+--- a/src/chr/ControlChaseCaught.cpp
++++ b/src/chr/ControlChaseCaught.cpp
+@@ -260,8 +260,7 @@ int ControlChaseFollow::vf0C() {
+     CharaTask* leader = lbl_8087F8A0->mHead;
+     atn::Vector3 pos(leader->mPos);
+     atn::Vector3 target(leader->mPos);
+-    atn::Matrix3x4 mtx;
+-    mtx.fn_8013A13C(-2.3561945f + leader->mRot.y);
++    atn::Matrix3x4 mtx = atn::Matrix3x4::fn_8013A13C(-2.3561945f + leader->mRot.y);
+     atn::Vector3 off;
+     off = atn::Vector3(0.0f, 0.0f, 1.0f);
+     PSMTXMultVec(mtx.m, &off, &off);
+diff --git a/src/chr/ControlCliffhang.cpp b/src/chr/ControlCliffhang.cpp
+index 9422f51..e723b39 100644
+--- a/src/chr/ControlCliffhang.cpp
++++ b/src/chr/ControlCliffhang.cpp
+@@ -178,8 +178,7 @@ int ControlCliffhang::vf0C() {
+                 float speed = scale * time / motion->fn_80097D7C(0);
+                 atn::Vector3 pos = mChara->mPos;
+                 atn::Vector3 dir(0.0f, 0.0f, 1.0f);
+-                atn::Matrix3x4 mtx;
+-                mtx.fn_8013A13C(mChara->mRot.y);
++                atn::Matrix3x4 mtx = atn::Matrix3x4::fn_8013A13C(mChara->mRot.y);
+                 PSMTXMultVec(mtx.m, &dir, &dir);
+                 pos += dir * 4.0f * speed;
+                 mChara->mPos = pos;
+diff --git a/src/chr/ControlDamage.cpp b/src/chr/ControlDamage.cpp
+index 9418c52..5894d8c 100644
+--- a/src/chr/ControlDamage.cpp
++++ b/src/chr/ControlDamage.cpp
+@@ -64,8 +64,7 @@ inline atn::Vector3 atn::Vector3::operator-() const {
+ // inferred: facing direction of the rotation `rot` (name invented, as in chr/ControlCdnStone.cpp)
+ inline atn::Vector3 FrontDir_unk(const atn::Vector3& rot) {
+     atn::Vector3 v(0.0f, 0.0f, 1.0f);
+-    atn::Matrix3x4 mtx;
+-    mtx.fn_8013A13C(rot.y);
++    atn::Matrix3x4 mtx = atn::Matrix3x4::fn_8013A13C(rot.y);
+     PSMTXMultVec(mtx.m, &v, &v);
+     return v;
+ }
+@@ -731,8 +730,7 @@ ControlDamageLastOne::ControlDamageLastOne(Chara_unk* chara, const atn::Vector3*
+     case 11: {
+         model->fn_80097C08(0, 0x172, 0, 1, 1, 0.0f, 0.1f);
+         m08.Set_unk(-10.0f, 0.0f, -25.0f);
+-        atn::Matrix3x4 mtx;
+-        mtx.fn_8013A13C(m14.y);
++        atn::Matrix3x4 mtx = atn::Matrix3x4::fn_8013A13C(m14.y);
+         PSMTXMultVec(mtx.m, &m08, &m08);
+         float scale = 0.04f;
+         m08 *= scale;
+diff --git a/src/chr/ControlJumpAt.cpp b/src/chr/ControlJumpAt.cpp
+index 308dc9c..b32276a 100644
+--- a/src/chr/ControlJumpAt.cpp
++++ b/src/chr/ControlJumpAt.cpp
+@@ -175,7 +175,7 @@ boost::function<void()> ControlGrappled::vf10() const {
+         atn::Vector3 dir(0.0f, 0.0f, -2.0f);
+         float angle = mChara->GetRot_unk()->y;
+         Mtx mtx;
+-        ((atn::Matrix3x4*)mtx)->fn_8013A13C(angle);
++        *(atn::Matrix3x4*)mtx = atn::Matrix3x4::fn_8013A13C(angle);
+         dir.fn_80011410(*(atn::Matrix3x4*)mtx);
+         return boost::bind(&CharaTask::fn_8015E7A0, mChara, dir, -1, false);
+     }
+@@ -183,7 +183,7 @@ boost::function<void()> ControlGrappled::vf10() const {
+         atn::Vector3 dir(0.0f, 0.0f, -2.0f);
+         float angle = mChara->GetRot_unk()->y;
+         Mtx mtx;
+-        ((atn::Matrix3x4*)mtx)->fn_8013A13C(angle);
++        *(atn::Matrix3x4*)mtx = atn::Matrix3x4::fn_8013A13C(angle);
+         dir.fn_80011410(*(atn::Matrix3x4*)mtx);
+         return boost::bind(&CharaTask::fn_8015E4B0, mChara, dir, -1);
+     }
+diff --git a/src/chr/ControlLadder.cpp b/src/chr/ControlLadder.cpp
+index c814cf0..687c63e 100644
+--- a/src/chr/ControlLadder.cpp
++++ b/src/chr/ControlLadder.cpp
+@@ -375,8 +375,7 @@ ControlClimbDeck::ControlClimbDeck(Chara_unk* chara, const atn::Vector3& rot) :
+     m->mTracks[0].m0C = 1.0f;
+     m->mTracks[0].m08 = 30.0f;
+     atn::Vector3 front(0.0f, 0.0f, 1.0f);
+-    atn::Matrix3x4 mtx;
+-    mtx.fn_8013A13C(rot.y);
++    atn::Matrix3x4 mtx = atn::Matrix3x4::fn_8013A13C(rot.y);
+     PSMTXMultVec(mtx.m, &front, &front);
+     atn::Vector3 from = mChara->mPos;
+     atn::Vector3 to = mChara->mPos;
+diff --git a/src/chr/ControlMoveCursor.cpp b/src/chr/ControlMoveCursor.cpp
+index bebe267..eb849f2 100644
+--- a/src/chr/ControlMoveCursor.cpp
++++ b/src/chr/ControlMoveCursor.cpp
+@@ -92,8 +92,7 @@ void ControlMoveCursor::fn_801C346C(const CursorTarget_unk* target, float maxDis
+             }
+         }
+         atn::Vector3 move(0.0f, 0.0f, speed * m20);
+-        atn::Matrix3x4 mtx;
+-        mtx.fn_8013A13C(rot.y);
++        atn::Matrix3x4 mtx = atn::Matrix3x4::fn_8013A13C(rot.y);
+         move.fn_80011410(mtx);
+         atn::Vector3 next = m08 + move;
+         next -= m14;
+@@ -138,8 +137,7 @@ void ControlMoveCursor::fn_801C346C(const CursorTarget_unk* target, float maxDis
+                     rest = diff + atn::Abs_unk(0.5f * turn);
+                 }
+                 move.Set_unk(0.0f, 0.0f, dist * Cos_unk(rest));
+-                atn::Matrix3x4 mtx2;
+-                mtx2.fn_8013A13C(b);
++                atn::Matrix3x4 mtx2 = atn::Matrix3x4::fn_8013A13C(b);
+                 move.fn_80011410(mtx2);
+                 m08 = m14 + move;
+             }
+diff --git a/src/game/BattleCharaTask.cpp b/src/game/BattleCharaTask.cpp
+index 51e574c..a1ff90f 100644
+--- a/src/game/BattleCharaTask.cpp
++++ b/src/game/BattleCharaTask.cpp
+@@ -123,8 +123,7 @@ static inline bool CanActB_unk(CharaTask* c) {
+ // inferred: front direction of the character (as in game/Em206EggMonster.cpp; name invented)
+ static inline atn::Vector3 FrontDir_unk(const atn::Vector3& rot) {
+     atn::Vector3 v(0.0f, 0.0f, 1.0f);
+-    atn::Matrix3x4 m;
+-    m.fn_8013A13C(rot.y);
++    atn::Matrix3x4 m = atn::Matrix3x4::fn_8013A13C(rot.y);
+     PSMTXMultVec(m.m, &v, &v);
+     return v;
+ }
+diff --git a/src/game/BattleTask.cpp b/src/game/BattleTask.cpp
+index 11edb97..efca2a6 100644
+--- a/src/game/BattleTask.cpp
++++ b/src/game/BattleTask.cpp
+@@ -1287,8 +1287,7 @@ inline float HitHeight_unk(const HitInfo_unk* data) { return data->m54; }
+ 
+ // inferred: rotates `v` around y by `rad` (inlined in vf14, a matrix per call; name invented)
+ inline void RotateY_unk(atn::Vector3& v, float rad) {
+-    atn::Matrix3x4 m;
+-    m.fn_8013A13C(rad);
++    atn::Matrix3x4 m = atn::Matrix3x4::fn_8013A13C(rad);
+     PSMTXMultVec(m.m, &v, &v);
+ }
+ 
+@@ -3309,8 +3308,7 @@ int BattleTask::fn_800FDF14(BattleCalcParam_unk* p) {
+     }
+     if (p->m44 == 0) {
+         atn::Vector3 front(0.0f, 0.0f, target->mFlag31 ? 1.0f : -1.0f);
+-        atn::Matrix3x4 m;
+-        m.fn_8013A13C(target->mRot.y);
++        atn::Matrix3x4 m = atn::Matrix3x4::fn_8013A13C(target->mRot.y);
+         PSMTXMultVec(m.m, &front, &front);
+         float dot = PSVECDotProduct(&front, &p->m28);
+         if (dot < (float)cos(2.0943952f)) {
+@@ -6282,8 +6280,7 @@ atn::Vector3 BattleTask::fn_80109950(CharaTask* chara) {
+     }
+     if (hit) {
+         atn::Vector3 v(0.0f, 0.0f, chara->m64->m30);
+-        atn::Matrix3x4 m;
+-        m.fn_8013A13C(atn::WrapAngle_unk(rot + angle - offset));
++        atn::Matrix3x4 m = atn::Matrix3x4::fn_8013A13C(atn::WrapAngle_unk(rot + angle - offset));
+         PSMTXMultVec(m.m, &v, &v);
+         atn::Vector3 pos(center->mPos.x + v.x, chara->mPos.y, center->mPos.z + v.z);
+         return pos;
+@@ -6314,8 +6311,7 @@ atn::Vector3 BattleTask::fn_80109950(CharaTask* chara) {
+     }
+     if (hit) {
+         atn::Vector3 v(0.0f, 0.0f, chara->m64->m30);
+-        atn::Matrix3x4 m;
+-        m.fn_8013A13C(atn::WrapAngle_unk(offset + (rot + angle)));
++        atn::Matrix3x4 m = atn::Matrix3x4::fn_8013A13C(atn::WrapAngle_unk(offset + (rot + angle)));
+         PSMTXMultVec(m.m, &v, &v);
+         atn::Vector3 pos(center->mPos.x + v.x, chara->mPos.y, center->mPos.z + v.z);
+         return pos;
+@@ -7278,7 +7274,7 @@ extern "C" void fn_8010D320(BattleTask* mgr, atn::Vector3 pos) {
+     }
+     to.Normalize_unk();
+     atn::Vector3 rot = dir.ToRotation_unk();
+-    atn::Matrix3x4 m = atn::Matrix3x4::RotY_unk(rot.y);
++    atn::Matrix3x4 m = atn::Matrix3x4::fn_8013A13C(rot.y);
+     atn::Vector3 diff = to - dir;
+     to = diff;
+     atn::Matrix3x4 inv(m);
+diff --git a/src/game/CharaTask.cpp b/src/game/CharaTask.cpp
+index 6b80154..ac06dfe 100644
+--- a/src/game/CharaTask.cpp
++++ b/src/game/CharaTask.cpp
+@@ -1725,9 +1725,8 @@ int CharaTask::fn_8013A4E8(float* a, atn::Vector3* rot, float* b) {
+             if (!(fn_80011220(dir.LengthSq_unk()) < 1.1920929e-7f)) {
+                 dir.Normalize_unk();
+             }
+-            atn::Matrix3x4 m;
+             float sign = 2.0f * (float)(rand() % 2) - 1.0f;
+-            m.fn_8013A13C(atn::DegToRad_unk(45.0f) * sign);
++            atn::Matrix3x4 m = atn::Matrix3x4::fn_8013A13C(atn::DegToRad_unk(45.0f) * sign);
+             dir.fn_80011410(m);
+             fn_80155790(dir);
+             mC58.mStep = 1;
+@@ -2811,8 +2810,7 @@ bool CharaTask::fn_80140518() {
+ // inferred: forward direction of the character (rotated by mRot.y)
+ atn::Vector3 CharaTask::fn_8014052C() {
+     atn::Vector3 dir(0.0f, 0.0f, 1.0f);
+-    atn::Matrix3x4 m;
+-    m.fn_8013A13C(mRot.y);
++    atn::Matrix3x4 m = atn::Matrix3x4::fn_8013A13C(mRot.y);
+     PSMTXMultVec(m.m, &dir, &dir);
+     return dir;
+ }
+@@ -4590,8 +4588,7 @@ void CharaTask::vf20() {
+         }
+         case 3: {
+             atn::Vector3 offset(mFlag29 ? 2.0f : -3.0f, 0.0f, -1.0f);
+-            atn::Matrix3x4 m;
+-            m.fn_8013A13C(mRot.y);
++            atn::Matrix3x4 m = atn::Matrix3x4::fn_8013A13C(mRot.y);
+             PSMTXMultVec(m.m, &offset, &offset);
+             a += offset;
+             break;
+@@ -4739,9 +4736,7 @@ void CharaTask::fn_80148CC4(atn::Matrix3x4* mtx, const atn::NodeChunk& chunk,
+         if (m648 == 0) {
+             atn::Vector3 pos = mtx->GetTrans_unk();
+             mtx->fn_8010F668();
+-            Mtx rot1; // inferred: a plain Mtx viewed as a matrix (no constructor call)
+-            ((atn::Matrix3x4*)rot1)->fn_8013A13C(m580 - 0.7f * m584);
+-            mtx->fn_801495E8(*(atn::Matrix3x4*)rot1);
++            mtx->fn_801495E8(atn::Matrix3x4::fn_8013A13C(m580 - 0.7f * m584));
+             mtx->fn_801479E4(pos);
+         } else if (m648 != 0 && m648->fn_8013C43C() == 1) {
+             if ((mFlag31 && mC48 != 0) || fn_801479D8()) {
+@@ -4769,17 +4764,13 @@ void CharaTask::fn_80148CC4(atn::Matrix3x4* mtx, const atn::NodeChunk& chunk,
+                 }
+                 atn::Vector3 pos = mtx->GetTrans_unk();
+                 mtx->fn_8010F668();
+-                Mtx rot2; // inferred: a plain Mtx viewed as a matrix (no constructor call)
+-                ((atn::Matrix3x4*)rot2)->fn_8013A13C(angle);
+-                mtx->fn_801495E8(*(atn::Matrix3x4*)rot2);
++                mtx->fn_801495E8(atn::Matrix3x4::fn_8013A13C(angle));
+                 mtx->fn_801479E4(pos);
+             }
+         } else if (m648 == 0 && !mFlag6) {
+             atn::Vector3 pos = mtx->GetTrans_unk();
+             mtx->fn_8010F668();
+-            Mtx rot3; // inferred: a plain Mtx viewed as a matrix (no constructor call)
+-            ((atn::Matrix3x4*)rot3)->fn_8013A13C(0.9f * m580 + m584);
+-            mtx->fn_801495E8(*(atn::Matrix3x4*)rot3);
++            mtx->fn_801495E8(atn::Matrix3x4::fn_8013A13C(0.9f * m580 + m584));
+             mtx->fn_801479E4(pos);
+         }
+     } else if (strcmp(name, "hips") == 0) {
+@@ -4795,9 +4786,7 @@ void CharaTask::fn_80148CC4(atn::Matrix3x4* mtx, const atn::NodeChunk& chunk,
+                     }
+                     atn::Vector3 pos = mtx->GetTrans_unk();
+                     mtx->fn_8010F668();
+-                    Mtx rot4; // inferred: a plain Mtx viewed as a matrix (no constructor call)
+-                    ((atn::Matrix3x4*)rot4)->fn_8013A13C(angle);
+-                    mtx->fn_801495E8(*(atn::Matrix3x4*)rot4);
++                    mtx->fn_801495E8(atn::Matrix3x4::fn_8013A13C(angle));
+                     mtx->fn_801479E4(pos);
+                 }
+             }
+diff --git a/src/game/ChaseManager.cpp b/src/game/ChaseManager.cpp
+index 226e796..2bc043f 100644
+--- a/src/game/ChaseManager.cpp
++++ b/src/game/ChaseManager.cpp
+@@ -261,8 +261,7 @@ void ChaseManager::vf10() {
+         }
+         atn::Vector3 offset = lbl_8087F0A8->m52C;
+         atn::Vector3 rot = dir.ToRotation_unk();
+-        atn::Matrix3x4 rotY;
+-        rotY.fn_8013A13C(rot.y);
++        atn::Matrix3x4 rotY = atn::Matrix3x4::fn_8013A13C(rot.y);
+         PSMTXMultVec(rotY.m, &offset, &offset);
+         pos += offset;
+         atn::Vector3 angle = dir.ToRotation_unk();
+diff --git a/src/game/Em002_02SkeltonKing.cpp b/src/game/Em002_02SkeltonKing.cpp
+index 254258d..ed5da23 100644
+--- a/src/game/Em002_02SkeltonKing.cpp
++++ b/src/game/Em002_02SkeltonKing.cpp
+@@ -128,8 +128,7 @@ void Em002_02SkeltonKing::fn_80249394() {
+ 
+ inline atn::Vector3 Em002_02SkeltonKing::GetFront_unk(float dist) {
+     atn::Vector3 front(0.0f, 0.0f, 1.0f);
+-    atn::Matrix3x4 m;
+-    m.fn_8013A13C(mRot.y);
++    atn::Matrix3x4 m = atn::Matrix3x4::fn_8013A13C(mRot.y);
+     PSMTXMultVec(m.m, &front, &front);
+     return mPos + front * dist;
+ }
+diff --git a/src/game/Em003LesserDaemon.cpp b/src/game/Em003LesserDaemon.cpp
+index 894789d..b6b5ae4 100644
+--- a/src/game/Em003LesserDaemon.cpp
++++ b/src/game/Em003LesserDaemon.cpp
+@@ -818,8 +818,7 @@ void Em003LesserDaemon::vf24() {
+         return;
+     }
+     atn::Vector3 fwd(0.0f, 0.0f, 1.0f);
+-    atn::Matrix3x4 m;
+-    m.fn_8013A13C(mRot.y);
++    atn::Matrix3x4 m = atn::Matrix3x4::fn_8013A13C(mRot.y);
+     PSMTXMultVec(m.m, &fwd, &fwd);
+     atn::Vector3 dir = m574.GetNormalize();
+     float dot = PSVECDotProduct(&fwd, &dir);
+diff --git a/src/game/Em101ElderZesya.cpp b/src/game/Em101ElderZesya.cpp
+index a0ef8ab..5cac800 100644
+--- a/src/game/Em101ElderZesya.cpp
++++ b/src/game/Em101ElderZesya.cpp
+@@ -539,8 +539,7 @@ void Em101ElderZesya::vf10() {
+         PSMTXRotRad(m, 'y', rot.y);
+         PSMTXMultVec(m, &offs[1], &offs[1]);
+         offs[2] = atn::Vector3(sChantOffset_unk.x, 0.0f, -sChantOffset_unk.x);
+-        atn::Matrix3x4 m2;
+-        m2.fn_8013A13C(rot.y);
++        atn::Matrix3x4 m2 = atn::Matrix3x4::fn_8013A13C(rot.y);
+         PSMTXMultVec(m2.m, &offs[2], &offs[2]);
+         float angles[3];
+         angles[0] = 0.0f;
+diff --git a/src/game/Em201ZanGurgFinal.cpp b/src/game/Em201ZanGurgFinal.cpp
+index f32515a..af03b92 100644
+--- a/src/game/Em201ZanGurgFinal.cpp
++++ b/src/game/Em201ZanGurgFinal.cpp
+@@ -568,8 +568,7 @@ inline atn::Vector3 Front_unk(float roty) {
+ // inferred: same, reading the rotation after the vector is set (name invented)
+ inline atn::Vector3 FrontR_unk(const atn::Vector3& rot) {
+     atn::Vector3 v(0.0f, 0.0f, 1.0f);
+-    atn::Matrix3x4 m;
+-    m.fn_8013A13C(rot.y);
++    atn::Matrix3x4 m = atn::Matrix3x4::fn_8013A13C(rot.y);
+     PSMTXMultVec(m.m, &v, &v);
+     return v;
+ }
+diff --git a/src/game/Em202ForestSpider.cpp b/src/game/Em202ForestSpider.cpp
+index 41b8906..d240d12 100644
+--- a/src/game/Em202ForestSpider.cpp
++++ b/src/game/Em202ForestSpider.cpp
+@@ -123,8 +123,7 @@ extern "C" SpiderBaseColor_unk lbl_807C8398;
+ // inferred: front direction of the character (name invented)
+ static inline atn::Vector3 FrontDir_unk(const atn::Vector3& rot) {
+     atn::Vector3 v(0.0f, 0.0f, 1.0f);
+-    atn::Matrix3x4 m;
+-    m.fn_8013A13C(rot.y);
++    atn::Matrix3x4 m = atn::Matrix3x4::fn_8013A13C(rot.y);
+     PSMTXMultVec(m.m, &v, &v);
+     return v;
+ }
+@@ -1201,8 +1200,7 @@ void Em202ForestSpider::fn_80277DC4() {
+     for (unsigned int i = 0; i < m14B0.size(); i++) {
+         EnemyTask* e = m14B0[i];
+         if (e != 0 && (e->mStatus.IsState_unk(0x20) || e->mC58.mC0 == 0)) {
+-            atn::Matrix3x4 m;
+-            m.fn_8013A13C(1.5707964f);
++            atn::Matrix3x4 m = atn::Matrix3x4::fn_8013A13C(1.5707964f);
+             PSMTXMultVec(m.m, &off, &off);
+             atn::Vector3 pos = mPos + off;
+             atn::Vector3 r = off.ToRotation_unk();
+diff --git a/src/game/Em202MothersSpider.cpp b/src/game/Em202MothersSpider.cpp
+index 760750e..c6e964c 100644
+--- a/src/game/Em202MothersSpider.cpp
++++ b/src/game/Em202MothersSpider.cpp
+@@ -82,8 +82,7 @@ static inline void PlayEffect_unk(atn::EfpFile* efp, atn::Model* model) {
+ // inferred: front direction of the character (name invented)
+ static inline atn::Vector3 FrontDir_unk(const atn::Vector3& rot) {
+     atn::Vector3 v(0.0f, 0.0f, 1.0f);
+-    atn::Matrix3x4 m;
+-    m.fn_8013A13C(rot.y);
++    atn::Matrix3x4 m = atn::Matrix3x4::fn_8013A13C(rot.y);
+     PSMTXMultVec(m.m, &v, &v);
+     return v;
+ }
+@@ -353,8 +352,7 @@ void Em202MothersSpider::vf10() {
+     atn::Vector3 pos = mPos;
+     atn::Vector3 fwd = FrontDir_unk(mRot);
+     fn_805A5078(&pos, &fwd, 1000, 1.2f * m5B0, 3.1415927f);
+-    atn::Matrix3x4 rm;
+-    rm.fn_8013A13C(mRot.y);
++    atn::Matrix3x4 rm = atn::Matrix3x4::fn_8013A13C(mRot.y);
+     m196C = rm;
+     atn::Vector3 base = mPos;
+     atn::Vector3 off(0.0f, 24.0f, -2.0f);
+@@ -431,8 +429,7 @@ void Em202MothersSpider::vf40(HitInfo_unk* hit) {
+             m19A4++;
+             if (m199C == 0 && m19A4 > m19AC) {
+                 atn::Vector3 back = FrontDir_unk(mRot);
+-                atn::Matrix3x4 m;
+-                m.fn_8013A13C(3.1415927f);
++                atn::Matrix3x4 m = atn::Matrix3x4::fn_8013A13C(3.1415927f);
+                 PSMTXMultVec(m.m, &back, &back);
+                 fn_8015E4B0(back, -1);
+                 m199C = 1;
+@@ -440,8 +437,7 @@ void Em202MothersSpider::vf40(HitInfo_unk* hit) {
+         }
+         if (msg->mData->m01 == 1) {
+             atn::Vector3 back = FrontDir_unk(mRot);
+-            atn::Matrix3x4 m;
+-            m.fn_8013A13C(3.1415927f);
++            atn::Matrix3x4 m = atn::Matrix3x4::fn_8013A13C(3.1415927f);
+             PSMTXMultVec(m.m, &back, &back);
+             fn_8015E4B0(back, -1);
+             m199C = 1;
+diff --git a/src/game/Em203GreaterDaemon.cpp b/src/game/Em203GreaterDaemon.cpp
+index 71943be..bb68fc1 100644
+--- a/src/game/Em203GreaterDaemon.cpp
++++ b/src/game/Em203GreaterDaemon.cpp
+@@ -815,8 +815,7 @@ static inline atn::Vector3 Front_unk(const float& angle) {
+ // invented)
+ static inline atn::Vector3 FrontM_unk(const float& angle) {
+     atn::Vector3 front(0.0f, 0.0f, 1.0f);
+-    atn::Matrix3x4 m;
+-    m.fn_8013A13C(angle);
++    atn::Matrix3x4 m = atn::Matrix3x4::fn_8013A13C(angle);
+     PSMTXMultVec(m.m, &front, &front);
+     return front;
+ }
+diff --git a/src/game/Em203GreaterDaemonRed.cpp b/src/game/Em203GreaterDaemonRed.cpp
+index aa99544..a828932 100644
+--- a/src/game/Em203GreaterDaemonRed.cpp
++++ b/src/game/Em203GreaterDaemonRed.cpp
+@@ -992,8 +992,7 @@ static inline atn::Vector3 FrontV_unk(float angle) {
+ }
+ static inline atn::Vector3 Front_unk(const float& angle) {
+     atn::Vector3 front(0.0f, 0.0f, 1.0f);
+-    atn::Matrix3x4 m;
+-    m.fn_8013A13C(angle);
++    atn::Matrix3x4 m = atn::Matrix3x4::fn_8013A13C(angle);
+     PSMTXMultVec(m.m, &front, &front);
+     return front;
+ }
+diff --git a/src/game/Em203GreaterDaemonRedMp.cpp b/src/game/Em203GreaterDaemonRedMp.cpp
+index 52911d1..8121913 100644
+--- a/src/game/Em203GreaterDaemonRedMp.cpp
++++ b/src/game/Em203GreaterDaemonRedMp.cpp
+@@ -947,8 +947,7 @@ void Em203GreaterDaemonRedMp::fn_8029FAC0() {
+ // inferred: unit vector rotated around y (name invented)
+ static inline atn::Vector3 Front_unk(const float& angle) {
+     atn::Vector3 front(0.0f, 0.0f, 1.0f);
+-    atn::Matrix3x4 m;
+-    m.fn_8013A13C(angle);
++    atn::Matrix3x4 m = atn::Matrix3x4::fn_8013A13C(angle);
+     PSMTXMultVec(m.m, &front, &front);
+     return front;
+ }
+@@ -1555,8 +1554,7 @@ void Em203GreaterDaemonRedMp::fn_802A3D80(int single) {
+         pos += offset;
+         float angle = fn_802A40A8(0.0f, 180.0f);
+         atn::Vector3 dir(0.0f, 0.0f, 10.0f);
+-        atn::Matrix3x4 ry;
+-        ry.fn_8013A13C(atn::DegToRad_unk(90.0f));
++        atn::Matrix3x4 ry = atn::Matrix3x4::fn_8013A13C(atn::DegToRad_unk(90.0f));
+         dir.fn_80011410(ry);
+         atn::Matrix3x4 rz;
+         fn_802A3D64(rz.m, atn::DegToRad_unk(angle));
+diff --git a/src/game/Em206CocoonMp.cpp b/src/game/Em206CocoonMp.cpp
+index c331fbc..0aee968 100644
+--- a/src/game/Em206CocoonMp.cpp
++++ b/src/game/Em206CocoonMp.cpp
+@@ -611,8 +611,7 @@ void Em206CocoonMp::fn_802BC4EC(const atn::Vector3& target, float move, float sp
+     }
+     rot.y += step;
+     atn::Vector3 vel(0.0f, 0.0f, 1.0f);
+-    atn::Matrix3x4 m;
+-    m.fn_8013A13C(rot.y);
++    atn::Matrix3x4 m = atn::Matrix3x4::fn_8013A13C(rot.y);
+     PSMTXMultVec(m.m, &vel, &vel);
+     if (move > 0.33333334f) {
+         vel *= 0.33333334f * speed;
+@@ -1157,8 +1156,7 @@ void Em206CocoonMp::fn_802BEE44() {
+     m574 = vel;
+     atn::Vector3 saved = mPos;
+     atn::Vector3 front(0.0f, 0.0f, 1.0f);
+-    atn::Matrix3x4 m;
+-    m.fn_8013A13C(mRot.y);
++    atn::Matrix3x4 m = atn::Matrix3x4::fn_8013A13C(mRot.y);
+     PSMTXMultVec(m.m, &front, &front);
+     mPos -= front * 5.0f;
+     int id = m590;
+@@ -1175,8 +1173,7 @@ void Em206CocoonMp::fn_802BEE44() {
+             to.Normalize_unk();
+         }
+         atn::Vector3 ahead(0.0f, 0.0f, 1.0f);
+-        atn::Matrix3x4 r;
+-        r.fn_8013A13C(mRot.y);
++        atn::Matrix3x4 r = atn::Matrix3x4::fn_8013A13C(mRot.y);
+         PSMTXMultVec(r.m, &ahead, &ahead);
+         if (PSVECDotProduct(&to, &ahead) < 0.70710677f || m1504 > 180) {
+             SetState_unk(14);
+@@ -1252,8 +1249,7 @@ void Em206CocoonMp::fn_802BF5C0() {
+     m574 = vel;
+     if (++m1504 > 30) {
+         atn::Vector3 ahead(0.0f, 0.0f, 1.0f);
+-        atn::Matrix3x4 m;
+-        m.fn_8013A13C(mRot.y);
++        atn::Matrix3x4 m = atn::Matrix3x4::fn_8013A13C(mRot.y);
+         PSMTXMultVec(m.m, &ahead, &ahead);
+         if (PSVECDotProduct(&to, &ahead) > 0.9659258f || m1504 > 90) {
+             if (m14F4 > 1200) {
+diff --git a/src/game/Em206EggMonster.cpp b/src/game/Em206EggMonster.cpp
+index ac56cb4..af5052c 100644
+--- a/src/game/Em206EggMonster.cpp
++++ b/src/game/Em206EggMonster.cpp
+@@ -234,8 +234,7 @@ static inline void PlayEffectM_unk(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::M
+ // inferred: front direction of the character (name invented)
+ static inline atn::Vector3 FrontDir_unk(const atn::Vector3& rot) {
+     atn::Vector3 v(0.0f, 0.0f, 1.0f);
+-    atn::Matrix3x4 m;
+-    m.fn_8013A13C(rot.y);
++    atn::Matrix3x4 m = atn::Matrix3x4::fn_8013A13C(rot.y);
+     PSMTXMultVec(m.m, &v, &v);
+     return v;
+ }
+@@ -1085,8 +1084,7 @@ void Em206EggMonster::fn_802C4480() {
+     } else if (mMotion.mTracks[0].m08 >= 28.0f && mMotion.mTracks[0].m08 <= 60.0f) {
+         int fps = lbl_8087F0A8->mFrameRate;
+         atn::Vector3 move(0.0f, -98.1f / (float)(fps * fps), 1.5f);
+-        atn::Matrix3x4 m;
+-        m.fn_8013A13C(mRot.y);
++        atn::Matrix3x4 m = atn::Matrix3x4::fn_8013A13C(mRot.y);
+         PSMTXMultVec(m.m, &move, &move);
+         atn::ColliResult_unk result;
+         CharaTask::Sphere_unk sphere = fn_80176548(mPos);
+@@ -1250,8 +1248,7 @@ void Em206EggMonster::vf54() {
+         m624[1].m04.mCenter = GetNodePos_unk(mMotion.GetNodeMtx_unk("head")) + m5A4;
+         m624[1].m04.mCenter.y -= 3.0f;
+         atn::Vector3 ofs(0.0f, 0.0f, 7.0f);
+-        atn::Matrix3x4 m;
+-        m.fn_8013A13C(mRot.y);
++        atn::Matrix3x4 m = atn::Matrix3x4::fn_8013A13C(mRot.y);
+         PSMTXMultVec(m.m, &ofs, &ofs);
+         m624[2].m04.mCenter = GetNodePos_unk(mMotion.GetNodeMtx_unk("spine1")) + m5A4;
+         m624[2].m04.mCenter += ofs;
+diff --git a/src/game/Em208Queen.cpp b/src/game/Em208Queen.cpp
+index 24a4085..4e8a9ad 100644
+--- a/src/game/Em208Queen.cpp
++++ b/src/game/Em208Queen.cpp
+@@ -738,8 +738,7 @@ void Em208Queen::fn_802CA8C0() {
+         m14D0 = 0;
+         m14D4 = 0;
+         m14D8 = 0;
+-        atn::Matrix3x4 m;
+-        m.fn_8013A13C(mRot.y);
++        atn::Matrix3x4 m = atn::Matrix3x4::fn_8013A13C(mRot.y);
+         atn::Vector3 front;
+         front = atn::Vector3(0.0f, 15.0f, 40.0f);
+         PSMTXMultVec(m.m, &front, &front);
+diff --git a/src/game/Em306GurgBeast.cpp b/src/game/Em306GurgBeast.cpp
+index 8fa5dd6..801259d 100644
+--- a/src/game/Em306GurgBeast.cpp
++++ b/src/game/Em306GurgBeast.cpp
+@@ -729,7 +729,7 @@ void Em306GurgBeast::vf108() {
+             atn::Vector3 diff = d.ToRotation_unk() - m14D8.ToRotation_unk();
+             diff.y = atn::WrapAngle_unk(diff.y);
+             Mtx m;
+-            ((atn::Matrix3x4*)m)->fn_8013A13C(diff.y > 0.0f ? step : -step);
++            *(atn::Matrix3x4*)m = atn::Matrix3x4::fn_8013A13C(diff.y > 0.0f ? step : -step);
+             m14D8.fn_80011410(*(atn::Matrix3x4*)m);
+             speed = 1.0f;
+             rot = m14D8.ToRotation_unk();
+diff --git a/src/game/Em309GhoulSimple.cpp b/src/game/Em309GhoulSimple.cpp
+index 13e3481..b9edba9 100644
+--- a/src/game/Em309GhoulSimple.cpp
++++ b/src/game/Em309GhoulSimple.cpp
+@@ -487,8 +487,7 @@ void Em309GhoulSimple::vf104() {
+ // inferred: unit vector rotated around y (name invented, as Front_unk in game/Em203GreaterDaemon.cpp)
+ inline atn::Vector3 GhoulFront_unk(const float& angle) {
+     atn::Vector3 front(0.0f, 0.0f, 1.0f);
+-    atn::Matrix3x4 m;
+-    m.fn_8013A13C(angle);
++    atn::Matrix3x4 m = atn::Matrix3x4::fn_8013A13C(angle);
+     PSMTXMultVec(m.m, &front, &front);
+     return front;
+ }
+diff --git a/src/game/Em316LaserSphere.cpp b/src/game/Em316LaserSphere.cpp
+index fd9c6ab..2bc4064 100644
+--- a/src/game/Em316LaserSphere.cpp
++++ b/src/game/Em316LaserSphere.cpp
+@@ -1014,8 +1014,7 @@ void Em316LaserSphere::fn_803199A4() {
+     }
+     m1534 = rate * (m1538 - m1534) + m1534;
+     atn::Vector3 v(m1528);
+-    atn::Matrix3x4 rot;
+-    rot.fn_8013A13C(m1534);
++    atn::Matrix3x4 rot = atn::Matrix3x4::fn_8013A13C(m1534);
+     PSMTXMultVec(rot.m, &v, &v);
+     mPos = fn_80318648(m14B8) + v * 25.0f;
+ }
+diff --git a/src/game/Em403WarLion.cpp b/src/game/Em403WarLion.cpp
+index a57624d..d526123 100644
+--- a/src/game/Em403WarLion.cpp
++++ b/src/game/Em403WarLion.cpp
+@@ -482,8 +482,7 @@ void Em403WarLion::vf40(HitInfo_unk* hit) {
+ 
+ atn::Vector3 Em403WarLion::vf94() {
+     atn::Vector3 v(0.0f, 0.0f, -7.0f);
+-    atn::Matrix3x4 m;
+-    m.fn_8013A13C(mRot.y);
++    atn::Matrix3x4 m = atn::Matrix3x4::fn_8013A13C(mRot.y);
+     PSMTXMultVec(m.m, &v, &v);
+     return v;
+ }
+diff --git a/src/game/EnemyFieldMagician.cpp b/src/game/EnemyFieldMagician.cpp
+index 405abbf..a8839c2 100644
+--- a/src/game/EnemyFieldMagician.cpp
++++ b/src/game/EnemyFieldMagician.cpp
+@@ -81,8 +81,7 @@ inline atn::Vector3 Neg_unk(const atn::Vector3& v) {
+ // inferred: forward direction of a character (name invented)
+ inline atn::Vector3 GetFront_unk(const atn::Vector3& rot) {
+     atn::Vector3 v(0.0f, 0.0f, 1.0f);
+-    atn::Matrix3x4 m;
+-    m.fn_8013A13C(rot.y);
++    atn::Matrix3x4 m = atn::Matrix3x4::fn_8013A13C(rot.y);
+     PSMTXMultVec(m.m, &v, &v);
+     return v;
+ }
+diff --git a/src/game/EnemyQuarkStand.cpp b/src/game/EnemyQuarkStand.cpp
+index b6e1207..ba6deaf 100644
+--- a/src/game/EnemyQuarkStand.cpp
++++ b/src/game/EnemyQuarkStand.cpp
+@@ -822,8 +822,7 @@ inline atn::Vector3 QuarkFront_unk(float rotY) {
+ // inferred: front direction of the character (reads the rotation inside; name invented)
+ inline atn::Vector3 QuarkFrontOf_unk(CharaTask* c) {
+     atn::Vector3 dir(0.0f, 0.0f, 1.0f);
+-    atn::Matrix3x4 m;
+-    m.fn_8013A13C(c->mRot.y);
++    atn::Matrix3x4 m = atn::Matrix3x4::fn_8013A13C(c->mRot.y);
+     PSMTXMultVec(m.m, &dir, &dir);
+     return dir;
+ }
+diff --git a/src/game/EnemyTrista.cpp b/src/game/EnemyTrista.cpp
+index d895747..23fd33a 100644
+--- a/src/game/EnemyTrista.cpp
++++ b/src/game/EnemyTrista.cpp
+@@ -411,8 +411,7 @@ void EnemyTrista::vf10() {
+ inline atn::Vector3 Side_unk(CharaTask* chara, float up) {
+     atn::Vector3 v(0.0f, up, 0.0f);
+     atn::Vector3 front(0.0f, 0.0f, 1.0f);
+-    atn::Matrix3x4 m;
+-    m.fn_8013A13C(chara->mRot.y);
++    atn::Matrix3x4 m = atn::Matrix3x4::fn_8013A13C(chara->mRot.y);
+     PSMTXMultVec(m.m, &front, &front);
+     atn::Vector3 side;
+     PSVECCrossProduct(&front, &v, &side);
+diff --git a/src/game/EnvSeBase.cpp b/src/game/EnvSeBase.cpp
+index 630d0e5..4b72551 100644
+--- a/src/game/EnvSeBase.cpp
++++ b/src/game/EnvSeBase.cpp
+@@ -367,7 +367,7 @@ void EnvSeBox::vf1C(atn::Csv* csv) {
+     mSize.y = fn_800DC288(csv->fn_8005B9CC());
+     mSize.z = fn_800DC288(csv->fn_8005B9CC());
+     pos.y += mSize.y;
+-    mMtx = atn::Matrix3x4::RotY_unk(rot);
++    mMtx = atn::Matrix3x4::fn_8013A13C(rot);
+     mMtx.m[0][3] = pos.x;
+     mMtx.m[1][3] = pos.y;
+     mMtx.m[2][3] = pos.z;
+@@ -464,7 +464,7 @@ void EnvSeArea_unk::fn_80362FA4(atn::Csv* csv) {
+     mSize.y = fn_800DC288(csv->fn_8005B9CC());
+     mSize.z = fn_800DC288(csv->fn_8005B9CC());
+     pos.y += mSize.y;
+-    mMtx = atn::Matrix3x4::RotY_unk(rot);
++    mMtx = atn::Matrix3x4::fn_8013A13C(rot);
+     mMtx.m[0][3] = pos.x;
+     mMtx.m[1][3] = pos.y;
+     mMtx.m[2][3] = pos.z;
+diff --git a/src/game/GameCamera_unk.cpp b/src/game/GameCamera_unk.cpp
+index 71a3a8b..5c1358d 100644
+--- a/src/game/GameCamera_unk.cpp
++++ b/src/game/GameCamera_unk.cpp
+@@ -1262,9 +1262,9 @@ void GameCamera::fn_80382A1C(const CharaTask* chara) {
+     eye = offset + target;
+     float turn = -atn::WrapAngle_unk(r.y - atn::WrapAngle_unk(charaRot.y));
+     atn::Vector3 e = eye - target;
+-    e.fn_80011410(atn::Matrix3x4::RotY_unk(-r.y));
++    e.fn_80011410(atn::Matrix3x4::fn_8013A13C(-r.y));
+     r.y = turn * m6FC.m2C + r.y;
+-    e.fn_80011410(atn::Matrix3x4::RotY_unk(r.y));
++    e.fn_80011410(atn::Matrix3x4::fn_8013A13C(r.y));
+     eye = e + target;
+     offset = target - eye;
+     offset.Length_unk();
+@@ -2059,8 +2059,7 @@ void GameCamera::fn_80387910(const CharaTask* chara) {
+     fovy = param.m24 * (param.m04 - fovy) + fovy;
+     fn_8038E9B0(chara, &param, &pos, &target, &target);
+     atn::Vector3 front(0.0f, 0.0f, 1.0f);
+-    atn::Matrix3x4 yaw;
+-    yaw.fn_8013A13C(-m8A0);
++    atn::Matrix3x4 yaw = atn::Matrix3x4::fn_8013A13C(-m8A0);
+     front.fn_80011410(yaw);
+     atn::Vector3 toTarget = target - pos;
+     if (fn_801C3910(toTarget) < 0.01f) {
+@@ -2236,8 +2235,7 @@ void GameCamera::fn_803884B8(const CharaTask* chara) {
+     atn::Vector3 up = mCamera.mUp;
+     atn::Vector3 offset(0.0f, 0.0f, 0.0f);
+     atn::Vector3 front(0.0f, 0.0f, 1.0f);
+-    atn::Matrix3x4 m;
+-    m.fn_8013A13C(chara->mRot.y);
++    atn::Matrix3x4 m = atn::Matrix3x4::fn_8013A13C(chara->mRot.y);
+     PSMTXMultVec(m.m, &front, &front);
+     float side = m7B0.m0C;
+     float height = m7B0.m10;
+@@ -2343,14 +2341,12 @@ void GameCamera::fn_80388C44(const CharaTask* chara) {
+ void GameCamera::fn_80389060(const CharaTask* chara) {
+     atn::Vector3 target = chara->mPos;
+     atn::Vector3 front(0.0f, 0.0f, 10.0f);
+-    atn::Matrix3x4 m;
+-    m.fn_8013A13C(chara->mRot.y);
++    atn::Matrix3x4 m = atn::Matrix3x4::fn_8013A13C(chara->mRot.y);
+     PSMTXMultVec(m.m, &front, &front);
+     target += front;
+     atn::Vector3 pos = chara->mPos;
+     atn::Vector3 offset(0.0f, 35.0f, -20.0f);
+-    atn::Matrix3x4 m2;
+-    m2.fn_8013A13C(chara->mRot.y);
++    atn::Matrix3x4 m2 = atn::Matrix3x4::fn_8013A13C(chara->mRot.y);
+     PSMTXMultVec(m2.m, &offset, &offset);
+     pos += offset;
+     mCamera.SetPosition(pos);
+@@ -2548,8 +2544,7 @@ void GameCamera::fn_8038A200(const CharaTask* chara) {
+     }
+     atn::Vector3 eye = chara->mPos;
+     atn::Vector3 offset(0.0f, m558.m10, 0.0f);
+-    atn::Matrix3x4 m;
+-    m.fn_8013A13C(chara->mRot.y);
++    atn::Matrix3x4 m = atn::Matrix3x4::fn_8013A13C(chara->mRot.y);
+     PSMTXMultVec(m.m, &offset, &offset);
+     eye += offset;
+     offset = atn::Vector3(0.0f, m558.m10, m558.m00);
+@@ -2951,8 +2946,7 @@ void GameCamera::fn_8038C5B0(const CharaTask* chara) {
+     atn::Vector3 target = mCamera.mTarget;
+     atn::Vector3 up = mCamera.mUp;
+     atn::Vector3 front(0.0f, 0.0f, 1.0f);
+-    atn::Matrix3x4 m;
+-    m.fn_8013A13C(chara->mRot.y);
++    atn::Matrix3x4 m = atn::Matrix3x4::fn_8013A13C(chara->mRot.y);
+     PSMTXMultVec(m.m, &front, &front);
+     front = Negate_unk(front);
+     pos = chara->mPos;
+@@ -3087,16 +3081,14 @@ void GameCamera::fn_8038D1C0(const CharaTask* chara) {
+     }
+     atn::Vector3 target = chara->mPos;
+     atn::Vector3 front(0.0f, 0.0f, 10.0f);
+-    atn::Matrix3x4 m;
+     float rotY = chara->mRot.y;
+-    m.fn_8013A13C(rotY);
++    atn::Matrix3x4 m = atn::Matrix3x4::fn_8013A13C(rotY);
+     PSMTXMultVec(m.m, &front, &front);
+     target += front;
+     target = (target - m818) * ((float)m808 / 30.0f) + m818;
+     atn::Vector3 pos = chara->mPos;
+     atn::Vector3 offset(0.0f, 35.0f, -20.0f);
+-    atn::Matrix3x4 m2;
+-    m2.fn_8013A13C(chara->mRot.y);
++    atn::Matrix3x4 m2 = atn::Matrix3x4::fn_8013A13C(chara->mRot.y);
+     PSMTXMultVec(m2.m, &offset, &offset);
+     pos += offset;
+     pos = (pos - m80C) * ((float)m808 / 30.0f) + m80C;
+diff --git a/src/game/GameScene.cpp b/src/game/GameScene.cpp
+index f515134..7e95302 100644
+--- a/src/game/GameScene.cpp
++++ b/src/game/GameScene.cpp
+@@ -863,7 +863,7 @@ gs::CameraBox* GameScene::fn_803C2090(atn::SimpleArray<gs::CameraBox>& boxes, Ch
+             continue;
+         }
+         atn::ColliBoxShape_unk shape;
+-        shape.mMtx = atn::Matrix3x4::RotY_unk(box.m14);
++        shape.mMtx = atn::Matrix3x4::fn_8013A13C(box.m14);
+         atn::Vector3 center = box.mPos;
+         center.y += box.mSize.y;
+         shape.mMtx.fn_801479E4(center);
+@@ -2418,7 +2418,7 @@ gs::BgmBox* GameScene::fn_803CCDAC(atn::SimpleArray<gs::BgmBox>& boxes, CharaTas
+             continue;
+         }
+         atn::ColliBoxShape_unk shape;
+-        shape.mMtx = atn::Matrix3x4::RotY_unk(box.m14);
++        shape.mMtx = atn::Matrix3x4::fn_8013A13C(box.m14);
+         atn::Vector3 center = box.mPos;
+         center.y += box.mSize.y;
+         shape.mMtx.fn_801479E4(center);
+diff --git a/src/game/GameTask.cpp b/src/game/GameTask.cpp
+index 67577f8..ba891e5 100644
+--- a/src/game/GameTask.cpp
++++ b/src/game/GameTask.cpp
+@@ -4029,8 +4029,7 @@ void GameTask::fn_80371790() {
+                 atn::Vector3 from(pos);
+                 from.y += 5.0f;
+                 atn::Vector3 dir(0.0f, 0.0f, 1.0f);
+-                atn::Matrix3x4 m;
+-                m.fn_8013A13C(rot.y);
++                atn::Matrix3x4 m = atn::Matrix3x4::fn_8013A13C(rot.y);
+                 PSMTXMultVec(m.m, &dir, &dir);
+                 atn::Vector3 to = from + dir * 20.0f;
+                 if (fn_8004ED34(lbl_8087EE98, 0, &from, &to, 0x80000008, 0, 0) == 0) {
+@@ -4449,8 +4448,7 @@ void GameTask::fn_803729B4(CharaTask* chara) {
+             atn::Vector3 from(base);
+             from.y += 5.0f;
+             atn::Vector3 dir(0.0f, 0.0f, 1.0f);
+-            atn::Matrix3x4 m;
+-            m.fn_8013A13C(rot.y);
++            atn::Matrix3x4 m = atn::Matrix3x4::fn_8013A13C(rot.y);
+             dir.fn_80011410(m);
+             atn::Vector3 to = from + dir * 20.0f;
+             if (fn_8004ED34(fn_801404F8(), 0, &from, &to, 0x80000008, 0, 0) == 0) {
+diff --git a/src/game/GameUI.cpp b/src/game/GameUI.cpp
+index 81688ff..2ba48a1 100644
+--- a/src/game/GameUI.cpp
++++ b/src/game/GameUI.cpp
+@@ -2473,8 +2473,7 @@ void GameUI::fn_803D2A6C() {
+                         scale = atn::Lerp_unk(far, near, t);
+                         if (open != 0) {
+                             open->SetPosition_unk(pos);
+-                            atn::Matrix3x4 m;
+-                            m.fn_8013A13C(rot.y);
++                            atn::Matrix3x4 m = atn::Matrix3x4::fn_8013A13C(rot.y);
+                             open->SetRotation_unk(m);
+                             open->SetScale_unk(scale);
+                             fn_801F6D7C((GameUIInst_unk*)open->GetTask(), "basePos", 0, 0.0f);
+@@ -2485,8 +2484,7 @@ void GameUI::fn_803D2A6C() {
+                         }
+                         if (loop != 0) {
+                             loop->SetPosition_unk(pos);
+-                            atn::Matrix3x4 m;
+-                            m.fn_8013A13C(rot.y);
++                            atn::Matrix3x4 m = atn::Matrix3x4::fn_8013A13C(rot.y);
+                             loop->SetRotation_unk(m);
+                             loop->SetScale_unk(scale);
+                             fn_801F6D7C((GameUIInst_unk*)loop->GetTask(), "basePos", 0, 0.0f);
+@@ -6214,8 +6212,7 @@ void GameUI::fn_803E5200(atn::D3AnimeInstance* icon, CharaTask* chara, atn::Vect
+     scale = LerpB_unk(small, large, d / (m2674 - m2670));
+     icon->SetPosition_unk(base + *pos);
+     icon->MeltTask();
+-    atn::Matrix3x4 mtx;
+-    mtx.fn_8013A13C(rot.y);
++    atn::Matrix3x4 mtx = atn::Matrix3x4::fn_8013A13C(rot.y);
+     icon->SetRotation_unk(mtx);
+     icon->SetScale_unk(scale);
+     fn_801F6D7C(GetIconInst_unk(icon), "pos0003", 0, 0.0f);
+diff --git a/src/game/LastCocoonEgg.cpp b/src/game/LastCocoonEgg.cpp
+index 8bdb9e4..a63cb43 100644
+--- a/src/game/LastCocoonEgg.cpp
++++ b/src/game/LastCocoonEgg.cpp
+@@ -1143,8 +1143,7 @@ void LastCocoonEgg::fn_80457E98() {
+             float power = m2A48;
+             atn::Vector3 dir;
+             atn::Vector3 v(0.0f, 0.0f, 1.0f);
+-            atn::Matrix3x4 rot;
+-            rot.fn_8013A13C(mRot.y);
++            atn::Matrix3x4 rot = atn::Matrix3x4::fn_8013A13C(mRot.y);
+             PSMTXMultVec(rot.m, &v, &v);
+             dir = v * power;
+             m1908->fn_8015AC48(-1);
+diff --git a/src/game/LastCocoonImago.cpp b/src/game/LastCocoonImago.cpp
+index 666794c..6952e08 100644
+--- a/src/game/LastCocoonImago.cpp
++++ b/src/game/LastCocoonImago.cpp
+@@ -158,8 +158,7 @@ inline void LastCocoonImago::Lunge_unk(const atn::Vector3& dir) {
+ // inferred: forward direction of the imago (name invented)
+ inline atn::Vector3 LastCocoonImago::Front_unk() {
+     atn::Vector3 v(0.0f, 0.0f, 1.0f);
+-    atn::Matrix3x4 rot;
+-    rot.fn_8013A13C(mRot.y);
++    atn::Matrix3x4 rot = atn::Matrix3x4::fn_8013A13C(mRot.y);
+     PSMTXMultVec(rot.m, &v, &v);
+     return v;
+ }
+@@ -629,8 +628,7 @@ void LastCocoonImago::vf54() {
+                 dir.x = 0.0f;
+                 dir.y = 0.0f;
+                 dir.z = 1.0f;
+-                atn::Matrix3x4 rot;
+-                rot.fn_8013A13C(mRot.y);
++                atn::Matrix3x4 rot = atn::Matrix3x4::fn_8013A13C(mRot.y);
+                 PSMTXMultVec(rot.m, &dir, &dir);
+                 m624.mData[i].m04.mCenter = mPos - dir * 3.0f;
+                 m624.mData[i].m04.mCenter.y += 0.5f * sImagoAttacks_unk[i].mRadius;
+@@ -680,8 +678,7 @@ void LastCocoonImago::fn_8045ABB4(const atn::Vector3& target, float move, float
+     }
+     rot.y += step;
+     atn::Vector3 vel(0.0f, 0.0f, 1.0f);
+-    atn::Matrix3x4 m;
+-    m.fn_8013A13C(rot.y);
++    atn::Matrix3x4 m = atn::Matrix3x4::fn_8013A13C(rot.y);
+     PSMTXMultVec(m.m, &vel, &vel);
+     if (move > 0.33333334f) {
+         vel *= 0.33333334f * speed;
+@@ -1232,8 +1229,7 @@ void LastCocoonImago::fn_8045DF34() {
+                 m14BC++;
+                 HitInfo_unk* bullet = fn_80219E6C(0x5BD);
+                 atn::Vector3 dir(0.0f, 0.0f, 1.0f);
+-                atn::Matrix3x4 m;
+-                m.fn_8013A13C(mRot.y);
++                atn::Matrix3x4 m = atn::Matrix3x4::fn_8013A13C(mRot.y);
+                 PSMTXMultVec(m.m, &dir, &dir);
+                 atn::Vector3 at = mPos + dir;
+                 CharaTask* player = lbl_8087F8A0->mHead;
+@@ -1270,8 +1266,7 @@ void LastCocoonImago::fn_8045DF34() {
+             }
+             PSVECNormalize(&d, &d);
+             atn::Vector3 front(0.0f, 0.0f, 1.0f);
+-            atn::Matrix3x4 m;
+-            m.fn_8013A13C(mRot.y);
++            atn::Matrix3x4 m = atn::Matrix3x4::fn_8013A13C(mRot.y);
+             PSMTXMultVec(m.m, &front, &front);
+             if (PSVECDotProduct(&d, &front) < 0.0f) {
+                 ok = 0;
+@@ -1314,8 +1309,7 @@ void LastCocoonImago::fn_8045E548() {
+             dir.x = 0.0f;
+             dir.y = 0.0f;
+             dir.z = 1.0f;
+-            atn::Matrix3x4 rot;
+-            rot.fn_8013A13C(mRot.y);
++            atn::Matrix3x4 rot = atn::Matrix3x4::fn_8013A13C(mRot.y);
+             PSMTXMultVec(rot.m, &dir, &dir);
+             dir *= 15.0f;
+             atn::Vector3 pos = dir;
+@@ -1355,8 +1349,7 @@ void LastCocoonImago::fn_8045E780() {
+         dir.x = 0.0f;
+         dir.y = 0.0f;
+         dir.z = 1.0f;
+-        atn::Matrix3x4 m;
+-        m.fn_8013A13C(mRot.y);
++        atn::Matrix3x4 m = atn::Matrix3x4::fn_8013A13C(mRot.y);
+         PSMTXMultVec(m.m, &dir, &dir);
+         mPos += dir * 3.75f * t;
+         float turn = t * (0.15f * (m14D4.ToRotation_unk().y - mRot.y));
+diff --git a/src/game/LastCocoonQuadruped.cpp b/src/game/LastCocoonQuadruped.cpp
+index 628780a..dc11ca1 100644
+--- a/src/game/LastCocoonQuadruped.cpp
++++ b/src/game/LastCocoonQuadruped.cpp
+@@ -438,8 +438,7 @@ void LastCocoonQuadruped::vf10() {
+     m1578 = *fn_80266154(&mMotion);
+     offset += m1578.GetTrans_unk();
+     m1578.fn_8010F668();
+-    atn::Matrix3x4 turn;
+-    turn.fn_8013A13C(3.1415927f);
++    atn::Matrix3x4 turn = atn::Matrix3x4::fn_8013A13C(3.1415927f);
+     m1578.fn_801495E8(turn);
+     m1578.fn_801479E4(offset);
+     m148C = ((atn::Matrix3x4*)mMotion.GetNodeMtx_unk("neck"))->GetTrans_unk();
+@@ -1049,8 +1048,7 @@ void LastCocoonQuadruped::fn_80463610() {
+                     dir.x = 0.0f;
+                     dir.y = 0.0f;
+                     dir.z = 1.0f;
+-                    atn::Matrix3x4 rot;
+-                    rot.fn_8013A13C(mRot.y);
++                    atn::Matrix3x4 rot = atn::Matrix3x4::fn_8013A13C(mRot.y);
+                     PSMTXMultVec(rot.m, &dir, &dir);
+                     enemy->vf80(mPos, dir);
+                 }
+@@ -1336,8 +1334,7 @@ void LastCocoonQuadruped::fn_80465B88() {
+         mMotion.mTracks[0].m0C = 1.0f;
+         mMotion.fn_80097C08(0, 0x141, 0, 0, 1, 0.0f, 0.1f);
+         atn::Vector3 v(0.0f, -140.0f, 40.0f);
+-        atn::Matrix3x4 m;
+-        m.fn_8013A13C(mRot.y);
++        atn::Matrix3x4 m = atn::Matrix3x4::fn_8013A13C(mRot.y);
+         PSMTXMultVec(m.m, &v, &v);
+         m15BC = v * 0.022222223f;
+         v.y = 0.0f;
+@@ -1353,8 +1350,7 @@ void LastCocoonQuadruped::fn_80465B88() {
+         if (mMotion.mTracks[3].m08 >= 18.0f) {
+             m14BC = 2;
+             atn::Vector3 v(0.0f, 0.0f, 1.0f);
+-            atn::Matrix3x4 m;
+-            m.fn_8013A13C(mRot.y);
++            atn::Matrix3x4 m = atn::Matrix3x4::fn_8013A13C(mRot.y);
+             PSMTXMultVec(m.m, &v, &v);
+             atn::Vector3 pos = mPos + v * 20.0f;
+             atn::Vector3 to = m14B8->mPos;
+@@ -1647,8 +1643,7 @@ void LastCocoonQuadruped::fn_80468534(atn::Vector3* pos, float* angle, const atn
+     atn::Vector3 bestPos;
+     for (int i = 0; i < 2; i++) {
+         float a = base + 3.1415927f * i - 1.5707964f;
+-        atn::Matrix3x4 m;
+-        m.fn_8013A13C(a);
++        atn::Matrix3x4 m = atn::Matrix3x4::fn_8013A13C(a);
+         atn::Vector3 v = dir;
+         PSMTXMultVec(m.m, &v, &v);
+         fn_8004D388(lbl_8087EE98, &result, &from, &v, 0x80000000, &mColli, 0, m620);
+diff --git a/src/game/MiniMapTask.cpp b/src/game/MiniMapTask.cpp
+index 3598169..f10fa6e 100644
+--- a/src/game/MiniMapTask.cpp
++++ b/src/game/MiniMapTask.cpp
+@@ -242,7 +242,7 @@ void MiniMapTask::vf14() {
+         break;
+     }
+     }
+-    atn::Matrix3x4 mtx = atn::Matrix3x4::RotY_unk(angle);
++    atn::Matrix3x4 mtx = atn::Matrix3x4::fn_8013A13C(angle);
+     atn::Vector3 front(0.0f, 0.0f, -1.0f);
+     PSMTXMultVec(mtx.m, &front, &front);
+     atn::Vector3 frontRot(front.x, 0.0f, -front.z);
+diff --git a/src/game/SpecialEnemyBase.cpp b/src/game/SpecialEnemyBase.cpp
+index c5c59b0..e8d3553 100644
+--- a/src/game/SpecialEnemyBase.cpp
++++ b/src/game/SpecialEnemyBase.cpp
+@@ -275,8 +275,7 @@ void SpecialEnemyBase::fn_805A4254() {
+ int SpecialEnemyBase::fn_805A45F8(float radius, float angle, float rotOffset) {
+     int count = 0;
+     atn::Vector3 front(0.0f, 0.0f, 1.0f);
+-    atn::Matrix3x4 m;
+-    m.fn_8013A13C(mRot.y);
++    atn::Matrix3x4 m = atn::Matrix3x4::fn_8013A13C(mRot.y);
+     PSMTXMultVec(m.m, &front, &front);
+     Mtx m2;
+     PSMTXRotRad(m2, 'y', rotOffset);
+diff --git a/src/gmk/BulletPoint.cpp b/src/gmk/BulletPoint.cpp
+index 59d8e5c..4e05e73 100644
+--- a/src/gmk/BulletPoint.cpp
++++ b/src/gmk/BulletPoint.cpp
+@@ -141,8 +141,7 @@ void BulletPoint::vf10() {
+         target = (*list.At_unk(rand() % count))->mPos;
+     }
+     atn::Vector3 offset(0.0f, 0.0f, mDesc->m40 * (rand() % 1001 / 1000.0f));
+-    atn::Matrix3x4 rot;
+-    rot.fn_8013A13C(6.2831855f * (rand() % 1001 / 1000.0f));
++    atn::Matrix3x4 rot = atn::Matrix3x4::fn_8013A13C(6.2831855f * (rand() % 1001 / 1000.0f));
+     PSMTXMultVec(rot.m, &offset, &offset);
+     target += offset;
+     atn::Vector3 dir;
+diff --git a/src/gmk/FlamingArrow.cpp b/src/gmk/FlamingArrow.cpp
+index 79d6e05..ce92e2e 100644
+--- a/src/gmk/FlamingArrow.cpp
++++ b/src/gmk/FlamingArrow.cpp
+@@ -341,8 +341,7 @@ void FlamingArrow::vf10() {
+         target = *(*list.At_unk(rand() % count))->fn_8013C38C();
+     }
+     atn::Vector3 offset(0.0f, 0.0f, mDesc->m40 * (rand() % 1001 / 1000.0f));
+-    atn::Matrix3x4 rot;
+-    rot.fn_8013A13C(6.2831855f * (rand() % 1001 / 1000.0f));
++    atn::Matrix3x4 rot = atn::Matrix3x4::fn_8013A13C(6.2831855f * (rand() % 1001 / 1000.0f));
+     offset.fn_80011410(rot);
+     target += offset;
+     atn::Vector3 dir;
+diff --git a/src/gmk/FragileObject.cpp b/src/gmk/FragileObject.cpp
+index 50afe33..2ae218b 100644
+--- a/src/gmk/FragileObject.cpp
++++ b/src/gmk/FragileObject.cpp
+@@ -163,9 +163,8 @@ inline void FragileObject::UpdateColli_unk() {
+     atn::Matrix3x4 mtx(*(atn::Matrix3x4*)mModelBefore.mMtx.m);
+     mColliBefore.SetMtx_unk(mtx);
+     mColliAfter.SetMtx_unk(mtx);
+-    atn::Matrix3x4 rot;
+     atn::Vector3 base = mtx.GetTrans_unk();
+-    rot.fn_8013A13C(m78.y);
++    atn::Matrix3x4 rot = atn::Matrix3x4::fn_8013A13C(m78.y);
+     atn::Vector3 offset(mTarget.mOffset);
+     PSMTXMultVec(rot.m, &offset, &offset);
+     mSphere.mSphere = atn::ColliSphere::Sphere_unk(base + offset, mTarget.mSize);
+diff --git a/src/gmk/MotionObject.cpp b/src/gmk/MotionObject.cpp
+index 681e703..7df69e4 100644
+--- a/src/gmk/MotionObject.cpp
++++ b/src/gmk/MotionObject.cpp
+@@ -263,8 +263,7 @@ void MotionObject::fn_804137F4() {
+     MotionTarget_unk* target = colli->mTarget;
+     if (target != 0) {
+         atn::Vector3 base = model != 0 ? ((atn::Matrix3x4*)model->mMtx.m)->GetTrans_unk() : lbl_807C7060.GetTrans_unk();
+-        atn::Matrix3x4 mtx;
+-        mtx.fn_8013A13C(m78.y);
++        atn::Matrix3x4 mtx = atn::Matrix3x4::fn_8013A13C(m78.y);
+         atn::Vector3 offset(target->mOffset);
+         PSMTXMultVec(mtx.m, &offset, &offset);
+         target->mSphere.mSphere = atn::ColliSphere::Sphere_unk(base + offset, target->mRadius);
+diff --git a/src/gmk/RandomMerchant.cpp b/src/gmk/RandomMerchant.cpp
+index 882a4c5..0a2ef6a 100644
+--- a/src/gmk/RandomMerchant.cpp
++++ b/src/gmk/RandomMerchant.cpp
+@@ -275,8 +275,7 @@ void RandomMerchant::vf10() {
+             m6C = mPositions[index].mPos;
+             m78.Assign_unk(mPositions[index].mRot);
+             mDir.Set_unk(0.0f, 0.0f, 1.0f);
+-            atn::Matrix3x4 rot;
+-            rot.fn_8013A13C(m78.y);
++            atn::Matrix3x4 rot = atn::Matrix3x4::fn_8013A13C(m78.y);
+             PSMTXMultVec(rot.m, &mDir, &mDir);
+             MerchantEntry_unk* cur = &mEntries[mCur];
+             RandomMerchantChara* chara = cur->mChara;

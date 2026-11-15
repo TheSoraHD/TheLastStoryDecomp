@@ -17,7 +17,7 @@ public:
     virtual int vf0C();                                        // 0x803165EC
     virtual void vf10();                                       // 0x80316A68
     virtual void vf14();                                       // 0x80317040
-    virtual void vf3C(HitInfo_unk* hit);                       // 0x80317110
+    virtual void vf3C(HitInfo_unk* hit, int);                       // 0x80317110
     virtual void vf40(HitInfo_unk* hit);                       // 0x80317188
     virtual void vf80(const atn::Vector3& pos, const atn::Vector3& offset); // 0x80317360
     virtual int vfE4();                                        // 0x8031ACAC

@@ -338,7 +338,7 @@ template void std::vector<RoutePlace_unk*>::push_back(RoutePlace_unk* const& x);
 inline void Em203GreaterDaemonRed::ResetState_unk() {
     m14B4 = 0;
     m14B8 = 0;
-    m590 = fn_800F8548(lbl_8087F048);
+    m590 = lbl_8087F048->fn_800F8548();
     m152C = 0.0f;
     m15B8 = 0;
     fn_80239DAC(lbl_8087F3C0, this, 2000, 1);
@@ -367,7 +367,7 @@ inline void Em203GreaterDaemonRed::StartState12_unk() {
     ResetState_unk();
     fn_8016E970(6);
     m560 = 4;
-    m590 = fn_800F8548(lbl_8087F048);
+    m590 = lbl_8087F048->fn_800F8548();
     PlayMotion_unk(0x153, 1, 0, 1.0f);
 }
 
@@ -436,7 +436,7 @@ inline void Em203GreaterDaemonRed::StartState22_unk() {
     m58C = 22;
     ResetState_unk();
     fn_8016E970(3);
-    m590 = fn_800F8548(lbl_8087F048);
+    m590 = lbl_8087F048->fn_800F8548();
     PlayMotion_unk(0x1E2, 1, 0, 1.0f);
 }
 
@@ -480,8 +480,8 @@ void Em203GreaterDaemonRed::vf10() {
                 player = lbl_8087F8A0->mHead;
             }
             BattleTask* effect = lbl_8087F048;
-            int id = fn_800F8548(effect);
-            fn_800FAB80(effect, player, fn_80219E6C(0x6C2), id, &mPos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
+            int id = effect->fn_800F8548();
+            effect->fn_800FAB80(player, fn_80219E6C(0x6C2), id, &mPos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
         }
     }
     m1520--;
@@ -652,7 +652,7 @@ void Em203GreaterDaemonRed::fn_802953C8() {
     }
 }
 
-void Em203GreaterDaemonRed::vf3C(HitInfo_unk* hit) {
+void Em203GreaterDaemonRed::vf3C(HitInfo_unk* hit, int) {
     HitMsg_unk* msg = (HitMsg_unk*)hit;
     if (m58C == 22 || m58C == 2 || m58C == 23) {
         return;
@@ -676,7 +676,7 @@ void Em203GreaterDaemonRed::vf3C(HitInfo_unk* hit) {
         ResetState_unk();
         fn_8016E970(6);
         m560 = 4;
-        m590 = fn_800F8548(lbl_8087F048);
+        m590 = lbl_8087F048->fn_800F8548();
         mMotion.m34C = 1;
         mMotion.mTracks[0].m20 = 1.0f;
         mMotion.mTracks[0].m0C = 0.5f;
@@ -975,7 +975,7 @@ void Em203GreaterDaemonRed::fn_80297114() {
             PSVECNormalize(&dir, &dir);
             mStatus.mParamB.m2C = 7.0f;
             m12CC = 0.0f;
-            fn_800F8574(lbl_8087F048, this, m15B4, &pos, &dir, 0, 0x100, 0, 0.0f, 1.0f);
+            lbl_8087F048->fn_800F8574(this, m15B4, &pos, &dir, 0, 0x100, 0, 0.0f, 1.0f);
         }
     }
 }
@@ -1158,8 +1158,8 @@ void Em203GreaterDaemonRed::fn_8029795C() {
         if (m15E0 == m169C + m15D4[i].mFrame) {
             fn_80239DAC(lbl_8087F3C0, this, i + 1000, 1);
             BattleTask* effect = lbl_8087F048;
-            int id = fn_800F8548(effect);
-            fn_800FAB80(effect, this, m14FC[m14C8], id, &m15D4[i].mPos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
+            int id = effect->fn_800F8548();
+            effect->fn_800FAB80(this, m14FC[m14C8], id, &m15D4[i].mPos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
             if (i % 3 == 0) {
                 ShakeCamera_unk(5, 1.0f, 3.0f);
                 fn_800C31F4("SE_EM203_004", 0, -1, 1.0f);
@@ -1207,7 +1207,7 @@ void Em203GreaterDaemonRed::fn_80298580() {
                 ShakeCamera_unk(10, 1.0f, 2.0f);
             } else if (mMotion.mTracks[0].m08 < 44.0f) {
                 atn::Vector3 pos = GetNodePos_unk(mMotion.GetNodeMtx_unk("neck"));
-                fn_800FAB80(lbl_8087F048, this, m14DC[m14C8], m590, &pos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
+                lbl_8087F048->fn_800FAB80(this, m14DC[m14C8], m590, &pos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
             }
         }
     }
@@ -1228,7 +1228,7 @@ void Em203GreaterDaemonRed::fn_80298850() {
         spine += Front_unk(mRot.y) * 20.0f;
         lbl_8087F048->fn_800F8C6C(0, 0, this, m14E4[m14C8], m590, 0.0f, 30, -1);
     } else {
-        m590 = fn_800F8548(lbl_8087F048);
+        m590 = lbl_8087F048->fn_800F8548();
     }
 }
 
@@ -1270,7 +1270,7 @@ void Em203GreaterDaemonRed::fn_80298E98() {
     if (m1584 == 0 && mMotion.mTracks[0].m08 > 42.0f) {
         m1584 = 1;
         m1580 = 33;
-        m1588 = fn_800F8548(lbl_8087F048);
+        m1588 = lbl_8087F048->fn_800F8548();
         atn::Vector3 pos = GetNodePos_unk(mMotion.GetNodeMtx_unk("chin"));
         pos += Front_unk(mRot.y) * 20.0f;
         pos.y = 0.0f;
@@ -1687,7 +1687,7 @@ int Em203GreaterDaemonRed::fn_8029B704() {
         atn::Vector3 dir(0.0f, 0.0f, 30.0f);
         PSMTXMultVec(fn_800109E0(m1598).m, &dir, &dir);
         atn::Vector3 pos = m158C + dir * (float)(m1580 - 33);
-        fn_800FAB80(lbl_8087F048, this, m14EC[m14C8], m1588, &pos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
+        lbl_8087F048->fn_800FAB80(this, m14EC[m14C8], m1588, &pos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
         DaemonBolt_unk bolt;
         bolt.mFrame = m1580 + 1;
         bolt.mPos = pos;
@@ -1777,7 +1777,7 @@ void Em203GreaterDaemonRed::fn_8029BE7C() {
         param.mMaxSpeed = m1674;
         param.mTime = (float)m14D4[m14C8]->m5C;
         param.mTurn = 0.017453292f * m1678;
-        fn_800F8574(lbl_8087F048, this, m14D4[m14C8], &pos, &dir, &param, 0x504, 0, 0.0f, 1.0f);
+        lbl_8087F048->fn_800F8574(this, m14D4[m14C8], &pos, &dir, &param, 0x504, 0, 0.0f, 1.0f);
         i++;
     }
 }

@@ -268,7 +268,7 @@ int Em005DoppelGanger::vf0C() {
 inline void Em005DoppelGanger::ResetStep_unk() {
     m14B4 = 0;
     m14B8 = 0;
-    m590 = fn_800F8548(lbl_8087F048);
+    m590 = lbl_8087F048->fn_800F8548();
 }
 
 // inferred: moves along the route, or updates the control (names invented)
@@ -642,7 +642,7 @@ void Em005DoppelGanger::vf10() {
                 Mtx rm;
                 PSMTXRotRad(rm, 'y', mRot.y);
                 PSMTXMultVec(rm, &dir, &dir);
-                fn_800F8574(lbl_8087F048, this, data, &pos, &dir, 0, 0, 0, 0.0f, 1.0f);
+                lbl_8087F048->fn_800F8574(this, data, &pos, &dir, 0, 0, 0, 0.0f, 1.0f);
             }
             break;
         }
@@ -734,7 +734,7 @@ void Em005DoppelGanger::vf14() {
 
 // NONMATCHING: 98.98% - the original keeps an unreachable `b` after the `return` of the id test (5
 // variants: switch, else if, goto, empty branch, double return)
-void Em005DoppelGanger::vf3C(HitInfo_unk* hit) {
+void Em005DoppelGanger::vf3C(HitInfo_unk* hit, int) {
     HitMsg_unk* msg = (HitMsg_unk*)hit;
     if (m14BC == 0) {
         if (msg->mAttacker != m1504) {
@@ -755,7 +755,7 @@ void Em005DoppelGanger::vf3C(HitInfo_unk* hit) {
                 if (id == 200) {
                     m14B4 = 0;
                     m14B8 = 0;
-                    m590 = fn_800F8548(lbl_8087F048);
+                    m590 = lbl_8087F048->fn_800F8548();
                     m58C = 1;
                     fn_8015DEC0(msg->m10);
                     ((Control1C_unk*)mControl.get())->m1C = 1;
@@ -782,7 +782,7 @@ void Em005DoppelGanger::vf40(HitInfo_unk* hit) {
         m58C = 10;
         m14B4 = 0;
         m14B8 = 0;
-        m590 = fn_800F8548(lbl_8087F048);
+        m590 = lbl_8087F048->fn_800F8548();
     }
     if (mStatus.IsState_unk(0x20)) {
         if (m14BC == 0) {
@@ -1042,7 +1042,7 @@ void Em005DoppelGanger::fn_80253C9C() {
         m1520 = 0;
         m14B4 = 0;
         m14B8 = 0;
-        m590 = fn_800F8548(lbl_8087F048);
+        m590 = lbl_8087F048->fn_800F8548();
         m58C = 0;
         fn_8016E970(3);
     }

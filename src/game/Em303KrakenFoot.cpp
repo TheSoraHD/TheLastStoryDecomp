@@ -31,7 +31,7 @@ extern "C" double cos(double x);
 extern "C" double acos(double x);
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
-extern "C" int fn_800F8548(BattleTask* mgr); extern "C" void* lbl_8087EE98;
+extern "C" void* lbl_8087EE98;
 extern "C" int fn_8004ED34(void* colli, atn::ColliResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg7); // inferred: ray test
 // inferred: effect manager (class unknown), global instance at 0x8087F3C0 (as in game/Em303KrakenFootMp.cpp)
@@ -140,7 +140,7 @@ int Em303KrakenFoot::vf0C() {
     mRoute.mA0 = 1;
     m14B8 = 0;
     m14BC = 0;
-    m590 = fn_800F8548(lbl_8087F048);
+    m590 = lbl_8087F048->fn_800F8548();
     m58C = 0;
     fn_8016E970(3);
     return 1;
@@ -304,7 +304,7 @@ void Em303KrakenFoot::vf14() {
     fn_80149A30();
 }
 
-void Em303KrakenFoot::vf3C(HitInfo_unk* hit) {
+void Em303KrakenFoot::vf3C(HitInfo_unk* hit, int) {
     HitMsg_unk* msg = (HitMsg_unk*)hit;
     if (m58C == 7 || m58C == 10) {
         return;
@@ -321,7 +321,7 @@ void Em303KrakenFoot::vf3C(HitInfo_unk* hit) {
 inline void Em303KrakenFoot::SetState_unk(int state) {
     m14B8 = 0;
     m14BC = 0;
-    m590 = fn_800F8548(lbl_8087F048);
+    m590 = lbl_8087F048->fn_800F8548();
     m58C = state;
     fn_8016E970(3);
 }
@@ -395,7 +395,7 @@ void Em303KrakenFoot::vf40(HitInfo_unk* hit) {
     } else {
         m14B8 = 0;
         m14BC = 0;
-        m590 = fn_800F8548(lbl_8087F048);
+        m590 = lbl_8087F048->fn_800F8548();
         m58C = 16;
         fn_8016E970(3);
         mMotion.m34C = 1;
@@ -582,7 +582,7 @@ void Em303KrakenFoot::fn_802E3B24() {
 void Em303KrakenFoot::fn_802E3D60() {
     m14B8 = 0;
     m14BC = 0;
-    m590 = fn_800F8548(lbl_8087F048);
+    m590 = lbl_8087F048->fn_800F8548();
     m58C = 7;
     fn_8016E970(3);
     fn_8016E4C4(1);
@@ -603,7 +603,7 @@ void Em303KrakenFoot::fn_802E3E38(int arg) {
     if (arg != 0) {
         m14B8 = 0;
         m14BC = 0;
-        m590 = fn_800F8548(lbl_8087F048);
+        m590 = lbl_8087F048->fn_800F8548();
         m58C = 8;
         fn_8016E970(3);
         mMotion.m34C = 1;
@@ -839,7 +839,7 @@ void Em303KrakenFoot::fn_802E52AC() {
 void Em303KrakenFoot::fn_802E554C(int arg) {
     m14B8 = 0;
     m14BC = 0;
-    m590 = fn_800F8548(lbl_8087F048);
+    m590 = lbl_8087F048->fn_800F8548();
     m58C = 15;
     fn_8016E970(3);
     m14EC = arg;
@@ -849,7 +849,7 @@ void Em303KrakenFoot::fn_802E554C(int arg) {
 void Em303KrakenFoot::fn_802E55B0(int kind) {
     m14B8 = 0;
     m14BC = 0;
-    m590 = fn_800F8548(lbl_8087F048);
+    m590 = lbl_8087F048->fn_800F8548();
     vf48();
     fn_80178A6C();
     fn_8015495C(0, 1, 1, 1);

@@ -30,7 +30,7 @@ Em209BigGolem::Em209BigGolem(atn::Task* parent, EnemyInfo_unk* info) : Em209Smal
 
 Em209BigGolem::~Em209BigGolem() {}
 
-void Em209BigGolem::vf3C(HitInfo_unk* hit) {
+void Em209BigGolem::vf3C(HitInfo_unk* hit, int) {
     fn_80151448((HitMsg_unk*)hit);
     vf40(hit);
 }

@@ -192,7 +192,7 @@ void Em002_02SkeltonKing::fn_80249588() {
     }
 }
 
-void Em002_02SkeltonKing::vf3C(HitInfo_unk* hit) {
+void Em002_02SkeltonKing::vf3C(HitInfo_unk* hit, int) {
     HitMsg_unk* msg = (HitMsg_unk*)hit;
     atn::Vector3 dir = msg->m10;
     msg->m10 *= 0.0f;

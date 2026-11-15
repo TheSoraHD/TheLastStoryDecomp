@@ -381,7 +381,7 @@ void EnemyFieldMagician::fn_8032D48C() {
 }
 
 // NONMATCHING: 98.9% - volatile registers of the segment copies; `this`/`msg` moves swapped
-void EnemyFieldMagician::vf3C(HitInfo_unk* hit) {
+void EnemyFieldMagician::vf3C(HitInfo_unk* hit, int) {
     HitMsg_unk* msg = (HitMsg_unk*)hit;
     if ((unsigned int)(m58C - 8) <= 1) {
         msg->m88 = -1;

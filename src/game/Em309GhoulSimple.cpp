@@ -27,7 +27,7 @@ extern "C" HitInfo_unk* fn_80219E6C(int id); // inferred: skill data by id
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
-extern "C" int fn_800F8548(BattleTask* mgr); extern "C" void* lbl_8087EE98;
+extern "C" void* lbl_8087EE98;
 extern "C" int fn_8004D388(void* world, atn::ColliResult_unk* result, CharaTask::Sphere_unk* sphere, atn::Vector3* move,
                            unsigned int mask, void* ignore, int arg, float radius); // inferred: sweep test
 extern "C" int fn_8004ED34(void* world, atn::ColliResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
@@ -358,7 +358,7 @@ void Em309GhoulSimple::vf100(int state) {
         } else {
             fn_805A4F1C(0x145, 0, 1, 1.0f, 0.0f);
         }
-        m14C8 = fn_800F8548(lbl_8087F048);
+        m14C8 = lbl_8087F048->fn_800F8548();
         mFlag28 = 1;
         break;
     case 12: {
@@ -373,7 +373,7 @@ void Em309GhoulSimple::vf100(int state) {
         m154C.y = 0.0f;
         m154C.z = 0.0f;
         fn_805A4F1C(0x14A, 0, 1, 1.0f, 0.0f);
-        m14C8 = fn_800F8548(lbl_8087F048);
+        m14C8 = lbl_8087F048->fn_800F8548();
         mFlag28 = 1;
         break;
     }
@@ -618,7 +618,7 @@ void Em309GhoulSimple::vf108() {
                 for (int i = 0; i < 5; i++) {
                     atn::Vector3 at = pos + step;
                     pos.y = 2.0f * ((float)i * skill->m58) + pos.y;
-                    fn_800FAB80(lbl_8087F048, this, skill, m14C8, &at, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
+                    lbl_8087F048->fn_800FAB80(this, skill, m14C8, &at, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
                 }
                 Mtx m1;
                 PSMTXRotRad(m1, 'y', -0.2617994f);
@@ -626,7 +626,7 @@ void Em309GhoulSimple::vf108() {
                 for (int i = 0; i < 5; i++) {
                     atn::Vector3 at = pos + step;
                     pos.y = 2.0f * ((float)i * skill->m58) + pos.y;
-                    fn_800FAB80(lbl_8087F048, this, skill, m14C8, &at, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
+                    lbl_8087F048->fn_800FAB80(this, skill, m14C8, &at, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
                 }
                 Mtx m2;
                 PSMTXRotRad(m2, 'y', 0.5235988f);
@@ -634,7 +634,7 @@ void Em309GhoulSimple::vf108() {
                 for (int i = 0; i < 5; i++) {
                     atn::Vector3 at = pos + step;
                     pos.y = 2.0f * ((float)i * skill->m58) + pos.y;
-                    fn_800FAB80(lbl_8087F048, this, skill, m14C8, &at, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
+                    lbl_8087F048->fn_800FAB80(this, skill, m14C8, &at, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
                 }
             }
             if (frame >= mMotion.fn_80097D7C(0)) {
@@ -690,7 +690,7 @@ void Em309GhoulSimple::vf108() {
         }
         if (m14BC == 1 && m14C0 % 6 == 0) {
             BattleTask* mgr = lbl_8087F048;
-            fn_800FAB80(mgr, this, fn_80219E6C(m1518), m14C8, &mPos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
+            mgr->fn_800FAB80(this, fn_80219E6C(m1518), m14C8, &mPos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
         }
         return;
     }

@@ -10,6 +10,7 @@
 #include "std/string_members.h"
 #include <boost/tokenizer.hpp>
 #include "atn/ColliBase.h"
+#include "game/BattleTask.h"
 
 extern "C" int strncmp(const char* a, const char* b, unsigned long n);
 // inferred: std::string concatenation (weak copy 0x8006AFF8)
@@ -28,7 +29,6 @@ extern "C" int fn_80239D58(EffectMgr_unk* mgr, void* owner, int id); // inferred
 extern "C" void fn_800CB5C8(atn::SoundRef* sound, int frames, int arg); // inferred: stops the sound
 class BattleTask;
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
-extern "C" int fn_800F8548(BattleTask* mgr); // inferred: new bullet id
 
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" int rand();
@@ -92,7 +92,7 @@ inline void Em316LastLaser::SetAppear_unk(const atn::Vector3& pos, const atn::Ve
 inline void Em316LastLaser::SetState_unk(int state) {
     m14BC = 0;
     m14C0 = 0;
-    m590 = fn_800F8548(lbl_8087F048);
+    m590 = lbl_8087F048->fn_800F8548();
     m58C = state;
     fn_8016E970(3);
 }
@@ -374,7 +374,7 @@ void Em316LastLaser::vf14() {
     fn_80149A30();
 }
 
-void Em316LastLaser::vf3C(HitInfo_unk* hit) {
+void Em316LastLaser::vf3C(HitInfo_unk* hit, int) {
     fn_80151448((HitMsg_unk*)hit);
     vf40(hit);
 }
@@ -475,9 +475,6 @@ inline atn::Vector3 atn::Vector3::operator-() const {
     return atn::Vector3(-x, -y, -z);
 }
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
-extern "C" void fn_800FDB20(BattleTask* mgr, CharaTask* owner, CharaTask* target, int arg, HitInfo_unk* data, int id,
-                            const atn::Vector3* pos, const atn::Vector3* dir, int time, float scale);
-extern "C" void fn_80101434(BattleTask* mgr, const atn::Vector3* pos, const atn::Vector3* rot, int a, int b);
 
 // inferred: state 9: the laser sweeps from m150C along m1524 for 90 frames and hurts the character it hits (skill
 // 0x76E); then back to the wait with a new delay
@@ -506,8 +503,8 @@ void Em316LastLaser::fn_8031CA30() {
             CharaTask* chara = (CharaTask*)result.m38->m0C;
             if (!chara->fn_801533C8(m590, skill)) {
                 atn::Vector3 rot = (-dir).ToRotation_unk();
-                fn_800FDB20(lbl_8087F048, this, chara, 0, skill, m590, &result.m10, &m1500, 15, 0.1f);
-                fn_80101434(lbl_8087F048, &result.m10, &rot, skill->mC4, 0);
+                lbl_8087F048->fn_800FDB20(this, chara, 0, skill, m590, &result.m10, &m1500, 15, 0.1f);
+                lbl_8087F048->fn_80101434(&result.m10, &rot, skill->mC4, 0);
                 fn_800C344C("SE_BTCOM_006", &result.m10, 0, -1, 1.0f);
             }
         }
@@ -517,13 +514,13 @@ void Em316LastLaser::fn_8031CA30() {
 void Em316LastLaser::fn_8031D27C() {
     m14BC = 0;
     m14C0 = 0;
-    m590 = fn_800F8548(lbl_8087F048);
+    m590 = lbl_8087F048->fn_800F8548();
 }
 
 void Em316LastLaser::fn_8031D2BC() {
     m14BC = 0;
     m14C0 = 0;
-    m590 = fn_800F8548(lbl_8087F048);
+    m590 = lbl_8087F048->fn_800F8548();
     m58C = 0;
     fn_8016E970(3);
     fn_80239DAC(lbl_8087F3C0, this, 1000, 0);

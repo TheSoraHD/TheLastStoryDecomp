@@ -208,7 +208,7 @@ void Em101LittleZesyaSecond::fn_80260324() {
 // inferred: back to the idle action (name invented; the same block is repeated in the states)
 inline void Em101LittleZesyaSecond::ResetAction_unk() {
     m14BC = 0;
-    m590 = fn_800F8548(lbl_8087F048);
+    m590 = lbl_8087F048->fn_800F8548();
     m14C4 = 0;
     mFlag5 = 0;
     fn_80239DAC(lbl_8087F3C0, this, 102, 1);
@@ -247,7 +247,7 @@ inline void Em101LittleZesyaSecond::Cast_unk() {
             if (mControl && mControl->vf30() > m598) {
                 m598 = mControl->vf30();
                 m594 = 1;
-                m590 = fn_800F8548(lbl_8087F048);
+                m590 = lbl_8087F048->fn_800F8548();
             }
             fn_80144710();
             lbl_8087F048->fn_800F8C6C(0, 0, this, m638, m590, 0.0f, 30, -1);
@@ -267,7 +267,7 @@ inline void Em101LittleZesyaSecond::Slash_unk() {
         PSMTXMultVec(m, &dir, &dir);
         atn::Vector3 d = dir * 120.0f;
         atn::Vector3 pos = mPos + d * t;
-        fn_800FAB80(lbl_8087F048, this, hit, m590, &pos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
+        lbl_8087F048->fn_800FAB80(this, hit, m590, &pos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
         if (m14C4 == 0) {
             fn_80232B7C(0, 0);
             PlayEffectAt_unk(&m1538, pos, mRot);
@@ -320,7 +320,7 @@ void Em101LittleZesyaSecond::vf10() {
         case 7: {
             float frame = mMotion.mTracks[0].m08;
             if ((float)__fabs(frame - 24.0f) < 1.1920929e-7f) {
-                fn_800FAB80(lbl_8087F048, this, fn_80219E6C(0x5E9), m590, &mPos, &mRot, 0, 30, -1, -1, 0.0f,
+                lbl_8087F048->fn_800FAB80(this, fn_80219E6C(0x5E9), m590, &mPos, &mRot, 0, 30, -1, -1, 0.0f,
                             1.0f);
             } else if (frame >= mMotion.fn_80097D7C(0)) {
                 ResetAction_unk();
@@ -430,7 +430,7 @@ void Em101LittleZesyaSecond::vf10() {
     fn_80145334();
 }
 
-void Em101LittleZesyaSecond::vf3C(HitInfo_unk* hit) {
+void Em101LittleZesyaSecond::vf3C(HitInfo_unk* hit, int) {
     HitMsg_unk* msg = (HitMsg_unk*)hit;
     switch (m58C) {
     case 6:
@@ -459,7 +459,7 @@ void Em101LittleZesyaSecond::vf40(HitInfo_unk* hit) {
         reset:
             m58C = 0;
             m14BC = 0;
-            m590 = fn_800F8548(lbl_8087F048);
+            m590 = lbl_8087F048->fn_800F8548();
             m14C4 = 0;
             mFlag5 = 0;
             fn_80239DAC(lbl_8087F3C0, this, 102, 1);
@@ -528,7 +528,7 @@ void Em101LittleZesyaSecond::fn_80261078() {
                 ResetAction_unk();
                 m58C = 11;
                 fn_8016E970(3);
-                m590 = fn_800F8548(lbl_8087F048);
+                m590 = lbl_8087F048->fn_800F8548();
                 m594 = 1;
                 m598 = 0;
                 m1508 = mPos;
@@ -597,7 +597,7 @@ void Em101LittleZesyaSecond::fn_80261948() {
             m59D = 0;
             m59C = 0;
             m59F = 1;
-            m590 = fn_800F8548(lbl_8087F048);
+            m590 = lbl_8087F048->fn_800F8548();
             SetHit_unk(fn_80219E6C(0xE5));
             ((Control1C_unk*)mControl.get())->m1C = 1;
             m58C = 1;
@@ -647,7 +647,7 @@ void Em101LittleZesyaSecond::fn_80261A50() {
                     param.mDelay = 3.0f;
                     param.mTarget = p;
                     param.mTurn = 1.2566371f;
-                    fn_800F8574(lbl_8087F048, this, fn_80219E6C(0x5E7), &pos, &dir, &param, 0x24, 0, 0.0f, 1.0f);
+                    lbl_8087F048->fn_800F8574(this, fn_80219E6C(0x5E7), &pos, &dir, &param, 0x24, 0, 0.0f, 1.0f);
                 }
             }
             m14C4 = 1;
@@ -656,7 +656,7 @@ void Em101LittleZesyaSecond::fn_80261A50() {
         float frame = mMotion.mTracks[0].m08;
         if (frame >= 100.0f) {
             m14BC = 0;
-            m590 = fn_800F8548(lbl_8087F048);
+            m590 = lbl_8087F048->fn_800F8548();
             m14C4 = 0;
             mFlag5 = 0;
             fn_80239DAC(lbl_8087F3C0, this, 102, 1);
@@ -726,7 +726,7 @@ void Em101LittleZesyaSecond::fn_802620A8() {
     fn_8015495C(0, 1, 1, 1);
     fn_8016DA4C();
     m14BC = 0;
-    m590 = fn_800F8548(lbl_8087F048);
+    m590 = lbl_8087F048->fn_800F8548();
     m14C4 = 0;
     mFlag5 = 0;
     fn_80239DAC(lbl_8087F3C0, this, 102, 1);

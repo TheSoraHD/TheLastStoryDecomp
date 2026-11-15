@@ -16,7 +16,7 @@ public:
     virtual ~Em101LittleZesyaSecond();                               // 0x80262840
     virtual int vf0C();                                              // 0x80260218
     virtual void vf10();                                             // 0x802604E0
-    virtual void vf3C(HitInfo_unk* hit);
+    virtual void vf3C(HitInfo_unk* hit, int);
     virtual void vf40(HitInfo_unk* hit);
     virtual int vf4C(void* attacker, HitInfo_unk* hit, int arg, const atn::Vector3* dir);
     virtual int vfA8(int kind);                                      // 0x802627E8

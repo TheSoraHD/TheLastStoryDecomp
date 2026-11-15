@@ -11,6 +11,7 @@ struct ItemParamEntry_unk;
 
 // inferred: character and status saved when a finishing skill starts (GameTask::fn_80370320); names invented
 struct InventoryFinish_unk {
+    InventoryFinish_unk(); // inferred: clears everything (body in game/ItemManager_unk.cpp)
     CharaTask* mChara;
     CharaStatusData_unk mData; // 0x04: copy of CharaStatus::m1A8
     int m80;
@@ -40,6 +41,7 @@ public:
 
     // inferred: item of the bag (0x10 bytes)
     struct Item_unk {
+        Item_unk(); // inferred: clears the four members (body in game/ItemManager_unk.cpp)
         int mCode;   // inferred: kind * 1000000 + id
         int mCount;  // 0x04
         unsigned short m08;
@@ -55,8 +57,12 @@ public:
     // EquipWeapon)
     struct Equip_unk {
         EquipSlot_unk mProtectors[4]; // 0x00
-        EquipSlot_unk mWeapons[2];    // 0x20
-        unsigned char m30[0x40 - 0x30];
+        EquipSlot_unk mWeapons[4];    // 0x20: inferred: the last two are unused (-1, Inventory constructor)
+    };
+    // inferred: the equipment shown and the costume sets are built with the ids at -1 and the rest
+    // cleared (Inventory constructor; same as GameSaveEquipExtra_unk), unlike mEquip; name invented
+    struct EquipSet_unk : public Equip_unk {
+        EquipSet_unk(); // inferred: body in game/ItemManager_unk.cpp
     };
 
     Inventory(); // 0x80442FF4
@@ -102,21 +108,20 @@ public:
 
     Item_unk mItems[0x600];                         // 0x0000: inferred: the bag (code < 0: free slot)
     int mMoney;                                     // 0x6000
-    unsigned char m6004[0x600C - 0x6004];
+    int m6004[2]; // inferred: cleared by the constructor
     int m600C; // inferred: totals of m6014/m6018 (fn_80449ABC)
     int m6010;
     int m6014; // inferred: totals added by fn_80449A18 (first output of fn_804491F4)
     int m6018; // inferred: second output of fn_804491F4
 
     atn::FixedArray_unk<ExpEntry_unk, 8> mExpEntries; // 0x601C: inferred: party of the last battle (fn_80449ABC)
-    int mOrder[10];                                 // 0x64A0: inferred: order of the members (RSO GetPlayerOrder)
-    unsigned char m64C8[0x64EC - 0x64C8];
+    int mOrder[19];                                 // 0x64A0: inferred: order of the members (RSO GetPlayerOrder)
     CharaStatus mPlayers[7];                        // 0x64EC (destroyed by fn_80442F68)
     Equip_unk mEquip[7];                            // 0x8290: inferred: one per player
     MP::SaveElemB_unk mUpgrades[28];                // 0x8450: inferred: upgraded equipment (fn_8044D034)
-    Equip_unk mEquipShown[7];                       // 0xD380: inferred: equipment shown by the costume menu
-    Equip_unk mEquipSetA[16];                       // 0xD540: inferred: costume sets (game/CosEditBase.cpp)
-    Equip_unk mEquipSetB[7];                        // 0xD940 (at most 7: the list below starts at 0xDB2C)
+    EquipSet_unk mEquipShown[7];                    // 0xD380: inferred: equipment shown by the costume menu
+    EquipSet_unk mEquipSetA[16];                    // 0xD540: inferred: costume sets (game/CosEditBase.cpp)
+    EquipSet_unk mEquipSetB[7];                     // 0xD940 (at most 7: the list below starts at 0xDB2C)
     atn::LH_Binary mLoader;                         // 0xDB00
     int mLoaded;                                    // 0xDB08: inferred: mLoader done (fn_8044386C)
     int mDB0C;                                      // inferred: cleared by the shops around AddItem (0x805849E8)

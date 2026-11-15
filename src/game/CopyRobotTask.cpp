@@ -242,7 +242,7 @@ void CopyRobotTask::vf14() {
     }
 }
 
-void CopyRobotTask::vf3C(HitInfo_unk* hit) {}
+void CopyRobotTask::vf3C(HitInfo_unk* hit, int) {}
 
 void CopyRobotTask::fn_801CCD00(int state) {
     if (state != m14B0) {

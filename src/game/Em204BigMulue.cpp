@@ -770,7 +770,7 @@ void Em204BigMulue::vf108() {
         }
         if (mMotion.GetMotionFrame(0) >= 22.0f && mMotion.GetMotionFrame(0) <= 23.5f) {
             atn::Vector3 pos = ((atn::Matrix3x4*)mMotion.GetNodeMtx_unk("chin"))->GetTrans_unk();
-            fn_800FAB80(fn_8013A194(), this, m152C, m590, &pos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
+            fn_8013A194()->fn_800FAB80(this, m152C, m590, &pos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
         }
         if (mMotion.GetMotionFrame(0) >= 23.0f && mMotion.GetMotionFrame(0) <= 27.0f) {
             mMotion.SetMotionSpeed(0, 0.2f * m1524);
@@ -791,15 +791,15 @@ void Em204BigMulue::vf108() {
         if (mMotion.GetMotionFrame(0) >= 17.0f && mMotion.GetMotionFrame(0) <= 19.0f) {
             m1A44 = 0;
             atn::Vector3 pos = ((atn::Matrix3x4*)mMotion.GetNodeMtx_unk("head"))->GetTrans_unk();
-            fn_800FAB80(fn_8013A194(), this, m1530, m590, &pos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
+            fn_8013A194()->fn_800FAB80(this, m1530, m590, &pos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
             pos = ((atn::Matrix3x4*)mMotion.GetNodeMtx_unk("spine1"))->GetTrans_unk();
-            fn_800FAB80(fn_8013A194(), this, m1530, m590, &pos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
+            fn_8013A194()->fn_800FAB80(this, m1530, m590, &pos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
             pos = ((atn::Matrix3x4*)mMotion.GetNodeMtx_unk("joint1"))->GetTrans_unk();
-            fn_800FAB80(fn_8013A194(), this, m1530, m590, &pos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
+            fn_8013A194()->fn_800FAB80(this, m1530, m590, &pos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
         }
         if (mMotion.GetMotionFrame(0) >= 20.0f && mMotion.GetMotionFrame(0) <= 22.0f) {
             atn::Vector3 pos = ((atn::Matrix3x4*)mMotion.GetNodeMtx_unk("hips"))->GetTrans_unk();
-            fn_800FAB80(fn_8013A194(), this, m1534, m590, &pos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
+            fn_8013A194()->fn_800FAB80(this, m1534, m590, &pos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
         }
         if (mMotion.GetMotionFrame(0) >= 24.0f) {
             m1A44 = 1;
@@ -837,7 +837,7 @@ void Em204BigMulue::vf108() {
             }
             {
                 atn::Vector3 pos = ((atn::Matrix3x4*)mMotion.GetNodeMtx_unk("hips"))->GetTrans_unk();
-                fn_800FAB80(fn_8013A194(), this, m1538, m590, &pos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
+                fn_8013A194()->fn_800FAB80(this, m1538, m590, &pos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
             }
             break;
         case 2:

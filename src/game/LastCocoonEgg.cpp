@@ -11,6 +11,7 @@
 #include "atn/Material_unk.h"
 #include "macros.h"
 #include "game/BattleTask.h"
+#include "game/DamageResult_unk.h"
 
 // inferred: effect manager (class unknown), global instance at 0x8087F3C0
 struct EffectMgr_unk {
@@ -129,21 +130,86 @@ extern "C" atn::Color fn_800F8014(unsigned int rgba);       // inferred: colour 
 inline ColorMatrixParam_unk* RenderSetting_unk::GetColorMatrix_unk() {
     return &m324;
 }
+// The original calls every inline helper of vf0C and vf10 out of line (over the inline budget, their weak
+// copies follow each function); these empty asserts in an accessor that each of them calls carry the missing cost.
+#define EGG_ASSERT_UNK(x) ((void)0)
 // inferred: bloom settings of the render settings (weak copy 0x80453DB4; name of the original unknown)
 extern "C" inline BloomParam_unk* fn_80453DB4(RenderSetting_unk* rs) {
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
     return &rs->m054;
 }
-// NONMATCHING: the original is over the inlining budget (every inline call is a weak copy: fn_80453C88,
-// fn_80453DB4, fn_80453DBC, push_back fn_80453E20, Vector4_unk, fn_8045817C); ours inlines them all. Adding
-// candidates (a helper per post effect) tips it over, but then the helper is called too.
+// NONMATCHING: 97.6% - the colours of fn_800F8014 are passed to Color::operator= from r3 in the original (a
+// temporary here): fn_800F8014 is a constructor `atn::Color::Color(unsigned int)` (constructors return `this`),
+// not declared in atn/Color.h (shared header; see game/BattleTask fn_800F72F4, same difference)
 int LastCocoonEgg::vf0C() {
     if (fn_8013655C() == 0 && m14B0.fn_80473F50() == 0 && m14EC.fn_8008B140() == 0 && m1928.IsLoading() == 0 &&
         m1934.IsLoading() == 0 && m1940.IsLoading() == 0 && m1950.IsLoading() == 0 && m195C.IsLoading() == 0 &&
         m1988.IsLoading() == 0 && m1994.IsLoading() == 0 && m252C.IsLoading() == 0 && m2538.IsLoading() == 0) {
         mStatus.m18 |= 0x1C0;
         mStatus.m18 |= 0x10000;
-        mStatus.m18 |= 0x400015;
-        mStatus.m18 |= 0x388C208;
+        mStatus.m18 |= 0x15;
+        mStatus.m18 |= 0x400000;
+        mStatus.m18 |= 0xC208;
+        mStatus.m18 |= 0x3880000;
         fn_8045817C();
         if (m14B0.fn_80470580() != 0 && fn_80121F00() != 0 && fn_80121F00()->fn_8013C504() != 0) {
             atn::Csv csv((const char*)m14B0.fn_80470580(), m14B0.fn_8047059C());
@@ -224,21 +290,84 @@ int LastCocoonEgg::vf0C() {
     return 0;
 }
 
+// push_back is defined out of the class (include/std/vector.h): instantiated here so that it is emitted
+// behind vf0C and its "vector length error" goes to the pool before the literals of the next functions
+template void std::vector<LastCocoonEggPart_unk>::push_back(const LastCocoonEggPart_unk& x);
+
 // ---- vf10: update of the egg (over the inlining budget: the accessors are weak copies) ----
 extern "C" double floor(double x);
 // inferred: hit point ratio (weak copy 0x8029F3AC of game/Em203GreaterDaemonRedMp.cpp)
 extern "C" inline float fn_8029F3AC(CharaStatus* status) {
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
+    EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0);     EGG_ASSERT_UNK(0); 
     if (status->mParamB.m84 > 0) {
         return status->m04 / status->mParamB.m84;
     }
     return 0.0f;
 }
 // inferred: weak copy 0x80454514 (name invented)
-extern "C" __declspec(noinline) inline float fn_80454514(float x) {
+extern "C" inline float fn_80454514(float x) {
     return floor(x);
 }
 
-// NONMATCHING: draft - the original is over the inlining budget (its accessors and Keyboard::Press are called)
 void LastCocoonEgg::vf10() {
     fn_80455E20();
     if (m2A44 != 0) {
@@ -306,7 +435,7 @@ void LastCocoonEgg::vf10() {
                 }
                 for (unsigned int i = 0; i < m19A0.size(); i++) {
                     atn::Vector3 d = *m19A0[i].m00->fn_8013C38C() - mPos;
-                    if (d.LengthSq_unk() < 2500.0f && m19A0[i].m00 != m190C) {
+                    if (d.LengthSq_unk() < 2500.0f && m190C != m19A0[i].m00) {
                         fn_804570F4(m19A0[i].m00);
                         m190C = m19A0[i].m00;
                         m1910 = 120;
@@ -318,7 +447,7 @@ void LastCocoonEgg::vf10() {
         }
         if (m58C != 8) {
             m14D0 = 1.0f + fn_8029F3AC(&mStatus);
-            m14D0 = fn_80454514(2.0f * m14D0) * 0.5f;
+            m14D0 = fn_80454514(2.0f * m14D0) / 2.0f;
         }
         fn_80455638();
         m2548.fn_80454538();
@@ -375,7 +504,7 @@ void LastCocoonEgg::vf14() {
     }
 }
 
-void LastCocoonEgg::vf3C(HitInfo_unk* hit) {
+void LastCocoonEgg::vf3C(HitInfo_unk* hit, int) {
     vf40(hit);
 }
 
@@ -448,7 +577,7 @@ void LastCocoonEgg::vf40(HitInfo_unk* hit) {
     if (--m1924 < 0) {
         m14BC = 0;
         m14C0 = 0;
-        m590 = fn_800F8548(lbl_8087F048);
+        m590 = lbl_8087F048->fn_800F8548();
         m58C = 8;
         fn_8016E970(3);
         fn_80239DAC(lbl_8087F3C0, this, 1000, 0);
@@ -579,8 +708,6 @@ inline EggColor_unk EggLerp_unk(const EggColor_unk& a, const EggColor_unk& b, fl
 // inferred: base color of the glow of fn_8045531C (static object, initialized in __sinit)
 static atn::Vector4_unk sGlowColor_unk(0.8f, 0.8f, 0.8f, 1.0f);
 
-// NONMATCHING: 99.5% - offset of "light" in the string pool (the strings of the unwritten functions are
-// missing) and the float register of the glow factor
 // inferred: color of the material "light": brightened in mode 8, else pulsing every 120 units of m14D8
 void LastCocoonEgg::fn_8045531C() {
     Material_unk* material = mMotion.fn_80094B6C("light");
@@ -595,8 +722,8 @@ void LastCocoonEgg::fn_8045531C() {
                 if (m14D8 > 120.0f) {
                     m14D8 -= 120.0f;
                 }
-                float s = (float)sin(6.2831855f * (m14D8 / 120.0f));
-                color = sGlowColor_unk * (0.5f * s + 0.5f);
+                float k = 0.5f * (float)sin(6.2831855f * (m14D8 / 120.0f)) + 0.5f;
+                color = sGlowColor_unk * k;
             }
             color.a = 1.0f;
         }
@@ -604,24 +731,6 @@ void LastCocoonEgg::fn_8045531C() {
     }
 }
 
-// inferred: damage record shown by fn_80108C10 (as DaemonDamage_unk of game/Em203GreaterDaemon.cpp)
-struct EggDamage_unk {
-    EggDamage_unk() : m00(0), m04(0), m08(0), m0C(0), m10(0), m14(-1) {
-        m1C = 0;
-        m18 = -1;
-    }
-    int m00;
-    int m04;
-    int m08;
-    int m0C;
-    int m10;
-    int m14;
-    int m18;
-    unsigned int m1C : 4;
-    unsigned int m1C_rest : 28;
-};
-extern "C" void fn_80108C10(BattleTask* effect, EggDamage_unk* damage, const atn::Vector3& pos, CharaTask* attacker,
-                            CharaTask* chara, int b, int c);
 // inferred: plays an effect bound to a matrix (kind 5; as in game/EnemyQuarkSecond.cpp)
 extern "C" void fn_8023A680(EffectMgr_unk* mgr, atn::EffFile* res, int arg2, int kind, const void* target,
                             const atn::Vector3* pos, const atn::Vector3* rot, int arg7, int arg8, int arg9,
@@ -685,14 +794,14 @@ void LastCocoonEgg::fn_80455638() {
         if (part.m04 <= 0.0f) {
             part.m08 = 0;
         } else if (++part.m08 % 40 == 0) {
-            EggDamage_unk damage;
+            DamageResult_unk damage;
             LastCocoonEggSeg_unk* seg = LastCocoonEgg_FreeSeg_unk(this);
             if (seg != 0) {
                 float amount = MIN(50.0f * part.m04, part.m00->mStatus.m04 - 1.0f);
-                damage.m00 = 1;
-                damage.m04 = (int)amount;
-                part.m00->mStatus.fn_8012DF7C(damage.m04, 0, 0);
-                fn_80108C10(lbl_8087F048, &damage, part.m00->mPos + atn::Vector3(0.0f, 15.0f, 0.0f), this,
+                damage.mType = 1;
+                damage.mDamage = (int)amount;
+                part.m00->mStatus.fn_8012DF7C(damage.mDamage, 0, 0);
+                lbl_8087F048->fn_80108C10(&damage, part.m00->mPos + atn::Vector3(0.0f, 15.0f, 0.0f), this,
                             part.m00, 0, 0);
                 PlayEfp_unk(&m1988, &part.m00->mMotion);
                 seg->m14 = EggNodePos_unk(part.m00->mMotion.GetNodeMtx_unk("spine"));
@@ -727,13 +836,13 @@ void LastCocoonEgg::fn_80455638() {
             atn::Vector3 diff(seg->m04.x - seg->m20.x, seg->m04.y - seg->m20.y, seg->m04.z - seg->m20.z);
             if (PSVECSquareMag(&diff) < 1.0f) {
                 fn_80239DAC(lbl_8087F3C0, seg, 0, 0);
-                EggDamage_unk damage;
-                damage.m00 = 1;
-                damage.m04 = (int)-seg->m10;
+                DamageResult_unk damage;
+                damage.mType = 1;
+                damage.mDamage = (int)-seg->m10;
                 atn::Vector3 pos = fn_80148B0C(0)->m04.mCenter;
                 pos += atn::Vector3(0.0f, 15.0f, 0.0f);
-                mStatus.fn_8012DF7C(damage.m04, 0, 0);
-                fn_80108C10(lbl_8087F048, &damage, pos, this, this, 0, 0);
+                mStatus.fn_8012DF7C(damage.mDamage, 0, 0);
+                lbl_8087F048->fn_80108C10(&damage, pos, this, this, 0, 0);
                 seg->m00 = 0;
             }
         }
@@ -767,7 +876,6 @@ void LastCocoonEgg::fn_80455E20() {
 }
 
 // inferred: the shield breaks (as vf40 without the popup text)
-// NONMATCHING: pool offset of the string (the constructor and its literals are missing)
 // inferred: after 45 frames, repeats the attack of fn_80456E1C twice and then starts the shake of fn_80456F04
 void LastCocoonEgg::fn_80455F2C() {
     if (m14C0 > 45) {
@@ -781,15 +889,14 @@ void LastCocoonEgg::fn_80455F2C() {
     }
 }
 
-// NONMATCHING: 80% - float registers and the order of the copies of the collision center
 void LastCocoonEgg::fn_804560A4() {
-    float radius = m5B0 * m14D0;
+    m620 = m5B0 * m14D0;
     m614 = mPos + m5A4;
-    m620 = radius;
+    float radius = m620;
     atn::Vector3 a = m614;
-    atn::Vector3 b = m614;
+    atn::Vector3 b = a;
     float h = m14D0 * m5B4 - 2.0f * radius;
-    b.y += h > 0.0f ? h : 0.0f;
+    b.y += h > 1.0f ? h : 1.0f;
     mColli.m3C = a;
     mColli.m48 = b;
     mColli.m54 = radius;
@@ -815,10 +922,10 @@ void LastCocoonEgg::fn_80456194() {
         }
     } else if (m14C0 > 15) {
         BattleTask* mgr = lbl_8087F048;
-        fn_800FAB80(mgr, this, fn_80219E6C(0x5AA), m590, &m1968, &m1974, 0, 30, -1, -1, 0.0f, 1.0f);
+        mgr->fn_800FAB80(this, fn_80219E6C(0x5AA), m590, &m1968, &m1974, 0, 30, -1, -1, 0.0f, 1.0f);
         m14BC = 0;
         m14C0 = 0;
-        m590 = fn_800F8548(lbl_8087F048);
+        m590 = lbl_8087F048->fn_800F8548();
         m58C = 0;
         fn_8016E970(3);
         m2558 = 0;
@@ -847,7 +954,7 @@ inline void EggShoot_unk(LastCocoonEgg* egg, atn::Vector3 dir) {
         from = result.m04;
     }
     BattleTask* mgr = lbl_8087F048;
-    fn_800F8574(mgr, egg, fn_80219E6C(0x5AB), &from, &dir, 0, 0x24, 0, 0.0f, 1.0f);
+    mgr->fn_800F8574(egg, fn_80219E6C(0x5AB), &from, &dir, 0, 0x24, 0, 0.0f, 1.0f);
 }
 // inferred: rotation matrix z, y, x with the angle compared on the right (as in game/EnemyQuarkSecond.cpp)
 inline void EggRotate2_unk(Mtx m, char axis, float rad) {
@@ -924,7 +1031,7 @@ void LastCocoonEgg::fn_804562E4() {
             m12CC = 0.0f;
             m14BC = 0;
             m14C0 = 0;
-            m590 = fn_800F8548(lbl_8087F048);
+            m590 = lbl_8087F048->fn_800F8548();
             m58C = 0;
             fn_8016E970(3);
             m2558 = 0;
@@ -948,12 +1055,11 @@ void LastCocoonEgg::fn_80456DB8() {
     }
 }
 
-// NONMATCHING: pool offset of the string (the constructor and its literals are missing)
 // inferred: starts the state 6 (sound and effect m1950); the target is not read
 void LastCocoonEgg::fn_80456E1C(CharaTask* target) {
     m14BC = 0;
     m14C0 = 0;
-    m590 = fn_800F8548(lbl_8087F048);
+    m590 = lbl_8087F048->fn_800F8548();
     m58C = 6;
     fn_8016E970(3);
     fn_800C344C("SE_EM206_027", &mPos, 0, -1, 1.0f);
@@ -963,7 +1069,7 @@ void LastCocoonEgg::fn_80456E1C(CharaTask* target) {
 void LastCocoonEgg::fn_80456F04() {
     m14BC = 0;
     m14C0 = 0;
-    m590 = fn_800F8548(lbl_8087F048);
+    m590 = lbl_8087F048->fn_800F8548();
     m58C = 7;
     fn_8016E970(3);
     m2548.Shake_unk(50, 1.5f * m14D0, 1.5f * m14D0);
@@ -973,7 +1079,7 @@ void LastCocoonEgg::fn_80456F04() {
 void LastCocoonEgg::fn_80456F94() {
     m14BC = 0;
     m14C0 = 0;
-    m590 = fn_800F8548(lbl_8087F048);
+    m590 = lbl_8087F048->fn_800F8548();
     m58C = 8;
     fn_8016E970(3);
     fn_80239DAC(lbl_8087F3C0, this, 1000, 0);

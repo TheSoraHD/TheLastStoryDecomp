@@ -669,7 +669,7 @@ void Cannonball::fn_803FB870(const atn::Vector3* pos, CharaTask* owner, int flag
                 lbl_8087F048->m3E39C = 1;
                 BattleTask* mgr = lbl_8087F048;
                 atn::Vector3 dir(0.0f, 0.0f, 0.0f);
-                fn_800FAB80(mgr, owner, bullet, fn_800F8548(mgr), pos, &dir, flag, 30, -1, -1, 0.0f, 1.0f);
+                mgr->fn_800FAB80(owner, bullet, mgr->fn_800F8548(), pos, &dir, flag, 30, -1, -1, 0.0f, 1.0f);
                 lbl_8087F048->m3E39C = 0;
             }
         }

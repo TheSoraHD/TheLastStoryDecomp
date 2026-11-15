@@ -16,7 +16,7 @@ public:
     virtual int vf0C();
     virtual void vf10();
     virtual void vf14();
-    virtual void vf3C(HitInfo_unk* hit);
+    virtual void vf3C(HitInfo_unk* hit, int);
     virtual void vf40(HitInfo_unk* hit);
 
     atn::LH_Binary m14B0; // inferred: "database/chara/special/" + db_name (default "db_last_cocoon.csv")

@@ -86,7 +86,7 @@ public:
     virtual void vf14();                                         // 0x80460A90
     virtual void vf20();                                         // 0x80461520
     virtual void vf24();                                         // 0x804628B4
-    virtual void vf3C(HitInfo_unk* hit);                         // 0x80460A94
+    virtual void vf3C(HitInfo_unk* hit, int);                         // 0x80460A94
     virtual void vf40(HitInfo_unk* hit);                         // 0x80460B48
     virtual void vf50();                                         // 0x80460F18
     virtual void vf54(); // 0x80461398: inferred: places the hit spheres on the head, waist and spine

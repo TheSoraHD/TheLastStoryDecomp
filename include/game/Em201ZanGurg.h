@@ -17,7 +17,7 @@ public:
     virtual int vf0C();
     virtual void vf10();
     virtual void vf14();
-    virtual void vf3C(HitInfo_unk* hit);
+    virtual void vf3C(HitInfo_unk* hit, int);
     virtual void vf40(HitInfo_unk* hit);
 
     void fn_80262E6C(const char* text, int length); // inferred: reads the data file

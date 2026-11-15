@@ -1256,7 +1256,7 @@ void CharaTask::fn_80139560() {
             HitInfo_unk* bullet = fn_80219E6C(0x7DE);
             m13A0.y += 6.0f;
             fn_8013A194()->fn_8013A19C(1);
-            fn_800FAB80(fn_8013A194(), this, bullet, fn_800F8548(fn_8013A194()), &m13A0, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
+            fn_8013A194()->fn_800FAB80(this, bullet, fn_8013A194()->fn_800F8548(), &m13A0, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
             fn_8013A194()->fn_8013A19C(0);
         }
         m54C &= ~0x60000;
@@ -1264,7 +1264,7 @@ void CharaTask::fn_80139560() {
     if ((m54C & 0x100000) == 0x100000) {
         if (fn_8013A194()) {
             HitInfo_unk* bullet = fn_80219E6C(0x7E8);
-            fn_800FAB80(fn_8013A194(), 0, bullet, fn_800F8548(fn_8013A194()), &m13A0, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
+            fn_8013A194()->fn_800FAB80(0, bullet, fn_8013A194()->fn_800F8548(), &m13A0, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
         }
         m54C &= ~0x100000;
     }
@@ -5425,7 +5425,7 @@ void CharaTask::fn_80149A30() {
             return;
         }
         if (mFlag10 && lbl_8087F048 != 0) {
-            fn_8010A4A8(lbl_8087F048, this);
+            lbl_8087F048->fn_8010A4A8(this);
         }
         Arena_unk* arena = lbl_8087F610;
         if (arena == 0 || IsArenaWaiting_unk(arena)) {
@@ -5943,7 +5943,7 @@ void CharaTask::fn_8014C540() {
         if (lbl_8087F430 != 0 && lbl_8087F430->m54E4 == 8 && lbl_8087F540 != 0 && fn_80481654(lbl_8087F540) != 0) {
             hide = 1;
         }
-        fn_8010C00C(lbl_8087F048, this);
+        lbl_8087F048->fn_8010C00C(this);
         if (mFlagB18) {
             if (!mStatus.IsState_unk(0x100000) || hide) {
                 mFlagB18 = 0;
@@ -5968,14 +5968,14 @@ void CharaTask::fn_8014C540() {
             for (chara = (lbl_8087F8A0 != 0) ? lbl_8087F8A0->mHead : 0; chara != 0; chara = NextChara_unk(chara)) {
                 if (chara->CanAct_unk() && chara->fn_8015EB2C() && !chara->IsGrappled_unk() && chara->mFlag22 != 1 &&
                     !IsSameSide_unk(chara) && !chara->fn_801533C8(id, data) && fn_80051A88(&sphere, &chara->m614)) {
-                    fn_800FC410(lbl_8087F048, this, chara, 0, data, id, 30);
+                    lbl_8087F048->fn_800FC410(this, chara, 0, data, id, 30);
                 }
             }
             for (chara = (EnemyManager::sInstance != 0) ? (CharaTask*)EnemyManager::sInstance->mHead : 0; chara != 0;
                  chara = NextChara_unk(chara)) {
                 if (chara->CanAct_unk() && chara->fn_8015EB2C() && !chara->IsGrappled_unk() && chara->mFlag22 != 1 &&
                     !IsSameSide_unk(chara) && !chara->fn_801533C8(id, data) && fn_80051A88(&sphere, &chara->m614)) {
-                    fn_800FC410(lbl_8087F048, this, chara, 0, data, id, 30);
+                    lbl_8087F048->fn_800FC410(this, chara, 0, data, id, 30);
                 }
             }
         }
@@ -6079,7 +6079,7 @@ void CharaTask::fn_8014DEE4(int index, int keep, int noMotion) {
     }
     mStatus.fn_8013407C();
     if (lbl_8087F048 != 0) {
-        fn_8010C00C(lbl_8087F048, this);
+        lbl_8087F048->fn_8010C00C(this);
     }
     if (noMotion == 0) {
         switch (m648->m04) {
@@ -6369,12 +6369,12 @@ void CharaTask::fn_8014F698(int a, int b, int notify) {
     }
 }
 
-// NONMATCHING: the original loads mEnabled before saving the arguments (4 instructions moved).
-void CharaListeners_unk::fn_8014F860(int id, CharaTask* chara, void* arg) {
+// inferred: const (the original loads mEnabled before saving the arguments)
+void CharaListeners_unk::fn_8014F860(int id, CharaTask* chara, void* arg) const {
     int i;
     if (mEnabled != 0) {
         for (i = 0; i < (int)mList.size(); i++) {
-            CharaListener_unk& listener = mList[i];
+            const CharaListener_unk& listener = mList[i];
             if (listener.mId == -1 || id == listener.mId) {
                 listener.mFunc(id, chara, arg);
             }
@@ -7018,7 +7018,7 @@ int fn_80151270(CharaTask* chara) {
 
 extern "C" int fn_8021AA48(const char* name); // inferred
 
-void CharaTask::vf3C(HitInfo_unk* hit) {
+void CharaTask::vf3C(HitInfo_unk* hit, int) {
     if (!IsFlag_unk(1) || fn_8021AA48(hit->m08) != 0) {
         fn_80151448((HitMsg_unk*)hit); // inferred: the parameter of vf3C is the hit message
         vf40(hit);
@@ -7039,7 +7039,6 @@ extern "C" HitParam_unk lbl_807C6B90; // inferred: default parameters
 extern "C" void fn_8003EA3C(int* result, HitInfo_unk* data, CharaTask* attacker, CharaTask* owner, unsigned int flags,
                             const HitParam_unk* param, int arg, int arg2); // inferred: computes the damage
 extern "C" int fn_80041A28(int arg, CharaTask* chara, CharaTask* attacker);
-extern "C" void fn_8010CF28(BattleTask* effect, int kind, CharaTask* chara, void* attacker);
 
 void CharaTask::fn_80151448(HitMsg_unk* msg) {
     unsigned int flags;
@@ -7102,7 +7101,7 @@ void CharaTask::fn_80151448(HitMsg_unk* msg) {
             }
         }
         if (lbl_8087F048 != 0 && lbl_8087F048->fn_8010CD3C(5, this, this)) {
-            fn_8010CF28(lbl_8087F048, 5, this, this);
+            lbl_8087F048->fn_8010CF28(5, this, this);
             flags |= 0x20;
         }
         if ((kinds & 0x80) != 0x80 && msg->m04 != 0) {
@@ -8763,7 +8762,7 @@ void CharaTask::fn_80164454(int id, CharaTask* a, CharaTask* b, unsigned int fla
         } else {
             bullet = 0;
         }
-        fn_800FD658(GetEffect_unk(), a, b, bullet, fn_800F8548(mgr), 0, 30);
+        GetEffect_unk()->fn_800FD658(a, b, bullet, mgr->fn_800F8548(), 0, 30);
     }
 }
 
@@ -10715,12 +10714,12 @@ void CharaTask::vf9C(int arg) {
     }
 }
 
-// NONMATCHING: same instructions, different scheduling/registers (the original converts b first and
-// builds the word in r4); tried ternaries and shifts in every order, | and +, bool locals, a bit field
-// struct, an inline helper with bool parameters, unsigned parameters.
 // inferred: flags of the motion command nodes (tested by fn_80145334)
 void CharaTask::fn_80176DFC(int a, int b, int c) {
-    m1254 = (a != 0) | (b != 0 ? 2 : 0) | (c != 0 ? 4 : 0);
+    m1254 = 0;
+    m1254 |= a ? 1 : 0;
+    m1254 |= b ? 2 : 0;
+    m1254 |= c ? 4 : 0;
 }
 
 // inferred: quicksort used by fn_80176E30 (the comparison only sees the keys m00). The two
@@ -11005,7 +11004,7 @@ void CharaTask::fn_80176E30() {
         if (!mFlag10) {
             mFlag10 = 1;
             if (mType == 0 && lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->fn_80375184()) {
-                fn_801092C8(lbl_8087F048, 5, this, 0, 0);
+                lbl_8087F048->fn_801092C8(5, this, 0, 0);
             }
             m12A0 = mType == 2 ? 60 : 30;
         }
@@ -11882,19 +11881,8 @@ inline RouteTable_unk* GetRouteTable_unk() {
 }
 
 
-// inferred: reports a point move to a missing warp point (name invented)
-static void ReportPointMove_unk(CharaTask* chara, int id) {
-    if (lbl_8087EEB8 != 0) {
-        char message[0x100];
-        sprintf(message, "error: invalid pointmove chara[%d:%s] -> warppoint[%d]\n", chara->m58, chara->fn_8017C904(), id);
-        ((DebugMessages_unk*)lbl_8087EEB8)->fn_800697D8(message);
-    }
-}
-
-// NONMATCHING: ~94% (32/518 lines, 8 of them the ptmf/string pool noise) - the route table and the
-// loop offset swap r31/r30, and the m5B0 load goes to f31 instead of f2; tried locals in other orders,
-// the ternary written inline, the m5B0 accessor.
-// inferred: moves the character (or its rider, m13FC) to the next place of the list m1400
+// inferred: the point move of the end is fn_8017039C inlined once (its forward to the rider m13FC and the reset of
+// the rider stay calls, as in the original)
 void CharaTask::fn_8017B434() {
     if (m1400.mSize < 2) {
         return;
@@ -11905,8 +11893,8 @@ void CharaTask::fn_8017B434() {
     }
     float best = 1e16f;
     RoutePlace_unk* nearest = 0;
-    for (unsigned int i = 0; i < m1400.mSize; i++) {
-        RoutePlace_unk* place = table->FindPlace_unk(m1400.mData[i]);
+    for (unsigned int i = 0; i < m1400.size(); i++) {
+        RoutePlace_unk* place = table->FindPlace_unk(m1400[i]);
         if (place != 0) {
             float dist = LengthSq_unk(place->mPos - mPos);
             if (dist < best) {
@@ -11919,46 +11907,12 @@ void CharaTask::fn_8017B434() {
     if (m140C < 0) {
         return;
     }
-    if (LengthSq_unk(nearest->mPos - mPos) < (1.2f * fn_8013C42C()) * (1.2f * fn_8013C42C())) {
+    float dist = LengthSq_unk(nearest->mPos - mPos);
+    float range = 1.2f * fn_8013C42C();
+    if (dist < range * range) {
         m140C = (m140C + 1) % m1400.mSize;
     }
-    int id = m1400.mData[m140C];
-    CharaTask* rider = (CharaTask*)m13FC;
-    if (rider != 0) {
-        if (rider->m13FC != 0) {
-            ((CharaTask*)rider->m13FC)->fn_8017039C(id, 8);
-            return;
-        }
-        if (GetRouteTable_unk() == 0) {
-            return;
-        }
-        if (id > 0) {
-            rider->mRoute.fn_80128818(id, &rider->mPos, 8);
-            if (rider->mRoute.fn_801255C8()) {
-                rider->fn_801718F8();
-                return;
-            }
-        }
-        ReportPointMove_unk(rider, id);
-        return;
-    }
-    if (GetRouteTable_unk() == 0) {
-        return;
-    }
-    if (id > 0) {
-        mRoute.fn_80128818(id, &mPos, 8);
-        if (mRoute.fn_801255C8()) {
-            Reset_unk(0, 1, 1, 1);
-            mC58.fn_8011C044(0);
-            lbl_8087EE68->fn_80017064(this);
-            fn_8016E970(7);
-            if (m1208 != 0) {
-                fn_801750FC();
-            }
-            return;
-        }
-    }
-    ReportPointMove_unk(this, id);
+    fn_8017039C(m1400.mData[m140C], 8);
 }
 
 void CharaTask::fn_8017BC4C() {

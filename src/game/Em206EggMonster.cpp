@@ -242,7 +242,7 @@ static inline atn::Vector3 FrontDir_unk(const atn::Vector3& rot) {
 
 inline void Em206EggMonster::EndAction_unk() {
     m1590 = 0;
-    m590 = fn_800F8548(lbl_8087F048);
+    m590 = lbl_8087F048->fn_800F8548();
     m58C = 0;
     fn_8016E970(3);
     fn_80239DAC(lbl_8087F3C0, this, 1000, 0);
@@ -405,7 +405,7 @@ void Em206EggMonster::vf10() {
             float frame = mMotion.mTracks[0].m08;
             if (frame >= mMotion.fn_80097D7C(0)) {
                 m1590 = 0;
-                m590 = fn_800F8548(lbl_8087F048);
+                m590 = lbl_8087F048->fn_800F8548();
                 m58C = 0;
                 fn_8016E970(3);
                 fn_80239DAC(lbl_8087F3C0, this, 1000, 0);
@@ -442,7 +442,7 @@ void Em206EggMonster::vf10() {
             float frame = mMotion.mTracks[0].m08;
             if (frame >= mMotion.fn_80097D7C(0)) {
                 m1590 = 0;
-                m590 = fn_800F8548(lbl_8087F048);
+                m590 = lbl_8087F048->fn_800F8548();
                 m58C = 0;
                 fn_8016E970(3);
                 fn_80239DAC(lbl_8087F3C0, this, 1000, 0);
@@ -453,7 +453,7 @@ void Em206EggMonster::vf10() {
                 }
                 BattleTask* mgr = lbl_8087F048;
                 HitInfo_unk* data = fn_80219E6C(0x57C);
-                fn_800FAB80(mgr, this, data, m590, &mPos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
+                mgr->fn_800FAB80(this, data, m590, &mPos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
             }
             if (mMotion.mTracks[0].m08 >= 50.1f && mMotion.mTracks[0].m08 <= 51.0f && mMotion.mTracks[0].m00 == 0x145) {
                 turn = 1;
@@ -464,7 +464,7 @@ void Em206EggMonster::vf10() {
             float frame = mMotion.mTracks[0].m08;
             if (frame >= mMotion.fn_80097D7C(0)) {
                 m1590 = 0;
-                m590 = fn_800F8548(lbl_8087F048);
+                m590 = lbl_8087F048->fn_800F8548();
                 m58C = 0;
                 fn_8016E970(3);
                 fn_80239DAC(lbl_8087F3C0, this, 1000, 0);
@@ -475,7 +475,7 @@ void Em206EggMonster::vf10() {
             float frame = mMotion.mTracks[0].m08;
             if (frame >= mMotion.fn_80097D7C(0)) {
                 m1590 = 0;
-                m590 = fn_800F8548(lbl_8087F048);
+                m590 = lbl_8087F048->fn_800F8548();
                 m58C = 0;
                 fn_8016E970(3);
                 fn_80239DAC(lbl_8087F3C0, this, 1000, 0);
@@ -486,7 +486,7 @@ void Em206EggMonster::vf10() {
             float frame = mMotion.mTracks[0].m08;
             if (frame >= mMotion.fn_80097D7C(0)) {
                 m1590 = 0;
-                m590 = fn_800F8548(lbl_8087F048);
+                m590 = lbl_8087F048->fn_800F8548();
                 m58C = 0;
                 fn_8016E970(3);
                 fn_80239DAC(lbl_8087F3C0, this, 1000, 0);
@@ -655,7 +655,7 @@ void Em206EggMonster::fn_802C1FEC() {
     m15FC++;
 }
 
-void Em206EggMonster::vf3C(HitInfo_unk* hit) {
+void Em206EggMonster::vf3C(HitInfo_unk* hit, int) {
     HitMsg_unk* msg = (HitMsg_unk*)hit;
     if (msg->mAttacker == this) {
         msg->m90 = 0;
@@ -673,7 +673,7 @@ void Em206EggMonster::vf3C(HitInfo_unk* hit) {
             float hp = mStatus.m04;
             if ((hp / mStatus.mParamB.m84 < 0.85f || m15F8 >= 3) && lbl_8087F430->m5694 == 0) {
                 m1590 = 0;
-                m590 = fn_800F8548(lbl_8087F048);
+                m590 = lbl_8087F048->fn_800F8548();
                 m58C = 7;
                 mMotion.m34C = 1;
                 mMotion.mTracks[0].m20 = 1.0f;
@@ -694,7 +694,7 @@ void Em206EggMonster::vf3C(HitInfo_unk* hit) {
                 fn_8023A680(mgr, &m16F4, -1, 5, &m16C4, 0, 0, 0, 0, -1, 1, 1.0f);
             } else {
                 m1590 = 0;
-                m590 = fn_800F8548(lbl_8087F048);
+                m590 = lbl_8087F048->fn_800F8548();
                 m58C = 6;
                 mMotion.m34C = 1;
                 mMotion.mTracks[0].m20 = 1.0f;
@@ -734,7 +734,7 @@ void Em206EggMonster::vf40(HitInfo_unk* hit) {
         float ratio = hp / mStatus.mParamB.m84;
         if (ratio < 0.5f && lbl_8087F430->m5694 == 0) {
             m1590 = 0;
-            m590 = fn_800F8548(lbl_8087F048);
+            m590 = lbl_8087F048->fn_800F8548();
             m58C = 8;
             mMotion.m34C = 1;
             mMotion.mTracks[0].m20 = 1.0f;
@@ -830,7 +830,7 @@ void Em206EggMonster::fn_802C2BCC() {
 // inferred: starts state 4 (turns to the target; name invented)
 inline void Em206EggMonster::StartTurn_unk() {
     m1590 = 0;
-    m590 = fn_800F8548(lbl_8087F048);
+    m590 = lbl_8087F048->fn_800F8548();
     m58C = 4;
     mMotion.m34C = 1;
     mMotion.mTracks[0].m20 = 1.0f;
@@ -847,7 +847,7 @@ inline void Em206EggMonster::StartTurn_unk() {
 // inferred: starts state 10 (runs to the point m14B0; name invented)
 inline void Em206EggMonster::StartRun_unk() {
     m1590 = 0;
-    m590 = fn_800F8548(lbl_8087F048);
+    m590 = lbl_8087F048->fn_800F8548();
     m58C = 10;
     mMotion.m34C = 1;
     mMotion.mTracks[0].m20 = 1.0f;
@@ -872,7 +872,7 @@ void Em206EggMonster::fn_802C3154() {
     switch (fn_802C38E4()) {
     case 1:
         m1590 = 0;
-        m590 = fn_800F8548(lbl_8087F048);
+        m590 = lbl_8087F048->fn_800F8548();
         m58C = 1;
         fn_8016E970(3);
         m158C = -1;
@@ -888,7 +888,7 @@ void Em206EggMonster::fn_802C3154() {
         break;
     case 2:
         m1590 = 0;
-        m590 = fn_800F8548(lbl_8087F048);
+        m590 = lbl_8087F048->fn_800F8548();
         m58C = 2;
         fn_8016E970(6);
         m560 = 4;
@@ -911,7 +911,7 @@ void Em206EggMonster::fn_802C3154() {
         break;
     case 5:
         m1590 = 0;
-        m590 = fn_800F8548(lbl_8087F048);
+        m590 = lbl_8087F048->fn_800F8548();
         m58C = 5;
         mMotion.m34C = 1;
         mMotion.mTracks[0].m20 = 1.0f;
@@ -1146,7 +1146,7 @@ void Em206EggMonster::vfEC() {
 
 void Em206EggMonster::fn_802C4858() {
     m1590 = 0;
-    m590 = fn_800F8548(lbl_8087F048);
+    m590 = lbl_8087F048->fn_800F8548();
     m58C = 3;
     fn_8016E970(6);
     m560 = 4;
@@ -1168,7 +1168,7 @@ void Em206EggMonster::fn_802C4858() {
 // inferred: death (the camera follows the egg with the parameters of mode 4)
 void Em206EggMonster::fn_802C4B70() {
     m1590 = 0;
-    m590 = fn_800F8548(lbl_8087F048);
+    m590 = lbl_8087F048->fn_800F8548();
     vf48();
     fn_80178A6C();
     fn_8015495C(0, 1, 1, 1);
@@ -1435,8 +1435,6 @@ __declspec(noinline) int Em206EggMonster::fn_802C69BC() {
 extern "C" int fn_8004ED34(void* world, atn::ColliResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg); // inferred: ray test
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
-extern "C" void fn_800FDB20(BattleTask* mgr, CharaTask* owner, CharaTask* target, int arg, HitInfo_unk* data, int id,
-                            const atn::Vector3* pos, const atn::Vector3* dir, int time, float scale);
 
 // NONMATCHING: 98.4% - stack slots of the local vectors and matrices
 // inferred: flight of the thrown egg (m14F4): it explodes after m14D8 frames, sticks to the character it
@@ -1457,7 +1455,7 @@ void Em206EggMonster::fn_802C6DF4() {
         } else {
             data = fn_80219E6C(0x579);
         }
-        fn_800FAB80(lbl_8087F048, this, data, 2000, &pos, &lbl_807C7030, 0, 30, -1, -1, 0.0f, 1.0f);
+        lbl_8087F048->fn_800FAB80(this, data, 2000, &pos, &lbl_807C7030, 0, 30, -1, -1, 0.0f, 1.0f);
         fn_800C31F4("SE_EM206_035", 1.0f, 0, -1);
         Field_unk* field = lbl_8087F430;
         field->mCamera.m900 %= 2;
@@ -1521,7 +1519,7 @@ void Em206EggMonster::fn_802C6DF4() {
                     data = fn_80219E6C(0x579);
                 }
                 atn::Vector3 pos = m14F4.GetTrans_unk();
-                fn_800FDB20(lbl_8087F048, this, m1524, 0, data, 10000, &pos, &m14DC, 30, 0.0f);
+                lbl_8087F048->fn_800FDB20(this, m1524, 0, data, 10000, &pos, &m14DC, 30, 0.0f);
                 if ((m1524->mStatus.m0C & 0x20) != 0x20) {
                     m1524->fn_8015E4B0(dir, 0x33);
                 }
@@ -1534,7 +1532,7 @@ void Em206EggMonster::fn_802C6DF4() {
             m14E8 = result.m10;
             atn::Vector3 rot = back.ToRotation_unk();
             rot.z = 0.0f;
-            fn_80101434(lbl_8087F048, &result.m10, &rot, 1, 2);
+            lbl_8087F048->fn_80101434(&result.m10, &rot, 1, 2);
         }
     } else {
         m14F4.fn_801479E4(to);

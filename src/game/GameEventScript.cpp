@@ -4371,10 +4371,10 @@ void GameEventScript::fn_803A3FFC(ScriptResult_unk& result, const ScriptCmd_unk*
         int full = 1;
         Inventory::instance_->AddItem(item, ScriptValue_unk(args->m0C, args->m10), 0, 1, &full, 1, 1);
         if (fn_80206B9C(args->m08) && full == 0) {
-            fn_801092C8(lbl_8087F048, 2, 0, args->m08, ScriptValue_unk(args->m0C, args->m10));
+            lbl_8087F048->fn_801092C8(2, 0, args->m08, ScriptValue_unk(args->m0C, args->m10));
             lbl_8087F490->fn_803E5E64(item, ScriptValue_unk(args->m0C, args->m10), 0);
         } else {
-            fn_801092C8(lbl_8087F048, 1, 0, item, ScriptValue_unk(args->m0C, args->m10));
+            lbl_8087F048->fn_801092C8(1, 0, item, ScriptValue_unk(args->m0C, args->m10));
             lbl_8087F490->fn_803E5E64(item, ScriptValue_unk(args->m0C, args->m10), 1);
         }
         fn_800C31F4(lbl_8074EF78[4], 0, -1, 1.0f);
@@ -4559,7 +4559,7 @@ void GameEventScript::fn_803A4A7C(ScriptResult_unk& result, const ScriptCmd_unk*
                             PSMTXMultVec(m, &front, &front);
                             atn::Vector3 pos = member->fn_801781B0() + front;
                             BattleTask* battle = lbl_8087F048;
-                            fn_800FAB80(battle, member, hit, fn_800F8548(battle), &pos, &member->mRot, 0, 30, -1, -1,
+                            battle->fn_800FAB80(member, hit, battle->fn_800F8548(), &pos, &member->mRot, 0, 30, -1, -1,
                                         0.0f, 0.5f);
                             lbl_8087F048->m3E39C = 0;
                         }
@@ -5586,9 +5586,9 @@ void GameEventScript::fn_803A8284(ScriptResult_unk& result, const ScriptCmd_unk*
         if (lbl_8087F048 != 0) {
             int diff = value - Inventory::instance_->mMoney;
             if (diff >= 0) {
-                fn_801092C8(lbl_8087F048, 3, 0, diff, 0);
+                lbl_8087F048->fn_801092C8(3, 0, diff, 0);
             } else {
-                fn_801092C8(lbl_8087F048, 4, 0, -diff, 0);
+                lbl_8087F048->fn_801092C8(4, 0, -diff, 0);
             }
             lbl_8087F490->fn_803E5E64(10004, diff, 1);
             fn_800C31F4(lbl_8074EF78[4], 0, -1, 1.0f);

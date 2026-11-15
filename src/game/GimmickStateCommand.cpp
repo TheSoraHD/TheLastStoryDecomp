@@ -14,6 +14,7 @@
 #include "std/string_members.h"
 #include "std/vector_string.h"
 #include "game/MapTask.h"
+#include "game/BattleTask.h"
 
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" int strncmp(const char* a, const char* b, unsigned long n);
@@ -85,10 +86,6 @@ struct HitInfo_unk;
 class BattleTask;
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
 extern "C" HitInfo_unk* fn_80219E6C(int id); // inferred: bullet data by id
-extern "C" int fn_800F8548(BattleTask* mgr);
-extern "C" void fn_800FAB80(BattleTask* mgr, int arg1, HitInfo_unk* bullet, int arg3, const atn::Vector3* pos,
-                            const atn::Vector3* rot, int arg6, int arg7, int arg8, int arg9, float arg10,
-                            float arg11);
 // inferred: debug menu
 extern "C" void* fn_8008937C(void* menu, const char* name);
 extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, int arg6,
@@ -392,7 +389,7 @@ void GimmickCommonB0_unk::fn_803F0764(GimmickCommon* gimmick) {
             int id = atoi(mNames[cmd->mIndex].mStr);
             BattleTask* mgr = lbl_8087F048;
             if (mgr != 0 && id > 0) {
-                fn_800FAB80(mgr, 0, fn_80219E6C(id), fn_800F8548(mgr), &pos, &gimmick->m78, 0, 30, -1, -1,
+                mgr->fn_800FAB80(0, fn_80219E6C(id), mgr->fn_800F8548(), &pos, &gimmick->m78, 0, 30, -1, -1,
                             cmd->mScale, 1.0f);
             }
             cmd->mDone = 1;

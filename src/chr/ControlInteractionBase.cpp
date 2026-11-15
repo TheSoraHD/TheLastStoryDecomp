@@ -2,6 +2,7 @@
 #include "game/GameTask.h"
 #include "game/GameVoice.h"
 #include "game/CharaTask.h"
+#include "game/BattleTask.h"
 
 extern "C" int rand();
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
@@ -12,7 +13,6 @@ extern "C" void fn_80050A1C(const atn::Vector3* pos, atn::Vector3 a, atn::Vector
 
 class BattleTask;
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
-extern "C" void fn_8010A308(BattleTask* obj, atn::Vector3* from, atn::Vector3* to, float radius);
 
 // inferred: field object (lbl_8087F430) and its counters (same calls as in gmk/AttractHatePoint.cpp)
 extern "C" void* lbl_8087F430;
@@ -203,7 +203,7 @@ int ControlDiveIntoWater::vf0C() {
     atn::Vector3 pos;
     GetBodyPos_unk(pos);
     if (mChara->mMotion.mTracks[0].m08 < 30.0f && lbl_8087F048 != 0) {
-        fn_8010A308(lbl_8087F048, &m18, &pos, mChara->m5B0);
+        lbl_8087F048->fn_8010A308(&m18, &pos, mChara->m5B0);
     }
     m18 = pos;
     return ret;

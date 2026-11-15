@@ -119,7 +119,7 @@ public:
     virtual void vf14();
     virtual void vf20();
     virtual void vf24();
-    virtual void vf3C(HitInfo_unk* hit);
+    virtual void vf3C(HitInfo_unk* hit, int);
     virtual void vf40(HitInfo_unk* hit);
     virtual void vf50();
     virtual void vf54();

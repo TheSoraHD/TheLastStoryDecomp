@@ -36,9 +36,9 @@ extern "C" int fn_80051B14(const atn::ColliSphereShape_unk* s, const atn::ColliC
 extern "C" int strncmp(const char* a, const char* b, unsigned long n);
 extern "C" std::string fn_8006AFF8(const std::string& a, const std::string& b); // inferred: a + b
 
-// NONMATCHING: the original is over the inlining budget (docs/inlining.md R3) and calls every inline
-// (LH_Binary, Vector3, LH_Xsca and ResHandle constructors, the strings, the tokenizer); this one stays under it
-// and inlines them (same problem as the constructor of LastCocoonChrysalis, docs/close-one-func.md)
+// The original is over the inlining budget (docs/inlining.md R3) and calls every inline (LH_Binary, Vector3,
+// LH_Xsca and ResHandle constructors, the strings, the tokenizer): the locals of the token loop carry the cost
+// (a local in a nested block costs budget; with one of them less it stays under and inlines everything)
 LastCocoonImago::LastCocoonImago(atn::Task* parent, EnemyInfo_unk* info)
     : EnemyTask(parent, info->m20), m14B8(0), m14BC(0), m14C0(0), m14C4(0), m14D0(5), m18C8(1), m18CC(1),
       m18D0(0), m18EC(0), m18F0(0), m1960(0), m1978(0), m197C(0), m1984(0), m1988(40.0f) {
@@ -49,8 +49,11 @@ LastCocoonImago::LastCocoonImago(atn::Task* parent, EnemyInfo_unk* info)
     typedef boost::tokenizer<boost::char_separator<char> > Tokenizer;
     Tokenizer tok(params, boost::char_separator<char>(";"));
     for (Tokenizer::iterator it = tok.begin(); it != tok.end(); ++it) {
-        if (strncmp(it->c_str(), "db_name=", 8) == 0) {
-            name = it->c_str() + 8;
+        const char* key = it->c_str();
+        int cmp = strncmp(key, "db_name=", 8);
+        if (cmp == 0) {
+            const char* value = it->c_str();
+            name = value + 8;
         }
     }
     std::string path = fn_8006AFF8(dir, name);
@@ -141,7 +144,7 @@ extern "C" double cos(double x);
 inline void LastCocoonImago::PlayMode_unk(int mode, int motion) {
     m14BC = 0;
     m14C0 = 0;
-    m590 = fn_800F8548(lbl_8087F048);
+    m590 = lbl_8087F048->fn_800F8548();
     m58C = mode;
     fn_8016E970(3);
     mMotion.m34C = 1;
@@ -179,7 +182,7 @@ inline void LastCocoonImago::Charge_unk() {
 inline void LastCocoonImago::EndMode_unk() {
     m14BC = 0;
     m14C0 = 0;
-    m590 = fn_800F8548(lbl_8087F048);
+    m590 = lbl_8087F048->fn_800F8548();
     m58C = 0;
     fn_8016E970(3);
 }
@@ -284,7 +287,7 @@ void LastCocoonImago::vf10() {
                     atn::Vector3 dir = hips - hand;
                     dir.Normalize_unk();
                     BattleTask* mgr = lbl_8087F048;
-                    fn_800F8574(mgr, this, fn_80219E6C(0x5B7), &hand, &dir, 0, 0x24, 0, 0.0f, 1.0f);
+                    mgr->fn_800F8574(this, fn_80219E6C(0x5B7), &hand, &dir, 0, 0x24, 0, 0.0f, 1.0f);
                 }
             } else {
                 if (mMotion.mTracks[0].m08 >= mMotion.fn_80097D7C(0)) {
@@ -377,7 +380,7 @@ void LastCocoonImago::vf10() {
     }
 }
 
-void LastCocoonImago::vf3C(HitInfo_unk* hit) {
+void LastCocoonImago::vf3C(HitInfo_unk* hit, int) {
     HitMsg_unk* msg = (HitMsg_unk*)hit;
     if (m58C == 12 && msg->mData->m04 != 0x5BC) {
         return;
@@ -394,7 +397,7 @@ void LastCocoonImago::vf3C(HitInfo_unk* hit) {
                 gm.mType = 3;
                 m14BC = 0;
                 m14C0 = 0;
-                m590 = fn_800F8548(lbl_8087F048);
+                m590 = lbl_8087F048->fn_800F8548();
                 m58C = 14;
                 fn_8016E970(3);
                 mMotion.m34C = 1;
@@ -442,27 +445,24 @@ extern "C" inline float fn_8029F3AC(CharaStatus* status) {
     return 0.0f;
 }
 // inferred: starts a knockback mode (7 or 8) pushed along `dir` (name invented)
-inline void LastCocoonImago::Knockback_unk(const atn::Vector3& dir, int mode, int motion) {
-    atn::Vector3 v = dir;
+inline void LastCocoonImago::Knockback_unk(atn::Vector3 dir, int mode, int motion) {
     m14BC = 0;
     m14C0 = 0;
-    m590 = fn_800F8548(lbl_8087F048);
+    m590 = lbl_8087F048->fn_800F8548();
     m58C = mode;
     fn_8016E970(3);
     mMotion.m34C = 1;
     mMotion.mTracks[0].m20 = 1.0f;
     mMotion.mTracks[0].m0C = 1.0f;
     mMotion.fn_80097C08(0, motion, 0, 1, 1, 0.0f, 0.025f);
-    atn::Vector3 n = v;
+    atn::Vector3 n = dir;
     n.Normalize_unk();
-    atn::Vector3 push = n;
+    atn::Vector3 push = dir;
     push.y *= 0.3f;
     SetM6B8_unk(push);
-    atn::Vector3 back(-n.x, -n.y, -n.z);
-    m14E0 = back.ToRotation_unk();
+    m14E0 = atn::Vector3(-n.x, -n.y, -n.z).ToRotation_unk();
 }
 
-// NONMATCHING: 97% - stack slots of the two knockbacks (the inline keeps the mode in a register)
 // inferred: hit reaction: the attack 0x1791 pushes it (towards the place m18F4 while m18EC is set), the
 // hits of part 1 with a power of 3 or more knock it back; asks for help at 70 % of the hit points
 void LastCocoonImago::vf40(HitInfo_unk* hit) {
@@ -496,7 +496,8 @@ void LastCocoonImago::vf40(HitInfo_unk* hit) {
         }
     } else if (*(int*)&msg->m3C[4] == 1) {
         if (msg->mData->m3C >= 3 && m58C != 7) {
-            atn::Vector3 dir(msg->m28.x * 5.0f, 0.0f, msg->m28.z * 5.0f);
+            atn::Vector3 dir = msg->m28 * 5.0f;
+            dir.y = 0.0f;
             if (m18EC != 0) {
                 dir *= 0.1f;
             }
@@ -570,7 +571,7 @@ inline void LastCocoonImago::ResetAttacks_unk() {
 inline void LastCocoonImago::SetMode_unk(int mode) {
     m14BC = 0;
     m14C0 = 0;
-    m590 = fn_800F8548(lbl_8087F048);
+    m590 = lbl_8087F048->fn_800F8548();
     vf48();
     fn_80178A6C();
     fn_8015495C(0, 1, 1, 1);
@@ -620,7 +621,11 @@ void LastCocoonImago::vf50() {
     m624.push_back(item);
 }
 
-// NONMATCHING: 98.5% - stack slots of the temporaries of the two branches (and the load order of the nodes)
+// inferred: a + (b - a) * t (name invented)
+inline atn::Vector3 ImagoLerp_unk(const atn::Vector3& a, const atn::Vector3& b, float t) {
+    return (b - a) * t + a;
+}
+// NONMATCHING: 99.2% - stack slot of the forward vector of the first branch and the load order of the nodes
 void LastCocoonImago::vf54() {
     if (m624.mSize != 0) {
         for (int i = 0; i < 3; i++) {
@@ -641,7 +646,7 @@ void LastCocoonImago::vf54() {
                     if (b != 0) {
                         atn::Vector3 pb = ((atn::Matrix3x4*)b)->GetTrans_unk();
                         atn::Vector3 pa = ((atn::Matrix3x4*)a)->GetTrans_unk();
-                        m624.mData[i].m04.mCenter = pa + (pb - pa) * 0.6f;
+                        m624.mData[i].m04.mCenter = ImagoLerp_unk(pa, pb, 0.6f);
                     } else {
                         m624.mData[i].m04.mCenter = ((atn::Matrix3x4*)a)->GetTrans_unk();
                     }
@@ -786,7 +791,7 @@ void LastCocoonImago::vf20() {
 
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
-// NONMATCHING: 97% - the dead store of toPlace.y and registers
+// NONMATCHING: 99.9% - stack slots of the locals of the ToRotation_unk expansions (0xC lower than the original)
 // inferred: walk of the mode 7: towards the place m18F4 while the leader is the target and the place is
 // nearer (and ahead), otherwise towards the target; stops near it
 void LastCocoonImago::fn_8045B82C() {
@@ -800,7 +805,7 @@ void LastCocoonImago::fn_8045B82C() {
     if (m55C == 7) {
         int done = 0;
         if (m18EC != 0 && m14B8 == lbl_8087F8A0->mHead) {
-            atn::Vector3 toPlace = m18F4->mPos - mPos;
+            atn::Vector3 toPlace(m18F4->mPos.x - mPos.x, m18F4->mPos.y - mPos.y, m18F4->mPos.z - mPos.z);
             atn::Vector3 toTarget(m14B8->mPos.x - mPos.x, 0.0f, m14B8->mPos.z - mPos.z);
             toPlace.y = 0.0f;
             if (toPlace.LengthSq_unk() < toTarget.LengthSq_unk()) {
@@ -820,7 +825,8 @@ void LastCocoonImago::fn_8045B82C() {
             }
         }
         if (done == 0) {
-            atn::Vector3 dir = m14B8->mPos - mPos;
+            atn::Vector3 dir;
+            dir = m14B8->mPos - mPos;
             dir.Normalize_unk();
             atn::Vector3 d = m14B8->mPos - mPos;
             move = d.Length_unk() < 60.0f ? 0.0f : 1.0f;
@@ -906,7 +912,7 @@ void LastCocoonImago::fn_8045BFFC() {
 void LastCocoonImago::vf80(const atn::Vector3& pos, const atn::Vector3& dir) {
     m14BC = 0;
     m14C0 = 0;
-    m590 = fn_800F8548(lbl_8087F048);
+    m590 = lbl_8087F048->fn_800F8548();
     m58C = 6;
     fn_8016E970(3);
     mMotion.m34C = 1;
@@ -1170,7 +1176,7 @@ void LastCocoonImago::fn_8045D3A4() {
         ((GameTask*)lbl_8087F430)->mCamera.fn_80392D2C(&camera, 0.033333335f);
         m14BC = 0;
         m14C0 = 0;
-        m590 = fn_800F8548(lbl_8087F048);
+        m590 = lbl_8087F048->fn_800F8548();
         m58C = 14;
         fn_8016E970(3);
         mMotion.m34C = 1;
@@ -1204,14 +1210,14 @@ struct ImagoUIHint_unk : public GameUIElem1C_unk {
     }
 };
 
-// NONMATCHING: 97% - stack slots and scheduling of the temporaries of the first lerp of the gimmick position
+// NONMATCHING: 99.7% - stack slots of the bullet direction (below the temporaries of the lerp in the original)
 // inferred: mode 11: carries the gimmick m18F8 (its position follows the imago at the height m1948.y),
 // shoots the skill 0x5BD from frame 85 and then waits for the player to thrust (chr::ControlThrustForCocoon)
 void LastCocoonImago::fn_8045DF34() {
     if (m14BC == 0) {
         if (mMotion.mTracks[0].m08 < 60.0f) {
             atn::Vector3 pos = m18F8->m6C;
-            pos = (mPos - pos) * 0.05f + pos;
+            pos = ImagoLerp_unk(pos, mPos, 0.05f);
             pos.y = m1948.y;
             m18F8->m6C = pos;
             m1948 = pos;
@@ -1238,7 +1244,7 @@ void LastCocoonImago::fn_8045DF34() {
                 atn::Vector3 at = mPos + dir;
                 CharaTask* player = lbl_8087F8A0->mHead;
                 BattleTask* mgr = lbl_8087F048;
-                fn_800FAB80(mgr, player, bullet, fn_800F8548(mgr), &at, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
+                mgr->fn_800FAB80(player, bullet, mgr->fn_800F8548(), &at, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
             }
         }
     } else if (m14BC == 1) {
@@ -1321,7 +1327,7 @@ void LastCocoonImago::fn_8045E548() {
             atn::Vector3 pos = dir;
             m14BC = 0;
             m14C0 = 0;
-            m590 = fn_800F8548(lbl_8087F048);
+            m590 = lbl_8087F048->fn_800F8548();
             m58C = 10;
             fn_8016E970(3);
             mMotion.m34C = 1;
@@ -1344,7 +1350,7 @@ void LastCocoonImago::fn_8045E780() {
     if (end >= mMotion.fn_80097D7C(0)) {
         m14BC = 0;
         m14C0 = 0;
-        m590 = fn_800F8548(lbl_8087F048);
+        m590 = lbl_8087F048->fn_800F8548();
         m58C = 0;
         fn_8016E970(3);
     }

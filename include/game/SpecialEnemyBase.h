@@ -34,7 +34,7 @@ public:
             CharaTask::vf24();
         }
     }
-    virtual void vf3C(HitInfo_unk* hit); // 0x805A4014
+    virtual void vf3C(HitInfo_unk* hit, int); // 0x805A4014
     virtual void vf40(HitInfo_unk* hit); // 0x804F2C40
     virtual int vfF8();                  // 0x805A3F58: inferred: nonzero while a target is in range
     virtual void vfFC() = 0;             // inferred: start

@@ -334,7 +334,7 @@ inline void Em003LesserDaemon::StartWarp_unk() {
     m58C = 6;
     fn_8016E970(3);
     m14B8 = 0;
-    m590 = fn_800F8548(lbl_8087F048);
+    m590 = lbl_8087F048->fn_800F8548();
     mMotion.m34C = 1;
     mMotion.mTracks[0].m20 = 1.0f;
     mMotion.mTracks[0].m0C = 1.0f;
@@ -377,7 +377,7 @@ inline void Em003LesserDaemon::StartAttack_unk() {
     m58C = 1;
     fn_8016E970(3);
     m14B8 = 0;
-    m590 = fn_800F8548(lbl_8087F048);
+    m590 = lbl_8087F048->fn_800F8548();
     mMotion.m34C = 1;
     mMotion.mTracks[0].m20 = 1.0f;
     mMotion.mTracks[0].m0C = 1.0f;
@@ -670,7 +670,7 @@ void Em003LesserDaemon::vf14() {
     fn_80149A30();
 }
 
-void Em003LesserDaemon::vf3C(HitInfo_unk* hit) {
+void Em003LesserDaemon::vf3C(HitInfo_unk* hit, int) {
     HitMsg_unk* msg = (HitMsg_unk*)hit;
     if (m58C == 12) {
         return;
@@ -1051,7 +1051,7 @@ void Em003LesserDaemon::fn_8024E1C0() {
         m58C = 1;
         fn_8016E970(3);
         m14B8 = 0;
-        m590 = fn_800F8548(lbl_8087F048);
+        m590 = lbl_8087F048->fn_800F8548();
         mMotion.m34C = 1;
         mMotion.mTracks[0].m20 = 1.0f;
         mMotion.mTracks[0].m0C = 1.0f;
@@ -1221,7 +1221,7 @@ void Em003LesserDaemon::fn_8024ED68() {
                     param.mTarget = control->m14;
                     param.mDelay = rand() % 3 + 2;
                     param.mTurn = 0.18849556f;
-                    fn_800F8574(lbl_8087F048, this, hit, &pos, &dir, &param, 0, 0, 0.0f, 1.0f);
+                    lbl_8087F048->fn_800F8574(this, hit, &pos, &dir, &param, 0, 0, 0.0f, 1.0f);
                 }
                 fn_800C344C("SE_EM003_003", &pos, 0, -1, 1.0f);
             } else {
@@ -1297,7 +1297,7 @@ void Em003LesserDaemon::fn_8024F1DC() {
                 Mtx rm;
                 PSMTXRotRad(rm, 'y', 0.7853982f * (((float)i - 0.5f * (float)n) / (0.5f * (float)n)));
                 PSMTXMultVec(rm, &d, &d);
-                fn_800F8574(lbl_8087F048, this, m14D4, &hand, &d, 0, 0, 0, 0.0f, 1.0f);
+                lbl_8087F048->fn_800F8574(this, m14D4, &hand, &d, 0, 0, 0, 0.0f, 1.0f);
             }
             m14B8 = 1;
         }
@@ -1445,10 +1445,10 @@ void Em003LesserDaemon::fn_8024FE18(int arg) {
     fn_8016DA4C();
     fn_80239DAC(lbl_8087F3C0, &m1504, 0, 0);
     if (arg != 0) {
-        m590 = fn_800F8548(lbl_8087F048);
+        m590 = lbl_8087F048->fn_800F8548();
         atn::Vector3 pos = mPos;
         pos.y += 10.0f;
-        fn_800FAB80(lbl_8087F048, this, m14D8, m590, &pos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
+        lbl_8087F048->fn_800FAB80(this, m14D8, m590, &pos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
     } else {
         fn_80232B7C(0, 0);
         Color4f_unk color;
@@ -1577,7 +1577,7 @@ void Em003LesserDaemon::fn_802506AC() {
     m58C = 6;
     fn_8016E970(3);
     m14B8 = 0;
-    m590 = fn_800F8548(lbl_8087F048);
+    m590 = lbl_8087F048->fn_800F8548();
     mMotion.m34C = 1;
     mMotion.mTracks[0].m20 = 1.0f;
     mMotion.mTracks[0].m0C = 1.0f;

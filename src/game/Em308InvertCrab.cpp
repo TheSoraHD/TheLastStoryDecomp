@@ -256,7 +256,7 @@ inline float Gravity_unk(CrabSettings_unk* s) {
 inline void Em308InvertCrab::ResetAttack_unk() {
     m1590 = 0;
     m15A0 = m14EC != 0 ? m14EC->m68 : 90;
-    m590 = fn_800F8548(lbl_8087F048);
+    m590 = lbl_8087F048->fn_800F8548();
 }
 
 // inferred: state machine of the crab
@@ -315,7 +315,7 @@ void Em308InvertCrab::vf10() {
                     mColli.mFlags |= 1;
                     m1590 = 0;
                     m15A0 = m14EC != 0 ? m14EC->m68 : 90;
-                    m590 = fn_800F8548(lbl_8087F048);
+                    m590 = lbl_8087F048->fn_800F8548();
                     m58C = 6;
                     fn_8016E970(3);
                 } else {
@@ -492,7 +492,7 @@ int Em308InvertCrab::fn_802F2C50() {
 // NONMATCHING: 98.80% - r5/r6 of the down test and of the direction temporaries, stack slots of the two
 // vectors (~10 forms)
 // inferred: the crab only takes knockback while it is down or from behind (guard angle m152C)
-void Em308InvertCrab::vf3C(HitInfo_unk* hit) {
+void Em308InvertCrab::vf3C(HitInfo_unk* hit, int) {
     HitMsg_unk* msg = (HitMsg_unk*)hit;
     if (msg->mData->m04 != 0xD1 && m58C - 14U <= 4) {
         msg->m68 = 0;
@@ -542,7 +542,7 @@ void Em308InvertCrab::vf40(HitInfo_unk* hit) {
         m58C = 6;
         m1590 = 0;
         m15A0 = m14EC != 0 ? m14EC->m68 : 90;
-        m590 = fn_800F8548(lbl_8087F048);
+        m590 = lbl_8087F048->fn_800F8548();
         fn_800CB5C8(&m1514, 15, 0);
     }
     if ((mStatus.m0C & 0x20) == 0x20) {
@@ -551,7 +551,7 @@ void Em308InvertCrab::vf40(HitInfo_unk* hit) {
             mStatus.m04 = 1.0f;
             m1590 = 0;
             m15A0 = m14EC != 0 ? m14EC->m68 : 90;
-            m590 = fn_800F8548(lbl_8087F048);
+            m590 = lbl_8087F048->fn_800F8548();
             m58C = 14;
             m54C |= 0x2000;
             mMotion.fn_80097CCC(0, 0.0f);
@@ -564,7 +564,7 @@ void Em308InvertCrab::vf40(HitInfo_unk* hit) {
             mStatus.m04 = 1.0f;
             m1590 = 0;
             m15A0 = m14EC != 0 ? m14EC->m68 : 90;
-            m590 = fn_800F8548(lbl_8087F048);
+            m590 = lbl_8087F048->fn_800F8548();
             m58C = 17;
             m54C &= ~0x2000;
             mMotion.fn_80097CCC(0, 0.0f);
@@ -586,7 +586,7 @@ void Em308InvertCrab::vf40(HitInfo_unk* hit) {
 void Em308InvertCrab::vf80(const atn::Vector3& pos, const atn::Vector3& offset) {
     m1590 = 0;
     m15A0 = m14EC != 0 ? m14EC->m68 : 90;
-    m590 = fn_800F8548(lbl_8087F048);
+    m590 = lbl_8087F048->fn_800F8548();
     m58C = 13;
     mMotion.fn_80097CCC(0, 0.0f);
     mMotion.m34C = 1;
@@ -771,7 +771,7 @@ void Em308InvertCrab::fn_802F3BE8() {
             atn::Vector3 dir(0.0f, 0.0f, 1.0f);
             PSMTXMultVec(m.m, &dir, &dir);
             if (m14EC != 0) {
-                fn_800F8574(lbl_8087F048, this, m14EC, &pos, &dir, 0, 0, 0, 0.0f, 1.0f);
+                lbl_8087F048->fn_800F8574(this, m14EC, &pos, &dir, 0, 0, 0, 0.0f, 1.0f);
             }
         }
         break;
@@ -991,7 +991,7 @@ void Em308InvertCrab::fn_802F566C() {
         mPos.y += sphere.mRadius;
         m1590 = 0;
         m15A0 = m14EC != 0 ? m14EC->m68 : 90;
-        m590 = fn_800F8548(lbl_8087F048);
+        m590 = lbl_8087F048->fn_800F8548();
         m58C = 16;
         mMotion.fn_80097CCC(0, 0.0f);
         mMotion.m34C = 1;
@@ -1049,7 +1049,7 @@ void Em308InvertCrab::vfEC() {
         mStatus.m04 = 1.0f;
         m1590 = 0;
         m15A0 = m14EC != 0 ? m14EC->m68 : 90;
-        m590 = fn_800F8548(lbl_8087F048);
+        m590 = lbl_8087F048->fn_800F8548();
         m58C = 14;
         m54C |= 0x2000;
         mMotion.fn_80097CCC(0, 0.0f);
@@ -1075,7 +1075,7 @@ void Em308InvertCrab::fn_802F5BCC(CharaTask* target) {
         m58C = 7;
         fn_8016E970(6);
         m560 = 4;
-        m590 = fn_800F8548(lbl_8087F048);
+        m590 = lbl_8087F048->fn_800F8548();
         atn::Vector3 tpos = target->mPos;
         atn::Vector3 dir = atn::Vector3(tpos - mPos);
         PSVECNormalize(&dir, &dir);
@@ -1164,7 +1164,7 @@ void Em308InvertCrab::fn_802F66CC() {
     fn_800CB5C8(&m1514, 0, 0);
     m1590 = 0;
     m15A0 = m14EC != 0 ? m14EC->m68 : 90;
-    m590 = fn_800F8548(lbl_8087F048);
+    m590 = lbl_8087F048->fn_800F8548();
     vf48();
     fn_80178A6C();
     fn_8015495C(0, 1, 1, 1);

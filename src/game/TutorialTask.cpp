@@ -16,6 +16,7 @@
 #include "atn/RenderManager.h"
 #include "atn/RenderSetting_unk.h"
 #include "game/HomeButtonMenu.h"
+#include "atn/Lerp_unk.h"
 
 extern "C" int sprintf(char* s, const char* format, ...);
 extern "C" int strcmp(const char* a, const char* b);
@@ -288,7 +289,7 @@ void TutorialTask::vf10() {
             float rate = 1.0f < m84 / 15.0f ? 1.0f : m84 / 15.0f;
             atn::Vector3 pos(page->mPos);
             atn::Vector3 target(page->mTarget);
-            atn::Vector3 base = atn::Lerp_unk(mPos, mPos2, 1.0f < 1.5f * rate ? 1.0f : 1.5f * rate);
+            atn::Vector3 base = atn::Lerp_unk<atn::Vector3>(mPos, mPos2, 1.0f < 1.5f * rate ? 1.0f : 1.5f * rate);
             atn::Quaternion_unk q0 = YawQuat_unk(mRot.y);
             atn::Quaternion_unk q1 = YawQuat_unk(mRot2.y);
             atn::Quaternion_unk q = Slerp_unk(q0, q1, 1.0f < 1.5f * rate ? 1.0f : 1.5f * rate);
@@ -307,7 +308,7 @@ void TutorialTask::vf10() {
             lenA = camDir.Length_unk();
             atn::Vector3 back(0.0f, 0.0f, fn_800F8524(&lenA, &lenB, rate));
             back.fn_80011410(atn::Matrix3x4::fn_80147A08(qd));
-            target = atn::Lerp_unk(*mCamera.GetTarget_unk(), base + target, rate);
+            target = atn::Lerp_unk<atn::Vector3>(*mCamera.GetTarget_unk(), base + target, rate);
             pos = target - back;
             float fovy = mCamera.GetFovy_unk();
             float f = fn_800F8524(&fovy, &page->mFovy, rate);
