@@ -67,7 +67,7 @@ struct Field_unk {
 };
 extern "C" Field_unk* lbl_8087F430;
 extern "C" int fn_8004D388(void* colli, atn::ColliResult_unk* result, const atn::Vector3* pos, const atn::Vector3* move,
-                           unsigned int mask, void* ignore, int arg7); // inferred: sweep test
+                           unsigned int mask, void* ignore, int arg7, float); // inferred: sweep test (last: radius)
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
 extern "C" void PSMTXRotAxisRad(Mtx m, const atn::Vector3* axis, float rad);
@@ -468,7 +468,7 @@ void ControlChargeAttackBase::fn_801A4E08(Chara_unk* chara, const atn::Vector3& 
     }
     a = target;
     a.y += chara->m620;
-    if (fn_8004D388(lbl_8087EE98, &res, &a, &lbl_807C7030, mask, 0, 0) != 0) {
+    if (fn_8004D388(lbl_8087EE98, &res, &a, &lbl_807C7030, mask, 0, 0, chara->m620) != 0) {
         target.x = res.m10.x;
         target.z = res.m10.z;
         target.y = MAX(target.y, res.m10.y - chara->m620);

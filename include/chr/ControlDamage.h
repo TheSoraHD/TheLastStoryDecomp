@@ -92,7 +92,7 @@ class ControlFallDead : public ControlBase {
 public:
     ControlFallDead(Chara_unk* chara, const atn::Vector3& rot); // 0x801AF264 (0x28 bytes)
     virtual int vf0C();
-    bool fn_801AF81C(); // inferred: can be cancelled (control id 0x3B)
+    bool fn_801AF81C() const; // inferred: can be cancelled (control id 0x3B)
 
     int m08;          // inferred: step (0 falling, 1 landing, 2 dying)
     int m0C;          // inferred: frames of the landing step

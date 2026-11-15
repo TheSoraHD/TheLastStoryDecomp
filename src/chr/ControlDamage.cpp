@@ -503,8 +503,6 @@ int ControlRevival::vf0C() {
     return done;
 }
 
-// NONMATCHING: 99.82% - the original loads mChara before saving r31 (as in ControlCdnPiyo::vf10)
-// and mChara of the second bind after its ptmf.
 boost::function<void()> ControlRevival::vf10() const {
     CharaTask* chara = mChara;
     if (chara->mType != 0 && chara->m564 != 7) {
@@ -642,8 +640,7 @@ int ControlFallDead::vf0C() {
     return 0;
 }
 
-// NONMATCHING: 68.1% - the original schedules the loads of m08 and mChara into the prologue.
-bool ControlFallDead::fn_801AF81C() {
+bool ControlFallDead::fn_801AF81C() const {
     int state = m08;
     Motion_unk* model = &mChara->mMotion;
     bool result = false;

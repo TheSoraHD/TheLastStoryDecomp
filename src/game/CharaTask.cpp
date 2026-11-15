@@ -6369,12 +6369,12 @@ void CharaTask::fn_8014F698(int a, int b, int notify) {
     }
 }
 
-// NONMATCHING: the original loads mEnabled before saving the arguments (4 instructions moved).
-void CharaListeners_unk::fn_8014F860(int id, CharaTask* chara, void* arg) {
+// inferred: const (the original loads mEnabled before saving the arguments)
+void CharaListeners_unk::fn_8014F860(int id, CharaTask* chara, void* arg) const {
     int i;
     if (mEnabled != 0) {
         for (i = 0; i < (int)mList.size(); i++) {
-            CharaListener_unk& listener = mList[i];
+            const CharaListener_unk& listener = mList[i];
             if (listener.mId == -1 || id == listener.mId) {
                 listener.mFunc(id, chara, arg);
             }
@@ -10714,12 +10714,12 @@ void CharaTask::vf9C(int arg) {
     }
 }
 
-// NONMATCHING: same instructions, different scheduling/registers (the original converts b first and
-// builds the word in r4); tried ternaries and shifts in every order, | and +, bool locals, a bit field
-// struct, an inline helper with bool parameters, unsigned parameters.
 // inferred: flags of the motion command nodes (tested by fn_80145334)
 void CharaTask::fn_80176DFC(int a, int b, int c) {
-    m1254 = (a != 0) | (b != 0 ? 2 : 0) | (c != 0 ? 4 : 0);
+    m1254 = 0;
+    m1254 |= a ? 1 : 0;
+    m1254 |= b ? 2 : 0;
+    m1254 |= c ? 4 : 0;
 }
 
 // inferred: quicksort used by fn_80176E30 (the comparison only sees the keys m00). The two

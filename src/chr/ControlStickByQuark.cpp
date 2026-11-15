@@ -1317,12 +1317,12 @@ int ControlThrownAvoid::vf0C() {
     return 0;
 }
 
-// NONMATCHING: 93.7% - scheduling of the constants and of mChara
 // inferred: point below the feet, turned with the character
 atn::Vector3 ControlThrownAvoid::vf14() const {
     atn::Vector3 v(0.0f, -5.0f, 0.5f);
     Mtx m;
-    PSMTXRotRad(m, 'y', mChara->mRot.y);
+    float a = mChara->mRot.y;
+    PSMTXRotRad(m, 'y', a);
     PSMTXMultVec(m, &v, &v);
     v += mChara->mPos;
     return v;
@@ -1800,9 +1800,9 @@ int ControlCliffhangZanGurg::vf0C() {
     return 0;
 }
 
-// NONMATCHING: 75.3% - the original loads mChara before saving r31 (as StickByQuark::vf10)
 atn::Vector3 ControlCliffhangZanGurg::vf14() const {
-    atn::Vector3 pos = ((atn::Matrix3x4*)mChara->mMotion.GetNodeMtx_unk("hips"))->GetTrans_unk();
+    const Motion_unk& m = mChara->mMotion;
+    atn::Vector3 pos = ((atn::Matrix3x4*)m.GetNodeMtx_unk("hips"))->GetTrans_unk();
     pos.y -= 15.0f;
     return pos;
 }
@@ -1839,10 +1839,12 @@ int ControlEndCliffhangZanGurg::vf0C() {
     return 0;
 }
 
-// NONMATCHING: 86.5% - the original loads mChara before saving r31; node pointer in r4
+// NONMATCHING: 99.3% - node pointer in r4 and the temporary of LerpTo_unk in r3 (swapped); tried a
+// node local, VecAssign_unk, a named result, t local, const chara for mPos
 atn::Vector3 ControlEndCliffhangZanGurg::vf14() const {
+    const CharaTask* chara = mChara; // inferred: read through a const pointer (frame loaded before the prologue)
     Motion_unk* m = &mChara->mMotion;
-    float frame = Frame_unk(m);
+    float frame = chara->mMotion.mTracks[0].m08;
     float end = m->fn_80097D7C(0);
     atn::Vector3 pos = ((atn::Matrix3x4*)m->GetNodeMtx_unk("hips"))->GetTrans_unk();
     pos.y -= 15.0f;
@@ -1894,9 +1896,9 @@ int ControlStickZanGurgStand::vf0C() {
     return frame >= m->fn_80097D7C(0);
 }
 
-// NONMATCHING: 75.3% - the original loads mChara before saving r31 (as StickByQuark::vf10)
 atn::Vector3 ControlStickZanGurgStand::vf14() const {
-    atn::Vector3 pos = ((atn::Matrix3x4*)mChara->mMotion.GetNodeMtx_unk("hips"))->GetTrans_unk();
+    const Motion_unk& m = mChara->mMotion;
+    atn::Vector3 pos = ((atn::Matrix3x4*)m.GetNodeMtx_unk("hips"))->GetTrans_unk();
     pos.y -= 15.0f;
     return pos;
 }
@@ -1945,9 +1947,9 @@ int ControlStickZanGurgCliff::vf0C() {
     return Frame_unk(m) >= m->fn_80097D7C(0);
 }
 
-// NONMATCHING: 75.3% - the original loads mChara before saving r31 (as StickByQuark::vf10)
 atn::Vector3 ControlStickZanGurgCliff::vf14() const {
-    atn::Vector3 pos = ((atn::Matrix3x4*)mChara->mMotion.GetNodeMtx_unk("hips"))->GetTrans_unk();
+    const Motion_unk& m = mChara->mMotion;
+    atn::Vector3 pos = ((atn::Matrix3x4*)m.GetNodeMtx_unk("hips"))->GetTrans_unk();
     pos.y -= 15.0f;
     return pos;
 }
