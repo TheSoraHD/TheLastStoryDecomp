@@ -2299,36 +2299,6 @@ static void fn_80658300(WPADChannel chan, WPADResult result)
     kp->unk_0x677 = 0;
 }
 
-// Body from the public SDK (2009-12-11 decomp, robojumper/sdk_2009-12-11), without the asserts.
-// inferred: the linker drops it (not in the .dol), but its 0.005f and 0.01f put those two constants in .sdata2
-// ahead of the {1, 1, 1} of KPADiSamplingCallback, as in the original (0x80888920); 0.02f and 0.04f are dropped
-// with it because nothing else uses them.
-void KMPLSGetZeroDriftParam(KPADChannel chan, f32* radius, s32* count, f32* power);
-
-void KPADGetMplsZeroDriftMode(KPADChannel chan, s32* mode)
-{
-    f32 radius;
-    s32 count;
-    f32 power;
-    if (mode == NULL)
-    {
-        return;
-    }
-    KMPLSGetZeroDriftParam(chan, &radius, &count, &power);
-    if (radius == 0.005f && power == 0.01f)
-    {
-        *mode = 2; // KPAD_MPLS_ZERO_DRIFT_TIGHT
-    }
-    else if (radius == 0.02f && power == 0.04f)
-    {
-        *mode = 0; // KPAD_MPLS_ZERO_DRIFT_LOOSE
-    }
-    else
-    {
-        *mode = 1; // KPAD_MPLS_ZERO_DRIFT_STANDARD
-    }
-}
-
 static void KPADiSamplingCallback(s32 chan)
 {
     KPADInsideStatus* kp = &inside_kpads[chan];
