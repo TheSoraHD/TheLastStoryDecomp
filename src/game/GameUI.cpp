@@ -3978,19 +3978,25 @@ void GameUI::fn_803DBD44() {
     }
 }
 
+// inferred: the view is changing mode (state 2); name invented
+static inline bool TacBusy_unk(const TacView* t) {
+    return t->m48.mState == 2;
+}
+
 // inferred: ring drawn under a character (textures mE34 and mE64); it spins while the tactical view points
 // at the character, and `fade` goes up or down by one each frame (0..8) and widens it
-// NONMATCHING: 98.7% - the original loads TacView::m48 once and compares it with 2 and then with 0 (MWCC
-// folds the two compares or reloads the member); register numbers follow
+// inferred: the state of the view is tested through two const inlines (busy, then idle): one load and two
+// compares, as in the original (written directly MWCC folds them; with one inline it reloads)
 void GameUI::fn_803DCA84(CharaTask* chara, float* fade) {
-    bool selected = false;
     atn::Vector3 pos = ((atn::Matrix3x4*)chara->mMotion.mMtx.m)->GetTrans_unk();
     atn::Vector3 rot(-1.5707964f, 0.0f, 0.0f);
-    float size = 3.5f * (2.0f * chara->m5B0);
+    float radius = chara->m5B0;
+    float size = 3.5f * (2.0f * radius);
     pos.y += 6.0f;
     int kind = chara->m5C->m122;
+    bool selected = false;
     TacView* tac = lbl_8087F9F8;
-    if (tac != 0 && tac->mA70 != 0 && tac->m48.mState != 2 && tac->IsIdle_unk() && tac->m48.m04 == chara &&
+    if (tac != 0 && tac->mA70 != 0 && !TacBusy_unk(tac) && tac->IsIdle_unk() && tac->m48.m04 == chara &&
         tac->mAim.mMode == 0) {
         selected = true;
     }
