@@ -2369,9 +2369,16 @@ void GameTask::fn_8036CA60(int warp) {
     }
 }
 
+// inferred: stores the depth of field through a reference (the reload of lbl_8087EFA8 in fn_8036CC90); name
+// invented
+inline void SetDof_unk(RenderSetting_unk* r, const DofParam_unk& d) {
+    r->mDof = d;
+}
+
 // inferred: update of the field in state 0 (camera, leader input, depth of field, skip of the tutorial)
-// NONMATCHING: 98.7% - the original reloads lbl_8087EFA8 before storing the depth of field and keeps the camera
-// distance in f4
+// NONMATCHING: 99.97% - the first store of the depth of field still goes through the old copy of lbl_8087EFA8
+// (r8) instead of the reloaded one (r3); tried a value or non-const parameter, a local pointer, a reference
+// local, the setter in both branches (same helper in fn_80371334 drops it 98.9 -> 98.3)
 void GameTask::fn_8036CC90() {
     PlayerTask* leader = lbl_8087F8A0->mHead;
     mCamera.fn_8038F52C(leader);
@@ -2385,11 +2392,12 @@ void GameTask::fn_8036CC90() {
         lbl_8087EFA8->mDof = dof;
     } else if (GetCurrentMap() != 0) {
         dof.mNearEnd = GetCurrentMap()->mF0;
-        if (mCamera.mCamera.mDist < 25.0f) {
-            float t = mCamera.mCamera.mDist / 25.0f;
-            dof.mNearEnd = t * (GetCurrentMap()->mF0 - lbl_8087DCD4) + lbl_8087DCD4;
+        float dist = mCamera.mCamera.mDist;
+        if (dist < 25.0f) {
+            dist /= 25.0f;
+            dof.mNearEnd = dist * (GetCurrentMap()->mF0 - lbl_8087DCD4) + lbl_8087DCD4;
         }
-        lbl_8087EFA8->mDof = dof;
+        SetDof_unk(lbl_8087EFA8, dof);
     }
     if (lbl_8087F610 != 0) {
         lbl_8087EFA8->mDof.mEnabled = 0;
@@ -3088,9 +3096,12 @@ void GameTask::fn_8036EA6C(int state) {
     }
 }
 
+// inferred: menu states that keep the menu tasks running when fn_8036EE0C leaves them; name invented
+inline bool KeepMenu_unk(int s) {
+    return s == 1 || s == 3 || s == 4 || s == 5 || s == 14;
+}
+
 // inferred: leaves the menu state entered by fn_8036EA6C and goes back to the previous state
-// NONMATCHING: 98.5% - the original tests m5680 against {1, 3, 4, 5, 14} with a bit mask and the 1..5 range with
-// two compares; ours merges 3..5 into a range test (tried switch, if chains in several orders, a local)
 void GameTask::fn_8036EE0C() {
     switch (m54E4) {
     case 1:
@@ -3151,11 +3162,7 @@ void GameTask::fn_8036EE0C() {
         lbl_8087F8A0->mHead->m54C &= ~0x10;
         break;
     }
-    int keep = 0;
-    int prev = m5680;
-    if (prev == 1 || prev == 3 || prev == 4 || prev == 5 || prev == 14) {
-        keep = 1;
-    }
+    int keep = KeepMenu_unk(m5680);
     if (!keep) {
         MenuCommonTask::sInstance->fn_804A2FBC();
         GameTimer::sInstance->MeltTask();
@@ -3169,7 +3176,7 @@ void GameTask::fn_8036EE0C() {
         MarketTask::sInstance->MeltTask();
     }
     MenuCommonTask::sInstance->fn_804A313C();
-    if (m5680 < 1 || m5680 > 5) {
+    if (m5680 < 1 || 5 < m5680) {
         lbl_8087EFE8->fn_800D0518(1, 1.0f, 30);
         lbl_8087EFE8->m34D4 = 1;
         lbl_8087EFE8->fn_800CFBA0(8, 0, 4, 15);
