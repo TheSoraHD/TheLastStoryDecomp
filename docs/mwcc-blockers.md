@@ -303,7 +303,7 @@ en variable antes de la llamada. Pista sin probar del todo: en `fn_804C23E4` el 
 ## enlazar-20261115
 
 - `chr/ControlAppear`: el `.rodata` tiene `value<MOTION_ID::@enum$24281control_appear_cpp>`: fichero original `control_appear.cpp` y contador de MWCC en 24281 al leer `MOTION_ID` (el nuestro, ~7508). Solo se reproduce ajustando `#include`; se rompe con cualquier cambio de cabeceras. Decision del usuario: dejarla para el paso final de la decompilacion.
-- `msc/src/RVL_SDK/kpad/KPAD`: enlaza anadiendo `KPADGetMplsZeroDriftMode` (funcion real del SDK que el enlazador quita) con el cuerpo de `robojumper/sdk_2009-12-11`, que no tiene licencia: parche `docs/enlazar-20261115-qO-kpad.patch`, pendiente del usuario.
+- `msc/src/RVL_SDK/kpad/KPAD`: enlaza anadiendo `KPADGetMplsZeroDriftMode` (funcion real del SDK que el enlazador quita) con el cuerpo de `robojumper/sdk_2009-12-11`, que no tiene licencia: aplicado con permiso del usuario en `kpad-readme-20261115` (agradecimiento en README.md).
 - `smg2/src/RVL_SDK/bte/bd`: `.sbss2` total 0xE frente a 0x10; `bd_addr_null` es lo ultimo de `.sbss2` y el original conserva 2 bytes tras el (como ut_TextWriterBase). Cinco compiladores dan 6 bytes.
 - `Event/Label` (y Channel, Cut, Sequence) `__sinit`: las unicas funciones del DOL con un store entre las restauraciones del epilogo; ~15 ficheros sueltos sin reproducirlo.
 - `chr/ControlDamage` `ControlDamageLastOne::vf0C` 99,64 % (`docs/enlazar-20261115-qY.patch`): `model` en r30 y el bool del helper en r31, al reves que el original; ~20 variantes.

@@ -4,13 +4,12 @@
 > `docs/enlazar-20261115.md` y `docs/enlazar-20261115-q*.md`. Para el port: `claude/port-enlazar-20261115.md` (proyecto).
 
 Estado: **15631 / 18109**, lost 0, rep100 34, labelcheck 12 lineas (como antes), `main.dol: OK`. Datos enlazados
-**1067838 / 1432078 B (74,57 %)**, 697 / 1130 unidades completas.
+**1075250 / 1432078 B (75,08 %)**, 698 unidades completas (con KPAD).
 
 ## Decisiones pendientes del usuario
 
-- **KPAD** (7412 B): enlaza con `KPADGetMplsZeroDriftMode` (funcion real del SDK quitada por el enlazador), pero el
-  cuerpo viene de `robojumper/sdk_2009-12-11`, sin licencia. Parche: `docs/enlazar-20261115-qO-kpad.patch`. Aceptar
-  la fuente o reescribirla sin copiar.
+- (Hecho) KPAD enlaza con el parche de la cola O, aprobado por el usuario (no hay otro repo con licencia con el mismo
+  cuerpo; Whippy tiene una version distinta). Datos enlazados 75,08 %, 698 unidades.
 - Funciones inventadas que el enlazador quita (EventCommandDef_unk, EventLoader_unk, ControlCdnStone) y las
   especializaciones explicitas de D2A_TaskInstanceBase_64_8: revisar (ver "Decisiones tomadas sin el usuario").
 - Subidas de fuzzy commiteadas sin 100 % (G: BreakArmor, Ottotto; Q: OpenBoard, LH_Handle, ShakeCamera).
