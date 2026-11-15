@@ -62,8 +62,7 @@ public:
     Texture_unk* mTex0;          // 0x0C
     Texture_unk* mTex1;          // 0x10
     unsigned char m14;
-    int m18;
-    int m1C;
+    int m18; // inferred: the object is 0x1C bytes (stack frame of MiniMapTask::vf10)
 };
 
 } // namespace atn
