@@ -78,6 +78,11 @@ public:
     // inferred: same body as fn_800C3990 for the other unit types
     template <class T>
     int Regist_unk(const T& unit);
+    // inferred: one inline level more around push_back: the stack slots of the vector growth come out as
+    // in the original (0x80574304)
+    // (a template, so that the other files do not instantiate push_back)
+    template <class T>
+    void Add_unk(T* unit) { mUnits.push_back(unit); }
     // inferred: lookups (atn/SequenceHolder.cpp; atn::SequenceControl takes the units from here)
     SequenceUnitBase* fn_800C3D74(const char* name); // by name
     SequenceUnitBase* fn_800C3E84(unsigned int id);  // by id
@@ -92,7 +97,7 @@ template <class T>
 int SequenceHolder::Regist_unk(const T& unit) {
     T* copy = new ((MemoryTag)1, "", "", 0) T(unit);
     copy->mId = ++mCount;
-    mUnits.push_back(copy);
+    Add_unk(copy);
     return copy->mId;
 }
 

@@ -1,0 +1,31 @@
+--- a/include/atn/LoadManager.h
++++ b/include/atn/LoadManager.h
+@@ -167,6 +167,19 @@
+     // each atn::LH_* file (weak copies: LoadColliTree 0x80472DCC, LoadMotion 0x804766B0).
+     template <class T>
+     T* Get_unk(const char* path, int cached);
++    template <class T>
++    void Find_unk(T*& out, unsigned int hash) {
++        std::list<LoadCore*>::iterator it =
++            __find_if_unk(mList.begin(), mList.end(), __HashIs_unk(hash));
++        if (it != mList.end()) {
++            LoadCore* core = *it;
++            if (core->m05 == 0) {
++                out = (T*)core;
++                return;
++            }
++        }
++        out = (T*)fn_8046F834(&m48, hash);
++    }
+ 
+     LoadCache_unk m48;                // inferred: another container, see fn_8046F834
+     std::__list_owned_unk<LoadCore*> mList; // 0x3ECC
+@@ -211,7 +224,7 @@
+     unsigned int hash = fn_800DC6B4(fullPath);
+     T* core = 0;
+     if (cached) {
+-        core = (T*)Find_unk(hash);
++        Find_unk(core, hash);
+     }
+     if (core == 0) {
+         core = new ((MemoryTag)2, "", "", 0) T(fullPath);
