@@ -32,6 +32,12 @@ extern "C" void fn_8004D388(void* mgr, atn::ColliResult_unk* result, chr::Chara_
 extern "C" Unk_8087F490* lbl_8087F490;
 extern "C" Unk_8087F0A8* lbl_8087F0A8;
 
+// inferred: `from` moved toward `to` by the fraction `t` (name invented, as in
+// chr/ControlChaseCaught.cpp)
+inline atn::Vector3 Approach_unk(const atn::Vector3& from, const atn::Vector3& to, float t) {
+    return (to - from) * t + from;
+}
+
 namespace chr {
 
 ControlJumpAt::ControlJumpAt(Chara_unk* chara, const atn::Vector3& start, Chara_unk* target)
@@ -46,13 +52,14 @@ ControlJumpAt::ControlJumpAt(Chara_unk* chara, const atn::Vector3& start, Chara_
     mChara->mPos = start;
 }
 
-// NONMATCHING: 98.4% - the two operator temporaries get swapped stack slots (and float registers).
+// inferred: the character jumps from mStart to the target (linear, by the motion frame)
 int ControlJumpAt::vf0C() {
     Motion_unk* motion = &mChara->mMotion;
     float frame = motion->mTracks[0].m08;
     float t = frame / motion->fn_80097D7C(0);
-    atn::Vector3 pos = (mTarget->mPos - mStart) * t + mStart;
-    mChara->mPos = pos;
+    atn::Vector3 pos = Approach_unk(mStart, mTarget->mPos, t);
+    Chara_unk* c1 = mChara;
+    c1->mPos = pos;
     atn::Vector3 rot = mTarget->mRot;
     rot.y += 3.1415927f;
     mChara->mRot = rot;
@@ -108,9 +115,8 @@ boost::function<void()> ControlGrapple::vf10() const {
     return boost::bind(&CharaTask::fn_8015E7A0, (CharaTask*)mChara, dir, -1, false);
 }
 
-// NONMATCHING: 97.8% - the original reloads the flag word to clear mFlag5 (character in r3); ours
-// keeps the word loaded for the test, like chr::ControlCaught::ControlCaught. Declaring the
-// 0x12A4 bitfields volatile fixes both but changes chr::ControlLookAround::ControlLookAround.
+// inferred: the test goes through the accessor IsFlag5_unk() (the original reloads the flag word
+// before clearing mFlag5)
 ControlGrappled::ControlGrappled(Chara_unk* chara, Chara_unk* holder)
     : ControlBase(chara), mHolder(holder), mCount(0x3C) {
     chara->m560 = 0x7D;
@@ -121,7 +127,7 @@ ControlGrappled::ControlGrappled(Chara_unk* chara, Chara_unk* holder)
     if (mChara->mFlag31) {
         mChara->fn_801539E0();
     }
-    if (mChara->mFlag5) {
+    if (mChara->IsFlag5_unk()) {
         mChara->mFlag5 = 0;
     }
     Motion_unk* motion = &mChara->mMotion;
