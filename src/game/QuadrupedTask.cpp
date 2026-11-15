@@ -664,7 +664,7 @@ inline float Clamp01_unk(float x) {
     return x;
 }
 
-// NONMATCHING: 99.87% - dt in f29 instead of f28 (only the register); ~10 variants
+// NONMATCHING: 99.96% - dt in f29 instead of f28 (only the register); ~10 variants
 // inferred: chooses the movement motions (same code as Em403WarLion::vf24; m500/m508 read before the rate
 // give the comparison registers of the original)
 void QuadrupedTask::vf24() {
@@ -700,7 +700,7 @@ void QuadrupedTask::vf24() {
     } else {
         blend = 2.0f;
         walkSpeed = 0.0f;
-        dashSpeed = 1.0f + 0.5f * (rate / dashMin - 1.0f);
+        dashSpeed = 1.0f + 0.1f * (rate / dashMin - 1.0f);
     }
     if (PSVECSquareMag(&(atn::RenderManager::instance_->mCamera.mPos - mPos)) > 62500.0f) {
         mMotion.m34C = 1;
