@@ -2963,6 +2963,8 @@ int DWCi_SendMatchCommand(u8 command, int profileID, u32 ip, u16 port,
     return result;
 }
 
+/* NONMATCHING: 99.99% - ip of DWC_MATCH_COMMAND_TELL_ADDR in r30 (r28 in the original); see
+   docs/mwcc-blockers.md */
 BOOL DWCi_ProcessMatchCommand(u8 command, int srcPid, u32 srcIP, u16 srcPort, const u32* data, int len)
 {
     u16 port;
@@ -4290,7 +4292,7 @@ void DWCi_CancelMatchingProcess(void)
         DWCi_FinishCancelMatching();
         return;
     }
-    hasConnections = DWCi_GT2GetConnectionListIdx() ? TRUE : FALSE;
+    hasConnections = DWCi_GT2GetConnectionListIdx() != 0;
     DWCi_GetMatchCnt()->cancelState = DWC_MATCH_CANCEL_STATE_EXEC;
     if (DWCi_GetMatchCnt()->matchType == DWC_MATCH_TYPE_SC_CL)
     {
@@ -4397,6 +4399,8 @@ void DWCi_RestartFromCancel(DWCMatchResetLevel level)
     }
 }
 
+/* NONMATCHING: 99.13% - validPidLen in r31 and the i of the second loop in r25 (r29/r31 in the
+   original); see docs/mwcc-blockers.md */
 BOOL DWCi_CloseUnacknowledgedClients(u32 bitmap)
 {
     u32 senddata[DWC_MAX_CONNECTIONS];
