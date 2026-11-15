@@ -2153,7 +2153,7 @@ extern "C" float fn_800A56A8(void* pad, int port, int axis, int arg); // inferre
 // inferred: bird view camera: turns m8A0 towards the leader's yaw while m7F4 is set, turns with the right stick of
 // the classic controller (speed mA14), follows the character over the floor (m8A4, swept on maps with a
 // ceiling) and runs the tactical view camera (fn_80387910)
-// NONMATCHING: 90.6% - stack slots of the ray ends (the original keeps from/to of the floor ray lowest) and
+// NONMATCHING: 92.8% - stack slots of the ray ends (the original keeps from/to of the floor ray lowest) and
 // the order of the first loads
 void GameCamera::fn_80387DE4(const CharaTask* chara) {
     atn::Vector3 top = m8A4;
@@ -2212,7 +2212,7 @@ void GameCamera::fn_80387DE4(const CharaTask* chara) {
         atn::Vector3 move = chara->mPos - m8A4;
         if (PSVECMag(&move) > 20.0f) {
             m8A4 = chara->mPos;
-            move = atn::Vector3(0.0f, 0.0f, 0.0f);
+            move.Set_unk(0.0f, 0.0f, 0.0f);
         }
         move.y = 0.5f * -radius;
         if (fn_8004D388(lbl_8087EE98, &result, &top, &move, 0x08000000, 0, floorId, radius)) {
@@ -2552,14 +2552,14 @@ void GameCamera::fn_8038A1D8(const CharaTask* chara) {
 
 // inferred: camera at the head of the character (m558.m10 above it) looking m558.m00 in front of it, with the fovy m558.m04;
 // blended in 5 frames from the saved camera
-// NONMATCHING: 89.7% - scheduling of the three blends
 void GameCamera::fn_8038A200(const CharaTask* chara) {
     atn::Vector3 pos = mCamera.mPos;
     atn::Vector3 target = mCamera.mTarget;
+    float fovy = mCamera.mFovy;
     if (m808 == 0) {
         m80C = pos;
         m818 = target;
-        m830 = mCamera.mFovy;
+        m830 = fovy;
     }
     atn::Vector3 eye = chara->mPos;
     atn::Vector3 offset(0.0f, m558.m10, 0.0f);
@@ -2567,11 +2567,11 @@ void GameCamera::fn_8038A200(const CharaTask* chara) {
     m.fn_8013A13C(chara->mRot.y);
     PSMTXMultVec(m.m, &offset, &offset);
     eye += offset;
-    offset = atn::Vector3(0.0f, m558.m10, m558.m00);
+    offset.Set_unk(0.0f, m558.m10, m558.m00);
     PSMTXMultVec(m.m, &offset, &offset);
     atn::Vector3 look = offset + eye;
-    pos = (eye - m80C) * ((float)m808 / 5.0f) + m80C;
-    target = (look - m818) * ((float)m808 / 5.0f) + m818;
+    pos = LerpV_unk(m80C, eye, (float)m808 / 5.0f);
+    target = LerpV_unk(m818, look, (float)m808 / 5.0f);
     mCamera.SetPosition(pos);
     mCamera.SetTarget_unk(target);
     mCamera.mFovy = ((float)m808 / 5.0f) * (m558.m04 - m830) + m830;
@@ -2666,11 +2666,10 @@ void GameCamera::fn_8038A5F0(const CharaTask* chara) {
     m834 = 0;
 }
 
-// NONMATCHING: 89.3% - order of the blend temporaries and float registers
 void GameCamera::fn_8038AEF0(const atn::Vector3* pos, const atn::Vector3* target, const CharaTask* chara,
                              int collide, float fovy, float t) {
-    atn::Vector3 eye = (*pos - m80C) * t + m80C;
-    atn::Vector3 look = (*target - m818) * t + m818;
+    atn::Vector3 eye = LerpV_unk(m80C, *pos, t);
+    atn::Vector3 look = LerpV_unk(m818, *target, t);
     float angle = t * (fovy - m830) + m830;
     if (collide) {
         fn_8038E540(chara, &m648, &eye, &look, &chara->mPos);
@@ -2679,7 +2678,7 @@ void GameCamera::fn_8038AEF0(const atn::Vector3* pos, const atn::Vector3* target
     if (d.x * d.x + d.z * d.z < 1.0f) {
         atn::Vector3 h(d.x, 0.0f, d.z);
         if (PSVECSquareMag(&h) < 0.0001f) {
-            h = atn::Vector3(0.0f, 0.0f, 1.0f);
+            h.Set_unk(0.0f, 0.0f, 1.0f);
         } else {
             PSVECNormalize(&h, &h);
         }
@@ -2693,18 +2692,20 @@ void GameCamera::fn_8038AEF0(const atn::Vector3* pos, const atn::Vector3* target
 
 // inferred: camera behind the hips of the character (offset m874, zoomed by mC1C while the global flag 0x6A
 // says so), blended in 5 frames through fn_8038AEF0; with mFlag14 clear it uses the fixed m884/m890
-// NONMATCHING: 93.7% - copies of m884/m890 and stack slots of the offsets
+// NONMATCHING: 97% - registers of the copies of m884/m890, of the weapon test and a frsp of x in the second
+// test of the offset
 void GameCamera::fn_8038B148(const CharaTask* chara) {
     if (m808 == 0) {
         m80C = mCamera.mPos;
         m818 = mCamera.mTarget;
         m830 = mCamera.mFovy;
         float x = -m5D0.m0C;
+        float y = m5D0.m10;
         if (chara->mC48 == 2 || (chara->mC48 == 3 && chara->mFlag29)) {
             x = -x - 0.5f;
         }
         m874.x = x;
-        m874.y = m5D0.m10;
+        m874.y = y;
         m874.z = 0.0f;
         int id = chara->m50;
         if ((unsigned int)(id - 700013) <= 7 || (unsigned int)(id - 700022) <= 1) {
@@ -2738,7 +2739,7 @@ void GameCamera::fn_8038B148(const CharaTask* chara) {
         PSMTXRotRad(m, 'y', chara->mRot.y);
         PSMTXMultVec(m, &offset, &offset);
         pos = offset + hips;
-        offset = atn::Vector3(ox, oy, m5D0.m00);
+        offset.Set_unk(ox, oy, m5D0.m00);
         PSMTXMultVec(m, &offset, &offset);
         target = offset + hips;
         target.y += m5D0.m18;
@@ -2765,7 +2766,7 @@ void GameCamera::fn_8038B148(const CharaTask* chara) {
 // character type and the weapon; zoomed by mC1C while the global flag 0x6A says so) looking m60C.m00 in front of it,
 // blended in 5 frames through fn_8038AEF0. Coming from mode 3 it keeps looking at the point the previous
 // camera was aiming at (m890: hit of a ray of 800 along its view)
-// NONMATCHING: 92.2% - stack slots: the original keeps the difference of the view of m1F4 lowest on the stack
+// NONMATCHING: 94.7% - stack slots: the original keeps the difference of the view of m1F4 lowest on the stack
 // (as if the ray were in an inline) and rounds the z of its start (frsp)
 void GameCamera::fn_8038B650(const CharaTask* chara) {
     if (m808 == 0) {
@@ -2844,7 +2845,7 @@ void GameCamera::fn_8038B650(const CharaTask* chara) {
     PSMTXRotRad(m, 'y', chara->mRot.y);
     PSMTXMultVec(m, &offset, &offset);
     atn::Vector3 pos = offset + chara->mPos;
-    offset = atn::Vector3(ox, oy, m60C.m00);
+    offset.Set_unk(ox, oy, m60C.m00);
     PSMTXMultVec(m, &offset, &offset);
     atn::Vector3 target = offset + chara->mPos;
     float fovy = !chara->mFlag6 ? 1.0471976f : m60C.m04;
