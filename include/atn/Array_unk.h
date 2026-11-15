@@ -15,6 +15,14 @@ template <class T>
 class SimpleVector {
 public:
     SimpleVector() : mSize(0), mCapacity(0), mData(0) {}
+    // inferred: copy (weak copy 0x80544070 of Event/Sequence.cpp, called by the implicit copy of
+    // Event::Actor; inlined in the copy of Event::ActorAnim_unk, 0x80543C00)
+    SimpleVector(const SimpleVector& o) : mSize(0), mCapacity(0), mData(0) {
+        Resize_unk(o.mSize);
+        for (unsigned int i = 0; i < mSize; i++) {
+            mData[i] = o[i];
+        }
+    }
     ~SimpleVector() {
         if (mData != 0) {
             delete[] mData;
