@@ -82,6 +82,12 @@ Ninguno. `symbols.txt`: solo re-emparejado de `@N` de la unidad (`pd.sh`).
 
 ## Pendientes
 
-- Unificar las vistas de la instancia en los llamadores (365 casts `(D2A_TaskInstance32_unk*)` en 26 ficheros:
-  `D2AInstance_unk` de D3AnimeInstance, `CostumeEditFace_unk`, `SelectMemberAnim_unk`, `ShopLayout_unk`,
-  `MenuLayout_unk`, `ResultLayout_unk`, `GameLayout_unk`...). Regla 10.
+- Unificar el resto de vistas de la instancia en los llamadores (quedan ~359 casts `(D2A_TaskInstance32_unk*)` en
+  24 ficheros): `ShopLayout_unk` (Shop*, CosEditProtector), `MenuLayout_unk` (MenuCommonTask, LibraryTask),
+  `ResultLayout_unk` (BattleResult), `SelectMemberAnim_unk` (mezcla `D2A_Task` de `fn_801F3FF8` e instancias en
+  el mismo array `mAnims[9]`), `GameUIInst_unk` (GameUI, port), y los `atn::Task*` de CosEditBase (`mE8/mEC`).
+  Regla 10.
+- `ResultLayout_unk` -> typedef probado y revertido: BattleResult queda igual (8/9), pero GameEventScript (incluye
+  `BattleResult.h`) saca 7 funciones nuevas en rep100 (99,2-99,95 % en objdiff con 100 % en report) incluso tras
+  re-emparejar con `pd`; sin tiempo para seguirlo. (`ordercheck` de GameEventScript ya falla en HEAD:
+  `__dt__15GameEventScriptFv` fuera de orden; no es de esta cola.)
