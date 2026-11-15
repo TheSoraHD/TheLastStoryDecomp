@@ -313,28 +313,36 @@ void MiniMapTask::vf14() {
 extern "C" unsigned int fn_800DC6B4(const char* s); // inferred: string hash
 extern "C" void fn_801FECE0(void* layout, unsigned int hash, float value); // inferred: sets a value of a pane
 inline void atn::D2A_Task::SetLayoutValue_unk(const char* name, float value) {
-    fn_801FECE0(&mData.m10, fn_800DC6B4(name), value);
+    float v = value;
+    atn::D2A_Layout_unk* layout = &mData.m10;
+    fn_801FECE0(layout, fn_800DC6B4(name), v);
 }
 
 // inferred: position of a point of the map on the screen (x and z of the map, 52 / m5FC pixels per unit)
-inline atn::Vector3 MiniMapToScreen_unk(const atn::Vector3& p, float sx, float scale) {
-    atn::Vector3 d((p.x + -50.0f) * sx * scale, 0.0f * scale, (p.z + 70.0f) * scale);
-    return atn::Vector3(0.5f * GetGraphics_unk()->GetWidth_unk() + d.x, d.y,
-                        0.5f * GetGraphics_unk()->GetHeight_unk() + d.z);
+inline void MiniMapToScreen_unk(atn::Vector3& out, const atn::Vector3& p, float sx, float scale) {
+    float y = 0.0f * scale;
+    float x = (p.x + -50.0f) * sx * scale;
+    float z = (p.z + 70.0f) * scale;
+    out.y = y;
+    out.x = 0.5f * GetGraphics_unk()->GetWidth_unk() + x;
+    out.z = 0.5f * GetGraphics_unk()->GetHeight_unk() + z;
 }
 
-// NONMATCHING: 82% - stack layout (the original keeps the leader position at 0x1c and has fewer
-// temporaries) and order of the float operations; tried the frame shown before/after the conversion
+// NONMATCHING: 97.4% - scheduling of the conversion of the leader position and some GPRs (stringBase0 in r30
+// instead of r26); the original multiplies 0.0f * scale at run time (with the 0.0f as a parameter of the inline
+// it does, but the head is scheduled worse: 94.5%)
 // inferred: places the frame of the minimap (position of the leader on the map, turned with it) and draws
 // the active markers (a point of the size m63C in the colour m620 under each, then the marker in its colour
 // through the mask textures)
 void MiniMapTask::fn_804A9EB4() {
+    float sx;
     float scale = 52.0f / m5FC;
     float aspect = fn_80076FF8(GetGraphics_unk());
-    float sx = 1.0f / (aspect / ((float)GetGraphics_unk()->GetWidth_unk() / (float)GetGraphics_unk()->GetHeight_unk()));
+    sx = 1.0f / (aspect / ((float)GetGraphics_unk()->GetWidth_unk() / (float)GetGraphics_unk()->GetHeight_unk()));
     CharaTask* leader = lbl_8087F8A0->mHead;
     atn::Vector3 pos = leader->mPos;
-    pos = MiniMapToScreen_unk(pos, sx, scale);
+    float rot = leader->mRot.y - 3.1415927f;
+    MiniMapToScreen_unk(pos, pos, sx, scale);
     m5D8->MeltTask();
     float base[5];
     base[0] = pos.x;
@@ -343,7 +351,6 @@ void MiniMapTask::fn_804A9EB4() {
     base[3] = 1.0f;
     base[4] = 10.0f;
     fn_801F4728(m5D8, "basePos", base);
-    float rot = leader->mRot.y - 3.1415927f;
     m5D8->SetLayoutValue_unk("rot01", 57.295776f * -rot);
     m5D8->SetLayoutValue_unk("rot02", 57.295776f * -rot);
     m5D8->SetLayoutValue_unk("rot03", 57.295776f * -rot);
@@ -355,7 +362,8 @@ void MiniMapTask::fn_804A9EB4() {
         if (m->m04 != -1 && !lbl_8087F430->fn_80370174(m->m04)) {
             continue;
         }
-        atn::Vector3 screen = MiniMapToScreen_unk(m->mPos, sx, scale);
+        atn::Vector3 screen;
+        MiniMapToScreen_unk(screen, m->mPos, sx, scale);
         lbl_8087EEB0->fn_8005E3E4(m620.ToU32(), &m1A8, screen.x - 0.5f * m63C * m->mScale,
                                   screen.z - 0.5f * m63C * m->mScale, 10.0f, m63C * m->mScale, m63C * m->mScale,
                                   0.0f, 0.0f, 1.0f, 1.0f, 1, 1);
