@@ -10,12 +10,11 @@ extern "C" void fn_80547708(void* arg, chr::GmkTarget_unk* target);
 
 namespace chr {
 
-// NONMATCHING: 99.6% - the id 0x5B and the reloaded mChara swap r9/r11 (a local for the id fixes r10).
 ControlGmkCoffinOpening::ControlGmkCoffinOpening(Chara_unk* chara, const atn::Vector3& pos, float rotY)
     : ControlBase(chara), mState(0) {
     chara->m58C = 0;
-    int id = 0x5B;
-    mChara->m560 = id;
+    Chara_unk* c1 = mChara;
+    c1->m560 = 0x5B;
     mChara->mPos = pos;
     mChara->mRot = atn::Vector3(0.0f, rotY, 0.0f);
     Motion_unk* motion = &mChara->mMotion;
@@ -40,12 +39,13 @@ int ControlGmkCoffinOpening::vf0C() {
     return 0;
 }
 
-// NONMATCHING: 93.6% (scheduling/registers) - the rotation temporary address is computed later.
 ControlGmkCoffinOpen::ControlGmkCoffinOpen(Chara_unk* chara, const atn::Vector3& pos, int alt, float rotY)
     : ControlBase(chara) {
     chara->m58C = 0;
-    mChara->m560 = 0x5C;
-    mChara->mPos = pos;
+    Chara_unk* c1 = mChara;
+    c1->m560 = 0x5C;
+    Chara_unk* c2 = mChara;
+    c2->mPos = pos;
     mChara->mRot = atn::Vector3(0.0f, rotY, 0.0f);
     Motion_unk* motion = &mChara->mMotion;
     motion->m34C = 1;
