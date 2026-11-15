@@ -1979,11 +1979,20 @@ void GameCamera::fn_80385B48(const CharaTask* chara) {
     fn_80392964(1, 1, 0, 0);
 }
 
+// inferred: front (+z) turned by a yaw (name invented)
+static inline atn::Vector3 FrontY_unk(const float& rad) {
+    atn::Vector3 front(0.0f, 0.0f, 1.0f);
+    Mtx m;
+    PSMTXRotRad(m, 'y', rad);
+    PSMTXMultVec(m, &front, &front);
+    return front;
+}
+
 // ---- fn_80387910: camera of the tactical view (over the inlining budget: the accessors are weak copies) ----
 // inferred: update of the side camera mode (see fn_8038BD78): the target follows the target of the character
 // (10 further in front while it is in control 14 of state 6), the eye stays beside it out of the walls; with
 // the debug option m28C, button 7 gives the default camera
-// NONMATCHING: 99.3% - stack slots of the halfway point and of the front vector
+// NONMATCHING: 99.75% - registers r3/r6-r8 of the pointers of the first copies (up, head, point, lbl_8087F0A8)
 void GameCamera::fn_80387548(const CharaTask* chara) {
     if (lbl_8087F0A8->m28C != 0 && lbl_8087F0A8->mInput.fn_801240B4(7)) {
         fn_8037F9AC(chara);
@@ -1993,16 +2002,13 @@ void GameCamera::fn_80387548(const CharaTask* chara) {
     atn::Vector3 pos = mCamera.mPos;
     atn::Vector3 target = mCamera.mTarget;
     atn::Vector3 up = mCamera.mUp;
-    atn::Vector3 point = chara->mF6C;
+    const atn::Vector3& head = chara->mF6C;
+    atn::Vector3 point = head;
     if (lbl_8087F0A8->m040 == 0) {
-        point = (chara->mF6C + chara->mPos) * 0.5f;
+        point = (head + chara->mPos) * 0.5f;
     }
     if (chara->m55C == 6 && chara->m560 == 14) {
-        atn::Vector3 front(0.0f, 0.0f, 1.0f);
-        Mtx m;
-        PSMTXRotRad(m, 'y', chara->mRot.y);
-        PSMTXMultVec(m, &front, &front);
-        point += front * 10.0f;
+        point += FrontY_unk(chara->mRot.y) * 10.0f;
     }
     target += (point - target) * m648.m1C;
     atn::Vector3 dir = target - chara->mPos;
@@ -2010,9 +2016,7 @@ void GameCamera::fn_80387548(const CharaTask* chara) {
     pos = chara->mPos + dir * m648.m14;
     pos.y += m648.m10;
     float side = m648.m0C;
-    atn::Vector3 cross;
-    PSVECCrossProduct(&dir, &up, &cross);
-    pos += cross * side;
+    pos += Cross_unk(dir, up) * side;
     fn_8038E540(chara, &m648, &pos, &target, &chara->mPos);
     mCamera.SetPosition(pos);
     mCamera.SetTarget_unk(target);
@@ -2020,8 +2024,11 @@ void GameCamera::fn_80387548(const CharaTask* chara) {
     fn_80392964(0, 1, 0, 0);
 }
 
-// DRAFT: not checked against the original (draft without a description)
-// NONMATCHING: draft
+// inferred: tactical view camera: blends the parameters m684 to m4C0 with the timer m4B4, keeps the pitch
+// -param.m08 and the yaw m8A0, looks at m8A4 (copied to m868) from a distance blended to param.m00, keeps the
+// target in front of the yaw and, beyond 0.1, blends distance and pitch with the current camera by 0.4
+// NONMATCHING: 99.3% - the original calls fn_8013A13C on the yaw matrix without its (empty, here out of line)
+// constructor, as fn_80382A1C; and the fmuls/fadds registers of the distance blend
 void GameCamera::fn_80387910(const CharaTask* chara) {
     GameCameraParam_unk param(m684);
     if (m4B4.fn_803829C0()) {
@@ -2045,16 +2052,19 @@ void GameCamera::fn_80387910(const CharaTask* chara) {
     float fovy = mCamera.GetFovy_unk();
     dir.Normalize_unk();
     atn::Vector3 rot = (-dir).ToRotation_unk();
+    const atn::Vector3& look = m8A4;
     rot.y = m8A0;
     float delta = -param.m08 - rot.x;
     rot.x += delta;
     pos.y -= dist * fn_8037F664(delta);
-    float len = (m8A4 - pos).Length_unk();
-    float d = len + (param.m00 - len) * param.m1C;
-    target = m8A4;
+    atn::Vector3 diff = look - pos;
+    float len = diff.Length_unk();
+    float d = len + (float)((param.m00 - len) * param.m1C);
+    target = look;
     m868 = target;
     dir.Set_unk(0.0f, 0.0f, -d);
-    dir.fn_80011410(fn_800109E0(-rot));
+    atn::Matrix3x4 rm = fn_800109E0(-rot);
+    dir.fn_80011410(rm);
     pos = target + dir;
     fovy = param.m24 * (param.m04 - fovy) + fovy;
     fn_8038E9B0(chara, &param, &pos, &target, &target);
@@ -2082,8 +2092,7 @@ void GameCamera::fn_80387910(const CharaTask* chara) {
     }
     dist = (target - pos).Length_unk();
     if (dist > 0.1f) {
-        float camDist = fn_80385B40(&mCamera);
-        dist = fn_800F8524(camDist, dist, 0.4f);
+        dist = fn_800F8524(fn_80385B40(&mCamera), dist, 0.4f);
         float pitch = fn_80383728(&mCamera).ToRotation_unk().x;
         atn::Vector3 r = (target - pos).ToRotation_unk();
         r.x = fn_800F8524(pitch, r.x, 0.4f);
@@ -2855,25 +2864,27 @@ void GameCamera::fn_8038B650(const CharaTask* chara) {
 
 // inferred: side camera mode: from beside the character (m648.m0C to the side, m648.m10 up, m648.m14 behind its target
 // mF6C, or halfway to it), blended in 15 frames; then back to the sub mode with m83C = 6
-// NONMATCHING: 92.2% - temporaries of the point and the cross product
+// NONMATCHING: 98.3% - registers r5-r7 of the pointers of the point copies (as fn_80387548) and the order of the
+// stores of the cross offset
 void GameCamera::fn_8038BD78(const CharaTask* chara) {
     if (m808 == 0) {
         m80C = mCamera.mPos;
         m818 = mCamera.mTarget;
         m830 = mCamera.mFovy;
     }
-    atn::Vector3 point = chara->mF6C;
+    const atn::Vector3& up = mCamera.mUp;
+    const atn::Vector3& head = chara->mF6C;
+    atn::Vector3 point = head;
     if (lbl_8087F0A8->m040 == 0) {
-        point = (chara->mF6C + chara->mPos) * 0.5f;
+        point = (head + chara->mPos) * 0.5f;
     }
     atn::Vector3 target = point;
-    atn::Vector3 dir = (target - chara->mPos).GetNormalize();
+    atn::Vector3 dir = target - chara->mPos;
+    PSVECNormalize(&dir, &dir);
     atn::Vector3 pos = chara->mPos + dir * m648.m14;
     pos.y += m648.m10;
     float side = m648.m0C;
-    atn::Vector3 cross;
-    PSVECCrossProduct(&dir, &mCamera.mUp, &cross);
-    pos += cross * side;
+    pos += Cross_unk(dir, up) * side;
     fn_8038AEF0(&pos, &target, chara, 1, m648.m04, (float)m808 / 15.0f);
     fn_80392964(0, 1, 0, 0);
     if (++m808 > 15) {
