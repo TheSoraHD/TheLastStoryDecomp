@@ -24,8 +24,8 @@ public:
     virtual void vf24();
     virtual void vf34(const atn::Vector3& rot, int arg, float a, float b);
     virtual void vf3C(HitInfo_unk* hit, int);
-    virtual void vf74(atn::Vector3* pos);
-    virtual void vf8C(atn::Vector3* pos);
+    virtual void vf74(const atn::Vector3& dir);
+    virtual void vf8C(const atn::Vector3& v);
 
     void fn_80566FB4(); // inferred: state machine (m58C)
     int fn_80567424(CharaTask* target);

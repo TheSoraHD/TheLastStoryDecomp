@@ -216,14 +216,7 @@ void QuadrupedTask::vf3C(HitInfo_unk* hit, int) {
     }
 }
 
-// inferred: the character got stuck: tries to climb (vf74) when it moves but its position does not change
-inline int QuadrupedTask_IsStuck_unk(CharaTask* self, const atn::Vector3& prev) {
-    atn::Vector3 d = prev - self->mPos;
-    return self->m570 > 0.1f && atn::Abs_unk(d.x) < 0.1f && atn::Abs_unk(d.y) < 0.1f && atn::Abs_unk(d.z) < 0.1f;
-}
-
 // inferred: state machine (m58C)
-// NONMATCHING: 87.52% - scheduling of the hit reactions and order of the Vector3 temporaries
 void QuadrupedTask::fn_80566FB4() {
     switch (m58C) {
     case 0:
@@ -250,14 +243,16 @@ void QuadrupedTask::fn_80566FB4() {
             atn::Vector3 prev(mPos);
             fn_805675FC();
             int stuck = 1;
-            if (QuadrupedTask_IsStuck_unk(this, prev)) {
+            prev -= mPos;
+            if (m570 > 0.1f && atn::Abs_unk(prev.x) < 0.1f && atn::Abs_unk(prev.y) < 0.1f &&
+                atn::Abs_unk(prev.z) < 0.1f) {
                 if (++mC58.m2B0 > 3) {
                     if (fn_8016F67C()) {
                         atn::Vector3 dir(0.0f, 0.0f, 1.0f);
                         Mtx m;
                         PSMTXRotRad(m, 'y', mRot.y);
                         PSMTXMultVec(m, &dir, &dir);
-                        vf74(&dir);
+                        vf74(dir);
                     }
                 } else {
                     stuck = 0;
@@ -273,13 +268,15 @@ void QuadrupedTask::fn_80566FB4() {
             }
             atn::Vector3 prev(mPos);
             fn_805675FC();
-            if (QuadrupedTask_IsStuck_unk(this, prev)) {
+            prev -= mPos;
+            if (m570 > 0.1f && atn::Abs_unk(prev.x) < 0.1f && atn::Abs_unk(prev.y) < 0.1f &&
+                atn::Abs_unk(prev.z) < 0.1f) {
                 if (++mC58.m2B0 > 3 && fn_8016F67C()) {
                     atn::Vector3 dir(0.0f, 0.0f, 1.0f);
                     Mtx m;
                     PSMTXRotRad(m, 'y', mRot.y);
                     PSMTXMultVec(m, &dir, &dir);
-                    vf74(&dir);
+                    vf74(dir);
                     mC58.m2B0 = 0;
                 }
             } else {
@@ -863,12 +860,12 @@ void QuadrupedTask::vf20() {
 }
 
 
-void QuadrupedTask::vf74(atn::Vector3* dir) {
-    fn_80178208(new ((MemoryTag)0, "", "", 0) chr::ControlMountleQuadruped(this, *dir, 2.5f));
+void QuadrupedTask::vf74(const atn::Vector3& dir) {
+    fn_80178208(new ((MemoryTag)0, "", "", 0) chr::ControlMountleQuadruped(this, dir, 2.5f));
 }
 
-void QuadrupedTask::vf8C(atn::Vector3* vel) {
-    fn_80178208(new ((MemoryTag)0, "", "", 0) chr::ControlDropDownQuadruped(this, *vel));
+void QuadrupedTask::vf8C(const atn::Vector3& vel) {
+    fn_80178208(new ((MemoryTag)0, "", "", 0) chr::ControlDropDownQuadruped(this, vel));
 }
 
 // inferred: AI state 0 (wait): counts down mC58.mBC, then raises the flag 0x4000 of the state
