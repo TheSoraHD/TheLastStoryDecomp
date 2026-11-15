@@ -27,6 +27,15 @@ Commit: ver `git log` (`Link atn/D2A_TaskInstanceBase_64_8`).
   configure, `ninja -j1`): `main.dol: OK`; precommit: 15587 funciones (= referencia), lost 0, fuzzy drops 0,
   labelcheck/rep100 igual.
 
+- Vistas de la instancia (regla 10, "un objeto, un tipo"): `atn::D2AInstance_unk` (vista parcial de
+  `atn/D3AnimeInstance.h`) pasa a `typedef D2A_TaskInstanceBase<32, 8> D2AInstance_unk` (la cabecera incluye
+  `atn/D2A_TaskInstanceC.h`); `D3AnimeInstance` sin casts (`mTask->Update()`, `mTask->mVisible = 0`).
+  PRECOMMIT OK (15587, lost 0, sin bajadas, labelcheck/rep100 igual); re-emparejado (`pd`) de las 21 unidades que
+  incluyen la cabecera; en `chr/ControlStickByQuark` tres `@N` de `.data` repetidos de antes (`@28995` x2,
+  `@28997` en 0x8077DD50-0x8077DD68) corregidos a mano a `@29179/@29180/@29181` por offset. poolcheck: solo
+  avisos conocidos (2.44346, 25, 15, 0.7 en Em305VampireMp/SpecialEnemyBase; GameUI 0.0174533; `B?atn::Csv` de
+  NewCampPartsMapSelect).
+
 ## NONMATCHING con motivo
 
 Ninguna nueva.
@@ -41,6 +50,9 @@ Ninguno. `symbols.txt`: solo re-emparejado de `@N` de la unidad (`pd.sh`).
   (antes implicitos). Sus definiciones son especializaciones de `<64, 8>`, `<32, 8>` y `<8, 2>` en
   `atn/D2A_TaskInstanceBase_64_8.cpp`; otra instanciacion necesitaria su propia definicion (o una generica).
 - `SetFloat_unk` solo existe para `<8, 2>` (especializacion); antes era un miembro generico.
+- `include/atn/D3AnimeInstance.h`: `struct D2AInstance_unk : Task {m48..mSpeed}` -> `typedef
+  D2A_TaskInstanceBase<32, 8> D2AInstance_unk` (campo `m4E` -> `mVisible`). `D3AnimeInstance::GetTask()` devuelve
+  la instancia real; GameUI (`GetIconInst_unk`) sigue convirtiendola a su vista `GameUIInst_unk` (pendiente).
 
 ## Decisiones tomadas sin el usuario
 
