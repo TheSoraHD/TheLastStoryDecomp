@@ -118,7 +118,6 @@ QuadrupedTask::QuadrupedTask(atn::Task* parent, void* data)
 
 QuadrupedTask::~QuadrupedTask() {}
 
-// NONMATCHING: 99.33% - only the .sdata2/@stringBase0 labels and the guard of the boost stored_vtable differ
 int QuadrupedTask::vf0C() {
     int result = 1;
     if (fn_8013655C() != 0) {
@@ -146,22 +145,22 @@ int QuadrupedTask::vf0C() {
         mMotion.fn_80091CFC("neck");
         mMotion.fn_80091CFC("waist");
         fn_8031F2A4(&mMotion, boost::bind(&QuadrupedTask::fn_805686F0, this, _1, _2));
-        atn::Vector3 limit(1.5707964f, 3.1415927f, 0.0f);
         mStatus.m18 |= 0x1C0;
         mStatus.m18 |= 0x10000;
         mStatus.m18 |= 0xC015;
         mStatus.m18 |= 0x3000000;
+        atn::Vector3 limit(1.5707964f, 3.1415927f, 0.0f);
         mLook.mLimit = limit;
         return 1;
     }
     return 0;
 }
 
-// NONMATCHING: 94.86% - register allocation of the node lookups (ported from Em401_01_WhiteLeoPard)
 void QuadrupedTask::vf10() {
     if (m55C == 2) {
         m55C = 4;
     }
+    atn::Vector3 pos(mPos);
     atn::Vector3 rot(mRot);
     fn_8014C540();
     if ((mStatus.m0C & 0x20) == 0x20 && m58C != 2) {
@@ -863,12 +862,10 @@ void QuadrupedTask::vf20() {
 }
 
 
-// NONMATCHING: 99.19% - only the .sdata2 label (pool order, see fn_805675FC)
 void QuadrupedTask::vf74(atn::Vector3* dir) {
     fn_80178208(new ((MemoryTag)0, "", "", 0) chr::ControlMountleQuadruped(this, *dir, 2.5f));
 }
 
-// NONMATCHING: 99.33% - only the .sdata2 label (pool order, see fn_805675FC)
 void QuadrupedTask::vf8C(atn::Vector3* vel) {
     fn_80178208(new ((MemoryTag)0, "", "", 0) chr::ControlDropDownQuadruped(this, *vel));
 }
@@ -884,7 +881,6 @@ void QuadrupedTask::fn_80568EE0(float* speed, atn::Vector3* rot) {
 }
 
 // inferred: AI state 1: turns towards the target of mC4 when the angle is above 45 degrees
-// NONMATCHING: 99.80% - only the .sdata2 labels (pool order, see fn_805675FC)
 void QuadrupedTask::fn_80568F10(float* speed, atn::Vector3* rot) {
     *speed = 0.5f;
     atn::Vector3 d = mC58.fn_8011BF3C(0) - mPos;
@@ -905,7 +901,6 @@ void QuadrupedTask::fn_80568F10(float* speed, atn::Vector3* rot) {
 }
 
 // inferred: AI state 2: follows the route of mRoute
-// NONMATCHING: 99.85% - only the .sdata2 labels (pool order, see fn_805675FC)
 void QuadrupedTask::fn_805693CC(float* speed, atn::Vector3* rot) {
     RouteWalker_unk& route = mC58.m0C;
     route.fn_80126214();
@@ -923,7 +918,6 @@ void QuadrupedTask::fn_805693CC(float* speed, atn::Vector3* rot) {
 }
 
 // inferred: AI state 3: keeps a distance of m1500 from mC4, circling around it
-// NONMATCHING: 99.80% - only the .sdata2 labels (pool order, see fn_805675FC)
 void QuadrupedTask::fn_80569660(float* speed, atn::Vector3* rot) {
     if (mC58.mC4 != 0) {
         if (mC58.mBC > 0) {
