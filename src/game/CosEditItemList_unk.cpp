@@ -1661,7 +1661,7 @@ extern "C" int fn_80444B64(Inventory* inv, int id);                    // inferr
 extern "C" CosEditListUV_unk fn_80444C50(Inventory* inv, int icon);    // inferred: texture rectangle of an icon
 // inferred: sets a rectangle of the layout (the name comes first, as SetUV_unk of CosEditPalette_unk)
 inline void SetListUV_unk(const char* name, CosEditListLayout_unk* inst, const CosEditListUV_unk& uv) {
-    ((D2A_TaskInstance32_unk*)inst)->SetValues2_unk(name, uv);
+    inst->SetValues2_unk(name, uv);
 }
 
 // inferred: draws the page of the equipment list m1E4 (names, icons, face of the member who wears
@@ -1695,9 +1695,9 @@ void CosEditProtector::fn_801E6714() {
             CosEditListUV_unk face(1.0f, 1.0f, 1.0f, 1.0f);
             CosEditListUV_unk uv = fn_80444C50(Inventory::instance_, fn_80444B64(Inventory::instance_, id));
             if (data != 0) {
-                ((D2A_TaskInstance32_unk*)task)->SetText_unk("item01", data->mName);
+                task->SetText_unk("item01", data->mName);
             } else if (e->mItem != 0) {
-                ((D2A_TaskInstance32_unk*)task)->SetText_unk("item01", ((CosEditEquip_unk*)e->mItem)->mName);
+                task->SetText_unk("item01", ((CosEditEquip_unk*)e->mItem)->mName);
             }
             SetListUV_unk("iconUv01", task, uv);
             if (e->mOwner >= 0) {
@@ -1757,10 +1757,10 @@ void CosEditProtector::fn_801E6B10() {
                 int icon;
                 if (e->mIndex < 0) {
                     icon = fn_80444BE8(Inventory::instance_, data);
-                    ((D2A_TaskInstance32_unk*)task)->SetText_unk("item01", data->mName);
+                    task->SetText_unk("item01", data->mName);
                 } else {
                     icon = fn_80444C48(Inventory::instance_);
-                    ((D2A_TaskInstance32_unk*)task)->SetText_unk("item01", lbl_8087F1E4->GetPair_unk(prot->mKind + 0xEB));
+                    task->SetText_unk("item01", lbl_8087F1E4->GetPair_unk(prot->mKind + 0xEB));
                 }
                 CosEditListUV_unk uv = fn_80444C50(Inventory::instance_, icon);
                 SetListUV_unk("iconUv01", task, uv);

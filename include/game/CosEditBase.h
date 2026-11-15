@@ -119,8 +119,8 @@ public:
     CostumeEditChara* mChara[3];  // 0xD4: inferred: selected, next and previous members
     float mE0;                    // inferred: target rotation
     float mE4;                    // inferred: rotation
-    atn::Task* mE8;
-    atn::Task* mEC;
+    NewCampPartsMotion_unk* mE8;  // inferred: motions 11 and 12 of CosEditProtector (m54)
+    NewCampPartsMotion_unk* mEC;
     int mF0;                      // inferred: the characters must be placed again
     int mF4;                      // inferred: scroll direction
     float mF8;

@@ -1,0 +1,421 @@
+diff --git a/include/gmk/ItemSlotAnime.h b/include/gmk/ItemSlotAnime.h
+index 11792ac..298b396 100644
+--- a/include/gmk/ItemSlotAnime.h
++++ b/include/gmk/ItemSlotAnime.h
+@@ -5,7 +5,13 @@
+ #include "atn/static_string.h"
+ 
+ struct RecycleBufferEntry_unk;
+-class ItemSlotTask_unk;
++// inferred: layout anime tasks of the animation (made by D2A_TaskInstanceBase<32, 8>::Create; full class in
++// atn/D2A_TaskInstanceC.h)
++namespace atn {
++template <int N, int M>
++class D2A_TaskInstanceBase;
++}
++typedef atn::D2A_TaskInstanceBase<32, 8> ItemSlotTask_unk;
+ 
+ namespace gmk {
+ 
+diff --git a/src/RecycleBuffer_gmk/ItemSlotAnime.cpp b/src/RecycleBuffer_gmk/ItemSlotAnime.cpp
+index 1ee9658..a5d5e58 100644
+--- a/src/RecycleBuffer_gmk/ItemSlotAnime.cpp
++++ b/src/RecycleBuffer_gmk/ItemSlotAnime.cpp
+@@ -22,18 +22,6 @@
+ extern "C" bool fn_80213E60(gmk::ItemSlotItem_unk* item, int kind, int sub, int num); // inferred: db/ItemRare_unk.cpp
+ extern "C" GameTask* lbl_8087F430; // inferred: the field task
+ 
+-// inferred: task of an item animation entry (layout task or effect; bytes at 0x4C/0x4D set by
+-// ItemSlotAnimeBuffer::vf0C); names invented
+-class ItemSlotTask_unk : public atn::Task {
+-public:
+-    unsigned char m48[0x4C - 0x48];
+-    unsigned char m4C;
+-    unsigned char m4D;
+-    unsigned char m4E[0x50 - 0x4E];
+-    float m50; // inferred: frame of the layout animation
+-    float m54; // inferred: speed of the layout animation
+-};
+-
+ // inferred: entry of RecycleBuffer (0x84 bytes; empty destructor 0x8044E158, cleared by 0x8044E198); names
+ // invented
+ struct RecycleBufferEntry_unk {
+@@ -212,16 +200,16 @@ void ItemSlotAnime::fn_8044D9BC(void* owner) {
+         buf = lbl_8087F4F8;
+         for (unsigned int i = 0; i < buf->mNum; i++) {
+             RecycleBufferEntry_unk& e = buf->mEntries[i];
+-            e.m00 = (ItemSlotTask_unk*)(atn::Task*)D2A_TaskInstance32_unk::Create(buf, "/data/d2anime/ui_slot_base.d2b");
++            e.m00 = D2A_TaskInstance32_unk::Create(buf, "/data/d2anime/ui_slot_base.d2b");
+             for (int j = 0; j < 3; j++) {
+-                e.m04.push_back((ItemSlotTask_unk*)(atn::Task*)D2A_TaskInstance32_unk::Create(buf, "/data/d2anime/ui_slot_h.d2b"));
+-                e.m14.push_back((ItemSlotTask_unk*)(atn::Task*)D2A_TaskInstance32_unk::Create(buf, "/data/d2anime/ui_slot_l.d2b"));
++                e.m04.push_back(D2A_TaskInstance32_unk::Create(buf, "/data/d2anime/ui_slot_h.d2b"));
++                e.m14.push_back(D2A_TaskInstance32_unk::Create(buf, "/data/d2anime/ui_slot_l.d2b"));
+             }
+-            e.m24.push_back((ItemSlotTask_unk*)(atn::Task*)D2A_TaskInstance32_unk::Create(buf, "/data/d2anime/ui_slot_ok.d2b"));
+-            e.m24.push_back((ItemSlotTask_unk*)(atn::Task*)D2A_TaskInstance32_unk::Create(buf, "/data/d2anime/ui_slot_ok_rare.d2b"));
+-            e.m30.push_back((ItemSlotTask_unk*)(atn::Task*)D2A_TaskInstance32_unk::Create(buf, "/data/d2anime/ui_item_pop.d2b"));
+-            e.m30.push_back((ItemSlotTask_unk*)(atn::Task*)D2A_TaskInstance32_unk::Create(buf, "/data/d2anime/ui_item_pop_rare.d2b"));
+-            e.m3C = (ItemSlotTask_unk*)(atn::Task*)D2A_TaskInstance32_unk::Create(buf, "/data/d2anime/ui_slot_rare.d2b");
++            e.m24.push_back(D2A_TaskInstance32_unk::Create(buf, "/data/d2anime/ui_slot_ok.d2b"));
++            e.m24.push_back(D2A_TaskInstance32_unk::Create(buf, "/data/d2anime/ui_slot_ok_rare.d2b"));
++            e.m30.push_back(D2A_TaskInstance32_unk::Create(buf, "/data/d2anime/ui_item_pop.d2b"));
++            e.m30.push_back(D2A_TaskInstance32_unk::Create(buf, "/data/d2anime/ui_item_pop_rare.d2b"));
++            e.m3C = D2A_TaskInstance32_unk::Create(buf, "/data/d2anime/ui_slot_rare.d2b");
+             for (unsigned int j = 0; j < e.m04.size(); j++) {
+                 e.mTasks.push_back(e.m04[j]);
+                 e.mTasks.push_back(e.m14[j]);
+@@ -274,7 +262,7 @@ void ItemSlotAnime::fn_8044E418(const atn::Vector3* pos, int arg2, int arg3, voi
+                 atn::FixedArray_unk<ItemSlotTask_unk*, 2>& tasks = m00->m24;
+                 for (ItemSlotTask_unk** it = tasks.begin(); it != tasks.end(); it++) {
+                     if (*it != 0) {
+-                        (*it)->m50 = 0.0f;
++                        (*it)->mFrame = 0.0f;
+                     }
+                 }
+             }
+@@ -308,12 +296,12 @@ void ItemSlotAnime::fn_8044E644() {
+         if (m00 == 0) {
+             m00 = lbl_8087F4F8->Alloc_unk();
+         }
+-        m00->m00->m50 = 0.0f;
+-        m00->m00->m54 = 1.0f;
++        m00->m00->mFrame = 0.0f;
++        m00->m00->mSpeed = 1.0f;
+         for (int i = 0; i < 3; i++) {
+             ItemSlotTask_unk* t = m00->m04[i];
+-            t->m50 = i * 3.0f + 2.0f;
+-            t->m54 = 1.0f;
++            t->mFrame = i * 3.0f + 2.0f;
++            t->mSpeed = 1.0f;
+         }
+         for (int i = 0; i < 3; i++) {
+             fn_80450590();
+@@ -341,12 +329,12 @@ void ItemSlotAnime::fn_8044E88C() {
+             m00 = lbl_8087F4F8->Alloc_unk();
+         }
+         ItemSlotTask_unk* base = m00->m00;
+-        base->m50 = ((D2A_TaskInstance32_unk*)base)->GetEndFrame();
++        base->mFrame = base->GetEndFrame();
+         for (int i = 0; i < 3; i++) {
+             ItemSlotTask_unk* t = m00->m14[i];
+-            t->m50 = i * 3.0f + 2.0f;
+-            t->m54 = 1.0f;
+-            ((D2A_TaskInstance32_unk*)t)->SetValue3_unk(sColorPane, 0, 200.0f);
++            t->mFrame = i * 3.0f + 2.0f;
++            t->mSpeed = 1.0f;
++            t->SetValue3_unk(sColorPane, 0, 200.0f);
+         }
+         fn_8044F96C();
+     }
+@@ -363,24 +351,24 @@ void ItemSlotAnime::fn_8044EA34(int shown) {
+         if (m00 == 0) {
+             m00 = lbl_8087F4F8->Alloc_unk();
+         }
+-        m00->m00->m50 = 10.0f;
+-        m00->m00->m54 = 1.0f;
++        m00->m00->mFrame = 10.0f;
++        m00->m00->mSpeed = 1.0f;
+         for (int i = 0; i < 3; i++) {
+             ItemSlotTask_unk* t = m00->m14[i];
+-            t->m50 = i * 3.0f + 2.0f;
+-            t->m54 = 0.0f;
++            t->mFrame = i * 3.0f + 2.0f;
++            t->mSpeed = 0.0f;
+         }
+         if (shown == 0) {
+             atn::FixedArray_unk<ItemSlotTask_unk*, 2>& oks = m00->m24;
+             for (ItemSlotTask_unk** it = oks.begin(); it != oks.end(); it++) {
+                 if (*it != 0) {
+-                    (*it)->m50 = 5.0f;
++                    (*it)->mFrame = 5.0f;
+                 }
+             }
+             atn::FixedArray_unk<ItemSlotTask_unk*, 2>& oks2 = m00->m24;
+             for (ItemSlotTask_unk** it = oks2.begin(); it != oks2.end(); it++) {
+                 if (*it != 0) {
+-                    (*it)->m54 = 0.35f;
++                    (*it)->mSpeed = 0.35f;
+                 }
+             }
+             if (lbl_8087EFE8 != 0) {
+@@ -389,17 +377,17 @@ void ItemSlotAnime::fn_8044EA34(int shown) {
+             }
+         } else {
+             ItemSlotTask_unk* base = m00->m00;
+-            base->m50 = ((D2A_TaskInstance32_unk*)base)->GetEndFrame();
++            base->mFrame = base->GetEndFrame();
+             atn::FixedArray_unk<ItemSlotTask_unk*, 2>& oks = m00->m24;
+             for (ItemSlotTask_unk** it = oks.begin(); it != oks.end(); it++) {
+                 if (*it != 0) {
+-                    (*it)->m50 = 10.0f;
++                    (*it)->mFrame = 10.0f;
+                 }
+             }
+             atn::FixedArray_unk<ItemSlotTask_unk*, 2>& oks2 = m00->m24;
+             for (ItemSlotTask_unk** it = oks2.begin(); it != oks2.end(); it++) {
+                 if (*it != 0) {
+-                    (*it)->m54 = 0.35f;
++                    (*it)->mSpeed = 0.35f;
+                 }
+             }
+             if (lbl_8087EFE8 != 0) {
+@@ -415,7 +403,7 @@ void ItemSlotAnime::fn_8044EA34(int shown) {
+ 
+ // inferred: the layout animation of `task` reached its last frame (name invented)
+ static inline bool IsAnimeEnd_unk(ItemSlotTask_unk* task) {
+-    return task->m50 >= ((D2A_TaskInstance32_unk*)task)->GetEndFrame();
++    return task->mFrame >= task->GetEndFrame();
+ }
+ 
+ // NONMATCHING: 96.4% - the state test of IsState56_unk (the original keeps mState in r4 from the start
+@@ -431,7 +419,7 @@ int ItemSlotAnime::fn_8044EEC0() {
+         if ((!a->IsFlag_unk(4) && IsAnimeEnd_unk(a)) || (!b->IsFlag_unk(4) && IsAnimeEnd_unk(b))) {
+             return 1;
+         }
+-        if (mState == 5 && !a->IsFlag_unk(4) && (float)__fabs(a->m50 - 10.0f) < 1.1920929e-7f &&
++        if (mState == 5 && !a->IsFlag_unk(4) && (float)__fabs(a->mFrame - 10.0f) < 1.1920929e-7f &&
+             IsAnimeEnd_unk(m00->m00)) {
+             return 1;
+         }
+@@ -447,21 +435,21 @@ void ItemSlotAnime::fn_8044F14C() {
+         m00 = lbl_8087F4F8->Alloc_unk();
+     }
+     if (mFlag31) {
+-        if (m00->m00->m50 < 20.0f) {
+-            m00->m00->m50 = 20.0f;
+-            m00->m00->m54 = 1.0f;
++        if (m00->m00->mFrame < 20.0f) {
++            m00->m00->mFrame = 20.0f;
++            m00->m00->mSpeed = 1.0f;
+         }
+     }
+     atn::FixedArray_unk<ItemSlotTask_unk*, 2>& oks = m00->m24;
+     for (ItemSlotTask_unk** it = oks.begin(); it != oks.end(); it++) {
+         if (*it != 0) {
+-            (*it)->m50 = 10.0f;
++            (*it)->mFrame = 10.0f;
+         }
+     }
+     atn::FixedArray_unk<ItemSlotTask_unk*, 2>& oks2 = m00->m24;
+     for (ItemSlotTask_unk** it = oks2.begin(); it != oks2.end(); it++) {
+         if (*it != 0) {
+-            (*it)->m54 = 1.0f;
++            (*it)->mSpeed = 1.0f;
+         }
+     }
+     fn_80450590();
+@@ -480,13 +468,13 @@ void ItemSlotAnime::fn_8044F2D4() {
+         atn::FixedArray_unk<ItemSlotTask_unk*, 2>& pops = m00->m30;
+         for (ItemSlotTask_unk** it = pops.begin(); it != pops.end(); it++) {
+             if (*it != 0) {
+-                (*it)->m50 = 0.0f;
++                (*it)->mFrame = 0.0f;
+             }
+         }
+         atn::FixedArray_unk<ItemSlotTask_unk*, 2>& pops2 = m00->m30;
+         for (ItemSlotTask_unk** it = pops2.begin(); it != pops2.end(); it++) {
+             if (*it != 0) {
+-                (*it)->m54 = 1.0f;
++                (*it)->mSpeed = 1.0f;
+             }
+         }
+         fn_80450590();
+@@ -545,7 +533,7 @@ void ItemSlotAnime::fn_8044F434() {
+         }
+     } else if (mState == 7) {
+         ItemSlotTask_unk* pop = fn_80450A78() ? m00->m30[1] : m00->m30[0];
+-        if (pop->m50 >= 10.0f && mFlag31) {
++        if (pop->mFrame >= 10.0f && mFlag31) {
+             mState = 5;
+             if (m00 == 0) {
+                 m00 = lbl_8087F4F8->Alloc_unk();
+@@ -553,13 +541,13 @@ void ItemSlotAnime::fn_8044F434() {
+             atn::FixedArray_unk<ItemSlotTask_unk*, 2>& pops = m00->m30;
+             for (ItemSlotTask_unk** it = pops.begin(); it != pops.end(); it++) {
+                 if (*it != 0) {
+-                    (*it)->m50 = 10.0f;
++                    (*it)->mFrame = 10.0f;
+                 }
+             }
+             atn::FixedArray_unk<ItemSlotTask_unk*, 2>& pops2 = m00->m30;
+             for (ItemSlotTask_unk** it = pops2.begin(); it != pops2.end(); it++) {
+                 if (*it != 0) {
+-                    (*it)->m54 = 1.0f;
++                    (*it)->mSpeed = 1.0f;
+                 }
+             }
+             fn_8044F96C();
+@@ -590,7 +578,7 @@ static inline float FadeOut_unk(float frame) {
+ 
+ // inferred: clears a text pane (name invented)
+ inline void ItemSlotAnime::ClearText_unk(ItemSlotTask_unk* task, const char* pane) {
+-    ((D2A_TaskInstance32_unk*)task)->SetText_unk(pane, L"");
++    task->SetText_unk(pane, L"");
+ }
+ 
+ // NONMATCHING: 99.27% - registers of the iterator loops (iterator and end base swapped) and of the selected
+@@ -627,28 +615,28 @@ void ItemSlotAnime::fn_8044F96C() {
+         atn::FixedArray_unk<ItemSlotTask_unk*, 16>& t0 = m00->mTasks;
+         for (ItemSlotTask_unk** it = t0.begin(); it != t0.end(); it++) {
+             if (*it != 0) {
+-                ((D2A_TaskInstance32_unk*)*it)->SetValue1_unk(sPosPane, 0, x);
++                (*it)->SetValue1_unk(sPosPane, 0, x);
+             }
+         }
+         float y = screen.y;
+         atn::FixedArray_unk<ItemSlotTask_unk*, 16>& t1 = m00->mTasks;
+         for (ItemSlotTask_unk** it = t1.begin(); it != t1.end(); it++) {
+             if (*it != 0) {
+-                ((D2A_TaskInstance32_unk*)*it)->SetValue1_unk(sPosPane, 1, y);
++                (*it)->SetValue1_unk(sPosPane, 1, y);
+             }
+         }
+         float sx = mScale;
+         atn::FixedArray_unk<ItemSlotTask_unk*, 16>& t2 = m00->mTasks;
+         for (ItemSlotTask_unk** it = t2.begin(); it != t2.end(); it++) {
+             if (*it != 0) {
+-                ((D2A_TaskInstance32_unk*)*it)->SetValue1_unk(sPosPane, 2, sx);
++                (*it)->SetValue1_unk(sPosPane, 2, sx);
+             }
+         }
+         float sy = mScale;
+         atn::FixedArray_unk<ItemSlotTask_unk*, 16>& t3 = m00->mTasks;
+         for (ItemSlotTask_unk** it = t3.begin(); it != t3.end(); it++) {
+             if (*it != 0) {
+-                ((D2A_TaskInstance32_unk*)*it)->SetValue1_unk(sPosPane, 3, sy);
++                (*it)->SetValue1_unk(sPosPane, 3, sy);
+             }
+         }
+     }
+@@ -656,7 +644,7 @@ void ItemSlotAnime::fn_8044F96C() {
+         return;
+     }
+     if (mFlag27 && !mFlag25 && fn_80450A78() && (mState == 5 || mState == 6 || mFlag26)) {
+-        if (mFlag29 || (OkTask_unk() != 0 && OkTask_unk()->m50 < 30.0f)) {
++        if (mFlag29 || (OkTask_unk() != 0 && OkTask_unk()->mFrame < 30.0f)) {
+             m00->m3C->MeltTask();
+         } else {
+             m00->m3C->FreezeTask();
+@@ -666,29 +654,29 @@ void ItemSlotAnime::fn_8044F96C() {
+     }
+     if (mState == 3) {
+         m00->m00->MeltTask();
+-        if (m00->m00->m50 > 10.0f) {
+-            m00->m00->m50 = 10.0f;
++        if (m00->m00->mFrame > 10.0f) {
++            m00->m00->mFrame = 10.0f;
+         }
+         for (int i = 0; i < 3; i++) {
+             ItemSlotTask_unk* slot = m00->m04[i];
+-            if (m00->m00->m50 >= 10.0f) {
++            if (m00->m00->mFrame >= 10.0f) {
+                 slot->MeltTask();
+                 for (int j = 0; j < 7; j++) {
+-                    ((D2A_TaskInstance32_unk*)slot)->SetText_unk(sSlotTextPanes[j], mTexts[i].mStr);
++                    slot->SetText_unk(sSlotTextPanes[j], mTexts[i].mStr);
+                 }
+             }
+         }
+     } else if (mState == 4 || mState == 5) {
+         if (mF0 == 0) {
+             m00->m00->MeltTask();
+-            if (mState == 4 && m00->m00->m50 > 10.0f) {
+-                m00->m00->m50 = 10.0f;
++            if (mState == 4 && m00->m00->mFrame > 10.0f) {
++                m00->m00->mFrame = 10.0f;
+             }
+             for (int i = 0; i < 3; i++) {
+                 ItemSlotTask_unk* arrow = m00->m14[i];
+                 arrow->MeltTask();
+                 if (mState == 4 || i != 1) {
+-                    ((D2A_TaskInstance32_unk*)arrow)->SetText_unk(sArrowPane, mTexts[i].mStr);
++                    arrow->SetText_unk(sArrowPane, mTexts[i].mStr);
+                 } else {
+                     ClearText_unk(arrow, sArrowPane);
+                 }
+@@ -696,18 +684,18 @@ void ItemSlotAnime::fn_8044F96C() {
+             if (mState == 5) {
+                 ItemSlotTask_unk* ok = OkTask_unk();
+                 ok->MeltTask();
+-                if (ok->m50 > 10.0f) {
+-                    ok->m50 = 10.0f;
++                if (ok->mFrame > 10.0f) {
++                    ok->mFrame = 10.0f;
+                 }
+-                float rate = FadeIn_unk(ok->m50) < 1.0f ? FadeIn_unk(ok->m50) : 1.0f;
++                float rate = FadeIn_unk(ok->mFrame) < 1.0f ? FadeIn_unk(ok->mFrame) : 1.0f;
+                 float alpha = 200.0f * rate;
+                 for (int i = 0; i < 3; i++) {
+-                    ((D2A_TaskInstance32_unk*)m00->m14[i])->SetValue3_unk(sColorPane, 0, alpha);
++                    m00->m14[i]->SetValue3_unk(sColorPane, 0, alpha);
+                 }
+                 for (int i = 0; i < 3; i++) {
+-                    ((D2A_TaskInstance32_unk*)ok)->SetValue3_unk(sOkColorPanes[i], 0, alpha);
++                    ok->SetValue3_unk(sOkColorPanes[i], 0, alpha);
+                     if (mFlag29 || i != 0) {
+-                ((D2A_TaskInstance32_unk*)ok)->SetText_unk(sOkTextPanes[i], mTexts[1].mStr);
++                ok->SetText_unk(sOkTextPanes[i], mTexts[1].mStr);
+             } else {
+                 ClearText_unk(ok, sOkTextPanes[i]);
+             }
+@@ -722,15 +710,15 @@ void ItemSlotAnime::fn_8044F96C() {
+         }
+         ItemSlotTask_unk* ok = OkTask_unk();
+         ok->MeltTask();
+-        float rate = FadeOut_unk(ok->m50) < 1.0f ? FadeOut_unk(ok->m50) : 1.0f;
++        float rate = FadeOut_unk(ok->mFrame) < 1.0f ? FadeOut_unk(ok->mFrame) : 1.0f;
+         float alpha = 200.0f * rate;
+         for (int i = 0; i < 3; i++) {
+-            ((D2A_TaskInstance32_unk*)m00->m14[i])->SetValue3_unk(sColorPane, 0, alpha);
++            m00->m14[i]->SetValue3_unk(sColorPane, 0, alpha);
+         }
+         for (int i = 0; i < 3; i++) {
+-            ((D2A_TaskInstance32_unk*)ok)->SetValue3_unk(sOkColorPanes[i], 0, 200.0f);
++            ok->SetValue3_unk(sOkColorPanes[i], 0, 200.0f);
+             if (mFlag29 || i != 0) {
+-                ((D2A_TaskInstance32_unk*)ok)->SetText_unk(sOkTextPanes[i], mTexts[1].mStr);
++                ok->SetText_unk(sOkTextPanes[i], mTexts[1].mStr);
+             } else {
+                 ClearText_unk(ok, sOkTextPanes[i]);
+             }
+@@ -739,7 +727,7 @@ void ItemSlotAnime::fn_8044F96C() {
+         ItemSlotTask_unk* pop = PopTask_unk();
+         pop->MeltTask();
+         for (int i = 0; i < 3; i++) {
+-            ((D2A_TaskInstance32_unk*)pop)->SetText_unk(sPopTextPanes[i], mTexts[0].mStr);
++            pop->SetText_unk(sPopTextPanes[i], mTexts[0].mStr);
+         }
+     }
+ }
+@@ -1248,25 +1236,25 @@ inline bool ItemSlotAnimeBuffer::Start_unk() {
+         }
+         for (ItemSlotTask_unk** it = e->mTasks.begin(); it != e->mTasks.end(); it++) {
+             if (*it != 0) {
+-                (*it)->m4D = 0;
++                (*it)->mLoop = 0;
+             }
+         }
+         for (ItemSlotTask_unk** it = e->mTasks.begin(); it != e->mTasks.end(); it++) {
+             if (*it != 0) {
+-                (*it)->m4C = 1;
++                (*it)->mPlaying = 1;
+             }
+         }
+         for (ItemSlotTask_unk** it = e->m04.begin(); it != e->m04.end(); it++) {
+             if (*it != 0) {
+-                (*it)->m4D = 1;
++                (*it)->mLoop = 1;
+             }
+         }
+         for (ItemSlotTask_unk** it = e->m14.begin(); it != e->m14.end(); it++) {
+             if (*it != 0) {
+-                (*it)->m4D = 1;
++                (*it)->mLoop = 1;
+             }
+         }
+-        e->m3C->m4D = 1;
++        e->m3C->mLoop = 1;
+     }
+     return false;
+ }

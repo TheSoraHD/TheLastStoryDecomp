@@ -2,6 +2,7 @@
 #define GAME_SHOPBASE_H
 
 #include "atn/Task.h"
+#include "atn/D2A_TaskInstanceC.h"
 #include "atn/LH_Binary.h"
 #include "std/vector.h"
 #include "atn/ResRef_unk.h"
@@ -27,14 +28,8 @@ struct ShopD2A_unk : public atn::Task {
     float mFrame; // 0x100
     float mSpeed; // 0x104
 };
-// inferred: layout anime task (made by D2A_TaskInstanceBase<32, 8>::Create); only the members used by the shops
-struct ShopLayout_unk : public atn::Task {
-    unsigned char m48[0x4D - 0x48];
-    bool mRepeat; // 0x4D
-    unsigned char m4E[0x50 - 0x4E];
-    float mFrame; // 0x50
-    float mSpeed; // 0x54
-};
+// inferred: layout anime task of the shops (made by D2A_TaskInstanceBase<32, 8>::Create)
+typedef D2A_TaskInstance32_unk ShopLayout_unk;
 
 // inferred: entry of the first list of the shop (0x64 bytes, 128 entries; cleared by the constructor
 // 0x8057F280); names invented

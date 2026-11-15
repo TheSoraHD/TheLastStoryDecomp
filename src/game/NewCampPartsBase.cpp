@@ -618,7 +618,7 @@ void NewCampPartsBase::vf48() {
         if (entry->m04 == 1) {
             atn::D3AnimeInstance* anime = (atn::D3AnimeInstance*)entry->mAnime;
             if (anime != 0 && anime->GetTask() != 0) {
-                ((atn::D2A_TaskInstanceBase<32, 8>*)((atn::D3AnimeInstance*)m50[i].mAnime)->GetTask())->SetValue0_unk("frameOn", 0.0f);
+                ((atn::D3AnimeInstance*)m50[i].mAnime)->GetTask()->SetValue0_unk("frameOn", 0.0f);
             }
         } else {
             atn::D3Anime* anime = entry->mAnime;

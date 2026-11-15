@@ -181,11 +181,11 @@ DropItem::DropItem(atn::Task* parent, int id, int arg)
     mSlot.mFlag29 = 0;
     mSlot.mFlag28 = 0;
     mSlot.mFlag24 = 1;
-    DropLayout_unk* layout = (DropLayout_unk*)(atn::Task*)D2A_TaskInstance32_unk::Create(this, "/data/d2anime/ui_slot_ok.d2b");
+    DropLayout_unk* layout = D2A_TaskInstance32_unk::Create(this, "/data/d2anime/ui_slot_ok.d2b");
     if (mLayouts.size() < 2) {
         mLayouts.push_back(layout);
     }
-    layout = (DropLayout_unk*)(atn::Task*)D2A_TaskInstance32_unk::Create(this, "/data/d2anime/ui_slot_ok_rare.d2b");
+    layout = D2A_TaskInstance32_unk::Create(this, "/data/d2anime/ui_slot_ok_rare.d2b");
     if (mLayouts.size() < 2) {
         mLayouts.push_back(layout);
     }
@@ -470,12 +470,12 @@ void DropItem::vf14() {
     }
     for (DropLayout_unk** it = &mLayouts.mData[0]; it != &mLayouts.mData[mLayouts.mSize]; it++) {
         if (*it != 0) {
-            (*it)->m50 = 10.0f;
+            (*it)->mFrame = 10.0f;
         }
     }
     for (DropLayout_unk** it = &mLayouts.mData[0]; it != &mLayouts.mData[mLayouts.mSize]; it++) {
         if (*it != 0) {
-            (*it)->m54 = 0.0f;
+            (*it)->mSpeed = 0.0f;
         }
     }
     if (lbl_8087F610 != 0) {
@@ -516,35 +516,35 @@ void DropItem::vf14() {
     }
     for (DropLayout_unk** it = &mLayouts.mData[0]; it != &mLayouts.mData[mLayouts.mSize]; it++) {
         if (*it != 0) {
-            ((D2A_TaskInstance32_unk*)*it)->SetValue1_unk(sPosPane, 0, screen.x);
+            (*it)->SetValue1_unk(sPosPane, 0, screen.x);
         }
     }
     for (DropLayout_unk** it = &mLayouts.mData[0]; it != &mLayouts.mData[mLayouts.mSize]; it++) {
         if (*it != 0) {
-            ((D2A_TaskInstance32_unk*)*it)->SetValue1_unk(sPosPane, 1, screen.y);
+            (*it)->SetValue1_unk(sPosPane, 1, screen.y);
         }
     }
     for (DropLayout_unk** it = &mLayouts.mData[0]; it != &mLayouts.mData[mLayouts.mSize]; it++) {
         if (*it != 0) {
-            ((D2A_TaskInstance32_unk*)*it)->SetValue1_unk(sPosPane, 2, scale);
+            (*it)->SetValue1_unk(sPosPane, 2, scale);
         }
     }
     for (DropLayout_unk** it = &mLayouts.mData[0]; it != &mLayouts.mData[mLayouts.mSize]; it++) {
         if (*it != 0) {
-            ((D2A_TaskInstance32_unk*)*it)->SetValue1_unk(sPosPane, 3, scale);
+            (*it)->SetValue1_unk(sPosPane, 3, scale);
         }
     }
     for (unsigned int i = 0; i < 3; i++) {
         if (i == 0) {
             for (DropLayout_unk** it = &mLayouts.mData[0]; it != &mLayouts.mData[mLayouts.mSize]; it++) {
                 if (*it != 0) {
-                    ((D2A_TaskInstance32_unk*)*it)->SetText_unk(sTextPanes[i], text);
+                    (*it)->SetText_unk(sTextPanes[i], text);
                 }
             }
         } else {
             for (DropLayout_unk** it = &mLayouts.mData[0]; it != &mLayouts.mData[mLayouts.mSize]; it++) {
                 if (*it != 0) {
-                    ((D2A_TaskInstance32_unk*)*it)->SetText_unk(sTextPanes[i], L"");
+                    (*it)->SetText_unk(sTextPanes[i], L"");
                 }
             }
         }
@@ -553,7 +553,7 @@ void DropItem::vf14() {
         float alpha = 255.0f * mAlpha;
         for (DropLayout_unk** it = &mLayouts.mData[0]; it != &mLayouts.mData[mLayouts.mSize]; it++) {
             if (*it != 0) {
-                ((D2A_TaskInstance32_unk*)*it)->SetValue3_unk(sColorPanes[i], 0, alpha);
+                (*it)->SetValue3_unk(sColorPanes[i], 0, alpha);
             }
         }
     }

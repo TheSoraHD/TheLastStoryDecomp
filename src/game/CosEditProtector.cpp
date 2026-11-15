@@ -86,11 +86,6 @@ struct CosEditD2A_unk : public atn::Task {
     float mFrame; // 0x100
     float mSpeed; // 0x104
 };
-// inferred: layout anime task (as ShopLayout_unk in game/ShopBase.h)
-struct CosEditLayout_unk : public atn::Task {
-    unsigned char m48[0x4E - 0x48];
-    unsigned char m4E;
-};
 // inferred: field (lbl_8087F430): chapter at 0x10D0
 struct Field_unk {
     unsigned char m0000[0x10D0];
@@ -431,8 +426,8 @@ void CosEditProtector::vf1C(NewCampScene_unk* scene) {
     fn_805113E8(mBest, 1, 0, 0.0f, -1.0f);
     fn_805115D0(mBestTask, 1, 0, 0.0f, -1.0f);
     fn_805115D0(mNaked, 1, 0, 0.0f, -1.0f);
-    mE8 = (atn::Task*)&m54[11];
-    mEC = (atn::Task*)&m54[12];
+    mE8 = &m54[11];
+    mEC = &m54[12];
     vf34(0);
     vf74(0, 0);
 }
@@ -488,8 +483,8 @@ void CosEditProtector::vf24() {
         fn_800D2338(mB88);
         mB88 = 0;
     }
-    (mB88 = (atn::Task*)D2A_TaskInstance32_unk::Create(this, "data/d2anime/equip_face.d2a"))->fn_800D246C(1);
-    ((CosEditLayout_unk*)mB88)->m4E = 0;
+    (mB88 = D2A_TaskInstance32_unk::Create(this, "data/d2anime/equip_face.d2a"))->fn_800D246C(1);
+    mB88->mVisible = 0;
     m1C54.clear();
 }
 
@@ -535,7 +530,7 @@ void CosEditProtector::vf48() {
         if (entry->m04 == 1) {
             atn::D3AnimeInstance* anime = (atn::D3AnimeInstance*)entry->mAnime;
             if (anime != 0 && anime->GetTask() != 0) {
-                ((D2A_TaskInstance32_unk*)(atn::Task*)((atn::D3AnimeInstance*)m50[i].mAnime)->GetTask())->SetValue0_unk("frameOn", value);
+                ((atn::D3AnimeInstance*)m50[i].mAnime)->GetTask()->SetValue0_unk("frameOn", value);
             }
         } else {
             atn::D3Anime* anime = entry->mAnime;
@@ -718,7 +713,7 @@ void CosEditProtector::vf64() {
                     mSelect->mVisible = 1;
                     break;
                 }
-                motion = (NewCampPartsMotion_unk*)mE8;
+                motion = mE8;
             } else {
                 switch (m1E8) {
                 case 1:
@@ -755,14 +750,14 @@ void CosEditProtector::vf64() {
                     mSelect->mVisible = 1;
                     break;
                 }
-                motion = (NewCampPartsMotion_unk*)mEC;
+                motion = mEC;
             }
         } else if (i == 8) {
             entry->mAnime = 0;
             step = 0.5f;
             if (m1F0 != 0) {
                 fn_801D463C(&entry->mAnime, mLists, m1EC, 8, 11);
-                motion = (NewCampPartsMotion_unk*)mE8;
+                motion = mE8;
             } else {
                 fn_801D463C(&entry->mAnime, mLists, m1E8, 8, 1);
             }
@@ -771,7 +766,7 @@ void CosEditProtector::vf64() {
             step = 0.5f;
             if (m1F0 != 0) {
                 fn_801D463C(&entry->mAnime, mLists, m1E8, 9, 12);
-                motion = (NewCampPartsMotion_unk*)mEC;
+                motion = mEC;
             }
         } else if (sBoardAnimes[i].m0C != 0 && fn_8050FD20() != 0 && ((NewCampTask*)m48)->m458 >= 25.0f) {
             step = 1.0f;
@@ -973,7 +968,7 @@ void CosEditProtector::vf64() {
                     char name[0x40];
                     sprintf(name, "palette%02d", i);
                     atn::D2A_DrawRect rect = GetPaneRect_unk(select, name);
-                    ((D2A_TaskInstance32_unk*)(atn::Task*)mPalettes[i]->GetTask())->SetValues1_unk("base_pos", rect);
+                    mPalettes[i]->GetTask()->SetValues1_unk("base_pos", rect);
                 }
             }
             fn_801D7560(member, status, &m50[mB8C], palette);
@@ -1190,16 +1185,16 @@ void CosEditProtector::fn_801D3DF4() {
         if (m80 >= 0 && m84 > 0) {
             sprintf(name, "camp_cursor%d", m80 - m88 + 1);
             pos = GetPaneRect_unk(mLists[0].mBase->GetTask(), name);
-            atn::Task* bar = mLists[0].mScrollBar->GetTask();
+            D2A_TaskInstance32_unk* bar = mLists[0].mScrollBar->GetTask();
             if (bar != 0) {
-                ((D2A_TaskInstance32_unk*)bar)->SetValue0_unk("s_hightMax", 210.0f);
+                bar->SetValue0_unk("s_hightMax", 210.0f);
                 fn_804A4930(bar, m88, m84, m8C);
             }
             fn_805119C8(mLists[0].mItems[m80 - m88]->GetTask(), 0, &m50[1], (const NewCampPartsPoint_unk&)pos, 0);
         } else {
-            atn::Task* bar = mLists[0].mScrollBar->GetTask();
+            D2A_TaskInstance32_unk* bar = mLists[0].mScrollBar->GetTask();
             if (bar != 0) {
-                ((D2A_TaskInstance32_unk*)bar)->SetValue0_unk("s_hightMax", 210.0f);
+                bar->SetValue0_unk("s_hightMax", 210.0f);
                 fn_804A4930(bar, 0, 1, 1);
             }
         }
@@ -1208,16 +1203,16 @@ void CosEditProtector::fn_801D3DF4() {
         if (m80 >= 0 && m84 > 0) {
             sprintf(name, "camp_cursor%d", m80 - m88 + 1);
             pos = GetPaneRect_unk(mLists[2].mBase->GetTask(), name);
-            atn::Task* bar = mLists[2].mScrollBar->GetTask();
+            D2A_TaskInstance32_unk* bar = mLists[2].mScrollBar->GetTask();
             if (bar != 0) {
-                ((D2A_TaskInstance32_unk*)bar)->SetValue0_unk("s_hightMax", 270.0f);
+                bar->SetValue0_unk("s_hightMax", 270.0f);
                 fn_804A4930(bar, m88, m84, m8C);
             }
             fn_805119C8(mLists[2].mItems[m80 - m88]->GetTask(), 0, &m50[8], (const NewCampPartsPoint_unk&)pos, 0);
         } else {
-            atn::Task* bar = mLists[2].mScrollBar->GetTask();
+            D2A_TaskInstance32_unk* bar = mLists[2].mScrollBar->GetTask();
             if (bar != 0) {
-                ((D2A_TaskInstance32_unk*)bar)->SetValue0_unk("s_hightMax", 210.0f);
+                bar->SetValue0_unk("s_hightMax", 210.0f);
                 fn_804A4930(bar, 0, 1, 1);
             }
         }

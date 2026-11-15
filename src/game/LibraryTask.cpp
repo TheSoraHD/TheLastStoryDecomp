@@ -94,7 +94,7 @@ LibraryTask::LibraryTask(atn::Task* parent) : atn::Task(parent), mPrevState(2), 
     m54->fn_800D246C(1);
     const char* list = "/data/d2anime/library_list.d2a";
     for (int i = 0; i < 10; i++) {
-        MenuLayout_unk* item = (MenuLayout_unk*)(atn::Task*)D2A_TaskInstance32_unk::Create(this, list);
+        MenuLayout_unk* item = D2A_TaskInstance32_unk::Create(this, list);
         m58[i] = item;
         item->fn_800D246C(1);
     }
@@ -102,7 +102,7 @@ LibraryTask::LibraryTask(atn::Task* parent) : atn::Task(parent), mPrevState(2), 
     m84->fn_800D246C(1);
     m88 = fn_801F3FF8(this, "/data/d2anime/library_arrow_r.d2a", 0);
     m88->fn_800D246C(1);
-    m80 = (MenuLayout_unk*)(atn::Task*)D2A_TaskInstance32_unk::Create(this, "scroll_bar.d2a");
+    m80 = D2A_TaskInstance32_unk::Create(this, "scroll_bar.d2a");
     m80->fn_800D246C(1);
     mFile.vf0C("database/library/book_table_xx.u16");
     fn_800C3094("GROUP_EV1605");
@@ -255,8 +255,8 @@ void LibraryTask::fn_80469AB8() {
             fn_804A55FC(MenuCommonTask::sInstance, m58[mCursor - mTop], 0, &rect, 0);
         }
         atn::D2A_DrawRect pos = GetPanePos_unk(m54, "sb_null");
-        ((D2A_TaskInstance32_unk*)m80)->SetValues1_unk("basePos", *(atn::D2A_DrawRect*)&pos);
-        ((D2A_TaskInstance32_unk*)m80)->SetValue0_unk("s_hightMax", 250.0f);
+        m80->SetValues1_unk("basePos", *(atn::D2A_DrawRect*)&pos);
+        m80->SetValue0_unk("s_hightMax", 250.0f);
         m80->mFlags &= ~4;
         fn_804A4930(m80, mTop, mBooks.size(), 10);
     }
@@ -322,13 +322,13 @@ void LibraryTask::fn_8046A20C() {
         char name[0x40];
         sprintf(name, "list_point%d", i + 1);
         pos = GetPanePos_unk(m54, name);
-        ((D2A_TaskInstance32_unk*)m58[i])->SetValues1_unk("basePos", *(atn::D2A_DrawRect*)&pos);
+        m58[i]->SetValues1_unk("basePos", *(atn::D2A_DrawRect*)&pos);
         int index = i + mTop;
         if (index < (int)mBooks.size()) {
             LibraryBook_unk* book = &mBooks[index];
             isNew = book->mId > 0 && ((GameTask*)lbl_8087F430)->fn_80370174(book->mId) == 1;
-            ((D2A_TaskInstance32_unk*)m58[i])->SetText_unk("bookName", book->mTitle);
-            ((D2A_TaskInstance32_unk*)m58[i])->SetValue0_unk("newIcon", isNew ? 1.0f : 0.0f);
+            m58[i]->SetText_unk("bookName", book->mTitle);
+            m58[i]->SetValue0_unk("newIcon", isNew ? 1.0f : 0.0f);
             m58[i]->mFlags &= ~4;
         }
     }

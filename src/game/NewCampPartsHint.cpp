@@ -238,7 +238,7 @@ void NewCampPartsHint::vf14() {
             if (mItems[i]->GetTask() != 0) {
                 sprintf(name, "item_list%d", i + 1);
                 pos = GetPanePos_unk(mBase->GetTask(), name);
-                ((D2A_TaskInstance32_unk*)mItems[i]->GetTask())->SetValues1_unk("base_point", *(atn::D2A_DrawRect*)&pos);
+                mItems[i]->GetTask()->SetValues1_unk("base_point", *(atn::D2A_DrawRect*)&pos);
                 fn_805112A8(base, mItems[i], atn::Vector3(0.0f, 0.0f, 0.0f), atn::Vector3(1.0f, 1.0f, 1.0f), "reference");
             }
         }
@@ -252,8 +252,8 @@ void NewCampPartsHint::vf14() {
         if (mScroll->GetTask() != 0) {
             sprintf(name, "scroll_point");
             pos = GetPanePos_unk(mBase->GetTask(), name);
-            ((D2A_TaskInstance32_unk*)mScroll->GetTask())->SetValues1_unk("basePos", *(atn::D2A_DrawRect*)&pos);
-            ((D2A_TaskInstance32_unk*)mScroll->GetTask())->SetValue0_unk("s_hightMax", 245.0f);
+            mScroll->GetTask()->SetValues1_unk("basePos", *(atn::D2A_DrawRect*)&pos);
+            mScroll->GetTask()->SetValue0_unk("s_hightMax", 245.0f);
             fn_804A4930(mScroll->GetTask(), mTop, mList.size(), 10);
         }
     }
@@ -500,25 +500,25 @@ void NewCampPartsHint::fn_8051640C() {
 
 void NewCampPartsHint::fn_80516544() {
     for (int i = 0; i < 10; i++) {
-        atn::Task* task = mItems[i]->GetTask();
+        D2A_TaskInstance32_unk* task = mItems[i]->GetTask();
         if (task != 0) {
             int visible = 0;
             int index = mTop + i;
             NewCampTutorial_unk* tutorial;
             if (index < (int)mList.size() && (tutorial = mList[index]) != 0 &&
                 ((GameTask*)lbl_8087F430)->fn_80370174(tutorial->mFlag) >= 1) {
-                ((D2A_TaskInstance32_unk*)task)->SetText_unk("item", tutorial->mName);
+                task->SetText_unk("item", tutorial->mName);
                 if (tutorial->mSeen != 0) {
-                    ((D2A_TaskInstance32_unk*)task)->SetValues2_unk("iconUvMask", atn::Vector4_unk(0.5f, 0.0f, 1.0f, 1.0f));
-                    ((D2A_TaskInstance32_unk*)task)->SetColor_unk("iconCol", 200.0f, 230.0f, 255.0f);
+                    task->SetValues2_unk("iconUvMask", atn::Vector4_unk(0.5f, 0.0f, 1.0f, 1.0f));
+                    task->SetColor_unk("iconCol", 200.0f, 230.0f, 255.0f);
                 } else {
-                    ((D2A_TaskInstance32_unk*)task)->SetValues2_unk("iconUvMask", atn::Vector4_unk(0.0f, 0.0f, 0.5f, 1.0f));
-                    ((D2A_TaskInstance32_unk*)task)->SetColor_unk("iconCol", 244.0f, 233.0f, 192.0f);
+                    task->SetValues2_unk("iconUvMask", atn::Vector4_unk(0.0f, 0.0f, 0.5f, 1.0f));
+                    task->SetColor_unk("iconCol", 244.0f, 233.0f, 192.0f);
                 }
                 if (mMode == 1 && index == mCursor) {
-                    ((D2A_TaskInstance32_unk*)task)->SetValue3_unk("pushCol", 0, 255.0f);
+                    task->SetValue3_unk("pushCol", 0, 255.0f);
                 } else {
-                    ((D2A_TaskInstance32_unk*)task)->SetValue3_unk("pushCol", 0, 0.0f);
+                    task->SetValue3_unk("pushCol", 0, 0.0f);
                 }
                 visible = 1;
             }

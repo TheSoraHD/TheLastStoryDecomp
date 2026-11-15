@@ -73,7 +73,7 @@ extern "C" void fn_804A39EC(ShopD2A_unk* anime, int arg1, int repeat, float fram
 extern "C" void fn_804A3A68(ShopLayout_unk* layout, int arg1, int repeat, float frame, float speed);
 
 inline ShopLayout_unk* CreateLayout_unk(atn::Task* parent, const char* path) {
-    return (ShopLayout_unk*)D2A_TaskInstance32_unk::Create(parent, path);
+    return D2A_TaskInstance32_unk::Create(parent, path);
 }
 
 
@@ -125,7 +125,7 @@ int ShopColor::vf0C() {
         }
         for (int i = 0; i < 3; i++) {
             mNeed[i]->fn_800D246C(0);
-            mNeed[i]->mRepeat = 0;
+            mNeed[i]->mLoop = 0;
             mNeed[i]->mFlags |= 4;
         }
         m25BAC = 1;
@@ -382,31 +382,31 @@ void ShopColor::fn_805880F0() {
         char name[0x40];
         sprintf(name, "list_point%d", i + 1);
         pos = GetPanePos_unk(mListBase, name);
-        ((D2A_TaskInstance32_unk*)mList[i])->SetValues1_unk("basePos", *(atn::D2A_DrawRect*)&pos);
+        mList[i]->SetValues1_unk("basePos", *(atn::D2A_DrawRect*)&pos);
         int index = i + mScroll.mTop;
         if (index < (int)mColors.size()) {
             ShopItem_unk* item = fn_80211480(mColors[index].mId);
             if (item != 0) {
-                ((D2A_TaskInstance32_unk*)mList[i])->SetText_unk("itemName", item->mName);
+                mList[i]->SetText_unk("itemName", item->mName);
                 int num = fn_804444E8(party, item->mCountId);
-                ((D2A_TaskInstance32_unk*)mList[i])->SetValue0_unk("showPrice", 0.0f);
-                ((D2A_TaskInstance32_unk*)mList[i])->SetValue0_unk("showNum2", 0.0f);
-                ((D2A_TaskInstance32_unk*)mList[i])->SetNumber_unk("needNum", num, 0);
-                ((D2A_TaskInstance32_unk*)mList[i])->SetValue0_unk("faceOn", 0.0f);
+                mList[i]->SetValue0_unk("showPrice", 0.0f);
+                mList[i]->SetValue0_unk("showNum2", 0.0f);
+                mList[i]->SetNumber_unk("needNum", num, 0);
+                mList[i]->SetValue0_unk("faceOn", 0.0f);
                 ShopUV_unk uv = fn_80444C50(Inventory::instance_, fn_80444BE8(Inventory::instance_, item));
-                ((D2A_TaskInstance32_unk*)mList[i])->SetValues2_unk("iconUv", uv);
+                mList[i]->SetValues2_unk("iconUv", uv);
                 if (num == 0) {
-                    ((D2A_TaskInstance32_unk*)mList[i])->SetValue0_unk("colorOn", 0.0f);
-                    ((D2A_TaskInstance32_unk*)mList[i])->SetColor_unk("itemCol", 255.0f, 255.0f, 255.0f);
-                    ((D2A_TaskInstance32_unk*)mList[i])->SetValue0_unk("subColorR", 180.0f);
-                    ((D2A_TaskInstance32_unk*)mList[i])->SetValue0_unk("subColorR", 180.0f);
-                    ((D2A_TaskInstance32_unk*)mList[i])->SetValue0_unk("subColorR", 180.0f);
+                    mList[i]->SetValue0_unk("colorOn", 0.0f);
+                    mList[i]->SetColor_unk("itemCol", 255.0f, 255.0f, 255.0f);
+                    mList[i]->SetValue0_unk("subColorR", 180.0f);
+                    mList[i]->SetValue0_unk("subColorR", 180.0f);
+                    mList[i]->SetValue0_unk("subColorR", 180.0f);
                 } else {
-                    ((D2A_TaskInstance32_unk*)mList[i])->SetValue0_unk("colorOn", 0.0f);
-                    ((D2A_TaskInstance32_unk*)mList[i])->SetColor_unk("itemCol", 128.0f, 128.0f, 128.0f);
-                    ((D2A_TaskInstance32_unk*)mList[i])->SetValue0_unk("subColorR", 100.0f);
-                    ((D2A_TaskInstance32_unk*)mList[i])->SetValue0_unk("subColorR", 100.0f);
-                    ((D2A_TaskInstance32_unk*)mList[i])->SetValue0_unk("subColorR", 100.0f);
+                    mList[i]->SetValue0_unk("colorOn", 0.0f);
+                    mList[i]->SetColor_unk("itemCol", 128.0f, 128.0f, 128.0f);
+                    mList[i]->SetValue0_unk("subColorR", 100.0f);
+                    mList[i]->SetValue0_unk("subColorR", 100.0f);
+                    mList[i]->SetValue0_unk("subColorR", 100.0f);
                 }
                 mList[i]->mFlags &= ~4;
             }
@@ -425,28 +425,28 @@ void ShopColor::fn_805883D8(ShopColorEntry_unk* entry) {
         char name[0x40];
         sprintf(name, "NeedItem%d", i + 1);
         pos = GetPanePos_unk(mContent, name);
-        ((D2A_TaskInstance32_unk*)mNeed[i])->SetValues1_unk("basePos", *(atn::D2A_DrawRect*)&pos);
+        mNeed[i]->SetValues1_unk("basePos", *(atn::D2A_DrawRect*)&pos);
         if (entry->mMat[i] != 0) {
             mNeed[i]->mFlags &= ~4;
             ShopItem_unk* mat = fn_80211480(entry->mMat[i]);
             if (mat != 0) {
-                ((D2A_TaskInstance32_unk*)mNeed[i])->SetValue0_unk("showNum2", 1.0f);
-                ((D2A_TaskInstance32_unk*)mNeed[i])->SetNumber_unk("needNum", entry->mNum[i], 0);
-                ((D2A_TaskInstance32_unk*)mNeed[i])->SetNumber_unk("num", fn_804444E8(party, mat->mCountId), 0);
-                ((D2A_TaskInstance32_unk*)mNeed[i])->SetValue0_unk("faceOn", 0.0f);
-                ((D2A_TaskInstance32_unk*)mNeed[i])->SetText_unk("itemName", mat->mName);
+                mNeed[i]->SetValue0_unk("showNum2", 1.0f);
+                mNeed[i]->SetNumber_unk("needNum", entry->mNum[i], 0);
+                mNeed[i]->SetNumber_unk("num", fn_804444E8(party, mat->mCountId), 0);
+                mNeed[i]->SetValue0_unk("faceOn", 0.0f);
+                mNeed[i]->SetText_unk("itemName", mat->mName);
                 if (entry->mNum[i] <= fn_804444E8(party, mat->mCountId)) {
-                    ((D2A_TaskInstance32_unk*)mNeed[i])->SetValue0_unk("colorOn", 0.0f);
-                    ((D2A_TaskInstance32_unk*)mNeed[i])->SetColor_unk("itemCol", 255.0f, 255.0f, 255.0f);
-                    ((D2A_TaskInstance32_unk*)mNeed[i])->SetValue0_unk("subColorR", 180.0f);
-                    ((D2A_TaskInstance32_unk*)mNeed[i])->SetValue0_unk("subColorR", 180.0f);
-                    ((D2A_TaskInstance32_unk*)mNeed[i])->SetValue0_unk("subColorR", 180.0f);
+                    mNeed[i]->SetValue0_unk("colorOn", 0.0f);
+                    mNeed[i]->SetColor_unk("itemCol", 255.0f, 255.0f, 255.0f);
+                    mNeed[i]->SetValue0_unk("subColorR", 180.0f);
+                    mNeed[i]->SetValue0_unk("subColorR", 180.0f);
+                    mNeed[i]->SetValue0_unk("subColorR", 180.0f);
                 } else {
-                    ((D2A_TaskInstance32_unk*)mNeed[i])->SetValue0_unk("colorOn", 0.0f);
-                    ((D2A_TaskInstance32_unk*)mNeed[i])->SetColor_unk("itemCol", 128.0f, 128.0f, 128.0f);
-                    ((D2A_TaskInstance32_unk*)mNeed[i])->SetValue0_unk("subColorR", 100.0f);
-                    ((D2A_TaskInstance32_unk*)mNeed[i])->SetValue0_unk("subColorR", 100.0f);
-                    ((D2A_TaskInstance32_unk*)mNeed[i])->SetValue0_unk("subColorR", 100.0f);
+                    mNeed[i]->SetValue0_unk("colorOn", 0.0f);
+                    mNeed[i]->SetColor_unk("itemCol", 128.0f, 128.0f, 128.0f);
+                    mNeed[i]->SetValue0_unk("subColorR", 100.0f);
+                    mNeed[i]->SetValue0_unk("subColorR", 100.0f);
+                    mNeed[i]->SetValue0_unk("subColorR", 100.0f);
                 }
             }
         }

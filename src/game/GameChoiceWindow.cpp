@@ -314,20 +314,20 @@ void GameChoiceWindow::vf10() {
     atn::D2A_DrawRect rect;
     rect = mMain->GetRect_unk("select_left");
     mOptions[0]->SetValues1Rect_unk("basePoint", rect);
-    ((D2A_TaskInstance32_unk*)mOptions[0])->SetValue0_unk("canSelect", 1.0f);
-    ((D2A_TaskInstance32_unk*)mOptions[0])->SetValue0_unk("skipSelect", 0.0f);
+    mOptions[0]->SetValue0_unk("canSelect", 1.0f);
+    mOptions[0]->SetValue0_unk("skipSelect", 0.0f);
     rect = mMain->GetRect_unk("select_right");
     mOptions[1]->SetValues1Rect_unk("basePoint", rect);
-    ((D2A_TaskInstance32_unk*)mOptions[1])->SetValue0_unk("canSelect", 1.0f);
-    ((D2A_TaskInstance32_unk*)mOptions[1])->SetValue0_unk("skipSelect", 0.0f);
+    mOptions[1]->SetValue0_unk("canSelect", 1.0f);
+    mOptions[1]->SetValue0_unk("skipSelect", 0.0f);
     rect = mMain->GetRect_unk("select_up");
     mOptions[2]->SetValues1Rect_unk("basePoint", rect);
-    ((D2A_TaskInstance32_unk*)mOptions[2])->SetValue0_unk("canSelect", 1.0f);
-    ((D2A_TaskInstance32_unk*)mOptions[2])->SetValue0_unk("skipSelect", 0.0f);
+    mOptions[2]->SetValue0_unk("canSelect", 1.0f);
+    mOptions[2]->SetValue0_unk("skipSelect", 0.0f);
     rect = mMain->GetRect_unk("select_down");
     mOptions[3]->SetValues1Rect_unk("basePoint", rect);
-    ((D2A_TaskInstance32_unk*)mOptions[3])->SetValue0_unk("canSelect", 1.0f);
-    ((D2A_TaskInstance32_unk*)mOptions[3])->SetValue0_unk("skipSelect", 0.0f);
+    mOptions[3]->SetValue0_unk("canSelect", 1.0f);
+    mOptions[3]->SetValue0_unk("skipSelect", 0.0f);
 }
 
 int GameChoiceWindow::fn_803B4C24() {
@@ -372,7 +372,7 @@ void GameMessageWindow::vf10() {
     switch (mState) {
     case 1: {
         float frame = mLayout->mFrame;
-        if (frame >= ((D2A_TaskInstance32_unk*)mLayout)->GetEndFrame()) {
+        if (frame >= mLayout->GetEndFrame()) {
             mState = 2;
         }
         break;
@@ -391,8 +391,8 @@ void GameMessageWindow::vf10() {
         break;
     }
     ButtonUv_unk uv = lbl_8087F0A8->mInput.fn_80124C6C(0);
-    ((D2A_TaskInstance32_unk*)mLayout)->SetValues2_unk("btnUv", uv);
-    ((D2A_TaskInstance32_unk*)mLayout)->SetValues2_unk("btnUvMask", uv);
+    mLayout->SetValues2_unk("btnUv", uv);
+    mLayout->SetValues2_unk("btnUvMask", uv);
 }
 
 void GameMessageWindow::fn_803B5774(GameMessage* msg, int time) {

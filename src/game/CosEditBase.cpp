@@ -398,7 +398,7 @@ void CosEditBase::fn_801CDA00(CosEditList_unk* list) {
                     sprintf(name, "scroll_point");
                     atn::Task* task = base->GetTask();
                     pos = fn_801F4E8C(task, fn_800DC6B4(name));
-                    ((D2A_TaskInstance32_unk*)scroll->GetTask())->SetValues1_unk("basePos", *(atn::D2A_DrawRect*)&pos);
+                    scroll->GetTask()->SetValues1_unk("basePos", *(atn::D2A_DrawRect*)&pos);
                 }
             }
             for (int i = 0; i < 13; i++) {
@@ -412,7 +412,7 @@ void CosEditBase::fn_801CDA00(CosEditList_unk* list) {
                     sprintf(name, "camp_list%d", i + 1);
                     atn::Task* task = base->GetTask();
                     pos = fn_801F4E8C(task, fn_800DC6B4(name));
-                    ((D2A_TaskInstance32_unk*)item->GetTask())->SetValues1_unk("base_point", *(atn::D2A_DrawRect*)&pos);
+                    item->GetTask()->SetValues1_unk("base_point", *(atn::D2A_DrawRect*)&pos);
                 }
             }
         }
@@ -607,10 +607,10 @@ void CosEditBase::fn_801CE5B0(int b, int c) {
     if (b != m1E8) {
         vf74(m1E4, b);
         if (mE8) {
-            ((CostumeEditFace_unk*)mE8)->mFrame = 0.0f;
+            mE8->mFrame = 0.0f;
         }
         if (mEC) {
-            ((CostumeEditFace_unk*)mEC)->mFrame = 0.0f;
+            mEC->mFrame = 0.0f;
         }
         m1F0 = c;
     }

@@ -100,7 +100,7 @@ MenuCommonTask::MenuCommonTask(atn::Task* parent)
     int i;
     const char* cursor = "/data/d2anime/camp_cursor.d2a";
     for (i = 0; i < 4; i++) {
-        MenuLayout_unk* task = (MenuLayout_unk*)D2A_TaskInstance32_unk::Create(this, cursor);
+        MenuLayout_unk* task = D2A_TaskInstance32_unk::Create(this, cursor);
         m8C[i] = task;
         task->fn_800D246C(1);
     }
@@ -358,9 +358,9 @@ extern "C" void fn_804A3A68(MenuLayout_unk* layout, int arg1, int repeat, float 
     if (layout != 0) {
         layout->fn_800D246C(0);
         layout->mSpeed = speed;
-        layout->mRepeat = repeat != 0;
+        layout->mLoop = repeat != 0;
         layout->mFrame = frame;
-        MenuLayoutData_unk* data = (MenuLayoutData_unk*)((D2A_TaskInstance32_unk*)layout)->GetData();
+        MenuLayoutData_unk* data = (MenuLayoutData_unk*)layout->GetData();
         data->mCallback = fn_804A3BD4;
     }
 }
@@ -378,7 +378,7 @@ extern "C" void fn_804A3B60(MenuLayout_unk* layout, int arg1, int repeat, float 
     if (layout != 0) {
         layout->fn_800D246C(0);
         layout->mSpeed = speed;
-        layout->mRepeat = repeat != 0;
+        layout->mLoop = repeat != 0;
         layout->mFrame = frame;
     }
 }
@@ -627,10 +627,10 @@ extern "C" void fn_804A4930(MenuLayout_unk* layout, int pos, int count, int page
 // inferred: same as fn_804A473C for a layout anime
 extern "C" void fn_804A4934(MenuLayout_unk* layout, int pos, int count, int page) {
     if (layout != 0) {
-        ((D2A_TaskInstance32_unk*)layout)->SetValue3_unk("col0001", 0, 0.0f);
+        layout->SetValue3_unk("col0001", 0, 0.0f);
         if (count > page) {
-            ((D2A_TaskInstance32_unk*)layout)->SetValue3_unk("col0001", 0, 255.0f);
-            void* track = ((D2A_TaskInstance32_unk*)layout)->GetTrack_unk("s_hightMax");
+            layout->SetValue3_unk("col0001", 0, 255.0f);
+            void* track = layout->GetTrack_unk("s_hightMax");
             if (track != 0) {
                 float max = fn_801F0544((char*)track + 4, 0);
                 float unit = max / count;
@@ -642,9 +642,9 @@ extern "C" void fn_804A4934(MenuLayout_unk* layout, int pos, int count, int page
                     max -= height - bar;
                     unit = max / count;
                 }
-                ((D2A_TaskInstance32_unk*)layout)->SetValue0_unk("hight", height);
-                ((D2A_TaskInstance32_unk*)layout)->SetValue0_unk("hightUnit", unit);
-                ((D2A_TaskInstance32_unk*)layout)->SetValue0_unk("index", pos);
+                layout->SetValue0_unk("hight", height);
+                layout->SetValue0_unk("hightUnit", unit);
+                layout->SetValue0_unk("index", pos);
             }
         }
     }
@@ -676,7 +676,7 @@ inline void SetUV_unk(atn::D2A_Task* anime, const char* name, MenuUV_unk uv) {
     anime->SetParam2_unk(name, &uv.x);
 }
 inline void SetUV_unk(MenuLayout_unk* layout, const char* name, const MenuUV_unk& uv) {
-    ((D2A_TaskInstance32_unk*)layout)->SetValues2_unk(name, uv);
+    layout->SetValues2_unk(name, uv);
 }
 
 // inferred: sets the face icon of an item on a d2anime
@@ -710,14 +710,14 @@ void MenuCommonTask::fn_804A4EEC(atn::Task* id, const char* name, const atn::Mat
     if (0 <= i && i < 4 && m78[i] != 0) {
         GetCursor_unk(m78[i])->SetMatrix(mtx);
         GetCursor_unk(m78[i])->UpdateMtx();
-        ((D2A_TaskInstance32_unk*)GetCursor_unk(m78[i])->GetTask())->SetValue1_unk("cursor_pos", 0, x);
-        ((D2A_TaskInstance32_unk*)GetCursor_unk(m78[i])->GetTask())->SetValue1_unk("cursor_pos", 1, y);
-        ((D2A_TaskInstance32_unk*)GetCursor_unk(m78[i])->GetTask())->SetValue1_unk("cursor_pos", 4, z);
-        ((D2A_TaskInstance32_unk*)GetCursor_unk(m78[i])->GetTask())->SetValue0_unk("wRate", w);
-        ((D2A_TaskInstance32_unk*)GetCursor_unk(m78[i])->GetTask())->SetValue0_unk("hRate", h);
+        GetCursor_unk(m78[i])->GetTask()->SetValue1_unk("cursor_pos", 0, x);
+        GetCursor_unk(m78[i])->GetTask()->SetValue1_unk("cursor_pos", 1, y);
+        GetCursor_unk(m78[i])->GetTask()->SetValue1_unk("cursor_pos", 4, z);
+        GetCursor_unk(m78[i])->GetTask()->SetValue0_unk("wRate", w);
+        GetCursor_unk(m78[i])->GetTask()->SetValue0_unk("hRate", h);
         if (end) {
-            float frame = ((D2A_TaskInstance32_unk*)GetCursor_unk(m78[i])->GetTask())->GetEndFrame() - 2.0f;
-            ((MenuLayout_unk*)GetCursor_unk(m78[i])->GetTask())->mFrame = frame;
+            float frame = GetCursor_unk(m78[i])->GetTask()->GetEndFrame() - 2.0f;
+            GetCursor_unk(m78[i])->GetTask()->mFrame = frame;
         }
     }
     if (id != 0 && (unsigned int)m9C < 4) {
@@ -738,14 +738,14 @@ void MenuCommonTask::fn_804A5160(atn::Task* id, const char* name, const atn::Mat
     if (0 <= i && i < 4 && m78[i] != 0) {
         GetCursor_unk(m78[i])->SetMatrix(mtx);
         GetCursor_unk(m78[i])->UpdateMtx();
-        ((D2A_TaskInstance32_unk*)GetCursor_unk(m78[i])->GetTask())->SetValue1_unk("cursor_pos", 0, x);
-        ((D2A_TaskInstance32_unk*)GetCursor_unk(m78[i])->GetTask())->SetValue1_unk("cursor_pos", 1, y);
-        ((D2A_TaskInstance32_unk*)GetCursor_unk(m78[i])->GetTask())->SetValue1_unk("cursor_pos", 4, z);
-        ((D2A_TaskInstance32_unk*)GetCursor_unk(m78[i])->GetTask())->SetValue0_unk("wRate", w);
-        ((D2A_TaskInstance32_unk*)GetCursor_unk(m78[i])->GetTask())->SetValue0_unk("hRate", h);
+        GetCursor_unk(m78[i])->GetTask()->SetValue1_unk("cursor_pos", 0, x);
+        GetCursor_unk(m78[i])->GetTask()->SetValue1_unk("cursor_pos", 1, y);
+        GetCursor_unk(m78[i])->GetTask()->SetValue1_unk("cursor_pos", 4, z);
+        GetCursor_unk(m78[i])->GetTask()->SetValue0_unk("wRate", w);
+        GetCursor_unk(m78[i])->GetTask()->SetValue0_unk("hRate", h);
         if (end) {
-            float frame = ((D2A_TaskInstance32_unk*)GetCursor_unk(m78[i])->GetTask())->GetEndFrame() - 2.0f;
-            ((MenuLayout_unk*)GetCursor_unk(m78[i])->GetTask())->mFrame = frame;
+            float frame = GetCursor_unk(m78[i])->GetTask()->GetEndFrame() - 2.0f;
+            GetCursor_unk(m78[i])->GetTask()->mFrame = frame;
         }
     }
     if (id != 0 && (unsigned int)m9C < 4) {
@@ -764,13 +764,13 @@ extern "C" void fn_804A53D4(MenuCommonTask* menu, int id, const char* name, cons
     if (menu->m88 + 1 < 4) {
         menu->m88++;
         if (menu->m8C[menu->m88] != 0) {
-            ((D2A_TaskInstance32_unk*)menu->m8C[menu->m88])->SetValue1_unk("cursor_pos", 0, rect->x);
-            ((D2A_TaskInstance32_unk*)menu->m8C[menu->m88])->SetValue1_unk("cursor_pos", 1, rect->y);
-            ((D2A_TaskInstance32_unk*)menu->m8C[menu->m88])->SetValue1_unk("cursor_pos", 4, rect->m10);
-            ((D2A_TaskInstance32_unk*)menu->m8C[menu->m88])->SetValue0_unk("wRate", rect->mScaleX);
-            ((D2A_TaskInstance32_unk*)menu->m8C[menu->m88])->SetValue0_unk("hRate", rect->mScaleY);
+            menu->m8C[menu->m88]->SetValue1_unk("cursor_pos", 0, rect->x);
+            menu->m8C[menu->m88]->SetValue1_unk("cursor_pos", 1, rect->y);
+            menu->m8C[menu->m88]->SetValue1_unk("cursor_pos", 4, rect->m10);
+            menu->m8C[menu->m88]->SetValue0_unk("wRate", rect->mScaleX);
+            menu->m8C[menu->m88]->SetValue0_unk("hRate", rect->mScaleY);
             if (end) {
-                menu->m8C[menu->m88]->mFrame = ((D2A_TaskInstance32_unk*)menu->m8C[menu->m88])->GetEndFrame() - 2.0f;
+                menu->m8C[menu->m88]->mFrame = menu->m8C[menu->m88]->GetEndFrame() - 2.0f;
             }
         }
     }
@@ -790,13 +790,13 @@ extern "C" void fn_804A55FC(MenuCommonTask* menu, int id, const char* name, cons
     if (menu->m88 + 1 < 4) {
         menu->m88++;
         if (menu->m8C[menu->m88] != 0) {
-            ((D2A_TaskInstance32_unk*)menu->m8C[menu->m88])->SetValue1_unk("cursor_pos", 0, rect->x);
-            ((D2A_TaskInstance32_unk*)menu->m8C[menu->m88])->SetValue1_unk("cursor_pos", 1, rect->y);
-            ((D2A_TaskInstance32_unk*)menu->m8C[menu->m88])->SetValue1_unk("cursor_pos", 4, rect->m10);
-            ((D2A_TaskInstance32_unk*)menu->m8C[menu->m88])->SetValue0_unk("wRate", rect->mScaleX);
-            ((D2A_TaskInstance32_unk*)menu->m8C[menu->m88])->SetValue0_unk("hRate", rect->mScaleY);
+            menu->m8C[menu->m88]->SetValue1_unk("cursor_pos", 0, rect->x);
+            menu->m8C[menu->m88]->SetValue1_unk("cursor_pos", 1, rect->y);
+            menu->m8C[menu->m88]->SetValue1_unk("cursor_pos", 4, rect->m10);
+            menu->m8C[menu->m88]->SetValue0_unk("wRate", rect->mScaleX);
+            menu->m8C[menu->m88]->SetValue0_unk("hRate", rect->mScaleY);
             if (end) {
-                menu->m8C[menu->m88]->mFrame = ((D2A_TaskInstance32_unk*)menu->m8C[menu->m88])->GetEndFrame() - 2.0f;
+                menu->m8C[menu->m88]->mFrame = menu->m8C[menu->m88]->GetEndFrame() - 2.0f;
             }
         }
     }
@@ -849,13 +849,13 @@ extern "C" void fn_804A5824(MenuCommonTask* self, atn::D2A_Task* anime, const ch
     if (menu->m88 + 1 < 4) {
         menu->m88++;
         if (menu->m8C[menu->m88] != 0) {
-            ((D2A_TaskInstance32_unk*)menu->m8C[menu->m88])->SetValue1_unk("cursor_pos", 0, r->x);
-            ((D2A_TaskInstance32_unk*)menu->m8C[menu->m88])->SetValue1_unk("cursor_pos", 1, r->y);
-            ((D2A_TaskInstance32_unk*)menu->m8C[menu->m88])->SetValue1_unk("cursor_pos", 4, r->m10);
-            ((D2A_TaskInstance32_unk*)menu->m8C[menu->m88])->SetValue0_unk("wRate", r->mScaleX);
-            ((D2A_TaskInstance32_unk*)menu->m8C[menu->m88])->SetValue0_unk("hRate", r->mScaleY);
+            menu->m8C[menu->m88]->SetValue1_unk("cursor_pos", 0, r->x);
+            menu->m8C[menu->m88]->SetValue1_unk("cursor_pos", 1, r->y);
+            menu->m8C[menu->m88]->SetValue1_unk("cursor_pos", 4, r->m10);
+            menu->m8C[menu->m88]->SetValue0_unk("wRate", r->mScaleX);
+            menu->m8C[menu->m88]->SetValue0_unk("hRate", r->mScaleY);
             if (end) {
-                menu->m8C[menu->m88]->mFrame = ((D2A_TaskInstance32_unk*)menu->m8C[menu->m88])->GetEndFrame() - 2.0f;
+                menu->m8C[menu->m88]->mFrame = menu->m8C[menu->m88]->GetEndFrame() - 2.0f;
             }
         }
     }

@@ -51,7 +51,7 @@ inline void SetPaneFloat_unk(void* layout, const char* name, float value) {
     fn_801FECE0(layout, fn_800DC6B4(name), value);
 }
 inline ShopLayout_unk* CreateLayout_unk(atn::Task* parent, const char* path) {
-    return (ShopLayout_unk*)D2A_TaskInstance32_unk::Create(parent, path);
+    return D2A_TaskInstance32_unk::Create(parent, path);
 }
 
 // inferred: item data (fn_80211480)
@@ -221,17 +221,17 @@ int ShopBuySell::vf0C() {
         for (int i = 0; i < 7; i++) {
             for (int j = 0; j < 3; j++) {
                 mUp[i][j]->fn_800D246C(0);
-                mUp[i][j]->mRepeat = 1;
+                mUp[i][j]->mLoop = 1;
                 mUp[i][j]->mSpeed = 0.0f;
                 mUp[i][j]->mFrame = 10.0f;
                 mUp[i][j]->mFlags |= 4;
                 mDown[i][j]->fn_800D246C(0);
-                mDown[i][j]->mRepeat = 1;
+                mDown[i][j]->mLoop = 1;
                 mDown[i][j]->mSpeed = 0.0f;
                 mDown[i][j]->mFrame = 10.0f;
                 mDown[i][j]->mFlags |= 4;
                 mEven[i][j]->fn_800D246C(0);
-                mEven[i][j]->mRepeat = 1;
+                mEven[i][j]->mLoop = 1;
                 mEven[i][j]->mSpeed = 0.0f;
                 mEven[i][j]->mFrame = 10.0f;
                 mEven[i][j]->mFlags |= 4;
@@ -530,7 +530,7 @@ void ShopBuySell::fn_8058621C() {
         char name[0x40];
         sprintf(name, "list_point%d", i + 1);
         pos = GetPanePos_unk(mA8, name);
-        ((D2A_TaskInstance32_unk*)mAC[i])->SetValues1_unk("basePos", *(atn::D2A_DrawRect*)&pos);
+        mAC[i]->SetValues1_unk("basePos", *(atn::D2A_DrawRect*)&pos);
         int index = i + mScroll.mTop;
         if (index < mF8) {
             ShopEntry64_unk* entry = &mEntries64[index];
@@ -541,29 +541,29 @@ void ShopBuySell::fn_8058621C() {
                 if (entry->m08[0] != 0) {
                     text = entry->m08;
                 }
-                ((D2A_TaskInstance32_unk*)mAC[i])->SetText_unk("itemName", text.data());
-                ((D2A_TaskInstance32_unk*)mAC[i])->SetNumber_unk("num", fn_80444564(party, entry->m00), 0);
+                mAC[i]->SetText_unk("itemName", text.data());
+                mAC[i]->SetNumber_unk("num", fn_80444564(party, entry->m00), 0);
                 icon = fn_80444BE8(Inventory::instance_, item);
             } else {
                 ShopWeapon_unk* weapon = fn_80206C50(entry->m00);
                 if (weapon != 0) {
-                    ((D2A_TaskInstance32_unk*)mAC[i])->SetText_unk("itemName", lbl_8087F1E4->GetPair_unk(weapon->mKind + 0xEB));
+                    mAC[i]->SetText_unk("itemName", lbl_8087F1E4->GetPair_unk(weapon->mKind + 0xEB));
                 } else {
-                    ((D2A_TaskInstance32_unk*)mAC[i])->SetText_unk("itemName", L"WEAPON");
+                    mAC[i]->SetText_unk("itemName", L"WEAPON");
                 }
-                ((D2A_TaskInstance32_unk*)mAC[i])->SetText_unk("num", L"--");
+                mAC[i]->SetText_unk("num", L"--");
                 icon = fn_80444C48(Inventory::instance_);
             }
             if (entry->m60 != 0) {
-                ((D2A_TaskInstance32_unk*)mAC[i])->SetColor_unk("itemCol", 255.0f, 255.0f, 255.0f);
+                mAC[i]->SetColor_unk("itemCol", 255.0f, 255.0f, 255.0f);
             } else {
-                ((D2A_TaskInstance32_unk*)mAC[i])->SetColor_unk("itemCol", 100.0f, 100.0f, 100.0f);
+                mAC[i]->SetColor_unk("itemCol", 100.0f, 100.0f, 100.0f);
             }
-            ((D2A_TaskInstance32_unk*)mAC[i])->SetValue0_unk("nonePrice", 0.0f);
-            ((D2A_TaskInstance32_unk*)mAC[i])->SetValue0_unk("showPrice", 1.0f);
-            ((D2A_TaskInstance32_unk*)mAC[i])->SetNumber_unk("price", entry->m04, 0);
+            mAC[i]->SetValue0_unk("nonePrice", 0.0f);
+            mAC[i]->SetValue0_unk("showPrice", 1.0f);
+            mAC[i]->SetNumber_unk("price", entry->m04, 0);
             ShopUV_unk uv = fn_80444C50(Inventory::instance_, icon);
-            ((D2A_TaskInstance32_unk*)mAC[i])->SetValues2_unk("iconUv", uv);
+            mAC[i]->SetValues2_unk("iconUv", uv);
             mAC[i]->mFlags &= ~4;
         }
     }
@@ -686,8 +686,8 @@ void ShopBuySell::fn_805866F4(int id, int member, int slot) {
                 sprintf(name, "param%02d_updw", i);
                 ShopPoint_unk point = GetPanePos_unk(anime, name);
                 layout->mFlags &= ~4;
-                ((D2A_TaskInstance32_unk*)layout)->SetValues1_unk("basePos", *(atn::D2A_DrawRect*)&point);
-                ((D2A_TaskInstance32_unk*)layout)->SetNumber_unk("paramDif", value, 0);
+                layout->SetValues1_unk("basePos", *(atn::D2A_DrawRect*)&point);
+                layout->SetNumber_unk("paramDif", value, 0);
             }
         }
     }

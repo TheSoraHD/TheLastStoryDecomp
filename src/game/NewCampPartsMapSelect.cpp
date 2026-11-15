@@ -728,8 +728,8 @@ void NewCampPartsMapSelect::vf14() {
         }
         if (point->m1C != 0) {
             point->m1C->mAnime->mVisible = 1;
-            ((D2A_TaskInstance32_unk*)((atn::D3AnimeInstance*)point->m1C->mAnime)->GetTask())->SetValue0_unk("wRate", 1.18f);
-            ((D2A_TaskInstance32_unk*)((atn::D3AnimeInstance*)point->m1C->mAnime)->GetTask())->SetValue0_unk("hRate", 1.28f);
+            ((atn::D3AnimeInstance*)point->m1C->mAnime)->GetTask()->SetValue0_unk("wRate", 1.18f);
+            ((atn::D3AnimeInstance*)point->m1C->mAnime)->GetTask()->SetValue0_unk("hRate", 1.28f);
             vf54(point->m1C, "reference");
             vf5C(point->m1C);
             if (m19A4 == point->m00 && m1998 == 0) {
@@ -754,8 +754,8 @@ void NewCampPartsMapSelect::vf14() {
         }
         if (point->m20 != 0) {
             point->m20->mAnime->mVisible = 1;
-            ((D2A_TaskInstance32_unk*)((atn::D3AnimeInstance*)point->m20->mAnime)->GetTask())->SetValue0_unk("wRate", 1.18f);
-            ((D2A_TaskInstance32_unk*)((atn::D3AnimeInstance*)point->m20->mAnime)->GetTask())->SetValue0_unk("hRate", 1.28f);
+            ((atn::D3AnimeInstance*)point->m20->mAnime)->GetTask()->SetValue0_unk("wRate", 1.18f);
+            ((atn::D3AnimeInstance*)point->m20->mAnime)->GetTask()->SetValue0_unk("hRate", 1.28f);
             vf54(point->m20, "reference");
             vf5C(point->m20);
             if (m19A4 == point->m00 && m1998 == 0 && mGo != 0 && mGo->GetTask() != 0) {
@@ -770,8 +770,8 @@ void NewCampPartsMapSelect::vf14() {
             point->m24->mAnime->mVisible = 1;
             ((atn::D3AnimeInstance*)point->m24->mAnime)->GetTask()->mSpeed = 0.0f;
             ((atn::D3AnimeInstance*)point->m24->mAnime)->GetTask()->mFrame = 0.0f;
-            ((D2A_TaskInstance32_unk*)((atn::D3AnimeInstance*)point->m24->mAnime)->GetTask())->SetValue0_unk("wRate", 1.18f);
-            ((D2A_TaskInstance32_unk*)((atn::D3AnimeInstance*)point->m24->mAnime)->GetTask())->SetValue0_unk("hRate", 1.28f);
+            ((atn::D3AnimeInstance*)point->m24->mAnime)->GetTask()->SetValue0_unk("wRate", 1.18f);
+            ((atn::D3AnimeInstance*)point->m24->mAnime)->GetTask()->SetValue0_unk("hRate", 1.28f);
             vf54(point->m24, "reference");
             vf5C(point->m24);
         }
