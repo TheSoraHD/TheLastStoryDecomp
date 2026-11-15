@@ -838,9 +838,9 @@ inline const Facet& use_facet(const locale& loc) {
 
 // inferred: the classic tables of MSL C (classification, tolower and toupper maps)
 extern "C" {
-extern const unsigned short lbl_80765338[];
-extern const char lbl_80765538[];
-extern const char lbl_80765638[];
+extern const unsigned short __ctype_mapC[];
+extern const char __lower_mapC[];
+extern const char __upper_mapC[];
 }
 
 namespace std {
