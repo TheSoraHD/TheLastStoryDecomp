@@ -3153,13 +3153,15 @@ void GameCamera::fn_8038D4D4(const CharaTask* chara) {
 
 // inferred: blends in 23 frames to a camera 30 away from the target (20.451 above the character) along a
 // fixed direction turned with the character; then back to the sub mode with m83C = 6
-// NONMATCHING: 94.2% - temporaries of the direction
+// NONMATCHING: 99.8% - stack slot of the normalized direction (a temporary below the one of m824 in the original;
+// as a named local, a reference to it or a named source vector it stays above)
 void GameCamera::fn_8038D854(const CharaTask* chara) {
     if (m808 == 0) {
         m80C = mCamera.mPos;
         m818 = mCamera.mTarget;
+        float fovy = mCamera.mFovy;
         m824 = m818 - m80C;
-        m830 = mCamera.mFovy;
+        m830 = fovy;
     }
     atn::Vector3 target = chara->mPos;
     target.y += 20.451f;
