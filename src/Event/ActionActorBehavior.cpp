@@ -529,8 +529,8 @@ inline bool IsHeld_unk(Sequence* seq) {
     return false;
 }
 
-// NONMATCHING: 99.4% - saved registers: the original gives r24 to the processor and r21-r23 to the action,
-// channel and section (here one higher each, the processor in r21)
+// (index checks written out: the checked accessors of Cut/Section/Channel give the processor the lowest
+// saved register; `index` declared before `current` and the cut of the jump in `next` give their registers)
 // inferred: one frame of the sequence: waits for the holding action, advances the frame and runs the phases
 // of the actions of the current cut whose marks were reached (0 start, 1 end of the fade in, 2 start of the
 // fade out, 3 end; vf08 while it spans the step); at the end of the cut it goes to the next one
@@ -556,7 +556,7 @@ void Sequence::fn_80550254() {
     Cut* cut = fn_80541210();
     if (cut != 0) {
         for (int i = 0; i < (int)cut->mSections.size(); i++) {
-            Section* section = cut->GetSection_unk(i);
+            Section* section = cut->IsSectionIndex_unk(i) ? cut->mSections[i].get() : 0;
             if (section->m14 == 0) {
                 continue;
             }
@@ -566,12 +566,12 @@ void Sequence::fn_80550254() {
                 m1BC = 0;
             }
             for (int j = 0; j < (int)section->mChannels.size(); j++) {
-                Channel* channel = section->GetChannel_unk(j);
+                Channel* channel = section->IsChannelIndex_unk(j) ? section->mChannels[j].get() : 0;
                 if (channel->m10 == 0) {
                     continue;
                 }
                 for (int k = 0; k < (int)channel->mActions.size(); k++) {
-                    Action* action = channel->GetAction_unk(k);
+                    Action* action = channel->IsActionIndex_unk(k) ? channel->mActions[k].get() : 0;
                     action->m3C = k;
                     ActionProcessor* processor = GetProcessor_unk(action);
                     if (processor == 0) {
@@ -619,6 +619,7 @@ void Sequence::fn_80550254() {
         if (m50 == 1 || m50 == 3) {
             lbl_8087F540->fn_8048F9B0(cut);
         }
+        int index;
         Cut* current = fn_80541210();
         if (current != 0 && m198 > (float)current->m2C) {
             m198 = (float)current->m2C;
@@ -636,8 +637,9 @@ void Sequence::fn_80550254() {
                     if (m280 != 0) {
                         m280->fn_802297AC();
                     }
-                    int index = current->mIndex;
-                    if (current->fn_8053B028() != index) {
+                    index = current->mIndex;
+                    int next = current->fn_8053B028();
+                    if (next != index) {
                         fn_80550254();
                     }
                 } else if (lbl_8087F0A8->m194 != 0 && m190 == 0x19D) {
