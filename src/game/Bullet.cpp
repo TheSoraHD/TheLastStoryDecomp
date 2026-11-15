@@ -716,10 +716,10 @@ void Bullet::fn_80110858(atn::ColliResult_unk* res) {
             fn_800C344C(sSeNames_unk[3], &pos, 0, -1, 1.0f);
             if (m9C != 0 && (m04 & 0x80) != 0x80 && m68->m70 > 0) {
                 HitInfo_unk* data = fn_80219E6C(m68->m70);
-                int id = fn_800F8548(lbl_8087F048);
+                int id = lbl_8087F048->fn_800F8548();
                 int r = lbl_8087F048->fn_800FC1D0(m88, m9C, data, id, &pos, 0, m90);
                 atn::Vector3 d = (m08 - m14).GetNormalize();
-                fn_800FDB20(lbl_8087F048, m88, m9C, r, data, id, &pos, &d, 10, m5C);
+                lbl_8087F048->fn_800FDB20(m88, m9C, r, data, id, &pos, &d, 10, m5C);
             }
         }
     } else {
@@ -736,7 +736,7 @@ void Bullet::fn_80110858(atn::ColliResult_unk* res) {
                 } else {
                     PSVECNormalize(&d, &d);
                 }
-                kind = fn_800FDB20(lbl_8087F048, m88, m9C, r, m68, m7C, &pos, &d, 10, m5C);
+                kind = lbl_8087F048->fn_800FDB20(m88, m9C, r, m68, m7C, &pos, &d, 10, m5C);
             }
             if ((m68->mAC & 0x8000) == 0x8000) {
                 kind = -1;
@@ -748,9 +748,9 @@ void Bullet::fn_80110858(atn::ColliResult_unk* res) {
         if (kind >= 0) {
             atn::Vector3 angle = atn::Vector3(-back.x, -back.y, -back.z).ToRotation_unk();
             if (kind == 0 && m9C != 0 && (m9C->mStatus.m0C & 0x20) == 0x20) {
-                fn_80101434(lbl_8087F048, &pos, &angle, m68->mC4, 1);
+                lbl_8087F048->fn_80101434(&pos, &angle, m68->mC4, 1);
             } else {
-                fn_80101434(lbl_8087F048, &pos, &angle, m68->mC4, kind);
+                lbl_8087F048->fn_80101434(&pos, &angle, m68->mC4, kind);
             }
             if (m68 != 0 && m68->mB0 == 0x5BA) {
                 fn_800C344C(sSeNames_unk[3], &pos, 0, -1, 1.0f);
