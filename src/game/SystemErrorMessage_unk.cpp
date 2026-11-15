@@ -658,7 +658,9 @@ static inline void DrawFontMessage_unk(ErrorManager* m) {
 }
 
 // NONMATCHING: 99.86% - the loop counter of DrawFontMessage_unk and its strength-reduced index swapped
-// (r27/r29 in the original)
+// (r27/r29 in the original). Also tried (enlazar-20261115 qL): row pointer or message in a local, the language
+// in a local, `(&row[0])[i]`, flat index `err * 4 + i`, while loop, increments swapped, both inlines as
+// members of ErrorManager.
 void ErrorManager::fn_803646C4() {
     if (!IsBusy_unk()) {
         if (mError == 0) {

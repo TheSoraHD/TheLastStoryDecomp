@@ -115,6 +115,12 @@ extern "C" ShaderManager_unk* lbl_8087EFE0;
 
 static Material_unk* sErrorMaterials[4]; // inferred: materials of the error shaders
 
+// inferred: the original loads the description before the new (95.5% -> 98.4%): the arguments are
+// evaluated before the call of an inline helper. Name invented.
+static inline ShaderTex_unk* NewShader_unk(atn::LH_Model* model, atn::ShaderDesc_unk* desc) {
+    return new ((MemoryTag)6, "", "", 0) ShaderTex_unk(model, desc);
+}
+
 // inferred: loads the shader files and builds their shaders (name invented; removed by the linker
 // once inlined)
 void ShaderManager_unk::LoadShaders_unk() {
@@ -125,7 +131,7 @@ void ShaderManager_unk::LoadShaders_unk() {
         mModels.push_back(model);
         ShaderFile_unk* file = (ShaderFile_unk*)model->fn_80475DF8();
         for (int j = 0; j < file->m30; j++) {
-            mShaders.push_back(new ((MemoryTag)6, "", "", 0) ShaderTex_unk(model, file->m34[j]));
+            mShaders.push_back(NewShader_unk(model, file->m34[j]));
         }
     }
 }
@@ -146,8 +152,10 @@ ShaderManager_unk::ShaderManager_unk() {
     CreateLODs_unk();
 }
 
-// NONMATCHING: 95.5% - the inlined std::vector<T*>::push_back loads the capacity before the size (known
-// mismatch of include/std/vector.h) and the shader description is loaded before the new.
+// NONMATCHING: 98.4% - the counter of LoadShaders_unk is colored r21 (r16 in the original, the registers
+// between shift by one) and the swap of the reallocation of std::vector reloads the size that the
+// original knows is 0 (include/std/vector.h). Tried: int counter, pointer walk, path inlined, unsigned j,
+// model file read before the push_back.
 void fn_800C5644() {
     lbl_8087EFE0 = new ((MemoryTag)6, "", "", 0) ShaderManager_unk;
 }
