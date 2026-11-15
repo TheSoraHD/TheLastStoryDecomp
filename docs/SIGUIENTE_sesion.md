@@ -26,5 +26,5 @@ Estado: **15547 / 18109**, lost 0, sin bajadas, rep100 35, labelcheck 16, `main.
 - `HitMsg_unk::m64..m80` de `CharaTask.h` como `DamageResult_unk`; `extern "C"` sin gestor que quedan en BattleTask.cpp.
 - Quitar la declaracion sin cuerpo de `CharaStatus::ClearFlags_unk` y el ctor de 4 argumentos de `GameUIMark24_unk` en
   un lote de cabeceras (renumeran).
-- Constantes equivocadas en Em401_01_WhiteLeoPard y Em403WarLion (dash 0.5 en vez de 0.1, como QuadrupedTask `vf24`).
+- (Hecho en la cola M: constantes de Em401_01_WhiteLeoPard y Em403WarLion corregidas.)
 - Sincronizar el port con `claude/port-ceros-20261115.md`.
