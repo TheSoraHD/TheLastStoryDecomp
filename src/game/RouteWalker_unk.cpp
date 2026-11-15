@@ -626,7 +626,7 @@ void RouteWalker_unk::fn_80128930(chr::Chara_unk* target, const atn::Vector3* de
     mMode = 4;
     m48 = arg;
     mTarget = target;
-    float r = 5.0f + (target->m5B0 + mChara->m5B0);
+    float r = 5.0f + (mChara->m5B0 + target->m5B0);
     mRadius = 30.0f > r ? 30.0f : r;
 }
 
