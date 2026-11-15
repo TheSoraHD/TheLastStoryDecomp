@@ -107,29 +107,24 @@ inline int SumRefs_unk(FixedArray_unk<CharaStatusRef_unk, 8>& refs, int id) {
     return sum;
 }
 
+// inferred: the parts of a character through a reference: the original reloads the count in the loop of
+// UpdatePartFlag_unk and keeps an index and an offset (no ctr loop); name invented
+inline FixedArray_unk<chr::CharaPart_unk*, 8>& GetParts_unk(CharaTask* chara) {
+    return chara->mParts;
+}
+
 inline void CharaStatus::UpdatePartFlag_unk() {
     if (mChara != 0) {
         m0C &= ~0x100000;
         m10 &= ~0x100000;
-        for (unsigned int i = 0; i < mChara->mParts.mCount; i++) {
-            if (mChara->mParts.mData[i]->m274->mF0 != 0) {
+        for (unsigned int i = 0; i < GetParts_unk(mChara).mCount; i++) {
+            if (GetParts_unk(mChara).mData[i]->m274->mF0 != 0) {
                 m0C |= 0x100000;
                 m10 |= 0x100000;
                 return;
             }
         }
     }
-}
-
-inline void CharaStatus::ClearFlags_unk(unsigned int flags) {
-    m0C &= ~flags;
-    m10 &= ~flags;
-    for (int i = 0; i < 32; i++) {
-        if ((flags & (1 << i)) == (1 << i)) {
-            m24C[i] = 0;
-        }
-    }
-    UpdatePartFlag_unk();
 }
 
 CharaStatusBase::CharaStatusBase() {
@@ -229,8 +224,8 @@ void CharaStatus::fn_8012B3E8() {
     fn_8012D180();
 }
 
-// NONMATCHING: 98.4% - differs in register choices (the rate block, the arena flag, two float sums) and in
-// the parts loop of UpdatePartFlag_unk (see ClearFlags_unk in the header).
+// NONMATCHING: 99.3% - differs in register choices (the rate block, the arena flag, two float sums) and in
+// the scheduling of a float sum.
 void CharaStatus::fn_8012B988() {
     if (mChara == 0 || mChara->m5C == 0) {
         return;
@@ -568,7 +563,6 @@ void CharaStatus::fn_8012D714(CharaParam_unk* dst, const CharaParam_unk* a, cons
     dst->m34 += (a->m34 + b->m34) / 2;
 }
 
-// NONMATCHING: only the parts loop of the inlined ClearFlags_unk differs (see the header).
 void CharaStatus::fn_8012D8B8() {
     m04 = (float)mParamB.m84;
     if (mChara != 0 && mChara->mType == 0) {
@@ -576,7 +570,7 @@ void CharaStatus::fn_8012D8B8() {
     } else {
         m08 = (float)mParamB.m88;
     }
-    ClearFlags_unk(0xFFFFFFFF);
+    fn_8013322C(0xFFFFFFFF);
     if (mChara != 0) {
         mChara->vf48();
     }
@@ -617,7 +611,6 @@ float CharaStatus::fn_8012DB04() {
     return rate;
 }
 
-// NONMATCHING: only the parts loop of the inlined ClearFlags_unk differs (see the header).
 void CharaStatus::fn_8012DD70() {
     if ((m0C & 0x20) == 0x20) {
         return;
@@ -632,7 +625,7 @@ void CharaStatus::fn_8012DD70() {
     if ((m0C & 0x40) == 0x40) {
         mChara->fn_80166544();
     }
-    ClearFlags_unk(0xFFFFFFFF);
+    fn_8013322C(0xFFFFFFFF);
     fn_8013310C(0x20, 0);
     if (m300 <= 0 && m224 > 0) {
         m224--;
@@ -746,8 +739,7 @@ extern "C" int fn_8021A960(HitInfo_unk* hit);
 // inferred: status update run every frame (regeneration, status timers, refs timers)
 // NONMATCHING: 97.6% - the original reloads m0C for the second flag test of the first condition,
 // the stack slots of the two rotated vectors/matrices are swapped (tried inline helpers for either
-// block, a shared rotate helper, a const ref temporary), and the parts loop of the inlined
-// ClearFlags_unk is a ctr loop in ours (see the header).
+// block, a shared rotate helper, a const ref temporary).
 void CharaStatus::fn_8012E540() {
     if (!IsState_unk(0x1000) && !IsState_unk(0x20) && mChara != 0 && !mChara->mFlag2) {
         m04 += mParamB.m84 * mParamB.m8C / 30.0f;
@@ -820,7 +812,7 @@ void CharaStatus::fn_8012E540() {
                 m24C[i] = MAX(m24C[i], 0);
             }
             if (m24C[i] == 0) {
-                ClearFlags_unk(1 << i);
+                fn_8013322C(1 << i);
                 if (bit == (bit & 1)) {
                     atn::Vector3 dir(0.0f, 0.0f, -0.001f);
                     Mtx rot;
@@ -970,23 +962,23 @@ int CharaStatus::fn_8012F3D8() {
 }
 
 
-// NONMATCHING: 95.4% - only the parts loop of every inlined ClearFlags_unk differs (ctr loop in ours,
-// see the header); the rest matches.
+// NONMATCHING: 99.8% - registers of the loop that clears the bits one by one (constants 0 and 1 and the
+// ctr count swapped; tried the mask inline, an int mask, the tests in another order or nested).
 // inferred: applies (remove == 0) or removes the status flags `flags`; returns 1 when a status
 // started, -1 when it was resisted, 0 otherwise. Names of the arguments are invented.
 int CharaStatus::fn_8012F440(int flags, int power, int remove, int damage, int strong, int both, int effect) {
     unsigned int old = m0C;
     if (damage > 0) {
-        ClearFlags_unk(0x10);
+        fn_8013322C(0x10);
     }
     if (remove != 0) {
         if (both != 0 || (m10 & flags) == 0) {
-            ClearFlags_unk(flags);
+            fn_8013322C(flags);
         } else {
             for (int i = 0; i < 32; i++) {
                 unsigned int bit = 1 << i;
                 if ((bit & flags) == bit && (m10 & bit) != bit) {
-                    ClearFlags_unk(bit);
+                    fn_8013322C(bit);
                 }
             }
         }
@@ -1027,7 +1019,7 @@ int CharaStatus::fn_8012F440(int flags, int power, int remove, int damage, int s
             }
             result = 1;
         } else {
-            ClearFlags_unk(0x1);
+            fn_8013322C(0x1);
             result = -1;
         }
     }
@@ -1043,7 +1035,7 @@ int CharaStatus::fn_8012F440(int flags, int power, int remove, int damage, int s
             }
             result = 1;
         } else {
-            ClearFlags_unk(0x400000);
+            fn_8013322C(0x400000);
             result = -1;
         }
     }
@@ -1059,7 +1051,7 @@ int CharaStatus::fn_8012F440(int flags, int power, int remove, int damage, int s
             }
             result = 1;
         } else {
-            ClearFlags_unk(0x8000);
+            fn_8013322C(0x8000);
             result = -1;
         }
     }
@@ -1081,7 +1073,7 @@ int CharaStatus::fn_8012F440(int flags, int power, int remove, int damage, int s
                 fx->fn_80108F38(&mChara->fn_801781B0(), 0x100);
             }
         } else {
-            ClearFlags_unk(0x100);
+            fn_8013322C(0x100);
             result = -1;
         }
     }
@@ -1100,7 +1092,7 @@ int CharaStatus::fn_8012F440(int flags, int power, int remove, int damage, int s
             }
             result = 1;
         } else {
-            ClearFlags_unk(0x40);
+            fn_8013322C(0x40);
             result = -1;
         }
     }
@@ -1119,7 +1111,7 @@ int CharaStatus::fn_8012F440(int flags, int power, int remove, int damage, int s
             }
             result = 1;
         } else {
-            ClearFlags_unk(0x80);
+            fn_8013322C(0x80);
             result = -1;
         }
     }
@@ -1140,7 +1132,7 @@ int CharaStatus::fn_8012F440(int flags, int power, int remove, int damage, int s
                 fx->fn_80108F38(&mChara->fn_801781B0(), 0x10000);
             }
         } else {
-            ClearFlags_unk(0x10000);
+            fn_8013322C(0x10000);
             result = -1;
         }
     }
@@ -1157,7 +1149,7 @@ int CharaStatus::fn_8012F440(int flags, int power, int remove, int damage, int s
             }
             result = 1;
         } else {
-            ClearFlags_unk(0x10);
+            fn_8013322C(0x10);
             result = -1;
         }
     }
@@ -1172,7 +1164,7 @@ int CharaStatus::fn_8012F440(int flags, int power, int remove, int damage, int s
             }
             result = 1;
         } else {
-            ClearFlags_unk(0x4000);
+            fn_8013322C(0x4000);
             result = -1;
         }
     }
@@ -1181,7 +1173,7 @@ int CharaStatus::fn_8012F440(int flags, int power, int remove, int damage, int s
         if ((immune & 0x20000) == 0) {
             result = 1;
         } else {
-            ClearFlags_unk(0x20000);
+            fn_8013322C(0x20000);
             result = -1;
         }
     }
@@ -1197,7 +1189,7 @@ int CharaStatus::fn_8012F440(int flags, int power, int remove, int damage, int s
             }
             result = 1;
         } else {
-            ClearFlags_unk(0x4);
+            fn_8013322C(0x4);
             result = -1;
         }
     }
@@ -1213,7 +1205,7 @@ int CharaStatus::fn_8012F440(int flags, int power, int remove, int damage, int s
             }
             result = 1;
         } else {
-            ClearFlags_unk(0x2);
+            fn_8013322C(0x2);
             result = -1;
         }
     }
@@ -1227,7 +1219,7 @@ int CharaStatus::fn_8012F440(int flags, int power, int remove, int damage, int s
             }
             result = 1;
         } else {
-            ClearFlags_unk(0x8);
+            fn_8013322C(0x8);
             result = -1;
         }
     }
@@ -1241,7 +1233,7 @@ int CharaStatus::fn_8012F440(int flags, int power, int remove, int damage, int s
             }
             result = 1;
         } else {
-            ClearFlags_unk(0x200);
+            fn_8013322C(0x200);
             result = -1;
         }
     }
@@ -1258,7 +1250,7 @@ int CharaStatus::fn_8012F440(int flags, int power, int remove, int damage, int s
                 m428 = 0.1f;
             }
         } else {
-            ClearFlags_unk(0x80000);
+            fn_8013322C(0x80000);
             m428 = 0.0f;
         }
     }
@@ -1273,7 +1265,7 @@ int CharaStatus::fn_8012F440(int flags, int power, int remove, int damage, int s
             fn_80133130(0x40000, -1, both);
             result = 1;
         } else {
-            ClearFlags_unk(0x40000);
+            fn_8013322C(0x40000);
             result = -1;
         }
     }
@@ -1289,7 +1281,7 @@ int CharaStatus::fn_8012F440(int flags, int power, int remove, int damage, int s
             }
             result = 1;
         } else {
-            ClearFlags_unk(0x400);
+            fn_8013322C(0x400);
             result = -1;
         }
     }
@@ -1303,7 +1295,7 @@ int CharaStatus::fn_8012F440(int flags, int power, int remove, int damage, int s
             }
             result = 1;
         } else {
-            ClearFlags_unk(0x1000000);
+            fn_8013322C(0x1000000);
             result = -1;
         }
     }
@@ -1317,7 +1309,7 @@ int CharaStatus::fn_8012F440(int flags, int power, int remove, int damage, int s
             }
             result = 1;
         } else {
-            ClearFlags_unk(0x800000);
+            fn_8013322C(0x800000);
             result = -1;
         }
     }
@@ -1340,7 +1332,7 @@ int CharaStatus::fn_8012F440(int flags, int power, int remove, int damage, int s
             }
             result = 1;
         } else {
-            ClearFlags_unk(0x2000000);
+            fn_8013322C(0x2000000);
             result = -1;
         }
     }
@@ -1376,9 +1368,17 @@ void CharaStatus::fn_80133130(unsigned int flags, int value, int both) {
     }
 }
 
-// NONMATCHING: 89.8% - the parts loop of ClearFlags_unk (see the header).
+// inferred: clears the status flags `flags` and their values; auto-inlined into the functions above (with
+// -ipa file), as the original does: an inline copy keeps the registers of the bit loop swapped
 void CharaStatus::fn_8013322C(unsigned int flags) {
-    ClearFlags_unk(flags);
+    m0C &= ~flags;
+    m10 &= ~flags;
+    for (int i = 0; i < 32; i++) {
+        if ((flags & (1 << i)) == (1 << i)) {
+            m24C[i] = 0;
+        }
+    }
+    UpdatePartFlag_unk();
 }
 
 int CharaStatus::fn_801333A4(unsigned int mask) {
