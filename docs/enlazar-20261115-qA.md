@@ -34,8 +34,11 @@ Ninguna.
   referencia al char, tamano local, ctor de MovieTask con `kind` local / puntero local / `pos`): todas peores.
 - `Sequence::fn_80576258` (EventLoader_unk) 99,2 %: `switch` (86 %), alias local de `cut`, contadores internos
   unsigned (96-97 %), `continue`: sin mejora.
-- `Sequence::fn_8054FBE0` 99,36 %: el original recarga `lbl_8087F540` tras el `strlen` (lee m1F1C por la
-  recarga y m1F5C por `manager`); el nuestro reutiliza r28. `strlen` declarado a mano en el .cpp: sin efecto.
+- `Sequence::fn_8054FBE0` 99,36 -> 99,77 % (commiteado, no cuenta): el original recarga `lbl_8087F540` tras el
+  `strlen`. Arreglado con `#include "std/msl_common.h"` al principio del .cpp (ver Hallazgos) y
+  `Manager* current = lbl_8087F540;` tras el strlen. Queda el `clear()` de la lista del segundo
+  `LeaveCut_unk` con nodo/fin en r30/r29 (original r29/r30, como en el primero). Probado: copia manual en el
+  else, bucle de actores por referencia/unsigned, m190 en local.
 - `Sequence::fn_80550254` 99,39 %: registros guardados (processor r24 en el original). Probado: `int id`,
   processor con if/else, declarado aparte, declaraciones arriba de section/channel/action.
 
@@ -72,12 +75,23 @@ Nada (no hay cambios de tipos, firmas ni layouts).
 
 ## Hallazgos
 
+- **`strlen` declarado desde dentro de un fichero llamado `string.h` es intrinseca para MWCC** (pura: deja
+  globales en registro a traves de la llamada). Nuestro `include/std/string.h` incluye `std/msl_common.h`, que
+  declara `strlen`: toda unidad que lo trae primero por `std/string.h` la tiene intrinseca. El original
+  (`<string>` de MSL) no. Incluir `std/msl_common.h` antes de cualquier `std/string.h` la deja normal
+  (Sequence::fn_8054FBE0 recarga `lbl_8087F540`). Probado con ficheros sueltos: misma cabecera con otro
+  nombre -> recarga; `string.h` que solo incluye msl_common -> intrinseca; `string.h` vacio -> recarga.
+
 - Un argumento leido de un miembro (`FindActor_unk(section->m10)`) en una local `int id` antes de la llamada
   inline invierte los volatiles del bucle de busqueda (r4/r5; Sequence::fn_80550A78).
 - `max_size() / 3` en tiempo de ejecucion (mulhwu sobre un registro con 0x1FFFFFFF): `max_size()` en una local
   que despues se sobrescribe o se usa en la comprobacion de longitud; `m / 3` en otra local para el `slwi`.
 
 ## Pendientes
+
+- Revisar si renombrar `include/std/string.h` (o incluir msl_common antes) arregla mas funciones con un global
+  que el original recarga tras `strlen` (Event/Manager usa `strlen(m1F38.c_str())` tres veces); cabecera muy
+  incluida, medir en lote (las que hoy dependen de la intrinseca bajarian).
 
 - Huecos de pila de expand_by/`__grow_cap` en el push_back de `shared_ptr` (Section/Cut/Channel/Sequence) con
   el parche de arriba; y que el recommend muerto se siga eliminando en bucles (`fn_8054204C`).

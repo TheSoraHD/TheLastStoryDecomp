@@ -1,3 +1,6 @@
+// inferred: strlen declared before std/string.h: declared from inside a file named string.h MWCC takes it
+// as an intrinsic and keeps lbl_8087F540 in a register across the call (the original reloads it, fn_8054FBE0)
+#include "std/msl_common.h"
 #include "game/SetConfig.h"
 #include "game/GameTask.h"
 #include "game/GameConfig_unk.h"
@@ -389,6 +392,8 @@ inline void LeaveCut_unk(Sequence* seq, int run) {
 }
 
 // inferred: applies a pending jump (m1B0: 1 to a cut, 2 to a frame of the cut; m1B4 cut, m1B8 frame)
+// NONMATCHING: 99.8% - the list clear of the second LeaveCut_unk gives node/end r30/r29 (original r29/r30,
+// as in the first one). Tried: a manual copy in the else branch, actor loop by reference/unsigned, m190 local.
 void Sequence::fn_8054FBE0(int run) {
     if (m1B0 == 0) {
         return;
@@ -398,9 +403,10 @@ void Sequence::fn_8054FBE0(int run) {
             LeaveCut_unk(this, run);
             Manager* manager = lbl_8087F540;
             if (strlen(manager->m1F38.c_str()) != 0) {
-                if (lbl_8087F540->m1F5C != 0) {
+                Manager* current = lbl_8087F540;
+                if (manager->m1F5C != 0) {
                     manager->m1F5C = 0;
-                } else if ((lbl_8087F540->m1F1C & 0x80000000) == 0x80000000) {
+                } else if ((current->m1F1C & 0x80000000) == 0x80000000) {
                     manager->fn_80488D6C();
                 }
             }
