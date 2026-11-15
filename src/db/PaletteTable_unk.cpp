@@ -37,17 +37,18 @@ struct PaletteColorInit_unk : public PaletteColor_unk {
 struct Palette_unk {
     Palette_unk() { mName[0] = 0; }
     ~Palette_unk() {}
-    void SetName_unk(const wchar_t* name) {
-        wchar_t* dst = mName;
-        if (name != dst) {
-            wmemcpy(dst, name, wcslen(name) + 1);
-        }
-    }
 
     int m00;
     PaletteColor_unk mColor;
     wchar_t mName[0x20];
 };
+
+// inferred: copies a UTF-16 name into a fixed buffer (the original passes the CSV field directly)
+static inline void CopyName_unk(wchar_t* dst, const wchar_t* src) {
+    if (src != dst) {
+        wmemcpy(dst, src, wcslen(src) + 1);
+    }
+}
 
 struct PaletteSet_unk {
     Palette_unk mPalettes[64];
@@ -102,9 +103,6 @@ static PaletteIds_unk* sPaletteIds;
 static EffPaletteIds_unk* sEffPaletteIds;
 
 // inferred: loads the colour palettes of the costume editor (ids, colours and names)
-// NONMATCHING: 99.96% - register allocation only: the UTF-16 name read in the second and fourth
-// blocks goes to r30/r29 in the original (here r27); tried the name as a local, a block or function
-// variable and reusing field
 extern "C" void fn_8020B2BC() {
     if (sPaletteIds == 0) {
         sPaletteIds = new ((MemoryTag)1, "", "", 0) PaletteIds_unk;
@@ -156,7 +154,6 @@ extern "C" void fn_8020B2BC() {
         void* data = fn_8046DC5C(lbl_8087F518, path, &size, 0x20);
         atn::CsvU csv((const wchar_t*)data, (int)size / 2);
         while (csv.fn_8005BBF8() != 0) {
-            const wchar_t* text;
             const wchar_t* field = csv.fn_8005B9CC();
             if (*field == L';' || *field == L'#') {
                 continue;
@@ -176,8 +173,7 @@ extern "C" void fn_8020B2BC() {
             if (index < 0) {
                 continue;
             }
-            text = csv.fn_8005B9CC();
-            sPalettes[index].SetName_unk(text);
+            CopyName_unk(sPalettes[index].mName, csv.fn_8005B9CC());
         }
         fn_8046DD20(lbl_8087F518, data);
     }
@@ -245,8 +241,7 @@ extern "C" void fn_8020B2BC() {
             if (index < 0) {
                 continue;
             }
-            const wchar_t* text = csv.fn_8005B9CC();
-            sEffPalettes[index].SetName_unk(text);
+            CopyName_unk(sEffPalettes[index].mName, csv.fn_8005B9CC());
         }
         fn_8046DD20(lbl_8087F518, data);
     }
