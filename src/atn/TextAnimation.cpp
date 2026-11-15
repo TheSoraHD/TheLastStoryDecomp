@@ -189,6 +189,25 @@ extern "C" float fn_8006EF48(void* font, float size, const wchar_t* text, float 
 extern "C" wchar_t* fn_800DC3C8(wchar_t* s, const wchar_t* delim, wchar_t** context); // inferred: wcstok
 extern "C" wchar_t* wcscpy(wchar_t* dst, const wchar_t* src);
 
+namespace std {
+// inferred: one character in place of the contents (MSL inline, declared in std/string.h)
+template <class T, class Tr, class A>
+inline basic_string<T, Tr, A>& basic_string<T, Tr, A>::operator=(T c) {
+    T* p;
+    if (is_long()) {
+        mLong.mSize = 1;
+        p = mLong.mData;
+    } else {
+        mShortFlags.mSize = 1;
+        p = mShort.mData;
+    }
+    p[0] = c;
+    p[1] = T();
+    return *this;
+}
+
+} // namespace std
+
 // inferred: array of `mCount` elements allocated with new[] (two locals of fn_800D9960; name invented)
 template <class T>
 struct TextAnimArray_unk {
@@ -231,8 +250,8 @@ static inline unsigned int TextAnimColor_unk(const float* c) {
     return (a << 24) | (r << 16) | (g << 8) | b;
 }
 
-// NONMATCHING: 80.5% - written from the original, not tuned (the effect output is a local without constructor in the
-// original; the one-character string is set in place there, appended here)
+// NONMATCHING: 82.1% - written from the original, not tuned (the effect output is a local without constructor in the
+// original)
 // inferred: draws the text `entry` with `count` visible characters: each character gets the offset and the
 // alpha of the effect m90[mAlign] at its time, an outline (m24 & 1) or a shadow (m24 & 2), and is drawn four
 // times when bold (m24 & 4); the lines are separated by "\n" (also written as the two characters "\\n")
@@ -309,7 +328,7 @@ extern "C" void fn_800D9960(TextAnimation* self, TextAnimEntry_unk* entry, int c
                 color[2] = entry->mColor[2];
                 color[3] = alpha;
                 std::basic_string<wchar_t> ch(L"");
-                ch += tok[j];
+                ch = tok[j];
                 switch (entry->mKind) {
                 case 0:
                     px = ox + (x - 0.5f * (spacing + fn_8006EF48(lbl_8087EEC8, entry->mSize, ch.data(), 0.0f, 1, 1)));

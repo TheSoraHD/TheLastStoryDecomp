@@ -134,6 +134,7 @@ enum {
     __basefield_unk = 0x4A,
     __adjustfield_unk = 0xB0,
     __showbase_unk = 0x200,
+    __showpoint_unk = 0x400,
     __showpos_unk = 0x800,
     __uppercase_unk = 0x4000
 };
@@ -149,6 +150,7 @@ public:
     explicit ctype(const unsigned short* tab = 0, bool del = false, size_t refs = 0);
     char widen(char c) const { return do_widen(c); }
     const char* toupper(char*, const char*) const;
+    string widen(const string&) const;
 
     static locale::id id;
 
