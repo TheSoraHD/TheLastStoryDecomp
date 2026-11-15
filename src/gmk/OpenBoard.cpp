@@ -55,10 +55,14 @@ inline float BoardAbs_unk(float x) {
 }
 // inferred: bounding box (names invented)
 struct BoardBox_unk {
-    BoardBox_unk(atn::Vector3 min, atn::Vector3 max) : mMin(min), mMax(max) {}
+    BoardBox_unk() {}
     atn::Vector3 mMin;
     atn::Vector3 mMax;
 };
+
+// inferred: corners of the bounding box of the model resource (names invented)
+inline atn::Vector3 BoxMin_unk(const atn::Model::Res_unk* r) { return r->mMin; }
+inline atn::Vector3 BoxMax_unk(const atn::Model::Res_unk* r) { return r->mMax; }
 
 namespace gmk {
 
@@ -109,12 +113,13 @@ void OpenBoard::Start() {
 }
 
 // inferred: opens the board (motion frame) by the distance of the nearest player in front of it
-// NONMATCHING: 94.8% - (1) the bounding box: the original copies res->mMin/mMax straight into the
-// box and into the by-value arguments (here three more instructions through the stack); (2) float
-// registers of the interpolation (m56C).
-// Tried: box by reference/by value/assignments/Assign_unk/component constructors, min/max locals,
-// a GetBox helper, operand orders of the half width, frame/length/rate locals, the effect call
-// with temporaries/locals/helpers, Start_unk by value/by reference, Interp_unk forms.
+// NONMATCHING: 99.76% - float registers of the interpolation (m56C: the new value takes the register
+// of mTo - mFrom in the original, of mFrom here). The bounding box matches with the corners returned
+// by value from inline getters and assigned (temporary + copy), and the half width with `/ 2.0f`.
+// Tried for the interpolation: old after t, Scale_unk without local, Lerp_unk::Interp_unk member,
+// Scale + mFrom, cur local. Before: box by reference/by value/component constructors, min/max locals,
+// a GetBox helper, frame/length/rate locals, the effect call with temporaries/locals/helpers,
+// Start_unk by value/by reference.
 void OpenBoard::vf10() {
     if (m54 == 0) {
         Start();
@@ -123,8 +128,10 @@ void OpenBoard::vf10() {
         return;
     }
     atn::Model::Res_unk* res = mModel.GetRes_unk();
-    BoardBox_unk box(res->mMin, res->mMax);
-    float half = BoardAbs_unk(box.mMax.x - box.mMin.x) * 0.5f;
+    BoardBox_unk box;
+    box.mMin = BoxMin_unk(res);
+    box.mMax = BoxMax_unk(res);
+    float half = BoardAbs_unk(box.mMax.x - box.mMin.x) / 2.0f;
     atn::Matrix3x4 inv(*(atn::Matrix3x4*)mModel.mMtx.m);
     PSMTXInverse(inv.m, inv.m);
     float dist = mOpenDistance;

@@ -3518,7 +3518,7 @@
   "classes": [
    "atn::PostFxDof"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "atn/SequenceHolder.cpp",

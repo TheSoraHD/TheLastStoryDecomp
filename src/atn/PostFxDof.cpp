@@ -144,16 +144,20 @@ void PostFxDof::vf10(RenderManager* view) {
     }
 }
 
+// inferred: depth buffer value of a view distance (name invented)
+static inline float DofDepth_unk(float n, float f, float z) {
+    return 1.0f - (f * n / z - n) / (f - n);
+}
+
 // inferred: rebuilds the depth lookup table when the parameters change
-// NONMATCHING: 97.47% - FPR allocation of the near/far conversion at the start (~12 variants)
 void PostFxDof::fn_800ACCB8() {
     atn::RenderManager* fb = atn::RenderManager::instance_;
     float n = fb->mCamera.mNear;
     float f = fb->mCamera.mFar;
-    float z0 = 1.0f - (f * n / lbl_8087EFA8->mE4 - n) / (f - n);
-    float z1 = 1.0f - (f * n / lbl_8087EFA8->mE8 - n) / (f - n);
-    float z2 = 1.0f - (f * n / lbl_8087EFA8->mEC - n) / (f - n);
-    float z3 = 1.0f - (f * n / lbl_8087EFA8->mF0 - n) / (f - n);
+    float z0 = DofDepth_unk(n, f, lbl_8087EFA8->mE4);
+    float z1 = DofDepth_unk(n, f, lbl_8087EFA8->mE8);
+    float z2 = DofDepth_unk(n, f, lbl_8087EFA8->mEC);
+    float z3 = DofDepth_unk(n, f, lbl_8087EFA8->mF0);
     int d0 = 65535.0f * z0;
     int d1 = 65535.0f * z1;
     int d2 = 65535.0f * z2;

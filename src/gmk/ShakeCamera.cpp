@@ -69,17 +69,18 @@ void ShakeCamera::Start() {
     vf40(&msg);
 }
 
-// NONMATCHING: 96.74% - the target keeps a compare for case 1 (as if it had code removed late, see
-// gmk::TodomeCountUp::vf10; `return` in case 1 gives both compares but other branches) and swaps the
-// registers of the rate and the sound length (f31/f30) and of the field pointer. The field writes go
-// through an inline taking (frame, x, y), so the members are read before the stores. Tried: return/
-// default/empty calls/self-assignments in case 1, forms of the random range helper, explicit locals,
-// operand orders of the volume and the pitch.
+// NONMATCHING: 98.18% - registers only: the target computes the rate in the register of its first
+// bound (f31; f30 here) and keeps the field pointer in r5 (r7 here). The two compares of the original
+// come from `if (m54 == 1) return;` before the case 2 test (a switch with an empty case 1 drops the
+// compare). The field writes go through an inline taking (frame, x, y), so the members are read before
+// the stores. Tried: `min +=` and const references in RandRange_unk, the rate built in place, a field
+// local, `m96C %= 2`; before: default/empty calls/self-assignments in case 1, forms of the random range
+// helper, explicit locals, operand orders of the volume and the pitch.
 void ShakeCamera::vf10() {
-    switch (m54) {
-    case 1:
-        break;
-    case 2:
+    if (m54 == 1) {
+        return;
+    }
+    if (m54 == 2) {
         if (--mWait < 0) {
             mWait = mWaitFrameMin + rand() % mWaitFrame;
             float rate = RandRange_unk(mRateMax, mRateMin);
@@ -95,7 +96,6 @@ void ShakeCamera::vf10() {
                 fn_800CB688(&sound, 0, 1.0f + (cfg->mRandomPitch * Rand01_unk() - 0.5f * cfg->mRandomPitch));
             }
         }
-        break;
     }
 }
 
