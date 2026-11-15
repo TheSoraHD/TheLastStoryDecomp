@@ -988,7 +988,7 @@ int CharaStatus::fn_8012F3D8() {
 }
 
 extern "C" void fn_80101524(BattleTask* effect, const atn::Vector3* pos, const atn::Vector3* rot, unsigned int old,
-                            unsigned int now);
+                            unsigned int now, CharaTask* chara);
 
 // NONMATCHING: 95.4% - only the parts loop of every inlined ClearFlags_unk differs (ctr loop in ours,
 // see the header); the rest matches.
@@ -1375,7 +1375,7 @@ int CharaStatus::fn_8012F440(int flags, int power, int remove, int damage, int s
         } else {
             pos = mChara->mPos;
         }
-        fn_80101524(lbl_8087F048, &pos, &mChara->mRot, old, m0C);
+        fn_80101524(lbl_8087F048, &pos, &mChara->mRot, old, m0C, mChara);
     }
     return result;
 }

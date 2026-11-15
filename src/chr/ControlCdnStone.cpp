@@ -21,7 +21,8 @@ struct Settings_unk {
 extern "C" Settings_unk* lbl_8087F0A8;
 
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
-extern "C" void fn_80101524(BattleTask* mgr, const atn::Vector3* pos, const atn::Vector3* rot, int id, int arg);
+extern "C" void fn_80101524(BattleTask* mgr, const atn::Vector3* pos, const atn::Vector3* rot, unsigned int old,
+                            unsigned int flags, CharaTask* chara);
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: length
 extern "C" int fn_800DD3FC(wchar_t* dst, const wchar_t* fmt, ...); // inferred: swprintf
@@ -142,18 +143,18 @@ inline ControlCdnRestoreStone::ControlCdnRestoreStone(Chara_unk* chara) : Contro
     mChara->mF94 = -1;
     mChara->mMotion.mTracks[0].m0C = 0.0f;
     if (lbl_8087F048 != 0) {
-        fn_80101524(lbl_8087F048, &mChara->mPos, &mChara->mRot, 0x40, 0);
+        fn_80101524(lbl_8087F048, &mChara->mPos, &mChara->mRot, 0x40, 0, mChara);
     }
 }
 
-// NONMATCHING: 99.95% - the original loads mChara before saving r31 (prologue scheduling) and keeps
-// it in r8 for the sound position.
+// inferred: the angle read into a local before PSMTXRotRad (loaded before the prologue)
 boost::function<void()> ControlCdnStone::vf10() const {
     if (mChara != 0 && (mChara->mStatus.m0C & 0x20) == 0x20) {
         mChara->vf44();
         atn::Vector3 dir(0.0f, 0.0f, -0.01f);
         Mtx mtx;
-        PSMTXRotRad(mtx, 'y', mChara->mRot.y);
+        float a = mChara->mRot.y;
+        PSMTXRotRad(mtx, 'y', a);
         PSMTXMultVec(mtx, &dir, &dir);
         ControlKnockdown* next = new ((MemoryTag)0, "", "", 0) ControlKnockdown(mChara, dir, -1, 0);
         return boost::bind(&CharaTask::fn_80178208, (CharaTask*)mChara, next);
