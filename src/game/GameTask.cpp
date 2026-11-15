@@ -4739,7 +4739,8 @@ struct ReplayHit_unk {
 };
 
 // inferred: update of the replay rewind (field state 0 with m5598 frames to rewind)
-// NONMATCHING: 99.1% - registers of the colour matrix block (left count and render settings swapped)
+// NONMATCHING: 99.5% - registers of the colour matrix block (left count and render settings swapped; tried
+// m55A0-- first, --m55A0, the copy constructor); the store through SetColorMatrix is the original one
 void GameTask::fn_80373AE8() {
     if (m5598 > 0) {
         if (m559C > 0) {
@@ -4785,7 +4786,7 @@ void GameTask::fn_80373AE8() {
             } else {
                 cm.mMonoRate = (float)left * step;
             }
-            lbl_8087EFA8->m324 = cm;
+            lbl_8087EFA8->SetColorMatrix(cm);
             mFinish.fn_803792F0();
             return;
         }
@@ -5455,8 +5456,12 @@ void GameTask::fn_8037624C(int value) {
     mGlobalFlags[44] = value;
 }
 
+// inferred: stores the motion blur through a reference (as SetDof_unk); name invented
+inline void SetBlur_unk(RenderSetting_unk* r, const MotionBlurParam_unk& b) {
+    r->m240 = b;
+}
+
 // inferred: starts the blur effect of the field (vf10 counts it down); called by game/Em309Ghoul
-// NONMATCHING: 97.4% - r4/r8 swapped (render settings pointer and the copied blur)
 void GameTask::fn_80376254(int delay, int frames) {
     m569C = delay;
     m56A4 = frames;
@@ -5464,7 +5469,7 @@ void GameTask::fn_80376254(int delay, int frames) {
         MotionBlurParam_unk blur = lbl_8087EFA8->m240;
         m56A8 = blur;
         blur.mEnabled = 1;
-        lbl_8087EFA8->m240 = blur;
+        SetBlur_unk(lbl_8087EFA8, blur);
         float speed = lbl_8087EFA8->m3A4;
         m56CC = speed;
         lbl_8087EFA8->m3A4 = 0.2f;
