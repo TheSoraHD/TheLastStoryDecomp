@@ -662,7 +662,8 @@ void Sequence::fn_80550A78() {
             return;
         }
         if (section->m0C == 3) {
-            m1BC = FindActor_unk(section->m10);
+            int id = section->m10;
+            m1BC = FindActor_unk(id);
         } else {
             m1BC = 0;
         }
