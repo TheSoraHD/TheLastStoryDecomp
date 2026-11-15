@@ -19,7 +19,7 @@ Referencia: `/home/claude/ref-T/report.json` (15590 funciones al 100 %).
 
 ## NONMATCHING con motivo
 
-- Ninguna nueva. No hubo tiempo para las vf0C de ControlChaseCaught (ver Pendientes).
+- Ninguna nueva.
 
 ## Cambios de splits
 
@@ -62,4 +62,5 @@ Referencia: `/home/claude/ref-T/report.json` (15590 funciones al 100 %).
 
 ## Pendientes
 
-- ControlChaseCaught (ChaseCaught/Follow/Catch::vf0C): sin tocar (ver notas de P).
+- ControlChaseCaught::vf0C (99,26): probadas sin exito 4 variantes mas de `target` (orden del `+`, ctor de copia,
+  asignacion, referencia a `m08->mPos`): todas peores. ChaseFollow/ChaseCatch sin tocar (ver notas de P).
