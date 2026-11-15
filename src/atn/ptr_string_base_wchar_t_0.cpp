@@ -30,8 +30,11 @@ public:
     atn::ptr_string_base<wchar_t, 0> mStrings[0x203];
 };
 
-extern "C" TextTable_unk* lbl_8087F1E4; // inferred: singleton
-extern "C" wchar_t* lbl_8087F1E0;       // inferred: buffer holding all the texts
+// inferred: defined here (just before this unit in the .sbss of the .dol)
+extern "C" {
+wchar_t* lbl_8087F1E0;       // inferred: buffer holding all the texts
+TextTable_unk* lbl_8087F1E4; // inferred: singleton
+}
 
 void TextTable_unk::fn_8020C028() {
     if (lbl_8087F1E4 == 0) {
