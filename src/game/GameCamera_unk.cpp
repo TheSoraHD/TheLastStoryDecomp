@@ -3042,7 +3042,8 @@ void GameCamera::fn_8038C928(const CharaTask* chara) {
 
 // inferred: event camera at m774.m0C from the head of the character (turned by m774.m28 degrees, facing it), looking
 // m774.m00 away with the pitch m774.m08 and the fovy m774.m04; blended with an eased curve while the timer m424 runs
-// NONMATCHING: 97.4% - scheduling of the head + offset sum and of the front vector (front before pos: worse)
+// NONMATCHING: 97.4% - scheduling of the head + offset sum against the stores of the front vector (target,
+// front and pos declared as in fn_80388C44; the eye and the target were swapped before)
 void GameCamera::fn_8038CD94(const CharaTask* chara) {
     if (m808 == 0) {
         m80C = mCamera.mPos;
@@ -3054,7 +3055,7 @@ void GameCamera::fn_8038CD94(const CharaTask* chara) {
     Mtx m;
     PSMTXRotRad(m, 'y', 3.1415927f + yaw);
     PSMTXMultVec(m, &offset, &offset);
-    atn::Vector3 pos = const_cast<CharaTask*>(chara)->fn_80178088() + offset;
+    atn::Vector3 target = const_cast<CharaTask*>(chara)->fn_80178088() + offset;
     atn::Vector3 front(0.0f, 0.0f, 1.0f);
     Mtx m2;
     PSMTXRotRad(m2, 'x', -m774.m08);
@@ -3062,7 +3063,7 @@ void GameCamera::fn_8038CD94(const CharaTask* chara) {
     Mtx m3;
     PSMTXRotRad(m3, 'y', 3.1415927f + yaw);
     PSMTXMultVec(m3, &front, &front);
-    atn::Vector3 target = pos + front * m774.m00;
+    atn::Vector3 pos = target + front * m774.m00;
     float t = 1.0f;
     if (m424.fn_803829C0()) {
         m424.fn_803829D4();
