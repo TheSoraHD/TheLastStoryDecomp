@@ -29,6 +29,14 @@ Inicio 13:22 CET (reinicios del servidor a las 13:43 y ~14:08).
   de inline para find_if, `const_iterator`.
 - `D2A_Frame::vf18` (99,85 %): ToU32, color con 4 floats (A queda en f3 como el original, pero Z/R cruzados y
   la etiqueta del 0.0f cambia), alpha con nombre, copia antes del test, ColorToU8_unk: no.
+- `CsvBase_char_124_13_34 fn_802078C4` (99,48 %): con la fila en una `static inline ReadRow_unk(entry, csv, field)` el
+  puntero de fila pasa a r24 como el original, pero el desplazamiento y la cadena de niveles/contador quedan
+  r26/r27/r28 (original r27/r26/r26); probadas las 120 permutaciones de las declaraciones (minimo 9
+  instrucciones distintas), `i`/`levels` declarados arriba, otra inline para la columna de niveles y sin `entry`
+  local. Sin cambio en el fuente.
+- `D2A_Manager __sinit` (98,55 %): copia de `D2A_IconUV_unk` con un nivel de inline mas (miembro o estatica):
+  peor (cambia la planificacion entera). Sin cambio.
+- `LH_Handle fn_80473FCC`: solo revisada (sin variantes nuevas).
 - `fn_800D5A3C` (Texture_unk): accesores GetWidth/GetHeight empeoran; sin cambio.
 - `LightList_unk::fn_8007A154`: con `size()`/`begin()`/`end()` aparece la relectura de mSize pero src/dst cruzan
   (ya documentado); sin cambio.
