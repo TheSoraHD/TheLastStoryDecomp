@@ -156,47 +156,22 @@ boost::function<void()> ControlGmkTrapBat::vf10() const {
     return ControlBase::vf10();
 }
 
-// inferred: atan2 that avoids a zero divisor (name invented)
-inline float __Atan2_unk(float y, float x) {
-    if ((float)__fabs(x) < 1.1920929e-7f) {
-        return (y > 0.0f) ? 1.5707964f : -1.5707964f;
-    }
-    return atan2(y, x);
-}
-
-// DRAFT: the matrix copy of the pitch is not reproduced
-// NONMATCHING: draft - turns the character towards the target (yaw from atan2, pitch through a
-// 4x4 matrix at 0x805F9750); the stack layout and the matrix copy are not reproduced.
+// NONMATCHING: 99.7% - mChara and the addresses of `rot`/`dir` get r3/r4/r5 instead of r5/r3/r4
+// (turns the character towards the target with Vector3::ToRotationZ_unk; the pitch is discarded)
 ControlGmkBreakArmor::ControlGmkBreakArmor(Chara_unk* chara, GmkTarget_unk* target, void* arg)
     : ControlBase(chara), mTarget(target), m0C(arg) {
     chara->m58C = 0;
     mChara->m560 = 0x5F;
     if (mTarget != 0) {
-        atn::Vector3 rot = mChara->mRot;
         atn::Vector3 dir = mTarget->m6C - mChara->mPos;
-        atn::Vector3 angles;
-        angles.y = __Atan2_unk(dir.x, dir.z);
-        Mtx m;
-        PSMTXRotRad(m, 'y', -angles.y);
-        float m4[4][4];
-        for (int i = 0; i < 3; i++) {
-            for (int j = 0; j < 4; j++) {
-                m4[i][j] = m[i][j];
-            }
-        }
-        m4[3][0] = m4[3][1] = m4[3][2] = 0.0f;
-        m4[3][3] = 1.0f;
-        atn::Vector3 local = dir;
-        PSMTX44MultVec(m4, &local, &local);
-        angles.x = -__Atan2_unk(local.y, local.z);
-        angles.z = 0.0f;
-        rot.y = angles.y;
+        atn::Vector3 rot = mChara->mRot;
+        rot.y = dir.ToRotationZ_unk().y;
         mChara->mRot = rot;
     }
     if (mChara->mFlag31) {
         mChara->fn_801539E0();
     }
-    if (mChara->mFlag31 && mChara->mC48 != 0) {
+    if (mChara->HasC48_unk()) {
         mChara->fn_80154344();
     }
     if (mChara->mFlag6) {
