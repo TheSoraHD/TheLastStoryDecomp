@@ -3431,7 +3431,7 @@
  {
   "name": "game/MenuCommon_unk.cpp",
   "classes": [],
-  "matching": false
+  "matching": true
  },
  {
   "name": "chr/ControlMoveCursor.cpp",
