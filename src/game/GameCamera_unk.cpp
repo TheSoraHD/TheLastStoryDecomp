@@ -464,8 +464,6 @@ void GameCamera::fn_8037EF30(int a, int b, float f) {
 // inferred: camera behind the character (or looking from it to its target mFC4/mFC0) at the parameters m51C;
 // with `place` the camera is put there at once (out of the walls), with `reset` the turn speeds mA0C are cleared;
 // `speed` < 0 takes SetConfig::mTurnSpeed
-// NONMATCHING: 99.96% - registers r3/r4 of the copy of the hit point (pos = result.m10; VecAssign_unk, a named
-// copy or by members: same or worse)
 void GameCamera::fn_8037EF48(CharaTask* chara, int place, int reset, float speed) {
     if (m7FC != 0 && m7FC != 8) {
         return;
@@ -514,7 +512,8 @@ void GameCamera::fn_8037EF48(CharaTask* chara, int place, int reset, float speed
         pos += target;
         atn::ColliResult_unk result;
         if (fn_8004ED34(lbl_8087EE98, &result, &target, &pos, 0x80000008, 0, 0)) {
-            pos = result.m10;
+            const atn::Vector3& hit = result.m10;
+            pos = hit;
         }
         mCamera.SetPosition(pos);
         mCamera.SetTarget_unk(target);
@@ -2317,7 +2316,6 @@ void GameCamera::fn_80388A88(const CharaTask* chara) {
 
 // inferred: event camera (see fn_8038CD94) kept out of the walls: when the ray from the target to the eye hits,
 // the eye is moved to the wall over 10 frames (m880), and back when it stops hitting
-// NONMATCHING: 99.9% - registers r3/r4 of the copy of the hit point (pos = result.m10, as fn_8037EF48)
 void GameCamera::fn_80388C44(const CharaTask* chara) {
     float yaw = atn::DegToRad_unk(m774.m28);
     atn::Vector3 offset(m774.m0C, m774.m10, m774.m14);
@@ -2335,7 +2333,8 @@ void GameCamera::fn_80388C44(const CharaTask* chara) {
     atn::Vector3 pos = target + front * m774.m00;
     atn::ColliResult_unk result;
     if (fn_8004ED34(lbl_8087EE98, &result, &target, &pos, 0x80000008, 0, 0)) {
-        pos = result.m10;
+        const atn::Vector3& hit = result.m10;
+        pos = hit;
         pos += Negate_unk(front) * 0.1f;
         if (m880 < 10) {
             m880++;
