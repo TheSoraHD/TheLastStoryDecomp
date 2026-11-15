@@ -2905,6 +2905,9 @@ void GameUI::fn_803D2A6C() {
     }
 }
 
+// inferred: the copy of push_back (and its "vector length error") follows the weak copies of fn_803D2A6C
+template void std::vector<std::basic_string<wchar_t> >::push_back(const std::basic_string<wchar_t>& x);
+
 // inferred: centre and radius of a character for the hate lines (the battle collision when bit C31 of
 // BattleCharaTask::m14A8 is set; names invented)
 inline const atn::Vector3& GetLineCenter_unk(CharaTask* c) {
@@ -4044,7 +4047,6 @@ extern "C" void fn_803E6D4C(GameUIWindow_unk* window, chr::CharaData_unk* data);
 
 // inferred: fills the window of party slot `slot` with `chara` (leader mark, position over the head or at
 // the bottom of the screen when `fixed`, level and skill name)
-// NONMATCHING: 99.4% - only the offsets into the string pool (the functions before it are not written yet)
 void GameUI::fn_803DCD34(CharaTask* chara, int slot, int other, int fixed) {
     if (chara != 0) {
         GameUIWindow_unk* window = static_cast<GameUIWindow_unk*>(mF14[m1014[slot]]);
@@ -5591,7 +5593,9 @@ void GameUI::fn_803E3468(atn::D2A_Task* task, atn::D2A_Task* arrows, GameUIElem1
     int sub = button->m04;
     task->SetLayoutValue_unk("item", sButtonHelp_unk[kind].m00 == 1 ? 1.0f : 0.0f);
     char num[64];
-    sprintf(num, "%d", button->m08);
+    // inferred: the original pool has one more NUL after these formats ("%d", the two d2anime paths), as if
+    // they were written with a trailing \0
+    sprintf(num, "%d\0", button->m08);
     task->SetText_unk("item_num", (int)num);
     if (button->m10 != 0) {
         SetLayoutText_unk(&task->mData.m10, "item_name", ((GameUINamed_unk*)button->m10)->mName);
@@ -5887,7 +5891,6 @@ void GameUI::fn_803E4100() {
 
 
 // inferred: starts the marker over the head of a character
-// NONMATCHING: code matches; only the offsets of its strings in the pool differ (earlier strings unwritten)
 void GameUI::fn_803E41AC(CharaTask* chara) {
     if (m1104 != 0) {
         m1104->mFrame = 0.0f;
@@ -6243,7 +6246,6 @@ bool GameUI::fn_803E5940() {
     return false;
 }
 
-// NONMATCHING: code matches; only the offsets of its strings in the pool differ (earlier strings unwritten)
 void GameUI::fn_803E598C(int index, int value, int skill) {
     if (index < 0) {
         return;
@@ -6309,7 +6311,6 @@ void GameUI::fn_803E598C(int index, int value, int skill) {
 }
 
 // inferred: shows the time left over a character (TacView)
-// NONMATCHING: code matches; only the offsets of its strings in the pool differ (earlier strings unwritten)
 void GameUI::fn_803E5C60(CharaTask* chara) {
     if (chara == 0 || m254C == 0) {
         return;
@@ -6402,25 +6403,26 @@ void GameUI::fn_803E5E64(int itemId, int count, int rare) {
     }
 }
 
-// NONMATCHING: code matches; only the offsets of its strings in the pool differ (earlier strings unwritten)
+// inferred: the original pool has one more NUL after these formats ("%d", the two d2anime paths), as if
+// they were written with a trailing \0
 void GameUI::fn_803E627C(int town) {
     char path[0x100];
     if (m262C.m00 == 0) {
-        sprintf(path, "/data/d2anime/ui_shop_town%02d_op.d2a", town - 1);
+        sprintf(path, "/data/d2anime/ui_shop_town%02d_op.d2a\0", town - 1);
         m262C.m00 = fn_801F3FF8(this, path, 0);
         m262C.m00->fn_800D246C(1);
         m262C.m00->mRepeat = 0;
         m262C.m00->mBlend = 18;
     }
     if (m262C.m04 == 0) {
-        sprintf(path, "/data/d2anime/ui_shop_town%02d_op.d2a", town - 1);
+        sprintf(path, "/data/d2anime/ui_shop_town%02d_op.d2a\0", town - 1);
         m262C.m04 = fn_801F3FF8(this, path, 0);
         m262C.m04->fn_800D246C(1);
         m262C.m04->mRepeat = 0;
         m262C.m04->mBlend = 15;
     }
     if (m262C.m08 == 0) {
-        sprintf(path, "/data/d2anime/ui_shop_town%02d_loop.d2a", town - 1);
+        sprintf(path, "/data/d2anime/ui_shop_town%02d_loop.d2a\0", town - 1);
         m262C.m08 = fn_801F3FF8(this, path, 0);
         m262C.m08->fn_800D246C(1);
         m262C.m08->mRepeat = 1;
@@ -6623,8 +6625,6 @@ void GameUI::fn_803E6890(CharaTask* chara, HitInfo_unk* hit) {
     }
 }
 
-// NONMATCHING: 99.8% - code matches; only the offset of "basePos" in the string pool (the strings
-// of the earlier functions are not written yet)
 void GameUI::fn_803E6ADC(const atn::Vector3& a, const atn::Vector3& b) {
     if (mA84 != 0) {
         mA84->mFrame = 0.0f;
