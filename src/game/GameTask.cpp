@@ -3537,29 +3537,41 @@ int GameTask::fn_80370174(unsigned int index) {
     return mGlobalFlags[index];
 }
 
+// inferred: status bits of CharaStatusData_unk (the test reads through a const pointer: the original does not
+// reuse the word address of the set); names invented
+inline void SetBit_unk(CharaStatusData_unk* d, int bit) {
+    d->mBits[bit / 32] |= 1 << (bit % 32);
+}
+inline void ClearBit_unk(CharaStatusData_unk* d, int bit) {
+    d->mBits[bit / 32] &= ~(1 << (bit % 32));
+}
+inline bool TestBit_unk(const CharaStatusData_unk* d, int bit) {
+    return (d->mBits[bit / 32] & (1 << (bit % 32))) == (1 << (bit % 32));
+}
+
 // inferred: sets or clears status bit `bit` of the party member `chara` in the inventory and on the character
-// NONMATCHING: 75% - the range test of the member and the register order of the bit math
 extern "C" void fn_803701E0(CharaTask* chara, int bit, int on) {
+    if (chara == 0) {
+        return;
+    }
+    int member = fn_80219558(chara->m50);
+    if (member < 0 || 7 <= member) {
+        return;
+    }
+    CharaStatusData_unk* data = &Inventory::instance_->mPlayers[member].m1A8;
+    if (on) {
+        SetBit_unk(data, bit);
+        if (lbl_8087F048 != 0) {
+            lbl_8087F048->fn_801092C8(0x14, chara, bit, 0);
+        }
+    } else {
+        ClearBit_unk(data, bit);
+    }
     if (chara != 0) {
-        int member = fn_80219558(chara->m50);
-        if (member >= 0 && member < 7) {
-            CharaStatusData_unk* data = &Inventory::instance_->mPlayers[member].m1A8;
-            if (on) {
-                data->mBits[bit / 32] |= 1 << (bit % 32);
-                if (lbl_8087F048 != 0) {
-                    lbl_8087F048->fn_801092C8(0x14, chara, bit, 0);
-                }
-            } else {
-                data->mBits[bit / 32] &= ~(1 << (bit % 32));
-            }
-            if (chara != 0) {
-                unsigned int mask = 1 << (bit % 32);
-                if ((data->mBits[bit / 32] & mask) == mask) {
-                    chara->mStatus.m1A8.mBits[bit / 32] |= mask;
-                } else {
-                    chara->mStatus.m1A8.mBits[bit / 32] &= ~mask;
-                }
-            }
+        if (TestBit_unk(data, bit)) {
+            SetBit_unk(&chara->mStatus.m1A8, bit);
+        } else {
+            ClearBit_unk(&chara->mStatus.m1A8, bit);
         }
     }
 }
@@ -5459,8 +5471,8 @@ void GameTask::fn_80376254(int delay, int frames) {
     }
 }
 
-// inferred: shows the help `id` (queued while another help is shown)
-// NONMATCHING: 99% - the original reloads the queue count after loading its head
+// inferred: shows the help `id` (queued while another help is shown); the count is tested through a const
+// reference (the original reloads it for the push)
 void GameTask::fn_80376324(int id) {
     TutorialData_unk* data = fn_8021F09C(id);
     if (data == 0) {
@@ -5468,13 +5480,14 @@ void GameTask::fn_80376324(int id) {
     }
     if (data->m04 != 0) {
         if (m56F0 != 0 || m56EC != 0) {
-            if ((unsigned int)m571C.mCount < 8) {
+            const MP::Queue_unk<int, 8>& queue = m571C;
+            if ((unsigned int)queue.mCount < 8) {
                 m571C.Push_unk(id);
             }
         } else {
             m56F0 = TutorialPopup::fn_805BC6C8(this, id, lbl_8087F8A0->mHead);
             if (id == 0x8E && fn_80370174(id) > 1) {
-                m56F0->mSpeed = 1.5f;
+                m56F0->mSpeed = 3.0f;
             }
             if (lbl_8087F540->fn_80481668()) {
                 m56F0->fn_800D246C(1);
