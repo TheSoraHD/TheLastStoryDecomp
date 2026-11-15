@@ -9155,7 +9155,7 @@
    "-sdata2 0"
   ],
   "category": "sdk",
-  "matching": false
+  "matching": true
  },
  {
   "name": "dwc/src/base/dwc_rqueue.c",
