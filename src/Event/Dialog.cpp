@@ -17,6 +17,10 @@
 #include "atn/DrawHelper.h"
 #include "std/string_members.h"
 #include "Event/Dialog.h"
+#include "Event/Cut.h"
+#include "Event/Section.h"
+#include "Event/Channel.h"
+#include "Event/Action.h"
 
 // Everything below is inferred from Event::Dialog (0x802280B4..0x80229DF0); names are invented.
 
@@ -162,10 +166,6 @@ struct Input_unk {
 };
 
 
-// inferred: weak @STRING@ pool of LipSyncData_unk::Resize_unk (atn/LipSync_unk; symbols.txt names them
-// @STRING@Resize_unk__15LipSyncData_unkFUii and ...@0): to link, use the same inline/template
-extern "C" const char lbl_8087D764[];
-extern "C" const char lbl_8087D760[];
 
 namespace Event {
 
@@ -277,22 +277,22 @@ Dialog::Dialog(atn::Task* parent)
     ResetPos_unk();
     m198 = 0;
     m48 = 0;
-    DialogEvent_unk* event = (DialogEvent_unk*)m20;
-    for (int i = 0; i < event->mB8.mCount; i++) {
-        DialogScene2_unk* scene = event->mB8.Get_unk(i);
-        for (int j = 0; j < scene->m3C.mCount; j++) {
-            DialogTrack_unk* track = scene->m3C.Get_unk(j);
-            if (track->mC != 4) {
+    Sequence* event = (Sequence*)m20;
+    for (int i = 0; i < (int)event->mB8.size(); i++) {
+        Cut* cut = event->IsCutIndex_unk(i) ? event->mB8[i].get() : 0;
+        for (int j = 0; j < (int)cut->mSections.size(); j++) {
+            Section* section = cut->GetSection_unk(j);
+            if (section->m0C != 4) {
                 continue;
             }
-            for (int k = 0; k < track->m18.mCount; k++) {
-                DialogGroup_unk* group = track->m18.Get_unk(k);
-                if (group->mC != 0x29) {
+            for (int k = 0; k < (int)section->mChannels.size(); k++) {
+                Channel* channel = section->GetChannel_unk(k);
+                if (channel->m0C != 0x29) {
                     continue;
                 }
-                for (int l = 0; l < group->m14.mCount; l++) {
-                    DialogCmd_unk* cmd = group->m14.Get_unk(l);
-                    Actor* actor = ((EventManager_unk*)event)->FindActor_unk(cmd->GetParam_unk(0)->m04.i);
+                for (int l = 0; l < (int)channel->mActions.size(); l++) {
+                    Action* cmd = channel->GetAction_unk(l);
+                    Actor* actor = event->FindActor_unk(cmd->GetParam_unk(0)->m04.i);
                     if (actor == 0) {
                         continue;
                     }
@@ -323,21 +323,12 @@ Dialog::Dialog(atn::Task* parent)
     m120.fn_800D5908("/data/texture/ui_c_event_under_filter.texture");
     m120.m2D = 0;
     m120.m2E = 0;
-    delete[] m190.mKeys;
-    m190.mCount = 8;
-    m190.mKeys = new ((MemoryTag)4, lbl_8087D764, lbl_8087D760, 0) LipSyncKey_unk[8];
+    m190.Resize_unk(8, 4);
     for (unsigned int i = 0; i < m190.mCount; i++) {
         m190.mKeys[i].mVowel = 5;
         m190.mKeys[i].mTime = 1.0f;
     }
-    unsigned int n = m190.mCount;
-    delete[] m184.mKeys;
-    m184.mCount = n;
-    if (n != 0) {
-        m184.mKeys = new ((MemoryTag)0, lbl_8087D764, lbl_8087D760, 0) LipSyncKey_unk[n];
-    } else {
-        m184.mKeys = 0;
-    }
+    m184.Resize_unk(m190.mCount, 0);
     for (unsigned int i = 0; i < m184.mCount; i++) {
         m184.mKeys[i] = m190.mKeys[i];
     }
@@ -581,18 +572,19 @@ void Dialog::fn_80229414() {
 
 // NONMATCHING: 99.32% - the original keeps the strength-reduced pointer in r30 and the character in
 // r31 (tried the declaration orders and a pointer loop)
+// inferred: character shown by a head (name invented)
+inline CharaTask* HeadChara_unk(DialogHead* head) {
+    return head->m1428;
+}
+
 DialogHead* Dialog::fn_8022960C(Actor* actor) {
-    CharaTask* chara;
     if (actor == 0 || actor->fn_80012934() == 0) {
         return 0;
     }
     for (int i = 0; i < m48; i++) {
         DialogHead* head = mHeads[i].mHead;
-        if (head != 0 && !head->IsFlag_unk(4)) {
-            chara = head->m1428;
-            if (chara == actor->fn_80012934()) {
-                return mHeads[i].mHead;
-            }
+        if (head != 0 && !head->IsFlag_unk(4) && HeadChara_unk(head) == actor->fn_80012934()) {
+            return mHeads[i].mHead;
         }
     }
     return 0;
