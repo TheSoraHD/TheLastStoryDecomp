@@ -3237,7 +3237,7 @@ void GameUI::fn_803D83A8() {
                             atn::Vector3 head = GetNodePos_unk(c->mMotion.GetNodeMtx_unk("head"));
                             atn::Vector3 pos = aim->fn_8003E950();
                             atn::Vector3 dir(pos.x - head.x, 0.0f, pos.z - head.z);
-                            if (dir.Length_unk() - 1.5f * (target->m5C * target->m28) > 10.0f) {
+                            if (dir.Length_unk() - 0.8f * (target->m5C * target->m28) > 10.0f) {
                                 dir.Normalize_unk();
                                 atn::Vector3 end = aim->fn_8003E950() - dir * (0.7f * (target->m5C * target->m28));
                                 end.y += 3.0f;
