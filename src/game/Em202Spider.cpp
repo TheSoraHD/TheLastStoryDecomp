@@ -1,4 +1,5 @@
 #include "game/Em202Spider.h"
+#include "math/VecAssign_unk.h"
 #include "atn/Material_unk.h"
 #include "math/Vec.h"
 #include "game/FriendManager.h"
@@ -1051,8 +1052,20 @@ void Em202Spider::fn_80281634(CharaTask* target, int next) {
     mMotion.fn_80097C08(0, 0x14B, 0, 0, 1, 0.0f, 0.1f);
 }
 
-// NONMATCHING: 99.84% - r4/r5 of the zero vector copy and r29/r30 of the counter; 8 variants
+// inferred: adds the positions of the active friends (name invented)
+static inline int AddFriends_unk(atn::Vector3& center) {
+    int count = 1;
+    for (CharaTask* c = FriendManager::sInstance->fn_8036554C(); c != 0; c = NextChara_unk(c)) {
+        if ((c->mStatus.m0C & 0x20) != 0x20) {
+            count++;
+            center += c->mPos;
+        }
+    }
+    return count;
+}
+
 // inferred: starts state 5 (attack): faces backwards in the phase 0, else the center of the party
+// inferred: the zero vector copied with VecAssign_unk and the friends counted in an inline (AddFriends_unk)
 void Em202Spider::fn_80281924(CharaTask* target) {
     if (fn_802826A0(target, 5) != 0) {
         return;
@@ -1069,15 +1082,9 @@ void Em202Spider::fn_80281924(CharaTask* target) {
         if (player->mFlag28) {
             center = player->mPos;
         } else {
-            center = lbl_807C7030;
-            int count = 1;
+            atn::VecAssign_unk(center, lbl_807C7030);
             center = player->mPos;
-            for (CharaTask* c = FriendManager::sInstance->fn_8036554C(); c != 0; c = NextChara_unk(c)) {
-                if ((c->mStatus.m0C & 0x20) != 0x20) {
-                    count++;
-                    center += c->mPos;
-                }
-            }
+            int count = AddFriends_unk(center);
             float inv = 1.0f / count;
             center *= inv;
         }
