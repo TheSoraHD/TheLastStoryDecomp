@@ -1466,7 +1466,6 @@ void Em403WarLion::fn_80329744() {
     }
 }
 
-// NONMATCHING: 99.34% - el original guarda m0C una sola vez tras el ternario
 void Em403WarLion::fn_80329A20() {
     CharaTask* held = m1598;
     if (held == 0 || held->m55C != 6 || held->m560 != 0x6E) {
@@ -1477,7 +1476,6 @@ void Em403WarLion::fn_80329A20() {
         SetState_unk(18);
         mMotion.m34C = 1;
         mMotion.mTracks[0].m20 = 1.0f;
-        mMotion.mTracks[0].m0C = 1.0f;
         mMotion.fn_80097C08(0, 0x148, 0, 0, 1, 0.0f, 0.1f);
         mMotion.mTracks[0].m0C = down ? 0.7f : 1.0f;
         if (m1598->CanAct_unk() && !down) {

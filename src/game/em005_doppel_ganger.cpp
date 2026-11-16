@@ -800,7 +800,7 @@ void Em005DoppelGanger::vf40(HitInfo_unk* hit) {
     } else if (m14BC == 2) {
         int kind = m560;
         if (kind - 20U <= 3 && ++m1520 >= m1524 && m1470 != 14) {
-            ((DoppelChara_unk*)this)->SetState_unk(DoppelState_unk(14));
+            SetState_unk(PlayerState_unk(14));
             if (kind != 23 && PSVECMag(&m6B8) > 0.01f) {
                 PSVECNormalize(&m6B8, &m6B8);
                 m6B8 *= 5.0f;
