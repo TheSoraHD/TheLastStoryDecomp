@@ -998,7 +998,7 @@
    "chr::ControlWallDown",
    "chr::ControlWallUp"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "game/CopyRobotTask.cpp",
