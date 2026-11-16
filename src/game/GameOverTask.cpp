@@ -194,35 +194,35 @@ GameOverTask::~GameOverTask() {
 // orders, temporaries as arguments, Color4f_unk)
 int GameOverTask::vf0C() {
     if (fn_800D3FA4() != 0 && mEfp.IsLoading() == 0) {
-    fn_80232B7C(this, 0);
-    atn::Vector3 pos(0.0f, 0.0f, 0.0f);
-    atn::Vector3 rot(0.0f, 0.0f, 0.0f);
-    float color[4];
-    color[0] = 1.0f;
-    color[1] = 1.0f;
-    color[2] = 1.0f;
-    color[3] = 1.0f;
-    fn_8023A8B4(lbl_8087F3C0, &mEfp, 0, 0, pos, rot, color, -1, -1, 1, 1.0f);
-    fn_804A39EC(mMenu, 1, 0, 0.0f, 1.0f);
-    mCursor->fn_800D246C(0);
-    mCursor->mFlags |= 4;
-    mTimer = 0;
-    if (mDemoEnd != 0) {
-        mDemoEnd->fn_800D246C(0);
-        mDemoEnd->mRepeat = 0;
-        mDemoEnd->mFrame = 0.0f;
-        mDemoEnd->mFlags |= 4;
-    }
-    DamageEffectParam_unk damage = lbl_8087EFA8->m374;
-    damage.mEnabled = 1;
-    damage.mColor = RsColor_unk(0.0f, 0.0f, 0.0f, 1.0f);
-    damage.mZoom = -0.55f;
-    lbl_8087EFA8->SetDamage_unk(damage);
-    lbl_8087EFA8->m03C = RsColor_unk(0.6f, 0.6f, 0.6f, 1.0f);
-    lbl_8087EFA8->m054 = BloomParam_unk();
-    lbl_8087EFA8->SetColorMatrix(ColorMatrixParam_unk());
-    fn_80377298();
-    return 1;
+        fn_80232B7C(this, 0);
+        atn::Vector3 pos(0.0f, 0.0f, 0.0f);
+        atn::Vector3 rot(0.0f, 0.0f, 0.0f);
+        float color[4];
+        color[0] = 1.0f;
+        color[1] = 1.0f;
+        color[2] = 1.0f;
+        color[3] = 1.0f;
+        fn_8023A8B4(lbl_8087F3C0, &mEfp, 0, 0, pos, rot, color, -1, -1, 1, 1.0f);
+        fn_804A39EC(mMenu, 1, 0, 0.0f, 1.0f);
+        mCursor->fn_800D246C(0);
+        mCursor->mFlags |= 4;
+        mTimer = 0;
+        if (mDemoEnd != 0) {
+            mDemoEnd->fn_800D246C(0);
+            mDemoEnd->mRepeat = 0;
+            mDemoEnd->mFrame = 0.0f;
+            mDemoEnd->mFlags |= 4;
+        }
+        DamageEffectParam_unk damage = lbl_8087EFA8->m374;
+        damage.mEnabled = 1;
+        damage.mColor = RsColor_unk(0.0f, 0.0f, 0.0f, 1.0f);
+        damage.mZoom = -0.55f;
+        lbl_8087EFA8->SetDamage_unk(damage);
+        lbl_8087EFA8->m03C = RsColor_unk(0.6f, 0.6f, 0.6f, 1.0f);
+        lbl_8087EFA8->m054 = BloomParam_unk();
+        lbl_8087EFA8->SetColorMatrix(ColorMatrixParam_unk());
+        fn_80377298();
+        return 1;
     }
     return 0;
 }
