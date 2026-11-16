@@ -869,7 +869,7 @@ void NewCampPartsOption::vf30() {
     fn_80525498();
 }
 
-// NONMATCHING: 99.98% - stack slots of the SoundRef temporaries of mode 8 swapped (0xC/0x10)
+// inferred: plays a system sound effect; the temporaries of the calls through it go below the others (name invented)
 inline void PlaySe_unk(int id) {
     fn_80117228(id);
 }

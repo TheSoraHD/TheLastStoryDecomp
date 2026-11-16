@@ -1,4 +1,5 @@
 #include "game/Em204Mulue.h"
+#include "math/VecAssign_unk.h"
 #include "game/BattleTask.h"
 #include "game/GameTask.h"
 #include "atn/Csv.h"
@@ -590,12 +591,18 @@ void Em204BigMulue::vf100(int state) {
     m14DC = 0;
 }
 
-// NONMATCHING: 99.79% - stack slots of the two distance vectors and r3/r4 of the capsule loop
+// inferred: disables the collision capsules (name invented)
+inline void CapsulesOff_unk(Em204BigMulue* self) {
+    for (unsigned int i = 0; i < self->m1558.size(); i++) {
+        self->m1564[i].mFlags &= ~1;
+    }
+}
+
 void Em204BigMulue::vf104() {
     m14C0++;
     atn::Vector3 d(0.0f, 0.0f, 0.0f);
     if (mC58.mC4 != 0) {
-        d = mC58.mC4->mPos - mPos;
+        atn::VecAssign_unk(d, mC58.mC4->mPos - mPos);
     }
     if (m58C >= 6 && m55C == 6) {
         m55C = 2;
@@ -612,8 +619,7 @@ void Em204BigMulue::vf104() {
             m14E4 = 0;
             atn::Vector3 center;
             if (fn_802B0D90(&center)) {
-                atn::Vector3 to = mPos - center;
-                if (PSVECSquareMag(&to) > 2500.0f) {
+                if ((mPos - center).LengthSq_unk() > 2500.0f) {
                     vf100(10);
                     m1500 = center;
                 } else if (m14E0 == 0) {
@@ -700,9 +706,7 @@ void Em204BigMulue::vf104() {
     case 2:
         fn_805A40B8();
         if (mFlag25) {
-            for (unsigned int i = 0; i < m1558.size(); i++) {
-                m1564[i].mFlags &= ~1;
-            }
+            CapsulesOff_unk(this);
         }
         break;
     default:
