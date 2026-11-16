@@ -554,13 +554,11 @@ void Em309GhoulSimple::vf108() {
         rot = m14D8.ToRotation_unk();
         float frame = mMotion.mTracks[0].m08;
         if (m14BC == 0) {
-            if (m58C == 9) {
-                if (frame >= 36.0f) {
-                    int id = m14C8;
-                    HitInfo_unk* skill = fn_80219E6C(m14E8);
-                    lbl_8087F048->fn_800F8C6C(0, 0, this, skill, id, 0.0f, 30, -1);
-                    m14BC++;
-                }
+            if (m58C == 9 && frame >= 36.0f) {
+                int id = m14C8;
+                HitInfo_unk* skill = fn_80219E6C(m14E8);
+                lbl_8087F048->fn_800F8C6C(0, 0, this, skill, id, 0.0f, 30, -1);
+                m14BC++;
             } else if (m58C == 10 && frame >= 40.0f) {
                 int id = m14C8;
                 HitInfo_unk* skill = fn_80219E6C(m14F8);

@@ -249,13 +249,10 @@ int GimmickCommonB0_unk::fn_803F06B0() {
 }
 
 // inferred: fires the commands of the current motion of the gimmick model
-// NONMATCHING: 94.61% - stack slots of the int->float temporaries and of the vectors/colour of the
-// effect calls, saved registers of motion/model/loop, and the early return after vf38 (bne + b)
+// NONMATCHING: 94.80% - stack slots of the int->float temporaries and of the vectors/colour of the
+// effect calls, saved registers of motion/model/loop
 void GimmickCommonB0_unk::fn_803F0764(GimmickCommon* gimmick) {
-    if (gimmick == 0) {
-        return;
-    }
-    if (gimmick->vf38() == 0) {
+    if (gimmick == 0 || gimmick->vf38() == 0) {
         return;
     }
     if (mEnabled == 0) {
@@ -454,7 +451,7 @@ GimmickStateCommand::~GimmickStateCommand() {
 }
 
 // inferred: starts the sounds of the gimmick sound table when the state changes
-// NONMATCHING: 94.46% - register allocation of the table loop (the original keeps the zero of the new
+// NONMATCHING: 97.52% - register allocation of the table loop (the original keeps the zero of the new
 // entry and the index in separate registers, one more saved register)
 void GimmickStateCommand::vf10() {
     if (m58 > 0) {
@@ -516,7 +513,7 @@ void GimmickStateCommand::vf10() {
                         PSMTXMultVec(mtx, &pos, &pos);
                         MtxPtr node = 0;
                         if (mGimmick->vf38() != 0) {
-                            node = mGimmick->vf38()->GetNodeMtx_unk(mGimmick->vf38()->fn_800928B0(table->mHash, 0));
+                            node = mGimmick->vf38()->GetNodeMtxByHash_unk(table->mHash);
                         }
                         if (node != 0) {
                             pos += atn::Vector3(node[0][3], node[1][3], node[2][3]);

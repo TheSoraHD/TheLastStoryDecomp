@@ -444,7 +444,7 @@ void PopupTask::vf14() {
             } else {
                 y += rise;
             }
-            unsigned int color = value > 0 ? 0xFFFFFF : 0x888888;
+            unsigned int color = value <= 0 ? 0x888888 : 0xFFFFFF;
             lbl_8087EEB0->fn_80061824(2.0f + x, 2.0f + y, z, size, size, 0.0f, 0.0f, 0.0f, e->m20.mStr, 0xA0000000,
                                       1, 4, 0, 0, 0xFF000000);
             lbl_8087EEB0->fn_80061824(x, y, z, size, size, 0.0f, 0.0f, 0.0f, e->m20.mStr, color | alpha, 1, 4, 0, 0,
