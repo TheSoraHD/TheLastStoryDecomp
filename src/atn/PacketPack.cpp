@@ -3372,8 +3372,7 @@ static inline int PPCountTeam_unk(PPManager2_unk* mgr, unsigned int team) {
 }
 static inline int PPTeamScore_unk(const PPManager2_unk* mgr, int team);
 
-// NONMATCHING: 95.91% - branch layout of the rank tests (unsigned range checks here), registers and the pool
-// offset of "SE_UICOM_008" (unreferenced "" of the ctor and of vf10 missing)
+// NONMATCHING: 95.92% - branch layout of the rank tests (unsigned range checks here) and registers
 // inferred: rewards of the end of the game: an item by the rank of the own player (another set when less than a
 // minute was left) and, in the team mode, two items when the own team had fewer players and lost by 40 or more
 extern "C" void fn_804DA690(PPManager2_unk* mgr) {
@@ -3555,7 +3554,7 @@ const char* GetModeField_unk(int mode) {
     return lbl_807911A8[mode];
 }
 
-// NONMATCHING: the "," is at +0x19D of the pool of the unit (lbl_80759E48), not written yet
+// NONMATCHING: 98.41% - registers of the index, the field pointer and the text (r27/r28/r29)
 // inferred: splits `text` at the commas into its 6 fields (the last one runs to the end); 0 if a comma is
 // missing. Empty fields are stored as null pointers
 extern "C" int fn_804DBE24(PPManager2_unk* mgr, char* text, char** fields) {
@@ -3594,7 +3593,6 @@ extern "C" int fn_804DBEC8(PPManager2_unk* mgr, int id, char* buf, char** fields
 
 // inferred: messages sent in each frame of a cycle of 30 (bit 1: character states, fn_804E6518)
 int lbl_80790F78[30] = {14, 0, 2, 0, 2, 0, 14, 0, 2, 0, 2, 0, 14, 0, 2, 0, 2, 0, 14, 0, 2, 0, 2, 0, 14, 0, 2, 0, 2, 0};
-// NONMATCHING: only the offset of "9" in @stringBase0 (0x19B in the original, after strings of functions not written)
 // inferred: room status (1-5, the first field) of the status message of the friend `id` if its game mode matches
 // the own one (-1 if not)
 extern "C" int fn_804DC114(PPManager2_unk* mgr, int id) {
@@ -3710,7 +3708,6 @@ static inline int GetNumHosts_unk(atn::net::Manager* net) {
 extern "C" char* fn_800DC97C(int value, char* buf, int radix); // inferred: itoa (atn/Util_unk.cpp)
 extern "C" std::basic_string<wchar_t> fn_8050F464(MpFriendList_unk*); // inferred: own friend code as text
 extern "C" int DWC_SetOwnStatusString(const char* status);
-// NONMATCHING: offsets of the strings in @stringBase0 (strings of functions not written before them)
 // inferred: writes the own status string: room status `status`, game mode, name, number of hosts, 6 and friend code
 extern "C" int fn_804DC450(PPManager2_unk* mgr, int status) {
     if (mgr->mState == -1) {
@@ -3746,8 +3743,7 @@ extern "C" int fn_804DC450(PPManager2_unk* mgr, int status) {
     return DWC_SetOwnStatusString(text);
 }
 
-// NONMATCHING: offsets of the strings in @stringBase0 (strings of functions not written before them)
-// inferred: writes the own status string: room status 0, mode "9", name (none in state 0x8B) and friend code
+// inferred: writes the own status string: room status 0, mode "9" (off line, GetModeField_unk), name (none in state 0x8B) and friend code
 extern "C" __declspec(noinline) int fn_804DC684(PPManager2_unk* mgr) {
     if (mgr->mState == -1) {
         return 0;
@@ -3762,7 +3758,7 @@ extern "C" __declspec(noinline) int fn_804DC684(PPManager2_unk* mgr) {
         name[0] = 0;
     }
     fn_8006F420(lbl_8087EEC8, code, fn_8050F464(list).c_str(), fn_8050F464(list).size() * 2);
-    sprintf(status, "%s,%s,%s,%s,%s,%s", lbl_80791190[0], "9", name, "", "", code);
+    sprintf(status, "%s,%s,%s,%s,%s,%s", lbl_80791190[0], GetModeField_unk(-1), name, "", "", code);
     return DWC_SetOwnStatusString(status) != 0;
 }
 
@@ -5146,8 +5142,7 @@ inline int& GetDebugMatchValue_unk() {
     return sValue;
 }
 
-// NONMATCHING: 99.54% - offset of "notexiststring" in @stringBase0 (the two unreferenced "" missing) and the
-// registers of the friend list and the loop offset swapped
+// NONMATCHING: 99.69% - registers of the friend list and the loop offset swapped
 // inferred: evaluation callback of the matchmaking (m99C0.mFuncs[2]): -1 if the session `index` lacks the debug
 // key or one of the filter keys or has another value; else the closeness of the fourth key (0x80 - distance,
 // in the upper half), 0x800000 if m25C is 1
@@ -5299,8 +5294,7 @@ extern "C" const void* fn_804EE4E4(const void* data);
 extern "C" void fn_804EE4E8(atn::net::PacketPack* pack, unsigned int aid, unsigned short size);
 extern "C" void fn_804EE4EC(atn::net::PacketPack* pack, const void* data, unsigned short size);
 
-// NONMATCHING: 99.81% - offset of "update loc\n" in @stringBase0 (pool not complete), the zero of m99B0 and the
-// switch value in other registers
+// NONMATCHING: 99.83% - the zero of m99B0 and the switch value in other registers
 // inferred: receive loop: the packet of `aid` (a new player gets a slot), then each of its messages goes to
 // its handler (in the work buffer); the answer asked by message 0x35 is sent after the loop
 extern "C" int fn_804EE040(unsigned int aid, void* data, unsigned int size) {
@@ -6086,8 +6080,7 @@ extern "C" void fn_804F1F34(PPPlayer_unk* player) {
 
 #include "game/SpecialEnemyBase.h"
 
-// NONMATCHING: 99.58% - r3/r5 of the inlined FindTeam_unk (as fn_804F2258) and the offset of "enemy_status\n" in
-// @stringBase0 ("notexiststring" of fn_804EDB0C and two unreferenced "" missing)
+// NONMATCHING: 99.63% - r3/r5 of the inlined FindTeam_unk (as fn_804F2258)
 // inferred: state of a character received from the server (only in the game, state 30): the character of a team
 // player (not the own one), or of the character list (index in the data); with `type` 26 the special enemies also
 // restore their state (vf114) from +0x15 of the data
@@ -6126,7 +6119,7 @@ extern "C" void fn_804F2040(unsigned int type) {
     }
 }
 
-// NONMATCHING: 99.67% - offset of "enemy_sync\n" in @stringBase0 (pool not complete) and r3/r5 of the inlined search
+// NONMATCHING: 99.72% - r3/r5 of the inlined search
 // inferred: state of a player slot (network id mAid) or of a character of the list (index mAid) received from the
 // server; a character of the list is revived or killed to follow the value m00
 extern "C" void fn_804F2258() {
