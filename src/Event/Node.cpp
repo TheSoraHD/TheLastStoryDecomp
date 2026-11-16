@@ -309,7 +309,7 @@ bool KeyLess_unk(const ActionKey_unk& a, const ActionKey_unk& b) {
 // uses the one loaded at the start for the interpolation (tried &mKeys[0] locals, begin(), at())
 float Action::fn_8053A2E8(float t) {
     if (mKeys.size() == 0) {
-        return 0.0f;
+        return 1.0f;
     }
     if (t <= mKeys[0].mTime) {
         return mKeys[0].mValue;
@@ -328,7 +328,7 @@ float Action::fn_8053A2E8(float t) {
             return (t - a.mTime) / (b.mTime - a.mTime) * (b.mValue - a.mValue) + a.mValue;
         }
     }
-    return 0.0f;
+    return 1.0f;
 }
 
 void Action::vf0C(int n, int value) {
