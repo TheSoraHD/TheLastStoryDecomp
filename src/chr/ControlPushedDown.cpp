@@ -112,6 +112,10 @@ static int CanComplain_unk(CharaTask* chara) {
     return 1;
 }
 
+inline atn::Vector3* CharaTask::fn_8013C38C() {
+    return &mPos;
+}
+
 namespace chr {
 
 ControlPushedDown::ControlPushedDown(Chara_unk* chara, const atn::Vector3& dir, int a, int b, int c)
@@ -366,9 +370,6 @@ ControlOttotto::ControlOttotto(Chara_unk* chara, const atn::Vector3* dir, int ti
     }
 }
 
-// NONMATCHING: 99.8% - the stack slots of the negated direction and its rotation differ, and the
-// mChara/result temporary of the position update are in r3/r4 swapped (IsPlayer() fixed the counter
-// register, GetNormalize() the slots of the normalized direction).
 int ControlOttotto::vf0C() {
     int count = --m14;
     Motion_unk* motion = &mChara->mMotion;
@@ -376,8 +377,7 @@ int ControlOttotto::vf0C() {
         if (count <= 0) {
             atn::Vector3 target = mChara->fn_80178018();
             atn::Vector3 dir = motion->fn_80139F2C(0) == 0x52 ? Neg_unk(m08) : m08;
-            atn::Vector3 rot = dir.ToRotationZ_unk();
-            float a = atn::WrapAngle_unk(target.y - rot.y);
+            float a = atn::WrapAngle_unk(target.y - dir.ToRotationZ_unk().y);
             if (mChara->fn_80178078() > 0.4f && a < 1.5707964f) {
                 return 1;
             }
@@ -386,7 +386,7 @@ int ControlOttotto::vf0C() {
         return 1;
     }
     if (motion->mTracks[0].m00 == 0x52 && motion->mTracks[0].m08 < 10.0f) {
-        mChara->mPos = mChara->mPos - m08.GetNormalize() * 0.3f;
+        mChara->mPos = (*mChara->fn_8013C38C()) - m08.GetNormalize() * 0.3f;
     }
     float frame = motion->mTracks[0].m08;
     if (frame >= motion->fn_80097D7C(0)) {
