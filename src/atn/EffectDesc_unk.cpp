@@ -753,8 +753,6 @@ inline float GetFadeNear_unk(unsigned int flags) {
     return sFadeNear;
 }
 
-// NONMATCHING: 99.77% - the original rounds the minimum depth of the vertex loop with frsp (as if
-// it went through a double); a double local, a cast and a double min helper did not give it
 // inferred: queues a strip of `count` vertices
 extern "C" void fn_80236B84(int count, EffectVertex_unk* verts, void* a, void* b, const float* color,
                             unsigned int flags, int useCenter, const atn::Matrix3x4* view, float f, int c) {
@@ -782,8 +780,8 @@ extern "C" void fn_80236B84(int count, EffectVertex_unk* verts, void* a, void* b
             atn::Vector3 p = verts[i].mPos;
             PSMTXMultVec(view->m, &p, &p);
             viewPos.Assign_unk(p);
-            if (p.z < depth) {
-                depth = p.z;
+            if (viewPos.z < depth) {
+                depth = viewPos.z;
             }
         }
     }
