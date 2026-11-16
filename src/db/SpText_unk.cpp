@@ -123,7 +123,7 @@ extern "C" void fn_8021B060() {
             }
             csv.fn_8005B9CC();
             const wchar_t* text = csv.fn_8005B9CC();
-            fn_800DD3FC(sTypeTexts + pos, L"%s", text);
+            fn_800DD3FC(sTypeTexts + pos, L"%s\0", text);
             if (i < 0x49) {
                 sTypes[(unsigned int)i].mPtr = sTypeTexts + pos;
             }
@@ -155,7 +155,7 @@ extern "C" void fn_8021B060() {
     if (*field != 0) {                                                                                            \
         int id = fn_800DC1DC(field);                                                                              \
         const wchar_t* text = csv.fn_8005B9CC();                                                                  \
-        fn_800DD3FC(sCondTexts + pos, L"%s", text);                                                               \
+        fn_800DD3FC(sCondTexts + pos, L"%s\0", text);                                                               \
         values.mData[i].mId = id;                                                                                 \
         values.mData[i].mText.mPtr = sCondTexts + pos;                                                            \
         i++;                                                                                                      \
@@ -220,7 +220,7 @@ extern "C" void fn_8021B2F8() {
                 }
                 if (*csv.fn_8005B9CC() != 0) {
                     const wchar_t* text = csv.fn_8005B9CC();
-                    fn_800DD3FC(sCondTexts + pos, L"%s", text);
+                    fn_800DD3FC(sCondTexts + pos, L"%s\0", text);
                     if (i < 0x1B) {
                         sConds[i].mPtr = sCondTexts + pos;
                     }
@@ -414,7 +414,7 @@ extern "C" void fn_8021C3F4() {
         int cond = fn_800DC1DC(csv.fn_8005B9CC());
         int condValue = fn_800DC1DC(csv.fn_8005B9CC());
         const wchar_t* text = csv.fn_8005B9CC();
-        fn_800DD3FC(sTextTexts + pos, L"%s", text);
+        fn_800DD3FC(sTextTexts + pos, L"%s\0", text);
         sTexts[(unsigned int)i].mType = type;
         sTexts[(unsigned int)i].mCond = cond;
         sTexts[(unsigned int)i].mCondValue = condValue;
@@ -445,10 +445,18 @@ static inline bool GetCondText_unk(wchar_t* buf, SpEffect_unk* effect) {
     return false;
 }
 
+// inferred: "<condition> <type>", or the type alone without a condition (not static: its out-of-line
+// copy, which the linker strips, puts L"%s %s\0" before the percentage formats in the pool)
+void FormatEffectText_unk(wchar_t* buf, const wchar_t* cond, const wchar_t* type) {
+    if (cond[0] != 0) {
+        fn_800DD3FC(buf, L"%s %s\0", cond, type);
+    } else {
+        fn_800DD3FC(buf, L"%s\0", type);
+    }
+}
+
 // inferred: text of an effect (a whole text of sp_text if there is one, else the texts of its
 // condition and type)
-// NONMATCHING: 99.94% - order of the wide literals (@wstringBase0: the original has L"" and L"%s %s"
-// before the percentage formats, from code that is not reconstructed)
 extern "C" bool fn_8021C6A4(wchar_t* buf, SpEffect_unk* effect) {
     if (effect != 0) {
     SpText_unk* text = FindText_unk(effect->mType, effect->mCond, effect->mCondValue);
@@ -544,11 +552,7 @@ extern "C" bool fn_8021C6A4(wchar_t* buf, SpEffect_unk* effect) {
         memset(cond, 0, sizeof(cond));
         memset(typeText, 0, sizeof(typeText));
         if (GetCondText_unk(cond, effect) && fn_8021BE98(typeText, effect)) {
-            if (cond[0] != 0) {
-                fn_800DD3FC(buf, L"%s %s", cond, typeText);
-            } else {
-                fn_800DD3FC(buf, L"%s", typeText);
-            }
+            FormatEffectText_unk(buf, cond, typeText);
             return true;
         }
     }
