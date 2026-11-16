@@ -7652,9 +7652,8 @@ extern "C" void fn_804F50C4(unsigned int aid) {
 static inline MpMessageTable_unk* PPMessages_unk(PPManager2_unk* mgr) {
     return (MpMessageTable_unk*)&mgr->m2A50;
 }
-// NONMATCHING: 95.9% - the original addresses the categories of m2A50 from the manager (the table typed as
-// MpMessageTable_unk inside MP::Manager2; here a cast of PPTable_unk), m0C of the message is a short (lha),
-// aid/offset of the inlined own-slot searches swapped, the color as a select instead of two branches and the
+// NONMATCHING: 96.2% - the original addresses the categories of m2A50 from the manager (the table typed as
+// MpMessageTable_unk inside MP::Manager2; here a cast of PPTable_unk), aid/offset of the inlined own-slot searches swapped, the color as a select instead of two branches and the
 // state test of the lobby (2, 3-6) merged into one range
 // inferred: shows a message of a player: in the lobby (state 12) as a balloon over the member (a message of the
 // table, or with category 0xFFFF one of the texts 0xDF-0xE5), in the game in the log (a message of the table
@@ -7733,7 +7732,7 @@ extern "C" int fn_804F50DC(PPManager2_unk* mgr, PPPlayer_unk* player, unsigned s
             }
             MP::D2AMpMenuLobby::sInstance->fn_804C2D5C((MpLobbyMember_unk*)player,
                                                      msg->mText != 0 ? msg->mText : MP::lbl_808813D0,
-                                                     (short)msg->m0C + 10, 0);
+                                                     msg->m0C + 10, 0);
         } else {
             if (lbl_8087F86C == 0) {
                 return 0;
