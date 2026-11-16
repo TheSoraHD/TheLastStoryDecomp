@@ -3734,11 +3734,11 @@ void GameTask::fn_80370BD0(int frames, int arg, float speed) {
     m5620->mActive = 1;
 }
 
-// NONMATCHING: 99% - r4/r5 swapped in the compare (also tried mDelay + mDuration, locals, no local fade)
+// inferred: 1 once the fade has gone past its delay and duration (or when it is not active)
 int GameTask::fn_80370C2C() {
     atn::FadeCommon* fade = m5620;
     if (fade->mActive != 0) {
-        return fade->mFrame < fade->mDelay + fade->mDuration;
+        return fade->mFrame > fade->mDelay + fade->mDuration;
     }
     return 1;
 }
