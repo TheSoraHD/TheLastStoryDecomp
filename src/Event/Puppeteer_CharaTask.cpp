@@ -1399,8 +1399,6 @@ void Actor::fn_80012540(int arg) {
     }
 }
 
-// NONMATCHING: 98.91% - registers of the case 3 (the original loads the puppeteer into r5 first; tried a local
-// pointer, `show != 0`, `show ? 1 : 0`, bool casts and ToBool_unk)
 void Actor::fn_8001256C(int show) {
     switch (m20) {
     case 7:
