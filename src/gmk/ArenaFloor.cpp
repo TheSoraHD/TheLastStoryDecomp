@@ -210,21 +210,22 @@ int ArenaFloor::vf1C() {
     return 0;
 }
 
-// NONMATCHING: the target has a 16 bytes larger frame and keeps the constant 1 in r31.
+// The owner is tested in the same condition as the field name (an absent owner falls through to the
+// next field name), kept in a register across the call that reads the map name.
 void ArenaFloor::vf20() {
     atn::CsvTab csv((const char*)mBinary.fn_80470580(), mBinary.fn_8047059C());
     csv.fn_8005BCE8(lbl_8087D710);
+    atn::Task* owner;
     do {
         const char* field = csv.fn_8005B9CC();
         if (field[0] == ';') {
             continue;
         }
-        if (strcmp(field, "MAP") == 0) {
-            if (m20 != 0) {
-                mGroup = MapTask::SetTask((atn::Task*)m20, csv.fn_8005B9CC()); // inferred: atn::Task::m20 is the parent (void*)
-                if (mGroup != 0) {
-                    mGroup->mF4 = 1;
-                }
+        // inferred: atn::Task::m20 is the parent (void*)
+        if (strcmp(field, "MAP") == 0 && (owner = (atn::Task*)m20) != 0) {
+            mGroup = MapTask::SetTask(owner, csv.fn_8005B9CC());
+            if (mGroup != 0) {
+                mGroup->mF4 = 1;
             }
         } else if (strcmp(field, "OFFSET") == 0) {
             mOffset.x = fn_800DC288(csv.fn_8005B9CC());
