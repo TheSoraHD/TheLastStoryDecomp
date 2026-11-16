@@ -19,12 +19,11 @@ extern "C" void fn_8004D388(void* mgr, atn::ColliResult_unk* result, chr::Chara_
 
 namespace chr {
 
-// NONMATCHING: 99.9% - the original stores the double argument directly and converts it in
-// another register for the comparison; here both use the converted value.
-ControlTurnQuadruped::ControlTurnQuadruped(Chara_unk* chara, double angle) : ControlBase(chara) {
+// inferred: float angle (the original stores the argument without frsp and compares the member read back)
+ControlTurnQuadruped::ControlTurnQuadruped(Chara_unk* chara, float angle) : ControlBase(chara) {
     chara->m560 = 0x56;
     mAngle = angle;
-    if ((float)angle < 0.0f) {
+    if (mAngle < 0.0f) {
         mLeft = 1;
     } else {
         mLeft = 0;

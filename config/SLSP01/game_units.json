@@ -975,7 +975,7 @@
   "classes": [
    "chr::ControlTurnQuadruped"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "chr/ControlUseSkill.cpp",
