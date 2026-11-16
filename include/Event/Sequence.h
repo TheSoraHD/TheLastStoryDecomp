@@ -303,6 +303,7 @@ public:
 
     // inferred: inline helpers (names invented)
     unsigned int GetFlag7_unk() const { return m98_7; }
+    unsigned int GetFlag11_unk() const { return m98_11; }
     unsigned int GetFlag15_unk() const { return (m98 >> 16) & 1; }
     bool IsCutIndex_unk(int i) const { return i >= 0 && i < (int)mB8.size(); }
     inline Cut* FindCutByIndex_unk(int index); // inferred: defined in Event/Sequence.cpp

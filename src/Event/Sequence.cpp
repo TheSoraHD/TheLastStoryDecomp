@@ -407,7 +407,7 @@ void Sequence::fn_8053F1B4() {
             m98_12 = 0;
         } else if (fn_8054011C() != 0) {
             m29C.fn_80470528();
-            if (m98_11 == 1) {
+            if (GetFlag11_unk() == 1) {
                 m194 = 9;
                 m98_11 = 0;
             } else {
