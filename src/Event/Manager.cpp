@@ -3191,8 +3191,18 @@ void Manager::fn_8048F9B0(Cut* cut) {
     }
 }
 
+// inferred: removes the light -2 of the event from its list and from the light list (name invented)
+inline void RemoveEventLight_unk(IntVector_unk& lights) {
+    for (int i = 0; i < (int)lights.size(); i++) {
+        if (lights[i] == -2) {
+            lights.erase(lights.begin() + i);
+            lbl_8087EEF8->fn_8007A154(i);
+            break;
+        }
+    }
+}
+
 // inferred: undoes the AutoLightFix (light direction of the event, or removes the light -2)
-// NONMATCHING: 99.85% - the index of case 2 in r29 instead of r30
 void Manager::fn_8048FC7C() {
     switch (m240C) {
     case 1: {
@@ -3203,13 +3213,7 @@ void Manager::fn_8048FC7C() {
         break;
     }
     case 2:
-        for (int i = 0; i < (int)m1F10.size(); i++) {
-            if (m1F10[i] == -2) {
-                m1F10.erase(m1F10.begin() + i);
-                lbl_8087EEF8->fn_8007A154(i);
-                break;
-            }
-        }
+        RemoveEventLight_unk(m1F10);
         break;
     }
 }
