@@ -16,11 +16,11 @@ struct Field_unk {
 };
 extern "C" Field_unk* lbl_8087F430;
 extern "C" void* lbl_8087F610; // inferred: arena mode (as in game/CharaTask.cpp)
-// inferred: shot speed ranges (arena and normal)
-extern "C" float lbl_8087DA48;
-extern "C" float lbl_8087DA4C;
-extern "C" float lbl_8087DA50;
-extern "C" float lbl_8087DA54;
+// inferred: shot speed ranges (arena and normal); .sdata of this unit
+float lbl_8087DA48 = 1.0f;
+float lbl_8087DA4C = 1.3f;
+float lbl_8087DA50 = 1.0f;
+float lbl_8087DA54 = 1.5f;
 
 namespace chr {
 
@@ -31,8 +31,6 @@ enum {
     kShootMotion17E_unk = 0x17E,
 };
 
-// NONMATCHING: 99.90% - the zero stored to mFB0/mFB4 gets r6 instead of r4 (so mFB4/m48 take
-// r4/r0 instead of r0/r3). Tried: a zero local, swapped addition, the charge block in a static inline.
 ControlShoot::ControlShoot(Chara_unk* chara, int id, const atn::Vector3& from, const atn::Vector3& to)
     : ControlBase(chara), mData(fn_80219E6C(id)), mFrom(from), mTo(to), m28(1) {
     mChara->m560 = 0x62;
@@ -152,7 +150,8 @@ ControlShoot::ControlShoot(Chara_unk* chara, int id, const atn::Vector3& from, c
         CrossbowMenuTask::sInstance->fn_801EA0B4();
     }
     mChara->mFB0 = 0;
-    mChara->mFB4 = mData->m48 + mChara->mFB4;
+    Chara_unk* ch = mChara;
+    ch->mFB4 = mData->m48 + ch->mFB4;
     if (mChara->mFB4 >= mChara->mStatus.mParamB.m20) {
         mChara->mFB0 = rate * mChara->mStatus.mParamB.m24;
         mChara->mFB4 = 0;

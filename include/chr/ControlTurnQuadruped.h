@@ -7,7 +7,7 @@ namespace chr {
 
 class ControlTurnQuadruped : public ControlBase {
 public:
-    ControlTurnQuadruped(Chara_unk* chara, double angle); // 0x801C8F10
+    ControlTurnQuadruped(Chara_unk* chara, float angle); // 0x801C8F10
     virtual ~ControlTurnQuadruped() {}
     virtual int vf0C();
 

@@ -43,7 +43,7 @@ extern "C" void* lbl_8087EE98;
 extern "C" int fn_8004D314(void* world, int arg, const atn::Vector3* pos, const atn::Vector3* dir, unsigned int mask,
                            int arg5, int arg6, float radius); // inferred: sphere test
 extern "C" int fn_8004D388(void* world, atn::ColliResult_unk* result, CharaTask::Sphere_unk* sphere, atn::Vector3* move,
-                           unsigned int mask, void* ignore, int arg); // inferred: sweep test
+                           unsigned int mask, void* ignore, int arg, float); // inferred: sweep test (last: radius)
 // inferred: debug drawing (lbl_8087EEB0)
 // inferred: game settings
 struct BrazierSettings_unk {
@@ -186,15 +186,16 @@ inline int Brazier::IsBlocked_unk() {
     if (fn_8004D314(lbl_8087EE98, 0, &pos, &lbl_807C7030, 0x80000000, 0, 0, 0.5f * mRadius) != 0) {
         return 1;
     }
-    return fn_8004D314(lbl_8087EE98, 0, &m6C, &lbl_807C7030, 0x40000000, 0, 0, 2.5f * mRadius) != 0;
+    if (fn_8004D314(lbl_8087EE98, 0, &m6C, &lbl_807C7030, 0x40000000, 0, 0, 2.5f * mRadius) != 0) {
+        return 1;
+    }
+    return 0;
 }
 
 int Brazier::vf0C() {
     return fn_803EC91C() == 0;
 }
 
-// NONMATCHING: 99.96% - the constants 0.5f and 2.5f of IsBlocked_unk are created in the other
-// order (.sdata2 0x80886268/0x8088626C swapped); tried if/else, ternary, || and a parameter
 void Brazier::vf10() {
     if (mDesc != 0) {
         if (mEnabled != mDesc->m7C) {
@@ -257,7 +258,6 @@ void Brazier::vf10() {
     mColli.SetMtx_unk(*(atn::Matrix3x4*)mModel.mMtx.m);
 }
 
-// NONMATCHING: 99.94% - same .sdata2 order of 0.5f as vf10
 void Brazier::vf14() {
     if (mDesc != 0 && mDesc->m7C == 0) {
         return;
@@ -440,7 +440,6 @@ int Brazier::vf44(GimmickHitMsg_unk* msg) {
     return 0;
 }
 
-// NONMATCHING: 99.83% - mRadius is loaded into f3 instead of f1 for the sphere
 void Brazier::fn_80407D24() {
     if (m54 != 3 && m54 != 4) {
         return;
@@ -451,7 +450,7 @@ void Brazier::fn_80407D24() {
     sphere.mCenter = m6C;
     sphere.mCenter.y += mRadius;
     sphere.mRadius = mRadius;
-    if (fn_8004D388(lbl_8087EE98, &res, &sphere, &mDir, 0, 0, 0) != 0) {
+    if (fn_8004D388(lbl_8087EE98, &res, &sphere, &mDir, 0, 0, 0, sphere.mRadius) != 0) {
         mDir.y = 0.0f;
     } else {
         mDir.y += -98.1f / (float)(lbl_8087F0A8->mFps * lbl_8087F0A8->mFps);
