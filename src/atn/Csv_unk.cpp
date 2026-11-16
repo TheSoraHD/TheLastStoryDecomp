@@ -18,12 +18,27 @@ inline bool __IsLeadByte_unk(wchar_t c) {
 // inferred: c is one of the characters of the null-terminated list (name invented)
 template <class T>
 inline bool __IsOneOf_unk(T c, const T* list) {
+    T ch = c;
     for (int i = 0; list[i] != 0; i++) {
-        if (c == list[i]) {
+        if (ch == list[i]) {
             return true;
         }
     }
     return false;
+}
+
+// inferred: length of the leading run of characters of `set` (strspn)
+template <class T>
+inline int __Span_unk(const T* s, const T* set) {
+    int n = 0;
+    int i;
+    for (i = 0; s[i] != 0; i++) {
+        if (!__IsOneOf_unk(s[i], set)) {
+            break;
+        }
+        n++;
+    }
+    return n;
 }
 
 // inferred: string copy (strcpy)
@@ -36,8 +51,6 @@ inline void __StrCopy_unk(T* dst, const T* src) {
     dst[i] = 0;
 }
 
-// NONMATCHING: wchar_t 99.34% - registros del recuento del recorte (n/punteros; con ese bucle en una inline
-// tipo strspn wchar_t llega al 100% pero char baja a 99.78%). char al 100% con la copia en __StrCopy_unk.
 template <class T, int Sep, int Eol, int Quote>
 const T* CsvBase<T, Sep, Eol, Quote>::fn_8005B9CC() {
     memset(mField, 0, sizeof(mField) + sizeof(m410));
@@ -86,14 +99,7 @@ const T* CsvBase<T, Sep, Eol, Quote>::fn_8005B9CC() {
         m0C = m08;
     }
     if (m630 != 0) {
-        int i;
-        int n = 0;
-        for (i = 0; mField[i] != 0; i++) {
-            if (!__IsOneOf_unk(mField[i], m610)) {
-                break;
-            }
-            n++;
-        }
+        int n = __Span_unk(mField, m610);
         if (n > 0) {
             __StrCopy_unk(mField, mField + n);
         }
