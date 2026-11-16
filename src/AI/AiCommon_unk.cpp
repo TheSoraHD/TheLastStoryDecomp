@@ -1,6 +1,7 @@
 // inferred file name (splits-auto): AI helpers of the scripts of AI/AI_archer_attack01.cpp. They
 // work on the current character (lbl_8087EE60) and on lists of 16 characters.
 #include "game/CharaTask.h"
+#include "game/TeamAIManager.h"
 #include "game/BattleTask.h"
 #include "game/AiTarget.h"
 #include "game/GameScene.h"
@@ -40,23 +41,6 @@ struct Field_unk {
 };
 extern "C" Field_unk* lbl_8087F430;
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
-// inferred: team manager (lbl_8087FA00); members of 0x37C bytes
-struct AiTeamMember_unk {
-    unsigned char m000[0x218];
-    struct Ref_unk {
-        unsigned char m00[0x8C];
-        CharaTask* m8C;
-    }* m218;
-    unsigned char m21C[0x37C - 0x21C];
-    // inferred: character of the member (name invented)
-    CharaTask* GetChara_unk() { return m218 != 0 ? m218->m8C : 0; }
-};
-struct AiTeam_unk {
-    unsigned char m00[0x48];
-    int mCount;               // 0x48
-    AiTeamMember_unk* mMembers; // 0x4C
-};
-extern "C" AiTeam_unk* lbl_8087FA00;
 extern "C" int fn_8003F440(CharaTask* chara, CharaStatusPair_unk* skill);
 
 // inferred: moves the characters of a list of 16 to the front (names invented)
@@ -131,21 +115,23 @@ extern "C" void fn_8001A65C(CharaTask** list) {
     Compact_unk(list);
 }
 
-// NONMATCHING: 98.10% - registers of the team loop (list pointer, team, offset)
+// inferred: removes from the list the characters that are not team leaders (pointer loop: register
+// order of the original)
 extern "C" void fn_8001A788(CharaTask** list) {
-    for (int i = 0; i < 16; i++) {
+    CharaTask** p = list;
+    for (int i = 0; i < 16; i++, p++) {
         bool found = false;
         if (lbl_8087EE60 != 0 && !lbl_8087EE60->mStatus.IsState_unk(0x800)) {
-            AiTeam_unk* team = lbl_8087FA00;
-            for (int j = 0; j < team->mCount; j++) {
-                if (list[i] == team->mMembers[j].GetChara_unk()) {
+            TeamAIManager* team = lbl_8087FA00;
+            for (int j = 0; j < team->mTeams.mSize; j++) {
+                if (*p == team->mTeams[j].GetLeader_unk()) {
                     found = true;
                     break;
                 }
             }
         }
         if (!found) {
-            list[i] = 0;
+            *p = 0;
         }
     }
     Compact_unk(list);
