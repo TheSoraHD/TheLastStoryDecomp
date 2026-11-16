@@ -4536,6 +4536,13 @@ inline void NotifyListeners_unk(CharaListeners_unk* listeners, int id, void* cha
 #include "game/BattleTask.h"
 extern "C" BattleTask* lbl_8087F048; // inferred: battle manager (as game/BattleCharaTask.cpp)
 
+// inferred: character named in a message: kind 1 none, 2 player (network id mIndex), 3 character mIndex of the list;
+// names invented
+struct PPMsgCharaRef_unk {
+    unsigned char mKind;
+    unsigned char mIndex;
+};
+
 // inferred: data of messages 8 and 64 (a hit dealt by another player); names invented
 struct PPMsgHit_unk {
     int mHitId;              // 0x00: inferred: id of the hit data (fn_80219E6C)
@@ -4543,13 +4550,11 @@ struct PPMsgHit_unk {
     atn::Vector3 m10;
     unsigned short mFlag : 1; // 0x1C
     unsigned short m1C_0 : 7;
-    unsigned char mKind;     // 0x1D: inferred: attacker: 1 none, 2 player (aid mIndex), 3 character of the list
-    unsigned char mIndex;    // 0x1E
+    PPMsgCharaRef_unk mAttacker; // 0x1D
 };
 
-// inferred: attacker of a hit or shot message (name invented)
-template <class T>
-static inline CharaTask* GetHitAttacker_unk(PPManager2_unk* mgr, const T* data) {
+// inferred: character of a reference of a message (name invented)
+static inline CharaTask* GetHitAttacker_unk(PPManager2_unk* mgr, const PPMsgCharaRef_unk* data) {
     switch (data->mKind) {
     case 1:
         return 0;
@@ -4579,8 +4584,7 @@ struct PPMsgShot_unk {
     atn::Vector3 m10;     // inferred: direction
     unsigned char m1C[0x20 - 0x1C];
     unsigned int mFlags;  // 0x20
-    unsigned char mKind;  // 0x24: inferred: shooter (as PPMsgHit_unk)
-    unsigned char mIndex; // 0x25
+    PPMsgCharaRef_unk mShooter; // 0x24
 };
 
 
@@ -4645,7 +4649,7 @@ extern "C" void fn_804EEB34() {
     if (((PPManager2_unk*)lbl_8087F610)->mState == 30) {
         PPMsgShot_unk* data = (PPMsgShot_unk*)fn_804AE3BC()->GetWorkBuffer_unk();
         PPManager2_unk* mgr = (PPManager2_unk*)lbl_8087F610;
-        CharaTask* owner = GetHitAttacker_unk(mgr, data);
+        CharaTask* owner = GetHitAttacker_unk(mgr, &data->mShooter);
         if (owner != 0) {
             HitInfo_unk* hit = fn_80219E6C(data->mHitId);
             if (hit != 0) {
@@ -4669,6 +4673,73 @@ extern "C" void fn_804EEB34() {
     }
 }
 
+#include "game/HomingBullet.h"
+// inferred: data of message 58 (a homing bullet shot by another player); names invented
+struct PPMsgHoming_unk {
+    int mHitId;                 // 0x00
+    atn::Vector3 m04;           // inferred: position
+    atn::Vector3 m10;           // inferred: direction
+    unsigned char m1C[0x20 - 0x1C];
+    unsigned int mFlags;        // 0x20
+    PPMsgCharaRef_unk mShooter; // 0x24
+    PPMsgCharaRef_unk mTarget;  // 0x26
+    float mAccel;               // 0x28 (as HomingParam_unk)
+    float m2C;
+    float mMaxSpeed;
+    float mTurn;
+    float mTime;
+    float mDelay;               // 0x3C: inferred: not copied
+    unsigned int mNode;         // 0x40
+};
+
+// NONMATCHING: 99.05% - base of the inlined player search (as fn_804EEB34)
+// inferred: message 58: a homing bullet shot by another player (only in the game, state 30); the listeners of the
+// characters are off during the shot (and stay off when the hit data or a free bullet is missing)
+extern "C" void fn_804EED7C() {
+    if (((PPManager2_unk*)lbl_8087F610)->mState == 30) {
+        PPMsgHoming_unk* data = (PPMsgHoming_unk*)fn_804AE3BC()->GetWorkBuffer_unk();
+        PPManager2_unk* mgr = (PPManager2_unk*)lbl_8087F610;
+        CharaTask* owner = GetHitAttacker_unk(mgr, &data->mShooter);
+        fn_8014F8F4()->mEnabled = 0;
+        HitInfo_unk* hit = fn_80219E6C(data->mHitId);
+        if (hit == 0) {
+            return;
+        }
+        BulletShot_unk shot;
+        shot.m00 = 0.1f;
+        shot.m04 = 0;
+        shot.m08 = 0;
+        shot.m10 = 0;
+        shot.m14 = 0.0f;
+        shot.m18 = 1.0f;
+        shot.m04 = fn_800EFD04(hit->mB0);
+        shot.m0C = hit;
+        HomingParam_unk param;
+        param.mTarget = 0;
+        param.mAccel = 0.0f;
+        param.m08 = -1.0f;
+        param.mMaxSpeed = 10.0f;
+        param.mTurn = 0.09424778f;
+        param.mTime = 300.0f;
+        param.mDelay = 5.0f;
+        param.mNode = 0;
+        param.mCount = -1;
+        param.mTarget = GetHitAttacker_unk((PPManager2_unk*)lbl_8087F610, &data->mTarget);
+        param.mAccel = data->mAccel;
+        param.m08 = data->m2C;
+        param.mMaxSpeed = data->mMaxSpeed;
+        param.mTurn = data->mTurn;
+        param.mTime = data->mTime;
+        param.mNode = data->mNode;
+        HomingBullet* bullet = lbl_8087F048->fn_801010E8();
+        if (bullet == 0) {
+            return;
+        }
+        bullet->vf28(&shot, &data->m04, &data->m10, owner, &param, data->mFlags | 0x80);
+        fn_8014F8F4()->mEnabled = 1;
+    }
+}
+
 
 // inferred: data of message 7 (a hit received by a character from another player); names invented
 struct PPMsgDamage_unk {
@@ -4677,8 +4748,7 @@ struct PPMsgDamage_unk {
     unsigned int mFlags;  // 0x18
     int mHitId;           // 0x1C
     int m20;
-    unsigned char mKind;  // 0x24: inferred: target (as PPMsgHit_unk)
-    unsigned char mIndex; // 0x25
+    PPMsgCharaRef_unk mTarget; // 0x24
 };
 
 // NONMATCHING: 99.40% - base of the inlined player search (the original loads the character with lwzx base, offset)
@@ -4690,7 +4760,7 @@ extern "C" void fn_804EF9B4() {
         unsigned int flags;
         PPMsgDamage_unk* data = (PPMsgDamage_unk*)fn_804AE3BC()->GetWorkBuffer_unk();
         PPManager2_unk* mgr = (PPManager2_unk*)lbl_8087F610;
-        CharaTask* chara = GetHitAttacker_unk(mgr, data);
+        CharaTask* chara = GetHitAttacker_unk(mgr, &data->mTarget);
         if (chara != 0) {
             flags = data->mFlags;
             held = chara->m1208;
@@ -4724,7 +4794,7 @@ extern "C" void fn_804EFC94() {
     if (((PPManager2_unk*)lbl_8087F610)->mState == 30) {
         PPMsgHit_unk* data = (PPMsgHit_unk*)fn_804AE3BC()->GetWorkBuffer_unk();
         PPManager2_unk* mgr = (PPManager2_unk*)lbl_8087F610;
-        CharaTask* attacker = GetHitAttacker_unk(mgr, data);
+        CharaTask* attacker = GetHitAttacker_unk(mgr, &data->mAttacker);
         if (lbl_8087F048 != 0) {
             HitInfo_unk* hit = fn_80219E6C(data->mHitId);
             if (hit != 0) {
