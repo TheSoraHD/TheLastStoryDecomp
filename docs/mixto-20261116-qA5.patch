@@ -1,0 +1,114 @@
+diff --git a/src/game/GameSoundControl.cpp b/src/game/GameSoundControl.cpp
+index c0b09641..404a082f 100644
+--- a/src/game/GameSoundControl.cpp
++++ b/src/game/GameSoundControl.cpp
+@@ -27,7 +27,7 @@ struct FieldStream_unk {
+ // conditions); name invented
+ #define STREAM_ENDING(s)                                                                           \
+     (((s)->m6C >> 24 > (s)->m70 >> 24 && (s)->m4C - (s)->m58 <= 0) ||                              \
+-     (!((s)->m6C >> 24 > (s)->m70 >> 24) && (s)->m4C - (s)->m54 - (s)->m58 >= 0))
++     (((int)((s)->m70 >> 24 < (s)->m6C >> 24) == 0) && (s)->m4C - (s)->m54 - (s)->m58 >= 0))
+ 
+ // inferred: field (lbl_8087F430, as in game/CharaTask.cpp); names invented
+ struct Field_unk {
+diff --git a/src/game/EnemyTrista.cpp b/src/game/EnemyTrista.cpp
+index 3a2c7fa6..fa3a1b6a 100644
+--- a/src/game/EnemyTrista.cpp
++++ b/src/game/EnemyTrista.cpp
+@@ -407,6 +407,32 @@ void EnemyTrista::vf10() {
+     }
+ }
+ 
++// inferred: the target is far enough and in sight for a jump (name invented)
++inline bool CanJumpTo_unk(CharaTask* self) {
++    bool jump = false;
++    atn::Vector3 d = self->mC58.mC4->mPos - self->mPos;
++    if (d.Length_unk() > 65.0f) {
++        atn::Vector3 from = self->mPos;
++        atn::Vector3 to = self->mC58.mC4->mPos;
++        from.y += 9.5f;
++        to.y += 9.5f;
++        void* world = lbl_8087EE98;
++        if (fn_8004ED34(world, 0, &from, &to, self->fn_80179D44() | 0x80000000, 0, 0) == 0) {
++            jump = true;
++        }
++    }
++    return jump;
++}
++
++// inferred: facing direction for the angle (name invented)
++inline atn::Vector3 TristaFront_unk(const float& angle) {
++    atn::Vector3 dir(0.0f, 0.0f, 1.0f);
++    Mtx m;
++    PSMTXRotRad(m, 'y', angle);
++    PSMTXMultVec(m, &dir, &dir);
++    return dir;
++}
++
+ // inferred: side direction of the character (name invented)
+ inline atn::Vector3 Side_unk(CharaTask* chara, float up) {
+     atn::Vector3 v(0.0f, up, 0.0f);
+@@ -442,11 +468,7 @@ void EnemyTrista::fn_8035C8CC() {
+     case 7:
+         fn_8016E970(3);
+         if (m14BC != 0) {
+-            atn::Vector3 dir(0.0f, 0.0f, 1.0f);
+-            Mtx m;
+-            PSMTXRotRad(m, 'y', mRot.y);
+-            PSMTXMultVec(m, &dir, &dir);
+-            fn_80155790(dir);
++            fn_80155790(TristaFront_unk(mRot.y));
+             m14BC = 0;
+             m14B8 += 500;
+         }
+@@ -491,17 +513,7 @@ void EnemyTrista::fn_8035C8CC() {
+                     if (mC58.mC4 == 0) {
+                         jump = false;
+                     } else {
+-                        jump = false;
+-                        if ((mC58.mC4->mPos - mPos).Length_unk() > 65.0f) {
+-                            atn::Vector3 from = mPos;
+-                            atn::Vector3 to = mC58.mC4->mPos;
+-                            from.y += 9.5f;
+-                            to.y += 9.5f;
+-                            void* world = lbl_8087EE98;
+-                            if (fn_8004ED34(world, 0, &from, &to, fn_80179D44() | 0x80000000, 0, 0) == 0) {
+-                                jump = true;
+-                            }
+-                        }
++                        jump = CanJumpTo_unk(this);
+                     }
+                     if (jump) {
+                         m58C = 8;
+--- a/src/game/EnemyQuarkFirst.cpp
++++ b/src/game/EnemyQuarkFirst.cpp
+@@ -371,6 +371,15 @@
+                             int arg8, int arg9, float scale);
+ extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the next effects
+ 
++// inferred: facing direction for the angle (name invented)
++inline atn::Vector3 QuarkFront_unk(const float& angle) {
++    atn::Vector3 dir(0.0f, 0.0f, 1.0f);
++    Mtx m;
++    PSMTXRotRad(m, 'y', angle);
++    PSMTXMultVec(m, &dir, &dir);
++    return dir;
++}
++
+ // inferred: turns towards m14E4 by `rate` of the difference (inlined in the states); name invented
+ inline void EnemyQuarkFirst::TurnTo_unk(float rate) {
+     atn::Vector3 dir = m14E4->mPos - mPos;
+@@ -946,11 +955,8 @@
+             if (m560 == 0x8D && mMotion.mTracks[0].m00 == 0x16E && mControl->vf30() == 0 && !m14E4->mFlag5 &&
+                 CanHitTarget_unk(fn_80219E6C(0xE3))) {
+                 if (!(m14E4->m55C == 6 && m14E4->m560 == 0x8E)) {
+-                    atn::Vector3 dir(0.0f, 0.0f, 1.0f);
+-                    Mtx m;
+-                    PSMTXRotRad(m, 'y', mRot.y);
+-                    PSMTXMultVec(m, &dir, &dir);
+-                    m14E4->fn_80178208(new ((MemoryTag)3, "", "", 0) chr::ControlDamageLastOne(m14E4, &dir, 9));
++                    m14E4->fn_80178208(new ((MemoryTag)3, "", "", 0)
++                                           chr::ControlDamageLastOne(m14E4, &QuarkFront_unk(mRot.y), 9));
+                     m14E4->mMotion.mTracks[0].m08 = mMotion.mTracks[0].m08;
+                 }
+             }
