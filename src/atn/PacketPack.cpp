@@ -1763,6 +1763,23 @@ MP::Manager2::Manager2(atn::Task* parent)
     m2B7C->mActive = 1;
 }
 
+// NONMATCHING: 98.03% - the end node is recomputed for the clear of the list (the original reuses the one of the
+// loop) and registers
+// inferred: frees the buffers of every peer, then the list (inline: also inlined in MP::PacketPackMP::~PacketPackMP)
+inline atn::net::PacketPack::~PacketPack() {
+    for (std::list<PPUser_unk>::iterator it = mUsers.begin(); it != mUsers.end(); ++it) {
+        if ((*it).m08 != 0) {
+            atn::MemoryManager::Instance()->Free((*it).m08);
+            (*it).m08 = 0;
+        }
+        if ((*it).m0C != 0) {
+            atn::MemoryManager::Instance()->Free((*it).m0C);
+            (*it).m0C = 0;
+        }
+    }
+    mUsers.clear();
+}
+
 // inferred: clears a player slot
 extern "C" void fn_804D1F6C(PPPlayer_unk* player) {
     player->mAid = 0xFF;
@@ -3320,6 +3337,34 @@ extern "C" void fn_804DA690(PPManager2_unk* mgr) {
     if (PPTeamScore_unk(mgr, PPOtherTeam_unk(mgr)) - ownScore >= 40) {
         fn_80444020(Inventory::instance_, 0x1C23, 0, -1, 0, 0, 0, 0, 0);
         fn_80444020(Inventory::instance_, 0x1C26, 0, -1, 0, 0, 0, 0, 0);
+    }
+}
+
+#include "game/PopupTask.h"
+static inline PPPlayer_unk* FindByChara_unk(PPManager2_unk* mgr, CharaTask* chara);
+
+// NONMATCHING: 97.74% - the original loads mDCScore twice (sum and old value) and registers of the inlined
+// search of the own player
+// inferred: adds `points` to the score of the player of `chara` (not below 0); for the own player out of mode 2
+// a popup over the character shows the change (called by gmk::DropItem when an item is picked up)
+extern "C" void fn_804DB1C4(PPManager2_unk* mgr, CharaTask* chara, int points) {
+    if (mgr->m50C == 0) {
+        PPPlayer_unk* player = FindByChara_unk(mgr, chara);
+        if (player != 0 && player->mRef.mChara != 0) {
+            int score = player->mDCScore + points;
+            int old = player->mDCScore;
+            player->mDC.fn_80501288((CharaTask*)(score > 0 ? score : 0));
+            if (mgr->mMode != 2 && player == fn_804DD158(mgr, lbl_8087F628->GetMyAid_unk())) {
+                int now = player->mDCScore;
+                if (old != now) {
+                    PopupTask* popup = lbl_8087F8A8;
+                    if (popup != 0) {
+                        atn::Vector3 pos = player->mRef.mChara->vf58();
+                        popup->fn_8054D794(8, L"", &pos, now - old, 0, 1, 0, 0, 0, 1, -1, -1);
+                    }
+                }
+            }
+        }
     }
 }
 
