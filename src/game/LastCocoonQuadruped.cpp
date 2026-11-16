@@ -1136,7 +1136,11 @@ void LastCocoonQuadruped::fn_80464608() {
 }
 
 
-// NONMATCHING: 99.9% - stack slots of the position, rotation and color of PlayEfp_unk (reversed)
+// inferred: PlayEfp_unk through one more inline level (gives the stack slots of the original; name invented)
+inline void PlayEfpWrap_unk(atn::EfpFile* efp, void* model) {
+    PlayEfp_unk(efp, model);
+}
+
 // inferred: mode 12: jumps towards m155C (m1568 per frame, with gravity), the bullet 0x5B5 at frame 24
 void LastCocoonQuadruped::fn_80464CF0() {
     float frame = mMotion.mTracks[0].m08;
@@ -1149,7 +1153,7 @@ void LastCocoonQuadruped::fn_80464CF0() {
             mMotion.fn_80097C08(0, 0x146, 1, 0, 1, 0.0f, 0.1f);
             m15A8 = 0;
             fn_80232B7C(this, 1000);
-            PlayEfp_unk(&m179C, &mMotion);
+            PlayEfpWrap_unk(&m179C, &mMotion);
         } else {
             SetMode_unk(0);
             if (m1800 != 0) {
