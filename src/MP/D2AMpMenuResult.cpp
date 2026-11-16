@@ -568,9 +568,12 @@ void D2AMpMenuResult::vf14() {
         }
         wchar_t text[0x100];
         fn_800DD3FC(text, L"%s %s", lbl_8087F86C->Get_unk(id), result);
-        float size = 24.0f;
-        float y = 42.0f;
-        float x = 319.0f;
+        float size;
+        float y;
+        float x;
+        x = 319.0f;
+        y = 42.0f;
+        size = 24.0f;
         float w = fn_8006EF48(lbl_8087EEC8, size, text, 0.0f, 1, 5);
         lbl_8087EEB0->fn_80061824(x + 1.0f - 0.5f * w, y, -10.0f, 24.0f, 24.0f, 0.0f, 0.0f, 0.0f, text, 0xFF000000, 1, 5, 0, 0, 0xFF000000);
         w = fn_8006EF48(lbl_8087EEC8, size, text, 0.0f, 1, 4);
