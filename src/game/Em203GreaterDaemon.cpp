@@ -1478,7 +1478,7 @@ void Em203GreaterDaemon::fn_8028E800() {
             field->m97C.m00 = 0;
             m1540 = 0;
         }
-        if (m14DC != 0 && mMotion.mTracks[0].m08 < 38.0f && m14DC != 0 && mMotion.mTracks[0].m08 >= 35.0f) {
+        if (m14DC != 0 && mMotion.mTracks[0].m08 < 36.0f && m14DC != 0 && mMotion.mTracks[0].m08 >= 35.0f) {
             ShakeCamera_unk(10, 1.0f, 2.0f);
         }
         mPos += m151C * (1.0f / mMotion.fn_80097D7C(0));
@@ -1912,7 +1912,7 @@ void Em203GreaterDaemon::fn_80290AB4() {
             param.mTarget = ok ? (CharaTask*)p : (CharaTask*)leader;
         }
         param.mDelay = 10.0f;
-        param.mAccel = 0.6f;
+        param.mAccel = 0.3f;
         param.mMaxSpeed = m199C;
         param.mTime = (float)m14CC->m5C;
         param.mTurn = 0.017453292f * m19A0;

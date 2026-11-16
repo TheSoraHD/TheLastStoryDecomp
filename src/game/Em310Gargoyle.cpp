@@ -486,7 +486,7 @@ void Em310Gargoyle::vf40(HitInfo_unk* hit) {
             m14F1 = 1;
             ((GameTask*)lbl_8087F430)->fn_80370AE4(0xCF, 1);
             ((GameTask*)lbl_8087F430)->fn_80370AE4(0x66, ((GameTask*)lbl_8087F430)->fn_80370A78(0x66) + 1);
-            mMotion.fn_80097C08(0, 0x33, 0, 0, 1, 0.0f, 150.0f);
+            mMotion.fn_80097C08(0, 0x33, 0, 0, 1, 0.0f, 0.1f);
             if (((GameTask*)lbl_8087F430)->fn_80370A78(0x66) <= 3) {
                 fn_80232B7C(this, 100);
                 Color4f_unk color;
@@ -506,7 +506,7 @@ void Em310Gargoyle::vf40(HitInfo_unk* hit) {
             }
         }
     } else if ((float)msg->m68 > 0.05f * (float)mStatus.mParamB.m84) {
-        mMotion.fn_80097C08(0, 0x33, 0, 0, 1, 0.0f, 150.0f);
+        mMotion.fn_80097C08(0, 0x33, 0, 0, 1, 0.0f, 0.1f);
     }
 }
 

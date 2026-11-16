@@ -52,10 +52,10 @@ inline atn::Vector3 GetNodePos_unk(MtxPtr m) {
 }
 
 Em314Ivy::Em314Ivy(atn::Task* parent, EnemyInfo_unk* info)
-    : SpecialEnemyBase(parent, info), m14D4(1.0f, info->m14, 1.0f),
+    : SpecialEnemyBase(parent, info), m14D4(0.0f, info->m14, 0.0f),
 
       m14E0(1e16f), m14E4(0), m14EC(0),
-      m14F0(0), m14F4(0), m14F8(0), m14FC(1.0f), m1500(1.0f), m1504(1.0f), m1508(1.0f), m150C(0), m15A0(1), m15A4(0), m15A8(0), m15AC(0), m15B0(-1), m15B4(0), m15B8(0) {
+      m14F0(0), m14F4(0), m14F8(0), m14FC(0.0f), m1500(0.0f), m1504(0.0f), m1508(0.0f), m150C(0), m15A0(1), m15A4(0), m15A8(0), m15AC(0), m15B0(-1), m15B4(0), m15B8(0) {
     char name[0x100];
     char path[0x100];
     if (fn_805A3D68(name, info->m2C)) {
@@ -229,7 +229,7 @@ int Em314Ivy::vf10C(HitMsg_unk* msg) {
     if ((msg->mData->mAC & 4) != 4 && msg->m44 == 1) {
         return 0;
     }
-    msg->m10 *= 1.0f;
+    msg->m10 *= 0.0f;
     return 1;
 }
 
