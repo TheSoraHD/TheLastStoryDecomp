@@ -654,13 +654,17 @@ int ActionCameraEffect::vf08(Action* arg) {
     return 0;
 }
 
+// inferred: declared in Event/Action.h and defined in each file that uses it (as in
+// Event/ActionActorPosition.cpp: a new inline body in a shared header renumbers the @N labels)
+inline int ActionParam_unk::GetIndex_unk() const {
+    return m04.i;
+}
+
 // inferred: speeds of the focus change selected by parameter 5 (pairs of the same value)
 static float sFocusSpeed_unk[5][2] = {
     {0.5f, 0.5f}, {1.0f, 1.0f}, {1.5f, 1.5f}, {0.1f, 0.1f}, {0.01f, 0.01f},
 };
 
-// NONMATCHING: 96.9% - registers of the speed row (the original indexes with lfsx and keeps the
-// parameter 6 pointer in r7)
 int ActionCameraFocus::vf0C(Action* arg, int phase) {
     if (phase == 0) {
         lbl_8087F540->fn_80481818();
@@ -670,11 +674,11 @@ int ActionCameraFocus::vf0C(Action* arg, int phase) {
             float b = arg->GetParam_unk(2)->m04.f;
             float c = arg->GetParam_unk(3)->m04.f;
             float d = arg->GetParam_unk(4)->m04.f;
-            int speed = arg->GetParam_unk(5)->m04.i;
+            int speed = arg->GetParam_unk(5)->GetIndex_unk();
             ActionParam_unk* mode = arg->GetParam_unk(6);
-            float* sp = sFocusSpeed_unk[speed];
-            float e = sp[0];
-            GetCamera_unk(section)->fn_8011447C(a, b, c, d, sp[1], e, arg->m18, mode->m04.i);
+            float f = sFocusSpeed_unk[speed][0];
+            float e = sFocusSpeed_unk[speed][1];
+            GetCamera_unk(section)->fn_8011447C(a, b, c, d, e, f, arg->m18, mode->m04.i);
         } else {
             GetCamera_unk(section)->fn_80114468();
         }
@@ -682,35 +686,35 @@ int ActionCameraFocus::vf0C(Action* arg, int phase) {
     return 0;
 }
 
-// inferred: camera animation `id` of the event (no null test of the entry, as in the original)
-inline CameraData* FindCameraAnim_unk(EventManager_unk* manager, int id) {
-    for (int i = 0; i < (int)manager->m124.size(); i++) {
-        CameraData* anim = &manager->m124[(unsigned int)i];
-        if (id == anim->m14) {
-            return anim;
+// inferred: DataList_unk::Find_unk (Event/Sequence.h), defined here as in Event/ActionActorPosition.cpp;
+// inlined in ActionCameraMotion::vf0C
+template <class T>
+T* DataList_unk<T>::Find_unk(int id) {
+    for (int i = 0; i < (int)this->size(); i++) {
+        T* p = &(*this)[i];
+        if (id == p->m14) {
+            return p;
         }
     }
     return 0;
 }
-inline Xsca_unk* GetCameraAnim_unk(EventManager_unk* manager, int id) {
-    CameraData* anim = FindCameraAnim_unk(manager, id);
+// inferred: camera animation of an entry (no null test of the entry, as in the original)
+inline Xsca_unk* GetCameraAnim_unk(CameraData* anim) {
     return anim->m18 != 0 ? (Xsca_unk*)anim->m18->fn_804786F8() : 0;
 }
 
-// NONMATCHING: 94.9% - registers of the animation search and order of the int->float conversions of
-// the start time (tried casts, a local for the current frame, both groupings)
 int ActionCameraMotion::vf0C(Action* arg, int phase) {
     switch (phase) {
     case 0: {
         lbl_8087F540->fn_80481818();
         ActionOwner_unk* section = arg->fn_805381A0();
         EventManager_unk* manager = arg->fn_805381C8();
-        int id = arg->GetParam_unk(0)->m04.i;
+        int id = arg->GetParam_unk(0)->GetIndex_unk();
         float a = arg->GetParam_unk(1)->m04.f;
         float b = arg->GetParam_unk(2)->m04.f;
         float c = arg->GetParam_unk(3)->m04.f;
         int frame = arg->GetParam_unk(4)->m04.i;
-        Xsca_unk* anim = GetCameraAnim_unk(manager, id);
+        Xsca_unk* anim = GetCameraAnim_unk(manager->m124.Find_unk(id));
         EventCamera_unk* camera = GetCamera_unk(section);
         camera->m400 = anim;
         camera->m404 = a;
@@ -718,17 +722,20 @@ int ActionCameraMotion::vf0C(Action* arg, int phase) {
         camera->m410 = c;
         camera->m408 = frame;
         camera->m41C = 0;
+        float now = manager->m198;
+        float t = arg->m18 + (arg->m10 - now);
         camera = GetCamera_unk(section);
-        camera->m414 = arg->m18 + (arg->m10 - manager->m198);
+        camera->m414 = t;
         camera->m418 = 0.0f;
         break;
     }
     case 2: {
         ActionOwner_unk* section = arg->fn_805381A0();
         EventManager_unk* manager = arg->fn_805381C8();
-        EventCamera_unk* camera = GetCamera_unk(section);
         float now = manager->m198;
-        camera->m414 = -(arg->m18 + ((arg->m14 - arg->m1C) - now));
+        float t = -(arg->m18 + ((arg->m14 - arg->m1C) - now));
+        EventCamera_unk* camera = GetCamera_unk(section);
+        camera->m414 = t;
         camera->m418 = 0.0f;
         break;
     }
