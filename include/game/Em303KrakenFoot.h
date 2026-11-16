@@ -39,11 +39,10 @@ public:
     void fn_802E55B0(int kind); // inferred: damage reaction (called by the kraken)
     inline void Release_unk();
     inline void Drop_unk();
-    inline atn::Vector3 GetBack_unk();
     inline float DistSq_unk(CharaTask* c);
     inline void SetState_unk(int state);   // inferred: names invented
-    inline void PlayMotion_unk(int motion);
-    void UpdateColli_unk(); // inferred: inline (name invented)
+    inline void PlayMotion_unk(int motion, int = 0); // inferred: the second argument loops the motion
+    inline void UpdateColli_unk(const char*); // inferred: names invented
     inline void FaceTarget_unk(); // inferred: releases the caught character (name invented)
 
     atn::LH_Binary m14B0;     // inferred: data file
