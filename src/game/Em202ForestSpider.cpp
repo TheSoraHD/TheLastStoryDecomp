@@ -78,7 +78,7 @@ extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* m
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
 extern "C" void fn_8023A680(EffectMgr_unk* mgr, atn::EffFile* eff, int a, int b, const atn::Matrix3x4* mtx, int c,
-                            int d, int e, float scale); // inferred: effect on a matrix
+                            int d, int e, int f, int g, int h, float scale); // inferred: effect on a matrix
 extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3, int arg4); // debug menu
 // inferred: effect `efp` on the model (shared with gmk/FlamingArrow, Em315Coffin and the Quark enemies)
 extern "C" void fn_80276AE4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, const atn::Vector3& pos,
@@ -408,7 +408,7 @@ void Em202ForestSpider::vf10() {
     fn_805A5078(&pos, &fwd, 1000, 1.2f * m5B0, 3.1415927f);
 }
 
-// NONMATCHING: approximate (as Em202Spider::vf14)
+// NONMATCHING: 93% - stack slots of the color temporaries (as Em202Spider::vf14)
 void Em202ForestSpider::vf14() {
     SpiderBaseColor_unk target = m1950;
     bool down = true;
@@ -418,22 +418,9 @@ void Em202ForestSpider::vf14() {
     if (down) {
         target = lbl_807C8398;
     }
-    SpiderBaseColor_unk d(target.r - m1940.r, target.g - m1940.g, target.b - m1940.b, target.a - m1940.a);
-    m1940.r += d.r * 0.15f;
-    m1940.g += d.g * 0.15f;
-    m1940.b += d.b * 0.15f;
-    m1940.a += d.a * 0.15f;
-    GXColor c;
-    c.r = (unsigned char)(255.0f * m1940.r);
-    c.g = (unsigned char)(255.0f * m1940.g);
-    c.b = (unsigned char)(255.0f * m1940.b);
-    c.a = (unsigned char)(255.0f * m1940.a);
-    mMotion.fn_80092954("em202_body")->mColor = c;
-    c.r = (unsigned char)(255.0f * m1940.r);
-    c.g = (unsigned char)(255.0f * m1940.g);
-    c.b = (unsigned char)(255.0f * m1940.b);
-    c.a = (unsigned char)(255.0f * m1940.a);
-    mMotion.fn_80092954("em202_tail")->mColor = c;
+    m1940 = (target - m1940) * 0.15f + m1940;
+    mMotion.fn_80092954("em202_body")->mColor = m1940.ToGX();
+    mMotion.fn_80092954("em202_tail")->mColor = m1940.ToGX();
     fn_80149A30();
 }
 
@@ -754,7 +741,7 @@ void Em202ForestSpider::vf110() {
                 } else {
                     fn_80278634(c, idx, main);
                     fn_80232B7C(&m1538[idx], 0x64);
-                    fn_8023A680(lbl_8087F3C0, &m1538[idx].m98, -1, 5, &m1538[idx].m28, 0, 0, 0, 1.0f);
+                    fn_8023A680(lbl_8087F3C0, &m1538[idx].m98, -1, 5, &m1538[idx].m28, 0, 0, 0, 0, -1, 1, 1.0f);
                 }
                 if (c != m18E8) {
                     next++;
@@ -764,7 +751,8 @@ void Em202ForestSpider::vf110() {
     }
 }
 
-// NONMATCHING: approximate (state 10, pulls the caught character)
+// NONMATCHING: 94.2% - stack slots and float registers of the pull temporaries (state 10, pulls the caught
+// character; flow, calls and constants checked against the original)
 void Em202ForestSpider::vf114() {
     int ok = 0;
     CharaTask* c = m18EC;
@@ -777,29 +765,32 @@ void Em202ForestSpider::vf114() {
             atn::Vector3 r = d.ToRotation_unk();
             ok = 1;
             m18F8 = atn::WrapAngle_unk(r.y - target) / 10.0f;
-        }
-        if (state == 0x75) {
+        } else if (state == 0x75) {
             atn::Vector3 d(c->mPos.x - mPos.x, 0.0f, c->mPos.z - mPos.z);
             float dist = PSVECMag(&d);
             if (m14DC <= 10) {
                 float step = dist - 40.0f;
-                atn::Vector3 rot = m18EC->mRot;
+                atn::Vector3 pos = m18EC->mPos;
                 step = MIN(step, 1.5f);
                 step = MAX(step, -1.5f);
                 atn::Vector3 back(-d.x, -d.y, -d.z);
                 PSVECNormalize(&back, &back);
-                m18EC->mPos = m18EC->mPos + back * step;
+                m18EC->mPos = back * step + pos;
+                atn::Vector3 rot = m18EC->mRot;
                 rot.y += m18F8;
                 m18EC->mRot = rot;
+            } else {
+                if (dist <= 45.0f) {
+                    vf14C();
+                    return;
+                }
+                float step = dist - 40.0f;
+                atn::Vector3 pos = m18EC->mPos;
+                step = MIN(step, m18FC);
+                atn::Vector3 back(-d.x, -d.y, -d.z);
+                PSVECNormalize(&back, &back);
+                m18EC->mPos = back * step + pos;
             }
-            if (dist <= 45.0f) {
-                vf14C();
-                return;
-            }
-            float step = MIN(dist - 40.0f, m18FC);
-            atn::Vector3 back(-d.x, -d.y, -d.z);
-            PSVECNormalize(&back, &back);
-            m18EC->mPos = m18EC->mPos + back * step;
             ok = 1;
         }
     }
@@ -1354,7 +1345,7 @@ void Em202ForestSpider::fn_80278634(CharaTask* chara, int index, int main) {
     PSMTXScale(sm, 1.0f, 1.0f, scale);
     PSMTXConcat(t->m58.m, sm, t->m58.m);
     fn_80232B7C(t, 0x65);
-    fn_8023A680(lbl_8087F3C0, &t->mB0, -1, 5, &t->m58, 0, 0, 0, 1.0f);
+    fn_8023A680(lbl_8087F3C0, &t->mB0, -1, 5, &t->m58, 0, 0, 0, 0, -1, 1, 1.0f);
 }
 
 void Em202ForestSpider::fn_80279054() {
@@ -1381,9 +1372,10 @@ void Em202ForestSpider::fn_802790A0(int index) {
             }
             if (!t->m88->mFlagB9) {
                 fn_80232B7C(0, 0);
-                atn::Vector3 pos;
-                atn::Vector3 rot;
+                atn::Model* model = t->m88->GetModel_unk();
                 Color4f_unk color;
+                atn::Vector3 rot;
+                atn::Vector3 pos;
                 rot.x = 0.0f;
                 rot.y = 0.0f;
                 rot.z = 0.0f;
@@ -1394,9 +1386,9 @@ void Em202ForestSpider::fn_802790A0(int index) {
                 color.g = 1.0f;
                 color.b = 1.0f;
                 color.a = 1.0f;
-                fn_8023A8B4(lbl_8087F3C0, &t->mE0, &t->m88->mMotion, 0, pos, rot, color, -1, -1, 1, 1.0f);
+                fn_8023A8B4(lbl_8087F3C0, &t->mE0, model, 0, pos, rot, color, -1, -1, 1, 1.0f);
                 fn_80232B7C(0, 0);
-                fn_8023A680(lbl_8087F3C0, &t->mBC, -1, 5, &t->m58, 0, 0, 0, 1.0f);
+                fn_8023A680(lbl_8087F3C0, &t->mBC, -1, 5, &t->m58, 0, 0, 0, 0, -1, 1, 1.0f);
             }
         }
     }

@@ -18,12 +18,17 @@ Inicio: 2026-11-16 23:58 CET (tope 2,5 h: 02:28).
 | Em301LShade vf10 (0x802D0B84) | DRAFT 90,20 % | equivalente NONMATCHING 90,2 % (`m540.y` -> `m540.x`; llamadas, literales, tabla de saltos y offsets comprobados) |
 
 | Em202ForestSpider vf128, vf104, vf108, vf10C, vfEC, fn_8027851C (fuera de la tabla: "approximate") | 97,6 / 96 / 86,5 / 88 / 80,9 / 95,7 % | 100 % (cuatro tenian el flujo mal) |
+| Em202ForestSpider fn_802790A0 | 85,8 % | 100 % (`fn_8023A680` con sus 12 argumentos) |
+| Em202ForestSpider vf14 / vf114 | 62,1 / 82,7 % | 93 / 94,2 % (vf114 con el flujo del original) |
 
 ## Para el port
 - Em202ForestSpider (cambios de comportamiento de funciones "approximate"): vf128 llama a vfFC solo si no ha llegado al punto (else); vf104 llama a vfFC salvo cuando vf154(6) acepta (antes solo en el estado 6); vf108 solo comprueba el golpe (frames 17-22) si la motion no ha terminado (else); vfEC: si m1434 > 0 solo lo decrementa, si no suelta a los atrapados (copia mPos entero, no solo z) y llama a fn_801765D8/fn_800EE360/fn_800EB7A0; `m1434 = 5` solo mientras la motion no termina.
 - Em302KrakenMp::vf0C: el original comprueba `m15CC.IsLoading()` justo despues de `m152C` (antes de m1564/m1570/m157C); corregido.
 - Em301LShade::vf10: la bajada de la posicion es `mPos.y -= 13.0f * m540.x` (no `m540.y`), como en los demas usos de m540.
 - Em202ForestSpider ctor: el original pone `m14BC = 0` ("ReinforceCenter"); faltaba en el init list (miembro sin inicializar).
+
+- Em202ForestSpider: `fn_8023A680` se declaraba con 9 argumentos; el original pasa ademas 0, -1, 1 por la pila (como BattleTask): corregido en las tres llamadas (vf110, fn_80278634, fn_802790A0).
+- Em202ForestSpider::vf114 (estado 0x75): con m14DC <= 10 acerca al atrapado (paso limitado a +-1.5) y gira su rot.y; si no, con dist <= 45 pasa a vf14C y vuelve, y si no lo acerca con paso <= m18FC. Antes se hacian las dos cosas y la copia de rot era la de mRot donde el original copia mPos.
 
 ## Decisiones tomadas sin el usuario
 
