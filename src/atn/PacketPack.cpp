@@ -342,6 +342,7 @@ extern "C" PPNetObject_unk* lbl_8087F61C;
 #include "MP/D2AMpMenuSetRule.h"
 #include "MP/D2AMpMenuMessageList.h"
 #include "MP/D2AMpMenuFriendRoom.h"
+#include "MP/MpLevel_unk.h"
 
 // inferred: state of a player sent by message 0x16 (0x7C bytes); names invented
 struct PPPair_unk {
@@ -4934,6 +4935,46 @@ extern "C" int fn_804F7F34() {
     return 0;
 }
 
+// NONMATCHING: only the reloc of L"UNSUPPORTED" (original pool @wstringBase0 lbl_8087E1C4 in .sdata, rest of the pool not written)
+// inferred: text of the value of a rule (kinds 0/1: 9 values, kind 2: 5 values; the last one is the shared
+// entry 0x2A)
+extern "C" const wchar_t* fn_804FA7C8(PPManager2_unk* mgr, int kind, int value) {
+    if (kind == 0 || kind == 1) {
+        if (0 <= value && value < 9) {
+            return lbl_8087F86C->Get_unk(value + 0x2B);
+        } else if (value == 9) {
+            return lbl_8087F86C->Get_unk(0x2A);
+        }
+    } else if (kind == 2) {
+        if (0 <= value && value < 5) {
+            return lbl_8087F86C->Get_unk(value + 0x38);
+        } else if (value == 5) {
+            return lbl_8087F86C->Get_unk(0x2A);
+        }
+    }
+    return L"UNSUPPORTED";
+}
+
+// NONMATCHING: only the reloc of L"UNSUPPORTED" (original pool @wstringBase0 lbl_8087E1C4 in .sdata, rest of the pool not written)
+// inferred: name of the level of an experience
+extern "C" const wchar_t* fn_804FA88C(PPManager2_unk* mgr, int exp) {
+    MpLevel_unk* level = fn_805075C4((MpLevelTable_unk*)mgr->m610, exp);
+    if (level != 0) {
+        return lbl_8087F86C->Get_unk(level->m00);
+    }
+    return L"UNSUPPORTED";
+}
+
+// NONMATCHING: only the reloc of L"UNSUPPORTED" (original pool @wstringBase0 lbl_8087E1C4 in .sdata, rest of the pool not written)
+// inferred: title of the level of an experience
+extern "C" const wchar_t* fn_804FA8E8(PPManager2_unk* mgr, int exp) {
+    MpLevel_unk* level = fn_805075C4((MpLevelTable_unk*)mgr->m610, exp);
+    if (level != 0) {
+        return lbl_8087F86C->Get_unk(level->m00 + 0x15);
+    }
+    return L"UNSUPPORTED";
+}
+
 // inferred: sends the value of message 0x1039 (one byte) to the server
 extern "C" void fn_804FA948(PPManager2_unk* mgr, int value, unsigned int flush) {
     NetMsgI_unk<unsigned char> msg(0x1039);
@@ -5141,14 +5182,103 @@ extern "C" int fn_804FC520() {
     return 0;
 }
 
-// inferred: the character finished loading
-extern "C" bool fn_804FC580(CharaTask* chara) {
-    return chara->fn_8013655C() == 0;
+#include "game/EnemyTask.h"
+
+// inferred: listeners of the character events (inline in the original, as in game/BattleCharaTask.cpp)
+inline CharaListeners_unk* fn_8014F8F4() {
+    static CharaListeners_unk sListeners;
+    return &sListeners;
 }
 
-extern "C" void fn_804FC7DC(CharaTask* chara) {
-    chara->fn_80149A30();
+// inferred: calls the listeners of `id` (as in game/BattleCharaTask.cpp; name invented)
+inline void NotifyListeners_unk(CharaListeners_unk* listeners, int id, void* chara, void* arg) {
+    if (listeners->mEnabled != 0) {
+        for (int i = 0; i < (int)listeners->mList.size(); i++) {
+            CharaListener_unk& listener = listeners->mList[i];
+            if (listener.mId == -1 || id == listener.mId) {
+                listener.mFunc(id, (CharaTask*)chara, arg);
+            }
+        }
+    }
 }
+
+namespace MP {
+
+// inferred: character of the multiplayer session (__vt__Q22MP17Chara<9EnemyTask> 0x80791570, only the
+// EnemyTask instance exists); members names invented
+template <class T>
+class Chara : public T {
+public:
+    virtual ~Chara();
+    virtual int vf0C();
+    virtual void vf10();
+    virtual void vf14();
+
+    int m14B0; // inferred: fn_80176ACC done
+    int m14B4; // inferred: knock-down event sent
+};
+
+template <class T>
+Chara<T>::~Chara() {}
+
+// inferred: the character finished loading
+template <class T>
+int Chara<T>::vf0C() {
+    return this->fn_8013655C() == 0;
+}
+
+// inferred: per-frame update; a knocked down character (m58C == 2) sends event 5 to the listeners once
+template <class T>
+void Chara<T>::vf10() {
+    if (m14B0 == 0) {
+        this->fn_80176ACC();
+        m14B0 = 1;
+    }
+    if (this->GetFlag1_unk() == 1) {
+        return;
+    }
+    if (this->mStatus.IsState_unk(0x20) && this->m58C != 2) {
+        this->m58C = 2;
+    }
+    int down = this->mFlagC25;
+    if (!down || this->m58C == 2) {
+        if (down && !this->IsFlag2_unk() && this->m55C != 6) {
+            this->mFlag2 = 1;
+        }
+        if (this->m58C == 2) {
+            if (this->fn_8015EB2C() == 0 && m14B4 == 0) {
+                this->fn_80139560();
+                this->m1450 = 0;
+            } else if (this->m1450 == 0) {
+                NotifyListeners_unk(fn_8014F8F4(), 5, this, 0);
+                this->mColli.mFlags &= ~1;
+                this->fn_800D246C(1);
+                m14B4 = 1;
+                this->m1450 = 1;
+            }
+        } else {
+            m14B4 = 0;
+        }
+        this->fn_8014C540();
+        this->fn_800EE5AC((Arms*)this->m648);
+        if (this->m64C != 0) {
+            this->fn_800EE5AC((Arms*)this->m64C);
+        }
+        this->fn_80145334();
+    } else {
+        m14B4 = 0;
+        this->fn_800E2FE0();
+    }
+}
+
+template <class T>
+void Chara<T>::vf14() {
+    this->fn_80149A30();
+}
+
+template class Chara<EnemyTask>;
+
+} // namespace MP
 
 // inferred: warp points of the field where a player of team `team` can appear (by game mode)
 // NONMATCHING: 96.86% - registers of the loop and one branch of the mode 0 test
