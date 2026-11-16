@@ -1,4 +1,5 @@
 #include "gmk/FragileObject.h"
+#include "math/VecAssign_unk.h"
 #include "game/BattleTask.h"
 #include "game/GameTask.h"
 #include "atn/Csv.h"
@@ -20,7 +21,6 @@ extern "C" char lbl_8087D710[2]; // inferred: " " (field separators of the tab C
 extern "C" float fn_800DC288(const char* s); // inferred: string to float
 extern "C" int fn_802180A8(const char* s); // inferred: motion id from its name
 extern "C" int fn_80208748(const char* name); // inferred: character type from its id string
-extern "C" void fn_80092A00(atn::Model* model, float blend); // inferred: light map blend
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 
 // inferred: effect manager (class unknown), global instance at 0x8087F3C0
@@ -163,18 +163,15 @@ inline void FragileObject::UpdateColli_unk() {
     atn::Matrix3x4 mtx(*(atn::Matrix3x4*)mModelBefore.mMtx.m);
     mColliBefore.SetMtx_unk(mtx);
     mColliAfter.SetMtx_unk(mtx);
+    atn::ColliSphere::Sphere_unk sphere;
     atn::Matrix3x4 rot;
     atn::Vector3 base = mtx.GetTrans_unk();
     rot.fn_8013A13C(m78.y);
-    atn::Vector3 offset(mTarget.mOffset);
-    PSMTXMultVec(rot.m, &offset, &offset);
-    mSphere.mSphere = atn::ColliSphere::Sphere_unk(base + offset, mTarget.mSize);
+    atn::VecAssign_unk(sphere.mCenter, base + atn::Transform_unk(rot, mTarget.mOffset));
+    sphere.mRadius = mTarget.mSize;
+    mSphere.mSphere = sphere;
 }
 
-// NONMATCHING: 97.9% - stack slots of the target sphere: the original keeps the Sphere temporary
-// lowest, then the translation, the sum and the offset (as gmk::MotionObject::fn_804137F4, 97%).
-// Tried: helper returning the position, named sphere, rotation helper returning by value, the
-// placement written in Start, base/rot declaration order
 void FragileObject::Start() {
     vf2C();
     UpdateColli_unk();
@@ -189,9 +186,10 @@ void FragileObject::Start() {
     vf40(&msg);
 }
 
-// NONMATCHING: 99.1% - the target sphere stack slots (see Start) and the counter/offset registers of
-// the loops swapped (r30/r29 in the original). Tried: int/unsigned indices, size(), mData[i], loops in
-// inline helpers. The flag accessor and the position from GetTrans_unk fixed the rest
+// NONMATCHING: 99.55% - the counter/offset registers of the loops swapped (r30/r29 in the original).
+// Tried: int/unsigned indices, size(), mSize, mData[i], loops in inline helpers, one `int i` for the
+// whole function (99.75%, counter and offset still swapped). The flag accessor and the position from
+// GetTrans_unk fixed the rest
 inline bool IsColliOn_unk(const atn::ColliBase& c) {
     return (c.mFlags & 1) == 1;
 }
@@ -226,7 +224,7 @@ void FragileObject::vf10() {
             changed = 1;
         }
         if (changed != 0) {
-            fn_80092A00(mBlendAfter.mModel, 1.0f - (float)mBlendAfter.mFrame / (float)mBlendAfter.mFrames);
+            mBlendAfter.mModel->fn_80092A00(1.0f - (float)mBlendAfter.mFrame / (float)mBlendAfter.mFrames);
         }
     }
     if (mBlendBefore.mModel != 0) {
@@ -241,7 +239,7 @@ void FragileObject::vf10() {
             changed = 1;
         }
         if (changed != 0) {
-            fn_80092A00(mBlendBefore.mModel, 1.0f - (float)mBlendBefore.mFrame / (float)mBlendBefore.mFrames);
+            mBlendBefore.mModel->fn_80092A00(1.0f - (float)mBlendBefore.mFrame / (float)mBlendBefore.mFrames);
         }
     }
     if (m54 == 1 || m54 == 8) {
@@ -313,7 +311,7 @@ void FragileObject::vf10() {
         if ((mCrushFlags & 2) == 2) {
             if (mDrawOffWait > 0.0f) {
                 mDrawOffWait -= 1.0f;
-            } else if (!mModelAfter.mFlag2_unk && m9C != 0) {
+            } else if (!mModelAfter.mFlag6_unk && m9C != 0) {
                 m9C = 0;
             }
         }
