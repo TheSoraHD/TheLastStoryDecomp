@@ -13,6 +13,7 @@
 #include "game/GameLoadBackground.h"
 #include "game/GameLoadTask.h"
 #include "game/MenuCommonTask.h"
+#include "atn/RenderSetting_unk.h"
 
 extern "C" unsigned long strlen(const char* s);
 extern "C" void* memcpy(void* dst, const void* src, unsigned long n);
@@ -89,45 +90,15 @@ extern "C" EffectMgr_unk* lbl_8087F3C0;
 extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, void* model, int arg3, const atn::Vector3& pos,
                             const atn::Vector3& rot, const float* color, int arg7, int arg8, int arg9, float scale);
 extern "C" void fn_80232B7C(void* owner, int arg);
-// inferred: game state (lbl_8087EFA8): lighting and camera of the scene
-struct GameOverLight_unk {
-    int m00;
-    int m04;
-    float m08[4];
-    float m18;
-    float m1C;
-    float m20;
-};
-struct GameOverEnv_unk {
-    int m00;
-    int m04;
-    int m08;
-    int m0C;
-    int m10;
-    float m14;
-    float m18;
-    float m1C;
-    float m20;
-    float m24[16];
-    int m64[6];
-};
-struct GameOverCamState_unk {
-    int m00;
-    float m04[16];
-    int m44;
-    int m48;
-    float m4C;
-};
-struct GameOverState_unk {
-    unsigned char m000[0x3C];
-    float m3C[4];
-    unsigned char m04C[0x54 - 0x4C];
-    GameOverEnv_unk m54;
-    unsigned char m0D4[0x324 - 0xD4];
-    GameOverCamState_unk m324;
-    GameOverLight_unk m374;
-};
-extern "C" GameOverState_unk* lbl_8087EFA8;
+extern "C" RenderSetting_unk* lbl_8087EFA8; // inferred: render settings
+
+// inferred: as in game/GameTask.cpp
+inline void RenderSetting_unk::SetDamage_unk(DamageEffectParam_unk p) {
+    m374 = p;
+}
+inline void RenderSetting_unk::SetColorMatrix(const ColorMatrixParam_unk& p) {
+    m324 = p;
+}
 
 // inferred: choices of each mode (ids of the actions) and texts (message ids)
 static const int sMsgTitle[4] = {0x2762, 0x2766, 0x2765, 0x2762};
@@ -218,16 +189,19 @@ GameOverTask::~GameOverTask() {
     lbl_8087F440 = 0;
 }
 
-// NONMATCHING: 48.93% - the scene setup (lighting, environment and camera state of lbl_8087EFA8) is
-// copied through temporary structs whose layout is not reconstructed
+// NONMATCHING: 86.02% - stack slots: the original puts pos/rot/color below the colour temporaries of the
+// render settings and keeps lbl_8087EFA8 and 0 in r28/r30 during the bloom copy (tried the locals in other
+// orders, temporaries as arguments, Color4f_unk)
 int GameOverTask::vf0C() {
-    if (fn_800D3FA4() == 0 || mEfp.IsLoading() != 0) {
-        return 0;
-    }
+    if (fn_800D3FA4() != 0 && mEfp.IsLoading() == 0) {
     fn_80232B7C(this, 0);
     atn::Vector3 pos(0.0f, 0.0f, 0.0f);
     atn::Vector3 rot(0.0f, 0.0f, 0.0f);
-    float color[4] = {1.0f, 1.0f, 1.0f, 1.0f};
+    float color[4];
+    color[0] = 1.0f;
+    color[1] = 1.0f;
+    color[2] = 1.0f;
+    color[3] = 1.0f;
     fn_8023A8B4(lbl_8087F3C0, &mEfp, 0, 0, pos, rot, color, -1, -1, 1, 1.0f);
     fn_804A39EC(mMenu, 1, 0, 0.0f, 1.0f);
     mCursor->fn_800D246C(0);
@@ -239,57 +213,18 @@ int GameOverTask::vf0C() {
         mDemoEnd->mFrame = 0.0f;
         mDemoEnd->mFlags |= 4;
     }
-    GameOverState_unk* state = lbl_8087EFA8;
-    GameOverLight_unk light;
-    light.m00 = 1;
-    light.m04 = state->m374.m04;
-    light.m08[0] = 0.0f;
-    light.m08[1] = 0.0f;
-    light.m08[2] = 0.0f;
-    light.m08[3] = 1.0f;
-    light.m18 = state->m374.m18;
-    light.m1C = state->m374.m1C;
-    light.m20 = -0.55f;
-    state->m374 = light;
-    lbl_8087EFA8->m3C[0] = 0.6f;
-    lbl_8087EFA8->m3C[1] = 0.6f;
-    lbl_8087EFA8->m3C[2] = 0.6f;
-    lbl_8087EFA8->m3C[3] = 1.0f;
-    GameOverEnv_unk env;
-    env.m00 = 1;
-    env.m04 = 0;
-    env.m08 = 3;
-    env.m0C = 3;
-    env.m10 = 1;
-    env.m14 = 1.0f;
-    env.m18 = 1.25f;
-    env.m1C = 1.25f;
-    env.m20 = 0.0f;
-    for (int i = 0; i < 16; i++) {
-        env.m24[i] = 1.0f;
-    }
-    env.m24[0] = 2.0f;
-    env.m24[2] = 0.5f;
-    env.m24[4] = 0.5f;
-    for (int i = 0; i < 6; i++) {
-        env.m64[i] = 0;
-    }
-    lbl_8087EFA8->m54 = env;
-    GameOverCamState_unk cam;
-    cam.m00 = 0;
-    for (int i = 0; i < 16; i++) {
-        cam.m04[i] = 0.0f;
-    }
-    cam.m04[0] = 1.0f;
-    cam.m04[5] = 1.0f;
-    cam.m04[10] = 1.0f;
-    cam.m04[15] = 1.0f;
-    cam.m44 = 0;
-    cam.m48 = 0;
-    cam.m4C = 1.0f;
-    lbl_8087EFA8->m324 = cam;
+    DamageEffectParam_unk damage = lbl_8087EFA8->m374;
+    damage.mEnabled = 1;
+    damage.mColor = RsColor_unk(0.0f, 0.0f, 0.0f, 1.0f);
+    damage.mZoom = -0.55f;
+    lbl_8087EFA8->SetDamage_unk(damage);
+    lbl_8087EFA8->m03C = RsColor_unk(0.6f, 0.6f, 0.6f, 1.0f);
+    lbl_8087EFA8->m054 = BloomParam_unk();
+    lbl_8087EFA8->SetColorMatrix(ColorMatrixParam_unk());
     fn_80377298();
     return 1;
+    }
+    return 0;
 }
 
 // inferred: the event flag is set (name invented)
