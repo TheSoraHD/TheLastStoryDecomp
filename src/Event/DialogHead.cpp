@@ -1,3 +1,4 @@
+#include "atn/ModelCamera_unk.h"
 #include "Event/DialogHead.h"
 #include "atn/RenderManager.h"
 #include "game/GameConfig_unk.h"
@@ -37,13 +38,6 @@ extern "C" float PSVECMag(const atn::Vector3* v);
 // inferred: frames per second of the fade in (the only .sdata value of the file)
 float lbl_8087DBB0 = 30.0f;
 
-// inferred: camera owned by a model (as in game/CharaTask.cpp)
-struct ModelCamera_unk {
-    ModelCamera_unk() : m00(0) {}
-    int m00;
-    void* m04;
-    Camera_unk mCamera; // 0x08
-};
 // inferred: inlined (its literals are @STRING@ objects in .sdata, shared with game/CharaTask.cpp)
 inline void CreateCamera_unk(atn::Model* model) {
     model->m208.reset(new ((MemoryTag)6, "", "", 0) ModelCamera_unk());
