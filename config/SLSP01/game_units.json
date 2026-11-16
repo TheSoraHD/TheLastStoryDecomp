@@ -1068,7 +1068,7 @@
   "classes": [
    "atn::D2A_Frame"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "atn/D2A_ParamTable_unk.cpp",
