@@ -5697,6 +5697,48 @@ extern "C" void fn_804F1F34(PPPlayer_unk* player) {
     mgr2->m99F4[player->mAid & 0xF] = 1;
 }
 
+#include "game/SpecialEnemyBase.h"
+
+// NONMATCHING: 99.58% - r3/r5 of the inlined FindTeam_unk (as fn_804F2258) and the offset of "enemy_status\n" in
+// @stringBase0 ("notexiststring" of fn_804EDB0C and two unreferenced "" missing)
+// inferred: state of a character received from the server (only in the game, state 30): the character of a team
+// player (not the own one), or of the character list (index in the data); with `type` 26 the special enemies also
+// restore their state (vf114) from +0x15 of the data
+extern "C" void fn_804F2040(unsigned int type) {
+    if (((PPManager2_unk*)lbl_8087F610)->mState == 30) {
+        unsigned char* data = (unsigned char*)fn_804AE3BC()->GetWorkBuffer_unk();
+        if (((data[0x12] >> 1) & 1) == 0) {
+            PPPlayer_unk* player = ((PPManager2_unk*)lbl_8087F610)->mPlayers.FindTeam_unk(data[0x14]);
+            fn_804AE3BC()->fn_8050E62C(player != 0, "enemy_status\n");
+            if (data[0x14] != lbl_8087F628->GetMyAid_unk() && player->mRef.mChara != 0) {
+                fn_804CF640(data, player->mRef.mChara);
+            }
+        } else {
+            CharaTask* chara = ((PPManager2_unk*)lbl_8087F610)->mCharas.mData[data[0x14]].mRef.mChara;
+            if (chara != 0) {
+                fn_804CF640(data, chara);
+                if (type == 26) {
+                    switch (((BattleCharaTask*)chara)->m146C) {
+                    case 19:
+                    case 21:
+                    case 22:
+                    case 23:
+                    case 25:
+                    case 32:
+                    case 33:
+                    case 35:
+                    case 36:
+                    case 40:
+                        ((SpecialEnemyBase*)chara)
+                            ->vf114((const SpecialState_unk*)((unsigned char*)fn_804AE3BC()->GetWorkBuffer_unk() + 0x15));
+                        break;
+                    }
+                }
+            }
+        }
+    }
+}
+
 // NONMATCHING: 99.67% - offset of "enemy_sync\n" in @stringBase0 (pool not complete) and r3/r5 of the inlined search
 // inferred: state of a player slot (network id mAid) or of a character of the list (index mAid) received from the
 // server; a character of the list is revived or killed to follow the value m00
@@ -5727,6 +5769,65 @@ extern "C" void fn_804F2258() {
                 }
                 ((PPManager2_unk*)lbl_8087F610)->m99BC = 0;
                 ((PPChara_unk*)chara)->m7D8 = data->m00;
+            }
+        }
+    }
+}
+
+// inferred: data of the message of a hit on a special enemy (attacker and target as kind/index pairs); names
+// invented
+struct PPMsgSpecialHit_unk {
+    int mHitId;
+    int m04;
+    union {
+        struct {
+            unsigned int m44 : 4;
+            unsigned int m3C : 4;
+            unsigned int m40 : 8;
+            unsigned int m48 : 1;
+        } mBits;
+        struct {
+            unsigned char m08[3];
+            PPMsgCharaRef_unk mAttacker; // 0x0B
+            PPMsgCharaRef_unk mTarget;   // 0x0D
+        } mRefs;
+    };
+};
+
+// NONMATCHING: 97.66% - base of the inlined GetHitAttacker_unk (the original loads the character with lwzx base,
+// offset, as fn_804EF9B4) and the original reloads lbl_8087F610 for the second search
+// inferred: a hit on a special enemy dealt by another player (only in the game, state 30): the hit is rebuilt in
+// a BattleCalcParam_unk and given to vf40 of the enemy (SpecialEnemyBase ids, unless its flag 2 is set)
+extern "C" void fn_804F2994() {
+    if (((PPManager2_unk*)lbl_8087F610)->mState == 30) {
+        PPMsgSpecialHit_unk* data = (PPMsgSpecialHit_unk*)fn_804AE3BC()->GetWorkBuffer_unk();
+        CharaTask* attacker = GetHitAttacker_unk((PPManager2_unk*)lbl_8087F610, &data->mRefs.mAttacker);
+        CharaTask* target = GetHitAttacker_unk((PPManager2_unk*)lbl_8087F610, &data->mRefs.mTarget);
+        if (target != 0 && !target->IsFlag2_unk()) {
+            switch (((BattleCharaTask*)target)->m146C) {
+            case 19:
+            case 21:
+            case 22:
+            case 23:
+            case 25:
+            case 32:
+            case 33:
+            case 35:
+            case 36:
+            case 40: {
+                BattleCalcParam_unk param;
+                param.m08 = fn_80219E6C(data->mHitId);
+                param.m00 = (int)attacker;
+                param.m04 = target;
+                param.m94 = data->m04;
+                param.m44 = data->mBits.m44;
+                param.m3C = data->mBits.m3C;
+                param.m40 = data->mBits.m40;
+                param.m48 = data->mBits.m48;
+                // inferred: vf40 is declared with HitInfo_unk* (include/game/CharaTask.h); here it gets the hit
+                target->vf40((HitInfo_unk*)&param);
+                break;
+            }
             }
         }
     }
