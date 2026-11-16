@@ -1771,7 +1771,7 @@ MP::Manager2::Manager2(atn::Task* parent)
     void* schedule = fn_8008937C(menu, "Schedule");
     for (unsigned int i = 0; i < 30; i++) {
         char name[256];
-        sprintf(name, "%d", i);
+        sprintf(name, "%d\0", i);
         fn_800874C8(schedule, name, &lbl_80790F78[i], 0, 255, 1, 0, 0);
     }
 
@@ -2660,7 +2660,7 @@ void MP::Manager2::vf10() {
                 }
                 PPCharaData_unk* data = fn_804D63D8(player->mRef.mChara);
                 if (data != 0 && data->mC8 >= 0) {
-                    sprintf(name, "%s", ((const char**)player->mRef.mChara->GetInfo_unk())[0x14 / 4]);
+                    sprintf(name, "%s\0", ((const char**)player->mRef.mChara->GetInfo_unk())[0x14 / 4]);
                     int len = strlen(name);
                     if (mgr->mMode == 1) {
                         name[len - 3] += 1;
@@ -3538,6 +3538,23 @@ extern "C" int fn_804DBD08(PPManager2_unk* mgr, int mode) {
     return 1;
 }
 
+// inferred: room status written in the first field of the status string (by fn_804DC450)
+const char* lbl_80791190[] = {"0", "1", "2", "3", "4", "5"};
+// inferred: game mode written in the second field of the status string (names of modes 0-2)
+const char* lbl_807911A8[] = {"0", "1", "2"};
+// inferred: field of the game mode (0 with no mode, "9" off line). Not inline: inlined by MWCC (auto inline) in
+// fn_804DC114, fn_804DC450 and fn_804DC684, and its own copy removed by the linker; its "9" goes to
+// @stringBase0 here, before the "," of fn_804DBE24, as in the original
+const char* GetModeField_unk(int mode) {
+    if (mode >= 3) {
+        return 0;
+    }
+    if (mode < 0) {
+        return "9";
+    }
+    return lbl_807911A8[mode];
+}
+
 // NONMATCHING: the "," is at +0x19D of the pool of the unit (lbl_80759E48), not written yet
 // inferred: splits `text` at the commas into its 6 fields (the last one runs to the end); 0 if a comma is
 // missing. Empty fields are stored as null pointers
@@ -3577,21 +3594,6 @@ extern "C" int fn_804DBEC8(PPManager2_unk* mgr, int id, char* buf, char** fields
 
 // inferred: messages sent in each frame of a cycle of 30 (bit 1: character states, fn_804E6518)
 int lbl_80790F78[30] = {14, 0, 2, 0, 2, 0, 14, 0, 2, 0, 2, 0, 14, 0, 2, 0, 2, 0, 14, 0, 2, 0, 2, 0, 14, 0, 2, 0, 2, 0};
-// inferred: room status written in the first field of the status string (by fn_804DC450)
-const char* lbl_80791190[] = {"0", "1", "2", "3", "4", "5"};
-// inferred: game mode written in the second field of the status string (names of modes 0-2)
-const char* lbl_807911A8[] = {"0", "1", "2"};
-// inferred: field of the game mode (0 with no mode, "9" off line)
-static inline const char* GetModeField_unk(int mode) {
-    if (mode >= 3) {
-        return 0;
-    }
-    if (mode < 0) {
-        return "9";
-    }
-    return lbl_807911A8[mode];
-}
-
 // NONMATCHING: only the offset of "9" in @stringBase0 (0x19B in the original, after strings of functions not written)
 // inferred: room status (1-5, the first field) of the status message of the friend `id` if its game mode matches
 // the own one (-1 if not)
