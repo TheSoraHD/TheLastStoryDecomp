@@ -1,32 +1,28 @@
-# Siguiente sesion (tras enlazar-20261115)
+# Siguiente sesion (tras cierre99-20261115)
 
-> Sesion `enlazar-20261115` (10 h, hasta 4 agentes, 26 colas A-Z) del 2026-11-15, 13:07 -> ~23:15. Notas:
-> `docs/enlazar-20261115.md` y `docs/enlazar-20261115-q*.md`. Para el port: `claude/port-enlazar-20261115.md` (proyecto).
+> Sesion `cierre99-20261115` (10 h, hasta 4 agentes, 19 colas) del 2026-11-15 23:24 al 2026-11-16 ~09:45. Notas:
+> `docs/cierre99-20261115.md` y `docs/cierre99-20261115-q*.md`. Para el port: `claude/port-cierre99-20261115.md` (proyecto).
 
-Estado: **15631 / 18109**, lost 0, rep100 34, labelcheck 12 lineas (como antes), `main.dol: OK`. Datos enlazados
-**1075250 / 1432078 B (75,08 %)**, 698 unidades completas (con KPAD).
+Estado: **15732 / 18109**, lost 0, rep100 29, labelcheck 11 lineas, `main.dol: OK`. Codigo `matched_code_percent`
+58,37 %, datos enlazados **1078186 / 1432078 B (75,29 %)**, 707 unidades completas. PacketPack 0 % 54, 100 % 250/380.
 
 ## Decisiones pendientes del usuario
 
-- (Hecho) KPAD enlaza con el parche de la cola O, aprobado por el usuario (no hay otro repo con licencia con el mismo
-  cuerpo; Whippy tiene una version distinta). Datos enlazados 75,08 %, 698 unidades.
-- Funciones inventadas que el enlazador quita (EventCommandDef_unk, EventLoader_unk, ControlCdnStone) y las
-  especializaciones explicitas de D2A_TaskInstanceBase_64_8: revisar (ver "Decisiones tomadas sin el usuario").
-- Subidas de fuzzy commiteadas sin 100 % (G: BreakArmor, Ottotto; Q: OpenBoard, LH_Handle, ShakeCamera).
+- Revisar "Para revisar" de `docs/cierre99-20261115.md`: literales float corregidos (cambian el comportamiento), funciones
+  inventadas que el enlazador quita (`MapManager::AddArea_unk`), commits que solo suben fuzzy a una funcion de enlazar.
+- Parches sin aplicar (solo suben fuzzy): qI-controldamage (Knockdown 99,94), qJ (push_back de shared_ptr, Section
+  99,58), qE-bloom, qE2-lheffect, qL-lightutil.
 
 ## Siguiente
 
-- `chr/ControlAppear`: dejar para el paso final de la decompilacion completa (decision del usuario; contador
-  `@enum$24281control_appear_cpp`).
-- Cerca de enlazar (una funcion o datos): chr/ControlDamage (parche `docs/enlazar-20261115-qZ.patch`: ctor 99,95 %,
-  Knockdown vf0C 99,70 %, LastOne vf0C 99,64 %), GameSaveBanner `fn_803B9638` 99,18 %, OpenBoard vf10 99,76 %,
-  LH_Handle 99,56 %, Event/ActionActorBehavior `fn_8054FBE0` 99,77 %, Event/MotionData `MovieData::vf08` 99,8 %,
-  ControlStagger `ControlSlip::vf0C` 99,9 %, ControlShoot ctor 99,9 %, EnemySeaLizerd 99,96 %.
-- Bloqueos comunes: `__sinit` de las tablas `ParamDef_unk` (Label, Channel, Cut, Sequence); `push_back` de
-  `std/vector.h` (parche qA, Event/Section); `Loader::Get_unk<T>` (parche qC, 99,83 %); `strlen` intrinseca
-  (global: 2 bajadas; por unidad con `std/msl_common.h` primero).
-- Regla 10: quedan 22 casts a `D2A_TaskInstance32_unk` (ItemSlotAnime, parche qV; SelectMember); `lbl_8087F1E4`
-  con varios tipos (MenuMsgTable_unk, MpCampMsgTable_unk).
-- Tramos auto_ que quedan (49, 924 B): sus duenos no enlazan (GameTask, GameVoice, SoundManager, PopupTask...).
-- Gecko_ExceptionPPC, ut_TextWriterBase y bte/bd siguen bloqueadas (2 bytes de mas en el original).
-- Sincronizar el port con `claude/port-enlazar-20261115.md`.
+- Unidades a una funcion de enlazar (tabla `tabla.py`): GameBgm vf10 99,94, Brazier fn_80407D24 99,83, GmkCoffinOpening
+  (RotZ_unk), GmkBreakArmor ctor 99,95, CostumeEditChara vf14, Leaf vf10, Em309GhoulSimple, Em315Coffin (ctor: 0.0f en
+  `.sdata`, necesitaria `explicit_zero_data`), ControlDamage (qI).
+- PacketPack: 54 al 0 %; dos `""` sin referencia en `@stringBase0` bloquean 7 funciones por offset; vf10 sin escribir
+  (arrastra fn_804FB674 y las pequenas que solo llama ella); `vector<PPPlayer_unk>` y los `sort`.
+- Bloqueos que no conviene repetir sin una idea nueva: `Loader::Get_unk<T>` (~110 variantes; 7 unidades LH_*), `__sinit`
+  de ParamDef_unk, el 0 copiado de otro registro (ParseUtil_unk, ActionActorBehavior), pares texto/layout de menus MP.
+- Las ~740 funciones al 99 % que quedan son casi todas de reparto de registros puro: los barridos automaticos dan
+  0-1 aciertos por cada 30-40 funciones. Rinden mas las colas que sustituyen vistas/lecturas a mano por el tipo o la
+  inline reales (ver `grep cierre99-20261115 docs/trucos-mwcc.md`).
+- Sincronizar el port con `claude/port-cierre99-20261115.md`.
