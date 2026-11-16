@@ -47,7 +47,7 @@ inline DataList_unk<Actor>* EventManager_unk::GetActors_unk() {
 template <class T>
 T* DataList_unk<T>::Find_unk(int id) {
     for (int i = 0; i < (int)this->size(); i++) {
-        T* p = &this->mData[i];
+        T* p = &(*this)[i];
         if (id == p->m14) {
             return p;
         }
@@ -744,12 +744,12 @@ void ActionActorEyes::fn_80553A74(Action* arg, float now) {
     actor->fn_80012D34(target, node, cam, 0, jitter, 1, weight, rad);
 }
 
-// NONMATCHING: 99.1% - volatile registers of the second inlined actor lookup: the original loads the count
-// before the id (same in fn_80553A74; a const int& parameter in FindActor_unk is worse)
+// inferred: the actor of the section through DataList_unk::Find_unk, the target through
+// Sequence::FindActor_unk (the second lookup loads the count again)
 void ActionActorEyes::fn_80553DC8(Action* arg, atn::Vector3* cur, const atn::Vector3* goal, int mode, float frames) {
     ActionOwner_unk* section = arg->fn_805381A0();
     EventManager_unk* manager = arg->fn_805381C8();
-    Actor* actor = manager->FindActor_unk(section->m10);
+    Actor* actor = manager->GetActors_unk()->Find_unk(section->m10);
     float weight = 1.0f;
     Actor* target = manager->FindActor_unk(arg->GetParam_unk(0)->m04.i);
     int node = arg->GetParam_unk(1)->m04.i;
