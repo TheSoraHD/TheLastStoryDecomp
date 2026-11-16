@@ -20,6 +20,8 @@ public:
     void fn_803CDB68(); // inferred: called on sInstance (GameTask fn_80374964)
     void fn_803CDC48(); // inferred: called on sInstance (GameTask fn_80374964)
     static void fn_803CDF84();
+    int fn_803CE074(unsigned int);      // inferred: saved position of a stream (-1 when missing)
+    int fn_803CE0B4(unsigned int, int); // inferred: stores the position of a stream
 
     ResHandle m48;
     int m4C;

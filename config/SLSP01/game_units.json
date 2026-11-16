@@ -1033,7 +1033,7 @@
   "classes": [
    "CrossbowMenuTask"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "game/CrowdManager.cpp",
