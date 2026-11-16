@@ -506,7 +506,10 @@ struct PPPlayer_unk {
         PPPlayerFlags_unk mFlags;     // 0xD0
         unsigned int mFlagWord;       // inferred: the flags as a word (cleared at once)
     };
-    int mD4;
+    union {
+        int mD4;                      // inferred: copy of the flags kept by the server (fn_804DD9CC)
+        PPPlayerFlags_unk mD4Flags;
+    };
     int mD8;
     union {
         MpCharaRef_unk mDC;           // inferred: a second character reference
@@ -6827,6 +6830,87 @@ extern "C" void fn_804F4728() {
     if (data[0] <= 7) {
         PPManager2_unk* mgr = (PPManager2_unk*)lbl_8087F610;
         mgr->m9694[data[0]] = data[1];
+    }
+}
+
+// inferred: the room is the one of the server (`aid`)
+static inline int IsServerAid_unk(unsigned char aid) {
+    return aid == lbl_8087F628->GetServerAid_unk();
+}
+
+// NONMATCHING: 97.97% - `player`/`aid` in r30/r29 (r29/r30 in the original) and the words at +0x42 through a
+// pointer that advances by 4 (packed payload, as fn_804D824C)
+// inferred: message 0x1040 (fn_804D824C) from `aid`: the settings of the room, the flags of the sender's slot
+// (its values too when it is the server), the teams and stages of the slots when this machine has a slot; mode 0
+// is answered with its sequence number (message 0x1035, m99B0), mode 1 marks the server as ready (m9A74[0])
+extern "C" void fn_804F47FC(PPPlayer_unk* player, unsigned int aid) {
+    if (PP_NO_DATA_UNK) {
+        return;
+    }
+    if (fn_800F7F90()->mState == 30 && fn_800F7F90()->m50C != 0) {
+        return;
+    }
+    unsigned char* data = (unsigned char*)fn_804AE3BC()->GetWorkBuffer_unk();
+    for (int i = 0; i < fn_800F7F90()->mPlayers.mNum; i++) {
+        PPPlayer_unk* slot = fn_804D5F0C(fn_800F7F90(), i);
+        slot->mD8 = *(int*)(data + (i * 4 + 0x42));
+        slot->mD4Flags.m22 = data[0x39 + i];
+    }
+    if (data[0x6C] != 2) {
+        fn_800F7F90()->m55C = *(int*)(data + 0x00);
+    }
+    fn_800F7F90()->m564 = *(int*)(data + 0x04);
+    fn_800F7F90()->m5A0 = (signed char)data[0x66];
+    fn_800F7F90()->m5A8 = data[0x67];
+    fn_800F7F90()->mMode = data[0x6A];
+    PPManager2_unk* mgr = fn_800F7F90();
+    mgr->m5A4 = data[0x6B];
+    if (mgr->m5A4 > 6) {
+        mgr->m5A4 = 6;
+    }
+    fn_800F7F90()->m5B0 = data[0x08];
+    fn_800F7F90()->m508 = *(short*)(data + 0x64);
+    player->mFlags.m28 = ((PPPlayerFlags_unk*)(data + 0x25))->m28;
+    player->mFlags.m06 = ((PPPlayerFlags_unk*)(data + 0x25))->m06;
+    player->mFlags.m02 = ((PPPlayerFlags_unk*)(data + 0x25))->m02;
+    player->mFlags.m01 = ((PPPlayerFlags_unk*)(data + 0x25))->m01;
+    if (IsServerAid_unk(player->mAid) == 1) {
+        player->m0B0[0] = *(int*)(data + 0x09);
+        *(PPWord2_unk*)&player->m0B0[1] = *(PPWord2_unk*)(data + 0x0D);
+        player->m0B0[3] = *(int*)(data + 0x15);
+        *(PPWord2_unk*)&player->m0B0[4] = *(PPWord2_unk*)(data + 0x19);
+        player->mC8 = *(int*)(data + 0x21);
+        player->mFlags.m22 = ((PPPlayerFlags_unk*)(data + 0x25))->m22;
+        player->mFlags.m10 = ((PPPlayerFlags_unk*)(data + 0x25))->m10;
+    }
+    PPManager2_unk* mgr2 = fn_800F7F90();
+    if (fn_804DD158(mgr2, lbl_8087F628->GetMyAid_unk()) != 0) {
+        for (int i = 0; i < fn_800F7F90()->mPlayers.mNum; i++) {
+            PPPlayer_unk* slot = fn_804D5F0C(fn_800F7F90(), i);
+            if (slot != 0) {
+                slot->mFlags.m22 = data[0x29 + i];
+                slot->mB0 = (signed char)data[0x31 + i];
+            }
+        }
+    }
+    fn_800F7F90()->m5B4 = data[0x69];
+    switch (data[0x6C]) {
+    case 0: {
+        NetMsgI_unk<PPMsgTime_unk, 9> msg(0x1035);
+        unsigned char* out = msg.mData.m00;
+        out[0] = data[0x68];
+        fn_804AE3BC()->fn_8050E094(aid, 0x1035, out, 1);
+        fn_800F7F90()->m99B0 = 1;
+        fn_800F7F90()->m99B1 = aid;
+        fn_800F7F90()->m99B4 = 1;
+        if (MP::D2AMpMenuLobby::sInstance != 0) {
+            MP::D2AMpMenuLobby::sInstance->mF90 = 2;
+        }
+        break;
+    }
+    case 1:
+        fn_800F7F90()->m9A74[0] = 1;
+        break;
     }
 }
 
