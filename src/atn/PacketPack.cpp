@@ -4090,7 +4090,12 @@ extern "C" int fn_804DD280(PPManager2_unk* mgr, int mode) {
 
 // inferred: order of the stages chosen in the lobby (game mode 2 and the others)
 extern "C" const int lbl_80759BD4[21] = {0, 6, 1, 2, 3, 5, 4, 8, 7, 10, 9, 11, 13, 19, 20, 14, 15, 23, 17, 18, 22};
-extern "C" const int lbl_80759C80[7] = {0, 6, 1, 2, 3, 5, 4};
+// inferred: the stages of each side of a team game (fn_804DD574; the last entry is not read there)
+extern "C" const int lbl_80759C28[16] = {0, 1, 2, 7, 8, 9, 10, 11, 13, 14, 17, 18, 22, 23, 19, 0};
+extern "C" const int lbl_80759C68[6] = {3, 4, 5, 6, 15, 20};
+extern "C" const int lbl_80759C80[8] = {0, 6, 1, 2, 3, 5, 4, 21};
+extern "C" const int lbl_80759CA0[4] = {0, 1, 2, 0};
+extern "C" const int lbl_80759CB0[4] = {3, 4, 5, 6};
 
 // inferred: next stage after `*stage` in the order of the game mode (-1 after the last one, the first one
 // when `*stage` is not in the order)
@@ -4177,6 +4182,111 @@ extern "C" CharaTask* fn_804DD3F0(PPManager2_unk* mgr) {
         }
     }
     return 0;
+}
+
+// NONMATCHING: 91.80% - offsets of the tables from the base of .rodata (0x47C bytes of .rodata before them are
+// not written yet), registers of the search loops and the loop over the players is not turned into a ctr loop
+// inferred: chooses the stage (slot value mB0) of the player `aid`: one that no player (and no entry of m998C)
+// has yet, else any one, from the order of the game mode (for a team player, of the side 4/8 of m5B4); with
+// `arg` 12 or 21 (21 in game mode 2); the own value of a main player is kept in its slot
+extern "C" int fn_804DD574(PPManager2_unk* mgr, unsigned int aid, int arg) {
+    PPPlayer_unk* player = fn_804DD158(mgr, aid & 0xF);
+    if (player == 0) {
+        return -1;
+    }
+    int team = player->mFlags.m22;
+    if (!(team == 1 || team == 2)) {
+        return -1;
+    }
+    unsigned int teamPlayer = aid & 0xF0;
+    if (teamPlayer != 0) {
+        fn_804DD1A8(mgr, aid);
+    }
+    int result;
+    if (arg == 0) {
+        const int* table;
+        int num;
+        if (teamPlayer != 0) {
+            if (mgr->mMode == 2) {
+                if (mgr->m5B4 & 4) {
+                    table = lbl_80759CA0;
+                    num = 3;
+                } else if (mgr->m5B4 & 8) {
+                    table = lbl_80759CB0;
+                    num = 4;
+                } else {
+                    table = lbl_80759C80;
+                    num = 7;
+                }
+            } else {
+                if (mgr->m5B4 & 4) {
+                    table = lbl_80759C28;
+                    num = 15;
+                } else if (mgr->m5B4 & 8) {
+                    table = lbl_80759C68;
+                    num = 6;
+                } else {
+                    table = lbl_80759BD4;
+                    num = 21;
+                }
+            }
+        } else if (mgr->mMode == 2) {
+            table = lbl_80759C80;
+            num = 7;
+        } else {
+            table = lbl_80759BD4;
+            num = 21;
+        }
+        int counts[21];
+        PPManager2_unk* mgr2 = fn_800F7F90();
+        for (int i = 0; i < num; i++) {
+            counts[i] = 0;
+            for (int j = 0; j < mgr2->mPlayers.mNum; j++) {
+                PPPlayer_unk* other = fn_804D5F0C(mgr2, j);
+                if (other->mFlags.mActive == 1 && other->mB0 == table[i]) {
+                    counts[i]++;
+                }
+            }
+            for (int j = 0; j < 8; j++) {
+                if (table[i] == mgr2->m998C[j]) {
+                    counts[i]++;
+                }
+            }
+        }
+        int free = 0;
+        for (int i = 0; i < num; i++) {
+            if (counts[i] == 0) {
+                free++;
+            }
+        }
+        if (free != 0) {
+            int pick = (int)(free * (rand() / 32767.0f));
+            int n = 0;
+            result = -1;
+            for (int i = 0; i < num; i++) {
+                if (counts[i] == 0) {
+                    if (pick == n) {
+                        result = table[i];
+                        break;
+                    }
+                    n++;
+                }
+            }
+        } else {
+            result = table[(int)(num * (rand() / 32767.0f))];
+        }
+    } else if (mgr->mMode == 2) {
+        result = 21;
+    } else {
+        result = 12;
+        if ((int)(2.0f * (rand() / 32767.0f)) == 0) {
+            result = 21;
+        }
+    }
+    if (teamPlayer == 0) {
+        player->mB0 = result;
+    }
+    return result;
 }
 
 // inferred: sets the 4-bit value of the player slot; 0 if it does not change
@@ -4303,7 +4413,7 @@ extern "C" int fn_804DDE34(PPManager2_unk* mgr) {
 }
 
 extern "C" void fn_804DDA04(PPManager2_unk* mgr);
-extern "C" void fn_804DD574(PPManager2_unk* mgr, unsigned int aid, int arg);
+extern "C" int fn_804DD574(PPManager2_unk* mgr, unsigned int aid, int arg);
 extern "C" void fn_804DCA54(PPManager2_unk* mgr);
 
 // NONMATCHING: 98.90% - registers of the inlined searches fn_804DD158 and of the loops (own/counter, aid/index)
