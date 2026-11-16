@@ -126,18 +126,17 @@ void Em002_02SkeltonKing::fn_80249394() {
     }
 }
 
-inline atn::Vector3 Em002_02SkeltonKing::GetFront_unk(float dist) {
+// inferred: front direction for a rotation about y (name invented)
+inline atn::Vector3 FrontDir_unk(const float& rot) {
     atn::Vector3 front(0.0f, 0.0f, 1.0f);
     atn::Matrix3x4 m;
-    m.fn_8013A13C(mRot.y);
+    m.fn_8013A13C(rot);
     PSMTXMultVec(m.m, &front, &front);
-    return mPos + front * dist;
+    return front;
 }
 
-// NONMATCHING: 98.6% - m55C of the target is loaded once (original: reloaded by CanAct_unk) and the stack slots
-// of the rotation temporaries are 0x18 higher (GetFront_unk's locals are below them here). Reading mTarget
-// directly (no local) fixed the target registers. Tried: if/else for `to`, GetFront_unk as static (inline or
-// not), the first check as an inline, `!(x < 15)`.
+// inferred: the target is tested through a cast for CanAct_unk (the original reloads m55C there, as if mTarget
+// were stored with another type); the throw point uses FrontDir_unk (stack slots of the original)
 void Em002_02SkeltonKing::fn_80249588() {
     int motion = mMotion.mTracks[0].m00;
     if (motion == 0x6C) {
@@ -146,7 +145,7 @@ void Em002_02SkeltonKing::fn_80249588() {
             fn_8016EB48(0, 0, 0);
             ReleaseTarget_unk(this);
         } else if (!(mTarget->m55C == 6 && mTarget->m560 == 0x71) && mMotion.mTracks[0].m08 >= 15.0f) {
-            if (mTarget->CanAct_unk()) {
+            if (((CharaTask*)mTarget)->CanAct_unk()) {
                 mTarget->fn_80178208(new ((MemoryTag)3, "", "", 0) chr::ControlCaughtSkelton(mTarget, this));
             } else {
                 mTarget = 0;
@@ -162,7 +161,7 @@ void Em002_02SkeltonKing::fn_80249588() {
         CharaTask* enemy = mC58.mC4;
         if (enemy != 0) {
             atn::Vector3 dir(enemy->mPos.x - mPos.x, 0.0f, enemy->mPos.z - mPos.z);
-            mRot = dir.ToRotation_unk();
+            mRot = dir.ToRotationZ_unk();
         }
         float frame = mMotion.mTracks[0].m08;
         if (frame >= mMotion.fn_80097D7C(0)) {
@@ -170,7 +169,7 @@ void Em002_02SkeltonKing::fn_80249588() {
         }
     } else if (motion == 0x70) {
         if (mMotion.mTracks[0].m08 >= 10.0f && mTarget != 0) {
-            atn::Vector3 to = mC58.mC4 != 0 ? mC58.mC4->mPos : GetFront_unk(10.0f);
+            atn::Vector3 to = mC58.mC4 != 0 ? mC58.mC4->mPos : mPos + FrontDir_unk(mRot.y) * 10.0f;
             to.y += 4.0f;
             if (mTarget != 0) {
                 mTarget->fn_80178208(new ((MemoryTag)3, "", "", 0) chr::ControlThrownSkelton(mTarget, to, fn_80219E6C(0x69F)));
