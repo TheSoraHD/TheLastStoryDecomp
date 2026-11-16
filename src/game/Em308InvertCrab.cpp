@@ -1062,9 +1062,14 @@ void Em308InvertCrab::vfEC() {
     }
 }
 
+// inferred: normalized direction (name invented)
+inline atn::Vector3 CrabDir_unk(const atn::Vector3& from, const atn::Vector3& to) {
+    atn::Vector3 dir = atn::Vector3(to - from);
+    PSVECNormalize(&dir, &dir);
+    return dir;
+}
 // inferred: without the flag 2 of m157C attacks the target (fn_802F5F20), with it walks towards it (state 7,
 // motion 0x145); both turn first when needed (as Em308ParmCrab::fn_802FB6AC)
-// NONMATCHING: 99.96% - stack slots of dir and of the ToRotation_unk temporary swapped (as in ParmCrab)
 void Em308InvertCrab::fn_802F5BCC(CharaTask* target) {
     if ((m157C & 2) != 2) {
         if (fn_802F62A0(target, 8) == 0) {
@@ -1077,9 +1082,7 @@ void Em308InvertCrab::fn_802F5BCC(CharaTask* target) {
         m560 = 4;
         m590 = lbl_8087F048->fn_800F8548();
         atn::Vector3 tpos = target->mPos;
-        atn::Vector3 dir = atn::Vector3(tpos - mPos);
-        PSVECNormalize(&dir, &dir);
-        atn::Vector3 rot = dir.ToRotation_unk();
+        atn::Vector3 rot = CrabDir_unk(mPos, tpos).ToRotation_unk();
         mRot = rot;
         mRot.x = 0.0f;
         mRot.z = 0.0f;
@@ -1093,7 +1096,6 @@ void Em308InvertCrab::fn_802F5BCC(CharaTask* target) {
 
 // inferred: without the flag 4 of m157C starts state 6, with it shoots the needle (state 8, motion 0x142); both
 // turn first when needed (as Em308ParmCrab::fn_802FBA30)
-// NONMATCHING: 99.96% - stack slots of dir and of the ToRotation_unk temporary swapped (as in ParmCrab)
 void Em308InvertCrab::fn_802F5F20(CharaTask* target) {
     if ((m157C & 4) != 4) {
         if (fn_802F62A0(target, 6) == 0) {
@@ -1107,9 +1109,7 @@ void Em308InvertCrab::fn_802F5F20(CharaTask* target) {
             fn_8016E970(3);
             ResetAttack_unk();
             atn::Vector3 tpos = target->mPos;
-            atn::Vector3 dir = atn::Vector3(tpos - mPos);
-            PSVECNormalize(&dir, &dir);
-            atn::Vector3 rot = dir.ToRotation_unk();
+            atn::Vector3 rot = CrabDir_unk(mPos, tpos).ToRotation_unk();
             mRot = rot;
             mRot.x = 0.0f;
             mRot.z = 0.0f;

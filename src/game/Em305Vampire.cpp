@@ -848,7 +848,7 @@ void Em305Vampire::fn_802EBBA8() {
     }
     m1518.Normalize_unk();
     mRot = m1518.ToRotation_unk();
-    m1518 *= 2.5f;
+    m1518 *= 5.0f;
 }
 
 void Em305Vampire::fn_802EBF40() {

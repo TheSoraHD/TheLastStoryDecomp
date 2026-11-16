@@ -302,7 +302,6 @@ void Em309GhoulSimple::vfFC() {
 }
 
 
-// NONMATCHING: 99.96% - stack slots of the direction temporaries of states 9-11 and 12 (~15 variants)
 void Em309GhoulSimple::vf100(int state) {
     if (CharaTask::mFlag2) {
         return;
@@ -338,8 +337,7 @@ void Em309GhoulSimple::vf100(int state) {
     case 11:
         m14D4 = mC58.mC4;
         if (m14D4 != 0) {
-            atn::Vector3 d = m14D4->mPos - mPos;
-            m14D8 = d;
+            m14D8 = m14D4->mPos - mPos;
             m14D8.y = 0.0f;
             SafeNormalize_unk(&m14D8);
         } else {
@@ -362,12 +360,19 @@ void Em309GhoulSimple::vf100(int state) {
         mFlag28 = 1;
         break;
     case 12: {
+        atn::Vector3 back;
         atn::Vector3 front(0.0f, 0.0f, 1.0f);
         Mtx m;
         float ry = mRot.y;
         PSMTXRotRad(m, 'y', ry);
         PSMTXMultVec(m, &front, &front);
-        m1540 = GhoulNeg_unk(front);
+        float z = -front.z;
+        float y = -front.y;
+        float x = -front.x;
+        back.z = z;
+        back.x = x;
+        back.y = y;
+        m1540 = back;
 
         m154C.x = 0.0f;
         m154C.y = 0.0f;
