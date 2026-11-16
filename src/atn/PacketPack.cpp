@@ -1634,6 +1634,9 @@ struct PPEquipObj_unk {
     unsigned char m000[0x414];
     int m414;
 };
+inline chr::CharaEquip_unk* CharaTask::GetProtector(int i) {
+    return m680[i];
+}
 extern "C" __declspec(noinline) inline void fn_804D63F8(PPEquipObj_unk* equip, int value) {
     equip->m414 = value;
 }
@@ -2663,9 +2666,9 @@ void MP::Manager2::vf10() {
                             }
                             for (int j = 0; j < 5; j++) {
                                 if (fn_804D63D8(player->mRef.mChara)->m108[j] >= 0 &&
-                                    player->mRef.mChara->m680[j] != 0) {
+                                    player->mRef.mChara->GetProtector(j) != 0) {
                                     int id = fn_8020ED84(j, fn_804D63D8(player->mRef.mChara)->m108[j]);
-                                    fn_804D63F8((PPEquipObj_unk*)player->mRef.mChara->m680[j], id);
+                                    fn_804D63F8((PPEquipObj_unk*)player->mRef.mChara->GetProtector(j), id);
                                 }
                             }
                         }
