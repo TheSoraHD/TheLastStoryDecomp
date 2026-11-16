@@ -5296,7 +5296,68 @@ struct PPMsgShot_unk {
 };
 
 
-extern "C" unsigned int fn_804EE4F0(PPPlayer_unk* player, const void* data); // inferred: applies a character state
+extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
+// inferred: half float of the messages (inverse of PackHalf_unk; 0 stays 0; as FromHalf_unk of game/ReplayBuffer)
+inline float UnpackHalf_unk(short h) {
+    if (h == 0) {
+        return 0.0f;
+    }
+    unsigned int bits = (h << 16) & 0x80000000;
+    bits |= (h << 13) & 0x007FE000;
+    bits |= ((((h >> 10) & 0x1F) + 0x70) << 23) & 0x7F800000;
+    return *(float*)&bits;
+}
+// inferred: data of message 4 (state of the character of a player); names invented
+struct PPMsgCharaState_unk {
+    atn::Vector3 mPos;  // 0x00
+    atn::Vector3 mVel;  // 0x0C
+    short mNode[3];     // 0x18: half floats (CharaTask::m13E8)
+    short mDir[3];      // 0x1E: half floats (CharaTask::mFA4)
+    float mRotY;        // 0x24
+    float mTurn;        // 0x28
+};
+
+// NONMATCHING: 95.11% - order of the bit inserts of the half floats (rlwimi on the other register) and registers
+// inferred: applies the state of the character of another player (only in the game, state 30, ready character
+// driven by the network: mFlag2): position, velocity (none above 30 per frame), rotation, node and direction (the
+// direction turns halfway when it is within 45 degrees); 1 if applied
+extern "C" unsigned int fn_804EE4F0(PPPlayer_unk* player, const void* buf) {
+    if (((PPManager2_unk*)lbl_8087F610)->mState != 30) {
+        return 0;
+    }
+    CharaTask* chara = player->mRef.mChara;
+    if (chara == 0) {
+        return 0;
+    }
+    if ((chara->mFlags & 2) != 2) {
+        return 0;
+    }
+    if (chara->fn_8014FAD0()) {
+        return 0;
+    }
+    if (chara->mFlag2 == 0) {
+        return 0;
+    }
+    const PPMsgCharaState_unk* data = (const PPMsgCharaState_unk*)buf;
+    chara->mPos = data->mPos;
+    atn::Vector3 vel = data->mVel;
+    if (vel.LengthSq_unk() > 900.0f) {
+        chara->m13D8 = lbl_807C7030;
+    } else {
+        chara->m13D8 = vel;
+    }
+    chara->mRot = atn::Vector3(0.0f, data->mRotY, 0.0f);
+    chara->m13E4 = data->mTurn;
+    chara->m13E8 = atn::Vector3(UnpackHalf_unk(data->mNode[0]), UnpackHalf_unk(data->mNode[1]),
+                                UnpackHalf_unk(data->mNode[2]));
+    atn::Vector3 dir(UnpackHalf_unk(data->mDir[0]), UnpackHalf_unk(data->mDir[1]), UnpackHalf_unk(data->mDir[2]));
+    if (PSVECDotProduct(&dir, &chara->mFA4) > 0.70710677f) {
+        dir = chara->mFA4 + (dir - chara->mFA4) * 0.5f;
+    }
+    chara->mFA4 = dir;
+    chara->mFlag1 = 1;
+    return 1;
+}
 
 // inferred: message 4: state of the character of a player, then its motion (at +0x2C of the data)
 extern "C" void fn_804EE834(PPPlayer_unk* player) {
