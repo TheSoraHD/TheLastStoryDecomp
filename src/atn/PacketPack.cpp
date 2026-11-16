@@ -3927,6 +3927,75 @@ extern "C" unsigned int fn_804DD9CC(PPManager2_unk* mgr, PPPlayer_unk* player, u
     return value;
 }
 
+extern "C" int fn_8050BA68(unsigned char** aids); // inferred: network ids of the hosts (count)
+// inferred: network id of the host `i` (0 in local play, 0xFF past the end); name invented
+static inline unsigned int GetHostAid_unk(int i) {
+    if (lbl_8087F628->mFlags.mB12) {
+        return 0;
+    }
+    unsigned char* aids;
+    if (fn_8050BA68(&aids) > i) {
+        return aids[i];
+    }
+    return 0xFF;
+}
+
+extern "C" int rand();
+
+// NONMATCHING: 94.90% - the original indexes the shuffle and the last loop as base + offset (here a moving pointer,
+// one register less) and registers
+// inferred: on the server: in a random order of the hosts, the players get a team: in mode 1 the one with fewer
+// players (at random when even) unless they already have one, else team 2
+extern "C" void fn_804DDA04(PPManager2_unk* mgr) {
+    atn::FixedArray_unk<int, 20> order;
+    for (int i = 0; i < GetNumHosts_unk(lbl_8087F628); i++) {
+        order.push_back(i);
+    }
+    for (int i = 0; i < (int)order.size(); i++) {
+        int j = rand() % (i + 1);
+        int tmp = order[i];
+        order[i] = order[j];
+        order[j] = tmp;
+    }
+    for (int i = 0; i < (int)order.size(); i++) {
+        PPPlayer_unk* player = fn_804DD158(mgr, GetHostAid_unk(order[i]));
+        if (player == 0) {
+            continue;
+        }
+        if (mgr->mMode == 1) {
+            int counts[3];
+            memset(counts, 0, sizeof(counts));
+            PPManager2_unk* mgr2 = (PPManager2_unk*)lbl_8087F610;
+            for (int k = 0; k < mgr2->mPlayers.mNum; k++) {
+                PPPlayer_unk* other = fn_804D5F0C(mgr2, k);
+                if (other->mFlags.mActive == 1) {
+                    counts[other->mFlags.m22]++;
+                }
+            }
+            if (player->mFlags.m22 != 0) {
+                continue;
+            }
+            bool first;
+            if (counts[2] < counts[1]) {
+                first = false;
+            } else if (counts[1] < counts[2]) {
+                first = true;
+            } else {
+                first = (int)(2.0f * (rand() / 32767.0f)) != 0;
+            }
+            if (first == true) {
+                counts[1]++;
+                player->mFlags.m22 = 1;
+            } else {
+                counts[2]++;
+                player->mFlags.m22 = 2;
+            }
+        } else {
+            player->mFlags.m22 = 2;
+        }
+    }
+}
+
 // inferred: state of the manager and the value set when a player slot is added (weak copies)
 extern "C" __declspec(noinline) inline int fn_804EE030(PPManager2_unk* mgr) {
     return mgr->mState;
@@ -3972,18 +4041,6 @@ extern "C" int fn_804DDE34(PPManager2_unk* mgr) {
 extern "C" void fn_804DDA04(PPManager2_unk* mgr);
 extern "C" void fn_804DD574(PPManager2_unk* mgr, unsigned int aid, int arg);
 extern "C" void fn_804DCA54(PPManager2_unk* mgr);
-extern "C" int fn_8050BA68(unsigned char** aids); // inferred: network ids of the hosts (count)
-// inferred: network id of the host `i` (0 in local play, 0xFF past the end); name invented
-static inline unsigned int GetHostAid_unk(int i) {
-    if (lbl_8087F628->mFlags.mB12) {
-        return 0;
-    }
-    unsigned char* aids;
-    if (fn_8050BA68(&aids) > i) {
-        return aids[i];
-    }
-    return 0xFF;
-}
 
 // NONMATCHING: 98.90% - registers of the inlined searches fn_804DD158 and of the loops (own/counter, aid/index)
 // inferred: on the server: keeps the flags and m00B0 of every slot (mD4/mD8), fn_804DDA04, fn_804DD574 for the hosts
