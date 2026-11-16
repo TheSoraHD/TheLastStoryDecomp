@@ -64,6 +64,11 @@ inline void LeaveLedge_unk(CharaTask* chara) {
     }
 }
 
+// inferred: weak copy 0x8013C38C (address of the position), inlined here
+inline atn::Vector3* CharaTask::fn_8013C38C() {
+    return &mPos;
+}
+
 namespace chr {
 
 ControlDive::ControlDive(Chara_unk* chara, const atn::Vector3& dir) : ControlBase(chara) {
@@ -116,10 +121,9 @@ ControlSwatTurn::ControlSwatTurn(Chara_unk* chara, const atn::Vector3& pos, int 
     LeaveLedge_unk(mChara);
 }
 
-// NONMATCHING: 99.84% - register swap (r4/r5) in the difference vector.
 int ControlSwatTurn::vf0C() {
     int ret = 0;
-    atn::Vector3 d = m08 - mChara->mPos;
+    atn::Vector3 d = m08 - *mChara->fn_8013C38C();
     atn::Vector3 rot = d.ToRotationZ_unk();
     float len = PSVECMag(&d);
     float speed = 1.0f;
@@ -199,7 +203,7 @@ ControlSwapPos::ControlSwapPos(Chara_unk* chara, const atn::Vector3& dir) : Cont
     }
 }
 
-// NONMATCHING: 99.8% - registers r3-r6 in the copies of pos/rot/vel to the character.
+// The position and rotation are stored through the accessors 0x8013C38C and 0x8012A1B8.
 int ControlSwapPos::vf0C() {
     float scale = 1.0f;
     Motion_unk* motion = &mChara->mMotion;
@@ -228,8 +232,8 @@ int ControlSwapPos::vf0C() {
         } else if (m14 == 1) {
             crot = rot;
         }
-        mChara->mPos = pos;
-        mChara->mRot = crot;
+        *mChara->fn_8013C38C() = pos;
+        *mChara->GetRot_unk() = crot;
         mChara->m574 = vel;
         mChara->fn_8013CB68(rot, 1, scale, scale * mChara->m568);
         if (m14 == 1) {

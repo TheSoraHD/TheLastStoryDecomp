@@ -53,6 +53,10 @@ inline float MotionRatio_unk(chr::Motion_unk* m) {
     return frame / m->fn_80097D7C(0);
 }
 
+// inferred: accessor of the control data (weak copy 0x800F530C, as in game/TacView.cpp)
+extern "C" inline CharaC58_unk* fn_800F530C(CharaTask* chara) {
+    return &chara->mC58;
+}
 namespace chr {
 
 ControlWallUp::ControlWallUp(Chara_unk* chara, const atn::Vector3& pos, const atn::Vector3& dir)
@@ -88,15 +92,15 @@ ControlWallUp::ControlWallUp(Chara_unk* chara, const atn::Vector3& pos, const at
     m48 = m14.y;
 }
 
-// NONMATCHING: 99.8% - registers r3-r5 (character, temporary vectors) and f3/f4 of the m40 update.
 int ControlWallUp::vf0C() {
-    Motion_unk* motion = &mChara->mMotion;
+    Motion_unk* motion = mChara->GetModel_unk();
     int ret = 0;
     mChara->mPos = LerpWall_unk(m28, m14, m40 / 15.0f);
     mChara->mRot = m34.ToRotation_unk();
     mChara->SetHit_unk(fn_80219E6C(0xCD));
     if (m40 > 0.0f) {
-        m40 -= lbl_8087EFA8->m3A4 * motion->mTracks[0].m0C;
+        float dt = lbl_8087EFA8->m3A4;
+        m40 -= dt * motion->mTracks[0].m0C;
     } else {
         m44 -= lbl_8087EFA8->m3A4 * motion->mTracks[0].m0C;
     }
@@ -144,7 +148,7 @@ int ControlWallUp::vf0C() {
             lbl_8087F048->m3E304 = EffectColor_unk(1.0f, 1.0f, 1.0f, 1.0f);
         }
     } else {
-        m08 = mChara->mC58.fn_8011BF3C(mChara->m648->m04);
+        m08 = fn_800F530C(mChara)->fn_8011BF3C(mChara->m648->m04);
         float frame2 = motion->mTracks[0].m08;
         if (frame2 >= motion->fn_80097D7C(0) - 4.0f) {
             m4C = true;

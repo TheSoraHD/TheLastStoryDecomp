@@ -89,6 +89,11 @@ inline atn::Vector3 atn::Vector3::operator-() const {
     return atn::Vector3(-x, -y, -z);
 }
 
+// inferred: weak copy 0x8013C38C (address of the position), inlined here
+inline atn::Vector3* CharaTask::fn_8013C38C() {
+    return &mPos;
+}
+
 namespace chr {
 
 ControlChaseCaught::ControlChaseCaught(Chara_unk* chara, CharaTask* catcher, int presses, int time)
@@ -104,7 +109,7 @@ ControlChaseCaught::ControlChaseCaught(Chara_unk* chara, CharaTask* catcher, int
     motion->mTracks[0].m0C = 1.0f;
 }
 
-// NONMATCHING: 99.3% - r4/r5 swapped for the catcher in the position and angle loads.
+// The position and the rotations are read through the accessors 0x8013C38C and 0x8012A1B8.
 // inferred: moves in front of the catcher and turns like it
 int ControlChaseCaught::vf0C() {
     int done = 0;
@@ -112,12 +117,12 @@ int ControlChaseCaught::vf0C() {
     if (frame >= mChara->mMotion.fn_80097D7C(0)) {
         done = 1;
     }
-    atn::Vector3 target = m08->mPos + FrontDir_unk(m08->mRot) * 5.0f;
+    atn::Vector3 target = *m08->fn_8013C38C() + FrontDir_unk(m08->mRot) * 5.0f;
     CharaTask* chara = mChara;
     chara->mPos = Approach_unk(chara->mPos, target, 0.2f);
-    float yaw = atn::WrapAngle_unk(m08->mRot.y - mChara->mRot.y);
+    float yaw = atn::WrapAngle_unk(m08->GetRot_unk()->y - mChara->GetRot_unk()->y);
     atn::Vector3 turn(0.0f, yaw, 0.0f);
-    mChara->mRot = mChara->mRot + turn * 0.2f;
+    mChara->mRot = *mChara->GetRot_unk() + turn * 0.2f;
     return done;
 }
 
@@ -140,10 +145,9 @@ ControlChaseHeld::ControlChaseHeld(Chara_unk* chara, CharaTask* catcher, int pre
     m1C = 90;
 }
 
-// NONMATCHING: 99.6% - r3/r4 swapped in the copy of the position.
 // inferred: the player escapes by pressing button 0x22; damage every 12 (or 18) frames
 int ControlChaseHeld::vf0C() {
-    mChara->mPos = m08->mPos + FrontDir_unk(m08->mRot) * 5.0f;
+    *mChara->fn_8013C38C() = *m08->fn_8013C38C() + FrontDir_unk(m08->mRot) * 5.0f;
     mChara->mRot = m08->mRot;
     if ((mChara->mType == 0 || mChara->mType == 3) && m0C > 0) {
         lbl_8087F490->m728 = 1;
