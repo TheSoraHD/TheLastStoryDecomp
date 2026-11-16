@@ -76,15 +76,16 @@ GimmickCommon* PassBoard::fn_8042D628(atn::Task* parent, int id, int arg) {
     return 0;
 }
 
-// NONMATCHING: the target addresses the pairs from `this` (stw 0x868(r25) with r25 = this + 8 * i)
-// where this keeps a pointer to the pair. Tried: indexed pairs (registers permute), locals declared
-// at the top in several orders.
+// NONMATCHING: 98.67% - registers only: the original colours the pair cursor (this + 8 * i, stores at
+// 0x864/0x868) and the name cursor after count/object/hash (here they come first). Tried: pair/name as
+// named cursors, `&mPairs[i]` in a local, names->mNames[i], extra declarations.
+// The pairs are indexed (the stores fold the 0x864 of mPairs into the offset, as in the original) and
+// mColli.m0C is set even without a map (the original jumps there from both null checks).
 int PassBoard::vf0C() {
     int count;
     MapInstance_unk* object;
     unsigned int hash;
     char* name;
-    Pair_unk* pair;
     PassBoardNames_unk* names;
     MapTask* group;
     MapPartsBase* part;
@@ -99,24 +100,22 @@ int PassBoard::vf0C() {
                     if (part->mType == 4) {
                         count = names->mCount;
                         name = names->mNames[0];
-                        pair = mPairs;
                         for (i = 0; i < count; i++) {
                             for (j = 0; j < ((MapPartsLocatorSet*)part)->mInstances.mSize; j++) {
                                 object = ((MapPartsLocatorSet*)part)->mInstances[j];
                                 hash = object->mHash;
                                 if (hash == fn_800DC6B4(name)) {
-                                    pair->mB = object;
-                                    pair->mA = object;
+                                    mPairs[i].mB = object;
+                                    mPairs[i].mA = object;
                                 }
                             }
                             name += 0x40;
-                            pair++;
                         }
                     }
                 }
-                mColli.m0C = (int)this;
             }
         }
+        mColli.m0C = (int)this;
         return 1;
     }
     return 0;
