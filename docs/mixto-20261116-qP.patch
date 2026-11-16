@@ -1,0 +1,31 @@
+diff --git a/libs/msc/src/RVL_SDK/kpad/KPADMpls_unk.c b/libs/msc/src/RVL_SDK/kpad/KPADMpls_unk.c
+index efb77e68..ceee03c3 100644
+--- a/libs/msc/src/RVL_SDK/kpad/KPADMpls_unk.c
++++ b/libs/msc/src/RVL_SDK/kpad/KPADMpls_unk.c
+@@ -335,7 +335,7 @@ f32 fn_80659220(KPADChannel chan, KPADMPDir* dir, Vec* acc)
+ 
+ // inferred: turns the attitude towards the one given by the pointer (DPD) position and horizon; returns the
+ // largest change of an axis
+-// NONMATCHING: 96% - 0x10 bytes more of stack (MWCC keeps a temporary for the copies of the Z axis)
++// NONMATCHING: 99.98% - code matches; only the .sdata2 position of 0.383864f differs (pool order of the unit)
+ f32 fn_806594D0(KPADChannel chan, KPADMPDir* dir, KPADStatus* sp)
+ {
+     KPADMplsChan_unk* c = &kp_mpls_work_unk->ch[chan];
+@@ -366,15 +366,12 @@ f32 fn_806594D0(KPADChannel chan, KPADMPDir* dir, KPADStatus* sp)
+         m1.Y.x = -sp->horizon.y;
+         m1.Y.y = sp->horizon.x;
+         m1.Y.z = 0.0f;
+-        m1.Z = fn_unk_identity_dir.Z;
+-        v = fn_unk_identity_dir.Z;
+-        w = fn_unk_identity_dir.Z;
++        w = v = m1.Z = fn_unk_identity_dir.Z;
+         v.x = -k * sp->pos.x;
+         fn_8065AF20(&v);
+         fn_8065B320(&rot, &w, &v);
+         fn_8065B630(&rot, &m1, &m2);
+-        v = m2.Z;
+-        w = m2.Z;
++        w = v = m2.Z;
+         len = sqrt(dir->Z.x * dir->Z.x + dir->Z.z * dir->Z.z);
+         v.x *= len;
+         v.z *= len;
