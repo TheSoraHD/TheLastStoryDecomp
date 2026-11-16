@@ -6872,8 +6872,12 @@ int GameEventScript::fn_803ACD50(int id) {
 }
 
 
+// inferred: rotation around y through one more inline level (name invented)
+inline void EventRotY_unk(atn::Matrix3x4& m, float rad) {
+    atn::Matrix3x4::RotateAxis_unk(m, 'y', rad);
+}
+
 // The original calls both tests recursively out of line (not inlined into themselves)
-// NONMATCHING: 99.96% - stack slots of the two matrices of RotateAxis_unk swapped
 __declspec(noinline) int GameEventScript::fn_803ACE18(int index, const atn::Sphere* sphere, int group) {
     gs::EventBox& event = mScene->mE4[index];
     int hit = 0;
@@ -6890,7 +6894,7 @@ __declspec(noinline) int GameEventScript::fn_803ACE18(int index, const atn::Sphe
         atn::Matrix3x4 trans;
         PSMTXTrans(trans.m, event.mPos.x, event.mPos.y, event.mPos.z);
         box.mMtx = trans;
-        atn::Matrix3x4::RotateAxis_unk(box.mMtx, 'y', event.m14);
+        EventRotY_unk(box.mMtx, event.m14);
         hit = fn_80051CD8(sphere, &box);
     }
     return hit;
