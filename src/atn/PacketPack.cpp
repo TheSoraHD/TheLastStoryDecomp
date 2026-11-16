@@ -3000,6 +3000,92 @@ extern "C" int fn_804DBE24(PPManager2_unk* mgr, char* text, char** fields) {
     return 1;
 }
 
+extern "C" const wchar_t* fn_8050F858(MpFriendList_unk*, int, unsigned char*, int*);
+// inferred: reads a message of a friend from a copy of the friend list and splits its fields
+extern "C" int fn_804DBEC8(PPManager2_unk* mgr, int id, char* buf, char** fields, int* arg) {
+    MpFriendList_unk list = lbl_8087F628->mFriendList;
+    if (fn_8050F858(&list, id, (unsigned char*)buf, arg) != 0) {
+        return fn_804DBE24(mgr, buf, fields);
+    }
+    return 0;
+}
+
+// inferred: room status written in the first field of the status string (by fn_804DC450)
+const char* lbl_80791190[] = {"0", "1", "2", "3", "4", "5"};
+// inferred: game mode written in the second field of the status string (names of modes 0-2)
+const char* lbl_807911A8[] = {"0", "1", "2"};
+// inferred: field of the game mode (0 with no mode, "9" off line)
+static inline const char* GetModeField_unk(int mode) {
+    if (mode >= 3) {
+        return 0;
+    }
+    if (mode < 0) {
+        return "9";
+    }
+    return lbl_807911A8[mode];
+}
+
+// NONMATCHING: only the offset of "9" in @stringBase0 (0x19B in the original, after strings of functions not written)
+// inferred: room status (1-5, the first field) of the status message of the friend `id` if its game mode matches
+// the own one (-1 if not)
+extern "C" int fn_804DC114(PPManager2_unk* mgr, int id) {
+    int arg;
+    char* fields[6];
+    char buf[0x100];
+    if (fn_804DBEC8(mgr, id, buf, fields, &arg) == 0) {
+        return -1;
+    }
+    if (arg == 0) {
+        return -1;
+    }
+    const char* own;
+    const char* status;
+    int mode = mgr->mMode;
+    if ((unsigned int)mode > 2) {
+        own = 0;
+    } else {
+        if (lbl_8087F628->m25C != 1) {
+            mode = -1;
+        }
+        own = GetModeField_unk(mode);
+    }
+    const char* field = fields[1];
+    if (strcmp(field, "9") == 0 || strcmp(own, "9") == 0) {
+        return -1;
+    }
+    if (strcmp(field, lbl_807911A8[2]) == 0) {
+        if (strcmp(field, own) != 0) {
+            return -1;
+        }
+    } else {
+        const char* mode0 = lbl_807911A8[0];
+        if (strcmp(field, mode0) == 0 || strcmp(field, lbl_807911A8[1]) == 0) {
+            if (strcmp(own, mode0) != 0 && strcmp(own, lbl_807911A8[1]) != 0) {
+                return -1;
+            }
+        }
+    }
+    status = fields[0];
+    if (strcmp(status, lbl_80791190[1]) == 0) {
+        return 1;
+    }
+    if (strcmp(status, lbl_80791190[2]) == 0) {
+        return 2;
+    }
+    if (strcmp(status, lbl_80791190[3]) == 0) {
+        return 3;
+    }
+    if (strcmp(status, lbl_80791190[4]) == 0) {
+        return 4;
+    }
+    if (strcmp(status, lbl_80791190[5]) != 0) {
+        return -1;
+    }
+    return 5;
+}
+
+
+
 // inferred: updates the room status (2 when the network is not local)
 extern "C" void fn_804DC358(PPManager2_unk* mgr) {
     int mode = 2;
@@ -3010,8 +3096,6 @@ extern "C" void fn_804DC358(PPManager2_unk* mgr) {
 }
 
 extern "C" int DWC_GetOwnStatusString(char* status);
-// inferred: room status written in the first field of the status string (by fn_804DC450)
-const char* lbl_80791190[] = {"0", "1", "2", "3", "4", "5"};
 // inferred: the status string says room status 1 or 5 (as `mode`); it is written again when it does not
 extern "C" int fn_804DC374(PPManager2_unk* mgr, int mode) {
     if (lbl_8087F628->m90 == 0) {
@@ -3035,25 +3119,78 @@ extern "C" int fn_804DC374(PPManager2_unk* mgr, int mode) {
     return 1;
 }
 
-extern "C" int fn_804DBEC8(PPManager2_unk* mgr, const char* text, char* buf, char** fields, int arg);
 extern "C" int atoi(const char* s);
 // inferred: fourth and fifth fields of a status string as numbers
-extern "C" int fn_804DC7C0(PPManager2_unk* mgr, const char* text) {
+extern "C" int fn_804DC7C0(PPManager2_unk* mgr, int id) {
     char* fields[6];
     char buf[0x100];
-    if (fn_804DBEC8(mgr, text, buf, fields, 0) == 0 || fields[3] == 0) {
+    if (fn_804DBEC8(mgr, id, buf, fields, 0) == 0 || fields[3] == 0) {
         return 0;
     }
     return atoi(fields[3]);
 }
 
-extern "C" int fn_804DC80C(PPManager2_unk* mgr, const char* text) {
+extern "C" int fn_804DC80C(PPManager2_unk* mgr, int id) {
     char* fields[6];
     char buf[0x100];
-    if (fn_804DBEC8(mgr, text, buf, fields, 0) == 0 || fields[4] == 0) {
+    if (fn_804DBEC8(mgr, id, buf, fields, 0) == 0 || fields[4] == 0) {
         return 0;
     }
     return atoi(fields[4]);
+}
+
+extern "C" int fn_8050F5A8(MpFriendList_unk*, int);  // inferred: first friend (-1: none)
+extern "C" int fn_8050F664(MpFriendList_unk*, int);  // inferred: next friend (-1: none)
+extern "C" unsigned long long fn_8050F764(MpFriendList_unk*, int); // inferred: friend code
+extern "C" const wchar_t* fn_8050F724(MpFriendList_unk*, int);     // inferred: name
+extern "C" void fn_8050F734(MpFriendList_unk*, int, const wchar_t*); // inferred: sets the name
+extern "C" std::basic_string<wchar_t> fn_8050F470(unsigned long long); // inferred: code as text
+extern "C" void fn_8050EAE8(MpFriendList_unk*);
+extern "C" void fn_8006F420(void*, char*, const wchar_t*, int); // inferred: wide to multibyte
+extern "C" void fn_8006F2F0(void*, wchar_t*, const char*, int); // inferred: to wide text
+extern "C" int wcscmp(const wchar_t*, const wchar_t*);
+
+// inferred: the status message of the friend `id` carries its own friend code (field 5)
+static inline bool IsOwnStatus_unk(PPManager2_unk* mgr, int id) {
+    char* fields[6];
+    char buf[0x100];
+    if (fn_804DBEC8(mgr, id, buf, fields, 0) == 0 || fields[5] == 0) {
+        return 0;
+    }
+    char code[0x18];
+    unsigned long long key = fn_8050F764(&lbl_8087F628->mFriendList, id);
+    fn_8006F420(lbl_8087EEC8, code, fn_8050F470(key).c_str(), fn_8050F470(key).size() * 2);
+    return strcmp(code, fields[5]) == 0;
+}
+
+// NONMATCHING: 99.68% - r30/r31 of the friend list and of the hoisted text pointer of the temporary string swapped
+// inferred: takes the names of the friends from their status messages (field 2) and saves the list if one changed
+extern "C" void fn_804DC858(PPManager2_unk* mgr) {
+    MpFriendList_unk* list;
+    int changed = 0;
+    list = &lbl_8087F628->mFriendList;
+    for (int id = fn_8050F5A8(list, 0); id != -1; id = fn_8050F664(list, 0)) {
+        if (IsOwnStatus_unk(mgr, id) == 1) {
+            char* fields[6];
+            char buf[0x100];
+            int arg;
+            if (fn_804DBEC8(mgr, id, buf, fields, &arg) != 0) {
+                wchar_t name[0x100];
+                fn_8006F2F0(lbl_8087EEC8, name, fields[2], 0x100);
+                if (wcscmp(name, fn_8050F724(list, id)) != 0) {
+                    fn_8050F734(list, id, name);
+                    changed = 1;
+                }
+            }
+        }
+    }
+    if (changed) {
+        fn_8050EAE8(&lbl_8087F628->mFriendList);
+        MP::SaveLoad* saveLoad = ((PPManager2_unk*)lbl_8087F610)->mSaveLoad;
+        if (saveLoad != 0) {
+            saveLoad->fn_80502870(1, list, 0x9F0);
+        }
+    }
 }
 
 extern "C" int fn_804DCA4C() {
@@ -3678,6 +3815,29 @@ extern "C" void fn_804EA810(PPManager2_unk* mgr, int value, int send) {
         fn_804AE3BC()->fn_8050E094(-1, 0x103C, &msg.mData, 0);
     }
     mgr->m5A8 = value;
+}
+
+// NONMATCHING: 98.75% - registers of the inlined search fn_804DD158 and of the player (r31 in the original), as fn_804D8610
+// inferred: message 0x1013 (as message 0x18, fn_804F1F34): marks the own player and the players of its team (m26)
+extern "C" void fn_804EA8B8(PPManager2_unk* mgr, int arg) {
+    PPPlayer_unk* player;
+    fn_804AE3BC()->fn_8050E094(-1, 0x1013, 0, 1);
+    fn_804AE3BC()->fn_8050DDDC(-1, 1);
+    unsigned int aid = lbl_8087F628->GetMyAid_unk();
+    player = fn_804DD158(mgr, aid);
+    player->mFlags.m26 = 1;
+    if (player->mRef.mChara != 0) {
+        player->mRef.mChara->fn_800D246C(arg);
+    }
+    for (int i = 0; i < mgr->mPlayers.mNum; i++) {
+        PPPlayer_unk* other = &mgr->mPlayers.mData[i];
+        if (IsTeamPlayer_unk(other) && (unsigned int)(other->mAid & 0xF) == player->mAid) {
+            other->mFlags.m26 = 1;
+            if (other->mRef.mChara != 0) {
+                other->mRef.mChara->fn_800D246C(arg);
+            }
+        }
+    }
 }
 
 extern "C" int fn_804EAA50(PPManager2_unk* mgr) {
