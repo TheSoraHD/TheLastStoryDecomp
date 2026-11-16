@@ -1653,10 +1653,28 @@ extern "C" inline int fn_80013444(const atn::Vector3* a, const atn::Vector3* b) 
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 namespace Event {
 
+// inferred: name of the model file of a part of the costume of the hero ("pc101_up_.chr"...). Not in the
+// .dol (no callers: the linker strips it); it is here for its literals, which the original pool has
+// between "seatpoint" and "eye_R"
+extern "C" char* strcpy(char* dst, const char* src);
+extern "C" char* strcat(char* dst, const char* src);
+void MakeCostumePartName_unk(char* name, int part) {
+    strcpy(name, "");
+    strcat(name, "pc101_");
+    if (part == 0) {
+        strcat(name, "up_");
+    } else if (part == 1) {
+        strcat(name, "lo_");
+    } else if (part == 2) {
+        strcat(name, "wa_");
+    } else {
+        strcat(name, "ga_");
+    }
+    strcat(name, ".chr");
+}
+
 // inferred: turns the eyes of the character towards a point (the camera, limited to `angle` around the eye
 // direction), or the head of another actor towards `target`
-// NONMATCHING: 99.98% - only the offset of "eye_R" in @stringBase0 (the original pool at 0x8072EE0C also
-// holds the parameter names of the actions: "set_y" and "z" are tails of "offset_y" and "offset_z")
 void Actor::fn_80012D34(Actor* target, int node, const atn::Vector3& cam, int arg4, const atn::Vector3& jitter,
                         int arg6, float weight, float angle) {
     if (m20 != 7 && m20 != 1) {
