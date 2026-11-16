@@ -1,4 +1,5 @@
 #include "game/Em101LittleZesya.h"
+#include "math/VecAssign_unk.h"
 #include "game/GameScene.h"
 #include "chr/ControlBase.h"
 #include "chr/ControlDive.h"
@@ -505,7 +506,6 @@ void Em101LittleZesya::fn_8025E008() {
     m1548 = 2;
 }
 
-// NONMATCHING: 99.89% - r3/r4 of the copy of the route point (__VecCopy family; 6 variants)
 // inferred: starts the warp chosen by fn_8025D90C/fn_8025E008 (m1548: 1 next to the target, 3 to the
 // shoot point, otherwise to the wait point)
 void Em101LittleZesya::fn_8025E100() {
@@ -527,7 +527,7 @@ void Em101LittleZesya::fn_8025E100() {
         mMotion.mTracks[0].m08 = 0.0f;
         if (target != 0) {
             int point = ((GameScene*)lbl_8087F430->m10D8)->fn_803C1560(&target->mPos, 0, 0, 0, 1, -1.0f);
-            *dest = lbl_8087F430->m10D8->mPoints[point - 1].mPos;
+            atn::VecAssign_unk(*dest, lbl_8087F430->m10D8->mPoints[point - 1].mPos);
             m1558 = (target->mPos - *dest).ToRotationZ_unk().y;
             atn::Vector3 e = *dest - target->mPos;
             e.y = 0.0f;
