@@ -70,9 +70,7 @@ struct MpSession_unk {
         return 0;
     }
 };
-// inferred: volatile: fn_804B5B10 reads it again in the body of the player loop right after the loop
-// condition (the same reload as lbl_8087EE64 in AI/AiCommon_unk.cpp)
-extern "C" MpSession_unk* volatile lbl_8087F610;
+extern "C" MpSession_unk* lbl_8087F610;
 extern "C" MpPlayer_unk* fn_804EB870(MpSession_unk* s); // inferred: local player
 extern "C" int fn_804EB480(MpSession_unk* s, MpPlayer_unk* player);
 extern "C" int fn_804DB408(MpSession_unk* s); // inferred: remaining time in seconds
@@ -334,15 +332,18 @@ void D2AMpMenuCockpit::vf14() {
     }
 }
 
-// inferred: the screen test is a macro (an inline returning bool leaves the result in a register)
-#define IsOnScreen_unk(screen)                                                                      \
-    (0.0f <= (screen).z && (screen).z <= 1.0f && -50.0f <= (screen).x &&                            \
-     (screen).x < 50.0f + (float)lbl_8087EEE0->mWidth && -50.0f <= (screen).y &&                    \
-     (screen).y < 50.0f + (float)lbl_8087EEE0->mHeight)
+inline bool IsOnScreen_unk(const atn::Vector3& screen) {
+    return 0.0f <= screen.z && screen.z <= 1.0f && -50.0f <= screen.x &&
+           screen.x < 50.0f + (float)lbl_8087EEE0->mWidth && -50.0f <= screen.y &&
+           screen.y < 50.0f + (float)lbl_8087EEE0->mHeight;
+}
 
 // inferred: marks over the characters. The position of a mark (3 units above the neck) is written in
 // the loops, not in an inline (the vector temporaries keep the order of the original); the mode is
 // read before the team (register order of the two loads).
+// NONMATCHING: 96.68% - the original reloads lbl_8087F610 at the top of the player loop body (here it
+// is reused from the loop condition; a volatile declaration gave it, not allowed), and IsOnScreen_unk
+// leaves its bool in a register (as a macro the condition branches directly: 100% with both)
 void D2AMpMenuCockpit::fn_804B5B10() {
     if (fn_804EB870(lbl_8087F610) == 0) {
         return;

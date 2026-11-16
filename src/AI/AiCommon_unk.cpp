@@ -248,9 +248,6 @@ extern "C" inline CharaC58_unk* fn_800F530C(CharaTask* chara) {
 // arguments are converted in locals before the call (the original reads b/a from r5/r4 there).
 
 extern "C" void fn_8001AEDC(unsigned int order, int* a, int* b, int* c, int* d) {
-    // inferred: unused local; it only leaves -1.0f in .sdata2 before the 1.5f of case 0 (pool order
-    // of the original, -1.0f is used by fn_8001B508 and fn_8001B5B4)
-    float unused = -1.0f;
     CharaTask* self = lbl_8087EE60;
     CharaC58_unk* ai = fn_800F530C(self);
     switch (order) {
@@ -391,6 +388,8 @@ extern "C" void fn_8001B4CC(int value) {
 }
 
 // inferred: plays the motion `motion` on the current character, looking at the neck of `target`
+// note: .sdata2 order: the original has this -1.0f before the 1.5f of fn_8001AEDC (unit not linked;
+// only an unused local in an earlier function reproduced it)
 extern "C" void fn_8001B508(const char* motion, CharaTask* target) {
     if (target != 0) {
         MtxPtr neck = target->GetModel_unk()->GetNodeMtx_unk("neck");
