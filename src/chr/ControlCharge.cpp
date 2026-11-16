@@ -17,6 +17,7 @@
 #include "game/Input_unk.h"
 #include "game/MapTask.h"
 #include "game/BattleTask.h"
+#include "math/VecAssign_unk.h"
 
 // inferred: game settings (as in chr/ControlCdnStone.cpp)
 struct Settings_unk {
@@ -146,7 +147,7 @@ namespace chr {
 // test (r4/r5) and of the range sum (f4/f5).
 ControlCharge::ControlCharge(Chara_unk* chara, int a, const atn::Vector3* target, int c)
     : ControlMoveCursor(chara), m2C(0.0f), m30(0), m34(0), m3C(c) {
-    mChara->m560 = 0xD;
+    mChara->SetControlId_unk(0xD);
     Motion_unk* motion = &mChara->mMotion;
     if (mChara->mFlag31) {
         mChara->fn_801539E0();
@@ -538,10 +539,9 @@ void ControlChargeAttackBase::fn_801A4E08(Chara_unk* chara, const atn::Vector3& 
     }
 }
 
-// NONMATCHING: 99.6% - r3/r4 swapped in the first stores (as in the ControlCharge constructor).
 ControlChargeAttack::ControlChargeAttack(Chara_unk* chara, const atn::Vector3& target, int adjust)
     : ControlChargeAttackBase(chara, target, 20.0f, adjust) {
-    mChara->m560 = 0xE;
+    mChara->SetControlId_unk(0xE);
     Motion_unk* motion = &mChara->mMotion;
     motion->m34C = 1;
     motion->mTracks[0].m20 = 1.0f;
@@ -592,11 +592,10 @@ int ControlChargeAttack::vf0C() {
     return frame >= motion->fn_80097D7C(0) ? 1 : 0;
 }
 
-// NONMATCHING: 99.9% - r3/r4 swapped in the first stores (as in the ControlCharge constructor).
 ControlHighJumpAttack::ControlHighJumpAttack(Chara_unk* chara, const atn::Vector3& target, float speed, int adjust)
     : ControlChargeAttackBase(chara, target, speed > 20.0f ? 50.0f : 20.0f, 0) {
     m2C = speed;
-    mChara->m560 = 0xE;
+    mChara->SetControlId_unk(0xE);
     Motion_unk* motion = &mChara->mMotion;
     motion->m34C = 1;
     motion->mTracks[0].m20 = 1.0f;
@@ -702,11 +701,10 @@ void ControlHighJumpAttack::vf1C() {
     }
 }
 
-// NONMATCHING: 99.8% - r3/r4 swapped in the first stores and in the copy of the front direction.
 ControlQuarkSeirenAttack::ControlQuarkSeirenAttack(Chara_unk* chara, const atn::Vector3& target, float speed, int adjust)
     : ControlChargeAttackBase(chara, target, 77.0f, 0) {
     m2C = speed;
-    mChara->m560 = 0xE;
+    mChara->SetControlId_unk(0xE);
     Motion_unk* motion = &mChara->mMotion;
     motion->m34C = 1;
     motion->mTracks[0].m20 = 1.0f;
@@ -733,7 +731,7 @@ ControlQuarkSeirenAttack::ControlQuarkSeirenAttack(Chara_unk* chara, const atn::
     }
     atn::Vector3 d = m08 - m14;
     if (PSVECSquareMag(&d) < 0.00001f) {
-        d = FrontDir_unk(mChara->mRot);
+        atn::VecAssign_unk(d, FrontDir_unk(mChara->mRot));
     }
     atn::Vector3 rot(0.0f, d.ToRotation_unk().y, 0.0f);
     if (mChara->mType != 0 && mChara->mC58.mC4 != 0) {
