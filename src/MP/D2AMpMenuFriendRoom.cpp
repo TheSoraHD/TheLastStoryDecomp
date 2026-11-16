@@ -100,7 +100,7 @@ D2AMpMenuFriendRoom::~D2AMpMenuFriendRoom() {
     }
 }
 
-// NONMATCHING: 99.85% - text/layout registers of the L"" texts swapped (r28/r29)
+// inferred: SetTaskText_unk (layout read inside the inline) for the first text gives its register order
 int D2AMpMenuFriendRoom::vf0C() {
     if (fn_800D3FA4() != 0) {
         mA0 = 0;
@@ -115,7 +115,7 @@ int D2AMpMenuFriendRoom::vf0C() {
             float w = fn_8006EF48(lbl_8087EEC8, 16.0f, fn_800A4450(pane, 0, 0).data(), 0.0f, 1, 1);
             SetPaneValue_unk(m78->mLayout, "pos0017", 0, 590.0f - w);
         }
-        SetPaneText_unk(m4C->mLayout, "string0001(1)", L"");
+        SetTaskText_unk(m4C, "string0001(1)", L"");
         SetPaneText_unk(m4C->mLayout, "string0002(1)", L"");
         return 1;
     }
