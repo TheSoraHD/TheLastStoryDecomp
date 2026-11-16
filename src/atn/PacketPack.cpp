@@ -367,7 +367,7 @@ struct PPPair_unk {
     int m04;
 };
 struct PPPlayerState_unk {
-    PPPlayerState_unk() {} // inferred: some constructor (the copy in the swap 0x804E0CE4 is member by member)
+    PPPlayerState_unk() { memset(this, 0, sizeof(*this)); }
     int m00;
     int m04;
     float m08;
@@ -403,10 +403,25 @@ struct PPEquipItem_unk {
 };
 // inferred: the part of an equipment sent by message 0x1C (fn_804F1950); names invented
 struct PPEquipHead_unk {
+    PPEquipHead_unk() {
+        m00 = -1;
+        m04.mOn = 0;
+        m08 = -1;
+        for (int i = 0; i < 8; i++) {
+            mIds[i] = -1;
+        }
+        memset(mExtra, 0, sizeof(mExtra));
+    }
     int m00;
     PPEquipBits_unk m04;
     int m08;
-    PPEquipItem_unk mItems[8];
+    union {
+        PPEquipItem_unk mItems[8];
+        struct {
+            int mIds[8];
+            unsigned char mExtra[0x20];
+        };
+    };
 };
 extern "C" unsigned long wcslen(const wchar_t* s);
 extern "C" wchar_t* wmemcpy(wchar_t* dst, const wchar_t* src, unsigned long n);
@@ -414,6 +429,7 @@ extern "C" wchar_t* wmemcpy(wchar_t* dst, const wchar_t* src, unsigned long n);
 // the buffers differ, as the wide atn::static_string of game/PopupTask.h), the copy constructor the whole
 // buffer, no destructor (layout from the swap 0x804E0CE4); name invented
 struct PPWideName_unk {
+    PPWideName_unk() { mStr[0] = 0; }
     PPWideName_unk& operator=(const PPWideName_unk& o) {
         const wchar_t* str = o.mStr;
         if (str != mStr) {
@@ -426,7 +442,7 @@ struct PPWideName_unk {
 // inferred: entry of an equipment (0x14 bytes, 32 of them at 0x50; layout from the copy in the swap
 // 0x804E0CE4); names invented
 struct PPEquipSlot_unk {
-    PPEquipSlot_unk() {} // inferred: some constructor (copied member by member in the swap 0x804E0CE4)
+    PPEquipSlot_unk() : m00(-1), m02(0), m04(-1.0f), m08(1.0f), m0C(1.0f), m10(-1.0f) {}
     short m00;
     short m02;
     float m04;
@@ -441,17 +457,13 @@ struct PPEquipSlots_unk {
 // inferred: second part of an equipment (from 0x4C; the swap 0x804E0CE4 assigns it through its own source
 // pointer); names invented
 struct PPEquipBody_unk {
+    PPEquipBody_unk() : m00(-1), m284(0) {}
     int m00;
     PPEquipSlots_unk m04;
     int m284;
     PPWideName_unk m288;
 };
-struct PPEquip_unk {
-    PPEquip_unk() {} // inferred: some constructor (the copy in the swap 0x804E0CE4 is member by member)
-    int m00;
-    PPEquipBits_unk m04;
-    int m08;
-    PPEquipItem_unk mItems[8];
+struct PPEquip_unk : PPEquipHead_unk {
     PPEquipBody_unk m4C;
     // inferred: copies the part sent by message 0x1C
     void Set_unk(const PPEquipHead_unk& head) {
@@ -483,11 +495,24 @@ struct PPPlayerFlags_unk {
     unsigned int m00 : 1;
 };
 
+// inferred: the character reference of a player slot (null at construction; the second one, mDC, is set by
+// fn_804D1F6C instead); name invented
+struct PPCharaRefNull_unk : MpCharaRef_unk {
+    PPCharaRefNull_unk() { mChara = 0; }
+};
+struct PPPlayer_unk;
+extern "C" void fn_804D1F6C(PPPlayer_unk* player);
 // inferred: player slot of MP::Manager2 (0xD5C bytes, array at +0x5E4); names invented
 struct PPPlayer_unk {
-    PPPlayer_unk(); // inferred: weak copy 0x804D16F8 (0x874 bytes), not written yet
+    // inferred: weak copy 0x804D16F8 (construction of the array m2B8C in the constructor of MP::Manager2)
+    PPPlayer_unk() {
+        for (int i = 0; i < 4; i++) {
+            mD38[i] = -1;
+        }
+        fn_804D1F6C(this);
+    }
     ~PPPlayer_unk() {} // inferred: weak copy 0x804D1FD8 (destruction of m2B8C in the destructor of MP::Manager2)
-    MpCharaRef_unk mRef;              // 0x00: inferred: the character of the player
+    PPCharaRefNull_unk mRef;              // 0x00: inferred: the character of the player
     union {
         int m004[12];                 // inferred: copy of the character information (fn_804D8078)
         struct {
@@ -518,7 +543,10 @@ struct PPPlayer_unk {
     };
     int mE0;
     int mE4;
-    PPEquip_unk mEquips[4];           // 0xE8
+    PPEquip_unk mEquip0;              // 0xE8: inferred: four members, not an array (the constructor 0x804D16F8
+    PPEquip_unk mEquip1;              // builds them unrolled and the code uses constant indices only)
+    PPEquip_unk mEquip2;
+    PPEquip_unk mEquip3;
 
     int mD38[5];                      // inferred: values of message 0x15
     unsigned int mD4C;                // inferred: bits 10-11 set by message 0x2E
@@ -2663,7 +2691,7 @@ void MP::Manager2::vf10() {
                 PPPlayer_unk* player = fn_804D5F48(&mgr->mPlayers, i);
                 if (player->mFlags.mActive == 1) {
                     fn_804EAA84(mgr, player->mRef.mChara, 1, 0);
-                    if (player->mEquips[0].m04.mOn) {
+                    if (player->mEquip0.m04.mOn) {
                         if (fn_804D63D0(mgr) != 2 && fn_804D63D8(player->mRef.mChara) != 0) {
                             for (int j = 0; j < 4; j++) {
                                 if (fn_804D63D8(player->mRef.mChara)->mD8[j] > 0) {
@@ -2680,7 +2708,7 @@ void MP::Manager2::vf10() {
                                 }
                             }
                         }
-                        fn_804D6400(player->mRef.mChara->GetStatus_unk(), player->mEquips[0].m04.mLevel);
+                        fn_804D6400(player->mRef.mChara->GetStatus_unk(), player->mEquip0.m04.mLevel);
                     }
                 }
             }
@@ -5776,23 +5804,23 @@ extern "C" PPEquip_unk* fn_804EB650(PPManager2_unk* mgr, CharaTask* chara, int i
     }
     switch (index) {
     case 0:
-        if (player->mEquips[0].m00 != -1) {
-            return &player->mEquips[0];
+        if (player->mEquip0.m00 != -1) {
+            return &player->mEquip0;
         }
         return 0;
     case 1:
-        if (player->mEquips[1].m00 != -1) {
-            return &player->mEquips[1];
+        if (player->mEquip1.m00 != -1) {
+            return &player->mEquip1;
         }
         return 0;
     case 2:
-        if (player->mEquips[2].m00 != -1) {
-            return &player->mEquips[2];
+        if (player->mEquip2.m00 != -1) {
+            return &player->mEquip2;
         }
         return 0;
     case 3:
-        if (player->mEquips[3].m00 != -1) {
-            return &player->mEquips[3];
+        if (player->mEquip3.m00 != -1) {
+            return &player->mEquip3;
         }
         return 0;
     }
@@ -6796,16 +6824,16 @@ extern "C" void fn_804F1950(PPPlayer_unk* player) {
     PPMsgEquip_unk* data = (PPMsgEquip_unk*)fn_804AE3BC()->GetWorkBuffer_unk();
     switch (data->mKind) {
     case 0:
-        player->mEquips[0].Set_unk(data->mHead);
+        player->mEquip0.Set_unk(data->mHead);
         break;
     case 1:
-        player->mEquips[1].Set_unk(data->mHead);
+        player->mEquip1.Set_unk(data->mHead);
         break;
     case 2:
-        player->mEquips[2].Set_unk(data->mHead);
+        player->mEquip2.Set_unk(data->mHead);
         break;
     case 3:
-        player->mEquips[3].Set_unk(data->mHead);
+        player->mEquip3.Set_unk(data->mHead);
         break;
     }
 }
