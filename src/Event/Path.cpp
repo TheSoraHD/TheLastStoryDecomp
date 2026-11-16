@@ -309,13 +309,11 @@ void EventCamera_unk::fn_80112F5C(const CameraTarget_unk& eye, const CameraTarge
 
 namespace Event {
 
-// NONMATCHING: 97.7% - register allocation of the Vector3 temporaries
 void EventCamera_unk::fn_8011375C(const CameraTarget_unk& eye, int resetAngles, float a, float b, float c) {
     fn_801128C4(resetAngles);
     m1F4 = 2;
     m210 = eye;
-    atn::Vector3 pos = fn_80112A00(m210, 0.0f);
-    m204 = pos;
+    m204 = fn_80112A00(m210, 0.0f);
     if (a > 1.5533431f) {
         a = 1.5533431f;
     }
@@ -326,16 +324,12 @@ void EventCamera_unk::fn_8011375C(const CameraTarget_unk& eye, int resetAngles, 
     }
 }
 
-// NONMATCHING: 99.8% - Vector3 temporary at another stack slot and src/dst copy registers swapped
 void EventCamera_unk::fn_801139E4(const CameraTarget_unk& at, int resetAngles, float dist, float roll) {
     fn_801128C4(resetAngles);
     m1F4 = 3;
     m240 = at;
     m228 = fn_80112A00(m240, 0.0f);
-    atn::Vector3 dir;
-    dir = mPos - m228;
-    dir.Normalize_unk();
-    m204 = m228 + dir * dist;
+    m204 = m228 + (mPos - m228).GetNormalize() * dist;
     m258 = roll;
     if (lbl_8087F540->mC4) {
         fn_801162A4(0);
