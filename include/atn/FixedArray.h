@@ -7,11 +7,21 @@ namespace atn {
 
 // inferred: fixed-capacity array {count, elements[N]} used by game tasks (name unknown).
 // push_back constructs the element in place (null check on the slot address, e.g. 0x805B9C64).
-template <class T, int N>
-class FixedArray_unk {
+// inferred: non-template base holding the count: the size accessor is a single function for every
+// element type (weak copy 0x80372574 of game/GameTask.cpp, called out of line by GameUI, TacView,
+// NewCampPartsStatus and FlamingArrow on arrays of different types). Name invented.
+class FixedArrayBase_unk {
 public:
-    FixedArray_unk() : mSize(0) {}
+    FixedArrayBase_unk() : mSize(0) {}
     unsigned int size() const { return mSize; }
+
+    unsigned int mSize;
+};
+
+template <class T, int N>
+class FixedArray_unk : public FixedArrayBase_unk {
+public:
+    FixedArray_unk() {}
     void clear() { mSize = 0; }
     T& operator[](int i) { return mData[i]; }
     void push_back(const T& value) {
@@ -29,7 +39,6 @@ public:
         mSize = mSize - 1;
     }
 
-    unsigned int mSize;
     T mData[N];
 };
 

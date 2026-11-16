@@ -11,13 +11,24 @@ namespace atn {
 // growable array {size, capacity, data} allocated with new[]. Its
 // members are defined in the class body: their literals are @STRING@ objects in .sdata
 // (0x8087DF10/0x8087DF14 for the new[] of GimmickManager::fn_803EE7FC).
-template <class T>
-class SimpleVector {
+// inferred: non-template base of atn::SimpleVector holding the size: the size accessor is a single
+// function for every element type (weak copy 0x803D6ED4 of game/GameUI.cpp, called out of line by
+// GameUI on SimpleVector<CharaTask::Item14_unk> and by TacView on SimpleVector<CharaTask*>). Name invented.
+class SimpleVectorBase_unk {
 public:
-    SimpleVector() : mSize(0), mCapacity(0), mData(0) {}
+    SimpleVectorBase_unk() : mSize(0) {}
+    unsigned int size() const { return mSize; }
+
+    unsigned int mSize;
+};
+
+template <class T>
+class SimpleVector : public SimpleVectorBase_unk {
+public:
+    SimpleVector() : mCapacity(0), mData(0) {}
     // inferred: copy (weak copy 0x80544070 of Event/Sequence.cpp, called by the implicit copy of
     // Event::Actor; inlined in the copy of Event::ActorAnim_unk, 0x80543C00)
-    SimpleVector(const SimpleVector& o) : mSize(0), mCapacity(0), mData(0) {
+    SimpleVector(const SimpleVector& o) : mCapacity(0), mData(0) {
         Resize_unk(o.mSize);
         for (unsigned int i = 0; i < mSize; i++) {
             mData[i] = o[i];
@@ -99,7 +110,6 @@ public:
     }
     T& operator[](int i) { return mData[i]; }
     const T& operator[](int i) const { return mData[i]; }
-    unsigned int size() const { return mSize; } // inferred: weak copy 0x803D6ED4 (game/GameUI.cpp)
     void push_back(const T& value) {
         if (mData == 0 || mCapacity == 0) {
             reserve(8);
@@ -110,7 +120,6 @@ public:
         mSize++;
     }
 
-    unsigned int mSize;
     unsigned int mCapacity;
     T* mData;
 };
