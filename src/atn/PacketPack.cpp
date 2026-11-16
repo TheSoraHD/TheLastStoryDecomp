@@ -3010,6 +3010,8 @@ extern "C" int fn_804DBEC8(PPManager2_unk* mgr, int id, char* buf, char** fields
     return 0;
 }
 
+// inferred: messages sent in each frame of a cycle of 30 (bit 1: character states, fn_804E6518)
+int lbl_80790F78[30] = {14, 0, 2, 0, 2, 0, 14, 0, 2, 0, 2, 0, 14, 0, 2, 0, 2, 0, 14, 0, 2, 0, 2, 0, 14, 0, 2, 0, 2, 0};
 // inferred: room status written in the first field of the status string (by fn_804DC450)
 const char* lbl_80791190[] = {"0", "1", "2", "3", "4", "5"};
 // inferred: game mode written in the second field of the status string (names of modes 0-2)
@@ -3698,6 +3700,53 @@ extern "C" void fn_804CF374(PackedMotion_unk* out, atn::Model* model, int index)
 
 extern "C" int fn_804E650C(CharaTask* chara) {
     return chara->mFlag15;
+}
+
+extern "C" void fn_804E7AC0(PPManager2_unk* mgr);
+extern "C" void fn_804E7628(PPManager2_unk* mgr);
+extern "C" void fn_804E6DD0(PPManager2_unk* mgr);
+extern "C" void fn_804E82C4(PPManager2_unk* mgr, int message);
+// NONMATCHING: 99.84% - aid and count of the inlined search fn_804DD158 in r5/r4 (r4/r5 in the original), as fn_804D8610
+// inferred: per frame of the own player: flag m12 (local flag 0xFB is 3), the messages of the frame (table of 30
+// frames: 2 character states, 4 and 8 other updates) and the quick messages of the pad in the message list
+extern "C" void fn_804E6518(PPManager2_unk* mgr) {
+    unsigned int aid = lbl_8087F628->GetMyAid_unk();
+    PPPlayer_unk* own = fn_804DD158(mgr, aid);
+    int flag = lbl_8087F430 != 0 ? ((GameTask*)lbl_8087F430)->fn_80370A78(0xFB) : 0;
+    own->mFlags.m12 = flag == 3;
+    int frame = lbl_80790F78[(unsigned int)mgr->mFrame % 30];
+    if ((frame & 2) == 2) {
+        fn_804E7AC0(mgr);
+    }
+    if ((frame & 4) == 4) {
+        fn_804E7628(mgr);
+    }
+    if ((frame & 8) == 8) {
+        fn_804E6DD0(mgr);
+    }
+    if (MP::D2AMpMenuMessageList::sInstance != 0 && MP::D2AMpMenuMessageList::sInstance->m94 == 4) {
+        CharaTask* chara = own->mRef.mChara;
+        if (chara != 0 && !chara->mFlag6 && (!chara->mFlag31 || !chara->HasC48_unk())) {
+            int message = -1;
+            if (fn_800A555C(GetPad_unk(), 0, 0) != 0) {
+                if (SetConfig::sInstance->mInTacviewType == 0) {
+                    message = 0;
+                }
+            } else if (fn_800A555C(GetPad_unk(), 0, 1) != 0) {
+                if (SetConfig::sInstance->mInTacviewType == 1) {
+                    message = 0;
+                }
+            } else if (fn_800A555C(GetPad_unk(), 0, 2) != 0) {
+                message = 1;
+            } else if (fn_800A555C(GetPad_unk(), 0, 3) != 0) {
+                message = 2;
+            }
+            if ((unsigned int)message <= 4) {
+                // inferred: quick message ids saved with the friend list
+                fn_804E82C4(mgr, ((signed char*)&lbl_8087F628->mFriendList.m7F0[0xB8])[message]);
+            }
+        }
+    }
 }
 
 // inferred: sends the state of the own character, of the characters of this aid and of the other
