@@ -286,7 +286,7 @@ CosEditProtector::~CosEditProtector() {}
 
 int CosEditProtector::vf4C() {
     for (int i = 0; i < 13; i++) {
-        if (m54[i].mMotion.fn_800A0448()) {
+        if (m54[i].mSlot.mMotion.fn_800A0448()) {
             return 1;
         }
     }
@@ -1019,7 +1019,7 @@ void CosEditProtector::vf64() {
     if (m1F0 != 0) {
         NewCampPartsMotion_unk* motion = &m54[11];
         int done;
-        if (motion->mMotion.m08 != 0 && motion->mFrame < fn_800A08D4(&motion->mMotion)) {
+        if (motion->mSlot.mMotion.m08 != 0 && motion->mFrame < fn_800A08D4(&motion->mSlot.mMotion)) {
             done = 0;
         } else {
             done = 1;

@@ -8,6 +8,7 @@
 #include "atn/MotionModelRes_unk.h"
 #include "atn/LH_Binary.h"
 #include "atn/LH_Motion.h"
+#include "atn/MotionSlot_unk.h"
 #include "atn/Light_unk.h"
 #include "atn/Memory.h"
 #include "game/MotionCmdData_unk.h"
@@ -135,9 +136,14 @@ extern "C" void fn_800A005C(MapModelCache_unk* model) {
 
 namespace atn {
 
-LH_Motion::LH_Motion() {
+// inferred: inline; its only copy is the one inlined in the constructor of MotionSlot_unk below
+// (0x800A03A0 stores the vtable of LH_Motion, but the arrays of slots are destroyed with the
+// destructor of MotionSlot_unk 0x800970CC, not the virtual one of LH_Motion 0x80097128)
+inline LH_Motion::LH_Motion() {
     m08 = 0;
 }
+
+MotionSlot_unk::MotionSlot_unk() {}
 
 void LH_Motion::fn_800A03E4(const char* path) {
     if (m08 != 0) {

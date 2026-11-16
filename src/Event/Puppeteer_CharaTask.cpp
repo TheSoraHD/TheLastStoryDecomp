@@ -1200,7 +1200,7 @@ void Actor::fn_800119C0(int kind, int motion, int arg3, int frames, void* seqp, 
             if (data == 0) {
                 return;
             }
-            model->fn_80097A9C(motion, &data->m18->mLoader);
+            model->fn_80097A9C(motion, &data->m18->mMotion);
         }
         int t; // inferred: track of the motion (a local: the case 1 keeps its compare)
         switch (kind) {
@@ -1237,7 +1237,7 @@ void Actor::fn_800119C0(int kind, int motion, int arg3, int frames, void* seqp, 
             return;
         }
         atn::Model* model = GetModel_unk();
-        model->fn_80097A9C(motion - 229, &seq->mC4.Find_unk(motion)->m18->mLoader);
+        model->fn_80097A9C(motion - 229, &seq->mC4.Find_unk(motion)->m18->mMotion);
         model->m34C = 1;
         model->mTracks[0].m20 = 1.0f;
         model->fn_80097C08(0, motion - 229, arg3, 1, 1, 0.0f, 0.1f);
@@ -1250,7 +1250,7 @@ void Actor::fn_800119C0(int kind, int motion, int arg3, int frames, void* seqp, 
         }
         int slot = motion - 239;
         atn::Model* model = GetModel_unk();
-        model->fn_80097A9C(slot, &seq->mC4.Find_unk(motion)->m18->mLoader);
+        model->fn_80097A9C(slot, &seq->mC4.Find_unk(motion)->m18->mMotion);
         m58 = model->mTracks[0].m00;
         model->m34C = 1;
         model->mTracks[0].m20 = 1.0f;
@@ -1275,7 +1275,7 @@ void Actor::fn_80011E98(int face, Sequence* seq, int eyes, int head, int hair, f
             if (data == 0) {
                 return;
             }
-            model->fn_80097A9C(face, &data->m18->mLoader);
+            model->fn_80097A9C(face, &data->m18->mMotion);
         }
         chara->m1188.SetMotion(face, eyes != 0, head != 0, hair != 0, speed, 0.0f);
     }

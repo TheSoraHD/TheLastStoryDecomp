@@ -6,11 +6,12 @@
 
 namespace atn {
 
-// inferred: no destructor declared (the implicit one is emitted first at 0x80097128). The
-// constructor and two members are compiled out of line in another file (0x800A03A0-0x800A0448).
+// inferred: no destructor declared (the implicit one is emitted first at 0x80097128). Two members
+// are compiled out of line in another file (0x800A03E4-0x800A0448); objects are built through
+// MotionSlot_unk (0x800A03A0).
 class LH_Motion : public LoadHandle {
 public:
-    LH_Motion();                         // 0x800A03A0
+    LH_Motion();                         // inferred: inline in atn/Motion_unk.cpp (see MotionSlot_unk)
     virtual void vf0C(const char* path); // 0x80476664
 
     void fn_800A03E4(const char* path); // inferred: releases m08 and starts loading `path`

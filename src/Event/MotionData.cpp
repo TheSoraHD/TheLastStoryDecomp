@@ -35,25 +35,23 @@ inline void CopyString_unk(char* dst, const char* src) {
 namespace Event {
 
 void MotionData::vf08() {
-    // inferred: the loader is created as an atn::LH_Motion (the constructor result is used
-    // directly) but destroyed non-virtually in vf0C
-    atn::LH_Motion* loader = new ((MemoryTag)4, "", "", 0) atn::LH_Motion;
-    m18 = (MotionHandle_unk*)loader;
-    loader->fn_800A03E4(m08.c_str());
+    atn::MotionSlot_unk* loader = new ((MemoryTag)4, "", "", 0) atn::MotionSlot_unk;
+    m18 = loader;
+    loader->mMotion.fn_800A03E4(m08.c_str());
 }
 
 void MotionData::vf0C() {
-    MotionHandle_unk* handle = m18;
+    atn::MotionSlot_unk* handle = m18;
     if (handle != 0) {
-        handle->mLoader.fn_80473F88();
-        handle->mLoader.m08 = 0;
+        handle->mMotion.fn_80473F88();
+        handle->mMotion.m08 = 0;
         delete m18;
         m18 = 0;
     }
 }
 
 int MotionData::vf10() const {
-    return m18->mLoader.fn_800A0448() == 0;
+    return m18->mMotion.fn_800A0448() == 0;
 }
 
 void AnimationData::vf08() {

@@ -34,7 +34,7 @@ struct TutorialPage_unk {
 
     int mEnabled;           // 0x00
     atn::D2A_Task* mLayout; // 0x04
-    Event::MotionHandle_unk mMotion; // 0x08: inferred: motion of the character during the page
+    atn::MotionSlot_unk mMotion; // 0x08: inferred: motion of the character during the page
     float mFrame;           // 0x14: inferred: frame of the motion
     atn::Vector3 mPos;      // 0x18: inferred: camera position (relative to the character)
     atn::Vector3 mTarget;   // 0x24: inferred: camera target
