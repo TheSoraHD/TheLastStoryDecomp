@@ -164,10 +164,12 @@ int Em101ElderZesyaSecond::vf0C() {
                 }
             } while (csv.fn_8005BBF8());
         }
-        mStatus.m18 |= 0x1C0;
+        mStatus.m18 |= 0x141;
         mStatus.m18 |= 0x10000;
-        mStatus.m18 |= 0xC21D;
-        mStatus.m18 |= 0x3800000;
+        mStatus.m18 |= 0x21C;
+        mStatus.m18 |= 0x800000;
+        mStatus.m18 |= 0xC000;
+        mStatus.m18 |= 0x3000000;
         m1580.mSphere = atn::ColliSphere::Sphere_unk(atn::Vector3(0.0f, -10000.0f, 0.0f), 20.0f);
         m1580.mFlags |= 3;
         m1580.m0C = (int)this;
