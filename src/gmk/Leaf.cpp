@@ -195,17 +195,16 @@ void Leaf::vf14() {
     }
 }
 
-// NONMATCHING: 99.90% - registers of the index/offset of the second loop and the operands of the
-// fnmsubs of the height
 void Leaf::fn_80400D08() {
+    int i;
     atn::Matrix3x4 mtx;
     mtx.SetIdentity();
     __MtxRotateZYX_unk(mtx, m78);
     PSMTXMultVec(mtx.m, &mWindDir, &mWindDir);
-    for (int i = 0; i < mNumLeaf; i++) {
+    for (i = 0; i < mNumLeaf; i++) {
         float angle = 0.017453292f * (float)(rand() % 361);
         atn::Vector3 pos(Cos_unk(angle) * (mSize * Rand01_unk()),
-                         (float)(rand() % (int)mSize) - 0.5f * mSize,
+                         (float)(rand() % (int)mSize) - mSize / 2.0f,
                          Sin_unk(angle) * (mSize * Rand01_unk()));
         atn::Vector3 rot(0.0f, 0.0f, 0.0f);
         mLeaves[i].mPos = pos;
@@ -215,7 +214,7 @@ void Leaf::fn_80400D08() {
         mLeaves[i].mSpeed = 0.0f;
     }
     if (mType != 2) {
-        for (int i = 0; i < mNumLeaf; i++) {
+        for (i = 0; i < mNumLeaf; i++) {
             float angle = 0.017453292f * (float)(rand() % 361);
             mLeaves[i].mPos.x = Cos_unk(angle) * (mSize * Rand01_unk()) + mWindDir.x * (mFlowLength * Rand01_unk());
             mLeaves[i].mPos.y = mWindDir.y * (mFlowLength * Rand01_unk());

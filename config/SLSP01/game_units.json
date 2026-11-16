@@ -2099,7 +2099,7 @@
   "classes": [
    "gmk::Cannonball"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "gmk/Item.cpp",

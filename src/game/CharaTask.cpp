@@ -1332,11 +1332,11 @@ bool CharaTask::fn_8013A158() {
     return mType == 2;
 }
 
-int CharaObj1208_unk::fn_8013A184() {
+int GimmickCommon::fn_8013A184() {
     return m54;
 }
 
-int CharaObj1208_unk::fn_8013A18C() {
+int GimmickCommon::fn_8013A18C() {
     return m9C;
 }
 

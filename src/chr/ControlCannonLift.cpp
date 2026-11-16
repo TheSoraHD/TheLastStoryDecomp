@@ -192,14 +192,14 @@ int ControlCannonLift::vf0C() {
                 return 1;
             }
             if (ok == true) {
-                mChara->m1208 = (CharaObj1208_unk*)mCannon;
+                mChara->m1208 = mCannon;
                 GimmickMsg_unk msg;
                 msg.mType = 2;
                 msg.m10 = (int)mChara;
                 mCannon->vf40(&msg);
             }
         } else if (motion->mTracks[0].m08 >= 15.0f && chara->m1208 == 0) {
-            chara->m1208 = (CharaObj1208_unk*)mCannon;
+            chara->m1208 = mCannon;
             GimmickMsg_unk msg;
             msg.mType = 2;
             msg.m10 = (int)mChara;
