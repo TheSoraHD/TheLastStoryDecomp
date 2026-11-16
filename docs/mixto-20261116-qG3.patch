@@ -1,0 +1,235 @@
+diff --git a/src/atn/PacketPack.cpp b/src/atn/PacketPack.cpp
+index cedb90ba..8287703f 100644
+--- a/src/atn/PacketPack.cpp
++++ b/src/atn/PacketPack.cpp
+@@ -2357,8 +2357,8 @@ void MP::Manager2::vf10() {
+         mgr->m53C = 0;
+         fn_804D6160(fn_804D1694(), 1);
+         fn_804D1694()->fn_8050A634(0);
+-        for (int i = 0; i < 3; i++) {
+-            mgr->m9A74[i] = 0;
++        for (int i = 0; i < 3;) {
++            mgr->m9A74[i++] = 0;
+         }
+         for (int i = 0; i < 8; i++) {
+             mgr->m99F4[i] = -1;
+@@ -3159,8 +3159,8 @@ void MP::Manager2::vf10() {
+                 fn_804DC358(mgr);
+                 fn_804D6014(fn_804D16CC());
+                 fn_804D60EC(fn_804D16CC(), 15);
+-                for (int i = 0; i < 3; i++) {
+-                    mgr->m9A74[i] = 0;
++                for (int i = 0; i < 3;) {
++                    mgr->m9A74[i++] = 0;
+                 }
+                 for (int i = 0; i < 8; i++) {
+                     mgr->m99F4[i] = -1;
+@@ -3329,14 +3329,37 @@ struct PPWord2_unk {
+ };
+ 
+ // inferred: payload of the messages 0x1040/0x1048 (the settings of the room and the slots; 109 bytes, not
+-// padded on the network, so it is written by offsets as in fn_804F4FC4); names invented
++// padded on the network); names invented
++#pragma pack(push, 1)
+ struct PPMsgRoom_unk {
+-    unsigned char m00[109];
++    int m00;
++    int m04;
++    unsigned char m08;
++    int m09;
++    PPWord2_unk m0D;
++    int m15;
++    PPWord2_unk m19;
++    int m21;
++    unsigned int mFlags;
++    unsigned char mTeams[8];
++    unsigned char mB0[8];
++    unsigned char mD4[8];
++    unsigned char m41;
++    int mD8[8];
++    unsigned short m62;
++    short m64;
++    unsigned char m66;
++    unsigned char m67;
++    unsigned char mSeq;
++    unsigned char m69;
++    unsigned char mMode;
++    unsigned char m6B;
++    unsigned char m6C;
+ };
++#pragma pack(pop)
+ 
+-// NONMATCHING: 95.82% - registers: the original keeps the payload pointer in r31 and the offset of the slot
+-// loop in r26 (here r29/r31), and the words at +0x42 go through a pointer that advances by 4 (a packed struct
+-// with `#pragma pack(1)` gives it: 96.07%, see docs/mixto-20261116-qG3.md; the pragma is not approved)
++// NONMATCHING: 96.07% - registers: the original keeps the payload pointer in r31 and the offset of the slot
++// loop in r26 (here r29/r31)
+ // inferred: sends the settings of the room and of the slots: mode 0 to every other active player (each with a
+ // sequence number and a request waiting for its answer), 1 to everybody once (m999D), 2 as message 0x1048
+ extern "C" void fn_804D824C(PPManager2_unk* mgr, PPPlayer_unk* player, int mode) {
+@@ -3344,30 +3367,30 @@ extern "C" void fn_804D824C(PPManager2_unk* mgr, PPPlayer_unk* player, int mode)
+         return;
+     }
+     NetMsgI_unk<PPMsgRoom_unk, 109> msg(mode == 2 ? 0x1048 : 0x1040);
+-    unsigned char* data = msg.mData.m00;
++    PPMsgRoom_unk* data = &msg.mData;
+     unsigned int i;
+-    *(int*)(data + 0x09) = player->m0B0[0];
+-    *(PPWord2_unk*)(data + 0x0D) = *(PPWord2_unk*)&player->m0B0[1];
+-    *(int*)(data + 0x15) = player->m0B0[3];
+-    *(PPWord2_unk*)(data + 0x19) = *(PPWord2_unk*)&player->m0B0[4];
+-    *(int*)(data + 0x21) = player->mC8;
+-    *(unsigned int*)(data + 0x25) = player->mFlagWord;
++    data->m09 = player->m0B0[0];
++    data->m0D = *(PPWord2_unk*)&player->m0B0[1];
++    data->m15 = player->m0B0[3];
++    data->m19 = *(PPWord2_unk*)&player->m0B0[4];
++    data->m21 = player->mC8;
++    data->mFlags = player->mFlagWord;
+     for (i = 0; (int)i < mgr->mPlayers.mNum; i++) {
+-        data[0x29 + i] = mgr->mPlayers.mData[i].mFlags.m22;
+-        data[0x31 + i] = mgr->mPlayers.mData[i].mB0;
+-        ((int*)(data + 0x42))[i] = mgr->mPlayers.mData[i].mD8;
+-        data[0x39 + i] = (mgr->mPlayers.mData[i].mD4 >> 22) & 0xF;
+-    }
+-    *(int*)(data + 0x00) = mgr->m55C;
+-    *(int*)(data + 0x04) = mgr->m564;
+-    data[0x66] = mgr->m5A0;
+-    data[0x67] = mgr->m5A8;
+-    data[0x69] = mgr->m5B4;
+-    data[0x6C] = mode;
+-    data[0x6A] = mgr->mMode;
+-    data[0x6B] = mgr->m5A4;
+-    data[0x08] = mgr->m5B0 != 0;
+-    *(short*)(data + 0x64) = mgr->m508;
++        data->mTeams[i] = mgr->mPlayers.mData[i].mFlags.m22;
++        data->mB0[i] = mgr->mPlayers.mData[i].mB0;
++        data->mD8[i] = mgr->mPlayers.mData[i].mD8;
++        data->mD4[i] = (mgr->mPlayers.mData[i].mD4 >> 22) & 0xF;
++    }
++    data->m00 = mgr->m55C;
++    data->m04 = mgr->m564;
++    data->m66 = mgr->m5A0;
++    data->m67 = mgr->m5A8;
++    data->m69 = mgr->m5B4;
++    data->m6C = mode;
++    data->mMode = mgr->mMode;
++    data->m6B = mgr->m5A4;
++    data->m08 = mgr->m5B0 != 0;
++    data->m64 = mgr->m508;
+     switch (mode) {
+     case 0:
+         for (int i = 0; i < 8;) {
+@@ -3375,8 +3398,8 @@ extern "C" void fn_804D824C(PPManager2_unk* mgr, PPPlayer_unk* player, int mode)
+         }
+         for (i = 0; i < (unsigned int)mgr->mPlayers.mNum; i++) {
+             if (mgr->mPlayers.mData[i].mFlags.mActive == 1 && player->mAid != mgr->mPlayers.mData[i].mAid) {
+-                data[0x68] = player->m0D52++;
+-                mgr->m9A54[mgr->mPlayers.mData[i].mAid] = data[0x68];
++                data->mSeq = player->m0D52++;
++                mgr->m9A54[mgr->mPlayers.mData[i].mAid] = data->mSeq;
+                 fn_804AE3BC()->fn_8050E094(mgr->mPlayers.mData[i].mAid, 0x1040, data, 1);
+                 fn_804F5A98((PPRequests_unk*)fn_800F7F90(), mgr->mPlayers.mData[i].mAid, 300,
+                             mgr->m9A54[mgr->mPlayers.mData[i].mAid]);
+@@ -5672,7 +5695,7 @@ extern "C" void fn_804F135C();
+ extern "C" void fn_804F1478(PPPlayer_unk* player);
+ extern "C" void fn_804F1488(PPPlayer_unk* player);
+ extern "C" void fn_804F1498(PPPlayer_unk* player);
+-extern "C" void fn_804F1564(PPPlayer_unk* player);
++extern "C" void fn_804F1564(PPPlayer_unk* player, unsigned int type);
+ extern "C" void fn_804F1950(PPPlayer_unk* player);
+ extern "C" void fn_804F1CA0(PPPlayer_unk* player);
+ extern "C" void fn_804F1D70(PPPlayer_unk* player);
+@@ -5828,7 +5851,7 @@ extern "C" int fn_804EE040(unsigned int aid, void* data, unsigned int size) {
+             break;
+         case 19:
+         case 44:
+-            fn_804F1564(player);
++            fn_804F1564(player, type);
+             break;
+         case 20:
+             fn_804F1950(player);
+@@ -6425,6 +6448,71 @@ extern "C" void fn_804F1498(PPPlayer_unk* player) {
+     player->mFlags.m22 = data[0];
+ }
+ 
++// inferred: the room is the one of the server (`aid`)
++static inline int IsServerAid_unk(unsigned char aid) {
++    return aid == lbl_8087F628->GetServerAid_unk();
++}
++
++// inferred: payload of the messages 0x13 and 0x2C (the values and flags of a slot; 0x2C also has the teams and
++// stages of the slots); names invented
++struct PPMsgSlot_unk {
++    int m00;
++    PPWord2_unk m04;
++    int m0C;
++    PPWord2_unk m10;
++    int m18;
++    PPPlayerFlags_unk mFlags;
++    unsigned char mTeams[8];
++    signed char mStages[8];
++};
++
++// NONMATCHING: 98.52% - registers of the inlined searches and loop; the call in fn_804EE040 has to pass the
++// type, which moves its registers (99.83 -> 99.49%)
++// inferred: messages 0x13 and 0x2C (`type`) from a player: flags of its slot (its values too when it is the
++// server); 0x2C also sets the teams and stages of the slots when this machine has a slot, 0x13 marks the player
++// in the own slot (bit of its aid in mD53); not while m999C is set
++extern "C" void fn_804F1564(PPPlayer_unk* player, unsigned int type) {
++    if (fn_800F7F90()->m999C == 1) {
++        return;
++    }
++    if (PP_NO_DATA_UNK) {
++        return;
++    }
++    PPMsgSlot_unk* data = (PPMsgSlot_unk*)fn_804AE3BC()->GetWorkBuffer_unk();
++    player->mFlags.m28 = data->mFlags.m28;
++    player->mFlags.m06 = data->mFlags.m06;
++    player->mFlags.m02 = data->mFlags.m02;
++    player->mFlags.m01 = data->mFlags.m01;
++    if (IsServerAid_unk(player->mAid) == 1) {
++        player->m0B0[0] = data->m00;
++        *(PPWord2_unk*)&player->m0B0[1] = data->m04;
++        player->m0B0[3] = data->m0C;
++        *(PPWord2_unk*)&player->m0B0[4] = data->m10;
++        player->mC8 = data->m18;
++        player->mFlags.m22 = data->mFlags.m22;
++        player->mFlags.m10 = data->mFlags.m10;
++    }
++    if (type == 0x2C) {
++        PPMsgSlot_unk* slots = (PPMsgSlot_unk*)fn_804AE3BC()->GetWorkBuffer_unk();
++        PPManager2_unk* mgr = fn_800F7F90();
++        if (fn_804DD158(mgr, lbl_8087F628->GetMyAid_unk()) != 0) {
++            for (int i = 0; i < fn_800F7F90()->mPlayers.mNum; i++) {
++                PPPlayer_unk* slot = fn_804D5F0C(fn_800F7F90(), i);
++                if (slot != 0) {
++                    slot->mFlags.m22 = slots->mTeams[i];
++                    slot->mB0 = slots->mStages[i];
++                }
++            }
++        }
++    } else {
++        PPManager2_unk* mgr = fn_800F7F90();
++        PPPlayer_unk* own = fn_804DD158(mgr, lbl_8087F628->GetMyAid_unk());
++        if (own != 0) {
++            own->mD53 |= 1 << player->mAid;
++        }
++    }
++}
++
+ // inferred: payload of the message 0x1C (one equipment of the player: index and its data); names invented
+ struct PPMsgEquip_unk {
+     int mKind;
+@@ -6927,11 +7015,6 @@ extern "C" void fn_804F4728() {
+     }
+ }
+ 
+-// inferred: the room is the one of the server (`aid`)
+-static inline int IsServerAid_unk(unsigned char aid) {
+-    return aid == lbl_8087F628->GetServerAid_unk();
+-}
+-
+ // NONMATCHING: 97.97% - `player`/`aid` in r30/r29 (r29/r30 in the original) and the words at +0x42 through a
+ // pointer that advances by 4 (packed payload, as fn_804D824C)
+ // inferred: message 0x1040 (fn_804D824C) from `aid`: the settings of the room, the flags of the sender's slot
