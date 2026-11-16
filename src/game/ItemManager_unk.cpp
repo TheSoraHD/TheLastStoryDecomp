@@ -534,7 +534,7 @@ extern "C" int fn_80444564(Inventory* inventory, int code) {
 }
 
 // inferred: item id of the dye of a colour group (game/CosEditPalette_unk)
-extern "C" int fn_804446BC(Inventory* inventory, int kind, int id) {
+int Inventory::fn_804446BC(int kind, int id) {
     for (int i = 0; i < fn_802114D8(); i++) {
         ItemParamEntry_unk* entry = fn_802114E0(i);
         if (entry && entry->mBC == kind && entry->mC4 == id) {

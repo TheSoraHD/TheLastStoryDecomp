@@ -43,7 +43,6 @@ extern "C" void* lbl_8087F430;
 extern "C" ItemList_unk* fn_8020787C(int id);
 extern "C" ItemDef_unk* fn_80219EB4();
 extern "C" int fn_80219EBC();
-extern "C" int fn_804446BC(Inventory* inventory, int type, int id);
 extern "C" int fn_804444E8(Inventory* inventory, int id);
 
 int fn_8013539C() {
@@ -52,7 +51,7 @@ int fn_8013539C() {
         ItemDef_unk* def = fn_80219EB4();
         int num = fn_80219EBC();
         for (int i = 0; i < num; def++, i++) {
-            int id = fn_804446BC(Inventory::instance_, 5, def->m04);
+            int id = Inventory::Order()->fn_804446BC(5, def->m04);
             if (id != 0 && fn_804444E8(Inventory::instance_, id) > 0) {
                 return 1;
             }

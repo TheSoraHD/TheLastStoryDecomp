@@ -44,8 +44,6 @@ extern "C" unsigned int fn_80049B74(void* engine, const char* name); // inferred
 extern "C" void* lbl_8087F610; // inferred: arena mode (as in game/CharaTask.cpp)
 extern "C" int fn_803CE160(int a, int b, int c);
 extern "C" int fn_803CE278(int a, int b, int c);
-extern "C" void fn_803CE0B4(GameSoundControl* control, int id, int position);
-extern "C" int fn_803CE074(GameSoundControl* control, int id);
 extern "C" int fn_805A38F0(const char* name, int a, int b); // inferred: the stream is ready
 // inferred: atn::SoundRef helpers (names keep the address)
 extern "C" int fn_800CB4C4(atn::SoundRef* sound);
@@ -59,8 +57,6 @@ static const int sBgmIds[7] = {0, 101, 201, 3, 4, 301, 6};
 
 GameBgm* GameBgm::sInstance;
 
-// inferred: empty allocation name and source strings (0x8074E000)
-extern "C" const char lbl_8074E000[8] = {0};
 
 // inferred: name of the BGM `id`, with the replacements of the alternative set and of the story
 static const char* fn_8037C71C(int id) {
@@ -107,7 +103,7 @@ static const char* fn_8037C71C(int id) {
 
 GameBgm* GameBgm::fn_8037C8C4(atn::Task* parent) {
     if (parent != 0 && sInstance == 0) {
-        sInstance = new ((MemoryTag)10, lbl_8074E000, lbl_8074E000, 0) GameBgm(parent);
+        sInstance = new ((MemoryTag)10, "", "", 0) GameBgm(parent);
     }
     return sInstance;
 }
@@ -148,14 +144,17 @@ static inline bool __IsKeepPos_unk(const atn::Bgm* bgm) {
 }
 
 // inferred: fades `bgm` out, keeping its position for the stream control (name invented)
+static inline GameSoundControl* __SoundControl_unk() {
+    return GameSoundControl::sInstance;
+}
+
 static inline void __FadeOut_unk(atn::Bgm* bgm, int fade) {
-    if (GameSoundControl::sInstance != 0 && bgm->mSound.mPtr != 0 && (bgm->m10 & 1) == 1) {
+    if (__SoundControl_unk() != 0 && bgm->mSound.mPtr != 0 && (bgm->m10 & 1) == 1) {
         int pos = ((atn::SoundCore*)bgm->mSound.mPtr)->fn_800CAA88() + fade * 1000 / 30;
         if (pos > ((atn::SoundCore*)bgm->mSound.mPtr)->fn_800CA910()) {
             pos -= ((atn::SoundCore*)bgm->mSound.mPtr)->fn_800CA910();
         }
-        GameSoundControl* control = GameSoundControl::sInstance;
-        fn_803CE0B4(control, fn_800CB6F8(&bgm->mSound), pos);
+        __SoundControl_unk()->fn_803CE0B4(fn_800CB6F8(&bgm->mSound), pos);
     }
     bgm->fn_8004B1EC(fade);
 }
@@ -182,9 +181,8 @@ static inline void __EnvSeLower_unk(EnvSeManager* env, int fade) {
 #define IS_FIELD_BGM_unk(id) \
     (fn_803CE160(0, 0, 0) == 0 && (fn_803CE278(0, 0, 0) != 0 || (id) == 0x67) && lbl_8087F610 == 0)
 
-// NONMATCHING: 99.94% - only the fade/control registers of the second fade-out (state 2) are swapped
-// (r27/r26). Tried: fade as a ternary or Max inline argument, declared before/after prev or at the top
-// of the branch, compared the other way round, through __FadeOut_unk directly.
+// inferred: the stream control is read through __SoundControl_unk (test and call) and the cross-fade
+// length is a ternary (with a local `control` or an if the fade/control registers swap)
 void GameBgm::vf10() {
     if (m84 != 0 && (unsigned int)(mState - 6) <= 1) {
         m84 = 0;
@@ -249,10 +247,7 @@ void GameBgm::vf10() {
         }
         mCur->fn_8004B158(mReq.mVolume, mReq.mFade);
         if (mReq.mCross != 0) {
-            int fade = 15;
-            if (mReq.mFade > 15) {
-                fade = mReq.mFade;
-            }
+            int fade = mReq.mFade > 15 ? mReq.mFade : 15;
             atn::Bgm* prev = mPrev;
             __FadeOutIf_unk(prev, fade);
             if (__IsKeepPos_unk(mPrev)) {
@@ -319,7 +314,6 @@ void GameBgm::vf10() {
     }
 }
 
-// NONMATCHING: 99.1% - `start` and `bgm` swap r28/r29.
 void GameBgm::fn_8037D274(atn::Bgm* bgm, const char* name) {
     int save;
     if (bgm == 0) {
@@ -331,7 +325,7 @@ void GameBgm::fn_8037D274(atn::Bgm* bgm, const char* name) {
     }
     int id = fn_80049B74(lbl_8087EE90, name);
     if (GameSoundControl::sInstance != 0 && (bgm->m10 & 1) == 1) {
-        start = fn_803CE074(GameSoundControl::sInstance, id);
+        start = GameSoundControl::sInstance->fn_803CE074(id);
         if (start < 0) {
             start = 0;
         }
@@ -351,7 +345,6 @@ static inline bool __IsPlaying_unk(atn::Bgm* bgm) {
     return bgm != 0 && fn_800CB58C(&bgm->mSound) != 0 && fn_800CB4C4(&bgm->mSound) != 0;
 }
 
-// NONMATCHING: 89.7% - the original loads mCur before saving the registers.
 int GameBgm::fn_8037D34C() const {
     if (mCur != 0 && fn_800CB58C(&mCur->mSound) != 0 && fn_800CB4C4(&mCur->mSound) != 0) {
         return 1;
