@@ -2631,7 +2631,7 @@ void Model::fn_80097C08(int track, int motion, int loop, int force, int arg5, fl
             t.m10 = blend;
             t.m18 = loop != 0;
             t.m14 = speed;
-            t.m19[0] = arg5 != 0;
+            t.m19 = arg5 != 0;
         } else {
             t.m04 = 0;
         }
@@ -2739,7 +2739,7 @@ int Model::fn_80097E80(int advance) {
                 memset(pose, 0, m21C.mSize * sizeof(Node_unk));
                 for (int j = 0; j < res->m44; j++) {
                     NodeRes_unk* joint = res->m48[j];
-                    if (t->m19[0] == 0 && (joint->m14 == eyeL || joint->m14 == eyeR)) {
+                    if (t->m19 == 0 && (joint->m14 == eyeL || joint->m14 == eyeR)) {
                         continue;
                     }
                     int index = (remap != 0) ? remap[joint->m18] : joint->m18;
