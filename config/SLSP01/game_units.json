@@ -2867,7 +2867,7 @@
   "classes": [
    "MP::D2AMpMenuSetRule"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "atn/PacketPack.cpp",

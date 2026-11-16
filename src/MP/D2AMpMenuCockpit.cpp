@@ -486,8 +486,8 @@ void D2AMpMenuCockpit::fn_804B671C(int value, int which) {
     }
 }
 
-// NONMATCHING: 99.62% - r30/r31 swapped for the message text and the layout (same problem as
-// D2ACommonDialog::fn_804ACAF8); tried a local text, an inline getter and other helper signatures
+// inferred: text, name and layout in locals (in that order) and a direct call (register and
+// instruction order of the original; same in D2AMpMenuSetRule::fn_804CECEC)
 void D2AMpMenuCockpit::fn_804B67E4(int message) {
     if (lbl_8087F490 != 0 && lbl_8087F490->m255C >= 0) {
         return;
@@ -495,7 +495,10 @@ void D2AMpMenuCockpit::fn_804B67E4(int message) {
     m98->mFlags &= ~4;
     m98->mFrame = 0.0f;
     if (0 <= message && message < 7) {
-        SetPaneText_unk(m98->mLayout, "message", lbl_8087F86C->Get_unk(sMessages[message]));
+        const wchar_t* text = lbl_8087F86C->Get_unk(sMessages[message]);
+        const char* name = "message";
+        void* layout = m98->mLayout;
+        fn_801FEE08(layout, fn_800DC6B4(name), text);
     }
     if (message == 6) {
         fn_800C31F4("SE_UI001_023", 0, -1, 1.0f);
