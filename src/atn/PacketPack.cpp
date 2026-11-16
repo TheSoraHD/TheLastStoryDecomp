@@ -2,6 +2,7 @@
 // atn::net::PacketPack methods themselves are in atn/PPDATAU.cpp. One translation unit: a single
 // string pool and a single .sdata2 pool for the whole range (see docs/auto-20261102.md).
 #include "atn/Task.h"
+#include "math/VecAssign_unk.h"
 #include "atn/Model_unk.h"
 #include "atn/Keyboard.h"
 #include "game/CharaTask.h"
@@ -6366,9 +6367,10 @@ inline float UnpackHalf_unk(short h) {
     if (h == 0) {
         return 0.0f;
     }
+    unsigned int e = (((h >> 10) & 0x1F) + 0x70) << 23;
     unsigned int bits = (h << 16) & 0x80000000;
     bits |= (h << 13) & 0x007FE000;
-    bits |= ((((h >> 10) & 0x1F) + 0x70) << 23) & 0x7F800000;
+    bits |= e & 0x7F800000;
     return *(float*)&bits;
 }
 // inferred: data of message 4 (state of the character of a player); names invented
@@ -6381,7 +6383,16 @@ struct PPMsgCharaState_unk {
     float mTurn;        // 0x28
 };
 
-// NONMATCHING: 95.11% - order of the bit inserts of the half floats (rlwimi on the other register) and registers
+// inferred: vector of three half floats; name invented
+static inline atn::Vector3 PPUnpackVec_unk(const short* h) {
+    return atn::Vector3(UnpackHalf_unk(h[0]), UnpackHalf_unk(h[1]), UnpackHalf_unk(h[2]));
+}
+// inferred: halfway from `from` to `to`; name invented
+static inline atn::Vector3 PPHalfway_unk(const atn::Vector3& from, const atn::Vector3& to) {
+    return (to - from) * 0.5f + from;
+}
+// NONMATCHING: 99.56% - src/dst address registers of the copies of lbl_807C7030 and of the node, and of the
+// arguments of PSVECDotProduct (the original computes the second address first)
 // inferred: applies the state of the character of another player (only in the game, state 30, ready character
 // driven by the network: mFlag2): position, velocity (none above 30 per frame), rotation, node and direction (the
 // direction turns halfway when it is within 45 degrees); 1 if applied
@@ -6406,17 +6417,16 @@ extern "C" unsigned int fn_804EE4F0(PPPlayer_unk* player, const void* buf) {
     chara->mPos = data->mPos;
     atn::Vector3 vel = data->mVel;
     if (vel.LengthSq_unk() > 900.0f) {
-        chara->m13D8 = lbl_807C7030;
+        atn::VecAssign_unk(chara->m13D8, lbl_807C7030);
     } else {
         chara->m13D8 = vel;
     }
     chara->mRot = atn::Vector3(0.0f, data->mRotY, 0.0f);
     chara->m13E4 = data->mTurn;
-    chara->m13E8 = atn::Vector3(UnpackHalf_unk(data->mNode[0]), UnpackHalf_unk(data->mNode[1]),
-                                UnpackHalf_unk(data->mNode[2]));
-    atn::Vector3 dir(UnpackHalf_unk(data->mDir[0]), UnpackHalf_unk(data->mDir[1]), UnpackHalf_unk(data->mDir[2]));
+    chara->m13E8 = PPUnpackVec_unk(data->mNode);
+    atn::Vector3 dir = PPUnpackVec_unk(data->mDir);
     if (PSVECDotProduct(&dir, &chara->mFA4) > 0.70710677f) {
-        dir = chara->mFA4 + (dir - chara->mFA4) * 0.5f;
+        atn::VecAssign_unk(dir, PPHalfway_unk(chara->mFA4, dir));
     }
     chara->mFA4 = dir;
     chara->mFlag1 = 1;
@@ -6884,6 +6894,72 @@ extern "C" void fn_804F2258() {
                 }
                 ((PPManager2_unk*)lbl_8087F610)->m99BC = 0;
                 ((PPChara_unk*)chara)->m7D8 = data->m00;
+            }
+        }
+    }
+}
+
+// inferred: data of the messages of the location of an enemy (state of the character, index and motion); names
+// invented
+struct PPMsgEnemyLoc_unk {
+    PPMsgCharaState_unk mState; // 0x00
+    int mIndex;                 // 0x2C: network id of a team player, or index of the character list
+    unsigned char mIsEntry;     // 0x30
+    unsigned char mMotion[1];   // 0x31: packed motion (fn_804CF198)
+};
+
+// NONMATCHING: 98.3% - the original copies mStateVar twice for the vararg (a temporary, then the argument) and
+// reloads lbl_8087F610 after the inlined FindTeam_unk; the address registers of three copies (as fn_804EE4F0)
+// inferred: location of an enemy received from the server (only in the game, state 30): the character of a team
+// player through fn_804EE4F0, or a character of the list directly; with `type` 29 also its motion (the motion
+// commands of a new motion run once at frame 0)
+extern "C" void fn_804F2450(unsigned int type) {
+    if (((PPManager2_unk*)lbl_8087F610)->mState == 30) {
+        PPMsgEnemyLoc_unk* data = (PPMsgEnemyLoc_unk*)fn_804AE3BC()->GetWorkBuffer_unk();
+        if (!data->mIsEntry) {
+            PPPlayer_unk* player = ((PPManager2_unk*)lbl_8087F610)->mPlayers.FindTeam_unk((unsigned char)data->mIndex);
+            PPManager2_unk* mgr = (PPManager2_unk*)lbl_8087F610;
+            fn_804AE3BC()->fn_8050E62C(player != 0, "enemy_update_loc(%x)(%x)(%x)\n", data->mIndex, mgr->m5C0,
+                                       mgr->mStateVar);
+            if (fn_804EE4F0(player, fn_804AE3BC()->GetWorkBuffer_unk()) == 1) {
+                fn_804CF198((PackedMotion_unk*)((PPMsgEnemyLoc_unk*)fn_804AE3BC()->GetWorkBuffer_unk())->mMotion,
+                            player->mRef.mChara->GetModel_unk(), 0);
+                ((PPChara_unk*)player->mRef.mChara)->m3FC = 1;
+            }
+        } else {
+            CharaTask* chara = ((PPManager2_unk*)lbl_8087F610)->mCharas.mData[data->mIndex].mRef.mChara;
+            if (chara != 0) {
+                chara->mPos = data->mState.mPos;
+                atn::Vector3 vel = data->mState.mVel;
+                if (vel.LengthSq_unk() > 900.0f) {
+                    atn::VecAssign_unk(chara->m13D8, lbl_807C7030);
+                } else {
+                    chara->m13D8 = vel;
+                }
+                chara->mRot = atn::Vector3(0.0f, data->mState.mRotY, 0.0f);
+                chara->m13E4 = data->mState.mTurn;
+                chara->m13E8 = PPUnpackVec_unk(data->mState.mNode);
+                atn::Vector3 dir = PPUnpackVec_unk(data->mState.mDir);
+                if (PSVECDotProduct(&dir, &chara->mFA4) > 0.70710677f) {
+                    atn::VecAssign_unk(dir, PPHalfway_unk(chara->mFA4, dir));
+                }
+                chara->mFA4 = dir;
+                chara->mFlag1 = 1;
+                if (type == 29) {
+                    fn_804CF198((PackedMotion_unk*)((PPMsgEnemyLoc_unk*)fn_804AE3BC()->GetWorkBuffer_unk())->mMotion,
+                                chara->GetModel_unk(), 0);
+                    ((PPChara_unk*)chara)->m3FC = 1;
+                    if (chara->mMotion.mTracks[0].m18 == 0 && chara->mMotion.mTracks[0].m00 != chara->m1220.m04 &&
+                        chara->mMotion.mTracks[0].m08 > 0.0f) {
+                        float frame = chara->mMotion.mTracks[0].m08;
+                        float speed = chara->mMotion.mTracks[0].m0C;
+                        chara->mMotion.mTracks[0].m08 = 0.0f;
+                        chara->mMotion.mTracks[0].m0C = frame;
+                        chara->m1220.fn_8012111C();
+                        chara->mMotion.mTracks[0].m08 = frame;
+                        chara->mMotion.mTracks[0].m0C = speed;
+                    }
+                }
             }
         }
     }
