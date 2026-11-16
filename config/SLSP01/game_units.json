@@ -2562,7 +2562,7 @@
   "classes": [
    "atn::LoadHandle"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "atn/LH_Material.cpp",

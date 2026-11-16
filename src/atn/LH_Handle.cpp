@@ -2,20 +2,21 @@
 #include "atn/LoadCore.h"
 #include "atn/LoadManager.h"
 #include <boost/function.hpp>
+#include "atn/Array_unk.h"
 
 extern "C" void OSSleepTicks(long long ticks);
 
 // inferred: list of callbacks run while a load is waited for (global at 0x8087EE94, also run by
-// atn::AudioDevice 0x80046228 and main). Name and layout invented: count at 0x0, array at 0x8.
-struct LoadCallbacks_unk {
-    unsigned int Size_unk() const { return mCount; } // inferred: name invented
-    boost::function<void()>& At_unk(unsigned int i) const { return mData[i]; } // inferred: name invented
-    unsigned int mCount;
-    unsigned int m04;
-    boost::function<void()>* mData;
-};
+// atn::AudioDevice 0x80046228 and main): the same atn::SimpleVector as in those units.
+typedef atn::SimpleVector<boost::function<void()> > FrameCallbacks_unk;
+extern "C" FrameCallbacks_unk* lbl_8087EE94;
 
-extern "C" LoadCallbacks_unk* lbl_8087EE94;
+// inferred: calls every per-frame callback (same inline as game/main.cpp and atn/AudioDevice.cpp)
+inline void CallAll_unk(FrameCallbacks_unk* callbacks) {
+    for (unsigned int i = 0; i < callbacks->size(); i++) {
+        (*callbacks)[i]();
+    }
+}
 
 namespace atn {
 
@@ -62,22 +63,14 @@ void LoadHandle::fn_80473F88() {
     }
 }
 
-// NONMATCHING: 99.56% - only register allocation of the callback loop: the original has the list in r21,
-// the element in r22 and the counter in r23 (here r22/r23/r21). `this` (r20) and the offset (r19) match
-// with the Size_unk/At_unk accessors and an int counter. Tried: const list, At_unk(int), const
-// element, the counter declared before the list, a reference to the element, (mData + i)->operator();
-// before: the loop in an inline helper, the wait in an inline member, early return + do/while, a
-// `busy` local, locals declared at the top.
 void LoadHandle::fn_80473FCC(const char* path) {
     vf0C(path);
     if (mCore != 0) {
         for (;;) {
             lbl_8087F518->vf10();
-            LoadCallbacks_unk* callbacks = lbl_8087EE94;
+            FrameCallbacks_unk* callbacks = lbl_8087EE94;
             if (callbacks != 0) {
-                for (int i = 0; i < callbacks->Size_unk(); i++) {
-                    callbacks->At_unk(i)();
-                }
+                CallAll_unk(callbacks);
             }
             ((LoadCore*)mCore)->vf0C();
             if (fn_80473F50() == 0) {
