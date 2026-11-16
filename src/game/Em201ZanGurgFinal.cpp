@@ -1166,7 +1166,6 @@ void Em201ZanGurgFinal::fn_80266FC4() {
     }
 }
 
-// NONMATCHING: r5/r6 of the target and of the difference vector in the direct chase (rest matches)
 void Em201ZanGurgFinal::fn_80267134() {
     float speed = 0.0f;
     float scale = 1.0f;
@@ -1183,7 +1182,8 @@ void Em201ZanGurgFinal::fn_80267134() {
                 rot = mRot;
             }
         } else {
-            atn::Vector3 to = (m14B8->mPos - mPos).GetNormalize();
+            CharaTask* target = m14B8;
+            atn::Vector3 to = (target->mPos - mPos).GetNormalize();
             if ((m14B8->mPos - mPos).Length_unk() < 25.0f) {
                 speed = 0.0f;
             } else {
