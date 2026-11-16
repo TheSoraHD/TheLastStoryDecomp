@@ -4899,6 +4899,100 @@ extern "C" void fn_804E6518(PPManager2_unk* mgr) {
     }
 }
 
+#include "game/SpecialEnemyBase.h"
+
+// inferred: weak copy 0x8000DCF4 (inlined in fn_804E7628, called by the bigger fn_804E7AC0)
+inline PlayerTask* PlayerManager::GetHead_unk() {
+    return mHead;
+}
+
+// inferred: payloads of the messages 0x1014/0x101A (a packed character and its network id or index) and 0x101B
+// (also the state of a special enemy at +0x15); not padded on the network; names invented
+struct PPMsgCharaFull_unk {
+    unsigned char m00[0x15];
+};
+struct PPMsgSpecialFull_unk {
+    unsigned char m00[0x25];
+};
+
+// NONMATCHING: 98.81% - registers of the loop counters and offsets of the two loops (and of the inlined
+// search fn_804EB870)
+// inferred: sends the full state of the own character (0x1014), of the characters of the team players of this
+// machine (0x101A) and of the character list (0x101A, or 0x101B with the state of the special enemies)
+extern "C" void fn_804E7628(PPManager2_unk* mgr) {
+    fn_804EB870(mgr);
+    CharaTask* own = ((PlayerManager*)fn_8000D9E8())->GetHead_unk();
+    {
+        NetMsgI_unk<PPMsgCharaFull_unk, 0x15> msg(0x1014);
+        unsigned char* data = msg.mData.m00;
+        data[0x14] = lbl_8087F628->GetMyAid_unk();
+        fn_804CF468((PackedChara_unk*)data, own);
+        fn_804AE3BC()->fn_8050E094(-1, 0x1014, data, 0);
+    }
+    for (int i = 0; i < mgr->mPlayers.mNum; i++) {
+        if (!IsTeamPlayer_unk(&mgr->mPlayers.mData[i])) {
+            continue;
+        }
+        PPPlayer_unk* player = fn_804D5F0C(mgr, i);
+        if (!player->mFlags.mActive || (player->mAid & 0xF) != lbl_8087F628->GetMyAid_unk()) {
+            continue;
+        }
+        CharaTask* chara = player->mRef.mChara;
+        if (chara == 0 || (chara->mFlags & 4) == 4) {
+            continue;
+        }
+        NetMsgI_unk<PPMsgCharaFull_unk, 0x15> msg(0x101A);
+        unsigned char* data = msg.mData.m00;
+        data[0x14] = player->mAid;
+        fn_804CF468((PackedChara_unk*)data, player->mRef.mChara);
+        ((PackedChara_unk*)data)->m12_1 = 0;
+        fn_804AE3BC()->fn_8050E094(-1, 0x101A, data, 0);
+    }
+    for (int i = 0; i < mgr->mCharas.mNum; i++) {
+        PPCharaEntry_unk* entry = &mgr->mCharas.mData[i];
+        if (!entry->mActive) {
+            continue;
+        }
+        CharaTask* chara = entry->mRef.mChara;
+        if (chara == 0) {
+            continue;
+        }
+        if ((chara->mFlags & 4) == 4 && fn_804E650C(chara) == 0) {
+            continue;
+        }
+        switch (((BattleCharaTask*)chara)->m146C) {
+        case 19:
+        case 21:
+        case 22:
+        case 23:
+        case 25:
+        case 32:
+        case 33:
+        case 35:
+        case 36:
+        case 40: {
+            NetMsgI_unk<PPMsgSpecialFull_unk, 0x25> msg(0x101B);
+            unsigned char* data = msg.mData.m00;
+            data[0x14] = i;
+            fn_804CF468((PackedChara_unk*)data, entry->mRef.mChara);
+            ((PackedChara_unk*)data)->m12_1 = 1;
+            ((SpecialEnemyBase*)chara)->vf110((SpecialState_unk*)(data + 0x15));
+            fn_804AE3BC()->fn_8050E094(-1, 0x101B, data, 0);
+            break;
+        }
+        default: {
+            NetMsgI_unk<PPMsgCharaFull_unk, 0x15> msg(0x101A);
+            unsigned char* data = msg.mData.m00;
+            data[0x14] = i;
+            fn_804CF468((PackedChara_unk*)data, entry->mRef.mChara);
+            ((PackedChara_unk*)data)->m12_1 = 1;
+            fn_804AE3BC()->fn_8050E094(-1, 0x101A, data, 0);
+            break;
+        }
+        }
+    }
+}
+
 // inferred: sends the state of the own character, of the characters of this aid and of the other
 // characters (messages 0x1017 and 0x101E)
 // DRAFT: written for the weak copies of its accessors; not checked against the original
