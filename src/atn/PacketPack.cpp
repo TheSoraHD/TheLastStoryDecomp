@@ -357,6 +357,7 @@ struct PPPair_unk {
     int m04;
 };
 struct PPPlayerState_unk {
+    PPPlayerState_unk() {} // inferred: some constructor (the copy in the swap 0x804E0CE4 is member by member)
     int m00;
     int m04;
     float m08;
@@ -397,12 +398,51 @@ struct PPEquipHead_unk {
     int m08;
     PPEquipItem_unk mItems[8];
 };
+extern "C" unsigned long wcslen(const wchar_t* s);
+extern "C" wchar_t* wmemcpy(wchar_t* dst, const wchar_t* src, unsigned long n);
+// inferred: wide name of an equipment (32 characters): the assignment copies the text (wcslen + wmemcpy when
+// the buffers differ, as the wide atn::static_string of game/PopupTask.h), the copy constructor the whole
+// buffer, no destructor (layout from the swap 0x804E0CE4); name invented
+struct PPWideName_unk {
+    PPWideName_unk& operator=(const PPWideName_unk& o) {
+        const wchar_t* str = o.mStr;
+        if (str != mStr) {
+            wmemcpy(mStr, str, wcslen(str) + 1);
+        }
+        return *this;
+    }
+    wchar_t mStr[32];
+};
+// inferred: entry of an equipment (0x14 bytes, 32 of them at 0x50; layout from the copy in the swap
+// 0x804E0CE4); names invented
+struct PPEquipSlot_unk {
+    PPEquipSlot_unk() {} // inferred: some constructor (copied member by member in the swap 0x804E0CE4)
+    short m00;
+    short m02;
+    float m04;
+    float m08;
+    float m0C;
+    float m10;
+};
+// inferred: the entries of an equipment (assigned as one block); names invented
+struct PPEquipSlots_unk {
+    PPEquipSlot_unk m[32];
+};
+// inferred: second part of an equipment (from 0x4C; the swap 0x804E0CE4 assigns it through its own source
+// pointer); names invented
+struct PPEquipBody_unk {
+    int m00;
+    PPEquipSlots_unk m04;
+    int m284;
+    PPWideName_unk m288;
+};
 struct PPEquip_unk {
+    PPEquip_unk() {} // inferred: some constructor (the copy in the swap 0x804E0CE4 is member by member)
     int m00;
     PPEquipBits_unk m04;
     int m08;
     PPEquipItem_unk mItems[8];
-    unsigned char m04C[0x314 - 0x4C];
+    PPEquipBody_unk m4C;
     // inferred: copies the part sent by message 0x1C
     void Set_unk(const PPEquipHead_unk& head) {
         m00 = head.m00;
@@ -438,15 +478,21 @@ struct PPPlayer_unk {
     PPPlayer_unk(); // inferred: weak copy 0x804D16F8 (0x874 bytes), not written yet
     ~PPPlayer_unk() {} // inferred: weak copy 0x804D1FD8 (destruction of m2B8C in the destructor of MP::Manager2)
     MpCharaRef_unk mRef;              // 0x00: inferred: the character of the player
-    unsigned char m004[4];            // inferred: copy of the character information (fn_804D8078)
-    void* m08;
-    void* m0C;
-    unsigned char m010[0x34 - 0x10];
+    union {
+        int m004[12];                 // inferred: copy of the character information (fn_804D8078)
+        struct {
+            int m04;
+            void* m08;
+            void* m0C;
+        };
+    };
     PPPlayerState_unk m34;            // inferred: state sent by message 0x16
-    int mB0;
-    unsigned char m0B4[0xCC - 0xB4];
+    union {
+        int mB0;
+        int m0B0[6];
+    };
+    int mC8;
     unsigned char mAid;               // 0xCC: inferred: network id of the player
-    unsigned char m0CD[0xD0 - 0xCD];
     union {
         PPPlayerFlags_unk mFlags;     // 0xD0
         unsigned int mFlagWord;       // inferred: the flags as a word (cleared at once)
@@ -4230,10 +4276,21 @@ extern "C" int fn_804DF404(PPManager2_unk* mgr) {
     return 1;
 }
 
-// inferred: comparator of the players by score (higher first)
-extern "C" int fn_804E09AC(void* unused, const PPPlayer_unk* a, const PPPlayer_unk* b) {
-    return a->mD58 > b->mD58;
-}
+#include "game/MslSort_unk.h"
+
+// inferred: order of the players by score (higher first): predicate of the std::sort at the end of fn_804DF4B8
+// (not written yet); defined after its user, so the sort calls it out of line (0x804E09AC). Name invented
+struct PPScoreLess_unk {
+    bool operator()(const PPPlayer_unk& a, const PPPlayer_unk& b) const { return a.mD58 > b.mD58; }
+};
+// inferred: emitted here in the original, after fn_804DF4B8 (its only caller, not written yet): 0x804E0694
+// (comparison by value), 0x804E09CC (by reference), the swap 0x804E0CE4, the median 0x804E2840 and the
+// selection sort 0x804E291C
+// NONMATCHING: the swap 0x804E0CE4 (97.73%) and the selection sort 0x804E291C (99.35%, the swap inlined): the
+// original assigns the second part of each equipment (PPEquipBody_unk) through a copy of its source pointer
+// (`addi r5, src, 0x134; mr r6, r5`), the mAid byte of the copy is loaded before the loop addresses, and
+// registers of the loop invariant addresses
+template void MslSort_unk<PPPlayer_unk*, PPScoreLess_unk>(PPPlayer_unk*, PPPlayer_unk*, PPScoreLess_unk);
 
 extern "C" void* fn_80211480(int code); // inferred: entry of an item code
 // inferred: adds the items won in the game to the save data and saves
