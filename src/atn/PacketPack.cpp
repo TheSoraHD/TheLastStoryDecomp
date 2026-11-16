@@ -3462,6 +3462,48 @@ extern "C" int fn_804DDE34(PPManager2_unk* mgr) {
     return 1;
 }
 
+extern "C" void fn_804DDA04(PPManager2_unk* mgr);
+extern "C" void fn_804DD574(PPManager2_unk* mgr, unsigned int aid, int arg);
+extern "C" void fn_804DCA54(PPManager2_unk* mgr);
+extern "C" int fn_8050BA68(unsigned char** aids); // inferred: network ids of the hosts (count)
+// inferred: network id of the host `i` (0 in local play, 0xFF past the end); name invented
+static inline unsigned int GetHostAid_unk(int i) {
+    if (lbl_8087F628->mFlags.mB12) {
+        return 0;
+    }
+    unsigned char* aids;
+    if (fn_8050BA68(&aids) > i) {
+        return aids[i];
+    }
+    return 0xFF;
+}
+
+// NONMATCHING: 98.90% - registers of the inlined searches fn_804DD158 and of the loops (own/counter, aid/index)
+// inferred: on the server: keeps the flags and m00B0 of every slot (mD4/mD8), fn_804DDA04, fn_804DD574 for the hosts
+// whose slot has no m00B0, fn_804DCA54 and the state of its own slot (mode 2) to everybody
+extern "C" int fn_804DDFFC(PPManager2_unk* mgr) {
+    if (IsServer_unk() == 1) {
+        fn_804E9360(mgr);
+        PPPlayer_unk* own = fn_804DD158(mgr, lbl_8087F628->GetMyAid_unk());
+        for (unsigned int i = 0; i < (unsigned int)mgr->mPlayers.mNum; i++) {
+            PPPlayer_unk* player = &mgr->mPlayers.mData[i];
+            player->mD4 = player->mFlagWord;
+            player->mD8 = player->mB0;
+        }
+        fn_804DDA04(mgr);
+        for (int i = 0; i < GetNumHosts_unk(lbl_8087F628); i++) {
+            PPPlayer_unk* player = fn_804DD158(mgr, GetHostAid_unk(i));
+            if (player != 0 && player->mFlags.mActive == 1 && player->mB0 == -1) {
+                fn_804DD574(mgr, player->mAid, 0);
+            }
+        }
+        fn_804DCA54(mgr);
+        fn_804D824C(mgr, own, 2);
+        fn_804AE3BC()->fn_8050DDDC(-1, 1);
+    }
+    return 1;
+}
+
 // NONMATCHING: 97.36% - registers of the team count loop (counter/offset/base) and of the inlined search
 // inferred: on the server, starts the match (Manager::fn_80509B4C) after fn_804DE560; out of the modes 2 and 3 both
 // teams need players
