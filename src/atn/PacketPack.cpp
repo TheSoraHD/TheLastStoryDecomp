@@ -3157,6 +3157,44 @@ extern "C" void fn_804D97F0(PPManager2_unk* mgr) {
     }
 }
 
+// NONMATCHING: 95.59% - the original keeps an unfolded test of a constant error code (`(unsigned)-162 <= 1`, an
+// inlined mapping to the value 9) and registers
+// inferred: the server waits until every other player confirmed (m9A14) while the timer m99B8 runs; without time
+// left the room is closed with the error 158 (state 43); a client only marks m9A74[2]
+extern "C" void fn_804D996C(PPManager2_unk* mgr) {
+    PPPlayer_unk* own = fn_804DD158(mgr, lbl_8087F628->GetMyAid_unk());
+    if (IsServer_unk() == 1) {
+        if (mgr->m99B8 <= 0) {
+            int error = 9;
+            if (lbl_8087F628->m25C == 1 && MP::D2AMpMenuFriendRoom::sInstance != 0 &&
+                MP::D2AMpMenuFriendRoom::sInstance->m88 == 8) {
+                MP::D2AMpMenuFriendRoom::sInstance->fn_804BA350(9);
+            }
+            mgr->m9750 = -1;
+            fn_804FB220(&mgr->mStateVar, 43);
+            mgr->m9754 = 158;
+            mgr->m9758 = error;
+        } else {
+            int ready = 0;
+            int count = 0;
+            for (unsigned int i = 0; i < mgr->mPlayers.mNum; i++) {
+                PPPlayer_unk* player = &mgr->mPlayers.mData[i];
+                if (player->mFlags.mActive == 1 && own->mAid != player->mAid) {
+                    count++;
+                    if (mgr->m9A14[player->mAid] == 1) {
+                        ready++;
+                    }
+                }
+            }
+            if (count == ready) {
+                mgr->m9A74[2] = 1;
+            }
+        }
+    } else {
+        mgr->m9A74[2] = 1;
+    }
+}
+
 // inferred: sets the room of the next game and the count down
 extern "C" int fn_804D9BF4(PPManager2_unk* mgr, int a, int b, int c) {
     mgr->m348 = a;
@@ -6262,6 +6300,54 @@ extern "C" __declspec(noinline) int fn_804FAB40(PPManager2_unk* mgr, int value, 
         fn_804AE3BC()->fn_8050DDDC(lbl_8087F628->GetServerAid_unk(), 1);
     }
     return 1;
+}
+
+#include "MP/MpCampMsgTable_unk.h"
+extern "C" int SCCheckPCMessageRestriction();
+extern "C" const wchar_t* fn_804FAF48(PPManager2_unk* mgr, int* code, int type); // inferred: text of a DWC error
+
+// NONMATCHING: 99.21% - the offset of L"%s" in @wstringBase0 (pool in .sdata in the original, not complete) and a
+// second `beq` of the test of the dialog in the original
+// inferred: shows the error dialog: the message `id` of the table, or (id -1) the restriction of the parental
+// controls, the last DWC error or the oldest queued error with its code; then the ranking is closed if it failed
+extern "C" void fn_804FAD48(PPManager2_unk* mgr, int id) {
+    if (lbl_8087F628 == 0 || MP::D2ACommonDialog::sInstance == 0) {
+        return;
+    }
+    wchar_t buf[512];
+    const wchar_t* text = 0;
+    if (id != -1) {
+        text = lbl_8087F86C->Get_unk(id);
+    } else if (SCCheckPCMessageRestriction() != 0) {
+        text = lbl_8087F86C->Get_unk(0x8D);
+    } else if (lbl_8087F628->fn_8050C168() != 0) {
+        int code = lbl_8087F628->mBEC4;
+        const wchar_t* format = lbl_8087F1E4->Get_unk(0x2ED);
+        fn_800DD3FC(buf, format, code, fn_804FAF48(mgr, &code, 0));
+        text = buf;
+    } else if (lbl_8087F628->mErrors.mCount != 0) {
+        int type;
+        int code = lbl_8087F628->fn_8050C128(&type);
+        const wchar_t* error = fn_804FAF48(mgr, &code, type);
+        if (code >= 10000) {
+            fn_800DD3FC(buf, lbl_8087F1E4->Get_unk(0x2ED), code, error);
+        } else {
+            fn_800DD3FC(buf, L"%s", error);
+        }
+        text = buf;
+    }
+    if (text == 0) {
+        text = lbl_8087F86C->Get_unk(0x9A);
+    }
+    if (text != 0) {
+        MP::D2ACommonDialog::sInstance->fn_804AC83C(0, 1.0f, 2);
+        MP::D2ACommonDialog::sInstance->fn_804ACE68();
+        MP::D2ACommonDialog::sInstance->fn_804ACD10();
+        MP::D2ACommonDialog::sInstance->fn_804AD1EC(text);
+    }
+    if (lbl_8087F5A4->mState == 2) {
+        lbl_8087F5A4->fn_8050C7F0();
+    }
 }
 
 // inferred: flag m976C once the network manager reached state 8
