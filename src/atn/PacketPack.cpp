@@ -3431,6 +3431,25 @@ extern "C" void fn_804DDD50(PPManager2_unk* mgr) {
     }
 }
 
+extern "C" int fn_804DE560(PPManager2_unk* mgr, int a, int b);
+// NONMATCHING: 99.78% - aid and count of the inlined search fn_804DD158 swapped (as fn_804D8610)
+// inferred: on the server: fn_804E9360, fn_804DE560 and the state of its own slot (mode 2) to everybody; 0 when
+// fn_804DE560 fails
+extern "C" int fn_804DDE34(PPManager2_unk* mgr) {
+    if (IsServer_unk() == 1) {
+        fn_804E9360(mgr);
+        unsigned int aid = lbl_8087F628->GetMyAid_unk();
+        PPPlayer_unk* own = fn_804DD158(mgr, aid);
+        if (fn_804DE560(mgr, 0, 0) == 0) {
+            return 0;
+        }
+        own->mFlags.m10 = 0;
+        fn_804D824C(mgr, own, 2);
+        fn_804AE3BC()->fn_8050DDDC(-1, 1);
+    }
+    return 1;
+}
+
 // NONMATCHING: 90.49% - the original reloads lbl_8087F610 in every iteration and keeps the zero of the index in
 // two more registers
 // inferred: resets the player slots (and the aid tables m9984/m998C)
@@ -5158,6 +5177,41 @@ extern "C" void fn_804F3258() {
     }
 }
 
+// inferred: payload of the message 0x1035 (9 bytes: a byte and the time of the game); names invented
+struct PPMsgTime_unk {
+    unsigned char m00[9];
+};
+// inferred: sets the team of a slot; the team when it changed, else 0 (name invented)
+static inline unsigned int SetTeam_unk(PPPlayer_unk* player, unsigned int team) {
+    if (player == 0) {
+        return 0;
+    }
+    if (player->mFlags.m22 == team) {
+        return 0;
+    }
+    player->mFlags.m22 = team;
+    return team;
+}
+
+// inferred: message 0x35 received by the server from `aid` with the player slot: the first byte goes back in a
+// message 0x1035 with the second one (the team of the slot, sent back when it changed); the manager answers it after the loop
+extern "C" void fn_804F34B4(PPPlayer_unk* player, unsigned int aid) {
+    if (PP_NO_DATA_UNK) {
+        return;
+    }
+    if (IsServer_unk()) {
+        unsigned char* in = (unsigned char*)fn_804AE3BC()->GetWorkBuffer_unk();
+        NetMsgI_unk<PPMsgTime_unk, 9> msg(0x1035);
+        unsigned char* data = msg.mData.m00;
+        data[0] = in[0];
+        *(unsigned int*)&data[1] = SetTeam_unk(player, in[1]);
+        fn_804AE3BC()->fn_8050E094(aid, 0x1035, data, 1);
+        ((PPManager2_unk*)lbl_8087F610)->m99B0 = 1;
+        ((PPManager2_unk*)lbl_8087F610)->m99B1 = aid;
+        ((PPManager2_unk*)lbl_8087F610)->m99B4 = 1;
+    }
+}
+
 extern "C" void fn_804F36F4(PPPlayer_unk* player, unsigned int aid) {}
 
 // inferred: message 0x2D (on the server, unless m999C): value of the slot (mB0 and mD8)
@@ -5288,10 +5342,6 @@ extern "C" void fn_804F4728() {
     }
 }
 
-// inferred: payload of the message 0x1035 (9 bytes: a byte and the time of the game); names invented
-struct PPMsgTime_unk {
-    unsigned char m00[9];
-};
 // inferred: message 0x35 asked by `aid`: the first byte goes back in a message 0x1035 and the manager answers it
 // after the loop (m99B0)
 extern "C" void fn_804F4CB8(unsigned int aid) {
