@@ -3393,7 +3393,7 @@
  {
   "name": "AI/AiCommon_unk.cpp",
   "classes": [],
-  "matching": false
+  "matching": true
  },
  {
   "name": "game/TargetPos_unk.cpp",

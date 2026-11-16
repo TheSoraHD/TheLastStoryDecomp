@@ -105,12 +105,17 @@ extern "C" void fn_8001A510(CharaTask** list) {
     }
 }
 
-// NONMATCHING: 98.87% - registers (the character and the three inline bools)
+// inferred: clears an entry of a list whose character cannot act (name invented; the entry by
+// reference gives the register order of the original)
+static inline void ClearIfInactive_unk(CharaTask*& chara) {
+    if (chara == 0 || !chara->CanAct_unk()) {
+        chara = 0;
+    }
+}
+
 extern "C" void fn_8001A65C(CharaTask** list) {
     for (int i = 0; i < 16; i++) {
-        if (list[i] == 0 || !list[i]->CanAct_unk()) {
-            list[i] = 0;
-        }
+        ClearIfInactive_unk(list[i]);
     }
     Compact_unk(list);
 }
@@ -243,6 +248,9 @@ extern "C" inline CharaC58_unk* fn_800F530C(CharaTask* chara) {
 // arguments are converted in locals before the call (the original reads b/a from r5/r4 there).
 
 extern "C" void fn_8001AEDC(unsigned int order, int* a, int* b, int* c, int* d) {
+    // inferred: unused local; it only leaves -1.0f in .sdata2 before the 1.5f of case 0 (pool order
+    // of the original, -1.0f is used by fn_8001B508 and fn_8001B5B4)
+    float unused = -1.0f;
     CharaTask* self = lbl_8087EE60;
     CharaC58_unk* ai = fn_800F530C(self);
     switch (order) {
@@ -383,7 +391,6 @@ extern "C" void fn_8001B4CC(int value) {
 }
 
 // inferred: plays the motion `motion` on the current character, looking at the neck of `target`
-// NONMATCHING: 99.88% - .sdata2 order: the original has -1.0f before the 1.5f of fn_8001AEDC
 extern "C" void fn_8001B508(const char* motion, CharaTask* target) {
     if (target != 0) {
         MtxPtr neck = target->GetModel_unk()->GetNodeMtx_unk("neck");
@@ -393,7 +400,6 @@ extern "C" void fn_8001B508(const char* motion, CharaTask* target) {
     }
 }
 
-// NONMATCHING: 99.50% - .sdata2 order of -1.0f (see fn_8001B508)
 extern "C" int fn_8001B5B4(const atn::Vector3* a, int b) {
     return ((GameScene*)lbl_8087F430->m10D8)->fn_803C1560(a, 0, b, 0, 1, -1.0f);
 }
