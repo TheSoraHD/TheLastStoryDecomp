@@ -451,7 +451,7 @@ GimmickStateCommand::~GimmickStateCommand() {
 }
 
 // inferred: starts the sounds of the gimmick sound table when the state changes
-// NONMATCHING: 94.46% - register allocation of the table loop (the original keeps the zero of the new
+// NONMATCHING: 97.52% - register allocation of the table loop (the original keeps the zero of the new
 // entry and the index in separate registers, one more saved register)
 void GimmickStateCommand::vf10() {
     if (m58 > 0) {
@@ -513,7 +513,7 @@ void GimmickStateCommand::vf10() {
                         PSMTXMultVec(mtx, &pos, &pos);
                         MtxPtr node = 0;
                         if (mGimmick->vf38() != 0) {
-                            node = mGimmick->vf38()->GetNodeMtx_unk(mGimmick->vf38()->fn_800928B0(table->mHash, 0));
+                            node = mGimmick->vf38()->GetNodeMtxByHash_unk(table->mHash);
                         }
                         if (node != 0) {
                             pos += atn::Vector3(node[0][3], node[1][3], node[2][3]);
