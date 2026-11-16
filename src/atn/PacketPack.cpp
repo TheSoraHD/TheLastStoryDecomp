@@ -7102,6 +7102,89 @@ extern "C" void fn_804FAD48(PPManager2_unk* mgr, int id) {
     }
 }
 
+extern "C" int NETGetStartupErrorCode(int);
+
+// inferred: message of a network error: the startup codes (< 10000) and the DWC error codes (by ranges, with
+// the state of the network manager for the connection errors) give the id of the message in m9750
+extern "C" const wchar_t* fn_804FAF48(PPManager2_unk* mgr, int* code, int type) {
+    int done = 0;
+    int state = lbl_8087F628->fn_8050C0B4();
+    mgr->m9750 = -1;
+    if (*code < 10000) {
+        if (*code == 5) {
+            *code = -NETGetStartupErrorCode(type);
+        } else if (*code == 7) {
+            mgr->m9750 = 0x8B;
+        } else if (*code == 15) {
+            mgr->m9750 = 0xA1;
+        } else if (*code == 13) {
+            mgr->m9750 = 0xA2;
+        } else {
+            mgr->m9750 = 0x99;
+        }
+        done = 1;
+    }
+    switch (*code) {
+    case 20102 ... 20109:
+        mgr->m9750 = 0x90;
+        break;
+    case 20111 ... 20999:
+        mgr->m9750 = 0x90;
+        break;
+    case 20101:
+    case 23000 ... 23999:
+        mgr->m9750 = 0x91;
+        break;
+    case 20110:
+        mgr->m9750 = 0x92;
+        break;
+    case 29000:
+        mgr->m9750 = 0x93;
+        break;
+    case 29001:
+        mgr->m9750 = 0x94;
+        break;
+    case 20100:
+    case 50000 ... 59999:
+        mgr->m9750 = 0x95;
+        break;
+    case 80430:
+        mgr->m9750 = 0x96;
+        break;
+    case 80431:
+        mgr->m9750 = 0x97;
+        break;
+    case 80432:
+        mgr->m9750 = 0x98;
+        break;
+    case 60000 ... 69999:
+        mgr->m9750 = 0x99;
+        break;
+    case 24000 ... 25999:
+    case 70000 ... 80429:
+    case 80433 ... 99999:
+        mgr->m9750 = 0x99;
+        if (state == 4) {
+            mgr->m9750 = 0x9C;
+        } else if (state <= 1) {
+            mgr->m9750 = 0x9A;
+        }
+        break;
+    case 31000 ... 31999:
+        mgr->m9750 = 0x99;
+        break;
+    default:
+        if (done == 0) {
+            mgr->m9750 = 0x99;
+        }
+        break;
+    }
+    if (mgr->m9750 == -1) {
+        return L"";
+    }
+    return lbl_8087F86C->Get_unk(mgr->m9750);
+}
+
 // inferred: flag m976C once the network manager reached state 8
 // NONMATCHING: 99.46% - registers of the inlined search fn_804DD158 (aid/offset/count in r4/r3/r5 in the
 // original), as fn_804DD1A8
