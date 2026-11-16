@@ -268,33 +268,42 @@ extern "C" int fn_804D0140(int arg) {
     return 0;
 }
 
-extern "C" RenderSetting_unk* lbl_8087EFA8; // inferred: render settings (atn::RenderConfig)
+namespace atn {
+// inferred: real name of the render settings (weak copy SetClearColor__Q23atn12RenderConfigFRCQ23atn5Color
+// 0x804D0304, called by vf10); the members are those of RenderSetting_unk
+class RenderConfig : public RenderSetting_unk {
+public:
+    void SetClearColor(const Color& color) { m03C = color; }
+};
+} // namespace atn
+
+extern "C" atn::RenderConfig* lbl_8087EFA8; // inferred: render settings
+
+inline void RenderSetting_unk::SetColorMatrix(const ColorMatrixParam_unk& p) {
+    m324 = p;
+}
+
+// inferred: sets a row of the color matrix member by member
+inline void SetRow_unk(RsVector4_unk& row, float x, float y, float z, float w) {
+    row.x = x;
+    row.y = y;
+    row.z = z;
+    row.w = w;
+}
 
 // inferred: render settings of the multiplayer game: sepia-like color matrix, no bloom and no depth
 // of field, grey clear color (SetClearColor__Q23atn12RenderConfigFRCQ23atn5Color inlined)
-extern "C" void fn_804D0164() {
+void fn_804D0164() {
     ColorMatrixParam_unk cm;
     cm.mEnabled = 1;
-    cm.mRows[0].x = 0.9f;
-    cm.mRows[0].y = 0.1f;
-    cm.mRows[0].z = 0.1f;
-    cm.mRows[0].w = 0.0f;
-    cm.mRows[1].x = 0.1f;
-    cm.mRows[1].y = 0.9f;
-    cm.mRows[1].z = 0.1f;
-    cm.mRows[1].w = 0.0f;
-    cm.mRows[2].x = 0.1f;
-    cm.mRows[2].y = 0.1f;
-    cm.mRows[2].z = 0.9f;
-    cm.mRows[2].w = 0.0f;
-    cm.mRows[3].x = 0.0f;
-    cm.mRows[3].y = 0.0f;
-    cm.mRows[3].z = 0.0f;
-    cm.mRows[3].w = 0.0f;
-    lbl_8087EFA8->m324 = cm;
+    SetRow_unk(cm.mRows[0], 0.9f, 0.1f, 0.1f, 0.0f);
+    SetRow_unk(cm.mRows[1], 0.1f, 0.9f, 0.1f, 0.0f);
+    SetRow_unk(cm.mRows[2], 0.1f, 0.1f, 0.9f, 0.0f);
+    SetRow_unk(cm.mRows[3], 0.0f, 0.0f, 0.0f, 0.0f);
+    lbl_8087EFA8->SetColorMatrix(cm);
     lbl_8087EFA8->mDof.mEnabled = 0;
     lbl_8087EFA8->m054.mEnabled = 0;
-    lbl_8087EFA8->m03C = RsColor_unk(0.8627f, 0.8627f, 0.8627f, 1.0f);
+    lbl_8087EFA8->SetClearColor(RsColor_unk(0.8627f, 0.8627f, 0.8627f, 1.0f));
 }
 
 // ---- player slots of MP::Manager2 and the message handlers of the receive loop (fn_804EE040, switch
@@ -638,7 +647,7 @@ struct Manager2 : public atn::Task {
     virtual ~Manager2();
     virtual int vf0C();
     virtual void vf10();
-    virtual void vf14(); // inferred: 0x804F7F54, not written yet
+    virtual void vf14();
     PPSlot18_unk m0048[32];           // inferred: 32 entries of 0x18 bytes (m00 cleared at the end of the ctor)
     int m348;                         // inferred: room of the next game (fn_804D9BF4)
     int m34C;
@@ -854,22 +863,161 @@ extern "C" __declspec(noinline) inline int fn_804D6348(atn::net::Manager* net) {
 #include "atn/Color.h"
 
 // inferred: MP::Manager2 as seen by game/GameUI.cpp (its weak copy GetM50C_unk is the one called here)
+#define PP_ASSERT_UNK(x) ((void)0)
+// inferred: empty asserts (as GetRoom_unk below): the original vf10 is over the inlining budget and calls
+// every inline accessor out of line; 700 asserts are needed (600 are not enough)
 struct GameUISession_unk {
     unsigned char m000[0x50C];
     int m50C;
-    int GetM50C_unk() const { return m50C; }
+    int GetM50C_unk() const {
+        PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0);
+        PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0);
+        PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0);
+        PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0);
+        PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0);
+        PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0);
+        PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0);
+        PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0);
+        PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0);
+        PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0);
+        PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0);
+        PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0);
+        PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0);
+        PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0);
+        PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0);
+        PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0);
+        PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0);
+        PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0);
+        PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0);
+        PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0);
+        PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0);
+        PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0);
+        PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0);
+        PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0);
+        PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0);
+        PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0);
+        PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0);
+        PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0);
+        PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0);
+        PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0);
+        PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0);
+        PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0);
+        PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0);
+        PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0);
+        PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0);
+        PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0);
+        PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0);
+        PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0);
+        PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0);
+        PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0);
+        PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0);
+        PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0);
+        PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0);
+        PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0);
+        PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0);
+        PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0);
+        PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0);
+        PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0);
+        PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0);
+        PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0);
+        PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0);
+        PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0);
+        PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0);
+        PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0);
+        PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0);
+        PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0);
+        PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0);
+        PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0);
+        PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0);
+        PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0);
+        PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0);
+        PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0);
+        PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0);
+        PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0);
+        PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0);
+        PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0);
+        PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0);
+        PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0);
+        PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0);
+        PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0);
+        PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0);
+        PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0);
+        PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0);
+        PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0);
+        PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0);
+        PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0);
+        PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0);
+        PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0);
+        PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0);
+        PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0);
+        PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0);
+        PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0);
+        PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0);
+        PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0);
+        PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0);
+        PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0);
+        PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0);
+        PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0);
+        PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0);
+        PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0);
+        PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0);
+        PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0);
+        PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0);
+        PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0);
+        PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0);
+        PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0);
+        PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0);
+        PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0);
+        PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0);
+        PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0);
+        PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0);
+        PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0);
+        PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0);
+        PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0);
+        PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0);
+        PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0);
+        PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0);
+        PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0);
+        PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0);
+        PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0);
+        PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0);
+        PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0);
+        PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0);
+        PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0);
+        PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0);
+        PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0);
+        PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0);
+        PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0);
+        PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0);
+        PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0);
+        PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0);
+        PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0);
+        PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0);
+        PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0);
+        PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0);
+        PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0);
+        PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0);
+        PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0);
+        PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0);
+        PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0);
+        PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0);
+        PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0);
+        PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0);
+        PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0);
+        PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0);
+        PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0);
+        PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0);
+        PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0);
+        PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0);
+        PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0);
+        return m50C;
+    }
 };
 
 extern "C" void OSSleepTicks(long long ticks);
 
 #include "game/ErrorManager.h"
 
-namespace atn {
-class RenderConfig {
-public:
-    void SetClearColor(const Color& color);
-};
-} // namespace atn
 #include "atn/net/NetRanking.h"
 
 namespace MP {
@@ -922,7 +1070,7 @@ public:
     void fn_804C8740();
     void fn_804C5E1C();
     void fn_804C6888(int time);
-    int fn_804C8204();
+    bool fn_804C8204();
     void fn_804C5E9C(int state);
     void fn_804C7C34(int a, int b, int c);
     static D2AMpMenuResult* sInstance;
@@ -945,7 +1093,6 @@ struct MpRoom_unk {
     int m6B10;
 };
 // inferred: MP::Manager2 as seen by game/GameTask.cpp (same inline GetRoom_unk, with its asserts)
-#define PP_ASSERT_UNK(x) ((void)0)
 struct MpArena_unk {
     unsigned char m0000[0x2B80];
     MpRoom_unk mRoom; // 0x2B80
@@ -1082,7 +1229,7 @@ extern "C" const char* const lbl_80887598;
 extern "C" const char* const lbl_8088759C;
 extern "C" const char* const lbl_808875A0;
 extern "C" void fn_804F5A94(PPManager2_unk* mgr);
-extern "C" int fn_804DC684(PPManager2_unk* mgr);
+extern "C" bool fn_804DC684(PPManager2_unk* mgr);
 extern "C" void fn_804FB470(PPManager2_unk* mgr, int code, int arg);
 extern "C" int fn_804DC450(PPManager2_unk* mgr, int mode);
 extern "C" void fn_804FAD48(PPManager2_unk* mgr, int value);
@@ -1144,13 +1291,13 @@ extern "C" void fn_804EA608(PPManager2_unk* mgr, int a, int b);
 extern "C" int fn_804EAFD0(PPManager2_unk* mgr);
 extern "C" int fn_804EAA50(PPManager2_unk* mgr);
 extern "C" void fn_804DA398(PPManager2_unk* mgr);
-extern "C" int fn_804DA2D0(PPManager2_unk* mgr, int keep);
+extern "C" bool fn_804DA2D0(PPManager2_unk* mgr, int keep);
 extern "C" int fn_804DBD08(PPManager2_unk* mgr, int mode);
 extern "C" long long fn_804CF194();
 extern "C" void fn_804CF190(atn::Task* task);
 extern "C" void fn_804D0090(PPFlags_unk* obj, int on);
 extern "C" int fn_804CF634(PPChara_unk* chara);
-extern "C" void fn_804D0164();
+void fn_804D0164();
 extern "C" int fn_804D0140(int arg);
 extern "C" int fn_804D00DC(unsigned short key);
 
@@ -1246,7 +1393,7 @@ extern "C" __declspec(noinline) inline void fn_804D5F58(CharaTask* chara, int on
 extern "C" __declspec(noinline) inline void fn_804D5F68(PPManager2_unk* mgr) {
     mgr->m99B8--;
 }
-extern "C" __declspec(noinline) inline bool fn_804D5F7C(atn::net::Manager* net) {
+extern "C" __declspec(noinline) inline int fn_804D5F7C(atn::net::Manager* net) {
     return net->mState >= 8;
 }
 extern "C" __declspec(noinline) inline int fn_804D5F98(atn::net::Manager* net) {
@@ -1375,7 +1522,7 @@ extern "C" __declspec(noinline) inline bool fn_804D6168(atn::net::Manager* net) 
     }
     return result;
 }
-extern "C" __declspec(noinline) inline unsigned char fn_804D6190(atn::net::Manager* net) {
+extern "C" __declspec(noinline) inline unsigned int fn_804D6190(atn::net::Manager* net) {
     return net->m90;
 }
 extern "C" __declspec(noinline) inline unsigned char fn_804D6198(atn::net::Manager* net) {
@@ -1397,7 +1544,7 @@ extern "C" __declspec(noinline) inline int fn_804D6210(atn::net::Manager* net) {
 extern "C" __declspec(noinline) inline int fn_804D6218(atn::net::NetThread_unk* thread) {
     return thread->mCmd;
 }
-extern "C" __declspec(noinline) inline unsigned char fn_804D6220(atn::net::Manager* net) {
+extern "C" __declspec(noinline) inline int fn_804D6220(atn::net::Manager* net) {
     return net->mC0;
 }
 extern "C" __declspec(noinline) inline unsigned char fn_804D6228(atn::net::Manager* net) {
@@ -1407,7 +1554,7 @@ extern "C" __declspec(noinline) inline unsigned char fn_804D6228(atn::net::Manag
         return 0;
     }
 }
-extern "C" __declspec(noinline) inline bool fn_804D6278(atn::net::Manager* net, unsigned char aid) {
+extern "C" __declspec(noinline) inline int fn_804D6278(atn::net::Manager* net, unsigned char aid) {
     return aid == net->GetServerAid_unk();
 }
 extern "C" __declspec(noinline) inline bool fn_804D62E4(MP::D2AMpMenuLobby* lobby) {
@@ -1487,6 +1634,9 @@ struct PPEquipObj_unk {
     unsigned char m000[0x414];
     int m414;
 };
+inline chr::CharaEquip_unk* CharaTask::GetProtector(int i) {
+    return m680[i];
+}
 extern "C" __declspec(noinline) inline void fn_804D63F8(PPEquipObj_unk* equip, int value) {
     equip->m414 = value;
 }
@@ -2005,7 +2155,7 @@ void MP::Manager2::vf10() {
         break;
     }
     case -1: {
-        int done = 0;
+        bool done = false;
         if (fn_804D5FFC(fn_804D16DC()) == 0) {
             if (fn_804D16DC()->fn_804AC734() != 0) {
                 done = 1;
@@ -2216,7 +2366,7 @@ void MP::Manager2::vf10() {
         for (int i = 0; i < 8; i++) {
             mgr->m9A34[i] = -1;
         }
-        int joined = 0;
+        bool joined = false;
         if (fn_804D6168(fn_804D1694())) {
             joined = 1;
         } else if (fn_804D6190(fn_804D1694()) == 1 && fn_804D6198(fn_804D1694()) == 0) {
@@ -2232,7 +2382,7 @@ void MP::Manager2::vf10() {
             fn_804D6208(mgr, 0);
             joined = 1;
             unsigned char aid = fn_804D6198(fn_804D1694());
-            if (aid >= fn_804D5F40(&mgr->mPlayers)) {
+            if (aid >= (unsigned int)fn_804D5F40(&mgr->mPlayers)) {
                 fn_804FB470(mgr, 0x9E, 9);
             } else {
                 fn_804D5F48(&mgr->mPlayers, aid)->mAid = aid;
@@ -2501,7 +2651,7 @@ void MP::Manager2::vf10() {
                 own->mFlags.m27 = 1;
             }
             mgr->m608 = -1;
-            for (int i = 0; i < fn_804D5F40(&mgr->mPlayers); i++) {
+            for (unsigned int i = 0; i < fn_804D5F40(&mgr->mPlayers); i++) {
                 PPPlayer_unk* player = fn_804D5F48(&mgr->mPlayers, i);
                 if (player->mFlags.mActive == 1) {
                     fn_804EAA84(mgr, player->mRef.mChara, 1, 0);
@@ -2516,9 +2666,9 @@ void MP::Manager2::vf10() {
                             }
                             for (int j = 0; j < 5; j++) {
                                 if (fn_804D63D8(player->mRef.mChara)->m108[j] >= 0 &&
-                                    player->mRef.mChara->m680[j] != 0) {
+                                    player->mRef.mChara->GetProtector(j) != 0) {
                                     int id = fn_8020ED84(j, fn_804D63D8(player->mRef.mChara)->m108[j]);
-                                    fn_804D63F8((PPEquipObj_unk*)player->mRef.mChara->m680[j], id);
+                                    fn_804D63F8((PPEquipObj_unk*)player->mRef.mChara->GetProtector(j), id);
                                 }
                             }
                         }
@@ -2905,7 +3055,7 @@ void MP::Manager2::vf10() {
             }
             if (state != 7 && (unsigned int)(state - 5) <= 1) {
                 fn_804D65A4(fn_804D5FD0(), 0);
-                int skip = 0;
+                bool skip = false;
                 if (fn_800A555C(GetPad_unk(), 0, 4) != 0) {
                     skip = 1;
                 } else if (mgr->m99A0 < 450) {
@@ -3251,7 +3401,7 @@ extern "C" int fn_804D9BF4(PPManager2_unk* mgr, int a, int b, int c) {
 }
 
 // inferred: counts down m99A0 (shown by the lobby); 1 when it ends (or ended) and `keep` is 0
-extern "C" int fn_804DA2D0(PPManager2_unk* mgr, int keep) {
+extern "C" bool fn_804DA2D0(PPManager2_unk* mgr, int keep) {
     if (--mgr->m99A0 < 0) {
         mgr->m99A0 = 0;
         if (keep == 0) {
@@ -3742,7 +3892,7 @@ extern "C" int fn_804DC450(PPManager2_unk* mgr, int status) {
 }
 
 // inferred: writes the own status string: room status 0, mode "9" (off line, GetModeField_unk), name (none in state 0x8B) and friend code
-extern "C" __declspec(noinline) int fn_804DC684(PPManager2_unk* mgr) {
+extern "C" __declspec(noinline) bool fn_804DC684(PPManager2_unk* mgr) {
     if (mgr->mState == -1) {
         return 0;
     }
@@ -6749,6 +6899,67 @@ extern "C" int fn_804F7F34() {
     return 0;
 }
 
+#include "atn/RenderManager.h"
+#include "atn/DrawHelper.h"
+
+extern "C" void fn_804F8464(PPManager2_unk* mgr); // inferred: debug page of the network (not written yet)
+
+// NONMATCHING: 99.03% - offsets of the strings in @stringBase0 and @wstringBase0 (the literals of the functions
+// not written yet go before) and registers of the inlined search fn_804EB870 and of the loop counters
+// inferred: MP::Manager2::vf14 (vtable 0x807916E0): debug display of the connection, the network page and
+// the players and characters over their heads (m528, "Control info" of the debug menu)
+void MP::Manager2::vf14() {
+    if (lbl_8087F628->mFlags.mB13) {
+        lbl_8087EEB0->fn_80061824(450.0f, 30.0f, 0.0f, 16.0f, 16.0f, 0.0f, 0.0f, 0.0f, L"DEBUG CONNECTION", 0x88FFFFFF,
+                                  1, 1, 0, 0, 0xFF000000);
+    }
+    if (mStateVar.mValue == 30) {
+        // inferred: the own slot is looked up and not used (debug output compiled out)
+        fn_804EB870(this);
+    }
+    if (lbl_8087F628->mState >= 11) {
+        fn_804F8464(this);
+    }
+    if (m528 != 0) {
+        for (int i = 0; i < mPlayers.mNum; i++) {
+            PPPlayer_unk* player = &mPlayers.mData[i];
+            if (player->mRef.mChara != 0 && player->mFlags.mActive) {
+                atn::Vector3 screen = atn::RenderManager::instance_->GetScreenPosition(
+                    player->mRef.mChara->mPos + atn::Vector3(0.0f, 20.0f, 0.0f));
+                if (0.0f <= screen.z && screen.z <= 1.0f) {
+                    char text[0x100];
+                    sprintf(text, "HostID:%d Score:%d\0", player->mAid, player->mDCScore);
+                    lbl_8087EEB0->fn_800616C0(1.0f + screen.x, 1.0f + screen.y, 0.0f, 16.0f, 16.0f, text, 0xFF000000,
+                                              0.0f, 1, 1, 0);
+                    lbl_8087EEB0->fn_800616C0(screen.x, screen.y, 0.0f, 16.0f, 16.0f, text, 0xFFFFAA00, 0.0f, 1, 1, 0);
+                    screen.y += 16.0f;
+                    sprintf(text, "Team:%d Ctrl:%c%c0", player->mRef.mChara->mF14,
+                            player->mRef.mChara->mFlag2 ? 'N' : 'L', IsTeamPlayer_unk(player) ? 'B' : ' ');
+                    lbl_8087EEB0->fn_800616C0(1.0f + screen.x, 1.0f + screen.y, 0.0f, 16.0f, 16.0f, text, 0xFF000000,
+                                              0.0f, 1, 1, 0);
+                    lbl_8087EEB0->fn_800616C0(screen.x, screen.y, 0.0f, 16.0f, 16.0f, text, 0xFFFFAA00, 0.0f, 1, 1, 0);
+                    screen.y += 16.0f;
+                }
+            }
+        }
+        for (int i = 0; i < mCharas.mNum; i++) {
+            PPCharaEntry_unk* entry = &mCharas.mData[i];
+            if (entry->mRef.mChara != 0) {
+                atn::Vector3 screen = atn::RenderManager::instance_->GetScreenPosition(
+                    entry->mRef.mChara->mPos + atn::Vector3(0.0f, 20.0f, 0.0f));
+                if (0.0f <= screen.z && screen.z <= 1.0f) {
+                    char text[0x100];
+                    sprintf(text, "Local:%d Ctrl:%c%c0", entry->mActive, entry->mRef.mChara->mFlag2 ? 'N' : 'L');
+                    lbl_8087EEB0->fn_800616C0(1.0f + screen.x, 1.0f + screen.y, 0.0f, 16.0f, 16.0f, text, 0xFF000000,
+                                              0.0f, 1, 1, 0);
+                    lbl_8087EEB0->fn_800616C0(screen.x, screen.y, 0.0f, 16.0f, 16.0f, text, 0xFFAA00FF, 0.0f, 1, 1, 0);
+                    screen.y += 16.0f;
+                }
+            }
+        }
+    }
+}
+
 // NONMATCHING: only the reloc of L"UNSUPPORTED" (original pool @wstringBase0 lbl_8087E1C4 in .sdata, rest of the pool not written)
 // inferred: text of the value of a rule (kinds 0/1: 9 values, kind 2: 5 values; the last one is the shared
 // entry 0x2A)
@@ -6982,6 +7193,35 @@ extern "C" int fn_804FB620(void* unused, int mode) {
 
 extern "C" void fn_804FB668(PPManager2_unk* mgr) {
     mgr->m5A4 = 0;
+}
+
+extern "C" void fn_8023A8B4(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
+                            const atn::Vector3& pos, const atn::Vector3& rot, const RsColor_unk& color, int arg7,
+                            int arg8, int arg9, float scale);
+
+// inferred: plays an effect file at the origin, without model or owner
+inline void PlayEffect_unk(atn::EfpFile* efp) {
+    fn_8023A8B4(lbl_8087F3C0, efp, 0, 0, atn::Vector3(0.0f, 0.0f, 0.0f), atn::Vector3(0.0f, 0.0f, 0.0f),
+                RsColor_unk(1.0f, 1.0f, 1.0f, 1.0f), -1, -1, 1, 1.0f);
+}
+
+// inferred: back to the lobby: render settings, camera of the lobby, effects (be010_008.efp) and BGM
+// NONMATCHING: 98.57% - registers of the inlined fn_804D0164: the original keeps the zero in r5 and
+// lbl_8087EFA8 in r30 (here the zero in r6, lbl_8087EFA8 in r5 and the address of the target in r30)
+extern "C" void fn_804FB674(PPManager2_unk* mgr) {
+    fn_804D0164();
+    mgr->m9774.SetPosition(atn::Vector3(0.0f, -99500.0f, 0.0f));
+    mgr->m9774.SetTarget_unk(atn::Vector3(0.0f, -99500.0f, 10.0f));
+    fn_8037F688(&mgr->m9774, atn::DegToRad_unk(60.0f));
+    if (lbl_8087F3C0 == 0) {
+        atn::EffectManager::fn_80239798(mgr, 0x240, 0x480, 8, 0x180);
+    }
+    fn_80239DAC(lbl_8087F3C0, (unsigned int)mgr, 0, 1);
+    fn_80232B7C((unsigned int)mgr, 0);
+    PlayEffect_unk(&mgr->m9968);
+    if (GameBgm::GetInstance_unk() != 0) {
+        GameBgm::GetInstance_unk()->fn_8037D4C0(0x548, 15, 1, 0, 0.7f);
+    }
 }
 
 // inferred: flag m01 of the slot of the server
