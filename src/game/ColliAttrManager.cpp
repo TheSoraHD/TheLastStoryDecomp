@@ -109,16 +109,20 @@ void ColliAttrManager::vf10() {
 
 void ColliAttrManager::vf14() {}
 
-// NONMATCHING: 99.8% - saved register choice of the loop index of the first branch (r30 in the
-// original, r29 here). efp reuses the register of attr (assigned to attr itself). Tried: shared index
-// declared at the top, int indices, index declared before Release_unk, attr at the top, while loop.
+// inferred: the first loop is an inline (ResetAll_unk; registers of its index). efp reuses the register
+// of attr (assigned to attr itself).
+// inferred: every entry with its own attribute (name invented)
+static inline void ResetAll_unk(ColliAttrManager* self) {
+    for (unsigned int i = 0; i < self->mEntries.mSize; i++) {
+        self->fn_80183FFC(i, i);
+    }
+}
+
 void ColliAttrManager::fn_80183D00(int id, int arg1, int arg2) {
     if (id == -1) {
         Release_unk();
         mEntries.Resize_unk(0x21, 0);
-        for (unsigned int i = 0; i < mEntries.mSize; i++) {
-            fn_80183FFC(i, i);
-        }
+        ResetAll_unk(this);
         mLoading = 1;
     } else {
         Release_unk();
