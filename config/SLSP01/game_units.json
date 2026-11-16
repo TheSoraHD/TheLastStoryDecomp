@@ -3438,7 +3438,7 @@
   "classes": [
    "chr::ControlMoveCursor"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "game/EnemyTask.cpp",

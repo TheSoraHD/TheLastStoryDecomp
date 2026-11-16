@@ -136,10 +136,15 @@ inline MtxPtr GetNodeMtxByHash_unk(atn::Model* model, unsigned int hash) {
 
 // NONMATCHING: 99.7% - the quotient is in f1 here, f0 in the original (tried several groupings)
 // inferred: scales a displacement to the part covered in one step of the event (`frames` left)
+// inferred: time of a frame of the event manager (as in ActionActorBehavior)
+inline float FrameTime_unk() {
+    return lbl_8087F540->mB4;
+}
+
 void ScaleStep_unk(atn::Vector3& v, float frames) {
     float len = PSVECMag(&v);
     if (len > 0.0f) {
-        float scale = (len / frames) * lbl_8087F540->mB4;
+        float scale = (len / frames) * FrameTime_unk();
         PSVECNormalize(&v, &v);
         v.x *= scale;
         v.y *= scale;
@@ -593,7 +598,7 @@ int ActionActorPosition::vf0C(Action* arg, int phase) {
             if (target->m20 == 6) {
                 arg->fn_80538DC4(3);
                 float yaw = manager->fn_80541CF0(atn::DegToRad_unk(arg->GetParam_unk(8)->m04.f));
-                float deg = 57.29578f * yaw;
+                float deg = 57.295776f * yaw;
                 ActionParam_unk* p = arg->GetParam_unk(8);
                 p->m00 = 3;
                 p->m04.f = deg;

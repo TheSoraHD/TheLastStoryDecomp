@@ -785,9 +785,13 @@ int Manager::fn_8047F510(int id) {
 }
 
 // inferred: stops the sequence kept in m2380 (fn_8047EFD8)
-// NONMATCHING: 98.4% - the original loads m2380 again for the search
+// inferred: name invented
+inline int KeptId_unk(const Manager* m) {
+    return m->m2380;
+}
+
 __declspec(noinline) int Manager::fn_8047F580() {
-    if (m2380 > 0) {
+    if (KeptId_unk(this) > 0) {
         Sequence* seq = FindSequence_unk(m2380);
         if (seq != 0) {
             StopMusic_unk(seq);

@@ -1,0 +1,214 @@
+diff --git a/src/gmk/FlyObjManager.cpp b/src/gmk/FlyObjManager.cpp
+index bf2c54d7..7d7803d2 100644
+--- a/src/gmk/FlyObjManager.cpp
++++ b/src/gmk/FlyObjManager.cpp
+@@ -81,17 +81,17 @@ inline void PlayMotion_unk(atn::Model* model, int motion, float blend) {
+     model->mTracks[0].m0C = 1.0f;
+ }
+ 
++inline atn::Vector3 GetCol_unk(const atn::Matrix3x4& m, int i) {
++    return atn::Vector3(m.m[0][i], m.m[1][i], m.m[2][i]);
++}
+ // inferred: largest scale axis of a matrix (name invented)
+ inline float MaxScale_unk(const atn::Matrix3x4& mtx) {
+     atn::Vector3 s;
+-    atn::Vector3 az;
+-    atn::Vector3 ay;
+-    atn::Vector3 ax;
+-    __Vec3Set_unk(az, mtx.m[0][2], mtx.m[1][2], mtx.m[2][2]);
++    atn::Vector3 az = GetCol_unk(mtx, 2);
+     float sz = PSVECMag(&az);
+-    __Vec3Set_unk(ay, mtx.m[0][1], mtx.m[1][1], mtx.m[2][1]);
++    atn::Vector3 ay = GetCol_unk(mtx, 1);
+     float sy = PSVECMag(&ay);
+-    __Vec3Set_unk(ax, mtx.m[0][0], mtx.m[1][0], mtx.m[2][0]);
++    atn::Vector3 ax = GetCol_unk(mtx, 0);
+     float sx = PSVECMag(&ax);
+     __Vec3Set_unk(s, sx, sy, sz);
+     return __MAX_unk(s.x, __MAX_unk(s.y, s.z));
+@@ -136,8 +136,8 @@ FlyObj::FlyObj() : mRadius(3.0f), mModel(8, 32), mPos(0.0f, 0.0f, 0.0f), mRot(0.
+ 
+ FlyObj::~FlyObj() {}
+ 
+-// NONMATCHING: 98.8% - the sphere temporaries at the end sit below the state 3 temporaries here (above
+-// in the original) and a few float registers. The fall is applied before the rotation reset.
++// NONMATCHING: 99.0% - state 2: fabs(z) goes to f11 here (f0 + frsp f11 in the original) and the
++// mVel.y load/fadds are scheduled one slot apart. The fall is applied before the rotation reset.
+ void FlyObj::fn_80427870() {
+     if (mState <= 1) {
+         return;
+@@ -163,7 +163,11 @@ void FlyObj::fn_80427870() {
+     mModel.m54 = MaxScale_unk(mtx);
+     mModel.CalcMatrixStack(atn::ModelNodeCallback_unk());
+     mModel.fn_80097E80(1);
+-    mColli.mSphere = atn::ColliSphere::Sphere_unk(atn::Vector3(mPos), mRadius);
++    atn::ColliSphere::Sphere_unk s;
++    atn::Vector3 pos(mPos);
++    s.mCenter = pos;
++    s.mRadius = mRadius;
++    mColli.mSphere = s;
+ }
+ 
+ GimmickCommon* FlyObjManager::fn_80427EB4(atn::Task* parent, GimmickDesc_unk* desc) {
+diff --git a/src/gmk/OnOff.cpp b/src/gmk/OnOff.cpp
+index f0326087..892eddd4 100644
+--- a/src/gmk/OnOff.cpp
++++ b/src/gmk/OnOff.cpp
+@@ -144,6 +144,24 @@ inline void PlayEfpAt_unk(OnOffEffectMgr_unk* mgr, atn::EfpFile* efp, const atn:
+     fn_8023A8B4(mgr, efp, 0, 0, pos, rot, color, -1, -1, 1, scale);
+ }
+ 
++inline atn::Vector3 GetCol_unk(const atn::Matrix3x4& m, int i) {
++    return atn::Vector3(m.m[0][i], m.m[1][i], m.m[2][i]);
++}
++// inferred: largest scale axis of a matrix (as in gmk/PigeonManager.cpp; names invented)
++inline float MaxScale_unk(const atn::Matrix3x4& mtx) {
++    atn::Vector3 s;
++    atn::Vector3 az = GetCol_unk(mtx, 2);
++    float sz = PSVECMag(&az);
++    atn::Vector3 ay = GetCol_unk(mtx, 1);
++    float sy = PSVECMag(&ay);
++    atn::Vector3 ax = GetCol_unk(mtx, 0);
++    float sx = PSVECMag(&ax);
++    s.x = sx;
++    s.y = sy;
++    s.z = sz;
++    return __MAX_unk(s.x, __MAX_unk(s.y, s.z));
++}
++
+ namespace gmk {
+ 
+ GimmickCommon* OnOff::fn_803F744C(atn::Task* parent, int id, int arg) {
+@@ -194,14 +212,7 @@ int OnOff::vf0C() {
+                 PSMTXConcat(rot.m, mtx.m, mtx.m);
+                 __SetTrans_unk(mtx, mtx.GetTrans_unk() + m6C);
+                 __MtxCopy(model->mMtx.m, mtx.m);
+-                atn::Vector3 az(mtx.m[0][2], mtx.m[1][2], mtx.m[2][2]);
+-                float sz = PSVECMag(&az);
+-                atn::Vector3 ay(mtx.m[0][1], mtx.m[1][1], mtx.m[2][1]);
+-                float sy = PSVECMag(&ay);
+-                atn::Vector3 ax(mtx.m[0][0], mtx.m[1][0], mtx.m[2][0]);
+-                float sx = PSVECMag(&ax);
+-                atn::Vector3 s(sx, sy, sz);
+-                model->m54 = __MAX_unk(s.x, __MAX_unk(s.y, s.z));
++                model->m54 = MaxScale_unk(mtx);
+                 model->CalcMatrixStack(atn::ModelNodeCallback_unk());
+                 break;
+             }
+diff --git a/src/gmk/AutomaticDoor.cpp b/src/gmk/AutomaticDoor.cpp
+index 2118024e..0da32dc6 100644
+--- a/src/gmk/AutomaticDoor.cpp
++++ b/src/gmk/AutomaticDoor.cpp
+@@ -293,30 +293,35 @@ void AutomaticDoor::vf10() {
+     }
+ }
+ 
+-// NONMATCHING: approximate - projection of the texture with a camera placed in front of the door
++// NONMATCHING: 99.86% - the temporary of `target - pos` (dir) sits at the top of the temporaries here and at
++// the bottom (0x8) in the original. Projection of the texture with a camera placed in front of the door
+ // (stack layout of the cameras and vectors, register allocation)
++
++// inferred: name invented
++inline DoorField_unk* GetField_unk() {
++    return lbl_8087F430;
++}
++
+ void AutomaticDoor::fn_803F53E0() {
+-    if (mProject == 0 || lbl_8087F430 == 0) {
+-        return;
+-    }
+-    if (lbl_8087F490 == 0) {
++    if (mProject == 0 || lbl_8087F430 == 0 || lbl_8087F490 == 0) {
+         return;
+     }
+     Camera_unk camera(0, 1);
+-    DoorField_unk* field = lbl_8087F430;
++    DoorField_unk* field = GetField_unk();
+     if (lbl_8087F490->m10FC != 0 && (field->GetMode_unk() == 4 || field->GetMode_unk() == 3)) {
+         float left = -1.0f;
+-        float bottom = left;
+         float right = 1.0f;
++        float bottom = left;
+         float top = right;
+         atn::Vector3 dir;
+         dir = atn::RenderManager::instance_->mCamera.mTarget - atn::RenderManager::instance_->mCamera.mPos;
+         PSVECNormalize(&dir, &dir);
+         atn::Vector3 pos;
+-        atn::Vector3 front(0.0f, 0.0f, 1.0f);
+         pos = m6C;
++        atn::Vector3 front(0.0f, 0.0f, 1.0f);
+         Mtx mtx;
+-        PSMTXRotRad(mtx, 'y', m78.y);
++        float ry = m78.y;
++        PSMTXRotRad(mtx, 'y', ry);
+         PSMTXMultVec(mtx, &front, &front);
+         pos += front * 11.5f;
+         float d = -PSVECDotProduct(&front, &dir);
+@@ -325,13 +330,12 @@ void AutomaticDoor::fn_803F53E0() {
+             return;
+         }
+         atn::Vector3 eye(atn::RenderManager::instance_->mCamera.mPos);
+-        float t = (front.x * (pos.x - eye.x) + front.y * (pos.y - eye.y) + front.z * (pos.z - eye.z)) / d;
+-        atn::Vector3 hit = eye - dir * t;
+-        atn::Vector3 p0 = atn::RenderManager::instance_->GetScreenPosition(hit);
+-        atn::Vector3 up(0.0f, 1.0f, 0.0f);
+-        atn::Vector3 p1;
+-        atn::Vector3 top_pos = hit + up;
+-        p1 = atn::RenderManager::instance_->GetScreenPosition(top_pos);
++        float num = front.x * (pos.x - eye.x) + front.y * (pos.y - eye.y) + front.z * (pos.z - eye.z);
++        atn::Vector3 hit = eye - dir * (num / d);
++        atn::Vector3 p0 = hit;
++        p0 = atn::RenderManager::instance_->GetScreenPosition(p0);
++        atn::Vector3 p1 = hit + atn::Vector3(0.0f, 1.0f, 0.0f);
++        p1 = atn::RenderManager::instance_->GetScreenPosition(p1);
+         if (p0.z < 0.0f || 1.0f < p0.z || p1.z < 0.0f || 1.0f < p1.z) {
+             mModel.mFlags &= ~0x80000;
+             return;
+@@ -339,7 +343,8 @@ void AutomaticDoor::fn_803F53E0() {
+         float scale = 1e-05f;
+         float dy = __fabs(p1.y - p0.y);
+         if (dy > 0.0f) {
+-            scale = lbl_8087F490->m1100 / dy;
++            float h = lbl_8087F490->m1100;
++            scale = h / dy;
+         }
+         left *= scale;
+         right *= scale;
+@@ -355,8 +360,8 @@ void AutomaticDoor::fn_803F53E0() {
+         camera.fn_8004B378();
+         ModelCameraParam_unk project;
+         project.mCamera = camera;
+-        project.m00 = 3;
+         project.m04 = &mTexture;
++        project.m00 = 3;
+         fn_80095F10(&mModel, &project);
+     } else {
+         mModel.mFlags &= ~0x80000;
+diff --git a/src/gmk/PassBoard.cpp b/src/gmk/PassBoard.cpp
+index 734e70b5..f1f875dc 100644
+--- a/src/gmk/PassBoard.cpp
++++ b/src/gmk/PassBoard.cpp
+@@ -132,6 +132,11 @@ void PassBoard::Start() {
+ // mirror order in the original (first block high, second block low), plus float registers of the
+ // nearest-pair loop and of the rate. Tried: declaration orders of pos/mtx, order of the temporaries
+ // in __MakeRotation_unk, a Front_unk helper (worse), pair pointer vs indexed pairs.
++// inferred: translation column of the paired node (name invented)
++inline atn::Vector3 PairPos_unk(const float* a) {
++    return atn::Vector3(a[0x3C / 4], a[0x4C / 4], a[0x5C / 4]);
++}
++
+ void PassBoard::vf10() {
+     if (m54 == 0) {
+         Start();
+@@ -140,9 +145,9 @@ void PassBoard::vf10() {
+     for (int i = 0; i < 5; i++) {
+         if (mPairs[i].mB != 0 && mPairs[i].mA != 0) {
+             float* a = (float*)mPairs[i].mA;
+-            atn::Vector3 pos(a[0x3C / 4], a[0x4C / 4], a[0x5C / 4]);
++            atn::Vector3 pos = PairPos_unk(a);
+             PSMTXMultVec((MtxPtr)((char*)mPairs[i].mB + 0x30), &pos, &pos);
+-            if ((float)__fabs(pos.y) < (float)__fabs(dist)) {
++            if (atn::Abs_unk(pos.y) < atn::Abs_unk(dist)) {
+                 dist = pos.y;
+             }
+         }
