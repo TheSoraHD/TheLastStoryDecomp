@@ -1027,9 +1027,9 @@ extern "C" int fn_804F7EF0(void* data, int size);
 extern "C" int fn_804F7F18();
 extern "C" int fn_804F7F34();
 extern "C" int fn_804EE040(unsigned int aid, void* data, unsigned int size);
-extern "C" void fn_804ED768();
-extern "C" void fn_804EDB0C();
-extern "C" void fn_804EDCCC();
+extern "C" int fn_804ED768(void* data, int init);
+extern "C" int fn_804EDB0C(int index, void* param);
+extern "C" int fn_804EDCCC(unsigned char* userData, void* param);
 extern "C" unsigned char lbl_8087F614;
 extern "C" const char* const lbl_80887594;
 extern "C" const char* const lbl_80887598;
@@ -3927,6 +3927,75 @@ extern "C" unsigned int fn_804DD9CC(PPManager2_unk* mgr, PPPlayer_unk* player, u
     return value;
 }
 
+extern "C" int fn_8050BA68(unsigned char** aids); // inferred: network ids of the hosts (count)
+// inferred: network id of the host `i` (0 in local play, 0xFF past the end); name invented
+static inline unsigned int GetHostAid_unk(int i) {
+    if (lbl_8087F628->mFlags.mB12) {
+        return 0;
+    }
+    unsigned char* aids;
+    if (fn_8050BA68(&aids) > i) {
+        return aids[i];
+    }
+    return 0xFF;
+}
+
+extern "C" int rand();
+
+// NONMATCHING: 94.90% - the original indexes the shuffle and the last loop as base + offset (here a moving pointer,
+// one register less) and registers
+// inferred: on the server: in a random order of the hosts, the players get a team: in mode 1 the one with fewer
+// players (at random when even) unless they already have one, else team 2
+extern "C" void fn_804DDA04(PPManager2_unk* mgr) {
+    atn::FixedArray_unk<int, 20> order;
+    for (int i = 0; i < GetNumHosts_unk(lbl_8087F628); i++) {
+        order.push_back(i);
+    }
+    for (int i = 0; i < (int)order.size(); i++) {
+        int j = rand() % (i + 1);
+        int tmp = order[i];
+        order[i] = order[j];
+        order[j] = tmp;
+    }
+    for (int i = 0; i < (int)order.size(); i++) {
+        PPPlayer_unk* player = fn_804DD158(mgr, GetHostAid_unk(order[i]));
+        if (player == 0) {
+            continue;
+        }
+        if (mgr->mMode == 1) {
+            int counts[3];
+            memset(counts, 0, sizeof(counts));
+            PPManager2_unk* mgr2 = (PPManager2_unk*)lbl_8087F610;
+            for (int k = 0; k < mgr2->mPlayers.mNum; k++) {
+                PPPlayer_unk* other = fn_804D5F0C(mgr2, k);
+                if (other->mFlags.mActive == 1) {
+                    counts[other->mFlags.m22]++;
+                }
+            }
+            if (player->mFlags.m22 != 0) {
+                continue;
+            }
+            bool first;
+            if (counts[2] < counts[1]) {
+                first = false;
+            } else if (counts[1] < counts[2]) {
+                first = true;
+            } else {
+                first = (int)(2.0f * (rand() / 32767.0f)) != 0;
+            }
+            if (first == true) {
+                counts[1]++;
+                player->mFlags.m22 = 1;
+            } else {
+                counts[2]++;
+                player->mFlags.m22 = 2;
+            }
+        } else {
+            player->mFlags.m22 = 2;
+        }
+    }
+}
+
 // inferred: state of the manager and the value set when a player slot is added (weak copies)
 extern "C" __declspec(noinline) inline int fn_804EE030(PPManager2_unk* mgr) {
     return mgr->mState;
@@ -3950,7 +4019,7 @@ extern "C" void fn_804DDD50(PPManager2_unk* mgr) {
     }
 }
 
-extern "C" int fn_804DE560(PPManager2_unk* mgr, int a, int b);
+extern "C" bool fn_804DE560(PPManager2_unk* mgr, int* count, bool* found);
 // NONMATCHING: 99.78% - aid and count of the inlined search fn_804DD158 swapped (as fn_804D8610)
 // inferred: on the server: fn_804E9360, fn_804DE560 and the state of its own slot (mode 2) to everybody; 0 when
 // fn_804DE560 fails
@@ -3972,18 +4041,6 @@ extern "C" int fn_804DDE34(PPManager2_unk* mgr) {
 extern "C" void fn_804DDA04(PPManager2_unk* mgr);
 extern "C" void fn_804DD574(PPManager2_unk* mgr, unsigned int aid, int arg);
 extern "C" void fn_804DCA54(PPManager2_unk* mgr);
-extern "C" int fn_8050BA68(unsigned char** aids); // inferred: network ids of the hosts (count)
-// inferred: network id of the host `i` (0 in local play, 0xFF past the end); name invented
-static inline unsigned int GetHostAid_unk(int i) {
-    if (lbl_8087F628->mFlags.mB12) {
-        return 0;
-    }
-    unsigned char* aids;
-    if (fn_8050BA68(&aids) > i) {
-        return aids[i];
-    }
-    return 0xFF;
-}
 
 // NONMATCHING: 98.90% - registers of the inlined searches fn_804DD158 and of the loops (own/counter, aid/index)
 // inferred: on the server: keeps the flags and m00B0 of every slot (mD4/mD8), fn_804DDA04, fn_804DD574 for the hosts
@@ -4045,6 +4102,50 @@ extern "C" int fn_804DE2F8(PPManager2_unk* mgr, int mode) {
         lbl_8087F628->fn_80509B4C(unused, 0, 0);
     }
     return 1;
+}
+
+// NONMATCHING: 99.23% - aid and offset of the inlined searches fn_804DD158 in r3/r4 (r4/r3 in the original) and the
+// own slot and the host count in r31/r30 (r30/r31)
+// inferred: on the server: every other host has a slot and its bit in the mask mD53 of the own slot (count of the
+// set bits in `count`, whether another host has a slot in `found`)
+extern "C" bool fn_804DE560(PPManager2_unk* mgr, int* count, bool* found) {
+    if (lbl_8087F628->GetMyAid_unk() != lbl_8087F628->GetServerAid_unk()) {
+        return false;
+    }
+    PPPlayer_unk* own = fn_804DD158(mgr, lbl_8087F628->GetMyAid_unk());
+    if (own == 0) {
+        return false;
+    }
+    bool any = false;
+    bool all = true;
+    int acks = 0;
+    int num = GetNumHosts_unk(lbl_8087F628);
+    for (int i = 0; i < num; i++) {
+        int aid = GetHostAid_unk(i);
+        if (own->mAid != aid) {
+            PPPlayer_unk* player = fn_804DD158(mgr, aid);
+            if (player != 0) {
+                any = true;
+                int bit = own->mD53 & (1 << player->mAid);
+                if (bit == 0) {
+                    all = false;
+                }
+                if (bit != 0) {
+                    acks++;
+                }
+            }
+        }
+    }
+    if (count != 0) {
+        *count = acks;
+    }
+    if (found != 0) {
+        *found = any;
+    }
+    if (all == true && acks + 1 != GetNumHosts_unk(lbl_8087F628)) {
+        all = false;
+    }
+    return all;
 }
 
 extern "C" void fn_800C3124(const char* group); // inferred: unloads a sound group
@@ -4908,6 +5009,172 @@ extern "C" PPPlayer_unk* fn_804EB870(PPManager2_unk* mgr) {
         }
     }
     return 0;
+}
+
+extern "C" int lbl_8087F604; // inferred: magic of the data of fn_804ED768 (set by fn_804FF478)
+
+// inferred: one entry of the data of fn_804ED768 (a kind and a value; -1/0 when unused)
+struct PPDataEntry_unk {
+    PPDataEntry_unk() : mKind(-1), mValue(0) {}
+    PPDataEntry_unk(short kind, short value) : mKind(kind), mValue(value) {}
+
+    short mKind;
+    short mValue;
+};
+
+// inferred: 0xC0 bytes of data with a magic and a version (5), checked and reset by fn_804ED768
+struct PPData_unk {
+    PPData_unk() : mMagic(lbl_8087F604), mVersion(5), m08(0), m0C(0) {}
+
+    int mMagic;                    // 0x00
+    int mVersion;                  // 0x04
+    int m08;
+    int m0C;
+    unsigned char m10[8];
+    PPDataEntry_unk mEntries[40];  // 0x18
+    unsigned char mB8[5];
+};
+
+// inferred: the data has the magic and the version 5
+static inline int IsValid_unk(PPData_unk* data) {
+    if (data == 0) {
+        return 0;
+    }
+    if (data->mMagic != lbl_8087F604 || data->mVersion != 5) {
+        return 0;
+    }
+    return 1;
+}
+
+// inferred: callback of the network thread (m99C0.mFuncs[1]); its two tables are lbl_807596F0 and lbl_80759718: with `init` resets `data` to the defaults (20 entries
+// of kind 20 and five bytes) and returns 1; else returns whether `data` has the right magic and version
+extern "C" int fn_804ED768(void* data, int init) {
+    int valid = IsValid_unk((PPData_unk*)data);
+    if (init == 0) {
+        return valid;
+    }
+    PPData_unk def;
+    memset(def.m10, 0, sizeof(def.m10));
+    int first[10] = {0, 14, 15, 12, 17, 24, 29, 27, 16, 23};
+    for (int i = 0; i < 10; i++) {
+        def.mEntries[i] = PPDataEntry_unk(20, first[i]);
+    }
+    int second[10] = {24, 25, 26, 27, 28, 30, 41, 42, 16, 23};
+    for (int i = 0; i < 10; i++) {
+        def.mEntries[10 + i] = PPDataEntry_unk(20, second[i]);
+    }
+    for (int i = 20; i < 40; i++) {
+        def.mEntries[i] = PPDataEntry_unk();
+    }
+    def.mB8[0] = 0;
+    def.mB8[2] = 1;
+    def.mB8[1] = 2;
+    def.mB8[3] = 8;
+    def.mB8[4] = 9;
+    memcpy(data, &def, sizeof(def));
+    return 1;
+}
+
+extern "C" int DWC_GetMatchIntValue(int index, const char* key, int idefault);
+extern "C" const char* fn_806B3B80(int index, const char* key, const char* sdefault); // DWC_GetMatchStringValue
+extern "C" int abs(int);
+
+// inferred: name and value of the debug key of the matchmaking (as atn/NetManager.cpp; its weak objects are
+// emitted here first)
+inline const char* GetDebugMatchKey_unk() { return "lw_debug"; }
+inline int& GetDebugMatchValue_unk() {
+    static int sValue = 1;
+    return sValue;
+}
+
+// NONMATCHING: 99.54% - offset of "notexiststring" in @stringBase0 (the two unreferenced "" missing) and the
+// registers of the friend list and the loop offset swapped
+// inferred: evaluation callback of the matchmaking (m99C0.mFuncs[2]): -1 if the session `index` lacks the debug
+// key or one of the filter keys or has another value; else the closeness of the fourth key (0x80 - distance,
+// in the upper half), 0x800000 if m25C is 1
+extern "C" int fn_804EDB0C(int index, void* param) {
+    MpFriendList_unk* list = &lbl_8087F628->mFriendList;
+    int result = 0x800000;
+    int value = DWC_GetMatchIntValue(index, GetDebugMatchKey_unk(), 66666);
+    if (value == 66666 || value != GetDebugMatchValue_unk()) {
+        goto fail;
+    }
+    for (int i = 0; i < 8; i++) {
+        atn::net::NetFilterKey_unk* key = &lbl_8087F628->mKeys[i];
+        if (key->mType == 1) {
+            if ((key->mFlags & 1) == 1) {
+                continue;
+            }
+            const char* none = "notexiststring";
+            const char* str = fn_806B3B80(index, key->mKey.c_str(), none);
+            if (strcmp(none, str) == 0 || strcmp(key->mString.c_str(), str) != 0) {
+                goto fail;
+            }
+        } else if (key->mType == 2) {
+            if ((key->mFlags & 1) == 1) {
+                continue;
+            }
+            int v = DWC_GetMatchIntValue(index, key->mKey.c_str(), 66666);
+            if (v == 66666 || v != key->mInt) {
+                goto fail;
+            }
+        } else {
+            break;
+        }
+    }
+    if (lbl_8087F628->m25C != 1) {
+        int v = DWC_GetMatchIntValue(index, fn_8050F8B0(list, 3), 66666);
+        if (v == 66666) {
+            goto fail;
+        }
+        result = (0x80 - abs(list->m1E8 - v)) << 16;
+    }
+    return result;
+fail:
+    return -1;
+}
+
+// NONMATCHING: 99.49% - r0/r4 of the second byte of the user data and the game mode, and r3/r4/r5 of the inlined
+// search fn_804DD158 (as fn_804D8610)
+// inferred: connection attempt callback of the matchmaking (m99C0.mFuncs[3]): the server refuses a client of
+// another kind of session (m25C), out of the lobby or, in mode 1, of an incompatible game mode, and everybody
+// refuses while the room is closed (m53C); else restarts the timer of the session and the server marks its slot
+extern "C" int fn_804EDCCC(unsigned char* userData, void* param) {
+    if (IsServer_unk() == 1) {
+        int kind = lbl_8087F628->m25C;
+        if (kind == 1 && ((PPManager2_unk*)lbl_8087F610)->mState != 12) {
+            return 0;
+        }
+        if (userData != 0) {
+            if (userData[0] != kind) {
+                return 0;
+            }
+            if (kind == 1) {
+                unsigned char value = userData[1];
+                int mode = ((PPManager2_unk*)lbl_8087F610)->mMode;
+                if (value != mode && (value == 2 || mode == 2)) {
+                    return 0;
+                }
+            }
+        }
+    }
+    if (((PPManager2_unk*)lbl_8087F610)->m53C == 1) {
+        return 0;
+    }
+    atn::net::Manager* net = lbl_8087F628;
+    net->m08++;
+    net->m04 = 5400;
+    if (IsServer_unk() == 1) {
+        ((PPManager2_unk*)lbl_8087F610)->m50A = 450;
+        PPManager2_unk* mgr = (PPManager2_unk*)lbl_8087F610;
+        if (lbl_8087F628->GetMyAid_unk() == lbl_8087F628->GetServerAid_unk()) {
+            PPPlayer_unk* player = fn_804DD158(mgr, lbl_8087F628->GetServerAid_unk());
+            if (player != 0) {
+                player->mFlags.m01 = 1;
+            }
+        }
+    }
+    return 1;
 }
 
 extern "C" void fn_804EE904(MpCharaRef_unk* ref);
@@ -6335,6 +6602,68 @@ extern "C" void fn_804F60D4(void* arg, void* value) {}
 extern "C" void fn_804F60D8(void* arg, void* value) {}
 
 extern "C" void fn_804F60DC(void* arg, void* value) {}
+
+#include "macros.h"
+
+// inferred: order of the ranking rows: higher score first (comparator of the sort fn_804F62D8)
+struct NetRankOrder_unk {
+    bool operator()(const atn::net::NetRankData_unk& a, const atn::net::NetRankData_unk& b) const;
+};
+extern "C" void fn_804F62D8(atn::net::NetRankData_unk* first, atn::net::NetRankData_unk* last,
+                            NetRankOrder_unk order); // inferred: std::sort of the rows
+
+// NONMATCHING: 99.60% - r5/r6 of the row and the place in the last loop
+// inferred: callback of the ranking requests: sorts the rows by score and numbers them (equal scores share the
+// place); the places are moved so that the first row keeps its place (the own row when asked around it) and
+// kept in 1..99999
+extern "C" void fn_804F60E0(int result, atn::net::NetRankData_unk* data) {
+    atn::FixedArray_unk<atn::net::NetRankData_unk, 65>* rows = &lbl_8087F5A4->mRows;
+    if (rows->size() == 0) {
+        return;
+    }
+    int pid = (*rows)[0].mPid;
+    int order = (*rows)[0].mOrder;
+    fn_804F62D8(rows->begin(), rows->end(), NetRankOrder_unk());
+    atn::net::NetRankData_unk* row = rows->begin();
+    unsigned long place = 1;
+    unsigned long ties = 0;
+    atn::net::NetRankData_unk* prev = 0;
+    for (unsigned int i = 0; i < rows->size(); i++) {
+        if (prev == 0) {
+            row->mOrder = place;
+        } else {
+            if (prev->mScore > row->mScore) {
+                place = place + ties + 1;
+                ties = 0;
+            } else {
+                ties++;
+            }
+            row->mOrder = place;
+        }
+        prev = row;
+        row++;
+    }
+    row = rows->begin();
+    int index = -1;
+    for (unsigned int i = 0; i < rows->size(); row++, i++) {
+        if ((int)row->mPid == pid) {
+            index = i;
+            break;
+        }
+    }
+    if (order > 0 && index >= 0) {
+        int diff = order - (*rows)[index].mOrder;
+        row = rows->begin();
+        for (unsigned int i = 0; i < rows->size(); row++, i++) {
+            row->mOrder = MIN(MAX(row->mOrder + diff, 1), 99999);
+        }
+    } else {
+        row = rows->begin();
+        for (unsigned int i = 0; i < rows->size(); row++, i++) {
+            row->mOrder = MIN(MAX(row->mOrder, 1), 99999);
+        }
+    }
+}
 
 // inferred: requests of the save/load task of the manager (type 0 and 1)
 extern "C" int fn_804F7EC8(void* data, int size) {
