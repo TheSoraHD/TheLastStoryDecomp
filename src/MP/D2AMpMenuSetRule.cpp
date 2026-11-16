@@ -337,15 +337,17 @@ struct MpPoint_unk {
     float m00[6];
 };
 
-// NONMATCHING: 99.82% - r29/r30 swapped for the first text/layout pair; tried the text as a
-// local, direct call, layout local, wrapper inlines
+// inferred: the first text is set with text, name and layout in locals (in that order) and a direct call
+// (register and instruction order of the original)
 void D2AMpMenuSetRule::fn_804CECEC() {
     wchar_t unused0[0x20] = {0};
     MpRect_unk unused1;
     MpPoint_unk unused2[4];
     m78 = lbl_8087F610->m540;
     const wchar_t* text = lbl_8087F86C->Get_unk(0xDB);
-    SetPaneText_unk(m4C[0]->mLayout, "name(1)", text);
+    const char* name = "name(1)";
+    void* layout = m4C[0]->mLayout;
+    fn_801FEE08(layout, fn_800DC6B4(name), text);
     m6C[0] = lbl_8087F610->m5A4;
     if (m78 == 2) {
         SetPaneText_unk(m4C[1]->mLayout, "name(1)", lbl_8087F86C->Get_unk(0xDC));
