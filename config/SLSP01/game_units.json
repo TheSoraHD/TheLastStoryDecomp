@@ -2714,7 +2714,7 @@
   "classes": [
    "HomingBullet"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "game/IffChunkFile_unk.cpp",
