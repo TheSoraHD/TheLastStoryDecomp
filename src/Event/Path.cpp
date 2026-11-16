@@ -146,11 +146,6 @@ void fn_80112220(const float& v, float& abs, float& sign) {
 
 namespace Event {
 
-// inferred: not inline (its "" is in the @stringBase0 pool of this file); inlined everywhere and
-// stripped by the linker
-CommonData::CommonData() : m04(0), m08(""), m14(0) {}
-
-// NONMATCHING: 99.8% - the original addresses the string pool by its label (lis order of the vtable and the pool swapped)
 EventCamera_unk::EventCamera_unk()
     : m274(0.0f, 0.0f, 1.0f), m3A4(), m400(0), m404(1.0f), m408(1.0f), m40C(1.0f), m410(1.0f), m414(0.0f),
       m418(0.0f), m41C(0), m420(0), m424(0.0f), m428(0.0f), m42C(0.0f), m430(0.0f), m434(1.5f), m438(1.5f),
