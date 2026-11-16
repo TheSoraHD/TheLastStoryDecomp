@@ -146,8 +146,8 @@ void D2ACommonDialog::fn_804AC96C(int repeat, float speed, int cursor, int type)
     m6C = 2;
 }
 
-// NONMATCHING: 98.84% - first text call: the original computes task+0x58 after the pool address
-// (tried text/layout locals, direct call, helpers with other parameter orders)
+// inferred: the first text call is written with text, name and layout locals (instruction order of
+// the original); the others with the plain helper
 void D2ACommonDialog::fn_804ACAF8() {
     Stop_unk(m54);
     Stop_unk(m58);
@@ -156,8 +156,10 @@ void D2ACommonDialog::fn_804ACAF8() {
     Stop_unk(m64);
     Stop_unk(m68);
     {
+        const wchar_t* text = L"";
+        const char* name = "select00_text";
         void* layout = m58->mLayout;
-        SetPaneText_unk(layout, "select00_text", L"");
+        fn_801FEE08(layout, fn_800DC6B4(name), text);
     }
     {
         void* layout = m58->mLayout;

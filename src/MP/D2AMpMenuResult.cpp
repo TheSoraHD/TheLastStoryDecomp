@@ -723,7 +723,6 @@ void D2AMpMenuResult::fn_804C76EC() {
     SetPaneText_unk(mC0->mLayout, "string0001(1)", L"");
 }
 
-// NONMATCHING: 99.63% - text/layout registers of the last SetPaneText
 void D2AMpMenuResult::fn_804C7C34(int value) {
     char name[0x40] = {0};
     wchar_t text[0x100] = {0};
@@ -734,7 +733,9 @@ void D2AMpMenuResult::fn_804C7C34(int value) {
     fn_800DD3FC(text, format, fn_804FA88C(session, value));
     SetPaneText_unk(mC8->mLayout, "check_msg", text);
     const wchar_t* str = lbl_8087F86C->Get_unk(0x12F);
-    SetTaskText_unk(mC8, "string0002(1)", str);
+    const char* pane = "string0002(1)";
+    void* layout = mC8->mLayout;
+    fn_801FEE08(layout, fn_800DC6B4(pane), str);
 }
 
 // NONMATCHING: 92.85% - same register/addressing differences as fn_804C76EC (L"\xFF0D%d" at +0x18 in the

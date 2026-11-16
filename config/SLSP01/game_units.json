@@ -1375,7 +1375,7 @@
  {
   "name": "db/MapIdTable_unk.cpp",
   "classes": [],
-  "matching": false
+  "matching": true
  },
  {
   "name": "db/RandomItemTable_unk.cpp",
@@ -3393,7 +3393,7 @@
  {
   "name": "AI/AiCommon_unk.cpp",
   "classes": [],
-  "matching": false
+  "matching": true
  },
  {
   "name": "game/TargetPos_unk.cpp",

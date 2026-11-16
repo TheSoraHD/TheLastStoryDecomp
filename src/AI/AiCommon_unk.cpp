@@ -226,6 +226,17 @@ extern "C" float fn_8001ADE8(int id, CharaTask* chara) {
     return dist;
 }
 
+// inferred: distance from the character to a point, -1.0f without one of them. Nothing calls it
+// and the linker removes it; only its -1.0f stays in .sdata2 (the original has it after the
+// literals of fn_8001AC54 and before the 1.5f of fn_8001AEDC)
+extern "C" float AiDistToPos_unk(CharaTask* chara, const atn::Vector3* pos) {
+    float dist = -1.0f;
+    if (chara != 0 && pos != 0) {
+        dist = PSVECMag(&(chara->mPos - *pos));
+    }
+    return dist;
+}
+
 extern "C" NpcTask* fn_8001AEBC(int id) {
     NpcTask* npc = 0;
     if (NpcManager::sInstance != 0) {
@@ -388,8 +399,6 @@ extern "C" void fn_8001B4CC(int value) {
 }
 
 // inferred: plays the motion `motion` on the current character, looking at the neck of `target`
-// note: .sdata2 order: the original has this -1.0f before the 1.5f of fn_8001AEDC (unit not linked;
-// only an unused local in an earlier function reproduced it)
 extern "C" void fn_8001B508(const char* motion, CharaTask* target) {
     if (target != 0) {
         MtxPtr neck = target->GetModel_unk()->GetNodeMtx_unk("neck");

@@ -925,7 +925,6 @@ void D2AMpMenuSetMessage::fn_804CC618() {
 }
 
 // inferred: names of the categories, greyed out when no message of the current list is in them
-// NONMATCHING: 99.4% - r22/r23 swapped for the first text and its layout
 void D2AMpMenuSetMessage::fn_804CC7A4() {
     MpRect_unk unused1;
     MpMsgPoint_unk unused2[4];
@@ -934,7 +933,9 @@ void D2AMpMenuSetMessage::fn_804CC7A4() {
         if (i < 20) {
             const wchar_t* text = lbl_8087F86C->Get_unk(i + 0x45);
             if (text != 0) {
-                SetTaskText_unk(m74[i], "string0029(1)", text);
+                const char* name = "string0029(1)";
+                void* layout = m74[i]->mLayout;
+                fn_801FEE08(layout, fn_800DC6B4(name), text);
             }
             if (HasMessage_unk(m164, i)) {
                 m110[i] = 1;

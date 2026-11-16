@@ -17,6 +17,8 @@ extern "C" float fn_800DC3CC(const wchar_t* s); // inferred: wide string to floa
 // inferred: the font (lbl_8087EEC8) converts UTF-16 text to the game encoding
 extern "C" void* lbl_8087EEC8;
 extern "C" int fn_8006F420(void* font, char* dst, const wchar_t* src, int size);
+// inferred: weak getter of the font (a `lwz r3, lbl_8087EEC8; blr` copy in the DOL)
+inline void* GetFont_unk() { return lbl_8087EEC8; }
 // inferred: copy / conversion of a text to buf + pos, returning the next position (db/CharaIdTable_unk)
 extern "C" int fn_80208B70(const char** out, const char* src, char* buf, int pos);
 extern "C" int fn_80208A3C(const char** out, const wchar_t* src, char* buf, int pos);
@@ -100,10 +102,6 @@ extern "C" void fn_802174F4();
 
 // inferred: loads the map tables (/boot/map_id_table_xx.u16, map_sub_id_table.csv,
 // map_motion_table.csv and map_chara_list.csv)
-// NONMATCHING: 99.88% - registers only: the original reuses the register of the CSV length for the
-// font of the first loop (r27) and the one of the CSV address for the index (r28); here both get
-// new registers. Tried declaring font/i/pos earlier and passing the font global directly, an
-// unsigned index, declaration orders in Find_unk (entry++, i++ there fixed the subtable loop).
 extern "C" void fn_80216CD0() {
     void* data;
     unsigned long size = 0;
@@ -115,8 +113,7 @@ extern "C" void fn_80216CD0() {
         if (wcscmp(wcsv.fn_8005B9CC(), L"") != 0) {
             continue;
         }
-        void* font = lbl_8087EEC8;
-        fn_8006F420(font, id, wcsv.fn_8005B9CC(), 0x20);
+        fn_8006F420(GetFont_unk(), id, wcsv.fn_8005B9CC(), 0x20);
         if (strcmp(id, "") == 0) {
             continue;
         }
@@ -127,21 +124,16 @@ extern "C" void fn_80216CD0() {
         wcsv.fn_8005B9CC();
         wcsv.fn_8005B9CC();
         wcsv.fn_8005B9CC();
-        font = lbl_8087EEC8;
-        fn_8006F420(font, id, wcsv.fn_8005B9CC(), 0x20);
+        fn_8006F420(GetFont_unk(), id, wcsv.fn_8005B9CC(), 0x20);
         textSize += strlen(id) + 2;
-        font = lbl_8087EEC8;
-        fn_8006F420(font, id, wcsv.fn_8005B9CC(), 0x20);
+        fn_8006F420(GetFont_unk(), id, wcsv.fn_8005B9CC(), 0x20);
         textSize += strlen(id) + 2;
         wcsv.fn_8005B9CC();
-        font = lbl_8087EEC8;
-        fn_8006F420(font, id, wcsv.fn_8005B9CC(), 0x20);
+        fn_8006F420(GetFont_unk(), id, wcsv.fn_8005B9CC(), 0x20);
         textSize += strlen(id) + 2;
-        font = lbl_8087EEC8;
-        fn_8006F420(font, id, wcsv.fn_8005B9CC(), 0x20);
+        fn_8006F420(GetFont_unk(), id, wcsv.fn_8005B9CC(), 0x20);
         textSize += strlen(id) + 2;
-        font = lbl_8087EEC8;
-        fn_8006F420(font, id, wcsv.fn_8005B9CC(), 0x40);
+        fn_8006F420(GetFont_unk(), id, wcsv.fn_8005B9CC(), 0x40);
         textSize += strlen(id) + 2;
         sCount++;
     }
@@ -154,8 +146,7 @@ extern "C" void fn_80216CD0() {
         if (wcscmp(wcsv.fn_8005B9CC(), L"") != 0) {
             continue;
         }
-        void* font = lbl_8087EEC8;
-        fn_8006F420(font, id, wcsv.fn_8005B9CC(), 0x20);
+        fn_8006F420(GetFont_unk(), id, wcsv.fn_8005B9CC(), 0x20);
         if (strcmp(id, "") == 0) {
             continue;
         }
