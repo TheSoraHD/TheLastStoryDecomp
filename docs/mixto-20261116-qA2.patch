@@ -1,0 +1,139 @@
+diff --git a/include/game/CrowdSimulation.h b/include/game/CrowdSimulation.h
+index 0beb832b..1f93eba2 100644
+--- a/include/game/CrowdSimulation.h
++++ b/include/game/CrowdSimulation.h
+@@ -48,7 +48,7 @@ public:
+     virtual void vf14();
+ 
+     // inferred: name invented (the group is fetched again through mDesc)
+-    bool IsValidHours_unk(int i) { return mDesc->mGroups[i].mStart <= mDesc->mGroups[i].mEnd; }
++    bool IsValidHours_unk(unsigned int i) { return mDesc->mGroups[i].mStart <= mDesc->mGroups[i].mEnd; }
+ 
+     int m48;
+     unsigned char m4C[0x162C - 0x4C];
+diff --git a/src/game/CrowdSimulation.cpp b/src/game/CrowdSimulation.cpp
+index a1f05570..6dc322cb 100644
+--- a/src/game/CrowdSimulation.cpp
++++ b/src/game/CrowdSimulation.cpp
+@@ -1,6 +1,7 @@
+ #include "game/CrowdSimulation.h"
+ #include "game/GameScene.h"
+ #include "game/CharaStatus.h"
++#include "game/AiTarget.h"
+ #include "atn/Memory.h"
+ #include <boost/function.hpp>
+ 
+@@ -21,10 +22,7 @@ struct Field_unk {
+     RouteTable_unk* m10D8;
+ };
+ extern "C" Field_unk* lbl_8087F430;
+-// inferred: route manager of the town walkers (lbl_8087EE68)
+-extern "C" void* lbl_8087EE68;
+-extern "C" int fn_80016C10(void* mgr, int route, boost::function<void()>* callback);
+-extern "C" int fn_80019254(void* mgr, int point, const atn::Vector3* pos, int route, int arg4, int arg5, float rot,
++extern "C" int fn_80019254(AIManager* mgr, int point, const atn::Vector3* pos, int route, int arg4, int arg5, float rot,
+                            float angle, float min, float max);
+ 
+ CrowdSimulation* CrowdSimulation::sInstance;
+@@ -36,12 +34,12 @@ CrowdSimulation* CrowdSimulation::fn_801EB93C(atn::Task* parent, CrowdDesc_unk*
+     return sInstance;
+ }
+ 
+-// NONMATCHING: the group loop uses one offset register for both group accesses here (two in ours),
+-// and the boost::function local is destroyed with a null test of its address
++// NONMATCHING: 97.9% - only register numbering: the 0x4330 high word of the int->float conversion gets
++// r31 here and r16 (shared with `data`) in the original, and everything else is one register lower
+ CrowdSimulation::CrowdSimulation(atn::Task* parent, CrowdDesc_unk* data)
+     : atn::Task(parent), m48(0), mDesc(data) {
+-    int hour = -1;
+     unsigned int count = 0;
++    int hour = -1;
+     if (lbl_8087F430 != 0) {
+         hour = lbl_8087F430->m10D0;
+     }
+@@ -68,11 +66,7 @@ CrowdSimulation::CrowdSimulation(atn::Task* parent, CrowdDesc_unk* data)
+             }
+         }
+         for (unsigned int j = 0; j < mDesc->mGroups[i].mCount; j++) {
+-            int point;
+-            {
+-                boost::function<void()> callback;
+-                point = fn_80016C10(lbl_8087EE68, mDesc->mGroups[i].mRoute, &callback);
+-            }
++            int point = lbl_8087EE68->fn_80016C10(mDesc->mGroups[i].mRoute, boost::function<int(gs::MovePoint*)>());
+             mWalkers[index].mGroup = i;
+             mWalkers[index].mPoint = point;
+             mWalkers[index].mDest = point;
+diff --git a/src/game/Em101ElderZesyaSecond.cpp b/src/game/Em101ElderZesyaSecond.cpp
+index a3a55191..bed0a186 100644
+--- a/src/game/Em101ElderZesyaSecond.cpp
++++ b/src/game/Em101ElderZesyaSecond.cpp
+@@ -1,4 +1,5 @@
+ #include "game/SkillEffectManager.h"
++#include "math/VecAssign_unk.h"
+ #include "game/Em101ElderZesyaSecond.h"
+ #include "chr/ControlChant.h"
+ #include "game/HitInfo_unk.h"
+@@ -381,10 +382,10 @@ void Em101ElderZesyaSecond::vf10() {
+     sphere.mRadius = 20.0f;
+     if (m1554 != 0) {
+         atn::Vector3 c = GetTrans_unk(mMotion.GetNodeMtx_unk("spine"));
+-        sphere.mCenter = c;
++        atn::VecAssign_unk(sphere.mCenter, c);
+     } else {
+         atn::Vector3 c(0.0f, -10000.0f, 0.0f);
+-        sphere.mCenter = c;
++        atn::VecAssign_unk(sphere.mCenter, c);
+     }
+     m1580.mSphere = sphere;
+ }
+diff --git a/src/game/HomingBullet.cpp b/src/game/HomingBullet.cpp
+index 3f83c361..45d78cb9 100644
+--- a/src/game/HomingBullet.cpp
++++ b/src/game/HomingBullet.cpp
+@@ -222,7 +222,7 @@ void HomingBullet::fn_80441E8C(const atn::Vector3* dir, CharaTask* owner, CharaT
+ }
+ 
+ // inferred: unit vector along z rotated by `rad` around y (name invented)
+-inline atn::Vector3 FrontDir_unk(float rad) {
++inline atn::Vector3 FrontDir_unk(const float& rad) {
+     atn::Vector3 v(0.0f, 0.0f, 1.0f);
+     Mtx r;
+     PSMTXRotRad(r, 'y', rad);
+@@ -248,10 +248,9 @@ inline atn::Matrix3x4 RotZYX_unk(const atn::Vector3& rot) {
+ 
+ // inferred: the bullet hits `chara`: the character can parry it (2: caught and thrown back by
+ // chr::ControlHitBackBullet, 4: split into two homing bullets toward the leader, 1/3: reflected)
+-// NONMATCHING: 98.2% - registers only: the float constants kept across the split loop (90, 0, 5, 1,
+-// the int->float double) get other callee-saved registers, and the temporaries of CanAct_unk and of
+-// the damage record use other volatile registers. Tried: the angle as a local before/after `off`,
+-// DegToRad_unk or the constant written out, CanAct_unk split.
++// NONMATCHING: 99.36% - registers only: the volatile registers of the inlined DamageResult_unk ctor and of the
++// 0x80008 argument (r11/r10/r8/r6 in the original, r12/r11/r6+r8/r10 here). Tried: damage declared earlier,
++// HitDamage_unk/HitPos_unk of BattleTask, explicit mDamage = 0, manager in a local or through fn_8013A194.
+ int HomingBullet::vf1C(CharaTask* chara, const atn::Vector3* pos, void* arg) {
+     if (HasFlag_unk(0x100) && chara->CanAct_unk() && (chara->mFlag5 || chara->mType != 0)) {
+         atn::Vector3 dir = m20;
+@@ -310,10 +309,10 @@ int HomingBullet::vf1C(CharaTask* chara, const atn::Vector3* pos, void* arg) {
+                         } else {
+                             mA0.mTarget = m88;
+                         }
+-                        float deg = 90.0f * i;
++                        float step = 90.0f;
+                         atn::Vector3 off(5.0f, 0.0f, 1.0f);
+                         Mtx rz;
+-                        PSMTXRotRad(rz, 'z', atn::DegToRad_unk(deg));
++                        PSMTXRotRad(rz, 'z', atn::DegToRad_unk(step * i));
+                         PSMTXMultVec(rz, &off, &off);
+                         atn::Matrix3x4 m = RotZYX_unk(d.ToRotation_unk());
+                         PSMTXMultVec(m.m, &off, &off);
+@@ -351,8 +350,8 @@ int HomingBullet::vf1C(CharaTask* chara, const atn::Vector3* pos, void* arg) {
+                 PSVECNormalize(&d, &d);
+                 d *= PSVECMag(&m20);
+                 m20 = d;
+-                m04 |= 0x200;
+                 m08 = *pos;
++                m04 |= 0x200;
+                 mA0.mTime = 0.0f;
+                 fn_8010F4BC();
+                 if (res == 1) {
