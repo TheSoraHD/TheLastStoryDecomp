@@ -98,6 +98,8 @@ public:
     void fn_803B6C88(int enabled);
     void fn_803B6E04(GameMessage* msg, int arg, float time); // inferred: same arguments as fn_803B6970 (GameEventScript::fn_803A5804)
     void fn_803B710C();
+    void Start_unk(GameMessage*, int, float, int); // inferred: inlined, name invented
+    void Choose_unk(); // inferred: inlined, name invented
     void fn_803B78B4(GameMessage* msg); // inferred: queues a message
     void fn_803B78E8();          // inferred: sets the event counter of the message
     unsigned int GetCount_unk() const { return mCount; } // inferred: name invented
@@ -107,12 +109,13 @@ public:
         mQueue[(mHead + mCount) & 0x3F] = msg;
         mCount++;
     }
+    GameMessage* Pop_unk(); // inferred: next message of the queue (inlined in vf10; name invented)
 
     GameLayout_unk* mLayout; // 0x48
-    int m4C;
+    GameMessage* mMessage;   // 0x4C: inferred: message shown (fn_803B6970)
     int mState;              // 0x50
-    int m54;
-    int m58;
+    int m54;                 // inferred: frames left of the message (GameMessage::m30)
+    int m58;                 // inferred: time of the choice window (GameMessage::m34 or the voice length)
     int m5C;
     float m60;
     int m64;
@@ -122,6 +125,8 @@ public:
     unsigned char m71;       // inferred: the event counter m78 must be set
     int m74;                 // inferred: 0 sets the counter, 1 adds to it
     int m78;                 // inferred: event counter
+    // inferred: 0x7C-0xB3 have the layout of a GameMessage (empty message of the choice window,
+    // fn_803B6970); kept as fields because the destructor does not destroy a GameMessage
     int m7C;
     int m80;
     int m84;
