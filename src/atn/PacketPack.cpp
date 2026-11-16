@@ -490,9 +490,18 @@ struct PPPlayerArray_unk {
 };
 
 // inferred: entry of the character list of MP::Manager2 (0xB4 bytes, array at +0x5F0); names invented
+// inferred: character information copied from the character (0x30 bytes, fn_804D8078)
+struct PPCharaInfo_unk {
+    int m[12];
+};
 struct PPCharaEntry_unk {
     MpCharaRef_unk mRef;
-    unsigned char m04[0xB0 - 0x4];
+    int m04[14];                  // inferred: layout from the copy fn_804E7434 (words, floats, words)
+    float m3C[6];
+    int m54[9];
+    int m78;
+    int m7C;
+    PPCharaInfo_unk m80;
     unsigned int mActive : 1; // 0xB0: inferred: the entry is used (fn_804E7AC0)
     unsigned int mB0_0 : 31;
 };
@@ -1031,7 +1040,7 @@ extern "C" int fn_804DC684(PPManager2_unk* mgr);
 extern "C" void fn_804FB470(PPManager2_unk* mgr, int code, int arg);
 extern "C" int fn_804DC450(PPManager2_unk* mgr, int mode);
 extern "C" void fn_804FAD48(PPManager2_unk* mgr, int value);
-extern "C" void fn_804DF11C(PPManager2_unk* mgr, int on);
+extern "C" void fn_804DF11C(PPManager2_unk* mgr, unsigned int reset);
 extern "C" void fn_804FB674(PPManager2_unk* mgr);
 extern "C" void fn_804DA34C(PPManager2_unk* mgr);
 extern "C" void fn_804DA48C(PPManager2_unk* mgr, int value);
@@ -1065,9 +1074,6 @@ extern "C" int fn_804EB3CC(PPManager2_unk* mgr, int index);
 extern "C" bool fn_804EB5D8(PPManager2_unk* mgr);
 extern "C" void fn_804E9C64(PPManager2_unk* mgr);
 // inferred: copy of the character information of a player (0x30 bytes at PPPlayer_unk + 4); names invented
-struct PPCharaInfo_unk {
-    int m[12];
-};
 extern "C" __declspec(noinline) inline PPCharaInfo_unk* fn_804D8078(PPCharaInfo_unk* dst, const PPCharaInfo_unk* src) {
     *dst = *src;
     return dst;
@@ -4003,6 +4009,48 @@ extern "C" int fn_804DE2F8(PPManager2_unk* mgr, int mode) {
     return 1;
 }
 
+extern "C" void fn_800C3124(const char* group); // inferred: unloads a sound group
+
+// NONMATCHING: 96.79% - the original empties m5F0 as `n - n` (an inlined erase; `n -= n` folds to 0 here) and
+// registers of the inlined search of the own player
+// inferred: end of the game: deletes the game task and the characters of the players (the team players lose
+// their slot), the popup and the effects of the game; with `reset` set also the player slots (fn_804DF310);
+// then the sound groups of the enemies are unloaded
+extern "C" void fn_804DF11C(PPManager2_unk* mgr, unsigned int reset) {
+    if (mgr->mGame != 0) {
+        fn_800D2338(mgr->mGame);
+        mgr->mGame = 0;
+        mgr->mCharas.mNum = 0;
+        PPPlayer_unk* own = fn_804DD158(mgr, lbl_8087F628->GetMyAid_unk());
+        if (own != 0) {
+            own->mRef.mChara = 0;
+        }
+        for (int i = 0; i < mgr->mPlayers.mNum; i++) {
+            PPPlayer_unk* player = fn_804D5F0C(mgr, i);
+            if (player->mRef.mChara != 0) {
+                fn_800D2338(player->mRef.mChara);
+                player->mRef.mChara = 0;
+                if (IsTeamPlayer_unk(&mgr->mPlayers.mData[i]) == 1) {
+                    player->mFlags.mActive = 0;
+                    player->mFlags.m22 = 0;
+                }
+            }
+        }
+    }
+    if (MP::Popup::sInstance != 0) {
+        fn_800D2338(MP::Popup::sInstance);
+    }
+    mgr->m96B4.Destroy();
+    mgr->m96C0.Destroy();
+    if (reset == 1) {
+        fn_804DF310(mgr);
+    }
+    fn_800C3124("GROUP_MP_EM001");
+    fn_800C3124("GROUP_MP_EM102");
+    fn_800C3124("GROUP_MP_EM002");
+    fn_800C3124("GROUP_MP_EM003");
+}
+
 // NONMATCHING: 90.49% - the original reloads lbl_8087F610 in every iteration and keeps the zero of the index in
 // two more registers
 // inferred: resets the player slots (and the aid tables m9984/m998C)
@@ -4265,7 +4313,12 @@ extern "C" __declspec(noinline) inline void fn_804E80C8(PPHalfVec_unk* dst, cons
 extern "C" __declspec(noinline) inline atn::Vector3* fn_804E81C4(CharaTask* chara) {
     return &chara->mFA4;
 }
-extern "C" void fn_804E7434(PPCharaEntry_unk* dst, const PPCharaEntry_unk* src);
+// NONMATCHING: 66.39% - order of the copy: the original copies m78 and the block m80 (through a stack temporary)
+// first, then the rest
+// inferred: copy of an entry of the character list (weak copy, as fn_804D8078)
+extern "C" __declspec(noinline) inline void fn_804E7434(PPCharaEntry_unk* dst, const PPCharaEntry_unk* src) {
+    *dst = *src;
+}
 extern "C" int fn_804E650C(CharaTask* chara);
 extern "C" int fn_804CF424(ModelSlotsN_unk* model);
 extern "C" void fn_804CF374(PackedMotion_unk* out, atn::Model* model, int index);
