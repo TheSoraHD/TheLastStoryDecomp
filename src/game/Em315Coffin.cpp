@@ -311,8 +311,6 @@ inline bool CanLinkTo_unk(Em315Coffin* self) {
     return self->mC58.mC4->fn_8016F530(0) != 0;
 }
 
-// NONMATCHING: 99.81% - FPR numbering of the inlined fade start/update (the original gives the lowest
-// registers to the values loaded first); ~16 variants of the interpolation statements and parameters tried
 void Em315Coffin::vf104() {
     m14C0++;
     if (m1634 != 0) {

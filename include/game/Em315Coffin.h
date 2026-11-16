@@ -51,13 +51,13 @@ struct CoffinFade_unk {
             End_unk();
         }
     }
+    // inferred: delta before the value, as in SongInterp_unk::Lerp_unk (Em315Coffin::vf104, 0x80314384)
     void Lerp_unk() {
-        float ratio = mTime / mDuration;
-        float range = mTo - mFrom;
-        float prev = mValue;
-        float d = ratio * range;
-        mValue = mFrom + d;
-        mDelta = mValue - prev;
+        float t = mTime / mDuration;
+        float d = t * (mTo - mFrom);
+        float cur = mFrom + d;
+        mDelta = cur - mValue;
+        mValue = cur;
     }
     bool IsActive_unk() const { return mActive; }
     void Update_unk() {

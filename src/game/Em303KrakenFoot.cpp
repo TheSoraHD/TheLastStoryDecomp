@@ -1,4 +1,5 @@
 #include "game/Em303KrakenFoot.h"
+#include "math/VecAssign_unk.h"
 #include "game/GameTask.h"
 #include "game/GameVoice.h"
 #include "atn/Csv.h"
@@ -109,8 +110,6 @@ extern "C" void fn_802E2468(Em303KrakenFoot* foot, int value) {
     foot->m1504 = value;
 }
 
-// NONMATCHING: 99.7% - the flags 0x2A (status) / 0x200 (m54C): load and store order (as in
-// Em303KrakenFootMp::vf0C)
 int Em303KrakenFoot::vf0C() {
     if (fn_8013655C() != 0) {
         return 0;
@@ -135,8 +134,10 @@ int Em303KrakenFoot::vf0C() {
     mStatus.m18 |= 0x3800000;
     fn_802E2640((const char*)m14B0.fn_80470580(), m14B0.fn_8047059C());
     m14D4 = mMotion.GetNodeMtx_unk("catch_point");
+    // inferred: the status word is read before the store to m54C (load order of the original)
+    int flags = mStatus.mParamB.m9C;
     m54C |= 0x200;
-    mStatus.mParamB.m9C |= 0x2A;
+    mStatus.mParamB.m9C = flags | 0x2A;
     mRoute.mA0 = 1;
     m14B8 = 0;
     m14BC = 0;
@@ -176,7 +177,7 @@ void Em303KrakenFoot::UpdateColli_unk() {
     atn::Vector3 base = mPos;
     MtxPtr ref = mMotion.GetNodeMtx_unk("reference");
     if (ref != 0) {
-        base = GetNodePos_unk(ref);
+        atn::VecAssign_unk(base, GetNodePos_unk(ref));
     }
     m620 = m5B0;
     m614 = base + m5A4;
@@ -189,8 +190,6 @@ void Em303KrakenFoot::UpdateColli_unk() {
     mColli.m54 = m620;
 }
 
-// NONMATCHING: 99.63% - only r3/r4 of the copy of the "reference" node position in UpdateColli_unk
-// (__VecCopy family, documented blocker; 5 forms tried)
 void Em303KrakenFoot::vf10() {
     fn_802E3604();
     m14BC++;
@@ -235,7 +234,8 @@ void Em303KrakenFoot::vf10() {
                 }
             } else if (mMotion.mTracks[0].m08 >= 19.0f && mMotion.mTracks[0].m08 <= 23.0f) {
                 int id = m590;
-                lbl_8087F048->fn_800F8C6C(0, 0, this, m14D8, id, 0.0f, 30, -1);
+                HitInfo_unk* hit = m14D8;
+                lbl_8087F048->fn_800F8C6C(0, 0, this, hit, id, 0.0f, 30, -1);
             }
             break;
         case 13:
