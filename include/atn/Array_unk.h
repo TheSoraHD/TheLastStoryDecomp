@@ -194,7 +194,7 @@ public:
     }
     // inferred: Resize_unk from heap 0 (weak copies 0x8004269C and 0x80042E28 in
     // game/AreaEffConfig.cpp; name invented)
-    void Alloc0_unk(int n) { Resize_unk(n, 0); }
+    void Alloc0_unk(int n) { Resize_unk(n, 0, 0); }
     // inferred: weak copy inside AreaEffConfig's row assignment (0x80042EEC)
     SimpleArray& operator=(const SimpleArray& o) {
         Resize_unk(o.mSize, 0);

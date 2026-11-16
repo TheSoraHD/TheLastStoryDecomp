@@ -25,14 +25,13 @@ int strcmp(const char* a, const char* b);
 int sprintf(char* buf, const char* fmt, ...);
 }
 extern "C" unsigned int fn_800DC6B4(const char* s); // inferred: string hash
-extern "C" double fn_800DC288(const char* s);        // inferred: atof
+extern "C" float fn_800DC288(const char* s);         // inferred: atof
 
 // inferred: file name and folder of a path
 extern "C" std::basic_string<char> fn_8006B174(const std::basic_string<char>& path);
 std::basic_string<char> fn_8006B0C8(const std::basic_string<char>& path);
 
 
-extern "C" void fn_80095CD0(atn::Model* model); // inferred: update
 
 #include "atn/MapModelCache_unk.h"
 
@@ -79,7 +78,7 @@ extern "C" void fn_8009FE24() {
             *it = 0;
         } else if (m != 0) {
             if (fn_8009FFCC(*it) == 0 && ((*(unsigned int*)((char*)*it + 0x21C)) & 1)) {
-                fn_80095CD0((*it)->mModel.GetModel_unk());
+                (*it)->mModel.GetModel_unk()->fn_80095CD0();
             }
         }
     }

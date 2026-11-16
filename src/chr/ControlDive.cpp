@@ -158,7 +158,6 @@ ControlCoverSlip::ControlCoverSlip(Chara_unk* chara) : ControlBase(chara) {
     PlayDiveMotion_unk(m, 0x61, 1.0f);
 }
 
-// NONMATCHING: 98.9% - `ret` is in r31 (r30 in the original, shared with the character).
 int ControlCoverSlip::vf0C() {
     int ret = 0;
     Motion_unk* motion = &mChara->mMotion;
@@ -171,9 +170,8 @@ int ControlCoverSlip::vf0C() {
     }
     float frame = motion->mTracks[0].m08;
     if (frame >= motion->fn_80097D7C(0) - 5.0f) {
-        CharaTask* chara = mChara;
-        if (chara->m564 == 2) {
-            mChara->mC58.m0C.mDestPoint = FindRoutePoint_unk(lbl_8087F430->m10D8, chara);
+        if (mChara->m564 == 2) {
+            mChara->mC58.m0C.mDestPoint = FindRoutePoint_unk(lbl_8087F430->m10D8, mChara);
         }
         ret = 1;
     }
@@ -271,11 +269,11 @@ ControlBackStep::ControlBackStep(Chara_unk* chara, const atn::Vector3& dir, int 
     }
 }
 
-// NONMATCHING: 97.4% - `ret` is in r31 (r30 in the original) and the m20 update loads in other order.
 int ControlBackStep::vf0C() {
     int ret = 0;
-    m20 -= lbl_8087EFA8->m3A4;
-    Motion_unk* motion = &mChara->mMotion;
+    float scale = lbl_8087EFA8->m3A4;
+    m20 -= scale;
+    Motion_unk* motion = mChara->GetModel_unk();
     float t = 0.0f > m20 / 20.0f ? 0.0f : m20 / 20.0f;
     mChara->mPos = LerpDive_unk(m08, m14, t);
     if (m20 <= 0.0f) {
@@ -283,9 +281,8 @@ int ControlBackStep::vf0C() {
     }
     float frame = motion->mTracks[0].m08;
     if (frame >= motion->fn_80097D7C(0)) {
-        CharaTask* chara = mChara;
-        if (chara->m564 == 2) {
-            mChara->mC58.m0C.mDestPoint = FindRoutePoint_unk(lbl_8087F430->m10D8, chara);
+        if (mChara->m564 == 2) {
+            mChara->mC58.m0C.mDestPoint = FindRoutePoint_unk(lbl_8087F430->m10D8, mChara);
         }
         ret = 1;
     }
