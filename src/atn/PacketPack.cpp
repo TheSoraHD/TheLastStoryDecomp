@@ -689,7 +689,7 @@ struct Manager2 : public atn::Task {
     int m560;                         // inferred: settings of message 0x0F (m560-m598)
     int m564;                         // inferred: also the time limit of the game (seconds)
     int m568;
-    unsigned char m56C[0x20];
+    int m56C[8];                      // inferred: warp point kept per player slot (fn_804EAA84)
     unsigned char m58C[0xC];
     int m598;
     int m59C;                         // inferred: aid of the server
@@ -5212,6 +5212,82 @@ extern "C" void fn_804EAA5C(PPManager2_unk* mgr, int value) {
 extern "C" void fn_804EAA68(PPManager2_unk* mgr, int value) {
     atn::net::Manager* net = lbl_8087F628;
     net->m264 = value >= 8 ? 8 : value;
+}
+
+extern "C" int fn_804FC7E0(PPManager2_unk* mgr, atn::FixedArray_unk<gs::WarpPoint*, 32>* list, int team);
+extern "C" int rand();
+extern "C" float PSVECSquareMag(const atn::Vector3* v);
+
+// inferred: random offset of a warp position (-2.5 to 2.5)
+static inline float RandWarpOffset_unk() {
+    return 5.0f * ((rand() % 1001) / 1000.0f) - 2.5f;
+}
+
+// NONMATCHING: 98.74% - registers (parameters, index of the search, counters of the loop)
+// inferred: places the character of a player on a warp point of its team: the kept one of its slot (m56C,
+// `keep`), else (in game mode 0, or 1 without `b`) the next one after the last chosen (m608) far enough from the
+// other players (50), else a random one, with a random offset; the main player keeps the choice in m608
+extern "C" void fn_804EAA84(PPManager2_unk* mgr, CharaTask* chara, int keep, int b) {
+    PPPlayer_unk* player = 0;
+    int index = -1;
+    for (unsigned int i = 0; i < mgr->mPlayers.mNum; i++) {
+        PPPlayer_unk* slot = &mgr->mPlayers.mData[i];
+        if (slot->mFlags.mActive == 1 && slot->mRef.mChara == chara) {
+            player = slot;
+            index = i;
+            break;
+        }
+    }
+    if (chara == 0 || player == 0 || index < 0) {
+        return;
+    }
+    atn::Vector3 pos(chara->mPos);
+    atn::Vector3 rot(0.0f, chara->mRot.y, 0.0f);
+    atn::FixedArray_unk<gs::WarpPoint*, 32> list;
+    if (fn_804FC7E0(mgr, &list, player->mFlags.m22) != 0) {
+        int sel = -1;
+        if (keep != 0) {
+            sel = mgr->m56C[index];
+        } else if (mgr->mMode != 2 && (mgr->mMode == 0 || b == 0)) {
+            unsigned int num;
+            if (mgr->m608 >= 0 && (num = list.size()) > 2) {
+                sel = (mgr->m608 + rand() % (num - 2) + 1) % num;
+                gs::WarpPoint* point = list[sel];
+                int ok = 1;
+                for (int i = 0; i < mgr->mPlayers.mNum; i++) {
+                    PPPlayer_unk* other = &mgr->mPlayers.mData[i];
+                    if (other->mFlags.mActive && other->mRef.mChara != 0 &&
+                        !other->mRef.mChara->fn_8016F3D0(player->mRef.mChara, 1)) {
+                        atn::Vector3 d = point->mPos - other->mRef.mChara->mPos;
+                        if (PSVECSquareMag(&d) < 2500.0f) {
+                            ok = 0;
+                            break;
+                        }
+                    }
+                }
+                if (ok == 0) {
+                    sel = (sel + 1) % list.size();
+                }
+            } else {
+                sel = rand() % list.size();
+            }
+        }
+        if (sel >= 0 && sel < (int)list.size()) {
+            gs::WarpPoint* point = list[sel];
+            pos = point->mPos;
+            if (keep == 0) {
+                atn::Vector3 offset(RandWarpOffset_unk(), RandWarpOffset_unk(), RandWarpOffset_unk());
+                pos += offset;
+            }
+            rot = atn::Vector3(0.0f, point->m14, 0.0f);
+            if (player->mFlags.m30 == 1) {
+                mgr->m608 = sel;
+            }
+        }
+    }
+    chara->mPos = pos;
+    chara->mRot = rot;
+    chara->fn_8015495C(1, 1, 1, 1);
 }
 
 // inferred: kind (1 none, 2 player, 3 character of the list) and index of a character, in the high half
