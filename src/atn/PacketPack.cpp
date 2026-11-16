@@ -3462,6 +3462,42 @@ extern "C" int fn_804DDE34(PPManager2_unk* mgr) {
     return 1;
 }
 
+// NONMATCHING: 97.36% - registers of the team count loop (counter/offset/base) and of the inlined search
+// inferred: on the server, starts the match (Manager::fn_80509B4C) after fn_804DE560; out of the modes 2 and 3 both
+// teams need players
+extern "C" int fn_804DE2F8(PPManager2_unk* mgr, int mode) {
+    if (IsServer_unk() == 1) {
+        if (mode != 2 && mode != 3) {
+            int counts[3];
+            memset(counts, 0, sizeof(counts));
+            PPManager2_unk* mgr2 = (PPManager2_unk*)lbl_8087F610;
+            for (int i = 0; i < mgr2->mPlayers.mNum; i++) {
+                PPPlayer_unk* player = fn_804D5F0C(mgr2, i);
+                if (player->mFlags.mActive == 1) {
+                    counts[player->mFlags.m22]++;
+                }
+            }
+            bool both;
+            if (counts[1] == 0 || counts[2] == 0) {
+                both = false;
+            } else {
+                both = true;
+            }
+            if (!both) {
+                return 0;
+            }
+        }
+        // inferred: the slot of the own player is searched and not used
+        fn_804DD158(mgr, lbl_8087F628->GetMyAid_unk());
+        if (fn_804DE560(mgr, 0, 0) == 0) {
+            return 0;
+        }
+        int unused; // inferred: the original passes r4 unset (as fn_804DB474)
+        lbl_8087F628->fn_80509B4C(unused, 0, 0);
+    }
+    return 1;
+}
+
 // NONMATCHING: 90.49% - the original reloads lbl_8087F610 in every iteration and keeps the zero of the index in
 // two more registers
 // inferred: resets the player slots (and the aid tables m9984/m998C)
