@@ -791,7 +791,7 @@ struct Manager2 : public atn::Task {
 
     int m9A14[8];                     // inferred: per aid flags set by messages 0x38 and 0x3B
     int m9A34[8];
-    unsigned char m9A54[0x9A74 - 0x9A54];
+    int m9A54[8];                     // inferred: per aid sequence of the last message 0x1040
     unsigned char m9A74[3];
     unsigned char m9A77;
     long long m9A78;
@@ -3317,6 +3317,78 @@ extern "C" void fn_800CB5C8(atn::SoundRef* sound, int frames, int detach); // in
 static inline int IsServer_unk() {
     unsigned char aid = lbl_8087F628->GetMyAid_unk();
     return aid == lbl_8087F628->GetServerAid_unk();
+}
+
+// inferred: two words copied together (the copies of the slot fields 0xB4 and 0xC0 load both words before
+// storing them, as a struct copy; maybe an OSTime in a packed struct); name invented
+struct PPWord2_unk {
+    int m[2];
+};
+
+// inferred: payload of the messages 0x1040/0x1048 (the settings of the room and the slots; 109 bytes, not
+// padded on the network, so it is written by offsets as in fn_804F4FC4); names invented
+struct PPMsgRoom_unk {
+    unsigned char m00[109];
+};
+
+// NONMATCHING: 95.82% - registers: the original keeps the payload pointer in r31 and the offset of the slot
+// loop in r26 (here r29/r31), and the words at +0x42 go through a pointer that advances by 4 (a packed struct
+// with `#pragma pack(1)` gives it: 96.07%, see docs/mixto-20261116-qG3.md; the pragma is not approved)
+// inferred: sends the settings of the room and of the slots: mode 0 to every other active player (each with a
+// sequence number and a request waiting for its answer), 1 to everybody once (m999D), 2 as message 0x1048
+extern "C" void fn_804D824C(PPManager2_unk* mgr, PPPlayer_unk* player, int mode) {
+    if (mode == 2 && mgr->m999D == 1) {
+        return;
+    }
+    NetMsgI_unk<PPMsgRoom_unk, 109> msg(mode == 2 ? 0x1048 : 0x1040);
+    unsigned char* data = msg.mData.m00;
+    unsigned int i;
+    *(int*)(data + 0x09) = player->m0B0[0];
+    *(PPWord2_unk*)(data + 0x0D) = *(PPWord2_unk*)&player->m0B0[1];
+    *(int*)(data + 0x15) = player->m0B0[3];
+    *(PPWord2_unk*)(data + 0x19) = *(PPWord2_unk*)&player->m0B0[4];
+    *(int*)(data + 0x21) = player->mC8;
+    *(unsigned int*)(data + 0x25) = player->mFlagWord;
+    for (i = 0; (int)i < mgr->mPlayers.mNum; i++) {
+        data[0x29 + i] = mgr->mPlayers.mData[i].mFlags.m22;
+        data[0x31 + i] = mgr->mPlayers.mData[i].mB0;
+        ((int*)(data + 0x42))[i] = mgr->mPlayers.mData[i].mD8;
+        data[0x39 + i] = (mgr->mPlayers.mData[i].mD4 >> 22) & 0xF;
+    }
+    *(int*)(data + 0x00) = mgr->m55C;
+    *(int*)(data + 0x04) = mgr->m564;
+    data[0x66] = mgr->m5A0;
+    data[0x67] = mgr->m5A8;
+    data[0x69] = mgr->m5B4;
+    data[0x6C] = mode;
+    data[0x6A] = mgr->mMode;
+    data[0x6B] = mgr->m5A4;
+    data[0x08] = mgr->m5B0 != 0;
+    *(short*)(data + 0x64) = mgr->m508;
+    switch (mode) {
+    case 0:
+        for (int i = 0; i < 8;) {
+            fn_800F7F90()->m9A54[i++] = -1;
+        }
+        for (i = 0; i < (unsigned int)mgr->mPlayers.mNum; i++) {
+            if (mgr->mPlayers.mData[i].mFlags.mActive == 1 && player->mAid != mgr->mPlayers.mData[i].mAid) {
+                data[0x68] = player->m0D52++;
+                mgr->m9A54[mgr->mPlayers.mData[i].mAid] = data[0x68];
+                fn_804AE3BC()->fn_8050E094(mgr->mPlayers.mData[i].mAid, 0x1040, data, 1);
+                fn_804F5A98((PPRequests_unk*)fn_800F7F90(), mgr->mPlayers.mData[i].mAid, 300,
+                            mgr->m9A54[mgr->mPlayers.mData[i].mAid]);
+            }
+        }
+        break;
+    case 1:
+        mgr->m999D = 1;
+        fn_804AE3BC()->fn_8050E094(-1, 0x1040, data, 1);
+        fn_804AE3BC()->fn_8050DDDC(-1, 1);
+        break;
+    case 2:
+        fn_804AE3BC()->fn_8050E094(-1, 0x1048, data, 1);
+        break;
+    }
 }
 
 extern "C" PPPlayer_unk* fn_804DD158(PPManager2_unk* mgr, unsigned int aid);
