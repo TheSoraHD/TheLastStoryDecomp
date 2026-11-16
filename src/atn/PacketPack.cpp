@@ -582,9 +582,15 @@ struct PPCharaInfo_unk {
     int m[12];
 };
 struct PPCharaEntry_unk {
+    PPCharaEntry_unk() {} // inferred: declared (the copy of an entry goes member by member, fn_804E6DD0)
     MpCharaRef_unk mRef;
-    int m04[14];                  // inferred: layout from the copy fn_804E7434 (words, floats, words)
-    float m3C[6];
+    int m04[14];                  // inferred: layout from the copies fn_804E7434 and fn_804E6DD0 (words, floats,
+    float m3C;                    // words)
+    float m40;
+    float m44;
+    float m48;
+    float m4C;
+    float m50;
     int m54[9];
     int m78;
     int m7C;
@@ -5031,8 +5037,6 @@ extern "C" __declspec(noinline) inline void fn_804E80C8(PPHalfVec_unk* dst, cons
 extern "C" __declspec(noinline) inline atn::Vector3* fn_804E81C4(CharaTask* chara) {
     return &chara->mFA4;
 }
-// NONMATCHING: 66.39% - order of the copy: the original copies m78 and the block m80 (through a stack temporary)
-// first, then the rest
 // inferred: copy of an entry of the character list (weak copy, as fn_804D8078)
 extern "C" __declspec(noinline) inline void fn_804E7434(PPCharaEntry_unk* dst, const PPCharaEntry_unk* src) {
     *dst = *src;
@@ -5204,6 +5208,85 @@ extern "C" void fn_804E679C(PPManager2_unk* mgr) {
     memcpy(data->m2C, mgr->m58C, sizeof(data->m2C));
     data->m38 = mgr->m598;
     fn_804AE3BC()->fn_8050E094(-1, 0x1004, data, 1);
+}
+
+// inferred: data of the state of a player applied by fn_804EE9F0; names invented
+struct PPPlayerInfo_unk {
+    int m00;
+    short mChara;
+    unsigned char m06;
+    unsigned char m07;
+    unsigned char m08_0 : 1;
+    unsigned char m13 : 1;
+    unsigned char m12 : 1;
+    unsigned char mIsEntry : 1; // inferred: mAid is an index of the character list (fn_804F2258)
+    unsigned char m08_4 : 4;
+    unsigned char mAid;
+};
+
+// NONMATCHING: 99.31% - registers (mgr, own and the loop variables; aid/offset of the inlined search fn_804DD158 as
+// fn_804E448C)
+// inferred: sends the state of the own player (message 0x1015), of the team players of this machine and of the
+// characters of the list (message 0x101C)
+extern "C" void fn_804E6DD0(PPManager2_unk* mgr) {
+    PPPlayer_unk* own = fn_804DD158(mgr, lbl_8087F628->GetMyAid_unk());
+    CharaTask* head = ((PlayerManager*)fn_8000D9E8())->GetHead_unk();
+    {
+        NetMsgI_unk<PPPlayerInfo_unk, 10> msg(0x1015);
+        PPPlayerInfo_unk* data = &msg.mData;
+        data->mAid = lbl_8087F628->GetMyAid_unk();
+        data->m00 = ((PPChara_unk*)head)->m7D8;
+        data->mChara = own->mDCScore;
+        data->m06 = own->mE0;
+        data->m07 = own->mE4;
+        data->m08_0 = !head->mStatus.IsState_unk(0x20);
+        data->m13 = own->mFlags.m13;
+        data->m12 = own->mFlags.m12;
+        fn_804AE3BC()->fn_8050E094(-1, 0x1015, data, 0);
+    }
+    for (int i = 0; i < mgr->mPlayers.mNum; i++) {
+        if (!IsTeamPlayer_unk(&mgr->mPlayers.mData[i])) {
+            continue;
+        }
+        PPPlayer_unk* player = fn_804D5F0C(mgr, i);
+        if (!player->mFlags.mActive || (player->mAid & 0xF) != lbl_8087F628->GetMyAid_unk()) {
+            continue;
+        }
+        CharaTask* chara = player->mRef.mChara;
+        if (chara == 0 || (chara->mFlags & 4) == 4) {
+            continue;
+        }
+        NetMsgI_unk<PPPlayerInfo_unk, 10> msg(0x101C);
+        PPPlayerInfo_unk* data = &msg.mData;
+        data->mAid = player->mAid;
+        data->m00 = ((PPChara_unk*)player->mRef.mChara)->m7D8;
+        data->mChara = player->mDCScore;
+        data->m06 = player->mE0;
+        data->m07 = player->mE4;
+        data->m08_0 = !player->mRef.mChara->mStatus.IsState_unk(0x20);
+        data->mIsEntry = 0;
+        fn_804AE3BC()->fn_8050E094(-1, 0x101C, data, 0);
+    }
+    for (int i = 0; i < mgr->mCharas.mNum; i++) {
+        PPCharaEntry_unk entry = mgr->mCharas.mData[i];
+        if (!entry.mActive) {
+            continue;
+        }
+        CharaTask* chara = entry.mRef.mChara;
+        if (chara == 0) {
+            continue;
+        }
+        if ((chara->mFlags & 4) == 4 && fn_804E650C(chara) == 0) {
+            continue;
+        }
+        NetMsgI_unk<PPPlayerInfo_unk, 10> msg(0x101C);
+        PPPlayerInfo_unk* data = &msg.mData;
+        data->mAid = i;
+        data->m00 = ((PPChara_unk*)chara)->m7D8;
+        data->m08_0 = !chara->mStatus.IsState_unk(0x20);
+        data->mIsEntry = 1;
+        fn_804AE3BC()->fn_8050E094(-1, 0x101C, data, 0);
+    }
 }
 
 #include "game/SpecialEnemyBase.h"
@@ -6522,19 +6605,6 @@ extern "C" void fn_804EE904(MpCharaRef_unk* ref) {
     }
 }
 
-// inferred: data of the state of a player applied by fn_804EE9F0; names invented
-struct PPPlayerInfo_unk {
-    int m00;
-    short mChara;
-    unsigned char m06;
-    unsigned char m07;
-    unsigned char m08_0 : 1;
-    unsigned char m13 : 1;
-    unsigned char m12 : 1;
-    unsigned char mIsEntry : 1; // inferred: mAid is an index of the character list (fn_804F2258)
-    unsigned char m08_4 : 4;
-    unsigned char mAid;
-};
 
 // inferred: applies the state of a player received from another machine (only in the game, state 30)
 extern "C" void fn_804EE9F0(PPPlayer_unk* player) {
