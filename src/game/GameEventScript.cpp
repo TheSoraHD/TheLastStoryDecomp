@@ -314,7 +314,6 @@ extern "C" GameEventScript* fn_80393610(atn::Task* parent, const char* path, int
 extern "C" int fn_8006AA20(const char* path);                     // inferred: the file exists
 extern "C" std::string fn_8006B2D8(const std::string& path);      // inferred: name without extension
 
-// NONMATCHING: 99.95% - registers of the string sizes (r23 vs r20)
 // inferred: loads the script of the scene (file 0) and its sub scripts (files 1-2): the town sub quest and
 // hint scripts when the config asks for them, else <path>_sub1.sc and <path>_sub2.sc
 GameEventScript::GameEventScript(atn::Task* parent, const char* path, int area, int map)
