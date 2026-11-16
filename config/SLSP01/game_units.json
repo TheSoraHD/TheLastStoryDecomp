@@ -2148,7 +2148,7 @@
   "classes": [
    "gmk::Brazier"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "gmk/ChickenManager.cpp",
