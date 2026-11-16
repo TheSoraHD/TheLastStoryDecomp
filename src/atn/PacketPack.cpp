@@ -253,9 +253,13 @@ extern "C" void fn_804D00B8(int index, int value) {
     }
 }
 
-// DRAFT: returns 0 instead of the debug keyboard test
-// NONMATCHING: stub (debug keyboard test; the original passes the keyboard itself as the key state)
+// inferred: debug keyboard test; the original passes the keyboard itself as the key state (mKeyState[-2], as
+// in game/GameTask.cpp)
 extern "C" int fn_804D00DC(unsigned short key) {
+    atn::Keyboard* keyboard = atn::Keyboard::instance_;
+    if (keyboard != 0) {
+        return keyboard->Press((atn::Keyboard::Port)-2, key);
+    }
     return 0;
 }
 
@@ -674,6 +678,12 @@ struct PPTableEntry_unk {
 };
 // inferred: table of MP::Manager2 at 0x2A50 (21 entries and a buffer); names invented
 struct PPTable_unk {
+    ~PPTable_unk() {
+        if (mFC != 0) {
+            delete[] mFC;
+        }
+        mFC = 0;
+    }
     PPTableEntry_unk mEntries[21];
     unsigned char* mFC;
 };
@@ -2072,20 +2082,50 @@ extern "C" void fn_804D1F6C(PPPlayer_unk* player) {
     player->mD4 = 0;
 }
 
-// DRAFT: the waits for the network thread and the clean up of the globals
-// NONMATCHING: draft - the waits for the network thread and the clean up of the globals are not written;
-// written for the destruction of the members (weak copies 0x804D1410, 0x804D1478, 0x804D1FD8)
+extern "C" void fn_80049654(void* sound); // inferred: as in game/GameTask.cpp
+extern "C" void fn_8004895C(void* sound); // inferred: releases the sound groups (game/NewTitleTask.cpp)
+// DRAFT: the members mPlayers/mCharas (std::vector in the original), m610 (array freed with delete[]), the list
+// m99A4 and the slot block at m2B80 are not destroyed (their types here have no destructor)
+// NONMATCHING: draft - the body is complete (checked against the original); the destruction of those members
+// is missing
 MP::Manager2::~Manager2() {
+    fn_80049654(lbl_8087EE90);
+    fn_8004895C(lbl_8087EE90);
+    lbl_8087EFE8->fn_800CE368();
+    SetConfig::sInstance->mShowTutorial = 1;
+    while (lbl_8087F628->mThread.mRunning == 0) {
+        OSSleepTicks((long long)100 * (*(unsigned int*)0x800000F8 / 4 / 1000));
+    }
+    lbl_8087F628->mThread.fn_8050CE9C();
+    while (lbl_8087F628->mThread.fn_8050CF14() == 0) {
+        OSSleepTicks((long long)100 * (*(unsigned int*)0x800000F8 / 4 / 1000));
+    }
     if (lbl_8087F5A4 != 0) {
         delete lbl_8087F5A4;
         lbl_8087F5A4 = 0;
     }
     lbl_8087F628->vf0C();
-    lbl_8087F610 = 0;
-    if (m2A50.mFC != 0) {
-        delete[] m2A50.mFC;
+    if (lbl_8087F618 != 0) {
+        delete lbl_8087F618;
+        lbl_8087F618 = 0;
     }
-    m2A50.mFC = 0;
+    lbl_8087F62C = 0;
+    lbl_8087F628 = 0;
+    fn_8014F8F4()->mList.clear();
+    lbl_8087F610 = 0;
+    if (m9974 != 0) {
+        m9974 = 0;
+    }
+    if (m9770 == 0) {
+        m9770 = 0;
+    }
+    lbl_8087F420->m0C = 0;
+    if (lbl_8087F018 != 0) {
+        lbl_8087F018->m40E0[0] = 0;
+    }
+    if (HomeButtonMenu::sInstance != 0 && HomeButtonMenu::sInstance->m88 == 0) {
+        HomeButtonMenu::sInstance->m88 = 1;
+    }
 }
 
 MP::ManagerMP::~ManagerMP() {}
@@ -5440,8 +5480,9 @@ extern "C" void fn_804E7628(PPManager2_unk* mgr) {
 
 // inferred: sends the state of the own character, of the characters of this aid and of the other
 // characters (messages 0x1017 and 0x101E)
-// DRAFT: written for the weak copies of its accessors; not checked against the original
-// NONMATCHING: draft - written for the weak copies of its accessors (0x804E8090-0x804E82BC)
+// NONMATCHING: 0% - equivalent (checked against the whole original); the original calls every accessor
+// (GetModel_unk, Vector3 operators, WrapAngle_unk, the weak copies 0x804E8090-0x804E82BC) with bl, here they
+// are inlined (rule R3 of docs/inlining.md)
 extern "C" void fn_804E7AC0(PPManager2_unk* mgr) {
     fn_804EB870(mgr);
     CharaTask* own = ((PlayerManager*)fn_8000D9E8())->GetHead_unk();
