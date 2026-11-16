@@ -470,6 +470,8 @@ void DWC_ReportFriendData(const DWCUserData* userdata, const DWCFriendData* frie
     u32 flags = DWCi_Acc_GetFlags(&frienddata->flags);
     ((void)0);
     switch (flags & DWC_FRIENDDATA_TYPE_MASK) {
+    case DWC_FRIENDDATA_FRIEND_KEY:
+        goto friend_key;
     case DWC_FRIENDDATA_GS_PROFILE_ID:
         if (DWCi_Acc_IsBuddy_unk(flags)) {
             DWC_Printf(DWC_REPORTFLAG_DEBUG, " GS_ID : %d (ok)\n", frienddata->gs_profile_id.id);
@@ -477,7 +479,7 @@ void DWC_ReportFriendData(const DWCUserData* userdata, const DWCFriendData* frie
             DWC_Printf(DWC_REPORTFLAG_DEBUG, " GS_ID : %d\n", frienddata->gs_profile_id.id);
         }
         break;
-    case DWC_FRIENDDATA_FRIEND_KEY:
+    friend_key:
         DWCi_Acc_FriendKeyToString(friendKey, ((u64)frienddata->friend_key.friendkey_hi32 << 32) |
                                                   frienddata->friend_key.friendkey_lo32);
         DWC_Printf(DWC_REPORTFLAG_DEBUG, " F_KEY : %s\n", friendKey);
