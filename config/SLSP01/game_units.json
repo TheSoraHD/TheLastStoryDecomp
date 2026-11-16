@@ -2656,7 +2656,7 @@
   "classes": [
    "MapManager"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "game/MapPartsBase.cpp",
