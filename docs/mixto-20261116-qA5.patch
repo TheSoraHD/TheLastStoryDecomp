@@ -112,3 +112,32 @@ index 3a2c7fa6..fa3a1b6a 100644
                      m14E4->mMotion.mTracks[0].m08 = mMotion.mTracks[0].m08;
                  }
              }
+diff --git a/src/game/ChaserNpc.cpp b/src/game/ChaserNpc.cpp
+index 233eb20a..1d0f05bb 100644
+--- a/src/game/ChaserNpc.cpp
++++ b/src/game/ChaserNpc.cpp
+@@ -130,6 +130,13 @@ void ChaserNpc::vf14() {
+ // inferred: names of the states (debug display)
+ static const char* sStateNames_unk[] = {"START", "STAY", "WALK", "RUN", "CAUGHT", "END"};
+ 
++// inferred: distance to the leader (name invented)
++inline float PlayerDist_unk(CharaTask* self) {
++    CharaTask* player = lbl_8087F8A0->mHead;
++    atn::Vector3 d = player->mPos - self->mPos;
++    return PSVECMag(&d);
++}
++
+ // NONMATCHING: 99.9% - stack slots of the temporaries (the original puts the player distance vector at
+ // 0x8, below the color temporaries of the debug text). MAX(0, x) gives the srawi/andc of the original.
+ void ChaserNpc::fn_80180AE0() {
+@@ -141,9 +148,7 @@ void ChaserNpc::fn_80180AE0() {
+         fn_80139560();
+         break;
+     case 1: {
+-        CharaTask* player = lbl_8087F8A0->mHead;
+-        atn::Vector3 d = player->mPos - mPos;
+-        if (PSVECMag(&d) < lbl_8087F0A8->m564 && m14D0 == 0 && lbl_8087F8A0->mHead->m560 != 0x69) {
++        if (PlayerDist_unk(this) < lbl_8087F0A8->m564 && m14D0 == 0 && lbl_8087F8A0->mHead->m560 != 0x69) {
+             fn_8018161C(4);
+         } else {
+             m14C4 = 1.0f;
