@@ -502,9 +502,11 @@ static inline float PlayerDist_unk(const atn::Vector3& pos) {
     return (((CharaTask*)lbl_8087F8A0->mHead)->mPos - pos).Length_unk();
 }
 
-// NONMATCHING: 98.75% - `state == 3 || state == 4` is folded into one unsigned compare here (tried
-// reversed operands and a switch); loop increment order as in gmk::PigeonManager; .sdata2 order.
+// `!(state != 3 && state != 4)`: `state == 3 || state == 4` is folded into one unsigned compare; the
+// counter of the last loop is declared at the top (register of the original); loop increment order as
+// in gmk::PigeonManager.
 void ChickenManager::vf10() {
+    int j;
     if (mDesc->m7C == 0) {
         if (mSound.mPtr != 0) {
             fn_800CB5C8(&mSound, 0, 0);
@@ -515,7 +517,7 @@ void ChickenManager::vf10() {
         int scared = 0;
         for (int i = 0; i < mCount; i++) {
             mChickens[(unsigned int)i].fn_8040B668();
-            if (mChickens[(unsigned int)i].mState == 3 || mChickens[(unsigned int)i].mState == 4) {
+            if (!(mChickens[(unsigned int)i].mState != 3 && mChickens[(unsigned int)i].mState != 4)) {
                 scared++;
             }
         }
@@ -544,8 +546,8 @@ void ChickenManager::vf10() {
             fn_800CB5C8(&mSound, 0, 0);
         }
     } else if (mState == 2) {
-        for (int i = 0; i < mCount; i++) {
-            mChickens[(unsigned int)i].fn_8040BC38();
+        for (j = 0; j < mCount; j++) {
+            mChickens[(unsigned int)j].fn_8040BC38();
         }
         mState = 0;
     }
