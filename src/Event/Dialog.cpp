@@ -453,11 +453,10 @@ static inline bool IsTalking_unk(Actor* actor) {
     return actor->m20 == 1 || actor->m20 == 7;
 }
 
-// NONMATCHING: 99.78% - the original increments the index before the actor offset
 void Dialog::fn_80228FD8() {
     Actor* actor;
-    DialogEvent_unk* event = (DialogEvent_unk*)m20;
-    for (int i = 0; i < event->m168; i++) {
+    Sequence* event = (Sequence*)m20;
+    for (int i = 0; i < (int)event->m164.size(); i++) {
         actor = &event->m164[i];
         if (IsTalking_unk(actor)) {
             if (actor->fn_800128FC()->m55C == 6) {
