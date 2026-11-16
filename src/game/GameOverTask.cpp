@@ -12,6 +12,7 @@
 #include "MP/SaveLoad.h"
 #include "game/GameLoadBackground.h"
 #include "game/GameLoadTask.h"
+#include "game/MenuCommonTask.h"
 
 extern "C" unsigned long strlen(const char* s);
 extern "C" void* memcpy(void* dst, const void* src, unsigned long n);
@@ -26,22 +27,8 @@ extern "C" void fn_800D2338(atn::Task* task);        // inferred: deletes the ta
 extern "C" void* lbl_8087EEC8;                       // inferred: font
 extern "C" float fn_8006EF48(void* font, float size, const wchar_t* text, float f2, int a, int b); // inferred: width
 
-// inferred: d2anime task (atn/D2A_Task.h); only the members used here
-struct GameOverD2A_unk : public atn::Task {
-    unsigned char m48[0x58 - 0x48];
-    unsigned char mLayout[0xA0 - 0x58]; // 0x58: inferred: layout
-    float mEndFrame;                    // 0xA0
-    unsigned char mA4[0xFC - 0xA4];
-    unsigned int mFlag31 : 1;
-    unsigned int mFlag30 : 1;
-    unsigned int mFlag29 : 1;
-    unsigned int mRepeat : 1; // inferred
-    unsigned int mFC_rest : 28;
-    float mFrame; // 0x100
-    float mSpeed; // 0x104
-    // inferred: the last frame was reached (name invented)
-    bool IsEnd_unk() { return mFrame >= mEndFrame; }
-};
+// inferred: d2anime task (made by fn_801F3FF8; the view of game/MenuCommonTask.h)
+typedef MenuD2A_unk GameOverD2A_unk;
 extern "C" GameOverD2A_unk* fn_801F3FF8(atn::Task* parent, const char* path, int loop); // inferred: d2anime task
 // inferred: 2D point of a d2anime pane (0x14 bytes)
 struct GameOverPoint_unk {
@@ -62,19 +49,8 @@ public:
     unsigned char m48[0x13C - 0x48];
     int m13C; // inferred: state
 };
-class MenuCommonTask {
-public:
-    void fn_804A2F98(); // inferred: hides everything
-    void fn_804A2FBC(); // inferred: resets everything
-    void fn_804A313C(); // inferred: resets the info windows
-    static MenuCommonTask* sInstance;
-    unsigned char m00[0x54];
-    int m54;
-    unsigned char m58[0x9C - 0x58];
-    int m9C;
-};
 extern "C" void fn_804A4300(MenuCommonTask* menu, const wchar_t* text);
-extern "C" void fn_804A5B9C(MenuCommonTask* menu, GameOverD2A_unk* anime, const char* name);
+extern "C" void fn_804A5B9C(MenuCommonTask* menu, int id, const char* name); // inferred: adds an entry
 extern "C" const wchar_t lbl_808813D0[2]; // inferred: empty text
 // inferred: message table (lbl_8087F1E4)
 struct GameOverMsg_unk {
@@ -220,7 +196,7 @@ extern "C" GameOverTask* fn_80376B68(atn::Task* parent, int mode) {
     return lbl_8087F440;
 }
 
-// NONMATCHING: 99.71% - registers of the name copy (source and destination swapped)
+// NONMATCHING: 99.59% - registers of the name copy (source and destination swapped)
 GameOverTask::GameOverTask(atn::Task* parent, int mode)
     : atn::Task(parent), mDemoEnd(0), mSave(0), mLoading(0), mMode(mode), mState(0), mSelect(0), mCamera(0, 0),
       mTimer(0), mFade(0) {
@@ -367,9 +343,15 @@ inline void SetParam_unk(void* layout, const char* name, int index, float value)
 inline void SetRate_unk(void* layout, const char* name, float value) {
     fn_801FECE0(layout, fn_800DC6B4(name), value);
 }
+inline void SetText_unk(void* layout, const char* name, const wchar_t* text) {
+    fn_801FEE08(layout, fn_800DC6B4(name), text);
+}
+inline GameOverPoint_unk GetPoint_unk(atn::Task* task, const char* name) {
+    return fn_801F4E8C(task, fn_800DC6B4(name));
+}
 
-// NONMATCHING: 98.24% - the original keeps the six text tables in registers across the text loop and
-// builds the fade with other stores
+// inferred: the names of the panes are formatted in one 0x40-byte buffer; the options are read before the
+// timer is updated
 void GameOverTask::vf10() {
     if (MenuCommonTask::sInstance != 0) {
         MenuCommonTask::sInstance->m9C = 0;
@@ -404,6 +386,7 @@ void GameOverTask::vf10() {
         fn_800D2338(this);
         return;
     }
+    GameOverOptions_unk* options = lbl_8087F0A8;
     mTimer++;
     mMenu->mFlags |= 4;
     mCursor->mFlags |= 4;
@@ -412,7 +395,7 @@ void GameOverTask::vf10() {
     }
     int fade = 0;
     if (mState == 0) {
-        if (mTimer > lbl_8087F0A8->m5A4) {
+        if (mTimer > options->m5A4) {
             if (mDemoEnd != 0) {
                 mDemoEnd->mFlags &= ~4;
                 if (mDemoEnd->IsEnd_unk() &&
@@ -427,8 +410,8 @@ void GameOverTask::vf10() {
                 }
             }
         }
-        SetParam_unk(mCursor->mLayout, "cursor_pos", 0, -1000.0f);
-        SetParam_unk(mCursor->mLayout, "cursor_pos", 1, -1000.0f);
+        SetParam_unk(mCursor->m58, "cursor_pos", 0, -1000.0f);
+        SetParam_unk(mCursor->m58, "cursor_pos", 1, -1000.0f);
     } else if (mState == 1) {
         mMenu->mFlags &= ~4;
         mCursor->mFlags &= ~4;
@@ -523,10 +506,12 @@ void GameOverTask::vf10() {
             fn_80117228(1);
         }
     }
+    char name[0x40];
     for (int i = 0; i < 5; i++) {
         int id = sMsg[i];
         switch (mMode) {
         case 0:
+            id = sMsg[i];
             break;
         case 1:
             id = sMsgEvent[i];
@@ -546,11 +531,10 @@ void GameOverTask::vf10() {
         }
         const wchar_t* text = fn_80116FC0(0, id);
         float len = fn_8006EF48(lbl_8087EEC8, 14.0f, text, 0.0f, 1, 1);
-        char name[0x20];
         sprintf(name, "msgLen%02d", i);
-        SetRate_unk(mMenu->mLayout, name, len);
+        SetRate_unk(mMenu->m58, name, len);
         sprintf(name, "msg%02d", i);
-        fn_801FEE08(mMenu->mLayout, fn_800DC6B4(name), text);
+        SetText_unk(mMenu->m58, name, text);
     }
     int pos = 0;
     switch (mChoices.mData[mSelect]) {
@@ -570,17 +554,16 @@ void GameOverTask::vf10() {
         pos = 0;
         break;
     }
-    char name[0x20];
     sprintf(name, "cursor_point%02d", pos);
-    GameOverPoint_unk point = fn_801F4E8C(mMenu, fn_800DC6B4(name));
-    SetParam_unk(mCursor->mLayout, "cursor_pos", 0, point.x);
-    SetParam_unk(mCursor->mLayout, "cursor_pos", 1, point.y);
-    SetParam_unk(mCursor->mLayout, "cursor_pos", 4, point.m10);
-    SetRate_unk(mCursor->mLayout, "wRate", point.m08);
-    SetRate_unk(mCursor->mLayout, "hRate", point.m0C);
+    GameOverPoint_unk point = GetPoint_unk(mMenu, name);
+    SetParam_unk(mCursor->m58, "cursor_pos", 0, point.x);
+    SetParam_unk(mCursor->m58, "cursor_pos", 1, point.y);
+    SetParam_unk(mCursor->m58, "cursor_pos", 4, point.m10);
+    SetRate_unk(mCursor->m58, "wRate", point.m08);
+    SetRate_unk(mCursor->m58, "hRate", point.m0C);
     if (MenuCommonTask::sInstance != 0) {
         sprintf(name, "select_text%02d", pos);
-        fn_804A5B9C(MenuCommonTask::sInstance, mMenu, name);
+        fn_804A5B9C(MenuCommonTask::sInstance, (int)mMenu, name);
     }
     if (fade) {
         mFade = atn::FadeColor::Create(lbl_8087F430->m20, 30, 0, 0xFF000000);
@@ -590,17 +573,20 @@ void GameOverTask::vf10() {
     }
 }
 
-// NONMATCHING: 84.74% - the camera position and target go through local copies in the original, and the
-// copy to atn::RenderManager::instance_ is scheduled differently
+// inferred: the camera position and target go through local copies (asm copies, not removed)
 void GameOverTask::vf14() {
     if (mState == 1) {
-        SetRate_unk(mMenu->mLayout, "selectOn", 1.0f);
+        SetRate_unk(mMenu->m58, "selectOn", 1.0f);
     } else {
-        SetRate_unk(mMenu->mLayout, "selectOn", 0.0f);
+        SetRate_unk(mMenu->m58, "selectOn", 0.0f);
     }
-    mCamera.mPos = atn::Vector3(0.0f, -99500.0f, 0.0f);
-    mCamera.mTarget = atn::Vector3(0.0f, -99500.0f, 10.0f);
+    atn::Vector3 pos = *mCamera.GetPosition_unk();
+    atn::Vector3 target = *mCamera.GetTarget_unk();
+    pos = atn::Vector3(0.0f, -99500.0f, 0.0f);
+    target = atn::Vector3(0.0f, -99500.0f, 10.0f);
+    mCamera.SetPosition(pos);
+    mCamera.SetTarget_unk(target);
     mCamera.mFovy = 1.0471976f;
     mCamera.fn_8004B378();
-    atn::RenderManager::instance_->mCamera = mCamera;
+    fn_8008B964()->SetCamera_unk(mCamera);
 }
