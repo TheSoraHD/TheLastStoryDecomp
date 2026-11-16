@@ -1,5 +1,5 @@
 diff --git a/src/atn/PacketPack.cpp b/src/atn/PacketPack.cpp
-index cedb90ba..1abd8a37 100644
+index cedb90ba..8287703f 100644
 --- a/src/atn/PacketPack.cpp
 +++ b/src/atn/PacketPack.cpp
 @@ -2357,8 +2357,8 @@ void MP::Manager2::vf10() {
@@ -131,3 +131,105 @@ index cedb90ba..1abd8a37 100644
                  fn_804AE3BC()->fn_8050E094(mgr->mPlayers.mData[i].mAid, 0x1040, data, 1);
                  fn_804F5A98((PPRequests_unk*)fn_800F7F90(), mgr->mPlayers.mData[i].mAid, 300,
                              mgr->m9A54[mgr->mPlayers.mData[i].mAid]);
+@@ -5672,7 +5695,7 @@ extern "C" void fn_804F135C();
+ extern "C" void fn_804F1478(PPPlayer_unk* player);
+ extern "C" void fn_804F1488(PPPlayer_unk* player);
+ extern "C" void fn_804F1498(PPPlayer_unk* player);
+-extern "C" void fn_804F1564(PPPlayer_unk* player);
++extern "C" void fn_804F1564(PPPlayer_unk* player, unsigned int type);
+ extern "C" void fn_804F1950(PPPlayer_unk* player);
+ extern "C" void fn_804F1CA0(PPPlayer_unk* player);
+ extern "C" void fn_804F1D70(PPPlayer_unk* player);
+@@ -5828,7 +5851,7 @@ extern "C" int fn_804EE040(unsigned int aid, void* data, unsigned int size) {
+             break;
+         case 19:
+         case 44:
+-            fn_804F1564(player);
++            fn_804F1564(player, type);
+             break;
+         case 20:
+             fn_804F1950(player);
+@@ -6425,6 +6448,71 @@ extern "C" void fn_804F1498(PPPlayer_unk* player) {
+     player->mFlags.m22 = data[0];
+ }
+ 
++// inferred: the room is the one of the server (`aid`)
++static inline int IsServerAid_unk(unsigned char aid) {
++    return aid == lbl_8087F628->GetServerAid_unk();
++}
++
++// inferred: payload of the messages 0x13 and 0x2C (the values and flags of a slot; 0x2C also has the teams and
++// stages of the slots); names invented
++struct PPMsgSlot_unk {
++    int m00;
++    PPWord2_unk m04;
++    int m0C;
++    PPWord2_unk m10;
++    int m18;
++    PPPlayerFlags_unk mFlags;
++    unsigned char mTeams[8];
++    signed char mStages[8];
++};
++
++// NONMATCHING: 98.52% - registers of the inlined searches and loop; the call in fn_804EE040 has to pass the
++// type, which moves its registers (99.83 -> 99.49%)
++// inferred: messages 0x13 and 0x2C (`type`) from a player: flags of its slot (its values too when it is the
++// server); 0x2C also sets the teams and stages of the slots when this machine has a slot, 0x13 marks the player
++// in the own slot (bit of its aid in mD53); not while m999C is set
++extern "C" void fn_804F1564(PPPlayer_unk* player, unsigned int type) {
++    if (fn_800F7F90()->m999C == 1) {
++        return;
++    }
++    if (PP_NO_DATA_UNK) {
++        return;
++    }
++    PPMsgSlot_unk* data = (PPMsgSlot_unk*)fn_804AE3BC()->GetWorkBuffer_unk();
++    player->mFlags.m28 = data->mFlags.m28;
++    player->mFlags.m06 = data->mFlags.m06;
++    player->mFlags.m02 = data->mFlags.m02;
++    player->mFlags.m01 = data->mFlags.m01;
++    if (IsServerAid_unk(player->mAid) == 1) {
++        player->m0B0[0] = data->m00;
++        *(PPWord2_unk*)&player->m0B0[1] = data->m04;
++        player->m0B0[3] = data->m0C;
++        *(PPWord2_unk*)&player->m0B0[4] = data->m10;
++        player->mC8 = data->m18;
++        player->mFlags.m22 = data->mFlags.m22;
++        player->mFlags.m10 = data->mFlags.m10;
++    }
++    if (type == 0x2C) {
++        PPMsgSlot_unk* slots = (PPMsgSlot_unk*)fn_804AE3BC()->GetWorkBuffer_unk();
++        PPManager2_unk* mgr = fn_800F7F90();
++        if (fn_804DD158(mgr, lbl_8087F628->GetMyAid_unk()) != 0) {
++            for (int i = 0; i < fn_800F7F90()->mPlayers.mNum; i++) {
++                PPPlayer_unk* slot = fn_804D5F0C(fn_800F7F90(), i);
++                if (slot != 0) {
++                    slot->mFlags.m22 = slots->mTeams[i];
++                    slot->mB0 = slots->mStages[i];
++                }
++            }
++        }
++    } else {
++        PPManager2_unk* mgr = fn_800F7F90();
++        PPPlayer_unk* own = fn_804DD158(mgr, lbl_8087F628->GetMyAid_unk());
++        if (own != 0) {
++            own->mD53 |= 1 << player->mAid;
++        }
++    }
++}
++
+ // inferred: payload of the message 0x1C (one equipment of the player: index and its data); names invented
+ struct PPMsgEquip_unk {
+     int mKind;
+@@ -6927,11 +7015,6 @@ extern "C" void fn_804F4728() {
+     }
+ }
+ 
+-// inferred: the room is the one of the server (`aid`)
+-static inline int IsServerAid_unk(unsigned char aid) {
+-    return aid == lbl_8087F628->GetServerAid_unk();
+-}
+-
+ // NONMATCHING: 97.97% - `player`/`aid` in r30/r29 (r29/r30 in the original) and the words at +0x42 through a
+ // pointer that advances by 4 (packed payload, as fn_804D824C)
+ // inferred: message 0x1040 (fn_804D824C) from `aid`: the settings of the room, the flags of the sender's slot
