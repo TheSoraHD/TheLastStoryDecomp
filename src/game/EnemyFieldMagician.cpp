@@ -26,6 +26,10 @@ struct Color4f_unk {
     float r, g, b, a;
 };
 extern "C" EffectMgr_unk* lbl_8087F3C0;
+// inferred: weak getter of the effect manager (lwz r3, lbl_8087F3C0; blr)
+extern "C" inline EffectMgr_unk* fn_800F7FA0() {
+    return lbl_8087F3C0;
+}
 extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
@@ -46,6 +50,10 @@ struct CollWorld_unk {
     CollSegResult_unk m4008;
 };
 extern "C" CollWorld_unk* lbl_8087EE98;
+// inferred: weak getter of the collision world
+extern "C" inline CollWorld_unk* fn_801404F8() {
+    return lbl_8087EE98;
+}
 
 // inferred: game timer (m3A4: frame time)
 struct Timer_unk {
@@ -122,7 +130,7 @@ inline void EnemyFieldMagician::PlayFieldEffect_unk(int index) {
     pos += GetFront_unk(mRot) * 10.0f;
     pos.y += 15.0f;
     fn_80232B7C(&m15C0[0], 0);
-    fn_8023A8B4(lbl_8087F3C0, &m15C0[index], 0, 0, pos, mRot, Color4f_unk(1.0f, 1.0f, 1.0f, 1.0f), -1, -1, 1,
+    fn_8023A8B4(fn_800F7FA0(), &m15C0[index], 0, 0, pos, mRot, Color4f_unk(1.0f, 1.0f, 1.0f, 1.0f), -1, -1, 1,
                 1.0f);
 }
 
@@ -304,8 +312,16 @@ void EnemyFieldMagician::vf10() {
     fn_8032CF10();
 }
 
-// NONMATCHING: 96.3% - stack slots: the original keeps the offset of the collision matrices below the
-// locals of PlayFieldEffect_unk
+// inferred: offset of the collision matrices (name invented); as an inline its temporaries go below the
+// locals of PlayFieldEffect_unk, as in the original, and the components in locals give its FPRs
+inline void MoveMtx_unk(atn::Matrix3x4& mtx) {
+    float z = 10.0f;
+    float y = 15.0f;
+    float x = 0.0f;
+    atn::Matrix3x4 t = TransMtx_unk(atn::Vector3(x, y, z));
+    mtx = MulMtx_unk(mtx, t);
+}
+
 void EnemyFieldMagician::fn_8032CF10() {
     if (m1608 != 0 && m160C > 0 && --m160C == 0) {
         m14B0[0].mFlags |= 1;
@@ -320,7 +336,7 @@ void EnemyFieldMagician::fn_8032CF10() {
     for (int i = 0; i < 2; i++) {
         if ((m14B0[i].mFlags & 1) == 1) {
             atn::Matrix3x4 mtx(*(atn::Matrix3x4*)mMotion.mMtx.m);
-            mtx = MulMtx_unk(mtx, TransMtx_unk(atn::Vector3(0.0f, 15.0f, 10.0f)));
+            MoveMtx_unk(mtx);
             m14B0[i].SetMtx_unk(mtx);
         }
     }
@@ -380,7 +396,7 @@ void EnemyFieldMagician::fn_8032D48C() {
     PlayEffect_unk(&m15F0, &mMotion);
 }
 
-// NONMATCHING: 98.9% - volatile registers of the segment copies; `this`/`msg` moves swapped
+// inferred: the segment is filled member by member and the hit is passed again through the parameter
 void EnemyFieldMagician::vf3C(HitInfo_unk* hit, int) {
     HitMsg_unk* msg = (HitMsg_unk*)hit;
     if ((unsigned int)(m58C - 8) <= 1) {
@@ -399,8 +415,10 @@ void EnemyFieldMagician::vf3C(HitInfo_unk* hit, int) {
             atn::Vector3 to(mPos);
             from.y += 10.0f;
             to.y += 10.0f;
-            CollSegResult_unk* result = &lbl_8087EE98->m4008;
-            Segment_unk seg(from, to);
+            CollSegResult_unk* result = &fn_801404F8()->m4008;
+            Segment_unk seg;
+            seg.mStart = from;
+            seg.mEnd = to;
             if (m14B0[0].vf10((atn::ColliResult_unk*)result, 0x100, (const atn::ColliCapsuleShape_unk*)&seg, 0, 0) != 0) {
                 CharaTask* attacker = msg->mAttacker;
                 if (attacker->m55C == 6 && ((unsigned int)(attacker->m560 - 4) <= 1 || attacker->m560 == 9)) {
@@ -448,7 +466,7 @@ void EnemyFieldMagician::vf3C(HitInfo_unk* hit, int) {
             }
         }
     }
-    fn_80151448(msg);
+    fn_80151448((HitMsg_unk*)hit);
     vf40(hit);
 }
 

@@ -1810,7 +1810,7 @@
   "classes": [
    "EnemyFieldMagician"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "game/EnemyJill.cpp",
