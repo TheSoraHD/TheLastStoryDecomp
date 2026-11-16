@@ -271,14 +271,13 @@ void SpecialEnemyBase::fn_805A4254() {
     fn_8013CB68(rot, 0, speed, m568 * scale);
 }
 
-// NONMATCHING: 98.2% - registers and load order of the two character loops
 int SpecialEnemyBase::fn_805A45F8(float radius, float angle, float rotOffset) {
     int count = 0;
     atn::Vector3 front(0.0f, 0.0f, 1.0f);
+    Mtx m2;
     atn::Matrix3x4 m;
     m.fn_8013A13C(mRot.y);
     PSMTXMultVec(m.m, &front, &front);
-    Mtx m2;
     PSMTXRotRad(m2, 'y', rotOffset);
     PSMTXMultVec(m2, &front, &front);
     float limit = cos(0.017453292f * angle);
@@ -290,7 +289,7 @@ int SpecialEnemyBase::fn_805A45F8(float radius, float angle, float rotOffset) {
                 if (len > 0.0f) {
                     PSVECNormalize(&d, &d);
                 }
-                if (len <= radius * radius && !(PSVECDotProduct(&front, &d) < limit)) {
+                if (!(len > radius * radius) && !(PSVECDotProduct(&front, &d) < limit)) {
                     count++;
                 }
             }
@@ -304,7 +303,7 @@ int SpecialEnemyBase::fn_805A45F8(float radius, float angle, float rotOffset) {
                 if (len > 0.0f) {
                     PSVECNormalize(&d, &d);
                 }
-                if (len <= radius * radius && !(PSVECDotProduct(&front, &d) < limit)) {
+                if (!(len > radius * radius) && !(PSVECDotProduct(&front, &d) < limit)) {
                     count++;
                 }
             }
