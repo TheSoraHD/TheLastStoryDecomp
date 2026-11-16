@@ -1,3 +1,4 @@
+#include "math/VecAssign_unk.h"
 #include "game/GameVoice.h"
 #include "game/GameTask.h"
 #include "game/CharaTask.h"
@@ -122,7 +123,7 @@ inline void GameVoiceChannel_unk::Stop_unk(int frames, int keepChara) {
         mFile.fn_80473F88();
         mChara = 0;
     }
-    mPos = lbl_807C7030;
+    atn::VecAssign_unk(mPos, lbl_807C7030);
     mTime = 0;
     mPlaying = 0;
     mPrepared = 0;
@@ -358,7 +359,6 @@ atn::SoundRef GameVoice::fn_803E9608(const char* name, int offset, int steal, fl
     return channel->mSound;
 }
 
-// NONMATCHING: 99.88% - r3/r4 swapped in the dead code of GameVoiceRequest_unk::Reset_unk (as its constructor)
 atn::SoundRef GameVoice::fn_803E9B7C(unsigned int id, int offset, int steal, float volume) {
     atn::SoundRef ref;
     if (mRequests.size() >= 32) {
@@ -408,8 +408,7 @@ static inline void LoadLip_unk(GameVoiceChannel_unk* channel, const char* name) 
     }
 }
 
-// NONMATCHING: 99.74% - r23/r24 swapped between the id of the inlined CheckPrepared_unk and the sound; r4/r5 in
-// the dead code of GameVoiceRequest_unk::Reset_unk (as fn_803E9B7C)
+// NONMATCHING: 99.83% - r23/r24 swapped between the id of the inlined CheckPrepared_unk and the sound
 // inferred: plays the voice `name` of `chara` (3D at the character when `at` is set) and loads its lip sync
 atn::SoundRef GameVoice::fn_803EA09C(CharaTask* chara, const char* name, int at, int steal, int offset, float volume) {
     atn::SoundRef ref;

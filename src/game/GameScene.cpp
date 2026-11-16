@@ -1,4 +1,5 @@
 #include "db/MapIdTable_unk.h"
+#include "math/VecAssign_unk.h"
 #include "game/BattleTask.h"
 #include "game/GameTask.h"
 #include "game/GameScene.h"
@@ -2150,7 +2151,7 @@ int GameScene::fn_803CC1A4(const atn::Vector3* pos, float radius, float cosMin, 
         seg.mEnd = mAC[link.mTo].mPos;
         atn::Vector3 side(seg.mEnd.x - seg.mStart.x, seg.mEnd.y - seg.mStart.y, seg.mEnd.z - seg.mStart.z);
         side.Normalize_unk();
-        side = Cross_unk(side, atn::Vector3(0.0f, 1.0f, 0.0f));
+        atn::VecAssign_unk(side, Cross_unk(side, atn::Vector3(0.0f, 1.0f, 0.0f)));
         if (PSVECDotProduct(&side, dir) < cosMin) {
             continue;
         }
@@ -2181,7 +2182,7 @@ int GameScene::fn_803CC3BC(const atn::Vector3* pos, const atn::Vector3* dir, Cha
         seg.mEnd = mAC[link.mTo].mPos;
         atn::Vector3 side(seg.mEnd.x - seg.mStart.x, seg.mEnd.y - seg.mStart.y, seg.mEnd.z - seg.mStart.z);
         side.Normalize_unk();
-        side = Cross_unk(side, atn::Vector3(0.0f, 1.0f, 0.0f));
+        atn::VecAssign_unk(side, Cross_unk(side, atn::Vector3(0.0f, 1.0f, 0.0f)));
         if (PSVECDotProduct(&side, dir) < cosMin) {
             continue;
         }

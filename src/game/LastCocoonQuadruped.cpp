@@ -20,6 +20,7 @@
 #include <boost/function.hpp>
 #include "atn/ColliBase.h"
 #include "game/DamageResult_unk.h"
+#include "math/VecAssign_unk.h"
 
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
 // inferred: field (lbl_8087F430): camera shake and event flags (as in gmk/ShakeCamera.cpp)
@@ -442,7 +443,6 @@ void LastCocoonQuadruped::vf3C(HitInfo_unk* hit, int) {
     }
 }
 
-// NONMATCHING: 99.9% - r5/r6 of the rotation temporary and of m14E0 swapped
 void LastCocoonQuadruped::vf40(HitInfo_unk* hit) {
     HitMsg_unk* msg = (HitMsg_unk*)hit;
     int down = 0;
@@ -470,7 +470,7 @@ void LastCocoonQuadruped::vf40(HitInfo_unk* hit) {
         RoutePlace_unk* place = FindQuadPlace_unk(600);
         if (place != 0) {
             m14D4 = place->mPos;
-            m14E0 = atn::Vector3(0.0f, place->m14, 0.0f);
+            atn::VecAssign_unk(m14E0, atn::Vector3(0.0f, place->m14, 0.0f));
             fn_80466B8C();
         } else {
             fn_80466A04();

@@ -238,7 +238,7 @@ extern "C" int strcmp(const char* a, const char* b);
 extern "C" int strncmp(const char* a, const char* b, unsigned long n);
 extern "C" int atoi(const char* s);
 extern "C" int fn_800DC12C(const char* s);    // inferred: string to int (item codes too)
-extern "C" double fn_800DC288(const char* s); // inferred: string to float
+extern "C" float fn_800DC288(const char* s); // inferred: string to float
 extern "C" void* lbl_8087EEC8;                // inferred: font
 extern "C" void fn_8006F2F0(void* font, wchar_t* dst, const char* src, int n); // inferred: to wide characters
 // inferred: field (lbl_8087F430): chapter at 0x10D0
@@ -930,8 +930,6 @@ inline int GetPrice_unk(ShopItem_unk* item, int num, float rate) {
     return rate * (item->mPrice * num);
 }
 
-// NONMATCHING: the original stores the double returned by fn_800DC288 (stfs f1) and compares the rounded
-// copy; here the rounded copy is stored
 void ShopBase::vf38(const char* data, int size) {
     atn::Csv csv;
     ShopEntry64_unk entry;

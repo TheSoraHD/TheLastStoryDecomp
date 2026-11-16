@@ -21,7 +21,7 @@ public:
     virtual void vf10();
     virtual void vf14();
 
-    int Load();              // 0x80202CA4
+    int Load(int);           // 0x80202CA4; inferred: unused argument (callers pass r4: NewCampPartsBase, NewCampPartsOption)
     D2AInstance_unk* GetTask() const; // 0x80202D00
     void Draw();             // 0x80203328
     void SetMatrix(const Matrix3x4& m); // 0x8020303C

@@ -1548,7 +1548,11 @@ void NewCampPartsMapSelect::fn_80521908(int reset) {
     }
 }
 
-// NONMATCHING: 98% - the addresses of rot and of the temporary vector take r29/r30 the other way round
+// inferred: Vector3 copy through one more inline level (as atn::VecAssign_unk, math/VecAssign_unk.h)
+static inline void RotAssign_unk(atn::Vector3& dst, const atn::Vector3& src) {
+    dst = src;
+}
+
 void NewCampPartsMapSelect::fn_80521A00(int dir) {
     fn_80239DAC(lbl_8087F3C0, this, 1, 0);
     int chapter = lbl_8087F430->m10D0;
@@ -1565,7 +1569,7 @@ void NewCampPartsMapSelect::fn_80521A00(int dir) {
                     fn_8023A680(lbl_8087F3C0, &m47F4, -1, 0, 0, &pos, &rot, 0, 0, -1, 1, 2.5f);
                 } else {
                     PlayEfp_unk(&m47DC, pos, rot);
-                    rot = atn::Vector3(0.0f, 3.1415927f, 0.0f);
+                    RotAssign_unk(rot, atn::Vector3(0.0f, 3.1415927f, 0.0f));
                     PlayEfp_unk(&m47E8, pos, rot);
                 }
                 lbl_8087F3C0->mB8 = 0;

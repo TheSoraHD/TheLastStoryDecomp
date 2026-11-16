@@ -114,58 +114,55 @@ NewCampPartsBase::NewCampPartsBase(atn::Task* parent)
 
 NewCampPartsBase::~NewCampPartsBase() {}
 
-// NONMATCHING: 97.75% - saved registers of the loop (entries/file/counter); the empty name is the "\0"
-// literal right after the "" of Create_unk
+// The empty name is the "\0" literal right after the "" of Create_unk
 void NewCampPartsBase::fn_8050FB38(int count, NewCampPartsEntry_unk* entries, const NewCampPartsFile_unk* file,
                                    int load, int kind) {
     for (int i = 0; i < count; i++) {
-        if (strcmp(file->mAnime, "\0") == 0) {
-            entries->mAnime = 0;
+        const NewCampPartsFile_unk* f = &file[i];
+        NewCampPartsEntry_unk* e = &entries[i];
+        if (strcmp(f->mAnime, "\0") == 0) {
+            e->mAnime = 0;
         } else {
-            entries->m04 = kind;
-            if (entries->m04 == 1) {
-                entries->mAnime = (atn::D3Anime*)atn::D3AnimeInstance::Create(this, file->mAnime, load);
-                entries->mAnime->fn_800D246C(1);
+            e->m04 = kind;
+            if (e->m04 == 1) {
+                e->mAnime = (atn::D3Anime*)atn::D3AnimeInstance::Create(this, f->mAnime, load);
+                e->mAnime->fn_800D246C(1);
             } else {
-                entries->mAnime = atn::D3Anime::Create(this, file->mAnime, load);
-                entries->mAnime->fn_800D246C(1);
+                e->mAnime = atn::D3Anime::Create(this, f->mAnime, load);
+                e->mAnime->fn_800D246C(1);
             }
         }
-        file++;
-        entries++;
     }
 }
 
-// NONMATCHING: 97.42% - loop registers (see fn_8050FB38)
 void NewCampPartsBase::fn_8050FC04(int count, NewCampPartsMotion_unk* motions,
                                    const NewCampPartsMotionFile_unk* file) {
+    const char* path;
     for (int i = 0; i < count; i++) {
-        const char* path = file->mPath;
+        const NewCampPartsMotionFile_unk* f = &file[i];
+        NewCampPartsMotion_unk* m = &motions[i];
+        path = f->mPath;
         if (strcmp(path, "\0") != 0) {
-            motions->mMotion.fn_800A03E4(path);
-            motions->mHash = fn_800DC6B4(file->mNode);
+            m->mMotion.fn_800A03E4(path);
+            m->mHash = fn_800DC6B4(f->mNode);
         }
-        file++;
-        motions++;
     }
 }
 
-// NONMATCHING: 85.3% - the original passes `load` in r4 to D3AnimeInstance::Load() too, and the
-// loop registers differ
 void NewCampPartsBase::fn_8050FC88(int count, NewCampPartsEntry_unk* entries, int load) {
     for (int i = 0; i < count; i++) {
-        if (entries->m04 == 1) {
-            atn::D3AnimeInstance* anime = (atn::D3AnimeInstance*)entries->mAnime;
+        NewCampPartsEntry_unk* e = &entries[i];
+        if (e->m04 == 1) {
+            atn::D3AnimeInstance* anime = (atn::D3AnimeInstance*)e->mAnime;
             if (anime != 0) {
-                anime->Load();
+                anime->Load(load);
             }
         } else {
-            atn::D3Anime* anime = entries->mAnime;
+            atn::D3Anime* anime = e->mAnime;
             if (anime != 0) {
                 anime->Load(load);
             }
         }
-        entries++;
     }
 }
 
@@ -173,16 +170,18 @@ int NewCampPartsBase::fn_8050FD20() {
     return ((NewCampCamp_unk*)m48)->mCurrent == this;
 }
 
-// NONMATCHING: 91.4% - registers of the two loops
 void NewCampPartsBase::fn_8050FD38(NewCampScene_unk* scene, NewCampPartsEntry_unk* entries,
                                    const NewCampPartsFile_unk* file, int count, const char* name) {
     if (count > 0) {
+        const NewCampPartsFile_unk* f;
+        NewCampPartsEntry_unk* e;
         for (NewCampNode_unk* node = scene->mNodes; node != 0; node = node->mNext) {
             if (node->mType == 4) {
-                const NewCampPartsFile_unk* f = file;
-                NewCampPartsEntry_unk* e = entries;
+                f = file;
+                e = entries;
+                const char* nodeName = node->mName;
                 for (int i = 0; i < count; i++) {
-                    if (strstr(node->mName, name) != 0) {
+                    if (strstr(nodeName, name) != 0) {
                         fn_8050FE44(node, e, f);
                     }
                     f++;
@@ -535,7 +534,6 @@ void fn_80511668(int a, int b, int c);
 void fn_80511704();
 void fn_8051170C();
 
-// NONMATCHING: 78.8% - the bit fields of the D2A task and the casts of GetTask()
 extern "C" void fn_805113E8(atn::D3Anime* anime, int visible, int loop, float frame, float speed) {
     if (anime != 0) {
         anime->fn_800D246C(0);
@@ -545,26 +543,34 @@ extern "C" void fn_805113E8(atn::D3Anime* anime, int visible, int loop, float fr
             task->mRepeat = loop;
             ((atn::D2A_Task*)anime->GetTask())->mSpeed = speed;
             ((atn::D2A_Task*)anime->GetTask())->mFrame = frame;
-            ((atn::D2A_Task*)anime->GetTask())->mData.m9C = (void (*)(atn::D2A_Common*, atn::D2A_DrawColor*, void*))fn_80511668;
-            ((atn::D2A_Task*)anime->GetTask())->mData.mA0 = (void*)fn_80511704;
-            ((atn::D2A_Task*)anime->GetTask())->mData.mA4 = (int)fn_8051170C;
+            // inferred: one task pointer per callback (GetTask() is called before each address is loaded)
+            atn::D2A_Task* t0 = (atn::D2A_Task*)anime->GetTask();
+            t0->mData.m9C = (void (*)(atn::D2A_Common*, atn::D2A_DrawColor*, void*))fn_80511668;
+            atn::D2A_Task* t1 = (atn::D2A_Task*)anime->GetTask();
+            t1->mData.mA0 = (void*)fn_80511704;
+            atn::D2A_Task* t2 = (atn::D2A_Task*)anime->GetTask();
+            t2->mData.mA4 = (int)fn_8051170C;
         }
     }
 }
 
-// NONMATCHING: 72.9% - see fn_805113E8
 extern "C" void fn_805114D4(atn::D3AnimeInstance* anime, int visible, int loop, float frame, float speed) {
     typedef atn::D2A_TaskInstanceBase<32, 8> Inst;
     if (anime != 0) {
         anime->fn_800D246C(0);
         anime->mVisible = visible;
         if (anime->GetTask() != 0) {
-            ((Inst*)anime->GetTask())->mLoop = loop != 0;
+            Inst* tl = (Inst*)anime->GetTask();
+            tl->mLoop = loop != 0;
             ((Inst*)anime->GetTask())->mSpeed = speed;
             ((Inst*)anime->GetTask())->mFrame = frame;
-            ((Inst*)anime->GetTask())->GetData()->m9C = (void (*)(atn::D2A_Common*, atn::D2A_DrawColor*, void*))fn_80511668;
-            ((Inst*)anime->GetTask())->GetData()->mA0 = (void*)fn_80511704;
-            ((Inst*)anime->GetTask())->GetData()->mA4 = (int)fn_8051170C;
+            // inferred: one data pointer per callback (as in fn_805113E8)
+            atn::D2A_Data* d0 = ((Inst*)anime->GetTask())->GetData();
+            d0->m9C = (void (*)(atn::D2A_Common*, atn::D2A_DrawColor*, void*))fn_80511668;
+            atn::D2A_Data* d1 = ((Inst*)anime->GetTask())->GetData();
+            d1->mA0 = (void*)fn_80511704;
+            atn::D2A_Data* d2 = ((Inst*)anime->GetTask())->GetData();
+            d2->mA4 = (int)fn_8051170C;
         }
     }
 }
