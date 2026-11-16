@@ -1675,8 +1675,6 @@ void MakeCostumePartName_unk(char* name, int part) {
 
 // inferred: turns the eyes of the character towards a point (the camera, limited to `angle` around the eye
 // direction), or the head of another actor towards `target`
-// NONMATCHING: 99.98% - only the offset of "eye_R" in @stringBase0 (the original pool at 0x8072EE0C also
-// holds the parameter names of the actions: "set_y" and "z" are tails of "offset_y" and "offset_z")
 void Actor::fn_80012D34(Actor* target, int node, const atn::Vector3& cam, int arg4, const atn::Vector3& jitter,
                         int arg6, float weight, float angle) {
     if (m20 != 7 && m20 != 1) {

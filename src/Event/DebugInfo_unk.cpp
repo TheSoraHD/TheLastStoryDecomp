@@ -1,6 +1,5 @@
 // Debug display of the events (Event::DebugInfo_unk, Event::Manager + 0x1DFC). Every function is written; the
-// pool @stringBase0 lacks the "" that follows "vector length error" in the original (its first user is unknown)
-// and the three basic_string messages before the column names, so the pages are one byte off (not linked).
+// pool @stringBase0 lacks the three basic_string messages before the column names (not linked).
 #include "Event/DebugInfo_unk.h"
 #include "game/GameConfig_unk.h"
 #include "Event/Manager.h"
@@ -182,6 +181,12 @@ __declspec(noinline) void DebugInfoTable_unk::fn_80220168(const DebugInfoColumnD
     mColumns.clear();
     mColumns.reserve(count);
     m14 = rows;
+}
+
+// inferred: text of a cell of a table ("" for none). Not in the .dol (no callers: the linker strips it); it
+// is here for the "" that the original pool has right after "vector length error"
+const char* DebugInfoCellText_unk(const char* text) {
+    return text != 0 ? text : "";
 }
 
 // inferred: weak copy (inline)
@@ -373,8 +378,6 @@ static inline void DrawInfoLine_unk(float x, float y, const std::string& text) {
 }
 
 // inferred: page 0 of the debug info: the event, the current cut, the frames, the MA and the frame rate
-// NONMATCHING: 99.83% - offsets of the strings in @stringBase0 (the "" after "vector length error") and the
-// stack slots of the iterator tags of the two appends
 void fn_80221FA4(DebugInfo_unk* info) {
     Sequence* seq = fn_8000DB1C()->fn_80112F54();
     if (seq == 0) {
@@ -521,8 +524,7 @@ static inline void DrawRow_unk(DebugInfo_unk* info, int row, const char* text) {
 }
 
 // inferred: page 1 of the debug info: state of the manager and of the sequence
-// NONMATCHING: 99.31% - offsets of the strings in @stringBase0 (the "" after "vector length error") and the
-// registers of the sound channel flags
+// NONMATCHING: 99.92% - registers of the sound channel flags
 void fn_80222AD0(DebugInfo_unk* info) {
     Sequence* seq = fn_8000DB1C()->fn_80112F54();
     if (seq == 0) {
@@ -607,8 +609,7 @@ static inline int GetNext_unk(Cut* cut) {
 }
 
 // inferred: page 2 of the debug info: list of the cuts (ten around the current one)
-// NONMATCHING: 96.6% - offsets of the strings in @stringBase0 (the "" after "vector length error") and the
-// register of the length of the cut
+// NONMATCHING: 96.8% - stack frame (0x10 smaller in ours) and the register of the length of the cut
 void fn_8022354C(DebugInfo_unk* info) {
     Sequence* seq = fn_8000DB1C()->fn_80112F54();
     if (seq == 0) {
@@ -794,7 +795,6 @@ extern "C" const char* fn_80218218(int motion);           // inferred: motion na
 // inferred: channel of the action (defined as extern "C" in Event/Node.cpp)
 extern "C" void* fn_805381AC(void* self);
 
-// NONMATCHING: 99.96% - offsets of the strings in @stringBase0 (the "" after "vector length error")
 // inferred: adds (or replaces) the row of a motion; the key is the action, moved by `upper` for the
 // upper body motion; the color marks a changed speed or start frame
 void fn_80223F50(DebugInfo_unk* info, Action* action, int motion, int start, int loop, float speed, int upper) {
@@ -850,7 +850,7 @@ extern "C" inline int fn_80224610(ActionParam_unk* param) {
 }
 
 // inferred: page 4 of the debug info: motion actions of the current cut
-// NONMATCHING: 99.92% - offsets of the strings in @stringBase0 (the "" after "vector length error")
+// NONMATCHING: 99.94% - registers (the copy of the pointer in r20, ours r30)
 void fn_80224184(DebugInfo_unk* info) {
     Sequence* seq = fn_8000DB1C()->fn_80112F54();
     if (seq == 0) {
@@ -928,7 +928,6 @@ void fn_80224184(DebugInfo_unk* info) {
 // inferred: motion tracks shown for each character
 static const int sTracks_unk[3] = {0, 3, 4};
 
-// NONMATCHING: 99.88% - offsets of the strings in @stringBase0 (the "" after "vector length error")
 void fn_80224638(DebugInfo_unk* info) {
     Sequence* seq = fn_8000DB1C()->fn_80112F54();
     if (seq == 0) {
