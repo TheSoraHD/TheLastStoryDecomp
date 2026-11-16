@@ -6502,6 +6502,68 @@ extern "C" void fn_804F60D8(void* arg, void* value) {}
 
 extern "C" void fn_804F60DC(void* arg, void* value) {}
 
+#include "macros.h"
+
+// inferred: order of the ranking rows: higher score first (comparator of the sort fn_804F62D8)
+struct NetRankOrder_unk {
+    bool operator()(const atn::net::NetRankData_unk& a, const atn::net::NetRankData_unk& b) const;
+};
+extern "C" void fn_804F62D8(atn::net::NetRankData_unk* first, atn::net::NetRankData_unk* last,
+                            NetRankOrder_unk order); // inferred: std::sort of the rows
+
+// NONMATCHING: 99.60% - r5/r6 of the row and the place in the last loop
+// inferred: callback of the ranking requests: sorts the rows by score and numbers them (equal scores share the
+// place); the places are moved so that the first row keeps its place (the own row when asked around it) and
+// kept in 1..99999
+extern "C" void fn_804F60E0(int result, atn::net::NetRankData_unk* data) {
+    atn::FixedArray_unk<atn::net::NetRankData_unk, 65>* rows = &lbl_8087F5A4->mRows;
+    if (rows->size() == 0) {
+        return;
+    }
+    int pid = (*rows)[0].mPid;
+    int order = (*rows)[0].mOrder;
+    fn_804F62D8(rows->begin(), rows->end(), NetRankOrder_unk());
+    atn::net::NetRankData_unk* row = rows->begin();
+    unsigned long place = 1;
+    unsigned long ties = 0;
+    atn::net::NetRankData_unk* prev = 0;
+    for (unsigned int i = 0; i < rows->size(); i++) {
+        if (prev == 0) {
+            row->mOrder = place;
+        } else {
+            if (prev->mScore > row->mScore) {
+                place = place + ties + 1;
+                ties = 0;
+            } else {
+                ties++;
+            }
+            row->mOrder = place;
+        }
+        prev = row;
+        row++;
+    }
+    row = rows->begin();
+    int index = -1;
+    for (unsigned int i = 0; i < rows->size(); row++, i++) {
+        if ((int)row->mPid == pid) {
+            index = i;
+            break;
+        }
+    }
+    if (order > 0 && index >= 0) {
+        int diff = order - (*rows)[index].mOrder;
+        row = rows->begin();
+        for (unsigned int i = 0; i < rows->size(); row++, i++) {
+            row->mOrder = MIN(MAX(row->mOrder + diff, 1), 99999);
+        }
+    } else {
+        row = rows->begin();
+        for (unsigned int i = 0; i < rows->size(); row++, i++) {
+            row->mOrder = MIN(MAX(row->mOrder, 1), 99999);
+        }
+    }
+}
+
 // inferred: requests of the save/load task of the manager (type 0 and 1)
 extern "C" int fn_804F7EC8(void* data, int size) {
     MP::SaveLoad* saveLoad = ((PPManager2_unk*)lbl_8087F610)->mSaveLoad;
