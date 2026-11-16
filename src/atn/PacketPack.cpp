@@ -1028,7 +1028,7 @@ extern "C" int fn_804F7F18();
 extern "C" int fn_804F7F34();
 extern "C" int fn_804EE040(unsigned int aid, void* data, unsigned int size);
 extern "C" void fn_804ED768();
-extern "C" void fn_804EDB0C();
+extern "C" int fn_804EDB0C(int index, void* param);
 extern "C" void fn_804EDCCC();
 extern "C" unsigned char lbl_8087F614;
 extern "C" const char* const lbl_80887594;
@@ -4908,6 +4908,65 @@ extern "C" PPPlayer_unk* fn_804EB870(PPManager2_unk* mgr) {
         }
     }
     return 0;
+}
+
+extern "C" int DWC_GetMatchIntValue(int index, const char* key, int idefault);
+extern "C" const char* fn_806B3B80(int index, const char* key, const char* sdefault); // DWC_GetMatchStringValue
+extern "C" int abs(int);
+
+// inferred: name and value of the debug key of the matchmaking (as atn/NetManager.cpp; its weak objects are
+// emitted here first)
+inline const char* GetDebugMatchKey_unk() { return "lw_debug"; }
+inline int& GetDebugMatchValue_unk() {
+    static int sValue = 1;
+    return sValue;
+}
+
+// NONMATCHING: 99.54% - offset of "notexiststring" in @stringBase0 (the two unreferenced "" missing) and the
+// registers of the friend list and the loop offset swapped
+// inferred: evaluation callback of the matchmaking (m99C0.mFuncs[2]): -1 if the session `index` lacks the debug
+// key or one of the filter keys or has another value; else the closeness of the fourth key (0x80 - distance,
+// in the upper half), 0x800000 if m25C is 1
+extern "C" int fn_804EDB0C(int index, void* param) {
+    MpFriendList_unk* list = &lbl_8087F628->mFriendList;
+    int result = 0x800000;
+    int value = DWC_GetMatchIntValue(index, GetDebugMatchKey_unk(), 66666);
+    if (value == 66666 || value != GetDebugMatchValue_unk()) {
+        goto fail;
+    }
+    for (int i = 0; i < 8; i++) {
+        atn::net::NetFilterKey_unk* key = &lbl_8087F628->mKeys[i];
+        if (key->mType == 1) {
+            if ((key->mFlags & 1) == 1) {
+                continue;
+            }
+            const char* none = "notexiststring";
+            const char* str = fn_806B3B80(index, key->mKey.c_str(), none);
+            if (strcmp(none, str) == 0 || strcmp(key->mString.c_str(), str) != 0) {
+                goto fail;
+            }
+        } else if (key->mType == 2) {
+            if ((key->mFlags & 1) == 1) {
+                continue;
+            }
+            int v = DWC_GetMatchIntValue(index, key->mKey.c_str(), 66666);
+            if (v == 66666 || v != key->mInt) {
+                goto fail;
+            }
+        } else {
+            break;
+        }
+    }
+    if (lbl_8087F628->m25C != 1) {
+        int v = DWC_GetMatchIntValue(index, fn_8050F8B0(list, 3), 66666);
+        if (v == 66666) {
+            goto fail;
+        }
+        result = (0x80 - abs(list->m1E8 - v)) << 16;
+    }
+    return result;
+fail:
+    return -1;
 }
 
 extern "C" void fn_804EE904(MpCharaRef_unk* ref);
