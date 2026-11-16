@@ -3554,7 +3554,6 @@ const char* GetModeField_unk(int mode) {
     return lbl_807911A8[mode];
 }
 
-// NONMATCHING: 98.41% - registers of the index, the field pointer and the text (r27/r28/r29)
 // inferred: splits `text` at the commas into its 6 fields (the last one runs to the end); 0 if a comma is
 // missing. Empty fields are stored as null pointers
 extern "C" int fn_804DBE24(PPManager2_unk* mgr, char* text, char** fields) {
@@ -3570,13 +3569,12 @@ extern "C" int fn_804DBE24(PPManager2_unk* mgr, char* text, char** fields) {
             }
         }
         if (text == end) {
-            *fields = 0;
+            fields[i] = 0;
         } else {
-            *fields = text;
+            fields[i] = text;
         }
         *end = 0;
         text = end + 1;
-        fields++;
     }
     return 1;
 }
