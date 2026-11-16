@@ -8,6 +8,11 @@ extern "C" double atan2(double y, double x);
 extern "C" float lbl_8087DA08; // inferred: ground height used by ControlGmkCoffinGetUp
 extern "C" void fn_80547708(void* arg, chr::GmkTarget_unk* target);
 
+// inferred: weak copy 0x8013C38C (address of the position), inlined here
+inline atn::Vector3* CharaTask::fn_8013C38C() {
+    return &mPos;
+}
+
 namespace chr {
 
 ControlGmkCoffinOpening::ControlGmkCoffinOpening(Chara_unk* chara, const atn::Vector3& pos, float rotY)
@@ -156,14 +161,16 @@ boost::function<void()> ControlGmkTrapBat::vf10() const {
     return ControlBase::vf10();
 }
 
-// NONMATCHING: 99.7% - mChara and the addresses of `rot`/`dir` get r3/r4/r5 instead of r5/r3/r4
+// NONMATCHING: 99.95% - only `frsp f4, f4` instead of `frsp f3, f4` in the inlined RotZ_unk (the
+// accessor 0x8013C38C fixed mChara and the rot/dir addresses). Tried: rot by GetRot_unk, no `dir`, rot
+// first, `r` local, SetRot_unk, reference accessor, mTarget local/parameter, RotZ_unk on a copy.
 // (turns the character towards the target with Vector3::ToRotationZ_unk; the pitch is discarded)
 ControlGmkBreakArmor::ControlGmkBreakArmor(Chara_unk* chara, GmkTarget_unk* target, void* arg)
     : ControlBase(chara), mTarget(target), m0C(arg) {
     chara->m58C = 0;
     mChara->m560 = 0x5F;
     if (mTarget != 0) {
-        atn::Vector3 dir = mTarget->m6C - mChara->mPos;
+        atn::Vector3 dir = mTarget->m6C - *mChara->fn_8013C38C();
         atn::Vector3 rot = mChara->mRot;
         rot.y = dir.ToRotationZ_unk().y;
         mChara->mRot = rot;
