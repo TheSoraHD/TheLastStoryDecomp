@@ -97,13 +97,25 @@ inline void SetEnabled_unk(int enabled) {
     fn_8014F8F4()->mEnabled = enabled;
 }
 
+// inferred: weak copy 0x8013C38C (address of the position), inlined here
+inline atn::Vector3* CharaTask::fn_8013C38C() {
+    return &mPos;
+}
+
 // inferred: position of the point hit by the shots (name invented)
 inline atn::Vector3 GetQueenPoint_unk(Queen_unk* queen) {
     Mtx mtx;
     PSMTXRotRad(mtx, 'y', queen->mRot.y);
     atn::Vector3 offset(sQueenOffset_unk);
     PSMTXMultVec(mtx, &offset, &offset);
-    return queen->mPos + offset;
+    const atn::Vector3& pos = queen->mPos;
+    return atn::Vector3(pos.x + offset.x, pos.y + offset.y, pos.z + offset.z);
+}
+
+// inferred: distance between two points (name invented)
+inline float Dist_unk(const atn::Vector3& a, const atn::Vector3& b) {
+    atn::Vector3 d = a - b;
+    return PSVECMag(&d);
 }
 
 // inferred: point `dist` in front of the character (name invented)
@@ -116,10 +128,6 @@ inline atn::Vector3 GetFrontDir_unk(const chr::ControlBase* control) {
     return dir;
 }
 
-// inferred: weak copy 0x8013C38C (address of the position), inlined here
-inline atn::Vector3* CharaTask::fn_8013C38C() {
-    return &mPos;
-}
 
 namespace chr {
 
@@ -261,8 +269,9 @@ ControlCannonThrow::ControlCannonThrow(Chara_unk* chara, const atn::Vector3& dir
     mChara->fn_801446F0();
 }
 
-// NONMATCHING: 99.9% - stack slots of the offset/point/difference vectors (the original puts the
-// rotated offset above the point and the difference lowest).
+// NONMATCHING: 99.93% - first queen test: with GetQueenPoint_unk/Dist_unk the stack matches but
+// the address of the point stays in r29 for the message copy (the original recomputes it); written
+// out, the original puts the rotated offset above the point and the difference lowest.
 int ControlCannonThrow::vf0C() {
     Motion_unk* motion = &mChara->mMotion;
     if (motion->mTracks[0].m08 >= 10.0f && mChara->m1208 != 0) {
@@ -304,13 +313,8 @@ int ControlCannonThrow::vf0C() {
     if (lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->GetCurrentMap() != 0 && ((GameTask*)lbl_8087F430)->GetCurrentMap()->mId == 11 &&
             ((GameTask*)lbl_8087F430)->GetCurrentMap()->mSubId == 3 && (queen2 = (Queen_unk*)EnemyManager::sInstance->Find_unk(4)) != 0 &&
         fn_802CCA0C(queen2)) {
-        Mtx mtx;
-        PSMTXRotRad(mtx, 'y', queen2->mRot.y);
-        atn::Vector3 offset(sQueenOffset_unk);
-        PSMTXMultVec(mtx, &offset, &offset);
-        atn::Vector3 point = queen2->mPos + offset;
-        atn::Vector3 diff = point - m08;
-        if (PSVECMag(&diff) < m14) {
+        atn::Vector3 point = GetQueenPoint_unk(queen2);
+        if (Dist_unk(point, m08) < m14) {
             queen2->m1544 = 1;
         }
     }
@@ -331,7 +335,6 @@ ControlCannonTarget::ControlCannonTarget(Chara_unk* chara) : ControlMoveCursor(c
     SetAim_unk();
 }
 
-// NONMATCHING: 99.9% - stack slots of the offset/point/difference vectors of the second queen test.
 int ControlCannonTarget::vf0C() {
     int ret = 0;
     if (mChara->mType == 0) {
@@ -355,13 +358,8 @@ int ControlCannonTarget::vf0C() {
         if (lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->GetCurrentMap() != 0 && ((GameTask*)lbl_8087F430)->GetCurrentMap()->mId == 11 &&
             ((GameTask*)lbl_8087F430)->GetCurrentMap()->mSubId == 3 && (queen2 = (Queen_unk*)EnemyManager::sInstance->Find_unk(4)) != 0 &&
             fn_802CCA0C(queen2)) {
-            Mtx mtx;
-            PSMTXRotRad(mtx, 'y', queen2->mRot.y);
-            atn::Vector3 offset(sQueenOffset_unk);
-            PSMTXMultVec(mtx, &offset, &offset);
-            atn::Vector3 point = queen2->mPos + offset;
-            atn::Vector3 diff = point - m08;
-            if (PSVECMag(&diff) < m28) {
+            atn::Vector3 point = GetQueenPoint_unk(queen2);
+            if (Dist_unk(point, m08) < m28) {
                 queen2->m1544 = 1;
             }
         }
