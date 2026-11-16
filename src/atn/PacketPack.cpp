@@ -4131,8 +4131,6 @@ extern "C" void fn_804DD294(PPManager2_unk* mgr, int arg, int* stage) {
     }
 }
 
-// NONMATCHING: 99.78% - same bytes; objdiff's data flow guesses another symbol for the end of the table
-// (R_PPC_NONE of `subi r4` and `lwz -4(r3)`), as the rest of .rodata is not written yet
 // inferred: previous stage (as fn_804DD294 backwards)
 extern "C" void fn_804DD33C(PPManager2_unk* mgr, int arg, int* stage) {
     int num;
@@ -6990,12 +6988,26 @@ extern "C" void fn_804F60DC(void* arg, void* value) {}
 
 #include "macros.h"
 
-// inferred: order of the ranking rows: higher score first (comparator of the sort fn_804F62D8)
+// inferred: order of the ranking rows: higher score first
+// (then the older update, the pid, the user data and the address); the sort 0x804F62D8, its recursive copy
+// 0x804F6E94 and the median 0x804F7A50 are emitted after fn_804F60E0
 struct NetRankOrder_unk {
-    bool operator()(const atn::net::NetRankData_unk& a, const atn::net::NetRankData_unk& b) const;
+    bool operator()(const atn::net::NetRankData_unk& a, const atn::net::NetRankData_unk& b) const {
+        if (a.mScore != b.mScore) {
+            return a.mScore > b.mScore;
+        }
+        if (a.mLastUpdate != b.mLastUpdate) {
+            return a.mLastUpdate < b.mLastUpdate;
+        }
+        if ((long)a.mPid != (long)b.mPid) {
+            return (long)a.mPid < (long)b.mPid;
+        }
+        if (a.mUserData != b.mUserData) {
+            return a.mUserData < b.mUserData;
+        }
+        return &a < &b;
+    }
 };
-extern "C" void fn_804F62D8(atn::net::NetRankData_unk* first, atn::net::NetRankData_unk* last,
-                            NetRankOrder_unk order); // inferred: std::sort of the rows
 
 // NONMATCHING: 99.60% - r5/r6 of the row and the place in the last loop
 // inferred: callback of the ranking requests: sorts the rows by score and numbers them (equal scores share the
@@ -7008,7 +7020,7 @@ extern "C" void fn_804F60E0(int result, atn::net::NetRankData_unk* data) {
     }
     int pid = (*rows)[0].mPid;
     int order = (*rows)[0].mOrder;
-    fn_804F62D8(rows->begin(), rows->end(), NetRankOrder_unk());
+    MslSort_unk(rows->begin(), rows->end(), NetRankOrder_unk());
     atn::net::NetRankData_unk* row = rows->begin();
     unsigned long place = 1;
     unsigned long ties = 0;
