@@ -145,6 +145,9 @@ public:
             first.mNode->mPrev->mNext = lastPrev->mNext;
             lastPrev->mNext->mPrev = first.mNode->mPrev;
             while (first != last) {
+                // inferred: the element is destroyed before the node is freed (destructor of
+                // atn::net::PacketPack, 0x804D14B8)
+                ((__list_node_unk<T>*)first.mNode)->mData.~T();
                 __list_node_base_unk* node = first.mNode;
                 ++first;
                 ::operator delete(node);

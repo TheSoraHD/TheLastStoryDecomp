@@ -6,8 +6,9 @@
 // (HBMRsoCreate__FR11HBMDataInfoRPUcRPUc, HBMRsoCalc__FR17HBMControllerData) need them.
 // Game units do not include SDK headers, so only the layout is repeated here.
 
-// inferred: KPADStatus of the SDK, only the fields read by the glue
-struct KPADStatus_unk {
+// inferred: KPADStatus of the SDK, only the fields read by the glue (same object as KPADStatus_unk of
+// atn/WPad_unk.h; named apart so that both headers can be included together, to unify)
+struct HBMKPADStatus_unk {
     unsigned char m00[0x20];
     float posX; // 0x20
     float posY; // 0x24
@@ -42,7 +43,7 @@ struct HBMDataInfo {
 
 // SDK HBMKPadData / HBMControllerData (0x40 bytes)
 struct HBMKPadData {
-    KPADStatus_unk* kpad;      // 0x00
+    HBMKPADStatus_unk* kpad;      // 0x00
     float posX;                // 0x04
     float posY;                // 0x08
     unsigned long use_devtype; // 0x0C
