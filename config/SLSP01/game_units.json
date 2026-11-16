@@ -1691,7 +1691,7 @@
   "classes": [
    "Em303KrakenFoot"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "game/Em303KrakenFootMp.cpp",
