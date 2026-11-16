@@ -17,6 +17,7 @@
 | GameTextMessageWindow::fn_803B710C | DRAFT 0,2 % | equivalente NONMATCHING 99,99 % |
 | GameMessageWindow::vf10 (efecto colateral, pool) | 99,86 % | 100 % |
 | ReplayBuffer fn_8056A9E4 (pose de la repeticion) | DRAFT 13,9 % | equivalente NONMATCHING 97,4 % |
+| TutorialTask::fn_805BC1C0 (camara libre) | DRAFT 2,5 % | equivalente NONMATCHING 96,3 % |
 
 ## Para el port
 
@@ -24,6 +25,7 @@
 - GameTextMessageWindow: `int m4C` -> `GameMessage* mMessage`; 0x7C-0xB3 tiene la forma de un GameMessage (se pasa como `(GameMessage*)&m7C` a GameMessageWindow::fn_803B5774). Nuevos inline Start_unk/Choose_unk/Pop_unk.
 - Texto del hablante desconocido: L"\xFF1F\xFF1F\xFF1F" (tres signos de interrogacion de ancho completo); `wchar_t lbl_8087F468[1]` (.sbss, texto vacio).
 - ReplayBuffer fn_8056A9E4 (stub -> codigo real): guarda los callbacks mB8/m35C del modelo, pone el de giro del torso (o vacio) y vacia m35C, copia la matriz, m54 = mayor escala de los ejes, rellena las pistas (medio float / byte), quita el bit 0x40 de mFlags, fn_80097E80(1), pose del nodo "reference", CalcMatrixStack sin callback, velocidad y peso de las pistas y devuelve los callbacks. Firma: `void* data` -> `ReplayTrack_unk* tracks`.
+- TutorialTask::fn_805BC1C0 (stub -> codigo real): posicion libre de la camara: mira desde el personaje (y su punto de ruta mas cercano, GameScene::fn_803C1560) en la direccion de la pagina (ToRotationZ_unk de target - pos); si el rayo de 20 unidades (5 arriba) choca con el mapa (fn_8004ED34, mascara 0x80000008) gira un cuarto de vuelta (cuatro intentos). Antes solo copiaba mPos/mRot.
 - atn::Model::Track_unk: `m19[3]` -> `unsigned char m19` (la copia de una pista no copia 0x1A-0x1B; atn/Model.cpp fn usa `t.m19`). ReplayChara_unk::m07 y ReplayTrack_unk::mFlag pasan a `signed char` (extsb).
 - `std::basic_string::replace(pos, n, const basic_string&)` nuevo, definido en `include/std/string_replace_unk.h`.
 
@@ -42,5 +44,6 @@
 
 ## Cambios de splits/symbols
 
+- symbols.txt: pd.sh de game/TutorialTask.
 - symbols.txt: pd.sh + lblmap.py de game/ReplayBuffer (@12998 -> @13644, @13104 -> @13412).
 - symbols.txt: pd.sh de game/GameChoiceWindow (30 etiquetas `@N` de .sdata2/.rodata renombradas; lbl_80885C38/3C/48/4C/50 pasan a `@N` locales: son literales).
