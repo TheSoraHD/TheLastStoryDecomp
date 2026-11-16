@@ -465,6 +465,18 @@ struct PPPlayer_unk {
 
 // inferred: array of the player slots of MP::Manager2 (pointer and count); names invented
 struct PPPlayerArray_unk {
+    // inferred: slot of the team player of network id `aid` (none for a main player id); name invented
+    PPPlayer_unk* FindTeam_unk(unsigned int aid) {
+        if ((aid & 0xF0) != 0) {
+            for (unsigned int i = 0; i < (unsigned int)mNum; i++) {
+                PPPlayer_unk* player = &mData[i];
+                if (aid == player->mAid) {
+                    return player;
+                }
+            }
+        }
+        return 0;
+    }
     PPPlayer_unk* mData;
     int mNum;
 };
@@ -4689,7 +4701,8 @@ struct PPPlayerInfo_unk {
     unsigned char m08_0 : 1;
     unsigned char m13 : 1;
     unsigned char m12 : 1;
-    unsigned char m08_3 : 5;
+    unsigned char mIsEntry : 1; // inferred: mAid is an index of the character list (fn_804F2258)
+    unsigned char m08_4 : 4;
     unsigned char mAid;
 };
 
@@ -5054,6 +5067,41 @@ extern "C" void fn_804F1F34(PPPlayer_unk* player) {
     }
     PPManager2_unk* mgr2 = (PPManager2_unk*)lbl_8087F610;
     mgr2->m99F4[player->mAid & 0xF] = 1;
+}
+
+// NONMATCHING: 99.67% - offset of "enemy_sync\n" in @stringBase0 (pool not complete) and r3/r5 of the inlined search
+// inferred: state of a player slot (network id mAid) or of a character of the list (index mAid) received from the
+// server; a character of the list is revived or killed to follow the value m00
+extern "C" void fn_804F2258() {
+    if (((PPManager2_unk*)lbl_8087F610)->mState == 30) {
+        PPPlayerInfo_unk* data = (PPPlayerInfo_unk*)fn_804AE3BC()->GetWorkBuffer_unk();
+        if (!data->mIsEntry) {
+            PPPlayer_unk* player = ((PPManager2_unk*)lbl_8087F610)->mPlayers.FindTeam_unk(data->mAid);
+            fn_804AE3BC()->fn_8050E62C(player != 0, "enemy_sync\n");
+            if (player->mRef.mChara != 0) {
+                ((PPChara_unk*)player->mRef.mChara)->m7D8 = data->m00;
+            }
+            player->mDC.fn_80501288((CharaTask*)data->mChara);
+            player->mE0 = data->m06;
+            player->mE4 = data->m07;
+            player->mFlags.m13 = data->m13;
+            player->mFlags.m12 = data->m12;
+        } else {
+            PPManager2_unk* mgr = (PPManager2_unk*)lbl_8087F610;
+            PPCharaEntry_unk* entry = &mgr->mCharas.mData[data->mAid];
+            CharaTask* chara = entry->mRef.mChara;
+            if (chara != 0) {
+                mgr->m99BC = 1;
+                if (chara->mStatus.IsState_unk(0x20) && data->m00 > 0) {
+                    entry->mRef.fn_805011CC();
+                } else if (!chara->mStatus.IsState_unk(0x20) && data->m00 <= 0) {
+                    entry->mRef.fn_805010C0();
+                }
+                ((PPManager2_unk*)lbl_8087F610)->m99BC = 0;
+                ((PPChara_unk*)chara)->m7D8 = data->m00;
+            }
+        }
+    }
 }
 
 // inferred: message 0x1F: shield parts of the character of the player (count in the data)
