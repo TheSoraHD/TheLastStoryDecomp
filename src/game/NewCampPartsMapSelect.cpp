@@ -1518,7 +1518,11 @@ void NewCampPartsMapSelect::fn_805212BC() {
     }
 }
 
-// NONMATCHING: float registers of the negated offset
+// inferred: inline in the original (weak copy 0x8013C3B4, defined out of line in game/CharaTask.cpp)
+inline atn::Vector3 atn::Vector3::operator-() const {
+    return atn::Vector3(-x, -y, -z);
+}
+
 void NewCampPartsMapSelect::fn_80521908(int reset) {
     if (reset) {
         m19B8 = 0.0f;
@@ -1537,7 +1541,7 @@ void NewCampPartsMapSelect::fn_80521908(int reset) {
             break;
         }
         if (dir < 0) {
-            m1914[i].mPos = atn::Vector3(-m487C, -m4880, -m4884);
+            m1914[i].mPos = -*(atn::Vector3*)&m487C;
         } else {
             m1914[i].mPos = *(atn::Vector3*)&m487C;
         }
