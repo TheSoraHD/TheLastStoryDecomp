@@ -4555,9 +4555,9 @@ static inline CharaTask* GetHitAttacker_unk(PPManager2_unk* mgr, const T* data) 
         return 0;
     case 2:
         for (int i = 0; i < mgr->mPlayers.mNum; i++) {
-            PPPlayer_unk* player = &mgr->mPlayers.mData[i];
+            PPPlayer_unk* player = &mgr->mPlayers.mData[(unsigned int)i];
             if (player->mFlags.mActive == 1 && data->mIndex == player->mAid) {
-                return player->mRef.mChara;
+                return mgr->mPlayers.mData[(unsigned int)i].mRef.mChara;
             }
         }
         return 0;
@@ -4638,7 +4638,7 @@ extern "C" void fn_804EE9F0(PPPlayer_unk* player) {
     }
 }
 
-// NONMATCHING: registers of the inlined player search (offset/base, as fn_804DD158 elsewhere)
+// NONMATCHING: 99.21% - base of the inlined player search (the original loads the character with lwzx base, offset)
 // inferred: message 5: a bullet shot by another player (only in the game, state 30); the listeners of the
 // characters are off during the shot
 extern "C" void fn_804EEB34() {
@@ -4670,7 +4670,54 @@ extern "C" void fn_804EEB34() {
 }
 
 
-// NONMATCHING: registers of the inlined player search (offset/base, as fn_804DD158 elsewhere)
+// inferred: data of message 7 (a hit received by a character from another player); names invented
+struct PPMsgDamage_unk {
+    atn::Vector3 m00;     // inferred: direction
+    atn::Vector3 m0C;
+    unsigned int mFlags;  // 0x18
+    int mHitId;           // 0x1C
+    int m20;
+    unsigned char mKind;  // 0x24: inferred: target (as PPMsgHit_unk)
+    unsigned char mIndex; // 0x25
+};
+
+// NONMATCHING: 99.40% - base of the inlined player search (the original loads the character with lwzx base, offset)
+// inferred: message 7: hit received by a character (only in the game, state 30); the listeners are off during the
+// hit; a gimmick held by the character and released by the hit gets message 3
+extern "C" void fn_804EF9B4() {
+    if (((PPManager2_unk*)lbl_8087F610)->mState == 30) {
+        GimmickCommon* held;
+        unsigned int flags;
+        PPMsgDamage_unk* data = (PPMsgDamage_unk*)fn_804AE3BC()->GetWorkBuffer_unk();
+        PPManager2_unk* mgr = (PPManager2_unk*)lbl_8087F610;
+        CharaTask* chara = GetHitAttacker_unk(mgr, data);
+        if (chara != 0) {
+            flags = data->mFlags;
+            held = chara->m1208;
+            if (chara != 0 && chara->IsPlayer()) {
+                if ((flags & 8) != 8 && chara->IsFlag5_unk()) {
+                    if (!chara->IsDown_unk() && (flags & 0x400000) != 0x400000) {
+                        flags |= 8;
+                    }
+                }
+                if ((flags & 0x400) != 0x400 && chara->m55C == 6 && (unsigned int)(chara->m560 - 1) <= 1) {
+                    flags |= 0x400;
+                }
+            }
+            fn_8014F8F4()->mEnabled = 0;
+            chara->fn_8015076C(data->mHitId, data->m00, data->m0C, data->m20, flags, 0);
+            fn_8014F8F4()->mEnabled = 1;
+            if (held != 0 && chara->m1208 == 0) {
+                GimmickMsg_unk msg;
+                msg.mType = 3;
+                msg.m10 = (int)chara;
+                held->vf40(&msg);
+            }
+        }
+    }
+}
+
+// NONMATCHING: 99.15% - base of the inlined player search (the original loads the character with lwzx base, offset)
 // inferred: messages 8 and 64: a hit dealt by another player (only in the game, state 30); the listeners of the
 // characters are off during the hit
 extern "C" void fn_804EFC94() {
