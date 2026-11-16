@@ -960,7 +960,7 @@
   "classes": [
    "chr::ControlShoot"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "chr/ControlStagger.cpp",
