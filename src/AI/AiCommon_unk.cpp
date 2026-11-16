@@ -248,12 +248,17 @@ extern "C" int fn_800143E8(CharaTask* chara);
 
 #define AI_MAX(a, b) ((a) > (b) ? (a) : (b))
 
-// inferred: runs the order `order` of the AI script on the current character
-// NONMATCHING: 98.96% - registers: the character and its CharaC58_unk swap r30/r31 (tried both
-// declaration orders, a reference and no local), and the original reads b/a from r5/r4 in some cases
+// inferred: accessor of the control data (weak copy 0x800F530C, as in game/BattleTask.cpp)
+extern "C" inline CharaC58_unk* fn_800F530C(CharaTask* chara) {
+    return &chara->mC58;
+}
+
+// inferred: runs the order `order` of the AI script on the current character. The float
+// arguments are converted in locals before the call (the original reads b/a from r5/r4 there).
+
 extern "C" void fn_8001AEDC(unsigned int order, int* a, int* b, int* c, int* d) {
     CharaTask* self = lbl_8087EE60;
-    CharaC58_unk* ai = &self->mC58;
+    CharaC58_unk* ai = fn_800F530C(self);
     switch (order) {
     case 0: {
         CharaStatus* status;
@@ -279,12 +284,14 @@ extern "C" void fn_8001AEDC(unsigned int order, int* a, int* b, int* c, int* d) 
     case 2:
         ai->fn_8011C378(self, *a);
         break;
-    case 3:
-        ai->fn_8011C3F4(self, (CharaTask*)*a, *b);
+    case 3: {
+        float radius = *b;
+        ai->fn_8011C3F4(self, (CharaTask*)*a, radius);
         break;
+    }
     case 4: {
-        CharaTask* other = (CharaTask*)*a;
         int time = *b;
+        CharaTask* other = (CharaTask*)*a;
         if (other != 0 && other->mFlag10) {
             time = time * lbl_8087F0A8->m468;
         }
@@ -308,12 +315,16 @@ extern "C" void fn_8001AEDC(unsigned int order, int* a, int* b, int* c, int* d) 
     case 7:
         ai->fn_8011C650(self, *a, (CharaTask*)*b);
         break;
-    case 8:
-        ai->fn_8011C6C4(self, *a, *b);
+    case 8: {
+        float radius = *b;
+        ai->fn_8011C6C4(self, *a, radius);
         break;
-    case 9:
-        ai->fn_8011C7C0(self, (CharaTask*)*a, *b);
+    }
+    case 9: {
+        float radius = *b;
+        ai->fn_8011C7C0(self, (CharaTask*)*a, radius);
         break;
+    }
     case 15:
         ai->fn_8011C850(self);
         break;
@@ -323,12 +334,16 @@ extern "C" void fn_8001AEDC(unsigned int order, int* a, int* b, int* c, int* d) 
     case 11:
         ai->fn_8011C8EC(self, *a);
         break;
-    case 12:
-        ai->fn_8011C92C(self, *a, *b);
+    case 12: {
+        float radius = *b;
+        ai->fn_8011C92C(self, *a, radius);
         break;
-    case 13:
-        ai->fn_8011C97C(self, (CharaTask*)*a, *b);
+    }
+    case 13: {
+        float radius = *b;
+        ai->fn_8011C97C(self, (CharaTask*)*a, radius);
         break;
+    }
     case 14:
         ai->fn_8011C9F8(self);
         break;
@@ -357,12 +372,18 @@ extern "C" void fn_8001AEDC(unsigned int order, int* a, int* b, int* c, int* d) 
         ai->fn_8011CD1C(self, motion0, motion1, motion2, *d);
         break;
     }
-    case 18:
-        ai->fn_8011CA5C(self, (CharaTask*)*a, *b, 0.017453292f * *c);
+    case 18: {
+        float radius = *b;
+        float deg = *c;
+        float angle = 0.017453292f * deg;
+        ai->fn_8011CA5C(self, (CharaTask*)*a, radius, angle);
         break;
-    case 19:
-        ai->fn_8011CAE4(self, *a);
+    }
+    case 19: {
+        float radius = *a;
+        ai->fn_8011CAE4(self, radius);
         break;
+    }
     }
 }
 
