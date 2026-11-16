@@ -984,9 +984,14 @@ void Em308ParmCrab::vfEC() {
     }
 }
 
+// inferred: normalized direction (name invented)
+inline atn::Vector3 CrabDir_unk(const atn::Vector3& from, const atn::Vector3& to) {
+    atn::Vector3 dir = atn::Vector3(to - from);
+    PSVECNormalize(&dir, &dir);
+    return dir;
+}
 // inferred: without the flag 2 of m15B8 attacks the current target (fn_802FBA30), with it walks towards
 // target (state 7, motion 0x145); both turn first when needed
-// NONMATCHING: 99.96% (report) - same dir/rotation stack swap as fn_802FBA30 (helpers tried too)
 void Em308ParmCrab::fn_802FB6AC(CharaTask* target) {
     if ((m15B8 & 2) != 2) {
         if (fn_802FBE00(target, 8) == 0) {
@@ -999,9 +1004,7 @@ void Em308ParmCrab::fn_802FB6AC(CharaTask* target) {
         m560 = 4;
         m590 = lbl_8087F048->fn_800F8548();
         atn::Vector3 tpos = target->mPos;
-        atn::Vector3 dir = atn::Vector3(tpos - mPos);
-        PSVECNormalize(&dir, &dir);
-        atn::Vector3 rot = dir.ToRotation_unk();
+        atn::Vector3 rot = CrabDir_unk(mPos, tpos).ToRotation_unk();
         mRot = rot;
         mRot.x = 0.0f;
         mRot.z = 0.0f;
@@ -1015,7 +1018,6 @@ void Em308ParmCrab::fn_802FB6AC(CharaTask* target) {
 
 // inferred: without the flag 4 of m15B8 starts state 6, with it charges towards target (state 8, motion 0x142);
 // both turn first when needed
-// NONMATCHING: 99.96% (report) - stack slots of dir (0x5c) and of the ToRotation_unk temporary (0x68)
 // swapped; ~10 forms
 void Em308ParmCrab::fn_802FBA30(CharaTask* target) {
     if ((m15B8 & 4) != 4) {
@@ -1030,9 +1032,7 @@ void Em308ParmCrab::fn_802FBA30(CharaTask* target) {
             fn_8016E970(3);
             ResetAttack_unk();
             atn::Vector3 tpos = target->mPos;
-            atn::Vector3 dir = atn::Vector3(tpos - mPos);
-            PSVECNormalize(&dir, &dir);
-            atn::Vector3 rot = dir.ToRotation_unk();
+            atn::Vector3 rot = CrabDir_unk(mPos, tpos).ToRotation_unk();
             mRot = rot;
             mRot.x = 0.0f;
             mRot.z = 0.0f;
