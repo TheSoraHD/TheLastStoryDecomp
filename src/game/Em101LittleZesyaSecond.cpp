@@ -771,17 +771,21 @@ void Em101LittleZesyaSecond::fn_802621D4(atn::Vector3* pos, float* rot) {
     *rot = (m14B8->mPos - *pos).ToRotationZ_unk().y;
 }
 
-// NONMATCHING: 99.83% - slots of x/y of the negated front (stores z, x, y in the original; 10 variants:
-// member order, constructor, locals, inline, IsDown_unk, Neg_unk)
 int Em101LittleZesyaSecond::vf4C(void* attacker, HitInfo_unk* hit, int arg, const atn::Vector3* dir) {
     if (mFlag5) {
         if (!IsDown_unk()) {
+            atn::Vector3 back;
             atn::Vector3 front(0.0f, 0.0f, 1.0f);
             Mtx m;
             float ry = mRot.y;
             PSMTXRotRad(m, 'y', ry);
             PSMTXMultVec(m, &front, &front);
-            atn::Vector3 back(-front.x, -front.y, -front.z);
+            float z = -front.z;
+            float y = -front.y;
+            float x = -front.x;
+            back.z = z;
+            back.x = x;
+            back.y = y;
             if (PSVECDotProduct(dir, &back) > -0.5f) {
                 return (m55C != 6) + 1;
             }
