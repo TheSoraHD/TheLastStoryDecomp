@@ -534,7 +534,7 @@
   "classes": [
    "BattleResult"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "game/BattleTask.cpp",
@@ -2714,7 +2714,7 @@
   "classes": [
    "HomingBullet"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "game/IffChunkFile_unk.cpp",

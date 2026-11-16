@@ -14,7 +14,6 @@ extern "C" ResultD2A_unk* fn_801F3FF8(atn::Task* parent, const char* path, int l
 extern "C" void fn_801FED24(void* layout, unsigned int hash, int index, float value);
 extern "C" unsigned int fn_800DC6B4(const char* s); // inferred: string hash
 extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float volume); // inferred: plays a sound
-extern "C" char lbl_8087D970[4]; // inferred: empty text
 // inferred: sets the value `index` of the pane `name` (name invented, as in game/MenuCommonTask.cpp)
 inline void SetPaneValue_unk(void* layout, const char* name, int index, float value) {
     fn_801FED24(layout, fn_800DC6B4(name), index, value);
@@ -233,8 +232,12 @@ void BattleResult::vf14() {
     }
 }
 
-// NONMATCHING: 99.33% - register allocation only (loop counters/iterators of the base_point, member and
-// item loops, chara/won pair swapped)
+// inferred: the members are read through an inline (ExpMembers_unk), the status through
+// CharaTask::GetStatus_unk and `won` is declared before `chara` (registers of the loops)
+static inline atn::FixedArray_unk<Inventory::ExpEntry_unk, 8>* ExpMembers_unk() {
+    return &Inventory::instance_->mExpEntries;
+}
+
 void BattleResult::fn_800F0D14(int mode) {
     LogMessageTask::sInstance->mCount = 0;
     mExp.mSize = 0;
@@ -259,7 +262,7 @@ void BattleResult::fn_800F0D14(int mode) {
         mExpLoop[i]->SetValue1_unk("base_point", 4, line);
         mLvUpOp[i]->SetValue1_unk("base_point", 4, line);
     }
-    atn::FixedArray_unk<Inventory::ExpEntry_unk, 8>* members = &Inventory::instance_->mExpEntries;
+    atn::FixedArray_unk<Inventory::ExpEntry_unk, 8>* members = ExpMembers_unk();
     mCount = members->size();
     for (int i = 0; i < members->size(); i++) {
         mExpOp[i]->mFrame = 0.0f;
@@ -269,9 +272,9 @@ void BattleResult::fn_800F0D14(int mode) {
             mLvUpLoop[i]->mFrame = 0.0f;
             mLvUp[i] = 1;
         }
-        CharaTask* chara = members->mData[i].mChara;
-        CharaStatus* status = &chara->mStatus;
         int won = members->mData[i].mExpA + members->mData[i].mExpB;
+        CharaTask* chara = members->mData[i].mChara;
+        CharaStatus* status = chara->GetStatus_unk();
         ResultExp_unk exp;
         if (members->mData[i].mLevelUp > 0) {
             int need = status->fn_801334CC(status->mParamA.m78 - 1);
@@ -310,12 +313,12 @@ void BattleResult::fn_800F0D14(int mode) {
     mHasItems = 0;
     mItemOp->mFrame = 0.0f;
     mItemOp->SetValue0_unk("line", count);
-    mItemOp->SetText_unk("item00", (const wchar_t*)lbl_8087D970);
-    mItemOp->SetText_unk("item01", (const wchar_t*)lbl_8087D970);
+    mItemOp->SetText_unk("item00", L"");
+    mItemOp->SetText_unk("item01", L"");
     mItemLoop->mFrame = 0.0f;
     mItemLoop->SetValue0_unk("line", count);
-    mItemLoop->SetText_unk("item00", (const wchar_t*)lbl_8087D970);
-    mItemLoop->SetText_unk("item01", (const wchar_t*)lbl_8087D970);
+    mItemLoop->SetText_unk("item00", L"");
+    mItemLoop->SetText_unk("item01", L"");
     mItemA = -1;
     mItemB = 0;
     mItemC = 1;
