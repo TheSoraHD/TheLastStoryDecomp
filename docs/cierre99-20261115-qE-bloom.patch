@@ -1,0 +1,168 @@
+diff --git a/src/atn/PostFxBloom.cpp b/src/atn/PostFxBloom.cpp
+index 4a31324..c12b459 100644
+--- a/src/atn/PostFxBloom.cpp
++++ b/src/atn/PostFxBloom.cpp
+@@ -3,27 +3,29 @@
+ #include "math/Vec.h"
+ #include "atn/DrawHelper.h"
+ #include "atn/RenderManager.h"
++#include "atn/RenderSetting_unk.h"
+ 
+ extern "C" double sin(double x);
+ extern "C" double cos(double x);
++// inferred: float wrappers of sin/cos (as in atn/Layer2DBlur.cpp)
++static inline float SinF_unk(float x) { return sin(x); }
++static inline float CosF_unk(float x) { return cos(x); }
+ extern "C" void PSMTXTrans(Mtx m, float x, float y, float z);
+ 
+-struct BloomParams_unk {
+-    unsigned char m00[0x58];
+-    int m58;      // 0x58: inferred: debug display
+-    int m5C;      // 0x5C: inferred: size shift
+-    int m60;
+-    int m64;      // 0x64: inferred: number of additive passes
+-    float m68;    // 0x68: inferred: intensity
+-    float m6C;    // 0x6C: inferred: blur length X
+-    float m70;    // 0x70: inferred: blur length Y
+-    float m74;    // 0x74: inferred: blur angle
+-    float m78[5]; // 0x78: inferred: blur weights
+-    atn::Color m8C[3]; // 0x8C: inferred: color of each threshold pass
+-    int mBC[3];   // 0xBC: inferred: TEV bias of each pass
+-    int mC8[3];   // 0xC8: inferred: TEV scale of each pass
+-};
+-extern "C" BloomParams_unk* lbl_8087EFA8;
++extern "C" RenderSetting_unk* lbl_8087EFA8;
++
++// inferred: blur lengths read through accessors (after the sin/cos call of each argument, as in the target)
++static inline float BlurWidth_unk(const BloomParam_unk& p) { return p.mBlurWidth; }
++// inferred: float color to GXColor (by value)
++static inline GXColor ToGXColor_unk(const atn::Color& c) {
++    GXColor color;
++    color.r = (unsigned char)(255.0f * c.r);
++    color.g = (unsigned char)(255.0f * c.g);
++    color.b = (unsigned char)(255.0f * c.b);
++    color.a = (unsigned char)(255.0f * c.a);
++    return color;
++}
++static inline float BlurHeight_unk(const BloomParam_unk& p) { return p.mBlurHeight; }
+ 
+ // inferred: translation matrix by value (names invented)
+ static inline atn::Matrix3x4 MakeTrans_unk(const atn::Vector3& v) {
+@@ -133,31 +135,40 @@ PostFxBloom::PostFxBloom() {}
+ // NONMATCHING: 85.65% - register allocation and the u16 width/height expressions of the copies; the
+ // original keeps more values in f28-f31 (blur factors and the additive color)
+ void PostFxBloom::vf10(RenderManager* view) {
+-    int fullW = lbl_8087EEE0->mWidth;
+-    int fullH = lbl_8087EEE0->mHeight;
+-    int div = 1 << lbl_8087EFA8->m5C;
+-    int w = fullW / div;
+-    int h = fullH / div;
+-    void* image0 = lbl_8087EF8C->fn_800A96AC(w, h, 6);
++    int fullW;
++    int fullH;
++    int h2;
++    int w2;
++    void* image0;
++    void* image1;
++    int w;
++    int h;
++    BloomParam_unk* bloom;
++    fullW = lbl_8087EEE0->mWidth;
++    fullH = lbl_8087EEE0->mHeight;
++    int div = 1 << lbl_8087EFA8->m054.mSize;
++    w = fullW / div;
++    h = fullH / div;
++    image0 = lbl_8087EF8C->fn_800A96AC(w, h, 6);
+     GXInitTexObj(&m04, image0, w, h, 6, 0, 0, 0);
+     GXInitTexObjLOD(&m04, 1, 1, 0.0f, 0.0f, 0.0f, 0, 0, 0);
+-    void* image1 = lbl_8087EF8C->fn_800A96AC(w, h, 6);
++    image1 = lbl_8087EF8C->fn_800A96AC(w, h, 6);
+     GXInitTexObj(&m24, image1, w, h, 6, 0, 0, 0);
+     GXInitTexObjLOD(&m24, 1, 1, 0.0f, 0.0f, 0.0f, 0, 0, 0);
+-    int halfW = fullW / 2;
+     int halfH = fullH / 2;
++    int halfW = fullW / 2;
+     GXTexObj half;
+     void* image2 = lbl_8087EF8C->fn_800A96AC(halfW, halfH, 6);
+     GXInitTexObj(&half, image2, halfW, halfH, 6, 0, 0, 0);
+     GXInitTexObjLOD(&half, 1, 1, 0.0f, 0.0f, 0.0f, 0, 0, 0);
+-    int w2 = w * 2;
+-    int h2 = h * 2;
++    h2 = h * 2;
++    w2 = w * 2;
+     GXTexObj save;
+     void* image3 = lbl_8087EF8C->fn_800A96AC(w2, h2, 6);
+     GXInitTexObj(&save, image3, w2, h2, 6, 0, 0, 0);
+     // inferred: saves the corner of the frame buffer that the passes draw over
+-    GXSetTexCopySrc(0, 0, w2, h2);
+-    GXSetTexCopyDst(w2, h2, 6, 0);
++    GXSetTexCopySrc(0, 0, (unsigned short)w * 2, (unsigned short)h * 2);
++    GXSetTexCopyDst((unsigned short)w * 2, (unsigned short)h * 2, 6, 0);
+     GXCopyTex(image3, 0);
+     // inferred: half size copy of the frame buffer
+     GXSetTexCopySrc(0, 0, fullW, fullH);
+@@ -175,7 +186,7 @@ void PostFxBloom::vf10(RenderManager* view) {
+     GXSetTevOrder(0, 0, 0, 0xFF);
+     fn_80075F58(lbl_8087EEE0, 0, 0, w2, h2);
+     atn::RenderManager::instance_->fn_800BFB70();
+-    GXSetTexCopySrc(0, 0, w2, h2);
++    GXSetTexCopySrc(0, 0, (unsigned short)w * 2, (unsigned short)h * 2);
+     GXSetTexCopyDst(w, h, 6, 1);
+     GXCopyTex(image0, 1);
+     GXPixModeSync();
+@@ -190,17 +201,15 @@ void PostFxBloom::vf10(RenderManager* view) {
+     GXSetTevOrder(0, 0, 0, 0xFF);
+     fn_80075F58(lbl_8087EEE0, 0, 0, w, h);
+     atn::RenderManager::instance_->fn_800BFB70();
++    bloom = &lbl_8087EFA8->m054;
+     for (int i = 0; i < 3; i++) {
+         GXSetTevColorIn(0, 0xF, 8, 0xE, 0xF);
+-        GXSetTevColorOp(0, 0, lbl_8087EFA8->mBC[i], lbl_8087EFA8->mC8[i], 1, 0);
++        GXSetTevColorOp(0, 0, bloom->mBias[i], bloom->mScale[i], 1, 0);
+         GXSetTevSwapMode(0, 0, 0);
+         GXSetTevOrder(0, 0, 0, 0xFF);
+         GXSetTevKColorSel(0, 0xC);
+         GXSetTevDirect(0);
+-        atn::Color& c = lbl_8087EFA8->m8C[i];
+-        GXColor color = {(unsigned char)(255.0f * c.r), (unsigned char)(255.0f * c.g), (unsigned char)(255.0f * c.b),
+-                         (unsigned char)(255.0f * c.a)};
+-        GXSetTevKColor(0, color);
++        GXSetTevKColor(0, ToGXColor_unk(bloom->mColor[i]));
+         GXSetBlendMode(1, 2, 0, 3);
+         atn::RenderManager::instance_->fn_800BFB70();
+     }
+@@ -210,10 +219,12 @@ void PostFxBloom::vf10(RenderManager* view) {
+     GXCopyTex(image1, 0);
+     GXPixModeSync();
+     // inferred: blur in two directions
+-    fn_800A981C(&m24, image0, w, h, 6, lbl_8087EFA8->m78, 0, cos(lbl_8087EFA8->m74) * lbl_8087EFA8->m6C,
+-                -sin(lbl_8087EFA8->m74) * lbl_8087EFA8->m6C);
+-    fn_800A981C(&m04, image0, w, h, 6, lbl_8087EFA8->m78, 0, -sin(lbl_8087EFA8->m74) * lbl_8087EFA8->m70,
+-                cos(lbl_8087EFA8->m74) * lbl_8087EFA8->m70);
++    float* kernel = lbl_8087EFA8->m054.mKernel;
++    fn_800A981C(&m24, image0, w, h, 6, kernel, 0, CosF_unk(lbl_8087EFA8->m054.mBlurAngle) * BlurWidth_unk(lbl_8087EFA8->m054),
++                -SinF_unk(lbl_8087EFA8->m054.mBlurAngle) * BlurWidth_unk(lbl_8087EFA8->m054));
++    kernel = lbl_8087EFA8->m054.mKernel;
++    fn_800A981C(&m04, image0, w, h, 6, kernel, 0, -SinF_unk(lbl_8087EFA8->m054.mBlurAngle) * BlurHeight_unk(lbl_8087EFA8->m054),
++                CosF_unk(lbl_8087EFA8->m054.mBlurAngle) * BlurHeight_unk(lbl_8087EFA8->m054));
+     // inferred: restores the saved corner
+     GXSetBlendMode(0, 1, 0, 3);
+     GXSetNumTexGens(1);
+@@ -230,14 +241,14 @@ void PostFxBloom::vf10(RenderManager* view) {
+     fn_80075DEC(lbl_8087EEE0);
+     // inferred: adds the bloom to the frame buffer
+     GXSetBlendMode(1, 1, 1, 3);
+-    float intensity = lbl_8087EFA8->m68;
++    float intensity = lbl_8087EFA8->m054.mStrengthScale;
+     atn::Color color(intensity, intensity, intensity, 1.0f);
+     fn_800763FC(lbl_8087EEE0, &m04, 0);
+-    for (int i = 1; i <= lbl_8087EFA8->m64; i++) {
++    for (int i = 1; i <= lbl_8087EFA8->m054.mStrength; i++) {
+         atn::RenderManager::instance_->fn_800BFC18(color, 0.0f, 0.0f);
+     }
+     GXSetBlendMode(0, 1, 0, 3);
+-    if (lbl_8087EFA8->m58 != 0) {
++    if (lbl_8087EFA8->m054.mDebug != 0) {
+         lbl_8087EEB0->fn_8005DF90(-1, &m24, 0, 16.0f, 16.0f, 0.0f, fullW / 3.0f, fullH / 3.0f);
+         lbl_8087EEB0->fn_8005DF90(-1, &m04, 0, 16.0f, 32.0f + fullH / 3.0f, 0.0f, fullW / 3.0f, fullH / 3.0f);
+     }
