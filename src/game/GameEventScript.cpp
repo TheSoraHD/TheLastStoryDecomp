@@ -4812,7 +4812,7 @@ static inline int ChaseValue_unk(int kind) {
         value = lbl_8087F0A8->m4DC.m04;
         break;
     case 7:
-        value = lbl_8087F0A8->m4DC.m0C * 57.29578f;
+        value = lbl_8087F0A8->m4DC.m0C * 57.295776f;
         break;
     case 9:
         value = lbl_8087F0A8->m53C.m44;
@@ -5139,7 +5139,7 @@ void GameEventScript::fn_803A6744(ScriptResult_unk& result, const ScriptCmd_unk*
         CharaTask* chara = GetChara_unk(args->m0C, args->m10);
         switch (args->m08) {
         case 0: {
-            atn::Color color(0.8156863f, 0.0f, 0.0f, 1.0f);
+            atn::Color color(0.81568635f, 0.0f, 0.0f, 1.0f);
             minimap->fn_804AAD68(chara, &color);
             break;
         }

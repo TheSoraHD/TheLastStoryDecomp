@@ -561,16 +561,16 @@ void Em202ForestSpider::vfFC() {
         atn::Vector3 r = d.ToRotation_unk();
         mRot.y = r.y;
         if (m14F8 != 0) {
-            speed = 1.5f * 2.5f;
+            speed *= 2.5f;
         } else if (dist < m1510) {
             speed = 0.0f;
         }
         fn_801426A4(&rot, 0.0f, m568 * speed);
-    }
-    if (m55C == 6) {
+    } else if (m55C == 6) {
         fn_8013A258();
+    } else {
+        fn_8013CB68(rot, 0, 0.0f, m568 * speed);
     }
-    fn_8013CB68(rot, 0, 0.0f, m568 * 1.5f);
 }
 
 void Em202ForestSpider::vf100() {
