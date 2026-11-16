@@ -1285,7 +1285,7 @@ extern "C" void fn_804F5FCC(PPRequests_unk* queue);
 extern "C" int fn_804F5E38(PPRequests_unk* queue, unsigned int id);
 extern "C" int fn_804F5C9C(PPRequests_unk* queue, unsigned int id);
 extern "C" long long* fn_804F5B08(PPRequests_unk* queue, unsigned int id);
-extern "C" int fn_804FB968(PPManager2_unk* mgr, void* player);
+extern "C" int fn_804FB968(PPManager2_unk* mgr, CharaTask* chara);
 extern "C" void fn_804EA8B8(PPManager2_unk* mgr, int arg);
 extern "C" void fn_804E448C(PPManager2_unk* mgr);
 extern "C" int fn_804D9BF4(PPManager2_unk* mgr, int a, int b, int c);
@@ -7990,6 +7990,89 @@ extern "C" void fn_804FB674(PPManager2_unk* mgr) {
     if (GameBgm::GetInstance_unk() != 0) {
         GameBgm::GetInstance_unk()->fn_8037D4C0(0x548, 15, 1, 0, 0.7f);
     }
+}
+
+// inferred: whether a value of the status is above its limit; name invented
+static inline bool PPIsOver_unk(int value, int limit) {
+    bool over = true;
+    if (value <= limit) {
+        over = false;
+    }
+    return over;
+}
+// inferred: whether the speed of the character is too high; name invented
+static inline int PPIsTooFast_unk(float speed) {
+    return speed > 1.5f;
+}
+// NONMATCHING: 99.9% - only the schedule of the prologue: the original loads mgr->mMode before saving r31 (tried
+// the mode in a local, a switch, an early return and the parameter as PlayerTask*)
+// inferred: check of the status of the own character before an online game (values above the limits of the
+// mode, bonuses, flags of the equipment and of the state); nonzero when something is out of range. In mode 2
+// the global flag 0x25 of the game disables the check
+extern "C" int fn_804FB968(PPManager2_unk* mgr, CharaTask* chara) {
+    int mode = mgr->mMode;
+    bool bad;
+    if (mode == 2) {
+        if (mgr->mGame->fn_80370174(0x25) == 1) {
+            return 0;
+        }
+        bad = PPIsOver_unk(chara->mStatus.mParamA.m84, 10000);
+        bad = bad || chara->mStatus.mParamA.m00 > 2000.0f;
+        bad = bad || chara->mStatus.mParamA.m04 > 7000.0f;
+        bad = bad || chara->mStatus.mParamA.m08 > 2000.0f;
+        bad = bad || chara->mStatus.mParamA.m0C > 800.0f;
+        bad = bad || chara->mStatus.mParamA.m94 > 200;
+        bad = bad || chara->mStatus.mParamA.m34 > 1;
+        bad = bad || chara->mStatus.mParamA.m98 > 5;
+        bad = bad || chara->mStatus.m1A8.m08 > 80.0f;
+    } else {
+        if (mode == 1) {
+            bad = PPIsOver_unk(chara->mStatus.mParamA.m84, 5500);
+        } else {
+            bad = PPIsOver_unk(chara->mStatus.mParamA.m84, 4000);
+        }
+        bad = bad || chara->mStatus.mParamA.m00 > 2000.0f;
+        bad = bad || chara->mStatus.mParamA.m04 > 5000.0f;
+        bad = bad || chara->mStatus.mParamA.m08 > 1500.0f;
+        bad = bad || chara->mStatus.mParamA.m0C > 800.0f;
+        bad = bad || chara->mStatus.mParamA.m94 > 250;
+        bad = bad || chara->mStatus.mParamA.m34 > 3;
+        bad = bad || chara->mStatus.m1A8.m08 > 60.0f;
+    }
+    bad = bad || chara->mStatus.mParamB.m28 > 50.0f;
+    bad = bad || PPIsTooFast_unk(chara->m568);
+    bad = bad || chara->mStatus.mParamA.m18 > 0.2f;
+    bad = bad || chara->mStatus.mParamA.m8C > 0.01f;
+    bad = bad || ((unsigned int)chara->mStatus.mParamA.m9C & 0x400) == 0x400;
+    bad = bad || ((unsigned int)chara->mStatus.mParamA.m9C & 0x800) == 0x800;
+    bad = bad || ((unsigned int)chara->mStatus.mParamA.m9C & 0x2000) == 0x2000;
+    bad = bad || ((unsigned int)chara->mStatus.mParamA.m9C & 0x8000) == 0x8000;
+    bad = bad || ((unsigned int)chara->mStatus.mParamA.m9C & 0x40000) == 0x40000;
+    bad = bad || ((unsigned int)chara->mStatus.mParamA.m9C & 0x10000) == 0x10000;
+    bad = bad || (chara->mStatus.m18 & 0x1) == 0x1;
+    bad = bad || (chara->mStatus.m18 & 0x4) == 0x4;
+    bad = bad || (chara->mStatus.m18 & 0x10) == 0x10;
+    bad = bad || (chara->mStatus.m18 & 0x20) == 0x20;
+    bad = bad || (chara->mStatus.m18 & 0x40) == 0x40;
+    bad = bad || (chara->mStatus.m18 & 0x80) == 0x80;
+    bad = bad || (chara->mStatus.m18 & 0x4000) == 0x4000;
+    bad = bad || (chara->mStatus.m18 & 0x8000) == 0x8000;
+    bad = bad || (chara->mStatus.m18 & 0x80000) == 0x80000;
+    bad = bad || (chara->mStatus.m18 & 0x400000) == 0x400000;
+    bad = bad || (chara->mStatus.m18 & 0x1000000) == 0x1000000;
+    bad = bad || (chara->mStatus.m18 & 0x2000000) == 0x2000000;
+    bad = bad || (chara->mStatus.m18 & 0x4000000) == 0x4000000;
+    bad = bad || chara->mStatus.IsState_unk(0x1000);
+    bad = bad || chara->mStatus.IsState_unk(0x200000);
+    bad = bad || chara->IsFlag54C_unk(4);
+    bad = bad || chara->mFlagB1;
+    bad = bad || chara->mStatus.m1A8.m0C > 0.1f;
+    bad = bad || chara->mStatus.m1A8.m10 > 0.1f;
+    bad = bad || chara->mStatus.m1A8.m14 > 0.1f;
+    bad = bad || chara->mStatus.m1A8.m18 > 0.1f;
+    bad = bad || chara->mStatus.m1A8.m1C > 0.1f;
+    bad = bad || chara->mStatus.m1A8.m20 > 0;
+    return bad;
 }
 
 // inferred: flag m01 of the slot of the server
