@@ -1628,7 +1628,7 @@
   "classes": [
    "Em205Ogre"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "game/Em206CocoonMp.cpp",

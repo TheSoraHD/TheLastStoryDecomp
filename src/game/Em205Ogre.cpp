@@ -1,4 +1,5 @@
 #include "game/Em205Ogre.h"
+#include "math/VecAssign_unk.h"
 #include "game/GameTask.h"
 #include "atn/Csv.h"
 #include "atn/Memory.h"
@@ -409,18 +410,13 @@ void Em205Ogre::vf104() {
     }
 }
 
-// NONMATCHING: 99.69% - f3/f4 of the 0.0f and of m568 in the step vector of the swing and the order of the
-// products of the frame time; r3/r4 of the copy of the head position (__VecCopy family); 12 variants
 // inferred: runs the current state (route in the states 8 and 11, swing in 9, spit in 10)
 void Em205Ogre::vf108() {
     float anim;
     float speed = 0.0f;
     float rate = 1.0f;
     atn::Vector3 rot = mRot;
-    anim = 0.5f;
-    if (mStatus.fn_8012DB04() > anim) {
-        anim = mStatus.fn_8012DB04();
-    }
+    anim = mStatus.fn_8012DB04() > 0.5f ? mStatus.fn_8012DB04() : 0.5f;
     if (m55C == 2) {
         switch (m58C) {
         case 6:
@@ -456,12 +452,15 @@ void Em205Ogre::vf108() {
         case 9:
             rot = m14D8.ToRotation_unk();
             if (m14BC >= 2) {
-                atn::Vector3 v(0.0f, 0.0f, 0.30769232f * m568);
+                float walk = m568;
+                atn::Vector3 v(0.0f, 0.0f, 0.30769232f * walk);
                 Mtx m;
                 PSMTXRotRad(m, 'y', mRot.y);
                 PSMTXMultVec(m, &v, &v);
                 float scale = mMotion.m350;
-                mPos += v * (lbl_8087EFA8->m3A4 * scale * anim);
+                float k = lbl_8087EFA8->m3A4 * scale;
+                k *= anim;
+                mPos += v * k;
             }
             mMotion.mTracks[0].m0C = anim;
             if (m14BC == 0) {
@@ -527,7 +526,7 @@ void Em205Ogre::vf108() {
                     atn::Vector3 pos = mPos + atn::Vector3(0.0f, 10.0f, 0.0f);
                     MtxPtr head = mMotion.GetNodeMtx_unk("head");
                     if (head != 0) {
-                        pos = GetNodePos_unk(head);
+                        atn::VecAssign_unk(pos, GetNodePos_unk(head));
                     }
                     atn::Vector3 dir = m14D8;
                     if (m14D4 != 0) {
@@ -554,13 +553,19 @@ void Em205Ogre::vf108() {
     fn_8013CB68(rot, 0, speed, m568 * rate);
 }
 
-// NONMATCHING: 98.61% - r3/r4 of the copy of the reference node position (__VecCopy family,
-// docs/mwcc-blockers-q3.md) and FPR scheduling of the midpoint of the feet
+// inferred: sets the two points and the radius of the collision capsule (name invented; as an inline
+// the r3/r4 of the two copies match)
+inline void SetCapsule_unk(atn::ColliCapsule& c, const atn::Vector3& a, const atn::Vector3& b, float r) {
+    c.m3C = a;
+    c.m48 = b;
+    c.m54 = r;
+}
+
 void Em205Ogre::fn_802B98B0() {
     atn::Vector3 base = mPos;
     MtxPtr ref = mMotion.GetNodeMtx_unk("reference");
     if (ref != 0) {
-        base = GetNodePos_unk(ref);
+        atn::VecAssign_unk(base, GetNodePos_unk(ref));
     }
     m620 = m5B0;
     m614 = base + m5A4;
@@ -570,28 +575,27 @@ void Em205Ogre::fn_802B98B0() {
         MtxPtr left = mMotion.GetNodeMtx_unk("leftfoot");
         MtxPtr right = mMotion.GetNodeMtx_unk("rightfoot");
         if (left != 0 && right != 0) {
-            top = (GetNodePos_unk(left) + GetNodePos_unk(right)) * 0.5f;
+            float half = 0.5f;
+            atn::VecAssign_unk(top, (GetNodePos_unk(left) + GetNodePos_unk(right)) * half);
             top.y = m614.y;
         }
     }
     atn::Vector3 head;
     int neck = mMotion.GetNodeNoByName("neck", 0);
     if (neck > -1) {
-        head = GetNodePos_unk(mMotion.mMtx.mNodes.mData[neck].m);
+        atn::VecAssign_unk(head, GetNodePos_unk(mMotion.mMtx.mNodes.mData[neck].m));
         head.y -= 1.0f;
     } else {
-        head = top;
+        atn::VecAssign_unk(head, top);
         head.y += m5B4 - 2.0f * m620;
     }
-    mColli.m3C = top;
-    mColli.m48 = head;
-    mColli.m54 = m620;
+    SetCapsule_unk(mColli, top, head, m620);
     m1420 = 1.2f * (head.y - top.y + 2.0f * m620);
 }
 
 void Em205Ogre::vf30(void* menu) {
     char name[0x100];
-    sprintf(name, "Em205 Ogre[%d]", m58);
+    sprintf(name, "Em205 Ogre[%d]\0", m58);
     void* group;
     if (m1508.mRes == 0 && menu != 0 && lbl_8087EF10 != 0) {
         group = m1508.mRes = fn_8008937C(menu, name);
