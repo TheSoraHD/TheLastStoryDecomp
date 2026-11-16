@@ -381,23 +381,26 @@ static inline bool __IsName_unk(const char* name) {
     return ok;
 }
 
-// NONMATCHING: 99.6% - `engine` and `name` swap r28/r29 and the second engine load takes r30.
+// inferred: sound id of a bgm by number (an inline: its engine load takes the register of the
+// name test, 0x8037D59C)
+static inline unsigned int __BgmSoundId_unk(int id) {
+    void* engine = lbl_8087EE90;
+    return fn_80049B74(engine, fn_8037C71C(id));
+}
+
 int GameBgm::fn_8037D4C0(int id, int fade, int b, int c, float volume) {
     if (0 < id && id <= 6) {
         id = sBgmIds[id];
     }
-    const char* name;
     void* engine = lbl_8087EE90;
     unsigned int cur = 0;
     unsigned int next = 0;
     if (engine != 0 && lbl_8087EFE8 != 0) {
-        name = mReq.mName;
-        if (__IsName_unk(name)) {
-            cur = fn_80049B74(engine, name);
+        if (__IsName_unk(mReq.mName)) {
+            cur = fn_80049B74(engine, mReq.mName);
         }
         if (__IsName_unk(fn_8037C71C(id))) {
-            void* engine2 = lbl_8087EE90;
-            next = fn_80049B74(engine2, fn_8037C71C(id));
+            next = __BgmSoundId_unk(id);
         }
     }
     if (cur != next) {
