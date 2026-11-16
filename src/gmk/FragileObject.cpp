@@ -700,8 +700,14 @@ void FragileObject::vf70(int state) {
     }
 }
 
-// NONMATCHING: 99.85% - stack slots of the distance vectors and the colour, and f1/f3 after sqrt.
-// Tried: translation temporary, named position, sqrt in a local, colour declared first
+// inferred: float sqrt and radius read through inlines (registers after sqrt); names invented
+inline float GlowRadius_unk(CharaTask* c) {
+    return c->m5B0;
+}
+inline float GlowSqrt_unk(float x) {
+    return sqrt(x);
+}
+
 void FragileGlow_unk::fn_803F42C8(atn::Model* model) {
     CharaTask* nearest = 0;
     float best = 1e16f;
@@ -709,8 +715,7 @@ void FragileGlow_unk::fn_803F42C8(atn::Model* model) {
         for (CharaTask* chara = lbl_8087F8A0->mHead; chara != 0; chara = ((FragileCharaNode_unk*)chara)->mNext) {
             if ((!chara->IsFlag_unk(4) || chara->m55C == 8) && mType == chara->fn_80179AB4() &&
                 mId == chara->fn_80179A34() / 10000) {
-                atn::Vector3 d = ((atn::Matrix3x4*)model->mMtx.m)->GetTrans_unk() - chara->mPos;
-                float dist = PSVECSquareMag(&d);
+                float dist = PSVECSquareMag(&(((atn::Matrix3x4*)model->mMtx.m)->GetTrans_unk() - chara->mPos));
                 if (dist < best) {
                     best = dist;
                     nearest = chara;
@@ -723,8 +728,7 @@ void FragileGlow_unk::fn_803F42C8(atn::Model* model) {
              chara = ((FragileCharaNode_unk*)chara)->mNext) {
             if ((!chara->IsFlag_unk(4) || chara->m55C == 8) && mType == chara->fn_80179AB4() &&
                 mId == chara->fn_80179A34() / 10000) {
-                atn::Vector3 d = ((atn::Matrix3x4*)model->mMtx.m)->GetTrans_unk() - chara->mPos;
-                float dist = PSVECSquareMag(&d);
+                float dist = PSVECSquareMag(&(((atn::Matrix3x4*)model->mMtx.m)->GetTrans_unk() - chara->mPos));
                 if (dist < best) {
                     best = dist;
                     nearest = chara;
@@ -734,7 +738,7 @@ void FragileGlow_unk::fn_803F42C8(atn::Model* model) {
     }
     float t = 0.0f;
     if (nearest != 0) {
-        float dist = (float)sqrt(best) - nearest->m5B0;
+        float dist = GlowSqrt_unk(best) - GlowRadius_unk(nearest);
         if (mRange > 0.0f) {
             t = __MIN_unk(__MAX_unk(1.0f - dist / mRange, 0.0f), 1.0f);
         }

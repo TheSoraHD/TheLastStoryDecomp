@@ -2064,7 +2064,7 @@
   "classes": [
    "gmk::FragileObject"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "gmk/AutomaticDoor.cpp",
