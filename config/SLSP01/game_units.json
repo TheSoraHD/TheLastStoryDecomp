@@ -1942,7 +1942,7 @@
   "classes": [
    "GameBgm"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "game/GameEventScript.cpp",
