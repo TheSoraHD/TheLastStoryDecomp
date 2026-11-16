@@ -28,6 +28,7 @@
 #include "game/SetConfig.h"
 #include "game/GameVoice.h"
 #include "game/MapTask.h"
+#include "std/string_find_last_of.h"
 
 extern "C" GameTask* lbl_8087F430; // inferred: the field
 
@@ -572,7 +573,7 @@ void Sequence::fn_8053F818() {
         m164[i].vf08();
     }
     if (m68.size() != 0) {
-        std::string::size_type pos = m68.rfind('_');
+        std::string::size_type pos = m68.find_last_of('_');
         if (pos == std::string::npos) {
             m68 = fn_8006B2D8(m68) + "_xx.u16";
         } else if (std::string(m68, pos).size() == 7) {

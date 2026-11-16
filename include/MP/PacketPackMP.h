@@ -4,6 +4,7 @@
 #include "atn/net/PacketPack.h"
 #include "atn/SingletonNoStatic.h"
 #include "atn/net/FuncMessage.h"
+#include "MP/CryptMP.h"
 
 namespace MP {
 
@@ -12,12 +13,22 @@ namespace MP {
 // (MP/FuncMessage.h) and after atn::net::FuncMessage: the RTTI and vtable of a class come after those of the classes declared later.
 class PacketPackMP : public atn::net::PacketPack, public atn::SingletonNoStatic<PacketPackMP> {
 public:
+    PacketPackMP(); // inferred: inlined in MP::Manager2::Manager2 (atn/PacketPack.cpp): creates its MP::CryptMP
+    // inferred: weak copy 0x804FC2F0 (atn/PacketPack.cpp); deletes its MP::CryptMP
+    virtual ~PacketPackMP() {
+        if (m14 != 0) {
+            delete m14;
+            m14 = 0;
+        }
+    }
     // inferred: inline (weak copies 0x8050105C and 0x80501054, after the weak copies of the MP::func_*
     // classes in the original)
     virtual int vf0C() { return 0; }
     virtual unsigned char vf10() { return 0x41; }
     virtual unsigned char vf14(int code);
     virtual atn::net::FuncMessage* vf18(unsigned char id);
+
+    atn::net::Crypt* m14; // inferred: the MP::CryptMP given to fn_8050E510 (object of 0x18 bytes)
 };
 
 } // namespace MP

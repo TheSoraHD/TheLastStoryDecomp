@@ -1214,8 +1214,6 @@ struct Player_unk : public BattleCharaTask {
     // inferred: weak copy 0x800F7FB4 (name invented)
     int GetM146C_unk() { return m146C; }
 };
-// inferred: shared out of line copies of atn::FixedArray_unk (size and clear, as game/GameUI.cpp)
-extern "C" unsigned int fn_80372574(const void* array);
 
 // inferred: adds a party member that is set up (weak copy 0x805AB1D8, name invented)
 extern "C" inline void fn_805AB1D8(atn::SimpleVector<CharaTask*>* list, CharaTask* chara) {
@@ -1224,7 +1222,7 @@ extern "C" inline void fn_805AB1D8(atn::SimpleVector<CharaTask*>* list, CharaTas
     }
 }
 
-// NONMATCHING: 99.9% - registers of `slot` and `best` swapped (r29/r30); rebuilds mSlots with the targets of the mode and links the nearest ones
+// Rebuilds mSlots with the targets of the mode and links the nearest ones
 void TacView::fn_805AB828(int mode) {
     // inferred: character numbers of the guests shown with the party (-1 ends)
     static const int sGuests_unk[10] = {0x31601, 0x31602, 0x31603, 0x31604, 0x31605,
@@ -1291,13 +1289,14 @@ void TacView::fn_805AB828(int mode) {
             }
         }
     }
-    for (unsigned int i = 0; i < fn_80372574(&mSlots); i++) {
-        TacViewSlot_unk* slot = &mSlots[i];
+    for (unsigned int i = 0; i < mSlots.size(); i++) {
         float best[8];
+        float* far = best;
+        TacViewSlot_unk* slot = &mSlots[i];
         for (int k = 0; k < 8; k++) {
-            best[k] = 1e16f;
+            far[k] = 1e16f;
         }
-        for (unsigned int j = 0; j < fn_80372574(&mSlots); j++) {
+        for (unsigned int j = 0; j < mSlots.size(); j++) {
             TacViewSlot_unk* other = &mSlots[j];
             if (j != i && other->fn_805AB1C0()) {
                 // inferred: the slot starts as TacViewChara_unk (type, character, object)
@@ -1308,8 +1307,8 @@ void TacView::fn_805AB828(int mode) {
                     dir.Normalize_unk();
                 }
                 int d = fn_805A6D20(atn::Vector3(dir));
-                if (d != 8 && len < best[d]) {
-                    best[d] = len;
+                if (d != 8 && len < far[d]) {
+                    far[d] = len;
                     slot->mNear[d] = other;
                 }
             }

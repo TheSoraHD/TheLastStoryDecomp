@@ -84,7 +84,7 @@ int TutorialTask::vf0C() {
         int loading = 0;
         TutorialPage_unk* page = &mPages[0];
         for (unsigned int i = 0; i < 4; i++, page++) {
-            if (page->mEnabled != 0 && page->mMotion.mLoader.fn_800A0448() != 0) {
+            if (page->mEnabled != 0 && page->mMotion.mMotion.fn_800A0448() != 0) {
                 loading = 1;
             }
         }
@@ -126,8 +126,8 @@ void TutorialTask::fn_805BA354(const Camera_unk* camera) {
     for (unsigned int i = 0; i < 4; i++) {
         TutorialPage_unk* page = &mPages[i];
         if (page->mEnabled != 0) {
-            if (page->mMotion.mLoader.m08 != 0 && mChara != 0) {
-                fn_80097A9C(&mChara->mMotion, i + 0xEA, &page->mMotion.mLoader);
+            if (page->mMotion.mMotion.m08 != 0 && mChara != 0) {
+                fn_80097A9C(&mChara->mMotion, i + 0xEA, &page->mMotion.mMotion);
             }
             page->mLayout->mFrame = 0.0f;
             page->mLayout->mFlags |= 4;
@@ -283,7 +283,7 @@ void TutorialTask::vf10() {
     TutorialPage_unk* page = &mPages[mPage];
     switch (mState) {
     case 1:
-        if (HasMotion_unk(&page->mMotion.mLoader) && mChara != 0) {
+        if (HasMotion_unk(&page->mMotion.mMotion) && mChara != 0) {
             fn_802F0990()->SetMotionBlur_unk(1);
             m84 += 1.0f;
             float rate = 1.0f < m84 / 15.0f ? 1.0f : m84 / 15.0f;
@@ -479,7 +479,7 @@ void TutorialTask::fn_805BB654() {
             page->m38 = fn_800DC288(csv.fn_8005B9CC());
             const char* motion = csv.fn_8005B9CC();
             if (*motion != 0) {
-                page->mMotion.mLoader.fn_800A03E4(motion);
+                page->mMotion.mMotion.fn_800A03E4(motion);
             }
             page->mFrame = fn_800DC288(csv.fn_8005B9CC());
             page->mPos.x = fn_800DC288(csv.fn_8005B9CC());
@@ -534,7 +534,7 @@ void TutorialTask::fn_805BBD7C() {
         }
     }
     if (mPage < 4) {
-        if (mPages[mPage].mMotion.mLoader.m08 != 0) {
+        if (mPages[mPage].mMotion.mMotion.m08 != 0) {
             mState = 2;
             m84 = 0.0f;
             return;

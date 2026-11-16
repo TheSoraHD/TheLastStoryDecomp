@@ -1,4 +1,5 @@
 #include "game/Em303KrakenFootMp.h"
+#include "math/VecAssign_unk.h"
 #include "atn/Csv.h"
 #include "atn/Memory.h"
 #include "math/Vec.h"
@@ -98,8 +99,6 @@ inline void Em303KrakenFootMp::Reset_unk() {
     fn_8016E970(3);
 }
 
-// NONMATCHING: 99.6% - the flags 0x2A (status) and 0x200 (m54C): the original loads the status word first
-// and stores it first; either order of the two statements gets one of them wrong (8 variants)
 int Em303KrakenFootMp::vf0C() {
     if (fn_8013655C() != 0) {
         return 0;
@@ -123,8 +122,10 @@ int Em303KrakenFootMp::vf0C() {
     mStatus.m18 |= 0xC21D;
     mStatus.m18 |= 0x3800000;
     fn_802E5CD0((const char*)m14D4.fn_80470580(), m14D4.fn_8047059C());
+    // inferred: the status word is read before the store to m54C (load order of the original)
+    int flags = mStatus.mParamB.m9C;
     m54C |= 0x200;
-    mStatus.mParamB.m9C |= 0x2A;
+    mStatus.mParamB.m9C = flags | 0x2A;
     mRoute.mA0 = 1;
     m14DC = 0;
     m14E0 = 0;
@@ -155,7 +156,7 @@ void Em303KrakenFootMp::UpdateColli_unk() {
     atn::Vector3 base = mPos;
     MtxPtr ref = mMotion.GetNodeMtx_unk("reference");
     if (ref != 0) {
-        base = GetNodePos_unk(ref);
+        atn::VecAssign_unk(base, GetNodePos_unk(ref));
     }
     m620 = m5B0;
     m614 = base + m5A4;
@@ -168,8 +169,8 @@ void Em303KrakenFootMp::UpdateColli_unk() {
     mColli.m54 = m620;
 }
 
-// NONMATCHING: 99.23% - registers of the two inlined CanAct_unk tests (r0/r4/r6 rotated, as in
-// Em303KrakenFoot::vf40) and r3/r4 of the copy of the "reference" node position (__VecCopy family)
+// NONMATCHING: 99.33% - registers of the two inlined CanAct_unk tests (r0/r4/r6 rotated); 100% with
+// docs/cierre99-20261115-qC2-canact.patch (IsActive_unk/IsFree_unk through IsFlag_unk/IsState_unk)
 void Em303KrakenFootMp::vf10() {
     bool act = CanAct_unk();
     if (act) {

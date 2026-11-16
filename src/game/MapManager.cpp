@@ -53,6 +53,12 @@ MapManager* MapManager::SetTask(atn::Task* parent) {
     return instance_;
 }
 
+// inferred: adds an area list; no caller is left in the .dol, the linker strips it (its "vector length
+// error" stays in @stringBase0 after the "" of SetTask). Name invented
+void MapManager::AddArea_unk(MapPartsArea* area) {
+    mAreas.push_back(area);
+}
+
 // inferred: not inline; inlined into SetTask
 MapManager::MapManager(atn::Task* parent) : atn::Task(parent), mType(0) {
     atn::RenderManager::instance_->SetMapHit_unk(&fn_804914BC, this);
@@ -124,13 +130,19 @@ void MapManager::fn_80491528(MapModelFunc_unk func, void* arg) {
     }
 }
 
+// inferred: const read of the area index (the original reads mAreaIndex again inside GetArea_unk; name
+// invented)
+static inline int AreaIndex_unk(const MapTask* m) {
+    return m->mAreaIndex;
+}
+
 // inferred: area hit by a sphere (FindArea in the RSO)
-// NONMATCHING: 97.6% - register allocation of the loops, and the original reloads mAreaIndex of the
-// current map inside GetArea_unk
+// The iterator of the last loop is declared at the top (register order of the original)
 MapArea* MapManager::FindArea(atn::Sphere sphere) {
+    MapArea** model;
     if (mType != 0) {
-        MapTask** end = &mMaps.mData[mMaps.mSize];
-        for (MapTask** it = mMaps.mData; it != end; it++) {
+        MapTask** end = mMaps.end();
+        for (MapTask** it = mMaps.begin(); it != end; it++) {
             MapTask* map = *it;
             if (mType == map->mType) {
                 MapPartsArea* area = map->GetArea_unk();
@@ -140,7 +152,7 @@ MapArea* MapManager::FindArea(atn::Sphere sphere) {
             }
         }
     } else {
-        for (MapTask** it = mMaps.mData; it != &mMaps.mData[mMaps.mSize]; it++) {
+        for (MapTask** it = mMaps.begin(); it != mMaps.end(); it++) {
             MapTask* map = *it;
             if (map->mType == 6) {
                 continue;
@@ -164,13 +176,13 @@ MapArea* MapManager::FindArea(atn::Sphere sphere) {
         }
         if (lbl_8087F430 != 0) {
             MapTask* map = ((GameTask*)lbl_8087F430)->GetCurrentMap();
-            if (map != 0 && map->mAreaIndex != 0) {
+            if (map != 0 && AreaIndex_unk(map) != 0) {
                 MapPartsArea* area = map->GetArea_unk();
                 if (area != 0 && area->mAreas.size() != 0 && map->mF8 == 0) {
                     return area->mAreas[0];
                 }
-                MapTask** end = &mMaps.mData[mMaps.mSize];
-                for (MapTask** it = mMaps.mData; it != end; it++) {
+                MapTask** end = mMaps.end();
+                for (MapTask** it = mMaps.begin(); it != end; it++) {
                     MapTask* m = *it;
                     if (m->mType == 6) {
                         continue;
@@ -199,7 +211,7 @@ MapArea* MapManager::FindArea(atn::Sphere sphere) {
     for (unsigned int i = 0; i < mAreas.size(); i++) {
         MapPartsArea* area = mAreas[i];
         if (area != 0) {
-            for (MapArea** model = area->mAreas.begin(); model != area->mAreas.end(); model++) {
+            for (model = area->mAreas.begin(); model != area->mAreas.end(); model++) {
                 for (unsigned int j = 0; j < (*model)->mSegments.size(); j++) {
                     atn::AABB_unk* seg = &(*model)->mSegments[j];
                     float d0 = DistSq_unk(seg->mMin, sphere.mCenter);
@@ -220,7 +232,7 @@ MapColor_unk MapManager::fn_80491D50(const atn::Sphere sphere) {
     if (model != 0 && model->mEffConfig != 0) {
         return *(const MapColor_unk*)model->mEffConfig->fn_80043014(2, 0);
     }
-    return MapColor_unk(0.0f, 0.0f, 0.0f, 0.0f);
+    return MapColor_unk(1.0f, 1.0f, 1.0f, 1.0f);
 }
 
 // inferred: color 3 of the material of the model hit by a sphere
@@ -229,5 +241,5 @@ MapColor_unk MapManager::fn_80491DF8(const atn::Sphere sphere) {
     if (model != 0 && model->mEffConfig != 0) {
         return *(const MapColor_unk*)model->mEffConfig->fn_80043014(3, 0);
     }
-    return MapColor_unk(0.0f, 0.0f, 0.0f, 0.0f);
+    return MapColor_unk(1.0f, 1.0f, 1.0f, 1.0f);
 }

@@ -143,7 +143,7 @@ int GameBgm::vf0C() {
 }
 
 // inferred: bit 0 of atn::Bgm::m10 (name invented)
-static inline bool __IsKeepPos_unk(atn::Bgm* bgm) {
+static inline bool __IsKeepPos_unk(const atn::Bgm* bgm) {
     return (bgm->m10 & 1) == 1;
 }
 
@@ -166,13 +166,25 @@ static inline void __FadeOutIf_unk(atn::Bgm* bgm, int fade) {
     }
 }
 
+// inferred: brings the environment sounds back / down around the field BGM (names invented)
+static inline void __EnvSeRestore_unk(EnvSeManager* env, int fade) {
+    env->m18C = 0;
+    env->fn_803605EC(fade, env->m188);
+}
+
+static inline void __EnvSeLower_unk(EnvSeManager* env, int fade) {
+    env->m18C = 1;
+    env->fn_803605EC(fade, env->m190);
+}
+
 // inferred: the field BGM may replace the environment sounds (written out in each branch
 // condition; name invented)
 #define IS_FIELD_BGM_unk(id) \
     (fn_803CE160(0, 0, 0) == 0 && (fn_803CE278(0, 0, 0) != 0 || (id) == 0x67) && lbl_8087F610 == 0)
 
-// NONMATCHING: 97.7% - registers of the player swap (next/slot/zero) and of the fade-out locals, the
-// original reloads Bgm::m10 before clearing bit 0, and one `beq` is emitted as `bne; b`.
+// NONMATCHING: 99.94% - only the fade/control registers of the second fade-out (state 2) are swapped
+// (r27/r26). Tried: fade as a ternary or Max inline argument, declared before/after prev or at the top
+// of the branch, compared the other way round, through __FadeOut_unk directly.
 void GameBgm::vf10() {
     if (m84 != 0 && (unsigned int)(mState - 6) <= 1) {
         m84 = 0;
@@ -206,11 +218,8 @@ void GameBgm::vf10() {
         if (busy) {
             return;
         }
-        int fade = mReq.mFade;
         atn::Bgm* prev = mPrev;
-        if (prev != 0) {
-            __FadeOut_unk(prev, fade);
-        }
+        __FadeOutIf_unk(prev, mReq.mFade);
         if (__IsKeepPos_unk(mPrev)) {
             mPrev->m10 &= ~1;
         }
@@ -229,11 +238,13 @@ void GameBgm::vf10() {
         }
         EnvSeManager* env = lbl_8087F418;
         if (env != 0 && env->m18C != 0) {
-            env->m18C = 0;
-            env->fn_803605EC(mReq.mFade, env->m188);
+            __EnvSeRestore_unk(env, mReq.mFade);
         }
     } else if (mState == 2) {
-        if (mCur->fn_8004B0E4() != 0 || m80 == 0) {
+        if (mCur->fn_8004B0E4() != 0) {
+            return;
+        }
+        if (m80 == 0) {
             return;
         }
         mCur->fn_8004B158(mReq.mVolume, mReq.mFade);
@@ -243,9 +254,7 @@ void GameBgm::vf10() {
                 fade = mReq.mFade;
             }
             atn::Bgm* prev = mPrev;
-            if (prev != 0) {
-                __FadeOut_unk(prev, fade);
-            }
+            __FadeOutIf_unk(prev, fade);
             if (__IsKeepPos_unk(mPrev)) {
                 mPrev->m10 &= ~1;
             }
@@ -260,8 +269,7 @@ void GameBgm::vf10() {
                 lbl_8087F418->fn_80360848(1, 2, mReq.mFade);
                 EnvSeManager* env = lbl_8087F418;
                 if (env->m18C == 0) {
-                    env->m18C = 1;
-                    env->fn_803605EC(mReq.mFade, env->m190);
+                    __EnvSeLower_unk(env, mReq.mFade);
                 }
             }
         }
@@ -305,8 +313,7 @@ void GameBgm::vf10() {
             lbl_8087F418->fn_80360848(1, 2, mReq.mFade);
             EnvSeManager* env = lbl_8087F418;
             if (env->m18C == 0) {
-                env->m18C = 1;
-                env->fn_803605EC(mReq.mFade, env->m190);
+                __EnvSeLower_unk(env, mReq.mFade);
             }
         }
     }
@@ -381,23 +388,26 @@ static inline bool __IsName_unk(const char* name) {
     return ok;
 }
 
-// NONMATCHING: 99.6% - `engine` and `name` swap r28/r29 and the second engine load takes r30.
+// inferred: sound id of a bgm by number (an inline: its engine load takes the register of the
+// name test, 0x8037D59C)
+static inline unsigned int __BgmSoundId_unk(int id) {
+    void* engine = lbl_8087EE90;
+    return fn_80049B74(engine, fn_8037C71C(id));
+}
+
 int GameBgm::fn_8037D4C0(int id, int fade, int b, int c, float volume) {
     if (0 < id && id <= 6) {
         id = sBgmIds[id];
     }
-    const char* name;
     void* engine = lbl_8087EE90;
     unsigned int cur = 0;
     unsigned int next = 0;
     if (engine != 0 && lbl_8087EFE8 != 0) {
-        name = mReq.mName;
-        if (__IsName_unk(name)) {
-            cur = fn_80049B74(engine, name);
+        if (__IsName_unk(mReq.mName)) {
+            cur = fn_80049B74(engine, mReq.mName);
         }
         if (__IsName_unk(fn_8037C71C(id))) {
-            void* engine2 = lbl_8087EE90;
-            next = fn_80049B74(engine2, fn_8037C71C(id));
+            next = __BgmSoundId_unk(id);
         }
     }
     if (cur != next) {

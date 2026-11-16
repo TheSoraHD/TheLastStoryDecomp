@@ -36,6 +36,19 @@ struct PPUser_unk {
     PPDATAR mR;            // 0x4A0
 };
 
+// inferred: the list of peers destroys its nodes in its destructor (std/list.h has no destructor so that the
+// other users are not changed); three levels as in the MSL list (destructor of PacketPack, 0x804D14B8, as
+// atn/CompositeCache_unk.cpp)
+struct PPUserListImp_unk : public std::list<PPUser_unk> {
+    ~PPUserListImp_unk() { clear(); }
+};
+struct PPUserListMid_unk : public PPUserListImp_unk {
+    ~PPUserListMid_unk() {}
+};
+struct PPUserList_unk : public PPUserListMid_unk {
+    ~PPUserList_unk() {}
+};
+
 // inferred: packet packer (atn/PacketPack.cpp, vtable 0x80791718); names invented. The members
 // after the virtual functions are defined in atn/PPDATAU.cpp.
 class PacketPack {
@@ -74,7 +87,7 @@ public:
         }
     }
 
-    std::list<PPUser_unk> mUsers; // 0x04
+    PPUserList_unk mUsers; // 0x04
     Crypt* m10;
 };
 

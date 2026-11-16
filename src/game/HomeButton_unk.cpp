@@ -210,22 +210,18 @@ inline float Clamp1_unk(float x) {
 }
 
 // inferred: updates the menu; returns the selected button or -1
-// NONMATCHING: 99.8% - the original loads the stick x/y into f0/f1 (here f1/f0) and swaps the loop
-// counter/offset registers (r28/r29); tried declaration orders and a single expression.
 int HBMRsoCalc(HBMControllerData& con) {
     HBMUpdateSound();
-    HBMKPadData* pad = con.wiiCon;
-    int offset = 0;
-    for (int i = 0; i < 4; i++, pad++, offset += 0xF00) {
+    for (int i = 0; i < 4; i++) {
+        HBMKPadData* pad = &con.wiiCon[i];
         unsigned long type;
         int ret = WPADProbe(i, &type);
         pad->use_devtype = type;
         if ((ret >= -4 && ret <= -2) || ret == -7 || ret == 0) {
-            pad->kpad = (KPADStatus_unk*)(lbl_8087F018 + offset);
+            pad->kpad = (HBMKPADStatus_unk*)(lbl_8087F018 + i * 0xF00);
             int digital = fn_80440DC0(pad->kpad->clHold, &pad->posX);
-            float sy;
+            float sy = pad->kpad->clStickY / 14.222222f;
             float sx = pad->kpad->clStickX / 14.222222f;
-            sy = pad->kpad->clStickY / 14.222222f;
             float x = Clamp1_unk(sx);
             float y = Clamp1_unk(sy);
             int analog;

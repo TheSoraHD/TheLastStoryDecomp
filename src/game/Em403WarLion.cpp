@@ -1813,7 +1813,7 @@ extern "C" inline float fn_8032C1EC(WarLionPath_unk* path, int i) {
         float u = (float)(k + 1) / 64.0f;
         atn::Vector3 cur = path->Eval_unk(i, u);
         len += (cur - prev).Length_unk();
-        prev = cur;
+        atn::VecAssign_unk(prev, cur);
     }
     return len;
 }

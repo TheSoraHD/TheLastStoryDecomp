@@ -29,7 +29,6 @@ extern "C" void* lbl_8087EF70;
 extern "C" int fn_800A555C(void* pad, int port, int button); // inferred: button triggered
 extern "C" int fn_800A55AC(void* pad, int port, int button); // inferred: button repeated
 extern "C" int fn_800A58D0(void* pad, int port);
-extern "C" unsigned int fn_80372574(GameUICounter_unk* list); // inferred: size of a fixed list
 
 // inferred: d2anime task of the D3Anime objects and of "status_select"; only the members used here
 struct NewCampStatusD2A_unk : public atn::Task {
@@ -447,7 +446,7 @@ void NewCampPartsStatus::fn_80527938() {
     } else {
         leader = Inventory::Order()->GetPlayerStatusInfo(0);
     }
-    for (unsigned int i = 0; i < fn_80372574((GameUICounter_unk*)&mSets); i++) {
+    for (unsigned int i = 0; i < mSets.size(); i++) {
         NewCampStatusSet_unk& set = mSets[i];
         ((GameUICounter_unk*)&set.mSkills)->fn_803CF734();
         atn::D2ATask_unk* base = mPages[i].mBase->GetTask();

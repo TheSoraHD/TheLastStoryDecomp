@@ -1,0 +1,143 @@
+diff --git a/config/SLSP01/symbols.txt b/config/SLSP01/symbols.txt
+index c0335eb..55e821f 100644
+--- a/config/SLSP01/symbols.txt
++++ b/config/SLSP01/symbols.txt
+@@ -4216,7 +4216,7 @@ __ct__Q23chr12ControlAvoidFP9CharaTaskRCQ23atn7Vector3 = .text:0x801ACF4C; // ty
+ vf0C__Q23chr12ControlAvoidFv = .text:0x801AD2B4; // type:function size:0x98
+ __ct__Q23chr16ControlKnockdownFP9CharaTaskRCQ23atn7Vector3ii = .text:0x801AD34C; // type:function size:0x8C8
+ vf0C__Q23chr16ControlKnockdownFv = .text:0x801ADC14; // type:function size:0x808
+-fn_801AE41C__Q23chr16ControlKnockdownFv = .text:0x801AE41C; // type:function size:0xCC
++fn_801AE41C__Q23chr16ControlKnockdownCFv = .text:0x801AE41C; // type:function size:0xCC
+ vf10__Q23chr16ControlKnockdownCFv = .text:0x801AE4E8; // type:function size:0x1EC
+ vf1C__Q23chr16ControlKnockdownFv = .text:0x801AE6D4; // type:function size:0xA8
+ __ct__Q23chr12ControlGetUpFP9CharaTask = .text:0x801AE77C; // type:function size:0x14C
+diff --git a/include/chr/ControlDamage.h b/include/chr/ControlDamage.h
+index 278c791..5ef726e 100644
+--- a/include/chr/ControlDamage.h
++++ b/include/chr/ControlDamage.h
+@@ -46,7 +46,7 @@ public:
+     virtual int vf0C();
+     virtual boost::function<void()> vf10() const;
+     virtual void vf1C();
+-    bool fn_801AE41C(); // inferred: can be cancelled (CharaTask::fn_8015EB2C, control id 0x17)
++    bool fn_801AE41C() const; // inferred: can be cancelled (CharaTask::fn_8015EB2C, control id 0x17)
+ 
+     atn::Vector3 m08;                // inferred: rotation to turn to
+     int m14;                         // inferred: frame counter of the step
+diff --git a/src/chr/ControlDamage.cpp b/src/chr/ControlDamage.cpp
+index 81eb868..abef47b 100644
+--- a/src/chr/ControlDamage.cpp
++++ b/src/chr/ControlDamage.cpp
+@@ -15,6 +15,7 @@
+ #include "std/string_members.h"
+ #include <boost/bind.hpp>
+ #include "game/BattleTask.h"
++#include "math/VecAssign_unk.h"
+ 
+ // inferred: arena mode object (lbl_8087F610, as in chr/ControlCharge.cpp)
+ struct Arena_unk {
+@@ -80,6 +81,10 @@ inline atn::Vector3 Cross_unk(const atn::Vector3& a, const atn::Vector3& b) {
+ // inferred: sounds of the knockdown and of the broken guard
+ static const char* const sSe[4] = {"SE_BTCOM_016", "SE_BTCOM_017", "SE_BTCOM_018"};
+ 
++inline atn::Vector3* CharaTask::fn_8013C38C() {
++    return &mPos;
++}
++
+ namespace chr {
+ 
+ ControlDamage::ControlDamage(Chara_unk* chara, const atn::Vector3& dir, int motion) : ControlBase(chara) {
+@@ -293,9 +298,9 @@ ControlKnockdown::ControlKnockdown(Chara_unk* chara, const atn::Vector3& dir, in
+     }
+ }
+ 
+-// NONMATCHING: 98.1% - the inlined fn_801AE41C loads mChara again (the original keeps a second
+-// model pointer), the lens accessor reloads m1DC three times, and r3/r4 are swapped in the
+-// arguments of the two sounds.
++// NONMATCHING: 99.94% - register allocation only: the bool of the inlined fn_801AE41C gets r28
++// (original r27). The two sounds and the node lookups match with the real accessors
++// (fn_8013C38C for &mPos, GetModel_unk for the model).
+ int ControlKnockdown::vf0C() {
+     int result = 0;
+     CharaTask* chara = mChara;
+@@ -334,9 +339,9 @@ int ControlKnockdown::vf0C() {
+                     m14 = 0;
+                     m18 = 1;
+                     if (mChara->m5B0 < 10.0f) {
+-                        fn_800C344C(sSe[1], &mChara->mPos, 0, -1, 1.0f);
++                        fn_800C344C(sSe[1], mChara->fn_8013C38C(), 0, -1, 1.0f);
+                     } else {
+-                        fn_800C344C(sSe[2], &mChara->mPos, 0, -1, 1.0f);
++                        fn_800C344C(sSe[2], mChara->fn_8013C38C(), 0, -1, 1.0f);
+                     }
+                 }
+             }
+@@ -394,9 +399,9 @@ int ControlKnockdown::vf0C() {
+             m3C = 0;
+             atn::Vector3 from = mChara->mPos;
+             atn::Vector3 to = from;
+-            MtxPtr node = mChara->mMotion.GetNodeMtx_unk("spine1");
++            MtxPtr node = mChara->GetModel_unk()->GetNodeMtx_unk("spine1");
+             if (!node) {
+-                node = mChara->mMotion.GetNodeMtx_unk("hips");
++                node = mChara->GetModel_unk()->GetNodeMtx_unk("hips");
+             }
+             if (node) {
+                 to = from = atn::Vector3(node[0][3], node[1][3], node[2][3]);
+@@ -409,9 +414,11 @@ int ControlKnockdown::vf0C() {
+             if (fn_8004ED34(fn_801404F8(), &res, &from, &to, mChara->fn_80179D44() | 0x80000000, 0, 0) && res.m34) {
+                 int attr = *(int*)res.m34;
+                 if ((attr >= 0x14 && attr <= 0x15) || (attr >= 0x1C && attr <= 0x1D)) {
+-                    atn::Vector3 pos = res.m10;
++                    const atn::Vector3& hit = res.m10;
++                    atn::Vector3 pos = hit;
+                     if (mChara->GetLens_unk()) {
+-                        pos.y = -mChara->GetLens_unk()->mPlane.mDist * mChara->GetLens_unk()->mPlane.mNormal.y + 0.01f;
++                        CharaTask* c1 = mChara;
++                        pos.y = -c1->GetLens_unk()->mPlane.mDist * ((CharaTask*)mChara)->GetLens_unk()->mPlane.mNormal.y + 0.01f;
+                     }
+                     lbl_8087F048->fn_801070C8(0x7D7, 0, 0, 0, &res.m10, &mChara->mRot,
+                                 &Color4f_unk(1.0f, 1.0f, 1.0f, 1.0f), 1.0f);
+@@ -424,7 +431,7 @@ int ControlKnockdown::vf0C() {
+     return result;
+ }
+ 
+-bool ControlKnockdown::fn_801AE41C() {
++bool ControlKnockdown::fn_801AE41C() const {
+     if (m14 > 90) {
+         return true;
+     }
+@@ -742,8 +749,10 @@ ControlDamageLastOne::ControlDamageLastOne(Chara_unk* chara, const atn::Vector3*
+     }
+ }
+ 
+-// NONMATCHING: 92.4% - the inlined fn_801B0260 loads mChara again (the original keeps a second
+-// model pointer, so r30/r31 are swapped), and side * 2 is computed before the second front direction.
++// NONMATCHING: 99.6% - register allocation only: the outer model pointer gets r30 and the bool of the
++// inlined fn_801B0260 r31 (original r31/r30). Tried: model after the call, bool/int local for the
++// result, == true/false, reference or GetModel_unk accessor, helper written in place (mChara is then
++// not reloaded), result declared first / single return / switch in the helper.
+ int ControlDamageLastOne::vf0C() {
+     Motion_unk* model = &mChara->mMotion;
+     if (fn_801B0260()) {
+@@ -762,15 +771,17 @@ int ControlDamageLastOne::vf0C() {
+             if (model->mTracks[0].m08 >= 23.0f) {
+                 model->fn_80097C08(0, 0x30, 0, 1, 1, 0.0f, 0.2f);
+                 atn::Vector3 side = Cross_unk(FrontDir_unk(mChara->mRot), atn::Vector3(0.0f, 1.0f, 0.0f));
+-                side = -FrontDir_unk(mChara->mRot) * 6.0f - (side * 2.0f);
++                atn::VecAssign_unk(side, -FrontDir_unk(mChara->mRot) * 6.0f - (side * 2.0f));
+                 mChara->m6B8 = side;
+             }
+         }
+         break;
+     case 11:
+         if (model->mTracks[0].m08 > 30.0f && model->mTracks[0].m08 < 54.0f) {
+-            mChara->m6B8 = m08;
+-            mChara->m574 = atn::Vector3(0.0f, 0.0f, 0.0f);
++            CharaTask* c1 = mChara;
++            c1->m6B8 = m08;
++            CharaTask* c2 = mChara;
++            c2->m574 = atn::Vector3(0.0f, 0.0f, 0.0f);
+         }
+         break;
+     }

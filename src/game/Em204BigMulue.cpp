@@ -956,8 +956,8 @@ int Em204BigMulue::fn_802B0430(int state, float* over) {
     BigMulueRotZYX_unk(m, mRot);
     PSMTXMultVec(m.m, &dir, &dir);
     dir += mPos;
-    from.y += 25.0f;
-    dir.y += 25.0f;
+    from.y += 15.0f;
+    dir.y += 15.0f;
     if (fn_8004ED34(fn_801404F8(), &res, &from, &dir, fn_80179D44() | 0x80000000, 0, 0) != 0) {
         dist = BigMulueDistSq_unk(res.m10, mPos);
         if (dist < (float)near) {
@@ -983,7 +983,7 @@ int Em204BigMulue::fn_802B07F0(int range) {
         m150C = 1;
         target = m1500;
     }
-    if (fn_802B12D8(&target, 1.0f, 25.0f, 0.0f)) {
+    if (fn_802B12D8(&target, 1.0f, 15.0f, 0.0f)) {
         m150C = 0;
     }
     if (m150C != prev) {

@@ -918,9 +918,10 @@ void Em204MulueMp::fn_802B55B0(int aimed, int arg) {
     }
 }
 
-// NONMATCHING: 99.93% - r4/r5 of the copy of the home (__VecCopy family)
 void Em204MulueMp::fn_802B596C() {
-    atn::Vector3 home(m15D4);
+    // inferred: copied through a reference (r5/r4 of the __VecCopy)
+    const atn::Vector3& h = m15D4;
+    atn::Vector3 home(h);
     home.y += 40.0f;
     atn::Vector3 d = home - mPos;
     d.Length_unk();
@@ -1023,7 +1024,9 @@ void Em204MulueMp::fn_802B5DA4() {
     }
 }
 
-// NONMATCHING: 99.83% - r4/r5 of the copies of the distance (__VecCopy family)
+// NONMATCHING: 99.83% - r4/r5 of the copies of the distance (__VecCopy family); 99.90% with
+// atn::VecAssign_unk(d, m15E4 - mPos) and the home copied through a const reference (as in fn_802B596C);
+// left: the temporary of home - mPos and the m15E4 = m15D4 copy (16 variants)
 void Em204MulueMp::fn_802B6104() {
     atn::Vector3 d(0.0f, 0.0f, 0.0f);
     if (m14DC < 2) {

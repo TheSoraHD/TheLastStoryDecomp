@@ -293,9 +293,10 @@ struct __vec_split_unk : public __vec_split_gbase_unk<T> {
             __append_n_unk(n, x);
         }
     }
-    // inferred: appends n copies of x (resize, weak copy 0x8032B314)
+    // inferred: appends n copies of x (resize, weak copy 0x8032B314). The start index is read before the
+    // storage (mStart, mSize, then mData: weak copy 0x80544E74, vector<Event::Actor>)
     void __append_n_unk(unsigned int n, const T& x) {
-        T* p = begin() + this->mSize;
+        T* p = mStart + this->mData + this->mSize;
         for (; n != 0; n--, p++) {
             new (p) T(x);
             this->mSize++;

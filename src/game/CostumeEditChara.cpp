@@ -76,7 +76,8 @@ inline void __MtxRotateYXZ_unk(atn::Matrix3x4& m, const atn::Vector3& r) {
 inline void __MtxSetTrans_unk(atn::Matrix3x4& m, const atn::Vector3& p) {
     Mtx trans;
     PSMTXTrans(trans, p.x, p.y, p.z);
-    __MtxCopy(m.m, trans);
+    Mtx* dst = &m.m;
+    __MtxCopy(*dst, trans);
 }
 // inferred: m = m * scale(s) (name invented)
 inline void __MtxScale_unk(atn::Matrix3x4& m, const atn::Vector3& s) {
@@ -147,8 +148,6 @@ int CostumeEditChara::vf0C() {
     return 0;
 }
 
-// NONMATCHING: 99.99% - the first store of the translation copy uses 0x50(r31) instead of the
-// mMtx pointer kept in r30. Tried: the copy through a pointer/MtxPtr, operator=, one TRS helper.
 void CostumeEditChara::vf10() {
     mOffset = __Lerp_unk(mOffset, mOffsetTarget, 0.3f);
     mCur = __Lerp_unk(mCur, mTarget, 0.3f);

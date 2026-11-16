@@ -289,7 +289,7 @@
   "classes": [
    "atn::NandManager"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "atn/ParseTree.cpp",
@@ -326,7 +326,7 @@
   "classes": [
    "atn::Layer2DBlur"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "atn/Layer3D.cpp",
@@ -998,7 +998,7 @@
    "chr::ControlWallDown",
    "chr::ControlWallUp"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "game/CopyRobotTask.cpp",
@@ -1068,7 +1068,7 @@
   "classes": [
    "atn::D2A_Frame"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "atn/D2A_ParamTable_unk.cpp",
@@ -2099,7 +2099,7 @@
   "classes": [
    "gmk::Cannonball"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "gmk/Item.cpp",
@@ -2562,7 +2562,7 @@
   "classes": [
    "atn::LoadHandle"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "atn/LH_Material.cpp",
@@ -2656,7 +2656,7 @@
   "classes": [
    "MapManager"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "game/MapPartsBase.cpp",
@@ -3716,7 +3716,7 @@
   "classes": [
    "atn::CsvBase"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "atn/ColliBaseFunc_unk.cpp",

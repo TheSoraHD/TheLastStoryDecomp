@@ -7,7 +7,7 @@
 namespace atn {
 
 // inferred: converts a [0,1] float channel to 0..255 (inline, name invented; same as D2A_Line)
-inline unsigned int fn_ToU8(float f) {
+inline unsigned int fn_ToU8(const float& f) {
     return (f >= 1.0f) ? 255 : (f <= 0.0f) ? 0 : (unsigned int)(f * 255.0f + 0.5f);
 }
 
@@ -26,8 +26,6 @@ D2A_Frame::D2A_Frame(D2A_Data* owner, unsigned short id) : D2A_Common(owner, id)
 
 D2A_Frame::~D2A_Frame() {}
 
-// NONMATCHING: 99.85% - only the float registers of the alpha test and the first color channel
-// differ (f3/f5/f2 in the original, f2/f4/f5 here)
 void D2A_Frame::vf18() {
     if (!fn_801EDC78()) {
         return;

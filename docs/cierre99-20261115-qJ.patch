@@ -1,0 +1,164 @@
+diff --git a/include/std/vector.h b/include/std/vector.h
+index f458f72..fffe5e4 100644
+--- a/include/std/vector.h
++++ b/include/std/vector.h
+@@ -315,6 +315,18 @@ struct __vec_split_unk : public __vec_split_gbase_unk<T> {
+             this->mSize++;
+         }
+     }
++    // inferred: same loop for the reallocation of push_back of elements with a destructor (boost::shared_ptr,
++    // Event/Section fn_8053C788): the original does not turn it into a counted loop
++    void __push_front_nt_unk(T* first, T* last) {
++        T* p = begin();
++        while (first < last) {
++            --p;
++            --last;
++            new (p) T(*last);
++            mStart--;
++            this->mSize++;
++        }
++    }
+     // inferred: same loop for the reallocation of resize (0x8032B314 keeps the two decrements apart)
+     void __push_front_resize_unk(T* first, T* last) {
+         T* p = begin();
+@@ -524,6 +536,9 @@ public:
+     // the comparison reversed, if/else forms and a helper for the length check.
+     void push_back(const T& x);
+     void __push_back_slow_unk(const T& x);
++    void __push_back_nt_unk(const T& x);
++    bool __expand_by_nt_unk(size_type n);
++    void __insert_realloc_nt_unk(size_type n, const T& x);
+     bool __expand_by_unk(size_type n);
+     void __insert_realloc_unk(size_type n, const T& x);
+     // inferred: erase of a POD element, moving the next ones with memmove (inlined in
+@@ -703,6 +718,12 @@ private:
+         __vec_swap_unk(this->mData, buf.mData);
+         __vec_swap_unk(this->mSize, buf.mSize);
+     }
++    void __swap_out_nt_unk(__vec_split_unk<T>& buf) {
++        buf.__push_front_nt_unk(this->mData, this->mData + this->mSize);
++        __vec_swap_unk(this->mCap, buf.mCap);
++        __vec_swap_unk(this->mData, buf.mData);
++        __vec_swap_unk(this->mSize, buf.mSize);
++    }
+     void __swap_out_unk(__vec_split_unk<T>& buf) {
+         buf.__push_front_unk(this->mData, this->mData + this->mSize);
+         if (__vec_split_unk<T>::__clear_src_unk) {
+@@ -714,6 +735,16 @@ private:
+     }
+ public:
+     size_type __grow_cap_unk(size_type n);
++    size_type __grow_cap_nt_unk(size_type n);
++    // inferred: allocation of the buffer of push_back for elements with a destructor; two inline levels so that
++    // the stack slots of __grow_cap_nt_unk come out above those of __expand_by_nt_unk (Event/Section fn_8053C788)
++    void __alloc_split_nt_unk(__vec_split_unk<T>& buf, size_type n) { __alloc_split_nt2_unk(buf, n); }
++    void __alloc_split_nt2_unk(__vec_split_unk<T>& buf, size_type n) {
++        size_type cap = __grow_cap_nt_unk(this->mSize + n - this->mCap);
++        buf.mData = __vec_alloc_sel_unk<T>::alloc(cap);
++        buf.mCap = cap;
++        buf.mStart = this->mSize;
++    }
+     // inferred: allocation of the buffer of realloc for pointer, int and float elements (see __vec_grow_sel_unk)
+     void __alloc_split_unk(__vec_split_unk<T>& buf, size_type n) {
+         size_type cap = __grow_cap_unk(this->mSize + n - this->mCap);
+@@ -785,6 +816,10 @@ void vector<T>::push_back(const T& x) {
+ // out of line
+ template <class T>
+ void vector<T>::__push_back_slow_unk(const T& x) {
++    if (!(__builtin_trivial_members(T) & 1)) {
++        __push_back_nt_unk(x);
++        return;
++    }
+     if (__expand_by_unk(1)) {
+         this->__alloc_unk().construct(this->mData + this->mSize, x);
+         ++this->mSize;
+@@ -793,6 +828,26 @@ void vector<T>::__push_back_slow_unk(const T& x) {
+     }
+ }
+ 
++// inferred: slow path of push_back for elements with a destructor (Event/Section, Cut, Channel, Sequence:
++// vector<boost::shared_ptr<...>>)
++template <class T>
++void vector<T>::__push_back_nt_unk(const T& x) {
++    if (__expand_by_nt_unk(1)) {
++        this->__alloc_unk().construct(this->mData + this->mSize, x);
++        ++this->mSize;
++    } else {
++        __insert_realloc_nt_unk(1, x);
++    }
++}
++
++template <class T>
++void vector<T>::__insert_realloc_nt_unk(size_type n, const T& x) {
++    __vec_split_unk<T> buf(&this->__alloc_unk());
++    __alloc_split_nt_unk(buf, n);
++    buf.__append_copies_unk(n, x);
++    __swap_out_nt_unk(buf);
++}
++
+ template <class T>
+ void vector<T>::__insert_realloc_unk(size_type n, const T& x) {
+     __vec_split_unk<T> buf(&this->mCap);
+@@ -928,6 +983,48 @@ bool vector<T>::__expand_by_unk(size_type n) {
+     return false;
+ }
+ 
++// inferred: growth of push_back for elements with a destructor: the original keeps max_size() in a register
++// (divided at run time, mulhwu) for the length check and the recommendation
++template <class T>
++typename vector<T>::size_type vector<T>::__grow_cap_nt_unk(size_type n) {
++    size_type m = max_size();
++    size_type cap = this->mCap;
++    if (n > m - cap) {
++        __msl_error("vector length error");
++    }
++    size_type third = m / 3;
++    if (cap < third) {
++        cap += __vec_max_unk(size_type((cap + 1) * 3 / 5), n);
++    } else if (cap < third * 2) {
++        cap += __vec_max_unk(size_type((cap + 1) / 2), n);
++    } else {
++        cap = m;
++    }
++    if (cap > max_size()) {
++        __msl_error("vector length error");
++    }
++    return cap;
++}
++
++// inferred: same check and dead recommendation for expand_by
++template <class T>
++bool vector<T>::__expand_by_nt_unk(size_type n) {
++    size_type m = max_size();
++    size_type cap = this->mCap;
++    if (n > m - cap) {
++        __msl_error("vector length error");
++    }
++    size_type third = m / 3;
++    if (cap < third) {
++        cap += __vec_max_unk(size_type((cap + 1) * 3 / 5), n);
++    } else if (cap < third * 2) {
++        cap += __vec_max_unk(size_type((cap + 1) / 2), n);
++    } else {
++        cap = m;
++    }
++    return false;
++}
++
+ // inferred: resize of float elements (weak copy 0x8032BE88)
+ template <>
+ inline void vector<float>::__append_unk(size_type n) {
+diff --git a/src/Event/Section.cpp b/src/Event/Section.cpp
+index 06a2991..8e8fa31 100644
+--- a/src/Event/Section.cpp
++++ b/src/Event/Section.cpp
+@@ -11,8 +11,7 @@ Section::Section(Cut* cut, int index) : mCut(cut), m0C(0), m10(0), m14(1) {}
+ // (the original keeps max_size() in a register and divides it at run time, and keeps an
+ // unreachable copy of the fast path after the length check).
+ Channel* Section::fn_8053C788() {
+-    boost::shared_ptr<Channel> channel(new ((MemoryTag)4, "", "", 0) Channel(this));
+-    mChannels.push_back(channel);
++    mChannels.push_back(boost::shared_ptr<Channel>(new ((MemoryTag)4, "", "", 0) Channel(this)));
+     return mChannels[mChannels.size() - 1].get();
+ }
+ 

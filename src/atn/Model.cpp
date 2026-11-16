@@ -229,10 +229,11 @@ namespace atn {
 // inferred: pose buffer shared by every model (0x400 nodes of Model::Node_unk, allocated by the first model)
 static Model::Node_unk* sNodePoses;
 
-// inferred: allocates the pose buffer (name invented). A static helper compiled here and inlined in Model::Model:
-// the weak constructor of Node_unk is emitted at 0x8008A4B0, right after fn_8008A00C, as in the original (the
-// "" that follows "NODE_EDIT" in the original pool still does not come out of it)
-static void NewNodePoses_unk() {
+// inferred: allocates the pose buffer (name invented). A helper compiled here and inlined in Model::Model (the
+// linker strips its unreferenced body): the weak constructor of Node_unk is emitted at 0x8008A4B0, right after
+// fn_8008A00C, and its "" follows "NODE_EDIT" in the pool, as in the original (as a static function the "" came
+// much later)
+void NewNodePoses_unk() {
     if (sNodePoses == 0) {
         sNodePoses = new ((MemoryTag)6, "", "", 0) Model::Node_unk[0x400];
     }
@@ -1990,13 +1991,13 @@ void Model::fn_80093014(int on) {
     }
 }
 
-// NONMATCHING: 99.6% - register of the level pointer of the second loop (r30 in the original)
+// inferred: a local pointer to the entry inside the second loop (r30 as in the original)
 void ModelBase::fn_8009303C() {
     for (int j = mFlag1_unk != 0; j < m20C_23_16; j++) {
         mLods[j].m08 = mLods[j].mHandle.fn_80475DF8();
     }
-    int i = mFlag1_unk != 0;
-    for (ModelLod_unk* lod = &mLods[i]; i < m20C_23_16; lod++, i++) {
+    for (int i = mFlag1_unk != 0; i < m20C_23_16; i++) {
+        ModelLod_unk* lod = &mLods[i];
         if (lod->m08 != 0) {
             fn_80093158(lod);
         }
@@ -2399,7 +2400,7 @@ void Model::fn_800954DC(void* tex, Vector2_unk uv, float scale) {
 
 void ModelBase::fn_80095750(const char* name, ModelCompositeTex_unk* tex) {
     ModelComposite_unk* e = new ((MemoryTag)6, "", "", 0) ModelComposite_unk;
-    e->mName.assign(name);
+    e->mName = name;
     e->m0C = fn_800DC6B4(name);
     e->m10 = tex;
     tex->m04.AddRef_unk();
@@ -2478,8 +2479,8 @@ void Model::fn_80096218(SimpleVector<unsigned int>* list, void* arg) {
     }
 }
 
-// NONMATCHING: 99.3% - the "" of the pool is at 0xA in the original, and the motion slots are built with
-// the constructor of LH_Motion (here the implicit one of MotionSlot_unk)
+// inferred: the motion slots are built with the out-of-line constructor of MotionSlot_unk (0x800A03A0).
+// Pending (unit, not this function): the "" of the pool is at 0xA in the original.
 Model::Model(int flags, int motions)
     : ModelBase(flags), m34C(1), m350(1.0f), m384(0), m3A8(0.0f, 0.0f, 0.0f), m3B4(0.0f), m3B8(0.0f), m3BC(0),
       m3C0(-1), m3C4(0.0f) {

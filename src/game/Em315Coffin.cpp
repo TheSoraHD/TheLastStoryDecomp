@@ -311,8 +311,6 @@ inline bool CanLinkTo_unk(Em315Coffin* self) {
     return self->mC58.mC4->fn_8016F530(0) != 0;
 }
 
-// NONMATCHING: 99.81% - FPR numbering of the inlined fade start/update (the original gives the lowest
-// registers to the values loaded first); ~16 variants of the interpolation statements and parameters tried
 void Em315Coffin::vf104() {
     m14C0++;
     if (m1634 != 0) {
@@ -617,7 +615,7 @@ void Em315Coffin::vf108() {
                 if (frame >= mMotion.fn_80097D7C(0)) {
                     m14C0 = 0;
                     m14BC++;
-                    mMotion.fn_80097C08(0, 0x146, 1, 1, 1, 0.0f, 3.6651914f);
+                    mMotion.fn_80097C08(0, 0x146, 1, 1, 1, 0.0f, 0.1f);
                     fn_80315964();
                 }
             } else if (m14BC == 1) {
@@ -626,7 +624,7 @@ void Em315Coffin::vf108() {
                 if (m14C0 >= m15B8 || state != 6 || sub != 0x7A) {
                     m14C0 = 0;
                     m14BC++;
-                    mMotion.fn_80097C08(0, 0x147, 0, 1, 1, 0.0f, 3.6651914f);
+                    mMotion.fn_80097C08(0, 0x147, 0, 1, 1, 0.0f, 0.1f);
                     m15E8.Reset_unk();
                     m15C8.Reset_unk();
                     fn_80315FE0();

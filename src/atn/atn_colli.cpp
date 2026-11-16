@@ -143,7 +143,6 @@ void ColliSphere::vf1C(const ColliGrid_unk* grid) {
     SetCell_unk(mSphere, grid);
 }
 
-// NONMATCHING: 99.77% - y/z de la resta de SetUpright_unk en registros cruzados (f4/f5)
 int ColliCapsule::vf0C(ColliResult_unk* results, int max, const ColliSphereShape_unk* sphere, unsigned int mask,
                        int arg) {
     if (max > 0) {
@@ -163,7 +162,6 @@ int ColliCapsule::vf0C(ColliResult_unk* results, int max, const ColliSphereShape
     return 0;
 }
 
-// NONMATCHING: 99.78% - y/z de la resta de SetUpright_unk en registros cruzados (f5/f6)
 int ColliCapsule::vf10(ColliResult_unk* results, int max, const ColliCapsuleShape_unk* capsule, unsigned int mask,
                        int arg) {
     if (max > 0) {

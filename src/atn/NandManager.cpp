@@ -233,12 +233,6 @@ void NandManager::OpenTmp_unk() {
     }
 }
 
-static inline int MoveTmp_unk(atn::NandManager* nand, const char* tmp);
-static inline int CommitTmp_unk(atn::NandManager* nand, char* tmp) {
-    TmpPath_unk(nand, tmp);
-    nand->mState = 0x18;
-    return MoveTmp_unk(nand, tmp);
-}
 // inferred: moves the temporary copy over the file (name invented)
 static inline int MoveTmp_unk(atn::NandManager* nand, const char* tmp) {
     std::basic_string<char> dst = fn_8006B0C8(std::basic_string<char>(nand->GetPath_unk()));
@@ -247,13 +241,12 @@ static inline int MoveTmp_unk(atn::NandManager* nand, const char* tmp) {
 }
 
 static inline int WriteAsync2_unk(atn::NandManager* n) {
-    return n->fn_800A4494(n->WriteAsync_unk(n->mData, n->mSize));
+    int size = n->mSize;
+    void* data = n->mData;
+    return n->fn_800A4494(n->WriteAsync_unk(data, size));
 }
-// NONMATCHING: 99.95% - state 1 (OpenTmp_unk inlined): the path of the string constructor of
-// TmpPath_unk in r29 and its length in r28 (swapped here; states 3/5 match). Tried: TmpPath_unk body
-// inlined in OpenTmp_unk, OpenTmp_unk body in the case, path in a local, non-const nand. States 17/19:
-// the stack slots of the strings of TmpPath_unk and MoveTmp_unk are swapped (the original keeps
-// TmpPath_unk higher, as in the other states); tried MoveTmp_unk first, one inline, the bodies in the case.
+// States 17/19 call TmpPath_unk and MoveTmp_unk straight from the case (through another inline
+// the stack slots of their strings are swapped). WriteAsync2_unk reads mSize before mData.
 void NandManager::vf10() {
     switch (mState) {
     case 1:
@@ -559,7 +552,9 @@ void NandManager::vf10() {
             if (mOp == 0 || mOp == 3) {
                 mError = 0;
                 char tmp[0x100];
-                mError = CommitTmp_unk(this, tmp);
+                TmpPath_unk(this, tmp);
+                mState = 0x18;
+                mError = MoveTmp_unk(this, tmp);
                 int err = mError;
                 if (err != 0) {
                     SetError_unk(err);

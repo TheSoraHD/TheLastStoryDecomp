@@ -143,11 +143,16 @@ extern "C" int fn_8050F754(MpFriendList_unk* list, int index);
 // atn/PacketPack.cpp
 extern "C" atn::net::PacketPack* lbl_8087F62C;
 
-// inferred: debug key of the matchmaking (its literal and value are weak objects emitted first by
-// atn/PacketPack.cpp: lbl_80791B00, lbl_8087E160)
-inline void __SetDebugKey_unk() {
+// inferred: name and value of the debug key of the matchmaking (weak objects emitted first by atn/PacketPack.cpp,
+// lbl_80791B00 and lbl_8087E160; also checked by PacketPack fn_804EDB0C)
+inline const char* GetDebugMatchKey_unk() { return "lw_debug"; }
+inline int& GetDebugMatchValue_unk() {
     static int sValue = 1;
-    DWC_AddMatchKeyInt(0, "lw_debug", &sValue);
+    return sValue;
+}
+// inferred: adds the debug key of the matchmaking
+inline void __SetDebugKey_unk() {
+    DWC_AddMatchKeyInt(0, GetDebugMatchKey_unk(), &GetDebugMatchValue_unk());
 }
 // inferred: filter of the debug key (literal in .data, lbl_80793108)
 inline void __SetDebugFilter_unk(char* dst) {

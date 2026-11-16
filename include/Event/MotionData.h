@@ -7,7 +7,7 @@
 #include "Event/CommonData.h"
 #include "atn/Task.h"
 #include "atn/Array_unk.h"
-#include "atn/LH_Motion.h"
+#include "atn/MotionSlot_unk.h"
 #include "math/Vec.h"
 #include "std/string.h"
 #include "Event/PoseKey_unk.h"
@@ -29,11 +29,6 @@ class D2A_Task;
 
 namespace Event {
 
-// inferred: wrapper of the motion loader (the loader is destroyed as a member, non-virtually)
-struct MotionHandle_unk {
-    atn::LH_Motion mLoader;
-};
-
 class MotionData : public CommonData {
 public:
     // inferred: inlined by the reader of "MOID" (Event/EventParser_unk.cpp)
@@ -42,7 +37,7 @@ public:
     virtual void vf0C();
     virtual int vf10() const;
 
-    MotionHandle_unk* m18;
+    atn::MotionSlot_unk* m18; // inferred: motion loader (destroyed non-virtually)
 };
 
 class AnimationData : public CommonData {

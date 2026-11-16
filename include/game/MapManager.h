@@ -37,6 +37,7 @@ public:
     virtual ~MapManager();
     virtual int vf0C();
     void fn_80491418(MapTask* map);  // inferred: adds a map (called by the MapTask constructors)
+    void AddArea_unk(MapPartsArea*); // inferred: stripped by the linker (name invented)
     void fn_80491440(MapTask* map);  // inferred: removes a map
     void fn_80491528(MapModelFunc_unk func, void* arg);
     MapArea* FindArea(atn::Sphere sphere);

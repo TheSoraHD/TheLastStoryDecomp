@@ -81,7 +81,6 @@ struct GameVoiceRequestInfo_unk {
 
 // inferred: voice request (0xE0 bytes; constructor 0x803E8820, destructor 0x803E8908)
 struct GameVoiceRequest_unk {
-    // NONMATCHING (0x803E8820): r4/r5 swapped in the dead code of Reset_unk
     GameVoiceRequest_unk() : m00(0), mChannel(0) { Reset_unk(); }
     ~GameVoiceRequest_unk() {}
     // inferred: clears the request and stops its channel (name invented)

@@ -49,16 +49,17 @@ public:
         }
         return ret;
     }
-    // inferred: nonzero in the states 3-5 while m168 is not negative (weak copy 0x803FB788, kept
-    // from gmk::Cannonball)
-    // NONMATCHING: 98.12% (in gmk/Cannonball) - registers of m54 and the result swapped (r4/r5)
-    virtual int vf60() {
+    // inferred: nonzero in the states 3-5 while m168 is not negative (name invented); vf60 returns it
+    // through this inline (written in vf60 itself, m54 and the result take each other's register)
+    int IsActive_unk() {
         int ret = 0;
         if (IsOut_unk() && m168 >= 0) {
             ret = 1;
         }
         return ret;
     }
+    // inferred: weak copy 0x803FB788, kept from gmk::Cannonball
+    virtual int vf60() { return IsActive_unk(); }
     virtual void vf68(int arg1, int arg2); // 0x8040B1F8
     virtual void vf6C(void* menu);         // 0x8040B4B4: empty
 

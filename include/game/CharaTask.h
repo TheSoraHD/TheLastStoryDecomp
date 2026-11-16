@@ -22,6 +22,7 @@
 #include <boost/function.hpp>
 
 class EquipItemData;
+class GimmickCommon;
 namespace atn {
 struct NodeChunk;                // inferred: name from the boost::bind type string
 struct ModelNodeCallbackContext; // inferred: name from the boost::bind type string
@@ -105,16 +106,6 @@ struct CharaD74_unk {
     unsigned int m20;
 };
 
-// inferred: object pointed to by CharaTask::m1208 (class unknown)
-struct CharaObj1208_unk {
-    int fn_8013A184();
-    int fn_8013A18C();
-
-    unsigned char m00[0x54];
-    int m54;
-    unsigned char m58[0x9C - 0x58];
-    int m9C;
-};
 
 // inferred: objects registered in CharaTask::m120C by fn_805989A4 (class unknown); m04 is compared
 // with the skill data of CharaStatus::m2CC by CharaTask::fn_80176428
@@ -1066,8 +1057,9 @@ public:
         return result;
     }
     // inferred: state checks inlined in many places (names invented)
-    bool IsActive_unk() { return (mFlags & 4) != 4 && (mFlags & 1) != 1; }
-    bool IsFree_unk() { return IsActive_unk() && (mStatus.m0C & 0x20) != 0x20; }
+    // inferred: through Task::IsFlag_unk and CharaStatus::IsState_unk (Em309GhoulSimple::vf10, 0x8030646C)
+    bool IsActive_unk() { return !IsFlag_unk(4) && !IsFlag_unk(1); }
+    bool IsFree_unk() { return IsActive_unk() && !mStatus.IsState_unk(0x20); }
     bool IsGrappled_unk() { return m55C == 6 && m560 == 28; }
     bool CanAct_unk() { return IsFree_unk() && !IsGrappled_unk(); }
     bool HasPart674_unk() { return m674 >= 0 ? true : false; } // inferred: name invented (0x80149A30)
@@ -1225,7 +1217,7 @@ public:
     CharaLook_unk mLook;    // 0x10D8
     Chara1154_unk m1154;
     CharaFaceControl m1188;
-    CharaObj1208_unk* m1208;
+    GimmickCommon* m1208; // inferred: held gimmick (the cannon of ControlCannonLift)
     CharaAttach_unk* m120C[4]; // inferred: cleared with memset; filled by fn_8017639C
     boost::scoped_ptr<atn::EfpFile> m121C;
     MotionCommand_unk m1220;

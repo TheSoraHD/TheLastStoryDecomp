@@ -53,6 +53,10 @@ inline float MotionRatio_unk(chr::Motion_unk* m) {
     return frame / m->fn_80097D7C(0);
 }
 
+// inferred: accessor of the control data (weak copy 0x800F530C, as in game/TacView.cpp)
+extern "C" inline CharaC58_unk* fn_800F530C(CharaTask* chara) {
+    return &chara->mC58;
+}
 namespace chr {
 
 ControlWallUp::ControlWallUp(Chara_unk* chara, const atn::Vector3& pos, const atn::Vector3& dir)
@@ -88,15 +92,15 @@ ControlWallUp::ControlWallUp(Chara_unk* chara, const atn::Vector3& pos, const at
     m48 = m14.y;
 }
 
-// NONMATCHING: 99.8% - registers r3-r5 (character, temporary vectors) and f3/f4 of the m40 update.
 int ControlWallUp::vf0C() {
-    Motion_unk* motion = &mChara->mMotion;
+    Motion_unk* motion = mChara->GetModel_unk();
     int ret = 0;
     mChara->mPos = LerpWall_unk(m28, m14, m40 / 15.0f);
     mChara->mRot = m34.ToRotation_unk();
     mChara->SetHit_unk(fn_80219E6C(0xCD));
     if (m40 > 0.0f) {
-        m40 -= lbl_8087EFA8->m3A4 * motion->mTracks[0].m0C;
+        float dt = lbl_8087EFA8->m3A4;
+        m40 -= dt * motion->mTracks[0].m0C;
     } else {
         m44 -= lbl_8087EFA8->m3A4 * motion->mTracks[0].m0C;
     }
@@ -144,7 +148,7 @@ int ControlWallUp::vf0C() {
             lbl_8087F048->m3E304 = EffectColor_unk(1.0f, 1.0f, 1.0f, 1.0f);
         }
     } else {
-        m08 = mChara->mC58.fn_8011BF3C(mChara->m648->m04);
+        m08 = fn_800F530C(mChara)->fn_8011BF3C(mChara->m648->m04);
         float frame2 = motion->mTracks[0].m08;
         if (frame2 >= motion->fn_80097D7C(0) - 4.0f) {
             m4C = true;
@@ -184,17 +188,14 @@ int ControlWallUp::vf0C() {
     return ret;
 }
 
-// NONMATCHING: 99.83% - registers r5/r6 and stack slots of the inlined ControlWallDown constructor.
 boost::function<void()> ControlWallUp::vf10() const {
     if (m4C) {
         if (m50 != 0) {
             return m50->vfB4(mChara);
         }
-        ControlWallSlash* next = new ((MemoryTag)0, "", "", 0) ControlWallSlash(mChara, m08, 0);
-        return boost::bind(&CharaTask::fn_80178208, (CharaTask*)mChara, next);
+        return boost::bind(&CharaTask::fn_80178208, (CharaTask*)mChara, new ((MemoryTag)0, "", "", 0) ControlWallSlash(mChara, m08, 0));
     }
-    ControlWallDown* next = new ((MemoryTag)0, "", "", 0) ControlWallDown(mChara, m14);
-    return boost::bind(&CharaTask::fn_80178208, (CharaTask*)mChara, next);
+    return boost::bind(&CharaTask::fn_80178208, (CharaTask*)mChara, new ((MemoryTag)0, "", "", 0) ControlWallDown(mChara, m14));
 }
 
 void ControlWallUp::vf40() {
@@ -248,7 +249,24 @@ ControlWallSlash::ControlWallSlash(Chara_unk* chara, const atn::Vector3& target,
     }
 }
 
-// NONMATCHING: 99.7% - saved registers of the effect manager, the hit data and the bullet.
+// inferred: attack and extra bullet at the landing (same code in ControlChargeAttack::vf0C)
+inline void FireAttack_unk(ControlBase* self) {
+    HitInfo_unk* bullet;
+    self->mChara->fn_8016DA4C();
+    CharaTask* chara = self->mChara;
+    BattleTask* effect = lbl_8087F048;
+    HitInfo_unk* hit = chara->m638;
+    effect->fn_800FAB80(self->mChara, hit, effect->fn_800F8548(), &chara->mPos, &chara->mRot, 0, 30, -1, -1, 0.0f, 1.0f);
+    if (self->mChara->mStatus.HasTimer_unk()) {
+        bullet = fn_80219E6C(0x1395);
+        BattleTask* effect2 = lbl_8087F048;
+        effect2->fn_800FB4B0(self->mChara, bullet, effect2->fn_800F8548(), &self->mChara->mPos, 0, 30, -1, 1);
+        if (self->mChara->fn_801789D8(0x1395, 0)) {
+            self->mChara->fn_80178864(bullet, self->mChara);
+        }
+    }
+}
+
 int ControlWallSlash::vf0C() {
     Motion_unk* motion = &mChara->mMotion;
     if (mChara->mType == 0) {
@@ -268,19 +286,7 @@ int ControlWallSlash::vf0C() {
         mChara->mPos = pos;
         if (m30 == 0 && m2C <= 0.0f) {
             m30 = 1;
-            mChara->fn_8016DA4C();
-            CharaTask* chara = mChara;
-            BattleTask* effect = lbl_8087F048;
-            HitInfo_unk* hit = chara->m638;
-            effect->fn_800FAB80(mChara, hit, effect->fn_800F8548(), &chara->mPos, &chara->mRot, 0, 30, -1, -1, 0.0f, 1.0f);
-            if (mChara->mStatus.HasTimer_unk()) {
-                HitInfo_unk* bullet = fn_80219E6C(0x1395);
-                BattleTask* effect2 = lbl_8087F048;
-                effect2->fn_800FB4B0(mChara, bullet, effect2->fn_800F8548(), &mChara->mPos, 0, 30, -1, 1);
-                if (mChara->fn_801789D8(0x1395, 0)) {
-                    mChara->fn_80178864(bullet, mChara);
-                }
-            }
+            FireAttack_unk(this);
             CharaPart_unk* part = mChara->m648;
             if (part != 0 && part->m28C != 0) {
                 int life = part->m288 - 1;
@@ -302,8 +308,6 @@ int ControlWallSlash::vf0C() {
     return 0;
 }
 
-// NONMATCHING: 60.0% - the copy of the returned vector stores z before the paired single (same
-// issue as GimmickCommon::vf54).
 atn::Vector3 ControlWallSlash::vf18() const {
     return m14;
 }
@@ -312,7 +316,6 @@ int ControlWallSlash::vf28() {
     return m2C < 10.0f;
 }
 
-// NONMATCHING: 60.0% - same copy order issue as vf18.
 atn::Vector3 ControlWallSlash::vf14() const {
     return m08;
 }

@@ -12,6 +12,7 @@ namespace net {
 // destructor frees two buffers (weak copy at 0x804AE4C4)
 class Crypt {
 public:
+    Crypt(); // inferred: inlined in MP::Manager2::Manager2 (atn/PacketPack.cpp)
     virtual ~Crypt();
     virtual char* vf0C() = 0;
     virtual unsigned int vf10() = 0;
@@ -31,6 +32,7 @@ namespace MP {
 
 class CryptMP : public atn::net::Crypt {
 public:
+    CryptMP(); // inferred: inlined in MP::Manager2::Manager2 (atn/PacketPack.cpp)
     virtual ~CryptMP();
     virtual char* vf0C();
     virtual unsigned int vf10();

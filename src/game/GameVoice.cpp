@@ -1,3 +1,4 @@
+#include "math/VecAssign_unk.h"
 #include "game/GameVoice.h"
 #include "game/GameTask.h"
 #include "game/CharaTask.h"
@@ -122,7 +123,7 @@ inline void GameVoiceChannel_unk::Stop_unk(int frames, int keepChara) {
         mFile.fn_80473F88();
         mChara = 0;
     }
-    mPos = lbl_807C7030;
+    atn::VecAssign_unk(mPos, lbl_807C7030);
     mTime = 0;
     mPlaying = 0;
     mPrepared = 0;
@@ -358,7 +359,6 @@ atn::SoundRef GameVoice::fn_803E9608(const char* name, int offset, int steal, fl
     return channel->mSound;
 }
 
-// NONMATCHING: 99.88% - r3/r4 swapped in the dead code of GameVoiceRequest_unk::Reset_unk (as its constructor)
 atn::SoundRef GameVoice::fn_803E9B7C(unsigned int id, int offset, int steal, float volume) {
     atn::SoundRef ref;
     if (mRequests.size() >= 32) {
@@ -408,8 +408,7 @@ static inline void LoadLip_unk(GameVoiceChannel_unk* channel, const char* name) 
     }
 }
 
-// NONMATCHING: 99.74% - r23/r24 swapped between the id of the inlined CheckPrepared_unk and the sound; r4/r5 in
-// the dead code of GameVoiceRequest_unk::Reset_unk (as fn_803E9B7C)
+// NONMATCHING: 99.83% - r23/r24 swapped between the id of the inlined CheckPrepared_unk and the sound
 // inferred: plays the voice `name` of `chara` (3D at the character when `at` is set) and loads its lip sync
 atn::SoundRef GameVoice::fn_803EA09C(CharaTask* chara, const char* name, int at, int steal, int offset, float volume) {
     atn::SoundRef ref;
@@ -682,13 +681,12 @@ void GameVoice::fn_803EB4A8(int keepChara, int keepRequests) {
     }
 }
 
-// NONMATCHING: 99.1% - registers of id, found and the loop pointer
 GameVoiceChannel_unk* GameVoice::fn_803EB668(CharaTask* chara, const char* name, int steal) {
     unsigned int id = VoiceId_unk(name);
     GameVoiceChannel_unk* found = 0;
     if (id != 0) {
-        GameVoiceChannel_unk* channel = mChannels;
-        for (int i = 0; i < mNumChannels; channel++, i++) {
+        for (int i = 0; i < mNumChannels; i++) {
+            GameVoiceChannel_unk* channel = &mChannels[i];
             if (id == fn_800CB6F8(&channel->mSound)) {
                 found = channel;
                 break;
@@ -728,13 +726,14 @@ void GameVoice::StopInvalid_unk() {
     }
 }
 
-// NONMATCHING: 97.78% - registers of the loop and of the character swapped; string offset (see fn_803EB038)
+// NONMATCHING: 99.1% - counter/channel of the inlined StopInvalid_unk loop swapped (r30/r31; tried pointer,
+// unsigned and declared-before counters); string offset (see fn_803EB038)
 GameVoiceChannel_unk* GameVoice::fn_803EB7E4(unsigned int id, int steal) {
     StopInvalid_unk();
     GameVoiceChannel_unk* found = 0;
     if (id != 0) {
-        GameVoiceChannel_unk* channel = mChannels;
-        for (int i = 0; i < mNumChannels; i++, channel++) {
+        for (int i = 0; i < mNumChannels; i++) {
+            GameVoiceChannel_unk* channel = &mChannels[i];
             if (id == fn_800CB6F8(&channel->mSound)) {
                 found = channel;
                 break;
@@ -742,8 +741,8 @@ GameVoiceChannel_unk* GameVoice::fn_803EB7E4(unsigned int id, int steal) {
         }
     }
     if (found == 0) {
-        GameVoiceChannel_unk* channel = mChannels;
-        for (int i = 0; i < mNumChannels; i++, channel++) {
+        for (int i = 0; i < mNumChannels; i++) {
+            GameVoiceChannel_unk* channel = &mChannels[i];
             if (!fn_800CB58C(&channel->mSound) && channel->mChara == 0) {
                 found = channel;
                 break;
@@ -751,8 +750,8 @@ GameVoiceChannel_unk* GameVoice::fn_803EB7E4(unsigned int id, int steal) {
         }
     }
     if (found == 0) {
-        GameVoiceChannel_unk* channel = mChannels;
-        for (int i = 0; i < mNumChannels; i++, channel++) {
+        for (int i = 0; i < mNumChannels; i++) {
+            GameVoiceChannel_unk* channel = &mChannels[i];
             if (!fn_800CB58C(&channel->mSound)) {
                 found = channel;
                 break;
@@ -761,8 +760,8 @@ GameVoiceChannel_unk* GameVoice::fn_803EB7E4(unsigned int id, int steal) {
     }
     if (found == 0 && steal != 0) {
         int best = -1;
-        GameVoiceChannel_unk* channel = mChannels;
-        for (int i = 0; i < mNumChannels; i++, channel++) {
+        for (int i = 0; i < mNumChannels; i++) {
+            GameVoiceChannel_unk* channel = &mChannels[i];
             if (channel->mTime > best) {
                 best = channel->mTime;
                 found = channel;

@@ -206,7 +206,7 @@ int CampSaveLoad::vf0C() {
                 GameSaveSlot_unk* slot = (GameSaveSlot_unk*)&GetData_unk()->mSlots[i];
                 if (slot->fn_803BEAB4() != 0) {
                     MapId_unk* map = fn_8021771C(slot->m30, slot->m32, slot->m31);
-                    if (map != 0 && strcmp(map->m70, "") != 0) {
+                    if (map != 0 && strcmp(map->m70, "\0") != 0) {
                         const char* dir = "data/texture/";
                         std::string path(dir);
                         path += map->m70;
@@ -989,7 +989,6 @@ void CampSaveLoad::fn_8011AD38() {
 }
 
 
-// NONMATCHING: 99.33% - string pool offsets and the size/pointer registers of the two appends swapped (r23/r24)
 // inferred: shows the save slot `index` in its frame (index - 1) % 8: icon, number, play time and map thumbnail,
 // or the "no data" panel
 void CampSaveLoad::fn_8011B018(int index, SaveSlot_unk* slot) {
@@ -1004,7 +1003,7 @@ void CampSaveLoad::fn_8011B018(int index, SaveSlot_unk* slot) {
         fn_800DD3FC(text, L"%d:%02d:%02d", min / 60, min % 60, sec % 60);
         SetPaneText_unk(icon, "dayStr", text);
         MapId_unk* map = fn_8021771C(save->m30, save->m32, save->m31);
-        if (map != 0 && strcmp(map->m70, "") != 0) {
+        if (map != 0 && strcmp(map->m70, "\0") != 0) {
             std::string path = "data/texture/";
             path += map->m70;
             path += ".texture";

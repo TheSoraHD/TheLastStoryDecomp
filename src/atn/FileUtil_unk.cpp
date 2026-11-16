@@ -308,7 +308,6 @@ void DebugMessages_unk::fn_800697D8(const char* text) {
     Add_unk(text, 0xFFFF0000);
 }
 
-// NONMATCHING: 99.71% - registers of the second inlined string constructor
 void DebugMessages_unk::fn_800698DC(const char* path) {
     std::string msg("LoadError: ");
     std::string str(path);
@@ -316,7 +315,7 @@ void DebugMessages_unk::fn_800698DC(const char* path) {
     if (pos != std::string::npos) {
         str = std::string(str, pos + 7);
     }
-    msg += str;
+    msg.append(str);
     Add_unk(msg.c_str(), 0xFFFF0000);
 }
 

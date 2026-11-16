@@ -42,10 +42,10 @@ extern "C" int fn_8005A0D4(ColliResult_unk* results, int max, const ColliCapsule
                            const Matrix3x4* mtx, const Vector3* scale, unsigned int mask, int attr);
 extern "C" int fn_8005A5FC(ColliResult_unk* results, int max, const ColliSweepShape_unk* b, ColliObjNode_unk* node,
                            const Matrix3x4* mtx, const Vector3* scale, unsigned int mask, int attr);
-// NONMATCHING: 99.86% - registros f4/f5 del radio y la z en la primera prueba de rango
 extern "C" int fn_8005AADC(ColliResult_unk* results, int max, const ColliSphereShape_unk* s, ColliTreeNode_unk* node,
                            unsigned int mask, int attr);
-// NONMATCHING: 99.88% - orden de carga de max.z / end.z en la segunda prueba de rango
+// NONMATCHING: 99.88% - orden de carga de max.z / end.z en la segunda prueba de rango (probado: z0/z1 en
+// locales como fn_8005AADC, las 24 ordenes de parametros de __SegmentInRangeZ_unk, comparaciones invertidas)
 extern "C" int fn_8005AD7C(ColliResult_unk* results, int max, const ColliCapsuleShape_unk* c, ColliTreeNode_unk* node,
                            unsigned int mask, int attr);
 extern "C" int fn_8005B064(ColliResult_unk* results, int max, const ColliSweepShape_unk* b, ColliTreeNode_unk* node,
@@ -475,7 +475,9 @@ extern "C" int fn_8005AADC(ColliResult_unk* results, int max, const ColliSphereS
         }
         int i = 0;
         float mid = 0.5f * (node->mBox[0].z + node->mBox[1].z);
-        if (!__SphereInRangeZ_unk(node->mBox[0].z, mid, s->mRadius, s->mCenter.z)) {
+        float r = s->mRadius;
+        float z = s->mCenter.z;
+        if (!__SphereInRangeZ_unk(node->mBox[0].z, mid, r, z)) {
             i = 4;
         }
         for (; i < 8; i++) {
@@ -487,8 +489,12 @@ extern "C" int fn_8005AADC(ColliResult_unk* results, int max, const ColliSphereS
                 }
                 results += r;
             }
-            if (i == 3 && !__SphereInRangeZ_unk(mid, node->mBox[1].z, s->mRadius, s->mCenter.z)) {
-                break;
+            if (i == 3) {
+                r = s->mRadius;
+                z = s->mCenter.z;
+                if (!__SphereInRangeZ_unk(mid, node->mBox[1].z, r, z)) {
+                    break;
+                }
             }
         }
     }

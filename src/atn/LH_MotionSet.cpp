@@ -1,6 +1,6 @@
 #include "atn/LH_MotionSet.h"
 #include "atn/Array_unk.h"
-#include "atn/LH_Motion.h"
+#include "atn/MotionSlot_unk.h"
 #include "atn/LoadManager.h"
 #include "atn/Csv.h"
 #include "gmk/SeTable.h"
@@ -24,7 +24,7 @@ struct MotionSetEntry_unk {
     ~MotionSetEntry_unk();
 
     int mId;                // inferred: motion id given by the callback
-    atn::LH_Motion mMotion; // 0x04
+    atn::MotionSlot_unk mSlot; // 0x04
 };
 
 // inferred: defined at the top of the file (the copy at 0x80476D00 comes first)
@@ -58,7 +58,7 @@ void LoadMotionSet::vf0C() {
             } else {
                 int done = 1;
                 for (unsigned int i = 0; i < mEntries.mSize; i++) {
-                    if (mEntries.mData[i].mMotion.fn_800A0448() != 0) {
+                    if (mEntries.mData[i].mSlot.mMotion.fn_800A0448() != 0) {
                         done = 0;
                     }
                 }
@@ -103,7 +103,7 @@ void LoadMotionSet::fn_80476ED4() {
     mEntries.Resize_unk(lines.mSize, 6);
     for (unsigned int i = 0; i < mEntries.mSize; i++) {
         mEntries.mData[i].mId = lines.begin()[i].mId;
-        mEntries.mData[i].mMotion.fn_800A03E4(lines.begin()[i].mPath.c_str());
+        mEntries.mData[i].mSlot.mMotion.fn_800A03E4(lines.begin()[i].mPath.c_str());
     }
     fn_80473130();
 }
@@ -134,7 +134,7 @@ extern "C" void fn_804776F4(atn::LH_MotionSet* set, void* model) {
     atn::LoadMotionSet* core = (atn::LoadMotionSet*)set->mCore;
     if (core != 0) {
         for (i = 0; i < core->mEntries.mSize; i++) {
-            fn_80097A9C(model, core->mEntries.mData[i].mId, &core->mEntries.mData[i].mMotion);
+            fn_80097A9C(model, core->mEntries.mData[i].mId, &core->mEntries.mData[i].mSlot.mMotion);
         }
     }
 }

@@ -309,3 +309,80 @@ en variable antes de la llamada. Pista sin probar del todo: en `fn_804C23E4` el 
 - `chr/ControlDamage` `ControlDamageLastOne::vf0C` 99,64 % (`docs/enlazar-20261115-qY.patch`): `model` en r30 y el bool del helper en r31, al reves que el original; ~20 variantes.
 - `GameSaveBanner fn_803B9638` 99,18 %: argumentos de `NANDInitBanner`/`memcpy` del ultimo al primero; ~20 variantes.
 - `NETAES` (62 %), `ipcclt IpcReplyHandler`, `dwc_transport`, `dwc_account` (`DWC_ReportFriendData`: compara 2,3,1 con cuerpos 3,2,1), WUD `SyncHandler`/`fn_80670C70`: sin cambios.
+
+## cierre99-20261115
+
+- `dwc_account` `DWC_ReportFriendData`: compara los casos 2,3,1 y coloca los cuerpos 3,2,1; ningun MWCC de Wii (1.0-1.7) lo da con un `switch` normal. Resuelto con `case FRIEND_KEY: goto` al principio (aprobado por el usuario 2026-11-16, excepcion de la regla 2). Mario Strikers Charged (CC0, GC/3.0a5.2) usa una cadena if/else: aqui no reproduce el bloque de comparaciones.
+- qA: ControlSitting::vf0C: this/motion r31/r30 y `dir` bajo el resultado del lerp; `GetModel_unk()` 98,10, `IsPlayer()` peor.
+- qA: ControlDuckUnderB ctor (91,9): la direccion frontal queda bajo las dos copias por valor de fn_80050A1C en el original; escrita sin la inline GetFrontDir_unk sigue igual.
+- qA: ControlGrappleThrown::vf0C (99,82): copia `pos = result.m10` (r3/r4); probados accesor de posicion, puntero local, `pos(...)`, declaracion previa, `chara` en los argumentos.
+- qA: ControlChaseCatch::vf0C (98,1): la Mtx de FrontDir_unk y `scale` comparten hueco por encima de `m` en el original; probados `scale` arriba, `m` arriba, bloque para `m`.
+- qA2: ControlCharge ctor: flags r4/r5 de IsCursorPlayer_unk/IsCursorMode_unk (ver NONMATCHING).
+- qA2: ControlGrappleThrown::vf0C: copia `pos = result.m10` con dst/src en r4/r3; resiste VecAssign_unk y todas las ordenaciones de `c`/`pos`.
+- qB: Orden de la pila de un temporal resultado (`mtx` de Leaf vf10, `d`/producto de Cannonball vf40 antes de la inline): con locales con nombre el primero declarado va arriba; en el original a veces es al reves. Una inline intermedia lo invirtio en Cannonball, no en Leaf.
+- qB: gmk/MapLift ctor y atn::Model::Model: `__construct_array` recibe el ctor de `LH_Motion` y el dtor de `MotionSlot_unk`; ninguna forma de `MotionSlot_unk` probada con try.sh lo reproduce.
+- qB: gmk/RandomItem vf14: el original iza la fuente de la copia de matriz antes que el destino; con `__MtxCopy(dst, src)` no sale.
+- qC: Em315Coffin ctor: `sZero_unk` (0.0f) en `.sdata` del original; sin `explicit_zero_data` va a `.sbss`.
+- qC: Em303KrakenFoot/KrakenFootMp `vf0C`: orden de carga de `m54C |= 0x200` y `mStatus.mParamB.m9C |= 0x2A` (el original carga primero el segundo en r3 y guarda primero el primero); ninguna forma lo da.
+- qC: Em202SpiderBase `fn_802878EC`, Em206EggMonster `fn_802C38E4`: temporales de direccion/rotacion en orden inverso al original aun con inlines (ver NONMATCHING).
+- qC2: Em315Coffin ctor: `sZero_unk` en `.sdata`; ninguna expresion de 0.0f (salvo `-0.0f + 0.0f`, que vale -0) evita `.sbss` sin `explicit_zero_data`.
+- qC2: Em001Necromancer ctor (cadena de `m18` y dos `clear()`), `vf14` (r28/r29 texto/layout, como Em208Queen).
+- qD: Ver NONMATCHING arriba. Ademas, sin cambio (nada commiteado): ChaseManager fn_80183948 (permutaciones de fn_80182874 rompen las otras dos), TeamAIManager OnMembers_unk (Find_unk: helpers, orden, split), PlayerManager fn_80549F14, EnvSeManager fn_8035EA2C (relectura de mBgmState: getters, bool, switch), GameSaveData_unk fn_803BE6B8 (puntero a la entrada en FindGimmick_unk 97,3 % pero base distinta), DamageCalc_unk fn_8003EA3C (orden de argumentos de fn_80040B44: locales, inline), GameTask fn_8036CC90 (puntero/referencia a dof), ItemManager_unk fn_80448B80 (operandos de cmpw), CosEditBase fn_801CF3C0 (`part` fusionado con `add`), NewTitleTask dtor, LastCocoonQuadruped fn_80468534 (99,92 con VecAssign, solo fuzzy), AI_archer_attack01 (cuatro vf con dos `lis` cruzados: cadena como `lbl_807307A0 + off`), GameChoiceWindow/MapPartsBase/ NewCampTask/CampSaveLoad/NewCampPartsMapSelect fn_80520634 (pool de cadenas incompleto).
+- qD2: Ver NONMATCHING arriba. Ademas, sin probar a fondo por ser cruces de registros ya documentados: CrossbowMenuTask fn_801E9544, ArenaTask vf10, ChaseManager, CharaC58_unk fn_8011CAE4, AreaEffConfig fn_80043014, GameEventScript (familia SetNext_unk), NewCampPartsStatus fn_80528310/454/574 (base + 0x58 por llamada), AI_archer_attack01 vf24 (pool de cadenas sin reconstruir), CharaTask fn_8014FF9C (doble `beq`), CrowdManager fn_801EB7C4.
+- qD2: `SkillEffectManager::fn_8059D3B0` 99,94 %: el bloque repetido en las dos ramas como inline miembro (`Attach_unk`) da 99,92 % (huecos distintos); no es la forma original.
+- qD2: `EnvSeLine::vf14` 99,93 %: los temporales quedan 4 bytes mas abajo; color/punto medio/suma en local, orden y forma de `pa`/`pb` (asignacion, copia, `VecAssign_unk`): igual o peor.
+- qE: `Loader::Get_unk<T>` (LH_*): sin cambios, mismos diffs que qC/qQ (no repetido).
+- qE: NumberFormat_unk fn_800DD3FC, VideoTHP vf10, TextureCacheManager8x32 ctors, LipSync_unk: reparto de registros (webs de variables / IV del bucle); 2-3 variantes cada uno sin efecto.
+- qE: D3Anime Draw / D3AnimeInstance Draw (99,29): volatiles; camView movido detras de iw/ih (igual o peor).
+- qE: Scene fn_800C258C: operador `*` de Vector2_unk (`m04 - mSize * 0.5f`, constante en f1), Mul2 con resultado con nombre, division entre 2, min antes que p: ninguna mejor que la actual.
+- qE: CsvBase_char_124_13_34 fn_802078C4: levels/i declarados arriba en 6 ordenes, count reutilizado como indice: igual o peor.
+- qE: FileList fn_8006AC08/B2D8 (rfind de std/string.h): orden de declaracion de p/sz en rfind sin efecto.
+- qE: atn_colli ColliObject::fn_800588FC (orden de stores de la escala: sx con nombre, Set_unk, tres llamadas en el ctor) y ColliTree::fn_80059264 (orden de incrementos: tris[i] desde node, `tris++` en el for, `*tris++`, unsigned): sin cambio.
+- qE: D2A_Data ~D2A_Data: accesores locales del buffer, `int i`: sin cambio (patron contador/desplazamiento).
+- qE: LH_Handle fn_80473FCC: i y callbacks declarados al principio de la funcion: sin cambio (r24-r31 los ocupan las constantes del camino de bad_function_call).
+- qE: LipSync_unk fn_8007A7BC: cur/m2C f2/f3; probados delta antes de cur (cambia a f3/f4), cur arriba, sin delta, sin cur, step con nombre, cur al final de la suma.
+- qE: Loader fn_8046ECDC: layout del "dotpos" en r29 (r28 en el original, ambos libres); FreezeTask/MeltTask en vf10 sin efecto.
+- qE: PostFxRain vf10: `this`/0xFFFFFF frente a fullW/fullH (bloques de registros cruzados); 0xFFFFFF en un local: igual.
+- qE: PostFxMotionBlur vf10: puntero local a los parametros: peor.
+- qE: NetFriend_unk fn_8050F2F0/F470/F734: desplazamientos en `@stringBase0` (faltan cadenas de funciones sin escribir).
+- qE: ColliCalc_unk fn_8005AADC/AD7C: orden de los `lfs` de radio/z y max.z/end.z; probados orden de parametros, esfera/capsula por puntero, locales hi/lo y max local (todas peor o igual).
+- qE2: EffectRes_unk fn_80238588 (99,73): `zero` (vector muerto) se escalariza; con un puntero local `z = &zero` queda en bloque (99,77) pero no detras de `mtx` compartiendo hueco con el temporal de la conversion como el original; 6 ordenes de declaracion, bloque, array, ctor: igual o peor.
+- qE2: Sort_unk de Loader (99,89): comparador con `const&`, `>` invertido, `*++i`: igual o peor.
+- qE2: PostFxMotionBlur vf10: el tipo real de lbl_8087EFA8 es `RenderSetting_unk` (m240 = `MotionBlurParam_unk`); sin probar con el (la cola E probo el puntero local: peor).
+- qE2: VideoTHP vf10: `GraphicsDevice_unk` real en vez de la vista `RenderState_unk` (regla 10) da el mismo 99,28 %.
+- qE2: FileList fn_8006AC08: rfind de std/string.h con `sz` antes de `p` o `const T&`: igual o peor.
+- qE2: THPPlayer_unk fn_805B6120: `s32 i`, orden de declaraciones: igual o peor. LipSync fn_8007A7BC: inlines min/max: peor.
+- qE2: D2A_Frame-truco (`const float&`) en Light_unk ToU8_unk: sin efecto.
+- qE2: Texture_unk fn_800D5A3C: con el cuerpo de liberacion escrito en fn_800D5B58 (en vez de llamar a fn_800D58A4) sube a 99,83 % (solo queda el orden de carga ancho/alto); 12 variantes de locales w/h (orden de declaracion, declarar y asignar, referencia al gestor, accesores, struct): 99,37-99,58. Sin commit.
+- qE2: CompositeCache_unk fn_800D8458: postfijo, sin `entry`, `end` antes, `!(==)`, `!mRefCount`, lista por referencia: invariante (99,04).
+- qE2: LH_Effect vf0C (99,89): `dir + "/" + name` con el `operator+` de std/string.h quita las 6 diferencias de nombre (`fn_8006D008` es `std::operator+`) pero no cambia el %; queda r19/r20 de path/strlen (11 variantes). Parche: `docs/cierre99-20261115-qE2-lheffect.patch`.
+- qE2: D3Anime vf14 (99,80): frustum declarado antes, llamada directa, IsVisible_unk/CalcMtx_unk de D3AnimeInstance: igual o peor.
+- qE2: TextureCacheManager8x32 ctors: helper inline, while, punteros locales, i arriba: igual (contador/desplazamiento).
+- qE2: PPDATAU fn_8050DC58: `end()` en la condicion, mensaje en local: peor.
+- qE2: DrawHelper fn_800602E8 (99,81): el original copia el 0 de `valid` a `ready` (`mr r21, r22`); 7 variantes de las inlines DrawTexValid/DrawTexReady y del ternario: igual o peor (las inlines las usan 13 funciones).
+- qE2: EffectDesc_unk fn_80236B84 (99,79): el original hace `frsp` al guardar el minimo de profundidad; un min con parametros double da el frsp pero con rama else (99,28); UpdateMin con double, cast, local double: fmr.
+- qE2: Model fn_80089D70 (99,89): AbsRef const&, IsZero_unk, __fabs directo: peor.
+- qE2: LayerOcclusionCPU fn_800B64DC/65B4 (99,6): bias+dato, const, local, fila, puntero, inline: igual.
+- qE2: atn_colli ColliTree::fn_80059264: sin local tris, n += 3 arriba, contador local, while: peor.
+- qE2: TextAnimation fn_800DAB68: ademas del mullw, el destructor debil 0x8000D844 se llama `Event::PathLengths_unk::~PathLengths_unk` en symbols.txt (es `std::vector<float>::~vector`; lo usan 6 unidades).
+- qE2: Light_unk fn_800795DC (96,52): color en local, `mRadius * 2.0f`, `const float&` en ToU8_unk: sin cambio.
+- qF: Un 0 copiado de otro registro (`li rX,0; mr rY,rX`) en vez de `li rY,0` en el original: ParseUtil_unk (4 funciones), ActionActorBehavior fn_8054FBE0. Sin forma conocida que lo reproduzca.
+- qF: Pares texto/layout de los menus MP: SetTaskText_unk solo arregla FriendRoom vf0C; barrido automatico de cuatro envoltorios sin mas 100.
+- qG: Pool `@wstringBase0` de PacketPack en `.sdata` (lbl_8087E1C4, 0x26C, cadenas de la pagina de depuracion).
+- qG: Busqueda inline de jugador que devuelve `mData[i].mRef.mChara` (mensajes 5/7/8/58): el original carga con `lwzx base, offset`; probados puntero/indice, `(unsigned int)i`, inline que devuelve el jugador con ternario, retorno por indice.
+- qG: Pendientes con trabajo previo: `std::vector<PPPlayer_unk>` (fn_804FC8CC/FF3D0/FC9C0/FCA34/FE2DC, desde fn_804D6688), `std::sort` de jugadores (fn_804E0694/09CC/0CE4/2840/291C) y de ranking (fn_804F62D8, fn_804F60E0), fn_804EDB0C (usa el literal y el estatico de la inline `__SetDebugKey_unk` de NetManager), fn_804F2040 (llama a un `vf114` que no esta declarado en CharaTask/BattleCharaTask/EnemyTask), fn_804FAF48 (arbol de codigos de error DWC), la vtable de `MP::Chara<EnemyTask>` (sale con el ctor, inlineado en fn_804DE884).
+- qG2: `""` muerto en `@stringBase0` (PacketPack 0x150 y 0x18D): probados local sin usar, `if (0)`, inline con parametro sin usar, ternario `i ? "" : ""`, objeto local con ctor, `char b[8] = ""`, `strcpy/strcat/sprintf` con `""` (estos lo referencian); solo `strlen("")` plegado lo deja (ver Hallazgos).
+- qG3: `""` muertos de `@stringBase0` de PacketPack (0x150 y 0x18D): ver arriba; siguen bloqueando los offsets de fn_804EDB0C, fn_804DC450, fn_804DC684, fn_804DBE24, fn_804F2258, fn_804F2040 y fn_804EE040.
+- qG3: Las inlines debiles que solo usa vf10 fuera de linea (fn_804D5F0C, GetProtector, fn_804D648C, SetClearColor) y las de `std::vector<PPPlayer_unk>` de fn_804D6688 (fn_804FC8CC/FC9C0/FF3D0) no se emiten hasta escribir sus llamadores.
+- qH: `fn_805AC758` (TacView, 99,39) y `fn_805A96D4` (98,3): ~100 y ~190 instrucciones distintas, no abordadas.
+- qI: `Loader::Get_unk<T>` (cierre99 qI): ~110 variantes mas sobre el parche de qC, siempre 4 instrucciones (fin de lista r7/`m48` r0); ver NONMATCHING arriba antes de repetir.
+- qI: `ControlKnockdown::vf0C`/`ControlDamageLastOne::vf0C` (cierre99 qI): el bool del helper inline toma un registro guardado mas alto que en el original en las dos; ~25 formas del helper y del llamador sin cambio.
+- qI: `RecycleBuffer::Alloc_unk` (cierre99 qI): con `b` local y cast quedan i/indice/byte rotados (r10/r4/r8 frente a r8/r10/r4).
+- qJ: `__sinit` de las tablas `ParamDef_unk` (Label, Channel, Cut, Sequence): el `lwz r31` del epilogo sube por encima del ultimo store; no se reproduce con ninguna forma ni version de MWCC probada (~26 formas en total) (`cierre99-20261115` qJ).
+- qJ: `push_back` de `vector<boost::shared_ptr<...>>` (Section/Cut/Channel/Sequence): con el parche qJ queda la coloracion de los bucles de destruccion del buffer (la misma que `Channel::~Channel`), el `delete` por `this` y el `return`; y falta un despacho que solo afecte a `shared_ptr` (`cierre99-20261115` qJ).
+- qJ: Bucle muerto del destructor de `__vec_split_gbase_unk`: `~__vec_split_unk<Actor>` (0x80544840) quiere `n` antes que `p`; EventParser_unk y `push_back<BigMulueCapsule_unk>` lo quieren al reves (`cierre99-20261115`).
+- qK: `lis r0,0x4330` + `stw` de la palabra alta adelantados al prologo (HBMRsoDraw): no se reproduce en ningun caso simple del banco (if/else, ramas, bucle, inlines, asm de copia). Funciones al 100 % con el patron: gmk/WaitObject vf10 (conversion repetida por `Min_unk(Max_unk(...))`), gmk/Banana vf40 (bucle con `rand`).
+- qL: `LightList_unk::fn_8007A154` 99,63 % con inline de erase: registros del recuento `end - pos - 1`; parche en docs.
+- qL: `PlayerManager::fn_80549F14` 99,66 %: id/head comparten r30 en el original; con la inline de creacion se cruzan player/head.
+- qM: Precommit: `ordercheck:game/GameEventScript` (`__dt__15GameEventScriptFv` fuera de orden) ya falla sin estos cambios (comprobado compilando el arbol sin ellos); no es de esta cola.
+- qM: atn/Model `ModelBase::fn_80091A90` (99,61): el original adelanta el `psq_st f6, 0x88` de la copia a `m60` antes de las cargas siguientes. Sin cambio (99,61) con `__MtxCopy(m60.m, m)`, puntero local `Mtx* dst`, inline `MtxAssign_unk`, `Matrix3x4(m)` (91,9), y reordenando o declarando antes `data`/`skin`/contador (10 variantes).

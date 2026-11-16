@@ -219,7 +219,21 @@ public:
         }
         return do_replace(sz, 0, p, p + n, random_access_iterator_tag());
     }
-    basic_string& operator+=(const basic_string& str) { return append(str); }
+    // inferred: the body of append itself, not a call to it: the two random_access_iterator_tag temporaries of
+    // do_replace take their stack slots in the order of one inline level less (atn/FileList fn_8006AD24)
+    basic_string& operator+=(const basic_string& str) {
+        size_type sz = size();
+        const T* p;
+        size_type n;
+        if (!str.is_long()) {
+            p = (const T*)&str + 1;
+            n = str.mShort.mSize & 0x7F;
+        } else {
+            p = str.mLong.mData;
+            n = str.mLong.mSize;
+        }
+        return do_replace(sz, 0, p, p + n, random_access_iterator_tag());
+    }
     // RSO: the concatenations are namespace templates (__pl<c,...>__3std...), friends here
     template <class T2, class Tr2, class A2>
     friend basic_string<T2, Tr2, A2> operator+(const basic_string<T2, Tr2, A2>& lhs, const T2* rhs);
@@ -335,6 +349,9 @@ public:
         }
         return npos;
     }
+    // inferred: defined in std/string_find_last_of.h (its named parameters would renumber the @N of every file
+    // that includes this header)
+    size_type find_last_of(T, size_type = npos) const;
 
 private:
     static void __assign(T& c1, const T& c2) { c1 = c2; }

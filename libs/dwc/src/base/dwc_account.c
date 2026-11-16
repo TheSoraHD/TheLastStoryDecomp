@@ -449,29 +449,43 @@ BOOL DWC_IsEqualFriendData(const DWCFriendData* a, const DWCFriendData* b) {
     return FALSE;
 }
 
-// NONMATCHING: ~85% - the target compares the cases in order 2,3,1 and lays out the bodies 3,2,1,
-// and its inlined user name buffers are swapped; making the user name call one inline level
-// shallower fixes the buffers but then this function gets inlined into DWC_ReportUserData
+// inferred: inline flag test (name invented); the original materializes the result as TRUE/FALSE
+// before testing it, in the style of fn_806CF0E0
+static inline BOOL DWCi_Acc_IsBuddy_unk(u32 flags) {
+    if ((flags & DWC_FRIENDDATA_BUDDY) == DWC_FRIENDDATA_BUDDY &&
+        (flags & DWC_FRIENDDATA_FLAG_8) == DWC_FRIENDDATA_FLAG_8) {
+        return TRUE;
+    } else {
+        return FALSE;
+    }
+}
+
+// NONMATCHING: 99.92% - the target compares the cases in order 2,3,1 but lays out the bodies 3,2,1;
+// MWCC (every Wii/GC version) compares in source order and lays the bodies out in source order. A
+// "case FRIEND_KEY: goto" first gives 100% (docs/cierre99-20261115-qF-dwcaccount.patch), not applied.
+// The empty statement (release assert) keeps this function out of DWC_ReportUserData.
 void DWC_ReportFriendData(const DWCUserData* userdata, const DWCFriendData* frienddata) {
     char username[DWC_ACC_USERNAME_STRING_BUFSIZE];
     char friendKey[13];
     u32 flags = DWCi_Acc_GetFlags(&frienddata->flags);
+    ((void)0);
     switch (flags & DWC_FRIENDDATA_TYPE_MASK) {
+    case DWC_FRIENDDATA_FRIEND_KEY:
+        goto friend_key;
     case DWC_FRIENDDATA_GS_PROFILE_ID:
-        if ((flags & DWC_FRIENDDATA_BUDDY) == DWC_FRIENDDATA_BUDDY &&
-            (flags & DWC_FRIENDDATA_FLAG_8) == DWC_FRIENDDATA_FLAG_8) {
+        if (DWCi_Acc_IsBuddy_unk(flags)) {
             DWC_Printf(DWC_REPORTFLAG_DEBUG, " GS_ID : %d (ok)\n", frienddata->gs_profile_id.id);
         } else {
             DWC_Printf(DWC_REPORTFLAG_DEBUG, " GS_ID : %d\n", frienddata->gs_profile_id.id);
         }
         break;
-    case DWC_FRIENDDATA_FRIEND_KEY:
+    friend_key:
         DWCi_Acc_FriendKeyToString(friendKey, ((u64)frienddata->friend_key.friendkey_hi32 << 32) |
                                                   frienddata->friend_key.friendkey_lo32);
         DWC_Printf(DWC_REPORTFLAG_DEBUG, " F_KEY : %s\n", friendKey);
         break;
     case DWC_FRIENDDATA_LOGIN_ID:
-        DWC_LoginIdToUserName(userdata, &frienddata->login_id, username);
+        DWCi_Acc_LoginIdToUserName(&frienddata->login_id, userdata->gamecode, username);
         DWC_Printf(DWC_REPORTFLAG_DEBUG, " LN_ID : %s\n", username);
         break;
     default:

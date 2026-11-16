@@ -8,7 +8,7 @@
 #include "atn/LH_Xsca.h"
 
 #include "atn/Array_unk.h"
-#include "atn/LH_Motion.h"
+#include "atn/MotionSlot_unk.h"
 
 namespace atn {
 class D3Anime;
@@ -130,7 +130,7 @@ struct NewCampPartsMotion_unk {
         memset(mWork, 0, sizeof(mWork));
         mHash = 0;
     }
-    atn::LH_Motion mMotion; // 0x00
+    atn::MotionSlot_unk mSlot; // 0x00
     unsigned int mHash;     // 0x0C: inferred: node name hash
     MotionPose_unk mPose;   // 0x10
     char mWork[0x12];       // 0x3C

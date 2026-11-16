@@ -236,7 +236,9 @@ CharaTask* Augur::fn_8041F434(CharaTask* last) {
         if (npc->m55C != 2) {
             continue;
         }
-        if (!npc->IsActive_unk()) {
+        // inferred: the mask test written out (CharaTask::IsActive_unk goes through IsFlag_unk and reloads mFlags)
+        bool active = (npc->mFlags & 4) != 4 && (npc->mFlags & 1) != 1;
+        if (!active) {
             continue;
         }
         if ((npc->mFlags & 0xDEAD0000) == 0xDEAD0000) {
