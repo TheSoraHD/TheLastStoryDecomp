@@ -403,7 +403,9 @@ void D2AMpMenuSetMessage::vf10() {
             if (mE4 < 20 && m110[mE4] != 0) {
                 fn_804C8D80(6);
                 const wchar_t* text = GetListName_unk(m168);
-                SetPaneText_unk(m6C[1]->mLayout, "string0029(1)", text);
+                const char* name = "string0029(1)";
+                void* layout = m6C[1]->mLayout;
+                fn_801FEE08(layout, fn_800DC6B4(name), text);
             }
         } else if (ret == 2) {
             fn_804C8D80(4);

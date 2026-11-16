@@ -1717,9 +1717,7 @@ void D2AMpMenuLobby::fn_804C28A0(int count) {
 }
 
 // inferred: selects the map drawing of the entry `id` (tables per game mode) and, once the play time is known,
-// colors the logo and moves Ruri for the players under 407000 (0x635D8) frames
-// NONMATCHING: 96.5% - the tables are one .rodata object with the int-to-float constant in the original; order
-// of two instructions after fn_804E4A20
+// colors the logo for the players under 407000 (0x635D8) frames and moves Ruri for the others
 void D2AMpMenuLobby::fn_804C2994(int id) {
     int versus[9] = {0, 0, 1, 0, 0, 0, 2, 0, 0};
     int raid[5] = {0, 0, 0, 0, 1};
@@ -1735,9 +1733,9 @@ void D2AMpMenuLobby::fn_804C2994(int id) {
     if (lbl_8087F610->m514 != 0) {
         int time = fn_804E4A20();
         int full = 0xFF;
-        SetPaneValue2_unk(m70->mLayout, "col0002(1)", 0, (float)(time <= 407000 ? 0 : full));
-        SetPaneValue2_unk(m70->mLayout, "col0009(1)", 0, (float)(time <= 407000 ? 0 : full));
-        SetPaneFloat_unk(m70->mLayout, "ruriXposCorrection", (float)(time <= 407000 ? -100 : 0));
+        SetPaneValue2_unk(m70->mLayout, "col0002(1)", 0, (float)(time >= 407000 ? 0 : full));
+        SetPaneValue2_unk(m70->mLayout, "col0009(1)", 0, (float)(time >= 407000 ? 0 : full));
+        SetPaneFloat_unk(m70->mLayout, "ruriXposCorrection", (float)(time >= 407000 ? -100 : 0));
     }
 }
 
