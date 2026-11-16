@@ -8,6 +8,11 @@
 #include "game/PlayerTask.h"
 #include "game/GameTask.h"
 
+// inferred: accessor of the control data (weak copy 0x800F530C, as in game/Em310Gargoyle.cpp)
+extern "C" inline CharaC58_unk* fn_800F530C(CharaTask* chara) {
+    return &chara->mC58;
+}
+
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
 // inferred: character of the entry `i` of mCharas (inline; name invented)
 inline CharaTask* GetBattleChara_unk(BattleChara_unk* charas, int i) {
@@ -140,7 +145,7 @@ void PickTask::vf10() {
     int numSeers = 0;
     for (int i = 0; i < n; i++) {
         CharaTask* a = GetBattleChara_unk(lbl_8087F048->mCharas, i);
-        if (a != 0 && a->mType == 2 && a->CanAct_unk() && (a->m54C & 0x2000) != 0x2000 && a->mC58.mC0 > 0 &&
+        if (a != 0 && a->mType == 2 && a->CanAct_unk() && (a->m54C & 0x2000) != 0x2000 && fn_800F530C(a)->mC0 > 0 &&
             a->mC58.m11C.fn_8011D1FC()) {
             float warn = a->mC58.m11C.m18;
             float sight = a->mC58.m11C.m1C;
