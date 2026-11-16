@@ -1,4 +1,5 @@
 #include "gmk/FragileObject.h"
+#include "math/VecAssign_unk.h"
 #include "game/BattleTask.h"
 #include "game/GameTask.h"
 #include "atn/Csv.h"
@@ -20,7 +21,6 @@ extern "C" char lbl_8087D710[2]; // inferred: " " (field separators of the tab C
 extern "C" float fn_800DC288(const char* s); // inferred: string to float
 extern "C" int fn_802180A8(const char* s); // inferred: motion id from its name
 extern "C" int fn_80208748(const char* name); // inferred: character type from its id string
-extern "C" void fn_80092A00(atn::Model* model, float blend); // inferred: light map blend
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 
 // inferred: effect manager (class unknown), global instance at 0x8087F3C0
@@ -163,18 +163,15 @@ inline void FragileObject::UpdateColli_unk() {
     atn::Matrix3x4 mtx(*(atn::Matrix3x4*)mModelBefore.mMtx.m);
     mColliBefore.SetMtx_unk(mtx);
     mColliAfter.SetMtx_unk(mtx);
+    atn::ColliSphere::Sphere_unk sphere;
     atn::Matrix3x4 rot;
     atn::Vector3 base = mtx.GetTrans_unk();
     rot.fn_8013A13C(m78.y);
-    atn::Vector3 offset(mTarget.mOffset);
-    PSMTXMultVec(rot.m, &offset, &offset);
-    mSphere.mSphere = atn::ColliSphere::Sphere_unk(base + offset, mTarget.mSize);
+    atn::VecAssign_unk(sphere.mCenter, base + atn::Transform_unk(rot, mTarget.mOffset));
+    sphere.mRadius = mTarget.mSize;
+    mSphere.mSphere = sphere;
 }
 
-// NONMATCHING: 97.9% - stack slots of the target sphere: the original keeps the Sphere temporary
-// lowest, then the translation, the sum and the offset (as gmk::MotionObject::fn_804137F4, 97%).
-// Tried: helper returning the position, named sphere, rotation helper returning by value, the
-// placement written in Start, base/rot declaration order
 void FragileObject::Start() {
     vf2C();
     UpdateColli_unk();
@@ -189,9 +186,23 @@ void FragileObject::Start() {
     vf40(&msg);
 }
 
-// NONMATCHING: 99.1% - the target sphere stack slots (see Start) and the counter/offset registers of
-// the loops swapped (r30/r29 in the original). Tried: int/unsigned indices, size(), mData[i], loops in
-// inline helpers. The flag accessor and the position from GetTrans_unk fixed the rest
+// inferred: loops over the parts in inlines (registers of the counter and the offset); names invented
+inline void UpdateGlows_unk(atn::SimpleArray<FragileGlow_unk>& glows, atn::Model* model) {
+    for (unsigned int i = 0; i < glows.size(); i++) {
+        glows[i].fn_803F42C8(model);
+    }
+}
+inline void UpdateFades_unk(atn::SimpleArray<GimmickMaterialFade_unk>& fades, atn::Model* model) {
+    for (unsigned int i = 0; i < fades.size(); i++) {
+        fades[i].fn_803EBE74(model);
+    }
+}
+inline void UpdateSwitches_unk(atn::SimpleArray<GimmickMotionSwitch_unk>& switches, atn::Model* model) {
+    for (unsigned int i = 0; i < switches.size(); i++) {
+        switches[i].fn_803EC0F8(model);
+    }
+}
+
 inline bool IsColliOn_unk(const atn::ColliBase& c) {
     return (c.mFlags & 1) == 1;
 }
@@ -226,7 +237,7 @@ void FragileObject::vf10() {
             changed = 1;
         }
         if (changed != 0) {
-            fn_80092A00(mBlendAfter.mModel, 1.0f - (float)mBlendAfter.mFrame / (float)mBlendAfter.mFrames);
+            mBlendAfter.mModel->fn_80092A00(1.0f - (float)mBlendAfter.mFrame / (float)mBlendAfter.mFrames);
         }
     }
     if (mBlendBefore.mModel != 0) {
@@ -241,23 +252,19 @@ void FragileObject::vf10() {
             changed = 1;
         }
         if (changed != 0) {
-            fn_80092A00(mBlendBefore.mModel, 1.0f - (float)mBlendBefore.mFrame / (float)mBlendBefore.mFrames);
+            mBlendBefore.mModel->fn_80092A00(1.0f - (float)mBlendBefore.mFrame / (float)mBlendBefore.mFrames);
         }
     }
     if (m54 == 1 || m54 == 8) {
         if (mModelBefore.fn_80097D40(2) != 0 && vf38() != 0) {
             fn_803ED5D0(vf38());
         }
-        for (unsigned int i = 0; i < mGlows.size(); i++) {
-            mGlows[i].fn_803F42C8(&mModelBefore);
-        }
+        UpdateGlows_unk(mGlows, &mModelBefore);
     } else if (m54 == 3) {
         if (mModelBefore.fn_80097D40(1) != 0 && vf38() != 0) {
             fn_803ED5D0(vf38());
         }
-        for (unsigned int i = 0; i < mGlows.size(); i++) {
-            mGlows[i].fn_803F42C8(&mModelBefore);
-        }
+        UpdateGlows_unk(mGlows, &mModelBefore);
         if ((mCrushFlags & 1) != 1 && ++mCrushFrame >= mCrushFrames) {
             GimmickMsg_unk msg(4);
             vf40(&msg);
@@ -297,23 +304,15 @@ void FragileObject::vf10() {
         if (vf38() != 0) {
             fn_803ED5D0(vf38());
         }
-        for (unsigned int i = 0; i < mFades.size(); i++) {
-            mFades[i].fn_803EBE74(&mModelAfter);
-        }
-        for (unsigned int i = 0; i < mSwitches.size(); i++) {
-            mSwitches[i].fn_803EC0F8(&mModelAfter);
-        }
+        UpdateFades_unk(mFades, &mModelAfter);
+        UpdateSwitches_unk(mSwitches, &mModelAfter);
     } else if (m54 == 6) {
-        for (unsigned int i = 0; i < mFades.size(); i++) {
-            mFades[i].fn_803EBE74(&mModelAfter);
-        }
-        for (unsigned int i = 0; i < mSwitches.size(); i++) {
-            mSwitches[i].fn_803EC0F8(&mModelAfter);
-        }
+        UpdateFades_unk(mFades, &mModelAfter);
+        UpdateSwitches_unk(mSwitches, &mModelAfter);
         if ((mCrushFlags & 2) == 2) {
             if (mDrawOffWait > 0.0f) {
                 mDrawOffWait -= 1.0f;
-            } else if (!mModelAfter.mFlag2_unk && m9C != 0) {
+            } else if (!mModelAfter.mFlag6_unk && m9C != 0) {
                 m9C = 0;
             }
         }
@@ -701,8 +700,14 @@ void FragileObject::vf70(int state) {
     }
 }
 
-// NONMATCHING: 99.85% - stack slots of the distance vectors and the colour, and f1/f3 after sqrt.
-// Tried: translation temporary, named position, sqrt in a local, colour declared first
+// inferred: float sqrt and radius read through inlines (registers after sqrt); names invented
+inline float GlowRadius_unk(CharaTask* c) {
+    return c->m5B0;
+}
+inline float GlowSqrt_unk(float x) {
+    return sqrt(x);
+}
+
 void FragileGlow_unk::fn_803F42C8(atn::Model* model) {
     CharaTask* nearest = 0;
     float best = 1e16f;
@@ -710,8 +715,7 @@ void FragileGlow_unk::fn_803F42C8(atn::Model* model) {
         for (CharaTask* chara = lbl_8087F8A0->mHead; chara != 0; chara = ((FragileCharaNode_unk*)chara)->mNext) {
             if ((!chara->IsFlag_unk(4) || chara->m55C == 8) && mType == chara->fn_80179AB4() &&
                 mId == chara->fn_80179A34() / 10000) {
-                atn::Vector3 d = ((atn::Matrix3x4*)model->mMtx.m)->GetTrans_unk() - chara->mPos;
-                float dist = PSVECSquareMag(&d);
+                float dist = PSVECSquareMag(&(((atn::Matrix3x4*)model->mMtx.m)->GetTrans_unk() - chara->mPos));
                 if (dist < best) {
                     best = dist;
                     nearest = chara;
@@ -724,8 +728,7 @@ void FragileGlow_unk::fn_803F42C8(atn::Model* model) {
              chara = ((FragileCharaNode_unk*)chara)->mNext) {
             if ((!chara->IsFlag_unk(4) || chara->m55C == 8) && mType == chara->fn_80179AB4() &&
                 mId == chara->fn_80179A34() / 10000) {
-                atn::Vector3 d = ((atn::Matrix3x4*)model->mMtx.m)->GetTrans_unk() - chara->mPos;
-                float dist = PSVECSquareMag(&d);
+                float dist = PSVECSquareMag(&(((atn::Matrix3x4*)model->mMtx.m)->GetTrans_unk() - chara->mPos));
                 if (dist < best) {
                     best = dist;
                     nearest = chara;
@@ -735,7 +738,7 @@ void FragileGlow_unk::fn_803F42C8(atn::Model* model) {
     }
     float t = 0.0f;
     if (nearest != 0) {
-        float dist = (float)sqrt(best) - nearest->m5B0;
+        float dist = GlowSqrt_unk(best) - GlowRadius_unk(nearest);
         if (mRange > 0.0f) {
             t = __MIN_unk(__MAX_unk(1.0f - dist / mRange, 0.0f), 1.0f);
         }

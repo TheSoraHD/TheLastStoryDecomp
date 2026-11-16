@@ -6,6 +6,7 @@
 #include "gmk/SeTable.h"
 #include "std/vector.h"
 #include "atn/ResRef_unk.h"
+#include "atn/Model_unk.h"
 
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" char lbl_8087D710[2]; // inferred: " " (field separators of the tab CSV)
@@ -116,9 +117,6 @@ void LH_MotionSet::vf0C(const char* path) {
 }
 } // namespace atn
 
-// inferred: sets a motion of `model` (atn::Model; id and LH_Motion of the set entry)
-extern "C" void fn_80097A9C(void* model, int id, atn::LH_Motion* motion);
-
 // inferred: as LH_MotionSet::vf0C but always loads a new copy (not shared) and marks it
 extern "C" void fn_80477694(atn::LH_MotionSet* set, const char* path) {
     set->fn_80473F88();
@@ -127,14 +125,18 @@ extern "C" void fn_80477694(atn::LH_MotionSet* set, const char* path) {
     ((atn::LoadMotionSet*)set->mCore)->m70 = 1;
 }
 
+// inferred: loop over the entries in an inline (gives the counter/offset registers of the original);
+// name invented
+inline void ApplyMotions_unk(atn::LoadMotionSet* core, atn::Model* model) {
+    for (unsigned int i = 0; i < core->mEntries.size(); i++) {
+        model->fn_80097A9C(core->mEntries[i].mId, &core->mEntries[i].mSlot.mMotion);
+    }
+}
+
 // inferred: gives every motion of the set to `model`
-// NONMATCHING: ~98% - the loop counter and the entry offset swap r30/r31 (7 variants tried)
-extern "C" void fn_804776F4(atn::LH_MotionSet* set, void* model) {
-    unsigned int i;
+extern "C" void fn_804776F4(atn::LH_MotionSet* set, atn::Model* model) {
     atn::LoadMotionSet* core = (atn::LoadMotionSet*)set->mCore;
     if (core != 0) {
-        for (i = 0; i < core->mEntries.mSize; i++) {
-            fn_80097A9C(model, core->mEntries.mData[i].mId, &core->mEntries.mData[i].mSlot.mMotion);
-        }
+        ApplyMotions_unk(core, model);
     }
 }

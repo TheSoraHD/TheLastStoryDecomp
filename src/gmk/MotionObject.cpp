@@ -6,6 +6,7 @@
 #include "game/CharaTask.h"
 #include "game/PlayerTask.h"
 #include "atn/ColliBase.h"
+#include "math/VecAssign_unk.h"
 
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" char* strcpy(char* dst, const char* src);
@@ -249,7 +250,6 @@ atn::Model* MotionObject::vf38() {
     return 0;
 }
 
-// NONMATCHING: 97.0% - stack layout of the target sphere temporaries (tried RotY_unk/by-value helpers)
 void MotionObject::fn_804137F4() {
     atn::Model* model = vf38();
     MotionColli_unk* colli = &mColli[m54];
@@ -265,9 +265,10 @@ void MotionObject::fn_804137F4() {
         atn::Vector3 base = model != 0 ? ((atn::Matrix3x4*)model->mMtx.m)->GetTrans_unk() : lbl_807C7060.GetTrans_unk();
         atn::Matrix3x4 mtx;
         mtx.fn_8013A13C(m78.y);
-        atn::Vector3 offset(target->mOffset);
-        PSMTXMultVec(mtx.m, &offset, &offset);
-        target->mSphere.mSphere = atn::ColliSphere::Sphere_unk(base + offset, target->mRadius);
+        atn::ColliSphere::Sphere_unk sphere;
+        atn::VecAssign_unk(sphere.mCenter, base + atn::Transform_unk(mtx, target->mOffset));
+        sphere.mRadius = target->mRadius;
+        target->mSphere.mSphere = sphere;
     }
 }
 
