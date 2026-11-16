@@ -962,9 +962,9 @@ extern "C" const char* const lbl_80887598;
 extern "C" const char* const lbl_8088759C;
 extern "C" const char* const lbl_808875A0;
 extern "C" void fn_804F5A94(PPManager2_unk* mgr);
-extern "C" int fn_804DC684();
+extern "C" int fn_804DC684(PPManager2_unk* mgr);
 extern "C" void fn_804FB470(PPManager2_unk* mgr, int code, int arg);
-extern "C" void fn_804DC450(PPManager2_unk* mgr, int mode);
+extern "C" int fn_804DC450(PPManager2_unk* mgr, int mode);
 extern "C" void fn_804FAD48(PPManager2_unk* mgr, int value);
 extern "C" void fn_804DF11C(PPManager2_unk* mgr, int on);
 extern "C" void fn_804FB674(PPManager2_unk* mgr);
@@ -1547,7 +1547,7 @@ void MP::Manager2::vf10() {
     fn_804D1694()->fn_805092FC();
     fn_804D6680()->fn_8050C2F4();
     if (fn_804D5F7C(fn_804D1694()) == 1) {
-        if (mgr->m9978 == 0 && fn_804DC684() == 1) {
+        if (mgr->m9978 == 0 && fn_804DC684(fn_800F7F90()) == 1) {
             mgr->m9978 = 1;
         }
         fn_804D1694();
@@ -3119,6 +3119,84 @@ extern "C" int fn_804DC374(PPManager2_unk* mgr, int mode) {
     return 1;
 }
 
+extern "C" int fn_8050F5A8(MpFriendList_unk*, int);  // inferred: first friend (-1: none)
+extern "C" int fn_8050F664(MpFriendList_unk*, int);  // inferred: next friend (-1: none)
+extern "C" unsigned long long fn_8050F764(MpFriendList_unk*, int); // inferred: friend code
+extern "C" const wchar_t* fn_8050F724(MpFriendList_unk*, int);     // inferred: name
+extern "C" void fn_8050F734(MpFriendList_unk*, int, const wchar_t*); // inferred: sets the name
+extern "C" std::basic_string<wchar_t> fn_8050F470(unsigned long long); // inferred: code as text
+extern "C" void fn_8050EAE8(MpFriendList_unk*);
+extern "C" void fn_8006F420(void*, char*, const wchar_t*, int); // inferred: wide to multibyte
+extern "C" void fn_8006F2F0(void*, wchar_t*, const char*, int); // inferred: to wide text
+extern "C" int wcscmp(const wchar_t*, const wchar_t*);
+// inferred: number of hosts of the session (same body as the weak copy fn_804D6300, inlined here)
+static inline int GetNumHosts_unk(atn::net::Manager* net) {
+    if (net->mC215 == 0) {
+        return net->mFlags.mB12 ? 1 : DWC_GetNumConnectionHost();
+    } else {
+        return net->mFlags.mB12 ? 1 : fn_806A8E70();
+    }
+}
+
+extern "C" char* fn_800DC97C(int value, char* buf, int radix); // inferred: itoa (atn/Util_unk.cpp)
+extern "C" std::basic_string<wchar_t> fn_8050F464(MpFriendList_unk*); // inferred: own friend code as text
+extern "C" int DWC_SetOwnStatusString(const char* status);
+// NONMATCHING: offsets of the strings in @stringBase0 (strings of functions not written before them)
+// inferred: writes the own status string: room status `status`, game mode, name, number of hosts, 6 and friend code
+extern "C" int fn_804DC450(PPManager2_unk* mgr, int status) {
+    if (mgr->mState == -1) {
+        return 0;
+    }
+    const char* room;
+    if (status < 0 || status >= 6U) {
+        room = 0;
+    } else {
+        room = lbl_80791190[status];
+    }
+    const char* own;
+    int mode = mgr->mMode;
+    if ((unsigned int)mode > 2) {
+        own = 0;
+    } else {
+        if (lbl_8087F628->m25C != 1) {
+            mode = -1;
+        }
+        own = GetModeField_unk(mode);
+    }
+    char text[0x100];
+    char name[0x18];
+    char code[0x20];
+    char hosts[8];
+    char six[8];
+    MpFriendList_unk* list = &lbl_8087F628->mFriendList;
+    fn_8006F420(lbl_8087EEC8, name, list->mName, 0x11);
+    fn_800DC97C(GetNumHosts_unk(lbl_8087F628), hosts, 10);
+    fn_800DC97C(6, six, 10);
+    fn_8006F420(lbl_8087EEC8, code, fn_8050F464(list).c_str(), fn_8050F464(list).size() * 2);
+    sprintf(text, "%s,%s,%s,%s,%s,%s", room ? room : "", own ? own : "", name, hosts, six, code);
+    return DWC_SetOwnStatusString(text);
+}
+
+// NONMATCHING: offsets of the strings in @stringBase0 (strings of functions not written before them)
+// inferred: writes the own status string: room status 0, mode "9", name (none in state 0x8B) and friend code
+extern "C" __declspec(noinline) int fn_804DC684(PPManager2_unk* mgr) {
+    if (mgr->mState == -1) {
+        return 0;
+    }
+    char status[0x100];
+    char name[0x18];
+    char code[0x20];
+    MpFriendList_unk* list = &lbl_8087F628->mFriendList;
+    if (mgr->m9750 != 0x8B) {
+        fn_8006F420(lbl_8087EEC8, name, list->mName, 0x11);
+    } else {
+        name[0] = 0;
+    }
+    fn_8006F420(lbl_8087EEC8, code, fn_8050F464(list).c_str(), fn_8050F464(list).size() * 2);
+    sprintf(status, "%s,%s,%s,%s,%s,%s", lbl_80791190[0], "9", name, "", "", code);
+    return DWC_SetOwnStatusString(status) != 0;
+}
+
 extern "C" int atoi(const char* s);
 // inferred: fourth and fifth fields of a status string as numbers
 extern "C" int fn_804DC7C0(PPManager2_unk* mgr, int id) {
@@ -3139,16 +3217,6 @@ extern "C" int fn_804DC80C(PPManager2_unk* mgr, int id) {
     return atoi(fields[4]);
 }
 
-extern "C" int fn_8050F5A8(MpFriendList_unk*, int);  // inferred: first friend (-1: none)
-extern "C" int fn_8050F664(MpFriendList_unk*, int);  // inferred: next friend (-1: none)
-extern "C" unsigned long long fn_8050F764(MpFriendList_unk*, int); // inferred: friend code
-extern "C" const wchar_t* fn_8050F724(MpFriendList_unk*, int);     // inferred: name
-extern "C" void fn_8050F734(MpFriendList_unk*, int, const wchar_t*); // inferred: sets the name
-extern "C" std::basic_string<wchar_t> fn_8050F470(unsigned long long); // inferred: code as text
-extern "C" void fn_8050EAE8(MpFriendList_unk*);
-extern "C" void fn_8006F420(void*, char*, const wchar_t*, int); // inferred: wide to multibyte
-extern "C" void fn_8006F2F0(void*, wchar_t*, const char*, int); // inferred: to wide text
-extern "C" int wcscmp(const wchar_t*, const wchar_t*);
 
 // inferred: the status message of the friend `id` carries its own friend code (field 5)
 static inline bool IsOwnStatus_unk(PPManager2_unk* mgr, int id) {
@@ -4434,6 +4502,7 @@ extern "C" int fn_804EE040(unsigned int aid, void* data, unsigned int size) {
     return 0;
 }
 
+
 // inferred: empty traces of the receive loop, called on the packer (their arguments are still evaluated);
 // fn_804EE4E4 gives the data back unchanged
 extern "C" void fn_804EE4E0(atn::net::PacketPack* pack, unsigned int aid, unsigned short size) {}
@@ -4445,6 +4514,75 @@ extern "C" const void* fn_804EE4E4(const void* data) {
 extern "C" void fn_804EE4E8(atn::net::PacketPack* pack, unsigned int aid, unsigned short size) {}
 
 extern "C" void fn_804EE4EC(atn::net::PacketPack* pack, const void* data, unsigned short size) {}
+
+// inferred: listeners of the character events (inline in the original, as in game/BattleCharaTask.cpp)
+inline CharaListeners_unk* fn_8014F8F4() {
+    static CharaListeners_unk sListeners;
+    return &sListeners;
+}
+
+// inferred: calls the listeners of `id` (as in game/BattleCharaTask.cpp; name invented)
+inline void NotifyListeners_unk(CharaListeners_unk* listeners, int id, void* chara, void* arg) {
+    if (listeners->mEnabled != 0) {
+        for (int i = 0; i < (int)listeners->mList.size(); i++) {
+            CharaListener_unk& listener = listeners->mList[i];
+            if (listener.mId == -1 || id == listener.mId) {
+                listener.mFunc(id, (CharaTask*)chara, arg);
+            }
+        }
+    }
+}
+
+#include "game/BattleTask.h"
+extern "C" BattleTask* lbl_8087F048; // inferred: battle manager (as game/BattleCharaTask.cpp)
+
+// inferred: data of messages 8 and 64 (a hit dealt by another player); names invented
+struct PPMsgHit_unk {
+    int mHitId;              // 0x00: inferred: id of the hit data (fn_80219E6C)
+    atn::Vector3 m04;
+    atn::Vector3 m10;
+    unsigned short mFlag : 1; // 0x1C
+    unsigned short m1C_0 : 7;
+    unsigned char mKind;     // 0x1D: inferred: attacker: 1 none, 2 player (aid mIndex), 3 character of the list
+    unsigned char mIndex;    // 0x1E
+};
+
+// inferred: attacker of a hit or shot message (name invented)
+template <class T>
+static inline CharaTask* GetHitAttacker_unk(PPManager2_unk* mgr, const T* data) {
+    switch (data->mKind) {
+    case 1:
+        return 0;
+    case 2:
+        for (int i = 0; i < mgr->mPlayers.mNum; i++) {
+            PPPlayer_unk* player = &mgr->mPlayers.mData[i];
+            if (player->mFlags.mActive == 1 && data->mIndex == player->mAid) {
+                return player->mRef.mChara;
+            }
+        }
+        return 0;
+    case 3:
+        if ((unsigned int)mgr->mCharas.mNum > data->mIndex) {
+            return mgr->mCharas.mData[data->mIndex].mRef.mChara;
+        }
+        return 0;
+    }
+    return 0;
+}
+
+#include "game/Bullet.h"
+extern "C" int fn_800EFD04(int id); // inferred: effect resources of a bullet (as gmk/BulletPoint.cpp)
+// inferred: data of message 5 (a bullet shot by another player); names invented
+struct PPMsgShot_unk {
+    int mHitId;           // 0x00
+    atn::Vector3 m04;     // inferred: position
+    atn::Vector3 m10;     // inferred: direction
+    unsigned char m1C[0x20 - 0x1C];
+    unsigned int mFlags;  // 0x20
+    unsigned char mKind;  // 0x24: inferred: shooter (as PPMsgHit_unk)
+    unsigned char mIndex; // 0x25
+};
+
 
 extern "C" unsigned int fn_804EE4F0(PPPlayer_unk* player, const void* data); // inferred: applies a character state
 
@@ -4496,6 +4634,57 @@ extern "C" void fn_804EE9F0(PPPlayer_unk* player) {
             player->mE4 = data->m07;
             player->mFlags.m13 = data->m13;
             player->mFlags.m12 = data->m12;
+        }
+    }
+}
+
+// NONMATCHING: registers of the inlined player search (offset/base, as fn_804DD158 elsewhere)
+// inferred: message 5: a bullet shot by another player (only in the game, state 30); the listeners of the
+// characters are off during the shot
+extern "C" void fn_804EEB34() {
+    if (((PPManager2_unk*)lbl_8087F610)->mState == 30) {
+        PPMsgShot_unk* data = (PPMsgShot_unk*)fn_804AE3BC()->GetWorkBuffer_unk();
+        PPManager2_unk* mgr = (PPManager2_unk*)lbl_8087F610;
+        CharaTask* owner = GetHitAttacker_unk(mgr, data);
+        if (owner != 0) {
+            HitInfo_unk* hit = fn_80219E6C(data->mHitId);
+            if (hit != 0) {
+                BulletShot_unk shot;
+                shot.m00 = 0.1f;
+                shot.m04 = 0;
+                shot.m08 = 0;
+                shot.m10 = 0;
+                shot.m14 = 0.0f;
+                shot.m18 = 1.0f;
+                shot.m04 = fn_800EFD04(hit->mB0);
+                shot.m0C = hit;
+                Bullet* bullet = lbl_8087F048->fn_801010A0();
+                if (bullet != 0) {
+                    fn_8014F8F4()->mEnabled = 0;
+                    bullet->fn_8010EE78(&shot, &data->m04, &data->m10, owner, -1, data->mFlags | 0x80, -1.0f);
+                    fn_8014F8F4()->mEnabled = 1;
+                }
+            }
+        }
+    }
+}
+
+
+// NONMATCHING: registers of the inlined player search (offset/base, as fn_804DD158 elsewhere)
+// inferred: messages 8 and 64: a hit dealt by another player (only in the game, state 30); the listeners of the
+// characters are off during the hit
+extern "C" void fn_804EFC94() {
+    if (((PPManager2_unk*)lbl_8087F610)->mState == 30) {
+        PPMsgHit_unk* data = (PPMsgHit_unk*)fn_804AE3BC()->GetWorkBuffer_unk();
+        PPManager2_unk* mgr = (PPManager2_unk*)lbl_8087F610;
+        CharaTask* attacker = GetHitAttacker_unk(mgr, data);
+        if (lbl_8087F048 != 0) {
+            HitInfo_unk* hit = fn_80219E6C(data->mHitId);
+            if (hit != 0) {
+                fn_8014F8F4()->mEnabled = 0;
+                lbl_8087F048->fn_800FB1BC(attacker, hit, &data->m04, &data->m10, 0, data->mFlag, 1.0f);
+                fn_8014F8F4()->mEnabled = 1;
+            }
         }
     }
 }
@@ -5375,24 +5564,6 @@ extern "C" int fn_804FC520() {
 }
 
 #include "game/EnemyTask.h"
-
-// inferred: listeners of the character events (inline in the original, as in game/BattleCharaTask.cpp)
-inline CharaListeners_unk* fn_8014F8F4() {
-    static CharaListeners_unk sListeners;
-    return &sListeners;
-}
-
-// inferred: calls the listeners of `id` (as in game/BattleCharaTask.cpp; name invented)
-inline void NotifyListeners_unk(CharaListeners_unk* listeners, int id, void* chara, void* arg) {
-    if (listeners->mEnabled != 0) {
-        for (int i = 0; i < (int)listeners->mList.size(); i++) {
-            CharaListener_unk& listener = listeners->mList[i];
-            if (listener.mId == -1 || id == listener.mId) {
-                listener.mFunc(id, (CharaTask*)chara, arg);
-            }
-        }
-    }
-}
 
 namespace MP {
 
