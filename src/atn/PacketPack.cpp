@@ -690,7 +690,7 @@ struct Manager2 : public atn::Task {
     int m564;                         // inferred: also the time limit of the game (seconds)
     int m568;
     int m56C[8];                      // inferred: warp point kept per player slot (fn_804EAA84)
-    unsigned char m58C[0xC];
+    int m58C[3];                      // inferred: weighted choices (fn_804E679C)
     int m598;
     int m59C;                         // inferred: aid of the server
     int m5A0;
@@ -740,11 +740,15 @@ struct Manager2 : public atn::Task {
     int m2B88;                        // inferred: number of the slots of m2B8C
     PPPlayer_unk m2B8C[8];
     int m966C;
-    unsigned char m9670[0x9674 - 0x9670];
+    int m9670;                        // inferred: result of fn_804E4A60 (fn_804E448C)
     int m9674;                        // inferred: item won in the game (code, count)
     int m9678;
     int m967C;                        // inferred: value for the players marked m30 (fn_804E4D70)
-    unsigned char m9680[0x9694 - 0x9680];
+    int m9680;                        // inferred: experience after the game (fn_804E448C)
+    int m9684;                        // inferred: level of m9680
+    int m9688;
+    int m968C;
+    int m9690;
     int m9694[8];                     // inferred: per aid values of message 0x35
     atn::EfpFile m96B4;               // inferred: effects of the game (fn_804DF404)
     atn::EffFile m96C0;
@@ -4621,6 +4625,131 @@ struct PPScoreLess_unk {
 // registers of the loop invariant addresses
 template void MslSort_unk<PPPlayer_unk*, PPScoreLess_unk>(PPPlayer_unk*, PPPlayer_unk*, PPScoreLess_unk);
 
+extern "C" int fn_804E4C34(PPManager2_unk* mgr);
+extern "C" int fn_804E4C5C(const PPManager2_unk* mgr);
+extern "C" int fn_804E4A60(PPManager2_unk* mgr, PPPlayer_unk* player);
+extern "C" int fn_805076F8(void* table, int mode, int value, int arg);
+extern "C" int fn_80507654(MpLevelTable_unk* table, int exp, int next); // inferred: nonzero on a level up
+extern "C" int fn_8050655C(void* table, int mode, int value, int rank); // inferred: item won in the game
+extern "C" bool fn_80206B9C(int code);                                 // inferred: whether an item code is a weapon
+extern "C" bool fn_8020EF04(int code);                                 // inferred: whether an item code is equipment
+// inferred: experience in the online play: a word of the data saved by the game (MpFriendList_unk::m7F0 + 8,
+// not split in include/atn/net/Manager.h: a split changes the implicit copy of fn_804DBEC8); name invented
+static inline int& PPExp_unk(MpFriendList_unk* list) {
+    return *(int*)&list->m7F0[8];
+}
+// inferred: payload of the message 0x1012 (aid and item won); names invented
+struct PPMsgResult_unk {
+    int mAid;
+    int mItem;
+};
+// inferred: copy of a network player kept by the manager; name invented
+static inline atn::net::NetPlayerInfo_unk& PPNetPlayer_unk(PPManager2_unk* mgr, int i) {
+    return mgr->m358[i];
+}
+// inferred: slot of the own player; name invented
+static inline PPPlayer_unk* PPOwnPlayer_unk(PPManager2_unk* mgr) {
+    return fn_804DD158(mgr, lbl_8087F628->GetMyAid_unk());
+}
+// NONMATCHING: 99.60% - registers: own/list in r31/r30 (r30/r31 in the original; tried the declaration order,
+// list declared first, the experience part as an inline helper) and aid/offset of the inlined search
+// fn_804DD158 in r3/r4 (r4/r3; as fn_804D8610)
+// inferred: end of the game: ranking, result state, experience and item won (saved), copy of the network
+// players and message 0x1012 to everybody
+extern "C" void fn_804E448C(PPManager2_unk* mgr) {
+    MpFriendList_unk* list;
+    fn_804DF4B8(mgr);
+    PPPlayer_unk* own = PPOwnPlayer_unk(mgr);
+    int rank = fn_804E4B44(mgr, own);
+    if (rank == fn_804E4C34(mgr) && mgr->mMode != 2) {
+        rank = 5;
+    }
+    int result;
+    if (mgr->mMode == 0) {
+        if (rank == 0) {
+            result = 0;
+        } else if (fn_804E4C34(mgr) != 0) {
+            result = 1;
+        } else {
+            result = 2;
+        }
+    } else if (mgr->mMode == 1) {
+        if (fn_804E4C5C(mgr) != 3) {
+            if (own->mFlags.m22 == fn_804E4C5C(mgr)) {
+                result = 0;
+            } else {
+                result = 1;
+            }
+        } else {
+            result = 2;
+        }
+    } else {
+        result = rank == 0 ? 3 : 4;
+    }
+    list = &lbl_8087F628->mFriendList;
+    mgr->m2B84 = result;
+    mgr->m966C = rank;
+    mgr->m9670 = fn_804E4A60(mgr, own);
+    mgr->m967C = fn_805076F8(mgr->m610, mgr->mMode, mgr->m55C, mgr->m9670);
+    mgr->m9680 = PPExp_unk(list) + mgr->m967C;
+    mgr->m9688 = fn_80507654((MpLevelTable_unk*)mgr->m610, PPExp_unk(list), mgr->m9680);
+    if (mgr->m9688 != 0) {
+        MpLevel_unk* level = fn_805075C4((MpLevelTable_unk*)mgr->m610, mgr->m9680);
+        mgr->m968C = ((int*)level)[3];
+        mgr->m9690 = ((int*)level)[4];
+    }
+    mgr->m9684 = (int)fn_805075C4((MpLevelTable_unk*)mgr->m610, mgr->m9680);
+    int max = fn_80507764((MpLevelTable_unk*)mgr->m610, mgr->m9680);
+    if (mgr->m9680 > max) {
+        int over = mgr->m9680 - max;
+        mgr->m9680 = max;
+        mgr->m967C = mgr->m967C - over;
+    }
+    int exp = PPExp_unk(list) + mgr->m967C;
+    PPExp_unk(list) = exp;
+    list->mA00 = exp;
+    fn_8050EAE8(&lbl_8087F628->mFriendList);
+    MP::SaveLoad* saveLoad = ((PPManager2_unk*)lbl_8087F610)->mSaveLoad;
+    if (saveLoad != 0) {
+        saveLoad->fn_80502870(1, list, 0x9F0);
+    }
+    mgr->m9674 = fn_8050655C(&mgr->m69C, mgr->mMode, mgr->m560, rank);
+    mgr->m9678 = 1;
+    if ((fn_80206B9C(mgr->m9674) || fn_8020EF04(mgr->m9674)) && mgr->mSaveLoad->m48 != 0 &&
+        ((GameSaveInventory_unk*)&mgr->mSaveLoad->m48->mSub)->fn_803BD49C(mgr->m9674) >= 10) {
+        switch (mgr->m9674) {
+        case 0x1890D:
+            mgr->m9674 = 0x2B3;
+            break;
+        case 0x1890C:
+            mgr->m9674 = 0x28A;
+            break;
+        case 0x1890B:
+            mgr->m9674 = 0x28B;
+            break;
+        case 0x1890A:
+            mgr->m9674 = 0x296;
+            break;
+        case 0x18909:
+            mgr->m9674 = 0x295;
+            break;
+        default:
+            mgr->m9674 = 0x295;
+            break;
+        }
+    }
+    mgr->m354 = 8;
+    for (unsigned int i = 0; i < mgr->m354; i++) {
+        PPNetPlayer_unk(mgr, i) = lbl_8087F628->mPlayers[i];
+    }
+    NetMsgI_unk<PPMsgResult_unk> msg(0x1012);
+    PPMsgResult_unk* data = &msg.mData;
+    data->mAid = own->mAid;
+    data->mItem = mgr->m9674;
+    fn_804AE3BC()->fn_8050E094(-1, 0x1012, data, 1);
+    fn_804AE3BC()->fn_8050DDDC(-1, 1);
+}
+
 extern "C" void* fn_80211480(int code); // inferred: entry of an item code
 // inferred: adds the items won in the game to the save data and saves
 extern "C" void fn_804E49A4(PPManager2_unk* mgr) {
@@ -4644,7 +4773,7 @@ extern "C" int fn_804E4A20(PPManager2_unk* mgr) {
 }
 
 // inferred: result of the game for the player (0, 1 or 2) by game mode (called out of line by fn_804E4D70)
-extern "C" __declspec(noinline) int fn_804E4A60(PPManager2_unk* mgr) {
+extern "C" __declspec(noinline) int fn_804E4A60(PPManager2_unk* mgr, PPPlayer_unk*) {
     int result;
     if (mgr->mMode == 0) {
         if (mgr->m2B84 == 0) {
@@ -4742,7 +4871,7 @@ extern "C" int fn_804E4C5C(const PPManager2_unk* mgr) {
     return 3;
 }
 
-extern "C" int fn_804E4A60(PPManager2_unk* mgr);
+extern "C" int fn_804E4A60(PPManager2_unk* mgr, PPPlayer_unk* player);
 extern "C" int fn_805076F8(void* table, int mode, int value, int arg);
 
 // inferred: value of a player (m967C for the players marked m30)
@@ -4750,7 +4879,7 @@ extern "C" int fn_804E4D70(PPManager2_unk* mgr, PPPlayer_unk* player) {
     if (player != 0 && player->mFlags.m30) {
         return mgr->m967C;
     }
-    return fn_805076F8(mgr->m610, mgr->mMode, mgr->m55C, fn_804E4A60(mgr));
+    return fn_805076F8(mgr->m610, mgr->mMode, mgr->m55C, fn_804E4A60(mgr, player));
 }
 
 // inferred: enters the ranking (state 35, or 37 when mode is not 1); not in local play
@@ -4897,6 +5026,120 @@ extern "C" void fn_804E6518(PPManager2_unk* mgr) {
             }
         }
     }
+}
+
+// inferred: data of message 0x0F: settings of the game sent by the host; names invented
+struct PPGameSettings_unk {
+    int m00;
+    int m04;
+    int m08;
+    unsigned char m0C[0x20];
+    unsigned char m2C[0xC];
+    int m38;
+};
+// inferred: weighted table of a room (fn_8050652C): ids (0 ends the list) and their weights; names invented
+struct PPWeightTable_unk {
+    int m00;
+    int mIds[32];
+    int mWeights[32];
+};
+extern "C" PPWeightTable_unk* fn_8050652C(void* tables, int index);
+extern "C" int fn_804EA5DC(PPManager2_unk* mgr, int kind);
+// inferred: last value of a list of indices (0 when empty), removed; name invented
+static inline int PPPopIndex_unk(atn::FixedArray_unk<int, 10>& list) {
+    if (list.size() != 0) {
+        int value = *(list.end() - 1);
+        list.mSize--;
+        return value;
+    }
+    return 0;
+}
+// inferred: on the server: the settings of the game (stage at random when out of range, two shuffled lists of
+// warp points by team, a weighted choice of three values and a random seed) sent with message 0x1004
+extern "C" void fn_804E679C(PPManager2_unk* mgr) {
+    mgr->m5AC = 1;
+    if (mgr->m55C >= fn_804EA5DC(mgr, mgr->mMode)) {
+        mgr->m560 = rand() % fn_804EA5DC(mgr, mgr->mMode);
+    } else {
+        mgr->m560 = mgr->m55C;
+    }
+    atn::FixedArray_unk<int, 10> pool;
+    atn::FixedArray_unk<int, 10> team2;
+    atn::FixedArray_unk<int, 10> team1;
+    unsigned int num = 5;
+    if (mgr->mMode != 1) {
+        num = 6;
+    }
+    for (unsigned int i = 0; i < num; i++) {
+        pool.push_back(i);
+    }
+    for (unsigned int i = 0; i < num; i++) {
+        unsigned int r = rand() % pool.size();
+        team2.push_back(pool[r]);
+        pool.erase(pool.begin() + r);
+    }
+    for (unsigned int i = 0; i < num; i++) {
+        pool.push_back(i);
+    }
+    for (unsigned int i = 0; i < num; i++) {
+        unsigned int r = rand() % pool.size();
+        team1.push_back(pool[r]);
+        pool.erase(pool.begin() + r);
+    }
+    for (int i = 0; i < 3; i++) {
+        mgr->m58C[i] = 0;
+        PPWeightTable_unk* table = fn_8050652C(&mgr->m69C, i);
+        if (table != 0) {
+            int total = 0;
+            for (int j = 0; j < 32; j++) {
+                if (table->mIds[j] == 0) {
+                    break;
+                }
+                total += table->mWeights[j];
+            }
+            if (total > 0) {
+                int r = rand() % total;
+                for (int j = 0; j < 32; j++) {
+                    if (table->mIds[j] == 0) {
+                        break;
+                    }
+                    if (r < table->mWeights[j]) {
+                        mgr->m58C[i] = j;
+                        break;
+                    }
+                    r -= table->mWeights[j];
+                }
+            }
+        }
+    }
+    mgr->m598 = rand();
+    int n = 0;
+    for (unsigned int i = 0; i < mgr->mPlayers.mNum; i++) {
+        PPPlayer_unk* player = &mgr->mPlayers.mData[i];
+        if (player->mFlags.mActive == 1) {
+            if (player->mFlags.m22 == 2) {
+                mgr->m56C[i] = PPPopIndex_unk(team2);
+            } else {
+                mgr->m56C[i] = PPPopIndex_unk(team1);
+            }
+        } else if (mgr->m9984[n] != 0) {
+            if (fn_804DD1A8(mgr, mgr->m9984[n]) == 0 || fn_804DD1A8(mgr, mgr->m9984[n]) == 2) {
+                mgr->m56C[i] = PPPopIndex_unk(team2);
+            } else {
+                mgr->m56C[i] = PPPopIndex_unk(team1);
+            }
+            n++;
+        }
+    }
+    NetMsgI_unk<PPGameSettings_unk> msg(0x1004);
+    PPGameSettings_unk* data = &msg.mData;
+    data->m00 = mgr->m560;
+    data->m04 = mgr->m564;
+    data->m08 = mgr->m568;
+    memcpy(data->m0C, mgr->m56C, sizeof(data->m0C));
+    memcpy(data->m2C, mgr->m58C, sizeof(data->m2C));
+    data->m38 = mgr->m598;
+    fn_804AE3BC()->fn_8050E094(-1, 0x1004, data, 1);
 }
 
 #include "game/SpecialEnemyBase.h"
@@ -6459,15 +6702,6 @@ extern "C" void fn_804F12A0() {
     ((PPManager2_unk*)lbl_8087F610)->m568 = data[0];
 }
 
-// inferred: data of message 0x0F: settings of the game sent by the host; names invented
-struct PPGameSettings_unk {
-    int m00;
-    int m04;
-    int m08;
-    unsigned char m0C[0x20];
-    unsigned char m2C[0xC];
-    int m38;
-};
 
 extern "C" void fn_804F135C() {
     if (PP_NO_DATA_UNK) {
