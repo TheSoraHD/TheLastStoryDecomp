@@ -1053,11 +1053,9 @@ int Em202ForestSpider::vf154(int arg) {
         return 0;
     }
     m14F0 = mRot.y;
-    atn::Vector3 d = m14D4->mPos - mPos;
-    atn::Vector3 r = d.ToRotation_unk();
-    m14F4 = r.y;
+    m14F4 = (m14D4->mPos - mPos).ToRotationZ_unk().y;
     float a = atn::WrapAngle_unk(m14F4 - m14F0);
-    if (a > -0.3926991f && a < 0.3926991f) {
+    if (-0.3926991f < a && a < 0.3926991f) {
         return 0;
     }
     m14EC = 0;
