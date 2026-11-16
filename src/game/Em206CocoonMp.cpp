@@ -190,9 +190,10 @@ inline void Em206CocoonMp::Die_unk() {
     m1914 = 1;
 }
 
-// DRAFT: written for the order of the strings
-// NONMATCHING: written for the order of the strings (std::string, tokenizer and the ResHandle constructor are
-// called out of line in the original, as in game/LastCocoonChrysalis.cpp)
+// NONMATCHING: 0% - the original is over the inlining budget (docs/inlining.md R3) and calls every inline
+// (LH_Binary, Vector3, EfpFile and ResHandle constructors, the strings, the tokenizer), as in
+// game/LastCocoonChrysalis.cpp; ours inlines them all (the nested key/cmp/value locals of LastCocoonImago are
+// not enough here). Same flow, calls, strings and constants as the original.
 Em206CocoonMp::Em206CocoonMp(atn::Task* parent, EnemyInfo_unk* info)
     : SpecialEnemyBase(parent, info), m14DC(0), m14E0(0), m14E4(0), m14EC(0), m14F0(0), m14F4(0), m1520(0),
       m1524(0), m1528(5), m1900(0), m1904(900), m1908(0), m190C(1.0f), m1910(0x4650), m1914(0), m1918(0),

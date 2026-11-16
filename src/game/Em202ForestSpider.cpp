@@ -159,10 +159,10 @@ static inline bool IsTargetable_unk(CharaTask* c) {
     return ok;
 }
 
-// DRAFT: written for the order of the strings
-// NONMATCHING: written for the order of the strings (std::string and Csv inlined)
+// NONMATCHING: 99.6% - scheduling of the three inlined clear() (the original loads m1908, m14B0, m14C0 in
+// that order; 6 orders of the calls tried)
 Em202ForestSpider::Em202ForestSpider(atn::Task* parent, EnemyInfo_unk* info)
-    : EnemyTask(parent, info->m20), m14D4(0), m14DC(0), m14E0(0), m14E4(0), m14E8(0), m14EC(0), m14F0(0.0f),
+    : EnemyTask(parent, info->m20), m14BC(0), m14D4(0), m14DC(0), m14E0(0), m14E4(0), m14E8(0), m14EC(0), m14F0(0.0f),
       m14F4(0.0f), m14F8(0), m14FC(1), m1500(0), m1504(30.0f), m1508(0x3F2), m150C(0x3F2), m1510(40.0f),
       m1514(180.0f), m1518(2), m151C(0), m1520(3), m1524(60), m1528(5), m152C(150), m1530(0), m1534(0),
       m18E8(0), m18EC(0), m18F0(0), m18F8(0.0f), m1904(1), m1964(0) {
