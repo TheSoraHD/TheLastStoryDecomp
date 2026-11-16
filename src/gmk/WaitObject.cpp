@@ -164,14 +164,19 @@ int WaitObject::vf0C() {
 // NONMATCHING: 99.9% - stack slots of the two safe-bool temporaries swapped, and the names of the
 // safe-bool member pointers of boost::scoped_ptr
 // (lbl_8078DC40/lbl_8078DC4C in the original, local objects here; see vf1C)
+// inferred: name invented
+inline void SetColliMtx_unk(boost::scoped_ptr<atn::ColliObject>& colli, const atn::Matrix3x4& mtx) {
+    if (colli) {
+        colli->SetMtx_unk(mtx);
+    }
+}
+
 void WaitObject::Start() {
     vf2C();
     if (vf38() != 0) {
         fn_803ED0D4(vf38(), 1);
     }
-    if (mColli) {
-        mColli->SetMtx_unk(*(atn::Matrix3x4*)mModel.mMtx.m);
-    }
+    SetColliMtx_unk(mColli, *(atn::Matrix3x4*)mModel.mMtx.m);
     if (mColli) {
         mColli->mFlags |= 1;
     }

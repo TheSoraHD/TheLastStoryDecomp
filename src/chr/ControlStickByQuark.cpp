@@ -1246,10 +1246,15 @@ ControlThrownAway::ControlThrownAway(Chara_unk* chara, int mtx, int frames)
     m->mTracks[0].m0C = 1.0f;
 }
 
-// NONMATCHING: 87.4% - the original stores the vtable pointer at the start of the destructor
+// inferred: the store goes through an inline (an inline call keeps the vtable store of the destructor)
+// inferred: name invented
+static inline void SetFollowMtx_unk(CharaTask* chara, int mtx) {
+    chara->mF1C = mtx;
+}
+
 ControlThrownAway::~ControlThrownAway() {
     if (mChara) {
-        mChara->mF1C = 0;
+        SetFollowMtx_unk(mChara, 0);
     }
 }
 

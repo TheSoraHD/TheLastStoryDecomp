@@ -171,7 +171,6 @@ int MaterialSet_unk::fn_80089B5C() {
 }
 
 // inferred: fills a node edit (flags: which parts are not identity); called by atn::Model::fn_80093F1C
-// NONMATCHING: 99.7% - the first fabs goes to f0 instead of f3
 extern "C" void fn_80089D70(atn::Model::NodeEdit_unk* edit, const char* name, const atn::Vector3& offset,
                             const atn::Vector3& rot, const atn::Vector3& scale, int flags) {
     edit->m00 = fn_800DC6B4(name);
@@ -179,7 +178,7 @@ extern "C" void fn_80089D70(atn::Model::NodeEdit_unk* edit, const char* name, co
     edit->m14 = rot;
     edit->m20 = scale;
     edit->m04 = flags;
-    if (!(atn::Abs_unk(offset.x) < 1.1920929e-7f && atn::Abs_unk(offset.y) < 1.1920929e-7f &&
+    if (!((float)__fabs(offset.x) < 1.1920929e-7f && atn::Abs_unk(offset.y) < 1.1920929e-7f &&
           atn::Abs_unk(offset.z) < 1.1920929e-7f)) {
         edit->m04 |= 1;
     }
