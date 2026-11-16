@@ -5,6 +5,7 @@
 #include "MP/D2AMpMenuFriendRoom.h"
 #include "MP/D2AMpMenuLobby.h"
 #include "MP/D2AMpMenu.h"
+#include "MP/D2AMpMenuMessageList.h"
 
 // inferred: multiplayer session manager (lbl_8087F610); only the members used here
 struct MpSession_unk {
@@ -47,7 +48,6 @@ struct MpData_unk {
 extern "C" MpData_unk* lbl_8087F628;
 
 
-extern "C" void fn_804C2FF8(atn::Task* parent);               // inferred: creates the message list
 extern "C" void fn_804A436C(int* cursor, int count, int arg2, int wrap, int sound);
 extern "C" void fn_804A53D4(MenuCommonTask* menu, int a, int b, const MP::MpRect_unk* rect, int c);
 extern "C" void fn_804A4738(MP::MpD2A_unk* bar, int top, int count, int visible); // inferred: scroll bar
@@ -123,6 +123,7 @@ int D2AMpMenuFriendRoom::vf0C() {
 }
 
 // NONMATCHING: 99.63% - loop registers of OpenList_unk and the text/layout registers of case 8
+// (SetTaskText_unk in case 8 gives the instruction order of the original, not its registers)
 void D2AMpMenuFriendRoom::fn_804BA350(int state) {
     if (m88 != state && state >= 0) {
         int prev = m88;
@@ -145,7 +146,7 @@ void D2AMpMenuFriendRoom::fn_804BA350(int state) {
             break;
         case 7:
             D2AMpMenuLobby::fn_804BBBA0(this, 1, lbl_8087F610->m544);
-            fn_804C2FF8(this);
+            D2AMpMenuMessageList::fn_804C2FF8(this);
             Stop_unk(m78);
             break;
         case 8: {
