@@ -419,7 +419,7 @@ inline atn::Vector3 Side_unk(CharaTask* chara, float up) {
     return side;
 }
 
-// NONMATCHING: 96.7% (fn_8035CE58 out of line, as the original) - stack slots of the temporaries of the side jump (Side_unk) and the registers of
+// NONMATCHING: 99.56% (fn_8035CE58 out of line, as the original) - stack slots of the temporaries of the side jump (Side_unk) and the registers of
 // SetHit_unk; same code otherwise
 void EnemyTrista::fn_8035C8CC() {
     switch (m55C) {
@@ -479,43 +479,45 @@ void EnemyTrista::fn_8035C8CC() {
             m14BC = 0;
             m14B8 += 100;
         } else if (m14B8 > m15A4) {
-            if (target == 0) {
-                m58C = 6;
-                m14B8 = 0;
-            } else if (m14C0 != 0) {
-                m14C0 = 0;
-                m58C = 10;
-                m14B8 = 0;
-                fn_80178208(new ((MemoryTag)0, "", "", 0) ControlShingan(this, 900000));
-                ((GameTask*)lbl_8087F430)->fn_80370AE4(0x67, 1);
-            } else {
-                bool jump;
-                if (mC58.mC4 == 0) {
-                    jump = false;
+            if (target != 0) {
+                if (m14C0 != 0) {
+                    m14C0 = 0;
+                    m58C = 10;
+                    m14B8 = 0;
+                    fn_80178208(new ((MemoryTag)0, "", "", 0) ControlShingan(this, 900000));
+                    ((GameTask*)lbl_8087F430)->fn_80370AE4(0x67, 1);
                 } else {
-                    jump = false;
-                    if ((mC58.mC4->mPos - mPos).Length_unk() > 65.0f) {
-                        atn::Vector3 from = mPos;
-                        atn::Vector3 to = mC58.mC4->mPos;
-                        from.y += 9.5f;
-                        to.y += 9.5f;
-                        void* world = lbl_8087EE98;
-                        if (fn_8004ED34(world, 0, &from, &to, fn_80179D44() | 0x80000000, 0, 0) == 0) {
-                            jump = true;
+                    bool jump;
+                    if (mC58.mC4 == 0) {
+                        jump = false;
+                    } else {
+                        jump = false;
+                        if ((mC58.mC4->mPos - mPos).Length_unk() > 65.0f) {
+                            atn::Vector3 from = mPos;
+                            atn::Vector3 to = mC58.mC4->mPos;
+                            from.y += 9.5f;
+                            to.y += 9.5f;
+                            void* world = lbl_8087EE98;
+                            if (fn_8004ED34(world, 0, &from, &to, fn_80179D44() | 0x80000000, 0, 0) == 0) {
+                                jump = true;
+                            }
                         }
                     }
+                    if (jump) {
+                        m58C = 8;
+                        m14B8 = 0;
+                        m590 = lbl_8087F048->fn_800F8548();
+                        m594 = 1;
+                        m598 = 0;
+                        mFlag5 = 0;
+                        fn_8016D74C(m14F0, 0, 0);
+                    } else {
+                        fn_8035CE58();
+                    }
                 }
-                if (jump) {
-                    m58C = 8;
-                    m14B8 = 0;
-                    m590 = lbl_8087F048->fn_800F8548();
-                    m594 = 1;
-                    m598 = 0;
-                    mFlag5 = 0;
-                    fn_8016D74C(m14F0, 0, 0);
-                } else {
-                    fn_8035CE58();
-                }
+            } else {
+                m58C = 6;
+                m14B8 = 0;
             }
         }
         break;

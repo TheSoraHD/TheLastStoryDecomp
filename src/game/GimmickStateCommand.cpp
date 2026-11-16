@@ -249,13 +249,10 @@ int GimmickCommonB0_unk::fn_803F06B0() {
 }
 
 // inferred: fires the commands of the current motion of the gimmick model
-// NONMATCHING: 94.61% - stack slots of the int->float temporaries and of the vectors/colour of the
-// effect calls, saved registers of motion/model/loop, and the early return after vf38 (bne + b)
+// NONMATCHING: 94.80% - stack slots of the int->float temporaries and of the vectors/colour of the
+// effect calls, saved registers of motion/model/loop
 void GimmickCommonB0_unk::fn_803F0764(GimmickCommon* gimmick) {
-    if (gimmick == 0) {
-        return;
-    }
-    if (gimmick->vf38() == 0) {
+    if (gimmick == 0 || gimmick->vf38() == 0) {
         return;
     }
     if (mEnabled == 0) {

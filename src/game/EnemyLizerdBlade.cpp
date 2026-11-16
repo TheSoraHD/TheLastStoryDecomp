@@ -266,7 +266,7 @@ void EnemyLizerdBlade::fn_80334460() {
             }
         } else {
             float t = (mMotion.mTracks[0].m08 - 25.0f) / 25.0f;
-            t = t > 1.0f ? 1.0f : t;
+            t = 1.0f < t ? 1.0f : t;
             mPos = LerpBA_unk(m14DC, m14E8, t);
             if (mMotion.mTracks[0].m08 >= 51.0f) {
                 m14B8++;

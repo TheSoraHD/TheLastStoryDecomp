@@ -35,7 +35,6 @@ struct LocatorInstData_unk {
     unsigned char m000[0x17C];
     LocatorInstRes_unk* m17C;
 };
-extern "C" atn::AABB_unk fn_80095300(atn::Model* model); // inferred: bounding box of a model
 
 // inferred: box of the 8 corners of `box` transformed by `m` (same shape as ProjectBox_unk of
 // atn/Geometry_unk.cpp, with a 3x4 matrix)
@@ -259,7 +258,7 @@ atn::AABB_unk MapPartsLocatorSet::vf24(atn::AABBTree* tree) {
         }
     }
     if (mHasMerged) {
-        atn::AABB_unk merged = fn_80095300(mMerged->GetModel_unk());
+        atn::AABB_unk merged = mMerged->GetModel_unk()->fn_80095300();
         box = box.Merge_unk(merged);
     }
     return box;
