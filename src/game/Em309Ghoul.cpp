@@ -1470,7 +1470,7 @@ void Em309Ghoul::fn_80302B84() {
 }
 
 extern "C" int fn_8004D388(void* world, atn::ColliResult_unk* result, CharaTask::Sphere_unk* sphere,
-                           atn::Vector3* move, unsigned int mask, void* ignore, int arg); // inferred: sweep test
+                           atn::Vector3* move, unsigned int mask, void* ignore, int arg, float); // inferred: sweep test (last: radius)
 extern "C" void PSMTXRotAxisRad(Mtx m, const atn::Vector3* axis, float rad);
 // inferred: camera shake of the field (lbl_8087F430 + 0x96C, as in game/Em301LShade.cpp)
 struct GhoulShake_unk {
@@ -1600,7 +1600,7 @@ void Em309Ghoul::fn_80302F94() {
         sphere.mCenter = mPos;
         sphere.mCenter.y += 16.0f * (1.0f - scale);
         sphere.mRadius = m16E0;
-        if (fn_8004D388(lbl_8087EE98, &res, &sphere, &m15D8, 0x80000000, &mColli, 0) != 0 && (res.m3C & 0x20) == 0x20) {
+        if (fn_8004D388(lbl_8087EE98, &res, &sphere, &m15D8, 0x80000000, &mColli, 0, sphere.mRadius) != 0 && (res.m3C & 0x20) == 0x20) {
             fn_800C344C("SE_EM309_016", &res.m10, 0, -1, 1.0f);
             atn::Vector3 dir;
             atn::Vector3 n = m15D8;
