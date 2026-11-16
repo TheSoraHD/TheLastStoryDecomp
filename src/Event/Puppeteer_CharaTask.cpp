@@ -1162,8 +1162,6 @@ atn::Vector3 Actor::fn_800112E0() {
 }
 
 // inferred: sets the rotation of the actor around y
-// NONMATCHING: 99.2% - stack slots of the rotation matrices (0x30 higher here) and registers of the copy of the
-// matrix of the case 3
 void Actor::fn_80011420(float yaw) {
     atn::Vector3 rot(0.0f, 0.0f, 0.0f);
     rot.y = yaw;
