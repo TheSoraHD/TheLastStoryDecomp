@@ -7645,6 +7645,113 @@ extern "C" void fn_804F50C4(unsigned int aid) {
     }
 }
 
+#include "MP/MpMessage_unk.h"
+#include "MP/MpCampMsgTable_unk.h"
+#include "game/LogMessageTask.h"
+// inferred: the message table m2A50 of MP::Manager2 seen as the table of MP/MpMessage_unk.h
+static inline MpMessageTable_unk* PPMessages_unk(PPManager2_unk* mgr) {
+    return (MpMessageTable_unk*)&mgr->m2A50;
+}
+// NONMATCHING: 95.9% - the original addresses the categories of m2A50 from the manager (the table typed as
+// MpMessageTable_unk inside MP::Manager2; here a cast of PPTable_unk), m0C of the message is a short (lha),
+// aid/offset of the inlined own-slot searches swapped, the color as a select instead of two branches and the
+// state test of the lobby (2, 3-6) merged into one range
+// inferred: shows a message of a player: in the lobby (state 12) as a balloon over the member (a message of the
+// table, or with category 0xFFFF one of the texts 0xDF-0xE5), in the game in the log (a message of the table
+// with the name of the sender, or the defeat messages 22-24 with the two names packed in `index`)
+extern "C" int fn_804F50DC(PPManager2_unk* mgr, PPPlayer_unk* player, unsigned short category, unsigned short index) {
+    if (mgr->mState != 12) {
+        if (category == -1 || player == 0) {
+            return 0;
+        }
+        if (LogMessageTask::sInstance == 0) {
+            return 0;
+        }
+        wchar_t buf[256];
+        buf[0] = 0;
+        MpMessage_unk* msg = PPMessages_unk(mgr)->fn_804C54FC(category, index);
+        if (msg != 0) {
+            atn::net::NetPlayerInfo_unk* info = lbl_8087F628->vf14(player->mAid);
+            if (info != 0) {
+                fn_800DD3FC(buf, L"%s: %s\0", info->mName, msg->mText != 0 ? msg->mText : MP::lbl_808813D0);
+                buf[63] = 0;
+                LogMessageTask::sInstance->fn_8047961C(
+                    buf, player == fn_804DD158(mgr, lbl_8087F628->GetMyAid_unk()) ? (int)0xAAFFFFAA : -1, 0, 9);
+            }
+        } else {
+            int type = category - 22;
+            int kind = 0;
+            if (type == 0) {
+                PPPlayer_unk* a = fn_804DD158(mgr, (index >> 8) & 0xFF);
+                PPPlayer_unk* b = fn_804DD158(mgr, index & 0xFF);
+                if (a != 0 && b != 0 && a->mRef.mChara != 0 && b->mRef.mChara != 0) {
+                    int enemy = 0;
+                    if (mgr->mMode != 2) {
+                        enemy = fn_804DD158(mgr, lbl_8087F628->GetMyAid_unk()) != 0 && b != 0 && fn_804DD158(mgr, lbl_8087F628->GetMyAid_unk())->mFlags.m22 != b->mFlags.m22;
+                    }
+                    if (!enemy) {
+                        kind = 1;
+                        fn_800DD3FC(buf, lbl_8087F1E4->Get_unk(17), a->mRef.mChara->GetInfo_unk()->m04,
+                                    b->mRef.mChara->GetInfo_unk()->m04);
+                    } else {
+                        fn_800DD3FC(buf, lbl_8087F1E4->Get_unk(15), a->mRef.mChara->GetInfo_unk()->m04,
+                                    b->mRef.mChara->GetInfo_unk()->m04);
+                    }
+                }
+            } else if (type == 1) {
+                PPPlayer_unk* a = fn_804DD158(mgr, (index >> 8) & 0xFF);
+                PPCharaEntry_unk* b = &mgr->mCharas.mData[index & 0xFF];
+                if (a != 0 && b != 0 && a->mRef.mChara != 0 && b->mRef.mChara != 0) {
+                    fn_800DD3FC(buf, lbl_8087F1E4->Get_unk(15), a->mRef.mChara->GetInfo_unk()->m04,
+                                b->mRef.mChara->GetInfo_unk()->m04);
+                }
+            } else if (type == 2) {
+                PPCharaEntry_unk* a = &mgr->mCharas.mData[(index >> 8) & 0xFF];
+                PPPlayer_unk* b = fn_804DD158(mgr, index & 0xFF);
+                kind = 1;
+                if (a != 0 && b != 0 && a->mRef.mChara != 0 && b->mRef.mChara != 0) {
+                    fn_800DD3FC(buf, lbl_8087F1E4->Get_unk(17), a->mRef.mChara->GetInfo_unk()->m04,
+                                b->mRef.mChara->GetInfo_unk()->m04);
+                }
+            }
+            if (buf[0] != 0) {
+                LogMessageTask::sInstance->fn_8047961C(buf, 0xFFFFFFFF, kind, 9);
+            }
+        }
+    } else {
+        MP::D2AMpMenuLobby* lobby = MP::D2AMpMenuLobby::sInstance;
+        if (lobby == 0) {
+            return 0;
+        }
+        if (lobby->mD88 != 2 && !(lobby->mD88 >= 3 && lobby->mD88 <= 6)) {
+            return 0;
+        }
+        if (category != 0xFFFF) {
+            MpMessage_unk* msg = PPMessages_unk(mgr)->fn_804C54FC(category, index);
+            if (msg == 0) {
+                return 0;
+            }
+            MP::D2AMpMenuLobby::sInstance->fn_804C2D5C((MpLobbyMember_unk*)player,
+                                                     msg->mText != 0 ? msg->mText : MP::lbl_808813D0,
+                                                     (short)msg->m0C + 10, 0);
+        } else {
+            if (lbl_8087F86C == 0) {
+                return 0;
+            }
+            unsigned short id = index;
+            if (id < 0xDF || id > 0xE5) {
+                return 0;
+            }
+            const wchar_t* text = lbl_8087F86C->Get_unk(id);
+            if (text == 0) {
+                return 0;
+            }
+            lobby->fn_804C2D5C((MpLobbyMember_unk*)player, text, wcslen(text) + 10, 1);
+        }
+    }
+    return 1;
+}
+
 // inferred: free request of the queue
 static inline PPRequest_unk* FindFreeRequest_unk(PPRequests_unk* queue) {
     for (int i = 0; i < 32; i++) {
@@ -8206,7 +8313,6 @@ extern "C" void fn_804F8464(PPManager2_unk* mgr) {
     }
 }
 
-// NONMATCHING: only the reloc of L"UNSUPPORTED" (original pool @wstringBase0 lbl_8087E1C4 in .sdata, rest of the pool not written)
 // inferred: text of the value of a rule (kinds 0/1: 9 values, kind 2: 5 values; the last one is the shared
 // entry 0x2A)
 extern "C" const wchar_t* fn_804FA7C8(PPManager2_unk* mgr, int kind, int value) {
@@ -8226,7 +8332,6 @@ extern "C" const wchar_t* fn_804FA7C8(PPManager2_unk* mgr, int kind, int value) 
     return L"UNSUPPORTED";
 }
 
-// NONMATCHING: only the reloc of L"UNSUPPORTED" (original pool @wstringBase0 lbl_8087E1C4 in .sdata, rest of the pool not written)
 // inferred: name of the level of an experience
 extern "C" const wchar_t* fn_804FA88C(PPManager2_unk* mgr, int exp) {
     MpLevel_unk* level = fn_805075C4((MpLevelTable_unk*)mgr->m610, exp);
@@ -8236,7 +8341,6 @@ extern "C" const wchar_t* fn_804FA88C(PPManager2_unk* mgr, int exp) {
     return L"UNSUPPORTED";
 }
 
-// NONMATCHING: only the reloc of L"UNSUPPORTED" (original pool @wstringBase0 lbl_8087E1C4 in .sdata, rest of the pool not written)
 // inferred: title of the level of an experience
 extern "C" const wchar_t* fn_804FA8E8(PPManager2_unk* mgr, int exp) {
     MpLevel_unk* level = fn_805075C4((MpLevelTable_unk*)mgr->m610, exp);
@@ -8300,7 +8404,6 @@ extern "C" __declspec(noinline) int fn_804FAB40(PPManager2_unk* mgr, int value, 
     return 1;
 }
 
-#include "MP/MpCampMsgTable_unk.h"
 extern "C" int SCCheckPCMessageRestriction();
 extern "C" const wchar_t* fn_804FAF48(PPManager2_unk* mgr, int* code, int type); // inferred: text of a DWC error
 
