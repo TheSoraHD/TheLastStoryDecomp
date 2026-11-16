@@ -1584,7 +1584,8 @@ void* fn_8050CFC8(void* arg); // inferred: main function of the network thread (
 } // namespace net
 } // namespace atn
 
-// NONMATCHING: written equivalent, not compared yet (completes the strings of @stringBase0 of the unit)
+// NONMATCHING: 89.45% - order of the member initializations, registers, stack frame and the unreferenced "" of
+// @stringBase0 after "%d" (see docs/cierre99-20261115-qG2.md)
 // inferred: MP::Manager2 ctor: creates the network singletons, the debug menu "Multiplayer", the menus and
 // the managers of the multiplayer mode
 MP::Manager2::Manager2(atn::Task* parent)
@@ -3194,6 +3195,131 @@ extern "C" void fn_804DA478(PPManager2_unk* mgr) {
 extern "C" void fn_804DA48C(PPManager2_unk* mgr, int value) {
     if (MP::D2AMpMenuCockpit::sInstance != 0) {
         MP::D2AMpMenuCockpit::sInstance->fn_804B67E4(value);
+    }
+}
+
+#include "game/AiTarget.h"
+extern "C" int fn_804EB4AC(PPManager2_unk* mgr, PPPlayer_unk* player);
+extern "C" CharaTask* fn_804DD3F0(PPManager2_unk* mgr);
+
+// NONMATCHING: 98.25% - registers (the inlined fn_804EB4AC search, as fn_804EB4AC itself)
+// inferred: the characters of the players of the own team (but the one of fn_804DD3F0) are given back to the AI:
+// with `random` set they get a random action (0x27E5 or 0x27E6) and target themselves
+extern "C" void fn_804DA4A0(PPManager2_unk* mgr, int random) {
+    for (int i = 0; i < mgr->mPlayers.mNum; i++) {
+        PPPlayer_unk* player = &mgr->mPlayers.mData[i];
+        if (player->mFlags.mActive && player->mRef.mChara != 0 && fn_804EB4AC(mgr, player)) {
+            CharaTask* chara = player->mRef.mChara;
+            if (chara != fn_804DD3F0(mgr)) {
+                if (random != 0) {
+                    player->mRef.mChara->fn_8017ABD4(rand() % 2 == 0 ? 0x27E5 : 0x27E6);
+                    lbl_8087EE68->fn_800183E0(player->mRef.mChara, player->mRef.mChara, 0, 0);
+                } else {
+                    chara->fn_8017ABD4(0);
+                    lbl_8087EE68->fn_80018608(player->mRef.mChara, 0);
+                }
+            }
+        }
+    }
+}
+
+#include "game/GameUI.h"
+#include "game/Inventory.h"
+extern "C" int fn_80444020(Inventory* inventory, int table, int message, int index, CharaTask* chara, int arg,
+                           int* outCode, int* outCount, int* outAdded); // inferred: gives an item of a table
+extern "C" int fn_804DF4B8(PPManager2_unk* mgr);
+extern "C" int fn_804E4B44(PPManager2_unk* mgr, PPPlayer_unk* target);
+extern "C" int fn_804DB408(PPManager2_unk* mgr);
+
+// inferred: team of the own player (3 without slot); names invented
+static inline unsigned int PPOwnTeam_unk(PPManager2_unk* mgr) {
+    PPPlayer_unk* own = fn_804DD158(mgr, lbl_8087F628->GetMyAid_unk());
+    return own != 0 ? own->mFlags.m22 : 3;
+}
+// inferred: team that the own team plays against (the own one out of the team mode); names invented
+static inline unsigned int PPOtherTeam_unk(PPManager2_unk* mgr) {
+    if (mgr->mMode != 1) {
+        return PPOwnTeam_unk(mgr);
+    }
+    PPPlayer_unk* own = fn_804DD158(mgr, lbl_8087F628->GetMyAid_unk());
+    if (own != 0) {
+        for (int i = 0; i < mgr->mPlayers.mNum; i++) {
+            PPPlayer_unk* player = &mgr->mPlayers.mData[i];
+            if (player->mFlags.mActive == 1 && player->mRef.mChara != 0 && player->mFlags.m22 != own->mFlags.m22) {
+                return player->mFlags.m22;
+            }
+        }
+    }
+    return 3;
+}
+// inferred: players in use of the team `team`; names invented
+static inline int PPCountTeam_unk(PPManager2_unk* mgr, unsigned int team) {
+    int count = 0;
+    for (int i = 0; i < mgr->mPlayers.mNum; i++) {
+        PPPlayer_unk* player = &mgr->mPlayers.mData[i];
+        if (player->mFlags.mActive && player->mRef.mChara != 0 && player->mFlags.m22 == team) {
+            count++;
+        }
+    }
+    return count;
+}
+static inline int PPTeamScore_unk(const PPManager2_unk* mgr, int team);
+
+// NONMATCHING: 95.91% - branch layout of the rank tests (unsigned range checks here), registers and the pool
+// offset of "SE_UICOM_008" (unreferenced "" of the ctor and of vf10 missing)
+// inferred: rewards of the end of the game: an item by the rank of the own player (another set when less than a
+// minute was left) and, in the team mode, two items when the own team had fewer players and lost by 40 or more
+extern "C" void fn_804DA690(PPManager2_unk* mgr) {
+    if (lbl_8087F490 == 0 || Inventory::instance_ == 0) {
+        return;
+    }
+    if (fn_804DD158(mgr, lbl_8087F628->GetMyAid_unk()) == 0) {
+        return;
+    }
+    fn_804DF4B8(mgr);
+    int rank = fn_804E4B44(mgr, fn_804DD158(mgr, lbl_8087F628->GetMyAid_unk()));
+    int code = 0;
+    int count = 0;
+    bool last = fn_804DB408(mgr) >= 0 && fn_804DB408(mgr) < 60;
+    if (last) {
+        if (rank >= 0 && rank < 2) {
+            fn_80444020(Inventory::instance_, 0x1E7D, 0, -1, 0, 1, &code, &count, 0);
+        }
+        if (rank >= 2 && rank < 4) {
+            fn_80444020(Inventory::instance_, 0x1E7E, 0, -1, 0, 1, &code, &count, 0);
+        } else if (rank == 4) {
+            fn_80444020(Inventory::instance_, 0x1E7F, 0, -1, 0, 1, &code, &count, 0);
+        } else if (rank >= 5) {
+            fn_80444020(Inventory::instance_, 0x1E80, 0, -1, 0, 1, &code, &count, 0);
+        }
+    } else {
+        if (rank >= 0 && rank < 2) {
+            fn_80444020(Inventory::instance_, 0x1E79, 0, -1, 0, 1, &code, &count, 0);
+        }
+        if (rank >= 2 && rank < 4) {
+            fn_80444020(Inventory::instance_, 0x1E7A, 0, -1, 0, 1, &code, &count, 0);
+        } else if (rank == 4) {
+            fn_80444020(Inventory::instance_, 0x1E7B, 0, -1, 0, 1, &code, &count, 0);
+        } else if (rank >= 5) {
+            fn_80444020(Inventory::instance_, 0x1E7C, 0, -1, 0, 1, &code, &count, 0);
+        }
+    }
+    if (code > 0 && count > 0) {
+        fn_800C31F4("SE_UICOM_008", 0, -1, 1.0f);
+        lbl_8087F490->fn_803E5E64(code, count, 1);
+    }
+    if (mgr->mMode != 1) {
+        return;
+    }
+    int own = PPCountTeam_unk(mgr, PPOwnTeam_unk(mgr));
+    int other = PPCountTeam_unk(mgr, PPOtherTeam_unk(mgr));
+    if (own >= other) {
+        return;
+    }
+    int ownScore = PPTeamScore_unk(mgr, PPOwnTeam_unk(mgr));
+    if (PPTeamScore_unk(mgr, PPOtherTeam_unk(mgr)) - ownScore >= 40) {
+        fn_80444020(Inventory::instance_, 0x1C23, 0, -1, 0, 0, 0, 0, 0);
+        fn_80444020(Inventory::instance_, 0x1C26, 0, -1, 0, 0, 0, 0, 0);
     }
 }
 
