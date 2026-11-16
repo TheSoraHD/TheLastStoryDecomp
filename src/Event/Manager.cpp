@@ -3156,14 +3156,14 @@ void fn_8048F844(MapArea* area, void* arg) {
 // inferred: AutoLightFix (debug menu "AutoLightFix"): unless the cut moves the lights itself, turns the
 // light towards the camera (type 1) or adds a directional light (type 2), then scales the light and the
 // ambient color of the scene and of the map areas
-// NONMATCHING: 99.84% - stack slots of the temporaries of case 1 (the result of fn_8047C1D8 and the argument)
 void Manager::fn_8048F9B0(Cut* cut) {
     CutLightFlags_unk flags = cut->GetLightFlags_unk();
     if (!flags.m00 && !flags.m01 && !flags.m02) {
         switch (m240C) {
         case 1: {
             EventCamera_unk* camera = fn_8000DB1C()->GetCamera_unk();
-            GetViewLight_unk(fn_8008B964())->SetDir_unk(fn_8047C1D8(fn_80383728(camera), *m1BD0.mLight.GetDir_unk(), m2410));
+            atn::Vector3 dir = fn_8047C1D8(fn_80383728(camera), *m1BD0.mLight.GetDir_unk(), m2410);
+            GetViewLight_unk(fn_8008B964())->SetDir_unk(dir);
             LightFixDir_unk fix(camera, &m1AB0, m240C, m2410);
             MapManager::GetInstance_unk()->fn_80491528(fn_8048F1DC, &fix);
             break;
