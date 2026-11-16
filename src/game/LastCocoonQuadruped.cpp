@@ -1093,7 +1093,6 @@ void LastCocoonQuadruped::fn_80463DCC() {
     }
 }
 
-// NONMATCHING: 99.9% - stack slots of the two path positions and of the direction rotated by one
 // inferred: walks along the route for 45 frames, hitting with the bullet 0x5B4
 void LastCocoonQuadruped::fn_80463F20() {
     if (m14C0 >= 45) {
@@ -1105,7 +1104,8 @@ void LastCocoonQuadruped::fn_80463F20() {
         return;
     }
     mPos = m1504.GetPos_unk(1.0f / 45.0f * m14C0);
-    mRot = (mPos - m1504.GetPos_unk(1.0f / 45.0f * (m14C0 - 1))).ToRotationZ_unk();
+    atn::Vector3 prev = m1504.GetPos_unk(1.0f / 45.0f * (m14C0 - 1));
+    mRot = (mPos - prev).ToRotationZ_unk();
     fn_80144710();
     HitInfo_unk* bullet = fn_80219E6C(0x5B4);
     lbl_8087F048->fn_800F8C6C(0, 0, this, bullet, m590, 0.0f, 30, -1);
@@ -1114,7 +1114,6 @@ void LastCocoonQuadruped::fn_80463F20() {
     }
 }
 
-// NONMATCHING: 99.9% - stack slots of the two path positions and of the direction rotated by one
 // inferred: walks along the route for 33 frames, hitting with the bullet 0x5B4
 void LastCocoonQuadruped::fn_80464608() {
     if (m14C0 >= 33) {
@@ -1126,7 +1125,8 @@ void LastCocoonQuadruped::fn_80464608() {
         return;
     }
     mPos = m1504.GetPos_unk(1.0f / 45.0f * m14C0);
-    mRot = (mPos - m1504.GetPos_unk(1.0f / 45.0f * (m14C0 - 1))).ToRotationZ_unk();
+    atn::Vector3 prev = m1504.GetPos_unk(1.0f / 45.0f * (m14C0 - 1));
+    mRot = (mPos - prev).ToRotationZ_unk();
     fn_80144710();
     HitInfo_unk* bullet = fn_80219E6C(0x5B4);
     lbl_8087F048->fn_800F8C6C(0, 0, this, bullet, m590, 0.0f, 30, -1);

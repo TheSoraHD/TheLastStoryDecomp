@@ -6605,20 +6605,20 @@ extern "C" void* lbl_8087EE98; // inferred: collision manager
 extern "C" int fn_8004ECC0(void* world, atn::Vector3* hit, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg); // inferred: ray test
 
-// NONMATCHING: 99.7% - stack slots of the two copies swapped (start at 0x18 and end at 0x24 in the original)
 // inferred: nothing blocks the line from `from` to `to` (stopped `radius` before it; only farther than
 // 1.5 times the radius); used by Em206EggMonster and SpecialEnemyBase
 extern "C" int fn_803ABE54(const atn::Vector3* from, const atn::Vector3* to, float radius) {
-    atn::Vector3 start = *from;
-    atn::Vector3 end = *to;
-    float dist = (end - start).Length_unk();
+    atn::Vector3 line[2];
+    line[0] = *from;
+    line[1] = *to;
+    float dist = (line[1] - line[0]).Length_unk();
     if (!((float)__fabs(dist) < 1.1920929e-7f)) {
-        end -= start;
-        end.Normalize_unk();
-        end *= dist - radius;
-        end += start;
+        line[1] -= line[0];
+        line[1].Normalize_unk();
+        line[1] *= dist - radius;
+        line[1] += line[0];
     }
-    if (dist > 1.5f * radius && fn_8004ECC0(lbl_8087EE98, 0, &start, &end, 0x80000010, 0, 0) == 0) {
+    if (dist > 1.5f * radius && fn_8004ECC0(lbl_8087EE98, 0, &line[0], &line[1], 0x80000010, 0, 0) == 0) {
         return 1;
     }
     return 0;

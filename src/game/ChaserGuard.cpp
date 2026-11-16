@@ -467,8 +467,11 @@ void ChaserGuard::fn_8017F348() {
     fn_8017FED0();
 }
 
-// NONMATCHING: 99.86% - stack slots of the loop temporaries (the front vector is above them in the
-// original) and two swapped address registers.
+// inferred: marks a chara on the minimap of the town (m258, name invented)
+inline void MarkChara_unk(CharaTask* chara, const atn::Color& color) {
+    ((MiniMapTask*)lbl_8087FA20->m258)->fn_804AAD68(chara, &color);
+}
+
 void ChaserGuard::fn_8017F4A0(int state) {
     m14B4 = 0;
     m14D0 = 0;
@@ -525,12 +528,13 @@ void ChaserGuard::fn_8017F4A0(int state) {
                     PSMTXMultVec(m2, &dir, &dir);
                     atn::Vector3 to = m150C->mPos + dir * 20.0f;
                     atn::Vector3 from = m150C->mPos;
-                    atn::Vector3 end = to;
+                    atn::Vector3 end;
+                    atn::VecAssign_unk(end, to);
                     from.y += 5.0f;
                     end.y += 5.0f;
                     atn::ColliResult_unk result;
                     if (fn_8004ED34(lbl_8087EE98, &result, &from, &end, 0x80000000, 0, 0) == 0) {
-                        m1510 = to - dir * 5.0f;
+                        atn::VecAssign_unk(m1510, to - dir * 5.0f);
                         break;
                     }
                 }
@@ -564,9 +568,7 @@ void ChaserGuard::fn_8017F4A0(int state) {
         mMotion.fn_80097C08(0, 2, 1, 0, 1, 0.0f, 0.1f);
         mMotion.mTracks[0].m0C = 1.0f;
         m1508 = 0;
-        Color4f_unk color(1.0f, 0.0f, 0.0f, 1.0f);
-        // inferred: m258 is the minimap of the town; Color4f_unk has the layout of atn::Color
-        ((MiniMapTask*)lbl_8087FA20->m258)->fn_804AAD68(this, (const atn::Color*)&color);
+        MarkChara_unk(this, atn::Color(1.0f, 0.0f, 0.0f, 1.0f));
         break;
     }
     case 1: {
@@ -638,7 +640,6 @@ bool ChaserGuard::fn_8017FBEC() {
     return false;
 }
 
-// NONMATCHING: 99.46% - the target keeps &mPos in r30 for the direction to the player.
 void ChaserGuard::fn_8017FED0() {
     RouteWalker_unk& route = mC58.m0C;
     route.fn_80126214();
@@ -654,7 +655,9 @@ void ChaserGuard::fn_8017FED0() {
         look = 0.0f;
     }
     if (m14B0 - 4 <= 1u && IsPlayerNear_unk() && fn_80183860(lbl_8087F098, &mPos) != 0) {
-        rot = DirToPlayer_unk(mPos).ToRotationZ_unk();
+        const atn::Vector3& pos = mPos;
+        atn::Vector3 to = DirToPlayer_unk(pos);
+        rot = to.ToRotationZ_unk();
     }
     float speed = lbl_8087F0A8->mChase.m500;
     if (m14B0 == 5) {
@@ -688,12 +691,11 @@ void ChaserGuard::fn_8017FED0() {
         if (hard) {
             speed *= 0.9f;
         }
-        int time = lbl_8087F098->m58;
-        if (time > 4500) {
+        if (lbl_8087F098->m58 > 4500) {
             speed *= hard ? 0.5f : 0.7f;
-        } else if (time > 3600) {
+        } else if (lbl_8087F098->m58 > 3600) {
             speed *= hard ? 0.65f : 0.8f;
-        } else if (time > 2700) {
+        } else if (lbl_8087F098->m58 > 2700) {
             speed *= hard ? 0.8f : 0.9f;
         }
     }

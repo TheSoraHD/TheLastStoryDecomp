@@ -869,7 +869,11 @@ void NewCampPartsOption::vf30() {
     fn_80525498();
 }
 
-// NONMATCHING: 99.98% - stack slots of the SoundRef temporaries of mode 8 swapped (0xC/0x10)
+// inferred: plays a system sound effect; the temporaries of the calls through it go below the others (name invented)
+inline void PlaySe_unk(int id) {
+    fn_80117228(id);
+}
+
 void NewCampPartsOption::vf2C() {
     m58 = 1.0f;
     m95 = 0;
@@ -933,7 +937,7 @@ void NewCampPartsOption::vf2C() {
             SetConfig::sInstance->fn_8057EF40();
             fn_80525498();
             fn_80522938();
-            fn_80117228(1);
+            PlaySe_unk(1);
             fn_805256C4(0, 0);
         } else {
             fn_80117228(2);
@@ -943,7 +947,7 @@ void NewCampPartsOption::vf2C() {
     }
     if (mD8 == 0 && m58 > 0.0f && fn_800A555C(lbl_8087EF70, 0, 6) != 0) {
         fn_805256C4(8, 0);
-        fn_80117228(1);
+        PlaySe_unk(1);
     }
 }
 
