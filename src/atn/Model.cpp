@@ -2479,8 +2479,8 @@ void Model::fn_80096218(SimpleVector<unsigned int>* list, void* arg) {
     }
 }
 
-// NONMATCHING: 99.3% - the "" of the pool is at 0xA in the original, and the motion slots are built with
-// the constructor of LH_Motion (here the implicit one of MotionSlot_unk)
+// inferred: the motion slots are built with the out-of-line constructor of MotionSlot_unk (0x800A03A0).
+// Pending (unit, not this function): the "" of the pool is at 0xA in the original.
 Model::Model(int flags, int motions)
     : ModelBase(flags), m34C(1), m350(1.0f), m384(0), m3A8(0.0f, 0.0f, 0.0f), m3B4(0.0f), m3B8(0.0f), m3BC(0),
       m3C0(-1), m3C4(0.0f) {

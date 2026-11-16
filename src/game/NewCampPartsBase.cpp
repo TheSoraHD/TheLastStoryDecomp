@@ -143,7 +143,7 @@ void NewCampPartsBase::fn_8050FC04(int count, NewCampPartsMotion_unk* motions,
         NewCampPartsMotion_unk* m = &motions[i];
         path = f->mPath;
         if (strcmp(path, "\0") != 0) {
-            m->mMotion.fn_800A03E4(path);
+            m->mSlot.mMotion.fn_800A03E4(path);
             m->mHash = fn_800DC6B4(f->mNode);
         }
     }
@@ -336,22 +336,22 @@ void NewCampPartsBase::vf60(NewCampPartsEntry_unk* entry, NewCampPartsMotion_unk
         return;
     }
     int play = 1;
-    if (motion == 0 || motion->mMotion.m08 == 0) {
+    if (motion == 0 || motion->mSlot.mMotion.m08 == 0) {
         play = 0;
     }
     if (play != 0) {
         atn::Vector3 scale(1.0f, 1.0f, 1.0f);
-        if (motion->mMotion.m08 == 0) {
+        if (motion->mSlot.mMotion.m08 == 0) {
             return;
         }
         motion->mFrame += step;
-        if (motion->mFrame >= fn_800A08D4(&motion->mMotion)) {
-            motion->mFrame = fn_800A08D4(&motion->mMotion);
+        if (motion->mFrame >= fn_800A08D4(&motion->mSlot.mMotion)) {
+            motion->mFrame = fn_800A08D4(&motion->mSlot.mMotion);
         }
         if (motion->mFrame <= 0.0f) {
             motion->mFrame = 0.0f;
         }
-        fn_800A0548(&motion->mMotion, &motion->mPose, motion->mHash, motion->mWork, motion->mFrame);
+        fn_800A0548(&motion->mSlot.mMotion, &motion->mPose, motion->mHash, motion->mWork, motion->mFrame);
         atn::Matrix3x4 mtx;
         mtx.SetIdentity();
         atn::Matrix3x4 q;

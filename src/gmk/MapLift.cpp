@@ -79,9 +79,6 @@ GimmickCommon* MapLift::fn_80429668(atn::Task* parent, GimmickDesc_unk* desc) {
     return 0;
 }
 
-// NONMATCHING: 99.90% - the original builds the motion slots with the constructor of LH_Motion and
-// destroys them with the one of atn::MotionSlot_unk (0x800970CC); here the implicit constructor of
-// MotionSlot_unk is called (same problem as atn::Model::Model).
 MapLift::MapLift(atn::Task* parent, GimmickDesc_unk* desc)
     : GimmickCommon(parent, desc->mId, desc->mArg), mDesc(desc), mF8(0), mFC(-1), mPos(0.0f, 0.0f, 0.0f),
       mPrevPos(0.0f, 0.0f, 0.0f) {
@@ -97,7 +94,6 @@ MapLift::MapLift(atn::Task* parent, GimmickDesc_unk* desc)
     mLocators.clear();
 }
 
-// NONMATCHING: 99.84% - same destructor of the motion array as the constructor.
 MapLift::~MapLift() {}
 
 // inferred: the name contains one of the locators
