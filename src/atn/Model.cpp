@@ -1991,13 +1991,13 @@ void Model::fn_80093014(int on) {
     }
 }
 
-// NONMATCHING: 99.6% - register of the level pointer of the second loop (r30 in the original)
+// inferred: a local pointer to the entry inside the second loop (r30 as in the original)
 void ModelBase::fn_8009303C() {
     for (int j = mFlag1_unk != 0; j < m20C_23_16; j++) {
         mLods[j].m08 = mLods[j].mHandle.fn_80475DF8();
     }
-    int i = mFlag1_unk != 0;
-    for (ModelLod_unk* lod = &mLods[i]; i < m20C_23_16; lod++, i++) {
+    for (int i = mFlag1_unk != 0; i < m20C_23_16; i++) {
+        ModelLod_unk* lod = &mLods[i];
         if (lod->m08 != 0) {
             fn_80093158(lod);
         }
