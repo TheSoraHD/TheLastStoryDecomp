@@ -63,9 +63,16 @@ struct MpSession_unk {
     unsigned char m5EC[0x2B88 - 0x5EC];
     MpRanking_unk m2B88;
 
-    MpPlayer_unk* GetPlayer_unk(int i) { return (i >= 0 && i < m5E8) ? &m5E4[i] : 0; }
+    MpPlayer_unk* GetPlayer_unk(int i) {
+        if (i >= 0 && i < m5E8) {
+            return &m5E4[i];
+        }
+        return 0;
+    }
 };
-extern "C" MpSession_unk* lbl_8087F610;
+// inferred: volatile: fn_804B5B10 reads it again in the body of the player loop right after the loop
+// condition (the same reload as lbl_8087EE64 in AI/AiCommon_unk.cpp)
+extern "C" MpSession_unk* volatile lbl_8087F610;
 extern "C" MpPlayer_unk* fn_804EB870(MpSession_unk* s); // inferred: local player
 extern "C" int fn_804EB480(MpSession_unk* s, MpPlayer_unk* player);
 extern "C" int fn_804DB408(MpSession_unk* s); // inferred: remaining time in seconds
@@ -78,6 +85,8 @@ struct MpPlayerInfo_unk {
 struct MpPlayerInfos_unk {
     unsigned char m000[0x274];
     MpPlayerInfo_unk mInfos[8];
+
+    MpPlayerInfo_unk* GetInfo_unk(int i) { return &mInfos[i]; }
 };
 extern "C" MpPlayerInfos_unk* lbl_8087F628;
 
@@ -325,28 +334,24 @@ void D2AMpMenuCockpit::vf14() {
     }
 }
 
-// inferred: position of the mark over a character (3 units above its neck); not inline (its
-// literal is in @stringBase0)
-static atn::Vector3 GetMarkPos_unk(MpChara_unk* chara) {
-    int node = chara->mModel.GetNodeNoByName("neck", 0);
-    float (*mtx)[4] = node < 0 ? 0 : chara->mModel.mMtx.mNodes.mData[node].m;
-    return mtx != 0 ? atn::Vector3(mtx[0][3], mtx[1][3], mtx[2][3]) + atn::Vector3(0.0f, 3.0f, 0.0f) : chara->vf58();
-}
+// inferred: the screen test is a macro (an inline returning bool leaves the result in a register)
+#define IsOnScreen_unk(screen)                                                                      \
+    (0.0f <= (screen).z && (screen).z <= 1.0f && -50.0f <= (screen).x &&                            \
+     (screen).x < 50.0f + (float)lbl_8087EEE0->mWidth && -50.0f <= (screen).y &&                    \
+     (screen).y < 50.0f + (float)lbl_8087EEE0->mHeight)
 
-inline bool IsOnScreen_unk(const atn::Vector3& screen) {
-    return 0.0f <= screen.z && screen.z <= 1.0f && -50.0f <= screen.x &&
-           screen.x < 50.0f + (float)lbl_8087EEE0->mWidth && -50.0f <= screen.y &&
-           screen.y < 50.0f + (float)lbl_8087EEE0->mHeight;
-}
-
-// NONMATCHING: 93.26% - loop registers and the vector temporaries of GetMarkPos_unk differ
+// inferred: marks over the characters. The position of a mark (3 units above the neck) is written in
+// the loops, not in an inline (the vector temporaries keep the order of the original); the mode is
+// read before the team (register order of the two loads).
 void D2AMpMenuCockpit::fn_804B5B10() {
     if (fn_804EB870(lbl_8087F610) == 0) {
         return;
     }
-    unsigned int team = fn_804EB870(lbl_8087F610)->mTeam;
+    MpPlayer_unk* self = fn_804EB870(lbl_8087F610);
     MpSession_unk* session = lbl_8087F610;
-    if (session->m540 == 0 && session->m50C < 5) {
+    int mode = session->m540;
+    int team = self->mTeam;
+    if (mode == 0 && session->m50C < 5) {
         MpRanking_unk* ranking = &session->m2B88;
         MpPlayer_unk* prev = 0;
         int rank = 1;
@@ -367,7 +372,9 @@ void D2AMpMenuCockpit::fn_804B5B10() {
             if (rank > 2) {
                 break;
             }
-            atn::Vector3 pos = GetMarkPos_unk(player->m00);
+            float (*mtx)[4] = player->m00->mModel.GetNodeMtx_unk("neck");
+            atn::Vector3 pos = mtx != 0 ? ((atn::Matrix3x4*)mtx)->GetTrans_unk() + atn::Vector3(0.0f, 3.0f, 0.0f)
+                                        : player->m00->vf58();
             atn::Vector3 screen = atn::RenderManager::instance_->GetScreenPosition(pos);
             if (IsOnScreen_unk(screen)) {
                 m50[i]->SetColor_unk("col0002(1)", rank == 1 ? 0xFFE59E36 : 0xFF969696);
@@ -382,20 +389,29 @@ void D2AMpMenuCockpit::fn_804B5B10() {
     if (lbl_8087F610->m540 == 1) {
         for (int i = 0; i < lbl_8087F610->m5E8; i++) {
             MpPlayer_unk* player = lbl_8087F610->GetPlayer_unk(i);
-            MpPlayerInfo_unk* info = &lbl_8087F628->mInfos[i];
+            MpPlayerInfo_unk* info = lbl_8087F628->GetInfo_unk(i);
             if (info != 0 && player != 0 && team == player->mTeam) {
-                atn::Vector3 pos = GetMarkPos_unk(player->m00);
+                float (*mtx)[4] = player->m00->mModel.GetNodeMtx_unk("neck");
+                atn::Vector3 pos = mtx != 0 ? ((atn::Matrix3x4*)mtx)->GetTrans_unk() + atn::Vector3(0.0f, 3.0f, 0.0f)
+                                        : player->m00->vf58();
                 atn::Vector3 screen = atn::RenderManager::instance_->GetScreenPosition(pos);
                 if (IsOnScreen_unk(screen)) {
                     m70[i]->mFlags &= ~4;
                     SetPaneValue_unk(m70[i]->mLayout, "basePoint", 0, screen.x);
                     SetPaneValue_unk(m70[i]->mLayout, "basePoint", 1, screen.y);
-                    SetPaneText_unk(m70[i]->mLayout, "name",
-                                    fn_804EB480(lbl_8087F610, player) != 0 ? lbl_8087F86C->Get_unk(0x130)
-                                                                           : info->mName);
-                    SetPaneText_unk(m70[i]->mLayout, "nameSub",
-                                    fn_804EB480(lbl_8087F610, player) != 0 ? lbl_8087F86C->Get_unk(0x130)
-                                                                           : info->mName);
+                    // inferred: text, then layout, then hash (register order of the original)
+                    {
+                        const wchar_t* text =
+                            fn_804EB480(lbl_8087F610, player) != 0 ? lbl_8087F86C->Get_unk(0x130) : info->mName;
+                        void* layout = m70[i]->mLayout;
+                        fn_801FEE08(layout, fn_800DC6B4("name"), text);
+                    }
+                    {
+                        const wchar_t* text =
+                            fn_804EB480(lbl_8087F610, player) != 0 ? lbl_8087F86C->Get_unk(0x130) : info->mName;
+                        void* layout = m70[i]->mLayout;
+                        fn_801FEE08(layout, fn_800DC6B4("nameSub"), text);
+                    }
                     if (team == 1) {
                         m70[i]->SetColor_unk("nameColor", 255.0f, 120.0f, 120.0f);
                     } else {
