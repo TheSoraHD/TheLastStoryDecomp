@@ -1,0 +1,100 @@
+diff --git a/src/game/EnemySeaLizerd.cpp b/src/game/EnemySeaLizerd.cpp
+index 9b374019..f4998bc2 100644
+--- a/src/game/EnemySeaLizerd.cpp
++++ b/src/game/EnemySeaLizerd.cpp
+@@ -163,7 +163,12 @@ inline float Gravity_unk() {
+ void EnemySeaLizerd::fn_80354EE4() {
+     mFlag5 = 0;
+     if (m14D0 == 0) {
+-        atn::Vector3 dir(m14C0->mPos.x - mPos.x, 0.0f, m14C0->mPos.z - mPos.z);
++        float dz = m14C0->mPos.z - mPos.z;
++        float dx = m14C0->mPos.x - mPos.x;
++        atn::Vector3 dir;
++        dir.x = dx;
++        dir.z = dz;
++        dir.y = 0.0f;
+         dir.fn_80139F60();
+         float turn = atn::WrapAngle_unk(dir.y - mRot.y);
+         turn *= 0.3f;
+@@ -175,7 +180,7 @@ void EnemySeaLizerd::fn_80354EE4() {
+             CharaTask* target = m14C0;
+             dir = target->mPos - head;
+             dir.y += 8.0f;
+-            float dist = sqrt(dir.x * dir.x + dir.z * dir.z);
++            float dist = sqrt(dir.LengthSqXZ_unk());
+             float time = dist / bullet->m4C;
+             float vy = dir.y / time + -0.5f * time * Gravity_unk();
+             dir.y = 0.0f;
+diff --git a/src/game/Em205Ogre.cpp b/src/game/Em205Ogre.cpp
+index 614e4bd5..e960e6eb 100644
+--- a/src/game/Em205Ogre.cpp
++++ b/src/game/Em205Ogre.cpp
+@@ -1,4 +1,5 @@
+ #include "game/Em205Ogre.h"
++#include "math/VecAssign_unk.h"
+ #include "game/GameTask.h"
+ #include "atn/Csv.h"
+ #include "atn/Memory.h"
+@@ -417,10 +418,7 @@ void Em205Ogre::vf108() {
+     float speed = 0.0f;
+     float rate = 1.0f;
+     atn::Vector3 rot = mRot;
+-    anim = 0.5f;
+-    if (mStatus.fn_8012DB04() > anim) {
+-        anim = mStatus.fn_8012DB04();
+-    }
++    anim = mStatus.fn_8012DB04() > 0.5f ? mStatus.fn_8012DB04() : 0.5f;
+     if (m55C == 2) {
+         switch (m58C) {
+         case 6:
+@@ -461,7 +459,9 @@ void Em205Ogre::vf108() {
+                 PSMTXRotRad(m, 'y', mRot.y);
+                 PSMTXMultVec(m, &v, &v);
+                 float scale = mMotion.m350;
+-                mPos += v * (lbl_8087EFA8->m3A4 * scale * anim);
++                float k = lbl_8087EFA8->m3A4 * scale;
++                k *= anim;
++                mPos += v * k;
+             }
+             mMotion.mTracks[0].m0C = anim;
+             if (m14BC == 0) {
+@@ -527,7 +527,7 @@ void Em205Ogre::vf108() {
+                     atn::Vector3 pos = mPos + atn::Vector3(0.0f, 10.0f, 0.0f);
+                     MtxPtr head = mMotion.GetNodeMtx_unk("head");
+                     if (head != 0) {
+-                        pos = GetNodePos_unk(head);
++                        atn::VecAssign_unk(pos, GetNodePos_unk(head));
+                     }
+                     atn::Vector3 dir = m14D8;
+                     if (m14D4 != 0) {
+@@ -560,7 +560,7 @@ void Em205Ogre::fn_802B98B0() {
+     atn::Vector3 base = mPos;
+     MtxPtr ref = mMotion.GetNodeMtx_unk("reference");
+     if (ref != 0) {
+-        base = GetNodePos_unk(ref);
++        atn::VecAssign_unk(base, GetNodePos_unk(ref));
+     }
+     m620 = m5B0;
+     m614 = base + m5A4;
+@@ -570,17 +570,18 @@ void Em205Ogre::fn_802B98B0() {
+         MtxPtr left = mMotion.GetNodeMtx_unk("leftfoot");
+         MtxPtr right = mMotion.GetNodeMtx_unk("rightfoot");
+         if (left != 0 && right != 0) {
+-            top = (GetNodePos_unk(left) + GetNodePos_unk(right)) * 0.5f;
++            float half = 0.5f;
++            atn::VecAssign_unk(top, (GetNodePos_unk(left) + GetNodePos_unk(right)) * half);
+             top.y = m614.y;
+         }
+     }
+     atn::Vector3 head;
+     int neck = mMotion.GetNodeNoByName("neck", 0);
+     if (neck > -1) {
+-        head = GetNodePos_unk(mMotion.mMtx.mNodes.mData[neck].m);
++        atn::VecAssign_unk(head, GetNodePos_unk(mMotion.mMtx.mNodes.mData[neck].m));
+         head.y -= 1.0f;
+     } else {
+-        head = top;
++        atn::VecAssign_unk(head, top);
+         head.y += m5B4 - 2.0f * m620;
+     }
+     mColli.m3C = top;
