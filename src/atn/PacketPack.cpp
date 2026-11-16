@@ -3564,7 +3564,7 @@ extern "C" void fn_804DA4A0(PPManager2_unk* mgr, int random) {
 #include "game/Inventory.h"
 extern "C" int fn_80444020(Inventory* inventory, int table, int message, int index, CharaTask* chara, int arg,
                            int* outCode, int* outCount, int* outAdded); // inferred: gives an item of a table
-extern "C" int fn_804DF4B8(PPManager2_unk* mgr);
+extern "C" void fn_804DF4B8(PPManager2_unk* mgr);
 extern "C" int fn_804E4B44(PPManager2_unk* mgr, PPPlayer_unk* target);
 extern "C" int fn_804DB408(PPManager2_unk* mgr);
 
@@ -4617,7 +4617,41 @@ extern "C" int fn_804DF404(PPManager2_unk* mgr) {
 struct PPScoreLess_unk {
     bool operator()(const PPPlayer_unk& a, const PPPlayer_unk& b) const { return a.mD58 > b.mD58; }
 };
-// inferred: emitted here in the original, after fn_804DF4B8 (its only caller, not written yet): 0x804E0694
+extern "C" int fn_804E4C5C(const PPManager2_unk* mgr);
+// NONMATCHING: 92.7% - registers of the inlined copy constructor of PPPlayer_unk (the equipment loops) and the
+// two score loops index base + offset in the original (here a moving pointer; an indexed inline accessor does not
+// change it)
+// inferred: ranking of the game: copies the slots in use to m2B8C, their score (team bonus of 1000 for the
+// winning team in mode 1) and sorts them by score (not in mode 2)
+// inferred: slot `i` of the ranking; name invented
+static inline PPPlayer_unk& PPRanked_unk(PPManager2_unk* mgr, int i) {
+    return mgr->m2B8C[i];
+}
+extern "C" void fn_804DF4B8(PPManager2_unk* mgr) {
+    mgr->m2B88 = 0;
+    for (int i = 0; i < mgr->mPlayers.mNum; i++) {
+        PPPlayer_unk* player = fn_804D5F0C(mgr, i);
+        if (player->mFlags.mActive == 1) {
+            new (&mgr->m2B8C[mgr->m2B88]) PPPlayer_unk(*player);
+            mgr->m2B88++;
+        }
+    }
+    if (mgr->mMode != 2) {
+        for (int i = 0; i < mgr->m2B88; i++) {
+            PPRanked_unk(mgr, i).mD58 = PPRanked_unk(mgr, i).mDCScore;
+        }
+        if (mgr->mMode == 1) {
+            int team = fn_804E4C5C(mgr);
+            for (int i = 0; i < mgr->m2B88; i++) {
+                if (PPRanked_unk(mgr, i).mFlags.m22 == team) {
+                    PPRanked_unk(mgr, i).mD58 += 1000;
+                }
+            }
+        }
+        MslSort_unk(mgr->m2B8C, mgr->m2B8C + mgr->m2B88, PPScoreLess_unk());
+    }
+}
+// inferred: emitted here in the original, after fn_804DF4B8 (its only caller): 0x804E0694
 // (comparison by value), 0x804E09CC (by reference), the swap 0x804E0CE4, the median 0x804E2840 and the
 // selection sort 0x804E291C
 // NONMATCHING: the swap 0x804E0CE4 (97.73%) and the selection sort 0x804E291C (99.35%, the swap inlined): the
@@ -6383,6 +6417,10 @@ struct PPMsgCharaState_unk {
     float mTurn;        // 0x28
 };
 
+// inferred: dot product; name invented
+static inline float PPDot_unk(const atn::Vector3& a, const atn::Vector3& b) {
+    return PSVECDotProduct(&a, &b);
+}
 // inferred: vector of three half floats; name invented
 static inline atn::Vector3 PPUnpackVec_unk(const short* h) {
     return atn::Vector3(UnpackHalf_unk(h[0]), UnpackHalf_unk(h[1]), UnpackHalf_unk(h[2]));
@@ -6425,7 +6463,7 @@ extern "C" unsigned int fn_804EE4F0(PPPlayer_unk* player, const void* buf) {
     chara->m13E4 = data->mTurn;
     chara->m13E8 = PPUnpackVec_unk(data->mNode);
     atn::Vector3 dir = PPUnpackVec_unk(data->mDir);
-    if (PSVECDotProduct(&dir, &chara->mFA4) > 0.70710677f) {
+    if (PPDot_unk(dir, chara->mFA4) > 0.70710677f) {
         atn::VecAssign_unk(dir, PPHalfway_unk(chara->mFA4, dir));
     }
     chara->mFA4 = dir;
@@ -6940,7 +6978,7 @@ extern "C" void fn_804F2450(unsigned int type) {
                 chara->m13E4 = data->mState.mTurn;
                 chara->m13E8 = PPUnpackVec_unk(data->mState.mNode);
                 atn::Vector3 dir = PPUnpackVec_unk(data->mState.mDir);
-                if (PSVECDotProduct(&dir, &chara->mFA4) > 0.70710677f) {
+                if (PPDot_unk(dir, chara->mFA4) > 0.70710677f) {
                     atn::VecAssign_unk(dir, PPHalfway_unk(chara->mFA4, dir));
                 }
                 chara->mFA4 = dir;
