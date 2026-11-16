@@ -316,7 +316,6 @@ void Em303KrakenFoot::vf3C(HitInfo_unk* hit, int) {
     vf40(hit);
 }
 
-// inferred: CharaTask::CanAct_unk written out (names invented)
 // inferred: helpers of the state functions (names invented)
 inline void Em303KrakenFoot::SetState_unk(int state) {
     m14B8 = 0;
@@ -332,35 +331,10 @@ inline void Em303KrakenFoot::PlayMotion_unk(int motion) {
     mMotion.fn_80097C08(0, motion, 0, 1, 1, 0.0f, 0.1f);
 }
 
-inline bool FootActive_unk(CharaTask* c) {
-    bool r = false;
-    if ((c->mFlags & 4) != 4 && (c->mFlags & 1) != 1) {
-        r = true;
-    }
-    return r;
-}
-inline bool FootFree_unk(CharaTask* c) {
-    bool r = false;
-    if (FootActive_unk(c) && !c->mStatus.IsState_unk(0x20)) {
-        r = true;
-    }
-    return r;
-}
-inline bool FootGrappled_unk(CharaTask* c) {
-    return c->m55C == 6 && c->m560 == 28;
-}
-inline bool FootCanAct_unk(CharaTask* c) {
-    bool r = false;
-    if (FootFree_unk(c) && !FootGrappled_unk(c)) {
-        r = true;
-    }
-    return r;
-}
-
 // inferred: releases the caught character and puts it back on the ground (name invented)
 inline void Em303KrakenFoot::Release_unk() {
     if (m14D0 != 0) {
-        if (FootCanAct_unk(m14D0)) {
+        if (m14D0->CanAct_unk()) {
             m14D0->fn_8015AC48(-1);
         }
         if (m14D0 != 0) {
@@ -378,8 +352,8 @@ inline void Em303KrakenFoot::Release_unk() {
     }
 }
 
-// NONMATCHING: 99.33% - registers of the inlined CanAct_unk of the caught character (r0/r4/r6 rotated; same
-// family as Em314Ivy::vf104 and Em309GhoulSimple::vf10; ~12 forms of the inline tried)
+// inferred: the real CharaTask::CanAct_unk gives the registers of the original (the local helpers written
+// with bool results did not)
 void Em303KrakenFoot::vf40(HitInfo_unk* hit) {
     HitMsg_unk* msg = (HitMsg_unk*)hit;
     int heavy = 0;
@@ -403,7 +377,7 @@ void Em303KrakenFoot::vf40(HitInfo_unk* hit) {
         mMotion.mTracks[0].m0C = 1.0f;
         mMotion.fn_80097C08(0, 0x33, 0, 1, 1, 0.0f, 0.1f);
         if (m14D0 != 0) {
-            if (FootCanAct_unk(m14D0)) {
+            if (m14D0->CanAct_unk()) {
                 m14D0->fn_8015AC48(-1);
             }
             if (m14D0 != 0) {
@@ -661,7 +635,7 @@ inline atn::Vector3 Em303KrakenFoot::GetBack_unk() {
 }
 
 // inferred: state 8: turns to the target and catches it at the end of the motion
-// NONMATCHING: 98.96% - registers of the inlined CanAct_unk (as vf40), the field pointer of the flag write kept
+// NONMATCHING: 99.06% - the field pointer of the flag write kept
 // in r3 and stack slots of the two ray tests (~12 forms of the helpers tried). Since IsPlayer is const (its RSO
 // name, IsPlayer__9CharaTaskCFv) mType is loaded again for the ?: instead of reusing the value of the
 // `!= 2` test (the original does cntlzw on it, as a non-const inline gives: 99.15%); 12 forms of the
@@ -733,13 +707,12 @@ void Em303KrakenFoot::fn_802E3EE8() {
 }
 
 // inferred: state 11: drags the caught character to the kraken
-// NONMATCHING: 99.58% - registers of the inlined CanAct_unk and stack slots of the normalized direction / rotated
-// vector (~12 forms tried)
+// NONMATCHING: 99.92% - stack slots of the normalized direction / rotated vector (~12 forms tried)
 void Em303KrakenFoot::fn_802E470C() {
     if (m14BC > m14E0) {
         m14BC = 0;
     }
-    if (!(m14D0 != 0 && FootCanAct_unk(m14D0) && m14D0->m55C == 6 && m14D0->m560 == 17)) {
+    if (!(m14D0 != 0 && m14D0->CanAct_unk() && m14D0->m55C == 6 && m14D0->m560 == 17)) {
         if (m14D0->mType == 0 && !m14D0->mStatus.IsState_unk(0x20)) {
             Em302Kraken* kraken = (Em302Kraken*)m1504;
             atn::Vector3 d = kraken->mPos - mPos;
@@ -845,7 +818,6 @@ void Em303KrakenFoot::fn_802E554C(int arg) {
     m14EC = arg;
 }
 
-// NONMATCHING: 99.60% - registers of the inlined CanAct_unk (see vf40)
 void Em303KrakenFoot::fn_802E55B0(int kind) {
     m14B8 = 0;
     m14BC = 0;

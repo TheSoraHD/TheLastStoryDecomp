@@ -458,21 +458,25 @@ void ShopIdentify::fn_805895B4() {
     }
 }
 
-// NONMATCHING: 98.97% - register allocation only (volatile registers of the index loop)
+// inferred: moves up the items after an identified one (name invented; the loop in an inline that takes the
+// vector by pointer gives the counter/offset registers of the original)
+inline void ShiftIndices_unk(std::vector<ShopIdentifyEntry_unk>* items, const int& index) {
+    for (unsigned int i = 0; i < items->size(); i++) {
+        if ((*items)[i].mIndex > index) {
+            (*items)[i].mIndex--;
+        }
+    }
+}
+
 void ShopIdentify::fn_805897D4() {
     if (mResult->IsEnd_unk()) {
         void* pad = lbl_8087EF70;
         if (fn_800A555C(pad, 0, 4) || fn_800A555C(pad, 0, 5)) {
             mItems[mCursor].mDone = 1;
             int num = fn_80444564(Inventory::instance_, mItems[mCursor].mItem);
-            ShopIdentifyEntry_unk* items = mItems.mData;
-            int cursor = mCursor;
-            for (unsigned int i = 0; i < mItems.size(); i++) {
-                if (mItems[i].mIndex > items[cursor].mIndex) {
-                    mItems[i].mIndex--;
-                }
-            }
-            fn_8044D56C(Inventory::instance_, items[cursor].mIndex);
+            ShopIdentifyEntry_unk& item = mItems[mCursor];
+            ShiftIndices_unk(&mItems, item.mIndex);
+            fn_8044D56C(Inventory::instance_, item.mIndex);
             fn_80117228(1);
             if (num >= 10) {
                 fn_8058181C(1, 17, 0);
