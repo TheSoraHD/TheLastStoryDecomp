@@ -6433,6 +6433,9 @@ extern "C" void fn_804F2994() {
     }
 }
 
+// inferred: empty in the original (the hits of other players reach the special enemies by fn_804F2994)
+void SpecialEnemyBase::vf40(HitInfo_unk*) {}
+
 // inferred: message 0x1F: shield parts of the character of the player (count in the data)
 extern "C" void fn_804F2C44(PPPlayer_unk* player) {
     if (((PPManager2_unk*)lbl_8087F610)->mState != 30) {
