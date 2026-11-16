@@ -28,6 +28,21 @@ struct LipSyncKeys_unk {
         mKeys = 0;
         mCount = 0;
     }
+    // inferred: inline resize of the key array (name invented). Its "" literals are the weak @STRING@ pool
+    // of .sdata 0x8087D760/0x8087D764; Event::Dialog uses it on both lists (m190 is a LipSyncKeys_unk) with
+    // heaps 4 and 0, so the heap is a parameter (probably the original is a shared array template).
+    void Resize_unk(unsigned int count, int heap) {
+        if (mKeys != 0) {
+            delete[] mKeys;
+        }
+        mCount = count;
+        if (mCount != 0) {
+            mKeys = new ((MemoryTag)heap, "", "", 0) LipSyncKey_unk[mCount];
+        } else {
+            mKeys = 0;
+        }
+    }
+
     unsigned int mCount;
     LipSyncKey_unk* mKeys;
 };
@@ -37,21 +52,6 @@ struct LipSyncKeys_unk {
 struct LipSyncData_unk : public LipSyncKeys_unk {
     LipSyncData_unk() : m08(30) {}
     void fn_8007A530(const char* text, int size); // inferred: parses the CSV
-    // inferred: inline resize of the key array (name invented). Its "" literals are the weak @STRING@ pool
-    // of .sdata 0x8087D760/0x8087D764; Event::Dialog uses the same pool with heaps 4 and 0, so the heap is
-    // a parameter (probably the original is a shared array template, not reconstructed).
-    void Resize_unk(unsigned int count, int heap) {
-        if (mKeys != 0) {
-            delete[] mKeys;
-        }
-        mCount = count;
-        if (count != 0) {
-            mKeys = new ((MemoryTag)heap, "", "", 0) LipSyncKey_unk[count];
-        } else {
-            mKeys = 0;
-        }
-    }
-
     int m08; // inferred: second field of the CSV
 };
 
