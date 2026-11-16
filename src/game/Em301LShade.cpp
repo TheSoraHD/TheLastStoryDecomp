@@ -461,8 +461,9 @@ int Em301LShade::vf0C() {
 template void std::vector<RoutePlace_unk*>::push_back(RoutePlace_unk* const& x);
 template void std::vector<EnemyTask*>::push_back(EnemyTask* const& x);
 
-// DRAFT: not checked against the original (draft without a description)
-// NONMATCHING: draft
+// NONMATCHING: 90.2% - stack slots of the color temporaries (the original stores the MIN_unk results after
+// the join), float registers and the reload of m15E8 after m1500++; calls, literals, jump table and member
+// offsets checked against the original
 void Em301LShade::vf10() {
     if (m58C != 8) {
         m1620 = mC58.mC4;
@@ -706,7 +707,7 @@ void Em301LShade::vf10() {
     } else {
         mPos = m162C[m14D8]->mPos;
     }
-    mPos.y -= 13.0f * m540.y;
+    mPos.y -= 13.0f * m540.x;
     CharaTask* target = m1620;
     if (target != 0) {
         atn::Vector3 dir;

@@ -302,7 +302,7 @@ Em302KrakenMp::Em302KrakenMp(atn::Task* parent, EnemyInfo_unk* info)
     m1644 = 0;
 }
 
-// NONMATCHING: 99.4% - saved registers of the reading loop rotated (key/pool/zero: r28/r29/r30 in the
+// NONMATCHING: 99.3% - saved registers of the reading loop rotated (key/pool/zero: r28/r29/r30 in the
 // original, r30/r29/r28 here), as Em302Kraken::vf0C
 int Em302KrakenMp::vf0C() {
     if (m14D4 == 0) {

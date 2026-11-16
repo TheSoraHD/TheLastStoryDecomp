@@ -14,10 +14,12 @@ Inicio: 2026-11-16 23:58 CET (tope 2,5 h: 02:28).
 | Em302KrakenMp vf0C (0x802DE27C) | DRAFT 99,30 % | equivalente NONMATCHING (orden de IsLoading corregido; quedan registros) |
 | Em302KrakenMp vf104 (0x802DF570) | DRAFT 100 % | 100 % (mnemcheck limpio, literales iguales) |
 | EnemyTasha ctor (0x803559F8) | DRAFT 100 % | 100 % (mnemcheck limpio, literales iguales) |
-| Em202ForestSpider ctor (0x8027278C) | DRAFT 98,40 % | equivalente NONMATCHING 99,6 % (faltaba `m14BC(0)`) |
+| Em202ForestSpider ctor (0x8027278C) | DRAFT 98,40 % | equivalente NONMATCHING 98,75 % (faltaba `m14BC(0)`) |
+| Em301LShade vf10 (0x802D0B84) | DRAFT 90,20 % | equivalente NONMATCHING 90,2 % (`m540.y` -> `m540.x`; llamadas, literales, tabla de saltos y offsets comprobados) |
 
 ## Para el port
 - Em302KrakenMp::vf0C: el original comprueba `m15CC.IsLoading()` justo despues de `m152C` (antes de m1564/m1570/m157C); corregido.
+- Em301LShade::vf10: la bajada de la posicion es `mPos.y -= 13.0f * m540.x` (no `m540.y`), como en los demas usos de m540.
 - Em202ForestSpider ctor: el original pone `m14BC = 0` ("ReinforceCenter"); faltaba en el init list (miembro sin inicializar).
 
 ## Decisiones tomadas sin el usuario
@@ -31,4 +33,7 @@ Inicio: 2026-11-16 23:58 CET (tope 2,5 h: 02:28).
 - Ninguno.
 
 ## Scripts
+- `/home/claude/scratch-W2/bin/semdiff.py <unidad> <simbolo>`: filas de objdiff que siguen distintas tras normalizar registros, huecos de pila y destinos; comprueba destinos de salto por alineado y compara la bolsa de llamadas y de offsets de miembros (encontro el `m540.y` de Em301LShade::vf10 en 5896 B). Para comprobar DRAFT grandes.
+- `/home/claude/scratch-W2/bin/jtab.py <obj.o> <funcion>`: tablas de saltos de una funcion como indices de instruccion (comparar el .o original de build/SLSP01/obj con el nuestro).
+- `/home/claude/scratch-W2/bin/oside.py <unidad> <simbolo> <desde> <hasta>`: odiff2 con todas las filas de un rango, lado a lado.
 - `/home/claude/scratch-W2/bin/fltcmp.py <unidad> <simbolo>`: valores de los literales (.sdata2/.rodata/.sdata) que carga una funcion, en orden, en el .o original y en el nuestro; para comprobar funciones al 100 % (objdiff no compara valores).

@@ -159,7 +159,7 @@ static inline bool IsTargetable_unk(CharaTask* c) {
     return ok;
 }
 
-// NONMATCHING: 99.6% - scheduling of the three inlined clear() (the original loads m1908, m14B0, m14C0 in
+// NONMATCHING: 98.75% - scheduling of the three inlined clear() (the original loads m1908, m14B0, m14C0 in
 // that order; 6 orders of the calls tried)
 Em202ForestSpider::Em202ForestSpider(atn::Task* parent, EnemyInfo_unk* info)
     : EnemyTask(parent, info->m20), m14BC(0), m14D4(0), m14DC(0), m14E0(0), m14E4(0), m14E8(0), m14EC(0), m14F0(0.0f),
