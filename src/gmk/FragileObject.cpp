@@ -186,10 +186,23 @@ void FragileObject::Start() {
     vf40(&msg);
 }
 
-// NONMATCHING: 99.55% - the counter/offset registers of the loops swapped (r30/r29 in the original).
-// Tried: int/unsigned indices, size(), mSize, mData[i], loops in inline helpers, one `int i` for the
-// whole function (99.75%, counter and offset still swapped). The flag accessor and the position from
-// GetTrans_unk fixed the rest
+// inferred: loops over the parts in inlines (registers of the counter and the offset); names invented
+inline void UpdateGlows_unk(atn::SimpleArray<FragileGlow_unk>& glows, atn::Model* model) {
+    for (unsigned int i = 0; i < glows.size(); i++) {
+        glows[i].fn_803F42C8(model);
+    }
+}
+inline void UpdateFades_unk(atn::SimpleArray<GimmickMaterialFade_unk>& fades, atn::Model* model) {
+    for (unsigned int i = 0; i < fades.size(); i++) {
+        fades[i].fn_803EBE74(model);
+    }
+}
+inline void UpdateSwitches_unk(atn::SimpleArray<GimmickMotionSwitch_unk>& switches, atn::Model* model) {
+    for (unsigned int i = 0; i < switches.size(); i++) {
+        switches[i].fn_803EC0F8(model);
+    }
+}
+
 inline bool IsColliOn_unk(const atn::ColliBase& c) {
     return (c.mFlags & 1) == 1;
 }
@@ -246,16 +259,12 @@ void FragileObject::vf10() {
         if (mModelBefore.fn_80097D40(2) != 0 && vf38() != 0) {
             fn_803ED5D0(vf38());
         }
-        for (unsigned int i = 0; i < mGlows.size(); i++) {
-            mGlows[i].fn_803F42C8(&mModelBefore);
-        }
+        UpdateGlows_unk(mGlows, &mModelBefore);
     } else if (m54 == 3) {
         if (mModelBefore.fn_80097D40(1) != 0 && vf38() != 0) {
             fn_803ED5D0(vf38());
         }
-        for (unsigned int i = 0; i < mGlows.size(); i++) {
-            mGlows[i].fn_803F42C8(&mModelBefore);
-        }
+        UpdateGlows_unk(mGlows, &mModelBefore);
         if ((mCrushFlags & 1) != 1 && ++mCrushFrame >= mCrushFrames) {
             GimmickMsg_unk msg(4);
             vf40(&msg);
@@ -295,19 +304,11 @@ void FragileObject::vf10() {
         if (vf38() != 0) {
             fn_803ED5D0(vf38());
         }
-        for (unsigned int i = 0; i < mFades.size(); i++) {
-            mFades[i].fn_803EBE74(&mModelAfter);
-        }
-        for (unsigned int i = 0; i < mSwitches.size(); i++) {
-            mSwitches[i].fn_803EC0F8(&mModelAfter);
-        }
+        UpdateFades_unk(mFades, &mModelAfter);
+        UpdateSwitches_unk(mSwitches, &mModelAfter);
     } else if (m54 == 6) {
-        for (unsigned int i = 0; i < mFades.size(); i++) {
-            mFades[i].fn_803EBE74(&mModelAfter);
-        }
-        for (unsigned int i = 0; i < mSwitches.size(); i++) {
-            mSwitches[i].fn_803EC0F8(&mModelAfter);
-        }
+        UpdateFades_unk(mFades, &mModelAfter);
+        UpdateSwitches_unk(mSwitches, &mModelAfter);
         if ((mCrushFlags & 2) == 2) {
             if (mDrawOffWait > 0.0f) {
                 mDrawOffWait -= 1.0f;
