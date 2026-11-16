@@ -377,13 +377,29 @@ void ActionCameraEffect::fn_8055BC5C(MapArea* area, void* arg) {
     area->mScene.mHaze.mValue = *(HazeParam_unk*)arg;
 }
 
+} // namespace Event
+// inferred: weak copy of game/GameTask.cpp (by value: the argument is a copy)
+inline void RenderSetting_unk::SetDamage_unk(DamageEffectParam_unk p) {
+    m374 = p;
+}
+namespace Event {
+
+// inferred: fog colour from a packed ARGB parameter (name invented)
+inline void SetFogColor_unk(atn::Scene* view, unsigned int c) {
+    view->mFog.mColor = atn::Color4f_unk((1.0f / 255.0f) * ((c >> 16) & 0xFF), (1.0f / 255.0f) * ((c >> 8) & 0xFF),
+                                         (1.0f / 255.0f) * (c & 0xFF), (1.0f / 255.0f) * (c >> 24));
+}
+
+// inferred: copy of a haze setting (one inline level more, as atn::VecAssign_unk; name invented)
+inline void HazeAssign_unk(HazeParam_unk& dst, const HazeParam_unk& src) {
+    dst = src;
+}
+
 // inferred: phase 0 sets the effect of type param 0 (1 bloom, 2 fog, 3 wait, 4 damage, 5 rain, 6 haze,
-// 7 screen fade), phase 2 fades the screen back and phase 3 restores the settings
-// NONMATCHING: 99.4% - stack slots of the temporaries (colors, rain, damage copies: other order; the
-// haze uses one vector temporary for all its pairs). The haze vectors and the bloom color are filled
-// member by member: with the constructors the function goes over the inlining budget (docs/inlining.md
-// R3) and GetParam_unk is called out of line (32%). The bias/scale loops and the kernel array give the
-// unrolled checks and the word copy of the original
+// 7 screen fade), phase 2 fades the screen back and phase 3 restores the settings. The haze vectors are
+// filled member by member: with the constructors the function goes over the inlining budget
+// (docs/inlining.md R3) and GetParam_unk is called out of line (32%). The bias/scale loops and the kernel
+// array give the unrolled checks and the word copy of the original
 int ActionCameraEffect::vf0C(Action* arg, int phase) {
     switch (phase) {
     case 0:
@@ -396,12 +412,8 @@ int ActionCameraEffect::vf0C(Action* arg, int phase) {
                 BloomParam_unk bloom = lbl_8087EFA8->m054;
                 bloom.mEnabled = enable;
                 unsigned int c = arg->GetParam_unk(2)->m04.i;
-                RsColor_unk color;
-                color.r = (1.0f / 255.0f) * ((c >> 16) & 0xFF);
-                color.g = (1.0f / 255.0f) * ((c >> 8) & 0xFF);
-                color.b = (1.0f / 255.0f) * (c & 0xFF);
-                color.a = (1.0f / 255.0f) * (c >> 24);
-                bloom.mColor[0] = color;
+                bloom.mColor[0] = RsColor_unk((1.0f / 255.0f) * ((c >> 16) & 0xFF), (1.0f / 255.0f) * ((c >> 8) & 0xFF),
+                                              (1.0f / 255.0f) * (c & 0xFF), (1.0f / 255.0f) * (c >> 24));
                 for (int i = 0; i < 3; i++) {
                     bloom.mBias[i] = arg->GetParamAt_unk(3 + i)->m04.i;
                 }
@@ -428,8 +440,7 @@ int ActionCameraEffect::vf0C(Action* arg, int phase) {
                 view->mFog.mStart = arg->GetParam_unk(3)->m04.f;
                 view->mFog.mEnd = arg->GetParam_unk(4)->m04.f;
                 unsigned int c = arg->GetParam_unk(5)->m04.i;
-                view->mFog.mColor = atn::Color4f_unk((1.0f / 255.0f) * ((c >> 16) & 0xFF), (1.0f / 255.0f) * ((c >> 8) & 0xFF),
-                                             (1.0f / 255.0f) * (c & 0xFF), (1.0f / 255.0f) * (c >> 24));
+                SetFogColor_unk(view, c);
             } else {
                 view->mFog.mMode = 0;
             }
@@ -448,8 +459,7 @@ int ActionCameraEffect::vf0C(Action* arg, int phase) {
             damage.mAngle = arg->GetParam_unk(2)->m04.f;
             damage.mScale = arg->GetParam_unk(3)->m04.f;
             damage.mZoom = MIN(MAX(arg->GetParam_unk(4)->m04.f, -1.0f), 0.05f);
-            DamageEffectParam_unk result = damage;
-            lbl_8087EFA8->m374 = result;
+            lbl_8087EFA8->SetDamage_unk(damage);
             break;
         }
         case 5: {
@@ -489,7 +499,7 @@ int ActionCameraEffect::vf0C(Action* arg, int phase) {
             fade.z = arg->GetParam_unk(13)->m04.f;
             fade.w = arg->GetParam_unk(14)->m04.f;
             haze.mFade = fade;
-            atn::RenderManager::instance_->fn_800C16B4()->mHaze.mValue = haze;
+            HazeAssign_unk(atn::RenderManager::instance_->fn_800C16B4()->mHaze.mValue, haze);
             MapManager::instance_->fn_80491528(boost::bind(&ActionCameraEffect::fn_8055BC5C, this, _1, _2), &haze);
             break;
         }
@@ -515,12 +525,13 @@ int ActionCameraEffect::vf0C(Action* arg, int phase) {
     case 3:
         switch (arg->GetParam_unk(0)->m04.i) {
         case 0:
-            lbl_8087F540->m1DC0 = lbl_8087EFA8->m240;
+            MotionBlurParam_unk* dst = &lbl_8087F540->m1DC0;
+            *dst = lbl_8087EFA8->m240;
             break;
         case 4:
             DamageEffectParam_unk damage;
-            DamageEffectParam_unk result = damage;
-            lbl_8087EFA8->m374 = result;
+            damage.mEnabled = 0;
+            lbl_8087EFA8->SetDamage_unk(damage);
             break;
         case 7: {
             EventManager_unk* manager = arg->fn_805381C8();

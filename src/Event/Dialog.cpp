@@ -453,11 +453,10 @@ static inline bool IsTalking_unk(Actor* actor) {
     return actor->m20 == 1 || actor->m20 == 7;
 }
 
-// NONMATCHING: 99.78% - the original increments the index before the actor offset
 void Dialog::fn_80228FD8() {
     Actor* actor;
-    DialogEvent_unk* event = (DialogEvent_unk*)m20;
-    for (int i = 0; i < event->m168; i++) {
+    Sequence* event = (Sequence*)m20;
+    for (int i = 0; i < (int)event->m164.size(); i++) {
         actor = &event->m164[i];
         if (IsTalking_unk(actor)) {
             if (actor->fn_800128FC()->m55C == 6) {
@@ -665,36 +664,13 @@ void Dialog::fn_802297AC() {
     }
 }
 
-// inferred: float color channel to a byte
-static inline unsigned int ToByte_unk(float x) {
-    if (x >= 1.0f) {
-        return 0xFF;
-    }
-    if (x <= 0.0f) {
-        return 0;
-    }
-    return (unsigned int)(255.0f * x + 0.5f);
-}
-
-// NONMATCHING: 99.64% - registers of the r/g/b bytes (r28/r30 swapped) and the .sdata2 order
 void Dialog::vf14() {
     if (m150 >= 0) {
         float w = lbl_8087EEE0->mWidth;
         float h = lbl_8087EEE0->mHeight;
         float t = DIALOG_MIN_UNK(1.0f, m150 / 30.0f);
-        DialogColor4_unk c;
-        c.r = 0.0f;
-        c.g = 0.0f;
-        c.b = 0.0f;
-        c.a = 0.75f * t;
-        unsigned int b;
-        unsigned int g;
-        unsigned int r;
-        r = ToByte_unk(c.r);
-        g = ToByte_unk(c.g);
-        b = ToByte_unk(c.b);
-        unsigned int a = ToByte_unk(c.a);
-        lbl_8087EEB0->fn_8005E7F4((a << 24) | (r << 16) | (g << 8) | b, 0, &m120, 0.0f, h - 256.0f, 100.0f, w, 256.0f, 0.0f, 0.0f, 1.0f, 1.0f);
+        atn::Color c(0.0f, 0.0f, 0.0f, 0.75f * t);
+        lbl_8087EEB0->fn_8005E7F4(c.ToU32(), 0, &m120, 0.0f, h - 256.0f, 100.0f, w, 256.0f, 0.0f, 0.0f, 1.0f, 1.0f);
     }
 }
 

@@ -1,0 +1,76 @@
+diff --git a/src/Event/ActionActorPosition.cpp b/src/Event/ActionActorPosition.cpp
+index 6057ead0..4cbf9065 100644
+--- a/src/Event/ActionActorPosition.cpp
++++ b/src/Event/ActionActorPosition.cpp
+@@ -1803,6 +1803,18 @@ int ActionActorMaterial::vf08(Action* arg) {
+     }
+     return 0;
+ }
++// inferred: saves the colour of a material of the actor and whether it is shown (name invented)
++inline void SetSavedColor_unk(Actor* actor, int index, ColorF_unk color, int shown) {
++    actor->m170[index] = color;
++    actor->m17C[index] = shown;
++}
++
++// inferred: sets the colours of a material (name invented)
++inline void SetMaterialColors_unk(atn::Model* model, const char* name, const void* color, const ColorF_unk& a,
++                                  const ColorF_unk& b) {
++    model->fn_80094958(name, color, &a, &b);
++}
++
+ // NONMATCHING: 95.4% - stack slots of the colours (the frame of the original is 0x10 bytes larger) and saved
+ // registers permuted
+ // inferred: material change of an actor; phase 0 sets the colour of the action at once (without fades),
+@@ -1836,11 +1848,8 @@ int ActionActorMaterial::vf0C(Action* arg, int phase) {
+                 target.r = arg->GetParam_unk(3)->m04.f;
+                 target.g = arg->GetParam_unk(4)->m04.f;
+                 target.b = arg->GetParam_unk(5)->m04.f;
+-                GXColor ambientGX = material->m1C;
+-                ColorF_unk ambient(ambientGX);
+-                GXColor thirdGX = material->m20;
+-                ColorF_unk third(thirdGX);
+-                model->fn_80094958(*name, &target, &third, &ambient);
++                SetMaterialColors_unk(model, *name, &target, ColorF_unk(GXColor(material->m20)),
++                                      ColorF_unk(GXColor(material->m1C)));
+             }
+         }
+         break;
+@@ -1861,32 +1870,24 @@ int ActionActorMaterial::vf0C(Action* arg, int phase) {
+         int done = 0;
+         if (arg->GetParam_unk(6)->m04.i != 0) {
+             ColorF_unk saved = actor->m170[index];
+-            GXColor ambientGX = material->m1C;
+-            ColorF_unk ambient(ambientGX);
+-            GXColor thirdGX = material->m20;
+-            ColorF_unk third(thirdGX);
+-            model->fn_80094958(*name, &saved, &third, &ambient);
++            SetMaterialColors_unk(model, *name, &saved, ColorF_unk(GXColor(material->m20)),
++                                  ColorF_unk(GXColor(material->m1C)));
+             model->fn_80093D98(*name, actor->m17C[index]);
+             done = 1;
+         }
+         if (arg->GetParam_unk(7)->m04.i != 0) {
+             ColorF_unk loaded = actor->m158[index];
+-            GXColor ambientGX = material->m1C;
+-            ColorF_unk ambient(ambientGX);
+-            GXColor thirdGX = material->m20;
+-            ColorF_unk third(thirdGX);
+-            model->fn_80094958(*name, &loaded, &third, &ambient);
++            SetMaterialColors_unk(model, *name, &loaded, ColorF_unk(GXColor(material->m20)),
++                                  ColorF_unk(GXColor(material->m1C)));
+             model->fn_80093D98(*name, actor->m164[index]);
+             actor->m170[index] = loaded;
+-            atn::Color color(loaded.r, loaded.g, loaded.b, loaded.a);
+-            actor->m17C[index] = color.ToU32();
++            actor->m17C[index] = atn::Color(loaded.r, loaded.g, loaded.b, loaded.a).ToU32();
+             done = 1;
+         }
+         if (done == 0) {
+             ColorF_unk diffuse(fn_8000DD98(model->fn_80094B6C(*name)));
+             int shown = model->fn_80093E90(fn_800DC6B4(*name));
+-            actor->m170[index] = diffuse;
+-            actor->m17C[index] = shown;
++            SetSavedColor_unk(actor, index, diffuse, shown);
+         }
+         break;
+     }
