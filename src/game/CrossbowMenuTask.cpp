@@ -36,12 +36,12 @@ extern "C" void* lbl_8087F430;
 extern "C" ItemList_unk* fn_8020787C(int id);
 extern "C" ItemDef_unk* fn_80219EB4();
 extern "C" int fn_80219EBC();
-extern "C" int fn_804446BC(Inventory* inventory, int type, int id);
 extern "C" int fn_804444E8(Inventory* inventory, int id);
 extern "C" void fn_8044441C(Inventory* inventory, int id, int count);
 extern "C" CrossbowItem_unk* fn_80211480(int id);
 extern "C" int fn_80211734(CrossbowItem_unk* item); // inferred: infinite arrows
-extern "C" int lbl_8087DAA0;                        // inferred: id of the last entry
+// inferred: id of the last entry (0x19C, the bolt item of CharaSub_unk; .sdata of this unit)
+extern "C" int lbl_8087DAA0 = 0x19C;
 // inferred: bullet data (fn_80219E6C)
 struct CrossbowBullet_unk {
     unsigned char m00[0x08];
@@ -131,8 +131,6 @@ int CrossbowMenuTask::vf0C() {
     return 1;
 }
 
-// NONMATCHING: 99.8% - the first loop keeps the inventory pointer in r28 and the 0xD0 stride in r29 (swapped in
-// the target); tried local placement, separate id/def locals, pointer arithmetic
 void CrossbowMenuTask::fn_801E9544() {
     m158 = ((GameTask*)lbl_8087F430)->fn_80370174(0x6D);
     if (m158 == 0) {
@@ -145,10 +143,8 @@ void CrossbowMenuTask::fn_801E9544() {
     ItemList_unk* list = fn_8020787C(((GameTask*)lbl_8087F430)->fn_80370174(100));
     if (list == 0 || list->mCount == 0) {
         m4C.push_back(m158);
-        Inventory* inventory;
         for (int i = 0; i < fn_80219EBC(); i++) {
-            inventory = Inventory::instance_;
-            int id = fn_804446BC(inventory, 5, fn_80219EB4()[i].m04);
+            int id = Inventory::Order()->fn_804446BC(5, fn_80219EB4()[i].m04);
             if (id != 0 && id != m158) {
                 m4C.push_back(id);
                 m160 = 0;

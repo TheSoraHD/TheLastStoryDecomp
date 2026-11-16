@@ -1230,7 +1230,6 @@ static inline void SideName_unk(wchar_t* text, int side) {
     }
 }
 
-// NONMATCHING: 99.6% - the task of Play_unk in r29 instead of r30
 // inferred: shows the change of side from `before` to `after` (animated backwards if `back`)
 __declspec(noinline) void D2AMpMenu::fn_804B3C78(int before, int after, int back) {
     wchar_t textBefore[256] = {0};
@@ -1238,13 +1237,29 @@ __declspec(noinline) void D2AMpMenu::fn_804B3C78(int before, int after, int back
     SideName_unk(textBefore, before);
     SideName_unk(textAfter, after);
     if (back == 0) {
-        SetPaneText_unk(&m88->mLayout, "conf_before", textBefore);
-        SetPaneText_unk(&m88->mLayout, "conf_after(1)", textAfter);
+        {
+            const char* name = "conf_before";
+            void* layout = &m88->mLayout;
+            fn_801FEE08(layout, fn_800DC6B4(name), textBefore);
+        }
+        {
+            const char* name = "conf_after(1)";
+            void* layout = &m88->mLayout;
+            fn_801FEE08(layout, fn_800DC6B4(name), textAfter);
+        }
         m88->mFrame = 0.0f;
         Play_unk(m88, 0, 1.0f);
     } else {
-        SetPaneText_unk(&m88->mLayout, "conf_before", textAfter);
-        SetPaneText_unk(&m88->mLayout, "conf_after(1)", textBefore);
+        {
+            const char* name = "conf_before";
+            void* layout = &m88->mLayout;
+            fn_801FEE08(layout, fn_800DC6B4(name), textAfter);
+        }
+        {
+            const char* name = "conf_after(1)";
+            void* layout = &m88->mLayout;
+            fn_801FEE08(layout, fn_800DC6B4(name), textBefore);
+        }
         m88->mFrame = 10.0f;
         Play_unk(m88, 0, -1.0f);
     }

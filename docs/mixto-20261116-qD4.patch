@@ -1,0 +1,27 @@
+diff --git a/src/Event/Dialog.cpp b/src/Event/Dialog.cpp
+index 79a627d5..c62b7879 100644
+--- a/src/Event/Dialog.cpp
++++ b/src/Event/Dialog.cpp
+@@ -17,6 +17,7 @@
+ #include "atn/DrawHelper.h"
+ #include "std/string_members.h"
+ #include "Event/Dialog.h"
++#include "atn/GraphicsDevice.h"
+ #include "Event/Cut.h"
+ #include "Event/Section.h"
+ #include "Event/Channel.h"
+@@ -31,13 +32,7 @@ class Dialog;
+ 
+ extern "C" int fn_8006AA20(const char* path); // inferred: nonzero if the file exists
+ 
+-// inferred: render manager (see game/MenuCommonTask.cpp)
+-struct DialogRender_unk {
+-    unsigned char m00[0x3C];
+-    int mWidth;  // 0x3C
+-    int mHeight; // 0x40
+-};
+-extern "C" DialogRender_unk* lbl_8087EEE0;
++extern "C" atn::GraphicsDevice_unk* lbl_8087EEE0;
+ 
+ // inferred: text renderer (lbl_8087F008)
+ struct DialogTextMgr_unk {

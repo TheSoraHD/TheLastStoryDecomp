@@ -134,11 +134,11 @@ ControlPushedDown::ControlPushedDown(Chara_unk* chara, const atn::Vector3& dir, 
     m->mTracks[0].m0C = 1.0f;
     atn::Vector3 front = GetFrontDir_unk(mChara);
     float dot = PSVECDotProduct(&front, &dir);
-    if (dot > 0.7071f) {
+    if (dot > 0.70710677f) {
         m->fn_80097C08(0, 0x90, 0, 1, 1, 0.0f, 0.1f);
         m->mTracks[0].m08 = 5.0f;
         m->mTracks[0].m0C = 1.1f;
-    } else if (dot < -0.7071f) {
+    } else if (dot < -0.70710677f) {
         m->fn_80097C08(0, 0x8F, 0, 1, 1, 0.0f, 0.1f);
         m->mTracks[0].m08 = 5.0f;
         m->mTracks[0].m0C = 1.1f;

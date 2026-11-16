@@ -17,6 +17,8 @@ extern "C" float fn_800DC3CC(const wchar_t* s); // inferred: wide string to floa
 // inferred: the font (lbl_8087EEC8) converts UTF-16 text to the game encoding
 extern "C" void* lbl_8087EEC8;
 extern "C" int fn_8006F420(void* font, char* dst, const wchar_t* src, int size);
+// inferred: weak getter of the font (a `lwz r3, lbl_8087EEC8; blr` copy in the DOL)
+inline void* GetFont_unk() { return lbl_8087EEC8; }
 // inferred: copy / conversion of a text to buf + pos, returning the next position (db/CharaIdTable_unk)
 extern "C" int fn_80208B70(const char** out, const char* src, char* buf, int pos);
 extern "C" int fn_80208A3C(const char** out, const wchar_t* src, char* buf, int pos);
@@ -82,9 +84,12 @@ extern "C" bool fn_80216AFC(const char* id, int* type, int* map, int* point) {
     return true;
 }
 
+// inferred: count declared first and assigned after the table (register order of fn_802174F4)
 static inline MapId_unk* Find_unk(const char* id) {
-    unsigned int count = sCount;
-    MapId_unk* entry = sEntries;
+    unsigned int count;
+    MapId_unk* entry;
+    entry = sEntries;
+    count = sCount;
     for (unsigned int i = 0; i < count; entry++, i++) {
         if (strcmp(entry->mId, id) == 0) {
             return entry;
@@ -97,10 +102,6 @@ extern "C" void fn_802174F4();
 
 // inferred: loads the map tables (/boot/map_id_table_xx.u16, map_sub_id_table.csv,
 // map_motion_table.csv and map_chara_list.csv)
-// NONMATCHING: 99.85% - registers only: the original reuses the register of the CSV length for the
-// font of the first loop (r27) and the one of the CSV address for the index (r28); here both get
-// new registers. Tried declaring font/i/pos earlier and passing the font global directly, an
-// unsigned index, declaration orders in Find_unk (entry++, i++ there fixed the subtable loop).
 extern "C" void fn_80216CD0() {
     void* data;
     unsigned long size = 0;
@@ -112,8 +113,7 @@ extern "C" void fn_80216CD0() {
         if (wcscmp(wcsv.fn_8005B9CC(), L"") != 0) {
             continue;
         }
-        void* font = lbl_8087EEC8;
-        fn_8006F420(font, id, wcsv.fn_8005B9CC(), 0x20);
+        fn_8006F420(GetFont_unk(), id, wcsv.fn_8005B9CC(), 0x20);
         if (strcmp(id, "") == 0) {
             continue;
         }
@@ -124,21 +124,16 @@ extern "C" void fn_80216CD0() {
         wcsv.fn_8005B9CC();
         wcsv.fn_8005B9CC();
         wcsv.fn_8005B9CC();
-        font = lbl_8087EEC8;
-        fn_8006F420(font, id, wcsv.fn_8005B9CC(), 0x20);
+        fn_8006F420(GetFont_unk(), id, wcsv.fn_8005B9CC(), 0x20);
         textSize += strlen(id) + 2;
-        font = lbl_8087EEC8;
-        fn_8006F420(font, id, wcsv.fn_8005B9CC(), 0x20);
+        fn_8006F420(GetFont_unk(), id, wcsv.fn_8005B9CC(), 0x20);
         textSize += strlen(id) + 2;
         wcsv.fn_8005B9CC();
-        font = lbl_8087EEC8;
-        fn_8006F420(font, id, wcsv.fn_8005B9CC(), 0x20);
+        fn_8006F420(GetFont_unk(), id, wcsv.fn_8005B9CC(), 0x20);
         textSize += strlen(id) + 2;
-        font = lbl_8087EEC8;
-        fn_8006F420(font, id, wcsv.fn_8005B9CC(), 0x20);
+        fn_8006F420(GetFont_unk(), id, wcsv.fn_8005B9CC(), 0x20);
         textSize += strlen(id) + 2;
-        font = lbl_8087EEC8;
-        fn_8006F420(font, id, wcsv.fn_8005B9CC(), 0x40);
+        fn_8006F420(GetFont_unk(), id, wcsv.fn_8005B9CC(), 0x40);
         textSize += strlen(id) + 2;
         sCount++;
     }
@@ -151,8 +146,7 @@ extern "C" void fn_80216CD0() {
         if (wcscmp(wcsv.fn_8005B9CC(), L"") != 0) {
             continue;
         }
-        void* font = lbl_8087EEC8;
-        fn_8006F420(font, id, wcsv.fn_8005B9CC(), 0x20);
+        fn_8006F420(GetFont_unk(), id, wcsv.fn_8005B9CC(), 0x20);
         if (strcmp(id, "") == 0) {
             continue;
         }
@@ -226,9 +220,6 @@ extern "C" void fn_80216CD0() {
 }
 
 // inferred: loads /boot/map_chara_list.csv (the members of each map, -1 terminated)
-// NONMATCHING: 99.70% - the inlined search loads sCount before sEntries here (r26/r27 swapped) and
-// the stack address of the CSV is set up after the pointer increment. The unsigned subscript of the
-// members fixed the rest. Tried: declaration orders/forms of Find_unk (they move fn_80216CD0).
 extern "C" void fn_802174F4() {
     unsigned long size = 0;
     void* data = fn_8046DC5C(lbl_8087F518, sCharaFileName, &size, 0x20);
@@ -253,8 +244,7 @@ extern "C" void fn_802174F4() {
         entry->mMembers = &sMembers[pos];
         int n = 0;
         for (const char* field = csv.fn_8005B9CC(); strlen(field) != 0; field = csv.fn_8005B9CC()) {
-            entry->mMembers[(unsigned int)n] = atoi(field);
-            n++;
+            entry->mMembers[(unsigned int)n++] = atoi(field);
         }
         entry->mMembers[n++] = -1;
         pos += n;

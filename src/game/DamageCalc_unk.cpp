@@ -152,36 +152,36 @@ int fn_8003EA3C(DamageResult_unk* result, HitInfo_unk* data, CharaTask* attacker
             float rate = attacker ? attacker->fn_8017AC24() : 1.0f;
             fn_8059B66C(lbl_8087F9E8, data, attacker, target, &p, &r, boost::function<void(SkillEffect*)>(), rate);
         }
-    }
-    if (attacker != 0 && result->mDamage < 0) {
-        ClearBuffs_unk(attacker, result, flags);
-    }
-    if (attacker != 0 && target != 0 && fn_8021A684(data)) {
-        CharaStatus* from = &attacker->mStatus;
-        CharaStatus* to = &target->mStatus;
-        if (from->fn_80133EE8(0x1A)) {
-            CharaStatusEntry_unk* entry = from->fn_80133EE8(0x1A);
-            CharaStatusRef_unk ref(entry, (unsigned int)attacker->m648, attacker, 900, 0);
-            to->fn_80133FBC(ref, 1);
+        if (attacker != 0 && result->mDamage < 0) {
+            ClearBuffs_unk(attacker, result, flags);
         }
-        if (from->fn_80133EE8(0x1C)) {
-            CharaStatusEntry_unk* entry = from->fn_80133EE8(0x1C);
-            CharaStatusRef_unk ref(entry, (unsigned int)attacker->m648, attacker, 900, 0);
-            to->fn_80133FBC(ref, 1);
-        }
-        if (from->fn_80133EE8(0x1E)) {
-            CharaStatusEntry_unk* entry = from->fn_80133EE8(0x1E);
-            CharaStatusRef_unk ref(entry, (unsigned int)attacker->m648, attacker, 900, 0);
-            to->fn_80133FBC(ref, 1);
-        }
-        if (from->fn_80133EE8(0x20)) {
-            CharaStatusEntry_unk* entry = from->fn_80133EE8(0x20);
-            CharaStatusRef_unk ref(entry, (unsigned int)attacker->m648, attacker, 300, 0);
-            to->fn_80133FBC(ref, 0);
-        }
-        if (from->fn_80133EE8(0x34)) {
-            CharaStatusEntry_unk* entry = from->fn_80133EE8(0x34);
-            Inventory::Order()->fn_8044D6E0((float)result->mDamage * entry->mValue / 100.0f + Inventory::Order()->mMoney);
+        if (attacker != 0 && target != 0 && fn_8021A684(data)) {
+            CharaStatus* from = &attacker->mStatus;
+            CharaStatus* to = &target->mStatus;
+            if (from->fn_80133EE8(0x1A)) {
+                CharaStatusEntry_unk* entry = from->fn_80133EE8(0x1A);
+                CharaStatusRef_unk ref(entry, (unsigned int)attacker->m648, attacker, 900, 0);
+                to->fn_80133FBC(ref, 1);
+            }
+            if (from->fn_80133EE8(0x1C)) {
+                CharaStatusEntry_unk* entry = from->fn_80133EE8(0x1C);
+                CharaStatusRef_unk ref(entry, (unsigned int)attacker->m648, attacker, 900, 0);
+                to->fn_80133FBC(ref, 1);
+            }
+            if (from->fn_80133EE8(0x1E)) {
+                CharaStatusEntry_unk* entry = from->fn_80133EE8(0x1E);
+                CharaStatusRef_unk ref(entry, (unsigned int)attacker->m648, attacker, 900, 0);
+                to->fn_80133FBC(ref, 1);
+            }
+            if (from->fn_80133EE8(0x20)) {
+                CharaStatusEntry_unk* entry = from->fn_80133EE8(0x20);
+                CharaStatusRef_unk ref(entry, (unsigned int)attacker->m648, attacker, 300, 0);
+                to->fn_80133FBC(ref, 0);
+            }
+            if (from->fn_80133EE8(0x34)) {
+                CharaStatusEntry_unk* entry = from->fn_80133EE8(0x34);
+                Inventory::Order()->fn_8044D6E0((float)result->mDamage * entry->mValue / 100.0f + Inventory::Order()->mMoney);
+            }
         }
     }
     HitEvent_unk event;

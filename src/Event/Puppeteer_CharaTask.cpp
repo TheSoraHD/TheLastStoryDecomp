@@ -989,8 +989,17 @@ extern "C" inline atn::Matrix3x4 fn_800109E0(const atn::Vector3& rot) {
 }
 namespace Event {
 
-// inferred: sets the rotation of the actor (radians; a model or a dummy keeps its translation); inlined in
-// fn_80010490 and fn_80011420 (name invented)
+// inferred: sets the rotation of the actor (radians; a model or a dummy keeps its translation); same body as
+// fn_80010490, inlined in fn_80011420 (name invented)
+// inferred: sets the rotation of a dummy, keeping its translation (name invented)
+inline void SetRotKeepTrans_unk(DummyData* dummy, const atn::Vector3& rot) {
+    atn::Vector3 t(dummy->m18.m[0][3], dummy->m18.m[1][3], dummy->m18.m[2][3]);
+    dummy->m18 = fn_800109E0(rot);
+    dummy->m18.m[0][3] = t.x;
+    dummy->m18.m[1][3] = t.y;
+    dummy->m18.m[2][3] = t.z;
+}
+
 inline void Actor::SetRotation_unk(const atn::Vector3& rot) {
     switch (m20) {
     case 7:
@@ -1010,23 +1019,37 @@ inline void Actor::SetRotation_unk(const atn::Vector3& rot) {
         ((Puppeteer<atn::Model>*)m1C)->m48->CalcMatrixStack(atn::ModelNodeCallback_unk());
         break;
     }
-    case 4: {
-        atn::Matrix3x4& d = ((DummyData*)m1C)->m18;
-        atn::Vector3 t = d.GetTrans_unk();
-        d = fn_800109E0(rot);
-        d.m[0][3] = t.x;
-        d.m[1][3] = t.y;
-        d.m[2][3] = t.z;
+    case 4:
+        SetRotKeepTrans_unk((DummyData*)m1C, rot);
         break;
-    }
     }
 }
 
-// NONMATCHING: 97.8% - registers and stack: the original keeps this and rot in r28/r29, the matrix and the
-// model of the case 3 in r31/r30 (here they share a register) and the matrix of the case 3 at the top of the
-// frame
+// inferred: written out and not through SetRotation_unk: the original keeps the matrix of the case 3 at the
+// top of the frame, as when the body sits one inline level higher than in fn_80011420
 void Actor::fn_80010490(const atn::Vector3& rot) {
-    SetRotation_unk(rot);
+    switch (m20) {
+    case 7:
+    case 1:
+        ((Puppeteer<CharaTask>*)m1C)->m48->mRot = rot;
+        break;
+    case 2:
+        ((GimmickCommon*)m1C)->m78 = rot;
+        break;
+    case 3: {
+        atn::Matrix3x4 m = fn_800109E0(rot);
+        atn::Vector3 t = ((Puppeteer<atn::Model>*)m1C)->GetTarget_unk()->mMtx.GetTrans_unk();
+        m.m[0][3] = t.x;
+        m.m[1][3] = t.y;
+        m.m[2][3] = t.z;
+        SetModelMtx_unk(((Puppeteer<atn::Model>*)m1C)->GetTarget_unk(), m);
+        ((Puppeteer<atn::Model>*)m1C)->m48->CalcMatrixStack(atn::ModelNodeCallback_unk());
+        break;
+    }
+    case 4:
+        SetRotKeepTrans_unk((DummyData*)m1C, rot);
+        break;
+    }
 }
 
 // inferred: rotation of the z axis of a matrix (inlined; name invented)
@@ -1139,10 +1162,10 @@ atn::Vector3 Actor::fn_800112E0() {
 }
 
 // inferred: sets the rotation of the actor around y
-// NONMATCHING: 99.2% - stack slots of the rotation matrices (0x30 higher here) and registers of the copy of the
-// matrix of the case 3
 void Actor::fn_80011420(float yaw) {
-    SetRotation_unk(atn::Vector3(0.0f, yaw, 0.0f));
+    atn::Vector3 rot(0.0f, 0.0f, 0.0f);
+    rot.y = yaw;
+    SetRotation_unk(rot);
 }
 
 // inferred: rotation of the actor around y
@@ -1376,8 +1399,6 @@ void Actor::fn_80012540(int arg) {
     }
 }
 
-// NONMATCHING: 98.91% - registers of the case 3 (the original loads the puppeteer into r5 first; tried a local
-// pointer, `show != 0`, `show ? 1 : 0`, bool casts and ToBool_unk)
 void Actor::fn_8001256C(int show) {
     switch (m20) {
     case 7:
@@ -1632,10 +1653,28 @@ extern "C" inline int fn_80013444(const atn::Vector3* a, const atn::Vector3* b) 
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 namespace Event {
 
+// inferred: name of the model file of a part of the costume of the hero ("pc101_up_.chr"...). Not in the
+// .dol (no callers: the linker strips it); it is here for its literals, which the original pool has
+// between "seatpoint" and "eye_R"
+extern "C" char* strcpy(char* dst, const char* src);
+extern "C" char* strcat(char* dst, const char* src);
+void MakeCostumePartName_unk(char* name, int part) {
+    strcpy(name, "");
+    strcat(name, "pc101_");
+    if (part == 0) {
+        strcat(name, "up_");
+    } else if (part == 1) {
+        strcat(name, "lo_");
+    } else if (part == 2) {
+        strcat(name, "wa_");
+    } else {
+        strcat(name, "ga_");
+    }
+    strcat(name, ".chr");
+}
+
 // inferred: turns the eyes of the character towards a point (the camera, limited to `angle` around the eye
 // direction), or the head of another actor towards `target`
-// NONMATCHING: 99.98% - only the offset of "eye_R" in @stringBase0 (the original pool at 0x8072EE0C also
-// holds the parameter names of the actions: "set_y" and "z" are tails of "offset_y" and "offset_z")
 void Actor::fn_80012D34(Actor* target, int node, const atn::Vector3& cam, int arg4, const atn::Vector3& jitter,
                         int arg6, float weight, float angle) {
     if (m20 != 7 && m20 != 1) {

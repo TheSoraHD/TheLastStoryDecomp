@@ -146,11 +146,6 @@ void fn_80112220(const float& v, float& abs, float& sign) {
 
 namespace Event {
 
-// inferred: not inline (its "" is in the @stringBase0 pool of this file); inlined everywhere and
-// stripped by the linker
-CommonData::CommonData() : m04(0), m08(""), m14(0) {}
-
-// NONMATCHING: 99.8% - the original addresses the string pool by its label (lis order of the vtable and the pool swapped)
 EventCamera_unk::EventCamera_unk()
     : m274(0.0f, 0.0f, 1.0f), m3A4(), m400(0), m404(1.0f), m408(1.0f), m40C(1.0f), m410(1.0f), m414(0.0f),
       m418(0.0f), m41C(0), m420(0), m424(0.0f), m428(0.0f), m42C(0.0f), m430(0.0f), m434(1.5f), m438(1.5f),
@@ -309,13 +304,11 @@ void EventCamera_unk::fn_80112F5C(const CameraTarget_unk& eye, const CameraTarge
 
 namespace Event {
 
-// NONMATCHING: 97.7% - register allocation of the Vector3 temporaries
 void EventCamera_unk::fn_8011375C(const CameraTarget_unk& eye, int resetAngles, float a, float b, float c) {
     fn_801128C4(resetAngles);
     m1F4 = 2;
     m210 = eye;
-    atn::Vector3 pos = fn_80112A00(m210, 0.0f);
-    m204 = pos;
+    m204 = fn_80112A00(m210, 0.0f);
     if (a > 1.5533431f) {
         a = 1.5533431f;
     }
@@ -326,16 +319,12 @@ void EventCamera_unk::fn_8011375C(const CameraTarget_unk& eye, int resetAngles, 
     }
 }
 
-// NONMATCHING: 99.8% - Vector3 temporary at another stack slot and src/dst copy registers swapped
 void EventCamera_unk::fn_801139E4(const CameraTarget_unk& at, int resetAngles, float dist, float roll) {
     fn_801128C4(resetAngles);
     m1F4 = 3;
     m240 = at;
     m228 = fn_80112A00(m240, 0.0f);
-    atn::Vector3 dir;
-    dir = mPos - m228;
-    dir.Normalize_unk();
-    m204 = m228 + dir * dist;
+    m204 = m228 + (mPos - m228).GetNormalize() * dist;
     m258 = roll;
     if (lbl_8087F540->mC4) {
         fn_801162A4(0);

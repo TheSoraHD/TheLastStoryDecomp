@@ -1,6 +1,7 @@
-// Debug display of the events (Event::DebugInfo_unk, Event::Manager + 0x1DFC). Every function is written; the
-// pool @stringBase0 lacks the "" that follows "vector length error" in the original (its first user is unknown)
-// and the three basic_string messages before the column names, so the pages are one byte off (not linked).
+// Debug display of the events (Event::DebugInfo_unk, Event::Manager + 0x1DFC). Every function is written. The
+// original instantiates the basic_string members here (their messages are in @stringBase0 before the column
+// names; the linker drops the copies): std/string_members.h. The original pool also ends with 5 unreferenced
+// NUL bytes after "Face" (not reproduced).
 #include "Event/DebugInfo_unk.h"
 #include "game/GameConfig_unk.h"
 #include "Event/Manager.h"
@@ -12,6 +13,7 @@
 #include "atn/DrawHelper.h"
 #include "atn/Model_unk.h"
 #include "game/MapTask.h"
+#include "std/string_members.h"
 
 extern "C" GameConfig_unk* lbl_8087F0A8;
 extern "C" Event::Manager* lbl_8087F540;
@@ -184,6 +186,13 @@ __declspec(noinline) void DebugInfoTable_unk::fn_80220168(const DebugInfoColumnD
     m14 = rows;
 }
 
+// inferred: a function without callers here that the linker drops (its first user of "" is unknown): it puts
+// the "" after "vector length error" in @stringBase0, before the strings of the pages, as in the original.
+// Name invented.
+const char* EmptyText_unk() {
+    return "";
+}
+
 // inferred: weak copy (inline)
 inline int DebugInfoTable_unk::fn_80220620() {
     return (int)mColumns.size() >= m14 - 1;
@@ -251,8 +260,7 @@ void fn_80224638(DebugInfo_unk* info);
 int fn_802238D0(DebugInfo_unk* info, Action* action, Action* other, int arg); // inferred: the action is shown
 
 // inferred: columns of the three tables (6, 6 and 10 columns)
-// inferred: the names are built by the __sinit of the unit (NONMATCHING: 96.42% - offsets of the names in
-// @stringBase0, the strings of the page functions before them are not written yet, and registers)
+// inferred: the names are built by the __sinit of the unit
 static DebugInfoColumnDef_unk sColumns0_unk[6] = {
     {"Frame", 50.0f}, {"Length", 60.0f}, {"FadeIn", 50.0f}, {"FadeOut", 60.0f}, {"Path", 220.0f}, {"Name", 100.0f},
 };
@@ -295,8 +303,6 @@ __declspec(noinline) int fn_80221CF8(int index) {
     return -1;
 }
 
-// NONMATCHING: 90% - same instructions; the original keeps -1 in r31, 0 in r30 and the column table in r29
-// (ours: table r31, -1 r30, 0 r29). Tried the table as a static/global array, a local pointer, decayed array.
 DebugInfo_unk::DebugInfo_unk() : mPage(0), m04(30.0f), m08(30.0f), m0C(14.0f), m10(-1), m74(0) {
     m14.fn_80220168(sColumns0_unk, 6, 25);
     m2C.fn_80220168(sColumns1_unk, 6, 25);
@@ -373,8 +379,6 @@ static inline void DrawInfoLine_unk(float x, float y, const std::string& text) {
 }
 
 // inferred: page 0 of the debug info: the event, the current cut, the frames, the MA and the frame rate
-// NONMATCHING: 99.83% - offsets of the strings in @stringBase0 (the "" after "vector length error") and the
-// stack slots of the iterator tags of the two appends
 void fn_80221FA4(DebugInfo_unk* info) {
     Sequence* seq = fn_8000DB1C()->fn_80112F54();
     if (seq == 0) {
@@ -521,8 +525,6 @@ static inline void DrawRow_unk(DebugInfo_unk* info, int row, const char* text) {
 }
 
 // inferred: page 1 of the debug info: state of the manager and of the sequence
-// NONMATCHING: 99.31% - offsets of the strings in @stringBase0 (the "" after "vector length error") and the
-// registers of the sound channel flags
 void fn_80222AD0(DebugInfo_unk* info) {
     Sequence* seq = fn_8000DB1C()->fn_80112F54();
     if (seq == 0) {
@@ -584,10 +586,10 @@ void fn_80222AD0(DebugInfo_unk* info) {
     // inferred: the original takes the x position for y here (as the mark of fn_8022354C)
     fn_80221CAC(fn_800F7250(), info->m04, info->m04 + info->m0C * row++, -1000000.0f, info->m0C, info->m0C, buf,
                 0xFFFFFFFF, 1);
-    bool snd0 = HasSound_unk(seq, 0);
-    bool snd1 = HasSound_unk(seq, 1);
-    bool snd2 = HasSound_unk(seq, 2);
-    bool snd3 = HasSound_unk(seq, 3);
+    int snd0 = HasSound_unk(seq, 0);
+    int snd1 = HasSound_unk(seq, 1);
+    int snd2 = HasSound_unk(seq, 2);
+    int snd3 = HasSound_unk(seq, 3);
     sprintf(buf, " sndChannel=[%s][%s][%s][%s]", snd0 ? " " : "X", snd1 ? " " : "X", snd2 ? " " : "X",
             snd3 ? " " : "X");
     DrawRow_unk(info, row++, buf);
@@ -607,8 +609,7 @@ static inline int GetNext_unk(Cut* cut) {
 }
 
 // inferred: page 2 of the debug info: list of the cuts (ten around the current one)
-// NONMATCHING: 96.6% - offsets of the strings in @stringBase0 (the "" after "vector length error") and the
-// register of the length of the cut
+// NONMATCHING: 96.8% - register of the length of the cut
 void fn_8022354C(DebugInfo_unk* info) {
     Sequence* seq = fn_8000DB1C()->fn_80112F54();
     if (seq == 0) {
@@ -789,12 +790,11 @@ extern "C" inline Actor* fn_802249EC(DataList_unk<Actor>* actors, int id) {
     return 0;
 }
 
-extern "C" const char* fn_80218218(int motion);           // inferred: motion name
 
+extern "C" const char* fn_80218218(int motion);           // inferred: motion name
 // inferred: channel of the action (defined as extern "C" in Event/Node.cpp)
 extern "C" void* fn_805381AC(void* self);
 
-// NONMATCHING: 99.96% - offsets of the strings in @stringBase0 (the "" after "vector length error")
 // inferred: adds (or replaces) the row of a motion; the key is the action, moved by `upper` for the
 // upper body motion; the color marks a changed speed or start frame
 void fn_80223F50(DebugInfo_unk* info, Action* action, int motion, int start, int loop, float speed, int upper) {
@@ -850,7 +850,6 @@ extern "C" inline int fn_80224610(ActionParam_unk* param) {
 }
 
 // inferred: page 4 of the debug info: motion actions of the current cut
-// NONMATCHING: 99.92% - offsets of the strings in @stringBase0 (the "" after "vector length error")
 void fn_80224184(DebugInfo_unk* info) {
     Sequence* seq = fn_8000DB1C()->fn_80112F54();
     if (seq == 0) {
@@ -903,10 +902,11 @@ void fn_80224184(DebugInfo_unk* info) {
                     if (use == 0 || fn_80224610(use) == 0) {
                         break;
                     }
-                    Actor* actor = fn_802249EC(fn_80224620(seq), fn_80224618(section));
+                    int id = fn_80224618(section);
+                    Actor* actor = fn_802249EC(fn_80224620(seq), id);
                     atn::Model* model = actor != 0 ? actor->fn_80012A1C() : 0;
                     int motion = fn_802245B8(fn_802245C0(action, "sync_mot"));
-                    fn_80223F50(info, action, motion, 0, 1, model != 0 ? model->GetMotionSpeed(0) : 1.0f, 0);
+                    fn_80223F50(info, action, motion, 0, 1, model != 0 ? model->GetMotionSpeed(0) : 0.0f, 0);
                     break;
                 }
                 case 0x20: {
@@ -928,7 +928,6 @@ void fn_80224184(DebugInfo_unk* info) {
 // inferred: motion tracks shown for each character
 static const int sTracks_unk[3] = {0, 3, 4};
 
-// NONMATCHING: 99.88% - offsets of the strings in @stringBase0 (the "" after "vector length error")
 void fn_80224638(DebugInfo_unk* info) {
     Sequence* seq = fn_8000DB1C()->fn_80112F54();
     if (seq == 0) {

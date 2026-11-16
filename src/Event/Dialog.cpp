@@ -17,6 +17,10 @@
 #include "atn/DrawHelper.h"
 #include "std/string_members.h"
 #include "Event/Dialog.h"
+#include "Event/Cut.h"
+#include "Event/Section.h"
+#include "Event/Channel.h"
+#include "Event/Action.h"
 
 // Everything below is inferred from Event::Dialog (0x802280B4..0x80229DF0); names are invented.
 
@@ -162,10 +166,6 @@ struct Input_unk {
 };
 
 
-// inferred: weak @STRING@ pool of LipSyncData_unk::Resize_unk (atn/LipSync_unk; symbols.txt names them
-// @STRING@Resize_unk__15LipSyncData_unkFUii and ...@0): to link, use the same inline/template
-extern "C" const char lbl_8087D764[];
-extern "C" const char lbl_8087D760[];
 
 namespace Event {
 
@@ -277,22 +277,22 @@ Dialog::Dialog(atn::Task* parent)
     ResetPos_unk();
     m198 = 0;
     m48 = 0;
-    DialogEvent_unk* event = (DialogEvent_unk*)m20;
-    for (int i = 0; i < event->mB8.mCount; i++) {
-        DialogScene2_unk* scene = event->mB8.Get_unk(i);
-        for (int j = 0; j < scene->m3C.mCount; j++) {
-            DialogTrack_unk* track = scene->m3C.Get_unk(j);
-            if (track->mC != 4) {
+    Sequence* event = (Sequence*)m20;
+    for (int i = 0; i < (int)event->mB8.size(); i++) {
+        Cut* cut = event->IsCutIndex_unk(i) ? event->mB8[i].get() : 0;
+        for (int j = 0; j < (int)cut->mSections.size(); j++) {
+            Section* section = cut->GetSection_unk(j);
+            if (section->m0C != 4) {
                 continue;
             }
-            for (int k = 0; k < track->m18.mCount; k++) {
-                DialogGroup_unk* group = track->m18.Get_unk(k);
-                if (group->mC != 0x29) {
+            for (int k = 0; k < (int)section->mChannels.size(); k++) {
+                Channel* channel = section->GetChannel_unk(k);
+                if (channel->m0C != 0x29) {
                     continue;
                 }
-                for (int l = 0; l < group->m14.mCount; l++) {
-                    DialogCmd_unk* cmd = group->m14.Get_unk(l);
-                    Actor* actor = ((EventManager_unk*)event)->FindActor_unk(cmd->GetParam_unk(0)->m04.i);
+                for (int l = 0; l < (int)channel->mActions.size(); l++) {
+                    Action* cmd = channel->GetAction_unk(l);
+                    Actor* actor = event->FindActor_unk(cmd->GetParam_unk(0)->m04.i);
                     if (actor == 0) {
                         continue;
                     }
@@ -323,21 +323,12 @@ Dialog::Dialog(atn::Task* parent)
     m120.fn_800D5908("/data/texture/ui_c_event_under_filter.texture");
     m120.m2D = 0;
     m120.m2E = 0;
-    delete[] m190.mKeys;
-    m190.mCount = 8;
-    m190.mKeys = new ((MemoryTag)4, lbl_8087D764, lbl_8087D760, 0) LipSyncKey_unk[8];
+    m190.Resize_unk(8, 4);
     for (unsigned int i = 0; i < m190.mCount; i++) {
         m190.mKeys[i].mVowel = 5;
         m190.mKeys[i].mTime = 1.0f;
     }
-    unsigned int n = m190.mCount;
-    delete[] m184.mKeys;
-    m184.mCount = n;
-    if (n != 0) {
-        m184.mKeys = new ((MemoryTag)0, lbl_8087D764, lbl_8087D760, 0) LipSyncKey_unk[n];
-    } else {
-        m184.mKeys = 0;
-    }
+    m184.Resize_unk(m190.mCount, 0);
     for (unsigned int i = 0; i < m184.mCount; i++) {
         m184.mKeys[i] = m190.mKeys[i];
     }
@@ -453,11 +444,10 @@ static inline bool IsTalking_unk(Actor* actor) {
     return actor->m20 == 1 || actor->m20 == 7;
 }
 
-// NONMATCHING: 99.78% - the original increments the index before the actor offset
 void Dialog::fn_80228FD8() {
     Actor* actor;
-    DialogEvent_unk* event = (DialogEvent_unk*)m20;
-    for (int i = 0; i < event->m168; i++) {
+    Sequence* event = (Sequence*)m20;
+    for (int i = 0; i < (int)event->m164.size(); i++) {
         actor = &event->m164[i];
         if (IsTalking_unk(actor)) {
             if (actor->fn_800128FC()->m55C == 6) {
@@ -582,18 +572,19 @@ void Dialog::fn_80229414() {
 
 // NONMATCHING: 99.32% - the original keeps the strength-reduced pointer in r30 and the character in
 // r31 (tried the declaration orders and a pointer loop)
+// inferred: character shown by a head (name invented)
+inline CharaTask* HeadChara_unk(DialogHead* head) {
+    return head->m1428;
+}
+
 DialogHead* Dialog::fn_8022960C(Actor* actor) {
-    CharaTask* chara;
     if (actor == 0 || actor->fn_80012934() == 0) {
         return 0;
     }
     for (int i = 0; i < m48; i++) {
         DialogHead* head = mHeads[i].mHead;
-        if (head != 0 && !head->IsFlag_unk(4)) {
-            chara = head->m1428;
-            if (chara == actor->fn_80012934()) {
-                return mHeads[i].mHead;
-            }
+        if (head != 0 && !head->IsFlag_unk(4) && HeadChara_unk(head) == actor->fn_80012934()) {
+            return mHeads[i].mHead;
         }
     }
     return 0;
@@ -665,36 +656,13 @@ void Dialog::fn_802297AC() {
     }
 }
 
-// inferred: float color channel to a byte
-static inline unsigned int ToByte_unk(float x) {
-    if (x >= 1.0f) {
-        return 0xFF;
-    }
-    if (x <= 0.0f) {
-        return 0;
-    }
-    return (unsigned int)(255.0f * x + 0.5f);
-}
-
-// NONMATCHING: 99.64% - registers of the r/g/b bytes (r28/r30 swapped) and the .sdata2 order
 void Dialog::vf14() {
     if (m150 >= 0) {
         float w = lbl_8087EEE0->mWidth;
         float h = lbl_8087EEE0->mHeight;
         float t = DIALOG_MIN_UNK(1.0f, m150 / 30.0f);
-        DialogColor4_unk c;
-        c.r = 0.0f;
-        c.g = 0.0f;
-        c.b = 0.0f;
-        c.a = 0.75f * t;
-        unsigned int b;
-        unsigned int g;
-        unsigned int r;
-        r = ToByte_unk(c.r);
-        g = ToByte_unk(c.g);
-        b = ToByte_unk(c.b);
-        unsigned int a = ToByte_unk(c.a);
-        lbl_8087EEB0->fn_8005E7F4((a << 24) | (r << 16) | (g << 8) | b, 0, &m120, 0.0f, h - 256.0f, 100.0f, w, 256.0f, 0.0f, 0.0f, 1.0f, 1.0f);
+        atn::Color c(0.0f, 0.0f, 0.0f, 0.75f * t);
+        lbl_8087EEB0->fn_8005E7F4(c.ToU32(), 0, &m120, 0.0f, h - 256.0f, 100.0f, w, 256.0f, 0.0f, 0.0f, 1.0f, 1.0f);
     }
 }
 

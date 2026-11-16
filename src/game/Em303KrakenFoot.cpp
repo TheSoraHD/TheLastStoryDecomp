@@ -25,6 +25,10 @@ struct Field_unk {
     RouteTable_unk* m10D8;
 };
 extern "C" Field_unk* lbl_8087F430;
+// inferred: weak getter of the field (lwz r3, lbl_8087F430; blr; as in gmk/Cannonball.cpp)
+extern "C" inline Field_unk* fn_80121F00() {
+    return lbl_8087F430;
+}
 extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3, int arg4);
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
@@ -173,9 +177,9 @@ void Em303KrakenFoot::fn_802E2640(const char* text, int length) {
 
 
 // inferred: capsule around the node "reference" (name invented)
-void Em303KrakenFoot::UpdateColli_unk() {
+inline void Em303KrakenFoot::UpdateColli_unk(const char* node) {
     atn::Vector3 base = mPos;
-    MtxPtr ref = mMotion.GetNodeMtx_unk("reference");
+    MtxPtr ref = mMotion.GetNodeMtx_unk(node);
     if (ref != 0) {
         atn::VecAssign_unk(base, GetNodePos_unk(ref));
     }
@@ -297,7 +301,7 @@ void Em303KrakenFoot::vf10() {
     mPos.y = m14C8;
     fn_8014C540();
     fn_80145334();
-    UpdateColli_unk();
+    UpdateColli_unk("reference");
 }
 
 void Em303KrakenFoot::vf14() {
@@ -316,7 +320,6 @@ void Em303KrakenFoot::vf3C(HitInfo_unk* hit, int) {
     vf40(hit);
 }
 
-// inferred: CharaTask::CanAct_unk written out (names invented)
 // inferred: helpers of the state functions (names invented)
 inline void Em303KrakenFoot::SetState_unk(int state) {
     m14B8 = 0;
@@ -325,42 +328,17 @@ inline void Em303KrakenFoot::SetState_unk(int state) {
     m58C = state;
     fn_8016E970(3);
 }
-inline void Em303KrakenFoot::PlayMotion_unk(int motion) {
+inline void Em303KrakenFoot::PlayMotion_unk(int motion, int loop) {
     mMotion.m34C = 1;
     mMotion.mTracks[0].m20 = 1.0f;
     mMotion.mTracks[0].m0C = 1.0f;
-    mMotion.fn_80097C08(0, motion, 0, 1, 1, 0.0f, 0.1f);
-}
-
-inline bool FootActive_unk(CharaTask* c) {
-    bool r = false;
-    if ((c->mFlags & 4) != 4 && (c->mFlags & 1) != 1) {
-        r = true;
-    }
-    return r;
-}
-inline bool FootFree_unk(CharaTask* c) {
-    bool r = false;
-    if (FootActive_unk(c) && !c->mStatus.IsState_unk(0x20)) {
-        r = true;
-    }
-    return r;
-}
-inline bool FootGrappled_unk(CharaTask* c) {
-    return c->m55C == 6 && c->m560 == 28;
-}
-inline bool FootCanAct_unk(CharaTask* c) {
-    bool r = false;
-    if (FootFree_unk(c) && !FootGrappled_unk(c)) {
-        r = true;
-    }
-    return r;
+    mMotion.fn_80097C08(0, motion, loop, 1, 1, 0.0f, 0.1f);
 }
 
 // inferred: releases the caught character and puts it back on the ground (name invented)
 inline void Em303KrakenFoot::Release_unk() {
     if (m14D0 != 0) {
-        if (FootCanAct_unk(m14D0)) {
+        if (m14D0->CanAct_unk()) {
             m14D0->fn_8015AC48(-1);
         }
         if (m14D0 != 0) {
@@ -378,8 +356,8 @@ inline void Em303KrakenFoot::Release_unk() {
     }
 }
 
-// NONMATCHING: 99.33% - registers of the inlined CanAct_unk of the caught character (r0/r4/r6 rotated; same
-// family as Em314Ivy::vf104 and Em309GhoulSimple::vf10; ~12 forms of the inline tried)
+// inferred: the real CharaTask::CanAct_unk gives the registers of the original (the local helpers written
+// with bool results did not)
 void Em303KrakenFoot::vf40(HitInfo_unk* hit) {
     HitMsg_unk* msg = (HitMsg_unk*)hit;
     int heavy = 0;
@@ -403,7 +381,7 @@ void Em303KrakenFoot::vf40(HitInfo_unk* hit) {
         mMotion.mTracks[0].m0C = 1.0f;
         mMotion.fn_80097C08(0, 0x33, 0, 1, 1, 0.0f, 0.1f);
         if (m14D0 != 0) {
-            if (FootCanAct_unk(m14D0)) {
+            if (m14D0->CanAct_unk()) {
                 m14D0->fn_8015AC48(-1);
             }
             if (m14D0 != 0) {
@@ -645,27 +623,34 @@ struct FootFlag_unk {
 // inferred: as SpecialEnemyBase::fn_805A4A1C (name invented)
 inline void SetFlag_unk(FootFlag_unk* flag, int value) {
     if (flag->mGlobal == 0) {
-        ((GameTask*)lbl_8087F430)->fn_80370AE4(flag->mIndex, value);
+        ((GameTask*)fn_80121F00())->fn_80370AE4(flag->mIndex, value);
     } else if (flag->mGlobal == 1) {
-        ((GameTask*)lbl_8087F430)->fn_80370320(flag->mIndex, value, 0);
+        ((GameTask*)fn_80121F00())->fn_80370320(flag->mIndex, value, 0);
     }
 }
 
-// inferred: back direction of the foot (name invented)
-inline atn::Vector3 Em303KrakenFoot::GetBack_unk() {
+// inferred: front direction of the foot (name invented)
+inline atn::Vector3 GetFront_unk(const float& rot) {
     atn::Vector3 dir(0.0f, 0.0f, 1.0f);
     Mtx m;
-    PSMTXRotRad(m, 'y', mRot.y);
+    PSMTXRotRad(m, 'y', rot);
     PSMTXMultVec(m, &dir, &dir);
-    return atn::Vector3(-dir.x, -dir.y, -dir.z);
+    return dir;
+}
+// inferred: opposite vector (name invented)
+inline atn::Vector3 Neg_unk(const atn::Vector3& v) {
+    return atn::Vector3(-v.x, -v.y, -v.z);
+}
+
+// inferred: not const, unlike CharaTask::IsPlayer (name invented)
+inline bool IsPlayer_unk(CharaTask* c) {
+    return c->mType == 0;
 }
 
 // inferred: state 8: turns to the target and catches it at the end of the motion
-// NONMATCHING: 98.96% - registers of the inlined CanAct_unk (as vf40), the field pointer of the flag write kept
-// in r3 and stack slots of the two ray tests (~12 forms of the helpers tried). Since IsPlayer is const (its RSO
-// name, IsPlayer__9CharaTaskCFv) mType is loaded again for the ?: instead of reusing the value of the
-// `!= 2` test (the original does cntlzw on it, as a non-const inline gives: 99.15%); 12 forms of the
-// call and of the IsPlayer body tried (2026-10-29)
+// inferred: the flag write reads the field through its weak getter fn_80121F00 and the player test is a
+// non-const inline (CharaTask::IsPlayer is const and reloads mType); the release is written out (as in
+// fn_802E470C) and the back direction is the negation of a turned front vector (stack slots of the original)
 void Em303KrakenFoot::fn_802E3EE8() {
     CharaTask* target = (CharaTask*)m14CC;
     atn::Vector3 d;
@@ -699,7 +684,7 @@ void Em303KrakenFoot::fn_802E3EE8() {
                     m14D0->fn_801595BC((int)m14D4, 30, 0x1D8, -1);
                 }
                 if (lbl_8087F430 != 0 && m14D0->mType != 2) {
-                    SetFlag_unk((FootFlag_unk*)&m14F0, m14D0->IsPlayer() ? -1 : m14D0->m58);
+                    SetFlag_unk((FootFlag_unk*)&m14F0, IsPlayer_unk(m14D0) ? -1 : m14D0->m58);
                 }
                 if (lbl_8087F498 != 0) {
                     lbl_8087F498->fn_803EA77C(m14D0, 0x2A, 0, 1.0f, 10.0f);
@@ -712,7 +697,7 @@ void Em303KrakenFoot::fn_802E3EE8() {
         float frame = mMotion.mTracks[0].m08;
         if (frame >= mMotion.fn_80097D7C(0)) {
             SetState_unk(11);
-            PlayMotion_unk(0x141);
+            PlayMotion_unk(0x141, 1);
             if (m14D0 != 0) {
                 m14D0->mMotion.fn_80097C08(0, 0x1D8, 1, 0, 1, 0.0f, 0.1f);
             }
@@ -722,9 +707,14 @@ void Em303KrakenFoot::fn_802E3EE8() {
         if (!m14D0->mStatus.IsState_unk(0x20)) {
             SetState_unk(16);
             PlayMotion_unk(0x33);
-            Release_unk();
+            if (m14D0 != 0) {
+                if (m14D0->CanAct_unk()) {
+                    m14D0->fn_8015AC48(-1);
+                }
+                Drop_unk();
+            }
         } else {
-            m14D0->fn_8015E7A0(GetBack_unk(), -1, 0);
+            m14D0->fn_8015E7A0(Neg_unk(GetFront_unk(mRot.y)), -1, 0);
             SetState_unk(10);
             PlayMotion_unk(0x14A);
             Drop_unk();
@@ -732,14 +722,25 @@ void Em303KrakenFoot::fn_802E3EE8() {
     }
 }
 
+// inferred: rotation about y into r (names invented)
+inline MtxPtr RotYMtx_unk(Mtx r, float angle) {
+    PSMTXRotRad(r, 'y', angle);
+    return r;
+}
+inline atn::Vector3 MulVec_unk(const atn::Vector3& v, const Mtx m) {
+    atn::Vector3 o = v;
+    PSMTXMultVec(m, &o, &o);
+    return o;
+}
+
 // inferred: state 11: drags the caught character to the kraken
-// NONMATCHING: 99.58% - registers of the inlined CanAct_unk and stack slots of the normalized direction / rotated
-// vector (~12 forms tried)
+// inferred: the back vector rotates a normalized temporary (MulVec_unk/RotYMtx_unk give the stack slots and
+// the order of the original); the release is written out (Release_unk gives the other stack order)
 void Em303KrakenFoot::fn_802E470C() {
     if (m14BC > m14E0) {
         m14BC = 0;
     }
-    if (!(m14D0 != 0 && FootCanAct_unk(m14D0) && m14D0->m55C == 6 && m14D0->m560 == 17)) {
+    if (!(m14D0 != 0 && m14D0->CanAct_unk() && m14D0->m55C == 6 && m14D0->m560 == 17)) {
         if (m14D0->mType == 0 && !m14D0->mStatus.IsState_unk(0x20)) {
             Em302Kraken* kraken = (Em302Kraken*)m1504;
             atn::Vector3 d = kraken->mPos - mPos;
@@ -755,10 +756,16 @@ void Em303KrakenFoot::fn_802E470C() {
         }
         SetState_unk(16);
         PlayMotion_unk(0x33);
-        Release_unk();
+        if (m14D0 != 0) {
+            if (m14D0->CanAct_unk()) {
+                m14D0->fn_8015AC48(-1);
+            }
+            Drop_unk();
+        }
     } else {
         CharaTask* kraken = (CharaTask*)m1504;
-        atn::Vector3 d(kraken->mPos.x - mPos.x, 0.0f, kraken->mPos.z - mPos.z);
+        atn::Vector3 d = kraken->mPos - mPos;
+        d.y = 0.0f;
         float dist = PSVECMag(&d) - 70.0f;
         PSVECNormalize(&d, &d);
         if (dist > 0.0001f) {
@@ -774,11 +781,7 @@ void Em303KrakenFoot::fn_802E470C() {
         PSMTXMultVec(m, &front, &front);
         front.y = 0.0f;
         PSVECNormalize(&front, &front);
-        atn::Vector3 dir = d;
-        PSVECNormalize(&dir, &dir);
-        PSMTXRotRad(r, 'y', 3.1415927f);
-        atn::Vector3 back = dir;
-        PSMTXMultVec(r, &back, &back);
+        atn::Vector3 back = MulVec_unk(d.GetNormalize(), RotYMtx_unk(r, 3.1415927f));
         float limit = cos(0.17453294f);
         if (PSVECDotProduct(&front, &back) < limit) {
             float a = atn::WrapAngle_unk(acos(PSVECDotProduct(&front, &back)));
@@ -845,7 +848,6 @@ void Em303KrakenFoot::fn_802E554C(int arg) {
     m14EC = arg;
 }
 
-// NONMATCHING: 99.60% - registers of the inlined CanAct_unk (see vf40)
 void Em303KrakenFoot::fn_802E55B0(int kind) {
     m14B8 = 0;
     m14BC = 0;

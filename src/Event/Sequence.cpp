@@ -407,7 +407,7 @@ void Sequence::fn_8053F1B4() {
             m98_12 = 0;
         } else if (fn_8054011C() != 0) {
             m29C.fn_80470528();
-            if (m98_11 == 1) {
+            if (GetFlag11_unk() == 1) {
                 m194 = 9;
                 m98_11 = 0;
             } else {
@@ -472,8 +472,13 @@ void Sequence::fn_8053F1B4() {
     }
 }
 
-// NONMATCHING: 99.84% - register of the counter of the second loop (r29 in the original, ours r27; with the
-// counters declared at the top, in any order or shared, r28)
+// inferred: per frame update of the actors (name invented)
+inline void UpdateActors_unk(DataList_unk<Actor>& actors) {
+    for (int j = 0; j < (int)actors.size(); j++) {
+        actors[j].vf0C();
+    }
+}
+
 void Sequence::vf14() {
     if (m194 == 10) {
         for (int i = 0; i < 4; i++) {
@@ -502,9 +507,7 @@ void Sequence::vf14() {
     }
     if (m98_16 == 1) {
         if (m98_1 == 1) {
-            for (int j = 0; j < (int)m164.size(); j++) {
-                m164[j].vf0C();
-            }
+            UpdateActors_unk(m164);
             m98_1 = 0;
             m98_15 = 0;
             m98_16 = 0;

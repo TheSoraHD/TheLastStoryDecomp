@@ -1166,7 +1166,6 @@ void Em201ZanGurgFinal::fn_80266FC4() {
     }
 }
 
-// NONMATCHING: r5/r6 of the target and of the difference vector in the direct chase (rest matches)
 void Em201ZanGurgFinal::fn_80267134() {
     float speed = 0.0f;
     float scale = 1.0f;
@@ -1183,7 +1182,8 @@ void Em201ZanGurgFinal::fn_80267134() {
                 rot = mRot;
             }
         } else {
-            atn::Vector3 to = (m14B8->mPos - mPos).GetNormalize();
+            CharaTask* target = m14B8;
+            atn::Vector3 to = (target->mPos - mPos).GetNormalize();
             if ((m14B8->mPos - mPos).Length_unk() < 25.0f) {
                 speed = 0.0f;
             } else {
@@ -1683,8 +1683,16 @@ void Em201ZanGurgFinal::fn_802692B4() {
     }
 }
 
-// NONMATCHING: stack slots of the temporaries (the original keeps the loop vectors above the grab ones) and
-// the scheduling of the grab position; 9 variants
+// inferred: negated vector (name invented)
+inline atn::Vector3 Neg2_unk(const atn::Vector3& v) {
+    return atn::Vector3(-v.x, -v.y, -v.z);
+}
+
+// inferred: holds `chara` at `pos` facing `dir` (name invented; copies of the vectors)
+inline void Grab_unk(CharaTask* chara, atn::Vector3 pos, atn::Vector3 dir) {
+    chara->fn_8015D2A0(pos, dir);
+}
+
 // inferred: grab (state 13): picks the nearest party member in front, holds it and throws it
 void Em201ZanGurgFinal::fn_802696F8() {
     float frame = mMotion.mTracks[0].m08;
@@ -1696,8 +1704,7 @@ void Em201ZanGurgFinal::fn_802696F8() {
         for (PlayerTask* p = lbl_8087F8A0->mHead; p != 0; p = (PlayerTask*)p->mNext) {
             if (IsTarget_unk(p) && !p->fn_80155D70()) {
                 atn::Vector3 d = p->mPos - mPos;
-                atn::Vector3 fwd = FrontR_unk(mRot);
-                float dot = PSVECDotProduct(&d, &fwd);
+                float dot = PSVECDotProduct(&d, &FrontR_unk(mRot));
                 if (dot >= (float)cos(0.7853982f)) {
                     float dist = PSVECSquareMag(&d);
                     if (dist < 1600.0f) {
@@ -1715,11 +1722,8 @@ void Em201ZanGurgFinal::fn_802696F8() {
         }
         if (m150C != 0) {
             atn::Vector3 pos = mPos + FrontR_unk(mRot) * 20.0f;
-            atn::Vector3 dir = FrontR_unk(mRot);
-            atn::Vector3 back(-dir.x, -dir.y, -dir.z);
-            atn::Vector3 a(pos);
-            atn::Vector3 b(back);
-            m150C->fn_8015D2A0(a, b);
+            atn::Vector3 back = Neg2_unk(FrontR_unk(mRot));
+            Grab_unk(m150C, pos, back);
         } else {
             m1508 = 0;
         }
@@ -1754,7 +1758,16 @@ inline void PlayMotionAt_unk(atn::Model* model, int motion, float frame) {
     model->mTracks[0].m08 = frame;
 }
 
-// NONMATCHING: stack slots of the grab position temporaries (same case as fn_802696F8)
+// inferred: holds the leader at `pos` facing `dir` (name invented; copies of the vectors)
+inline void GrabLeader_unk(CharaTask* chara, atn::Vector3 pos, atn::Vector3 dir) {
+    chara->fn_8015D5B0(pos, dir);
+}
+
+// inferred: releases the leader at `pos` (name invented; copy of the vector)
+inline void Release_unk(CharaTask* chara, atn::Vector3 pos) {
+    chara->fn_8015CF98(pos);
+}
+
 // inferred: grab of the leader (state 14)
 void Em201ZanGurgFinal::fn_80269CBC() {
     if (atn::Abs_unk(mMotion.mTracks[0].m08 - 70.0f) < 1.1920929e-7f) {
@@ -1767,14 +1780,10 @@ void Em201ZanGurgFinal::fn_80269CBC() {
         PlayerTask* leader = lbl_8087F8A0->mHead;
         if (leader->fn_8017A450() < 5) {
             atn::Vector3 pos = mPos + FrontR_unk(mRot) * 20.0f;
-            atn::Vector3 dir = FrontR_unk(mRot);
-            atn::Vector3 back(-dir.x, -dir.y, -dir.z);
-            atn::Vector3 a(pos);
-            atn::Vector3 b(back);
-            leader->fn_8015D5B0(a, b);
+            atn::Vector3 back = Neg2_unk(FrontR_unk(mRot));
+            GrabLeader_unk(leader, pos, back);
         } else {
-            atn::Vector3 pos(mPos);
-            leader->fn_8015CF98(pos);
+            Release_unk(leader, mPos);
             m1508 = 0;
         }
     } else if (mMotion.mTracks[0].m08 >= 31.0f && mMotion.mTracks[0].m08 <= 32.0f) {
@@ -2406,9 +2415,6 @@ void Em201ZanGurgFinal::fn_8026D0F8(int mode) {
     }
 }
 
-inline atn::Vector3 Neg2_unk(const atn::Vector3& v) {
-    return atn::Vector3(-v.x, -v.y, -v.z);
-}
 // inferred: smaller of two values, as a macro (name invented)
 #define MIN_UNK(a, b) ((a) < (b) ? (a) : (b))
 

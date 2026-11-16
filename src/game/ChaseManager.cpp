@@ -357,13 +357,15 @@ inline ChaseGoal_unk* ChaseGoalTable_unk::Find_unk(int id) {
     }
     return 0;
 }
+// inferred: goal table of the field (name invented)
+static inline ChaseGoalTable_unk* GoalTable_unk() {
+    return lbl_8087F430->m10D8;
+}
 
-// NONMATCHING: 99.6% - registers of the inlined goal search loop differ (offset/table swapped); tried
-// Find_unk forms (pointer sum, result variable, local data pointer), free helpers, declaration orders
+// inferred: the goal table read through an inline (GoalTable_unk) gives the registers of the search loop
 void ChaseManager::fn_80183618(int id) {
     RemoveMarker_unk();
-    ChaseGoalTable_unk* table = lbl_8087F430->m10D8;
-    ChaseGoal_unk* goal = table->Find_unk(id);
+    ChaseGoal_unk* goal = GoalTable_unk()->Find_unk(id);
     if (goal != 0) {
         mGoalId = id;
         mGoal = goal->mPos;

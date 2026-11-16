@@ -215,21 +215,12 @@ Camera* Scene::fn_800C2520(int i) {
     return &mCameras.mData[j];
 }
 
-// inferred: 2D vector operators (names invented)
-inline Vector2_unk Mul2_unk(const Vector2_unk& v, float f) {
-    return Vector2_unk(f * v.x, f * v.y);
-}
-inline Vector2_unk Sub2_unk(const Vector2_unk& a, const Vector2_unk& b) {
-    return Vector2_unk(a.x - b.x, a.y - b.y);
-}
-
 // inferred: the floor light when pos is inside its rectangle
-// NONMATCHING: 99.52% - operand order of the two fmuls (f * v.x gives the FPRs of the original, v.x * f the
-// operands); tried a named half vector, the order of p and min, a float local and Mul2_unk(float, v)
 CharaLightData_unk* Scene::fn_800C258C(const Vector3* pos) {
     if (mFloorLightOn != 0) {
         Vector2_unk p(pos->x, pos->z);
-        Vector2_unk min = Sub2_unk(mFloorLight.m04, Mul2_unk(mFloorLight.mSize, 0.5f));
+        float half = 0.5f;
+        Vector2_unk min = mFloorLight.m04 - mFloorLight.mSize * half;
         if (p.x >= min.x && p.x <= min.x + mFloorLight.mSize.x && p.y >= min.y &&
             p.y <= min.y + mFloorLight.mSize.y) {
             return &mFloorLight;

@@ -224,7 +224,8 @@ struct SoundPosTable_unk {
 };
 
 // inferred: saved position of the stream `id` (-1 when missing)
-extern "C" int fn_803CE074(SoundPosTable_unk* t, unsigned int id) {
+int GameSoundControl::fn_803CE074(unsigned int id) {
+    SoundPosTable_unk* t = (SoundPosTable_unk*)this;
     for (SoundPos_unk* p = t->mArray.mData; p != t->mArray.mData + t->mArray.mSize; p++) {
         if (p->mId == id) {
             return p->mPos;
@@ -234,7 +235,8 @@ extern "C" int fn_803CE074(SoundPosTable_unk* t, unsigned int id) {
 }
 
 // inferred: stores the position of the stream `id`
-extern "C" int fn_803CE0B4(SoundPosTable_unk* t, unsigned int id, int pos) {
+int GameSoundControl::fn_803CE0B4(unsigned int id, int pos) {
+    SoundPosTable_unk* t = (SoundPosTable_unk*)this;
     if (t->mArray.size() >= 4) {
         return 0;
     }

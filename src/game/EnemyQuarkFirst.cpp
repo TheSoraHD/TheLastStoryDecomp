@@ -534,7 +534,7 @@ void EnemyQuarkFirst::vf100(int state) {
         PlayMotion_unk(0x36, 1);
         mMotion.mTracks[0].m0C = 1.0f;
         if (lbl_8087F498 != 0) {
-            lbl_8087F498->fn_803EA77C(this, 2, 0, 1.0f, 600.0f);
+            lbl_8087F498->fn_803EA77C(this, 2, 0, 1.0f, 10.0f);
         }
         break;
     }

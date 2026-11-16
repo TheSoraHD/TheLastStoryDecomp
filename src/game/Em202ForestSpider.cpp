@@ -561,16 +561,16 @@ void Em202ForestSpider::vfFC() {
         atn::Vector3 r = d.ToRotation_unk();
         mRot.y = r.y;
         if (m14F8 != 0) {
-            speed = 1.5f * 2.5f;
+            speed *= 2.5f;
         } else if (dist < m1510) {
             speed = 0.0f;
         }
         fn_801426A4(&rot, 0.0f, m568 * speed);
-    }
-    if (m55C == 6) {
+    } else if (m55C == 6) {
         fn_8013A258();
+    } else {
+        fn_8013CB68(rot, 0, 0.0f, m568 * speed);
     }
-    fn_8013CB68(rot, 0, 0.0f, m568 * 1.5f);
 }
 
 void Em202ForestSpider::vf100() {
@@ -1053,11 +1053,9 @@ int Em202ForestSpider::vf154(int arg) {
         return 0;
     }
     m14F0 = mRot.y;
-    atn::Vector3 d = m14D4->mPos - mPos;
-    atn::Vector3 r = d.ToRotation_unk();
-    m14F4 = r.y;
+    m14F4 = (m14D4->mPos - mPos).ToRotationZ_unk().y;
     float a = atn::WrapAngle_unk(m14F4 - m14F0);
-    if (a > -0.3926991f && a < 0.3926991f) {
+    if (-0.3926991f < a && a < 0.3926991f) {
         return 0;
     }
     m14EC = 0;

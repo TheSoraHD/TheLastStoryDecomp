@@ -52,6 +52,7 @@
 #include "atn/SceneColorMatrix_unk.h"
 #include "atn/Lerp_unk.h"
 #include "nw4r/math/triangular.h"
+#include "std/string_members.h"
 
 extern "C" GameTask* lbl_8087F430; // inferred: the field
 
@@ -689,7 +690,16 @@ inline void Manager::StopMusic_unk(Sequence* seq) {
     m1F20.mSound.Reset();
 }
 
-// NONMATCHING: 99.7% - registers of the m74 loop (index and pointer swapped)
+// inferred: clears the slot of `seq` (name invented)
+inline void RemoveSequence_unk(Sequence** list, Sequence* seq) {
+    for (int i = 0; i < 16; i++) {
+        if (list[i] == seq) {
+            list[i] = 0;
+            break;
+        }
+    }
+}
+
 // inferred: stops the sequence `id`
 int Manager::fn_8047EFD8(int id, int arg) {
     Sequence* seq = FindSequence_unk(id);
@@ -712,12 +722,7 @@ int Manager::fn_8047EFD8(int id, int arg) {
             m2378 = -1;
         }
     } else {
-        for (int i = 0; i < 16; i++) {
-            if (m74[i] == seq) {
-                m74[i] = 0;
-                break;
-            }
-        }
+        RemoveSequence_unk(m74, seq);
     }
     if (arg != 0) {
         Sequence* other = FindSequence_unk(seq->m190);
@@ -785,9 +790,13 @@ int Manager::fn_8047F510(int id) {
 }
 
 // inferred: stops the sequence kept in m2380 (fn_8047EFD8)
-// NONMATCHING: 98.4% - the original loads m2380 again for the search
+// inferred: name invented
+inline int KeptId_unk(const Manager* m) {
+    return m->m2380;
+}
+
 __declspec(noinline) int Manager::fn_8047F580() {
-    if (m2380 > 0) {
+    if (KeptId_unk(this) > 0) {
         Sequence* seq = FindSequence_unk(m2380);
         if (seq != 0) {
             StopMusic_unk(seq);
@@ -3152,14 +3161,14 @@ void fn_8048F844(MapArea* area, void* arg) {
 // inferred: AutoLightFix (debug menu "AutoLightFix"): unless the cut moves the lights itself, turns the
 // light towards the camera (type 1) or adds a directional light (type 2), then scales the light and the
 // ambient color of the scene and of the map areas
-// NONMATCHING: 99.84% - stack slots of the temporaries of case 1 (the result of fn_8047C1D8 and the argument)
 void Manager::fn_8048F9B0(Cut* cut) {
     CutLightFlags_unk flags = cut->GetLightFlags_unk();
     if (!flags.m00 && !flags.m01 && !flags.m02) {
         switch (m240C) {
         case 1: {
             EventCamera_unk* camera = fn_8000DB1C()->GetCamera_unk();
-            GetViewLight_unk(fn_8008B964())->SetDir_unk(fn_8047C1D8(fn_80383728(camera), *m1BD0.mLight.GetDir_unk(), m2410));
+            atn::Vector3 dir = fn_8047C1D8(fn_80383728(camera), *m1BD0.mLight.GetDir_unk(), m2410);
+            GetViewLight_unk(fn_8008B964())->SetDir_unk(dir);
             LightFixDir_unk fix(camera, &m1AB0, m240C, m2410);
             MapManager::GetInstance_unk()->fn_80491528(fn_8048F1DC, &fix);
             break;
@@ -3183,8 +3192,18 @@ void Manager::fn_8048F9B0(Cut* cut) {
     }
 }
 
+// inferred: removes the light -2 of the event from its list and from the light list (name invented)
+inline void RemoveEventLight_unk(IntVector_unk& lights) {
+    for (int i = 0; i < (int)lights.size(); i++) {
+        if (lights[i] == -2) {
+            lights.erase(lights.begin() + i);
+            lbl_8087EEF8->fn_8007A154(i);
+            break;
+        }
+    }
+}
+
 // inferred: undoes the AutoLightFix (light direction of the event, or removes the light -2)
-// NONMATCHING: 99.85% - the index of case 2 in r29 instead of r30
 void Manager::fn_8048FC7C() {
     switch (m240C) {
     case 1: {
@@ -3195,13 +3214,7 @@ void Manager::fn_8048FC7C() {
         break;
     }
     case 2:
-        for (int i = 0; i < (int)m1F10.size(); i++) {
-            if (m1F10[i] == -2) {
-                m1F10.erase(m1F10.begin() + i);
-                lbl_8087EEF8->fn_8007A154(i);
-                break;
-            }
-        }
+        RemoveEventLight_unk(m1F10);
         break;
     }
 }

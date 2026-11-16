@@ -444,7 +444,7 @@ void PopupTask::vf14() {
             } else {
                 y += rise;
             }
-            unsigned int color = value > 0 ? 0xFFFFFF : 0x888888;
+            unsigned int color = value <= 0 ? 0x888888 : 0xFFFFFF;
             lbl_8087EEB0->fn_80061824(2.0f + x, 2.0f + y, z, size, size, 0.0f, 0.0f, 0.0f, e->m20.mStr, 0xA0000000,
                                       1, 4, 0, 0, 0xFF000000);
             lbl_8087EEB0->fn_80061824(x, y, z, size, size, 0.0f, 0.0f, 0.0f, e->m20.mStr, color | alpha, 1, 4, 0, 0,
@@ -683,6 +683,12 @@ static inline float MinF_unk(float a, float b) {
     return a < b ? a : b;
 }
 
+// inferred: weak copy 0x801156C4 (GetSetConfig_unk__Fv)
+inline SetConfig* GetSetConfig_unk() {
+    return SetConfig::sInstance;
+}
+
+
 // NONMATCHING: 99.15% - TakeAnime_unk keeps the anime in a register for m16E8[2]/[1] but recomputes it for
 // m16E8[0] in the original (and the loop pointer/anime registers are swapped); L"%+d" in the .data pool of
 // the wide strings of vf14 (not written)
@@ -693,10 +699,10 @@ void PopupTask::fn_8054D794(int kind, const wchar_t* text, const atn::Vector3* p
     if (mEntries.size() >= 0x20) {
         return;
     }
-    if (owner != 0 && (owner->mType == 0 || owner->mType == 3) && SetConfig::sInstance->mDrawFriendPopup == 0) {
+    if (owner != 0 && (owner->mType == 0 || owner->mType == 3) && GetSetConfig_unk()->mDrawFriendPopup == 0) {
         return;
     }
-    if (owner != 0 && owner->mType == 2 && SetConfig::sInstance->mDrawEnemyPopup == 0) {
+    if (owner != 0 && owner->mType == 2 && GetSetConfig_unk()->mDrawEnemyPopup == 0) {
         return;
     }
     if (lbl_8087F430 != 0 && lbl_8087F430->m54E4 == 8) {
@@ -832,7 +838,6 @@ void PopupTask::fn_8054D794(int kind, const wchar_t* text, const atn::Vector3* p
     fn_8054E0FC(&e);
 }
 
-// NONMATCHING: 99.87% - the owner of the new popup gets r4 and SetConfig::sInstance r3 (r3/r4 in the original)
 // inferred: adds a popup: popups of friends need "draw friend popup", of enemies "draw enemy popup"; a popup at
 // the same place as another moves up and gets a random direction (a quarter turn more for each one)
 void PopupTask::fn_8054E0FC(PopupEntry_unk* entry) {
@@ -840,10 +845,10 @@ void PopupTask::fn_8054E0FC(PopupEntry_unk* entry) {
         return;
     }
     if (entry->m8C != 0 && (((CharaTask*)entry->m8C)->mType == 0 || ((CharaTask*)entry->m8C)->mType == 3) &&
-        SetConfig::sInstance->mDrawFriendPopup == 0) {
+        GetSetConfig_unk()->mDrawFriendPopup == 0) {
         return;
     }
-    if (entry->m8C != 0 && ((CharaTask*)entry->m8C)->mType == 2 && SetConfig::sInstance->mDrawEnemyPopup == 0) {
+    if (entry->m8C != 0 && ((CharaTask*)entry->m8C)->mType == 2 && GetSetConfig_unk()->mDrawEnemyPopup == 0) {
         return;
     }
     float angle = 0.0f;

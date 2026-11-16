@@ -4812,7 +4812,7 @@ static inline int ChaseValue_unk(int kind) {
         value = lbl_8087F0A8->m4DC.m04;
         break;
     case 7:
-        value = lbl_8087F0A8->m4DC.m0C * 57.29578f;
+        value = lbl_8087F0A8->m4DC.m0C * 57.295776f;
         break;
     case 9:
         value = lbl_8087F0A8->m53C.m44;
@@ -5139,7 +5139,7 @@ void GameEventScript::fn_803A6744(ScriptResult_unk& result, const ScriptCmd_unk*
         CharaTask* chara = GetChara_unk(args->m0C, args->m10);
         switch (args->m08) {
         case 0: {
-            atn::Color color(0.8156863f, 0.0f, 0.0f, 1.0f);
+            atn::Color color(0.81568635f, 0.0f, 0.0f, 1.0f);
             minimap->fn_804AAD68(chara, &color);
             break;
         }
@@ -6605,20 +6605,20 @@ extern "C" void* lbl_8087EE98; // inferred: collision manager
 extern "C" int fn_8004ECC0(void* world, atn::Vector3* hit, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg); // inferred: ray test
 
-// NONMATCHING: 99.7% - stack slots of the two copies swapped (start at 0x18 and end at 0x24 in the original)
 // inferred: nothing blocks the line from `from` to `to` (stopped `radius` before it; only farther than
 // 1.5 times the radius); used by Em206EggMonster and SpecialEnemyBase
 extern "C" int fn_803ABE54(const atn::Vector3* from, const atn::Vector3* to, float radius) {
-    atn::Vector3 start = *from;
-    atn::Vector3 end = *to;
-    float dist = (end - start).Length_unk();
+    atn::Vector3 line[2];
+    line[0] = *from;
+    line[1] = *to;
+    float dist = (line[1] - line[0]).Length_unk();
     if (!((float)__fabs(dist) < 1.1920929e-7f)) {
-        end -= start;
-        end.Normalize_unk();
-        end *= dist - radius;
-        end += start;
+        line[1] -= line[0];
+        line[1].Normalize_unk();
+        line[1] *= dist - radius;
+        line[1] += line[0];
     }
-    if (dist > 1.5f * radius && fn_8004ECC0(lbl_8087EE98, 0, &start, &end, 0x80000010, 0, 0) == 0) {
+    if (dist > 1.5f * radius && fn_8004ECC0(lbl_8087EE98, 0, &line[0], &line[1], 0x80000010, 0, 0) == 0) {
         return 1;
     }
     return 0;
@@ -6872,8 +6872,12 @@ int GameEventScript::fn_803ACD50(int id) {
 }
 
 
+// inferred: rotation around y through one more inline level (name invented)
+inline void EventRotY_unk(atn::Matrix3x4& m, float rad) {
+    atn::Matrix3x4::RotateAxis_unk(m, 'y', rad);
+}
+
 // The original calls both tests recursively out of line (not inlined into themselves)
-// NONMATCHING: 99.96% - stack slots of the two matrices of RotateAxis_unk swapped
 __declspec(noinline) int GameEventScript::fn_803ACE18(int index, const atn::Sphere* sphere, int group) {
     gs::EventBox& event = mScene->mE4[index];
     int hit = 0;
@@ -6890,7 +6894,7 @@ __declspec(noinline) int GameEventScript::fn_803ACE18(int index, const atn::Sphe
         atn::Matrix3x4 trans;
         PSMTXTrans(trans.m, event.mPos.x, event.mPos.y, event.mPos.z);
         box.mMtx = trans;
-        atn::Matrix3x4::RotateAxis_unk(box.mMtx, 'y', event.m14);
+        EventRotY_unk(box.mMtx, event.m14);
         hit = fn_80051CD8(sphere, &box);
     }
     return hit;

@@ -1,6 +1,7 @@
 // inferred file name (splits-auto): AI helpers of the scripts of AI/AI_archer_attack01.cpp. They
 // work on the current character (lbl_8087EE60) and on lists of 16 characters.
 #include "game/CharaTask.h"
+#include "game/TeamAIManager.h"
 #include "game/BattleTask.h"
 #include "game/AiTarget.h"
 #include "game/GameScene.h"
@@ -40,23 +41,6 @@ struct Field_unk {
 };
 extern "C" Field_unk* lbl_8087F430;
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
-// inferred: team manager (lbl_8087FA00); members of 0x37C bytes
-struct AiTeamMember_unk {
-    unsigned char m000[0x218];
-    struct Ref_unk {
-        unsigned char m00[0x8C];
-        CharaTask* m8C;
-    }* m218;
-    unsigned char m21C[0x37C - 0x21C];
-    // inferred: character of the member (name invented)
-    CharaTask* GetChara_unk() { return m218 != 0 ? m218->m8C : 0; }
-};
-struct AiTeam_unk {
-    unsigned char m00[0x48];
-    int mCount;               // 0x48
-    AiTeamMember_unk* mMembers; // 0x4C
-};
-extern "C" AiTeam_unk* lbl_8087FA00;
 extern "C" int fn_8003F440(CharaTask* chara, CharaStatusPair_unk* skill);
 
 // inferred: moves the characters of a list of 16 to the front (names invented)
@@ -121,31 +105,38 @@ extern "C" void fn_8001A510(CharaTask** list) {
     }
 }
 
-// NONMATCHING: 98.87% - registers (the character and the three inline bools)
+// inferred: clears an entry of a list whose character cannot act (name invented; the entry by
+// reference gives the register order of the original)
+static inline void ClearIfInactive_unk(CharaTask*& chara) {
+    if (chara == 0 || !chara->CanAct_unk()) {
+        chara = 0;
+    }
+}
+
 extern "C" void fn_8001A65C(CharaTask** list) {
     for (int i = 0; i < 16; i++) {
-        if (list[i] == 0 || !list[i]->CanAct_unk()) {
-            list[i] = 0;
-        }
+        ClearIfInactive_unk(list[i]);
     }
     Compact_unk(list);
 }
 
-// NONMATCHING: 98.10% - registers of the team loop (list pointer, team, offset)
+// inferred: removes from the list the characters that are not team leaders (pointer loop: register
+// order of the original)
 extern "C" void fn_8001A788(CharaTask** list) {
-    for (int i = 0; i < 16; i++) {
+    CharaTask** p = list;
+    for (int i = 0; i < 16; i++, p++) {
         bool found = false;
         if (lbl_8087EE60 != 0 && !lbl_8087EE60->mStatus.IsState_unk(0x800)) {
-            AiTeam_unk* team = lbl_8087FA00;
-            for (int j = 0; j < team->mCount; j++) {
-                if (list[i] == team->mMembers[j].GetChara_unk()) {
+            TeamAIManager* team = lbl_8087FA00;
+            for (int j = 0; j < team->mTeams.mSize; j++) {
+                if (*p == team->mTeams[j].GetLeader_unk()) {
                     found = true;
                     break;
                 }
             }
         }
         if (!found) {
-            list[i] = 0;
+            *p = 0;
         }
     }
     Compact_unk(list);
@@ -235,6 +226,17 @@ extern "C" float fn_8001ADE8(int id, CharaTask* chara) {
     return dist;
 }
 
+// inferred: distance from the character to a point, -1.0f without one of them. Nothing calls it
+// and the linker removes it; only its -1.0f stays in .sdata2 (the original has it after the
+// literals of fn_8001AC54 and before the 1.5f of fn_8001AEDC)
+extern "C" float AiDistToPos_unk(CharaTask* chara, const atn::Vector3* pos) {
+    float dist = -1.0f;
+    if (chara != 0 && pos != 0) {
+        dist = PSVECMag(&(chara->mPos - *pos));
+    }
+    return dist;
+}
+
 extern "C" NpcTask* fn_8001AEBC(int id) {
     NpcTask* npc = 0;
     if (NpcManager::sInstance != 0) {
@@ -248,12 +250,17 @@ extern "C" int fn_800143E8(CharaTask* chara);
 
 #define AI_MAX(a, b) ((a) > (b) ? (a) : (b))
 
-// inferred: runs the order `order` of the AI script on the current character
-// NONMATCHING: 98.96% - registers: the character and its CharaC58_unk swap r30/r31 (tried both
-// declaration orders, a reference and no local), and the original reads b/a from r5/r4 in some cases
+// inferred: accessor of the control data (weak copy 0x800F530C, as in game/BattleTask.cpp)
+extern "C" inline CharaC58_unk* fn_800F530C(CharaTask* chara) {
+    return &chara->mC58;
+}
+
+// inferred: runs the order `order` of the AI script on the current character. The float
+// arguments are converted in locals before the call (the original reads b/a from r5/r4 there).
+
 extern "C" void fn_8001AEDC(unsigned int order, int* a, int* b, int* c, int* d) {
     CharaTask* self = lbl_8087EE60;
-    CharaC58_unk* ai = &self->mC58;
+    CharaC58_unk* ai = fn_800F530C(self);
     switch (order) {
     case 0: {
         CharaStatus* status;
@@ -279,12 +286,14 @@ extern "C" void fn_8001AEDC(unsigned int order, int* a, int* b, int* c, int* d) 
     case 2:
         ai->fn_8011C378(self, *a);
         break;
-    case 3:
-        ai->fn_8011C3F4(self, (CharaTask*)*a, *b);
+    case 3: {
+        float radius = *b;
+        ai->fn_8011C3F4(self, (CharaTask*)*a, radius);
         break;
+    }
     case 4: {
-        CharaTask* other = (CharaTask*)*a;
         int time = *b;
+        CharaTask* other = (CharaTask*)*a;
         if (other != 0 && other->mFlag10) {
             time = time * lbl_8087F0A8->m468;
         }
@@ -308,12 +317,16 @@ extern "C" void fn_8001AEDC(unsigned int order, int* a, int* b, int* c, int* d) 
     case 7:
         ai->fn_8011C650(self, *a, (CharaTask*)*b);
         break;
-    case 8:
-        ai->fn_8011C6C4(self, *a, *b);
+    case 8: {
+        float radius = *b;
+        ai->fn_8011C6C4(self, *a, radius);
         break;
-    case 9:
-        ai->fn_8011C7C0(self, (CharaTask*)*a, *b);
+    }
+    case 9: {
+        float radius = *b;
+        ai->fn_8011C7C0(self, (CharaTask*)*a, radius);
         break;
+    }
     case 15:
         ai->fn_8011C850(self);
         break;
@@ -323,12 +336,16 @@ extern "C" void fn_8001AEDC(unsigned int order, int* a, int* b, int* c, int* d) 
     case 11:
         ai->fn_8011C8EC(self, *a);
         break;
-    case 12:
-        ai->fn_8011C92C(self, *a, *b);
+    case 12: {
+        float radius = *b;
+        ai->fn_8011C92C(self, *a, radius);
         break;
-    case 13:
-        ai->fn_8011C97C(self, (CharaTask*)*a, *b);
+    }
+    case 13: {
+        float radius = *b;
+        ai->fn_8011C97C(self, (CharaTask*)*a, radius);
         break;
+    }
     case 14:
         ai->fn_8011C9F8(self);
         break;
@@ -357,12 +374,18 @@ extern "C" void fn_8001AEDC(unsigned int order, int* a, int* b, int* c, int* d) 
         ai->fn_8011CD1C(self, motion0, motion1, motion2, *d);
         break;
     }
-    case 18:
-        ai->fn_8011CA5C(self, (CharaTask*)*a, *b, 0.017453292f * *c);
+    case 18: {
+        float radius = *b;
+        float deg = *c;
+        float angle = 0.017453292f * deg;
+        ai->fn_8011CA5C(self, (CharaTask*)*a, radius, angle);
         break;
-    case 19:
-        ai->fn_8011CAE4(self, *a);
+    }
+    case 19: {
+        float radius = *a;
+        ai->fn_8011CAE4(self, radius);
         break;
+    }
     }
 }
 
@@ -376,7 +399,6 @@ extern "C" void fn_8001B4CC(int value) {
 }
 
 // inferred: plays the motion `motion` on the current character, looking at the neck of `target`
-// NONMATCHING: 99.88% - .sdata2 order: the original has -1.0f before the 1.5f of fn_8001AEDC
 extern "C" void fn_8001B508(const char* motion, CharaTask* target) {
     if (target != 0) {
         MtxPtr neck = target->GetModel_unk()->GetNodeMtx_unk("neck");
@@ -386,7 +408,6 @@ extern "C" void fn_8001B508(const char* motion, CharaTask* target) {
     }
 }
 
-// NONMATCHING: 99.50% - .sdata2 order of -1.0f (see fn_8001B508)
 extern "C" int fn_8001B5B4(const atn::Vector3* a, int b) {
     return ((GameScene*)lbl_8087F430->m10D8)->fn_803C1560(a, 0, b, 0, 1, -1.0f);
 }

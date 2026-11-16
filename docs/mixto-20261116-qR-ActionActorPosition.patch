@@ -1,0 +1,120 @@
+diff --git a/src/Event/ActionActorPosition.cpp b/src/Event/ActionActorPosition.cpp
+index 6057ead0..4c2e1672 100644
+--- a/src/Event/ActionActorPosition.cpp
++++ b/src/Event/ActionActorPosition.cpp
+@@ -1347,6 +1347,56 @@ int ActionActorSetting::fn_80557E00(int kind, const char* name) {
+     return 0;
+ }
+ 
++// inferred: the node `name` is an earring node of the kind `kind` (not static: the out-of-line copies of
++// these three tests, which the linker strips, put their names before "pc101" in the pool)
++int IsEarringNode_unk(int kind, const char* name) {
++    switch (kind) {
++    case 0:
++        if (strcmp(name, "earring_L") == 0) {
++            return 1;
++        }
++    case 2:
++    case 6:
++        if (strcmp(name, "earring_L") == 0 || strcmp(name, "earring_R") == 0) {
++            return 1;
++        }
++    default:
++        return 0;
++    }
++}
++
++// inferred: the node `name` is a waist cloth node of the kind `kind`
++int IsWaistClothNode_unk(int kind, const char* name) {
++    switch (kind) {
++    case 0:
++    case 1:
++    case 3:
++        if (strcmp(name, "waistcloth_L2") == 0 || strcmp(name, "waistcloth_R2") == 0) {
++            return 1;
++        }
++    case 5:
++        if (strcmp(name, "waistcloth_L1") == 0 || strcmp(name, "waistcloth_R1") == 0) {
++            return 1;
++        }
++    default:
++        return 0;
++    }
++}
++
++// inferred: the node `name` is a bust node of the kind `kind`
++int IsBustNode_unk(int kind, const char* name) {
++    switch (kind) {
++    case 2:
++    case 5:
++    case 6:
++        if (strcmp(name, "bust_L") == 0 || strcmp(name, "bust_R") == 0) {
++            return 1;
++        }
++    default:
++        return 0;
++    }
++}
++
+ // NONMATCHING: offsets of the strings (as fn_80557E00); the original walks the bones through the address
+ // of the count (chara + 0x434, as a FixedArray_unk of count and array: atn::Model::m384/m388 would be one
+ // member) and keeps the node name in one more saved register
+@@ -1386,55 +1436,13 @@ void ActionActorSetting::fn_80557F84(Actor* actor, int hair, int earring, int wa
+             onHair = fn_80557E00(kind, node);
+         }
+         if (earring != 0) {
+-            switch (kind) {
+-            case 0:
+-                if (strcmp(node, "earring_L") == 0) {
+-                    onEarring = 1;
+-                    break;
+-                }
+-            case 2:
+-            case 6:
+-                if (strcmp(node, "earring_L") == 0 || strcmp(node, "earring_R") == 0) {
+-                    onEarring = 1;
+-                    break;
+-                }
+-            default:
+-                onEarring = 0;
+-                break;
+-            }
++            onEarring = IsEarringNode_unk(kind, node);
+         }
+         if (waist != 0) {
+-            switch (kind) {
+-            case 0:
+-            case 1:
+-            case 3:
+-                if (strcmp(node, "waistcloth_L2") == 0 || strcmp(node, "waistcloth_R2") == 0) {
+-                    onWaist = 1;
+-                    break;
+-                }
+-            case 5:
+-                if (strcmp(node, "waistcloth_L1") == 0 || strcmp(node, "waistcloth_R1") == 0) {
+-                    onWaist = 1;
+-                    break;
+-                }
+-            default:
+-                onWaist = 0;
+-                break;
+-            }
++            onWaist = IsWaistClothNode_unk(kind, node);
+         }
+         if (bust != 0) {
+-            switch (kind) {
+-            case 2:
+-            case 5:
+-            case 6:
+-                if (strcmp(node, "bust_L") == 0 || strcmp(node, "bust_R") == 0) {
+-                    onBust = 1;
+-                    break;
+-                }
+-            default:
+-                onBust = 0;
+-                break;
+-            }
++            onBust = IsBustNode_unk(kind, node);
+         }
+         if (onHair != 0 || onEarring != 0 || onWaist != 0 || onBust != 0) {
+             model->m388[i]->vf20(1);

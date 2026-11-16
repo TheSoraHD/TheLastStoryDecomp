@@ -19,12 +19,11 @@ extern "C" void fn_8004D388(void* mgr, atn::ColliResult_unk* result, chr::Chara_
 
 namespace chr {
 
-// NONMATCHING: 99.9% - the original stores the double argument directly and converts it in
-// another register for the comparison; here both use the converted value.
-ControlTurnQuadruped::ControlTurnQuadruped(Chara_unk* chara, double angle) : ControlBase(chara) {
+// inferred: float angle (the original stores the argument without frsp and compares the member read back)
+ControlTurnQuadruped::ControlTurnQuadruped(Chara_unk* chara, float angle) : ControlBase(chara) {
     chara->m560 = 0x56;
     mAngle = angle;
-    if ((float)angle < 0.0f) {
+    if (mAngle < 0.0f) {
         mLeft = 1;
     } else {
         mLeft = 0;
@@ -41,8 +40,25 @@ ControlTurnQuadruped::ControlTurnQuadruped(Chara_unk* chara, double angle) : Con
     motion->mTracks[0].m0C = 2.0f;
 }
 
-// NONMATCHING: 85% - the stack slots of the three rotation matrices are mirrored (the original
-// keeps the matrix address in r30), plus some float register/operand order differences.
+// inferred: rotation of a matrix about one axis, as __MtxRotate (math/Vec.h) but with the angle by
+// reference: the original loads the 0.0f before the angle (name invented)
+inline void MtxRotAxis_unk(Mtx m, char axis, const float& rad) {
+    if (rad != 0.0f) {
+        Mtx r;
+        PSMTXRotRad(r, axis, rad);
+        Mtx t;
+        PSMTXConcat(m, r, t);
+        __MtxCopy(m, t);
+    }
+}
+// inferred: rotation z, y, x of a matrix; one inline level more than the three rotations gives the
+// stack slots of their matrices in the order of the original (name invented)
+inline void MtxRotZYX_unk(Mtx m, const atn::Vector3& r) {
+    MtxRotAxis_unk(m, 'z', r.z);
+    MtxRotAxis_unk(m, 'y', r.y);
+    MtxRotAxis_unk(m, 'x', r.x);
+}
+
 int ControlTurnQuadruped::vf0C() {
     float frame = mChara->mMotion.mTracks[0].m08;
     float length = mChara->mMotion.fn_80097D7C(0);
@@ -68,24 +84,18 @@ int ControlTurnQuadruped::vf0C() {
     move.z *= rate;
     atn::Matrix3x4 m;
     m.SetIdentity();
-    __MtxRotate(m.m, 'z', mRot.z);
-    __MtxRotate(m.m, 'y', mRot.y);
-    __MtxRotate(m.m, 'x', mRot.x);
+    MtxRotZYX_unk(m.m, mRot);
     PSMTXMultVec(m.m, &move, &move);
-    float scale = lbl_8087EFA8->mTimeScale;
     int fps = lbl_8087F0A8->mFrameRate;
-    move.x *= scale;
+    float scale = lbl_8087EFA8->mTimeScale;
     move.y += -98.1f / (float)(fps * fps);
-    move.y *= scale;
-    move.z *= scale;
+    move *= scale;
     atn::ColliResult_unk result;
     Chara_unk::Sphere_unk sphere = mChara->fn_80176548(mChara->mPos);
-    fn_8004D388(lbl_8087EE98, &result, &sphere, &move, 0x80000080, &mChara->mColli, 0, sphere.mRadius);
+    fn_8004D388(lbl_8087EE98, &result, &sphere, &move, 0x80000080, mChara->GetColli_unk(), 0, sphere.mRadius);
     Chara_unk* chara = mChara;
-    result.m10.x -= chara->m5A4.x;
-    result.m10.y -= chara->m5A4.y;
+    result.m10 -= chara->m5A4;
     result.m10.y -= sphere.mRadius;
-    result.m10.z -= chara->m5A4.z;
     chara->mPos = result.m10;
     return 0;
 }

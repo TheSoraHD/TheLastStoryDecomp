@@ -68,9 +68,9 @@ void ControlMoveCursor::fn_801C3458(const CursorTarget_unk* target, float a, flo
     }
 }
 
-// NONMATCHING: 97.6% - the original does not call a constructor for the two Matrix3x4 locals (there is
-// no weak __ct__Q23atn9Matrix3x4Fv in the game: its default constructor must be trivial), while ours
-// calls the empty inline one (this function is over the inline budget: every inline is called)
+// inferred: the rotation matrices are raw Mtx viewed as atn::Matrix3x4 (as in ControlJumpAt): the
+// original calls no constructor for them (no weak __ct__Q23atn9Matrix3x4Fv in the game), and this
+// function is over the inline budget (every inline is called)
 void ControlMoveCursor::fn_801C346C(const CursorTarget_unk* target, float maxDist, float maxRadius, float turn) {
     atn::Vector3 stick;
     stick.x = -fn_800A56A8(GetPad_unk(), 0, 0, 0);
@@ -91,10 +91,11 @@ void ControlMoveCursor::fn_801C346C(const CursorTarget_unk* target, float maxDis
                 m20 = 4.0f;
             }
         }
-        atn::Vector3 move(0.0f, 0.0f, speed * m20);
-        atn::Matrix3x4 mtx;
-        mtx.fn_8013A13C(rot.y);
-        move.fn_80011410(mtx);
+        float z = speed * m20;
+        atn::Vector3 move(0.0f, 0.0f, z);
+        Mtx mtx;
+        ((atn::Matrix3x4*)mtx)->fn_8013A13C(rot.y);
+        move.fn_80011410(*(atn::Matrix3x4*)mtx);
         atn::Vector3 next = m08 + move;
         next -= m14;
         if (next.Length_unk() > maxDist) {
@@ -138,9 +139,9 @@ void ControlMoveCursor::fn_801C346C(const CursorTarget_unk* target, float maxDis
                     rest = diff + atn::Abs_unk(0.5f * turn);
                 }
                 move.Set_unk(0.0f, 0.0f, dist * Cos_unk(rest));
-                atn::Matrix3x4 mtx2;
-                mtx2.fn_8013A13C(b);
-                move.fn_80011410(mtx2);
+                Mtx mtx2;
+                ((atn::Matrix3x4*)mtx2)->fn_8013A13C(b);
+                move.fn_80011410(*(atn::Matrix3x4*)mtx2);
                 m08 = m14 + move;
             }
         }
@@ -152,11 +153,9 @@ void ControlMoveCursor::fn_801C346C(const CursorTarget_unk* target, float maxDis
     }
 }
 
-// NONMATCHING: 96.6% - scheduling of the stores of the ray end point (`from + dir * dist`) around the
-// atn::ColliResult_unk constructor. `to` is named so that this function stays out of the autoinline
-// threshold of fn_801C3458 (with a temporary, fn_801C3458 inlines it); as a temporary the stack matches
-// better.
-void ControlMoveCursor::fn_801C3944(const CursorTarget_unk* target, float a, float dist, float c) {
+// The original calls this function out of line from fn_801C3458 (with the ray end point as a temporary,
+// MWCC would inline it there): __declspec(noinline).
+__declspec(noinline) void ControlMoveCursor::fn_801C3944(const CursorTarget_unk* target, float a, float dist, float c) {
     CursorField_unk* field = lbl_8087F430;
     if (field->m868 != 4 || field->m868 != field->m86C) {
         return;
@@ -164,8 +163,7 @@ void ControlMoveCursor::fn_801C3944(const CursorTarget_unk* target, float a, flo
     atn::Vector3 dir = field->m268.GetDir_unk();
     atn::Vector3 from = fn_8017C9AC(mChara);
     atn::ColliResult_unk res;
-    atn::Vector3 to = from + dir * dist;
-    if (fn_8004ED34(lbl_8087EE98, &res, from, to, 4, &mChara->mColli, 0) != 0) {
+    if (fn_8004ED34(lbl_8087EE98, &res, from, from + dir * dist, 4, mChara->GetColli_unk(), 0) != 0) {
         m08 = res.m04;
     } else {
         m08 = from + dir * dist;
@@ -175,8 +173,6 @@ void ControlMoveCursor::fn_801C3944(const CursorTarget_unk* target, float a, flo
     mChara->SetRot_unk(look.ToRotation_unk());
 }
 
-// NONMATCHING: 89.3% - scheduling: the original loads mChara before the two float constants and the
-// collision world after the first position copy
 int ControlMoveCursor::fn_801C3D1C() const {
     atn::Vector3 from(mChara->mPos);
     void* colli = lbl_8087EE98;

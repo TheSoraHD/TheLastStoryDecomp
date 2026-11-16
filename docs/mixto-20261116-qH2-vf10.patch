@@ -1,0 +1,114 @@
+diff --git a/include/Event/Manager.h b/include/Event/Manager.h
+index 4a61dc41..9f9f5c17 100644
+--- a/include/Event/Manager.h
++++ b/include/Event/Manager.h
+@@ -21,6 +21,7 @@
+ #include "atn/CharaLightData_unk.h"
+ #include "gmk/SeTable.h"
+ #include "Event/DebugInfo_unk.h"
++#include "game/GameConfig_unk.h"
+ 
+ class GameScene;
+ class CharaTask;
+@@ -411,8 +412,8 @@ public:
+     float m2418; // inferred: debug menu "AutoLightFix/AmbientIntensity"
+     atn::D2A_Task* m241C; // inferred: "ui_seek.d2a"
+     int m2420;
+-    atn::Vector2_unk m2424;
+-    atn::Vector2_unk m242C;
++    atn::Vec2_unk m2424; // inferred: seek layout offset (copied with Vec2_unk::operator=, 0x800F833C)
++    atn::Vec2_unk m242C; // inferred: target of m2424
+     float m2434;
+     atn::D2A_Task* m2438; // inferred: "ui_seek_arow.d2a"
+     atn::Vector3 m243C;
+diff --git a/src/Event/Manager.cpp b/src/Event/Manager.cpp
+index 98bb262e..dfd72427 100644
+--- a/src/Event/Manager.cpp
++++ b/src/Event/Manager.cpp
+@@ -90,7 +90,7 @@ extern "C" unsigned int fn_80049B74(atn::SoundEngine_unk* engine, const char* na
+ extern "C" void fn_800CB640(atn::SoundRef* sound, int a, int b, int c);
+ extern "C" int fn_805A38F0(const char* name, int a, int b); // inferred: the sound is ready
+ extern "C" atn::Vector3 fn_80383728(Camera_unk* camera); // inferred: position looked at by the camera
+-extern "C" atn::Vector2_unk fn_800F84D8(const atn::Vector2_unk& a, const atn::Vector2_unk& b, float t);
++extern "C" atn::Vec2_unk fn_800F84D8(const atn::Vec2_unk& a, const atn::Vec2_unk& b, float t);
+ extern "C" float fn_800A56A8(void* pad, int port, int axis, int arg); // inferred: stick axis
+ extern "C" float fn_802A7964(float rad);
+ extern "C" void* fn_802F0990();         // inferred: returns lbl_8087EFA8
+@@ -482,8 +482,8 @@ Manager::Manager(atn::Task* parent)
+     m60 = 2.0f;
+     m241C = fn_801F3FF8(this, "/data/d2anime/ui_seek.d2a", 0);
+     m241C->fn_800D246C(1);
+-    m2424 = lbl_807C7028;
+-    m242C = lbl_807C7028;
++    m2424 = (const atn::Vec2_unk&)lbl_807C7028;
++    m242C = (const atn::Vec2_unk&)lbl_807C7028;
+     m2434 = 0.0f;
+     m2438 = fn_801F3FF8(this, "/data/d2anime/ui_seek_arow.d2a", 0);
+     m2438->fn_800D246C(1);
+@@ -1705,8 +1705,8 @@ void Manager::fn_80484D40(atn::Vector2_unk scale, atn::Vector2_unk pos, float ra
+ }
+ 
+ // inferred: scales a 2D vector (weak copy 0x80484E6C); name invented
+-inline atn::Vector2_unk Scale_unk(const atn::Vector2_unk& v, float s) {
+-    return atn::Vector2_unk(v.x * s, v.y * s);
++inline atn::Vec2_unk Scale_unk(const atn::Vector2_unk& v, float s) {
++    return atn::Vec2_unk(v.x * s, v.y * s);
+ }
+ 
+ // inferred: moves the light and grows it towards `scale` (cloud map shown) or shrinks it
+@@ -1715,18 +1715,18 @@ void Manager::fn_80484D64(atn::Vector2_unk scale, atn::Vector2_unk pos) {
+     m1EB8.m04.y = pos.y;
+     if (m1F0C != 0) {
+         if (m1EB8.mSize.x < scale.x && m1EB8.mSize.y < scale.y) {
+-            atn::Vector2_unk d = Scale_unk(scale, m1F08);
++            atn::Vec2_unk d = Scale_unk(scale, m1F08);
+             m1EB8.mSize.x += d.x;
+             m1EB8.mSize.y += d.y;
+         } else {
+             m1EB8.mSize = scale;
+         }
+     } else if (m1EB8.mSize.x > 0.0f && m1EB8.mSize.y > 0.0f) {
+-        atn::Vector2_unk d = Scale_unk(scale, m1F08);
++        atn::Vec2_unk d = Scale_unk(scale, m1F08);
+         m1EB8.mSize.x -= d.x;
+         m1EB8.mSize.y -= d.y;
+     } else {
+-        atn::Vector2_unk d = Scale_unk(scale, 0.0f);
++        atn::Vec2_unk d = Scale_unk(scale, 0.0f);
+         m1EB8.mSize.x -= d.x;
+         m1EB8.mSize.y -= d.y;
+     }
+@@ -1960,7 +1960,7 @@ void Manager::vf10() {
+             m241C->SetLayoutValue_unk("colorG", 65.0f);
+             m241C->SetLayoutValue_unk("colorB", 80.0f);
+             m241C->SetSpeed_unk(1.0f);
+-            m242C = lbl_807C7028;
++            m242C = (const atn::Vec2_unk&)lbl_807C7028;
+         } else {
+             m241C->SetLayoutValue_unk("colorR", 104.0f);
+             m241C->SetLayoutValue_unk("colorG", 121.0f);
+@@ -1986,10 +1986,10 @@ void Manager::vf10() {
+                     dir.Set_unk(0.0f, 0.0f, 1.0f);
+                 }
+                 dir.Normalize_unk();
+-                atn::Matrix3x4 rot;
+-                rot.fn_8013A13C(target.ToRotation_unk().y);
++                Mtx rot;
++                ((atn::Matrix3x4*)rot)->fn_8013A13C(target.ToRotation_unk().y);
+                 dir = dir - target;
+-                dir.fn_80011410(Inverse_unk(rot));
++                dir.fn_80011410(Inverse_unk(*(atn::Matrix3x4*)rot));
+                 dir.z = 0.0f;
+                 if (dir.IsZero_unk()) {
+                     dir.Set_unk(0.0f, 1.0f, 0.0f);
+@@ -2018,8 +2018,8 @@ void Manager::vf10() {
+         m241C->Rewind_unk();
+         m241C->FreezeTask();
+         m1EAC = 0;
+-        m2424 = lbl_807C7028;
+-        m242C = lbl_807C7028;
++        m2424 = (const atn::Vec2_unk&)lbl_807C7028;
++        m242C = (const atn::Vec2_unk&)lbl_807C7028;
+         m2438->FreezeTask();
+         m2434 = 0.0f;
+         m243C = atn::Vector3(0.0f, 0.0f, 1.0f);

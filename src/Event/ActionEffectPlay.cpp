@@ -800,7 +800,7 @@ int ActionSoundPlay::vf0C(Action* arg, int phase) {
                     if (fn_805A38F0(entry->m08.c_str(), 3, 0) != 0) {
                         if (is3D != 0) {
                             sound = fn_800C344C(entry->m08.c_str(), &pos, 0, -1, volume);
-                            fn_800CB654(&sound, range, 1.0f, 1.0f);
+                            fn_800CB654(&sound, range, 0.0f, 0.0f);
                         } else {
                             sound = fn_800C31F4(entry->m08.c_str(), 0, -1, volume);
                         }
@@ -1123,7 +1123,7 @@ int ActionMoviePlay::vf0C(Action* arg, int phase) {
             EventManager_unk* manager = arg->fn_805381C8();
             MovieEntry_unk* entry = FindMovie_unk(manager, arg->GetParam_unk(0)->m04.i);
             if (entry != 0 && entry->m18->m4C != 0) {
-                entry->m18->m4C->vf3C(1.0f, arg->m1C);
+                entry->m18->m4C->vf3C(0.0f, arg->m1C);
             }
         }
         break;
@@ -1140,7 +1140,7 @@ int ActionMoviePlay::vf0C(Action* arg, int phase) {
         }
         lbl_8087F540->fn_8048EC7C();
         if (lbl_8087F0A8->m194 != 0 && manager->m190 == 0x19D) {
-            ((GameTask*)lbl_8087F430)->fn_80370B78(-1, 0, 0, 1.0f);
+            ((GameTask*)lbl_8087F430)->fn_80370B78(-1, 0, 0, 0.0f);
             manager->fn_8053E8C8(11);
         } else {
             manager->fn_8053E8C8(13);

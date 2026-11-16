@@ -22,17 +22,17 @@ public:
     unsigned int mIds[8];     // 0x18C
 };
 
+// inferred: no destructor declared in the derived classes: the implicit ones are emitted in the order of
+// the original (4x128 first, 0x800D6B60); user-declared empty ones come out the other way round
 class TextureCacheManager4x128 : public ITextureCacheManager {
 public:
     TextureCacheManager4x128(); // 0x800D6A84
-    virtual ~TextureCacheManager4x128() {}
     virtual GXTexRegion* vf0C(GXTexObj* obj, unsigned int id);
 };
 
 class TextureCacheManager8x32 : public ITextureCacheManager {
 public:
     TextureCacheManager8x32(); // 0x800D69A8
-    virtual ~TextureCacheManager8x32() {}
     virtual GXTexRegion* vf0C(GXTexObj* obj, unsigned int id);
 };
 

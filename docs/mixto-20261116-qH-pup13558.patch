@@ -1,0 +1,30 @@
+--- /home/claude/scratch-H/Pup.v8.cpp	2026-11-16 15:46:46.057090178 +0100
++++ /home/claude/scratch-H/Pup.v9.keep	2026-11-16 15:51:05.685204585 +0100
+@@ -1772,6 +1772,12 @@
+ // to m170/m17C) and sets them back on the materials (ActionActorMaterial::vf0C)
+ // NONMATCHING: 97.7% - the inlined push_back of std::vector<ColorF_unk> (std/vector.h: the original moves the
+ // old elements with a counted loop) and the stack slots of the two colours (reversed)
++// inferred: sets the colours of a material (name invented)
++inline void SetMaterialColors_unk(atn::Model* model, const char* name, const ColorF_unk* color, const ColorF_unk& a,
++                                  const ColorF_unk& b) {
++    model->fn_80094958(name, color, &a, &b);
++}
++
+ void Actor::fn_80013558() {
+     m170.clear();
+     m17C.clear();
+@@ -1782,12 +1788,8 @@
+             m17C.push_back(m164[i]);
+             unsigned int hash = fn_800DC6B4(res->m50[i]);
+             Material_unk* mat = ((Puppeteer<CharaTask>*)m1C)->GetTarget_unk()->GetModel_unk()->fn_800929C0(hash);
+-            GXColor c1 = mat->m1C;
+-            ColorF_unk ambient(c1);
+-            GXColor c2 = mat->m20;
+-            ColorF_unk specular(c2);
+-            ((Puppeteer<CharaTask>*)m1C)->GetTarget_unk()->GetModel_unk()->fn_80094958(res->m50[i], &m158[i],
+-                                                                                     &ambient, &specular);
++            SetMaterialColors_unk(((Puppeteer<CharaTask>*)m1C)->GetTarget_unk()->GetModel_unk(), res->m50[i],
++                                  &m158[i], ColorF_unk(GXColor(mat->m20)), ColorF_unk(GXColor(mat->m1C)));
+         }
+     }
+ }

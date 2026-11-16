@@ -120,7 +120,6 @@ atn::Vector3 Action::fn_805382BC(int n) {
 
 // inferred: position of the parameters n+2..n+4 relative to the node n+1 of the actor n (turned by the yaw
 // of the node), or to the actor itself when it has no model or no node
-// NONMATCHING: 99.37% - order of the store of r.z in the inlined Vector3::RotZ_unk (math/Vec.h)
 atn::Vector3 Action::fn_805384CC(int n) {
     EventManager_unk* manager = (EventManager_unk*)mChannel->mSection->mCut->mSequence;
     Actor* actor = manager->FindActor_unk(GetParamAt_unk(n)->m04.i);
@@ -139,7 +138,8 @@ atn::Vector3 Action::fn_805384CC(int n) {
             const atn::Matrix3x4* nm = (const atn::Matrix3x4*)mtx;
             atn::Vector3 rot = nm->GetRow_unk(2).ToRotationZ_unk();
             Mtx m;
-            PSMTXRotRad(m, 'y', rot.y);
+            float yaw = rot.y;
+            PSMTXRotRad(m, 'y', yaw);
             PSMTXMultVec(m, &v, &v);
             v += nm->GetTrans_unk();
         }
@@ -309,7 +309,7 @@ bool KeyLess_unk(const ActionKey_unk& a, const ActionKey_unk& b) {
 // uses the one loaded at the start for the interpolation (tried &mKeys[0] locals, begin(), at())
 float Action::fn_8053A2E8(float t) {
     if (mKeys.size() == 0) {
-        return 0.0f;
+        return 1.0f;
     }
     if (t <= mKeys[0].mTime) {
         return mKeys[0].mValue;
@@ -328,7 +328,7 @@ float Action::fn_8053A2E8(float t) {
             return (t - a.mTime) / (b.mTime - a.mTime) * (b.mValue - a.mValue) + a.mValue;
         }
     }
-    return 0.0f;
+    return 1.0f;
 }
 
 void Action::vf0C(int n, int value) {

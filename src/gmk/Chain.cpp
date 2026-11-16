@@ -66,7 +66,7 @@ GimmickCommon* Chain::fn_8043B778(atn::Task* parent, GimmickDesc_unk* desc) {
 }
 
 Chain::Chain(atn::Task* parent, GimmickDesc_unk* desc)
-    : GimmickCommon(parent, desc->mId, desc->mArg), mDesc(desc), mModel(1), mTarget(0), m340(0.98f) {
+    : GimmickCommon(parent, desc->mId, desc->mArg), mDesc(desc), mModel(1), mTarget(0), m340(0.97999996f) {
     m54 = 0;
     m68 = 1;
     m6C = desc->mPos;

@@ -590,15 +590,17 @@ extern "C" void fn_804A4738(MenuD2A_unk* anime, int pos, int count, int page) {
     fn_804A473C(anime, pos, count, page);
 }
 
-// NONMATCHING: 99.0% - the layout address and the "s_hightMax" literal of the track lookup are computed in the
-// other order
 // inferred: scroll bar of a d2anime list: hidden when everything fits, else sized to the visible part
+// inferred: track of a pane value of a layout (name invented)
+inline void* GetPaneTrack_unk(void* layout, const char* name) {
+    return fn_801FEB9C(layout, name);
+}
 extern "C" void fn_804A473C(MenuD2A_unk* anime, int pos, int count, int page) {
     if (anime != 0) {
         fn_801FEDBC(anime->m58, fn_800DC6B4("col0001"), 0, 0.0f);
         if (count > page) {
             fn_801FEDBC(anime->m58, fn_800DC6B4("col0001"), 0, 255.0f);
-            void* track = fn_801FEB9C(anime->m58, "s_hightMax");
+            void* track = GetPaneTrack_unk(anime->m58, "s_hightMax");
             if (track != 0) {
                 float max = fn_801F0544((char*)track + 4, 0);
                 float unit = max / count;

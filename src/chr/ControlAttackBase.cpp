@@ -252,7 +252,7 @@ enum {
     kAttackKind20_unk = 20,
 };
 
-// NONMATCHING: 99.6% - stack slot of the front vector of the mFlag31 branch, registers of the start frame.
+// NONMATCHING: 99.7% - stack slot of the front vector of the mFlag31 branch.
 ControlAttack::ControlAttack(Chara_unk* chara, const atn::Vector3& dir) : ControlAttackBase(chara, dir) {
     chara->m560 = 4;
     Motion_unk* motion = &mChara->mMotion;
@@ -305,7 +305,8 @@ ControlAttack::ControlAttack(Chara_unk* chara, const atn::Vector3& dir) : Contro
     Chara_unk* c = mChara;
     float frame = sAttackLevel[MIN(5, MAX(0, c->mStatus.mParamB.m94 / 100))].mFrame;
     float speed = c->mMotion.mTracks[0].m0C;
-    motion->mTracks[0].m08 = frame * MIN(1.0f, speed);
+    float maxRate = 1.0f;
+    motion->mTracks[0].m08 = frame * MIN(maxRate, speed);
     if (mChara->mType == 0) {
         switch (mChara->m50) {
         case 0xAAE76:
@@ -431,7 +432,8 @@ ControlAttackNext::ControlAttackNext(Chara_unk* chara, const atn::Vector3& dir) 
     Chara_unk* c = mChara;
     float frame = sAttackLevel[MIN(5, MAX(0, c->mStatus.mParamB.m94 / 100))].mFrame;
     float speed = c->mMotion.mTracks[0].m0C;
-    motion->mTracks[0].m08 = frame * MIN(1.0f, speed);
+    float maxRate = 1.0f;
+    motion->mTracks[0].m08 = frame * MIN(maxRate, speed);
     if (mChara->mType == 0) {
         switch (mChara->m50) {
         case 0xAAE76:
@@ -679,7 +681,6 @@ atn::Vector3 ControlJumpAttack2::vf14() const {
     return r;
 }
 
-// NONMATCHING: 99.6% - FPRs of the start frame and MIN(1, speed).
 ControlMultiAttack::ControlMultiAttack(Chara_unk* chara, const atn::Vector3& dir) : ControlAttackBase(chara, dir) {
     chara->m560 = 9;
     Motion_unk* motion = &mChara->mMotion;
@@ -690,7 +691,8 @@ ControlMultiAttack::ControlMultiAttack(Chara_unk* chara, const atn::Vector3& dir
     Chara_unk* c = mChara;
     float frame = sAttackLevel[MIN(5, MAX(0, c->mStatus.mParamB.m94 / 100))].mFrame;
     float speed = c->mMotion.mTracks[0].m0C;
-    motion->mTracks[0].m08 = frame * MIN(1.0f, speed);
+    float maxRate = 1.0f;
+    motion->mTracks[0].m08 = frame * MIN(maxRate, speed);
     lbl_8087F048->fn_80106878(mChara);
     LoadTable_unk();
     if (lbl_8087F498 != 0 && rand() % 2 == 0) {
@@ -718,7 +720,6 @@ void ControlMultiAttack::vf1C() {
     lbl_8087EFA8->m3A4 = 1.0f;
 }
 
-// NONMATCHING: 99.5% - as ControlMultiAttack.
 ControlSideWallAttack::ControlSideWallAttack(Chara_unk* chara, const atn::Vector3& dir)
     : ControlAttackBase(chara, dir) {
     chara->m560 = 9;
@@ -730,7 +731,8 @@ ControlSideWallAttack::ControlSideWallAttack(Chara_unk* chara, const atn::Vector
     Chara_unk* c = mChara;
     float frame = sAttackLevel[MIN(5, MAX(0, c->mStatus.mParamB.m94 / 100))].mFrame;
     float speed = c->mMotion.mTracks[0].m0C;
-    motion->mTracks[0].m08 = frame * MIN(1.0f, speed);
+    float maxRate = 1.0f;
+    motion->mTracks[0].m08 = frame * MIN(maxRate, speed);
     LoadTable_unk();
     if (lbl_8087F498 != 0 && rand() % 2 == 0) {
         lbl_8087F498->fn_803EA77C(mChara, 2, 0, 1.0f, 10.0f);

@@ -68,8 +68,13 @@ HomingBullet::HomingBullet() {
     mA0.mCount = -1;
 }
 
-// NONMATCHING: 97.4% - the original keeps m08 of the copied block in f1 for the call (here it is loaded again);
-// the block is loaded whole thanks to the const parameter; also register choices of the replay event
+// inferred: replay recorder of the field (name invented)
+static inline ReplayBuffer* __Replay_unk() {
+    return lbl_8087F430->m5590;
+}
+
+// inferred: m08 is read into a local before the call (the original keeps it in f1 from the copy of the
+// block) and the recorder through an inline (register choices of the replay event)
 void HomingBullet::vf28(BulletShot_unk* shot, const atn::Vector3* pos, const atn::Vector3* dir, CharaTask* owner,
                         const HomingParam_unk* param, int arg) {
     m84 = 0;
@@ -77,9 +82,10 @@ void HomingBullet::vf28(BulletShot_unk* shot, const atn::Vector3* pos, const atn
     m8C = 0;
     m90 = owner->mType;
     mA0 = *param;
-    fn_8010F018(shot, pos, dir, mA0.mCount > 0 ? mA0.mCount : -1, arg, 0, mA0.m08);
+    float f = mA0.m08;
+    fn_8010F018(shot, pos, dir, mA0.mCount > 0 ? mA0.mCount : -1, arg, 0, f);
     mC4 = 0.0f;
-    if (lbl_8087F430->m5590 != 0) {
+    if (__Replay_unk() != 0) {
         ReplayEvent_unk ev;
         ev.mKind = 2;
         *(BulletShot_unk*)&ev.mShot = *shot;
@@ -88,7 +94,7 @@ void HomingBullet::vf28(BulletShot_unk* shot, const atn::Vector3* pos, const atn
         ev.mOwner = m88;
         ev.m3C = 0;
         ev.mBullet = this;
-        lbl_8087F430->m5590->fn_805706C0(&ev);
+        __Replay_unk()->fn_805706C0(&ev);
     }
     ShotEvent_unk e;
     e.mOwner = owner;
@@ -216,7 +222,7 @@ void HomingBullet::fn_80441E8C(const atn::Vector3* dir, CharaTask* owner, CharaT
 }
 
 // inferred: unit vector along z rotated by `rad` around y (name invented)
-inline atn::Vector3 FrontDir_unk(float rad) {
+inline atn::Vector3 FrontDir_unk(const float& rad) {
     atn::Vector3 v(0.0f, 0.0f, 1.0f);
     Mtx r;
     PSMTXRotRad(r, 'y', rad);
@@ -242,10 +248,8 @@ inline atn::Matrix3x4 RotZYX_unk(const atn::Vector3& rot) {
 
 // inferred: the bullet hits `chara`: the character can parry it (2: caught and thrown back by
 // chr::ControlHitBackBullet, 4: split into two homing bullets toward the leader, 1/3: reflected)
-// NONMATCHING: 98.2% - registers only: the float constants kept across the split loop (90, 0, 5, 1,
-// the int->float double) get other callee-saved registers, and the temporaries of CanAct_unk and of
-// the damage record use other volatile registers. Tried: the angle as a local before/after `off`,
-// DegToRad_unk or the constant written out, CanAct_unk split.
+// inferred: the flags of the hit are a local declared before the damage record (registers of the inlined
+// DamageResult_unk ctor and of the 0x80008 argument)
 int HomingBullet::vf1C(CharaTask* chara, const atn::Vector3* pos, void* arg) {
     if (HasFlag_unk(0x100) && chara->CanAct_unk() && (chara->mFlag5 || chara->mType != 0)) {
         atn::Vector3 dir = m20;
@@ -260,9 +264,10 @@ int HomingBullet::vf1C(CharaTask* chara, const atn::Vector3* pos, void* arg) {
                 at = chara->mPos;
             }
             at += atn::Vector3(0.0f, 15.0f, 0.0f);
+            unsigned int flags = 0x80008;
             DamageResult_unk damage;
             damage.mType = 1;
-            lbl_8087F048->fn_80108C10(&damage, at, m88, chara, 0x80008, 0);
+            lbl_8087F048->fn_80108C10(&damage, at, m88, chara, flags, 0);
             if (res == 2) {
                 int id = 0x2F;
                 if (chara->mType == 0) {
@@ -304,10 +309,10 @@ int HomingBullet::vf1C(CharaTask* chara, const atn::Vector3* pos, void* arg) {
                         } else {
                             mA0.mTarget = m88;
                         }
-                        float deg = 90.0f * i;
+                        float step = 90.0f;
                         atn::Vector3 off(5.0f, 0.0f, 1.0f);
                         Mtx rz;
-                        PSMTXRotRad(rz, 'z', atn::DegToRad_unk(deg));
+                        PSMTXRotRad(rz, 'z', atn::DegToRad_unk(step * i));
                         PSMTXMultVec(rz, &off, &off);
                         atn::Matrix3x4 m = RotZYX_unk(d.ToRotation_unk());
                         PSMTXMultVec(m.m, &off, &off);
@@ -345,8 +350,8 @@ int HomingBullet::vf1C(CharaTask* chara, const atn::Vector3* pos, void* arg) {
                 PSVECNormalize(&d, &d);
                 d *= PSVECMag(&m20);
                 m20 = d;
-                m04 |= 0x200;
                 m08 = *pos;
+                m04 |= 0x200;
                 mA0.mTime = 0.0f;
                 fn_8010F4BC();
                 if (res == 1) {

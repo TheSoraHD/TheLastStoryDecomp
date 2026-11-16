@@ -1586,7 +1586,7 @@ void BattleTask::vf14() {
             atn::Vector3 screen = atn::RenderManager::instance_->GetScreenPosition(shot->mPos);
             if (0.0f <= screen.z && screen.z <= 1.0f) {
                 wchar_t wtext[256];
-                fn_800DD3FC(wtext, L"%d: %s", shot->mData->m04, shot->mData->m08);
+                fn_800DD3FC(wtext, L"%d: %s\0", shot->mData->m04, shot->mData->m08);
                 fn_800F7250()->fn_80061824(screen.x, screen.y, 0.0f, 14.0f, 14.0f, 0.0f, 0.0f, 0.0f, wtext,
                                            0xFFFFFFFF, 1, 1, 0, 0, 0xFF000000);
             }

@@ -6,7 +6,8 @@ struct MpMessage_unk {
     unsigned int mVoice;  // inferred: sound id played when it is selected (0 = none)
     unsigned int m04;     // inferred: bits 8+: categories of the lobby list where the message appears
     unsigned int m08;     // inferred: top byte: character of the message (19 = generic, 20+ = cannot be chosen)
-    int m0C;
+    short m0C;            // inferred: id of the name (MP/Text.cpp); frames of the balloon - 10 (fn_804F50DC)
+    short m0E;
     int m10;              // inferred: character id of the speaker (0 = none)
     int m14;
     const wchar_t* mText; // 0x18

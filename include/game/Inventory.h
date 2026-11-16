@@ -93,6 +93,7 @@ public:
     void AddMoney(int n);
     // inferred: sets the money (0x8044D6E0, right after AddMoney; game/DamageCalc_unk.cpp)
     void fn_8044D6E0(int money);
+    int fn_804446BC(int, int); // inferred: item of a kind (type, id)
     Item_unk* fn_80444744(int code); // inferred: finds an item of the bag
     Item_unk* fn_80444804(int index); // inferred: item of the bag by index
     void fn_8044D028(); // inferred: clears the party of the last battle

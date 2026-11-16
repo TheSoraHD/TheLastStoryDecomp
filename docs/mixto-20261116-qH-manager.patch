@@ -1,0 +1,35 @@
+diff --git a/src/Event/Manager.cpp b/src/Event/Manager.cpp
+index 0062dada..616ec0d5 100644
+--- a/src/Event/Manager.cpp
++++ b/src/Event/Manager.cpp
+@@ -355,12 +355,11 @@ static inline atn::Quaternion_unk Slerp_unk(const atn::Quaternion_unk& a, const
+ // inferred: direction between `a` and `b` (slerp of their rotations; names invented)
+ atn::Vector3 fn_8047C1D8(const atn::Vector3& a, const atn::Vector3& b, float t) {
+     atn::Quaternion_unk qa = EulerToQuat_unk(a.ToRotation_unk());
+-    atn::Quaternion_unk qb = EulerToQuat_unk(b.ToRotation_unk());
+-    atn::Quaternion_unk r;
+-    r = Slerp_unk(qb, qa, t);
++    atn::Quaternion_unk q = EulerToQuat_unk(b.ToRotation_unk());
++    q = Slerp_unk(q, qa, t);
+     atn::Vector3 dir(0.0f, 0.0f, 1.0f);
+     Mtx m;
+-    PSMTXQuat(m, &r);
++    PSMTXQuat(m, &q);
+     PSMTXMultVec(m, &dir, &dir);
+     return dir;
+ }
+@@ -3126,11 +3125,9 @@ void fn_8048F1DC(MapArea* area, void* arg) {
+     }
+     for (unsigned int i = 0; i < fix->mConfig->m110.size(); i++) {
+         if (area->mHash == fix->mConfig->m110[i].mId) {
+-            atn::Vector3 dir;
+-            dir = fix->mCamera->mTarget - fix->mCamera->mPos;
+-            dir.Normalize_unk();
+-            area->GetScene_unk().GetLight(0)
+-                ->SetDir_unk(fn_8047C1D8(dir, *fix->mConfig->m110[i].mSetting.mLight.GetDir_unk(), fix->mRatio));
++            area->GetScene_unk().GetLight(0)->SetDir_unk(
++                fn_8047C1D8((fix->mCamera->mTarget - fix->mCamera->mPos).GetNormalize(),
++                            *fix->mConfig->m110[i].mSetting.mLight.GetDir_unk(), fix->mRatio));
+             return;
+         }
+     }

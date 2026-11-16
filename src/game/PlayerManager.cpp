@@ -1,5 +1,6 @@
 #include "game/PlayerManager.h"
 #include "game/GameTask.h"
+#include "game/TeamAIManager.h"
 #include "atn/Memory.h"
 
 extern "C" PlayerManager* lbl_8087F8A0; // inferred: the singleton
@@ -31,13 +32,6 @@ extern "C" Field_unk* lbl_8087F430;
 class MapTask;
 
 // inferred: list of objects of 0x37C bytes updated when the leader changes (lbl_8087FA00)
-struct LeaderListener_unk {
-    unsigned char m00[0x48];
-    int mCount;
-    unsigned char* mItems;
-};
-extern "C" LeaderListener_unk* lbl_8087FA00;
-extern "C" void fn_805AE3C4(void* item);
 
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 extern "C" int fn_80219544(int member); // inferred: character id of a party member
@@ -135,9 +129,9 @@ void PlayerManager::fn_8054A09C(PlayerTask* player, int swap) {
                     }
                 }
             }
-            LeaderListener_unk* listener = lbl_8087FA00;
-            for (int k = 0; k < listener->mCount; k++) {
-                fn_805AE3C4(listener->mItems + k * 0x37C);
+            TeamAIManager* teams = lbl_8087FA00;
+            for (int k = 0; k < teams->mTeams.mSize; k++) {
+                teams->mTeams.mData[k].fn_805AE3C4();
             }
         }
         if (mHead->m50 == 1) {

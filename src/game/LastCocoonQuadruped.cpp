@@ -1093,7 +1093,6 @@ void LastCocoonQuadruped::fn_80463DCC() {
     }
 }
 
-// NONMATCHING: 99.9% - stack slots of the two path positions and of the direction rotated by one
 // inferred: walks along the route for 45 frames, hitting with the bullet 0x5B4
 void LastCocoonQuadruped::fn_80463F20() {
     if (m14C0 >= 45) {
@@ -1105,7 +1104,8 @@ void LastCocoonQuadruped::fn_80463F20() {
         return;
     }
     mPos = m1504.GetPos_unk(1.0f / 45.0f * m14C0);
-    mRot = (mPos - m1504.GetPos_unk(1.0f / 45.0f * (m14C0 - 1))).ToRotationZ_unk();
+    atn::Vector3 prev = m1504.GetPos_unk(1.0f / 45.0f * (m14C0 - 1));
+    mRot = (mPos - prev).ToRotationZ_unk();
     fn_80144710();
     HitInfo_unk* bullet = fn_80219E6C(0x5B4);
     lbl_8087F048->fn_800F8C6C(0, 0, this, bullet, m590, 0.0f, 30, -1);
@@ -1114,7 +1114,6 @@ void LastCocoonQuadruped::fn_80463F20() {
     }
 }
 
-// NONMATCHING: 99.9% - stack slots of the two path positions and of the direction rotated by one
 // inferred: walks along the route for 33 frames, hitting with the bullet 0x5B4
 void LastCocoonQuadruped::fn_80464608() {
     if (m14C0 >= 33) {
@@ -1126,7 +1125,8 @@ void LastCocoonQuadruped::fn_80464608() {
         return;
     }
     mPos = m1504.GetPos_unk(1.0f / 45.0f * m14C0);
-    mRot = (mPos - m1504.GetPos_unk(1.0f / 45.0f * (m14C0 - 1))).ToRotationZ_unk();
+    atn::Vector3 prev = m1504.GetPos_unk(1.0f / 45.0f * (m14C0 - 1));
+    mRot = (mPos - prev).ToRotationZ_unk();
     fn_80144710();
     HitInfo_unk* bullet = fn_80219E6C(0x5B4);
     lbl_8087F048->fn_800F8C6C(0, 0, this, bullet, m590, 0.0f, 30, -1);
@@ -1136,7 +1136,11 @@ void LastCocoonQuadruped::fn_80464608() {
 }
 
 
-// NONMATCHING: 99.9% - stack slots of the position, rotation and color of PlayEfp_unk (reversed)
+// inferred: PlayEfp_unk through one more inline level (gives the stack slots of the original; name invented)
+inline void PlayEfpWrap_unk(atn::EfpFile* efp, void* model) {
+    PlayEfp_unk(efp, model);
+}
+
 // inferred: mode 12: jumps towards m155C (m1568 per frame, with gravity), the bullet 0x5B5 at frame 24
 void LastCocoonQuadruped::fn_80464CF0() {
     float frame = mMotion.mTracks[0].m08;
@@ -1149,7 +1153,7 @@ void LastCocoonQuadruped::fn_80464CF0() {
             mMotion.fn_80097C08(0, 0x146, 1, 0, 1, 0.0f, 0.1f);
             m15A8 = 0;
             fn_80232B7C(this, 1000);
-            PlayEfp_unk(&m179C, &mMotion);
+            PlayEfpWrap_unk(&m179C, &mMotion);
         } else {
             SetMode_unk(0);
             if (m1800 != 0) {

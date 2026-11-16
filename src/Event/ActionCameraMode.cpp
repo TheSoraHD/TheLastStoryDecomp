@@ -377,13 +377,29 @@ void ActionCameraEffect::fn_8055BC5C(MapArea* area, void* arg) {
     area->mScene.mHaze.mValue = *(HazeParam_unk*)arg;
 }
 
+} // namespace Event
+// inferred: weak copy of game/GameTask.cpp (by value: the argument is a copy)
+inline void RenderSetting_unk::SetDamage_unk(DamageEffectParam_unk p) {
+    m374 = p;
+}
+namespace Event {
+
+// inferred: fog colour from a packed ARGB parameter (name invented)
+inline void SetFogColor_unk(atn::Scene* view, unsigned int c) {
+    view->mFog.mColor = atn::Color4f_unk((1.0f / 255.0f) * ((c >> 16) & 0xFF), (1.0f / 255.0f) * ((c >> 8) & 0xFF),
+                                         (1.0f / 255.0f) * (c & 0xFF), (1.0f / 255.0f) * (c >> 24));
+}
+
+// inferred: copy of a haze setting (one inline level more, as atn::VecAssign_unk; name invented)
+inline void HazeAssign_unk(HazeParam_unk& dst, const HazeParam_unk& src) {
+    dst = src;
+}
+
 // inferred: phase 0 sets the effect of type param 0 (1 bloom, 2 fog, 3 wait, 4 damage, 5 rain, 6 haze,
-// 7 screen fade), phase 2 fades the screen back and phase 3 restores the settings
-// NONMATCHING: 99.4% - stack slots of the temporaries (colors, rain, damage copies: other order; the
-// haze uses one vector temporary for all its pairs). The haze vectors and the bloom color are filled
-// member by member: with the constructors the function goes over the inlining budget (docs/inlining.md
-// R3) and GetParam_unk is called out of line (32%). The bias/scale loops and the kernel array give the
-// unrolled checks and the word copy of the original
+// 7 screen fade), phase 2 fades the screen back and phase 3 restores the settings. The haze vectors are
+// filled member by member: with the constructors the function goes over the inlining budget
+// (docs/inlining.md R3) and GetParam_unk is called out of line (32%). The bias/scale loops and the kernel
+// array give the unrolled checks and the word copy of the original
 int ActionCameraEffect::vf0C(Action* arg, int phase) {
     switch (phase) {
     case 0:
@@ -396,12 +412,8 @@ int ActionCameraEffect::vf0C(Action* arg, int phase) {
                 BloomParam_unk bloom = lbl_8087EFA8->m054;
                 bloom.mEnabled = enable;
                 unsigned int c = arg->GetParam_unk(2)->m04.i;
-                RsColor_unk color;
-                color.r = (1.0f / 255.0f) * ((c >> 16) & 0xFF);
-                color.g = (1.0f / 255.0f) * ((c >> 8) & 0xFF);
-                color.b = (1.0f / 255.0f) * (c & 0xFF);
-                color.a = (1.0f / 255.0f) * (c >> 24);
-                bloom.mColor[0] = color;
+                bloom.mColor[0] = RsColor_unk((1.0f / 255.0f) * ((c >> 16) & 0xFF), (1.0f / 255.0f) * ((c >> 8) & 0xFF),
+                                              (1.0f / 255.0f) * (c & 0xFF), (1.0f / 255.0f) * (c >> 24));
                 for (int i = 0; i < 3; i++) {
                     bloom.mBias[i] = arg->GetParamAt_unk(3 + i)->m04.i;
                 }
@@ -428,8 +440,7 @@ int ActionCameraEffect::vf0C(Action* arg, int phase) {
                 view->mFog.mStart = arg->GetParam_unk(3)->m04.f;
                 view->mFog.mEnd = arg->GetParam_unk(4)->m04.f;
                 unsigned int c = arg->GetParam_unk(5)->m04.i;
-                view->mFog.mColor = atn::Color4f_unk((1.0f / 255.0f) * ((c >> 16) & 0xFF), (1.0f / 255.0f) * ((c >> 8) & 0xFF),
-                                             (1.0f / 255.0f) * (c & 0xFF), (1.0f / 255.0f) * (c >> 24));
+                SetFogColor_unk(view, c);
             } else {
                 view->mFog.mMode = 0;
             }
@@ -448,8 +459,7 @@ int ActionCameraEffect::vf0C(Action* arg, int phase) {
             damage.mAngle = arg->GetParam_unk(2)->m04.f;
             damage.mScale = arg->GetParam_unk(3)->m04.f;
             damage.mZoom = MIN(MAX(arg->GetParam_unk(4)->m04.f, -1.0f), 0.05f);
-            DamageEffectParam_unk result = damage;
-            lbl_8087EFA8->m374 = result;
+            lbl_8087EFA8->SetDamage_unk(damage);
             break;
         }
         case 5: {
@@ -489,7 +499,7 @@ int ActionCameraEffect::vf0C(Action* arg, int phase) {
             fade.z = arg->GetParam_unk(13)->m04.f;
             fade.w = arg->GetParam_unk(14)->m04.f;
             haze.mFade = fade;
-            atn::RenderManager::instance_->fn_800C16B4()->mHaze.mValue = haze;
+            HazeAssign_unk(atn::RenderManager::instance_->fn_800C16B4()->mHaze.mValue, haze);
             MapManager::instance_->fn_80491528(boost::bind(&ActionCameraEffect::fn_8055BC5C, this, _1, _2), &haze);
             break;
         }
@@ -515,12 +525,13 @@ int ActionCameraEffect::vf0C(Action* arg, int phase) {
     case 3:
         switch (arg->GetParam_unk(0)->m04.i) {
         case 0:
-            lbl_8087F540->m1DC0 = lbl_8087EFA8->m240;
+            MotionBlurParam_unk* dst = &lbl_8087F540->m1DC0;
+            *dst = lbl_8087EFA8->m240;
             break;
         case 4:
             DamageEffectParam_unk damage;
-            DamageEffectParam_unk result = damage;
-            lbl_8087EFA8->m374 = result;
+            damage.mEnabled = 0;
+            lbl_8087EFA8->SetDamage_unk(damage);
             break;
         case 7: {
             EventManager_unk* manager = arg->fn_805381C8();
@@ -643,13 +654,17 @@ int ActionCameraEffect::vf08(Action* arg) {
     return 0;
 }
 
+// inferred: declared in Event/Action.h and defined in each file that uses it (as in
+// Event/ActionActorPosition.cpp: a new inline body in a shared header renumbers the @N labels)
+inline int ActionParam_unk::GetIndex_unk() const {
+    return m04.i;
+}
+
 // inferred: speeds of the focus change selected by parameter 5 (pairs of the same value)
 static float sFocusSpeed_unk[5][2] = {
     {0.5f, 0.5f}, {1.0f, 1.0f}, {1.5f, 1.5f}, {0.1f, 0.1f}, {0.01f, 0.01f},
 };
 
-// NONMATCHING: 96.9% - registers of the speed row (the original indexes with lfsx and keeps the
-// parameter 6 pointer in r7)
 int ActionCameraFocus::vf0C(Action* arg, int phase) {
     if (phase == 0) {
         lbl_8087F540->fn_80481818();
@@ -659,11 +674,11 @@ int ActionCameraFocus::vf0C(Action* arg, int phase) {
             float b = arg->GetParam_unk(2)->m04.f;
             float c = arg->GetParam_unk(3)->m04.f;
             float d = arg->GetParam_unk(4)->m04.f;
-            int speed = arg->GetParam_unk(5)->m04.i;
+            int speed = arg->GetParam_unk(5)->GetIndex_unk();
             ActionParam_unk* mode = arg->GetParam_unk(6);
-            float* sp = sFocusSpeed_unk[speed];
-            float e = sp[0];
-            GetCamera_unk(section)->fn_8011447C(a, b, c, d, sp[1], e, arg->m18, mode->m04.i);
+            float f = sFocusSpeed_unk[speed][0];
+            float e = sFocusSpeed_unk[speed][1];
+            GetCamera_unk(section)->fn_8011447C(a, b, c, d, e, f, arg->m18, mode->m04.i);
         } else {
             GetCamera_unk(section)->fn_80114468();
         }
@@ -671,35 +686,35 @@ int ActionCameraFocus::vf0C(Action* arg, int phase) {
     return 0;
 }
 
-// inferred: camera animation `id` of the event (no null test of the entry, as in the original)
-inline CameraData* FindCameraAnim_unk(EventManager_unk* manager, int id) {
-    for (int i = 0; i < (int)manager->m124.size(); i++) {
-        CameraData* anim = &manager->m124[(unsigned int)i];
-        if (id == anim->m14) {
-            return anim;
+// inferred: DataList_unk::Find_unk (Event/Sequence.h), defined here as in Event/ActionActorPosition.cpp;
+// inlined in ActionCameraMotion::vf0C
+template <class T>
+T* DataList_unk<T>::Find_unk(int id) {
+    for (int i = 0; i < (int)this->size(); i++) {
+        T* p = &(*this)[i];
+        if (id == p->m14) {
+            return p;
         }
     }
     return 0;
 }
-inline Xsca_unk* GetCameraAnim_unk(EventManager_unk* manager, int id) {
-    CameraData* anim = FindCameraAnim_unk(manager, id);
+// inferred: camera animation of an entry (no null test of the entry, as in the original)
+inline Xsca_unk* GetCameraAnim_unk(CameraData* anim) {
     return anim->m18 != 0 ? (Xsca_unk*)anim->m18->fn_804786F8() : 0;
 }
 
-// NONMATCHING: 94.9% - registers of the animation search and order of the int->float conversions of
-// the start time (tried casts, a local for the current frame, both groupings)
 int ActionCameraMotion::vf0C(Action* arg, int phase) {
     switch (phase) {
     case 0: {
         lbl_8087F540->fn_80481818();
         ActionOwner_unk* section = arg->fn_805381A0();
         EventManager_unk* manager = arg->fn_805381C8();
-        int id = arg->GetParam_unk(0)->m04.i;
+        int id = arg->GetParam_unk(0)->GetIndex_unk();
         float a = arg->GetParam_unk(1)->m04.f;
         float b = arg->GetParam_unk(2)->m04.f;
         float c = arg->GetParam_unk(3)->m04.f;
         int frame = arg->GetParam_unk(4)->m04.i;
-        Xsca_unk* anim = GetCameraAnim_unk(manager, id);
+        Xsca_unk* anim = GetCameraAnim_unk(manager->m124.Find_unk(id));
         EventCamera_unk* camera = GetCamera_unk(section);
         camera->m400 = anim;
         camera->m404 = a;
@@ -707,17 +722,20 @@ int ActionCameraMotion::vf0C(Action* arg, int phase) {
         camera->m410 = c;
         camera->m408 = frame;
         camera->m41C = 0;
+        float now = manager->m198;
+        float t = arg->m18 + (arg->m10 - now);
         camera = GetCamera_unk(section);
-        camera->m414 = arg->m18 + (arg->m10 - manager->m198);
+        camera->m414 = t;
         camera->m418 = 0.0f;
         break;
     }
     case 2: {
         ActionOwner_unk* section = arg->fn_805381A0();
         EventManager_unk* manager = arg->fn_805381C8();
-        EventCamera_unk* camera = GetCamera_unk(section);
         float now = manager->m198;
-        camera->m414 = -(arg->m18 + ((arg->m14 - arg->m1C) - now));
+        float t = -(arg->m18 + ((arg->m14 - arg->m1C) - now));
+        EventCamera_unk* camera = GetCamera_unk(section);
+        camera->m414 = t;
         camera->m418 = 0.0f;
         break;
     }

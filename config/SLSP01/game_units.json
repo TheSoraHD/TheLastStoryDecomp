@@ -481,7 +481,7 @@
   "classes": [
    "atn::TextureCacheManager8x32"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "atn/TextureComposite.cpp",
@@ -534,7 +534,7 @@
   "classes": [
    "BattleResult"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "game/BattleTask.cpp",
@@ -960,7 +960,7 @@
   "classes": [
    "chr::ControlShoot"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "chr/ControlStagger.cpp",
@@ -975,7 +975,7 @@
   "classes": [
    "chr::ControlTurnQuadruped"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "chr/ControlUseSkill.cpp",
@@ -989,7 +989,7 @@
   "classes": [
    "chr::ControlSitting"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "chr/ControlWallUp.cpp",
@@ -1033,7 +1033,7 @@
   "classes": [
    "CrossbowMenuTask"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "game/CrowdManager.cpp",
@@ -1375,7 +1375,7 @@
  {
   "name": "db/MapIdTable_unk.cpp",
   "classes": [],
-  "matching": false
+  "matching": true
  },
  {
   "name": "db/RandomItemTable_unk.cpp",
@@ -1474,7 +1474,7 @@
   "classes": [
    "Em002_02SkeltonKing"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "game/Em002Skelton.cpp",
@@ -1628,7 +1628,7 @@
   "classes": [
    "Em205Ogre"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "game/Em206CocoonMp.cpp",
@@ -1691,7 +1691,7 @@
   "classes": [
    "Em303KrakenFoot"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "game/Em303KrakenFootMp.cpp",
@@ -1810,7 +1810,7 @@
   "classes": [
    "EnemyFieldMagician"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "game/EnemyJill.cpp",
@@ -1942,7 +1942,7 @@
   "classes": [
    "GameBgm"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "game/GameEventScript.cpp",
@@ -2064,7 +2064,7 @@
   "classes": [
    "gmk::FragileObject"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "gmk/AutomaticDoor.cpp",
@@ -2148,7 +2148,7 @@
   "classes": [
    "gmk::Brazier"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "gmk/ChickenManager.cpp",
@@ -2714,7 +2714,7 @@
   "classes": [
    "HomingBullet"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "game/IffChunkFile_unk.cpp",
@@ -2867,7 +2867,7 @@
   "classes": [
    "MP::D2AMpMenuSetRule"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "atn/PacketPack.cpp",
@@ -3393,7 +3393,7 @@
  {
   "name": "AI/AiCommon_unk.cpp",
   "classes": [],
-  "matching": false
+  "matching": true
  },
  {
   "name": "game/TargetPos_unk.cpp",
@@ -3438,7 +3438,7 @@
   "classes": [
    "chr::ControlMoveCursor"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "game/EnemyTask.cpp",

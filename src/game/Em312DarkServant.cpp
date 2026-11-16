@@ -342,10 +342,10 @@ void Em312DarkServant::vf100(int state) {
     }
 }
 
-// inferred: hit point ratio of a character, 1 without maximum (name invented)
+// inferred: hit point ratio of a character, 0 without maximum (name invented)
 inline float ServantHpRatio_unk(CharaTask* c) {
     int max = c->mStatus.mParamB.m84;
-    return max > 0 ? c->mStatus.m04 / max : 1.0f;
+    return max > 0 ? c->mStatus.m04 / max : 0.0f;
 }
 
 // inferred: plays the effect m1580 at `pos` (name invented)

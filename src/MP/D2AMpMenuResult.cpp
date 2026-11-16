@@ -567,10 +567,13 @@ void D2AMpMenuResult::vf14() {
             id = 0x12D;
         }
         wchar_t text[0x100];
-        fn_800DD3FC(text, L"%s %s", lbl_8087F86C->Get_unk(id), result);
-        float size = 24.0f;
-        float y = 42.0f;
-        float x = 319.0f;
+        fn_800DD3FC(text, L"%s %s\0", lbl_8087F86C->Get_unk(id), result);
+        float size;
+        float y;
+        float x;
+        x = 319.0f;
+        y = 42.0f;
+        size = 24.0f;
         float w = fn_8006EF48(lbl_8087EEC8, size, text, 0.0f, 1, 5);
         lbl_8087EEB0->fn_80061824(x + 1.0f - 0.5f * w, y, -10.0f, 24.0f, 24.0f, 0.0f, 0.0f, 0.0f, text, 0xFF000000, 1, 5, 0, 0, 0xFF000000);
         w = fn_8006EF48(lbl_8087EEC8, size, text, 0.0f, 1, 4);
@@ -644,8 +647,7 @@ void D2AMpMenuResult::fn_804C7408() {
 }
 
 // NONMATCHING: 93.99% - register allocation: the original indexes the ranking with a byte offset and keeps
-// session + slot * 0x34 (folding 0x368 into the uses); also the wide string pool of the original is
-// padded (L"%d" at +0x10, ours at +0xE)
+// session + slot * 0x34 (folding 0x368 into the uses)
 void D2AMpMenuResult::fn_804C76EC() {
     char name[0x40] = {0};
     wchar_t text[0x100] = {0};
@@ -704,7 +706,7 @@ void D2AMpMenuResult::fn_804C76EC() {
         }
         m5C[n]->SetNumber_unk("string0017(1)", player->mE0, 0);
         m5C[n]->SetNumber_unk("string0018(1)", player->mE4, 0);
-        fn_800DD3FC(text, L"%d", exp);
+        fn_800DD3FC(text, L"%d\0", exp);
         SetPaneText_unk(m5C[n]->mLayout, "string0020(1)", fn_804EB480(lbl_8087F610, player) != 0 ? L"" : text);
         int prev = exp - gain;
         D2AMpMenuRankMark::sInstance->fn_804B47E0(prev, n);
@@ -723,7 +725,6 @@ void D2AMpMenuResult::fn_804C76EC() {
     SetPaneText_unk(mC0->mLayout, "string0001(1)", L"");
 }
 
-// NONMATCHING: 99.63% - text/layout registers of the last SetPaneText
 void D2AMpMenuResult::fn_804C7C34(int value) {
     char name[0x40] = {0};
     wchar_t text[0x100] = {0};
@@ -734,11 +735,12 @@ void D2AMpMenuResult::fn_804C7C34(int value) {
     fn_800DD3FC(text, format, fn_804FA88C(session, value));
     SetPaneText_unk(mC8->mLayout, "check_msg", text);
     const wchar_t* str = lbl_8087F86C->Get_unk(0x12F);
-    SetTaskText_unk(mC8, "string0002(1)", str);
+    const char* pane = "string0002(1)";
+    void* layout = mC8->mLayout;
+    fn_801FEE08(layout, fn_800DC6B4(pane), str);
 }
 
-// NONMATCHING: 92.85% - same register/addressing differences as fn_804C76EC (L"\xFF0D%d" at +0x18 in the
-// original pool)
+// NONMATCHING: 92.86% - same register/addressing differences as fn_804C76EC
 void D2AMpMenuResult::fn_804C7D7C() {
     char name[0x40] = {0};
     wchar_t text[0x100];
@@ -861,7 +863,7 @@ void D2AMpMenuResult::fn_804C822C() {
                     MpItem_unk* data = fn_80211480(item);
                     int icon = fn_80444BE8(Inventory::instance_, data);
                     if (data != 0) {
-                        fn_800DD3FC(text, L"%s", data->mName);
+                        fn_800DD3FC(text, L"%s\0", data->mName);
                         SetPaneText_unk(mA0[i]->mLayout, "string0029(1)", text);
                         if (player->mHost == 1) {
                             SetPaneText_unk(mC4->mLayout, "string0013(1)", text);

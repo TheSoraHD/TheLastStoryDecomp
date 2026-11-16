@@ -1,6 +1,7 @@
 // atn/Geometry_unk.cpp: utilidades de cajas alineadas (AABB): interseccion con rayos, volumen,
 // dibujo de depuracion, proyeccion a pantalla y escalado (nombre de fichero inventado).
 #include "math/Vec.h"
+#include "math/VecAssign_unk.h"
 #include "atn/Sphere.h"
 #include "atn/AABB_unk.h"
 #include "atn/DrawHelper.h"
@@ -225,12 +226,13 @@ struct Segment_unk {
 };
 extern "C" float fn_80050A1C(const atn::Vector3* point, const Segment_unk* seg, atn::Vector3* out);
 
-// NONMATCHING: 97.41% - the end point is stored through its own address register in the original
 // inferred: cylinder against sphere
 extern "C" int fn_80070D04(const Cylinder_unk* cyl, const atn::Sphere* sphere) {
     if (sphere->mCenter.y + sphere->mRadius >= cyl->mPos.y &&
         sphere->mCenter.y - sphere->mRadius <= cyl->mPos.y + cyl->mHeight) {
-        Segment_unk seg(cyl->mPos, cyl->mPos + atn::Vector3(0.0f, 1.0f, 0.0f) * cyl->mHeight);
+        Segment_unk seg;
+        seg.mStart = cyl->mPos;
+        atn::VecAssign_unk(seg.mEnd, cyl->mPos + atn::Vector3(0.0f, 1.0f, 0.0f) * cyl->mHeight);
         float d = fn_80050A1C(&sphere->mCenter, &seg, 0);
         float r = cyl->mRadius + sphere->mRadius;
         return d <= r * r;

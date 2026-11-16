@@ -117,6 +117,10 @@ struct Control1C_unk {
     int m1C;
 };
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
+// inferred: weak copy 0x8013A194 (fn_8013A194__Fv)
+inline BattleTask* fn_8013A194() {
+    return lbl_8087F048;
+}
 // inferred: effect manager (class unknown), global instance at 0x8087F3C0
 struct EffectMgr_unk;
 extern "C" EffectMgr_unk* lbl_8087F3C0;
@@ -130,6 +134,10 @@ extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* m
                             int arg8, int arg9, float scale);
 extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
+// inferred: weak copy 0x8000D9E8 (as in gmk/Cannonball.cpp)
+extern "C" inline CharaManager<PlayerTask>* fn_8000D9E8() {
+    return lbl_8087F8A0;
+}
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
 extern "C" int rand();
 extern "C" void* lbl_8087EE98;
@@ -624,14 +632,12 @@ inline atn::Vector3 GetTrans_unk(MtxPtr m) {
     return atn::Vector3(m[0][3], m[1][3], m[2][3]);
 }
 
-// NONMATCHING: 98.11% - stores of the homing parameters scheduled with the bullet data load (r24/r3) and r3/r4
-// of the node pointer (6 variants: store orders, aggregate init, locals)
 void Em101LittleZesyaSecond::fn_80261A50() {
     if (m14C4 == 0) {
         if (mMotion.mTracks[0].m08 > 60.0f) {
             m12CC = 1.0f;
             atn::Vector3 hips = GetTrans_unk(mMotion.GetNodeMtx_unk("hips"));
-            for (PlayerTask* p = lbl_8087F8A0->mHead; p != 0; p = p->mNext) {
+            for (PlayerTask* p = fn_8000D9E8()->mHead; p != 0; p = p->mNext) {
                 if (p->CanAct_unk()) {
                     atn::Model* model = &p->mMotion;
                     atn::Vector3 target = GetTrans_unk(model->GetNodeMtx_unk("hips"));
@@ -647,7 +653,7 @@ void Em101LittleZesyaSecond::fn_80261A50() {
                     param.mDelay = 3.0f;
                     param.mTarget = p;
                     param.mTurn = 1.2566371f;
-                    lbl_8087F048->fn_800F8574(this, fn_80219E6C(0x5E7), &pos, &dir, &param, 0x24, 0, 0.0f, 1.0f);
+                    fn_8013A194()->fn_800F8574(this, fn_80219E6C(0x5E7), &pos, &dir, &param, 0x24, 0, 0.0f, 1.0f);
                 }
             }
             m14C4 = 1;
@@ -656,7 +662,7 @@ void Em101LittleZesyaSecond::fn_80261A50() {
         float frame = mMotion.mTracks[0].m08;
         if (frame >= 100.0f) {
             m14BC = 0;
-            m590 = lbl_8087F048->fn_800F8548();
+            m590 = fn_8013A194()->fn_800F8548();
             m14C4 = 0;
             mFlag5 = 0;
             fn_80239DAC(lbl_8087F3C0, this, 102, 1);

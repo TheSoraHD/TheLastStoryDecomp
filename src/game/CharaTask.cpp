@@ -6514,12 +6514,17 @@ extern "C" void* fn_8020EF80(void* item);
 extern "C" int fn_8044D1A4(Inventory* party, int slot, int id); // inferred: equipment index of a party member
 extern "C" void* fn_8044D034(Inventory* party, int index);      // inferred: equipment data
 
-// NONMATCHING: 99.2% - the original keeps the dead second null check of the delete (`beq` twice);
-// tried a local pointer, a reference, a pointer to the slot, an inline delete helper.
+// inferred: deletes the object and clears the pointer (name invented)
+inline void SafeDelete_unk(chr::CharaEquip_unk*& p) {
+    if (p != 0) {
+        delete p;
+        p = 0;
+    }
+}
+
 void CharaTask::fn_8014FF9C(int slot, int id, int arg) {
     if (m680[slot] != 0) {
-        delete m680[slot];
-        m680[slot] = 0;
+        SafeDelete_unk(m680[slot]);
     }
     void* data = 0;
     int index = 0;

@@ -605,7 +605,6 @@ void Em202SpiderBase::fn_80284CC8() {
     }
 }
 
-// NONMATCHING: 99.88% - f8/f9 of the difference and of m14F8 in the yaw limit (8 variants)
 // inferred: state 8 (needle attack: charge for m14E8 frames, then shoots m14EC needles from the hips to
 // the target, the yaw clamped to m14F8)
 void Em202SpiderBase::fn_80285064() {
@@ -654,11 +653,10 @@ void Em202SpiderBase::fn_80285064() {
             if (f2 >= 7.0f && f2 < 8.0f) {
                 atn::Vector3 rot = (m1580->fn_80148B0C(0)->m04.mCenter - mPos).ToRotationZ_unk();
                 float dy = rot.y - mRot.y;
-                float limit = m14F8;
-                if (dy >= limit * 0.5f) {
-                    rot.y = limit * 0.5f;
-                } else if (dy <= -limit * 0.5f) {
-                    rot.y = -limit * 0.5f;
+                if (dy >= m14F8 / 2.0f) {
+                    rot.y = m14F8 / 2.0f;
+                } else if (dy <= -m14F8 / 2.0f) {
+                    rot.y = -m14F8 / 2.0f;
                 }
                 atn::Matrix3x4 m;
                 SpiderRotZYX_unk(m, rot);

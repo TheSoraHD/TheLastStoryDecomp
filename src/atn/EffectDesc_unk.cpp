@@ -184,8 +184,6 @@ extern "C" EffectVertex_unk* fn_80234C84(int count) {
     return v;
 }
 
-// NONMATCHING: 99.63% (both copies) - the range and 1 - t use f5/f4 the other way round; tried
-// clamp helpers, a local for 1 - t and other forms of the range
 // inferred: sorts the items in `buckets` by depth between `near` and `far` (back to front); flag
 // 0x10000 forces the last bucket, 0x20000 the first one
 template <class T>
@@ -204,8 +202,8 @@ void SortByDepth_unk(T** buckets, T* items, unsigned int count, int bucketCount,
         } else {
             float t = (items->mDepth - near) / range;
             t = (t < 0.0f) ? 0.0f : ((t > 1.0f) ? 1.0f : t);
-            float s = 1.0f - t;
-            index = (int)(s * (bucketCount - 3)) + 1;
+            t = 1.0f - t;
+            index = (int)(t * (bucketCount - 3)) + 1;
         }
         items->mNext = buckets[index];
         buckets[index] = items;
@@ -753,8 +751,6 @@ inline float GetFadeNear_unk(unsigned int flags) {
     return sFadeNear;
 }
 
-// NONMATCHING: 99.77% - the original rounds the minimum depth of the vertex loop with frsp (as if
-// it went through a double); a double local, a cast and a double min helper did not give it
 // inferred: queues a strip of `count` vertices
 extern "C" void fn_80236B84(int count, EffectVertex_unk* verts, void* a, void* b, const float* color,
                             unsigned int flags, int useCenter, const atn::Matrix3x4* view, float f, int c) {
@@ -782,8 +778,8 @@ extern "C" void fn_80236B84(int count, EffectVertex_unk* verts, void* a, void* b
             atn::Vector3 p = verts[i].mPos;
             PSMTXMultVec(view->m, &p, &p);
             viewPos.Assign_unk(p);
-            if (p.z < depth) {
-                depth = p.z;
+            if (viewPos.z < depth) {
+                depth = viewPos.z;
             }
         }
     }

@@ -194,39 +194,41 @@ extern "C" void fn_800CB7FC(atn::SoundCore& sound) {
 using atn::SoundCategory_unk;
 using atn::SoundManager;
 
+// inferred: the sound manager (lbl_8087EFE8); weak copy 0x80116E64 (GetSoundMgr_unk__Fv)
+inline SoundManager* GetSoundMgr_unk() {
+    return lbl_8087EFE8;
+}
+
 // inferred: callback of the debug menu entries of a player
-// NONMATCHING: 99.9% - intercambio de dos registros.
 extern "C" void fn_800CB800(SoundCategory_unk* param) {
     if (lbl_8087EFE8 != 0) {
-        lbl_8087EFE8->SetPlayerMute_unk(param->m00, param->mMute, 0);
-        lbl_8087EFE8->fn_800D0240(param->m00, param->mVolume, 0);
-        lbl_8087EFE8->SetPlayerPitch_unk(param->m00, param->mPitch, 0);
-        lbl_8087EFE8->SetPlayerLpf_unk(param->m00, param->mPan, 0);
-        lbl_8087EFE8->fn_800D0684(param->m00, param->mFxSend);
+        GetSoundMgr_unk()->SetPlayerMute_unk(param->m00, param->mMute, 0);
+        GetSoundMgr_unk()->fn_800D0240(param->m00, param->mVolume, 0);
+        GetSoundMgr_unk()->SetPlayerPitch_unk(param->m00, param->mPitch, 0);
+        GetSoundMgr_unk()->SetPlayerLpf_unk(param->m00, param->mPan, 0);
+        GetSoundMgr_unk()->fn_800D0684(param->m00, param->mFxSend);
     }
 }
 
 // inferred: callback of the debug menu entries of a category
-// NONMATCHING: 99.9% - intercambio de dos registros.
 extern "C" void fn_800CBE8C(SoundCategory_unk* param) {
     if (lbl_8087EFE8 != 0) {
-        lbl_8087EFE8->SetCategoryMute_unk(param->m00, param->mMute, 0);
-        lbl_8087EFE8->fn_800D03AC(param->m00, param->mVolume, 0);
-        lbl_8087EFE8->SetCategoryPitch_unk(param->m00, param->mPitch, 0);
-        lbl_8087EFE8->SetCategoryLpf_unk(param->m00, param->mPan, 0);
-        lbl_8087EFE8->SetCategoryFxSend_unk(param->m00, param->mFxSend);
+        GetSoundMgr_unk()->SetCategoryMute_unk(param->m00, param->mMute, 0);
+        GetSoundMgr_unk()->fn_800D03AC(param->m00, param->mVolume, 0);
+        GetSoundMgr_unk()->SetCategoryPitch_unk(param->m00, param->mPitch, 0);
+        GetSoundMgr_unk()->SetCategoryLpf_unk(param->m00, param->mPan, 0);
+        GetSoundMgr_unk()->SetCategoryFxSend_unk(param->m00, param->mFxSend);
     }
 }
 
 // inferred: callback of the debug menu entries of a scope
-// NONMATCHING: 99.9% - intercambio de dos registros.
 extern "C" void fn_800CC518(SoundCategory_unk* param) {
     if (lbl_8087EFE8 != 0) {
-        lbl_8087EFE8->SetScopeMute_unk(param->m00, param->mMute, 0);
-        lbl_8087EFE8->fn_800D0518(param->m00, param->mVolume, 0);
-        lbl_8087EFE8->SetScopePitch_unk(param->m00, param->mPitch, 0);
-        lbl_8087EFE8->SetScopeLpf_unk(param->m00, param->mPan, 0);
-        lbl_8087EFE8->SetScopeFxSend_unk(param->m00, param->mFxSend);
+        GetSoundMgr_unk()->SetScopeMute_unk(param->m00, param->mMute, 0);
+        GetSoundMgr_unk()->fn_800D0518(param->m00, param->mVolume, 0);
+        GetSoundMgr_unk()->SetScopePitch_unk(param->m00, param->mPitch, 0);
+        GetSoundMgr_unk()->SetScopeLpf_unk(param->m00, param->mPan, 0);
+        GetSoundMgr_unk()->SetScopeFxSend_unk(param->m00, param->mFxSend);
     }
 }
 

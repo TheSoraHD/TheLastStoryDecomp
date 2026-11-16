@@ -453,23 +453,21 @@ int RotaryRoom::vf1C() {
     return 0;
 }
 
-// NONMATCHING: 91.50% - the original keeps the constant 1 in a saved register (as in
-// gmk::ArenaFloor::vf20): 16 bytes larger frame.
+// As gmk::ArenaFloor::vf20: the owner is tested in the condition of the field name.
 void RotaryRoom::vf20() {
     atn::CsvTab csv((const char*)mBinary.fn_80470580(), mBinary.fn_8047059C());
     csv.fn_8005BCE8(lbl_8087D710);
+    atn::Task* owner;
     do {
         const char* field = csv.fn_8005B9CC();
         if (field[0] == ';') {
             continue;
         }
-        if (strcmp(field, "MAP") == 0) {
-            atn::Task* owner = (atn::Task*)m20; // inferred: atn::Task::m20 is the parent (void*)
-            if (owner != 0) {
-                mGroup = MapTask::SetTask(owner, csv.fn_8005B9CC());
-                if (mGroup != 0) {
-                    mGroup->mF4 = 1;
-                }
+        // inferred: atn::Task::m20 is the parent (void*)
+        if (strcmp(field, "MAP") == 0 && (owner = (atn::Task*)m20) != 0) {
+            mGroup = MapTask::SetTask(owner, csv.fn_8005B9CC());
+            if (mGroup != 0) {
+                mGroup->mF4 = 1;
             }
         } else if (strcmp(field, "STATE") == 0) {
             if (m20 != 0) {

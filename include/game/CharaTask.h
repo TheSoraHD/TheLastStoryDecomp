@@ -1083,6 +1083,9 @@ public:
     // labels of every file that includes it.
     inline int GetCharaNo_unk();
     inline void SetM58_unk(int v);
+    // inferred: equipment m680[i] (weak copy GetProtector__9CharaTaskFi 0x804D63E8, called by MP::Manager2::vf10);
+    // defined in atn/PacketPack.cpp
+    inline chr::CharaEquip_unk* GetProtector(int);
 
 
     int mType;  // 0x48: also compared with 0 and 2 by the chr::Control* classes

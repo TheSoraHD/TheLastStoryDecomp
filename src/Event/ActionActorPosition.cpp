@@ -47,7 +47,7 @@ inline DataList_unk<Actor>* EventManager_unk::GetActors_unk() {
 template <class T>
 T* DataList_unk<T>::Find_unk(int id) {
     for (int i = 0; i < (int)this->size(); i++) {
-        T* p = &this->mData[i];
+        T* p = &(*this)[i];
         if (id == p->m14) {
             return p;
         }
@@ -136,10 +136,15 @@ inline MtxPtr GetNodeMtxByHash_unk(atn::Model* model, unsigned int hash) {
 
 // NONMATCHING: 99.7% - the quotient is in f1 here, f0 in the original (tried several groupings)
 // inferred: scales a displacement to the part covered in one step of the event (`frames` left)
+// inferred: time of a frame of the event manager (as in ActionActorBehavior)
+inline float FrameTime_unk() {
+    return lbl_8087F540->mB4;
+}
+
 void ScaleStep_unk(atn::Vector3& v, float frames) {
     float len = PSVECMag(&v);
     if (len > 0.0f) {
-        float scale = (len / frames) * lbl_8087F540->mB4;
+        float scale = (len / frames) * FrameTime_unk();
         PSVECNormalize(&v, &v);
         v.x *= scale;
         v.y *= scale;
@@ -593,7 +598,7 @@ int ActionActorPosition::vf0C(Action* arg, int phase) {
             if (target->m20 == 6) {
                 arg->fn_80538DC4(3);
                 float yaw = manager->fn_80541CF0(atn::DegToRad_unk(arg->GetParam_unk(8)->m04.f));
-                float deg = 57.29578f * yaw;
+                float deg = 57.295776f * yaw;
                 ActionParam_unk* p = arg->GetParam_unk(8);
                 p->m00 = 3;
                 p->m04.f = deg;
@@ -739,12 +744,12 @@ void ActionActorEyes::fn_80553A74(Action* arg, float now) {
     actor->fn_80012D34(target, node, cam, 0, jitter, 1, weight, rad);
 }
 
-// NONMATCHING: 99.1% - volatile registers of the second inlined actor lookup: the original loads the count
-// before the id (same in fn_80553A74; a const int& parameter in FindActor_unk is worse)
+// inferred: the actor of the section through DataList_unk::Find_unk, the target through
+// Sequence::FindActor_unk (the second lookup loads the count again)
 void ActionActorEyes::fn_80553DC8(Action* arg, atn::Vector3* cur, const atn::Vector3* goal, int mode, float frames) {
     ActionOwner_unk* section = arg->fn_805381A0();
     EventManager_unk* manager = arg->fn_805381C8();
-    Actor* actor = manager->FindActor_unk(section->m10);
+    Actor* actor = manager->GetActors_unk()->Find_unk(section->m10);
     float weight = 1.0f;
     Actor* target = manager->FindActor_unk(arg->GetParam_unk(0)->m04.i);
     int node = arg->GetParam_unk(1)->m04.i;
