@@ -38,7 +38,8 @@ struct ColliCapsuleShape_unk {
     // inferred: makes the segment vertical, keeping its length (ColliBase::mFlags 0x80000000;
     // name invented)
     void SetUpright_unk() {
-        float len = (mEnd - mStart).Length_unk();
+        // inferred: difference written per component (with operator- the y/z registers swap, 0x80057124)
+        float len = Vector3(mEnd.x - mStart.x, mEnd.y - mStart.y, mEnd.z - mStart.z).Length_unk();
         mEnd = mStart;
         if (len < 0.0001f) {
             len = 0.0001f;
