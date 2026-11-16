@@ -647,7 +647,7 @@ struct Manager2 : public atn::Task {
     virtual ~Manager2();
     virtual int vf0C();
     virtual void vf10();
-    virtual void vf14(); // inferred: 0x804F7F54, not written yet
+    virtual void vf14();
     PPSlot18_unk m0048[32];           // inferred: 32 entries of 0x18 bytes (m00 cleared at the end of the ctor)
     int m348;                         // inferred: room of the next game (fn_804D9BF4)
     int m34C;
@@ -1070,7 +1070,7 @@ public:
     void fn_804C8740();
     void fn_804C5E1C();
     void fn_804C6888(int time);
-    int fn_804C8204();
+    bool fn_804C8204();
     void fn_804C5E9C(int state);
     void fn_804C7C34(int a, int b, int c);
     static D2AMpMenuResult* sInstance;
@@ -1291,7 +1291,7 @@ extern "C" void fn_804EA608(PPManager2_unk* mgr, int a, int b);
 extern "C" int fn_804EAFD0(PPManager2_unk* mgr);
 extern "C" int fn_804EAA50(PPManager2_unk* mgr);
 extern "C" void fn_804DA398(PPManager2_unk* mgr);
-extern "C" int fn_804DA2D0(PPManager2_unk* mgr, int keep);
+extern "C" bool fn_804DA2D0(PPManager2_unk* mgr, int keep);
 extern "C" int fn_804DBD08(PPManager2_unk* mgr, int mode);
 extern "C" long long fn_804CF194();
 extern "C" void fn_804CF190(atn::Task* task);
@@ -1522,7 +1522,7 @@ extern "C" __declspec(noinline) inline bool fn_804D6168(atn::net::Manager* net) 
     }
     return result;
 }
-extern "C" __declspec(noinline) inline unsigned char fn_804D6190(atn::net::Manager* net) {
+extern "C" __declspec(noinline) inline unsigned int fn_804D6190(atn::net::Manager* net) {
     return net->m90;
 }
 extern "C" __declspec(noinline) inline unsigned char fn_804D6198(atn::net::Manager* net) {
@@ -1544,7 +1544,7 @@ extern "C" __declspec(noinline) inline int fn_804D6210(atn::net::Manager* net) {
 extern "C" __declspec(noinline) inline int fn_804D6218(atn::net::NetThread_unk* thread) {
     return thread->mCmd;
 }
-extern "C" __declspec(noinline) inline unsigned char fn_804D6220(atn::net::Manager* net) {
+extern "C" __declspec(noinline) inline int fn_804D6220(atn::net::Manager* net) {
     return net->mC0;
 }
 extern "C" __declspec(noinline) inline unsigned char fn_804D6228(atn::net::Manager* net) {
@@ -1554,7 +1554,7 @@ extern "C" __declspec(noinline) inline unsigned char fn_804D6228(atn::net::Manag
         return 0;
     }
 }
-extern "C" __declspec(noinline) inline bool fn_804D6278(atn::net::Manager* net, unsigned char aid) {
+extern "C" __declspec(noinline) inline int fn_804D6278(atn::net::Manager* net, unsigned char aid) {
     return aid == net->GetServerAid_unk();
 }
 extern "C" __declspec(noinline) inline bool fn_804D62E4(MP::D2AMpMenuLobby* lobby) {
@@ -2155,7 +2155,7 @@ void MP::Manager2::vf10() {
         break;
     }
     case -1: {
-        int done = 0;
+        bool done = false;
         if (fn_804D5FFC(fn_804D16DC()) == 0) {
             if (fn_804D16DC()->fn_804AC734() != 0) {
                 done = 1;
@@ -2366,7 +2366,7 @@ void MP::Manager2::vf10() {
         for (int i = 0; i < 8; i++) {
             mgr->m9A34[i] = -1;
         }
-        int joined = 0;
+        bool joined = false;
         if (fn_804D6168(fn_804D1694())) {
             joined = 1;
         } else if (fn_804D6190(fn_804D1694()) == 1 && fn_804D6198(fn_804D1694()) == 0) {
@@ -2382,7 +2382,7 @@ void MP::Manager2::vf10() {
             fn_804D6208(mgr, 0);
             joined = 1;
             unsigned char aid = fn_804D6198(fn_804D1694());
-            if (aid >= fn_804D5F40(&mgr->mPlayers)) {
+            if (aid >= (unsigned int)fn_804D5F40(&mgr->mPlayers)) {
                 fn_804FB470(mgr, 0x9E, 9);
             } else {
                 fn_804D5F48(&mgr->mPlayers, aid)->mAid = aid;
@@ -2651,7 +2651,7 @@ void MP::Manager2::vf10() {
                 own->mFlags.m27 = 1;
             }
             mgr->m608 = -1;
-            for (int i = 0; i < fn_804D5F40(&mgr->mPlayers); i++) {
+            for (unsigned int i = 0; i < fn_804D5F40(&mgr->mPlayers); i++) {
                 PPPlayer_unk* player = fn_804D5F48(&mgr->mPlayers, i);
                 if (player->mFlags.mActive == 1) {
                     fn_804EAA84(mgr, player->mRef.mChara, 1, 0);
@@ -3055,7 +3055,7 @@ void MP::Manager2::vf10() {
             }
             if (state != 7 && (unsigned int)(state - 5) <= 1) {
                 fn_804D65A4(fn_804D5FD0(), 0);
-                int skip = 0;
+                bool skip = false;
                 if (fn_800A555C(GetPad_unk(), 0, 4) != 0) {
                     skip = 1;
                 } else if (mgr->m99A0 < 450) {
@@ -3401,7 +3401,7 @@ extern "C" int fn_804D9BF4(PPManager2_unk* mgr, int a, int b, int c) {
 }
 
 // inferred: counts down m99A0 (shown by the lobby); 1 when it ends (or ended) and `keep` is 0
-extern "C" int fn_804DA2D0(PPManager2_unk* mgr, int keep) {
+extern "C" bool fn_804DA2D0(PPManager2_unk* mgr, int keep) {
     if (--mgr->m99A0 < 0) {
         mgr->m99A0 = 0;
         if (keep == 0) {
@@ -6897,6 +6897,67 @@ extern "C" int fn_804F7F34() {
         return saveLoad->mError;
     }
     return 0;
+}
+
+#include "atn/RenderManager.h"
+#include "atn/DrawHelper.h"
+
+extern "C" void fn_804F8464(PPManager2_unk* mgr); // inferred: debug page of the network (not written yet)
+
+// NONMATCHING: 99.03% - offsets of the strings in @stringBase0 and @wstringBase0 (the literals of the functions
+// not written yet go before) and registers of the inlined search fn_804EB870 and of the loop counters
+// inferred: MP::Manager2::vf14 (vtable 0x807916E0): debug display of the connection, the network page and
+// the players and characters over their heads (m528, "Control info" of the debug menu)
+void MP::Manager2::vf14() {
+    if (lbl_8087F628->mFlags.mB13) {
+        lbl_8087EEB0->fn_80061824(450.0f, 30.0f, 0.0f, 16.0f, 16.0f, 0.0f, 0.0f, 0.0f, L"DEBUG CONNECTION", 0x88FFFFFF,
+                                  1, 1, 0, 0, 0xFF000000);
+    }
+    if (mStateVar.mValue == 30) {
+        // inferred: the own slot is looked up and not used (debug output compiled out)
+        fn_804EB870(this);
+    }
+    if (lbl_8087F628->mState >= 11) {
+        fn_804F8464(this);
+    }
+    if (m528 != 0) {
+        for (int i = 0; i < mPlayers.mNum; i++) {
+            PPPlayer_unk* player = &mPlayers.mData[i];
+            if (player->mRef.mChara != 0 && player->mFlags.mActive) {
+                atn::Vector3 screen = atn::RenderManager::instance_->GetScreenPosition(
+                    player->mRef.mChara->mPos + atn::Vector3(0.0f, 20.0f, 0.0f));
+                if (0.0f <= screen.z && screen.z <= 1.0f) {
+                    char text[0x100];
+                    sprintf(text, "HostID:%d Score:%d\0", player->mAid, player->mDCScore);
+                    lbl_8087EEB0->fn_800616C0(1.0f + screen.x, 1.0f + screen.y, 0.0f, 16.0f, 16.0f, text, 0xFF000000,
+                                              0.0f, 1, 1, 0);
+                    lbl_8087EEB0->fn_800616C0(screen.x, screen.y, 0.0f, 16.0f, 16.0f, text, 0xFFFFAA00, 0.0f, 1, 1, 0);
+                    screen.y += 16.0f;
+                    sprintf(text, "Team:%d Ctrl:%c%c0", player->mRef.mChara->mF14,
+                            player->mRef.mChara->mFlag2 ? 'N' : 'L', IsTeamPlayer_unk(player) ? 'B' : ' ');
+                    lbl_8087EEB0->fn_800616C0(1.0f + screen.x, 1.0f + screen.y, 0.0f, 16.0f, 16.0f, text, 0xFF000000,
+                                              0.0f, 1, 1, 0);
+                    lbl_8087EEB0->fn_800616C0(screen.x, screen.y, 0.0f, 16.0f, 16.0f, text, 0xFFFFAA00, 0.0f, 1, 1, 0);
+                    screen.y += 16.0f;
+                }
+            }
+        }
+        for (int i = 0; i < mCharas.mNum; i++) {
+            PPCharaEntry_unk* entry = &mCharas.mData[i];
+            if (entry->mRef.mChara != 0) {
+                atn::Vector3 screen = atn::RenderManager::instance_->GetScreenPosition(
+                    entry->mRef.mChara->mPos + atn::Vector3(0.0f, 20.0f, 0.0f));
+                if (0.0f <= screen.z && screen.z <= 1.0f) {
+                    char text[0x100];
+                    sprintf(text, "Local:%d Ctrl:%c%c0", entry->mActive, entry->mRef.mChara->mFlag2 ? 'N' : 'L');
+                    lbl_8087EEB0->fn_800616C0(1.0f + screen.x, 1.0f + screen.y, 0.0f, 16.0f, 16.0f, text, 0xFF000000,
+                                              0.0f, 1, 1, 0);
+                    lbl_8087EEB0->fn_800616C0(screen.x, screen.y, 0.0f, 16.0f, 16.0f, text, 0xFFAA00FF, 0.0f, 1, 1, 0);
+                    screen.y += 16.0f;
+                }
+            }
+        }
+    }
 }
 
 // NONMATCHING: only the reloc of L"UNSUPPORTED" (original pool @wstringBase0 lbl_8087E1C4 in .sdata, rest of the pool not written)
