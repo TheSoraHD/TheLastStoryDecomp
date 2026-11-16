@@ -194,6 +194,11 @@ public:
 };
 extern "C" Unk_8087F0A8* lbl_8087F0A8;
 
+// inferred: weak copy 0x8013C38C (address of the position), inlined here
+inline atn::Vector3* CharaTask::fn_8013C38C() {
+    return &mPos;
+}
+
 namespace chr {
 
 // inferred: a + (b - a) * t (name invented, as in chr/ControlLadder.cpp)
@@ -894,7 +899,7 @@ bool ControlStickSwordSp::fn_80196C68() const {
     return ret;
 }
 
-// NONMATCHING: 99.84% - stack slots of the lerp temporaries; guards while held by the mat (the player shakes the remote to break free)
+// inferred: guards while held by the mat (the player shakes the remote to break free)
 int ControlMatHoldGuard::vf0C() {
     if ((mChara->mStatus.m0C & 0x20) == 0x20) {
         mChara->vf44();
@@ -918,7 +923,7 @@ int ControlMatHoldGuard::vf0C() {
     atn::Matrix3x4 mtx = *(atn::Matrix3x4*)mHolder;
     TranslateXYZ_unk(mtx, -5.0f, 0.0f, -9.0f);
     atn::Vector3 pos = mtx.GetTrans_unk();
-    mChara->mPos = LerpTo_unk(mChara->mPos, pos, 0.2f);
+    mChara->mPos = LerpTo_unk(*mChara->fn_8013C38C(), pos, 0.2f);
     mtx.m[0][3] = 0.0f;
     mtx.m[1][3] = 0.0f;
     mtx.m[2][3] = 0.0f;
@@ -1839,8 +1844,6 @@ int ControlEndCliffhangZanGurg::vf0C() {
     return 0;
 }
 
-// NONMATCHING: 99.3% - node pointer in r4 and the temporary of LerpTo_unk in r3 (swapped); tried a
-// node local, VecAssign_unk, a named result, t local, const chara for mPos
 atn::Vector3 ControlEndCliffhangZanGurg::vf14() const {
     const CharaTask* chara = mChara; // inferred: read through a const pointer (frame loaded before the prologue)
     Motion_unk* m = &mChara->mMotion;
@@ -1848,7 +1851,7 @@ atn::Vector3 ControlEndCliffhangZanGurg::vf14() const {
     float end = m->fn_80097D7C(0);
     atn::Vector3 pos = ((atn::Matrix3x4*)m->GetNodeMtx_unk("hips"))->GetTrans_unk();
     pos.y -= 15.0f;
-    pos = LerpTo_unk(pos, mChara->mPos, frame / end);
+    pos = LerpTo_unk(pos, *mChara->fn_8013C38C(), frame / end);
     return pos;
 }
 
