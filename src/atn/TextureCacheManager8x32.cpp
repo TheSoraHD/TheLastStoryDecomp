@@ -40,38 +40,46 @@ GXTexRegion* ITextureCacheManager::fn_800D6898(GXTexObj* obj, unsigned int id) {
     return region;
 }
 
-// NONMATCHING: 99.1% - only the registers of the loop index and the region offset are swapped
-// (target: index r31, offset r28). Loop shapes tried: index/shift/multiply forms, explicit
-// TMEM variables in every declaration/initialisation order, while loop.
+// The loop goes through an inline that receives the manager: in the constructor body the index and the
+// region offset take swapped registers.
+// inferred: the regions of every slot
+static inline void InitRegions8x32_unk(TextureCacheManager8x32* m) {
+    unsigned int even;
+    unsigned int odd;
+    int i;
+    for (i = 0, odd = 0x80000, even = 0; i < m->mCount; i++, odd += 0x10000, even += 0x10000) {
+        GXInitTexCacheRegion(&m->mRegionA[i], 0, even, 0, odd, 0);
+        GXInitTexCacheRegion(&m->mRegionB[i], 0, even, 0, 0, 3);
+        GXInitTexCacheRegion(&m->mRegionC[i], 1, even, 0, odd, 0);
+    }
+}
+
 TextureCacheManager8x32::TextureCacheManager8x32() {
     m04 = 0;
     mCount = 8;
-    unsigned int odd;
-    unsigned int even;
-    int i;
-    for (i = 0, odd = 0x80000, even = 0; i < mCount; i++, odd += 0x10000, even += 0x10000) {
-        GXInitTexCacheRegion(&mRegionA[i], 0, even, 0, odd, 0);
-        GXInitTexCacheRegion(&mRegionB[i], 0, even, 0, 0, 3);
-        GXInitTexCacheRegion(&mRegionC[i], 1, even, 0, odd, 0);
-    }
+    InitRegions8x32_unk(this);
 }
 
 GXTexRegion* TextureCacheManager8x32::vf0C(GXTexObj* obj, unsigned int id) {
     return fn_800D6898(obj, id);
 }
 
-// NONMATCHING: same register swap as TextureCacheManager8x32::TextureCacheManager8x32.
+// inferred: the regions of every slot
+static inline void InitRegions4x128_unk(TextureCacheManager4x128* m) {
+    unsigned int even;
+    unsigned int odd;
+    int i;
+    for (i = 0, odd = 0x80000, even = 0; i < m->mCount; i++, odd += 0x20000, even += 0x20000) {
+        GXInitTexCacheRegion(&m->mRegionA[i], 0, even, 1, odd, 1);
+        GXInitTexCacheRegion(&m->mRegionB[i], 0, even, 1, 0, 3);
+        GXInitTexCacheRegion(&m->mRegionC[i], 1, even, 0, odd, 0);
+    }
+}
+
 TextureCacheManager4x128::TextureCacheManager4x128() {
     m04 = 0;
     mCount = 4;
-    unsigned int odd;
-    unsigned int even;
-    int i;
-    for (i = 0, odd = 0x80000, even = 0; i < mCount; i++, odd += 0x20000, even += 0x20000) {
-        GXInitTexCacheRegion(&mRegionA[i], 0, even, 1, odd, 1);
-        GXInitTexCacheRegion(&mRegionB[i], 0, even, 1, 0, 3);
-        GXInitTexCacheRegion(&mRegionC[i], 1, even, 0, odd, 0);
-    }
+    InitRegions4x128_unk(this);
 }
 
 GXTexRegion* TextureCacheManager4x128::vf0C(GXTexObj* obj, unsigned int id) {

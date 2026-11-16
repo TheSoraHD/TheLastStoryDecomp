@@ -481,7 +481,7 @@
   "classes": [
    "atn::TextureCacheManager8x32"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "atn/TextureComposite.cpp",
