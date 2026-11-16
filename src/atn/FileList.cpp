@@ -4,6 +4,7 @@
 #include "std/string.h"
 #include "std/string_members.h"
 #include <stdarg.h>
+#include "std/string_find_last_of.h"
 
 // File and path utilities of the engine (path normalisation, language suffixes, loaded file
 // buffers) and atn::FileList (files of a directory). Functions 0x8006A950-0x8006BBCC are free
@@ -127,9 +128,8 @@ struct StringView_unk {
 };
 
 // inferred: extension of a path (after the last '.', "" without one)
-// NONMATCHING: 99.4% - volatile registers of the inlined rfind (r6/r7 swapped)
 extern "C" std::string fn_8006AC08(const std::string& path) {
-    unsigned long pos = path.rfind('.');
+    unsigned long pos = path.find_last_of('.');
     if (pos != std::string::npos) {
         return std::string(path, pos + 1);
     }
@@ -142,10 +142,9 @@ template std::string::basic_string(const std::string& str, std::string::size_typ
 
 extern "C" std::string fn_8006AFF8(const std::string& a, const std::string& b);
 
-// NONMATCHING: 98.2% - registers of the inlined rfind (as fn_8006AC08) and the pool offset of "."
 // inferred: sets the extension of `path` to `ext` (replaces the current one or adds ".ext")
 extern "C" std::string& fn_8006AD24(std::string& path, const std::string& ext) {
-    unsigned long pos = path.rfind('.');
+    unsigned long pos = path.find_last_of('.');
     if (pos != std::string::npos) {
         path = fn_8006AFF8(std::string(path, 0, pos + 1), ext);
     } else {
@@ -213,9 +212,8 @@ extern "C" std::string fn_8006B174(const std::string& path) {
 }
 
 // inferred: path without its extension
-// NONMATCHING: 99.5% - volatile registers of the inlined rfind (as fn_8006AC08)
 extern "C" std::string fn_8006B2D8(const std::string& path) {
-    unsigned long pos = path.rfind('.');
+    unsigned long pos = path.find_last_of('.');
     if (pos != std::string::npos) {
         return std::string(path, 0, pos);
     }
