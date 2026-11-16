@@ -136,8 +136,8 @@ Em101ElderZesyaSecond::Em101ElderZesyaSecond(atn::Task* parent, EnemyInfo_unk* i
 
 Em101ElderZesyaSecond::~Em101ElderZesyaSecond() {}
 
-// NONMATCHING: 92.8% - the inlined std::vector push_back of the warp points (known open case: registers
-// of the growth path and an extra saved register)
+// NONMATCHING: 99.4% - the inlined std::vector push_back of the warp points (known open case: registers
+// of the growth path) and the store order of the z of the sphere centre
 int Em101ElderZesyaSecond::vf0C() {
     if (fn_8013655C() == 0 && (m1438 == 0 || (m1438->mFlags & 2) == 2) && m14B0.fn_80473F50() == 0 &&
         m1518.IsLoading() == 0 && m153C.IsLoading() == 0 && m155C.IsLoading() == 0 &&
