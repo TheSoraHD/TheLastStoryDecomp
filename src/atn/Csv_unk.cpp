@@ -26,7 +26,18 @@ inline bool __IsOneOf_unk(T c, const T* list) {
     return false;
 }
 
-// NONMATCHING: 99.68% (char) / 98.93% (wchar_t) - numeracion de registros en el recorte inicial
+// inferred: string copy (strcpy)
+template <class T>
+inline void __StrCopy_unk(T* dst, const T* src) {
+    int i;
+    for (i = 0; src[i] != 0; i++) {
+        dst[i] = src[i];
+    }
+    dst[i] = 0;
+}
+
+// NONMATCHING: wchar_t 99.34% - registros del recuento del recorte (n/punteros; con ese bucle en una inline
+// tipo strspn wchar_t llega al 100% pero char baja a 99.78%). char al 100% con la copia en __StrCopy_unk.
 template <class T, int Sep, int Eol, int Quote>
 const T* CsvBase<T, Sep, Eol, Quote>::fn_8005B9CC() {
     memset(mField, 0, sizeof(mField) + sizeof(m410));
@@ -84,11 +95,7 @@ const T* CsvBase<T, Sep, Eol, Quote>::fn_8005B9CC() {
             n++;
         }
         if (n > 0) {
-            T c;
-            for (i = 0; (c = mField[n + i]) != 0; i++) {
-                mField[i] = c;
-            }
-            mField[i] = 0;
+            __StrCopy_unk(mField, mField + n);
         }
     }
     return mField;

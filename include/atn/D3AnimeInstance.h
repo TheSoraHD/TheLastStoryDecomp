@@ -38,7 +38,7 @@ public:
         if (mState == 1 && mTask != 0) {
             if (mTask->IsFlag_unk(2)) {
                 mTask->fn_800D246C(0);
-                mTask->mFlags |= 4;
+                mTask->FreezeTask();
                 mState = 2;
                 busy = 0;
             } else {

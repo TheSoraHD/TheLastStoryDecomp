@@ -289,7 +289,7 @@
   "classes": [
    "atn::NandManager"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "atn/ParseTree.cpp",
@@ -326,7 +326,7 @@
   "classes": [
    "atn::Layer2DBlur"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "atn/Layer3D.cpp",

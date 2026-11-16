@@ -278,11 +278,13 @@ extern "C" void fn_805BE8FC(void* self, unsigned int* chunk, XsfCurveSet_unk* cu
 }
 
 // inferred: keys of a chunk
-// NONMATCHING: 99.5% - count/step registers swapped (r31/r29)
+// The step is declared before p but computed after it (registers of count/step and order of p).
 extern "C" void fn_805BEA34(void* self, unsigned int* chunk, XsfCurveSet_unk* curves, int channel) {
-    unsigned int size = chunk[1];
     unsigned int count = chunk[0];
+    unsigned int size = chunk[1];
+    unsigned int step;
     float* p = (float*)(chunk + 2);
+    step = size & ~3;
     for (unsigned int i = 0; i < count; i++) {
         float time = p[0];
         float value = p[1];
@@ -291,7 +293,7 @@ extern "C" void fn_805BEA34(void* self, unsigned int* chunk, XsfCurveSet_unk* cu
         } else {
             curves->fn_805BF590(channel, time, value);
         }
-        p = (float*)((char*)p + (size & ~3));
+        p = (float*)((char*)p + step);
     }
 }
 
