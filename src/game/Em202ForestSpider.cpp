@@ -609,19 +609,22 @@ void Em202ForestSpider::vf104() {
     if (m55C != 6) {
         if (m55C == 7) {
             if (m14D4 != mRoute.mTarget) {
-                if (vf154(6) == 0) {
-                    m58C = 6;
-                    fn_8016E970(3);
+                if (vf154(6) != 0) {
+                    return;
                 }
+                m58C = 6;
+                fn_8016E970(3);
             }
-        } else if (vf154(6) == 0) {
+        } else {
+            if (vf154(6) != 0) {
+                return;
+            }
             m58C = 6;
             fn_8016E970(3);
             fn_80170A20(m14D4, -1.0f, 0);
         }
-    } else {
-        vfFC();
     }
+    vfFC();
 }
 
 void Em202ForestSpider::vfEC() {
@@ -631,33 +634,37 @@ void Em202ForestSpider::vfEC() {
         mColli.mFlags &= ~1;
         if (m1434 > 0) {
             m1434--;
+        } else {
+            for (unsigned int i = 0; i < m1908.size(); i++) {
+                CharaTask* c = m1908[i];
+                c->fn_80176ACC();
+                c->mPos = mPos;
+                c->mF1C = 0;
+                c->mFlagB9 = 0;
+                c->mMotion.fn_80097C08(0, 0x32, 1, 0, 1, 1.0f, 0.1f);
+                c->fn_8015EFAC(10);
+            }
+            mFlag15 = 1;
+            fn_801765D8();
+            fn_800EE360();
+            fn_800EB7A0();
         }
-        for (unsigned int i = 0; i < m1908.size(); i++) {
-            CharaTask* c = m1908[i];
-            c->fn_80176ACC();
-            c->mPos.z = mPos.z;
-            c->mF1C = 0;
-            c->mFlagB9 = 0;
-            c->mMotion.fn_80097C08(0, 0x32, 1, 0, 1, 1.0f, 0.1f);
-            c->fn_8015EFAC(10);
-        }
-        mFlag15 = 1;
-        fn_801765D8();
-        fn_800EE360();
-        fn_800EB7A0();
+    } else {
+        m1434 = 5;
     }
-    m1434 = 5;
 }
 
 void Em202ForestSpider::vf108() {
     float frame = mMotion.mTracks[0].m08;
     if (frame >= mMotion.fn_80097D7C(0)) {
         vf138();
-    }
-    float f = mMotion.mTracks[0].m08;
-    if (f >= 17.0f && f <= 22.0f) {
-        int id = m590;
-        lbl_8087F048->fn_800F8C6C(0, 0, this, fn_80219E6C(m1508), id, 0.0f, 30, -1);
+    } else {
+        float f = mMotion.mTracks[0].m08;
+        if (f >= 17.0f && f <= 22.0f) {
+            int id = m590;
+            HitInfo_unk* skill = fn_80219E6C(m1508);
+            lbl_8087F048->fn_800F8C6C(0, 0, this, skill, id, 0.0f, 30, -1);
+        }
     }
 }
 
@@ -669,7 +676,8 @@ void Em202ForestSpider::vf10C() {
     float f = mMotion.mTracks[0].m08;
     if (f >= 12.0f && f <= 17.0f) {
         int id = m590;
-        lbl_8087F048->fn_800F8C6C(0, 0, this, fn_80219E6C(m150C), id, 0.0f, 30, -1);
+        HitInfo_unk* skill = fn_80219E6C(m150C);
+        lbl_8087F048->fn_800F8C6C(0, 0, this, skill, id, 0.0f, 30, -1);
     }
 }
 
@@ -864,16 +872,29 @@ void Em202ForestSpider::vf124() {
     }
 }
 
+// inferred: RouteTable_unk::FindPlace_unk with the array read inside the loop (as in game/Em202Spider.cpp)
+inline RoutePlace_unk* FindForestPlace_unk(int id) {
+    RouteTable_unk* table = lbl_8087F430->m10D8;
+    for (unsigned int i = 0; i < table->mNumPlaces; i++) {
+        RoutePlace_unk* places = table->mPlaces;
+        if (id == places[i].mId) {
+            return &places[i];
+        }
+    }
+    return 0;
+}
+
 void Em202ForestSpider::vf128() {
-    RoutePlace_unk* place = lbl_8087F430->m10D8->FindPlace_unk(m14BC);
+    RoutePlace_unk* place = FindForestPlace_unk(m14BC);
     atn::Vector3 d;
     SetFlat_unk(d, mPos.x - place->mPos.x, mPos.z - place->mPos.z);
     if (PSVECSquareMag(&d) < 100.0f) {
         m14F8 = 0;
         mRot.y = place->m14;
         vf158();
+    } else {
+        vfFC();
     }
-    vfFC();
 }
 
 void Em202ForestSpider::vf12C() {
@@ -1276,10 +1297,8 @@ RoutePlace_unk* Em202ForestSpider::vf170() {
 }
 
 int Em202ForestSpider::fn_8027851C(CharaTask* chara) {
-    MtxPtr hm = mMotion.GetNodeMtx_unk("head");
-    atn::Vector3 from(hm[0][3], hm[1][3], hm[2][3]);
-    MtxPtr wm = chara->mMotion.GetNodeMtx_unk("waist");
-    atn::Vector3 to(wm[0][3], wm[1][3], wm[2][3]);
+    atn::Vector3 from = ((atn::Matrix3x4*)mMotion.GetNodeMtx_unk("head"))->GetTrans_unk();
+    atn::Vector3 to = ((atn::Matrix3x4*)chara->GetModel_unk()->GetNodeMtx_unk("waist"))->GetTrans_unk();
     atn::ColliResult_unk result;
     if (fn_8004ED34(lbl_8087EE98, &result, &from, &to, 0x80000000, &mColli, 0) != 0) {
         return 0;

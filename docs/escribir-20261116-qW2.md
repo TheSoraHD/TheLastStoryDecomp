@@ -17,7 +17,10 @@ Inicio: 2026-11-16 23:58 CET (tope 2,5 h: 02:28).
 | Em202ForestSpider ctor (0x8027278C) | DRAFT 98,40 % | equivalente NONMATCHING 98,75 % (faltaba `m14BC(0)`) |
 | Em301LShade vf10 (0x802D0B84) | DRAFT 90,20 % | equivalente NONMATCHING 90,2 % (`m540.y` -> `m540.x`; llamadas, literales, tabla de saltos y offsets comprobados) |
 
+| Em202ForestSpider vf128, vf104, vf108, vf10C, vfEC, fn_8027851C (fuera de la tabla: "approximate") | 97,6 / 96 / 86,5 / 88 / 80,9 / 95,7 % | 100 % (cuatro tenian el flujo mal) |
+
 ## Para el port
+- Em202ForestSpider (cambios de comportamiento de funciones "approximate"): vf128 llama a vfFC solo si no ha llegado al punto (else); vf104 llama a vfFC salvo cuando vf154(6) acepta (antes solo en el estado 6); vf108 solo comprueba el golpe (frames 17-22) si la motion no ha terminado (else); vfEC: si m1434 > 0 solo lo decrementa, si no suelta a los atrapados (copia mPos entero, no solo z) y llama a fn_801765D8/fn_800EE360/fn_800EB7A0; `m1434 = 5` solo mientras la motion no termina.
 - Em302KrakenMp::vf0C: el original comprueba `m15CC.IsLoading()` justo despues de `m152C` (antes de m1564/m1570/m157C); corregido.
 - Em301LShade::vf10: la bajada de la posicion es `mPos.y -= 13.0f * m540.x` (no `m540.y`), como en los demas usos de m540.
 - Em202ForestSpider ctor: el original pone `m14BC = 0` ("ReinforceCenter"); faltaba en el init list (miembro sin inicializar).
@@ -25,12 +28,14 @@ Inicio: 2026-11-16 23:58 CET (tope 2,5 h: 02:28).
 ## Decisiones tomadas sin el usuario
 
 ## Hallazgos
+- Las funciones "NONMATCHING: approximate" sin DRAFT pueden tener el flujo mal (else que falta, return temprano): semdiff.py/odiff2 con un `b` insertado o borrado lo delata; Em202ForestSpider tenia cuatro (escribir-20261116 qW2).
+- Busqueda de RoutePlace con la tabla del campo leida dentro de la inline (`FindRoutePlace3_unk` de Em202Spider) da el orden de registros del original cuando la version con la tabla por parametro no (Em202ForestSpider::vf128) (escribir-20261116 qW2).
 
 ## Bloqueos
 - Em206CocoonMp ctor y LastCocoonChrysalis ctor: las locales anidadas key/cmp/value del bucle de tokens (lo que saco LastCocoonImago de presupuesto) no bastan; tampoco una local `rest` mas ni `file = path.c_str()` (escribir-20261116 qW2).
 
 ## Cambios de splits/symbols
-- Ninguno.
+- Em202ForestSpider: re-emparejado con pd.sh; @15151/@15152 (.sdata2 0x8088384C/50) renombradas a @15192/@15193 (valores iguales en nuestro .o, lblval.py).
 
 ## Scripts
 - `/home/claude/scratch-W2/bin/semdiff.py <unidad> <simbolo>`: filas de objdiff que siguen distintas tras normalizar registros, huecos de pila y destinos; comprueba destinos de salto por alineado y compara la bolsa de llamadas y de offsets de miembros (encontro el `m540.y` de Em301LShade::vf10 en 5896 B). Para comprobar DRAFT grandes.
