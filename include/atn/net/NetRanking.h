@@ -23,6 +23,13 @@ struct NetRankData_unk {
 // inferred: ranking client of the game (lbl_8087F5A4); names invented
 class NetRanking_unk {
 public:
+    // inferred: inlined in MP::Manager2::Manager2 (atn/PacketPack.cpp)
+    NetRanking_unk() : mState(0), mCallback(0) {
+        mTimes[0] = -1;
+        mTimes[1] = -1;
+        mTimes[2] = -1;
+        mTimes[3] = -1;
+    }
     int fn_8050C1D8(void* userData);
     int fn_8050C2F4();
     int fn_8050C7F0();

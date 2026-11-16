@@ -301,6 +301,13 @@ extern "C" void fn_804D0164() {
 // over the message id, jumptable_807912DC) ----
 #include "atn/MemoryManager.h"
 #include "atn/net/PacketPack.h"
+#include "MP/PacketPackMP.h"
+#include "MP/CryptMP.h"
+#include "game/HomeButtonMenu.h"
+#include "game/MapManager.h"
+#include "atn/WPad_unk.h"
+#include "atn/SoundManager.h"
+#include "atn/SoundCore.h"
 #include "MP/D2AMpMenuLobby.h"
 #include "game/GameVoice.h"
 #include "game/GameBgm.h"
@@ -329,7 +336,7 @@ public:
 struct PPNetObject_unk {
     virtual ~PPNetObject_unk();
 };
-extern "C" PPNetObject_unk* lbl_8087F61C;
+extern "C" MP::PacketPackMP* lbl_8087F61C; // inferred: instance of MP::PacketPackMP
 #include "atn/EffectManager.h"
 #include "atn/Array_unk.h"
 #include "game/PlayerManager.h"
@@ -428,6 +435,7 @@ struct PPPlayerFlags_unk {
 
 // inferred: player slot of MP::Manager2 (0xD5C bytes, array at +0x5E4); names invented
 struct PPPlayer_unk {
+    PPPlayer_unk(); // inferred: weak copy 0x804D16F8 (0x874 bytes), not written yet
     ~PPPlayer_unk() {} // inferred: weak copy 0x804D1FD8 (destruction of m2B8C in the destructor of MP::Manager2)
     MpCharaRef_unk mRef;              // 0x00: inferred: the character of the player
     unsigned char m004[4];            // inferred: copy of the character information (fn_804D8078)
@@ -507,20 +515,41 @@ struct PPListNode_unk {
     PPListNode_unk* mNext;
 };
 struct PPList_unk {
+    PPList_unk() : mCount(0) {
+        mHead.mNext = &mHead;
+        mHead.mPrev = &mHead;
+    }
     int mCount;
     PPListNode_unk mHead;
 };
 // inferred: request of the network thread (0x28 bytes at 0x99C0); names invented
 struct PPThreadRequest_unk {
+    PPThreadRequest_unk() : m00(0), m04(0) {
+        for (int i = 0; i < 8; i++) {
+            mFuncs[i] = 0;
+        }
+    }
     int m00;
     int m04;
     void* mFuncs[8];
 };
 
-// inferred: object of MP::Manager2 at 0x2B7C (only m58 is used); names invented
-struct PPLimit_unk {
-    unsigned char m00[0x58];
-    int m58;
+#include "atn/FadeCommon.h"
+// inferred: entries of MP::Manager2 built by its ctor (only the cleared members are known); names invented
+struct PPSlot18_unk {
+    PPSlot18_unk() : m04(0) {}
+    int m00;
+    int m04;
+    unsigned char m08[0x18 - 0x8];
+};
+struct PPEntry104_unk {
+    PPEntry104_unk() { memset(this, 0, sizeof(*this)); }
+    unsigned char m00[0x104];
+};
+struct PPEntry44_unk {
+    PPEntry44_unk() : m00(0) {}
+    int m00;
+    unsigned char m04[0x44 - 0x4];
 };
 
 // inferred: element of the arrays new[]-ed by the entries of MP::Manager2::m2A50 (only its empty
@@ -531,6 +560,7 @@ struct PPTableItem_unk {
 };
 // inferred: entry of the table m2A50 (12 bytes; ctor 0x804D13FC, dtor 0x804D1410); names invented
 struct PPTableEntry_unk {
+    PPTableEntry_unk() : m00(0), m04(0), m08(0) {}
     ~PPTableEntry_unk() {
         if (m08 != 0) {
             delete[] m08;
@@ -549,15 +579,17 @@ struct PPTable_unk {
 namespace MP {
 // inferred: MP::Manager2 (vtable 0x807916E0: dtor, vf0C, vf10, vf14 and atn::Task::vf18)
 struct Manager2 : public atn::Task {
+    Manager2(atn::Task* parent);
     virtual ~Manager2();
     virtual int vf0C();
     virtual void vf10();
     virtual void vf14(); // inferred: 0x804F7F54, not written yet
-    unsigned char m0048[0x348 - 0x48];
+    PPSlot18_unk m0048[32];           // inferred: 32 entries of 0x18 bytes (m00 cleared at the end of the ctor)
     int m348;                         // inferred: room of the next game (fn_804D9BF4)
     int m34C;
     int m350;
-    unsigned char m0354[0x4F8 - 0x354];
+    int m354;
+    atn::net::NetPlayerInfo_unk m358[8]; // inferred: built with the NetPlayerInfo_unk ctor (L"<none>")
     int m4F8;
     union {
         int mState;                   // 0x4FC: inferred: state (30 = in game)
@@ -567,18 +599,24 @@ struct Manager2 : public atn::Task {
     short m508;                       // inferred: reset to 3629 when the match ends
     short m50A;                       // inferred: set to 90 when a player slot is added
     int m50C;                         // inferred: sub state of the game (GameUISession_unk::GetM50C_unk)
-    unsigned char m0510[0x514 - 0x510];
+    void* m510;                       // inferred: folder "Multiplayer" of the debug menu
     MP::SaveLoad* mSaveLoad;          // 0x514
-    unsigned char m0518[0x534 - 0x518];
+    int m518;                         // inferred: debug menu flags (Game, Debug, Clients, Players, Control info)
+    int m51C;
+    int m520;
+    int m524;
+    int m528;
+    int m52C;                         // inferred: "Propagate Setting"
+    int m530;
     int m534;
-    unsigned char m0538[0x53C - 0x538];
+    int m538;
     int m53C;                         // inferred: the room is open (sent to atn::net::Manager::m0C)
     int mMode;                        // 0x540: inferred: game mode
     int m544;
     int m548;                         // inferred: mode of the last frame
     int m54C;
     int m550;
-    unsigned char m0554[0x558 - 0x554];
+    int m554;
     int m558;
     int m55C;                         // inferred: values of messages 0x0C and 0x0E
     int m560;                         // inferred: settings of message 0x0F (m560-m598)
@@ -593,24 +631,34 @@ struct Manager2 : public atn::Task {
     int m5A8;
     int m5AC;                         // inferred: the settings of message 0x0F arrived
     int m5B0;
-    unsigned char m05B4[0x5B8 - 0x5B4];
+    unsigned char m5B4;
+    unsigned char m05B5[0x5B8 - 0x5B5];
     long long mStartTime;             // 0x5B8: inferred: OSGetTime of the start of the game
-    unsigned char m05C0[0x5CC - 0x5C0];
+    int m5C0;
+    int m5C4;                         // inferred: "Respawn time"
+    float m5C8;                       // inferred: "CharaSpeedInterpK"
+
     int mFrame;                       // 0x5CC: inferred: frame counter of vf10
-    int m5D0;
-    unsigned char m05D4[0x5E0 - 0x5D4];
+    int m5D0;                         // inferred: "Lobby update timer"
+    int m5D4;                         // inferred: "Visual update timer"
+    int m5D8;                         // inferred: "Status update timer"
+    int m5DC;                         // inferred: "Sync update timer"
+
     GameTask* mGame;                  // 0x5E0
     PPPlayerArray_unk mPlayers;       // 0x5E4
-    unsigned char m05EC[0x5F0 - 0x5EC];
+    int m5EC;
     PPCharaArray_unk mCharas;         // 0x5F0
-    unsigned char m05F8[0x5FC - 0x5F8];
+    int m5F8;
     PPPlayer_unk* mOwnPlayer;         // 0x5FC: inferred: used when the character has no slot
-    unsigned char m0600[0x604 - 0x600];
+    int m600;
     int m604;
     int m608;
-    unsigned char m060C[0x610 - 0x60C];
+    int m60C;
     unsigned char m610[0x69C - 0x610]; // inferred: object given to fn_805076F8
-    unsigned char m69C[0x2A50 - 0x69C];
+    int m69C;                         // inferred: start of the data given to fn_805061C8
+    PPEntry104_unk m6A0[32];
+    PPEntry44_unk m2720[6];
+    PPEntry44_unk m28B8[6];
     PPTable_unk m2A50;                // inferred: destroyed by the destructor (entries 0x804D1410)
     atn::LH_Binary m2B50;             // inferred: resources loaded in state 3
     atn::LH_Binary m2B58;
@@ -619,7 +667,7 @@ struct Manager2 : public atn::Task {
     atn::SoundRef m2B70;
     atn::SoundRef m2B74;              // inferred: sounds stopped by fn_804DA398
     atn::SoundRef m2B78;
-    PPLimit_unk* m2B7C;              // inferred: object whose m58 is raised during the load (fn_804D2508)
+    atn::FadeColor* m2B7C;            // inferred: fade of the multiplayer (its mDelay is raised during the load, fn_804D2508)
     int m2B80;
     int m2B84;                        // inferred: result state of the game (fn_804E4A60)
     int m2B88;                        // inferred: number of the slots of m2B8C
@@ -633,14 +681,17 @@ struct Manager2 : public atn::Task {
     int m9694[8];                     // inferred: per aid values of message 0x35
     atn::EfpFile m96B4;               // inferred: effects of the game (fn_804DF404)
     atn::EffFile m96C0;
-    unsigned char m96CC[0x974C - 0x96CC];
+    unsigned char m96CC[0x20];
+    unsigned char m96EC[0x20];
+    unsigned char m970C[0x20];
+    unsigned char m972C[0x20];
     int m974C;                        // inferred: id given to the ranking requests
     int m9750;
     int m9754;
     int m9758;
     int m975C;                        // inferred: reset to 300 when the match ends (fn_804FB220)
     int m9760;
-    unsigned char m9764[0x9768 - 0x9764];
+    int m9764;
     int m9768;
     int m976C;                        // inferred: set by fn_804FB530
     atn::Task* m9770;                 // inferred: MP::Text task
@@ -778,6 +829,7 @@ public:
         int m0C;
     };
     void fn_804AF520(int state);
+    static D2AMpMenu* fn_804AE820(atn::Task* parent); // inferred: creates the instance
     static D2AMpMenu* sInstance;
     unsigned char m0048[0xBC - 0x48];
     int mBC;
@@ -807,6 +859,7 @@ public:
     void fn_804B6204(int time);
     void fn_804B691C();
     void fn_804B67E4(int value);
+    static D2AMpMenuCockpit* fn_804B4C50(atn::Task* parent); // inferred: creates the instance
     static D2AMpMenuCockpit* sInstance;
 };
 class D2AMpMenuResult : public atn::Task {
@@ -1124,21 +1177,6 @@ extern "C" __declspec(noinline) inline atn::net::NetThread_unk* fn_804D16E4(atn:
 }
 extern "C" __declspec(noinline) inline ErrorManager* fn_804D16F0() {
     return lbl_8087F420;
-}
-// inferred: clears a player slot
-extern "C" void fn_804D1F6C(PPPlayer_unk* player) {
-    player->mAid = 0xFF;
-    player->mDC.fn_80501288(0);
-    player->mFlagWord = 0;
-    player->mB0 = 0;
-    player->mD38[4] = 0;
-    player->mD50 = -1;
-    player->mD4C = 0;
-    player->mD53 = 0;
-    player->mD54 = -1;
-    player->mD58 = 0;
-    player->mD8 = 0;
-    player->mD4 = 0;
 }
 
 extern "C" __declspec(noinline) inline int fn_804D24A8(atn::net::NetThread_unk* thread) {
@@ -1486,6 +1524,260 @@ extern "C" __declspec(noinline) inline atn::net::NetRanking_unk* fn_804D6680() {
     return lbl_8087F5A4;
 }
 
+inline CharaListeners_unk* fn_8014F8F4() {
+    static CharaListeners_unk sListeners;
+    return &sListeners;
+}
+// inferred: the packer and its key generator are created by the ctor of MP::Manager2 (inlined there)
+// inferred: empty name and file strings of the allocations of the ctor of MP::Manager2 (one .sdata object each,
+// as lbl_8087E1B0/lbl_8087E1AC above)
+extern "C" const char lbl_8087E17C[1];
+extern "C" const char lbl_8087E180[1];
+extern "C" const char lbl_8087E184[1];
+extern "C" const char lbl_8087E188[1];
+extern "C" const char lbl_8087E18C[1];
+extern "C" const char lbl_8087E190[1];
+extern "C" const char lbl_8087E194[1];
+extern "C" const char lbl_8087E198[1];
+extern "C" const char lbl_8087E19C[1];
+extern "C" const char lbl_8087E1A0[1];
+extern "C" const char lbl_8087E1A4[1];
+extern "C" const char lbl_8087E1A8[1];
+extern "C" const char lbl_8087E1B4[1];
+extern "C" const char lbl_8087E1B8[1];
+extern "C" const char lbl_8087E1BC[1];
+extern "C" const char lbl_8087E1C0[1];
+inline atn::net::Crypt::Crypt() : m04(0x1000) {
+    m08 = (char*)fn_800838B8(atn::MemoryManager::Instance(), 0x1000, 0x20, 5, lbl_8087E1C0, lbl_8087E1BC, 0);
+    m0C = (char*)fn_800838B8(atn::MemoryManager::Instance(), 0x1000, 0x20, 5, lbl_8087E1B8, lbl_8087E1B4, 0);
+}
+inline MP::CryptMP::CryptMP() : m10(0), m14(0), m18(0) {
+    m14 = (char*)fn_800838B8(atn::MemoryManager::Instance(), vf10() * 2 + 1, 4, 5, lbl_8087E1A8, lbl_8087E1A4, 0);
+    m18 = (char*)fn_800838B8(atn::MemoryManager::Instance(), vf10() + 1, 4, 5, lbl_8087E1A0, lbl_8087E19C, 0);
+}
+inline MP::PacketPackMP::PacketPackMP() {
+    m14 = new ((MemoryTag)5, lbl_8087E198, lbl_8087E194, 0) MP::CryptMP;
+    fn_8050E510(m14);
+}
+
+// inferred: items of the debug menu (atn/MindowsCommon.h; declared here with the void* folders of game/ResHandle.h)
+extern "C" void fn_800874C8(void* folder, const char* name, int* value, int min, int max, int step,
+                            void (*func)(void*, void*), void* arg); // AddInt
+extern "C" void fn_8008771C(void* folder, const char* name, float* value, float min, float max, float step,
+                            void (*func)(void*, void*), void* arg); // AddFloat
+extern "C" void fn_80087994(void* folder, const char* name, int* value, void (*func)(void*, void*),
+                            void* arg); // AddBool
+extern WPad_unk* lbl_8087F018; // inferred: Wii Remote manager (defined in atn/WPad_unk.cpp)
+extern int lbl_80790F78[30]; // inferred: messages sent in each frame of a cycle of 30 (defined below)
+extern "C" MP::ManagerMP* lbl_8087F618;   // inferred: instance of MP::ManagerMP (copied to lbl_8087F628)
+extern "C" MP::PacketPackMP* lbl_8087F62C; // inferred: copy of lbl_8087F61C
+extern "C" int lbl_8087F630;              // inferred: forced id of the session (local play when 0)
+extern "C" void fn_804EB934(int id, CharaTask* chara, void* arg); // inferred: listener of the characters
+extern "C" void fn_804F60D4(void* arg, void* value);
+extern "C" void fn_804F60D8(void* arg, void* value);
+extern "C" void fn_804F60DC(void* arg, void* value);
+extern "C" atn::SoundEngine_unk* lbl_8087EE90; // inferred: sound engine (atn/SoundCore.h)
+extern "C" int fn_8004829C(void* sound, const char** groups, int count); // inferred: loads sound groups
+namespace atn {
+namespace net {
+void* fn_8050CFC8(void* arg); // inferred: main function of the network thread (atn/NetManager.cpp)
+} // namespace net
+} // namespace atn
+
+// NONMATCHING: written equivalent, not compared yet (completes the strings of @stringBase0 of the unit)
+// inferred: MP::Manager2 ctor: creates the network singletons, the debug menu "Multiplayer", the menus and
+// the managers of the multiplayer mode
+MP::Manager2::Manager2(atn::Task* parent)
+    : atn::Task(parent), m354(0), m510(0), m55C(10), m560(0), m564(300), m568(50), m598(0),
+      m59C(-1), m5A0(6), m5A8(0), m5AC(0), m5B0(1), m5B4(0) {
+    mStateVar.mValue = 0;
+    mStateVar.mLast = 0;
+    memset(m56C, 0, sizeof(m56C));
+    memset(m58C, 0, sizeof(m58C));
+    m5A4 = 0;
+    mPlayers.mData = 0;
+    mPlayers.mNum = 0;
+    m5EC = 0;
+    mCharas.mData = 0;
+    mCharas.mNum = 0;
+    m5F8 = 0;
+    memset(m610, 0, sizeof(m610));
+    m69C = 0;
+    m2A50.mFC = 0;
+    m2B88 = 0;
+    m99A4.mCount = 0;
+
+    if (HomeButtonMenu::sInstance != 0 && HomeButtonMenu::sInstance->m88 == 1) {
+        HomeButtonMenu::sInstance->m88 = 0;
+    }
+    if (lbl_8087F618 == 0) {
+        lbl_8087F618 = new ((MemoryTag)1, lbl_8087E190, lbl_8087E18C, 0) MP::ManagerMP;
+    }
+    lbl_8087F628 = lbl_8087F618;
+    if (lbl_8087F61C == 0) {
+        lbl_8087F61C = new ((MemoryTag)1, lbl_8087E188, lbl_8087E184, 0) MP::PacketPackMP;
+    }
+    lbl_8087F62C = lbl_8087F61C;
+    if (lbl_8087F630 > 0) {
+        lbl_8087F628->mC218 = lbl_8087F630;
+    }
+    lbl_8087F628->mC215 = (lbl_8087F630 == 0) == 0;
+    if (lbl_8087F5A4 == 0) {
+        lbl_8087F5A4 = new ((MemoryTag)1, lbl_8087E180, lbl_8087E17C, 0) atn::net::NetRanking_unk;
+    }
+    fn_804FB220(&mStateVar, 0);
+    m5C4 = 450;
+    m50C = 0;
+    m9974 = 0;
+    m518 = 1;
+    m51C = 0;
+    m520 = 1;
+    m524 = 0;
+    m528 = 0;
+    m530 = 1;
+    m52C = 1;
+    m534 = 0;
+    m538 = 0;
+    m50A = 0;
+    mFrame = 0;
+    m5D0 = 30;
+    m5D4 = 1;
+    m5D8 = 10;
+    m5DC = 30;
+    m558 = 0;
+    mGame = 0;
+    m548 = 0;
+    m544 = 0;
+    mMode = 0;
+    m54C = 1;
+    m999C = 0;
+    m999D = 0;
+    m550 = 0;
+    m554 = 0;
+    mStartTime = 0;
+    m60C = 0;
+    m5C0 = 1;
+    m974C = 0;
+    m9758 = -1;
+    m53C = 0;
+    m5C8 = 0.95f;
+    m9754 = -1;
+    m600 = 30;
+    m604 = 1;
+    m608 = -1;
+    mSaveLoad = 0;
+    m99F0[0] = 0;
+    m99F0[1] = 0;
+    m99F0[2] = 0;
+    m9978 = 0;
+    m99F0[3] = 0;
+    m9760 = 0;
+    m9764 = 1;
+    m9768 = 0;
+    m976C = 0;
+    memset(m96CC, 0, sizeof(m96CC));
+    memset(m96EC, 0, sizeof(m96EC));
+    memset(m970C, 0, sizeof(m970C));
+    memset(m972C, 0, sizeof(m972C));
+    memset(m9984, 0, sizeof(m9984));
+    memset(m998C, 0xFF, sizeof(m998C));
+
+    fn_8014F8F4()->mList.clear();
+    CharaListener_unk listener;
+    listener.mId = -1;
+    listener.mFunc = fn_804EB934;
+    fn_8014F8F4()->mList.push_back(listener);
+
+    void* menu;
+    if (m510 == 0 && lbl_8087EF10 != 0) {
+        menu = m510 = fn_8008937C(lbl_8087EF10->m10, "Multiplayer");
+    } else {
+        menu = 0;
+    }
+    fn_800874C8(menu, "MatchGroup", &m54C, 1, 999, 1, 0, 0);
+    fn_80087994(menu, "Game info", &m518, 0, 0);
+    fn_80087994(menu, "Debug info", &m51C, 0, 0);
+    fn_80087994(menu, "Clients info", &m520, 0, 0);
+    fn_80087994(menu, "Players info", &m524, 0, 0);
+    fn_80087994(menu, "Control info", &m528, 0, 0);
+    void* rules = fn_8008937C(menu, "Rules");
+    fn_800874C8(rules, "Time limit", &m564, -1, 6000, 60, 0, 0);
+    fn_800874C8(rules, "Score limit", &m568, -1, 1000, 10, 0, 0);
+    void* setting = fn_8008937C(menu, "Setting");
+    fn_80087994(menu, "Propagate Setting", &m52C, 0, 0);
+    fn_800874C8(setting, "Lobby update timer", &m5D0, 0, 10000, 1, 0, 0);
+    fn_800874C8(setting, "Visual update timer", &m5D4, 0, 10000, 1, 0, 0);
+    fn_800874C8(setting, "Status update timer", &m5D8, 0, 10000, 1, 0, 0);
+    fn_800874C8(setting, "Sync update timer", &m5DC, 0, 10000, 1, 0, 0);
+    fn_800874C8(setting, "Profiler timer", &lbl_8087F628->m250, 0, 10000, 1, fn_804F60D4, 0);
+    fn_800874C8(setting, "Host update timer", (int*)&lbl_8087F628->m254, 0, 10000, 1, fn_804F60D8, 0);
+    fn_800874C8(setting, "Host ping timer", (int*)&lbl_8087F628->m258, 0, 10000, 1, fn_804F60DC, 0);
+    void* gameplay = fn_8008937C(menu, "Gameplay");
+    fn_800874C8(gameplay, "Respawn time", &m5C4, 0, 10000, 30, 0, 0);
+    fn_8008771C(gameplay, "CharaSpeedInterpK", &m5C8, 0.0f, 1.0f, 0.02f, 0, 0);
+    void* schedule = fn_8008937C(menu, "Schedule");
+    for (unsigned int i = 0; i < 30; i++) {
+        char name[256];
+        sprintf(name, "%d", i);
+        fn_800874C8(schedule, name, &lbl_80790F78[i], 0, 255, 1, 0, 0);
+    }
+
+    SetConfig::sInstance->mShowTutorial = 0;
+    m99BC = 0;
+    MP::D2AMpMenu::fn_804AE820(this);
+    MP::D2AMpMenu::sInstance->fn_800D246C(1);
+    MP::D2AMpMenuCockpit::fn_804B4C50(this);
+    MP::D2AMpMenuCockpit::sInstance->fn_800D246C(1);
+    MP::D2ACommonDialog::fn_804AC430(this);
+    MP::D2ACommonDialog::sInstance->fn_800D246C(1);
+    MapManager::SetTask(this);
+    m9770 = 0;
+    lbl_8087EFE8->fn_800CDF84();
+    const char* groups[3] = {"GROUP_SYSTEM", "GROUP_PC001", "GROUP_MP_EM003"};
+    fn_8004829C(lbl_8087EE90, groups, 3);
+    if (GameBgm::sInstance == 0) {
+        GameBgm::fn_8037C8C4(this);
+    }
+    if (lbl_8087F498 == 0) {
+        GameVoice::fn_803E836C(this);
+        lbl_8087F498->mNumChannels = 3;
+    }
+    m9774.SetPosition(atn::Vector3(0.0f, -99500.0f, 0.0f));
+    m9774.SetTarget_unk(atn::Vector3(0.0f, -99500.0f, 10.0f));
+    fn_8037F688(&m9774, 1.0471976f);
+    atn::EffectManager::fn_80239798(this, 0x240, 0x480, 8, 0x180);
+    fn_80239DAC(lbl_8087F3C0, (unsigned int)this, 0, 0);
+    m9968.LoadRequest("be010_008.efp");
+    for (int i = 0; i < 32; i++) {
+        m0048[i].m00 = 0;
+    }
+    lbl_8087F628->mThread.fn_8050CDD0(atn::net::fn_8050CFC8, 17);
+    lbl_8087F420->m0C = 1;
+    if (lbl_8087F018 != 0) {
+        lbl_8087F018->m40E0[0] = 1;
+    }
+    m2B7C = atn::FadeColor::Create(this, 15, 0xFF000000, 0);
+    m2B7C->mDeleteAtEnd = 1;
+    m2B7C->mDelay = 99999;
+    m2B7C->mActive = 1;
+}
+
+// inferred: clears a player slot
+extern "C" void fn_804D1F6C(PPPlayer_unk* player) {
+    player->mAid = 0xFF;
+    player->mDC.fn_80501288(0);
+    player->mFlagWord = 0;
+    player->mB0 = 0;
+    player->mD38[4] = 0;
+    player->mD50 = -1;
+    player->mD4C = 0;
+    player->mD53 = 0;
+    player->mD54 = -1;
+    player->mD58 = 0;
+    player->mD8 = 0;
+    player->mD4 = 0;
+}
+
 // DRAFT: the waits for the network thread and the clean up of the globals
 // NONMATCHING: draft - the waits for the network thread and the clean up of the globals are not written;
 // written for the destruction of the members (weak copies 0x804D1410, 0x804D1478, 0x804D1FD8)
@@ -1508,7 +1800,7 @@ extern "C" int fn_800C310C(int arg);
 // inferred: MP::Manager2::vf0C (vtable 0x807916E0): waits for the resources, then shows the menu
 int MP::Manager2::vf0C() {
     PPManager2_unk* mgr = this;
-    mgr->m2B7C->m58 = 99999;
+    mgr->m2B7C->mDelay = 99999;
     if (fn_800C310C(0) == 0 && mgr->m9968.IsLoading() == 0 && mgr->fn_800D3FA4() != 0) {
         fn_80232B7C((unsigned int)mgr, 0);
         MP::D2AMpMenu::sInstance->fn_800D246C(0);
@@ -1518,7 +1810,7 @@ int MP::Manager2::vf0C() {
         menu->m299C.m04 = 0;
         menu->m299C.m0C = 0;
         MP::D2ACommonDialog::sInstance->fn_800D246C(0);
-        mgr->m2B7C->m58 = 0;
+        mgr->m2B7C->mDelay = 0;
         return 1;
     }
     return 0;
@@ -1777,7 +2069,7 @@ void MP::Manager2::vf10() {
         }
         if (ready != 0) {
             int size = mgr->m2B60.fn_8047059C();
-            fn_805061C8(mgr->m69C, mgr->m2B60.fn_80470580(), size);
+            fn_805061C8(&mgr->m69C, mgr->m2B60.fn_80470580(), size);
             size = mgr->m2B68.fn_8047059C();
             fn_80506D94(&mgr->m2A50, mgr->m2B68.fn_80470580(), size);
             size = mgr->m2B50.fn_8047059C();
@@ -4674,10 +4966,6 @@ extern "C" void fn_804EE4E8(atn::net::PacketPack* pack, unsigned int aid, unsign
 extern "C" void fn_804EE4EC(atn::net::PacketPack* pack, const void* data, unsigned short size) {}
 
 // inferred: listeners of the character events (inline in the original, as in game/BattleCharaTask.cpp)
-inline CharaListeners_unk* fn_8014F8F4() {
-    static CharaListeners_unk sListeners;
-    return &sListeners;
-}
 
 // inferred: calls the listeners of `id` (as in game/BattleCharaTask.cpp; name invented)
 inline void NotifyListeners_unk(CharaListeners_unk* listeners, int id, void* chara, void* arg) {
@@ -5618,11 +5906,11 @@ extern "C" void fn_804F5FCC(PPRequests_unk* queue) {
     }
 }
 
-extern "C" void fn_804F60D4() {}
+extern "C" void fn_804F60D4(void* arg, void* value) {}
 
-extern "C" void fn_804F60D8() {}
+extern "C" void fn_804F60D8(void* arg, void* value) {}
 
-extern "C" void fn_804F60DC() {}
+extern "C" void fn_804F60DC(void* arg, void* value) {}
 
 // inferred: requests of the save/load task of the manager (type 0 and 1)
 extern "C" int fn_804F7EC8(void* data, int size) {
