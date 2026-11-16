@@ -32,7 +32,7 @@ public:
 class ControlWallDown : public ControlBase {
 public:
     ControlWallDown(Chara_unk* chara, const atn::Vector3& dest) : ControlBase(chara), m14(dest) {
-        chara->m560 = 0x10;
+        mChara->SetControlId_unk(0x10);
         m08 = mChara->mPos;
         Motion_unk* m = &mChara->mMotion;
         atn::Vector3 rot = mChara->mRot;
