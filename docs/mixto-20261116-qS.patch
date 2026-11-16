@@ -1,0 +1,21 @@
+diff --git a/src/chr/ControlMountle.cpp b/src/chr/ControlMountle.cpp
+index 24605976..ce2e860b 100644
+--- a/src/chr/ControlMountle.cpp
++++ b/src/chr/ControlMountle.cpp
+@@ -257,12 +257,14 @@ int ControlGuardMountle::vf0C() {
+         }
+         float speed = m->mTracks[0].m0C;
+         atn::Vector3 move = m08 * m20 * lbl_8087EFA8->m3A4 * speed;
+-        m24 += lbl_8087EFA8->m3A4 * (-98.1f / (lbl_8087F0A8->m30 * lbl_8087F0A8->m30));
++        float scale = lbl_8087EFA8->m3A4;
++        float g = -98.1f / (lbl_8087F0A8->m30 * lbl_8087F0A8->m30);
++        m24 += g * scale;
+         move.y = m24 - 1.0f;
+         atn::Vector3 old = mChara->mPos;
+         CharaTask::Sphere_unk sphere = mChara->fn_80176548(mChara->mPos);
+         unsigned int mask = mChara->fn_80179D44();
+-        int hit = fn_8004D388(lbl_8087EE98, &res, &sphere, &move, mask, &mChara->mColli, 0, sphere.mRadius);
++        int hit = fn_8004D388(lbl_8087EE98, &res, &sphere, &move, mask, mChara->GetColli_unk(), 0, sphere.mRadius);
+         Chara_unk* c = mChara;
+         atn::Vector3 pos = res.m10;
+         pos -= c->m5A4;
