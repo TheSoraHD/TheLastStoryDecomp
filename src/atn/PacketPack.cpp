@@ -564,7 +564,7 @@ struct Manager2 : public atn::Task {
     int mMode;                        // 0x540: inferred: game mode
     int m544;
     int m548;                         // inferred: mode of the last frame
-    unsigned char m054C[0x550 - 0x54C];
+    int m54C;
     int m550;
     unsigned char m0554[0x558 - 0x554];
     int m558;
@@ -2905,6 +2905,38 @@ extern "C" int fn_804DB408(PPManager2_unk* mgr) {
         return mgr->m564 - fn_804DB3B4(mgr);
     }
     return -1;
+}
+
+extern "C" const char* fn_8050F8B0(MpFriendList_unk*, int); // inferred: name of a matchmaking key
+
+// inferred: key of the filter with an int value
+inline atn::net::NetFilterKey_unk::NetFilterKey_unk(const char* key, int value, unsigned int flags)
+    : mKey(key), mType(2), mInt(value), mFlags(flags) {}
+
+// inferred: sets an int key of the matchmaking filter (name invented)
+inline void SetKeyInt_unk(int i, const char* name, int value, unsigned int flags) {
+    atn::net::Manager* net = lbl_8087F628;
+    net->mKeys[i] = atn::net::NetFilterKey_unk(name, value, flags);
+}
+
+// NONMATCHING: 98.82% - r30/r31 of the manager and the friend list swapped, registers of the fourth key and the
+// order of the two zeros of fn_80509B20 (the original leaves r4 unset)
+// inferred: sets the four int keys of the matchmaking filter (mode, m54C, m550 and a value of the friend list) and
+// starts the search
+extern "C" int fn_804DB474(PPManager2_unk* mgr) {
+    int unused; // inferred: the original passes r4 unset
+    atn::net::Manager* net = lbl_8087F628;
+    MpFriendList_unk* list = &net->mFriendList;
+    for (int i = 0; i < 8; i++) {
+        net->mKeys[i].mType = 0;
+    }
+    SetKeyInt_unk(0, fn_8050F8B0(list, 0), mgr->mMode, 0);
+    SetKeyInt_unk(1, fn_8050F8B0(list, 1), mgr->m54C, 0);
+    SetKeyInt_unk(2, fn_8050F8B0(list, 2), mgr->m550, 1);
+    SetKeyInt_unk(3, fn_8050F8B0(list, 3), list->m1E8, 1);
+    int result = lbl_8087F628->fn_80509B20(unused, 0, 0);
+    fn_804FB220(&mgr->mStateVar, 11);
+    return result;
 }
 
 // NONMATCHING: 94.82% - the original takes the zero of the loop as a copy of the index (mr r29, r26), as fn_804DF310

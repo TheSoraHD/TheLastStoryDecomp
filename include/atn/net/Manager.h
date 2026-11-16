@@ -68,7 +68,9 @@ struct MpFriendList_unk {
     unsigned char mUserData[0x40];     // 0x000: DWC user data
     unsigned char mFriends[32][0xC];   // 0x040
     wchar_t mName[16];                 // 0x1C0
-    unsigned char m1E0[0x7F0 - 0x1E0];
+    unsigned char m1E0[0x1E8 - 0x1E0];
+    int m1E8;                          // inferred: value of the fourth matchmaking key (PacketPack fn_804DB474)
+    unsigned char m1EC[0x7F0 - 0x1EC];
     unsigned char m7F0[0x9F8 - 0x7F0]; // 0x7F0: inferred: data saved by the game
     unsigned long long mFriendKey;     // 0x9F8
     int mA00;
@@ -100,6 +102,7 @@ struct NetCallbacks_unk {
 // inferred: one key of the matchmaking filter ("key = value", 0x24 bytes)
 struct NetFilterKey_unk {
     NetFilterKey_unk() : mType(0), mFlags(0) {}
+    NetFilterKey_unk(const char*, int, unsigned int); // inferred: int key (inline in atn/PacketPack.cpp)
 
     std::string mKey;     // 0x00
     unsigned int mType;   // 0x0C: 1 = string, 2 = int
