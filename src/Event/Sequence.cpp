@@ -1118,11 +1118,6 @@ void Sequence::fn_8054204C(int id, const EffectLists_unk& lists) {
     m184.push_back(entry);
 }
 
-// DRAFT: empty stub; not a method of Sequence: weak copy of the construction of an EffectEntry24_unk (allocator,
-// place, source) called by the push_back of fn_8054204C
-// NONMATCHING: stub
-void Sequence::fn_80542684() {
-}
 
 
 // inferred: effect lists of the entry `id` of the list at 0x184
@@ -1176,10 +1171,12 @@ void DataList_unk<Actor>::Add_unk(const char* name, int arg) {
 
 // inferred: never called (the linker removes it): its push_back<Path> emits here the weak copies of the
 // reallocation of vector<Path> that the original keeps in this file (0x80544748, 0x80545290, 0x805455CC,
-// 0x80545B90) and that Event/EventParser_unk.cpp calls
+// 0x80545B90) and that Event/EventParser_unk.cpp calls; it takes the slow path directly, so that the construct
+// and the slow path of push_back<Path> stay in Event/EventParser_unk.cpp (0x8057DC38, 0x8057DB14) as in the
+// original
 template <>
 void DataList_unk<Path>::Add_unk(const char* name, int arg) {
-    push_back(Path(mOwner, name, arg));
+    this->__push_back_slow_unk(Path(mOwner, name, arg));
 }
 
 } // namespace Event

@@ -11,6 +11,7 @@
 
 #include "Event/Path.h"
 #include "Event/Actor.h"
+#include "Event/Sequence.h"
 #include "std/vector.h"
 
 namespace std {
@@ -96,6 +97,29 @@ inline void vector<Event::Actor>::__insert_realloc_unk(size_type n, const Event:
 template <>
 inline void vector<Event::Path>::__insert_realloc_unk(size_type n, const Event::Path& x) {
     __vec_event_unk<Event::Path>::__realloc_unk(*this, n, x);
+}
+
+// inferred: fast path of push_back of elements with a copy constructor: the original reads the size and the
+// capacity directly and calls the construct of the allocator (weak copies 0x80542684 EffectEntry24_unk, called
+// by Sequence::fn_8054204C, and 0x8057DC38 Path, called by ParsePATH_unk)
+template <>
+inline void vector<Event::EffectEntry24_unk>::push_back(const Event::EffectEntry24_unk& x) {
+    if (this->mSize < this->mCap) {
+        this->__alloc_unk().construct(this->mData + this->mSize, x);
+        ++this->mSize;
+    } else {
+        __push_back_slow_unk(x);
+    }
+}
+
+template <>
+inline void vector<Event::Path>::push_back(const Event::Path& x) {
+    if (this->mSize < this->mCap) {
+        this->__alloc_unk().construct(this->mData + this->mSize, x);
+        ++this->mSize;
+    } else {
+        __push_back_slow_unk(x);
+    }
 }
 
 } // namespace std
