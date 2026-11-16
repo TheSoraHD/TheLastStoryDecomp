@@ -163,7 +163,6 @@ void D2AMpMenuMessageList::vf1C() {}
 
 void D2AMpMenuMessageList::vf20() {}
 
-// NONMATCHING: text/layout registers of the message texts
 void D2AMpMenuMessageList::fn_804C38C0(int show) {
     if (SetConfig::sInstance->mInTacviewType == 0) {
         SetPaneText_unk(m48->mLayout, "controllerType", show != 0 ? L"$Bu" : L"");
@@ -174,19 +173,27 @@ void D2AMpMenuMessageList::fn_804C38C0(int show) {
     SetPaneText_unk(m48->mLayout, "string0030(1)", show != 0 ? L"$Bl" : L"");
     {
         const wchar_t* text = show != 0 ? lbl_8087F86C->Get_unk(0x136) : L"";
-        SetPaneText_unk(m48->mLayout, "string0031(1)", text);
+        const char* name = "string0031(1)";
+        void* layout = m48->mLayout;
+        fn_801FEE08(layout, fn_800DC6B4(name), text);
     }
     {
         const wchar_t* text = show != 0 ? lbl_8087F86C->Get_unk(0x137) : L"";
-        SetPaneText_unk(m48->mLayout, "string0032(1)", text);
+        const char* name = "string0032(1)";
+        void* layout = m48->mLayout;
+        fn_801FEE08(layout, fn_800DC6B4(name), text);
     }
     {
         const wchar_t* text = show != 0 ? lbl_8087F86C->Get_unk(0x138) : L"";
-        SetPaneText_unk(m48->mLayout, "string0033(1)", text);
+        const char* name = "string0033(1)";
+        void* layout = m48->mLayout;
+        fn_801FEE08(layout, fn_800DC6B4(name), text);
     }
     {
         const wchar_t* text = show != 0 ? lbl_8087F86C->Get_unk(0x138) : L"";
-        SetPaneText_unk(m48->mLayout, "string0034(1)", text);
+        const char* name = "string0034(1)";
+        void* layout = m48->mLayout;
+        fn_801FEE08(layout, fn_800DC6B4(name), text);
     }
 }
 
