@@ -7367,6 +7367,178 @@ extern "C" void fn_804EED7C() {
     }
 }
 
+#include "gmk/DropItem.h"
+// inferred: payload of the message 6 (a message for a gimmick: id and kind of the gimmick, message, sender);
+// names invented
+struct PPMsgGimmick_unk {
+    unsigned int mId;
+    int m04;
+    int m08;
+    unsigned short mKind;
+    unsigned short mType;
+    atn::Vector3 mVec;
+    unsigned char mSender;   // inferred: 1 none, 2 a player (aid in mSenderId), 3 an entry of the character list
+    unsigned char mSenderId;
+    unsigned char m1E;
+};
+// inferred: payload of the answer 0x1035 to a message 6 (the byte m1E and the gimmick taken, -1 when it was taken
+// already); not padded on the network
+#pragma pack(push, 1) // inferred: network payload without padding
+struct PPMsgGimmickAnswer_unk {
+    unsigned char m00;
+    int mId;
+    int mKind;
+};
+#pragma pack(pop)
+// inferred: character of the player of network id `aid` (slots in use only)
+static inline CharaTask* PPCharaOfAid_unk(PPManager2_unk* mgr, const unsigned char& aid) {
+    for (int i = 0; i < mgr->mPlayers.mNum; i++) {
+        if (mgr->mPlayers.mData[i].mFlags.mActive == 1 && aid == mgr->mPlayers.mData[i].mAid) {
+            return mgr->mPlayers.mData[i].mRef.mChara;
+        }
+    }
+    return 0;
+}
+// NONMATCHING: 98.47% - the found character of the inlined search is read with the loop offset (here the
+// index again), the server test materialized (cntlzw) in the original, registers
+// inferred: message 6 (in the game): the message `mType` for the gimmick `mId`/`mKind`, from the character of the
+// sender. On cannonballs (type 7) message 2 takes one (the server keeps the aid in m520), message 3 with -1
+// drops it on the server (the others only forget it) and messages 3 and 5 let it go; the server answers a taken
+// cannonball or drop item (message 0x1035, answered after the loop with m99B0)
+extern "C" void fn_804EF0F0(unsigned int aid) {
+    if (((PPManager2_unk*)lbl_8087F610)->mStateVar.mValue != 30) {
+        return;
+    }
+    PPMsgGimmick_unk* data = (PPMsgGimmick_unk*)fn_804AE3BC()->GetWorkBuffer_unk();
+    for (GimmickCommon* gimmick = GimmickManager::instance_->mHead; gimmick != 0; gimmick = gimmick->m5C) {
+        if (data->mId != gimmick->mId || data->mKind != gimmick->m4C) {
+            continue;
+        }
+        gimmick->mFlags &= ~4;
+        fn_8014F8F4()->mEnabled = 0;
+        GimmickMsg_unk msg(data->mType);
+        PPManager2_unk* mgr = (PPManager2_unk*)lbl_8087F610;
+        msg.m04 = data->m04;
+        msg.m08 = data->m08;
+        msg.m0C = 1;
+        msg.mVec = data->mVec;
+        CharaTask* chara;
+        switch (data->mSender) {
+        case 1:
+            chara = 0;
+            break;
+        case 2:
+            chara = PPCharaOfAid_unk(mgr, data->mSenderId);
+            break;
+        case 3:
+            chara = (unsigned int)mgr->mCharas.mNum > data->mSenderId ? mgr->mCharas.mData[data->mSenderId].mRef.mChara
+                                                                     : 0;
+            break;
+        default:
+            chara = 0;
+            break;
+        }
+        msg.m10 = (int)chara;
+        bool taken = false;
+        if (gimmick->m50 == 7) {
+            int forward = 1;
+            if (msg.m08 <= 0) {
+                gmk::Cannonball* cannon = dynamic_cast<gmk::Cannonball*>(gimmick);
+                if (data->mType == 2) {
+                    taken = true;
+                    forward = msg.m08 != -1;
+                    if (aid == lbl_8087F628->GetServerAid_unk() && cannon != 0) {
+                        cannon->m520 = aid;
+                    }
+                } else if (data->mType == 3) {
+                    if (msg.m08 == -1) {
+                        forward = 0;
+                        if (lbl_8087F628->GetMyAid_unk() == lbl_8087F628->GetServerAid_unk()) {
+                            CharaTask* holder = (CharaTask*)msg.m10;
+                            if (holder != 0 && holder->m1208 != 0) {
+                                holder->m1208 = 0;
+                            }
+                            if (cannon != 0 && aid == cannon->m520) {
+                                cannon->m520 = 0xFF;
+                                msg.m08 = 0;
+                                fn_8014F8F4()->mEnabled = 1;
+                                gimmick->vf40(&msg);
+                                fn_8014F8F4()->mEnabled = 0;
+                                msg.m08 = -1;
+                            }
+                        }
+                    } else {
+                        CharaTask* holder = (CharaTask*)msg.m10;
+                        if (holder != 0) {
+                            holder->m1208 = 0;
+                        }
+                        if (cannon != 0) {
+                            cannon->m520 = 0xFF;
+                        }
+                    }
+                } else if (data->mType == 5) {
+                    CharaTask* holder = (CharaTask*)msg.m10;
+                    if (holder != 0) {
+                        holder->m1208 = 0;
+                    }
+                    if (cannon != 0) {
+                        cannon->m520 = 0xFF;
+                    }
+                }
+            }
+            if ((!taken || lbl_8087F628->GetMyAid_unk() != lbl_8087F628->GetServerAid_unk()) && forward != 0) {
+                gimmick->vf40(&msg);
+            }
+        } else {
+            gimmick->vf40(&msg);
+        }
+        if ((lbl_8087F628->GetMyAid_unk() == lbl_8087F628->GetServerAid_unk()) == 1) {
+            if (taken == true) {
+                gmk::Cannonball* cannon = dynamic_cast<gmk::Cannonball*>(gimmick);
+                if (cannon != 0) {
+                    NetMsgI_unk<PPMsgGimmickAnswer_unk> answer(0x1035);
+                    PPMsgGimmickAnswer_unk* out = &answer.mData;
+                    out->m00 = data->m1E;
+                    if (cannon->m520 == 0xFF) {
+                        out->mId = data->mId;
+                        out->mKind = data->mKind;
+                        cannon->m520 = aid;
+                        gimmick->vf40(&msg);
+                    } else {
+                        out->mId = -1;
+                        out->mKind = -1;
+                    }
+                    fn_804AE3BC()->fn_8050E094(aid, 0x1035, out, 1);
+                    ((PPManager2_unk*)lbl_8087F610)->m99B0 = 1;
+                    ((PPManager2_unk*)lbl_8087F610)->m99B1 = aid;
+                    ((PPManager2_unk*)lbl_8087F610)->m99B4 = 1;
+                }
+            } else if (gimmick->m50 == 18 && data->mType == 5) {
+                gmk::DropItem* drop = dynamic_cast<gmk::DropItem*>(gimmick);
+                if (drop != 0) {
+                    NetMsgI_unk<PPMsgGimmickAnswer_unk> answer(0x1035);
+                    PPMsgGimmickAnswer_unk* out = &answer.mData;
+                    out->m00 = data->m1E;
+                    if (drop->m29C == 0xFF) {
+                        out->mId = data->mId;
+                        out->mKind = data->mKind;
+                        drop->m29C = aid;
+                    } else {
+                        out->mId = -1;
+                        out->mKind = -1;
+                    }
+                    fn_804AE3BC()->fn_8050E094(aid, 0x1035, out, 1);
+                    ((PPManager2_unk*)lbl_8087F610)->m99B0 = 1;
+                    ((PPManager2_unk*)lbl_8087F610)->m99B1 = aid;
+                    ((PPManager2_unk*)lbl_8087F610)->m99B4 = 1;
+                }
+            }
+        }
+        fn_8014F8F4()->mEnabled = 1;
+        return;
+    }
+}
+
 
 // inferred: data of message 7 (a hit received by a character from another player); names invented
 struct PPMsgDamage_unk {
