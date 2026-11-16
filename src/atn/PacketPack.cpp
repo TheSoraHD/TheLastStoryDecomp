@@ -2898,13 +2898,14 @@ void MP::Manager2::vf10() {
         if (own != 0 && own->mRef.mChara != 0) {
             fn_804D63A8(own->mRef.mChara, 0);
         }
+        int level = 56;
         for (int i = 0; i < fn_804D810C(&mgr->mCharas); i++) {
             PPCharaEntry_unk* entry = fn_804D64A4(&mgr->mCharas, i);
             if (entry->mRef.mChara == 0) {
                 continue;
             }
             if (fn_804D63D8(entry->mRef.mChara)->mC8 >= 0) {
-                ((float*)entry->mRef.mChara->GetStatus_unk())[0x1B0 / 4] = 56;
+                ((float*)entry->mRef.mChara->GetStatus_unk())[0x1B0 / 4] = level;
             }
             entry->mRef.mChara->GetStatus_unk()->fn_8012B3E8();
             entry->mRef.mChara->GetStatus_unk()->fn_8012B988();
