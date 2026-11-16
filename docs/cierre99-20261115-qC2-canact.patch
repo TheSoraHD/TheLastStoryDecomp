@@ -1,0 +1,31 @@
+diff --git a/include/game/CharaTask.h b/include/game/CharaTask.h
+index 3cb8850..2d86390 100644
+--- a/include/game/CharaTask.h
++++ b/include/game/CharaTask.h
+@@ -1057,8 +1057,9 @@ public:
+         return result;
+     }
+     // inferred: state checks inlined in many places (names invented)
+-    bool IsActive_unk() { return (mFlags & 4) != 4 && (mFlags & 1) != 1; }
+-    bool IsFree_unk() { return IsActive_unk() && (mStatus.m0C & 0x20) != 0x20; }
++    // inferred: through Task::IsFlag_unk and CharaStatus::IsState_unk (Em309GhoulSimple::vf10, 0x8030646C)
++    bool IsActive_unk() { return !IsFlag_unk(4) && !IsFlag_unk(1); }
++    bool IsFree_unk() { return IsActive_unk() && !mStatus.IsState_unk(0x20); }
+     bool IsGrappled_unk() { return m55C == 6 && m560 == 28; }
+     bool CanAct_unk() { return IsFree_unk() && !IsGrappled_unk(); }
+     bool HasPart674_unk() { return m674 >= 0 ? true : false; } // inferred: name invented (0x80149A30)
+diff --git a/src/gmk/Augur.cpp b/src/gmk/Augur.cpp
+index dae5565..9e37ac3 100644
+--- a/src/gmk/Augur.cpp
++++ b/src/gmk/Augur.cpp
+@@ -236,7 +236,9 @@ CharaTask* Augur::fn_8041F434(CharaTask* last) {
+         if (npc->m55C != 2) {
+             continue;
+         }
+-        if (!npc->IsActive_unk()) {
++        // inferred: the mask test written out (CharaTask::IsActive_unk goes through IsFlag_unk and reloads mFlags)
++        bool active = (npc->mFlags & 4) != 4 && (npc->mFlags & 1) != 1;
++        if (!active) {
+             continue;
+         }
+         if ((npc->mFlags & 0xDEAD0000) == 0xDEAD0000) {
