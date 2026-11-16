@@ -2,6 +2,7 @@
 // of an event. One TU with the inline virtuals of Event::StringData/DummyData (0x805430E8) and the
 // template instances emitted after them (vector growth, DataList_unk::SetOwner_unk...).
 #include "Event/Sequence.h"
+#include "Event/EventVector_unk.h"
 #include "game/GameTask.h"
 #include "Event/Cut.h"
 #include "Event/Action.h"
@@ -1171,6 +1172,14 @@ void DummyData::vf08() {}
 template <>
 void DataList_unk<Actor>::Add_unk(const char* name, int arg) {
     push_back(Actor(mOwner, name, arg));
+}
+
+// inferred: never called (the linker removes it): its push_back<Path> emits here the weak copies of the
+// reallocation of vector<Path> that the original keeps in this file (0x80544748, 0x80545290, 0x805455CC,
+// 0x80545B90) and that Event/EventParser_unk.cpp calls
+template <>
+void DataList_unk<Path>::Add_unk(const char* name, int arg) {
+    push_back(Path(mOwner, name, arg));
 }
 
 } // namespace Event

@@ -3,6 +3,7 @@
 // that fills the Event::Sequence being loaded. Handler names are built from the tags; the other names are
 // invented.
 #include "Event/Sequence.h"
+#include "Event/EventVector_unk.h"
 #include "Event/Cut.h"
 #include "Event/Action.h"
 #include "Event/Path.h"
