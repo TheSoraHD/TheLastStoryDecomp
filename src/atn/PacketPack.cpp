@@ -357,6 +357,7 @@ struct PPPair_unk {
     int m04;
 };
 struct PPPlayerState_unk {
+    PPPlayerState_unk() {} // inferred: some constructor (the copy in the swap 0x804E0CE4 is member by member)
     int m00;
     int m04;
     float m08;
@@ -397,12 +398,51 @@ struct PPEquipHead_unk {
     int m08;
     PPEquipItem_unk mItems[8];
 };
+extern "C" unsigned long wcslen(const wchar_t* s);
+extern "C" wchar_t* wmemcpy(wchar_t* dst, const wchar_t* src, unsigned long n);
+// inferred: wide name of an equipment (32 characters): the assignment copies the text (wcslen + wmemcpy when
+// the buffers differ, as the wide atn::static_string of game/PopupTask.h), the copy constructor the whole
+// buffer, no destructor (layout from the swap 0x804E0CE4); name invented
+struct PPWideName_unk {
+    PPWideName_unk& operator=(const PPWideName_unk& o) {
+        const wchar_t* str = o.mStr;
+        if (str != mStr) {
+            wmemcpy(mStr, str, wcslen(str) + 1);
+        }
+        return *this;
+    }
+    wchar_t mStr[32];
+};
+// inferred: entry of an equipment (0x14 bytes, 32 of them at 0x50; layout from the copy in the swap
+// 0x804E0CE4); names invented
+struct PPEquipSlot_unk {
+    PPEquipSlot_unk() {} // inferred: some constructor (copied member by member in the swap 0x804E0CE4)
+    short m00;
+    short m02;
+    float m04;
+    float m08;
+    float m0C;
+    float m10;
+};
+// inferred: the entries of an equipment (assigned as one block); names invented
+struct PPEquipSlots_unk {
+    PPEquipSlot_unk m[32];
+};
+// inferred: second part of an equipment (from 0x4C; the swap 0x804E0CE4 assigns it through its own source
+// pointer); names invented
+struct PPEquipBody_unk {
+    int m00;
+    PPEquipSlots_unk m04;
+    int m284;
+    PPWideName_unk m288;
+};
 struct PPEquip_unk {
+    PPEquip_unk() {} // inferred: some constructor (the copy in the swap 0x804E0CE4 is member by member)
     int m00;
     PPEquipBits_unk m04;
     int m08;
     PPEquipItem_unk mItems[8];
-    unsigned char m04C[0x314 - 0x4C];
+    PPEquipBody_unk m4C;
     // inferred: copies the part sent by message 0x1C
     void Set_unk(const PPEquipHead_unk& head) {
         m00 = head.m00;
@@ -438,15 +478,21 @@ struct PPPlayer_unk {
     PPPlayer_unk(); // inferred: weak copy 0x804D16F8 (0x874 bytes), not written yet
     ~PPPlayer_unk() {} // inferred: weak copy 0x804D1FD8 (destruction of m2B8C in the destructor of MP::Manager2)
     MpCharaRef_unk mRef;              // 0x00: inferred: the character of the player
-    unsigned char m004[4];            // inferred: copy of the character information (fn_804D8078)
-    void* m08;
-    void* m0C;
-    unsigned char m010[0x34 - 0x10];
+    union {
+        int m004[12];                 // inferred: copy of the character information (fn_804D8078)
+        struct {
+            int m04;
+            void* m08;
+            void* m0C;
+        };
+    };
     PPPlayerState_unk m34;            // inferred: state sent by message 0x16
-    int mB0;
-    unsigned char m0B4[0xCC - 0xB4];
+    union {
+        int mB0;
+        int m0B0[6];
+    };
+    int mC8;
     unsigned char mAid;               // 0xCC: inferred: network id of the player
-    unsigned char m0CD[0xD0 - 0xCD];
     union {
         PPPlayerFlags_unk mFlags;     // 0xD0
         unsigned int mFlagWord;       // inferred: the flags as a word (cleared at once)
@@ -1725,7 +1771,7 @@ MP::Manager2::Manager2(atn::Task* parent)
     void* schedule = fn_8008937C(menu, "Schedule");
     for (unsigned int i = 0; i < 30; i++) {
         char name[256];
-        sprintf(name, "%d", i);
+        sprintf(name, "%d\0", i);
         fn_800874C8(schedule, name, &lbl_80790F78[i], 0, 255, 1, 0, 0);
     }
 
@@ -2614,7 +2660,7 @@ void MP::Manager2::vf10() {
                 }
                 PPCharaData_unk* data = fn_804D63D8(player->mRef.mChara);
                 if (data != 0 && data->mC8 >= 0) {
-                    sprintf(name, "%s", ((const char**)player->mRef.mChara->GetInfo_unk())[0x14 / 4]);
+                    sprintf(name, "%s\0", ((const char**)player->mRef.mChara->GetInfo_unk())[0x14 / 4]);
                     int len = strlen(name);
                     if (mgr->mMode == 1) {
                         name[len - 3] += 1;
@@ -3326,8 +3372,7 @@ static inline int PPCountTeam_unk(PPManager2_unk* mgr, unsigned int team) {
 }
 static inline int PPTeamScore_unk(const PPManager2_unk* mgr, int team);
 
-// NONMATCHING: 95.91% - branch layout of the rank tests (unsigned range checks here), registers and the pool
-// offset of "SE_UICOM_008" (unreferenced "" of the ctor and of vf10 missing)
+// NONMATCHING: 95.92% - branch layout of the rank tests (unsigned range checks here) and registers
 // inferred: rewards of the end of the game: an item by the rank of the own player (another set when less than a
 // minute was left) and, in the team mode, two items when the own team had fewer players and lost by 40 or more
 extern "C" void fn_804DA690(PPManager2_unk* mgr) {
@@ -3492,7 +3537,23 @@ extern "C" int fn_804DBD08(PPManager2_unk* mgr, int mode) {
     return 1;
 }
 
-// NONMATCHING: the "," is at +0x19D of the pool of the unit (lbl_80759E48), not written yet
+// inferred: room status written in the first field of the status string (by fn_804DC450)
+const char* lbl_80791190[] = {"0", "1", "2", "3", "4", "5"};
+// inferred: game mode written in the second field of the status string (names of modes 0-2)
+const char* lbl_807911A8[] = {"0", "1", "2"};
+// inferred: field of the game mode (0 with no mode, "9" off line). Not inline: inlined by MWCC (auto inline) in
+// fn_804DC114, fn_804DC450 and fn_804DC684, and its own copy removed by the linker; its "9" goes to
+// @stringBase0 here, before the "," of fn_804DBE24, as in the original
+const char* GetModeField_unk(int mode) {
+    if (mode >= 3) {
+        return 0;
+    }
+    if (mode < 0) {
+        return "9";
+    }
+    return lbl_807911A8[mode];
+}
+
 // inferred: splits `text` at the commas into its 6 fields (the last one runs to the end); 0 if a comma is
 // missing. Empty fields are stored as null pointers
 extern "C" int fn_804DBE24(PPManager2_unk* mgr, char* text, char** fields) {
@@ -3508,13 +3569,12 @@ extern "C" int fn_804DBE24(PPManager2_unk* mgr, char* text, char** fields) {
             }
         }
         if (text == end) {
-            *fields = 0;
+            fields[i] = 0;
         } else {
-            *fields = text;
+            fields[i] = text;
         }
         *end = 0;
         text = end + 1;
-        fields++;
     }
     return 1;
 }
@@ -3531,22 +3591,6 @@ extern "C" int fn_804DBEC8(PPManager2_unk* mgr, int id, char* buf, char** fields
 
 // inferred: messages sent in each frame of a cycle of 30 (bit 1: character states, fn_804E6518)
 int lbl_80790F78[30] = {14, 0, 2, 0, 2, 0, 14, 0, 2, 0, 2, 0, 14, 0, 2, 0, 2, 0, 14, 0, 2, 0, 2, 0, 14, 0, 2, 0, 2, 0};
-// inferred: room status written in the first field of the status string (by fn_804DC450)
-const char* lbl_80791190[] = {"0", "1", "2", "3", "4", "5"};
-// inferred: game mode written in the second field of the status string (names of modes 0-2)
-const char* lbl_807911A8[] = {"0", "1", "2"};
-// inferred: field of the game mode (0 with no mode, "9" off line)
-static inline const char* GetModeField_unk(int mode) {
-    if (mode >= 3) {
-        return 0;
-    }
-    if (mode < 0) {
-        return "9";
-    }
-    return lbl_807911A8[mode];
-}
-
-// NONMATCHING: only the offset of "9" in @stringBase0 (0x19B in the original, after strings of functions not written)
 // inferred: room status (1-5, the first field) of the status message of the friend `id` if its game mode matches
 // the own one (-1 if not)
 extern "C" int fn_804DC114(PPManager2_unk* mgr, int id) {
@@ -3662,7 +3706,6 @@ static inline int GetNumHosts_unk(atn::net::Manager* net) {
 extern "C" char* fn_800DC97C(int value, char* buf, int radix); // inferred: itoa (atn/Util_unk.cpp)
 extern "C" std::basic_string<wchar_t> fn_8050F464(MpFriendList_unk*); // inferred: own friend code as text
 extern "C" int DWC_SetOwnStatusString(const char* status);
-// NONMATCHING: offsets of the strings in @stringBase0 (strings of functions not written before them)
 // inferred: writes the own status string: room status `status`, game mode, name, number of hosts, 6 and friend code
 extern "C" int fn_804DC450(PPManager2_unk* mgr, int status) {
     if (mgr->mState == -1) {
@@ -3698,8 +3741,7 @@ extern "C" int fn_804DC450(PPManager2_unk* mgr, int status) {
     return DWC_SetOwnStatusString(text);
 }
 
-// NONMATCHING: offsets of the strings in @stringBase0 (strings of functions not written before them)
-// inferred: writes the own status string: room status 0, mode "9", name (none in state 0x8B) and friend code
+// inferred: writes the own status string: room status 0, mode "9" (off line, GetModeField_unk), name (none in state 0x8B) and friend code
 extern "C" __declspec(noinline) int fn_804DC684(PPManager2_unk* mgr) {
     if (mgr->mState == -1) {
         return 0;
@@ -3714,7 +3756,7 @@ extern "C" __declspec(noinline) int fn_804DC684(PPManager2_unk* mgr) {
         name[0] = 0;
     }
     fn_8006F420(lbl_8087EEC8, code, fn_8050F464(list).c_str(), fn_8050F464(list).size() * 2);
-    sprintf(status, "%s,%s,%s,%s,%s,%s", lbl_80791190[0], "9", name, "", "", code);
+    sprintf(status, "%s,%s,%s,%s,%s,%s", lbl_80791190[0], GetModeField_unk(-1), name, "", "", code);
     return DWC_SetOwnStatusString(status) != 0;
 }
 
@@ -4230,10 +4272,21 @@ extern "C" int fn_804DF404(PPManager2_unk* mgr) {
     return 1;
 }
 
-// inferred: comparator of the players by score (higher first)
-extern "C" int fn_804E09AC(void* unused, const PPPlayer_unk* a, const PPPlayer_unk* b) {
-    return a->mD58 > b->mD58;
-}
+#include "game/MslSort_unk.h"
+
+// inferred: order of the players by score (higher first): predicate of the std::sort at the end of fn_804DF4B8
+// (not written yet); defined after its user, so the sort calls it out of line (0x804E09AC). Name invented
+struct PPScoreLess_unk {
+    bool operator()(const PPPlayer_unk& a, const PPPlayer_unk& b) const { return a.mD58 > b.mD58; }
+};
+// inferred: emitted here in the original, after fn_804DF4B8 (its only caller, not written yet): 0x804E0694
+// (comparison by value), 0x804E09CC (by reference), the swap 0x804E0CE4, the median 0x804E2840 and the
+// selection sort 0x804E291C
+// NONMATCHING: the swap 0x804E0CE4 (97.73%) and the selection sort 0x804E291C (99.35%, the swap inlined): the
+// original assigns the second part of each equipment (PPEquipBody_unk) through a copy of its source pointer
+// (`addi r5, src, 0x134; mr r6, r5`), the mAid byte of the copy is loaded before the loop addresses, and
+// registers of the loop invariant addresses
+template void MslSort_unk<PPPlayer_unk*, PPScoreLess_unk>(PPPlayer_unk*, PPPlayer_unk*, PPScoreLess_unk);
 
 extern "C" void* fn_80211480(int code); // inferred: entry of an item code
 // inferred: adds the items won in the game to the save data and saves
@@ -5087,8 +5140,7 @@ inline int& GetDebugMatchValue_unk() {
     return sValue;
 }
 
-// NONMATCHING: 99.54% - offset of "notexiststring" in @stringBase0 (the two unreferenced "" missing) and the
-// registers of the friend list and the loop offset swapped
+// NONMATCHING: 99.69% - registers of the friend list and the loop offset swapped
 // inferred: evaluation callback of the matchmaking (m99C0.mFuncs[2]): -1 if the session `index` lacks the debug
 // key or one of the filter keys or has another value; else the closeness of the fourth key (0x80 - distance,
 // in the upper half), 0x800000 if m25C is 1
@@ -5240,8 +5292,7 @@ extern "C" const void* fn_804EE4E4(const void* data);
 extern "C" void fn_804EE4E8(atn::net::PacketPack* pack, unsigned int aid, unsigned short size);
 extern "C" void fn_804EE4EC(atn::net::PacketPack* pack, const void* data, unsigned short size);
 
-// NONMATCHING: 99.81% - offset of "update loc\n" in @stringBase0 (pool not complete), the zero of m99B0 and the
-// switch value in other registers
+// NONMATCHING: 99.83% - the zero of m99B0 and the switch value in other registers
 // inferred: receive loop: the packet of `aid` (a new player gets a slot), then each of its messages goes to
 // its handler (in the work buffer); the answer asked by message 0x35 is sent after the loop
 extern "C" int fn_804EE040(unsigned int aid, void* data, unsigned int size) {
@@ -6027,8 +6078,7 @@ extern "C" void fn_804F1F34(PPPlayer_unk* player) {
 
 #include "game/SpecialEnemyBase.h"
 
-// NONMATCHING: 99.58% - r3/r5 of the inlined FindTeam_unk (as fn_804F2258) and the offset of "enemy_status\n" in
-// @stringBase0 ("notexiststring" of fn_804EDB0C and two unreferenced "" missing)
+// NONMATCHING: 99.63% - r3/r5 of the inlined FindTeam_unk (as fn_804F2258)
 // inferred: state of a character received from the server (only in the game, state 30): the character of a team
 // player (not the own one), or of the character list (index in the data); with `type` 26 the special enemies also
 // restore their state (vf114) from +0x15 of the data
@@ -6067,7 +6117,7 @@ extern "C" void fn_804F2040(unsigned int type) {
     }
 }
 
-// NONMATCHING: 99.67% - offset of "enemy_sync\n" in @stringBase0 (pool not complete) and r3/r5 of the inlined search
+// NONMATCHING: 99.72% - r3/r5 of the inlined search
 // inferred: state of a player slot (network id mAid) or of a character of the list (index mAid) received from the
 // server; a character of the list is revived or killed to follow the value m00
 extern "C" void fn_804F2258() {

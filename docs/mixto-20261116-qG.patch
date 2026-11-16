@@ -1,0 +1,314 @@
+diff --git a/config/SLSP01/symbols.txt b/config/SLSP01/symbols.txt
+index f05099ff..40aacd3a 100644
+--- a/config/SLSP01/symbols.txt
++++ b/config/SLSP01/symbols.txt
+@@ -10713,7 +10713,7 @@ fn_804D16D4 = .text:0x804D16D4; // type:function size:0x8
+ fn_804D16DC = .text:0x804D16DC; // type:function size:0x8
+ fn_804D16E4 = .text:0x804D16E4; // type:function size:0xC
+ fn_804D16F0 = .text:0x804D16F0; // type:function size:0x8
+-fn_804D16F8 = .text:0x804D16F8; // type:function size:0x874
++__ct__12PPPlayer_unkFv = .text:0x804D16F8; // type:function size:0x874
+ fn_804D1F6C = .text:0x804D1F6C; // type:function size:0x6C
+ __dt__12PPPlayer_unkFv = .text:0x804D1FD8; // type:function size:0x40
+ __dt__Q22MP8Manager2Fv = .text:0x804D2018; // type:function size:0x490
+@@ -22392,10 +22392,10 @@ sTimes__Q22MP16D2AMpMenuSetRule = .rodata:0x807595E0; // type:object size:0x10 d
+ @2603 = .rodata:0x807595F0; // type:object size:0x8 scope:local align:8 data:double
+ lbl_807595F8 = .rodata:0x807595F8; // type:object size:0x15 data:string
+ @stringBase0 = .rodata:0x80759610; // type:object size:0xDA scope:local data:string_table
+-@14775 = .rodata:0x807596F0; // type:object size:0x28 scope:local data:4byte
+-@14783 = .rodata:0x80759718; // type:object size:0x28 scope:local data:4byte
+-@28308 = .rodata:0x80759740; // type:object size:0x8 scope:local align:8 data:double
+-@28309 = .rodata:0x80759748; // type:object size:0x8 scope:local align:8 data:double
++@14819 = .rodata:0x807596F0; // type:object size:0x28 scope:local data:4byte
++@14827 = .rodata:0x80759718; // type:object size:0x28 scope:local data:4byte
++@28463 = .rodata:0x80759740; // type:object size:0x8 scope:local align:8 data:double
++@28464 = .rodata:0x80759748; // type:object size:0x8 scope:local align:8 data:double
+ lbl_80759750 = .rodata:0x80759750; // type:object size:0x1D data:string
+ lbl_80759770 = .rodata:0x80759770; // type:object size:0x20 data:string
+ lbl_80759790 = .rodata:0x80759790; // type:object size:0x20 data:string
+@@ -22454,7 +22454,7 @@ lbl_80759B30 = .rodata:0x80759B30; // type:object size:0x10 data:string
+ lbl_80759B40 = .rodata:0x80759B40; // type:object size:0xD data:string
+ lbl_80759B50 = .rodata:0x80759B50; // type:object size:0xC data:string
+ lbl_80759B5C = .rodata:0x80759B5C; // type:object size:0xF data:string
+-@11001 = .rodata:0x80759B6C; // type:object size:0x68 scope:local data:4byte
++@11034 = .rodata:0x80759B6C; // type:object size:0x68 scope:local data:4byte
+ lbl_80759BD4 = .rodata:0x80759BD4; // type:object size:0xAC data:4byte
+ lbl_80759C80 = .rodata:0x80759C80; // type:object size:0x48
+ lbl_80759CC8 = .rodata:0x80759CC8; // type:object size:0x68 data:4byte
+@@ -29608,9 +29608,9 @@ lbl_807C8AB0 = .bss:0x807C8AB0; // type:object size:0x18 align:4 data:float
+ @LOCAL@assign_to<PFQ23atn6SpherePv_PQ23atn5Scene>__Q25boost62function2<PQ23atn5Scene,Q23atn6Sphere,Pv,Q23std12allocator<v>>FPFQ23atn6SpherePv_PQ23atn5Scene_v@stored_vtable = .bss:0x807C8AC8; // type:object size:0x8 data:4byte
+ @347 = .bss:0x807C8AD0; // type:object size:0xC scope:local
+ @348 = .bss:0x807C8ADC; // type:object size:0xC scope:local
+-@10478 = .bss:0x807C8AE8; // type:object size:0x28 scope:local
++@10511 = .bss:0x807C8AE8; // type:object size:0x28 scope:local
+ lbl_807C8B10 = .bss:0x807C8B10; // type:object size:0x438 data:4byte
+-@10908 = .bss:0x807C8F48; // type:object size:0x20 scope:local
++@10941 = .bss:0x807C8F48; // type:object size:0x20 scope:local
+ lbl_807C8F68 = .bss:0x807C8F68; // type:object size:0xC
+ lbl_807C8F74 = .bss:0x807C8F74; // type:object size:0xC
+ @1256 = .bss:0x807C8F80; // type:object size:0xC scope:local
+@@ -39360,15 +39360,15 @@ lbl_808874B4 = .sdata2:0x808874B4; // type:object size:0x4 align:4 data:float
+ @2358 = .sdata2:0x80887564; // type:object size:0x4 scope:local align:4 data:float
+ @2382 = .sdata2:0x80887568; // type:object size:0x4 scope:local align:4 data:float
+ @2671 = .sdata2:0x8088756C; // type:object size:0x4 scope:local align:4 data:float
+-@28296 = .sdata2:0x80887570; // type:object size:0x4 scope:local align:4 data:float
+-@28297 = .sdata2:0x80887574; // type:object size:0x4 scope:local align:4 data:float
+-@28298 = .sdata2:0x80887578; // type:object size:0x4 scope:local align:4 data:float
+-@28299 = .sdata2:0x8088757C; // type:object size:0x4 scope:local align:4 data:float
+-@28300 = .sdata2:0x80887580; // type:object size:0x4 scope:local align:4 data:float
+-@28301 = .sdata2:0x80887584; // type:object size:0x4 scope:local align:4 data:float
+-@28302 = .sdata2:0x80887588; // type:object size:0x4 scope:local align:4 data:float
+-@28303 = .sdata2:0x8088758C; // type:object size:0x4 scope:local align:4 data:float
+-@28385 = .sdata2:0x80887590; // type:object size:0x4 scope:local align:4 data:float
++@28451 = .sdata2:0x80887570; // type:object size:0x4 scope:local align:4 data:float
++@28452 = .sdata2:0x80887574; // type:object size:0x4 scope:local align:4 data:float
++@28453 = .sdata2:0x80887578; // type:object size:0x4 scope:local align:4 data:float
++@28454 = .sdata2:0x8088757C; // type:object size:0x4 scope:local align:4 data:float
++@28455 = .sdata2:0x80887580; // type:object size:0x4 scope:local align:4 data:float
++@28456 = .sdata2:0x80887584; // type:object size:0x4 scope:local align:4 data:float
++@28457 = .sdata2:0x80887588; // type:object size:0x4 scope:local align:4 data:float
++@28458 = .sdata2:0x8088758C; // type:object size:0x4 scope:local align:4 data:float
++@28540 = .sdata2:0x80887590; // type:object size:0x4 scope:local align:4 data:float
+ lbl_80887594 = .sdata2:0x80887594; // type:object size:0x4 data:4byte
+ lbl_80887598 = .sdata2:0x80887598; // type:object size:0x4 data:4byte
+ lbl_8088759C = .sdata2:0x8088759C; // type:object size:0x4 data:4byte
+@@ -39376,16 +39376,16 @@ lbl_808875A0 = .sdata2:0x808875A0; // type:object size:0x4 data:4byte
+ lbl_808875A4 = .sdata2:0x808875A4; // type:object size:0x4 data:4byte
+ lbl_808875A8 = .sdata2:0x808875A8; // type:object size:0x4 data:4byte
+ lbl_808875AC = .sdata2:0x808875AC; // type:object size:0x4 data:4byte
+-@28386 = .sdata2:0x808875B0; // type:object size:0x4 scope:local align:4 data:float
+-@28387 = .sdata2:0x808875B4; // type:object size:0x4 scope:local align:4 data:float
+-@28692 = .sdata2:0x808875B8; // type:object size:0x4 scope:local align:4 data:float
+-@28693 = .sdata2:0x808875BC; // type:object size:0x4 scope:local align:4 data:float
+-@28694 = .sdata2:0x808875C0; // type:object size:0x4 scope:local align:4 data:float
++@28541 = .sdata2:0x808875B0; // type:object size:0x4 scope:local align:4 data:float
++@28542 = .sdata2:0x808875B4; // type:object size:0x4 scope:local align:4 data:float
++@28847 = .sdata2:0x808875B8; // type:object size:0x4 scope:local align:4 data:float
++@28848 = .sdata2:0x808875BC; // type:object size:0x4 scope:local align:4 data:float
++@28849 = .sdata2:0x808875C0; // type:object size:0x4 scope:local align:4 data:float
+ lbl_808875C4 = .sdata2:0x808875C4; // type:object size:0x4 align:4 data:float
+ lbl_808875C8 = .sdata2:0x808875C8; // type:object size:0x4 align:4 data:float
+-@30755 = .sdata2:0x808875CC; // type:object size:0x4 scope:local align:4 data:float
+-@30754 = .sdata2:0x808875D0; // type:object size:0x4 scope:local align:4 data:float
+-@30757 = .sdata2:0x808875D4; // type:object size:0x4 scope:local align:4 data:float
++@29140 = .sdata2:0x808875CC; // type:object size:0x4 scope:local align:4 data:float
++@31194 = .sdata2:0x808875D0; // type:object size:0x4 scope:local align:4 data:float
++@31196 = .sdata2:0x808875D4; // type:object size:0x4 scope:local align:4 data:float
+ lbl_808875D8 = .sdata2:0x808875D8; // type:object size:0x4 scope:local align:4 data:float
+ lbl_808875DC = .sdata2:0x808875DC; // type:object size:0x4 align:4 data:float
+ lbl_808875E0 = .sdata2:0x808875E0; // type:object size:0x2 data:string
+@@ -39394,20 +39394,20 @@ lbl_808875E8 = .sdata2:0x808875E8; // type:object size:0x2 data:string
+ lbl_808875EC = .sdata2:0x808875EC; // type:object size:0x2 data:string
+ lbl_808875F0 = .sdata2:0x808875F0; // type:object size:0x2 data:string
+ lbl_808875F4 = .sdata2:0x808875F4; // type:object size:0x2 data:string
+-@32453 = .sdata2:0x808875F8; // type:object size:0x4 scope:local align:4 data:float
++@32892 = .sdata2:0x808875F8; // type:object size:0x4 scope:local align:4 data:float
+ lbl_808875FC = .sdata2:0x808875FC; // type:object size:0x4 align:4 data:float
+ lbl_80887600 = .sdata2:0x80887600; // type:object size:0x4 align:4 data:float
+ lbl_80887604 = .sdata2:0x80887604; // type:object size:0x4 align:4 data:float
+ lbl_80887608 = .sdata2:0x80887608; // type:object size:0x4 align:4 data:float
+ lbl_8088760C = .sdata2:0x8088760C; // type:object size:0x4 align:4 data:float
+-@34617 = .sdata2:0x80887610; // type:object size:0x4 scope:local align:4 data:float
++@35232 = .sdata2:0x80887610; // type:object size:0x4 scope:local align:4 data:float
+ lbl_80887614 = .sdata2:0x80887614; // type:object size:0x4 align:4 data:float
+ lbl_80887618 = .sdata2:0x80887618; // type:object size:0x4 align:4 data:float
+-@34472 = .sdata2:0x8088761C; // type:object size:0x4 scope:local align:4 data:float
+-@34473 = .sdata2:0x80887620; // type:object size:0x4 scope:local align:4 data:float
+-@34474 = .sdata2:0x80887624; // type:object size:0x4 scope:local align:4 data:float
+-@34615 = .sdata2:0x80887628; // type:object size:0x4 scope:local align:4 data:float
+-@34616 = .sdata2:0x8088762C; // type:object size:0x4 scope:local align:4 data:float
++@35087 = .sdata2:0x8088761C; // type:object size:0x4 scope:local align:4 data:float
++@35088 = .sdata2:0x80887620; // type:object size:0x4 scope:local align:4 data:float
++@35089 = .sdata2:0x80887624; // type:object size:0x4 scope:local align:4 data:float
++@35230 = .sdata2:0x80887628; // type:object size:0x4 scope:local align:4 data:float
++@35231 = .sdata2:0x8088762C; // type:object size:0x4 scope:local align:4 data:float
+ lbl_80887630 = .sdata2:0x80887630; // type:object size:0x4 align:4 data:float
+ lbl_80887634 = .sdata2:0x80887634; // type:object size:0x4 align:4 data:float
+ lbl_80887638 = .sdata2:0x80887638; // type:object size:0x4 align:4 data:float
+diff --git a/src/atn/PacketPack.cpp b/src/atn/PacketPack.cpp
+index 7d5389f5..ce99c7d4 100644
+--- a/src/atn/PacketPack.cpp
++++ b/src/atn/PacketPack.cpp
+@@ -357,7 +357,7 @@ struct PPPair_unk {
+     int m04;
+ };
+ struct PPPlayerState_unk {
+-    PPPlayerState_unk() {} // inferred: some constructor (the copy in the swap 0x804E0CE4 is member by member)
++    PPPlayerState_unk() { memset(this, 0, sizeof(*this)); }
+     int m00;
+     int m04;
+     float m08;
+@@ -393,10 +393,25 @@ struct PPEquipItem_unk {
+ };
+ // inferred: the part of an equipment sent by message 0x1C (fn_804F1950); names invented
+ struct PPEquipHead_unk {
++    PPEquipHead_unk() {
++        m00 = -1;
++        m04.mOn = 0;
++        m08 = -1;
++        for (int i = 0; i < 8; i++) {
++            mIds[i] = -1;
++        }
++        memset(mExtra, 0, sizeof(mExtra));
++    }
+     int m00;
+     PPEquipBits_unk m04;
+     int m08;
+-    PPEquipItem_unk mItems[8];
++    union {
++        PPEquipItem_unk mItems[8];
++        struct {
++            int mIds[8];
++            unsigned char mExtra[0x20];
++        };
++    };
+ };
+ extern "C" unsigned long wcslen(const wchar_t* s);
+ extern "C" wchar_t* wmemcpy(wchar_t* dst, const wchar_t* src, unsigned long n);
+@@ -404,6 +419,7 @@ extern "C" wchar_t* wmemcpy(wchar_t* dst, const wchar_t* src, unsigned long n);
+ // the buffers differ, as the wide atn::static_string of game/PopupTask.h), the copy constructor the whole
+ // buffer, no destructor (layout from the swap 0x804E0CE4); name invented
+ struct PPWideName_unk {
++    PPWideName_unk() { mStr[0] = 0; }
+     PPWideName_unk& operator=(const PPWideName_unk& o) {
+         const wchar_t* str = o.mStr;
+         if (str != mStr) {
+@@ -416,7 +432,7 @@ struct PPWideName_unk {
+ // inferred: entry of an equipment (0x14 bytes, 32 of them at 0x50; layout from the copy in the swap
+ // 0x804E0CE4); names invented
+ struct PPEquipSlot_unk {
+-    PPEquipSlot_unk() {} // inferred: some constructor (copied member by member in the swap 0x804E0CE4)
++    PPEquipSlot_unk() : m00(-1), m02(0), m04(-1.0f), m08(1.0f), m0C(1.0f), m10(-1.0f) {}
+     short m00;
+     short m02;
+     float m04;
+@@ -431,17 +447,13 @@ struct PPEquipSlots_unk {
+ // inferred: second part of an equipment (from 0x4C; the swap 0x804E0CE4 assigns it through its own source
+ // pointer); names invented
+ struct PPEquipBody_unk {
++    PPEquipBody_unk() : m00(-1), m284(0) {}
+     int m00;
+     PPEquipSlots_unk m04;
+     int m284;
+     PPWideName_unk m288;
+ };
+-struct PPEquip_unk {
+-    PPEquip_unk() {} // inferred: some constructor (the copy in the swap 0x804E0CE4 is member by member)
+-    int m00;
+-    PPEquipBits_unk m04;
+-    int m08;
+-    PPEquipItem_unk mItems[8];
++struct PPEquip_unk : PPEquipHead_unk {
+     PPEquipBody_unk m4C;
+     // inferred: copies the part sent by message 0x1C
+     void Set_unk(const PPEquipHead_unk& head) {
+@@ -473,11 +485,24 @@ struct PPPlayerFlags_unk {
+     unsigned int m00 : 1;
+ };
+ 
++// inferred: the character reference of a player slot (null at construction; the second one, mDC, is set by
++// fn_804D1F6C instead); name invented
++struct PPCharaRefNull_unk : MpCharaRef_unk {
++    PPCharaRefNull_unk() { mChara = 0; }
++};
++struct PPPlayer_unk;
++extern "C" void fn_804D1F6C(PPPlayer_unk* player);
+ // inferred: player slot of MP::Manager2 (0xD5C bytes, array at +0x5E4); names invented
+ struct PPPlayer_unk {
+-    PPPlayer_unk(); // inferred: weak copy 0x804D16F8 (0x874 bytes), not written yet
++    // inferred: weak copy 0x804D16F8 (construction of the array m2B8C in the constructor of MP::Manager2)
++    PPPlayer_unk() {
++        for (int i = 0; i < 4; i++) {
++            mD38[i] = -1;
++        }
++        fn_804D1F6C(this);
++    }
+     ~PPPlayer_unk() {} // inferred: weak copy 0x804D1FD8 (destruction of m2B8C in the destructor of MP::Manager2)
+-    MpCharaRef_unk mRef;              // 0x00: inferred: the character of the player
++    PPCharaRefNull_unk mRef;              // 0x00: inferred: the character of the player
+     union {
+         int m004[12];                 // inferred: copy of the character information (fn_804D8078)
+         struct {
+@@ -505,7 +530,10 @@ struct PPPlayer_unk {
+     };
+     int mE0;
+     int mE4;
+-    PPEquip_unk mEquips[4];           // 0xE8
++    PPEquip_unk mEquip0;              // 0xE8: inferred: four members, not an array (the constructor 0x804D16F8
++    PPEquip_unk mEquip1;              // builds them unrolled and the code uses constant indices only)
++    PPEquip_unk mEquip2;
++    PPEquip_unk mEquip3;
+ 
+     int mD38[5];                      // inferred: values of message 0x15
+     unsigned int mD4C;                // inferred: bits 10-11 set by message 0x2E
+@@ -2505,7 +2533,7 @@ void MP::Manager2::vf10() {
+                 PPPlayer_unk* player = fn_804D5F48(&mgr->mPlayers, i);
+                 if (player->mFlags.mActive == 1) {
+                     fn_804EAA84(mgr, player->mRef.mChara, 1, 0);
+-                    if (player->mEquips[0].m04.mOn) {
++                    if (player->mEquip0.m04.mOn) {
+                         if (fn_804D63D0(mgr) != 2 && fn_804D63D8(player->mRef.mChara) != 0) {
+                             for (int j = 0; j < 4; j++) {
+                                 if (fn_804D63D8(player->mRef.mChara)->mD8[j] > 0) {
+@@ -2522,7 +2550,7 @@ void MP::Manager2::vf10() {
+                                 }
+                             }
+                         }
+-                        fn_804D6400(player->mRef.mChara->GetStatus_unk(), player->mEquips[0].m04.mLevel);
++                        fn_804D6400(player->mRef.mChara->GetStatus_unk(), player->mEquip0.m04.mLevel);
+                     }
+                 }
+             }
+@@ -4995,23 +5023,23 @@ extern "C" PPEquip_unk* fn_804EB650(PPManager2_unk* mgr, CharaTask* chara, int i
+     }
+     switch (index) {
+     case 0:
+-        if (player->mEquips[0].m00 != -1) {
+-            return &player->mEquips[0];
++        if (player->mEquip0.m00 != -1) {
++            return &player->mEquip0;
+         }
+         return 0;
+     case 1:
+-        if (player->mEquips[1].m00 != -1) {
+-            return &player->mEquips[1];
++        if (player->mEquip1.m00 != -1) {
++            return &player->mEquip1;
+         }
+         return 0;
+     case 2:
+-        if (player->mEquips[2].m00 != -1) {
+-            return &player->mEquips[2];
++        if (player->mEquip2.m00 != -1) {
++            return &player->mEquip2;
+         }
+         return 0;
+     case 3:
+-        if (player->mEquips[3].m00 != -1) {
+-            return &player->mEquips[3];
++        if (player->mEquip3.m00 != -1) {
++            return &player->mEquip3;
+         }
+         return 0;
+     }
+@@ -6011,16 +6039,16 @@ extern "C" void fn_804F1950(PPPlayer_unk* player) {
+     PPMsgEquip_unk* data = (PPMsgEquip_unk*)fn_804AE3BC()->GetWorkBuffer_unk();
+     switch (data->mKind) {
+     case 0:
+-        player->mEquips[0].Set_unk(data->mHead);
++        player->mEquip0.Set_unk(data->mHead);
+         break;
+     case 1:
+-        player->mEquips[1].Set_unk(data->mHead);
++        player->mEquip1.Set_unk(data->mHead);
+         break;
+     case 2:
+-        player->mEquips[2].Set_unk(data->mHead);
++        player->mEquip2.Set_unk(data->mHead);
+         break;
+     case 3:
+-        player->mEquips[3].Set_unk(data->mHead);
++        player->mEquip3.Set_unk(data->mHead);
+         break;
+     }
+ }
