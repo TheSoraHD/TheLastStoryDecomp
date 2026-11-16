@@ -1767,6 +1767,38 @@ extern "C" __declspec(noinline) inline int fn_804D6664(GameBgm* bgm) {
 extern "C" __declspec(noinline) inline atn::net::NetRanking_unk* fn_804D6680() {
     return lbl_8087F5A4;
 }
+// NONMATCHING: 99.98% - __sinit 0x804FF478: only the offset of "CustomData" in @stringBase0 (the
+// profiler string of fn_804F8464 and the basic_string errors come before it in the original)
+// inferred: magic of the data of fn_804ED768 (hash of its name; first entry of the __sinit 0x804FF478)
+extern "C" int lbl_8087F604 = fn_800DC6B4("CustomData");
+
+#include "std/ios_init.h"
+
+// inferred: options of the GameTask of the online game, by mode and stage (fn_804DE884)
+GameTask::Option lbl_807C8B10[3][10] = {
+    {
+        GameTask::Option(4, 1, 3, 0, -1, 0, 0), GameTask::Option(4, 1, 1, 0, -1, 0, 0),
+        GameTask::Option(4, 1, 9, 0, -1, 0, 0), GameTask::Option(4, 1, 8, 0, -1, 0, 0),
+        GameTask::Option(4, 1, 2, 0, -1, 0, 0), GameTask::Option(4, 1, 7, 0, -1, 0, 0),
+        GameTask::Option(4, 1, 4, 0, -1, 0, 0), GameTask::Option(4, 1, 5, 0, -1, 0, 0),
+        GameTask::Option(4, 1, 6, 0, -1, 0, 0), GameTask::Option(4, 1, 1, 0, -1, 0, 0),
+    },
+    {
+        GameTask::Option(4, 1, 3, 0, -1, 0, 0), GameTask::Option(4, 1, 1, 0, -1, 0, 0),
+        GameTask::Option(4, 1, 9, 0, -1, 0, 0), GameTask::Option(4, 1, 8, 0, -1, 0, 0),
+        GameTask::Option(4, 1, 2, 0, -1, 0, 0), GameTask::Option(4, 1, 7, 0, -1, 0, 0),
+        GameTask::Option(4, 1, 4, 0, -1, 0, 0), GameTask::Option(4, 1, 5, 0, -1, 0, 0),
+        GameTask::Option(4, 1, 6, 0, -1, 0, 0), GameTask::Option(4, 1, 1, 0, -1, 0, 0),
+    },
+    {
+        GameTask::Option(3, 3, 7, 0, -1, 0, 0), GameTask::Option(3, 3, 2, 0, -1, 0, 0),
+        GameTask::Option(3, 3, 6, 0, -1, 0, 0), GameTask::Option(3, 3, 1, 0, -1, 0, 0),
+        GameTask::Option(3, 3, 3, 0, -1, 0, 0), GameTask::Option(3, 3, 4, 0, -1, 0, 0),
+        GameTask::Option(3, 3, 5, 0, -1, 0, 0), GameTask::Option(3, 3, 3, 0, -1, 0, 0),
+        GameTask::Option(3, 3, 1, 0, -1, 0, 0), GameTask::Option(3, 3, 1, 0, -1, 0, 0),
+    },
+};
+
 
 inline CharaListeners_unk* fn_8014F8F4() {
     static CharaListeners_unk sListeners;
@@ -5957,7 +5989,7 @@ extern "C" PPPlayer_unk* fn_804EB870(PPManager2_unk* mgr) {
     return 0;
 }
 
-extern "C" int lbl_8087F604; // inferred: magic of the data of fn_804ED768 (set by fn_804FF478)
+extern "C" int lbl_8087F604; // inferred: magic of the data of fn_804ED768 (defined at the end)
 
 // inferred: one entry of the data of fn_804ED768 (a kind and a value; -1/0 when unused)
 struct PPDataEntry_unk {
@@ -8465,3 +8497,4 @@ extern "C" int fn_804FC7E0(PPManager2_unk* mgr, atn::FixedArray_unk<gs::WarpPoin
     }
     return 1;
 }
+
