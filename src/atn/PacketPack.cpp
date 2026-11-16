@@ -4019,7 +4019,7 @@ extern "C" void fn_804DDD50(PPManager2_unk* mgr) {
     }
 }
 
-extern "C" int fn_804DE560(PPManager2_unk* mgr, int a, int b);
+extern "C" bool fn_804DE560(PPManager2_unk* mgr, int* count, bool* found);
 // NONMATCHING: 99.78% - aid and count of the inlined search fn_804DD158 swapped (as fn_804D8610)
 // inferred: on the server: fn_804E9360, fn_804DE560 and the state of its own slot (mode 2) to everybody; 0 when
 // fn_804DE560 fails
@@ -4102,6 +4102,50 @@ extern "C" int fn_804DE2F8(PPManager2_unk* mgr, int mode) {
         lbl_8087F628->fn_80509B4C(unused, 0, 0);
     }
     return 1;
+}
+
+// NONMATCHING: 99.23% - aid and offset of the inlined searches fn_804DD158 in r3/r4 (r4/r3 in the original) and the
+// own slot and the host count in r31/r30 (r30/r31)
+// inferred: on the server: every other host has a slot and its bit in the mask mD53 of the own slot (count of the
+// set bits in `count`, whether another host has a slot in `found`)
+extern "C" bool fn_804DE560(PPManager2_unk* mgr, int* count, bool* found) {
+    if (lbl_8087F628->GetMyAid_unk() != lbl_8087F628->GetServerAid_unk()) {
+        return false;
+    }
+    PPPlayer_unk* own = fn_804DD158(mgr, lbl_8087F628->GetMyAid_unk());
+    if (own == 0) {
+        return false;
+    }
+    bool any = false;
+    bool all = true;
+    int acks = 0;
+    int num = GetNumHosts_unk(lbl_8087F628);
+    for (int i = 0; i < num; i++) {
+        int aid = GetHostAid_unk(i);
+        if (own->mAid != aid) {
+            PPPlayer_unk* player = fn_804DD158(mgr, aid);
+            if (player != 0) {
+                any = true;
+                int bit = own->mD53 & (1 << player->mAid);
+                if (bit == 0) {
+                    all = false;
+                }
+                if (bit != 0) {
+                    acks++;
+                }
+            }
+        }
+    }
+    if (count != 0) {
+        *count = acks;
+    }
+    if (found != 0) {
+        *found = any;
+    }
+    if (all == true && acks + 1 != GetNumHosts_unk(lbl_8087F628)) {
+        all = false;
+    }
+    return all;
 }
 
 extern "C" void fn_800C3124(const char* group); // inferred: unloads a sound group
