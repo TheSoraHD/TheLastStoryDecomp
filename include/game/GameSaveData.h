@@ -94,7 +94,7 @@ struct GameSaveParty_unk {
     GameSaveParty_unk(); // 0x803BAA90
     void fn_803BAAE0(); // inferred: collects the status of the party (players or inventory)
     void fn_803BAD6C(); // inferred: copies the saved status to the players
-    int fn_803BAE54(GameSavePacketEquip_unk* equip, int chara, int bit) const; // inferred: costume flags of a packet
+    bool fn_803BAE54(GameSavePacketEquip_unk* equip, int chara, int bit) const; // inferred: costume flags of a packet
 
     CharaStatusBase mStatus[7];
     unsigned int mMask; // 0xFC0: inferred: bit i set when member i is saved
@@ -166,7 +166,7 @@ struct GameSaveInventory_unk {
     void fn_803BB584(); // inferred: collects the inventory
     void fn_803BC2D4(); // inferred: restores the inventory
     void fn_803BD6C0(int mode); // inferred: resets the bag for a new game (mode 2)
-    int fn_803BD0FC(GameSavePacketEquip_unk* equip, int chara, int slot) const; // inferred: protector of a packet
+    bool fn_803BD0FC(GameSavePacketEquip_unk* equip, int chara, int slot) const; // inferred: protector of a packet
     int fn_803BD22C(GameSavePacketEquip_unk* equip, int chara, int slot) const; // inferred: weapon of a packet
     int fn_803BD2B0(int code, int count); // inferred: adds items (at most 99, and 10 of each weapon or protector)
     int fn_803BD49C(int code) const;      // inferred: number of items `code` (bag and equipment)

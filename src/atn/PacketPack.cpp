@@ -3553,6 +3553,115 @@ extern "C" void fn_804D87B0(PPManager2_unk* mgr) {
     }
 }
 
+// inferred: payload of the messages 0x1C and 0x1009 (one equipment of the player: index and its data); names
+// invented
+struct PPMsgEquip_unk {
+    int mKind;
+    PPEquipHead_unk mHead;
+};
+// inferred: payload of the message 0x100A (a weapon of the own slot: index and item); names invented
+struct PPMsgWeapon_unk {
+    int mKind;
+    int mItem;
+};
+// inferred: sends equipment `kind` of the own save data (message 0x1009, the payload of message 0x1C read as a
+// GameSavePacketEquip_unk by the save data) and keeps it in the own slot
+inline void SendEquip_unk(GameSaveData_unk* save, PPEquip_unk& equip, PPMsgEquip_unk* data, int chara, int kind) {
+    bool ok = save->mInventory.fn_803BD0FC((GameSavePacketEquip_unk*)data, chara, kind);
+    if (ok) {
+        ok &= save->mParty.fn_803BAE54((GameSavePacketEquip_unk*)data, chara, kind);
+    }
+    if (ok) {
+        equip.Set_unk(data->mHead);
+        fn_804AE3BC()->fn_8050E094(-1, 0x1009, data, 1);
+    }
+}
+// inferred: sends weapon `kind` of the own save data (message 0x100A) and keeps it in the own slot
+inline void SendWeapon_unk(GameSaveData_unk* save, int& value, PPMsgWeapon_unk* data, int chara, int kind) {
+    if (save->mInventory.fn_803BD22C((GameSavePacketEquip_unk*)data, chara, kind)) {
+        value = data->mItem;
+        fn_804AE3BC()->fn_8050E094(-1, 0x100A, data, 1);
+    }
+}
+
+// NONMATCHING: 98.91% - registers (save data and character swapped; aid/offset of the inlined search fn_804DD158)
+// inferred: sends the equipment of the own save data to everybody (messages 0x1009 and 0x100A, character
+// mB0 + 700000), then asks every other player for an answer (message 0x1041 with the next sequence of the own
+// slot, kept in m99F4 and in the request queue)
+extern "C" void fn_804D8910(PPManager2_unk* mgr) {
+    PPManager2_unk* mgr2 = (PPManager2_unk*)lbl_8087F610;
+    PPPlayer_unk* own = fn_804DD158(mgr2, lbl_8087F628->GetMyAid_unk());
+    MP::SaveLoad* saveLoad = ((PPManager2_unk*)lbl_8087F610)->mSaveLoad;
+    GameSaveData_unk* save;
+    if (saveLoad != 0 && (save = (GameSaveData_unk*)saveLoad->m48) != 0) {
+        int chara = own->mB0 + 700000;
+        {
+            NetMsgI_unk<PPMsgEquip_unk> msg(0x1009);
+            PPMsgEquip_unk* data = &msg.mData;
+            SendEquip_unk(save, own->mEquip0, data, chara, 0);
+            SendEquip_unk(save, own->mEquip1, data, chara, 1);
+            SendEquip_unk(save, own->mEquip2, data, chara, 2);
+            SendEquip_unk(save, own->mEquip3, data, chara, 3);
+        }
+        NetMsgI_unk<PPMsgWeapon_unk> msg(0x100A);
+        PPMsgWeapon_unk* data = &msg.mData;
+        SendWeapon_unk(save, own->mD38[0], data, chara, 0);
+        SendWeapon_unk(save, own->mD38[1], data, chara, 1);
+    }
+    NetMsgI_unk<unsigned char> msg(0x1041);
+    unsigned char* data = &msg.mData;
+    for (unsigned int i = 0; i < (unsigned int)mgr->mPlayers.mNum; i++) {
+        if (mgr->mPlayers.mData[i].mFlags.mActive == 1 && own->mAid != mgr->mPlayers.mData[i].mAid) {
+            unsigned char seq = own->m0D52++;
+            *data = seq;
+            mgr->m99F4[mgr->mPlayers.mData[i].mAid] = seq;
+            fn_804AE3BC()->fn_8050E094(mgr->mPlayers.mData[i].mAid, 0x1041, data, 1);
+            fn_804F5A98((PPRequests_unk*)lbl_8087F610, mgr->mPlayers.mData[i].mAid, 300,
+                        mgr->m99F4[mgr->mPlayers.mData[i].mAid]);
+        }
+    }
+    fn_804AE3BC()->fn_8050DDDC(-1, 1);
+}
+
+// NONMATCHING: 94.97% - the original reloads lbl_8087F610 for each inlined search of the queue (here reused) and
+// registers
+// inferred: answers of the other players to the requests of their sequence m99F4 (per aid): a request that timed
+// out (-2) or failed (-1) closes the room with the error 158, an answered one (1) is freed and marked -2; when
+// every other player answered, m9A74[1] is set
+extern "C" void fn_804D90E0(PPManager2_unk* mgr) {
+    int done = 0;
+    int count = 0;
+    PPPlayer_unk* own = fn_804DD158(mgr, lbl_8087F628->GetMyAid_unk());
+    for (unsigned int i = 0; i < (unsigned int)mgr->mPlayers.mNum; i++) {
+        PPPlayer_unk* player = &mgr->mPlayers.mData[i];
+        if (player->mFlags.mActive != 1 || own->mAid == player->mAid) {
+            continue;
+        }
+        count++;
+        int* seq = &mgr->m99F4[player->mAid];
+        if (*seq >= 0) {
+            int state = fn_804F5E38((PPRequests_unk*)lbl_8087F610, (unsigned char)*seq);
+            if (state == -2) {
+                *seq = -3;
+                fn_804FB470(mgr, 158, 9);
+            } else if (state == -1) {
+                fn_804F5C9C((PPRequests_unk*)lbl_8087F610, (unsigned char)*seq);
+                *seq = -3;
+                fn_804FB470(mgr, 158, 9);
+            } else if (state == 1) {
+                fn_804F5C9C((PPRequests_unk*)lbl_8087F610, (unsigned char)*seq);
+                *seq = -2;
+            }
+        }
+        if (*seq == -2) {
+            done++;
+        }
+    }
+    if (count == done) {
+        mgr->m9A74[1] = 1;
+    }
+}
+
 // inferred: the server starts the timer m99B8; a client sends the message 0x1042 to the server
 extern "C" void fn_804D97F0(PPManager2_unk* mgr) {
     if (IsServer_unk() == 1) {
@@ -3607,6 +3716,54 @@ extern "C" int fn_804D9BF4(PPManager2_unk* mgr, int a, int b, int c) {
     mgr->m34C = b;
     mgr->m350 = c;
     mgr->m99A0 = 90;
+    return 1;
+}
+
+// inferred: number of hosts of the session (same body as the weak copy fn_804D6300, inlined here)
+static inline int GetNumHosts_unk(atn::net::Manager* net) {
+    if (net->mC215 == 0) {
+        return net->mFlags.mB12 ? 1 : DWC_GetNumConnectionHost();
+    } else {
+        return net->mFlags.mB12 ? 1 : fn_806A8E70();
+    }
+}
+
+// NONMATCHING: 94.17% - registers (the loop offset and the address of the sequence; the zero of the inlined
+// fn_804F5C9C is copied from the counter in the original)
+// inferred: answers of the other players to the request of message 0x1040 (sequence m9A54 per aid, -1 when
+// none): a request that timed out (-2) or failed (-1) closes the room with the error 158; an answered one (1),
+// or any when this machine is alone, is freed and marked -2. Always 1
+extern "C" int fn_804D9C14(PPManager2_unk* mgr, PPPlayer_unk* own, int arg) {
+    for (unsigned int i = 0; i < (unsigned int)mgr->mPlayers.mNum; i++) {
+        PPPlayer_unk* player = &mgr->mPlayers.mData[i];
+        if (player->mFlags.mActive != 1 || own->mAid == player->mAid) {
+            continue;
+        }
+        int* seq = &mgr->m9A54[player->mAid];
+        if (*seq < 0) {
+            continue;
+        }
+        int state = fn_804F5E38((PPRequests_unk*)lbl_8087F610, (unsigned char)*seq);
+        if (state == -2) {
+            *seq = -3;
+            fn_804FB470(mgr, 158, 9);
+        } else if (state == -1) {
+            fn_804F5C9C((PPRequests_unk*)lbl_8087F610, (unsigned char)*seq);
+            *seq = -3;
+            fn_804FB470(mgr, 158, 9);
+        } else {
+            bool done = false;
+            if (state == 1) {
+                done = true;
+            } else if (GetNumHosts_unk(lbl_8087F628) <= 1) {
+                done = true;
+            }
+            if (done == true) {
+                fn_804F5C9C((PPRequests_unk*)lbl_8087F610, (unsigned char)*seq);
+                *seq = -2;
+            }
+        }
+    }
     return 1;
 }
 
@@ -4054,14 +4211,6 @@ extern "C" void fn_8050EAE8(MpFriendList_unk*);
 extern "C" void fn_8006F420(void*, char*, const wchar_t*, int); // inferred: wide to multibyte
 extern "C" int fn_8006F2F0(void*, wchar_t*, const char*, int); // inferred: to wide text
 extern "C" int wcscmp(const wchar_t*, const wchar_t*);
-// inferred: number of hosts of the session (same body as the weak copy fn_804D6300, inlined here)
-static inline int GetNumHosts_unk(atn::net::Manager* net) {
-    if (net->mC215 == 0) {
-        return net->mFlags.mB12 ? 1 : DWC_GetNumConnectionHost();
-    } else {
-        return net->mFlags.mB12 ? 1 : fn_806A8E70();
-    }
-}
 
 extern "C" char* fn_800DC97C(int value, char* buf, int radix); // inferred: itoa (atn/Util_unk.cpp)
 extern "C" std::basic_string<wchar_t> fn_8050F464(MpFriendList_unk*); // inferred: own friend code as text
@@ -4186,6 +4335,162 @@ extern "C" void fn_804DC858(PPManager2_unk* mgr) {
 
 extern "C" int fn_804DCA4C() {
     return 0;
+}
+
+extern "C" int fn_8050BA68(unsigned char** aids); // inferred: network ids of the hosts (count)
+// inferred: network id of the host `i` (0 in local play, 0xFF past the end); name invented
+static inline unsigned int GetHostAid_unk(int i) {
+    if (lbl_8087F628->mFlags.mB12) {
+        return 0;
+    }
+    unsigned char* aids;
+    if (fn_8050BA68(&aids) > i) {
+        return aids[i];
+    }
+    return 0xFF;
+}
+
+extern "C" int fn_804DD574(PPManager2_unk* mgr, unsigned int aid, int arg);
+
+// inferred: payload of the message 0x1034 (the tables m9984 and m998C); names invented
+struct PPMsgCpuTable_unk {
+    unsigned char m00[8];
+    unsigned char m08[8];
+};
+// NONMATCHING: 98.46% - registers of the counting loop (the original shares the zero of the static of the message
+// with its offset) and of the inlined searches fn_804DD158 (bloqueo conocido)
+// inferred: on the server: the free places of the room (6, 8 or 7 by game mode, less the hosts, at most m5A4)
+// get a computer player: a side (mode 1: the one with fewer players, at random when even), a host of the other
+// side that has none yet (or the one with fewest) in m9984 (index + 1 in the high nibble), the side in m9994
+// and a stage from fn_804DD574 in m998C; the tables go to everybody (message 0x1034)
+extern "C" void fn_804DCA54(PPManager2_unk* mgr) {
+    int hosts = GetNumHosts_unk(lbl_8087F628);
+    int num;
+    switch (mgr->mMode) {
+    case 2:
+        num = 7;
+        break;
+    case 1:
+        num = 8;
+        break;
+    case 0:
+        num = 6;
+        break;
+    }
+    num -= hosts;
+    if (num > mgr->m5A4) {
+        num = mgr->m5A4;
+    }
+    memset(mgr->m9984, 0, 8);
+    memset(mgr->m998C, 0xFF, 8);
+    memset(mgr->m9994, 0, 8);
+    NetMsgI_unk<PPMsgCpuTable_unk> msg(0x1034);
+    PPMsgCpuTable_unk* data = &msg.mData;
+    int firstA = 0;
+    int firstB = 0;
+    if (num > 0) {
+        int counts[3];
+        memset(counts, 0, sizeof(counts));
+        PPManager2_unk* mgr2 = (PPManager2_unk*)lbl_8087F610;
+        for (int k = 0; k < mgr2->mPlayers.mNum; k++) {
+            PPPlayer_unk* other = fn_804D5F0C(mgr2, k);
+            if (other->mFlags.mActive == 1) {
+                counts[other->mFlags.m22]++;
+            }
+        }
+        for (int i = 0; i < num; i++) {
+            bool first;
+            if (counts[1] < counts[2]) {
+                first = true;
+            } else if (counts[1] > counts[2]) {
+                first = false;
+            } else {
+                first = (int)(2.0f * (rand() / 32767.0f)) != 0;
+            }
+            unsigned int team;
+            if (mgr->mMode == 1) {
+                if (first == true) {
+                    counts[1]++;
+                    team = 2;
+                    mgr->m9994[i] = 1;
+                } else {
+                    counts[2]++;
+                    team = 1;
+                    mgr->m9994[i] = 2;
+                }
+                atn::net::Manager* net = lbl_8087F628;
+                if (net->mC215 == 1 && net->mC218 == 1) {
+                    team = fn_804DD158(mgr, 0)->mFlags.m22;
+                }
+            } else {
+                team = 2;
+                mgr->m9994[i] = team;
+            }
+            int done = 0;
+            for (int k = 0; k < hosts; k++) {
+                unsigned int aid = GetHostAid_unk(k);
+                PPPlayer_unk* host = fn_804DD158(mgr, aid);
+                if (host == 0 || host->mFlags.m22 != team) {
+                    continue;
+                }
+                bool used = false;
+                for (int j = 0; j < 8; j++) {
+                    unsigned char v = mgr->m9984[j];
+                    if ((v & 0xF0) != 0 && (v & 0xF) == aid) {
+                        used = true;
+                        break;
+                    }
+                }
+                if (used) {
+                    continue;
+                }
+                mgr->m9984[i] = ((i + 1) << 4) | aid;
+                done = 1;
+                break;
+            }
+            if (done == 0) {
+                unsigned char cpus[8];
+                memset(cpus, 0, sizeof(cpus));
+                for (int j = 0; j < 8; j++) {
+                    unsigned char v = mgr->m9984[j];
+                    if ((v & 0xF0) != 0) {
+                        unsigned int aid = v & 0xF;
+                        if (fn_804DD158(mgr, aid)->mFlags.m22 == team) {
+                            cpus[aid]++;
+                        }
+                    }
+                }
+                int fewest = 0xFF;
+                int best = -1;
+                for (int j = 0; j < 8; j++) {
+                    if (cpus[j] != 0 && fewest > cpus[j]) {
+                        fewest = cpus[j];
+                        best = j;
+                    }
+                }
+                mgr->m9984[i] = ((i + 1) << 4) | best;
+            }
+            int leader = 0;
+            if (mgr->mMode != 0) {
+                if (first == true) {
+                    if (firstA == 0) {
+                        leader = 1;
+                        firstA++;
+                    }
+                } else if (firstB == 0) {
+                    leader = 1;
+                    firstB++;
+                }
+            }
+            if (mgr->m5B0 == 0) {
+                leader = 0;
+            }
+            mgr->m998C[i] = fn_804DD574(mgr, mgr->m9984[i], leader);
+        }
+    }
+    memcpy(data->m00, mgr->m9984, 8);
+    memcpy(data->m08, mgr->m998C, 8);
+    fn_804AE3BC()->fn_8050E094(-1, 0x1034, data, 1);
 }
 
 // inferred: the player slot of network id `aid` (slots in use only)
@@ -4435,19 +4740,6 @@ extern "C" unsigned int fn_804DD9CC(PPManager2_unk* mgr, PPPlayer_unk* player, u
     }
     player->mFlags.m22 = value;
     return value;
-}
-
-extern "C" int fn_8050BA68(unsigned char** aids); // inferred: network ids of the hosts (count)
-// inferred: network id of the host `i` (0 in local play, 0xFF past the end); name invented
-static inline unsigned int GetHostAid_unk(int i) {
-    if (lbl_8087F628->mFlags.mB12) {
-        return 0;
-    }
-    unsigned char* aids;
-    if (fn_8050BA68(&aids) > i) {
-        return aids[i];
-    }
-    return 0xFF;
 }
 
 extern "C" int rand();
@@ -7043,11 +7335,6 @@ extern "C" void fn_804F1564(PPPlayer_unk* player, unsigned int type) {
     }
 }
 
-// inferred: payload of the message 0x1C (one equipment of the player: index and its data); names invented
-struct PPMsgEquip_unk {
-    int mKind;
-    PPEquipHead_unk mHead;
-};
 // inferred: message 0x1C: one of the 4 equipments of the player
 extern "C" void fn_804F1950(PPPlayer_unk* player) {
     if (PP_NO_DATA_UNK) {
