@@ -689,7 +689,16 @@ inline void Manager::StopMusic_unk(Sequence* seq) {
     m1F20.mSound.Reset();
 }
 
-// NONMATCHING: 99.7% - registers of the m74 loop (index and pointer swapped)
+// inferred: clears the slot of `seq` (name invented)
+inline void RemoveSequence_unk(Sequence** list, Sequence* seq) {
+    for (int i = 0; i < 16; i++) {
+        if (list[i] == seq) {
+            list[i] = 0;
+            break;
+        }
+    }
+}
+
 // inferred: stops the sequence `id`
 int Manager::fn_8047EFD8(int id, int arg) {
     Sequence* seq = FindSequence_unk(id);
@@ -712,12 +721,7 @@ int Manager::fn_8047EFD8(int id, int arg) {
             m2378 = -1;
         }
     } else {
-        for (int i = 0; i < 16; i++) {
-            if (m74[i] == seq) {
-                m74[i] = 0;
-                break;
-            }
-        }
+        RemoveSequence_unk(m74, seq);
     }
     if (arg != 0) {
         Sequence* other = FindSequence_unk(seq->m190);
