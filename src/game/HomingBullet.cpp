@@ -68,8 +68,13 @@ HomingBullet::HomingBullet() {
     mA0.mCount = -1;
 }
 
-// NONMATCHING: 97.4% - the original keeps m08 of the copied block in f1 for the call (here it is loaded again);
-// the block is loaded whole thanks to the const parameter; also register choices of the replay event
+// inferred: replay recorder of the field (name invented)
+static inline ReplayBuffer* __Replay_unk() {
+    return lbl_8087F430->m5590;
+}
+
+// inferred: m08 is read into a local before the call (the original keeps it in f1 from the copy of the
+// block) and the recorder through an inline (register choices of the replay event)
 void HomingBullet::vf28(BulletShot_unk* shot, const atn::Vector3* pos, const atn::Vector3* dir, CharaTask* owner,
                         const HomingParam_unk* param, int arg) {
     m84 = 0;
@@ -77,9 +82,10 @@ void HomingBullet::vf28(BulletShot_unk* shot, const atn::Vector3* pos, const atn
     m8C = 0;
     m90 = owner->mType;
     mA0 = *param;
-    fn_8010F018(shot, pos, dir, mA0.mCount > 0 ? mA0.mCount : -1, arg, 0, mA0.m08);
+    float f = mA0.m08;
+    fn_8010F018(shot, pos, dir, mA0.mCount > 0 ? mA0.mCount : -1, arg, 0, f);
     mC4 = 0.0f;
-    if (lbl_8087F430->m5590 != 0) {
+    if (__Replay_unk() != 0) {
         ReplayEvent_unk ev;
         ev.mKind = 2;
         *(BulletShot_unk*)&ev.mShot = *shot;
@@ -88,7 +94,7 @@ void HomingBullet::vf28(BulletShot_unk* shot, const atn::Vector3* pos, const atn
         ev.mOwner = m88;
         ev.m3C = 0;
         ev.mBullet = this;
-        lbl_8087F430->m5590->fn_805706C0(&ev);
+        __Replay_unk()->fn_805706C0(&ev);
     }
     ShotEvent_unk e;
     e.mOwner = owner;
