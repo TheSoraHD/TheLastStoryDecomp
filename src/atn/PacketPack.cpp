@@ -268,33 +268,42 @@ extern "C" int fn_804D0140(int arg) {
     return 0;
 }
 
-extern "C" RenderSetting_unk* lbl_8087EFA8; // inferred: render settings (atn::RenderConfig)
+namespace atn {
+// inferred: real name of the render settings (weak copy SetClearColor__Q23atn12RenderConfigFRCQ23atn5Color
+// 0x804D0304, called by vf10); the members are those of RenderSetting_unk
+class RenderConfig : public RenderSetting_unk {
+public:
+    void SetClearColor(const Color& color) { m03C = color; }
+};
+} // namespace atn
+
+extern "C" atn::RenderConfig* lbl_8087EFA8; // inferred: render settings
+
+inline void RenderSetting_unk::SetColorMatrix(const ColorMatrixParam_unk& p) {
+    m324 = p;
+}
+
+// inferred: sets a row of the color matrix member by member
+inline void SetRow_unk(RsVector4_unk& row, float x, float y, float z, float w) {
+    row.x = x;
+    row.y = y;
+    row.z = z;
+    row.w = w;
+}
 
 // inferred: render settings of the multiplayer game: sepia-like color matrix, no bloom and no depth
 // of field, grey clear color (SetClearColor__Q23atn12RenderConfigFRCQ23atn5Color inlined)
-extern "C" void fn_804D0164() {
+void fn_804D0164() {
     ColorMatrixParam_unk cm;
     cm.mEnabled = 1;
-    cm.mRows[0].x = 0.9f;
-    cm.mRows[0].y = 0.1f;
-    cm.mRows[0].z = 0.1f;
-    cm.mRows[0].w = 0.0f;
-    cm.mRows[1].x = 0.1f;
-    cm.mRows[1].y = 0.9f;
-    cm.mRows[1].z = 0.1f;
-    cm.mRows[1].w = 0.0f;
-    cm.mRows[2].x = 0.1f;
-    cm.mRows[2].y = 0.1f;
-    cm.mRows[2].z = 0.9f;
-    cm.mRows[2].w = 0.0f;
-    cm.mRows[3].x = 0.0f;
-    cm.mRows[3].y = 0.0f;
-    cm.mRows[3].z = 0.0f;
-    cm.mRows[3].w = 0.0f;
-    lbl_8087EFA8->m324 = cm;
+    SetRow_unk(cm.mRows[0], 0.9f, 0.1f, 0.1f, 0.0f);
+    SetRow_unk(cm.mRows[1], 0.1f, 0.9f, 0.1f, 0.0f);
+    SetRow_unk(cm.mRows[2], 0.1f, 0.1f, 0.9f, 0.0f);
+    SetRow_unk(cm.mRows[3], 0.0f, 0.0f, 0.0f, 0.0f);
+    lbl_8087EFA8->SetColorMatrix(cm);
     lbl_8087EFA8->mDof.mEnabled = 0;
     lbl_8087EFA8->m054.mEnabled = 0;
-    lbl_8087EFA8->m03C = RsColor_unk(0.8627f, 0.8627f, 0.8627f, 1.0f);
+    lbl_8087EFA8->SetClearColor(RsColor_unk(0.8627f, 0.8627f, 0.8627f, 1.0f));
 }
 
 // ---- player slots of MP::Manager2 and the message handlers of the receive loop (fn_804EE040, switch
@@ -1009,12 +1018,6 @@ extern "C" void OSSleepTicks(long long ticks);
 
 #include "game/ErrorManager.h"
 
-namespace atn {
-class RenderConfig {
-public:
-    void SetClearColor(const Color& color);
-};
-} // namespace atn
 #include "atn/net/NetRanking.h"
 
 namespace MP {
@@ -1226,7 +1229,7 @@ extern "C" const char* const lbl_80887598;
 extern "C" const char* const lbl_8088759C;
 extern "C" const char* const lbl_808875A0;
 extern "C" void fn_804F5A94(PPManager2_unk* mgr);
-extern "C" int fn_804DC684(PPManager2_unk* mgr);
+extern "C" bool fn_804DC684(PPManager2_unk* mgr);
 extern "C" void fn_804FB470(PPManager2_unk* mgr, int code, int arg);
 extern "C" int fn_804DC450(PPManager2_unk* mgr, int mode);
 extern "C" void fn_804FAD48(PPManager2_unk* mgr, int value);
@@ -1294,7 +1297,7 @@ extern "C" long long fn_804CF194();
 extern "C" void fn_804CF190(atn::Task* task);
 extern "C" void fn_804D0090(PPFlags_unk* obj, int on);
 extern "C" int fn_804CF634(PPChara_unk* chara);
-extern "C" void fn_804D0164();
+void fn_804D0164();
 extern "C" int fn_804D0140(int arg);
 extern "C" int fn_804D00DC(unsigned short key);
 
@@ -1390,7 +1393,7 @@ extern "C" __declspec(noinline) inline void fn_804D5F58(CharaTask* chara, int on
 extern "C" __declspec(noinline) inline void fn_804D5F68(PPManager2_unk* mgr) {
     mgr->m99B8--;
 }
-extern "C" __declspec(noinline) inline bool fn_804D5F7C(atn::net::Manager* net) {
+extern "C" __declspec(noinline) inline int fn_804D5F7C(atn::net::Manager* net) {
     return net->mState >= 8;
 }
 extern "C" __declspec(noinline) inline int fn_804D5F98(atn::net::Manager* net) {
@@ -3886,7 +3889,7 @@ extern "C" int fn_804DC450(PPManager2_unk* mgr, int status) {
 }
 
 // inferred: writes the own status string: room status 0, mode "9" (off line, GetModeField_unk), name (none in state 0x8B) and friend code
-extern "C" __declspec(noinline) int fn_804DC684(PPManager2_unk* mgr) {
+extern "C" __declspec(noinline) bool fn_804DC684(PPManager2_unk* mgr) {
     if (mgr->mState == -1) {
         return 0;
     }
@@ -7126,6 +7129,35 @@ extern "C" int fn_804FB620(void* unused, int mode) {
 
 extern "C" void fn_804FB668(PPManager2_unk* mgr) {
     mgr->m5A4 = 0;
+}
+
+extern "C" void fn_8023A8B4(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
+                            const atn::Vector3& pos, const atn::Vector3& rot, const RsColor_unk& color, int arg7,
+                            int arg8, int arg9, float scale);
+
+// inferred: plays an effect file at the origin, without model or owner
+inline void PlayEffect_unk(atn::EfpFile* efp) {
+    fn_8023A8B4(lbl_8087F3C0, efp, 0, 0, atn::Vector3(0.0f, 0.0f, 0.0f), atn::Vector3(0.0f, 0.0f, 0.0f),
+                RsColor_unk(1.0f, 1.0f, 1.0f, 1.0f), -1, -1, 1, 1.0f);
+}
+
+// inferred: back to the lobby: render settings, camera of the lobby, effects (be010_008.efp) and BGM
+// NONMATCHING: 98.57% - registers of the inlined fn_804D0164: the original keeps the zero in r5 and
+// lbl_8087EFA8 in r30 (here the zero in r6, lbl_8087EFA8 in r5 and the address of the target in r30)
+extern "C" void fn_804FB674(PPManager2_unk* mgr) {
+    fn_804D0164();
+    mgr->m9774.SetPosition(atn::Vector3(0.0f, -99500.0f, 0.0f));
+    mgr->m9774.SetTarget_unk(atn::Vector3(0.0f, -99500.0f, 10.0f));
+    fn_8037F688(&mgr->m9774, atn::DegToRad_unk(60.0f));
+    if (lbl_8087F3C0 == 0) {
+        atn::EffectManager::fn_80239798(mgr, 0x240, 0x480, 8, 0x180);
+    }
+    fn_80239DAC(lbl_8087F3C0, (unsigned int)mgr, 0, 1);
+    fn_80232B7C((unsigned int)mgr, 0);
+    PlayEffect_unk(&mgr->m9968);
+    if (GameBgm::GetInstance_unk() != 0) {
+        GameBgm::GetInstance_unk()->fn_8037D4C0(0x548, 15, 1, 0, 0.7f);
+    }
 }
 
 // inferred: flag m01 of the slot of the server
