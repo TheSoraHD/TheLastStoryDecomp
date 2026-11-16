@@ -315,7 +315,7 @@ void DebugMessages_unk::fn_800698DC(const char* path) {
     if (pos != std::string::npos) {
         str = std::string(str, pos + 7);
     }
-    msg += str;
+    msg.append(str);
     Add_unk(msg.c_str(), 0xFFFF0000);
 }
 

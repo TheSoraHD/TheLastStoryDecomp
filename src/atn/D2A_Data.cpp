@@ -23,13 +23,21 @@ D2A_Data::D2A_Data() : mEndFrame(1.0f), m60(0.0f), m64(-1.0f), m9C(0), mA0(0), m
 
 D2A_Name_unk::~D2A_Name_unk() {}
 
-// NONMATCHING: 99.67% - track loop: counter and offset registers swapped (r28/r29); the element
-// loops match with `int i < Size()` and operator[], but this one needs the unsigned form
+// inferred: evaluates a track at frame 0 (inline helper, name invented)
+inline void UpdateTrack_unk(D2A_Track_unk* track) {
+    track->mValue = fn_801F0544(&track->mEntries, 0);
+}
+
+// inferred: releases the animation tracks (inline helper, name invented)
+inline void ReleaseTracks_unk(D2A_Layout_unk* layout, D2A_Buffer_unk<D2A_Track_unk>* tracks) {
+    for (unsigned int i = 0; i < tracks->mCount; i++) {
+        fn_801FE89C(layout, &tracks->mData[i]);
+    }
+}
+
 D2A_Data::~D2A_Data() {
     vf14();
-    for (unsigned int i = 0; i < mTracks.mCount; i++) {
-        fn_801FE89C(&m10, &mTracks.mData[i]);
-    }
+    ReleaseTracks_unk(&m10, &mTracks);
     mTracks.Clear();
 }
 
@@ -96,12 +104,9 @@ void D2A_Data::vf14() {
     mPool.mUsed = 0;
 }
 
-// NONMATCHING: 94.77% - track loop: track pointer and offset registers swapped (r30/r31)
 void D2A_Data::vf0C() {
-    D2A_Track_unk* track;
     for (unsigned int i = 0; i < mTracks.mCount; i++) {
-        track = &mTracks.mData[i];
-        track->mValue = fn_801F0544(&track->mEntries, 0);
+        UpdateTrack_unk(&mTracks.mData[i]);
     }
 
     for (int i = 0; i < mElements.Size(); i++) {
