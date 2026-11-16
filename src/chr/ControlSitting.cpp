@@ -30,11 +30,19 @@ ControlSitting::ControlSitting(Chara_unk* chara, const atn::Vector3& start, cons
     c->m584 = 0.0f;
 }
 
+// inferred: check of the stick direction that the game never calls (the linker removes it). Its
+// constants are created before those of vf0C, which is the .sdata2 order of the original: pi/2, the
+// WrapAngle_unk constants and 0.4f before 0.125f (the epsilon and -pi/2 of ToRotationZ_unk are removed
+// with it). Name invented.
+int SitCanStand_unk(Chara_unk* chara) {
+    atn::Vector3 rot = chara->fn_80178018().ToRotationZ_unk();
+    float angle = atn::WrapAngle_unk(rot.y - chara->mRot.y);
+    return chara->fn_80178078() > 0.4f && (float)__fabs(angle) < 1.5707964f;
+}
+
 // `chara` declared first (this in r31, motion in r30), `rot` declared before the named lerp result
 // (stack order rot/pos/dir of the original), the model by GetModel_unk() and the rotation written by
-// SetRot_unk(). The .sdata2 constants are placed in another order in the original (pi/2, the
-// WrapAngle_unk constants and 0.4f before 0.125f; here in order of first use), so the unit does not
-// link yet.
+// SetRot_unk().
 int ControlSitting::vf0C() {
     Chara_unk* chara;
     Motion_unk* motion = mChara->GetModel_unk();

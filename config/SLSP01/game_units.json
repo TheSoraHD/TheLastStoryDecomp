@@ -989,7 +989,7 @@
   "classes": [
    "chr::ControlSitting"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "chr/ControlWallUp.cpp",
