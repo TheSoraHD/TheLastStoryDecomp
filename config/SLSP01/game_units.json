@@ -534,7 +534,7 @@
   "classes": [
    "BattleResult"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "game/BattleTask.cpp",
