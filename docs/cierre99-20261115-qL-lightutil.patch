@@ -1,0 +1,34 @@
+diff --git a/src/atn/LightUtil_unk.cpp b/src/atn/LightUtil_unk.cpp
+index 753d40a..e347aba 100644
+--- a/src/atn/LightUtil_unk.cpp
++++ b/src/atn/LightUtil_unk.cpp
+@@ -43,18 +43,22 @@ extern "C" void fn_8007A100() {
+ // NONMATCHING: 98.73% - the original reads mSize again after the bounds check (here the value is reused).
+ // A size accessor in the check gives the reload but the src/dst/count registers move (95.6%); also
+ // tried an end accessor, a reference, a copy helper and an inline erase.
+-void LightList_unk::fn_8007A154(int index) {
+-    if (index < 0 || (int)mSize <= index) {
+-        return;
+-    }
+-    Light_unk* dst = &mData[index];
+-    Light_unk* end = &mData[mSize];
++static inline void EraseAt_unk(LightList_unk* v, int index) {
++    Light_unk* dst = v->begin() + index;
++    Light_unk* end = v->end();
+     if (end - dst - 1 != 0) {
+         for (Light_unk* src = dst + 1; src < end; src++, dst++) {
+             *dst = *src;
+         }
+     }
+-    mSize--;
++    v->mSize--;
++}
++
++void LightList_unk::fn_8007A154(int index) {
++    if (index < 0 || (int)size() <= index) {
++        return;
++    }
++    EraseAt_unk(this, index);
+ }
+ 
+ // The unsigned index makes MWCC increment i before the offset, as in the original
