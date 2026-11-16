@@ -52,6 +52,7 @@
 #include "atn/SceneColorMatrix_unk.h"
 #include "atn/Lerp_unk.h"
 #include "nw4r/math/triangular.h"
+#include "std/string_members.h"
 
 extern "C" GameTask* lbl_8087F430; // inferred: the field
 
