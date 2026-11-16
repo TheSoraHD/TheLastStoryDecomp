@@ -1101,13 +1101,13 @@ struct ShopUpGradeLessB_unk {
         ItemParamEntry_unk* ia = fn_80211480(a.mCode);
         ItemParamEntry_unk* ib = fn_80211480(b.mCode);
         wchar_t na[0x40];
-        fn_800DD3FC(na, L"%s", ia->mName);
+        fn_800DD3FC(na, L"%s\0", ia->mName);
         wchar_t* p = wcschr(na, L'+');
         if (p != 0) {
             *p = 0;
         }
         wchar_t nb[0x40];
-        fn_800DD3FC(nb, L"%s", ib->mName);
+        fn_800DD3FC(nb, L"%s\0", ib->mName);
         p = wcschr(nb, L'+');
         if (p != 0) {
             *p = 0;
@@ -1181,13 +1181,13 @@ struct ShopUpGradeLessD_unk {
         ItemParamEntry_unk* ia = fn_80211480(a.mCode);
         ItemParamEntry_unk* ib = fn_80211480(b.mCode);
         wchar_t na[0x40];
-        fn_800DD3FC(na, L"%s", ia->mName);
+        fn_800DD3FC(na, L"%s\0", ia->mName);
         wchar_t* p = wcschr(na, L'+');
         if (p != 0) {
             *p = 0;
         }
         wchar_t nb[0x40];
-        fn_800DD3FC(nb, L"%s", ib->mName);
+        fn_800DD3FC(nb, L"%s\0", ib->mName);
         p = wcschr(nb, L'+');
         if (p != 0) {
             *p = 0;
