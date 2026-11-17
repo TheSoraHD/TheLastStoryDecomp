@@ -163,8 +163,7 @@ inline atn::D2A_DrawRect GetPaneRect_unk(atn::D2A_Task* layout, const char* name
 
 extern "C" int fn_801231B8(SetConfig* config); // inferred: inline, defined below (weak copy)
 
-// NONMATCHING: 99.2% - the load of pos.z
-// is scheduled earlier
+// inferred: pos.z read into a local before the Vector2 store (load order of the original)
 void TutorialTask::fn_805BA934() {
     m84 = 0.0f;
     m5B4 = 0;
@@ -182,8 +181,9 @@ void TutorialTask::fn_805BA934() {
         mPages[mPage].mVideo->vf20();
         mPages[mPage].mLayout->ApplyFrame();
         atn::D2A_DrawRect pos = GetPaneRect_unk(mPages[mPage].mLayout, "tt_mv");
+        float z = pos.z;
         mPages[mPage].mVideo->mPos = atn::Vector2_unk(pos.x, pos.y);
-        mPages[mPage].mVideo->m10 = pos.z;
+        mPages[mPage].mVideo->m10 = z;
         mPages[mPage].mVideo->m04 = 1;
         mPages[mPage].mVideo->m0C = 1;
         pos.x -= 256.0f;
