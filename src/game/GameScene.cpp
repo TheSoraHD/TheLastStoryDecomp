@@ -540,6 +540,7 @@ atn::Task* GameScene::fn_803C0C2C(unsigned int index) {
     return 0;
 }
 
+// NONMATCHING: 99% - volatile registers of the warp point loop (index and leader swapped)
 void GameScene::fn_803C0F48(int warp) {
     for (unsigned int i = 0; i < 6; i++) {
         m998[i].fn_80470528();
@@ -547,10 +548,12 @@ void GameScene::fn_803C0F48(int warp) {
     for (unsigned int i = 0; i < m78.size(); i++) {
         if (warp == m78[i].mId) {
             lbl_8087F8A0->mHead->mPos = m78[i].mPos;
-            lbl_8087F8A0->mHead->SetRot_unk(atn::Vector3(0.0f, m78[i].m14, 0.0f));
+            atn::Vector3 rot(0.0f, m78[i].m14, 0.0f);
+            lbl_8087F8A0->mHead->SetRot_unk(rot);
             Mtx m;
-            PSMTXRotRad(m, 'y', m78[i].m14);
-            atn::Vector3 dir = atn::Vector3(0.0f, 0.0f, 1.0f);
+            PSMTXRotRad(m, 'y', rot.y);
+            atn::Vector3 dir;
+            dir = atn::Vector3(0.0f, 0.0f, 1.0f);
             PSMTXMultVec(m, &dir, &dir);
             break;
         }

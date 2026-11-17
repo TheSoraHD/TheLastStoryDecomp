@@ -17,6 +17,7 @@
 | TutorialPopup::fn_805BCF04 (csv de las lineas) | 90 % (escrita desde m2c) | equivalente NONMATCHING 98,5 % (registros) |
 | TutorialTask::fn_805BB654 (csv de las paginas) | 83,7 % (escrita desde m2c, sin pasar a minusculas) | equivalente NONMATCHING 90,4 % |
 | TutorialTask::fn_805BA354 (inicio) | 92,4 % | **100 %** |
+| GameScene::fn_803C0F48 (warp) | 93,2 % | equivalente NONMATCHING 99 % (registros) |
 | TutorialTask::fn_805BC1C0 (camara libre) | equivalente 96,3 % | equivalente NONMATCHING 99 % (registros) |
 
 ## Para el port
@@ -47,8 +48,10 @@
 - Argumentos de layout/pane (fn_801F4E8C, fn_801FED24, fn_801FEE08) que el original evalua antes del hash del nombre: inlines con el layout como parametro (GetPaneRect_unk, SetPaneValue_unk, SetPaneText_unk), como las de MP/D2AMpMenu_unk.h (TutorialTask). (escribir-20261116 qW1b)
 - Condicion `a == "x" && f() != 0` con temporales `std::string` que se destruyen antes del if: el original la guarda en un `bool` (`bool ok = ... && ...; if (ok)`), sin un segundo flag (TutorialPopup fn_805BCF04 90 -> 98,5 %). (escribir-20261116 qW1b)
 - Copia implicita grande (`mCamera = *camera`) seguida de una asignacion simple: escribir la simple antes (`mPage = 0;` delante de la copia) cambia el reparto de registros de toda la funcion (TutorialTask fn_805BA354 92 -> 100 %). (escribir-20261116 qW1b)
+- Vector temporal construido y copiado (`dir = Vector3(0, 0, 1)` con psq_l/psq_st desde la pila): declarar sin inicializar y asignar; y un componente de un local ya cargado (`rot.y`) en vez de releer el miembro (GameScene fn_803C0F48 93 -> 99 %). (escribir-20261116 qW1b)
 
 ## Bloqueos
+- GameChoiceWindow fn_803B6970/fn_803B6E04/vf10: el original deja materializados los tres bool anidados de HasVoice_unk (r28/r29/r30); probadas las inlines con `return a && b;` (sin cambio).
 - TutorialTask fn_805BA934: `m5B4 = mAttackType != 0` sale con neg/or; el original lo hace con dos cntlzw. Probados `!(x == 0)`, `!!x` y una inline bool (MWCC lo pliega).
 - GameScene fn_803CB618 (91 %), fn_803CAED0 (97,6 %), fn_803C1CAC (98,9 %): orden de cargas/pila; probados reordenar las referencias a/b, operator- en vez del ctor por componentes (91,4 %), bloque anidado y declarar sin inicializar en fn_803CAED0, y `mCamera != mDefaultCamera` en fn_803C1CAC.
 - ReplayBuffer fn_80570A74: con las inlines reales `mEffects.begin()/end()/erase(p)` sube a 89,7 % pero desplaza dos `@N` (labelcheck peor); no commiteado. Sigue el reparto de registros (contador exterior en r31).
