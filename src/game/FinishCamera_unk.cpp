@@ -346,7 +346,7 @@ __declspec(noinline) float FinishCamera_unk::fn_80379104(XsfCurveSet_unk* curve,
 // the ends; 6 = the same around all of them at once. The camera is then set to the render manager (or the field
 // camera is moved to the target when it is taken over, m394). The curves are added by hand (AddCurve_unk as a
 // candidate puts the function over the inlining budget)
-// NONMATCHING: 95.2% - stack slots and float registers of the temporaries (the original keeps the curve matrices
+// NONMATCHING: 95.29% - stack slots and float registers of the temporaries (the original keeps the curve matrices
 // in r29), five more saved gprs here
 void FinishCamera_unk::fn_803792F0() {
     if (m00 == 0) {
@@ -707,7 +707,8 @@ void FinishCamera_unk::fn_803792F0() {
                 }
             }
             m3A8 = mChara;
-            if (m3A8->mMotion.mTracks[0].m08 >= m3A8->mMotion.fn_80097D7C(0)) {
+            float frame = m3A8->mMotion.mTracks[0].m08;
+            if (frame >= m3A8->mMotion.fn_80097D7C(0)) {
                 if (lbl_8087F610 != 0) {
                     m3A8->mMotion.fn_80097C08(0, m3A8->m484[0], 1, 0, 1, 0.0f, 0.1f);
                 } else if (m3A8->m5C->m11C == 2) {
@@ -727,7 +728,7 @@ void FinishCamera_unk::fn_803792F0() {
                 lbl_8087F498->fn_803EA77C(m3A8, 40, 15, 1.0f, 10.0f);
             }
             if (m358 > frames) {
-                if (++m2F8 >= mEntries.mCount) {
+                if (++m2F8 >= (int)mEntries.mCount) {
                     fn_80378CCC();
                 } else {
                     m358 = 0;
@@ -822,7 +823,8 @@ void FinishCamera_unk::fn_803792F0() {
             }
             for (unsigned int i = 0; i < mEntries.mCount; i++) {
                 CharaTask* chara = mEntries.mData[i].mChara;
-                if (chara->mMotion.mTracks[0].m08 >= chara->mMotion.fn_80097D7C(0)) {
+                float frame = chara->mMotion.mTracks[0].m08;
+                if (frame >= chara->mMotion.fn_80097D7C(0)) {
                     chara->mMotion.fn_80097C08(0, chara->m484[0], 1, 0, 1, 0.0f, 0.05f);
                 }
                 chara->m1220.fn_8012111C();
