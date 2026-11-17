@@ -35,6 +35,7 @@ chr/ControlRide, chr/ControlDamage, game/Em209SmallGolem, game/Em101LittleZesyaS
 ## Para el port
 
 - chr/ControlRide, game/Em209SmallGolem: solo forma del fuente (locales, inline `Em209SmallGolem::SetAppear_unk` nueva en la cabecera, sin nombres de parametros). Sin cambios de firma ni de comportamiento.
+- game/Em315Coffin: aplicado el parche `docs/mixto-20261116-qA4-coffin.patch` (getter debil `fn_800F7FA0()` en `CoffinEffect_unk`, escala en `CoffinScaleLen_unk`); `CoffinRotZYX_unk` devuelve ahora `atn::Matrix3x4&` (antes `void`); matrices `t` declaradas antes de `r`/`s`. Sin cambio de comportamiento.
 
 ## Decisiones tomadas sin el usuario
 
@@ -67,3 +68,7 @@ chr/ControlRide, chr/ControlDamage, game/Em209SmallGolem, game/Em101LittleZesyaS
 ## Scripts
 
 - `/home/claude/scratch-N7/bin/vv.py <unidad> <simbolo> <variantes.py>`: como var.py, pero cada variante es una lista de pares (viejo, nuevo); `vv2.py` anade el recuento de stk.py. `ours.sh <unidad> <simbolo> [desde] [hasta]`: nuestro desensamblado con indices. `scanops.py`: busca en chr/ y Em*/Enemy*/Np* funciones con `f*` de operandos solo permutados (candidatas al truco de `*=`).
+
+## Resumen final
+
+Funciones al 100 %: 6 (ControlRideBeast vf0C y ctor, Em209SmallGolem vf80 y vf20, Em101LittleZesyaSecond vf10, Em315Coffin fn_80315964). Funciones 15948 -> 15954, unidades 729 -> 730 (enlaza chr/ControlRide). lost 0, sin bajadas. Fin: 2026-11-17 10:10.
