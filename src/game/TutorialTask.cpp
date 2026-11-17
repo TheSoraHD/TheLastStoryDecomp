@@ -1,3 +1,4 @@
+#include "atn/SoundManager.h"
 #include "game/TutorialTask.h"
 #include <ctype.h>
 #include "game/GameTask.h"
@@ -149,9 +150,6 @@ void TutorialTask::fn_805BA354(const Camera_unk* camera) {
     fn_805BA934();
 }
 
-class SoundManager_unk;
-extern "C" SoundManager_unk* lbl_8087EFE8;
-extern "C" int fn_800D089C(SoundManager_unk* mgr, int a, int b);
 
 // inferred: sets a value of a pane of a layout (the layout is evaluated before the hash of the name)
 inline void SetPaneValue_unk(void* layout, const char* name, int index, float value) {
@@ -163,14 +161,16 @@ inline atn::D2A_DrawRect GetPaneRect_unk(atn::D2A_Task* layout, const char* name
     return fn_801F4E8C(layout, fn_800DC6B4(name));
 }
 
-// NONMATCHING: 98% - `!= 0` of the attack type: the original tests it with two cntlzw; the load of pos.z
+extern "C" int fn_801231B8(SetConfig* config); // inferred: inline, defined below (weak copy)
+
+// NONMATCHING: 99.2% - the load of pos.z
 // is scheduled earlier
 void TutorialTask::fn_805BA934() {
     m84 = 0.0f;
     m5B4 = 0;
     m5C0 = 0;
     if (mPages[mPage].mType == 1) {
-        m5B4 = SetConfig::sInstance->mAttackType != 0;
+        m5B4 = fn_801231B8(SetConfig::sInstance) == 0;
     }
     mState = 1;
     fn_805BC1C0();
@@ -192,7 +192,7 @@ void TutorialTask::fn_805BA934() {
         SetPaneValue_unk(&mPages[mPage].mVideoLayout->mData.m10, "basePoint", 0, pos.x);
         SetPaneValue_unk(&mPages[mPage].mVideoLayout->mData.m10, "basePoint", 1, pos.y);
         SetPaneValue_unk(&mPages[mPage].mVideoLayout->mData.m10, "basePoint", 4, pos.z);
-        if (lbl_8087EFE8 != 0 && fn_800D089C(lbl_8087EFE8, 1, 0) > 0 && lbl_8087F418 != 0) {
+        if (lbl_8087EFE8 != 0 && lbl_8087EFE8->fn_800D089C(1, 0) > 0 && lbl_8087F418 != 0) {
             lbl_8087F418->fn_803606CC(0, 8, 15);
             lbl_8087F418->fn_80360780(0, 8, 15);
         }
