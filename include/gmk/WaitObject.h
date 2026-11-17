@@ -33,7 +33,7 @@ struct WaitTrigger_unk {
     signed char mState; // 0x00: state the trigger belongs to
     signed char mNext;  // 0x01: state it switches to
     int mType;          // 0x04: inferred: 4 attention point, 5 collision target
-    unsigned char m08[0x14]; // inferred: m08 is the radius (float)
+    float m08[5]; // inferred: area of the trigger (WaitArea_unk; m08 is the radius)
 };
 
 // inferred: object with a model, a collision object, effects and states ("MODEL", "MOTION",

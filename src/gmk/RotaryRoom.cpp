@@ -290,30 +290,60 @@ void RotaryRoom::vf10() {
     }
 }
 
-// NONMATCHING: 99.16% - registers of the switch value/part pointer and the locator loop counters, and the
-// stack slots of the temporaries of RotateZYX_unk (the original puts the z rotation highest)
+// inferred: the three axis rotations of atn::Matrix3x4::RotateZYX_unk through one more inline level
+// (stack slots of the original); names invented
+static inline void RotateAxes_unk(atn::Matrix3x4* p, const atn::Vector3& rot) {
+    if (0.0f != rot.z) {
+        atn::Matrix3x4::RotateAxis_unk(*p, 'z', rot.z);
+    }
+    if (0.0f != rot.y) {
+        atn::Matrix3x4::RotateAxis_unk(*p, 'y', rot.y);
+    }
+    if (0.0f != rot.x) {
+        atn::Matrix3x4::RotateAxis_unk(*p, 'x', rot.x);
+    }
+}
+static inline void RotateZYX_unk(atn::Matrix3x4& self, const atn::Vector3& rot) {
+    atn::Matrix3x4 t;
+    atn::Matrix3x4 m;
+    atn::Matrix3x4* p = &m;
+    p->SetIdentity();
+    RotateAxes_unk(p, rot);
+    PSMTXConcat(self.m, p->m, t.m);
+    self = t;
+}
+
+// The rotation goes through RotateZYX_unk/RotateAxes_unk (one more inline level puts the z rotation
+// highest in the stack, as in the original); the locals of the loop and of case 4 are declared first
+// (registers of the original).
 // inferred: fills the entries with the parts of the group (models, locator instances and the gimmicks
 // placed by a gimmick locator) and their matrices
 void RotaryRoom::fn_80424AD4() {
     int n = 0;
     for (MapPartsBase* part = mGroup->mParts; part != 0; part = part->mNext) {
-        switch (part->mType) {
+        atn::Model* model;
+        int type = part->mType;
+        switch (type) {
         case 0: {
             RotaryEntry_unk& e = mEntries.mData[n++];
-            atn::Model* model = &((MapPartsModel*)part)->mModel;
-            e.mType = part->mType;
+            model = &((MapPartsModel*)part)->mModel;
+            e.mType = type;
             e.mObject = model;
             e.mMtx = model->mMtx;
             break;
         }
         case 4: {
             MapPartsLocatorSet* set = (MapPartsLocatorSet*)part;
-            for (int i = 0; i < (int)set->mInstances.mSize; i++) {
-                MapInstance_unk* inst = set->mInstances.mData[i];
-                RotaryEntry_unk& e = mEntries.mData[n++];
-                e.mType = part->mType;
-                e.mObject = inst;
-                e.mMtx = inst->mInst.mMtx;
+            MapInstance_unk* inst;
+            RotaryEntry_unk* e;
+            int i;
+            for (i = 0; i < (int)set->mInstances.mSize; i++) {
+                inst = set->mInstances.mData[i];
+                e = &mEntries.mData[n];
+                e->mType = part->mType;
+                e->mObject = inst;
+                e->mMtx = inst->mInst.mMtx;
+                n++;
             }
             break;
         }
@@ -326,7 +356,7 @@ void RotaryRoom::fn_80424AD4() {
                     e.m08 = g->m6C;
                     e.m14 = g->m84;
                     e.mMtx = fn_800109E0(g->m78);
-                    e.mMtx.RotateZYX_unk(e.m14);
+                    RotateZYX_unk(e.mMtx, e.m14);
                     n++;
                     e.mMtx.fn_801479E4(g->m6C);
                 }
