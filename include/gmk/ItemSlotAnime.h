@@ -37,7 +37,7 @@ public:
     void fn_8044D9BC(void* owner);
     int fn_8044E1BC(); // inferred: nonzero while loading
     void fn_8044EA34(int arg);
-    int fn_8044EEC0();
+    int fn_8044EEC0() const;
     void fn_8044F14C();
     void fn_8044F96C();
     void fn_80450590(); // inferred: updates one step of the texts
