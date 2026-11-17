@@ -21,12 +21,14 @@ Inicio: 2026-11-17 06:06 CET (tope 08:36).
 | fn_804D996C | 95,77 % | 99,57 % (llama a fn_804FB470, que el original inlinea) |
 | fn_804CF198 | 82,98 % | 99,37 % (`const PackedMotion_unk*`) |
 | fn_804CF640 | 92,10 % | 96,92 % (`const PackedChara_unk*`) |
+| fn_804EFF74 | 99,12 % | 99,23 % (payload `const`) |
 | fn_804EF0F0 | 99,07 % | 99,71 % (queda el `lwzx` del personaje encontrado) |
 
 ## Para el port
 
 - Firmas: `fn_804CF198(const PackedMotion_unk*, atn::Model*, int)` y `fn_804CF640(const PackedChara_unk*, CharaTask*)`
-  (antes sin `const`); mismos llamadores.
+  (antes sin `const`); mismos llamadores. Los 33 punteros `data` al buffer de trabajo (`GetWorkBuffer_unk()`) de los
+  manejadores pasan a `const T*`; fn_804CF374 lee el slot por `const ModelSlot_unk&`.
 
 - Sin cambios de comportamiento: fn_804D8610, fn_804DD3F0, fn_804DDE34, fn_804E6518 y fn_804EA8B8 pasan
   `GetMyAid_unk()` directamente a fn_804DD158 (antes un local `unsigned int aid`); fn_804EAA84 copia `rot` con

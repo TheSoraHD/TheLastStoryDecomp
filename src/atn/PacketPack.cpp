@@ -90,7 +90,7 @@ extern "C" void fn_804CF198(const PackedMotion_unk* in, atn::Model* model, int i
 
 // inferred: packs the motion state of slot `index` of a model
 extern "C" void fn_804CF374(PackedMotion_unk* out, atn::Model* model, int index) {
-    ModelSlot_unk& slot = ((ModelSlots_unk*)model)->mSlots[index];
+    const ModelSlot_unk& slot = ((ModelSlots_unk*)model)->mSlots[index];
     out->mMotion = slot.mMotion;
     out->mFrame = (float)slot.mFrame * 63.0f;
     out->mSpeed = (float)slot.mSpeed * 12.7f;
@@ -8561,7 +8561,7 @@ extern "C" void fn_804EE834(PPPlayer_unk* player) {
 // inferred: applies the state of a character received from another player (only in the game, state 30)
 extern "C" void fn_804EE904(MpCharaRef_unk* ref) {
     if (((PPManager2_unk*)lbl_8087F610)->mState == 30) {
-        PPMsgCharaFull_unk* data = (PPMsgCharaFull_unk*)fn_804AE3BC()->GetWorkBuffer_unk();
+        const PPMsgCharaFull_unk* data = (const PPMsgCharaFull_unk*)fn_804AE3BC()->GetWorkBuffer_unk();
         if (data->mIndex != lbl_8087F628->GetMyAid_unk() && ref->mChara != 0) {
             fn_804CF640(&data->mChara, ref->mChara);
         }
@@ -8572,7 +8572,7 @@ extern "C" void fn_804EE904(MpCharaRef_unk* ref) {
 // inferred: applies the state of a player received from another machine (only in the game, state 30)
 extern "C" void fn_804EE9F0(PPPlayer_unk* player) {
     if (((PPManager2_unk*)lbl_8087F610)->mState == 30) {
-        PPPlayerInfo_unk* data = (PPPlayerInfo_unk*)fn_804AE3BC()->GetWorkBuffer_unk();
+        const PPPlayerInfo_unk* data = (const PPPlayerInfo_unk*)fn_804AE3BC()->GetWorkBuffer_unk();
         if (data->mAid != lbl_8087F628->GetMyAid_unk()) {
             if (player->mRef.mChara != 0) {
                 ((PPChara_unk*)player->mRef.mChara)->m7D8 = data->m00;
@@ -8591,7 +8591,7 @@ extern "C" void fn_804EE9F0(PPPlayer_unk* player) {
 // characters are off during the shot
 extern "C" void fn_804EEB34() {
     if (((PPManager2_unk*)lbl_8087F610)->mState == 30) {
-        PPMsgShot_unk* data = (PPMsgShot_unk*)fn_804AE3BC()->GetWorkBuffer_unk();
+        const PPMsgShot_unk* data = (const PPMsgShot_unk*)fn_804AE3BC()->GetWorkBuffer_unk();
         PPManager2_unk* mgr = (PPManager2_unk*)lbl_8087F610;
         CharaTask* owner = GetHitAttacker_unk(mgr, &data->mShooter);
         if (owner != 0) {
@@ -8641,7 +8641,7 @@ struct PPMsgHoming_unk {
 // characters are off during the shot (and stay off when the hit data or a free bullet is missing)
 extern "C" void fn_804EED7C() {
     if (((PPManager2_unk*)lbl_8087F610)->mState == 30) {
-        PPMsgHoming_unk* data = (PPMsgHoming_unk*)fn_804AE3BC()->GetWorkBuffer_unk();
+        const PPMsgHoming_unk* data = (const PPMsgHoming_unk*)fn_804AE3BC()->GetWorkBuffer_unk();
         PPManager2_unk* mgr = (PPManager2_unk*)lbl_8087F610;
         CharaTask* owner = GetHitAttacker_unk(mgr, &data->mShooter);
         fn_8014F8F4()->mEnabled = 0;
@@ -8748,7 +8748,7 @@ extern "C" void fn_804EF0F0(unsigned int aid) {
     if (((PPManager2_unk*)lbl_8087F610)->mStateVar.mValue != 30) {
         return;
     }
-    PPMsgGimmick_unk* data = (PPMsgGimmick_unk*)fn_804AE3BC()->GetWorkBuffer_unk();
+    const PPMsgGimmick_unk* data = (const PPMsgGimmick_unk*)fn_804AE3BC()->GetWorkBuffer_unk();
     for (GimmickCommon* gimmick = GimmickManager::instance_->mHead; gimmick != 0; gimmick = gimmick->m5C) {
         if (data->mId != gimmick->mId || data->mKind != gimmick->m4C) {
             continue;
@@ -8887,7 +8887,7 @@ extern "C" void fn_804EF9B4() {
     if (((PPManager2_unk*)lbl_8087F610)->mState == 30) {
         GimmickCommon* held;
         unsigned int flags;
-        PPMsgDamage_unk* data = (PPMsgDamage_unk*)fn_804AE3BC()->GetWorkBuffer_unk();
+        const PPMsgDamage_unk* data = (const PPMsgDamage_unk*)fn_804AE3BC()->GetWorkBuffer_unk();
         PPManager2_unk* mgr = (PPManager2_unk*)lbl_8087F610;
         CharaTask* chara = GetHitAttacker_unk(mgr, &data->mTarget);
         if (chara != 0) {
@@ -8921,7 +8921,7 @@ extern "C" void fn_804EF9B4() {
 // characters are off during the hit
 extern "C" void fn_804EFC94() {
     if (((PPManager2_unk*)lbl_8087F610)->mState == 30) {
-        PPMsgHit_unk* data = (PPMsgHit_unk*)fn_804AE3BC()->GetWorkBuffer_unk();
+        const PPMsgHit_unk* data = (const PPMsgHit_unk*)fn_804AE3BC()->GetWorkBuffer_unk();
         PPManager2_unk* mgr = (PPManager2_unk*)lbl_8087F610;
         CharaTask* attacker = GetHitAttacker_unk(mgr, &data->mAttacker);
         if (lbl_8087F048 != 0) {
@@ -8938,7 +8938,7 @@ extern "C" void fn_804EFC94() {
 // inferred: message 9: a voice of the data (id, offset)
 extern "C" void fn_804EFE98(PPPlayer_unk* player) {
     if (lbl_8087F628 != 0 && fn_804AE3BC() != 0 && fn_804AE3BC()->GetWorkBuffer_unk() != 0) {
-        unsigned int* data = (unsigned int*)fn_804AE3BC()->GetWorkBuffer_unk();
+        const unsigned int* data = (const unsigned int*)fn_804AE3BC()->GetWorkBuffer_unk();
         if (lbl_8087F498 != 0) {
             lbl_8087F498->fn_803E9B7C(data[0], data[1], 1, 1.0f);
         }
@@ -8991,7 +8991,7 @@ extern "C" void fn_804EFF74(PPPlayer_unk* player, unsigned int type) {
     if (((PPManager2_unk*)lbl_8087F610)->mState != 30) {
         return;
     }
-    PPMsgAttack_unk* data = (PPMsgAttack_unk*)fn_804AE3BC()->GetWorkBuffer_unk();
+    const PPMsgAttack_unk* data = (const PPMsgAttack_unk*)fn_804AE3BC()->GetWorkBuffer_unk();
     CharaTask* attacker = GetHitAttacker_unk((PPManager2_unk*)lbl_8087F610, &data->mAttacker);
     CharaTask* target = GetHitAttacker_unk((PPManager2_unk*)lbl_8087F610, &data->mTarget);
     if (target == 0) {
@@ -9157,7 +9157,7 @@ extern "C" void fn_804F1068() {
     if (PP_NO_DATA_UNK) {
         return;
     }
-    int* data = (int*)fn_804AE3BC()->GetWorkBuffer_unk();
+    const int* data = (const int*)fn_804AE3BC()->GetWorkBuffer_unk();
     ((PPManager2_unk*)lbl_8087F610)->m55C = data[0];
 }
 
@@ -9168,7 +9168,7 @@ extern "C" void fn_804F1124() {
     if (PP_NO_DATA_UNK) {
         return;
     }
-    int* data = (int*)fn_804AE3BC()->GetWorkBuffer_unk();
+    const int* data = (const int*)fn_804AE3BC()->GetWorkBuffer_unk();
     ((PPManager2_unk*)lbl_8087F610)->m564 = data[0];
     if (((PPManager2_unk*)lbl_8087F610)->mState == 30 && ((PPManager2_unk*)lbl_8087F610)->mMode == 2) {
         if (GameBgm::sInstance != 0) {
@@ -9196,7 +9196,7 @@ extern "C" void fn_804F12A0() {
     if (PP_NO_DATA_UNK) {
         return;
     }
-    int* data = (int*)fn_804AE3BC()->GetWorkBuffer_unk();
+    const int* data = (const int*)fn_804AE3BC()->GetWorkBuffer_unk();
     ((PPManager2_unk*)lbl_8087F610)->m568 = data[0];
 }
 
@@ -9205,7 +9205,7 @@ extern "C" void fn_804F135C() {
     if (PP_NO_DATA_UNK) {
         return;
     }
-    PPGameSettings_unk* data = (PPGameSettings_unk*)fn_804AE3BC()->GetWorkBuffer_unk();
+    const PPGameSettings_unk* data = (const PPGameSettings_unk*)fn_804AE3BC()->GetWorkBuffer_unk();
     ((PPManager2_unk*)lbl_8087F610)->m560 = data->m00;
     ((PPManager2_unk*)lbl_8087F610)->m564 = data->m04;
     ((PPManager2_unk*)lbl_8087F610)->m568 = data->m08;
@@ -9229,7 +9229,7 @@ extern "C" void fn_804F1498(PPPlayer_unk* player) {
     if (PP_NO_DATA_UNK) {
         return;
     }
-    unsigned int* data = (unsigned int*)fn_804AE3BC()->GetWorkBuffer_unk();
+    const unsigned int* data = (const unsigned int*)fn_804AE3BC()->GetWorkBuffer_unk();
     player->mFlags.m22 = data[0];
 }
 
@@ -9263,7 +9263,7 @@ extern "C" void fn_804F1564(PPPlayer_unk* player, unsigned int type) {
     if (PP_NO_DATA_UNK) {
         return;
     }
-    PPMsgSlot_unk* data = (PPMsgSlot_unk*)fn_804AE3BC()->GetWorkBuffer_unk();
+    const PPMsgSlot_unk* data = (const PPMsgSlot_unk*)fn_804AE3BC()->GetWorkBuffer_unk();
     player->mFlags.m28 = data->mFlags.m28;
     player->mFlags.m06 = data->mFlags.m06;
     player->mFlags.m02 = data->mFlags.m02;
@@ -9303,7 +9303,7 @@ extern "C" void fn_804F1950(PPPlayer_unk* player) {
     if (PP_NO_DATA_UNK) {
         return;
     }
-    PPMsgEquip_unk* data = (PPMsgEquip_unk*)fn_804AE3BC()->GetWorkBuffer_unk();
+    const PPMsgEquip_unk* data = (const PPMsgEquip_unk*)fn_804AE3BC()->GetWorkBuffer_unk();
     switch (data->mKind) {
     case 0:
         player->mEquip0.Set_unk(data->mHead);
@@ -9325,7 +9325,7 @@ extern "C" void fn_804F1CA0(PPPlayer_unk* player) {
     if (PP_NO_DATA_UNK) {
         return;
     }
-    int* data = (int*)fn_804AE3BC()->GetWorkBuffer_unk();
+    const int* data = (const int*)fn_804AE3BC()->GetWorkBuffer_unk();
     player->mD38[data[0]] = data[1];
 }
 
@@ -9379,7 +9379,7 @@ extern "C" void fn_804F1F34(PPPlayer_unk* player) {
 // restore their state (vf114) from +0x15 of the data
 extern "C" void fn_804F2040(unsigned int type) {
     if (((PPManager2_unk*)lbl_8087F610)->mState == 30) {
-        PPMsgSpecialFull_unk* data = (PPMsgSpecialFull_unk*)fn_804AE3BC()->GetWorkBuffer_unk();
+        const PPMsgSpecialFull_unk* data = (const PPMsgSpecialFull_unk*)fn_804AE3BC()->GetWorkBuffer_unk();
         if (data->mChara.m12_1 == 0) {
             PPPlayer_unk* player = PPFindTeam_unk(&((PPManager2_unk*)lbl_8087F610)->mPlayers, data->mIndex);
             fn_804AE3BC()->fn_8050E62C(player != 0, "enemy_status\n");
@@ -9417,7 +9417,7 @@ extern "C" void fn_804F2040(unsigned int type) {
 // server; a character of the list is revived or killed to follow the value m00
 extern "C" void fn_804F2258() {
     if (((PPManager2_unk*)lbl_8087F610)->mState == 30) {
-        PPPlayerInfo_unk* data = (PPPlayerInfo_unk*)fn_804AE3BC()->GetWorkBuffer_unk();
+        const PPPlayerInfo_unk* data = (const PPPlayerInfo_unk*)fn_804AE3BC()->GetWorkBuffer_unk();
         if (!data->mIsEntry) {
             PPPlayer_unk* player = PPFindTeam_unk(&((PPManager2_unk*)lbl_8087F610)->mPlayers, data->mAid);
             fn_804AE3BC()->fn_8050E62C(player != 0, "enemy_sync\n");
@@ -9463,7 +9463,7 @@ struct PPMsgEnemyLoc_unk {
 // commands of a new motion run once at frame 0)
 extern "C" void fn_804F2450(unsigned int type) {
     if (((PPManager2_unk*)lbl_8087F610)->mState == 30) {
-        PPMsgEnemyLoc_unk* data = (PPMsgEnemyLoc_unk*)fn_804AE3BC()->GetWorkBuffer_unk();
+        const PPMsgEnemyLoc_unk* data = (const PPMsgEnemyLoc_unk*)fn_804AE3BC()->GetWorkBuffer_unk();
         if (!data->mIsEntry) {
             PPPlayer_unk* player = PPFindTeam_unk(&((PPManager2_unk*)lbl_8087F610)->mPlayers, (unsigned char)data->mIndex);
             PPManager2_unk* mgr = (PPManager2_unk*)lbl_8087F610;
@@ -9539,7 +9539,7 @@ struct PPMsgSpecialHit_unk {
 // a BattleCalcParam_unk and given to vf40 of the enemy (SpecialEnemyBase ids, unless its flag 2 is set)
 extern "C" void fn_804F2994() {
     if (((PPManager2_unk*)lbl_8087F610)->mState == 30) {
-        PPMsgSpecialHit_unk* data = (PPMsgSpecialHit_unk*)fn_804AE3BC()->GetWorkBuffer_unk();
+        const PPMsgSpecialHit_unk* data = (const PPMsgSpecialHit_unk*)fn_804AE3BC()->GetWorkBuffer_unk();
         CharaTask* attacker = GetHitAttacker_unk((PPManager2_unk*)lbl_8087F610, &data->mRefs.mAttacker);
         CharaTask* target = GetHitAttacker_unk((PPManager2_unk*)lbl_8087F610, &data->mRefs.mTarget);
         if (target != 0 && !target->IsFlag2_unk()) {
@@ -9580,7 +9580,7 @@ extern "C" void fn_804F2C44(PPPlayer_unk* player) {
     if (((PPManager2_unk*)lbl_8087F610)->mState != 30) {
         return;
     }
-    int* data = (int*)fn_804AE3BC()->GetWorkBuffer_unk();
+    const int* data = (const int*)fn_804AE3BC()->GetWorkBuffer_unk();
     if (player->mRef.mChara != 0) {
         if (*data > 0) {
             player->mRef.mChara->fn_8014F698(0, *data, 0);
@@ -9651,7 +9651,7 @@ extern "C" void fn_804F3170() {
     if (PP_NO_DATA_UNK) {
         return;
     }
-    unsigned char* data = (unsigned char*)fn_804AE3BC()->GetWorkBuffer_unk();
+    const unsigned char* data = (const unsigned char*)fn_804AE3BC()->GetWorkBuffer_unk();
     memcpy(((PPManager2_unk*)lbl_8087F610)->m9984, data, 8);
     memcpy(((PPManager2_unk*)lbl_8087F610)->m998C, data + 8, 8);
 }
@@ -9686,7 +9686,7 @@ extern "C" void fn_804F3258() {
     if (PP_NO_DATA_UNK) {
         return;
     }
-    unsigned char* data = (unsigned char*)fn_804AE3BC()->GetWorkBuffer_unk();
+    const unsigned char* data = (const unsigned char*)fn_804AE3BC()->GetWorkBuffer_unk();
     PPRequests_unk* queue = (PPRequests_unk*)lbl_8087F610;
     PPRequest_unk* req = FindRequest_unk(queue, data[0]);
     if (req != 0) {
@@ -9751,7 +9751,7 @@ extern "C" void fn_804F3880() {
     if (((PPManager2_unk*)lbl_8087F610)->mState != 30) {
         return;
     }
-    unsigned char* data = (unsigned char*)fn_804AE3BC()->GetWorkBuffer_unk();
+    const unsigned char* data = (const unsigned char*)fn_804AE3BC()->GetWorkBuffer_unk();
     PPPlayer_unk* player = fn_804DD158((PPManager2_unk*)lbl_8087F610, data[0]);
     if (player != 0 && player->mRef.mChara != 0) {
         if (data[1] != 0) {
@@ -9775,7 +9775,7 @@ extern "C" void fn_804F39D4() {
     if (((PPManager2_unk*)lbl_8087F610)->mState != 30) {
         return;
     }
-    unsigned char* data = (unsigned char*)fn_804AE3BC()->GetWorkBuffer_unk();
+    const unsigned char* data = (const unsigned char*)fn_804AE3BC()->GetWorkBuffer_unk();
     PPPlayer_unk* player = fn_804DD158((PPManager2_unk*)lbl_8087F610, data[0]);
     if (player == 0) {
         return;
@@ -9796,7 +9796,7 @@ extern "C" void fn_804F3AF0() {
     if (PP_NO_DATA_UNK) {
         return;
     }
-    unsigned char* data = (unsigned char*)fn_804AE3BC()->GetWorkBuffer_unk();
+    const unsigned char* data = (const unsigned char*)fn_804AE3BC()->GetWorkBuffer_unk();
     ((PPManager2_unk*)lbl_8087F610)->m5A8 = data[0];
 }
 
@@ -9825,7 +9825,7 @@ extern "C" void fn_804F3D80(PPPlayer_unk* player) {
     if (PP_NO_DATA_UNK) {
         return;
     }
-    unsigned short* data = (unsigned short*)fn_804AE3BC()->GetWorkBuffer_unk();
+    const unsigned short* data = (const unsigned short*)fn_804AE3BC()->GetWorkBuffer_unk();
     fn_804F50DC((PPManager2_unk*)lbl_8087F610, player, data[0], data[1]);
 }
 
@@ -9834,7 +9834,7 @@ extern "C" void fn_804F3E50() {
     if (((PPManager2_unk*)lbl_8087F610)->mState != 30) {
         return;
     }
-    int* data = (int*)fn_804AE3BC()->GetWorkBuffer_unk();
+    const int* data = (const int*)fn_804AE3BC()->GetWorkBuffer_unk();
     int index = data[0];
     if (index < 0 || (int)((PPManager2_unk*)lbl_8087F610)->mCharas.size() <= index) {
         return;
@@ -9874,7 +9874,7 @@ extern "C" void fn_804F3EEC() {
     if (PP_NO_DATA_UNK) {
         return;
     }
-    unsigned char* data = (unsigned char*)fn_804AE3BC()->GetWorkBuffer_unk();
+    const unsigned char* data = (const unsigned char*)fn_804AE3BC()->GetWorkBuffer_unk();
     PPPlayer_unk* winner = fn_804DD158((PPManager2_unk*)lbl_8087F610, data[0]);
     PPPlayer_unk* loser = fn_804DD158((PPManager2_unk*)lbl_8087F610, data[1]);
     if (winner == 0 || loser == 0 || winner->mRef.mChara == 0 || loser->mRef.mChara == 0) {
@@ -9916,7 +9916,7 @@ extern "C" void fn_804F4728() {
     if (PP_NO_DATA_UNK) {
         return;
     }
-    unsigned int* data = (unsigned int*)fn_804AE3BC()->GetWorkBuffer_unk();
+    const unsigned int* data = (const unsigned int*)fn_804AE3BC()->GetWorkBuffer_unk();
     if (data[0] <= 7) {
         PPManager2_unk* mgr = (PPManager2_unk*)lbl_8087F610;
         mgr->m9694[data[0]] = data[1];
@@ -9935,7 +9935,7 @@ extern "C" void fn_804F47FC(PPPlayer_unk* player, unsigned int aid) {
     if (fn_800F7F90()->mState == 30 && fn_800F7F90()->m50C != 0) {
         return;
     }
-    PPMsgRoom_unk* data = (PPMsgRoom_unk*)fn_804AE3BC()->GetWorkBuffer_unk();
+    const PPMsgRoom_unk* data = (const PPMsgRoom_unk*)fn_804AE3BC()->GetWorkBuffer_unk();
     for (int i = 0; i < (int)fn_800F7F90()->mPlayers.size(); i++) {
         PPPlayer_unk* slot = fn_804D5F0C(fn_800F7F90(), i);
         slot->mD8 = data->mD8[i];
@@ -10031,7 +10031,7 @@ struct PPMsgCharsIn_unk {
 // inferred: message 0x1043: characters of the players and m2B80 (0x10 = team game)
 // NONMATCHING: 99.66% - order of the two pointer increments of the loop
 extern "C" void fn_804F4E40() {
-    PPMsgCharsIn_unk* data = (PPMsgCharsIn_unk*)fn_804AE3BC()->GetWorkBuffer_unk();
+    const PPMsgCharsIn_unk* data = (const PPMsgCharsIn_unk*)fn_804AE3BC()->GetWorkBuffer_unk();
     for (int i = 0; i < 8; i++) {
         PPPlayer_unk* player = fn_804D5F0C((PPManager2_unk*)lbl_8087F610, i);
         if (player != 0) {
