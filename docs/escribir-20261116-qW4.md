@@ -17,6 +17,7 @@ Agente W4, inicio 2026-11-17 02:08 (tope 04:38). Rama `agent-W4`.
 | (extra) ItemSlotAnime `fn_8044EA34` | 69,95 % | 99,04 % (inlinea fn_8044F14C como el original) |
 | (extra) LayerOcclusionCPU ctor (0x800B3A94) | 98,87 % (100 en report.json: rep100) | **100 %** en objdiff-cli |
 | (extra) LayerOcclusionCPU `fn_800B3978`, `vf20` | 96,85 / 98,56 % | 99,66 / 99,36 % |
+| (extra) LH_Model `Loader::Get_unk<LoadModel>` | 98,83 % | 99,73 % (size de `@stringBase0`; queda el bloqueo de Get_unk) |
 
 ## Para el port
 
@@ -96,6 +97,9 @@ Agente W4, inicio 2026-11-17 02:08 (tope 04:38). Rama `agent-W4`.
 
 ## Cambios de splits/symbols
 
+- LH_Model: `@stringBase0` 0x80755F30 size 0x11 -> 0x12. Pendiente para su cola: EnemyTasha `@stringBase0`
+  0x8074B0A4 size 0x2E0 -> 0x2E1 (`vf6C__10EnemyTashaFiP9CharaTask` tiene el mismo DIFF_REPLACE); script
+  `/home/claude/scratch-W4/bin/strend.py` (lista los `@stringBase0` con `addi rX, base, <size>`).
 - LayerOcclusionCPU (pd.sh + pdfix): `.sdata2` 0x80880F40-58 -> `@5970`..`@5973`, `@6189`..`@6191`; `@6438`
   -> `@6444` (0x80732E28); `@stringBase0` 0x80732E48 size 0xD -> 0xE (incluye el `""` final).
 - ItemSlotAnime (pd.sh + pdfix.py): `lbl_8078F348` -> `__vt__Q23gmk17ItemSlotTextCache`, las 8 rutas
