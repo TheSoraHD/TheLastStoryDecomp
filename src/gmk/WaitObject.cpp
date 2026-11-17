@@ -622,18 +622,20 @@ int WaitObject::vf5C() {
     return vf58() > 0.0f;
 }
 
+// inferred: debug menu group of the gimmick in an inline (the pool address is then built before the
+// group is moved to r3, as in the original); name invented
+static inline void* MenuGroup_unk(WaitObject* self, void* menu, char* name) {
+    if (self->mF0.mRes == 0 && menu != 0 && lbl_8087EF10 != 0) {
+        return self->mF0.mRes = fn_8008937C(menu, name);
+    }
+    return 0;
+}
+
 // inferred: debug menu of the object and of the collision targets of the states
-// NONMATCHING: 96% - the string pool offsets depend on the strings of vf20 (not decompiled yet) and
-// the scheduling of the first item (as gmk::CharaLight::vf6C)
 void WaitObject::vf6C(void* menu) {
     char name[0x20];
     fn_803EC758(name);
-    void* group;
-    if (mF0.mRes == 0 && menu != 0 && lbl_8087EF10 != 0) {
-        group = mF0.mRes = fn_8008937C(menu, name);
-    } else {
-        group = 0;
-    }
+    void* group = MenuGroup_unk(this, menu, name);
     fn_800874C8(group, "state", &m54, 0, 99, 1, 0, 0);
     fn_80087E9C(group, "pos", &m6C, 0, 0, -9999.0f, 9999.0f, 0.25f);
     fn_80088724(group, "rot", &m78, 0, 0, -3.1415927f, 3.1415927f, 0.05235988f);
