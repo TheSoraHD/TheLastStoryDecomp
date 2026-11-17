@@ -23,7 +23,14 @@
 | MapPartsArea::ParseScene | DRAFT 34 % | equivalente NONMATCHING 34 % (secuencia de lecturas/strcmp/llamadas externas igual; presupuesto de inlining) |
 | GameTask::vf10 | DRAFT 95,6 % | equivalente NONMATCHING 95,6 % (revisadas las diferencias de saltos/llamadas de odiff2, no linea a linea) |
 
-## Para el port
+| GameScene::vf14 (dibujo de depuracion, 5192 B) | DRAFT 0,08 % | sin cambios (pendiente) |
+
+- Fin: 2026-11-17 01:30 (CET); cerrado antes del tope para dejarlo limpio: GameScene::vf14 no cabia en el tiempo restante.
+
+## Pendiente
+
+- GameScene::vf14 (0x803C221C): copia local de las 12 banderas de depuracion de GameConfig_unk (0x214-0x240: mSceneDebugEnabled, mMovePoint, ... mBgmBox); si mSceneDebugEnabled, por cada tabla de la escena (mFC AttentionPoint, m78 WarpPoint, mE4 EventBox con su giro PSMTXRotRad y su bandera del script m134->m100, mEC, m98 MovePoint con fn_803CD958/fn_800502A8, mAC/mB4/mBC HidePoint y enlaces, mC4/mCC InteractionPoint, mF4 AiArea, m104 Gimmick, m10C CameraBox, m114 BgmBox) prueba una esfera estatica local (lbl_807C8600, guarda lbl_8087F478) contra el frustum (fn_8004FF58, RenderManager::instance_ + 0x204) y dibuja con DrawHelper (fn_80063D3C, fn_80062F7C, fn_800629F0, fn_800638B0, fn_80063200, fn_80063764); al final fn_8008CD60 de un atn::Model (mDC/mE0).
+
 
 - GameChoiceWindow (stubs -> codigo real, cambio de comportamiento): fn_803B3D2C sustituye `$V[n]` (valor), `$I[n]` (nombre de objeto, fn_80211480), `$T[n]` (texto del primer objeto de la tabla, fn_8021E444/fn_80444CF8), con `[Ln]`/`[Gn]` leidos de los contadores locales/globales de GameTask; ahora devuelve `int` (1). fn_803B4C38 reparte el texto en las cuatro opciones; fn_803B5974/fn_803B710C ponen nombre y tres lineas (ajuste de linea fn_800DFB40 con textWidth/fontSize_text, por defecto 640/20); vf10/fn_803B6970/fn_803B6E04 ya hacen la cola de mensajes, la voz (GameVoice) y abren la ventana de opciones.
 - GameTextMessageWindow: `int m4C` -> `GameMessage* mMessage`; 0x7C-0xB3 tiene la forma de un GameMessage (se pasa como `(GameMessage*)&m7C` a GameMessageWindow::fn_803B5774). Nuevos inline Start_unk/Choose_unk/Pop_unk.
