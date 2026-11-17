@@ -486,18 +486,25 @@ void Em202ForestSpider::vf54() {
 
 void Em202ForestSpider::vfF8() {
     mC58.mC8 = (int)mC58.mC4;
-    if (m58C - 9U <= 2) {
+    switch (m58C) {
+    case 9:
+    case 10:
+    case 11:
         m1454 = 0;
         m14D4 = m18E8;
-    } else if (m58C >= 15 && m58C <= 16) {
+        break;
+    case 15:
+    case 16:
         m1454 = 0;
-    } else {
+        break;
+    default: {
+        CharaTask* found;
         CharaTask* c = lbl_8087F8A0->mHead;
         if (c->mFlag28) {
             m1454 = 0;
             m14D4 = c;
         } else {
-            CharaTask* found = 0;
+            found = 0;
             for (; c != 0; c = NextChara_unk(c)) {
                 if (m1530 != 0) {
                     if (IsTargetable_unk(c) && c->mStatus.fn_80134270() != 0) {
@@ -519,6 +526,8 @@ void Em202ForestSpider::vfF8() {
                 m14D4 = mC58.mC4;
             }
         }
+        break;
+    }
     }
     mC58.mC4 = m14D4;
 }
