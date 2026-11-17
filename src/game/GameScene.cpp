@@ -2249,6 +2249,12 @@ struct Segment_unk {
 // inferred: squared distance from a point to a segment; the closest point goes to `out`
 extern "C" float fn_80050A1C(const atn::Vector3* point, const Segment_unk* seg, atn::Vector3* out);
 
+// inferred: larger of two values, as a double (the original rounds the result with frsp; name invented)
+inline double MaxD_unk(float a, float b) {
+    return a > b ? a : b;
+}
+
+// NONMATCHING: 98.4% - stack slots of the vectors of the loop and the order of the loads of the reach (4 * m570)
 int GameScene::fn_803CB044(GameSceneRoute_unk* out, CharaTask* chara, int check, int point) {
     atn::Vector3 fwd(0.0f, 0.0f, 1.0f);
     atn::ColliResult_unk unused;
@@ -2291,28 +2297,33 @@ int GameScene::fn_803CB044(GameSceneRoute_unk* out, CharaTask* chara, int check,
         atn::ColliSphereShape_unk sphere;
         sphere.mCenter = chara->m614;
         sphere.mRadius = chara->m620;
-        sphere.mRadius = dot * reach + (sphere.mRadius > 16.0f ? sphere.mRadius : 16.0f);
+        sphere.mRadius = dot * reach + (float)MaxD_unk(sphere.mRadius, 16.0f);
         atn::Vector3 closest;
         float dist = fn_80050A1C(&sphere.mCenter, &seg, &closest);
         if (dist < sphere.mRadius * sphere.mRadius && dist < best) {
             atn::Vector3 off(closest.x - chara->m614.x, 0.0f, closest.z - chara->m614.z);
-            atn::Vector3 n;
-            if (off.LengthSq_unk() < 4.0f || (n = off, n.Normalize_unk(), PSVECDotProduct(&n, &fwd) > 0.5f)) {
-                int blocked = 0;
-                if (point < 0) {
-                    atn::ColliResult_unk result;
-                    if (fn_8004ED34(lbl_8087EE98, &result, &sphere.mCenter, &closest,
-                                    chara->fn_80179D44() | 0x80000000, 0, 0) != 0) {
-                        blocked = 1;
-                    }
-                    if ((float)__fabs(closest.y - chara->mPos.y) > 8.0f) {
-                        blocked = 1;
-                    }
+            if (!(off.LengthSq_unk() < 4.0f)) {
+                atn::Vector3 n = off;
+                n.Normalize_unk();
+                if (!(PSVECDotProduct(&n, &fwd) > 0.5f)) {
+                    continue;
                 }
-                if (!blocked) {
-                    best = dist;
-                    found = &link;
+            }
+            int blocked = 0;
+            if (point < 0) {
+                atn::ColliResult_unk result;
+                void* world = lbl_8087EE98;
+                if (fn_8004ED34(world, &result, &sphere.mCenter, &closest, chara->fn_80179D44() | 0x80000000, 0,
+                                0) != 0) {
+                    blocked = 1;
                 }
+                if ((float)__fabs(closest.y - chara->mPos.y) > 8.0f) {
+                    blocked = 1;
+                }
+            }
+            if (!blocked) {
+                best = dist;
+                found = &link;
             }
         }
     }
