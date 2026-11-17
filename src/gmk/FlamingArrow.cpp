@@ -8,6 +8,7 @@
 #include "game/EnemyTask.h"
 #include "game/PlayerTask.h"
 #include "atn/ColliBase.h"
+#include "atn/Color.h"
 
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" int rand();
@@ -46,25 +47,13 @@ struct ArrowMtx_unk {
 extern "C" void fn_800F80A8(ArrowMtx_unk* mtx, const atn::Vector3* pos);
 extern "C" void fn_800F80B8(ArrowMtx_unk* mtx, const atn::Vector3* rot);
 extern "C" void fn_80316E38(atn::Model* model, ArrowMtx_unk* mtx);
-// inferred: color (class unknown)
-struct ArrowColor_unk {
-    float r, g, b, a;
-};
-extern "C" void fn_800D8BB4(ArrowColor_unk* color, const ArrowColor_unk* src);
-namespace atn {
-// inferred: RGBA color of the engine (constructor: weak copy 0x800D8814 of atn/CompositeIntensityTintMulti.cpp)
-struct Color4f_unk {
-    Color4f_unk(float r_, float g_, float b_, float a_);
-    float r, g, b, a;
-};
-} // namespace atn
 
 // inferred: atn::Model accessors of the color at 0x40 (weak copies; names keep the addresses)
-inline ArrowColor_unk* fn_80417F14(atn::Model* model) {
-    return (ArrowColor_unk*)&model->m40;
+inline atn::Color* fn_80417F14(atn::Model* model) {
+    return (atn::Color*)&model->m40;
 }
-inline void fn_80417F1C(atn::Model* model, const ArrowColor_unk* color) {
-    *(ArrowColor_unk*)&model->m40 = *color;
+inline void fn_80417F1C(atn::Model* model, const atn::Color* color) {
+    *(atn::Color*)&model->m40 = *color;
 }
 // inferred: next character of the player/enemy lists (0x14AC)
 struct CharaListNode_unk {
@@ -303,8 +292,7 @@ void FlamingArrow::vf10() {
                 mArrows[i].mState = 3;
             }
         } else if (mArrows[i].mState == 3) {
-            ArrowColor_unk color;
-            fn_800D8BB4(&color, fn_80417F14(&mArrows[i].mModel));
+            atn::Color color(*fn_80417F14(&mArrows[i].mModel));
             color.r = __MAX_FA(0.0f, color.r - 0.02f);
             color.g = __MAX_FA(0.0f, color.g - 0.02f);
             color.b = __MAX_FA(0.0f, color.b - 0.02f);
@@ -374,7 +362,7 @@ void FlamingArrow::vf10() {
     fn_800F80B8(&mtx, &angle);
     fn_80316E38(&arrow->mModel, &mtx);
     arrow->mModel.CalcMatrixStack(atn::ModelNodeCallback_unk(0));
-    fn_80417F1C(&arrow->mModel, (const ArrowColor_unk*)&atn::Color4f_unk(1.0f, 1.0f, 1.0f, 1.0f));
+    fn_80417F1C(&arrow->mModel, &atn::Color(1.0f, 1.0f, 1.0f, 1.0f));
     fn_800F7FA8(fn_800F7FA0(), arrow, 0);
     fn_8026607C(fn_800F7FA0(), &mEfpArrow, arrow, 1);
 }
