@@ -293,6 +293,24 @@ ControlKnockdown::ControlKnockdown(Chara_unk* chara, const atn::Vector3& dir, in
     }
 }
 
+// inferred: sound at a position (name invented)
+inline void PlaySeAt_unk(const char* name, const atn::Vector3& pos) {
+    fn_800C344C(name, &pos, 0, -1, 1.0f);
+}
+
+// inferred: scene of the model of a character, else the one of RenderManager (name invented)
+inline atn::Scene* Lens_unk(const CharaTask* chara) {
+    return (chara->mMotion.m1DC == 0) ? atn::RenderManager::instance_->mScene : chara->mMotion.m1DC;
+}
+inline atn::Scene* ModelLens_unk(const atn::ModelBase* model) {
+    return (model->m1DC == 0) ? atn::RenderManager::instance_->mScene : model->m1DC;
+}
+
+// inferred: hit position of a ray test (name invented)
+inline atn::Vector3 HitPos_unk(const atn::ColliResult_unk& res) {
+    return res.m10;
+}
+
 // NONMATCHING: 98.1% - the inlined fn_801AE41C loads mChara again (the original keeps a second
 // model pointer), the lens accessor reloads m1DC three times, and r3/r4 are swapped in the
 // arguments of the two sounds.
@@ -334,9 +352,9 @@ int ControlKnockdown::vf0C() {
                     m14 = 0;
                     m18 = 1;
                     if (mChara->m5B0 < 10.0f) {
-                        fn_800C344C(sSe[1], &mChara->mPos, 0, -1, 1.0f);
+                        PlaySeAt_unk(sSe[1], mChara->mPos);
                     } else {
-                        fn_800C344C(sSe[2], &mChara->mPos, 0, -1, 1.0f);
+                        PlaySeAt_unk(sSe[2], mChara->mPos);
                     }
                 }
             }
@@ -394,9 +412,9 @@ int ControlKnockdown::vf0C() {
             m3C = 0;
             atn::Vector3 from = mChara->mPos;
             atn::Vector3 to = from;
-            MtxPtr node = mChara->mMotion.GetNodeMtx_unk("spine1");
+            MtxPtr node = mChara->GetModel_unk()->GetNodeMtx_unk("spine1");
             if (!node) {
-                node = mChara->mMotion.GetNodeMtx_unk("hips");
+                node = mChara->GetModel_unk()->GetNodeMtx_unk("hips");
             }
             if (node) {
                 to = from = atn::Vector3(node[0][3], node[1][3], node[2][3]);
@@ -409,9 +427,9 @@ int ControlKnockdown::vf0C() {
             if (fn_8004ED34(fn_801404F8(), &res, &from, &to, mChara->fn_80179D44() | 0x80000000, 0, 0) && res.m34) {
                 int attr = *(int*)res.m34;
                 if ((attr >= 0x14 && attr <= 0x15) || (attr >= 0x1C && attr <= 0x1D)) {
-                    atn::Vector3 pos = res.m10;
+                    atn::Vector3 pos = HitPos_unk(res);
                     if (mChara->GetLens_unk()) {
-                        pos.y = -mChara->GetLens_unk()->mPlane.mDist * mChara->GetLens_unk()->mPlane.mNormal.y + 0.01f;
+                        pos.y = -Lens_unk(mChara)->mPlane.mDist * ModelLens_unk(&mChara->mMotion)->mPlane.mNormal.y + 0.01f;
                     }
                     lbl_8087F048->fn_801070C8(0x7D7, 0, 0, 0, &res.m10, &mChara->mRot,
                                 &Color4f_unk(1.0f, 1.0f, 1.0f, 1.0f), 1.0f);
@@ -424,7 +442,7 @@ int ControlKnockdown::vf0C() {
     return result;
 }
 
-bool ControlKnockdown::fn_801AE41C() {
+bool ControlKnockdown::fn_801AE41C() const {
     if (m14 > 90) {
         return true;
     }

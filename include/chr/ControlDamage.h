@@ -46,7 +46,7 @@ public:
     virtual int vf0C();
     virtual boost::function<void()> vf10() const;
     virtual void vf1C();
-    bool fn_801AE41C(); // inferred: can be cancelled (CharaTask::fn_8015EB2C, control id 0x17)
+    bool fn_801AE41C() const; // inferred: can be cancelled (CharaTask::fn_8015EB2C, control id 0x17)
 
     atn::Vector3 m08;                // inferred: rotation to turn to
     int m14;                         // inferred: frame counter of the step

@@ -51,3 +51,18 @@ Decisiones D1-D5 aprobadas por el usuario el 2026-11-17 (`claude/prompt-3h-decis
   95,62 -> 95,31.
 - `precommit.sh` de 360 unidades: fuzzdrop (las 4 aceptadas) y el `ordercheck` de GameEventScript de `main`;
   avisos de `poolcheck` de Event/DialogHead, EventParser_unk, Manager y Path iguales sin el cambio.
+
+## D5. Parches `docs/escribir-20261116-qW4.patch` y `-qN7.patch` (mejoras parciales): aplicada
+
+- Sin funciones nuevas al 100 % (15983), lost 0, fuzzdrop 0, labelcheck 11, rep100 24. Suben: SmallAllocator<8>/<6>
+  vf0C 87,01 -> 96,06; ControlKnockdown::vf0C 98,10 -> 99,94; Em101LittleZesyaSecond fn_80261078 98,51 -> 99,00;
+  Em209SmallGolem::vf10 99,62 -> 99,67.
+- `fn_801AE41C__Q23chr16ControlKnockdownFv` -> `...CFv` en symbols.txt (pasa a `const`; sigue al 100 %).
+- Re-emparejado: `pdbatch.sh` de ControlDamage, Em101LittleZesyaSecond y Em209SmallGolem; a mano en ControlDamage
+  0x8073A9B8 `@14673`, 0x80882300 `@14677` y las tres ptmf de `.data` por desplazamiento (`@15550-2`).
+- `precommit.sh`: solo el `ordercheck` de atn/SmallAllocator_8 (`__ct__Q23atn13MemoryManagerFv`), que ya fallaba
+  antes (nota de qW4); el parche solo mueve una linea dentro de vf0C.
+
+## D4. "Para revisar" de `docs/escribir-20261116.md`
+
+- Se queda como esta (aprobado): nada que deshacer.

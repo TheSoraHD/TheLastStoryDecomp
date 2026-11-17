@@ -285,7 +285,7 @@ inline void Em209SmallGolem::StartRevive_unk(CharaTask* by) {
 // loads of the skill call; 12 variants (helpers, temporaries, named colors, reversed arguments)
 void Em209SmallGolem::vf10() {
     m14B8 = mC58.mC4;
-    if ((mStatus.m0C & 0x20) == 0x20 && m1548 != 0 && m58C == 2 && ((GameTask*)lbl_8087F430)->fn_80370A78(0xC9) == 1) {
+    if (mStatus.IsState_unk(0x20) && m1548 != 0 && m58C == 2 && ((GameTask*)lbl_8087F430)->fn_80370A78(0xC9) == 1) {
         CharaTask* player = lbl_8087F8A0->mHead;
         atn::Vector3 d = mPos - player->mPos;
         float dist = PSVECMag(&d);
