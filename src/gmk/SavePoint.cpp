@@ -29,16 +29,8 @@ extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); /
 extern "C" int fn_80239D58(EffectMgr_unk* mgr, void* owner, int id);          // inferred: an effect is playing
 extern "C" void fn_80232B7C(void* owner, int arg);
 
-// inferred: field object (class unknown)
-struct Field_unk {
-    unsigned char m00[0x74];
-    atn::Vector3 m74; // inferred: camera position
-    unsigned char m80[0x54E4 - 0x80];
-    int m54E4; // inferred: 8 while the field is paused
-    unsigned char m54E8[0x5694 - 0x54E8];
-    int m5694;
-};
-extern "C" Field_unk* lbl_8087F430;
+// inferred: the field task (lbl_8087F430)
+extern "C" GameTask* lbl_8087F430;
 // inferred: global objects (classes unknown)
 struct SaveEvent_unk {
     unsigned char m00[0x48];
@@ -147,7 +139,7 @@ void SavePoint::vf10() {
         if (lbl_8087F430->m54E4 == 8) {
             mEnabled = 0;
         }
-        if (LenSq_unk(lbl_8087F430->m74 - m6C) >= 90000.0f) {
+        if (LenSq_unk(lbl_8087F430->mCamera.mCamera.mPos - m6C) >= 90000.0f) {
             mEnabled = 0;
         }
         if (lbl_8087F098 != 0 && lbl_8087F098->m48 != 0) {
@@ -167,7 +159,7 @@ void SavePoint::vf10() {
         mShown = shown;
     }
     if ((unsigned int)m54 <= 2 && lbl_8087F430 != 0 && mShown != 0) {
-        if (((GameTask*)lbl_8087F430)->fn_80375184() != 0 || lbl_8087F430->m5694 != 0) {
+        if (lbl_8087F430->fn_80375184() != 0 || lbl_8087F430->m5694 != 0) {
             if (vf60() != 0) {
                 GimmickMsg_unk msg(0);
                 vf40(&msg);
@@ -183,8 +175,8 @@ void SavePoint::vf10() {
     if (player != 0) {
         float dist = LenSq_unk(player->mPos - m6C);
         if (m54 == 0) {
-            if (dist < 64.0f && lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->fn_80375184() != 0) {
-                ((GameTask*)lbl_8087F430)->fn_803750E4(0x145);
+            if (dist < 64.0f && lbl_8087F430 != 0 && lbl_8087F430->fn_80375184() != 0) {
+                lbl_8087F430->fn_803750E4(0x145);
             }
         } else if (m54 >= 1) {
             float dist2 = LenSq_unk(player->mPos - m6C);
@@ -202,7 +194,7 @@ void SavePoint::vf10() {
                     vf40(&msg);
                 }
             }
-            if (dist2 < 400.0f && lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->fn_8036E098() == this) {
+            if (dist2 < 400.0f && lbl_8087F430 != 0 && lbl_8087F430->fn_8036E098() == this) {
                 if (mSePlayed == 0) {
                     mSePlayed = 1;
                     fn_800C31F4("SE_UICOM_024", 0, -1, 1.0f);
@@ -329,8 +321,8 @@ int SavePoint::vf48(const atn::Vector3* pos, const atn::Vector3* dir, int flag) 
         return 0;
     }
     if (LenSq_unk(m6C - *pos) < 64.0f) {
-        if (lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->fn_80370174(0x92) == 0) {
-            ((GameTask*)lbl_8087F430)->fn_80370320(0x92, 1, 0);
+        if (lbl_8087F430 != 0 && lbl_8087F430->fn_80370174(0x92) == 0) {
+            lbl_8087F430->fn_80370320(0x92, 1, 0);
         }
         return 1;
     }
@@ -339,7 +331,7 @@ int SavePoint::vf48(const atn::Vector3* pos, const atn::Vector3* dir, int flag) 
 
 void SavePoint::vf4C(CharaTask* chara) {
     if (lbl_8087F430 != 0) {
-        ((GameTask*)lbl_8087F430)->fn_8036E92C(1);
+        lbl_8087F430->fn_8036E92C(1);
         fn_800C31F4("SE_UICOM_049", 0, -1, 1.0f);
     }
 }
