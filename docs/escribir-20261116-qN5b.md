@@ -14,7 +14,8 @@ Inicio: 2026-11-17 08:55 (tope 10:55). Rama agent-N5b.
 | gmk/LandMine Start | 98,3 % | |
 | gmk/ChickenManager vf0C (extra) | 93,9 % | 96,15 % (b30a05d) |
 | gmk/RotaryRoom fn_80424AD4 (extra) | 99,16 % | **100 %** (b3c2971) |
-| gmk/RotaryRoom fn_80424FB4 (extra) | 99,15 % | **100 %** |
+| gmk/RotaryRoom fn_80424FB4 (extra) | 99,15 % | **100 %** (66be691) |
+| gmk/PigeonManager vf0C (extra) | 93,92 % | 96,15 % |
 | gmk/RotaryRoom vf0C (extra) | 96,14 % | 96,23 % |
 | gmk/WaitObject vf20 (extra) | 99,95 % | 99,98 % (b3c2971) |
 | gmk/BulletPoint vf10 | 98,5 % | |
@@ -85,3 +86,6 @@ Inicio: 2026-11-17 08:55 (tope 10:55). Rama agent-N5b.
 - gmk/OpenBoard vf10: `LerpF_unk(from, to, t)` / `Lerp2_unk(from, d, t)` en Interp_unk: 98,8 (peor).
 - gmk/DropItem vf14: el codigo muerto del original (comparaciones de m16C..m178 con 0 y 1 sin usar el
   resultado y tres stores a la pila) no se ha escrito; el `@wstringBase0` del original no es `.sdata`.
+- gmk/PigeonManager vf0C (93,92 -> 96,15): el mismo puntero `Pigeon_unk* c` que ChickenManager. `t =
+  mPigeons[i].mPos; mTmp = t;` en FindNear_unk: fn_804052EC 97,28 -> 97,56 pero vf0C 96,15 -> 95,89 (sin
+  commit, como en Chicken).

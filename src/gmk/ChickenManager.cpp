@@ -441,7 +441,7 @@ Chicken_unk* ChickenManager::FindNear_unk(const atn::Vector3& pos) {
     return 0;
 }
 
-// NONMATCHING: 93.89% - as gmk::PigeonManager::vf0C (16 bytes smaller frame, one saved register less).
+// NONMATCHING: 96.15% - as gmk::PigeonManager::vf0C (FindNear_unk temporaries).
 int ChickenManager::vf0C() {
     if (fn_803EC91C() == 0) {
         if (!mLoaded) {
