@@ -105,7 +105,7 @@ int RouteWalker_unk::fn_80125474() {
 struct RouteFinder_unk;
 extern "C" RouteFinder_unk* lbl_8087EE68;
 extern "C" int fn_80019E88(RouteFinder_unk* finder, atn::Vector3* pos, int* point, int link, int arg);
-extern "C" unsigned short fn_803CD958(RoutePath_unk* path, int point); // inferred: next point towards `point`
+extern "C" unsigned short fn_803CD958(U16Table_unk* path, int point); // inferred: next point towards `point`
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 struct ColliWorld_unk;
 extern "C" ColliWorld_unk* lbl_8087EE98;
@@ -296,7 +296,7 @@ void RouteWalker_unk::fn_80126214() {
                 break;
             }
             mDestPoint = mPointA;
-            mPointA = fn_803CD958((RoutePath_unk*)((char*)table->mA0.mData + (mDestPoint - 1) * 8), mPointB - 1);
+            mPointA = fn_803CD958((U16Table_unk*)((char*)table->mA0.mData + (mDestPoint - 1) * 8), mPointB - 1);
             if (mPointA > 0) {
                 m4C = GetPointPosAt_unk(this, mPointA);
             } else {
@@ -560,7 +560,7 @@ void RouteWalker_unk::fn_80128508(int start, const atn::Vector3* dest, int arg) 
             m48 = arg;
             mPointB = start;
             mDestPoint = end;
-            mPointA = fn_803CD958((RoutePath_unk*)((char*)table->mA0.mData + (end - 1) * 8), start - 1);
+            mPointA = fn_803CD958((U16Table_unk*)((char*)table->mA0.mData + (end - 1) * 8), start - 1);
             gs::MovePoint* point = &table->m98.mData[mDestPoint - 1];
             if (mPointA > 0) {
                 if (LengthSq_unk(point->mPos - *dest) >= point->m14 * point->m14) {
