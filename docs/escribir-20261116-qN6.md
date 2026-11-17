@@ -72,6 +72,9 @@ Inicio: 2026-11-17 08:18 CET. Tope 10:48.
 - Splits sin cambios. symbols.txt: solo renumerados `@N` de pd.sh (SoundManager, ColliCalc_unk, FileList, EnemyLizerdBlade, WPad_unk, ShopBuySell) y `lbl_8088129C/A0/A4/AC` (WPad_unk) pasan a `@N` (sin usuarios externos). game_units.json: `game/EnemyLizerdBlade` y `atn/WPad_unk` a `matching: true` (main.dol OK).
 - Avisos de poolcheck en game/EnemyLizerdBlade (floats 0.5/0.7/15/2.44346/20 de nuestra .sdata2 que no estan en el .o original) ya existian; la unidad enlaza con main.dol OK.
 
+## Parche sin integrar (docs/escribir-20261116-qN6.patch)
+- `std/string.h` `replace(pos, n1, const T* s)`: `s + Traits::length(s)` en vez de `s + strlen(s)`. Medido con build completo: 15948 -> 15950 (atn/Font_unk fn_8006D0C8 92,6 -> 100 y fn_8006F5E8 85 -> 100), FileList fn_8006BD78 97,7 -> 99,38 (queda el push_back), D2Anime_unk fn_80201794 96,0 -> 98,7; lost 0 y sin bajadas de fuzzy, pero rep100 peor en ~26 unidades (renumeracion de `@N`). pdbatch de esas unidades lo deja en 5 (GameEventScript, CosEditProtector, LastCocoonImago, Em206CocoonMp, CharaTask); `datafix.py` sobre CharaTask renombra 366 etiquetas y estropea el labelcheck de otras (NewCampParts*, ShopIdentify, TownTask...): no usar datafix con CharaTask. Revertido por falta de tiempo; para integrarlo: aplicar, pdbatch de las unidades de rep100 y arreglar a mano las 5 restantes (lblmap/lblseq/valfix, sin datafix en CharaTask).
+
 ## Resumen
 - Funciones al 100 %: atn/FileList fn_8006C3F0, game/EnemyLizerdBlade fn_80334460, atn/WPad_unk fn_800DDD18 (report: 15945 -> 15948).
 - Unidades que enlazan: game/EnemyLizerdBlade y atn/WPad_unk (729 -> 731), main.dol OK, lost 0, sin bajadas.
