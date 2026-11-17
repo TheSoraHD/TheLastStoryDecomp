@@ -433,8 +433,7 @@ struct FileListDir_unk {
 // inferred: adds the files of `dir` whose name ends with `ext` ("*" or null: all) and its directories (type 1;
 // files are type 2); flags: 1 recurses into the directories, 0x10000 adds "dir/name" instead of the name. The
 // files of the mounted archives are added by the loader. Returns the number of names added.
-// NONMATCHING: 98.5% - registers of the directory loop (r17 here r20) and the new node: the original reloads
-// *tail after storing it (lwz) where MWCC reuses r3 here (the pool matches since the explicit instantiations of arranque2)
+// inferred: `name` declared before the loop (the directory pointer shares its register, r17, as in the original)
 int FileList::fn_8006C3F0(const char* dir, const char* ext, int flags) {
     int full;
     int recurse;
@@ -448,6 +447,7 @@ int FileList::fn_8006C3F0(const char* dir, const char* ext, int flags) {
             full = flags & 0x10000;
             recurse = flags & 1;
             DVDDirEntry_unk ent;
+            const char* name;
             for (;;) {
                 if (DVDReadDir(&info, &ent) == 0) {
                     if (recurse == 0) {
@@ -473,7 +473,7 @@ int FileList::fn_8006C3F0(const char* dir, const char* ext, int flags) {
                     }
                     break;
                 }
-                const char* name = ent.mName;
+                name = ent.mName;
                 if (strcmp(name, ".svn") == 0) {
                     continue;
                 }
@@ -486,13 +486,13 @@ int FileList::fn_8006C3F0(const char* dir, const char* ext, int flags) {
                     count++;
                     mEntries[m04 - 1].m00 = 1;
                     if (recurse != 0) {
-                        *tail = new ((MemoryTag)1, "", "", 0) FileListDir_unk;
-                        if (*tail == 0) {
+                        if ((*tail = new ((MemoryTag)1, "", "", 0) FileListDir_unk) == 0) {
                             break;
                         }
-                        (*tail)->mNext = 0;
-                        memcpy(&(*tail)->mEntry, &ent, sizeof(ent));
-                        tail = &(*tail)->mNext;
+                        FileListDir_unk* node = *tail;
+                        node->mNext = 0;
+                        memcpy(&node->mEntry, &ent, sizeof(ent));
+                        tail = &node->mNext;
                     }
                     continue;
                 }
