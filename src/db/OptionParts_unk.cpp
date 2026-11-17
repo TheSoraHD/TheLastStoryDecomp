@@ -338,9 +338,8 @@ extern "C" OptionLevelList_unk* fn_8020DB18(int letter, int slot);
 
 // inferred: index of a slot name ("UPPER", ...), 0 if none
 static inline int FindSlotName_unk(const char* name) {
-    const char* slot;
     for (int i = 0; i < 4; i++) {
-        slot = sSlotNames[i];
+        const char* slot = sSlotNames[i];
         if (strncmp(slot, name, strlen(slot)) == 0) {
             return i;
         }
@@ -349,9 +348,8 @@ static inline int FindSlotName_unk(const char* name) {
 }
 
 // inferred: loads database/cosedit/option/option_parts.csv and its names
-// NONMATCHING: 97.57% - the original keeps the address of the atn::CsvU in a saved register while
-// its inlined constructor runs (known, see db/EquipParam_unk.cpp) and numbers the registers of the
-// slot search differently
+// NONMATCHING: 99.89% - the original keeps the slot name in r25 and the slot pointer of the inlined
+// search in r22 (swapped here)
 extern "C" void fn_8020D688() {
     if (sLevels == 0) {
         sLevels = new ((MemoryTag)1, "", "", 0) OptionLevelTable_unk;
@@ -373,7 +371,8 @@ extern "C" void fn_8020D688() {
             continue;
         }
         int letter = fn_8020F064(field);
-        int slot = FindSlotName_unk(csv.fn_8005B9CC());
+        field = csv.fn_8005B9CC();
+        int slot = FindSlotName_unk(field);
         if (!(0 <= letter && letter < 11 && 0 <= slot && slot < 4)) {
             continue;
         }
