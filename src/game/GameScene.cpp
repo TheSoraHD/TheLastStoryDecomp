@@ -2639,23 +2639,20 @@ int GameScene::fn_803CC3BC(const atn::Vector3* pos, const atn::Vector3* dir, Cha
 int GameScene::fn_803CC5E4(int type, int id) {
     if (type == 1) {
         for (int i = 0; i < m80.mSize; i++) {
-            gs::NpcSetPoint& p = m80.mData[i];
-            if (id == p.mId) {
-                return p.m20;
+            if (id == m80[i].mId) {
+                return m80[i].m20;
             }
         }
     } else if (type == 2) {
         for (int i = 0; i < m88.mSize; i++) {
-            gs::NpcSetPoint& p = m88.mData[i];
-            if (id == p.mId) {
-                return p.m20;
+            if (id == m88[i].mId) {
+                return m88[i].m20;
             }
         }
     } else if (type == 3) {
         for (int i = 0; i < m90.mSize; i++) {
-            gs::NpcSetPoint& p = m90.mData[i];
-            if (id == p.mId) {
-                return p.m20;
+            if (id == m90[i].mId) {
+                return m90[i].m20;
             }
         }
     }
@@ -2820,20 +2817,19 @@ void GameScene::fn_803CCC84(int a, int b) {
 
 void GameScene::fn_803CCCC0() {
     for (unsigned int i = 0; i < m190.size(); i++) {
-        GameScenePair_unk& pair = m190[i];
         CharaTask* chara = 0;
-        switch (pair.m00) {
+        switch (m190.mData[i].m00) {
         case 0:
-            chara = lbl_8087F8A0->Find_unk(pair.m04);
+            chara = lbl_8087F8A0->Find_unk(m190.mData[i].m04);
             break;
         case 1:
-            chara = NpcManager::sInstance->Find_unk(pair.m04);
+            chara = NpcManager::sInstance->Find_unk(m190.mData[i].m04);
             break;
         case 2:
-            chara = EnemyManager::sInstance->Find_unk(pair.m04);
+            chara = EnemyManager::sInstance->Find_unk(m190.mData[i].m04);
             break;
         case 3:
-            chara = lbl_8087F8A0->Find_unk(pair.m04);
+            chara = lbl_8087F8A0->Find_unk(m190.mData[i].m04);
             break;
         }
         if (chara != 0) {
