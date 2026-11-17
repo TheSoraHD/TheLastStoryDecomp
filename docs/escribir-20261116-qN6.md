@@ -9,21 +9,21 @@ Inicio: 2026-11-17 08:18 CET. Tope 10:48.
 | atn/ColliCalc_unk | fn_8005AD7C | 99,9 | sin cambio (99,88; 5 variantes mas) |
 | atn/ColliCalc_unk | fn_80059784 | 97,7 | equivalente NONMATCHING 98,54 (puntero al triangulo estatico en local) |
 | atn/SoundManager | fn_800CE6E0 | 98,8 | equivalente NONMATCHING 99,72 (copia de SoundString por local) |
-| atn/SoundManager | fn_800CECF0 | 98,3 | |
-| game/Em312DarkServant | vf100 | 98,4 | |
-| game/Em312DarkServant | fn_8030E5C8 | 98,2 | |
-| game/Em305VampireMp | vf0C | 98,9 | |
-| game/Em305VampireMp | ctor | 96,9 | |
+| atn/SoundManager | fn_800CECF0 | 98,3 | sin cambio (ordenes de declaracion, bloques en inline: igual o peor) |
+| game/Em312DarkServant | vf100 | 98,4 | sin cambio (depende de fn_8030E5C8) |
+| game/Em312DarkServant | fn_8030E5C8 | 98,2 | sin cambio (recursion inlinada; bucle en inline peor) |
+| game/Em305VampireMp | vf0C | 98,9 | sin cambio (push_back de std/vector.h, bloqueo conocido) |
+| game/Em305VampireMp | ctor | 96,9 | sin cambio (std::string como Em201ZanGurg) |
 | atn/FileList | fn_8006C3F0 | 98,5 | **100 %** |
-| atn/FileList | fn_8006BD78 | 97,7 | |
+| atn/FileList | fn_8006BD78 | 97,7 | sin cambio (assign + push_back; ver Bloqueos) |
 | game/ShopBuySell | fn_8058621C | 98,8 | equivalente NONMATCHING 99,22 (**arreglo**: el sufijo se anade, `+=`) |
 | game/ShopBuySell | fn_805866F4 | 94,1 | equivalente NONMATCHING 97,23 |
-| atn/NetManager | fn_8050CFC8 | 98,5 | |
-| atn/NetManager | Manager::Manager | 97,9 | |
+| atn/NetManager | fn_8050CFC8 | 98,5 | sin cambio (ver Bloqueos) |
+| atn/NetManager | Manager::Manager | 97,9 | sin cambio |
 | game/EnemyLizerdBlade | fn_80334460 | 93,4 | **100 %**, la unidad enlaza |
 | atn/WPad_unk | fn_800DDD18 | 93,7 | **100 %**, la unidad enlaza |
-| game/ColliAttrManager | fn_80183FFC | 92,7 | |
-| atn/EffectLoader_unk | fn_80239030 | 93,3 | |
+| game/ColliAttrManager | fn_80183FFC | 92,7 | sin cambio (92,45 con inline, no commiteado) |
+| atn/EffectLoader_unk | fn_80239030 | 93,3 | sin cambio (byteswap; 93,79 no commiteado) |
 
 ## Para el port
 - atn/WPad_unk.h: `WPad_unk::mFlags` pasa de `WPadFlags2_unk[4]` (campos de bits, struct borrada) a `unsigned int[4]` con mascaras (bit 0 = 1, bit 1 = 2); fn_800DDD18 usa `&= ~1`, `|= 1`, `&= ~2`. Mismo comportamiento.
@@ -32,6 +32,10 @@ Inicio: 2026-11-17 08:18 CET. Tope 10:48.
 - atn/SoundManager.h: `SoundString_unk::operator=(const SoundString_unk&)` copia por un local y `*this = text` (mismo comportamiento).
 
 ## Decisiones tomadas sin el usuario
+- atn/WPad_unk.h: `mFlags` como `unsigned int[4]` con mascaras y fuera la struct de bits `WPadFlags2_unk` (sin otros usuarios; Pad_unk.cpp tiene su propia vista `m3C00`, pendiente de unificar por la regla 10).
+- atn/WPad_unk.cpp: `WPAD_MIN` (macro ya existente; el original evalua dos veces el valor, como una macro) pasa a la forma estandar `((a) < (b) ? (a) : (b))` con (ancho, valor). Inlines nuevas `DeadZone_unk(float&)` y `ReadAll_unk(WPad_unk*)` con `// inferred:`.
+- game/ShopBuySell fn_805866F4: rectangulo del icono por campos en el orden v0, u0, v1, u1 (el original guarda v0 primero); `void* layout = base->mLayout;` antes de los bucles de parametros.
+- game/EnemyLizerdBlade fn_80334460: locales `yaw`, `target`, `mask` y `GetMotionFrame(0)` (accesor real de Model_unk.h).
 
 ## Hallazgos
 - Bucle corto (4 vueltas) que el original desenrolla entero y el nuestro de 2 en 2: el cuerpo en una inline llamada una vez por elemento (WPad_unk fn_800DDD18 `DeadZone_unk`). (escribir-20261116 qN6)
@@ -63,3 +67,5 @@ Inicio: 2026-11-17 08:18 CET. Tope 10:48.
 - Em312DarkServant fn_8030E5C8: 6 ordenes de master/list/i arriba: 98,23-98,31.
 
 ## Cambios de splits/symbols
+- Splits sin cambios. symbols.txt: solo renumerados `@N` de pd.sh (SoundManager, ColliCalc_unk, FileList, EnemyLizerdBlade, WPad_unk, ShopBuySell) y `lbl_8088129C/A0/A4/AC` (WPad_unk) pasan a `@N` (sin usuarios externos). game_units.json: `game/EnemyLizerdBlade` y `atn/WPad_unk` a `matching: true` (main.dol OK).
+- Avisos de poolcheck en game/EnemyLizerdBlade (floats 0.5/0.7/15/2.44346/20 de nuestra .sdata2 que no estan en el .o original) ya existian; la unidad enlaza con main.dol OK.
