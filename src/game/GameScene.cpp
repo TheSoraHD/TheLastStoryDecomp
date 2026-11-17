@@ -1953,6 +1953,7 @@ extern "C" gs::PointGroup<gs::MovePoint>* fn_803C74D0(
 
 template <class T>
 void GameScene::fn_803C74E0(atn::SimpleArray<T>& points, atn::Csv& csv, int file) {
+    int offset;
     unsigned int base = 0;
     if (points.GetData_unk() == 0) {
         points.Resize_unk(atoi(csv.fn_8005B9CC()), 1, "SceneCharaPoint");
@@ -1960,7 +1961,7 @@ void GameScene::fn_803C74E0(atn::SimpleArray<T>& points, atn::Csv& csv, int file
         base = points.size();
         points.Grow_unk(base + atoi(csv.fn_8005B9CC()), 1, "SceneCharaPoint");
     }
-    int offset = file * 10000;
+    offset = file * 10000;
     unsigned int i = base;
     while (csv.fn_8005BBF8()) {
         std::string s(csv.fn_8005B9CC());
