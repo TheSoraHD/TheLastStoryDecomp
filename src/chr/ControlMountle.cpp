@@ -298,8 +298,8 @@ atn::Vector3 ControlGuardMountle::vf14() const {
     return pos;
 }
 
-// NONMATCHING: 99.4% - r3/r4 swapped in the copies dir = res.m28 and dir = -front, and the store of
-// from.z scheduled earlier (copy src/dst order, see docs/mwcc-blockers.md q3).
+// inferred: the two copies to dir with __VecCopy (source address first) and `res` declared before
+// `from` (the store of from.z goes after the zeroing of res)
 ControlWallMountle::ControlWallMountle(Chara_unk* chara, const atn::Vector3& normal, const atn::Vector3& pos,
                                        int jump)
     : ControlBase(chara) {
@@ -319,19 +319,20 @@ ControlWallMountle::ControlWallMountle(Chara_unk* chara, const atn::Vector3& nor
     m20 = pos;
     m14 = mChara->mPos;
     m20.y = m14.y;
-    atn::Vector3 from = m14;
     atn::ColliResult_unk res;
+    atn::Vector3 from = m14;
     atn::Vector3 to = pos + normal;
     from.y = to.y;
     atn::Vector3 dir = -normal;
     if (fn_8004ED34(fn_801404F8(), &res, &from, &to, mChara->fn_80179D44() | 0x80000000, 0, 0)) {
-        dir = res.m28;
+        __VecCopy(&dir.x, &res.m28.x);
     }
     dir.y = 0.0f;
     if (PSVECSquareMag(&dir) > 0.001f) {
         PSVECNormalize(&dir, &dir);
     } else {
-        dir = -Front_unk(mChara->mRot);
+        atn::Vector3 back = -Front_unk(mChara->mRot);
+        __VecCopy(&dir.x, &back.x);
     }
     m08 = -dir;
     m20 -= m08 * 3.0f;
