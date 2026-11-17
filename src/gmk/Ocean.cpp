@@ -143,7 +143,7 @@ void Ocean::fn_804186D8() {
 } // namespace gmk
 
 // inferred: point of the sea surface under `pos` (the start of a segment)
-// NONMATCHING: 77.8% - scheduling/registers of the index arithmetic, the table copy and the bilinear
+// NONMATCHING: 81.15% - scheduling/registers of the index arithmetic, the table copy and the bilinear
 // weights. Found: joints in a 2-iteration loop (one shared temporary), modf results kept as double,
 // z offset uses origin.x, ints converted to locals before the modulo, bilinear weights in an inline.
 // inferred: bilinear interpolation of the four corners (name invented)
@@ -182,8 +182,9 @@ extern "C" atn::Vector3 fn_804188A0(gmk::Ocean* ocean, const atn::Vector3* pos) 
             y[i] = ((atn::Matrix3x4*)ocean->mModel.mMtx.mNodes.mData[nodes[i]].m)->GetTrans_unk().y;
         }
     }
+    float h = y[0] * t + y[1] * (1.0f - t);
     atn::Vector3 ret(*pos);
-    ret.y = y[0] * t + y[1] * (1.0f - t);
+    ret.y = h;
     return ret;
 }
 
