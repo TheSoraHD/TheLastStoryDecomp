@@ -1,0 +1,130 @@
+diff --git a/src/game/Em101LittleZesyaSecond.cpp b/src/game/Em101LittleZesyaSecond.cpp
+index c8737c2..baf0c2b 100644
+--- a/src/game/Em101LittleZesyaSecond.cpp
++++ b/src/game/Em101LittleZesyaSecond.cpp
+@@ -506,6 +506,13 @@ inline void PlayEffect_unk(atn::EfpFile* efp, atn::Model* model) {
+ // declaration orders, ToRotationZ_unk)
+ // inferred: chooses the next action: warp after 5 hits, the warp attacks every m14D0 actions, the normal
+ // attack in range, otherwise the warp slash or a warp
++// inferred: yaw towards a point (name invented)
++inline float YawTo_unk(const atn::Vector3& from, const atn::Vector3& to) {
++    atn::Vector3 dir = to - from;
++    PSVECNormalize(&dir, &dir);
++    return dir.ToRotation_unk().y;
++}
++
+ void Em101LittleZesyaSecond::fn_80261078() {
+     atn::Vector3 target = m14B8->mPos;
+     atn::Vector3 d = target - mPos;
+@@ -570,10 +577,7 @@ void Em101LittleZesyaSecond::fn_80261078() {
+                 mMotion.mTracks[0].m0C = 0.9f;
+             }
+             m598 = 0;
+-            atn::Vector3 dir = m14B8->mPos - mPos;
+-            PSVECNormalize(&dir, &dir);
+-            atn::Vector3 rot = dir.ToRotation_unk();
+-            mRot.y = rot.y;
++            mRot.y = YawTo_unk(mPos, m14B8->mPos);
+         }
+     } else if (m14BC > m14D8) {
+         if (rand() % 2 == 1 && dist < 120.0f) {
+diff --git a/src/game/Em209SmallGolem.cpp b/src/game/Em209SmallGolem.cpp
+index 7e2e7e1..d077040 100644
+--- a/src/game/Em209SmallGolem.cpp
++++ b/src/game/Em209SmallGolem.cpp
+@@ -285,7 +285,7 @@ inline void Em209SmallGolem::StartRevive_unk(CharaTask* by) {
+ // loads of the skill call; 12 variants (helpers, temporaries, named colors, reversed arguments)
+ void Em209SmallGolem::vf10() {
+     m14B8 = mC58.mC4;
+-    if ((mStatus.m0C & 0x20) == 0x20 && m1548 != 0 && m58C == 2 && ((GameTask*)lbl_8087F430)->fn_80370A78(0xC9) == 1) {
++    if (mStatus.IsState_unk(0x20) && m1548 != 0 && m58C == 2 && ((GameTask*)lbl_8087F430)->fn_80370A78(0xC9) == 1) {
+         CharaTask* player = lbl_8087F8A0->mHead;
+         atn::Vector3 d = mPos - player->mPos;
+         float dist = PSVECMag(&d);
+diff --git a/include/chr/ControlDamage.h b/include/chr/ControlDamage.h
+index 278c791..5ef726e 100644
+--- a/include/chr/ControlDamage.h
++++ b/include/chr/ControlDamage.h
+@@ -46,7 +46,7 @@ public:
+     virtual int vf0C();
+     virtual boost::function<void()> vf10() const;
+     virtual void vf1C();
+-    bool fn_801AE41C(); // inferred: can be cancelled (CharaTask::fn_8015EB2C, control id 0x17)
++    bool fn_801AE41C() const; // inferred: can be cancelled (CharaTask::fn_8015EB2C, control id 0x17)
+ 
+     atn::Vector3 m08;                // inferred: rotation to turn to
+     int m14;                         // inferred: frame counter of the step
+diff --git a/src/chr/ControlDamage.cpp b/src/chr/ControlDamage.cpp
+index 81eb868..c85924f 100644
+--- a/src/chr/ControlDamage.cpp
++++ b/src/chr/ControlDamage.cpp
+@@ -293,6 +293,24 @@ ControlKnockdown::ControlKnockdown(Chara_unk* chara, const atn::Vector3& dir, in
+     }
+ }
+ 
++// inferred: sound at a position (name invented)
++inline void PlaySeAt_unk(const char* name, const atn::Vector3& pos) {
++    fn_800C344C(name, &pos, 0, -1, 1.0f);
++}
++
++// inferred: scene of the model of a character, else the one of RenderManager (name invented)
++inline atn::Scene* Lens_unk(const CharaTask* chara) {
++    return (chara->mMotion.m1DC == 0) ? atn::RenderManager::instance_->mScene : chara->mMotion.m1DC;
++}
++inline atn::Scene* ModelLens_unk(const atn::ModelBase* model) {
++    return (model->m1DC == 0) ? atn::RenderManager::instance_->mScene : model->m1DC;
++}
++
++// inferred: hit position of a ray test (name invented)
++inline atn::Vector3 HitPos_unk(const atn::ColliResult_unk& res) {
++    return res.m10;
++}
++
+ // NONMATCHING: 98.1% - the inlined fn_801AE41C loads mChara again (the original keeps a second
+ // model pointer), the lens accessor reloads m1DC three times, and r3/r4 are swapped in the
+ // arguments of the two sounds.
+@@ -334,9 +352,9 @@ int ControlKnockdown::vf0C() {
+                     m14 = 0;
+                     m18 = 1;
+                     if (mChara->m5B0 < 10.0f) {
+-                        fn_800C344C(sSe[1], &mChara->mPos, 0, -1, 1.0f);
++                        PlaySeAt_unk(sSe[1], mChara->mPos);
+                     } else {
+-                        fn_800C344C(sSe[2], &mChara->mPos, 0, -1, 1.0f);
++                        PlaySeAt_unk(sSe[2], mChara->mPos);
+                     }
+                 }
+             }
+@@ -394,9 +412,9 @@ int ControlKnockdown::vf0C() {
+             m3C = 0;
+             atn::Vector3 from = mChara->mPos;
+             atn::Vector3 to = from;
+-            MtxPtr node = mChara->mMotion.GetNodeMtx_unk("spine1");
++            MtxPtr node = mChara->GetModel_unk()->GetNodeMtx_unk("spine1");
+             if (!node) {
+-                node = mChara->mMotion.GetNodeMtx_unk("hips");
++                node = mChara->GetModel_unk()->GetNodeMtx_unk("hips");
+             }
+             if (node) {
+                 to = from = atn::Vector3(node[0][3], node[1][3], node[2][3]);
+@@ -409,9 +427,9 @@ int ControlKnockdown::vf0C() {
+             if (fn_8004ED34(fn_801404F8(), &res, &from, &to, mChara->fn_80179D44() | 0x80000000, 0, 0) && res.m34) {
+                 int attr = *(int*)res.m34;
+                 if ((attr >= 0x14 && attr <= 0x15) || (attr >= 0x1C && attr <= 0x1D)) {
+-                    atn::Vector3 pos = res.m10;
++                    atn::Vector3 pos = HitPos_unk(res);
+                     if (mChara->GetLens_unk()) {
+-                        pos.y = -mChara->GetLens_unk()->mPlane.mDist * mChara->GetLens_unk()->mPlane.mNormal.y + 0.01f;
++                        pos.y = -Lens_unk(mChara)->mPlane.mDist * ModelLens_unk(&mChara->mMotion)->mPlane.mNormal.y + 0.01f;
+                     }
+                     lbl_8087F048->fn_801070C8(0x7D7, 0, 0, 0, &res.m10, &mChara->mRot,
+                                 &Color4f_unk(1.0f, 1.0f, 1.0f, 1.0f), 1.0f);
+@@ -424,7 +442,7 @@ int ControlKnockdown::vf0C() {
+     return result;
+ }
+ 
+-bool ControlKnockdown::fn_801AE41C() {
++bool ControlKnockdown::fn_801AE41C() const {
+     if (m14 > 90) {
+         return true;
+     }
