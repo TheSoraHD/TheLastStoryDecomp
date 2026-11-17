@@ -181,6 +181,14 @@ inline vector<ColorF_unk>::vector(const vector<ColorF_unk>& x) {
     __init_unk(__vec_cbegin_unk(x), __vec_cend_unk(x));
 }
 
+// inferred: same form for vector<Event::ActorPair_unk> (weak copy 0x80543F60)
+template <>
+inline vector<Event::ActorPair_unk>::vector(const vector<Event::ActorPair_unk>& x) {
+    MSL_VEC_ASSERT10_UNK;
+    MSL_VEC_ASSERT10_UNK;
+    __init_unk(__vec_cbegin_unk(x), __vec_cend_unk(x));
+}
+
 } // namespace std
 
 #endif

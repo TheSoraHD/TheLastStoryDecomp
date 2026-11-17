@@ -68,6 +68,9 @@ extern "C" float fn_8006EF48(void* font, float size, const wchar_t* text, float 
 
 namespace Event {
 
+// inferred: declared inline in Event/Actor.h
+inline ActorPair_unk::ActorPair_unk() {}
+
 // inferred: values of the "type" attribute of the sequence
 static const ParamEnum_unk sTypeNames_unk[4] = {
     {"invalid", "invalid"},
