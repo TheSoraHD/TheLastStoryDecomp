@@ -394,7 +394,8 @@ Pigeon_unk* PigeonManager::FindNear_unk(const atn::Vector3& pos) {
     return 0;
 }
 
-// NONMATCHING: 93.89% - 16 bytes smaller frame and one saved register less than the original
+// NONMATCHING: 96.15% - stack slots of the FindNear_unk temporaries (and the frsp of `t = mTmp`); the
+// area copy goes through a pigeon pointer (the original does not reload mPigeons)
 // (the placement check is probably written differently).
 int PigeonManager::vf0C() {
     if (fn_803EC91C() == 0) {
@@ -406,8 +407,9 @@ int PigeonManager::vf0C() {
                     (&mPigeons[i].mModel)->fn_80097A88(mMotionId[j], mMotionName[j]);
                 }
                 atn::Vector3 center = mCenter;
-                mPigeons[i].mCenter = center;
-                mPigeons[i].mRadius = mRadius;
+                Pigeon_unk* c = &mPigeons[i];
+                c->mCenter = center;
+                c->mRadius = mRadius;
             }
             mLoaded = true;
         }

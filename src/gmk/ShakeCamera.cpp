@@ -33,6 +33,10 @@ struct ShakeField_unk {
 };
 extern "C" ShakeField_unk* lbl_8087F430;
 
+// inferred: square root of a float (name invented)
+inline float SqrtF_unk(float x) {
+    return (float)sqrt(x);
+}
 // inferred: random float in [0, 1] (name invented)
 inline float Rand01_unk() {
     return (float)(rand() % 1001) / 1000.0f;
@@ -69,8 +73,12 @@ void ShakeCamera::Start() {
     vf40(&msg);
 }
 
-// NONMATCHING: 98.18% - registers only: the target computes the rate in the register of its first
-// bound (f31; f30 here) and keeps the field pointer in r5 (r7 here). The two compares of the original
+// NONMATCHING: 99.34% - registers only: the target keeps the field pointer in r5 (r7 here; the
+// remainder of rand() % 1001 takes r6, r5 here). The square roots of the volume go through SqrtF_unk (the
+// rate in f31 as in the original) and the pitch writes Rand01_unk out (the 0.5f is loaded after the
+// field, as in ColliAttrManager). Tried: SetShake_unk(m96C % 2, ...) as in MotionCommand_unk,
+// x/y in the call, a frame local, the orders of rate/x/y/field (24), RandRange_unk with the factor or
+// the range as a local, written out. The two compares of the original
 // come from `if (m54 == 1) return;` before the case 2 test (a switch with an empty case 1 drops the
 // compare). The field writes go through an inline taking (frame, x, y), so the members are read before
 // the stores. Tried: `min +=` and const references in RandRange_unk, the rate built in place, a field
@@ -88,12 +96,12 @@ void ShakeCamera::vf10() {
             float y = mShakeY * rate;
             lbl_8087F430->Shake_unk(mShakeFrame, x, y);
             if (lbl_8087F430->m54E4 == 0) {
-                float volume = (float)sqrt(rate) * (float)sqrt(x * x + y * y) < 1.5f
-                                   ? (float)sqrt(rate) * (float)sqrt(x * x + y * y)
+                float volume = SqrtF_unk(rate) * SqrtF_unk(x * x + y * y) < 1.5f
+                                   ? SqrtF_unk(rate) * SqrtF_unk(x * x + y * y)
                                    : 1.5f;
                 atn::SoundRef sound = fn_800C31F4("SE_DGCOM_008", 0, -1, volume);
                 atn::SoundManager* cfg = lbl_8087EFE8;
-                fn_800CB688(&sound, 0, 1.0f + (cfg->mRandomPitch * Rand01_unk() - 0.5f * cfg->mRandomPitch));
+                fn_800CB688(&sound, 0, 1.0f + (cfg->mRandomPitch * ((float)(rand() % 1001) / 1000.0f) - 0.5f * cfg->mRandomPitch));
             }
         }
     }
