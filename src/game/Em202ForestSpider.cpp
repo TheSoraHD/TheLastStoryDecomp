@@ -196,12 +196,13 @@ Em202ForestSpider::Em202ForestSpider(atn::Task* parent, EnemyInfo_unk* info)
 
 Em202ForestSpider::~Em202ForestSpider() {}
 
+// NONMATCHING: 97.2% - saved registers of the reading loop (r29 for this in the original)
 int Em202ForestSpider::vf0C() {
     int loading = 0;
     for (int i = 0; i < 4; i++) {
-        SpiderThread_unk* t = &m1538[i];
-        if (t->m8C.IsLoading() || t->m98.IsLoading() || t->mA4.IsLoading() || t->mB0.IsLoading() ||
-            t->mBC.IsLoading() || t->mC8.IsLoading() || t->mD4.IsLoading() || t->mE0.IsLoading()) {
+        if (m1538[i].m8C.IsLoading() || m1538[i].m98.IsLoading() || m1538[i].mA4.IsLoading() ||
+            m1538[i].mB0.IsLoading() || m1538[i].mBC.IsLoading() || m1538[i].mC8.IsLoading() ||
+            m1538[i].mD4.IsLoading() || m1538[i].mE0.IsLoading()) {
             loading = 1;
             break;
         }
@@ -270,7 +271,8 @@ int Em202ForestSpider::vf0C() {
 }
 
 
-// NONMATCHING: approximate
+// NONMATCHING: 91.1% - saved registers of the thread loop (r19 in the original) and stack slots of the
+// sight temporaries (flow, calls and constants checked against the original)
 void Em202ForestSpider::vf10() {
     vfF8();
     if (mStatus.IsState_unk(4)) {
@@ -521,7 +523,8 @@ void Em202ForestSpider::vfF8() {
     mC58.mC4 = m14D4;
 }
 
-// NONMATCHING: approximate
+// NONMATCHING: 86.2% - float registers and stack slots of the route and turn temporaries (flow, calls and
+// constants checked against the original)
 void Em202ForestSpider::vfFC() {
     float speed = 1.5f;
     atn::Vector3 rot = mRot;
@@ -661,7 +664,8 @@ void Em202ForestSpider::vf10C() {
     }
 }
 
-// NONMATCHING: approximate (state 9, threads)
+// NONMATCHING: 89.4% - registers and stack slots (state 9, threads; calls checked, the member offsets differ
+// only by the base register of the thread array)
 void Em202ForestSpider::vf110() {
     if (m14D8 == 0) {
         atn::Vector3 d = m18E8->mPos - mPos;

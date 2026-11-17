@@ -20,6 +20,7 @@ Inicio: 2026-11-16 23:58 CET (tope 2,5 h: 02:28).
 | Em202ForestSpider vf128, vf104, vf108, vf10C, vfEC, fn_8027851C (fuera de la tabla: "approximate") | 97,6 / 96 / 86,5 / 88 / 80,9 / 95,7 % | 100 % (cuatro tenian el flujo mal) |
 | Em202ForestSpider fn_802790A0 | 85,8 % | 100 % (`fn_8023A680` con sus 12 argumentos) |
 | Em202ForestSpider vf14 / vf114 | 62,1 / 82,7 % | 93 / 94,2 % (vf114 con el flujo del original) |
+| Em202ForestSpider vf0C | 93,97 % | 97,2 % (`m1538[i].X.IsLoading()` en vez de un puntero al hilo) |
 | Em202ForestSpider vf10 | 88,9 % | 91,1 % (capsula y posicion de fn_805A5078 corregidas) |
 | Em202ForestSpider fn_80278634 | 84 % | 95,75 % (`Matrix3x4::RotateZYX_unk` y copia de la escala por temporal) |
 
@@ -42,6 +43,7 @@ Inicio: 2026-11-16 23:58 CET (tope 2,5 h: 02:28).
 - Busqueda de RoutePlace con la tabla del campo leida dentro de la inline (`FindRoutePlace3_unk` de Em202Spider) da el orden de registros del original cuando la version con la tabla por parametro no (Em202ForestSpider::vf128) (escribir-20261116 qW2).
 
 ## Bloqueos
+- Orden de carga de varios `vector::clear()` inline seguidos (Em202ForestSpider ctor, Em302KrakenMp ctor, NewCampTask::fn_8053032C): el original carga los tamanos en un orden que no sigue al de las llamadas; 6 ordenes probados en ForestSpider (escribir-20261116 qW2).
 - Em206CocoonMp ctor y LastCocoonChrysalis ctor: las locales anidadas key/cmp/value del bucle de tokens (lo que saco LastCocoonImago de presupuesto) no bastan; tampoco una local `rest` mas ni `file = path.c_str()` (escribir-20261116 qW2).
 
 ## Cambios de splits/symbols
