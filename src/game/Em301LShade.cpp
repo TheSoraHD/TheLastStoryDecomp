@@ -466,8 +466,8 @@ int Em301LShade::vf0C() {
 template void std::vector<RoutePlace_unk*>::push_back(RoutePlace_unk* const& x);
 template void std::vector<EnemyTask*>::push_back(EnemyTask* const& x);
 
-// NONMATCHING: 96.3% - stack slots (the direction to the target is built in another slot), float
-// registers, the early load of the battle manager in state 10 and the reload of m15E8 after m1500++; calls,
+// NONMATCHING: 96.6% - stack slots (the direction to the target is built in another slot), float
+// registers and the reloads of m15E8 after the stores of m1500/m15EC; calls,
 // literals, jump table, branch targets and member offsets checked against the original
 void Em301LShade::vf10() {
     if (m58C != 8) {
@@ -520,9 +520,10 @@ void Em301LShade::vf10() {
             if ((65.0f <= mMotion.GetMotionFrame(0) && mMotion.GetMotionFrame(0) <= 80.0f) ||
                 (115.0f <= mMotion.GetMotionFrame(0) && mMotion.GetMotionFrame(0) <= 130.0f)) {
                 fn_80144710();
+                BattleTask* mgr = lbl_8087F048;
                 atn::Vector3 pos = mPos;
                 pos.y += 13.0f * m540.x;
-                lbl_8087F048->fn_800FAB80(this, skill, m590, &pos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
+                mgr->fn_800FAB80(this, skill, m590, &pos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
             }
             break;
         }
