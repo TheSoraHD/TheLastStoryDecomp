@@ -571,7 +571,7 @@ void GameSaveParty_unk::fn_803BAD6C() {
     }
 }
 
-int GameSaveParty_unk::fn_803BAE54(GameSavePacketEquip_unk* equip, int chara, int bit) const {
+bool GameSaveParty_unk::fn_803BAE54(GameSavePacketEquip_unk* equip, int chara, int bit) const {
     if (equip->mValid) {
         int index = fn_80219558(chara);
         if (0 <= index && index < 7) {
@@ -883,7 +883,7 @@ void GameSaveInventory_unk::fn_803BC2D4() {
     }
 }
 
-int GameSaveInventory_unk::fn_803BD0FC(GameSavePacketEquip_unk* equip, int chara, int slot) const {
+bool GameSaveInventory_unk::fn_803BD0FC(GameSavePacketEquip_unk* equip, int chara, int slot) const {
     int index = fn_80219558(chara);
     if (0 <= index && index < 7) {
         const Inventory::Equip_unk& equipment = mEquips[index];
