@@ -262,7 +262,7 @@ public:
         }
     }
     // inferred: aid of the server
-    unsigned char GetServerAid_unk() {
+    unsigned char GetServerAid_unk() const {
         if (mC215 == 0) {
             return mFlags.mB12 ? 0 : (unsigned char)fn_806B1250();
         } else {

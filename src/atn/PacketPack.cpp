@@ -1604,7 +1604,7 @@ extern "C" void fn_804FB674(PPManager2_unk* mgr);
 extern "C" void fn_804DA34C(PPManager2_unk* mgr);
 extern "C" void fn_804DA48C(PPManager2_unk* mgr, int value);
 extern "C" void fn_804DA4A0(PPManager2_unk* mgr, int value);
-extern "C" int fn_804DB3B4(PPManager2_unk* mgr);
+extern "C" int fn_804DB3B4(const PPManager2_unk* mgr);
 extern "C" void fn_804DC358(PPManager2_unk* mgr);
 extern "C" int fn_804DC374(PPManager2_unk* mgr, int mode);
 extern "C" int fn_804DE884(PPManager2_unk* mgr);
@@ -1642,7 +1642,7 @@ extern "C" void fn_804F5FCC(PPRequests_unk* queue);
 extern "C" int fn_804F5E38(PPRequests_unk* queue, unsigned int id);
 extern "C" int fn_804F5C9C(PPRequests_unk* queue, unsigned int id);
 extern "C" long long* fn_804F5B08(PPRequests_unk* queue, unsigned int id);
-extern "C" int fn_804FB968(PPManager2_unk* mgr, CharaTask* chara);
+extern "C" int fn_804FB968(const PPManager2_unk* mgr, CharaTask* chara);
 extern "C" void fn_804EA8B8(PPManager2_unk* mgr, int arg);
 extern "C" void fn_804E448C(PPManager2_unk* mgr);
 extern "C" int fn_804D9BF4(PPManager2_unk* mgr, int a, int b, int c);
@@ -1905,7 +1905,7 @@ extern "C" __declspec(noinline) inline unsigned char fn_804D6228(atn::net::Manag
         return 0;
     }
 }
-extern "C" __declspec(noinline) inline int fn_804D6278(atn::net::Manager* net, unsigned char aid) {
+extern "C" __declspec(noinline) inline int fn_804D6278(const atn::net::Manager* net, unsigned char aid) {
     return aid == net->GetServerAid_unk();
 }
 extern "C" __declspec(noinline) inline bool fn_804D62E4(MP::D2AMpMenuLobby* lobby) {
@@ -2024,13 +2024,13 @@ extern "C" __declspec(noinline) inline PPCharaEntry_unk* fn_804D64A4(PPCharaArra
 extern "C" __declspec(noinline) inline unsigned char fn_804D64B4(PPPlayer_unk* player) {
     return player->m0D52++;
 }
-inline int GetRemain_unk(PPManager2_unk* mgr) {
+inline int GetRemain_unk(const PPManager2_unk* mgr) {
     if (mgr->m564 >= 0) {
         return mgr->m564 - (int)((OSGetTime() - mgr->mStartTime) / (*(unsigned int*)0x800000F8 / 4));
     }
     return -1;
 }
-extern "C" __declspec(noinline) inline bool fn_804D64C8(PPManager2_unk* mgr) {
+extern "C" __declspec(noinline) inline bool fn_804D64C8(const PPManager2_unk* mgr) {
     bool on = !(GetRemain_unk(mgr) < 0);
     if (on) {
         on = GetRemain_unk(mgr) < 60;
@@ -4148,7 +4148,7 @@ extern "C" int fn_80444020(Inventory* inventory, int table, int message, int ind
                            int* outCode, int* outCount, int* outAdded); // inferred: gives an item of a table
 extern "C" void fn_804DF4B8(PPManager2_unk* mgr);
 extern "C" int fn_804E4B44(PPManager2_unk* mgr, PPPlayer_unk* target);
-extern "C" int fn_804DB408(PPManager2_unk* mgr);
+extern "C" int fn_804DB408(const PPManager2_unk* mgr);
 
 // inferred: team of the own player (3 without slot); names invented
 static inline unsigned int PPOwnTeam_unk(PPManager2_unk* mgr) {
@@ -4268,13 +4268,13 @@ extern "C" void fn_804DB1C4(PPManager2_unk* mgr, CharaTask* chara, int points) {
 }
 
 // inferred: seconds since the start of the game
-extern "C" int fn_804DB3B4(PPManager2_unk* mgr) {
+extern "C" int fn_804DB3B4(const PPManager2_unk* mgr) {
     return (OSGetTime() - mgr->mStartTime) / (*(unsigned int*)0x800000F8 / 4);
 }
 
 // NONMATCHING: 92.59% - the original loads m564 before saving r31
 // inferred: seconds left of the time limit (-1 without one)
-extern "C" int fn_804DB408(PPManager2_unk* mgr) {
+extern "C" int fn_804DB408(const PPManager2_unk* mgr) {
     if (mgr->m564 >= 0) {
         return mgr->m564 - fn_804DB3B4(mgr);
     }
@@ -9734,8 +9734,6 @@ extern "C" void fn_804F36F8(PPPlayer_unk* player) {
     }
 }
 
-// NONMATCHING: 97.18% (and 99.51% fn_804F39D4) - in the inlined fn_804DD158 the manager takes r5 and the
-// slot offset r3 (swapped)
 // inferred: message 0x2E: hit (or end of the hit) of skill 0x4FC1 on the character of a player
 extern "C" void fn_804F3880() {
     if (fn_800F7F90()->mState != 30) {
@@ -9743,8 +9741,9 @@ extern "C" void fn_804F3880() {
     }
     const unsigned char* data = (const unsigned char*)fn_804AE3BC()->GetWorkBuffer_unk();
     PPPlayer_unk* player = fn_804DD158(fn_800F7F90(), data[0]);
+    unsigned char on = data[1];
     if (player != 0 && player->mRef.mChara != 0) {
-        if (data[1] != 0) {
+        if (on != 0) {
             player->mD4C |= 0xC00;
             CharaTask* chara = player->mRef.mChara;
             if (chara != 0) {
@@ -10827,12 +10826,15 @@ extern "C" __declspec(noinline) int fn_804FAB40(PPManager2_unk* mgr, int value, 
 extern "C" int SCCheckPCMessageRestriction();
 extern "C" const wchar_t* fn_804FAF48(PPManager2_unk* mgr, int* code, int type); // inferred: text of a DWC error
 
-// NONMATCHING: 99.21% - the offset of L"%s" in @wstringBase0 (pool in .sdata in the original, not complete) and a
-// second `beq` of the test of the dialog in the original
+// note: the offset of L"%s" in @wstringBase0 (pool in .sdata in the original, not complete) is not seen by objdiff
 // inferred: shows the error dialog: the message `id` of the table, or (id -1) the restriction of the parental
 // controls, the last DWC error or the oldest queued error with its code; then the ranking is closed if it failed
 extern "C" void fn_804FAD48(PPManager2_unk* mgr, int id) {
     if (lbl_8087F628 == 0 || MP::D2ACommonDialog::sInstance == 0) {
+        return;
+    }
+    // inferred: the original tests the dialog a second time (`beq` on the same compare after the guard)
+    if (MP::D2ACommonDialog::sInstance == 0) {
         return;
     }
     wchar_t buf[512];
@@ -11091,7 +11093,7 @@ static inline int PPIsTooFast_unk(float speed) {
 // inferred: check of the status of the own character before an online game (values above the limits of the
 // mode, bonuses, flags of the equipment and of the state); nonzero when something is out of range. In mode 2
 // the global flag 0x25 of the game disables the check
-extern "C" int fn_804FB968(PPManager2_unk* mgr, CharaTask* chara) {
+extern "C" int fn_804FB968(const PPManager2_unk* mgr, CharaTask* chara) {
     int mode = mgr->mMode;
     bool bad;
     if (mode == 2) {
