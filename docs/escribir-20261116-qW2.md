@@ -16,7 +16,12 @@ Inicio: 2026-11-16 23:58 CET (tope 2,5 h: 02:28).
 | EnemyTasha ctor (0x803559F8) | DRAFT 100 % | 100 % (mnemcheck limpio, literales iguales) |
 | Em202ForestSpider ctor (0x8027278C) | DRAFT 98,40 % | equivalente NONMATCHING 98,75 % (faltaba `m14BC(0)`) |
 | Em301LShade vf10 (0x802D0B84) | DRAFT 90,20 % | equivalente NONMATCHING 90,2 % (`m540.y` -> `m540.x`; llamadas, literales, tabla de saltos y offsets comprobados) |
+| NewCampTask `atn::RenderConfig::GodRay::operator=` (0x8052BBEC) | 0 % (no emitida) | sin cambios (bloqueo `atn::Scene::operator=` implicito; sin idea nueva) |
 
+Objetivo 3 (resto de funciones de las unidades de la cola):
+
+| Funcion | Antes | Despues |
+|---|---|---|
 | Em202ForestSpider vf128, vf104, vf108, vf10C, vfEC, fn_8027851C (fuera de la tabla: "approximate") | 97,6 / 96 / 86,5 / 88 / 80,9 / 95,7 % | 100 % (cuatro tenian el flujo mal) |
 | Em202ForestSpider fn_802790A0 | 85,8 % | 100 % (`fn_8023A680` con sus 12 argumentos) |
 | Em202ForestSpider vf14 / vf114 | 62,1 / 82,7 % | 93 / 94,2 % (vf114 con el flujo del original) |
@@ -39,6 +44,13 @@ Inicio: 2026-11-16 23:58 CET (tope 2,5 h: 02:28).
 - Em202ForestSpider::vf10: la capsula se actualiza con `mColli.m3C = mPos`, `mColli.m48 = (x, y + m5B0, z)`, `m54 = m5B0` (antes m48 = mPos y m3C sin tocar), y fn_805A5078 recibe mPos (no la posicion alta).
 
 ## Decisiones tomadas sin el usuario
+- Em202ForestSpider::fn_80278218: el original copia primero el vector cero (lbl_807C7030) sobre `center` y luego la posicion del jefe (store muerto). Con ese store muerto y la escala por componentes sale al 100 %, pero vf170 (que la inlinea) baja de 80,6 a 34,5 % por presupuesto, y la regla 2 estricta no admite sentencias sin efecto: no se cambia (72 %).
+- Em202ForestSpider vfFC/vf3C/vf10C y EnemyTasha vf10: variantes probadas sin mejora y deshechas (orden de locales, `0.5f * x`, local `mgr` antes).
+
+## Resumen
+- Tabla de la cola: 9 entradas. 4 DRAFT pasan a equivalente (KrakenMp vf0C, ForestSpider ctor, LShade vf10, Em206 ctor) y 2 DRAFT que ya estaban al 100 % se comprueban (KrakenMp vf104, Tasha ctor). Quedan sin cambios los 0 % bloqueados por el presupuesto de inline (Em206 ctor/ResHandle, Chrysalis ctor, GimmickManager vf0C/fn_803EF3B0) y GodRay::operator=.
+- Funciones al 100 %: 15878 -> 15886 (+8, todas de Em202ForestSpider: vf128, vf104, vf108, vf10C, vfEC, fn_8027851C, fn_802790A0, vfF8). lost 0, sin bajadas.
+- No enlaza ninguna unidad nueva (725).
 
 ## Hallazgos
 - Rotacion z/y/x de una matriz miembro: `m.RotateZYX_unk(rot)` (Vec.h, con los `if (0.0f != rot.z)`) y la escala con `Vector3(1, 1, k)` + `PSMTXConcat` a un temporal copiado despues dan el codigo del original donde `PSMTXConcat(m, r, m)` en el sitio no (Em202ForestSpider::fn_80278634 84 -> 95,75 %) (escribir-20261116 qW2).
