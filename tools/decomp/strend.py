@@ -19,7 +19,12 @@ for f in glob.glob('build/SLSP01/asm/**/*.s', recursive=True):
     for fn in re.finditer(r'\.fn (\S+),.*?\.endfn', t, re.S):
         body = fn.group(0)
         if '@stringBase0' not in body: continue
-        regs = set(re.findall(r'addi (r\d+), r\d+, "@stringBase0"@l', body))
-        for r in regs:
-            if re.search(r'addi r\d+, %s, 0x%x\b' % (r, size), body): hits.append(fn.group(1))
+        # follow the registers that hold the pool address; a register is dropped when another instruction writes it
+        regs = set()
+        for ins in re.findall(r'\*/\t(\S+) ([^\n]*)', body):
+            op, args = ins; a = [x.strip() for x in args.split(',')]
+            m2 = re.match(r'addi (r\d+), r\d+, "@stringBase0"@l', op + ' ' + args)
+            if m2: regs.add(m2.group(1)); continue
+            if op == 'addi' and len(a) == 3 and a[1] in regs and a[2] == hex(size): hits.append(fn.group(1))
+            if a and a[0] in regs and not op.startswith(('st', 'cmp', 'b')): regs.discard(a[0])
     if hits: print(os.path.relpath(f, 'build/SLSP01/asm'), hex(addr), hex(size), sorted(set(hits))[:4])
