@@ -730,6 +730,34 @@ void* GameScene::fn_803C18DC(int type, int link) {
     return 0;
 }
 
+// inferred: length of column `i` of the rotation of a matrix: scale of an axis (name invented)
+inline float GetColumnLength_unk(const atn::Matrix3x4& m, int i) {
+    return atn::Vector3(m.m[0][i], m.m[1][i], m.m[2][i]).Length_unk();
+}
+
+// inferred: sets the matrix of a model and its largest scale axis (name invented)
+inline void SetModelMtx_unk(atn::Model* model, const atn::Matrix3x4& m) {
+    __MtxCopy(model->mMtx.m, m.m);
+    float sz = GetColumnLength_unk(m, 2);
+    float sy = GetColumnLength_unk(m, 1);
+    float sx = GetColumnLength_unk(m, 0);
+    atn::Vector3 scale(sx, sy, sz);
+    model->m54 = scale.x > (scale.y > scale.z ? scale.y : scale.z) ? scale.x : (scale.y > scale.z ? scale.y : scale.z);
+}
+
+// inferred: m = m * rot_z * rot_y * rot_x (name invented)
+inline void RotateZYX_unk(atn::Matrix3x4& m, const atn::Vector3& rot) {
+    if (0.0f != rot.z) {
+        atn::Matrix3x4::RotateAxis_unk(m, 'z', rot.z);
+    }
+    if (0.0f != rot.y) {
+        atn::Matrix3x4::RotateAxis_unk(m, 'y', rot.y);
+    }
+    if (0.0f != rot.x) {
+        atn::Matrix3x4::RotateAxis_unk(m, 'x', rot.x);
+    }
+}
+
 void GameScene::vf10() {
     fn_803C1CAC();
     fn_803C1E3C();
@@ -740,25 +768,10 @@ void GameScene::vf10() {
         }
         atn::Matrix3x4 m;
         m.SetIdentity();
-        if (0.0f != c.m10.z) {
-            atn::Matrix3x4::RotateAxis_unk(m, 'z', c.m10.z);
-        }
-        if (0.0f != c.m10.y) {
-            atn::Matrix3x4::RotateAxis_unk(m, 'y', c.m10.y);
-        }
-        if (0.0f != c.m10.x) {
-            atn::Matrix3x4::RotateAxis_unk(m, 'x', c.m10.x);
-        }
+        RotateZYX_unk(m, c.m10);
         PSMTXConcat(c.m0C->m, m.m, m.m);
-        atn::Model* model = c.m04;
-        __MtxCopy(model->mMtx.m, m.m);
-        atn::Vector3 scale(atn::Vector3(m.m[0][0], m.m[1][0], m.m[2][0]).Length_unk(),
-                           atn::Vector3(m.m[0][1], m.m[1][1], m.m[2][1]).Length_unk(),
-                           atn::Vector3(m.m[0][2], m.m[1][2], m.m[2][2]).Length_unk());
-        model->m54 = scale.x > (scale.y > scale.z ? scale.y : scale.z)
-                         ? scale.x
-                         : (scale.y > scale.z ? scale.y : scale.z);
-        model->CalcMatrixStack(atn::ModelNodeCallback_unk());
+        SetModelMtx_unk(c.m04, m);
+        c.m04->CalcMatrixStack(atn::ModelNodeCallback_unk());
     }
 }
 
