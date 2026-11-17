@@ -59,8 +59,9 @@ extern "C" long long fn_804CF194() {
     return OSGetTime();
 }
 
+// NONMATCHING: 99.37% - FPRs of the two frame differences
 // inferred: applies a packed motion state to slot `index` of a model
-extern "C" void fn_804CF198(PackedMotion_unk* in, atn::Model* model, int index) {
+extern "C" void fn_804CF198(const PackedMotion_unk* in, atn::Model* model, int index) {
     if (lbl_8087F430 != 0 && lbl_8087F430->m54E4 == 10) {
         return;
     }
@@ -231,11 +232,11 @@ extern "C" int fn_804CF634(PPChara_unk* chara) {
 extern "C" BattleTask* lbl_8087F048; // inferred: battle manager (as game/BattleCharaTask.cpp)
 // inferred: the targets of the slot and of the list entry of `chara` (defined after MP::Manager2, inlined)
 static inline void PPSetTargets_unk(CharaTask* chara, const PackedChara_unk* in);
-// NONMATCHING: 90.7% - the original reads the packed flag bytes once for several fields (here reloaded after each
-// store) and reloads lbl_8087F048 into a saved register between the two effect calls; scheduling
+// NONMATCHING: 96.92% - the original keeps lbl_8087F048 in a saved register between the two effect calls
+// (stack frame 0x40), scheduling of the two float values
 // inferred: applies the packed state of a character (fn_804CF468): part, state, values mFB8/mFBC, hit, flags,
 // the status bits of m13 (each one with its effect of the battle), the motion mode and the targets
-extern "C" void fn_804CF640(PackedChara_unk* in, CharaTask* chara) {
+extern "C" void fn_804CF640(const PackedChara_unk* in, CharaTask* chara) {
     if (lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->m54E4 == 10) {
         return;
     }

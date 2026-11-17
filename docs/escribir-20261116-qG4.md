@@ -19,9 +19,14 @@ Inicio: 2026-11-17 06:06 CET (tope 08:36).
 | fn_804DA690 | 96,89 % | 98,58 % (registros: m564 del primer fn_804DB408) |
 | fn_804E82C4 | 95,52 % | 96,0 % (rango de `slot` con el literal a la izquierda) |
 | fn_804D996C | 95,77 % | 99,57 % (llama a fn_804FB470, que el original inlinea) |
+| fn_804CF198 | 82,98 % | 99,37 % (`const PackedMotion_unk*`) |
+| fn_804CF640 | 92,10 % | 96,92 % (`const PackedChara_unk*`) |
 | fn_804EF0F0 | 99,07 % | 99,71 % (queda el `lwzx` del personaje encontrado) |
 
 ## Para el port
+
+- Firmas: `fn_804CF198(const PackedMotion_unk*, atn::Model*, int)` y `fn_804CF640(const PackedChara_unk*, CharaTask*)`
+  (antes sin `const`); mismos llamadores.
 
 - Sin cambios de comportamiento: fn_804D8610, fn_804DD3F0, fn_804DDE34, fn_804E6518 y fn_804EA8B8 pasan
   `GetMyAid_unk()` directamente a fn_804DD158 (antes un local `unsigned int aid`); fn_804EAA84 copia `rot` con
@@ -61,6 +66,10 @@ Inicio: 2026-11-17 06:06 CET (tope 08:36).
 - Una prueba de una constante sin plegar (`li r0, -162; cmplwi r0, 1`) delata una funcion inlineada con sus
   argumentos constantes: buscar la funcion con esa prueba (`(m9750 - 0xA1) <= 1` de fn_804FB470) y llamarla
   (PacketPack fn_804D996C 95,8 -> 99,6 %) (escribir-20261116 qG4)
+
+- Un parametro de entrada `const T*` en las funciones que aplican un mensaje (leen el payload y escriben en otro
+  objeto) deja a MWCC leer los bytes del payload una vez para varios campos, como el original (PacketPack
+  fn_804CF198 83 -> 99,4 %, fn_804CF640 92 -> 96,9 %) (escribir-20261116 qG4)
 
 ## Bloqueos
 
