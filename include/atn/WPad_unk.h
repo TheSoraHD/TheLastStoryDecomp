@@ -37,13 +37,6 @@ struct KPADStatus_unk {
     unsigned char m7C[0xF0 - 0x7C];
 };
 
-// inferred: flags of a remote; bit 0: classic controller, bit 1: nunchuk?
-struct WPadFlags2_unk {
-    unsigned int m_31_2 : 30;
-    unsigned int mBit1 : 1;
-    unsigned int mBit0 : 1;
-};
-
 struct WPad_unk {
     WPad_unk();
 
@@ -71,7 +64,8 @@ struct WPad_unk {
     }
 
     KPADStatus_unk mStatus[4][16];  // 0x0000
-    WPadFlags2_unk mFlags[4];       // 0x3C00
+    unsigned int mFlags[4];         // 0x3C00: inferred: bit 0 classic controller, bit 1 nunchuk? (masks: the
+                                    // original addresses them with the base of the other per-port words)
     int mRepeatDelay;               // 0x3C10
     int mRepeatInterval;            // 0x3C14
     unsigned int mHold[4];          // 0x3C18
