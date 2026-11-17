@@ -85,8 +85,6 @@ Em310Gargoyle::Em310Gargoyle(atn::Task* parent, EnemyInfo_unk* info)
 
 Em310Gargoyle::~Em310Gargoyle() {}
 
-// NONMATCHING: 99.91% - r4/r5 of the flag word m14A8 (the original loads it straight into r5); the flags
-// are read into a local before the other stores (~35 variants in total)
 int Em310Gargoyle::vf0C() {
     if (fn_8013655C() == 0 && !m15D4.IsLoading() && !m15F4.IsLoading()) {
         for (int i = 0; i < 3; i++) {
@@ -101,10 +99,9 @@ int Em310Gargoyle::vf0C() {
         fn_800874C8(group, "DamageCalcMode", &m15E0, 0, 2, 1, 0, 0);
         fn_8008771C(group, "BulletRotX", &m1608, 0, 0, -3.14f, 3.14f, 0.01f);
         fn_8008771C(group, "BulletRotY", &m160C, 0, 0, -3.14f, 3.14f, 0.01f);
-        int flags = m14A8;
         mRoute.mA0 = 2;
         m56C = 1.0f;
-        m14A8 = flags & ~0x04000000;
+        SetFlagC26_unk(0);
         m58C = 6;
         fn_8016E970(3);
         return 1;
@@ -289,7 +286,8 @@ inline int Em310Gargoyle::SeatMtx_unk(const char* name) {
     return (int)mMotion.GetNodeMtx_unk(name);
 }
 
-// NONMATCHING: 99.79% - registers of the inlined fn_8030D0D8 (same residue as fn_8030D0D8) and .sdata2 offsets
+// NONMATCHING: 99.87% - r3/r5 of the seat id and the place table in the inlined fn_8030D0D8 (its own copy is
+// at 100%; 12 forms of the two lookups) and .sdata2 offsets
 void Em310Gargoyle::vf10() {
     if (((GameTask*)lbl_8087F430)->fn_80370A78(mData.m04) == 0) {
         mC58.mC0 = 0;
@@ -740,8 +738,7 @@ void Em310Gargoyle::fn_8030C490() {
     }
 }
 
-// NONMATCHING: 99.63% - r3/r4 of the source and destination addresses of the point copies swapped (__VecCopy
-// family); ~6 variants (z-first copy, helper, pointer to the path, local step)
+// inferred: the points are copied with __VecCopy (with operator= the source/destination addresses get r3/r4 swapped)
 // inferred: state 8: lands in three legs (start -> control point -> first seat -> second seat); at the end the
 // gargoyle stays on the seat (state 6) and the "neck" hit capsule follows
 void Em310Gargoyle::fn_8030CBC0() {
@@ -749,24 +746,24 @@ void Em310Gargoyle::fn_8030CBC0() {
     switch (m14B0) {
     case 0:
         m1590 += m14C4 / (m15AC - m15A0).Length_unk();
-        points[0] = m1594;
-        points[1] = m15A0;
-        points[2] = m15AC;
-        points[3] = m15B8;
+        __VecCopy(&points[0].x, &m1594.x);
+        __VecCopy(&points[1].x, &m15A0.x);
+        __VecCopy(&points[2].x, &m15AC.x);
+        __VecCopy(&points[3].x, &m15B8.x);
         break;
     case 1:
         m1590 += m14C4 / (m15B8 - m15AC).Length_unk();
-        points[0] = m15A0;
-        points[1] = m15AC;
-        points[2] = m15B8;
-        points[3] = m15C4;
+        __VecCopy(&points[0].x, &m15A0.x);
+        __VecCopy(&points[1].x, &m15AC.x);
+        __VecCopy(&points[2].x, &m15B8.x);
+        __VecCopy(&points[3].x, &m15C4.x);
         break;
     case 2:
         m1590 += m14C4 / (m15C4 - m15B8).Length_unk();
-        points[0] = m15AC;
-        points[1] = m15B8;
-        points[2] = m15C4;
-        points[3] = m15C4;
+        __VecCopy(&points[0].x, &m15AC.x);
+        __VecCopy(&points[1].x, &m15B8.x);
+        __VecCopy(&points[2].x, &m15C4.x);
+        __VecCopy(&points[3].x, &m15C4.x);
         break;
     }
     fn_8030B74C(points, m1590);
@@ -825,9 +822,9 @@ void Em310Gargoyle::fn_8030CF84(int warp) {
 }
 
 
-// NONMATCHING: 99.71% - r3/r4 of the seat id and the place table in the second FindPlace_unk loop, r4/r5 of the
-// copy of the neck position (__VecCopy family); ~12 variants. It must stay within the autoinline threshold:
-// the original inlines it in the debug branch of vf10 (two `id` statements already move it out).
+// inferred: the seat ids are assigned in the arguments: with two `id` statements the function goes over the
+// autoinline threshold (the original inlines it in the debug branch of vf10); with the plain arguments the
+// second loop gets the id and the place table in r3/r4 swapped
 // inferred: starts the landing (state 8): route point m158C, control point 150 in front, the two seats of m14E8
 void Em310Gargoyle::fn_8030D0D8() {
     m58C = 8;
@@ -837,18 +834,23 @@ void Em310Gargoyle::fn_8030D0D8() {
     m15A0 = mPos;
     m15AC = mPos + GargoyleFront_unk(mRot.y) * 150.0f;
     m15AC.y += 20.0f;
-    int id = mData.mSeats[m14E8].m00;
-    m15B8 = table->FindPlace_unk(id)->mPos;
-    m15C4 = table->FindPlace_unk(mData.mSeats[m14E8].m04)->mPos;
+    int id;
+    m15B8 = table->FindPlace_unk(id = mData.mSeats[m14E8].m00)->mPos;
+    m15C4 = table->FindPlace_unk(id = mData.mSeats[m14E8].m04)->mPos;
     m1590 = 0.0f;
     m14B0 = 0;
-    m15E4 = GetNodePos_unk(mMotion.GetNodeMtx_unk("neck"));
+    __VecCopy(&m15E4.x, &GetNodePos_unk(mMotion.GetNodeMtx_unk("neck")).x);
     fn_800EB7A0();
 }
+
+// inferred: sets the collision capsule (as SetCapsule_unk of Em205Ogre; as an inline the r3/r4 of the copies match)
+static inline void SetCapsule_unk(atn::ColliCapsule& c, const atn::Vector3& a, const atn::Vector3& b, float r) {
+    c.m3C = a;
+    c.m48 = b;
+    c.m54 = r;
+}
+
 // inferred: the capsule goes from the "hips" node one unit along the facing direction
-// NONMATCHING: 99.71% - stack order of the three rotation blocks (the original puts the y block lowest and the
-// matrix highest); ~12 variants (inline helper with Mtx r/t in both orders, by-value matrix helpers, function
-// scope matrices in four orders, pointer to the matrix)
 void Em310Gargoyle::vf20() {
     m620 = m5B0;
     m614 = GetNodePos_unk(mMotion.GetNodeMtx_unk("hips"));
@@ -880,9 +882,7 @@ void Em310Gargoyle::vf20() {
     }
     PSMTXMultVec(m.m, &dir, &dir);
     dir += from;
-    mColli.m3C = from;
-    mColli.m48 = dir;
-    mColli.m54 = m620;
+    SetCapsule_unk(mColli, from, dir, m620);
 }
 
 

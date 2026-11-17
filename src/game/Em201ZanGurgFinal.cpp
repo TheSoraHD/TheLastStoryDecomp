@@ -1402,11 +1402,12 @@ void Em201ZanGurgFinal::fn_80267F88() {
     }
 }
 
-// NONMATCHING: order of the loads of the motion ids (lwz 0x4EC before 0x2DC; 5 variants)
+// inferred: the test is kept in a bool (with the test in the `if` the two loads come in the other order)
 void Em201ZanGurgFinal::fn_802682C4() {
     fn_8016E970(9);
     fn_80267134();
-    if (mMotion.mTracks[0].m00 == m484[26]) {
+    bool playing = mMotion.mTracks[0].m00 == m484[26];
+    if (playing) {
         float frame = mMotion.mTracks[0].m08;
         if (frame >= mMotion.fn_80097D7C(0)) {
             PlayMotion_unk(&mMotion, m484[25], 1, 0.1f);
@@ -2077,7 +2078,7 @@ void Em201ZanGurgFinal::fn_8026A8E4() {
     }
 }
 
-// NONMATCHING: f3/f4 of the frame and of the new yaw (6 variants)
+// inferred: the frame read into a local (in place, f3/f4 of the frame and of the new yaw swap)
 // inferred: jump (state 24): turns to the target and throws the shield in the middle of the jump
 void Em201ZanGurgFinal::fn_8026A9A0() {
     ASSERT_UNK(this != 0);
@@ -2093,7 +2094,8 @@ void Em201ZanGurgFinal::fn_8026A9A0() {
     if (m1630 == 0) {
         CharaTask* t = m14B8;
         mRot.y = (t->mPos - mPos).ToRotationZ_unk().y;
-        if (mMotion.mTracks[0].m08 > 67.0f) {
+        float frame = mMotion.mTracks[0].m08;
+        if (frame > 67.0f) {
             fn_8026D0F8(0);
         }
     }
