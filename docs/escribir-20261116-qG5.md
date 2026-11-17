@@ -25,6 +25,7 @@ Inicio: 2026-11-17 08:08 CET (tope 10:38).
 | fn_804F60E0 | 99,60 % | 100 % (local `v` declarado antes del ultimo bucle) |
 | fn_804FC7E0 | 96,86 % | 98,90 % (dos `if` del equipo sin `else`; `point` declarado arriba) |
 | fn_804E8BF4 | 98,87 % | 99,76 % (`category` asignada despues de `value`) |
+| fn_804EFF74 | 99,23 % | 99,28 % (push_back de las entradas por una inline sobre el CharaStatus) |
 | fn_804EAA84 | 99,91 % | 99,91 % (sin cambios: ver Bloqueos) |
 | fn_804CF198 | 99,37 % | 99,37 % (sin cambios: ver Bloqueos) |
 
@@ -40,6 +41,8 @@ Inicio: 2026-11-17 08:08 CET (tope 10:38).
   (misma busqueda) en fn_804D90E0, fn_804EB010 y fn_804F3EEC.
 - fn_804FC7E0: las dos pruebas del equipo (2: `mId >= 50`, 1: `mId < 50`) son dos `if` seguidos (antes `else if`);
   mismo comportamiento. fn_804E8BF4: `category` se asigna despues de `value` (mismo comportamiento).
+- fn_804EFF74: el push_back de las entradas de estado pasa por la inline nueva `PPAddEntry_unk(CharaStatus*, const
+  CharaStatusEntry_unk&)` (mismo comportamiento).
 - Sin cambios de comportamiento: fn_804F60E0 limita el puesto del ultimo bucle a traves de un local `v`.
 
 ## Decisiones tomadas sin el usuario
@@ -53,6 +56,10 @@ Inicio: 2026-11-17 08:08 CET (tope 10:38).
   cuatro llamadas.
 
 ## Hallazgos
+
+- `push_back` de un miembro FixedArray cuya cuenta el original direcciona desde la base del objeto que lo contiene
+  (`addi rX, chara, 0x7D4; lwz 0x304(rX)` en vez de `addi rX, chara, 0xAD8; lwz 0(rX)`): la llamada estaba dentro de una
+  inline que recibe el objeto contenedor (`PPAddEntry_unk(status, e)`) (PacketPack fn_804EFF74) (escribir-20261116 qG5)
 
 - Fila y valor cruzados (r5/r6) en un bucle `p->m = MIN(MAX(p->m, 1), N)`: un local para el valor declarado antes del
   bucle (`unsigned long v; for (...) { v = p->m; p->m = MIN(MAX(v, 1), N); }`) da el orden del original; declarado

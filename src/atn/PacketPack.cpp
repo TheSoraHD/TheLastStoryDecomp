@@ -8451,6 +8451,10 @@ inline void NotifyListeners_unk(CharaListeners_unk* listeners, int id, void* cha
 extern "C" BattleTask* lbl_8087F048; // inferred: battle manager (as game/BattleCharaTask.cpp)
 
 
+// inferred: keeps a status entry of a message in a character status (name invented)
+static inline void PPAddEntry_unk(CharaStatus* status, const CharaStatusEntry_unk& entry) {
+    status->mEntries.push_back(entry);
+}
 // inferred: character of a reference of a message (name invented)
 static inline CharaTask* GetHitAttacker_unk(PPManager2_unk* mgr, const PPMsgCharaRef_unk* data) {
     switch (data->mKind) {
@@ -9030,7 +9034,7 @@ extern "C" void fn_804EFF74(PPPlayer_unk* player, unsigned int type) {
         attacker->mStatus.mEntries.mCount = 0;
         for (unsigned int i = 0; i < fn_804F1060(); i++) {
             if (data->mEntries[i].mId != 0) {
-                attacker->GetStatus_unk()->mEntries.push_back(data->mEntries[i]);
+                PPAddEntry_unk(attacker->GetStatus_unk(), data->mEntries[i]);
                 lbl_8087F048->fn_80109864((SpEffect_unk*)&data->mEntries[i], attacker);
             }
         }
