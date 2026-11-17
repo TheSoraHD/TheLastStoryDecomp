@@ -131,6 +131,12 @@ public:
     virtual void vf18(int a, int b, int c, int d); // inferred: debug drawing
     virtual void vf1C(const ColliGrid_unk* grid);  // inferred: updates the grid cell (m10-m18)
 
+    // inferred: bit 0 of mFlags = the shape takes part in the tests (names invented); defined in
+    // atn/ColliFlags_unk.h (member inlines: the original reloads mFlags before each write)
+    bool IsOn_unk() const;
+    void SetOn_unk();
+    void SetOff_unk();
+
     int fn_80056EB0(const int* cell) const; // inferred: the shape is in the cell range (x, z, size)
     // inferred: cell of a bounding sphere (inlined by the vf1C of the sphere, box and object; name
     // invented)

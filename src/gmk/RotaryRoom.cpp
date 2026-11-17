@@ -1,4 +1,5 @@
 #include "gmk/RotaryRoom.h"
+#include "atn/ColliFlags_unk.h"
 #include "atn/Csv.h"
 #include "atn/Memory.h"
 #include "atn/Model_unk.h"
@@ -117,10 +118,22 @@ static const int sTurns_unk[24][4] = {
     {15, 10, 18, 20},
 };
 
-// inferred: the collision is enabled (name invented)
-static inline bool IsOn_unk(atn::ColliTree* tree) {
-    return (tree->mFlags & 1) == 1;
+namespace gmk {
+inline void RotaryRoom::UpdateColli_unk() {
+    RotaryColli_unk* colli = mColli;
+    for (int i = 0; i < 25; colli++, i++) {
+        if (colli->mTree != 0) {
+            if (i == m54) {
+                if (!colli->mTree->IsOn_unk()) {
+                    colli->mTree->SetOn_unk();
+                }
+            } else if (colli->mTree->IsOn_unk()) {
+                colli->mTree->SetOff_unk();
+            }
+        }
+    }
 }
+} // namespace gmk
 
 // inferred: sets the translation column (as in gmk/OnOff.cpp)
 inline void __SetTrans_unk(atn::Matrix3x4& m, const atn::Vector3& v) {
@@ -247,18 +260,7 @@ int RotaryRoom::vf0C() {
             }
             mGroup->mBox.mMin = box.mMin;
             mGroup->mBox.mMax = box.mMax;
-            RotaryColli_unk* colli = mColli;
-            for (int i = 0; i < 25; i++, colli++) {
-                if (colli->mTree != 0) {
-                    if (i == m54) {
-                        if (!IsOn_unk(colli->mTree)) {
-                            colli->mTree->mFlags |= 1;
-                        }
-                    } else if (IsOn_unk(colli->mTree)) {
-                        colli->mTree->mFlags &= ~1;
-                    }
-                }
-            }
+            UpdateColli_unk();
             fn_80425498();
         }
         return 1;
@@ -271,25 +273,13 @@ void RotaryRoom::Start() {
     vf40(&msg);
 }
 
-// NONMATCHING: 95.85% - the original reloads the collision flags before each write and uses other
-// registers for the loop and the frame counters; .sdata2 order.
 void RotaryRoom::vf10() {
     fn_80424FB4(0.5f * (1.0f - (float)cos(3.1415927f * ((float)mFrame / (float)mFrames))));
-    RotaryColli_unk* colli = mColli;
-    for (int i = 0; i < 25; i++, colli++) {
-        if (colli->mTree != 0) {
-            if (i == m54) {
-                if (!IsOn_unk(colli->mTree)) {
-                    colli->mTree->mFlags |= 1;
-                }
-            } else if (IsOn_unk(colli->mTree)) {
-                colli->mTree->mFlags &= ~1;
-            }
-        }
-    }
+    UpdateColli_unk();
     fn_80425498();
-    if (mFrames > mFrame) {
-        if (++mFrame >= mFrames) {
+    if (mFrame < mFrames) {
+        mFrame++;
+        if (mFrame >= mFrames) {
             mFrame = mFrames;
             fn_80425878(1);
         }
