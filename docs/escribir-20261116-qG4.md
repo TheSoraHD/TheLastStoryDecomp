@@ -1,6 +1,14 @@
 # escribir-20261116, cola G4 (atn/PacketPack, cuarta pasada: al 100 %)
 
-Inicio: 2026-11-17 06:06 CET (tope 08:36).
+Inicio: 2026-11-17 06:06 CET (tope 08:36). Fin: 07:58.
+
+Resumen: PacketPack 293 -> 298/380 al 100 % (fn_804D8610, fn_804DDE34, fn_804E6518, fn_804EA8B8, `__sinit`);
+15923 -> 15928 funciones en el report, lost 0, sin bajadas, labelcheck/rep100 igual, precommit OK en cada commit.
+Commits: cc85ba4, 8fc88f7, 6c98981, 914fa2a, dc24ecd, 18f229f, fe07123, 0b405d9 (notas), b7f4ead, 6a8dc19 y el
+de estas notas. El punto 1 de la cola (fn_804EE040) queda en 99,21 % (ver Bloqueos). Punto 3: los 23 avisos de
+`suspect.py` revisados: solo eran diferencias reales de forma fn_804DA690 (rangos, orden de ramas), fn_804D996C
+(fn_804FB470 inlineada), fn_804EF0F0 (IsServer_unk) y fn_804E82C4 (rango); el resto son registros, pila o
+bloqueos conocidos (tablas de `.rodata` de fn_804DD574, copia en bloque de fn_804E9C64, `points >>= 1`).
 
 ## Tabla de la cola
 
@@ -102,6 +110,9 @@ Inicio: 2026-11-17 06:06 CET (tope 08:36).
 - Re-etiquetado `@N` de PacketPack (pd.sh + `/home/claude/scratch-G3/bin/fixlbl.py`). Splits sin cambios.
 
 ## Scripts
+
+- `/home/claude/scratch-G4/bin/side.py <unidad> <simbolo> <desde> <hasta>`: las dos columnas de objdiff (original |
+  nuestro) de un tramo de instrucciones.
 
 - `/home/claude/scratch-G4/bin/nl.py save|cmp NOMBRE` (tras `m.sh`): cuenta por funcion las diferencias que no son
   solo el nombre de una etiqueta (`@N`, `jumptable_`, `lbl_`): compara variantes sin pasar pd.sh.
