@@ -128,8 +128,14 @@ static inline void DeadZone_unk(float& x) {
     x = sign * (v / 0.9f);
 }
 
-// NONMATCHING: 99.79% - registers only: the counter and the status pointer of the KPADRead loop (r14/r16)
-// and the status pointer against the `connected` pointer of the port loop (r22/r23)
+// inferred: reads the status of the four remotes (an inline in the original: its counter and pointer
+// take the registers of the original only this way)
+static inline void ReadAll_unk(WPad_unk* w) {
+    for (int i = 0; i < 4; i++) {
+        KPADRead(i, w->mStatus[i], 16);
+    }
+}
+
 extern "C" void fn_800DDD18(WPad_unk* wpad) {
     bool connected[4];
     connected[0] = wpad->mConnected[0];
@@ -140,13 +146,10 @@ extern "C" void fn_800DDD18(WPad_unk* wpad) {
     memset(wpad->mRelease, 0, sizeof(wpad->mRelease));
     memset(wpad->mRepeat, 0, sizeof(wpad->mRepeat));
     memcpy(wpad->mPrevAnalog, wpad->mAnalog, sizeof(wpad->mAnalog));
-    for (int i = 0; i < 4; i++) {
-        KPADRead(i, wpad->mStatus[i], 16);
-    }
+    ReadAll_unk(wpad);
     for (int port = 0; port < 4; port++) {
         wpad->mFlags[port] &= ~1;
-        KPADStatus_unk* status = wpad->mStatus[port];
-        if (!connected[port] && status->mErr == 0) {
+        if (!connected[port] && wpad->mStatus[port]->mErr == 0) {
             if (port == 0) {
                 for (int i = 0; i < 25; i++) {
                     wpad->Release_unk(port, i);
@@ -160,6 +163,7 @@ extern "C" void fn_800DDD18(WPad_unk* wpad) {
             }
             continue;
         }
+        KPADStatus_unk* status = wpad->mStatus[port];
         if (status->mDevType == 2) {
             wpad->mFlags[port] |= 1;
             wpad->mAnalog[port][0] = status->mEx.mCl.mLStick[0];
