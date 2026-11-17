@@ -1,5 +1,6 @@
 #include "game/SkillEffectManager.h"
 #include "game/Em101ElderZesyaSecond.h"
+#include "math/VecAssign_unk.h"
 #include "chr/ControlChant.h"
 #include "game/HitInfo_unk.h"
 #include "game/CharaStatus.h"
@@ -227,8 +228,14 @@ inline int Em101ElderZesyaSecond::CountNear_unk(float dist) {
     return count;
 }
 
-// NONMATCHING: 99.84% - only the stack offsets of the temporaries (loop vectors, colors, sphere and ptmf
-// copy); registers and instructions match
+// inferred: sphere of a collision sphere through an accessor (name invented; the copy through it gives
+// the src/dst registers of the original)
+inline atn::ColliSphere::Sphere_unk* SphereOf_unk(atn::ColliSphere* c) {
+    return &c->mSphere;
+}
+
+// NONMATCHING: 99.94% - only the stack offsets of the locals (the original has the two centers right
+// below the sphere, then the loop vectors of CountNear_unk, the color and the temporaries)
 void Em101ElderZesyaSecond::vf10() {
     atn::ColliSphere::Sphere_unk sphere;
     m14D0 = mC58.mC4;
@@ -381,12 +388,12 @@ void Em101ElderZesyaSecond::vf10() {
     sphere.mRadius = 20.0f;
     if (m1554 != 0) {
         atn::Vector3 c = GetTrans_unk(mMotion.GetNodeMtx_unk("spine"));
-        sphere.mCenter = c;
+        atn::VecAssign_unk(sphere.mCenter, c);
     } else {
         atn::Vector3 c(0.0f, -10000.0f, 0.0f);
-        sphere.mCenter = c;
+        atn::VecAssign_unk(sphere.mCenter, c);
     }
-    m1580.mSphere = sphere;
+    *SphereOf_unk(&m1580) = sphere;
 }
 
 void Em101ElderZesyaSecond::vf14() {

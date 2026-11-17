@@ -496,9 +496,11 @@ ControlMagic::ControlMagic(Chara_unk* chara, CharaTask* target, float f, const a
     }
 }
 
-// NONMATCHING: 93.5% - the stack frame is 0x30 bytes bigger in the original (slots of the bullet
-// parameters, the four targets and the matrices), one more saved register, and mChara is loaded again
-// for the motion id.
+// NONMATCHING: 95.0% - the stack frame is 0x30 bytes bigger in the original (slots of the bullet
+// parameters, the four targets and the matrices), one more saved register (the matrix address of the
+// spread targets stays in r15), the copy of the spread offset (named temporary + copy gives it but
+// moves the yaw sums), and mChara is loaded again for the motion id. The kinds are an if chain (the
+// original compares 2, 1, 6, 9, then 8) and the bullet id a switch (range 0x179B-0x179E first).
 // inferred: casts the magic at the release frame of the motion and fires its bullets or applies
 // its damage; returns 1 when the motion ends
 int ControlMagic::vf0C() {
@@ -546,16 +548,20 @@ int ControlMagic::vf0C() {
         atn::Vector3 dir = m08 - from;
         float dist = PSVECMag(&dir);
         PSVECNormalize(&dir, &dir);
-        switch ((signed char)hit->m02) {
-        case 2:
-        case 1:
-        case 6:
-        case 9:
-            if (hit->m04 == 0x179A) {
+        int type = (signed char)hit->m02;
+        if (type == 2 || type == 1 || type == 6 || type == 9) {
+            switch (hit->m04) {
+            case 0x179A: {
                 atn::Vector3 pos = m1E ? m08 : m14->mPos;
-                lbl_8087F048->fn_800FAB80(mChara, hit, lbl_8087F048->fn_800F8548(), &pos, &chr::lbl_807C7030, 0, 30, -1,
-                            -1, 0.0f, 1.0f);
-            } else if ((unsigned int)(hit->m04 - 0x179B) <= 3) {
+                BattleTask* battle = lbl_8087F048;
+                battle->fn_800FAB80(mChara, hit, battle->fn_800F8548(), &pos, &chr::lbl_807C7030, 0, 30, -1, -1, 0.0f,
+                                    1.0f);
+                break;
+            }
+            case 0x179B:
+            case 0x179C:
+            case 0x179D:
+            case 0x179E: {
                 atn::Vector3 flat(dir.x, 0.0f, dir.z);
                 if (!(atn::Abs_unk(PSVECSquareMag(&flat)) < 1.1920929e-7f)) {
                     PSVECNormalize(&flat, &flat);
@@ -582,7 +588,10 @@ int ControlMagic::vf0C() {
                     }
                     lbl_8087F048->fn_800F8574(mChara, hit, &from, &d, 0, flags, i * 15, len, 1.0f);
                 }
-            } else if (follow) {
+                break;
+            }
+            default:
+                if (follow) {
                 MagicHoming_unk param;
                 param.mTarget = m14;
                 param.mTurn = 0.12566371f;
@@ -592,8 +601,9 @@ int ControlMagic::vf0C() {
             } else {
                 lbl_8087F048->fn_800F8574(mChara, hit, &from, &dir, 0, 0, 0, 0.0f, m20);
             }
-            break;
-        case 8:
+                break;
+            }
+        } else if (type == 8) {
             if ((unsigned int)(hit->m04 - 0x179A) <= 4) {
                 FixedArray_unk<CharaTask*, 16> enemies;
                 for (EnemyTask* e = EnemyManager::sInstance->mHead; e; e = e->mNext) {
@@ -643,8 +653,7 @@ int ControlMagic::vf0C() {
                 param.mTarget = m14;
                 lbl_8087F048->fn_800F8574(mChara, hit, &from, &dir, &param, 0, 0, 0.0f, 1.0f);
             }
-            break;
-        default:
+        } else {
             if (hit->m04 == 0x177F) {
                 lbl_8087F048->fn_800FB4B0(mChara, hit, lbl_8087F048->fn_800F8548(), &mChara->mPos, 0, 30, -1, 1);
             } else if (hit->m04 == 0x179F) {
@@ -690,7 +699,6 @@ int ControlMagic::vf0C() {
                 ((GameTask*)lbl_8087F430)->fn_80370174(0x442) >= 7) {
                 ((GameTask*)lbl_8087F430)->fn_803750E4(0x9C);
             }
-            break;
         }
         if (lbl_8087F430 && ((GameTask*)lbl_8087F430)->fn_803761AC() && fn_80219344(lbl_8087F8A0->fn_8054A33C(0), 1) && mChara &&
             (mChara->mType == 0 || mChara->mType == 3)) {

@@ -220,8 +220,9 @@ void NewCampPartsTop::vf10() {
     }
 }
 
-// NONMATCHING: 99.72% - register allocation only (0.0f and the int conversion constant in f31/f30 swapped,
-// text/layout of the inlined SetPaneText_unk swapped)
+// NONMATCHING: 99.8% - register allocation only (text/layout of the inlined SetPaneText_unk swapped and
+// the value of enableLoad in f31, f29 in the original)
+// inferred: zero declared first and assigned after one (saved FPRs f30/f29 of the loop constants)
 void NewCampPartsTop::vf14() {
     if (m4C <= 0) {
         return;
@@ -232,10 +233,13 @@ void NewCampPartsTop::vf14() {
         vf54(&m50[i], "reference");
         vf5C(&m50[i]);
     }
+    float zero;
+    float one = 1.0f;
+    zero = 0.0f;
     for (unsigned int i = 0; i < mList.size(); i++) {
         NewCampTopEntry_unk* entry = mList.mData[i];
-        fn_805112A8(m50.mData, entry->mList, atn::Vector3(0.0f, 0.0f, 0.0f), atn::Vector3(1.0f, 1.0f, 1.0f), "reference");
-        fn_805112A8(m50.mData, entry->mShine, atn::Vector3(0.0f, 0.0f, 0.0f), atn::Vector3(1.0f, 1.0f, 1.0f), "reference");
+        fn_805112A8(m50.mData, entry->mList, atn::Vector3(zero, zero, zero), atn::Vector3(one, one, one), "reference");
+        fn_805112A8(m50.mData, entry->mShine, atn::Vector3(zero, zero, zero), atn::Vector3(one, one, one), "reference");
         char name[0x40];
         if (entry->mId == 7) {
             sprintf(name, "ListPoint07");
@@ -252,10 +256,10 @@ void NewCampPartsTop::vf14() {
         entry->mShine->GetTask()->SetText_unk("title", fn_80116FC0(0, entry->mInfo.mTitle));
         entry->mShine->GetTask()->SetValue0_unk("index", entry->mInfo.mIndex);
         if (i == m80) {
-            ((NewCampTopLayout_unk*)entry->mList->GetTask())->mFrame = 0.0f;
+            ((NewCampTopLayout_unk*)entry->mList->GetTask())->mFrame = zero;
             entry->mShine->mVisible = 0;
         } else {
-            ((NewCampTopLayout_unk*)entry->mList->GetTask())->mFrame = 1.0f;
+            ((NewCampTopLayout_unk*)entry->mList->GetTask())->mFrame = one;
             entry->mShine->mVisible = 0;
         }
     }
