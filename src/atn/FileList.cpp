@@ -382,7 +382,7 @@ FileList::~FileList() {
 
 // inferred: adds a formatted name to the list; returns the number of names added (C name: atn/FileSystem_unk
 // calls it by this name)
-// NONMATCHING: 97.6% - order of the arguments of the string assignment and stack slots of the inlined push_back
+// NONMATCHING: 99.4% - registers and iterator-tag stack slots of the realloc path of the inlined push_back
 extern "C" int fn_8006BD78(FileList* list, const char* format, ...) {
     char buf[0x100];
     va_list args;
