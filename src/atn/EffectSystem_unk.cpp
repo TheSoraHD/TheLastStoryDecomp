@@ -11,6 +11,7 @@
 #include "atn/EffectParams_unk.h"
 #include "math/VecAssign_unk.h"
 #include "atn/EffectVertex_unk.h"
+#include "atn/EffectTexturePair_unk.h"
 
 using atn::Vector3;
 
@@ -1325,7 +1326,7 @@ extern "C" int fn_80230780(void* owner, EffectInst_unk* inst, EffectParam_unk* p
         if (data->mEntries[param->m40].mType == 2) {
             void** res = data->mResources;
             slot->m08 = (EffectInst_unk*)res[param->m40];
-            slot->m0C = (int)((char*)res[param->m40] + 0x30);
+            slot->m0C = (int)&((EffectTexturePair_unk*)res[param->m40])->m30;
             if ((param->m4C & 0xC0000000) == 0x80000000) {
                 slot->m08 = (EffectInst_unk*)slot->m0C;
             }
