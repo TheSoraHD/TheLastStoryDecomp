@@ -12,7 +12,7 @@
 
 // inferred: the destructor tests `this` once more than for a plain std::vector (as CrabList_unk in
 // game/Em308ParmCrab.h); name invented
-struct InvertList_unk : public std::vector<RoutePlace_unk*> {};
+typedef std::vector<RoutePlace_unk*> InvertList_unk;
 
 // inferred from __vt__15Em308InvertCrab (0x80787938): crab (sister of Em308ParmCrab). The factory allocates
 // 0x15D8 bytes (SpecialEnemyBase.cpp). Data file "database/chara/special/" + db_name (default

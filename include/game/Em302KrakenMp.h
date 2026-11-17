@@ -27,10 +27,10 @@ struct KrakenMpCommand_unk {
 
 // inferred: classes derived from std::vector (their destructors test the address four times);
 // names invented
-struct KrakenMpPlaceList_unk : public std::vector<RoutePlace_unk*> {};
+typedef std::vector<RoutePlace_unk*> KrakenMpPlaceList_unk;
 struct KrakenMpIntList_unk : public std::vector<int> {};
-struct KrakenMpEnemyList_unk : public std::vector<EnemyTask*> {};
-struct KrakenMpFootList_unk : public std::vector<Em303KrakenFootMp*> {};
+typedef std::vector<EnemyTask*> KrakenMpEnemyList_unk;
+typedef std::vector<Em303KrakenFootMp*> KrakenMpFootList_unk;
 
 // inferred from __vt__13Em302KrakenMp (0x80786F9C): multiplayer version of the kraken, driven by the
 // SpecialEnemyBase state machine and synchronized with vf110/vf114. Data file

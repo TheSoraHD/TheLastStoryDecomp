@@ -27,7 +27,7 @@ typedef boost::function<void(MapArea*, void*)> MapModelFunc_unk;
 // inferred: areas registered without a map (AddArea/DeleteArea(MapPartsArea*) in the RSO): a
 // std::vector<MapPartsArea*> (DWARF) whose destructor (inlined in 0x80491324) tests the address four
 // times, one more than our std::vector<T*>: kept as a derived class (name invented)
-struct MapAreaList_unk : public std::vector<MapPartsArea*> {};
+typedef std::vector<MapPartsArea*> MapAreaList_unk;
 
 // inferred from __vt__10MapManager (0x807901E0): manager of the map parts (singleton)
 class MapManager : public atn::Task {

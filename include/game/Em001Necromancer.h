@@ -12,8 +12,8 @@ struct RoutePlace_unk;
 
 // inferred: classes derived from std::vector (their destructors test the address four times, as
 // ElderList_unk of game/Em101ElderZesyaSecond.h); names invented
-struct NecroPlaceList_unk : public std::vector<RoutePlace_unk*> {};
-struct NecroEnemyList_unk : public std::vector<EnemyTask*> {};
+typedef std::vector<RoutePlace_unk*> NecroPlaceList_unk;
+typedef std::vector<EnemyTask*> NecroEnemyList_unk;
 
 // inferred from __vt__16Em001Necromancer (0x80783D08): the necromancer. It warps between the
 // "warp_point" route points, casts three magics ("magic_skill") and revives the "reinforce_chara"

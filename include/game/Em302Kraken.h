@@ -29,10 +29,10 @@ struct KrakenCommand_unk {
 
 // inferred: classes derived from std::vector (their destructors test the address four times, as
 // RoutePlaceList_unk of game/Em305Vampire.h); names invented
-struct KrakenPlaceList_unk : public std::vector<RoutePlace_unk*> {};
+typedef std::vector<RoutePlace_unk*> KrakenPlaceList_unk;
 struct KrakenIntList_unk : public std::vector<int> {};
-struct KrakenEnemyList_unk : public std::vector<EnemyTask*> {};
-struct KrakenFootList_unk : public std::vector<Em303KrakenFoot*> {};
+typedef std::vector<EnemyTask*> KrakenEnemyList_unk;
+typedef std::vector<Em303KrakenFoot*> KrakenFootList_unk;
 
 // inferred from __vt__11Em302Kraken (0x80786E20): the kraken boss (moves its feet, Em303KrakenFoot,
 // shoots lasers and thunder). Data file "database/chara/special/" + db_name (default

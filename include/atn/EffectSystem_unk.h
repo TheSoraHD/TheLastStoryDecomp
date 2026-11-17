@@ -326,7 +326,7 @@ struct EffectSlot_unk {
 // as a bitmap of the used blocks of EffectFadePool_unk
 // (pointer elements: their resize clears the new words with memset as in fn_8022BEAC; the words are
 // read as unsigned int)
-struct EffectPtrVectorBase_unk : public std::vector<void*> {};
+typedef std::vector<void*> EffectPtrVectorBase_unk;
 struct EffectPtrVector_unk : public EffectPtrVectorBase_unk {};
 // inferred: block allocator of the EffectFade_unk of the slots (0x40 per block, 0x120 blocks; set up
 // by EffectSystem_unk::fn_8022B850, names invented)

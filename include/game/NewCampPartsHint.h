@@ -29,7 +29,7 @@ struct NewCampColor_unk {
 
 // inferred: list of the tutorials (a class derived from std::vector: its destructor tests `this` four
 // times); name invented
-struct NewCampTutorialList_unk : public std::vector<NewCampTutorial_unk*> {};
+typedef std::vector<NewCampTutorial_unk*> NewCampTutorialList_unk;
 
 // inferred from __vt__16NewCampPartsHint (0x807933C8): tutorial list of the camp
 class NewCampPartsHint : public NewCampPartsBase {

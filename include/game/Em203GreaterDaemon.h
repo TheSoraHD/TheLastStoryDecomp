@@ -20,7 +20,7 @@ class PlayerTask;
 
 // inferred: list of route places, a class derived from std::vector (its destructor tests the address
 // four times, as RoutePlaceList_unk of game/Em305Vampire.h)
-struct DaemonPlaceList_unk : public std::vector<RoutePlace_unk*> {};
+typedef std::vector<RoutePlace_unk*> DaemonPlaceList_unk;
 
 // inferred: two effect resources loaded together (0x18 bytes, implicit destructor)
 struct DaemonResPair_unk {

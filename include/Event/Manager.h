@@ -47,9 +47,9 @@ struct QueuedSequence_unk {
 
 // inferred: lists of the manager: classes derived from std::vector (their destructors test the address
 // four times, as IntVector_unk). Names invented.
-struct SequenceList_unk : public std::vector<Sequence*> {};
-struct MapList_unk : public std::vector<MapTask*> {};
-struct CharaList_unk : public std::vector<CharaTask*> {};
+typedef std::vector<Sequence*> SequenceList_unk;
+typedef std::vector<MapTask*> MapList_unk;
+typedef std::vector<CharaTask*> CharaList_unk;
 
 // inferred: fixed ring of N entries (count, entries, first); iterators hold the ring and an index.
 // Names invented.
