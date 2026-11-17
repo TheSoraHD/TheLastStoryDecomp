@@ -28,3 +28,26 @@ Decisiones D1-D5 aprobadas por el usuario el 2026-11-17 (`claude/prompt-3h-decis
   MapPartsBase.
 - `precommit.sh` de 43 unidades: solo el `ordercheck` de GameEventScript que ya falla en `main`; aviso de
   `poolcheck` en game/ChaserGuard (2.44346, no enlazada; el mismo float que el aviso conocido de CharaTask).
+
+## D2. `atn::Abs_unk` en dos niveles (`include/math/Vec.h`): aplicada
+
+- `inline double AbsD_unk(double x) { return __fabs(x); }` y `Abs_unk(float)` como `(float)AbsD_unk(x)`, como
+  `fabsf`/`fabs` de MSL (forma de N4/N7, no el local `double r` de mixto qH2).
+- Sin re-emparejar: +5 y -2 (los dos functores boost de chr/ControlAppear, por el nombre `@enum$7516` -> `@enum$7520`
+  de `ControlAppear_cpp`, renombrado en symbols.txt). Labelcheck 11 -> 369 lineas, rep100 24 -> 300.
+- Re-emparejado: `pdbatch.sh` de 360 unidades (12 tandas de 30, ~1,5 min cada una), `lblmap.py` en 58,
+  `lblfix.py game/CharaTask` (370 de `.data`/`.rodata`), `lblseq.py --apply` en 22, `valfix.py`; luego, con
+  scripts de la sesion (`/home/claude/scratch`, no subidos): renombrado de las `UNP` de `lblval` con candidato unico o
+  con el desplazamiento mas comun de la unidad (30), `lblfix` por desplazamiento solo de las etiquetas que faltan
+  (ptmf de 0xC de `.data` y `.bss`: Model, ControlCharge/Damage/StickByQuark, DebugInfo_unk, D2AMpMenuLobby) y por
+  valor en PacketPack (45 cadenas `VO_*`, +4) y D2AMpMenuLobby; a mano ControlJumpAt (`@13986-8` -> `@13990-2`),
+  PacketPack `.bss` (`@11709/10` -> `@11713/4`), DebugInfo_unk `__arraydtor$8383/89/91` -> `$8387/93/95` y
+  GameCamera_unk 0x80885934 `@22701` (pdbatch lo habia dejado duplicado como `@22705`).
+- Resultado: 15978 -> **15983** (+5: atn::Abs_unk debil en Event/Puppeteer_CharaTask, Event/Path
+  EventCamera_unk::fn_80115704, ctor de ControlGmkBreakArmor en ControlGmkCoffinOpening, Em401_01_WhiteLeoPard
+  fn_803227A0, EnemySeaLizerd fn_80355390), lost 0, labelcheck 11, rep100 24.
+- Bajadas aceptadas (4, funciones que no estaban al 100 %; registros/orden): ControlSwapAttack::vf0C 95,63 -> 95,51,
+  Em202MothersSpider::vf14C 94,65 -> 94,25, Em203GreaterDaemon fn_802915F4 89,38 -> 89,23, Em206CocoonMp fn_802BF5C0
+  95,62 -> 95,31.
+- `precommit.sh` de 360 unidades: fuzzdrop (las 4 aceptadas) y el `ordercheck` de GameEventScript de `main`;
+  avisos de `poolcheck` de Event/DialogHead, EventParser_unk, Manager y Path iguales sin el cambio.

@@ -444,8 +444,13 @@ inline Vector3 Vector3::GetNormalize() const {
 
 // inferred: helpers of the engine (weak copies: Abs_unk 0x80013404, WrapAngle_unk 0x800133B0,
 // Lerp_unk 0x800F7260, DegToRad_unk 0x801125F8); names invented
-inline float Abs_unk(float x) {
+// inferred: two levels like fabsf/fabs of MSL (the double fabs and the rounded float can be in different
+// registers: fabs f0; frsp f3, f0 at 0x80089D70)
+inline double AbsD_unk(double x) {
     return __fabs(x);
+}
+inline float Abs_unk(float x) {
+    return (float)AbsD_unk(x);
 }
 inline float WrapAngle_unk(float a) {
     a = fmod(a, 6.2831855f);
