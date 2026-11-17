@@ -945,7 +945,7 @@
    "chr::ControlOttotto",
    "chr::ControlPushedDown"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "chr/ControlRide.cpp",
