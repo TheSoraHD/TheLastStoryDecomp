@@ -4278,12 +4278,10 @@ inline void SetKeyInt_unk(int i, const char* name, int value, unsigned int flags
     net->mKeys[i] = atn::net::NetFilterKey_unk(name, value, flags);
 }
 
-// NONMATCHING: 98.82% - r30/r31 of the manager and the friend list swapped, registers of the fourth key and the
-// order of the two zeros of fn_80509B20 (the original leaves r4 unset)
+// NONMATCHING: 99.44% - r30/r31 of the manager and the friend list swapped, registers of the fourth key
 // inferred: sets the four int keys of the matchmaking filter (mode, m54C, m550 and a value of the friend list) and
 // starts the search
 extern "C" int fn_804DB474(PPManager2_unk* mgr) {
-    int unused; // inferred: the original passes r4 unset
     atn::net::Manager* net = lbl_8087F628;
     MpFriendList_unk* list = &net->mFriendList;
     for (int i = 0; i < 8; i++) {
@@ -4293,7 +4291,7 @@ extern "C" int fn_804DB474(PPManager2_unk* mgr) {
     SetKeyInt_unk(1, fn_8050F8B0(list, 1), mgr->m54C, 0);
     SetKeyInt_unk(2, fn_8050F8B0(list, 2), mgr->m550, 1);
     SetKeyInt_unk(3, fn_8050F8B0(list, 3), list->m1E8, 1);
-    int result = lbl_8087F628->fn_80509B20(unused, 0, 0);
+    int result = lbl_8087F628->fn_80509B20(0);
     fn_804FB220(&mgr->mStateVar, 11);
     return result;
 }
@@ -4634,12 +4632,24 @@ struct PPMsgCpuTable_unk {
     unsigned char m00[8];
     unsigned char m08[8];
 };
-// NONMATCHING: 98.46% - registers of the counting loop (the original shares the zero of the static of the message
-// with its offset) and of the inlined searches fn_804DD158 (bloqueo conocido)
 // inferred: on the server: the free places of the room (6, 8 or 7 by game mode, less the hosts, at most m5A4)
 // get a computer player: a side (mode 1: the one with fewer players, at random when even), a host of the other
 // side that has none yet (or the one with fewest) in m9984 (index + 1 in the high nibble), the side in m9994
 // and a stage from fn_804DD574 in m998C; the tables go to everybody (message 0x1034)
+// inferred: the player is of the team `team` (inlined in fn_804DCA54)
+static inline bool PPInTeam_unk(PPPlayer_unk* player, unsigned int team) {
+    return player->mFlags.m22 == team;
+}
+// inferred: players of each team in use (inlined in fn_804DCA54)
+static inline void PPCountTeams_unk(int* counts) {
+    PPManager2_unk* mgr2 = (PPManager2_unk*)lbl_8087F610;
+    for (int k = 0; k < (int)((PPManager2_unk*)lbl_8087F610)->mPlayers.size(); k++) {
+        PPPlayer_unk* other = fn_804D5F0C(mgr2, k);
+        if (other->mFlags.mActive == 1) {
+            counts[other->mFlags.m22]++;
+        }
+    }
+}
 extern "C" void fn_804DCA54(PPManager2_unk* mgr) {
     int hosts = GetNumHosts_unk(lbl_8087F628);
     int num;
@@ -4668,13 +4678,7 @@ extern "C" void fn_804DCA54(PPManager2_unk* mgr) {
     if (num > 0) {
         int counts[3];
         memset(counts, 0, sizeof(counts));
-        PPManager2_unk* mgr2 = (PPManager2_unk*)lbl_8087F610;
-        for (int k = 0; k < (int)((PPManager2_unk*)lbl_8087F610)->mPlayers.size(); k++) {
-            PPPlayer_unk* other = fn_804D5F0C(mgr2, k);
-            if (other->mFlags.mActive == 1) {
-                counts[other->mFlags.m22]++;
-            }
-        }
+        PPCountTeams_unk(counts);
         for (int i = 0; i < num; i++) {
             bool first;
             if (counts[1] < counts[2]) {
@@ -4710,9 +4714,10 @@ extern "C" void fn_804DCA54(PPManager2_unk* mgr) {
                 if (host == 0 || host->mFlags.m22 != team) {
                     continue;
                 }
+                unsigned char v;
                 bool used = false;
                 for (int j = 0; j < 8; j++) {
-                    unsigned char v = mgr->m9984[j];
+                    v = mgr->m9984[j];
                     if ((v & 0xF0) != 0 && (v & 0xF) == aid) {
                         used = true;
                         break;
@@ -4732,7 +4737,7 @@ extern "C" void fn_804DCA54(PPManager2_unk* mgr) {
                     unsigned char v = mgr->m9984[j];
                     if ((v & 0xF0) != 0) {
                         unsigned int aid = v & 0xF;
-                        if (fn_804DD158(mgr, aid)->mFlags.m22 == team) {
+                        if (PPInTeam_unk(fn_804DD158(mgr, aid), team)) {
                             cpus[aid]++;
                         }
                     }
@@ -5142,7 +5147,6 @@ extern "C" int fn_804DDFFC(PPManager2_unk* mgr) {
     return 1;
 }
 
-// NONMATCHING: 97.36% - registers of the team count loop (counter/offset/base) and of the inlined search
 // inferred: on the server, starts the match (Manager::fn_80509B4C) after fn_804DE560; out of the modes 2 and 3 both
 // teams need players
 extern "C" int fn_804DE2F8(PPManager2_unk* mgr, int mode) {
@@ -5150,13 +5154,7 @@ extern "C" int fn_804DE2F8(PPManager2_unk* mgr, int mode) {
         if (mode != 2 && mode != 3) {
             int counts[3];
             memset(counts, 0, sizeof(counts));
-            PPManager2_unk* mgr2 = (PPManager2_unk*)lbl_8087F610;
-            for (int i = 0; i < (int)((PPManager2_unk*)lbl_8087F610)->mPlayers.size(); i++) {
-                PPPlayer_unk* player = fn_804D5F0C(mgr2, i);
-                if (player->mFlags.mActive == 1) {
-                    counts[player->mFlags.m22]++;
-                }
-            }
+            PPCountTeams_unk(counts);
             bool both;
             if (counts[1] == 0 || counts[2] == 0) {
                 both = false;
@@ -5172,8 +5170,7 @@ extern "C" int fn_804DE2F8(PPManager2_unk* mgr, int mode) {
         if (fn_804DE560(mgr, 0, 0) == 0) {
             return 0;
         }
-        int unused; // inferred: the original passes r4 unset (as fn_804DB474)
-        lbl_8087F628->fn_80509B4C(unused, 0, 0);
+        lbl_8087F628->fn_80509B4C(0);
     }
     return 1;
 }
@@ -5270,8 +5267,6 @@ extern "C" void fn_800C3094(const char* group); // inferred: loads a sound group
 // inferred: effects of the game (fn_804DE884)
 extern "C" const char* const lbl_808875A4 = "/data/effect/ef_ms001e.efp";
 extern "C" const char* const lbl_808875A8 = "/data/effect/ef_mw003f_01.eff";
-// NONMATCHING: 99.81% - the original reloads the slot count at the top of the character loop, and the character
-// after its null check from the slot pointer (here from the indexed slot)
 // inferred: start of the game: the GameTask of the mode and stage (options lbl_807C8B10, the three digits of m598
 // in the local flags 0xFC-0xFE), the results cleared, the computer players of m9984/m998C in free slots, the
 // characters of the slots without one (MP::Chara<EnemyTask>, side by mode and team; the own team players appear
@@ -5360,11 +5355,12 @@ extern "C" int fn_804DE884(PPManager2_unk* mgr) {
         } else {
             player->mRef.mChara->fn_8016DF3C(3);
         }
-        if (player->mRef.mChara == 0) {
+        MpCharaRef_unk& ref = player->mRef;
+        if (ref.mChara == 0) {
             return 0;
         }
         if (IsTeamPlayer_unk(&mgr->mPlayers[i]) == 1) {
-            ((BattleCharaTask*)mgr->mPlayers[i].mRef.mChara)->mFlagC25 = 1;
+            ((BattleCharaTask*)player->mRef.mChara)->mFlagC25 = 1;
             if ((player->mAid & 0xF) == lbl_8087F628->GetMyAid_unk()) {
                 player->mRef.mChara->fn_8016E970(2);
                 player->mRef.mChara->m58C = 0;
@@ -7568,16 +7564,7 @@ struct PPMsgAttack_unk {
     PPMsgCharaRef_unk mAttacker;      // 0x88
     PPMsgCharaRef_unk mTarget;        // 0x8A
 };
-// inferred: data of the events 6 and 7 of the character listeners (a hit computed by fn_8003F1E4 and
-// fn_8003EA3C), as HitEvent_unk of game/DamageCalc_unk.cpp
-struct HitEvent_unk {
-    CharaTask* mAttacker;
-    CharaTask* mTarget;
-    int mId;
-    unsigned int mFlags;
-    int mFlag31;
-    float mRate;
-};
+#include "game/HitEvent_unk.h"
 // inferred: payload of message 0x1023 (the attack parameters of event 8; 15 bytes on the network); names invented
 struct PPMsgCalc_unk {
     int mHitId;
@@ -8066,8 +8053,6 @@ fail:
     return -1;
 }
 
-// NONMATCHING: 99.49% - r0/r4 of the second byte of the user data and the game mode, and r3/r4/r5 of the inlined
-// search fn_804DD158 (as fn_804D8610)
 // inferred: connection attempt callback of the matchmaking (m99C0.mFuncs[3]): the server refuses a client of
 // another kind of session (m25C), out of the lobby or, in mode 1, of an incompatible game mode, and everybody
 // refuses while the room is closed (m53C); else restarts the timer of the session and the server marks its slot
@@ -8082,8 +8067,8 @@ extern "C" int fn_804EDCCC(unsigned char* userData, void* param) {
                 return 0;
             }
             if (kind == 1) {
-                unsigned char value = userData[1];
                 int mode = ((PPManager2_unk*)lbl_8087F610)->mMode;
+                unsigned char value = userData[1];
                 if (value != mode && (value == 2 || mode == 2)) {
                     return 0;
                 }
@@ -8970,33 +8955,7 @@ extern "C" void fn_804EFE98(PPPlayer_unk* player) {
 extern "C" int fn_8021A77C(HitInfo_unk* data);
 extern "C" bool fn_8021A8D0(HitInfo_unk* data);
 extern "C" __declspec(noinline) int fn_804F1060();
-// inferred: center of the hit body of `chara` (as HitCenter_unk of game/BattleTask.cpp)
-inline atn::Vector3 HitCenter_unk(CharaTask* chara) {
-    atn::Vector3 center;
-    if (chara->mFlagB29) {
-        atn::Vector3 start = chara->mColli.m3C;
-        atn::Vector3 end = chara->mColli.m48;
-        center = chara->mColli.m3C;
-        float half = 0.5f * (end.y - start.y);
-        center.y += half;
-    } else {
-        center = chara->fn_80148B0C(0)->m04.mCenter;
-    }
-    return center;
-}
-// inferred: rotation z, y, x (as MakeRotZYX_unk of game/BattleTask.cpp)
-inline void MakeRotZYX_unk(atn::Matrix3x4* p, const atn::Vector3& rot) {
-    p->SetIdentity();
-    if (0.0f != rot.z) {
-        atn::Matrix3x4::RotateAxis_unk(*p, 'z', rot.z);
-    }
-    if (0.0f != rot.y) {
-        atn::Matrix3x4::RotateAxis_unk(*p, 'y', rot.y);
-    }
-    if (0.0f != rot.x) {
-        atn::Matrix3x4::RotateAxis_unk(*p, 'x', rot.x);
-    }
-}
+#include "game/HitUtil_unk.h"
 // NONMATCHING: 99.08% - stack slots of the matrices and vectors, the status effects added through the status
 // (base 0x7D4 in the original) and reloads of lbl_8087F610 in the inlined searches
 // inferred: messages 10 and 11 (only in the game, state 30): a hit of a character on another one. The hate of the

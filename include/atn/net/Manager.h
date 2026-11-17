@@ -214,8 +214,8 @@ public:
     int fn_805092FC();                             // inferred: update
     int fn_80509A98();
     int fn_80509AF8();
-    int fn_80509B20(int arg0, int arg1, int arg2);
-    int fn_80509B4C(int arg0, int arg1, int arg2);
+    int fn_80509B20(unsigned long long);
+    int fn_80509B4C(unsigned long long);
     int fn_80509C88();
     int fn_80509CAC();
     int fn_80509DA0();
@@ -281,8 +281,7 @@ public:
     char mC1[0xC8 - 0xC1];           // 0x0C1
     int mState;                      // 0x0C8
     unsigned int mFrame;             // 0x0CC
-    int mD0;                         // 0x0D0
-    int mD4;                         // 0x0D4
+    unsigned long long mD0;          // 0x0D0: inferred: 64-bit argument of fn_80509B20/fn_80509B4C (stored as r5:r6)
     NetFilterKey_unk mKeys[8];       // 0x0D8
     union {
         unsigned int mFlagsWord;     // 0x1F8
