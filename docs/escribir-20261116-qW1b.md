@@ -12,6 +12,9 @@
 | GameScene::fn_803CCA84 (posicion de un punto) | 96 % | **100 %** |
 | TutorialPopup::vf10 | 67 % (escrita desde m2c, no equivalente: faltaban la espera del caso 1 y el salto de las lineas de tipo 1) | **100 %** |
 | TutorialPopup::vf0C | 77,8 % (no equivalente: seguia tras la carga) | **100 %** |
+| TutorialTask::vf0C | 91,2 % | equivalente NONMATCHING 99,8 % (registros) |
+| TutorialTask::fn_805BA934 (arranque de la pagina) | 73,5 % (escrita desde m2c) | equivalente NONMATCHING 98 % |
+| TutorialPopup::fn_805BCF04 (csv de las lineas) | 90 % (escrita desde m2c) | equivalente NONMATCHING 98,5 % (registros) |
 | TutorialTask::fn_805BC1C0 (camara libre) | equivalente 96,3 % | equivalente NONMATCHING 99 % (registros) |
 
 ## Para el port
@@ -20,6 +23,8 @@
 - GameScene::vf14: stub vacio -> codigo real (dibujo de depuracion de puntos, enlaces y cajas de la escena con DrawHelper si GameConfig_unk::mSceneDebug.mEnabled; al final fn_8008CD60 de los modelos restringidos mDC, que tambien corre sin depuracion). Cambio de comportamiento.
 - GameConfig_unk: los 12 int de 0x214-0x240 (mSceneDebugEnabled, mMovePoint ... mBgmBox) -> un struct SceneDebugConfig_unk mSceneDebug (mEnabled, mMovePoint ...); vf14 lo copia entero a un local. Solo GameConfig_unk.cpp los usaba.
 - GameScene.cpp: vista local Settings_unk de lbl_8087F0A8 -> GameConfig_unk (m5B8 = mTitle.m34, m190 = mLoadTownSubScript).
+
+- atn::Video (include/atn/VideoTHP.h): `float m14; float m18;` -> `Vector2_unk mPos;` (0x14, copia paired-single en TutorialTask fn_805BA934); VideoTHP.cpp usa mPos.x/mPos.y (sin cambios de codigo, enlaza).
 
 ## Decisiones tomadas sin el usuario
 - Dos inlines inventadas con estaticas locales (IsSphereInView_unk: atn::Sphere en 0x807C8600, guarda 0x8087F478; IsBoxInView_unk: Frustum_unk::Bounds_unk en 0x807C8610, guarda 0x8087F479): el original comprueba la guarda en cada uso, sin ctor.
@@ -33,8 +38,11 @@
 - Inline que devuelve 0/1 usada en cada caso de un switch (`return Inline(...)`): MWCC pone un `li r3, 0` por caso; si el original salta a un solo `li r3, 0` final, el bucle va escrito en cada caso con `return 1;` y `break;` (GameScene fn_803CCA84 96 -> 100 %). (escribir-20261116 qW1b)
 - Registro de un local que guarda un global para pasarlo como argumento (`void* font = lbl_8087EEC8;`): una inline con el global como parametro (`TextWidth_unk(lbl_8087EEC8, id)`) le da el registro del original (TutorialPopup vf0C 99,95 -> 100 %). Igual con el layout de fn_801FED24: inline `SetPaneValue_unk(layout, name, ...)` evalua el layout antes del hash. (escribir-20261116 qW1b)
 - Retorno 0 compartido al final (un solo `li r3, 0`): `if (a) {...} else if (b) {...; return 1;} return 0;` en vez de dos `return 0;` tempranos (TutorialPopup vf0C). (escribir-20261116 qW1b)
+- Argumentos de layout/pane (fn_801F4E8C, fn_801FED24, fn_801FEE08) que el original evalua antes del hash del nombre: inlines con el layout como parametro (GetPaneRect_unk, SetPaneValue_unk, SetPaneText_unk), como las de MP/D2AMpMenu_unk.h (TutorialTask). (escribir-20261116 qW1b)
+- Condicion `a == "x" && f() != 0` con temporales `std::string` que se destruyen antes del if: el original la guarda en un `bool` (`bool ok = ... && ...; if (ok)`), sin un segundo flag (TutorialPopup fn_805BCF04 90 -> 98,5 %). (escribir-20261116 qW1b)
 
 ## Bloqueos
+- TutorialTask fn_805BA934: `m5B4 = mAttackType != 0` sale con neg/or; el original lo hace con dos cntlzw. Probados `!(x == 0)`, `!!x` y una inline bool (MWCC lo pliega).
 - GameScene fn_803CB618 (91 %), fn_803CAED0 (97,6 %), fn_803C1CAC (98,9 %): orden de cargas/pila; probados reordenar las referencias a/b, operator- en vez del ctor por componentes (91,4 %), bloque anidado y declarar sin inicializar en fn_803CAED0, y `mCamera != mDefaultCamera` en fn_803C1CAC.
 - ReplayBuffer fn_80570A74: con las inlines reales `mEffects.begin()/end()/erase(p)` sube a 89,7 % pero desplaza dos `@N` (labelcheck peor); no commiteado. Sigue el reparto de registros (contador exterior en r31).
 - GameChoiceWindow fn_803B5974/fn_803B710C: el pool ancho original (.sdata 0x8087DD80-0x8087DD98) tiene 0x18 bytes: L"" de fn_803B3D2C en +0, el de fn_803B4C38 en +8 y L"\xFF1F..." en +0xC; probado `L"\0"` en fn_803B4C38 (queda en +6). Falta saber que literales ocupan +2..+8.

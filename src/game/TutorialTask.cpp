@@ -74,6 +74,12 @@ TutorialTask::TutorialTask(atn::Task* parent, int id, CharaTask* chara)
     }
 }
 
+// inferred: sets the text of a pane of a layout (name invented)
+inline void SetPaneText_unk(void* layout, const char* name, const wchar_t* text) {
+    fn_801FEE08(layout, fn_800DC6B4(name), text);
+}
+
+// NONMATCHING: 99.8% - registers: the text and the layout of the two pane texts are swapped (r26/r27)
 int TutorialTask::vf0C() {
     if (mLoading != 0) {
         if (!mFile.fn_80473F50()) {
@@ -82,8 +88,8 @@ int TutorialTask::vf0C() {
             mFile.fn_80473F88();
         }
     } else {
-        int loading = 0;
         TutorialPage_unk* page = &mPages[0];
+        int loading = 0;
         for (unsigned int i = 0; i < 4; i++, page++) {
             if (page->mEnabled != 0 && page->mMotion.mMotion.fn_800A0448() != 0) {
                 loading = 1;
@@ -97,12 +103,8 @@ int TutorialTask::vf0C() {
                     page->mLayout->fn_800D246C(0);
                     page->mLayout->SetText_unk("comment", (int)mData->mText);
                     if (page->mVideo != 0) {
-                        atn::D2A_Task* layout = page->mLayout;
-                        const wchar_t* text = fn_80116FC0(0, page->mMsg0);
-                        fn_801FEE08(&layout->mData.m10, fn_800DC6B4("string0009(1)(1)"), text);
-                        layout = page->mLayout;
-                        text = fn_80116FC0(0, page->mMsg1);
-                        fn_801FEE08(&layout->mData.m10, fn_800DC6B4("string0009(1)"), text);
+                        SetPaneText_unk(&page->mLayout->mData.m10, "string0009(1)(1)", fn_80116FC0(0, page->mMsg0));
+                        SetPaneText_unk(&page->mLayout->mData.m10, "string0009(1)", fn_80116FC0(0, page->mMsg1));
                     }
                     if (page->mVideoLayout != 0) {
                         page->mVideoLayout->mFlags |= 4;
@@ -151,6 +153,18 @@ class SoundManager_unk;
 extern "C" SoundManager_unk* lbl_8087EFE8;
 extern "C" int fn_800D089C(SoundManager_unk* mgr, int a, int b);
 
+// inferred: sets a value of a pane of a layout (the layout is evaluated before the hash of the name)
+inline void SetPaneValue_unk(void* layout, const char* name, int index, float value) {
+    fn_801FED24(layout, fn_800DC6B4(name), index, value);
+}
+
+// inferred: rectangle of a pane of a layout (the layout is evaluated before the hash of the name)
+inline atn::D2A_DrawRect GetPaneRect_unk(atn::D2A_Task* layout, const char* name) {
+    return fn_801F4E8C(layout, fn_800DC6B4(name));
+}
+
+// NONMATCHING: 98% - `!= 0` of the attack type: the original tests it with two cntlzw; the load of pos.z
+// is scheduled earlier
 void TutorialTask::fn_805BA934() {
     m84 = 0.0f;
     m5B4 = 0;
@@ -167,16 +181,17 @@ void TutorialTask::fn_805BA934() {
         m5BC = 0;
         mPages[mPage].mVideo->vf20();
         mPages[mPage].mLayout->ApplyFrame();
-        atn::D2A_DrawRect pos = fn_801F4E8C(mPages[mPage].mLayout, fn_800DC6B4("tt_mv"));
+        atn::D2A_DrawRect pos = GetPaneRect_unk(mPages[mPage].mLayout, "tt_mv");
+        mPages[mPage].mVideo->mPos = atn::Vector2_unk(pos.x, pos.y);
         mPages[mPage].mVideo->m10 = pos.z;
         mPages[mPage].mVideo->m04 = 1;
         mPages[mPage].mVideo->m0C = 1;
         pos.x -= 256.0f;
         pos.y -= 112.0f;
         pos.z -= 0.0001f;
-        fn_801FED24(&mPages[mPage].mVideoLayout->mData.m10, fn_800DC6B4("basePoint"), 0, pos.x);
-        fn_801FED24(&mPages[mPage].mVideoLayout->mData.m10, fn_800DC6B4("basePoint"), 1, pos.y);
-        fn_801FED24(&mPages[mPage].mVideoLayout->mData.m10, fn_800DC6B4("basePoint"), 4, pos.z);
+        SetPaneValue_unk(&mPages[mPage].mVideoLayout->mData.m10, "basePoint", 0, pos.x);
+        SetPaneValue_unk(&mPages[mPage].mVideoLayout->mData.m10, "basePoint", 1, pos.y);
+        SetPaneValue_unk(&mPages[mPage].mVideoLayout->mData.m10, "basePoint", 4, pos.z);
         if (lbl_8087EFE8 != 0 && fn_800D089C(lbl_8087EFE8, 1, 0) > 0 && lbl_8087F418 != 0) {
             lbl_8087F418->fn_803606CC(0, 8, 15);
             lbl_8087F418->fn_80360780(0, 8, 15);
@@ -624,11 +639,6 @@ TutorialPopup::TutorialPopup(atn::Task* parent, int id, CharaTask* chara)
     }
 }
 
-// inferred: sets a value of a pane of a layout (the layout is evaluated before the hash of the name)
-inline void SetPaneValue_unk(void* layout, const char* name, int index, float value) {
-    fn_801FED24(layout, fn_800DC6B4(name), index, value);
-}
-
 // inferred: width of a message with the size of the popup (name invented)
 inline float TextWidth_unk(void* font, int id) {
     return fn_8006EF48(font, fn_80116FC0(0, id), 1, 1, 15.0f, 0.0f);
@@ -747,7 +757,8 @@ void TutorialPopup::vf10() {
     }
 }
 
-// NONMATCHING: written from m2c
+// inferred: reads the lines of the popup from its csv (layout, wait, type)
+// NONMATCHING: 98.5% - register allocation (this, the csv data and the string temporaries)
 void TutorialPopup::fn_805BCF04() {
     atn::Csv csv((const char*)mFile.fn_80470580(), mFile.fn_8047059C());
     while (csv.fn_8005BBF8() != 0) {
@@ -756,12 +767,7 @@ void TutorialPopup::fn_805BCF04() {
             TutorialPopupLine_unk* line = &mLines[index];
             line->mEnabled = 1;
             std::string name = fn_8006B46C(std::string(mData->mName));
-            int temp = 0;
-            if (fn_8006AC08(std::string(mData->mName)) == "d2b") {
-                if (fn_8006AA20(name.c_str()) != 0) {
-                    temp = 1;
-                }
-            }
+            bool temp = fn_8006AC08(std::string(mData->mName)) == "d2b" && fn_8006AA20(name.c_str()) != 0;
             if (temp) {
                 csv.fn_8005B9CC();
                 line->mLayout = fn_801F3FF8(this, name.c_str(), 0);
