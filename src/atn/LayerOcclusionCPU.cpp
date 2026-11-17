@@ -173,8 +173,8 @@ static void fn_800B3978(float* dst, const float* src, int w, int h) {
 // by the __sinit at 0x800B6684) and the index of each slot (0xFFFF: empty)
 atn::Vector3 lbl_807C74A0[16];
 unsigned short lbl_807C7560[16];
-// inferred: (0, 1) pair loaded by fn_800B4390: 0 is the threshold of the plane side, 1 the w of the
-// vertices
+// inferred: (0, 1) pair loaded by fn_800B4390: 0 is the threshold of the plane side (the 1 is loaded
+// with it and not used; the w of the vertices comes from psq_l)
 extern "C" float lbl_807790A8[2] = {0.0f, 1.0f};
 static bool sTexReady;
 static unsigned char* sTexData;
@@ -276,8 +276,10 @@ void LayerOcclusionCPU::vf20() {
     }
 }
 
-// NONMATCHING: written as C++ - the original is handwritten paired-single assembly (mfcr/mtcrf,
-// ps_cmpo0, mcrf, ps_madds0, the intersection divides with fres), not approved
+// NONMATCHING: 0% - equivalent C++; the original is handwritten paired-single assembly (mfcr/mtcrf,
+// psq_l with w = 1, ps_cmpo0, mcrf, ps_madds0, ctr loop), not approved. Checked against the asm:
+// same side test (0 < -(n.p + d)), same wrap to in[0] on the last vertex, same outputs. Differences:
+// the original takes 1/(dPrev - dCur) with fres (estimate) and loops count times even for count 0.
 // inferred: Sutherland-Hodgman step: clips the convex polygon `in` (count vertices) by `plane` and
 // writes the part on the negative side of the plane (n.p + d < 0) to `out` and its vertex count to
 // `outCount`
@@ -285,12 +287,13 @@ extern "C" void fn_800B4390(const Plane_unk* plane, const atn::Vector3* in, int 
                             int* outCount) {
     int n = 0;
     const atn::Vector3* prev = in;
-    float dPrev = -(plane->mNormal.x * prev->x + plane->mNormal.y * prev->y + plane->mNormal.z * prev->z +
-                    plane->mDist * lbl_807790A8[1]);
+    // -(n.p + d), summed as the paired-single code does: (x, y) and (z, 1) by the negated (n.x, n.y), (n.z, d)
+    float dPrev = (prev->x * -plane->mNormal.x + prev->z * -plane->mNormal.z) +
+                  (prev->y * -plane->mNormal.y + -plane->mDist);
     for (int i = 1; i <= count; i++) {
         const atn::Vector3* cur = i == count ? in : &in[i];
-        float dCur = -(plane->mNormal.x * cur->x + plane->mNormal.y * cur->y + plane->mNormal.z * cur->z +
-                       plane->mDist * lbl_807790A8[1]);
+        float dCur = (cur->x * -plane->mNormal.x + cur->z * -plane->mNormal.z) +
+                     (cur->y * -plane->mNormal.y + -plane->mDist);
         bool prevIn = lbl_807790A8[0] < dPrev;
         bool curIn = lbl_807790A8[0] < dCur;
         if (prevIn != curIn) {
