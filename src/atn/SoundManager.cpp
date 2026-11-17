@@ -299,7 +299,8 @@ void SoundManager::fn_800CE368() {
     }
 }
 
-// NONMATCHING: 98.81% - numeracion de registros en erase().
+// NONMATCHING: 99.72% - numeracion de registros en el primer erase() (indice y texto cruzados; el segundo ya
+// coincide)
 void SoundManager::fn_800CE6E0() {
     fn_800499F4(lbl_8087EE90, mOutputMode);
     fn_80049AAC(lbl_8087EE90, mMasterVolume);
