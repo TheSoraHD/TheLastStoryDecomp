@@ -3,6 +3,7 @@
 #include "atn/Memory.h"
 #include "atn/SoundRef.h"
 #include "game/ResHandle.h"
+#include "game/GameTask.h"
 
 extern "C" int rand();
 extern "C" double sqrt(double x);
@@ -14,24 +15,15 @@ extern "C" void fn_8008771C(void* group, const char* name, float* value, int arg
 extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float volume);
 extern "C" void fn_800CB688(atn::SoundRef* sound, int arg, float pitch); // inferred: sets the pitch
 
-// inferred: camera shake request in the field object (class unknown)
-struct ShakeField_unk {
-    unsigned char m00[0x96C];
-    int m96C;
-    int m970;   // inferred: frames
-    float m974; // inferred: x amplitude
-    float m978; // inferred: y amplitude
-    unsigned char m97C[0x54E4 - 0x97C];
-    int m54E4;
-    // inferred: starts a camera shake (name invented)
-    void Shake_unk(int frame, float x, float y) {
-        m96C = m96C % 2;
-        m970 = frame;
-        m974 = x;
-        m978 = y;
-    }
-};
-extern "C" ShakeField_unk* lbl_8087F430;
+// inferred: starts a shake of the field camera (GameCamera::mShake, name invented); the frame keeps its parity
+static inline void Shake_unk(GameTask* task, int frame, float x, float y) {
+    CameraShake_unk& shake = task->mCamera.mShake;
+    shake.mFrame = shake.mFrame % 2;
+    shake.mLength = frame;
+    shake.mWidth = x;
+    shake.mHeight = y;
+}
+extern "C" GameTask* lbl_8087F430;
 
 // inferred: square root of a float (name invented)
 inline float SqrtF_unk(float x) {
@@ -55,6 +47,9 @@ GimmickCommon* ShakeCamera::fn_80421454(atn::Task* parent, GimmickDesc_unk* desc
     return 0;
 }
 
+// inferred: defined here (the original emits it right after the factory)
+ShakeCamera::~ShakeCamera() {}
+
 int ShakeCamera::vf0C() {
     return fn_803EC91C() == 0;
 }
@@ -73,17 +68,9 @@ void ShakeCamera::Start() {
     vf40(&msg);
 }
 
-// NONMATCHING: 99.34% - registers only: the target keeps the field pointer in r5 (r7 here; the
-// remainder of rand() % 1001 takes r6, r5 here). The square roots of the volume go through SqrtF_unk (the
-// rate in f31 as in the original) and the pitch writes Rand01_unk out (the 0.5f is loaded after the
-// field, as in ColliAttrManager). Tried: SetShake_unk(m96C % 2, ...) as in MotionCommand_unk,
-// x/y in the call, a frame local, the orders of rate/x/y/field (24), RandRange_unk with the factor or
-// the range as a local, written out. The two compares of the original
-// come from `if (m54 == 1) return;` before the case 2 test (a switch with an empty case 1 drops the
-// compare). The field writes go through an inline taking (frame, x, y), so the members are read before
-// the stores. Tried: `min +=` and const references in RandRange_unk, the rate built in place, a field
-// local, `m96C %= 2`; before: default/empty calls/self-assignments in case 1, forms of the random range
-// helper, explicit locals, operand orders of the volume and the pitch.
+// The field writes go through Shake_unk(GameTask*, ...) on the real GameCamera::mShake (the view with a
+// member Shake_unk left the field pointer in r7 instead of r5). The two compares of the original come from
+// `if (m54 == 1) return;` before the case 2 test.
 void ShakeCamera::vf10() {
     if (m54 == 1) {
         return;
@@ -94,7 +81,7 @@ void ShakeCamera::vf10() {
             float rate = RandRange_unk(mRateMax, mRateMin);
             float x = mShakeX * rate;
             float y = mShakeY * rate;
-            lbl_8087F430->Shake_unk(mShakeFrame, x, y);
+            Shake_unk(lbl_8087F430, mShakeFrame, x, y);
             if (lbl_8087F430->m54E4 == 0) {
                 float volume = SqrtF_unk(rate) * SqrtF_unk(x * x + y * y) < 1.5f
                                    ? SqrtF_unk(rate) * SqrtF_unk(x * x + y * y)
