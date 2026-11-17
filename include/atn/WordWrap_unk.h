@@ -3,7 +3,7 @@
 
 // inferred: word wrap of the texts (atn/WordWrap_unk.cpp). One declaration for the callers: they
 // declared fn_800E0000 with the arguments in other orders (same registers on the Wii, not in every
-// PC ABI). atn/D2A_Message keeps its own for now: with this one vf18 loses 0.01 of fuzzy.
+// PC ABI).
 #include "std/string.h"
 #include "std/vector.h"
 

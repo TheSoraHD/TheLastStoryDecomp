@@ -2,6 +2,7 @@
 #include "std/string_members.h"
 #include "std/vector.h"
 #include "atn/DrawHelper.h"
+#include "atn/WordWrap_unk.h"
 
 extern "C" int sprintf(char* s, const char* format, ...);
 extern "C" unsigned int fn_800DC6B4(const char* s); // inferred: string hash
@@ -18,9 +19,7 @@ struct D2A_MsgPiece_unk {
 };
 
 // inferred: text helpers of other files (automatic names)
-extern "C" void fn_800E0000(std::vector<std::basic_string<wchar_t> >* lines, const wchar_t* text, int arg2, int font,
-                            void* callback, float maxWidth, float size, float spacing); // inferred: splits the lines
-extern "C" void fn_801F1418();
+extern "C" float fn_801F1418(wchar_t c, const wchar_t** text, float size);
 extern "C" float fn_801F14FC(const wchar_t* text, int arg1, int font, float size, float spacing); // inferred: width
 extern "C" void fn_801F1658(std::vector<D2A_MsgPiece_unk>* pieces, std::basic_string<wchar_t>* line);
 
@@ -133,7 +132,8 @@ void D2A_Message::vf18() {
     } else {
         sLines.clear();
     }
-    fn_800E0000(&sLines, mText.mValue[0].data(), 1, mFont, (void*)fn_801F1418, 100000.0f, rect.w, 0.0f);
+    float size = rect.w;
+    fn_800E0000(&sLines, mText.mValue[0].data(), 100000.0f, size, 0.0f, 1, mFont, fn_801F1418);
     for (unsigned int i = 0; i < sLines.size(); i++) {
         std::basic_string<wchar_t>::size_type pos = sLines[i].rfind(L'\r');
         if (pos != std::basic_string<wchar_t>::npos) {

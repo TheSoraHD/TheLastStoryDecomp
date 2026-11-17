@@ -530,7 +530,7 @@ void NewCampPartsBase::vf40(void* menu) {
     fn_80087E9C(group, "BasePos", &mC8, 0, 0, -1000000.0f, 1000000.0f, 1.0f);
 }
 
-void fn_80511668(int a, int b, int c);
+void fn_80511668(atn::D2A_Common* element, atn::D2A_DrawColor* color, void* outlineColor);
 void fn_80511704();
 void fn_8051170C();
 
@@ -545,7 +545,7 @@ extern "C" void fn_805113E8(atn::D3Anime* anime, int visible, int loop, float fr
             ((atn::D2A_Task*)anime->GetTask())->mFrame = frame;
             // inferred: one task pointer per callback (GetTask() is called before each address is loaded)
             atn::D2A_Task* t0 = (atn::D2A_Task*)anime->GetTask();
-            t0->mData.m9C = (void (*)(atn::D2A_Common*, atn::D2A_DrawColor*, void*))fn_80511668;
+            t0->mData.m9C = fn_80511668;
             atn::D2A_Task* t1 = (atn::D2A_Task*)anime->GetTask();
             t1->mData.mA0 = (void*)fn_80511704;
             atn::D2A_Task* t2 = (atn::D2A_Task*)anime->GetTask();
@@ -566,7 +566,7 @@ extern "C" void fn_805114D4(atn::D3AnimeInstance* anime, int visible, int loop, 
             ((Inst*)anime->GetTask())->mFrame = frame;
             // inferred: one data pointer per callback (as in fn_805113E8)
             atn::D2A_Data* d0 = ((Inst*)anime->GetTask())->GetData();
-            d0->m9C = (void (*)(atn::D2A_Common*, atn::D2A_DrawColor*, void*))fn_80511668;
+            d0->m9C = fn_80511668;
             atn::D2A_Data* d1 = ((Inst*)anime->GetTask())->GetData();
             d1->mA0 = (void*)fn_80511704;
             atn::D2A_Data* d2 = ((Inst*)anime->GetTask())->GetData();
@@ -581,7 +581,7 @@ extern "C" void fn_805115D0(atn::D2A_Task* task, int a, int loop, float frame, f
         task->mRepeat = loop;
         task->mSpeed = speed;
         task->mFrame = frame;
-        task->mData.m9C = (void (*)(atn::D2A_Common*, atn::D2A_DrawColor*, void*))fn_80511668;
+        task->mData.m9C = fn_80511668;
         task->mData.mA0 = (void*)fn_80511704;
         task->mData.mA4 = (int)fn_8051170C;
     }
@@ -590,13 +590,13 @@ extern "C" void fn_805115D0(atn::D2A_Task* task, int a, int loop, float frame, f
 // inferred: empty in this build (a log of the anime event?); the original calls it with bl
 __declspec(noinline) void fn_80511664(int event) {}
 
-void fn_80511668(int a, int b, int c) {
+void fn_80511668(atn::D2A_Common* element, atn::D2A_DrawColor* color, void* outlineColor) {
     fn_80511664(1);
     if (lbl_8087F138 != 0 && MenuCommonTask::sInstance != 0) {
         if (lbl_8087F138->m1AC != 0) {
-            MenuCommonTask::sInstance->fn_804A71F0(lbl_8087F138->m1AC, a, b, c);
+            MenuCommonTask::sInstance->fn_804A71F0(lbl_8087F138->m1AC, element, color, outlineColor);
         } else if (lbl_8087F138->m1A8 != 0) {
-            MenuCommonTask::sInstance->fn_804A660C(lbl_8087F138->m1A8, a, b, c);
+            MenuCommonTask::sInstance->fn_804A660C(lbl_8087F138->m1A8, element, color, outlineColor);
         }
     }
 }

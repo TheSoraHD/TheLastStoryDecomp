@@ -38,7 +38,7 @@ struct EquipData_unk {
 extern "C" ItemData_unk* fn_80211480(int id);
 extern "C" int fn_80206B9C(int id);
 extern "C" WeaponData_unk* fn_80206C50(int id);
-extern "C" bool fn_8020EF04(int code);
+extern "C" int fn_8020EF04(int code);
 extern "C" EquipData_unk* fn_8020EFEC(int code);
 
 // inferred: one item of a rare table row: kind (1 "ws"/"wg", 2 "qu"/"ql", 0 other, 3 none), sub kind,

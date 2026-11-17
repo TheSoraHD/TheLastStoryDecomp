@@ -524,15 +524,17 @@ int ActionCameraEffect::vf0C(Action* arg, int phase) {
         break;
     case 3:
         switch (arg->GetParam_unk(0)->m04.i) {
-        case 0:
+        case 0: {
             MotionBlurParam_unk* dst = &lbl_8087F540->m1DC0;
             *dst = lbl_8087EFA8->m240;
             break;
-        case 4:
+        }
+        case 4: {
             DamageEffectParam_unk damage;
             damage.mEnabled = 0;
             lbl_8087EFA8->SetDamage_unk(damage);
             break;
+        }
         case 7: {
             EventManager_unk* manager = arg->fn_805381C8();
             if (manager == 0 ||

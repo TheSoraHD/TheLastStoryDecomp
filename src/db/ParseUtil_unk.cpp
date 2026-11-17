@@ -157,7 +157,7 @@ extern "C" bool fn_8021A9CC(BulletParam_unk* param);
 // result register (mr r4, r6) where here it is loaded again (li r4, 0); same in fn_8021A7A0
 // (98.97%), fn_8021A9CC (98.06%) and fn_8021AA48 (97.86%). Tried if/else chains, a ternary, a local
 // for the first test and other forms of the inlined predicates.
-extern "C" bool fn_8021A684(BulletParam_unk* param) {
+extern "C" int fn_8021A684(BulletParam_unk* param) {
     bool result = false;
     if (fn_8021A77C(param) || (fn_8021A888(param) && !fn_8021A9CC(param))) {
         result = true;

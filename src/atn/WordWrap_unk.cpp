@@ -698,7 +698,7 @@ TextParser_unk::TextParser_unk(void* data, void* size)
 extern "C" {
 
 // inferred: true while there is text left
-bool fn_800E0D54(TextParser_unk* parser) {
+int fn_800E0D54(TextParser_unk* parser) {
     return parser->mPos < parser->mSize;
 }
 

@@ -2,7 +2,7 @@
 // link order puts it between game/HomingBullet and the item manager. Names invented.
 #include "game/ChunkFile_unk.h"
 
-extern "C" bool fn_8006969C(); // inferred: the platform is big endian
+extern "C" int fn_8006969C(); // inferred: the platform is big endian
 extern "C" bool fn_800696B4(); // inferred: the platform is little endian
 
 // inferred: byte swap written with the rlwimi intrinsic (slwi + three rlwimi in the original)

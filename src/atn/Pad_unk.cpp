@@ -120,7 +120,7 @@ float fn_800A56A8(Pad_unk* pad, int port, unsigned int axis, int flag) {
     return v;
 }
 
-bool fn_800A5870(Pad_unk* pad, int port, int axis, float threshold) {
+int fn_800A5870(Pad_unk* pad, int port, int axis, float threshold) {
     bool ret = false;
     if (fn_800DEFAC(lbl_8087F018, sPortMap[port], sAxisMap[axis], threshold) != 0) {
         ret = true;

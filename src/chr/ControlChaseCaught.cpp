@@ -7,6 +7,7 @@
 #include <boost/bind.hpp>
 #include "game/GameTask.h"
 #include "math/VecAssign_unk.h"
+#include "game/GameUI.h"
 
 // inferred: game settings (as in chr/ControlCdnStone.cpp)
 struct Input_unk {
@@ -28,12 +29,6 @@ struct ChaseEvent_unk {
 };
 extern "C" ChaseEvent_unk* lbl_8087F098;
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
-// inferred: arena of the multiplayer mode (lbl_8087F490, as in MP/D2AMpMenuCockpit.cpp)
-struct ChaseArena_unk {
-    unsigned char m000[0x728];
-    int m728; // inferred: set while a player is held
-};
-extern "C" ChaseArena_unk* lbl_8087F490;
 extern "C" void* lbl_8087F430; // inferred: field state
 extern "C" void PSMTXScale(Mtx m, float x, float y, float z);
 extern "C" double fmod(double x, double y);

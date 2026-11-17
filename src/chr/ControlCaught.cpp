@@ -3,12 +3,7 @@
 #include "game/CharaTask.h"
 #include "atn/Memory.h"
 #include <boost/bind.hpp>
-
-// inferred: object behind lbl_8087F490 (class unknown)
-struct Unk_8087F490 {
-    unsigned char m000[0x728];
-    int m728;
-};
+#include "game/GameUI.h"
 
 // inferred: input state embedded at +0x48C of the object behind lbl_8087F0A8 (class unknown)
 struct Input_unk {
@@ -20,7 +15,6 @@ struct Unk_8087F0A8 {
     Input_unk mInput; // 0x48C
 };
 
-extern "C" Unk_8087F490* lbl_8087F490;
 extern "C" Unk_8087F0A8* lbl_8087F0A8;
 
 namespace chr {

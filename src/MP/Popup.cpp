@@ -93,7 +93,7 @@ extern "C" atn::Task* lbl_8087F430;                          // inferred: field 
 extern "C" float PSVECSquareMag(const atn::Vector3* v);       // inferred: squared length
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
 extern "C" const wchar_t* fn_80116FC0(int a, int id);       // inferred: system text
-extern "C" void fn_8021C6A4(wchar_t* out, const void* param); // inferred: text of the item type
+extern "C" int fn_8021C6A4(wchar_t* out, const void* param); // inferred: text of the item type
 extern "C" void fn_801FECE0(void* layout, unsigned int hash, float value);
 extern "C" unsigned int fn_800DC6B4(const char* s); // inferred: string hash
 extern "C" void fn_801FED24(void* layout, unsigned int hash, int index, float value);

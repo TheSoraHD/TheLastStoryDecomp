@@ -49,7 +49,7 @@ extern "C" void GXSetTexCopySrc(unsigned short left, unsigned short top, unsigne
 extern "C" void GXSetTexCopyDst(unsigned short width, unsigned short height, int format, unsigned char mipmap);
 extern "C" void GXCopyTex(void* dest, unsigned char clear);
 extern "C" void GXPixModeSync();
-extern "C" void GXSetFog(int type, void* color, float start, float end, float nearZ, float farZ);
+extern "C" void GXSetFog(int type, float start, float end, float nearZ, float farZ, void* color);
 extern "C" void GXGetViewportv(float viewport[6]);
 extern "C" void GXProject(float x, float y, float z, const float matrix[3][4], const float projection[7],
                             const float viewport[6], float* screenX, float* screenY, float* screenZ);
@@ -978,7 +978,7 @@ void atn::RenderManager::fn_800C06B0(const atn::FogSettings* fog) {
             unsigned int color = 0;
             float farZ = mCamera.mFar;
             float nearZ = mCamera.mNear;
-            GXSetFog(0, &color, 0.0f, 0.0f, nearZ, farZ);
+            GXSetFog(0, 0.0f, 0.0f, nearZ, farZ, &color);
         }
         return;
     }
@@ -1016,8 +1016,7 @@ void atn::RenderManager::fn_800C06B0(const atn::FogSettings* fog) {
     c.b = (unsigned char)(255.0f * m8A8);
     c.a = (unsigned char)(255.0f * m8AC);
     GXColor arg = c;
-    GXSetFog(type, &arg, m898, m89C,
-             mCamera.mNear, mCamera.mFar);
+    GXSetFog(type, m898, m89C, mCamera.mNear, mCamera.mFar, &arg);
 }
 
 void atn::RenderManager::fn_800C08B0() {
@@ -1026,7 +1025,7 @@ void atn::RenderManager::fn_800C08B0() {
         unsigned int color = 0;
         float farZ = *(float*)((unsigned char*)this + 0x1D0);
         float nearZ = *(float*)((unsigned char*)this + 0x1CC);
-        GXSetFog(0, &color, 0.0f, 0.0f, nearZ, farZ);
+        GXSetFog(0, 0.0f, 0.0f, nearZ, farZ, &color);
     }
 }
 

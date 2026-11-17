@@ -33,32 +33,10 @@ extern "C" void fn_80232AC4(EffectRes_unk* res); // inferred: marks the resource
 
 
 
-// inferred: resource of an efp file: emitters (0x54 bytes each)
-struct EffectEmitter_unk {
-    int m00;
-    int m04;
-    int m08;
-    atn::Vector3 m0C;
-    atn::Vector3 m18;
-    atn::Vector3 m24;
-    float m30;
-    float m34;
-    int m38;
-    int m3C;
-    int m40;
-    int m44;
-    unsigned char m48[0x54 - 0x48];
-};
-struct EffectEmitters_unk {
-    unsigned int mCount;
-    EffectEmitter_unk* mEmitters;
-    int m08;
-    int m0C;
-    int mLength; // 0x10
-};
+struct EfpData_unk; // atn/EfpData_unk.h
 // inferred: handle on a loaded efp resource
 struct EffectRes_unk {
-    EffectEmitters_unk* mData;
+    EfpData_unk* mData;
     unsigned char m04[4]; // inferred: resource name object
 };
 

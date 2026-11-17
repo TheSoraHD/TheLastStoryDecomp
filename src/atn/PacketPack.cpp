@@ -5558,7 +5558,7 @@ extern "C" int fn_805076F8(void* table, int mode, int value, int arg);
 extern "C" int fn_80507654(MpLevelTable_unk* table, int exp, int next); // inferred: nonzero on a level up
 extern "C" int fn_8050655C(void* table, int mode, int value, int rank); // inferred: item won in the game
 extern "C" bool fn_80206B9C(int code);                                 // inferred: whether an item code is a weapon
-extern "C" bool fn_8020EF04(int code);                                 // inferred: whether an item code is equipment
+extern "C" int fn_8020EF04(int code);                                 // inferred: whether an item code is equipment
 // inferred: experience in the online play: a word of the data saved by the game (MpFriendList_unk::m7F0 + 8,
 // not split in include/atn/net/Manager.h: a split changes the implicit copy of fn_804DBEC8); name invented
 static inline int& PPExp_unk(MpFriendList_unk* list) {

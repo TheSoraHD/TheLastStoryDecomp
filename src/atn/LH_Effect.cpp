@@ -2,6 +2,7 @@
 #include "atn/EffectFileEntry_unk.h"
 #include "atn/LoadManager.h"
 #include "atn/Texture_unk.h"
+#include "atn/EffectTexturePair_unk.h"
 #include "atn/Model_unk.h"
 #include "std/string.h"
 #include "std/string_members.h"
@@ -19,13 +20,9 @@ struct GimmickUvOwner_unk {
     int fn_800D59B8();
 };
 
-// inferred: two textures (type 2 entries), destroyed by the implicit destructor
-struct EffectTexturePair_unk {
-    // inferred: one of the two textures is still loading
-    bool IsLoading_unk() { return ((GimmickUvOwner_unk*)&m00)->fn_800D59B8() || ((GimmickUvOwner_unk*)&m30)->fn_800D59B8(); }
-    atn::Texture_unk m00;
-    atn::Texture_unk m30;
-};
+inline bool EffectTexturePair_unk::IsLoading_unk() {
+    return ((GimmickUvOwner_unk*)&m00)->fn_800D59B8() || ((GimmickUvOwner_unk*)&m30)->fn_800D59B8();
+}
 
 // inferred: entry of the effect data, EffectFileEntry_unk of atn/EffectFileEntry_unk.h
 typedef EffectFileEntry_unk EffectEntry_unk;
