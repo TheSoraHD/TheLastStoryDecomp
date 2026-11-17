@@ -10,9 +10,13 @@
 | GameScene::fn_803CC5E4 (personaje de un punto) | 87,3 % | **100 %** |
 | GameScene::fn_803CCCC0 (pares en cola) | 92,4 % | **100 %** |
 | GameScene::fn_803CCA84 (posicion de un punto) | 96 % | **100 %** |
+| TutorialPopup::vf10 | 67 % (escrita desde m2c, no equivalente: faltaban la espera del caso 1 y el salto de las lineas de tipo 1) | **100 %** |
+| TutorialPopup::vf0C | 77,8 % (no equivalente: seguia tras la carga) | **100 %** |
 | TutorialTask::fn_805BC1C0 (camara libre) | equivalente 96,3 % | equivalente NONMATCHING 99 % (registros) |
 
 ## Para el port
+- TutorialPopup::vf10 (codigo de m2c no equivalente -> el del original): el caso 1 espera al final de la animacion de la linea (D2A_Task::IsEnd_unk) antes de pasar al 2; en el 2 las lineas de mType 1 se cierran tambien cuando el personaje falta o tiene mFlag6, o con CharaTask::HasC48_unk. Cambio de comportamiento.
+- TutorialPopup::vf0C: tras la carga del csv devuelve 0 en ese mismo frame (antes seguia con la inicializacion). Cambio de comportamiento.
 - GameScene::vf14: stub vacio -> codigo real (dibujo de depuracion de puntos, enlaces y cajas de la escena con DrawHelper si GameConfig_unk::mSceneDebug.mEnabled; al final fn_8008CD60 de los modelos restringidos mDC, que tambien corre sin depuracion). Cambio de comportamiento.
 - GameConfig_unk: los 12 int de 0x214-0x240 (mSceneDebugEnabled, mMovePoint ... mBgmBox) -> un struct SceneDebugConfig_unk mSceneDebug (mEnabled, mMovePoint ...); vf14 lo copia entero a un local. Solo GameConfig_unk.cpp los usaba.
 - GameScene.cpp: vista local Settings_unk de lbl_8087F0A8 -> GameConfig_unk (m5B8 = mTitle.m34, m190 = mLoadTownSubScript).
@@ -27,6 +31,8 @@
 - Un Vector3 local del que solo se usa una componente (ToRotationZ_unk(...).y) cambia la pila: `float yaw = v.ToRotationZ_unk().y;` deja el temporal donde el original (TutorialTask fn_805BC1C0 98,1 -> 99 %). (escribir-20261116 qW1b)
 - Bucle sobre un FixedArray_unk que el original recorre con un puntero desde `this` (desplazamiento del miembro en las cargas): `m190.mData[i].m00` en cada uso, sin referencia local ni operator[] (GameScene fn_803CCCC0 92 -> 100 %); y en SimpleArray `m80[i].mId`/`m80[i].m20` en vez de una referencia (fn_803CC5E4 87 -> 100 %). (escribir-20261116 qW1b)
 - Inline que devuelve 0/1 usada en cada caso de un switch (`return Inline(...)`): MWCC pone un `li r3, 0` por caso; si el original salta a un solo `li r3, 0` final, el bucle va escrito en cada caso con `return 1;` y `break;` (GameScene fn_803CCA84 96 -> 100 %). (escribir-20261116 qW1b)
+- Registro de un local que guarda un global para pasarlo como argumento (`void* font = lbl_8087EEC8;`): una inline con el global como parametro (`TextWidth_unk(lbl_8087EEC8, id)`) le da el registro del original (TutorialPopup vf0C 99,95 -> 100 %). Igual con el layout de fn_801FED24: inline `SetPaneValue_unk(layout, name, ...)` evalua el layout antes del hash. (escribir-20261116 qW1b)
+- Retorno 0 compartido al final (un solo `li r3, 0`): `if (a) {...} else if (b) {...; return 1;} return 0;` en vez de dos `return 0;` tempranos (TutorialPopup vf0C). (escribir-20261116 qW1b)
 
 ## Bloqueos
 - GameScene fn_803CB618 (91 %), fn_803CAED0 (97,6 %), fn_803C1CAC (98,9 %): orden de cargas/pila; probados reordenar las referencias a/b, operator- en vez del ctor por componentes (91,4 %), bloque anidado y declarar sin inicializar en fn_803CAED0, y `mCamera != mDefaultCamera` en fn_803C1CAC.

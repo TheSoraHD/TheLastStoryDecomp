@@ -624,6 +624,16 @@ TutorialPopup::TutorialPopup(atn::Task* parent, int id, CharaTask* chara)
     }
 }
 
+// inferred: sets a value of a pane of a layout (the layout is evaluated before the hash of the name)
+inline void SetPaneValue_unk(void* layout, const char* name, int index, float value) {
+    fn_801FED24(layout, fn_800DC6B4(name), index, value);
+}
+
+// inferred: width of a message with the size of the popup (name invented)
+inline float TextWidth_unk(void* font, int id) {
+    return fn_8006EF48(font, fn_80116FC0(0, id), 1, 1, 15.0f, 0.0f);
+}
+
 int TutorialPopup::vf0C() {
     if (mLoading != 0) {
         if (!mFile.fn_80473F50()) {
@@ -631,54 +641,76 @@ int TutorialPopup::vf0C() {
             fn_805BCF04();
             mFile.fn_80473F88();
         }
-    }
-    if (fn_800D3FA4() == 0) {
-        return 0;
-    }
-    float ofs = -16.0f;
-    if (lbl_8087F0A8 != 0) {
-        ofs = lbl_8087F0A8->m484;
-    }
-    if (mId == 0xC6) {
-        ofs = 0.0f;
-    }
-    for (unsigned int i = 0; i < 4; i++) {
-        TutorialPopupLine_unk* line = &mLines[i];
-        if (line->mEnabled != 0) {
-            line->mLayout->mFlags |= 4;
-            line->mLayout->fn_800D246C(0);
-            line->mLayout->SetText_unk("comment", (int)mData->mText);
-            fn_801FED24(&line->mLayout->mData.m10, fn_800DC6B4("basePoint"), 1, ofs);
+    } else if (fn_800D3FA4() != 0) {
+        float ofs = -16.0f;
+        if (lbl_8087F0A8 != 0) {
+            ofs = lbl_8087F0A8->m484;
         }
-    }
-    if (mShadow != 0) {
-        mShadow->fn_800D246C(0);
-        mShadow->mSpeed = 0.0f;
-        mShadow->mRepeat = 0;
-        mShadow->mFrame = 0.0f;
-        fn_801FED24(&mShadow->mData.m10, fn_800DC6B4("basePoint"), 1, ofs);
-        void* font = lbl_8087EEC8;
-        float width = fn_8006EF48(font, fn_80116FC0(0, 0x895472), 1, 1, 15.0f, 0.0f);
-        fn_801FED24(&mShadow->mData.m10, fn_800DC6B4("pos0011(1)"), 0, 445.0f - width);
-        fn_801FED24(&mShadow->mData.m10, fn_800DC6B4("pos0002(1)"), 0, 404.0f - width);
-    }
-    for (unsigned int i = 0; i < 4; i++) {
-        if (mLines[i].mEnabled != 0) {
-            mLines[i].mLayout->mFrame = 0.0f;
-            mLines[i].mLayout->mFlags |= 4;
+        if (mId == 0xC6) {
+            ofs = 0.0f;
         }
+        for (unsigned int i = 0; i < 4; i++) {
+            TutorialPopupLine_unk* line = &mLines[i];
+            if (line->mEnabled != 0) {
+                line->mLayout->mFlags |= 4;
+                line->mLayout->fn_800D246C(0);
+                line->mLayout->SetText_unk("comment", (int)mData->mText);
+                SetPaneValue_unk(&line->mLayout->mData.m10, "basePoint", 1, ofs);
+            }
+        }
+        if (mShadow != 0) {
+            mShadow->fn_800D246C(0);
+            mShadow->mSpeed = 0.0f;
+            mShadow->mRepeat = 0;
+            mShadow->mFrame = 0.0f;
+            SetPaneValue_unk(&mShadow->mData.m10, "basePoint", 1, ofs);
+            float width = TextWidth_unk(lbl_8087EEC8, 0x895472);
+            SetPaneValue_unk(&mShadow->mData.m10, "pos0011(1)", 0, 445.0f - width);
+            SetPaneValue_unk(&mShadow->mData.m10, "pos0002(1)", 0, 404.0f - width);
+        }
+        for (unsigned int i = 0; i < 4; i++) {
+            TutorialPopupLine_unk* line = &mLines[i];
+            if (line->mEnabled != 0) {
+                line->mLayout->mFrame = 0.0f;
+                line->mLayout->mFlags |= 4;
+            }
+        }
+        mLine = 0;
+        if (mLines[mLine].mType == 2 && SetConfig::sInstance->mAttackType != 0) {
+            mLine = 1;
+        }
+        mLines[mLine].mLayout->mFlags &= ~4;
+        mTime = 0.0f;
+        mState = 1;
+        return 1;
     }
-    mLine = 0;
-    if (mLines[0].mType == 2 && SetConfig::sInstance->mAttackType != 0) {
-        mLine = 1;
-    }
-    mLines[mLine].mLayout->mFlags &= ~4;
-    mTime = 0.0f;
-    mState = 1;
-    return 1;
+    return 0;
 }
 
-// NONMATCHING: written from m2c
+// inferred: the character is missing or has the flag 6 of its flag word (name invented)
+inline bool IsCharaFree_unk(CharaTask* chara) {
+    bool result = true;
+    if (chara != 0 && !chara->mFlag6) {
+        result = false;
+    }
+    return result;
+}
+
+// inferred: a line of type 1 ends early when the character is free or has mC48 (name invented)
+inline bool CanSkipLine_unk(TutorialPopup* popup) {
+    bool result;
+    if (popup->mLines[popup->mLine].mType == 1) {
+        result = true;
+        if (!IsCharaFree_unk(popup->mChara) && !popup->mChara->HasC48_unk()) {
+            result = false;
+        }
+    } else {
+        result = false;
+    }
+    return result;
+}
+
+// inferred: shows the line until its wait ends (or it is skipped), then closes it
 void TutorialPopup::vf10() {
     if (mState == 4) {
         return;
@@ -686,8 +718,10 @@ void TutorialPopup::vf10() {
     TutorialPopupLine_unk* line = &mLines[mLine];
     switch (mState) {
     case 1:
-        mTime = 0.0f;
-        mState = 2;
+        if (line->mLayout->IsEnd_unk()) {
+            mTime = 0.0f;
+            mState = 2;
+        }
         break;
     case 2:
         mTime = mTime + mSpeed;
@@ -697,7 +731,7 @@ void TutorialPopup::vf10() {
         if (lbl_8087EF70 != 0 && fn_800F52F8()->fn_80116BAC()->fn_801231D0(0x2B) != 0) {
             mTime = line->mWait;
         }
-        if (mTime >= line->mWait) {
+        if (mTime >= line->mWait || CanSkipLine_unk(this)) {
             mState = 3;
             line->mLayout->mSpeed = -1.0f;
         }
