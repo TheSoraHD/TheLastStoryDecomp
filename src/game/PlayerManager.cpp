@@ -25,10 +25,14 @@ struct PartyTable_unk {
     PartySlot_unk* mSlots;  // 0x14C
 };
 struct Field_unk {
+    PartyTable_unk* fn_8013C504() { return m10D8; }
     unsigned char m0000[0x10D8];
     PartyTable_unk* m10D8;
 };
 extern "C" Field_unk* lbl_8087F430;
+extern "C" inline Field_unk* fn_80121F00() {
+    return lbl_8087F430;
+}
 class MapTask;
 
 // inferred: list of objects of 0x37C bytes updated when the leader changes (lbl_8087FA00)
@@ -54,6 +58,14 @@ PlayerManager::~PlayerManager() {
 
 int PlayerManager::vf0C() {
     return fn_800D3FA4() != 0;
+}
+
+// inferred: accessors of the party id of a character (m58; names invented)
+inline int GetId_unk(PlayerTask* p) {
+    return p->m58;
+}
+inline void SetId_unk(PlayerTask* p, int id) {
+    p->m58 = id;
 }
 
 // NONMATCHING: 99.7% - saved registers: the original reuses r30 for the id and the head (here the id
@@ -98,8 +110,9 @@ void PlayerManager::vf1C() {
     }
 }
 
-// NONMATCHING: 97.2% - volatile register numbering in the slot swap loops (table r4/offset r5 in the
-// original; tried the table declared first, an inline swap helper).
+// inferred: the table of the field is read through its weak getters (fn_80121F00, Field_unk::fn_8013C504),
+// the ids through accessors and the counter of the team loop is declared before the manager (registers
+// of the original)
 void PlayerManager::fn_8054A09C(PlayerTask* player, int swap) {
     if (mHead != player) {
         mHead->fn_8016DF3C(3);
@@ -111,10 +124,10 @@ void PlayerManager::fn_8054A09C(PlayerTask* player, int swap) {
             ((GameTask*)lbl_8087F430)->fn_80371320(player);
         }
         if (swap != 0) {
-            int tmp = mHead->m58;
-            mHead->m58 = player->m58;
-            player->m58 = tmp;
-            PartyTable_unk* table = lbl_8087F430->m10D8;
+            int tmp = GetId_unk(mHead);
+            SetId_unk(mHead, GetId_unk(player));
+            SetId_unk(player, tmp);
+            PartyTable_unk* table = fn_80121F00()->fn_8013C504();
             for (unsigned int i = 0; i < table->mNumSlots; i++) {
                 if (table->mSlots[i].m8C == mHead) {
                     table->mSlots[i].m8C = player;
@@ -129,9 +142,10 @@ void PlayerManager::fn_8054A09C(PlayerTask* player, int swap) {
                     }
                 }
             }
+            int k;
             TeamAIManager* teams = lbl_8087FA00;
-            for (int k = 0; k < teams->mTeams.mSize; k++) {
-                teams->mTeams.mData[k].fn_805AE3C4();
+            for (k = 0; k < teams->mTeams.mSize; k++) {
+                teams->mTeams[k].fn_805AE3C4();
             }
         }
         if (mHead->m50 == 1) {
