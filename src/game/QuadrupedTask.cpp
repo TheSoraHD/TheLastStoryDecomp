@@ -16,6 +16,7 @@
 #include "game/GameTask.h"
 #include "atn/ColliBase.h"
 #include "game/BattleTask.h"
+#include "game/GameSceneFind_unk.h"
 
 // inferred: node position (as in game/Em205Ogre.cpp; name invented)
 inline atn::Vector3 GetNodePos_unk(MtxPtr m) {
@@ -28,7 +29,7 @@ struct Field_unk {
     unsigned char m86C[0x8A0 - 0x86C];
     int m8A0;
     unsigned char m8A4[0x10D8 - 0x8A4];
-    RouteTable_unk* m10D8; // inferred: route tables (as in game/Em403WarLion.cpp)
+    GameScene* m10D8; // inferred: route tables (as in game/Em403WarLion.cpp)
 };
 extern "C" Field_unk* lbl_8087F430;
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
@@ -69,10 +70,10 @@ struct GameState_unk {
 };
 extern "C" GameState_unk* lbl_8087EFA8;
 
-// inferred: RouteTable_unk::FindPlace_unk with the array read inside the loop (as in game/Em208Queen.cpp)
-inline RoutePlace_unk* FindRoutePlace2_unk(RouteTable_unk* table, int id) {
-    for (unsigned int i = 0; i < table->mNumPlaces; i++) {
-        RoutePlace_unk* places = table->mPlaces;
+// inferred: GameScene::FindPlace_unk with the array read inside the loop (as in game/Em208Queen.cpp)
+inline gs::WarpPoint* FindRoutePlace2_unk(GameScene* table, int id) {
+    for (unsigned int i = 0; i < table->m78.size(); i++) {
+        gs::WarpPoint* places = table->m78.mData;
         if (id == places[i].mId) {
             return &places[i];
         }
@@ -323,7 +324,7 @@ void QuadrupedTask::fn_80566FB4() {
 // inferred: chooses the move of the AI state (mC58) from the distance to its target
 // NONMATCHING: 90.6% - the original keeps &target->mC58.m0C in r27 from the start (one more saved GPR)
 int QuadrupedTask::fn_80567424(CharaTask* target) {
-    RouteTable_unk* table = lbl_8087F430->m10D8;
+    GameScene* table = lbl_8087F430->m10D8;
     if (table == 0) {
         return 0;
     }

@@ -7,6 +7,7 @@
 #include "atn/SoundRef.h"
 #include "macros.h"
 #include "atn/DrawHelper.h"
+#include "game/GameSceneFind_unk.h"
 
 extern "C" int rand();
 extern "C" ArenaAnim_unk* fn_801F3FF8(atn::Task* parent, const char* path, int arg); // inferred: d2anime task
@@ -21,7 +22,7 @@ extern "C" float fn_8006EF48(void* font, float size, const wchar_t* text, float 
 // inferred: field (lbl_8087F430)
 struct ArenaField_unk {
     unsigned char m00[0x10D8];
-    RouteTable_unk* m10D8;
+    GameScene* m10D8;
 };
 extern "C" ArenaField_unk* lbl_8087F430;
 
@@ -104,8 +105,8 @@ void ArenaTask::vf10() {
                     int index = rand() % n;
                     atn::Vector3 rot;
                     rot.Assign_unk(e.mChara->mRot);
-                    RoutePlace_unk** it = &mSpawns.mData[index];
-                    RoutePlace_unk* spawn = *it;
+                    gs::WarpPoint** it = &mSpawns.mData[index];
+                    gs::WarpPoint* spawn = *it;
                     rot.y = spawn->m14;
                     e.mChara->mPos.Assign_unk(spawn->mPos);
                     e.mChara->mRot.Assign_unk(rot);
@@ -187,10 +188,10 @@ void ArenaTask::fn_80043A24() {
         slot++;
     }
     mSpawns.mCount = 0;
-    RouteTable_unk* table = mTable;
-    for (unsigned int i = 0; i < table->mNumPlaces; i++) {
-        if (table->mPlaces[i].mId >= 50000) {
-            mSpawns.PushBack_unk(&table->mPlaces[i]);
+    GameScene* table = mTable;
+    for (unsigned int i = 0; i < table->m78.size(); i++) {
+        if (table->m78.mData[i].mId >= 50000) {
+            mSpawns.PushBack_unk(&table->m78.mData[i]);
         }
     }
 }
@@ -257,7 +258,7 @@ void ArenaTask::fn_80043D58(int side) {
     if (win == 0 || !win->IsFree_unk(6.0f)) {
         return;
     }
-    RouteTable_unk* table;
+    GameScene* table;
     if (lbl_8087F430 != 0) {
         table = lbl_8087F430->m10D8;
     } else {

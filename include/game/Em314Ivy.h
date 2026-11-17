@@ -5,6 +5,9 @@
 #include "atn/FixedArray.h"
 #include "game/CharaTask.h"
 #include "game/SpecialEnemyBase.h"
+namespace gs {
+struct MovePoint;
+}
 
 // inferred from __vt__8Em314Ivy (0x807883D0): ivy enemy that hides, appears near the player and
 // catches it ("catch_point" node). Data file "db_em314_00_00.csv" (SkillId, HideWaitFrame, ...).
@@ -47,7 +50,7 @@ public:
     atn::SimpleVector<CharaTask::Item14_unk> m1510;
     // inferred: route points where the ivy can appear (the nearest one, its neighbours and theirs);
     // drawn by vf14
-    atn::FixedArray_unk<RoutePoint_unk*, 0x20> mPoints; // 0x151C
+    atn::FixedArray_unk<gs::MovePoint*, 0x20> mPoints; // 0x151C
     int m15A0;        // inferred: "RandomPosition" == 1
     int m15A4;
     int m15A8;

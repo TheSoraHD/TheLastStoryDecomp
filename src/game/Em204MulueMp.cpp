@@ -11,6 +11,7 @@
 #include "std/string.h"
 #include "std/string_members.h"
 #include "math/VecAssign_unk.h"
+#include "game/GameSceneFind_unk.h"
 
 extern "C" unsigned long strlen(const char* s);
 extern "C" int strcmp(const char* a, const char* b);
@@ -56,7 +57,7 @@ extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 // inferred: field (lbl_8087F430); m10D8: route tables
 struct Field_unk {
     unsigned char m0000[0x10D8];
-    RouteTable_unk* m10D8;
+    GameScene* m10D8;
 };
 extern "C" Field_unk* lbl_8087F430;
 // inferred: player of the multiplayer session (0xD5C bytes, as in MP/D2AMpMenuCockpit.cpp)
@@ -299,7 +300,7 @@ int Em204MulueMp::vf0C() {
                     int id;
                     do {
                         id = fn_800DC12C(csv.fn_8005B9CC());
-                        RoutePlace_unk* place = lbl_8087F430->m10D8->FindPlace_unk(id);
+                        gs::WarpPoint* place = lbl_8087F430->m10D8->FindPlace_unk(id);
                         if (place != 0) {
                             m154C.push_back(place);
                         }
@@ -308,7 +309,7 @@ int Em204MulueMp::vf0C() {
                     int id;
                     do {
                         id = fn_800DC12C(csv.fn_8005B9CC());
-                        RoutePlace_unk* place = lbl_8087F430->m10D8->FindPlace_unk(id);
+                        gs::WarpPoint* place = lbl_8087F430->m10D8->FindPlace_unk(id);
                         if (place != 0) {
                             m1590.push_back(place);
                         }

@@ -8,6 +8,9 @@
 #include "game/EnemyTask.h"
 #include "game/ResHandle.h"
 #include "game/GimmickCommon.h"
+namespace gs {
+struct WarpPoint;
+}
 
 // inferred from __vt__15LastCocoonImago (0x8078F800): imago form of the last cocoon; the enemy factory
 // (fn_805A5374) allocates 0x1990 bytes. Members keep their offsets (names unknown).
@@ -91,7 +94,7 @@ public:
     } m18D4[3];
     int m18EC;
     int m18F0;
-    RoutePlace_unk* m18F4; // inferred: place 2 of the field
+    gs::WarpPoint* m18F4; // inferred: place 2 of the field
     GimmickCommon* m18F8; // inferred: gimmick told (message 5) when mode 12 starts
     atn::ColliSphere m18FC; // inferred: a sphere (0x4C bytes; its destructor is inlined)
     atn::Vector3 m1948;

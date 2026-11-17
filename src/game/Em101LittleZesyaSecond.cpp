@@ -10,6 +10,7 @@
 #include "game/GameTask.h"
 #include "atn/ColliBase.h"
 #include "game/BattleTask.h"
+#include "game/GameSceneFind_unk.h"
 
 extern "C" unsigned long strlen(const char* s);
 extern "C" int strcmp(const char* a, const char* b);
@@ -108,7 +109,7 @@ struct Field_unk {
     unsigned char m8A4[0x97C - 0x8A4];
     ZesyaLook_unk m97C;
     unsigned char m9A4[0x10D8 - 0x9A4];
-    RouteTable_unk* m10D8;
+    GameScene* m10D8;
 };
 extern "C" Field_unk* lbl_8087F430;
 // inferred: word at 0x1C of the running control (class unknown)
@@ -205,7 +206,7 @@ void Em101LittleZesyaSecond::fn_80260324() {
         if (strcmp(key, "NormalAttackID") == 0) {
             m14C8 = fn_80219E6C(atoi(csv.fn_8005B9CC()));
         } else if (strcmp(key, "WarpCenterPoint") == 0 && lbl_8087F430 != 0) {
-            RoutePlace_unk* place = lbl_8087F430->m10D8->FindPlace_unk(atoi(csv.fn_8005B9CC()));
+            gs::WarpPoint* place = lbl_8087F430->m10D8->FindPlace_unk(atoi(csv.fn_8005B9CC()));
             if (place != 0) {
                 m14FC = place->mPos;
             }
@@ -779,7 +780,7 @@ void Em101LittleZesyaSecond::fn_802621D4(atn::Vector3* pos, float* rot) {
         *pos = result.m10;
     }
     int point = ((GameScene*)lbl_8087F430->m10D8)->fn_803C1560(pos, 0, 0, 0, 1, -1.0f);
-    *pos = lbl_8087F430->m10D8->mPoints[point - 1].mPos;
+    *pos = lbl_8087F430->m10D8->m98.mData[point - 1].mPos;
     *rot = (m14B8->mPos - *pos).ToRotationZ_unk().y;
 }
 

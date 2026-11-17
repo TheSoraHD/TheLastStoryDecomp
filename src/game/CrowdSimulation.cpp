@@ -3,6 +3,7 @@
 #include "game/CharaStatus.h"
 #include "atn/Memory.h"
 #include <boost/function.hpp>
+#include "game/GameSceneFind_unk.h"
 
 extern "C" int rand();
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
@@ -11,14 +12,14 @@ extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared len
 inline float LengthSq_unk(const atn::Vector3& v) {
     return PSVECSquareMag(&v);
 }
-extern "C" unsigned short fn_803CD958(RoutePath_unk* path, int point); // inferred: next point towards `point`
+extern "C" unsigned short fn_803CD958(U16Table_unk* path, int point); // inferred: next point towards `point`
 
 // inferred: field status (lbl_8087F430); only the members used here
 struct Field_unk {
     unsigned char m00[0x10D0];
     int m10D0; // inferred: hour
     unsigned char m10D4[0x10D8 - 0x10D4];
-    RouteTable_unk* m10D8;
+    GameScene* m10D8;
 };
 extern "C" Field_unk* lbl_8087F430;
 // inferred: route manager of the town walkers (lbl_8087EE68)
@@ -95,8 +96,8 @@ int CrowdSimulation::vf0C() {
 }
 
 void CrowdSimulation::vf10() {
-    RouteTable_unk* table = lbl_8087F430->m10D8;
-    if ((table->m38 & 2) == 2) {
+    GameScene* table = lbl_8087F430->m10D8;
+    if ((table->mFlags & 2) == 2) {
         for (unsigned int i = 0; i < mWalkers.mSize; i++) {
             CrowdWalker_unk* walker = &mWalkers[i];
             int point = walker->mPoint;
@@ -108,17 +109,17 @@ void CrowdSimulation::vf10() {
                                                     mDesc->mGroups[walker->mGroup].mRoute, 0, 1, walker->mDir.y,
                                                     360.0f, 100.0f, 10000.0f);
                         if (walker->mDest != 0 && walker->mPoint != walker->mDest) {
-                            walker->mNext = ((GameScene*)table)->fn_803C11A4(fn_803CD958((RoutePath_unk*)((char*)table->mPaths + (walker->mPoint - 1) * 8),
+                            walker->mNext = ((GameScene*)table)->fn_803C11A4(fn_803CD958((U16Table_unk*)((char*)table->mA0.mData + (walker->mPoint - 1) * 8),
                                                    walker->mDest - 1));
                             walker->mDir = (walker->mNext - walker->mPos).GetNormalize();
                         }
                     } else {
-                        RoutePoint_unk* next = &table->mPoints[dest - 1];
-                        float radius = next->mRadius;
-                        float limit = radius * next->mRadius;
+                        gs::MovePoint* next = &table->m98.mData[dest - 1];
+                        float radius = next->m14;
+                        float limit = radius * next->m14;
                         if (LengthSq_unk(walker->mNext - walker->mPos) < limit) {
                             walker->mPoint = fn_803CD958(
-                                (RoutePath_unk*)((char*)table->mPaths + (walker->mPoint - 1) * 8), walker->mDest - 1);
+                                (U16Table_unk*)((char*)table->mA0.mData + (walker->mPoint - 1) * 8), walker->mDest - 1);
                             walker->mNext = ((GameScene*)table)->fn_803C11A4(walker->mPoint);
                             walker->mDir = (walker->mNext - walker->mPos).GetNormalize();
                         } else {

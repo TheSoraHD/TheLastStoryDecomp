@@ -12,6 +12,7 @@
 #include "game/BattleTask.h"
 #include "atn/ColliBase.h"
 #include "game/GameUI.h"
+#include "game/GameSceneFind_unk.h"
 
 extern "C" int sprintf(char* buf, const char* fmt, ...);
 extern "C" int strcmp(const char* a, const char* b);
@@ -22,7 +23,7 @@ extern "C" int fn_800DC12C(const char* s); // inferred: string to int
 struct Field_unk {
     unsigned char m0000[0x6C];
     unsigned char m006C[0x10D8 - 0x6C]; // inferred: object of fn_8037EF30
-    RouteTable_unk* m10D8;
+    GameScene* m10D8;
 };
 extern "C" Field_unk* lbl_8087F430;
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
@@ -186,11 +187,11 @@ void Em306GurgBeast::fn_802EE9A8(const char* text, int length) {
         } else if (strcmp(key, "WaitFrame") == 0) {
             m14F0 = atoi(csv.fn_8005B9CC());
         } else if (strcmp(key, "HomePoint") == 0) {
-            RouteTable_unk* table = lbl_8087F430 != 0 ? lbl_8087F430->m10D8 : 0;
+            GameScene* table = lbl_8087F430 != 0 ? lbl_8087F430->m10D8 : 0;
             if (table != 0) {
                 const char* s = csv.fn_8005B9CC();
                 while (s != 0 && *s != '\0' && m14F4.size() < 8) {
-                    RoutePlace_unk* place = table->FindPlace_unk(atoi(s));
+                    gs::WarpPoint* place = table->FindPlace_unk(atoi(s));
                     if (place != 0) {
                         m14F4.push_back(place);
                     }
@@ -510,7 +511,7 @@ void Em306GurgBeast::vf104() {
             if (m1518 == 0) {
                 float best = 1e16f;
                 for (unsigned int i = 0; i < m14F4.size(); i++) {
-                    RoutePlace_unk* place = m14F4.mData[i];
+                    gs::WarpPoint* place = m14F4.mData[i];
                     float dist = LengthSq_unk(place->mPos - mPos);
                     if (dist < best) {
                         m1518 = place;

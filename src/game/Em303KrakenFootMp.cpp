@@ -7,6 +7,7 @@
 #include "game/CharaManager.h"
 #include "game/PlayerTask.h"
 #include "game/BattleTask.h"
+#include "game/GameSceneFind_unk.h"
 
 extern "C" int sprintf(char* buf, const char* fmt, ...);
 extern "C" int strcmp(const char* a, const char* b);
@@ -35,7 +36,7 @@ inline atn::Vector3 GetNodePos_unk(MtxPtr m) {
 // inferred: field (lbl_8087F430): route tables at 0x10D8 (as in game/CharaC58_unk.cpp)
 struct Field_unk {
     unsigned char m0000[0x10D8];
-    RouteTable_unk* m10D8;
+    GameScene* m10D8;
 };
 extern "C" Field_unk* lbl_8087F430;
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager

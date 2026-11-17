@@ -11,6 +11,7 @@
 #include "math/Vec.h"
 #include "atn/ColliBase.h"
 #include "game/BattleTask.h"
+#include "game/GameSceneFind_unk.h"
 
 extern "C" int sprintf(char* buf, const char* fmt, ...);
 extern "C" char* strstr(const char* s, const char* sub);
@@ -22,7 +23,7 @@ extern "C" HitInfo_unk* fn_80219E6C(int id); // inferred: bullet/skill data by i
 // inferred: field (lbl_8087F430): route tables at 0x10D8 (as in game/CharaC58_unk.cpp)
 struct Field_unk {
     unsigned char m0000[0x10D8];
-    RouteTable_unk* m10D8;
+    GameScene* m10D8;
 };
 extern "C" Field_unk* lbl_8087F430;
 // inferred: weak getter of the field (lwz r3, lbl_8087F430; blr; as in gmk/Cannonball.cpp)
@@ -566,7 +567,7 @@ void Em303KrakenFoot::fn_802E3D60() {
     fn_8016E4C4(1);
     mColli.mFlags |= 1;
     vf98();
-    RoutePlace_unk* base = m14E8;
+    gs::WarpPoint* base = m14E8;
     if (base != 0) {
         mPos = base->mPos;
         mRot.y = base->m14;

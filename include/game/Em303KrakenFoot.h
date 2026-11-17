@@ -6,7 +6,9 @@
 #include "game/EnemyTask.h"
 #include "game/ResHandle.h"
 
-struct RoutePlace_unk;
+namespace gs {
+struct WarpPoint;
+}
 
 // inferred from __vt__15Em303KrakenFoot (0x80787120): leg of the kraken (Em302Kraken calls
 // fn_802E2328/fn_802E2360/fn_802E2468). Data file "/database/chara/special/" + db_name (default
@@ -58,7 +60,7 @@ public:
     HitInfo_unk* m14DC;       // inferred: "PoundSkillId"
     int m14E0;                // inferred: "HoldDamageInterval"
     float m14E4;              // inferred: "CatchDistance"
-    RoutePlace_unk* m14E8;    // inferred: "BasePoint"
+    gs::WarpPoint* m14E8;    // inferred: "BasePoint"
     int m14EC;
     int m14F0;                // inferred: "CatchNotifyFlag" (SpecialFlag_unk: global flag, index)
     int m14F4;

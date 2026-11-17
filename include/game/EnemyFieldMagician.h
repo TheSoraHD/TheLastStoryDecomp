@@ -5,7 +5,9 @@
 #include "atn/ResLoader_unk.h"
 #include "game/EnemyTask.h"
 
-struct RoutePlace_unk;
+namespace gs {
+struct WarpPoint;
+}
 
 // inferred from __vt__18EnemyFieldMagician (0x80788D20): a magician that raises a magic field
 // (two collision objects) and warps between route places; no destructor declared (the implicit one
@@ -38,7 +40,7 @@ public:
     atn::LH_Binary m161C;            // inferred: csv file ("db_name=")
     EnemyInfo_unk* m1624;            // inferred: spawn description
     int m1628;                       // inferred: "FieldWeakTime"
-    atn::FixedArray_unk<RoutePlace_unk*, 8> m162C; // inferred: "WarpPoint"
+    atn::FixedArray_unk<gs::WarpPoint*, 8> m162C; // inferred: "WarpPoint"
     int m1650;                       // inferred: "WarpPointLoop"
     int m1654;                       // inferred: "FieldExecuteLocalFlag"
     int m1658;                       // inferred: "FieldWeakLocalFlag"

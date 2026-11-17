@@ -28,6 +28,7 @@
 #include "game/NpcManager.h"
 #include "game/NpcTask.h"
 #include "game/MapPartsLocatorSet.h"
+#include "game/GameSceneFind_unk.h"
 
 extern "C" GameTask* lbl_8087F430; // inferred: the field
 
@@ -424,17 +425,17 @@ void GameSavePlayers_unk::fn_803BA408() {
         mEntries[n].m03 = player->m674;
         if (player->m55C == 7 || (player->m55C == 6 && player->m564 == 7)) {
             mEntries[n].mFlags |= 0x10;
-            RouteTable_unk* table = lbl_8087F430 ? (RouteTable_unk*)lbl_8087F430->m10D8 : 0; // inferred: RouteTable_unk is a view of GameScene
+            GameScene* table = lbl_8087F430 ? (GameScene*)lbl_8087F430->m10D8 : 0; // inferred: GameScene is a view of GameScene
             if (table) {
                 RouteWalker_unk& route = player->mRoute;
                 mEntries[n].mRouteMode = route.m44;
                 mEntries[n].mRouteFlag = route.m48;
                 switch (route.m44) {
                 case 0:
-                    mEntries[n].mRouteTarget = table->mPoints[route.mPointB - 1].m00;
+                    mEntries[n].mRouteTarget = table->m98.mData[route.mPointB - 1].mId;
                     break;
                 case 1:
-                    mEntries[n].mRouteTarget = table->mLinks[route.mLink - 1].m00;
+                    mEntries[n].mRouteTarget = table->mAC.mData[route.mLink - 1].mId;
                     break;
                 case 3:
                     mEntries[n].mRouteTarget = route.mPlace;
