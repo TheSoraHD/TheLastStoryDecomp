@@ -76,6 +76,8 @@ Commits: 514e0c6, 7afed4c, 76845c1, ee2ead9, 84205c5, 3a55bb7, cc10c1b, f19bec7,
   carga en un FPR no volatil antes de la llamada (FinishCamera fn_803792F0). (escribir-20261116 qN)
 
 ## Bloqueos
+- Em203GreaterDaemonRed fn_8029795C 91,35: `GetMotionFrame(0)` en `m14C4 == 6 || frame >= fn_80097D7C(0)` pone
+  esa carga igual que el original (f28) pero baja el total a 91,07 (registros de otro tramo): no commiteado. (escribir-20261116 qN)
 - MapPartsLocatorSet vf24 87,9: relectura de `m17C` tras copiar mMin (ver Hallazgos); variantes 85,2-87,3. (escribir-20261116 qN)
 - DropItem vf10 94,07: el original construye `m08 + m20` (fin del segmento) y lo copia antes de releer m08/m20
   para el inicio; ctor por valor o ColliCapsuleShape_unk: igual. (escribir-20261116 qN)
