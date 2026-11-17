@@ -165,13 +165,10 @@ inline void EfpData_unk::fn_80243FAC(int count, int heap, const char* name) {
     }
 }
 
-// NONMATCHING: 95.55% - register allocation: the original keeps the element in r31 and its offset in
-// r30 (swapped here); tried declaration orders, references and inline helpers
 void EfpData_unk::fn_802440F0() {
-    EfpElem_unk* elem;
     mLength = 1;
-    for (unsigned int i = 0; i < mCount; i++) {
-        elem = &mElems[i];
+    for (int i = 0; i < mCount; i++) {
+        EfpElem_unk* elem = fn_802438C4(i);
         if (elem->m00 != 0) {
             int frames = elem->mEnd - elem->mStart;
             int length = fn_80237784(&elem->mLoader, frames < 0 ? 0 : frames);
