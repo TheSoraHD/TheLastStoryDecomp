@@ -78,7 +78,13 @@ Agente W4, inicio 2026-11-17 02:08 (tope 04:38). Rama `agent-W4`.
   `delete`; **intercambiando el orden de mSmall8/mSmall6 corta `~SA<6>` y no `~SA<8>`** (corta el primer
   miembro, no un tipo concreto); con el ctor tras `Instance` (orden del .dol) ningun dtor corta y `delete`
   llama a los ctor de `SmallAllocator<N>` fuera de linea (se emiten); dtor de la plantilla definido fuera
-  de la clase: igual. Falta una idea de como MWCC compila los dtors diferidos dentro del ctor.
+  de la clase: igual. Con el ctor del gestor `inline` (sin moverlo) el orden de emision es el del .dol
+  (Instance, ctor, ~SA<8>, ~SA<6>, ~MemoryManager, fn_80082CAC: el ctor sale como copia diferida de
+  Instance), pero `delete` y los dtors quedan con el ctor del gestor inlineado y los ctor de
+  `SmallAllocator<N>` llamados (y emitidos): el corte cae en el ctor de SmallAllocator (su vtable dispara la
+  compilacion anidada de los dtors) y no en el del gestor. Ni el ctor de SmallAllocator fuera de la clase ni
+  `~IAllocator` no inline lo cambian. Hipotesis: el primer inline de `delete` fija su cuerpo para todos los
+  demas; en el original ocurre con el ctor del gestor en curso y sin ningun ctor de SmallAllocator en curso.
 - WordWrap_unk (`setstate`, copia de `basic_string<char>`, thunk `@8@60@~basic_ostream`): en el original
   son copias weak que conserva el enlazador porque otras unidades las llaman (`setstate` EffectManager, la
   copia Loader/EffectSequencer; el thunk va en la vtable de `basic_ostream`, que el original emite en
