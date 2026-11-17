@@ -1,6 +1,6 @@
 # escribir-20261116, cola W4 (atn, chr, gmk, AI y SDK)
 
-Agente W4, inicio 2026-11-17 02:08 (tope 04:38). Rama `agent-W4`.
+Agente W4, inicio 2026-11-17 02:08 (tope 04:38, fin 03:45). Rama `agent-W4`.
 
 ## Tabla de la cola
 
@@ -100,6 +100,23 @@ Agente W4, inicio 2026-11-17 02:08 (tope 04:38). Rama `agent-W4`.
   `IPCSetBufferLo`; darselo a ipcMain.c (enlazada: end 0x8061BD90, ipcclt desde 0x8061BD90) da
   `main.dol: FAILED` (nuestro ipcMain.o no lo emite: el enlazador lo pone al alinear la unidad siguiente).
   Se queda dentro de ipcclt hasta que ipcclt enlace; entonces `.text start:0x8061BD90` (el enlazador alinea).
+
+## Scripts (en /home/claude/scratch-W4/bin/)
+
+- `strend.py`: `@stringBase0` cuyo `""` final queda fuera del `size` de symbols.txt (`addi rX, base, <size>`).
+- `samediff.py <unidades>`: funciones con lineas DIFF de texto identico (la relocalizacion apunta a otro
+  simbolo: tamanos, etiquetas, ceros de `.sdata`).
+- `saall.sh`: tamanos de las funciones de SmallAllocator_8 frente al .dol (para el ciclo de inlining).
+
+## Otras pruebas sin resultado (no repetir)
+
+- ItemSlotAnime `fn_8044F434`: test de estados 3-5 con `!(a != 3 && ...)`, `switch`, `?:` encadenado e inline
+  `IsSpinning_unk`: siempre `subi; cmplwi` (bloqueo conocido de tres valores).
+- ItemSlotAnime: `SetTaskFrame_unk`/`SetTaskSpeed_unk` en los demas bucles de tareas: mismo codigo (sin cambios).
+- LH_Binary `fn_804707D4`: bucle de pistas en una inline (por pistas o por el chunk): igual o peor.
+- ControlStickByQuark `ControlThrustForCrab::vf0C` y `ControlCaughtSkelton::vf0C`: locales nuevos o quitados
+  renumeran los `@N` de la unidad (labelcheck 30-50 que faltan); medir solo tras `pd.sh`.
+- WordWrap_unk `fn_800E0F84` sin el local `buf`: 93,7 % y renumera.
 
 ## Pendientes
 
