@@ -249,7 +249,8 @@ ControlChaseFollow::ControlChaseFollow(Chara_unk* chara) : ControlBase(chara) {
     mChara->mF1C = 0;
 }
 
-// NONMATCHING: 98.2% - registers of the distance branches.
+// NONMATCHING: 99.94% - in the last branch dist/near take f29/f30 swapped and mChara/&d r3/r4 swapped
+// (tried sqrt orders, locals for len/rate/speed, chara/c locals, ToRotation first, Max inline)
 // inferred: keeps behind the leader, faster when far
 int ControlChaseFollow::vf0C() {
     if (lbl_8087F098->m48 == 0) {
@@ -268,12 +269,13 @@ int ControlChaseFollow::vf0C() {
     float stop = 121.0f;
     float walk = 196.0f;
     float run = 450.0f;
+    CharaTask* chara = mChara;
     if (dist <= stop) {
-        mChara->m6B8 = -d.GetNormalize() * 0.2f;
+        mChara->SetM6B8_unk(-d.GetNormalize() * 0.2f);
         atn::Vector3 rot = d.ToRotation_unk();
         mChara->vf34(rot, 0, 0.0f, 0.0f);
     } else if (dist <= walk) {
-        mChara->m570 = leader->m570;
+        chara->m570 = leader->m570;
         atn::Vector3 rot = d.ToRotation_unk();
         mChara->vf34(rot, 0, 0.0f, 0.0f);
     } else if (dist >= run) {
@@ -285,8 +287,9 @@ int ControlChaseFollow::vf0C() {
     } else {
         float near = sqrt(run);
         float len = sqrt(dist);
+        float speed = leader->m570;
         float rate = len / near;
-        mChara->m570 = rate > leader->m570 ? rate : leader->m570;
+        mChara->m570 = rate > speed ? rate : speed;
         atn::Vector3 rot = d.ToRotation_unk();
         mChara->vf34(rot, 0, 0.0f, 1.0f);
     }
@@ -303,19 +306,23 @@ ControlChaseCatch::ControlChaseCatch(Chara_unk* chara, CharaTask* target) : Cont
     mChara->mPos = chara->mPos + atn::Vector3(0.0f, -0.5f, 0.0f);
 }
 
-// NONMATCHING: 98.1% - stack slots of the rotation matrix and the front direction (as in
-// chr/ControlBase.cpp vf18).
-// inferred: carries m08 in front of the character
+// inferred: carries m08 in front of the character. The front direction is written out (its matrix
+// after `scale`: stack slots of the original), the yaw read in a local and the rotation built through
+// a local `chara` (register order of the original)
 int ControlChaseCatch::vf0C() {
-    Motion_unk* motion = mChara->GetModel_unk();
     int done = 0;
-    atn::Vector3 front = FrontDir_unk(mChara->mRot);
+    Motion_unk* motion = mChara->GetModel_unk();
+    atn::Vector3 front(0.0f, 0.0f, 1.0f);
     Mtx scale;
+    Mtx rm;
+    float yaw = mChara->mRot.y;
+    PSMTXRotRad(rm, 'y', yaw);
+    PSMTXMultVec(rm, &front, &front);
     PSMTXScale(scale, m08->m540.x, m08->m540.y, m08->m540.z);
     atn::Matrix3x4 m;
-    atn::Matrix3x4* p = &m;
-    SetRotation_unk(*p, mChara->mRot);
-    PSMTXConcat(p->m, scale, scale);
+    CharaTask* chara = mChara;
+    SetRotation_unk(m, chara->mRot);
+    PSMTXConcat(m.m, scale, scale);
     atn::Vector3 pos = mChara->mPos + front * 5.0f + atn::Vector3(0.0f, 0.5f, 0.0f);
     scale[0][3] = pos.x;
     scale[1][3] = pos.y;
@@ -344,20 +351,23 @@ boost::function<void()> ControlChaseCatch::vf10() const {
     return boost::bind(&CharaTask::fn_80178208, (CharaTask*)mChara, next);
 }
 
-// NONMATCHING: 95.2% - as ControlChaseCatch::vf0C.
-// inferred: holds m08 while it is caught (0x64) or held (0x65)
+// inferred: holds m08 while it is caught (0x64) or held (0x65); written as ControlChaseCatch::vf0C
 int ControlChaseHold::vf0C() {
     int done = 0;
     if (m08->m560 != 0x65 && m08->m560 != 0x64) {
         done = 1;
     } else {
-        atn::Vector3 front = FrontDir_unk(mChara->mRot);
+        atn::Vector3 front(0.0f, 0.0f, 1.0f);
         Mtx scale;
+        Mtx rm;
+        float yaw = mChara->mRot.y;
+        PSMTXRotRad(rm, 'y', yaw);
+        PSMTXMultVec(rm, &front, &front);
         PSMTXScale(scale, m08->m540.x, m08->m540.y, m08->m540.z);
         atn::Matrix3x4 m;
-        atn::Matrix3x4* p = &m;
-        SetRotation_unk(*p, mChara->mRot);
-        PSMTXConcat(p->m, scale, scale);
+        CharaTask* chara = mChara;
+        SetRotation_unk(m, chara->mRot);
+        PSMTXConcat(m.m, scale, scale);
         atn::Vector3 pos = mChara->mPos + front * 5.0f + atn::Vector3(0.0f, 0.5f, 0.0f);
         scale[0][3] = pos.x;
         scale[1][3] = pos.y;
