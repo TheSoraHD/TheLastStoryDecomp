@@ -113,14 +113,15 @@ extern "C" HitParam_unk lbl_807C6B90;
 extern "C" int fn_8004ED34(void* world, atn::ColliResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg7, CharaTask* arg8); // inferred: ray test
 // inferred: hint of the HUD (GameUI::m764) built as a temporary (as in game/Em209SmallGolem.cpp)
+// inferred: the stores of the temporary of vf10 follow the original only with m08-m14 set first
 struct MulueUIHint_unk : public GameUIElem1C_unk {
     MulueUIHint_unk(int a, int b, int c) {
-        m00 = a;
-        m04 = b;
         m08 = c;
         m0C = 0;
         m10 = 0;
         m14 = 0;
+        m00 = a;
+        m04 = b;
         m18 = 1;
     }
 };
@@ -403,7 +404,31 @@ int Em204Mulue::vf0C() {
     return 0;
 }
 
-// NONMATCHING: 99.81% - order of two loads of case 9 and stack slots of the catchpoint matrix
+// inferred: cone of the look-out of the default case of vf10 (an inline: its locals take the stack slots of
+// the original only through it; the named copy of the position orders the temporary; as in
+// game/Em204MulueMp.cpp; name invented)
+static inline void Look_unk(Em204Mulue* self) {
+    atn::Vector3 t = self->fn_801781B0();
+    atn::Vector3 pos = t;
+    atn::Vector3 dir(0.0f, 0.0f, 1.0f);
+    Mtx m;
+    PSMTXRotRad(m, 'y', self->mRot.y);
+    PSMTXMultVec(m, &dir, &dir);
+    fn_805A5078(&pos, &dir, 100, 1.2f * self->m5B0, 3.1415927f);
+}
+// inferred: scales the rotation of the catchpoint matrix (an inline: stack slots of vf10; name invented)
+static inline void Scale_unk(atn::Matrix3x4& m, const atn::Vector3& s) {
+    atn::Matrix3x4 r;
+    Mtx sm;
+    PSMTXScale(sm, s.x, s.y, s.z);
+    PSMTXConcat(m.m, sm, r.m);
+    m = r;
+}
+// inferred: bite of case 9 of vf10 (an inline: the original loads m590 before the battle manager; name
+// invented)
+static inline void Attack_unk(Em204Mulue* self, HitInfo_unk* info, int kind) {
+    lbl_8087F048->fn_800F8C6C(0, 0, self, info, kind, 0.0f, 30, -1);
+}
 void Em204Mulue::vf10() {
     fn_8014C0B4(0x1B, 0x14);
     fn_8014C0B4(0x1C, 0x1C7);
@@ -434,7 +459,7 @@ void Em204Mulue::vf10() {
                 Rest_unk();
             }
             if (mMotion.mTracks[0].m08 >= 23.0f && mMotion.mTracks[0].m08 <= 27.0f) {
-                lbl_8087F048->fn_800F8C6C(0, 0, this, m166C, m590, 0.0f, 30, -1);
+                Attack_unk(this, m166C, m590);
             }
             break;
         case 10:
@@ -577,13 +602,7 @@ void Em204Mulue::vf10() {
                 fn_80170A20(m14B0, -1.0f, 0);
             }
             fn_802A711C();
-            atn::Vector3 pos;
-            pos = fn_801781B0();
-            atn::Vector3 dir(0.0f, 0.0f, 1.0f);
-            Mtx m;
-            PSMTXRotRad(m, 'y', mRot.y);
-            PSMTXMultVec(m, &dir, &dir);
-            fn_805A5078(&pos, &dir, 100, 1.2f * m5B0, 3.1415927f);
+            Look_unk(this);
             fn_802A74A4();
             break;
         }
@@ -595,16 +614,12 @@ void Em204Mulue::vf10() {
     fn_802A7970();
     if (m58C >= 11 && m58C <= 13) {
         atn::Matrix3x4 m(mMotion.GetNodeMtx_unk("catchpoint"));
-        atn::Vector3 t(m.m[0][3], m.m[1][3], m.m[2][3]);
+        atn::Vector3 t = m.GetTrans_unk();
         m.m[0][3] = 0.0f;
         m.m[1][3] = 0.0f;
         m.m[2][3] = 0.0f;
         atn::Vector3 s(1.0f / m540.x, 1.0f / m540.y, 1.0f / m540.z);
-        Mtx sm;
-        PSMTXScale(sm, s.x, s.y, s.z);
-        atn::Matrix3x4 r;
-        PSMTXConcat(m.m, sm, r.m);
-        m = r;
+        Scale_unk(m, s);
         m1614 = m;
         m1614.m[0][3] = t.x;
         m1614.m[1][3] = t.y;
