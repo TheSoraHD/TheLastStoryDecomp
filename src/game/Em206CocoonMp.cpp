@@ -604,7 +604,8 @@ void Em206CocoonMp::fn_802BC4EC(const atn::Vector3& target, float move, float sp
     m14E8 = 0;
     float d = atn::WrapAngle_unk(target.y - rot.y);
     float dt = lbl_8087EFA8->m3A4;
-    float step = d * (m56C * (1.0f + 0.75f * atn::Abs_unk(d / 3.1415927f)));
+    float k = 0.75f * atn::Abs_unk(d / 3.1415927f);
+    float step = d * (m56C * (1.0f + k));
     if (step < 0.034906585f) {
         m14E8 = 1;
     }
@@ -1188,8 +1189,8 @@ void Em206CocoonMp::fn_802BEE44() {
     }
 }
 
-// NONMATCHING: 93.92% - stack slots and float registers; the comparisons of the clamps (MIN/MAX) are
-// reversed and the speed factor is folded
+// NONMATCHING: 95.4% - stack slots and one saved GPR more in the original (the clamps are written as ifs on
+// the variables, as the original compares them in place)
 // inferred: state 14 (turns towards the target while rolling, slower when the turn is wide); after 30
 // frames, when the target is ahead (or after 90 frames), jumps to the route point 500 (state 16) after
 // 1200 frames of ice mode, otherwise rolls again (state 13)
@@ -1210,16 +1211,31 @@ void Em206CocoonMp::fn_802BF5C0() {
     float turn = 0.01f;
     float d = atn::WrapAngle_unk(goal.y - rot.y);
     float t = lbl_8087EFA8->m3A4 * mMotion.m350;
-    rot.y += d * (0.1f * (1.0f + 0.75f * atn::Abs_unk(d / 3.1415927f)));
+    float k = 0.75f * atn::Abs_unk(d / 3.1415927f);
+    float step = d * (0.1f * (1.0f + k));
+    rot.y += step;
     m570 *= 0.0085f;
     if (m570 < 0.001f) {
         m570 = 0.0f;
     }
-    float accel = MIN(speed, 1.0f) * (turn * t);
-    float wide = m570 < 0.5f ? 0.0f : 0.25f;
-    float over = MAX(atn::Abs_unk(d / 3.1415927f) - wide, 0.0f);
-    accel = MAX(accel * (1.0f - 1.5f * (over / (1.0f - wide))), 0.0f);
-    m570 += 0.26f * accel - 0.125f * m570;
+    if (speed > 1.0f) {
+        speed = 1.0f;
+    }
+    turn *= t;
+    speed *= turn;
+    float wide = 0.25f;
+    if (m570 < 0.5f) {
+        wide = 0.0f;
+    }
+    float over = atn::Abs_unk(d / 3.1415927f) - wide;
+    if (over < 0.0f) {
+        over = 0.0f;
+    }
+    speed *= 1.0f - 1.5f * (over / (1.0f - wide));
+    if (speed < 0.0f) {
+        speed = 0.0f;
+    }
+    m570 += 0.26f * speed - 0.125f * m570;
     m574.LengthSq_unk();
     m574.x -= m574.x * MIN(1.0f, 0.04f * t);
     m574.z -= m574.z * MIN(1.0f, 0.04f * t);
