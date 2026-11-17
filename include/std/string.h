@@ -144,12 +144,17 @@ public:
         }
     }
 
-    // inferred: inlined at 0x80476220: two short strings are copied word by word
+    // inferred: inlined at 0x80476220: two short strings are copied word by word. The copy and the
+    // size go through a reference to *this and the long flag is tested once (boost::tokenizer::assign
+    // 0x8020A5D4 stores through the addi'd address of the second string; atn::AudioDevice fn_80046EE0
+    // reuses the flag)
     basic_string& operator=(const basic_string& str) {
-        if (!is_long() && !str.is_long()) {
-            mRaw = str.mRaw;
+        basic_string& self = *this;
+        bool lng = self.is_long();
+        if (!lng && !str.is_long()) {
+            self.mRaw = str.mRaw;
         } else {
-            size_type sz = is_long() ? mLong.mSize : (mShort.mSize & 0x7F);
+            size_type sz = lng ? self.mLong.mSize : (self.mShort.mSize & 0x7F);
             const T* p;
             size_type n;
             if (!str.is_long()) {
