@@ -17,8 +17,12 @@ Inicio: 2026-11-17 04:16 CET. Tope: 06:46.
 | ActionEffectPlay `ActionCheck::vf08` | 94,05 % | sin cambio |
 | Manager 0x8048871C (fuera de la cola, misma familia) | 98,61 % | 99,70 % (orden de la suma de m1F58; quedan r23/r24) |
 | Dialog 0x802292AC (fuera de la cola, misma familia) | 90,99 % | 91,79 % (orden del `.rodata`; planificacion de floats) |
+| Node 0x8053A168 `MslMedian3_unk<MslIter_unk<ActionKey_unk>>` (familia) | 56,17 % | **100 %** |
+| Node 0x805393F8 `Action::fn_805393F8` | 96,93 % | 99,85 % (registros de mSize/mCap del push_back y huecos de la realloc) |
+| Node 0x80539870 / 0x80539CEC `MslSort_unk<...ActionKey_unk...>` | 78,97 % | 94,86 / 94,65 % (first/last en registros: cabecera game/MslSort_unk.h, no tocada) |
+| Node 0x805377F0 `Action::fn_805377F0` | 94,52 % | 97,09 % |
 
-Funciones al 100 %: 4 (Sequence). Unidades que enlazan: ninguna nueva.
+Funciones al 100 %: 5 (4 de Sequence + MslMedian3 de Node). Unidades que enlazan: ninguna nueva.
 
 ## Para el port
 - Sequence.cpp: instanciacion explicita `template std::string::basic_string(const std::string&, size_type, size_type);`
@@ -31,7 +35,16 @@ Funciones al 100 %: 4 (Sequence). Unidades que enlazan: ninguna nueva.
   `EventCamera_unk::fn_80112918` es `(int, int, int)` (el llamador pasa los dos primeros sin `extsh`; la funcion
   hace `sth`): con `int` desaparecen los dos `extsh` del original.
 
+- include/Event/Action.h: `Event::ActionKey_unk` tiene ctor por defecto vacio (`inline ActionKey_unk();`, definido en
+  Event/Node.cpp y Event/EventParser_unk.cpp): deja de ser POD (las copias del sort van miembro a miembro). Sin
+  cambio de comportamiento; para el port basta con un ctor vacio en la cabecera.
+- Para quien enlace Event/Sequence: la instanciacion explicita marca la copia debil del ctor de subcadena como
+  "force active" (trucos-mwcc, enlazar-20261115): comprobar que el enlazador no la deja en el .dol.
+
 ## Decisiones tomadas sin el usuario
+- ctor de `ActionKey_unk` declarado `inline` en la cabecera y definido en los dos .cpp que construyen claves (como
+  `Sequence::FindCutByIndex_unk`): con el cuerpo en Event/Action.h se renumeran los `@N` de 15 unidades de Event
+  (incluidas las Behavior* enlazadas).
 - Dialog `ResetPos_unk`: `y` antes que `x` (las dos formas son equivalentes; con `x` primero el cambio de orden del
   `.rodata` bajaba fn_802292AC de 90,99 a 89,60 por la planificacion; con `y` primero sube a 91,79).
 
@@ -54,6 +67,13 @@ Funciones al 100 %: 4 (Sequence). Unidades que enlazan: ninguna nueva.
 - Etiquetas `lbl_` del propio split que `pairdata` no empareja por ambiguedad (`lbl_X: ambiguous [...]`): renombrar a
   mano por direccion (`pdfix.py`) tras comparar valores y desplazamientos (`/home/claude/scratch-W3b/bin/sd2.py`)
   (escribir-20261116 qW3b).
+
+- Un ctor por defecto vacio en un struct de floats (sin tocar la copia) hace que MWCC copie los temporales del swap
+  del sort miembro a miembro con `lfs`/`stfs` y que push_back siga por el camino POD (copia trivial): Event/Node
+  `MslMedian3_unk<ActionKey_unk>` 56 -> 100 %; con el ctor de copia explicito ademas, push_back toma el camino no POD
+  y baja (escribir-20261116 qW3b).
+- Un ctor (aunque vacio y sin parametros) definido en una cabecera renumera los `@N` de todas las unidades que la
+  incluyen: declararlo `inline` alli y definirlo en los .cpp que lo usan (escribir-20261116 qW3b).
 
 ## Bloqueos
 - Event/Sequence `construct<EffectEntry24_unk>` 0x80542684, `__ct__IntVector_unk`/`__ct__EquipList_unk` (88,7), y
