@@ -21,6 +21,7 @@ Inicio: 2026-11-17 02:08 (CET). Tope: 04:38.
 | game/Em203GreaterDaemon vf10 (boolscan/latescan) | 96,51 | 97,21 (3a55bb7) |
 | game/Em203GreaterDaemonRed vfEC (latescan) | 89,96 | 95,66 (cc10c1b) |
 | chr/ControlDropDown vf0C (latescan) | 98,2 | 98,69 (f19bec7) |
+| chr/ControlLadder vf14 (latescan) | 96,15 | 97,77 (ControlLadder commit) |
 
 ## Resumen
 
@@ -28,7 +29,7 @@ Funciones al 100 %: ninguna nueva (15892 igual que $REF). Unidades que enlazan: 
 estan en registros/planificacion muy probados; las mejoras vienen de tres trucos (inline bool en el `if`,
 frame leido antes de la llamada con `GetMotionFrame`, orden de campos), aplicados tambien a unidades a 1-2 de
 enlazar encontradas con los escaneos (`boolscan.py`, `latescan.py` en `/home/claude/scratch-N/bin/`).
-Commits: 514e0c6, 7afed4c, 76845c1, ee2ead9, 84205c5, 3a55bb7, cc10c1b, f19bec7, c5e843b (+ notas).
+Commits: 514e0c6, 7afed4c, 76845c1, ee2ead9, 84205c5, 3a55bb7, cc10c1b, f19bec7, c5e843b, ControlLadder vf14 (+ notas).
 
 ## Para el port
 - game/FinishCamera_unk fn_803792F0: `++m2F8 >= mEntries.mCount` pasa a `++m2F8 >= (int)mEntries.mCount` (el original
@@ -97,7 +98,7 @@ Commits: 514e0c6, 7afed4c, 76845c1, ee2ead9, 84205c5, 3a55bb7, cc10c1b, f19bec7,
 
 ## Cambios de splits/symbols
 - Solo renumerados `@N` de `pd.sh` (GameOverTask, Cockpit, FinishCamera, DropItem, Em203GreaterDaemon,
-  Em203GreaterDaemonRed, ControlDropDown) y `lblmap.py`/`lblseq.py --apply` en Em203GreaterDaemon(Red);
+  Em203GreaterDaemonRed, ControlDropDown, ControlLadder) y `lblmap.py`/`lblseq.py --apply` en Em203GreaterDaemon(Red);
   `lbl_8088737C`, `lbl_808862C0`, `lbl_808862EC` pasan a `@N` (locales, sin usos `extern`). Splits sin cambios.
 
 ## Scripts (para /home/claude/agentes/bin)
