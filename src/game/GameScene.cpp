@@ -307,11 +307,13 @@ GameScene::~GameScene() {
     }
 }
 
+// NONMATCHING: 99% - saved registers of the loops over the .gs files (r27-r30 in another order)
 int GameScene::vf0C() {
     if (m48 == 0) {
         int ready = 1;
+        atn::LH_Binary* files = m4C;
         for (unsigned int i = 0; i < 3; i++) {
-            if (m4C[i].fn_80473F50()) {
+            if (files[i].fn_80473F50()) {
                 ready = 0;
             }
         }
@@ -324,19 +326,20 @@ int GameScene::vf0C() {
         if (ready) {
             m48++;
             for (unsigned int i = 0; i < 3; i++) {
-                if (m4C[i].fn_80470580() && m4C[i].fn_8047059C()) {
-                    fn_803C3894((const char*)m4C[i].fn_80470580(), m4C[i].fn_8047059C(), i);
+                if (files[i].fn_80470580() && files[i].fn_8047059C()) {
+                    fn_803C3894((const char*)files[i].fn_80470580(), files[i].fn_8047059C(), i);
                 }
             }
             fn_803CAABC();
             for (unsigned int i = 0; i < 3; i++) {
-                m4C[i].fn_80473F88();
+                files[i].fn_80473F88();
             }
             atn::Vector3 pos;
             atn::Vector3 rot;
             fn_8036FE74(lbl_8087F430, &pos, &rot);
             if (lbl_8087FA20 != 0) {
-                lbl_8087FA20->fn_805B7B04(pos);
+                atn::Vector3 start = pos;
+                lbl_8087FA20->fn_805B7B04(start);
             }
             if (lbl_8087F048 != 0) {
                 lbl_8087F048->fn_801027A4(lbl_8087F8A0->mHead);
@@ -367,18 +370,16 @@ int GameScene::vf0C() {
                 m998[5].fn_80470528();
             }
         }
-    } else if (m48 == 1) {
-        if (fn_800D3FA4() && !m11C.fn_803B3CA8() && GameBgm::sInstance->mState != 2) {
-            for (unsigned int i = 0; i < m180.size(); i++) {
-                if (m180[i] >= 0) {
-                    fn_8047E5DC(lbl_8087F540, m180[i]);
-                }
+    } else if (m48 == 1 && fn_800D3FA4() && !m11C.fn_803B3CA8() && GameBgm::sInstance->mState != 2) {
+        for (unsigned int i = 0; i < m180.size(); i++) {
+            if (m180[i] >= 0) {
+                fn_8047E5DC(lbl_8087F540, m180[i]);
             }
-            if (lbl_8087EE78 != 0) {
-                lbl_8087EE78->fn_80043A24();
-            }
-            m48++;
         }
+        if (lbl_8087EE78 != 0) {
+            lbl_8087EE78->fn_80043A24();
+        }
+        m48++;
     } else if (m48 == 2) {
         int done = 1;
         for (unsigned int i = 0; i < m180.size(); i++) {

@@ -18,6 +18,7 @@
 | TutorialTask::fn_805BB654 (csv de las paginas) | 83,7 % (escrita desde m2c, sin pasar a minusculas) | equivalente NONMATCHING 90,4 % |
 | TutorialTask::fn_805BA354 (inicio) | 92,4 % | **100 %** |
 | GameScene::fn_803C0F48 (warp) | 93,2 % | equivalente NONMATCHING 99 % (registros) |
+| GameScene::vf0C (carga) | 89,9 % | equivalente NONMATCHING 99 % (registros) |
 | TutorialTask::fn_805BC1C0 (camara libre) | equivalente 96,3 % | equivalente NONMATCHING 99 % (registros) |
 
 ## Para el port
@@ -49,6 +50,7 @@
 - Condicion `a == "x" && f() != 0` con temporales `std::string` que se destruyen antes del if: el original la guarda en un `bool` (`bool ok = ... && ...; if (ok)`), sin un segundo flag (TutorialPopup fn_805BCF04 90 -> 98,5 %). (escribir-20261116 qW1b)
 - Copia implicita grande (`mCamera = *camera`) seguida de una asignacion simple: escribir la simple antes (`mPage = 0;` delante de la copia) cambia el reparto de registros de toda la funcion (TutorialTask fn_805BA354 92 -> 100 %). (escribir-20261116 qW1b)
 - Vector temporal construido y copiado (`dir = Vector3(0, 0, 1)` con psq_l/psq_st desde la pila): declarar sin inicializar y asignar; y un componente de un local ya cargado (`rot.y`) en vez de releer el miembro (GameScene fn_803C0F48 93 -> 99 %). (escribir-20261116 qW1b)
+- Varios bucles sobre el mismo array miembro con un puntero base comun en r27 (`atn::LH_Binary* files = m4C;` y `files[i]`), y argumento `T&` que el original pasa como copia en la pila: local con nombre `atn::Vector3 start = pos;` (GameScene vf0C 89,9 -> 96,7 -> 98,6 %). `else if (a == 1 && cond)` en vez de `else if (a == 1) { if (cond) ... }` cuando el original relee `a` para el `else if (a == 2)` (-> 99 %). (escribir-20261116 qW1b)
 
 ## Bloqueos
 - GameChoiceWindow fn_803B6970/fn_803B6E04/vf10: el original deja materializados los tres bool anidados de HasVoice_unk (r28/r29/r30); probadas las inlines con `return a && b;` (sin cambio).
