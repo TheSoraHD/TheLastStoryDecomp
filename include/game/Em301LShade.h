@@ -132,7 +132,7 @@ public:
     void fn_802D5020();
     void fn_802D5674(int count);
     void fn_802D57B8(); // inferred: starts state 2 (dead)
-    int fn_802D5D18(int kind);
+    void fn_802D5D18(int kind);
     int fn_802D6004();
     void fn_802D67F8(int index);
     int fn_802D7058(); // inferred: nonzero when no party member is held
