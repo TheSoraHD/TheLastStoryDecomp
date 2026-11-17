@@ -240,37 +240,32 @@ inline void RotateAxis_unk(atn::Matrix3x4* mtx, int axis, float angle) {
     }
     }
 }
-inline void AxisMtx_unk(atn::Matrix3x4& r, int axis, float angle) {
+// inferred: rotation matrix around an axis (0-2 x/y/z, 3-5 negated, else identity); returns the matrix
+// on every path (the original sets the PSMTXConcat argument in each case). Name invented.
+inline MtxPtr AxisMtx_unk(atn::Matrix3x4& r, int axis, float angle) {
     switch (axis) {
     case 0:
         PSMTXRotRad(r.m, 'x', angle);
-        break;
+        return r.m;
     case 1:
         PSMTXRotRad(r.m, 'y', angle);
-        break;
+        return r.m;
     case 2:
         PSMTXRotRad(r.m, 'z', angle);
-        break;
+        return r.m;
     case 3:
         PSMTXRotRad(r.m, 'x', -angle);
-        break;
+        return r.m;
     case 4:
         PSMTXRotRad(r.m, 'y', -angle);
-        break;
+        return r.m;
     case 5:
         PSMTXRotRad(r.m, 'z', -angle);
-        break;
+        return r.m;
     default:
         r.SetIdentity();
-        break;
+        return r.m;
     }
-}
-inline void RotateAxis2_unk(atn::Matrix3x4* mtx, int axis, float angle) {
-    atn::Matrix3x4 r;
-    AxisMtx_unk(r, axis, angle);
-    atn::Matrix3x4 t;
-    PSMTXConcat(mtx->m, r.m, t.m);
-    *mtx = t;
 }
 // inferred: level of detail of a model, keeping the previous one (name invented)
 inline void SetLod_unk(atn::Model* model, int lod) {
@@ -361,7 +356,6 @@ void SwingObject::vf10() {
     }
 }
 
-// NONMATCHING: 95.32% - register allocation in the inlined matrix code
 void SwingObject::fn_803FEF78(atn::Matrix3x4* mtx, const atn::NodeChunk& node) {
     if (node.mHash == mCore.mNodes[0]) {
         SwingParam_unk* param = mCore.mCur;
@@ -370,10 +364,25 @@ void SwingObject::fn_803FEF78(atn::Matrix3x4* mtx, const atn::NodeChunk& node) {
         } else if (param->mWindVec < 0.0f) {
             RotateAxis_unk(mtx, mCore.mAxis1, mCore.mAngle0);
         }
-        RotateAxis2_unk(mtx, mCore.mAxis1, -mCore.mAngle1);
+        // inferred: the matrices of the three rotations are locals of this function (an inline places
+        // them below those of RotateAxis_unk), t declared before r
+        atn::Matrix3x4 t;
+        atn::Matrix3x4 r;
+        PSMTXConcat(mtx->m, AxisMtx_unk(r, mCore.mAxis1, -mCore.mAngle1), t.m);
+        *mtx = t;
     } else {
-        RotateAxis2_unk(mtx, mCore.mAxis1, -mCore.mAngle2);
-        RotateAxis2_unk(mtx, mCore.mAxis2, -mCore.mTwistAngle);
+        {
+            atn::Matrix3x4 t;
+            atn::Matrix3x4 r;
+            PSMTXConcat(mtx->m, AxisMtx_unk(r, mCore.mAxis1, -mCore.mAngle2), t.m);
+            *mtx = t;
+        }
+        {
+            atn::Matrix3x4 t;
+            atn::Matrix3x4 r;
+            PSMTXConcat(mtx->m, AxisMtx_unk(r, mCore.mAxis2, -mCore.mTwistAngle), t.m);
+            *mtx = t;
+        }
     }
 }
 
