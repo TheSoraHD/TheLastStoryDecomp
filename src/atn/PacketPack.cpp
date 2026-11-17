@@ -1625,7 +1625,7 @@ extern "C" __declspec(noinline) inline PPCharaInfo_unk* fn_804D8078(PPCharaInfo_
 }
 extern "C" void fn_804D00B8(int index, int value);
 struct PPRequests_unk;
-extern "C" int fn_804F5A98(PPRequests_unk* queue, unsigned char a, int b, unsigned char c);
+extern "C" bool fn_804F5A98(PPRequests_unk* queue, unsigned char a, int b, unsigned char c);
 extern "C" void fn_804F5FCC(PPRequests_unk* queue);
 extern "C" int fn_804F5E38(PPRequests_unk* queue, unsigned int id);
 extern "C" int fn_804F5C9C(PPRequests_unk* queue, unsigned int id);
@@ -4068,6 +4068,11 @@ extern "C" int rand();
 extern "C" void fn_800CB518(atn::SoundRef* sound, int frames); // inferred: fades the sound in
 // inferred: sounds of the start of the count down (one of them at random)
 // inferred: voices said at random during the game (fn_804E5BC4)
+// inferred: voices said when a character is knocked down (fn_804EB934)
+const char* lbl_80790FF0[10] = {
+    "VO_ARCOM_010", "VO_ARCOM_020", "VO_ARCOM_030", "VO_ARCOM_040", "VO_ARCOM_050",
+    "VO_ARCOM_060", "VO_ARCOM_070", "VO_ARCOM_071", "VO_ARCOM_080", "VO_ARCOM_090",
+};
 const char* lbl_80791018[36] = {
     "VO_AR001_040", "VO_AR001_050", "VO_AR001_100", "VO_AR001_120", "VO_AR001_150", "VO_AR001_160",
     "VO_AR001_170", "VO_AR001_180", "VO_AR001_200", "VO_AR001_230", "VO_AR002_020", "VO_AR002_040",
@@ -4239,8 +4244,9 @@ extern "C" void fn_804DB1C4(PPManager2_unk* mgr, CharaTask* chara, int points) {
                 if (old != now) {
                     PopupTask* popup = lbl_8087F8A8;
                     if (popup != 0) {
-                        atn::Vector3 pos = player->mRef.mChara->vf58();
-                        popup->fn_8054D794(8, L"", &pos, now - old, 0, 1, 0, 0, 0, 1, -1, -1);
+                        // inferred: the address of the returned position is passed as is (MWCC accepts it): with a
+                        // named local the function is not auto-inlined by fn_804E4EB0, fn_804EB934 and fn_804F3EEC
+                        popup->fn_8054D794(8, L"", &player->mRef.mChara->vf58(), now - old, 0, 1, 0, 0, 0, 1, -1, -1);
                     }
                 }
             }
@@ -5923,9 +5929,8 @@ struct PPMsgDown_unk {
     unsigned char mDown;
     unsigned char mValue;
 };
-// NONMATCHING: 85.2% - the original inlines fn_804DB1C4 (the score change and its popup; its L"" stays in
-// @wstringBase0, so it was auto-inlined: here it is over the budget and called, frame 0xB0 instead of 0xE0), loads
-// m564 twice in the inlined fn_804D64C8 and computes the slot of the team test before the search of the own player
+// NONMATCHING: 98.80% - the original loads m564 twice in the inlined fn_804D64C8 and computes the slot of the team
+// test before the search of the own player
 // inferred: knocked down players (state 0x20) of the own machine (the own slot or the team players of the own
 // player): at the start of the countdown mD38[4] (the respawn time m5C4, a third out of game mode 2) the hit
 // points are restored (out of mode 2 and without m5A8), message 0x103B tells the others, the down count mE4 grows
@@ -7525,6 +7530,438 @@ extern "C" PPPlayer_unk* fn_804EB870(PPManager2_unk* mgr) {
     return 0;
 }
 
+// inferred: character named in a message: kind 1 none, 2 player (network id mIndex), 3 character mIndex of the list;
+// names invented
+struct PPMsgCharaRef_unk {
+    unsigned char mKind;
+    unsigned char mIndex;
+};
+
+// inferred: data of messages 8 and 64 (a hit dealt by another player); names invented
+struct PPMsgHit_unk {
+    int mHitId;              // 0x00: inferred: id of the hit data (fn_80219E6C)
+    atn::Vector3 m04;
+    atn::Vector3 m10;
+    unsigned short mFlag : 1; // 0x1C
+    unsigned short m1C_0 : 7;
+    PPMsgCharaRef_unk mAttacker; // 0x1D
+};
+
+// inferred: data of message 7 (a hit received by a character from another player); names invented
+struct PPMsgDamage_unk {
+    atn::Vector3 m00;     // inferred: direction
+    atn::Vector3 m0C;
+    unsigned int mFlags;  // 0x18
+    int mHitId;           // 0x1C
+    int m20;
+    PPMsgCharaRef_unk mTarget; // 0x24
+};
+
+#include "gmk/DropItem.h"
+// inferred: payload of the message 6 (a message for a gimmick: id and kind of the gimmick, message, sender);
+// names invented
+struct PPMsgGimmick_unk {
+    unsigned int mId;
+    int m04;
+    int m08;
+    unsigned short mKind;
+    unsigned short mType;
+    atn::Vector3 mVec;
+    unsigned char mSender;   // inferred: 1 none, 2 a player (aid in mSenderId), 3 an entry of the character list
+    unsigned char mSenderId;
+    unsigned char m1E;
+};
+
+#include "game/BattleCalc_unk.h"
+#include "game/HitInfo_unk.h"
+extern "C" int fn_8021A684(HitInfo_unk* data); // inferred: db/ParseUtil_unk (kind tests of the hit data)
+static inline int PPTeamSize_unk(PPManager2_unk* mgr, CharaTask* chara);
+// inferred: data of messages 10 and 11 (a hit of a character on another one, computed here; sent as 0x1022 and 0x1021 by fn_804EB934); names invented
+struct PPMsgAttack_unk {
+    int mHitId;                       // 0x00: inferred: hit data (message 10) or item code (message 11)
+    unsigned int mFlags;              // 0x04
+    float mRate;                      // 0x08: inferred: DamageParam_unk::mRate
+    int mCombo;                       // 0x0C: inferred: passed to CharaTask::fn_80150460
+    CharaStatusEntry_unk mEntries[6]; // 0x10: inferred: status effects of the attacker
+    PPMsgCharaRef_unk mAttacker;      // 0x88
+    PPMsgCharaRef_unk mTarget;        // 0x8A
+};
+// inferred: data of the events 6 and 7 of the character listeners (a hit computed by fn_8003F1E4 and
+// fn_8003EA3C), as HitEvent_unk of game/DamageCalc_unk.cpp
+struct HitEvent_unk {
+    CharaTask* mAttacker;
+    CharaTask* mTarget;
+    int mId;
+    unsigned int mFlags;
+    int mFlag31;
+    float mRate;
+};
+// inferred: payload of message 0x1023 (the attack parameters of event 8; 15 bytes on the network); names invented
+struct PPMsgCalc_unk {
+    int mHitId;
+    unsigned int mFlags;
+    unsigned int m08_0 : 4; // inferred: BattleCalcParam_unk::m44
+    unsigned int m08_1 : 4; // inferred: BattleCalcParam_unk::m3C
+    unsigned int m08_2 : 8; // inferred: BattleCalcParam_unk::m40
+    unsigned int m08_3 : 1; // inferred: BattleCalcParam_unk::m48
+    PPMsgCharaRef_unk mAttacker; // 0x0B
+    PPMsgCharaRef_unk mTarget;   // 0x0D
+};
+// inferred: payload of message 0x1031 (a value of event 9 and whether there was one; 5 bytes); names invented
+struct PPMsgValue_unk {
+    int mValue;
+    unsigned char mValid : 1;
+};
+// inferred: data of event 12 (a shot) and its optional target part; names invented
+struct PPEventShotTarget_unk {
+    CharaTask* mChara;
+    float m04[6];
+    int m1C;
+};
+struct PPEventShot_unk {
+    CharaTask* mChara;
+    int m04;
+    atn::Vector3 m08;
+    atn::Vector3 m14;
+    int m20;
+    PPEventShotTarget_unk* m24;
+};
+// inferred: data of message 5 (a bullet shot by another player; sent as 0x1024 by fn_804EB934, 0x26 bytes); names
+// invented
+struct PPMsgShot_unk {
+    int mHitId;           // 0x00
+    atn::Vector3 m04;     // inferred: position
+    atn::Vector3 m10;     // inferred: direction
+    unsigned char m1C[0x20 - 0x1C];
+    unsigned int mFlags;  // 0x20
+    PPMsgCharaRef_unk mShooter; // 0x24
+};
+// inferred: message 5 with a target part (sent as 0x1025, 0x44 bytes); names invented
+struct PPMsgShotTarget_unk {
+    int mHitId;
+    atn::Vector3 m04;
+    atn::Vector3 m10;
+    unsigned char m1C[0x20 - 0x1C];
+    unsigned int mFlags;
+    PPMsgCharaRef_unk mShooter; // 0x24
+    PPMsgCharaRef_unk mTarget;  // 0x26
+    float m28[6];
+    int m40;
+};
+// inferred: data of event 14 (a hit received, sent as message 7) and of event 15 (a hit dealt, sent as message 8
+// or 64); names invented
+struct PPEventDamage_unk {
+    int mHitId;
+    atn::Vector3 m04;
+    atn::Vector3 m10;
+    int m1C;
+    unsigned int m20;
+};
+// NONMATCHING: 96.68% - the halving of the constant 10 (li 10; srawi, as fn_804F3EEC), stack slots of the messages,
+// the status effects copied through the status (base 0x7D4) and reloads of the slot count and of lbl_8087F610
+// inferred: listener of the characters (registered by the constructor of MP::Manager2), only in the game (state 30):
+// 5 a character is knocked down (the countdown of the own side, a quick message, a voice and a sound), 6 and 7 a
+// hit computed here (the score of the one that knocked down a character, fn_804E8BF4, the hate and messages 0x1021
+// and 0x1022), 8 the attack parameters (message 0x1023), 9 a value (message 0x1031), 10 a character of the list
+// (message 0x103F), 11 a message for a gimmick (message 0x1027; a cannonball or a dropped item ask the server
+// first), 12 a shot (messages 0x1024 and 0x1025), 14 a hit received (message 0x102E) and 15 a hit dealt (messages
+// 0x102F and 0x1049)
+extern "C" void fn_804EB934(int id, CharaTask* chara, void* arg) {
+    PPManager2_unk* mgr = (PPManager2_unk*)lbl_8087F610;
+    if (mgr->mState != 30) {
+        return;
+    }
+    switch (id) {
+    case 5: {
+        PPPlayer_unk* player = FindByChara_unk(mgr, chara);
+        if (player == 0) {
+            break;
+        }
+        if (player == fn_804DD158(mgr, lbl_8087F628->GetMyAid_unk()) ||
+            IsSameTeam_unk(player, GetMyPlayer_unk()) == 1) {
+            PPManager2_unk* global = (PPManager2_unk*)lbl_8087F610;
+            player->mD38[4] = global->mMode == 2 ? global->m5C4 : global->m5C4 / 3;
+            if (player == GetMyPlayer_unk()) {
+                fn_804E82C4((PPManager2_unk*)lbl_8087F610, ((signed char*)&lbl_8087F628->mFriendList.m7F0[0xB8])[4]);
+            }
+        }
+        if (((PPManager2_unk*)lbl_8087F610)->mMode == 2) {
+            break;
+        }
+        if (lbl_8087F498 != 0 && lbl_8087F498->fn_803EBA54() != 0 &&
+            !fn_800CB58C(&((PPManager2_unk*)lbl_8087F610)->m2B74)) {
+            GameVoice* voice = lbl_8087F498;
+            ((PPManager2_unk*)lbl_8087F610)->m2B74 =
+                voice->fn_803E9608(lbl_80790FF0[(unsigned int)rand() % 10], 0, 1, 1.0f);
+        }
+        fn_800CB5C8(&((PPManager2_unk*)lbl_8087F610)->m2B78, 15, 0);
+        ((PPManager2_unk*)lbl_8087F610)->m2B78 = fn_800C31F4(lbl_807910A8[rand() & 1], 0, -1, 1.0f);
+        fn_800CB518(&((PPManager2_unk*)lbl_8087F610)->m2B78, 10);
+        break;
+    }
+    case 6:
+    case 7: {
+        HitEvent_unk* ev = (HitEvent_unk*)arg;
+        if (ev->mFlag31 != 0) {
+            PPPlayer_unk* own = fn_804DD158(mgr, lbl_8087F628->GetMyAid_unk());
+            for (int i = 0; i < (int)mgr->mPlayers.size(); i++) {
+                PPPlayer_unk* player = PPSlot_unk(mgr, i);
+                if (player->mRef.mChara == 0) {
+                    continue;
+                }
+                if (player->mFlags.m30 != 1 &&
+                    !IsSameTeam_unk(&mgr->mPlayers[i], fn_804DD158(mgr, lbl_8087F628->GetMyAid_unk()))) {
+                    continue;
+                }
+                if (player->mRef.mChara != ev->mAttacker || ev->mAttacker == 0) {
+                    continue;
+                }
+                if (ev->mAttacker->fn_8016F3D0(ev->mTarget, 1)) {
+                    continue;
+                }
+                mgr = (PPManager2_unk*)lbl_8087F610;
+                int points = 10;
+                if (IsTeamPlayer_unk(FindByChara_unk(mgr, ev->mTarget))) {
+                    points >>= 1;
+                }
+                bool last = !(GetRemain_unk(mgr) < 0);
+                if (last) {
+                    last = GetRemain_unk(mgr) < 60;
+                }
+                if (last) {
+                    points <<= 1;
+                }
+                int more = PPTeamSize_unk((PPManager2_unk*)lbl_8087F610, ev->mTarget) -
+                                   PPTeamSize_unk((PPManager2_unk*)lbl_8087F610, ev->mAttacker) >
+                               0
+                               ? PPTeamSize_unk((PPManager2_unk*)lbl_8087F610, ev->mTarget) -
+                                     PPTeamSize_unk((PPManager2_unk*)lbl_8087F610, ev->mAttacker)
+                               : 0;
+                int old = player->mDCScore;
+                fn_804DB1C4((PPManager2_unk*)lbl_8087F610, player->mRef.mChara, points + more * 5);
+                if (old < player->mDCScore) {
+                    player->mE0++;
+                }
+                if (player == own) {
+                    fn_804E82C4((PPManager2_unk*)lbl_8087F610,
+                                ((signed char*)&lbl_8087F628->mFriendList.m7F0[0xB8])[3]);
+                }
+                break;
+            }
+            for (int i = 0; i < (int)((PPManager2_unk*)lbl_8087F610)->mPlayers.size(); i++) {
+                PPManager2_unk* list = (PPManager2_unk*)lbl_8087F610;
+                PPPlayer_unk* player = PPSlot_unk(list, i);
+                if (!player->mFlags.mActive || player->mRef.mChara == 0) {
+                    continue;
+                }
+                if (player->mFlags.m30 != 1 &&
+                    !IsSameTeam_unk(&list->mPlayers[i], fn_804DD158(list, lbl_8087F628->GetMyAid_unk()))) {
+                    continue;
+                }
+                if ((player->mRef.mChara == ev->mAttacker || player->mRef.mChara == ev->mTarget) &&
+                    ev->mAttacker != 0 && !ev->mAttacker->fn_8016F3D0(ev->mTarget, 1)) {
+                    fn_804E8BF4((PPManager2_unk*)lbl_8087F610, ev->mAttacker, ev->mTarget);
+                    break;
+                }
+            }
+        }
+        if (lbl_8087F048 != 0 && fn_8021A684(fn_80219E6C(ev->mId))) {
+            lbl_8087F048->fn_80102EAC(ev->mTarget, ev->mAttacker, 90, -1);
+            lbl_8087F048->fn_801031D0(ev->mAttacker, ev->mTarget, 0);
+        }
+        // inferred: the slot of the own player is searched and not used
+        fn_804DD158((PPManager2_unk*)lbl_8087F610, lbl_8087F628->GetMyAid_unk());
+        NetMsgI_unk<PPMsgAttack_unk, 0x8C> msg(0);
+        if (id == 7) {
+            id = 0x1022;
+        } else if (id == 6) {
+            id = 0x1021;
+        }
+        msg.mId = id;
+        PPMsgAttack_unk* data = &msg.mData;
+        data->mHitId = ev->mId;
+        data->mFlags = ev->mFlags | 0x10000000;
+        data->mRate = ev->mRate;
+        data->mCombo = ev->mTarget != 0 ? ev->mTarget->mFE4 : 1;
+        if (ev->mAttacker != 0) {
+            for (unsigned int i = 0; i < ev->mAttacker->mStatus.mEntries.mCount; i++) {
+                data->mEntries[i] = ev->mAttacker->GetStatus_unk()->mEntries[i];
+            }
+        }
+        unsigned short attacker = fn_804EAEE0((PPManager2_unk*)lbl_8087F610, ev->mAttacker) >> 16;
+        data->mAttacker = *(PPMsgCharaRef_unk*)&attacker;
+        unsigned short target = fn_804EAEE0((PPManager2_unk*)lbl_8087F610, ev->mTarget) >> 16;
+        data->mTarget = *(PPMsgCharaRef_unk*)&target;
+        fn_804AE3BC()->fn_8050E094(-1, id, data, 1);
+        break;
+    }
+    case 8: {
+        BattleCalcParam_unk* calc = (BattleCalcParam_unk*)arg;
+        unsigned short attacker = fn_804EAEE0(mgr, (CharaTask*)calc->m00) >> 16;
+        unsigned short target = fn_804EAEE0((PPManager2_unk*)lbl_8087F610, calc->m04) >> 16;
+        NetMsgI_unk<PPMsgCalc_unk, 15> msg(0x1023);
+        PPMsgCalc_unk* data = &msg.mData;
+        data->mHitId = calc->m08->m04;
+        data->mFlags = calc->m94 | 0x10000000;
+        data->m08_0 = calc->m44;
+        data->m08_1 = calc->m3C;
+        data->m08_2 = calc->m40;
+        data->m08_3 = calc->m48;
+        data->mAttacker = *(PPMsgCharaRef_unk*)&attacker;
+        data->mTarget = *(PPMsgCharaRef_unk*)&target;
+        fn_804AE3BC()->fn_8050E094(-1, 0x1023, data, 1);
+        break;
+    }
+    case 9: {
+        NetMsgI_unk<PPMsgValue_unk, 5> msg(0x1031);
+        PPMsgValue_unk* data = &msg.mData;
+        if (arg != 0) {
+            data->mValue = *(int*)arg;
+        }
+        data->mValid = arg != 0;
+        fn_804AE3BC()->fn_8050E094(-1, 0x1031, data, 1);
+        break;
+    }
+    case 10: {
+        NetMsgI_unk<int> msg(0x103F);
+        int* data = &msg.mData;
+        *data = -1;
+        PPManager2_unk* list = (PPManager2_unk*)lbl_8087F610;
+        for (unsigned int i = 0; i < list->mCharas.size(); i++) {
+            if (list->mCharas[i].mRef.mChara == (CharaTask*)arg) {
+                *data = i;
+                break;
+            }
+        }
+        if (*data < 0) {
+            break;
+        }
+        fn_804AE3BC()->fn_8050E094(-1, 0x103F, data, 1);
+        break;
+    }
+    case 12: {
+        PPEventShot_unk* ev = (PPEventShot_unk*)arg;
+        if (ev->m24 == 0) {
+            NetMsgI_unk<PPMsgShot_unk, 0x26> msg(0x1024);
+            PPMsgShot_unk* data = &msg.mData;
+            unsigned short shooter = fn_804EAEE0((PPManager2_unk*)lbl_8087F610, ev->mChara) >> 16;
+            data->mShooter = *(PPMsgCharaRef_unk*)&shooter;
+            data->mHitId = ev->m04;
+            data->m04 = ev->m08;
+            data->m10 = ev->m14;
+            data->mFlags = ev->m20;
+            fn_804AE3BC()->fn_8050E094(-1, 0x1024, data, 0);
+        } else {
+            NetMsgI_unk<PPMsgShotTarget_unk, 0x44> msg(0x1025);
+            PPMsgShotTarget_unk* data = &msg.mData;
+            unsigned short shooter = fn_804EAEE0((PPManager2_unk*)lbl_8087F610, ev->mChara) >> 16;
+            data->mShooter = *(PPMsgCharaRef_unk*)&shooter;
+            data->mHitId = ev->m04;
+            data->m04 = ev->m08;
+            data->m10 = ev->m14;
+            data->mFlags = ev->m20;
+            unsigned short target = fn_804EAEE0((PPManager2_unk*)lbl_8087F610, ev->m24->mChara) >> 16;
+            data->mTarget = *(PPMsgCharaRef_unk*)&target;
+            data->m28[0] = ev->m24->m04[0];
+            data->m28[1] = ev->m24->m04[1];
+            data->m28[2] = ev->m24->m04[2];
+            data->m28[3] = ev->m24->m04[3];
+            data->m28[4] = ev->m24->m04[4];
+            data->m28[5] = ev->m24->m04[5];
+            data->m40 = ev->m24->m1C;
+            fn_804AE3BC()->fn_8050E094(-1, 0x1025, data, 0);
+        }
+        break;
+    }
+    case 14: {
+        PPEventDamage_unk* ev = (PPEventDamage_unk*)arg;
+        NetMsgI_unk<PPMsgDamage_unk, 0x26> msg(0x102E);
+        PPMsgDamage_unk* data = &msg.mData;
+        unsigned short target = fn_804EAEE0((PPManager2_unk*)lbl_8087F610, chara) >> 16;
+        data->mTarget = *(PPMsgCharaRef_unk*)&target;
+        data->mHitId = ev->mHitId;
+        data->m00 = ev->m04;
+        data->m0C = ev->m10;
+        data->m20 = ev->m1C;
+        data->mFlags = ev->m20 | 0x10000000;
+        fn_804AE3BC()->fn_8050E094(-1, 0x102E, data, 0);
+        break;
+    }
+    case 15: {
+        PPEventDamage_unk* ev = (PPEventDamage_unk*)arg;
+        int big = 0;
+        HitInfo_unk* hit = fn_80219E6C(ev->mHitId);
+        if (hit != 0) {
+            if ((hit->m01 != 1 && hit->m01 != 0) || hit->m6C > 0 || hit->m70 > 0) {
+                big = 1;
+            }
+        }
+        int msgId = 0x102F;
+        if (big == 1) {
+            msgId = 0x1049;
+        }
+        NetMsgI_unk<PPMsgHit_unk, 0x1F> msg(msgId);
+        PPMsgHit_unk* data = &msg.mData;
+        unsigned short attacker = fn_804EAEE0((PPManager2_unk*)lbl_8087F610, chara) >> 16;
+        data->mAttacker = *(PPMsgCharaRef_unk*)&attacker;
+        data->mHitId = ev->mHitId;
+        data->m04 = ev->m04;
+        data->m10 = ev->m10;
+        data->mFlag = ev->m1C;
+        fn_804AE3BC()->fn_8050E094(-1, msgId, data, big);
+        break;
+    }
+    case 11: {
+        GimmickCommon* gimmick = (GimmickCommon*)chara;
+        GimmickMsg_unk* ev = (GimmickMsg_unk*)arg;
+        NetMsgI_unk<PPMsgGimmick_unk, 0x1F> msg(0x1027);
+        PPMsgGimmick_unk* data = &msg.mData;
+        data->mId = gimmick->mId;
+        data->mKind = gimmick->m4C;
+        data->mType = ev->mType;
+        data->m04 = ev->m04;
+        data->m08 = ev->m08;
+        data->mVec = ev->mVec;
+        unsigned short sender = fn_804EAEE0((PPManager2_unk*)lbl_8087F610, (CharaTask*)ev->m10) >> 16;
+        *(PPMsgCharaRef_unk*)&data->mSender = *(PPMsgCharaRef_unk*)&sender;
+        if (gimmick->m50 == 0x12 && ev->mType == 5) {
+            if (IsServer_unk() == 1) {
+                ((gmk::DropItem*)gimmick)->m2A0 = -2;
+                fn_804AE3BC()->fn_8050E094(-1, 0x1027, data, 1);
+            } else {
+                data->m1E = GetMyPlayer_unk()->m0D52++;
+                if (fn_804F5A98((PPRequests_unk*)lbl_8087F610, lbl_8087F628->GetServerAid_unk(), 150, data->m1E) ==
+                    1) {
+                    ((gmk::DropItem*)gimmick)->m2A0 = data->m1E;
+                    fn_804AE3BC()->fn_8050E094(-1, 0x1027, data, 1);
+                    fn_804AE3BC()->fn_8050DDDC(lbl_8087F628->GetServerAid_unk(), 1);
+                }
+            }
+        } else if (gimmick->m50 == 7) {
+            gmk::Cannonball* cannon = (gmk::Cannonball*)gimmick;
+            if (IsServer_unk() == 1) {
+                cannon->m524 = -2;
+                if (ev->mType == 3 && ev->m08 == -1 && cannon->m520 == lbl_8087F628->GetMyAid_unk()) {
+                    cannon->m520 = 0xFF;
+                }
+                fn_804AE3BC()->fn_8050E094(-1, 0x1027, data, 1);
+            } else {
+                data->m1E = GetMyPlayer_unk()->m0D52++;
+                if (fn_804F5A98((PPRequests_unk*)lbl_8087F610, lbl_8087F628->GetServerAid_unk(), 150, data->m1E) ==
+                    1) {
+                    cannon->m524 = data->m1E;
+                    fn_804AE3BC()->fn_8050E094(-1, 0x1027, data, 1);
+                    fn_804AE3BC()->fn_8050DDDC(lbl_8087F628->GetServerAid_unk(), 1);
+                }
+            }
+        } else {
+            fn_804AE3BC()->fn_8050E094(-1, 0x1027, data, 1);
+        }
+        break;
+    }
+    }
+}
+
 extern "C" int lbl_8087F604; // inferred: magic of the data of fn_804ED768 (defined at the end)
 
 // inferred: one entry of the data of fn_804ED768 (a kind and a value; -1/0 when unused)
@@ -8025,22 +8462,6 @@ inline void NotifyListeners_unk(CharaListeners_unk* listeners, int id, void* cha
 #include "game/BattleTask.h"
 extern "C" BattleTask* lbl_8087F048; // inferred: battle manager (as game/BattleCharaTask.cpp)
 
-// inferred: character named in a message: kind 1 none, 2 player (network id mIndex), 3 character mIndex of the list;
-// names invented
-struct PPMsgCharaRef_unk {
-    unsigned char mKind;
-    unsigned char mIndex;
-};
-
-// inferred: data of messages 8 and 64 (a hit dealt by another player); names invented
-struct PPMsgHit_unk {
-    int mHitId;              // 0x00: inferred: id of the hit data (fn_80219E6C)
-    atn::Vector3 m04;
-    atn::Vector3 m10;
-    unsigned short mFlag : 1; // 0x1C
-    unsigned short m1C_0 : 7;
-    PPMsgCharaRef_unk mAttacker; // 0x1D
-};
 
 // inferred: character of a reference of a message (name invented)
 static inline CharaTask* GetHitAttacker_unk(PPManager2_unk* mgr, const PPMsgCharaRef_unk* data) {
@@ -8066,15 +8487,6 @@ static inline CharaTask* GetHitAttacker_unk(PPManager2_unk* mgr, const PPMsgChar
 
 #include "game/Bullet.h"
 extern "C" int fn_800EFD04(int id); // inferred: effect resources of a bullet (as gmk/BulletPoint.cpp)
-// inferred: data of message 5 (a bullet shot by another player); names invented
-struct PPMsgShot_unk {
-    int mHitId;           // 0x00
-    atn::Vector3 m04;     // inferred: position
-    atn::Vector3 m10;     // inferred: direction
-    unsigned char m1C[0x20 - 0x1C];
-    unsigned int mFlags;  // 0x20
-    PPMsgCharaRef_unk mShooter; // 0x24
-};
 
 
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
@@ -8291,20 +8703,6 @@ extern "C" void fn_804EED7C() {
     }
 }
 
-#include "gmk/DropItem.h"
-// inferred: payload of the message 6 (a message for a gimmick: id and kind of the gimmick, message, sender);
-// names invented
-struct PPMsgGimmick_unk {
-    unsigned int mId;
-    int m04;
-    int m08;
-    unsigned short mKind;
-    unsigned short mType;
-    atn::Vector3 mVec;
-    unsigned char mSender;   // inferred: 1 none, 2 a player (aid in mSenderId), 3 an entry of the character list
-    unsigned char mSenderId;
-    unsigned char m1E;
-};
 // inferred: payload of the answer 0x1035 to a message 6 (the byte m1E and the gimmick taken, -1 when it was taken
 // already); not padded on the network
 #pragma pack(push, 1) // inferred: network payload without padding
@@ -8492,15 +8890,6 @@ extern "C" void fn_804EF0F0(unsigned int aid) {
 }
 
 
-// inferred: data of message 7 (a hit received by a character from another player); names invented
-struct PPMsgDamage_unk {
-    atn::Vector3 m00;     // inferred: direction
-    atn::Vector3 m0C;
-    unsigned int mFlags;  // 0x18
-    int mHitId;           // 0x1C
-    int m20;
-    PPMsgCharaRef_unk mTarget; // 0x24
-};
 
 // NONMATCHING: 99.40% - base of the inlined player search (the original loads the character with lwzx base, offset)
 // inferred: message 7: hit received by a character (only in the game, state 30); the listeners are off during the
@@ -8567,9 +8956,6 @@ extern "C" void fn_804EFE98(PPPlayer_unk* player) {
     }
 }
 
-#include "game/BattleCalc_unk.h"
-#include "game/HitInfo_unk.h"
-extern "C" int fn_8021A684(HitInfo_unk* data); // inferred: db/ParseUtil_unk (kind tests of the hit data)
 extern "C" int fn_8021A77C(HitInfo_unk* data);
 extern "C" bool fn_8021A8D0(HitInfo_unk* data);
 extern "C" __declspec(noinline) int fn_804F1060();
@@ -8600,16 +8986,6 @@ inline void MakeRotZYX_unk(atn::Matrix3x4* p, const atn::Vector3& rot) {
         atn::Matrix3x4::RotateAxis_unk(*p, 'x', rot.x);
     }
 }
-// inferred: data of messages 10 and 11 (a hit of a character on another one, computed here); names invented
-struct PPMsgAttack_unk {
-    int mHitId;                       // 0x00: inferred: hit data (message 10) or item code (message 11)
-    unsigned int mFlags;              // 0x04
-    float mRate;                      // 0x08: inferred: DamageParam_unk::mRate
-    int mCombo;                       // 0x0C: inferred: passed to CharaTask::fn_80150460
-    CharaStatusEntry_unk mEntries[6]; // 0x10: inferred: status effects of the attacker
-    PPMsgCharaRef_unk mAttacker;      // 0x88
-    PPMsgCharaRef_unk mTarget;        // 0x8A
-};
 // NONMATCHING: 99.08% - stack slots of the matrices and vectors, the status effects added through the status
 // (base 0x7D4 in the original) and reloads of lbl_8087F610 in the inlined searches
 // inferred: messages 10 and 11 (only in the game, state 30): a hit of a character on another one. The hate of the
@@ -9503,9 +9879,8 @@ static inline int PPTeamSize_unk(PPManager2_unk* mgr, CharaTask* chara) {
     }
     return n;
 }
-// NONMATCHING: 75.22% - the original inlines fn_804DB1C4 (here called: inlined, its L"" goes to its own .sdata
-// object and moves @wstringBase0, which lowers fn_804FA7C8/88C/8E8 and fn_804FAF48; 93.67% then), does not fold
-// the halving of the constant 10 (li 10; srawi) and reloads lbl_8087F610 and m564
+// NONMATCHING: 93.87% - the original does not fold the halving of the constant 10 (li 10; srawi) and reloads
+// lbl_8087F610 and m564
 // inferred: message 0x34: the player `data[0]` defeated the player `data[1]` (not of its side): 10 points (5 for a
 // team player of a machine, doubled in the last minute) and 5 more for each player that the team of the victim
 // has more; the score of the winner changes (fn_804DB1C4, inlined), m0E0 counts its defeats, and the own player
@@ -9835,17 +10210,17 @@ static inline PPRequest_unk* FindFreeRequest_unk(PPRequests_unk* queue) {
 extern "C" void fn_804F5A94(PPManager2_unk* mgr) {}
 
 // inferred: adds a request (0 when the queue is full)
-extern "C" int fn_804F5A98(PPRequests_unk* queue, unsigned char a, int b, unsigned char c) {
+extern "C" bool fn_804F5A98(PPRequests_unk* queue, unsigned char a, int b, unsigned char c) {
     PPRequest_unk* req = FindFreeRequest_unk(queue);
     if (req == 0) {
-        return 0;
+        return false;
     }
     req->mUsed = 1;
     req->m04 = 0;
     req->m14 = a;
     req->m08 = b;
     req->m15 = c;
-    return 1;
+    return true;
 }
 
 // inferred: ages the requests: after the timer a new request waits 150 more frames, an old one is freed
