@@ -1,4 +1,5 @@
 #include "chr/ControlCliffhang.h"
+#include "math/VecAssign_unk.h"
 #include "game/GameVoice.h"
 #include "game/GameScene.h"
 #include "game/CharaTask.h"
@@ -252,8 +253,20 @@ void ControlCliffhang::fn_801AB6B8(int route, int first, float angle) {
     m08 = m78;
 }
 
-// NONMATCHING: 96.4% - stack slots of the vectors (the original keeps the declaration order
-// differently) and the order of the subtractions of the slope test.
+// inferred: the slope test, the fallback axes, the probe point and the final cross product are
+// temporaries (the named locals get the upper stack slots, the temporaries follow in order)
+// inferred: dot product of two vectors by reference (name invented)
+inline float Dot_unk(const atn::Vector3& a, const atn::Vector3& b) {
+    return PSVECDotProduct(&a, &b);
+}
+
+// inferred: a x b by value (name invented, as in chr/ControlChant.cpp)
+inline atn::Vector3 Cross_unk(const atn::Vector3& a, const atn::Vector3& b) {
+    atn::Vector3 r;
+    PSVECCrossProduct(&a, &b, &r);
+    return r;
+}
+
 int ControlCliffhang::fn_801AB9E4(int route) {
     atn::Vector3 normal;
     CliffTable_unk* table = lbl_8087F430 != 0 ? lbl_8087F430->m10D8 : 0;
@@ -264,8 +277,8 @@ int ControlCliffhang::fn_801AB9E4(int route) {
     if (link == 0) {
         return 0;
     }
-    CliffPoint_unk* a = &table->mPoints[link->mA];
     CliffPoint_unk* b = &table->mPoints[link->mB];
+    CliffPoint_unk* a = &table->mPoints[link->mA];
     m14 = a->mPos;
     m20 = b->mPos;
     m2C = route;
@@ -274,14 +287,14 @@ int ControlCliffhang::fn_801AB9E4(int route) {
     m78 = 0;
     m40 = 1;
     atn::Vector3 up(0.0f, 1.0f, 0.0f);
-    if (b->mPos.y > a->mPos.y) {
-        atn::Vector3 d = (b->mPos - a->mPos).GetNormalize();
-        if (PSVECDotProduct(&up, &d) > 0.70710677f) {
+    const atn::Vector3& pa = a->mPos;
+    const atn::Vector3& pb = b->mPos;
+    if (pb.y > pa.y) {
+        if (Dot_unk(up, (pb - pa).GetNormalize()) > 0.70710677f) {
             m40 = 0;
         }
     } else {
-        atn::Vector3 d = (a->mPos - b->mPos).GetNormalize();
-        if (PSVECDotProduct(&up, &d) > 0.70710677f) {
+        if (Dot_unk(up, (pa - pb).GetNormalize()) > 0.70710677f) {
             m40 = 0;
         }
     }
@@ -291,26 +304,19 @@ int ControlCliffhang::fn_801AB9E4(int route) {
             PSVECNormalize(&dir, &dir);
         }
         atn::Vector3 side;
-        atn::Vector3 axis(0.0f, 1.0f, 0.0f);
-        PSVECCrossProduct(&dir, &axis, &side);
+        PSVECCrossProduct(&dir, &atn::Vector3(0.0f, 1.0f, 0.0f), &side);
         if ((float)__fabs(PSVECSquareMag(&side)) < 1.1920929e-7f) {
-            atn::Vector3 back(0.0f, 0.0f, -1.0f);
-            atn::Vector3 cross;
-            PSVECCrossProduct(&dir, &back, &cross);
-            side = cross;
+            atn::VecAssign_unk(side, Cross_unk(dir, atn::Vector3(0.0f, 0.0f, -1.0f)));
         }
         if (!((float)__fabs(PSVECSquareMag(&side)) < 1.1920929e-7f)) {
             PSVECNormalize(&side, &side);
         }
-        atn::Vector3 to = a->mPos + side * 5.0f;
-        if (fn_8004ECC0(lbl_8087EE98, 0, &a->mPos, &to, 0x80000000, 0, 0) != 0) {
-            normal = side;
+        if (fn_8004ECC0(lbl_8087EE98, 0, &a->mPos, &(a->mPos + side * 5.0f), 0x80000000, 0, 0) != 0) {
+            atn::VecAssign_unk(normal, side);
         } else {
-            normal = atn::Vector3(-side.x, -side.y, -side.z);
+            atn::VecAssign_unk(normal, atn::Vector3(-side.x, -side.y, -side.z));
         }
-        atn::Vector3 c;
-        PSVECCrossProduct(&dir, &normal, &c);
-        if (c.y < 0.0f) {
+        if (Cross_unk(dir, normal).y < 0.0f) {
             m10 = 3;
         } else {
             m10 = 4;
