@@ -226,8 +226,8 @@ ControlGuardMountle::ControlGuardMountle(Chara_unk* chara, const atn::Vector3& d
     model->SetMotionSpeed(0, 1.0f);
 }
 
-// NONMATCHING: 97.2% - register allocation of the fall step (order of the products of move, gravity
-// in f12, chara reload for &mColli, src/dst of the copy of res.m10); ~12 forms tried.
+// inferred: gravity and scale in locals and the collision through GetColli_unk (mixto-20261116 qD/qS);
+// res.m10 copied with __VecCopy (the original computes the source address first)
 int ControlGuardMountle::vf0C() {
     Motion_unk* m = &mChara->mMotion;
     if (m->mTracks[0].m18) {
@@ -257,14 +257,17 @@ int ControlGuardMountle::vf0C() {
         }
         float speed = m->mTracks[0].m0C;
         atn::Vector3 move = m08 * m20 * lbl_8087EFA8->m3A4 * speed;
-        m24 += lbl_8087EFA8->m3A4 * (-98.1f / (lbl_8087F0A8->m30 * lbl_8087F0A8->m30));
+        float scale = lbl_8087EFA8->m3A4;
+        float g = -98.1f / (lbl_8087F0A8->m30 * lbl_8087F0A8->m30);
+        m24 += g * scale;
         move.y = m24 - 1.0f;
         atn::Vector3 old = mChara->mPos;
         CharaTask::Sphere_unk sphere = mChara->fn_80176548(mChara->mPos);
         unsigned int mask = mChara->fn_80179D44();
-        int hit = fn_8004D388(lbl_8087EE98, &res, &sphere, &move, mask, &mChara->mColli, 0, sphere.mRadius);
+        int hit = fn_8004D388(lbl_8087EE98, &res, &sphere, &move, mask, mChara->GetColli_unk(), 0, sphere.mRadius);
         Chara_unk* c = mChara;
-        atn::Vector3 pos = res.m10;
+        atn::Vector3 pos;
+        __VecCopy(&pos.x, &res.m10.x);
         pos -= c->m5A4;
         pos.y -= sphere.mRadius;
         c->mPos = pos;
