@@ -29,6 +29,8 @@ extern "C" MotionBlurParams_unk* lbl_8087EFA8;
 
 
 
+// inferred: scalar lerp (a const float& helper; with plain floats the FPRs of the fade loop differ)
+static inline float Lerp1_unk(const float& a, const float& b, float t) { return t * (b - a) + a; }
 namespace atn {
 
 class PostFxMotionBlur : public IPostFx {
@@ -77,8 +79,8 @@ void PostFxMotionBlur::fn_800AFEBC(int div) {
     }
 }
 
-// NONMATCHING: 99.78% - registers only: the parameter block/flag at the start (r4/r6) and the FPRs of the
-// fade loop (~14 variants)
+// NONMATCHING: 99.90% - registers only: the parameter block/flag at the start (r4/r6 against the hoisted
+// 0x4330 of the conversions); the fade loop matches with Lerp1_unk (const float&) (~25 variants)
 void PostFxMotionBlur::vf10(RenderManager* view) {
     if (mA4 != lbl_8087EFA8->m240) {
         mA4 = lbl_8087EFA8->m240;
@@ -117,13 +119,9 @@ void PostFxMotionBlur::vf10(RenderManager* view) {
         float sum2 = 0.0f;
         for (int i = 0; i < mCount + 1; i++) {
             if (mA4 != 0) {
-                float k = 1.0f - mA8;
-                float t = i == 0 ? 1.0f : 0.0f;
-                weights[i] = k * (weights[i] - t) + t;
+                weights[i] = Lerp1_unk(i == 0 ? 1.0f : 0.0f, weights[i], 1.0f - mA8);
             } else {
-                float k = 1.0f - mA8;
-                float t = i == 0 ? 1.0f : 0.0f;
-                weights[i] = k * (t - weights[i]) + weights[i];
+                weights[i] = Lerp1_unk(weights[i], i == 0 ? 1.0f : 0.0f, 1.0f - mA8);
             }
             sum2 += weights[i];
         }

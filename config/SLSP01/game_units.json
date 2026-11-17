@@ -3342,7 +3342,7 @@
    "LightSet_unk",
    "LightList_unk"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "atn/Light_unk.cpp",
@@ -3499,7 +3499,7 @@
   "classes": [
    "atn::Texture_unk"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "atn/Se_unk.cpp",

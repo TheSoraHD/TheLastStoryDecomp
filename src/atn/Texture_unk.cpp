@@ -70,14 +70,27 @@ int GimmickUvOwner_unk::fn_800D59B8() {
     return 0;
 }
 
-// inferred: allocates a screen sized RGBA8 texture
-// NONMATCHING: 98% - width/height loaded in the opposite order (r29/r30) and the buffer size in r28
-// instead of r31; tried locals, a manager local, an array and the non-inline body (~8 variants).
-// Writing the release body directly in fn_800D5B58 (one inline level less than fn_800D58A4) fixes
-// the r31 of the size (99.83%), but not the load order (tried w/h locals in both orders, a
-// name string, a separate return value, the size inside the call).
+// inferred: allocates a screen sized RGBA8 texture. The original has its own copy of the body of
+// fn_800D5B58 (width/height read first, the release written out, the size inside the call): calling
+// fn_800D5B58 loads the height first and keeps the size in another register (99.69-99.86%).
 extern "C" int fn_800D5A3C(atn::Texture_unk* tex) {
-    return tex->fn_800D5B58(lbl_8087EEE0->mWidth, lbl_8087EEE0->mHeight, 4, 0, 0);
+    int width = lbl_8087EEE0->mWidth;
+    int height = lbl_8087EEE0->mHeight;
+    if (tex->mImage != 0) {
+        tex->m20.fn_80473F88();
+        void* image = tex->mImage;
+        tex->m2C = 0;
+        if (image != 0) {
+            atn::MemoryManager::Instance()->Free(image);
+            tex->mImage = 0;
+        }
+    }
+    tex->m2F = 0;
+    tex->mImage = atn::MemoryManager::Instance()->AllocFromMem2(GXGetTexBufferSize(width, height, 4, 0, 0), 0x20, (MemoryTag)6, "", "", 0, 0);
+    GXInitTexObj(&tex->mObj, tex->mImage, width, height, 4, 0, 0, 0);
+    GXInitTexObjLOD(&tex->mObj, 0, 0, 0.0f, 0.0f, 0.0f, 0, 0, 0);
+    tex->m2C = 1;
+    return 1;
 }
 
 namespace atn {
