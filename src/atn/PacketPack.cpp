@@ -9734,8 +9734,6 @@ extern "C" void fn_804F36F8(PPPlayer_unk* player) {
     }
 }
 
-// NONMATCHING: 97.18% (and 99.51% fn_804F39D4) - in the inlined fn_804DD158 the manager takes r5 and the
-// slot offset r3 (swapped)
 // inferred: message 0x2E: hit (or end of the hit) of skill 0x4FC1 on the character of a player
 extern "C" void fn_804F3880() {
     if (fn_800F7F90()->mState != 30) {
@@ -9743,8 +9741,9 @@ extern "C" void fn_804F3880() {
     }
     const unsigned char* data = (const unsigned char*)fn_804AE3BC()->GetWorkBuffer_unk();
     PPPlayer_unk* player = fn_804DD158(fn_800F7F90(), data[0]);
+    unsigned char on = data[1];
     if (player != 0 && player->mRef.mChara != 0) {
-        if (data[1] != 0) {
+        if (on != 0) {
             player->mD4C |= 0xC00;
             CharaTask* chara = player->mRef.mChara;
             if (chara != 0) {
