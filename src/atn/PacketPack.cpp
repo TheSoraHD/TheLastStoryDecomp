@@ -456,6 +456,9 @@ void fn_804D0164() {
 // over the message id, jumptable_807912DC) ----
 #include "atn/MemoryManager.h"
 #include "atn/net/PacketPack.h"
+// inferred: the messages of the basic_string members are in the string pool of the original (before
+// "CustomData" of __sinit), as game/GimmickManager.cpp
+#include "std/string_members.h"
 #include "MP/PacketPackMP.h"
 #include "MP/CryptMP.h"
 #include "game/HomeButtonMenu.h"
@@ -2063,8 +2066,6 @@ extern "C" __declspec(noinline) inline int fn_804D6664(GameBgm* bgm) {
 extern "C" __declspec(noinline) inline atn::net::NetRanking_unk* fn_804D6680() {
     return lbl_8087F5A4;
 }
-// NONMATCHING: 99.98% - __sinit 0x804FF478: only the offset of "CustomData" in @stringBase0 (the
-// profiler string of fn_804F8464 and the basic_string errors come before it in the original)
 // inferred: magic of the data of fn_804ED768 (hash of its name; first entry of the __sinit 0x804FF478)
 extern "C" int lbl_8087F604 = fn_800DC6B4("CustomData");
 

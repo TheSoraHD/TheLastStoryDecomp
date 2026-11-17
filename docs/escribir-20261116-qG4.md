@@ -7,6 +7,7 @@ Inicio: 2026-11-17 06:06 CET (tope 08:36).
 | funcion | antes | despues |
 |---|---|---|
 | fn_804EE040 | 99,21 % | (en curso) |
+| `__sinit_\PacketPack_cpp` | 99,98 % | 100 % (pool con los mensajes de basic_string) |
 | fn_804D8610 | 99,76 % | 100 % |
 | fn_804DDE34 | 99,78 % | 100 % |
 | fn_804E6518 | 99,84 % | 100 % |
@@ -25,6 +26,10 @@ Inicio: 2026-11-17 06:06 CET (tope 08:36).
   fn_804EF0F0 usa `IsServer_unk() == 1` (antes la comparacion de aids escrita a mano). Mismo comportamiento.
 
 ## Decisiones tomadas sin el usuario
+
+- PacketPack incluye `std/string_members.h` (como GimmickManager/EquipItemData): el `@stringBase0` original tiene los
+  tres mensajes de `basic_string` antes de "CustomData"; con ellos `poolorder` da igual y `__sinit` sale al 100 %.
+  Las copias debiles de los miembros las quita el enlazador.
 
 ## Hallazgos
 
