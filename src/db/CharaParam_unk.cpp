@@ -141,9 +141,8 @@ extern "C" int fn_802098E0(const char* name, const char* const* table, int count
     return 0;
 }
 
-// NONMATCHING (weak copy fn_8020A5D4, tokenizer::assign): 95.93% - the original copies the strings of
-// the separator word 1 first (as basic_string(const basic_string&)); changing operator= in
-// std/string.h fixes it but lowers atn/D2A_Message, so the header is unchanged
+// weak copy fn_8020A5D4 (tokenizer::assign): matches with the copy of the second separator string
+// through a reference to *this in basic_string::operator= (std/string.h)
 typedef boost::tokenizer<boost::char_separator<char> > Tokenizer_unk;
 
 // inferred: loads /boot/chara_param.csv
