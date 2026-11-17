@@ -98,6 +98,18 @@ Funciones al 100 %: 5 (4 de Sequence + MslMedian3 de Node). Unidades que enlazan
   + instanciacion explicita del ctor de subcadena tras la funcion (99,36 -> 99,39), pero sigue el recorrido de los
   huesos por `&model->m384` (FixedArray, ver mixto qR): no commiteado (solo fuzzy).
 
+- Movimiento de los elementos viejos en la realloc de push_back de elementos POD/sin destructor (Puppeteer
+  `push_back<ColorF_unk>` 95,6, Node fn_805393F8, Sequence fn_8054204C): el original convierte `while (last > first)`
+  en bucle contado (`mtctr`/`bdnz`, cuenta `(last - first + size - 1) / size`) y decrementa `last` antes de las
+  cargas; el nuestro deja `cmplw/bgt` y pliega el decremento en los desplazamientos. Mandar los POD por
+  `new (--p) T(*--last)` no lo cambia (ColorF ya va por ahi) y baja fn_805393F8: revertido.
+- Sequence fn_8054136C 99,17: con `Cut* target = cut;` en fn_80541198 (que sigue al 100 %) la rama de etiqueta sale
+  exacta (99,50) pero la de corte sigue con r5/r6 cruzados; no commiteado (solo fuzzy, local de copia).
+- DebugInfo fn_802219CC 88,9: el original evalua `c_str()` antes de los floats; con un local para el texto o la
+  llamada directa a `fn_800616C0` (sin `fn_80221CAC`) sale igual.
+- Node fn_8053A2E8 89,3: el original recarga `mKeys.mData` en la comparacion del bucle y usa la carga inicial para la
+  interpolacion; con la comparacion por una inline `KeyTime_unk(keys, i)` 90,26 (no commiteado).
+
 ## Cambios de splits/symbols
 - symbols.txt: `@N` de Sequence re-emparejados (pd + lblmap); Dialog `lbl_80742E48`/`lbl_80742E88`/`lbl_80742E98` ->
   `@10570`/`@12615`/`@11041` (scope:local); Manager `lbl_80886FBC..FD4` y el segundo `@42245` (0x80886FE0) ->
