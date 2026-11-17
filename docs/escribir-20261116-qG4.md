@@ -18,6 +18,7 @@ Inicio: 2026-11-17 06:06 CET (tope 08:36).
 | fn_804F2450 | 99,00 % | 99,16 % (copias de `m13D8`/`m13E8` con `Assign_unk`) |
 | fn_804DA690 | 96,89 % | 98,58 % (registros: m564 del primer fn_804DB408) |
 | fn_804E82C4 | 95,52 % | 96,0 % (rango de `slot` con el literal a la izquierda) |
+| fn_804D996C | 95,77 % | 99,57 % (llama a fn_804FB470, que el original inlinea) |
 | fn_804EF0F0 | 99,07 % | 99,71 % (queda el `lwzx` del personaje encontrado) |
 
 ## Para el port
@@ -27,6 +28,8 @@ Inicio: 2026-11-17 06:06 CET (tope 08:36).
   `atn::VecAssign_unk`; fn_804EE4F0 y fn_804F2450 copian `m13D8`/`m13E8` con `Assign_unk` (z primero; antes `VecAssign_unk` y `=`);
   fn_804DA690: las tres salidas en un solo `if` con `||`, rangos `0 <= rank && rank < 2`, y el `if (!last)` con los
   objetos 0x1E79.. primero (mismo comportamiento).
+  fn_804D996C llama a `fn_804FB470(mgr, 158, 9)` (antes el cuerpo escrito a mano sin la prueba de m9750; mismo
+  comportamiento: con m9750 = -1 la prueba no cambia nada).
   fn_804EF0F0 usa `IsServer_unk() == 1` (antes la comparacion de aids escrita a mano). Mismo comportamiento.
 
 ## Decisiones tomadas sin el usuario
@@ -54,6 +57,10 @@ Inicio: 2026-11-17 06:06 CET (tope 08:36).
 - `bne; b fin` donde el nuestro tiene `beq fin` (y al reves en el `if` anterior): el ultimo termino de un `||` sale
   invertido con `b`; juntar los `if (...) return;` seguidos en un solo `if` con `||` (fn_804DA690)
   (escribir-20261116 qG4)
+
+- Una prueba de una constante sin plegar (`li r0, -162; cmplwi r0, 1`) delata una funcion inlineada con sus
+  argumentos constantes: buscar la funcion con esa prueba (`(m9750 - 0xA1) <= 1` de fn_804FB470) y llamarla
+  (PacketPack fn_804D996C 95,8 -> 99,6 %) (escribir-20261116 qG4)
 
 ## Bloqueos
 

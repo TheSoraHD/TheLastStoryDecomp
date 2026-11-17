@@ -3932,23 +3932,14 @@ extern "C" void fn_804D97F0(PPManager2_unk* mgr) {
     }
 }
 
-// NONMATCHING: 95.59% - the original keeps an unfolded test of a constant error code (`(unsigned)-162 <= 1`, an
-// inlined mapping to the value 9) and registers
+// NONMATCHING: 99.57% - registers
 // inferred: the server waits until every other player confirmed (m9A14) while the timer m99B8 runs; without time
 // left the room is closed with the error 158 (state 43); a client only marks m9A74[2]
 extern "C" void fn_804D996C(PPManager2_unk* mgr) {
     PPPlayer_unk* own = fn_804DD158(mgr, lbl_8087F628->GetMyAid_unk());
     if (IsServer_unk() == 1) {
         if (mgr->m99B8 <= 0) {
-            int error = 9;
-            if (lbl_8087F628->m25C == 1 && MP::D2AMpMenuFriendRoom::sInstance != 0 &&
-                MP::D2AMpMenuFriendRoom::sInstance->m88 == 8) {
-                MP::D2AMpMenuFriendRoom::sInstance->fn_804BA350(9);
-            }
-            mgr->m9750 = -1;
-            fn_804FB220(&mgr->mStateVar, 43);
-            mgr->m9754 = 158;
-            mgr->m9758 = error;
+            fn_804FB470(mgr, 158, 9);
         } else {
             int ready = 0;
             int count = 0;
