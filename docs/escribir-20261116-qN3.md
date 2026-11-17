@@ -61,6 +61,13 @@ Inicio: 2026-11-17 05:19 CET (tope 07:49). Rama agent-N3.
 - gmk/SwingObject vf6C (fuera de la cola): con la inline del grupo y `param` declarado antes que `group` llega al
   100 % en objdiff, pero el `.sdata2` de la unidad sigue en otro orden (la unidad ya no enlazaba): no
   commiteado para no re-emparejar etiquetas por posicion sobre valores distintos.
+- atn/RenderSetting_unk ctor: las etiquetas de `.sdata2` de symbols.txt estan mal emparejadas (0x80880FE4-0x80881010:
+  `@1561 @1562 @1567 @1564 @1565 @1566 @1567 @1568 ... @1572` repetidas; las nuestras son @1565-@1572, @1576 en orden
+  y con los mismos valores). Renombradas por direccion (pdfix) el ctor baja de 97,1 a 97,03 (las cargas que
+  casaban por nombre falso dejan de casar) y queda el orden de las escrituras de 0x1C8-0x1E0 (antes de cargar las
+  constantes en el original): no commiteado por la bajada de fuzzy. Pendiente: renombrar a la vez que se arregle.
+- chr/ControlCannonLift vf10 (99,26): sin probar nada nuevo (orden de `new` frente a this/resultado).
+- MP/CryptMP vf0C, atn/TextureDraw_unk fn_800D5F68, game/PickTask vf10: solo revisadas (bloqueos conocidos).
 - atn/LipSync_unk fn_8007A530: perm.py de 5 locales: 99,51; `int i` igual; sin `key` 93,6; inline VowelOf_unk 99,14.
 
 ## Para el port
