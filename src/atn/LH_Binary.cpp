@@ -1,6 +1,7 @@
 #include "atn/LH_Binary.h"
 #include "atn/LoadManager.h"
 #include "atn/Loader_unk.h"
+#include "atn/SceneTrack_unk.h"
 
 // inferred: common header of the chunks of a binary resource file (16 bytes). The data of every
 // chunk follows its header and holds offsets from the start of the file, turned into pointers by
@@ -12,11 +13,8 @@ struct BinChunk_unk {
     unsigned int mSize;    // 0x0C: size of the chunk, header included
 };
 
-// inferred: animation track (12 bytes, SceneTrack_unk of include/atn/Light_unk.h)
-struct BinTrack_unk {
-    unsigned char m00[8];
-    void* mKeys; // 0x08
-};
+// inferred: animation track (12 bytes)
+typedef SceneTrack_unk BinTrack_unk;
 
 // inferred: chunk 'anmn': animation node, up to three groups of three tracks
 struct BinAnmNode_unk : BinChunk_unk {
@@ -576,12 +574,117 @@ void* fn_804716B8(Loader_unk* loader, const BinChunk_unk* header, void* data) {
     return (char*)data + header->mSize;
 }
 
-// NONMATCHING: not decompiled - handwritten paired-single assembly (fres, ps_madds0/ps_sum0 with
-// the matrix lbl_8078FBF0 and loads through qr6): inferred hermite interpolation of a track
-extern "C" float fn_80471FD0(float t, float dt, const void* p0, const void* p1, const float* matrix);
+// inferred: hermite basis (h00 h10, h01 h11 by u^3 and u^2): 2u^3 - 3u^2 + 1, u^3 - 2u^2 + u,
+// -2u^3 + 3u^2, u^3 - u^2
+extern "C" float lbl_8078FBF0[8] = {2.0f, 1.0f, -3.0f, -2.0f, -2.0f, 1.0f, 3.0f, -1.0f};
 
-// NONMATCHING: not decompiled - SceneTrack_unk::fn_8047202C (0x8047202C) sets GQR6 (mtspr) and
-// reads the keys with quantized psq_l loads, not expressible without asm.
+// inferred: value of a track key stored as s16 with `scale` fraction bits (the original loads it with
+// psq_l through GQR6, set to s16 with that scale by SceneTrack_unk::fn_8047202C)
+static inline float TrackValue_unk(short value, int scale) {
+    union {
+        unsigned int mBits;
+        float mFloat;
+    } step;
+    step.mBits = (127 - scale) << 23;
+    return value * step.mFloat;
+}
+
+// inferred: key of a linear track (type 3)
+struct TrackKeyLinear_unk {
+    short mFrame;
+    short mValue;
+};
+
+// inferred: key of a hermite track (types other than 0, 3 and 4)
+struct TrackKeyHermite_unk {
+    short mFrame;
+    short mValue;
+    short mTangent;
+};
+
+// NONMATCHING: 0% - equivalent C++; the original is handwritten paired-single assembly (fres,
+// ps_merge/ps_madds0/ps_sum0 over `basis`) that reads the (value, tangent) pairs with psq_l through
+// GQR6 (asm not approved). Differences: `scale` is an argument here (the original takes the GQR6 that
+// the caller set), the original divides by dt with fres (estimate) and uses basis[1] (1.0f) for the
+// constant term.
+// inferred: hermite interpolation between the keys p0 and p1 at t (0..dt) with the tangents scaled
+// by dt
+extern "C" float fn_80471FD0(float t, float dt, const short* p0, const short* p1, const float* basis, int scale) {
+    float u = t / dt;
+    float u2 = u * u;
+    float u3 = u2 * u;
+    float h00 = basis[0] * u3 + basis[2] * u2 + 1.0f;
+    float h10 = basis[1] * u3 + basis[3] * u2 + u;
+    float h01 = basis[4] * u3 + basis[6] * u2;
+    float h11 = basis[5] * u3 + basis[7] * u2;
+    return TrackValue_unk(p0[0], scale) * h00 + TrackValue_unk(p1[0], scale) * h01 +
+           (TrackValue_unk(p0[1], scale) * h10 + TrackValue_unk(p1[1], scale) * h11) * dt;
+}
+
+// inferred: moves `key` to the last key at or before frame (keys before it are skipped, a stale
+// index restarts from 0)
+template <class K>
+static inline void FindTrackKey_unk(const K* keys, int count, short& key, float frame) {
+    if (key > count - 2 || key < 0) {
+        key = 0;
+    }
+    if (frame < keys[key].mFrame) {
+        key = 0;
+    }
+    while (frame >= keys[key + 1].mFrame && key < count - 1) {
+        key++;
+    }
+}
+
+// NONMATCHING: 0% - equivalent C++; the original sets GQR6 (mtspr) to s16 with mScale fraction bits
+// and reads the values with psq_l (asm not approved); here TrackValue_unk scales them.
+float SceneTrack_unk::fn_8047202C(const short& key, float frame) {
+    // inferred: the key cache is written through the const reference
+    short& cur = const_cast<short&>(key);
+    if (mType == 0) {
+        return *(float*)mKeys;
+    }
+    int scale = mScale;
+    if (mType == 3) {
+        const TrackKeyLinear_unk* keys = (const TrackKeyLinear_unk*)mKeys;
+        int count = mCount;
+        if (frame <= keys[0].mFrame) {
+            return TrackValue_unk(keys[0].mValue, scale);
+        }
+        if (frame >= keys[count - 1].mFrame) {
+            return TrackValue_unk(keys[count - 1].mValue, scale);
+        }
+        FindTrackKey_unk(keys, count, cur, frame);
+        const TrackKeyLinear_unk& a = keys[cur];
+        const TrackKeyLinear_unk& b = keys[cur + 1];
+        float u = (frame - a.mFrame) / (b.mFrame - a.mFrame);
+        return TrackValue_unk(b.mValue, scale) * u + (1.0f - u) * TrackValue_unk(a.mValue, scale);
+    }
+    if (mType == 4) {
+        const short* values = (const short*)mKeys;
+        if (frame < 0.0f) {
+            return TrackValue_unk(values[0], scale);
+        }
+        int i = (int)frame;
+        if (i >= mCount - 1) {
+            return TrackValue_unk(values[mCount - 1], scale);
+        }
+        float u = frame - i;
+        return TrackValue_unk(values[i + 1], scale) * u + (1.0f - u) * TrackValue_unk(values[i], scale);
+    }
+    const TrackKeyHermite_unk* keys = (const TrackKeyHermite_unk*)mKeys;
+    int count = mCount;
+    if (frame <= keys[0].mFrame) {
+        return TrackValue_unk(keys[0].mValue, scale);
+    }
+    if (frame >= keys[count - 1].mFrame) {
+        return TrackValue_unk(keys[count - 1].mValue, scale);
+    }
+    FindTrackKey_unk(keys, count, cur, frame);
+    const TrackKeyHermite_unk& a = keys[cur];
+    const TrackKeyHermite_unk& b = keys[cur + 1];
+    return fn_80471FD0(frame - a.mFrame, b.mFrame - a.mFrame, &a.mValue, &b.mValue, lbl_8078FBF0, scale);
+}
 
 // inferred: empty function without references, kept by the linker
 extern "C" void fn_80472340() {}

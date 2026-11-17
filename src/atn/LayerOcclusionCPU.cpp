@@ -138,7 +138,17 @@ inline const T& Min_unk(const T& a, const T& b) {
     return b < a ? b : a;
 }
 
-// NONMATCHING: 96.9% - the four values are stored to the stack in the right order but the
+// inferred: function without callers that the linker removes: in the original the .sdata2 of the file
+// starts with 0.5f, 255.0f, 0.0f, 1.0f (before the constants of the constructor), the constants of a color
+// conversion placed before fn_800B3978; it recreates that order (name and body invented)
+extern "C" void LayerOcclusionPool_unk(float* out) {
+    out[0] = 0.5f;
+    out[1] = 255.0f;
+    out[2] = 0.0f;
+    out[3] = 1.0f;
+}
+
+// NONMATCHING: 99.7% - the four values are stored to the stack in the right order but the
 // original gives the first one f3 and the second f2 (ours the other way round)
 // inferred: halves a buffer, keeping the nearest of each 2x2 block
 static void fn_800B3978(float* dst, const float* src, int w, int h) {
@@ -164,17 +174,15 @@ static void fn_800B3978(float* dst, const float* src, int w, int h) {
 }
 
 // Note on the constants: the original .sdata2 starts with 0.5f, 255.0f and 0.0f before the 1.0f
-// used by the constructor (the first function that loads a constant). They must come from a function placed
-// before the constructor and removed by the linker; it is not reconstructed, so every function
-// that loads 1.0f, 16.0f, 32.0f or 128.0f points at a different offset. 0.5f, 255.0f, 0.0f, 1.0f is
-// the reverse of the order of the constants of atn::ColorToU8_unk (used by fn_800B47AC); here
-// they stay in order of first use (1.0f, 0.0f, 255.0f, 16.0f, 32.0f, 128.0f, 0.5f).
+// used by the constructor (the first function that loads a constant). They come from a function placed
+// before the constructor and removed by the linker, recreated as LayerOcclusionPool_unk: the .sdata2 is
+// now 0.5f, 255.0f, 0.0f, 1.0f, 16.0f, 32.0f, 128.0f as in the original.
 // inferred: screen positions of the last 16 vertices (cache of fn_800B47AC, slot = index % 16; built
 // by the __sinit at 0x800B6684) and the index of each slot (0xFFFF: empty)
 atn::Vector3 lbl_807C74A0[16];
 unsigned short lbl_807C7560[16];
-// inferred: (0, 1) pair loaded by fn_800B4390: 0 is the threshold of the plane side, 1 the w of the
-// vertices
+// inferred: (0, 1) pair loaded by fn_800B4390: 0 is the threshold of the plane side (the 1 is loaded
+// with it and not used; the w of the vertices comes from psq_l)
 extern "C" float lbl_807790A8[2] = {0.0f, 1.0f};
 static bool sTexReady;
 static unsigned char* sTexData;
@@ -182,7 +190,6 @@ static GXTexObj sTexObj;
 
 namespace atn {
 
-// NONMATCHING: 98.8% - .sdata2 offset of 1.0f (see the note on the constants)
 LayerOcclusionCPU::LayerOcclusionCPU() : IRenderLayer("OcclusionCPU") {
     m2C = 0;
     for (int i = 0; i < 5; i++) {
@@ -243,8 +250,7 @@ void LayerOcclusionCPU::vf1C() {
     m2C = 0;
 }
 
-// NONMATCHING: 98.3% - .sdata2 offsets, and the row pointers of the conversion loop swap
-// registers
+// NONMATCHING: 99.4% - the row pointers of the conversion loop swap registers
 void LayerOcclusionCPU::vf20() {
     for (int i = 0; i < 4; i++) {
         int size = 32 >> i;
@@ -276,8 +282,10 @@ void LayerOcclusionCPU::vf20() {
     }
 }
 
-// NONMATCHING: written as C++ - the original is handwritten paired-single assembly (mfcr/mtcrf,
-// ps_cmpo0, mcrf, ps_madds0, the intersection divides with fres), not approved
+// NONMATCHING: 0% - equivalent C++; the original is handwritten paired-single assembly (mfcr/mtcrf,
+// psq_l with w = 1, ps_cmpo0, mcrf, ps_madds0, ctr loop), not approved. Checked against the asm:
+// same side test (0 < -(n.p + d)), same wrap to in[0] on the last vertex, same outputs. Differences:
+// the original takes 1/(dPrev - dCur) with fres (estimate) and loops count times even for count 0.
 // inferred: Sutherland-Hodgman step: clips the convex polygon `in` (count vertices) by `plane` and
 // writes the part on the negative side of the plane (n.p + d < 0) to `out` and its vertex count to
 // `outCount`
@@ -285,12 +293,13 @@ extern "C" void fn_800B4390(const Plane_unk* plane, const atn::Vector3* in, int 
                             int* outCount) {
     int n = 0;
     const atn::Vector3* prev = in;
-    float dPrev = -(plane->mNormal.x * prev->x + plane->mNormal.y * prev->y + plane->mNormal.z * prev->z +
-                    plane->mDist * lbl_807790A8[1]);
+    // -(n.p + d), summed as the paired-single code does: (x, y) and (z, 1) by the negated (n.x, n.y), (n.z, d)
+    float dPrev = (prev->x * -plane->mNormal.x + prev->z * -plane->mNormal.z) +
+                  (prev->y * -plane->mNormal.y + -plane->mDist);
     for (int i = 1; i <= count; i++) {
         const atn::Vector3* cur = i == count ? in : &in[i];
-        float dCur = -(plane->mNormal.x * cur->x + plane->mNormal.y * cur->y + plane->mNormal.z * cur->z +
-                       plane->mDist * lbl_807790A8[1]);
+        float dCur = (cur->x * -plane->mNormal.x + cur->z * -plane->mNormal.z) +
+                     (cur->y * -plane->mNormal.y + -plane->mDist);
         bool prevIn = lbl_807790A8[0] < dPrev;
         bool curIn = lbl_807790A8[0] < dCur;
         if (prevIn != curIn) {

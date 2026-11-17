@@ -1,0 +1,24 @@
+diff --git a/src/atn/SmallAllocator_8.cpp b/src/atn/SmallAllocator_8.cpp
+index 7dec660..6d3ed11 100644
+--- a/src/atn/SmallAllocator_8.cpp
++++ b/src/atn/SmallAllocator_8.cpp
+@@ -184,7 +184,8 @@ extern "C" void* fn_800832AC(atn::MemoryManager* mgr, unsigned long size, unsign
+ 
+ namespace atn {
+ 
+-// NONMATCHING: 87.0% - same code, volatile registers numbered differently
++// NONMATCHING: 96.1% - same code, volatile registers numbered differently (the original keeps mConfig
++// in r9 and uses one register more for the index)
+ template <int N>
+ void* SmallAllocator<N>::vf0C(unsigned long size, unsigned long align, int heap, const char* name) {
+     const SmallPoolConfig_unk* config = mConfig;
+@@ -208,8 +209,8 @@ void* SmallAllocator<N>::vf0C(unsigned long size, unsigned long align, int heap,
+                     }
+                     SmallPool_unk& p = mPools[pool];
+                     unsigned long blockSize = mConfig[pool].mSize;
+-                    p.mUsed++;
+                     void* ret = p.mBase + bit * blockSize + group * (blockSize << 5);
++                    p.mUsed++;
+                     p.mPeak = p.mPeak > p.mUsed ? p.mPeak : p.mUsed;
+                     return ret;
+                 }

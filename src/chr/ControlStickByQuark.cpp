@@ -1094,8 +1094,12 @@ ControlMatHoldDamage::ControlMatHoldDamage(Chara_unk* chara) : ControlBase(chara
     m->mTracks[0].m0C = 1.0f;
 }
 
-// DRAFT: not checked against the original (draft without a description)
-// NONMATCHING: draft - falls back for 64 frames, then takes a 10000 damage
+// NONMATCHING: 94.6% - checked against the asm (same flow, calls and constants); the stack slots of the
+// three rotation temporaries are reversed and the saved registers differ (the original keeps the
+// motion in r31 and this in r30). A RotZYX_unk inline with the temporaries in blocks (as in
+// chr/ControlBase.cpp) fixes the stack but not the registers; it and a `Matrix3x4* p = &rot;` local
+// renumber the @N of the unit.
+// inferred: falls back for 64 frames, then takes a 10000 damage
 int ControlMatHoldDamage::vf0C() {
     CharaTask* c = mChara;
     Motion_unk* m = &c->mMotion;
