@@ -1189,7 +1189,7 @@ Actor* DataList_unk<Actor>::Add_unk(const char* name, int arg) {
 // and the slow path of push_back<Path> stay in Event/EventParser_unk.cpp (0x8057DC38, 0x8057DB14) as in the
 // original
 template <>
-Path* DataList_unk<Path>::Add_unk(const char* name, int arg) {
+Path* DataList_unk<Path>::AddSlow_unk(const char* name, int arg) {
     this->__push_back_slow_unk(Path(mOwner, name, arg));
     return &this->back();
 }

@@ -91,6 +91,10 @@ public:
     // one, an explicit specialization defined at the end of Event/Sequence.cpp (0x80543108, before the template
     // instances)
     T* Add_unk(const char* name, int arg);
+    // inferred: never called (the linker removes it); defined for Event::Path at the end of Event/Sequence.cpp
+    // to emit the weak copies of the reallocation of vector<Path> there (a specialization of Add_unk would
+    // replace the generic one of Event/EventParser_unk.cpp on other compilers). Name invented.
+    T* AddSlow_unk(const char*, int);
 
     Sequence* mOwner;
 };
