@@ -2033,6 +2033,11 @@ static const char* const sFieldSounds_unk[] = {
 };
 
 // inferred: one line of the debug text, right aligned at x 590
+// inferred: the table of the next field is being loaded (name invented)
+inline bool IsTableBusy_unk(const GameTaskTable_unk& table) {
+    return table.mState != 0;
+}
+
 static inline void DrawDebugLine_unk(const wchar_t* text, float y, float size, float z) {
     float width = fn_8006EF48(lbl_8087EEC8, size, text, 0.0f, 1, 1);
     lbl_8087EEB0->fn_80061824(590.0f - width, y, z, size, size, 0.0f, 0.0f, 0.0f, text, 0xFFFFFFFF, 1, 1, 0, 0,
@@ -2068,22 +2073,22 @@ inline void atn::D2A_Task::SetLayoutValue_unk(const char* name, float value) {
 }
 
 // inferred: used memory of a heap in MB
-static inline float GetHeapUsed_unk(atn::DLAllocator* heap) {
-    return (unsigned int)((int)heap->vf14() - (int)heap->vf18() + 4) / 1048576.0f;
+static inline float GetHeapUsed_unk(atn::DLAllocator& heap) {
+    return (unsigned int)((int)heap.vf14() - (int)heap.vf18() + 4) / 1048576.0f;
 }
 
 static inline float GetHeapFree_unk(atn::DLAllocator* heap) {
     return (unsigned int)heap->fn_80084F84() / 1048576.0f;
 }
 
-// NONMATCHING: 98.2% - registers of the inlined GameUI icon tests and of the warp search; checked against the
-// original (cases of the state switch, icon conditions laid out in another order but equivalent)
+// NONMATCHING: 99.2% - registers: y in f31 in the original (f29 here; tried the heap values declared first or in
+// an inline) and the 0x4330 constant of the conversions at the start
 void GameTask::vf14() {
     if (lbl_8087F0A8->m184 != 0) {
         lbl_8087EEB0->mA0 = 0x13;
         float y = 45.0f;
-        wchar_t name[0x100];
         wchar_t text[0x100];
+        wchar_t name[0x100];
         if (GetCurrentMap() != 0 && GetCurrentMap()->m54 != 0) {
             MapId_unk* id = GetCurrentMap()->m54;
             fn_8006F2F0(lbl_8087EEC8, name, id->mId, 0x100);
@@ -2115,9 +2120,13 @@ void GameTask::vf14() {
                 y += 15.0f;
             }
         }
-        float used1 = GetHeapUsed_unk(&atn::MemoryManager::Instance()->mMem1);
-        float used2 = GetHeapUsed_unk(&atn::MemoryManager::Instance()->mMem2);
-        float usedDbg = GetHeapUsed_unk(&atn::MemoryManager::Instance()->mOverflow);
+        // inferred: the manager is kept and the heap address recomputed for each virtual call (0x8036BC40)
+        atn::MemoryManager* mm = atn::MemoryManager::Instance();
+        float used1 = GetHeapUsed_unk(mm->mMem1);
+        mm = atn::MemoryManager::Instance();
+        float used2 = GetHeapUsed_unk(mm->mMem2);
+        mm = atn::MemoryManager::Instance();
+        float usedDbg = GetHeapUsed_unk(mm->mOverflow);
         float free1 = GetHeapFree_unk(&atn::MemoryManager::Instance()->mMem1);
         float free2 = GetHeapFree_unk(&atn::MemoryManager::Instance()->mMem2);
         float freeDbg = GetHeapFree_unk(&atn::MemoryManager::Instance()->mOverflow);
@@ -2132,7 +2141,7 @@ void GameTask::vf14() {
         lbl_8087EEB0->mA0 = 0x12;
     }
     m5620->FreezeTask();
-    if (m550C.mState != 0) {
+    if (IsTableBusy_unk(m550C)) {
         if (m550C.mState == 1) {
             m5624->Capture();
         }
@@ -2222,8 +2231,8 @@ void GameTask::vf14() {
                 }
             }
         } else {
-            if (!((!swing && IsIconHidden_unk(ui->mB08[0]) && IsIconHidden_unk(ui->mB08[1])) ||
-                  (swing && IsIconHidden_unk(ui->mB08[2]) && IsIconHidden_unk(ui->mB08[3])))) {
+            if ((!swing && !(IsIconHidden_unk(ui->mB08[0]) && IsIconHidden_unk(ui->mB08[1]))) ||
+                (swing && !(IsIconHidden_unk(ui->mB08[2]) && IsIconHidden_unk(ui->mB08[3])))) {
                 fn_800C31F4(sFieldSounds_unk[6], 0, -1, 1.0f);
             }
             HideReplayIcons_unk(ui);
@@ -2284,13 +2293,7 @@ void GameTask::vf14() {
         if (m56E4 == 0) {
             GameScene* scene = m10D8;
             PlayerTask* player = lbl_8087F8A0->mHead;
-            gs::WarpPoint* warp = 0;
-            for (unsigned int i = 0; i < scene->m78.size(); i++) {
-                if (m56E8 == scene->m78.mData[i].mId) {
-                    warp = &scene->m78.mData[i];
-                    break;
-                }
-            }
+            gs::WarpPoint* warp = FindWarpPoint_unk(scene, m56E8);
             if (warp != 0) {
                 player->mPos = warp->mPos;
                 player->mRot = atn::Vector3(0.0f, warp->m14, 0.0f);
