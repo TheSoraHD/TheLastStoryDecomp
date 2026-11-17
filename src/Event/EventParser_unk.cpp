@@ -3,6 +3,7 @@
 // that fills the Event::Sequence being loaded. Handler names are built from the tags; the other names are
 // invented.
 #include "Event/Sequence.h"
+#include "Event/EventVector_unk.h"
 #include "Event/Cut.h"
 #include "Event/Action.h"
 #include "Event/Path.h"
@@ -277,8 +278,9 @@ inline ModelData::ModelData(Sequence* owner, const char* name, int id) : CommonD
 
 // inferred: generic version (the actors have an explicit specialization in Event/Sequence.cpp)
 template <class T>
-void DataList_unk<T>::Add_unk(const char* name, int arg) {
+T* DataList_unk<T>::Add_unk(const char* name, int arg) {
     this->push_back(T(mOwner, name, arg));
+    return &this->back();
 }
 
 // inferred: adds a motion data (its id is offset by 0xEF)
