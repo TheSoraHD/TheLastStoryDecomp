@@ -249,13 +249,15 @@ ControlChaseFollow::ControlChaseFollow(Chara_unk* chara) : ControlBase(chara) {
     mChara->mF1C = 0;
 }
 
-// NONMATCHING: 99.94% - in the last branch dist/near take f29/f30 swapped and mChara/&d r3/r4 swapped
-// (tried sqrt orders, locals for len/rate/speed, chara/c locals, ToRotation first, Max inline)
+// NONMATCHING: 99.97% - in the last branch mChara/&d take r3/r4 swapped (tried store/rotation order, chara/c
+// locals, member and free setters, Max inline, decl orders of len/speed/rate); `near` declared at the top puts
+// dist/near in f30/f29 as in the original
 // inferred: keeps behind the leader, faster when far
 int ControlChaseFollow::vf0C() {
     if (lbl_8087F098->m48 == 0) {
         return 1;
     }
+    float near;
     CharaTask* leader = lbl_8087F8A0->mHead;
     atn::Vector3 pos(leader->mPos);
     atn::Vector3 target(leader->mPos);
@@ -285,7 +287,7 @@ int ControlChaseFollow::vf0C() {
         atn::Vector3 rot = d.ToRotation_unk();
         mChara->vf34(rot, 0, 1.0f, speed);
     } else {
-        float near = sqrt(run);
+        near = sqrt(run);
         float len = sqrt(dist);
         float speed = leader->m570;
         float rate = len / near;
