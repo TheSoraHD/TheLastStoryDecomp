@@ -59,8 +59,9 @@ extern "C" long long fn_804CF194() {
     return OSGetTime();
 }
 
+// NONMATCHING: 99.37% - FPRs of the two frame differences
 // inferred: applies a packed motion state to slot `index` of a model
-extern "C" void fn_804CF198(PackedMotion_unk* in, atn::Model* model, int index) {
+extern "C" void fn_804CF198(const PackedMotion_unk* in, atn::Model* model, int index) {
     if (lbl_8087F430 != 0 && lbl_8087F430->m54E4 == 10) {
         return;
     }
@@ -89,7 +90,7 @@ extern "C" void fn_804CF198(PackedMotion_unk* in, atn::Model* model, int index) 
 
 // inferred: packs the motion state of slot `index` of a model
 extern "C" void fn_804CF374(PackedMotion_unk* out, atn::Model* model, int index) {
-    ModelSlot_unk& slot = ((ModelSlots_unk*)model)->mSlots[index];
+    const ModelSlot_unk& slot = ((ModelSlots_unk*)model)->mSlots[index];
     out->mMotion = slot.mMotion;
     out->mFrame = (float)slot.mFrame * 63.0f;
     out->mSpeed = (float)slot.mSpeed * 12.7f;
@@ -231,11 +232,11 @@ extern "C" int fn_804CF634(PPChara_unk* chara) {
 extern "C" BattleTask* lbl_8087F048; // inferred: battle manager (as game/BattleCharaTask.cpp)
 // inferred: the targets of the slot and of the list entry of `chara` (defined after MP::Manager2, inlined)
 static inline void PPSetTargets_unk(CharaTask* chara, const PackedChara_unk* in);
-// NONMATCHING: 90.7% - the original reads the packed flag bytes once for several fields (here reloaded after each
-// store) and reloads lbl_8087F048 into a saved register between the two effect calls; scheduling
+// NONMATCHING: 96.92% - the original keeps lbl_8087F048 in a saved register between the two effect calls
+// (stack frame 0x40), scheduling of the two float values
 // inferred: applies the packed state of a character (fn_804CF468): part, state, values mFB8/mFBC, hit, flags,
 // the status bits of m13 (each one with its effect of the battle), the motion mode and the targets
-extern "C" void fn_804CF640(PackedChara_unk* in, CharaTask* chara) {
+extern "C" void fn_804CF640(const PackedChara_unk* in, CharaTask* chara) {
     if (lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->m54E4 == 10) {
         return;
     }
@@ -456,6 +457,9 @@ void fn_804D0164() {
 // over the message id, jumptable_807912DC) ----
 #include "atn/MemoryManager.h"
 #include "atn/net/PacketPack.h"
+// inferred: the messages of the basic_string members are in the string pool of the original (before
+// "CustomData" of __sinit), as game/GimmickManager.cpp
+#include "std/string_members.h"
 #include "MP/PacketPackMP.h"
 #include "MP/CryptMP.h"
 #include "game/HomeButtonMenu.h"
@@ -2063,8 +2067,6 @@ extern "C" __declspec(noinline) inline int fn_804D6664(GameBgm* bgm) {
 extern "C" __declspec(noinline) inline atn::net::NetRanking_unk* fn_804D6680() {
     return lbl_8087F5A4;
 }
-// NONMATCHING: 99.98% - __sinit 0x804FF478: only the offset of "CustomData" in @stringBase0 (the
-// profiler string of fn_804F8464 and the basic_string errors come before it in the original)
 // inferred: magic of the data of fn_804ED768 (hash of its name; first entry of the __sinit 0x804FF478)
 extern "C" int lbl_8087F604 = fn_800DC6B4("CustomData");
 
@@ -3791,12 +3793,10 @@ extern "C" void fn_804D824C(PPManager2_unk* mgr, PPPlayer_unk* player, int mode)
 }
 
 extern "C" PPPlayer_unk* fn_804DD158(PPManager2_unk* mgr, unsigned int aid);
-// NONMATCHING: 99.76% - aid and count of the inlined search fn_804DD158 in r5/r4 (r4/r5 in the original)
 // inferred: flushes the packer; the server goes on with fn_804D824C (mode 1), a client starts the timer m99B8
 extern "C" void fn_804D8610(PPManager2_unk* mgr) {
     fn_804AE3BC()->fn_8050DE34();
-    unsigned int aid = lbl_8087F628->GetMyAid_unk();
-    PPPlayer_unk* own = fn_804DD158(mgr, aid);
+    PPPlayer_unk* own = fn_804DD158(mgr, lbl_8087F628->GetMyAid_unk());
     if (IsServer_unk() == 1) {
         fn_804D824C(mgr, own, 1);
     } else {
@@ -3933,23 +3933,14 @@ extern "C" void fn_804D97F0(PPManager2_unk* mgr) {
     }
 }
 
-// NONMATCHING: 95.59% - the original keeps an unfolded test of a constant error code (`(unsigned)-162 <= 1`, an
-// inlined mapping to the value 9) and registers
+// NONMATCHING: 99.57% - registers
 // inferred: the server waits until every other player confirmed (m9A14) while the timer m99B8 runs; without time
 // left the room is closed with the error 158 (state 43); a client only marks m9A74[2]
 extern "C" void fn_804D996C(PPManager2_unk* mgr) {
     PPPlayer_unk* own = fn_804DD158(mgr, lbl_8087F628->GetMyAid_unk());
     if (IsServer_unk() == 1) {
         if (mgr->m99B8 <= 0) {
-            int error = 9;
-            if (lbl_8087F628->m25C == 1 && MP::D2AMpMenuFriendRoom::sInstance != 0 &&
-                MP::D2AMpMenuFriendRoom::sInstance->m88 == 8) {
-                MP::D2AMpMenuFriendRoom::sInstance->fn_804BA350(9);
-            }
-            mgr->m9750 = -1;
-            fn_804FB220(&mgr->mStateVar, 43);
-            mgr->m9754 = 158;
-            mgr->m9758 = error;
+            fn_804FB470(mgr, 158, 9);
         } else {
             int ready = 0;
             int count = 0;
@@ -4164,14 +4155,11 @@ static inline int PPCountTeam_unk(PPManager2_unk* mgr, unsigned int team) {
 }
 static inline int PPTeamScore_unk(const PPManager2_unk* mgr, int team);
 
-// NONMATCHING: 95.92% - branch layout of the rank tests (unsigned range checks here) and registers
+// NONMATCHING: 98.58% - registers (the original keeps m564 of the first fn_804DB408 in a saved register)
 // inferred: rewards of the end of the game: an item by the rank of the own player (another set when less than a
 // minute was left) and, in the team mode, two items when the own team had fewer players and lost by 40 or more
 extern "C" void fn_804DA690(PPManager2_unk* mgr) {
-    if (lbl_8087F490 == 0 || Inventory::instance_ == 0) {
-        return;
-    }
-    if (fn_804DD158(mgr, lbl_8087F628->GetMyAid_unk()) == 0) {
+    if (lbl_8087F490 == 0 || Inventory::instance_ == 0 || fn_804DD158(mgr, lbl_8087F628->GetMyAid_unk()) == 0) {
         return;
     }
     fn_804DF4B8(mgr);
@@ -4179,27 +4167,27 @@ extern "C" void fn_804DA690(PPManager2_unk* mgr) {
     int code = 0;
     int count = 0;
     bool last = fn_804DB408(mgr) >= 0 && fn_804DB408(mgr) < 60;
-    if (last) {
-        if (rank >= 0 && rank < 2) {
-            fn_80444020(Inventory::instance_, 0x1E7D, 0, -1, 0, 1, &code, &count, 0);
-        }
-        if (rank >= 2 && rank < 4) {
-            fn_80444020(Inventory::instance_, 0x1E7E, 0, -1, 0, 1, &code, &count, 0);
-        } else if (rank == 4) {
-            fn_80444020(Inventory::instance_, 0x1E7F, 0, -1, 0, 1, &code, &count, 0);
-        } else if (rank >= 5) {
-            fn_80444020(Inventory::instance_, 0x1E80, 0, -1, 0, 1, &code, &count, 0);
-        }
-    } else {
-        if (rank >= 0 && rank < 2) {
+    if (!last) {
+        if (0 <= rank && rank < 2) {
             fn_80444020(Inventory::instance_, 0x1E79, 0, -1, 0, 1, &code, &count, 0);
         }
-        if (rank >= 2 && rank < 4) {
+        if (2 <= rank && rank < 4) {
             fn_80444020(Inventory::instance_, 0x1E7A, 0, -1, 0, 1, &code, &count, 0);
         } else if (rank == 4) {
             fn_80444020(Inventory::instance_, 0x1E7B, 0, -1, 0, 1, &code, &count, 0);
         } else if (rank >= 5) {
             fn_80444020(Inventory::instance_, 0x1E7C, 0, -1, 0, 1, &code, &count, 0);
+        }
+    } else {
+        if (0 <= rank && rank < 2) {
+            fn_80444020(Inventory::instance_, 0x1E7D, 0, -1, 0, 1, &code, &count, 0);
+        }
+        if (2 <= rank && rank < 4) {
+            fn_80444020(Inventory::instance_, 0x1E7E, 0, -1, 0, 1, &code, &count, 0);
+        } else if (rank == 4) {
+            fn_80444020(Inventory::instance_, 0x1E7F, 0, -1, 0, 1, &code, &count, 0);
+        } else if (rank >= 5) {
+            fn_80444020(Inventory::instance_, 0x1E80, 0, -1, 0, 1, &code, &count, 0);
         }
     }
     if (code > 0 && count > 0) {
@@ -4883,11 +4871,10 @@ extern "C" void fn_804DD33C(PPManager2_unk* mgr, int arg, int* stage) {
     }
 }
 
-// NONMATCHING: 98.81% - registers of the inlined search and of the loop (as fn_804DD1A8)
+// NONMATCHING: 99.07% - registers of the loop (as fn_804DD1A8)
 // inferred: character of a team player on the side of the own character whose slot value mB0 is 12 or 21
 extern "C" CharaTask* fn_804DD3F0(PPManager2_unk* mgr) {
-    unsigned int aid = lbl_8087F628->GetMyAid_unk();
-    PPPlayer_unk* own = fn_804DD158(mgr, aid);
+    PPPlayer_unk* own = fn_804DD158(mgr, lbl_8087F628->GetMyAid_unk());
     if (own == 0 || own->mRef.mChara == 0) {
         return 0;
     }
@@ -5098,14 +5085,12 @@ extern "C" void fn_804DDD50(PPManager2_unk* mgr) {
 }
 
 extern "C" bool fn_804DE560(PPManager2_unk* mgr, int* count, bool* found);
-// NONMATCHING: 99.78% - aid and count of the inlined search fn_804DD158 swapped (as fn_804D8610)
 // inferred: on the server: fn_804E9360, fn_804DE560 and the state of its own slot (mode 2) to everybody; 0 when
 // fn_804DE560 fails
 extern "C" int fn_804DDE34(PPManager2_unk* mgr) {
     if (IsServer_unk() == 1) {
         fn_804E9360(mgr);
-        unsigned int aid = lbl_8087F628->GetMyAid_unk();
-        PPPlayer_unk* own = fn_804DD158(mgr, aid);
+        PPPlayer_unk* own = fn_804DD158(mgr, lbl_8087F628->GetMyAid_unk());
         if (fn_804DE560(mgr, 0, 0) == 0) {
             return 0;
         }
@@ -6275,12 +6260,10 @@ extern "C" int fn_804E650C(CharaTask* chara) {
 }
 
 
-// NONMATCHING: 99.84% - aid and count of the inlined search fn_804DD158 in r5/r4 (r4/r5 in the original), as fn_804D8610
 // inferred: per frame of the own player: flag m12 (local flag 0xFB is 3), the messages of the frame (table of 30
 // frames: 2 character states, 4 and 8 other updates) and the quick messages of the pad in the message list
 extern "C" void fn_804E6518(PPManager2_unk* mgr) {
-    unsigned int aid = lbl_8087F628->GetMyAid_unk();
-    PPPlayer_unk* own = fn_804DD158(mgr, aid);
+    PPPlayer_unk* own = fn_804DD158(mgr, lbl_8087F628->GetMyAid_unk());
     int flag = lbl_8087F430 != 0 ? ((GameTask*)lbl_8087F430)->fn_80370A78(0xFB) : 0;
     own->mFlags.m12 = flag == 3;
     int frame = lbl_80790F78[(unsigned int)mgr->mFrame % 30];
@@ -6733,14 +6716,14 @@ struct PPMsgVoice_unk {
     unsigned int mVoice;
     int m04;
 };
-// NONMATCHING: 95.09% - the categories of m2A50 addressed from the table and not from the manager (as fn_804F50DC),
-// the range test of `slot` folded into one unsigned compare (also as !(a && b)), registers
+// NONMATCHING: 96.02% - the categories of m2A50 addressed from the table and not from the manager (as fn_804F50DC),
+// registers
 // inferred: says the quick message `slot` of the page shown by the message list: category 20 is the message of
 // the own character with the same id (m04) in the category of its stage (table); plays its voice and, with a
 // slot of its own, sends the voice (message 0x1030), shows it (fn_804F50DC) and sends it (message 0x103E).
 // 0 when nothing was said
 extern "C" int fn_804E82C4(PPManager2_unk* mgr, int slot) {
-    if (slot < 0 || slot >= 10) {
+    if (slot < 0 || 10 <= slot) {
         return 0;
     }
     if (lbl_8087EE90 == 0 || lbl_8087F498 == 0) {
@@ -7170,14 +7153,12 @@ extern "C" void fn_804EA810(PPManager2_unk* mgr, int value, int send) {
     mgr->m5A8 = value;
 }
 
-// NONMATCHING: 98.75% - registers of the inlined search fn_804DD158 and of the player (r31 in the original), as fn_804D8610
 // inferred: message 0x1013 (as message 0x18, fn_804F1F34): marks the own player and the players of its team (m26)
 extern "C" void fn_804EA8B8(PPManager2_unk* mgr, int arg) {
     PPPlayer_unk* player;
     fn_804AE3BC()->fn_8050E094(-1, 0x1013, 0, 1);
     fn_804AE3BC()->fn_8050DDDC(-1, 1);
-    unsigned int aid = lbl_8087F628->GetMyAid_unk();
-    player = fn_804DD158(mgr, aid);
+    player = fn_804DD158(mgr, lbl_8087F628->GetMyAid_unk());
     player->mFlags.m26 = 1;
     if (player->mRef.mChara != 0) {
         player->mRef.mChara->fn_800D246C(arg);
@@ -7215,7 +7196,7 @@ static inline float RandWarpOffset_unk() {
     return 5.0f * ((rand() % 1001) / 1000.0f) - 2.5f;
 }
 
-// NONMATCHING: 98.74% - registers (parameters, index of the search, counters of the loop)
+// NONMATCHING: 99.91% - register of the count of the list (the original reuses the one of the index)
 // inferred: places the character of a player on a warp point of its team: the kept one of its slot (m56C,
 // `keep`), else (in game mode 0, or 1 without `b`) the next one after the last chosen (m608) far enough from the
 // other players (50), else a random one, with a random offset; the main player keeps the choice in m608
@@ -7271,7 +7252,7 @@ extern "C" void fn_804EAA84(PPManager2_unk* mgr, CharaTask* chara, int keep, int
                 atn::Vector3 offset(RandWarpOffset_unk(), RandWarpOffset_unk(), RandWarpOffset_unk());
                 pos += offset;
             }
-            rot = atn::Vector3(0.0f, point->m14, 0.0f);
+            atn::VecAssign_unk(rot, atn::Vector3(0.0f, point->m14, 0.0f));
             if (player->mFlags.m30 == 1) {
                 mgr->m608 = sel;
             }
@@ -8523,8 +8504,8 @@ static inline atn::Vector3 PPUnpackVec_unk(const short* h) {
 static inline atn::Vector3 PPHalfway_unk(const atn::Vector3& from, const atn::Vector3& to) {
     return (to - from) * 0.5f + from;
 }
-// NONMATCHING: 99.56% - src/dst address registers of the copies of lbl_807C7030 and of the node, and of the
-// arguments of PSVECDotProduct (the original computes the second address first)
+// NONMATCHING: 99.89% - order of the two address arguments of PSVECDotProduct (the original computes the second
+// address first)
 // inferred: applies the state of the character of another player (only in the game, state 30, ready character
 // driven by the network: mFlag2): position, velocity (none above 30 per frame), rotation, node and direction (the
 // direction turns halfway when it is within 45 degrees); 1 if applied
@@ -8549,13 +8530,13 @@ extern "C" unsigned int fn_804EE4F0(PPPlayer_unk* player, const void* buf) {
     chara->mPos = data->mPos;
     atn::Vector3 vel = data->mVel;
     if (vel.LengthSq_unk() > 900.0f) {
-        atn::VecAssign_unk(chara->m13D8, lbl_807C7030);
+        chara->m13D8.Assign_unk(lbl_807C7030);
     } else {
         chara->m13D8 = vel;
     }
     chara->mRot = atn::Vector3(0.0f, data->mRotY, 0.0f);
     chara->m13E4 = data->mTurn;
-    chara->m13E8 = PPUnpackVec_unk(data->mNode);
+    chara->m13E8.Assign_unk(PPUnpackVec_unk(data->mNode));
     atn::Vector3 dir = PPUnpackVec_unk(data->mDir);
     if (PPDot_unk(dir, chara->mFA4) > 0.70710677f) {
         atn::VecAssign_unk(dir, PPHalfway_unk(chara->mFA4, dir));
@@ -8580,7 +8561,7 @@ extern "C" void fn_804EE834(PPPlayer_unk* player) {
 // inferred: applies the state of a character received from another player (only in the game, state 30)
 extern "C" void fn_804EE904(MpCharaRef_unk* ref) {
     if (((PPManager2_unk*)lbl_8087F610)->mState == 30) {
-        PPMsgCharaFull_unk* data = (PPMsgCharaFull_unk*)fn_804AE3BC()->GetWorkBuffer_unk();
+        const PPMsgCharaFull_unk* data = (const PPMsgCharaFull_unk*)fn_804AE3BC()->GetWorkBuffer_unk();
         if (data->mIndex != lbl_8087F628->GetMyAid_unk() && ref->mChara != 0) {
             fn_804CF640(&data->mChara, ref->mChara);
         }
@@ -8591,7 +8572,7 @@ extern "C" void fn_804EE904(MpCharaRef_unk* ref) {
 // inferred: applies the state of a player received from another machine (only in the game, state 30)
 extern "C" void fn_804EE9F0(PPPlayer_unk* player) {
     if (((PPManager2_unk*)lbl_8087F610)->mState == 30) {
-        PPPlayerInfo_unk* data = (PPPlayerInfo_unk*)fn_804AE3BC()->GetWorkBuffer_unk();
+        const PPPlayerInfo_unk* data = (const PPPlayerInfo_unk*)fn_804AE3BC()->GetWorkBuffer_unk();
         if (data->mAid != lbl_8087F628->GetMyAid_unk()) {
             if (player->mRef.mChara != 0) {
                 ((PPChara_unk*)player->mRef.mChara)->m7D8 = data->m00;
@@ -8610,7 +8591,7 @@ extern "C" void fn_804EE9F0(PPPlayer_unk* player) {
 // characters are off during the shot
 extern "C" void fn_804EEB34() {
     if (((PPManager2_unk*)lbl_8087F610)->mState == 30) {
-        PPMsgShot_unk* data = (PPMsgShot_unk*)fn_804AE3BC()->GetWorkBuffer_unk();
+        const PPMsgShot_unk* data = (const PPMsgShot_unk*)fn_804AE3BC()->GetWorkBuffer_unk();
         PPManager2_unk* mgr = (PPManager2_unk*)lbl_8087F610;
         CharaTask* owner = GetHitAttacker_unk(mgr, &data->mShooter);
         if (owner != 0) {
@@ -8660,7 +8641,7 @@ struct PPMsgHoming_unk {
 // characters are off during the shot (and stay off when the hit data or a free bullet is missing)
 extern "C" void fn_804EED7C() {
     if (((PPManager2_unk*)lbl_8087F610)->mState == 30) {
-        PPMsgHoming_unk* data = (PPMsgHoming_unk*)fn_804AE3BC()->GetWorkBuffer_unk();
+        const PPMsgHoming_unk* data = (const PPMsgHoming_unk*)fn_804AE3BC()->GetWorkBuffer_unk();
         PPManager2_unk* mgr = (PPManager2_unk*)lbl_8087F610;
         CharaTask* owner = GetHitAttacker_unk(mgr, &data->mShooter);
         fn_8014F8F4()->mEnabled = 0;
@@ -8712,8 +8693,8 @@ static inline CharaTask* PPCharaOfAid_unk(PPManager2_unk* mgr, const unsigned ch
     }
     return 0;
 }
-// NONMATCHING: 98.47% - the found character of the inlined search is read with the loop offset (here the
-// index again), the server test materialized (cntlzw) in the original, registers
+// NONMATCHING: 99.71% (fn_804EF0F0) - the found character of the inlined search is read with the loop offset
+// (lwzx in the original), registers
 // inferred: character named by a packed id (1 none, 2 the player of aid m01, 3 the entry m01 of the list)
 static inline CharaTask* PPCharaOfId_unk(PPManager2_unk* mgr, const PPId_unk* id) {
     switch (id->m00) {
@@ -8767,7 +8748,7 @@ extern "C" void fn_804EF0F0(unsigned int aid) {
     if (((PPManager2_unk*)lbl_8087F610)->mStateVar.mValue != 30) {
         return;
     }
-    PPMsgGimmick_unk* data = (PPMsgGimmick_unk*)fn_804AE3BC()->GetWorkBuffer_unk();
+    const PPMsgGimmick_unk* data = (const PPMsgGimmick_unk*)fn_804AE3BC()->GetWorkBuffer_unk();
     for (GimmickCommon* gimmick = GimmickManager::instance_->mHead; gimmick != 0; gimmick = gimmick->m5C) {
         if (data->mId != gimmick->mId || data->mKind != gimmick->m4C) {
             continue;
@@ -8850,7 +8831,7 @@ extern "C" void fn_804EF0F0(unsigned int aid) {
         } else {
             gimmick->vf40(&msg);
         }
-        if ((lbl_8087F628->GetMyAid_unk() == lbl_8087F628->GetServerAid_unk()) == 1) {
+        if (IsServer_unk() == 1) {
             if (taken == true) {
                 gmk::Cannonball* cannon = dynamic_cast<gmk::Cannonball*>(gimmick);
                 if (cannon != 0) {
@@ -8906,7 +8887,7 @@ extern "C" void fn_804EF9B4() {
     if (((PPManager2_unk*)lbl_8087F610)->mState == 30) {
         GimmickCommon* held;
         unsigned int flags;
-        PPMsgDamage_unk* data = (PPMsgDamage_unk*)fn_804AE3BC()->GetWorkBuffer_unk();
+        const PPMsgDamage_unk* data = (const PPMsgDamage_unk*)fn_804AE3BC()->GetWorkBuffer_unk();
         PPManager2_unk* mgr = (PPManager2_unk*)lbl_8087F610;
         CharaTask* chara = GetHitAttacker_unk(mgr, &data->mTarget);
         if (chara != 0) {
@@ -8940,7 +8921,7 @@ extern "C" void fn_804EF9B4() {
 // characters are off during the hit
 extern "C" void fn_804EFC94() {
     if (((PPManager2_unk*)lbl_8087F610)->mState == 30) {
-        PPMsgHit_unk* data = (PPMsgHit_unk*)fn_804AE3BC()->GetWorkBuffer_unk();
+        const PPMsgHit_unk* data = (const PPMsgHit_unk*)fn_804AE3BC()->GetWorkBuffer_unk();
         PPManager2_unk* mgr = (PPManager2_unk*)lbl_8087F610;
         CharaTask* attacker = GetHitAttacker_unk(mgr, &data->mAttacker);
         if (lbl_8087F048 != 0) {
@@ -8957,7 +8938,7 @@ extern "C" void fn_804EFC94() {
 // inferred: message 9: a voice of the data (id, offset)
 extern "C" void fn_804EFE98(PPPlayer_unk* player) {
     if (lbl_8087F628 != 0 && fn_804AE3BC() != 0 && fn_804AE3BC()->GetWorkBuffer_unk() != 0) {
-        unsigned int* data = (unsigned int*)fn_804AE3BC()->GetWorkBuffer_unk();
+        const unsigned int* data = (const unsigned int*)fn_804AE3BC()->GetWorkBuffer_unk();
         if (lbl_8087F498 != 0) {
             lbl_8087F498->fn_803E9B7C(data[0], data[1], 1, 1.0f);
         }
@@ -9010,7 +8991,7 @@ extern "C" void fn_804EFF74(PPPlayer_unk* player, unsigned int type) {
     if (((PPManager2_unk*)lbl_8087F610)->mState != 30) {
         return;
     }
-    PPMsgAttack_unk* data = (PPMsgAttack_unk*)fn_804AE3BC()->GetWorkBuffer_unk();
+    const PPMsgAttack_unk* data = (const PPMsgAttack_unk*)fn_804AE3BC()->GetWorkBuffer_unk();
     CharaTask* attacker = GetHitAttacker_unk((PPManager2_unk*)lbl_8087F610, &data->mAttacker);
     CharaTask* target = GetHitAttacker_unk((PPManager2_unk*)lbl_8087F610, &data->mTarget);
     if (target == 0) {
@@ -9176,7 +9157,7 @@ extern "C" void fn_804F1068() {
     if (PP_NO_DATA_UNK) {
         return;
     }
-    int* data = (int*)fn_804AE3BC()->GetWorkBuffer_unk();
+    const int* data = (const int*)fn_804AE3BC()->GetWorkBuffer_unk();
     ((PPManager2_unk*)lbl_8087F610)->m55C = data[0];
 }
 
@@ -9187,7 +9168,7 @@ extern "C" void fn_804F1124() {
     if (PP_NO_DATA_UNK) {
         return;
     }
-    int* data = (int*)fn_804AE3BC()->GetWorkBuffer_unk();
+    const int* data = (const int*)fn_804AE3BC()->GetWorkBuffer_unk();
     ((PPManager2_unk*)lbl_8087F610)->m564 = data[0];
     if (((PPManager2_unk*)lbl_8087F610)->mState == 30 && ((PPManager2_unk*)lbl_8087F610)->mMode == 2) {
         if (GameBgm::sInstance != 0) {
@@ -9215,7 +9196,7 @@ extern "C" void fn_804F12A0() {
     if (PP_NO_DATA_UNK) {
         return;
     }
-    int* data = (int*)fn_804AE3BC()->GetWorkBuffer_unk();
+    const int* data = (const int*)fn_804AE3BC()->GetWorkBuffer_unk();
     ((PPManager2_unk*)lbl_8087F610)->m568 = data[0];
 }
 
@@ -9224,7 +9205,7 @@ extern "C" void fn_804F135C() {
     if (PP_NO_DATA_UNK) {
         return;
     }
-    PPGameSettings_unk* data = (PPGameSettings_unk*)fn_804AE3BC()->GetWorkBuffer_unk();
+    const PPGameSettings_unk* data = (const PPGameSettings_unk*)fn_804AE3BC()->GetWorkBuffer_unk();
     ((PPManager2_unk*)lbl_8087F610)->m560 = data->m00;
     ((PPManager2_unk*)lbl_8087F610)->m564 = data->m04;
     ((PPManager2_unk*)lbl_8087F610)->m568 = data->m08;
@@ -9248,7 +9229,7 @@ extern "C" void fn_804F1498(PPPlayer_unk* player) {
     if (PP_NO_DATA_UNK) {
         return;
     }
-    unsigned int* data = (unsigned int*)fn_804AE3BC()->GetWorkBuffer_unk();
+    const unsigned int* data = (const unsigned int*)fn_804AE3BC()->GetWorkBuffer_unk();
     player->mFlags.m22 = data[0];
 }
 
@@ -9282,7 +9263,7 @@ extern "C" void fn_804F1564(PPPlayer_unk* player, unsigned int type) {
     if (PP_NO_DATA_UNK) {
         return;
     }
-    PPMsgSlot_unk* data = (PPMsgSlot_unk*)fn_804AE3BC()->GetWorkBuffer_unk();
+    const PPMsgSlot_unk* data = (const PPMsgSlot_unk*)fn_804AE3BC()->GetWorkBuffer_unk();
     player->mFlags.m28 = data->mFlags.m28;
     player->mFlags.m06 = data->mFlags.m06;
     player->mFlags.m02 = data->mFlags.m02;
@@ -9322,7 +9303,7 @@ extern "C" void fn_804F1950(PPPlayer_unk* player) {
     if (PP_NO_DATA_UNK) {
         return;
     }
-    PPMsgEquip_unk* data = (PPMsgEquip_unk*)fn_804AE3BC()->GetWorkBuffer_unk();
+    const PPMsgEquip_unk* data = (const PPMsgEquip_unk*)fn_804AE3BC()->GetWorkBuffer_unk();
     switch (data->mKind) {
     case 0:
         player->mEquip0.Set_unk(data->mHead);
@@ -9344,7 +9325,7 @@ extern "C" void fn_804F1CA0(PPPlayer_unk* player) {
     if (PP_NO_DATA_UNK) {
         return;
     }
-    int* data = (int*)fn_804AE3BC()->GetWorkBuffer_unk();
+    const int* data = (const int*)fn_804AE3BC()->GetWorkBuffer_unk();
     player->mD38[data[0]] = data[1];
 }
 
@@ -9398,7 +9379,7 @@ extern "C" void fn_804F1F34(PPPlayer_unk* player) {
 // restore their state (vf114) from +0x15 of the data
 extern "C" void fn_804F2040(unsigned int type) {
     if (((PPManager2_unk*)lbl_8087F610)->mState == 30) {
-        PPMsgSpecialFull_unk* data = (PPMsgSpecialFull_unk*)fn_804AE3BC()->GetWorkBuffer_unk();
+        const PPMsgSpecialFull_unk* data = (const PPMsgSpecialFull_unk*)fn_804AE3BC()->GetWorkBuffer_unk();
         if (data->mChara.m12_1 == 0) {
             PPPlayer_unk* player = PPFindTeam_unk(&((PPManager2_unk*)lbl_8087F610)->mPlayers, data->mIndex);
             fn_804AE3BC()->fn_8050E62C(player != 0, "enemy_status\n");
@@ -9436,7 +9417,7 @@ extern "C" void fn_804F2040(unsigned int type) {
 // server; a character of the list is revived or killed to follow the value m00
 extern "C" void fn_804F2258() {
     if (((PPManager2_unk*)lbl_8087F610)->mState == 30) {
-        PPPlayerInfo_unk* data = (PPPlayerInfo_unk*)fn_804AE3BC()->GetWorkBuffer_unk();
+        const PPPlayerInfo_unk* data = (const PPPlayerInfo_unk*)fn_804AE3BC()->GetWorkBuffer_unk();
         if (!data->mIsEntry) {
             PPPlayer_unk* player = PPFindTeam_unk(&((PPManager2_unk*)lbl_8087F610)->mPlayers, data->mAid);
             fn_804AE3BC()->fn_8050E62C(player != 0, "enemy_sync\n");
@@ -9475,14 +9456,14 @@ struct PPMsgEnemyLoc_unk {
     unsigned char mMotion[1];   // 0x31: packed motion (fn_804CF198)
 };
 
-// NONMATCHING: 98.3% - the original copies mStateVar twice for the vararg (a temporary, then the argument) and
+// NONMATCHING: 99.16% - the original copies mStateVar twice for the vararg (a temporary, then the argument) and
 // reloads lbl_8087F610 after the inlined FindTeam_unk; the address registers of three copies (as fn_804EE4F0)
 // inferred: location of an enemy received from the server (only in the game, state 30): the character of a team
 // player through fn_804EE4F0, or a character of the list directly; with `type` 29 also its motion (the motion
 // commands of a new motion run once at frame 0)
 extern "C" void fn_804F2450(unsigned int type) {
     if (((PPManager2_unk*)lbl_8087F610)->mState == 30) {
-        PPMsgEnemyLoc_unk* data = (PPMsgEnemyLoc_unk*)fn_804AE3BC()->GetWorkBuffer_unk();
+        const PPMsgEnemyLoc_unk* data = (const PPMsgEnemyLoc_unk*)fn_804AE3BC()->GetWorkBuffer_unk();
         if (!data->mIsEntry) {
             PPPlayer_unk* player = PPFindTeam_unk(&((PPManager2_unk*)lbl_8087F610)->mPlayers, (unsigned char)data->mIndex);
             PPManager2_unk* mgr = (PPManager2_unk*)lbl_8087F610;
@@ -9499,13 +9480,13 @@ extern "C" void fn_804F2450(unsigned int type) {
                 chara->mPos = data->mState.mPos;
                 atn::Vector3 vel = data->mState.mVel;
                 if (vel.LengthSq_unk() > 900.0f) {
-                    atn::VecAssign_unk(chara->m13D8, lbl_807C7030);
+                    chara->m13D8.Assign_unk(lbl_807C7030);
                 } else {
                     chara->m13D8 = vel;
                 }
                 chara->mRot = atn::Vector3(0.0f, data->mState.mRotY, 0.0f);
                 chara->m13E4 = data->mState.mTurn;
-                chara->m13E8 = PPUnpackVec_unk(data->mState.mNode);
+                chara->m13E8.Assign_unk(PPUnpackVec_unk(data->mState.mNode));
                 atn::Vector3 dir = PPUnpackVec_unk(data->mState.mDir);
                 if (PPDot_unk(dir, chara->mFA4) > 0.70710677f) {
                     atn::VecAssign_unk(dir, PPHalfway_unk(chara->mFA4, dir));
@@ -9558,7 +9539,7 @@ struct PPMsgSpecialHit_unk {
 // a BattleCalcParam_unk and given to vf40 of the enemy (SpecialEnemyBase ids, unless its flag 2 is set)
 extern "C" void fn_804F2994() {
     if (((PPManager2_unk*)lbl_8087F610)->mState == 30) {
-        PPMsgSpecialHit_unk* data = (PPMsgSpecialHit_unk*)fn_804AE3BC()->GetWorkBuffer_unk();
+        const PPMsgSpecialHit_unk* data = (const PPMsgSpecialHit_unk*)fn_804AE3BC()->GetWorkBuffer_unk();
         CharaTask* attacker = GetHitAttacker_unk((PPManager2_unk*)lbl_8087F610, &data->mRefs.mAttacker);
         CharaTask* target = GetHitAttacker_unk((PPManager2_unk*)lbl_8087F610, &data->mRefs.mTarget);
         if (target != 0 && !target->IsFlag2_unk()) {
@@ -9599,7 +9580,7 @@ extern "C" void fn_804F2C44(PPPlayer_unk* player) {
     if (((PPManager2_unk*)lbl_8087F610)->mState != 30) {
         return;
     }
-    int* data = (int*)fn_804AE3BC()->GetWorkBuffer_unk();
+    const int* data = (const int*)fn_804AE3BC()->GetWorkBuffer_unk();
     if (player->mRef.mChara != 0) {
         if (*data > 0) {
             player->mRef.mChara->fn_8014F698(0, *data, 0);
@@ -9670,7 +9651,7 @@ extern "C" void fn_804F3170() {
     if (PP_NO_DATA_UNK) {
         return;
     }
-    unsigned char* data = (unsigned char*)fn_804AE3BC()->GetWorkBuffer_unk();
+    const unsigned char* data = (const unsigned char*)fn_804AE3BC()->GetWorkBuffer_unk();
     memcpy(((PPManager2_unk*)lbl_8087F610)->m9984, data, 8);
     memcpy(((PPManager2_unk*)lbl_8087F610)->m998C, data + 8, 8);
 }
@@ -9705,7 +9686,7 @@ extern "C" void fn_804F3258() {
     if (PP_NO_DATA_UNK) {
         return;
     }
-    unsigned char* data = (unsigned char*)fn_804AE3BC()->GetWorkBuffer_unk();
+    const unsigned char* data = (const unsigned char*)fn_804AE3BC()->GetWorkBuffer_unk();
     PPRequests_unk* queue = (PPRequests_unk*)lbl_8087F610;
     PPRequest_unk* req = FindRequest_unk(queue, data[0]);
     if (req != 0) {
@@ -9770,7 +9751,7 @@ extern "C" void fn_804F3880() {
     if (((PPManager2_unk*)lbl_8087F610)->mState != 30) {
         return;
     }
-    unsigned char* data = (unsigned char*)fn_804AE3BC()->GetWorkBuffer_unk();
+    const unsigned char* data = (const unsigned char*)fn_804AE3BC()->GetWorkBuffer_unk();
     PPPlayer_unk* player = fn_804DD158((PPManager2_unk*)lbl_8087F610, data[0]);
     if (player != 0 && player->mRef.mChara != 0) {
         if (data[1] != 0) {
@@ -9794,7 +9775,7 @@ extern "C" void fn_804F39D4() {
     if (((PPManager2_unk*)lbl_8087F610)->mState != 30) {
         return;
     }
-    unsigned char* data = (unsigned char*)fn_804AE3BC()->GetWorkBuffer_unk();
+    const unsigned char* data = (const unsigned char*)fn_804AE3BC()->GetWorkBuffer_unk();
     PPPlayer_unk* player = fn_804DD158((PPManager2_unk*)lbl_8087F610, data[0]);
     if (player == 0) {
         return;
@@ -9815,7 +9796,7 @@ extern "C" void fn_804F3AF0() {
     if (PP_NO_DATA_UNK) {
         return;
     }
-    unsigned char* data = (unsigned char*)fn_804AE3BC()->GetWorkBuffer_unk();
+    const unsigned char* data = (const unsigned char*)fn_804AE3BC()->GetWorkBuffer_unk();
     ((PPManager2_unk*)lbl_8087F610)->m5A8 = data[0];
 }
 
@@ -9844,7 +9825,7 @@ extern "C" void fn_804F3D80(PPPlayer_unk* player) {
     if (PP_NO_DATA_UNK) {
         return;
     }
-    unsigned short* data = (unsigned short*)fn_804AE3BC()->GetWorkBuffer_unk();
+    const unsigned short* data = (const unsigned short*)fn_804AE3BC()->GetWorkBuffer_unk();
     fn_804F50DC((PPManager2_unk*)lbl_8087F610, player, data[0], data[1]);
 }
 
@@ -9853,7 +9834,7 @@ extern "C" void fn_804F3E50() {
     if (((PPManager2_unk*)lbl_8087F610)->mState != 30) {
         return;
     }
-    int* data = (int*)fn_804AE3BC()->GetWorkBuffer_unk();
+    const int* data = (const int*)fn_804AE3BC()->GetWorkBuffer_unk();
     int index = data[0];
     if (index < 0 || (int)((PPManager2_unk*)lbl_8087F610)->mCharas.size() <= index) {
         return;
@@ -9893,7 +9874,7 @@ extern "C" void fn_804F3EEC() {
     if (PP_NO_DATA_UNK) {
         return;
     }
-    unsigned char* data = (unsigned char*)fn_804AE3BC()->GetWorkBuffer_unk();
+    const unsigned char* data = (const unsigned char*)fn_804AE3BC()->GetWorkBuffer_unk();
     PPPlayer_unk* winner = fn_804DD158((PPManager2_unk*)lbl_8087F610, data[0]);
     PPPlayer_unk* loser = fn_804DD158((PPManager2_unk*)lbl_8087F610, data[1]);
     if (winner == 0 || loser == 0 || winner->mRef.mChara == 0 || loser->mRef.mChara == 0) {
@@ -9935,7 +9916,7 @@ extern "C" void fn_804F4728() {
     if (PP_NO_DATA_UNK) {
         return;
     }
-    unsigned int* data = (unsigned int*)fn_804AE3BC()->GetWorkBuffer_unk();
+    const unsigned int* data = (const unsigned int*)fn_804AE3BC()->GetWorkBuffer_unk();
     if (data[0] <= 7) {
         PPManager2_unk* mgr = (PPManager2_unk*)lbl_8087F610;
         mgr->m9694[data[0]] = data[1];
@@ -9954,7 +9935,7 @@ extern "C" void fn_804F47FC(PPPlayer_unk* player, unsigned int aid) {
     if (fn_800F7F90()->mState == 30 && fn_800F7F90()->m50C != 0) {
         return;
     }
-    PPMsgRoom_unk* data = (PPMsgRoom_unk*)fn_804AE3BC()->GetWorkBuffer_unk();
+    const PPMsgRoom_unk* data = (const PPMsgRoom_unk*)fn_804AE3BC()->GetWorkBuffer_unk();
     for (int i = 0; i < (int)fn_800F7F90()->mPlayers.size(); i++) {
         PPPlayer_unk* slot = fn_804D5F0C(fn_800F7F90(), i);
         slot->mD8 = data->mD8[i];
@@ -10050,7 +10031,7 @@ struct PPMsgCharsIn_unk {
 // inferred: message 0x1043: characters of the players and m2B80 (0x10 = team game)
 // NONMATCHING: 99.66% - order of the two pointer increments of the loop
 extern "C" void fn_804F4E40() {
-    PPMsgCharsIn_unk* data = (PPMsgCharsIn_unk*)fn_804AE3BC()->GetWorkBuffer_unk();
+    const PPMsgCharsIn_unk* data = (const PPMsgCharsIn_unk*)fn_804AE3BC()->GetWorkBuffer_unk();
     for (int i = 0; i < 8; i++) {
         PPPlayer_unk* player = fn_804D5F0C((PPManager2_unk*)lbl_8087F610, i);
         if (player != 0) {
