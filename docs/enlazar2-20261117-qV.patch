@@ -1,0 +1,262 @@
+diff --git a/src/game/EnemyQuarkFirst.cpp b/src/game/EnemyQuarkFirst.cpp
+index 1d2a24f..9cfe231 100644
+--- a/src/game/EnemyQuarkFirst.cpp
++++ b/src/game/EnemyQuarkFirst.cpp
+@@ -24,66 +24,28 @@ extern "C" void* memset(void* dst, int c, unsigned long n);
+ extern "C" float fn_800DC288(const char* s); // inferred: string to float
+ extern "C" int fn_800DC12C(const char* s);   // inferred: string to int
+ extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
+-// inferred: parameters of a camera mode of the field (0x3C bytes; names invented)
+-struct QuarkCamParam_unk {
+-    float mDist;  // 0x00
+-    float m04;
+-    float mPitch; // 0x08
+-    float m0C;
+-    float m10;
+-    float m14;
+-    float m18;
+-    float m1C;
+-    float m20;
+-    float m24;
+-    float m28;
+-    float m2C;
+-    float m30;
+-    float m34;
+-    int m38;
+-};
+-// inferred: point the camera looks at (lbl_8087F430 + 0x97C, as KrakenLook_unk in game/Em302Kraken.cpp)
+-struct QuarkLook_unk {
+-    void Set_unk(const atn::Vector3& pos, bool flag) {
+-        m01 = m00;
+-        m00 = 1;
+-        mPos = pos;
+-        m24 = 0.0f;
+-        m04 = flag ? 1 : 0;
+-    }
+-    unsigned char m00;
+-    unsigned char m01;
+-    unsigned char m02[2];
+-    int m04;
+-    unsigned char m08[4];
+-    atn::Vector3 mPos; // 0x0C
+-    unsigned char m18[0x24 - 0x18];
+-    float m24;
+-};
+-// inferred: field (lbl_8087F430): camera mode and follow state (names invented)
+-struct Field_unk {
+-    // inferred: changes the camera mode (name invented)
+-    void SetCamera_unk(int mode, const QuarkCamParam_unk& param) {
+-        if (m4D8 != mode) {
+-            m4D8 = mode;
+-            m4E4 = param;
+-            m4E0 = 0.05f;
+-            m4DC = 1.0f;
+-        }
++// inferred: defined inline in game/GameCamera_unk.cpp (clears m34)
++inline GameCameraParam_unk::GameCameraParam_unk() : m34(0.0f) {}
++// inferred: changes the mode of the field camera (GameCamera::m46C; name invented)
++static inline void SetCamera_unk(GameCameraModeParam_unk& mode, int value, const GameCameraParam_unk& param) {
++    if (mode.mMode != value) {
++        mode.mMode = value;
++        mode.mParam = param;
++        mode.mStep = 0.05f;
++        mode.mWeight = 1.0f;
+     }
+-    unsigned char m000[0x4D8];
+-    int m4D8; // inferred: camera mode
+-    float m4DC;
+-    float m4E0;
+-    QuarkCamParam_unk m4E4;
+-    unsigned char m520[0x588 - 0x520];
+-    QuarkCamParam_unk m588; // inferred: default parameters
+-    unsigned char m5C4[0x8A0 - 0x5C4];
+-    CharaTask* m8A0; // inferred: character the camera follows (as in game/Em302Kraken.cpp)
+-    unsigned char m8A4[0x97C - 0x8A4];
+-    QuarkLook_unk m97C;
+-};
+-extern "C" Field_unk* lbl_8087F430;
++}
++// inferred: makes the field camera look at a point (GameCamera::m910-m934; name invented)
++static inline void SetLook_unk(GameCamera& camera, const atn::Vector3& pos, bool flag) {
++    camera.m911 = camera.m910;
++    camera.m910 = 1;
++    camera.m91C = pos;
++    camera.m934 = 0.0f;
++    camera.m914 = flag ? 1 : 0;
++}
++// inferred: the field task (lbl_8087F430): mode (m46C), default parameters (m51C), followed character
++// (m834) and looked at point (m910-m934) of its camera
++extern "C" GameTask* lbl_8087F430;
+ extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
+ // inferred: skill effect manager (lbl_8087F9E8); fn_8059C2A8 shows the skill of a character
+ extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
+@@ -244,10 +206,10 @@ void EnemyQuarkFirst::vf10() {
+         mLook.fn_80129A48(0.3f);
+     }
+     if (m157C != 0 && m58C != 8 && m58C != 2) {
+-        Field_unk* field = lbl_8087F430;
+-        field->m8A0 = 0;
+-        field->m4D8 = 0;
+-        field->m97C.m00 = 0;
++        GameCamera* field = &lbl_8087F430->mCamera;
++        field->m834 = 0;
++        field->m46C.mMode = 0;
++        field->m910 = 0;
+         m157C = 0;
+     }
+     fn_8014C540();
+@@ -669,7 +631,7 @@ void EnemyQuarkFirst::vf104() {
+         break;
+     case 2:
+         if (mFlag31) {
+-            ((GameTask*)lbl_8087F430)->fn_80370AE4(0xCF, 1);
++            lbl_8087F430->fn_80370AE4(0xCF, 1);
+             fn_801765D8();
+         }
+         vf108();
+@@ -845,7 +807,7 @@ void EnemyQuarkFirst::vf108() {
+                         if (TurnToCheck_unk(1.0f)) {
+                         }
+                     }
+-                    ((GameTask*)lbl_8087F430)->fn_80370AE4(0xCE, 1);
++                    lbl_8087F430->fn_80370AE4(0xCE, 1);
+                     EnemyQuarkSecond* second = (EnemyQuarkSecond*)m1540;
+                     second->fn_80344DF4();
+                     m1540->mPos = mPos;
+@@ -875,7 +837,7 @@ void EnemyQuarkFirst::vf108() {
+                 }
+                 break;
+             }
+-            Field_unk* field = lbl_8087F430;
++            GameCamera* field = &lbl_8087F430->mCamera;
+             if (m14BC == 0) {
+                 if (mMotion.mTracks[0].m08 >= 50.0f) {
+                     ((GameTask*)field)->fn_80370B78(-1, 20, 0, -100.0f);
+@@ -885,15 +847,15 @@ void EnemyQuarkFirst::vf108() {
+                 if (mMotion.mTracks[0].m08 >= 60.0f) {
+                     fn_8016E4C4(0);
+                     fn_80239DAC(lbl_8087F3C0, &m1534, 0, 0);
+-                    ((GameTask*)lbl_8087F430)->fn_80370BD0(60, 5, -100.0f);
++                    lbl_8087F430->fn_80370BD0(60, 5, -100.0f);
+                     m14BC++;
+                 }
+             } else if (((EnemyQuarkSecond*)m1540)->m16B4 == 0) {
+                 mFlag31 = 1;
+                 if (m157C != 0) {
+-                    field->m8A0 = 0;
+-                    field->m4D8 = 0;
+-                    field->m97C.m00 = 0;
++                    field->m834 = 0;
++                    field->m46C.mMode = 0;
++                    field->m910 = 0;
+                     m157C = 0;
+                 }
+             }
+@@ -901,29 +863,29 @@ void EnemyQuarkFirst::vf108() {
+                 atn::Vector3 look = mPos;
+                 look.y += 15.0f;
+                 if (m157C == 0) {
+-                    QuarkCamParam_unk param;
+-                    param.mDist = 15.0f;
++                    GameCameraParam_unk param;
++                    param.m00 = 15.0f;
+                     param.m04 = 0.7853982f;
+-                    param.mPitch = 0.0f;
+-                    param.m0C = field->m588.m0C;
++                    param.m08 = 0.0f;
++                    param.m0C = field->m51C.m0C;
+                     param.m10 = 8.0f;
+-                    param.m14 = field->m588.m14;
+-                    param.m18 = field->m588.m18;
+-                    param.m1C = field->m588.m1C;
+-                    param.m20 = field->m588.m20;
+-                    param.m24 = field->m588.m24;
+-                    param.m28 = field->m588.m28;
+-                    param.m2C = field->m588.m2C;
+-                    param.m30 = field->m588.m30;
+-                    param.m34 = field->m588.m34;
+-                    param.m38 = field->m588.m38;
+-                    field->m8A0 = this;
+-                    field->SetCamera_unk(4, param);
+-                    field->m97C.Set_unk(look, false);
++                    param.m14 = field->m51C.m14;
++                    param.m18 = field->m51C.m18;
++                    param.m1C = field->m51C.m1C;
++                    param.m20 = field->m51C.m20;
++                    param.m24 = field->m51C.m24;
++                    param.m28 = field->m51C.m28;
++                    param.m2C = field->m51C.m2C;
++                    param.m30 = field->m51C.m30;
++                    param.m34 = field->m51C.m34;
++                    param.m38 = field->m51C.m38;
++                    field->m834 = this;
++                    SetCamera_unk(field->m46C, 4, param);
++                    SetLook_unk(*field, look, false);
+                     m157C = 1;
+                 } else {
+-                    field->m8A0 = this;
+-                    field->m97C.mPos = look;
++                    field->m834 = this;
++                    field->m91C = look;
+                 }
+             }
+             return;
+@@ -963,38 +925,38 @@ void EnemyQuarkFirst::vf108() {
+         return;
+     }
+     case 8: {
+-        Field_unk* field = lbl_8087F430;
++        GameCamera* field = &lbl_8087F430->mCamera;
+         if (m55C == 6) {
+             if (m560 != 13) {
+                 if (m560 == 14) {
+                     atn::Vector3 pos = mPos;
+                     pos.y += 15.0f;
+                     if (m157C == 0) {
+-                        QuarkCamParam_unk param;
+-                    param.mDist = 15.0f;
++                        GameCameraParam_unk param;
++                    param.m00 = 15.0f;
+                     param.m04 = 0.7853982f;
+-                    param.mPitch = -0.43633232f;
+-                    param.m0C = field->m588.m0C;
++                    param.m08 = -0.43633232f;
++                    param.m0C = field->m51C.m0C;
+                     param.m10 = 8.0f;
+-                    param.m14 = field->m588.m14;
+-                    param.m18 = field->m588.m18;
+-                    param.m1C = field->m588.m1C;
+-                    param.m20 = field->m588.m20;
+-                    param.m24 = field->m588.m24;
+-                    param.m28 = field->m588.m28;
+-                    param.m2C = field->m588.m2C;
+-                    param.m30 = field->m588.m30;
+-                    param.m34 = field->m588.m34;
+-                    param.m38 = field->m588.m38;
+-                    field->m8A0 = this;
+-                    field->SetCamera_unk(4, param);
++                    param.m14 = field->m51C.m14;
++                    param.m18 = field->m51C.m18;
++                    param.m1C = field->m51C.m1C;
++                    param.m20 = field->m51C.m20;
++                    param.m24 = field->m51C.m24;
++                    param.m28 = field->m51C.m28;
++                    param.m2C = field->m51C.m2C;
++                    param.m30 = field->m51C.m30;
++                    param.m34 = field->m51C.m34;
++                    param.m38 = field->m51C.m38;
++                    field->m834 = this;
++                    SetCamera_unk(field->m46C, 4, param);
+                     atn::Vector3 look = mPos;
+                     look.y += 25.0f;
+-                    field->m97C.Set_unk(look, false);
++                    SetLook_unk(*field, look, false);
+                     m157C = 1;
+                     } else {
+-                        field->m8A0 = this;
+-                        field->m97C.mPos = pos;
++                        field->m834 = this;
++                        field->m91C = pos;
+                     }
+                 } else {
+                     mFlag31 = 1;

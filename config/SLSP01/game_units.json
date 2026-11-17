@@ -2295,7 +2295,7 @@
   "classes": [
    "gmk::ShakeCamera"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "gmk/AttractHatePoint.cpp",

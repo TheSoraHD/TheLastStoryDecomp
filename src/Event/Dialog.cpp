@@ -80,20 +80,8 @@ struct DialogText_unk {
 extern "C" void fn_800DAB68(DialogTextMgr_unk* mgr, DialogText_unk* text);
 extern "C" const wchar_t lbl_8087DBD8[2]; // inferred: one space (another unit's literal)
 
-// inferred: field (lbl_8087F430)
-// inferred: camera (CameraSub_unk at lbl_8087F430 + 0x6C)
-struct CameraSub_unk {
-    unsigned char m000[0x7FC];
-    int m7FC;
-};
-struct DialogField_unk {
-    unsigned char m00[0x4C];
-    int m4C; // inferred: map
-    int m50;
-    unsigned char m54[0x6C - 0x54];
-    CameraSub_unk m6C;
-};
-extern "C" DialogField_unk* lbl_8087F430;
+// inferred: the field task (lbl_8087F430): map of its options and sub mode of its camera
+extern "C" GameTask* lbl_8087F430;
 
 // inferred: post effects (lbl_8087EF8C)
 struct DialogPostFx_unk {
@@ -369,10 +357,10 @@ void Dialog::fn_80228AF8(int slot, Actor* actor, int kind, int arg, int frames, 
             mSlots[slot].mHead = h;
             h->fn_80227434(kind, arg, slot == 1);
             int flag = 0;
-            DialogField_unk* field = lbl_8087F430;
+            GameTask* field = lbl_8087F430;
             if (field != 0) {
-                int map = field->m4C;
-                if ((map == 14 && field->m50 == 6) || (map == 0x1D && field->m50 == 6)) {
+                int map = field->mOption.mMap;
+                if ((map == 14 && field->mOption.mSub == 6) || (map == 0x1D && field->mOption.mSub == 6)) {
                     flag = 1;
                 }
             }
@@ -466,11 +454,11 @@ void Dialog::fn_80228FD8() {
         }
     }
     if (lbl_8087F430 != 0) {
-        m118 = ((GameTask*)lbl_8087F430)->fn_80370174(3);
-        ((GameTask*)lbl_8087F430)->fn_80370320(3, 1, 0);
-        CameraSub_unk* camera = &lbl_8087F430->m6C;
+        m118 = lbl_8087F430->fn_80370174(3);
+        lbl_8087F430->fn_80370320(3, 1, 0);
+        GameCamera* camera = &lbl_8087F430->mCamera;
         if (camera->m7FC != 0) {
-            ((GameCamera*)camera)->fn_80389838(0);
+            camera->fn_80389838(0);
         }
     }
     fn_800DAA3C(lbl_8087F008, 0);
@@ -496,7 +484,7 @@ int Dialog::fn_802291BC() {
 void Dialog::fn_80229240() {
     lbl_8087EF8C->m778 = 14;
     if (lbl_8087F430 != 0) {
-        ((GameTask*)lbl_8087F430)->fn_80370320(3, m118, 0);
+        lbl_8087F430->fn_80370320(3, m118, 0);
     }
     m150 = -1;
     fn_802292AC(1);

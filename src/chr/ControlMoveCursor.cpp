@@ -2,6 +2,7 @@
 #include "atn/RenderManager.h"
 #include "atn/Camera_unk.h"
 #include "atn/ColliBase.h"
+#include "game/GameTask.h"
 
 extern "C" double sqrt(double x);
 extern "C" double cos(double x);
@@ -31,25 +32,13 @@ extern "C" inline float fn_801C3910(const atn::Vector3& v) {
     return sqrt(v.x * v.x + v.z * v.z);
 }
 
-// inferred: a camera position and the point it looks at (two of them in CursorField_unk)
-struct CursorView_unk {
-    // inferred: viewing direction (inline)
-    atn::Vector3 GetDir_unk() const { return (mTarget - mPos).GetNormalize(); }
-    atn::Vector3 mPos;
-    atn::Vector3 mTarget;
-};
+// inferred: viewing direction of a camera (inline; name invented)
+static inline atn::Vector3 GetDir_unk(const atn::Camera& camera) {
+    return (camera.mTarget - camera.mPos).GetNormalize();
+}
 
-// inferred: field state (lbl_8087F430), only the members read here
-struct CursorField_unk {
-    unsigned char m000[0x74];
-    CursorView_unk m74;
-    unsigned char m8C[0x268 - 0x8C];
-    CursorView_unk m268;
-    unsigned char m280[0x868 - 0x280];
-    int m868;
-    int m86C;
-};
-extern "C" CursorField_unk* lbl_8087F430;
+// inferred: the field task (lbl_8087F430)
+extern "C" GameTask* lbl_8087F430;
 
 extern "C" void* lbl_8087EE98;
 extern "C" int fn_8004ED34(void* colli, atn::ColliResult_unk* result, const atn::Vector3& from, const atn::Vector3& to,
@@ -156,11 +145,11 @@ void ControlMoveCursor::fn_801C346C(const CursorTarget_unk* target, float maxDis
 // The original calls this function out of line from fn_801C3458 (with the ray end point as a temporary,
 // MWCC would inline it there): __declspec(noinline).
 __declspec(noinline) void ControlMoveCursor::fn_801C3944(const CursorTarget_unk* target, float a, float dist, float c) {
-    CursorField_unk* field = lbl_8087F430;
-    if (field->m868 != 4 || field->m868 != field->m86C) {
+    GameTask* field = lbl_8087F430;
+    if (field->mCamera.m7FC != 4 || field->mCamera.m7FC != field->mCamera.m800) {
         return;
     }
-    atn::Vector3 dir = field->m268.GetDir_unk();
+    atn::Vector3 dir = GetDir_unk(field->mCamera.m1F4);
     atn::Vector3 from = fn_8017C9AC(mChara);
     atn::ColliResult_unk res;
     if (fn_8004ED34(lbl_8087EE98, &res, from, from + dir * dist, 4, mChara->GetColli_unk(), 0) != 0) {
@@ -168,7 +157,7 @@ __declspec(noinline) void ControlMoveCursor::fn_801C3944(const CursorTarget_unk*
     } else {
         m08 = from + dir * dist;
     }
-    atn::Vector3 look = field->m74.GetDir_unk();
+    atn::Vector3 look = GetDir_unk(field->mCamera.mCamera);
     look.y = 0.0f;
     mChara->SetRot_unk(look.ToRotation_unk());
 }
