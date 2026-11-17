@@ -1259,25 +1259,26 @@ struct EfpRes_unk {
     EfpEmitter_unk* mItems;
 };
 
+// inferred: removes the effect events of an emitter (name invented)
+inline void RemoveEffects_unk(atn::FixedArray_unk<ReplayEffectEntry_unk*, 512>& effects, EfpEmitter_unk* emitter) {
+    ReplayEffectEntry_unk** it = effects.begin();
+    while (it != effects.end()) {
+        if ((*it)->mEvent.mRes == emitter->m48) {
+            effects.erase(it);
+        } else {
+            it++;
+        }
+    }
+}
+
 // inferred: removes the effect events of every emitter of `efp`
-// NONMATCHING: 89.4% - register allocation: the original keeps the outer counter in r31 and the
-// erase index in a volatile register (tried counters declared outside, int/unsigned, an erase inline).
+// NONMATCHING: 91.4% - volatile registers: the resource, the emitter offset and the erase pointer rotate
+// (r10/r11/r12) and the original loads the resource before saving r31 (tried the declaration orders, an
+// early return, the whole loop in an inline, the helper with a pointer or the owner)
 void ReplayBuffer::fn_80570A74(atn::EfpFile* efp) {
-    EfpRes_unk* res = (EfpRes_unk*)efp->mResource;
-    if (res != 0) {
+    if (EfpRes_unk* res = (EfpRes_unk*)efp->mResource) {
         for (unsigned int i = 0; i < res->mCount; i++) {
-            void* owner = res->mItems[i].m48;
-            ReplayEffectEntry_unk** p = mEffects.mData;
-            while (p != mEffects.mData + mEffects.mSize) {
-                if ((*p)->mEvent.mRes == owner) {
-                    for (unsigned int j = p - mEffects.mData; j < mEffects.mSize - 1; j++) {
-                        mEffects.mData[j] = mEffects.mData[j + 1];
-                    }
-                    mEffects.mSize = mEffects.mSize - 1;
-                } else {
-                    p++;
-                }
-            }
+            RemoveEffects_unk(mEffects, &res->mItems[i]);
         }
     }
 }

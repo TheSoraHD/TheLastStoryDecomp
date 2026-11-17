@@ -429,10 +429,22 @@ int GameChoiceWindow::fn_803B4C24() {
     return mState == 3;
 }
 
+// inferred: MSL moves strings with memcpy when a vector reallocates (the old elements are cleared and destroyed
+// as empty strings by the buffer, 0x803B5000 in fn_803B4C38)
+template <>
+inline void std::__vec_split_unk<std::basic_string<wchar_t> >::__push_front_unk(std::basic_string<wchar_t>* first,
+                                                                              std::basic_string<wchar_t>* last) {
+    int n = last - first;
+    mStart -= n;
+    memcpy(begin(), first, n * sizeof(std::basic_string<wchar_t>));
+    memset(first, 0, n * sizeof(std::basic_string<wchar_t>));
+    this->mSize += n;
+}
+
 // inferred: splits the text of the message into the (up to four) choices, one per line, and sets their
 // texts; the empty choices are disabled (all of them empty: the first one stays enabled)
-// NONMATCHING: 88.6% - the reallocation of push_back of std/vector.h copies the strings one by one (the
-// original moves them with memcpy); the rest are registers and stack slots that follow
+// NONMATCHING: 98.9% - in the move of the reallocation the original keeps `data + size - data` unfolded (add/subf
+// before the division by 12; tried an unsigned count, a distance inline, a dead generic loop) and r18/r19 swap
 void GameChoiceWindow::fn_803B4C38() {
     mChoice = -1;
     mCount = 1;
