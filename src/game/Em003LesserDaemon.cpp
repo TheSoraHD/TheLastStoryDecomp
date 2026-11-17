@@ -610,7 +610,7 @@ void Em003LesserDaemon::vf88() {
     fn_8024FCDC();
 }
 
-// NONMATCHING: 99.89% - f2/f3 of the sine and the frame in the death light (8 variants of the expression)
+// inferred: the frame read into a local (in place, f2/f3 of the sine and the frame swap)
 void Em003LesserDaemon::fn_8024BE94() {
     static const char* const sMaterials[6] = {"em003_eye",   "em003_skin01", "em003_skin02",
                                               "em003_skin03", "em003_wep01",  "em003_wep02"};
@@ -632,7 +632,8 @@ void Em003LesserDaemon::fn_8024BE94() {
     float light;
     if (m58C == 2) {
         light = 0.5f * (float)sin(atn::DegToRad_unk(m1644)) + 0.5f;
-        light *= 1.0f - MIN(1.0f, mMotion.mTracks[0].m08 / 20.0f);
+        float frame = mMotion.mTracks[0].m08;
+        light *= 1.0f - MIN(1.0f, frame / 20.0f);
     } else if (m58C == 12) {
         m1644 += 20.0f * lbl_8087EFA8->GetTime_unk();
         if (m1644 >= 360.0f) {
