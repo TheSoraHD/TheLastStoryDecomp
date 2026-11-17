@@ -6724,14 +6724,14 @@ struct PPMsgVoice_unk {
     unsigned int mVoice;
     int m04;
 };
-// NONMATCHING: 95.09% - the categories of m2A50 addressed from the table and not from the manager (as fn_804F50DC),
-// the range test of `slot` folded into one unsigned compare (also as !(a && b)), registers
+// NONMATCHING: 96.02% - the categories of m2A50 addressed from the table and not from the manager (as fn_804F50DC),
+// registers
 // inferred: says the quick message `slot` of the page shown by the message list: category 20 is the message of
 // the own character with the same id (m04) in the category of its stage (table); plays its voice and, with a
 // slot of its own, sends the voice (message 0x1030), shows it (fn_804F50DC) and sends it (message 0x103E).
 // 0 when nothing was said
 extern "C" int fn_804E82C4(PPManager2_unk* mgr, int slot) {
-    if (slot < 0 || slot >= 10) {
+    if (slot < 0 || 10 <= slot) {
         return 0;
     }
     if (lbl_8087EE90 == 0 || lbl_8087F498 == 0) {

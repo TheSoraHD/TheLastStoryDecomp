@@ -17,6 +17,7 @@ Inicio: 2026-11-17 06:06 CET (tope 08:36).
 | fn_804EE4F0 | 99,63 % | 99,89 % (queda el orden de los argumentos de PSVECDotProduct) |
 | fn_804F2450 | 99,00 % | 99,16 % (copias de `m13D8`/`m13E8` con `Assign_unk`) |
 | fn_804DA690 | 96,89 % | 98,58 % (registros: m564 del primer fn_804DB408) |
+| fn_804E82C4 | 95,52 % | 96,0 % (rango de `slot` con el literal a la izquierda) |
 | fn_804EF0F0 | 99,07 % | 99,71 % (queda el `lwzx` del personaje encontrado) |
 
 ## Para el port
