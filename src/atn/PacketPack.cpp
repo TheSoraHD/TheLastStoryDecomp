@@ -4163,14 +4163,11 @@ static inline int PPCountTeam_unk(PPManager2_unk* mgr, unsigned int team) {
 }
 static inline int PPTeamScore_unk(const PPManager2_unk* mgr, int team);
 
-// NONMATCHING: 95.92% - branch layout of the rank tests (unsigned range checks here) and registers
+// NONMATCHING: 98.58% - registers (the original keeps m564 of the first fn_804DB408 in a saved register)
 // inferred: rewards of the end of the game: an item by the rank of the own player (another set when less than a
 // minute was left) and, in the team mode, two items when the own team had fewer players and lost by 40 or more
 extern "C" void fn_804DA690(PPManager2_unk* mgr) {
-    if (lbl_8087F490 == 0 || Inventory::instance_ == 0) {
-        return;
-    }
-    if (fn_804DD158(mgr, lbl_8087F628->GetMyAid_unk()) == 0) {
+    if (lbl_8087F490 == 0 || Inventory::instance_ == 0 || fn_804DD158(mgr, lbl_8087F628->GetMyAid_unk()) == 0) {
         return;
     }
     fn_804DF4B8(mgr);
@@ -4178,27 +4175,27 @@ extern "C" void fn_804DA690(PPManager2_unk* mgr) {
     int code = 0;
     int count = 0;
     bool last = fn_804DB408(mgr) >= 0 && fn_804DB408(mgr) < 60;
-    if (last) {
-        if (rank >= 0 && rank < 2) {
-            fn_80444020(Inventory::instance_, 0x1E7D, 0, -1, 0, 1, &code, &count, 0);
-        }
-        if (rank >= 2 && rank < 4) {
-            fn_80444020(Inventory::instance_, 0x1E7E, 0, -1, 0, 1, &code, &count, 0);
-        } else if (rank == 4) {
-            fn_80444020(Inventory::instance_, 0x1E7F, 0, -1, 0, 1, &code, &count, 0);
-        } else if (rank >= 5) {
-            fn_80444020(Inventory::instance_, 0x1E80, 0, -1, 0, 1, &code, &count, 0);
-        }
-    } else {
-        if (rank >= 0 && rank < 2) {
+    if (!last) {
+        if (0 <= rank && rank < 2) {
             fn_80444020(Inventory::instance_, 0x1E79, 0, -1, 0, 1, &code, &count, 0);
         }
-        if (rank >= 2 && rank < 4) {
+        if (2 <= rank && rank < 4) {
             fn_80444020(Inventory::instance_, 0x1E7A, 0, -1, 0, 1, &code, &count, 0);
         } else if (rank == 4) {
             fn_80444020(Inventory::instance_, 0x1E7B, 0, -1, 0, 1, &code, &count, 0);
         } else if (rank >= 5) {
             fn_80444020(Inventory::instance_, 0x1E7C, 0, -1, 0, 1, &code, &count, 0);
+        }
+    } else {
+        if (0 <= rank && rank < 2) {
+            fn_80444020(Inventory::instance_, 0x1E7D, 0, -1, 0, 1, &code, &count, 0);
+        }
+        if (2 <= rank && rank < 4) {
+            fn_80444020(Inventory::instance_, 0x1E7E, 0, -1, 0, 1, &code, &count, 0);
+        } else if (rank == 4) {
+            fn_80444020(Inventory::instance_, 0x1E7F, 0, -1, 0, 1, &code, &count, 0);
+        } else if (rank >= 5) {
+            fn_80444020(Inventory::instance_, 0x1E80, 0, -1, 0, 1, &code, &count, 0);
         }
     }
     if (code > 0 && count > 0) {
