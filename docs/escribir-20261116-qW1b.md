@@ -9,6 +9,7 @@
 | GameScene::vf14 (0x803C221C, dibujo de depuracion, 5192 B) | DRAFT stub vacio, 0,08 % | **100 %** |
 | GameScene::fn_803CC5E4 (personaje de un punto) | 87,3 % | **100 %** |
 | GameScene::fn_803CCCC0 (pares en cola) | 92,4 % | **100 %** |
+| GameScene::fn_803CCA84 (posicion de un punto) | 96 % | **100 %** |
 | TutorialTask::fn_805BC1C0 (camara libre) | equivalente 96,3 % | equivalente NONMATCHING 99 % (registros) |
 
 ## Para el port
@@ -25,8 +26,10 @@
 
 - Un Vector3 local del que solo se usa una componente (ToRotationZ_unk(...).y) cambia la pila: `float yaw = v.ToRotationZ_unk().y;` deja el temporal donde el original (TutorialTask fn_805BC1C0 98,1 -> 99 %). (escribir-20261116 qW1b)
 - Bucle sobre un FixedArray_unk que el original recorre con un puntero desde `this` (desplazamiento del miembro en las cargas): `m190.mData[i].m00` en cada uso, sin referencia local ni operator[] (GameScene fn_803CCCC0 92 -> 100 %); y en SimpleArray `m80[i].mId`/`m80[i].m20` en vez de una referencia (fn_803CC5E4 87 -> 100 %). (escribir-20261116 qW1b)
+- Inline que devuelve 0/1 usada en cada caso de un switch (`return Inline(...)`): MWCC pone un `li r3, 0` por caso; si el original salta a un solo `li r3, 0` final, el bucle va escrito en cada caso con `return 1;` y `break;` (GameScene fn_803CCA84 96 -> 100 %). (escribir-20261116 qW1b)
 
 ## Bloqueos
+- GameScene fn_803CB618 (91 %), fn_803CAED0 (97,6 %), fn_803C1CAC (98,9 %): orden de cargas/pila; probados reordenar las referencias a/b, operator- en vez del ctor por componentes (91,4 %), bloque anidado y declarar sin inicializar en fn_803CAED0, y `mCamera != mDefaultCamera` en fn_803C1CAC.
 - ReplayBuffer fn_80570A74: con las inlines reales `mEffects.begin()/end()/erase(p)` sube a 89,7 % pero desplaza dos `@N` (labelcheck peor); no commiteado. Sigue el reparto de registros (contador exterior en r31).
 - GameChoiceWindow fn_803B5974/fn_803B710C: el pool ancho original (.sdata 0x8087DD80-0x8087DD98) tiene 0x18 bytes: L"" de fn_803B3D2C en +0, el de fn_803B4C38 en +8 y L"\xFF1F..." en +0xC; probado `L"\0"` en fn_803B4C38 (queda en +6). Falta saber que literales ocupan +2..+8.
 - GameTask vf14: el original guarda MemoryManager* y recalcula +0x138/+0x150/+0x168 en cada llamada virtual; probados la inline con referencia y con puntero a miembro (sin cambio).

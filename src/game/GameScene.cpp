@@ -2761,41 +2761,56 @@ int GameScene::fn_803CCA64(CharaTask* chara, int arg, float range) {
     return 0;
 }
 
-// inferred: position and rotation of the set point of `chara` in `points`
-inline int GetSetPoint_unk(atn::SimpleArray<gs::NpcSetPoint>& points, CharaTask* chara, atn::Vector3* pos,
-                           atn::Vector3* rot) {
-    for (unsigned int i = 0; i < points.size(); i++) {
-        gs::NpcSetPoint& p = points[i];
-        if (p.mId == chara->m58) {
-            if (pos != 0) {
-                *pos = p.mPos;
-            }
-            if (rot != 0) {
-                *rot = atn::Vector3(0.0f, p.m14, 0.0f);
-            }
-            return 1;
-        }
-    }
-    return 0;
-}
-
 int GameScene::fn_803CCA84(CharaTask* chara, atn::Vector3* pos, atn::Vector3* rot) {
     if (chara == 0) {
         return 0;
     }
-    int found = 0;
+    // inferred: position and rotation of the set point of `chara`
     switch (chara->mType) {
     case 1:
-        found = GetSetPoint_unk(m80, chara, pos, rot);
+        for (unsigned int i = 0; i < m80.size(); i++) {
+            gs::NpcSetPoint& p = m80[i];
+            if (p.mId == chara->m58) {
+                if (pos != 0) {
+                    *pos = p.mPos;
+                }
+                if (rot != 0) {
+                    *rot = atn::Vector3(0.0f, p.m14, 0.0f);
+                }
+                return 1;
+            }
+        }
         break;
     case 2:
-        found = GetSetPoint_unk(m88, chara, pos, rot);
+        for (unsigned int i = 0; i < m88.size(); i++) {
+            gs::NpcSetPoint& p = m88[i];
+            if (p.mId == chara->m58) {
+                if (pos != 0) {
+                    *pos = p.mPos;
+                }
+                if (rot != 0) {
+                    *rot = atn::Vector3(0.0f, p.m14, 0.0f);
+                }
+                return 1;
+            }
+        }
         break;
     case 3:
-        found = GetSetPoint_unk(m90, chara, pos, rot);
+        for (unsigned int i = 0; i < m90.size(); i++) {
+            gs::NpcSetPoint& p = m90[i];
+            if (p.mId == chara->m58) {
+                if (pos != 0) {
+                    *pos = p.mPos;
+                }
+                if (rot != 0) {
+                    *rot = atn::Vector3(0.0f, p.m14, 0.0f);
+                }
+                return 1;
+            }
+        }
         break;
     }
-    return found;
+    return 0;
 }
 
 int GameScene::fn_803CCC4C() {
