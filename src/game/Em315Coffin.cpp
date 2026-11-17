@@ -16,6 +16,10 @@ extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 // inferred: effect manager (class unknown), global instance at 0x8087F3C0
 struct EffectMgr_unk;
 extern "C" EffectMgr_unk* lbl_8087F3C0;
+// inferred: weak getter of the effect manager (lwz r3, lbl_8087F3C0; blr)
+extern "C" inline EffectMgr_unk* fn_800F7FA0() {
+    return lbl_8087F3C0;
+}
 extern "C" int fn_80239D58(EffectMgr_unk* mgr, void* owner, int id); // inferred: the effect is playing
 extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
 extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, int arg6,
@@ -424,7 +428,7 @@ inline atn::Vector3 GetNodePos_unk(MtxPtr m) {
 }
 
 // inferred: identity rotated by z, y and x (name invented, as in game/ChaserNpc.cpp)
-inline void CoffinRotZYX_unk(atn::Matrix3x4& m, const atn::Vector3& rot) {
+inline atn::Matrix3x4& CoffinRotZYX_unk(atn::Matrix3x4& m, const atn::Vector3& rot) {
     m.SetIdentity();
     if (rot.z != 0.0f) {
         Mtx t;
@@ -447,6 +451,7 @@ inline void CoffinRotZYX_unk(atn::Matrix3x4& m, const atn::Vector3& rot) {
         PSMTXConcat(m.m, r, t);
         __MtxCopy(m.m, t);
     }
+    return m;
 }
 
 // inferred: segment and radius of a capsule (as in gmk/Cannonball.cpp)
@@ -725,7 +730,7 @@ inline void CoffinEffect_unk(atn::EfpFile* efp, atn::Model* model) {
     color.g = 1.0f;
     color.b = 1.0f;
     color.a = 1.0f;
-    fn_8023A8B4(lbl_8087F3C0, efp, model, 0, pos, rot, color, -1, -1, 1, 1.0f);
+    fn_8023A8B4(fn_800F7FA0(), efp, model, 0, pos, rot, color, -1, -1, 1, 1.0f);
 }
 
 // inferred: matrix helpers of the ray (names invented)
@@ -735,25 +740,25 @@ inline atn::Matrix3x4 CoffinTrans_unk(const atn::Vector3& v) {
     return m;
 }
 inline void CoffinMulRot_unk(atn::Matrix3x4* m, const atn::Vector3& rot) {
-    atn::Matrix3x4 r;
-    CoffinRotZYX_unk(r, rot);
     atn::Matrix3x4 t;
-    PSMTXConcat(m->m, r.m, t.m);
+    atn::Matrix3x4 r;
+    PSMTXConcat(m->m, CoffinRotZYX_unk(r, rot).m, t.m);
     *m = t;
 }
 inline void CoffinMulScale_unk(atn::Matrix3x4* m, const atn::Vector3& v) {
+    atn::Matrix3x4 t;
     atn::Matrix3x4 s;
     PSMTXScale(s.m, v.x, v.y, v.z);
-    atn::Matrix3x4 t;
     PSMTXConcat(m->m, s.m, t.m);
     *m = t;
 }
 
+inline void CoffinScaleLen_unk(atn::Matrix3x4* m, float len) {
+    atn::Vector3 scale(1.0f, 1.0f, len / 20.0f);
+    CoffinMulScale_unk(m, scale);
+}
 // inferred: the ray goes from the coffin to its drain target; the effect m1570 is a unit beam scaled by the
 // distance / 20
-// NONMATCHING: 97.16% - stack layout: the original keeps a 4 byte gap below the vectors of the start, the
-// rotation temporaries 0x30 higher and the scale vector at 0x18 (~14 variants: helpers for the matrices by
-// value/in place, local order of the vectors, scale/rotation declared early)
 void Em315Coffin::fn_80315964() {
     if (fn_80239D58(lbl_8087F3C0, this, 0)) {
         fn_80239DAC(lbl_8087F3C0, this, 0, 1);
@@ -771,8 +776,7 @@ void Em315Coffin::fn_80315964() {
     m1588 = CoffinTrans_unk(from);
     atn::Vector3 rot = dir.ToRotation_unk();
     CoffinMulRot_unk(&m1588, rot);
-    atn::Vector3 scale(1.0f, 1.0f, len / 20.0f);
-    CoffinMulScale_unk(&m1588, scale);
+    CoffinScaleLen_unk(&m1588, len);
     fn_8023A680(lbl_8087F3C0, &m1570, -1, 5, &m1588.m, 0, 0, 0, 0, -1, 1, 1.0f);
 }
 

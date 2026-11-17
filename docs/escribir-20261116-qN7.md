@@ -22,7 +22,8 @@ chr/ControlRide, chr/ControlDamage, game/Em209SmallGolem, game/Em101LittleZesyaS
 | game/Em101LittleZesyaSecond fn_80261078 | 98,51 % | ~99,0 % en el parche (pila arreglada con `YawTo_unk`); quedan los registros de los dos `IsState_unk(8) \|\| IsState_unk(0x200)` |
 | game/Em101LittleZesyaSecond fn_80261DC0 | 98,17 % | sin cambio (bloqueo conocido del `this` de las inlines Set_unk) |
 | game/EnemySeaLizerd fn_80354EE4 / fn_80355390 | 98,41 / 99,96 % | sin cambio (parche qA 99,85; Abs_unk de Vec.h) |
-| game/Em315Coffin | 2 funciones | no tocada (ctor bloqueado por el `.sdata` de 0.0f) |
+| game/Em315Coffin fn_80315964 (0x80315964) | 97,19 % | 100 % (parche qA4 + matrices) |
+| game/Em315Coffin ctor | 99,92 % | sin cambio (bloqueo del `.sdata` de 0.0f; la unidad no enlaza) |
 
 ## Parche sin commit
 
@@ -51,6 +52,8 @@ chr/ControlRide, chr/ControlDamage, game/Em209SmallGolem, game/Em101LittleZesyaS
 
 - Una inline miembro `const` (o una inline libre con parametro `const T*`) no comparte con el llamador las cargas hechas a traves de `this`: el original recarga `mChara` y recalcula `&mChara->mMotion` dentro de la inline (ControlKnockdown::fn_801AE41C, como ControlDamageLastOne::fn_801B0260 que ya era `const`). Reproducido en un fichero suelto: `const C*` da dos cargas, `C*` una. Tres lecturas de un mismo miembro que el original no junta (m1DC de la lente): cada una por un camino distinto (miembro, `const CharaTask*`, `const ModelBase*`). (escribir-20261116 qN7)
 - Copia `pos = res.m10` con r3/r4 cruzados: a traves de una inline que devuelve el vector por valor (`HitPos_unk(res)`). Llamada `fn_800C344C(name, &mChara->mPos, ...)` con el puntero en r5 en vez de r4: inline `PlaySeAt_unk(name, const Vector3& pos)`. (escribir-20261116 qN7)
+
+- Direccion de una matriz local que el original guarda en un registro salvado y reutiliza despues de rellenarla en una inline: que la inline que la rellena devuelva la referencia y usar ese resultado (`PSMTXConcat(m->m, CoffinRotZYX_unk(r, rot).m, t.m)`); con un puntero local sale la reutilizacion pero no el orden de los `addi`. Junto con declarar la matriz destino `t` antes que `r`/`s` (orden de la pila) dio Em315Coffin fn_80315964 al 100 %. (escribir-20261116 qN7)
 
 ## Bloqueos
 
