@@ -264,8 +264,12 @@ inline void QueenRotZYX_unk(atn::Matrix3x4& m, const atn::Vector3& rot) {
 }
 
 // inferred: identity rotated around y (name invented)
+// inferred: the identity is written here with the zero in a local (with Matrix3x4::SetIdentity the
+// zero takes f7 and pi f8 in Em208Queen::vf10, the original has them the other way round)
 inline void SetRotY_unk(atn::Matrix3x4* m, float rad) {
-    m->SetIdentity();
+    float zero = 0.0f;
+    m->m[0][1] = m->m[0][2] = m->m[0][3] = m->m[1][0] = m->m[1][2] = m->m[1][3] = m->m[2][0] = m->m[2][1] = m->m[2][3] = zero;
+    m->m[0][0] = m->m[1][1] = m->m[2][2] = 1.0f;
     Mtx t;
     Mtx r;
     PSMTXRotRad(r, 'y', rad);
@@ -285,8 +289,6 @@ inline void Em208Queen::CastSkill_unk() {
                 boost::function<void(SkillEffect*)>(), 1.0f);
 }
 
-// NONMATCHING: 99.86% - f7/f8 of pi and 0.0f in the "eat_point" rotation (state 13); tried the rotation
-// as an inline, the angle in a local, operand order, SetIdentity by hand
 void Em208Queen::vf10() {
     if (m58C == 15) {
         m56C = 0.16666667f;

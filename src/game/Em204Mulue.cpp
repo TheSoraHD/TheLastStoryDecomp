@@ -127,12 +127,12 @@ struct MulueUIHint_unk : public GameUIElem1C_unk {
 // inferred: shot of a sting (BulletShot_unk with defaults; name invented)
 struct MulueShot_unk : public BulletShot_unk {
     MulueShot_unk() {
-        m00 = 2.0f;
         m04 = 0;
         m08 = 0;
         m10 = 0;
         m14 = 0.0f;
         m18 = 1.0f;
+        m00 = 2.0f;
     }
 };
 
@@ -786,59 +786,52 @@ void Em204Mulue::fn_802A74A4() {
     fn_802AC0E0();
 }
 
-// NONMATCHING: 98.41% - float registers of the first capsule and r6/r7 of the node copies (__VecCopy family)
+// inferred: sets the segment and radius of a capsule (an inline: the node copies take the registers of
+// the original only through it, with VecAssign_unk; as in the patch of Em204MulueMp; name invented)
+static inline void SetCapsule_unk(atn::ColliCapsule& c, const atn::Vector3& a, const atn::Vector3& b, float r) {
+    c.m3C = a;
+    c.m48 = b;
+    c.m54 = r;
+}
 void Em204Mulue::fn_802A7970() {
     atn::Vector3 a;
     atn::Vector3 b;
-    float r0 = m5B0;
+    m620 = m5B0;
     m614 = mPos + m5A4;
-    m620 = r0;
-    m614.y += r0;
+    m614.y += m620;
     a = m614;
     b = GetNodePos_unk(mMotion.GetNodeMtx_unk("head"));
     b.y -= 1.0f;
-    mColli.m3C = a;
-    mColli.m48 = b;
-    mColli.m54 = m620;
+    SetCapsule_unk(mColli, a, b, m620);
     {
         float r = 7.0f;
-        a = GetNodePos_unk(mMotion.GetNodeMtx_unk("leftforearm"));
-        b = GetNodePos_unk(mMotion.GetNodeMtx_unk("leftmiddle1"));
-        m168C.m3C = a;
-        m168C.m48 = b;
-        m168C.m54 = r;
+        atn::VecAssign_unk(a, GetNodePos_unk(mMotion.GetNodeMtx_unk("leftforearm")));
+        atn::VecAssign_unk(b, GetNodePos_unk(mMotion.GetNodeMtx_unk("leftmiddle1")));
+        SetCapsule_unk(m168C, a, b, r);
     }
     {
         float r = 7.0f;
-        a = GetNodePos_unk(mMotion.GetNodeMtx_unk("rightforearm"));
-        b = GetNodePos_unk(mMotion.GetNodeMtx_unk("rightmiddle1"));
-        m16E4.m3C = a;
-        m16E4.m48 = b;
-        m16E4.m54 = r;
+        atn::VecAssign_unk(a, GetNodePos_unk(mMotion.GetNodeMtx_unk("rightforearm")));
+        atn::VecAssign_unk(b, GetNodePos_unk(mMotion.GetNodeMtx_unk("rightmiddle1")));
+        SetCapsule_unk(m16E4, a, b, r);
     }
     {
         float r = 5.0f;
-        a = GetNodePos_unk(mMotion.GetNodeMtx_unk("leftleg"));
-        b = GetNodePos_unk(mMotion.GetNodeMtx_unk("leftfoot"));
-        m173C.m3C = a;
-        m173C.m48 = b;
-        m173C.m54 = r;
+        atn::VecAssign_unk(a, GetNodePos_unk(mMotion.GetNodeMtx_unk("leftleg")));
+        atn::VecAssign_unk(b, GetNodePos_unk(mMotion.GetNodeMtx_unk("leftfoot")));
+        SetCapsule_unk(m173C, a, b, r);
     }
     {
         float r = 5.0f;
-        a = GetNodePos_unk(mMotion.GetNodeMtx_unk("rightleg"));
-        b = GetNodePos_unk(mMotion.GetNodeMtx_unk("rightfoot"));
-        m1794.m3C = a;
-        m1794.m48 = b;
-        m1794.m54 = r;
+        atn::VecAssign_unk(a, GetNodePos_unk(mMotion.GetNodeMtx_unk("rightleg")));
+        atn::VecAssign_unk(b, GetNodePos_unk(mMotion.GetNodeMtx_unk("rightfoot")));
+        SetCapsule_unk(m1794, a, b, r);
     }
     {
         float r = 9.0f;
-        a = GetNodePos_unk(mMotion.GetNodeMtx_unk("joint2"));
-        b = GetNodePos_unk(mMotion.GetNodeMtx_unk("joint4"));
-        m17EC.m3C = a;
-        m17EC.m48 = b;
-        m17EC.m54 = r;
+        atn::VecAssign_unk(a, GetNodePos_unk(mMotion.GetNodeMtx_unk("joint2")));
+        atn::VecAssign_unk(b, GetNodePos_unk(mMotion.GetNodeMtx_unk("joint4")));
+        SetCapsule_unk(m17EC, a, b, r);
     }
 }
 
@@ -990,7 +983,7 @@ void Em204Mulue::fn_802A8BBC() {
     }
 }
 
-// NONMATCHING: 98.82% - order of the status address and the bitfield load of the damage record
+// inferred: the status of the target through a local pointer and `power` declared before `hp`
 void Em204Mulue::fn_802A91D0() {
     if (m14C0 > 160) {
         SetState_unk(13);
@@ -998,10 +991,11 @@ void Em204Mulue::fn_802A91D0() {
         ClearPartsFlag_unk();
     }
     if (m1644 != 0 && m14C0 % 30 == 0) {
-        int hp = (int)m1644->mStatus.m04;
+        CharaStatus* status = &m1644->mStatus;
         int power = mStatus.mParamB.m78 * 20;
+        int hp = (int)status->m04;
         int dmg = MIN(power, hp - 1) < 0 ? 0 : MIN(power, hp - 1);
-        m1644->mStatus.fn_8012DF7C(dmg, 0, 0);
+        status->fn_8012DF7C(dmg, 0, 0);
         atn::Vector3 pos(m1644->fn_80148B0C(0)->m04.mCenter);
         pos += atn::Vector3(0.0f, 15.0f, 0.0f);
         DamageResult_unk damage;
@@ -1012,7 +1006,6 @@ void Em204Mulue::fn_802A91D0() {
     Release_unk();
 }
 
-// NONMATCHING: 99.95% - r3/r4 of the bitfield of the damage record
 void Em204Mulue::fn_802A94C8() {
     if (fn_80158BB4()) {
         Rest_unk();
@@ -1109,7 +1102,8 @@ inline void MulueRotZYX_unk(atn::Matrix3x4& m, const atn::Vector3& rot) {
     }
 }
 
-// NONMATCHING: 99.59% - store order of the shot fields and r26/r27 of the shadowing local
+// inferred: the shadowing `dir` from `pos - hips` with y cleared, `h` copied with __VecCopy (source
+// address first) and the shot constructor storing m00 last
 void Em204Mulue::fn_802A9ADC(int aimed, int skipKind3) {
     if (m1678 == 0) {
         return;
@@ -1123,7 +1117,8 @@ void Em204Mulue::fn_802A9ADC(int aimed, int skipKind3) {
     if (player != 0) {
         // inferred: the original normalizes a shadowing local, `dir` stays unset
         atn::Vector3 pos(player->mPos);
-        atn::Vector3 dir(pos.x - hips.x, 0.0f, pos.z - hips.z);
+        atn::Vector3 dir(pos - hips);
+        dir.y = 0.0f;
         dir.Normalize_unk();
     }
     if (aimed) {
@@ -1164,7 +1159,8 @@ void Em204Mulue::fn_802A9ADC(int aimed, int skipKind3) {
             PSMTXMultVec(m3, &v, &v);
             PSMTXMultVec(m.m, &v, &v);
             if (player != 0) {
-                atn::Vector3 h(v);
+                atn::Vector3 h;
+                __VecCopy(&h.x, &v.x);
                 h.y = 0.0f;
                 h.Normalize_unk();
                 if (PSVECDotProduct(&dir, &h) > 0.9659258f) {
