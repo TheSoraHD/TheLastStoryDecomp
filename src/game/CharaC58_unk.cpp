@@ -314,13 +314,20 @@ static inline bool IsType14_unk(CharaTask* chara) {
     return chara->mType == 1 || chara->mType == 4;
 }
 
-// NONMATCHING: 99.46% - registers in the spot search loop (the data pointer and the offset swap
-// r5/r6, the character id and the spot id swap r0/r3); tried the comparison both ways, an id local,
-// an element pointer and an inline find helper
+inline const RouteSpot_unk& RouteSpots_unk::operator[](unsigned int i) const {
+    return mSpots[i];
+}
+
+// inferred: route id of the character (name invented)
+static inline int RouteId_unk(CharaTask* chara) {
+    return chara->m58;
+}
+
+// inferred: the spots are read through the const operator[] of their array (registers of the original)
 void CharaC58_unk::fn_8011CAE4(CharaTask* chara, float radius) {
     RouteTable_unk* table = GetRouteTable_unk();
     if (table != 0) {
-        RouteSpots_unk* spots = 0;
+        const RouteSpots_unk* spots = 0;
         if (IsType14_unk(chara)) {
             spots = &table->m80[0];
         } else if (chara->mType == 2) {
@@ -329,10 +336,10 @@ void CharaC58_unk::fn_8011CAE4(CharaTask* chara, float radius) {
             spots = &table->m80[2];
         }
         if (spots != 0) {
-            RouteSpot_unk* spot = 0;
+            const RouteSpot_unk* spot = 0;
             for (unsigned int i = 0; i < spots->mCount; i++) {
-                if (spots->mSpots[i].mId == chara->m58) {
-                    spot = &spots->mSpots[i];
+                if ((*spots)[i].mId == RouteId_unk(chara)) {
+                    spot = &(*spots)[i];
                     break;
                 }
             }

@@ -66,6 +66,9 @@ struct RouteSpot_unk {
 };
 // inferred: {count, spots} (names invented)
 struct RouteSpots_unk {
+    // inferred: the spot list is an atn::SimpleArray<gs::NpcSetPoint> (weak copy of its const
+    // operator[] at 0x803C0928, game/GameScene; defined inline by the files that use it)
+    const RouteSpot_unk& operator[](unsigned int) const;
     unsigned int mCount;
     RouteSpot_unk* mSpots;
 };
