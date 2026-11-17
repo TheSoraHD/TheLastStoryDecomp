@@ -1,6 +1,6 @@
 # escribir-20261116, cola W4 (atn, chr, gmk, AI y SDK)
 
-Agente W4, inicio 2026-11-17 02:08 (tope 04:38, fin 03:45). Rama `agent-W4`.
+Agente W4, inicio 2026-11-17 02:08 (tope 04:38). Rama `agent-W4`.
 
 ## Tabla de la cola
 
@@ -17,6 +17,7 @@ Agente W4, inicio 2026-11-17 02:08 (tope 04:38, fin 03:45). Rama `agent-W4`.
 | (extra) ItemSlotAnime `fn_8044EA34` | 69,95 % | 99,04 % (inlinea fn_8044F14C como el original) |
 | (extra) LayerOcclusionCPU ctor (0x800B3A94) | 98,87 % (100 en report.json: rep100) | **100 %** en objdiff-cli |
 | (extra) LayerOcclusionCPU `fn_800B3978`, `vf20` | 96,85 / 98,56 % | 99,66 / 99,36 % |
+| (extra) ItemSlotAnime `fn_8044EEC0` | 96,49 % | 97,55 % (inline no const `IsShown_unk`: reutiliza mState) |
 | (extra) LH_Model `Loader::Get_unk<LoadModel>` | 98,83 % | 99,73 % (size de `@stringBase0`; queda el bloqueo de Get_unk) |
 
 ## Para el port
@@ -117,6 +118,10 @@ Agente W4, inicio 2026-11-17 02:08 (tope 04:38, fin 03:45). Rama `agent-W4`.
 - ControlStickByQuark `ControlThrustForCrab::vf0C` y `ControlCaughtSkelton::vf0C`: locales nuevos o quitados
   renumeran los `@N` de la unidad (labelcheck 30-50 que faltan); medir solo tras `pd.sh`.
 - WordWrap_unk `fn_800E0F84` sin el local `buf`: 93,7 % y renumera.
+
+- `gmk/ItemSlotAnime.h` `IsState56_unk`: con el bool puesto en un if, peor en ItemSlotAnime, DropItem y
+  RandomItem; sin `const`, fn_8044EEC0 sube a 97,55 pero baja RandomItem fn_804348C4 (86,56 -> 86,36): por eso
+  la inline local `IsShown_unk` (no const) solo en ItemSlotAnime.
 
 ## Pendientes
 

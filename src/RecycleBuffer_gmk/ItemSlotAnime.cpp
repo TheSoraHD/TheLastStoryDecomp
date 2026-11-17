@@ -511,14 +511,20 @@ static inline bool IsAnimeEnd_unk(ItemSlotTask_unk* task) {
     return task->m50 >= ((D2A_TaskInstance32_unk*)task)->GetEndFrame();
 }
 
-// NONMATCHING: 96.4% - the state test of IsState56_unk (the original keeps mState in r4 from the start
-// and sets the flag to 1 on the branches)
+// inferred: states 5-6 (item shown), as ItemSlotAnime::IsState56_unk but on a non-const object (the original
+// reuses the mState loaded for the test of state 1)
+static inline bool IsShown_unk(ItemSlotAnime* anime) {
+    return anime->mState == 5 || anime->mState == 6;
+}
+
+// NONMATCHING: 97.5% - the state 5-6 test sets the flag to 1 on the branches in the original (li 0, then
+// li 1; here li 1, then li 0); a bool local set in an if, in the inline or in the header, is worse
 // inferred: the animation of the item can be skipped (loading, or the slots of states 5-6 finished)
 int ItemSlotAnime::fn_8044EEC0() {
     if (mState == 1) {
         return 1;
     }
-    if (IsState56_unk()) {
+    if (IsShown_unk(this)) {
         ItemSlotTask_unk* a = fn_80450A78() ? m00->m24[1] : m00->m24[0];
         ItemSlotTask_unk* b = fn_80450A78() ? m00->m30[1] : m00->m30[0];
         if ((!a->IsFlag_unk(4) && IsAnimeEnd_unk(a)) || (!b->IsFlag_unk(4) && IsAnimeEnd_unk(b))) {
