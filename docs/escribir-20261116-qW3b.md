@@ -21,8 +21,10 @@ Inicio: 2026-11-17 04:16 CET. Tope: 06:46.
 | Node 0x805393F8 `Action::fn_805393F8` | 96,93 % | 99,85 % (registros de mSize/mCap del push_back y huecos de la realloc) |
 | Node 0x80539870 / 0x80539CEC `MslSort_unk<...ActionKey_unk...>` | 78,97 % | 94,86 / 94,65 % (first/last en registros: cabecera game/MslSort_unk.h, no tocada) |
 | Node 0x805377F0 `Action::fn_805377F0` | 94,52 % | 97,09 % |
+| Sequence 0x80544398 `vector<ColorF_unk>::vector(const vector&)` | 98,65 % | **100 %** |
+| Sequence 0x80543F60 `vector<ActorPair_unk>::vector(const vector&)` | 95,72 % | **100 %** |
 
-Funciones al 100 %: 5 (4 de Sequence + MslMedian3 de Node). Unidades que enlazan: ninguna nueva.
+Funciones al 100 %: 7 (6 de Sequence + MslMedian3 de Node); report 15922 -> 15929. Unidades que enlazan: ninguna nueva.
 
 ## Para el port
 - Sequence.cpp: instanciacion explicita `template std::string::basic_string(const std::string&, size_type, size_type);`
@@ -41,7 +43,15 @@ Funciones al 100 %: 5 (4 de Sequence + MslMedian3 de Node). Unidades que enlazan
 - Para quien enlace Event/Sequence: la instanciacion explicita marca la copia debil del ctor de subcadena como
   "force active" (trucos-mwcc, enlazar-20261115): comprobar que el enlazador no la deja en el .dol.
 
+- include/Event/EventVector_unk.h: especializaciones del ctor de copia de `vector<ColorF_unk>` y
+  `vector<Event::ActorPair_unk>` (rango por dos inlines `__vec_cbegin_unk`/`__vec_cend_unk`); mismo comportamiento.
+- include/Event/Actor.h: `ActorPair_unk` con ctor por defecto vacio (`inline ActorPair_unk();`, definido en
+  Event/Sequence.cpp; nadie lo llama): deja de ser POD. Para el port: ctor vacio en la cabecera.
+
 ## Decisiones tomadas sin el usuario
+- Especializaciones por tipo en Event/EventVector_unk.h en vez de cambiar el ctor de copia generico de
+  std/vector.h: con `__init_unk(x.begin(), x.end())` (accesores const nuevos) en la generica ColorF y ActorPair dan
+  100 % pero `game/NewCampPartsGmk` `vector<atn::Light>::vector(const vector&)` pierde el 100 % (98,8).
 - ctor de `ActionKey_unk` declarado `inline` en la cabecera y definido en los dos .cpp que construyen claves (como
   `Sequence::FindCutByIndex_unk`): con el cuerpo en Event/Action.h se renumeran los `@N` de 15 unidades de Event
   (incluidas las Behavior* enlazadas).
@@ -74,6 +84,11 @@ Funciones al 100 %: 5 (4 de Sequence + MslMedian3 de Node). Unidades que enlazan
   y baja (escribir-20261116 qW3b).
 - Un ctor (aunque vacio y sin parametros) definido en una cabecera renumera los `@N` de todas las unidades que la
   incluyen: declararlo `inline` alli y definirlo en los .cpp que lo usan (escribir-20261116 qW3b).
+
+- Copia de un vector generico (no palabras) en el ctor de copia: tomar el rango con inlines (`x.begin()`/`x.end()`
+  const o funciones libres) en vez de `x.mData`, `x.mData + x.mSize` pone this/first/last en r29/r30/r31 como el
+  original (Sequence ColorF/ActorPair); en NewCampPartsGmk (atn::Light) el original usa la forma directa
+  (escribir-20261116 qW3b).
 
 ## Bloqueos
 - Event/Sequence `construct<EffectEntry24_unk>` 0x80542684, `__ct__IntVector_unk`/`__ct__EquipList_unk` (88,7), y
