@@ -3466,7 +3466,7 @@
   "classes": [
    "GameSaveLoadCommon"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "game/U16Table_unk.cpp",
