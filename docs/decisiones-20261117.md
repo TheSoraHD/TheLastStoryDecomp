@@ -66,3 +66,15 @@ Decisiones D1-D5 aprobadas por el usuario el 2026-11-17 (`claude/prompt-3h-decis
 ## D4. "Para revisar" de `docs/escribir-20261116.md`
 
 - Se queda como esta (aprobado): nada que deshacer.
+
+## Resultado
+
+- **15974 -> 15983 / 18109** (+9), codigo 61,12 -> 61,18 %, datos 75,95 % (igual), 732 unidades, lost 0 frente a
+  `main` ab092a5, rep100 24, labelcheck 11, build limpio con `main.dol: OK`.
+- Bajadas de fuzzy aceptadas: las 4 de D2 (arriba). Ninguna funcion al 100 % perdida.
+- Unidades re-emparejadas: D1 75, D3 34, D2 360, D5 3 (`pdbatch.sh` y retoques listados en cada decision).
+- Re-emparejado aprendido: tras un cambio de cabecera que desplaza la numeracion, las ptmf de 0xC de `.data` y las
+  etiquetas de `.bss` no las recupera `pdbatch`/`lblmap`; `lblfix.py` (por desplazamiento) quedandose solo con las
+  etiquetas que faltan, y para cadenas de `.rodata` un emparejado por valor. `lblfix.py game/CharaTask` propone
+  tambien 87 renombrados de `.sdata2` que no hay que aplicar.
+- Fallos de `ordercheck` ya presentes en `main`: game/GameEventScript y atn/SmallAllocator_8.
