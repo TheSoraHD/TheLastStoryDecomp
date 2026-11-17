@@ -1419,6 +1419,7 @@ public:
 };
 class D2AMpMenuResult : public atn::Task {
 public:
+    static D2AMpMenuResult* fn_804C566C(atn::Task* parent); // inferred: creates the instance
     void fn_804C8740();
     void fn_804C5E1C();
     void fn_804C6888(int time);
@@ -2104,6 +2105,8 @@ inline CharaListeners_unk* fn_8014F8F4() {
 // inferred: empty name and file strings of the allocations of the ctor of MP::Manager2 (one .sdata object each,
 // as lbl_8087E1B0/lbl_8087E1AC above)
 extern "C" const char lbl_8087E17C[1];
+extern "C" const char lbl_8087E174[1];
+extern "C" const char lbl_8087E178[1];
 extern "C" const char lbl_8087E180[1];
 extern "C" const char lbl_8087E184[1];
 extern "C" const char lbl_8087E188[1];
@@ -5177,6 +5180,52 @@ extern "C" int fn_804DE2F8(PPManager2_unk* mgr, int mode) {
     return 1;
 }
 
+// inferred: slot `index` of the manager, 0 out of range (body of the weak copy fn_804D5F0C, inlined here)
+static inline PPPlayer_unk* PPSlot_unk(PPManager2_unk* mgr, int index) {
+    if (index >= 0 && index < (int)mgr->mPlayers.size()) {
+        return &mgr->mPlayers[index];
+    }
+    return 0;
+}
+#include "game/EnemyTask.h"
+namespace MP {
+// inferred: character of the multiplayer session (__vt__Q22MP17Chara<9EnemyTask> 0x80791570, only the
+// EnemyTask instance exists); members names invented
+template <class T>
+class Chara : public T {
+public:
+    // inferred: inlined in fn_804DE884 (the character of a computer player): registered in the battle, out of
+    // the field until it appears
+    Chara(atn::Task* parent, void* data) : T(parent, data), m14B0(0), m14B4(0) {
+        this->mFlag2 = 1;
+        if (lbl_8087F048 != 0) {
+            lbl_8087F048->fn_801027A4(this);
+        }
+        ((PPChara_unk*)this)->m9F8 = 0;
+        this->mPos = atn::Vector3(10000.0f, 10000.0f, -10000.0f);
+    }
+    // inferred: creates the character (none without a parent)
+    static Chara* Create_unk(atn::Task* parent, void* data) {
+        Chara* chara;
+        if (parent != 0) {
+            chara = new ((MemoryTag)3, lbl_8087E178, lbl_8087E174, 0) Chara(parent, data);
+        } else {
+            chara = 0;
+        }
+        return chara;
+    }
+    virtual ~Chara();
+    virtual int vf0C();
+    virtual void vf10();
+    virtual void vf14();
+
+    int m14B0; // inferred: fn_80176ACC done
+    int m14B4; // inferred: knock-down event sent
+};
+} // namespace MP
+
+atn::Task* fn_80365708(atn::Task* parent, const GameTask::Option& option); // inferred: GameTask creator (game/GameTask)
+
 // NONMATCHING: 99.23% - aid and offset of the inlined searches fn_804DD158 in r3/r4 (r4/r3 in the original) and the
 // own slot and the host count in r31/r30 (r30/r31)
 // inferred: on the server: every other host has a slot and its bit in the mask mD53 of the own slot (count of the
@@ -5219,6 +5268,162 @@ extern "C" bool fn_804DE560(PPManager2_unk* mgr, int* count, bool* found) {
         all = false;
     }
     return all;
+}
+
+extern "C" void fn_800C3094(const char* group); // inferred: loads a sound group
+// inferred: effects of the game (fn_804DE884)
+extern "C" const char* const lbl_808875A4 = "/data/effect/ef_ms001e.efp";
+extern "C" const char* const lbl_808875A8 = "/data/effect/ef_mw003f_01.eff";
+// NONMATCHING: 99.58% - the original reloads the slot count at the top of the character loop and the character
+// pointer after its null check (both kept in a register here)
+// inferred: start of the game: the GameTask of the mode and stage (options lbl_807C8B10, the three digits of m598
+// in the local flags 0xFC-0xFE), the results cleared, the computer players of m9984/m998C in free slots, the
+// characters of the slots without one (MP::Chara<EnemyTask>, side by mode and team; the own team players appear
+// at once), the popups, the effects and the sound groups of the stages in use. 0 when a slot has no team or no
+// character
+extern "C" int fn_804DE884(PPManager2_unk* mgr) {
+    mgr->mGame = (GameTask*)fn_80365708(mgr, lbl_807C8B10[mgr->mMode][mgr->m560]);
+    mgr->mGame->fn_80374964(0);
+    mgr->mGame->fn_8037624C(0);
+    mgr->mGame->fn_80370AE4(0xFC, mgr->m598 % 10);
+    mgr->mGame->fn_80370AE4(0xFD, mgr->m598 / 10 % 10);
+    mgr->mGame->fn_80370AE4(0xFE, mgr->m598 / 100 % 10);
+    mgr->mGame->fn_80370AE4(0xFF, 0);
+    SetConfig::sInstance->mShowTutorial = 0;
+    mgr->m60C = 0;
+    mgr->m2B80.m00 = 0;
+    mgr->m2B80.m04 = 5;
+    mgr->m2B80.m08.clear();
+    mgr->m966C = -1;
+    mgr->m9670 = -1;
+    mgr->m9674 = 0;
+    mgr->m9678 = 0;
+    mgr->m967C = 0;
+    mgr->m9680 = 0;
+    mgr->m9684 = 0;
+    mgr->m9688 = 0;
+    mgr->m968C = 0;
+    mgr->m9690 = 0;
+    memset(mgr->m9694, -1, sizeof(mgr->m9694));
+    MP::D2AMpMenuResult::fn_804C566C(mgr);
+    MP::D2AMpMenuResult::sInstance->fn_800D246C(1);
+    mgr->m997A[0] = lbl_8087F628->GetServerAid_unk();
+    mgr->m604 = 1;
+    mgr->m9764 = 1;
+    mgr->m9768 = 0;
+    for (int j = 0; j < 8; j++) {
+        if (mgr->m9984[j] == 0 || fn_804DD158(mgr, mgr->m9984[j] & 0xF) == 0) {
+            continue;
+        }
+        for (int i = 0; i < (int)mgr->mPlayers.size(); i++) {
+            PPPlayer_unk* player = PPSlot_unk(mgr, i);
+            if (player->mFlags.mActive) {
+                continue;
+            }
+            player->mFlags.mActive = 1;
+            player->mAid = mgr->m9984[j];
+            player->mB0 = (signed char)mgr->m998C[j];
+            player->mFlags.m22 = fn_804DD1A8((PPManager2_unk*)lbl_8087F610, mgr->m9984[j]);
+            player->mFlags.m14 = mgr->mMode == 2 ? 80 : 60;
+            break;
+        }
+    }
+    PPPlayer_unk* own = fn_804DD158(mgr, lbl_8087F628->GetMyAid_unk());
+    for (int i = 0; i < (int)mgr->mPlayers.size(); i++) {
+        PPPlayer_unk* player = PPSlot_unk(mgr, i);
+        if (player->mFlags.mActive != 1) {
+            continue;
+        }
+        player->mDC.fn_80501288(0);
+        player->mE0 = 0;
+        player->mE4 = 0;
+        player->mFlags.m28 = 0;
+        player->mFlags.m27 = 0;
+        player->mFlags.m26 = 0;
+        player->mFlags.m13 = 0;
+        player->mFlags.m12 = 0;
+        if (player == own || player->mRef.mChara != 0) {
+            continue;
+        }
+        mgr->mOwnPlayer = player;
+        player->mRef.mChara =
+            MP::Chara<EnemyTask>::Create_unk((atn::Task*)lbl_8087F610, (void*)(player->mB0 + 700000));
+        unsigned int team = player->mFlags.m22;
+        if (team == 0) {
+            return 0;
+        }
+        if (mgr->mMode == 1) {
+            if (team == own->mFlags.m22) {
+                player->mRef.mChara->fn_8016DF3C(3);
+            } else {
+                player->mRef.mChara->fn_8016DF3C(2);
+            }
+        } else if (mgr->mMode == 0) {
+            player->mRef.mChara->fn_8016DF3C(2);
+        } else {
+            player->mRef.mChara->fn_8016DF3C(3);
+        }
+        if (player->mRef.mChara == 0) {
+            return 0;
+        }
+        if (IsTeamPlayer_unk(&mgr->mPlayers[i]) == 1) {
+            ((BattleCharaTask*)player->mRef.mChara)->mFlagC25 = 1;
+            if ((player->mAid & 0xF) == lbl_8087F628->GetMyAid_unk()) {
+                player->mRef.mChara->fn_8016E970(2);
+                player->mRef.mChara->m58C = 0;
+                player->mRef.mChara->fn_801546F4(0, lbl_807C7030, 0.0f);
+                player->mRef.mChara->fn_8015495C(0, 1, 1, 1);
+                player->mRef.mChara->mFlag2 = 0;
+            }
+        }
+    }
+    mgr->mOwnPlayer = fn_804DD158(mgr, lbl_8087F628->GetMyAid_unk());
+    MP::Popup::fn_805012C4(mgr);
+    MP::Popup::sInstance->fn_800D246C(1);
+    mgr->m96B4.LoadRequest(lbl_808875A4);
+    mgr->m96C0.LoadRequest(lbl_808875A8);
+    int em001 = 0;
+    int em102 = 0;
+    int em002 = 0;
+    int em003 = 0;
+    for (int i = 0; i < (int)mgr->mPlayers.size(); i++) {
+        PPPlayer_unk* player = PPSlot_unk(mgr, i);
+        if (player->mFlags.mActive != 1) {
+            continue;
+        }
+        switch (player->mB0) {
+        case 11:
+        case 12:
+        case 13:
+            em001++;
+            break;
+        case 14:
+        case 15:
+        case 16:
+            em102++;
+            break;
+        case 19:
+        case 20:
+            em002++;
+            break;
+        case 23:
+            em003++;
+            break;
+        }
+    }
+    if (em001 > 0) {
+        fn_800C3094("GROUP_MP_EM001");
+    }
+    if (em102 > 0) {
+        fn_800C3094("GROUP_MP_EM102");
+    }
+    if (em002 > 0) {
+        fn_800C3094("GROUP_MP_EM002");
+    }
+    if (em003 > 0) {
+        fn_800C3094("GROUP_MP_EM003");
+    }
+    return 1;
 }
 
 extern "C" void fn_800C3124(const char* group); // inferred: unloads a sound group
@@ -5708,13 +5913,6 @@ extern "C" void fn_804E6DD0(PPManager2_unk* mgr);
 extern "C" int fn_804E82C4(PPManager2_unk* mgr, int message);
 extern "C" void fn_804E4EB0(PPManager2_unk* mgr);
 extern const char* lbl_80791018[36];
-// inferred: slot `index` of the manager, 0 out of range (body of the weak copy fn_804D5F0C, inlined here)
-static inline PPPlayer_unk* PPSlot_unk(PPManager2_unk* mgr, int index) {
-    if (index >= 0 && index < (int)mgr->mPlayers.size()) {
-        return &mgr->mPlayers[index];
-    }
-    return 0;
-}
 // NONMATCHING: 97.31% - registers (the original shares the zero of the counter with the static of the message) and
 // the reloads of m564 and of the slot count in the inlined slot loops
 // inferred: update of the game: the timers mD50 of the slots (at 0 the effect 0x4FC1 ends and message 0x103A
@@ -10286,23 +10484,7 @@ extern "C" int fn_804FC520() {
     return 0;
 }
 
-#include "game/EnemyTask.h"
-
 namespace MP {
-
-// inferred: character of the multiplayer session (__vt__Q22MP17Chara<9EnemyTask> 0x80791570, only the
-// EnemyTask instance exists); members names invented
-template <class T>
-class Chara : public T {
-public:
-    virtual ~Chara();
-    virtual int vf0C();
-    virtual void vf10();
-    virtual void vf14();
-
-    int m14B0; // inferred: fn_80176ACC done
-    int m14B4; // inferred: knock-down event sent
-};
 
 template <class T>
 Chara<T>::~Chara() {}
