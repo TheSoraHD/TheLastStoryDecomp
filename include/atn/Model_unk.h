@@ -33,7 +33,7 @@ struct MotionBuffer; // inferred: node pose passed to the m370 callback (name fr
 class PBoneInterface; // physics bones owned by a model (include/atn/PBone.h)
 struct MotionSlot_unk; // inferred: motion slot of a model (defined in atn/Model.cpp)
 struct ModelComposite_unk; // inferred: composite texture of a model (defined in atn/Model.cpp)
-struct ModelCompositeTex_unk; // inferred: texture composite object (defined in atn/Model.cpp)
+class ITextureCompositor; // atn/TextureCompositor_unk.h
 struct Model;
 // (AABB_unk in atn/AABB_unk.h)
 class CsvTab;
@@ -111,7 +111,7 @@ struct ModelBase : public IRender {
     void fn_80091A90(const Mtx m);                   // inferred: updates the skinning matrices for m
     void fn_80091C10(const ModelBase* src, const int* map, int reset); // inferred: copies node matrices
     void fn_80095CD0();                          // inferred: steps the texture animations
-    void fn_80095750(const char* name, ModelCompositeTex_unk* tex); // inferred: adds a composite texture
+    void fn_80095750(const char* name, ITextureCompositor* tex); // inferred: adds a composite texture
     void fn_80092EC8(const char* path);          // inferred: loads the shadow model
     void fn_80092F1C(const char* path, const char* node, float distance); // inferred: adds a level of detail
     void fn_80092F90();                          // inferred: releases the levels of detail
