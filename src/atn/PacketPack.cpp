@@ -1112,6 +1112,7 @@ public:
     void fn_804B6944();
     void fn_804B50C0(int state);
     void fn_804B6204(int time);
+    void fn_804B671C(int score, int team); // inferred: score of a team
     void fn_804B691C();
     void fn_804B67E4(int value);
     static D2AMpMenuCockpit* fn_804B4C50(atn::Task* parent); // inferred: creates the instance
@@ -3802,6 +3803,15 @@ extern "C" void fn_804DA398(PPManager2_unk* mgr) {
 extern "C" int rand();
 extern "C" void fn_800CB518(atn::SoundRef* sound, int frames); // inferred: fades the sound in
 // inferred: sounds of the start of the count down (one of them at random)
+// inferred: voices said at random during the game (fn_804E5BC4)
+const char* lbl_80791018[36] = {
+    "VO_AR001_040", "VO_AR001_050", "VO_AR001_100", "VO_AR001_120", "VO_AR001_150", "VO_AR001_160",
+    "VO_AR001_170", "VO_AR001_180", "VO_AR001_200", "VO_AR001_230", "VO_AR002_020", "VO_AR002_040",
+    "VO_AR002_080", "VO_AR002_150", "VO_AR002_160", "VO_AR002_230", "VO_AR002_270", "VO_AR002_280",
+    "VO_AR002_290", "VO_AR002_310", "VO_AR002_320", "VO_AR002_350", "VO_AR002_430", "VO_AR002_450",
+    "VO_AR003_012", "VO_AR003_030", "VO_AR003_120", "VO_AR003_230", "VO_AR003_360", "VO_AR003_490",
+    "VO_AR003_580", "VO_AR003_630", "VO_AR003_640", "VO_AR003_650", "VO_AR003_670", "VO_AR003_680",
+};
 const char* lbl_807910A8[] = {"SE_DG009_007_MP", "SE_DG009_012_MP"};
 // inferred: plays one of the sounds lbl_807910A8 at random in m2B78
 extern "C" void fn_804DA3F4(PPManager2_unk* mgr) {
@@ -5432,14 +5442,213 @@ extern "C" int fn_804E650C(CharaTask* chara);
 extern "C" int fn_804CF424(ModelSlotsN_unk* model);
 extern "C" void fn_804CF374(PackedMotion_unk* out, atn::Model* model, int index);
 
-extern "C" int fn_804E650C(CharaTask* chara) {
-    return chara->mFlag15;
-}
-
 extern "C" void fn_804E7AC0(PPManager2_unk* mgr);
 extern "C" void fn_804E7628(PPManager2_unk* mgr);
 extern "C" void fn_804E6DD0(PPManager2_unk* mgr);
 extern "C" int fn_804E82C4(PPManager2_unk* mgr, int message);
+extern "C" void fn_804E4EB0(PPManager2_unk* mgr);
+extern const char* lbl_80791018[36];
+// inferred: slot `index` of the manager, 0 out of range (body of the weak copy fn_804D5F0C, inlined here)
+static inline PPPlayer_unk* PPSlot_unk(PPManager2_unk* mgr, int index) {
+    if (index >= 0 && index < mgr->mPlayers.mNum) {
+        return &mgr->mPlayers.mData[index];
+    }
+    return 0;
+}
+// NONMATCHING: 97.31% - registers (the original shares the zero of the counter with the static of the message) and
+// the reloads of m564 and of the slot count in the inlined slot loops
+// inferred: update of the game: the timers mD50 of the slots (at 0 the effect 0x4FC1 ends and message 0x103A
+// tells it), the end of the game (score m568, time limit m564, one side or one player left, game mode 2: no
+// player alive or the bosses defeated: m2B80 = 1 or 3, m50C), the cockpit (time and team scores), fn_804E4EB0,
+// fn_804E6518, a random voice, fn_804DF4B8 and the tutorial message of game mode 2 (m9764)
+extern "C" void fn_804E5BC4(PPManager2_unk* mgr) {
+    for (int i = 0; i < mgr->mPlayers.mNum; i++) {
+        PPPlayer_unk* player = PPSlot_unk(mgr, i);
+        if (player == 0 || player->mD50 <= 0) {
+            continue;
+        }
+        if (--player->mD50 != 0) {
+            continue;
+        }
+        if (player != 0 && player->mRef.mChara != 0) {
+            player->mD4C &= ~0xC00;
+            CharaTask* chara = player->mRef.mChara;
+            if (chara != 0) {
+                player->mRef.mChara->fn_80178864(fn_80219E6C(0x4FC1), chara);
+            }
+        }
+        if (player->mFlags.mActive == 1 && player != 0) {
+            NetMsgI_unk<PPId_unk> msg(0x103A);
+            PPId_unk* data = &msg.mData;
+            data->m00 = player->mAid;
+            data->m01 = 0;
+            fn_804AE3BC()->fn_8050E094(-1, 0x103A, data, 1);
+            fn_804AE3BC()->fn_8050DDDC(-1, 1);
+        }
+        player->mD50 = -1;
+    }
+    PPPlayer_unk* own = fn_804DD158(mgr, lbl_8087F628->GetMyAid_unk());
+    if (own == 0) {
+        return;
+    }
+    if (mgr->mStateVar.mValue == 30 && mgr->m50C == 0 && mgr->m568 != -1) {
+        for (int i = 0; i < mgr->mPlayers.mNum; i++) {
+            PPPlayer_unk* player = PPSlot_unk(mgr, i);
+            if (player->mFlags.mActive == 1 && player->mDCScore >= mgr->m568) {
+                mgr->m2B80 = 1;
+                mgr->m50C = 1;
+            }
+        }
+    }
+    int remain = -1;
+    if (mgr->mStateVar.mValue == 30 && mgr->m50C == 0) {
+        if (mgr->m564 != -1) {
+            remain = GetRemain_unk(mgr);
+            if (remain <= 0) {
+                remain = 0;
+                if (!own->mFlags.m26) {
+                    mgr->m2B80 = 1;
+                    mgr->m50C = 1;
+                    mgr->m534 = 1;
+                }
+            }
+        }
+        if (mgr->mMode == 1) {
+            int counts[3];
+            memset(counts, 0, sizeof(counts));
+            PPManager2_unk* mgr2 = (PPManager2_unk*)lbl_8087F610;
+            for (int i = 0; i < mgr2->mPlayers.mNum; i++) {
+                PPPlayer_unk* player = PPSlot_unk(mgr2, i);
+                if (player->mFlags.mActive == 1 && player->mRef.mChara != 0 &&
+                    ((PPChara_unk*)player->mRef.mChara)->m9F8 > 0) {
+                    counts[player->mFlags.m22]++;
+                }
+            }
+            if (counts[2] == 0 || counts[1] == 0) {
+                mgr->m2B80 = 1;
+                mgr->m50C = 1;
+            }
+        } else if (mgr->mMode == 0) {
+            int n = 0;
+            PPManager2_unk* mgr2 = (PPManager2_unk*)lbl_8087F610;
+            for (int i = 0; i < mgr2->mPlayers.mNum; i++) {
+                PPPlayer_unk* player = PPSlot_unk(mgr2, i);
+                if (player->mFlags.mActive == 1 && player->mRef.mChara != 0 &&
+                    ((PPChara_unk*)player->mRef.mChara)->m9F8 > 0) {
+                    n++;
+                }
+            }
+            if (n <= 1) {
+                mgr->m2B80 = 1;
+                mgr->m50C = 1;
+            }
+        } else if (mgr->mMode == 2) {
+            int dead = 1;
+            int bosses = 1;
+            for (int i = 0; i < mgr->mPlayers.mNum; i++) {
+                PPPlayer_unk* player = &mgr->mPlayers.mData[i];
+                if (!player->mFlags.mActive || IsTeamPlayer_unk(player)) {
+                    continue;
+                }
+                CharaTask* chara = player->mRef.mChara;
+                if (chara == 0 || (((PPChara_unk*)chara)->m12A8 >> 1) & 1) {
+                    continue;
+                }
+                if ((((PPChara_unk*)chara)->m7E0 & 0x20) != 0x20 || chara->fn_8015EB2C() == 0 ||
+                    ((PPChara_unk*)chara)->m9F8 > 0) {
+                    dead = 0;
+                    break;
+                }
+            }
+            if ((lbl_8087F430 != 0 ? ((GameTask*)lbl_8087F430)->fn_80370A78(0xFB) : 0) == 2) {
+                for (int i = 0; i < mgr->mCharas.mNum; i++) {
+                    CharaTask* chara = mgr->mCharas.mData[i].mRef.mChara;
+                    if (chara == 0 || (chara->mFlags & 4) == 4) {
+                        continue;
+                    }
+                    unsigned int flags = ((PPChara_unk*)chara)->m12A4;
+                    if (((flags >> 22) & 1) != 1) {
+                        continue;
+                    }
+                    if ((((PPChara_unk*)chara)->m7E0 & 0x20) != 0x20 ||
+                        (!((flags >> 15) & 1) && (!((flags >> 16) & 1) || ((PPChara_unk*)chara)->m9F8 > 0))) {
+                        bosses = 0;
+                        break;
+                    }
+                }
+            }
+            if (dead) {
+                mgr->m2B80 = 1;
+                mgr->m50C = 1;
+            } else if (bosses) {
+                mgr->m2B80 = 3;
+                mgr->m50C = 1;
+            }
+        }
+    }
+    if (mgr->m518 != 0) {
+        MP::D2AMpMenuCockpit::sInstance->fn_804B6204(remain);
+        if (mgr->mMode != 2 && mgr->m50C == 0 && mgr->mStateVar.mValue != 31) {
+            int score2 = 0;
+            int score1 = 0;
+            for (int i = 0; i < mgr->mPlayers.mNum; i++) {
+                PPPlayer_unk* player = PPSlot_unk(mgr, i);
+                if (player->mFlags.mActive == 1) {
+                    if (player->mFlags.m22 == 2) {
+                        score2 += player->mDCScore;
+                    } else if (player->mFlags.m22 == 1) {
+                        score1 += player->mDCScore;
+                    }
+                }
+            }
+            MP::D2AMpMenuCockpit::sInstance->fn_804B671C(score2, 0);
+            MP::D2AMpMenuCockpit::sInstance->fn_804B671C(score1, 1);
+        }
+    }
+    fn_804E4EB0(mgr);
+    fn_804E6518(mgr);
+    if (mgr->mMode != 2 && mgr->m50C == 0 && lbl_8087F498 != 0 && lbl_8087F498->fn_803EBA54() != 0 &&
+        !fn_800CB58C(&mgr->m2B74) && rand() % 90 == 0) {
+        GameVoice* voice = lbl_8087F498;
+        mgr->m2B74 = voice->fn_803E9608(lbl_80791018[(unsigned int)rand() % 36], 0, 1, 1.0f);
+    }
+    if (mgr->mStateVar.mValue == 30 && mgr->m50C == 0) {
+        fn_804DF4B8(mgr);
+    }
+    if (mgr->mMode == 2 && mgr->m50C == 0 && mgr->m9764 != 0) {
+        for (int i = 0; i < mgr->mPlayers.mNum; i++) {
+            PPPlayer_unk* player = &mgr->mPlayers.mData[i];
+            if (!player->mFlags.mActive || player->mFlags.m30 == 1 || IsTeamPlayer_unk(player)) {
+                continue;
+            }
+            if ((((PPChara_unk*)player->mRef.mChara)->m7E0 & 0x20) != 0x20) {
+                continue;
+            }
+            atn::net::Manager* net = lbl_8087F628;
+            unsigned int* shown = (unsigned int*)&net->mFriendList.m7F0[0x0C];
+            if ((*shown & 4) != 4 || (*shown & 8) != 8) {
+                if ((*shown & 4) != 4) {
+                    *shown |= 4;
+                } else if ((*shown & 8) != 8) {
+                    *shown |= 8;
+                }
+                if (lbl_8087F430 != 0) {
+                    SetConfig::sInstance->mShowTutorial = 1;
+                    ((GameTask*)lbl_8087F430)->fn_803750E4(0x1BE);
+                    SetConfig::sInstance->mShowTutorial = 0;
+                }
+            }
+            mgr->m9764 = 0;
+            break;
+        }
+    }
+}
+
+extern "C" int fn_804E650C(CharaTask* chara) {
+    return chara->mFlag15;
+}
+
+
 // NONMATCHING: 99.84% - aid and count of the inlined search fn_804DD158 in r5/r4 (r4/r5 in the original), as fn_804D8610
 // inferred: per frame of the own player: flag m12 (local flag 0xFB is 3), the messages of the frame (table of 30
 // frames: 2 character states, 4 and 8 other updates) and the quick messages of the pad in the message list
