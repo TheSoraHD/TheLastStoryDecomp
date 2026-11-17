@@ -9,6 +9,7 @@
 #include "game/PlayerTask.h"
 #include "gmk/Lemon.h"
 #include "atn/DrawHelper.h"
+#include "game/GameTask.h"
 
 extern "C" void* memset(void* dst, int c, unsigned long n);
 extern "C" int strcmp(const char* a, const char* b);
@@ -53,13 +54,8 @@ struct BrazierSettings_unk {
     int mFps; // 0x30: inferred: frames per second
 };
 extern "C" BrazierSettings_unk* lbl_8087F0A8;
-// inferred: field (lbl_8087F430) with a view test object at 0x16C
-struct BrazierField_unk {
-    unsigned char m000[0x16C];
-    unsigned char m16C[0x10]; // inferred: camera view
-};
-extern "C" BrazierField_unk* lbl_8087F430;
-extern "C" int fn_8004FF58(void* view, const CharaTask::Sphere_unk* sphere); // inferred: the sphere is in view
+// inferred: the field task (lbl_8087F430); the frustum of its camera tests the spawn points
+extern "C" GameTask* lbl_8087F430;
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 struct HitInfo_unk;
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
@@ -465,7 +461,7 @@ void Brazier::fn_80407D24() {
 // The count read through GetCount_unk() reloads lbl_8087F610 for the loop test, and the unsigned
 // subscript of GetArenaEntry_unk gives the entry offset/chara registers of the original
 int Brazier::fn_80407E8C() {
-    BrazierField_unk* field = lbl_8087F430;
+    GameTask* field = lbl_8087F430;
     if (field == 0) {
         return 0;
     }
@@ -476,10 +472,10 @@ int Brazier::fn_80407E8C() {
         mTimer--;
         return 0;
     }
-    CharaTask::Sphere_unk sphere;
+    atn::Sphere sphere;
     atn::Vector3 pos(m6C);
     atn::Vector3 home(mDesc->mPos);
-    unsigned char* view = field->m16C;
+    Frustum_unk* view = &field->mCamera.mCamera.mFrustum;
     float r = 10.0f;
     sphere.mCenter = pos;
     sphere.mRadius = r;
