@@ -3629,7 +3629,7 @@
   "classes": [
    "PlayerManager"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "game/PlayerTask.cpp",

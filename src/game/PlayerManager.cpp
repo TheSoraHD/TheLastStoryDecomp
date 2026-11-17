@@ -68,14 +68,14 @@ inline void SetId_unk(PlayerTask* p, int id) {
     p->m58 = id;
 }
 
-// NONMATCHING: 99.7% - saved registers: the original reuses r30 for the id and the head (here the id
-// gets r29). A separate local in the else branch fixes the player register there. Tried: id declared
-// after the call, id in the head variable (the constant is folded), loop forms.
+// inferred: the id is declared at the top between head and player (the original reuses r30 for the id
+// and the head); a separate local in the else branch fixes the player register there
 void PlayerManager::fn_80549F14(int mode) {
     PlayerTask* head;
+    int id;
     PlayerTask* player;
     if (mode >= 3 && mode <= 4) {
-        int id = 700000;
+        id = 700000;
         MpPlayer_unk* mp = fn_804EB870(lbl_8087F610);
         if (mp != 0) {
             id += mp->mB0;
