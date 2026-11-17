@@ -505,6 +505,7 @@ extern "C" MP::PacketPackMP* lbl_8087F61C; // inferred: instance of MP::PacketPa
 #include "MP/D2AMpMenuMessageList.h"
 #include "MP/D2AMpMenuFriendRoom.h"
 #include "MP/MpLevel_unk.h"
+#include "game/ResHandle.h"
 
 // inferred: state of a player sent by message 0x16 (0x7C bytes); names invented
 struct PPPair_unk {
@@ -703,23 +704,121 @@ struct PPPlayer_unk {
 
 };
 
-// inferred: array of the player slots of MP::Manager2 (pointer and count); names invented
-struct PPPlayerArray_unk {
-    // inferred: slot of the team player of network id `aid` (none for a main player id); name invented
-    PPPlayer_unk* FindTeam_unk(unsigned int aid) {
-        if ((aid & 0xF0) != 0) {
-            for (unsigned int i = 0; i < (unsigned int)mNum; i++) {
-                PPPlayer_unk* player = &mData[i];
-                if (aid == player->mAid) {
-                    return player;
-                }
+namespace std {
+
+// inferred: reallocation of the resize of the player slots (weak copies 0x804FC8CC growth, 0x804FF3D0 storage of
+// the buffer, 0x804FCA34 new slots, 0x804FE2DC move of the old slots, 0x804FC9C0 buffer destructor), as the
+// push_back of include/Event/EventVector_unk.h. Names invented.
+template <class T>
+struct __vec_pp_unk {
+    static unsigned int __grow_by_unk(vector<T>& v, unsigned int n);
+    // inferred: the first argument (the new size) is not used
+    static void __reserve_unk(__vec_split_unk<T>& buf, unsigned int, unsigned int cap);
+    static void __append_n_unk(__vec_split_unk<T>& buf, unsigned int n);
+    static void __push_front_unk(__vec_split_unk<T>& buf, T* first, T* last);
+};
+
+// inferred: growth without the length check of the new capacity
+template <class T>
+unsigned int __vec_pp_unk<T>::__grow_by_unk(vector<T>& v, unsigned int n) {
+    if (n > v.max_size() - v.mCap) {
+        __msl_error("vector length error");
+    }
+    unsigned int cap = v.mCap;
+    if (cap < v.max_size() / 3) {
+        cap += __vec_max_unk((unsigned int)((cap + 1) * 3 / 5), n);
+    } else if (cap < v.max_size() / 3 * 2) {
+        cap += __vec_max_unk((unsigned int)((cap + 1) / 2), n);
+    } else {
+        cap = v.max_size();
+    }
+    return cap;
+}
+
+template <class T>
+void __vec_pp_unk<T>::__reserve_unk(__vec_split_unk<T>& buf, unsigned int, unsigned int cap) {
+    if (cap > (unsigned int)-1 / sizeof(T)) {
+        __msl_error("vector length error");
+    }
+    buf.mData = __vec_alloc_sel_unk<T>::alloc(cap);
+    buf.mCap = cap;
+}
+
+// NONMATCHING: 94.80% - registers and order of the address computation of the inlined constructor
+// inferred: each new slot is a copy of a default constructed one
+template <class T>
+void __vec_pp_unk<T>::__append_n_unk(__vec_split_unk<T>& buf, unsigned int n) {
+    T* p = buf.begin() + buf.mSize;
+    for (; n != 0; n--, p++) {
+        new (p) T(T());
+        buf.mSize++;
+    }
+}
+
+// NONMATCHING: 97.96% - registers of the member copy
+template <class T>
+void __vec_pp_unk<T>::__push_front_unk(__vec_split_unk<T>& buf, T* first, T* last) {
+    T* p = buf.begin();
+    while (last > first) {
+        --p;
+        --last;
+        new (p) T(*last);
+        buf.mStart--;
+        buf.mSize++;
+    }
+}
+
+// NONMATCHING: 4.40% - the original inlines the new slot (constructor and copy) and calls only the helpers of the
+// reallocation; ours is over the inlining budget and calls everything (an inline helper for the reallocation
+// takes the growth, the storage and the move inline and leaves an extra weak function)
+// inferred: resize of the player slots (weak copy 0x804D6688, called by MP::Manager2::vf10): the new slots are
+// copies of default constructed ones; the reallocation calls the helpers of __vec_pp_unk
+template <>
+inline void vector<PPPlayer_unk>::resize(size_type n) {
+    if (n > this->mSize) {
+        size_type m = n - this->mSize;
+        if (m > this->mCap || this->mSize > this->mCap - m) {
+            __check_grow_unk(__vec_sum_unk(this, m) - this->mCap);
+            __recommend_cap_unk(size() + m);
+        } else {
+            PPPlayer_unk* p = this->mData + this->mSize;
+            for (; m != 0; m--, p++) {
+                new (p) PPPlayer_unk(PPPlayer_unk());
+                this->mSize++;
+            }
+            return;
+        }
+        __vec_split_unk<PPPlayer_unk> buf(&this->mCap);
+        size_type cap = __vec_pp_unk<PPPlayer_unk>::__grow_by_unk(*this, this->mSize + m - this->mCap);
+        __vec_pp_unk<PPPlayer_unk>::__reserve_unk(buf, this->mSize + m, cap);
+        buf.mStart = this->mSize;
+        __vec_pp_unk<PPPlayer_unk>::__append_n_unk(buf, m);
+        __vec_pp_unk<PPPlayer_unk>::__push_front_unk(buf, this->mData, this->mData + this->mSize);
+        __vec_swap_unk(this->mCap, buf.mCap);
+        __vec_swap_unk(this->mData, buf.mData);
+        __vec_swap_unk(this->mSize, buf.mSize);
+    } else if (n < this->mSize) {
+        this->__shrink_unk(n);
+    }
+}
+
+} // namespace std
+
+// inferred: the player slots of MP::Manager2 are a std::vector (resize 0x804D6688 and the weak copies
+// 0x804FC8CC-0x804FF3D0 of its growth)
+typedef std::vector<PPPlayer_unk> PPPlayerArray_unk;
+// inferred: slot of the team player of network id `aid` (none for a main player id); name invented
+inline PPPlayer_unk* PPFindTeam_unk(PPPlayerArray_unk* players, unsigned int aid) {
+    if ((aid & 0xF0) != 0) {
+        for (unsigned int i = 0; i < players->size(); i++) {
+            PPPlayer_unk* player = &(*players)[i];
+            if (aid == player->mAid) {
+                return player;
             }
         }
-        return 0;
     }
-    PPPlayer_unk* mData;
-    int mNum;
-};
+    return 0;
+}
 
 // inferred: entry of the character list of MP::Manager2 (0xB4 bytes, array at +0x5F0); names invented
 // inferred: character information copied from the character (0x30 bytes, fn_804D8078)
@@ -744,14 +843,33 @@ struct PPCharaEntry_unk {
     unsigned int mB0_0 : 31;
 };
 
-// inferred: array of the character list of MP::Manager2 (pointer and count); names invented
-struct PPCharaArray_unk {
-    PPCharaEntry_unk* mData;
-    int mNum;
+// inferred: the character list of MP::Manager2 is a std::vector (push_back inlined in fn_804E9C64)
+typedef std::vector<PPCharaEntry_unk> PPCharaArray_unk;
+
+// inferred: word arrays of MP::Manager2 cleared by their constructor (memset between the member initializations
+// of the constructor 0x804D0328); name invented
+template <int N>
+struct PPWords_unk {
+    PPWords_unk() { memset(m, 0, sizeof(m)); }
+    int m[N];
+};
+
+// inferred: result block of MP::Manager2 at 0x2B80 (game mode, result state of the game fn_804E4A60 and the
+// ranking copied by fn_804E4C5C); its destructor and the one of the ranking add the null checks of `this` of
+// ~Manager2 (0x804D2308); names invented
+struct PPRanking_unk : public atn::FixedArray_unk<PPPlayer_unk, 8> {
+    ~PPRanking_unk() {}
+};
+struct PPResult_unk {
+    ~PPResult_unk() {}
+    int m00;
+    int m04;
+    PPRanking_unk m08;
 };
 
 // inferred: state variable of MP::Manager2 (value and last value set); names invented
 struct PPStateVar_unk {
+    PPStateVar_unk() : mValue(0), mLast(0) {}
     int mValue;
     int mLast;
 };
@@ -761,13 +879,57 @@ struct PPListNode_unk {
     PPListNode_unk* mPrev;
     PPListNode_unk* mNext;
 };
-struct PPList_unk {
-    PPList_unk() : mCount(0) {
+// inferred: MSL list: the storage and the clear live two levels below the list (three null checks of `this` in
+// ~Manager2, as std::vector); names invented
+struct PPListBase_unk {
+    PPListBase_unk() : mCount(0) {
         mHead.mNext = &mHead;
         mHead.mPrev = &mHead;
     }
+    ~PPListBase_unk() { Clear_unk(); }
+    void Clear_unk() { Erase_unk(mHead.mNext, &mHead); }
+    void Erase_unk(PPListNode_unk* first, PPListNode_unk* end) {
+        if (first != end) {
+            PPListNode_unk* last = end->mPrev;
+            first->mPrev->mNext = last->mNext;
+            last->mNext->mPrev = first->mPrev;
+            while (first != end) {
+                PPListNode_unk* node = first;
+                first = first->mNext;
+                delete node;
+                mCount--;
+            }
+        }
+    }
     int mCount;
     PPListNode_unk mHead;
+};
+struct PPListImp_unk : public PPListBase_unk {
+    ~PPListImp_unk() {}
+};
+struct PPList_unk : public PPListImp_unk {
+    ~PPList_unk() {}
+};
+// inferred: level data of MP::Manager2 (0x8C bytes at +0x610, given to fn_805076F8 and fn_80507310); it starts
+// with the level table (count and array freed with delete[] by the destructor); names invented
+struct PPLevelTable_unk : public MpLevelTable_unk {
+    PPLevelTable_unk() {
+        m00 = 0;
+        m04 = 0;
+    }
+    ~PPLevelTable_unk() {
+        if (m04 != 0) {
+            delete[] m04;
+        }
+        m04 = 0;
+        m00 = 0;
+    }
+};
+struct PPLevelData_unk {
+    // inferred: the constructor clears the whole object after the table (0x804D0328)
+    PPLevelData_unk() { memset(this, 0, sizeof(PPLevelData_unk)); }
+    PPLevelTable_unk mTable;
+    unsigned char m08[0x8C - 0x8];
 };
 // inferred: request of the network thread (0x28 bytes at 0x99C0); names invented
 struct PPThreadRequest_unk {
@@ -819,6 +981,7 @@ struct PPTableEntry_unk {
 };
 // inferred: table of MP::Manager2 at 0x2A50 (21 entries and a buffer); names invented
 struct PPTable_unk {
+    PPTable_unk() : mFC(0) {}
     ~PPTable_unk() {
         if (mFC != 0) {
             delete[] mFC;
@@ -852,7 +1015,7 @@ struct Manager2 : public atn::Task {
     short m508;                       // inferred: reset to 3629 when the match ends
     short m50A;                       // inferred: set to 90 when a player slot is added
     int m50C;                         // inferred: sub state of the game (GameUISession_unk::GetM50C_unk)
-    void* m510;                       // inferred: folder "Multiplayer" of the debug menu
+    ResHandle m510;                   // inferred: folder "Multiplayer" of the debug menu
     MP::SaveLoad* mSaveLoad;          // 0x514
     int m518;                         // inferred: debug menu flags (Game, Debug, Clients, Players, Control info)
     int m51C;
@@ -875,8 +1038,8 @@ struct Manager2 : public atn::Task {
     int m560;                         // inferred: settings of message 0x0F (m560-m598)
     int m564;                         // inferred: also the time limit of the game (seconds)
     int m568;
-    int m56C[8];                      // inferred: warp point kept per player slot (fn_804EAA84)
-    int m58C[3];                      // inferred: weighted choices (fn_804E679C)
+    PPWords_unk<8> m56C;              // inferred: warp point kept per player slot (fn_804EAA84)
+    PPWords_unk<3> m58C;              // inferred: weighted choices (fn_804E679C)
     int m598;
     int m59C;                         // inferred: aid of the server
     int m5A0;
@@ -899,15 +1062,13 @@ struct Manager2 : public atn::Task {
 
     GameTask* mGame;                  // 0x5E0
     PPPlayerArray_unk mPlayers;       // 0x5E4
-    int m5EC;
     PPCharaArray_unk mCharas;         // 0x5F0
-    int m5F8;
     PPPlayer_unk* mOwnPlayer;         // 0x5FC: inferred: used when the character has no slot
     int m600;
     int m604;
     int m608;
     int m60C;
-    unsigned char m610[0x69C - 0x610]; // inferred: object given to fn_805076F8
+    PPLevelData_unk m610;             // inferred: object given to fn_805076F8
     int m69C;                         // inferred: start of the data given to fn_805061C8
     PPEntry104_unk m6A0[32];
     PPEntry44_unk m2720[6];
@@ -921,10 +1082,7 @@ struct Manager2 : public atn::Task {
     atn::SoundRef m2B74;              // inferred: sounds stopped by fn_804DA398
     atn::SoundRef m2B78;
     atn::FadeColor* m2B7C;            // inferred: fade of the multiplayer (its mDelay is raised during the load, fn_804D2508)
-    int m2B80;
-    int m2B84;                        // inferred: result state of the game (fn_804E4A60)
-    int m2B88;                        // inferred: number of the slots of m2B8C
-    PPPlayer_unk m2B8C[8];
+    PPResult_unk m2B80;               // inferred: result of the game (m00, m04 state, m08 ranking)
     int m966C;
     int m9670;                        // inferred: result of fn_804E4A60 (fn_804E448C)
     int m9674;                        // inferred: item won in the game (code, count)
@@ -1035,16 +1193,16 @@ struct PPNet_unk {
 
 // inferred: weak copies used by the receive loop (fn_804EE040) and by fn_804D25D0
 extern "C" inline PPPlayer_unk* fn_804D5F0C(PPManager2_unk* mgr, int index) {
-    if (index >= 0 && index < mgr->mPlayers.mNum) {
-        return &mgr->mPlayers.mData[index];
+    if (index >= 0 && index < (int)mgr->mPlayers.size()) {
+        return &mgr->mPlayers[index];
     }
     return 0;
 }
 extern "C" __declspec(noinline) inline int fn_804D5F40(PPPlayerArray_unk* players) {
-    return players->mNum;
+    return players->size();
 }
 extern "C" __declspec(noinline) inline PPPlayer_unk* fn_804D5F48(PPPlayerArray_unk* players, int index) {
-    return &players->mData[index];
+    return &(*players)[index];
 }
 extern "C" __declspec(noinline) inline int fn_804D6348(atn::net::Manager* net) {
     return net->mC215;
@@ -1353,7 +1511,7 @@ extern "C" __declspec(noinline) inline PPRoute_unk* fn_804D80FC(atn::SimpleArray
     return &routes->mData[index];
 }
 extern "C" __declspec(noinline) inline int fn_804D810C(PPCharaArray_unk* charas) {
-    return charas->mNum;
+    return charas->size();
 }
 
 extern "C" void* lbl_8087F518;
@@ -1437,7 +1595,6 @@ extern "C" void fn_804DC358(PPManager2_unk* mgr);
 extern "C" int fn_804DC374(PPManager2_unk* mgr, int mode);
 extern "C" int fn_804DE884(PPManager2_unk* mgr);
 extern "C" int fn_804DF404(PPManager2_unk* mgr);
-extern "C" void fn_804D6688(PPPlayerArray_unk* players, int num);
 extern "C" void fn_804DF310(PPManager2_unk* mgr);
 extern "C" void fn_804FB668(PPManager2_unk* mgr);
 extern "C" PPPlayer_unk* fn_804EB870(PPManager2_unk* mgr);
@@ -1579,7 +1736,7 @@ extern "C" __declspec(noinline) inline int fn_804D5F04(PPStateVar_unk* state) {
     return state->mValue;
 }
 extern "C" __declspec(noinline) inline int fn_804D5F38(PPManager2_unk* mgr) {
-    return mgr->mPlayers.mNum;
+    return (int)mgr->mPlayers.size();
 }
 extern "C" __declspec(noinline) inline void fn_804D5F58(CharaTask* chara, int on) {
     chara->mFlag15 = on;
@@ -1654,20 +1811,7 @@ extern "C" __declspec(noinline) inline void fn_804D6050(MpFriendList_unk* list, 
     list->mA00 = value;
 }
 extern "C" __declspec(noinline) inline void fn_804D6058(PPManager2_unk* mgr) {
-    PPListNode_unk* first = mgr->m99A4.mHead.mNext;
-    PPListNode_unk* end = &mgr->m99A4.mHead;
-    PPList_unk* list = &mgr->m99A4;
-    if (first != end) {
-        PPListNode_unk* last = end->mPrev;
-        first->mPrev->mNext = last->mNext;
-        last->mNext->mPrev = first->mPrev;
-        while (first != end) {
-            PPListNode_unk* node = first;
-            first = first->mNext;
-            delete node;
-            list->mCount--;
-        }
-    }
+    mgr->m99A4.Clear_unk();
 }
 extern "C" __declspec(noinline) inline wchar_t* fn_804D60E4(MpFriendList_unk* list) {
     return list->mName;
@@ -1862,7 +2006,7 @@ extern "C" __declspec(noinline) inline atn::SimpleArray<PPRoute_unk>* fn_804D649
     return (atn::SimpleArray<PPRoute_unk>*)((char*)route + 0xF4);
 }
 extern "C" __declspec(noinline) inline PPCharaEntry_unk* fn_804D64A4(PPCharaArray_unk* charas, int index) {
-    return &charas->mData[index];
+    return &(*charas)[index];
 }
 extern "C" __declspec(noinline) inline unsigned char fn_804D64B4(PPPlayer_unk* player) {
     return player->m0D52++;
@@ -2012,29 +2156,13 @@ void* fn_8050CFC8(void* arg); // inferred: main function of the network thread (
 } // namespace net
 } // namespace atn
 
-// NONMATCHING: 89.45% - order of the member initializations, registers, stack frame and the unreferenced "" of
+// NONMATCHING: 94.11% - registers, construction of the table m2A50, stack frame and the unreferenced "" of
 // @stringBase0 after "%d" (see docs/cierre99-20261115-qG2.md)
 // inferred: MP::Manager2 ctor: creates the network singletons, the debug menu "Multiplayer", the menus and
 // the managers of the multiplayer mode
 MP::Manager2::Manager2(atn::Task* parent)
-    : atn::Task(parent), m354(0), m510(0), m55C(10), m560(0), m564(300), m568(50), m598(0),
-      m59C(-1), m5A0(6), m5A8(0), m5AC(0), m5B0(1), m5B4(0) {
-    mStateVar.mValue = 0;
-    mStateVar.mLast = 0;
-    memset(m56C, 0, sizeof(m56C));
-    memset(m58C, 0, sizeof(m58C));
-    m5A4 = 0;
-    mPlayers.mData = 0;
-    mPlayers.mNum = 0;
-    m5EC = 0;
-    mCharas.mData = 0;
-    mCharas.mNum = 0;
-    m5F8 = 0;
-    memset(m610, 0, sizeof(m610));
-    m69C = 0;
-    m2A50.mFC = 0;
-    m2B88 = 0;
-    m99A4.mCount = 0;
+    : atn::Task(parent), m354(0), m55C(10), m560(0), m564(300), m568(50), m598(0),
+      m59C(-1), m5A0(6), m5A4(0), m5A8(0), m5AC(0), m5B0(1), m5B4(0), m69C(0) {
 
     if (HomeButtonMenu::sInstance != 0 && HomeButtonMenu::sInstance->m88 == 1) {
         HomeButtonMenu::sInstance->m88 = 0;
@@ -2117,12 +2245,7 @@ MP::Manager2::Manager2(atn::Task* parent)
     listener.mFunc = fn_804EB934;
     fn_8014F8F4()->mList.push_back(listener);
 
-    void* menu;
-    if (m510 == 0 && lbl_8087EF10 != 0) {
-        menu = m510 = fn_8008937C(lbl_8087EF10->m10, "Multiplayer");
-    } else {
-        menu = 0;
-    }
+    void* menu = m510.Load("Multiplayer");
     fn_800874C8(menu, "MatchGroup", &m54C, 1, 999, 1, 0, 0);
     fn_80087994(menu, "Game info", &m518, 0, 0);
     fn_80087994(menu, "Debug info", &m51C, 0, 0);
@@ -2226,10 +2349,7 @@ extern "C" void fn_804D1F6C(PPPlayer_unk* player) {
 
 extern "C" void fn_80049654(void* sound); // inferred: as in game/GameTask.cpp
 extern "C" void fn_8004895C(void* sound); // inferred: releases the sound groups (game/NewTitleTask.cpp)
-// DRAFT: the members mPlayers/mCharas (std::vector in the original), m610 (array freed with delete[]), the list
-// m99A4 and the slot block at m2B80 are not destroyed (their types here have no destructor)
-// NONMATCHING: draft - the body is complete (checked against the original); the destruction of those members
-// is missing
+// NONMATCHING: 98.75% - registers of the clear of the list m99A4 (the original keeps its end in another register)
 MP::Manager2::~Manager2() {
     fn_80049654(lbl_8087EE90);
     fn_8004895C(lbl_8087EE90);
@@ -2549,7 +2669,7 @@ void MP::Manager2::vf10() {
             size = mgr->m2B68.fn_8047059C();
             fn_80506D94(&mgr->m2A50, mgr->m2B68.fn_80470580(), size);
             size = mgr->m2B50.fn_8047059C();
-            fn_80507310(mgr->m610, mgr->m2B50.fn_80470580(), size);
+            fn_80507310(&mgr->m610, mgr->m2B50.fn_80470580(), size);
             mgr->m2B58.fn_80473F88();
             mgr->m2B60.fn_80473F88();
             mgr->m2B68.fn_80473F88();
@@ -2632,7 +2752,7 @@ void MP::Manager2::vf10() {
         int friendRoom = 0;
         if (joined == 1) {
             joined = 0;
-            fn_804D6688(&mgr->mPlayers, fn_804D6200(fn_804D1694()));
+            mgr->mPlayers.resize(fn_804D6200(fn_804D1694()));
             fn_804DF310(mgr);
             fn_804FB668(mgr);
             fn_804D6208(mgr, 0);
@@ -3243,7 +3363,7 @@ void MP::Manager2::vf10() {
                             data->mIds[i] = 0;
                         }
                     }
-                    data->m10 = mgr->m2B80;
+                    data->m10 = mgr->m2B80.m00;
                     fn_804D1694();
                     fn_804AE3BC()->fn_8050E094(-1, 0x1043, data, 1);
                     fn_804D1694();
@@ -3285,9 +3405,9 @@ void MP::Manager2::vf10() {
                         fn_804F7EF0(fn_804D6020(fn_804D6024(fn_804D1694())), 0x9F0);
                     }
                     if (GameBgm::GetInstance_unk() != 0) {
-                        if (mgr->m2B84 == 0 || mgr->m2B84 == 3) {
+                        if (mgr->m2B80.m04 == 0 || mgr->m2B80.m04 == 3) {
                             GameBgm::GetInstance_unk()->fn_8037D4C0(0x8CB, 15, 1, 0, 0.8f);
-                        } else if (mgr->m2B84 == 1 || mgr->m2B84 == 4) {
+                        } else if (mgr->m2B80.m04 == 1 || mgr->m2B80.m04 == 4) {
                             GameBgm::GetInstance_unk()->fn_8037D4C0(0x3F5, 15, 1, 0, 0.8f);
                         } else {
                             GameBgm::GetInstance_unk()->fn_8037D4C0(0x1F6, 15, 1, 0x21FC, 0.8f);
@@ -3544,9 +3664,9 @@ void MP::Manager2::vf10() {
                     GameBgm::GetInstance_unk()->fn_8037D4C0(0x8B8, 30, 1, 0, 1.0f);
                 }
             } else if (((GameUISession_unk*)mgr)->GetM50C_unk() == 5) {
-                if (mgr->m2B84 == 0 || mgr->m2B84 == 3) {
+                if (mgr->m2B80.m04 == 0 || mgr->m2B80.m04 == 3) {
                     GameBgm::GetInstance_unk()->fn_8037D4C0(0x8CB, 30, 1, 0, 0.8f);
-                } else if (mgr->m2B84 == 1 || mgr->m2B84 == 4) {
+                } else if (mgr->m2B80.m04 == 1 || mgr->m2B80.m04 == 4) {
                     GameBgm::GetInstance_unk()->fn_8037D4C0(0x3F5, 30, 1, 0, 0.8f);
                 } else {
                     GameBgm::GetInstance_unk()->fn_8037D4C0(0x1F6, 30, 1, 0x21FC, 0.8f);
@@ -3629,11 +3749,11 @@ extern "C" void fn_804D824C(PPManager2_unk* mgr, PPPlayer_unk* player, int mode)
     data->m19 = *(PPWord2_unk*)&player->m0B0[4];
     data->m21 = player->mC8;
     data->mFlags = player->mFlagWord;
-    for (i = 0; (int)i < mgr->mPlayers.mNum; i++) {
-        data->mTeams[i] = mgr->mPlayers.mData[i].mFlags.m22;
-        data->mB0[i] = mgr->mPlayers.mData[i].mB0;
-        data->mD8[i] = mgr->mPlayers.mData[i].mD8;
-        data->mD4[i] = (mgr->mPlayers.mData[i].mD4 >> 22) & 0xF;
+    for (i = 0; (int)i < (int)mgr->mPlayers.size(); i++) {
+        data->mTeams[i] = mgr->mPlayers[i].mFlags.m22;
+        data->mB0[i] = mgr->mPlayers[i].mB0;
+        data->mD8[i] = mgr->mPlayers[i].mD8;
+        data->mD4[i] = (mgr->mPlayers[i].mD4 >> 22) & 0xF;
     }
     data->m00 = mgr->m55C;
     data->m04 = mgr->m564;
@@ -3650,13 +3770,13 @@ extern "C" void fn_804D824C(PPManager2_unk* mgr, PPPlayer_unk* player, int mode)
         for (int i = 0; i < 8;) {
             fn_800F7F90()->m9A54[i++] = -1;
         }
-        for (i = 0; i < (unsigned int)mgr->mPlayers.mNum; i++) {
-            if (mgr->mPlayers.mData[i].mFlags.mActive == 1 && player->mAid != mgr->mPlayers.mData[i].mAid) {
+        for (i = 0; i < mgr->mPlayers.size(); i++) {
+            if (mgr->mPlayers[i].mFlags.mActive == 1 && player->mAid != mgr->mPlayers[i].mAid) {
                 data->mSeq = player->m0D52++;
-                mgr->m9A54[mgr->mPlayers.mData[i].mAid] = data->mSeq;
-                fn_804AE3BC()->fn_8050E094(mgr->mPlayers.mData[i].mAid, 0x1040, data, 1);
-                fn_804F5A98((PPRequests_unk*)fn_800F7F90(), mgr->mPlayers.mData[i].mAid, 300,
-                            mgr->m9A54[mgr->mPlayers.mData[i].mAid]);
+                mgr->m9A54[mgr->mPlayers[i].mAid] = data->mSeq;
+                fn_804AE3BC()->fn_8050E094(mgr->mPlayers[i].mAid, 0x1040, data, 1);
+                fn_804F5A98((PPRequests_unk*)fn_800F7F90(), mgr->mPlayers[i].mAid, 300,
+                            mgr->m9A54[mgr->mPlayers[i].mAid]);
             }
         }
         break;
@@ -3752,14 +3872,14 @@ extern "C" void fn_804D8910(PPManager2_unk* mgr) {
     }
     NetMsgI_unk<unsigned char> msg(0x1041);
     unsigned char* data = &msg.mData;
-    for (unsigned int i = 0; i < (unsigned int)mgr->mPlayers.mNum; i++) {
-        if (mgr->mPlayers.mData[i].mFlags.mActive == 1 && own->mAid != mgr->mPlayers.mData[i].mAid) {
+    for (unsigned int i = 0; i < mgr->mPlayers.size(); i++) {
+        if (mgr->mPlayers[i].mFlags.mActive == 1 && own->mAid != mgr->mPlayers[i].mAid) {
             unsigned char seq = own->m0D52++;
             *data = seq;
-            mgr->m99F4[mgr->mPlayers.mData[i].mAid] = seq;
-            fn_804AE3BC()->fn_8050E094(mgr->mPlayers.mData[i].mAid, 0x1041, data, 1);
-            fn_804F5A98((PPRequests_unk*)lbl_8087F610, mgr->mPlayers.mData[i].mAid, 300,
-                        mgr->m99F4[mgr->mPlayers.mData[i].mAid]);
+            mgr->m99F4[mgr->mPlayers[i].mAid] = seq;
+            fn_804AE3BC()->fn_8050E094(mgr->mPlayers[i].mAid, 0x1041, data, 1);
+            fn_804F5A98((PPRequests_unk*)lbl_8087F610, mgr->mPlayers[i].mAid, 300,
+                        mgr->m99F4[mgr->mPlayers[i].mAid]);
         }
     }
     fn_804AE3BC()->fn_8050DDDC(-1, 1);
@@ -3774,8 +3894,8 @@ extern "C" void fn_804D90E0(PPManager2_unk* mgr) {
     int done = 0;
     int count = 0;
     PPPlayer_unk* own = fn_804DD158(mgr, lbl_8087F628->GetMyAid_unk());
-    for (unsigned int i = 0; i < (unsigned int)mgr->mPlayers.mNum; i++) {
-        PPPlayer_unk* player = &mgr->mPlayers.mData[i];
+    for (unsigned int i = 0; i < mgr->mPlayers.size(); i++) {
+        PPPlayer_unk* player = &mgr->mPlayers[i];
         if (player->mFlags.mActive != 1 || own->mAid == player->mAid) {
             continue;
         }
@@ -3834,8 +3954,8 @@ extern "C" void fn_804D996C(PPManager2_unk* mgr) {
         } else {
             int ready = 0;
             int count = 0;
-            for (unsigned int i = 0; i < mgr->mPlayers.mNum; i++) {
-                PPPlayer_unk* player = &mgr->mPlayers.mData[i];
+            for (unsigned int i = 0; i < (int)mgr->mPlayers.size(); i++) {
+                PPPlayer_unk* player = &mgr->mPlayers[i];
                 if (player->mFlags.mActive == 1 && own->mAid != player->mAid) {
                     count++;
                     if (mgr->m9A14[player->mAid] == 1) {
@@ -3876,8 +3996,8 @@ static inline int GetNumHosts_unk(atn::net::Manager* net) {
 // none): a request that timed out (-2) or failed (-1) closes the room with the error 158; an answered one (1),
 // or any when this machine is alone, is freed and marked -2. Always 1
 extern "C" int fn_804D9C14(PPManager2_unk* mgr, PPPlayer_unk* own, int arg) {
-    for (unsigned int i = 0; i < (unsigned int)mgr->mPlayers.mNum; i++) {
-        PPPlayer_unk* player = &mgr->mPlayers.mData[i];
+    for (unsigned int i = 0; i < mgr->mPlayers.size(); i++) {
+        PPPlayer_unk* player = &mgr->mPlayers[i];
         if (player->mFlags.mActive != 1 || own->mAid == player->mAid) {
             continue;
         }
@@ -3981,8 +4101,8 @@ extern "C" CharaTask* fn_804DD3F0(PPManager2_unk* mgr);
 // inferred: the characters of the players of the own team (but the one of fn_804DD3F0) are given back to the AI:
 // with `random` set they get a random action (0x27E5 or 0x27E6) and target themselves
 extern "C" void fn_804DA4A0(PPManager2_unk* mgr, int random) {
-    for (int i = 0; i < mgr->mPlayers.mNum; i++) {
-        PPPlayer_unk* player = &mgr->mPlayers.mData[i];
+    for (int i = 0; i < (int)mgr->mPlayers.size(); i++) {
+        PPPlayer_unk* player = &mgr->mPlayers[i];
         if (player->mFlags.mActive && player->mRef.mChara != 0 && fn_804EB4AC(mgr, player)) {
             CharaTask* chara = player->mRef.mChara;
             if (chara != fn_804DD3F0(mgr)) {
@@ -4018,8 +4138,8 @@ static inline unsigned int PPOtherTeam_unk(PPManager2_unk* mgr) {
     }
     PPPlayer_unk* own = fn_804DD158(mgr, lbl_8087F628->GetMyAid_unk());
     if (own != 0) {
-        for (int i = 0; i < mgr->mPlayers.mNum; i++) {
-            PPPlayer_unk* player = &mgr->mPlayers.mData[i];
+        for (int i = 0; i < (int)mgr->mPlayers.size(); i++) {
+            PPPlayer_unk* player = &mgr->mPlayers[i];
             if (player->mFlags.mActive == 1 && player->mRef.mChara != 0 && player->mFlags.m22 != own->mFlags.m22) {
                 return player->mFlags.m22;
             }
@@ -4030,8 +4150,8 @@ static inline unsigned int PPOtherTeam_unk(PPManager2_unk* mgr) {
 // inferred: players in use of the team `team`; names invented
 static inline int PPCountTeam_unk(PPManager2_unk* mgr, unsigned int team) {
     int count = 0;
-    for (int i = 0; i < mgr->mPlayers.mNum; i++) {
-        PPPlayer_unk* player = &mgr->mPlayers.mData[i];
+    for (int i = 0; i < (int)mgr->mPlayers.size(); i++) {
+        PPPlayer_unk* player = &mgr->mPlayers[i];
         if (player->mFlags.mActive && player->mRef.mChara != 0 && player->mFlags.m22 == team) {
             count++;
         }
@@ -4175,8 +4295,8 @@ extern "C" int fn_804DB474(PPManager2_unk* mgr) {
 // inferred: resets the player slots in the modes 0 and 2 and ends the session (mode 3) or the match (0, 1)
 extern "C" int fn_804DBD08(PPManager2_unk* mgr, int mode) {
     if (mode == 0 || mode == 2) {
-        for (int i = 0; i < mgr->mPlayers.mNum; i++) {
-            PPPlayer_unk* player = &mgr->mPlayers.mData[i];
+        for (int i = 0; i < (int)mgr->mPlayers.size(); i++) {
+            PPPlayer_unk* player = &mgr->mPlayers[i];
             player->mAid = 0xFF;
             player->mDC.fn_80501288(0);
             player->mFlagWord = 0;
@@ -4543,7 +4663,7 @@ extern "C" void fn_804DCA54(PPManager2_unk* mgr) {
         int counts[3];
         memset(counts, 0, sizeof(counts));
         PPManager2_unk* mgr2 = (PPManager2_unk*)lbl_8087F610;
-        for (int k = 0; k < mgr2->mPlayers.mNum; k++) {
+        for (int k = 0; k < (int)mgr2->mPlayers.size(); k++) {
             PPPlayer_unk* other = fn_804D5F0C(mgr2, k);
             if (other->mFlags.mActive == 1) {
                 counts[other->mFlags.m22]++;
@@ -4646,8 +4766,8 @@ extern "C" void fn_804DCA54(PPManager2_unk* mgr) {
 
 // inferred: the player slot of network id `aid` (slots in use only)
 extern "C" PPPlayer_unk* fn_804DD158(PPManager2_unk* mgr, unsigned int aid) {
-    for (int i = 0; i < mgr->mPlayers.mNum; i++) {
-        PPPlayer_unk* player = &mgr->mPlayers.mData[i];
+    for (int i = 0; i < (int)mgr->mPlayers.size(); i++) {
+        PPPlayer_unk* player = &mgr->mPlayers[i];
         if (player->mFlags.mActive == 1 && aid == player->mAid) {
             return player;
         }
@@ -4766,8 +4886,8 @@ extern "C" CharaTask* fn_804DD3F0(PPManager2_unk* mgr) {
     if (own == 0 || own->mRef.mChara == 0) {
         return 0;
     }
-    for (unsigned int i = 0; i < mgr->mPlayers.mNum; i++) {
-        PPPlayer_unk* player = &mgr->mPlayers.mData[i];
+    for (unsigned int i = 0; i < (int)mgr->mPlayers.size(); i++) {
+        PPPlayer_unk* player = &mgr->mPlayers[i];
         if (player->mFlags.mActive && player->mRef.mChara != 0 && IsTeamPlayer_unk(player) &&
             player->mRef.mChara->fn_8016F3D0(own->mRef.mChara, 1) && (player->mB0 == 12 || player->mB0 == 21)) {
             return player->mRef.mChara;
@@ -4833,7 +4953,7 @@ extern "C" int fn_804DD574(PPManager2_unk* mgr, unsigned int aid, int arg) {
         PPManager2_unk* mgr2 = fn_800F7F90();
         for (int i = 0; i < num; i++) {
             counts[i] = 0;
-            for (int j = 0; j < mgr2->mPlayers.mNum; j++) {
+            for (int j = 0; j < (int)mgr2->mPlayers.size(); j++) {
                 PPPlayer_unk* other = fn_804D5F0C(mgr2, j);
                 if (other->mFlags.mActive == 1 && other->mB0 == table[i]) {
                     counts[i]++;
@@ -4919,7 +5039,7 @@ extern "C" void fn_804DDA04(PPManager2_unk* mgr) {
             int counts[3];
             memset(counts, 0, sizeof(counts));
             PPManager2_unk* mgr2 = (PPManager2_unk*)lbl_8087F610;
-            for (int k = 0; k < mgr2->mPlayers.mNum; k++) {
+            for (int k = 0; k < (int)mgr2->mPlayers.size(); k++) {
                 PPPlayer_unk* other = fn_804D5F0C(mgr2, k);
                 if (other->mFlags.mActive == 1) {
                     counts[other->mFlags.m22]++;
@@ -5002,8 +5122,8 @@ extern "C" int fn_804DDFFC(PPManager2_unk* mgr) {
     if (IsServer_unk() == 1) {
         fn_804E9360(mgr);
         PPPlayer_unk* own = fn_804DD158(mgr, lbl_8087F628->GetMyAid_unk());
-        for (unsigned int i = 0; i < (unsigned int)mgr->mPlayers.mNum; i++) {
-            PPPlayer_unk* player = &mgr->mPlayers.mData[i];
+        for (unsigned int i = 0; i < mgr->mPlayers.size(); i++) {
+            PPPlayer_unk* player = &mgr->mPlayers[i];
             player->mD4 = player->mFlagWord;
             player->mD8 = player->mB0;
         }
@@ -5030,7 +5150,7 @@ extern "C" int fn_804DE2F8(PPManager2_unk* mgr, int mode) {
             int counts[3];
             memset(counts, 0, sizeof(counts));
             PPManager2_unk* mgr2 = (PPManager2_unk*)lbl_8087F610;
-            for (int i = 0; i < mgr2->mPlayers.mNum; i++) {
+            for (int i = 0; i < (int)mgr2->mPlayers.size(); i++) {
                 PPPlayer_unk* player = fn_804D5F0C(mgr2, i);
                 if (player->mFlags.mActive == 1) {
                     counts[player->mFlags.m22]++;
@@ -5112,17 +5232,17 @@ extern "C" void fn_804DF11C(PPManager2_unk* mgr, unsigned int reset) {
     if (mgr->mGame != 0) {
         fn_800D2338(mgr->mGame);
         mgr->mGame = 0;
-        mgr->mCharas.mNum = 0;
+        mgr->mCharas.clear();
         PPPlayer_unk* own = fn_804DD158(mgr, lbl_8087F628->GetMyAid_unk());
         if (own != 0) {
             own->mRef.mChara = 0;
         }
-        for (int i = 0; i < mgr->mPlayers.mNum; i++) {
+        for (int i = 0; i < (int)mgr->mPlayers.size(); i++) {
             PPPlayer_unk* player = fn_804D5F0C(mgr, i);
             if (player->mRef.mChara != 0) {
                 fn_800D2338(player->mRef.mChara);
                 player->mRef.mChara = 0;
-                if (IsTeamPlayer_unk(&mgr->mPlayers.mData[i]) == 1) {
+                if (IsTeamPlayer_unk(&mgr->mPlayers[i]) == 1) {
                     player->mFlags.mActive = 0;
                     player->mFlags.m22 = 0;
                 }
@@ -5149,7 +5269,7 @@ extern "C" void fn_804DF11C(PPManager2_unk* mgr, unsigned int reset) {
 extern "C" void fn_804DF310(PPManager2_unk* mgr) {
     memset(mgr->m9984, 0, 8);
     memset(mgr->m998C, 0xFF, 8);
-    for (int i = 0; i < ((PPManager2_unk*)lbl_8087F610)->mPlayers.mNum; i++) {
+    for (int i = 0; i < (int)((PPManager2_unk*)lbl_8087F610)->mPlayers.size(); i++) {
         PPPlayer_unk* player = fn_804D5F0C((PPManager2_unk*)lbl_8087F610, i);
         player->mB0 = 0;
         player->mAid = 0xFF;
@@ -5172,8 +5292,8 @@ extern "C" void fn_804DF310(PPManager2_unk* mgr) {
 // NONMATCHING: 99% - r3/r4 of the loop (offset and character) swapped, as in fn_804EB870
 extern "C" int fn_804DF404(PPManager2_unk* mgr) {
     if ((mgr->mGame->mFlags & 2) == 2 && mgr->m96B4.IsLoading() == 0 && mgr->m96C0.IsLoading() == 0) {
-        for (int i = 0; i < mgr->mPlayers.mNum; i++) {
-            CharaTask* chara = mgr->mPlayers.mData[i].mRef.mChara;
+        for (int i = 0; i < (int)mgr->mPlayers.size(); i++) {
+            CharaTask* chara = mgr->mPlayers[i].mRef.mChara;
             if (chara != 0 && (chara->mFlags & 2) != 2) {
                 return 1;
             }
@@ -5198,30 +5318,29 @@ extern "C" int fn_804E4C5C(const PPManager2_unk* mgr);
 // winning team in mode 1) and sorts them by score (not in mode 2)
 // inferred: slot `i` of the ranking; name invented
 static inline PPPlayer_unk& PPRanked_unk(PPManager2_unk* mgr, int i) {
-    return mgr->m2B8C[i];
+    return mgr->m2B80.m08[i];
 }
 extern "C" void fn_804DF4B8(PPManager2_unk* mgr) {
-    mgr->m2B88 = 0;
-    for (int i = 0; i < mgr->mPlayers.mNum; i++) {
+    mgr->m2B80.m08.clear();
+    for (int i = 0; i < (int)mgr->mPlayers.size(); i++) {
         PPPlayer_unk* player = fn_804D5F0C(mgr, i);
         if (player->mFlags.mActive == 1) {
-            new (&mgr->m2B8C[mgr->m2B88]) PPPlayer_unk(*player);
-            mgr->m2B88++;
+            mgr->m2B80.m08.push_back(*player);
         }
     }
     if (mgr->mMode != 2) {
-        for (int i = 0; i < mgr->m2B88; i++) {
+        for (int i = 0; i < (int)mgr->m2B80.m08.size(); i++) {
             PPRanked_unk(mgr, i).mD58 = PPRanked_unk(mgr, i).mDCScore;
         }
         if (mgr->mMode == 1) {
             int team = fn_804E4C5C(mgr);
-            for (int i = 0; i < mgr->m2B88; i++) {
+            for (int i = 0; i < (int)mgr->m2B80.m08.size(); i++) {
                 if (PPRanked_unk(mgr, i).mFlags.m22 == team) {
                     PPRanked_unk(mgr, i).mD58 += 1000;
                 }
             }
         }
-        MslSort_unk(mgr->m2B8C, mgr->m2B8C + mgr->m2B88, PPScoreLess_unk());
+        MslSort_unk(mgr->m2B80.m08.begin(), mgr->m2B80.m08.end(), PPScoreLess_unk());
     }
 }
 // inferred: emitted here in the original, after fn_804DF4B8 (its only caller): 0x804E0694
@@ -5295,19 +5414,19 @@ extern "C" void fn_804E448C(PPManager2_unk* mgr) {
         result = rank == 0 ? 3 : 4;
     }
     list = &lbl_8087F628->mFriendList;
-    mgr->m2B84 = result;
+    mgr->m2B80.m04 = result;
     mgr->m966C = rank;
     mgr->m9670 = fn_804E4A60(mgr, own);
-    mgr->m967C = fn_805076F8(mgr->m610, mgr->mMode, mgr->m55C, mgr->m9670);
+    mgr->m967C = fn_805076F8(&mgr->m610, mgr->mMode, mgr->m55C, mgr->m9670);
     mgr->m9680 = PPExp_unk(list) + mgr->m967C;
-    mgr->m9688 = fn_80507654((MpLevelTable_unk*)mgr->m610, PPExp_unk(list), mgr->m9680);
+    mgr->m9688 = fn_80507654(&mgr->m610.mTable, PPExp_unk(list), mgr->m9680);
     if (mgr->m9688 != 0) {
-        MpLevel_unk* level = fn_805075C4((MpLevelTable_unk*)mgr->m610, mgr->m9680);
+        MpLevel_unk* level = fn_805075C4(&mgr->m610.mTable, mgr->m9680);
         mgr->m968C = ((int*)level)[3];
         mgr->m9690 = ((int*)level)[4];
     }
-    mgr->m9684 = (int)fn_805075C4((MpLevelTable_unk*)mgr->m610, mgr->m9680);
-    int max = fn_80507764((MpLevelTable_unk*)mgr->m610, mgr->m9680);
+    mgr->m9684 = (int)fn_805075C4(&mgr->m610.mTable, mgr->m9680);
+    int max = fn_80507764(&mgr->m610.mTable, mgr->m9680);
     if (mgr->m9680 > max) {
         int over = mgr->m9680 - max;
         mgr->m9680 = max;
@@ -5384,23 +5503,23 @@ extern "C" int fn_804E4A20(PPManager2_unk* mgr) {
 extern "C" __declspec(noinline) int fn_804E4A60(PPManager2_unk* mgr, PPPlayer_unk*) {
     int result;
     if (mgr->mMode == 0) {
-        if (mgr->m2B84 == 0) {
+        if (mgr->m2B80.m04 == 0) {
             result = 0;
-        } else if (mgr->m2B84 == 1 && mgr->m966C == 5 && fn_804E4C34(mgr) != 0) {
+        } else if (mgr->m2B80.m04 == 1 && mgr->m966C == 5 && fn_804E4C34(mgr) != 0) {
             result = 2;
         } else {
             result = 1;
         }
     } else if (mgr->mMode == 1) {
-        if (mgr->m2B84 == 0) {
+        if (mgr->m2B80.m04 == 0) {
             result = 0;
-        } else if (mgr->m2B84 == 1) {
+        } else if (mgr->m2B80.m04 == 1) {
             result = 2;
         } else {
             result = 1;
         }
     } else {
-        result = mgr->m2B84 == 3 ? 0 : 2;
+        result = mgr->m2B80.m04 == 3 ? 0 : 2;
     }
     return result;
 }
@@ -5414,27 +5533,27 @@ extern "C" int fn_804E4B44(PPManager2_unk* mgr, PPPlayer_unk* target) {
         if (mgr->mMode != 1 || fn_804E4C5C(mgr) != 3) {
             int rank = 0;
             int run = 0;
-            for (int i = 0; i < mgr->m2B88; i++) {
-                if (i > 0 && mgr->m2B8C[i].mD58 != mgr->m2B8C[i - 1].mD58) {
+            for (int i = 0; i < (int)mgr->m2B80.m08.size(); i++) {
+                if (i > 0 && mgr->m2B80.m08[i].mD58 != mgr->m2B80.m08[i - 1].mD58) {
                     rank += run;
                     run = 0;
                 }
-                if (mgr->m2B8C[i].mRef.mChara == target->mRef.mChara) {
+                if (mgr->m2B80.m08[i].mRef.mChara == target->mRef.mChara) {
                     result = rank;
                 }
                 run++;
             }
         }
     } else {
-        result = mgr->m2B80 != 3;
+        result = mgr->m2B80.m00 != 3;
     }
     return result;
 }
 
 // inferred: fn_804E4B44 on the last slot of m2B8C (-1 when there is none)
 extern "C" int fn_804E4C34(PPManager2_unk* mgr) {
-    if (mgr->m2B88 != 0) {
-        return fn_804E4B44(mgr, &mgr->m2B8C[mgr->m2B88 - 1]);
+    if (mgr->m2B80.m08.size() != 0) {
+        return fn_804E4B44(mgr, &mgr->m2B80.m08[mgr->m2B80.m08.size() - 1]);
     }
     return -1;
 }
@@ -5443,8 +5562,8 @@ extern "C" int fn_804E4C34(PPManager2_unk* mgr) {
 static inline int PPTeamScore_unk(const PPManager2_unk* mgr, int team) {
     int score[3];
     memset(score, 0, sizeof(score));
-    for (unsigned int i = 0; i < mgr->m2B88; i++) {
-        const PPPlayer_unk& player = mgr->m2B8C[i];
+    for (unsigned int i = 0; i < mgr->m2B80.m08.size(); i++) {
+        const PPPlayer_unk& player = mgr->m2B80.m08.mData[i];
         score[player.mFlags.m22] += player.mDCScore;
     }
     return score[team];
@@ -5474,7 +5593,7 @@ extern "C" int fn_804E4C5C(const PPManager2_unk* mgr) {
         return best;
     }
     default:
-        return (mgr->m2B80 == 3) + 1;
+        return (mgr->m2B80.m00 == 3) + 1;
     }
     return 3;
 }
@@ -5487,7 +5606,7 @@ extern "C" int fn_804E4D70(PPManager2_unk* mgr, PPPlayer_unk* player) {
     if (player != 0 && player->mFlags.m30) {
         return mgr->m967C;
     }
-    return fn_805076F8(mgr->m610, mgr->mMode, mgr->m55C, fn_804E4A60(mgr, player));
+    return fn_805076F8(&mgr->m610, mgr->mMode, mgr->m55C, fn_804E4A60(mgr, player));
 }
 
 // inferred: enters the ranking (state 35, or 37 when mode is not 1); not in local play
@@ -5591,8 +5710,8 @@ extern "C" void fn_804E4EB0(PPManager2_unk* mgr);
 extern const char* lbl_80791018[36];
 // inferred: slot `index` of the manager, 0 out of range (body of the weak copy fn_804D5F0C, inlined here)
 static inline PPPlayer_unk* PPSlot_unk(PPManager2_unk* mgr, int index) {
-    if (index >= 0 && index < mgr->mPlayers.mNum) {
-        return &mgr->mPlayers.mData[index];
+    if (index >= 0 && index < (int)mgr->mPlayers.size()) {
+        return &mgr->mPlayers[index];
     }
     return 0;
 }
@@ -5603,7 +5722,7 @@ static inline PPPlayer_unk* PPSlot_unk(PPManager2_unk* mgr, int index) {
 // player alive or the bosses defeated: m2B80 = 1 or 3, m50C), the cockpit (time and team scores), fn_804E4EB0,
 // fn_804E6518, a random voice, fn_804DF4B8 and the tutorial message of game mode 2 (m9764)
 extern "C" void fn_804E5BC4(PPManager2_unk* mgr) {
-    for (int i = 0; i < mgr->mPlayers.mNum; i++) {
+    for (int i = 0; i < (int)mgr->mPlayers.size(); i++) {
         PPPlayer_unk* player = PPSlot_unk(mgr, i);
         if (player == 0 || player->mD50 <= 0) {
             continue;
@@ -5633,10 +5752,10 @@ extern "C" void fn_804E5BC4(PPManager2_unk* mgr) {
         return;
     }
     if (mgr->mStateVar.mValue == 30 && mgr->m50C == 0 && mgr->m568 != -1) {
-        for (int i = 0; i < mgr->mPlayers.mNum; i++) {
+        for (int i = 0; i < (int)mgr->mPlayers.size(); i++) {
             PPPlayer_unk* player = PPSlot_unk(mgr, i);
             if (player->mFlags.mActive == 1 && player->mDCScore >= mgr->m568) {
-                mgr->m2B80 = 1;
+                mgr->m2B80.m00 = 1;
                 mgr->m50C = 1;
             }
         }
@@ -5648,7 +5767,7 @@ extern "C" void fn_804E5BC4(PPManager2_unk* mgr) {
             if (remain <= 0) {
                 remain = 0;
                 if (!own->mFlags.m26) {
-                    mgr->m2B80 = 1;
+                    mgr->m2B80.m00 = 1;
                     mgr->m50C = 1;
                     mgr->m534 = 1;
                 }
@@ -5658,7 +5777,7 @@ extern "C" void fn_804E5BC4(PPManager2_unk* mgr) {
             int counts[3];
             memset(counts, 0, sizeof(counts));
             PPManager2_unk* mgr2 = (PPManager2_unk*)lbl_8087F610;
-            for (int i = 0; i < mgr2->mPlayers.mNum; i++) {
+            for (int i = 0; i < (int)mgr2->mPlayers.size(); i++) {
                 PPPlayer_unk* player = PPSlot_unk(mgr2, i);
                 if (player->mFlags.mActive == 1 && player->mRef.mChara != 0 &&
                     ((PPChara_unk*)player->mRef.mChara)->m9F8 > 0) {
@@ -5666,13 +5785,13 @@ extern "C" void fn_804E5BC4(PPManager2_unk* mgr) {
                 }
             }
             if (counts[2] == 0 || counts[1] == 0) {
-                mgr->m2B80 = 1;
+                mgr->m2B80.m00 = 1;
                 mgr->m50C = 1;
             }
         } else if (mgr->mMode == 0) {
             int n = 0;
             PPManager2_unk* mgr2 = (PPManager2_unk*)lbl_8087F610;
-            for (int i = 0; i < mgr2->mPlayers.mNum; i++) {
+            for (int i = 0; i < (int)mgr2->mPlayers.size(); i++) {
                 PPPlayer_unk* player = PPSlot_unk(mgr2, i);
                 if (player->mFlags.mActive == 1 && player->mRef.mChara != 0 &&
                     ((PPChara_unk*)player->mRef.mChara)->m9F8 > 0) {
@@ -5680,14 +5799,14 @@ extern "C" void fn_804E5BC4(PPManager2_unk* mgr) {
                 }
             }
             if (n <= 1) {
-                mgr->m2B80 = 1;
+                mgr->m2B80.m00 = 1;
                 mgr->m50C = 1;
             }
         } else if (mgr->mMode == 2) {
             int dead = 1;
             int bosses = 1;
-            for (int i = 0; i < mgr->mPlayers.mNum; i++) {
-                PPPlayer_unk* player = &mgr->mPlayers.mData[i];
+            for (int i = 0; i < (int)mgr->mPlayers.size(); i++) {
+                PPPlayer_unk* player = &mgr->mPlayers[i];
                 if (!player->mFlags.mActive || IsTeamPlayer_unk(player)) {
                     continue;
                 }
@@ -5702,8 +5821,8 @@ extern "C" void fn_804E5BC4(PPManager2_unk* mgr) {
                 }
             }
             if ((lbl_8087F430 != 0 ? ((GameTask*)lbl_8087F430)->fn_80370A78(0xFB) : 0) == 2) {
-                for (int i = 0; i < mgr->mCharas.mNum; i++) {
-                    CharaTask* chara = mgr->mCharas.mData[i].mRef.mChara;
+                for (int i = 0; i < (int)mgr->mCharas.size(); i++) {
+                    CharaTask* chara = mgr->mCharas[i].mRef.mChara;
                     if (chara == 0 || (chara->mFlags & 4) == 4) {
                         continue;
                     }
@@ -5719,10 +5838,10 @@ extern "C" void fn_804E5BC4(PPManager2_unk* mgr) {
                 }
             }
             if (dead) {
-                mgr->m2B80 = 1;
+                mgr->m2B80.m00 = 1;
                 mgr->m50C = 1;
             } else if (bosses) {
-                mgr->m2B80 = 3;
+                mgr->m2B80.m00 = 3;
                 mgr->m50C = 1;
             }
         }
@@ -5732,7 +5851,7 @@ extern "C" void fn_804E5BC4(PPManager2_unk* mgr) {
         if (mgr->mMode != 2 && mgr->m50C == 0 && mgr->mStateVar.mValue != 31) {
             int score2 = 0;
             int score1 = 0;
-            for (int i = 0; i < mgr->mPlayers.mNum; i++) {
+            for (int i = 0; i < (int)mgr->mPlayers.size(); i++) {
                 PPPlayer_unk* player = PPSlot_unk(mgr, i);
                 if (player->mFlags.mActive == 1) {
                     if (player->mFlags.m22 == 2) {
@@ -5757,8 +5876,8 @@ extern "C" void fn_804E5BC4(PPManager2_unk* mgr) {
         fn_804DF4B8(mgr);
     }
     if (mgr->mMode == 2 && mgr->m50C == 0 && mgr->m9764 != 0) {
-        for (int i = 0; i < mgr->mPlayers.mNum; i++) {
-            PPPlayer_unk* player = &mgr->mPlayers.mData[i];
+        for (int i = 0; i < (int)mgr->mPlayers.size(); i++) {
+            PPPlayer_unk* player = &mgr->mPlayers[i];
             if (!player->mFlags.mActive || player->mFlags.m30 == 1 || IsTeamPlayer_unk(player)) {
                 continue;
             }
@@ -5892,7 +6011,7 @@ extern "C" void fn_804E679C(PPManager2_unk* mgr) {
         pool.erase(pool.begin() + r);
     }
     for (int i = 0; i < 3; i++) {
-        mgr->m58C[i] = 0;
+        mgr->m58C.m[i] = 0;
         PPWeightTable_unk* table = fn_8050652C(&mgr->m69C, i);
         if (table != 0) {
             int total = 0;
@@ -5909,7 +6028,7 @@ extern "C" void fn_804E679C(PPManager2_unk* mgr) {
                         break;
                     }
                     if (r < table->mWeights[j]) {
-                        mgr->m58C[i] = j;
+                        mgr->m58C.m[i] = j;
                         break;
                     }
                     r -= table->mWeights[j];
@@ -5919,19 +6038,19 @@ extern "C" void fn_804E679C(PPManager2_unk* mgr) {
     }
     mgr->m598 = rand();
     int n = 0;
-    for (unsigned int i = 0; i < mgr->mPlayers.mNum; i++) {
-        PPPlayer_unk* player = &mgr->mPlayers.mData[i];
+    for (unsigned int i = 0; i < (int)mgr->mPlayers.size(); i++) {
+        PPPlayer_unk* player = &mgr->mPlayers[i];
         if (player->mFlags.mActive == 1) {
             if (player->mFlags.m22 == 2) {
-                mgr->m56C[i] = PPPopIndex_unk(team2);
+                mgr->m56C.m[i] = PPPopIndex_unk(team2);
             } else {
-                mgr->m56C[i] = PPPopIndex_unk(team1);
+                mgr->m56C.m[i] = PPPopIndex_unk(team1);
             }
         } else if (mgr->m9984[n] != 0) {
             if (fn_804DD1A8(mgr, mgr->m9984[n]) == 0 || fn_804DD1A8(mgr, mgr->m9984[n]) == 2) {
-                mgr->m56C[i] = PPPopIndex_unk(team2);
+                mgr->m56C.m[i] = PPPopIndex_unk(team2);
             } else {
-                mgr->m56C[i] = PPPopIndex_unk(team1);
+                mgr->m56C.m[i] = PPPopIndex_unk(team1);
             }
             n++;
         }
@@ -5941,8 +6060,8 @@ extern "C" void fn_804E679C(PPManager2_unk* mgr) {
     data->m00 = mgr->m560;
     data->m04 = mgr->m564;
     data->m08 = mgr->m568;
-    memcpy(data->m0C, mgr->m56C, sizeof(data->m0C));
-    memcpy(data->m2C, mgr->m58C, sizeof(data->m2C));
+    memcpy(data->m0C, mgr->m56C.m, sizeof(data->m0C));
+    memcpy(data->m2C, mgr->m58C.m, sizeof(data->m2C));
     data->m38 = mgr->m598;
     fn_804AE3BC()->fn_8050E094(-1, 0x1004, data, 1);
 }
@@ -5981,8 +6100,8 @@ extern "C" void fn_804E6DD0(PPManager2_unk* mgr) {
         data->m12 = own->mFlags.m12;
         fn_804AE3BC()->fn_8050E094(-1, 0x1015, data, 0);
     }
-    for (int i = 0; i < mgr->mPlayers.mNum; i++) {
-        if (!IsTeamPlayer_unk(&mgr->mPlayers.mData[i])) {
+    for (int i = 0; i < (int)mgr->mPlayers.size(); i++) {
+        if (!IsTeamPlayer_unk(&mgr->mPlayers[i])) {
             continue;
         }
         PPPlayer_unk* player = fn_804D5F0C(mgr, i);
@@ -6004,8 +6123,8 @@ extern "C" void fn_804E6DD0(PPManager2_unk* mgr) {
         data->mIsEntry = 0;
         fn_804AE3BC()->fn_8050E094(-1, 0x101C, data, 0);
     }
-    for (int i = 0; i < mgr->mCharas.mNum; i++) {
-        PPCharaEntry_unk entry = mgr->mCharas.mData[i];
+    for (int i = 0; i < (int)mgr->mCharas.size(); i++) {
+        PPCharaEntry_unk entry = mgr->mCharas[i];
         if (!entry.mActive) {
             continue;
         }
@@ -6056,8 +6175,8 @@ extern "C" void fn_804E7628(PPManager2_unk* mgr) {
         fn_804CF468((PackedChara_unk*)data, own);
         fn_804AE3BC()->fn_8050E094(-1, 0x1014, data, 0);
     }
-    for (int i = 0; i < mgr->mPlayers.mNum; i++) {
-        if (!IsTeamPlayer_unk(&mgr->mPlayers.mData[i])) {
+    for (int i = 0; i < (int)mgr->mPlayers.size(); i++) {
+        if (!IsTeamPlayer_unk(&mgr->mPlayers[i])) {
             continue;
         }
         PPPlayer_unk* player = fn_804D5F0C(mgr, i);
@@ -6075,8 +6194,8 @@ extern "C" void fn_804E7628(PPManager2_unk* mgr) {
         ((PackedChara_unk*)data)->m12_1 = 0;
         fn_804AE3BC()->fn_8050E094(-1, 0x101A, data, 0);
     }
-    for (int i = 0; i < mgr->mCharas.mNum; i++) {
-        PPCharaEntry_unk* entry = &mgr->mCharas.mData[i];
+    for (int i = 0; i < (int)mgr->mCharas.size(); i++) {
+        PPCharaEntry_unk* entry = &mgr->mCharas[i];
         if (!entry->mActive) {
             continue;
         }
@@ -6324,8 +6443,8 @@ extern "C" int fn_804E8A80(PPManager2_unk* mgr, int value) {
 
 // inferred: the player slot (in use) of a character
 static inline PPPlayer_unk* FindByChara_unk(PPManager2_unk* mgr, CharaTask* chara) {
-    for (int i = 0; i < mgr->mPlayers.mNum; i++) {
-        PPPlayer_unk* player = &mgr->mPlayers.mData[i];
+    for (int i = 0; i < (int)mgr->mPlayers.size(); i++) {
+        PPPlayer_unk* player = &mgr->mPlayers[i];
         if (player->mFlags.mActive == 1 && player->mRef.mChara == chara) {
             return player;
         }
@@ -6335,8 +6454,8 @@ static inline PPPlayer_unk* FindByChara_unk(PPManager2_unk* mgr, CharaTask* char
 
 // inferred: index of a character in the list m5F0 (-1 when it is not there)
 static inline int FindCharaIndex_unk(PPManager2_unk* mgr, CharaTask* chara) {
-    for (int i = 0; i < mgr->mCharas.mNum; i++) {
-        if (mgr->mCharas.mData[i].mRef.mChara == chara) {
+    for (int i = 0; i < (int)mgr->mCharas.size(); i++) {
+        if (mgr->mCharas[i].mRef.mChara == chara) {
             return i;
         }
     }
@@ -6415,8 +6534,8 @@ inline void PPSendGimmick_unk(GimmickCommon* gimmick, GimmickMsg_unk* msg) {
 // mode 1 the teams are cleared when a player left; in the game fn_804E9C64 follows
 extern "C" void fn_804E9360(PPManager2_unk* mgr) {
     bool left = false;
-    for (int i = 0; i < mgr->mPlayers.mNum; i++) {
-        PPPlayer_unk* player = &mgr->mPlayers.mData[i];
+    for (int i = 0; i < (int)mgr->mPlayers.size(); i++) {
+        PPPlayer_unk* player = &mgr->mPlayers.begin()[i];
         unsigned char aid = IsTeamPlayer_unk(player) == 1 ? player->mAid & 0xF : player->mAid;
         atn::net::NetPlayerInfo_unk* info = lbl_8087F628->vf14(aid);
         if (info == 0 || !info->mFlags.mConnected) {
@@ -6516,14 +6635,102 @@ extern "C" void fn_804E9360(PPManager2_unk* mgr) {
     if (left) {
         if (mgr->mStateVar.mValue == 12 && mgr->mMode == 1 && lbl_8087F628->m25C == 0 &&
             MP::D2AMpMenuLobby::sInstance != 0 && MP::D2AMpMenuLobby::sInstance->mD88 < 7) {
-            for (int i = 0; i < mgr->mPlayers.mNum; i++) {
-                if (mgr->mPlayers.mData[i].mFlags.mActive) {
-                    mgr->mPlayers.mData[i].mFlags.m22 = 0;
+            for (int i = 0; i < (int)mgr->mPlayers.size(); i++) {
+                if (mgr->mPlayers.begin()[i].mFlags.mActive) {
+                    mgr->mPlayers.begin()[i].mFlags.m22 = 0;
                 }
             }
         }
         if (mgr->mStateVar.mValue == 30 && mgr->m50C == 0) {
             fn_804E9C64(mgr);
+        }
+    }
+}
+
+#include "game/EnemyManager.h"
+
+// inferred: index of the network id `aid` among the hosts of the session (0 in local play, -1 when it is not
+// there); name invented
+static inline int GetHostIndex_unk(unsigned char aid) {
+    if (lbl_8087F628->mFlags.mB12) {
+        return 0;
+    }
+    unsigned char* aids;
+    int n = fn_8050BA68(&aids);
+    for (int i = 0; i < n; i++) {
+        if (aid == aids[i]) {
+            return i;
+        }
+    }
+    return -1;
+}
+
+// NONMATCHING: 72.02% - the push_back of the new entry copies the words 0x34-0xAF as a block (a loop) in the
+// original, here member by member; a struct for them (with a declared constructor) gives 95.6% but turns the copy
+// fn_804E7434 into a block copy too (100 -> 0%)
+// inferred: rebuilds the character list m5F0 from the enemies that are not the character of a player (the
+// enemies 0xAAE60-0xAAE79 are left out); the enemies are shared out among the hosts in turn: the ones of this
+// machine are taken over (control state 2, reset, special enemies started), the others wait for the network
+// (flag 2 set, m1454 = 3)
+extern "C" void fn_804E9C64(PPManager2_unk* mgr) {
+    int myIndex = GetHostIndex_unk(lbl_8087F628->GetMyAid_unk());
+    int hosts = GetNumHosts_unk(lbl_8087F628);
+    mgr->mCharas.clear();
+    int count = 0;
+    for (EnemyTask* enemy = EnemyManager::sInstance->mHead; enemy != 0; enemy = enemy->mNext) {
+        if (FindByChara_unk(mgr, enemy) != 0) {
+            continue;
+        }
+        if (0xAAE60 <= enemy->m50 && enemy->m50 < 0xAAE7A) {
+            continue;
+        }
+        int mine = count++ % hosts == myIndex;
+        PPCharaEntry_unk entry;
+        entry.mRef.mChara = 0;
+        memset(&entry.m04[12], 0, 0xB0 - 0x34); // inferred: the words 0x34-0xAF are cleared, 0x04-0x33 are not
+        entry.mRef.mChara = enemy;
+        entry.mActive = mine != 0;
+        mgr->mCharas.push_back(entry);
+        if (enemy->mStatus.IsState_unk(0x20) && enemy->GetFlag22_unk() == 1) {
+            continue;
+        }
+        if (mine && enemy->mFlag2) {
+            enemy->mFlag2 = 0;
+            enemy->m1454 = 1;
+            if (enemy->CanAct_unk()) {
+                enemy->fn_8016E970(2);
+                enemy->fn_8015495C(0, 1, 1, 1);
+                if (enemy->mFlag31) {
+                    enemy->fn_801539E0();
+                }
+                if (enemy->mFlag5) {
+                    enemy->mFlag5 = 0;
+                }
+                if (enemy->mFlag6) {
+                    enemy->fn_80155DAC(0);
+                }
+                switch (enemy->m146C) {
+                case 0:
+                case 2:
+                    enemy->m58C = 0;
+                    break;
+                case 19:
+                case 21:
+                case 22:
+                case 23:
+                case 25:
+                case 32:
+                case 33:
+                case 35:
+                case 36:
+                case 40:
+                    ((SpecialEnemyBase*)enemy)->vfFC();
+                    break;
+                }
+            }
+        } else if (!mine) {
+            enemy->mFlag2 = 1;
+            enemy->m1454 = 3;
         }
     }
 }
@@ -6604,8 +6811,8 @@ extern "C" void fn_804EA8B8(PPManager2_unk* mgr, int arg) {
     if (player->mRef.mChara != 0) {
         player->mRef.mChara->fn_800D246C(arg);
     }
-    for (int i = 0; i < mgr->mPlayers.mNum; i++) {
-        PPPlayer_unk* other = &mgr->mPlayers.mData[i];
+    for (int i = 0; i < (int)mgr->mPlayers.size(); i++) {
+        PPPlayer_unk* other = &mgr->mPlayers[i];
         if (IsTeamPlayer_unk(other) && (unsigned int)(other->mAid & 0xF) == player->mAid) {
             other->mFlags.m26 = 1;
             if (other->mRef.mChara != 0) {
@@ -6644,8 +6851,8 @@ static inline float RandWarpOffset_unk() {
 extern "C" void fn_804EAA84(PPManager2_unk* mgr, CharaTask* chara, int keep, int b) {
     PPPlayer_unk* player = 0;
     int index = -1;
-    for (unsigned int i = 0; i < mgr->mPlayers.mNum; i++) {
-        PPPlayer_unk* slot = &mgr->mPlayers.mData[i];
+    for (unsigned int i = 0; i < (int)mgr->mPlayers.size(); i++) {
+        PPPlayer_unk* slot = &mgr->mPlayers[i];
         if (slot->mFlags.mActive == 1 && slot->mRef.mChara == chara) {
             player = slot;
             index = i;
@@ -6661,15 +6868,15 @@ extern "C" void fn_804EAA84(PPManager2_unk* mgr, CharaTask* chara, int keep, int
     if (fn_804FC7E0(mgr, &list, player->mFlags.m22) != 0) {
         int sel = -1;
         if (keep != 0) {
-            sel = mgr->m56C[index];
+            sel = mgr->m56C.m[index];
         } else if (mgr->mMode != 2 && (mgr->mMode == 0 || b == 0)) {
             unsigned int num;
             if (mgr->m608 >= 0 && (num = list.size()) > 2) {
                 sel = (mgr->m608 + rand() % (num - 2) + 1) % num;
                 gs::WarpPoint* point = list[sel];
                 int ok = 1;
-                for (int i = 0; i < mgr->mPlayers.mNum; i++) {
-                    PPPlayer_unk* other = &mgr->mPlayers.mData[i];
+                for (int i = 0; i < (int)mgr->mPlayers.size(); i++) {
+                    PPPlayer_unk* other = &mgr->mPlayers[i];
                     if (other->mFlags.mActive && other->mRef.mChara != 0 &&
                         !other->mRef.mChara->fn_8016F3D0(player->mRef.mChara, 1)) {
                         atn::Vector3 d = point->mPos - other->mRef.mChara->mPos;
@@ -6728,8 +6935,8 @@ extern "C" unsigned int fn_804EAEE0(PPManager2_unk* mgr, CharaTask* chara) {
         id.m.mIndex = player->mAid;
         return id.mRaw << 16;
     }
-    for (int i = 0; i < mgr->mCharas.mNum; i++) {
-        if (mgr->mCharas.mData[i].mRef.mChara == chara) {
+    for (int i = 0; i < (int)mgr->mCharas.size(); i++) {
+        if (mgr->mCharas[i].mRef.mChara == chara) {
             id.m.mKind = 3;
             id.m.mIndex = i;
             return id.mRaw << 16;
@@ -6743,8 +6950,8 @@ extern "C" unsigned int fn_804EAEE0(PPManager2_unk* mgr, CharaTask* chara) {
 // inferred: number of the player slots in use
 extern "C" int fn_804EAFD0(PPManager2_unk* mgr) {
     int n = 0;
-    for (int i = 0; i < mgr->mPlayers.mNum; i++) {
-        PPPlayer_unk* player = &mgr->mPlayers.mData[i];
+    for (int i = 0; i < (int)mgr->mPlayers.size(); i++) {
+        PPPlayer_unk* player = &mgr->mPlayers[i];
         if (player->mFlags.mActive) {
             n++;
         }
@@ -6780,8 +6987,8 @@ extern "C" int fn_804EB1AC(PPManager2_unk* mgr) {
 extern "C" int fn_804EB26C(PPManager2_unk* mgr, int* count) {
     int all = 1;
     int n = 0;
-    for (int i = 0; i < mgr->mPlayers.mNum; i++) {
-        PPPlayer_unk* player = &mgr->mPlayers.mData[i];
+    for (int i = 0; i < (int)mgr->mPlayers.size(); i++) {
+        PPPlayer_unk* player = &mgr->mPlayers[i];
         if (player->mFlags.mActive == 1) {
             if (!player->mFlags.m28) {
                 all = 0;
@@ -6806,8 +7013,8 @@ extern "C" int fn_804EB2D8(PPManager2_unk* mgr) {
     int i;
     PPPlayer_unk* player;
     PPPlayer_unk* first = 0;
-    for (i = 0; i < mgr->mPlayers.mNum; i++) {
-        player = &mgr->mPlayers.mData[i];
+    for (i = 0; i < (int)mgr->mPlayers.size(); i++) {
+        player = &mgr->mPlayers[i];
         if (player->mFlags.mActive == 1) {
             first = player;
             break;
@@ -6821,8 +7028,8 @@ extern "C" int fn_804EB2D8(PPManager2_unk* mgr) {
     }
     unsigned int n = 0;
     unsigned int team = first->mFlags.m22;
-    for (i = 0; i < mgr->mPlayers.mNum; i++) {
-        player = &mgr->mPlayers.mData[i];
+    for (i = 0; i < (int)mgr->mPlayers.size(); i++) {
+        player = &mgr->mPlayers[i];
         if (player->mFlags.mActive == 1) {
             n++;
             if (team != player->mFlags.m22) {
@@ -6835,7 +7042,7 @@ extern "C" int fn_804EB2D8(PPManager2_unk* mgr) {
 
 // inferred: the slot `index` holds a player of a team
 extern "C" int fn_804EB3CC(PPManager2_unk* mgr, int index) {
-    return IsTeamPlayer_unk(&mgr->mPlayers.mData[index]);
+    return IsTeamPlayer_unk(&mgr->mPlayers[index]);
 }
 
 // inferred: the character is a player of a team
@@ -6864,8 +7071,8 @@ extern "C" int fn_804EB4AC(PPManager2_unk* mgr, PPPlayer_unk* player) {
 
 // inferred: every player in use that is not in a team has m27 set
 extern "C" bool fn_804EB5D8(PPManager2_unk* mgr) {
-    for (int i = 0; i < mgr->mPlayers.mNum; i++) {
-        PPPlayer_unk* player = &mgr->mPlayers.mData[i];
+    for (int i = 0; i < (int)mgr->mPlayers.size(); i++) {
+        PPPlayer_unk* player = &mgr->mPlayers[i];
         if (IsTeamPlayer_unk(player) != 1 && player->mFlags.mActive == 1 && !player->mFlags.m27) {
             return false;
         }
@@ -6921,8 +7128,8 @@ extern "C" int fn_804EB750(PPManager2_unk* mgr, CharaTask* chara, int index) {
 
 // inferred: the player slot of a character
 extern "C" PPPlayer_unk* fn_804EB7C4(PPManager2_unk* mgr, CharaTask* chara) {
-    for (int i = 0; i < mgr->mPlayers.mNum; i++) {
-        PPPlayer_unk* player = &mgr->mPlayers.mData[i];
+    for (int i = 0; i < (int)mgr->mPlayers.size(); i++) {
+        PPPlayer_unk* player = &mgr->mPlayers[i];
         if (player->mFlags.mActive == 1 && player->mRef.mChara == chara) {
             return player;
         }
@@ -6935,7 +7142,7 @@ extern "C" PPPlayer_unk* fn_804EB7C4(PPManager2_unk* mgr, CharaTask* chara) {
 extern "C" PPCharaEntry_unk* fn_804EB814(PPManager2_unk* mgr, CharaTask* chara) {
     int index = FindCharaIndex_unk(mgr, chara);
     if (index >= 0) {
-        return &mgr->mCharas.mData[index];
+        return &mgr->mCharas[index];
     }
     return 0;
 }
@@ -6944,8 +7151,8 @@ extern "C" PPCharaEntry_unk* fn_804EB814(PPManager2_unk* mgr, CharaTask* chara) 
 // inferred: the aid as unsigned int puts it in r5 and the offset in r4, as in the original
 extern "C" PPPlayer_unk* fn_804EB870(PPManager2_unk* mgr) {
     unsigned int aid = lbl_8087F628->GetMyAid_unk();
-    for (int i = 0; i < mgr->mPlayers.mNum; i++) {
-        PPPlayer_unk* player = &mgr->mPlayers.mData[i];
+    for (int i = 0; i < (int)mgr->mPlayers.size(); i++) {
+        PPPlayer_unk* player = &mgr->mPlayers[i];
         if (player->mFlags.mActive == 1 && aid == player->mAid) {
             return player;
         }
@@ -7474,16 +7681,16 @@ static inline CharaTask* GetHitAttacker_unk(PPManager2_unk* mgr, const PPMsgChar
     case 1:
         return 0;
     case 2:
-        for (int i = 0; i < mgr->mPlayers.mNum; i++) {
-            PPPlayer_unk* player = &mgr->mPlayers.mData[(unsigned int)i];
+        for (int i = 0; i < (int)mgr->mPlayers.size(); i++) {
+            PPPlayer_unk* player = &mgr->mPlayers[(unsigned int)i];
             if (player->mFlags.mActive == 1 && data->mIndex == player->mAid) {
-                return mgr->mPlayers.mData[(unsigned int)i].mRef.mChara;
+                return mgr->mPlayers[(unsigned int)i].mRef.mChara;
             }
         }
         return 0;
     case 3:
-        if ((unsigned int)mgr->mCharas.mNum > data->mIndex) {
-            return mgr->mCharas.mData[data->mIndex].mRef.mChara;
+        if (mgr->mCharas.size() > data->mIndex) {
+            return mgr->mCharas[data->mIndex].mRef.mChara;
         }
         return 0;
     }
@@ -7742,9 +7949,9 @@ struct PPMsgGimmickAnswer_unk {
 #pragma pack(pop)
 // inferred: character of the player of network id `aid` (slots in use only)
 static inline CharaTask* PPCharaOfAid_unk(PPManager2_unk* mgr, const unsigned char& aid) {
-    for (int i = 0; i < mgr->mPlayers.mNum; i++) {
-        if (mgr->mPlayers.mData[i].mFlags.mActive == 1 && aid == mgr->mPlayers.mData[i].mAid) {
-            return mgr->mPlayers.mData[i].mRef.mChara;
+    for (int i = 0; i < (int)mgr->mPlayers.size(); i++) {
+        if (mgr->mPlayers[i].mFlags.mActive == 1 && aid == mgr->mPlayers[i].mAid) {
+            return mgr->mPlayers[i].mRef.mChara;
         }
     }
     return 0;
@@ -7759,7 +7966,7 @@ static inline CharaTask* PPCharaOfId_unk(PPManager2_unk* mgr, const PPId_unk* id
     case 2:
         return PPCharaOfAid_unk(mgr, id->m01);
     case 3:
-        return (unsigned int)mgr->mCharas.mNum > id->m01 ? mgr->mCharas.mData[id->m01].mRef.mChara : 0;
+        return mgr->mCharas.size() > id->m01 ? mgr->mCharas[id->m01].mRef.mChara : 0;
     default:
         return 0;
     }
@@ -7809,7 +8016,7 @@ extern "C" void fn_804EF0F0(unsigned int aid) {
             chara = PPCharaOfAid_unk(mgr, data->mSenderId);
             break;
         case 3:
-            chara = (unsigned int)mgr->mCharas.mNum > data->mSenderId ? mgr->mCharas.mData[data->mSenderId].mRef.mChara
+            chara = mgr->mCharas.size() > data->mSenderId ? mgr->mCharas[data->mSenderId].mRef.mChara
                                                                      : 0;
             break;
         default:
@@ -8054,8 +8261,8 @@ extern "C" void fn_804F135C() {
     ((PPManager2_unk*)lbl_8087F610)->m560 = data->m00;
     ((PPManager2_unk*)lbl_8087F610)->m564 = data->m04;
     ((PPManager2_unk*)lbl_8087F610)->m568 = data->m08;
-    memcpy(((PPManager2_unk*)lbl_8087F610)->m56C, data->m0C, sizeof(data->m0C));
-    memcpy(((PPManager2_unk*)lbl_8087F610)->m58C, data->m2C, sizeof(data->m2C));
+    memcpy(((PPManager2_unk*)lbl_8087F610)->m56C.m, data->m0C, sizeof(data->m0C));
+    memcpy(((PPManager2_unk*)lbl_8087F610)->m58C.m, data->m2C, sizeof(data->m2C));
     ((PPManager2_unk*)lbl_8087F610)->m598 = data->m38;
     ((PPManager2_unk*)lbl_8087F610)->m5AC = 1;
 }
@@ -8126,7 +8333,7 @@ extern "C" void fn_804F1564(PPPlayer_unk* player, unsigned int type) {
         PPMsgSlot_unk* slots = (PPMsgSlot_unk*)fn_804AE3BC()->GetWorkBuffer_unk();
         PPManager2_unk* mgr = fn_800F7F90();
         if (fn_804DD158(mgr, lbl_8087F628->GetMyAid_unk()) != 0) {
-            for (int i = 0; i < fn_800F7F90()->mPlayers.mNum; i++) {
+            for (int i = 0; i < (int)fn_800F7F90()->mPlayers.size(); i++) {
                 PPPlayer_unk* slot = fn_804D5F0C(fn_800F7F90(), i);
                 if (slot != 0) {
                     slot->mFlags.m22 = slots->mTeams[i];
@@ -8203,8 +8410,8 @@ extern "C" void fn_804F1F34(PPPlayer_unk* player) {
     if (player->mRef.mChara != 0) {
         player->mRef.mChara->fn_800D246C(0);
     }
-    for (i = 0; i < mgr->mPlayers.mNum; i++) {
-        PPPlayer_unk* other = &mgr->mPlayers.mData[i];
+    for (i = 0; i < (int)mgr->mPlayers.size(); i++) {
+        PPPlayer_unk* other = &mgr->mPlayers[i];
         if (IsTeamPlayer_unk(other) && (unsigned int)(other->mAid & 0xF) == player->mAid) {
             other->mFlags.m26 = 1;
             if (other->mRef.mChara != 0) {
@@ -8226,13 +8433,13 @@ extern "C" void fn_804F2040(unsigned int type) {
     if (((PPManager2_unk*)lbl_8087F610)->mState == 30) {
         unsigned char* data = (unsigned char*)fn_804AE3BC()->GetWorkBuffer_unk();
         if (((data[0x12] >> 1) & 1) == 0) {
-            PPPlayer_unk* player = ((PPManager2_unk*)lbl_8087F610)->mPlayers.FindTeam_unk(data[0x14]);
+            PPPlayer_unk* player = PPFindTeam_unk(&((PPManager2_unk*)lbl_8087F610)->mPlayers, data[0x14]);
             fn_804AE3BC()->fn_8050E62C(player != 0, "enemy_status\n");
             if (data[0x14] != lbl_8087F628->GetMyAid_unk() && player->mRef.mChara != 0) {
                 fn_804CF640((PackedChara_unk*)data, player->mRef.mChara);
             }
         } else {
-            CharaTask* chara = ((PPManager2_unk*)lbl_8087F610)->mCharas.mData[data[0x14]].mRef.mChara;
+            CharaTask* chara = ((PPManager2_unk*)lbl_8087F610)->mCharas[data[0x14]].mRef.mChara;
             if (chara != 0) {
                 fn_804CF640((PackedChara_unk*)data, chara);
                 if (type == 26) {
@@ -8264,7 +8471,7 @@ extern "C" void fn_804F2258() {
     if (((PPManager2_unk*)lbl_8087F610)->mState == 30) {
         PPPlayerInfo_unk* data = (PPPlayerInfo_unk*)fn_804AE3BC()->GetWorkBuffer_unk();
         if (!data->mIsEntry) {
-            PPPlayer_unk* player = ((PPManager2_unk*)lbl_8087F610)->mPlayers.FindTeam_unk(data->mAid);
+            PPPlayer_unk* player = PPFindTeam_unk(&((PPManager2_unk*)lbl_8087F610)->mPlayers, data->mAid);
             fn_804AE3BC()->fn_8050E62C(player != 0, "enemy_sync\n");
             if (player->mRef.mChara != 0) {
                 ((PPChara_unk*)player->mRef.mChara)->m7D8 = data->m00;
@@ -8276,7 +8483,7 @@ extern "C" void fn_804F2258() {
             player->mFlags.m12 = data->m12;
         } else {
             PPManager2_unk* mgr = (PPManager2_unk*)lbl_8087F610;
-            PPCharaEntry_unk* entry = &mgr->mCharas.mData[data->mAid];
+            PPCharaEntry_unk* entry = &mgr->mCharas[data->mAid];
             CharaTask* chara = entry->mRef.mChara;
             if (chara != 0) {
                 mgr->m99BC = 1;
@@ -8310,7 +8517,7 @@ extern "C" void fn_804F2450(unsigned int type) {
     if (((PPManager2_unk*)lbl_8087F610)->mState == 30) {
         PPMsgEnemyLoc_unk* data = (PPMsgEnemyLoc_unk*)fn_804AE3BC()->GetWorkBuffer_unk();
         if (!data->mIsEntry) {
-            PPPlayer_unk* player = ((PPManager2_unk*)lbl_8087F610)->mPlayers.FindTeam_unk((unsigned char)data->mIndex);
+            PPPlayer_unk* player = PPFindTeam_unk(&((PPManager2_unk*)lbl_8087F610)->mPlayers, (unsigned char)data->mIndex);
             PPManager2_unk* mgr = (PPManager2_unk*)lbl_8087F610;
             fn_804AE3BC()->fn_8050E62C(player != 0, "enemy_update_loc(%x)(%x)(%x)\n", data->mIndex, mgr->m5C0,
                                        mgr->mStateVar);
@@ -8320,7 +8527,7 @@ extern "C" void fn_804F2450(unsigned int type) {
                 ((PPChara_unk*)player->mRef.mChara)->m3FC = 1;
             }
         } else {
-            CharaTask* chara = ((PPManager2_unk*)lbl_8087F610)->mCharas.mData[data->mIndex].mRef.mChara;
+            CharaTask* chara = ((PPManager2_unk*)lbl_8087F610)->mCharas[data->mIndex].mRef.mChara;
             if (chara != 0) {
                 chara->mPos = data->mState.mPos;
                 atn::Vector3 vel = data->mState.mVel;
@@ -8658,7 +8865,7 @@ extern "C" void fn_804F3BAC() {
     if (((PPManager2_unk*)lbl_8087F610)->mState != 30) {
         return;
     }
-    for (int i = 0; i < ((PPManager2_unk*)lbl_8087F610)->mPlayers.mNum; i++) {
+    for (int i = 0; i < (int)((PPManager2_unk*)lbl_8087F610)->mPlayers.size(); i++) {
         PPPlayer_unk* player = fn_804D5F0C((PPManager2_unk*)lbl_8087F610, i);
         if (player->mFlags.mActive && player->mRef.mChara != 0) {
             if (player->mFlags.m30 == 1 || IsSameTeam_unk(player, GetMyPlayer_unk())) {
@@ -8685,10 +8892,10 @@ extern "C" void fn_804F3E50() {
     }
     int* data = (int*)fn_804AE3BC()->GetWorkBuffer_unk();
     int index = data[0];
-    if (index < 0 || ((PPManager2_unk*)lbl_8087F610)->mCharas.mNum <= index) {
+    if (index < 0 || (int)((PPManager2_unk*)lbl_8087F610)->mCharas.size() <= index) {
         return;
     }
-    PPCharaEntry_unk* entry = &((PPManager2_unk*)lbl_8087F610)->mCharas.mData[index];
+    PPCharaEntry_unk* entry = &((PPManager2_unk*)lbl_8087F610)->mCharas[index];
     if (entry->mRef.mChara != 0) {
         entry->mRef.fn_805011CC();
     }
@@ -8705,8 +8912,8 @@ static inline int PPTeamSize_unk(PPManager2_unk* mgr, CharaTask* chara) {
     }
     int n = 0;
     unsigned int team = player->mFlags.m22;
-    for (int i = 0; i < mgr->mPlayers.mNum; i++) {
-        PPPlayer_unk* other = &mgr->mPlayers.mData[i];
+    for (int i = 0; i < (int)mgr->mPlayers.size(); i++) {
+        PPPlayer_unk* other = &mgr->mPlayers[i];
         if (other->mFlags.mActive && other->mRef.mChara != 0 && other->mFlags.m22 == team) {
             n++;
         }
@@ -8786,7 +8993,7 @@ extern "C" void fn_804F47FC(PPPlayer_unk* player, unsigned int aid) {
         return;
     }
     unsigned char* data = (unsigned char*)fn_804AE3BC()->GetWorkBuffer_unk();
-    for (int i = 0; i < fn_800F7F90()->mPlayers.mNum; i++) {
+    for (int i = 0; i < (int)fn_800F7F90()->mPlayers.size(); i++) {
         PPPlayer_unk* slot = fn_804D5F0C(fn_800F7F90(), i);
         slot->mD8 = *(int*)(data + (i * 4 + 0x42));
         slot->mD4Flags.m22 = data[0x39 + i];
@@ -8820,7 +9027,7 @@ extern "C" void fn_804F47FC(PPPlayer_unk* player, unsigned int aid) {
     }
     PPManager2_unk* mgr2 = fn_800F7F90();
     if (fn_804DD158(mgr2, lbl_8087F628->GetMyAid_unk()) != 0) {
-        for (int i = 0; i < fn_800F7F90()->mPlayers.mNum; i++) {
+        for (int i = 0; i < (int)fn_800F7F90()->mPlayers.size(); i++) {
             PPPlayer_unk* slot = fn_804D5F0C(fn_800F7F90(), i);
             if (slot != 0) {
                 slot->mFlags.m22 = data[0x29 + i];
@@ -8888,7 +9095,7 @@ extern "C" void fn_804F4E40() {
             player->mDC.fn_80501288((CharaTask*)data->mIds[i]);
         }
     }
-    ((PPManager2_unk*)lbl_8087F610)->m2B80 = data->m10;
+    ((PPManager2_unk*)lbl_8087F610)->m2B80.m00 = data->m10;
     ((PPManager2_unk*)lbl_8087F610)->m534 = data->m10 == 1;
     ((PPManager2_unk*)lbl_8087F610)->m50C = 3;
 }
@@ -8980,13 +9187,13 @@ extern "C" int fn_804F50DC(PPManager2_unk* mgr, PPPlayer_unk* player, unsigned s
                 }
             } else if (type == 1) {
                 PPPlayer_unk* a = fn_804DD158(mgr, (index >> 8) & 0xFF);
-                PPCharaEntry_unk* b = &mgr->mCharas.mData[index & 0xFF];
+                PPCharaEntry_unk* b = &mgr->mCharas[index & 0xFF];
                 if (a != 0 && b != 0 && a->mRef.mChara != 0 && b->mRef.mChara != 0) {
                     fn_800DD3FC(buf, lbl_8087F1E4->Get_unk(15), a->mRef.mChara->GetInfo_unk()->m04,
                                 b->mRef.mChara->GetInfo_unk()->m04);
                 }
             } else if (type == 2) {
-                PPCharaEntry_unk* a = &mgr->mCharas.mData[(index >> 8) & 0xFF];
+                PPCharaEntry_unk* a = &mgr->mCharas[(index >> 8) & 0xFF];
                 PPPlayer_unk* b = fn_804DD158(mgr, index & 0xFF);
                 kind = 1;
                 if (a != 0 && b != 0 && a->mRef.mChara != 0 && b->mRef.mChara != 0) {
@@ -9238,8 +9445,8 @@ void MP::Manager2::vf14() {
         fn_804F8464(this);
     }
     if (m528 != 0) {
-        for (int i = 0; i < mPlayers.mNum; i++) {
-            PPPlayer_unk* player = &mPlayers.mData[i];
+        for (int i = 0; i < (int)mPlayers.size(); i++) {
+            PPPlayer_unk* player = &mPlayers[i];
             if (player->mRef.mChara != 0 && player->mFlags.mActive) {
                 atn::Vector3 screen = atn::RenderManager::instance_->GetScreenPosition(
                     player->mRef.mChara->mPos + atn::Vector3(0.0f, 20.0f, 0.0f));
@@ -9259,8 +9466,8 @@ void MP::Manager2::vf14() {
                 }
             }
         }
-        for (int i = 0; i < mCharas.mNum; i++) {
-            PPCharaEntry_unk* entry = &mCharas.mData[i];
+        for (int i = 0; i < (int)mCharas.size(); i++) {
+            PPCharaEntry_unk* entry = &mCharas[i];
             if (entry->mRef.mChara != 0) {
                 atn::Vector3 screen = atn::RenderManager::instance_->GetScreenPosition(
                     entry->mRef.mChara->mPos + atn::Vector3(0.0f, 20.0f, 0.0f));
@@ -9447,7 +9654,7 @@ extern "C" void fn_804F8464(PPManager2_unk* mgr) {
 
     mp = L"Mp: startpos=";
     for (int i = 0; i < 8; i++) {
-        itow(mgr->m56C[i], buf, 10);
+        itow(mgr->m56C.m[i], buf, 10);
         mp += buf;
         mp += L",";
     }
@@ -9455,7 +9662,7 @@ extern "C" void fn_804F8464(PPManager2_unk* mgr) {
 
     mp = L"Mp: item=";
     for (int i = 0; i < 3; i++) {
-        itow(mgr->m58C[i], buf, 10);
+        itow(mgr->m58C.m[i], buf, 10);
         mp += buf;
         mp += L",";
     }
@@ -9510,11 +9717,11 @@ extern "C" void fn_804F8464(PPManager2_unk* mgr) {
     if (mgr->m524 != 0) {
         std::basic_string<wchar_t> players(L"Players: num=");
         wchar_t num[256];
-        itow(mgr->mPlayers.mNum, num, 10);
+        itow((int)mgr->mPlayers.size(), num, 10);
         players += num;
         PPDebugText_unk(line++, players.c_str(), 0xFFFFFFFF);
-        for (int i = 0; i < mgr->mPlayers.mNum; i++) {
-            PPPlayer_unk* player = &mgr->mPlayers.mData[i];
+        for (int i = 0; i < (int)mgr->mPlayers.size(); i++) {
+            PPPlayer_unk* player = &mgr->mPlayers[i];
             unsigned int color = 0xFFFFFFFF;
             if (!player->mFlags.mActive) {
                 color = 0xFF808080;
@@ -9614,7 +9821,7 @@ extern "C" const wchar_t* fn_804FA7C8(PPManager2_unk* mgr, int kind, int value) 
 
 // inferred: name of the level of an experience
 extern "C" const wchar_t* fn_804FA88C(PPManager2_unk* mgr, int exp) {
-    MpLevel_unk* level = fn_805075C4((MpLevelTable_unk*)mgr->m610, exp);
+    MpLevel_unk* level = fn_805075C4(&mgr->m610.mTable, exp);
     if (level != 0) {
         return lbl_8087F86C->Get_unk(level->m00);
     }
@@ -9623,7 +9830,7 @@ extern "C" const wchar_t* fn_804FA88C(PPManager2_unk* mgr, int exp) {
 
 // inferred: title of the level of an experience
 extern "C" const wchar_t* fn_804FA8E8(PPManager2_unk* mgr, int exp) {
-    MpLevel_unk* level = fn_805075C4((MpLevelTable_unk*)mgr->m610, exp);
+    MpLevel_unk* level = fn_805075C4(&mgr->m610.mTable, exp);
     if (level != 0) {
         return lbl_8087F86C->Get_unk(level->m00 + 0x15);
     }
