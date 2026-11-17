@@ -154,22 +154,28 @@ inline float ToRad_unk(float deg) {
     return 0.017453292f * deg;
 }
 
-// inferred: the swing update shared with the map parts (name invented)
+// inferred: sine of a float angle (name invented)
+inline float SinF_unk(float x) {
+    return (float)sin(x);
+}
+
+// inferred: the swing update shared with the map parts (name invented). The wind sum is written out at
+// each use and the sines go through SinF_unk (float registers and scheduling of the original); the limit
+// of mAngle0 is mMaxWind * ToRad_unk(2.0f) (mMaxWind loaded before the constant)
 inline void UpdateSwing_unk(gmk::SwingCore_unk* core) {
     gmk::SwingParam_unk* param = core->mCur;
     float range = param->mDegMax - param->mDegMin;
-    float wind = param->mWindPower + core->mWind;
-    float amp = range / core->mMaxWind * wind;
-    if (wind > core->mMaxWind) {
+    float amp = range / core->mMaxWind * (param->mWindPower + core->mWind);
+    if (param->mWindPower + core->mWind > core->mMaxWind) {
         amp = range;
     }
-    float s = (float)sin(core->mTime + param->mLag);
-    core->mAngle1 = ToRad_unk((param->mDegMin + amp) / (100.0f / param->mMiddle)) * s;
-    core->mAngle2 = ToRad_unk((param->mDegMin + amp) * (float)sin(core->mTime));
-    core->mTwistAngle = param->mTwist * ToRad_unk((param->mDegMin + amp) * (float)sin(core->mTime + core->mPhase));
+    core->mAngle1 =
+        ToRad_unk((param->mDegMin + amp) / (100.0f / param->mMiddle)) * SinF_unk(core->mTime + param->mLag);
+    core->mAngle2 = ToRad_unk((param->mDegMin + amp) * SinF_unk(core->mTime));
+    core->mTwistAngle = param->mTwist * ToRad_unk((param->mDegMin + amp) * SinF_unk(core->mTime + core->mPhase));
     core->mAngle0 = ToRad_unk(param->mDegMax / 20.0f) * (param->mWindPower + core->mWind);
     if (core->mAngle0 >= 1.5707964f) {
-        core->mAngle0 = core->mMaxWind * 0.034906585f;
+        core->mAngle0 = core->mMaxWind * ToRad_unk(2.0f);
     }
     if (param->mWindPower > 0.0f) {
         float c = (float)cos(core->mTime / (6.0f - 0.03f * param->mWindPower));
@@ -330,8 +336,7 @@ int SwingObject::vf0C() {
     return 0;
 }
 
-// NONMATCHING: 95.84% - float registers of the inlined UpdateSwing_unk (wind/mMaxWind) and the model
-// address kept in r4 across the LOD branch
+// NONMATCHING: 98.36% - the model address kept in r4 across the LOD branch
 void SwingObject::vf10() {
     if (mId != 10042) {
         if (CameraDistSq_unk(m6C) > 90000.0f) {
@@ -484,8 +489,37 @@ SwingPart_unk::SwingPart_unk(int id, void* arg, SwingPartPos_unk* pos, unsigned 
     mLoader.vf0C(sSwingPath_unk);
 }
 
-// NONMATCHING: 96.02% - float registers of the inlined UpdateSwing_unk (as in SwingObject::vf10) and the
-// position of the reload of lbl_8087F3C0 before the effect call
+// inferred: plays the effect of a swinging map part (the manager is evaluated first, as in the
+// original; name invented)
+inline void PlayPartEfp_unk(EffectMgr_unk* mgr, atn::EfpFile* efp, void* owner) {
+    Color4f_unk color;
+    color.r = 1.0f;
+    color.g = 1.0f;
+    color.b = 1.0f;
+    color.a = 1.0f;
+    fn_8023A8B4(mgr, efp, 0, owner, lbl_807C7030, lbl_807C7030, color, -1, -1, 1, 1.0f);
+}
+
+// inferred: world matrices of the nodes of a swinging map part (shared by its loading and update; name
+// invented)
+inline void CalcNodes_unk(SwingPart_unk* part) {
+    part->mInst.fn_8009EB20();
+    Mtx* nodes = (Mtx*)part->m98.get();
+    if (nodes == 0) {
+        return;
+    }
+    SwingPartInst_unk* data = (SwingPartInst_unk*)part->mInst.mData;
+    Mtx* local = data->mNodes;
+    int count = data->m17C->mNumNodes;
+    atn::Matrix3x4 mtx = part->mInst.mMtx;
+    atn::Matrix3x4 t;
+    for (int i = 0; i < count; i++) {
+        PSMTXConcat(mtx.m, local[i], t.m);
+        *(atn::Matrix3x4*)nodes[i] = t;
+    }
+}
+
+// NONMATCHING: 99.90% - the three loads of m98 for m9C/mA0/mA4 take r26/r27 (r28/r29 in the original)
 // inferred: loading of a swinging map part (1 when ready)
 int SwingPart_unk::fn_803FFF40() {
     switch (m90) {
@@ -517,29 +551,12 @@ int SwingPart_unk::fn_803FFF40() {
         if ((m134 & 2) != 2) {
             fn_80232B7C(this, 1);
             lbl_8087F3C0->mB8 = 1;
-            Color4f_unk color;
-            color.r = 1.0f;
-            color.g = 1.0f;
-            color.b = 1.0f;
-            color.a = 1.0f;
-            fn_8023A8B4(lbl_8087F3C0, &mEfp, 0, this, lbl_807C7030, lbl_807C7030, color, -1, -1, 1, 1.0f);
+            PlayPartEfp_unk(lbl_8087F3C0, &mEfp, this);
             lbl_8087F3C0->mB8 = 0;
         }
         mCore.mCur = &mCore.mParams[0];
         UpdateSwing_unk(&mCore);
-        mInst.fn_8009EB20();
-        Mtx* nodes = (Mtx*)m98.get();
-        if (nodes != 0) {
-            SwingPartInst_unk* data = (SwingPartInst_unk*)mInst.mData;
-            int count = data->m17C->mNumNodes;
-            Mtx* local = data->mNodes;
-            atn::Matrix3x4 t;
-            atn::Matrix3x4 mtx = mInst.mMtx;
-            for (int i = 0; i < count; i++) {
-                PSMTXConcat(mtx.m, local[i], t.m);
-                *(atn::Matrix3x4*)nodes[i] = t;
-            }
-        }
+        CalcNodes_unk(this);
     }
     }
     return 1;
@@ -547,8 +564,6 @@ int SwingPart_unk::fn_803FFF40() {
 
 
 // inferred: update of a swinging map part (called by MapPartsGimmickLoc)
-// NONMATCHING: 96.9% - float registers of the inlined UpdateSwing_unk (as in SwingObject::vf10) and
-// the registers of the node pointer and the loop counter swapped.
 void SwingPart_unk::fn_804003E0() {
     SwingPart_unk* part = this;
     if (CameraDistSq_unk(part->m94->mPos) > 90000.0f) {
@@ -558,20 +573,7 @@ void SwingPart_unk::fn_804003E0() {
     if (part->m9C == 0 || part->mA0 == 0 || part->mA4 == 0) {
         return;
     }
-    part->mInst.fn_8009EB20();
-    Mtx* nodes = (Mtx*)part->m98.get();
-    if (nodes == 0) {
-        return;
-    }
-    SwingPartInst_unk* data = (SwingPartInst_unk*)part->mInst.mData;
-    int count = data->m17C->mNumNodes;
-    Mtx* local = data->mNodes;
-    atn::Matrix3x4 t;
-    atn::Matrix3x4 mtx = part->mInst.mMtx;
-    for (int i = 0; i < count; i++) {
-        PSMTXConcat(mtx.m, local[i], t.m);
-        *(atn::Matrix3x4*)nodes[i] = t;
-    }
+    CalcNodes_unk(part);
 }
 
 // inferred: draw of a swinging map part (called by MapPartsGimmickLoc::vf14)
