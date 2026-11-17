@@ -156,7 +156,7 @@ static const char* const sColorPanes[] = {"col0001_01", "col0003", "col0006"};
 
 // inferred: the player can take items (flag 8 of m54C clear; name invented)
 inline bool IsFree_unk(CharaTask* chara) {
-    return (chara->m54C & 8) != 8;
+    return !((chara->m54C & 8) == 8);
 }
 
 // inferred: the attack can not take items (name invented)
@@ -215,8 +215,11 @@ int DropItem::vf0C() {
 }
 
 // inferred: the item waits on the ground until the player (or one of its bullets) touches it
-// NONMATCHING: 90.61% - register allocation (the original keeps the player in r22 and uses r16-r31),
-// order of the stores of the tutorial message and of the touch test locals
+// The blocked test of a shot is its own if with a continue (inside the || of the other tests the inline
+// bool is kept in a register); IsFree_unk is written !(... == 8) (the original computes the bool).
+// NONMATCHING: 94.07% - register allocation (the original keeps the player in r22 and uses r16-r31), the
+// segment of the shot (the original builds the end, m08 + m20, and copies it before it reads m08/m20
+// again for the start) and order of the stores of the touch test locals
 void DropItem::vf10() {
     if (vf38() != 0) {
         fn_803ED0D4(vf38(), 1);
@@ -300,7 +303,12 @@ void DropItem::vf10() {
                     attack.m10 = bullet->m6C;
                     attack.m14 = bullet->m70;
                     attack.m18 = bullet->m74;
-                    if ((attack.m0C == 0 || !IsBlocked_unk(attack)) && (flags & 0x200000) != 0x200000 &&
+                    if (attack.m0C != 0) {
+                        if (IsBlocked_unk(attack)) {
+                            continue;
+                        }
+                    }
+                    if ((flags & 0x200000) != 0x200000 &&
                         !((float)__fabs(PSVECSquareMag(&bullet->m20)) < 1.1920929e-7f)) {
                         DropSegment_unk seg(bullet->m08 - bullet->m20, bullet->m08 + bullet->m20);
                         DropCapsule_unk capsule(m6C + atn::Vector3(0.0f, 3.5f, 0.0f),

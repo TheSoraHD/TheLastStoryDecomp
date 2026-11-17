@@ -332,18 +332,13 @@ void D2AMpMenuCockpit::vf14() {
     }
 }
 
-inline bool IsOnScreen_unk(const atn::Vector3& screen) {
-    return 0.0f <= screen.z && screen.z <= 1.0f && -50.0f <= screen.x &&
-           screen.x < 50.0f + (float)lbl_8087EEE0->mWidth && -50.0f <= screen.y &&
-           screen.y < 50.0f + (float)lbl_8087EEE0->mHeight;
-}
-
 // inferred: marks over the characters. The position of a mark (3 units above the neck) is written in
 // the loops, not in an inline (the vector temporaries keep the order of the original); the mode is
 // read before the team (register order of the two loads).
-// NONMATCHING: 96.68% - the original reloads lbl_8087F610 at the top of the player loop body (here it
-// is reused from the loop condition; a volatile declaration gave it, not allowed), and IsOnScreen_unk
-// leaves its bool in a register (as a macro the condition branches directly: 100% with both)
+// The on-screen test is written in each if (an inline bool function leaves its result in a register).
+// NONMATCHING: 99.78% - the original reloads lbl_8087F610 at the top of the player loop body (here it
+// is reused from the loop condition; tried the weak getter fn_800F7F90 in the body and in the condition,
+// GetPlayer_unk defined after the function)
 void D2AMpMenuCockpit::fn_804B5B10() {
     if (fn_804EB870(lbl_8087F610) == 0) {
         return;
@@ -377,7 +372,9 @@ void D2AMpMenuCockpit::fn_804B5B10() {
             atn::Vector3 pos = mtx != 0 ? ((atn::Matrix3x4*)mtx)->GetTrans_unk() + atn::Vector3(0.0f, 3.0f, 0.0f)
                                         : player->m00->vf58();
             atn::Vector3 screen = atn::RenderManager::instance_->GetScreenPosition(pos);
-            if (IsOnScreen_unk(screen)) {
+            if (0.0f <= screen.z && screen.z <= 1.0f && -50.0f <= screen.x &&
+                screen.x < 50.0f + (float)lbl_8087EEE0->mWidth && -50.0f <= screen.y &&
+                screen.y < 50.0f + (float)lbl_8087EEE0->mHeight) {
                 m50[i]->SetColor_unk("col0002(1)", rank == 1 ? 0xFFE59E36 : 0xFF969696);
                 m50[i]->SetColor_unk("col0003(1)", rank == 1 ? 0xFFE59E36 : 0xFFCCCCCC);
                 m50[i]->mFlags &= ~4;
@@ -396,7 +393,9 @@ void D2AMpMenuCockpit::fn_804B5B10() {
                 atn::Vector3 pos = mtx != 0 ? ((atn::Matrix3x4*)mtx)->GetTrans_unk() + atn::Vector3(0.0f, 3.0f, 0.0f)
                                         : player->m00->vf58();
                 atn::Vector3 screen = atn::RenderManager::instance_->GetScreenPosition(pos);
-                if (IsOnScreen_unk(screen)) {
+                if (0.0f <= screen.z && screen.z <= 1.0f && -50.0f <= screen.x &&
+                screen.x < 50.0f + (float)lbl_8087EEE0->mWidth && -50.0f <= screen.y &&
+                screen.y < 50.0f + (float)lbl_8087EEE0->mHeight) {
                     m70[i]->mFlags &= ~4;
                     SetPaneValue_unk(m70[i]->mLayout, "basePoint", 0, screen.x);
                     SetPaneValue_unk(m70[i]->mLayout, "basePoint", 1, screen.y);
