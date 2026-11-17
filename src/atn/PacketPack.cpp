@@ -4278,12 +4278,10 @@ inline void SetKeyInt_unk(int i, const char* name, int value, unsigned int flags
     net->mKeys[i] = atn::net::NetFilterKey_unk(name, value, flags);
 }
 
-// NONMATCHING: 98.82% - r30/r31 of the manager and the friend list swapped, registers of the fourth key and the
-// order of the two zeros of fn_80509B20 (the original leaves r4 unset)
+// NONMATCHING: 99.44% - r30/r31 of the manager and the friend list swapped, registers of the fourth key
 // inferred: sets the four int keys of the matchmaking filter (mode, m54C, m550 and a value of the friend list) and
 // starts the search
 extern "C" int fn_804DB474(PPManager2_unk* mgr) {
-    int unused; // inferred: the original passes r4 unset
     atn::net::Manager* net = lbl_8087F628;
     MpFriendList_unk* list = &net->mFriendList;
     for (int i = 0; i < 8; i++) {
@@ -4293,7 +4291,7 @@ extern "C" int fn_804DB474(PPManager2_unk* mgr) {
     SetKeyInt_unk(1, fn_8050F8B0(list, 1), mgr->m54C, 0);
     SetKeyInt_unk(2, fn_8050F8B0(list, 2), mgr->m550, 1);
     SetKeyInt_unk(3, fn_8050F8B0(list, 3), list->m1E8, 1);
-    int result = lbl_8087F628->fn_80509B20(unused, 0, 0);
+    int result = lbl_8087F628->fn_80509B20(0);
     fn_804FB220(&mgr->mStateVar, 11);
     return result;
 }
@@ -5149,7 +5147,6 @@ extern "C" int fn_804DDFFC(PPManager2_unk* mgr) {
     return 1;
 }
 
-// NONMATCHING: 97.36% - registers of the team count loop (counter/offset/base) and of the inlined search
 // inferred: on the server, starts the match (Manager::fn_80509B4C) after fn_804DE560; out of the modes 2 and 3 both
 // teams need players
 extern "C" int fn_804DE2F8(PPManager2_unk* mgr, int mode) {
@@ -5157,13 +5154,7 @@ extern "C" int fn_804DE2F8(PPManager2_unk* mgr, int mode) {
         if (mode != 2 && mode != 3) {
             int counts[3];
             memset(counts, 0, sizeof(counts));
-            PPManager2_unk* mgr2 = (PPManager2_unk*)lbl_8087F610;
-            for (int i = 0; i < (int)((PPManager2_unk*)lbl_8087F610)->mPlayers.size(); i++) {
-                PPPlayer_unk* player = fn_804D5F0C(mgr2, i);
-                if (player->mFlags.mActive == 1) {
-                    counts[player->mFlags.m22]++;
-                }
-            }
+            PPCountTeams_unk(counts);
             bool both;
             if (counts[1] == 0 || counts[2] == 0) {
                 both = false;
@@ -5179,8 +5170,7 @@ extern "C" int fn_804DE2F8(PPManager2_unk* mgr, int mode) {
         if (fn_804DE560(mgr, 0, 0) == 0) {
             return 0;
         }
-        int unused; // inferred: the original passes r4 unset (as fn_804DB474)
-        lbl_8087F628->fn_80509B4C(unused, 0, 0);
+        lbl_8087F628->fn_80509B4C(0);
     }
     return 1;
 }

@@ -479,23 +479,21 @@ int Manager::fn_80509AF8() {
 }
 
 // 0x80509B20
-int Manager::fn_80509B20(int arg0, int arg1, int arg2) {
+int Manager::fn_80509B20(unsigned long long arg) {
     if (mState != 8) {
         return 0;
     }
-    mD4 = arg2;
-    mD0 = arg1;
+    mD0 = arg;
     mState = 9;
     return 1;
 }
 
 // 0x80509B4C
-int Manager::fn_80509B4C(int arg0, int arg1, int arg2) {
+int Manager::fn_80509B4C(unsigned long long arg) {
     if (mState != 11) {
         return 0;
     }
-    mD4 = arg2;
-    mD0 = arg1;
+    mD0 = arg;
     if (mFlags.mB10 != 1 && mFlags.mB7 == 1) {
         lbl_8087F62C->fn_8050E094(-1, 0x13, 0, 1);
         lbl_8087F62C->fn_8050DDDC(-1, 1);
