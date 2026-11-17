@@ -231,8 +231,11 @@ inline void Dialog::ResetPos_unk() {
     float w = lbl_8087EEE0->mWidth;
     float h = lbl_8087EEE0->mHeight;
     for (int i = 0; i < 4; i++) {
-        mSlots[i].mXY.y = h * sPos[i].y;
-        mSlots[i].mXY.x = w * sPos[i].x;
+        // inferred: y computed before x, stored x then y (load and register order of the original)
+        float y = h * sPos[i].y;
+        float x = w * sPos[i].x;
+        mSlots[i].mXY.x = x;
+        mSlots[i].mXY.y = y;
     }
 }
 
@@ -500,8 +503,6 @@ void Dialog::fn_80229240() {
     m199 = 0;
 }
 
-// NONMATCHING: 89.60% - scheduling of the inlined ResetPos_unk (tried the loop, explicit statements,
-// unsigned index and the operand order)
 void Dialog::fn_802292AC(int hide) {
     if (hide != 0) {
         for (int i = 0; i < 4; i++) {
@@ -616,6 +617,8 @@ int Dialog::vf0C() {
 #define DIALOG_MIN_UNK(a, b) ((a) < (b) ? (a) : (b))
 
 // NONMATCHING: 89.06% - scheduling/registers of the fog and bloom copies and the .sdata2 order
+// (98.93% with docs/enlazar2-20261117-qF-dialog297ac.patch: lerp inline with the target by reference,
+// fog built in an inline, local pointer to the pad; left: the 1 of mEnable and lbl_8087EFA8 swap r3/r8)
 void Dialog::fn_802297AC() {
     if (!m10C->IsFlag_unk(4) && m10C->mSpeed < 0.0f && m10C->mFrame <= 1.0f) {
         m10C->mFlags |= 4;
