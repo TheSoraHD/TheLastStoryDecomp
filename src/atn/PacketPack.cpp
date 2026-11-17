@@ -6832,7 +6832,7 @@ static inline PPPlayer_unk* GetMyPlayer_unk() {
 
 extern "C" int fn_804EB4AC(PPManager2_unk* mgr, PPPlayer_unk* player);
 extern "C" PPCharaEntry_unk* fn_804EB814(PPManager2_unk* mgr, CharaTask* chara);
-// NONMATCHING: 97.42% - offset and slot pointer of the inlined searches swapped (as fn_804EB400)
+// NONMATCHING: 99.76% - registers: the killer and the manager of the inlined fn_804EB4AC
 // inferred: a character `killer` defeated `victim`: message 22 (player by player: both aids; only when the victim
 // is marked m30 or is in the team of the own player), 23 (player by an enemy of the list in use: aid and index)
 // or 24 (enemy by player: index and aid, same condition as 22); shown by fn_804F50DC and sent to everybody
@@ -6849,16 +6849,16 @@ extern "C" int fn_804E8BF4(PPManager2_unk* mgr, CharaTask* killer, CharaTask* vi
                 value = (a->mAid << 8) | b->mAid;
             }
         } else if (fn_804EB814(mgr, victim) != 0 && fn_804EB814(mgr, victim)->mActive == 1) {
-            category = 23;
             value = (a->mAid << 8) | FindCharaIndex_unk(mgr, victim);
+            category = 23;
         }
     } else if (fn_804EB814(mgr, killer) != 0) {
         FindCharaIndex_unk(mgr, killer);
         if (FindByChara_unk(mgr, victim) != 0) {
             PPPlayer_unk* b = FindByChara_unk(mgr, victim);
             if (b->mFlags.m30 == 1 || fn_804EB4AC(mgr, b) != 0) {
-                category = 24;
                 value = (FindCharaIndex_unk(mgr, killer) << 8) | b->mAid;
+                category = 24;
             }
         } else {
             FindCharaIndex_unk(mgr, victim);
@@ -11318,15 +11318,16 @@ template class Chara<EnemyTask>;
 } // namespace MP
 
 // inferred: warp points of the field where a player of team `team` can appear (by game mode)
-// NONMATCHING: 96.86% - registers of the loop and one branch of the mode 0 test
+// NONMATCHING: 98.90% - registers of the loop (scene, offset and warp point)
 extern "C" int fn_804FC7E0(PPManager2_unk* mgr, atn::FixedArray_unk<gs::WarpPoint*, 32>* list, int team) {
     if (mgr->mGame == 0 || mgr->mGame->m10D8 == 0 || (mgr->mGame->m10D8->mFlags & 2) != 2) {
         return 0;
     }
+    gs::WarpPoint* point;
     GameScene* scene = mgr->mGame->m10D8;
     for (unsigned int i = 0; i < scene->m78.mSize; i++) {
         int mode = mgr->mMode;
-        gs::WarpPoint* point = &scene->m78.mData[i];
+        point = &scene->m78.mData[i];
         if (mode == 0) {
             if (point->mId < 100 || point->mId > 120) {
                 continue;
@@ -11340,7 +11341,8 @@ extern "C" int fn_804FC7E0(PPManager2_unk* mgr, atn::FixedArray_unk<gs::WarpPoin
                     if (point->mId >= 50) {
                         continue;
                     }
-                } else if (team == 1) {
+                }
+                if (team == 1) {
                     if (point->mId < 50) {
                         continue;
                     }
