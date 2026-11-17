@@ -151,6 +151,30 @@ static inline bool IsTargetable_unk(CharaTask* c) {
     return ok;
 }
 
+// inferred: other form of IsTargetable_unk used by vf110 (inactive flags in a bool, then the 0x20 status and
+// the grapple; as ShadeFree_unk in game/Em301LShade.cpp); names invented
+static inline bool IsInactive_unk(CharaTask* c) {
+    bool r = false;
+    if ((c->mFlags & 4) == 4 || (c->mFlags & 1) == 1) {
+        r = true;
+    }
+    return r;
+}
+static inline bool IsGrappled_unk(CharaTask* c) {
+    bool r = false;
+    if (c->m55C == 6 && c->m560 == 28) {
+        r = true;
+    }
+    return r;
+}
+static inline bool IsBindable_unk(CharaTask* c) {
+    bool ok = false;
+    if (!IsInactive_unk(c) && !c->mStatus.IsState_unk(0x20) && !IsGrappled_unk(c)) {
+        ok = true;
+    }
+    return ok;
+}
+
 // NONMATCHING: 98.75% - scheduling of the three inlined clear() (the original loads m1908, m14B0, m14C0 in
 // that order; 6 orders of the calls tried)
 Em202ForestSpider::Em202ForestSpider(atn::Task* parent, EnemyInfo_unk* info)
@@ -532,32 +556,32 @@ void Em202ForestSpider::vfF8() {
     mC58.mC4 = m14D4;
 }
 
-// NONMATCHING: 86.2% - float registers and stack slots of the route and turn temporaries (flow, calls and
-// constants checked against the original)
+// NONMATCHING: 98.9% - float registers, the 0.0f of the last branch loaded at the start and the stack
+// slots of the normalized route direction and its rotation
 void Em202ForestSpider::vfFC() {
     float speed = 1.5f;
     atn::Vector3 rot = mRot;
     if (m55C == 7) {
         mRoute.fn_80126214();
         atn::Vector3 dir = mRoute.m58;
-        if (PSVECMag(&dir) > 0.0001f) {
-            PSVECNormalize(&dir, &dir);
-            rot = dir.ToRotation_unk();
-            rot.x = 0.0f;
-            rot.z = 0.0f;
+        float mag = PSVECMag(&dir);
+        if (mag > 0.0001f) {
+            atn::Vector3 n = dir;
+            PSVECNormalize(&n, &n);
+            rot = n.ToRotation_unk();
         }
-        atn::Vector3 d(m14D4->mPos.x - mPos.x, m14D4->mPos.y - mPos.y, m14D4->mPos.z - mPos.z);
-        d.y = 0.0f;
-        float dist = PSVECMag(&d);
-        PSVECNormalize(&d, &d);
-        atn::Vector3 r = d.ToRotation_unk();
-        mRot.y = r.y;
+        dir = m14D4->mPos - mPos;
+        dir.y = 0.0f;
+        float dist = PSVECMag(&dir);
+        PSVECNormalize(&dir, &dir);
+        dir.fn_80139F60();
+        mRot.y = dir.y;
         if (m14F8 != 0) {
             speed *= 2.5f;
         } else if (dist < m1510) {
             speed = 0.0f;
         }
-        fn_801426A4(&rot, 0.0f, m568 * speed);
+        fn_801426A4(&rot, mag, m568 * speed);
     } else if (m55C == 6) {
         fn_8013A258();
     } else {
@@ -673,7 +697,7 @@ void Em202ForestSpider::vf10C() {
     }
 }
 
-// NONMATCHING: 93.8% - registers and stack slots (state 9, threads; calls, constants and member offsets
+// NONMATCHING: 95.2% - registers and stack slots (state 9, threads; calls, constants and member offsets
 // checked against the original)
 void Em202ForestSpider::vf110() {
     if (m14D8 == 0) {
@@ -717,7 +741,7 @@ void Em202ForestSpider::vf110() {
             if (c->IsFlag_unk(4)) {
                 continue;
             }
-            if (IsTargetable_unk(c) || c->mStatus.m224 > 0) {
+            if (IsBindable_unk(c) || c->mStatus.m224 > 0) {
                 int idx = next;
                 int main = 0;
                 if (c == m18E8) {
@@ -726,10 +750,10 @@ void Em202ForestSpider::vf110() {
                 }
                 if (c->mStatus.IsState_unk(0x20)) {
                     fn_80278634(c, idx, main);
-                    MtxPtr wm = c->GetModel_unk()->GetNodeMtx_unk("waist");
-                    m1538[idx].m28.m[0][3] = wm[0][3];
-                    m1538[idx].m28.m[1][3] = wm[1][3];
-                    m1538[idx].m28.m[2][3] = wm[2][3];
+                    atn::Vector3 waist = ((atn::Matrix3x4*)c->GetModel_unk()->GetNodeMtx_unk("waist"))->GetTrans_unk();
+                    m1538[idx].m28.m[0][3] = waist.x;
+                    m1538[idx].m28.m[1][3] = waist.y;
+                    m1538[idx].m28.m[2][3] = waist.z;
                     m1538[idx].m04 = 1;
                     m1538[idx].m88->fn_8015C0C0((int)this, m1538[idx].m0C);
                     atn::Vector3 pos(m1538[idx].m28.m[0][3], m1538[idx].m28.m[1][3], m1538[idx].m28.m[2][3]);

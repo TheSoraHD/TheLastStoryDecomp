@@ -1,4 +1,5 @@
 #include "game/Em301LShade.h"
+#include "macros.h"
 #include "game/GameCamera.h"
 #include "game/GameTask.h"
 #include "atn/Csv.h"
@@ -1189,8 +1190,8 @@ void Em301LShade::fn_802D4378() {
 // inferred: state 9 (absorbs the party): binds the targets of m15AC at frame 10, pulls them to the head
 // (frames 21-90) and deals the damage (the rate goes down with each absorption, "absorb_subtract_rate",
 // down to "absorb_min_rate"), pushes them away and back to state 0
-// NONMATCHING: 85.3% - draft (same open case as Em302Kraken::fn_802DAA38: order of the loads in the pull
-// loop, stack slots of the damage record and the rotation of the knockback)
+// NONMATCHING: 92.2% - registers and stack slots: the original keeps the model of the node lookups in a
+// saved register (r20-r31 against r23-r31) and orders the loads of the pull loop differently
 void Em301LShade::fn_802D4628() {
     if (m14E8 == 10) {
         m1570 = GetNodePos_unk(mMotion.GetNodeMtx_unk("head"));
@@ -1206,7 +1207,7 @@ void Em301LShade::fn_802D4628() {
         fn_80232B7C(this, 15);
         PlayEffect_unk(&m1594, (atn::Model*)&mMotion);
     }
-    if (m14E8 > 20 && m14E8 <= 90) {
+    if (20 < m14E8 && m14E8 <= 90) {
         float t = (m14E8 - 20) / 70.0f;
         float a = 1.0f - t * t;
         float b = t * t;
@@ -1226,13 +1227,11 @@ void Em301LShade::fn_802D4628() {
         int total = 0;
         for (unsigned int i = 0; i < m15AC.size(); i++) {
             CharaTask* chara = m15AC[i].mChara;
-            float rate = m1564 - m1568 * m1560;
-            if (m156C > rate) {
-                rate = m156C;
-            }
-            int hp = (int)chara->mStatus.m04;
+            float rate = MAX(m156C, m1564 - m1568 * m1560);
+            float life = chara->mStatus.m04;
+            int hp = (int)life;
             damage.mDamage = hp + 1;
-            total -= (int)(chara->mStatus.m04 * rate) + 1;
+            total -= (int)(life * rate) + 1;
             chara->mStatus.fn_8012DF7C(hp + 1, 0, 0);
             lbl_8087F048->fn_80108C10(&damage, chara->vfAC(), this, chara, 0, 0);
             lbl_8087F048->fn_80107850((atn::Model*)&chara->mMotion);
@@ -1245,7 +1244,8 @@ void Em301LShade::fn_802D4628() {
         }
         if (total < 0) {
             damage.mDamage = total;
-            atn::Vector3 pos = fn_80148B0C(0)->m04.mCenter + atn::Vector3(0.0f, 15.0f, 0.0f);
+            atn::Vector3 pos = fn_80148B0C(0)->m04.mCenter;
+            pos += atn::Vector3(0.0f, 15.0f, 0.0f);
             mStatus.fn_8012DF7C(total, 0, 0);
             lbl_8087F048->fn_80108C10(&damage, pos, 0, this, 0, 0);
             m1560++;
