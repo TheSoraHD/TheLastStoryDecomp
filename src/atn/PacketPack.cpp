@@ -8705,8 +8705,6 @@ static inline CharaTask* PPCharaOfAid_unk(PPManager2_unk* mgr, const unsigned ch
     }
     return 0;
 }
-// NONMATCHING: 99.71% (fn_804EF0F0) - the found character of the inlined search is read with the loop offset
-// (lwzx in the original), registers
 // inferred: character named by a packed id (1 none, 2 the player of aid m01, 3 the entry m01 of the list)
 static inline CharaTask* PPCharaOfId_unk(PPManager2_unk* mgr, const PPId_unk* id) {
     switch (id->m00) {
@@ -8779,7 +8777,7 @@ extern "C" void fn_804EF0F0(unsigned int aid) {
             chara = 0;
             break;
         case 2:
-            chara = PPCharaOfAid_unk(mgr, data->mSenderId);
+            chara = PPCharaOfAid_unk(fn_800F7F90(), data->mSenderId);
             break;
         case 3:
             chara = mgr->mCharas.size() > data->mSenderId ? mgr->mCharas[data->mSenderId].mRef.mChara
