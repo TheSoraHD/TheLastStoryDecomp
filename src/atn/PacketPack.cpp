@@ -1540,6 +1540,11 @@ extern "C" inline atn::EffectManager* fn_800F7FA0() {
 extern "C" inline PPManager2_unk* fn_800F7F90() {
     return (PPManager2_unk*)lbl_8087F610;
 }
+// inferred: friend list of the network manager (an inline level: the registers of fn_804E448C follow it); name
+// invented
+static inline MpFriendList_unk* PPFriendList_unk() {
+    return &lbl_8087F628->mFriendList;
+}
 extern "C" void fn_8026607C(void* mgr, void* efp, void* owner, int arg);
 extern "C" void fn_800F7FA8(void* mgr, void* owner, int id);
 extern "C" atn::RenderConfig* fn_802F0990();
@@ -5583,9 +5588,6 @@ static inline atn::net::NetPlayerInfo_unk& PPNetPlayer_unk(PPManager2_unk* mgr, 
 static inline PPPlayer_unk* PPOwnPlayer_unk(PPManager2_unk* mgr) {
     return fn_804DD158(mgr, lbl_8087F628->GetMyAid_unk());
 }
-// NONMATCHING: 99.77% - registers: own/list in r31/r30 (r30/r31 in the original; tried the declaration order,
-// list declared first or both declared at the top, the call without PPOwnPlayer_unk, the experience part as an
-// inline helper)
 // inferred: end of the game: ranking, result state, experience and item won (saved), copy of the network
 // players and message 0x1012 to everybody
 extern "C" void fn_804E448C(PPManager2_unk* mgr) {
@@ -5618,7 +5620,7 @@ extern "C" void fn_804E448C(PPManager2_unk* mgr) {
     } else {
         result = rank == 0 ? 3 : 4;
     }
-    list = &lbl_8087F628->mFriendList;
+    list = PPFriendList_unk();
     mgr->m2B80.m04 = result;
     mgr->m966C = rank;
     mgr->m9670 = fn_804E4A60(mgr, own);
@@ -8018,12 +8020,11 @@ inline int& GetDebugMatchValue_unk() {
     return sValue;
 }
 
-// NONMATCHING: 99.69% - registers of the friend list and the loop offset swapped
 // inferred: evaluation callback of the matchmaking (m99C0.mFuncs[2]): -1 if the session `index` lacks the debug
 // key or one of the filter keys or has another value; else the closeness of the fourth key (0x80 - distance,
 // in the upper half), 0x800000 if m25C is 1
 extern "C" int fn_804EDB0C(int index, void* param) {
-    MpFriendList_unk* list = &lbl_8087F628->mFriendList;
+    MpFriendList_unk* list = PPFriendList_unk();
     int result = 0x800000;
     int value = DWC_GetMatchIntValue(index, GetDebugMatchKey_unk(), 66666);
     if (value == 66666 || value != GetDebugMatchValue_unk()) {
