@@ -9,7 +9,7 @@ Inicio: 2026-11-17 08:18 CET. Tope 10:48.
 | atn/ColliCalc_unk | fn_8005AD7C | 99,9 | sin cambio (99,88; 5 variantes mas) |
 | atn/ColliCalc_unk | fn_80059784 | 97,7 | equivalente NONMATCHING 98,54 (puntero al triangulo estatico en local) |
 | atn/SoundManager | fn_800CE6E0 | 98,8 | equivalente NONMATCHING 99,72 (copia de SoundString por local) |
-| atn/SoundManager | fn_800CECF0 | 98,3 | sin cambio (ordenes de declaracion, bloques en inline: igual o peor) |
+| atn/SoundManager | fn_800CECF0 | 98,3 | equivalente NONMATCHING 99,47 (desplazamiento del banco y id del sonido en locales) |
 | game/Em312DarkServant | vf100 | 98,4 | sin cambio (depende de fn_8030E5C8) |
 | game/Em312DarkServant | fn_8030E5C8 | 98,2 | sin cambio (recursion inlinada; bucle en inline peor) |
 | game/Em305VampireMp | vf0C | 98,9 | sin cambio (push_back de std/vector.h, bloqueo conocido) |
@@ -38,6 +38,8 @@ Inicio: 2026-11-17 08:18 CET. Tope 10:48.
 - game/EnemyLizerdBlade fn_80334460: locales `yaw`, `target`, `mask` y `GetMotionFrame(0)` (accesor real de Model_unk.h).
 
 ## Hallazgos
+- Inicializacion de un bucle (contador e induccion) antes del `if (n != 0)` que lo protege en el original: contador y desplazamiento en bytes como locales declarados antes del `if` (`unsigned int off = 0; ... off += 0x54`) (SoundManager fn_800CECF0 98,3 -> 99,5). (escribir-20261116 qN6)
+- Argumento de sprintf leido antes de una llamada que tambien es argumento (`lwz` a un registro salvado antes del `bl`): leerlo en un local antes (`unsigned int id = sound.m98;`). (escribir-20261116 qN6)
 - Bucle corto (4 vueltas) que el original desenrolla entero y el nuestro de 2 en 2: el cuerpo en una inline llamada una vez por elemento (WPad_unk fn_800DDD18 `DeadZone_unk`). (escribir-20261116 qN6)
 - Contador y puntero de un bucle con los registros cruzados frente al original (coalescencia con variables posteriores): meter el bucle en una `static inline` que recibe el objeto (WPad_unk `ReadAll_unk`, 99,95 -> 100). (escribir-20261116 qN6)
 - Puntero de induccion creado en otro orden (incrementos del final del bucle en otro orden): declarar el local que lo usa despues del primer `if` que no lo necesita (WPad `status`). (escribir-20261116 qN6)
