@@ -1,6 +1,6 @@
 # escribir-20261116, cola W1b (game, interfaz y sistema, segunda pasada)
 
-- Inicio: 2026-11-17 02:00 (CET). Fin: 03:40 (cerrado antes del tope: lo que queda en las unidades es reparto de registros ya probado).
+- Inicio: 2026-11-17 02:00 (CET). Fin: hacia las 04:00 (lo que queda en las unidades es reparto de registros ya probado).
 - Resultado: funciones 15892 -> 15899 / 18109 (report.json), lost 0, sin bajadas, labelcheck/rep100 igual. Ninguna unidad pasa a enlazar (GameScene 157/188, TutorialTask 25/31, GameChoiceWindow 30/38).
 - Script: /home/claude/scratch-W1b/bin_pct.sh <simbolo> (con U=<unidad>): compila la unidad y da el % de objdiff de un simbolo.
 
@@ -21,6 +21,7 @@
 | TutorialTask::fn_805BA354 (inicio) | 92,4 % | **100 %** |
 | GameScene::fn_803C0F48 (warp) | 93,2 % | equivalente NONMATCHING 99 % (registros) |
 | GameScene::vf0C (carga) | 89,9 % | equivalente NONMATCHING 99 % (registros) |
+| GameMessageList::fn_803B35FC (csv de mensajes) | 96,6 % | equivalente NONMATCHING 98,8 % (registros) |
 | TutorialTask::fn_805BC1C0 (camara libre) | equivalente 96,3 % | equivalente NONMATCHING 99 % (registros) |
 
 ## Para el port
@@ -53,6 +54,7 @@
 - Copia implicita grande (`mCamera = *camera`) seguida de una asignacion simple: escribir la simple antes (`mPage = 0;` delante de la copia) cambia el reparto de registros de toda la funcion (TutorialTask fn_805BA354 92 -> 100 %). (escribir-20261116 qW1b)
 - Vector temporal construido y copiado (`dir = Vector3(0, 0, 1)` con psq_l/psq_st desde la pila): declarar sin inicializar y asignar; y un componente de un local ya cargado (`rot.y`) en vez de releer el miembro (GameScene fn_803C0F48 93 -> 99 %). (escribir-20261116 qW1b)
 - Varios bucles sobre el mismo array miembro con un puntero base comun en r27 (`atn::LH_Binary* files = m4C;` y `files[i]`), y argumento `T&` que el original pasa como copia en la pila: local con nombre `atn::Vector3 start = pos;` (GameScene vf0C 89,9 -> 96,7 -> 98,6 %). `else if (a == 1 && cond)` en vez de `else if (a == 1) { if (cond) ... }` cuando el original relee `a` para el `else if (a == 2)` (-> 99 %). (escribir-20261116 qW1b)
+- Global pasado como primer argumento antes de una llamada en otro argumento (`fn_8006F420(lbl_8087EEC8, name, csv.fn_8005B9CC(), 0x10)`): el original lo lee antes en un registro guardado; un local por llamada (`void* font = lbl_8087EEC8;`) lo da (GameMessageList fn_803B35FC 96,6 -> 98,8 %; con una inline no cambia). (escribir-20261116 qW1b)
 
 ## Bloqueos
 - GameChoiceWindow fn_803B6970/fn_803B6E04/vf10: el original deja materializados los tres bool anidados de HasVoice_unk (r28/r29/r30); probadas las inlines con `return a && b;` (sin cambio).
