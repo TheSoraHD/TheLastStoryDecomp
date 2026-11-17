@@ -55,7 +55,7 @@ vector frente a `mgr`); con la misma base MWCC reutiliza la carga de la condicio
   ternaria con `0.0f` e inlines `PPPackF_unk(task, f)` (tres formas): igual o peor (escribir-20261116 qG6)
 - PacketPack fn_804DE884 (99,99 %): el original relee `player->mRef.mChara` (r29) para mFlagC25 tras
   IsTeamPlayer_unk; probados `player->`, `players[i]`, `mgr->mPlayers[i]`, una inline `PPBattleZ(player)` y
-  IsTeamPlayer sobre `player`/`players[i]`: igual o peor (escribir-20261116 qG6)
+  IsTeamPlayer sobre `player`/`players[i]`, y la prueba de nulo por `players[i]`, `mgr->mPlayers[i]` o un local `chara`: igual o peor (escribir-20261116 qG6)
 - PacketPack fn_804F3BAC y fn_804F1564: el original relee `lbl_8087F610` en el cuerpo y en la condicion; probados
   getter/global/local `mgr` cruzados entre condicion y cuerpo y un local dentro del cuerpo: igual o peor (fn_804F1564
   99,30 % con condicion getter y cuerpo `mgr`, pero cruza r6/r7 y r28/r31) (escribir-20261116 qG6)
