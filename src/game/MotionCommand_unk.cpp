@@ -53,21 +53,15 @@ struct Timer_unk {
     float m3A4; // inferred: frame time
 };
 extern "C" Timer_unk* lbl_8087EFA8;
-// inferred: camera shake request of the field (names invented)
-struct Field_unk {
-    void SetShake_unk(int type, int frames, float power, float speed) {
-        m96C = type;
-        m970 = frames;
-        m974 = power;
-        m978 = speed;
-    }
-    unsigned char m00[0x96C];
-    int m96C;
-    int m970;
-    float m974;
-    float m978;
-};
-extern "C" Field_unk* lbl_8087F430;
+// inferred: starts a shake of the field camera (GameCamera::mShake; name invented)
+static inline void SetShake_unk(GameTask* task, int type, int frames, float power, float speed) {
+    CameraShake_unk& shake = task->mCamera.mShake;
+    shake.mFrame = type;
+    shake.mLength = frames;
+    shake.mWidth = power;
+    shake.mHeight = speed;
+}
+extern "C" GameTask* lbl_8087F430;
 
 // inferred: names of the command types and the areas (rodata tables 0x807370E8 and 0x80737118)
 static const char* const sTypeNames[8] = {"EFF_ATR", "EFF", "EFP", "EFP_LOOP", "SE_ATR", "SE", "SE_LOOP", "SHAKE"};
@@ -305,8 +299,8 @@ int MotionCommand_unk::fn_8012133C(atn::MotionCommandData* data, int* found) {
     }
     int area = 0;
     int ruins = 0;
-    if (lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->GetCurrentMap() != 0) {
-        MapTask* info = ((GameTask*)lbl_8087F430)->GetCurrentMap();
+    if (lbl_8087F430 != 0 && lbl_8087F430->GetCurrentMap() != 0) {
+        MapTask* info = lbl_8087F430->GetCurrentMap();
         switch (info->mType) {
         case 1:
             area = 1;
@@ -486,9 +480,9 @@ int MotionCommand_unk::fn_8012133C(atn::MotionCommandData* data, int* found) {
             break;
         }
         case 7: {
-            Field_unk* field = lbl_8087F430;
+            GameTask* field = lbl_8087F430;
             if (field != 0) {
-                field->SetShake_unk(field->m96C % 2, entry.mOffset.z, entry.mOffset.x, entry.mOffset.y);
+                SetShake_unk(field, field->mCamera.mShake.mFrame % 2, entry.mOffset.z, entry.mOffset.x, entry.mOffset.y);
             }
             ran = 1;
             break;
