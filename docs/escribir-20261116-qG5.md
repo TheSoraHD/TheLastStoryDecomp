@@ -18,6 +18,7 @@ Inicio: 2026-11-17 08:08 CET (tope 10:38).
 | fn_804DD3F0 | 99,07 % | 100 % (fn_804DD158 sin local para el slot) |
 | fn_804F47FC | 98,80 % | 99,17 % (idem) |
 | fn_804DA690 | 98,57 % | 98,78 % (idem) |
+| fn_804F60E0 | 99,60 % | 100 % (local `v` declarado antes del ultimo bucle) |
 | fn_804EAA84 | 99,91 % | 99,91 % (sin cambios: ver Bloqueos) |
 | fn_804CF198 | 99,37 % | 99,37 % (sin cambios: ver Bloqueos) |
 
@@ -29,7 +30,8 @@ Inicio: 2026-11-17 08:08 CET (tope 10:38).
 - Sin cambios de comportamiento: tipo del contador y del limite (`int`/`unsigned int`, con o sin `(int)size()`) en
   los bucles de fn_804D8910, fn_804D9C14, fn_804DDA04, fn_804DF4B8 y fn_804EB934.
 - Sin cambios de comportamiento: fn_804DD158 devuelve `&mgr->mPlayers[i]` (antes un local); `PPFindSlot_unk`
-  (misma busqueda) en fn_804D90E0, fn_804EB010 y fn_804F3EEC; `PPOwnPlayer_unk` definida antes (sin cambios).
+  (misma busqueda) en fn_804D90E0, fn_804EB010 y fn_804F3EEC.
+- Sin cambios de comportamiento: fn_804F60E0 limita el puesto del ultimo bucle a traves de un local `v`.
 
 ## Decisiones tomadas sin el usuario
 
@@ -39,6 +41,10 @@ Inicio: 2026-11-17 08:08 CET (tope 10:38).
   cuatro llamadas.
 
 ## Hallazgos
+
+- Fila y valor cruzados (r5/r6) en un bucle `p->m = MIN(MAX(p->m, 1), N)`: un local para el valor declarado antes del
+  bucle (`unsigned long v; for (...) { v = p->m; p->m = MIN(MAX(v, 1), N); }`) da el orden del original; declarado
+  dentro del bucle cruza el valor con el contador (PacketPack fn_804F60E0) (escribir-20261116 qG5)
 
 - Busqueda inlineada cuyo resultado sale un registro mas abajo (o cruzado con el desplazamiento) que en el original:
   probar la busqueda sin local para el elemento (`return &v[i];`, indexando otra vez en la prueba) frente a

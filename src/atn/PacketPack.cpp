@@ -10286,7 +10286,6 @@ struct NetRankOrder_unk {
     }
 };
 
-// NONMATCHING: 99.60% - r5/r6 of the row and the place in the last loop
 // inferred: callback of the ranking requests: sorts the rows by score and numbers them (equal scores share the
 // place); the places are moved so that the first row keeps its place (the own row when asked around it) and
 // kept in 1..99999
@@ -10333,8 +10332,10 @@ extern "C" void fn_804F60E0(int result, atn::net::NetRankData_unk* data) {
         }
     } else {
         row = rows->begin();
+        unsigned long v;
         for (unsigned int i = 0; i < rows->size(); row++, i++) {
-            row->mOrder = MIN(MAX(row->mOrder, 1), 99999);
+            v = row->mOrder;
+            row->mOrder = MIN(MAX(v, 1), 99999);
         }
     }
 }
