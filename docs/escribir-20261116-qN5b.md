@@ -16,7 +16,8 @@ Inicio: 2026-11-17 08:55 (tope 10:55). Rama agent-N5b.
 | gmk/RotaryRoom fn_80424AD4 (extra) | 99,16 % | **100 %** (b3c2971) |
 | gmk/RotaryRoom fn_80424FB4 (extra) | 99,15 % | **100 %** (66be691) |
 | gmk/PigeonManager vf0C (extra) | 93,92 % | 96,15 % |
-| gmk/RotaryRoom vf0C (extra) | 96,14 % | 96,23 % |
+| gmk/RotaryRoom vf0C (extra) | 96,14 % | 96,23 % (66be691) |
+| gmk/RotaryRoom vf10 (extra) | 95,65 % | 95,85 % |
 | gmk/WaitObject vf20 (extra) | 99,95 % | 99,98 % (b3c2971) |
 | gmk/BulletPoint vf10 | 98,5 % | |
 | gmk/ShakeCamera vf10 | 98,2 % | 99,34 % (b30a05d) |
@@ -89,3 +90,70 @@ Inicio: 2026-11-17 08:55 (tope 10:55). Rama agent-N5b.
 - gmk/PigeonManager vf0C (93,92 -> 96,15): el mismo puntero `Pigeon_unk* c` que ChickenManager. `t =
   mPigeons[i].mPos; mTmp = t;` en FindNear_unk: fn_804052EC 97,28 -> 97,56 pero vf0C 96,15 -> 95,89 (sin
   commit, como en Chicken).
+- gmk/RotaryRoom vf10 (95,65 -> 95,85): `if (mFrames > mFrame)` (el original carga mFrames primero). Queda la
+  relectura de `mTree->mFlags` antes de cada escritura (parece un campo de bits de atn::ColliBase, cabecera
+  ajena) y el orden del contador del bucle. `int frames` local: igual.
+- gmk/RotaryRoom fn_80425498 (99,74): registros de `areas` y de los cursores del primer bucle; perm.py de
+  areas/j/a/k/seg (120): 99,74 como mucho; inline `ShowArea_unk(areas)` 99,35; `area = colli->m08`, campos
+  `mSize/mData`, sin locales: igual o peor.
+
+## Para el port
+
+- gmk/WaitObject: `WaitTrigger_unk::m08` `unsigned char[0x14]` -> `float[5]` (vf20 escribe `trigger.m08[i]`;
+  las vistas `(WaitArea_unk*)t->m08` no cambian). Mismo comportamiento.
+- gmk/SwingObject: `UpdateSwing_unk` con `SinF_unk`, la suma del viento escrita en cada uso y el limite de
+  mAngle0 `mMaxWind * ToRad_unk(2.0f)` (mismo valor que 0.034906585f); inlines nuevas `CalcNodes_unk`,
+  `PlayPartEfp_unk`. Mismo comportamiento.
+- gmk/RotaryRoom: `RotateZYX_unk`/`RotateAxes_unk` locales (mismo calculo que atn::Matrix3x4::RotateZYX_unk),
+  `ColLen_unk`/`MaxScale_unk`/`SetModelScale_unk`/`PlaceModel_unk` (como gmk/ArenaFloor). Mismo
+  comportamiento.
+- gmk/ShakeCamera (`SqrtF_unk`), gmk/ChickenManager y gmk/PigeonManager (puntero al elemento): mismo
+  comportamiento. Literales: ninguno corregido. Ninguna unidad del port tocada.
+
+## Decisiones tomadas sin el usuario
+
+- Inlines nuevas con nombre inventado (todas con `// inferred:`): SinF_unk, CalcNodes_unk, PlayPartEfp_unk
+  (SwingObject); SqrtF_unk (ShakeCamera); RotateAxes_unk, RotateZYX_unk, ColLen_unk, MaxScale_unk,
+  SetModelScale_unk, PlaceModel_unk (RotaryRoom). Locales declarados arriba en RotaryRoom fn_80424AD4
+  (`model`, `type`, y en el case 4 `inst`, `i`), como hace gmk/ArenaFloor.
+- `WaitTrigger_unk::m08` como `float[5]` (cabecera de la familia gmk).
+
+## Hallazgos
+
+- Un literal float suelto en `x * K` se carga antes que el miembro (MWCC lo pone de primer operando); si el
+  original carga el miembro antes, la constante sale de una inline plegada (`x * ToRad_unk(2.0f)`).
+  (escribir-20261116 qN5b)
+- Un local `float wind = a + b` usado en `r / max * wind` deja que MWCC reasocie a `(r * wind) / max` o
+  conmute operandos; escribir la suma en cada uso (CSE) da el orden del original. (escribir-20261116 qN5b)
+- `(float)sin(x)` a traves de una inline `SinF_unk(float)` (y `SqrtF_unk`) cambia la planificacion: el
+  argumento de la llamada siguiente se calcula antes y los FPR salen como en el original.
+  (escribir-20261116 qN5b)
+- Pila, modelo que predice todas las variantes medidas (de arriba abajo): locales con nombre de la funcion
+  en orden de declaracion, sus temporales, y despues la lista de cada inline invertida (la lista de una
+  inline es igual: con nombre, temporales, inlines anidadas). Un bloque en espejo del original se arregla
+  con un nivel mas de inline alrededor de las llamadas (RotaryRoom RotateAxes_unk) y un bloque en espejo
+  propio con un nivel menos. (escribir-20261116 qN5b)
+- Un puntero que el original guarda en el ultimo registro salvado (despues de las direcciones de pila
+  izadas del bucle) es el parametro de una inline (`PlaceModel_unk(model, m)`), no un local.
+  (escribir-20261116 qN5b)
+- `((float*)s.m08)[i]` se direcciona desde `&m08`; si el original lo hace desde `&s` (+8) el miembro es un
+  array `float m08[5]`. (escribir-20261116 qN5b)
+- Copias `a[i].x = v; a[i].y = w;` que el original hace sin releer el array: `T* c = &a[i]`.
+  (escribir-20261116 qN5b)
+
+## Bloqueos
+
+- SwingPart_unk ctor (99,46): color de vt/begin/end del bucle del array de SwingParam_unk tras el ctor
+  inline de LH_Binary. SwingPart_unk fn_803FFF40 (99,90): m98 de m9C/mA0/mA4 en r26/r27 (r28/r29).
+  SwingObject vf10 (98,36): la direccion del modelo izada antes del LOD.
+- WaitObject vf60: relectura de m54 en el bucle. MotionObject vf24: registro del tamano del CSV.
+- ChickenManager/PigeonManager FindNear_unk: pila (pos, t, diff) del original no reproducida.
+
+## Cambios de splits/symbols
+
+- splits.txt sin cambios. symbols.txt: solo `@N` re-emparejados con pd.sh (gmk/SwingObject, ShakeCamera,
+  ChickenManager, PigeonManager, RotaryRoom, WaitObject).
+- Scripts (`/home/claude/scratch-N5b/bin/`): `vs.py`/`vrr.py`/`vwo.py`... (variante de una funcion: base,
+  viejo, nuevo), `vu.py <unidad> <base> <patron> [viejo nuevo]...` (variante, % de las funciones que casan
+  con el patron), `vh.py` (variante de una cabecera), `side.py` (copia de agentes/bin con la ruta de la
+  copia), `sd2.py` (sd2n5.py con la ruta de la copia).

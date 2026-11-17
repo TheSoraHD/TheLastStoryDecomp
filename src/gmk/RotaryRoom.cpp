@@ -160,7 +160,7 @@ RotaryRoom::~RotaryRoom() {
     }
 }
 
-// NONMATCHING: 96.1% - saved registers of the counters and the stack slots of the temporaries
+// NONMATCHING: 96.23% - saved registers of the counters and the stack slots of the temporaries
 // differ; the locator loop recomputes the box address; the collision flags are reloaded before each
 // write in the original (as in vf10). Emits the weak MapPartsBase::vf24 and RotaryEntry_unk ctor.
 int RotaryRoom::vf0C() {
@@ -271,7 +271,7 @@ void RotaryRoom::Start() {
     vf40(&msg);
 }
 
-// NONMATCHING: 95.59% - the original reloads the collision flags before each write and uses other
+// NONMATCHING: 95.85% - the original reloads the collision flags before each write and uses other
 // registers for the loop and the frame counters; .sdata2 order.
 void RotaryRoom::vf10() {
     fn_80424FB4(0.5f * (1.0f - (float)cos(3.1415927f * ((float)mFrame / (float)mFrames))));
@@ -288,7 +288,7 @@ void RotaryRoom::vf10() {
         }
     }
     fn_80425498();
-    if (mFrame < mFrames) {
+    if (mFrames > mFrame) {
         if (++mFrame >= mFrames) {
             mFrame = mFrames;
             fn_80425878(1);
