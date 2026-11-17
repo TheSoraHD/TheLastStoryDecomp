@@ -12,6 +12,8 @@ Inicio: 2026-11-17 06:25 CET. Tope 08:55.
 | chr/ControlJumpAt ControlGrappled::vf10 | 99,44 | 99,89 (NONMATCHING) |
 | chr/ControlChant ControlMagic::vf0C | 93,6 | 95,0 (NONMATCHING; if/switch del original) |
 | chr/ControlCliffhang fn_801AB9E4 | 96,4 | 100 |
+| chr/ControlPushedDown ControlPushedDown::vf0C | 99,29 | 99,99 (NONMATCHING: f0/f3 de un fabs) |
+| chr/ControlPushedDown ControlPushedAvoid::vf0C | 99,28 | 99,39 |
 
 ## Para el port
 - Sin cambios de comportamiento. ControlJumpAt: inline nueva `HitPos_unk(const atn::ColliResult_unk&)` (copia por valor de m10).
@@ -28,6 +30,8 @@ Inicio: 2026-11-17 06:25 CET. Tope 08:55.
 - Comparar `b.y > a.y` y despues `(b - a)`: con `const Vector3& pa = a->mPos` el original reaprovecha las y ya cargadas (resta y primero); con `a->mPos` directo se recargan. (escribir-20261116 qN4)
 - Calculo de dos punteros `&tabla[link->mA]`, `&tabla[link->mB]`: el orden de los registros del original salio escribiendo primero `b` y despues `a`. (escribir-20261116 qN4)
 - Un `switch` de pocos casos que el original compila como cadena `cmpwi 2; cmpwi 1; cmpwi 6; cmpwi 9; cmpwi 8` era una cadena de `if (t == 2 || t == 1 ...) else if (t == 8)`; un rango `subi; cmplwi 3` probado antes de `== 0x179A` era un `switch` con `case 0x179A` y `case 0x179B..0x179E` (ControlMagic::vf0C). (escribir-20261116 qN4)
+
+- FPR salvados de constantes y frame (ControlPushedDown::vf0C): declarar arriba `float frame; float zero = 0.0f; float one = 1.0f;` (frame sin inicializar, asignado en el case) da f30/f31/f29 del original; `perm.py`-style sobre las 6 permutaciones. `atn::Abs_unk(a)` en vez de `(float)__fabs(a)` cambia el registro del fabs. (escribir-20261116 qN4)
 
 ## Bloqueos
 - ControlGrappled::vf10 (99,89): (1) Mtx del segundo bloque por debajo del bind_t del primero (probado else if, else anidado, bloque interior, `boost::function` con nombre, Mtx declarada antes del dir, RotY_unk: arregla la pila pero la llama fuera de linea); (2) la base r31 de los ptmf es `...data.0` en el nuestro y `@13439` en el original porque el original emite primero en `.data` el `@STRING@allocate` del bind_t de 4 argumentos (198); el nuestro lo emite el tercero de los cuatro al final.
