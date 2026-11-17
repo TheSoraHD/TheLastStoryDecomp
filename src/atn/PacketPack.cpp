@@ -7564,16 +7564,7 @@ struct PPMsgAttack_unk {
     PPMsgCharaRef_unk mAttacker;      // 0x88
     PPMsgCharaRef_unk mTarget;        // 0x8A
 };
-// inferred: data of the events 6 and 7 of the character listeners (a hit computed by fn_8003F1E4 and
-// fn_8003EA3C), as HitEvent_unk of game/DamageCalc_unk.cpp
-struct HitEvent_unk {
-    CharaTask* mAttacker;
-    CharaTask* mTarget;
-    int mId;
-    unsigned int mFlags;
-    int mFlag31;
-    float mRate;
-};
+#include "game/HitEvent_unk.h"
 // inferred: payload of message 0x1023 (the attack parameters of event 8; 15 bytes on the network); names invented
 struct PPMsgCalc_unk {
     int mHitId;
@@ -8966,33 +8957,7 @@ extern "C" void fn_804EFE98(PPPlayer_unk* player) {
 extern "C" int fn_8021A77C(HitInfo_unk* data);
 extern "C" bool fn_8021A8D0(HitInfo_unk* data);
 extern "C" __declspec(noinline) int fn_804F1060();
-// inferred: center of the hit body of `chara` (as HitCenter_unk of game/BattleTask.cpp)
-inline atn::Vector3 HitCenter_unk(CharaTask* chara) {
-    atn::Vector3 center;
-    if (chara->mFlagB29) {
-        atn::Vector3 start = chara->mColli.m3C;
-        atn::Vector3 end = chara->mColli.m48;
-        center = chara->mColli.m3C;
-        float half = 0.5f * (end.y - start.y);
-        center.y += half;
-    } else {
-        center = chara->fn_80148B0C(0)->m04.mCenter;
-    }
-    return center;
-}
-// inferred: rotation z, y, x (as MakeRotZYX_unk of game/BattleTask.cpp)
-inline void MakeRotZYX_unk(atn::Matrix3x4* p, const atn::Vector3& rot) {
-    p->SetIdentity();
-    if (0.0f != rot.z) {
-        atn::Matrix3x4::RotateAxis_unk(*p, 'z', rot.z);
-    }
-    if (0.0f != rot.y) {
-        atn::Matrix3x4::RotateAxis_unk(*p, 'y', rot.y);
-    }
-    if (0.0f != rot.x) {
-        atn::Matrix3x4::RotateAxis_unk(*p, 'x', rot.x);
-    }
-}
+#include "game/HitUtil_unk.h"
 // NONMATCHING: 99.08% - stack slots of the matrices and vectors, the status effects added through the status
 // (base 0x7D4 in the original) and reloads of lbl_8087F610 in the inlined searches
 // inferred: messages 10 and 11 (only in the game, state 30): a hit of a character on another one. The hate of the

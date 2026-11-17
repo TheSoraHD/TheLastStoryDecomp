@@ -80,15 +80,7 @@ extern "C" MpPlayer_unk* fn_804EB7C4(MpSession_unk* session, CharaTask* chara);
 extern "C" MpTeam_unk* fn_804EB814(MpSession_unk* session, CharaTask* chara);
 extern "C" int fn_804EB4AC(MpSession_unk* session, MpPlayer_unk* player);
 
-// inferred: data of the listener event of a hit (names invented)
-struct HitEvent_unk {
-    CharaTask* mAttacker;
-    CharaTask* mTarget;
-    int mId;
-    unsigned int mFlags;
-    int mFlag31;
-    float mRate;
-};
+#include "game/HitEvent_unk.h"
 
 // inferred: listeners (see gmk/Item.cpp)
 inline CharaListeners_unk* fn_8014F8F4() {
