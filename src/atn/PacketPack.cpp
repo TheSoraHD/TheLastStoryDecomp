@@ -7658,7 +7658,7 @@ struct PPEventDamage_unk {
     int m1C;
     unsigned int m20;
 };
-// NONMATCHING: 96.68% - the halving of the constant 10 (li 10; srawi, as fn_804F3EEC), stack slots of the messages,
+// NONMATCHING: 96.78% - the halving of the constant 10 (li 10; srawi, as fn_804F3EEC), stack slots of the messages,
 // the status effects copied through the status (base 0x7D4) and reloads of the slot count and of lbl_8087F610
 // inferred: listener of the characters (registered by the constructor of MP::Manager2), only in the game (state 30):
 // 5 a character is knocked down (the countdown of the own side, a quick message, a voice and a sound), 6 and 7 a
@@ -7779,21 +7779,20 @@ extern "C" void fn_804EB934(int id, CharaTask* chara, void* arg) {
             id = 0x1021;
         }
         msg.mId = id;
-        PPMsgAttack_unk* data = &msg.mData;
-        data->mHitId = ev->mId;
-        data->mFlags = ev->mFlags | 0x10000000;
-        data->mRate = ev->mRate;
-        data->mCombo = ev->mTarget != 0 ? ev->mTarget->mFE4 : 1;
+        msg.mData.mHitId = ev->mId;
+        msg.mData.mFlags = ev->mFlags | 0x10000000;
+        msg.mData.mRate = ev->mRate;
+        msg.mData.mCombo = ev->mTarget != 0 ? ev->mTarget->mFE4 : 1;
         if (ev->mAttacker != 0) {
             for (unsigned int i = 0; i < ev->mAttacker->mStatus.mEntries.mCount; i++) {
-                data->mEntries[i] = ev->mAttacker->GetStatus_unk()->mEntries[i];
+                msg.mData.mEntries[i] = ev->mAttacker->GetStatus_unk()->mEntries[i];
             }
         }
         unsigned short attacker = fn_804EAEE0((PPManager2_unk*)lbl_8087F610, ev->mAttacker) >> 16;
-        data->mAttacker = *(PPMsgCharaRef_unk*)&attacker;
+        msg.mData.mAttacker = *(PPMsgCharaRef_unk*)&attacker;
         unsigned short target = fn_804EAEE0((PPManager2_unk*)lbl_8087F610, ev->mTarget) >> 16;
-        data->mTarget = *(PPMsgCharaRef_unk*)&target;
-        fn_804AE3BC()->fn_8050E094(-1, id, data, 1);
+        msg.mData.mTarget = *(PPMsgCharaRef_unk*)&target;
+        fn_804AE3BC()->fn_8050E094(-1, id, &msg.mData, 1);
         break;
     }
     case 8: {
