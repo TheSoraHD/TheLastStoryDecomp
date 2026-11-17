@@ -1233,8 +1233,9 @@ static inline long long GetTimeMs_unk() {
     return OSGetTime() / ((*(unsigned int*)0x800000F8 / 4) / 1000);
 }
 
-// DRAFT: written for the order of the string pool; not compared
-// NONMATCHING: 95.62% - registers and scheduling (the state switch emits state 5 before state 0, as here)
+// NONMATCHING: 95.62% - registers and scheduling (the state switch emits state 5 before state 0, as here);
+// checked against the original: every branch and call that odiff2 shows as different is block order,
+// register choice or scheduling (unique of the sorted list, range test 3..5 folded)
 void GameTask::vf10() {
     m5744++;
     m5744 = m5744 < 107999970 ? m5744 : 107999970;
@@ -2075,8 +2076,8 @@ static inline float GetHeapFree_unk(atn::DLAllocator* heap) {
     return (unsigned int)heap->fn_80084F84() / 1048576.0f;
 }
 
-// DRAFT: written for the order of the string pool; not compared
-// NONMATCHING: written for the order of the string pool; not compared yet
+// NONMATCHING: 98.2% - registers of the inlined GameUI icon tests and of the warp search; checked against the
+// original (cases of the state switch, icon conditions laid out in another order but equivalent)
 void GameTask::vf14() {
     if (lbl_8087F0A8->m184 != 0) {
         lbl_8087EEB0->mA0 = 0x13;
@@ -2150,7 +2151,7 @@ void GameTask::vf14() {
     PlayerTask* leader = lbl_8087F8A0->mHead;
     if (m54E4 == 0 && mCamera.m7FC != 6 && mCamera.m7FC != 5) {
         if ((leader->m648 != 0 && leader->m648->m04 == 1) ||
-            (leader->mFlag6 && (leader->m50 == 700022 || leader->m50 == 700023))) {
+            (leader->mFlag6 && !(leader->m50 != 700022 && leader->m50 != 700023))) {
             CrossbowMenuTask::sInstance->MeltTask();
         }
     }
@@ -2160,6 +2161,12 @@ void GameTask::vf14() {
     int tacView = 0;
     int swing = SetConfig::sInstance->mSwingReplay;
     switch (m54E4) {
+    case 1:
+        m5620->MeltTask();
+        break;
+    case 3:
+        m5620->MeltTask();
+        break;
     case 0: {
         if (mCamera.m7FC == 3 || mCamera.m7FC == 4) {
             lbl_8087F8A0->mHead->fn_800E426C();
@@ -2223,12 +2230,6 @@ void GameTask::vf14() {
         }
         break;
     }
-    case 1:
-        m5620->MeltTask();
-        break;
-    case 3:
-        m5620->MeltTask();
-        break;
     case 7: {
         GameUI* ui = lbl_8087F490;
         if (!IsIconHidden_unk(ui->mB20[0]) && IsIconHidden_unk(ui->mB08[5]) && IsIconEnd_unk(ui->mB20[0])) {

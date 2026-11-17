@@ -19,6 +19,8 @@
 | ReplayBuffer fn_8056A9E4 (pose de la repeticion) | DRAFT 13,9 % | equivalente NONMATCHING 97,4 % |
 | TutorialTask::fn_805BC1C0 (camara libre) | DRAFT 2,5 % | equivalente NONMATCHING 96,3 % |
 | GameScene::fn_803CB820 (interacciones) | DRAFT 0,2 % | equivalente NONMATCHING 99,5 % |
+| GameTask::vf14 | DRAFT 96,3 % | equivalente NONMATCHING 98,2 % (casos 1/3 antes del 0, `!(a != x && a != y)`) |
+| GameTask::vf10 | DRAFT 95,6 % | equivalente NONMATCHING 95,6 % (revisadas las diferencias de saltos/llamadas de odiff2, no linea a linea) |
 
 ## Para el port
 
@@ -37,6 +39,8 @@
 - La definicion de `replace(pos, n, const basic_string&)` va en una cabecera aparte: en `std/string.h` renumeraba `@enum$` de chr/ControlAppear (lost 2).
 
 ## Hallazgos
+
+- Casos de un switch que solo hacen `x->MeltTask(); break;` y que el original emite antes del caso 0: escribirlos primero en el fuente (GameTask vf14). (escribir-20261116 qW1)
 
 - Vector3::ToRotation_unk frente a ToRotationZ_unk: la de z en un local deja un `frsp` de z antes de atan2; sin `frsp` es ToRotation_unk (GameScene fn_803CB820). (escribir-20261116 qW1)
 - `ColliResult_unk` declarado dentro del bucle: el original lo pone a cero al principio de la funcion (declarado arriba). (escribir-20261116 qW1)
