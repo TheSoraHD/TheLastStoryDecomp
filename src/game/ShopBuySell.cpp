@@ -514,9 +514,11 @@ void ShopBuySell::fn_805860F0() {
     }
 }
 
-// NONMATCHING: 98.82% - register allocation (the entry and icon locals one register higher in the
-// original) and the load order of the fn_80584750 arguments
+// NONMATCHING: 99.22% - register allocation (entry, the mAC pointer and the name buffer one register
+// apart from the original) and the operand order of the message table address. The suffix m08 is appended
+// to the item name (do_replace(size, 0, ...) in the original)
 void ShopBuySell::fn_8058621C() {
+    ShopEntry64_unk* entry;
     Inventory* party = Inventory::instance_;
     mA8->mFlags &= ~4;
     mD4->mFlags &= ~4;
@@ -524,7 +526,8 @@ void ShopBuySell::fn_8058621C() {
     if (mCursor < mF8) {
         ((atn::D2A_Task*)mD4)->SetNumber_unk("itemNum", fn_80444564(party, mEntries64[mCursor].m00), 0);
     }
-    fn_80584750(mA8, mScroll.mTop, mF8, 10);
+    int count = mF8;
+    fn_80584750(mA8, mScroll.mTop, count, 10);
     ShopPoint_unk pos;
     for (int i = 0; i < 10; i++) {
         char name[0x40];
@@ -533,13 +536,13 @@ void ShopBuySell::fn_8058621C() {
         mAC[i]->SetValues1_unk("basePos", *(atn::D2A_DrawRect*)&pos);
         int index = i + mScroll.mTop;
         if (index < mF8) {
-            ShopEntry64_unk* entry = &mEntries64[index];
+            entry = &mEntries64[index];
             ShopItem_unk* item = fn_80211480(entry->m00);
             int icon;
             if (entry->m54 != 0) {
                 std::basic_string<wchar_t> text(item->mName);
                 if (entry->m08[0] != 0) {
-                    text = entry->m08;
+                    text += entry->m08; // inferred: append (pos = size, n1 = 0)
                 }
                 mAC[i]->SetText_unk("itemName", text.data());
                 mAC[i]->SetNumber_unk("num", fn_80444564(party, entry->m00), 0);
