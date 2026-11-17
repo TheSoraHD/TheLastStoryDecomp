@@ -141,8 +141,9 @@ public:
     // inferred: cell of a bounding sphere (inlined by the vf1C of the sphere, box and object; name
     // invented)
     void SetCell_unk(const ColliSphereShape_unk& s, const ColliGrid_unk* grid) {
+        float inv;
         float size = grid->mCellSize;
-        float inv = 1.0f / size;
+        inv = 1.0f / size;
         Vector3 c = s.mCenter - grid->mOrigin;
         c *= inv;
         m10 = (int)c.x;
@@ -199,6 +200,9 @@ public:
 
 // The name is in the DOL (__vt__Q23atn8ColliBox, 0x807775F8). 0x378 bytes: gmk::FloatingBox
 // has its own members right after it.
+// inferred: translation of a matrix read y first (defined in atn_colli.cpp; name invented)
+inline Vector3 GetTransY_unk(const Matrix3x4&);
+
 class ColliBox : public ColliBase {
 public:
     ColliBox() : ColliBase(2) {}
@@ -217,7 +221,7 @@ public:
     // inferred: bounding sphere of the box (inlined in vf1C; name invented)
     ColliSphereShape_unk GetBound_unk() const {
         ColliSphereShape_unk bound;
-        bound.mCenter = m3C.mMtx.GetTrans_unk();
+        bound.mCenter = GetTransY_unk(m3C.mMtx);
         bound.mRadius = PSVECMag(&m3C.mSize);
         return bound;
     }
