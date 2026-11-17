@@ -1,0 +1,13 @@
+diff --git a/src/game/Np131LivingArmor.cpp b/src/game/Np131LivingArmor.cpp
+index 5d328f3..96156e3 100644
+--- a/src/game/Np131LivingArmor.cpp
++++ b/src/game/Np131LivingArmor.cpp
+@@ -102,7 +102,7 @@ inline GimmickCommon* PickArmorStand_unk() {
+ }
+ 
+ // inferred: linear interpolation (name invented)
+-inline float LerpF_unk(float a, float b, float t) {
++inline float LerpF_unk(const float& a, const float& b, float t) {
+     return (b - a) * t + a;
+ }
+ 
