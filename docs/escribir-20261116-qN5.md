@@ -79,7 +79,19 @@ enlaza: SwingObject queda 16/20, PassBoard 12/13, RandomMerchant 21/23.
   con (tabla, id), (id, tabla), puntero a lugares, `unsigned i` fuera: igual o peor.
 - gmk/FlamingArrow Collect_unk: while, cast a CharaTask*, slot arriba, perm.py de los locales de
   CanTarget_unk (24): 96,09 en todos.
-- gmk/RandomMerchant vf0C antes del arreglo: ramas del if invertidas (33 %), Vector3 con nombre, inline
+- gmk/BulletPoint vf10, `.sdata2` (0.1f antes que 1.0f en el original): `float scale = 0.1f;` justo antes del
+  shot (tras la rama de la gravedad) da el orden del pool y de los stores, pero los FPR rotan (scale f4, 0.0
+  f3, 1.0 f0; original 0.0 f4, 1.0 f3, 0.1 f0); con una clase derivada `PointShot_unk` (como MulueShot_unk)
+  con 0.1f primero el store de m00 sale el primero; con el ctor `PointShot_unk(float scale)` el pool vuelve
+  a 1.0f primero. Sin commit.
+- gmk/MotionObject vf10: la prueba de rayo (pos/from/to) en una inline `RayTest_unk`: el marco crece 0x10
+  (93,7). Sin commit.
+- gmk/ShakeCamera vf10: rate con `rate +=`, max/min locales en los dos ordenes, range local, Rand01 antes:
+  peor.
+- gmk/FlamingArrow Collect_unk: chara/slot declarados fuera del bucle en los dos ordenes, `mData + mCount`:
+  96,09.
+- SwingObject: UpdateSwing_unk llamada a traves de otra inline (un nivel mas): igual.
+- gmk/RandomMerchant antes del arreglo de vf0C: ramas del if invertidas (33 %), Vector3 con nombre, inline
   ResetScale_unk: igual.
 - gmk/MapLift fn_8042AB58: columnas de MaxScale_unk como locales en orden directo/inverso, Vector3 de
   columnas, escala con nombre: igual o peor. vf20 es el push_back conocido (no tocado).
