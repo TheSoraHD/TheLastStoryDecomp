@@ -7698,7 +7698,7 @@ extern "C" void fn_804EF0F0(unsigned int aid);
 extern "C" void fn_804EF9B4();
 extern "C" void fn_804EFC94();
 extern "C" void fn_804EFE98(PPPlayer_unk* player);
-extern "C" void fn_804EFF74(PPPlayer_unk* player);
+extern "C" void fn_804EFF74(PPPlayer_unk* player, unsigned int type);
 extern "C" void fn_804F1068();
 extern "C" void fn_804F1124();
 extern "C" void fn_804F12A0();
@@ -7753,7 +7753,9 @@ extern "C" const void* fn_804EE4E4(const void* data);
 extern "C" void fn_804EE4E8(atn::net::PacketPack* pack, unsigned int aid, unsigned short size);
 extern "C" void fn_804EE4EC(atn::net::PacketPack* pack, const void* data, unsigned short size);
 
-// NONMATCHING: 99.83% - the zero of m99B0 and the switch value in other registers
+// NONMATCHING: 99.16% - the zero of m99B0 and the switch value in other registers (the original passes the
+// unsigned char of the type in r4 to the handlers fn_804EFF74, fn_804F1564, fn_804F2040 and fn_804F2450; see the notes
+// of escribir-20261116 qG3)
 // inferred: receive loop: the packet of `aid` (a new player gets a slot), then each of its messages goes to
 // its handler (in the work buffer); the answer asked by message 0x35 is sent after the loop
 extern "C" int fn_804EE040(unsigned int aid, void* data, unsigned int size) {
@@ -7837,7 +7839,7 @@ extern "C" int fn_804EE040(unsigned int aid, void* data, unsigned int size) {
             break;
         case 10:
         case 11:
-            fn_804EFF74(player);
+            fn_804EFF74(player, type);
             break;
         case 12:
             fn_804F1068();
@@ -8565,7 +8567,223 @@ extern "C" void fn_804EFE98(PPPlayer_unk* player) {
     }
 }
 
-extern "C" int fn_804F1060() {
+#include "game/BattleCalc_unk.h"
+#include "game/HitInfo_unk.h"
+extern "C" int fn_8021A684(HitInfo_unk* data); // inferred: db/ParseUtil_unk (kind tests of the hit data)
+extern "C" int fn_8021A77C(HitInfo_unk* data);
+extern "C" bool fn_8021A8D0(HitInfo_unk* data);
+extern "C" __declspec(noinline) int fn_804F1060();
+// inferred: center of the hit body of `chara` (as HitCenter_unk of game/BattleTask.cpp)
+inline atn::Vector3 HitCenter_unk(CharaTask* chara) {
+    atn::Vector3 center;
+    if (chara->mFlagB29) {
+        atn::Vector3 start = chara->mColli.m3C;
+        atn::Vector3 end = chara->mColli.m48;
+        center = chara->mColli.m3C;
+        float half = 0.5f * (end.y - start.y);
+        center.y += half;
+    } else {
+        center = chara->fn_80148B0C(0)->m04.mCenter;
+    }
+    return center;
+}
+// inferred: rotation z, y, x (as MakeRotZYX_unk of game/BattleTask.cpp)
+inline void MakeRotZYX_unk(atn::Matrix3x4* p, const atn::Vector3& rot) {
+    p->SetIdentity();
+    if (0.0f != rot.z) {
+        atn::Matrix3x4::RotateAxis_unk(*p, 'z', rot.z);
+    }
+    if (0.0f != rot.y) {
+        atn::Matrix3x4::RotateAxis_unk(*p, 'y', rot.y);
+    }
+    if (0.0f != rot.x) {
+        atn::Matrix3x4::RotateAxis_unk(*p, 'x', rot.x);
+    }
+}
+// inferred: data of messages 10 and 11 (a hit of a character on another one, computed here); names invented
+struct PPMsgAttack_unk {
+    int mHitId;                       // 0x00: inferred: hit data (message 10) or item code (message 11)
+    unsigned int mFlags;              // 0x04
+    float mRate;                      // 0x08: inferred: DamageParam_unk::mRate
+    int mCombo;                       // 0x0C: inferred: passed to CharaTask::fn_80150460
+    CharaStatusEntry_unk mEntries[6]; // 0x10: inferred: status effects of the attacker
+    PPMsgCharaRef_unk mAttacker;      // 0x88
+    PPMsgCharaRef_unk mTarget;        // 0x8A
+};
+// NONMATCHING: 99.08% - stack slots of the matrices and vectors, the status effects added through the status
+// (base 0x7D4 in the original) and reloads of lbl_8087F610 in the inlined searches
+// inferred: messages 10 and 11 (only in the game, state 30): a hit of a character on another one. The hate of the
+// target is updated, the status effects of the attacker are replaced by the ones of the message and the listeners
+// are off meanwhile; message 10 runs the damage of the hit data (a guarded hit, the heal of the status 0x23 of the
+// attacker in game mode 2, the hit effect and sound, the knock back of the condition 0x4000 and the damage
+// popup), message 11 the damage of an item. A character left in state 0x20 falls; when the target is a player of
+// the own side (or a used character entry) and the hit knocked it down, fn_804E8BF4 counts it and message 0x1011
+// tells the machine of the attacker
+extern "C" void fn_804EFF74(PPPlayer_unk* player, unsigned int type) {
+    if (lbl_8087F430 != 0 && lbl_8087F430->m54E4 == 10) {
+        return;
+    }
+    if (((PPManager2_unk*)lbl_8087F610)->mState != 30) {
+        return;
+    }
+    PPMsgAttack_unk* data = (PPMsgAttack_unk*)fn_804AE3BC()->GetWorkBuffer_unk();
+    CharaTask* attacker = GetHitAttacker_unk((PPManager2_unk*)lbl_8087F610, &data->mAttacker);
+    CharaTask* target = GetHitAttacker_unk((PPManager2_unk*)lbl_8087F610, &data->mTarget);
+    if (target == 0) {
+        return;
+    }
+    if (lbl_8087F048 != 0 && fn_8021A684(fn_80219E6C(data->mHitId))) {
+        lbl_8087F048->fn_80102EAC(target, attacker, 90, -1);
+        lbl_8087F048->fn_801031D0(attacker, target, 0);
+    }
+    fn_8014F8F4()->mEnabled = 0;
+    if (attacker != 0) {
+        attacker->mStatus.mEntries.mCount = 0;
+        for (unsigned int i = 0; i < fn_804F1060(); i++) {
+            if (data->mEntries[i].mId != 0) {
+                attacker->GetStatus_unk()->mEntries.push_back(data->mEntries[i]);
+                lbl_8087F048->fn_80109864((SpEffect_unk*)&data->mEntries[i], attacker);
+            }
+        }
+    }
+    DamageResult_unk result;
+    if (type == 10) {
+        HitInfo_unk* hit = fn_80219E6C(data->mHitId);
+        if (hit != 0) {
+            unsigned int flags = data->mFlags;
+            if (target != 0 && target->IsPlayer()) {
+                if ((flags & 8) != 8 && target->mFlag5) {
+                    if (!target->IsDown_unk() && (flags & 0x400000) != 0x400000) {
+                        flags |= 8;
+                    }
+                }
+                if ((flags & 0x400) != 0x400 && target->m55C == 6 && !(target->m560 != 2 && target->m560 != 1)) {
+                    flags |= 0x400;
+                }
+            }
+            if ((hit->mAC & 0x8000) == 0x8000 && (target->m54C & 0x1000000) != 0x1000000) {
+                if (target->m1208 != 0) {
+                    fn_8014F8F4()->mEnabled = 1;
+                    target->fn_801750FC();
+                    fn_8014F8F4()->mEnabled = 0;
+                }
+                target->fn_8016D0A0(1);
+            }
+            int apply = 1;
+            if (hit->m04 != 0x147) {
+                if (attacker != 0) {
+                    target->fn_80150460(attacker, data->mCombo);
+                }
+                result.m10 = target->mFE4;
+                DamageParam_unk param;
+                param.mCombo = target->mFE4;
+                param.mRate = data->mRate;
+                if (target->mStatus.IsState_unk(0x20) && hit->m04 != 0x2711) {
+                    apply = 0;
+                }
+                if ((target->mStatus.m14 & 1u) == 1 && !fn_8021A8D0(hit) && (hit->m04 == 0x142 || hit->m04 == 0x131)) {
+                    apply = 0;
+                }
+                if (apply) {
+                    fn_8003EA3C(&result, hit, attacker, target, flags, &param, 0, 0);
+                    if (((PPManager2_unk*)lbl_8087F610)->mMode == 2 && attacker != 0 &&
+                        attacker->mStatus.fn_80133EE8(0x23) && !target->mStatus.IsState_unk(0x20)) {
+                        DamageResult_unk heal;
+                        heal.mType = 1;
+                        int value = attacker->mStatus.fn_80133F18(0x23, -1);
+                        float rate = value > 0 ? value / 100.0f : 2.0f;
+                        heal.mDamage -= (int)(result.mDamage * rate);
+                        target->mStatus.fn_8012DF7C(heal.mDamage, 0, 0);
+                        atn::Vector3 pos = target->mPos;
+                        pos += atn::Vector3(0.0f, 10.0f, 0.0f);
+                        lbl_8087F048->fn_80108C10(&heal, pos, target, target, 0, 0);
+                    }
+                }
+                if (attacker != 0 && fn_8021A77C(hit)) {
+                    BattleCalcParam_unk calc;
+                    atn::Vector3 dir = attacker->mPos - HitCenter_unk(target);
+                    if (!((float)__fabs(PSVECSquareMag(&dir)) < 1.1920929e-7f)) {
+                        PSVECNormalize(&dir, &dir);
+                        dir *= target->m5B0;
+                    } else {
+                        float radius = target->m5B0;
+                        dir.x = 0.0f;
+                        dir.y = 0.0f;
+                        dir.z = radius;
+                        atn::Matrix3x4 m;
+                        MakeRotZYX_unk(&m, target->mRot);
+                        PSMTXMultVec(m.m, &dir, &dir);
+                    }
+                    calc.m1C = dir + HitCenter_unk(target);
+                    atn::Vector3 n = dir;
+                    PSVECNormalize(&n, &n);
+                    calc.m28 = atn::Vector3(-n.x, -n.y, -n.z);
+                    calc.m00 = (int)attacker;
+                    calc.m04 = target;
+                    calc.m08 = hit;
+                    calc.m44 = 0;
+                    calc.m0C = flags;
+                    calc.m94 = flags;
+                    if ((flags & 8) == 8) {
+                        calc.m84 = 1;
+                    } else {
+                        calc.m84 = 0;
+                    }
+                    if (lbl_8087F048 != 0) {
+                        lbl_8087F048->fn_801018E4(&calc);
+                        lbl_8087F048->fn_80101CDC(&calc);
+                    }
+                    if (result.mDamage > 0) {
+                        target->mC4C = 0;
+                    }
+                }
+            }
+            if ((hit->m90.mFlags & 0x4000u) == 0x4000u && target->mStatus.IsState_unk(0x4000)) {
+                atn::Vector3 front(0.0f, 0.0f, 1.0f);
+                Mtx m;
+                PSMTXRotRad(m, 'y', target->mRot.y);
+                PSMTXMultVec(m, &front, &front);
+                target->fn_801681B0(atn::Vector3(-front.x, -front.y, -front.z), 0, (hit->mAC >> 9) & 1);
+            }
+            if (apply && lbl_8087F048 != 0 && (hit->mAC & 0x80000) != 0x80000 && hit->m01 != 6 && hit->m01 != 5 &&
+                hit->m01 != 3 && hit->m04 != 0x1774 && hit->m04 != 0x4FCC) {
+                lbl_8087F048->fn_80108C10(&result, target->vfAC(), attacker, 0, flags, 0);
+            }
+        }
+    } else if (type == 11) {
+        HitInfo_unk* item = (HitInfo_unk*)fn_80211480(data->mHitId);
+        if (item != 0) {
+            fn_8003F1E4(&result, item, attacker, target, data->mFlags);
+        }
+    }
+    fn_8014F8F4()->mEnabled = 1;
+    if (target->mStatus.IsState_unk(0x20)) {
+        if (target->m55C != 6 || (target->m560 != 0x17 && target->m560 != 0x3B)) {
+            target->fn_8015E7A0(atn::Vector3(0.0f, 0.1f, 0.0f), -1, 0);
+        }
+        target->vf44();
+    }
+    PPPlayer_unk* victim = FindByChara_unk((PPManager2_unk*)lbl_8087F610, target);
+    int index = FindCharaIndex_unk((PPManager2_unk*)lbl_8087F610, target);
+    PPCharaEntry_unk* entry = index >= 0 ? &((PPManager2_unk*)lbl_8087F610)->mCharas[index] : 0;
+    if ((victim != 0 && (victim->mFlags.m30 == 1 || IsSameTeam_unk(victim, GetMyPlayer_unk()))) ||
+        (entry != 0 && entry->mActive == 1)) {
+        if (result.mFlag31) {
+            fn_804E8BF4((PPManager2_unk*)lbl_8087F610, attacker, target);
+            if (FindByChara_unk((PPManager2_unk*)lbl_8087F610, attacker) != 0 &&
+                FindByChara_unk((PPManager2_unk*)lbl_8087F610, target) != 0) {
+                NetMsgI_unk<PPId_unk> msg(0x1011);
+                PPId_unk* ids = &msg.mData;
+                ids->m00 = data->mAttacker.mIndex;
+                ids->m01 = data->mTarget.mIndex;
+                fn_804AE3BC()->fn_8050E094(data->mAttacker.mIndex & 0xF, 0x1011, ids, 1);
+            }
+        }
+    }
+}
+
+// inferred: number of status effects of message 10 (called by fn_804EFF74 in every iteration)
+extern "C" __declspec(noinline) int fn_804F1060() {
     return 6;
 }
 
