@@ -1,0 +1,60 @@
+diff --git a/src/atn/D2Anime_unk.cpp b/src/atn/D2Anime_unk.cpp
+index 95ff7fb..e1a266c 100644
+--- a/src/atn/D2Anime_unk.cpp
++++ b/src/atn/D2Anime_unk.cpp
+@@ -155,6 +155,23 @@ struct D2A_Reader_unk {
+             }
+         }
+     }
++    template <int N>
++    void ReadTracksB(D2A_TrackGroup_unk<N>* group) {
++        D2A_Data* data = mCtx->mData;
++        unsigned int i;
++        int count = 0;
++        Read(&count);
++        group->mCount = count;
++        for (i = 0; i < N; i++) {
++            int value = 0;
++            int index = 0;
++            Read(&value);
++            Read(&index);
++            if (index >= 0 && data->m70.mCount != 0) {
++                SetTable_unk(&group->mTables[i], &data->m70.mData[index], value);
++            }
++        }
++    }
+     void ReadTracksA(D2A_TrackGroup_unk<1>* group) {
+         D2A_Data* data = mCtx->mData;
+         int count = 0;
+@@ -467,15 +484,15 @@ extern "C" void fn_80200ED0(D2A_Reader_unk* reader, const char* name, D2A_Common
+ // the pointer before adding the length (mr; add) and the context is loaded before c_str()
+ // inferred: reads a texture element
+ extern "C" void fn_80201794(D2A_Reader_unk* reader, const char* name, D2A_Common* element) {
+-    D2A_TextureData_unk* e = (D2A_TextureData_unk*)element;
+     D2A_Data* data = reader->mCtx->mData;
+     fn_80200ED0(reader, "Common", element);
++    D2A_TextureData_unk* e = (D2A_TextureData_unk*)element;
+     std::string path;
+     std::string path2;
+     reader->ReadString(path);
+     reader->ReadString(path2);
+     reader->ReadTracks(&e->m12C);
+-    reader->ReadTracks(&e->m160);
++    reader->ReadTracksB(&e->m160);
+     int index = 0;
+     reader->Read(&index);
+     if (index >= 0 && data->m80.mCount != 0) {
+@@ -509,9 +526,11 @@ extern "C" void fn_80201794(D2A_Reader_unk* reader, const char* name, D2A_Common
+     if (index >= 0 && data->m80.mCount != 0) {
+         e->mCode2[7] = data->m80.mData + index;
+     }
+-    fn_801FD5A0(element, path.c_str(), reader->mCtx->mArg);
++    D2A_LoadContext_unk* ctx = reader->mCtx;
++    fn_801FD5A0(element, path.c_str(), ctx->mArg);
+     if ((e->m10 & 8) == 8) {
+-        fn_801FDA20(element, path2.c_str(), reader->mCtx->mArg);
++        D2A_LoadContext_unk* ctx2 = reader->mCtx;
++        fn_801FDA20(element, path2.c_str(), ctx2->mArg);
+     }
+ }
+ 
