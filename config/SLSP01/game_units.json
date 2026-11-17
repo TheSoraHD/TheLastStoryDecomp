@@ -2127,7 +2127,7 @@
   "classes": [
    "gmk::Leaf"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "gmk/Bat.cpp",
@@ -2267,7 +2267,7 @@
   "classes": [
    "gmk::ArenaFloor"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "gmk/Augur.cpp",
@@ -2309,7 +2309,7 @@
   "classes": [
    "gmk::CharaLight"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "gmk/DoorSeal.cpp",
