@@ -20,6 +20,7 @@ Inicio: 2026-11-16 23:58 CET (tope 2,5 h: 02:28).
 | Em202ForestSpider vf128, vf104, vf108, vf10C, vfEC, fn_8027851C (fuera de la tabla: "approximate") | 97,6 / 96 / 86,5 / 88 / 80,9 / 95,7 % | 100 % (cuatro tenian el flujo mal) |
 | Em202ForestSpider fn_802790A0 | 85,8 % | 100 % (`fn_8023A680` con sus 12 argumentos) |
 | Em202ForestSpider vf14 / vf114 | 62,1 / 82,7 % | 93 / 94,2 % (vf114 con el flujo del original) |
+| Em202ForestSpider fn_80278634 | 84 % | 95,75 % (`Matrix3x4::RotateZYX_unk` y copia de la escala por temporal) |
 
 ## Para el port
 - Em202ForestSpider (cambios de comportamiento de funciones "approximate"): vf128 llama a vfFC solo si no ha llegado al punto (else); vf104 llama a vfFC salvo cuando vf154(6) acepta (antes solo en el estado 6); vf108 solo comprueba el golpe (frames 17-22) si la motion no ha terminado (else); vfEC: si m1434 > 0 solo lo decrementa, si no suelta a los atrapados (copia mPos entero, no solo z) y llama a fn_801765D8/fn_800EE360/fn_800EB7A0; `m1434 = 5` solo mientras la motion no termina.
@@ -33,6 +34,7 @@ Inicio: 2026-11-16 23:58 CET (tope 2,5 h: 02:28).
 ## Decisiones tomadas sin el usuario
 
 ## Hallazgos
+- Rotacion z/y/x de una matriz miembro: `m.RotateZYX_unk(rot)` (Vec.h, con los `if (0.0f != rot.z)`) y la escala con `Vector3(1, 1, k)` + `PSMTXConcat` a un temporal copiado despues dan el codigo del original donde `PSMTXConcat(m, r, m)` en el sitio no (Em202ForestSpider::fn_80278634 84 -> 95,75 %) (escribir-20261116 qW2).
 - Las funciones "NONMATCHING: approximate" sin DRAFT pueden tener el flujo mal (else que falta, return temprano): semdiff.py/odiff2 con un `b` insertado o borrado lo delata; Em202ForestSpider tenia cuatro (escribir-20261116 qW2).
 - Busqueda de RoutePlace con la tabla del campo leida dentro de la inline (`FindRoutePlace3_unk` de Em202Spider) da el orden de registros del original cuando la version con la tabla por parametro no (Em202ForestSpider::vf128) (escribir-20261116 qW2).
 

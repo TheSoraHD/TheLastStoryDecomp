@@ -1297,15 +1297,8 @@ int Em202ForestSpider::fn_8027851C(CharaTask* chara) {
     return 1;
 }
 
-// inferred: rotation matrix z, y, x (as in game/Em101LittleZesya.cpp; name invented)
-static inline void RotZYX_unk(atn::Matrix3x4& m, const atn::Vector3& rot) {
-    m.SetIdentity();
-    __MtxRotate(m.m, 'z', rot.z);
-    __MtxRotate(m.m, 'y', rot.y);
-    __MtxRotate(m.m, 'x', rot.x);
-}
-
-// NONMATCHING: approximate (shoots the thread `index` at chara)
+// NONMATCHING: 95.75% - scheduling of the thread vectors and the matrix copies (shoots the thread `index`
+// at chara; calls and constants checked against the original)
 void Em202ForestSpider::fn_80278634(CharaTask* chara, int index, int main) {
     SpiderThread_unk* t = &m1538[index];
     t->m00 = 1;
@@ -1315,10 +1308,8 @@ void Em202ForestSpider::fn_80278634(CharaTask* chara, int index, int main) {
     fn_80239DAC(lbl_8087F3C0, t, 103, 0);
     t->m04 = 0;
     t->m08 = 30;
-    MtxPtr hm = mMotion.GetNodeMtx_unk("head");
-    atn::Vector3 head(hm[0][3], hm[1][3], hm[2][3]);
-    MtxPtr wm = chara->mMotion.GetNodeMtx_unk("waist");
-    atn::Vector3 waist(wm[0][3], wm[1][3], wm[2][3]);
+    atn::Vector3 head = ((atn::Matrix3x4*)mMotion.GetNodeMtx_unk("head"))->GetTrans_unk();
+    atn::Vector3 waist = ((atn::Matrix3x4*)chara->GetModel_unk()->GetNodeMtx_unk("waist"))->GetTrans_unk();
     t->m88 = chara;
     t->m10 = waist - head;
     PSVECNormalize(&t->m10, &t->m10);
@@ -1326,9 +1317,7 @@ void Em202ForestSpider::fn_80278634(CharaTask* chara, int index, int main) {
     t->m28.SetIdentity();
     atn::Vector3 r = t->m10.ToRotation_unk();
     r.z = 0.0f;
-    atn::Matrix3x4 m;
-    RotZYX_unk(m, r);
-    PSMTXConcat(t->m28.m, m.m, t->m28.m);
+    t->m28.RotateZYX_unk(r);
     t->m28.fn_801479E4(head);
     atn::Vector3 d = waist - head;
     atn::Vector3 dn;
@@ -1338,12 +1327,13 @@ void Em202ForestSpider::fn_80278634(CharaTask* chara, int index, int main) {
     float scale = PSVECMag(&d) / 50.0f;
     t->m58.SetIdentity();
     t->m58.fn_801479E4(head);
-    atn::Matrix3x4 m2;
-    RotZYX_unk(m2, r2);
-    PSMTXConcat(t->m58.m, m2.m, t->m58.m);
+    t->m58.RotateZYX_unk(r2);
+    atn::Vector3 sv(1.0f, 1.0f, scale);
     Mtx sm;
-    PSMTXScale(sm, 1.0f, 1.0f, scale);
-    PSMTXConcat(t->m58.m, sm, t->m58.m);
+    PSMTXScale(sm, sv.x, sv.y, sv.z);
+    atn::Matrix3x4 st;
+    PSMTXConcat(t->m58.m, sm, st.m);
+    t->m58 = st;
     fn_80232B7C(t, 0x65);
     fn_8023A680(lbl_8087F3C0, &t->mB0, -1, 5, &t->m58, 0, 0, 0, 0, -1, 1, 1.0f);
 }
