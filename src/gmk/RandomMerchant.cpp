@@ -125,18 +125,24 @@ RandomMerchant::~RandomMerchant() {
     fn_800CB5C8(&mSound, 0, 0);
 }
 
-// NONMATCHING: 99.77% - the std::string and the Vector3 temporary swap stack slots, register of the
-// last loop pointer
+// inferred: merchant character of an entry (names invented)
+static inline void NewChara_unk(RandomMerchant* self, MerchantEntry_unk* entry) {
+    std::string name(entry->mName.mStr);
+    entry->mChara = self != 0 ? new ((MemoryTag)1, lbl_8087DFD4, lbl_8087DFD0, 0) RandomMerchantChara(self, name) : 0;
+}
+// inferred: set up of an entry (name invented)
+static inline void NewMerchant_unk(RandomMerchant* self, MerchantEntry_unk* entry) {
+    NewChara_unk(self, entry);
+}
+
+// The stack of the original: the name string two inline levels deep (NewChara_unk through
+// NewMerchant_unk); the entry of the last loop as a named pointer.
 int RandomMerchant::vf0C() {
     if (fn_803EC91C() == 0 && fn_800D3FA4() != 0) {
         if (mLoaded == 0) {
             for (int i = 0; i < mCount; i++) {
                 MerchantEntry_unk* entry = &mEntries[i];
-                {
-                    std::string name(entry->mName.mStr);
-                    entry->mChara =
-                        this != 0 ? new ((MemoryTag)1, lbl_8087DFD4, lbl_8087DFD0, 0) RandomMerchantChara(this, name) : 0;
-                }
+                NewMerchant_unk(this, entry);
                 entry->mMotionBase = 0xEF;
                 for (int j = 0; j < 3; j++) {
                     (&entry->mChara->mMotion)->fn_80097A88(entry->mMotionBase + j, entry->mMotions[j].mStr);
@@ -164,12 +170,13 @@ int RandomMerchant::vf0C() {
             if (ok != 0) {
                 mState = 1;
                 for (int i = 0; i < mCount; i++) {
-                    mEntries[i].mChara->m540 = atn::Vector3(1.0f, 1.0f, 1.0f);
-                    mEntries[i].mChara->fn_800D246C(0);
-                    mEntries[i].mChara->fn_801765D8();
-                    if (mEntries[i].mItemGimmick != 0) {
-                        mEntries[i].mItemGimmick->fn_800D246C(0);
-                        mEntries[i].mItemGimmick->mFlags |= 4;
+                    MerchantEntry_unk* e = &mEntries[i];
+                    e->mChara->m540 = atn::Vector3(1.0f, 1.0f, 1.0f);
+                    e->mChara->fn_800D246C(0);
+                    e->mChara->fn_801765D8();
+                    if (e->mItemGimmick != 0) {
+                        e->mItemGimmick->fn_800D246C(0);
+                        e->mItemGimmick->mFlags |= 4;
                     }
                 }
                 return 1;
