@@ -30,6 +30,9 @@
 #include "game/GameVoice.h"
 #include "game/MapTask.h"
 #include "std/string_find_last_of.h"
+// inferred: the messages of the out-of-line members of basic_string are in the pool of the original (weak
+// copies dropped by the linker)
+#include "std/string_members.h"
 
 extern "C" GameTask* lbl_8087F430; // inferred: the field
 
