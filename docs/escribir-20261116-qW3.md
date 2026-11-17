@@ -19,8 +19,12 @@ Inicio: 2026-11-16 23:58 CET (tope 02:28). Base `agent-W3` b4d7839 (15878 / 1810
 | Puppeteer_CharaTask 0x80014250 `dtor_80014250` | 0 % | sin cambios (bloqueo, ver abajo) |
 | ActionEffectPlay `ActionCheck::vf08` 0x8055E720 | DRAFT 93,95 % | equivalente (asm leido entero), NONMATCHING 94,05 % |
 
+Al 100 % ademas (mismas unidades): `~__vec_split_unk<Actor>` 0x80544840 (99,70), `~__vec_split_unk<Path>`
+0x80545290 (99,59), `__vec_storage_unk<EffectEntry24_unk>::clear` 0x8053E588 (98,94), mas
+`__vec_event_unk<Actor>::__push_front_unk` 0x80545084 (tabla). Total 15878 -> 15882.
+
 Otras subidas en las mismas unidades: `DataList_unk<Actor>::Add_unk` 88,87 -> 96,58 %, `Sequence::fn_80540A08`
-92,63 -> 94,00 %, `fn_8054204C` 96,23 -> 97,78 %, `ParseACID_unk` 89,73 -> 96,69 %, `ParsePATH_unk` 94,77 -> 98,61 %,
+92,63 -> 94,00 %, `fn_8054204C` 96,23 -> 97,78 %, `Add_unk<Actor>` -> 98,13 % (devuelve `&back()`), `ParseACID_unk` 89,73 -> 96,69 %, `ParsePATH_unk` 94,77 -> 98,61 %,
 `vector<Path>::__push_back_slow_unk` 54,45 -> 90,40 %.
 
 ## Para el port
@@ -30,6 +34,10 @@ Otras subidas en las mismas unidades: `DataList_unk<Actor>::Add_unk` 88,87 -> 96
   `std/vector.h`; solo cambia la forma). Para el port: comportamiento identico, se puede ignorar.
 - `Sequence::fn_80542684()` (stub vacio) eliminado de `Event/Sequence.h`: era la `construct` del allocator.
 - `DataList_unk<Path>::Add_unk` nuevo (sin llamadores; el enlazador lo quita): para el port no hace falta.
+- `DataList_unk<T>::Add_unk(const char*, int)`: `void` -> `T*` (devuelve la entrada nueva, `&back()`); los
+  llamadores (Sequence.cpp, ParseXXID de EventParser_unk) no cambian.
+- Tambien en `EventVector_unk.h`: destructores de `__vec_split_gbase_unk<Actor|Path>` y
+  `__vec_storage_unk<EffectEntry24_unk>::clear` con otro orden de cargas (mismo comportamiento).
 - `ActionCheck::vf08`: sin cambio de comportamiento (comparacion como int de la direccion del stick).
 
 ## Decisiones tomadas sin el usuario
@@ -61,6 +69,10 @@ Otras subidas en las mismas unidades: `DataList_unk<Actor>::Add_unk` 88,87 -> 96
   otra inline (escribir-20261116 qW3).
 - El camino rapido de push_back de elementos con copia no trivial (EffectEntry24_unk, Path) lee `mSize` y `mCap`
   sin cachear y llama a `allocator::construct(p, x)` (con `if (p)`) (escribir-20261116 qW3).
+
+- El destructor del buffer de `vector<Actor>`/`<Path>` lee la cuenta antes del puntero final y el `clear` de
+  `vector<EffectEntry24_unk>` al reves (puntero y luego cuenta): especializacion por tipo en una cabecera
+  incluida solo por las unidades que las usan para no tocar la forma generica (escribir-20261116 qW3).
 
 ## Bloqueos
 - Manager `size`/`clear` de `vector<Curve_unk>` (0x8048B3B0/0x8048E994): quitando `__declspec(noinline)` a
