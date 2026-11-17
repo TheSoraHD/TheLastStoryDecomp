@@ -1,6 +1,7 @@
 #include "chr/ControlBreakOpen.h"
 #include "game/GameCamera.h"
 #include "game/Input_unk.h"
+#include "game/GameUI.h"
 
 // inferred: camera settings block copied into the camera manager (class names unknown)
 struct CameraParam_unk {
@@ -30,12 +31,7 @@ struct CameraMgr_unk {
     unsigned char m06D[0x568 - 0x6D];
     CameraParam_unk mParam; // 0x568
 };
-struct Flags_unk {
-    unsigned char m000[0x738];
-    int m738;
-};
 extern "C" CameraMgr_unk* lbl_8087F430;
-extern "C" Flags_unk* lbl_8087F490;
 extern "C" void* lbl_8087F0A8;
 
 namespace chr {

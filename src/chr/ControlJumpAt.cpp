@@ -3,14 +3,9 @@
 #include "atn/Memory.h"
 #include <boost/bind.hpp>
 #include "atn/ColliBase.h"
+#include "game/GameUI.h"
 
 extern "C" int rand();
-
-// inferred: object behind lbl_8087F490 (class unknown, also used by chr::ControlCaught)
-struct Unk_8087F490 {
-    unsigned char m000[0x728];
-    int m728;
-};
 
 // inferred: input state embedded at +0x48C of the object behind lbl_8087F0A8
 struct Input_unk {
@@ -29,7 +24,6 @@ extern "C" void fn_8004D388(void* mgr, atn::ColliResult_unk* result, chr::Chara_
                             atn::Vector3* move, unsigned int mask, void* ignore, int arg,
                             float radius); // inferred: sweep test
 
-extern "C" Unk_8087F490* lbl_8087F490;
 extern "C" Unk_8087F0A8* lbl_8087F0A8;
 
 // inferred: `from` moved toward `to` by the fraction `t` (name invented, as in

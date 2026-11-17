@@ -11,6 +11,7 @@
 #include "atn/RenderManager.h"
 #include "game/BattleTask.h"
 #include "atn/ColliBase.h"
+#include "game/GameUI.h"
 
 extern "C" int sprintf(char* buf, const char* fmt, ...);
 extern "C" int strcmp(const char* a, const char* b);
@@ -77,23 +78,9 @@ inline float LengthSq_unk(const atn::Vector3& v) {
     return PSVECSquareMag(&v);
 }
 // inferred: tutorial message request (as DropTutorial_unk of gmk/DropItem.cpp); only set while none is shown
-struct BeastTutorial_unk {
-    int m00;
-    int m04;
-    int m08;
-    int m0C;
-    int m10;
-    int m14;
-    int m18;
-};
-struct BeastMessage_unk {
-    unsigned char m000[0x764];
-    BeastTutorial_unk m764;
-};
-extern "C" BeastMessage_unk* lbl_8087F490;
 // inferred: requests a tutorial message unless one is shown (name invented)
 inline void ShowTutorial_unk(int a, int b) {
-    BeastTutorial_unk tutorial;
+    GameUIElem1C_unk tutorial;
     tutorial.m08 = -1;
     tutorial.m0C = 0;
     tutorial.m10 = 0;

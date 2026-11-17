@@ -15,6 +15,7 @@
 #include "atn/RenderManager.h"
 #include "game/MapTask.h"
 #include "atn/D2A_TaskInstanceC.h"
+#include "game/GameUI.h"
 
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" int rand();
@@ -65,21 +66,6 @@ extern "C" int fn_80051BC4(const DropSegment_unk* seg, const DropCapsule_unk* ca
 extern "C" int fn_8004ECC0(void* world, atn::Vector3* hit, const atn::Vector3& from, const atn::Vector3& to,
                            unsigned int flags, int arg5, int arg6);
 extern "C" void* lbl_8087EE98;
-// inferred: tutorial message (lbl_8087F490)
-struct DropTutorial_unk {
-    int m00;
-    int m04;
-    int m08;
-    int m0C;
-    int m10;
-    int m14;
-    int m18;
-};
-struct DropMessage_unk {
-    unsigned char m000[0x764];
-    DropTutorial_unk m764;
-};
-extern "C" DropMessage_unk* lbl_8087F490;
 // inferred: arena (lbl_8087F610)
 struct DropArena_unk {
     unsigned char m000[0x4FC];
@@ -269,7 +255,7 @@ void DropItem::vf10() {
                 }
                 if (m190 != 0) {
                     if (m198 != 0) {
-                        DropTutorial_unk tutorial;
+                        GameUIElem1C_unk tutorial;
                         tutorial.m00 = 6;
                         tutorial.m04 = 14;
                         tutorial.m08 = -1;
