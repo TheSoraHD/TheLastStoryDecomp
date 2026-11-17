@@ -32,12 +32,12 @@ struct Params_unk {
     float mTimeScale; // 0x3A4
 };
 extern "C" Params_unk* lbl_8087EFA8;
-extern "C" float lbl_8087DA40; // inferred: side step speed at the start
-extern "C" float lbl_8087DA44; // inferred: side step speed at the end
+float lbl_8087DA40 = 1.5f; // inferred: side step speed at the start (.sdata, global)
+float lbl_8087DA44 = 0.5f; // inferred: side step speed at the end (.sdata, global)
 
 // inferred: segment (as in game/CharaTask.cpp)
 struct Segment_unk {
-    Segment_unk(const atn::Vector3& start, const atn::Vector3& end) : mStart(start), mEnd(end) {}
+    Segment_unk() {}
     atn::Vector3 mStart;
     atn::Vector3 mEnd;
 };
@@ -446,9 +446,8 @@ ControlPushedAvoid::ControlPushedAvoid(Chara_unk* chara, const atn::Vector3& dir
     m2C = 0;
 }
 
-// NONMATCHING: 99.5% - register allocation (0.0f/0.125f of state 0 in f3/f0, the fabs of the inlined
-// ToRotation_unk of Vec.h in f8/f3 as AbsF_unk gives), the order of the negated components and the
-// address of the segment end.
+// `m30 / 8.0f` (folded to a product) gives the FPRs of the original; the segment is filled member by
+// member (separate address of the end, as in the original).
 int ControlPushedAvoid::vf0C() {
     int ret = 0;
     float time = lbl_8087EFA8->mTimeScale;
@@ -466,7 +465,7 @@ int ControlPushedAvoid::vf0C() {
             Chara_unk* c = mChara;
             c->m580 = 0.0f;
             c->m584 = 0.0f;
-            float t = MIN(1.0f, m30 * 0.125f);
+            float t = MIN(1.0f, m30 / 8.0f);
             float s = t * (lbl_8087DA44 - lbl_8087DA40) + lbl_8087DA40;
             atn::Vector3 pos = *mChara->fn_8013C38C() + m08 * s;
             mChara->mPos = pos;
@@ -485,7 +484,9 @@ int ControlPushedAvoid::vf0C() {
     case 1: {
         atn::Vector3 d = m14 - m34->mPos;
         if (PSVECMag(&d) > 5.0f) {
-            Segment_unk seg(mChara->mPos, m14);
+            Segment_unk seg;
+            seg.mStart = mChara->mPos;
+            seg.mEnd = m14;
             seg.mStart.y += 5.0f;
             seg.mEnd.y += 5.0f;
             if (!fn_80053BD0(0, &seg, &m34->mColli.m3C)) {

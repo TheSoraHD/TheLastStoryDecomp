@@ -118,6 +118,13 @@ inline float Dist_unk(const atn::Vector3& a, const atn::Vector3& b) {
     return PSVECMag(&d);
 }
 
+// inferred: vector rotated by a matrix (by value; name invented)
+inline atn::Vector3 MultVec_unk(Mtx m, const atn::Vector3& v) {
+    atn::Vector3 r(v);
+    PSMTXMultVec(m, &r, &r);
+    return r;
+}
+
 // inferred: point `dist` in front of the character (name invented)
 inline atn::Vector3 GetFrontDir_unk(const chr::ControlBase* control) {
     chr::Chara_unk* chara = control->mChara;
@@ -269,9 +276,8 @@ ControlCannonThrow::ControlCannonThrow(Chara_unk* chara, const atn::Vector3& dir
     mChara->fn_801446F0();
 }
 
-// NONMATCHING: 99.93% - first queen test: with GetQueenPoint_unk/Dist_unk the stack matches but
-// the address of the point stays in r29 for the message copy (the original recomputes it); written
-// out, the original puts the rotated offset above the point and the difference lowest.
+// The rotated offset is a temporary of MultVec_unk and the difference a temporary (stack slots of the
+// original: point above the offset, the difference lowest).
 int ControlCannonThrow::vf0C() {
     Motion_unk* motion = &mChara->mMotion;
     if (motion->mTracks[0].m08 >= 10.0f && mChara->m1208 != 0) {
@@ -281,11 +287,8 @@ int ControlCannonThrow::vf0C() {
             fn_802CCA0C(queen)) {
             Mtx mtx;
             PSMTXRotRad(mtx, 'y', queen->mRot.y);
-            atn::Vector3 offset(sQueenOffset_unk);
-            PSMTXMultVec(mtx, &offset, &offset);
-            atn::Vector3 point = queen->mPos + offset;
-            atn::Vector3 diff = point - m08;
-            if (PSVECMag(&diff) < m14) {
+            atn::Vector3 point = queen->mPos + MultVec_unk(mtx, sQueenOffset_unk);
+            if (PSVECMag(&(point - m08)) < m14) {
                 GimmickMsg_unk msg;
                 msg.mType = 6;
                 msg.mVec = point;
