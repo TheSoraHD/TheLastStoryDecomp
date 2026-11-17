@@ -15,7 +15,7 @@ Inicio: 2026-11-17 06:25 CET. Tope 08:55.
 | chr/ControlPushedDown ControlPushedDown::vf0C | 99,29 | 100 |
 | chr/ControlPushedDown ControlPushedAvoid::vf0C | 99,28 | 99,54 |
 | game/NewCampPartsTop vf14 | 99,72 | 99,82 |
-| chr/ControlCliffhang vf0C | 99,69 | 99,83 |
+| chr/ControlCliffhang vf0C | 99,69 | 99,85 |
 | game/Em101ElderZesyaSecond vf10 | 99,84 | 99,94 |
 | game/Em001Necromancer ctor | 99,03 (comentario `draft` erroneo) | 99,03 (comentario corregido) |
 

@@ -76,7 +76,7 @@ ControlCliffhang::ControlCliffhang(Chara_unk* chara, int a, int flags, float f)
     fn_801AB6B8(a, 1, f);
 }
 
-// NONMATCHING: 99.8% - stack slots of the vectors of states 0-2 (the original has dir lowest, below the
+// NONMATCHING: 99.85% - stack slots of the vectors of states 0-2 (the original has dir lowest, below the
 // temporaries of dir * 4 * speed) and the FPRs of the speeds of states 1 and 2.
 // inferred: weak accessor of the position (0x8013C38C), inlined here
 inline atn::Vector3* CharaTask::fn_8013C38C() {
@@ -97,8 +97,7 @@ int ControlCliffhang::vf0C() {
                 t = frame / (motion->fn_80097D7C(0) - 2.0f);
                 atn::Vector3 pos = LerpCliff_unk(m84, m14, t);
                 *mChara->fn_8013C38C() = pos;
-                atn::Vector3 r(0.0f, m90 + mChara->mRot.y, 0.0f);
-                mChara->mRot = r;
+                mChara->mRot = atn::Vector3(0.0f, m90 + mChara->mRot.y, 0.0f);
             } else {
                 mChara->mPos = m14;
             }
@@ -128,8 +127,7 @@ int ControlCliffhang::vf0C() {
                     m0C = 1;
                 }
             } else {
-                atn::Vector3 d = m14 - m20;
-                float speed = m6C / PSVECMag(&d);
+                float speed = m6C / PSVECMag(&(m14 - m20));
                 float length = motion->fn_80097D7C(0) - 1.0f;
                 if (length > 0.0f) {
                     float step = motion->mTracks[0].m0C * lbl_8087EFA8->m3A4 / length;
