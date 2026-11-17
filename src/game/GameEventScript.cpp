@@ -2365,7 +2365,7 @@ int GameEventScript::fn_8039BF04(int kind, int flag, int op, int type, int value
     int ok = SetFlag_unk(kind, flag, v);
     if (m37C != 0) {
         char line[256];
-        sprintf(line, "%d,%s,%d,\x83R\x83}\x83\x93\x83h,Page%d,%s,%s%d %s %s%d,%s%d: %d -> %d,", mB0, lbl_8074EFC8[m9C],
+        sprintf(line, "%d,%s,%d,\x83R\x83}\x83\x93\x83h,Page%d,%s,%s%d %s %s%d,%s%d: %d -> %d,\0", mB0, lbl_8074EFC8[m9C],
                 mA0, mA4 + 1, lbl_8074EB1C[m90->mCmd], sFlagScopes_unk[kind], flag, sFlagOps_unk[op],
                 sValueTypes_unk[type], value, sFlagScopes_unk[kind], flag, old, v);
         m384.push_back(std::string(line));
@@ -3300,7 +3300,7 @@ void GameEventScript::fn_803A064C(ScriptResult_unk& result, const ScriptCmd_unk*
         lbl_8087EE68->fn_80017EB0(chara, args->m10, args->m14);
     } else if (lbl_8087EEB8 != 0) {
         char text[0x100];
-        sprintf(text, "ScriptError: ExecComAimGimmick chara not found [gm%03d_%03d_%04d]", args->m10 / 1000,
+        sprintf(text, "ScriptError: ExecComAimGimmick chara not found [gm%03d_%03d_%04d]\0", args->m10 / 1000,
                 args->m10 % 1000, args->m14);
         lbl_8087EEB8->fn_800697D8(text);
     }
@@ -3610,7 +3610,7 @@ void GameEventScript::fn_803A1B20(ScriptResult_unk& result, ScriptCmd_unk* cmd) 
                 }
             } else {
                 char text[0x100];
-                sprintf(text, "Event not found! ev%04d", args->m08);
+                sprintf(text, "Event not found! ev%04d\0", args->m08);
                 if (lbl_8087EEB8 != 0) {
                     lbl_8087EEB8->fn_800697D8(text);
                 }
@@ -6576,14 +6576,14 @@ void GameEventScript::PrintLog_unk(atn::SimpleArray<ScriptLog_unk>& log) {
         }
         char pages[256];
         if (entry.m10 == -1) {
-            sprintf(pages, "START Page%d", entry.m14 + 1);
+            sprintf(pages, "START Page%d\0", entry.m14 + 1);
         } else if (entry.m14 == -1) {
-            sprintf(pages, "END");
+            sprintf(pages, "END\0");
         } else {
             sprintf(pages, "Page%d -> %d", entry.m10 + 1, entry.m14 + 1);
         }
         char line[256];
-        sprintf(line, "%d,%s,%d,\x83y\x81[\x83W\x90\xD8\x82\xE8\x91\xD6\x82\xA6,%s,", mB0, lbl_8074EFC8[entry.m04],
+        sprintf(line, "%d,%s,%d,\x83y\x81[\x83W\x90\xD8\x82\xE8\x91\xD6\x82\xA6,%s,\0", mB0, lbl_8074EFC8[entry.m04],
                 entry.m08, pages);
         m384.push_back(std::string(line));
     }
@@ -6595,7 +6595,7 @@ void GameEventScript::PrintLog_unk(atn::SimpleArray<ScriptLog_unk>& log) {
 void GameEventScript::fn_803AB96C(int scope, unsigned int index, int old, int value) {
     if (m37C != 0) {
         char line[256];
-        sprintf(line, "%d,None,0,\x8AO\x95\x94\x82\xA9\x82\xE7\x83t\x83\x89\x83O\x95\xCF\x8DX,None,None,%s%d = %d,%s%d: %d -> %d,",
+        sprintf(line, "%d,None,0,\x8AO\x95\x94\x82\xA9\x82\xE7\x83t\x83\x89\x83O\x95\xCF\x8DX,None,None,%s%d = %d,%s%d: %d -> %d,\0",
                 mB0, sFlagScopes_unk[scope], index, value, sFlagScopes_unk[scope], index, old, value);
         m384.push_back(std::string(line));
     }
