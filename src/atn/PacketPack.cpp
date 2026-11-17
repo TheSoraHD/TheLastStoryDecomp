@@ -4634,12 +4634,24 @@ struct PPMsgCpuTable_unk {
     unsigned char m00[8];
     unsigned char m08[8];
 };
-// NONMATCHING: 98.46% - registers of the counting loop (the original shares the zero of the static of the message
-// with its offset) and of the inlined searches fn_804DD158 (bloqueo conocido)
 // inferred: on the server: the free places of the room (6, 8 or 7 by game mode, less the hosts, at most m5A4)
 // get a computer player: a side (mode 1: the one with fewer players, at random when even), a host of the other
 // side that has none yet (or the one with fewest) in m9984 (index + 1 in the high nibble), the side in m9994
 // and a stage from fn_804DD574 in m998C; the tables go to everybody (message 0x1034)
+// inferred: the player is of the team `team` (inlined in fn_804DCA54)
+static inline bool PPInTeam_unk(PPPlayer_unk* player, unsigned int team) {
+    return player->mFlags.m22 == team;
+}
+// inferred: players of each team in use (inlined in fn_804DCA54)
+static inline void PPCountTeams_unk(int* counts) {
+    PPManager2_unk* mgr2 = (PPManager2_unk*)lbl_8087F610;
+    for (int k = 0; k < (int)((PPManager2_unk*)lbl_8087F610)->mPlayers.size(); k++) {
+        PPPlayer_unk* other = fn_804D5F0C(mgr2, k);
+        if (other->mFlags.mActive == 1) {
+            counts[other->mFlags.m22]++;
+        }
+    }
+}
 extern "C" void fn_804DCA54(PPManager2_unk* mgr) {
     int hosts = GetNumHosts_unk(lbl_8087F628);
     int num;
@@ -4668,13 +4680,7 @@ extern "C" void fn_804DCA54(PPManager2_unk* mgr) {
     if (num > 0) {
         int counts[3];
         memset(counts, 0, sizeof(counts));
-        PPManager2_unk* mgr2 = (PPManager2_unk*)lbl_8087F610;
-        for (int k = 0; k < (int)((PPManager2_unk*)lbl_8087F610)->mPlayers.size(); k++) {
-            PPPlayer_unk* other = fn_804D5F0C(mgr2, k);
-            if (other->mFlags.mActive == 1) {
-                counts[other->mFlags.m22]++;
-            }
-        }
+        PPCountTeams_unk(counts);
         for (int i = 0; i < num; i++) {
             bool first;
             if (counts[1] < counts[2]) {
@@ -4710,9 +4716,10 @@ extern "C" void fn_804DCA54(PPManager2_unk* mgr) {
                 if (host == 0 || host->mFlags.m22 != team) {
                     continue;
                 }
+                unsigned char v;
                 bool used = false;
                 for (int j = 0; j < 8; j++) {
-                    unsigned char v = mgr->m9984[j];
+                    v = mgr->m9984[j];
                     if ((v & 0xF0) != 0 && (v & 0xF) == aid) {
                         used = true;
                         break;
@@ -4732,7 +4739,7 @@ extern "C" void fn_804DCA54(PPManager2_unk* mgr) {
                     unsigned char v = mgr->m9984[j];
                     if ((v & 0xF0) != 0) {
                         unsigned int aid = v & 0xF;
-                        if (fn_804DD158(mgr, aid)->mFlags.m22 == team) {
+                        if (PPInTeam_unk(fn_804DD158(mgr, aid), team)) {
                             cpus[aid]++;
                         }
                     }
