@@ -1221,14 +1221,14 @@ void Em202Spider::fn_80281F88() {
     mMotion.fn_80097C08(0, 0x14, 0, 0, 1, 0.0f, 0.1f);
 }
 
-// NONMATCHING: 99.88% - f0/f3 of the 0.0f of ToRotationZ_unk (same case as Em003LesserDaemon::vf24)
+// inferred: the yaw read into a float (with the Vector3 local the 0.0f of ToRotationZ_unk takes f3)
 int Em202Spider::fn_802826A0(CharaTask* target, int arg) {
     if (m58C == 9) {
         return 0;
     }
     float ry = mRot.y;
-    atn::Vector3 rot = (target->mPos - mPos).ToRotationZ_unk();
-    m153C = atn::WrapAngle_unk(rot.y - ry);
+    float yaw = (target->mPos - mPos).ToRotationZ_unk().y;
+    m153C = atn::WrapAngle_unk(yaw - ry);
     if (-0.3926991f < m153C && m153C < 0.3926991f) {
         return 0;
     }
