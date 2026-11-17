@@ -219,6 +219,26 @@ static inline void PushTask_unk(atn::FixedArray_unk<T, N>& a, T v) {
     }
 }
 
+// inferred: frame of the layout animation of every task of `tasks`
+template <int N>
+static inline void SetTaskFrame_unk(atn::FixedArray_unk<ItemSlotTask_unk*, N>& tasks, float frame) {
+    for (ItemSlotTask_unk** it = tasks.begin(); it != tasks.end(); it++) {
+        if (*it != 0) {
+            (*it)->m50 = frame;
+        }
+    }
+}
+
+// inferred: speed of the layout animation of every task of `tasks`
+template <int N>
+static inline void SetTaskSpeed_unk(atn::FixedArray_unk<ItemSlotTask_unk*, N>& tasks, float speed) {
+    for (ItemSlotTask_unk** it = tasks.begin(); it != tasks.end(); it++) {
+        if (*it != 0) {
+            (*it)->m54 = speed;
+        }
+    }
+}
+
 // inferred: creates the D2A tasks of every entry (inline: its paths are @STRING@ of .data); name invented
 inline void gmk::ItemSlotAnimeBuffer::Setup_unk() {
     for (unsigned int i = 0; i < mNum; i++) {
@@ -425,8 +445,8 @@ void ItemSlotAnime::fn_8044E88C() {
     }
 }
 
-// NONMATCHING: 69.7% - the original inlines fn_8044F14C at the end (defined later; here it stays a call)
-// and the registers of the inlined Alloc_unk loop
+// NONMATCHING: 99.0% - registers of the inlined Alloc_unk loop (fn_8044F14C is inlined at the end since
+// its task loops are SetTaskFrame_unk/SetTaskSpeed_unk: written out it was too large to auto-inline)
 // inferred: stops the slots on the item (`shown`: the item is already shown); with mFlag27 the item is taken
 // at once (fn_8044F14C)
 void ItemSlotAnime::fn_8044EA34(int shown) {
@@ -525,18 +545,8 @@ void ItemSlotAnime::fn_8044F14C() {
             m00->m00->m54 = 1.0f;
         }
     }
-    atn::FixedArray_unk<ItemSlotTask_unk*, 2>& oks = m00->m24;
-    for (ItemSlotTask_unk** it = oks.begin(); it != oks.end(); it++) {
-        if (*it != 0) {
-            (*it)->m50 = 10.0f;
-        }
-    }
-    atn::FixedArray_unk<ItemSlotTask_unk*, 2>& oks2 = m00->m24;
-    for (ItemSlotTask_unk** it = oks2.begin(); it != oks2.end(); it++) {
-        if (*it != 0) {
-            (*it)->m54 = 1.0f;
-        }
-    }
+    SetTaskFrame_unk(m00->m24, 10.0f);
+    SetTaskSpeed_unk(m00->m24, 1.0f);
     fn_80450590();
     fn_8044F96C();
 }

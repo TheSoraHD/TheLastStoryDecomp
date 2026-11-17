@@ -14,6 +14,7 @@ Agente W4, inicio 2026-11-17 02:08 (tope 04:38). Rama `agent-W4`.
 | atn/LH_Binary `SceneTrack_unk::fn_8047202C` | no escrita | equivalente NONMATCHING 0 % |
 | chr/ControlStickByQuark `ControlMatHoldDamage::vf0C` | DRAFT 94,56 % | equivalente NONMATCHING 94,6 % (comprobada contra el asm) |
 | RecycleBuffer_gmk/ItemSlotAnime `fn_8044D9BC` | DRAFT 50,59 % | **100 %** |
+| (extra) ItemSlotAnime `fn_8044EA34` | 69,95 % | 99,04 % (inlinea fn_8044F14C como el original) |
 
 ## Para el port
 
@@ -45,6 +46,10 @@ Agente W4, inicio 2026-11-17 02:08 (tope 04:38). Rama `agent-W4`.
 - Literales de rutas en `.data` con etiquetas sueltas en orden inverso (`lbl_8078F4E0` el primero usado, el
   resto hacia atras) = pool `@STRING@` de una inline (base, @0, @1...): mover el codigo a una inline con
   nombre `_unk` y `pd.sh` los renombra (ItemSlotAnime fn_8044D9BC 50 -> 100 %) (escribir-20261116 qW4)
+- Una funcion normal (no `inline`) definida despues que el original inlinea en su llamador (y emite en su
+  sitio): MWCC la inlinea sola si su cuerpo es pequeno; escribir sus bucles como inlines (`SetTaskFrame_unk`)
+  la baja del umbral de autoinline (ItemSlotAnime fn_8044EA34 70 -> 99 %, fn_8044F14C sigue emitida)
+  (escribir-20261116 qW4)
 - Un `new (1, "", "", 0)` con la doble comprobacion `if (inst == 0) { gm = ...; if (inst == 0) ... }`
   (dos `bne` con el mismo cr0) = `if (inst == 0) X::Create_unk(parent);` con la segunda comprobacion dentro
   de la inline estatica (escribir-20261116 qW4)
