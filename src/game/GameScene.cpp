@@ -138,11 +138,20 @@ struct CharaRadius_unk {
     float m620;
 };
 
-// inferred: path of a scene file of the current map (inline: "li r0, 1" before the test)
-inline bool MakeScenePath_unk(char* out, const char* fmt, int area, int map, int sub) {
+// inferred: paths of the scene script and of the message table of a map (inline: "li r0, 1" before the
+// test; names invented)
+static inline bool GetScenePath_unk(char* out, int area, int map, int sub) {
     char name[0x100];
     if (MapTask::GetMapNameFromId(name, area, map, sub)) {
-        sprintf(out, fmt, name);
+        sprintf(out, "/game_scene/%s.gs", name);
+        return true;
+    }
+    return false;
+}
+static inline bool GetMessagePath_unk(char* out, int area, int map, int sub) {
+    char name[0x100];
+    if (MapTask::GetMapNameFromId(name, area, map, sub)) {
+        sprintf(out, "/game_message/%s_xx.u16", name);
         return true;
     }
     return false;
@@ -156,14 +165,13 @@ GameScene* GameScene::fn_803BEBAC(atn::Task* parent, int area, int map, int sub)
 }
 
 GameScene::GameScene(atn::Task* parent, int area, int map, int sub)
-    : atn::Task(parent), m48(0), m64(0), m68(0), m6C(0), m70(0), m74(0), mA8(0), m134(0), m138(-1),
+    : atn::Task(parent), m48(0), m68(0), m6C(0), m70(0), m74(0), mA8(0), m138(-1),
       m13C(1.0f), m140(0), m144(0), m9B0(0) {
     char name[0x20];
     char path[0x100];
     if (MapTask::GetMapNameFromId(name, area, map, sub)) {
         if (lbl_8087F420 != 0) {
-            lbl_8087F420->m18 = 1;
-            lbl_8087F420->m1C = 1;
+            lbl_8087F420->SetLoading_unk(1);
         }
         sprintf(path, "levels/%s.pk", name);
         if (fn_8006AA20(path)) {
@@ -188,12 +196,11 @@ GameScene::GameScene(atn::Task* parent, int area, int map, int sub)
             }
         }
         if (lbl_8087F420 != 0) {
-            lbl_8087F420->m18 = 0;
-            lbl_8087F420->m1C = 0;
+            lbl_8087F420->SetLoading_unk(0);
         }
     }
     char scene[0x100];
-    if (MakeScenePath_unk(scene, "/game_scene/%s.gs", area, map, sub)) {
+    if (GetScenePath_unk(scene, area, map, sub)) {
         m4C[0].vf0C(scene);
         if (area == 1 && lbl_8087F0A8->mLoadTownSubScript != 0) {
             std::string sub("/game_scene/tw_subquest.gs");
@@ -225,9 +232,8 @@ GameScene::GameScene(atn::Task* parent, int area, int map, int sub)
             lbl_8087F418->fn_8035F33C(envse.c_str());
         }
     }
-    char message[0x100];
-    if (MakeScenePath_unk(message, "/game_message/%s_xx.u16", area, map, sub)) {
-        m11C.fn_803B3C10(message);
+    if (GetMessagePath_unk(scene, area, map, sub)) {
+        m11C.fn_803B3C10(scene);
     }
     m64 = MapTask::fn_8049D704(this, area, map, sub);
     if (lbl_8087FA20 != 0) {
@@ -240,9 +246,9 @@ GameScene::GameScene(atn::Task* parent, int area, int map, int sub)
         int money = lbl_8087F430 != 0 ? lbl_8087F430->m10D0 : 0;
         if (map == 3) {
             fn_800C3094("GROUP_TWBGM004");
-        } else if (money >= 0 && money < 400000) {
+        } else if (0 <= money && money < 400000) {
             fn_800C3094("GROUP_TWBGM001");
-        } else if (money >= 400000 && money < 600000) {
+        } else if (400000 <= money && money < 600000) {
             fn_800C3094("GROUP_TWBGM002");
         } else if (money >= 600000) {
             fn_800C3094("GROUP_TWBGM003");
@@ -259,11 +265,11 @@ GameScene::GameScene(atn::Task* parent, int area, int map, int sub)
             lbl_8087F498->mNumChannels = 1;
         }
     }
-    if (ArenaTask::fn_800431F4(area, map)) {
+    if (ArenaTask::fn_800431F4(area, map, sub)) {
         ArenaTask::fn_8004318C(this);
     }
     if (lbl_8087F430 != 0 && SongManager::fn_805A2404(area, map, sub)) {
-        SongManager::fn_805A2240(this);
+        SongManager::fn_805A2240((atn::Task*)lbl_8087F430);
     }
     m190.clear();
 }
