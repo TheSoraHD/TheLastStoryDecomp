@@ -780,8 +780,8 @@ void Em202ForestSpider::vf110() {
     }
 }
 
-// NONMATCHING: 94.2% - stack slots and float registers of the pull temporaries (state 10, pulls the caught
-// character; flow, calls and constants checked against the original)
+// NONMATCHING: 99.5% - stack slots: the original places the locals of state 0x75 above those of state 0x74
+// (state 10, pulls the caught character; flow, calls and constants checked against the original)
 void Em202ForestSpider::vf114() {
     int ok = 0;
     CharaTask* c = m18EC;
@@ -791,9 +791,9 @@ void Em202ForestSpider::vf114() {
             m14DC = 0;
             float target = 1.5707964f + c->mRot.y;
             atn::Vector3 d(c->mPos.x - mPos.x, 0.0f, c->mPos.z - mPos.z);
-            atn::Vector3 r = d.ToRotation_unk();
-            ok = 1;
+            atn::Vector3 r = d.ToRotationZ_unk();
             m18F8 = atn::WrapAngle_unk(r.y - target) / 10.0f;
+            ok = 1;
         } else if (state == 0x75) {
             atn::Vector3 d(c->mPos.x - mPos.x, 0.0f, c->mPos.z - mPos.z);
             float dist = PSVECMag(&d);
@@ -802,7 +802,8 @@ void Em202ForestSpider::vf114() {
                 atn::Vector3 pos = m18EC->mPos;
                 step = MIN(step, 1.5f);
                 step = MAX(step, -1.5f);
-                atn::Vector3 back(-d.x, -d.y, -d.z);
+                atn::Vector3 back;
+                back = atn::Vector3(-d.x, -d.y, -d.z);
                 PSVECNormalize(&back, &back);
                 m18EC->mPos = back * step + pos;
                 atn::Vector3 rot = m18EC->mRot;
@@ -816,7 +817,8 @@ void Em202ForestSpider::vf114() {
                 float step = dist - 40.0f;
                 atn::Vector3 pos = m18EC->mPos;
                 step = MIN(step, m18FC);
-                atn::Vector3 back(-d.x, -d.y, -d.z);
+                atn::Vector3 back;
+                back = atn::Vector3(-d.x, -d.y, -d.z);
                 PSVECNormalize(&back, &back);
                 m18EC->mPos = back * step + pos;
             }
@@ -1204,18 +1206,18 @@ int Em202ForestSpider::fn_80277B84(CharaTask* chara) {
 static const char* sArmNodes_unk[6] = {"leftbackarm2",  "leftmiddlearm2",  "leftfrontarm2",
                                        "rightbackarm2", "rightmiddlearm2", "rightfrontarm2"};
 
+// NONMATCHING: 99.35% - stack slots of the arm position and of the ray end (swapped with their registers)
 void Em202ForestSpider::fn_80277BC0() {
-    int played = 0;
     const atn::Vector3& origin = mPos;
+    int played = 0;
     for (int i = 0; i < 6; i++) {
         MtxPtr m = mMotion.GetNodeMtx_unk(sArmNodes_unk[i]);
-        atn::Vector3 to;
         atn::Vector3 pos(m[0][3], m[1][3], m[2][3]);
-        to = pos;
-        to -= mPos;
+        atn::Vector3 to = pos;
+        to -= origin;
         to.x *= 1.3f;
         to.z *= 1.3f;
-        to += mPos;
+        to += origin;
         to.y = mPos.y;
         atn::ColliResult_unk result;
         if (fn_8004ED34(lbl_8087EE98, &result, &origin, &to, 0x80000000, 0, 0) != 0) {
@@ -1234,6 +1236,13 @@ void Em202ForestSpider::fn_80277BC0() {
     }
 }
 
+// inferred: bit 25 of the character flags read through a const accessor (reloaded before the clear, as in
+// game/Em302Kraken.cpp); name invented
+inline unsigned int IsFlag25_unk(const CharaTask* chara) {
+    return chara->mFlag25;
+}
+
+// NONMATCHING: 99.57% - float registers of the hoisted constants and stack slots of the rotation temporaries
 void Em202ForestSpider::fn_80277DC4() {
     int count = 0;
     atn::Vector3 off(0.0f, 0.0f, 40.0f);
@@ -1250,7 +1259,7 @@ void Em202ForestSpider::fn_80277DC4() {
             e->mFlags &= ~4;
             e->fn_80176ACC();
             e->fn_800D246C(0);
-            if (e->mFlag25) {
+            if (IsFlag25_unk(e)) {
                 e->mFlag25 = 0;
             }
             e->mStatus.fn_8012D8B8();
