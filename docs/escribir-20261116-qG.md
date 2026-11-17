@@ -23,9 +23,10 @@ Inicio: 2026-11-16 23:58 CET (tope 2026-11-17 02:28).
 | vector<PPPlayer_unk> (fn_804D6688, fn_804FC8CC, fn_804FC9C0, fn_804FCA34, fn_804FE2DC, fn_804FF3D0) | 0 % | 0 % (pendiente) |
 | fn_804DE884 | 0 % | equivalente NONMATCHING 96,27 % **en el parche** `docs/escribir-20261116-qG.patch` (no commiteado, ver Bloqueos) |
 | fn_804E4EB0, fn_804EB934, fn_804E9C64, fn_804EFF74 | 0 % | 0 % (pendiente) |
-| stub fn_804CF640, vf10 de Manager2 | DRAFT | DRAFT (pendiente) |
+| fn_804CF640 | DRAFT (stub vacio) | equivalente NONMATCHING 90,7 % |
+| vf10 de Manager2 | DRAFT 95 % | DRAFT (pendiente: 14,6 KB sin comprobar) |
 
-PacketPack al 100 % (fnstat): 270 -> 271 / 380 (fn_804D00DC). Sin escribir 23 -> 13.
+PacketPack al 100 % (fnstat): 270 -> 271 / 380 (fn_804D00DC). Sin escribir 23 -> 13 (14 con fn_804DE884 en el parche); DRAFT 5 -> 2.
 
 ## Para el port
 
@@ -36,6 +37,8 @@ PacketPack al 100 % (fnstat): 270 -> 271 / 380 (fn_804D00DC). Sin escribir 23 ->
 - Nuevos en PacketPack: `PPMsgEquip_unk` (movido antes, tambien payload de 0x1009), `PPMsgWeapon_unk`, `PPMsgCpuTable_unk`, `PPMessageRef_unk`, `PPMsgVoice_unk`, `PPMsgGimmick_unk`, `PPMsgGimmickAnswer_unk` (pack 1), tabla `lbl_80791018[36]` (voces VO_AR*), inlines `SendEquip_unk`, `SendWeapon_unk`, `PPSendGimmick_unk`, `PPCharaOfAid_unk`, `PPTeamSize_unk`, `PPSlot_unk`; `GetNumHosts_unk`, `GetHostAid_unk`, `FindByChara_unk`, `FindCharaIndex_unk`, `GetMyPlayer_unk`, `PPMessages_unk` y el include de MP/MpMessage_unk.h movidos antes (mismo codigo).
 - Literales: tabla de categorias por etapa de fn_804E82C4 `{0,2,3,4,6,5,1,8,7,9,14,17,17,17,16,16,16,11,11,12,18,18,0,13,19,0}`; flotante 2.0f de los mensajes de caida de las balas de canon (fn_804E9360).
 
+- fn_804CF640 deja de ser un stub vacio (cambio de comportamiento): aplica el estado empaquetado del personaje; firma `(PackedChara_unk*, CharaTask*)` (antes `(void*, void*)`, sin `noinline`); los tres llamadores pasan el buffer con un cast. Inlines nuevas `PPSetTargets_unk`, `PPSetTarget_unk`, `PPCharaOfId_unk` (definidas despues de MP::Manager2 y auto-inlineadas).
+
 ## Decisiones tomadas sin el usuario
 
 - `if (m9770 == 0) m9770 = 0;` en ~Manager2: es lo que hace el original (store condicional); se deja literal.
@@ -43,6 +46,9 @@ PacketPack al 100 % (fnstat): 270 -> 271 / 380 (fn_804D00DC). Sin escribir 23 ->
 - `PPPlayerFlags_unk` local puesta a 0 por palabra (`*(unsigned int*)&flags = 0`) en fn_804E9360 para limpiar la slot con m10 = 2.
 
 ## Hallazgos
+
+- Con `-ipa file` una `static inline` declarada arriba y definida mas abajo (despues de los tipos que necesita) se inlinea igual en una funcion que va antes en el `.dol`: sirve para escribir en su sitio funciones tempranas que tocan clases definidas despues (PacketPack fn_804CF640) (escribir-20261116 qG)
+- `if (bit) { if (!state) on(); } else if (state) off();` frente a `if (bit && !state) on(); else if (!bit && state) off();`: la segunda deja el `cmpwi bit, 0` repetido del original (PacketPack fn_804CF640) (escribir-20261116 qG)
 
 - `bool` devuelto por las funciones llamadas: `ok = f(); if (ok) ok &= g();` da `and; neg; or; srwi` sin normalizar el primero solo si `f`/`g` devuelven `bool` (con `int` sale `neg/or/srwi` tras cada uno) (escribir-20261116 qG)
 - El `L""` de una funcion inline sale como `@STRING@<inline>` en `.sdata` (objeto propio de 2 bytes), como el `@wstringBase0` sda21 que usan todas las funciones de PacketPack en el original (escribir-20261116 qG)

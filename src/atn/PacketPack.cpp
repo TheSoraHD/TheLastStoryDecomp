@@ -227,11 +227,152 @@ extern "C" int fn_804CF634(PPChara_unk* chara) {
     return (chara->m12A8 >> 1) & 1;
 }
 
-// NONMATCHING: stub
-// DRAFT: empty stub of the 0xA50-byte function
-// NONMATCHING: stub of the 0xA50-byte function that applies a received character state (noinline so that
-// its callers keep the call while it is empty)
-extern "C" __declspec(noinline) void fn_804CF640(void* in, void* chara) {}
+#include "game/BattleTask.h"
+extern "C" BattleTask* lbl_8087F048; // inferred: battle manager (as game/BattleCharaTask.cpp)
+// inferred: the targets of the slot and of the list entry of `chara` (defined after MP::Manager2, inlined)
+static inline void PPSetTargets_unk(CharaTask* chara, const PackedChara_unk* in);
+// NONMATCHING: 90.7% - the original reads the packed flag bytes once for several fields (here reloaded after each
+// store) and reloads lbl_8087F048 into a saved register between the two effect calls; scheduling
+// inferred: applies the packed state of a character (fn_804CF468): part, state, values mFB8/mFBC, hit, flags,
+// the status bits of m13 (each one with its effect of the battle), the motion mode and the targets
+extern "C" void fn_804CF640(PackedChara_unk* in, CharaTask* chara) {
+    if (lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->m54E4 == 10) {
+        return;
+    }
+    if (in->m00 != chara->m674) {
+        if (in->m00 == -1) {
+            chara->fn_8014EEC4(0);
+        } else {
+            chara->fn_8014DEE4(in->m00, 0, 0);
+        }
+    }
+    chara->fn_8016E970((unsigned short)in->m04);
+    chara->mFB8 = in->m08;
+    chara->mFBC = in->m0A;
+    chara->m560 = (unsigned short)in->m06;
+    chara->SetHit_unk(in->m0C > 0 ? fn_80219E6C(in->m0C) : 0);
+    if (!chara->mStatus.IsState_unk(0x20)) {
+        chara->mFlag5 = in->m12_7 == 1;
+        chara->fn_80155DAC(in->m12_6 == 1);
+        chara->mFlag31 = in->m12_5 == 1;
+        chara->mFlag10 = in->m12_4 == 1;
+        chara->mFlagB8 = in->m12_3 == 1;
+        if (in->m12_2 == 1) {
+            chara->mColli.mFlags |= 1;
+        } else {
+            chara->mColli.mFlags &= ~1;
+        }
+        int c48 = 0;
+        if (in->m12_0 == 1) {
+            c48 = 3;
+        }
+        chara->mC48 = c48;
+        if (in->m13_7 && !chara->mStatus.IsState_unk(0x80000)) {
+            chara->mStatus.fn_80133130(0x80000, 100000, 0);
+            if (lbl_8087F048 != 0) {
+                lbl_8087F048->fn_80107E58(&chara->mMotion);
+                lbl_8087F048->fn_80107DA4(&chara->mMotion, &chara->mMotion, chara->vf90(), chara->vf94());
+            }
+        } else if (!in->m13_7 && chara->mStatus.IsState_unk(0x80000)) {
+            chara->mStatus.fn_8013322C(0x80000);
+            if (lbl_8087F048 != 0) {
+                lbl_8087F048->fn_80107E58(&chara->mMotion);
+            }
+        }
+        if (in->m13_6 && !chara->mStatus.IsState_unk(4)) {
+            chara->mStatus.fn_80133130(4, 100000, 0);
+            if (lbl_8087F048 != 0) {
+                lbl_8087F048->fn_80107D94(&chara->mMotion);
+                lbl_8087F048->fn_80107CEC(&chara->mMotion, &chara->mMotion, chara->vf90());
+            }
+        } else if (!in->m13_6 && chara->mStatus.IsState_unk(4)) {
+            chara->mStatus.fn_8013322C(4);
+            if (lbl_8087F048 != 0) {
+                lbl_8087F048->fn_80107D94(&chara->mMotion);
+            }
+        }
+        if (in->m13_5 && !chara->mStatus.IsState_unk(0x2000000)) {
+            chara->mStatus.fn_80133130(0x2000000, 100000, 0);
+            if (lbl_8087F048 != 0) {
+                lbl_8087F048->fn_80107FC8(&chara->mMotion);
+                lbl_8087F048->fn_80107F20(&chara->mMotion, &chara->mMotion, chara->vf90());
+            }
+        } else if (!in->m13_5 && chara->mStatus.IsState_unk(0x2000000)) {
+            chara->mStatus.fn_8013322C(0x2000000);
+            if (lbl_8087F048 != 0) {
+                lbl_8087F048->fn_80107FC8(&chara->mMotion);
+            }
+        }
+        if (in->m13_4 && !chara->mStatus.IsState_unk(0x400000)) {
+            chara->mStatus.fn_80133130(0x400000, 100000, 0);
+            if (lbl_8087F048 != 0) {
+                lbl_8087F048->fn_80107F10(&chara->mMotion);
+                lbl_8087F048->fn_80107E68(&chara->mMotion, &chara->mMotion);
+            }
+        } else if (!in->m13_4 && chara->mStatus.IsState_unk(0x400000)) {
+            chara->mStatus.fn_8013322C(0x400000);
+            if (lbl_8087F048 != 0) {
+                lbl_8087F048->fn_80107F10(&chara->mMotion);
+            }
+        }
+        if (in->m13_3 && !chara->mStatus.IsState_unk(1)) {
+            chara->mStatus.fn_80133130(1, 100000, 0);
+            if (lbl_8087F048 != 0) {
+                lbl_8087F048->fn_801079B0(&chara->mMotion);
+                lbl_8087F048->fn_80107908(&chara->mMotion, &chara->mMotion);
+            }
+        } else if (!in->m13_3 && chara->mStatus.IsState_unk(1)) {
+            chara->mStatus.fn_8013322C(1);
+            if (lbl_8087F048 != 0) {
+                lbl_8087F048->fn_801079B0(&chara->mMotion);
+            }
+        }
+        if (in->m13_2 && !chara->mStatus.IsState_unk(0x8000)) {
+            chara->mStatus.fn_80133130(0x8000, 100000, 0);
+            if (lbl_8087F048 != 0) {
+                lbl_8087F048->fn_80107BD8(&chara->mMotion);
+                lbl_8087F048->fn_80107380(chara);
+                lbl_8087F048->fn_80107B30(&chara->mMotion, &chara->mMotion);
+                lbl_8087F048->fn_80107274(chara);
+            }
+        } else if (!in->m13_2 && chara->mStatus.IsState_unk(0x8000)) {
+            chara->mStatus.fn_8013322C(0x8000);
+            if (lbl_8087F048 != 0) {
+                lbl_8087F048->fn_80107BD8(&chara->mMotion);
+                lbl_8087F048->fn_80107380(chara);
+            }
+        }
+        if (in->m13_0 && !chara->mStatus.IsState_unk(0x80)) {
+            chara->mStatus.fn_80133130(0x80, 100000, 0);
+            if (lbl_8087F048 != 0) {
+                lbl_8087F048->fn_80107798(&chara->mMotion, 1);
+                lbl_8087F048->fn_801076D0(&chara->mMotion, &chara->mMotion);
+            }
+        } else if (!in->m13_0 && chara->mStatus.IsState_unk(0x80)) {
+            chara->mStatus.fn_8013322C(0x80);
+            if (lbl_8087F048 != 0) {
+                lbl_8087F048->fn_80107798(&chara->mMotion, 1);
+            }
+        }
+    } else {
+        chara->mColli.mFlags &= ~1;
+    }
+    chara->fn_8017C7F8(in->m12_2);
+    if (in->m12_2 == 1) {
+        chara->m54C |= 0x2000;
+    } else {
+        chara->m54C &= ~0x2000;
+    }
+    chara->mC58.mC0 = in->m12_2 != 1;
+    if (in->m12_1 && in->m13_1 && !chara->mStatus.IsState_unk(0x20)) {
+        if (chara->mFlag22 == 1) {
+            chara->mStatus.fn_8013310C(0x20, 0);
+        } else {
+            chara->vf44();
+        }
+    }
+    PPSetTargets_unk(chara, in);
+}
 
 // inferred: object with a flag word at 0x08 (name invented)
 struct PPFlags_unk {
@@ -7455,7 +7596,7 @@ extern "C" void fn_804EE904(MpCharaRef_unk* ref) {
     if (((PPManager2_unk*)lbl_8087F610)->mState == 30) {
         unsigned char* data = (unsigned char*)fn_804AE3BC()->GetWorkBuffer_unk();
         if (data[0x14] != lbl_8087F628->GetMyAid_unk() && ref->mChara != 0) {
-            fn_804CF640(data, ref->mChara);
+            fn_804CF640((PackedChara_unk*)data, ref->mChara);
         }
     }
 }
@@ -7610,6 +7751,34 @@ static inline CharaTask* PPCharaOfAid_unk(PPManager2_unk* mgr, const unsigned ch
 }
 // NONMATCHING: 98.47% - the found character of the inlined search is read with the loop offset (here the
 // index again), the server test materialized (cntlzw) in the original, registers
+// inferred: character named by a packed id (1 none, 2 the player of aid m01, 3 the entry m01 of the list)
+static inline CharaTask* PPCharaOfId_unk(PPManager2_unk* mgr, const PPId_unk* id) {
+    switch (id->m00) {
+    case 1:
+        return 0;
+    case 2:
+        return PPCharaOfAid_unk(mgr, id->m01);
+    case 3:
+        return (unsigned int)mgr->mCharas.mNum > id->m01 ? mgr->mCharas.mData[id->m01].mRef.mChara : 0;
+    default:
+        return 0;
+    }
+}
+// inferred: target of a character that is not down (the previous one kept in mC8)
+static inline void PPSetTarget_unk(CharaTask* chara, const PackedChara_unk* in) {
+    if (chara != 0 && ((BattleCharaTask*)chara)->m1454 != 1) {
+        chara->mC58.mC8 = (int)chara->mC58.mC4;
+        chara->mC58.mC4 = PPCharaOfId_unk((PPManager2_unk*)lbl_8087F610, &in->m10);
+    }
+}
+static inline void PPSetTargets_unk(CharaTask* chara, const PackedChara_unk* in) {
+    if (FindByChara_unk((PPManager2_unk*)lbl_8087F610, chara) != 0) {
+        PPSetTarget_unk(FindByChara_unk((PPManager2_unk*)lbl_8087F610, chara)->mRef.mChara, in);
+    }
+    if (fn_804EB814((PPManager2_unk*)lbl_8087F610, chara) != 0) {
+        PPSetTarget_unk(fn_804EB814((PPManager2_unk*)lbl_8087F610, chara)->mRef.mChara, in);
+    }
+}
 // inferred: message 6 (in the game): the message `mType` for the gimmick `mId`/`mKind`, from the character of the
 // sender. On cannonballs (type 7) message 2 takes one (the server keeps the aid in m520), message 3 with -1
 // drops it on the server (the others only forget it) and messages 3 and 5 let it go; the server answers a taken
@@ -8060,12 +8229,12 @@ extern "C" void fn_804F2040(unsigned int type) {
             PPPlayer_unk* player = ((PPManager2_unk*)lbl_8087F610)->mPlayers.FindTeam_unk(data[0x14]);
             fn_804AE3BC()->fn_8050E62C(player != 0, "enemy_status\n");
             if (data[0x14] != lbl_8087F628->GetMyAid_unk() && player->mRef.mChara != 0) {
-                fn_804CF640(data, player->mRef.mChara);
+                fn_804CF640((PackedChara_unk*)data, player->mRef.mChara);
             }
         } else {
             CharaTask* chara = ((PPManager2_unk*)lbl_8087F610)->mCharas.mData[data[0x14]].mRef.mChara;
             if (chara != 0) {
-                fn_804CF640(data, chara);
+                fn_804CF640((PackedChara_unk*)data, chara);
                 if (type == 26) {
                     switch (((BattleCharaTask*)chara)->m146C) {
                     case 19:
