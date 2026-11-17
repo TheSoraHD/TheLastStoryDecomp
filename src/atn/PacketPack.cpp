@@ -5041,7 +5041,8 @@ extern "C" void fn_804DDA04(PPManager2_unk* mgr) {
             int counts[3];
             memset(counts, 0, sizeof(counts));
             PPManager2_unk* mgr2 = (PPManager2_unk*)lbl_8087F610;
-            for (unsigned int k = 0; k < mgr2->mPlayers.size(); k++) {
+            PPPlayerArray_unk& players = mgr2->mPlayers;
+            for (unsigned int k = 0; k < players.size(); k++) {
                 PPPlayer_unk* other = fn_804D5F0C(mgr2, k);
                 if (other->mFlags.mActive == 1) {
                     counts[other->mFlags.m22]++;
@@ -5324,7 +5325,8 @@ extern "C" int fn_804DE884(PPManager2_unk* mgr) {
         }
     }
     PPPlayer_unk* own = fn_804DD158(mgr, lbl_8087F628->GetMyAid_unk());
-    for (int i = 0; i < (int)mgr->mPlayers.size(); i++) {
+    PPPlayerArray_unk& players = mgr->mPlayers;
+    for (int i = 0; i < (int)players.size(); i++) {
         PPPlayer_unk* player = PPSlot_unk(mgr, i);
         if (player->mFlags.mActive != 1) {
             continue;
@@ -7684,7 +7686,8 @@ extern "C" void fn_804EB934(int id, CharaTask* chara, void* arg) {
         HitEvent_unk* ev = (HitEvent_unk*)arg;
         if (ev->mFlag31 != 0) {
             PPPlayer_unk* own = fn_804DD158(mgr, lbl_8087F628->GetMyAid_unk());
-            for (int i = 0; i < (int)mgr->mPlayers.size(); i++) {
+            PPPlayerArray_unk& players = mgr->mPlayers;
+            for (int i = 0; i < (int)players.size(); i++) {
                 PPPlayer_unk* player = PPSlot_unk(mgr, i);
                 if (player->mRef.mChara == 0) {
                     continue;
