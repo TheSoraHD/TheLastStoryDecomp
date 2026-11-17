@@ -3499,7 +3499,7 @@
   "classes": [
    "atn::Texture_unk"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "atn/Se_unk.cpp",
