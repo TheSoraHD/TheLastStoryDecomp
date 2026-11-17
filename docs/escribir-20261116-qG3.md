@@ -1,8 +1,8 @@
 # escribir-20261116, cola G3 (atn/PacketPack, tercera pasada)
 
-Inicio: 2026-11-17 04:05 CET (tope 06:35). Fin: 05:45.
+Inicio: 2026-11-17 04:05 CET (tope 06:35). Fin: 05:50.
 
-Commits: 4e58b5b, 5d0cb60, 5571ff3, 0b7d5ee, f046aff, e4d9076 y el de estas notas (precommit OK en los dos primeros;
+Commits: 4e58b5b, 5d0cb60, 5571ff3, 0b7d5ee, f046aff, e4d9076, caaa94a (notas), f62e555 y el de estas notas (precommit OK en los dos primeros;
 desde 5571ff3 el unico aviso es el fuzzdrop de fn_804EE040 99,54 -> 99,21, ver Decisiones; lost 0, labelcheck y
 rep100 igual, poolcheck solo los floats conocidos de las copias debiles de CharaTask, ver Hallazgos).
 
@@ -13,7 +13,7 @@ rep100 igual, poolcheck solo los floats conocidos de las copias debiles de Chara
 | fn_804DE884 | 0 % (parche de qG, 96,3 %) | equivalente NONMATCHING 99,58 % (sin tocar CharaTask.h) |
 | fn_804E4EB0 | sin escribir | equivalente NONMATCHING 98,80 % |
 | fn_804EFF74 | sin escribir | equivalente NONMATCHING 99,12 % |
-| fn_804EB934 | sin escribir | equivalente NONMATCHING 96,68 % |
+| fn_804EB934 | sin escribir | equivalente NONMATCHING 96,78 % |
 | vf10 de Manager2 | DRAFT 95,05 % | equivalente NONMATCHING 95,16 % (comprobada; 5 errores corregidos) |
 | payloads pack(1) | bytes sueltos | 0x1014/0x101A/0x101B, 0x1035 y fn_804F47FC con structs empaquetados |
 | fn_804F3EEC (de rebote) | 75,99 % | 93,87 % (fn_804DB1C4 se inlinea otra vez) |
@@ -106,8 +106,10 @@ PacketPack sin escribir 4 -> 0 en la cola; DRAFT 1 -> 0. Funciones al 100 %: sin
 
 - `/home/claude/scratch-G3/bin/fixlbl.py` (desde la copia, tras `pd.sh atn/PacketPack`): el de G2 mas las 10
   VO_ARCOM y las tablas 0x807912B0/0x807912DC. Sustituye al de /home/claude/agentes/bin.
-- `/home/claude/scratch-G3/bin_sdiff.py L.s R.s` (salidas de `ours.py ... left/right`): diff de mnemonicos
+- `/home/claude/scratch-G3/bin/sdiff.py L.s R.s` (salidas de `ours.py ... left/right`): diff de mnemonicos
   normalizados para buscar diferencias reales en funciones grandes.
+- `/home/claude/scratch-G3/bin/suspect.py <unidad> <simbolos...>`: lista las diferencias con constantes o llamadas
+  distintas (barrido rapido de errores reales; ruidoso con funciones de registros).
 
 ## Pendientes
 
@@ -115,3 +117,7 @@ PacketPack sin escribir 4 -> 0 en la cola; DRAFT 1 -> 0. Funciones al 100 %: sin
   PacketPack) a una cabecera comun.
 - fn_804EE040: recuperar el 99,54 % pasando el tipo.
 - vf10: los tres bloques de -1 en 0x99F4 (punteros que avanzan) y la cola comun 60/80 (registros).
+- fn_804EFF74/fn_804EB934: las entradas de estado se copian por la base de CharaStatus (0x7D4) en el original;
+  probado un push a mano por `GetStatus_unk()` con la comprobacion por `mStatus`: peor (99,08 %).
+- `suspect.py` sobre las 86 funciones no al 100 % de PacketPack: 23 con constantes/llamadas distintas, sin revisar
+  (ruido de registros en su mayoria; fn_804E4B44 revisada: conocida).
