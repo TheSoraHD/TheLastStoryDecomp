@@ -51,7 +51,7 @@ inline void InitList_unk(atn::SimpleVector<EnvSe_unk>& list, unsigned int n) {
 // constructor and destructor emitted out of line (fn_80214BF4, fn_80214E24)
 struct MapEnvSe_unk {
     MapEnvSe_unk() : m00(-1), m04(0), m08(0) { InitList_unk(mList, 2); }
-    ~MapEnvSe_unk() {}
+    ~MapEnvSe_unk();
 
     int m00;
     int m04;
@@ -63,7 +63,7 @@ struct MapEnvSe_unk {
 // destructor emitted out of line (fn_80214E14, fn_80214E94)
 struct LoadingEnvSe_unk {
     LoadingEnvSe_unk() : mSe(0) {}
-    ~LoadingEnvSe_unk() {}
+    ~LoadingEnvSe_unk();
 
     unsigned int mSe;
     atn::FixedString_unk<0x10> mName;
@@ -159,6 +159,10 @@ extern "C" void fn_802144A8() {
     fn_8046DD20(lbl_8087F518, loadingData);
 }
 
+// inferred: defined after the loader, so that they are emitted after the constructors
+inline MapEnvSe_unk::~MapEnvSe_unk() {}
+inline LoadingEnvSe_unk::~LoadingEnvSe_unk() {}
+
 extern "C" unsigned int fn_80214F80(int a, int b, int c, int key);
 extern "C" LoadingEnvSe_unk* fn_80214F38(unsigned int se);
 
@@ -182,20 +186,21 @@ extern "C" LoadingEnvSe_unk* fn_80214F38(unsigned int se) {
 }
 
 // inferred: environment sound of a map for a key (the first one if the key is not listed)
-// NONMATCHING: 99.21% - volatile register allocation only: the original gives r12 to the counter i
-// and r8 to the element address of the inner loop (here swapped). The counter declared first and
-// the increments in the order entry++, i++ fixed the rest. Tried: index/pointer forms of both
-// loops, while loops, declaration orders, pre-increments, reference/pointer to the element,
-// continue on size == 0.
 extern "C" unsigned int fn_80214F80(int a, int b, int c, int key) {
-    int i = 0;
-    MapEnvSe_unk* entry = sEntries;
-    int count = sCount;
+    // inferred: locals declared at the top in the order of their registers (r8, r9, r10, r11, r12)
+    EnvSe_unk* se;
+    MapEnvSe_unk* entry;
+    int count;
+    unsigned int size;
+    int i;
+    i = 0;
+    entry = sEntries;
+    count = sCount;
     for (; i < count; entry++, i++) {
         if (entry->m00 == a && entry->m04 == b && entry->m08 == c) {
-            unsigned int size = entry->mList.mSize;
+            size = entry->mList.mSize;
             for (unsigned int j = 0; j < size; j++) {
-                EnvSe_unk* se = &entry->mList.mData[j];
+                se = &entry->mList.mData[j];
                 if (se->mKey == key) {
                     return se->mSe;
                 }
