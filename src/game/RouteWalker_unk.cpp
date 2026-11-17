@@ -160,8 +160,13 @@ static inline atn::Vector3 GetPointPosAt_unk(RouteWalker_unk* walker, int point)
     return ((GameScene*)table)->fn_803C11A4(point);
 }
 
-// NONMATCHING: 99.92% - registers only: m48/mMode loaded into r3/r0 swapped before fn_80128CF8 and the r3/r4
-// pair of the copy of m4C - mChara->mPos (VecAssign_unk does not change it)
+// inferred: test of the flags m48 (name invented)
+inline bool IsFlag48_unk(const RouteWalker_unk* w, unsigned int f) {
+    return ((unsigned int)w->m48 & f) == f;
+}
+
+// inferred: flag test through IsFlag48_unk, rot2 declared before rot and mChara read into a local for the
+// last m58 (registers and stack slots of the original)
 // inferred: starts the planned route: walks straight to the goal when it is in sight, otherwise towards the
 // next point (nonzero on success)
 int RouteWalker_unk::fn_801255C8() {
@@ -177,7 +182,7 @@ int RouteWalker_unk::fn_801255C8() {
     }
     RouteTable_unk* table = GetRouteTable_unk();
     m44 = mMode;
-    if (((unsigned int)m48 & 0x40) != 0x40 && fn_80128CF8() != 0) {
+    if (!IsFlag48_unk(this, 0x40) && fn_80128CF8() != 0) {
         fn_80129144();
     } else {
         switch (mMode) {
@@ -236,10 +241,10 @@ int RouteWalker_unk::fn_801255C8() {
             } else {
                 m4C = mTarget->mPos;
                 atn::Vector3 dir(0.0f, 0.0f, 1.0f);
+                Mtx rot2;
                 Mtx rot;
                 PSMTXRotRad(rot, 'y', mTarget->mRot.y);
                 PSMTXMultVec(rot, &dir, &dir);
-                Mtx rot2;
                 PSMTXRotRad(rot2, 'y', m9C);
                 PSMTXMultVec(rot2, &dir, &dir);
                 m4C += dir * 15.0f;
@@ -247,7 +252,8 @@ int RouteWalker_unk::fn_801255C8() {
             }
             break;
         }
-        m58 = m4C - mChara->mPos;
+        chr::Chara_unk* chara = mChara;
+        m58 = m4C - chara->mPos;
     }
     m70 = fn_80129670(mDestPoint, mPointA);
     return 1;
