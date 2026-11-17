@@ -3,6 +3,7 @@
 // that fills the Event::Sequence being loaded. Handler names are built from the tags; the other names are
 // invented.
 #include "Event/Sequence.h"
+#include "Event/EventVector_unk.h"
 #include "Event/Cut.h"
 #include "Event/Action.h"
 #include "Event/Path.h"
@@ -15,6 +16,9 @@ extern "C" bool fn_800696B4();            // inferred: the platform is little en
 extern "C" void* fn_8006BA8C(const char* path, int* size, int flag); // inferred: loads a file
 
 namespace Event {
+
+// inferred: declared inline in Event/Action.h
+inline ActionKey_unk::ActionKey_unk() {}
 
 // inferred: list of nodes owned by the reader (a class derived from std::vector, its destructor tests the
 // address four times)
@@ -277,8 +281,9 @@ inline ModelData::ModelData(Sequence* owner, const char* name, int id) : CommonD
 
 // inferred: generic version (the actors have an explicit specialization in Event/Sequence.cpp)
 template <class T>
-void DataList_unk<T>::Add_unk(const char* name, int arg) {
+T* DataList_unk<T>::Add_unk(const char* name, int arg) {
     this->push_back(T(mOwner, name, arg));
+    return &this->back();
 }
 
 // inferred: adds a motion data (its id is offset by 0xEF)

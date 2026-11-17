@@ -1,4 +1,5 @@
 #include "gmk/WaitObject.h"
+#include "math/VecAssign_unk.h"
 #include "game/GameTask.h"
 #include "atn/Memory.h"
 #include "atn/Csv.h"
@@ -260,8 +261,9 @@ int WaitObject::vf1C() {
 
 // inferred: reads the gimmick file (MODEL, MODEL_LOD, MOTION, COLLI_OBJECT, EFP, STATE blocks ended by
 // an empty field, TRIGGER, ROTATION, SCALE)
-// NONMATCHING: 99.95% - the two loop flags of STATE are converted with extrwi instead of srwi, the
-// COLLI temporaries swap r25/r26 and the TRIGGER values are addressed from the trigger (+8)
+// NONMATCHING: 99.98% - the addresses of the COLLI position and sphere (kept in r25/r26 for the whole
+// function) are computed in the other order. The sphere centre is copied through VecAssign_unk (the
+// registers of the original) and the TRIGGER values are an array of the trigger (addressed from +8).
 void WaitObject::vf20() {
     char path[0x100];
     atn::CsvTab csv((const char*)mBinary.fn_80470580(), mBinary.fn_8047059C());
@@ -309,7 +311,7 @@ void WaitObject::vf20() {
                     PSMTXMultVec(rot.m, &pos, &pos);
                     pos += m6C;
                     atn::ColliSphere::Sphere_unk sphere;
-                    sphere.mCenter = pos;
+                    atn::VecAssign_unk(sphere.mCenter, pos);
                     sphere.mRadius = fn_800DC288(csv.fn_8005B9CC());
                     if (sphere.mRadius > 0.0f) {
                         atn::ColliSphere* colli = new ((MemoryTag)12, "", "", 0) atn::ColliSphere();
@@ -352,7 +354,7 @@ void WaitObject::vf20() {
             trigger.mNext = atoi(csv.fn_8005B9CC());
             trigger.mType = atoi(csv.fn_8005B9CC());
             for (int i = 0; i < 5; i++) {
-                ((float*)trigger.m08)[i] = fn_800DC288(csv.fn_8005B9CC());
+                trigger.m08[i] = fn_800DC288(csv.fn_8005B9CC());
             }
             WaitTrigger_unk* slot = &mTriggers[mNumTriggers];
             if (slot != 0) {
@@ -622,18 +624,20 @@ int WaitObject::vf5C() {
     return vf58() > 0.0f;
 }
 
+// inferred: debug menu group of the gimmick in an inline (the pool address is then built before the
+// group is moved to r3, as in the original); name invented
+static inline void* MenuGroup_unk(WaitObject* self, void* menu, char* name) {
+    if (self->mF0.mRes == 0 && menu != 0 && lbl_8087EF10 != 0) {
+        return self->mF0.mRes = fn_8008937C(menu, name);
+    }
+    return 0;
+}
+
 // inferred: debug menu of the object and of the collision targets of the states
-// NONMATCHING: 96% - the string pool offsets depend on the strings of vf20 (not decompiled yet) and
-// the scheduling of the first item (as gmk::CharaLight::vf6C)
 void WaitObject::vf6C(void* menu) {
     char name[0x20];
     fn_803EC758(name);
-    void* group;
-    if (mF0.mRes == 0 && menu != 0 && lbl_8087EF10 != 0) {
-        group = mF0.mRes = fn_8008937C(menu, name);
-    } else {
-        group = 0;
-    }
+    void* group = MenuGroup_unk(this, menu, name);
     fn_800874C8(group, "state", &m54, 0, 99, 1, 0, 0);
     fn_80087E9C(group, "pos", &m6C, 0, 0, -9999.0f, 9999.0f, 0.25f);
     fn_80088724(group, "rot", &m78, 0, 0, -3.1415927f, 3.1415927f, 0.05235988f);

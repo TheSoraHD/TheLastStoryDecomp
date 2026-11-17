@@ -232,8 +232,6 @@ inline atn::Vector3 LerpBA_unk(const atn::Vector3& a, const atn::Vector3& b, flo
     return (b - a) * t + a;
 }
 
-// NONMATCHING: 93.4% - order of the stores of `dir`, scheduling of the copies of m14E8 and of the
-// clear of `result` (after fn_80179D44 in the original), float registers of the interpolation
 void EnemyLizerdBlade::fn_80334460() {
     if (m55C != 2) {
         m58C = 0;
@@ -251,24 +249,27 @@ void EnemyLizerdBlade::fn_80334460() {
             if (LengthSq_unk(dir) > 0.0001f) {
                 dir.Normalize_unk();
             }
-            float turn = atn::WrapAngle_unk(dir.ToRotation_unk().y - mRot.y);
+            float yaw = dir.ToRotation_unk().y;
+            float turn = atn::WrapAngle_unk(yaw - mRot.y);
             turn *= 0.3f;
             mRot.y = atn::WrapAngle_unk(mRot.y + turn);
             m14DC = mPos;
-            m14E8 = m14D8->mPos - dir * 3.0f;
+            CharaTask* target = m14D8;
+            m14E8 = target->mPos - dir * 3.0f;
             atn::Vector3 from(m14E8);
-            from.y += 5.0f;
             atn::Vector3 to(m14E8);
+            from.y += 5.0f;
             to.y -= 5.0f;
+            unsigned int mask = fn_80179D44() | 0x80000000;
             atn::ColliResult_unk result;
-            if (fn_8004ED34(lbl_8087EE98, &result, &from, &to, fn_80179D44() | 0x80000000, 0, 0) != 0) {
+            if (fn_8004ED34(lbl_8087EE98, &result, &from, &to, mask, 0, 0) != 0) {
                 m14E8.y = result.m04.y;
             }
         } else {
             float t = (mMotion.mTracks[0].m08 - 25.0f) / 25.0f;
             t = 1.0f < t ? 1.0f : t;
             mPos = LerpBA_unk(m14DC, m14E8, t);
-            if (mMotion.mTracks[0].m08 >= 51.0f) {
+            if (mMotion.GetMotionFrame(0) >= 51.0f) {
                 m14B8++;
                 BattleTask* mgr = lbl_8087F048;
                 mgr->fn_800FAB80(this, fn_80219E6C(m14C4), mgr->fn_800F8548(), &mPos, &mRot, 0, 30, -1, -1, 0.0f,

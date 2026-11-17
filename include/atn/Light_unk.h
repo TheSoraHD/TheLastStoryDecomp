@@ -8,12 +8,7 @@
 
 struct GXLightObj;
 
-// inferred: animation track of the scene file (12 bytes, also in atn/LH_Scene.cpp); evaluates the
-// value at `frame`
-struct SceneTrack_unk {
-    float fn_8047202C(const short& frame, float defaultValue);
-    unsigned char m00[0xC];
-};
+#include "atn/SceneTrack_unk.h"
 
 // inferred: light of the scene file. Names invented.
 struct LightData_unk {

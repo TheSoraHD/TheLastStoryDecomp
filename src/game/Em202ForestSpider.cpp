@@ -78,7 +78,7 @@ extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* m
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
 extern "C" void fn_8023A680(EffectMgr_unk* mgr, atn::EffFile* eff, int a, int b, const atn::Matrix3x4* mtx, int c,
-                            int d, int e, float scale); // inferred: effect on a matrix
+                            int d, int e, int f, int g, int h, float scale); // inferred: effect on a matrix
 extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3, int arg4); // debug menu
 // inferred: effect `efp` on the model (shared with gmk/FlamingArrow, Em315Coffin and the Quark enemies)
 extern "C" void fn_80276AE4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, const atn::Vector3& pos,
@@ -138,16 +138,8 @@ static inline void SetFlat_unk(atn::Vector3& v, float x, float z) {
 
 // inferred: the character can be targeted (CanAct_unk with the flags reloaded; name invented)
 static inline bool IsTargetable_unk(CharaTask* c) {
-    bool active = false;
-    bool free = false;
     bool ok = false;
-    if ((c->mFlags & 4) != 4 && (c->mFlags & 1) != 1) {
-        active = true;
-    }
-    if (active && (c->mStatus.m0C & 0x20) != 0x20) {
-        free = true;
-    }
-    if (free) {
+    if (c->IsFree_unk()) {
         bool grappled = false;
         if (c->m55C == 6 && c->m560 == 28) {
             grappled = true;
@@ -159,10 +151,34 @@ static inline bool IsTargetable_unk(CharaTask* c) {
     return ok;
 }
 
-// DRAFT: written for the order of the strings
-// NONMATCHING: written for the order of the strings (std::string and Csv inlined)
+// inferred: other form of IsTargetable_unk used by vf110 (inactive flags in a bool, then the 0x20 status and
+// the grapple; as ShadeFree_unk in game/Em301LShade.cpp); names invented
+static inline bool IsInactive_unk(CharaTask* c) {
+    bool r = false;
+    if ((c->mFlags & 4) == 4 || (c->mFlags & 1) == 1) {
+        r = true;
+    }
+    return r;
+}
+static inline bool IsGrappled_unk(CharaTask* c) {
+    bool r = false;
+    if (c->m55C == 6 && c->m560 == 28) {
+        r = true;
+    }
+    return r;
+}
+static inline bool IsBindable_unk(CharaTask* c) {
+    bool ok = false;
+    if (!IsInactive_unk(c) && !c->mStatus.IsState_unk(0x20) && !IsGrappled_unk(c)) {
+        ok = true;
+    }
+    return ok;
+}
+
+// NONMATCHING: 98.75% - scheduling of the three inlined clear() (the original loads m1908, m14B0, m14C0 in
+// that order; 6 orders of the calls tried)
 Em202ForestSpider::Em202ForestSpider(atn::Task* parent, EnemyInfo_unk* info)
-    : EnemyTask(parent, info->m20), m14D4(0), m14DC(0), m14E0(0), m14E4(0), m14E8(0), m14EC(0), m14F0(0.0f),
+    : EnemyTask(parent, info->m20), m14BC(0), m14D4(0), m14DC(0), m14E0(0), m14E4(0), m14E8(0), m14EC(0), m14F0(0.0f),
       m14F4(0.0f), m14F8(0), m14FC(1), m1500(0), m1504(30.0f), m1508(0x3F2), m150C(0x3F2), m1510(40.0f),
       m1514(180.0f), m1518(2), m151C(0), m1520(3), m1524(60), m1528(5), m152C(150), m1530(0), m1534(0),
       m18E8(0), m18EC(0), m18F0(0), m18F8(0.0f), m1904(1), m1964(0) {
@@ -204,12 +220,13 @@ Em202ForestSpider::Em202ForestSpider(atn::Task* parent, EnemyInfo_unk* info)
 
 Em202ForestSpider::~Em202ForestSpider() {}
 
+// NONMATCHING: 97.2% - saved registers of the reading loop (r29 for this in the original)
 int Em202ForestSpider::vf0C() {
     int loading = 0;
     for (int i = 0; i < 4; i++) {
-        SpiderThread_unk* t = &m1538[i];
-        if (t->m8C.IsLoading() || t->m98.IsLoading() || t->mA4.IsLoading() || t->mB0.IsLoading() ||
-            t->mBC.IsLoading() || t->mC8.IsLoading() || t->mD4.IsLoading() || t->mE0.IsLoading()) {
+        if (m1538[i].m8C.IsLoading() || m1538[i].m98.IsLoading() || m1538[i].mA4.IsLoading() ||
+            m1538[i].mB0.IsLoading() || m1538[i].mBC.IsLoading() || m1538[i].mC8.IsLoading() ||
+            m1538[i].mD4.IsLoading() || m1538[i].mE0.IsLoading()) {
             loading = 1;
             break;
         }
@@ -278,7 +295,8 @@ int Em202ForestSpider::vf0C() {
 }
 
 
-// NONMATCHING: approximate
+// NONMATCHING: 92.2% - the original keeps the address of each capsule member in its own saved register (r19-r30)
+// and orders the sight temporaries differently on the stack (flow, calls and constants checked)
 void Em202ForestSpider::vf10() {
     vfF8();
     if (mStatus.IsState_unk(4)) {
@@ -303,10 +321,11 @@ void Em202ForestSpider::vf10() {
                             MtxPtr m = model->GetNodeMtx_unk("spine");
                             atn::Vector3 a(m[0][3], m[1][3], m[2][3]);
                             MtxPtr hm = mMotion.GetNodeMtx_unk("head");
+                            atn::Vector3 pos = head->mPos;
                             a.y = 0.0f;
                             atn::Vector3 b(hm[0][3], 0.0f, hm[2][3]);
                             atn::ColliCapsuleShape_unk seg(a, b, 0.0f);
-                            atn::ColliCapsuleShape_unk cap(head->mPos, head->mPos, radius);
+                            atn::ColliCapsuleShape_unk cap(pos, pos, radius);
                             if (fn_80051B70(&seg, &cap) != 0) {
                                 hit = 1;
                             }
@@ -396,19 +415,20 @@ void Em202ForestSpider::vf10() {
         m14E0--;
     }
     atn::Vector3 top(mPos.x, mPos.y + m5B0, mPos.z);
-    mColli.m48 = mPos;
+    mColli.m3C = mPos;
+    mColli.m48 = top;
     mColli.m54 = m5B0;
     m1500++;
     if (m1500 > 10 && (m58C == 6 || m58C == 16)) {
         fn_80277BC0();
         m1500 = 0;
     }
-    atn::Vector3 pos(mPos.x, mPos.y + m5B0, mPos.z);
+    atn::Vector3 pos = mPos;
     atn::Vector3 fwd = FrontDir_unk(mRot);
     fn_805A5078(&pos, &fwd, 1000, 1.2f * m5B0, 3.1415927f);
 }
 
-// NONMATCHING: approximate (as Em202Spider::vf14)
+// NONMATCHING: 93% - stack slots of the color temporaries (as Em202Spider::vf14)
 void Em202ForestSpider::vf14() {
     SpiderBaseColor_unk target = m1950;
     bool down = true;
@@ -418,22 +438,9 @@ void Em202ForestSpider::vf14() {
     if (down) {
         target = lbl_807C8398;
     }
-    SpiderBaseColor_unk d(target.r - m1940.r, target.g - m1940.g, target.b - m1940.b, target.a - m1940.a);
-    m1940.r += d.r * 0.15f;
-    m1940.g += d.g * 0.15f;
-    m1940.b += d.b * 0.15f;
-    m1940.a += d.a * 0.15f;
-    GXColor c;
-    c.r = (unsigned char)(255.0f * m1940.r);
-    c.g = (unsigned char)(255.0f * m1940.g);
-    c.b = (unsigned char)(255.0f * m1940.b);
-    c.a = (unsigned char)(255.0f * m1940.a);
-    mMotion.fn_80092954("em202_body")->mColor = c;
-    c.r = (unsigned char)(255.0f * m1940.r);
-    c.g = (unsigned char)(255.0f * m1940.g);
-    c.b = (unsigned char)(255.0f * m1940.b);
-    c.a = (unsigned char)(255.0f * m1940.a);
-    mMotion.fn_80092954("em202_tail")->mColor = c;
+    m1940 = (target - m1940) * 0.15f + m1940;
+    mMotion.fn_80092954("em202_body")->mColor = m1940.ToGX();
+    mMotion.fn_80092954("em202_tail")->mColor = m1940.ToGX();
     fn_80149A30();
 }
 
@@ -504,18 +511,25 @@ void Em202ForestSpider::vf54() {
 
 void Em202ForestSpider::vfF8() {
     mC58.mC8 = (int)mC58.mC4;
-    if (m58C - 9U <= 2) {
+    switch (m58C) {
+    case 9:
+    case 10:
+    case 11:
         m1454 = 0;
         m14D4 = m18E8;
-    } else if (m58C >= 15 && m58C <= 16) {
+        break;
+    case 15:
+    case 16:
         m1454 = 0;
-    } else {
+        break;
+    default: {
+        CharaTask* found;
         CharaTask* c = lbl_8087F8A0->mHead;
         if (c->mFlag28) {
             m1454 = 0;
             m14D4 = c;
         } else {
-            CharaTask* found = 0;
+            found = 0;
             for (; c != 0; c = NextChara_unk(c)) {
                 if (m1530 != 0) {
                     if (IsTargetable_unk(c) && c->mStatus.fn_80134270() != 0) {
@@ -537,35 +551,38 @@ void Em202ForestSpider::vfF8() {
                 m14D4 = mC58.mC4;
             }
         }
+        break;
+    }
     }
     mC58.mC4 = m14D4;
 }
 
-// NONMATCHING: approximate
+// NONMATCHING: 98.9% - float registers, the 0.0f of the last branch loaded at the start and the stack
+// slots of the normalized route direction and its rotation
 void Em202ForestSpider::vfFC() {
     float speed = 1.5f;
     atn::Vector3 rot = mRot;
     if (m55C == 7) {
         mRoute.fn_80126214();
         atn::Vector3 dir = mRoute.m58;
-        if (PSVECMag(&dir) > 0.0001f) {
-            PSVECNormalize(&dir, &dir);
-            rot = dir.ToRotation_unk();
-            rot.x = 0.0f;
-            rot.z = 0.0f;
+        float mag = PSVECMag(&dir);
+        if (mag > 0.0001f) {
+            atn::Vector3 n = dir;
+            PSVECNormalize(&n, &n);
+            rot = n.ToRotation_unk();
         }
-        atn::Vector3 d(m14D4->mPos.x - mPos.x, m14D4->mPos.y - mPos.y, m14D4->mPos.z - mPos.z);
-        d.y = 0.0f;
-        float dist = PSVECMag(&d);
-        PSVECNormalize(&d, &d);
-        atn::Vector3 r = d.ToRotation_unk();
-        mRot.y = r.y;
+        dir = m14D4->mPos - mPos;
+        dir.y = 0.0f;
+        float dist = PSVECMag(&dir);
+        PSVECNormalize(&dir, &dir);
+        dir.fn_80139F60();
+        mRot.y = dir.y;
         if (m14F8 != 0) {
             speed *= 2.5f;
         } else if (dist < m1510) {
             speed = 0.0f;
         }
-        fn_801426A4(&rot, 0.0f, m568 * speed);
+        fn_801426A4(&rot, mag, m568 * speed);
     } else if (m55C == 6) {
         fn_8013A258();
     } else {
@@ -609,19 +626,22 @@ void Em202ForestSpider::vf104() {
     if (m55C != 6) {
         if (m55C == 7) {
             if (m14D4 != mRoute.mTarget) {
-                if (vf154(6) == 0) {
-                    m58C = 6;
-                    fn_8016E970(3);
+                if (vf154(6) != 0) {
+                    return;
                 }
+                m58C = 6;
+                fn_8016E970(3);
             }
-        } else if (vf154(6) == 0) {
+        } else {
+            if (vf154(6) != 0) {
+                return;
+            }
             m58C = 6;
             fn_8016E970(3);
             fn_80170A20(m14D4, -1.0f, 0);
         }
-    } else {
-        vfFC();
     }
+    vfFC();
 }
 
 void Em202ForestSpider::vfEC() {
@@ -631,33 +651,37 @@ void Em202ForestSpider::vfEC() {
         mColli.mFlags &= ~1;
         if (m1434 > 0) {
             m1434--;
+        } else {
+            for (unsigned int i = 0; i < m1908.size(); i++) {
+                CharaTask* c = m1908[i];
+                c->fn_80176ACC();
+                c->mPos = mPos;
+                c->mF1C = 0;
+                c->mFlagB9 = 0;
+                c->mMotion.fn_80097C08(0, 0x32, 1, 0, 1, 1.0f, 0.1f);
+                c->fn_8015EFAC(10);
+            }
+            mFlag15 = 1;
+            fn_801765D8();
+            fn_800EE360();
+            fn_800EB7A0();
         }
-        for (unsigned int i = 0; i < m1908.size(); i++) {
-            CharaTask* c = m1908[i];
-            c->fn_80176ACC();
-            c->mPos.z = mPos.z;
-            c->mF1C = 0;
-            c->mFlagB9 = 0;
-            c->mMotion.fn_80097C08(0, 0x32, 1, 0, 1, 1.0f, 0.1f);
-            c->fn_8015EFAC(10);
-        }
-        mFlag15 = 1;
-        fn_801765D8();
-        fn_800EE360();
-        fn_800EB7A0();
+    } else {
+        m1434 = 5;
     }
-    m1434 = 5;
 }
 
 void Em202ForestSpider::vf108() {
     float frame = mMotion.mTracks[0].m08;
     if (frame >= mMotion.fn_80097D7C(0)) {
         vf138();
-    }
-    float f = mMotion.mTracks[0].m08;
-    if (f >= 17.0f && f <= 22.0f) {
-        int id = m590;
-        lbl_8087F048->fn_800F8C6C(0, 0, this, fn_80219E6C(m1508), id, 0.0f, 30, -1);
+    } else {
+        float f = mMotion.mTracks[0].m08;
+        if (f >= 17.0f && f <= 22.0f) {
+            int id = m590;
+            HitInfo_unk* skill = fn_80219E6C(m1508);
+            lbl_8087F048->fn_800F8C6C(0, 0, this, skill, id, 0.0f, 30, -1);
+        }
     }
 }
 
@@ -669,11 +693,13 @@ void Em202ForestSpider::vf10C() {
     float f = mMotion.mTracks[0].m08;
     if (f >= 12.0f && f <= 17.0f) {
         int id = m590;
-        lbl_8087F048->fn_800F8C6C(0, 0, this, fn_80219E6C(m150C), id, 0.0f, 30, -1);
+        HitInfo_unk* skill = fn_80219E6C(m150C);
+        lbl_8087F048->fn_800F8C6C(0, 0, this, skill, id, 0.0f, 30, -1);
     }
 }
 
-// NONMATCHING: approximate (state 9, threads)
+// NONMATCHING: 95.2% - registers and stack slots (state 9, threads; calls, constants and member offsets
+// checked against the original)
 void Em202ForestSpider::vf110() {
     if (m14D8 == 0) {
         atn::Vector3 d = m18E8->mPos - mPos;
@@ -713,10 +739,10 @@ void Em202ForestSpider::vf110() {
     if (m14DC == 15) {
         int next = 1;
         for (CharaTask* c = lbl_8087F8A0->mHead; c != 0; c = NextChara_unk(c)) {
-            if ((c->mFlags & 4) == 4) {
+            if (c->IsFlag_unk(4)) {
                 continue;
             }
-            if (IsTargetable_unk(c) || c->mStatus.m224 > 0) {
+            if (IsBindable_unk(c) || c->mStatus.m224 > 0) {
                 int idx = next;
                 int main = 0;
                 if (c == m18E8) {
@@ -725,28 +751,27 @@ void Em202ForestSpider::vf110() {
                 }
                 if (c->mStatus.IsState_unk(0x20)) {
                     fn_80278634(c, idx, main);
-                    SpiderThread_unk* t = &m1538[idx];
-                    MtxPtr wm = c->mMotion.GetNodeMtx_unk("waist");
-                    t->m28.m[0][3] = wm[0][3];
-                    t->m28.m[1][3] = wm[1][3];
-                    t->m28.m[2][3] = wm[2][3];
-                    t->m04 = 1;
-                    t->m88->fn_8015C0C0((int)this, t->m0C);
-                    atn::Vector3 pos(t->m28.m[0][3], t->m28.m[1][3], t->m28.m[2][3]);
+                    atn::Vector3 waist = ((atn::Matrix3x4*)c->GetModel_unk()->GetNodeMtx_unk("waist"))->GetTrans_unk();
+                    m1538[idx].m28.m[0][3] = waist.x;
+                    m1538[idx].m28.m[1][3] = waist.y;
+                    m1538[idx].m28.m[2][3] = waist.z;
+                    m1538[idx].m04 = 1;
+                    m1538[idx].m88->fn_8015C0C0((int)this, m1538[idx].m0C);
+                    atn::Vector3 pos(m1538[idx].m28.m[0][3], m1538[idx].m28.m[1][3], m1538[idx].m28.m[2][3]);
                     fn_800C344C("SE_EM202_012", pos, 0, -1, 1.0f);
                     fn_80232B7C(0, 0);
-                    atn::Vector3 rot = t->m10.ToRotation_unk();
+                    atn::Vector3 rot = m1538[idx].m10.ToRotation_unk();
                     rot.z = 0.0f;
-                    atn::Vector3 p(t->m28.m[0][3], t->m28.m[1][3], t->m28.m[2][3]);
-                    fn_80276AE4(lbl_8087F3C0, &t->mA4, 0, p, rot, -1, -1, 1, 1.0f);
-                    fn_80232B7C(t, 0x66);
-                    PlayEffect_unk(&t->mC8, &t->m88->mMotion);
-                    fn_80232B7C(t, 0x67);
-                    PlayEffect_unk(&t->mD4, &t->m88->mMotion);
+                    atn::Vector3 p(m1538[idx].m28.m[0][3], m1538[idx].m28.m[1][3], m1538[idx].m28.m[2][3]);
+                    fn_80276AE4(lbl_8087F3C0, &m1538[idx].mA4, 0, p, rot, -1, -1, 1, 1.0f);
+                    fn_80232B7C(&m1538[idx], 0x66);
+                    PlayEffect_unk(&m1538[idx].mC8, &m1538[idx].m88->mMotion);
+                    fn_80232B7C(&m1538[idx], 0x67);
+                    PlayEffect_unk(&m1538[idx].mD4, &m1538[idx].m88->mMotion);
                 } else {
                     fn_80278634(c, idx, main);
                     fn_80232B7C(&m1538[idx], 0x64);
-                    fn_8023A680(lbl_8087F3C0, &m1538[idx].m98, -1, 5, &m1538[idx].m28, 0, 0, 0, 1.0f);
+                    fn_8023A680(lbl_8087F3C0, &m1538[idx].m98, -1, 5, &m1538[idx].m28, 0, 0, 0, 0, -1, 1, 1.0f);
                 }
                 if (c != m18E8) {
                     next++;
@@ -756,7 +781,8 @@ void Em202ForestSpider::vf110() {
     }
 }
 
-// NONMATCHING: approximate (state 10, pulls the caught character)
+// NONMATCHING: 99.5% - stack slots: the original places the locals of state 0x75 above those of state 0x74
+// (state 10, pulls the caught character; flow, calls and constants checked against the original)
 void Em202ForestSpider::vf114() {
     int ok = 0;
     CharaTask* c = m18EC;
@@ -766,32 +792,37 @@ void Em202ForestSpider::vf114() {
             m14DC = 0;
             float target = 1.5707964f + c->mRot.y;
             atn::Vector3 d(c->mPos.x - mPos.x, 0.0f, c->mPos.z - mPos.z);
-            atn::Vector3 r = d.ToRotation_unk();
-            ok = 1;
+            atn::Vector3 r = d.ToRotationZ_unk();
             m18F8 = atn::WrapAngle_unk(r.y - target) / 10.0f;
-        }
-        if (state == 0x75) {
+            ok = 1;
+        } else if (state == 0x75) {
             atn::Vector3 d(c->mPos.x - mPos.x, 0.0f, c->mPos.z - mPos.z);
             float dist = PSVECMag(&d);
             if (m14DC <= 10) {
                 float step = dist - 40.0f;
-                atn::Vector3 rot = m18EC->mRot;
+                atn::Vector3 pos = m18EC->mPos;
                 step = MIN(step, 1.5f);
                 step = MAX(step, -1.5f);
-                atn::Vector3 back(-d.x, -d.y, -d.z);
+                atn::Vector3 back;
+                back = atn::Vector3(-d.x, -d.y, -d.z);
                 PSVECNormalize(&back, &back);
-                m18EC->mPos = m18EC->mPos + back * step;
+                m18EC->mPos = back * step + pos;
+                atn::Vector3 rot = m18EC->mRot;
                 rot.y += m18F8;
                 m18EC->mRot = rot;
+            } else {
+                if (dist <= 45.0f) {
+                    vf14C();
+                    return;
+                }
+                float step = dist - 40.0f;
+                atn::Vector3 pos = m18EC->mPos;
+                step = MIN(step, m18FC);
+                atn::Vector3 back;
+                back = atn::Vector3(-d.x, -d.y, -d.z);
+                PSVECNormalize(&back, &back);
+                m18EC->mPos = back * step + pos;
             }
-            if (dist <= 45.0f) {
-                vf14C();
-                return;
-            }
-            float step = MIN(dist - 40.0f, m18FC);
-            atn::Vector3 back(-d.x, -d.y, -d.z);
-            PSVECNormalize(&back, &back);
-            m18EC->mPos = m18EC->mPos + back * step;
             ok = 1;
         }
     }
@@ -864,16 +895,29 @@ void Em202ForestSpider::vf124() {
     }
 }
 
+// inferred: RouteTable_unk::FindPlace_unk with the array read inside the loop (as in game/Em202Spider.cpp)
+inline RoutePlace_unk* FindForestPlace_unk(int id) {
+    RouteTable_unk* table = lbl_8087F430->m10D8;
+    for (unsigned int i = 0; i < table->mNumPlaces; i++) {
+        RoutePlace_unk* places = table->mPlaces;
+        if (id == places[i].mId) {
+            return &places[i];
+        }
+    }
+    return 0;
+}
+
 void Em202ForestSpider::vf128() {
-    RoutePlace_unk* place = lbl_8087F430->m10D8->FindPlace_unk(m14BC);
+    RoutePlace_unk* place = FindForestPlace_unk(m14BC);
     atn::Vector3 d;
     SetFlat_unk(d, mPos.x - place->mPos.x, mPos.z - place->mPos.z);
     if (PSVECSquareMag(&d) < 100.0f) {
         m14F8 = 0;
         mRot.y = place->m14;
         vf158();
+    } else {
+        vfFC();
     }
-    vfFC();
 }
 
 void Em202ForestSpider::vf12C() {
@@ -1163,18 +1207,18 @@ int Em202ForestSpider::fn_80277B84(CharaTask* chara) {
 static const char* sArmNodes_unk[6] = {"leftbackarm2",  "leftmiddlearm2",  "leftfrontarm2",
                                        "rightbackarm2", "rightmiddlearm2", "rightfrontarm2"};
 
+// NONMATCHING: 99.35% - stack slots of the arm position and of the ray end (swapped with their registers)
 void Em202ForestSpider::fn_80277BC0() {
-    int played = 0;
     const atn::Vector3& origin = mPos;
+    int played = 0;
     for (int i = 0; i < 6; i++) {
         MtxPtr m = mMotion.GetNodeMtx_unk(sArmNodes_unk[i]);
-        atn::Vector3 to;
         atn::Vector3 pos(m[0][3], m[1][3], m[2][3]);
-        to = pos;
-        to -= mPos;
+        atn::Vector3 to = pos;
+        to -= origin;
         to.x *= 1.3f;
         to.z *= 1.3f;
-        to += mPos;
+        to += origin;
         to.y = mPos.y;
         atn::ColliResult_unk result;
         if (fn_8004ED34(lbl_8087EE98, &result, &origin, &to, 0x80000000, 0, 0) != 0) {
@@ -1193,6 +1237,13 @@ void Em202ForestSpider::fn_80277BC0() {
     }
 }
 
+// inferred: bit 25 of the character flags read through a const accessor (reloaded before the clear, as in
+// game/Em302Kraken.cpp); name invented
+inline unsigned int IsFlag25_unk(const CharaTask* chara) {
+    return chara->mFlag25;
+}
+
+// NONMATCHING: 99.57% - float registers of the hoisted constants and stack slots of the rotation temporaries
 void Em202ForestSpider::fn_80277DC4() {
     int count = 0;
     atn::Vector3 off(0.0f, 0.0f, 40.0f);
@@ -1209,7 +1260,7 @@ void Em202ForestSpider::fn_80277DC4() {
             e->mFlags &= ~4;
             e->fn_80176ACC();
             e->fn_800D246C(0);
-            if (e->mFlag25) {
+            if (IsFlag25_unk(e)) {
                 e->mFlag25 = 0;
             }
             e->mStatus.fn_8012D8B8();
@@ -1276,10 +1327,8 @@ RoutePlace_unk* Em202ForestSpider::vf170() {
 }
 
 int Em202ForestSpider::fn_8027851C(CharaTask* chara) {
-    MtxPtr hm = mMotion.GetNodeMtx_unk("head");
-    atn::Vector3 from(hm[0][3], hm[1][3], hm[2][3]);
-    MtxPtr wm = chara->mMotion.GetNodeMtx_unk("waist");
-    atn::Vector3 to(wm[0][3], wm[1][3], wm[2][3]);
+    atn::Vector3 from = ((atn::Matrix3x4*)mMotion.GetNodeMtx_unk("head"))->GetTrans_unk();
+    atn::Vector3 to = ((atn::Matrix3x4*)chara->GetModel_unk()->GetNodeMtx_unk("waist"))->GetTrans_unk();
     atn::ColliResult_unk result;
     if (fn_8004ED34(lbl_8087EE98, &result, &from, &to, 0x80000000, &mColli, 0) != 0) {
         return 0;
@@ -1287,15 +1336,8 @@ int Em202ForestSpider::fn_8027851C(CharaTask* chara) {
     return 1;
 }
 
-// inferred: rotation matrix z, y, x (as in game/Em101LittleZesya.cpp; name invented)
-static inline void RotZYX_unk(atn::Matrix3x4& m, const atn::Vector3& rot) {
-    m.SetIdentity();
-    __MtxRotate(m.m, 'z', rot.z);
-    __MtxRotate(m.m, 'y', rot.y);
-    __MtxRotate(m.m, 'x', rot.x);
-}
-
-// NONMATCHING: approximate (shoots the thread `index` at chara)
+// NONMATCHING: 98.25% - stack slots of the thread vectors and of the rotation temporaries (shoots the thread
+// `index` at chara; flow, calls and constants checked against the original)
 void Em202ForestSpider::fn_80278634(CharaTask* chara, int index, int main) {
     SpiderThread_unk* t = &m1538[index];
     t->m00 = 1;
@@ -1305,10 +1347,8 @@ void Em202ForestSpider::fn_80278634(CharaTask* chara, int index, int main) {
     fn_80239DAC(lbl_8087F3C0, t, 103, 0);
     t->m04 = 0;
     t->m08 = 30;
-    MtxPtr hm = mMotion.GetNodeMtx_unk("head");
-    atn::Vector3 head(hm[0][3], hm[1][3], hm[2][3]);
-    MtxPtr wm = chara->mMotion.GetNodeMtx_unk("waist");
-    atn::Vector3 waist(wm[0][3], wm[1][3], wm[2][3]);
+    atn::Vector3 head = ((atn::Matrix3x4*)mMotion.GetNodeMtx_unk("head"))->GetTrans_unk();
+    atn::Vector3 waist = ((atn::Matrix3x4*)chara->GetModel_unk()->GetNodeMtx_unk("waist"))->GetTrans_unk();
     t->m88 = chara;
     t->m10 = waist - head;
     PSVECNormalize(&t->m10, &t->m10);
@@ -1316,26 +1356,25 @@ void Em202ForestSpider::fn_80278634(CharaTask* chara, int index, int main) {
     t->m28.SetIdentity();
     atn::Vector3 r = t->m10.ToRotation_unk();
     r.z = 0.0f;
-    atn::Matrix3x4 m;
-    RotZYX_unk(m, r);
-    PSMTXConcat(t->m28.m, m.m, t->m28.m);
+    t->m28.RotateZYX_unk(r);
     t->m28.fn_801479E4(head);
-    atn::Vector3 d = waist - head;
-    atn::Vector3 dn;
-    PSVECNormalize(&d, &dn);
-    atn::Vector3 r2 = dn.ToRotation_unk();
+    atn::Vector3 d = t->m10;
+    PSVECNormalize(&d, &d);
+    atn::Vector3 r2 = d;
+    r2.fn_80139F60();
     r2.z = 0.0f;
     float scale = PSVECMag(&d) / 50.0f;
     t->m58.SetIdentity();
     t->m58.fn_801479E4(head);
-    atn::Matrix3x4 m2;
-    RotZYX_unk(m2, r2);
-    PSMTXConcat(t->m58.m, m2.m, t->m58.m);
+    t->m58.RotateZYX_unk(r2);
+    atn::Vector3 sv(1.0f, 1.0f, scale);
     Mtx sm;
-    PSMTXScale(sm, 1.0f, 1.0f, scale);
-    PSMTXConcat(t->m58.m, sm, t->m58.m);
+    PSMTXScale(sm, sv.x, sv.y, sv.z);
+    atn::Matrix3x4 st;
+    PSMTXConcat(t->m58.m, sm, st.m);
+    t->m58 = st;
     fn_80232B7C(t, 0x65);
-    fn_8023A680(lbl_8087F3C0, &t->mB0, -1, 5, &t->m58, 0, 0, 0, 1.0f);
+    fn_8023A680(lbl_8087F3C0, &t->mB0, -1, 5, &t->m58, 0, 0, 0, 0, -1, 1, 1.0f);
 }
 
 void Em202ForestSpider::fn_80279054() {
@@ -1362,9 +1401,10 @@ void Em202ForestSpider::fn_802790A0(int index) {
             }
             if (!t->m88->mFlagB9) {
                 fn_80232B7C(0, 0);
-                atn::Vector3 pos;
-                atn::Vector3 rot;
+                atn::Model* model = t->m88->GetModel_unk();
                 Color4f_unk color;
+                atn::Vector3 rot;
+                atn::Vector3 pos;
                 rot.x = 0.0f;
                 rot.y = 0.0f;
                 rot.z = 0.0f;
@@ -1375,9 +1415,9 @@ void Em202ForestSpider::fn_802790A0(int index) {
                 color.g = 1.0f;
                 color.b = 1.0f;
                 color.a = 1.0f;
-                fn_8023A8B4(lbl_8087F3C0, &t->mE0, &t->m88->mMotion, 0, pos, rot, color, -1, -1, 1, 1.0f);
+                fn_8023A8B4(lbl_8087F3C0, &t->mE0, model, 0, pos, rot, color, -1, -1, 1, 1.0f);
                 fn_80232B7C(0, 0);
-                fn_8023A680(lbl_8087F3C0, &t->mBC, -1, 5, &t->m58, 0, 0, 0, 1.0f);
+                fn_8023A680(lbl_8087F3C0, &t->mBC, -1, 5, &t->m58, 0, 0, 0, 0, -1, 1, 1.0f);
             }
         }
     }

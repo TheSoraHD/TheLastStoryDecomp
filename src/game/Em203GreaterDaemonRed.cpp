@@ -1421,13 +1421,13 @@ void Em203GreaterDaemonRed::fn_80299A7C() {
 }
 
 // inferred: state 2 (dead: falls to the ground, then state 22)
-// NONMATCHING: 89.96% - order of the lerp terms and frame reloads
+// NONMATCHING: 95.66% - order of the lerp terms (the frames are read with GetMotionFrame, before fn_80097D7C)
 void Em203GreaterDaemonRed::vfEC() {
     float end = mMotion.mTracks[0].m08;
     if (end >= mMotion.fn_80097D7C(0)) {
         StartState22_unk();
-    } else if (mMotion.mTracks[0].m08 < mMotion.fn_80097D7C(0) - 10.0f) {
-        float t = mMotion.mTracks[0].m08 / (mMotion.fn_80097D7C(0) - 10.0f);
+    } else if (mMotion.GetMotionFrame(0) < mMotion.fn_80097D7C(0) - 10.0f) {
+        float t = mMotion.GetMotionFrame(0) / (mMotion.fn_80097D7C(0) - 10.0f);
         mPos = (m1648 - m163C) * t + m163C;
     }
 }

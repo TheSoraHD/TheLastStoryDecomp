@@ -236,7 +236,8 @@ int ControlLadder::vf0C() {
     return ret;
 }
 
-// NONMATCHING: 94.7% - stack slots of the 0x59 case (the original puts the difference vector above
+// The frames of the 0x59 and 0x5A cases are read with GetMotionFrame (loaded before fn_80097D7C).
+// NONMATCHING: 97.77% - stack slots of the 0x59 case (the original puts the difference vector above
 // its product) and the scheduling of the prologue (the original loads mChara before saving r29-r31);
 // tried a switch, named/unnamed temporaries, a nested block. The clamp of the 0x59 case is expanded
 // once per component (the inliner substitutes the pure argument of operator*).
@@ -245,7 +246,7 @@ atn::Vector3 ControlLadder::vf14() const {
     Motion_unk* m = &mChara->mMotion;
     if (m->mTracks[0].m00 == 0x59) {
         float len = m->fn_80097D7C(0) - 24.0f;
-        float frame = m->mTracks[0].m08 - 24.0f;
+        float frame = m->GetMotionFrame(0) - 24.0f;
         return (mChara->mPos - m30) * MIN(1.0f, MAX(0.0f, frame / len)) + m30;
     }
     if (m->mTracks[0].m00 == 0x56) {
@@ -267,7 +268,7 @@ atn::Vector3 ControlLadder::vf14() const {
     }
     if (m->mTracks[0].m00 == 0x5A) {
         atn::Vector3 r = mChara->mPos;
-        r.y -= 16.0f * MAX(0.0f, 1.0f - (1.0f + m->mTracks[0].m08) / m->fn_80097D7C(0));
+        r.y -= 16.0f * MAX(0.0f, 1.0f - (1.0f + m->GetMotionFrame(0)) / m->fn_80097D7C(0));
         return r;
     }
     return mChara->mPos;

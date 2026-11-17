@@ -87,9 +87,10 @@ public:
         }
         return true;
     }
-    // inferred: appends a new entry made from the owner; only the actors have one, an explicit
-    // specialization defined at the end of Event/Sequence.cpp (0x80543108, before the template instances)
-    void Add_unk(const char* name, int arg);
+    // inferred: appends a new entry made from the owner and returns it (r3 = &back()); only the actors have
+    // one, an explicit specialization defined at the end of Event/Sequence.cpp (0x80543108, before the template
+    // instances)
+    T* Add_unk(const char* name, int arg);
 
     Sequence* mOwner;
 };
@@ -296,7 +297,6 @@ public:
     int fn_80541CFC(int kind, int num);
     void fn_80541F18();
     void fn_8054204C(int id, const EffectLists_unk& lists); // inferred: adds the curve `id` (list at 0x184)
-    void fn_80542684();
     EffectLists_unk* fn_80543060(int id);
     void fn_805430A0(unsigned int index, int key, void* owner);
     void* fn_805430BC(unsigned int index, int key);

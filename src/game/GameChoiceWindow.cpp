@@ -7,6 +7,12 @@
 #include "atn/SoundRef.h"
 #include "game/GameUI.h"
 #include "atn/D2A_TaskInstanceC.h"
+#include "game/GameVoice.h"
+#include "game/GameEventScript.h"
+#include "game/CharaTask.h"
+#include "game/GameConfig_unk.h"
+#include "atn/WordWrap_unk.h"
+#include "std/string_replace_unk.h"
 extern "C" unsigned long wcslen(const wchar_t* s);
 extern "C" wchar_t* wcscpy(wchar_t* dst, const wchar_t* src);
 extern "C" int fn_800DC1DC(const wchar_t* s);                 // inferred: wide string to int
@@ -14,6 +20,11 @@ extern "C" unsigned int fn_80209120(const char* name);        // inferred: id of
 extern "C" int fn_8006F420(void* font, char* dst, const wchar_t* src, int size); // inferred: to the game encoding
 extern "C" void* lbl_8087EEC8;                                // inferred: font
 extern "C" const wchar_t lbl_8077A0A8[];                      // inferred: separators of the message CSV
+extern "C" float fn_801F0544(void* key, int frame); // inferred: value of a key of a layout track
+extern "C" CharaInfo_unk* fn_8020924C(int id);      // inferred: character table entry
+// inferred: word wrap of atn/WordWrap_unk.cpp (called with its automatic name, as in game/LibraryTask)
+extern "C" std::basic_string<wchar_t> fn_800DFB40(const wchar_t* text, float maxWidth, float size, float spacing,
+                                                  int a, int b, MeasureChar_unk measure, int mode);
 
 // inferred: layouts of the message windows (names invented)
 static const char* const sMessageLayout_unk = "/data/d2anime/ui_talk.d2a";
@@ -21,7 +32,7 @@ static const char* const sTextLayout_unk = "/data/d2anime/ui_friend_mes.d2a";
 
 // inferred: parses the message CSV: a first pass counts the messages and the text length, the second
 // one fills them (the texts lose the "\r" that are not followed by a line feed)
-// NONMATCHING: 96.6% - the BOM test of the CsvU constructor keeps size / 2 - 1 in another register (the
+// NONMATCHING: 98.8% - the BOM test of the CsvU constructor keeps size / 2 - 1 in another register (the
 // original computes size / 2 - 2 from size / 2); the rest are the registers that follow
 void GameMessageList::fn_803B35FC(const wchar_t* data, unsigned int size) {
     if (data == 0) {
@@ -70,9 +81,11 @@ void GameMessageList::fn_803B35FC(const wchar_t* data, unsigned int size) {
                     }
                 }
             }
-            fn_8006F420(lbl_8087EEC8, name, csv.fn_8005B9CC(), 0x10);
+            void* font = lbl_8087EEC8;
+            fn_8006F420(font, name, csv.fn_8005B9CC(), 0x10);
             msg->mTalker = fn_80209120(name);
-            fn_8006F420(lbl_8087EEC8, name, csv.fn_8005B9CC(), 0x10);
+            void* font2 = lbl_8087EEC8;
+            fn_8006F420(font2, name, csv.fn_8005B9CC(), 0x10);
             msg->mName = name;
             msg->m30 = fn_800DC1DC(csv.fn_8005B9CC());
             msg->m34 = fn_800DC1DC(csv.fn_8005B9CC());
@@ -141,11 +154,98 @@ int GameMessageList::fn_803B3CA8() {
     return 0;
 }
 
-// inferred: converts the tags of a message text (LogMessageTask calls it)
-// DRAFT: empty stub; the tag replacement is not written
-// NONMATCHING: stub (the tag replacement is not written yet)
-extern "C" void fn_803B3D2C(std::basic_string<wchar_t>* text) {
-    (void)text;
+// inferred: item tables of fn_8021E444 (names invented; game/TreasureBox reads the same entries)
+struct GameChoiceItem_unk {
+    int mId;
+    int mCount;
+};
+struct GameChoiceItemTable_unk {
+    int m00;
+    GameChoiceItem_unk* mEntries; // 0x04
+    int mNumEntries;              // 0x08
+};
+extern "C" void itow(int value, wchar_t* buf, int radix);
+extern "C" const wchar_t* const* fn_80211480(int id);          // inferred: item data (+0x08: name)
+extern "C" GameChoiceItemTable_unk* fn_8021E444(int table);    // inferred: item table
+extern "C" int fn_80444CF8(wchar_t* buf, int id, int count, int arg); // inferred: text of an item
+
+// inferred: item data of fn_80211480: the name is the third word (name invented)
+struct GameChoiceItemData_unk {
+    int m00;
+    int m04;
+    const wchar_t* mName; // 0x08
+};
+
+// inferred: converts the tags of a message text (LogMessageTask calls it): "$X[n]" becomes the value
+// `n` (X = V), the name of the item `n` (I) or the text of the first item of the table `n` (T); "[Ln]"
+// and "[Gn]" read `n` from the counters of the field
+// NONMATCHING: 99.5% - the original sets up text + 2 (the short data) before saving `text` (mr r20, r3)
+extern "C" int fn_803B3D2C(std::basic_string<wchar_t>* text) {
+    unsigned long pos = 0;
+    for (;;) {
+        unsigned long start = text->find(L'$', pos);
+        if (start == std::basic_string<wchar_t>::npos) {
+            break;
+        }
+        unsigned long open = text->find(L'[', start + 1);
+        if (open == std::basic_string<wchar_t>::npos) {
+            continue;
+        }
+        unsigned long close = text->find(L']', open + 1);
+        if (close == std::basic_string<wchar_t>::npos) {
+            continue;
+        }
+        int value;
+        wchar_t kind = text->data()[open + 1];
+        if (kind == L'L') {
+            value = fn_800DC1DC(std::basic_string<wchar_t>(*text, open + 2, close).c_str());
+            if (lbl_8087F430 != 0) {
+                value = ((GameTask*)lbl_8087F430)->fn_80370A78(value);
+            }
+        } else if (kind == L'G') {
+            value = fn_800DC1DC(std::basic_string<wchar_t>(*text, open + 2, close).c_str());
+            if (lbl_8087F430 != 0) {
+                value = ((GameTask*)lbl_8087F430)->fn_80370174(value);
+            }
+        } else {
+            value = fn_800DC1DC(std::basic_string<wchar_t>(*text, open + 1, close).c_str());
+        }
+        std::basic_string<wchar_t> repl(L"");
+        switch (text->data()[start + 1]) {
+        case L'V': {
+            wchar_t buf[0x20];
+            itow(value, buf, 10);
+            repl += buf;
+            break;
+        }
+        case L'I': {
+            GameChoiceItemData_unk* item = (GameChoiceItemData_unk*)fn_80211480(value);
+            if (item != 0) {
+                repl += item->mName;
+            }
+            break;
+        }
+        case L'T': {
+            GameChoiceItemTable_unk* table = fn_8021E444(value);
+            if (table != 0 && table->mNumEntries != 0) {
+                GameChoiceItem_unk* entry = table->mEntries;
+                wchar_t buf[0x100];
+                memset(buf, 0, sizeof(buf));
+                int count = 1;
+                if (entry->mId == 0x2714 || entry->mId == 0x2719) {
+                    count = entry->mCount;
+                }
+                if (fn_80444CF8(buf, entry->mId, count, 1) != 0) {
+                    repl += buf;
+                }
+            }
+            break;
+        }
+        }
+        text->replace(start, close + 1 - start, repl);
+        pos = start + repl.size() + 1;
+    }
+    return 1;
 }
 
 // inferred: sound manager (lbl_8087EFE8); only the member used here
@@ -177,12 +277,7 @@ extern "C" atn::SoundRef fn_803B4338(int index, float volume) {
 // inferred: sets a texture rectangle (D2A_TaskInstanceBase<32, 8>::SetValues2_unk; the rectangle is copied)
 extern "C" int fn_800A555C(void* pad, int port, int button); // inferred: button triggered
 extern "C" void* lbl_8087EF70; // inferred: pad
-// inferred: settings (lbl_8087F0A8); only the member used here
-struct GameChoiceSettings_unk {
-    unsigned char m000[0x48C];
-    Input_unk mInput; // 0x48C
-};
-extern "C" GameChoiceSettings_unk* lbl_8087F0A8;
+extern "C" GameConfig_unk* lbl_8087F0A8; // inferred: game settings
 
 // inferred: creates the window, as fn_803B5470 and fn_803B612C for the other windows; unused, so removed
 // by the linker (not in the DOL), but its literal is the first one of @stringBase0
@@ -334,12 +429,57 @@ int GameChoiceWindow::fn_803B4C24() {
     return mState == 3;
 }
 
-// DRAFT: empty stub; splitting the text into the choices is not written
-// NONMATCHING: stub (splits the text into the choices, a std::vector of wide strings); noinline until
-// it is written (the original, 2104 bytes, is always called with bl)
-__declspec(noinline) void GameChoiceWindow::fn_803B4C38() {
+// inferred: MSL moves strings with memcpy when a vector reallocates (the old elements are cleared and destroyed
+// as empty strings by the buffer, 0x803B5000 in fn_803B4C38)
+template <>
+inline void std::__vec_split_unk<std::basic_string<wchar_t> >::__push_front_unk(std::basic_string<wchar_t>* first,
+                                                                              std::basic_string<wchar_t>* last) {
+    // inferred: a byte difference, so that (data + size) - data is not folded (as std/vector_wstring.h)
+    int n = ((char*)last - (char*)first) / (int)sizeof(std::basic_string<wchar_t>);
+    mStart -= n;
+    memcpy(begin(), first, n * sizeof(std::basic_string<wchar_t>));
+    memset(first, 0, n * sizeof(std::basic_string<wchar_t>));
+    this->mSize += n;
+}
+
+// inferred: splits the text of the message into the (up to four) choices, one per line, and sets their
+// texts; the empty choices are disabled (all of them empty: the first one stays enabled)
+// NONMATCHING: 99.9% - r18/r19 swap (the reallocation buffer and the moved count) and the wide literal pool
+// (L"" at +0 of lbl_8087DD88 in the original, see fn_803B5974); tried an unsigned count, the size in a local
+void GameChoiceWindow::fn_803B4C38() {
     mChoice = -1;
     mCount = 1;
+    std::basic_string<wchar_t> text(mMessage->mText);
+    fn_803B3D2C(&text);
+    std::vector<std::basic_string<wchar_t> > lines;
+    fn_800E0000(&lines, text.c_str(), 100000.0f, 13.0f, 0.0f, 1, 1, 0);
+    mCount = lines.size();
+    while (lines.size() < 4) {
+        lines.push_back(std::basic_string<wchar_t>(L""));
+    }
+    bool none = true;
+    for (int i = 0; i < 4; i++) {
+        mEnabled[i] = lines[i][0] != 0;
+        if (mEnabled[i]) {
+            none = false;
+        }
+    }
+    if (none) {
+        mEnabled[0] = 1;
+    }
+    mOptions[0]->SetText_unk("text", lines[0].c_str());
+    mOptions[1]->SetText_unk("text", lines[1].c_str());
+    mOptions[2]->SetText_unk("text", lines[2].c_str());
+    mOptions[3]->SetText_unk("text", lines[3].c_str());
+    mOptions[0]->SetText_unk("textSub", lines[0].c_str());
+    mOptions[1]->SetText_unk("textSub", lines[1].c_str());
+    mOptions[2]->SetText_unk("textSub", lines[2].c_str());
+    mOptions[3]->SetText_unk("textSub", lines[3].c_str());
+    mOptions[0]->SetValue0_unk("iconOn", 0.0f);
+    mOptions[1]->SetValue0_unk("iconOn", 0.0f);
+    mOptions[2]->SetValue0_unk("iconOn", 0.0f);
+    mOptions[3]->SetValue0_unk("iconOn", 0.0f);
+    mOptions[2]->SetValue0_unk("tensionOn", 0.0f);
 }
 
 GameMessageWindow* GameMessageWindow::fn_803B5470(atn::Task* parent) {
@@ -454,10 +594,53 @@ int GameMessageWindow::fn_803B5950() {
     return 0;
 }
 
-// DRAFT: empty stub; setting the texts of the window is not written
-// NONMATCHING: stub (sets the texts of the window); noinline until it is written (the original, 1976
-// bytes, is always called out of line)
-__declspec(noinline) void GameMessageWindow::fn_803B5974() {}
+// inferred: sets the talker name and the three lines of the message mMessage, wrapped to the width and
+// font size of the layout (as GameTextMessageWindow::fn_803B710C, and shows the message)
+// NONMATCHING: 99.99% - L"\xFF1F\xFF1F\xFF1F" is at +2 of our wide string pool and at +4 of lbl_8087DD88 in
+// the original (.sdata layout of the wide literals)
+void GameMessageWindow::fn_803B5974() {
+    float width = 640.0f;
+    float size = 20.0f;
+    void* track = mLayout->GetTrack_unk("textWidth");
+    if (track != 0) {
+        width = fn_801F0544((char*)track + 4, 0);
+    }
+    track = mLayout->GetTrack_unk("fontSize_text");
+    if (track != 0) {
+        size = fn_801F0544((char*)track + 4, 0);
+    }
+    std::basic_string<wchar_t> text(mMessage->mText);
+    fn_803B3D2C(&text);
+    text = fn_800DFB40(text.c_str(), width, size, 0.0f, 1, 1, 0, 0);
+    std::basic_string<wchar_t> line1;
+    std::basic_string<wchar_t> line2;
+    std::basic_string<wchar_t> line3;
+    unsigned long end1 = text.find(L'\n');
+    line1 = std::basic_string<wchar_t>(text, 0, end1);
+    if (end1 != std::basic_string<wchar_t>::npos) {
+        unsigned long end2 = text.find(L'\n', end1 + 1);
+        line2 = std::basic_string<wchar_t>(text, end1 + 1, end2 - (end1 + 1));
+        if (end2 != std::basic_string<wchar_t>::npos) {
+            unsigned long end3 = text.find(L'\n', end2 + 1);
+            line3 = std::basic_string<wchar_t>(text, end2 + 1, end3 - (end2 + 1));
+        }
+    }
+    CharaInfo_unk* talker = fn_8020924C(mMessage->mTalker);
+    mLayout->SetValue0_unk("showMsg", 1.0f);
+    if (talker != 0 && mMessage->mTalker != 0) {
+        mLayout->SetValue0_unk("talkerOn", 1.0f);
+        mLayout->SetText_unk("nameText", talker->m04);
+        mLayout->SetText_unk("messageText1", line1.c_str());
+        mLayout->SetText_unk("messageText2", line2.c_str());
+        mLayout->SetText_unk("messageText3", line3.c_str());
+    } else {
+        mLayout->SetValue0_unk("talkerOn", 0.0f);
+        mLayout->SetText_unk("nameText", L"\xFF1F\xFF1F\xFF1F");
+        mLayout->SetText_unk("messageText11", line1.c_str());
+        mLayout->SetText_unk("messageText12", line2.c_str());
+        mLayout->SetText_unk("messageText13", line3.c_str());
+    }
+}
 GameTextMessageWindow* GameTextMessageWindow::fn_803B612C(atn::Task* parent) {
     if (parent != 0) {
         return new ((MemoryTag)1, "", "", 0) GameTextMessageWindow(parent);
@@ -466,7 +649,7 @@ GameTextMessageWindow* GameTextMessageWindow::fn_803B612C(atn::Task* parent) {
 }
 
 GameTextMessageWindow::GameTextMessageWindow(atn::Task* parent)
-    : atn::Task(parent), mLayout(0), m4C(0), mState(0), m54(0), m58(0), m5C(0), m60(0.0f), m64(15), m68(0.0f), m70(0),
+    : atn::Task(parent), mLayout(0), mMessage(0), mState(0), m54(0), m58(0), m5C(0), m60(0.0f), m64(15), m68(0.0f), m70(0),
       m71(0), m74(0), m78(0), m7C(0), m80(0), m84(0), m88(0), m8C(0), mAC(0), mB0(0), mCount(0), mHead(0) {
     mLayout = (GameLayout_unk*)D2A_TaskInstance32_unk::Create(this, sTextLayout_unk);
     mLayout->mLoop = 0;
@@ -484,19 +667,193 @@ int GameTextMessageWindow::vf0C() {
     return 0;
 }
 
-// DRAFT: empty stub
-// NONMATCHING: stub
-void GameTextMessageWindow::vf10() {}
-
-// DRAFT: empty stub
-// NONMATCHING: stub
-void GameTextMessageWindow::fn_803B6970(GameMessage* msg, int arg, float time) {
-    (void)msg;
-    (void)arg;
-    (void)time;
+// inferred: the message has a talker name, the voice manager exists and has the voice (names invented)
+// inferred: the three tests are kept as booleans (li 0 / li 1 of each, 0x803B6A24)
+inline bool HasVoice_unk(GameMessage* msg) {
+    bool name = msg != 0 && strlen(msg->mName.c_str()) != 0;
+    bool can = name && lbl_8087F498 != 0;
+    bool voice = can && lbl_8087F498->fn_803EBC04(msg->mName.c_str()) != 0;
+    return voice;
 }
 
+// inferred: command being run by the event script, or 0 (name invented)
+inline ScriptCmd_unk* RunningCmd_unk(GameEventScript* script) {
+    return script->m8C != 0 ? script->m90 : 0;
+}
+
+// inferred: the choice window may open with the message (the game holds the input and the script does
+// not run the commands 0x5C or 0x61; name invented)
+inline bool CanChoose_unk() {
+    bool r = false;
+    if (lbl_8087F0A8->mInput.fn_80124B60() != 0) {
+        r = true;
+        if (lbl_8087F430 != 0) {
+            GameScene* scene = (GameScene*)lbl_8087F430->m10D8;
+            if (scene != 0) {
+                GameEventScript* script = scene->m134;
+                if (script != 0) {
+                    ScriptCmd_unk* cmd = RunningCmd_unk(script);
+                    if (cmd != 0 && (cmd->mCmd == 0x5C || cmd->mCmd == 0x61)) {
+                        r = false;
+                    }
+                }
+            }
+        }
+    }
+    return r;
+}
+
+wchar_t lbl_8087F468[1]; // inferred: empty text of the message of the choice window
+
+extern "C" int fn_8021F3E8(const char* name); // inferred: length of the voice `name` (db/VoiceLengthTable_unk)
 extern "C" void fn_800CB5C8(atn::SoundRef* sound, int frames, int arg); // inferred: stops the sound
+
+// inferred: time of the choice window and voice of the message (inlined in fn_803B6970 and fn_803B6E04;
+// name invented)
+inline void GameTextMessageWindow::Start_unk(GameMessage* msg, int arg, float time, int keepRequests) {
+    mMessage = msg;
+    m54 = msg->m30;
+    m58 = arg;
+    m60 = time;
+    if (msg->m34 > 0) {
+        m58 = msg->m34;
+    }
+    if (m58 <= 0) {
+        const char* name = mMessage->mName.c_str();
+        if (strlen(name) != 0) {
+            int length = fn_8021F3E8(name);
+            if (length > 0) {
+                m58 = length;
+            } else {
+                m58 = 150;
+            }
+        }
+    }
+    if (HasVoice_unk(mMessage)) {
+        if (mSound.mPtr != 0) {
+            fn_800CB5C8(&mSound, 10, 0);
+            m54 += 10;
+        }
+        if (m54 <= 0) {
+            m54 = 1;
+        }
+        if (lbl_8087F498 != 0) {
+            lbl_8087F498->fn_803EB4A8(0, keepRequests);
+            lbl_8087F498->fn_803EB038(mMessage->mName.c_str(), 0);
+        }
+    }
+}
+
+// inferred: the message has no frames left: plays the layout and opens the choice window (name invented)
+inline void GameTextMessageWindow::Choose_unk() {
+    mLayout->mFrame = 0.0f;
+    mLayout->mSpeed = 1.0f;
+    mLayout->MeltTask();
+    m70 = 0;
+    if (lbl_8087F490 != 0 && CanChoose_unk()) {
+        GameMessageWindow* window = lbl_8087F490->m263C;
+        if (window != 0 && !window->IsShown_unk()) {
+            m70 = 1;
+            m84 = (int)lbl_8087F468;
+            window->fn_803B5774((GameMessage*)&m7C, m58);
+        }
+    }
+}
+
+inline GameMessage* GameTextMessageWindow::Pop_unk() {
+    GameMessage* msg = mQueue[mHead];
+    mHead = (mHead + 1) & 0x3F;
+    mCount--;
+    return msg;
+}
+
+// inferred: message window of the HUD with choices, or 0 (name invented)
+inline GameMessageWindow* GetMessageWindow_unk() {
+    return lbl_8087F490 != 0 ? lbl_8087F490->m263C : 0;
+}
+
+// NONMATCHING: 94% - the original keeps the three booleans of HasVoice_unk in saved registers (li 0 /
+// li 1 of each one, the three li 0 first); with `bool x = a && b` ours sets each one where it is tested and
+// keeps the inner ones in volatile registers (bool r = false; if (...) r = true; in nested inlines, int flags,
+// static or out-of-line helpers: MWCC threads the jumps over them)
+void GameTextMessageWindow::vf10() {
+    if (lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->m54E4 == 8) {
+        mLayout->FreezeTask();
+        return;
+    }
+    if (m70 != 0 && (mState == 1 || mState == 2) && !CanChoose_unk()) {
+        GameMessageWindow* window = GetMessageWindow_unk();
+        if (window != 0 && window->IsShown_unk()) {
+            window->fn_803B57B0(0);
+        }
+    }
+    switch (mState) {
+    case 1: {
+        if (m54 > 0 && --m54 <= 0) {
+            if (HasVoice_unk(mMessage) && lbl_8087F498->fn_803EB234() != 0 && m5C < 90) {
+                m54 = 1;
+                m5C++;
+            } else {
+                if (m5C >= 90 && lbl_8087F498 != 0) {
+                    lbl_8087F498->fn_803EB394(mMessage->mName.c_str());
+                }
+                Choose_unk();
+            }
+        }
+        float frame = mLayout->mFrame;
+        if (frame >= mLayout->GetEndFrame()) {
+            mState = 2;
+            if (m5C < 90 && HasVoice_unk(mMessage)) {
+                fn_800CB5C8(&mSound, 0, 0);
+                float volume = 1.0f;
+                if (lbl_8087F0A8->mVoiceLimitLevel >= 2) {
+                    volume = 0.0f;
+                }
+                mSound = lbl_8087F498->fn_803E9608(mMessage->mName.c_str(), 0, 1, volume);
+            }
+        }
+        break;
+    }
+    case 3:
+        if (mLayout->mFrame <= 1.0f) {
+            if (mCount == 0) {
+                mState = 0;
+                mLayout->FreezeTask();
+                fn_800CB5C8(&mSound, 15, 0);
+                fn_803B78E8();
+            } else {
+                fn_803B6970(Pop_unk(), 0, m60);
+            }
+        }
+        break;
+    case 2:
+        if (m58 > 0 && --m58 == 0) {
+            fn_803B6C88(0);
+        }
+        if (CanChoose_unk() && fn_800A555C(lbl_8087EF70, 0, 4) != 0) {
+            fn_803B4338(1, 0.8f);
+            fn_803B6C88(0);
+        }
+        break;
+    }
+}
+
+// NONMATCHING: 92.3% - same booleans of HasVoice_unk as vf10; noinline: vf10 calls it with bl and MWCC
+// would inline it
+__declspec(noinline) void GameTextMessageWindow::fn_803B6970(GameMessage* msg, int arg, float time) {
+    if (IsFree_unk(time)) {
+        mState = 1;
+        Start_unk(msg, arg, time, 1);
+        m5C = 0;
+        fn_803B710C();
+        mLayout->mFrame = 0.0f;
+        mLayout->mSpeed = 0.0f;
+        mLayout->MeltTask();
+        if (m54 <= 0) {
+            Choose_unk();
+        }
+    }
+}
 
 void GameTextMessageWindow::fn_803B6C88(int enabled) {
     if (enabled == 0) {
@@ -520,13 +877,68 @@ void GameTextMessageWindow::fn_803B6C88(int enabled) {
     }
 }
 
-// DRAFT: empty stub
-// NONMATCHING: stub
-void GameTextMessageWindow::fn_803B6E04(GameMessage* msg, int arg, float time) {}
+// NONMATCHING: 91% - same booleans of HasVoice_unk as vf10; the original stores m58 before m54
+void GameTextMessageWindow::fn_803B6E04(GameMessage* msg, int arg, float time) {
+    if (mState == 0 || !(m60 < time)) {
+        Start_unk(msg, arg, time, 0);
+        m5C = 0;
+        mLayout->mFrame = 0.0f;
+        mLayout->mSpeed = 0.0f;
+        mLayout->MeltTask();
+        mState = 1;
+        fn_803B710C();
+        if (m54 <= 0) {
+            Choose_unk();
+        }
+    }
+}
 
-// DRAFT: empty stub
-// NONMATCHING: stub
-void GameTextMessageWindow::fn_803B710C() {}
+// inferred: sets the talker name and the three lines of the message mMessage, wrapped to the width and
+// font size of the layout
+// NONMATCHING: 99.99% - L"\xFF1F\xFF1F\xFF1F" is at +2 of our wide string pool and at +4 of lbl_8087DD88 in
+// the original (.sdata layout of the wide literals)
+void GameTextMessageWindow::fn_803B710C() {
+    float width = 640.0f;
+    float size = 20.0f;
+    void* track = mLayout->GetTrack_unk("textWidth");
+    if (track != 0) {
+        width = fn_801F0544((char*)track + 4, 0);
+    }
+    track = mLayout->GetTrack_unk("fontSize_text");
+    if (track != 0) {
+        size = fn_801F0544((char*)track + 4, 0);
+    }
+    std::basic_string<wchar_t> text(mMessage->mText);
+    fn_803B3D2C(&text);
+    text = fn_800DFB40(text.c_str(), width, size, 0.0f, 1, 1, 0, 0);
+    std::basic_string<wchar_t> line1;
+    std::basic_string<wchar_t> line2;
+    std::basic_string<wchar_t> line3;
+    unsigned long end1 = text.find(L'\n');
+    line1 = std::basic_string<wchar_t>(text, 0, end1);
+    if (end1 != std::basic_string<wchar_t>::npos) {
+        unsigned long end2 = text.find(L'\n', end1 + 1);
+        line2 = std::basic_string<wchar_t>(text, end1 + 1, end2 - (end1 + 1));
+        if (end2 != std::basic_string<wchar_t>::npos) {
+            unsigned long end3 = text.find(L'\n', end2 + 1);
+            line3 = std::basic_string<wchar_t>(text, end2 + 1, end3 - (end2 + 1));
+        }
+    }
+    CharaInfo_unk* talker = fn_8020924C(mMessage->mTalker);
+    if (talker != 0 && mMessage->mTalker != 0) {
+        mLayout->SetValue0_unk("talkerOn", 1.0f);
+        mLayout->SetText_unk("nameText", talker->m04);
+        mLayout->SetText_unk("messageText1", line1.c_str());
+        mLayout->SetText_unk("messageText2", line2.c_str());
+        mLayout->SetText_unk("messageText3", line3.c_str());
+    } else {
+        mLayout->SetValue0_unk("talkerOn", 0.0f);
+        mLayout->SetText_unk("nameText", L"\xFF1F\xFF1F\xFF1F");
+        mLayout->SetText_unk("messageText11", line1.c_str());
+        mLayout->SetText_unk("messageText12", line2.c_str());
+        mLayout->SetText_unk("messageText13", line3.c_str());
+    }
+}
 
 void GameTextMessageWindow::fn_803B78B4(GameMessage* msg) {
     if (GetCount_unk() < 0x40) {

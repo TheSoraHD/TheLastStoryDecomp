@@ -171,6 +171,9 @@ public:
     basic_string& replace(size_type pos, size_type n1, const T* j1, const T* j2) {
         return do_replace(pos, n1, j1, j2, random_access_iterator_tag());
     }
+    // inferred: defined in std/string_replace_unk.h (named parameters here would renumber the @N of every
+    // file that includes this header)
+    basic_string& replace(size_type, size_type, const basic_string&);
     // inferred: fill replacement used by basic_stringbuf when growing its output string.
     basic_string& replace(size_type pos, size_type n1, size_type n2, T c);
     basic_string substr(size_type pos = 0, size_type n = npos) const { return basic_string(*this, pos, n); }

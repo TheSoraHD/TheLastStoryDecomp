@@ -346,7 +346,12 @@ __declspec(noinline) float FinishCamera_unk::fn_80379104(XsfCurveSet_unk* curve,
 // the ends; 6 = the same around all of them at once. The camera is then set to the render manager (or the field
 // camera is moved to the target when it is taken over, m394). The curves are added by hand (AddCurve_unk as a
 // candidate puts the function over the inlining budget)
-// NONMATCHING: 95.2% - stack slots and float registers of the temporaries (the original keeps the curve matrices
+// inferred: vertical field of view from the horizontal one of a curve, in degrees (name invented)
+inline float FovY_unk(float aspect, float fovx) {
+    return 2.0f * (float)atan((float)tan(0.5f * (0.017453292f * fovx)) / aspect);
+}
+
+// NONMATCHING: 95.41% - stack slots and float registers of the temporaries (the original keeps the curve matrices
 // in r29), five more saved gprs here
 void FinishCamera_unk::fn_803792F0() {
     if (m00 == 0) {
@@ -491,8 +496,7 @@ void FinishCamera_unk::fn_803792F0() {
                     eye += w;
                 }
                 if (curve->fn_805BF1E8(0)) {
-                    fovy = 2.0f * (float)atan((float)tan(0.5f * (0.017453292f * curve->fn_805BF204(time, 0))) /
-                                              mCamera.mAspect);
+                    fovy = FovY_unk(mCamera.mAspect, curve->fn_805BF204(time, 0));
                 }
                 if (time > 50.0f && mChara->m638 != 0 && mChara->m638->m04 == 0x179A) {
                     float k = (time - 50.0f) * 0.25f;
@@ -552,8 +556,7 @@ void FinishCamera_unk::fn_803792F0() {
                 atn::Vector3 d(target.x - eye.x, 0.0f, target.z - eye.z);
                 eye -= d * (m3AC + swing);
                 if (curve->fn_805BF1E8(0)) {
-                    fovy = 2.0f * (float)atan((float)tan(0.5f * (0.017453292f * curve->fn_805BF204(time, 0))) /
-                                              mCamera.mAspect);
+                    fovy = FovY_unk(mCamera.mAspect, curve->fn_805BF204(time, 0));
                 }
                 if (mChara->m638 != 0 && mChara->m638->m04 == 0x179A) {
                     fovy *= 1.2f;
@@ -625,8 +628,7 @@ void FinishCamera_unk::fn_803792F0() {
                     eye -= d * m3AC;
                 }
                 if (curve->fn_805BF1E8(0)) {
-                    fovy = 2.0f * (float)atan((float)tan(0.5f * (0.017453292f * curve->fn_805BF204(time, 0))) /
-                                              mCamera.mAspect);
+                    fovy = FovY_unk(mCamera.mAspect, curve->fn_805BF204(time, 0));
                 }
                 if (time < 61.0f && time > 50.0f) {
                     float k = (time - 50.0f) / 5.0f;
@@ -707,7 +709,8 @@ void FinishCamera_unk::fn_803792F0() {
                 }
             }
             m3A8 = mChara;
-            if (m3A8->mMotion.mTracks[0].m08 >= m3A8->mMotion.fn_80097D7C(0)) {
+            float frame = m3A8->mMotion.mTracks[0].m08;
+            if (frame >= m3A8->mMotion.fn_80097D7C(0)) {
                 if (lbl_8087F610 != 0) {
                     m3A8->mMotion.fn_80097C08(0, m3A8->m484[0], 1, 0, 1, 0.0f, 0.1f);
                 } else if (m3A8->m5C->m11C == 2) {
@@ -727,7 +730,7 @@ void FinishCamera_unk::fn_803792F0() {
                 lbl_8087F498->fn_803EA77C(m3A8, 40, 15, 1.0f, 10.0f);
             }
             if (m358 > frames) {
-                if (++m2F8 >= mEntries.mCount) {
+                if (++m2F8 >= (int)mEntries.mCount) {
                     fn_80378CCC();
                 } else {
                     m358 = 0;
@@ -822,7 +825,8 @@ void FinishCamera_unk::fn_803792F0() {
             }
             for (unsigned int i = 0; i < mEntries.mCount; i++) {
                 CharaTask* chara = mEntries.mData[i].mChara;
-                if (chara->mMotion.mTracks[0].m08 >= chara->mMotion.fn_80097D7C(0)) {
+                float frame = chara->mMotion.mTracks[0].m08;
+                if (frame >= chara->mMotion.fn_80097D7C(0)) {
                     chara->mMotion.fn_80097C08(0, chara->m484[0], 1, 0, 1, 0.0f, 0.05f);
                 }
                 chara->m1220.fn_8012111C();

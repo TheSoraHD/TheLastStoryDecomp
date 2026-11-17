@@ -87,14 +87,25 @@ extern "C" GameOverOptions_unk* lbl_8087F0A8;
 // inferred: effects
 struct EffectMgr_unk;
 extern "C" EffectMgr_unk* lbl_8087F3C0;
+// inferred: weak copy 0x800F7FA0 of another file (as in game/Em203GreaterDaemon.cpp)
+extern "C" inline EffectMgr_unk* fn_800F7FA0() {
+    return lbl_8087F3C0;
+}
 extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, void* model, int arg3, const atn::Vector3& pos,
                             const atn::Vector3& rot, const float* color, int arg7, int arg8, int arg9, float scale);
 extern "C" void fn_80232B7C(void* owner, int arg);
 extern "C" RenderSetting_unk* lbl_8087EFA8; // inferred: render settings
+// inferred: weak copy 0x802F0990 of another file (as in game/NewCampTask.cpp)
+extern "C" inline RenderSetting_unk* fn_802F0990() {
+    return lbl_8087EFA8;
+}
 
 // inferred: as in game/GameTask.cpp
 inline void RenderSetting_unk::SetDamage_unk(DamageEffectParam_unk p) {
     m374 = p;
+}
+inline DamageEffectParam_unk* RenderSetting_unk::GetDamage_unk() {
+    return &m374;
 }
 inline void RenderSetting_unk::SetColorMatrix(const ColorMatrixParam_unk& p) {
     m324 = p;
@@ -189,20 +200,33 @@ GameOverTask::~GameOverTask() {
     lbl_8087F440 = 0;
 }
 
-// NONMATCHING: 86.02% - stack slots: the original puts pos/rot/color below the colour temporaries of the
-// render settings and keeps lbl_8087EFA8 and 0 in r28/r30 during the bloom copy (tried the locals in other
-// orders, temporaries as arguments, Color4f_unk)
+// inferred: plays an effect at the origin (as PlayEfp_unk of gmk/SwingObject.cpp)
+inline void PlayEfp_unk(EffectMgr_unk* mgr, atn::EfpFile* efp) {
+    atn::Vector3 pos;
+    atn::Vector3 rot;
+    float color[4];
+    rot.x = 0.0f;
+    rot.y = 0.0f;
+    rot.z = 0.0f;
+    pos.x = 0.0f;
+    pos.y = 0.0f;
+    pos.z = 0.0f;
+    color[0] = 1.0f;
+    color[1] = 1.0f;
+    color[2] = 1.0f;
+    color[3] = 1.0f;
+    fn_8023A8B4(mgr, efp, 0, 0, pos, rot, color, -1, -1, 1, 1.0f);
+}
+
+// NONMATCHING: 96.23% - scheduling of the dead stores of the bloom and colour matrix temporaries
+// (the last zero of BloomParam_unk::mScale and ColorMatrixParam_unk::mEnabled; mEnabled set at the end of the
+// ColorMatrixParam_unk ctor gives 98.44 but drops LastCocoonEgg/NewCampTask/NewTitleTask; tried named locals,
+// m324 directly, Set_unk of the colours, other orders of the bias/scale zeros). The damage fields are
+// set zoom, colour, enabled (order of the dead stores of the original).
 int GameOverTask::vf0C() {
     if (fn_800D3FA4() != 0 && mEfp.IsLoading() == 0) {
         fn_80232B7C(this, 0);
-        atn::Vector3 pos(0.0f, 0.0f, 0.0f);
-        atn::Vector3 rot(0.0f, 0.0f, 0.0f);
-        float color[4];
-        color[0] = 1.0f;
-        color[1] = 1.0f;
-        color[2] = 1.0f;
-        color[3] = 1.0f;
-        fn_8023A8B4(lbl_8087F3C0, &mEfp, 0, 0, pos, rot, color, -1, -1, 1, 1.0f);
+        PlayEfp_unk(fn_800F7FA0(), &mEfp);
         fn_804A39EC(mMenu, 1, 0, 0.0f, 1.0f);
         mCursor->fn_800D246C(0);
         mCursor->mFlags |= 4;
@@ -213,14 +237,14 @@ int GameOverTask::vf0C() {
             mDemoEnd->mFrame = 0.0f;
             mDemoEnd->mFlags |= 4;
         }
-        DamageEffectParam_unk damage = lbl_8087EFA8->m374;
-        damage.mEnabled = 1;
-        damage.mColor = RsColor_unk(0.0f, 0.0f, 0.0f, 1.0f);
+        DamageEffectParam_unk damage(*fn_802F0990()->GetDamage_unk());
         damage.mZoom = -0.55f;
-        lbl_8087EFA8->SetDamage_unk(damage);
-        lbl_8087EFA8->m03C = RsColor_unk(0.6f, 0.6f, 0.6f, 1.0f);
-        lbl_8087EFA8->m054 = BloomParam_unk();
-        lbl_8087EFA8->SetColorMatrix(ColorMatrixParam_unk());
+        damage.mColor = RsColor_unk(0.0f, 0.0f, 0.0f, 1.0f);
+        damage.mEnabled = 1;
+        fn_802F0990()->SetDamage_unk(damage);
+        fn_802F0990()->m03C = RsColor_unk(0.6f, 0.6f, 0.6f, 1.0f);
+        fn_802F0990()->m054 = BloomParam_unk();
+        fn_802F0990()->SetColorMatrix(ColorMatrixParam_unk());
         fn_80377298();
         return 1;
     }

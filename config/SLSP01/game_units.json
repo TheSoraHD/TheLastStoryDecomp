@@ -428,7 +428,7 @@
   "classes": [
    "WPad_unk"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "atn/WordWrap_unk.cpp",
@@ -953,7 +953,7 @@
    "chr::ControlRideBeast",
    "chr::ControlRide"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "chr/ControlShoot.cpp",
@@ -1370,7 +1370,7 @@
  {
   "name": "db/MapEnvSeTable_unk.cpp",
   "classes": [],
-  "matching": false
+  "matching": true
  },
  {
   "name": "db/MapIdTable_unk.cpp",
@@ -1824,7 +1824,7 @@
   "classes": [
    "EnemyLizerdBlade"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "game/EnemyManager.cpp",
@@ -2127,7 +2127,7 @@
   "classes": [
    "gmk::Leaf"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "gmk/Bat.cpp",
@@ -2267,7 +2267,7 @@
   "classes": [
    "gmk::ArenaFloor"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "gmk/Augur.cpp",
@@ -2309,7 +2309,7 @@
   "classes": [
    "gmk::CharaLight"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "gmk/DoorSeal.cpp",

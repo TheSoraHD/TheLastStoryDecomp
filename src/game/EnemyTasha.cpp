@@ -1,5 +1,6 @@
 #include "game/SkillEffectManager.h"
 #include "game/EnemyTasha.h"
+#include "math/VecAssign_unk.h"
 #include "atn/Csv.h"
 #include "atn/Memory.h"
 #include "game/CharaManager.h"
@@ -52,8 +53,6 @@ extern "C" void* lbl_8087EE98;
 extern "C" int fn_8004ED34(void* colli, atn::ColliResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg7); // inferred: ray test
 
-// DRAFT: not checked against the original (draft without a description)
-// NONMATCHING: draft
 EnemyTasha::EnemyTasha(atn::Task* parent, EnemyInfo_unk* info)
     : SpecialEnemyBase(parent, info), m14D4(0), m14DC(0), m14E0(3), m14E4(1), m14E8(300.0f), m14F0(0.0f),
       m14F4(0.0f), m14F8(0.0f), m14FC(60.0f), m1518(40), m151C(20), m1520(200), m1524(40.0f), m1528(50.0f),
@@ -481,10 +480,10 @@ inline float LerpAngle_unk(float to, float from, float t) {
 }
 
 // inferred: front direction for a rotation around y (name invented, as in game/EnemyTrista.cpp)
-inline atn::Vector3 FrontDir_unk(float rotY) {
+inline atn::Vector3 FrontDir_unk(const atn::Vector3& rot) {
     atn::Vector3 dir(0.0f, 0.0f, 1.0f);
     Mtx m;
-    PSMTXRotRad(m, 'y', rotY);
+    PSMTXRotRad(m, 'y', rot.y);
     PSMTXMultVec(m, &dir, &dir);
     return dir;
 }
@@ -512,7 +511,7 @@ int EnemyTasha::fn_8035738C(float rate, float limit) {
     return 0;
 }
 
-// NONMATCHING: 97.18% - FPR numbering of the loop constants and stack slots of the front/rotation temporaries
+// NONMATCHING: 98.69% - FPR numbering of the products of front * radius and r27/r28 of the copy into m1534
 void EnemyTasha::fn_803576F8(float radius) {
     atn::Vector3 front(0.0f, 0.0f, 0.0f);
     atn::Vector3 center = mC58.mC4->mPos;
@@ -520,7 +519,7 @@ void EnemyTasha::fn_803576F8(float radius) {
     int count = 0;
     while (true) {
         if (count++ == 10) {
-            m1534 = mPos + FrontDir_unk(mRot.y);
+            atn::VecAssign_unk(m1534, mPos + FrontDir_unk(mRot));
             return;
         }
         float sign = rand() % 2 == 0 ? 1.0f : -1.0f;
@@ -531,7 +530,7 @@ void EnemyTasha::fn_803576F8(float radius) {
         Mtx m;
         PSMTXRotRad(m, 'y', angle);
         PSMTXMultVec(m, &front, &front);
-        m1534 = center + front * radius;
+        atn::VecAssign_unk(m1534, center + front * radius);
         void* colli = lbl_8087EE98;
         if (fn_8004ED34(colli, 0, &center, &m1534, fn_80179D44() | 0x80000000, 0, 0) == 0) {
             return;
@@ -779,7 +778,7 @@ void EnemyTasha::vf104() {
     }
     atn::Vector3 diff;
     if (mC58.mC4 != 0) {
-        diff = mC58.mC4->mPos - mPos;
+        atn::VecAssign_unk(diff, mC58.mC4->mPos - mPos);
     }
     switch (m58C) {
     case 6:

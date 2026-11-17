@@ -428,9 +428,9 @@ union CheckState_unk {
     } s;
 };
 
-// DRAFT: a signed compare of the stick direction and the copy of the sphere still differ
-// NONMATCHING: 93.9% - first draft: the screen size of the sphere (d1/d2), the eye and direction copies,
-// the copy of the sphere into m4C and a signed compare of the stick direction still differ
+// NONMATCHING: 94.05% - equivalent (checked against the whole asm); scheduling of the screen size of the sphere
+// (the original stores 0.0f into d1.z again after the first PSVECMag), of the eye and direction copies and of
+// the copy of the sphere into m4C (through a temporary at 0x8 in the original)
 int ActionCheck::vf08(Action* arg) {
     arg->fn_805381A0();
     EventManager_unk* manager = arg->fn_805381C8();
@@ -568,7 +568,7 @@ int ActionCheck::vf08(Action* arg) {
             float value = fn_800A56A8(lbl_8087EF70, 0, sStickAxes_unk[axis], 0);
             if ((float)__fabs(value) > 0.1f) {
                 bool dir = !(value < 0.0f);
-                if (dir != state.s.mDir) {
+                if ((int)dir != (int)state.s.mDir) { // inferred: compared as int (cmpw)
                     moved = 1;
                     state.s.mDir = dir == true;
                 }

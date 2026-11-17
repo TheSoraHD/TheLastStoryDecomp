@@ -190,17 +190,26 @@ ControlPushedDown::ControlPushedDown(Chara_unk* chara, const atn::Vector3& dir, 
     }
 }
 
-// NONMATCHING: 99.3% - register allocation: the original keeps 1.0 in f29 and the frame in f30 (ours
-// swapped), r4/r5 swapped in the mode/player loads and the volatile float registers of the clamped angles.
+// inferred: frame, zero and one declared in this order (saved FPRs f30, f31, f29 as in the original)
+// inferred: absolute values through double, like fabs/fabsf of MSL_C (fabsf is (float)fabs((double)x));
+// the double value and the rounded one get registers of their own (names invented)
+inline double AbsD_unk(double x) {
+    return __fabs(x);
+}
+inline float AbsF_unk(float x) {
+    return (float)AbsD_unk(x);
+}
+
 int ControlPushedDown::vf0C() {
-    float one = 1.0f;
+    float frame;
     float zero = 0.0f;
-    Motion_unk* motion = &mChara->mMotion;
+    float one = 1.0f;
+    Motion_unk* motion = mChara->GetModel_unk();
     int ret = 0;
     atn::Vector3 rot = m08;
     switch (m38) {
     case 0: {
-        float frame = motion->mTracks[0].m08;
+        frame = motion->mTracks[0].m08;
         if (frame >= motion->fn_80097D7C(0) || (m30 != 0 && motion->mTracks[0].m08 >= 30.0f)) {
             int mode = lbl_8087F430 != 0 ? ((GameTask*)lbl_8087F430)->fn_803761DC() : 0;
             if (!CanComplain_unk(mChara)) {
@@ -243,7 +252,8 @@ int ControlPushedDown::vf0C() {
         motion->mTracks[0].m0C = 1.5f;
         CharaTask* player = lbl_8087F8A0 != 0 ? lbl_8087F8A0->mHead : 0;
         if (player != 0) {
-            atn::Vector3 d = player->mPos - mChara->mPos;
+            Chara_unk* c = mChara;
+            atn::Vector3 d = player->mPos - c->mPos;
             if (!((float)__fabs(PSVECSquareMag(&d)) < 1.1920929e-7f)) {
                 PSVECNormalize(&d, &d);
             }
@@ -258,7 +268,7 @@ int ControlPushedDown::vf0C() {
             atn::Vector3 r = mChara->mRot;
             r.y += a;
             mChara->mRot = r;
-            if ((float)__fabs(a) < lim) {
+            if (AbsF_unk(a) < lim) {
                 m08 = mChara->mRot;
                 m38 = 2;
                 motion->m34C = 1;
@@ -303,7 +313,7 @@ int ControlPushedDown::vf0C() {
             }
             r.y += a;
             mChara->mRot = r;
-            if ((float)__fabs(a) < 0.17453292f) {
+            if (atn::Abs_unk(a) < 0.17453292f) {
                 ret = 1;
             }
         } else {
@@ -313,7 +323,7 @@ int ControlPushedDown::vf0C() {
             } else {
                 pos = m14;
             }
-            mChara->mPos = pos;
+            *mChara->fn_8013C38C() = pos;
             atn::Vector3 r = mChara->mRot;
             float a = atn::WrapAngle_unk(d.ToRotation_unk().y - r.y);
             if (a > 0.17453292f) {
@@ -436,15 +446,17 @@ ControlPushedAvoid::ControlPushedAvoid(Chara_unk* chara, const atn::Vector3& dir
     m2C = 0;
 }
 
-// NONMATCHING: 99.3% - register allocation (temporaries in r3-r6, f0/f3), the order of the negated
-// components and the address of the segment end.
+// NONMATCHING: 99.5% - register allocation (0.0f/0.125f of state 0 in f3/f0, the fabs of the inlined
+// ToRotation_unk of Vec.h in f8/f3 as AbsF_unk gives), the order of the negated components and the
+// address of the segment end.
 int ControlPushedAvoid::vf0C() {
     int ret = 0;
-    m30 = lbl_8087EFA8->mTimeScale + m30;
+    float time = lbl_8087EFA8->mTimeScale;
+    m30 = m30 + time;
     Motion_unk* motion = &mChara->mMotion;
     switch (m2C) {
     case 0: {
-        float speed = __fabs(motion->mTracks[0].m0C);
+        float speed = AbsF_unk(motion->mTracks[0].m0C);
         if (m30 >= 0.6f * (motion->fn_80097D7C(0) / speed)) {
             motion->fn_80097C08(0, mChara->m484[0], 1, 0, 1, 0.0f, 0.1f);
             motion->m34C = 1;
@@ -456,7 +468,7 @@ int ControlPushedAvoid::vf0C() {
             c->m584 = 0.0f;
             float t = MIN(1.0f, m30 * 0.125f);
             float s = t * (lbl_8087DA44 - lbl_8087DA40) + lbl_8087DA40;
-            atn::Vector3 pos = mChara->mPos + m08 * s;
+            atn::Vector3 pos = *mChara->fn_8013C38C() + m08 * s;
             mChara->mPos = pos;
             atn::Vector3 r = mChara->mRot;
             float a = atn::WrapAngle_unk(Neg_unk(m08).ToRotation_unk().y - r.y);
@@ -499,7 +511,7 @@ int ControlPushedAvoid::vf0C() {
             } else {
                 pos = m14;
             }
-            mChara->mPos = pos;
+            *mChara->fn_8013C38C() = pos;
             atn::Vector3 r = mChara->mRot;
             float a = atn::WrapAngle_unk(d.ToRotation_unk().y - r.y);
             if (a > 0.17453292f) {

@@ -100,8 +100,9 @@ inline void ControlDropDown::End_unk() {
     }
 }
 
-// NONMATCHING: 98.2% - same code; several stack slots of the ray probes (fwd/up/side are 12 bytes lower)
-// and a few registers differ
+// The end tests read the frame with GetMotionFrame (loaded before fn_80097D7C, as in the original).
+// NONMATCHING: 98.69% - same code; several stack slots of the ray probes (fwd/up/side are 12 bytes lower),
+// a few registers, and the original reads lbl_8087F610 again where we reuse a register
 int ControlDropDown::vf0C() {
     Motion_unk* motion = &mChara->mMotion;
     float speed = 0.0f;
@@ -210,11 +211,11 @@ int ControlDropDown::vf0C() {
         }
     } else {
         int end = mFrames < 8;
-        if (motion->fn_80097D40(0x69) == 0 || motion->mTracks[0].m08 >= motion->fn_80097D7C(0) - 5.0f) {
+        if (motion->fn_80097D40(0x69) == 0 || motion->GetMotionFrame(0) >= motion->fn_80097D7C(0) - 5.0f) {
             end = 1;
         }
         if (mChara->mType == 0 && mChara->fn_80178078() > 0.6f &&
-            motion->mTracks[0].m08 >= motion->fn_80097D7C(0) - 5.0f) {
+            motion->GetMotionFrame(0) >= motion->fn_80097D7C(0) - 5.0f) {
             end = 1;
         }
         if (end) {

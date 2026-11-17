@@ -32,6 +32,8 @@
 #include <boost/tokenizer.hpp>
 #include "game/MapTask.h"
 #include "std/locale_facets_unk.h"
+#include "atn/RenderManager.h"
+#include "atn/DrawHelper.h"
 
 typedef boost::tokenizer<boost::char_separator<char> > Tokenizer;
 
@@ -90,20 +92,8 @@ extern "C" SaveEntry_unk* fn_803BA0CC(void* save, int type, int id); // inferred
 
 #include "game/ErrorManager.h"
 
-// inferred: game settings (lbl_8087F0A8), only the members used here
-struct Settings_unk {
-    unsigned char m000[0x7C];
-    int m07C; // inferred: debug menu enabled
-    unsigned char m080[0x158 - 0x80];
-    int m158;
-    unsigned char m15C[0x188 - 0x15C];
-    int m188;
-    unsigned char m18C[0x190 - 0x18C];
-    int m190; // inferred: town side quests
-    unsigned char m194[0x5B8 - 0x194];
-    int m5B8;
-};
-extern "C" Settings_unk* lbl_8087F0A8;
+#include "game/GameConfig_unk.h"
+extern "C" GameConfig_unk* lbl_8087F0A8;
 
 
 // inferred: field (lbl_8087F430, as in game/CharaTask.cpp); only the members used here
@@ -148,11 +138,20 @@ struct CharaRadius_unk {
     float m620;
 };
 
-// inferred: path of a scene file of the current map (inline: "li r0, 1" before the test)
-inline bool MakeScenePath_unk(char* out, const char* fmt, int area, int map, int sub) {
+// inferred: paths of the scene script and of the message table of a map (inline: "li r0, 1" before the
+// test; names invented)
+static inline bool GetScenePath_unk(char* out, int area, int map, int sub) {
     char name[0x100];
     if (MapTask::GetMapNameFromId(name, area, map, sub)) {
-        sprintf(out, fmt, name);
+        sprintf(out, "/game_scene/%s.gs", name);
+        return true;
+    }
+    return false;
+}
+static inline bool GetMessagePath_unk(char* out, int area, int map, int sub) {
+    char name[0x100];
+    if (MapTask::GetMapNameFromId(name, area, map, sub)) {
+        sprintf(out, "/game_message/%s_xx.u16", name);
         return true;
     }
     return false;
@@ -166,18 +165,17 @@ GameScene* GameScene::fn_803BEBAC(atn::Task* parent, int area, int map, int sub)
 }
 
 GameScene::GameScene(atn::Task* parent, int area, int map, int sub)
-    : atn::Task(parent), m48(0), m64(0), m68(0), m6C(0), m70(0), m74(0), mA8(0), m134(0), m138(-1),
+    : atn::Task(parent), m48(0), m68(0), m6C(0), m70(0), m74(0), mA8(0), m138(-1),
       m13C(1.0f), m140(0), m144(0), m9B0(0) {
     char name[0x20];
     char path[0x100];
     if (MapTask::GetMapNameFromId(name, area, map, sub)) {
         if (lbl_8087F420 != 0) {
-            lbl_8087F420->m18 = 1;
-            lbl_8087F420->m1C = 1;
+            lbl_8087F420->SetLoading_unk(1);
         }
         sprintf(path, "levels/%s.pk", name);
         if (fn_8006AA20(path)) {
-            if (lbl_8087F0A8->m5B8 == 0 || area == 1) {
+            if (lbl_8087F0A8->mTitle.m34 == 0 || area == 1) {
                 m994.fn_80470364(path, area != 1, 1, 1);
             }
         }
@@ -198,14 +196,13 @@ GameScene::GameScene(atn::Task* parent, int area, int map, int sub)
             }
         }
         if (lbl_8087F420 != 0) {
-            lbl_8087F420->m18 = 0;
-            lbl_8087F420->m1C = 0;
+            lbl_8087F420->SetLoading_unk(0);
         }
     }
     char scene[0x100];
-    if (MakeScenePath_unk(scene, "/game_scene/%s.gs", area, map, sub)) {
+    if (GetScenePath_unk(scene, area, map, sub)) {
         m4C[0].vf0C(scene);
-        if (area == 1 && lbl_8087F0A8->m190 != 0) {
+        if (area == 1 && lbl_8087F0A8->mLoadTownSubScript != 0) {
             std::string sub("/game_scene/tw_subquest.gs");
             if (fn_8006AA20(sub.c_str()) && map != 3) {
                 m4C[1].vf0C(sub.c_str());
@@ -235,9 +232,8 @@ GameScene::GameScene(atn::Task* parent, int area, int map, int sub)
             lbl_8087F418->fn_8035F33C(envse.c_str());
         }
     }
-    char message[0x100];
-    if (MakeScenePath_unk(message, "/game_message/%s_xx.u16", area, map, sub)) {
-        m11C.fn_803B3C10(message);
+    if (GetMessagePath_unk(scene, area, map, sub)) {
+        m11C.fn_803B3C10(scene);
     }
     m64 = MapTask::fn_8049D704(this, area, map, sub);
     if (lbl_8087FA20 != 0) {
@@ -250,9 +246,9 @@ GameScene::GameScene(atn::Task* parent, int area, int map, int sub)
         int money = lbl_8087F430 != 0 ? lbl_8087F430->m10D0 : 0;
         if (map == 3) {
             fn_800C3094("GROUP_TWBGM004");
-        } else if (money >= 0 && money < 400000) {
+        } else if (0 <= money && money < 400000) {
             fn_800C3094("GROUP_TWBGM001");
-        } else if (money >= 400000 && money < 600000) {
+        } else if (400000 <= money && money < 600000) {
             fn_800C3094("GROUP_TWBGM002");
         } else if (money >= 600000) {
             fn_800C3094("GROUP_TWBGM003");
@@ -269,11 +265,11 @@ GameScene::GameScene(atn::Task* parent, int area, int map, int sub)
             lbl_8087F498->mNumChannels = 1;
         }
     }
-    if (ArenaTask::fn_800431F4(area, map)) {
+    if (ArenaTask::fn_800431F4(area, map, sub)) {
         ArenaTask::fn_8004318C(this);
     }
     if (lbl_8087F430 != 0 && SongManager::fn_805A2404(area, map, sub)) {
-        SongManager::fn_805A2240(this);
+        SongManager::fn_805A2240((atn::Task*)lbl_8087F430);
     }
     m190.clear();
 }
@@ -317,11 +313,13 @@ GameScene::~GameScene() {
     }
 }
 
+// NONMATCHING: 99% - saved registers of the loops over the .gs files (r27-r30 in another order)
 int GameScene::vf0C() {
     if (m48 == 0) {
         int ready = 1;
+        atn::LH_Binary* files = m4C;
         for (unsigned int i = 0; i < 3; i++) {
-            if (m4C[i].fn_80473F50()) {
+            if (files[i].fn_80473F50()) {
                 ready = 0;
             }
         }
@@ -334,19 +332,20 @@ int GameScene::vf0C() {
         if (ready) {
             m48++;
             for (unsigned int i = 0; i < 3; i++) {
-                if (m4C[i].fn_80470580() && m4C[i].fn_8047059C()) {
-                    fn_803C3894((const char*)m4C[i].fn_80470580(), m4C[i].fn_8047059C(), i);
+                if (files[i].fn_80470580() && files[i].fn_8047059C()) {
+                    fn_803C3894((const char*)files[i].fn_80470580(), files[i].fn_8047059C(), i);
                 }
             }
             fn_803CAABC();
             for (unsigned int i = 0; i < 3; i++) {
-                m4C[i].fn_80473F88();
+                files[i].fn_80473F88();
             }
             atn::Vector3 pos;
             atn::Vector3 rot;
             fn_8036FE74(lbl_8087F430, &pos, &rot);
             if (lbl_8087FA20 != 0) {
-                lbl_8087FA20->fn_805B7B04(pos);
+                atn::Vector3 start = pos;
+                lbl_8087FA20->fn_805B7B04(start);
             }
             if (lbl_8087F048 != 0) {
                 lbl_8087F048->fn_801027A4(lbl_8087F8A0->mHead);
@@ -377,18 +376,16 @@ int GameScene::vf0C() {
                 m998[5].fn_80470528();
             }
         }
-    } else if (m48 == 1) {
-        if (fn_800D3FA4() && !m11C.fn_803B3CA8() && GameBgm::sInstance->mState != 2) {
-            for (unsigned int i = 0; i < m180.size(); i++) {
-                if (m180[i] >= 0) {
-                    fn_8047E5DC(lbl_8087F540, m180[i]);
-                }
+    } else if (m48 == 1 && fn_800D3FA4() && !m11C.fn_803B3CA8() && GameBgm::sInstance->mState != 2) {
+        for (unsigned int i = 0; i < m180.size(); i++) {
+            if (m180[i] >= 0) {
+                fn_8047E5DC(lbl_8087F540, m180[i]);
             }
-            if (lbl_8087EE78 != 0) {
-                lbl_8087EE78->fn_80043A24();
-            }
-            m48++;
         }
+        if (lbl_8087EE78 != 0) {
+            lbl_8087EE78->fn_80043A24();
+        }
+        m48++;
     } else if (m48 == 2) {
         int done = 1;
         for (unsigned int i = 0; i < m180.size(); i++) {
@@ -550,6 +547,7 @@ atn::Task* GameScene::fn_803C0C2C(unsigned int index) {
     return 0;
 }
 
+// NONMATCHING: 99% - volatile registers of the warp point loop (index and leader swapped)
 void GameScene::fn_803C0F48(int warp) {
     for (unsigned int i = 0; i < 6; i++) {
         m998[i].fn_80470528();
@@ -557,10 +555,12 @@ void GameScene::fn_803C0F48(int warp) {
     for (unsigned int i = 0; i < m78.size(); i++) {
         if (warp == m78[i].mId) {
             lbl_8087F8A0->mHead->mPos = m78[i].mPos;
-            lbl_8087F8A0->mHead->SetRot_unk(atn::Vector3(0.0f, m78[i].m14, 0.0f));
+            atn::Vector3 rot(0.0f, m78[i].m14, 0.0f);
+            lbl_8087F8A0->mHead->SetRot_unk(rot);
             Mtx m;
-            PSMTXRotRad(m, 'y', m78[i].m14);
-            atn::Vector3 dir = atn::Vector3(0.0f, 0.0f, 1.0f);
+            PSMTXRotRad(m, 'y', rot.y);
+            atn::Vector3 dir;
+            dir = atn::Vector3(0.0f, 0.0f, 1.0f);
             PSMTXMultVec(m, &dir, &dir);
             break;
         }
@@ -730,6 +730,34 @@ void* GameScene::fn_803C18DC(int type, int link) {
     return 0;
 }
 
+// inferred: length of column `i` of the rotation of a matrix: scale of an axis (name invented)
+inline float GetColumnLength_unk(const atn::Matrix3x4& m, int i) {
+    return atn::Vector3(m.m[0][i], m.m[1][i], m.m[2][i]).Length_unk();
+}
+
+// inferred: sets the matrix of a model and its largest scale axis (name invented)
+inline void SetModelMtx_unk(atn::Model* model, const atn::Matrix3x4& m) {
+    __MtxCopy(model->mMtx.m, m.m);
+    float sz = GetColumnLength_unk(m, 2);
+    float sy = GetColumnLength_unk(m, 1);
+    float sx = GetColumnLength_unk(m, 0);
+    atn::Vector3 scale(sx, sy, sz);
+    model->m54 = scale.x > (scale.y > scale.z ? scale.y : scale.z) ? scale.x : (scale.y > scale.z ? scale.y : scale.z);
+}
+
+// inferred: m = m * rot_z * rot_y * rot_x (name invented)
+inline void RotateZYX_unk(atn::Matrix3x4& m, const atn::Vector3& rot) {
+    if (0.0f != rot.z) {
+        atn::Matrix3x4::RotateAxis_unk(m, 'z', rot.z);
+    }
+    if (0.0f != rot.y) {
+        atn::Matrix3x4::RotateAxis_unk(m, 'y', rot.y);
+    }
+    if (0.0f != rot.x) {
+        atn::Matrix3x4::RotateAxis_unk(m, 'x', rot.x);
+    }
+}
+
 void GameScene::vf10() {
     fn_803C1CAC();
     fn_803C1E3C();
@@ -740,25 +768,10 @@ void GameScene::vf10() {
         }
         atn::Matrix3x4 m;
         m.SetIdentity();
-        if (0.0f != c.m10.z) {
-            atn::Matrix3x4::RotateAxis_unk(m, 'z', c.m10.z);
-        }
-        if (0.0f != c.m10.y) {
-            atn::Matrix3x4::RotateAxis_unk(m, 'y', c.m10.y);
-        }
-        if (0.0f != c.m10.x) {
-            atn::Matrix3x4::RotateAxis_unk(m, 'x', c.m10.x);
-        }
+        RotateZYX_unk(m, c.m10);
         PSMTXConcat(c.m0C->m, m.m, m.m);
-        atn::Model* model = c.m04;
-        __MtxCopy(model->mMtx.m, m.m);
-        atn::Vector3 scale(atn::Vector3(m.m[0][0], m.m[1][0], m.m[2][0]).Length_unk(),
-                           atn::Vector3(m.m[0][1], m.m[1][1], m.m[2][1]).Length_unk(),
-                           atn::Vector3(m.m[0][2], m.m[1][2], m.m[2][2]).Length_unk());
-        model->m54 = scale.x > (scale.y > scale.z ? scale.y : scale.z)
-                         ? scale.x
-                         : (scale.y > scale.z ? scale.y : scale.z);
-        model->CalcMatrixStack(atn::ModelNodeCallback_unk());
+        SetModelMtx_unk(c.m04, m);
+        c.m04->CalcMatrixStack(atn::ModelNodeCallback_unk());
     }
 }
 
@@ -885,9 +898,266 @@ gs::CameraBox* GameScene::fn_803C2090(atn::SimpleArray<gs::CameraBox>& boxes, Ch
     return best;
 }
 
-// DRAFT: empty stub
-// NONMATCHING: stub
-void GameScene::vf14() {}
+// inferred: the sphere is in the view (static sphere of the debug drawing of vf14; name invented)
+inline int IsSphereInView_unk(const Frustum_unk* fr, const atn::Vector3& center, float radius) {
+    static atn::Sphere sphere;
+    sphere.mCenter = center;
+    sphere.mRadius = radius;
+    return fn_8004FF58(fr, &sphere);
+}
+
+// inferred: the box between two points is in the view (static box of the debug drawing of vf14; name
+// invented)
+inline int IsBoxInView_unk(const Frustum_unk* fr, const atn::Vector3& a, const atn::Vector3& b) {
+    static Frustum_unk::Bounds_unk box;
+    box.mMin = a;
+    box.mMax = b;
+    return fn_800502A8(fr, &box.mMin);
+}
+
+extern "C" unsigned short fn_803CD958(U16Table_unk* table, int point); // inferred: next point of the route
+
+// inferred: debug drawing of the points, links and boxes of the scene
+void GameScene::vf14() {
+    SceneDebugConfig_unk debug = lbl_8087F0A8->mSceneDebug;
+    if (debug.mEnabled != 0) {
+        atn::Camera& camera = atn::RenderManager::instance_->mCamera;
+        float farSq = 250000.0f;
+        const Frustum_unk* fr = &camera.mFrustum;
+        if (debug.mAttentionPoint != 0) {
+            for (unsigned int i = 0; i < mFC.size(); i++) {
+                if (mFC[i].m38 == 0) {
+                    continue;
+                }
+                if ((mFC[i].mPos - camera.mPos).LengthSq_unk() < farSq &&
+                    IsSphereInView_unk(fr, mFC[i].mPos, mFC[i].m14)) {
+                    lbl_8087EEB0->fn_80063D3C(mFC[i].mPos, mFC[i].m14, 0.0f, 0xFF00FF00);
+                }
+            }
+        }
+        if (debug.mWarpPoint != 0) {
+            for (unsigned int i = 0; i < m78.size(); i++) {
+                if (m78[i].m24 == 0) {
+                    continue;
+                }
+                if (IsSphereInView_unk(fr, m78[i].mPos, 5.0f)) {
+                    lbl_8087EEB0->fn_80062F7C(10, 0xFFFF8000, m78[i].mPos.x, m78[i].mPos.y, m78[i].mPos.z, 0.0f, 5.0f,
+                                              3.0f, m78[i].m14);
+                }
+            }
+        }
+        if (debug.mEventBox != 0) {
+            for (unsigned int i = 0; i < mE4.size(); i++) {
+                atn::Matrix3x4 rot;
+                PSMTXRotRad(rot.m, 'y', mE4[i].m14);
+                atn::Vector3 center = mE4[i].mPos;
+                atn::Vector3 size = mE4[i].mSize;
+                center.y += size.y;
+                int index = mE4[i].m2C >= 0 ? mE4[i].m2C : i;
+                if (IsSphereInView_unk(fr, center, size.Length_unk())) {
+                    bool on = m134->mFC[index].m00 >= 0;
+                    lbl_8087EEB0->fn_800629F0(center, size, 0.0f, on ? 0xFF0080FF : 0xFF00407F, &rot);
+                    if (mE4[i].m40 != 0) {
+                        atn::Vector3 front(0.0f, 0.0f, size.z);
+                        atn::Vector3 back(0.0f, 0.0f, -size.z);
+                        PSMTXMultVec(rot.m, &front, &front);
+                        PSMTXMultVec(rot.m, &back, &back);
+                        front.y += size.y;
+                        back.y += size.y;
+                        lbl_8087EEB0->fn_800638B0(0.0f, -1.0f, front + center, back + center,
+                                                  on ? 0x770080FF : 0x7700407F);
+                    }
+                }
+            }
+        }
+        if (debug.mEventSphere != 0) {
+            for (unsigned int i = 0; i < mEC.size(); i++) {
+                int index = mEC[i].m20 >= 0 ? mEC[i].m20 : i;
+                if (IsSphereInView_unk(fr, mEC[i].mPos, mEC[i].m14)) {
+                    lbl_8087EEB0->fn_80063D3C(mEC[i].mPos, mEC[i].m14, 0.0f,
+                                              m134->m10C[index].m00 >= 0 ? 0xFF0080FF : 0xFF00407F);
+                }
+            }
+        }
+        unsigned int colors[3] = {0xFFA55757, 0xFF5B7F00, 0xFFB79900}; // inferred: colors of the AI areas
+        if (debug.mMovePoint != 0) {
+            for (unsigned int i = 0; i < m98.size(); i++) {
+                if (m98[i].m2C == 0) {
+                    continue;
+                }
+                if ((m98[i].mPos - camera.mPos).LengthSq_unk() < farSq &&
+                    IsSphereInView_unk(fr, m98[i].mPos, m98[i].m14)) {
+                    unsigned int color = 0xFF0000FF;
+                    if (debug.mAIArea != 0 && m98[i].m20 > 0) {
+                        color = colors[m98[i].m20 % 3];
+                    }
+                    lbl_8087EEB0->fn_80063200(12, color, m98[i].mPos.x, 0.2f + m98[i].mPos.y, m98[i].mPos.z, 0.0f,
+                                              m98[i].m14);
+                }
+            }
+            for (unsigned int i = 0; i < mA0.size(); i++) {
+                for (unsigned int j = 0; j < mA0[i].mCount; j++) {
+                    unsigned int color = 0xFF0000FF;
+                    int areaA = m98[i].m20;
+                    int areaB = m98[j].m20;
+                    if (debug.mAIArea != 0 && areaA > 0 && areaB > 0 && areaA == areaB) {
+                        color = colors[areaA % 3];
+                    }
+                    if (fn_803CD958(&mA0[i], j) != j + 1) {
+                        continue;
+                    }
+                    if (!IsBoxInView_unk(fr, m98[i].mPos, m98[j].mPos)) {
+                        continue;
+                    }
+                    atn::Vector3 from = m98[i].mPos;
+                    atn::Vector3 to = m98[j].mPos;
+                    from.y += 1.0f;
+                    to.y += 1.0f;
+                    if ((from - camera.mPos).LengthSq_unk() < farSq &&
+                        (to - camera.mPos).LengthSq_unk() < farSq) {
+                        lbl_8087EEB0->fn_80063764(from, to, 0.0f, color);
+                    }
+                }
+            }
+        }
+        if (debug.mHidePoint != 0) {
+            for (unsigned int i = 0; i < mAC.size(); i++) {
+                if (mAC[i].m38 == 0) {
+                    continue;
+                }
+                if ((mAC[i].mPos - camera.mPos).LengthSq_unk() < farSq &&
+                    IsSphereInView_unk(fr, mAC[i].mPos, 3.0f)) {
+                    lbl_8087EEB0->fn_80063200(8, 0xFFFF00FF, mAC[i].mPos.x, 1.0f + mAC[i].mPos.y, mAC[i].mPos.z, 0.0f,
+                                              3.0f);
+                }
+            }
+            for (unsigned int i = 0; i < mB4.size(); i++) {
+                gs::HideLink_unk& link = mB4[i];
+                if (link.m08 == 0) {
+                    continue;
+                }
+                if (!IsBoxInView_unk(fr, mAC[link.mFrom].mPos, mAC[link.mTo].mPos)) {
+                    continue;
+                }
+                atn::Vector3 from = mAC[link.mFrom].mPos;
+                atn::Vector3 to = mAC[link.mTo].mPos;
+                from.y += 1.0f;
+                to.y += 1.0f;
+                if ((from - camera.mPos).LengthSq_unk() < farSq &&
+                    (to - camera.mPos).LengthSq_unk() < farSq) {
+                    lbl_8087EEB0->fn_80063764(from, to, 0.0f, 0xFFFF00FF);
+                }
+            }
+            for (unsigned int i = 0; i < mBC.size(); i++) {
+                gs::HideLink2_unk& link = mBC[i];
+                if (link.m08 == 0) {
+                    continue;
+                }
+                if (!IsBoxInView_unk(fr, mAC[link.mFrom].mPos, mAC[link.mTo].mPos)) {
+                    continue;
+                }
+                atn::Vector3 from = mAC[link.mFrom].mPos;
+                atn::Vector3 to = mAC[link.mTo].mPos;
+                from.y += 1.0f;
+                to.y += 1.0f;
+                if ((from - camera.mPos).LengthSq_unk() < farSq &&
+                    (to - camera.mPos).LengthSq_unk() < farSq) {
+                    lbl_8087EEB0->fn_80063764(from, to, 0.0f, 0xFF00FF00);
+                }
+            }
+        }
+        if (debug.mInteractionPoint != 0) {
+            for (unsigned int i = 0; i < mC4.size(); i++) {
+                if (mC4[i].m2C == 0) {
+                    continue;
+                }
+                if ((mC4[i].mPos - camera.mPos).LengthSq_unk() < farSq &&
+                    IsSphereInView_unk(fr, mC4[i].mPos, 3.0f)) {
+                    lbl_8087EEB0->fn_80063200(8, 0xFF804000, mC4[i].mPos.x, 1.0f + mC4[i].mPos.y, mC4[i].mPos.z, 0.0f,
+                                              3.0f);
+                }
+            }
+            for (unsigned int i = 0; i < mCC.size(); i++) {
+                gs::InteractionConnection& conn = mCC[i];
+                if (mC4[conn.m00].m2C == 0) {
+                    continue;
+                }
+                if (!IsBoxInView_unk(fr, mC4[conn.m00].mPos, mC4[conn.m04].mPos)) {
+                    continue;
+                }
+                atn::Vector3 from = mC4[conn.m00].mPos;
+                atn::Vector3 to = mC4[conn.m04].mPos;
+                from.y += 1.0f;
+                to.y += 1.0f;
+                if ((from - camera.mPos).LengthSq_unk() < farSq &&
+                    (to - camera.mPos).LengthSq_unk() < farSq) {
+                    lbl_8087EEB0->fn_80063764(from, to, 0.0f, 0xFF804000);
+                }
+            }
+        }
+        if (debug.mAIArea != 0) {
+            for (unsigned int i = 0; i < mF4.size(); i++) {
+                atn::Matrix3x4 rot;
+                PSMTXRotRad(rot.m, 'y', mF4[i].m14);
+                atn::Vector3 center = mF4[i].mPos;
+                center.y += mF4[i].mSize.y;
+                unsigned int color = colors[mF4[i].m24 % 3];
+                if (mF4[i].m2C != 0) {
+                    color = 0xFFAFFF00;
+                }
+                if (IsSphereInView_unk(fr, center, mF4[i].mSize.Length_unk())) {
+                    lbl_8087EEB0->fn_800629F0(center, mF4[i].mSize, 0.0f, color, &rot);
+                }
+            }
+        }
+        if (debug.mGimmick != 0) {
+            for (unsigned int i = 0; i < m104.size(); i++) {
+                if (m104[i].m7C == 0) {
+                    continue;
+                }
+                if ((m104[i].mPos - camera.mPos).LengthSq_unk() < farSq &&
+                    IsSphereInView_unk(fr, m104[i].mPos, 5.0f)) {
+                    lbl_8087EEB0->fn_80062F7C(12, 0xFF8000FF, m104[i].mPos.x, m104[i].mPos.y, m104[i].mPos.z, 0.0f,
+                                              5.0f, 3.0f, m104[i].m14);
+                }
+            }
+        }
+        if (debug.mCameraBox != 0) {
+            for (unsigned int i = 0; i < m10C.size(); i++) {
+                if (m10C[i].m54 == 0) {
+                    continue;
+                }
+                atn::Matrix3x4 rot;
+                PSMTXRotRad(rot.m, 'y', m10C[i].m14);
+                atn::Vector3 center = m10C[i].mPos;
+                center.y += m10C[i].mSize.y;
+                if (IsSphereInView_unk(fr, center, m10C[i].mSize.Length_unk())) {
+                    lbl_8087EEB0->fn_800629F0(center, m10C[i].mSize, 0.0f, 0xFFFF8000, &rot);
+                }
+            }
+        }
+        if (debug.mBgmBox != 0) {
+            for (unsigned int i = 0; i < m114.size(); i++) {
+                if (m114[i].m4C == 0) {
+                    continue;
+                }
+                atn::Matrix3x4 rot;
+                PSMTXRotRad(rot.m, 'y', m114[i].m14);
+                atn::Vector3 center = m114[i].mPos;
+                center.y += m114[i].mSize.y;
+                if (IsSphereInView_unk(fr, center, m114[i].mSize.Length_unk())) {
+                    lbl_8087EEB0->fn_800629F0(center, m114[i].mSize, 0.0f, 0xFF80FF00, &rot);
+                }
+            }
+        }
+    }
+    for (unsigned int i = 0; i < mDC.size(); i++) {
+        gs::ConstrainModel& model = mDC[i];
+        if (model.m1C != 0 && model.m08 != 0 && !model.m08->IsFlag_unk(4) && model.m0C != 0) {
+            model.m04->fn_8008CD60();
+        }
+    }
+}
 
 void GameScene::fn_803C3724(gs::PointBase_unk* point, atn::Csv& csv) {
     point->mId = atoi(csv.fn_8005B9CC());
@@ -1683,6 +1953,7 @@ extern "C" gs::PointGroup<gs::MovePoint>* fn_803C74D0(
 
 template <class T>
 void GameScene::fn_803C74E0(atn::SimpleArray<T>& points, atn::Csv& csv, int file) {
+    int offset;
     unsigned int base = 0;
     if (points.GetData_unk() == 0) {
         points.Resize_unk(atoi(csv.fn_8005B9CC()), 1, "SceneCharaPoint");
@@ -1690,7 +1961,7 @@ void GameScene::fn_803C74E0(atn::SimpleArray<T>& points, atn::Csv& csv, int file
         base = points.size();
         points.Grow_unk(base + atoi(csv.fn_8005B9CC()), 1, "SceneCharaPoint");
     }
-    int offset = file * 10000;
+    offset = file * 10000;
     unsigned int i = base;
     while (csv.fn_8005BBF8()) {
         std::string s(csv.fn_8005B9CC());
@@ -1979,6 +2250,12 @@ struct Segment_unk {
 // inferred: squared distance from a point to a segment; the closest point goes to `out`
 extern "C" float fn_80050A1C(const atn::Vector3* point, const Segment_unk* seg, atn::Vector3* out);
 
+// inferred: larger of two values, as a double (the original rounds the result with frsp; name invented)
+inline double MaxD_unk(float a, float b) {
+    return a > b ? a : b;
+}
+
+// NONMATCHING: 98.4% - stack slots of the vectors of the loop and the order of the loads of the reach (4 * m570)
 int GameScene::fn_803CB044(GameSceneRoute_unk* out, CharaTask* chara, int check, int point) {
     atn::Vector3 fwd(0.0f, 0.0f, 1.0f);
     atn::ColliResult_unk unused;
@@ -2021,28 +2298,33 @@ int GameScene::fn_803CB044(GameSceneRoute_unk* out, CharaTask* chara, int check,
         atn::ColliSphereShape_unk sphere;
         sphere.mCenter = chara->m614;
         sphere.mRadius = chara->m620;
-        sphere.mRadius = dot * reach + (sphere.mRadius > 16.0f ? sphere.mRadius : 16.0f);
+        sphere.mRadius = dot * reach + (float)MaxD_unk(sphere.mRadius, 16.0f);
         atn::Vector3 closest;
         float dist = fn_80050A1C(&sphere.mCenter, &seg, &closest);
         if (dist < sphere.mRadius * sphere.mRadius && dist < best) {
             atn::Vector3 off(closest.x - chara->m614.x, 0.0f, closest.z - chara->m614.z);
-            atn::Vector3 n;
-            if (off.LengthSq_unk() < 4.0f || (n = off, n.Normalize_unk(), PSVECDotProduct(&n, &fwd) > 0.5f)) {
-                int blocked = 0;
-                if (point < 0) {
-                    atn::ColliResult_unk result;
-                    if (fn_8004ED34(lbl_8087EE98, &result, &sphere.mCenter, &closest,
-                                    chara->fn_80179D44() | 0x80000000, 0, 0) != 0) {
-                        blocked = 1;
-                    }
-                    if ((float)__fabs(closest.y - chara->mPos.y) > 8.0f) {
-                        blocked = 1;
-                    }
+            if (!(off.LengthSq_unk() < 4.0f)) {
+                atn::Vector3 n = off;
+                n.Normalize_unk();
+                if (!(PSVECDotProduct(&n, &fwd) > 0.5f)) {
+                    continue;
                 }
-                if (!blocked) {
-                    best = dist;
-                    found = &link;
+            }
+            int blocked = 0;
+            if (point < 0) {
+                atn::ColliResult_unk result;
+                void* world = lbl_8087EE98;
+                if (fn_8004ED34(world, &result, &sphere.mCenter, &closest, chara->fn_80179D44() | 0x80000000, 0,
+                                0) != 0) {
+                    blocked = 1;
                 }
+                if ((float)__fabs(closest.y - chara->mPos.y) > 8.0f) {
+                    blocked = 1;
+                }
+            }
+            if (!blocked) {
+                best = dist;
+                found = &link;
             }
         }
     }
@@ -2117,9 +2399,204 @@ int GameScene::fn_803CB618(GameSceneRoute_unk* out, CharaTask* chara) {
     return 0;
 }
 
-// DRAFT: stub that returns 0
-// NONMATCHING: stub
-int GameScene::fn_803CB820() {
+extern "C" int fn_8005361C(atn::ColliResult_unk* result, const atn::ColliCapsuleShape_unk* seg,
+                           const atn::ColliSphereShape_unk* sphere); // inferred: segment against sphere
+
+// inferred: starts the interaction (ledge, ladder, climb...) of the connection that `chara` touches moving in
+// `move`: the connection must be enabled, near, faced in its direction and touched by the capsule of the
+// character; returns 1 when one was started
+// NONMATCHING: 99.5% - same instructions; stack slots of the temporaries and the order of the registers of the
+// saved pointers
+int GameScene::fn_803CB820(const atn::Vector3* pos, const atn::Vector3* move, CharaTask* chara) {
+    CharaTask::Sphere_unk body = chara->fn_80176548(*pos);
+    atn::ColliResult_unk result;
+    atn::Vector3 dir = *move;
+    PSVECNormalize(&dir, &dir);
+    for (unsigned int i = 0; i < mCC.size(); i++) {
+        gs::InteractionPoint& a = mC4[mCC[i].m00];
+        gs::InteractionPoint& b = mC4[mCC[i].m04];
+        if (a.m2C == 0) {
+            continue;
+        }
+        if (chara->m55C == 6) {
+            if (chara->m560 == 0x68) {
+                if (a.m14 != 4) {
+                    continue;
+                }
+            } else {
+                if (a.m14 != 6) {
+                    continue;
+                }
+                if (chara->mType != 2) {
+                    continue;
+                }
+            }
+        } else if (a.m14 == 6) {
+            continue;
+        }
+        atn::Vector3 d = a.mPos - body.mCenter;
+        if (PSVECSquareMag(&d) > 10000.0f) {
+            continue;
+        }
+        atn::Vector3 link = b.mPos - a.mPos;
+        PSVECNormalize(&link, &link);
+        atn::Vector3 normal;
+        switch (a.m14) {
+        case 0:
+        case 1:
+        case 9:
+        case 11: {
+            atn::Vector3 up(0.0f, 1.0f, 0.0f);
+            atn::Vector3 side;
+            PSVECCrossProduct(&link, &up, &side);
+            normal = side;
+            if (PSVECDotProduct(&dir, &normal) < 0.7f) {
+                continue;
+            }
+            break;
+        }
+        case 6: {
+            atn::Vector3 up(0.0f, 1.0f, 0.0f);
+            atn::Vector3 side;
+            PSVECCrossProduct(&link, &up, &side);
+            normal = side;
+            if (PSVECDotProduct(&dir, &normal) < 0.6f) {
+                continue;
+            }
+            break;
+        }
+        case 2:
+        case 3:
+        case 4:
+        case 7:
+        case 8:
+            normal = link;
+            if (atn::Abs_unk(PSVECDotProduct(&dir, &normal)) < 0.7f) {
+                continue;
+            }
+            break;
+        case 12:
+            normal = link;
+            if (PSVECDotProduct(&dir, &normal) < 0.7f) {
+                continue;
+            }
+            break;
+        case 10:
+            if (a.m18 == 1 && chara->mType == 0) {
+                continue;
+            }
+            normal = link;
+            normal.y = 0.0f;
+            PSVECNormalize(&normal, &normal);
+            if (atn::Abs_unk(PSVECDotProduct(&dir, &normal)) < 0.7f) {
+                continue;
+            }
+            break;
+        }
+        atn::ColliCapsuleShape_unk seg;
+        seg.mStart = a.mPos;
+        seg.mEnd = b.mPos;
+        float height = chara->m5A4.y + body.mRadius;
+        seg.mStart.y += height;
+        seg.mEnd.y += height;
+        atn::ColliSphereShape_unk sphere(body.mCenter, body.mRadius);
+        if (a.m14 == 10) {
+            sphere.mRadius = body.mRadius + 2.0f;
+        }
+        if (fn_8005361C(&result, &seg, &sphere) == 0) {
+            continue;
+        }
+        atn::Vector3 rot = normal.ToRotation_unk();
+        switch (a.m14) {
+        case 0:
+            chara->mRot = rot;
+            chara->fn_80161E58();
+            break;
+        case 1:
+            chara->mRot = rot;
+            chara->fn_80162140(a.mPos, b.mPos);
+            break;
+        case 6:
+            if (lbl_8087F610 == 0) {
+                chara->fn_801698E4(rot);
+            }
+            break;
+        case 9:
+            chara->fn_80162428(rot);
+            break;
+        case 11:
+            chara->fn_80165F54(rot);
+            break;
+        case 2:
+        case 3:
+        case 4:
+        case 7:
+        case 8:
+        case 10: {
+            atn::Vector3 da = a.mPos - chara->mPos;
+            float distA = PSVECSquareMag(&da);
+            atn::Vector3 db = b.mPos - chara->mPos;
+            float distB = PSVECSquareMag(&db);
+            int found = 0;
+            atn::Vector3 from;
+            atn::Vector3 to;
+            if (PSVECDotProduct(&dir, &normal) > 0.0f) {
+                if (distA < distB) {
+                    from = a.mPos;
+                    to = b.mPos;
+                    found = 1;
+                }
+            } else if (distA > distB) {
+                from = b.mPos;
+                to = a.mPos;
+                found = 1;
+            }
+            if (found != 0) {
+                if (a.m14 == 2) {
+                    chara->fn_80162720(from, to);
+                } else if (a.m14 == 3) {
+                    float speed = 0.5f;
+                    MapTask* map = m64;
+                    // inferred: one ladder of the map 2-4-1 starts from fixed points
+                    if (map != 0 && map->mType == 2 && map->mId == 4 && map->mSubId == 1) {
+                        atn::Vector3 p(1260.05f, 0.04f, 205.73f);
+                        atn::Vector3 e = from - p;
+                        if (PSVECSquareMag(&e) < 1.0f) {
+                            from.x = 1259.11f;
+                            from.y = 0.1f;
+                            from.z = 204.26f;
+                            to.x = 1277.34f;
+                            to.y = 0.1f;
+                            to.z = 194.88f;
+                            speed = 0.7f;
+                        }
+                    }
+                    chara->fn_80162CF0(from, to, speed);
+                } else if (a.m14 == 4) {
+                    chara->fn_80162FE8(from, to);
+                } else if (a.m14 == 7) {
+                    chara->fn_801632D0(from, to);
+                } else if (a.m14 == 8) {
+                    chara->fn_801635B8(from, to);
+                } else if (a.m14 == 10) {
+                    chara->fn_80162A08(from, to);
+                }
+            }
+            break;
+        }
+        case 12: {
+            atn::Vector3 da = a.mPos - chara->mPos;
+            float distA = PSVECSquareMag(&da);
+            atn::Vector3 db = b.mPos - chara->mPos;
+            float distB = PSVECSquareMag(&db);
+            if (PSVECDotProduct(&dir, &normal) > 0.0f && distA < distB && a.m14 == 12) {
+                chara->fn_801638A0(a.mPos, b.mPos);
+            }
+            break;
+        }
+        }
+        return 1;
+    }
     return 0;
 }
 
@@ -2197,23 +2674,20 @@ int GameScene::fn_803CC3BC(const atn::Vector3* pos, const atn::Vector3* dir, Cha
 int GameScene::fn_803CC5E4(int type, int id) {
     if (type == 1) {
         for (int i = 0; i < m80.mSize; i++) {
-            gs::NpcSetPoint& p = m80.mData[i];
-            if (id == p.mId) {
-                return p.m20;
+            if (id == m80[i].mId) {
+                return m80[i].m20;
             }
         }
     } else if (type == 2) {
         for (int i = 0; i < m88.mSize; i++) {
-            gs::NpcSetPoint& p = m88.mData[i];
-            if (id == p.mId) {
-                return p.m20;
+            if (id == m88[i].mId) {
+                return m88[i].m20;
             }
         }
     } else if (type == 3) {
         for (int i = 0; i < m90.mSize; i++) {
-            gs::NpcSetPoint& p = m90.mData[i];
-            if (id == p.mId) {
-                return p.m20;
+            if (id == m90[i].mId) {
+                return m90[i].m20;
             }
         }
     }
@@ -2322,41 +2796,56 @@ int GameScene::fn_803CCA64(CharaTask* chara, int arg, float range) {
     return 0;
 }
 
-// inferred: position and rotation of the set point of `chara` in `points`
-inline int GetSetPoint_unk(atn::SimpleArray<gs::NpcSetPoint>& points, CharaTask* chara, atn::Vector3* pos,
-                           atn::Vector3* rot) {
-    for (unsigned int i = 0; i < points.size(); i++) {
-        gs::NpcSetPoint& p = points[i];
-        if (p.mId == chara->m58) {
-            if (pos != 0) {
-                *pos = p.mPos;
-            }
-            if (rot != 0) {
-                *rot = atn::Vector3(0.0f, p.m14, 0.0f);
-            }
-            return 1;
-        }
-    }
-    return 0;
-}
-
 int GameScene::fn_803CCA84(CharaTask* chara, atn::Vector3* pos, atn::Vector3* rot) {
     if (chara == 0) {
         return 0;
     }
-    int found = 0;
+    // inferred: position and rotation of the set point of `chara`
     switch (chara->mType) {
     case 1:
-        found = GetSetPoint_unk(m80, chara, pos, rot);
+        for (unsigned int i = 0; i < m80.size(); i++) {
+            gs::NpcSetPoint& p = m80[i];
+            if (p.mId == chara->m58) {
+                if (pos != 0) {
+                    *pos = p.mPos;
+                }
+                if (rot != 0) {
+                    *rot = atn::Vector3(0.0f, p.m14, 0.0f);
+                }
+                return 1;
+            }
+        }
         break;
     case 2:
-        found = GetSetPoint_unk(m88, chara, pos, rot);
+        for (unsigned int i = 0; i < m88.size(); i++) {
+            gs::NpcSetPoint& p = m88[i];
+            if (p.mId == chara->m58) {
+                if (pos != 0) {
+                    *pos = p.mPos;
+                }
+                if (rot != 0) {
+                    *rot = atn::Vector3(0.0f, p.m14, 0.0f);
+                }
+                return 1;
+            }
+        }
         break;
     case 3:
-        found = GetSetPoint_unk(m90, chara, pos, rot);
+        for (unsigned int i = 0; i < m90.size(); i++) {
+            gs::NpcSetPoint& p = m90[i];
+            if (p.mId == chara->m58) {
+                if (pos != 0) {
+                    *pos = p.mPos;
+                }
+                if (rot != 0) {
+                    *rot = atn::Vector3(0.0f, p.m14, 0.0f);
+                }
+                return 1;
+            }
+        }
         break;
     }
-    return found;
+    return 0;
 }
 
 int GameScene::fn_803CCC4C() {
@@ -2378,20 +2867,19 @@ void GameScene::fn_803CCC84(int a, int b) {
 
 void GameScene::fn_803CCCC0() {
     for (unsigned int i = 0; i < m190.size(); i++) {
-        GameScenePair_unk& pair = m190[i];
         CharaTask* chara = 0;
-        switch (pair.m00) {
+        switch (m190.mData[i].m00) {
         case 0:
-            chara = lbl_8087F8A0->Find_unk(pair.m04);
+            chara = lbl_8087F8A0->Find_unk(m190.mData[i].m04);
             break;
         case 1:
-            chara = NpcManager::sInstance->Find_unk(pair.m04);
+            chara = NpcManager::sInstance->Find_unk(m190.mData[i].m04);
             break;
         case 2:
-            chara = EnemyManager::sInstance->Find_unk(pair.m04);
+            chara = EnemyManager::sInstance->Find_unk(m190.mData[i].m04);
             break;
         case 3:
-            chara = lbl_8087F8A0->Find_unk(pair.m04);
+            chara = lbl_8087F8A0->Find_unk(m190.mData[i].m04);
             break;
         }
         if (chara != 0) {

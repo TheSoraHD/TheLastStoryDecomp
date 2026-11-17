@@ -143,7 +143,7 @@ void Ocean::fn_804186D8() {
 } // namespace gmk
 
 // inferred: point of the sea surface under `pos` (the start of a segment)
-// NONMATCHING: 77.8% - scheduling/registers of the index arithmetic, the table copy and the bilinear
+// NONMATCHING: 81.15% - scheduling/registers of the index arithmetic, the table copy and the bilinear
 // weights. Found: joints in a 2-iteration loop (one shared temporary), modf results kept as double,
 // z offset uses origin.x, ints converted to locals before the modulo, bilinear weights in an inline.
 // inferred: bilinear interpolation of the four corners (name invented)
@@ -182,8 +182,9 @@ extern "C" atn::Vector3 fn_804188A0(gmk::Ocean* ocean, const atn::Vector3* pos) 
             y[i] = ((atn::Matrix3x4*)ocean->mModel.mMtx.mNodes.mData[nodes[i]].m)->GetTrans_unk().y;
         }
     }
+    float h = y[0] * t + y[1] * (1.0f - t);
     atn::Vector3 ret(*pos);
-    ret.y = y[0] * t + y[1] * (1.0f - t);
+    ret.y = h;
     return ret;
 }
 
@@ -204,16 +205,19 @@ void Ocean::vf70(int state) {
     }
 }
 
-// NONMATCHING: 97.6% - scheduling of the first debug item (string pool address).
+// inferred: debug menu group of the gimmick in an inline (the pool address is then built before the
+// group is moved to r3, as in the original); name invented
+static inline void* MenuGroup_unk(Ocean* self, void* menu, char* name) {
+    if (self->mF0.mRes == 0 && menu != 0 && lbl_8087EF10 != 0) {
+        return self->mF0.mRes = fn_8008937C(menu, name);
+    }
+    return 0;
+}
+
 void Ocean::vf6C(void* menu) {
     char name[0x20];
     fn_803EC758(name);
-    void* group;
-    if (mF0.mRes == 0 && menu != 0 && lbl_8087EF10 != 0) {
-        group = mF0.mRes = fn_8008937C(menu, name);
-    } else {
-        group = 0;
-    }
+    void* group = MenuGroup_unk(this, menu, name);
     fn_800874C8(group, "state", &m54, 0, 99, 1, 0, 0);
     fn_80087E9C(group, "pos", &m6C, 0, 0, -9999.0f, 9999.0f, 0.25f);
     fn_80088724(group, "rot", &m78, 0, 0, -3.1415927f, 3.1415927f, 0.05235988f);

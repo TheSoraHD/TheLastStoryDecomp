@@ -79,3 +79,8 @@ Sin argumentos recorren todas las unidades del juego sin enlazar que tienen fuen
   valor; `fixbad.py <unidad> [--apply]` corrige las BAD de `lblval.py`; `datafix.py` renombra las `@N` de
   `.data/.rodata` que faltan por offset; `datasplit.py <unidad> [--apply]` parte objetos `@N` que dtk funde y nuestro
   `.o` emite por separado (constantes ptmf de 12 bytes: report.json da 100 % y objdiff-cli no).
+- `semdiff.py <unidad> <simbolo>`: diff con registros y pila normalizados; destinos de salto, llamadas y offsets de miembros distintos (escribir-20261116).
+- `side.py <unidad> <simbolo> <desde> <hasta>`: las dos columnas de objdiff de un tramo de instrucciones.
+- `slots.py <unidad> <simbolo>`: pares de huecos de pila original -> nuestro.
+- `strend.py`: `@stringBase0` cuyo tamano en symbols.txt deja fuera el `""` final (corregir el tamano).
+- `ppfixlbl.py`: tras `pd.sh atn/PacketPack`, re-etiqueta por direccion los objetos que pd deja sin emparejar.

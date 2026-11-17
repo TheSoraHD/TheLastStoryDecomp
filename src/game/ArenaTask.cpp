@@ -47,7 +47,7 @@ ArenaTask* ArenaTask::fn_8004318C(atn::Task* parent) {
     return sInstance;
 }
 
-bool ArenaTask::fn_800431F4(int a, int b) {
+bool ArenaTask::fn_800431F4(int a, int b, int) {
     if (a == 2 && b == 9) {
         return true;
     }

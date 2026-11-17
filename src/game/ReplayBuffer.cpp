@@ -67,6 +67,9 @@ extern "C" void fn_8056A84C(float angle, atn::Matrix3x4* mtx, const atn::NodeChu
     }
 }
 
+#define REPLAY_MIN(a, b) ((a) < (b) ? (a) : (b))
+#define REPLAY_MAX(a, b) ((a) > (b) ? (a) : (b))
+
 // inferred: blend of the motion tracks given to fn_8056A9E4 (halfway between two frames of the replay; names
 // invented)
 struct ReplayBlend_unk {
@@ -75,15 +78,99 @@ struct ReplayBlend_unk {
     float mWeights[4];
 };
 
-// DRAFT: the pose of the nodes, the saved callbacks of the model and `out`
-// NONMATCHING: draft - only the node callback of the upper body; the pose of the nodes (`data`, `count`), the
-// saved callbacks of the model and `out` are missing. Written for the weak copies of the boost::function of
-// the callback (0x8056B2C0 invoker, 0x8056B2E0 manager).
-extern "C" __declspec(noinline) void fn_8056A9E4(atn::Model* model, void* data, int count, Mtx mtx, ReplayBlend_unk* out, ReplayChara_unk* entry,
-                            float angle) {
-    if (entry != 0 && entry->m07 != 0) {
-        model->CalcMatrixStack(boost::bind(&fn_8056A84C, angle, _1, _2, _3));
+// inferred: sets the node callback / the second node pose callback of a model (game/BattleTask.cpp,
+// game/Em401_01_WhiteLeoPard.cpp)
+extern "C" void fn_800F29D0(atn::Model* model, atn::ModelNodeCallback_unk callback);
+extern "C" void fn_8031F2A4(atn::Model* model, boost::function<void(atn::MotionBuffer*, int)> callback);
+
+// inferred: sets a vector (the arguments are evaluated z first, as in game/CharaTask.cpp)
+static inline void Vec3Set_unk(atn::Vector3& v, float x, float y, float z) {
+    v.x = x;
+    v.y = y;
+    v.z = z;
+}
+
+// inferred: byte of the replay data to 0..1 (name invented)
+static inline float FromByte_unk(unsigned char b) {
+    return b / 255.0f;
+}
+
+// inferred: half float of the replay data to float (names invented)
+static inline float FromHalf_unk(short h) {
+    if (h == 0) {
+        return 0.0f;
     }
+    unsigned int bits = (h << 16) & 0x80000000;
+    bits |= (h << 13) & 0x007FE000;
+    bits |= ((((h >> 10) & 0x1F) + 0x70) << 23) & 0x7F800000;
+    return *(float*)&bits;
+}
+
+// inferred: poses `model` from the recorded data: matrix `mtx`, the `count` motion tracks of `tracks` (frames and
+// weights from `blend` when it is set), the pose of the "reference" node and the upper body turned by `angle`;
+// the callbacks of the model are kept and put back
+// NONMATCHING: ~99% - the z of the three columns are loaded after the matrix copy (the original loads them
+// between the paired-single copies), the store of the flag of the track and the registers of the second loop
+extern "C" __declspec(noinline) void fn_8056A9E4(atn::Model* model, ReplayTrack_unk* tracks, int count, Mtx mtx,
+                                                 ReplayBlend_unk* blend, ReplayChara_unk* entry, float angle) {
+    atn::ModelNodeCallback_unk nodeCallback = model->mB8;
+    boost::function<void(atn::MotionBuffer*, int)> poseCallback = model->m35C;
+    if (entry != 0 && entry->m07 != 0) {
+        fn_800F29D0(model, boost::bind(&fn_8056A84C, angle, _1, _2, _3));
+    } else {
+        fn_800F29D0(model, atn::ModelNodeCallback_unk());
+    }
+    fn_8031F2A4(model, boost::function<void(atn::MotionBuffer*, int)>());
+    __MtxCopy(model->mMtx.m, mtx);
+    atn::Vector3 ax;
+    atn::Vector3 ay;
+    atn::Vector3 az;
+    Vec3Set_unk(az, mtx[0][2], mtx[1][2], mtx[2][2]);
+    float sz = PSVECMag(&az);
+    Vec3Set_unk(ay, mtx[0][1], mtx[1][1], mtx[2][1]);
+    float sy = PSVECMag(&ay);
+    Vec3Set_unk(ax, mtx[0][0], mtx[1][0], mtx[2][0]);
+    float sx = PSVECMag(&ax);
+    atn::Vector3 scale(sx, sy, sz);
+    model->m54 = REPLAY_MAX(scale.x, REPLAY_MAX(scale.y, scale.z));
+    ReplayTrack_unk* src = tracks;
+    for (int i = 0; i < count; i++, src++) {
+        atn::Model::Track_unk t;
+        t.m00 = src->mId;
+        t.m04 = src->mMotion;
+        t.m08 = FromHalf_unk(src->mFrame);
+        t.m0C = 0.0f;
+        t.m10 = FromByte_unk(src->m11);
+        t.m14 = 0.0f;
+        t.m18 = src->mFlag != 0;
+        t.m1C = FromByte_unk(src->m13);
+        t.m20 = FromByte_unk(src->m14);
+        t.m24 = src->mPrev;
+        t.m28 = FromHalf_unk(src->mPrevFrame);
+        t.m2C = FromByte_unk(src->m15);
+        if (blend->mBlend != 0) {
+            t.m08 = blend->mFrames[i];
+            t.m10 = blend->mWeights[i];
+        }
+        model->mTracks[i] = t;
+    }
+    model->mFlags &= ~0x40;
+    model->fn_80097E80(1);
+    if (entry != 0) {
+        atn::Model::Node_unk* nodes = model->m21C.mData;
+        atn::Model::Node_unk* node = &nodes[model->GetNodeNoByName("reference", 0)];
+        node->m00 = (unsigned short)entry->mRefFlags;
+        atn::Vector3 pos(FromHalf_unk(entry->mRefPos[0]), FromHalf_unk(entry->mRefPos[1]), FromHalf_unk(entry->mRefPos[2]));
+        node->mPos = pos;
+    }
+    model->CalcMatrixStack(atn::ModelNodeCallback_unk());
+    src = tracks;
+    for (int i = 0; i < count; i++, src++) {
+        model->mTracks[i].m0C = FromHalf_unk(src->mSpeed);
+        model->mTracks[i].m14 = FromByte_unk(src->mWeight);
+    }
+    fn_800F29D0(model, nodeCallback);
+    fn_8031F2A4(model, poseCallback);
 }
 
 ReplayRecorder_unk::ReplayRecorder_unk() {
@@ -123,16 +210,6 @@ void ReplayRecorder_unk::fn_8056B3D4() {
     }
 }
 
-// inferred: half float of the replay data to float (names invented)
-static inline float FromHalf_unk(short h) {
-    if (h == 0) {
-        return 0.0f;
-    }
-    unsigned int bits = (h << 16) & 0x80000000;
-    bits |= (h << 13) & 0x007FE000;
-    bits |= ((((h >> 10) & 0x1F) + 0x70) << 23) & 0x7F800000;
-    return *(float*)&bits;
-}
 
 // NONMATCHING: 97.15% - stack frame 0x20 smaller (slots of the temporaries) and registers
 // inferred: float to half float of the replay data (names invented)
@@ -151,8 +228,6 @@ static inline short ToHalf_unk(float f) {
     return (short)(((bits >> 16) & 0x8000) | ((e << 10) & 0x7C00) | ((bits >> 13) & 0x3FF));
 }
 
-#define REPLAY_MIN(a, b) ((a) < (b) ? (a) : (b))
-#define REPLAY_MAX(a, b) ((a) > (b) ? (a) : (b))
 // inferred: 0..1 to a byte (names invented)
 static inline unsigned char ToByte_unk(float v) {
     return (unsigned char)(int)REPLAY_MAX(0.0f, REPLAY_MIN(255.0f, 255.0f * v));
@@ -1184,25 +1259,26 @@ struct EfpRes_unk {
     EfpEmitter_unk* mItems;
 };
 
+// inferred: removes the effect events of an emitter (name invented)
+inline void RemoveEffects_unk(atn::FixedArray_unk<ReplayEffectEntry_unk*, 512>& effects, EfpEmitter_unk* emitter) {
+    ReplayEffectEntry_unk** it = effects.begin();
+    while (it != effects.end()) {
+        if ((*it)->mEvent.mRes == emitter->m48) {
+            effects.erase(it);
+        } else {
+            it++;
+        }
+    }
+}
+
 // inferred: removes the effect events of every emitter of `efp`
-// NONMATCHING: 89.4% - register allocation: the original keeps the outer counter in r31 and the
-// erase index in a volatile register (tried counters declared outside, int/unsigned, an erase inline).
+// NONMATCHING: 91.4% - volatile registers: the resource, the emitter offset and the erase pointer rotate
+// (r10/r11/r12) and the original loads the resource before saving r31 (tried the declaration orders, an
+// early return, the whole loop in an inline, the helper with a pointer or the owner)
 void ReplayBuffer::fn_80570A74(atn::EfpFile* efp) {
-    EfpRes_unk* res = (EfpRes_unk*)efp->mResource;
-    if (res != 0) {
+    if (EfpRes_unk* res = (EfpRes_unk*)efp->mResource) {
         for (unsigned int i = 0; i < res->mCount; i++) {
-            void* owner = res->mItems[i].m48;
-            ReplayEffectEntry_unk** p = mEffects.mData;
-            while (p != mEffects.mData + mEffects.mSize) {
-                if ((*p)->mEvent.mRes == owner) {
-                    for (unsigned int j = p - mEffects.mData; j < mEffects.mSize - 1; j++) {
-                        mEffects.mData[j] = mEffects.mData[j + 1];
-                    }
-                    mEffects.mSize = mEffects.mSize - 1;
-                } else {
-                    p++;
-                }
-            }
+            RemoveEffects_unk(mEffects, &res->mItems[i]);
         }
     }
 }

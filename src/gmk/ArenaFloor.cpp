@@ -51,9 +51,11 @@ GimmickCommon* ArenaFloor::fn_8041DDE4(atn::Task* parent, int id, int arg) {
     return 0;
 }
 
-// NONMATCHING: 97.6% - in the case 0 entry the original computes the index before loading the
-// array (stwux base, index), and in the case 4 loop the counter and the entry pointer swap r6/r7.
+// inferred: defined here (not inline): the original places it right after fn_8041DDE4
+ArenaFloor::~ArenaFloor() {}
+
 // The array is an atn::SimpleArray (its inline Resize_unk has the new[] literals in .sdata).
+// The locals are declared before their first use: the declaration order gives the volatile registers.
 int ArenaFloor::vf0C() {
     if (fn_803EC91C() == 0) {
         m54 = 5;
@@ -79,24 +81,33 @@ int ArenaFloor::vf0C() {
             mEntries.Resize_unk(count, 0);
             int n = 0;
             for (MapPartsBase* part = mGroup->mParts; part != 0; part = part->mNext) {
-                switch (part->mType) {
-                case 0: {
-                    Entry_unk& e = mEntries.mData[n++];
-                    e.mType = part->mType;
-                    e.mObject = &((MapPartsModel*)part)->mModel;
-                    e.mPos = ((MapPartsModel*)part)->mModel.mMtx.GetTrans_unk() + m6C;
+                Entry_unk* p;
+                atn::Model* model;
+                int type;
+                type = part->mType;
+                switch (type) {
+                case 0:
+                    p = mEntries.mData;
+                    p += n++;
+                    model = &((MapPartsModel*)part)->mModel;
+                    p->mType = type;
+                    p->mObject = model;
+                    p->mPos = model->mMtx.GetTrans_unk() + m6C;
                     break;
-                }
-                case 4:
-                    for (int i = 0; i < ((MapPartsLocatorSet*)part)->mInstances.mSize; i++) {
-                        MapInstance_unk* obj = ((MapPartsLocatorSet*)part)->mInstances[i];
-                        Entry_unk& e = mEntries.mData[n];
+                case 4: {
+                    MapInstance_unk* obj;
+                    Entry_unk* e;
+                    int i;
+                    for (i = 0; i < ((MapPartsLocatorSet*)part)->mInstances.mSize; i++) {
+                        obj = ((MapPartsLocatorSet*)part)->mInstances[i];
+                        e = &mEntries.mData[n];
                         n++;
-                        e.mType = part->mType;
-                        e.mObject = obj;
-                        e.mPos = obj->mInst.mMtx.GetTrans_unk() + m6C;
+                        e->mType = part->mType;
+                        e->mObject = obj;
+                        e->mPos = obj->mInst.mMtx.GetTrans_unk() + m6C;
                     }
                     break;
+                }
                 case 5:
                     ((MapPartsGimmickLoc*)part)->fn_8049994C(m6C, m78);
                     for (GimmickCommon* g = GimmickManager::instance_->mHead; g != 0; g = g->m5C) {

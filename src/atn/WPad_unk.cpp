@@ -115,12 +115,27 @@ WPad_unk::WPad_unk() {
 
 extern "C" void fn_800DEB04(WPad_unk* wpad, int port, int axis, int negative, int positive);
 
-#define WPAD_MIN(a, b) ((a) > (b) ? (b) : (a))
+#define WPAD_MIN(a, b) ((a) < (b) ? (a) : (b))
 #define WPAD_MAX(a, b) ((a) > (b) ? (a) : (b))
 
-// NONMATCHING: ~75% - per-frame update; same blocks as the original but different registers for the
-// per-port pointers (the original keeps one base pointer per array: this + port * 4, * 0x64, * 0x2C,
-// * 0x50, * 8) and float constants.
+// inferred: dead zone of a stick axis (name invented; the original repeats it for the four stick axes)
+static inline void DeadZone_unk(float& x) {
+    float v = atn::Abs_unk(x) - 0.1f;
+    if (0.0f > v) {
+        v = 0.0f;
+    }
+    float sign = x > 0.0f ? 1.0f : -1.0f;
+    x = sign * (v / 0.9f);
+}
+
+// inferred: reads the status of the four remotes (an inline in the original: its counter and pointer
+// take the registers of the original only this way)
+static inline void ReadAll_unk(WPad_unk* w) {
+    for (int i = 0; i < 4; i++) {
+        KPADRead(i, w->mStatus[i], 16);
+    }
+}
+
 extern "C" void fn_800DDD18(WPad_unk* wpad) {
     bool connected[4];
     connected[0] = wpad->mConnected[0];
@@ -131,13 +146,10 @@ extern "C" void fn_800DDD18(WPad_unk* wpad) {
     memset(wpad->mRelease, 0, sizeof(wpad->mRelease));
     memset(wpad->mRepeat, 0, sizeof(wpad->mRepeat));
     memcpy(wpad->mPrevAnalog, wpad->mAnalog, sizeof(wpad->mAnalog));
-    for (int i = 0; i < 4; i++) {
-        KPADRead(i, wpad->mStatus[i], 16);
-    }
+    ReadAll_unk(wpad);
     for (int port = 0; port < 4; port++) {
-        KPADStatus_unk* status = wpad->mStatus[port];
-        wpad->mFlags[port].mBit0 = 0;
-        if (!connected[port] && status->mErr == 0) {
+        wpad->mFlags[port] &= ~1;
+        if (!connected[port] && wpad->mStatus[port]->mErr == 0) {
             if (port == 0) {
                 for (int i = 0; i < 25; i++) {
                     wpad->Release_unk(port, i);
@@ -151,8 +163,9 @@ extern "C" void fn_800DDD18(WPad_unk* wpad) {
             }
             continue;
         }
+        KPADStatus_unk* status = wpad->mStatus[port];
         if (status->mDevType == 2) {
-            wpad->mFlags[port].mBit0 = 1;
+            wpad->mFlags[port] |= 1;
             wpad->mAnalog[port][0] = status->mEx.mCl.mLStick[0];
             wpad->mAnalog[port][1] = status->mEx.mCl.mLStick[1];
             wpad->mAnalog[port][2] = status->mEx.mCl.mRStick[0];
@@ -246,7 +259,7 @@ extern "C" void fn_800DDD18(WPad_unk* wpad) {
                 wpad->Release_unk(port, 17);
             }
         } else {
-            wpad->mFlags[port].mBit1 = 0;
+            wpad->mFlags[port] &= ~2;
             if (status->mDevType == 1) {
                 wpad->mAnalog[port][0] = status->mEx.mFs.mStick[0];
                 wpad->mAnalog[port][1] = status->mEx.mFs.mStick[1];
@@ -267,9 +280,10 @@ extern "C" void fn_800DDD18(WPad_unk* wpad) {
             wpad->mAnalog[port][6] = status->mAcc[2];
             if (status->mDevType == 1 || wpad->m40E0[port] == 0) {
                 for (int i = 0; i < 20; i++) {
+                    unsigned int bit = 1 << i;
                     if (i >= 16) {
                         wpad->Release_unk(port, i);
-                    } else if ((status->mHold & (1 << i)) == (1 << i)) {
+                    } else if ((status->mHold & bit) == bit) {
                         wpad->Press_unk(port, i);
                     } else {
                         wpad->Release_unk(port, i);
@@ -283,21 +297,17 @@ extern "C" void fn_800DDD18(WPad_unk* wpad) {
             wpad->mAnalogButton[port][9] = (wpad->mHold[port] & 0x200) == 0x200 ? 1.0f : 0.0f;
             wpad->mAnalogButton[port][8] = (wpad->mHold[port] & 0x100) == 0x100 ? 1.0f : 0.0f;
         }
-        for (int i = 0; i < 4; i++) {
-            float v = (float)__fabs(wpad->mAnalog[port][i]) - 0.1f;
-            if (0.0f > v) {
-                v = 0.0f;
-            }
-            float sign = wpad->mAnalog[port][i] > 0.0f ? 1.0f : -1.0f;
-            wpad->mAnalog[port][i] = sign * (v / 0.9f);
-        }
+        DeadZone_unk(wpad->mAnalog[port][0]);
+        DeadZone_unk(wpad->mAnalog[port][1]);
+        DeadZone_unk(wpad->mAnalog[port][2]);
+        DeadZone_unk(wpad->mAnalog[port][3]);
         fn_800DEB04(wpad, port, 0, 20, 21);
         fn_800DEB04(wpad, port, 1, 22, 23);
         if (status[port].mDpdValid >= 2) {
             float width = lbl_8087EEE0->m3C;
             float height = lbl_8087EEE0->m40;
-            wpad->mPointer[port].x = WPAD_MAX(0.0f, WPAD_MIN(width * (1.1f * status->mPos[0] + 1.0f) * 0.5f, width));
-            wpad->mPointer[port].y = WPAD_MAX(0.0f, WPAD_MIN(height * (1.1f * status->mPos[1] + 1.0f) * 0.5f, height));
+            wpad->mPointer[port].x = WPAD_MAX(0.0f, WPAD_MIN(width, width * (1.1f * status->mPos[0] + 1.0f) * 0.5f));
+            wpad->mPointer[port].y = WPAD_MAX(0.0f, WPAD_MIN(height, height * (1.1f * status->mPos[1] + 1.0f) * 0.5f));
         } else {
             wpad->mPointer[port].x = -999.0f;
         }

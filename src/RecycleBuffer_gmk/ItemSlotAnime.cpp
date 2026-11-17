@@ -141,14 +141,138 @@ class ItemSlotAnimeBuffer : public RecycleBuffer<ItemSlotAnime> {
 public:
     ItemSlotAnimeBuffer(atn::Task* parent) : RecycleBuffer<ItemSlotAnime>(parent) {}
     virtual ~ItemSlotAnimeBuffer();
+    // inferred: creates the instance lbl_8087F4F8 (inline: the "" of its new are @STRING@ of .sdata)
+    static inline void Create_unk(atn::Task* parent);
+    inline void Setup_unk();
     virtual int vf0C(); // inferred: 0x804523D0
     inline bool Start_unk(); // inferred: true while the tasks are loading; then shows them (name invented)
 };
 
 } // namespace gmk
 
+// inferred: an item that a treasure table can give (0xC bytes, filled by fn_80445F44; names invented)
+struct ItemSlotDraw_unk {
+    ItemSlotDraw_unk() : mId(0), m04(1), m06(10), m08(0) {}
+    int mId;
+    short m04;
+    short m06; // inferred: weight of the item in the draw
+    int m08;
+};
+typedef atn::FixedArray_unk<ItemSlotDraw_unk, 384> ItemSlotList_unk;
+// inferred: items of the treasure table `mTable` for the item kind `mKind` (0x120C bytes)
+struct ItemSlotRecord_unk {
+    ItemSlotRecord_unk() {
+        mTable = 0;
+        mKind = 0;
+        mList.clear();
+    }
+    int mTable;
+    int mKind;
+    ItemSlotList_unk mList;
+};
+namespace gmk {
+
+// inferred: cache of the items of the treasure tables (vtable 0x8078F348, instance lbl_8087F4FC):
+// twelve records reused in turn, cleared when the map changes
+class ItemSlotTextCache : public atn::Task {
+public:
+    ItemSlotTextCache(atn::Task* parent) : atn::Task(parent), mNext(0), mMapType(-1), mMapId(0), mMapSubId(0) {}
+    virtual ~ItemSlotTextCache();
+    // inferred: creates the instance lbl_8087F4FC (inline: the "" of its new are @STRING@ of .sdata)
+    static inline void Create_unk(atn::Task* parent);
+
+    ItemSlotRecord_unk mRecords[12]; // 0x48
+    int mNext;                       // 0xD8D8: inferred: next record to reuse
+    int mMapType;                    // 0xD8DC
+    int mMapId;
+    int mMapSubId;
+};
+
+} // namespace gmk
+
+extern "C" gmk::ItemSlotTextCache* lbl_8087F4FC; // inferred: instance of gmk::ItemSlotTextCache
+
 
 extern "C" gmk::ItemSlotAnimeBuffer* lbl_8087F4F8; // inferred: instance of the buffer
+
+namespace gmk {
+
+inline void ItemSlotAnimeBuffer::Create_unk(atn::Task* parent) {
+    if (lbl_8087F4F8 == 0) {
+        lbl_8087F4F8 = new ((MemoryTag)1, "", "", 0) ItemSlotAnimeBuffer(parent);
+    }
+}
+
+inline void ItemSlotTextCache::Create_unk(atn::Task* parent) {
+    if (lbl_8087F4FC == 0) {
+        lbl_8087F4FC = new ((MemoryTag)1, "", "", 0) ItemSlotTextCache(parent);
+    }
+}
+
+} // namespace gmk
+
+// inferred: adds v while the array has room
+template <class T, int N>
+static inline void PushTask_unk(atn::FixedArray_unk<T, N>& a, T v) {
+    if (a.size() < N) {
+        a.push_back(v);
+    }
+}
+
+// inferred: frame of the layout animation of every task of `tasks`
+template <int N>
+static inline void SetTaskFrame_unk(atn::FixedArray_unk<ItemSlotTask_unk*, N>& tasks, float frame) {
+    for (ItemSlotTask_unk** it = tasks.begin(); it != tasks.end(); it++) {
+        if (*it != 0) {
+            (*it)->m50 = frame;
+        }
+    }
+}
+
+// inferred: speed of the layout animation of every task of `tasks`
+template <int N>
+static inline void SetTaskSpeed_unk(atn::FixedArray_unk<ItemSlotTask_unk*, N>& tasks, float speed) {
+    for (ItemSlotTask_unk** it = tasks.begin(); it != tasks.end(); it++) {
+        if (*it != 0) {
+            (*it)->m54 = speed;
+        }
+    }
+}
+
+// inferred: creates the D2A tasks of every entry (inline: its paths are @STRING@ of .data); name invented
+inline void gmk::ItemSlotAnimeBuffer::Setup_unk() {
+    for (unsigned int i = 0; i < mNum; i++) {
+        RecycleBufferEntry_unk& e = mEntries[i];
+        e.m00 = (ItemSlotTask_unk*)(atn::Task*)D2A_TaskInstance32_unk::Create(this, "/data/d2anime/ui_slot_base.d2b");
+        for (int j = 0; j < 3; j++) {
+            PushTask_unk(e.m04, (ItemSlotTask_unk*)(atn::Task*)D2A_TaskInstance32_unk::Create(this, "/data/d2anime/ui_slot_h.d2b"));
+            PushTask_unk(e.m14, (ItemSlotTask_unk*)(atn::Task*)D2A_TaskInstance32_unk::Create(this, "/data/d2anime/ui_slot_l.d2b"));
+        }
+        PushTask_unk(e.m24, (ItemSlotTask_unk*)(atn::Task*)D2A_TaskInstance32_unk::Create(this, "/data/d2anime/ui_slot_ok.d2b"));
+        PushTask_unk(e.m24, (ItemSlotTask_unk*)(atn::Task*)D2A_TaskInstance32_unk::Create(this, "/data/d2anime/ui_slot_ok_rare.d2b"));
+        PushTask_unk(e.m30, (ItemSlotTask_unk*)(atn::Task*)D2A_TaskInstance32_unk::Create(this, "/data/d2anime/ui_item_pop.d2b"));
+        PushTask_unk(e.m30, (ItemSlotTask_unk*)(atn::Task*)D2A_TaskInstance32_unk::Create(this, "/data/d2anime/ui_item_pop_rare.d2b"));
+        e.m3C = (ItemSlotTask_unk*)(atn::Task*)D2A_TaskInstance32_unk::Create(this, "/data/d2anime/ui_slot_rare.d2b");
+        for (unsigned int j = 0; j < e.m04.size(); j++) {
+            PushTask_unk(e.mTasks, e.m04[j]);
+            PushTask_unk(e.mTasks, e.m14[j]);
+        }
+        PushTask_unk(e.mTasks, e.m00);
+        for (unsigned int j = 0; j < e.m24.size(); j++) {
+            PushTask_unk(e.mTasks, e.m24[j]);
+        }
+        for (unsigned int j = 0; j < e.m30.size(); j++) {
+            PushTask_unk(e.mTasks, e.m30[j]);
+        }
+        PushTask_unk(e.mTasks, e.m3C);
+        for (ItemSlotTask_unk** it = e.mTasks.begin(); it != e.mTasks.end(); it++) {
+            if (*it != 0) {
+                (*it)->fn_800D246C(1);
+            }
+        }
+    }
+}
+
 
 // inferred: clears the bit of the entry in the use mask (name invented)
 template <class T>
@@ -198,48 +322,17 @@ ItemSlotAnime::~ItemSlotAnime() {
 }
 
 
-// DRAFT: the creation of the ItemSlotTextCache (lbl_8087F4FC)
-// NONMATCHING: draft - the creation of the ItemSlotTextCache (lbl_8087F4FC) is missing; written for the
-// weak copy of the entry constructor (0x8044E198)
+// NONMATCHING: X - checked against the asm
+// inferred: creates the shared buffer of slot animations (12 entries with their D2A tasks) and the
+// cache of the treasure tables
 void ItemSlotAnime::fn_8044D9BC(void* owner) {
     if (lbl_8087F4F8 == 0) {
-        GimmickManager* gm = GimmickManager::instance_;
-        if (lbl_8087F4F8 == 0) {
-            lbl_8087F4F8 = new ((MemoryTag)1, "", "", 0) ItemSlotAnimeBuffer(gm);
-        }
-        ItemSlotAnimeBuffer* buf = lbl_8087F4F8;
-        buf->Resize_unk(12);
-        buf = lbl_8087F4F8;
-        for (unsigned int i = 0; i < buf->mNum; i++) {
-            RecycleBufferEntry_unk& e = buf->mEntries[i];
-            e.m00 = (ItemSlotTask_unk*)(atn::Task*)D2A_TaskInstance32_unk::Create(buf, "/data/d2anime/ui_slot_base.d2b");
-            for (int j = 0; j < 3; j++) {
-                e.m04.push_back((ItemSlotTask_unk*)(atn::Task*)D2A_TaskInstance32_unk::Create(buf, "/data/d2anime/ui_slot_h.d2b"));
-                e.m14.push_back((ItemSlotTask_unk*)(atn::Task*)D2A_TaskInstance32_unk::Create(buf, "/data/d2anime/ui_slot_l.d2b"));
-            }
-            e.m24.push_back((ItemSlotTask_unk*)(atn::Task*)D2A_TaskInstance32_unk::Create(buf, "/data/d2anime/ui_slot_ok.d2b"));
-            e.m24.push_back((ItemSlotTask_unk*)(atn::Task*)D2A_TaskInstance32_unk::Create(buf, "/data/d2anime/ui_slot_ok_rare.d2b"));
-            e.m30.push_back((ItemSlotTask_unk*)(atn::Task*)D2A_TaskInstance32_unk::Create(buf, "/data/d2anime/ui_item_pop.d2b"));
-            e.m30.push_back((ItemSlotTask_unk*)(atn::Task*)D2A_TaskInstance32_unk::Create(buf, "/data/d2anime/ui_item_pop_rare.d2b"));
-            e.m3C = (ItemSlotTask_unk*)(atn::Task*)D2A_TaskInstance32_unk::Create(buf, "/data/d2anime/ui_slot_rare.d2b");
-            for (unsigned int j = 0; j < e.m04.size(); j++) {
-                e.mTasks.push_back(e.m04[j]);
-                e.mTasks.push_back(e.m14[j]);
-            }
-            e.mTasks.push_back(e.m00);
-            for (unsigned int j = 0; j < e.m24.size(); j++) {
-                e.mTasks.push_back(e.m24[j]);
-            }
-            for (unsigned int j = 0; j < e.m30.size(); j++) {
-                e.mTasks.push_back(e.m30[j]);
-            }
-            e.mTasks.push_back(e.m3C);
-            for (ItemSlotTask_unk** it = e.mTasks.begin(); it != e.mTasks.end(); it++) {
-                if (*it != 0) {
-                    (*it)->fn_800D246C(1);
-                }
-            }
-        }
+        ItemSlotAnimeBuffer::Create_unk(GimmickManager::instance_);
+        lbl_8087F4F8->Resize_unk(12);
+        lbl_8087F4F8->Setup_unk();
+    }
+    if (lbl_8087F4FC == 0) {
+        ItemSlotTextCache::Create_unk(GimmickManager::instance_);
     }
 }
 
@@ -352,8 +445,8 @@ void ItemSlotAnime::fn_8044E88C() {
     }
 }
 
-// NONMATCHING: 69.7% - the original inlines fn_8044F14C at the end (defined later; here it stays a call)
-// and the registers of the inlined Alloc_unk loop
+// NONMATCHING: 99.0% - registers of the inlined Alloc_unk loop (fn_8044F14C is inlined at the end since
+// its task loops are SetTaskFrame_unk/SetTaskSpeed_unk: written out it was too large to auto-inline)
 // inferred: stops the slots on the item (`shown`: the item is already shown); with mFlag27 the item is taken
 // at once (fn_8044F14C)
 void ItemSlotAnime::fn_8044EA34(int shown) {
@@ -418,14 +511,20 @@ static inline bool IsAnimeEnd_unk(ItemSlotTask_unk* task) {
     return task->m50 >= ((D2A_TaskInstance32_unk*)task)->GetEndFrame();
 }
 
-// NONMATCHING: 96.4% - the state test of IsState56_unk (the original keeps mState in r4 from the start
-// and sets the flag to 1 on the branches)
+// inferred: states 5-6 (item shown), as ItemSlotAnime::IsState56_unk but on a non-const object (the original
+// reuses the mState loaded for the test of state 1)
+static inline bool IsShown_unk(ItemSlotAnime* anime) {
+    return anime->mState == 5 || anime->mState == 6;
+}
+
+// NONMATCHING: 97.5% - the state 5-6 test sets the flag to 1 on the branches in the original (li 0, then
+// li 1; here li 1, then li 0); a bool local set in an if, in the inline or in the header, is worse
 // inferred: the animation of the item can be skipped (loading, or the slots of states 5-6 finished)
 int ItemSlotAnime::fn_8044EEC0() {
     if (mState == 1) {
         return 1;
     }
-    if (IsState56_unk()) {
+    if (IsShown_unk(this)) {
         ItemSlotTask_unk* a = fn_80450A78() ? m00->m24[1] : m00->m24[0];
         ItemSlotTask_unk* b = fn_80450A78() ? m00->m30[1] : m00->m30[0];
         if ((!a->IsFlag_unk(4) && IsAnimeEnd_unk(a)) || (!b->IsFlag_unk(4) && IsAnimeEnd_unk(b))) {
@@ -452,18 +551,8 @@ void ItemSlotAnime::fn_8044F14C() {
             m00->m00->m54 = 1.0f;
         }
     }
-    atn::FixedArray_unk<ItemSlotTask_unk*, 2>& oks = m00->m24;
-    for (ItemSlotTask_unk** it = oks.begin(); it != oks.end(); it++) {
-        if (*it != 0) {
-            (*it)->m50 = 10.0f;
-        }
-    }
-    atn::FixedArray_unk<ItemSlotTask_unk*, 2>& oks2 = m00->m24;
-    for (ItemSlotTask_unk** it = oks2.begin(); it != oks2.end(); it++) {
-        if (*it != 0) {
-            (*it)->m54 = 1.0f;
-        }
-    }
+    SetTaskFrame_unk(m00->m24, 10.0f);
+    SetTaskSpeed_unk(m00->m24, 1.0f);
     fn_80450590();
     fn_8044F96C();
 }
@@ -895,21 +984,6 @@ rejected:
     return 0;
 }
 
-// inferred: an item that a treasure table can give (0xC bytes, filled by fn_80445F44; names invented)
-struct ItemSlotDraw_unk {
-    ItemSlotDraw_unk() : mId(0), m04(1), m06(10), m08(0) {}
-    int mId;
-    short m04;
-    short m06; // inferred: weight of the item in the draw
-    int m08;
-};
-typedef atn::FixedArray_unk<ItemSlotDraw_unk, 384> ItemSlotList_unk;
-// inferred: items of the treasure table `mTable` for the item kind `mKind` (0x120C bytes)
-struct ItemSlotRecord_unk {
-    int mTable;
-    int mKind;
-    ItemSlotList_unk mList;
-};
 // inferred: treasure tables of the item boxes (db/TreasureBoxTable_unk.cpp)
 struct ItemSlotBoxItem_unk {
     int mId;
@@ -926,24 +1000,6 @@ extern "C" int fn_8040B394(int item);              // inferred: kind of an item 
 // inferred: items of a treasure entry (nonzero when there are some)
 extern "C" int fn_80445F44(Inventory* inv, ItemSlotList_unk* out, int id, int num, int arg);
 
-namespace gmk {
-
-// inferred: cache of the items of the treasure tables (vtable 0x8078F348, instance lbl_8087F4FC):
-// twelve records reused in turn, cleared when the map changes
-class ItemSlotTextCache : public atn::Task {
-public:
-    virtual ~ItemSlotTextCache();
-
-    ItemSlotRecord_unk mRecords[12]; // 0x48
-    int mNext;                       // 0xD8D8: inferred: next record to reuse
-    int mMapType;                    // 0xD8DC
-    int mMapId;
-    int mMapSubId;
-};
-
-} // namespace gmk
-
-extern "C" gmk::ItemSlotTextCache* lbl_8087F4FC; // inferred: instance of gmk::ItemSlotTextCache
 
 // inferred: the treasure table `table` gives more than one item (for the kind of `item` when it is
 // positive); the list is kept in the cache

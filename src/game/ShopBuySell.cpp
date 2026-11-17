@@ -514,9 +514,11 @@ void ShopBuySell::fn_805860F0() {
     }
 }
 
-// NONMATCHING: 98.82% - register allocation (the entry and icon locals one register higher in the
-// original) and the load order of the fn_80584750 arguments
+// NONMATCHING: 99.22% - register allocation (entry, the mAC pointer and the name buffer one register
+// apart from the original) and the operand order of the message table address. The suffix m08 is appended
+// to the item name (do_replace(size, 0, ...) in the original)
 void ShopBuySell::fn_8058621C() {
+    ShopEntry64_unk* entry;
     Inventory* party = Inventory::instance_;
     mA8->mFlags &= ~4;
     mD4->mFlags &= ~4;
@@ -524,7 +526,8 @@ void ShopBuySell::fn_8058621C() {
     if (mCursor < mF8) {
         ((atn::D2A_Task*)mD4)->SetNumber_unk("itemNum", fn_80444564(party, mEntries64[mCursor].m00), 0);
     }
-    fn_80584750(mA8, mScroll.mTop, mF8, 10);
+    int count = mF8;
+    fn_80584750(mA8, mScroll.mTop, count, 10);
     ShopPoint_unk pos;
     for (int i = 0; i < 10; i++) {
         char name[0x40];
@@ -533,13 +536,13 @@ void ShopBuySell::fn_8058621C() {
         mAC[i]->SetValues1_unk("basePos", *(atn::D2A_DrawRect*)&pos);
         int index = i + mScroll.mTop;
         if (index < mF8) {
-            ShopEntry64_unk* entry = &mEntries64[index];
+            entry = &mEntries64[index];
             ShopItem_unk* item = fn_80211480(entry->m00);
             int icon;
             if (entry->m54 != 0) {
                 std::basic_string<wchar_t> text(item->mName);
                 if (entry->m08[0] != 0) {
-                    text = entry->m08;
+                    text += entry->m08; // inferred: append (pos = size, n1 = 0)
                 }
                 mAC[i]->SetText_unk("itemName", text.data());
                 mAC[i]->SetNumber_unk("num", fn_80444564(party, entry->m00), 0);
@@ -586,8 +589,8 @@ void ShopBuySell::fn_80586620(int id) {
     }
 }
 
-// NONMATCHING: 93.58% - the layout of SetPaneText_unk is kept in a saved register in the original, the
-// icon rectangle is computed in another order (0.5f first) and several temporaries take other registers
+// NONMATCHING: 97.23% - the layout of the first SetPaneText_unk is kept in a saved register in the original
+// (computed before the hash), the scheduling of the icon rectangle and registers
 void ShopBuySell::fn_805866F4(int id, int member, int slot) {
     ShopPoint_unk pos;
     ShopChara_unk* chara = fn_8020924C(fn_80219544(member));
@@ -604,7 +607,11 @@ void ShopBuySell::fn_805866F4(int id, int member, int slot) {
         int index = chara->mIcon - 1;
         int x = index % 4;
         int y = index / 4;
-        ShopUV_unk uv(0.25f * x, 0.5f * y, 0.25f * (x + 1), 0.5f * (y + 1));
+        ShopUV_unk uv; // inferred: fields set one by one (the original stores v0 first)
+        uv.y = 0.5f * y;
+        uv.x = 0.25f * x;
+        uv.w = 0.5f * (y + 1);
+        uv.z = 0.25f * (x + 1);
         SetUV_unk((atn::D2A_Task*)anime, "uv0001", uv);
         SetUV_unk((atn::D2A_Task*)anime, "mask_uv0001", uv);
     }
@@ -625,12 +632,13 @@ void ShopBuySell::fn_805866F4(int id, int member, int slot) {
         }
         if (now != 0 && next != 0) {
             diff[0] = (int)((ShopWeapon_unk*)next)->mPower - (int)((ShopWeapon_unk*)now)->mPower;
-            diff[2] = 0;
             diff[1] = (int)((ShopWeapon_unk*)next)->mMagic - (int)((ShopWeapon_unk*)now)->mMagic;
+            diff[2] = 0;
         }
+        void* layout = base->mLayout;
         for (int i = 0; i < 3; i++) {
             sprintf(name, "param%02d", i);
-            SetPaneText_unk(base->mLayout, name, fn_80116FC0(0, sParamMsg[sWeaponParams[i]]));
+            SetPaneText_unk(layout, name, fn_80116FC0(0, sParamMsg[sWeaponParams[i]]));
         }
     } else if (fn_8020EF04(id)) {
         SetPaneFloat_unk(anime->mLayout, "cantEquip", 0.0f);
@@ -661,12 +669,13 @@ void ShopBuySell::fn_805866F4(int id, int member, int slot) {
         }
         if (now != 0 && next != 0) {
             diff[0] = (int)((ShopArmor_unk*)next)->mDefense - (int)(((ShopArmor_unk*)now)->mDefense + dx);
-            diff[2] = 0;
             diff[1] = (int)((ShopArmor_unk*)next)->mResist - (int)(((ShopArmor_unk*)now)->mResist + dy);
+            diff[2] = 0;
         }
+        void* layout = base->mLayout;
         for (int i = 0; i < 3; i++) {
             sprintf(name, "param%02d", i);
-            SetPaneText_unk(base->mLayout, name, fn_80116FC0(0, sParamMsg[sArmorParams[i]]));
+            SetPaneText_unk(layout, name, fn_80116FC0(0, sParamMsg[sArmorParams[i]]));
         }
     } else {
         SetPaneFloat_unk(anime->mLayout, "cantEquip", 0.0f);

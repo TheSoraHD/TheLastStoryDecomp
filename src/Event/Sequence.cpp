@@ -2,6 +2,7 @@
 // of an event. One TU with the inline virtuals of Event::StringData/DummyData (0x805430E8) and the
 // template instances emitted after them (vector growth, DataList_unk::SetOwner_unk...).
 #include "Event/Sequence.h"
+#include "Event/EventVector_unk.h"
 #include "game/GameTask.h"
 #include "Event/Cut.h"
 #include "Event/Action.h"
@@ -29,6 +30,9 @@
 #include "game/GameVoice.h"
 #include "game/MapTask.h"
 #include "std/string_find_last_of.h"
+// inferred: the messages of the out-of-line members of basic_string are in the pool of the original (weak
+// copies dropped by the linker)
+#include "std/string_members.h"
 
 extern "C" GameTask* lbl_8087F430; // inferred: the field
 
@@ -63,6 +67,9 @@ extern "C" atn::D2A_Task* fn_801F3FF8(atn::Task* parent, const char* path, int l
 extern "C" float fn_8006EF48(void* font, float size, const wchar_t* text, float f2, int a, int b);
 
 namespace Event {
+
+// inferred: declared inline in Event/Actor.h
+inline ActorPair_unk::ActorPair_unk() {}
 
 // inferred: values of the "type" attribute of the sequence
 static const ParamEnum_unk sTypeNames_unk[4] = {
@@ -635,6 +642,14 @@ void Sequence::fn_8053F818() {
     }
 }
 
+// inferred: instantiated here: its "basic_string: out_of_range" follows the strings of fn_8053F818 in the
+// pool (before "vector length error" of fn_80540A08)
+} // namespace Event
+
+template std::string::basic_string(const std::string& str, std::string::size_type pos, std::string::size_type n);
+
+namespace Event {
+
 // inferred: the data of the event is loaded
 int Sequence::fn_8054011C() {
     if (m98_1 != 1) {
@@ -1102,10 +1117,9 @@ void Sequence::fn_80541F18() {
 }
 
 // inferred: adds the curve `id` to the list at 0x184 (a copy of the points of `lists`, lengths recomputed)
-// NONMATCHING: 10% - inlining: the original inlines everything here but the construction and the reallocation
-// of m184.push_back (weak copies 0x80542684 and 0x805428A8, still stubs below), as if its push_back were a
-// small inline over two helpers; with include/std/vector.h this function goes over the budget (R3) and calls
-// every inline
+// NONMATCHING: 97.78% - the inlined reallocation of points.push_back moves the old elements comparing
+// first < last (ours last > first, __push_front_resize_unk of std/vector.h) and loads them with psq_l; the
+// construct and the reallocation of m184.push_back are called as in the original (Event/EventVector_unk.h)
 void Sequence::fn_8054204C(int id, const EffectLists_unk& lists) {
     EffectEntry24_unk entry;
     std::vector<atn::Vector3> points;
@@ -1117,11 +1131,6 @@ void Sequence::fn_8054204C(int id, const EffectLists_unk& lists) {
     m184.push_back(entry);
 }
 
-// DRAFT: empty stub; not a method of Sequence: weak copy of the construction of an EffectEntry24_unk (allocator,
-// place, source) called by the push_back of fn_8054204C
-// NONMATCHING: stub
-void Sequence::fn_80542684() {
-}
 
 
 // inferred: effect lists of the entry `id` of the list at 0x184
@@ -1169,8 +1178,20 @@ void DummyData::vf0C() {}
 void DummyData::vf08() {}
 
 template <>
-void DataList_unk<Actor>::Add_unk(const char* name, int arg) {
+Actor* DataList_unk<Actor>::Add_unk(const char* name, int arg) {
     push_back(Actor(mOwner, name, arg));
+    return &this->back();
+}
+
+// inferred: never called (the linker removes it): its push_back<Path> emits here the weak copies of the
+// reallocation of vector<Path> that the original keeps in this file (0x80544748, 0x80545290, 0x805455CC,
+// 0x80545B90) and that Event/EventParser_unk.cpp calls; it takes the slow path directly, so that the construct
+// and the slow path of push_back<Path> stay in Event/EventParser_unk.cpp (0x8057DC38, 0x8057DB14) as in the
+// original
+template <>
+Path* DataList_unk<Path>::Add_unk(const char* name, int arg) {
+    this->__push_back_slow_unk(Path(mOwner, name, arg));
+    return &this->back();
 }
 
 } // namespace Event

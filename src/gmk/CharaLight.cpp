@@ -198,17 +198,19 @@ int CharaLight::vf60() {
     return ret;
 }
 
-// NONMATCHING: 96.3% - scheduling only (the string pool address is built in r3 before `group` is moved);
-// same form as the matched FloatingBox/LottaSummon vf6C; tried group = 0 first, a ternary, a separate store.
+// inferred: debug menu group of the gimmick in an inline (the pool address is then built before the
+// group is moved to r3, as in the original); name invented
+static inline void* MenuGroup_unk(CharaLight* self, void* menu, char* name) {
+    if (self->mF0.mRes == 0 && menu != 0 && lbl_8087EF10 != 0) {
+        return self->mF0.mRes = fn_8008937C(menu, name);
+    }
+    return 0;
+}
+
 void CharaLight::vf6C(void* menu) {
     char name[0x20];
     fn_803EC758(name);
-    void* group;
-    if (mF0.mRes == 0 && menu != 0 && lbl_8087EF10 != 0) {
-        group = mF0.mRes = fn_8008937C(menu, name);
-    } else {
-        group = 0;
-    }
+    void* group = MenuGroup_unk(this, menu, name);
     fn_800874C8(group, "state", &m54, 0, 99, 1, 0, 0);
     void* current = fn_8008937C(group, "CurrentParam");
     fn_8008771C(current, "SizeX", &mCurSize.x, 0, 0, 0.0f, 10000.0f, 1.0f);

@@ -73,7 +73,7 @@ extern "C" void* lbl_8087EE90;
 
 namespace atn {
 
-inline Video::Video() : m04(0), m08(0), m0C(0), m10(0.0f), m14(0.0f), m18(0.0f), m1C(0) {}
+inline Video::Video() : m04(0), m08(0), m0C(0), m10(0.0f), mPos(0.0f, 0.0f), m1C(0) {}
 inline Video::~Video() {}
 
 inline void VideoTHP::SetName_unk(const char* name) {
@@ -178,8 +178,8 @@ void VideoTHP::vf10(RenderManager*) {
     if (m04 == 1) {
         dw = m20[0];
         dh = m20[1];
-        x = (int)(m14 - (float)(m20[0] >> 1));
-        y = (int)(m18 - (float)(m20[1] >> 1));
+        x = (int)(mPos.x - (float)(m20[0] >> 1));
+        y = (int)(mPos.y - (float)(m20[1] >> 1));
     } else if (m04 == 2 || m04 == 3) {
         if (rs->m44 != 0) {
             dh = h;

@@ -47,7 +47,10 @@ struct ActorKey10_unk {
 struct EquipList_unk : public std::vector<chr::CharaEquip_unk*> {};
 
 // inferred: 8-byte entry of the list at 0xAC of an actor
+// inferred: not a POD (the copy of vector<ActorPair_unk> 0x80543F60 copies it member by member); the constructor is
+// defined in Event/Sequence.cpp (a body here takes @N labels in every unit that includes this header)
 struct ActorPair_unk {
+    inline ActorPair_unk();
     int m00;
     int m04;
 };
