@@ -7308,8 +7308,6 @@ extern "C" unsigned int fn_804EAEE0(PPManager2_unk* mgr, CharaTask* chara) {
     return id.mRaw << 16;
 }
 
-// NONMATCHING (and fn_804EB26C, fn_804EB400, fn_804EB5D8): 91-98% - the slot offset and the slot pointer of the
-// loops over the player slots take each other's registers (fn_804DD158 has them right)
 // inferred: number of the player slots in use
 extern "C" int fn_804EAFD0(PPManager2_unk* mgr) {
     int n = 0;
@@ -7356,7 +7354,8 @@ extern "C" int fn_804EB26C(PPManager2_unk* mgr, int* count) {
             if (!player->mFlags.m28) {
                 all = 0;
             }
-            if (player->mFlags.m28) {
+            // inferred: the second test reads the flags as a word (the original loads it again for the bit of m28)
+            if ((player->mFlagWord >> 28) & 1) {
                 n++;
             }
         }

@@ -2,8 +2,8 @@
 
 Inicio: 2026-11-17 08:08 CET (tope 10:38).
 
-Resumen: PacketPack +8 funciones al 100 % (fn_804D996C, fn_804DD1A8, fn_804DD3F0, fn_804F60E0, fn_804EEB34,
-fn_804EF9B4, fn_804EFC94, fn_804F39D4); report 15942 -> 15950 funciones, lost 0, sin bajadas de fuzzy, labelcheck/rep100
+Resumen: PacketPack +9 funciones al 100 % (fn_804D996C, fn_804DD1A8, fn_804DD3F0, fn_804F60E0, fn_804EEB34,
+fn_804EF9B4, fn_804EFC94, fn_804F39D4, fn_804EB26C); report 15942 -> 15951 funciones, lost 0, sin bajadas de fuzzy, labelcheck/rep100
 igual, precommit OK en cada commit (pd.sh + `fixlbl.py` + precommit sin `--pd`). Casi todo sale de barridos por
 lotes (una compilacion de PacketPack, ~50 s, cambiando una forma en todas las funciones por debajo del 100 % y
 comparando el % y las diferencias reales con `nl.py`): tipo del contador de los bucles, forma de las busquedas
@@ -39,6 +39,7 @@ enlaza (PacketPack sigue con funciones por debajo del 100 %).
 | fn_804F39D4 | 99,65 % | 100 % (getter debil fn_800F7F90 en vez de `lbl_8087F610`) |
 | fn_804F3880 | 97,29 % | 97,59 % (idem) |
 | fn_804F3EEC | 93,87 % | 94,12 % (idem) |
+| fn_804EB26C | 92,41 % | 100 % (segunda prueba de m28 leida por `mFlagWord`) |
 | fn_804EAA84 | 99,91 % | 99,91 % (sin cambios: ver Bloqueos) |
 | fn_804CF198 | 99,37 % | 99,37 % (sin cambios: ver Bloqueos) |
 
@@ -64,6 +65,10 @@ enlaza (PacketPack sigue con funciones por debajo del 100 %).
 
 ## Decisiones tomadas sin el usuario
 
+- fn_804EB26C: la segunda prueba de m28 se escribe `(player->mFlagWord >> 28) & 1` (la vista de palabra de la union
+  de flags), con `// inferred:`: el original relee la palabra para esa prueba y con el campo de bits MWCC reutiliza
+  la carga. Se quita el `// NONMATCHING` obsoleto de fn_804EAFD0 (sus cuatro funciones ya estaban al 100 %).
+
 - GetHitAttacker_unk lee el personaje con `begin()[i]` (sube fn_804EEB34, fn_804EED7C, fn_804EF9B4, fn_804EFC94,
   fn_804F2994); fn_804EFF74 necesita la forma anterior: copia `GetHitChara_unk` (`// inferred:`) solo para el.
 
@@ -73,6 +78,10 @@ enlaza (PacketPack sigue con funciones por debajo del 100 %).
   cuatro llamadas.
 
 ## Hallazgos
+
+- Campo de bits que el original vuelve a cargar en una segunda prueba (la primera reutiliza la palabra de otra
+  prueba): la segunda lee la palabra por otro miembro de la union (`(w >> 28) & 1`), que MWCC no junta con la carga
+  del campo de bits (PacketPack fn_804EB26C 92,4 -> 100 %) (escribir-20261116 qG5)
 
 - El original carga un global en un registro salvado antes de evaluar los argumentos de la llamada a un metodo
   (`lwz r29, global` antes de las llamadas virtuales de los argumentos; `mr r3, r29` despues): el objeto viene de un
@@ -130,5 +139,5 @@ enlaza (PacketPack sigue con funciones por debajo del 100 %).
 ## Pendiente
 
 - Comentarios `// NONMATCHING` obsoletos encima de funciones ya al 100 % en PacketPack.cpp (fn_804DBD08,
-  fn_804DE560, fn_804DF11C, fn_804DF404, fn_804E7628, fn_804EAFD0, fn_804EB010, fn_804EB2D8, fn_804EB4AC, fn_804EB814,
+  fn_804DE560, fn_804DF11C, fn_804DF404, fn_804E7628, fn_804EB010, fn_804EB2D8, fn_804EB4AC, fn_804EB814,
   fn_804F4E40, fn_804FB220, fn_804FC010, fn_804FC0D4): no tocados.
