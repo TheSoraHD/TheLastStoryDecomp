@@ -21,7 +21,8 @@ Inicio: 2026-11-16 23:58 CET (tope 2026-11-17 02:28).
 | fn_804F3EEC | 0 % | equivalente NONMATCHING 75,22 % |
 | fn_804E5BC4 | 0 % | equivalente NONMATCHING 97,31 % |
 | vector<PPPlayer_unk> (fn_804D6688, fn_804FC8CC, fn_804FC9C0, fn_804FCA34, fn_804FE2DC, fn_804FF3D0) | 0 % | 0 % (pendiente) |
-| fn_804E4EB0, fn_804EB934, fn_804DE884, fn_804E9C64, fn_804EFF74 | 0 % | 0 % (pendiente) |
+| fn_804DE884 | 0 % | equivalente NONMATCHING 96,27 % **en el parche** `docs/escribir-20261116-qG.patch` (no commiteado, ver Bloqueos) |
+| fn_804E4EB0, fn_804EB934, fn_804E9C64, fn_804EFF74 | 0 % | 0 % (pendiente) |
 | stub fn_804CF640, vf10 de Manager2 | DRAFT | DRAFT (pendiente) |
 
 PacketPack al 100 % (fnstat): 270 -> 271 / 380 (fn_804D00DC). Sin escribir 23 -> 13.
@@ -52,8 +53,11 @@ PacketPack al 100 % (fnstat): 270 -> 271 / 380 (fn_804D00DC). Sin escribir 23 ->
 - PacketPack: prueba `my == server` materializada (cntlzw) en fn_804E9360/fn_804EF0F0; probados `IsServer_unk()`, `== 1`, fn_804EB1AC (escribir-20261116 qG)
 - PacketPack fn_804E9C64: inlinea `push_back` de `std::vector<PPCharaEntry_unk>` en `mCharas` (vista `PPCharaArray_unk`): necesita el vector real (escribir-20261116 qG)
 
+- PacketPack fn_804DE884 (parche): el ctor de `MP::Chara<EnemyTask>` inlineado hace emitir la vtable y con ella copias debiles de virtuales inline de CharaTask.h (`vfE0`, `vfA0`, `vf70`) cuyos floats (1.5708, -1.5708, 2.44346, 25) entran en la `.sdata2` de PacketPack (poolcheck nuevo); el original no los tiene: esas virtuales no serian inline en CharaTask.h. El parche aplica sobre 0f9e820 (incluye el ctor inline y `Create_unk`, `PPSlot_unk` movida, `fn_804C566C` declarada); tras aplicarlo, pd.sh y pdfix de 0x807596F0, 0x807598B0.. (35 VO_) y los `.bss` 0x807C8AE8/AF4/B00 (escribir-20261116 qG)
+
 ## Cambios de splits/symbols
 
+- `@stringBase0` de MiniMapTask: el `data:string_table` se colo en ba48f1e (precommit re-lanza configure); quitado de nuevo.
 - Re-etiquetado `@N` (pd.sh) y a mano la base de `.rodata` 0x807596F0 y los `.bss` 0x807C8AE8/AF4/B00 (`/home/claude/scratch-G/bin/pdfix.py 0xADDR=@N`, por direccion; `lcmiss.py <unidad>` lista los que faltan).
 - `lbl_80759CC8` -> `@N` local (tabla local de fn_804E82C4); `lbl_807598B0..80759AD0` (35 cadenas VO_) -> `@N` locales de la tabla `lbl_80791018`.
 
