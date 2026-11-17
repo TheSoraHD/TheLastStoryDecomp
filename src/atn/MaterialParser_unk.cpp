@@ -1019,15 +1019,12 @@ void Material_unk::fn_8007FAF0(int mode) {
 }
 
 // inferred: blend modes from a shader description
-// NONMATCHING: 96.4% - the desc fields are read into locals so the bit fields go in one store, but the
-// original loads mA30 after inserting mA28 (r0 reused; a local copy of the flags word would do it)
-void Material_unk::fn_8007FE5C(atn::ShaderDesc_unk* desc) {
+// inferred: `desc` is const (the original loads desc->mA2C before saving r31)
+void Material_unk::fn_8007FE5C(const atn::ShaderDesc_unk* desc) {
     int blend = fn_800D1C60(desc->mA2C);
-    int a28 = desc->mA28;
-    int a30 = desc->mA30;
-    m14_21 = a28;
+    m14_21 = desc->mA28;
     m14_22 = blend;
-    m14_25 = a30;
+    m14_25 = desc->mA30;
     int src = fn_800D1CD4(desc->mA3C);
     int dst = fn_800D1CD4(desc->mA40);
     if (desc->m074 != 0 || desc->mA38 == 1) {

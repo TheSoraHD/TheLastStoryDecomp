@@ -151,7 +151,7 @@ struct Material_unk {
     TexStage_unk* fn_80080528(int id) const; // inferred: stage of id `id`
     int fn_800816A8();
     void fn_80081BD0();
-    void fn_8007FE5C(atn::ShaderDesc_unk* desc); // inferred: blend modes of a shader description
+    void fn_8007FE5C(const atn::ShaderDesc_unk* desc); // inferred: blend modes of a shader description
     void fn_80080048(float time);                // inferred: texture animations
     void fn_80080584(const Material_unk& o);     // inferred: copy
     void fn_80080B34(atn::ShaderDesc_unk* desc); // inferred: stage names
