@@ -3933,7 +3933,6 @@ extern "C" void fn_804D97F0(PPManager2_unk* mgr) {
     }
 }
 
-// NONMATCHING: 99.57% - registers
 // inferred: the server waits until every other player confirmed (m9A14) while the timer m99B8 runs; without time
 // left the room is closed with the error 158 (state 43); a client only marks m9A74[2]
 extern "C" void fn_804D996C(PPManager2_unk* mgr) {
@@ -3944,7 +3943,7 @@ extern "C" void fn_804D996C(PPManager2_unk* mgr) {
         } else {
             int ready = 0;
             int count = 0;
-            for (unsigned int i = 0; i < (int)mgr->mPlayers.size(); i++) {
+            for (int i = 0; i < mgr->mPlayers.size(); i++) {
                 PPPlayer_unk* player = &mgr->mPlayers[i];
                 if (player->mFlags.mActive == 1 && own->mAid != player->mAid) {
                     count++;
@@ -8688,7 +8687,7 @@ extern "C" void fn_804EED7C() {
 static inline CharaTask* PPCharaOfAid_unk(PPManager2_unk* mgr, const unsigned char& aid) {
     for (int i = 0; i < (int)mgr->mPlayers.size(); i++) {
         if (mgr->mPlayers[i].mFlags.mActive == 1 && aid == mgr->mPlayers[i].mAid) {
-            return mgr->mPlayers[i].mRef.mChara;
+            return mgr->mPlayers.begin()[i].mRef.mChara;
         }
     }
     return 0;
@@ -9540,8 +9539,8 @@ struct PPMsgSpecialHit_unk {
 extern "C" void fn_804F2994() {
     if (((PPManager2_unk*)lbl_8087F610)->mState == 30) {
         const PPMsgSpecialHit_unk* data = (const PPMsgSpecialHit_unk*)fn_804AE3BC()->GetWorkBuffer_unk();
-        CharaTask* attacker = GetHitAttacker_unk((PPManager2_unk*)lbl_8087F610, &data->mRefs.mAttacker);
-        CharaTask* target = GetHitAttacker_unk((PPManager2_unk*)lbl_8087F610, &data->mRefs.mTarget);
+        CharaTask* attacker = PPCharaOfId_unk((PPManager2_unk*)lbl_8087F610, (const PPId_unk*)&data->mRefs.mAttacker);
+        CharaTask* target = PPCharaOfId_unk((PPManager2_unk*)lbl_8087F610, (const PPId_unk*)&data->mRefs.mTarget);
         if (target != 0 && !target->IsFlag2_unk()) {
             switch (((BattleCharaTask*)target)->m146C) {
             case 19:
