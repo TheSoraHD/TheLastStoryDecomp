@@ -86,6 +86,16 @@ Otras subidas en las mismas unidades: `DataList_unk<Actor>::Add_unk` 88,87 -> 96
   funcion del DOL lo referencia: viene de codigo quitado por el enlazador); las 4 funciones `grow`/`reserve` al
   99,9 % solo difieren en ese offset.
 
+- Probados sin exito (revertidos): `Sequence::fn_80541F18` 99,48 % (dos formas del `FindActor_unk`, registros
+  r7/r8 de id y actor); `~vector<shared_ptr<Cut>>` 98,97 % (`__shrink_unk` con la cuenta primero: 98,68);
+  `__insert_realloc_unk<SceneSettingEntry_unk>` (Manager 0x80490098) con un nivel inline menos: 99,22 -> 99,32 %
+  (arregla los huecos de pila del crecimiento; quedan r7/r8 del ctor del buffer), no commiteado por no llegar al
+  100 %; `__push_front_unk` generico con el bucle de los tipos con destructor sin el nivel de
+  `__push_front_resize_unk`: ParseMOID y familia bajan (99,92 -> 99,54). Los ParseXXID al 99,9 % solo difieren en
+  los huecos de pila de las dos copias de string (append y push_front) del realloc inline.
+- `DataList_unk<Actor>::Add_unk` 98,13 %: el original recalcula `&buf` (`addi r3, r1, 0x8`) en cada llamada; el
+  nuestro lo guarda en r30.
+
 ## Cambios de splits/symbols
 - symbols.txt (renombrados): `fn_80544650`, `fn_80544748` -> `__grow_by_unk__Q23std3?__vec_event_unk<...>`;
   `fn_80545B90`, `fn_80545C3C` -> `__reserve_unk__...__vec_event_unk<...>`; `__swap_out_unk<Actor>`/`<Path>`
