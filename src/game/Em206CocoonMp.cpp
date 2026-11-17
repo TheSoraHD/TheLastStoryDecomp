@@ -174,6 +174,13 @@ inline void Em206CocoonMp::PlayMotion_unk(int motion, int loop, float speed) {
 }
 
 // inferred: death (state 2)
+// inferred: tells the battle manager about the ice hit at the body position (0x4000; name invented)
+inline void Em206CocoonMp::NotifyIce_unk() {
+    BattleTask* mgr = lbl_8087F048;
+    atn::Vector3 pos = vfAC();
+    mgr->fn_80108F38(&pos, 0x4000);
+}
+
 inline void Em206CocoonMp::Die_unk() {
     SetState_unk(2);
     fn_8016E970(6);
@@ -290,7 +297,6 @@ void Em206CocoonMp::vf3C(HitInfo_unk* hit, int) {
     }
 }
 
-// NONMATCHING: 99% - register allocation of the inlined death (Die_unk)
 void Em206CocoonMp::vf40(HitInfo_unk* hit) {
     HitMsg_unk* msg = (HitMsg_unk*)hit;
     if (mStatus.IsState_unk(0x20)) {
@@ -303,9 +309,7 @@ void Em206CocoonMp::vf40(HitInfo_unk* hit) {
         mMotion.mTracks[0].m20 = 1.0f;
         mMotion.fn_80097C08(0, 0x16A, 0, 0, 1, 0.0f, 0.025f);
         mMotion.mTracks[0].m0C = 0.1f;
-        BattleTask* mgr = lbl_8087F048;
-        atn::Vector3 pos = vfAC();
-        mgr->fn_80108F38(&pos, 0x4000);
+        NotifyIce_unk();
     }
 }
 
@@ -1368,7 +1372,7 @@ void Em206CocoonMp::vf110(SpecialState_unk* state) {
     s->m0E = m1520;
 }
 
-// NONMATCHING: 99% - register allocation of the inlined death (Die_unk)
+// NONMATCHING: 99.93% - registers of the inlined death (Die_unk) and of the ice notice
 void Em206CocoonMp::vf114(const SpecialState_unk* state) {
     const CocoonState_unk* s = (const CocoonState_unk*)state;
     int next = s->m00;
@@ -1390,9 +1394,7 @@ void Em206CocoonMp::vf114(const SpecialState_unk* state) {
             }
         }
         if (s->m00 == 15 && m58C != 15) {
-            BattleTask* mgr = lbl_8087F048;
-            atn::Vector3 pos = vfAC();
-            mgr->fn_80108F38(&pos, 0x4000);
+            NotifyIce_unk();
         }
     }
     m58C = s->m00;
