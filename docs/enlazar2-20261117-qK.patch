@@ -1,0 +1,55 @@
+diff --git a/include/std/vector.h b/include/std/vector.h
+index 3d19904..e20248f 100644
+--- a/include/std/vector.h
++++ b/include/std/vector.h
+@@ -529,8 +529,8 @@ public:
+     // original loads the size before the capacity (and keeps the capacity in r5); tried accessors,
+     // the comparison reversed, if/else forms and a helper for the length check.
+     void push_back(const T& x);
+-    void __push_back_slow_unk(const T& x);
+-    bool __expand_by_unk(size_type n);
++    void __push_back_slow_unk(const T& x, size_type c);
++    bool __expand_by_unk(size_type n, size_type c);
+     void __insert_realloc_unk(size_type n, const T& x);
+     // inferred: erase of a POD element, moving the next ones with memmove (inlined in
+     // Event::Manager::fn_80485028, 0x80485090)
+@@ -778,11 +778,12 @@ struct __vec_grow_sel_unk<float> {
+ template <class T>
+ void vector<T>::push_back(const T& x) {
+     size_type n = this->mSize;
+-    if (n < this->mCap) {
++    size_type c = this->mCap;
++    if (n < c) {
+         this->__push_fast_unk(n, x);
+         return;
+     }
+-    __push_back_slow_unk(x);
++    __push_back_slow_unk(x, c);
+ }
+ 
+ // inferred: slow path of push_back (0x805428A8; Event/Manager fn_80481B9C calls expand_by 0x8049003C, construct
+@@ -790,8 +791,8 @@ void vector<T>::push_back(const T& x) {
+ // budget of the constructor of atn::RenderManager (0x800BC874) since the dead loop of ~__vec_split_unk is
+ // out of line
+ template <class T>
+-void vector<T>::__push_back_slow_unk(const T& x) {
+-    if (__expand_by_unk(1)) {
++void vector<T>::__push_back_slow_unk(const T& x, size_type c) {
++    if (__expand_by_unk(1, c)) {
+         this->__alloc_unk().construct(this->mData + this->mSize, x);
+         ++this->mSize;
+     } else {
+@@ -926,11 +927,10 @@ typename vector<T>::size_type vector<T>::__grow_cap_unk(size_type n) {
+ }
+ 
+ template <class T>
+-bool vector<T>::__expand_by_unk(size_type n) {
+-    if (n > max_size() - this->mCap) {
++bool vector<T>::__expand_by_unk(size_type n, size_type c) {
++    if (n > max_size() - c) {
+         __msl_error("vector length error");
+     }
+-    __recommend_ref_unk(n);
+     return false;
+ }
+ 

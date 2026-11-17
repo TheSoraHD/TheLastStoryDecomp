@@ -1,0 +1,34 @@
+diff --git a/include/std/vector.h b/include/std/vector.h
+index 3d19904..dd282bd 100644
+--- a/include/std/vector.h
++++ b/include/std/vector.h
+@@ -778,10 +778,14 @@ struct __vec_grow_sel_unk<float> {
+ template <class T>
+ void vector<T>::push_back(const T& x) {
+     size_type n = this->mSize;
+-    if (n < this->mCap) {
++    size_type c = this->mCap;
++    if (n < c) {
+         this->__push_fast_unk(n, x);
+         return;
+     }
++    if (1 > max_size() - c) {
++        __msl_error("vector length error");
++    }
+     __push_back_slow_unk(x);
+ }
+ 
+@@ -791,12 +795,7 @@ void vector<T>::push_back(const T& x) {
+ // out of line
+ template <class T>
+ void vector<T>::__push_back_slow_unk(const T& x) {
+-    if (__expand_by_unk(1)) {
+-        this->__alloc_unk().construct(this->mData + this->mSize, x);
+-        ++this->mSize;
+-    } else {
+-        __insert_realloc_unk(1, x);
+-    }
++    __insert_realloc_unk(1, x);
+ }
+ 
+ template <class T>
