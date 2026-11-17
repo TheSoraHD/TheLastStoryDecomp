@@ -22,6 +22,7 @@ public:
     virtual void vf54();
     virtual void vf80(const atn::Vector3& pos, const atn::Vector3& offset);
     virtual void vf84(int motion, float blend);
+    inline void SetAppear_unk(const atn::Vector3&, const atn::Vector3&); // inferred: as Em316LastLaser (name invented)
     virtual void vf98();
     virtual void vf9C(int arg);
     virtual void vfEC();

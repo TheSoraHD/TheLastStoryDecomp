@@ -37,7 +37,6 @@ void ControlRide::vf1C() {
     mChara->mF1C = 0;
 }
 
-// NONMATCHING: 99.7% - mBeast and mRider are reloaded into swapped registers (r3/r6).
 ControlRideBeast::ControlRideBeast(Chara_unk* chara, Chara_unk* rider)
     : ControlBase(chara), mBeast(chara), mRider(rider) {
     chara->m560 = 0x8A;
@@ -45,18 +44,15 @@ ControlRideBeast::ControlRideBeast(Chara_unk* chara, Chara_unk* rider)
     mBeast->mMotion.mTracks[0].m20 = 1.0f;
     mBeast->mMotion.mTracks[0].m0C = 1.0f;
     mBeast->mMotion.fn_80097C08(0, 0x1F2, 0, 0, 1, 0.0f, 0.1f);
-    mStartPos = mBeast->mPos;
-    // inferred: the motion object at +0xB0 is also the model (MapPartsModel.h)
-    atn::Model* model = (atn::Model*)&mRider->mMotion;
+    CharaTask* beast = mBeast;
+    mStartPos = beast->mPos;
+    atn::Model* model = mRider->GetModel_unk();
     MtxPtr mtx = model->GetNodeMtx_unk(model->GetNodeNoByName("seatpoint", 0));
     mSeatPos = __GetTrans_unk(mtx);
     mStartRot = mBeast->mRot;
     mRiderRot = mRider->mRot;
 }
 
-// NONMATCHING: 97.8% - the operator temporaries get other stack slots (0x80-byte frame instead of
-// 0x70) and the products are emitted with swapped operands; the lerp of the rotation is written
-// per component because a (b - a) * t temporary is stored by our compiler and not by the original.
 int ControlRideBeast::vf0C() {
     float frame = mBeast->mMotion.mTracks[0].m08;
     if (frame < mBeast->mMotion.fn_80097D7C(0)) {
@@ -64,11 +60,15 @@ int ControlRideBeast::vf0C() {
         float cur = motion->mTracks[0].m08;
         float rate = (0.0f == cur) ? 0.0f : cur / motion->fn_80097D7C(0);
         atn::Vector3 dir = mSeatPos - mStartPos;
-        float dist = PSVECMag(&dir) * rate;
+        float dist = PSVECMag(&dir);
+        dist *= rate;
         PSVECNormalize(&dir, &dir);
-        mBeast->mPos = mStartPos + dir * dist;
+        CharaTask* beast = mBeast;
+        beast->mPos = mStartPos + dir * dist;
         const atn::Vector3& s = mStartRot;
-        mBeast->mRot = s + atn::Vector3((mRiderRot.x - s.x) * rate, (mRiderRot.y - s.y) * rate, (mRiderRot.z - s.z) * rate);
+        atn::Vector3 d = mRiderRot - s;
+        d *= rate;
+        mBeast->mRot = s + d;
         return 0;
     }
     return 1;
@@ -79,8 +79,6 @@ void ControlRideBeast::vf1C() {
     mChara->mF1C = 0;
 }
 
-// NONMATCHING: 99.92% (only scheduling) - the original loads mRider at the very start and reads it
-// after the ControlBase part of the inlined ControlRide constructor is stored.
 boost::function<void()> ControlRideBeast::vf10() const {
     if (mRider != 0 && mRider->mC58.mC0 == 0) {
         return boost::bind(&CharaTask::fn_8016EB48, (CharaTask*)mChara, false, false, false);
