@@ -8,6 +8,7 @@
 |---|---|---|
 | GameScene::GameScene (0x803BEC40) | 96,55 % | **100 %** |
 | GameScene::vf10 (0x803C1950, modelos restringidos) | 96,19 % | **100 %** |
+| GameScene::fn_803C74E0<gs::NpcSetPoint> (0x803C74E0) | 99,86 % | **100 %** (`int offset;` declarado antes de `base`; la copia debil 0x803C795C renombrada a `GetData_unk__Q23atn31SimpleArray<Q22gs11NpcSetPoint>CFv`) |
 | GameScene::fn_803CB044 (esconderse) | 95,09 % | equivalente NONMATCHING 98,36 % (pila de los vectores del bucle) |
 | GameTask::vf14 | 98,16 % | equivalente NONMATCHING 99,22 % (y en f31; constante 0x4330) |
 | TutorialTask::fn_805BA934 | 97,99 % | equivalente NONMATCHING 99,27 % (`fn_801231B8(...) == 0`: los dos cntlzw; queda la carga de pos.z) |
@@ -71,6 +72,10 @@
 - GameTask fn_80370320: recarga de m56F4.mCount en el Push_unk; inline CanPush_unk empeora (98,9 -> 98,5).
 - GameTask fn_803729B4: el original no llama al constructor vacio de atn::Matrix3x4 del bucle de rayos (nuestro lo llama por el presupuesto R3).
 - ReplayBuffer fn_80570A74 (91,4 %): rotacion de r10/r11/r12; fn_8056A9E4: el original intercala los `lfs` de la columna z entre los `psq_st` de __MtxCopy (con SetModelMtx_unk de GameScene igual).
+- GameScene fn_803C606C/fn_803C6FE4 y sus copias (PointGroup/CharaGroup, 98,2-98,6 %): el original inicializa el contador n antes del memset y el desplazamiento n*4 tras begin() del tokenizer; mover `int n = 0` despues del tokenizer empeora (98,19 -> 97,0). Ademas el orden de "SceneCharaGroup"/"ScenePointGroup" en el pool (0x3b3/0x3c3 cambiados) y las envolturas `extern "C"` fn_803C72D4... de las plantillas de SimpleArray (deuda de la regla 10).
+- GameScene fn_803C1338 (99,2 %): orden de los FPR de las constantes (el original da f31 al 0.0f); una inline Rand01_unk no cambia nada.
+- GameScene fn_803CAED0 (97,6 %): pila de los temporales de `(b - a).GetNormalize()` frente a side/up; probados declarar side/up antes, `Vector3 d = b - a`, inline GetLinkDir_unk.
+- GameScene fn_803C0938/0634/0C2C: el original recalcula `m90[index]` desde el indice para `id` (no lo reutiliza); un return temprano empeora (45 -> 58 diferencias).
 - MapPartsArea::fn_804962B0 (98,55 %): r30/r31 (iterador y desplazamiento interior); declarar `i`/`it` arriba empeora (13 -> 19 diferencias).
 - ReplayBuffer fn_8056D60C (78 %): el original carga 255.0f y 0.0f una vez y precarga f3-f11 con fmr (resultados de los ternarios del clamp); probados locales lo/hi, ternarios en locales, `v * 255.0f`, min/max por plantilla (valor y referencia) en un fichero suelto: ninguno da las precargas.
 - ReplayBuffer vf08 (92,5 %): el original copia mColor (0x30-0x3C) palabra a palabra con r0 y los Vector3 con psq_l/psq_st/lfs/stfs; ningun tipo probado (struct POD, array, ints, op= propio) da ese patron.
@@ -78,4 +83,4 @@
 - MapPartsArea::vf1C (99,90 %): `lwzx base, offset` del original frente a offset+base en las condiciones de los bucles interiores; probados begin()[i] y *(begin() + i) (peor).
 
 ## Cambios de splits/symbols
-- Sin cambios de splits. symbols.txt: `fn_800431F4__9ArenaTaskFii` -> `fn_800431F4__9ArenaTaskFiii`; renumerados `@N` de GameChoiceWindow, ReplayBuffer, GameScene y GameTask (pd.sh; 0x808857E0/E4 de GameTask a mano con lblmap: @31593/@31594). `lbl_8087EE78` devuelto tras pd de ArenaTask.
+- Sin cambios de splits. symbols.txt: `fn_800431F4__9ArenaTaskFii` -> `fn_800431F4__9ArenaTaskFiii`; `fn_803C795C` -> `GetData_unk__Q23atn31SimpleArray<Q22gs11NpcSetPoint>CFv`; renumerados `@N` de GameChoiceWindow, ReplayBuffer, GameScene y GameTask (pd.sh; 0x808857E0/E4 de GameTask a mano con lblmap: @31593/@31594). `lbl_8087EE78` devuelto tras pd de ArenaTask.
