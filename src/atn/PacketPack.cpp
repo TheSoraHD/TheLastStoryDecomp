@@ -5913,6 +5913,173 @@ extern "C" void fn_804E6DD0(PPManager2_unk* mgr);
 extern "C" int fn_804E82C4(PPManager2_unk* mgr, int message);
 extern "C" void fn_804E4EB0(PPManager2_unk* mgr);
 extern const char* lbl_80791018[36];
+#include "game/DamageCalc_unk.h"
+extern "C" int fn_80051C78(const atn::ColliCapsuleShape_unk* a, const atn::ColliCapsuleShape_unk* b); // inferred: the capsules touch
+static inline int IsSameTeam_unk(PPPlayer_unk* player, PPPlayer_unk* leader);
+static inline PPPlayer_unk* GetMyPlayer_unk();
+// inferred: payload of message 0x103B (the player is down or back: aid, state, hit points); names invented
+struct PPMsgDown_unk {
+    unsigned char mAid;
+    unsigned char mDown;
+    unsigned char mValue;
+};
+// NONMATCHING: 85.2% - the original inlines fn_804DB1C4 (the score change and its popup; its L"" stays in
+// @wstringBase0, so it was auto-inlined: here it is over the budget and called, frame 0xB0 instead of 0xE0), loads
+// m564 twice in the inlined fn_804D64C8 and computes the slot of the team test before the search of the own player
+// inferred: knocked down players (state 0x20) of the own machine (the own slot or the team players of the own
+// player): at the start of the countdown mD38[4] (the respawn time m5C4, a third out of game mode 2) the hit
+// points are restored (out of mode 2 and without m5A8), message 0x103B tells the others, the down count mE4 grows
+// and the score loses 5 points (10 in the last minute); the own player of game mode 2 without hit points left
+// starts a time limit of 120 seconds (message 0x1002, the music and a tutorial); in game mode 2 another player
+// touching the downed one ends the countdown at once. At the end of the countdown the player revives (invincible
+// for 150 frames, effect 0x4FC1, message 0x103A, the revival hit 0x2711 and a warp point, message 0x103B) or,
+// with m5A8 and no hit points left, a human player stays down for good (the game is lost: flags, items and a
+// tutorial)
+extern "C" void fn_804E4EB0(PPManager2_unk* mgr) {
+    for (int i = 0; i < (int)mgr->mPlayers.size(); i++) {
+        PPPlayer_unk* player = PPSlot_unk(mgr, i);
+        if (!player->mFlags.mActive) {
+            continue;
+        }
+        if (player != fn_804DD158(mgr, lbl_8087F628->GetMyAid_unk()) &&
+            IsSameTeam_unk(&mgr->mPlayers[i], GetMyPlayer_unk()) != 1) {
+            continue;
+        }
+        CharaTask* chara = player->mRef.mChara;
+        if (!chara->mStatus.IsState_unk(0x20) || player->mD38[4] <= 0) {
+            continue;
+        }
+        int near = 0;
+        PPManager2_unk* global = (PPManager2_unk*)lbl_8087F610;
+        if (player->mD38[4] == (global->mMode == 2 ? global->m5C4 : global->m5C4 / 3)) {
+            if (mgr->mMode != 2 && chara != 0 && !(unsigned char)mgr->m5A8) {
+                ((PPChara_unk*)chara)->m9F8 = chara->mStatus.mParamB.m98;
+            }
+            NetMsgI_unk<PPMsgDown_unk> msg(0x103B);
+            msg.mData.mAid = player->mAid;
+            msg.mData.mDown = 1;
+            msg.mData.mValue = player->mRef.mChara == 0 ? 0 : ((PPChara_unk*)player->mRef.mChara)->m9F8;
+            fn_804AE3BC()->fn_8050E094(-1, 0x103B, &msg.mData, 1);
+            player->mE4++;
+            int points = -5;
+            PPManager2_unk* mgr2 = (PPManager2_unk*)lbl_8087F610;
+            bool last = !(GetRemain_unk(mgr2) < 0);
+            if (last) {
+                last = GetRemain_unk(mgr2) < 60;
+            }
+            if (last) {
+                points = -10;
+            }
+            fn_804DB1C4(mgr, player->mRef.mChara, points);
+            if (mgr->mMode == 2 && mgr->m564 < 0 && player == fn_804DD158(mgr, lbl_8087F628->GetMyAid_unk()) &&
+                player->mRef.mChara != 0 && ((PPChara_unk*)player->mRef.mChara)->m9F8 <= 0) {
+                int limit = fn_804DB3B4(mgr) + 120;
+                NetMsgI_unk<int> limitMsg(0x1002);
+                limitMsg.mData = limit;
+                fn_804AE3BC()->fn_8050E094(-1, 0x1002, &limitMsg.mData, 1);
+                mgr->m564 = limit;
+                if (GameBgm::GetInstance_unk() != 0) {
+                    GameBgm::GetInstance_unk()->fn_8037D4C0(0x53D, 15, 1, 0, 0.7f);
+                }
+                atn::net::Manager* net = lbl_8087F628;
+                unsigned int* shown = (unsigned int*)&net->mFriendList.m7F0[0x0C];
+                if ((*shown & 1) != 1 || (*shown & 2) != 2) {
+                    if ((*shown & 1) != 1) {
+                        *shown |= 1;
+                    } else if ((*shown & 2) != 2) {
+                        *shown |= 2;
+                    }
+                    if (lbl_8087F430 != 0) {
+                        SetConfig::sInstance->mShowTutorial = 1;
+                        ((GameTask*)lbl_8087F430)->fn_803750E4(0x1B0);
+                        SetConfig::sInstance->mShowTutorial = 0;
+                    }
+                }
+            }
+        } else if (mgr->mMode == 2) {
+            for (int j = 0; j < (int)mgr->mPlayers.size(); j++) {
+                PPPlayer_unk* other = PPSlot_unk(mgr, j);
+                if (!other->mFlags.mActive || other == player || other->mRef.mChara == 0) {
+                    continue;
+                }
+                if (player->mRef.mChara->fn_8016F3D0(other->mRef.mChara, 1) &&
+                    fn_80051C78((const atn::ColliCapsuleShape_unk*)&player->mRef.mChara->mColli.m3C,
+                                (const atn::ColliCapsuleShape_unk*)&other->mRef.mChara->mColli.m3C)) {
+                    player->mD38[4] = 0;
+                    near = 1;
+                    break;
+                }
+            }
+        }
+        if (--player->mD38[4] <= 0) {
+            if (!(unsigned char)mgr->m5A8 || ((PPChara_unk*)player->mRef.mChara)->m9F8 > 0) {
+                player->mD50 = 150;
+                if (player != 0 && player->mRef.mChara != 0) {
+                    player->mD4C |= 0xC00;
+                    CharaTask* self = player->mRef.mChara;
+                    if (self != 0) {
+                        player->mRef.mChara->fn_80178668(fn_80219E6C(0x4FC1), 0, 9999, self, 0);
+                    }
+                }
+                if (player != 0) {
+                    NetMsgI_unk<PPId_unk> upMsg(0x103A);
+                    upMsg.mData.m00 = player->mAid;
+                    upMsg.mData.m01 = 1;
+                    fn_804AE3BC()->fn_8050E094(-1, 0x103A, &upMsg.mData, 1);
+                    fn_804AE3BC()->fn_8050DDDC(-1, 1);
+                }
+                HitInfo_unk* hit = fn_80219E6C(0x2711);
+                DamageResult_unk result;
+                fn_8003EA3C(&result, hit, player->mRef.mChara, player->mRef.mChara, 0, &lbl_807C6B90, 0, 0);
+                player->mRef.mChara->fn_8015EFAC(10);
+                fn_804EAA84(mgr, player->mRef.mChara, 0, near);
+                NetMsgI_unk<PPMsgDown_unk> backMsg(0x103B);
+                backMsg.mData.mAid = player->mAid;
+                backMsg.mData.mDown = 0;
+                fn_804AE3BC()->fn_8050E094(-1, 0x103B, &backMsg.mData, 1);
+            } else if (player->mRef.mChara->mType == 0) {
+                HitInfo_unk* hit = fn_80219E6C(0x2711);
+                DamageResult_unk result;
+                fn_8014F8F4()->mEnabled = 0;
+                fn_8003EA3C(&result, hit, player->mRef.mChara, player->mRef.mChara, 0, &lbl_807C6B90, 0, 0);
+                fn_8014F8F4()->mEnabled = 1;
+                player->mRef.mChara->fn_8015EFAC(10);
+                player->mRef.mChara->m54C |= 4;
+                player->mRef.mChara->fn_8014EEC4(0);
+                player->mRef.mChara->mC58.mC0 = 0;
+                player->mRef.mChara->m54C |= 0x2000;
+                mgr->mGame->fn_803748E0(1);
+                mgr->mGame->fn_80370320(0x1F, 1, 0);
+                mgr->mGame->fn_80370320(0x25, 1, 0);
+                mgr->mGame->fn_80370320(0x64, 7, 0);
+                player->mRef.mChara->fn_8017C7F8(1);
+                Inventory::instance_->AddItem(0x72, 99, 0, 0, 0, 1, 1);
+                Inventory::instance_->AddItem(0x70, 99, 0, 0, 0, 1, 1);
+                if (((PPManager2_unk*)lbl_8087F610)->m50C == 0) {
+                    atn::net::Manager* net = lbl_8087F628;
+                    unsigned int* shown = (unsigned int*)&net->mFriendList.m7F0[0x0C];
+                    if ((*shown & 0x10) != 0x10 || (*shown & 0x20) != 0x20) {
+                        if ((*shown & 0x10) != 0x10) {
+                            *shown |= 0x10;
+                        } else if ((*shown & 0x20) != 0x20) {
+                            *shown |= 0x20;
+                        }
+                        if (lbl_8087F430 != 0) {
+                            SetConfig::sInstance->mShowTutorial = 1;
+                            ((GameTask*)lbl_8087F430)->fn_803750E4(0x1BF);
+                            SetConfig::sInstance->mShowTutorial = 0;
+                        }
+                    }
+                }
+            }
+        }
+        if (!(unsigned char)mgr->m5A8 || ((PPChara_unk*)player->mRef.mChara)->m9F8 > 0) {
+            // inferred: the slot of the own player is searched and not used
+            fn_804DD158(mgr, lbl_8087F628->GetMyAid_unk());
+        }
+    }
+}
+
 // NONMATCHING: 97.31% - registers (the original shares the zero of the counter with the static of the message) and
 // the reloads of m564 and of the slot count in the inlined slot loops
 // inferred: update of the game: the timers mD50 of the slots (at 0 the effect 0x4FC1 ends and message 0x103A
@@ -8593,9 +8760,9 @@ extern "C" void fn_804F1F24(PPPlayer_unk* player) {
 
 // NONMATCHING: 99.67% - the original increments the index before the slot offset
 // inferred: `player` is in the team of `leader`
-static inline bool IsSameTeam_unk(PPPlayer_unk* player, PPPlayer_unk* leader) {
+static inline int IsSameTeam_unk(PPPlayer_unk* player, PPPlayer_unk* leader) {
     if (leader == 0 || player == 0 || !IsTeamPlayer_unk(player)) {
-        return false;
+        return 0;
     }
     return (player->mAid & 0xF) == leader->mAid;
 }
