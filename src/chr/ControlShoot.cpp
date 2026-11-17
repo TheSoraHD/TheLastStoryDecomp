@@ -6,15 +6,8 @@
 
 class BattleTask;
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
-// inferred: field (lbl_8087F430, as in game/CharaTask.cpp); names invented
-struct Field_unk {
-    unsigned char m000[0x96C];
-    int m96C;
-    int m970;
-    float m974;
-    float m978;
-};
-extern "C" Field_unk* lbl_8087F430;
+// inferred: the field task (lbl_8087F430)
+extern "C" GameTask* lbl_8087F430;
 extern "C" void* lbl_8087F610; // inferred: arena mode (as in game/CharaTask.cpp)
 // inferred: shot speed ranges (arena and normal); .sdata of this unit
 float lbl_8087DA48 = 1.0f;
@@ -94,8 +87,8 @@ ControlShoot::ControlShoot(Chara_unk* chara, int id, const atn::Vector3& from, c
     }
     if ((unsigned int)(mData->m04 - 0x148) <= 2) {
         lbl_8087F048->fn_800F8574(mChara, mData, &mFrom, &mTo, 0, 0xA00000, 0, 0.0f, 1.0f);
-        Field_unk* field = lbl_8087F430;
-        ((GameTask*)field)->fn_80370320(0xCF7, ((GameTask*)field)->fn_80370174(0xCF7) + 1, 0);
+        GameTask* field = lbl_8087F430;
+        field->fn_80370320(0xCF7, field->fn_80370174(0xCF7) + 1, 0);
     } else if (mData->m04 == 0x144) {
         lbl_8087F048->fn_800F8574(mChara, mData, &mFrom, &mTo, 0, 0x40, 0, 0.0f, 1.0f);
     } else if (mChara->m50 == 700023) {
@@ -157,11 +150,12 @@ ControlShoot::ControlShoot(Chara_unk* chara, int id, const atn::Vector3& from, c
         mChara->mFB4 = 0;
     }
     if (flag && mChara->mType == 0 && lbl_8087F430 != 0) {
-        Field_unk* field = lbl_8087F430;
-        field->m96C %= 2;
-        field->m970 = 2;
-        field->m974 = 0.0f;
-        field->m978 = 1.0f;
+        // inferred: shake of the field camera
+        CameraShake_unk& shake = lbl_8087F430->mCamera.mShake;
+        shake.mFrame %= 2;
+        shake.mLength = 2;
+        shake.mWidth = 0.0f;
+        shake.mHeight = 1.0f;
     }
 }
 
