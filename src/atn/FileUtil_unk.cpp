@@ -225,7 +225,7 @@ static const unsigned short sEndian = 0x100;
 // NONMATCHING: 99% - only the size of the .sdata2 object (2 here, 8 in the symbol table)
 // inferred: read through a volatile pointer so that the compiler does not fold it (the original
 // loads it with lhz)
-extern "C" bool fn_8006969C() {
+extern "C" int fn_8006969C() {
     return *(volatile const unsigned short*)&sEndian != 1;
 }
 

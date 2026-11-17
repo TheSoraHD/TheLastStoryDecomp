@@ -247,7 +247,7 @@ extern "C" int fn_8020EE8C(const char* name) {
     return -1;
 }
 
-extern "C" bool fn_8020EF04(int code) {
+extern "C" int fn_8020EF04(int code) {
     return code / 100000 % 10 == 2;
 }
 

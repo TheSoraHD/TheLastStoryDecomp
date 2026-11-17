@@ -233,7 +233,7 @@ int fn_8003F1E4(DamageResult_unk* result, HitInfo_unk* data, CharaTask* attacker
     return result->mType;
 }
 
-bool fn_8003F440(CharaTask* chara, CharaStatusPair_unk* skills) {
+int fn_8003F440(CharaTask* chara, CharaStatusPair_unk* skills) {
     float cost = 0.0f;
     bool none = true;
     for (int i = 0; i < 2; i++) {

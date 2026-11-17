@@ -268,7 +268,7 @@ extern "C" bool fn_80211648(const ItemParamEntry_unk* entry) {
     return true;
 }
 
-extern "C" bool fn_80211734(ItemParamEntry_unk* entry) {
+extern "C" int fn_80211734(ItemParamEntry_unk* entry) {
     if (entry->mBC == 0) {
         return true;
     }

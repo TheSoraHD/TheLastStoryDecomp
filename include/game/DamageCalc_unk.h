@@ -32,7 +32,7 @@ extern "C" int fn_8003F030(DamageResult_unk* result, HitInfo_unk* data, CharaTas
                            const atn::Vector3* rot, unsigned int flags);
 extern "C" int fn_8003F1E4(DamageResult_unk* result, HitInfo_unk* data, CharaTask* attacker, CharaTask* target,
                            unsigned int flags);
-extern "C" bool fn_8003F440(CharaTask* chara, CharaStatusPair_unk* skills);
+extern "C" int fn_8003F440(CharaTask* chara, CharaStatusPair_unk* skills);
 extern "C" int fn_8003F538(HitInfo_unk* data, CharaStatus* attacker, CharaStatus* target, unsigned int flags,
                            const DamageParam_unk* param);
 extern "C" void fn_80040434(float* elements, CharaStatus* status, unsigned int flags);

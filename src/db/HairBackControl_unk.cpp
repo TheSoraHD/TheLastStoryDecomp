@@ -766,7 +766,7 @@ extern "C" bool* fn_802185F4() {
 }
 
 // inferred: whether a motion uses the back hair control (listed in the CSV, or not an "_ev" motion)
-extern "C" bool fn_802185FC(const char* name) {
+extern "C" int fn_802185FC(const char* name) {
     unsigned int hash = fn_800DC6B4(fn_8006B174(std::string(name)).c_str());
     for (unsigned int i = 0; i < sHairCount; i++) {
         if (hash == sHairHashes[i]) {

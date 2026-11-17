@@ -457,7 +457,7 @@ void FormatEffectText_unk(wchar_t* buf, const wchar_t* cond, const wchar_t* type
 
 // inferred: text of an effect (a whole text of sp_text if there is one, else the texts of its
 // condition and type)
-extern "C" bool fn_8021C6A4(wchar_t* buf, SpEffect_unk* effect) {
+extern "C" int fn_8021C6A4(wchar_t* buf, SpEffect_unk* effect) {
     if (effect != 0) {
     SpText_unk* text = FindText_unk(effect->mType, effect->mCond, effect->mCondValue);
     if (text != 0 && text->mText[0] != 0) {
