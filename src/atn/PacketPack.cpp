@@ -8460,6 +8460,28 @@ static inline CharaTask* GetHitAttacker_unk(PPManager2_unk* mgr, const PPMsgChar
         for (int i = 0; i < (int)mgr->mPlayers.size(); i++) {
             PPPlayer_unk* player = &mgr->mPlayers[(unsigned int)i];
             if (player->mFlags.mActive == 1 && data->mIndex == player->mAid) {
+                return mgr->mPlayers.begin()[i].mRef.mChara;
+            }
+        }
+        return 0;
+    case 3:
+        if (mgr->mCharas.size() > data->mIndex) {
+            return mgr->mCharas[data->mIndex].mRef.mChara;
+        }
+        return 0;
+    }
+    return 0;
+}
+// inferred: the search of GetHitAttacker_unk with the character read through the slot (fn_804EFF74, whose
+// registers differ from the other inlined copies); name invented
+static inline CharaTask* GetHitChara_unk(PPManager2_unk* mgr, const PPMsgCharaRef_unk* data) {
+    switch (data->mKind) {
+    case 1:
+        return 0;
+    case 2:
+        for (int i = 0; i < (int)mgr->mPlayers.size(); i++) {
+            PPPlayer_unk* player = &mgr->mPlayers[(unsigned int)i];
+            if (player->mFlags.mActive == 1 && data->mIndex == player->mAid) {
                 return mgr->mPlayers[(unsigned int)i].mRef.mChara;
             }
         }
@@ -8593,7 +8615,7 @@ extern "C" void fn_804EE9F0(PPPlayer_unk* player) {
     }
 }
 
-// NONMATCHING: 99.21% - base of the inlined player search (the original loads the character with lwzx base, offset)
+// NONMATCHING: 99.76% - registers of the inlined player search
 // inferred: message 5: a bullet shot by another player (only in the game, state 30); the listeners of the
 // characters are off during the shot
 extern "C" void fn_804EEB34() {
@@ -8643,7 +8665,7 @@ struct PPMsgHoming_unk {
     unsigned int mNode;         // 0x40
 };
 
-// NONMATCHING: 99.05% - base of the inlined player search (as fn_804EEB34)
+// NONMATCHING: 99.57% - registers of the inlined player search
 // inferred: message 58: a homing bullet shot by another player (only in the game, state 30); the listeners of the
 // characters are off during the shot (and stay off when the hit data or a free bullet is missing)
 extern "C" void fn_804EED7C() {
@@ -8887,7 +8909,7 @@ extern "C" void fn_804EF0F0(unsigned int aid) {
 
 
 
-// NONMATCHING: 99.40% - base of the inlined player search (the original loads the character with lwzx base, offset)
+// NONMATCHING: 99.78% - registers of the inlined player search
 // inferred: message 7: hit received by a character (only in the game, state 30); the listeners are off during the
 // hit; a gimmick held by the character and released by the hit gets message 3
 extern "C" void fn_804EF9B4() {
@@ -8923,7 +8945,7 @@ extern "C" void fn_804EF9B4() {
     }
 }
 
-// NONMATCHING: 99.15% - base of the inlined player search (the original loads the character with lwzx base, offset)
+// NONMATCHING: 99.77% - registers of the inlined player search
 // inferred: messages 8 and 64: a hit dealt by another player (only in the game, state 30); the listeners of the
 // characters are off during the hit
 extern "C" void fn_804EFC94() {
@@ -8999,8 +9021,8 @@ extern "C" void fn_804EFF74(PPPlayer_unk* player, unsigned int type) {
         return;
     }
     const PPMsgAttack_unk* data = (const PPMsgAttack_unk*)fn_804AE3BC()->GetWorkBuffer_unk();
-    CharaTask* attacker = GetHitAttacker_unk((PPManager2_unk*)lbl_8087F610, &data->mAttacker);
-    CharaTask* target = GetHitAttacker_unk((PPManager2_unk*)lbl_8087F610, &data->mTarget);
+    CharaTask* attacker = GetHitChara_unk((PPManager2_unk*)lbl_8087F610, &data->mAttacker);
+    CharaTask* target = GetHitChara_unk((PPManager2_unk*)lbl_8087F610, &data->mTarget);
     if (target == 0) {
         return;
     }
@@ -9540,15 +9562,14 @@ struct PPMsgSpecialHit_unk {
     };
 };
 
-// NONMATCHING: 97.66% - base of the inlined GetHitAttacker_unk (the original loads the character with lwzx base,
-// offset, as fn_804EF9B4) and the original reloads lbl_8087F610 for the second search
+// NONMATCHING: 98.25% - registers of the inlined searches: the original reloads lbl_8087F610 for the second one
 // inferred: a hit on a special enemy dealt by another player (only in the game, state 30): the hit is rebuilt in
 // a BattleCalcParam_unk and given to vf40 of the enemy (SpecialEnemyBase ids, unless its flag 2 is set)
 extern "C" void fn_804F2994() {
     if (((PPManager2_unk*)lbl_8087F610)->mState == 30) {
         const PPMsgSpecialHit_unk* data = (const PPMsgSpecialHit_unk*)fn_804AE3BC()->GetWorkBuffer_unk();
-        CharaTask* attacker = PPCharaOfId_unk((PPManager2_unk*)lbl_8087F610, (const PPId_unk*)&data->mRefs.mAttacker);
-        CharaTask* target = PPCharaOfId_unk((PPManager2_unk*)lbl_8087F610, (const PPId_unk*)&data->mRefs.mTarget);
+        CharaTask* attacker = GetHitAttacker_unk((PPManager2_unk*)lbl_8087F610, &data->mRefs.mAttacker);
+        CharaTask* target = GetHitAttacker_unk((PPManager2_unk*)lbl_8087F610, &data->mRefs.mTarget);
         if (target != 0 && !target->IsFlag2_unk()) {
             switch (((BattleCharaTask*)target)->m146C) {
             case 19:

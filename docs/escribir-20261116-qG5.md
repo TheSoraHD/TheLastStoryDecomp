@@ -8,7 +8,11 @@ Inicio: 2026-11-17 08:08 CET (tope 10:38).
 |---|---|---|
 | fn_804D996C | 99,57 % | 100 % (contador `int i` frente a `size()` sin signo) |
 | fn_804EF0F0 | 99,71 % | 99,87 % (`begin()[i]` en el return de PPCharaOfAid_unk: el `lwzx` del original) |
-| fn_804F2994 | 97,66 % | 98,07 % (PPCharaOfId_unk en vez de GetHitAttacker_unk: los `lwzx`) |
+| fn_804F2994 | 97,66 % | 98,25 % (GetHitAttacker_unk con `begin()[i]`: los `lwzx`) |
+| fn_804EEB34 | 99,25 % | 99,76 % (idem) |
+| fn_804EED7C | 99,07 % | 99,57 % (idem) |
+| fn_804EF9B4 | 99,40 % | 99,78 % (idem) |
+| fn_804EFC94 | 99,15 % | 99,77 % (idem) |
 | fn_804D8910 | 98,97 % | 99,41 % (contador `int i`) |
 | fn_804D9C14 | 94,17 % | 95,19 % (contador `int i`) |
 | fn_804DDA04 | 95,52 % | 98,07 % (contadores `unsigned int` sin `(int)`) |
@@ -25,8 +29,8 @@ Inicio: 2026-11-17 08:08 CET (tope 10:38).
 ## Para el port
 
 - Sin cambios de comportamiento: fn_804D996C cuenta con `int i` (antes `unsigned int`); PPCharaOfAid_unk devuelve
-  `mPlayers.begin()[i].mRef.mChara` (mismo objeto); fn_804F2994 busca atacante y objetivo con PPCharaOfId_unk
-  (mismo cuerpo que GetHitAttacker_unk; `PPMsgCharaRef_unk` y `PPId_unk` tienen la misma forma {tipo, indice}).
+  `mPlayers.begin()[i].mRef.mChara` (mismo objeto), y GetHitAttacker_unk tambien; fn_804EFF74 usa la copia
+  `GetHitChara_unk` (la forma anterior, que lee el personaje por el slot).
 - Sin cambios de comportamiento: tipo del contador y del limite (`int`/`unsigned int`, con o sin `(int)size()`) en
   los bucles de fn_804D8910, fn_804D9C14, fn_804DDA04, fn_804DF4B8 y fn_804EB934.
 - Sin cambios de comportamiento: fn_804DD158 devuelve `&mgr->mPlayers[i]` (antes un local); `PPFindSlot_unk`
@@ -34,6 +38,9 @@ Inicio: 2026-11-17 08:08 CET (tope 10:38).
 - Sin cambios de comportamiento: fn_804F60E0 limita el puesto del ultimo bucle a traves de un local `v`.
 
 ## Decisiones tomadas sin el usuario
+
+- GetHitAttacker_unk lee el personaje con `begin()[i]` (sube fn_804EEB34, fn_804EED7C, fn_804EF9B4, fn_804EFC94,
+  fn_804F2994); fn_804EFF74 necesita la forma anterior: copia `GetHitChara_unk` (`// inferred:`) solo para el.
 
 - fn_804DD158 (100 % en las dos formas) se escribe sin el local `player` (`return &mgr->mPlayers[i];`): asi salen al
   100 % fn_804DD1A8 y fn_804DD3F0 (y suben fn_804F47FC y fn_804DA690). fn_804D90E0, fn_804EB010 (100 %) y fn_804F3EEC
