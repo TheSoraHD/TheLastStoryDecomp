@@ -983,7 +983,7 @@ void Em204Mulue::fn_802A8BBC() {
     }
 }
 
-// NONMATCHING: 98.82% - order of the status address and the bitfield load of the damage record
+// inferred: the status of the target through a local pointer and `power` declared before `hp`
 void Em204Mulue::fn_802A91D0() {
     if (m14C0 > 160) {
         SetState_unk(13);
@@ -991,10 +991,11 @@ void Em204Mulue::fn_802A91D0() {
         ClearPartsFlag_unk();
     }
     if (m1644 != 0 && m14C0 % 30 == 0) {
-        int hp = (int)m1644->mStatus.m04;
+        CharaStatus* status = &m1644->mStatus;
         int power = mStatus.mParamB.m78 * 20;
+        int hp = (int)status->m04;
         int dmg = MIN(power, hp - 1) < 0 ? 0 : MIN(power, hp - 1);
-        m1644->mStatus.fn_8012DF7C(dmg, 0, 0);
+        status->fn_8012DF7C(dmg, 0, 0);
         atn::Vector3 pos(m1644->fn_80148B0C(0)->m04.mCenter);
         pos += atn::Vector3(0.0f, 15.0f, 0.0f);
         DamageResult_unk damage;
@@ -1005,7 +1006,6 @@ void Em204Mulue::fn_802A91D0() {
     Release_unk();
 }
 
-// NONMATCHING: 99.95% - r3/r4 of the bitfield of the damage record
 void Em204Mulue::fn_802A94C8() {
     if (fn_80158BB4()) {
         Rest_unk();
