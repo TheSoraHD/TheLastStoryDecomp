@@ -185,8 +185,7 @@ inline void Em206CocoonMp::Die_unk() {
     ((GameTask*)lbl_8087F430)->fn_80370AE4(0x65, 1);
     BattleTask* mgr = lbl_8087F048;
     CharaTask* player = lbl_8087F8A0->mHead;
-    int id = mgr->fn_800F8548();
-    mgr->fn_800FAB80(player, fn_80219E6C(0x5C3), id, &mPos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
+    mgr->fn_800FAB80(player, fn_80219E6C(0x5C3), mgr->fn_800F8548(), &mPos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
     m1914 = 1;
 }
 
