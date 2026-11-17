@@ -71,3 +71,9 @@ Inicio: 2026-11-17 08:18 CET. Tope 10:48.
 ## Cambios de splits/symbols
 - Splits sin cambios. symbols.txt: solo renumerados `@N` de pd.sh (SoundManager, ColliCalc_unk, FileList, EnemyLizerdBlade, WPad_unk, ShopBuySell) y `lbl_8088129C/A0/A4/AC` (WPad_unk) pasan a `@N` (sin usuarios externos). game_units.json: `game/EnemyLizerdBlade` y `atn/WPad_unk` a `matching: true` (main.dol OK).
 - Avisos de poolcheck en game/EnemyLizerdBlade (floats 0.5/0.7/15/2.44346/20 de nuestra .sdata2 que no estan en el .o original) ya existian; la unidad enlaza con main.dol OK.
+
+## Resumen
+- Funciones al 100 %: atn/FileList fn_8006C3F0, game/EnemyLizerdBlade fn_80334460, atn/WPad_unk fn_800DDD18 (report: 15945 -> 15948).
+- Unidades que enlazan: game/EnemyLizerdBlade y atn/WPad_unk (729 -> 731), main.dol OK, lost 0, sin bajadas.
+- Equivalentes NONMATCHING mejoradas: ShopBuySell fn_8058621C 99,22 (arreglo de comportamiento: `+=`), fn_805866F4 97,23; SoundManager fn_800CE6E0 99,72, fn_800CECF0 99,47; ColliCalc_unk fn_80059784 98,54.
+- Pendientes: FileList fn_8006BD78 (assign/push_back, la unidad enlazaria), SoundManager (primer erase de fn_800CE6E0; FPR de fn_800CECF0), NetManager (IsJoined plegado, relectura de lbl_8087F628, ctor), Em312DarkServant (recursion), Em305VampireMp (push_back/std::string), ColliAttrManager, EffectLoader_unk, ColliCalc_unk fn_8005AD7C.
