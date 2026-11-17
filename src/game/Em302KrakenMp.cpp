@@ -302,7 +302,7 @@ Em302KrakenMp::Em302KrakenMp(atn::Task* parent, EnemyInfo_unk* info)
     m1644 = 0;
 }
 
-// NONMATCHING: 99.3% - saved registers of the reading loop rotated (key/pool/zero: r28/r29/r30 in the
+// NONMATCHING: 99.3% - saved registers of the reading loop rotated (key/pool/0: r28/r29/r30 in the
 // original, r30/r29/r28 here), as Em302Kraken::vf0C
 int Em302KrakenMp::vf0C() {
     if (m14D4 == 0) {
@@ -311,7 +311,6 @@ int Em302KrakenMp::vf0C() {
             m1570.IsLoading() == 0 && m157C.IsLoading() == 0 && m1630.fn_80473F50() == 0) {
             if (m1630.fn_80470580() != 0 && fn_80121F00() != 0 && fn_80121F00()->fn_8013C504() != 0) {
                 atn::Csv csv((const char*)m1630.fn_80470580(), m1630.fn_8047059C());
-                int zero = 0;
                 do {
                     const char* key = csv.fn_8005B9CC();
                     if (strcmp(key, "appear_point") == 0) {
@@ -327,7 +326,7 @@ int Em302KrakenMp::vf0C() {
                             m15E0 = *At_unk(&m15E8, m15E4);
                         }
                     } else if (strcmp(key, "pillar_id") == 0) {
-                        int id = zero;
+                        int id = 0;
                         do {
                             id = fn_800DC12C(csv.fn_8005B9CC());
                             if (id != 0) {

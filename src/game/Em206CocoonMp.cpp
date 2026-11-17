@@ -324,7 +324,6 @@ void Em206CocoonMp::vfFC() {
     fn_8016E970(3);
 }
 
-// NONMATCHING: 99% - register allocation of the inlined death (Die_unk) and of the copies of the direction
 // inferred: starts the action chosen by fn_802BD480 (the argument is not used)
 void Em206CocoonMp::vf100(int state) {
     CharaTask* target = mC58.mC4;
