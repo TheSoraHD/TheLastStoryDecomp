@@ -14,6 +14,7 @@
 #include "game/BattleTask.h"
 #include "game/GameTask.h"
 #include "atn/ColliBase.h"
+#include "game/GameSceneFind_unk.h"
 
 extern "C" unsigned long strlen(const char* s);
 extern "C" int strcmp(const char* a, const char* b);
@@ -29,7 +30,7 @@ struct Field_unk {
     float m974;
     float m978;
     unsigned char m97C[0x10D8 - 0x97C];
-    RouteTable_unk* m10D8;
+    GameScene* m10D8;
 };
 extern "C" Field_unk* lbl_8087F430;
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
@@ -155,7 +156,7 @@ int Em101ElderZesyaSecond::vf0C() {
                     int id;
                     do {
                         id = fn_800DC12C(csv.fn_8005B9CC());
-                        RoutePlace_unk* place = lbl_8087F430->m10D8->FindPlace_unk(id);
+                        gs::WarpPoint* place = lbl_8087F430->m10D8->FindPlace_unk(id);
                         if (place != 0) {
                             m14C0.push_back(place);
                         }

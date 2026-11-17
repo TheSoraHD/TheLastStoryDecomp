@@ -8,7 +8,7 @@ namespace atn {
 struct MotionBuffer;
 struct NodeChunk;
 } // namespace atn
-struct RouteTable_unk;
+class GameScene;
 
 // inferred from __vt__13QuadrupedTask (0x807956F0): four-legged enemy (the white leopard and the war lion
 // carry their own copies of most of this code). The enemy factory (fn_805A5374) allocates 0x1568 bytes.

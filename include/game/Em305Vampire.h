@@ -6,12 +6,14 @@
 #include "game/ResHandle.h"
 #include "game/SpecialEnemyBase.h"
 #include "std/vector.h"
+namespace gs {
+struct WarpPoint;
+}
 
-struct RoutePlace_unk;
 
 // inferred: entry of "door_route" (four values read with fn_800DC12C); names invented
 // inferred: wrapper struct (the destructor tests the address of the member one extra time)
-typedef std::vector<RoutePlace_unk*> RoutePlaceList_unk;
+typedef std::vector<gs::WarpPoint*> RoutePlaceList_unk;
 
 struct VampireDoor_unk {
     VampireDoor_unk(int a, int b, int c, int d) : m00(a), m04(b), m08(c), m0C(d) {}

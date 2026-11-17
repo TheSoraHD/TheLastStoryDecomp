@@ -2,6 +2,9 @@
 #define GAME_EM203GREATERDAEMONRED_H
 
 #include "game/Em203GreaterDaemon.h"
+namespace gs {
+struct MovePoint;
+}
 
 // inferred: list of floats, a class derived from std::vector<float> (its destructor tests the address
 // four times, as IntVector_unk); name invented
@@ -140,8 +143,8 @@ public:
     int m1528;
     float m152C;
     atn::Vector3 m1530;
-    RoutePoint_unk* m153C;
-    RoutePoint_unk* m1540;
+    gs::MovePoint* m153C;
+    gs::MovePoint* m1540;
     float m1544;
     float m1548;
     atn::Vector3 m154C;

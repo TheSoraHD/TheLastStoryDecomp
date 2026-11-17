@@ -7,6 +7,7 @@
 #include "std/string_members.h"
 #include "atn/ColliBase.h"
 #include "game/BattleTask.h"
+#include "game/GameSceneFind_unk.h"
 
 extern "C" unsigned long strlen(const char* s);
 extern "C" int strcmp(const char* a, const char* b);
@@ -19,7 +20,7 @@ extern "C" std::string fn_8006AFF8(const std::string& a, const std::string& b);
 // inferred: field (lbl_8087F430); m10D8: route tables
 struct Field_unk {
     unsigned char m0000[0x10D8];
-    RouteTable_unk* m10D8;
+    GameScene* m10D8;
 };
 extern "C" Field_unk* lbl_8087F430;
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
@@ -139,7 +140,7 @@ int Em305VampireMp::vf0C() {
                     int id;
                     do {
                         id = fn_800DC12C(csv.fn_8005B9CC());
-                        RoutePlace_unk* place = lbl_8087F430->m10D8->FindPlace_unk(id);
+                        gs::WarpPoint* place = lbl_8087F430->m10D8->FindPlace_unk(id);
                         if (place != 0) {
                             m14E8.push_back(place);
                         }
@@ -497,7 +498,7 @@ void Em305VampireMp::vf11C() {
         if (m1524 <= 0) {
             fn_802EC098();
         } else {
-            RoutePlace_unk* place = m14E8[m1560];
+            gs::WarpPoint* place = m14E8[m1560];
             atn::Vector3 d(mPos.x - place->mPos.x, 0.0f, mPos.z - place->mPos.z);
             if (PSVECSquareMag(&d) < 100.0f) {
                 m1560++;

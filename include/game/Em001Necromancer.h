@@ -7,12 +7,14 @@
 #include "game/EnemyTask.h"
 #include "game/ResHandle.h"
 #include "std/vector.h"
+namespace gs {
+struct WarpPoint;
+}
 
-struct RoutePlace_unk;
 
 // inferred: classes derived from std::vector (their destructors test the address four times, as
 // ElderList_unk of game/Em101ElderZesyaSecond.h); names invented
-typedef std::vector<RoutePlace_unk*> NecroPlaceList_unk;
+typedef std::vector<gs::WarpPoint*> NecroPlaceList_unk;
 typedef std::vector<EnemyTask*> NecroEnemyList_unk;
 
 // inferred from __vt__16Em001Necromancer (0x80783D08): the necromancer. It warps between the

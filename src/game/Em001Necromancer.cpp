@@ -13,6 +13,7 @@
 #include "std/string_members.h"
 #include "game/BattleTask.h"
 #include "atn/ColliBase.h"
+#include "game/GameSceneFind_unk.h"
 
 extern "C" unsigned long strlen(const char* s);
 extern "C" int strcmp(const char* a, const char* b);
@@ -26,7 +27,7 @@ extern "C" int fn_800DC12C(const char* s);   // inferred: string to int
 extern "C" std::string fn_8006AFF8(const std::string& a, const std::string& b);
 // inferred: field object (route tables through fn_8013C504, as in gmk/FlamingArrow.cpp)
 struct Field_unk {
-    RouteTable_unk* fn_8013C504();
+    GameScene* fn_8013C504();
 };
 extern "C" Field_unk* fn_80121F00();
 extern "C" CharaManager<EnemyTask>* fn_801A03E0(); // inferred: enemy manager
@@ -329,7 +330,7 @@ int Em001Necromancer::vf0C() {
                         int id;
                         do {
                             id = fn_800DC12C(csv.fn_8005B9CC());
-                            RoutePlace_unk* place = fn_80121F00()->fn_8013C504()->FindPlace_unk(id);
+                            gs::WarpPoint* place = fn_80121F00()->fn_8013C504()->FindPlace_unk(id);
                             if (place != 0) {
                                 m14C4.push_back(place);
                             }
@@ -338,7 +339,7 @@ int Em001Necromancer::vf0C() {
                         int id;
                         do {
                             id = fn_800DC12C(csv.fn_8005B9CC());
-                            RoutePlace_unk* place = fn_80121F00()->fn_8013C504()->FindPlace_unk(id);
+                            gs::WarpPoint* place = fn_80121F00()->fn_8013C504()->FindPlace_unk(id);
                             if (place != 0) {
                                 m14D0.push_back(place);
                             }
@@ -396,7 +397,7 @@ int Em001Necromancer::vf0C() {
 
 // push_back is defined out of the class (include/std/vector.h): instantiated here so that it is emitted
 // behind vf0C and its "vector length error" goes to the pool before the literals of the next functions
-template void std::vector<RoutePlace_unk*>::push_back(RoutePlace_unk* const& x);
+template void std::vector<gs::WarpPoint*>::push_back(gs::WarpPoint* const& x);
 template void std::vector<EnemyTask*>::push_back(EnemyTask* const& x);
 
 // inferred: starts state `state` (names invented)

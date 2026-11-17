@@ -6,6 +6,9 @@
 #include "game/Em203GreaterDaemonRed.h"
 #include "game/ResHandle.h"
 #include "game/SpecialEnemyBase.h"
+namespace gs {
+struct MovePoint;
+}
 
 // inferred from __vt__23Em203GreaterDaemonRedMp (0x80785B38): multiplayer version of the red greater
 // daemon (enemy id 19), driven by the SpecialEnemyBase state machine and synchronized with vf110/vf114.
@@ -107,8 +110,8 @@ public:
     int m1558;          // inferred: route point reached
     float m155C;
     atn::Vector3 m1560;
-    RoutePoint_unk* m156C;
-    RoutePoint_unk* m1570;
+    gs::MovePoint* m156C;
+    gs::MovePoint* m1570;
     float m1574;
     float m1578;
     atn::Vector3 m157C;
