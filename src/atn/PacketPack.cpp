@@ -3791,12 +3791,10 @@ extern "C" void fn_804D824C(PPManager2_unk* mgr, PPPlayer_unk* player, int mode)
 }
 
 extern "C" PPPlayer_unk* fn_804DD158(PPManager2_unk* mgr, unsigned int aid);
-// NONMATCHING: 99.76% - aid and count of the inlined search fn_804DD158 in r5/r4 (r4/r5 in the original)
 // inferred: flushes the packer; the server goes on with fn_804D824C (mode 1), a client starts the timer m99B8
 extern "C" void fn_804D8610(PPManager2_unk* mgr) {
     fn_804AE3BC()->fn_8050DE34();
-    unsigned int aid = lbl_8087F628->GetMyAid_unk();
-    PPPlayer_unk* own = fn_804DD158(mgr, aid);
+    PPPlayer_unk* own = fn_804DD158(mgr, lbl_8087F628->GetMyAid_unk());
     if (IsServer_unk() == 1) {
         fn_804D824C(mgr, own, 1);
     } else {
@@ -4883,11 +4881,10 @@ extern "C" void fn_804DD33C(PPManager2_unk* mgr, int arg, int* stage) {
     }
 }
 
-// NONMATCHING: 98.81% - registers of the inlined search and of the loop (as fn_804DD1A8)
+// NONMATCHING: 99.07% - registers of the loop (as fn_804DD1A8)
 // inferred: character of a team player on the side of the own character whose slot value mB0 is 12 or 21
 extern "C" CharaTask* fn_804DD3F0(PPManager2_unk* mgr) {
-    unsigned int aid = lbl_8087F628->GetMyAid_unk();
-    PPPlayer_unk* own = fn_804DD158(mgr, aid);
+    PPPlayer_unk* own = fn_804DD158(mgr, lbl_8087F628->GetMyAid_unk());
     if (own == 0 || own->mRef.mChara == 0) {
         return 0;
     }
@@ -5098,14 +5095,12 @@ extern "C" void fn_804DDD50(PPManager2_unk* mgr) {
 }
 
 extern "C" bool fn_804DE560(PPManager2_unk* mgr, int* count, bool* found);
-// NONMATCHING: 99.78% - aid and count of the inlined search fn_804DD158 swapped (as fn_804D8610)
 // inferred: on the server: fn_804E9360, fn_804DE560 and the state of its own slot (mode 2) to everybody; 0 when
 // fn_804DE560 fails
 extern "C" int fn_804DDE34(PPManager2_unk* mgr) {
     if (IsServer_unk() == 1) {
         fn_804E9360(mgr);
-        unsigned int aid = lbl_8087F628->GetMyAid_unk();
-        PPPlayer_unk* own = fn_804DD158(mgr, aid);
+        PPPlayer_unk* own = fn_804DD158(mgr, lbl_8087F628->GetMyAid_unk());
         if (fn_804DE560(mgr, 0, 0) == 0) {
             return 0;
         }
@@ -6275,12 +6270,10 @@ extern "C" int fn_804E650C(CharaTask* chara) {
 }
 
 
-// NONMATCHING: 99.84% - aid and count of the inlined search fn_804DD158 in r5/r4 (r4/r5 in the original), as fn_804D8610
 // inferred: per frame of the own player: flag m12 (local flag 0xFB is 3), the messages of the frame (table of 30
 // frames: 2 character states, 4 and 8 other updates) and the quick messages of the pad in the message list
 extern "C" void fn_804E6518(PPManager2_unk* mgr) {
-    unsigned int aid = lbl_8087F628->GetMyAid_unk();
-    PPPlayer_unk* own = fn_804DD158(mgr, aid);
+    PPPlayer_unk* own = fn_804DD158(mgr, lbl_8087F628->GetMyAid_unk());
     int flag = lbl_8087F430 != 0 ? ((GameTask*)lbl_8087F430)->fn_80370A78(0xFB) : 0;
     own->mFlags.m12 = flag == 3;
     int frame = lbl_80790F78[(unsigned int)mgr->mFrame % 30];
@@ -7170,14 +7163,12 @@ extern "C" void fn_804EA810(PPManager2_unk* mgr, int value, int send) {
     mgr->m5A8 = value;
 }
 
-// NONMATCHING: 98.75% - registers of the inlined search fn_804DD158 and of the player (r31 in the original), as fn_804D8610
 // inferred: message 0x1013 (as message 0x18, fn_804F1F34): marks the own player and the players of its team (m26)
 extern "C" void fn_804EA8B8(PPManager2_unk* mgr, int arg) {
     PPPlayer_unk* player;
     fn_804AE3BC()->fn_8050E094(-1, 0x1013, 0, 1);
     fn_804AE3BC()->fn_8050DDDC(-1, 1);
-    unsigned int aid = lbl_8087F628->GetMyAid_unk();
-    player = fn_804DD158(mgr, aid);
+    player = fn_804DD158(mgr, lbl_8087F628->GetMyAid_unk());
     player->mFlags.m26 = 1;
     if (player->mRef.mChara != 0) {
         player->mRef.mChara->fn_800D246C(arg);
@@ -7215,7 +7206,7 @@ static inline float RandWarpOffset_unk() {
     return 5.0f * ((rand() % 1001) / 1000.0f) - 2.5f;
 }
 
-// NONMATCHING: 98.74% - registers (parameters, index of the search, counters of the loop)
+// NONMATCHING: 99.91% - register of the count of the list (the original reuses the one of the index)
 // inferred: places the character of a player on a warp point of its team: the kept one of its slot (m56C,
 // `keep`), else (in game mode 0, or 1 without `b`) the next one after the last chosen (m608) far enough from the
 // other players (50), else a random one, with a random offset; the main player keeps the choice in m608
@@ -7271,7 +7262,7 @@ extern "C" void fn_804EAA84(PPManager2_unk* mgr, CharaTask* chara, int keep, int
                 atn::Vector3 offset(RandWarpOffset_unk(), RandWarpOffset_unk(), RandWarpOffset_unk());
                 pos += offset;
             }
-            rot = atn::Vector3(0.0f, point->m14, 0.0f);
+            atn::VecAssign_unk(rot, atn::Vector3(0.0f, point->m14, 0.0f));
             if (player->mFlags.m30 == 1) {
                 mgr->m608 = sel;
             }
