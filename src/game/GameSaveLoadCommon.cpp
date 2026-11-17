@@ -105,8 +105,26 @@ extern "C" void fn_803B854C(char* name, int* size) {
     }
 }
 
-// NONMATCHING: 98.8% - in the inlined fn_803B83A4 of the loop the original tests NANDGetHomeDir with
-// `beq body; b skip` instead of `bne skip` (the same inline gives `bne` in fn_803B87A8)
+// inferred: same as GameSaveLoadBackgroundCommon::fn_803B83A4 but returning whether the name was made: the
+// unused result leaves `beq; b` after NANDGetHomeDir in the loop of fn_803B85EC (name invented)
+static inline bool GetSaveFileName_unk(char* name, int* offset, int slot) {
+    char home[0x40];
+    if (lbl_8087F0A8->m198 != 0) {
+        name[0] = 0;
+        return false;
+    }
+    if (NANDGetHomeDir(home) != 0) {
+        return false;
+    }
+    sprintf(name, "%s/%s\0", home, lbl_80885C78);
+    if (slot >= 0) {
+        *offset = slot * sizeof(GameSaveFile_unk) + 0x20;
+    } else {
+        *offset = 0;
+    }
+    return true;
+}
+
 void GameSaveLoadCommon::fn_803B85EC() {
     unsigned char header[0xC0] __attribute__((aligned(32)));
     NandFileInfo_unk info;
@@ -118,7 +136,7 @@ void GameSaveLoadCommon::fn_803B85EC() {
     }
     for (int i = 0; i < 17; i++) {
         int offset;
-        GameSaveLoadBackgroundCommon::fn_803B83A4(name, &offset, i);
+        GetSaveFileName_unk(name, &offset, i);
         if (NANDSimpleSafeOpen(name, &info, 1, buffer, sizeof(buffer)) == 0) {
             int pos = NANDSeek(&info, offset, 0);
             if (pos == offset) {
