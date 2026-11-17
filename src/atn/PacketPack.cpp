@@ -10827,12 +10827,15 @@ extern "C" __declspec(noinline) int fn_804FAB40(PPManager2_unk* mgr, int value, 
 extern "C" int SCCheckPCMessageRestriction();
 extern "C" const wchar_t* fn_804FAF48(PPManager2_unk* mgr, int* code, int type); // inferred: text of a DWC error
 
-// NONMATCHING: 99.21% - the offset of L"%s" in @wstringBase0 (pool in .sdata in the original, not complete) and a
-// second `beq` of the test of the dialog in the original
+// note: the offset of L"%s" in @wstringBase0 (pool in .sdata in the original, not complete) is not seen by objdiff
 // inferred: shows the error dialog: the message `id` of the table, or (id -1) the restriction of the parental
 // controls, the last DWC error or the oldest queued error with its code; then the ranking is closed if it failed
 extern "C" void fn_804FAD48(PPManager2_unk* mgr, int id) {
     if (lbl_8087F628 == 0 || MP::D2ACommonDialog::sInstance == 0) {
+        return;
+    }
+    // inferred: the original tests the dialog a second time (`beq` on the same compare after the guard)
+    if (MP::D2ACommonDialog::sInstance == 0) {
         return;
     }
     wchar_t buf[512];
