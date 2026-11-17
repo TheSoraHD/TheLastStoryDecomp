@@ -1,6 +1,6 @@
 # escribir-20261116, cola G5 (atn/PacketPack, quinta pasada: al 100 %)
 
-Inicio: 2026-11-17 08:08 CET (tope 10:38).
+Inicio: 2026-11-17 08:08 CET (tope 10:38). Fin: 10:25.
 
 Resumen: PacketPack +9 funciones al 100 % (fn_804D996C, fn_804DD1A8, fn_804DD3F0, fn_804F60E0, fn_804EEB34,
 fn_804EF9B4, fn_804EFC94, fn_804F39D4, fn_804EB26C); report 15942 -> 15951 funciones, lost 0, sin bajadas de fuzzy, labelcheck/rep100
@@ -40,6 +40,7 @@ enlaza (PacketPack sigue con funciones por debajo del 100 %).
 | fn_804F3880 | 97,29 % | 97,59 % (idem) |
 | fn_804F3EEC | 93,87 % | 94,12 % (idem) |
 | fn_804EB26C | 92,41 % | 100 % (segunda prueba de m28 leida por `mFlagWord`) |
+| fn_804DE884 | 99,58 % | 99,81 % (personaje del equipo leido por `mgr->mPlayers[i]`) |
 | fn_804EAA84 | 99,91 % | 99,91 % (sin cambios: ver Bloqueos) |
 | fn_804CF198 | 99,37 % | 99,37 % (sin cambios: ver Bloqueos) |
 
@@ -61,6 +62,7 @@ enlaza (PacketPack sigue con funciones por debajo del 100 %).
   de lbl_8087F048, como en Em203GreaterDaemon); mismo comportamiento.
 - fn_804D8910, fn_804E4EB0, fn_804EB934, fn_804F3880, fn_804F39D4 y fn_804F3EEC leen el MP::Manager2 con el getter
   debil `fn_800F7F90()` en vez de `(PPManager2_unk*)lbl_8087F610` (mismo objeto).
+- fn_804DE884 marca mFlagC25 del personaje leido por `mgr->mPlayers[i]` (mismo slot que `player`).
 - Sin cambios de comportamiento: fn_804F60E0 limita el puesto del ultimo bucle a traves de un local `v`.
 
 ## Decisiones tomadas sin el usuario
