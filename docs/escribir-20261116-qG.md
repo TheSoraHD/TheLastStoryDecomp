@@ -1,6 +1,8 @@
 # escribir-20261116, cola G (atn/PacketPack)
 
-Inicio: 2026-11-16 23:58 CET (tope 2026-11-17 02:28).
+Inicio: 2026-11-16 23:58 CET (tope 2026-11-17 02:28). Fin: 2026-11-17 01:42.
+
+Commits: ba48f1e, c290daa, cbcf70d, b8079ec, ac51900, 0f9e820, 08e444f, 7200b42 y el de estas notas (todos con `PRECOMMIT OK`: lost 0, sin bajadas, labelcheck/rep100 igual, poolcheck sin avisos nuevos).
 
 ## Tabla de la cola
 
@@ -52,6 +54,12 @@ PacketPack al 100 % (fnstat): 270 -> 271 / 380 (fn_804D00DC). Sin escribir 23 ->
 
 - `bool` devuelto por las funciones llamadas: `ok = f(); if (ok) ok &= g();` da `and; neg; or; srwi` sin normalizar el primero solo si `f`/`g` devuelven `bool` (con `int` sale `neg/or/srwi` tras cada uno) (escribir-20261116 qG)
 - El `L""` de una funcion inline sale como `@STRING@<inline>` en `.sdata` (objeto propio de 2 bytes), como el `@wstringBase0` sda21 que usan todas las funciones de PacketPack en el original (escribir-20261116 qG)
+
+## Pendientes
+
+- vector<PPPlayer_unk> (6 funciones): `PPPlayerArray_unk`/`PPCharaArray_unk` deberian ser `std::vector` (bloqueo qG4); fn_804E9C64 tambien (push_back inlineado en mCharas).
+- fn_804E4EB0 (3,3 KB), fn_804EFF74 (4,3 KB, dano con matrices), fn_804EB934 (7,7 KB) sin escribir; fn_804DE884 en el parche.
+- ~Manager2: destruccion de mPlayers/mCharas (vector), m610, m99A4 (lista) y el bloque m2B80; vf10 DRAFT.
 
 ## Bloqueos
 
