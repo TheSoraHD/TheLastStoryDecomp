@@ -9,6 +9,11 @@ Inicio: 2026-11-17 08:08 CET (tope 10:38).
 | fn_804D996C | 99,57 % | 100 % (contador `int i` frente a `size()` sin signo) |
 | fn_804EF0F0 | 99,71 % | 99,87 % (`begin()[i]` en el return de PPCharaOfAid_unk: el `lwzx` del original) |
 | fn_804F2994 | 97,66 % | 98,07 % (PPCharaOfId_unk en vez de GetHitAttacker_unk: los `lwzx`) |
+| fn_804D8910 | 98,97 % | 99,41 % (contador `int i`) |
+| fn_804D9C14 | 94,17 % | 95,19 % (contador `int i`) |
+| fn_804DDA04 | 95,52 % | 98,07 % (contadores `unsigned int` sin `(int)`) |
+| fn_804DF4B8 | 97,36 % | 97,89 % (contadores `unsigned int` sin `(int)`) |
+| fn_804EB934 | 96,79 % | 96,83 % (contador del tercer bucle con `(int)`) |
 | fn_804EAA84 | 99,91 % | 99,91 % (sin cambios: ver Bloqueos) |
 | fn_804CF198 | 99,37 % | 99,37 % (sin cambios: ver Bloqueos) |
 
@@ -17,6 +22,8 @@ Inicio: 2026-11-17 08:08 CET (tope 10:38).
 - Sin cambios de comportamiento: fn_804D996C cuenta con `int i` (antes `unsigned int`); PPCharaOfAid_unk devuelve
   `mPlayers.begin()[i].mRef.mChara` (mismo objeto); fn_804F2994 busca atacante y objetivo con PPCharaOfId_unk
   (mismo cuerpo que GetHitAttacker_unk; `PPMsgCharaRef_unk` y `PPId_unk` tienen la misma forma {tipo, indice}).
+- Sin cambios de comportamiento: tipo del contador y del limite (`int`/`unsigned int`, con o sin `(int)size()`) en
+  los bucles de fn_804D8910, fn_804D9C14, fn_804DDA04, fn_804DF4B8 y fn_804EB934.
 
 ## Decisiones tomadas sin el usuario
 

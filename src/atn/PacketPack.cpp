@@ -3871,7 +3871,7 @@ extern "C" void fn_804D8910(PPManager2_unk* mgr) {
     }
     NetMsgI_unk<unsigned char> msg(0x1041);
     unsigned char* data = &msg.mData;
-    for (unsigned int i = 0; i < mgr->mPlayers.size(); i++) {
+    for (int i = 0; i < mgr->mPlayers.size(); i++) {
         if (mgr->mPlayers[i].mFlags.mActive == 1 && own->mAid != mgr->mPlayers[i].mAid) {
             unsigned char seq = own->m0D52++;
             *data = seq;
@@ -3985,7 +3985,7 @@ static inline int GetNumHosts_unk(atn::net::Manager* net) {
 // none): a request that timed out (-2) or failed (-1) closes the room with the error 158; an answered one (1),
 // or any when this machine is alone, is freed and marked -2. Always 1
 extern "C" int fn_804D9C14(PPManager2_unk* mgr, PPPlayer_unk* own, int arg) {
-    for (unsigned int i = 0; i < mgr->mPlayers.size(); i++) {
+    for (int i = 0; i < mgr->mPlayers.size(); i++) {
         PPPlayer_unk* player = &mgr->mPlayers[i];
         if (player->mFlags.mActive != 1 || own->mAid == player->mAid) {
             continue;
@@ -5015,13 +5015,13 @@ extern "C" void fn_804DDA04(PPManager2_unk* mgr) {
     for (int i = 0; i < GetNumHosts_unk(lbl_8087F628); i++) {
         order.push_back(i);
     }
-    for (int i = 0; i < (int)order.size(); i++) {
+    for (unsigned int i = 0; i < order.size(); i++) {
         int j = rand() % (i + 1);
         int tmp = order[i];
         order[i] = order[j];
         order[j] = tmp;
     }
-    for (int i = 0; i < (int)order.size(); i++) {
+    for (unsigned int i = 0; i < order.size(); i++) {
         PPPlayer_unk* player = fn_804DD158(mgr, GetHostAid_unk(order[i]));
         if (player == 0) {
             continue;
@@ -5030,7 +5030,7 @@ extern "C" void fn_804DDA04(PPManager2_unk* mgr) {
             int counts[3];
             memset(counts, 0, sizeof(counts));
             PPManager2_unk* mgr2 = (PPManager2_unk*)lbl_8087F610;
-            for (int k = 0; k < (int)mgr2->mPlayers.size(); k++) {
+            for (unsigned int k = 0; k < mgr2->mPlayers.size(); k++) {
                 PPPlayer_unk* other = fn_804D5F0C(mgr2, k);
                 if (other->mFlags.mActive == 1) {
                     counts[other->mFlags.m22]++;
@@ -5513,19 +5513,19 @@ static inline PPPlayer_unk& PPRanked_unk(PPManager2_unk* mgr, int i) {
 }
 extern "C" void fn_804DF4B8(PPManager2_unk* mgr) {
     mgr->m2B80.m08.clear();
-    for (int i = 0; i < (int)mgr->mPlayers.size(); i++) {
+    for (unsigned int i = 0; i < mgr->mPlayers.size(); i++) {
         PPPlayer_unk* player = fn_804D5F0C(mgr, i);
         if (player->mFlags.mActive == 1) {
             mgr->m2B80.m08.push_back(*player);
         }
     }
     if (mgr->mMode != 2) {
-        for (int i = 0; i < (int)mgr->m2B80.m08.size(); i++) {
+        for (unsigned int i = 0; i < mgr->m2B80.m08.size(); i++) {
             PPRanked_unk(mgr, i).mD58 = PPRanked_unk(mgr, i).mDCScore;
         }
         if (mgr->mMode == 1) {
             int team = fn_804E4C5C(mgr);
-            for (int i = 0; i < (int)mgr->m2B80.m08.size(); i++) {
+            for (unsigned int i = 0; i < mgr->m2B80.m08.size(); i++) {
                 if (PPRanked_unk(mgr, i).mFlags.m22 == team) {
                     PPRanked_unk(mgr, i).mD58 += 1000;
                 }
@@ -7807,7 +7807,7 @@ extern "C" void fn_804EB934(int id, CharaTask* chara, void* arg) {
         int* data = &msg.mData;
         *data = -1;
         PPManager2_unk* list = (PPManager2_unk*)lbl_8087F610;
-        for (unsigned int i = 0; i < list->mCharas.size(); i++) {
+        for (int i = 0; i < (int)list->mCharas.size(); i++) {
             if (list->mCharas[i].mRef.mChara == (CharaTask*)arg) {
                 *data = i;
                 break;
