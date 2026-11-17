@@ -1,6 +1,6 @@
 # escribir-20261116, cola W4 (atn, chr, gmk, AI y SDK)
 
-Agente W4, inicio 2026-11-17 02:08 (tope 04:38). Rama `agent-W4`.
+Agente W4, inicio 2026-11-17 02:08 (tope 04:38, fin 04:00). Rama `agent-W4`.
 
 ## Tabla de la cola
 
@@ -122,6 +122,9 @@ Agente W4, inicio 2026-11-17 02:08 (tope 04:38). Rama `agent-W4`.
 - `gmk/ItemSlotAnime.h` `IsState56_unk`: con el bool puesto en un if, peor en ItemSlotAnime, DropItem y
   RandomItem; sin `const`, fn_8044EEC0 sube a 97,55 pero baja RandomItem fn_804348C4 (86,56 -> 86,36): por eso
   la inline local `IsShown_unk` (no const) solo en ItemSlotAnime.
+
+- ItemSlotAnime `fn_80450778`: salidas tempranas (`if (inventory == 0) return; if (m20 == 0) return;`) dan
+  `beq` al epilogo; el original hace `bne cr1, L; b fin`. Sin cambios (97,35 %).
 
 ## Pendientes
 
