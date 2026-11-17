@@ -138,11 +138,20 @@ struct CharaRadius_unk {
     float m620;
 };
 
-// inferred: path of a scene file of the current map (inline: "li r0, 1" before the test)
-inline bool MakeScenePath_unk(char* out, const char* fmt, int area, int map, int sub) {
+// inferred: paths of the scene script and of the message table of a map (inline: "li r0, 1" before the
+// test; names invented)
+static inline bool GetScenePath_unk(char* out, int area, int map, int sub) {
     char name[0x100];
     if (MapTask::GetMapNameFromId(name, area, map, sub)) {
-        sprintf(out, fmt, name);
+        sprintf(out, "/game_scene/%s.gs", name);
+        return true;
+    }
+    return false;
+}
+static inline bool GetMessagePath_unk(char* out, int area, int map, int sub) {
+    char name[0x100];
+    if (MapTask::GetMapNameFromId(name, area, map, sub)) {
+        sprintf(out, "/game_message/%s_xx.u16", name);
         return true;
     }
     return false;
@@ -156,14 +165,13 @@ GameScene* GameScene::fn_803BEBAC(atn::Task* parent, int area, int map, int sub)
 }
 
 GameScene::GameScene(atn::Task* parent, int area, int map, int sub)
-    : atn::Task(parent), m48(0), m64(0), m68(0), m6C(0), m70(0), m74(0), mA8(0), m134(0), m138(-1),
+    : atn::Task(parent), m48(0), m68(0), m6C(0), m70(0), m74(0), mA8(0), m138(-1),
       m13C(1.0f), m140(0), m144(0), m9B0(0) {
     char name[0x20];
     char path[0x100];
     if (MapTask::GetMapNameFromId(name, area, map, sub)) {
         if (lbl_8087F420 != 0) {
-            lbl_8087F420->m18 = 1;
-            lbl_8087F420->m1C = 1;
+            lbl_8087F420->SetLoading_unk(1);
         }
         sprintf(path, "levels/%s.pk", name);
         if (fn_8006AA20(path)) {
@@ -188,12 +196,11 @@ GameScene::GameScene(atn::Task* parent, int area, int map, int sub)
             }
         }
         if (lbl_8087F420 != 0) {
-            lbl_8087F420->m18 = 0;
-            lbl_8087F420->m1C = 0;
+            lbl_8087F420->SetLoading_unk(0);
         }
     }
     char scene[0x100];
-    if (MakeScenePath_unk(scene, "/game_scene/%s.gs", area, map, sub)) {
+    if (GetScenePath_unk(scene, area, map, sub)) {
         m4C[0].vf0C(scene);
         if (area == 1 && lbl_8087F0A8->mLoadTownSubScript != 0) {
             std::string sub("/game_scene/tw_subquest.gs");
@@ -225,9 +232,8 @@ GameScene::GameScene(atn::Task* parent, int area, int map, int sub)
             lbl_8087F418->fn_8035F33C(envse.c_str());
         }
     }
-    char message[0x100];
-    if (MakeScenePath_unk(message, "/game_message/%s_xx.u16", area, map, sub)) {
-        m11C.fn_803B3C10(message);
+    if (GetMessagePath_unk(scene, area, map, sub)) {
+        m11C.fn_803B3C10(scene);
     }
     m64 = MapTask::fn_8049D704(this, area, map, sub);
     if (lbl_8087FA20 != 0) {
@@ -240,9 +246,9 @@ GameScene::GameScene(atn::Task* parent, int area, int map, int sub)
         int money = lbl_8087F430 != 0 ? lbl_8087F430->m10D0 : 0;
         if (map == 3) {
             fn_800C3094("GROUP_TWBGM004");
-        } else if (money >= 0 && money < 400000) {
+        } else if (0 <= money && money < 400000) {
             fn_800C3094("GROUP_TWBGM001");
-        } else if (money >= 400000 && money < 600000) {
+        } else if (400000 <= money && money < 600000) {
             fn_800C3094("GROUP_TWBGM002");
         } else if (money >= 600000) {
             fn_800C3094("GROUP_TWBGM003");
@@ -259,11 +265,11 @@ GameScene::GameScene(atn::Task* parent, int area, int map, int sub)
             lbl_8087F498->mNumChannels = 1;
         }
     }
-    if (ArenaTask::fn_800431F4(area, map)) {
+    if (ArenaTask::fn_800431F4(area, map, sub)) {
         ArenaTask::fn_8004318C(this);
     }
     if (lbl_8087F430 != 0 && SongManager::fn_805A2404(area, map, sub)) {
-        SongManager::fn_805A2240(this);
+        SongManager::fn_805A2240((atn::Task*)lbl_8087F430);
     }
     m190.clear();
 }
@@ -724,6 +730,34 @@ void* GameScene::fn_803C18DC(int type, int link) {
     return 0;
 }
 
+// inferred: length of column `i` of the rotation of a matrix: scale of an axis (name invented)
+inline float GetColumnLength_unk(const atn::Matrix3x4& m, int i) {
+    return atn::Vector3(m.m[0][i], m.m[1][i], m.m[2][i]).Length_unk();
+}
+
+// inferred: sets the matrix of a model and its largest scale axis (name invented)
+inline void SetModelMtx_unk(atn::Model* model, const atn::Matrix3x4& m) {
+    __MtxCopy(model->mMtx.m, m.m);
+    float sz = GetColumnLength_unk(m, 2);
+    float sy = GetColumnLength_unk(m, 1);
+    float sx = GetColumnLength_unk(m, 0);
+    atn::Vector3 scale(sx, sy, sz);
+    model->m54 = scale.x > (scale.y > scale.z ? scale.y : scale.z) ? scale.x : (scale.y > scale.z ? scale.y : scale.z);
+}
+
+// inferred: m = m * rot_z * rot_y * rot_x (name invented)
+inline void RotateZYX_unk(atn::Matrix3x4& m, const atn::Vector3& rot) {
+    if (0.0f != rot.z) {
+        atn::Matrix3x4::RotateAxis_unk(m, 'z', rot.z);
+    }
+    if (0.0f != rot.y) {
+        atn::Matrix3x4::RotateAxis_unk(m, 'y', rot.y);
+    }
+    if (0.0f != rot.x) {
+        atn::Matrix3x4::RotateAxis_unk(m, 'x', rot.x);
+    }
+}
+
 void GameScene::vf10() {
     fn_803C1CAC();
     fn_803C1E3C();
@@ -734,25 +768,10 @@ void GameScene::vf10() {
         }
         atn::Matrix3x4 m;
         m.SetIdentity();
-        if (0.0f != c.m10.z) {
-            atn::Matrix3x4::RotateAxis_unk(m, 'z', c.m10.z);
-        }
-        if (0.0f != c.m10.y) {
-            atn::Matrix3x4::RotateAxis_unk(m, 'y', c.m10.y);
-        }
-        if (0.0f != c.m10.x) {
-            atn::Matrix3x4::RotateAxis_unk(m, 'x', c.m10.x);
-        }
+        RotateZYX_unk(m, c.m10);
         PSMTXConcat(c.m0C->m, m.m, m.m);
-        atn::Model* model = c.m04;
-        __MtxCopy(model->mMtx.m, m.m);
-        atn::Vector3 scale(atn::Vector3(m.m[0][0], m.m[1][0], m.m[2][0]).Length_unk(),
-                           atn::Vector3(m.m[0][1], m.m[1][1], m.m[2][1]).Length_unk(),
-                           atn::Vector3(m.m[0][2], m.m[1][2], m.m[2][2]).Length_unk());
-        model->m54 = scale.x > (scale.y > scale.z ? scale.y : scale.z)
-                         ? scale.x
-                         : (scale.y > scale.z ? scale.y : scale.z);
-        model->CalcMatrixStack(atn::ModelNodeCallback_unk());
+        SetModelMtx_unk(c.m04, m);
+        c.m04->CalcMatrixStack(atn::ModelNodeCallback_unk());
     }
 }
 
@@ -1934,6 +1953,7 @@ extern "C" gs::PointGroup<gs::MovePoint>* fn_803C74D0(
 
 template <class T>
 void GameScene::fn_803C74E0(atn::SimpleArray<T>& points, atn::Csv& csv, int file) {
+    int offset;
     unsigned int base = 0;
     if (points.GetData_unk() == 0) {
         points.Resize_unk(atoi(csv.fn_8005B9CC()), 1, "SceneCharaPoint");
@@ -1941,7 +1961,7 @@ void GameScene::fn_803C74E0(atn::SimpleArray<T>& points, atn::Csv& csv, int file
         base = points.size();
         points.Grow_unk(base + atoi(csv.fn_8005B9CC()), 1, "SceneCharaPoint");
     }
-    int offset = file * 10000;
+    offset = file * 10000;
     unsigned int i = base;
     while (csv.fn_8005BBF8()) {
         std::string s(csv.fn_8005B9CC());
@@ -2230,6 +2250,12 @@ struct Segment_unk {
 // inferred: squared distance from a point to a segment; the closest point goes to `out`
 extern "C" float fn_80050A1C(const atn::Vector3* point, const Segment_unk* seg, atn::Vector3* out);
 
+// inferred: larger of two values, as a double (the original rounds the result with frsp; name invented)
+inline double MaxD_unk(float a, float b) {
+    return a > b ? a : b;
+}
+
+// NONMATCHING: 98.4% - stack slots of the vectors of the loop and the order of the loads of the reach (4 * m570)
 int GameScene::fn_803CB044(GameSceneRoute_unk* out, CharaTask* chara, int check, int point) {
     atn::Vector3 fwd(0.0f, 0.0f, 1.0f);
     atn::ColliResult_unk unused;
@@ -2272,28 +2298,33 @@ int GameScene::fn_803CB044(GameSceneRoute_unk* out, CharaTask* chara, int check,
         atn::ColliSphereShape_unk sphere;
         sphere.mCenter = chara->m614;
         sphere.mRadius = chara->m620;
-        sphere.mRadius = dot * reach + (sphere.mRadius > 16.0f ? sphere.mRadius : 16.0f);
+        sphere.mRadius = dot * reach + (float)MaxD_unk(sphere.mRadius, 16.0f);
         atn::Vector3 closest;
         float dist = fn_80050A1C(&sphere.mCenter, &seg, &closest);
         if (dist < sphere.mRadius * sphere.mRadius && dist < best) {
             atn::Vector3 off(closest.x - chara->m614.x, 0.0f, closest.z - chara->m614.z);
-            atn::Vector3 n;
-            if (off.LengthSq_unk() < 4.0f || (n = off, n.Normalize_unk(), PSVECDotProduct(&n, &fwd) > 0.5f)) {
-                int blocked = 0;
-                if (point < 0) {
-                    atn::ColliResult_unk result;
-                    if (fn_8004ED34(lbl_8087EE98, &result, &sphere.mCenter, &closest,
-                                    chara->fn_80179D44() | 0x80000000, 0, 0) != 0) {
-                        blocked = 1;
-                    }
-                    if ((float)__fabs(closest.y - chara->mPos.y) > 8.0f) {
-                        blocked = 1;
-                    }
+            if (!(off.LengthSq_unk() < 4.0f)) {
+                atn::Vector3 n = off;
+                n.Normalize_unk();
+                if (!(PSVECDotProduct(&n, &fwd) > 0.5f)) {
+                    continue;
                 }
-                if (!blocked) {
-                    best = dist;
-                    found = &link;
+            }
+            int blocked = 0;
+            if (point < 0) {
+                atn::ColliResult_unk result;
+                void* world = lbl_8087EE98;
+                if (fn_8004ED34(world, &result, &sphere.mCenter, &closest, chara->fn_80179D44() | 0x80000000, 0,
+                                0) != 0) {
+                    blocked = 1;
                 }
+                if ((float)__fabs(closest.y - chara->mPos.y) > 8.0f) {
+                    blocked = 1;
+                }
+            }
+            if (!blocked) {
+                best = dist;
+                found = &link;
             }
         }
     }
