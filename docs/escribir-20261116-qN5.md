@@ -93,6 +93,10 @@ enlaza: SwingObject queda 16/20, PassBoard 12/13, RandomMerchant 21/23.
 - SwingObject: UpdateSwing_unk llamada a traves de otra inline (un nivel mas): igual. SetLod_unk con
   `SwingObject* self` (sin la direccion en r4 pero sin la recarga de la palabra de bits): 96,01.
 - gmk/MotionObject vf24: CsvTab con el ctor de `const void*` (separadores dentro): 99,88.
+- gmk/HealPoint fn_8040ED00: `Vector3 rot(0, desc->mRotY, 0)` con nombre tras `m54 = 0` carga rotY antes que
+  la posicion como el original (3 diferencias semanticas); quedan las cargas detras de los stores de mWait y
+  m54 (el original las adelanta). mWait en el cuerpo despues de rot, m54 entre las copias: 4-5. Sin commit.
+- gmk/LandMine Start: stmtperm de 6 sentencias (con la esfera, 720 ordenes): 98,33 como mucho.
 - gmk/HealPoint fn_8040ED00 como Brazier (ctor de id/arg y asignaciones tras el new): 82,9.
 - gmk/MapLift vf0C (this en r21, original r31): busqueda de locators en una inline estatica que recibe el
   vector en vez del metodo: igual.
