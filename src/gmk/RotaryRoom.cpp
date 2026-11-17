@@ -129,6 +129,19 @@ inline void __SetTrans_unk(atn::Matrix3x4& m, const atn::Vector3& v) {
     m.m[2][3] = v.z;
 }
 #define __MAX_unk(a, b) ((a) > (b) ? (a) : (b))
+// inferred: length of a column of a matrix (as in gmk/ArenaFloor; name invented)
+inline float ColLen_unk(const atn::Matrix3x4& mtx, int i) {
+    atn::Vector3 v(mtx.m[0][i], mtx.m[1][i], mtx.m[2][i]);
+    return PSVECMag(&v);
+}
+// inferred: largest scale of the axes of a matrix (as in gmk/ArenaFloor; name invented)
+inline float MaxScale_unk(const atn::Matrix3x4& mtx) {
+    float sz = ColLen_unk(mtx, 2);
+    float sy = ColLen_unk(mtx, 1);
+    float sx = ColLen_unk(mtx, 0);
+    atn::Vector3 s(sx, sy, sz);
+    return __MAX_unk(s.x, __MAX_unk(s.y, s.z));
+}
 
 namespace gmk {
 
@@ -181,14 +194,7 @@ int RotaryRoom::vf0C() {
                 case 0: {
                     atn::Model* model = (atn::Model*)e.mObject;
                     *(atn::Matrix3x4*)model->mMtx.m = e.mMtx;
-                    atn::Vector3 az(e.mMtx.m[0][2], e.mMtx.m[1][2], e.mMtx.m[2][2]);
-                    float sz = PSVECMag(&az);
-                    atn::Vector3 ay(e.mMtx.m[0][1], e.mMtx.m[1][1], e.mMtx.m[2][1]);
-                    float sy = PSVECMag(&ay);
-                    atn::Vector3 ax(e.mMtx.m[0][0], e.mMtx.m[1][0], e.mMtx.m[2][0]);
-                    float sx = PSVECMag(&ax);
-                    atn::Vector3 sc(sx, sy, sz);
-                    model->m54 = __MAX_unk(sc.x, __MAX_unk(sc.y, sc.z));
+                    model->m54 = MaxScale_unk(e.mMtx);
                     break;
                 }
                 case 4:
@@ -366,9 +372,20 @@ void RotaryRoom::fn_80424AD4() {
     }
 }
 
-// NONMATCHING: 99.15% - stack slots of the temporaries (the original keeps the ones of case 0 lowest and
-// those of case 5 apart) and one more saved register
+// The model of case 0 goes through PlaceModel_unk/SetModelScale_unk/MaxScale_unk (the model pointer is
+// a parameter of an inline: last saved register; the column temporaries one level deeper, as in the
+// original stack).
 // inferred: places every entry rotated by t (0 to 1) of the rotation offset around the room position
+// inferred: scale of a model from its matrix (name invented)
+static inline void SetModelScale_unk(atn::Model* model, const atn::Matrix3x4& m) {
+    model->m54 = MaxScale_unk(m);
+}
+// inferred: places a model of the room at a matrix (name invented)
+static inline void PlaceModel_unk(atn::Model* model, const atn::Matrix3x4& m) {
+    *(atn::Matrix3x4*)model->mMtx.m = m;
+    SetModelScale_unk(model, m);
+}
+
 void RotaryRoom::fn_80424FB4(float t) {
     for (unsigned int i = 0; i < mEntries.mSize; i++) {
         RotaryEntry_unk& e = mEntries.mData[i];
@@ -379,16 +396,7 @@ void RotaryRoom::fn_80424FB4(float t) {
         __SetTrans_unk(m, m.GetTrans_unk() + m6C);
         switch (e.mType) {
         case 0: {
-            atn::Model* model = (atn::Model*)e.mObject;
-            *(atn::Matrix3x4*)model->mMtx.m = m;
-            atn::Vector3 az(m.m[0][2], m.m[1][2], m.m[2][2]);
-            float sz = PSVECMag(&az);
-            atn::Vector3 ay(m.m[0][1], m.m[1][1], m.m[2][1]);
-            float sy = PSVECMag(&ay);
-            atn::Vector3 ax(m.m[0][0], m.m[1][0], m.m[2][0]);
-            float sx = PSVECMag(&ax);
-            atn::Vector3 sc(sx, sy, sz);
-            model->m54 = __MAX_unk(sc.x, __MAX_unk(sc.y, sc.z));
+            PlaceModel_unk((atn::Model*)e.mObject, m);
             ((atn::Model*)e.mObject)->CalcMatrixStack(atn::ModelNodeCallback_unk());
             break;
         }

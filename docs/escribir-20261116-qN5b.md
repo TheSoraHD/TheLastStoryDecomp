@@ -12,9 +12,13 @@ Inicio: 2026-11-17 08:55 (tope 10:55). Rama agent-N5b.
 | gmk/RandomMerchant vf10 / vf20 | 98,6 / 99,3 % | |
 | gmk/MotionObject vf10 / vf24 | 97,8 / 99,9 % | |
 | gmk/LandMine Start | 98,3 % | |
-| gmk/ChickenManager vf0C (extra) | 93,9 % | 96,15 % |
+| gmk/ChickenManager vf0C (extra) | 93,9 % | 96,15 % (b30a05d) |
+| gmk/RotaryRoom fn_80424AD4 (extra) | 99,16 % | **100 %** (b3c2971) |
+| gmk/RotaryRoom fn_80424FB4 (extra) | 99,15 % | **100 %** |
+| gmk/RotaryRoom vf0C (extra) | 96,14 % | 96,23 % |
+| gmk/WaitObject vf20 (extra) | 99,95 % | 99,98 % (b3c2971) |
 | gmk/BulletPoint vf10 | 98,5 % | |
-| gmk/ShakeCamera vf10 | 98,2 % | 99,34 % |
+| gmk/ShakeCamera vf10 | 98,2 % | 99,34 % (b30a05d) |
 
 ## Variantes probadas
 
@@ -59,3 +63,25 @@ Inicio: 2026-11-17 08:55 (tope 10:55). Rama agent-N5b.
   en el original el de `fade`, r25).
 - gmk/Chain fn_8043B9E0: lo que falta es el push_back de std/vector.h (cabecera compartida), no tocado.
 - gmk/FlyObjManager fn_80427870: el fabs/frsp esta en fn_80139F60 de Vec.h (fuera de la cola).
+- gmk/RotaryRoom fn_80424AD4 (99,16 -> 100): la pila de las tres rotaciones de RotateZYX_unk (Vec.h) sale
+  al reves (z abajo): una copia local `RotateZYX_unk(m, rot)` que llama a `RotateAxes_unk(p, rot)` (un
+  nivel mas de inline para las tres RotateAxis_unk) la da vuelta. Registros: `atn::Model* model; int type =
+  part->mType; switch (type)` al principio del cuerpo del bucle (perm.py: model antes que type) y en el
+  case 4 `set; inst; i` arriba con `e` puntero (`n++` al final). Mismo estilo que gmk/ArenaFloor.
+- gmk/RotaryRoom fn_80424FB4 (99,15 -> 100): case 0 por `PlaceModel_unk(model, m)` ->
+  `SetModelScale_unk(model, m)` -> `MaxScale_unk(m)` -> `ColLen_unk` (las de ArenaFloor): el puntero al
+  modelo como parametro de una inline toma el ultimo registro salvado (r22) y las columnas quedan en el
+  orden de pila del original. Sin SetModelScale_unk (un nivel menos) la pila de las columnas sale
+  invertida (99,75); con el modelo como local arriba 99,55; con MaxScale_unk escrito en el case 99,30.
+- gmk/RotaryRoom vf0C (96,14 -> 96,23): MaxScale_unk en el case 0. PlaceModel_unk ahi: 96,14.
+- gmk/WaitObject vf20 (99,95 -> 99,98): `WaitTrigger_unk::m08` pasa a `float m08[5]` (las cinco
+  lecturas del TRIGGER se direccionan desde el trigger, +8) y `atn::VecAssign_unk(sphere.mCenter, pos)`
+  (registros r25/r26 del original). Queda el orden de los dos `addi` de &pos/&sphere al principio; probados
+  `colli->mSphere` por VecAssign o por campos, `Vector3(pos)` (98,1), `pos = pos + m6C` (96,9), pos.x +=...,
+  sphere declarado antes (99,66) o justo tras pos, referencia al centro: igual o peor.
+- gmk/WaitObject vf60 (93,33): el original relee m54 en el bucle. Probados: indice directo, puntero, inline
+  `HasTrigger_unk(self, type)` (89,7), `if (m54 != 0) {bucle}` (84,6), if anidados, `m54 == t.mState`
+  (93,75), puntero que avanza: igual o peor.
+- gmk/OpenBoard vf10: `LerpF_unk(from, to, t)` / `Lerp2_unk(from, d, t)` en Interp_unk: 98,8 (peor).
+- gmk/DropItem vf14: el codigo muerto del original (comparaciones de m16C..m178 con 0 y 1 sin usar el
+  resultado y tres stores a la pila) no se ha escrito; el `@wstringBase0` del original no es `.sdata`.
