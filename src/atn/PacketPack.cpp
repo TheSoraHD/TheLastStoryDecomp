@@ -505,6 +505,7 @@ extern "C" MP::PacketPackMP* lbl_8087F61C; // inferred: instance of MP::PacketPa
 #include "MP/D2AMpMenuMessageList.h"
 #include "MP/D2AMpMenuFriendRoom.h"
 #include "MP/MpLevel_unk.h"
+#include "game/ResHandle.h"
 
 // inferred: state of a player sent by message 0x16 (0x7C bytes); names invented
 struct PPPair_unk {
@@ -856,13 +857,51 @@ struct PPListNode_unk {
     PPListNode_unk* mPrev;
     PPListNode_unk* mNext;
 };
-struct PPList_unk {
-    PPList_unk() : mCount(0) {
+// inferred: MSL list: the storage and the clear live two levels below the list (three null checks of `this` in
+// ~Manager2, as std::vector); names invented
+struct PPListBase_unk {
+    PPListBase_unk() : mCount(0) {
         mHead.mNext = &mHead;
         mHead.mPrev = &mHead;
     }
+    ~PPListBase_unk() { Clear_unk(); }
+    void Clear_unk() { Erase_unk(mHead.mNext, &mHead); }
+    void Erase_unk(PPListNode_unk* first, PPListNode_unk* end) {
+        if (first != end) {
+            PPListNode_unk* last = end->mPrev;
+            first->mPrev->mNext = last->mNext;
+            last->mNext->mPrev = first->mPrev;
+            while (first != end) {
+                PPListNode_unk* node = first;
+                first = first->mNext;
+                delete node;
+                mCount--;
+            }
+        }
+    }
     int mCount;
     PPListNode_unk mHead;
+};
+struct PPListImp_unk : public PPListBase_unk {
+    ~PPListImp_unk() {}
+};
+struct PPList_unk : public PPListImp_unk {
+    ~PPList_unk() {}
+};
+// inferred: level data of MP::Manager2 (0x8C bytes at +0x610, given to fn_805076F8 and fn_80507310); it starts
+// with the level table (count and array freed with delete[] by the destructor); names invented
+struct PPLevelTable_unk : public MpLevelTable_unk {
+    ~PPLevelTable_unk() {
+        if (m04 != 0) {
+            delete[] m04;
+        }
+        m04 = 0;
+        m00 = 0;
+    }
+};
+struct PPLevelData_unk {
+    PPLevelTable_unk mTable;
+    unsigned char m08[0x8C - 0x8];
 };
 // inferred: request of the network thread (0x28 bytes at 0x99C0); names invented
 struct PPThreadRequest_unk {
@@ -947,7 +986,7 @@ struct Manager2 : public atn::Task {
     short m508;                       // inferred: reset to 3629 when the match ends
     short m50A;                       // inferred: set to 90 when a player slot is added
     int m50C;                         // inferred: sub state of the game (GameUISession_unk::GetM50C_unk)
-    void* m510;                       // inferred: folder "Multiplayer" of the debug menu
+    ResHandle m510;                   // inferred: folder "Multiplayer" of the debug menu
     MP::SaveLoad* mSaveLoad;          // 0x514
     int m518;                         // inferred: debug menu flags (Game, Debug, Clients, Players, Control info)
     int m51C;
@@ -1000,7 +1039,7 @@ struct Manager2 : public atn::Task {
     int m604;
     int m608;
     int m60C;
-    unsigned char m610[0x69C - 0x610]; // inferred: object given to fn_805076F8
+    PPLevelData_unk m610;             // inferred: object given to fn_805076F8
     int m69C;                         // inferred: start of the data given to fn_805061C8
     PPEntry104_unk m6A0[32];
     PPEntry44_unk m2720[6];
@@ -1016,8 +1055,7 @@ struct Manager2 : public atn::Task {
     atn::FadeColor* m2B7C;            // inferred: fade of the multiplayer (its mDelay is raised during the load, fn_804D2508)
     int m2B80;
     int m2B84;                        // inferred: result state of the game (fn_804E4A60)
-    int m2B88;                        // inferred: number of the slots of m2B8C
-    PPPlayer_unk m2B8C[8];
+    atn::FixedArray_unk<PPPlayer_unk, 8> m2B88; // inferred: ranking of the game (slots copied by fn_804E4C5C)
     int m966C;
     int m9670;                        // inferred: result of fn_804E4A60 (fn_804E448C)
     int m9674;                        // inferred: item won in the game (code, count)
@@ -1746,20 +1784,7 @@ extern "C" __declspec(noinline) inline void fn_804D6050(MpFriendList_unk* list, 
     list->mA00 = value;
 }
 extern "C" __declspec(noinline) inline void fn_804D6058(PPManager2_unk* mgr) {
-    PPListNode_unk* first = mgr->m99A4.mHead.mNext;
-    PPListNode_unk* end = &mgr->m99A4.mHead;
-    PPList_unk* list = &mgr->m99A4;
-    if (first != end) {
-        PPListNode_unk* last = end->mPrev;
-        first->mPrev->mNext = last->mNext;
-        last->mNext->mPrev = first->mPrev;
-        while (first != end) {
-            PPListNode_unk* node = first;
-            first = first->mNext;
-            delete node;
-            list->mCount--;
-        }
-    }
+    mgr->m99A4.Clear_unk();
 }
 extern "C" __declspec(noinline) inline wchar_t* fn_804D60E4(MpFriendList_unk* list) {
     return list->mName;
@@ -2109,17 +2134,16 @@ void* fn_8050CFC8(void* arg); // inferred: main function of the network thread (
 // inferred: MP::Manager2 ctor: creates the network singletons, the debug menu "Multiplayer", the menus and
 // the managers of the multiplayer mode
 MP::Manager2::Manager2(atn::Task* parent)
-    : atn::Task(parent), m354(0), m510(0), m55C(10), m560(0), m564(300), m568(50), m598(0),
+    : atn::Task(parent), m354(0), m55C(10), m560(0), m564(300), m568(50), m598(0),
       m59C(-1), m5A0(6), m5A8(0), m5AC(0), m5B0(1), m5B4(0) {
     mStateVar.mValue = 0;
     mStateVar.mLast = 0;
     memset(m56C, 0, sizeof(m56C));
     memset(m58C, 0, sizeof(m58C));
     m5A4 = 0;
-    memset(m610, 0, sizeof(m610));
+    memset(&m610, 0, sizeof(m610));
     m69C = 0;
     m2A50.mFC = 0;
-    m2B88 = 0;
     m99A4.mCount = 0;
 
     if (HomeButtonMenu::sInstance != 0 && HomeButtonMenu::sInstance->m88 == 1) {
@@ -2203,12 +2227,7 @@ MP::Manager2::Manager2(atn::Task* parent)
     listener.mFunc = fn_804EB934;
     fn_8014F8F4()->mList.push_back(listener);
 
-    void* menu;
-    if (m510 == 0 && lbl_8087EF10 != 0) {
-        menu = m510 = fn_8008937C(lbl_8087EF10->m10, "Multiplayer");
-    } else {
-        menu = 0;
-    }
+    void* menu = m510.Load("Multiplayer");
     fn_800874C8(menu, "MatchGroup", &m54C, 1, 999, 1, 0, 0);
     fn_80087994(menu, "Game info", &m518, 0, 0);
     fn_80087994(menu, "Debug info", &m51C, 0, 0);
@@ -2312,10 +2331,8 @@ extern "C" void fn_804D1F6C(PPPlayer_unk* player) {
 
 extern "C" void fn_80049654(void* sound); // inferred: as in game/GameTask.cpp
 extern "C" void fn_8004895C(void* sound); // inferred: releases the sound groups (game/NewTitleTask.cpp)
-// DRAFT: the members mPlayers/mCharas (std::vector in the original), m610 (array freed with delete[]), the list
-// m99A4 and the slot block at m2B80 are not destroyed (their types here have no destructor)
-// NONMATCHING: draft - the body is complete (checked against the original); the destruction of those members
-// is missing
+// NONMATCHING: 97.72% - the original destroys the ranking m2B88 through a block at 0x2B80 (one more null check of
+// `this` and two for the array) and keeps the end of the list m99A4 in another register
 MP::Manager2::~Manager2() {
     fn_80049654(lbl_8087EE90);
     fn_8004895C(lbl_8087EE90);
@@ -2635,7 +2652,7 @@ void MP::Manager2::vf10() {
             size = mgr->m2B68.fn_8047059C();
             fn_80506D94(&mgr->m2A50, mgr->m2B68.fn_80470580(), size);
             size = mgr->m2B50.fn_8047059C();
-            fn_80507310(mgr->m610, mgr->m2B50.fn_80470580(), size);
+            fn_80507310(&mgr->m610, mgr->m2B50.fn_80470580(), size);
             mgr->m2B58.fn_80473F88();
             mgr->m2B60.fn_80473F88();
             mgr->m2B68.fn_80473F88();
@@ -5284,30 +5301,29 @@ extern "C" int fn_804E4C5C(const PPManager2_unk* mgr);
 // winning team in mode 1) and sorts them by score (not in mode 2)
 // inferred: slot `i` of the ranking; name invented
 static inline PPPlayer_unk& PPRanked_unk(PPManager2_unk* mgr, int i) {
-    return mgr->m2B8C[i];
+    return mgr->m2B88[i];
 }
 extern "C" void fn_804DF4B8(PPManager2_unk* mgr) {
-    mgr->m2B88 = 0;
+    mgr->m2B88.clear();
     for (int i = 0; i < (int)mgr->mPlayers.size(); i++) {
         PPPlayer_unk* player = fn_804D5F0C(mgr, i);
         if (player->mFlags.mActive == 1) {
-            new (&mgr->m2B8C[mgr->m2B88]) PPPlayer_unk(*player);
-            mgr->m2B88++;
+            mgr->m2B88.push_back(*player);
         }
     }
     if (mgr->mMode != 2) {
-        for (int i = 0; i < mgr->m2B88; i++) {
+        for (int i = 0; i < (int)mgr->m2B88.size(); i++) {
             PPRanked_unk(mgr, i).mD58 = PPRanked_unk(mgr, i).mDCScore;
         }
         if (mgr->mMode == 1) {
             int team = fn_804E4C5C(mgr);
-            for (int i = 0; i < mgr->m2B88; i++) {
+            for (int i = 0; i < (int)mgr->m2B88.size(); i++) {
                 if (PPRanked_unk(mgr, i).mFlags.m22 == team) {
                     PPRanked_unk(mgr, i).mD58 += 1000;
                 }
             }
         }
-        MslSort_unk(mgr->m2B8C, mgr->m2B8C + mgr->m2B88, PPScoreLess_unk());
+        MslSort_unk(mgr->m2B88.begin(), mgr->m2B88.end(), PPScoreLess_unk());
     }
 }
 // inferred: emitted here in the original, after fn_804DF4B8 (its only caller): 0x804E0694
@@ -5384,16 +5400,16 @@ extern "C" void fn_804E448C(PPManager2_unk* mgr) {
     mgr->m2B84 = result;
     mgr->m966C = rank;
     mgr->m9670 = fn_804E4A60(mgr, own);
-    mgr->m967C = fn_805076F8(mgr->m610, mgr->mMode, mgr->m55C, mgr->m9670);
+    mgr->m967C = fn_805076F8(&mgr->m610, mgr->mMode, mgr->m55C, mgr->m9670);
     mgr->m9680 = PPExp_unk(list) + mgr->m967C;
-    mgr->m9688 = fn_80507654((MpLevelTable_unk*)mgr->m610, PPExp_unk(list), mgr->m9680);
+    mgr->m9688 = fn_80507654(&mgr->m610.mTable, PPExp_unk(list), mgr->m9680);
     if (mgr->m9688 != 0) {
-        MpLevel_unk* level = fn_805075C4((MpLevelTable_unk*)mgr->m610, mgr->m9680);
+        MpLevel_unk* level = fn_805075C4(&mgr->m610.mTable, mgr->m9680);
         mgr->m968C = ((int*)level)[3];
         mgr->m9690 = ((int*)level)[4];
     }
-    mgr->m9684 = (int)fn_805075C4((MpLevelTable_unk*)mgr->m610, mgr->m9680);
-    int max = fn_80507764((MpLevelTable_unk*)mgr->m610, mgr->m9680);
+    mgr->m9684 = (int)fn_805075C4(&mgr->m610.mTable, mgr->m9680);
+    int max = fn_80507764(&mgr->m610.mTable, mgr->m9680);
     if (mgr->m9680 > max) {
         int over = mgr->m9680 - max;
         mgr->m9680 = max;
@@ -5500,12 +5516,12 @@ extern "C" int fn_804E4B44(PPManager2_unk* mgr, PPPlayer_unk* target) {
         if (mgr->mMode != 1 || fn_804E4C5C(mgr) != 3) {
             int rank = 0;
             int run = 0;
-            for (int i = 0; i < mgr->m2B88; i++) {
-                if (i > 0 && mgr->m2B8C[i].mD58 != mgr->m2B8C[i - 1].mD58) {
+            for (int i = 0; i < (int)mgr->m2B88.size(); i++) {
+                if (i > 0 && mgr->m2B88[i].mD58 != mgr->m2B88[i - 1].mD58) {
                     rank += run;
                     run = 0;
                 }
-                if (mgr->m2B8C[i].mRef.mChara == target->mRef.mChara) {
+                if (mgr->m2B88[i].mRef.mChara == target->mRef.mChara) {
                     result = rank;
                 }
                 run++;
@@ -5519,8 +5535,8 @@ extern "C" int fn_804E4B44(PPManager2_unk* mgr, PPPlayer_unk* target) {
 
 // inferred: fn_804E4B44 on the last slot of m2B8C (-1 when there is none)
 extern "C" int fn_804E4C34(PPManager2_unk* mgr) {
-    if (mgr->m2B88 != 0) {
-        return fn_804E4B44(mgr, &mgr->m2B8C[mgr->m2B88 - 1]);
+    if (mgr->m2B88.size() != 0) {
+        return fn_804E4B44(mgr, &mgr->m2B88[mgr->m2B88.size() - 1]);
     }
     return -1;
 }
@@ -5529,8 +5545,8 @@ extern "C" int fn_804E4C34(PPManager2_unk* mgr) {
 static inline int PPTeamScore_unk(const PPManager2_unk* mgr, int team) {
     int score[3];
     memset(score, 0, sizeof(score));
-    for (unsigned int i = 0; i < mgr->m2B88; i++) {
-        const PPPlayer_unk& player = mgr->m2B8C[i];
+    for (unsigned int i = 0; i < mgr->m2B88.size(); i++) {
+        const PPPlayer_unk& player = mgr->m2B88.mData[i];
         score[player.mFlags.m22] += player.mDCScore;
     }
     return score[team];
@@ -5573,7 +5589,7 @@ extern "C" int fn_804E4D70(PPManager2_unk* mgr, PPPlayer_unk* player) {
     if (player != 0 && player->mFlags.m30) {
         return mgr->m967C;
     }
-    return fn_805076F8(mgr->m610, mgr->mMode, mgr->m55C, fn_804E4A60(mgr, player));
+    return fn_805076F8(&mgr->m610, mgr->mMode, mgr->m55C, fn_804E4A60(mgr, player));
 }
 
 // inferred: enters the ranking (state 35, or 37 when mode is not 1); not in local play
@@ -9788,7 +9804,7 @@ extern "C" const wchar_t* fn_804FA7C8(PPManager2_unk* mgr, int kind, int value) 
 
 // inferred: name of the level of an experience
 extern "C" const wchar_t* fn_804FA88C(PPManager2_unk* mgr, int exp) {
-    MpLevel_unk* level = fn_805075C4((MpLevelTable_unk*)mgr->m610, exp);
+    MpLevel_unk* level = fn_805075C4(&mgr->m610.mTable, exp);
     if (level != 0) {
         return lbl_8087F86C->Get_unk(level->m00);
     }
@@ -9797,7 +9813,7 @@ extern "C" const wchar_t* fn_804FA88C(PPManager2_unk* mgr, int exp) {
 
 // inferred: title of the level of an experience
 extern "C" const wchar_t* fn_804FA8E8(PPManager2_unk* mgr, int exp) {
-    MpLevel_unk* level = fn_805075C4((MpLevelTable_unk*)mgr->m610, exp);
+    MpLevel_unk* level = fn_805075C4(&mgr->m610.mTable, exp);
     if (level != 0) {
         return lbl_8087F86C->Get_unk(level->m00 + 0x15);
     }
