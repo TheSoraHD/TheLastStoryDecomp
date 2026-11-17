@@ -224,15 +224,15 @@ struct DialogEvent_unk {
     int m168;
 };
 
-static const DialogPos_unk sPos[4] = {{0.07f, 0.645f, 1}, {0.9f, 0.645f, 2}, {0.6f, 0.4f, 1}, {0.3f, 0.2f, 1}};
 static const char* const sSound = "SE_UICOM_027";
+static const DialogPos_unk sPos[4] = {{0.07f, 0.645f, 1}, {0.9f, 0.645f, 2}, {0.6f, 0.4f, 1}, {0.3f, 0.2f, 1}};
 
 inline void Dialog::ResetPos_unk() {
     float w = lbl_8087EEE0->mWidth;
     float h = lbl_8087EEE0->mHeight;
     for (int i = 0; i < 4; i++) {
-        mSlots[i].mXY.x = w * sPos[i].x;
         mSlots[i].mXY.y = h * sPos[i].y;
+        mSlots[i].mXY.x = w * sPos[i].x;
     }
 }
 
