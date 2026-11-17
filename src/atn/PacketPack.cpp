@@ -6614,6 +6614,94 @@ extern "C" void fn_804E9360(PPManager2_unk* mgr) {
     }
 }
 
+#include "game/EnemyManager.h"
+
+// inferred: index of the network id `aid` among the hosts of the session (0 in local play, -1 when it is not
+// there); name invented
+static inline int GetHostIndex_unk(unsigned char aid) {
+    if (lbl_8087F628->mFlags.mB12) {
+        return 0;
+    }
+    unsigned char* aids;
+    int n = fn_8050BA68(&aids);
+    for (int i = 0; i < n; i++) {
+        if (aid == aids[i]) {
+            return i;
+        }
+    }
+    return -1;
+}
+
+// NONMATCHING: 72.02% - the push_back of the new entry copies the words 0x34-0xAF as a block (a loop) in the
+// original, here member by member; a struct for them (with a declared constructor) gives 95.6% but turns the copy
+// fn_804E7434 into a block copy too (100 -> 0%)
+// inferred: rebuilds the character list m5F0 from the enemies that are not the character of a player (the
+// enemies 0xAAE60-0xAAE79 are left out); the enemies are shared out among the hosts in turn: the ones of this
+// machine are taken over (control state 2, reset, special enemies started), the others wait for the network
+// (flag 2 set, m1454 = 3)
+extern "C" void fn_804E9C64(PPManager2_unk* mgr) {
+    int myIndex = GetHostIndex_unk(lbl_8087F628->GetMyAid_unk());
+    int hosts = GetNumHosts_unk(lbl_8087F628);
+    mgr->mCharas.clear();
+    int count = 0;
+    for (EnemyTask* enemy = EnemyManager::sInstance->mHead; enemy != 0; enemy = enemy->mNext) {
+        if (FindByChara_unk(mgr, enemy) != 0) {
+            continue;
+        }
+        if (0xAAE60 <= enemy->m50 && enemy->m50 < 0xAAE7A) {
+            continue;
+        }
+        int mine = count++ % hosts == myIndex;
+        PPCharaEntry_unk entry;
+        entry.mRef.mChara = 0;
+        memset(&entry.m04[12], 0, 0xB0 - 0x34); // inferred: the words 0x34-0xAF are cleared, 0x04-0x33 are not
+        entry.mRef.mChara = enemy;
+        entry.mActive = mine != 0;
+        mgr->mCharas.push_back(entry);
+        if (enemy->mStatus.IsState_unk(0x20) && enemy->GetFlag22_unk() == 1) {
+            continue;
+        }
+        if (mine && enemy->mFlag2) {
+            enemy->mFlag2 = 0;
+            enemy->m1454 = 1;
+            if (enemy->CanAct_unk()) {
+                enemy->fn_8016E970(2);
+                enemy->fn_8015495C(0, 1, 1, 1);
+                if (enemy->mFlag31) {
+                    enemy->fn_801539E0();
+                }
+                if (enemy->mFlag5) {
+                    enemy->mFlag5 = 0;
+                }
+                if (enemy->mFlag6) {
+                    enemy->fn_80155DAC(0);
+                }
+                switch (enemy->m146C) {
+                case 0:
+                case 2:
+                    enemy->m58C = 0;
+                    break;
+                case 19:
+                case 21:
+                case 22:
+                case 23:
+                case 25:
+                case 32:
+                case 33:
+                case 35:
+                case 36:
+                case 40:
+                    ((SpecialEnemyBase*)enemy)->vfFC();
+                    break;
+                }
+            }
+        } else if (!mine) {
+            enemy->mFlag2 = 1;
+            enemy->m1454 = 3;
+        }
+    }
+}
+
 extern "C" bool fn_804EA520(PPManager2_unk* mgr) {
     return mgr->mState == 30;
 }
