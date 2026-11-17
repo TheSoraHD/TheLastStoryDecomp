@@ -894,19 +894,19 @@ inline int IsBoxInView_unk(const Frustum_unk* fr, const atn::Vector3& a, const a
 
 extern "C" unsigned short fn_803CD958(U16Table_unk* table, int point); // inferred: next point of the route
 
-// NONMATCHING: debug drawing of the points, links and boxes of the scene (written whole; not compared yet)
+// inferred: debug drawing of the points, links and boxes of the scene
 void GameScene::vf14() {
     SceneDebugConfig_unk debug = lbl_8087F0A8->mSceneDebug;
     if (debug.mEnabled != 0) {
-        atn::RenderManager* rm = atn::RenderManager::instance_;
+        atn::Camera& camera = atn::RenderManager::instance_->mCamera;
         float farSq = 250000.0f;
-        const Frustum_unk* fr = &rm->mCamera.mFrustum;
+        const Frustum_unk* fr = &camera.mFrustum;
         if (debug.mAttentionPoint != 0) {
             for (unsigned int i = 0; i < mFC.size(); i++) {
                 if (mFC[i].m38 == 0) {
                     continue;
                 }
-                if ((mFC[i].mPos - rm->mCamera.mPos).LengthSq_unk() < farSq &&
+                if ((mFC[i].mPos - camera.mPos).LengthSq_unk() < farSq &&
                     IsSphereInView_unk(fr, mFC[i].mPos, mFC[i].m14)) {
                     lbl_8087EEB0->fn_80063D3C(mFC[i].mPos, mFC[i].m14, 0.0f, 0xFF00FF00);
                 }
@@ -927,13 +927,10 @@ void GameScene::vf14() {
             for (unsigned int i = 0; i < mE4.size(); i++) {
                 atn::Matrix3x4 rot;
                 PSMTXRotRad(rot.m, 'y', mE4[i].m14);
-                int index = i;
                 atn::Vector3 center = mE4[i].mPos;
                 atn::Vector3 size = mE4[i].mSize;
                 center.y += size.y;
-                if (mE4[i].m2C >= 0) {
-                    index = mE4[i].m2C;
-                }
+                int index = mE4[i].m2C >= 0 ? mE4[i].m2C : i;
                 if (IsSphereInView_unk(fr, center, size.Length_unk())) {
                     bool on = m134->mFC[index].m00 >= 0;
                     lbl_8087EEB0->fn_800629F0(center, size, 0.0f, on ? 0xFF0080FF : 0xFF00407F, &rot);
@@ -952,10 +949,7 @@ void GameScene::vf14() {
         }
         if (debug.mEventSphere != 0) {
             for (unsigned int i = 0; i < mEC.size(); i++) {
-                int index = i;
-                if (mEC[i].m20 >= 0) {
-                    index = mEC[i].m20;
-                }
+                int index = mEC[i].m20 >= 0 ? mEC[i].m20 : i;
                 if (IsSphereInView_unk(fr, mEC[i].mPos, mEC[i].m14)) {
                     lbl_8087EEB0->fn_80063D3C(mEC[i].mPos, mEC[i].m14, 0.0f,
                                               m134->m10C[index].m00 >= 0 ? 0xFF0080FF : 0xFF00407F);
@@ -968,7 +962,7 @@ void GameScene::vf14() {
                 if (m98[i].m2C == 0) {
                     continue;
                 }
-                if ((m98[i].mPos - rm->mCamera.mPos).LengthSq_unk() < farSq &&
+                if ((m98[i].mPos - camera.mPos).LengthSq_unk() < farSq &&
                     IsSphereInView_unk(fr, m98[i].mPos, m98[i].m14)) {
                     unsigned int color = 0xFF0000FF;
                     if (debug.mAIArea != 0 && m98[i].m20 > 0) {
@@ -996,8 +990,8 @@ void GameScene::vf14() {
                     atn::Vector3 to = m98[j].mPos;
                     from.y += 1.0f;
                     to.y += 1.0f;
-                    if ((from - rm->mCamera.mPos).LengthSq_unk() < farSq &&
-                        (to - rm->mCamera.mPos).LengthSq_unk() < farSq) {
+                    if ((from - camera.mPos).LengthSq_unk() < farSq &&
+                        (to - camera.mPos).LengthSq_unk() < farSq) {
                         lbl_8087EEB0->fn_80063764(from, to, 0.0f, color);
                     }
                 }
@@ -1008,7 +1002,7 @@ void GameScene::vf14() {
                 if (mAC[i].m38 == 0) {
                     continue;
                 }
-                if ((mAC[i].mPos - rm->mCamera.mPos).LengthSq_unk() < farSq &&
+                if ((mAC[i].mPos - camera.mPos).LengthSq_unk() < farSq &&
                     IsSphereInView_unk(fr, mAC[i].mPos, 3.0f)) {
                     lbl_8087EEB0->fn_80063200(8, 0xFFFF00FF, mAC[i].mPos.x, 1.0f + mAC[i].mPos.y, mAC[i].mPos.z, 0.0f,
                                               3.0f);
@@ -1026,8 +1020,8 @@ void GameScene::vf14() {
                 atn::Vector3 to = mAC[link.mTo].mPos;
                 from.y += 1.0f;
                 to.y += 1.0f;
-                if ((from - rm->mCamera.mPos).LengthSq_unk() < farSq &&
-                    (to - rm->mCamera.mPos).LengthSq_unk() < farSq) {
+                if ((from - camera.mPos).LengthSq_unk() < farSq &&
+                    (to - camera.mPos).LengthSq_unk() < farSq) {
                     lbl_8087EEB0->fn_80063764(from, to, 0.0f, 0xFFFF00FF);
                 }
             }
@@ -1043,8 +1037,8 @@ void GameScene::vf14() {
                 atn::Vector3 to = mAC[link.mTo].mPos;
                 from.y += 1.0f;
                 to.y += 1.0f;
-                if ((from - rm->mCamera.mPos).LengthSq_unk() < farSq &&
-                    (to - rm->mCamera.mPos).LengthSq_unk() < farSq) {
+                if ((from - camera.mPos).LengthSq_unk() < farSq &&
+                    (to - camera.mPos).LengthSq_unk() < farSq) {
                     lbl_8087EEB0->fn_80063764(from, to, 0.0f, 0xFF00FF00);
                 }
             }
@@ -1054,7 +1048,7 @@ void GameScene::vf14() {
                 if (mC4[i].m2C == 0) {
                     continue;
                 }
-                if ((mC4[i].mPos - rm->mCamera.mPos).LengthSq_unk() < farSq &&
+                if ((mC4[i].mPos - camera.mPos).LengthSq_unk() < farSq &&
                     IsSphereInView_unk(fr, mC4[i].mPos, 3.0f)) {
                     lbl_8087EEB0->fn_80063200(8, 0xFF804000, mC4[i].mPos.x, 1.0f + mC4[i].mPos.y, mC4[i].mPos.z, 0.0f,
                                               3.0f);
@@ -1072,8 +1066,8 @@ void GameScene::vf14() {
                 atn::Vector3 to = mC4[conn.m04].mPos;
                 from.y += 1.0f;
                 to.y += 1.0f;
-                if ((from - rm->mCamera.mPos).LengthSq_unk() < farSq &&
-                    (to - rm->mCamera.mPos).LengthSq_unk() < farSq) {
+                if ((from - camera.mPos).LengthSq_unk() < farSq &&
+                    (to - camera.mPos).LengthSq_unk() < farSq) {
                     lbl_8087EEB0->fn_80063764(from, to, 0.0f, 0xFF804000);
                 }
             }
@@ -1098,7 +1092,7 @@ void GameScene::vf14() {
                 if (m104[i].m7C == 0) {
                     continue;
                 }
-                if ((m104[i].mPos - rm->mCamera.mPos).LengthSq_unk() < farSq &&
+                if ((m104[i].mPos - camera.mPos).LengthSq_unk() < farSq &&
                     IsSphereInView_unk(fr, m104[i].mPos, 5.0f)) {
                     lbl_8087EEB0->fn_80062F7C(12, 0xFF8000FF, m104[i].mPos.x, m104[i].mPos.y, m104[i].mPos.z, 0.0f,
                                               5.0f, 3.0f, m104[i].m14);

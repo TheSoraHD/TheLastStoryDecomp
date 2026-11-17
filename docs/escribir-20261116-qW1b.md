@@ -6,7 +6,7 @@
 
 | Funcion | Antes | Despues |
 |---|---|---|
-| GameScene::vf14 (0x803C221C, dibujo de depuracion, 5192 B) | DRAFT stub vacio, 0,08 % | equivalente NONMATCHING 99,3 % (solo registros) |
+| GameScene::vf14 (0x803C221C, dibujo de depuracion, 5192 B) | DRAFT stub vacio, 0,08 % | **100 %** |
 
 ## Para el port
 - GameScene::vf14: stub vacio -> codigo real (dibujo de depuracion de puntos, enlaces y cajas de la escena con DrawHelper si GameConfig_unk::mSceneDebug.mEnabled; al final fn_8008CD60 de los modelos restringidos mDC, que tambien corre sin depuracion). Cambio de comportamiento.
@@ -17,6 +17,8 @@
 - Dos inlines inventadas con estaticas locales (IsSphereInView_unk: atn::Sphere en 0x807C8600, guarda 0x8087F478; IsBoxInView_unk: Frustum_unk::Bounds_unk en 0x807C8610, guarda 0x8087F479): el original comprueba la guarda en cada uso, sin ctor.
 
 ## Hallazgos
+- Registros de una funcion grande con un puntero base global (RenderManager) usado en bucles: `atn::Camera& camera = instance_->mCamera;` en vez de `RenderManager* rm` (99,3 -> 99,84 %, GameScene vf14). (escribir-20261116 qW1b)
+- Indice por defecto `int idx = i; if (x >= 0) idx = x;` frente a `int idx = x >= 0 ? x : i;`: el ternario cambia el orden de los registros (vf14 99,84 -> 100 %). (escribir-20261116 qW1b)
 
 ## Bloqueos
 
