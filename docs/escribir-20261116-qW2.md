@@ -20,6 +20,7 @@ Inicio: 2026-11-16 23:58 CET (tope 2,5 h: 02:28).
 | Em202ForestSpider vf128, vf104, vf108, vf10C, vfEC, fn_8027851C (fuera de la tabla: "approximate") | 97,6 / 96 / 86,5 / 88 / 80,9 / 95,7 % | 100 % (cuatro tenian el flujo mal) |
 | Em202ForestSpider fn_802790A0 | 85,8 % | 100 % (`fn_8023A680` con sus 12 argumentos) |
 | Em202ForestSpider vf14 / vf114 | 62,1 / 82,7 % | 93 / 94,2 % (vf114 con el flujo del original) |
+| Em202ForestSpider vf10 | 88,9 % | 91,1 % (capsula y posicion de fn_805A5078 corregidas) |
 | Em202ForestSpider fn_80278634 | 84 % | 95,75 % (`Matrix3x4::RotateZYX_unk` y copia de la escala por temporal) |
 
 ## Para el port
@@ -30,6 +31,8 @@ Inicio: 2026-11-16 23:58 CET (tope 2,5 h: 02:28).
 
 - Em202ForestSpider: `fn_8023A680` se declaraba con 9 argumentos; el original pasa ademas 0, -1, 1 por la pila (como BattleTask): corregido en las tres llamadas (vf110, fn_80278634, fn_802790A0).
 - Em202ForestSpider::vf114 (estado 0x75): con m14DC <= 10 acerca al atrapado (paso limitado a +-1.5) y gira su rot.y; si no, con dist <= 45 pasa a vf14C y vuelve, y si no lo acerca con paso <= m18FC. Antes se hacian las dos cosas y la copia de rot era la de mRot donde el original copia mPos.
+
+- Em202ForestSpider::vf10: la capsula se actualiza con `mColli.m3C = mPos`, `mColli.m48 = (x, y + m5B0, z)`, `m54 = m5B0` (antes m48 = mPos y m3C sin tocar), y fn_805A5078 recibe mPos (no la posicion alta).
 
 ## Decisiones tomadas sin el usuario
 

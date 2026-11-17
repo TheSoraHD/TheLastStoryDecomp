@@ -138,16 +138,8 @@ static inline void SetFlat_unk(atn::Vector3& v, float x, float z) {
 
 // inferred: the character can be targeted (CanAct_unk with the flags reloaded; name invented)
 static inline bool IsTargetable_unk(CharaTask* c) {
-    bool active = false;
-    bool free = false;
     bool ok = false;
-    if ((c->mFlags & 4) != 4 && (c->mFlags & 1) != 1) {
-        active = true;
-    }
-    if (active && (c->mStatus.m0C & 0x20) != 0x20) {
-        free = true;
-    }
-    if (free) {
+    if (c->IsFree_unk()) {
         bool grappled = false;
         if (c->m55C == 6 && c->m560 == 28) {
             grappled = true;
@@ -396,14 +388,15 @@ void Em202ForestSpider::vf10() {
         m14E0--;
     }
     atn::Vector3 top(mPos.x, mPos.y + m5B0, mPos.z);
-    mColli.m48 = mPos;
+    mColli.m3C = mPos;
+    mColli.m48 = top;
     mColli.m54 = m5B0;
     m1500++;
     if (m1500 > 10 && (m58C == 6 || m58C == 16)) {
         fn_80277BC0();
         m1500 = 0;
     }
-    atn::Vector3 pos(mPos.x, mPos.y + m5B0, mPos.z);
+    atn::Vector3 pos = mPos;
     atn::Vector3 fwd = FrontDir_unk(mRot);
     fn_805A5078(&pos, &fwd, 1000, 1.2f * m5B0, 3.1415927f);
 }
