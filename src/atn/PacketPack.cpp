@@ -5573,9 +5573,9 @@ static inline atn::net::NetPlayerInfo_unk& PPNetPlayer_unk(PPManager2_unk* mgr, 
 static inline PPPlayer_unk* PPOwnPlayer_unk(PPManager2_unk* mgr) {
     return fn_804DD158(mgr, lbl_8087F628->GetMyAid_unk());
 }
-// NONMATCHING: 99.60% - registers: own/list in r31/r30 (r30/r31 in the original; tried the declaration order,
-// list declared first, the experience part as an inline helper) and aid/offset of the inlined search
-// fn_804DD158 in r3/r4 (r4/r3; as fn_804D8610)
+// NONMATCHING: 99.77% - registers: own/list in r31/r30 (r30/r31 in the original; tried the declaration order,
+// list declared first or both declared at the top, the call without PPOwnPlayer_unk, the experience part as an
+// inline helper)
 // inferred: end of the game: ranking, result state, experience and item won (saved), copy of the network
 // players and message 0x1012 to everybody
 extern "C" void fn_804E448C(PPManager2_unk* mgr) {
@@ -5613,7 +5613,8 @@ extern "C" void fn_804E448C(PPManager2_unk* mgr) {
     mgr->m966C = rank;
     mgr->m9670 = fn_804E4A60(mgr, own);
     mgr->m967C = fn_805076F8(&mgr->m610, mgr->mMode, mgr->m55C, mgr->m9670);
-    mgr->m9680 = PPExp_unk(list) + mgr->m967C;
+    int exp0 = PPExp_unk(list);
+    mgr->m9680 = exp0 + mgr->m967C;
     mgr->m9688 = fn_80507654(&mgr->m610.mTable, PPExp_unk(list), mgr->m9680);
     if (mgr->m9688 != 0) {
         MpLevel_unk* level = fn_805075C4(&mgr->m610.mTable, mgr->m9680);
@@ -5627,7 +5628,8 @@ extern "C" void fn_804E448C(PPManager2_unk* mgr) {
         mgr->m9680 = max;
         mgr->m967C = mgr->m967C - over;
     }
-    int exp = PPExp_unk(list) + mgr->m967C;
+    int exp1 = PPExp_unk(list);
+    int exp = exp1 + mgr->m967C;
     PPExp_unk(list) = exp;
     list->mA00 = exp;
     fn_8050EAE8(&lbl_8087F628->mFriendList);
@@ -8646,7 +8648,6 @@ struct PPMsgHoming_unk {
     unsigned int mNode;         // 0x40
 };
 
-// NONMATCHING: 99.75% - registers of the inlined player search (manager, base and slot)
 // inferred: message 58: a homing bullet shot by another player (only in the game, state 30); the listeners of the
 // characters are off during the shot (and stay off when the hit data or a free bullet is missing)
 extern "C" void fn_804EED7C() {
@@ -8678,7 +8679,8 @@ extern "C" void fn_804EED7C() {
         param.mDelay = 5.0f;
         param.mNode = 0;
         param.mCount = -1;
-        param.mTarget = GetHitAttacker_unk((PPManager2_unk*)lbl_8087F610, &data->mTarget);
+        PPManager2_unk* mgr2 = (PPManager2_unk*)lbl_8087F610;
+        param.mTarget = GetHitAttacker_unk(mgr2, &data->mTarget);
         param.mAccel = data->mAccel;
         param.m08 = data->m2C;
         param.mMaxSpeed = data->mMaxSpeed;
