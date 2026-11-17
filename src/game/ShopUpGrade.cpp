@@ -120,8 +120,8 @@ extern "C" ShopColor_unk lbl_807C78A8;
 extern "C" ShopColor_unk lbl_807C78C8;
 extern "C" const wchar_t* fn_80211770(int id, int slot); // inferred: name of an upgraded item
 extern "C" int fn_8021C6A4(wchar_t* out, const void* skill); // inferred: name of a skill
-extern "C" void fn_80212C34(EquipParamEntry_unk* equip, EquipParamEntry_unk* base, int level);
-extern "C" void fn_80212840(WeaponParamEntry_unk* weapon, WeaponParamEntry_unk* base, int level);
+extern "C" void fn_80212C34(EquipParamEntry_unk* equip, const EquipParamEntry_unk* base, int level);
+extern "C" void fn_80212840(WeaponParamEntry_unk* weapon, const WeaponParamEntry_unk* base, int level);
 extern "C" void fn_804A3C24(MenuCommonTask* menu, const wchar_t* text, int id);
 extern "C" void fn_804A7DD4(MenuCommonTask* menu, int item);
 // inferred: debug settings (lbl_8087F0A8)
