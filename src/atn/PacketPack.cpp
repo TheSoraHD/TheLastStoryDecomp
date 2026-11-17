@@ -8053,8 +8053,6 @@ fail:
     return -1;
 }
 
-// NONMATCHING: 99.49% - r0/r4 of the second byte of the user data and the game mode, and r3/r4/r5 of the inlined
-// search fn_804DD158 (as fn_804D8610)
 // inferred: connection attempt callback of the matchmaking (m99C0.mFuncs[3]): the server refuses a client of
 // another kind of session (m25C), out of the lobby or, in mode 1, of an incompatible game mode, and everybody
 // refuses while the room is closed (m53C); else restarts the timer of the session and the server marks its slot
@@ -8069,8 +8067,8 @@ extern "C" int fn_804EDCCC(unsigned char* userData, void* param) {
                 return 0;
             }
             if (kind == 1) {
-                unsigned char value = userData[1];
                 int mode = ((PPManager2_unk*)lbl_8087F610)->mMode;
+                unsigned char value = userData[1];
                 if (value != mode && (value == 2 || mode == 2)) {
                     return 0;
                 }
