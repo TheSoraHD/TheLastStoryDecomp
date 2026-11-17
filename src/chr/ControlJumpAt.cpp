@@ -195,6 +195,16 @@ boost::function<void()> ControlGrappled::vf10() const {
     return boost::bind(&CharaTask::fn_80178208, mChara, next);
 }
 
+} // namespace chr
+
+// inferred: hit position of a sweep result, returned by value (name invented; the copy through it
+// gives the src/dst registers of the original in ControlGrappleThrown::vf0C)
+inline atn::Vector3 HitPos_unk(const atn::ColliResult_unk& r) {
+    return r.m10;
+}
+
+namespace chr {
+
 // inferred: identity rotated by z, y and x (name invented)
 inline void RotZYX_unk(atn::Matrix3x4& m, const atn::Vector3& rot) {
     m.SetIdentity();
@@ -238,8 +248,8 @@ int ControlGrappleThrown::vf0C() {
         PSMTXMultVec(m.m, &move, &move);
         atn::ColliResult_unk result;
         Chara_unk::Sphere_unk sphere = mChara->fn_80176548(mChara->mPos);
-        fn_8004D388(lbl_8087EE98, &result, &sphere, &move, 0x80000000, &mChara->mColli, 0, sphere.mRadius);
-        atn::Vector3 pos = result.m10;
+        fn_8004D388(lbl_8087EE98, &result, &sphere, &move, 0x80000000, mChara->GetColli_unk(), 0, sphere.mRadius);
+        atn::Vector3 pos = HitPos_unk(result);
         Chara_unk* c = mChara;
         pos -= c->m5A4;
         pos.y -= sphere.mRadius;
