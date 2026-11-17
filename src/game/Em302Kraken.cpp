@@ -323,7 +323,7 @@ Em302Kraken::Em302Kraken(atn::Task* parent, EnemyInfo_unk* info)
 
 Em302Kraken::~Em302Kraken() {}
 
-// NONMATCHING: 99.4% - saved registers of the reading loop rotated (key/pool/zero: r28/r29/r30 in the
+// NONMATCHING: 99.38% - saved registers of the reading loop rotated (key/pool/zero: r28/r29/r30 in the
 // original, r30/r28/r29 here; 8 variants of the declarations and of the pillar_id loop)
 int Em302Kraken::vf0C() {
     if (m14B0 == 0) {
@@ -336,7 +336,6 @@ int Em302Kraken::vf0C() {
             m1684.fn_80473F50() == 0) {
             if (m1684.fn_80470580() != 0 && fn_80121F00() != 0 && fn_80121F00()->fn_8013C504() != 0) {
                 atn::Csv csv((const char*)m1684.fn_80470580(), m1684.fn_8047059C());
-                int zero = 0;
                 do {
                     const char* key = csv.fn_8005B9CC();
                     if (strcmp(key, "appear_point") == 0) {
@@ -361,7 +360,7 @@ int Em302Kraken::vf0C() {
                             }
                         } while (id != 0);
                     } else if (strcmp(key, "pillar_id") == 0) {
-                        int id = zero;
+                        int id = 0;
                         do {
                             id = fn_800DC12C(csv.fn_8005B9CC());
                             if (id != 0) {
