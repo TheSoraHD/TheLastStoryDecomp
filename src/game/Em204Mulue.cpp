@@ -786,59 +786,52 @@ void Em204Mulue::fn_802A74A4() {
     fn_802AC0E0();
 }
 
-// NONMATCHING: 98.41% - float registers of the first capsule and r6/r7 of the node copies (__VecCopy family)
+// inferred: sets the segment and radius of a capsule (an inline: the node copies take the registers of
+// the original only through it, with VecAssign_unk; as in the patch of Em204MulueMp; name invented)
+static inline void SetCapsule_unk(atn::ColliCapsule& c, const atn::Vector3& a, const atn::Vector3& b, float r) {
+    c.m3C = a;
+    c.m48 = b;
+    c.m54 = r;
+}
 void Em204Mulue::fn_802A7970() {
     atn::Vector3 a;
     atn::Vector3 b;
-    float r0 = m5B0;
+    m620 = m5B0;
     m614 = mPos + m5A4;
-    m620 = r0;
-    m614.y += r0;
+    m614.y += m620;
     a = m614;
     b = GetNodePos_unk(mMotion.GetNodeMtx_unk("head"));
     b.y -= 1.0f;
-    mColli.m3C = a;
-    mColli.m48 = b;
-    mColli.m54 = m620;
+    SetCapsule_unk(mColli, a, b, m620);
     {
         float r = 7.0f;
-        a = GetNodePos_unk(mMotion.GetNodeMtx_unk("leftforearm"));
-        b = GetNodePos_unk(mMotion.GetNodeMtx_unk("leftmiddle1"));
-        m168C.m3C = a;
-        m168C.m48 = b;
-        m168C.m54 = r;
+        atn::VecAssign_unk(a, GetNodePos_unk(mMotion.GetNodeMtx_unk("leftforearm")));
+        atn::VecAssign_unk(b, GetNodePos_unk(mMotion.GetNodeMtx_unk("leftmiddle1")));
+        SetCapsule_unk(m168C, a, b, r);
     }
     {
         float r = 7.0f;
-        a = GetNodePos_unk(mMotion.GetNodeMtx_unk("rightforearm"));
-        b = GetNodePos_unk(mMotion.GetNodeMtx_unk("rightmiddle1"));
-        m16E4.m3C = a;
-        m16E4.m48 = b;
-        m16E4.m54 = r;
+        atn::VecAssign_unk(a, GetNodePos_unk(mMotion.GetNodeMtx_unk("rightforearm")));
+        atn::VecAssign_unk(b, GetNodePos_unk(mMotion.GetNodeMtx_unk("rightmiddle1")));
+        SetCapsule_unk(m16E4, a, b, r);
     }
     {
         float r = 5.0f;
-        a = GetNodePos_unk(mMotion.GetNodeMtx_unk("leftleg"));
-        b = GetNodePos_unk(mMotion.GetNodeMtx_unk("leftfoot"));
-        m173C.m3C = a;
-        m173C.m48 = b;
-        m173C.m54 = r;
+        atn::VecAssign_unk(a, GetNodePos_unk(mMotion.GetNodeMtx_unk("leftleg")));
+        atn::VecAssign_unk(b, GetNodePos_unk(mMotion.GetNodeMtx_unk("leftfoot")));
+        SetCapsule_unk(m173C, a, b, r);
     }
     {
         float r = 5.0f;
-        a = GetNodePos_unk(mMotion.GetNodeMtx_unk("rightleg"));
-        b = GetNodePos_unk(mMotion.GetNodeMtx_unk("rightfoot"));
-        m1794.m3C = a;
-        m1794.m48 = b;
-        m1794.m54 = r;
+        atn::VecAssign_unk(a, GetNodePos_unk(mMotion.GetNodeMtx_unk("rightleg")));
+        atn::VecAssign_unk(b, GetNodePos_unk(mMotion.GetNodeMtx_unk("rightfoot")));
+        SetCapsule_unk(m1794, a, b, r);
     }
     {
         float r = 9.0f;
-        a = GetNodePos_unk(mMotion.GetNodeMtx_unk("joint2"));
-        b = GetNodePos_unk(mMotion.GetNodeMtx_unk("joint4"));
-        m17EC.m3C = a;
-        m17EC.m48 = b;
-        m17EC.m54 = r;
+        atn::VecAssign_unk(a, GetNodePos_unk(mMotion.GetNodeMtx_unk("joint2")));
+        atn::VecAssign_unk(b, GetNodePos_unk(mMotion.GetNodeMtx_unk("joint4")));
+        SetCapsule_unk(m17EC, a, b, r);
     }
 }
 
