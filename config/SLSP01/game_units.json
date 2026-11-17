@@ -2309,7 +2309,7 @@
   "classes": [
    "gmk::CharaLight"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "gmk/DoorSeal.cpp",
