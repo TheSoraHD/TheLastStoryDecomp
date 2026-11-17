@@ -15,6 +15,7 @@
 #include "game/GameTask.h"
 #include "math/VecAssign_unk.h"
 #include "atn/ColliBase.h"
+#include "game/GameSceneFind_unk.h"
 
 extern "C" unsigned long strlen(const char* s);
 extern "C" int atoi(const char* s);
@@ -22,7 +23,7 @@ extern "C" float fn_800DC288(const char* s); // inferred: string to float
 // inferred: field (lbl_8087F430): route tables at 0x10D8 (as in game/Em306GurgBeast.cpp)
 struct Field_unk {
     unsigned char m0000[0x10D8];
-    RouteTable_unk* m10D8;
+    GameScene* m10D8;
 };
 extern "C" Field_unk* lbl_8087F430;
 extern "C" int strcmp(const char* a, const char* b);
@@ -149,7 +150,7 @@ int Em003LesserDaemon::vf0C() {
         mStatus.m18 |= 0x10000;
         mStatus.m18 |= 0x820D;
         mStatus.m18 |= 0x3800000;
-        RouteTable_unk* table = lbl_8087F430->m10D8;
+        GameScene* table = lbl_8087F430->m10D8;
         if (m1588.fn_80470580() != 0 && lbl_8087F430 != 0 && lbl_8087F430->m10D8 != 0) {
             atn::Csv csv((const char*)m1588.fn_80470580(), m1588.fn_8047059C());
             do {
@@ -215,7 +216,7 @@ int Em003LesserDaemon::vf0C() {
                         if (id <= 0) {
                             break;
                         }
-                        RoutePlace_unk* place = table->FindPlace_unk(id);
+                        gs::WarpPoint* place = table->FindPlace_unk(id);
                         if (place != 0) {
                             mPoints.push_back(place->mPos);
                         }

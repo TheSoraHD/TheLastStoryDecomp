@@ -8,13 +8,14 @@
 #include "game/EnemyManager.h"
 #include "game/EnemyTask.h"
 #include "game/PlayerTask.h"
+#include "game/GameSceneFind_unk.h"
 
 extern "C" int rand();
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 // inferred: field object (class unknown)
 struct BulletField_unk {
     unsigned char m00[0x10D8];
-    RouteTable_unk* m10D8; // inferred: route tables
+    GameScene* m10D8; // inferred: route tables
 };
 extern "C" BulletField_unk* lbl_8087F430;
 // inferred: game settings
@@ -121,9 +122,9 @@ void BulletPoint::vf10() {
         return;
     }
     HitInfo_unk* skill = fn_80219E6C(mDesc->m20);
-    RouteTable_unk* table = lbl_8087F430->m10D8;
+    GameScene* table = lbl_8087F430->m10D8;
     int id = mDesc->m24;
-    RoutePlace_unk* place = table->FindPlace_unk(id);
+    gs::WarpPoint* place = table->FindPlace_unk(id);
     atn::Vector3 target;
     if (place != 0) {
         target = place->mPos;

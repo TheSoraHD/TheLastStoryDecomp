@@ -404,6 +404,10 @@ public:
     void fn_803CCCC0();
     void fn_803CCD98();
     gs::BgmBox* fn_803CCDAC(atn::SimpleArray<gs::BgmBox>& boxes, CharaTask* chara); // inferred: smallest box around chara
+    // inferred: warp point with the given id (weak copy 0x800EC204 in game/BattleCharaTask) and hide point
+    // `link` (1-based); defined in game/GameSceneFind_unk.h. Names invented
+    gs::WarpPoint* FindPlace_unk(int);
+    gs::HidePoint* GetLink_unk(int);
 
     int m48;                            // inferred: loading step
     atn::LH_Binary m4C[3];              // inferred: the .gs files (main, _sub2, _sub3)

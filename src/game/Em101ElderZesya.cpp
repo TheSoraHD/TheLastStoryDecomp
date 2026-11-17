@@ -17,6 +17,7 @@
 #include "game/GameTask.h"
 #include "math/VecAssign_unk.h"
 #include "atn/ColliBase.h"
+#include "game/GameSceneFind_unk.h"
 
 extern "C" unsigned long strlen(const char* s);
 extern "C" int strcmp(const char* a, const char* b);
@@ -144,7 +145,7 @@ struct Field_unk {
     float m978;
     ElderLook_unk m97C;
     unsigned char m9A4[0x10D8 - 0x9A4];
-    RouteTable_unk* m10D8;
+    GameScene* m10D8;
 };
 extern "C" Field_unk* lbl_8087F430;
 // inferred: result of fn_8003EA3C (as DamageResult_unk in game/Em002Skelton.cpp); names invented
@@ -366,7 +367,7 @@ int Em101ElderZesya::vf0C() {
 // NONMATCHING: 99.85% - r24/r25 of the route table and the barrier pointer (8 variants: declaration orders,
 // field local, table copy, pointer/offset forms); the push_back of the points is the inlined SimpleVector one
 void Em101ElderZesya::fn_80256384() {
-    RouteTable_unk* table = lbl_8087F430->m10D8;
+    GameScene* table = lbl_8087F430->m10D8;
     int barrier = 0;
     atn::Csv csv((const char*)m14B4.fn_80470580(), m14B4.fn_8047059C());
     do {
@@ -385,7 +386,7 @@ void Em101ElderZesya::fn_80256384() {
                 if (id <= 0) {
                     break;
                 }
-                RoutePlace_unk* place = table->FindPlace_unk(id);
+                gs::WarpPoint* place = table->FindPlace_unk(id);
                 if (place != 0) {
                     m14BC.push_back(place->mPos);
                 }

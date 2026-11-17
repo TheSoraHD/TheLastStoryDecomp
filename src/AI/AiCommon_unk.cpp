@@ -11,6 +11,7 @@
 #include "game/SkillEffectManager.h"
 #include "std/string.h"
 #include "game/GameTask.h"
+#include "game/GameSceneFind_unk.h"
 
 extern "C" int rand();
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
@@ -37,7 +38,7 @@ extern "C" AiSettings_unk* lbl_8087F0A8;
 // inferred: field (lbl_8087F430)
 struct Field_unk {
     unsigned char m0000[0x10D8];
-    RouteTable_unk* m10D8;
+    GameScene* m10D8;
 };
 extern "C" Field_unk* lbl_8087F430;
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
@@ -218,8 +219,8 @@ extern "C" float fn_8001AD80(CharaTask* a, CharaTask* b) {
 // inferred: distance from the character to the place `id` of the route tables
 extern "C" float fn_8001ADE8(int id, CharaTask* chara) {
     float dist = 0.0f;
-    RouteTable_unk* table = lbl_8087F430 != 0 ? lbl_8087F430->m10D8 : 0;
-    RoutePlace_unk* place = table != 0 ? table->FindPlace_unk(id) : 0;
+    GameScene* table = lbl_8087F430 != 0 ? lbl_8087F430->m10D8 : 0;
+    gs::WarpPoint* place = table != 0 ? table->FindPlace_unk(id) : 0;
     if (place != 0 && chara != 0) {
         dist = PSVECMag(&(chara->mPos - place->mPos));
     }

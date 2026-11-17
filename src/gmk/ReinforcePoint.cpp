@@ -7,12 +7,13 @@
 #include "game/EnemyManager.h"
 #include "game/EnemyTask.h"
 #include "game/PlayerTask.h"
+#include "game/GameSceneFind_unk.h"
 
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 // inferred: field object (class unknown)
 struct ReinforceField_unk {
     unsigned char m00[0x10D8];
-    RouteTable_unk* m10D8;
+    GameScene* m10D8;
     unsigned char m10DC[0x54E4 - 0x10DC];
     int m54E4; // inferred: 8 while the field is paused
 };
@@ -225,8 +226,8 @@ void ReinforcePoint::vf10() {
     } else if (mDesc->m30 == 3) {
         atn::Vector3 to = mDesc->mPos;
         atn::Vector3 from = mDesc->mPos;
-        RouteTable_unk* table = lbl_8087F430->m10D8;
-        RoutePlace_unk* place = 0;
+        GameScene* table = lbl_8087F430->m10D8;
+        gs::WarpPoint* place = 0;
         if (table != 0) {
             place = table->FindPlace_unk(mDesc->m38);
         }

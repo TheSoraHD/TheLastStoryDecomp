@@ -26,6 +26,7 @@
 #include "atn/RenderManager.h"
 #include "game/MapTask.h"
 #include "game/BattleTask.h"
+#include "game/GameSceneFind_unk.h"
 
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" int strncmp(const char* a, const char* b, unsigned long n);
@@ -47,7 +48,7 @@ extern "C" float fn_800DC288(const char* s); // inferred: string to float
 // inferred: std::string concatenation (weak copy 0x8006AFF8)
 extern "C" std::string fn_8006AFF8(const std::string& a, const std::string& b);
 // inferred: field (lbl_8087F430): camera taken by the boss (m8A0/m4D8/m97C, as in game/EnemyTrista.cpp)
-struct RouteTable_unk;
+class GameScene;
 // inferred: camera parameters of the field (0x3C bytes, as TristaCamParam_unk of game/EnemyTrista.cpp)
 struct QuarkCamParam_unk {
     QuarkCamParam_unk(const QuarkCamParam_unk& o) {
@@ -110,7 +111,7 @@ struct QuarkFieldLook_unk {
     float m24;
 };
 struct Field_unk {
-    RouteTable_unk* fn_8013C504(); // inferred: route tables (as in game/Em302Kraken.cpp)
+    GameScene* fn_8013C504(); // inferred: route tables (as in game/Em302Kraken.cpp)
     unsigned char m0000[0x6C];
     Camera_unk m06C;        // inferred: camera of the field (copied by EnemyQuarkStand::fn_8034DE90)
     unsigned char m260[0x4D8 - 0x260];
@@ -126,7 +127,7 @@ struct Field_unk {
     float m978;
     QuarkFieldLook_unk m97C;
     unsigned char m9A4[0x10D8 - 0x9A4];
-    RouteTable_unk* m10D8; // inferred: route tables (as in game/ArenaTask.cpp)
+    GameScene* m10D8; // inferred: route tables (as in game/ArenaTask.cpp)
 };
 extern "C" Field_unk* lbl_8087F430;
 extern "C" Field_unk* fn_80121F00(); // inferred: field accessor
@@ -334,7 +335,7 @@ int EnemyQuarkStand::vf0C() {
         mStatus.m18 |= 0xC208;
         mStatus.m18 |= 0x3880000;
         mStatus.m18 |= 0x400;
-        RouteTable_unk* routes = fn_80121F00() != 0 ? fn_80121F00()->fn_8013C504() : 0;
+        GameScene* routes = fn_80121F00() != 0 ? fn_80121F00()->fn_8013C504() : 0;
         if (m180C.fn_80470580() != 0 && routes != 0) {
             atn::Csv csv((const char*)m180C.fn_80470580(), m180C.fn_8047059C());
             do {
@@ -2055,9 +2056,9 @@ void EnemyQuarkStand::fn_8034FB50() {
     m58C = 8;
     m590 = lbl_8087F048->fn_800F8548();
     QuarkPlayMotion_unk(&mMotion, 0x14D, 0, 0, 0.7f);
-    RouteTable_unk* table = lbl_8087F430->m10D8;
-    RoutePlace_unk* place3 = table->FindPlace_unk(3);
-    RoutePlace_unk* place4 = table->FindPlace_unk(4);
+    GameScene* table = lbl_8087F430->m10D8;
+    gs::WarpPoint* place3 = table->FindPlace_unk(3);
+    gs::WarpPoint* place4 = table->FindPlace_unk(4);
     atn::Vector3 a = place3->mPos;
     atn::Vector3 b = place4->mPos;
     atn::Vector3 leader = lbl_8087F8A0->mHead->mPos;
@@ -2164,9 +2165,9 @@ void EnemyQuarkStand::fn_80350F64() {
     fn_8016E970(3);
     m58C = 18;
     QuarkPlayMotion_unk(&mMotion, 0x13F, 0, 0, 1.0f);
-    RouteTable_unk* table = lbl_8087F430->m10D8;
-    RoutePlace_unk* place3 = table->FindPlace_unk(3);
-    RoutePlace_unk* place4 = table->FindPlace_unk(4);
+    GameScene* table = lbl_8087F430->m10D8;
+    gs::WarpPoint* place3 = table->FindPlace_unk(3);
+    gs::WarpPoint* place4 = table->FindPlace_unk(4);
     atn::Vector3 a = place3->mPos;
     atn::Vector3 b = place4->mPos;
     atn::Vector3 leader = lbl_8087F8A0->mHead->mPos;

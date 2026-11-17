@@ -5,6 +5,7 @@
 #include "game/NpcManager.h"
 #include "game/NpcTask.h"
 #include "atn/RenderManager.h"
+#include "game/GameSceneFind_unk.h"
 
 // inferred: route between two points (8 bytes; declared in game/CharaStatus.h)
 struct RoutePath_unk {
@@ -61,7 +62,7 @@ struct SpotTable_unk {
     }
 
     unsigned char m00[0xA4];
-    RoutePath_unk* mPaths;  // 0xA4: inferred: as RouteTable_unk::mPaths (game/CharaStatus.h)
+    RoutePath_unk* mPaths;  // 0xA4: inferred: as GameScene::mPaths (game/CharaStatus.h)
     unsigned char mA8[0xC4 - 0xA8];
     unsigned int mNumSpots; // 0xC4
     Spot_unk* mSpots;       // 0xC8
