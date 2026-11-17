@@ -1,5 +1,6 @@
 #include "macros.h"
 #include "game/Em206CocoonMp.h"
+#include "math/VecAssign_unk.h"
 #include "game/CharaStatus.h"
 #include "game/CharaManager.h"
 #include "game/PlayerTask.h"
@@ -174,6 +175,13 @@ inline void Em206CocoonMp::PlayMotion_unk(int motion, int loop, float speed) {
 }
 
 // inferred: death (state 2)
+// inferred: tells the battle manager about the ice hit at the body position (0x4000; name invented)
+inline void Em206CocoonMp::NotifyIce_unk() {
+    BattleTask* mgr = lbl_8087F048;
+    atn::Vector3 pos = vfAC();
+    mgr->fn_80108F38(&pos, 0x4000);
+}
+
 inline void Em206CocoonMp::Die_unk() {
     SetState_unk(2);
     fn_8016E970(6);
@@ -185,8 +193,7 @@ inline void Em206CocoonMp::Die_unk() {
     ((GameTask*)lbl_8087F430)->fn_80370AE4(0x65, 1);
     BattleTask* mgr = lbl_8087F048;
     CharaTask* player = lbl_8087F8A0->mHead;
-    int id = mgr->fn_800F8548();
-    mgr->fn_800FAB80(player, fn_80219E6C(0x5C3), id, &mPos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
+    mgr->fn_800FAB80(player, fn_80219E6C(0x5C3), mgr->fn_800F8548(), &mPos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
     m1914 = 1;
 }
 
@@ -291,7 +298,6 @@ void Em206CocoonMp::vf3C(HitInfo_unk* hit, int) {
     }
 }
 
-// NONMATCHING: 99% - register allocation of the inlined death (Die_unk)
 void Em206CocoonMp::vf40(HitInfo_unk* hit) {
     HitMsg_unk* msg = (HitMsg_unk*)hit;
     if (mStatus.IsState_unk(0x20)) {
@@ -304,9 +310,7 @@ void Em206CocoonMp::vf40(HitInfo_unk* hit) {
         mMotion.mTracks[0].m20 = 1.0f;
         mMotion.fn_80097C08(0, 0x16A, 0, 0, 1, 0.0f, 0.025f);
         mMotion.mTracks[0].m0C = 0.1f;
-        BattleTask* mgr = lbl_8087F048;
-        atn::Vector3 pos = vfAC();
-        mgr->fn_80108F38(&pos, 0x4000);
+        NotifyIce_unk();
     }
 }
 
@@ -325,7 +329,6 @@ void Em206CocoonMp::vfFC() {
     fn_8016E970(3);
 }
 
-// NONMATCHING: 99% - register allocation of the inlined death (Die_unk) and of the copies of the direction
 // inferred: starts the action chosen by fn_802BD480 (the argument is not used)
 void Em206CocoonMp::vf100(int state) {
     CharaTask* target = mC58.mC4;
@@ -606,7 +609,8 @@ void Em206CocoonMp::fn_802BC4EC(const atn::Vector3& target, float move, float sp
     m14E8 = 0;
     float d = atn::WrapAngle_unk(target.y - rot.y);
     float dt = lbl_8087EFA8->m3A4;
-    float step = d * (m56C * (1.0f + 0.75f * atn::Abs_unk(d / 3.1415927f)));
+    float k = 0.75f * atn::Abs_unk(d / 3.1415927f);
+    float step = d * (m56C * (1.0f + k));
     if (step < 0.034906585f) {
         m14E8 = 1;
     }
@@ -680,7 +684,7 @@ void Em206CocoonMp::vf24() {
     }
 }
 
-// NONMATCHING: 99.36% - registers of the hoisted vector addresses swapped in pairs; copy crossing into m148C
+// NONMATCHING: 99.88% - r4/r5 of the copies into the capsule points (m3C/m48)
 // inferred: updates the collision of the body and of the capsules (masks 0xE0 in ice mode, 4 in state 10)
 void Em206CocoonMp::vf20() {
     m620 = m5B0;
@@ -699,14 +703,14 @@ void Em206CocoonMp::vf20() {
     mColli.m20 = mask;
     for (int i = 0; i < 11; i++) {
         float radius = sCapsules_unk[i].mRadius;
-        a = GetNodePos_unk(mMotion.GetNodeMtx_unk(sCapsules_unk[i].mNode));
-        top = GetNodePos_unk(mMotion.GetNodeMtx_unk(sCapsules_unk[i].mNode2));
+        atn::VecAssign_unk(a, GetNodePos_unk(mMotion.GetNodeMtx_unk(sCapsules_unk[i].mNode)));
+        atn::VecAssign_unk(top, GetNodePos_unk(mMotion.GetNodeMtx_unk(sCapsules_unk[i].mNode2)));
         m1538[i].m3C = a;
         m1538[i].m48 = top;
         m1538[i].m54 = radius;
         m1538[i].m20 = mask;
     }
-    m148C = GetNodePos_unk(mMotion.GetNodeMtx_unk("head"));
+    atn::VecAssign_unk(m148C, GetNodePos_unk(mMotion.GetNodeMtx_unk("head")));
     m1498 = 13.0f;
 }
 
@@ -1190,8 +1194,8 @@ void Em206CocoonMp::fn_802BEE44() {
     }
 }
 
-// NONMATCHING: 93.92% - stack slots and float registers; the comparisons of the clamps (MIN/MAX) are
-// reversed and the speed factor is folded
+// NONMATCHING: 95.4% - stack slots and one saved GPR more in the original (the clamps are written as ifs on
+// the variables, as the original compares them in place)
 // inferred: state 14 (turns towards the target while rolling, slower when the turn is wide); after 30
 // frames, when the target is ahead (or after 90 frames), jumps to the route point 500 (state 16) after
 // 1200 frames of ice mode, otherwise rolls again (state 13)
@@ -1212,16 +1216,31 @@ void Em206CocoonMp::fn_802BF5C0() {
     float turn = 0.01f;
     float d = atn::WrapAngle_unk(goal.y - rot.y);
     float t = lbl_8087EFA8->m3A4 * mMotion.m350;
-    rot.y += d * (0.1f * (1.0f + 0.75f * atn::Abs_unk(d / 3.1415927f)));
+    float k = 0.75f * atn::Abs_unk(d / 3.1415927f);
+    float step = d * (0.1f * (1.0f + k));
+    rot.y += step;
     m570 *= 0.0085f;
     if (m570 < 0.001f) {
         m570 = 0.0f;
     }
-    float accel = MIN(speed, 1.0f) * (turn * t);
-    float wide = m570 < 0.5f ? 0.0f : 0.25f;
-    float over = MAX(atn::Abs_unk(d / 3.1415927f) - wide, 0.0f);
-    accel = MAX(accel * (1.0f - 1.5f * (over / (1.0f - wide))), 0.0f);
-    m570 += 0.26f * accel - 0.125f * m570;
+    if (speed > 1.0f) {
+        speed = 1.0f;
+    }
+    turn *= t;
+    speed *= turn;
+    float wide = 0.25f;
+    if (m570 < 0.5f) {
+        wide = 0.0f;
+    }
+    float over = atn::Abs_unk(d / 3.1415927f) - wide;
+    if (over < 0.0f) {
+        over = 0.0f;
+    }
+    speed *= 1.0f - 1.5f * (over / (1.0f - wide));
+    if (speed < 0.0f) {
+        speed = 0.0f;
+    }
+    m570 += 0.26f * speed - 0.125f * m570;
     m574.LengthSq_unk();
     m574.x -= m574.x * MIN(1.0f, 0.04f * t);
     m574.z -= m574.z * MIN(1.0f, 0.04f * t);
@@ -1354,7 +1373,7 @@ void Em206CocoonMp::vf110(SpecialState_unk* state) {
     s->m0E = m1520;
 }
 
-// NONMATCHING: 99% - register allocation of the inlined death (Die_unk)
+// NONMATCHING: 99.93% - registers of the inlined death (Die_unk) and of the ice notice
 void Em206CocoonMp::vf114(const SpecialState_unk* state) {
     const CocoonState_unk* s = (const CocoonState_unk*)state;
     int next = s->m00;
@@ -1376,9 +1395,7 @@ void Em206CocoonMp::vf114(const SpecialState_unk* state) {
             }
         }
         if (s->m00 == 15 && m58C != 15) {
-            BattleTask* mgr = lbl_8087F048;
-            atn::Vector3 pos = vfAC();
-            mgr->fn_80108F38(&pos, 0x4000);
+            NotifyIce_unk();
         }
     }
     m58C = s->m00;

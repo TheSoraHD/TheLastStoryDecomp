@@ -37,6 +37,7 @@ public:
     inline void SetState_unk(int state);
     inline void PlayMotion_unk(int motion, int loop, float speed);
     inline void Die_unk();
+    inline void NotifyIce_unk();
     inline void StartRoll_unk();
     inline void StartAttack_unk(int state, int motion, atn::Vector3 dir);
     // inferred: turns towards `rot` and moves forward at `speed` with gravity and collision (0x802BC4EC)

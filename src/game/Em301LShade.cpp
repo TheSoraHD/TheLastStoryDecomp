@@ -1,4 +1,5 @@
 #include "game/Em301LShade.h"
+#include "macros.h"
 #include "game/GameCamera.h"
 #include "game/GameTask.h"
 #include "atn/Csv.h"
@@ -296,9 +297,13 @@ inline bool ShadeGrabbed_unk(CharaTask* c) {
     }
     return r;
 }
+// inferred: random index below `n` (the count is read before rand)
+inline unsigned int ShadeRand_unk(unsigned int n) {
+    return rand() % n;
+}
 inline bool ShadeFree_unk(CharaTask* c) {
     bool r = false;
-    if (!ShadeInactive_unk(c) && (c->mStatus.m0C & 0x20) != 0x20 && !ShadeGrabbed_unk(c)) {
+    if (!ShadeInactive_unk(c) && !c->mStatus.IsState_unk(0x20) && !ShadeGrabbed_unk(c)) {
         r = true;
     }
     return r;
@@ -461,9 +466,9 @@ int Em301LShade::vf0C() {
 template void std::vector<RoutePlace_unk*>::push_back(RoutePlace_unk* const& x);
 template void std::vector<EnemyTask*>::push_back(EnemyTask* const& x);
 
-// NONMATCHING: 90.2% - stack slots of the color temporaries (the original stores the MIN_unk results after
-// the join), float registers and the reload of m15E8 after m1500++; calls, literals, jump table and member
-// offsets checked against the original
+// NONMATCHING: 96.6% - stack slots (the direction to the target is built in another slot), float
+// registers and the reloads of m15E8 after the stores of m1500/m15EC; calls,
+// literals, jump table, branch targets and member offsets checked against the original
 void Em301LShade::vf10() {
     if (m58C != 8) {
         m1620 = mC58.mC4;
@@ -512,12 +517,13 @@ void Em301LShade::vf10() {
                 m58C = 0;
                 fn_8016E970(3);
             }
-            if ((65.0f <= mMotion.mTracks[0].m08 && mMotion.mTracks[0].m08 <= 80.0f) ||
-                (115.0f <= mMotion.mTracks[0].m08 && mMotion.mTracks[0].m08 <= 130.0f)) {
+            if ((65.0f <= mMotion.GetMotionFrame(0) && mMotion.GetMotionFrame(0) <= 80.0f) ||
+                (115.0f <= mMotion.GetMotionFrame(0) && mMotion.GetMotionFrame(0) <= 130.0f)) {
                 fn_80144710();
+                BattleTask* mgr = lbl_8087F048;
                 atn::Vector3 pos = mPos;
                 pos.y += 13.0f * m540.x;
-                lbl_8087F048->fn_800FAB80(this, skill, m590, &pos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
+                mgr->fn_800FAB80(this, skill, m590, &pos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
             }
             break;
         }
@@ -570,16 +576,8 @@ void Em301LShade::vf10() {
     {
         ShadeColor_unk c;
         ToColorF_unk(&c, mMotion.fn_80092954("em301_inner")->mColor);
-        if (m15E4 == 0) {
-            c.r = MIN_unk(1.0f, 0.02f + c.r);
-        } else {
-            c.r = MIN_unk(0.05f, 0.005f + c.r);
-        }
-        if (m15E4 == 0) {
-            c.g = MIN_unk(0.5f, 0.01f + c.g);
-        } else {
-            c.g = MIN_unk(0.2f, 0.01f + c.g);
-        }
+        c.r = m15E4 == 0 ? MIN_unk(1.0f, 0.02f + c.r) : MIN_unk(0.05f, 0.005f + c.r);
+        c.g = m15E4 == 0 ? MIN_unk(0.5f, 0.01f + c.g) : MIN_unk(0.2f, 0.01f + c.g);
         mMotion.fn_80092954("em301_inner")->mColor = ToGX_unk(c);
         ShadeColor_unk half;
         half.r = c.r * 0.5f;
@@ -591,16 +589,8 @@ void Em301LShade::vf10() {
     {
         ShadeColor_unk c;
         ToColorF_unk(&c, mMotion.fn_80092954("em301_outer")->mColor);
-        if (m15E4 == 0) {
-            c.r = MIN_unk(1.0f, 0.02f + c.r);
-        } else {
-            c.r = MIN_unk(0.05f, 0.005f + c.r);
-        }
-        if (m15E4 == 0) {
-            c.g = MIN_unk(0.5f, 0.01f + c.g);
-        } else {
-            c.g = MIN_unk(0.2f, 0.01f + c.g);
-        }
+        c.r = m15E4 == 0 ? MIN_unk(1.0f, 0.02f + c.r) : MIN_unk(0.05f, 0.005f + c.r);
+        c.g = m15E4 == 0 ? MIN_unk(0.5f, 0.01f + c.g) : MIN_unk(0.2f, 0.01f + c.g);
         mMotion.fn_80092954("em301_outer")->mColor = ToGX_unk(c);
         ShadeColor_unk half;
         half.r = c.r * 0.5f;
@@ -613,16 +603,8 @@ void Em301LShade::vf10() {
     {
         ShadeColor_unk c;
         ToColorF_unk(&c, mMotion.fn_80092954("em301_inner")->mColor);
-        if (m15B8 == 0) {
-            c.r = MIN_unk(1.0f, 0.02f + c.r);
-        } else {
-            c.r = MIN_unk(0.05f, 0.005f + c.r);
-        }
-        if (m15B8 == 0) {
-            c.g = MIN_unk(0.5f, 0.01f + c.g);
-        } else {
-            c.g = MIN_unk(0.2f, 0.01f + c.g);
-        }
+        c.r = m15B8 == 0 ? MIN_unk(1.0f, 0.02f + c.r) : MIN_unk(0.05f, 0.005f + c.r);
+        c.g = m15B8 == 0 ? MIN_unk(0.5f, 0.01f + c.g) : MIN_unk(0.2f, 0.01f + c.g);
         mMotion.fn_80092954("em301_inner")->mColor = ToGX_unk(c);
         ShadeColor_unk half;
         half.r = c.r * 0.5f;
@@ -634,16 +616,8 @@ void Em301LShade::vf10() {
     {
         ShadeColor_unk c;
         ToColorF_unk(&c, mMotion.fn_80092954("em301_outer")->mColor);
-        if (m15B8 == 0) {
-            c.r = MIN_unk(1.0f, 0.02f + c.r);
-        } else {
-            c.r = MIN_unk(0.05f, 0.005f + c.r);
-        }
-        if (m15B8 == 0) {
-            c.g = MIN_unk(0.5f, 0.01f + c.g);
-        } else {
-            c.g = MIN_unk(0.2f, 0.01f + c.g);
-        }
+        c.r = m15B8 == 0 ? MIN_unk(1.0f, 0.02f + c.r) : MIN_unk(0.05f, 0.005f + c.r);
+        c.g = m15B8 == 0 ? MIN_unk(0.5f, 0.01f + c.g) : MIN_unk(0.2f, 0.01f + c.g);
         mMotion.fn_80092954("em301_outer")->mColor = ToGX_unk(c);
         ShadeColor_unk half;
         half.r = c.r * 0.5f;
@@ -656,16 +630,8 @@ void Em301LShade::vf10() {
     {
         ShadeColor_unk c;
         ToColorF_unk(&c, mMotion.fn_80092954("em301_inner")->mColor);
-        if (m15E4 == 0) {
-            c.r = MAX_unk(0.0f, c.r - 0.02f);
-        } else {
-            c.r = MAX_unk(0.0f, c.r - 0.005f);
-        }
-        if (m15E4 == 0) {
-            c.g = MAX_unk(0.0f, c.g - 0.01f);
-        } else {
-            c.g = MAX_unk(0.0f, c.g - 0.01f);
-        }
+        c.r = m15E4 == 0 ? MAX_unk(0.0f, c.r - 0.02f) : MAX_unk(0.0f, c.r - 0.005f);
+        c.g = m15E4 == 0 ? MAX_unk(0.0f, c.g - 0.01f) : MAX_unk(0.0f, c.g - 0.01f);
         mMotion.fn_80092954("em301_inner")->mColor = ToGX_unk(c);
         ShadeColor_unk half;
         half.r = c.r * 0.5f;
@@ -677,16 +643,8 @@ void Em301LShade::vf10() {
     {
         ShadeColor_unk c;
         ToColorF_unk(&c, mMotion.fn_80092954("em301_outer")->mColor);
-        if (m15E4 == 0) {
-            c.r = MAX_unk(0.0f, c.r - 0.02f);
-        } else {
-            c.r = MAX_unk(0.0f, c.r - 0.005f);
-        }
-        if (m15E4 == 0) {
-            c.g = MAX_unk(0.0f, c.g - 0.01f);
-        } else {
-            c.g = MAX_unk(0.0f, c.g - 0.01f);
-        }
+        c.r = m15E4 == 0 ? MAX_unk(0.0f, c.r - 0.02f) : MAX_unk(0.0f, c.r - 0.005f);
+        c.g = m15E4 == 0 ? MAX_unk(0.0f, c.g - 0.01f) : MAX_unk(0.0f, c.g - 0.01f);
         mMotion.fn_80092954("em301_outer")->mColor = ToGX_unk(c);
         ShadeColor_unk half;
         half.r = c.r * 0.5f;
@@ -710,13 +668,10 @@ void Em301LShade::vf10() {
     mPos.y -= 13.0f * m540.x;
     CharaTask* target = m1620;
     if (target != 0) {
-        atn::Vector3 dir;
-        dir.x = target->mPos.x - mPos.x;
-        dir.z = target->mPos.z - mPos.z;
-        dir.y = 0.0f;
+        atn::Vector3 dir(target->mPos.x - mPos.x, 0.0f, target->mPos.z - mPos.z);
         PSVECNormalize(&dir, &dir);
-        atn::Vector3 rot = dir.ToRotation_unk();
-        float d = atn::WrapAngle_unk(rot.y - mRot.y);
+        dir.fn_80139F60();
+        float d = atn::WrapAngle_unk(dir.y - mRot.y);
         float step = 0.08726647f;
         if ((float)__fabs(d) > step) {
             if (d < 0.0f) {
@@ -725,7 +680,7 @@ void Em301LShade::vf10() {
                 mRot.y += step;
             }
         } else {
-            mRot.y = rot.y;
+            mRot.y = dir.y;
         }
     }
     fn_8014C540();
@@ -1236,8 +1191,8 @@ void Em301LShade::fn_802D4378() {
 // inferred: state 9 (absorbs the party): binds the targets of m15AC at frame 10, pulls them to the head
 // (frames 21-90) and deals the damage (the rate goes down with each absorption, "absorb_subtract_rate",
 // down to "absorb_min_rate"), pushes them away and back to state 0
-// NONMATCHING: 85.3% - draft (same open case as Em302Kraken::fn_802DAA38: order of the loads in the pull
-// loop, stack slots of the damage record and the rotation of the knockback)
+// NONMATCHING: 92.2% - registers and stack slots: the original keeps the model of the node lookups in a
+// saved register (r20-r31 against r23-r31) and orders the loads of the pull loop differently
 void Em301LShade::fn_802D4628() {
     if (m14E8 == 10) {
         m1570 = GetNodePos_unk(mMotion.GetNodeMtx_unk("head"));
@@ -1253,7 +1208,7 @@ void Em301LShade::fn_802D4628() {
         fn_80232B7C(this, 15);
         PlayEffect_unk(&m1594, (atn::Model*)&mMotion);
     }
-    if (m14E8 > 20 && m14E8 <= 90) {
+    if (20 < m14E8 && m14E8 <= 90) {
         float t = (m14E8 - 20) / 70.0f;
         float a = 1.0f - t * t;
         float b = t * t;
@@ -1273,13 +1228,11 @@ void Em301LShade::fn_802D4628() {
         int total = 0;
         for (unsigned int i = 0; i < m15AC.size(); i++) {
             CharaTask* chara = m15AC[i].mChara;
-            float rate = m1564 - m1568 * m1560;
-            if (m156C > rate) {
-                rate = m156C;
-            }
-            int hp = (int)chara->mStatus.m04;
+            float rate = MAX(m156C, m1564 - m1568 * m1560);
+            float life = chara->mStatus.m04;
+            int hp = (int)life;
             damage.mDamage = hp + 1;
-            total -= (int)(chara->mStatus.m04 * rate) + 1;
+            total -= (int)(life * rate) + 1;
             chara->mStatus.fn_8012DF7C(hp + 1, 0, 0);
             lbl_8087F048->fn_80108C10(&damage, chara->vfAC(), this, chara, 0, 0);
             lbl_8087F048->fn_80107850((atn::Model*)&chara->mMotion);
@@ -1292,7 +1245,8 @@ void Em301LShade::fn_802D4628() {
         }
         if (total < 0) {
             damage.mDamage = total;
-            atn::Vector3 pos = fn_80148B0C(0)->m04.mCenter + atn::Vector3(0.0f, 15.0f, 0.0f);
+            atn::Vector3 pos = fn_80148B0C(0)->m04.mCenter;
+            pos += atn::Vector3(0.0f, 15.0f, 0.0f);
             mStatus.fn_8012DF7C(total, 0, 0);
             lbl_8087F048->fn_80108C10(&damage, pos, 0, this, 0, 0);
             m1560++;
@@ -1493,12 +1447,11 @@ void Em301LShade::fn_802D57B8() {
     mRot.y = rot.y;
 }
 
-// NONMATCHING: 92.9% - the original rereads the status word for the 0x20 test inside the "free" check
-// and keeps the character in r29; the random pick keeps the count in r26 (8 variants: helpers, single
-// condition, nested ifs, CanAct_unk, list capacity)
+// NONMATCHING: 96.66% - registers: the original keeps a copy of the character in r3 from the loop test to
+// fn_8016E484, reads the list count twice before rand and keeps the index (not index * 4) in r31
 // inferred: reinforcement kind 0 seals the first party member of kind 2, kind 1 seals one to three
 // random members (sets the status flag 0x100)
-int Em301LShade::fn_802D5D18(int kind) {
+void Em301LShade::fn_802D5D18(int kind) {
     int done = 0;
     switch (m1510) {
     case 0:
@@ -1531,7 +1484,7 @@ int Em301LShade::fn_802D5D18(int kind) {
         }
         for (int i = 0; i < count; i++) {
             if (list.mCount != 0) {
-                unsigned int index = rand() % list.mCount;
+                unsigned int index = ShadeRand_unk(list.mCount);
                 list.mData[index]->mStatus.fn_8013310C(0x100, 0);
                 list.mData[index]->fn_80166D3C(1);
                 list.erase(&list.mData[index]);
@@ -1544,7 +1497,6 @@ int Em301LShade::fn_802D5D18(int kind) {
     if (done && m1690.mGlobal >= 0) {
         fn_805A4A1C((SpecialFlag_unk*)&m1690, 1);
     }
-    return done;
 }
 
 // inferred: holds the party members that can be absorbed (flag 0x100) and the bound reinforcements:
