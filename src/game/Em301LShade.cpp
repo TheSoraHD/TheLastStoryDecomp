@@ -1587,58 +1587,59 @@ inline unsigned int IsFlag25_unk(const CharaTask* chara) {
 
 // inferred: calls the reinforcements: two members of "reinforce_chara" (four the first time) appear at
 // the "reinforce_point" places (names invented)
-// NONMATCHING: draft - the two push_back of the local vectors are inlined (known open family, see
+// NONMATCHING: 98.1% - the two push_back of the local vectors are inlined (known open family, see
 // docs/mwcc-blockers.md)
 void Em301LShade::fn_802D67F8(int index) {
-    if (index >= 0 && index < 3) {
-        unsigned int n = 2;
-        if (m1624 != 0) {
-            m1624 = 0;
-            n = 4;
-        }
-        ShadeEnemyList_unk enemies;
-        for (unsigned int i = 0; i < n; i++) {
-            if (m1644.size() <= i) {
-                break;
-            }
-            enemies.push_back(m1644[i]);
-        }
-        ShadePlaceList_unk places;
-        for (unsigned int i = 0; i < n; i++) {
-            if (m1638.size() <= i) {
-                break;
-            }
-            places.push_back(m1638[i]);
-        }
-        for (unsigned int i = 0; i < enemies.size(); i++) {
-            if (places.size() <= i) {
-                break;
-            }
-            EnemyTask* e = enemies[i];
-            RoutePlace_unk* place = places[i];
-            lbl_8087F048->fn_80107850((atn::Model*)&e->mMotion);
-            lbl_8087F048->fn_801077A8((atn::Model*)&e->mMotion, (atn::Model*)&e->mMotion);
-            fn_80232B7C(e, 1000);
-            PlayEffect_unk(&m1520, (atn::Model*)&e->mMotion);
-            e->mFlag15 = 0;
-            e->fn_80176ACC();
-            e->fn_800D246C(0);
-            if (IsFlag25_unk(e)) {
-                e->mFlag25 = 0;
-            }
-            e->mStatus.fn_8012D8B8();
-            e->m58C = 0;
-            e->mC58.mC0 = 1;
-            e->fn_8015495C(0, 1, 1, 1);
-            e->mPos = place->mPos;
-            e->mRot = atn::Vector3(0.0f, place->m14, 0.0f);
-            e->fn_80145334();
-        }
-        wchar_t text[256];
-        memset(text, 0, sizeof(text));
-        fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0x127), *(const wchar_t**)((char*)m60 + 4));
-        lbl_8087F048->fn_80109828(text);
+    if (index < 0 || 3 <= index) {
+        return;
     }
+    unsigned int n = 2;
+    if (m1624 != 0) {
+        m1624 = 0;
+        n = 4;
+    }
+    ShadeEnemyList_unk enemies;
+    for (unsigned int i = 0; i < n; i++) {
+        if (m1644.size() <= i) {
+            break;
+        }
+        enemies.push_back(m1644[i]);
+    }
+    ShadePlaceList_unk places;
+    for (unsigned int i = 0; i < n; i++) {
+        if (m1638.size() <= i) {
+            break;
+        }
+        places.push_back(m1638[i]);
+    }
+    for (unsigned int i = 0; i < enemies.size(); i++) {
+        if (places.size() <= i) {
+            break;
+        }
+        EnemyTask* e = enemies[i];
+        RoutePlace_unk* place = places[i];
+        lbl_8087F048->fn_80107850((atn::Model*)&e->mMotion);
+        lbl_8087F048->fn_801077A8((atn::Model*)&e->mMotion, (atn::Model*)&e->mMotion);
+        fn_80232B7C(e, 1000);
+        PlayEffect_unk(&m1520, (atn::Model*)&e->mMotion);
+        e->mFlag15 = 0;
+        e->fn_80176ACC();
+        e->fn_800D246C(0);
+        if (IsFlag25_unk(e)) {
+            e->mFlag25 = 0;
+        }
+        e->mStatus.fn_8012D8B8();
+        e->m58C = 0;
+        e->mC58.mC0 = 1;
+        e->fn_8015495C(0, 1, 1, 1);
+        e->mPos = place->mPos;
+        e->mRot = atn::Vector3(0.0f, place->m14, 0.0f);
+        e->fn_80145334();
+    }
+    wchar_t text[256];
+    memset(text, 0, sizeof(text));
+    fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0x127), *(const wchar_t**)((char*)m60 + 4));
+    lbl_8087F048->fn_80109828(text);
 }
 
 int Em301LShade::fn_802D7058() {

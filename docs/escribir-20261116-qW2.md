@@ -21,6 +21,7 @@ Inicio: 2026-11-16 23:58 CET (tope 2,5 h: 02:28).
 | Em202ForestSpider fn_802790A0 | 85,8 % | 100 % (`fn_8023A680` con sus 12 argumentos) |
 | Em202ForestSpider vf14 / vf114 | 62,1 / 82,7 % | 93 / 94,2 % (vf114 con el flujo del original) |
 | Em202ForestSpider vf0C | 93,97 % | 97,2 % (`m1538[i].X.IsLoading()` en vez de un puntero al hilo) |
+| Em301LShade fn_802D67F8 | 97,24 % | 98,1 % (`if (index < 0 \|\| 3 <= index) return;`) |
 | Em202ForestSpider vfF8 | 92,8 % | 100 % (`switch` con los casos 9-11 y 15-16) |
 | Em202ForestSpider vf110 | 88,7 % | 93,8 % (`m1538[idx].X` y `IsFlag_unk(4)`) |
 | Em202ForestSpider vf10 | 88,9 % | 91,1 % (capsula y posicion de fn_805A5078 corregidas) |
@@ -48,11 +49,15 @@ Inicio: 2026-11-16 23:58 CET (tope 2,5 h: 02:28).
 
 - `subi r0, x, 9; cmplwi r0, 2; ble` seguido de `cmpwi x, 15; blt; cmpwi x, 16; ble` es un `switch` con `case 9: case 10: case 11:` y `case 15: case 16:`, no una cadena de if (Em202ForestSpider::vfF8 92,8 -> 100 %) (escribir-20261116 qW2).
 
+- `cmpwi x, 0; blt fin; cmpwi x, 3; blt cuerpo; b fin` sale de `if (x < 0 || 3 <= x) return;` (con `x >= 3` o con el `if` de rango MWCC lo pliega a `cmplwi x, 2`) (Em301LShade::fn_802D67F8) (escribir-20261116 qW2).
+- El `return` temprano cambio la numeracion `@N` de Em301LShade (+3): `pd.sh` deja 4 sin renombrar; `lblseq.py --apply` y otro `pd.sh` lo arreglan (escribir-20261116 qW2).
+
 ## Bloqueos
 - Orden de carga de varios `vector::clear()` inline seguidos (Em202ForestSpider ctor, Em302KrakenMp ctor, NewCampTask::fn_8053032C): el original carga los tamanos en un orden que no sigue al de las llamadas; 6 ordenes probados en ForestSpider (escribir-20261116 qW2).
 - Em206CocoonMp ctor y LastCocoonChrysalis ctor: las locales anidadas key/cmp/value del bucle de tokens (lo que saco LastCocoonImago de presupuesto) no bastan; tampoco una local `rest` mas ni `file = path.c_str()` (escribir-20261116 qW2).
 
 ## Cambios de splits/symbols
+- Em301LShade: re-emparejado con pd.sh + lblseq.py --apply (6 renombrados de .sdata2 por posicion, @15412 -> @15415 ...).
 - Em202ForestSpider: re-emparejado con pd.sh; @15151/@15152 (.sdata2 0x8088384C/50) renombradas a @15192/@15193 (valores iguales en nuestro .o, lblval.py).
 
 ## Scripts
