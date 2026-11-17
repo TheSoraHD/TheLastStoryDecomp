@@ -8316,6 +8316,73 @@ extern "C" void fn_804F3E50() {
     }
 }
 
+// inferred: players in use with a character in the team of `chara` (1 in game mode 0, 0 without a slot)
+static inline int PPTeamSize_unk(PPManager2_unk* mgr, CharaTask* chara) {
+    if (mgr->mMode == 0) {
+        return 1;
+    }
+    PPPlayer_unk* player = FindByChara_unk(mgr, chara);
+    if (player == 0) {
+        return 0;
+    }
+    int n = 0;
+    unsigned int team = player->mFlags.m22;
+    for (int i = 0; i < mgr->mPlayers.mNum; i++) {
+        PPPlayer_unk* other = &mgr->mPlayers.mData[i];
+        if (other->mFlags.mActive && other->mRef.mChara != 0 && other->mFlags.m22 == team) {
+            n++;
+        }
+    }
+    return n;
+}
+// NONMATCHING: 75.22% - the original inlines fn_804DB1C4 (here called: inlined, its L"" goes to its own .sdata
+// object and moves @wstringBase0, which lowers fn_804FA7C8/88C/8E8 and fn_804FAF48; 93.67% then), does not fold
+// the halving of the constant 10 (li 10; srawi) and reloads lbl_8087F610 and m564
+// inferred: message 0x34: the player `data[0]` defeated the player `data[1]` (not of its side): 10 points (5 for a
+// team player of a machine, doubled in the last minute) and 5 more for each player that the team of the victim
+// has more; the score of the winner changes (fn_804DB1C4, inlined), m0E0 counts its defeats, and the own player
+// says the quick message 3
+extern "C" void fn_804F3EEC() {
+    if (PP_NO_DATA_UNK) {
+        return;
+    }
+    unsigned char* data = (unsigned char*)fn_804AE3BC()->GetWorkBuffer_unk();
+    PPPlayer_unk* winner = fn_804DD158((PPManager2_unk*)lbl_8087F610, data[0]);
+    PPPlayer_unk* loser = fn_804DD158((PPManager2_unk*)lbl_8087F610, data[1]);
+    if (winner == 0 || loser == 0 || winner->mRef.mChara == 0 || loser->mRef.mChara == 0) {
+        return;
+    }
+    if (winner->mRef.mChara->fn_8016F3D0(loser->mRef.mChara, 1)) {
+        return;
+    }
+    int points = 10;
+    if (IsTeamPlayer_unk(loser)) {
+        points >>= 1;
+    }
+    PPManager2_unk* mgr = (PPManager2_unk*)lbl_8087F610;
+    bool last = !(GetRemain_unk(mgr) < 0);
+    if (last) {
+        last = GetRemain_unk(mgr) < 60;
+    }
+    if (last) {
+        points <<= 1;
+    }
+    int more = PPTeamSize_unk((PPManager2_unk*)lbl_8087F610, loser->mRef.mChara) -
+                   PPTeamSize_unk((PPManager2_unk*)lbl_8087F610, winner->mRef.mChara) >
+                       0
+                   ? PPTeamSize_unk((PPManager2_unk*)lbl_8087F610, loser->mRef.mChara) -
+                         PPTeamSize_unk((PPManager2_unk*)lbl_8087F610, winner->mRef.mChara)
+                   : 0;
+    int old = winner->mDCScore;
+    fn_804DB1C4((PPManager2_unk*)lbl_8087F610, winner->mRef.mChara, points + more * 5);
+    if (old < winner->mDCScore) {
+        winner->mE0++;
+    }
+    if (winner == GetMyPlayer_unk()) {
+        fn_804E82C4((PPManager2_unk*)lbl_8087F610, ((signed char*)&lbl_8087F628->mFriendList.m7F0[0xB8])[3]);
+    }
+}
+
 // inferred: message 0x35: a value per network id
 extern "C" void fn_804F4728() {
     if (PP_NO_DATA_UNK) {
