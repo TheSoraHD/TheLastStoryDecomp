@@ -6,7 +6,7 @@ Inicio: 2026-11-17 06:06 CET (tope 08:36).
 
 | funcion | antes | despues |
 |---|---|---|
-| fn_804EE040 | 99,21 % | (en curso) |
+| fn_804EE040 | 99,21 % | 99,21 % (sin cambios: ver Bloqueos) |
 | `__sinit_\PacketPack_cpp` | 99,98 % | 100 % (pool con los mensajes de basic_string) |
 | fn_804D8610 | 99,76 % | 100 % |
 | fn_804DDE34 | 99,78 % | 100 % |
@@ -63,6 +63,28 @@ Inicio: 2026-11-17 06:06 CET (tope 08:36).
   (PacketPack fn_804D996C 95,8 -> 99,6 %) (escribir-20261116 qG4)
 
 ## Bloqueos
+
+- PacketPack fn_804EE040 (99,21 %): con `(unsigned char)type` en las cuatro llamadas toda la estructura sale como el
+  original (el `clrlwi r4` del switch, el cero compartido con `data`/`type`) y solo queda una permutacion de registros
+  (aid r31 -> r26; 98,92 %). Probados: `unsigned char`/`unsigned int` para `type`, un local `unsigned char kind` para
+  el switch, parametros `unsigned char` en los manejadores (97,5 %), los 24 ordenes de declaracion de type/header/
+  cursor/player (98,87-99,26 %, el mejor renumera `@N`), `if (player != 0) switch`, fn_804F4FC4 con `unsigned int`
+  (escribir-20261116 qG4)
+- PacketPack fn_804CF468 (99,91 %): el hueco compartido de los dos `fctiwz` no sale con una inline `PackValue_unk`,
+  `(unsigned short)(int)` ni `id` declarado arriba (escribir-20261116 qG4)
+- PacketPack fn_804EDCCC (99,86 %): r4/r0 del byte de user data y del modo: probados el local `unsigned int`, la
+  expresion sin locales, un puntero `mgr`, inline bool (con `&&` y con `if`) (escribir-20261116 qG4)
+- PacketPack fn_804EE4F0/fn_804F2450: orden de las dos direcciones de PSVECDotProduct (`PPDot_unk` por puntero,
+  llamada directa, `dir(...)`, referencia `front`, comparacion al reves: igual o peor) (escribir-20261116 qG4)
+- PacketPack fn_804F39D4/fn_804F3880 y PPFindTeam_unk (fn_804F2040, fn_804F2258): el manager en r5 y el
+  desplazamiento en r3 del original; un local para el aid o el manager, y el getter fn_800F7F90: igual o peor
+  (escribir-20261116 qG4)
+- PacketPack fn_804EB26C: el original relee `mFlags` para el segundo `if (m28)` (el nuestro lo reutiliza); probado
+  releer por el indice (escribir-20261116 qG4)
+- PacketPack fn_804DC858/fn_804EDB0C: la lista de amigos (`+0x430`) un registro mas abajo que en el original; orden
+  de declaraciones y contador `unsigned`: peor (escribir-20261116 qG4)
+- PacketPack fn_804E4B44: `m08[i - 1]` sale reducido al puntero del bucle (el original `mulli`); con
+  `(&m08[i])[-1]` igual (escribir-20261116 qG4)
 
 ## Cambios de splits/symbols
 
