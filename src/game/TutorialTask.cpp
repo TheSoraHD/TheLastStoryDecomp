@@ -29,7 +29,6 @@ extern "C" unsigned int fn_800DC6B4(const char* s); // inferred: string hash
 extern "C" void fn_801FED24(void* layout, unsigned int hash, int index, float value); // inferred: sets a value
 extern "C" void fn_801FEE08(void* layout, unsigned int hash, const wchar_t* text); // inferred: sets a text
 extern "C" const wchar_t* fn_80116FC0(int a, int id); // inferred: message text
-extern "C" void fn_80097A9C(void* model, int id, atn::LH_Motion* motion); // inferred: sets a motion slot
 extern "C" atn::SoundRef fn_800C31F4(const char* name, int a, int b, float volume); // inferred: plays a sound
 extern "C" void* lbl_8087EEC8; // inferred: font
 extern "C" float fn_8006EF48(void* font, const wchar_t* text, int a, int b, float size, float spacing); // inferred: text width
@@ -131,14 +130,14 @@ void TutorialTask::fn_805BA354(const Camera_unk* camera) {
         TutorialPage_unk* page = &mPages[i];
         if (page->mEnabled != 0) {
             if (page->mMotion.mMotion.m08 != 0 && mChara != 0) {
-                fn_80097A9C(&mChara->mMotion, i + 0xEA, &page->mMotion.mMotion);
+                mChara->GetModel_unk()->fn_80097A9C(i + 0xEA, &page->mMotion.mMotion);
             }
             page->mLayout->mFrame = 0.0f;
             page->mLayout->mFlags |= 4;
         }
     }
-    mCamera = *camera;
     mPage = 0;
+    mCamera = *camera;
     mCamera2 = mCamera;
     if (mChara != 0) {
         mPos = mChara->mPos;

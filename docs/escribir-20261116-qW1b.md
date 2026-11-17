@@ -16,9 +16,11 @@
 | TutorialTask::fn_805BA934 (arranque de la pagina) | 73,5 % (escrita desde m2c) | equivalente NONMATCHING 98 % |
 | TutorialPopup::fn_805BCF04 (csv de las lineas) | 90 % (escrita desde m2c) | equivalente NONMATCHING 98,5 % (registros) |
 | TutorialTask::fn_805BB654 (csv de las paginas) | 83,7 % (escrita desde m2c, sin pasar a minusculas) | equivalente NONMATCHING 90,4 % |
+| TutorialTask::fn_805BA354 (inicio) | 92,4 % | **100 %** |
 | TutorialTask::fn_805BC1C0 (camara libre) | equivalente 96,3 % | equivalente NONMATCHING 99 % (registros) |
 
 ## Para el port
+- TutorialTask.cpp: `extern "C" fn_80097A9C(void* model, ...)` -> `atn::Model::fn_80097A9C` (via CharaTask::GetModel_unk).
 - TutorialPopup::vf10 (codigo de m2c no equivalente -> el del original): el caso 1 espera al final de la animacion de la linea (D2A_Task::IsEnd_unk) antes de pasar al 2; en el 2 las lineas de mType 1 se cierran tambien cuando el personaje falta o tiene mFlag6, o con CharaTask::HasC48_unk. Cambio de comportamiento.
 - TutorialPopup::vf0C: tras la carga del csv devuelve 0 en ese mismo frame (antes seguia con la inicializacion). Cambio de comportamiento.
 - GameScene::vf14: stub vacio -> codigo real (dibujo de depuracion de puntos, enlaces y cajas de la escena con DrawHelper si GameConfig_unk::mSceneDebug.mEnabled; al final fn_8008CD60 de los modelos restringidos mDC, que tambien corre sin depuracion). Cambio de comportamiento.
@@ -44,6 +46,7 @@
 - Retorno 0 compartido al final (un solo `li r3, 0`): `if (a) {...} else if (b) {...; return 1;} return 0;` en vez de dos `return 0;` tempranos (TutorialPopup vf0C). (escribir-20261116 qW1b)
 - Argumentos de layout/pane (fn_801F4E8C, fn_801FED24, fn_801FEE08) que el original evalua antes del hash del nombre: inlines con el layout como parametro (GetPaneRect_unk, SetPaneValue_unk, SetPaneText_unk), como las de MP/D2AMpMenu_unk.h (TutorialTask). (escribir-20261116 qW1b)
 - Condicion `a == "x" && f() != 0` con temporales `std::string` que se destruyen antes del if: el original la guarda en un `bool` (`bool ok = ... && ...; if (ok)`), sin un segundo flag (TutorialPopup fn_805BCF04 90 -> 98,5 %). (escribir-20261116 qW1b)
+- Copia implicita grande (`mCamera = *camera`) seguida de una asignacion simple: escribir la simple antes (`mPage = 0;` delante de la copia) cambia el reparto de registros de toda la funcion (TutorialTask fn_805BA354 92 -> 100 %). (escribir-20261116 qW1b)
 
 ## Bloqueos
 - TutorialTask fn_805BA934: `m5B4 = mAttackType != 0` sale con neg/or; el original lo hace con dos cntlzw. Probados `!(x == 0)`, `!!x` y una inline bool (MWCC lo pliega).
