@@ -107,6 +107,9 @@ public:
     void fn_8037F9AC(const CharaTask* chara); // inferred: update of the default mode (table 0x8074E114)
     void fn_803897EC(const CharaTask* chara); // inferred: default mode with m8F0 set before frame 67 of the motion
     void fn_80389838(int mode); // inferred: sets the sub mode (previous one kept in m800)
+    // inferred: sub mode m7FC (weak copy 0x803D6F70, emitted by game/GameUI; defined inline by the units that
+    // use it so that the other units including this header are not renumbered)
+    int GetMode_unk() const;
     void fn_80382A1C(const CharaTask* chara);
     void fn_8038A1B8(const CharaTask* chara); // inferred: forced update of the current mode
     void fn_8038A1D8(const CharaTask* chara); // inferred: the character is not used (mode table entry)
