@@ -9466,7 +9466,7 @@ struct PPMsgEnemyLoc_unk {
     unsigned char mMotion[1];   // 0x31: packed motion (fn_804CF198)
 };
 
-// NONMATCHING: 98.3% - the original copies mStateVar twice for the vararg (a temporary, then the argument) and
+// NONMATCHING: 99.16% - the original copies mStateVar twice for the vararg (a temporary, then the argument) and
 // reloads lbl_8087F610 after the inlined FindTeam_unk; the address registers of three copies (as fn_804EE4F0)
 // inferred: location of an enemy received from the server (only in the game, state 30): the character of a team
 // player through fn_804EE4F0, or a character of the list directly; with `type` 29 also its motion (the motion
@@ -9490,13 +9490,13 @@ extern "C" void fn_804F2450(unsigned int type) {
                 chara->mPos = data->mState.mPos;
                 atn::Vector3 vel = data->mState.mVel;
                 if (vel.LengthSq_unk() > 900.0f) {
-                    atn::VecAssign_unk(chara->m13D8, lbl_807C7030);
+                    chara->m13D8.Assign_unk(lbl_807C7030);
                 } else {
                     chara->m13D8 = vel;
                 }
                 chara->mRot = atn::Vector3(0.0f, data->mState.mRotY, 0.0f);
                 chara->m13E4 = data->mState.mTurn;
-                chara->m13E8 = PPUnpackVec_unk(data->mState.mNode);
+                chara->m13E8.Assign_unk(PPUnpackVec_unk(data->mState.mNode));
                 atn::Vector3 dir = PPUnpackVec_unk(data->mState.mDir);
                 if (PPDot_unk(dir, chara->mFA4) > 0.70710677f) {
                     atn::VecAssign_unk(dir, PPHalfway_unk(chara->mFA4, dir));
