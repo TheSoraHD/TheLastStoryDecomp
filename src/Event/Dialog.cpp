@@ -231,8 +231,11 @@ inline void Dialog::ResetPos_unk() {
     float w = lbl_8087EEE0->mWidth;
     float h = lbl_8087EEE0->mHeight;
     for (int i = 0; i < 4; i++) {
-        mSlots[i].mXY.y = h * sPos[i].y;
-        mSlots[i].mXY.x = w * sPos[i].x;
+        // inferred: y computed before x, stored x then y (load and register order of the original)
+        float y = h * sPos[i].y;
+        float x = w * sPos[i].x;
+        mSlots[i].mXY.x = x;
+        mSlots[i].mXY.y = y;
     }
 }
 
@@ -500,8 +503,6 @@ void Dialog::fn_80229240() {
     m199 = 0;
 }
 
-// NONMATCHING: 89.60% - scheduling of the inlined ResetPos_unk (tried the loop, explicit statements,
-// unsigned index and the operand order)
 void Dialog::fn_802292AC(int hide) {
     if (hide != 0) {
         for (int i = 0; i < 4; i++) {
