@@ -87,9 +87,10 @@ public:
         }
         return true;
     }
-    // inferred: appends a new entry made from the owner; only the actors have one, an explicit
-    // specialization defined at the end of Event/Sequence.cpp (0x80543108, before the template instances)
-    void Add_unk(const char* name, int arg);
+    // inferred: appends a new entry made from the owner and returns it (r3 = &back()); only the actors have
+    // one, an explicit specialization defined at the end of Event/Sequence.cpp (0x80543108, before the template
+    // instances)
+    T* Add_unk(const char* name, int arg);
 
     Sequence* mOwner;
 };

@@ -1167,8 +1167,9 @@ void DummyData::vf0C() {}
 void DummyData::vf08() {}
 
 template <>
-void DataList_unk<Actor>::Add_unk(const char* name, int arg) {
+Actor* DataList_unk<Actor>::Add_unk(const char* name, int arg) {
     push_back(Actor(mOwner, name, arg));
+    return &this->back();
 }
 
 // inferred: never called (the linker removes it): its push_back<Path> emits here the weak copies of the
@@ -1177,8 +1178,9 @@ void DataList_unk<Actor>::Add_unk(const char* name, int arg) {
 // and the slow path of push_back<Path> stay in Event/EventParser_unk.cpp (0x8057DC38, 0x8057DB14) as in the
 // original
 template <>
-void DataList_unk<Path>::Add_unk(const char* name, int arg) {
+Path* DataList_unk<Path>::Add_unk(const char* name, int arg) {
     this->__push_back_slow_unk(Path(mOwner, name, arg));
+    return &this->back();
 }
 
 } // namespace Event
