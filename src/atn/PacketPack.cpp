@@ -1604,7 +1604,7 @@ extern "C" void fn_804FB674(PPManager2_unk* mgr);
 extern "C" void fn_804DA34C(PPManager2_unk* mgr);
 extern "C" void fn_804DA48C(PPManager2_unk* mgr, int value);
 extern "C" void fn_804DA4A0(PPManager2_unk* mgr, int value);
-extern "C" int fn_804DB3B4(PPManager2_unk* mgr);
+extern "C" int fn_804DB3B4(const PPManager2_unk* mgr);
 extern "C" void fn_804DC358(PPManager2_unk* mgr);
 extern "C" int fn_804DC374(PPManager2_unk* mgr, int mode);
 extern "C" int fn_804DE884(PPManager2_unk* mgr);
@@ -1642,7 +1642,7 @@ extern "C" void fn_804F5FCC(PPRequests_unk* queue);
 extern "C" int fn_804F5E38(PPRequests_unk* queue, unsigned int id);
 extern "C" int fn_804F5C9C(PPRequests_unk* queue, unsigned int id);
 extern "C" long long* fn_804F5B08(PPRequests_unk* queue, unsigned int id);
-extern "C" int fn_804FB968(PPManager2_unk* mgr, CharaTask* chara);
+extern "C" int fn_804FB968(const PPManager2_unk* mgr, CharaTask* chara);
 extern "C" void fn_804EA8B8(PPManager2_unk* mgr, int arg);
 extern "C" void fn_804E448C(PPManager2_unk* mgr);
 extern "C" int fn_804D9BF4(PPManager2_unk* mgr, int a, int b, int c);
@@ -1905,7 +1905,7 @@ extern "C" __declspec(noinline) inline unsigned char fn_804D6228(atn::net::Manag
         return 0;
     }
 }
-extern "C" __declspec(noinline) inline int fn_804D6278(atn::net::Manager* net, unsigned char aid) {
+extern "C" __declspec(noinline) inline int fn_804D6278(const atn::net::Manager* net, unsigned char aid) {
     return aid == net->GetServerAid_unk();
 }
 extern "C" __declspec(noinline) inline bool fn_804D62E4(MP::D2AMpMenuLobby* lobby) {
@@ -2024,13 +2024,13 @@ extern "C" __declspec(noinline) inline PPCharaEntry_unk* fn_804D64A4(PPCharaArra
 extern "C" __declspec(noinline) inline unsigned char fn_804D64B4(PPPlayer_unk* player) {
     return player->m0D52++;
 }
-inline int GetRemain_unk(PPManager2_unk* mgr) {
+inline int GetRemain_unk(const PPManager2_unk* mgr) {
     if (mgr->m564 >= 0) {
         return mgr->m564 - (int)((OSGetTime() - mgr->mStartTime) / (*(unsigned int*)0x800000F8 / 4));
     }
     return -1;
 }
-extern "C" __declspec(noinline) inline bool fn_804D64C8(PPManager2_unk* mgr) {
+extern "C" __declspec(noinline) inline bool fn_804D64C8(const PPManager2_unk* mgr) {
     bool on = !(GetRemain_unk(mgr) < 0);
     if (on) {
         on = GetRemain_unk(mgr) < 60;
@@ -4148,7 +4148,7 @@ extern "C" int fn_80444020(Inventory* inventory, int table, int message, int ind
                            int* outCode, int* outCount, int* outAdded); // inferred: gives an item of a table
 extern "C" void fn_804DF4B8(PPManager2_unk* mgr);
 extern "C" int fn_804E4B44(PPManager2_unk* mgr, PPPlayer_unk* target);
-extern "C" int fn_804DB408(PPManager2_unk* mgr);
+extern "C" int fn_804DB408(const PPManager2_unk* mgr);
 
 // inferred: team of the own player (3 without slot); names invented
 static inline unsigned int PPOwnTeam_unk(PPManager2_unk* mgr) {
@@ -4268,13 +4268,13 @@ extern "C" void fn_804DB1C4(PPManager2_unk* mgr, CharaTask* chara, int points) {
 }
 
 // inferred: seconds since the start of the game
-extern "C" int fn_804DB3B4(PPManager2_unk* mgr) {
+extern "C" int fn_804DB3B4(const PPManager2_unk* mgr) {
     return (OSGetTime() - mgr->mStartTime) / (*(unsigned int*)0x800000F8 / 4);
 }
 
 // NONMATCHING: 92.59% - the original loads m564 before saving r31
 // inferred: seconds left of the time limit (-1 without one)
-extern "C" int fn_804DB408(PPManager2_unk* mgr) {
+extern "C" int fn_804DB408(const PPManager2_unk* mgr) {
     if (mgr->m564 >= 0) {
         return mgr->m564 - fn_804DB3B4(mgr);
     }
@@ -11093,7 +11093,7 @@ static inline int PPIsTooFast_unk(float speed) {
 // inferred: check of the status of the own character before an online game (values above the limits of the
 // mode, bonuses, flags of the equipment and of the state); nonzero when something is out of range. In mode 2
 // the global flag 0x25 of the game disables the check
-extern "C" int fn_804FB968(PPManager2_unk* mgr, CharaTask* chara) {
+extern "C" int fn_804FB968(const PPManager2_unk* mgr, CharaTask* chara) {
     int mode = mgr->mMode;
     bool bad;
     if (mode == 2) {
