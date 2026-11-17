@@ -174,6 +174,23 @@ struct TitleConfig_unk {
     int m34;
 };
 
+// inferred: debug menu "SceneDebug" (copied whole into a local by GameScene::vf14, 0x803C221C); name
+// invented
+struct SceneDebugConfig_unk {
+    int mEnabled;          // 0x00
+    int mMovePoint;        // 0x04
+    int mHidePoint;        // 0x08
+    int mWarpPoint;        // 0x0C
+    int mInteractionPoint; // 0x10
+    int mAttentionPoint;   // 0x14
+    int mEventBox;         // 0x18
+    int mEventSphere;      // 0x1C
+    int mAIArea;           // 0x20
+    int mGimmick;          // 0x24
+    int mCameraBox;        // 0x28
+    int mBgmBox;           // 0x2C
+};
+
 class GameConfig_unk {
 public:
     static void fn_80185AD4(); // inferred: creates the instance
@@ -264,18 +281,7 @@ public:
     ConfigString_unk mStrap;     // 0x1B4: inferred: "DebugMenu", "Strap" after fn_80187C44
     ConfigString_unk mDate;      // 0x1D4: inferred: "--/--/-- --:--"
     ConfigString_unk m1F4;
-    int mSceneDebugEnabled;      // 0x214: debug menu "SceneDebug"
-    int mMovePoint;              // 0x218
-    int mHidePoint;              // 0x21C
-    int mWarpPoint;              // 0x220
-    int mInteractionPoint;       // 0x224
-    int mAttentionPoint;         // 0x228
-    int mEventBox;               // 0x22C
-    int mEventSphere;            // 0x230
-    int mAIArea;                 // 0x234
-    int mGimmick;                // 0x238
-    int mCameraBox;              // 0x23C
-    int mBgmBox;                 // 0x240
+    SceneDebugConfig_unk mSceneDebug; // 0x214: debug menu "SceneDebug"
     int m244;                    // 0x244: inferred: start of the player settings (game/PlayerInput_unk.cpp)
     float m248;
     float m24C;

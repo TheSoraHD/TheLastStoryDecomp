@@ -32,6 +32,8 @@
 #include <boost/tokenizer.hpp>
 #include "game/MapTask.h"
 #include "std/locale_facets_unk.h"
+#include "atn/RenderManager.h"
+#include "atn/DrawHelper.h"
 
 typedef boost::tokenizer<boost::char_separator<char> > Tokenizer;
 
@@ -90,20 +92,8 @@ extern "C" SaveEntry_unk* fn_803BA0CC(void* save, int type, int id); // inferred
 
 #include "game/ErrorManager.h"
 
-// inferred: game settings (lbl_8087F0A8), only the members used here
-struct Settings_unk {
-    unsigned char m000[0x7C];
-    int m07C; // inferred: debug menu enabled
-    unsigned char m080[0x158 - 0x80];
-    int m158;
-    unsigned char m15C[0x188 - 0x15C];
-    int m188;
-    unsigned char m18C[0x190 - 0x18C];
-    int m190; // inferred: town side quests
-    unsigned char m194[0x5B8 - 0x194];
-    int m5B8;
-};
-extern "C" Settings_unk* lbl_8087F0A8;
+#include "game/GameConfig_unk.h"
+extern "C" GameConfig_unk* lbl_8087F0A8;
 
 
 // inferred: field (lbl_8087F430, as in game/CharaTask.cpp); only the members used here
@@ -177,7 +167,7 @@ GameScene::GameScene(atn::Task* parent, int area, int map, int sub)
         }
         sprintf(path, "levels/%s.pk", name);
         if (fn_8006AA20(path)) {
-            if (lbl_8087F0A8->m5B8 == 0 || area == 1) {
+            if (lbl_8087F0A8->mTitle.m34 == 0 || area == 1) {
                 m994.fn_80470364(path, area != 1, 1, 1);
             }
         }
@@ -205,7 +195,7 @@ GameScene::GameScene(atn::Task* parent, int area, int map, int sub)
     char scene[0x100];
     if (MakeScenePath_unk(scene, "/game_scene/%s.gs", area, map, sub)) {
         m4C[0].vf0C(scene);
-        if (area == 1 && lbl_8087F0A8->m190 != 0) {
+        if (area == 1 && lbl_8087F0A8->mLoadTownSubScript != 0) {
             std::string sub("/game_scene/tw_subquest.gs");
             if (fn_8006AA20(sub.c_str()) && map != 3) {
                 m4C[1].vf0C(sub.c_str());
@@ -885,9 +875,272 @@ gs::CameraBox* GameScene::fn_803C2090(atn::SimpleArray<gs::CameraBox>& boxes, Ch
     return best;
 }
 
-// DRAFT: empty stub
-// NONMATCHING: stub
-void GameScene::vf14() {}
+// inferred: the sphere is in the view (static sphere of the debug drawing of vf14; name invented)
+inline int IsSphereInView_unk(const Frustum_unk* fr, const atn::Vector3& center, float radius) {
+    static atn::Sphere sphere;
+    sphere.mCenter = center;
+    sphere.mRadius = radius;
+    return fn_8004FF58(fr, &sphere);
+}
+
+// inferred: the box between two points is in the view (static box of the debug drawing of vf14; name
+// invented)
+inline int IsBoxInView_unk(const Frustum_unk* fr, const atn::Vector3& a, const atn::Vector3& b) {
+    static Frustum_unk::Bounds_unk box;
+    box.mMin = a;
+    box.mMax = b;
+    return fn_800502A8(fr, &box.mMin);
+}
+
+extern "C" unsigned short fn_803CD958(U16Table_unk* table, int point); // inferred: next point of the route
+
+// NONMATCHING: debug drawing of the points, links and boxes of the scene (written whole; not compared yet)
+void GameScene::vf14() {
+    SceneDebugConfig_unk debug = lbl_8087F0A8->mSceneDebug;
+    if (debug.mEnabled != 0) {
+        atn::RenderManager* rm = atn::RenderManager::instance_;
+        float farSq = 250000.0f;
+        const Frustum_unk* fr = &rm->mCamera.mFrustum;
+        if (debug.mAttentionPoint != 0) {
+            for (unsigned int i = 0; i < mFC.size(); i++) {
+                if (mFC[i].m38 == 0) {
+                    continue;
+                }
+                if ((mFC[i].mPos - rm->mCamera.mPos).LengthSq_unk() < farSq &&
+                    IsSphereInView_unk(fr, mFC[i].mPos, mFC[i].m14)) {
+                    lbl_8087EEB0->fn_80063D3C(mFC[i].mPos, mFC[i].m14, 0.0f, 0xFF00FF00);
+                }
+            }
+        }
+        if (debug.mWarpPoint != 0) {
+            for (unsigned int i = 0; i < m78.size(); i++) {
+                if (m78[i].m24 == 0) {
+                    continue;
+                }
+                if (IsSphereInView_unk(fr, m78[i].mPos, 5.0f)) {
+                    lbl_8087EEB0->fn_80062F7C(10, 0xFFFF8000, m78[i].mPos.x, m78[i].mPos.y, m78[i].mPos.z, 0.0f, 5.0f,
+                                              3.0f, m78[i].m14);
+                }
+            }
+        }
+        if (debug.mEventBox != 0) {
+            for (unsigned int i = 0; i < mE4.size(); i++) {
+                atn::Matrix3x4 rot;
+                PSMTXRotRad(rot.m, 'y', mE4[i].m14);
+                int index = i;
+                atn::Vector3 center = mE4[i].mPos;
+                atn::Vector3 size = mE4[i].mSize;
+                center.y += size.y;
+                if (mE4[i].m2C >= 0) {
+                    index = mE4[i].m2C;
+                }
+                if (IsSphereInView_unk(fr, center, size.Length_unk())) {
+                    bool on = m134->mFC[index].m00 >= 0;
+                    lbl_8087EEB0->fn_800629F0(center, size, 0.0f, on ? 0xFF0080FF : 0xFF00407F, &rot);
+                    if (mE4[i].m40 != 0) {
+                        atn::Vector3 front(0.0f, 0.0f, size.z);
+                        atn::Vector3 back(0.0f, 0.0f, -size.z);
+                        PSMTXMultVec(rot.m, &front, &front);
+                        PSMTXMultVec(rot.m, &back, &back);
+                        front.y += size.y;
+                        back.y += size.y;
+                        lbl_8087EEB0->fn_800638B0(0.0f, -1.0f, front + center, back + center,
+                                                  on ? 0x770080FF : 0x7700407F);
+                    }
+                }
+            }
+        }
+        if (debug.mEventSphere != 0) {
+            for (unsigned int i = 0; i < mEC.size(); i++) {
+                int index = i;
+                if (mEC[i].m20 >= 0) {
+                    index = mEC[i].m20;
+                }
+                if (IsSphereInView_unk(fr, mEC[i].mPos, mEC[i].m14)) {
+                    lbl_8087EEB0->fn_80063D3C(mEC[i].mPos, mEC[i].m14, 0.0f,
+                                              m134->m10C[index].m00 >= 0 ? 0xFF0080FF : 0xFF00407F);
+                }
+            }
+        }
+        unsigned int colors[3] = {0xFFA55757, 0xFF5B7F00, 0xFFB79900}; // inferred: colors of the AI areas
+        if (debug.mMovePoint != 0) {
+            for (unsigned int i = 0; i < m98.size(); i++) {
+                if (m98[i].m2C == 0) {
+                    continue;
+                }
+                if ((m98[i].mPos - rm->mCamera.mPos).LengthSq_unk() < farSq &&
+                    IsSphereInView_unk(fr, m98[i].mPos, m98[i].m14)) {
+                    unsigned int color = 0xFF0000FF;
+                    if (debug.mAIArea != 0 && m98[i].m20 > 0) {
+                        color = colors[m98[i].m20 % 3];
+                    }
+                    lbl_8087EEB0->fn_80063200(12, color, m98[i].mPos.x, 0.2f + m98[i].mPos.y, m98[i].mPos.z, 0.0f,
+                                              m98[i].m14);
+                }
+            }
+            for (unsigned int i = 0; i < mA0.size(); i++) {
+                for (unsigned int j = 0; j < mA0[i].mCount; j++) {
+                    unsigned int color = 0xFF0000FF;
+                    int areaA = m98[i].m20;
+                    int areaB = m98[j].m20;
+                    if (debug.mAIArea != 0 && areaA > 0 && areaB > 0 && areaA == areaB) {
+                        color = colors[areaA % 3];
+                    }
+                    if (fn_803CD958(&mA0[i], j) != j + 1) {
+                        continue;
+                    }
+                    if (!IsBoxInView_unk(fr, m98[i].mPos, m98[j].mPos)) {
+                        continue;
+                    }
+                    atn::Vector3 from = m98[i].mPos;
+                    atn::Vector3 to = m98[j].mPos;
+                    from.y += 1.0f;
+                    to.y += 1.0f;
+                    if ((from - rm->mCamera.mPos).LengthSq_unk() < farSq &&
+                        (to - rm->mCamera.mPos).LengthSq_unk() < farSq) {
+                        lbl_8087EEB0->fn_80063764(from, to, 0.0f, color);
+                    }
+                }
+            }
+        }
+        if (debug.mHidePoint != 0) {
+            for (unsigned int i = 0; i < mAC.size(); i++) {
+                if (mAC[i].m38 == 0) {
+                    continue;
+                }
+                if ((mAC[i].mPos - rm->mCamera.mPos).LengthSq_unk() < farSq &&
+                    IsSphereInView_unk(fr, mAC[i].mPos, 3.0f)) {
+                    lbl_8087EEB0->fn_80063200(8, 0xFFFF00FF, mAC[i].mPos.x, 1.0f + mAC[i].mPos.y, mAC[i].mPos.z, 0.0f,
+                                              3.0f);
+                }
+            }
+            for (unsigned int i = 0; i < mB4.size(); i++) {
+                gs::HideLink_unk& link = mB4[i];
+                if (link.m08 == 0) {
+                    continue;
+                }
+                if (!IsBoxInView_unk(fr, mAC[link.mFrom].mPos, mAC[link.mTo].mPos)) {
+                    continue;
+                }
+                atn::Vector3 from = mAC[link.mFrom].mPos;
+                atn::Vector3 to = mAC[link.mTo].mPos;
+                from.y += 1.0f;
+                to.y += 1.0f;
+                if ((from - rm->mCamera.mPos).LengthSq_unk() < farSq &&
+                    (to - rm->mCamera.mPos).LengthSq_unk() < farSq) {
+                    lbl_8087EEB0->fn_80063764(from, to, 0.0f, 0xFFFF00FF);
+                }
+            }
+            for (unsigned int i = 0; i < mBC.size(); i++) {
+                gs::HideLink2_unk& link = mBC[i];
+                if (link.m08 == 0) {
+                    continue;
+                }
+                if (!IsBoxInView_unk(fr, mAC[link.mFrom].mPos, mAC[link.mTo].mPos)) {
+                    continue;
+                }
+                atn::Vector3 from = mAC[link.mFrom].mPos;
+                atn::Vector3 to = mAC[link.mTo].mPos;
+                from.y += 1.0f;
+                to.y += 1.0f;
+                if ((from - rm->mCamera.mPos).LengthSq_unk() < farSq &&
+                    (to - rm->mCamera.mPos).LengthSq_unk() < farSq) {
+                    lbl_8087EEB0->fn_80063764(from, to, 0.0f, 0xFF00FF00);
+                }
+            }
+        }
+        if (debug.mInteractionPoint != 0) {
+            for (unsigned int i = 0; i < mC4.size(); i++) {
+                if (mC4[i].m2C == 0) {
+                    continue;
+                }
+                if ((mC4[i].mPos - rm->mCamera.mPos).LengthSq_unk() < farSq &&
+                    IsSphereInView_unk(fr, mC4[i].mPos, 3.0f)) {
+                    lbl_8087EEB0->fn_80063200(8, 0xFF804000, mC4[i].mPos.x, 1.0f + mC4[i].mPos.y, mC4[i].mPos.z, 0.0f,
+                                              3.0f);
+                }
+            }
+            for (unsigned int i = 0; i < mCC.size(); i++) {
+                gs::InteractionConnection& conn = mCC[i];
+                if (mC4[conn.m00].m2C == 0) {
+                    continue;
+                }
+                if (!IsBoxInView_unk(fr, mC4[conn.m00].mPos, mC4[conn.m04].mPos)) {
+                    continue;
+                }
+                atn::Vector3 from = mC4[conn.m00].mPos;
+                atn::Vector3 to = mC4[conn.m04].mPos;
+                from.y += 1.0f;
+                to.y += 1.0f;
+                if ((from - rm->mCamera.mPos).LengthSq_unk() < farSq &&
+                    (to - rm->mCamera.mPos).LengthSq_unk() < farSq) {
+                    lbl_8087EEB0->fn_80063764(from, to, 0.0f, 0xFF804000);
+                }
+            }
+        }
+        if (debug.mAIArea != 0) {
+            for (unsigned int i = 0; i < mF4.size(); i++) {
+                atn::Matrix3x4 rot;
+                PSMTXRotRad(rot.m, 'y', mF4[i].m14);
+                atn::Vector3 center = mF4[i].mPos;
+                center.y += mF4[i].mSize.y;
+                unsigned int color = colors[mF4[i].m24 % 3];
+                if (mF4[i].m2C != 0) {
+                    color = 0xFFAFFF00;
+                }
+                if (IsSphereInView_unk(fr, center, mF4[i].mSize.Length_unk())) {
+                    lbl_8087EEB0->fn_800629F0(center, mF4[i].mSize, 0.0f, color, &rot);
+                }
+            }
+        }
+        if (debug.mGimmick != 0) {
+            for (unsigned int i = 0; i < m104.size(); i++) {
+                if (m104[i].m7C == 0) {
+                    continue;
+                }
+                if ((m104[i].mPos - rm->mCamera.mPos).LengthSq_unk() < farSq &&
+                    IsSphereInView_unk(fr, m104[i].mPos, 5.0f)) {
+                    lbl_8087EEB0->fn_80062F7C(12, 0xFF8000FF, m104[i].mPos.x, m104[i].mPos.y, m104[i].mPos.z, 0.0f,
+                                              5.0f, 3.0f, m104[i].m14);
+                }
+            }
+        }
+        if (debug.mCameraBox != 0) {
+            for (unsigned int i = 0; i < m10C.size(); i++) {
+                if (m10C[i].m54 == 0) {
+                    continue;
+                }
+                atn::Matrix3x4 rot;
+                PSMTXRotRad(rot.m, 'y', m10C[i].m14);
+                atn::Vector3 center = m10C[i].mPos;
+                center.y += m10C[i].mSize.y;
+                if (IsSphereInView_unk(fr, center, m10C[i].mSize.Length_unk())) {
+                    lbl_8087EEB0->fn_800629F0(center, m10C[i].mSize, 0.0f, 0xFFFF8000, &rot);
+                }
+            }
+        }
+        if (debug.mBgmBox != 0) {
+            for (unsigned int i = 0; i < m114.size(); i++) {
+                if (m114[i].m4C == 0) {
+                    continue;
+                }
+                atn::Matrix3x4 rot;
+                PSMTXRotRad(rot.m, 'y', m114[i].m14);
+                atn::Vector3 center = m114[i].mPos;
+                center.y += m114[i].mSize.y;
+                if (IsSphereInView_unk(fr, center, m114[i].mSize.Length_unk())) {
+                    lbl_8087EEB0->fn_800629F0(center, m114[i].mSize, 0.0f, 0xFF80FF00, &rot);
+                }
+            }
+        }
+    }
+    for (unsigned int i = 0; i < mDC.size(); i++) {
+        gs::ConstrainModel& model = mDC[i];
+        if (model.m1C != 0 && model.m08 != 0 && !model.m08->IsFlag_unk(4) && model.m0C != 0) {
+            model.m04->fn_8008CD60();
+        }
+    }
+}
 
 void GameScene::fn_803C3724(gs::PointBase_unk* point, atn::Csv& csv) {
     point->mId = atoi(csv.fn_8005B9CC());
