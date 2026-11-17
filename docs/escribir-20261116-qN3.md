@@ -2,6 +2,10 @@
 
 Inicio: 2026-11-17 05:19 CET (tope 07:49). Rama agent-N3.
 
+Resumen: 6 funciones nuevas al 100 % (ArenaFloor vf0C, Leaf vf10, CharaLight vf6C de la cola; Ocean vf6C y
+WaitObject vf6C fuera de ella) y 3 unidades que enlazan (gmk/ArenaFloor, gmk/Leaf, gmk/CharaLight):
+funciones 15923 -> 15928, unidades 726 -> 729, lost 0, sin bajadas, labelcheck/rep100 igual.
+
 ## Tabla de la cola
 
 | funcion | antes | despues |
@@ -67,7 +71,13 @@ Inicio: 2026-11-17 05:19 CET (tope 07:49). Rama agent-N3.
   casaban por nombre falso dejan de casar) y queda el orden de las escrituras de 0x1C8-0x1E0 (antes de cargar las
   constantes en el original): no commiteado por la bajada de fuzzy. Pendiente: renombrar a la vez que se arregle.
 - chr/ControlCannonLift vf10 (99,26): sin probar nada nuevo (orden de `new` frente a this/resultado).
-- MP/CryptMP vf0C, atn/TextureDraw_unk fn_800D5F68, game/PickTask vf10: solo revisadas (bloqueos conocidos).
+- game/PickTask vf10 (96,56): `!(m560 != 6 && m560 != 7)` da los dos `cmpwi` del original (96,65); fila
+  `int* row = m4C[i]` igual. Quedan los spills de wasSafe/near/detect. Sin commit.
+- atn/TextureDraw_unk fn_800D5F68 (98,03): escrituras por `sCamera.` en vez de `c->` y orden de `c`/`cam`: igual
+  (el original guarda `c` en r28 y una sexta GPR salvada).
+- game/Em001Necromancer ctor (99,0): permutaciones de m9C / cadena de m18 / m14C0 / los dos `clear()`
+  (`stmtperm.py`, 120 ordenes): 99,03 como mucho (los dos clear() al reves cargan en orden pero guardan al reves).
+- MP/CryptMP vf0C: solo revisada (bloqueo del 0.0 double en .bss).
 - atn/LipSync_unk fn_8007A530: perm.py de 5 locales: 99,51; `int i` igual; sin `key` 93,6; inline VowelOf_unk 99,14.
 
 ## Para el port
@@ -111,4 +121,5 @@ Inicio: 2026-11-17 05:19 CET (tope 07:49). Rama agent-N3.
   game/GimmickCommon, gmk/Leaf, gmk/CharaLight, gmk/Ocean y gmk/WaitObject.
 - Scripts: `scratch-N3/bin/side.py <unidad> <simbolo> [desde] [hasta]` (las dos columnas de objdiff),
   `doldiff.py` (primera direccion distinta del main.dol), `cands.sh` (cuenta diferencias semanticas con semdiff),
-  copias de perm.py/t.sh/semdiff.py con rutas de N3.
+  `stmtperm.py <unidad> <simbolo> <fichero> <bloque_viejo> <bloque1> ...` (prueba todos los ordenes de varios
+  bloques de sentencias), copias de perm.py/t.sh/semdiff.py con rutas de N3.
