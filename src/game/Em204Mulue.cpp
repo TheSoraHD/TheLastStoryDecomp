@@ -127,12 +127,12 @@ struct MulueUIHint_unk : public GameUIElem1C_unk {
 // inferred: shot of a sting (BulletShot_unk with defaults; name invented)
 struct MulueShot_unk : public BulletShot_unk {
     MulueShot_unk() {
-        m00 = 2.0f;
         m04 = 0;
         m08 = 0;
         m10 = 0;
         m14 = 0.0f;
         m18 = 1.0f;
+        m00 = 2.0f;
     }
 };
 
@@ -1109,7 +1109,8 @@ inline void MulueRotZYX_unk(atn::Matrix3x4& m, const atn::Vector3& rot) {
     }
 }
 
-// NONMATCHING: 99.59% - store order of the shot fields and r26/r27 of the shadowing local
+// inferred: the shadowing `dir` from `pos - hips` with y cleared, `h` copied with __VecCopy (source
+// address first) and the shot constructor storing m00 last
 void Em204Mulue::fn_802A9ADC(int aimed, int skipKind3) {
     if (m1678 == 0) {
         return;
@@ -1123,7 +1124,8 @@ void Em204Mulue::fn_802A9ADC(int aimed, int skipKind3) {
     if (player != 0) {
         // inferred: the original normalizes a shadowing local, `dir` stays unset
         atn::Vector3 pos(player->mPos);
-        atn::Vector3 dir(pos.x - hips.x, 0.0f, pos.z - hips.z);
+        atn::Vector3 dir(pos - hips);
+        dir.y = 0.0f;
         dir.Normalize_unk();
     }
     if (aimed) {
@@ -1164,7 +1166,8 @@ void Em204Mulue::fn_802A9ADC(int aimed, int skipKind3) {
             PSMTXMultVec(m3, &v, &v);
             PSMTXMultVec(m.m, &v, &v);
             if (player != 0) {
-                atn::Vector3 h(v);
+                atn::Vector3 h;
+                __VecCopy(&h.x, &v.x);
                 h.y = 0.0f;
                 h.Normalize_unk();
                 if (PSVECDotProduct(&dir, &h) > 0.9659258f) {
