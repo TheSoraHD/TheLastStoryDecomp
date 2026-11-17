@@ -10,7 +10,7 @@ Inicio: 2026-11-17 04:23 CET (tope 06:53).
 | EnemyTasha (enlazar) | 19/25 (objdiff) | 20/25: no enlaza; quedan vf10 99,97, vf104 99,94, vf108 99,66, fn_803576F8 98,69, fn_8035AB78 90,79 (registros/pila) |
 | EnemyTasha fn_803576F8 | 97,18 % | 98,69 % (copias con `VecAssign_unk`, `FrontDir_unk` por referencia) |
 | EnemyTasha vf104 | 99,92 % | 99,94 % (cruce r3/r4 de la copia de `diff`) |
-| Em301LShade vf10 (0x802D0B84) | 90,2 % (27 saltos con otro destino) | 96,34 % (saltos iguales; ternarios en las pinzas de color, giro in situ, `GetMotionFrame(0)`) |
+| Em301LShade vf10 (0x802D0B84) | 90,2 % (27 saltos con otro destino) | 96,57 % (saltos iguales; ternarios en las pinzas de color, giro in situ, `GetMotionFrame(0)`, `mgr` antes de la posicion del disparo) |
 | Em301LShade fn_802D5D18 | 92,9 % | 96,66 % (devuelve `void`; `IsState_unk(0x20)`; `ShadeRand_unk`) |
 | Em301LShade fn_802D4628 | 85,3 % | 92,2 % (`20 < x`, `MAX`, `life` local, `pos +=`) |
 | Em202ForestSpider vfFC (0x802747D0) | 86,2 % (argumento mal) | 98,87 % |
@@ -67,6 +67,8 @@ Barrido de saltos (semdiff) hecho en Em206CocoonMp, Em302KrakenMp, EnemyTasha, E
 
 ## Bloqueos
 - Operadores de color de Em202SpiderBase (`(target - c) * 0.15f + c`, vf14 de cuatro unidades al 93 %): 6 combinaciones ctor/local de operator-, operator+, operator* y tres formas de la suma sin mejora; el original pone el producto por debajo de la diferencia en la pila (escribir-20261116 qW2b).
+- Em301LShade::vf10: el original recarga m15E8 despues de los stores de m1500 y m15EC (como si pudieran solaparse); sin idea para reproducirlo (escribir-20261116 qW2b).
+- Orden de los `clear()` de vectores seguidos (Em301LShade ctor 99,27 %): mismo bloqueo que W2 (escribir-20261116 qW2b).
 - Em206CocoonMp::fn_802BEE44: el original compara en tiempo de ejecucion `1.0f > 1.0f` (speed = 1.0); con if, inline o MIN el nuestro lo pliega (escribir-20261116 qW2b).
 - EnemyTasha::fn_8035AB78: el original lleva el desplazamiento i*0x14 como induccion y suma `this` en cada vuelta; con un puntero o referencia al evento el nuestro induce el puntero (90,8 %) (escribir-20261116 qW2b).
 - Em302KrakenMp::vf0C: sin el local `zero` sigue la rotacion key/pool/0 (r28/r29/r30); `key` fuera del bucle tampoco (escribir-20261116 qW2b).
