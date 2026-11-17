@@ -58,8 +58,9 @@ struct OptionParts_unk {
     int mBaseHideCount;            // 0x10DC
 
     void SetLevels_unk(const bool* levels) {
+        const bool* p = levels;
         for (int i = 0; i < mPartCount; i++) {
-            mParts[i].mLevel = levels[i];
+            mParts[i].mLevel = *p++;
         }
     }
 };
