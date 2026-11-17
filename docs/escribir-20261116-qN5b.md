@@ -17,7 +17,8 @@ Inicio: 2026-11-17 08:55 (tope 10:55). Rama agent-N5b.
 | gmk/RotaryRoom fn_80424FB4 (extra) | 99,15 % | **100 %** (66be691) |
 | gmk/PigeonManager vf0C (extra) | 93,92 % | 96,15 % |
 | gmk/RotaryRoom vf0C (extra) | 96,14 % | 96,23 % (66be691) |
-| gmk/RotaryRoom vf10 (extra) | 95,65 % | 95,85 % |
+| gmk/RotaryRoom vf10 (extra) | 95,65 % | 95,85 % (59cd3d6) |
+| gmk/InteractionSpot Start (extra) | 97,81 % | 98,07 % |
 | gmk/WaitObject vf20 (extra) | 99,95 % | 99,98 % (b3c2971) |
 | gmk/BulletPoint vf10 | 98,5 % | |
 | gmk/ShakeCamera vf10 | 98,2 % | 99,34 % (b30a05d) |
@@ -96,6 +97,11 @@ Inicio: 2026-11-17 08:55 (tope 10:55). Rama agent-N5b.
 - gmk/RotaryRoom fn_80425498 (99,74): registros de `areas` y de los cursores del primer bucle; perm.py de
   areas/j/a/k/seg (120): 99,74 como mucho; inline `ShowArea_unk(areas)` 99,35; `area = colli->m08`, campos
   `mSize/mData`, sin locales: igual o peor.
+
+- gmk/InteractionSpot Start (97,81 -> 98,07): las tres busquedas en `SpotTable_unk::FindSpots_unk(spots, id)`
+  (el 98,07 de qN3, ahora con commit). La tabla del original va en r7 (ultimo) y el puntero encontrado en
+  el registro del id; probados FindSpots estatica con la tabla como parametro (en los dos ordenes),
+  local `spot` resultado (96,1), puntero al elemento (93,0), `int id` local antes/despues: igual o peor.
 
 ## Para el port
 

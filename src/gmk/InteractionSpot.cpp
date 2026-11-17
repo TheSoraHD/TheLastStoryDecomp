@@ -33,6 +33,14 @@ struct SpotTable_unk {
         }
         return 0;
     }
+    // inferred: the spot of an id and its linked spot (name invented)
+    void FindSpots_unk(Spot_unk** spots, int id) {
+        spots[0] = FindSpot_unk(id);
+        spots[1] = FindLinkA_unk(spots[0]);
+        if (spots[1] == 0) {
+            spots[1] = FindLinkB_unk(spots[0]);
+        }
+    }
     Spot_unk* FindLinkA_unk(Spot_unk* spot) {
         for (unsigned int i = 0; i < mNumLinks; i++) {
             SpotLink_unk& link = mLinks[i];
@@ -119,17 +127,15 @@ int InteractionSpot::vf0C() {
     return 0;
 }
 
-// NONMATCHING: register allocation only (the target keeps the table in r7 and returns the spot in
-// the register of the id). Tried: table/field/id locals, reference and reversed comparisons.
+// NONMATCHING: 98.07% - register allocation only (the target keeps the table in r7 and returns the spot
+// in the register of the id); the three searches go through FindSpots_unk. Tried: table/field/id locals,
+// reference and reversed comparisons, a static FindSpots with the table as parameter, a result local or
+// a spot pointer in FindSpot_unk.
 void InteractionSpot::Start() {
     m6C = mDesc->mPos;
     m78.y = mDesc->mRotY;
     SpotTable_unk* table = lbl_8087F430->m10D8;
-    mSpot[0] = table->FindSpot_unk(mDesc->m20);
-    mSpot[1] = table->FindLinkA_unk(mSpot[0]);
-    if (mSpot[1] == 0) {
-        mSpot[1] = table->FindLinkB_unk(mSpot[0]);
-    }
+    table->FindSpots_unk(mSpot, mDesc->m20);
     m10C = ((GameScene*)table)->fn_803C1560(&mSpot[0]->mPos, 0, 0, 0, 1, -1.0f);
     fn_8042952C(0);
 }
