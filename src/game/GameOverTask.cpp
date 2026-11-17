@@ -218,9 +218,11 @@ inline void PlayEfp_unk(EffectMgr_unk* mgr, atn::EfpFile* efp) {
     fn_8023A8B4(mgr, efp, 0, 0, pos, rot, color, -1, -1, 1, 1.0f);
 }
 
-// NONMATCHING: 95.0% - scheduling of the dead stores of the damage, bloom and colour matrix temporaries
-// (stores to the stack copies of SetDamage_unk and of the defaults; tried named locals, m324 directly,
-// Set_unk of the colours, other orders of the damage fields)
+// NONMATCHING: 96.23% - scheduling of the dead stores of the bloom and colour matrix temporaries
+// (the last zero of BloomParam_unk::mScale and ColorMatrixParam_unk::mEnabled; mEnabled set at the end of the
+// ColorMatrixParam_unk ctor gives 98.44 but drops LastCocoonEgg/NewCampTask/NewTitleTask; tried named locals,
+// m324 directly, Set_unk of the colours, other orders of the bias/scale zeros). The damage fields are
+// set zoom, colour, enabled (order of the dead stores of the original).
 int GameOverTask::vf0C() {
     if (fn_800D3FA4() != 0 && mEfp.IsLoading() == 0) {
         fn_80232B7C(this, 0);
@@ -236,9 +238,9 @@ int GameOverTask::vf0C() {
             mDemoEnd->mFlags |= 4;
         }
         DamageEffectParam_unk damage(*fn_802F0990()->GetDamage_unk());
-        damage.mEnabled = 1;
-        damage.mColor = RsColor_unk(0.0f, 0.0f, 0.0f, 1.0f);
         damage.mZoom = -0.55f;
+        damage.mColor = RsColor_unk(0.0f, 0.0f, 0.0f, 1.0f);
+        damage.mEnabled = 1;
         fn_802F0990()->SetDamage_unk(damage);
         fn_802F0990()->m03C = RsColor_unk(0.6f, 0.6f, 0.6f, 1.0f);
         fn_802F0990()->m054 = BloomParam_unk();
