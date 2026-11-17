@@ -559,7 +559,12 @@ void Em209SmallGolem::vf54() {
     }
 }
 
-// NONMATCHING: ~97% - only r3/r5 swapped for the two psq addresses (m14E4 / temporary); 8 variants
+inline void Em209SmallGolem::SetAppear_unk(const atn::Vector3& pos, const atn::Vector3& offset) {
+    m14E4 = pos;
+    m14F0 = pos + offset;
+    mPos = pos;
+}
+
 void Em209SmallGolem::vf80(const atn::Vector3& pos, const atn::Vector3& offset) {
     m14BC = 0;
     m14C0 = 0;
@@ -570,9 +575,7 @@ void Em209SmallGolem::vf80(const atn::Vector3& pos, const atn::Vector3& offset) 
     mMotion.mTracks[0].m20 = 1.0f;
     mMotion.mTracks[0].m0C = 1.0f;
     mMotion.fn_80097C08(0, 0x14, 1, 0, 1, 0.0f, 0.1f);
-    m14E4 = pos;
-    m14F0 = atn::Vector3(pos.x + offset.x, pos.y + offset.y, pos.z + offset.z);
-    mPos = pos;
+    SetAppear_unk(pos, offset);
 }
 
 void Em209SmallGolem::vf84(int motion, float blend) {
