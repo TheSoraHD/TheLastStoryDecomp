@@ -15,6 +15,8 @@ Agente W4, inicio 2026-11-17 02:08 (tope 04:38). Rama `agent-W4`.
 | chr/ControlStickByQuark `ControlMatHoldDamage::vf0C` | DRAFT 94,56 % | equivalente NONMATCHING 94,6 % (comprobada contra el asm) |
 | RecycleBuffer_gmk/ItemSlotAnime `fn_8044D9BC` | DRAFT 50,59 % | **100 %** |
 | (extra) ItemSlotAnime `fn_8044EA34` | 69,95 % | 99,04 % (inlinea fn_8044F14C como el original) |
+| (extra) LayerOcclusionCPU ctor (0x800B3A94) | 98,87 % (100 en report.json: rep100) | **100 %** en objdiff-cli |
+| (extra) LayerOcclusionCPU `fn_800B3978`, `vf20` | 96,85 / 98,56 % | 99,66 / 99,36 % |
 
 ## Para el port
 
@@ -37,6 +39,9 @@ Agente W4, inicio 2026-11-17 02:08 (tope 04:38). Rama `agent-W4`.
 
 ## Decisiones tomadas sin el usuario
 
+- LayerOcclusionCPU: funcion inventada sin llamadores `LayerOcclusionPool_unk` (la quita el enlazador) al
+  principio del fichero para que `.sdata2` salga 0.5f, 255.0f, 0.0f, 1.0f, 16.0f, 32.0f, 128.0f como en el
+  original (antes 1.0f, 0.0f, 255.0f, ...).
 - ItemSlotAnime: tres inlines con nombre inventado deducidas de los pools `@STRING@` del original
   (`""` de los `new` en `.sdata` y las rutas d2b en `.data`): `ItemSlotAnimeBuffer::Create_unk`,
   `ItemSlotTextCache::Create_unk` y `ItemSlotAnimeBuffer::Setup_unk`; ayudante `PushTask_unk` en el .cpp.
@@ -50,6 +55,10 @@ Agente W4, inicio 2026-11-17 02:08 (tope 04:38). Rama `agent-W4`.
   sitio): MWCC la inlinea sola si su cuerpo es pequeno; escribir sus bucles como inlines (`SetTaskFrame_unk`)
   la baja del umbral de autoinline (ItemSlotAnime fn_8044EA34 70 -> 99 %, fn_8044F14C sigue emitida)
   (escribir-20261116 qW4)
+- `@stringBase0` cuyo ultimo literal es `""`: dtk le da el tamano sin ese `""` (LayerOcclusionCPU 0x80732E48
+  size 0xD, el `""` en +0xD) y objdiff marca DIFF_REPLACE en el `addi rX, base, 0xD` aunque el texto sea
+  igual: corregir el `size` en symbols.txt (0xE) lo deja al 100 % (ctor de LayerOcclusionCPU). Buscar en otras
+  unidades `addi ..., <size>` sobre su `@stringBase0` (escribir-20261116 qW4)
 - Un `new (1, "", "", 0)` con la doble comprobacion `if (inst == 0) { gm = ...; if (inst == 0) ... }`
   (dos `bne` con el mismo cr0) = `if (inst == 0) X::Create_unk(parent);` con la segunda comprobacion dentro
   de la inline estatica (escribir-20261116 qW4)
@@ -87,6 +96,8 @@ Agente W4, inicio 2026-11-17 02:08 (tope 04:38). Rama `agent-W4`.
 
 ## Cambios de splits/symbols
 
+- LayerOcclusionCPU (pd.sh + pdfix): `.sdata2` 0x80880F40-58 -> `@5970`..`@5973`, `@6189`..`@6191`; `@6438`
+  -> `@6444` (0x80732E28); `@stringBase0` 0x80732E48 size 0xD -> 0xE (incluye el `""` final).
 - ItemSlotAnime (pd.sh + pdfix.py): `lbl_8078F348` -> `__vt__Q23gmk17ItemSlotTextCache`, las 8 rutas
   `lbl_8078F400..4E0` -> `@STRING@Setup_unk__Q23gmk19ItemSlotAnimeBufferFv[@0-@6]`, `lbl_8087E018..24` ->
   `@STRING@Create_unk__Q23gmk17ItemSlotTextCacheFPQ23atn4Task[@0]` y `...ItemSlotAnimeBufferFPQ23atn4Task[@0]`;

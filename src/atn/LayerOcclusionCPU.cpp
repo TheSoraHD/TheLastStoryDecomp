@@ -138,7 +138,17 @@ inline const T& Min_unk(const T& a, const T& b) {
     return b < a ? b : a;
 }
 
-// NONMATCHING: 96.9% - the four values are stored to the stack in the right order but the
+// inferred: function without callers that the linker removes: in the original the .sdata2 of the file
+// starts with 0.5f, 255.0f, 0.0f, 1.0f (before the constants of the constructor), the constants of a color
+// conversion placed before fn_800B3978; it recreates that order (name and body invented)
+extern "C" void LayerOcclusionPool_unk(float* out) {
+    out[0] = 0.5f;
+    out[1] = 255.0f;
+    out[2] = 0.0f;
+    out[3] = 1.0f;
+}
+
+// NONMATCHING: 99.7% - the four values are stored to the stack in the right order but the
 // original gives the first one f3 and the second f2 (ours the other way round)
 // inferred: halves a buffer, keeping the nearest of each 2x2 block
 static void fn_800B3978(float* dst, const float* src, int w, int h) {
@@ -164,11 +174,9 @@ static void fn_800B3978(float* dst, const float* src, int w, int h) {
 }
 
 // Note on the constants: the original .sdata2 starts with 0.5f, 255.0f and 0.0f before the 1.0f
-// used by the constructor (the first function that loads a constant). They must come from a function placed
-// before the constructor and removed by the linker; it is not reconstructed, so every function
-// that loads 1.0f, 16.0f, 32.0f or 128.0f points at a different offset. 0.5f, 255.0f, 0.0f, 1.0f is
-// the reverse of the order of the constants of atn::ColorToU8_unk (used by fn_800B47AC); here
-// they stay in order of first use (1.0f, 0.0f, 255.0f, 16.0f, 32.0f, 128.0f, 0.5f).
+// used by the constructor (the first function that loads a constant). They come from a function placed
+// before the constructor and removed by the linker, recreated as LayerOcclusionPool_unk: the .sdata2 is
+// now 0.5f, 255.0f, 0.0f, 1.0f, 16.0f, 32.0f, 128.0f as in the original.
 // inferred: screen positions of the last 16 vertices (cache of fn_800B47AC, slot = index % 16; built
 // by the __sinit at 0x800B6684) and the index of each slot (0xFFFF: empty)
 atn::Vector3 lbl_807C74A0[16];
@@ -182,7 +190,6 @@ static GXTexObj sTexObj;
 
 namespace atn {
 
-// NONMATCHING: 98.8% - .sdata2 offset of 1.0f (see the note on the constants)
 LayerOcclusionCPU::LayerOcclusionCPU() : IRenderLayer("OcclusionCPU") {
     m2C = 0;
     for (int i = 0; i < 5; i++) {
@@ -243,8 +250,7 @@ void LayerOcclusionCPU::vf1C() {
     m2C = 0;
 }
 
-// NONMATCHING: 98.3% - .sdata2 offsets, and the row pointers of the conversion loop swap
-// registers
+// NONMATCHING: 99.4% - the row pointers of the conversion loop swap registers
 void LayerOcclusionCPU::vf20() {
     for (int i = 0; i < 4; i++) {
         int size = 32 >> i;
