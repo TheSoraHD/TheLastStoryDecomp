@@ -55,6 +55,31 @@ Agente W4, inicio 2026-11-17 02:08 (tope 04:38). Rama `agent-W4`.
 
 ## Bloqueos
 
+- SmallAllocator_8 (`~SmallAllocator<6>`, `operator delete`, y por ellos `~MemoryMode_unk`): son codigo
+  equivalente; el original llama al ctor del gestor dentro del `Instance` inlineado en `delete` (y en lo que
+  inlinea `delete`: los dos `~SmallAllocator<N>`, `~MemoryManager`, `~MemoryMode_unk`) y lo inlinea en el
+  resto (`__dla__`, `__sys_free`, `operator new`). Medido (tamanos en `/home/claude/scratch-W4/bin/saall.sh`):
+  con el ctor al principio (hoy) cortan `~IAllocator`, `~SA<8>` y `~MemoryManager` pero no `~SA<6>` ni
+  `delete`; **intercambiando el orden de mSmall8/mSmall6 corta `~SA<6>` y no `~SA<8>`** (corta el primer
+  miembro, no un tipo concreto); con el ctor tras `Instance` (orden del .dol) ningun dtor corta y `delete`
+  llama a los ctor de `SmallAllocator<N>` fuera de linea (se emiten); dtor de la plantilla definido fuera
+  de la clase: igual. Falta una idea de como MWCC compila los dtors diferidos dentro del ctor.
+- WordWrap_unk (`setstate`, copia de `basic_string<char>`, thunk `@8@60@~basic_ostream`): en el original
+  son copias weak que conserva el enlazador porque otras unidades las llaman (`setstate` EffectManager, la
+  copia Loader/EffectSequencer; el thunk va en la vtable de `basic_ostream`, que el original emite en
+  WordWrap y GameEventScript usa). Sus llamadores dentro de WordWrap no estan en el .dol (los quito el
+  enlazador) y nuestro .o no emite ninguna vtable de streams: hace falta el codigo de iostream (ctor de
+  `basic_ostringstream`) que las instancia, MSL iostream fuera de alcance. Sin cambios.
+- AI_archer_attack01 `fn_8001C088` (ideas nuevas, todas peores o iguales): copia de structs de 0x64 bytes
+  (`struct { Block m[5]; }`): bucle de 8 bytes x 12 (68,9 %); `operator=` propio en el bloque + copia del
+  struct del array: bucle de punteros con division (42 %); contador `unsigned char`/`unsigned short`: no
+  desenrolla pero indexa con `mulli` (69 %); `signed char`/`long`/`char`/`unsigned int` y punteros con
+  contador `unsigned char`: desenrolla (0 %).
+- ipcclt `pad_03_8061BD88_text`: es el relleno de alineacion de 16 de `ipcclt.o` (`-func_align 16`) tras
+  `IPCSetBufferLo`; darselo a ipcMain.c (enlazada: end 0x8061BD90, ipcclt desde 0x8061BD90) da
+  `main.dol: FAILED` (nuestro ipcMain.o no lo emite: el enlazador lo pone al alinear la unidad siguiente).
+  Se queda dentro de ipcclt hasta que ipcclt enlace; entonces `.text start:0x8061BD90` (el enlazador alinea).
+
 ## Cambios de splits/symbols
 
 - ItemSlotAnime (pd.sh + pdfix.py): `lbl_8078F348` -> `__vt__Q23gmk17ItemSlotTextCache`, las 8 rutas
