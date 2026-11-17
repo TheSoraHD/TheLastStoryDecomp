@@ -21,6 +21,7 @@ Inicio: 2026-11-16 23:58 CET (tope 2,5 h: 02:28).
 | Em202ForestSpider fn_802790A0 | 85,8 % | 100 % (`fn_8023A680` con sus 12 argumentos) |
 | Em202ForestSpider vf14 / vf114 | 62,1 / 82,7 % | 93 / 94,2 % (vf114 con el flujo del original) |
 | Em202ForestSpider vf0C | 93,97 % | 97,2 % (`m1538[i].X.IsLoading()` en vez de un puntero al hilo) |
+| Em202ForestSpider vf110 | 88,7 % | 93,8 % (`m1538[idx].X` y `IsFlag_unk(4)`) |
 | Em202ForestSpider vf10 | 88,9 % | 91,1 % (capsula y posicion de fn_805A5078 corregidas) |
 | Em202ForestSpider fn_80278634 | 84 % | 95,75 % (`Matrix3x4::RotateZYX_unk` y copia de la escala por temporal) |
 
@@ -41,6 +42,8 @@ Inicio: 2026-11-16 23:58 CET (tope 2,5 h: 02:28).
 - Rotacion z/y/x de una matriz miembro: `m.RotateZYX_unk(rot)` (Vec.h, con los `if (0.0f != rot.z)`) y la escala con `Vector3(1, 1, k)` + `PSMTXConcat` a un temporal copiado despues dan el codigo del original donde `PSMTXConcat(m, r, m)` en el sitio no (Em202ForestSpider::fn_80278634 84 -> 95,75 %) (escribir-20261116 qW2).
 - Las funciones "NONMATCHING: approximate" sin DRAFT pueden tener el flujo mal (else que falta, return temprano): semdiff.py/odiff2 con un `b` insertado o borrado lo delata; Em202ForestSpider tenia cuatro (escribir-20261116 qW2).
 - Busqueda de RoutePlace con la tabla del campo leida dentro de la inline (`FindRoutePlace3_unk` de Em202Spider) da el orden de registros del original cuando la version con la tabla por parametro no (Em202ForestSpider::vf128) (escribir-20261116 qW2).
+
+- Arrays de structs miembro: el original indexa `m1538[i].campo` en cada acceso (bases `this + i*0xEC` o punteros de induccion por campo) donde un `SpiderThread_unk* t = &m1538[i]` local da otro codigo (Em202ForestSpider vf0C 94 -> 97,2 %, vf110 89 -> 93,8 %) (escribir-20261116 qW2).
 
 ## Bloqueos
 - Orden de carga de varios `vector::clear()` inline seguidos (Em202ForestSpider ctor, Em302KrakenMp ctor, NewCampTask::fn_8053032C): el original carga los tamanos en un orden que no sigue al de las llamadas; 6 ordenes probados en ForestSpider (escribir-20261116 qW2).

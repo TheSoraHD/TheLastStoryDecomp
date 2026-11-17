@@ -664,8 +664,8 @@ void Em202ForestSpider::vf10C() {
     }
 }
 
-// NONMATCHING: 89.4% - registers and stack slots (state 9, threads; calls checked, the member offsets differ
-// only by the base register of the thread array)
+// NONMATCHING: 93.8% - registers and stack slots (state 9, threads; calls, constants and member offsets
+// checked against the original)
 void Em202ForestSpider::vf110() {
     if (m14D8 == 0) {
         atn::Vector3 d = m18E8->mPos - mPos;
@@ -705,7 +705,7 @@ void Em202ForestSpider::vf110() {
     if (m14DC == 15) {
         int next = 1;
         for (CharaTask* c = lbl_8087F8A0->mHead; c != 0; c = NextChara_unk(c)) {
-            if ((c->mFlags & 4) == 4) {
+            if (c->IsFlag_unk(4)) {
                 continue;
             }
             if (IsTargetable_unk(c) || c->mStatus.m224 > 0) {
@@ -717,24 +717,23 @@ void Em202ForestSpider::vf110() {
                 }
                 if (c->mStatus.IsState_unk(0x20)) {
                     fn_80278634(c, idx, main);
-                    SpiderThread_unk* t = &m1538[idx];
-                    MtxPtr wm = c->mMotion.GetNodeMtx_unk("waist");
-                    t->m28.m[0][3] = wm[0][3];
-                    t->m28.m[1][3] = wm[1][3];
-                    t->m28.m[2][3] = wm[2][3];
-                    t->m04 = 1;
-                    t->m88->fn_8015C0C0((int)this, t->m0C);
-                    atn::Vector3 pos(t->m28.m[0][3], t->m28.m[1][3], t->m28.m[2][3]);
+                    MtxPtr wm = c->GetModel_unk()->GetNodeMtx_unk("waist");
+                    m1538[idx].m28.m[0][3] = wm[0][3];
+                    m1538[idx].m28.m[1][3] = wm[1][3];
+                    m1538[idx].m28.m[2][3] = wm[2][3];
+                    m1538[idx].m04 = 1;
+                    m1538[idx].m88->fn_8015C0C0((int)this, m1538[idx].m0C);
+                    atn::Vector3 pos(m1538[idx].m28.m[0][3], m1538[idx].m28.m[1][3], m1538[idx].m28.m[2][3]);
                     fn_800C344C("SE_EM202_012", pos, 0, -1, 1.0f);
                     fn_80232B7C(0, 0);
-                    atn::Vector3 rot = t->m10.ToRotation_unk();
+                    atn::Vector3 rot = m1538[idx].m10.ToRotation_unk();
                     rot.z = 0.0f;
-                    atn::Vector3 p(t->m28.m[0][3], t->m28.m[1][3], t->m28.m[2][3]);
-                    fn_80276AE4(lbl_8087F3C0, &t->mA4, 0, p, rot, -1, -1, 1, 1.0f);
-                    fn_80232B7C(t, 0x66);
-                    PlayEffect_unk(&t->mC8, &t->m88->mMotion);
-                    fn_80232B7C(t, 0x67);
-                    PlayEffect_unk(&t->mD4, &t->m88->mMotion);
+                    atn::Vector3 p(m1538[idx].m28.m[0][3], m1538[idx].m28.m[1][3], m1538[idx].m28.m[2][3]);
+                    fn_80276AE4(lbl_8087F3C0, &m1538[idx].mA4, 0, p, rot, -1, -1, 1, 1.0f);
+                    fn_80232B7C(&m1538[idx], 0x66);
+                    PlayEffect_unk(&m1538[idx].mC8, &m1538[idx].m88->mMotion);
+                    fn_80232B7C(&m1538[idx], 0x67);
+                    PlayEffect_unk(&m1538[idx].mD4, &m1538[idx].m88->mMotion);
                 } else {
                     fn_80278634(c, idx, main);
                     fn_80232B7C(&m1538[idx], 0x64);
