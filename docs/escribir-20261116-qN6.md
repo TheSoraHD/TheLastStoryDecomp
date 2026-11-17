@@ -17,21 +17,30 @@ Inicio: 2026-11-17 08:18 CET. Tope 10:48.
 | atn/FileList | fn_8006C3F0 | 98,5 | **100 %** |
 | atn/FileList | fn_8006BD78 | 97,7 | |
 | game/ShopBuySell | fn_8058621C | 98,8 | equivalente NONMATCHING 99,22 (**arreglo**: el sufijo se anade, `+=`) |
-| game/ShopBuySell | fn_805866F4 | 94,1 | |
+| game/ShopBuySell | fn_805866F4 | 94,1 | equivalente NONMATCHING 97,23 |
 | atn/NetManager | fn_8050CFC8 | 98,5 | |
 | atn/NetManager | Manager::Manager | 97,9 | |
 | game/EnemyLizerdBlade | fn_80334460 | 93,4 | **100 %**, la unidad enlaza |
-| atn/WPad_unk | fn_800DDD18 | 93,7 | |
+| atn/WPad_unk | fn_800DDD18 | 93,7 | **100 %**, la unidad enlaza |
 | game/ColliAttrManager | fn_80183FFC | 92,7 | |
 | atn/EffectLoader_unk | fn_80239030 | 93,3 | |
 
 ## Para el port
+- atn/WPad_unk.h: `WPad_unk::mFlags` pasa de `WPadFlags2_unk[4]` (campos de bits, struct borrada) a `unsigned int[4]` con mascaras (bit 0 = 1, bit 1 = 2); fn_800DDD18 usa `&= ~1`, `|= 1`, `&= ~2`. Mismo comportamiento.
+- atn/WPad_unk fn_800DDD18: zona muerta en una inline `DeadZone_unk(float&)` por eje (4 llamadas), `WPAD_MIN` con la forma estandar `((a) < (b) ? (a) : (b))` y argumentos (ancho, valor): mismo resultado.
 - (no es unidad del port) game/ShopBuySell fn_8058621C: el nombre del objeto de la lista lleva el sufijo `m08` anadido (`text += entry->m08`, do_replace(size, 0, ...)); antes lo sustituia (`text = entry->m08`). Cambia el comportamiento.
 - atn/SoundManager.h: `SoundString_unk::operator=(const SoundString_unk&)` copia por un local y `*this = text` (mismo comportamiento).
 
 ## Decisiones tomadas sin el usuario
 
 ## Hallazgos
+- Bucle corto (4 vueltas) que el original desenrolla entero y el nuestro de 2 en 2: el cuerpo en una inline llamada una vez por elemento (WPad_unk fn_800DDD18 `DeadZone_unk`). (escribir-20261116 qN6)
+- Contador y puntero de un bucle con los registros cruzados frente al original (coalescencia con variables posteriores): meter el bucle en una `static inline` que recibe el objeto (WPad_unk `ReadAll_unk`, 99,95 -> 100). (escribir-20261116 qN6)
+- Puntero de induccion creado en otro orden (incrementos del final del bucle en otro orden): declarar el local que lo usa despues del primer `if` que no lo necesita (WPad `status`). (escribir-20261116 qN6)
+- Campos de bits de un array de palabras que el original direcciona con la base comun de los otros arrays por puerto: palabra `unsigned int` con mascaras (WPad `mFlags`). (escribir-20261116 qN6)
+- `1 << i` comun a las dos ramas de un `if` (calculado antes de la prueba en el original): local `unsigned int bit = 1 << i;` al principio del cuerpo. (escribir-20261116 qN6)
+- Direccion de un campo array (`base->mLayout`) hoisteada antes de un bucle en el original: local `void* layout = base->mLayout;` antes del bucle. (escribir-20261116 qN6)
+- `diff[0] = ...; diff[1] = ...; diff[2] = 0;` en orden natural frente a `diff[2] = 0` en medio: otro orden de stores (ShopBuySell). (escribir-20261116 qN6)
 - Puntero de un bucle que el original reparte con otra variable (coalescencia): declarar esa otra variable (aqui `const char* name`) antes del bucle hace que compartan registro (atn/FileList fn_8006C3F0, 98,5 -> 100). (escribir-20261116 qN6)
 - Lista enlazada con `tail`: `if ((*tail = new T) == 0) break; T* node = *tail; node->mNext = 0; ...; tail = &node->mNext;` da el `lwz` de recarga de *tail del original. (escribir-20261116 qN6)
 - Constructor de un local (ColliResult) despues de una llamada en el original: el valor que usa la llamada (mascara de `fn_80179D44()`) en un local declarado antes del objeto. (escribir-20261116 qN6)
@@ -43,6 +52,9 @@ Inicio: 2026-11-17 08:18 CET. Tope 10:48.
 - semdiff.py de agentes/bin tiene `os.chdir` a work-G4 fijo: copiarlo cambiando la ruta (si no, compara otra copia). (escribir-20261116 qN6)
 
 ## Bloqueos
+- ColliAttrManager fn_80183FFC: `static inline CopySe_unk(this, index, data)` + 4 asserts vacios (para no inlinear en fn_80183D00) da 92,45 (como qD); path arriba, return temprano, data en dos pasos: igual.
+- EffectLoader_unk fn_80239030 93,31: el segundo byteswap (cuenta de new[]) sale en otro orden de rlwimi; las 24 permutaciones de terminos, inline Swap32_unk y mascaras antes/despues: iguales o peores (93,79 con `((n & 0xFF00) << 8)`, no commiteado). Header r26/res r27 rotados.
+- NetManager ctor 97,9: bucle de constructores de NetPlayerInfo_unk generado por el compilador (puntero final r27 en el original); no tocado.
 - SoundManager fn_800CE6E0 99,72: el primer erase() inlinado tiene indice/texto cruzados (r27/r28) y el segundo no; probados forma del bucle de erase (for/while, ++i, 1+i, referencias src/dst, begin()), operador de copia explicito de SoundLogEntry, variantes de SoundString::operator=, estructura del while (continue, for, inline estatica UpdateLog_unk).
 - SoundManager fn_800CECF0 98,3: x/y por bloque empeora (97,5).
 - NetManager fn_8050CFC8: el `== 1` de IsJoined_unk se pliega a `!= 0` (int/bool/unsigned, inline antes o despues, local `joined`): sin efecto.
