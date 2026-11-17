@@ -452,8 +452,9 @@ int ChickenManager::vf0C() {
                     (&mChickens[i].mModel)->fn_80097A88(mMotionId[j], mMotionName[j]);
                 }
                 atn::Vector3 center = mCenter;
-                mChickens[i].mCenter = center;
-                mChickens[i].mRadius = mRadius;
+                Chicken_unk* c = &mChickens[i];
+                c->mCenter = center;
+                c->mRadius = mRadius;
             }
             mLoaded = true;
         }
