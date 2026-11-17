@@ -2677,7 +2677,7 @@ extern "C" int fn_8036DBC0(GameTask* task, const atn::Vector3* pos, const atn::V
     if (task->m10D8 == 0) {
         return 0;
     }
-    if (task->m10D8->fn_803CB820()) {
+    if (task->m10D8->fn_803CB820(pos, move, chara)) {
         return 1;
     }
     if (chara->m55C == 6) {

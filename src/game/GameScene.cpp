@@ -2117,9 +2117,204 @@ int GameScene::fn_803CB618(GameSceneRoute_unk* out, CharaTask* chara) {
     return 0;
 }
 
-// DRAFT: stub that returns 0
-// NONMATCHING: stub
-int GameScene::fn_803CB820() {
+extern "C" int fn_8005361C(atn::ColliResult_unk* result, const atn::ColliCapsuleShape_unk* seg,
+                           const atn::ColliSphereShape_unk* sphere); // inferred: segment against sphere
+
+// inferred: starts the interaction (ledge, ladder, climb...) of the connection that `chara` touches moving in
+// `move`: the connection must be enabled, near, faced in its direction and touched by the capsule of the
+// character; returns 1 when one was started
+// NONMATCHING: 99.5% - same instructions; stack slots of the temporaries and the order of the registers of the
+// saved pointers
+int GameScene::fn_803CB820(const atn::Vector3* pos, const atn::Vector3* move, CharaTask* chara) {
+    CharaTask::Sphere_unk body = chara->fn_80176548(*pos);
+    atn::ColliResult_unk result;
+    atn::Vector3 dir = *move;
+    PSVECNormalize(&dir, &dir);
+    for (unsigned int i = 0; i < mCC.size(); i++) {
+        gs::InteractionPoint& a = mC4[mCC[i].m00];
+        gs::InteractionPoint& b = mC4[mCC[i].m04];
+        if (a.m2C == 0) {
+            continue;
+        }
+        if (chara->m55C == 6) {
+            if (chara->m560 == 0x68) {
+                if (a.m14 != 4) {
+                    continue;
+                }
+            } else {
+                if (a.m14 != 6) {
+                    continue;
+                }
+                if (chara->mType != 2) {
+                    continue;
+                }
+            }
+        } else if (a.m14 == 6) {
+            continue;
+        }
+        atn::Vector3 d = a.mPos - body.mCenter;
+        if (PSVECSquareMag(&d) > 10000.0f) {
+            continue;
+        }
+        atn::Vector3 link = b.mPos - a.mPos;
+        PSVECNormalize(&link, &link);
+        atn::Vector3 normal;
+        switch (a.m14) {
+        case 0:
+        case 1:
+        case 9:
+        case 11: {
+            atn::Vector3 up(0.0f, 1.0f, 0.0f);
+            atn::Vector3 side;
+            PSVECCrossProduct(&link, &up, &side);
+            normal = side;
+            if (PSVECDotProduct(&dir, &normal) < 0.7f) {
+                continue;
+            }
+            break;
+        }
+        case 6: {
+            atn::Vector3 up(0.0f, 1.0f, 0.0f);
+            atn::Vector3 side;
+            PSVECCrossProduct(&link, &up, &side);
+            normal = side;
+            if (PSVECDotProduct(&dir, &normal) < 0.6f) {
+                continue;
+            }
+            break;
+        }
+        case 2:
+        case 3:
+        case 4:
+        case 7:
+        case 8:
+            normal = link;
+            if (atn::Abs_unk(PSVECDotProduct(&dir, &normal)) < 0.7f) {
+                continue;
+            }
+            break;
+        case 12:
+            normal = link;
+            if (PSVECDotProduct(&dir, &normal) < 0.7f) {
+                continue;
+            }
+            break;
+        case 10:
+            if (a.m18 == 1 && chara->mType == 0) {
+                continue;
+            }
+            normal = link;
+            normal.y = 0.0f;
+            PSVECNormalize(&normal, &normal);
+            if (atn::Abs_unk(PSVECDotProduct(&dir, &normal)) < 0.7f) {
+                continue;
+            }
+            break;
+        }
+        atn::ColliCapsuleShape_unk seg;
+        seg.mStart = a.mPos;
+        seg.mEnd = b.mPos;
+        float height = chara->m5A4.y + body.mRadius;
+        seg.mStart.y += height;
+        seg.mEnd.y += height;
+        atn::ColliSphereShape_unk sphere(body.mCenter, body.mRadius);
+        if (a.m14 == 10) {
+            sphere.mRadius = body.mRadius + 2.0f;
+        }
+        if (fn_8005361C(&result, &seg, &sphere) == 0) {
+            continue;
+        }
+        atn::Vector3 rot = normal.ToRotation_unk();
+        switch (a.m14) {
+        case 0:
+            chara->mRot = rot;
+            chara->fn_80161E58();
+            break;
+        case 1:
+            chara->mRot = rot;
+            chara->fn_80162140(a.mPos, b.mPos);
+            break;
+        case 6:
+            if (lbl_8087F610 == 0) {
+                chara->fn_801698E4(rot);
+            }
+            break;
+        case 9:
+            chara->fn_80162428(rot);
+            break;
+        case 11:
+            chara->fn_80165F54(rot);
+            break;
+        case 2:
+        case 3:
+        case 4:
+        case 7:
+        case 8:
+        case 10: {
+            atn::Vector3 da = a.mPos - chara->mPos;
+            float distA = PSVECSquareMag(&da);
+            atn::Vector3 db = b.mPos - chara->mPos;
+            float distB = PSVECSquareMag(&db);
+            int found = 0;
+            atn::Vector3 from;
+            atn::Vector3 to;
+            if (PSVECDotProduct(&dir, &normal) > 0.0f) {
+                if (distA < distB) {
+                    from = a.mPos;
+                    to = b.mPos;
+                    found = 1;
+                }
+            } else if (distA > distB) {
+                from = b.mPos;
+                to = a.mPos;
+                found = 1;
+            }
+            if (found != 0) {
+                if (a.m14 == 2) {
+                    chara->fn_80162720(from, to);
+                } else if (a.m14 == 3) {
+                    float speed = 0.5f;
+                    MapTask* map = m64;
+                    // inferred: one ladder of the map 2-4-1 starts from fixed points
+                    if (map != 0 && map->mType == 2 && map->mId == 4 && map->mSubId == 1) {
+                        atn::Vector3 p(1260.05f, 0.04f, 205.73f);
+                        atn::Vector3 e = from - p;
+                        if (PSVECSquareMag(&e) < 1.0f) {
+                            from.x = 1259.11f;
+                            from.y = 0.1f;
+                            from.z = 204.26f;
+                            to.x = 1277.34f;
+                            to.y = 0.1f;
+                            to.z = 194.88f;
+                            speed = 0.7f;
+                        }
+                    }
+                    chara->fn_80162CF0(from, to, speed);
+                } else if (a.m14 == 4) {
+                    chara->fn_80162FE8(from, to);
+                } else if (a.m14 == 7) {
+                    chara->fn_801632D0(from, to);
+                } else if (a.m14 == 8) {
+                    chara->fn_801635B8(from, to);
+                } else if (a.m14 == 10) {
+                    chara->fn_80162A08(from, to);
+                }
+            }
+            break;
+        }
+        case 12: {
+            atn::Vector3 da = a.mPos - chara->mPos;
+            float distA = PSVECSquareMag(&da);
+            atn::Vector3 db = b.mPos - chara->mPos;
+            float distB = PSVECSquareMag(&db);
+            if (PSVECDotProduct(&dir, &normal) > 0.0f && distA < distB && a.m14 == 12) {
+                chara->fn_801638A0(a.mPos, b.mPos);
+            }
+            break;
+        }
+        }
+        return 1;
+    }
     return 0;
 }
 
