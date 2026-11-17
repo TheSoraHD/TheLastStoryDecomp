@@ -67,9 +67,25 @@ void SwingPath_unk(char* buf, int id) {
     sprintf(buf, "/database/gimmick/gm%03d_%03d.gmk\0", id / 1000, id % 1000);
 }
 
+// inferred: axis of a swing ("X", "Y", "Z"; 3-5 with a leading '-'); name invented
+static inline int ParseAxis_unk(const char* axis) {
+    int value = 0;
+    if (*axis == '-') {
+        value = 3;
+        axis++;
+    }
+    if (*axis != 'X') {
+        if (*axis == 'Y') {
+            value += 1;
+        } else {
+            value += 2;
+        }
+    }
+    return value;
+}
+
 // inferred: reads "NODE", "PARAM", "AXIS" and "EFP" (shared by gmk::SwingObject and the swinging map
 // parts; name invented)
-// NONMATCHING: 90.09% - register allocation and the AXIS letter parsing (X/Y/Z) compiles to a branchless form
 static void LoadSwing_unk(const char* data, int size, gmk::SwingParam_unk* params, int* nodes,
                           atn::EfpFile* efp) {
     atn::CsvTab csv(data, size);
@@ -100,24 +116,17 @@ static void LoadSwing_unk(const char* data, int size, gmk::SwingParam_unk* param
                 count++;
             }
         } else if (strcmp(field, "AXIS") == 0) {
-            for (int i = 0; i < 2; i++) {
-                const char* axis = csv.fn_8005B9CC();
-                int value = 0;
-                if (*axis == '-') {
-                    value = 3;
-                    axis++;
-                }
-                if (*axis != 'X') {
-                    value += (*axis == 'Y') ? 1 : 2;
-                }
-                nodes[10 + i] = value;
-            }
+            nodes[10] = ParseAxis_unk(csv.fn_8005B9CC());
+            nodes[11] = ParseAxis_unk(csv.fn_8005B9CC());
         } else if (strcmp(field, "EFP") == 0) {
             efp->LoadRequest(csv.fn_8005B9CC());
         }
     } while (csv.fn_8005BBF8() != 0);
-    for (; count < 2; count++) {
-        params[count] = params[count - 1];
+    // inferred: fewer than two PARAM rows: the missing ones copy the last one
+    if (count < 2) {
+        for (; count < 2; count++) {
+            params[count] = params[count - 1];
+        }
     }
 }
 
