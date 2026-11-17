@@ -2,6 +2,14 @@
 
 Inicio: 2026-11-17 08:08 CET (tope 10:38).
 
+Resumen: PacketPack +8 funciones al 100 % (fn_804D996C, fn_804DD1A8, fn_804DD3F0, fn_804F60E0, fn_804EEB34,
+fn_804EF9B4, fn_804EFC94, fn_804F39D4); report 15942 -> 15950 funciones, lost 0, sin bajadas de fuzzy, labelcheck/rep100
+igual, precommit OK en cada commit (pd.sh + `fixlbl.py` + precommit sin `--pd`). Casi todo sale de barridos por
+lotes (una compilacion de PacketPack, ~50 s, cambiando una forma en todas las funciones por debajo del 100 % y
+comparando el % y las diferencias reales con `nl.py`): tipo del contador de los bucles, forma de las busquedas
+inline (local para el elemento, `begin()[i]`) y getters debiles (fn_800F7F90, fn_8013A194). Ninguna unidad nueva
+enlaza (PacketPack sigue con funciones por debajo del 100 %).
+
 ## Tabla de la cola
 
 | funcion | antes | despues |
@@ -13,11 +21,12 @@ Inicio: 2026-11-17 08:08 CET (tope 10:38).
 | fn_804EED7C | 99,07 % | 99,75 % (idem) |
 | fn_804EF9B4 | 99,40 % | 100 % (idem, y sin el local `mgr`) |
 | fn_804EFC94 | 99,15 % | 100 % (idem) |
-| fn_804D8910 | 98,97 % | 99,41 % (contador `int i`) |
+| fn_804D8910 | 98,97 % | 99,44 % (contador `int i`; getter fn_800F7F90) |
 | fn_804D9C14 | 94,17 % | 95,19 % (contador `int i`) |
-| fn_804DDA04 | 95,52 % | 98,07 % (contadores `unsigned int` sin `(int)`) |
+| fn_804DDA04 | 95,52 % | 98,09 % (contadores `unsigned int` sin `(int)`) |
 | fn_804DF4B8 | 97,36 % | 97,89 % (contadores `unsigned int` sin `(int)`) |
-| fn_804EB934 | 96,79 % | 96,83 % (contador del tercer bucle con `(int)`) |
+| fn_804EB934 | 96,79 % | 96,87 % (contador del tercer bucle con `(int)`; getter fn_800F7F90) |
+| fn_804E4EB0 | 98,80 % | 98,84 % (getter fn_800F7F90) |
 | fn_804DD1A8 | 99,35 % | 100 % (fn_804DD158 sin local para el slot) |
 | fn_804DD3F0 | 99,07 % | 100 % (fn_804DD158 sin local para el slot) |
 | fn_804F47FC | 98,80 % | 99,17 % (idem) |
@@ -108,3 +117,18 @@ Inicio: 2026-11-17 08:08 CET (tope 10:38).
   objetivo); un local `mgr` para la segunda y una inline que lee el global no cambian nada (escribir-20261116 qG5)
 
 ## Cambios de splits/symbols
+
+## Scripts
+
+- `/home/claude/scratch-G5/bin/cmpall.sh NOMBRE VIEJO NUEVO [keep]` (con `mkbase.sh` antes): sustituye un texto en
+  PacketPack.cpp, compila una vez y lista las funciones cuyo % y cuyas diferencias reales (`nl.py`) cambian.
+- `/home/claude/scratch-G5/bin/loopvar.py` / `loopline.py`: reescriben las cabeceras `for` (int/unsigned, con o sin
+  `(int)size()`) en todas las funciones o en lineas concretas. `try.py FUNC VIEJO NUEVO [keep]`: prueba una sustitucion
+  y da el % de una funcion. `brscan.py`: funciones con destinos de salto distintos (sobre m.json).
+- Copias de los scripts de G4 (`m.sh`, `side.py`, `nl.py`, `suspect.py`, `fixlbl.py`) con las rutas de G5.
+
+## Pendiente
+
+- Comentarios `// NONMATCHING` obsoletos encima de funciones ya al 100 % en PacketPack.cpp (fn_804DBD08,
+  fn_804DE560, fn_804DF11C, fn_804DF404, fn_804E7628, fn_804EAFD0, fn_804EB010, fn_804EB2D8, fn_804EB4AC, fn_804EB814,
+  fn_804F4E40, fn_804FB220, fn_804FC010, fn_804FC0D4): no tocados.
