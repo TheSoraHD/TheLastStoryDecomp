@@ -803,8 +803,7 @@ void Em003LesserDaemon::vf40(HitInfo_unk* hit) {
 }
 
 // inferred: walk motions by the direction of the movement (as CharaTask::vf24)
-// NONMATCHING: 99.52% - f3/f4 swapped for the 0.0f of ToRotation_unk (CharaTask::vf24 has the same
-// form at 97%); the .rodata doubles (cos constants and 2*pi) are placed by the unwritten functions
+// inferred: the yaw read into a local (in place, the 0.0f of ToRotation_unk takes f4)
 void Em003LesserDaemon::vf24() {
     if (m55C == 6) {
         return;
@@ -826,7 +825,8 @@ void Em003LesserDaemon::vf24() {
     if (dot > (float)cos(0.7853982f)) {
         mMotion.fn_80097C08(0, 0x1C6, 1, 0, 1, 0.0f, 0.1f);
     } else if (dot > (float)cos(2.3561945f)) {
-        if (atn::WrapAngle_unk(dir.ToRotation_unk().y - mRot.y) > 0.0f) {
+        float yaw = dir.ToRotation_unk().y;
+        if (atn::WrapAngle_unk(yaw - mRot.y) > 0.0f) {
             mMotion.fn_80097C08(0, 0x1C8, 1, 0, 1, 0.0f, 0.1f);
         } else {
             mMotion.fn_80097C08(0, 0x1C9, 1, 0, 1, 0.0f, 0.1f);
@@ -1106,16 +1106,18 @@ void Em003LesserDaemon::vfEC() {
     }
 }
 
-// NONMATCHING: 99.39% - r4/r5 swapped in the copies of mWarpDest (the __VecCopy family) and f3/f4 for
-// the 0.0f of ToRotationZ_unk (as vf24)
+// inferred: the copies of mWarpDest and of the hit point with __VecCopy (with operator= r4/r5 swap) and the
+// yaw read into a local (with the expression in place the 0.0f of ToRotationZ_unk takes f4)
 void Em003LesserDaemon::fn_8024E7E4() {
     switch (m14B8) {
     case 0: {
         if (m14B0 != 0) {
             atn::Vector3 dest;
-            dest = mWarpDest;
+        __VecCopy(&dest.x, &mWarpDest.x);
             atn::Vector3 d = dest - mPos;
-            float t = 0.3f * atn::WrapAngle_unk(d.ToRotationZ_unk().y - mRot.y);
+            float yaw = d.ToRotationZ_unk().y;
+            float t = atn::WrapAngle_unk(yaw - mRot.y);
+            t *= 0.3f;
             mRot.y += t;
         }
         float frame = mMotion.mTracks[0].m08;
@@ -1129,7 +1131,7 @@ void Em003LesserDaemon::fn_8024E7E4() {
     }
     case 1: {
         atn::Vector3 dest;
-            dest = mWarpDest;
+            __VecCopy(&dest.x, &mWarpDest.x);
         atn::Vector3 d = dest - mPos;
         float dist = PSVECMag(&d);
         if (dist < 3.0f || m14BC >= 90) {
@@ -1144,7 +1146,8 @@ void Em003LesserDaemon::fn_8024E7E4() {
         atn::ColliResult_unk result;
         Sphere_unk sphere = fn_80176548(mPos);
         fn_8004D388(lbl_8087EE98, &result, &sphere.mCenter, &d, 0x80000000, &mColli, 0, sphere.mRadius);
-        atn::Vector3 pos = result.m10;
+        atn::Vector3 pos;
+        __VecCopy(&pos.x, &result.m10.x);
         pos -= m5A4;
         pos.y -= sphere.mRadius;
         mPos = pos;
