@@ -89,6 +89,37 @@ void __vec_event_unk<T>::__realloc_unk(vector<T>& v, unsigned int n, const T& x)
     __vec_swap_unk(v.mSize, buf.mSize);
 }
 
+// inferred: the destructor of the buffer counts the elements before taking the end pointer (weak copies
+// 0x80544840 Event::Actor and 0x80545290 Event::Path; the generic order of std/vector.h suits the other element
+// types, Event/EventParser_unk ParseMOID_unk...)
+template <>
+inline __vec_split_gbase_unk<Event::Actor>::~__vec_split_gbase_unk() {
+    if (mData != 0) {
+        unsigned int n = mSize;
+        Event::Actor* p = mData + mSize;
+        mSize = 0;
+        for (; n != 0; n--) {
+            --p;
+            p->~Actor();
+        }
+        ::operator delete(mData);
+    }
+}
+
+template <>
+inline __vec_split_gbase_unk<Event::Path>::~__vec_split_gbase_unk() {
+    if (mData != 0) {
+        unsigned int n = mSize;
+        Event::Path* p = mData + mSize;
+        mSize = 0;
+        for (; n != 0; n--) {
+            --p;
+            p->~Path();
+        }
+        ::operator delete(mData);
+    }
+}
+
 template <>
 inline void vector<Event::Actor>::__insert_realloc_unk(size_type n, const Event::Actor& x) {
     __vec_event_unk<Event::Actor>::__realloc_unk(*this, n, x);
