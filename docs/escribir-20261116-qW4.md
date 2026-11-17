@@ -95,6 +95,14 @@ Agente W4, inicio 2026-11-17 02:08 (tope 04:38). Rama `agent-W4`.
   `main.dol: FAILED` (nuestro ipcMain.o no lo emite: el enlazador lo pone al alinear la unidad siguiente).
   Se queda dentro de ipcclt hasta que ipcclt enlace; entonces `.text start:0x8061BD90` (el enlazador alinea).
 
+## Pendientes
+
+- `docs/escribir-20261116-qW4.patch`: SmallAllocator_8 `vf0C` <8> y <6> 87,0 -> 96,1 % (calcular la direccion
+  devuelta antes de `mUsed++`, como el original). Sin bajadas (precommit: lost 0, fuzzdrop 0, labelcheck igual),
+  pero no se commitea porque `ordercheck` de la unidad ya da 1 fuera de orden en HEAD (el ctor del gestor va
+  antes de `Instance`; moverlo cambia el corte del ciclo de inlining y baja `~SmallAllocator<8>`): decidir si
+  se acepta con esa deuda previa.
+
 ## Cambios de splits/symbols
 
 - LH_Model: `@stringBase0` 0x80755F30 size 0x11 -> 0x12. Pendiente para su cola: EnemyTasha `@stringBase0`
