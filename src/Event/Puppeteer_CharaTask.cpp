@@ -713,7 +713,7 @@ void Actor::fn_8000F1EC() {
         m18_20 = GetChara_unk()->mStatus.mParamB.m9C;
         m18_21 = ToBool_unk(GetChara_unk()->mFlag18);
         m18_22 = GetChara_unk()->m1220.m10 != 0;
-        CharaTask* chara = GetChara_unk();
+        CharaTask* chara = ((Puppeteer<CharaTask>*)m1C)->m48;
         m24.m00 = chara->GetModel_unk()->mD8;
         m24.m0C = GetChara_unk()->m674;
         m24.m10 = GetChara_unk()->mPos;
@@ -1124,16 +1124,16 @@ inline void atn::Vector3::fn_80011410(const atn::Matrix3x4& m) {
 namespace Event {
 
 // inferred: front of the actor (z axis of its rotation)
-// NONMATCHING: 84% - scheduling (the original loads the target before the stores of the vector, and the
-// row of case 3 in another register order)
-atn::Vector3 Actor::fn_800112E0() {
+// inferred: const (the original loads m20 before saving r31)
+atn::Vector3 Actor::fn_800112E0() const {
     atn::Vector3 front;
     switch (m20) {
     case 7:
     case 1: {
+        CharaTask* chara = ((Puppeteer<CharaTask>*)m1C)->m48;
         front.Set_unk(0.0f, 0.0f, 1.0f);
         atn::Matrix3x4 m;
-        m.fn_8013A13C(GetChara_unk()->mRot.y);
+        m.fn_8013A13C(chara->mRot.y);
         front.fn_80011410(m);
         break;
     }
@@ -1146,7 +1146,10 @@ atn::Vector3 Actor::fn_800112E0() {
     }
     case 3: {
         atn::Matrix3x4& m = ((Puppeteer<atn::Model>*)m1C)->m48->mMtx;
-        front.Set_unk(m.m[2][0], m.m[2][1], m.m[2][2]);
+        float z = m.m[2][2];
+        float y = m.m[2][1];
+        float x = m.m[2][0];
+        front.Set_unk(x, y, z);
         break;
     }
     case 4: {
@@ -1416,7 +1419,7 @@ void Actor::fn_8001256C(int show) {
 
 void Actor::fn_800125C8(int on) {
     if (m20 == 7 || m20 == 1) {
-        CharaTask* chara = GetChara_unk();
+        CharaTask* chara = ((Puppeteer<CharaTask>*)m1C)->m48;
         if (on != 0) {
             chara->mColli.mFlags |= 1;
         } else {
