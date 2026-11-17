@@ -27,6 +27,9 @@ Inicio: 2026-11-17 08:08 CET (tope 10:38).
 | fn_804E8BF4 | 98,87 % | 99,76 % (`category` asignada despues de `value`) |
 | fn_804EFF74 | 99,23 % | 99,35 % (push_back de las entradas por una inline sobre el CharaStatus; getter fn_8013A194) |
 | fn_804CF640 | 96,92 % | 98,41 % (getter debil fn_8013A194 del BattleTask en las llamadas) |
+| fn_804F39D4 | 99,65 % | 100 % (getter debil fn_800F7F90 en vez de `lbl_8087F610`) |
+| fn_804F3880 | 97,29 % | 97,59 % (idem) |
+| fn_804F3EEC | 93,87 % | 94,12 % (idem) |
 | fn_804EAA84 | 99,91 % | 99,91 % (sin cambios: ver Bloqueos) |
 | fn_804CF198 | 99,37 % | 99,37 % (sin cambios: ver Bloqueos) |
 
@@ -46,6 +49,8 @@ Inicio: 2026-11-17 08:08 CET (tope 10:38).
   CharaStatusEntry_unk&)` (mismo comportamiento).
 - fn_804CF640 y fn_804EFF74 llaman a los metodos del BattleTask a traves de la inline `fn_8013A194()` (getter debil
   de lbl_8087F048, como en Em203GreaterDaemon); mismo comportamiento.
+- fn_804D8910, fn_804E4EB0, fn_804EB934, fn_804F3880, fn_804F39D4 y fn_804F3EEC leen el MP::Manager2 con el getter
+  debil `fn_800F7F90()` en vez de `(PPManager2_unk*)lbl_8087F610` (mismo objeto).
 - Sin cambios de comportamiento: fn_804F60E0 limita el puesto del ultimo bucle a traves de un local `v`.
 
 ## Decisiones tomadas sin el usuario
