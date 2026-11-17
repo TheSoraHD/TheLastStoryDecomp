@@ -13,12 +13,15 @@ Inicio: 2026-11-17 06:06 CET (tope 08:36).
 | fn_804EA8B8 | 98,75 % | 100 % |
 | fn_804EAA84 | 99,84 % | 99,91 % (queda el registro de `num`) |
 | fn_804DD3F0 | 98,81 % | 99,07 % |
+| fn_804EE4F0 | 99,63 % | 99,89 % (queda el orden de los argumentos de PSVECDotProduct) |
+| fn_804EF0F0 | 99,07 % | 99,71 % (queda el `lwzx` del personaje encontrado) |
 
 ## Para el port
 
 - Sin cambios de comportamiento: fn_804D8610, fn_804DD3F0, fn_804DDE34, fn_804E6518 y fn_804EA8B8 pasan
   `GetMyAid_unk()` directamente a fn_804DD158 (antes un local `unsigned int aid`); fn_804EAA84 copia `rot` con
-  `atn::VecAssign_unk`.
+  `atn::VecAssign_unk`; fn_804EE4F0 copia `m13D8`/`m13E8` con `Assign_unk` (z primero; antes `VecAssign_unk` y `=`);
+  fn_804EF0F0 usa `IsServer_unk() == 1` (antes la comparacion de aids escrita a mano). Mismo comportamiento.
 
 ## Decisiones tomadas sin el usuario
 
@@ -28,6 +31,13 @@ Inicio: 2026-11-17 06:06 CET (tope 08:36).
   nombre para el aid (`unsigned int aid = GetMyAid_unk(); fn_804DD158(mgr, aid)`): pasando la llamada como
   argumento el original sale al 100 % (fn_804D8610, fn_804DDE34, fn_804E6518, fn_804EA8B8); fn_804E8A80 si
   lleva el local (escribir-20261116 qG4)
+
+- Copia de `Vector3` con origen y destino cruzados que ni `VecAssign_unk` ni `=` arreglan: mirar si el original
+  carga z primero (`lfs f2, 8(src)` antes del `psq_l`): entonces es `dst.Assign_unk(src)` (PacketPack fn_804EE4F0,
+  dos copias) (escribir-20261116 qG4)
+- `(a == b) == 1` escrito en linea se pliega en `cmplw`; con la misma comparacion dentro de una inline `int`
+  (`IsServer_unk() == 1`) MWCC la materializa (`subf; cntlzw; srwi; cmpwi 1`) como el original (PacketPack
+  fn_804EF0F0) (escribir-20261116 qG4)
 
 ## Bloqueos
 

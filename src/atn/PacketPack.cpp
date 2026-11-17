@@ -8514,8 +8514,8 @@ static inline atn::Vector3 PPUnpackVec_unk(const short* h) {
 static inline atn::Vector3 PPHalfway_unk(const atn::Vector3& from, const atn::Vector3& to) {
     return (to - from) * 0.5f + from;
 }
-// NONMATCHING: 99.56% - src/dst address registers of the copies of lbl_807C7030 and of the node, and of the
-// arguments of PSVECDotProduct (the original computes the second address first)
+// NONMATCHING: 99.89% - order of the two address arguments of PSVECDotProduct (the original computes the second
+// address first)
 // inferred: applies the state of the character of another player (only in the game, state 30, ready character
 // driven by the network: mFlag2): position, velocity (none above 30 per frame), rotation, node and direction (the
 // direction turns halfway when it is within 45 degrees); 1 if applied
@@ -8540,13 +8540,13 @@ extern "C" unsigned int fn_804EE4F0(PPPlayer_unk* player, const void* buf) {
     chara->mPos = data->mPos;
     atn::Vector3 vel = data->mVel;
     if (vel.LengthSq_unk() > 900.0f) {
-        atn::VecAssign_unk(chara->m13D8, lbl_807C7030);
+        chara->m13D8.Assign_unk(lbl_807C7030);
     } else {
         chara->m13D8 = vel;
     }
     chara->mRot = atn::Vector3(0.0f, data->mRotY, 0.0f);
     chara->m13E4 = data->mTurn;
-    chara->m13E8 = PPUnpackVec_unk(data->mNode);
+    chara->m13E8.Assign_unk(PPUnpackVec_unk(data->mNode));
     atn::Vector3 dir = PPUnpackVec_unk(data->mDir);
     if (PPDot_unk(dir, chara->mFA4) > 0.70710677f) {
         atn::VecAssign_unk(dir, PPHalfway_unk(chara->mFA4, dir));
@@ -8703,8 +8703,8 @@ static inline CharaTask* PPCharaOfAid_unk(PPManager2_unk* mgr, const unsigned ch
     }
     return 0;
 }
-// NONMATCHING: 98.47% - the found character of the inlined search is read with the loop offset (here the
-// index again), the server test materialized (cntlzw) in the original, registers
+// NONMATCHING: 99.71% (fn_804EF0F0) - the found character of the inlined search is read with the loop offset
+// (lwzx in the original), registers
 // inferred: character named by a packed id (1 none, 2 the player of aid m01, 3 the entry m01 of the list)
 static inline CharaTask* PPCharaOfId_unk(PPManager2_unk* mgr, const PPId_unk* id) {
     switch (id->m00) {
@@ -8841,7 +8841,7 @@ extern "C" void fn_804EF0F0(unsigned int aid) {
         } else {
             gimmick->vf40(&msg);
         }
-        if ((lbl_8087F628->GetMyAid_unk() == lbl_8087F628->GetServerAid_unk()) == 1) {
+        if (IsServer_unk() == 1) {
             if (taken == true) {
                 gmk::Cannonball* cannon = dynamic_cast<gmk::Cannonball*>(gimmick);
                 if (cannon != 0) {
