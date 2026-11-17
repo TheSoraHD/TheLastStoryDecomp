@@ -103,14 +103,14 @@ void EfpData_unk::fn_802438D4(void* data, void* size) {
                     fn_802438C4(index)->mEnd = fn_800DC12C(fn_800E114C(&parser, 1)->c_str());
                     mEnd = mEnd > fn_802438C4(index)->mEnd ? mEnd : fn_802438C4(index)->mEnd;
                 } else if (name == "Pos") {
-                    fn_802438C4(index)->mPos0 = fn_800DC288(fn_800E114C(&parser, 0)->c_str());
-                    fn_802438C4(index)->mPos1 = fn_800DC288(fn_800E114C(&parser, 1)->c_str());
-                    fn_802438C4(index)->mPos2 = fn_800DC288(fn_800E114C(&parser, 2)->c_str());
+                    fn_802438C4(index)->mPos.x = fn_800DC288(fn_800E114C(&parser, 0)->c_str());
+                    fn_802438C4(index)->mPos.y = fn_800DC288(fn_800E114C(&parser, 1)->c_str());
+                    fn_802438C4(index)->mPos.z = fn_800DC288(fn_800E114C(&parser, 2)->c_str());
                 } else if (name == "Rot") {
-                    fn_802438C4(index)->mRot0 = fn_800DC288(fn_800E114C(&parser, 0)->c_str());
-                    fn_802438C4(index)->mRot1 = fn_800DC288(fn_800E114C(&parser, 1)->c_str());
-                    fn_802438C4(index)->mRot2 = fn_800DC288(fn_800E114C(&parser, 2)->c_str());
-                    fn_DegToRad_unk(&fn_802438C4(index)->mRot0);
+                    fn_802438C4(index)->mRot.x = fn_800DC288(fn_800E114C(&parser, 0)->c_str());
+                    fn_802438C4(index)->mRot.y = fn_800DC288(fn_800E114C(&parser, 1)->c_str());
+                    fn_802438C4(index)->mRot.z = fn_800DC288(fn_800E114C(&parser, 2)->c_str());
+                    fn_DegToRad_unk(&fn_802438C4(index)->mRot.x);
                 } else if (name == "Scl") {
                     fn_802438C4(index)->mScale = fn_800DC288(fn_800E114C(&parser, 0)->c_str());
                 } else if (name == "Color") {

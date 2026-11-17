@@ -16,6 +16,7 @@
 
 #include "atn/EffectParams_unk.h"
 #include "std/locale_facets_unk.h"
+#include "atn/EfpData_unk.h"
 
 namespace atn {
 
@@ -209,10 +210,10 @@ void EffectManager::fn_8023A340(EffectRes_unk* res) {
     EffectEntry_unk* it = mEntries.mData;
     while (it != mEntries.mData + mEntries.mSize) {
         if (it->mRes == res) {
-            EffectEmitters_unk* emitters = res->mData;
+            EfpData_unk* emitters = res->mData;
             for (unsigned int i = 0; i < emitters->mCount; i++) {
                 if (it->mEmitter < 0 || it->mEmitter == i) {
-                    if (emitters->mEmitters[i].m00 != 0) {
+                    if (emitters->mElems[i].m00 != 0) {
                         int handle = it->mHandle + i;
                         StopEmitter_unk(handle, 0);
                     }
@@ -376,26 +377,26 @@ void EffectManager::fn_8023AE34(unsigned int owner, int group, int arg) {
         }
         it->mTime = it->mRate * lbl_8087EFA8->mTimeScale + it->mTime;
         while (it->mTime >= 1.0f) {
-            EffectEmitters_unk* emitters = it->mRes->mData;
+            EfpData_unk* emitters = it->mRes->mData;
             for (unsigned int i = 0; i < emitters->mCount; i++) {
                 if (it->mEmitter >= 0 && it->mEmitter != i) {
                     continue;
                 }
-                EffectEmitter_unk* em = &emitters->mEmitters[i];
+                EfpElem_unk* em = &emitters->mElems[i];
                 if (em->m00 == 0) {
                     continue;
                 }
                 int handle = it->mHandle + i;
-                if (em->m04 == it->mFrame) {
+                if (em->mStart == it->mFrame) {
                     void* target = it->mTarget;
-                    int mode = em->m38;
+                    int mode = em->mParent;
                     if (target != 0) {
                         if ((it->mFlags & 0x10000) == 0x10000) {
                             if (mode == 3) {
                                 target = (unsigned char*)target + 0x30;
                                 mode = 5;
                             } else if (mode == 4) {
-                                int index = ((atn::Model*)(*(unsigned char**)((unsigned char*)target + 4) + 0x10))->fn_800928B0(em->m3C, 0);
+                                int index = ((atn::Model*)(*(unsigned char**)((unsigned char*)target + 4) + 0x10))->fn_800928B0(em->mNode, 0);
                                 void* nodes;
                                 if (index >= 0 && (nodes = *(void**)((unsigned char*)it->mTarget + 0x80)) != 0) {
                                     target = (unsigned char*)nodes + index * 0x30;
@@ -405,7 +406,7 @@ void EffectManager::fn_8023AE34(unsigned int owner, int group, int arg) {
                                 }
                             }
                         } else if (mode == 4) {
-                            int index = ((atn::Model*)target)->fn_800928B0(em->m3C, 0);
+                            int index = ((atn::Model*)target)->fn_800928B0(em->mNode, 0);
                             void* node = (index >= 0) ? *(unsigned char**)((unsigned char*)target + 0x3C) + index * 0x30 : 0;
                             if (node != 0) {
                                 target = node;
@@ -417,14 +418,14 @@ void EffectManager::fn_8023AE34(unsigned int owner, int group, int arg) {
                     } else if (mode > 1) {
                         mode = 0;
                     }
-                    atn::Vector3 offset = em->m0C;
-                    atn::Vector3 rot = em->m18;
+                    atn::Vector3 offset = em->mPos;
+                    atn::Vector3 rot = em->mRot;
                     EffectColor_unk color;
-                    color.r = em->m24.x * it->mColor.r;
-                    color.g = em->m24.y * it->mColor.g;
-                    color.b = em->m24.z * it->mColor.b;
-                    color.a = em->m30 * it->mColor.a;
-                    float scale = em->m34;
+                    color.r = em->mColor1 * it->mColor.r;
+                    color.g = em->mColor2 * it->mColor.g;
+                    color.b = em->mColor3 * it->mColor.b;
+                    color.a = em->mColor0 * it->mColor.a;
+                    float scale = em->mScale;
                     float m[3][4];
                     float tmp[3][4];
                     float mtx[3][4];
@@ -482,7 +483,7 @@ void EffectManager::fn_8023AE34(unsigned int owner, int group, int arg) {
                     mSystem.m70 = it->m4A;
                     fn_80232B7C(it->mOwner, it->mGroup);
                     fn_802346AC(handle);
-                    fn_8023A680(this, (EffectRes_unk*)&em->m48, it->m46, mode, (int)target, &offset, &rot, &color,
+                    fn_8023A680(this, (EffectRes_unk*)&em->mLoader, it->m46, mode, (int)target, &offset, &rot, &color,
                                 em->m40, em->m44, 1, scale);
                     mSystem.fn_80234764(handle, &it->m34);
                     mSystem.fn_802346F0(handle, it->mFlags);
@@ -490,7 +491,7 @@ void EffectManager::fn_8023AE34(unsigned int owner, int group, int arg) {
                     fn_802346AC(0);
                     mSystem.m70 = 0;
                     mSystem.mLayer = 0;
-                } else if (em->m08 != 0 && em->m08 == it->mFrame) {
+                } else if (em->mEnd != 0 && em->mEnd == it->mFrame) {
                     StopEmitter_unk(handle, 1);
                 }
             }
