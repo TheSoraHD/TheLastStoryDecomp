@@ -1,4 +1,5 @@
 #include "atn/Csv.h"
+#include "atn/Model_unk.h"
 #include "atn/Memory.h"
 #include "db/OptionParts_unk.h"
 #include "gmk/SeTable.h"
@@ -22,13 +23,6 @@ extern "C" void fn_8046DD20(Unk_8087F518* mgr, void* data);
 
 // inferred: index of an equipment letter (db/EquipParam_unk.cpp)
 extern "C" int fn_8020F064(const char* letter);
-
-namespace atn {
-// inferred: model (only the name is read here, see include/atn/Model_unk.h)
-struct Model {
-    const char* fn_8008B130(); // inferred: model name
-};
-}
 
 namespace atn {
 // inferred: see src/atn/CompositeIntensityTintMulti.cpp (0x40 bytes)

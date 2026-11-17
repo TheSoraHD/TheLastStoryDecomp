@@ -1,0 +1,106 @@
+diff --git a/src/MP/D2AMpMenuSetMessage.cpp b/src/MP/D2AMpMenuSetMessage.cpp
+index 74cf5c1..12c1436 100644
+--- a/src/MP/D2AMpMenuSetMessage.cpp
++++ b/src/MP/D2AMpMenuSetMessage.cpp
+@@ -913,7 +913,8 @@ void D2AMpMenuSetMessage::fn_804CC618() {
+     MpMsgPoint_unk unused2[4];
+     for (int i = 0; i < 24; i++) {
+         m74[i]->SetText_unk("string0029(1)", (int)"");
+-        SetPaneValue2_unk(m74[i]->mLayout, "col0030", 0, 255.0f);
++        void* layout = m74[i]->mLayout;
++        SetPaneValue2_unk(layout, "col0030", 0, 255.0f);
+         if (i <= 21) {
+             const wchar_t* text = GetCharaName_unk(i);
+             if (text != 0) {
+diff --git a/src/game/Em204MulueMp.cpp b/src/game/Em204MulueMp.cpp
+index c7db72c..59f60b8 100644
+--- a/src/game/Em204MulueMp.cpp
++++ b/src/game/Em204MulueMp.cpp
+@@ -745,8 +745,15 @@ void Em204MulueMp::fn_802B475C() {
+     fn_802B6F80();
+ }
+ 
+-// NONMATCHING: 98.41% - float registers of the first capsule and r6/r7 of the node copies (__VecCopy family,
+-// docs/mwcc-blockers.md)
++// NONMATCHING: 99.15% - float registers of the first capsule (mPos + m5A4 and m5B0 swap f4/f5; the original
++// keeps the sum z in f3 and copies it to f2)
++// inferred: sets the segment and radius of a capsule (an inline: the node copies take the registers of
++// the original only through it; name invented)
++static inline void SetCapsule_unk(atn::ColliCapsule& c, const atn::Vector3& a, const atn::Vector3& b, float r) {
++    c.m3C = a;
++    c.m48 = b;
++    c.m54 = r;
++}
+ void Em204MulueMp::fn_802B4B08() {
+     atn::Vector3 a;
+     atn::Vector3 b;
+@@ -757,52 +764,38 @@ void Em204MulueMp::fn_802B4B08() {
+     a = m614;
+     b = GetNodePos_unk(mMotion.GetNodeMtx_unk("head"));
+     b.y -= 1.0f;
+-    mColli.m3C = a;
+-    mColli.m48 = b;
+-    mColli.m54 = m620;
++    SetCapsule_unk(mColli, a, b, m620);
+     {
+         float r = 7.0f;
+-        a = GetNodePos_unk(mMotion.GetNodeMtx_unk("leftforearm"));
+-        b = GetNodePos_unk(mMotion.GetNodeMtx_unk("leftmiddle1"));
+-        m1698.m3C = a;
+-        m1698.m48 = b;
+-        m1698.m54 = r;
++        atn::VecAssign_unk(a, GetNodePos_unk(mMotion.GetNodeMtx_unk("leftforearm")));
++        atn::VecAssign_unk(b, GetNodePos_unk(mMotion.GetNodeMtx_unk("leftmiddle1")));
++        SetCapsule_unk(m1698, a, b, r);
+     }
+     {
+         float r = 7.0f;
+-        a = GetNodePos_unk(mMotion.GetNodeMtx_unk("rightforearm"));
+-        b = GetNodePos_unk(mMotion.GetNodeMtx_unk("rightmiddle1"));
+-        m16F0.m3C = a;
+-        m16F0.m48 = b;
+-        m16F0.m54 = r;
++        atn::VecAssign_unk(a, GetNodePos_unk(mMotion.GetNodeMtx_unk("rightforearm")));
++        atn::VecAssign_unk(b, GetNodePos_unk(mMotion.GetNodeMtx_unk("rightmiddle1")));
++        SetCapsule_unk(m16F0, a, b, r);
+     }
+     {
+         float r = 5.0f;
+-        a = GetNodePos_unk(mMotion.GetNodeMtx_unk("leftleg"));
+-        b = GetNodePos_unk(mMotion.GetNodeMtx_unk("leftfoot"));
+-        m1748.m3C = a;
+-        m1748.m48 = b;
+-        m1748.m54 = r;
++        atn::VecAssign_unk(a, GetNodePos_unk(mMotion.GetNodeMtx_unk("leftleg")));
++        atn::VecAssign_unk(b, GetNodePos_unk(mMotion.GetNodeMtx_unk("leftfoot")));
++        SetCapsule_unk(m1748, a, b, r);
+     }
+     {
+         float r = 5.0f;
+-        a = GetNodePos_unk(mMotion.GetNodeMtx_unk("rightleg"));
+-        b = GetNodePos_unk(mMotion.GetNodeMtx_unk("rightfoot"));
+-        m17A0.m3C = a;
+-        m17A0.m48 = b;
+-        m17A0.m54 = r;
++        atn::VecAssign_unk(a, GetNodePos_unk(mMotion.GetNodeMtx_unk("rightleg")));
++        atn::VecAssign_unk(b, GetNodePos_unk(mMotion.GetNodeMtx_unk("rightfoot")));
++        SetCapsule_unk(m17A0, a, b, r);
+     }
+     {
+         float r = 9.0f;
+-        a = GetNodePos_unk(mMotion.GetNodeMtx_unk("joint2"));
+-        b = GetNodePos_unk(mMotion.GetNodeMtx_unk("joint4"));
+-        m17F8.m3C = a;
+-        m17F8.m48 = b;
+-        m17F8.m54 = r;
++        atn::VecAssign_unk(a, GetNodePos_unk(mMotion.GetNodeMtx_unk("joint2")));
++        atn::VecAssign_unk(b, GetNodePos_unk(mMotion.GetNodeMtx_unk("joint4")));
++        SetCapsule_unk(m17F8, a, b, r);
+     }
+-}
+-
+-void Em204MulueMp::vf54() {
++}void Em204MulueMp::vf54() {
+     if (m624.mSize != 0) {
+         atn::Vector3 pos = GetNodePos_unk(mMotion.GetNodeMtx_unk("spine1"));
+         m624[0].m04.mRadius = 1.5f * m5B0;
