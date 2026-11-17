@@ -639,6 +639,14 @@ void Sequence::fn_8053F818() {
     }
 }
 
+// inferred: instantiated here: its "basic_string: out_of_range" follows the strings of fn_8053F818 in the
+// pool (before "vector length error" of fn_80540A08)
+} // namespace Event
+
+template std::string::basic_string(const std::string& str, std::string::size_type pos, std::string::size_type n);
+
+namespace Event {
+
 // inferred: the data of the event is loaded
 int Sequence::fn_8054011C() {
     if (m98_1 != 1) {
