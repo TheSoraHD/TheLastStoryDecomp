@@ -854,6 +854,19 @@ struct PPWords_unk {
     int m[N];
 };
 
+// inferred: result block of MP::Manager2 at 0x2B80 (game mode, result state of the game fn_804E4A60 and the
+// ranking copied by fn_804E4C5C); its destructor and the one of the ranking add the null checks of `this` of
+// ~Manager2 (0x804D2308); names invented
+struct PPRanking_unk : public atn::FixedArray_unk<PPPlayer_unk, 8> {
+    ~PPRanking_unk() {}
+};
+struct PPResult_unk {
+    ~PPResult_unk() {}
+    int m00;
+    int m04;
+    PPRanking_unk m08;
+};
+
 // inferred: state variable of MP::Manager2 (value and last value set); names invented
 struct PPStateVar_unk {
     PPStateVar_unk() : mValue(0), mLast(0) {}
@@ -1069,9 +1082,7 @@ struct Manager2 : public atn::Task {
     atn::SoundRef m2B74;              // inferred: sounds stopped by fn_804DA398
     atn::SoundRef m2B78;
     atn::FadeColor* m2B7C;            // inferred: fade of the multiplayer (its mDelay is raised during the load, fn_804D2508)
-    int m2B80;
-    int m2B84;                        // inferred: result state of the game (fn_804E4A60)
-    atn::FixedArray_unk<PPPlayer_unk, 8> m2B88; // inferred: ranking of the game (slots copied by fn_804E4C5C)
+    PPResult_unk m2B80;               // inferred: result of the game (m00, m04 state, m08 ranking)
     int m966C;
     int m9670;                        // inferred: result of fn_804E4A60 (fn_804E448C)
     int m9674;                        // inferred: item won in the game (code, count)
@@ -2338,8 +2349,7 @@ extern "C" void fn_804D1F6C(PPPlayer_unk* player) {
 
 extern "C" void fn_80049654(void* sound); // inferred: as in game/GameTask.cpp
 extern "C" void fn_8004895C(void* sound); // inferred: releases the sound groups (game/NewTitleTask.cpp)
-// NONMATCHING: 97.72% - the original destroys the ranking m2B88 through a block at 0x2B80 (one more null check of
-// `this` and two for the array) and keeps the end of the list m99A4 in another register
+// NONMATCHING: 98.75% - registers of the clear of the list m99A4 (the original keeps its end in another register)
 MP::Manager2::~Manager2() {
     fn_80049654(lbl_8087EE90);
     fn_8004895C(lbl_8087EE90);
@@ -3353,7 +3363,7 @@ void MP::Manager2::vf10() {
                             data->mIds[i] = 0;
                         }
                     }
-                    data->m10 = mgr->m2B80;
+                    data->m10 = mgr->m2B80.m00;
                     fn_804D1694();
                     fn_804AE3BC()->fn_8050E094(-1, 0x1043, data, 1);
                     fn_804D1694();
@@ -3395,9 +3405,9 @@ void MP::Manager2::vf10() {
                         fn_804F7EF0(fn_804D6020(fn_804D6024(fn_804D1694())), 0x9F0);
                     }
                     if (GameBgm::GetInstance_unk() != 0) {
-                        if (mgr->m2B84 == 0 || mgr->m2B84 == 3) {
+                        if (mgr->m2B80.m04 == 0 || mgr->m2B80.m04 == 3) {
                             GameBgm::GetInstance_unk()->fn_8037D4C0(0x8CB, 15, 1, 0, 0.8f);
-                        } else if (mgr->m2B84 == 1 || mgr->m2B84 == 4) {
+                        } else if (mgr->m2B80.m04 == 1 || mgr->m2B80.m04 == 4) {
                             GameBgm::GetInstance_unk()->fn_8037D4C0(0x3F5, 15, 1, 0, 0.8f);
                         } else {
                             GameBgm::GetInstance_unk()->fn_8037D4C0(0x1F6, 15, 1, 0x21FC, 0.8f);
@@ -3654,9 +3664,9 @@ void MP::Manager2::vf10() {
                     GameBgm::GetInstance_unk()->fn_8037D4C0(0x8B8, 30, 1, 0, 1.0f);
                 }
             } else if (((GameUISession_unk*)mgr)->GetM50C_unk() == 5) {
-                if (mgr->m2B84 == 0 || mgr->m2B84 == 3) {
+                if (mgr->m2B80.m04 == 0 || mgr->m2B80.m04 == 3) {
                     GameBgm::GetInstance_unk()->fn_8037D4C0(0x8CB, 30, 1, 0, 0.8f);
-                } else if (mgr->m2B84 == 1 || mgr->m2B84 == 4) {
+                } else if (mgr->m2B80.m04 == 1 || mgr->m2B80.m04 == 4) {
                     GameBgm::GetInstance_unk()->fn_8037D4C0(0x3F5, 30, 1, 0, 0.8f);
                 } else {
                     GameBgm::GetInstance_unk()->fn_8037D4C0(0x1F6, 30, 1, 0x21FC, 0.8f);
@@ -5308,29 +5318,29 @@ extern "C" int fn_804E4C5C(const PPManager2_unk* mgr);
 // winning team in mode 1) and sorts them by score (not in mode 2)
 // inferred: slot `i` of the ranking; name invented
 static inline PPPlayer_unk& PPRanked_unk(PPManager2_unk* mgr, int i) {
-    return mgr->m2B88[i];
+    return mgr->m2B80.m08[i];
 }
 extern "C" void fn_804DF4B8(PPManager2_unk* mgr) {
-    mgr->m2B88.clear();
+    mgr->m2B80.m08.clear();
     for (int i = 0; i < (int)mgr->mPlayers.size(); i++) {
         PPPlayer_unk* player = fn_804D5F0C(mgr, i);
         if (player->mFlags.mActive == 1) {
-            mgr->m2B88.push_back(*player);
+            mgr->m2B80.m08.push_back(*player);
         }
     }
     if (mgr->mMode != 2) {
-        for (int i = 0; i < (int)mgr->m2B88.size(); i++) {
+        for (int i = 0; i < (int)mgr->m2B80.m08.size(); i++) {
             PPRanked_unk(mgr, i).mD58 = PPRanked_unk(mgr, i).mDCScore;
         }
         if (mgr->mMode == 1) {
             int team = fn_804E4C5C(mgr);
-            for (int i = 0; i < (int)mgr->m2B88.size(); i++) {
+            for (int i = 0; i < (int)mgr->m2B80.m08.size(); i++) {
                 if (PPRanked_unk(mgr, i).mFlags.m22 == team) {
                     PPRanked_unk(mgr, i).mD58 += 1000;
                 }
             }
         }
-        MslSort_unk(mgr->m2B88.begin(), mgr->m2B88.end(), PPScoreLess_unk());
+        MslSort_unk(mgr->m2B80.m08.begin(), mgr->m2B80.m08.end(), PPScoreLess_unk());
     }
 }
 // inferred: emitted here in the original, after fn_804DF4B8 (its only caller): 0x804E0694
@@ -5404,7 +5414,7 @@ extern "C" void fn_804E448C(PPManager2_unk* mgr) {
         result = rank == 0 ? 3 : 4;
     }
     list = &lbl_8087F628->mFriendList;
-    mgr->m2B84 = result;
+    mgr->m2B80.m04 = result;
     mgr->m966C = rank;
     mgr->m9670 = fn_804E4A60(mgr, own);
     mgr->m967C = fn_805076F8(&mgr->m610, mgr->mMode, mgr->m55C, mgr->m9670);
@@ -5493,23 +5503,23 @@ extern "C" int fn_804E4A20(PPManager2_unk* mgr) {
 extern "C" __declspec(noinline) int fn_804E4A60(PPManager2_unk* mgr, PPPlayer_unk*) {
     int result;
     if (mgr->mMode == 0) {
-        if (mgr->m2B84 == 0) {
+        if (mgr->m2B80.m04 == 0) {
             result = 0;
-        } else if (mgr->m2B84 == 1 && mgr->m966C == 5 && fn_804E4C34(mgr) != 0) {
+        } else if (mgr->m2B80.m04 == 1 && mgr->m966C == 5 && fn_804E4C34(mgr) != 0) {
             result = 2;
         } else {
             result = 1;
         }
     } else if (mgr->mMode == 1) {
-        if (mgr->m2B84 == 0) {
+        if (mgr->m2B80.m04 == 0) {
             result = 0;
-        } else if (mgr->m2B84 == 1) {
+        } else if (mgr->m2B80.m04 == 1) {
             result = 2;
         } else {
             result = 1;
         }
     } else {
-        result = mgr->m2B84 == 3 ? 0 : 2;
+        result = mgr->m2B80.m04 == 3 ? 0 : 2;
     }
     return result;
 }
@@ -5523,27 +5533,27 @@ extern "C" int fn_804E4B44(PPManager2_unk* mgr, PPPlayer_unk* target) {
         if (mgr->mMode != 1 || fn_804E4C5C(mgr) != 3) {
             int rank = 0;
             int run = 0;
-            for (int i = 0; i < (int)mgr->m2B88.size(); i++) {
-                if (i > 0 && mgr->m2B88[i].mD58 != mgr->m2B88[i - 1].mD58) {
+            for (int i = 0; i < (int)mgr->m2B80.m08.size(); i++) {
+                if (i > 0 && mgr->m2B80.m08[i].mD58 != mgr->m2B80.m08[i - 1].mD58) {
                     rank += run;
                     run = 0;
                 }
-                if (mgr->m2B88[i].mRef.mChara == target->mRef.mChara) {
+                if (mgr->m2B80.m08[i].mRef.mChara == target->mRef.mChara) {
                     result = rank;
                 }
                 run++;
             }
         }
     } else {
-        result = mgr->m2B80 != 3;
+        result = mgr->m2B80.m00 != 3;
     }
     return result;
 }
 
 // inferred: fn_804E4B44 on the last slot of m2B8C (-1 when there is none)
 extern "C" int fn_804E4C34(PPManager2_unk* mgr) {
-    if (mgr->m2B88.size() != 0) {
-        return fn_804E4B44(mgr, &mgr->m2B88[mgr->m2B88.size() - 1]);
+    if (mgr->m2B80.m08.size() != 0) {
+        return fn_804E4B44(mgr, &mgr->m2B80.m08[mgr->m2B80.m08.size() - 1]);
     }
     return -1;
 }
@@ -5552,8 +5562,8 @@ extern "C" int fn_804E4C34(PPManager2_unk* mgr) {
 static inline int PPTeamScore_unk(const PPManager2_unk* mgr, int team) {
     int score[3];
     memset(score, 0, sizeof(score));
-    for (unsigned int i = 0; i < mgr->m2B88.size(); i++) {
-        const PPPlayer_unk& player = mgr->m2B88.mData[i];
+    for (unsigned int i = 0; i < mgr->m2B80.m08.size(); i++) {
+        const PPPlayer_unk& player = mgr->m2B80.m08.mData[i];
         score[player.mFlags.m22] += player.mDCScore;
     }
     return score[team];
@@ -5583,7 +5593,7 @@ extern "C" int fn_804E4C5C(const PPManager2_unk* mgr) {
         return best;
     }
     default:
-        return (mgr->m2B80 == 3) + 1;
+        return (mgr->m2B80.m00 == 3) + 1;
     }
     return 3;
 }
@@ -5745,7 +5755,7 @@ extern "C" void fn_804E5BC4(PPManager2_unk* mgr) {
         for (int i = 0; i < (int)mgr->mPlayers.size(); i++) {
             PPPlayer_unk* player = PPSlot_unk(mgr, i);
             if (player->mFlags.mActive == 1 && player->mDCScore >= mgr->m568) {
-                mgr->m2B80 = 1;
+                mgr->m2B80.m00 = 1;
                 mgr->m50C = 1;
             }
         }
@@ -5757,7 +5767,7 @@ extern "C" void fn_804E5BC4(PPManager2_unk* mgr) {
             if (remain <= 0) {
                 remain = 0;
                 if (!own->mFlags.m26) {
-                    mgr->m2B80 = 1;
+                    mgr->m2B80.m00 = 1;
                     mgr->m50C = 1;
                     mgr->m534 = 1;
                 }
@@ -5775,7 +5785,7 @@ extern "C" void fn_804E5BC4(PPManager2_unk* mgr) {
                 }
             }
             if (counts[2] == 0 || counts[1] == 0) {
-                mgr->m2B80 = 1;
+                mgr->m2B80.m00 = 1;
                 mgr->m50C = 1;
             }
         } else if (mgr->mMode == 0) {
@@ -5789,7 +5799,7 @@ extern "C" void fn_804E5BC4(PPManager2_unk* mgr) {
                 }
             }
             if (n <= 1) {
-                mgr->m2B80 = 1;
+                mgr->m2B80.m00 = 1;
                 mgr->m50C = 1;
             }
         } else if (mgr->mMode == 2) {
@@ -5828,10 +5838,10 @@ extern "C" void fn_804E5BC4(PPManager2_unk* mgr) {
                 }
             }
             if (dead) {
-                mgr->m2B80 = 1;
+                mgr->m2B80.m00 = 1;
                 mgr->m50C = 1;
             } else if (bosses) {
-                mgr->m2B80 = 3;
+                mgr->m2B80.m00 = 3;
                 mgr->m50C = 1;
             }
         }
@@ -9085,7 +9095,7 @@ extern "C" void fn_804F4E40() {
             player->mDC.fn_80501288((CharaTask*)data->mIds[i]);
         }
     }
-    ((PPManager2_unk*)lbl_8087F610)->m2B80 = data->m10;
+    ((PPManager2_unk*)lbl_8087F610)->m2B80.m00 = data->m10;
     ((PPManager2_unk*)lbl_8087F610)->m534 = data->m10 == 1;
     ((PPManager2_unk*)lbl_8087F610)->m50C = 3;
 }
