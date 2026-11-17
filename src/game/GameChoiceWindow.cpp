@@ -434,7 +434,8 @@ int GameChoiceWindow::fn_803B4C24() {
 template <>
 inline void std::__vec_split_unk<std::basic_string<wchar_t> >::__push_front_unk(std::basic_string<wchar_t>* first,
                                                                               std::basic_string<wchar_t>* last) {
-    int n = last - first;
+    // inferred: a byte difference, so that (data + size) - data is not folded (as std/vector_wstring.h)
+    int n = ((char*)last - (char*)first) / (int)sizeof(std::basic_string<wchar_t>);
     mStart -= n;
     memcpy(begin(), first, n * sizeof(std::basic_string<wchar_t>));
     memset(first, 0, n * sizeof(std::basic_string<wchar_t>));
@@ -443,8 +444,8 @@ inline void std::__vec_split_unk<std::basic_string<wchar_t> >::__push_front_unk(
 
 // inferred: splits the text of the message into the (up to four) choices, one per line, and sets their
 // texts; the empty choices are disabled (all of them empty: the first one stays enabled)
-// NONMATCHING: 98.9% - in the move of the reallocation the original keeps `data + size - data` unfolded (add/subf
-// before the division by 12; tried an unsigned count, a distance inline, a dead generic loop) and r18/r19 swap
+// NONMATCHING: 99.9% - r18/r19 swap (the reallocation buffer and the moved count) and the wide literal pool
+// (L"" at +0 of lbl_8087DD88 in the original, see fn_803B5974); tried an unsigned count, the size in a local
 void GameChoiceWindow::fn_803B4C38() {
     mChoice = -1;
     mCount = 1;
