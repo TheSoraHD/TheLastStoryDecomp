@@ -22,11 +22,12 @@ Inicio: 2026-11-17 04:23 CET (tope 06:53).
 | Em202ForestSpider vf14, vf0C, ctor | 93 / 97,2 / 98,75 % | sin cambios (6 formas de los operadores de color probadas) |
 | Em302KrakenMp vf0C | 99,31 % | 99,31 % (sin el local `zero`; rotacion de registros sin abrir) |
 | Em206CocoonMp vf100 (0x802BB410) | 99,76 % | **100 %** (mnemcheck limpio) |
-| Em206CocoonMp vf40 / vf114 | 99,51 / 99,70 % | 99,84 / 99,95 % |
+| Em206CocoonMp vf40 (0x802BB104) | 99,51 % | **100 %** (aviso de hielo como inline `NotifyIce_unk`) |
+| Em206CocoonMp vf114 / vf20 | 99,70 / 99,45 % | 99,93 / 99,88 % |
 | Em206CocoonMp fn_802BF5C0 / fn_802BC4EC | 93,94 / 96,27 % | 95,59 / 96,50 % |
 | Em206 ctor, LastCocoonChrysalis ctor, GimmickManager LoadSeTableTask::vf0C (presupuesto de inline) | 0 % | sin cambios (sin idea nueva) |
 
-Funciones al 100 %: 15922 -> 15923 (+1, Em206CocoonMp::vf100; vf6C de EnemyTasha ya contaba en report.json). lost 0, sin bajadas.
+Funciones al 100 %: 15922 -> 15924 (+2, Em206CocoonMp::vf100 y vf40; vf6C de EnemyTasha ya contaba en report.json). lost 0, sin bajadas.
 Barrido de saltos (semdiff) hecho en Em206CocoonMp, Em302KrakenMp, EnemyTasha, Em301LShade y Em202ForestSpider: los saltos con otro destino que quedan son de alineado (no de flujo).
 
 ## Para el port
@@ -37,6 +38,7 @@ Barrido de saltos (semdiff) hecho en Em206CocoonMp, Em302KrakenMp, EnemyTasha, E
 - Em301LShade::fn_802D5D18 devuelve `void` (antes `int`; el unico llamador ignora el valor).
 - Em301LShade::vf10: las pinzas de color son ternarios (`c.r = m15E4 == 0 ? MIN_unk(...) : MIN_unk(...)`), sin cambio de comportamiento; la direccion al objetivo se construye con el ctor y se gira in situ.
 - Em301LShade::fn_802D4628: la tasa es `MAX(m156C, m1564 - m1568 * m1560)` (igual que antes); pos de dano con `+=`.
+- Em206CocoonMp: `NotifyIce_unk()` nueva inline en la cabecera (vf40 y vf114, mismo codigo); copias de vf20 con `atn::VecAssign_unk`.
 - Em206CocoonMp::fn_802BF5C0: pinzas escritas como `if` sobre las variables (`speed`, `wide`, `over`, `accel`); misma semantica que los MIN/MAX anteriores; `turn *= t`.
 - EnemyTasha: `FrontDir_unk(const atn::Vector3&)` (antes `float`), copias a m1534 y `diff` con `atn::VecAssign_unk`.
 - Literales: `@stringBase0` de EnemyTasha mide 0x2E1 (el "" final).
@@ -60,6 +62,9 @@ Barrido de saltos (semdiff) hecho en Em206CocoonMp, Em302KrakenMp, EnemyTasha, E
 - lblseq.py puede dejar un `@N` de symbols.txt sin pareja cuando el orden de la `.sdata2` del nuestro difiere del original: `lblval.py` da el candidato por valor y `pdfix.py 0xADDR=@N` lo arregla (Em206CocoonMp) (escribir-20261116 qW2b).
 - `semdiff.py` de agentes/bin hace `chdir` a work-N: copia con `os.chdir(os.environ.get("WDIR", os.getcwd()))` en `/home/claude/scratch-W2b/bin/semdiff.py`; `rows.py <unidad> <simbolo> <desde> <hasta>` (misma carpeta) imprime las filas alineadas de objdiff con `*` en las distintas (escribir-20261116 qW2b).
 
+- El mismo bloque repetido en dos funciones (aqui `BattleTask* mgr = ...; pos = vfAC(); mgr->fn_80108F38(&pos, 0x4000)` en vf40 y vf114) suele ser una inline del original: escribirla como inline cambia el reparto de registros salvados (Em206CocoonMp::vf40 al 100 %) (escribir-20261116 qW2b).
+- Anadir un `#include` (math/VecAssign_unk.h) desplaza todos los `@N` de la unidad; tras pd.sh pasar lblseq.py --apply y lblval.py (los `UNP` se arreglan con pdfix.py por direccion) (escribir-20261116 qW2b).
+
 ## Bloqueos
 - Operadores de color de Em202SpiderBase (`(target - c) * 0.15f + c`, vf14 de cuatro unidades al 93 %): 6 combinaciones ctor/local de operator-, operator+, operator* y tres formas de la suma sin mejora; el original pone el producto por debajo de la diferencia en la pila (escribir-20261116 qW2b).
 - Em206CocoonMp::fn_802BEE44: el original compara en tiempo de ejecucion `1.0f > 1.0f` (speed = 1.0); con if, inline o MIN el nuestro lo pliega (escribir-20261116 qW2b).
@@ -68,4 +73,4 @@ Barrido de saltos (semdiff) hecho en Em206CocoonMp, Em302KrakenMp, EnemyTasha, E
 
 ## Cambios de splits/symbols
 - symbols.txt: `@stringBase0` de EnemyTasha (0x8074B0A4) 0x2E0 -> 0x2E1 (el "" final que dtk dejaba fuera; vf6C al 100 %).
-- Re-emparejados con pd.sh/pdbatch.sh: Em301LShade (+ lblseq.py --apply dos veces), Em202ForestSpider, Em206CocoonMp (lblseq.py --apply y `pdfix.py 0x808841CC=@18473`), EnemyTasha, Em302KrakenMp (lblseq.py --apply). Solo renombrados de `@N` de `.sdata2`.
+- Re-emparejados con pd.sh/pdbatch.sh: Em301LShade (+ lblseq.py --apply dos veces), Em202ForestSpider, Em206CocoonMp (lblseq.py --apply y pdfix.py por direccion de 0x80884178 y 0x808841CC), EnemyTasha, Em302KrakenMp (lblseq.py --apply). Solo renombrados de `@N` de `.sdata2`.
