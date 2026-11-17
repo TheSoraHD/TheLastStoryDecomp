@@ -5,23 +5,28 @@ Inicio: 2026-11-17 08:55 (tope 10:55). Rama agent-N5b.
 | Funcion | Antes | Despues |
 |---|---|---|
 | gmk/SwingObject vf10 | 95,8 % | 98,36 % (e418d23) |
-| gmk/SwingObject SwingPart_unk ctor | 99,5 % | |
+| gmk/SwingObject SwingPart_unk ctor | 99,5 % | 99,46 % (sin cambio) |
 | gmk/SwingObject fn_803FFF40 | 96,4 % | 99,90 % (e418d23) |
 | gmk/SwingObject fn_804003E0 | 97,2 % | **100 %** (e418d23) |
-| gmk/PassBoard vf0C | 98,7 % | |
-| gmk/RandomMerchant vf10 / vf20 | 98,6 / 99,3 % | |
-| gmk/MotionObject vf10 / vf24 | 97,8 / 99,9 % | |
-| gmk/LandMine Start | 98,3 % | |
+| gmk/PassBoard vf0C | 98,7 % | sin cambio (no trabajada: bloqueo del cursor) |
+| gmk/RandomMerchant vf10 / vf20 | 98,6 / 99,3 % | sin cambio (no trabajadas: bloqueo del cursor) |
+| gmk/MotionObject vf10 / vf24 | 97,8 / 99,9 % | sin cambio |
+| gmk/LandMine Start | 98,3 % | sin cambio (no trabajada) |
 | gmk/ChickenManager vf0C (extra) | 93,9 % | 96,15 % (b30a05d) |
 | gmk/RotaryRoom fn_80424AD4 (extra) | 99,16 % | **100 %** (b3c2971) |
 | gmk/RotaryRoom fn_80424FB4 (extra) | 99,15 % | **100 %** (66be691) |
-| gmk/PigeonManager vf0C (extra) | 93,92 % | 96,15 % |
+| gmk/PigeonManager vf0C (extra) | 93,92 % | 96,15 % (d35674b) |
 | gmk/RotaryRoom vf0C (extra) | 96,14 % | 96,23 % (66be691) |
 | gmk/RotaryRoom vf10 (extra) | 95,65 % | 95,85 % (59cd3d6) |
-| gmk/InteractionSpot Start (extra) | 97,81 % | 98,07 % |
+| gmk/InteractionSpot Start (extra) | 97,81 % | 98,07 % (3a59809) |
 | gmk/WaitObject vf20 (extra) | 99,95 % | 99,98 % (b3c2971) |
-| gmk/BulletPoint vf10 | 98,5 % | |
+| gmk/BulletPoint vf10 | 98,5 % | sin cambio |
 | gmk/ShakeCamera vf10 | 98,2 % | 99,34 % (b30a05d) |
+
+Resumen: 3 funciones nuevas al 100 % (SwingPart_unk fn_804003E0, RotaryRoom fn_80424AD4 y fn_80424FB4);
+report.json 15953 -> 15956, lost 0, sin bajadas, labelcheck/rep100 igual. Ninguna unidad nueva enlaza
+(SwingObject 17/20: faltan vf10 98,36, SwingPart ctor 99,46 y fn_803FFF40 99,90; RotaryRoom 15/18: faltan
+vf0C 96,2, vf10 95,9 y fn_80425498 99,7).
 
 ## Variantes probadas
 
