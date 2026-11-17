@@ -230,10 +230,14 @@ extern "C" int fn_804CF634(PPChara_unk* chara) {
 
 #include "game/BattleTask.h"
 extern "C" BattleTask* lbl_8087F048; // inferred: battle manager (as game/BattleCharaTask.cpp)
+// inferred: battle manager (weak copy 0x8013A194 of another file)
+inline BattleTask* fn_8013A194() {
+    return lbl_8087F048;
+}
 // inferred: the targets of the slot and of the list entry of `chara` (defined after MP::Manager2, inlined)
 static inline void PPSetTargets_unk(CharaTask* chara, const PackedChara_unk* in);
-// NONMATCHING: 96.92% - the original keeps lbl_8087F048 in a saved register between the two effect calls
-// (stack frame 0x40), scheduling of the two float values
+// NONMATCHING: 98.41% - scheduling of the two float values, a branch of the flags and reloads of lbl_8087F610 in
+// the inlined searches
 // inferred: applies the packed state of a character (fn_804CF468): part, state, values mFB8/mFBC, hit, flags,
 // the status bits of m13 (each one with its effect of the battle), the motion mode and the targets
 extern "C" void fn_804CF640(const PackedChara_unk* in, CharaTask* chara) {
@@ -271,88 +275,88 @@ extern "C" void fn_804CF640(const PackedChara_unk* in, CharaTask* chara) {
         if (in->m13_7 && !chara->mStatus.IsState_unk(0x80000)) {
             chara->mStatus.fn_80133130(0x80000, 100000, 0);
             if (lbl_8087F048 != 0) {
-                lbl_8087F048->fn_80107E58(&chara->mMotion);
-                lbl_8087F048->fn_80107DA4(&chara->mMotion, &chara->mMotion, chara->vf90(), chara->vf94());
+                fn_8013A194()->fn_80107E58(&chara->mMotion);
+                fn_8013A194()->fn_80107DA4(&chara->mMotion, &chara->mMotion, chara->vf90(), chara->vf94());
             }
         } else if (!in->m13_7 && chara->mStatus.IsState_unk(0x80000)) {
             chara->mStatus.fn_8013322C(0x80000);
             if (lbl_8087F048 != 0) {
-                lbl_8087F048->fn_80107E58(&chara->mMotion);
+                fn_8013A194()->fn_80107E58(&chara->mMotion);
             }
         }
         if (in->m13_6 && !chara->mStatus.IsState_unk(4)) {
             chara->mStatus.fn_80133130(4, 100000, 0);
             if (lbl_8087F048 != 0) {
-                lbl_8087F048->fn_80107D94(&chara->mMotion);
-                lbl_8087F048->fn_80107CEC(&chara->mMotion, &chara->mMotion, chara->vf90());
+                fn_8013A194()->fn_80107D94(&chara->mMotion);
+                fn_8013A194()->fn_80107CEC(&chara->mMotion, &chara->mMotion, chara->vf90());
             }
         } else if (!in->m13_6 && chara->mStatus.IsState_unk(4)) {
             chara->mStatus.fn_8013322C(4);
             if (lbl_8087F048 != 0) {
-                lbl_8087F048->fn_80107D94(&chara->mMotion);
+                fn_8013A194()->fn_80107D94(&chara->mMotion);
             }
         }
         if (in->m13_5 && !chara->mStatus.IsState_unk(0x2000000)) {
             chara->mStatus.fn_80133130(0x2000000, 100000, 0);
             if (lbl_8087F048 != 0) {
-                lbl_8087F048->fn_80107FC8(&chara->mMotion);
-                lbl_8087F048->fn_80107F20(&chara->mMotion, &chara->mMotion, chara->vf90());
+                fn_8013A194()->fn_80107FC8(&chara->mMotion);
+                fn_8013A194()->fn_80107F20(&chara->mMotion, &chara->mMotion, chara->vf90());
             }
         } else if (!in->m13_5 && chara->mStatus.IsState_unk(0x2000000)) {
             chara->mStatus.fn_8013322C(0x2000000);
             if (lbl_8087F048 != 0) {
-                lbl_8087F048->fn_80107FC8(&chara->mMotion);
+                fn_8013A194()->fn_80107FC8(&chara->mMotion);
             }
         }
         if (in->m13_4 && !chara->mStatus.IsState_unk(0x400000)) {
             chara->mStatus.fn_80133130(0x400000, 100000, 0);
             if (lbl_8087F048 != 0) {
-                lbl_8087F048->fn_80107F10(&chara->mMotion);
-                lbl_8087F048->fn_80107E68(&chara->mMotion, &chara->mMotion);
+                fn_8013A194()->fn_80107F10(&chara->mMotion);
+                fn_8013A194()->fn_80107E68(&chara->mMotion, &chara->mMotion);
             }
         } else if (!in->m13_4 && chara->mStatus.IsState_unk(0x400000)) {
             chara->mStatus.fn_8013322C(0x400000);
             if (lbl_8087F048 != 0) {
-                lbl_8087F048->fn_80107F10(&chara->mMotion);
+                fn_8013A194()->fn_80107F10(&chara->mMotion);
             }
         }
         if (in->m13_3 && !chara->mStatus.IsState_unk(1)) {
             chara->mStatus.fn_80133130(1, 100000, 0);
             if (lbl_8087F048 != 0) {
-                lbl_8087F048->fn_801079B0(&chara->mMotion);
-                lbl_8087F048->fn_80107908(&chara->mMotion, &chara->mMotion);
+                fn_8013A194()->fn_801079B0(&chara->mMotion);
+                fn_8013A194()->fn_80107908(&chara->mMotion, &chara->mMotion);
             }
         } else if (!in->m13_3 && chara->mStatus.IsState_unk(1)) {
             chara->mStatus.fn_8013322C(1);
             if (lbl_8087F048 != 0) {
-                lbl_8087F048->fn_801079B0(&chara->mMotion);
+                fn_8013A194()->fn_801079B0(&chara->mMotion);
             }
         }
         if (in->m13_2 && !chara->mStatus.IsState_unk(0x8000)) {
             chara->mStatus.fn_80133130(0x8000, 100000, 0);
             if (lbl_8087F048 != 0) {
-                lbl_8087F048->fn_80107BD8(&chara->mMotion);
-                lbl_8087F048->fn_80107380(chara);
-                lbl_8087F048->fn_80107B30(&chara->mMotion, &chara->mMotion);
-                lbl_8087F048->fn_80107274(chara);
+                fn_8013A194()->fn_80107BD8(&chara->mMotion);
+                fn_8013A194()->fn_80107380(chara);
+                fn_8013A194()->fn_80107B30(&chara->mMotion, &chara->mMotion);
+                fn_8013A194()->fn_80107274(chara);
             }
         } else if (!in->m13_2 && chara->mStatus.IsState_unk(0x8000)) {
             chara->mStatus.fn_8013322C(0x8000);
             if (lbl_8087F048 != 0) {
-                lbl_8087F048->fn_80107BD8(&chara->mMotion);
-                lbl_8087F048->fn_80107380(chara);
+                fn_8013A194()->fn_80107BD8(&chara->mMotion);
+                fn_8013A194()->fn_80107380(chara);
             }
         }
         if (in->m13_0 && !chara->mStatus.IsState_unk(0x80)) {
             chara->mStatus.fn_80133130(0x80, 100000, 0);
             if (lbl_8087F048 != 0) {
-                lbl_8087F048->fn_80107798(&chara->mMotion, 1);
-                lbl_8087F048->fn_801076D0(&chara->mMotion, &chara->mMotion);
+                fn_8013A194()->fn_80107798(&chara->mMotion, 1);
+                fn_8013A194()->fn_801076D0(&chara->mMotion, &chara->mMotion);
             }
         } else if (!in->m13_0 && chara->mStatus.IsState_unk(0x80)) {
             chara->mStatus.fn_8013322C(0x80);
             if (lbl_8087F048 != 0) {
-                lbl_8087F048->fn_80107798(&chara->mMotion, 1);
+                fn_8013A194()->fn_80107798(&chara->mMotion, 1);
             }
         }
     } else {
@@ -9026,8 +9030,8 @@ extern "C" void fn_804EFF74(PPPlayer_unk* player, unsigned int type) {
         return;
     }
     if (lbl_8087F048 != 0 && fn_8021A684(fn_80219E6C(data->mHitId))) {
-        lbl_8087F048->fn_80102EAC(target, attacker, 90, -1);
-        lbl_8087F048->fn_801031D0(attacker, target, 0);
+        fn_8013A194()->fn_80102EAC(target, attacker, 90, -1);
+        fn_8013A194()->fn_801031D0(attacker, target, 0);
     }
     fn_8014F8F4()->mEnabled = 0;
     if (attacker != 0) {
@@ -9035,7 +9039,7 @@ extern "C" void fn_804EFF74(PPPlayer_unk* player, unsigned int type) {
         for (unsigned int i = 0; i < fn_804F1060(); i++) {
             if (data->mEntries[i].mId != 0) {
                 PPAddEntry_unk(attacker->GetStatus_unk(), data->mEntries[i]);
-                lbl_8087F048->fn_80109864((SpEffect_unk*)&data->mEntries[i], attacker);
+                fn_8013A194()->fn_80109864((SpEffect_unk*)&data->mEntries[i], attacker);
             }
         }
     }
@@ -9089,7 +9093,7 @@ extern "C" void fn_804EFF74(PPPlayer_unk* player, unsigned int type) {
                         target->mStatus.fn_8012DF7C(heal.mDamage, 0, 0);
                         atn::Vector3 pos = target->mPos;
                         pos += atn::Vector3(0.0f, 10.0f, 0.0f);
-                        lbl_8087F048->fn_80108C10(&heal, pos, target, target, 0, 0);
+                        fn_8013A194()->fn_80108C10(&heal, pos, target, target, 0, 0);
                     }
                 }
                 if (attacker != 0 && fn_8021A77C(hit)) {
@@ -9123,8 +9127,8 @@ extern "C" void fn_804EFF74(PPPlayer_unk* player, unsigned int type) {
                         calc.m84 = 0;
                     }
                     if (lbl_8087F048 != 0) {
-                        lbl_8087F048->fn_801018E4(&calc);
-                        lbl_8087F048->fn_80101CDC(&calc);
+                        fn_8013A194()->fn_801018E4(&calc);
+                        fn_8013A194()->fn_80101CDC(&calc);
                     }
                     if (result.mDamage > 0) {
                         target->mC4C = 0;
@@ -9140,7 +9144,7 @@ extern "C" void fn_804EFF74(PPPlayer_unk* player, unsigned int type) {
             }
             if (apply && lbl_8087F048 != 0 && (hit->mAC & 0x80000) != 0x80000 && hit->m01 != 6 && hit->m01 != 5 &&
                 hit->m01 != 3 && hit->m04 != 0x1774 && hit->m04 != 0x4FCC) {
-                lbl_8087F048->fn_80108C10(&result, target->vfAC(), attacker, 0, flags, 0);
+                fn_8013A194()->fn_80108C10(&result, target->vfAC(), attacker, 0, flags, 0);
             }
         }
     } else if (type == 11) {

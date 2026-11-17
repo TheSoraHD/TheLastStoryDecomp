@@ -25,7 +25,8 @@ Inicio: 2026-11-17 08:08 CET (tope 10:38).
 | fn_804F60E0 | 99,60 % | 100 % (local `v` declarado antes del ultimo bucle) |
 | fn_804FC7E0 | 96,86 % | 98,90 % (dos `if` del equipo sin `else`; `point` declarado arriba) |
 | fn_804E8BF4 | 98,87 % | 99,76 % (`category` asignada despues de `value`) |
-| fn_804EFF74 | 99,23 % | 99,28 % (push_back de las entradas por una inline sobre el CharaStatus) |
+| fn_804EFF74 | 99,23 % | 99,35 % (push_back de las entradas por una inline sobre el CharaStatus; getter fn_8013A194) |
+| fn_804CF640 | 96,92 % | 98,41 % (getter debil fn_8013A194 del BattleTask en las llamadas) |
 | fn_804EAA84 | 99,91 % | 99,91 % (sin cambios: ver Bloqueos) |
 | fn_804CF198 | 99,37 % | 99,37 % (sin cambios: ver Bloqueos) |
 
@@ -43,6 +44,8 @@ Inicio: 2026-11-17 08:08 CET (tope 10:38).
   mismo comportamiento. fn_804E8BF4: `category` se asigna despues de `value` (mismo comportamiento).
 - fn_804EFF74: el push_back de las entradas de estado pasa por la inline nueva `PPAddEntry_unk(CharaStatus*, const
   CharaStatusEntry_unk&)` (mismo comportamiento).
+- fn_804CF640 y fn_804EFF74 llaman a los metodos del BattleTask a traves de la inline `fn_8013A194()` (getter debil
+  de lbl_8087F048, como en Em203GreaterDaemon); mismo comportamiento.
 - Sin cambios de comportamiento: fn_804F60E0 limita el puesto del ultimo bucle a traves de un local `v`.
 
 ## Decisiones tomadas sin el usuario
@@ -56,6 +59,11 @@ Inicio: 2026-11-17 08:08 CET (tope 10:38).
   cuatro llamadas.
 
 ## Hallazgos
+
+- El original carga un global en un registro salvado antes de evaluar los argumentos de la llamada a un metodo
+  (`lwz r29, global` antes de las llamadas virtuales de los argumentos; `mr r3, r29` despues): el objeto viene de un
+  getter debil inline (`fn_8013A194()->f(a, b->vf90())`) y no del global (PacketPack fn_804CF640 96,9 -> 98,4 %)
+  (escribir-20261116 qG5)
 
 - `push_back` de un miembro FixedArray cuya cuenta el original direcciona desde la base del objeto que lo contiene
   (`addi rX, chara, 0x7D4; lwz 0x304(rX)` en vez de `addi rX, chara, 0xAD8; lwz 0(rX)`): la llamada estaba dentro de una
