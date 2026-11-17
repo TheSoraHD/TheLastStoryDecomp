@@ -2127,7 +2127,7 @@
   "classes": [
    "gmk::Leaf"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "gmk/Bat.cpp",

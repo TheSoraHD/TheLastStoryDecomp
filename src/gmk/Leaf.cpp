@@ -149,8 +149,33 @@ int Leaf::vf0C() {
 
 static void (Leaf::*const sStates[])() = {&Leaf::fn_8040161C, &Leaf::fn_80402764, &Leaf::fn_80401BF0};
 
-// NONMATCHING: 95.08% - stack layout: the rotation matrix is above the temporaries of the three
-// __MtxRotate here (the original has it at the bottom, 0x18); registers of the hoisted addresses
+// inferred: translation by components (arguments evaluated z, y, x as in the original)
+static inline void SetTransXYZ_unk(atn::Matrix3x4& m, float x, float y, float z) {
+    m.m[0][3] = x;
+    m.m[1][3] = y;
+    m.m[2][3] = z;
+}
+
+// inferred: rotation matrix z, y, x (inline: its temporaries go below the caller's in the frame)
+static inline void SetRotZYX_unk(atn::Matrix3x4& rot, const atn::Vector3& r) {
+    rot.SetIdentity();
+    __MtxRotate(rot.m, 'z', r.z);
+    __MtxRotate(rot.m, 'y', r.y);
+    __MtxRotate(rot.m, 'x', r.x);
+}
+
+// inferred: matrix of one leaf (inline helper: the stack order of the original needs the extra level)
+static inline void UpdateLeaf_unk(Leaf* self, int i) {
+    LeafEntry_unk& leaf = self->mLeaves[i];
+    atn::Matrix3x4 rot;
+    SetRotZYX_unk(rot, leaf.mRot);
+    atn::Matrix3x4 scale = __ScaleMtx_unk(atn::Vector3(2.0f, 2.0f, 2.0f));
+    atn::Matrix3x4 mtx = __MtxMulV_unk(rot, scale);
+    SetTransXYZ_unk(mtx, self->m6C.x + self->mLeaves[i].mPos.x, self->m6C.y + self->mLeaves[i].mPos.y,
+                    self->m6C.z + self->mLeaves[i].mPos.z);
+    self->mLeaves[i].mInst->fn_8009EE30(mtx);
+}
+
 void Leaf::vf10() {
     switch (mState) {
     case 0:
@@ -167,17 +192,7 @@ void Leaf::vf10() {
     for (int i = 0; i < mNumLeaf; i++) {
         if (sUpdate != 0) {
             mLeaves[i].mInst->fn_8009EB20();
-            LeafEntry_unk& leaf = mLeaves[i];
-            atn::Matrix3x4 rot;
-            rot.SetIdentity();
-            __MtxRotate(rot.m, 'z', leaf.mRot.z);
-            __MtxRotate(rot.m, 'y', leaf.mRot.y);
-            __MtxRotate(rot.m, 'x', leaf.mRot.x);
-            atn::Matrix3x4 mtx = __MtxMulV_unk(rot, __ScaleMtx_unk(atn::Vector3(2.0f, 2.0f, 2.0f)));
-            mtx.m[0][3] = m6C.x + mLeaves[i].mPos.x;
-            mtx.m[1][3] = m6C.y + mLeaves[i].mPos.y;
-            mtx.m[2][3] = m6C.z + mLeaves[i].mPos.z;
-            mLeaves[i].mInst->fn_8009EE30(mtx);
+            UpdateLeaf_unk(this, i);
         }
     }
 }
