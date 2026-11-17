@@ -4104,15 +4104,25 @@ extern "C" void fn_804DA48C(PPManager2_unk* mgr, int value) {
 
 #include "game/AiTarget.h"
 extern "C" int fn_804EB4AC(PPManager2_unk* mgr, PPPlayer_unk* player);
+// inferred: `player` is in the team of the own player: inline copy of fn_804EB4AC that reads the manager through
+// its getter (the registers of the inlined search in fn_804DA4A0 and fn_804E8BF4 follow it; fn_804EB4AC itself
+// reads lbl_8087F610 directly). Name invented
+static inline int PPIsOwnTeam_unk(PPPlayer_unk* player) {
+    PPManager2_unk* m = fn_800F7F90();
+    PPPlayer_unk* me = fn_804DD158(m, lbl_8087F628->GetMyAid_unk());
+    if (me == 0 || player == 0 || !IsTeamPlayer_unk(player)) {
+        return 0;
+    }
+    return me->mAid == (player->mAid & 0xF);
+}
 extern "C" CharaTask* fn_804DD3F0(PPManager2_unk* mgr);
 
-// NONMATCHING: 98.25% - registers (the inlined fn_804EB4AC search, as fn_804EB4AC itself)
 // inferred: the characters of the players of the own team (but the one of fn_804DD3F0) are given back to the AI:
 // with `random` set they get a random action (0x27E5 or 0x27E6) and target themselves
 extern "C" void fn_804DA4A0(PPManager2_unk* mgr, int random) {
     for (int i = 0; i < (int)mgr->mPlayers.size(); i++) {
         PPPlayer_unk* player = &mgr->mPlayers[i];
-        if (player->mFlags.mActive && player->mRef.mChara != 0 && fn_804EB4AC(mgr, player)) {
+        if (player->mFlags.mActive && player->mRef.mChara != 0 && PPIsOwnTeam_unk(player)) {
             CharaTask* chara = player->mRef.mChara;
             if (chara != fn_804DD3F0(mgr)) {
                 if (random != 0) {
@@ -6828,7 +6838,6 @@ static inline PPPlayer_unk* GetMyPlayer_unk() {
 
 extern "C" int fn_804EB4AC(PPManager2_unk* mgr, PPPlayer_unk* player);
 extern "C" PPCharaEntry_unk* fn_804EB814(PPManager2_unk* mgr, CharaTask* chara);
-// NONMATCHING: 99.76% - registers: the killer and the manager of the inlined fn_804EB4AC
 // inferred: a character `killer` defeated `victim`: message 22 (player by player: both aids; only when the victim
 // is marked m30 or is in the team of the own player), 23 (player by an enemy of the list in use: aid and index)
 // or 24 (enemy by player: index and aid, same condition as 22); shown by fn_804F50DC and sent to everybody
@@ -6840,7 +6849,7 @@ extern "C" int fn_804E8BF4(PPManager2_unk* mgr, CharaTask* killer, CharaTask* vi
         PPPlayer_unk* a = FindByChara_unk(mgr, killer);
         if (FindByChara_unk(mgr, victim) != 0) {
             PPPlayer_unk* b = FindByChara_unk(mgr, victim);
-            if (b->mFlags.m30 == 1 || fn_804EB4AC(mgr, b) != 0) {
+            if (b->mFlags.m30 == 1 || PPIsOwnTeam_unk(b) != 0) {
                 category = 22;
                 value = (a->mAid << 8) | b->mAid;
             }
@@ -6852,7 +6861,7 @@ extern "C" int fn_804E8BF4(PPManager2_unk* mgr, CharaTask* killer, CharaTask* vi
         FindCharaIndex_unk(mgr, killer);
         if (FindByChara_unk(mgr, victim) != 0) {
             PPPlayer_unk* b = FindByChara_unk(mgr, victim);
-            if (b->mFlags.m30 == 1 || fn_804EB4AC(mgr, b) != 0) {
+            if (b->mFlags.m30 == 1 || PPIsOwnTeam_unk(b) != 0) {
                 value = (FindCharaIndex_unk(mgr, killer) << 8) | b->mAid;
                 category = 24;
             }
