@@ -4298,7 +4298,6 @@ extern "C" int fn_804DB474(PPManager2_unk* mgr) {
     return result;
 }
 
-// NONMATCHING: 94.82% - the original takes the zero of the loop as a copy of the index (mr r29, r26), as fn_804DF310
 // inferred: resets the player slots in the modes 0 and 2 and ends the session (mode 3) or the match (0, 1)
 extern "C" int fn_804DBD08(PPManager2_unk* mgr, int mode) {
     if (mode == 0 || mode == 2) {
@@ -4670,7 +4669,7 @@ extern "C" void fn_804DCA54(PPManager2_unk* mgr) {
         int counts[3];
         memset(counts, 0, sizeof(counts));
         PPManager2_unk* mgr2 = (PPManager2_unk*)lbl_8087F610;
-        for (int k = 0; k < (int)mgr2->mPlayers.size(); k++) {
+        for (int k = 0; k < (int)((PPManager2_unk*)lbl_8087F610)->mPlayers.size(); k++) {
             PPPlayer_unk* other = fn_804D5F0C(mgr2, k);
             if (other->mFlags.mActive == 1) {
                 counts[other->mFlags.m22]++;
@@ -4956,7 +4955,7 @@ extern "C" int fn_804DD574(PPManager2_unk* mgr, unsigned int aid, int arg) {
         PPManager2_unk* mgr2 = fn_800F7F90();
         for (int i = 0; i < num; i++) {
             counts[i] = 0;
-            for (int j = 0; j < (int)mgr2->mPlayers.size(); j++) {
+            for (int j = 0; j < (int)((PPManager2_unk*)lbl_8087F610)->mPlayers.size(); j++) {
                 PPPlayer_unk* other = fn_804D5F0C(mgr2, j);
                 if (other->mFlags.mActive == 1 && other->mB0 == table[i]) {
                     counts[i]++;
@@ -5151,7 +5150,7 @@ extern "C" int fn_804DE2F8(PPManager2_unk* mgr, int mode) {
             int counts[3];
             memset(counts, 0, sizeof(counts));
             PPManager2_unk* mgr2 = (PPManager2_unk*)lbl_8087F610;
-            for (int i = 0; i < (int)mgr2->mPlayers.size(); i++) {
+            for (int i = 0; i < (int)((PPManager2_unk*)lbl_8087F610)->mPlayers.size(); i++) {
                 PPPlayer_unk* player = fn_804D5F0C(mgr2, i);
                 if (player->mFlags.mActive == 1) {
                     counts[player->mFlags.m22]++;
@@ -5224,8 +5223,6 @@ public:
 
 atn::Task* fn_80365708(atn::Task* parent, const GameTask::Option& option); // inferred: GameTask creator (game/GameTask)
 
-// NONMATCHING: 99.23% - aid and offset of the inlined searches fn_804DD158 in r3/r4 (r4/r3 in the original) and the
-// own slot and the host count in r31/r30 (r30/r31)
 // inferred: on the server: every other host has a slot and its bit in the mask mD53 of the own slot (count of the
 // set bits in `count`, whether another host has a slot in `found`)
 extern "C" bool fn_804DE560(PPManager2_unk* mgr, int* count, bool* found) {
@@ -5426,8 +5423,6 @@ extern "C" int fn_804DE884(PPManager2_unk* mgr) {
 
 extern "C" void fn_800C3124(const char* group); // inferred: unloads a sound group
 
-// NONMATCHING: 96.79% - the original empties m5F0 as `n - n` (an inlined erase; `n -= n` folds to 0 here) and
-// registers of the inlined search of the own player
 // inferred: end of the game: deletes the game task and the characters of the players (the team players lose
 // their slot), the popup and the effects of the game; with `reset` set also the player slots (fn_804DF310);
 // then the sound groups of the enemies are unloaded
@@ -5492,7 +5487,6 @@ extern "C" void fn_804DF310(PPManager2_unk* mgr) {
 }
 
 // inferred: the game and the characters of the players are ready
-// NONMATCHING: 99% - r3/r4 of the loop (offset and character) swapped, as in fn_804EB870
 extern "C" int fn_804DF404(PPManager2_unk* mgr) {
     if ((mgr->mGame->mFlags & 2) == 2 && mgr->m96B4.IsLoading() == 0 && mgr->m96C0.IsLoading() == 0) {
         for (int i = 0; i < (int)mgr->mPlayers.size(); i++) {
@@ -6139,7 +6133,7 @@ extern "C" void fn_804E5BC4(PPManager2_unk* mgr) {
             int counts[3];
             memset(counts, 0, sizeof(counts));
             PPManager2_unk* mgr2 = (PPManager2_unk*)lbl_8087F610;
-            for (int i = 0; i < (int)mgr2->mPlayers.size(); i++) {
+            for (int i = 0; i < (int)((PPManager2_unk*)lbl_8087F610)->mPlayers.size(); i++) {
                 PPPlayer_unk* player = PPSlot_unk(mgr2, i);
                 if (player->mFlags.mActive == 1 && player->mRef.mChara != 0 &&
                     ((PPChara_unk*)player->mRef.mChara)->m9F8 > 0) {
@@ -6153,7 +6147,7 @@ extern "C" void fn_804E5BC4(PPManager2_unk* mgr) {
         } else if (mgr->mMode == 0) {
             int n = 0;
             PPManager2_unk* mgr2 = (PPManager2_unk*)lbl_8087F610;
-            for (int i = 0; i < (int)mgr2->mPlayers.size(); i++) {
+            for (int i = 0; i < (int)((PPManager2_unk*)lbl_8087F610)->mPlayers.size(); i++) {
                 PPPlayer_unk* player = PPSlot_unk(mgr2, i);
                 if (player->mFlags.mActive == 1 && player->mRef.mChara != 0 &&
                     ((PPChara_unk*)player->mRef.mChara)->m9F8 > 0) {
@@ -6526,8 +6520,6 @@ struct PPMsgSpecialFull_unk {
 };
 #pragma pack(pop)
 
-// NONMATCHING: 98.81% - registers of the loop counters and offsets of the two loops (and of the inlined
-// search fn_804EB870)
 // inferred: sends the full state of the own character (0x1014), of the characters of the team players of this
 // machine (0x101A) and of the character list (0x101A, or 0x101B with the state of the special enemies)
 extern "C" void fn_804E7628(PPManager2_unk* mgr) {
@@ -7320,7 +7312,6 @@ extern "C" int fn_804EAFD0(PPManager2_unk* mgr) {
     return n;
 }
 
-// NONMATCHING: 98.79% - registers of the inlined searches (aid/offset swapped, as fn_804DD1A8)
 // inferred: `chara` is the own character (game mode 0) or in the team of the own player
 extern "C" int fn_804EB010(PPManager2_unk* mgr, CharaTask* chara) {
     PPPlayer_unk* own = PPFindSlot_unk(mgr, lbl_8087F628->GetMyAid_unk());
@@ -7366,7 +7357,6 @@ extern "C" int fn_804EB26C(PPManager2_unk* mgr, int* count) {
     return all;
 }
 
-// NONMATCHING: 99.26% - offset and slot pointer of the second loop swapped (r4/r5)
 // inferred: in game mode 1, the players in use are not all of one team (1 also when there is no team)
 extern "C" int fn_804EB2D8(PPManager2_unk* mgr) {
     if (mgr->mMode != 1) {
@@ -7420,7 +7410,6 @@ extern "C" int fn_804EB480(PPManager2_unk* mgr, PPPlayer_unk* player) {
     return IsTeamPlayer_unk(player);
 }
 
-// NONMATCHING: 99.0% - r3/r4/r5 of the inlined search fn_804DD158 (as fn_804DD1A8)
 // inferred: `player` is in the team of the own player
 extern "C" int fn_804EB4AC(PPManager2_unk* mgr, PPPlayer_unk* player) {
     PPManager2_unk* m = (PPManager2_unk*)lbl_8087F610;
@@ -7499,7 +7488,6 @@ extern "C" PPPlayer_unk* fn_804EB7C4(PPManager2_unk* mgr, CharaTask* chara) {
     return 0;
 }
 
-// NONMATCHING: 97.74% - the index and the entry offset of the loop take each other's registers
 // inferred: the entry of the character list of a character
 extern "C" PPCharaEntry_unk* fn_804EB814(PPManager2_unk* mgr, CharaTask* chara) {
     int index = FindCharaIndex_unk(mgr, chara);
@@ -10059,7 +10047,6 @@ struct PPMsgCharsIn_unk {
     int m10;
 };
 // inferred: message 0x1043: characters of the players and m2B80 (0x10 = team game)
-// NONMATCHING: 99.66% - order of the two pointer increments of the loop
 extern "C" void fn_804F4E40() {
     const PPMsgCharsIn_unk* data = (const PPMsgCharsIn_unk*)fn_804AE3BC()->GetWorkBuffer_unk();
     for (int i = 0; i < 8; i++) {
@@ -10996,8 +10983,6 @@ extern "C" const wchar_t* fn_804FAF48(PPManager2_unk* mgr, int* code, int type) 
 }
 
 // inferred: flag m976C once the network manager reached state 8
-// NONMATCHING: 99.46% - registers of the inlined search fn_804DD158 (aid/offset/count in r4/r3/r5 in the
-// original), as fn_804DD1A8
 // inferred: sets the state of MP::Manager2; entering 12 (end of the match) resets the match values and
 // clears the flag m01 of the server's slot
 extern "C" void fn_804FB220(PPStateVar_unk* state, int value) {
@@ -11201,7 +11186,6 @@ extern "C" int fn_804FB968(PPManager2_unk* mgr, CharaTask* chara) {
 }
 
 // inferred: flag m01 of the slot of the server
-// NONMATCHING: 98.47% - registers of the inlined search (as fn_804DD1A8)
 extern "C" unsigned int fn_804FC010(PPManager2_unk* mgr) {
     PPPlayer_unk* player = fn_804DD158(mgr, lbl_8087F628->GetServerAid_unk());
     if (player != 0) {
@@ -11210,7 +11194,6 @@ extern "C" unsigned int fn_804FC010(PPManager2_unk* mgr) {
     return 0;
 }
 
-// NONMATCHING: 99.12% - r3/r4/r5 of the inlined search fn_804DD158 (as fn_804DD1A8)
 // inferred: on the server, flag m01 of its own slot
 extern "C" void fn_804FC0D4(PPManager2_unk* mgr, int value) {
     if (lbl_8087F628->GetMyAid_unk() == lbl_8087F628->GetServerAid_unk()) {
