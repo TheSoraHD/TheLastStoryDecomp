@@ -846,8 +846,17 @@ struct PPCharaEntry_unk {
 // inferred: the character list of MP::Manager2 is a std::vector (push_back inlined in fn_804E9C64)
 typedef std::vector<PPCharaEntry_unk> PPCharaArray_unk;
 
+// inferred: word arrays of MP::Manager2 cleared by their constructor (memset between the member initializations
+// of the constructor 0x804D0328); name invented
+template <int N>
+struct PPWords_unk {
+    PPWords_unk() { memset(m, 0, sizeof(m)); }
+    int m[N];
+};
+
 // inferred: state variable of MP::Manager2 (value and last value set); names invented
 struct PPStateVar_unk {
+    PPStateVar_unk() : mValue(0), mLast(0) {}
     int mValue;
     int mLast;
 };
@@ -891,6 +900,10 @@ struct PPList_unk : public PPListImp_unk {
 // inferred: level data of MP::Manager2 (0x8C bytes at +0x610, given to fn_805076F8 and fn_80507310); it starts
 // with the level table (count and array freed with delete[] by the destructor); names invented
 struct PPLevelTable_unk : public MpLevelTable_unk {
+    PPLevelTable_unk() {
+        m00 = 0;
+        m04 = 0;
+    }
     ~PPLevelTable_unk() {
         if (m04 != 0) {
             delete[] m04;
@@ -900,6 +913,8 @@ struct PPLevelTable_unk : public MpLevelTable_unk {
     }
 };
 struct PPLevelData_unk {
+    // inferred: the constructor clears the whole object after the table (0x804D0328)
+    PPLevelData_unk() { memset(this, 0, sizeof(PPLevelData_unk)); }
     PPLevelTable_unk mTable;
     unsigned char m08[0x8C - 0x8];
 };
@@ -953,6 +968,7 @@ struct PPTableEntry_unk {
 };
 // inferred: table of MP::Manager2 at 0x2A50 (21 entries and a buffer); names invented
 struct PPTable_unk {
+    PPTable_unk() : mFC(0) {}
     ~PPTable_unk() {
         if (mFC != 0) {
             delete[] mFC;
@@ -1009,8 +1025,8 @@ struct Manager2 : public atn::Task {
     int m560;                         // inferred: settings of message 0x0F (m560-m598)
     int m564;                         // inferred: also the time limit of the game (seconds)
     int m568;
-    int m56C[8];                      // inferred: warp point kept per player slot (fn_804EAA84)
-    int m58C[3];                      // inferred: weighted choices (fn_804E679C)
+    PPWords_unk<8> m56C;              // inferred: warp point kept per player slot (fn_804EAA84)
+    PPWords_unk<3> m58C;              // inferred: weighted choices (fn_804E679C)
     int m598;
     int m59C;                         // inferred: aid of the server
     int m5A0;
@@ -2129,22 +2145,13 @@ void* fn_8050CFC8(void* arg); // inferred: main function of the network thread (
 } // namespace net
 } // namespace atn
 
-// NONMATCHING: 89.45% - order of the member initializations, registers, stack frame and the unreferenced "" of
+// NONMATCHING: 94.11% - registers, construction of the table m2A50, stack frame and the unreferenced "" of
 // @stringBase0 after "%d" (see docs/cierre99-20261115-qG2.md)
 // inferred: MP::Manager2 ctor: creates the network singletons, the debug menu "Multiplayer", the menus and
 // the managers of the multiplayer mode
 MP::Manager2::Manager2(atn::Task* parent)
     : atn::Task(parent), m354(0), m55C(10), m560(0), m564(300), m568(50), m598(0),
-      m59C(-1), m5A0(6), m5A8(0), m5AC(0), m5B0(1), m5B4(0) {
-    mStateVar.mValue = 0;
-    mStateVar.mLast = 0;
-    memset(m56C, 0, sizeof(m56C));
-    memset(m58C, 0, sizeof(m58C));
-    m5A4 = 0;
-    memset(&m610, 0, sizeof(m610));
-    m69C = 0;
-    m2A50.mFC = 0;
-    m99A4.mCount = 0;
+      m59C(-1), m5A0(6), m5A4(0), m5A8(0), m5AC(0), m5B0(1), m5B4(0), m69C(0) {
 
     if (HomeButtonMenu::sInstance != 0 && HomeButtonMenu::sInstance->m88 == 1) {
         HomeButtonMenu::sInstance->m88 = 0;
@@ -5994,7 +6001,7 @@ extern "C" void fn_804E679C(PPManager2_unk* mgr) {
         pool.erase(pool.begin() + r);
     }
     for (int i = 0; i < 3; i++) {
-        mgr->m58C[i] = 0;
+        mgr->m58C.m[i] = 0;
         PPWeightTable_unk* table = fn_8050652C(&mgr->m69C, i);
         if (table != 0) {
             int total = 0;
@@ -6011,7 +6018,7 @@ extern "C" void fn_804E679C(PPManager2_unk* mgr) {
                         break;
                     }
                     if (r < table->mWeights[j]) {
-                        mgr->m58C[i] = j;
+                        mgr->m58C.m[i] = j;
                         break;
                     }
                     r -= table->mWeights[j];
@@ -6025,15 +6032,15 @@ extern "C" void fn_804E679C(PPManager2_unk* mgr) {
         PPPlayer_unk* player = &mgr->mPlayers[i];
         if (player->mFlags.mActive == 1) {
             if (player->mFlags.m22 == 2) {
-                mgr->m56C[i] = PPPopIndex_unk(team2);
+                mgr->m56C.m[i] = PPPopIndex_unk(team2);
             } else {
-                mgr->m56C[i] = PPPopIndex_unk(team1);
+                mgr->m56C.m[i] = PPPopIndex_unk(team1);
             }
         } else if (mgr->m9984[n] != 0) {
             if (fn_804DD1A8(mgr, mgr->m9984[n]) == 0 || fn_804DD1A8(mgr, mgr->m9984[n]) == 2) {
-                mgr->m56C[i] = PPPopIndex_unk(team2);
+                mgr->m56C.m[i] = PPPopIndex_unk(team2);
             } else {
-                mgr->m56C[i] = PPPopIndex_unk(team1);
+                mgr->m56C.m[i] = PPPopIndex_unk(team1);
             }
             n++;
         }
@@ -6043,8 +6050,8 @@ extern "C" void fn_804E679C(PPManager2_unk* mgr) {
     data->m00 = mgr->m560;
     data->m04 = mgr->m564;
     data->m08 = mgr->m568;
-    memcpy(data->m0C, mgr->m56C, sizeof(data->m0C));
-    memcpy(data->m2C, mgr->m58C, sizeof(data->m2C));
+    memcpy(data->m0C, mgr->m56C.m, sizeof(data->m0C));
+    memcpy(data->m2C, mgr->m58C.m, sizeof(data->m2C));
     data->m38 = mgr->m598;
     fn_804AE3BC()->fn_8050E094(-1, 0x1004, data, 1);
 }
@@ -6851,7 +6858,7 @@ extern "C" void fn_804EAA84(PPManager2_unk* mgr, CharaTask* chara, int keep, int
     if (fn_804FC7E0(mgr, &list, player->mFlags.m22) != 0) {
         int sel = -1;
         if (keep != 0) {
-            sel = mgr->m56C[index];
+            sel = mgr->m56C.m[index];
         } else if (mgr->mMode != 2 && (mgr->mMode == 0 || b == 0)) {
             unsigned int num;
             if (mgr->m608 >= 0 && (num = list.size()) > 2) {
@@ -8244,8 +8251,8 @@ extern "C" void fn_804F135C() {
     ((PPManager2_unk*)lbl_8087F610)->m560 = data->m00;
     ((PPManager2_unk*)lbl_8087F610)->m564 = data->m04;
     ((PPManager2_unk*)lbl_8087F610)->m568 = data->m08;
-    memcpy(((PPManager2_unk*)lbl_8087F610)->m56C, data->m0C, sizeof(data->m0C));
-    memcpy(((PPManager2_unk*)lbl_8087F610)->m58C, data->m2C, sizeof(data->m2C));
+    memcpy(((PPManager2_unk*)lbl_8087F610)->m56C.m, data->m0C, sizeof(data->m0C));
+    memcpy(((PPManager2_unk*)lbl_8087F610)->m58C.m, data->m2C, sizeof(data->m2C));
     ((PPManager2_unk*)lbl_8087F610)->m598 = data->m38;
     ((PPManager2_unk*)lbl_8087F610)->m5AC = 1;
 }
@@ -9637,7 +9644,7 @@ extern "C" void fn_804F8464(PPManager2_unk* mgr) {
 
     mp = L"Mp: startpos=";
     for (int i = 0; i < 8; i++) {
-        itow(mgr->m56C[i], buf, 10);
+        itow(mgr->m56C.m[i], buf, 10);
         mp += buf;
         mp += L",";
     }
@@ -9645,7 +9652,7 @@ extern "C" void fn_804F8464(PPManager2_unk* mgr) {
 
     mp = L"Mp: item=";
     for (int i = 0; i < 3; i++) {
-        itow(mgr->m58C[i], buf, 10);
+        itow(mgr->m58C.m[i], buf, 10);
         mp += buf;
         mp += L",";
     }
