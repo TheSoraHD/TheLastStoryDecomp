@@ -428,7 +428,7 @@
   "classes": [
    "WPad_unk"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "atn/WordWrap_unk.cpp",
@@ -1824,7 +1824,7 @@
   "classes": [
    "EnemyLizerdBlade"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "game/EnemyManager.cpp",

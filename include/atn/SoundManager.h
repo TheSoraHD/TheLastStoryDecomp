@@ -34,7 +34,11 @@ struct SoundString_unk {
         }
         return *this;
     }
-    SoundString_unk& operator=(const SoundString_unk& other) { return *this = other.mText; }
+    // inferred: the text in a local first (register order of the erase loop of fn_800CE6E0)
+    SoundString_unk& operator=(const SoundString_unk& other) {
+        const char* text = other.mText;
+        return *this = text;
+    }
 
     char mText[N];
 };

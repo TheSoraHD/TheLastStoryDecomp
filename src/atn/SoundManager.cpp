@@ -299,7 +299,8 @@ void SoundManager::fn_800CE368() {
     }
 }
 
-// NONMATCHING: 98.81% - numeracion de registros en erase().
+// NONMATCHING: 99.72% - numeracion de registros en el primer erase() (indice y texto cruzados; el segundo ya
+// coincide)
 void SoundManager::fn_800CE6E0() {
     fn_800499F4(lbl_8087EE90, mOutputMode);
     fn_80049AAC(lbl_8087EE90, mMasterVolume);
@@ -375,8 +376,8 @@ extern "C" void fn_800CE9A4(atn::SoundCore* sound, float x, float y, float z, fl
 
 namespace atn {
 
-// NONMATCHING: 98.3% - registros flotantes salvados de cada bloque (x/y por bloque, z/h de toda la funcion:
-// el original recarga 10/20 en cada bloque y deja -1000/13 en f31/f30).
+// NONMATCHING: 99.47% - registros: x/y de los bloques 1-2 (f26/f25 en el original), los de las llamadas del
+// bloque 2 y los GPR de los bloques 5-6
 void SoundManager::fn_800CECF0() {
     if (lbl_8087EEB0 == 0) {
         return;
@@ -472,10 +473,12 @@ void SoundManager::fn_800CECF0() {
         unsigned int color = -1;
         y = 20.0f;
         char line[0x100];
+        unsigned int i = 0;
+        unsigned int off = 0; // inferred: byte offset of the bank name (0x54 bytes each)
         if (engine->mBankCount != 0) {
             color = -1;
-            for (unsigned int i = 0; i < engine->mBankCount; i++) {
-                sprintf(line, "%02d: %s\0", i, engine->mBanks + i * 0x54);
+            for (; i < engine->mBankCount; i++, off += 0x54) {
+                sprintf(line, "%02d: %s\0", i, engine->mBanks + off);
                 lbl_8087EEB0->fn_800616C0(x, y, z, h, h, line, -1, 0.0f, 1, 1, 0);
                 y += h;
             }
@@ -494,7 +497,8 @@ void SoundManager::fn_800CECF0() {
                     float volume = sound.fn_800CA844();
                     sprintf(buf, "[%s] Vol:%.2f", sound.fn_800CA834(), volume);
                 } else {
-                    sprintf(buf, "[%d] Vol:%.2f", sound.m98, sound.fn_800CA844());
+                    unsigned int id = sound.m98;
+                    sprintf(buf, "[%d] Vol:%.2f", id, sound.fn_800CA844());
                 }
                 lbl_8087EEB0->fn_800616C0(1.0f + x, 1.0f + y, z, h, h, buf, 0xCC000000, 0.0f, 1, 1, 0);
                 lbl_8087EEB0->fn_800616C0(x, y, z, h, h, buf, 0xCCFFFFFF, 0.0f, 1, 1, 0);

@@ -122,7 +122,8 @@ extern "C" int fn_80059660(ColliResult_unk* results, int max, const ColliSphereS
     return n;
 }
 
-// NONMATCHING: 97.40% - numeracion de GPR (src/atributo r24, tri r18)
+// NONMATCHING: 98.54% - numeracion de GPR: src/atributo en r24 en el original (aqui r17, con las direcciones
+// de los temporales de pila una por encima). El puntero al triangulo estatico en un local (r18, como el original)
 extern "C" int fn_80059784(ColliResult_unk* results, int max, const ColliCapsuleShape_unk* c,
                            ColliObjTriList_unk* list, const Matrix3x4* mtx, const ColliSphereShape_unk* bound,
                            unsigned int mask, int attr, float scale) {
@@ -132,13 +133,19 @@ extern "C" int fn_80059784(ColliResult_unk* results, int max, const ColliCapsule
     if (fn_80051B70(c, bound) == 0) {
         return 0;
     }
-    int n = 0;
-    for (unsigned int i = 0; i < list->mCount; i++) {
-        ColliTriangle_unk* src = &list->mTriangles[i].mTri;
+    ColliCalcTriangle_unk* t;
+    ColliTriangle_unk* src;
+    int n;
+    unsigned int i;
+    ColliAttr_unk* a;
+    n = 0;
+    for (i = 0; i < list->mCount; i++) {
+        src = &list->mTriangles[i].mTri;
         static ColliCalcTriangle_unk tri;
-        tri.Set_unk(*src, mtx, scale);
-        ColliAttr_unk* a = list->mTriangles[i].mAttr;
-        if ((mask & a->mFlags) == 0 && (attr < 0 || attr == a->mId) && fn_80054038(results, c, (ColliTriangle_unk*)&tri) != 0) {
+        t = &tri;
+        t->Set_unk(*src, mtx, scale);
+        a = list->mTriangles[i].mAttr;
+        if ((mask & a->mFlags) == 0 && (attr < 0 || attr == a->mId) && fn_80054038(results, c, (ColliTriangle_unk*)t) != 0) {
             n++;
             results->m34 = a;
             if (n >= max) {
