@@ -8,6 +8,11 @@
 
 extern "C" const wchar_t* fn_80116FC0(int a, int id); // inferred: system text
 
+namespace atn {
+class D2A_Common;
+struct Color;
+} // namespace atn
+
 // inferred: fixed text buffer cleared by its constructor (name invented)
 struct MenuText_unk {
     MenuText_unk() { memset(mText, 0, sizeof(mText)); }
@@ -33,7 +38,7 @@ struct MenuD2A_unk : public atn::Task {
     unsigned char m58[0xA0 - 0x58]; // 0x58: inferred: layout
     float mLastFrame; // 0xA0
     unsigned char mA4[0xE4 - 0xA4];
-    void (*mCallback)(int, int, int); // 0xE4: inferred: event callback of the anime (atn::D2A_Data + 0x9C)
+    void (*mCallback)(atn::D2A_Common*, atn::Color*, void*); // 0xE4: inferred: event callback of the anime (atn::D2A_Data + 0x9C)
     unsigned char mE8[0xFC - 0xE8];
     unsigned int mLoop : 1;   // 0xFC (as atn::D2A_Task)
     unsigned int mVisible : 1;
@@ -45,11 +50,6 @@ struct MenuD2A_unk : public atn::Task {
     int m108;       // inferred: draw priority
 };
 
-// inferred: data of a layout anime (returned by D2A_TaskInstanceBase<32, 8>::GetData); only the callback is known
-struct MenuLayoutData_unk {
-    unsigned char m00[0x9C];
-    void (*mCallback)(int, int, int); // 0x9C
-};
 // inferred: layout anime task of the menus (made by D2A_TaskInstanceBase<32, 8>::Create; full class in
 // atn/D2A_TaskInstanceC.h)
 namespace atn {
@@ -79,8 +79,8 @@ public:
     void fn_804A2FBC(); // inferred: resets everything
     void fn_804A313C(); // inferred: resets the info windows
     void ResetInfo_unk(); // inferred: inline body of fn_804A313C (name invented)
-    void fn_804A660C(void* anime, int a, int b, int c); // inferred: event of a d2anime
-    void fn_804A71F0(void* layout, int a, int b, int c); // inferred: event of a layout anime
+    void fn_804A660C(void* anime, atn::D2A_Common* a, atn::Color* b, void* c); // inferred: event of a d2anime
+    void fn_804A71F0(void* layout, atn::D2A_Common* a, atn::Color* b, void* c); // inferred: event of a layout anime
     // inferred: places the next 3D cursor at `mtx` and adds an entry with `id` (in m00; fn_804A5160: in m04)
     void fn_804A4EEC(atn::Task* id, const char* name, const atn::Matrix3x4& mtx, int end, float x, float y, float w,
                      float h, float z);

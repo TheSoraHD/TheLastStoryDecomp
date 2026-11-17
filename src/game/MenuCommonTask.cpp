@@ -341,7 +341,7 @@ void MenuCommonTask::vf14() {
 }
 
 
-extern "C" void fn_804A3BD4(int a, int b, int c);
+extern "C" void fn_804A3BD4(atn::D2A_Common* element, atn::D2A_DrawColor* color, void* outlineColor);
 
 // inferred: plays an anime with the menu callback (weak copies of a header helper; names keep the address)
 extern "C" void fn_804A39EC(MenuD2A_unk* anime, int arg1, int repeat, float frame, float speed) {
@@ -360,8 +360,8 @@ extern "C" void fn_804A3A68(MenuLayout_unk* layout, int arg1, int repeat, float 
         layout->mSpeed = speed;
         layout->mLoop = repeat != 0;
         layout->mFrame = frame;
-        MenuLayoutData_unk* data = (MenuLayoutData_unk*)layout->GetData();
-        data->mCallback = fn_804A3BD4;
+        atn::D2A_Data* data = layout->GetData();
+        data->m9C = fn_804A3BD4;
     }
 }
 
@@ -392,12 +392,12 @@ struct MenuD2AManager_unk {
 extern "C" MenuD2AManager_unk* lbl_8087F138;
 
 // inferred: event callback of the menu animes: forwards to the menu task (names keep the address)
-extern "C" void fn_804A3BD4(int a, int b, int c) {
+extern "C" void fn_804A3BD4(atn::D2A_Common* element, atn::D2A_DrawColor* color, void* outlineColor) {
     if (lbl_8087F138 != 0 && MenuCommonTask::sInstance != 0) {
         if (lbl_8087F138->m1AC != 0) {
-            MenuCommonTask::sInstance->fn_804A71F0(lbl_8087F138->m1AC, a, b, c);
+            MenuCommonTask::sInstance->fn_804A71F0(lbl_8087F138->m1AC, element, color, outlineColor);
         } else if (lbl_8087F138->m1A8 != 0) {
-            MenuCommonTask::sInstance->fn_804A660C(lbl_8087F138->m1A8, a, b, c);
+            MenuCommonTask::sInstance->fn_804A660C(lbl_8087F138->m1A8, element, color, outlineColor);
         }
     }
 }
@@ -1106,12 +1106,12 @@ inline void ApplyColors_unk(const float* color, float* outColor, float* outColor
     }
 }
 
-// NONMATCHING: 98.9% - scheduling of the color conversion back to floats
 // inferred: event of a d2anime: recolors the registered elements (entries with the anime in m00)
-void MenuCommonTask::fn_804A660C(void* anime, int a, int b, int c) {
-    const MenuAnimeEvent_unk* event = (const MenuAnimeEvent_unk*)a;
-    float* color = (float*)b;
-    float* color2 = (float*)c;
+void MenuCommonTask::fn_804A660C(void* anime, atn::D2A_Common* element, atn::D2A_DrawColor* drawColor,
+                                 void* outlineColor) {
+    const MenuAnimeEvent_unk* event = (const MenuAnimeEvent_unk*)element;
+    float* color = (float*)drawColor;
+    float* color2 = (float*)outlineColor;
     if (anime == 0 || event == 0) {
         return;
     }
@@ -1141,12 +1141,12 @@ void MenuCommonTask::fn_804A660C(void* anime, int a, int b, int c) {
     ApplyColors_unk(color, color, color2);
 }
 
-// NONMATCHING: 98.9% - as fn_804A660C
 // inferred: same as fn_804A660C for a layout anime (entries with the layout in m04)
-void MenuCommonTask::fn_804A71F0(void* layout, int a, int b, int c) {
-    const MenuAnimeEvent_unk* event = (const MenuAnimeEvent_unk*)a;
-    float* color = (float*)b;
-    float* color2 = (float*)c;
+void MenuCommonTask::fn_804A71F0(void* layout, atn::D2A_Common* element, atn::D2A_DrawColor* drawColor,
+                                 void* outlineColor) {
+    const MenuAnimeEvent_unk* event = (const MenuAnimeEvent_unk*)element;
+    float* color = (float*)drawColor;
+    float* color2 = (float*)outlineColor;
     if (layout == 0 || event == 0) {
         return;
     }
