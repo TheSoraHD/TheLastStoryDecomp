@@ -268,7 +268,8 @@ inline void Die_unk(Em001Necromancer* necro) {
     }
 }
 
-// NONMATCHING: draft - registers of the second std::string constructor (as in game/Em201ZanGurg.cpp)
+// NONMATCHING: 99.0% - registers of the mStatus.m18 chain (the original keeps m18 in r0 and loads the size
+// of m14C4 before the one of m14D0); statement orders and both clear() orders tried
 Em001Necromancer::Em001Necromancer(atn::Task* parent, EnemyInfo_unk* info)
     : EnemyTask(parent, info->m20), m14B8(0), m150C(0), m1510(0), m1514(0), m1518(0), m151C(0), m152C(1),
       m1530(0), m154C(0), m1550(0), m1554(0), m1570(0), m15A8(0), m15AC(0), m15C4(0) {
