@@ -21,7 +21,7 @@ Inicio: 2026-11-17 06:52 CET (tope 09:22). Rama agent-N5.
 | gmk/MotionObject vf10 / vf24 | 97,8 / 99,9 % | sin cambio |
 | gmk/RandomMerchant vf0C / vf10 / vf20 | 99,8 / 98,6 / 99,3 % | **100 %** (f542938) / 98,6 / 99,3 % |
 | gmk/MapLift vf0C / vf20 / fn_8042AB58 | 96,7 / 99,2 / 88,7 % | sin cambio |
-| gmk/FlamingArrow vf10 / Collect_unk x2 | 97,5 / 96,1 / 96,1 % | sin cambio |
+| gmk/FlamingArrow vf10 / Collect_unk x2 | 97,5 / 96,1 / 96,1 % | 97,49 (edf4457: atn::Color) / 96,1 / 96,1 % |
 
 Resumen: 8 funciones nuevas al 100 % (LoadSwing_unk, SwingObject vf6C, vf0C, fn_803FE390, fn_803FE570 y
 fn_803FEF78, PassBoard vf10, RandomMerchant vf0C); funciones 15937 -> 15942 en report.json (las otras tres
@@ -100,6 +100,10 @@ enlaza: SwingObject queda 16/20, PassBoard 12/13, RandomMerchant 21/23.
   los dos): peor (96,2 / 98,1 / 95,7).
 - gmk/RandomMerchant antes del arreglo de vf0C: ramas del if invertidas (33 %), Vector3 con nombre, inline
   ResetScale_unk: igual.
+- gmk/FlamingArrow vf10: el original llama al ctor de copia de atn::Color (`__ct__Q23atn5ColorFRCQ23atn5Color`,
+  0x800D8BB4): fuera el `extern "C" fn_800D8BB4` y la copia local de `atn::Color4f_unk` (atn/Color.h);
+  97,47 -> 97,49 (commit edf4457). Quedan un registro no volatil de mas (`&mArrows[i].mPos` en dos
+  registros, r28 y r25) y la pila del dir; un puntero con nombre al elemento: 93,3.
 - gmk/MapLift fn_8042AB58: columnas de MaxScale_unk como locales en orden directo/inverso, Vector3 de
   columnas, escala con nombre: igual o peor. vf20 es el push_back conocido (no tocado).
 - gmk/Ocean fn_804188A0: copia local de pos (asignacion, `=`, xyz), indices como locales, base sin zoff,
@@ -111,6 +115,9 @@ enlaza: SwingObject queda 16/20, PassBoard 12/13, RandomMerchant 21/23.
 - gmk/SwingObject: `PlayEfp_unk` deja de ser inline (global, la quita el enlazador), `SwingUpdate_unk` nueva
   sin llamadores, `RotateAxis2_unk` borrada (fn_803FEF78 escribe las tres rotaciones), `AxisMtx_unk` devuelve
   `MtxPtr`. Mismo comportamiento.
+- gmk/FlamingArrow: `ArrowColor_unk` y la copia local de `atn::Color4f_unk` pasan a `atn::Color` (atn/Color.h);
+  `fn_80417F14`/`fn_80417F1C` usan `atn::Color*`; symbols.txt: `fn_80417F1C__FPQ23atn5ModelPC14ArrowColor_unk` ->
+  `fn_80417F1C__FPQ23atn5ModelPCQ23atn5Color`.
 - Literales: ninguno corregido. Ninguna unidad del port tocada.
 
 ## Decisiones tomadas sin el usuario
