@@ -6524,12 +6524,17 @@ inline PlayerTask* PlayerManager::GetHead_unk() {
 
 // inferred: payloads of the messages 0x1014/0x101A (a packed character and its network id or index) and 0x101B
 // (also the state of a special enemy at +0x15); not padded on the network; names invented
+#pragma pack(push, 1) // inferred: network payload without padding
 struct PPMsgCharaFull_unk {
-    unsigned char m00[0x15];
+    PackedChara_unk mChara;
+    unsigned char mIndex; // 0x14
 };
 struct PPMsgSpecialFull_unk {
-    unsigned char m00[0x25];
+    PackedChara_unk mChara;
+    unsigned char mIndex;   // 0x14
+    SpecialState_unk mState; // 0x15
 };
+#pragma pack(pop)
 
 // NONMATCHING: 98.81% - registers of the loop counters and offsets of the two loops (and of the inlined
 // search fn_804EB870)
@@ -6539,10 +6544,10 @@ extern "C" void fn_804E7628(PPManager2_unk* mgr) {
     fn_804EB870(mgr);
     CharaTask* own = ((PlayerManager*)fn_8000D9E8())->GetHead_unk();
     {
-        NetMsgI_unk<PPMsgCharaFull_unk, 0x15> msg(0x1014);
-        unsigned char* data = msg.mData.m00;
-        data[0x14] = lbl_8087F628->GetMyAid_unk();
-        fn_804CF468((PackedChara_unk*)data, own);
+        NetMsgI_unk<PPMsgCharaFull_unk> msg(0x1014);
+        PPMsgCharaFull_unk* data = &msg.mData;
+        data->mIndex = lbl_8087F628->GetMyAid_unk();
+        fn_804CF468(&data->mChara, own);
         fn_804AE3BC()->fn_8050E094(-1, 0x1014, data, 0);
     }
     for (int i = 0; i < (int)mgr->mPlayers.size(); i++) {
@@ -6557,11 +6562,11 @@ extern "C" void fn_804E7628(PPManager2_unk* mgr) {
         if (chara == 0 || (chara->mFlags & 4) == 4) {
             continue;
         }
-        NetMsgI_unk<PPMsgCharaFull_unk, 0x15> msg(0x101A);
-        unsigned char* data = msg.mData.m00;
-        data[0x14] = player->mAid;
-        fn_804CF468((PackedChara_unk*)data, player->mRef.mChara);
-        ((PackedChara_unk*)data)->m12_1 = 0;
+        NetMsgI_unk<PPMsgCharaFull_unk> msg(0x101A);
+        PPMsgCharaFull_unk* data = &msg.mData;
+        data->mIndex = player->mAid;
+        fn_804CF468(&data->mChara, player->mRef.mChara);
+        data->mChara.m12_1 = 0;
         fn_804AE3BC()->fn_8050E094(-1, 0x101A, data, 0);
     }
     for (int i = 0; i < (int)mgr->mCharas.size(); i++) {
@@ -6587,21 +6592,21 @@ extern "C" void fn_804E7628(PPManager2_unk* mgr) {
         case 35:
         case 36:
         case 40: {
-            NetMsgI_unk<PPMsgSpecialFull_unk, 0x25> msg(0x101B);
-            unsigned char* data = msg.mData.m00;
-            data[0x14] = i;
-            fn_804CF468((PackedChara_unk*)data, entry->mRef.mChara);
-            ((PackedChara_unk*)data)->m12_1 = 1;
-            ((SpecialEnemyBase*)chara)->vf110((SpecialState_unk*)(data + 0x15));
+            NetMsgI_unk<PPMsgSpecialFull_unk> msg(0x101B);
+            PPMsgSpecialFull_unk* data = &msg.mData;
+            data->mIndex = i;
+            fn_804CF468(&data->mChara, entry->mRef.mChara);
+            data->mChara.m12_1 = 1;
+            ((SpecialEnemyBase*)chara)->vf110(&data->mState);
             fn_804AE3BC()->fn_8050E094(-1, 0x101B, data, 0);
             break;
         }
         default: {
-            NetMsgI_unk<PPMsgCharaFull_unk, 0x15> msg(0x101A);
-            unsigned char* data = msg.mData.m00;
-            data[0x14] = i;
-            fn_804CF468((PackedChara_unk*)data, entry->mRef.mChara);
-            ((PackedChara_unk*)data)->m12_1 = 1;
+            NetMsgI_unk<PPMsgCharaFull_unk> msg(0x101A);
+            PPMsgCharaFull_unk* data = &msg.mData;
+            data->mIndex = i;
+            fn_804CF468(&data->mChara, entry->mRef.mChara);
+            data->mChara.m12_1 = 1;
             fn_804AE3BC()->fn_8050E094(-1, 0x101A, data, 0);
             break;
         }
@@ -8580,9 +8585,9 @@ extern "C" void fn_804EE834(PPPlayer_unk* player) {
 // inferred: applies the state of a character received from another player (only in the game, state 30)
 extern "C" void fn_804EE904(MpCharaRef_unk* ref) {
     if (((PPManager2_unk*)lbl_8087F610)->mState == 30) {
-        unsigned char* data = (unsigned char*)fn_804AE3BC()->GetWorkBuffer_unk();
-        if (data[0x14] != lbl_8087F628->GetMyAid_unk() && ref->mChara != 0) {
-            fn_804CF640((PackedChara_unk*)data, ref->mChara);
+        PPMsgCharaFull_unk* data = (PPMsgCharaFull_unk*)fn_804AE3BC()->GetWorkBuffer_unk();
+        if (data->mIndex != lbl_8087F628->GetMyAid_unk() && ref->mChara != 0) {
+            fn_804CF640(&data->mChara, ref->mChara);
         }
     }
 }
@@ -8703,15 +8708,6 @@ extern "C" void fn_804EED7C() {
     }
 }
 
-// inferred: payload of the answer 0x1035 to a message 6 (the byte m1E and the gimmick taken, -1 when it was taken
-// already); not padded on the network
-#pragma pack(push, 1) // inferred: network payload without padding
-struct PPMsgGimmickAnswer_unk {
-    unsigned char m00;
-    int mId;
-    int mKind;
-};
-#pragma pack(pop)
 // inferred: character of the player of network id `aid` (slots in use only)
 static inline CharaTask* PPCharaOfAid_unk(PPManager2_unk* mgr, const unsigned char& aid) {
     for (int i = 0; i < (int)mgr->mPlayers.size(); i++) {
@@ -8751,6 +8747,23 @@ static inline void PPSetTargets_unk(CharaTask* chara, const PackedChara_unk* in)
         PPSetTarget_unk(fn_804EB814((PPManager2_unk*)lbl_8087F610, chara)->mRef.mChara, in);
     }
 }
+// inferred: payload of the answers 0x1035 (9 bytes): the sequence byte of the request and, by message, the gimmick
+// taken (answer to a message 6, -1 when it was taken already), the team of the slot (message 0x35) or the time of
+// the game; not padded on the network; names invented
+struct PPAnswerGimmick_unk {
+    int mId;
+    int mKind;
+};
+#pragma pack(push, 1) // inferred: network payload without padding
+struct PPMsgAnswer_unk {
+    unsigned char m00;
+    union {
+        PPAnswerGimmick_unk mGimmick;
+        unsigned int mTeam;
+        long long mTime;
+    };
+};
+#pragma pack(pop)
 // inferred: message 6 (in the game): the message `mType` for the gimmick `mId`/`mKind`, from the character of the
 // sender. On cannonballs (type 7) message 2 takes one (the server keeps the aid in m520), message 3 with -1
 // drops it on the server (the others only forget it) and messages 3 and 5 let it go; the server answers a taken
@@ -8846,17 +8859,17 @@ extern "C" void fn_804EF0F0(unsigned int aid) {
             if (taken == true) {
                 gmk::Cannonball* cannon = dynamic_cast<gmk::Cannonball*>(gimmick);
                 if (cannon != 0) {
-                    NetMsgI_unk<PPMsgGimmickAnswer_unk> answer(0x1035);
-                    PPMsgGimmickAnswer_unk* out = &answer.mData;
+                    NetMsgI_unk<PPMsgAnswer_unk> answer(0x1035);
+                    PPMsgAnswer_unk* out = &answer.mData;
                     out->m00 = data->m1E;
                     if (cannon->m520 == 0xFF) {
-                        out->mId = data->mId;
-                        out->mKind = data->mKind;
+                        out->mGimmick.mId = data->mId;
+                        out->mGimmick.mKind = data->mKind;
                         cannon->m520 = aid;
                         gimmick->vf40(&msg);
                     } else {
-                        out->mId = -1;
-                        out->mKind = -1;
+                        out->mGimmick.mId = -1;
+                        out->mGimmick.mKind = -1;
                     }
                     fn_804AE3BC()->fn_8050E094(aid, 0x1035, out, 1);
                     ((PPManager2_unk*)lbl_8087F610)->m99B0 = 1;
@@ -8866,16 +8879,16 @@ extern "C" void fn_804EF0F0(unsigned int aid) {
             } else if (gimmick->m50 == 18 && data->mType == 5) {
                 gmk::DropItem* drop = dynamic_cast<gmk::DropItem*>(gimmick);
                 if (drop != 0) {
-                    NetMsgI_unk<PPMsgGimmickAnswer_unk> answer(0x1035);
-                    PPMsgGimmickAnswer_unk* out = &answer.mData;
+                    NetMsgI_unk<PPMsgAnswer_unk> answer(0x1035);
+                    PPMsgAnswer_unk* out = &answer.mData;
                     out->m00 = data->m1E;
                     if (drop->m29C == 0xFF) {
-                        out->mId = data->mId;
-                        out->mKind = data->mKind;
+                        out->mGimmick.mId = data->mId;
+                        out->mGimmick.mKind = data->mKind;
                         drop->m29C = aid;
                     } else {
-                        out->mId = -1;
-                        out->mKind = -1;
+                        out->mGimmick.mId = -1;
+                        out->mGimmick.mKind = -1;
                     }
                     fn_804AE3BC()->fn_8050E094(aid, 0x1035, out, 1);
                     ((PPManager2_unk*)lbl_8087F610)->m99B0 = 1;
@@ -9390,17 +9403,17 @@ extern "C" void fn_804F1F34(PPPlayer_unk* player) {
 // restore their state (vf114) from +0x15 of the data
 extern "C" void fn_804F2040(unsigned int type) {
     if (((PPManager2_unk*)lbl_8087F610)->mState == 30) {
-        unsigned char* data = (unsigned char*)fn_804AE3BC()->GetWorkBuffer_unk();
-        if (((data[0x12] >> 1) & 1) == 0) {
-            PPPlayer_unk* player = PPFindTeam_unk(&((PPManager2_unk*)lbl_8087F610)->mPlayers, data[0x14]);
+        PPMsgSpecialFull_unk* data = (PPMsgSpecialFull_unk*)fn_804AE3BC()->GetWorkBuffer_unk();
+        if (data->mChara.m12_1 == 0) {
+            PPPlayer_unk* player = PPFindTeam_unk(&((PPManager2_unk*)lbl_8087F610)->mPlayers, data->mIndex);
             fn_804AE3BC()->fn_8050E62C(player != 0, "enemy_status\n");
-            if (data[0x14] != lbl_8087F628->GetMyAid_unk() && player->mRef.mChara != 0) {
-                fn_804CF640((PackedChara_unk*)data, player->mRef.mChara);
+            if (data->mIndex != lbl_8087F628->GetMyAid_unk() && player->mRef.mChara != 0) {
+                fn_804CF640(&data->mChara, player->mRef.mChara);
             }
         } else {
-            CharaTask* chara = ((PPManager2_unk*)lbl_8087F610)->mCharas[data[0x14]].mRef.mChara;
+            CharaTask* chara = ((PPManager2_unk*)lbl_8087F610)->mCharas[data->mIndex].mRef.mChara;
             if (chara != 0) {
-                fn_804CF640((PackedChara_unk*)data, chara);
+                fn_804CF640(&data->mChara, chara);
                 if (type == 26) {
                     switch (((BattleCharaTask*)chara)->m146C) {
                     case 19:
@@ -9414,7 +9427,7 @@ extern "C" void fn_804F2040(unsigned int type) {
                     case 36:
                     case 40:
                         ((SpecialEnemyBase*)chara)
-                            ->vf114((const SpecialState_unk*)((unsigned char*)fn_804AE3BC()->GetWorkBuffer_unk() + 0x15));
+                            ->vf114(&((PPMsgSpecialFull_unk*)fn_804AE3BC()->GetWorkBuffer_unk())->mState);
                         break;
                     }
                 }
@@ -9707,10 +9720,6 @@ extern "C" void fn_804F3258() {
     }
 }
 
-// inferred: payload of the message 0x1035 (9 bytes: a byte and the time of the game); names invented
-struct PPMsgTime_unk {
-    unsigned char m00[9];
-};
 // inferred: sets the team of a slot; the team when it changed, else 0 (name invented)
 static inline unsigned int SetTeam_unk(PPPlayer_unk* player, unsigned int team) {
     if (player == 0) {
@@ -9731,10 +9740,10 @@ extern "C" void fn_804F34B4(PPPlayer_unk* player, unsigned int aid) {
     }
     if (IsServer_unk()) {
         unsigned char* in = (unsigned char*)fn_804AE3BC()->GetWorkBuffer_unk();
-        NetMsgI_unk<PPMsgTime_unk, 9> msg(0x1035);
-        unsigned char* data = msg.mData.m00;
-        data[0] = in[0];
-        *(unsigned int*)&data[1] = SetTeam_unk(player, in[1]);
+        NetMsgI_unk<PPMsgAnswer_unk> msg(0x1035);
+        PPMsgAnswer_unk* data = &msg.mData;
+        data->m00 = in[0];
+        data->mTeam = SetTeam_unk(player, in[1]);
         fn_804AE3BC()->fn_8050E094(aid, 0x1035, data, 1);
         ((PPManager2_unk*)lbl_8087F610)->m99B0 = 1;
         ((PPManager2_unk*)lbl_8087F610)->m99B1 = aid;
@@ -9950,55 +9959,55 @@ extern "C" void fn_804F47FC(PPPlayer_unk* player, unsigned int aid) {
     if (fn_800F7F90()->mState == 30 && fn_800F7F90()->m50C != 0) {
         return;
     }
-    unsigned char* data = (unsigned char*)fn_804AE3BC()->GetWorkBuffer_unk();
+    PPMsgRoom_unk* data = (PPMsgRoom_unk*)fn_804AE3BC()->GetWorkBuffer_unk();
     for (int i = 0; i < (int)fn_800F7F90()->mPlayers.size(); i++) {
         PPPlayer_unk* slot = fn_804D5F0C(fn_800F7F90(), i);
-        slot->mD8 = *(int*)(data + (i * 4 + 0x42));
-        slot->mD4Flags.m22 = data[0x39 + i];
+        slot->mD8 = data->mD8[i];
+        slot->mD4Flags.m22 = data->mD4[i];
     }
-    if (data[0x6C] != 2) {
-        fn_800F7F90()->m55C = *(int*)(data + 0x00);
+    if (data->m6C != 2) {
+        fn_800F7F90()->m55C = data->m00;
     }
-    fn_800F7F90()->m564 = *(int*)(data + 0x04);
-    fn_800F7F90()->m5A0 = (signed char)data[0x66];
-    fn_800F7F90()->m5A8 = data[0x67];
-    fn_800F7F90()->mMode = data[0x6A];
+    fn_800F7F90()->m564 = data->m04;
+    fn_800F7F90()->m5A0 = (signed char)data->m66;
+    fn_800F7F90()->m5A8 = data->m67;
+    fn_800F7F90()->mMode = data->mMode;
     PPManager2_unk* mgr = fn_800F7F90();
-    mgr->m5A4 = data[0x6B];
+    mgr->m5A4 = data->m6B;
     if (mgr->m5A4 > 6) {
         mgr->m5A4 = 6;
     }
-    fn_800F7F90()->m5B0 = data[0x08];
-    fn_800F7F90()->m508 = *(short*)(data + 0x64);
-    player->mFlags.m28 = ((PPPlayerFlags_unk*)(data + 0x25))->m28;
-    player->mFlags.m06 = ((PPPlayerFlags_unk*)(data + 0x25))->m06;
-    player->mFlags.m02 = ((PPPlayerFlags_unk*)(data + 0x25))->m02;
-    player->mFlags.m01 = ((PPPlayerFlags_unk*)(data + 0x25))->m01;
+    fn_800F7F90()->m5B0 = data->m08;
+    fn_800F7F90()->m508 = data->m64;
+    player->mFlags.m28 = ((PPPlayerFlags_unk*)&data->mFlags)->m28;
+    player->mFlags.m06 = ((PPPlayerFlags_unk*)&data->mFlags)->m06;
+    player->mFlags.m02 = ((PPPlayerFlags_unk*)&data->mFlags)->m02;
+    player->mFlags.m01 = ((PPPlayerFlags_unk*)&data->mFlags)->m01;
     if (IsServerAid_unk(player->mAid) == 1) {
-        player->m0B0[0] = *(int*)(data + 0x09);
-        *(PPWord2_unk*)&player->m0B0[1] = *(PPWord2_unk*)(data + 0x0D);
-        player->m0B0[3] = *(int*)(data + 0x15);
-        *(PPWord2_unk*)&player->m0B0[4] = *(PPWord2_unk*)(data + 0x19);
-        player->mC8 = *(int*)(data + 0x21);
-        player->mFlags.m22 = ((PPPlayerFlags_unk*)(data + 0x25))->m22;
-        player->mFlags.m10 = ((PPPlayerFlags_unk*)(data + 0x25))->m10;
+        player->m0B0[0] = data->m09;
+        *(PPWord2_unk*)&player->m0B0[1] = data->m0D;
+        player->m0B0[3] = data->m15;
+        *(PPWord2_unk*)&player->m0B0[4] = data->m19;
+        player->mC8 = data->m21;
+        player->mFlags.m22 = ((PPPlayerFlags_unk*)&data->mFlags)->m22;
+        player->mFlags.m10 = ((PPPlayerFlags_unk*)&data->mFlags)->m10;
     }
     PPManager2_unk* mgr2 = fn_800F7F90();
     if (fn_804DD158(mgr2, lbl_8087F628->GetMyAid_unk()) != 0) {
         for (int i = 0; i < (int)fn_800F7F90()->mPlayers.size(); i++) {
             PPPlayer_unk* slot = fn_804D5F0C(fn_800F7F90(), i);
             if (slot != 0) {
-                slot->mFlags.m22 = data[0x29 + i];
-                slot->mB0 = (signed char)data[0x31 + i];
+                slot->mFlags.m22 = data->mTeams[i];
+                slot->mB0 = (signed char)data->mB0[i];
             }
         }
     }
-    fn_800F7F90()->m5B4 = data[0x69];
-    switch (data[0x6C]) {
+    fn_800F7F90()->m5B4 = data->m69;
+    switch (data->m6C) {
     case 0: {
-        NetMsgI_unk<PPMsgTime_unk, 9> msg(0x1035);
-        unsigned char* out = msg.mData.m00;
-        out[0] = data[0x68];
+        NetMsgI_unk<PPMsgAnswer_unk> msg(0x1035);
+        PPMsgAnswer_unk* out = &msg.mData;
+        out->m00 = data->mSeq;
         fn_804AE3BC()->fn_8050E094(aid, 0x1035, out, 1);
         fn_800F7F90()->m99B0 = 1;
         fn_800F7F90()->m99B1 = aid;
@@ -10021,9 +10030,9 @@ extern "C" void fn_804F4CB8(unsigned int aid) {
         return;
     }
     unsigned char* in = (unsigned char*)fn_804AE3BC()->GetWorkBuffer_unk();
-    NetMsgI_unk<PPMsgTime_unk, 9> msg(0x1035);
-    unsigned char* data = msg.mData.m00;
-    data[0] = in[0];
+    NetMsgI_unk<PPMsgAnswer_unk> msg(0x1035);
+    PPMsgAnswer_unk* data = &msg.mData;
+    data->m00 = in[0];
     fn_804AE3BC()->fn_8050E094(aid, 0x1035, data, 1);
     ((PPManager2_unk*)lbl_8087F610)->m99B0 = 1;
     ((PPManager2_unk*)lbl_8087F610)->m99B1 = aid;
@@ -10081,10 +10090,10 @@ extern "C" void fn_804F4FC4(int aid) {
     }
     unsigned char* in = (unsigned char*)fn_804AE3BC()->GetWorkBuffer_unk();
     long long time = OSGetTime() - ((PPManager2_unk*)lbl_8087F610)->mStartTime;
-    NetMsgI_unk<PPMsgTime_unk, 9> msg(0x1035);
-    unsigned char* data = msg.mData.m00;
-    *(long long*)(data + 1) = time;
-    data[0] = in[0];
+    NetMsgI_unk<PPMsgAnswer_unk> msg(0x1035);
+    PPMsgAnswer_unk* data = &msg.mData;
+    data->mTime = time;
+    data->m00 = in[0];
     fn_804AE3BC()->fn_8050E094(aid, 0x1035, data, 1);
 }
 
