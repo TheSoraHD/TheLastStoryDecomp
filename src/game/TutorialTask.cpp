@@ -1,4 +1,5 @@
 #include "game/TutorialTask.h"
+#include <ctype.h>
 #include "game/GameTask.h"
 #include "game/GameScene.h"
 #include "atn/Memory.h"
@@ -481,7 +482,17 @@ extern "C" int fn_8006BA30(); // inferred: language
 extern "C" const char* fn_8006BA38(); // inferred: language code
 extern "C" int fn_8006AA20(const char* path); // inferred: the file exists
 
-// NONMATCHING: written from m2c (movie path built from the name of the page)
+// inferred: reads the pages of the csv (layout, camera, motion, movie: the name in lower case is looked up in
+// sMovies for the localized movies)
+// NONMATCHING: 90.4% - the fields of the lower-case name are kept in saved registers through the sMovies
+// loop (the original reloads them)
+// inferred: std::transform(first, last, out, tolower) of the movie name (MSL tolower)
+inline void LowerCase_unk(const char* last, char* out, const char* first) {
+    for (; first != last; ++first, ++out) {
+        *out = tolower(*first);
+    }
+}
+
 void TutorialTask::fn_805BB654() {
     atn::Csv csv((const char*)mFile.fn_80470580(), mFile.fn_8047059C());
     while (csv.fn_8005BBF8() != 0) {
@@ -511,6 +522,7 @@ void TutorialTask::fn_805BB654() {
                 std::string path = "movie/" + name;
                 if (fn_8006BA30() != 0 && fn_8006BA30() != 1) {
                     std::string base = fn_8006B2D8(name);
+                    LowerCase_unk(&*base.end(), (char*)base.data(), base.data());
                     for (unsigned int i = 0; i < 5; i++) {
                         if (base == sMovies[i]) {
                             path = fn_8006AFF8("movie/" + base + "_" + fn_8006BA38() + ".", fn_8006AC08(name));

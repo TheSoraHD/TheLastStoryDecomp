@@ -15,6 +15,7 @@
 | TutorialTask::vf0C | 91,2 % | equivalente NONMATCHING 99,8 % (registros) |
 | TutorialTask::fn_805BA934 (arranque de la pagina) | 73,5 % (escrita desde m2c) | equivalente NONMATCHING 98 % |
 | TutorialPopup::fn_805BCF04 (csv de las lineas) | 90 % (escrita desde m2c) | equivalente NONMATCHING 98,5 % (registros) |
+| TutorialTask::fn_805BB654 (csv de las paginas) | 83,7 % (escrita desde m2c, sin pasar a minusculas) | equivalente NONMATCHING 90,4 % |
 | TutorialTask::fn_805BC1C0 (camara libre) | equivalente 96,3 % | equivalente NONMATCHING 99 % (registros) |
 
 ## Para el port
@@ -26,7 +27,10 @@
 
 - atn::Video (include/atn/VideoTHP.h): `float m14; float m18;` -> `Vector2_unk mPos;` (0x14, copia paired-single en TutorialTask fn_805BA934); VideoTHP.cpp usa mPos.x/mPos.y (sin cambios de codigo, enlaza).
 
+- TutorialTask::fn_805BB654: el nombre del video (sin extension) se pasa a minusculas (std::transform con tolower de MSL) antes de buscarlo en sMovies; antes se comparaba tal cual. Cambio de comportamiento.
+
 ## Decisiones tomadas sin el usuario
+- TutorialTask.cpp incluye `<ctype.h>` (tolower de MSL) y una inline LowerCase_unk(last, out, first) con la forma de std::transform (no hay `<algorithm>` ni begin() no const en std/string.h).
 - Dos inlines inventadas con estaticas locales (IsSphereInView_unk: atn::Sphere en 0x807C8600, guarda 0x8087F478; IsBoxInView_unk: Frustum_unk::Bounds_unk en 0x807C8610, guarda 0x8087F479): el original comprueba la guarda en cada uso, sin ctor.
 
 ## Hallazgos
