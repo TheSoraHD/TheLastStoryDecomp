@@ -120,6 +120,19 @@ inline __vec_split_gbase_unk<Event::Path>::~__vec_split_gbase_unk() {
     }
 }
 
+// inferred: clear of the effect entries takes the end pointer before the count (weak copy 0x8053E588)
+template <>
+inline void __vec_storage_unk<Event::EffectEntry24_unk>::clear() {
+    Event::EffectEntry24_unk* p = mData + mSize;
+    unsigned int n = mSize;
+    unsigned int& size = mSize;
+    size -= n;
+    for (; n != 0; n--) {
+        --p;
+        p->~EffectEntry24_unk();
+    }
+}
+
 template <>
 inline void vector<Event::Actor>::__insert_realloc_unk(size_type n, const Event::Actor& x) {
     __vec_event_unk<Event::Actor>::__realloc_unk(*this, n, x);

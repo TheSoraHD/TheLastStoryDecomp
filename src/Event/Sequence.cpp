@@ -1106,10 +1106,9 @@ void Sequence::fn_80541F18() {
 }
 
 // inferred: adds the curve `id` to the list at 0x184 (a copy of the points of `lists`, lengths recomputed)
-// NONMATCHING: 10% - inlining: the original inlines everything here but the construction and the reallocation
-// of m184.push_back (weak copies 0x80542684 and 0x805428A8, still stubs below), as if its push_back were a
-// small inline over two helpers; with include/std/vector.h this function goes over the budget (R3) and calls
-// every inline
+// NONMATCHING: 97.78% - the inlined reallocation of points.push_back moves the old elements comparing
+// first < last (ours last > first, __push_front_resize_unk of std/vector.h) and loads them with psq_l; the
+// construct and the reallocation of m184.push_back are called as in the original (Event/EventVector_unk.h)
 void Sequence::fn_8054204C(int id, const EffectLists_unk& lists) {
     EffectEntry24_unk entry;
     std::vector<atn::Vector3> points;
