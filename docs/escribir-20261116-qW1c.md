@@ -10,6 +10,8 @@
 | GameScene::vf10 (0x803C1950, modelos restringidos) | 96,19 % | **100 %** |
 | GameScene::fn_803CB044 (esconderse) | 95,09 % | equivalente NONMATCHING 98,36 % (pila de los vectores del bucle) |
 | GameTask::vf14 | 98,16 % | equivalente NONMATCHING 99,22 % (y en f31; constante 0x4330) |
+| TutorialTask::fn_805BA934 | 97,99 % | equivalente NONMATCHING 99,27 % (`fn_801231B8(...) == 0`: los dos cntlzw; queda la carga de pos.z) |
+| TutorialTask::fn_805BB654 | 90,44 % | equivalente NONMATCHING 94,77 % (sube al llamar a atn::SoundManager::fn_800D089C como miembro) |
 | GameChoiceWindow::fn_803B4C38 (choices) | 88,63 % | equivalente NONMATCHING 99,93 % (r18/r19 y el pool ancho) |
 | GameTextMessageWindow::vf10 | 91,30 % | equivalente NONMATCHING 93,98 % (bools de HasVoice_unk) |
 | GameTextMessageWindow::fn_803B6970 | 89,77 % | equivalente NONMATCHING 92,35 % |
@@ -33,6 +35,7 @@
 - GameTask::vf14: `IsTableBusy_unk(m550C)`, prueba del sonido de los iconos como `(!swing && !(h0 && h1)) || (swing && !(h2 && h3))` (equivalente), `FindWarpPoint_unk` y `GetHeapUsed_unk(DLAllocator&)` con el MemoryManager en un local; `text` declarado antes que `name`. Mismo comportamiento.
 - GameChoiceWindow::fn_803B4C38: especializacion `std::__vec_split_unk<std::wstring>::__push_front_unk` en el .cpp (las cadenas se mueven con memcpy/memset al crecer el vector, como MSL; el original no copia una a una). Para el port de 64 bits: mueve objetos `basic_string` como bytes (valido con la implementacion de MSL del port).
 - GameTextMessageWindow: `HasVoice_unk` como tres bools planos (`bool x = a && b`); quitados `HasName_unk`/`CanVoice_unk`. Mismo comportamiento.
+- TutorialTask: `atn/SoundManager.h` en vez de la vista `SoundManager_unk` (lbl_8087EFE8 como atn::SoundManager*, fn_800D089C miembro); `m5B4 = fn_801231B8(SetConfig::sInstance) == 0` (mismo valor).
 - ReplayBuffer::fn_80570A74: borrado con `FixedArray_unk::erase` y la inline `RemoveEffects_unk(effects, emitter)`; mismo comportamiento.
 
 ## Decisiones tomadas sin el usuario
@@ -53,6 +56,8 @@
 - Recarga de un campo probado justo antes (`if (x.mState != 0) { if (x.mState == 1)`): la primera prueba va en una inline bool (`IsTableBusy_unk`). (escribir-20261116 qW1c)
 - Bucle de busqueda con `li rX, 0` tras el bucle (retorno 0 al salir): es una inline que devuelve el puntero (`FindWarpPoint_unk`), con el id como parametro cargado antes del bucle. (escribir-20261116 qW1c)
 - Bools que el original deja materializados (li 0 / li 1 / cmpwi): `bool x = a && b;` planos en una sola inline; con `bool r = false; if (...) r = true;` anidados MWCC enhebra los saltos. (escribir-20261116 qW1c)
+- Dos `cntlzw; srwi` seguidos (`x != 0` como `!(x == 0)`): el original llama a una inline que devuelve `x == 0` (aqui la copia debil fn_801231B8 de SetConfig) y compara su resultado con 0 (TutorialTask fn_805BA934). (escribir-20261116 qW1c)
+- Una vista local de una clase del motor con `extern "C"` (SoundManager_unk + fn_800D089C(self, ...)) puede bajar funciones vecinas: con la cabecera real y el metodo miembro TutorialTask fn_805BB654 sube 90 -> 94,8 %. (escribir-20261116 qW1c)
 - `data + size - data` sin plegar antes de `/ 12` en el movimiento de un vector: diferencia en bytes `((char*)last - (char*)first) / (int)sizeof(T)` (como std/vector_wstring.h). (escribir-20261116 qW1c)
 
 ## Bloqueos
@@ -66,6 +71,8 @@
 - GameTask fn_80370320: recarga de m56F4.mCount en el Push_unk; inline CanPush_unk empeora (98,9 -> 98,5).
 - GameTask fn_803729B4: el original no llama al constructor vacio de atn::Matrix3x4 del bucle de rayos (nuestro lo llama por el presupuesto R3).
 - ReplayBuffer fn_80570A74 (91,4 %): rotacion de r10/r11/r12; fn_8056A9E4: el original intercala los `lfs` de la columna z entre los `psq_st` de __MtxCopy (con SetModelMtx_unk de GameScene igual).
+- MapPartsArea::fn_804962B0 (98,55 %): r30/r31 (iterador y desplazamiento interior); declarar `i`/`it` arriba empeora (13 -> 19 diferencias).
+- ReplayBuffer fn_8056D60C (78 %): el original carga 255.0f y 0.0f una vez y precarga f3-f11 con fmr (resultados de los ternarios del clamp); probados locales lo/hi, ternarios en locales, `v * 255.0f`, min/max por plantilla (valor y referencia) en un fichero suelto: ninguno da las precargas.
 - ReplayBuffer vf08 (92,5 %): el original copia mColor (0x30-0x3C) palabra a palabra con r0 y los Vector3 con psq_l/psq_st/lfs/stfs; ningun tipo probado (struct POD, array, ints, op= propio) da ese patron.
 - MapTask fn_804A0F80 (5 %): con el cuerpo en una inline (R5) sube a 30,8 % (se inlinean Lerp_unk<float> y accesores, no los Lerp de Color/Vector2/3/4 ni GodRayParam::operator=); no commiteado.
 - MapPartsArea::vf1C (99,90 %): `lwzx base, offset` del original frente a offset+base en las condiciones de los bucles interiores; probados begin()[i] y *(begin() + i) (peor).
