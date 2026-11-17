@@ -55,6 +55,9 @@ public:
     void fn_80424FB4(float t); // inferred: places the room at t of the rotation
     void fn_80425498(); // inferred: shows/hides the area lists
     void fn_80425878(int on); // inferred: switches the parts of type 5
+    // inferred: turns on the collision of the current state and off the others (vf0C, vf10; name
+    // invented); defined in RotaryRoom.cpp
+    inline void UpdateColli_unk();
 
     MapTask* mGroup;  // 0xF4
     atn::Vector3 mRot;        // 0xF8
