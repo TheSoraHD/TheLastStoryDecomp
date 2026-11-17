@@ -5270,8 +5270,6 @@ extern "C" void fn_800C3094(const char* group); // inferred: loads a sound group
 // inferred: effects of the game (fn_804DE884)
 extern "C" const char* const lbl_808875A4 = "/data/effect/ef_ms001e.efp";
 extern "C" const char* const lbl_808875A8 = "/data/effect/ef_mw003f_01.eff";
-// NONMATCHING: 99.81% - the original reloads the slot count at the top of the character loop, and the character
-// after its null check from the slot pointer (here from the indexed slot)
 // inferred: start of the game: the GameTask of the mode and stage (options lbl_807C8B10, the three digits of m598
 // in the local flags 0xFC-0xFE), the results cleared, the computer players of m9984/m998C in free slots, the
 // characters of the slots without one (MP::Chara<EnemyTask>, side by mode and team; the own team players appear
@@ -5360,11 +5358,12 @@ extern "C" int fn_804DE884(PPManager2_unk* mgr) {
         } else {
             player->mRef.mChara->fn_8016DF3C(3);
         }
-        if (player->mRef.mChara == 0) {
+        MpCharaRef_unk& ref = player->mRef;
+        if (ref.mChara == 0) {
             return 0;
         }
         if (IsTeamPlayer_unk(&mgr->mPlayers[i]) == 1) {
-            ((BattleCharaTask*)mgr->mPlayers[i].mRef.mChara)->mFlagC25 = 1;
+            ((BattleCharaTask*)player->mRef.mChara)->mFlagC25 = 1;
             if ((player->mAid & 0xF) == lbl_8087F628->GetMyAid_unk()) {
                 player->mRef.mChara->fn_8016E970(2);
                 player->mRef.mChara->m58C = 0;
