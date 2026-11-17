@@ -617,6 +617,8 @@ int Dialog::vf0C() {
 #define DIALOG_MIN_UNK(a, b) ((a) < (b) ? (a) : (b))
 
 // NONMATCHING: 89.06% - scheduling/registers of the fog and bloom copies and the .sdata2 order
+// (98.93% with docs/enlazar2-20261117-qF-dialog297ac.patch: lerp inline with the target by reference,
+// fog built in an inline, local pointer to the pad; left: the 1 of mEnable and lbl_8087EFA8 swap r3/r8)
 void Dialog::fn_802297AC() {
     if (!m10C->IsFlag_unk(4) && m10C->mSpeed < 0.0f && m10C->mFrame <= 1.0f) {
         m10C->mFlags |= 4;
