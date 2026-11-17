@@ -1,6 +1,8 @@
 # escribir-20261116, cola W1b (game, interfaz y sistema, segunda pasada)
 
-- Inicio: 2026-11-17 02:00 (CET).
+- Inicio: 2026-11-17 02:00 (CET). Fin: 03:40 (cerrado antes del tope: lo que queda en las unidades es reparto de registros ya probado).
+- Resultado: funciones 15892 -> 15899 / 18109 (report.json), lost 0, sin bajadas, labelcheck/rep100 igual. Ninguna unidad pasa a enlazar (GameScene 157/188, TutorialTask 25/31, GameChoiceWindow 30/38).
+- Script: /home/claude/scratch-W1b/bin_pct.sh <simbolo> (con U=<unidad>): compila la unidad y da el % de objdiff de un simbolo.
 
 ## Tabla de la cola
 
@@ -62,3 +64,5 @@
 - ReplayBuffer fn_8056A9E4: las lfs de la columna z se intercalan en la copia paired-single de __MtxCopy en el original; mover las declaraciones no cambia nada.
 
 ## Cambios de splits/symbols
+- Sin cambios de splits. symbols.txt: solo los renombrados de pd.sh (GameScene: estaticas locales de vf14 `@LOCAL@IsSphereInView_unk...@sphere`/`@GUARD@...` en 0x807C8600/0x8087F478 y `...IsBoxInView_unk...@box` en 0x807C8610/0x8087F479; @N renumerados de GameScene, TutorialTask y atn/VideoTHP).
+- Pendiente GameScene: fn_803CB820 (99,7 %, pila), fn_803CB618 (91 %), ctor (96,5 %), plantillas Grow_unk/Resize_unk de Array_unk.h (cabecera compartida).
