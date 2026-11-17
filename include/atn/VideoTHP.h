@@ -35,8 +35,7 @@ public:
     int m08;   // inferred: state (2 finished, 3..5 set by TutorialTask)
     int m0C;   // inferred: loop
     float m10; // inferred: alpha / depth of the movie (TutorialTask::fn_805BA934)
-    float m14; // inferred: x
-    float m18; // inferred: y
+    Vector2_unk mPos; // 0x14: inferred: position (copied with paired singles by TutorialTask::fn_805BA934)
     int m1C;   // inferred: finished
 };
 

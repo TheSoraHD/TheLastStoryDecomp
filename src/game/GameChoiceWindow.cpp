@@ -32,7 +32,7 @@ static const char* const sTextLayout_unk = "/data/d2anime/ui_friend_mes.d2a";
 
 // inferred: parses the message CSV: a first pass counts the messages and the text length, the second
 // one fills them (the texts lose the "\r" that are not followed by a line feed)
-// NONMATCHING: 96.6% - the BOM test of the CsvU constructor keeps size / 2 - 1 in another register (the
+// NONMATCHING: 98.8% - the BOM test of the CsvU constructor keeps size / 2 - 1 in another register (the
 // original computes size / 2 - 2 from size / 2); the rest are the registers that follow
 void GameMessageList::fn_803B35FC(const wchar_t* data, unsigned int size) {
     if (data == 0) {
@@ -81,9 +81,11 @@ void GameMessageList::fn_803B35FC(const wchar_t* data, unsigned int size) {
                     }
                 }
             }
-            fn_8006F420(lbl_8087EEC8, name, csv.fn_8005B9CC(), 0x10);
+            void* font = lbl_8087EEC8;
+            fn_8006F420(font, name, csv.fn_8005B9CC(), 0x10);
             msg->mTalker = fn_80209120(name);
-            fn_8006F420(lbl_8087EEC8, name, csv.fn_8005B9CC(), 0x10);
+            void* font2 = lbl_8087EEC8;
+            fn_8006F420(font2, name, csv.fn_8005B9CC(), 0x10);
             msg->mName = name;
             msg->m30 = fn_800DC1DC(csv.fn_8005B9CC());
             msg->m34 = fn_800DC1DC(csv.fn_8005B9CC());

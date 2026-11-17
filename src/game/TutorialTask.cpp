@@ -1,4 +1,5 @@
 #include "game/TutorialTask.h"
+#include <ctype.h>
 #include "game/GameTask.h"
 #include "game/GameScene.h"
 #include "atn/Memory.h"
@@ -28,7 +29,6 @@ extern "C" unsigned int fn_800DC6B4(const char* s); // inferred: string hash
 extern "C" void fn_801FED24(void* layout, unsigned int hash, int index, float value); // inferred: sets a value
 extern "C" void fn_801FEE08(void* layout, unsigned int hash, const wchar_t* text); // inferred: sets a text
 extern "C" const wchar_t* fn_80116FC0(int a, int id); // inferred: message text
-extern "C" void fn_80097A9C(void* model, int id, atn::LH_Motion* motion); // inferred: sets a motion slot
 extern "C" atn::SoundRef fn_800C31F4(const char* name, int a, int b, float volume); // inferred: plays a sound
 extern "C" void* lbl_8087EEC8; // inferred: font
 extern "C" float fn_8006EF48(void* font, const wchar_t* text, int a, int b, float size, float spacing); // inferred: text width
@@ -74,6 +74,12 @@ TutorialTask::TutorialTask(atn::Task* parent, int id, CharaTask* chara)
     }
 }
 
+// inferred: sets the text of a pane of a layout (name invented)
+inline void SetPaneText_unk(void* layout, const char* name, const wchar_t* text) {
+    fn_801FEE08(layout, fn_800DC6B4(name), text);
+}
+
+// NONMATCHING: 99.8% - registers: the text and the layout of the two pane texts are swapped (r26/r27)
 int TutorialTask::vf0C() {
     if (mLoading != 0) {
         if (!mFile.fn_80473F50()) {
@@ -82,8 +88,8 @@ int TutorialTask::vf0C() {
             mFile.fn_80473F88();
         }
     } else {
-        int loading = 0;
         TutorialPage_unk* page = &mPages[0];
+        int loading = 0;
         for (unsigned int i = 0; i < 4; i++, page++) {
             if (page->mEnabled != 0 && page->mMotion.mMotion.fn_800A0448() != 0) {
                 loading = 1;
@@ -97,12 +103,8 @@ int TutorialTask::vf0C() {
                     page->mLayout->fn_800D246C(0);
                     page->mLayout->SetText_unk("comment", (int)mData->mText);
                     if (page->mVideo != 0) {
-                        atn::D2A_Task* layout = page->mLayout;
-                        const wchar_t* text = fn_80116FC0(0, page->mMsg0);
-                        fn_801FEE08(&layout->mData.m10, fn_800DC6B4("string0009(1)(1)"), text);
-                        layout = page->mLayout;
-                        text = fn_80116FC0(0, page->mMsg1);
-                        fn_801FEE08(&layout->mData.m10, fn_800DC6B4("string0009(1)"), text);
+                        SetPaneText_unk(&page->mLayout->mData.m10, "string0009(1)(1)", fn_80116FC0(0, page->mMsg0));
+                        SetPaneText_unk(&page->mLayout->mData.m10, "string0009(1)", fn_80116FC0(0, page->mMsg1));
                     }
                     if (page->mVideoLayout != 0) {
                         page->mVideoLayout->mFlags |= 4;
@@ -128,14 +130,14 @@ void TutorialTask::fn_805BA354(const Camera_unk* camera) {
         TutorialPage_unk* page = &mPages[i];
         if (page->mEnabled != 0) {
             if (page->mMotion.mMotion.m08 != 0 && mChara != 0) {
-                fn_80097A9C(&mChara->mMotion, i + 0xEA, &page->mMotion.mMotion);
+                mChara->GetModel_unk()->fn_80097A9C(i + 0xEA, &page->mMotion.mMotion);
             }
             page->mLayout->mFrame = 0.0f;
             page->mLayout->mFlags |= 4;
         }
     }
-    mCamera = *camera;
     mPage = 0;
+    mCamera = *camera;
     mCamera2 = mCamera;
     if (mChara != 0) {
         mPos = mChara->mPos;
@@ -151,6 +153,18 @@ class SoundManager_unk;
 extern "C" SoundManager_unk* lbl_8087EFE8;
 extern "C" int fn_800D089C(SoundManager_unk* mgr, int a, int b);
 
+// inferred: sets a value of a pane of a layout (the layout is evaluated before the hash of the name)
+inline void SetPaneValue_unk(void* layout, const char* name, int index, float value) {
+    fn_801FED24(layout, fn_800DC6B4(name), index, value);
+}
+
+// inferred: rectangle of a pane of a layout (the layout is evaluated before the hash of the name)
+inline atn::D2A_DrawRect GetPaneRect_unk(atn::D2A_Task* layout, const char* name) {
+    return fn_801F4E8C(layout, fn_800DC6B4(name));
+}
+
+// NONMATCHING: 98% - `!= 0` of the attack type: the original tests it with two cntlzw; the load of pos.z
+// is scheduled earlier
 void TutorialTask::fn_805BA934() {
     m84 = 0.0f;
     m5B4 = 0;
@@ -167,16 +181,17 @@ void TutorialTask::fn_805BA934() {
         m5BC = 0;
         mPages[mPage].mVideo->vf20();
         mPages[mPage].mLayout->ApplyFrame();
-        atn::D2A_DrawRect pos = fn_801F4E8C(mPages[mPage].mLayout, fn_800DC6B4("tt_mv"));
+        atn::D2A_DrawRect pos = GetPaneRect_unk(mPages[mPage].mLayout, "tt_mv");
+        mPages[mPage].mVideo->mPos = atn::Vector2_unk(pos.x, pos.y);
         mPages[mPage].mVideo->m10 = pos.z;
         mPages[mPage].mVideo->m04 = 1;
         mPages[mPage].mVideo->m0C = 1;
         pos.x -= 256.0f;
         pos.y -= 112.0f;
         pos.z -= 0.0001f;
-        fn_801FED24(&mPages[mPage].mVideoLayout->mData.m10, fn_800DC6B4("basePoint"), 0, pos.x);
-        fn_801FED24(&mPages[mPage].mVideoLayout->mData.m10, fn_800DC6B4("basePoint"), 1, pos.y);
-        fn_801FED24(&mPages[mPage].mVideoLayout->mData.m10, fn_800DC6B4("basePoint"), 4, pos.z);
+        SetPaneValue_unk(&mPages[mPage].mVideoLayout->mData.m10, "basePoint", 0, pos.x);
+        SetPaneValue_unk(&mPages[mPage].mVideoLayout->mData.m10, "basePoint", 1, pos.y);
+        SetPaneValue_unk(&mPages[mPage].mVideoLayout->mData.m10, "basePoint", 4, pos.z);
         if (lbl_8087EFE8 != 0 && fn_800D089C(lbl_8087EFE8, 1, 0) > 0 && lbl_8087F418 != 0) {
             lbl_8087F418->fn_803606CC(0, 8, 15);
             lbl_8087F418->fn_80360780(0, 8, 15);
@@ -466,7 +481,17 @@ extern "C" int fn_8006BA30(); // inferred: language
 extern "C" const char* fn_8006BA38(); // inferred: language code
 extern "C" int fn_8006AA20(const char* path); // inferred: the file exists
 
-// NONMATCHING: written from m2c (movie path built from the name of the page)
+// inferred: reads the pages of the csv (layout, camera, motion, movie: the name in lower case is looked up in
+// sMovies for the localized movies)
+// NONMATCHING: 90.4% - the fields of the lower-case name are kept in saved registers through the sMovies
+// loop (the original reloads them)
+// inferred: std::transform(first, last, out, tolower) of the movie name (MSL tolower)
+inline void LowerCase_unk(const char* last, char* out, const char* first) {
+    for (; first != last; ++first, ++out) {
+        *out = tolower(*first);
+    }
+}
+
 void TutorialTask::fn_805BB654() {
     atn::Csv csv((const char*)mFile.fn_80470580(), mFile.fn_8047059C());
     while (csv.fn_8005BBF8() != 0) {
@@ -496,6 +521,7 @@ void TutorialTask::fn_805BB654() {
                 std::string path = "movie/" + name;
                 if (fn_8006BA30() != 0 && fn_8006BA30() != 1) {
                     std::string base = fn_8006B2D8(name);
+                    LowerCase_unk(&*base.end(), (char*)base.data(), base.data());
                     for (unsigned int i = 0; i < 5; i++) {
                         if (base == sMovies[i]) {
                             path = fn_8006AFF8("movie/" + base + "_" + fn_8006BA38() + ".", fn_8006AC08(name));
@@ -565,8 +591,8 @@ extern "C" void* lbl_8087EE98; // inferred: collision of the map
 // inferred: free position of the camera around the character: the camera of the page looks from the
 // character (and from the nearest route point) in the direction of the page; when the 20 units in front hit
 // the map, the direction turns by a quarter turn (four tries)
-// NONMATCHING: 96.3% - the stores of the start of the ray (z of the eye, y + 5) and the registers of the
-// front vector are scheduled differently
+// NONMATCHING: 99% - registers: the start/eye pointers (r25/r26) and the float constants (f23-f31) are
+// allocated in another order
 __declspec(noinline) void TutorialTask::fn_805BC1C0() {
     if (lbl_8087F430 != 0 && mChara != 0) {
         GameScene* scene = ((GameTask*)lbl_8087F430)->m10D8;
@@ -576,15 +602,16 @@ __declspec(noinline) void TutorialTask::fn_805BC1C0() {
         atn::Vector3 rot = mRot;
         atn::Vector3 from = page.mPos;
         atn::Vector3 to = page.mTarget;
-        atn::Vector3 dir = (to - from).ToRotationZ_unk();
+        float yaw = (to - from).ToRotationZ_unk().y;
         for (int i = -1; i < 4; i++) {
             const atn::Vector3* pos = i == -1 ? &mPos : &scene->m98.mData[point - 1].mPos;
             atn::Vector3 start = *pos;
             eye = start;
             start.y += 5.0f;
-            Mtx m;
-            PSMTXRotRad(m, 'y', rot.y + -dir.y);
+            float angle = rot.y + -yaw;
             atn::Vector3 front(0.0f, 0.0f, 1.0f);
+            Mtx m;
+            PSMTXRotRad(m, 'y', angle);
             PSMTXMultVec(m, &front, &front);
             atn::Vector3 end = start + front * 20.0f;
             if (fn_8004ED34(lbl_8087EE98, 0, &start, &end, 0x80000008, 0, 0) == 0) {
@@ -623,6 +650,11 @@ TutorialPopup::TutorialPopup(atn::Task* parent, int id, CharaTask* chara)
     }
 }
 
+// inferred: width of a message with the size of the popup (name invented)
+inline float TextWidth_unk(void* font, int id) {
+    return fn_8006EF48(font, fn_80116FC0(0, id), 1, 1, 15.0f, 0.0f);
+}
+
 int TutorialPopup::vf0C() {
     if (mLoading != 0) {
         if (!mFile.fn_80473F50()) {
@@ -630,54 +662,76 @@ int TutorialPopup::vf0C() {
             fn_805BCF04();
             mFile.fn_80473F88();
         }
-    }
-    if (fn_800D3FA4() == 0) {
-        return 0;
-    }
-    float ofs = -16.0f;
-    if (lbl_8087F0A8 != 0) {
-        ofs = lbl_8087F0A8->m484;
-    }
-    if (mId == 0xC6) {
-        ofs = 0.0f;
-    }
-    for (unsigned int i = 0; i < 4; i++) {
-        TutorialPopupLine_unk* line = &mLines[i];
-        if (line->mEnabled != 0) {
-            line->mLayout->mFlags |= 4;
-            line->mLayout->fn_800D246C(0);
-            line->mLayout->SetText_unk("comment", (int)mData->mText);
-            fn_801FED24(&line->mLayout->mData.m10, fn_800DC6B4("basePoint"), 1, ofs);
+    } else if (fn_800D3FA4() != 0) {
+        float ofs = -16.0f;
+        if (lbl_8087F0A8 != 0) {
+            ofs = lbl_8087F0A8->m484;
         }
-    }
-    if (mShadow != 0) {
-        mShadow->fn_800D246C(0);
-        mShadow->mSpeed = 0.0f;
-        mShadow->mRepeat = 0;
-        mShadow->mFrame = 0.0f;
-        fn_801FED24(&mShadow->mData.m10, fn_800DC6B4("basePoint"), 1, ofs);
-        void* font = lbl_8087EEC8;
-        float width = fn_8006EF48(font, fn_80116FC0(0, 0x895472), 1, 1, 15.0f, 0.0f);
-        fn_801FED24(&mShadow->mData.m10, fn_800DC6B4("pos0011(1)"), 0, 445.0f - width);
-        fn_801FED24(&mShadow->mData.m10, fn_800DC6B4("pos0002(1)"), 0, 404.0f - width);
-    }
-    for (unsigned int i = 0; i < 4; i++) {
-        if (mLines[i].mEnabled != 0) {
-            mLines[i].mLayout->mFrame = 0.0f;
-            mLines[i].mLayout->mFlags |= 4;
+        if (mId == 0xC6) {
+            ofs = 0.0f;
         }
+        for (unsigned int i = 0; i < 4; i++) {
+            TutorialPopupLine_unk* line = &mLines[i];
+            if (line->mEnabled != 0) {
+                line->mLayout->mFlags |= 4;
+                line->mLayout->fn_800D246C(0);
+                line->mLayout->SetText_unk("comment", (int)mData->mText);
+                SetPaneValue_unk(&line->mLayout->mData.m10, "basePoint", 1, ofs);
+            }
+        }
+        if (mShadow != 0) {
+            mShadow->fn_800D246C(0);
+            mShadow->mSpeed = 0.0f;
+            mShadow->mRepeat = 0;
+            mShadow->mFrame = 0.0f;
+            SetPaneValue_unk(&mShadow->mData.m10, "basePoint", 1, ofs);
+            float width = TextWidth_unk(lbl_8087EEC8, 0x895472);
+            SetPaneValue_unk(&mShadow->mData.m10, "pos0011(1)", 0, 445.0f - width);
+            SetPaneValue_unk(&mShadow->mData.m10, "pos0002(1)", 0, 404.0f - width);
+        }
+        for (unsigned int i = 0; i < 4; i++) {
+            TutorialPopupLine_unk* line = &mLines[i];
+            if (line->mEnabled != 0) {
+                line->mLayout->mFrame = 0.0f;
+                line->mLayout->mFlags |= 4;
+            }
+        }
+        mLine = 0;
+        if (mLines[mLine].mType == 2 && SetConfig::sInstance->mAttackType != 0) {
+            mLine = 1;
+        }
+        mLines[mLine].mLayout->mFlags &= ~4;
+        mTime = 0.0f;
+        mState = 1;
+        return 1;
     }
-    mLine = 0;
-    if (mLines[0].mType == 2 && SetConfig::sInstance->mAttackType != 0) {
-        mLine = 1;
-    }
-    mLines[mLine].mLayout->mFlags &= ~4;
-    mTime = 0.0f;
-    mState = 1;
-    return 1;
+    return 0;
 }
 
-// NONMATCHING: written from m2c
+// inferred: the character is missing or has the flag 6 of its flag word (name invented)
+inline bool IsCharaFree_unk(CharaTask* chara) {
+    bool result = true;
+    if (chara != 0 && !chara->mFlag6) {
+        result = false;
+    }
+    return result;
+}
+
+// inferred: a line of type 1 ends early when the character is free or has mC48 (name invented)
+inline bool CanSkipLine_unk(TutorialPopup* popup) {
+    bool result;
+    if (popup->mLines[popup->mLine].mType == 1) {
+        result = true;
+        if (!IsCharaFree_unk(popup->mChara) && !popup->mChara->HasC48_unk()) {
+            result = false;
+        }
+    } else {
+        result = false;
+    }
+    return result;
+}
+
+// inferred: shows the line until its wait ends (or it is skipped), then closes it
 void TutorialPopup::vf10() {
     if (mState == 4) {
         return;
@@ -685,8 +739,10 @@ void TutorialPopup::vf10() {
     TutorialPopupLine_unk* line = &mLines[mLine];
     switch (mState) {
     case 1:
-        mTime = 0.0f;
-        mState = 2;
+        if (line->mLayout->IsEnd_unk()) {
+            mTime = 0.0f;
+            mState = 2;
+        }
         break;
     case 2:
         mTime = mTime + mSpeed;
@@ -696,7 +752,7 @@ void TutorialPopup::vf10() {
         if (lbl_8087EF70 != 0 && fn_800F52F8()->fn_80116BAC()->fn_801231D0(0x2B) != 0) {
             mTime = line->mWait;
         }
-        if (mTime >= line->mWait) {
+        if (mTime >= line->mWait || CanSkipLine_unk(this)) {
             mState = 3;
             line->mLayout->mSpeed = -1.0f;
         }
@@ -712,7 +768,8 @@ void TutorialPopup::vf10() {
     }
 }
 
-// NONMATCHING: written from m2c
+// inferred: reads the lines of the popup from its csv (layout, wait, type)
+// NONMATCHING: 98.5% - register allocation (this, the csv data and the string temporaries)
 void TutorialPopup::fn_805BCF04() {
     atn::Csv csv((const char*)mFile.fn_80470580(), mFile.fn_8047059C());
     while (csv.fn_8005BBF8() != 0) {
@@ -721,12 +778,7 @@ void TutorialPopup::fn_805BCF04() {
             TutorialPopupLine_unk* line = &mLines[index];
             line->mEnabled = 1;
             std::string name = fn_8006B46C(std::string(mData->mName));
-            int temp = 0;
-            if (fn_8006AC08(std::string(mData->mName)) == "d2b") {
-                if (fn_8006AA20(name.c_str()) != 0) {
-                    temp = 1;
-                }
-            }
+            bool temp = fn_8006AC08(std::string(mData->mName)) == "d2b" && fn_8006AA20(name.c_str()) != 0;
             if (temp) {
                 csv.fn_8005B9CC();
                 line->mLayout = fn_801F3FF8(this, name.c_str(), 0);
