@@ -24,7 +24,7 @@ public:
         m54 = 0;
     }
     static GimmickCommon* fn_8041DDE4(atn::Task* parent, int id, int arg); // inferred: factory
-    virtual ~ArenaFloor() {}
+    virtual ~ArenaFloor();
     virtual int vf0C();
     virtual void vf10();
     virtual void vf14();

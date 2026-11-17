@@ -2267,7 +2267,7 @@
   "classes": [
    "gmk::ArenaFloor"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "gmk/Augur.cpp",
