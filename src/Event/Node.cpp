@@ -12,6 +12,9 @@ extern "C" Event::ParamDef_unk* fn_80008210(int id, int* count, int variant); //
 
 namespace Event {
 
+// inferred: declared inline in Event/Action.h
+inline ActionKey_unk::ActionKey_unk() {}
+
 Action::Action(Channel* channel, int index)
     : mChannel(channel), m0C(0), m10(0), m14(0), m18(0), m1C(0) {
     fn_805377F0(channel->m0C, index);
@@ -273,10 +276,8 @@ inline int KeyFind_unk(std::vector<ActionKey_unk>& keys, float time) {
     return -1;
 }
 
-// NONMATCHING: 96.7% - the original copies the keys member by member (floats) in the reallocation of
-// push_back and in the sorts (72-56%): ActionKey_unk is probably not a POD there (a constructor in
-// Event/Action.h renumbers the @N labels of every Event file, so it is not added; with it: median 100%,
-// sorts 87%, this function 90.8%)
+// NONMATCHING: 99.8% - registers of the size and the capacity in the fast path of push_back (r5/r4 swapped)
+// and stack slots of the temporaries of the reallocation
 // inferred: sets the key of the curve at its time (time and value clamped to [0, 1]), keeps the curve
 // sorted and returns the index of the key
 int Action::fn_805393F8(const ActionKey_unk& key) {

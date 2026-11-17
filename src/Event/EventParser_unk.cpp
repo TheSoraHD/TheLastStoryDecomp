@@ -17,6 +17,9 @@ extern "C" void* fn_8006BA8C(const char* path, int* size, int flag); // inferred
 
 namespace Event {
 
+// inferred: declared inline in Event/Action.h
+inline ActionKey_unk::ActionKey_unk() {}
+
 // inferred: list of nodes owned by the reader (a class derived from std::vector, its destructor tests the
 // address four times)
 struct NodeList_unk : public std::vector<Node*> {};
