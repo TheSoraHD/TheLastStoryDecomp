@@ -2286,7 +2286,7 @@ void Manager::fn_8048871C(Sequence* seq, const char* name, int fade, int start) 
         }
         Cut* end = (Cut*)fn_805381B8(action);
         int frames = FramesTo_unk(seq, end);
-        m1F58 = action->m10 + (m1F64 + frames);
+        m1F58 = action->m10 + frames + m1F64;
         if (m1F58 <= m1F64 + 3 && seq->m194 != 10) {
             fn_80488050(seq, action);
         }

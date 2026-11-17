@@ -166,6 +166,29 @@ inline void vector<Event::Path>::push_back(const Event::Path& x) {
     }
 }
 
+// inferred: the copy of vector<ColorF_unk> (weak copy 0x80544398) takes the range of the source through two
+// inline accessors (the generic copy of std/vector.h reads mData and mSize directly; changing it there moves the
+// registers of vector<atn::Light> in game/NewCampPartsGmk.cpp). Names invented.
+template <class T>
+inline const T* __vec_cbegin_unk(const vector<T>& v) { return v.mData; }
+template <class T>
+inline const T* __vec_cend_unk(const vector<T>& v) { return v.mData + v.mSize; }
+
+template <>
+inline vector<ColorF_unk>::vector(const vector<ColorF_unk>& x) {
+    MSL_VEC_ASSERT10_UNK;
+    MSL_VEC_ASSERT10_UNK;
+    __init_unk(__vec_cbegin_unk(x), __vec_cend_unk(x));
+}
+
+// inferred: same form for vector<Event::ActorPair_unk> (weak copy 0x80543F60)
+template <>
+inline vector<Event::ActorPair_unk>::vector(const vector<Event::ActorPair_unk>& x) {
+    MSL_VEC_ASSERT10_UNK;
+    MSL_VEC_ASSERT10_UNK;
+    __init_unk(__vec_cbegin_unk(x), __vec_cend_unk(x));
+}
+
 } // namespace std
 
 #endif

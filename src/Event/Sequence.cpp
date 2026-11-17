@@ -68,6 +68,9 @@ extern "C" float fn_8006EF48(void* font, float size, const wchar_t* text, float 
 
 namespace Event {
 
+// inferred: declared inline in Event/Actor.h
+inline ActorPair_unk::ActorPair_unk() {}
+
 // inferred: values of the "type" attribute of the sequence
 static const ParamEnum_unk sTypeNames_unk[4] = {
     {"invalid", "invalid"},
@@ -638,6 +641,14 @@ void Sequence::fn_8053F818() {
         }
     }
 }
+
+// inferred: instantiated here: its "basic_string: out_of_range" follows the strings of fn_8053F818 in the
+// pool (before "vector length error" of fn_80540A08)
+} // namespace Event
+
+template std::string::basic_string(const std::string& str, std::string::size_type pos, std::string::size_type n);
+
+namespace Event {
 
 // inferred: the data of the event is loaded
 int Sequence::fn_8054011C() {

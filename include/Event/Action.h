@@ -34,7 +34,11 @@ struct ActionParam_unk {
 };
 
 // inferred: key of the curve of an action (time, value)
+// inferred: not a POD (the original copies the keys member by member in the sorts of Event/Node.cpp, MslSwap_unk,
+// and keeps the POD path of push_back): the constructor is defined in the two files that build keys
+// (Event/Node.cpp, Event/EventParser_unk.cpp; a body here takes @N labels in every unit that includes this header)
 struct ActionKey_unk {
+    inline ActionKey_unk();
     float mTime;
     float mValue;
 };
