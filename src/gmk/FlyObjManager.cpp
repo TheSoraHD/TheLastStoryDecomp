@@ -81,17 +81,17 @@ inline void PlayMotion_unk(atn::Model* model, int motion, float blend) {
     model->mTracks[0].m0C = 1.0f;
 }
 
+inline atn::Vector3 GetCol_unk(const atn::Matrix3x4& m, int i) {
+    return atn::Vector3(m.m[0][i], m.m[1][i], m.m[2][i]);
+}
 // inferred: largest scale axis of a matrix (name invented)
 inline float MaxScale_unk(const atn::Matrix3x4& mtx) {
     atn::Vector3 s;
-    atn::Vector3 az;
-    atn::Vector3 ay;
-    atn::Vector3 ax;
-    __Vec3Set_unk(az, mtx.m[0][2], mtx.m[1][2], mtx.m[2][2]);
+    atn::Vector3 az = GetCol_unk(mtx, 2);
     float sz = PSVECMag(&az);
-    __Vec3Set_unk(ay, mtx.m[0][1], mtx.m[1][1], mtx.m[2][1]);
+    atn::Vector3 ay = GetCol_unk(mtx, 1);
     float sy = PSVECMag(&ay);
-    __Vec3Set_unk(ax, mtx.m[0][0], mtx.m[1][0], mtx.m[2][0]);
+    atn::Vector3 ax = GetCol_unk(mtx, 0);
     float sx = PSVECMag(&ax);
     __Vec3Set_unk(s, sx, sy, sz);
     return __MAX_unk(s.x, __MAX_unk(s.y, s.z));
@@ -136,8 +136,6 @@ FlyObj::FlyObj() : mRadius(3.0f), mModel(8, 32), mPos(0.0f, 0.0f, 0.0f), mRot(0.
 
 FlyObj::~FlyObj() {}
 
-// NONMATCHING: 98.8% - the sphere temporaries at the end sit below the state 3 temporaries here (above
-// in the original) and a few float registers. The fall is applied before the rotation reset.
 void FlyObj::fn_80427870() {
     if (mState <= 1) {
         return;
@@ -163,7 +161,11 @@ void FlyObj::fn_80427870() {
     mModel.m54 = MaxScale_unk(mtx);
     mModel.CalcMatrixStack(atn::ModelNodeCallback_unk());
     mModel.fn_80097E80(1);
-    mColli.mSphere = atn::ColliSphere::Sphere_unk(atn::Vector3(mPos), mRadius);
+    atn::ColliSphere::Sphere_unk s;
+    atn::Vector3 pos(mPos);
+    s.mCenter = pos;
+    s.mRadius = mRadius;
+    mColli.mSphere = s;
 }
 
 GimmickCommon* FlyObjManager::fn_80427EB4(atn::Task* parent, GimmickDesc_unk* desc) {
@@ -263,6 +265,13 @@ void FlyObjManager::vf20() {
     } while (csv.fn_8005BBF8() != 0);
 }
 
+// inferred: a function without callers that the linker drops (its real user of 0.1f is unknown): it
+// creates the 0.1f of the motion blend before the 1000.0f of Rand_unk in .sdata2, as in the original.
+// Name invented.
+float MotionSpeed_unk() {
+    return 0.1f;
+}
+
 int FlyObjManager::vf40(GimmickMsg_unk* msg) {
     if (msg == 0) {
         return 0;
@@ -294,8 +303,7 @@ int FlyObjManager::vf40(GimmickMsg_unk* msg) {
     return mPhase = msg->mType;
 }
 
-// NONMATCHING: 99.9% - the speed 1.0f goes through f1 (and 0.1f is before 1000.0f in .sdata2 in the
-// original); the unsigned index of FindNearest_unk fixed the index/offset registers
+// The unsigned index of FindNearest_unk fixed the index/offset registers.
 int FlyObjManager::vf44(GimmickHitMsg_unk* msg) {
     if (msg == 0) {
         return 0;
