@@ -1602,7 +1602,6 @@ extern "C" PPPlayer_unk* fn_804EB870(PPManager2_unk* mgr);
 extern "C" void fn_804FAA7C(PPManager2_unk* mgr, unsigned int flush, PPPlayer_unk* player);
 extern "C" void fn_804D824C(PPManager2_unk* mgr, PPPlayer_unk* player, int mode);
 extern "C" void fn_804FC0D4(PPManager2_unk* mgr, int value);
-extern "C" void fn_804C2268(MP::D2AMpMenuLobby* lobby, int time);
 extern "C" int fn_804EB1AC(PPManager2_unk* mgr);
 extern "C" void fn_804E9360(PPManager2_unk* mgr);
 extern "C" void fn_804FB550(PPManager2_unk* mgr);
@@ -2416,8 +2415,9 @@ int MP::Manager2::vf0C() {
 }
 
 // inferred: MP::Manager2::vf10 (vtable 0x807916E0): update of the multiplayer mode
-// DRAFT: written for the weak copies of its accessors; not checked against the original
-// NONMATCHING: draft - written for the weak copies of its accessors (0x804D5F04-0x804D6680)
+// NONMATCHING: 95.16% - registers and stack slots; the three arrays of -1 at 0x99F4 are stored through advancing
+// pointers in the original and the 60/80 rest of mode 0-2 shares its store (checked against the whole original:
+// field offsets, constants, calls and branches; escribir-20261116 qG3)
 void MP::Manager2::vf10() {
     PPManager2_unk* mgr = this;
     if (fn_804D5F04(&mgr->mStateVar) == 30 && ((GameUISession_unk*)mgr)->GetM50C_unk() == 0) {
@@ -2679,7 +2679,7 @@ void MP::Manager2::vf10() {
             mgr->m2B50.fn_80473F88();
             fn_804D169C(&mgr->mStateVar, 7);
             if (wcslen(fn_804D60E4(fn_804D6024(fn_804D1694()))) != 0) {
-                fn_804D16CC()->fn_804AF520(4);
+                fn_804D16CC()->fn_804AF520(2);
             } else {
                 fn_804D16CC()->fn_804AF520(5);
             }
@@ -2872,7 +2872,7 @@ void MP::Manager2::vf10() {
                 }
             }
             if (fn_804D5FC0() != 0 && mgr->m508 != -1) {
-                fn_804C2268(fn_804D5FC0(), mgr->m508 / 60);
+                fn_804D5FC0()->fn_804C2268(mgr->m508 / 30);
             }
             if (fn_804D635C(fn_804D1694()) == 0 && ((fn_804D5FC0() != 0 && fn_804D5FC0()->fn_804C2F9C() != 0) ||
                                                     (unsigned short)mgr->m508 <= 899)) {
@@ -3213,8 +3213,9 @@ void MP::Manager2::vf10() {
             ((BattleCharaTask*)player->mRef.mChara)->SetFlagC26_unk(0);
             player->mRef.mChara->SetSide_unk(player->mFlags.m22);
             if (player->mB0 == 12 || player->mB0 == 21) {
-                if (((Field_unk*)mgr->mGame)->fn_8013C504() != 0) {
-                    atn::SimpleArray<PPRoute_unk>* routes = fn_804D649C(((Field_unk*)mgr->mGame)->fn_8013C504());
+                void* field = ((Field_unk*)mgr->mGame)->fn_8013C504();
+                if (field != 0) {
+                    atn::SimpleArray<PPRoute_unk>* routes = fn_804D649C(field);
                     for (unsigned int j = 0; j < routes->size(); j++) {
                         PPRoute_unk* route = fn_804D80FC(routes, j);
                         if (route->m2C != 0) {
@@ -3417,7 +3418,7 @@ void MP::Manager2::vf10() {
                         }
                     }
                     fn_804D5FD0()->fn_804C5E1C();
-                    fn_804D5FD0()->fn_804C6888(mgr->m99A0 / 60 + 1);
+                    fn_804D5FD0()->fn_804C6888(mgr->m99A0 / 30 + 1);
                 }
                 fn_804D600C(mgr, 5);
             }
@@ -3429,7 +3430,7 @@ void MP::Manager2::vf10() {
             }
             int state = fn_804D65C0(fn_804D5FD0());
             mgr->m99A0--;
-            fn_804D5FD0()->fn_804C6888(mgr->m99A0 / 60 + 1);
+            fn_804D5FD0()->fn_804C6888(mgr->m99A0 / 30 + 1);
             if (mgr->m99A0 >= 750) {
                 break;
             }
@@ -3560,7 +3561,7 @@ void MP::Manager2::vf10() {
                     }
                 }
                 PPPlayer_unk* own = fn_804EB870(mgr);
-                own->mFlags.m22 = own->mD4;
+                own->mFlags.m22 = own->mD4Flags.m22;
                 own->mB0 = own->mD8;
                 if (fn_804EB1AC(mgr) == 0) {
                     fn_804FA948(mgr, own->mD8, 0);
@@ -3577,17 +3578,12 @@ void MP::Manager2::vf10() {
             if (GameBgm::GetInstance_unk() != 0) {
                 GameBgm::GetInstance_unk()->fn_8037D4C0(0x548, 15, 1, 0, 0.7f);
             }
-            if (mgr->m99F0[0] == 0 || mgr->m99F0[1] == 0 || mgr->m99F0[2] == 0) {
-                if (fn_804EAFD0(mgr) > 1) {
-                    fn_804FB470(mgr, 0x9D, 22);
-                    if (fn_804D16CC() != 0) {
-                        fn_804D65D4(fn_804D16CC(), 4);
-                    }
-                    fn_804E9360(mgr);
-                    break;
+            if ((mgr->m99F0[0] == 0 || mgr->m99F0[1] == 0 || mgr->m99F0[2] == 0) && fn_804EAFD0(mgr) > 1) {
+                fn_804FB470(mgr, 0x9D, 22);
+                if (fn_804D16CC() != 0) {
+                    fn_804D65D4(fn_804D16CC(), 4);
                 }
-            }
-            if (mgr->m99F0[3] != 0) {
+            } else if (mgr->m99F0[3] != 0) {
                 fn_804FB470(mgr, 0x9F, 22);
                 if (fn_804D16CC() != 0) {
                     fn_804D65D4(fn_804D16CC(), 4);
