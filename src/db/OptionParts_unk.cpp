@@ -1,5 +1,6 @@
 #include "atn/Csv.h"
 #include "atn/Model_unk.h"
+#include "atn/CompositeIntensityTintMulti.h"
 #include "atn/Memory.h"
 #include "db/OptionParts_unk.h"
 #include "gmk/SeTable.h"
@@ -23,23 +24,6 @@ extern "C" void fn_8046DD20(Unk_8087F518* mgr, void* data);
 
 // inferred: index of an equipment letter (db/EquipParam_unk.cpp)
 extern "C" int fn_8020F064(const char* letter);
-
-namespace atn {
-// inferred: see src/atn/CompositeIntensityTintMulti.cpp (0x40 bytes)
-struct CompositeLayerDesc_unk {
-    const char* mPath;
-    Color4f_unk mColor[3];
-    int mUse[3];
-};
-class CompositeIntensityTintMulti {
-public:
-    CompositeIntensityTintMulti(const char* base, const CompositeLayerDesc_unk* layers, int count);
-    char m00[0x38C];
-};
-} // namespace atn
-
-// inferred: sets a texture compositor on a model (name of the texture, compositor)
-extern "C" void fn_80095750(atn::Model* model, const char* name, atn::CompositeIntensityTintMulti* compositor);
 
 // inferred: helpers of the path names (directory, name without extension, joined path)
 std::string fn_8006B0C8(const std::string& path);
@@ -299,7 +283,7 @@ extern "C" void fn_8020CC64(atn::Model* model, OptionParts_unk* parts, OptionCol
         }
         atn::CompositeIntensityTintMulti* compositor =
             new ((MemoryTag)6, "", "", 0) atn::CompositeIntensityTintMulti(base.c_str(), layers, group->mCount);
-        fn_80095750(model, name.c_str(), compositor);
+        model->fn_80095750(name.c_str(), compositor);
     }
 }
 

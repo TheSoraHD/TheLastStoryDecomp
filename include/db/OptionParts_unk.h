@@ -3,16 +3,15 @@
 
 #include "gmk/SeTable.h"
 #include "std/msl_common.h"
+#include "atn/Color.h"
 
 extern "C" wchar_t* wmemcpy(wchar_t* dst, const wchar_t* src, unsigned long n);
 
 // Types of db/OptionParts_unk.cpp (costume option parts and their level lists), shared with the
 // costume menus (game/CosEditPalette_unk.cpp).
 
-// inferred: colour of the costume editor palette (db/PaletteTable_unk.cpp)
-struct Color4f_unk {
-    float r, g, b, a;
-};
+// colour of the costume editor palette (db/PaletteTable_unk.cpp): atn::Color
+typedef atn::Color Color4f_unk;
 struct OptionPalette_unk {
     int m00;
     Color4f_unk mColor;
