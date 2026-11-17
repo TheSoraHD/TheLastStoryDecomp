@@ -90,7 +90,14 @@ enlaza: SwingObject queda 16/20, PassBoard 12/13, RandomMerchant 21/23.
   peor.
 - gmk/FlamingArrow Collect_unk: chara/slot declarados fuera del bucle en los dos ordenes, `mData + mCount`:
   96,09.
-- SwingObject: UpdateSwing_unk llamada a traves de otra inline (un nivel mas): igual.
+- SwingObject: UpdateSwing_unk llamada a traves de otra inline (un nivel mas): igual. SetLod_unk con
+  `SwingObject* self` (sin la direccion en r4 pero sin la recarga de la palabra de bits): 96,01.
+- gmk/MotionObject vf24: CsvTab con el ctor de `const void*` (separadores dentro): 99,88.
+- gmk/HealPoint fn_8040ED00 como Brazier (ctor de id/arg y asignaciones tras el new): 82,9.
+- gmk/MapLift vf0C (this en r21, original r31): busqueda de locators en una inline estatica que recibe el
+  vector en vez del metodo: igual.
+- gmk/RandomMerchant vf10: el bloque del objeto delante del mercader en una inline (primero, segundo o
+  los dos): peor (96,2 / 98,1 / 95,7).
 - gmk/RandomMerchant antes del arreglo de vf0C: ramas del if invertidas (33 %), Vector3 con nombre, inline
   ResetScale_unk: igual.
 - gmk/MapLift fn_8042AB58: columnas de MaxScale_unk como locales en orden directo/inverso, Vector3 de
