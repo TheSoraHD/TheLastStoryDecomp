@@ -190,9 +190,16 @@ ControlPushedDown::ControlPushedDown(Chara_unk* chara, const atn::Vector3& dir, 
     }
 }
 
-// NONMATCHING: 99.99% - only f0/f3 of the absolute value of the clamped angle of state 1 (the original
-// computes the fabs in f0 and rounds it into f3).
 // inferred: frame, zero and one declared in this order (saved FPRs f30, f31, f29 as in the original)
+// inferred: absolute values through double, like fabs/fabsf of MSL_C (fabsf is (float)fabs((double)x));
+// the double value and the rounded one get registers of their own (names invented)
+inline double AbsD_unk(double x) {
+    return __fabs(x);
+}
+inline float AbsF_unk(float x) {
+    return (float)AbsD_unk(x);
+}
+
 int ControlPushedDown::vf0C() {
     float frame;
     float zero = 0.0f;
@@ -261,7 +268,7 @@ int ControlPushedDown::vf0C() {
             atn::Vector3 r = mChara->mRot;
             r.y += a;
             mChara->mRot = r;
-            if (atn::Abs_unk(a) < lim) {
+            if (AbsF_unk(a) < lim) {
                 m08 = mChara->mRot;
                 m38 = 2;
                 motion->m34C = 1;
@@ -439,15 +446,17 @@ ControlPushedAvoid::ControlPushedAvoid(Chara_unk* chara, const atn::Vector3& dir
     m2C = 0;
 }
 
-// NONMATCHING: 99.3% - register allocation (temporaries in r3-r6, f0/f3), the order of the negated
-// components and the address of the segment end.
+// NONMATCHING: 99.5% - register allocation (0.0f/0.125f of state 0 in f3/f0, the fabs of the inlined
+// ToRotation_unk of Vec.h in f8/f3 as AbsF_unk gives), the order of the negated components and the
+// address of the segment end.
 int ControlPushedAvoid::vf0C() {
     int ret = 0;
-    m30 = lbl_8087EFA8->mTimeScale + m30;
+    float time = lbl_8087EFA8->mTimeScale;
+    m30 = m30 + time;
     Motion_unk* motion = &mChara->mMotion;
     switch (m2C) {
     case 0: {
-        float speed = __fabs(motion->mTracks[0].m0C);
+        float speed = AbsF_unk(motion->mTracks[0].m0C);
         if (m30 >= 0.6f * (motion->fn_80097D7C(0) / speed)) {
             motion->fn_80097C08(0, mChara->m484[0], 1, 0, 1, 0.0f, 0.1f);
             motion->m34C = 1;
@@ -459,7 +468,7 @@ int ControlPushedAvoid::vf0C() {
             c->m584 = 0.0f;
             float t = MIN(1.0f, m30 * 0.125f);
             float s = t * (lbl_8087DA44 - lbl_8087DA40) + lbl_8087DA40;
-            atn::Vector3 pos = mChara->mPos + m08 * s;
+            atn::Vector3 pos = *mChara->fn_8013C38C() + m08 * s;
             mChara->mPos = pos;
             atn::Vector3 r = mChara->mRot;
             float a = atn::WrapAngle_unk(Neg_unk(m08).ToRotation_unk().y - r.y);

@@ -12,8 +12,8 @@ Inicio: 2026-11-17 06:25 CET. Tope 08:55.
 | chr/ControlJumpAt ControlGrappled::vf10 | 99,44 | 99,89 (NONMATCHING) |
 | chr/ControlChant ControlMagic::vf0C | 93,6 | 95,0 (NONMATCHING; if/switch del original) |
 | chr/ControlCliffhang fn_801AB9E4 | 96,4 | 100 |
-| chr/ControlPushedDown ControlPushedDown::vf0C | 99,29 | 99,99 (NONMATCHING: f0/f3 de un fabs) |
-| chr/ControlPushedDown ControlPushedAvoid::vf0C | 99,28 | 99,39 |
+| chr/ControlPushedDown ControlPushedDown::vf0C | 99,29 | 100 |
+| chr/ControlPushedDown ControlPushedAvoid::vf0C | 99,28 | 99,54 |
 | game/NewCampPartsTop vf14 | 99,72 | 99,82 |
 | chr/ControlCliffhang vf0C | 99,69 | 99,83 |
 | game/Em001Necromancer ctor | 99,03 (comentario `draft` erroneo) | 99,03 (comentario corregido) |
@@ -39,6 +39,8 @@ Inicio: 2026-11-17 06:25 CET. Tope 08:55.
 - Constantes 0.0f/1.0f sacadas de un bucle (NewCampPartsTop vf14): `float zero; float one = 1.0f; zero = 0.0f;` antes del bucle da el orden de carga y los FPR del original (declarar `zero` primero fija el registro, asignarlo despues fija el orden de las cargas). (escribir-20261116 qN4)
 
 - Copias `chara->mPos = pos` con dst/src cruzados (r3/r4/r5): escribir por el accesor debil `*mChara->fn_8013C38C() = pos` (inline en el .cpp) da los registros del original (ControlPushedDown estado 3, ControlCliffhang estado 0). (escribir-20261116 qN4)
+
+- `fabs fX, fY; frsp fZ, fX` con fX != fZ (el valor double y el redondeado en registros distintos): valor absoluto por dos inlines, `float AbsF_unk(float x) { return (float)AbsD_unk(x); }` con `double AbsD_unk(double x) { return __fabs(x); }` (como fabsf/fabs de MSL_C). `atn::Abs_unk` y `(float)__fabs` dan el mismo registro (ControlPushedDown::vf0C al 100 %). El `Abs_unk` de Vec.h dentro de ToRotation_unk tiene el mismo sintoma en ControlPushedAvoid::vf0C (cabecera compartida: sin tocar). (escribir-20261116 qN4)
 
 ## Bloqueos
 - ControlGrappled::vf10 (99,89): (1) Mtx del segundo bloque por debajo del bind_t del primero (probado else if, else anidado, bloque interior, `boost::function` con nombre, Mtx declarada antes del dir, RotY_unk: arregla la pila pero la llama fuera de linea); (2) la base r31 de los ptmf es `...data.0` en el nuestro y `@13439` en el original porque el original emite primero en `.data` el `@STRING@allocate` del bind_t de 4 argumentos (198); el nuestro lo emite el tercero de los cuatro al final.
