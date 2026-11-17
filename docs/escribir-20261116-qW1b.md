@@ -7,6 +7,7 @@
 | Funcion | Antes | Despues |
 |---|---|---|
 | GameScene::vf14 (0x803C221C, dibujo de depuracion, 5192 B) | DRAFT stub vacio, 0,08 % | **100 %** |
+| TutorialTask::fn_805BC1C0 (camara libre) | equivalente 96,3 % | equivalente NONMATCHING 99 % (registros) |
 
 ## Para el port
 - GameScene::vf14: stub vacio -> codigo real (dibujo de depuracion de puntos, enlaces y cajas de la escena con DrawHelper si GameConfig_unk::mSceneDebug.mEnabled; al final fn_8008CD60 de los modelos restringidos mDC, que tambien corre sin depuracion). Cambio de comportamiento.
@@ -19,6 +20,8 @@
 ## Hallazgos
 - Registros de una funcion grande con un puntero base global (RenderManager) usado en bucles: `atn::Camera& camera = instance_->mCamera;` en vez de `RenderManager* rm` (99,3 -> 99,84 %, GameScene vf14). (escribir-20261116 qW1b)
 - Indice por defecto `int idx = i; if (x >= 0) idx = x;` frente a `int idx = x >= 0 ? x : i;`: el ternario cambia el orden de los registros (vf14 99,84 -> 100 %). (escribir-20261116 qW1b)
+
+- Un Vector3 local del que solo se usa una componente (ToRotationZ_unk(...).y) cambia la pila: `float yaw = v.ToRotationZ_unk().y;` deja el temporal donde el original (TutorialTask fn_805BC1C0 98,1 -> 99 %). (escribir-20261116 qW1b)
 
 ## Bloqueos
 

@@ -565,8 +565,8 @@ extern "C" void* lbl_8087EE98; // inferred: collision of the map
 // inferred: free position of the camera around the character: the camera of the page looks from the
 // character (and from the nearest route point) in the direction of the page; when the 20 units in front hit
 // the map, the direction turns by a quarter turn (four tries)
-// NONMATCHING: 96.3% - the stores of the start of the ray (z of the eye, y + 5) and the registers of the
-// front vector are scheduled differently
+// NONMATCHING: 99% - registers: the start/eye pointers (r25/r26) and the float constants (f23-f31) are
+// allocated in another order
 __declspec(noinline) void TutorialTask::fn_805BC1C0() {
     if (lbl_8087F430 != 0 && mChara != 0) {
         GameScene* scene = ((GameTask*)lbl_8087F430)->m10D8;
@@ -576,15 +576,16 @@ __declspec(noinline) void TutorialTask::fn_805BC1C0() {
         atn::Vector3 rot = mRot;
         atn::Vector3 from = page.mPos;
         atn::Vector3 to = page.mTarget;
-        atn::Vector3 dir = (to - from).ToRotationZ_unk();
+        float yaw = (to - from).ToRotationZ_unk().y;
         for (int i = -1; i < 4; i++) {
             const atn::Vector3* pos = i == -1 ? &mPos : &scene->m98.mData[point - 1].mPos;
             atn::Vector3 start = *pos;
             eye = start;
             start.y += 5.0f;
-            Mtx m;
-            PSMTXRotRad(m, 'y', rot.y + -dir.y);
+            float angle = rot.y + -yaw;
             atn::Vector3 front(0.0f, 0.0f, 1.0f);
+            Mtx m;
+            PSMTXRotRad(m, 'y', angle);
             PSMTXMultVec(m, &front, &front);
             atn::Vector3 end = start + front * 20.0f;
             if (fn_8004ED34(lbl_8087EE98, 0, &start, &end, 0x80000008, 0, 0) == 0) {
