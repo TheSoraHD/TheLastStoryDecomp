@@ -7,22 +7,23 @@
 #include "game/GameConfig_unk.h"
 #include "math/VecAssign_unk.h"
 #include "game/GameTask.h"
+#include "game/GameSceneFind_unk.h"
 
 // inferred: field objects that own the route tables
 struct RouteField_unk {
     unsigned char m00[0x10D8];
-    RouteTable_unk* m10D8;
+    GameScene* m10D8;
 };
 struct RouteField2_unk {
     unsigned char m00[0x1A6C];
-    RouteTable_unk* m1A6C;
+    GameScene* m1A6C;
 };
 extern "C" RouteField_unk* lbl_8087F430;
 extern "C" RouteField2_unk* lbl_8087F540;
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 
 // inferred: route tables of the current field (name invented)
-inline RouteTable_unk* GetRouteTable_unk() {
+inline GameScene* GetGameScene() {
     if (lbl_8087F430 != 0) {
         return lbl_8087F430->m10D8;
     }
@@ -51,9 +52,9 @@ RouteWalker_unk::RouteWalker_unk() {
 
 void RouteWalker_unk::fn_8012539C() {
     if (m2C == 0) {
-        RouteTable_unk* table = GetRouteTable_unk();
+        GameScene* table = GetGameScene();
         if (table != 0 && mLink > 0) {
-            RouteLink_unk* link = &table->mLinks[mLink - 1];
+            gs::HidePoint* link = &table->mAC.mData[mLink - 1];
             link->m3C = 0;
         }
     }
@@ -76,13 +77,13 @@ void RouteWalker_unk::fn_8012539C() {
 }
 
 int RouteWalker_unk::fn_80125474() {
-    RouteTable_unk* table = GetRouteTable_unk();
+    GameScene* table = GetGameScene();
     if (table == 0) {
         return 0;
     }
-    if ((mPointA > 0 && mPointA <= table->mNumPoints && table->mPoints[mPointA - 1].m2C == 0) ||
-        (mPointB > 0 && mPointB <= table->mNumPoints && table->mPoints[mPointB - 1].m2C == 0) ||
-        (mLink > 0 && mLink <= table->mNumLinks && table->mLinks[mLink - 1].m38 == 0)) {
+    if ((mPointA > 0 && mPointA <= table->m74 && table->m98.mData[mPointA - 1].m2C == 0) ||
+        (mPointB > 0 && mPointB <= table->m74 && table->m98.mData[mPointB - 1].m2C == 0) ||
+        (mLink > 0 && mLink <= table->mA8 && table->mAC.mData[mLink - 1].m38 == 0)) {
         return 0;
     }
     if (mPointB <= 0) {
@@ -120,9 +121,9 @@ inline float LengthSq_unk(const atn::Vector3& v) {
 // ahead of the walk direction or a random spot (name invented; inlined in fn_801279E8)
 static inline atn::Vector3 GetPointPos_unk(RouteWalker_unk* walker) {
     int point = walker->mPointB;
-    RouteTable_unk* table = GetRouteTable_unk();
+    GameScene* table = GetGameScene();
     if (((unsigned int)walker->m48 & 2) == 2) {
-        return table->mPoints[point - 1].mPos;
+        return table->m98.mData[point - 1].mPos;
     }
     if (((unsigned int)walker->m48 & 0x10) == 0x10) {
         atn::Vector3 up(0.0f, 1.0f, 0.0f);
@@ -142,9 +143,9 @@ static inline atn::Vector3 GetPointPos_unk(RouteWalker_unk* walker) {
 
 // inferred: as GetPointPos_unk for the point `point` (name invented; inlined in fn_801255C8)
 static inline atn::Vector3 GetPointPosAt_unk(RouteWalker_unk* walker, int point) {
-    RouteTable_unk* table = GetRouteTable_unk();
+    GameScene* table = GetGameScene();
     if (((unsigned int)walker->m48 & 2) == 2) {
-        return table->mPoints[point - 1].mPos;
+        return table->m98.mData[point - 1].mPos;
     }
     if (((unsigned int)walker->m48 & 0x10) == 0x10) {
         atn::Vector3 up(0.0f, 1.0f, 0.0f);
@@ -175,7 +176,7 @@ int RouteWalker_unk::fn_801255C8() {
     if (mChara->mFlag6) {
         mChara->fn_80155DAC(0);
     }
-    RouteTable_unk* table = GetRouteTable_unk();
+    GameScene* table = GetGameScene();
     m44 = mMode;
     if (((unsigned int)m48 & 0x40) != 0x40 && fn_80128CF8() != 0) {
         fn_80129144();
@@ -267,7 +268,7 @@ void RouteWalker_unk::fn_80126214() {
         fn_80127D8C(0, 0, 0);
         return;
     }
-    RouteTable_unk* table = GetRouteTable_unk();
+    GameScene* table = GetGameScene();
     m58 = m4C - mChara->mPos;
     switch (mMode) {
     case 0:
@@ -295,7 +296,7 @@ void RouteWalker_unk::fn_80126214() {
                 break;
             }
             mDestPoint = mPointA;
-            mPointA = fn_803CD958((RoutePath_unk*)((char*)table->mPaths + (mDestPoint - 1) * 8), mPointB - 1);
+            mPointA = fn_803CD958((RoutePath_unk*)((char*)table->mA0.mData + (mDestPoint - 1) * 8), mPointB - 1);
             if (mPointA > 0) {
                 m4C = GetPointPosAt_unk(this, mPointA);
             } else {
@@ -338,7 +339,7 @@ void RouteWalker_unk::fn_80126214() {
                     } else {
                         mChara->mFlag29 = 0;
                     }
-                    m4C = table->mLinks[mLink - 1].mPos;
+                    m4C = table->mAC.mData[mLink - 1].mPos;
                     m58 = m1C == 1 ? route.mDir : atn::Vector3(-route.mDir.x, -route.mDir.y, -route.mDir.z);
                     mMode = 2;
                 }
@@ -354,7 +355,7 @@ void RouteWalker_unk::fn_80126214() {
         break;
     case 3:
         if (PSVECSquareMag(&m58) < mRadius * mRadius) {
-            RoutePlace_unk* place = table->FindPlace_unk(mPlace);
+            gs::WarpPoint* place = table->FindPlace_unk(mPlace);
             float angle = atn::WrapAngle_unk(place->m14 - mChara->mRot.y);
             if (((unsigned int)m48 & 8) == 8 || (float)__fabs(angle) < 0.20943952f) {
                 fn_80127D8C(0, 0, 0);
@@ -495,9 +496,9 @@ void RouteWalker_unk::fn_80127D8C(int a, int b, int c) {
     }
     m2C = 1;
     if (mChara->mFlag31 == 0 && m44 == 1 && mLink > 0) {
-        RouteTable_unk* table = GetRouteTable_unk();
+        GameScene* table = GetGameScene();
         if (table != 0) {
-            RouteLink_unk* link = &table->mLinks[mLink - 1];
+            gs::HidePoint* link = &table->mAC.mData[mLink - 1];
             if (link->m3C != 0) {
                 link->m3C = 0;
             }
@@ -550,7 +551,7 @@ void RouteWalker_unk::fn_80128090() {
 }
 
 void RouteWalker_unk::fn_80128508(int start, const atn::Vector3* dest, int arg) {
-    RouteTable_unk* table = GetRouteTable_unk();
+    GameScene* table = GetGameScene();
     if (table != 0 && start > 0) {
         fn_8012539C();
         int end = ((GameScene*)table)->fn_803C1560(dest, mChara->fn_80179D44(), 0, mA0, 1, -1.0f);
@@ -559,11 +560,11 @@ void RouteWalker_unk::fn_80128508(int start, const atn::Vector3* dest, int arg) 
             m48 = arg;
             mPointB = start;
             mDestPoint = end;
-            mPointA = fn_803CD958((RoutePath_unk*)((char*)table->mPaths + (end - 1) * 8), start - 1);
-            RoutePoint_unk* point = &table->mPoints[mDestPoint - 1];
+            mPointA = fn_803CD958((RoutePath_unk*)((char*)table->mA0.mData + (end - 1) * 8), start - 1);
+            gs::MovePoint* point = &table->m98.mData[mDestPoint - 1];
             if (mPointA > 0) {
-                if (LengthSq_unk(point->mPos - *dest) >= point->mRadius * point->mRadius) {
-                    RoutePoint_unk* next = &table->mPoints[mPointA - 1];
+                if (LengthSq_unk(point->mPos - *dest) >= point->m14 * point->m14) {
+                    gs::MovePoint* next = &table->m98.mData[mPointA - 1];
                     atn::Vector3 up(0.0f, 10.0f, 0.0f);
                     atn::Vector3 from = *dest + up;
                     atn::Vector3 to = next->mPos + up;
@@ -578,7 +579,7 @@ void RouteWalker_unk::fn_80128508(int start, const atn::Vector3* dest, int arg) 
 
 // noinline: called with bl from fn_80128090, which inlines the other planners
 __declspec(noinline) void RouteWalker_unk::fn_801286F0(int link, const atn::Vector3* b, int c) {
-    RouteTable_unk* table = GetRouteTable_unk();
+    GameScene* table = GetGameScene();
     if (table != 0 && link > 0) {
         fn_8012539C();
         atn::Vector3 pos;
@@ -597,11 +598,11 @@ __declspec(noinline) void RouteWalker_unk::fn_801286F0(int link, const atn::Vect
 }
 
 void RouteWalker_unk::fn_80128818(int id, const atn::Vector3* b, int c) {
-    RouteTable_unk* table = GetRouteTable_unk();
+    GameScene* table = GetGameScene();
     if (table == 0) {
         return;
     }
-    RoutePlace_unk* place = table->FindPlace_unk(id);
+    gs::WarpPoint* place = table->FindPlace_unk(id);
     if (place == 0) {
         return;
     }
@@ -617,7 +618,7 @@ void RouteWalker_unk::fn_80128818(int id, const atn::Vector3* b, int c) {
 // Tried: both operand orders, locals, an inline adder, adding 5 first or last. `float r = mChara->m5B0;
 // r = 5.0f + (target->m5B0 + r);` gives the load order but swaps f1/f2/f3 (99.3%).
 void RouteWalker_unk::fn_80128930(chr::Chara_unk* target, const atn::Vector3* dest, int arg) {
-    RouteTable_unk* table = GetRouteTable_unk();
+    GameScene* table = GetGameScene();
     if (table == 0 || target == 0) {
         return;
     }
@@ -631,7 +632,7 @@ void RouteWalker_unk::fn_80128930(chr::Chara_unk* target, const atn::Vector3* de
 }
 
 void RouteWalker_unk::fn_80128A30(const atn::Vector3* pos, const atn::Vector3* dest, int arg, float radius) {
-    RouteTable_unk* table = GetRouteTable_unk();
+    GameScene* table = GetGameScene();
     if (table != 0) {
         fn_8012539C();
         fn_80128508(((GameScene*)table)->fn_803C1560(pos, mChara->fn_80179D44(), 0, mA0, 1, -1.0f), dest, arg);
@@ -645,7 +646,7 @@ void RouteWalker_unk::fn_80128A30(const atn::Vector3* pos, const atn::Vector3* d
 
 
 void RouteWalker_unk::fn_80128B20(chr::Chara_unk* target, const atn::Vector3* dest, int arg, float radius) {
-    RouteTable_unk* table = GetRouteTable_unk();
+    GameScene* table = GetGameScene();
     if (table == 0 || target == 0) {
         return;
     }
@@ -658,7 +659,7 @@ void RouteWalker_unk::fn_80128B20(chr::Chara_unk* target, const atn::Vector3* de
 }
 
 void RouteWalker_unk::fn_80128C08(chr::Chara_unk* target, const atn::Vector3* dest, int arg, float arg2) {
-    RouteTable_unk* table = GetRouteTable_unk();
+    GameScene* table = GetGameScene();
     if (table == 0 || target == 0) {
         return;
     }
@@ -695,7 +696,7 @@ int RouteWalker_unk::fn_80128CF8() {
     if (((unsigned int)m48 & 2) == 2 || ((unsigned int)m48 & 4) == 4) {
         return 0;
     }
-    RouteTable_unk* table = GetRouteTable_unk();
+    GameScene* table = GetGameScene();
     atn::Vector3 up(0.0f, mChara->m5B0, 0.0f);
     atn::Vector3 from = mChara->mPos + up;
     atn::Vector3 to;
@@ -743,7 +744,7 @@ int RouteWalker_unk::fn_80128CF8() {
 // place getter, the case order and the m48 flag after the switch.
 // inferred: walks straight to the goal of the mode in m44 (the goal is in sight)
 void RouteWalker_unk::fn_80129144() {
-    RouteTable_unk* table = GetRouteTable_unk();
+    GameScene* table = GetGameScene();
     switch (m44) {
     case 1:
         mDestPoint = mPointB;
@@ -785,23 +786,23 @@ void RouteWalker_unk::fn_80129144() {
 }
 
 // inferred: point of the route tables by id (name invented)
-static inline RoutePoint_unk* GetPoint_unk(RouteTable_unk* table, int point) {
-    return &table->mPoints[point - 1];
+static inline gs::MovePoint* GetPoint_unk(GameScene* table, int point) {
+    return &table->m98.mData[point - 1];
 }
 
 CharaSubSeg_unk RouteWalker_unk::fn_80129670(int from, int to) {
-    RouteTable_unk* table = GetRouteTable_unk();
+    GameScene* table = GetGameScene();
     CharaSubSeg_unk seg;
     if (from > 0 && to > 0 && from != to) {
         seg.m00 = GetPoint_unk(table, from)->mPos;
         seg.m0C = GetPoint_unk(table, to)->mPos - seg.m00;
-        seg.m18 = GetPoint_unk(table, from)->mRadius;
-        seg.m1C = GetPoint_unk(table, to)->mRadius;
+        seg.m18 = GetPoint_unk(table, from)->m14;
+        seg.m1C = GetPoint_unk(table, to)->m14;
     } else if (to > 0) {
         seg.m00 = mChara->mPos;
         seg.m0C = GetPoint_unk(table, to)->mPos - seg.m00;
-        seg.m18 = GetPoint_unk(table, to)->mRadius;
-        seg.m1C = GetPoint_unk(table, to)->mRadius;
+        seg.m18 = GetPoint_unk(table, to)->m14;
+        seg.m1C = GetPoint_unk(table, to)->m14;
     } else {
         seg = m70;
     }

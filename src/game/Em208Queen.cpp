@@ -13,6 +13,7 @@
 #include "game/GameTask.h"
 #include "math/VecAssign_unk.h"
 #include "game/DamageResult_unk.h"
+#include "game/GameScene.h"
 
 // inferred: debug menu entries (as in game/Em101LittleZesya.cpp)
 extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3, int arg4);
@@ -89,7 +90,7 @@ extern "C" SkillEffect* fn_8059B66C(void* mgr, HitInfo_unk* skill, CharaTask* us
 // inferred: field (lbl_8087F430): route tables at 0x10D8 (as in game/Em306GurgBeast.cpp)
 struct Field_unk {
     unsigned char m0000[0x10D8];
-    RouteTable_unk* m10D8;
+    GameScene* m10D8;
 };
 extern "C" Field_unk* lbl_8087F430;
 
@@ -105,11 +106,11 @@ struct GimmickShape_unk {
 // inferred: route points of state 15 (lbl_80746DB0)
 static const int sRoutePoints_unk[8] = {0x259, 0x25A, 0x25B, 0x25C, 0x25D, 0x25E, 0x25F, 0x260};
 
-// inferred: RouteTable_unk::FindPlace_unk with the array read inside the loop (register order of the
+// inferred: GameScene::FindPlace_unk with the array read inside the loop (register order of the
 // original)
-inline RoutePlace_unk* FindRoutePlace2_unk(RouteTable_unk* table, int id) {
-    for (unsigned int i = 0; i < table->mNumPlaces; i++) {
-        RoutePlace_unk* places = table->mPlaces;
+inline gs::WarpPoint* FindRoutePlace2_unk(GameScene* table, int id) {
+    for (unsigned int i = 0; i < table->m78.size(); i++) {
+        gs::WarpPoint* places = table->m78.mData;
         if (id == places[i].mId) {
             return &places[i];
         }
@@ -117,10 +118,10 @@ inline RoutePlace_unk* FindRoutePlace2_unk(RouteTable_unk* table, int id) {
     return 0;
 }
 // inferred: as FindRoutePlace2_unk on the field table (name invented)
-inline RoutePlace_unk* FindRoutePlace3_unk(int id) {
-    RouteTable_unk* table = lbl_8087F430->m10D8;
-    for (unsigned int i = 0; i < table->mNumPlaces; i++) {
-        RoutePlace_unk* places = table->mPlaces;
+inline gs::WarpPoint* FindRoutePlace3_unk(int id) {
+    GameScene* table = lbl_8087F430->m10D8;
+    for (unsigned int i = 0; i < table->m78.size(); i++) {
+        gs::WarpPoint* places = table->m78.mData;
         if (id == places[i].mId) {
             return &places[i];
         }
@@ -281,7 +282,7 @@ inline void SetRotY_unk(atn::Matrix3x4* m, float rad) {
 inline void Em208Queen::CastSkill_unk() {
     HitInfo_unk* skill = fn_80219E6C(0x67D);
     atn::Vector3 pos(-450.0f, 0.0f, -1100.0f);
-    RoutePlace_unk* place = FindRoutePlace2_unk(lbl_8087F430->m10D8, 0x25F);
+    gs::WarpPoint* place = FindRoutePlace2_unk(lbl_8087F430->m10D8, 0x25F);
     if (place != 0) {
         pos = place->mPos;
     }
@@ -1052,7 +1053,7 @@ void Em208Queen::fn_802CC39C() {
 inline int Em208Queen::CollectPoints_unk(int* ids) {
     int count = 0;
     for (int i = 0; i < 8; i++) {
-        RoutePlace_unk* place = FindRoutePlace2_unk(lbl_8087F430->m10D8, sRoutePoints_unk[i]);
+        gs::WarpPoint* place = FindRoutePlace2_unk(lbl_8087F430->m10D8, sRoutePoints_unk[i]);
         if (place != 0) {
             atn::Vector3 d = place->mPos - mPos;
             if (PSVECSquareMag(&d) > 28900.0f) {
@@ -1077,7 +1078,7 @@ void Em208Queen::fn_802CC4C8(int arg, CharaTask* target) {
     int id = count > 0 ? ids[rand() % count] : -1;
     m1510 = id;
     m1514 = 0;
-    RoutePlace_unk* place = FindRoutePlace3_unk(id);
+    gs::WarpPoint* place = FindRoutePlace3_unk(id);
     if (place == 0) {
         SetState_unk(6);
     } else {
