@@ -1,6 +1,6 @@
 # escribir-20261116, cola W1b (game, interfaz y sistema, segunda pasada)
 
-- Inicio: 2026-11-17 02:00 (CET). Fin: hacia las 04:00 (lo que queda en las unidades es reparto de registros ya probado).
+- Inicio: 2026-11-17 02:00 (CET). Fin: 03:45 (lo que queda en las unidades es reparto de registros ya probado).
 - Resultado: funciones 15892 -> 15899 / 18109 (report.json), lost 0, sin bajadas, labelcheck/rep100 igual. Ninguna unidad pasa a enlazar (GameScene 157/188, TutorialTask 25/31, GameChoiceWindow 30/38).
 - Script: /home/claude/scratch-W1b/bin_pct.sh <simbolo> (con U=<unidad>): compila la unidad y da el % de objdiff de un simbolo.
 
