@@ -1,5 +1,6 @@
 #include "game/TutorialTask.h"
 #include "game/GameTask.h"
+#include "game/GameScene.h"
 #include "atn/Memory.h"
 #include "atn/Csv.h"
 #include "atn/D2A_Task.h"
@@ -557,11 +558,48 @@ void TutorialTask::fn_805BBD7C() {
     }
 }
 
-// DRAFT: not written (free position of the camera around the character)
-// NONMATCHING: not written yet (free position of the camera around the character)
+extern "C" int fn_8004ED34(void* colli, atn::ColliResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
+                           unsigned int mask, void* ignore, int arg7); // inferred: ray test (game/BattleCharaTask.cpp)
+extern "C" void* lbl_8087EE98; // inferred: collision of the map
+
+// inferred: free position of the camera around the character: the camera of the page looks from the
+// character (and from the nearest route point) in the direction of the page; when the 20 units in front hit
+// the map, the direction turns by a quarter turn (four tries)
+// NONMATCHING: 96.3% - the stores of the start of the ray (z of the eye, y + 5) and the registers of the
+// front vector are scheduled differently
 __declspec(noinline) void TutorialTask::fn_805BC1C0() {
-    mPos2 = mPos;
-    mRot2 = mRot;
+    if (lbl_8087F430 != 0 && mChara != 0) {
+        GameScene* scene = ((GameTask*)lbl_8087F430)->m10D8;
+        int point = scene->fn_803C1560(&mPos, mChara->fn_80179D44(), 0, 0, 1, -1.0f);
+        TutorialPage_unk& page = mPages[mPage];
+        atn::Vector3 eye = scene->m98.mData[point - 1].mPos;
+        atn::Vector3 rot = mRot;
+        atn::Vector3 from = page.mPos;
+        atn::Vector3 to = page.mTarget;
+        atn::Vector3 dir = (to - from).ToRotationZ_unk();
+        for (int i = -1; i < 4; i++) {
+            const atn::Vector3* pos = i == -1 ? &mPos : &scene->m98.mData[point - 1].mPos;
+            atn::Vector3 start = *pos;
+            eye = start;
+            start.y += 5.0f;
+            Mtx m;
+            PSMTXRotRad(m, 'y', rot.y + -dir.y);
+            atn::Vector3 front(0.0f, 0.0f, 1.0f);
+            PSMTXMultVec(m, &front, &front);
+            atn::Vector3 end = start + front * 20.0f;
+            if (fn_8004ED34(lbl_8087EE98, 0, &start, &end, 0x80000008, 0, 0) == 0) {
+                break;
+            }
+            if (i >= 0) {
+                rot.y = atn::WrapAngle_unk(1.5707964f + rot.y);
+            }
+        }
+        mPos2 = eye;
+        mRot2 = rot;
+    } else {
+        mPos2 = mPos;
+        mRot2 = mRot;
+    }
 }
 
 TutorialPopup* TutorialPopup::fn_805BC6C8(atn::Task* parent, int id, CharaTask* chara) {

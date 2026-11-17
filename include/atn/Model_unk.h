@@ -315,7 +315,7 @@ struct Model : public ModelBase {
         float m10; // inferred: set to 1.0 when CharaTask::mFlag7 is set (fn_80145334)
         float m14; // inferred: weight (set by the lip sync, Chara1154_unk::fn_8007A7BC)
         unsigned char m18; // inferred: nonzero = the end is tested one step early (CharaTask::fn_8015EB2C)
-        unsigned char m19[0x1C - 0x19];
+        unsigned char m19; // inferred: one byte: the copy of a track skips 0x1A-0x1B (game/ReplayBuffer fn_8056A9E4)
         float m1C; // inferred: current value (moved towards the key by the lip sync)
         float m20; // inferred: weight
         LH_Motion* m24; // inferred: previous motion (m04)

@@ -24,7 +24,7 @@ struct ReplayTrack_unk {
     short mFrame;            // 0x0A: half float
     short mSpeed;            // 0x0C: half float
     short mPrevFrame;        // 0x0E: half float
-    unsigned char mFlag;     // 0x10
+    signed char mFlag;       // 0x10
     unsigned char m11;       // 0x11: Track_unk::m10 * 255
     unsigned char mWeight;   // 0x12: Track_unk::m14 * 255
     unsigned char m13;       // 0x13: Track_unk::m1C * 255
@@ -39,7 +39,7 @@ struct ReplayChara_unk {
     signed char mMotion;  // 0x04: inferred: motion (negative: none)
     signed char mNode;    // 0x05: inferred: value of Model::m50
     signed char m06;      // 0x06: inferred: value of Model::m34C
-    unsigned char m07;
+    signed char m07;      // inferred: the upper body is turned (CharaTask::HasC48_unk)
     short mMtx[3][4];     // 0x08: inferred: model matrix (half floats)
     ReplayTrack_unk mTracks[4];      // 0x20: inferred: passed to fn_8056A9E4
     short mRefPos[3];     // 0x80: inferred: position of the "reference" node (half floats)
