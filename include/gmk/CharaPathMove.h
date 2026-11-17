@@ -27,11 +27,8 @@ struct PathChara_unk {
     int mTimer;           // 0x2C: inferred: frames until the next upper motion
 };
 
-// inferred: list of the characters (4 null checks of `this` in the destructor: derived from
-// std::vector)
-struct PathCharaList_unk : public std::vector<PathChara_unk*> {
-    int m0C; // inferred: unused (0x10 bytes: the next member is at 0x134)
-};
+// inferred: list of the characters
+typedef std::vector<PathChara_unk*> PathCharaList_unk;
 // inferred: data of the path built by fn_8032AF90 from the points (0x54 bytes; element types
 // unknown, trivially destructible)
 struct PathVecList_unk : public std::vector<atn::Vector3> {};
@@ -81,6 +78,7 @@ public:
     std::vector<std::string> mUpperMotions; // 0x114: "UPPER_MOTION"
     int mNext;      // 0x120: inferred: next character to start
     PathCharaList_unk mCharas;              // 0x124
+    int m130;                               // inferred: unused
     std::vector<atn::Vector3> mPoints;      // 0x134: "PATH_POINT"
     PathData_unk mPath;                     // 0x140
     int mUpperInterval; // 0x194: "UPPER_MOTION_INTERVAL"

@@ -175,9 +175,14 @@ struct __vec_imp_unk : public __vec_storage_unk<T> {
     }
 };
 
+// inferred: one more (empty) base level for pointer elements: their destructor tests `this` four
+// times, as the MSL one (std::vector<P17MapModelCache_unk> 0x8009F70C, vector<P14MapLocator_unk>)
+template <class T>
+struct __vec_ptr_base_unk : public __vec_storage_unk<T*> {};
+
 // inferred: pointer elements are stored after the size is incremented (0x800DB3EC)
 template <class T>
-struct __vec_imp_unk<T*> : public __vec_storage_unk<T*> {
+struct __vec_imp_unk<T*> : public __vec_ptr_base_unk<T> {
     ~__vec_imp_unk() {}
     void __push_fast_unk(unsigned int n, T* const& x) {
         this->mSize = n + 1;

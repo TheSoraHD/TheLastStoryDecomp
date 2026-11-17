@@ -93,8 +93,8 @@ struct ShadeTarget_unk {
 
 // inferred: a class derived from std::vector (its destructor tests the address four times, as
 // RoutePlaceList_unk of game/Em305Vampire.h); names invented
-struct ShadePlaceList_unk : public std::vector<RoutePlace_unk*> {};
-struct ShadeEnemyList_unk : public std::vector<EnemyTask*> {};
+typedef std::vector<RoutePlace_unk*> ShadePlaceList_unk;
+typedef std::vector<EnemyTask*> ShadeEnemyList_unk;
 
 // inferred from __vt__11Em301LShade (0x80786C44): the "L shade" boss (absorbs the magic of the party,
 // calls reinforcements). Data file "database/chara/special/" + db_name (default "db_em301_00_00.csv").

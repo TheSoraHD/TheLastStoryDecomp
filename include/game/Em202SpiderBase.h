@@ -15,7 +15,7 @@ struct SpiderBasePoint_unk {
     int mPlace;
     atn::Vector3 mPos;
 };
-struct SpiderBaseList_unk : public std::vector<SpiderBasePoint_unk*> {};
+typedef std::vector<SpiderBasePoint_unk*> SpiderBaseList_unk;
 
 // inferred: color of the materials "em202_body"/"em202_tail" (r, g, b, a; starts white); name invented
 struct SpiderBaseColor_unk {

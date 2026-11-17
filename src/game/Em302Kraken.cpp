@@ -1408,7 +1408,7 @@ inline unsigned int IsFlag25_unk(const CharaTask* chara) {
 }
 
 // inferred: local list of party members (derived from std::vector like the other lists; name invented)
-struct KrakenCharaList_unk : public std::vector<CharaTask*> {};
+typedef std::vector<CharaTask*> KrakenCharaList_unk;
 
 // inferred: reinforcements of the party: up to `count` members (alive, not held, not hidden) are taken
 // in a fixed order starting at a random slot; state 2 stops them, state 0 stuns them for 900 frames,

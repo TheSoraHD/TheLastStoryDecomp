@@ -13,7 +13,7 @@
 // game/ChaserGuard.h); name invented
 struct CrabList_unk : public std::vector<int> {};
 // inferred: "BasePoints" (route places); same wrapper as CrabList_unk; name invented
-struct CrabPlaceList_unk : public std::vector<RoutePlace_unk*> {};
+typedef std::vector<RoutePlace_unk*> CrabPlaceList_unk;
 
 // inferred from __vt__13Em308ParmCrab (0x80787A00). The factory allocates 0x1620 bytes
 // (SpecialEnemyBase.cpp). Members keep their offsets (names unknown).

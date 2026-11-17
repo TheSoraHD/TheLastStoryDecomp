@@ -97,11 +97,6 @@ inline void Em316LastLaser::SetState_unk(int state) {
     fn_8016E970(3);
 }
 
-inline void LaserList_unk::Erase_unk(LaserPoint_unk** it) {
-    memmove(it, it + 1, (&this->mData[this->mSize] - it - 1) * sizeof(LaserPoint_unk*));
-    this->mSize--;
-}
-
 // inferred: removes every point of the trail and stops its effects and its sound
 inline void LaserTrace::Reset_unk() {
     LaserPoint_unk** it = m28.begin();
@@ -110,7 +105,7 @@ inline void LaserTrace::Reset_unk() {
     while (it != m28.end()) {
         fn_80239DAC(lbl_8087F3C0, *it, 0, 0);
         delete *it;
-        m28.Erase_unk(it);
+        m28.erase(it);
     }
     if (fn_80239D58(lbl_8087F3C0, this, 0) != 0) {
         fn_80239DAC(lbl_8087F3C0, this, 0, 0);
@@ -229,7 +224,7 @@ inline void LaserTrace::Update_unk() {
         if ((*it)->m4C <= 0) {
             fn_80239DAC(lbl_8087F3C0, *it, 0, 0);
             delete *it;
-            m28.Erase_unk(it);
+            m28.erase(it);
         } else {
             it++;
         }
@@ -658,8 +653,9 @@ static void fn_8031D6DC(LaserTrace* t, const atn::Vector3& pos, const atn::Vecto
     t->m38 = fn_800C344C("SE_DG040_009", &pos, 0, -1, 1.0f);
 }
 
-LaserPoint_unk** LaserList_unk::Back_unk() {
-    return &(*this)[size() - 1];
+// inferred: address of the last point (0x8031E060; name invented)
+static LaserPoint_unk** Back_unk(LaserList_unk* list) {
+    return &(*list)[list->size() - 1];
 }
 
 // inferred: new segment from the end of the trail (m10) to `pos`, its effect placed at `pos` (name keeps the
@@ -728,7 +724,7 @@ void LaserTrace::fn_8031E8BC(const atn::Vector3& pos, const atn::Vector3& normal
         m34->m4C = 30;
     } else {
         fn_8031E078(this, pos);
-        m34 = *m28.Back_unk();
+        m34 = *Back_unk(&m28);
     }
     fn_800CB6E4(&m38, &pos);
     m10 = pos;

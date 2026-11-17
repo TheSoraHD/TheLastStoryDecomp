@@ -37,9 +37,9 @@ struct SpiderThread_unk {
 
 // inferred: the destructor tests `this` once more than for a plain std::vector (as SpiderList_unk in
 // game/Em202Spider.h); names invented
-struct ForestEnemyList_unk : public std::vector<EnemyTask*> {};
-struct ForestPlaceList_unk : public std::vector<RoutePlace_unk*> {};
-struct ForestCharaList_unk : public std::vector<CharaTask*> {};
+typedef std::vector<EnemyTask*> ForestEnemyList_unk;
+typedef std::vector<RoutePlace_unk*> ForestPlaceList_unk;
+typedef std::vector<CharaTask*> ForestCharaList_unk;
 
 // inferred from __vt__17Em202ForestSpider (0x807850E0). Data file "database/chara/special/" + db_name (default
 // "db_em202_02_00.csv"). The factory allocates 0x1968 bytes. Members keep their offsets (names invented).

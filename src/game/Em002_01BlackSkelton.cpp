@@ -55,11 +55,6 @@ static const int sCharaFlags[3][6][2] = {
     {{200, 100601}, {201, 0}, {202, 100401}, {203, 100201}, {204, 0}, {205, 101101}},
 };
 
-inline void CharaList_unk::Erase_unk(CharaTask** it) {
-    memmove(it, it + 1, (&this->mData[this->mSize] - it - 1) * sizeof(CharaTask*));
-    this->mSize--;
-}
-
 Em002_01BlackSkelton::Em002_01BlackSkelton(atn::Task* parent, void* data)
     : EnemyTask(parent, data), m14B8(0), m14CC(0) {
     m14BC.__shrink_unk(0);
@@ -97,7 +92,7 @@ int Em002_01BlackSkelton::vf0C() {
 }
 
 // NONMATCHING: 96.1% - the erase in the final loop reuses the end pointer computed by the loop test;
-// the original recomputes it (4 instructions more). Calling Erase_unk through a local
+// the original recomputes it (4 instructions more). Calling erase through a local
 // `CharaList_unk* l = &m14BC` inside the if gives the recomputation but swaps this/busy (r30/r31).
 void Em002_01BlackSkelton::vf10() {
     fn_8014C540();
@@ -181,7 +176,7 @@ void Em002_01BlackSkelton::vf10() {
     CharaTask** it = m14BC.begin();
     while (it != m14BC.end()) {
         if (((*it)->mStatus.m0C & 0x20) != 0x20) {
-            m14BC.Erase_unk(it);
+            m14BC.erase(it);
         } else {
             it++;
         }

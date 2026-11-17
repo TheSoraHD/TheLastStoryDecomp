@@ -18,13 +18,8 @@ struct LaserPoint_unk {
     float m48;          // inferred: length
     int m4C;            // inferred: frames left
 };
-// inferred: a class derived from std::vector (its destructor tests `this` four times, as
-// CharaList_unk of game/Em002_01BlackSkelton.h); name invented
-struct LaserList_unk : public std::vector<LaserPoint_unk*> {
-    LaserPoint_unk** Back_unk(); // 0x8031E060
-    void Erase_unk(LaserPoint_unk** it); // inferred: erase of one element (memmove of the rest)
-    inline void Clear_unk(); // inferred: deletes every point (name invented)
-};
+// inferred: points of a trail; name invented
+typedef std::vector<LaserPoint_unk*> LaserList_unk;
 
 class LaserTrace {
 public:

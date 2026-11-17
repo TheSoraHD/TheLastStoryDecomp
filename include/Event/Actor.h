@@ -44,7 +44,7 @@ struct ActorKey10_unk {
 // inferred: equipment parts waiting to be attached to the character (list at 0x148, Puppeteer<CharaTask>):
 // a class of its own derived from a vector (its copy, weak copy 0x80544294, is not the one of
 // IntVector_unk, 0x805444C0, and its destructor tests the address four times). Name invented.
-struct EquipList_unk : public std::vector<chr::CharaEquip_unk*> {};
+typedef std::vector<chr::CharaEquip_unk*> EquipList_unk;
 
 // inferred: 8-byte entry of the list at 0xAC of an actor
 // inferred: not a POD (the copy of vector<ActorPair_unk> 0x80543F60 copies it member by member); the constructor is

@@ -12,7 +12,7 @@
 // game/ChaserGuard.h); name invented
 struct RoutePlace_unk;
 // inferred: route places read from "needle_point"/"outer_point" (vf0C)
-struct SpiderList_unk : public std::vector<RoutePlace_unk*> {};
+typedef std::vector<RoutePlace_unk*> SpiderList_unk;
 
 // inferred: color of the materials of the spider (r, g, b, a; starts white); name invented
 struct SpiderColor_unk {

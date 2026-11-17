@@ -11,7 +11,7 @@
 // inferred: warp points of the enemy ("warp_point"; a class derived from std::vector: its destructor
 // tests `this` four times); name invented
 struct RoutePlace_unk;
-struct ElderList_unk : public std::vector<RoutePlace_unk*> {};
+typedef std::vector<RoutePlace_unk*> ElderList_unk;
 
 // inferred from __vt__21Em101ElderZesyaSecond (0x807847E0): second fight of the elder Zesya.
 // Only the small functions are written (game/Em101ElderZesyaSecond.cpp); the factory allocates

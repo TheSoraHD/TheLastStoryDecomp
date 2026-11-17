@@ -202,9 +202,7 @@ void CrowdManager::fn_801EB078() {
 }
 
 // inferred: one more destructor level than std::vector (three null checks of the address); name invented
-struct CrowdWalkerList_unk : public std::vector<CrowdWalker_unk*> {
-    ~CrowdWalkerList_unk() {}
-};
+typedef std::vector<CrowdWalker_unk*> CrowdWalkerList_unk;
 
 inline void* GetWorld_unk() {
     return lbl_8087EE98;

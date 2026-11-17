@@ -22,7 +22,7 @@ inline ActionKey_unk::ActionKey_unk() {}
 
 // inferred: list of nodes owned by the reader (a class derived from std::vector, its destructor tests the
 // address four times)
-struct NodeList_unk : public std::vector<Node*> {};
+typedef std::vector<Node*> NodeList_unk;
 
 // inferred: state of the reader (0x5C bytes, cleared when it is created by Sequence::fn_8057D5F4): the
 // objects the next chunks refer to

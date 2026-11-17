@@ -506,6 +506,13 @@ inline void PlayEffect_unk(atn::EfpFile* efp, atn::Model* model) {
 // declaration orders, ToRotationZ_unk)
 // inferred: chooses the next action: warp after 5 hits, the warp attacks every m14D0 actions, the normal
 // attack in range, otherwise the warp slash or a warp
+// inferred: yaw towards a point (name invented)
+inline float YawTo_unk(const atn::Vector3& from, const atn::Vector3& to) {
+    atn::Vector3 dir = to - from;
+    PSVECNormalize(&dir, &dir);
+    return dir.ToRotation_unk().y;
+}
+
 void Em101LittleZesyaSecond::fn_80261078() {
     atn::Vector3 target = m14B8->mPos;
     atn::Vector3 d = target - mPos;
@@ -570,10 +577,7 @@ void Em101LittleZesyaSecond::fn_80261078() {
                 mMotion.mTracks[0].m0C = 0.9f;
             }
             m598 = 0;
-            atn::Vector3 dir = m14B8->mPos - mPos;
-            PSVECNormalize(&dir, &dir);
-            atn::Vector3 rot = dir.ToRotation_unk();
-            mRot.y = rot.y;
+            mRot.y = YawTo_unk(mPos, m14B8->mPos);
         }
     } else if (m14BC > m14D8) {
         if (rand() % 2 == 1 && dist < 120.0f) {

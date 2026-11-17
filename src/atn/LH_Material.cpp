@@ -5,12 +5,8 @@
 
 namespace atn {
 
-// inferred: list of the materials (name invented). The destructor of LoadMaterial has four `this`
-// null checks for it, one more level than std::vector alone.
-class MaterialList_unk : public std::vector<Material_unk*> {
-public:
-    ~MaterialList_unk() {}
-};
+// inferred: list of the materials (name invented)
+typedef std::vector<Material_unk*> MaterialList_unk;
 
 // inferred from __vt__Q23atn12LoadMaterial (0x8078FD80)
 class LoadMaterial : public LoadCore {

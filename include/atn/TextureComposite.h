@@ -84,7 +84,7 @@ public:
 };
 
 // inferred: list of commands (one more destructor level than std::vector in the original)
-struct TextureCompositeCommandList_unk : public std::vector<TextureCompositeCommand*> {};
+typedef std::vector<TextureCompositeCommand*> TextureCompositeCommandList_unk;
 
 // inferred from __vt__Q23atn16TextureComposite: renders its commands into a texture (with mipmaps)
 class TextureComposite : public IRender {

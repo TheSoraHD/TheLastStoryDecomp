@@ -7,12 +7,8 @@
 
 class GimmickCommon;
 
-// inferred: characters already carried to a mirror (a class derived from std::vector: its
-// destructor tests `this` four times); name invented
-struct CharaList_unk : public std::vector<CharaTask*> {
-    // inferred: erase of one element (memmove of the rest)
-    void Erase_unk(CharaTask** it);
-};
+// inferred: characters already carried to a mirror; name invented
+typedef std::vector<CharaTask*> CharaList_unk;
 
 // inferred from __vt__20Em002_01BlackSkelton (0x80783E48): skeleton that drags the allies that are
 // down to a mirror (gimmick kind 29, gmk::SkeltonsMirror). States in m58C: 0 searching, 1 grabbing,

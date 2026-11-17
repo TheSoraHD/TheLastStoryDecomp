@@ -11,7 +11,7 @@ struct RoutePlace_unk;
 
 // inferred: entry of "door_route" (four values read with fn_800DC12C); names invented
 // inferred: wrapper struct (the destructor tests the address of the member one extra time)
-struct RoutePlaceList_unk : public std::vector<RoutePlace_unk*> {};
+typedef std::vector<RoutePlace_unk*> RoutePlaceList_unk;
 
 struct VampireDoor_unk {
     VampireDoor_unk(int a, int b, int c, int d) : m00(a), m04(b), m08(c), m0C(d) {}

@@ -62,9 +62,7 @@ struct TownTree_unk : public TownTree3_unk {
     ~TownTree_unk() {}
 };
 // inferred: vector of the town (destructor inlined through four levels); element type unknown
-struct TownList_unk : public std::vector<void*> {
-    ~TownList_unk() {}
-};
+typedef std::vector<void*> TownList_unk;
 
 // inferred from __vt__8TownTask (0x807978C8): the map task of the towns
 class TownTask : public MapTask {
