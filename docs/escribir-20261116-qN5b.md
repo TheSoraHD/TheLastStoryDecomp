@@ -114,6 +114,12 @@ vf0C 96,2, vf10 95,9 y fn_80425498 99,7).
 - gmk/RotaryRoom fn_80425498: en el original `areas` del primer bucle toma r4, el mismo registro que el
   `area` del principio (que no vive a traves de la llamada); `area = colli->m08` no lo reproduce.
 
+- gmk/MotionObject vf10 (97,79): el original carga los argumentos de fn_80097C08 en el orden del struct
+  (mMotion, mBlend, mLoop, mReverse). Inline `PlayMotion_unk(model, motion, blend, loop, reverse)`: 97,81
+  (orden invertido); con los parametros al reves (reverse, loop, blend, motion) 97,95 y solo mBlend fuera de
+  sitio, pero es un orden poco natural y quedan los registros de this (r24/r25). Sin commit. Mismo patron
+  en WaitObject vf40 (99,28).
+
 ## Para el port
 
 - gmk/WaitObject: `WaitTrigger_unk::m08` `unsigned char[0x14]` -> `float[5]` (vf20 escribe `trigger.m08[i]`;
