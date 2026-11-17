@@ -449,7 +449,8 @@ inline float Em203GreaterDaemon::HpRate_unk() {
 
 // inferred: nonzero when the motion of track 0 has reached its end minus `margin` (name invented)
 inline bool Em203GreaterDaemon::IsMotionNearEnd_unk(float margin) {
-    return mMotion.mTracks[0].m08 >= mMotion.fn_80097D7C(0) - margin;
+    float frame = mMotion.mTracks[0].m08;
+    return frame >= mMotion.fn_80097D7C(0) - margin;
 }
 
 // inferred: clears the counters of the state and takes a new bullet id (name invented)
@@ -496,7 +497,9 @@ inline void Em203GreaterDaemon::StartFly_unk() {
     m153C = 0;
 }
 
-// NONMATCHING: 96.51% - stack slot order of the vector temporaries
+// The frames are read into a local before fn_80097D7C, and the end test of the default state is written in
+// place (as an inline bool its result is kept in a register).
+// NONMATCHING: 97.21% - stack slot order of the vector temporaries
 void Em203GreaterDaemon::vf10() {
     fn_8028ADF4();
     if (mC58.mC0 == 0) {
@@ -566,7 +569,8 @@ void Em203GreaterDaemon::vf10() {
                 } else if (mMotion.mTracks[0].m08 > start + length) {
                     FaceCenter_unk();
                 }
-                if (mMotion.mTracks[0].m08 > mMotion.fn_80097D7C(0) - 2.0f) {
+                float frame = mMotion.mTracks[0].m08;
+                if (frame > mMotion.fn_80097D7C(0) - 2.0f) {
                     ResetState_unk();
                     m58C = 6;
                     fn_8016E970(3);
@@ -586,7 +590,8 @@ void Em203GreaterDaemon::vf10() {
                 break;
             default: {
                 int end;
-                if (IsMotionNearEnd_unk(2.0f)) {
+                float frame = mMotion.mTracks[0].m08;
+                if (frame >= mMotion.fn_80097D7C(0) - 2.0f) {
                     FaceCenter_unk();
                     end = 1;
                 } else {
