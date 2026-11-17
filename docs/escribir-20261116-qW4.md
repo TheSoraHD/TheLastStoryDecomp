@@ -12,6 +12,8 @@ Agente W4, inicio 2026-11-17 02:08 (tope 04:38). Rama `agent-W4`.
 | atn/WordWrap_unk `ios_base::setstate`, `basic_string(const basic_string&)`, thunk `@8@60@~basic_ostream` | no emitidas | igual (ver Bloqueos) |
 | atn/LH_Binary `fn_80471FD0` | no escrita | equivalente NONMATCHING 0 % (paired-single sin GQR6) |
 | atn/LH_Binary `SceneTrack_unk::fn_8047202C` | no escrita | equivalente NONMATCHING 0 % |
+| chr/ControlStickByQuark `ControlMatHoldDamage::vf0C` | DRAFT 94,56 % | equivalente NONMATCHING 94,6 % (comprobada contra el asm) |
+| RecycleBuffer_gmk/ItemSlotAnime `fn_8044D9BC` | DRAFT 50,59 % | **100 %** |
 
 ## Para el port
 
@@ -26,12 +28,38 @@ Agente W4, inicio 2026-11-17 02:08 (tope 04:38). Rama `agent-W4`.
 - LayerOcclusionCPU `fn_800B4390`: misma semantica; la distancia al plano se suma en el orden del
   original y ya no multiplica `mDist` por `lbl_807790A8[1]` (el 1 no se usa en el original).
 
+- ItemSlotAnime: `ItemSlotTextCache` (y `ItemSlotDraw_unk`, `ItemSlotRecord_unk`) se declaran antes de
+  `fn_8044D9BC`; nuevos ctor `ItemSlotTextCache(atn::Task*)` (mNext 0, mMapType -1, mMapId/mMapSubId 0) y
+  `ItemSlotRecord_unk()` (mTable/mKind 0, lista vacia). `fn_8044D9BC` pasa de borrador a codigo real: crea
+  tambien la cache `lbl_8087F4FC` (antes no se creaba nunca: cambio de comportamiento) y los `push_back` de
+  las tareas de cada entrada solo anaden si cabe (`PushTask_unk`, `size() < N`).
+
 ## Decisiones tomadas sin el usuario
 
+- ItemSlotAnime: tres inlines con nombre inventado deducidas de los pools `@STRING@` del original
+  (`""` de los `new` en `.sdata` y las rutas d2b en `.data`): `ItemSlotAnimeBuffer::Create_unk`,
+  `ItemSlotTextCache::Create_unk` y `ItemSlotAnimeBuffer::Setup_unk`; ayudante `PushTask_unk` en el .cpp.
+
 ## Hallazgos
+
+- Literales de rutas en `.data` con etiquetas sueltas en orden inverso (`lbl_8078F4E0` el primero usado, el
+  resto hacia atras) = pool `@STRING@` de una inline (base, @0, @1...): mover el codigo a una inline con
+  nombre `_unk` y `pd.sh` los renombra (ItemSlotAnime fn_8044D9BC 50 -> 100 %) (escribir-20261116 qW4)
+- Un `new (1, "", "", 0)` con la doble comprobacion `if (inst == 0) { gm = ...; if (inst == 0) ... }`
+  (dos `bne` con el mismo cr0) = `if (inst == 0) X::Create_unk(parent);` con la segunda comprobacion dentro
+  de la inline estatica (escribir-20261116 qW4)
+- `grep -m1 match_percent` de `objdiff-cli diff ... --format json-pretty` da el % de la seccion .text, no
+  el de la funcion: usar `/home/claude/agentes/bin/pct.py` (escribir-20261116 qW4)
+- Un local nuevo `Matrix3x4* p = &rot;` (sin inline nueva) renumero en 1 los `@N` de ControlStickByQuark
+  desde esa funcion: comprobar `labelcheck.py` tras cualquier cambio en unidades sin enlazar (escribir-20261116 qW4)
 
 ## Bloqueos
 
 ## Cambios de splits/symbols
 
+- ItemSlotAnime (pd.sh + pdfix.py): `lbl_8078F348` -> `__vt__Q23gmk17ItemSlotTextCache`, las 8 rutas
+  `lbl_8078F400..4E0` -> `@STRING@Setup_unk__Q23gmk19ItemSlotAnimeBufferFv[@0-@6]`, `lbl_8087E018..24` ->
+  `@STRING@Create_unk__Q23gmk17ItemSlotTextCacheFPQ23atn4Task[@0]` y `...ItemSlotAnimeBufferFPQ23atn4Task[@0]`;
+  `@N` renumerados de .rodata/.sdata2 de la unidad (6 a mano con pdfix: 0x807547D0/F8, 0x80754818,
+  0x8075488C/B0/BC).
 - LH_Binary (pd.sh): `lbl_80755C20` -> `@5283`, `@4836` -> `@5020`, `lbl_80886EE0/EE4` -> `@5277`/`@5390`.
