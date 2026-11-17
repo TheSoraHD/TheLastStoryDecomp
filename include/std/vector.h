@@ -716,7 +716,14 @@ private:
         }
         __vec_swap_unk(this->mCap, buf.mCap);
         __vec_swap_unk(this->mData, buf.mData);
-        __vec_swap_unk(this->mSize, buf.mSize);
+        // inferred: the size of a cleared vector is moved, not swapped: the original stores the 0 it
+        // knows into the buffer without reloading the size (atn/ShaderManager_unk fn_800C5644)
+        if (__vec_split_unk<T>::__clear_src_unk) {
+            this->mSize = buf.mSize;
+            buf.mSize = 0;
+        } else {
+            __vec_swap_unk(this->mSize, buf.mSize);
+        }
     }
 public:
     size_type __grow_cap_unk(size_type n);
