@@ -346,7 +346,12 @@ __declspec(noinline) float FinishCamera_unk::fn_80379104(XsfCurveSet_unk* curve,
 // the ends; 6 = the same around all of them at once. The camera is then set to the render manager (or the field
 // camera is moved to the target when it is taken over, m394). The curves are added by hand (AddCurve_unk as a
 // candidate puts the function over the inlining budget)
-// NONMATCHING: 95.29% - stack slots and float registers of the temporaries (the original keeps the curve matrices
+// inferred: vertical field of view from the horizontal one of a curve, in degrees (name invented)
+inline float FovY_unk(float aspect, float fovx) {
+    return 2.0f * (float)atan((float)tan(0.5f * (0.017453292f * fovx)) / aspect);
+}
+
+// NONMATCHING: 95.41% - stack slots and float registers of the temporaries (the original keeps the curve matrices
 // in r29), five more saved gprs here
 void FinishCamera_unk::fn_803792F0() {
     if (m00 == 0) {
@@ -491,8 +496,7 @@ void FinishCamera_unk::fn_803792F0() {
                     eye += w;
                 }
                 if (curve->fn_805BF1E8(0)) {
-                    fovy = 2.0f * (float)atan((float)tan(0.5f * (0.017453292f * curve->fn_805BF204(time, 0))) /
-                                              mCamera.mAspect);
+                    fovy = FovY_unk(mCamera.mAspect, curve->fn_805BF204(time, 0));
                 }
                 if (time > 50.0f && mChara->m638 != 0 && mChara->m638->m04 == 0x179A) {
                     float k = (time - 50.0f) * 0.25f;
@@ -552,8 +556,7 @@ void FinishCamera_unk::fn_803792F0() {
                 atn::Vector3 d(target.x - eye.x, 0.0f, target.z - eye.z);
                 eye -= d * (m3AC + swing);
                 if (curve->fn_805BF1E8(0)) {
-                    fovy = 2.0f * (float)atan((float)tan(0.5f * (0.017453292f * curve->fn_805BF204(time, 0))) /
-                                              mCamera.mAspect);
+                    fovy = FovY_unk(mCamera.mAspect, curve->fn_805BF204(time, 0));
                 }
                 if (mChara->m638 != 0 && mChara->m638->m04 == 0x179A) {
                     fovy *= 1.2f;
@@ -625,8 +628,7 @@ void FinishCamera_unk::fn_803792F0() {
                     eye -= d * m3AC;
                 }
                 if (curve->fn_805BF1E8(0)) {
-                    fovy = 2.0f * (float)atan((float)tan(0.5f * (0.017453292f * curve->fn_805BF204(time, 0))) /
-                                              mCamera.mAspect);
+                    fovy = FovY_unk(mCamera.mAspect, curve->fn_805BF204(time, 0));
                 }
                 if (time < 61.0f && time > 50.0f) {
                     float k = (time - 50.0f) / 5.0f;
