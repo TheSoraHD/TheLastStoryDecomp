@@ -586,13 +586,11 @@ void Em209SmallGolem::vf84(int motion, float blend) {
     fn_8016E970(3);
 }
 
-// NONMATCHING: 98.49% - f6-f9 of the radius and the base position (8 variants: order of radius/m614,
-// operands of 0.5f, a helper for the max, separate copies)
 void Em209SmallGolem::vf20() {
-    float radius = m5B0;
+    m620 = m5B0 / 2.0f;
     m614 = mPos + m5A4;
-    m620 = 0.5f * radius;
     m614.y += m620;
+    float radius = m5B0;
     atn::Vector3 a;
     atn::Vector3 b;
     b = a = mPos + m5A4;

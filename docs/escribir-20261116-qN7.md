@@ -13,3 +13,4 @@ chr/ControlRide, chr/ControlDamage, game/Em209SmallGolem, game/Em101LittleZesyaS
 | chr/ControlRide ControlRideBeast ctor (0x801C706C) | 99,68 % | 100 % |
 | chr/ControlRide (unidad) | 8/10 | 10/10, enlaza (matching: true, main.dol OK) |
 | game/Em209SmallGolem vf80 (0x802CEDFC) | 99,71 % | 100 % |
+| game/Em209SmallGolem vf20 (0x802CEF60) | 98,49 % | 100 % |
