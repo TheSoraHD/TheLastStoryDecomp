@@ -14,6 +14,10 @@ Inicio: 2026-11-17 08:08 CET (tope 10:38).
 | fn_804DDA04 | 95,52 % | 98,07 % (contadores `unsigned int` sin `(int)`) |
 | fn_804DF4B8 | 97,36 % | 97,89 % (contadores `unsigned int` sin `(int)`) |
 | fn_804EB934 | 96,79 % | 96,83 % (contador del tercer bucle con `(int)`) |
+| fn_804DD1A8 | 99,35 % | 100 % (fn_804DD158 sin local para el slot) |
+| fn_804DD3F0 | 99,07 % | 100 % (fn_804DD158 sin local para el slot) |
+| fn_804F47FC | 98,80 % | 99,17 % (idem) |
+| fn_804DA690 | 98,57 % | 98,78 % (idem) |
 | fn_804EAA84 | 99,91 % | 99,91 % (sin cambios: ver Bloqueos) |
 | fn_804CF198 | 99,37 % | 99,37 % (sin cambios: ver Bloqueos) |
 
@@ -24,10 +28,22 @@ Inicio: 2026-11-17 08:08 CET (tope 10:38).
   (mismo cuerpo que GetHitAttacker_unk; `PPMsgCharaRef_unk` y `PPId_unk` tienen la misma forma {tipo, indice}).
 - Sin cambios de comportamiento: tipo del contador y del limite (`int`/`unsigned int`, con o sin `(int)size()`) en
   los bucles de fn_804D8910, fn_804D9C14, fn_804DDA04, fn_804DF4B8 y fn_804EB934.
+- Sin cambios de comportamiento: fn_804DD158 devuelve `&mgr->mPlayers[i]` (antes un local); `PPFindSlot_unk`
+  (misma busqueda) en fn_804D90E0, fn_804EB010 y fn_804F3EEC; `PPOwnPlayer_unk` definida antes (sin cambios).
 
 ## Decisiones tomadas sin el usuario
 
+- fn_804DD158 (100 % en las dos formas) se escribe sin el local `player` (`return &mgr->mPlayers[i];`): asi salen al
+  100 % fn_804DD1A8 y fn_804DD3F0 (y suben fn_804F47FC y fn_804DA690). fn_804D90E0, fn_804EB010 (100 %) y fn_804F3EEC
+  necesitan la forma con el local: inline nueva `PPFindSlot_unk` (mismo cuerpo con el local, `// inferred:`) en sus
+  cuatro llamadas.
+
 ## Hallazgos
+
+- Busqueda inlineada cuyo resultado sale un registro mas abajo (o cruzado con el desplazamiento) que en el original:
+  probar la busqueda sin local para el elemento (`return &v[i];`, indexando otra vez en la prueba) frente a
+  `T* p = &v[i]; ... return p;`; el original puede tener las dos formas en inlines distintas (PacketPack
+  fn_804DD158 frente a PPFindSlot_unk) (escribir-20261116 qG5)
 
 - Bucle `for` con el contador en un registro y el desplazamiento en otro cruzados (r4/r3) y `cmplwi` del tamano:
   `for (int i = 0; i < v.size(); i++)` (int frente a `size()` sin signo); con `unsigned int i` y `(int)size()` cruza

@@ -3793,6 +3793,17 @@ extern "C" void fn_804D824C(PPManager2_unk* mgr, PPPlayer_unk* player, int mode)
 }
 
 extern "C" PPPlayer_unk* fn_804DD158(PPManager2_unk* mgr, unsigned int aid);
+// inferred: the search of fn_804DD158 written with a local for the slot (inlined in fn_804D90E0, fn_804EB010 and
+// fn_804F3EEC, whose registers differ from the inlined copies of fn_804DD158); name invented
+static inline PPPlayer_unk* PPFindSlot_unk(PPManager2_unk* mgr, unsigned int aid) {
+    for (int i = 0; i < (int)mgr->mPlayers.size(); i++) {
+        PPPlayer_unk* player = &mgr->mPlayers[i];
+        if (player->mFlags.mActive == 1 && aid == player->mAid) {
+            return player;
+        }
+    }
+    return 0;
+}
 // inferred: flushes the packer; the server goes on with fn_804D824C (mode 1), a client starts the timer m99B8
 extern "C" void fn_804D8610(PPManager2_unk* mgr) {
     fn_804AE3BC()->fn_8050DE34();
@@ -3892,7 +3903,7 @@ extern "C" void fn_804D8910(PPManager2_unk* mgr) {
 extern "C" void fn_804D90E0(PPManager2_unk* mgr) {
     int done = 0;
     int count = 0;
-    PPPlayer_unk* own = fn_804DD158(mgr, lbl_8087F628->GetMyAid_unk());
+    PPPlayer_unk* own = PPFindSlot_unk(mgr, lbl_8087F628->GetMyAid_unk());
     for (unsigned int i = 0; i < mgr->mPlayers.size(); i++) {
         PPPlayer_unk* player = &mgr->mPlayers[i];
         if (player->mFlags.mActive != 1 || own->mAid == player->mAid) {
@@ -4759,15 +4770,13 @@ extern "C" void fn_804DCA54(PPManager2_unk* mgr) {
 // inferred: the player slot of network id `aid` (slots in use only)
 extern "C" PPPlayer_unk* fn_804DD158(PPManager2_unk* mgr, unsigned int aid) {
     for (int i = 0; i < (int)mgr->mPlayers.size(); i++) {
-        PPPlayer_unk* player = &mgr->mPlayers[i];
-        if (player->mFlags.mActive == 1 && aid == player->mAid) {
-            return player;
+        if (mgr->mPlayers[i].mFlags.mActive == 1 && aid == mgr->mPlayers[i].mAid) {
+            return &mgr->mPlayers[i];
         }
     }
     return 0;
 }
 
-// NONMATCHING: 99.35% - r6/r7 of the inlined search (as fn_804F3880)
 // inferred: team of network id `aid` (1 or 2); in game mode 1 with the local play the table m9984/m9994 decides
 extern "C" int fn_804DD1A8(PPManager2_unk* mgr, int aid) {
     PPPlayer_unk* player = fn_804DD158(mgr, aid & 0xF);
@@ -4870,7 +4879,6 @@ extern "C" void fn_804DD33C(PPManager2_unk* mgr, int arg, int* stage) {
     }
 }
 
-// NONMATCHING: 99.07% - registers of the loop (as fn_804DD1A8)
 // inferred: character of a team player on the side of the own character whose slot value mB0 is 12 or 21
 extern "C" CharaTask* fn_804DD3F0(PPManager2_unk* mgr) {
     PPPlayer_unk* own = fn_804DD158(mgr, lbl_8087F628->GetMyAid_unk());
@@ -7313,7 +7321,7 @@ extern "C" int fn_804EAFD0(PPManager2_unk* mgr) {
 // NONMATCHING: 98.79% - registers of the inlined searches (aid/offset swapped, as fn_804DD1A8)
 // inferred: `chara` is the own character (game mode 0) or in the team of the own player
 extern "C" int fn_804EB010(PPManager2_unk* mgr, CharaTask* chara) {
-    PPPlayer_unk* own = fn_804DD158(mgr, lbl_8087F628->GetMyAid_unk());
+    PPPlayer_unk* own = PPFindSlot_unk(mgr, lbl_8087F628->GetMyAid_unk());
     if (own == 0) {
         return 0;
     }
@@ -9874,8 +9882,8 @@ extern "C" void fn_804F3EEC() {
         return;
     }
     const unsigned char* data = (const unsigned char*)fn_804AE3BC()->GetWorkBuffer_unk();
-    PPPlayer_unk* winner = fn_804DD158((PPManager2_unk*)lbl_8087F610, data[0]);
-    PPPlayer_unk* loser = fn_804DD158((PPManager2_unk*)lbl_8087F610, data[1]);
+    PPPlayer_unk* winner = PPFindSlot_unk((PPManager2_unk*)lbl_8087F610, data[0]);
+    PPPlayer_unk* loser = PPFindSlot_unk((PPManager2_unk*)lbl_8087F610, data[1]);
     if (winner == 0 || loser == 0 || winner->mRef.mChara == 0 || loser->mRef.mChara == 0) {
         return;
     }
