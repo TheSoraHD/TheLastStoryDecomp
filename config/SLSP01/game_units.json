@@ -953,7 +953,7 @@
    "chr::ControlRideBeast",
    "chr::ControlRide"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "chr/ControlShoot.cpp",
