@@ -14,7 +14,7 @@ Inicio: 2026-11-17 02:00 CET (tope 04:30).
 | `__vec_pp_unk::__reserve_unk` (0x804FF3D0) | sin escribir | **100 %** |
 | fn_804E9C64 | sin escribir | equivalente NONMATCHING 72,06 % |
 | __dt__Q22MP8Manager2Fv | DRAFT 74,6 % | equivalente NONMATCHING 97,72 % |
-| __ct__Q22MP8Manager2FPQ23atn4Task | 89,53 % | 91,75 % |
+| __ct__Q22MP8Manager2FPQ23atn4Task | 89,53 % | 94,14 % |
 | fn_804D6058 (clear de la lista) | 87,69 % | 90,83 % |
 | fn_804DE884 (parche CharaTask.h) | 0 % | sin tocar (pendiente) |
 | fn_804E4EB0, fn_804EFF74, fn_804EB934 | sin escribir | (ver abajo) |
@@ -27,14 +27,18 @@ Inicio: 2026-11-17 02:00 CET (tope 04:30).
 - fn_804E9C64 escrito (antes sin cuerpo): reparte los enemigos entre los hosts y rellena `mCharas` (cambio de comportamiento).
 - `~Manager2` destruye sus miembros: `m510` es `ResHandle` (antes `void*`, carga con `ResHandle::Load`), `m610` es `PPLevelData_unk` (tabla `PPLevelTable_unk : MpLevelTable_unk` con `delete[]`; antes `unsigned char[0x8C]`; llamadas con `&mgr->m610` / `&mgr->m610.mTable`), `m99A4` lista con destructor (`PPListBase_unk/PPListImp_unk/PPList_unk`), `m2B88`/`m2B8C` pasan a `atn::FixedArray_unk<PPPlayer_unk, 8> m2B88` (`push_back`, `clear`, `size`).
 - fn_804F2450: sin cambios de comportamiento.
+- Constructor de MP::Manager2: `PPStateVar_unk` con constructor (0, 0), `m56C`/`m58C` pasan a `PPWords_unk<8>`/`PPWords_unk<3>` (memset en su constructor; acceso `.m[i]`), `PPTable_unk` con `mFC(0)`, `PPLevelTable_unk` pone 0 y `PPLevelData_unk` hace memset de si mismo; `m5A4(0)` y `m69C(0)` en la lista de inicializacion (mismo comportamiento).
 
 ## Decisiones tomadas sin el usuario
 
-- Bajada de registros aceptada: fn_804F2450 98,36 -> 98,21 % (cambio de r28/r29 entre `mgr` y el jugador de la busqueda inline al pasar `mPlayers` a `std::vector`). Probadas: busqueda como metodo de una vista derivada (98,17), con campos (98,32, pero bajan fn_804F2258 y fn_804EE4F0), `begin()[i]`, puntero/referencia, recarga con `fn_800F7F90()`, `mgr` antes. Se commitea porque el cambio desbloquea las 6 copias del vector (3 al 100 %) y fn_804E9C64. Si no se acepta: revertir dfccb07..HEAD no sirve (todo depende del vector); habria que buscar otra forma para fn_804F2450.
+- fn_804F2450: la bajada 98,36 -> 98,21 % de los dos primeros commits era de etiquetas `@N` desalineadas; tras el ultimo pd.sh + fixlbl.py queda en 98,997 % (sube). Los commits dfccb07 y 2e61e7a pasaron precommit con ese unico fuzzdrop.
 - `memset(&entry.m04[12], 0, 0xB0 - 0x34)` en fn_804E9C64 (el original limpia solo 0x34-0xAF de la entrada).
 - `__vec_pp_unk` y la especializacion de `resize` van en PacketPack.cpp (solo los usa esta unidad), como `include/Event/EventVector_unk.h` de W3.
 
 ## Hallazgos
+
+- Un `memset` del cuerpo del constructor que el original hace entre las inicializaciones de miembros es el constructor de ese miembro (struct con `memset(m, 0, sizeof(m))`); un `operator[]` en ese envoltorio cambia el codigo de quien lo usa (fn_804E679C 100 -> 98 %), acceder a `.m[i]` no (PacketPack Manager2::Manager2 92,5 -> 94,1 %) (escribir-20261116 qG2)
+- Medir siempre despues de `pd.sh` (y de re-etiquetar por direccion lo que pd no empareja): con etiquetas `@N` viejas objdiff da bajadas falsas de 0,1-0,2 % (PacketPack fn_804F2450) (escribir-20261116 qG2)
 
 - Explicit specialization de un miembro (`template <> inline void vector<X>::resize(size_type)`) en el .cpp: compila y sale como la copia debil `resize__Q23std...`; si su cuerpo pasa del presupuesto de inline (R3) se llaman todos sus candidatos, incluidos `max_size`/`capacity` (escribir-20261116 qG2)
 - Copias de una entrada con constructor declarado: el operador= implicito copia miembro a miembro, y un struct anidado con constructor declarado se copia en bloque (bucle de palabras) tanto en la copia como en la asignacion: no sirve para separar las dos (PacketPack fn_804E9C64 frente a fn_804E7434) (escribir-20261116 qG2)
