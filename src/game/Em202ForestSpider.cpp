@@ -295,8 +295,8 @@ int Em202ForestSpider::vf0C() {
 }
 
 
-// NONMATCHING: 91.1% - saved registers of the thread loop (r19 in the original) and stack slots of the
-// sight temporaries (flow, calls and constants checked against the original)
+// NONMATCHING: 92.2% - the original keeps the address of each capsule member in its own saved register (r19-r30)
+// and orders the sight temporaries differently on the stack (flow, calls and constants checked)
 void Em202ForestSpider::vf10() {
     vfF8();
     if (mStatus.IsState_unk(4)) {
@@ -321,10 +321,11 @@ void Em202ForestSpider::vf10() {
                             MtxPtr m = model->GetNodeMtx_unk("spine");
                             atn::Vector3 a(m[0][3], m[1][3], m[2][3]);
                             MtxPtr hm = mMotion.GetNodeMtx_unk("head");
+                            atn::Vector3 pos = head->mPos;
                             a.y = 0.0f;
                             atn::Vector3 b(hm[0][3], 0.0f, hm[2][3]);
                             atn::ColliCapsuleShape_unk seg(a, b, 0.0f);
-                            atn::ColliCapsuleShape_unk cap(head->mPos, head->mPos, radius);
+                            atn::ColliCapsuleShape_unk cap(pos, pos, radius);
                             if (fn_80051B70(&seg, &cap) != 0) {
                                 hit = 1;
                             }
@@ -1335,8 +1336,8 @@ int Em202ForestSpider::fn_8027851C(CharaTask* chara) {
     return 1;
 }
 
-// NONMATCHING: 95.75% - scheduling of the thread vectors and the matrix copies (shoots the thread `index`
-// at chara; calls and constants checked against the original)
+// NONMATCHING: 98.25% - stack slots of the thread vectors and of the rotation temporaries (shoots the thread
+// `index` at chara; flow, calls and constants checked against the original)
 void Em202ForestSpider::fn_80278634(CharaTask* chara, int index, int main) {
     SpiderThread_unk* t = &m1538[index];
     t->m00 = 1;
@@ -1357,10 +1358,10 @@ void Em202ForestSpider::fn_80278634(CharaTask* chara, int index, int main) {
     r.z = 0.0f;
     t->m28.RotateZYX_unk(r);
     t->m28.fn_801479E4(head);
-    atn::Vector3 d = waist - head;
-    atn::Vector3 dn;
-    PSVECNormalize(&d, &dn);
-    atn::Vector3 r2 = dn.ToRotation_unk();
+    atn::Vector3 d = t->m10;
+    PSVECNormalize(&d, &d);
+    atn::Vector3 r2 = d;
+    r2.fn_80139F60();
     r2.z = 0.0f;
     float scale = PSVECMag(&d) / 50.0f;
     t->m58.SetIdentity();
