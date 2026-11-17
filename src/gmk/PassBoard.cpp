@@ -31,22 +31,22 @@ static const char* const sSe_unk = sSeName_unk;
 inline void __MakeRotation_unk(atn::Matrix3x4& m, const atn::Vector3& r) {
     m.SetIdentity();
     if (r.z != 0.0f) {
-        Mtx a;
         Mtx t;
+        Mtx a;
         PSMTXRotRad(a, 'z', r.z);
         PSMTXConcat(m.m, a, t);
         __MtxCopy(m.m, t);
     }
     if (r.y != 0.0f) {
-        Mtx a;
         Mtx t;
+        Mtx a;
         PSMTXRotRad(a, 'y', r.y);
         PSMTXConcat(m.m, a, t);
         __MtxCopy(m.m, t);
     }
     if (r.x != 0.0f) {
-        Mtx a;
         Mtx t;
+        Mtx a;
         PSMTXRotRad(a, 'x', r.x);
         PSMTXConcat(m.m, a, t);
         __MtxCopy(m.m, t);
@@ -127,11 +127,25 @@ void PassBoard::Start() {
     vf40(&msg);
 }
 
+// inferred: sound of the board when the pair passes (name invented)
+static inline void PlaySe_unk(atn::Vector3* pos) {
+    fn_800C344C(sSe_unk, pos, 0, -1, 1.0f);
+}
+
+// inferred: collision box of the board, placed at a far point along its rotation (name invented)
+static inline void SetColliBox_unk(PassBoard* self) {
+    atn::Vector3 pos(1.0e16f, 0.0f, 0.0f);
+    atn::Matrix3x4 mtx;
+    __MakeRotation_unk(mtx, self->m78);
+    PSMTXMultVec(mtx.m, &pos, &pos);
+    self->mColli.fn_800575BC(&pos, &self->m78, (atn::Vector3*)&self->mBox[6]);
+}
+
 // inferred: fades the materials and enables the collision box by the distance of the nearest pair
-// NONMATCHING: 99.5% - stack layout: the matrices of the two inlined __MakeRotation_unk are placed in
-// mirror order in the original (first block high, second block low), plus float registers of the
-// nearest-pair loop and of the rate. Tried: declaration orders of pos/mtx, order of the temporaries
-// in __MakeRotation_unk, a Front_unk helper (worse), pair pointer vs indexed pairs.
+// The stack of the original: the second rotation (collision box) and the sound are one inline level
+// deeper than the first rotation (SetColliBox_unk, PlaySe_unk), t above a in __MakeRotation_unk; the
+// float registers: the position of the pair as GetTrans_unk of its instance matrix, the two absolute
+// values and the numerator/denominator of the rate as named locals.
 void PassBoard::vf10() {
     if (m54 == 0) {
         Start();
@@ -139,10 +153,11 @@ void PassBoard::vf10() {
     float dist = -60.0f;
     for (int i = 0; i < 5; i++) {
         if (mPairs[i].mB != 0 && mPairs[i].mA != 0) {
-            float* a = (float*)mPairs[i].mA;
-            atn::Vector3 pos(a[0x3C / 4], a[0x4C / 4], a[0x5C / 4]);
-            PSMTXMultVec((MtxPtr)((char*)mPairs[i].mB + 0x30), &pos, &pos);
-            if ((float)__fabs(pos.y) < (float)__fabs(dist)) {
+            atn::Vector3 pos = ((MapInstance_unk*)mPairs[i].mA)->mInst.mMtx.GetTrans_unk();
+            PSMTXMultVec(((MapInstance_unk*)mPairs[i].mB)->mInst.mMtx.m, &pos, &pos);
+            float d = (float)__fabs(dist);
+            float y = (float)__fabs(pos.y);
+            if (y < d) {
                 dist = pos.y;
             }
         }
@@ -157,18 +172,22 @@ void PassBoard::vf10() {
                 atn::Matrix3x4 mtx;
                 __MakeRotation_unk(mtx, m78);
                 PSMTXMultVec(mtx.m, &pos, &pos);
-                fn_800C344C(sSe_unk, &pos, 0, -1, 1.0f);
+                PlaySe_unk(&pos);
             }
             break;
         }
     }
     float rate = 0.0f;
     if (m860 == 1) {
-        rate = (dist - mDistance[0]) / (mDistance[1] - mDistance[0]);
+        float den = mDistance[1] - mDistance[0];
+        float num = dist - mDistance[0];
+        rate = num / den;
     } else if (m860 == 2) {
         rate = 1.0f;
     } else if (m860 == 3) {
-        rate = (mDistance[3] - dist) / (mDistance[3] - mDistance[2]);
+        float den = mDistance[3] - mDistance[2];
+        float num = mDistance[3] - dist;
+        rate = num / den;
     }
     rate = (rate > 0.0f ? rate : 0.0f) < 1.0f ? (rate > 0.0f ? rate : 0.0f) : 1.0f;
     for (int i = 0; i < 2; i++) {
@@ -182,13 +201,9 @@ void PassBoard::vf10() {
     }
     mModel.mFlags |= 0x10;
     if (m860 == 2) {
-        atn::Vector3 pos(1.0e16f, 0.0f, 0.0f);
-        atn::Matrix3x4 mtx;
-        __MakeRotation_unk(mtx, m78);
-        PSMTXMultVec(mtx.m, &pos, &pos);
-        mColli.fn_800575BC(&pos, &m78, (atn::Vector3*)&mBox[6]);
-        mColli.m20 = 0x4000;
+        SetColliBox_unk(this);
         mColli.mFlags |= 1;
+        mColli.m20 = 0x4000;
     } else {
         mColli.mFlags &= ~1;
     }
