@@ -103,6 +103,12 @@ Inicio: 2026-11-17 08:55 (tope 10:55). Rama agent-N5b.
   el registro del id; probados FindSpots estatica con la tabla como parametro (en los dos ordenes),
   local `spot` resultado (96,1), puntero al elemento (93,0), `int id` local antes/despues: igual o peor.
 
+- gmk/BulletPoint vf10 (98,55): el `li r6, 0; mr r5, r6` del original (el 0 copiado de otro registro, bloqueo
+  conocido) no sale con asignacion encadenada `disabled = ok = false`, `ok = disabled = false` ni con
+  `bool disabled = ok;` en CanTarget_unk: MWCC pliega la constante (sin commit).
+- gmk/RotaryRoom fn_80425498: en el original `areas` del primer bucle toma r4, el mismo registro que el
+  `area` del principio (que no vive a traves de la llamada); `area = colli->m08` no lo reproduce.
+
 ## Para el port
 
 - gmk/WaitObject: `WaitTrigger_unk::m08` `unsigned char[0x14]` -> `float[5]` (vf20 escribe `trigger.m08[i]`;
