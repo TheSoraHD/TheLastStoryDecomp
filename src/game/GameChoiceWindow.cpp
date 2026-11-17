@@ -668,26 +668,12 @@ int GameTextMessageWindow::vf0C() {
 }
 
 // inferred: the message has a talker name, the voice manager exists and has the voice (names invented)
-inline bool HasName_unk(GameMessage* msg) {
-    bool r = false;
-    if (msg != 0 && strlen(msg->mName.c_str()) != 0) {
-        r = true;
-    }
-    return r;
-}
-inline bool CanVoice_unk(GameMessage* msg) {
-    bool r = false;
-    if (HasName_unk(msg) && lbl_8087F498 != 0) {
-        r = true;
-    }
-    return r;
-}
+// inferred: the three tests are kept as booleans (li 0 / li 1 of each, 0x803B6A24)
 inline bool HasVoice_unk(GameMessage* msg) {
-    bool r = false;
-    if (CanVoice_unk(msg) && lbl_8087F498->fn_803EBC04(msg->mName.c_str()) != 0) {
-        r = true;
-    }
-    return r;
+    bool name = msg != 0 && strlen(msg->mName.c_str()) != 0;
+    bool can = name && lbl_8087F498 != 0;
+    bool voice = can && lbl_8087F498->fn_803EBC04(msg->mName.c_str()) != 0;
+    return voice;
 }
 
 // inferred: command being run by the event script, or 0 (name invented)
@@ -786,8 +772,10 @@ inline GameMessageWindow* GetMessageWindow_unk() {
     return lbl_8087F490 != 0 ? lbl_8087F490->m263C : 0;
 }
 
-// NONMATCHING: 91.3% - the original keeps the three booleans of HasVoice_unk in saved registers (li 0 /
-// li 1 of each one; ours folds the two inner ones); the rest are registers and stack slots
+// NONMATCHING: 94% - the original keeps the three booleans of HasVoice_unk in saved registers (li 0 /
+// li 1 of each one, the three li 0 first); with `bool x = a && b` ours sets each one where it is tested and
+// keeps the inner ones in volatile registers (bool r = false; if (...) r = true; in nested inlines, int flags,
+// static or out-of-line helpers: MWCC threads the jumps over them)
 void GameTextMessageWindow::vf10() {
     if (lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->m54E4 == 8) {
         mLayout->FreezeTask();
@@ -850,7 +838,7 @@ void GameTextMessageWindow::vf10() {
     }
 }
 
-// NONMATCHING: 89.8% - same booleans of HasVoice_unk as vf10; noinline: vf10 calls it with bl and MWCC
+// NONMATCHING: 92.3% - same booleans of HasVoice_unk as vf10; noinline: vf10 calls it with bl and MWCC
 // would inline it
 __declspec(noinline) void GameTextMessageWindow::fn_803B6970(GameMessage* msg, int arg, float time) {
     if (IsFree_unk(time)) {
@@ -889,7 +877,7 @@ void GameTextMessageWindow::fn_803B6C88(int enabled) {
     }
 }
 
-// NONMATCHING: 88.4% - same booleans of HasVoice_unk as vf10; the original stores m58 before m54
+// NONMATCHING: 91% - same booleans of HasVoice_unk as vf10; the original stores m58 before m54
 void GameTextMessageWindow::fn_803B6E04(GameMessage* msg, int arg, float time) {
     if (mState == 0 || !(m60 < time)) {
         Start_unk(msg, arg, time, 0);
