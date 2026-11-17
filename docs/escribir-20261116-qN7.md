@@ -18,7 +18,7 @@ chr/ControlRide, chr/ControlDamage, game/Em209SmallGolem, game/Em101LittleZesyaS
 | chr/ControlDamage Knockdown::vf0C (0x801ADC14) | 98,10 % | sin cambio |
 | chr/ControlDamage DamageLastOne::vf0C (0x801AFF1C) | 99,35 % | sin cambio (parche qY 99,64: cruce model/bool) |
 | game/Em209SmallGolem vf10 (0x802CD73C) | 99,62 % | sin cambio (pila) |
-| game/Em101LittleZesyaSecond vf10 (0x802604E0) | 99,96 % | 99,97 sin commit (`/ 8.0f`); queda la pila de Slash_unk |
+| game/Em101LittleZesyaSecond vf10 (0x802604E0) | 99,96 % | 100 % |
 | game/Em101LittleZesyaSecond fn_80261078 / fn_80261DC0 | 98,51 / 98,17 % | sin cambio |
 | game/EnemySeaLizerd fn_80354EE4 / fn_80355390 | 98,41 / 99,96 % | sin cambio (parche qA 99,85; Abs_unk de Vec.h) |
 | game/Em315Coffin | 2 funciones | no tocada (ctor bloqueado por el `.sdata` de 0.0f) |
@@ -38,6 +38,8 @@ chr/ControlRide, chr/ControlDamage, game/Em209SmallGolem, game/Em101LittleZesyaS
 - Copias `m14E4 = pos; m14F0 = pos + offset; mPos = pos;` con r3/r5 cruzados: en una inline miembro (`SetAppear_unk`, como Em316LastLaser) salen los registros del original (Em209SmallGolem vf80; antes 10 formas sin la inline). (escribir-20261116 qN7)
 - Orden de dos stores seguidos (`m620` y el z del temporal): asignar `m620` antes de la suma del vector (`m620 = m5B0 / 2.0f; m614 = mPos + m5A4; m614.y += m620;`) y declarar el radio despues (Em209SmallGolem vf20). (escribir-20261116 qN7)
 - Vector con nombre para un temporal de operador cuando el original lo deja encima de los otros temporales: `atn::Vector3 d = a - s; d *= rate; x = s + d;` (ControlRide vf0C, el marco pasa a 0x70 como el original). (escribir-20261116 qN7)
+
+- Pila de los locales de una inline en orden inverso de aparicion (Em101LittleZesyaSecond Slash_unk: pos, d*t, d, dir de abajo arriba): una sola expresion `mPos + FrontDir_unk(mRot) * 120.0f * t` con la direccion en una inline que recibe la rotacion por referencia (lee `rot.y` despues de crear el vector) y `/ 8.0f` en vez de `* 0.125f` para el orden de operandos; las dos cosas hacen falta. (escribir-20261116 qN7)
 
 ## Bloqueos
 

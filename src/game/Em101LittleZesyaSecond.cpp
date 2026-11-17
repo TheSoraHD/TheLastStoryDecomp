@@ -263,18 +263,22 @@ inline void Em101LittleZesyaSecond::Cast_unk() {
     }
 }
 
+// inferred: front direction of a rotation (name invented)
+inline atn::Vector3 FrontDir_unk(const atn::Vector3& rot) {
+    atn::Vector3 dir(0.0f, 0.0f, 1.0f);
+    Mtx m;
+    PSMTXRotRad(m, 'y', rot.y);
+    PSMTXMultVec(m, &dir, &dir);
+    return dir;
+}
+
 // inferred: state 12, warp slash along the front between frames 17 and 25 (name invented)
 inline void Em101LittleZesyaSecond::Slash_unk() {
     float frame = mMotion.mTracks[0].m08;
     if (frame >= 17.0f && frame < 25.0f) {
         HitInfo_unk* hit = fn_80219E6C(0x5E3);
-        float t = (mMotion.mTracks[0].m08 - 17.0f) * 0.125f;
-        atn::Vector3 dir(0.0f, 0.0f, 1.0f);
-        Mtx m;
-        PSMTXRotRad(m, 'y', mRot.y);
-        PSMTXMultVec(m, &dir, &dir);
-        atn::Vector3 d = dir * 120.0f;
-        atn::Vector3 pos = mPos + d * t;
+        float t = (mMotion.mTracks[0].m08 - 17.0f) / 8.0f;
+        atn::Vector3 pos = mPos + FrontDir_unk(mRot) * 120.0f * t;
         lbl_8087F048->fn_800FAB80(this, hit, m590, &pos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
         if (m14C4 == 0) {
             fn_80232B7C(0, 0);
@@ -291,8 +295,6 @@ inline void Em101LittleZesyaSecond::Slash_unk() {
     }
 }
 
-// NONMATCHING: 99.96% - only the stack slots of the warp slash locals (state 12: front vector, positions and
-// color; 12 variants: helper inlines, declaration orders, temporaries)
 void Em101LittleZesyaSecond::vf10() {
     m14B8 = mC58.mC4;
     m14BC++;
