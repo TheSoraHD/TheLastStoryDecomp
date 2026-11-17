@@ -20,6 +20,7 @@
 | TutorialTask::fn_805BC1C0 (camara libre) | DRAFT 2,5 % | equivalente NONMATCHING 96,3 % |
 | GameScene::fn_803CB820 (interacciones) | DRAFT 0,2 % | equivalente NONMATCHING 99,5 % |
 | GameTask::vf14 | DRAFT 96,3 % | equivalente NONMATCHING 98,2 % (casos 1/3 antes del 0, `!(a != x && a != y)`) |
+| MapPartsArea::ParseScene | DRAFT 34 % | equivalente NONMATCHING 34 % (secuencia de lecturas/strcmp/llamadas externas igual; presupuesto de inlining) |
 | GameTask::vf10 | DRAFT 95,6 % | equivalente NONMATCHING 95,6 % (revisadas las diferencias de saltos/llamadas de odiff2, no linea a linea) |
 
 ## Para el port

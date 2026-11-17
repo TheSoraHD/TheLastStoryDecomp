@@ -111,9 +111,10 @@ extern "C" std::string fn_8006AC08(const std::string& path); // inferred: extens
 extern "C" void PSVECNormalize(const atn::Vector3* src, atn::Vector3* dst);
 extern "C" float PSVECSquareMag(const atn::Vector3* v);
 
-// DRAFT: ParseScene is only written for the order of the string pool
-// NONMATCHING: ParseScene is only written for the order of the string pool (vf1C and fn_80494354 come after
-// it): the inlined AddLight_unk (std::vector growth) does not match (known blocker)
+// NONMATCHING: 34% - over the inlining budget: our build calls the Vector_unk, string and Scene accessors out of
+// line (the original inlines them) and the inlined AddLight_unk (std::vector growth) does not match (known
+// blocker). Checked against the original: same sequence of csv reads, strcmp keys and engine calls (only the
+// inlined PSVECNormalize of GetNormalize and the operator new of the vector growth are calls of inlines here)
 // inferred: reads one scene setting of an area (the key is the current field of the csv): ambient colour, floor
 // light (COVERAGEMAP), character light (CLOUDMAP), fog, lights, reflection, god ray, colour matrix, rain, haze
 // and shadow of the area (RSO name)
