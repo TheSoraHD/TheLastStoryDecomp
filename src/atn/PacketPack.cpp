@@ -8458,8 +8458,7 @@ static inline CharaTask* GetHitAttacker_unk(PPManager2_unk* mgr, const PPMsgChar
         return 0;
     case 2:
         for (int i = 0; i < (int)mgr->mPlayers.size(); i++) {
-            PPPlayer_unk* player = &mgr->mPlayers[(unsigned int)i];
-            if (player->mFlags.mActive == 1 && data->mIndex == player->mAid) {
+            if (mgr->mPlayers[i].mFlags.mActive == 1 && data->mIndex == mgr->mPlayers[i].mAid) {
                 return mgr->mPlayers.begin()[i].mRef.mChara;
             }
         }
@@ -8615,7 +8614,6 @@ extern "C" void fn_804EE9F0(PPPlayer_unk* player) {
     }
 }
 
-// NONMATCHING: 99.76% - registers of the inlined player search
 // inferred: message 5: a bullet shot by another player (only in the game, state 30); the listeners of the
 // characters are off during the shot
 extern "C" void fn_804EEB34() {
@@ -8665,7 +8663,7 @@ struct PPMsgHoming_unk {
     unsigned int mNode;         // 0x40
 };
 
-// NONMATCHING: 99.57% - registers of the inlined player search
+// NONMATCHING: 99.75% - registers of the inlined player search (manager, base and slot)
 // inferred: message 58: a homing bullet shot by another player (only in the game, state 30); the listeners of the
 // characters are off during the shot (and stay off when the hit data or a free bullet is missing)
 extern "C" void fn_804EED7C() {
@@ -8909,7 +8907,6 @@ extern "C" void fn_804EF0F0(unsigned int aid) {
 
 
 
-// NONMATCHING: 99.78% - registers of the inlined player search
 // inferred: message 7: hit received by a character (only in the game, state 30); the listeners are off during the
 // hit; a gimmick held by the character and released by the hit gets message 3
 extern "C" void fn_804EF9B4() {
@@ -8917,8 +8914,7 @@ extern "C" void fn_804EF9B4() {
         GimmickCommon* held;
         unsigned int flags;
         const PPMsgDamage_unk* data = (const PPMsgDamage_unk*)fn_804AE3BC()->GetWorkBuffer_unk();
-        PPManager2_unk* mgr = (PPManager2_unk*)lbl_8087F610;
-        CharaTask* chara = GetHitAttacker_unk(mgr, &data->mTarget);
+        CharaTask* chara = GetHitAttacker_unk((PPManager2_unk*)lbl_8087F610, &data->mTarget);
         if (chara != 0) {
             flags = data->mFlags;
             held = chara->m1208;
@@ -8945,7 +8941,6 @@ extern "C" void fn_804EF9B4() {
     }
 }
 
-// NONMATCHING: 99.77% - registers of the inlined player search
 // inferred: messages 8 and 64: a hit dealt by another player (only in the game, state 30); the listeners of the
 // characters are off during the hit
 extern "C" void fn_804EFC94() {
@@ -9562,7 +9557,7 @@ struct PPMsgSpecialHit_unk {
     };
 };
 
-// NONMATCHING: 98.25% - registers of the inlined searches: the original reloads lbl_8087F610 for the second one
+// NONMATCHING: 98.07% - registers of the inlined searches: the original reloads lbl_8087F610 for the second one
 // inferred: a hit on a special enemy dealt by another player (only in the game, state 30): the hit is rebuilt in
 // a BattleCalcParam_unk and given to vf40 of the enemy (SpecialEnemyBase ids, unless its flag 2 is set)
 extern "C" void fn_804F2994() {

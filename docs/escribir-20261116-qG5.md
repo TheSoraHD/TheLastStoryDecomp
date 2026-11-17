@@ -8,11 +8,11 @@ Inicio: 2026-11-17 08:08 CET (tope 10:38).
 |---|---|---|
 | fn_804D996C | 99,57 % | 100 % (contador `int i` frente a `size()` sin signo) |
 | fn_804EF0F0 | 99,71 % | 99,87 % (`begin()[i]` en el return de PPCharaOfAid_unk: el `lwzx` del original) |
-| fn_804F2994 | 97,66 % | 98,25 % (GetHitAttacker_unk con `begin()[i]`: los `lwzx`) |
-| fn_804EEB34 | 99,25 % | 99,76 % (idem) |
-| fn_804EED7C | 99,07 % | 99,57 % (idem) |
-| fn_804EF9B4 | 99,40 % | 99,78 % (idem) |
-| fn_804EFC94 | 99,15 % | 99,77 % (idem) |
+| fn_804F2994 | 97,66 % | 98,07 % (GetHitAttacker_unk con `begin()[i]`: los `lwzx`) |
+| fn_804EEB34 | 99,25 % | 100 % (GetHitAttacker_unk sin local para el slot y con `begin()[i]`) |
+| fn_804EED7C | 99,07 % | 99,75 % (idem) |
+| fn_804EF9B4 | 99,40 % | 100 % (idem, y sin el local `mgr`) |
+| fn_804EFC94 | 99,15 % | 100 % (idem) |
 | fn_804D8910 | 98,97 % | 99,41 % (contador `int i`) |
 | fn_804D9C14 | 94,17 % | 95,19 % (contador `int i`) |
 | fn_804DDA04 | 95,52 % | 98,07 % (contadores `unsigned int` sin `(int)`) |
@@ -29,7 +29,8 @@ Inicio: 2026-11-17 08:08 CET (tope 10:38).
 ## Para el port
 
 - Sin cambios de comportamiento: fn_804D996C cuenta con `int i` (antes `unsigned int`); PPCharaOfAid_unk devuelve
-  `mPlayers.begin()[i].mRef.mChara` (mismo objeto), y GetHitAttacker_unk tambien; fn_804EFF74 usa la copia
+  `mPlayers.begin()[i].mRef.mChara` (mismo objeto), y GetHitAttacker_unk tambien (sin el local del slot);
+  fn_804EF9B4 sin el local `mgr`; fn_804EFF74 usa la copia
   `GetHitChara_unk` (la forma anterior, que lee el personaje por el slot).
 - Sin cambios de comportamiento: tipo del contador y del limite (`int`/`unsigned int`, con o sin `(int)size()`) en
   los bucles de fn_804D8910, fn_804D9C14, fn_804DDA04, fn_804DF4B8 y fn_804EB934.
