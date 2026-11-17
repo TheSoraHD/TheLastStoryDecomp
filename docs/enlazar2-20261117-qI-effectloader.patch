@@ -1,0 +1,23 @@
+diff --git a/src/atn/EffectLoader_unk.cpp b/src/atn/EffectLoader_unk.cpp
+index 034cd98..8c79b25 100644
+--- a/src/atn/EffectLoader_unk.cpp
++++ b/src/atn/EffectLoader_unk.cpp
+@@ -237,15 +237,15 @@ extern "C" int fn_80239030(EffectFileHeader_unk* header, EffectResData_unk* res)
+         lbl_8087EEB8->fn_800697D8("old eff version!");
+     }
+     res->mVersion = header->mVersion;
++    unsigned char* textures = (unsigned char*)(header->mTextures + (unsigned int)header);
++    EffectEmitterData_unk* emitters = (EffectEmitterData_unk*)(header->mEmitters + (unsigned int)header);
++    unsigned char* defs = (unsigned char*)(header->mDefs + (unsigned int)header);
+     header->mEmitterFlags += (unsigned int)header;
+     header->mEmitterCurves += (unsigned int)header;
+     header->mEmitterEnabled += (unsigned int)header;
+     header->mDefEnabled += (unsigned int)header;
+     header->mDefFlags += (unsigned int)header;
+     header->mDefCurves += (unsigned int)header;
+-    unsigned char* textures = (unsigned char*)(header->mTextures + (unsigned int)header);
+-    EffectEmitterData_unk* emitters = (EffectEmitterData_unk*)(header->mEmitters + (unsigned int)header);
+-    unsigned char* defs = (unsigned char*)(header->mDefs + (unsigned int)header);
+     if (res->mVersion > 0x23) {
+         unsigned int v = header->m40;
+         unsigned int w = header->m44;
