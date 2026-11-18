@@ -2839,7 +2839,7 @@ inline atn::Vector3 HitCenterAt_unk(CharaTask* chara, int index) {
 void BattleTask::fn_800FC410(CharaTask* attacker, CharaTask* chara, int index, HitInfo_unk* hit, int id,
                             int frames) {
     fn_800E2A24(&m38A5C);
-    m38A5C.m00 = (int)attacker; // inferred: the field is an int (see fn_800FD658)
+    m38A5C.m00 = attacker;
     m38A5C.m04 = chara;
     m38A5C.m40 = index;
     m38A5C.m08 = hit;
@@ -2958,7 +2958,7 @@ void BattleTask::fn_800FCD24(CharaTask* attacker, CharaTask* chara, int index, H
         return;
     }
     fn_800E2A24(&m38A5C);
-    m38A5C.m00 = (int)attacker; // inferred: the field is an int (see fn_800FD658)
+    m38A5C.m00 = attacker;
     m38A5C.m04 = chara;
     m38A5C.m40 = index;
     m38A5C.m08 = data;
@@ -3027,7 +3027,7 @@ void BattleTask::fn_800FCD24(CharaTask* attacker, CharaTask* chara, int index, H
 int BattleTask::fn_800FD658(CharaTask* attacker, CharaTask* chara, HitInfo_unk* data, int a, int flag,
                            int b) {
     fn_800E2A24(&m38A5C);
-    m38A5C.m00 = (int)attacker; // inferred: the field is an int (BattleTask::fn_800FDE60 takes it as int)
+    m38A5C.m00 = attacker;
     m38A5C.m04 = chara;
     m38A5C.m08 = data;
     m38A5C.m0C = 0;
@@ -3083,7 +3083,7 @@ int BattleTask::fn_800FDB20(CharaTask* attacker, CharaTask* chara, int arg, HitI
         return 4;
     }
     fn_800E2A24(&m38A5C);
-    m38A5C.m00 = (int)attacker; // inferred: the field is an int (see fn_800FD658)
+    m38A5C.m00 = attacker;
     m38A5C.m04 = chara;
     m38A5C.m40 = arg;
     m38A5C.m08 = data;
@@ -3119,7 +3119,7 @@ int BattleTask::fn_800FDB20(CharaTask* attacker, CharaTask* chara, int arg, HitI
 
 void BattleTask::fn_800FDE60(int effect, CharaTask* chara, const atn::Vector3& dir) {
     fn_800E2A24(&m38A5C);
-    m38A5C.m00 = effect;
+    m38A5C.m00 = (CharaTask*)effect; // inferred: an attacker kept as an int (status entry m10)
     m38A5C.m04 = chara;
     m38A5C.m08 = fn_80219E6C(10000);
     m38A5C.m44 = 3;
@@ -3223,7 +3223,7 @@ struct HitDamage_unk : public DamageResult_unk {
 // gauges (fn_8012F034) and the morale m38A04. Returns 0 when the attack does not apply
 int BattleTask::fn_800FDF14(BattleCalcParam_unk* p) {
     CharaTask* target = p->m04;
-    CharaTask* attacker = (CharaTask*)p->m00;
+    CharaTask* attacker = p->m00;
     HitInfo_unk* hit = p->m08;
     if (target == 0 || hit == 0) {
         return 0;
@@ -4134,7 +4134,7 @@ void BattleTask::fn_80101524(const atn::Vector3* pos, const atn::Vector3* rot, u
 // kind 1, nothing for kind 2, else the normal or strong (m0C 0x80) hit effect of the level of the attacker
 // NONMATCHING: 98.5% - stack slots and registers of the inlined Vector3::fn_80139F60
 void BattleTask::fn_801018E4(BattleCalcParam_unk* param) {
-    CharaTask* attacker = (CharaTask*)param->m00; // inferred: the field is an int (see fn_800FD658)
+    CharaTask* attacker = param->m00;
     CharaTask* chara = param->m04;
     bool show = false;
     if (param->m44 == 0) {
@@ -4181,7 +4181,7 @@ extern "C" void fn_800CB688(atn::SoundRef* sound, int arg, float pitch); // infe
 // (the left one in the double attack control) with a random pitch, plus the critical (m94 0x80) and m78 sounds;
 // for a bullet of kind 2 without effect the bullet sounds
 void BattleTask::fn_80101CDC(BattleCalcParam_unk* param) {
-    CharaTask* attacker = (CharaTask*)param->m00; // inferred: the field is an int (see fn_800FD658)
+    CharaTask* attacker = param->m00;
     if (param->m44 == 0) {
         if (param->m84 == 1) {
             fn_800C344C(lbl_80735DD0[17 + rand() % 3], &param->m1C, 0, -1, 1.0f);
@@ -6660,7 +6660,7 @@ inline bool IsStatusBullet_unk(HitInfo_unk* hit) {
 // its state forbids, and each status is logged. Nonzero when one of them is shown
 // NONMATCHING: 98.8% - register allocation (attacker, target and their statuses permuted)
 int BattleTask::fn_8010B398(BattleCalcParam_unk* param) {
-    CharaTask* attacker = (CharaTask*)param->m00; // inferred: the field is an int (see fn_800FD658)
+    CharaTask* attacker = param->m00;
     CharaTask* chara = param->m04;
     int result = 0;
     if (attacker == 0 || chara == 0) {
