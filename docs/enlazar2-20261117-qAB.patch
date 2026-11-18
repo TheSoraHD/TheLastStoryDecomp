@@ -1,0 +1,59 @@
+diff --git a/src/game/EnemyQuarkStand.cpp b/src/game/EnemyQuarkStand.cpp
+index 83313ce..2b063c3 100644
+--- a/src/game/EnemyQuarkStand.cpp
++++ b/src/game/EnemyQuarkStand.cpp
+@@ -2,6 +2,7 @@
+ #include "game/GameTask.h"
+ #include "game/GameVoice.h"
+ #include "game/Inventory.h"
++#include "game/InventoryEquip_unk.h"
+ #include "atn/Keyboard.h"
+ #include "atn/Csv.h"
+ #include "atn/Camera_unk.h"
+@@ -2223,14 +2224,6 @@ void EnemyQuarkStand::fn_80351480(int near) {
+     ((atn::EffectManager*)lbl_8087F3C0)->fn_8023A254((unsigned int)&m16B4, 0, mMotion.mTracks[0].m0C);
+ }
+ 
+-// inferred: item slot of the item manager (8 bytes: item id and a second word; name invented)
+-struct QuarkItemSlot_unk {
+-    int mItem;
+-    int m04;
+-};
+-inline QuarkItemSlot_unk* QuarkSlots_unk(void* mgr) {
+-    return (QuarkItemSlot_unk*)((char*)mgr + 0x8310);
+-}
+ 
+ // inferred: state 20 (motion 0x144)
+ void EnemyQuarkStand::fn_803519C4() {
+@@ -2250,8 +2243,7 @@ enum {
+ 
+ // inferred: Quark loses the sword to `chara` (state 13): faces it (motion 0x3C when `kind` is 2, else 0x36 or
+ // 0x37) and gives back the two weapons and two armors kept in the item manager
+-// NONMATCHING: 99.9% - the original builds the slot address (Inventory::instance_ + 0x8310) through r3 before r31
+-// (tried pointer forms, a chained assignment, an Inventory local). The motion is a ?: of enum constants.
++// The motion is a ?: of enum constants.
+ void EnemyQuarkStand::fn_80351AB8(CharaTask* chara, int kind) {
+     m16F0 = (int)chara;
+     m16F4 = kind;
+@@ -2278,16 +2270,17 @@ void EnemyQuarkStand::fn_80351AB8(CharaTask* chara, int kind) {
+         m16F8.RotZ_unk();
+     }
+     mPos.y = 0.0f;
+-    QuarkItemSlot_unk* slots = QuarkSlots_unk(Inventory::instance_);
+-    QuarkItemSlot_unk* weapon = slots;
++    // inferred: equipment of Quark (player 2)
++    Inventory::EquipSlot_unk* slots = Inventory::instance_->GetEquip_unk(2)->mProtectors;
++    Inventory::EquipSlot_unk* weapon = slots;
+     for (int i = 0; i < 2; i++, weapon++) {
+-        void* data = fn_80206B14(0, weapon[4].mItem);
++        void* data = fn_80206B14(0, weapon[4].mId);
+         if (data != 0) {
+             Inventory::instance_->AddItem(fn_80206BE4(data), 1, 1, 0, 0, 1, 0);
+         }
+     }
+     for (int i = 0; i < 2; i++, slots++) {
+-        void* data = fn_8020ED84(i, slots->mItem);
++        void* data = fn_8020ED84(i, slots->mId);
+         if (data != 0) {
+             Inventory::instance_->AddItem(fn_8020EF80(data), 1, 1, 0, 0, 1, 0);
+         }
