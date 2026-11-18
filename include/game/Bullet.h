@@ -81,9 +81,9 @@ public:
     void fn_8010EFF0(BulletShot_unk* shot, const atn::Vector3* pos, const atn::Vector3* dir, int type, int count,
                      unsigned int flags, float speed);
     // inferred: starts the bullet (`record`: add a replay event)
-    void fn_8010F018(BulletShot_unk* shot, const atn::Vector3* pos, const atn::Vector3* dir, int count,
+    void fn_8010F018(const BulletShot_unk* shot, const atn::Vector3* pos, const atn::Vector3* dir, int count,
                      unsigned int flags, int record, float speed);
-    void fn_8010F26C(BulletShot_unk* shot); // inferred: starts the effect of the shot
+    void fn_8010F26C(const BulletShot_unk* shot); // inferred: starts the effect of the shot
     void fn_8010F41C();                     // inferred: stops the effects
     void fn_8010F4BC();                     // inferred: updates the matrix of the effect
     void fn_801100A0();                     // inferred: hit effect
