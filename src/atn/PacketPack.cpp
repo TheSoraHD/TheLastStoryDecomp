@@ -7779,7 +7779,7 @@ extern "C" void fn_804EB934(int id, CharaTask* chara, void* arg) {
     }
     case 8: {
         BattleCalcParam_unk* calc = (BattleCalcParam_unk*)arg;
-        unsigned short attacker = fn_804EAEE0(mgr, (CharaTask*)calc->m00) >> 16;
+        unsigned short attacker = fn_804EAEE0(mgr, calc->m00) >> 16;
         unsigned short target = fn_804EAEE0(fn_800F7F90(), calc->m04) >> 16;
         NetMsgI_unk<PPMsgCalc_unk, 15> msg(0x1023);
         PPMsgCalc_unk* data = &msg.mData;
@@ -9074,7 +9074,7 @@ extern "C" void fn_804EFF74(PPPlayer_unk* player, unsigned int type) {
                     atn::Vector3 n = dir;
                     PSVECNormalize(&n, &n);
                     calc.m28 = atn::Vector3(-n.x, -n.y, -n.z);
-                    calc.m00 = (int)attacker;
+                    calc.m00 = attacker;
                     calc.m04 = target;
                     calc.m08 = hit;
                     calc.m44 = 0;
@@ -9546,7 +9546,7 @@ extern "C" void fn_804F2994() {
             case 40: {
                 BattleCalcParam_unk param;
                 param.m08 = fn_80219E6C(data->mHitId);
-                param.m00 = (int)attacker;
+                param.m00 = attacker;
                 param.m04 = target;
                 param.m94 = data->m04;
                 param.m44 = data->mBits.m44;

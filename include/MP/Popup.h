@@ -11,7 +11,12 @@ namespace MP {
 // inferred: d2anime task used by the popup (fn_801F3FF8); only the members used here
 struct PopupD2A_unk : public atn::Task {
     unsigned char m48[0xFC - 0x48];
-    unsigned int mFC; // inferred: flags (0x10000000 is cleared by vf0C)
+    // inferred: flags as atn::D2A_Task::mLoop... (bitfields: the same bits on the Wii and on PC)
+    unsigned int mLoop : 1; // 0xFC
+    unsigned int mVisible : 1;
+    unsigned int mPlaying : 1;
+    unsigned int mRepeat : 1;
+    unsigned int mFC_rest : 28;
 };
 
 // inferred: one popup slot (0xC bytes); names invented

@@ -10,6 +10,7 @@
 #include "atn/RenderManager.h"
 #include "game/TownTask.h"
 #include "game/MiniMapTask.h"
+#include "game/GameSceneFind_unk.h"
 
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 struct ChaseEffectMgr_unk;
@@ -24,23 +25,11 @@ struct ChaseSettings_unk {
     float m538;
 };
 extern "C" ChaseSettings_unk* lbl_8087F0A8;
-// inferred: goal points of the field (0x28 bytes each)
-struct ChaseGoal_unk {
-    int mId;
-    atn::Vector3 mPos;
-    unsigned char m10[0x28 - 0x10];
-};
-struct ChaseGoalTable_unk {
-    ChaseGoal_unk* Find_unk(int id);
-    unsigned char m00[0x78];
-    unsigned int mCount;
-    ChaseGoal_unk* mGoals;
-};
 struct ChaseField_unk {
     unsigned char m0000[0x8A0];
     CharaTask* m8A0; // inferred: caught character (cleared every frame while chasing)
     unsigned char m08A4[0x10D8 - 0x8A4];
-    ChaseGoalTable_unk* m10D8;
+    GameScene* m10D8; // inferred: scene of the field (goal points GameScene::m78)
     unsigned char m10DC[0x54E4 - 0x10DC];
     int m54E4;
     unsigned char m54E8[0x5660 - 0x54E8];
@@ -348,24 +337,15 @@ inline void ChaseManager::AddMarker_unk() {
     }
 }
 
-// inferred: goal point `id` of the field (name invented)
-inline ChaseGoal_unk* ChaseGoalTable_unk::Find_unk(int id) {
-    for (unsigned int i = 0; i < mCount; i++) {
-        if (id == mGoals[i].mId) {
-            return &mGoals[i];
-        }
-    }
-    return 0;
-}
 // inferred: goal table of the field (name invented)
-static inline ChaseGoalTable_unk* GoalTable_unk() {
+static inline GameScene* GoalTable_unk() {
     return lbl_8087F430->m10D8;
 }
 
 // inferred: the goal table read through an inline (GoalTable_unk) gives the registers of the search loop
 void ChaseManager::fn_80183618(int id) {
     RemoveMarker_unk();
-    ChaseGoal_unk* goal = GoalTable_unk()->Find_unk(id);
+    gs::WarpPoint* goal = GoalTable_unk()->FindPlace_unk(id);
     if (goal != 0) {
         mGoalId = id;
         mGoal = goal->mPos;

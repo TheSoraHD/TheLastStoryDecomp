@@ -76,13 +76,7 @@ extern "C" int fn_803B8AC4(const char* path); // inferred: the save file exists
 #include "game/ErrorManager.h"
 
 // inferred: the menu of the save files (game/CampSaveLoad.cpp); only the members used here
-class MenuLoadTask : public atn::Task {
-public:
-    static MenuLoadTask* fn_80117914(atn::Task* parent, GameLoadTask* data, GameLoadBackground* bg); // inferred: bg unused
-    static MenuLoadTask* sInstance;
-    unsigned char m48[0x13C - 0x48];
-    int m13C; // inferred: state (7: cancelled, 8: loaded)
-};
+#include "game/CampSaveLoad.h" // inferred: MenuLoadTask (state CampSaveLoad::m13C)
 
 // inferred: commands of the NAND manager (atn/NandManager.cpp; lbl_8087EF68 is declared in
 // game/GameSaveLoadBackgroundCommon.h)

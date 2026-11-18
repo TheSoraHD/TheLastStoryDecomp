@@ -62,7 +62,7 @@ D3Anime::~D3Anime() {}
 int D3Anime::Load(int arg) {
     mState = 1;
     mTask = fn_801F3FF8(this, mName, arg);
-    mTask->mFC &= ~0x40000000;
+    mTask->mVisible = 0;
     mTask->fn_800D246C(1);
     return 1;
 }

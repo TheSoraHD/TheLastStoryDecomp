@@ -19,7 +19,7 @@ struct BattleCalcParam_unk {
         m7C = -1;
         fn_800E2A24(this);
     }
-    int m00;          // inferred: effect id (BattleTask::fn_800FDE60)
+    CharaTask* m00;   // inferred: attacker (read as HitMsg_unk::mAttacker by CharaTask::vf3C)
     CharaTask* m04;   // inferred: character
     HitInfo_unk* m08; // inferred: bullet data
     unsigned int m0C; // inferred: flags

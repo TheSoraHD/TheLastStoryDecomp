@@ -48,14 +48,6 @@ struct SaveSlot_unk {
 class GameLoadTask;
 class TutorialPopup;
 
-// inferred: view of GameSaveLoadCommon (save task fn_803B7944 / load task fn_803B27F8) (see src/auto_03_803B27AC_text.cpp)
-struct CampSaveData_unk {
-    unsigned char m000[0x4C];
-    SaveSlot_unk mSlots[17]; // 0x4C
-    unsigned char mC84[0xD60 - 0xC84];
-    int mD60;
-    int mD64;
-};
 
 
 // inferred: arrow of the page (left/right) and its "pressed" flag (names invented)
@@ -79,8 +71,9 @@ public:
     virtual void vf14(); // 0x801189B4
     virtual void vf1C(); // 0x801191A0
     virtual void vf20(); // 0x801191A4
-    CampSaveData_unk* GetData_unk() { return mMode == 0 ? (CampSaveData_unk*)m4C : (CampSaveData_unk*)m50; }
-    SaveSlot_unk* GetSlot_unk(int slot) { return &GetData_unk()->mSlots[slot]; } // inferred: name invented
+    // inferred: the save or the load task (both GameSaveLoadCommon) and their slot headers
+    GameSaveLoadCommon* GetData_unk() { return mMode == 0 ? (GameSaveLoadCommon*)m4C : (GameSaveLoadCommon*)m50; }
+    SaveSlot_unk* GetSlot_unk(int slot) { return (SaveSlot_unk*)&GetData_unk()->mSlots[slot]; } // inferred: name invented
     void fn_80119030(int state, int arg); // inferred: changes the state
     void fn_8011968C();                   // inferred: handles the cancel/back input
     void fn_8011979C();                   // inferred: handles the confirmation window input
@@ -92,8 +85,8 @@ public:
     int fn_8011BBD0(int slot);            // inferred: nonzero if the slot is newer than the current data
 
     int mMode;                  // 0x48: inferred: 0 save, 1 load
-    GameSaveTask* m4C;          // 0x4C: save menu task (fn_803B7944); seen as CampSaveData_unk by GetData_unk
-    GameLoadTask* m50;          // 0x50: inferred: load task of the load menu (seen as CampSaveData_unk by GetData_unk)
+    GameSaveTask* m4C;          // 0x4C: save menu task (fn_803B7944); a GameSaveLoadCommon (GetData_unk)
+    GameLoadTask* m50;          // 0x50: inferred: load task of the load menu (a GameSaveLoadCommon (GetData_unk))
     int m54;
     atn::D2A_Task* m58;             // 0x58: inferred: new map icon animation
     atn::D2A_Task* m5C;             // 0x5C: inferred: info bar
@@ -138,6 +131,28 @@ public:
     atn::SimpleArray<CampSaveLoadEntry_unk> mEntries; // 0x4C0
     float m4C8;
     unsigned char m4CC[0x4D0 - 0x4CC];
+};
+
+// inferred: the save and load menus (defined in game/CampSaveLoad.cpp; also used by game/NewTitleTask.cpp,
+// game/GameOverTask.cpp and game/NewCampPartsTop.cpp)
+class GameLoadBackground;
+class MenuSaveTask : public CampSaveLoad {
+public:
+    MenuSaveTask(atn::Task* parent);
+    static MenuSaveTask* fn_8011770C(atn::Task* parent);
+    virtual ~MenuSaveTask();
+    virtual void vf20();
+
+    static MenuSaveTask* sInstance; // 0x8087F068
+};
+
+class MenuLoadTask : public CampSaveLoad {
+public:
+    MenuLoadTask(atn::Task* parent, GameLoadTask* data);
+    static MenuLoadTask* fn_80117914(atn::Task* parent, GameLoadTask* data, GameLoadBackground* bg); // inferred: bg unused
+    virtual ~MenuLoadTask();
+
+    static MenuLoadTask* sInstance; // 0x8087F06C
 };
 
 #endif

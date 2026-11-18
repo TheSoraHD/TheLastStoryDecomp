@@ -1,6 +1,7 @@
 #include "game/CharaSub_unk.h"
 #include "game/Inventory.h"
 #include "game/GameTask.h"
+#include "db/SkillParam_unk.h"
 
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 
@@ -34,24 +35,19 @@ struct ItemList_unk {
     unsigned int mCount;
     int* mIds;
 };
-struct ItemDef_unk {
-    int m00;
-    int m04;
-    unsigned char m08[0xD0 - 0x08];
-};
 extern "C" void* lbl_8087F430;
 extern "C" ItemList_unk* fn_8020787C(int id);
-extern "C" ItemDef_unk* fn_80219EB4();
+extern "C" SkillParam_unk* fn_80219EB4(); // inferred: skill/bullet table (db/SkillParam_unk)
 extern "C" int fn_80219EBC();
 extern "C" int fn_804444E8(Inventory* inventory, int id);
 
 int fn_8013539C() {
     ItemList_unk* list = fn_8020787C(((GameTask*)lbl_8087F430)->fn_80370174(100));
     if (list == 0 || list->mCount == 0) {
-        ItemDef_unk* def = fn_80219EB4();
+        SkillParam_unk* def = fn_80219EB4();
         int num = fn_80219EBC();
         for (int i = 0; i < num; def++, i++) {
-            int id = Inventory::Order()->fn_804446BC(5, def->m04);
+            int id = Inventory::Order()->fn_804446BC(5, def->mId);
             if (id != 0 && fn_804444E8(Inventory::instance_, id) > 0) {
                 return 1;
             }

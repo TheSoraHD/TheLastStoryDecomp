@@ -61,7 +61,7 @@ ArenaTask::ArenaTask(atn::Task* parent)
     for (int i = 0; i < 4; i++) {
         if (sAnimPaths[i] != 0) {
             mAnims[i] = fn_801F3FF8(this, sAnimPaths[i], 0);
-            mAnims[i]->mFC &= ~0x10000000;
+            mAnims[i]->mRepeat = 0;
         } else {
             mAnims[i] = 0;
         }

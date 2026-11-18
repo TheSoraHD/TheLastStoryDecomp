@@ -183,7 +183,7 @@ void BattleResult::vf10() {
             if (state != 9 && state != 10) {
                 if (mMode != 1) {
                     mState = 2;
-                    mBase->mFrame = mBase->mLastFrame;
+                    mBase->mFrame = mBase->mData.mEndFrame;
                     mBase->mSpeed = -1.0f;
                     for (unsigned int i = 0; i < mCount; i++) {
                         mExpOp[i]->mFrame = mExpOp[i]->GetEndFrame() - 1.0f;
@@ -256,7 +256,7 @@ void BattleResult::fn_800F0D14(int mode) {
     if (mode == 1) {
         line = base = -20.0f;
     }
-    SetPaneValue_unk(mBase->m58, "base_point", 4, base);
+    SetPaneValue_unk(&mBase->mData.m10, "base_point", 4, base);
     for (unsigned int i = 0; i < 7; i++) {
         mExpOp[i]->SetValue1_unk("base_point", 4, line);
         mExpLoop[i]->SetValue1_unk("base_point", 4, line);

@@ -1,4 +1,6 @@
 #include "game/CrossbowMenuTask.h"
+#include "db/SkillParam_unk.h"
+#include "db/ItemParam_unk.h"
 #include "atn/D2A_Task.h"
 #include "game/Inventory.h"
 #include "atn/Memory.h"
@@ -27,31 +29,17 @@ struct ItemList_unk {
     unsigned int mCount;
     int* mIds;
 };
-struct ItemDef_unk {
-    int m00;
-    int m04;
-    unsigned char m08[0xD0 - 0x08];
-};
 extern "C" void* lbl_8087F430;
 extern "C" ItemList_unk* fn_8020787C(int id);
-extern "C" ItemDef_unk* fn_80219EB4();
+extern "C" SkillParam_unk* fn_80219EB4(); // inferred: skill/bullet table (db/SkillParam_unk)
 extern "C" int fn_80219EBC();
 extern "C" int fn_804444E8(Inventory* inventory, int id);
 extern "C" void fn_8044441C(Inventory* inventory, int id, int count);
-extern "C" CrossbowItem_unk* fn_80211480(int id);
 extern "C" int fn_80211734(CrossbowItem_unk* item); // inferred: infinite arrows
 // inferred: id of the last entry (0x19C, the bolt item of CharaSub_unk; .sdata of this unit)
 extern "C" int lbl_8087DAA0 = 0x19C;
-// inferred: bullet data (fn_80219E6C)
-struct CrossbowBullet_unk {
-    unsigned char m00[0x08];
-    const wchar_t* mName; // 0x08
-    unsigned char m0C[0x90 - 0x0C];
-    int m90;
-    unsigned char m94[0xC8 - 0x94];
-    int mC8;
-};
-extern "C" CrossbowBullet_unk* fn_80219E6C(int id);
+// inferred: bullet data (db/SkillParam_unk)
+extern "C" SkillParam_unk* fn_80219E6C(int id);
 struct Unk_8087F490 {
     unsigned char m0000[0x10FC];
     int m10FC;
@@ -110,7 +98,7 @@ CrossbowMenuTask* CrossbowMenuTask::fn_801E9398(atn::Task* parent) {
 // inferred: not inline; auto-inlined in fn_801E9398 and stripped by the linker (its path stays in the string pool)
 CrossbowMenuTask::CrossbowMenuTask(atn::Task* parent)
     : atn::Task(parent), m150(0), m154(1), m158(0x65), m15C(1), m160(1) {
-    m48 = (CrossbowD2A_unk*)fn_801F3FF8(this, "/data/d2anime/ui_bowgun_select.d2a", 0);
+    m48 = fn_801F3FF8(this, "/data/d2anime/ui_bowgun_select.d2a", 0);
     m48->fn_800D246C(1);
 }
 
@@ -126,7 +114,7 @@ int CrossbowMenuTask::vf0C() {
     }
     m48->fn_800D246C(0);
     m48->mSpeed = 0.0f;
-    m48->mFC &= ~0x10000000;
+    m48->mRepeat = 0;
     fn_801E9544();
     return 1;
 }
@@ -144,7 +132,7 @@ void CrossbowMenuTask::fn_801E9544() {
     if (list == 0 || list->mCount == 0) {
         m4C.push_back(m158);
         for (int i = 0; i < fn_80219EBC(); i++) {
-            int id = Inventory::Order()->fn_804446BC(5, fn_80219EB4()[i].m04);
+            int id = Inventory::Order()->fn_804446BC(5, fn_80219EB4()[i].mId);
             if (id != 0 && id != m158) {
                 m4C.push_back(id);
                 m160 = 0;
@@ -236,9 +224,9 @@ void CrossbowMenuTask::vf14() {
         fn_801E9ECC(-1, 0);
     }
     if (m160 != 0) {
-        SetPaneValue2_unk(m48->m58, "multiArrow", 0.0f);
+        SetPaneValue2_unk(&m48->mData.m10, "multiArrow", 0.0f);
     } else {
-        SetPaneValue2_unk(m48->m58, "multiArrow", 1.0f);
+        SetPaneValue2_unk(&m48->mData.m10, "multiArrow", 1.0f);
     }
     if (m4C.mData[m150] == 0x19C) {
         lbl_8087F490->m10FC = 1;
@@ -267,8 +255,8 @@ void CrossbowMenuTask::fn_801E9B84(int index, int slot) {
         } else {
             visible = 1.0f;
         }
-        SetPaneValue2_unk(m48->m58, show, visible);
-        SetPaneValue2_unk(m48->m58, icon, (float)info.mIndex);
+        SetPaneValue2_unk(&m48->mData.m10, show, visible);
+        SetPaneValue2_unk(&m48->mData.m10, icon, (float)info.mIndex);
         ((atn::D2A_Task*)m48)->SetColor_unk(color, 255.0f * info.mColor.r, 255.0f * info.mColor.g, 255.0f * info.mColor.b);
         char text[0x20];
         sprintf(text, "%d", count);
@@ -285,7 +273,7 @@ void CrossbowMenuTask::fn_801E9B84(int index, int slot) {
             CrossbowPlayer_unk* player = lbl_8087F8A0->m48;
             int bullet = 0;
             if (player->m5C->m11C == 3 || player->m50 == 0xAAE72) {
-                CrossbowBullet_unk* data = fn_80219E6C(player->mAA4);
+                SkillParam_unk* data = fn_80219E6C(player->mAA4);
                 if (data != 0 && data->mC8 > 0) {
                     bullet = data->mC8;
                 }
@@ -296,8 +284,8 @@ void CrossbowMenuTask::fn_801E9B84(int index, int slot) {
                 fn_800DD3FC(label, L"%s", fn_80219E6C(bullet)->mName);
             }
         }
-        SetPaneText_unk(m48->m58, name, label);
-        ((atn::D2A_Task*)m48)->SetText_unk(num, (int)text);
+        SetPaneText_unk(&m48->mData.m10, name, label);
+        m48->SetText_unk(num, (int)text);
     }
 }
 
@@ -393,11 +381,11 @@ CrossbowIcon_unk CrossbowMenuTask::fn_801EA11C(CrossbowItem_unk* item) {
             return sIcons_unk[4];
         }
         for (int i = 0; i < 2; i++) {
-            if ((unsigned int)(item->mF4[i].mKind - 5) <= 1) {
+            if ((unsigned int)(item->mEC[i].m08 - 5) <= 1) {
                 return sIcons_unk[0];
             }
         }
-        CrossbowBullet_unk* data = fn_80219E6C(item->mC4);
+        SkillParam_unk* data = fn_80219E6C(item->mC4);
         if (data != 0 && data->m90 != 0) {
             return sIcons_unk[2];
         }

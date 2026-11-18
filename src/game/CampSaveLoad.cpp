@@ -68,24 +68,6 @@ int lbl_8087D990 = -1;
 // inferred: separators of atn::CsvU (declared in atn/Csv.h)
 wchar_t lbl_8077A0A8[3] = L" \t";
 
-class MenuSaveTask : public CampSaveLoad {
-public:
-    MenuSaveTask(atn::Task* parent);
-    static MenuSaveTask* fn_8011770C(atn::Task* parent);
-    virtual ~MenuSaveTask();
-    virtual void vf20();
-
-    static MenuSaveTask* sInstance; // 0x8087F068
-};
-
-class MenuLoadTask : public CampSaveLoad {
-public:
-    MenuLoadTask(atn::Task* parent, GameLoadTask* data);
-    static MenuLoadTask* fn_80117914(atn::Task* parent, GameLoadTask* data, GameLoadBackground* bg); // inferred: bg unused
-    virtual ~MenuLoadTask();
-
-    static MenuLoadTask* sInstance; // 0x8087F06C
-};
 
 MenuSaveTask* MenuSaveTask::sInstance;
 MenuLoadTask* MenuLoadTask::sInstance;
@@ -259,7 +241,7 @@ int CampSaveLoad::vf0C() {
         }
         for (int i = 1; i < 9; i++) {
             int slot = i + m134 * 8;
-            fn_8011B018(slot, &GetData_unk()->mSlots[slot]);
+            fn_8011B018(slot, GetSlot_unk(slot));
         }
         m4AC.fn_80470528();
         return 1;
@@ -524,7 +506,7 @@ static inline void SetWarningText_unk(CampSaveLoad* menu, const wchar_t* text) {
 void CampSaveLoad::fn_801191A8() {
     if (IsTriggered_unk(4)) {
         if (mMode == 1) {
-            if (((GameSaveSlot_unk*)&((CampSaveData_unk*)m50)->mSlots[m128])->fn_803BEAB4() == 0) {
+            if ((&m50->mSlots[m128])->fn_803BEAB4() == 0) {
                 fn_80117228(11);
             } else {
                 m16C = 0;
@@ -589,7 +571,7 @@ void CampSaveLoad::fn_801191A8() {
                 mArrows[0].mPressed = 1;
             }
             if (m134 == 2) {
-                fn_8011B018(0, &GetData_unk()->mSlots[0]);
+                fn_8011B018(0, GetSlot_unk(0));
                 GameSaveSlot_unk empty;
                 for (int i = 2; i < 9; i++) {
                     fn_8011B018(i + m134 * 8, (SaveSlot_unk*)&empty);
@@ -597,7 +579,7 @@ void CampSaveLoad::fn_801191A8() {
             } else {
                 for (int i = 1; i < 9; i++) {
                     int slot = i + m134 * 8;
-                    fn_8011B018(slot, &GetData_unk()->mSlots[slot]);
+                    fn_8011B018(slot, GetSlot_unk(slot));
                     m74[i - 1]->mFrame = 15.0f;
                 }
             }
@@ -676,7 +658,7 @@ void CampSaveLoad::fn_8011999C() {
                 return;
             }
             if (bg->fn_803B8144() == 0) {
-                fn_8011B018(m128, &((CampSaveData_unk*)m4C)->mSlots[m128]);
+                fn_8011B018(m128, (SaveSlot_unk*)&m4C->mSlots[m128]);
                 fn_80119030(6, 0);
                 fn_80117228(12);
             } else {
@@ -726,7 +708,7 @@ void CampSaveLoad::fn_8011999C() {
             return;
         }
         if (bg->fn_803B8144() == 0) {
-            fn_8011B018(m128, &((CampSaveData_unk*)m4C)->mSlots[m128]);
+            fn_8011B018(m128, (SaveSlot_unk*)&m4C->mSlots[m128]);
             fn_80119030(9, 0);
             fn_80117228(12);
         } else {
@@ -743,7 +725,7 @@ void CampSaveLoad::fn_8011999C() {
             return;
         }
         if (bg->fn_803B8144() == 0) {
-            fn_8011B018(m128, &((CampSaveData_unk*)m50)->mSlots[m128]);
+            fn_8011B018(m128, (SaveSlot_unk*)&m50->mSlots[m128]);
             fn_80119030(9, 0);
             fn_80117228(12);
         } else {
@@ -1140,8 +1122,8 @@ int CampSaveLoad::fn_8011BBD0(int slot) {
         return 0;
     }
     int result = 0;
-    SaveSlot_unk* s = &GetData_unk()->mSlots[slot];
-    SaveSlot_unk* cur = &GetData_unk()->mSlots[0];
+    SaveSlot_unk* s = GetSlot_unk(slot);
+    SaveSlot_unk* cur = GetSlot_unk(0);
     SaveDate_unk* date = &s->m08;
     if (fn_803BEB54(cur)) {
         result = 0;

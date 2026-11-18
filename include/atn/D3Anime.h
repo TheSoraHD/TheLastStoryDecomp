@@ -9,7 +9,12 @@ namespace atn {
 // inferred: d2anime task (fn_801F3FF8); only the members used here
 struct D2ATask_unk : public Task {
     unsigned char m48[0xFC - 0x48];
-    unsigned int mFC;
+    // inferred: flags as atn::D2A_Task::mLoop... (bitfields: the same bits on the Wii and on PC)
+    unsigned int mLoop : 1; // 0xFC
+    unsigned int mVisible : 1;
+    unsigned int mPlaying : 1;
+    unsigned int mRepeat : 1;
+    unsigned int mFC_rest : 28;
 };
 
 // inferred: d2anime layout drawn as a 3D billboard (names of the members invented)
