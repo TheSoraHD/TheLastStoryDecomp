@@ -10,6 +10,7 @@
 #include "game/PlayerTask.h"
 #include "std/string_members.h"
 #include "game/BattleTask.h"
+#include "db/ItemParam_unk.h"
 
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" int atoi(const char* s);
@@ -40,14 +41,7 @@ struct Field_unk {
 extern "C" Field_unk* lbl_8087F430;
 extern "C" void* fn_8021DE88(void* lottery);                              // inferred: next lot (null when none is left)
 extern "C" int fn_8021DECC(void* lot, int* item, int* num, int* price);  // inferred: item of the lot
-// inferred: item definition (class unknown)
-struct MerchantItem_unk {
-    unsigned char m00[0x08];
-    const wchar_t* mName; // 0x08
-    unsigned char m0C[0xC8 - 0x0C];
-    int mPrice; // 0xC8
-};
-extern "C" MerchantItem_unk* fn_80211480(int id);
+typedef ItemParamEntry_unk MerchantItem_unk; // inferred: item definition (db/ItemParam_unk.h)
 extern "C" wchar_t* wcscpy(wchar_t* dst, const wchar_t* src);
 extern "C" void* lbl_8087EEB8; // inferred: debug message output
 // inferred: debug message list (atn/FileUtil_unk.cpp)
@@ -251,7 +245,7 @@ void RandomMerchant::vf10() {
                     } else {
                         MerchantItem_unk* def = fn_80211480(item);
                         if (def != 0) {
-                            mPrice = 0.2f * (def->mPrice * mItemNum);
+                            mPrice = 0.2f * (def->mC8 * mItemNum);
                         }
                     }
                 }

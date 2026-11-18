@@ -3,6 +3,7 @@
 
 #include "atn/Task.h"
 #include "atn/FixedArray.h"
+#include "db/ItemParam_unk.h"
 
 // inferred: d2anime task (made by fn_801F3FF8); only the members used here
 struct CrossbowD2A_unk : public atn::Task {
@@ -23,19 +24,8 @@ struct CrossbowIcon_unk {
     CrossbowColor_unk mColor;
 };
 
-// inferred: item definition returned by fn_80211480 (class unknown)
-struct CrossbowItem_unk {
-    int m00;
-    int mId;                // 0x04
-    const wchar_t* mName;   // 0x08
-    unsigned char m0C[0xC4 - 0x0C];
-    int mC4;                // inferred: bullet id / icon
-    unsigned char mC8[0xF4 - 0xC8];
-    struct {
-        int mKind;
-        unsigned char m04[0x10];
-    } mF4[2];
-};
+// inferred: item definition returned by fn_80211480 (db/ItemParam_unk.h)
+typedef ItemParamEntry_unk CrossbowItem_unk;
 
 // inferred from __vt__16CrossbowMenuTask (0x8078298C): arrow selection menu of the crossbow; singleton
 class CrossbowMenuTask : public atn::Task {
