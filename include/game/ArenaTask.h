@@ -15,7 +15,12 @@ class ArenaAnim_unk : public atn::Task {
 public:
     unsigned char m48[0x58 - 0x48];
     unsigned char m58[0xFC - 0x58]; // 0x58: inferred: layout
-    unsigned int mFC;               // 0xFC: inferred: flags
+    // inferred: flags as atn::D2A_Task::mLoop... (bitfields: the same bits on the Wii and on PC)
+    unsigned int mLoop : 1; // 0xFC
+    unsigned int mVisible : 1;
+    unsigned int mPlaying : 1;
+    unsigned int mRepeat : 1;
+    unsigned int mFC_rest : 28;
     float m100;                     // 0x100: inferred: current frame
 };
 

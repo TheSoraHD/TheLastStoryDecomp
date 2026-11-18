@@ -66,7 +66,7 @@ int Popup::vf0C() {
         }
         for (PopupD2A_unk** it = &m48[0]; it != &m48[m48.size()]; it++) {
             if (*it != 0) {
-                (*it)->mFC &= ~0x10000000;
+                (*it)->mRepeat = 0;
             }
         }
         return 1;
