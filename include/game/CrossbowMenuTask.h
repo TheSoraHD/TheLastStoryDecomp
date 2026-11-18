@@ -3,7 +3,6 @@
 
 #include "atn/Task.h"
 #include "atn/FixedArray.h"
-#include "db/ItemParam_unk.h"
 
 // inferred: d2anime task (made by fn_801F3FF8); only the members used here
 struct CrossbowD2A_unk : public atn::Task {
@@ -25,6 +24,7 @@ struct CrossbowIcon_unk {
 };
 
 // inferred: item definition returned by fn_80211480 (db/ItemParam_unk.h)
+struct ItemParamEntry_unk;
 typedef ItemParamEntry_unk CrossbowItem_unk;
 
 // inferred from __vt__16CrossbowMenuTask (0x8078298C): arrow selection menu of the crossbow; singleton

@@ -1,5 +1,6 @@
 #include "game/CrossbowMenuTask.h"
 #include "db/SkillParam_unk.h"
+#include "db/ItemParam_unk.h"
 #include "atn/D2A_Task.h"
 #include "game/Inventory.h"
 #include "atn/Memory.h"
