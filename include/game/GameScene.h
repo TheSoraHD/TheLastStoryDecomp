@@ -408,6 +408,11 @@ public:
     // `link` (1-based); defined in game/GameSceneFind_unk.h. Names invented
     gs::WarpPoint* FindPlace_unk(int);
     gs::HidePoint* GetLink_unk(int);
+    // inferred: interaction spots (defined in gmk/InteractionSpot.cpp, the only user). Names invented
+    gs::InteractionPoint* FindSpot_unk(int);
+    void FindSpots_unk(gs::InteractionPoint**, int);
+    gs::InteractionPoint* FindLinkA_unk(gs::InteractionPoint*);
+    gs::InteractionPoint* FindLinkB_unk(gs::InteractionPoint*);
 
     int m48;                            // inferred: loading step
     atn::LH_Binary m4C[3];              // inferred: the .gs files (main, _sub2, _sub3)
