@@ -80,10 +80,10 @@ void GameSaveBackground::fn_803B8E60(void* data, int arg1, int arg2) {
             fn_8046EED8(lbl_8087F518);
         }
         m158 = data;
-        m14C = 0x13560;
+        m14C = sizeof(GameSaveFile_unk); // 0x13560
         strcpy(mName, name);
         fn_803B8200(0);
-        fn_800A48B8(lbl_8087EF68, name, data, 0x13560, arg, &work);
+        fn_800A48B8(lbl_8087EF68, name, data, sizeof(GameSaveFile_unk), arg, &work);
     }
 }
 

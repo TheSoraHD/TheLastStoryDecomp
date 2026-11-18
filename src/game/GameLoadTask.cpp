@@ -40,7 +40,7 @@ static char sLanText_unk[0x40];
 
 // inferred: replaces the current save data with an empty one (inlined three times)
 // inferred: size of the save data (MP::SaveData_unk only declares its first 0xFF54 bytes)
-static const unsigned long kSaveDataSize_unk = 0x134A8;
+static const unsigned long kSaveDataSize_unk = sizeof(GameSaveData_unk); // 0x134A8
 
 static inline void ResetSaveData_unk() {
     if (lbl_8087F460 != 0) {
