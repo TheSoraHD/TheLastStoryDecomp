@@ -132,12 +132,6 @@ struct SoundManager_unk {
 };
 extern "C" SoundManager_unk* lbl_8087EFE8;
 
-// inferred: chara radius (CharaTask::m620)
-struct CharaRadius_unk {
-    unsigned char m000[0x620];
-    float m620;
-};
-
 // inferred: paths of the scene script and of the message table of a map (inline: "li r0, 1" before the
 // test; names invented)
 static inline bool GetScenePath_unk(char* out, int area, int map, int sub) {
@@ -2601,7 +2595,7 @@ int GameScene::fn_803CB820(const atn::Vector3* pos, const atn::Vector3* move, Ch
 }
 
 int GameScene::fn_803CC198(const atn::Vector3* pos, const atn::Vector3* dir, CharaTask* chara) {
-    return fn_803CC1A4(pos, ((CharaRadius_unk*)chara)->m620, 0.5f, dir);
+    return fn_803CC1A4(pos, chara->m620, 0.5f, dir);
 }
 
 // inferred: a x b
