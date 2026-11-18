@@ -1228,7 +1228,7 @@ void Material_unk::fn_80080584(const Material_unk& o) {
     m38.g = o.m38.g;
     m38.b = o.m38.b;
     m38.a = o.m38.a;
-    *(unsigned int*)&((unsigned char*)this)[0x14] = *(const unsigned int*)&((const unsigned char*)&o)[0x14];
+    *(unsigned int*)&mState = *(const unsigned int*)&o.mState;
     m48 = o.m48;
     m49 = o.m49;
     m44 = o.m44;
