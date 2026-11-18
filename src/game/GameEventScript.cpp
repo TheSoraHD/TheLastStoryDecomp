@@ -2957,13 +2957,13 @@ static inline void StopAction_unk(CharaTask* chara, int keep) {
     }
 }
 
-// NONMATCHING: 99% - operands of the fmuls of case 1 swapped
 // inferred: stores a value of `chara` (args->m10) into the script variable m14/m18
 void GameEventScript::fn_8039F9A4(CharaTask* chara, const ScriptArgs_unk* args) {
     if (chara == 0) {
         return;
     }
     int value = 0;
+    float rate;
     switch (args->m10) {
     case 0: {
         float hp = chara->mStatus.m04;
@@ -2974,7 +2974,8 @@ void GameEventScript::fn_8039F9A4(CharaTask* chara, const ScriptArgs_unk* args) 
         break;
     }
     case 1:
-        value = 100.0f * chara->m568;
+        rate = chara->m568;
+        value = 100.0f * rate;
         break;
     case 2:
         value = chara->mStatus.mParamB.m9C & 1;
