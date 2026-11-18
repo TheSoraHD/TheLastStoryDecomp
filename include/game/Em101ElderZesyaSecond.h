@@ -7,11 +7,13 @@
 #include "game/EnemyTask.h"
 #include "game/ResHandle.h"
 #include "std/vector.h"
+namespace gs {
+struct WarpPoint;
+}
 
 // inferred: warp points of the enemy ("warp_point"; a class derived from std::vector: its destructor
 // tests `this` four times); name invented
-struct RoutePlace_unk;
-typedef std::vector<RoutePlace_unk*> ElderList_unk;
+typedef std::vector<gs::WarpPoint*> ElderList_unk;
 
 // inferred from __vt__21Em101ElderZesyaSecond (0x807847E0): second fight of the elder Zesya.
 // Only the small functions are written (game/Em101ElderZesyaSecond.cpp); the factory allocates
@@ -42,7 +44,7 @@ public:
     int m14B8;          // inferred: "warp_count"
     float m14BC;        // inferred: "warp_count_dist"
     ElderList_unk m14C0;
-    RoutePlace_unk* m14CC; // inferred: "center_warp_point"
+    gs::WarpPoint* m14CC; // inferred: "center_warp_point"
     CharaTask* m14D0;      // inferred: target
     int m14D4;
     int m14D8;

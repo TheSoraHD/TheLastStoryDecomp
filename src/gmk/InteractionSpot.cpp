@@ -5,80 +5,56 @@
 #include "game/NpcManager.h"
 #include "game/NpcTask.h"
 #include "atn/RenderManager.h"
+#include "game/GameSceneFind_unk.h"
 
-// inferred: route between two points (8 bytes; declared in game/CharaStatus.h)
-struct RoutePath_unk {
-    int m00;
-    int m04;
-};
-// inferred: point of the field (0x30 bytes)
-struct Spot_unk {
-    int mId;
-    atn::Vector3 mPos; // 0x04
-    int m10;           // inferred: index (1-based) used by the links
-    unsigned char m14[0x30 - 0x14];
-};
-// inferred: two linked points (indices into the point table)
-struct SpotLink_unk {
-    int mA;
-    int mB;
-};
-// inferred: point tables of the field (lbl_8087F430->m10D8)
-struct SpotTable_unk {
-    Spot_unk* FindSpot_unk(int id) {
-        for (unsigned int i = 0; i < mNumSpots; i++) {
-            if (mSpots[i].mId == id) {
-                return &mSpots[i];
-            }
-        }
-        return 0;
-    }
-    // inferred: the spot of an id and its linked spot (name invented)
-    void FindSpots_unk(Spot_unk** spots, int id) {
-        spots[0] = FindSpot_unk(id);
-        spots[1] = FindLinkA_unk(spots[0]);
-        if (spots[1] == 0) {
-            spots[1] = FindLinkB_unk(spots[0]);
-        }
-    }
-    Spot_unk* FindLinkA_unk(Spot_unk* spot) {
-        for (unsigned int i = 0; i < mNumLinks; i++) {
-            SpotLink_unk& link = mLinks[i];
-            if (spot->m10 - 1 == link.mA) {
-                return &mSpots[link.mB];
-            }
-        }
-        return 0;
-    }
-    Spot_unk* FindLinkB_unk(Spot_unk* spot) {
-        for (unsigned int i = 0; i < mNumLinks; i++) {
-            SpotLink_unk& link = mLinks[i];
-            if (spot->m10 - 1 == link.mB) {
-                return &mSpots[link.mA];
-            }
-        }
-        return 0;
-    }
-
-    unsigned char m00[0xA4];
-    RoutePath_unk* mPaths;  // 0xA4: inferred: as RouteTable_unk::mPaths (game/CharaStatus.h)
-    unsigned char mA8[0xC4 - 0xA8];
-    unsigned int mNumSpots; // 0xC4
-    Spot_unk* mSpots;       // 0xC8
-    unsigned int mNumLinks; // 0xCC
-    SpotLink_unk* mLinks;   // 0xD0
-};
 struct Field_unk {
     unsigned char m00[0x10D8];
-    SpotTable_unk* m10D8;
+    GameScene* m10D8;
 };
 extern "C" Field_unk* lbl_8087F430;
-extern "C" unsigned short fn_803CD958(RoutePath_unk* path, int point); // inferred: link between two points
+
+// inferred: interaction spots of the scene (GameScene::mC4) and their connections (mCC); inline members
+// of GameScene declared in game/GameScene.h (names invented)
+inline gs::InteractionPoint* GameScene::FindSpot_unk(int id) {
+    for (unsigned int i = 0; i < (unsigned int)mC4.mSize; i++) {
+        if (mC4.mData[i].mId == id) {
+            return &mC4.mData[i];
+        }
+    }
+    return 0;
+}
+// inferred: the spot of an id and its linked spot (name invented)
+inline void GameScene::FindSpots_unk(gs::InteractionPoint** spots, int id) {
+    spots[0] = FindSpot_unk(id);
+    spots[1] = FindLinkA_unk(spots[0]);
+    if (spots[1] == 0) {
+        spots[1] = FindLinkB_unk(spots[0]);
+    }
+}
+inline gs::InteractionPoint* GameScene::FindLinkA_unk(gs::InteractionPoint* spot) {
+    for (unsigned int i = 0; i < (unsigned int)mCC.mSize; i++) {
+        gs::InteractionConnection& link = mCC.mData[i];
+        if (spot->mIndex - 1 == link.m00) {
+            return &mC4.mData[link.m04];
+        }
+    }
+    return 0;
+}
+inline gs::InteractionPoint* GameScene::FindLinkB_unk(gs::InteractionPoint* spot) {
+    for (unsigned int i = 0; i < (unsigned int)mCC.mSize; i++) {
+        gs::InteractionConnection& link = mCC.mData[i];
+        if (spot->mIndex - 1 == link.m04) {
+            return &mC4.mData[link.m00];
+        }
+    }
+    return 0;
+}
+extern "C" unsigned short fn_803CD958(U16Table_unk* path, int point); // inferred: link between two points
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
 
 // inferred: link between two route points (name invented; as in gmk/MeetingSpot.cpp)
-static inline int GetLink_unk(SpotTable_unk* table, int a, int b) {
-    return fn_803CD958(&table->mPaths[a - 1], b - 1);
+static inline int GetLink_unk(GameScene* table, int a, int b) {
+    return fn_803CD958(&table->mA0.mData[a - 1], b - 1);
 }
 // inferred: squared length (name invented; as in gmk/MeetingSpot.cpp)
 static inline float SqLength_unk(const atn::Vector3& v) {
@@ -86,7 +62,7 @@ static inline float SqLength_unk(const atn::Vector3& v) {
 }
 
 // inferred: index of the spot nearer to `chara` (name invented)
-static inline int NearSpot_unk(Spot_unk* const* spots, CharaTask* chara) {
+static inline int NearSpot_unk(gs::InteractionPoint* const* spots, CharaTask* chara) {
     float d0 = SqLength_unk(spots[0]->mPos - chara->mPos);
     float d1 = SqLength_unk(spots[1]->mPos - chara->mPos);
     return !(d0 <= d1);
@@ -134,9 +110,9 @@ int InteractionSpot::vf0C() {
 void InteractionSpot::Start() {
     m6C = mDesc->mPos;
     m78.y = mDesc->mRotY;
-    SpotTable_unk* table = lbl_8087F430->m10D8;
+    GameScene* table = lbl_8087F430->m10D8;
     table->FindSpots_unk(mSpot, mDesc->m20);
-    m10C = ((GameScene*)table)->fn_803C1560(&mSpot[0]->mPos, 0, 0, 0, 1, -1.0f);
+    m10C = table->fn_803C1560(&mSpot[0]->mPos, 0, 0, 0, 1, -1.0f);
     fn_8042952C(0);
 }
 
@@ -200,7 +176,7 @@ void InteractionSpot::vf10() {
 CharaTask* InteractionSpot::fn_8042917C(CharaTask* other) {
     float bestDist = 2500.0f;
     CharaTask* best = 0;
-    SpotTable_unk* table = lbl_8087F430->m10D8;
+    GameScene* table = lbl_8087F430->m10D8;
     for (NpcTask* npc = NpcManager::sInstance->mHead; npc != 0; npc = npc->mNext) {
         if (npc == other) {
             continue;

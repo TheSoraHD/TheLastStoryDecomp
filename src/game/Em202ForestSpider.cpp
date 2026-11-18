@@ -15,6 +15,7 @@
 #include "std/string_members.h"
 #include "game/BattleTask.h"
 #include "atn/ColliBase.h"
+#include "game/GameSceneFind_unk.h"
 
 extern "C" unsigned long strlen(const char* s);
 extern "C" int strcmp(const char* a, const char* b);
@@ -33,7 +34,7 @@ extern "C" void PSMTXScale(Mtx m, float x, float y, float z);
 // inferred: field (lbl_8087F430): route tables at 0x10D8 (as in game/Em202Spider.cpp)
 struct Field_unk {
     unsigned char m0000[0x10D8];
-    RouteTable_unk* m10D8;
+    GameScene* m10D8;
     unsigned char m10DC[0x5694 - 0x10DC];
     int m5694; // inferred: nonzero in the multiplayer mode (the threads go for the target)
 };
@@ -264,7 +265,7 @@ int Em202ForestSpider::vf0C() {
                     int id;
                     do {
                         id = fn_800DC12C(csv.fn_8005B9CC());
-                        RoutePlace_unk* place = lbl_8087F430->m10D8->FindPlace_unk(id);
+                        gs::WarpPoint* place = lbl_8087F430->m10D8->FindPlace_unk(id);
                         if (place != 0) {
                             m14C0.push_back(place);
                         }
@@ -895,11 +896,11 @@ void Em202ForestSpider::vf124() {
     }
 }
 
-// inferred: RouteTable_unk::FindPlace_unk with the array read inside the loop (as in game/Em202Spider.cpp)
-inline RoutePlace_unk* FindForestPlace_unk(int id) {
-    RouteTable_unk* table = lbl_8087F430->m10D8;
-    for (unsigned int i = 0; i < table->mNumPlaces; i++) {
-        RoutePlace_unk* places = table->mPlaces;
+// inferred: GameScene::FindPlace_unk with the array read inside the loop (as in game/Em202Spider.cpp)
+inline gs::WarpPoint* FindForestPlace_unk(int id) {
+    GameScene* table = lbl_8087F430->m10D8;
+    for (unsigned int i = 0; i < table->m78.size(); i++) {
+        gs::WarpPoint* places = table->m78.mData;
         if (id == places[i].mId) {
             return &places[i];
         }
@@ -908,7 +909,7 @@ inline RoutePlace_unk* FindForestPlace_unk(int id) {
 }
 
 void Em202ForestSpider::vf128() {
-    RoutePlace_unk* place = FindForestPlace_unk(m14BC);
+    gs::WarpPoint* place = FindForestPlace_unk(m14BC);
     atn::Vector3 d;
     SetFlat_unk(d, mPos.x - place->mPos.x, mPos.z - place->mPos.z);
     if (PSVECSquareMag(&d) < 100.0f) {
@@ -921,7 +922,7 @@ void Em202ForestSpider::vf128() {
 }
 
 void Em202ForestSpider::vf12C() {
-    RoutePlace_unk* place = m14CC;
+    gs::WarpPoint* place = m14CC;
     atn::Vector3 d;
     SetFlat_unk(d, mPos.x - place->mPos.x, mPos.z - place->mPos.z);
     if (PSVECSquareMag(&d) < 100.0f) {
@@ -1310,10 +1311,10 @@ void Em202ForestSpider::fn_80278218(atn::Vector3& center) {
     center *= 1.0f / (float)n;
 }
 
-RoutePlace_unk* Em202ForestSpider::vf170() {
+gs::WarpPoint* Em202ForestSpider::vf170() {
     atn::Vector3 center;
     fn_80278218(center);
-    RoutePlace_unk* best = 0;
+    gs::WarpPoint* best = 0;
     float bestDist = 0.0f;
     for (unsigned int i = 0; i < m14C0.size(); i++) {
         atn::Vector3 d = center - m14C0[i]->mPos;

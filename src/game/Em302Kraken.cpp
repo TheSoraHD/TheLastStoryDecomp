@@ -16,6 +16,7 @@
 #include "game/BattleTask.h"
 #include "atn/ColliBase.h"
 #include "game/DamageResult_unk.h"
+#include "game/GameSceneFind_unk.h"
 
 extern "C" unsigned long strlen(const char* s);
 extern "C" int strcmp(const char* a, const char* b);
@@ -64,7 +65,7 @@ struct KrakenLook_unk {
 };
 // inferred: field (lbl_8087F430); names invented
 struct Field_unk {
-    RouteTable_unk* fn_8013C504(); // inferred: route tables (as in gmk/FlamingArrow.cpp)
+    GameScene* fn_8013C504(); // inferred: route tables (as in gmk/FlamingArrow.cpp)
     unsigned char m0000[0x8A0];
     CharaTask* m8A0; // inferred: character the camera follows
     unsigned char m8A4[0x97C - 0x8A4];
@@ -342,7 +343,7 @@ int Em302Kraken::vf0C() {
                         int id;
                         do {
                             id = fn_800DC12C(csv.fn_8005B9CC());
-                            RoutePlace_unk* place = fn_80121F00()->fn_8013C504()->FindPlace_unk(id);
+                            gs::WarpPoint* place = fn_80121F00()->fn_8013C504()->FindPlace_unk(id);
                             if (place != 0) {
                                 m163C.push_back(place);
                             }
@@ -354,7 +355,7 @@ int Em302Kraken::vf0C() {
                         int id;
                         do {
                             id = fn_800DC12C(csv.fn_8005B9CC());
-                            RoutePlace_unk* place = fn_80121F00()->fn_8013C504()->FindPlace_unk(id);
+                            gs::WarpPoint* place = fn_80121F00()->fn_8013C504()->FindPlace_unk(id);
                             if (place != 0) {
                                 m1660.push_back(place);
                             }
@@ -404,7 +405,7 @@ int Em302Kraken::vf0C() {
                             }
                         }
                     } else if (strcmp(key, "charge_point") == 0) {
-                        RoutePlace_unk* place =
+                        gs::WarpPoint* place =
                             fn_80121F00()->fn_8013C504()->FindPlace_unk(fn_800DC12C(csv.fn_8005B9CC()));
                         if (place != 0) {
                             m15D4 = place;
@@ -585,7 +586,7 @@ void Em302Kraken::vf10() {
         }
     }
     m14D4++;
-    RoutePlace_unk* place = m1634;
+    gs::WarpPoint* place = m1634;
     if (place != 0) {
         mPos = place->mPos;
         mRot.y = 3.1415927f + place->m14;
@@ -752,7 +753,7 @@ void Em302Kraken::fn_802DA174() {
                     m1638 = 0;
                 }
                 m1634 = m163C[m1638];
-                RoutePlace_unk* place = m1634;
+                gs::WarpPoint* place = m1634;
                 if (place != 0) {
                     mPos = place->mPos;
                     mRot.y = 3.1415927f + place->m14;
@@ -1497,7 +1498,7 @@ void Em302Kraken::fn_802DD1B4(int level) {
             break;
         }
         EnemyTask* e = enemies[i];
-        RoutePlace_unk* place = places[i];
+        gs::WarpPoint* place = places[i];
         lbl_8087F048->fn_80107850(&e->mMotion);
         lbl_8087F048->fn_801077A8(&e->mMotion, &e->mMotion);
         fn_80232B7C(e, 1000);

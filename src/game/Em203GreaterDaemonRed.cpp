@@ -13,6 +13,7 @@
 #include "game/BattleTask.h"
 #include "math/VecAssign_unk.h"
 #include "atn/ColliBase.h"
+#include "game/GameSceneFind_unk.h"
 
 extern "C" unsigned long strlen(const char* s);
 extern "C" int strcmp(const char* a, const char* b);
@@ -55,7 +56,7 @@ struct RedLook_unk {
 // inferred: field (lbl_8087F430): position of the camera at 0x80, the camera target at 0x8A0, a camera
 // shake at 0x96C and the route tables at 0x10D8
 struct Field_unk {
-    RouteTable_unk* fn_8013C504();
+    GameScene* fn_8013C504();
     unsigned char m0000[0x80];
     atn::Vector3 m080; // inferred: camera position
     unsigned char m008C[0x8A0 - 0x8C];
@@ -67,7 +68,7 @@ struct Field_unk {
     float m978;
     RedLook_unk m97C;
     unsigned char m09A4[0x10D8 - 0x9A4];
-    RouteTable_unk* m10D8;
+    GameScene* m10D8;
 };
 extern "C" Field_unk* lbl_8087F430;
 // inferred: field accessor (weak copy 0x80121F00 of another file)
@@ -203,7 +204,7 @@ int Em203GreaterDaemonRed::vf0C() {
         mStatus.m18 |= 0x10000;
         mStatus.m18 |= 0xC219;
         mStatus.m18 |= 0x3800000;
-        RouteTable_unk* table = fn_80121F00() != 0 ? fn_80121F00()->fn_8013C504() : 0;
+        GameScene* table = fn_80121F00() != 0 ? fn_80121F00()->fn_8013C504() : 0;
         if (m1660.fn_80470580() != 0 && table != 0) {
             atn::Csv csv((const char*)m1660.fn_80470580(), m1660.fn_8047059C());
             float zero = 0.0f;
@@ -278,7 +279,7 @@ int Em203GreaterDaemonRed::vf0C() {
                     int id;
                     do {
                         id = fn_800DC12C(csv.fn_8005B9CC());
-                        RoutePlace_unk* place = table->FindPlace_unk(id);
+                        gs::WarpPoint* place = table->FindPlace_unk(id);
                         if (place != 0) {
                             m1564.push_back(place);
                         }
@@ -290,7 +291,7 @@ int Em203GreaterDaemonRed::vf0C() {
                         m1570.push_back(dir);
                     } while (dir != 0);
                 } else if (strcmp(key, "CenterPoint") == 0) {
-                    RoutePlace_unk* place = table->FindPlace_unk(fn_800DC12C(csv.fn_8005B9CC()));
+                    gs::WarpPoint* place = table->FindPlace_unk(fn_800DC12C(csv.fn_8005B9CC()));
                     if (place != 0) {
                         m1558 = place->mPos;
                     }
@@ -319,7 +320,7 @@ int Em203GreaterDaemonRed::vf0C() {
                 }
             } while (csv.fn_8005BBF8());
         }
-        RoutePlace_unk* center = table != 0 ? table->FindPlace_unk(600) : 0;
+        gs::WarpPoint* center = table != 0 ? table->FindPlace_unk(600) : 0;
         if (center != 0) {
             m1654 = center->mPos;
         } else {
@@ -332,7 +333,7 @@ int Em203GreaterDaemonRed::vf0C() {
 }
 
 // inferred: the "vector length error" of push_back is in the string pool right after the keys of vf0C
-template void std::vector<RoutePlace_unk*>::push_back(RoutePlace_unk* const& x);
+template void std::vector<gs::WarpPoint*>::push_back(gs::WarpPoint* const& x);
 
 // inferred: clears the counters of the state, takes a new bullet id and stops the effects 2000/1000
 inline void Em203GreaterDaemonRed::ResetState_unk() {
@@ -422,9 +423,9 @@ inline int Em203GreaterDaemonRed::SelectHover_unk() {
         return 0;
     }
     fn_8029C564(1);
-    RouteTable_unk* table = lbl_8087F430->m10D8;
+    GameScene* table = lbl_8087F430->m10D8;
     int index = ((GameScene*)table)->fn_803C1560(&m1564[far]->mPos, fn_80179D44(), 0, 1, 1, -1.0f) - 1;
-    m1540 = &table->mPoints[index];
+    m1540 = &table->m98.mData[index];
     if (m153C == 0 || m1540 == 0 || m153C == m1540) {
         return 0;
     }
@@ -930,7 +931,7 @@ void Em203GreaterDaemonRed::fn_80296DB8() {
     if (m14B4 == 0) {
         atn::Vector3 point = m1540->mPos;
         fn_801C3910(point - mPos);
-        if (m1528 == m1540->m10) {
+        if (m1528 == m1540->mIndex) {
             m1530 = point - mPos;
             ToIdle_unk();
         } else {
@@ -938,7 +939,7 @@ void Em203GreaterDaemonRed::fn_80296DB8() {
             float t = 0.5f * (1.0f + (float)sin(3.1415927f * m152C - 1.5707964f));
             mPos = (m1540->mPos - m154C) * t + m154C;
             if (m152C >= 1.0f) {
-                m1528 = m1540->m10;
+                m1528 = m1540->mIndex;
             }
         }
     } else if (m14B4 == 1) {
@@ -1804,9 +1805,9 @@ int Em203GreaterDaemonRed::fn_8029C564(int arg) {
             nearest = i;
         }
     }
-    RouteTable_unk* table = lbl_8087F430->m10D8;
+    GameScene* table = lbl_8087F430->m10D8;
     int index = ((GameScene*)table)->fn_803C1560(&m1564[nearest]->mPos, fn_80179D44(), 0, 1, 1, -1.0f) - 1;
-    m153C = &table->mPoints[index];
+    m153C = &table->m98.mData[index];
     return 1;
 }
 

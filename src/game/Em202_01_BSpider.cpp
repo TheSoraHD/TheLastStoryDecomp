@@ -5,11 +5,12 @@
 #include "game/FriendManager.h"
 #include "game/CharaStatus.h"
 #include "game/BattleTask.h"
+#include "game/GameSceneFind_unk.h"
 
 // inferred: field (lbl_8087F430): route tables at 0x10D8 (as in game/Em306GurgBeast.cpp)
 struct Field_unk {
     unsigned char m0000[0x10D8];
-    RouteTable_unk* m10D8;
+    GameScene* m10D8;
 };
 extern "C" Field_unk* lbl_8087F430;
 
@@ -62,11 +63,11 @@ static atn::Vector3 sSpotPos_unk[6];
 // inferred: color of the spiders when they are down (game/Em202SpiderBase.cpp)
 extern "C" SpiderBaseColor_unk lbl_807C8398;
 
-// inferred: RouteTable_unk lookup of a point by id, with the array read inside the loop (name invented)
-inline RoutePoint_unk* FindRoutePoint_unk(RouteTable_unk* table, int id) {
-    for (unsigned int i = 0; i < table->m98; i++) {
-        RoutePoint_unk* points = table->mPoints;
-        if (id == points[i].m00) {
+// inferred: GameScene lookup of a point by id, with the array read inside the loop (name invented)
+inline gs::MovePoint* FindRoutePoint_unk(GameScene* table, int id) {
+    for (unsigned int i = 0; i < table->m98.size(); i++) {
+        gs::MovePoint* points = table->m98.mData;
+        if (id == points[i].mId) {
             return &points[i];
         }
     }
@@ -78,7 +79,7 @@ Em202_01_BSpider::Em202_01_BSpider(atn::Task* parent, void* data)
     : EnemyTask(parent, data), m14B0(0), m14B4(0), m14B8(0), m14BC(0), m14C0(0), m14C8(0), m14D8(0), m14DC(0),
       m14E0(0.0f), m14E4(0.0f), m14EC(0) {
     for (int i = 0; i < 6; i++) {
-        RoutePoint_unk* point = FindRoutePoint_unk(lbl_8087F430->m10D8, sSpotIds_unk[i]);
+        gs::MovePoint* point = FindRoutePoint_unk(lbl_8087F430->m10D8, sSpotIds_unk[i]);
         sSpotPos_unk[i] = point->mPos;
     }
     m568 = 0.5f;

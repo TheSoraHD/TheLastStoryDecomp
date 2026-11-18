@@ -10,6 +10,7 @@
 #include "std/string_members.h"
 #include "game/BattleTask.h"
 #include "atn/ColliBase.h"
+#include "game/GameSceneFind_unk.h"
 
 extern "C" unsigned long strlen(const char* s);
 extern "C" int atoi(const char* s);
@@ -19,7 +20,7 @@ extern "C" chr::CharaData_unk* fn_8020A81C(const char* name);
 // inferred: field (lbl_8087F430): route tables at 0x10D8 (as in game/Em306GurgBeast.cpp)
 struct Field_unk {
     unsigned char m0000[0x10D8];
-    RouteTable_unk* m10D8;
+    GameScene* m10D8;
 };
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" int strncmp(const char* a, const char* b, unsigned long n);
@@ -199,18 +200,18 @@ int Em005DoppelGanger::vf0C() {
         mStatus.m18 |= 0x10000;
         mStatus.m18 |= 0x4011;
         mC10 |= 2;
-        RouteTable_unk* table = lbl_8087F430->m10D8;
+        GameScene* table = lbl_8087F430->m10D8;
         if (m1508.fn_80470580() != 0 && table != 0) {
             atn::Csv csv((const char*)m1508.fn_80470580(), m1508.fn_8047059C());
             do {
                 const char* key = csv.fn_8005B9CC();
                 if (strcmp(key, "JumpPoint") == 0) {
-                    RoutePlace_unk* place = table->FindPlace_unk(fn_800DC12C(csv.fn_8005B9CC()));
+                    gs::WarpPoint* place = table->FindPlace_unk(fn_800DC12C(csv.fn_8005B9CC()));
                     if (place != 0) {
                         m1528 = place;
                     }
                 } else if (strcmp(key, "WarpPoint") == 0) {
-                    RoutePlace_unk* place = table->FindPlace_unk(fn_800DC12C(csv.fn_8005B9CC()));
+                    gs::WarpPoint* place = table->FindPlace_unk(fn_800DC12C(csv.fn_8005B9CC()));
                     if (place != 0) {
                         m152C = place;
                     }
@@ -369,7 +370,7 @@ void Em005DoppelGanger::vf10() {
         }
     }
     if (((GameTask*)lbl_8087F430)->fn_80370A78(0xC9) == 1) {
-        RoutePlace_unk* jump = m1528;
+        gs::WarpPoint* jump = m1528;
         if (jump != 0) {
             mPos = jump->mPos;
             m1504->mPos = jump->mPos;

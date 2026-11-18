@@ -9,6 +9,7 @@
 #include "game/PlayerTask.h"
 #include "atn/ColliBase.h"
 #include "atn/Color.h"
+#include "game/GameSceneFind_unk.h"
 
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" int rand();
@@ -126,7 +127,7 @@ extern "C" CharaManager<PlayerTask>* fn_8000D9E8(); // inferred: player manager
 extern "C" CharaManager<EnemyTask>* fn_801A03E0();  // inferred: enemy manager
 // inferred: field object (see CharaTask.cpp)
 struct Field_unk {
-    RouteTable_unk* fn_8013C504();
+    GameScene* fn_8013C504();
 };
 extern "C" Field_unk* fn_80121F00();
 
@@ -311,7 +312,7 @@ void FlamingArrow::vf10() {
         return;
     }
     HitInfo_unk* skill = fn_80219E6C(mDesc->m20);
-    RoutePlace_unk* place = fn_80121F00()->fn_8013C504()->FindPlace_unk(mDesc->m24);
+    gs::WarpPoint* place = fn_80121F00()->fn_8013C504()->FindPlace_unk(mDesc->m24);
     atn::Vector3 target;
     if (place != 0) {
         target = place->mPos;

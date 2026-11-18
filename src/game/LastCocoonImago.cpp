@@ -17,6 +17,7 @@
 #include "atn/Camera_unk.h"
 #include "atn/RenderManager.h"
 #include "game/BattleTask.h"
+#include "game/GameSceneFind_unk.h"
 
 extern "C" BattleTask* lbl_8087F048; // inferred: battle manager
 // inferred: field (lbl_8087F430); only the member used here
@@ -24,7 +25,7 @@ struct Field_unk {
     unsigned char m0000[0x6C];
     atn::Camera m006C; // inferred: camera of the field (as in game/EnemyQuarkStand.cpp)
     unsigned char m0260[0x10D8 - 0x260];
-    RouteTable_unk* m10D8; // inferred: route table of the map
+    GameScene* m10D8; // inferred: route table of the map
     unsigned char m10DC[0x54F4 - 0x10DC];
     unsigned char m54F4[4]; // inferred: name table (fn_803B3B38)
 };
@@ -70,11 +71,11 @@ LastCocoonImago::LastCocoonImago(atn::Task* parent, EnemyInfo_unk* info)
 }
 
 extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3, int arg4);
-// inferred: RouteTable_unk::FindPlace_unk with the array read inside the loop (as in
+// inferred: GameScene::FindPlace_unk with the array read inside the loop (as in
 // game/LastCocoonQuadruped.cpp)
-inline RoutePlace_unk* FindImagoPlace_unk(RouteTable_unk* table, int id) {
-    for (unsigned int i = 0; i < table->mNumPlaces; i++) {
-        RoutePlace_unk* places = table->mPlaces;
+inline gs::WarpPoint* FindImagoPlace_unk(GameScene* table, int id) {
+    for (unsigned int i = 0; i < table->m78.size(); i++) {
+        gs::WarpPoint* places = table->m78.mData;
         if (id == places[i].mId) {
             return &places[i];
         }

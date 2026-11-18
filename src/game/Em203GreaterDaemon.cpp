@@ -13,6 +13,7 @@
 #include "math/VecAssign_unk.h"
 #include "atn/ColliBase.h"
 #include "game/DamageResult_unk.h"
+#include "game/GameSceneFind_unk.h"
 
 // inferred: empty release assert (some state functions of the original are not auto-inlined)
 #define ASSERT_UNK(x) ((void)0)
@@ -61,7 +62,7 @@ struct DaemonLook_unk {
 // inferred: field (lbl_8087F430): route tables at 0x10D8 (fn_8013C504 returns them) and a camera shake
 // at 0x96C (as in game/Em301LShade.cpp)
 struct Field_unk {
-    RouteTable_unk* fn_8013C504();
+    GameScene* fn_8013C504();
     unsigned char m0000[0x8A0];
     CharaTask* m8A0; // inferred: character the camera follows
     unsigned char m08A4[0x96C - 0x8A4];
@@ -71,7 +72,7 @@ struct Field_unk {
     float m978;
     DaemonLook_unk m97C;
     unsigned char m09A4[0x10D8 - 0x9A4];
-    RouteTable_unk* m10D8;
+    GameScene* m10D8;
 };
 // inferred: input of the field (weak copy 0x80122550 of another file)
 extern "C" inline PlayerInput_unk* fn_80122550(Field_unk* field) {
@@ -146,12 +147,7 @@ extern "C" void* lbl_8087F9E8;
 extern "C" SkillEffect* fn_8059B66C(void* mgr, HitInfo_unk* skill, CharaTask* user, CharaTask* target,
                                     const atn::Vector3* pos, const atn::Vector3* rot,
                                     boost::function<void(SkillEffect*)> callback, float rate);
-// inferred: route between two points (8 bytes; declared in game/CharaStatus.h, as in gmk/MeetingSpot.cpp)
-struct RoutePath_unk {
-    int m00;
-    int m04;
-};
-extern "C" unsigned short fn_803CD958(RoutePath_unk* path, int point); // inferred: link between two points
+extern "C" unsigned short fn_803CD958(U16Table_unk* path, int point); // inferred: link between two points
 extern "C" float fn_800F8524(const float* a, const float* b, float t); // inferred: lerp of two floats
 // inferred: length in the xz plane (weak copy 0x801C3910, as in chr/ControlMoveCursor.cpp)
 extern "C" inline float fn_801C3910(const atn::Vector3& v) {
@@ -319,7 +315,7 @@ int Em203GreaterDaemon::vf0C() {
         mStatus.m18 |= 0x10000;
         mStatus.m18 |= 0xC219;
         mStatus.m18 |= 0x3800000;
-        RouteTable_unk* table = fn_80121F00()->fn_8013C504();
+        GameScene* table = fn_80121F00()->fn_8013C504();
         if (m1984.fn_80470580() != 0 && table != 0) {
             atn::Csv csv((const char*)m1984.fn_80470580(), m1984.fn_8047059C());
             int skill;
@@ -362,7 +358,7 @@ int Em203GreaterDaemon::vf0C() {
                     int id;
                     do {
                         id = fn_800DC12C(csv.fn_8005B9CC());
-                        RoutePlace_unk* place = fn_80121F00()->fn_8013C504()->FindPlace_unk(id);
+                        gs::WarpPoint* place = fn_80121F00()->fn_8013C504()->FindPlace_unk(id);
                         if (place != 0) {
                             m14F4.push_back(place);
                         }
@@ -371,7 +367,7 @@ int Em203GreaterDaemon::vf0C() {
                     int id;
                     do {
                         id = fn_800DC12C(csv.fn_8005B9CC());
-                        RoutePlace_unk* place = fn_80121F00()->fn_8013C504()->FindPlace_unk(id);
+                        gs::WarpPoint* place = fn_80121F00()->fn_8013C504()->FindPlace_unk(id);
                         if (place != 0) {
                             m14E8.push_back(place);
                         }
@@ -422,7 +418,7 @@ int Em203GreaterDaemon::vf0C() {
             } while (csv.fn_8005BBF8());
         }
         fn_802914F8();
-        RoutePlace_unk* center = fn_80121F00()->fn_8013C504()->FindPlace_unk(1001);
+        gs::WarpPoint* center = fn_80121F00()->fn_8013C504()->FindPlace_unk(1001);
         if (center != 0) {
             m1978 = center->mPos;
         } else {
@@ -435,7 +431,7 @@ int Em203GreaterDaemon::vf0C() {
 }
 
 // inferred: the "vector length error" of push_back is in the string pool right after the keys of vf0C
-template void std::vector<RoutePlace_unk*>::push_back(RoutePlace_unk* const& x);
+template void std::vector<gs::WarpPoint*>::push_back(gs::WarpPoint* const& x);
 
 // inferred: translation of a node matrix (as in game/Em208Queen.cpp; name invented)
 inline atn::Vector3 GetNodePos_unk(MtxPtr m) {
@@ -489,9 +485,9 @@ inline void Em203GreaterDaemon::StartFly_unk() {
     mMotion.fn_80097C08(0, 10, 0, 0, 1, 0.0f, 0.1f);
     fn_8016E970(6);
     m560 = 4;
-    RouteTable_unk* table = lbl_8087F430->m10D8;
+    GameScene* table = lbl_8087F430->m10D8;
     int index = ((GameScene*)table)->fn_803C1560(&mPos, fn_80179D44(), 0, 1, 1, -1.0f) - 1;
-    atn::Vector3& point = table->mPoints[index].mPos;
+    atn::Vector3& point = table->m98.mData[index].mPos;
     m151C = point - mPos;
     m1528 = atn::WrapAngle_unk((m1978 - point).ToRotationZ_unk().y - mRot.y);
     m153C = 0;
@@ -903,43 +899,43 @@ void Em203GreaterDaemon::fn_8028AFD8(int moving) {
         speed = 1.0f / m1998;
     }
     if (m58C == 7) {
-        RouteTable_unk* t1 = lbl_8087F430->m10D8;
+        GameScene* t1 = lbl_8087F430->m10D8;
         int a = ((GameScene*)t1)->fn_803C1560(&m152C->mPos, fn_80179D44(), 0, 2, 1, -1.0f);
-        RouteTable_unk* t2 = lbl_8087F430->m10D8;
+        GameScene* t2 = lbl_8087F430->m10D8;
         int b = ((GameScene*)t2)->fn_803C1560(&m1530->mPos, fn_80179D44(), 0, 2, 1, -1.0f);
         cur = m1504;
         prev = m1508;
-        p2 = fn_803CD958(&lbl_8087F430->m10D8->mPaths[cur - 1], b - 1);
+        p2 = fn_803CD958(&lbl_8087F430->m10D8->mA0.mData[cur - 1], b - 1);
         if (p2 == 0) {
-            p2 = fn_803CD958(&lbl_8087F430->m10D8->mPaths[cur - 1], a - 1);
+            p2 = fn_803CD958(&lbl_8087F430->m10D8->mA0.mData[cur - 1], a - 1);
         }
         m150C = p2;
-        p3 = fn_803CD958(&lbl_8087F430->m10D8->mPaths[p2 - 1], b - 1);
+        p3 = fn_803CD958(&lbl_8087F430->m10D8->mA0.mData[p2 - 1], b - 1);
         if (p3 == 0) {
-            p3 = fn_803CD958(&lbl_8087F430->m10D8->mPaths[cur - 1], a - 1);
+            p3 = fn_803CD958(&lbl_8087F430->m10D8->mA0.mData[cur - 1], a - 1);
         }
     } else if (m58C == 8) {
-        RouteTable_unk* t3 = lbl_8087F430->m10D8;
+        GameScene* t3 = lbl_8087F430->m10D8;
         int a = ((GameScene*)t3)->fn_803C1560(&m152C->mPos, fn_80179D44(), 0, 1, 1, -1.0f);
-        RouteTable_unk* t4 = lbl_8087F430->m10D8;
+        GameScene* t4 = lbl_8087F430->m10D8;
         int b = ((GameScene*)t4)->fn_803C1560(&m1530->mPos, fn_80179D44(), 0, 1, 1, -1.0f);
         cur = m1504;
         prev = m1508;
-        p2 = fn_803CD958(&lbl_8087F430->m10D8->mPaths[cur - 1], b - 1);
+        p2 = fn_803CD958(&lbl_8087F430->m10D8->mA0.mData[cur - 1], b - 1);
         if (p2 == 0) {
             p2 = a;
         }
         m150C = p2;
-        p3 = fn_803CD958(&lbl_8087F430->m10D8->mPaths[p2 - 1], b - 1);
+        p3 = fn_803CD958(&lbl_8087F430->m10D8->mA0.mData[p2 - 1], b - 1);
         if (p3 == 0) {
             p3 = a;
         }
     }
     atn::Vector3 points[4];
-    points[0] = lbl_8087F430->m10D8->mPoints[prev - 1].mPos;
-    points[1] = lbl_8087F430->m10D8->mPoints[cur - 1].mPos;
-    points[2] = lbl_8087F430->m10D8->mPoints[p2 - 1].mPos;
-    points[3] = lbl_8087F430->m10D8->mPoints[p3 - 1].mPos;
+    points[0] = lbl_8087F430->m10D8->m98.mData[prev - 1].mPos;
+    points[1] = lbl_8087F430->m10D8->m98.mData[cur - 1].mPos;
+    points[2] = lbl_8087F430->m10D8->m98.mData[p2 - 1].mPos;
+    points[3] = lbl_8087F430->m10D8->m98.mData[p3 - 1].mPos;
     if (moving) {
         (points[2] - points[1]).Length_unk();
         m1510 += speed;
@@ -959,9 +955,9 @@ void Em203GreaterDaemon::fn_8028AFD8(int moving) {
         m1510 = 0.0f;
     }
     if (m1990 != 0) {
-        RouteTable_unk* t5 = lbl_8087F430->m10D8;
+        GameScene* t5 = lbl_8087F430->m10D8;
         int point = ((GameScene*)t5)->fn_803C1560(&m14B0->mPos, fn_80179D44(), 0, 1, 1, -1.0f);
-        lbl_8087EEB0->fn_80063D3C(lbl_8087F430->m10D8->mPoints[point - 1].mPos, 10.0f, 10000.0f, 0xFF0000FF);
+        lbl_8087EEB0->fn_80063D3C(lbl_8087F430->m10D8->m98.mData[point - 1].mPos, 10.0f, 10000.0f, 0xFF0000FF);
     }
 }
 
@@ -1101,7 +1097,7 @@ void Em203GreaterDaemon::fn_8028BFE0() {
             mRot.y += m1528 / length;
         }
     } else if (m14B4 == 1) {
-        RouteTable_unk* table = lbl_8087F430->m10D8;
+        GameScene* table = lbl_8087F430->m10D8;
         if (m150C == ((GameScene*)table)->fn_803C1560(&m1530->mPos, fn_80179D44(), 0, 2, 1, -1.0f) && m1514 > m1518) {
             if (m14C8 != 0) {
                 if (((GameTask*)lbl_8087F430)->fn_80370A78(0x14) == 0) {
@@ -1111,9 +1107,9 @@ void Em203GreaterDaemon::fn_8028BFE0() {
                 PlayMotion_unk(0x144, 0, 0, 1.0f);
                 m14B4 = 2;
                 m1514 = 0.0f;
-                RouteTable_unk* table2 = lbl_8087F430->m10D8;
+                GameScene* table2 = lbl_8087F430->m10D8;
                 int index = ((GameScene*)table2)->fn_803C1560(&m1530->mPos, fn_80179D44(), 0, 1, 1, -1.0f) - 1;
-                RoutePoint_unk& point = table2->mPoints[index];
+                gs::MovePoint& point = table2->m98.mData[index];
                 m151C = point.mPos - mPos;
                 m1528 = atn::WrapAngle_unk((m1978 - m1530->mPos).ToRotationZ_unk().y - mRot.y);
                 return;
@@ -1129,9 +1125,9 @@ void Em203GreaterDaemon::fn_8028BFE0() {
             PlayMotion_unk(2, 1, 0, 1.0f);
             fn_80239DAC(lbl_8087F3C0, this, -2, 1);
             FaceCenter_unk();
-            RouteTable_unk* table = lbl_8087F430->m10D8;
+            GameScene* table = lbl_8087F430->m10D8;
             int index = ((GameScene*)table)->fn_803C1560(&m1530->mPos, fn_80179D44(), 0, 1, 1, -1.0f) - 1;
-            mPos = table->mPoints[index].mPos;
+            mPos = table->m98.mData[index].mPos;
         } else {
             mPos += m151C * (1.0f / length);
             mRot.y += m1528 / length;
@@ -1640,7 +1636,7 @@ void Em203GreaterDaemon::fn_8028F560() {
     m58C = 7;
     fn_8016E970(3);
     PlayMotion_unk(0x142, 0, 0, 1.0f);
-    RouteTable_unk* table = lbl_8087F430->m10D8;
+    GameScene* table = lbl_8087F430->m10D8;
     m1504 = ((GameScene*)table)->fn_803C1560(&m152C->mPos, fn_80179D44(), 0, 2, 1, -1.0f);
     table = lbl_8087F430->m10D8;
     m1508 = ((GameScene*)table)->fn_803C1560(&m152C->mPos, fn_80179D44(), 0, 2, 1, -1.0f);

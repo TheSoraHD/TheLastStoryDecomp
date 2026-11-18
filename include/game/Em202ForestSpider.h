@@ -9,8 +9,10 @@
 #include "game/EnemyTask.h"
 #include "game/ResHandle.h"
 #include "std/vector.h"
+namespace gs {
+struct WarpPoint;
+}
 
-struct RoutePlace_unk;
 
 // inferred: thread shot by the forest spider (0xEC bytes; constructor 0x80272C6C and destructor 0x80272CF0
 // are the copies used by __construct_array). Names invented.
@@ -38,7 +40,7 @@ struct SpiderThread_unk {
 // inferred: the destructor tests `this` once more than for a plain std::vector (as SpiderList_unk in
 // game/Em202Spider.h); names invented
 typedef std::vector<EnemyTask*> ForestEnemyList_unk;
-typedef std::vector<RoutePlace_unk*> ForestPlaceList_unk;
+typedef std::vector<gs::WarpPoint*> ForestPlaceList_unk;
 typedef std::vector<CharaTask*> ForestCharaList_unk;
 
 // inferred from __vt__17Em202ForestSpider (0x807850E0). Data file "database/chara/special/" + db_name (default
@@ -86,7 +88,7 @@ public:
     virtual void vf164();  // 0x80276944 inferred: death
     virtual void vf168();  // 0x80277AF0 inferred: starts state 17
     virtual void vf16C();  // 0x80277968 inferred: starts state 18
-    virtual RoutePlace_unk* vf170(); // 0x80278330 inferred: thread point farthest from the party
+    virtual gs::WarpPoint* vf170(); // 0x80278330 inferred: thread point farthest from the party
     virtual CharaTask* vf174();      // 0x80276D58 inferred: target of the threads
 
     void fn_8027688C(); // inferred: clears the counters of the state
@@ -105,7 +107,7 @@ public:
     ForestEnemyList_unk m14B0; // inferred: "ReinforceChara"
     int m14BC;                 // inferred: "ReinforceCenter" (place id)
     ForestPlaceList_unk m14C0; // inferred: "ThreadPoint"
-    RoutePlace_unk* m14CC;     // inferred: thread point of state 15
+    gs::WarpPoint* m14CC;     // inferred: thread point of state 15
     CharaTask* m14D0;          // inferred: target of the turn
     CharaTask* m14D4;          // inferred: target
     int m14D8;                 // inferred: step of the state

@@ -2,6 +2,9 @@
 #define GAME_BATTLECHARATASK_H
 
 #include "game/CharaTask.h"
+namespace gs {
+struct WarpPoint;
+}
 
 // inferred from __vt__15BattleCharaTask (0x80779B68)
 class BattleCharaTask : public CharaTask {
@@ -82,7 +85,7 @@ public:
     float GetM1458_unk() const { return m1458; } // inferred: weak copy 0x803D717C (game/GameUI.cpp)
     int m145C;
     int m1460;
-    RoutePlace_unk* m1464; // inferred: "magicPointId" place (vf2C)
+    gs::WarpPoint* m1464; // inferred: "magicPointId" place (vf2C)
     int m1468;
     int m146C;
     short m1470;

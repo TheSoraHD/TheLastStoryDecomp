@@ -6,6 +6,7 @@
 #include "game/PlayerManager.h"
 #include "math/Vec.h"
 #include "game/GameTask.h"
+#include "game/GameSceneFind_unk.h"
 
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" int atoi(const char* s);
@@ -24,7 +25,7 @@ extern "C" void PSMTXRotRad(Mtx m, char axis, float rad);
 // inferred: field (lbl_8087F430): route tables at 0x10D8 (as in game/Em202ForestSpider.cpp)
 struct Field_unk {
     unsigned char m0000[0x10D8];
-    RouteTable_unk* m10D8;
+    GameScene* m10D8;
     unsigned char m10DC[0x5694 - 0x10DC];
     int m5694;
 };
@@ -184,7 +185,7 @@ int Em202MothersSpider::vf0C() {
                     int id;
                     do {
                         id = fn_800DC12C(csv.fn_8005B9CC());
-                        RoutePlace_unk* place = lbl_8087F430->m10D8->FindPlace_unk(id);
+                        gs::WarpPoint* place = lbl_8087F430->m10D8->FindPlace_unk(id);
                         if (place != 0) {
                             m14C0.push_back(place);
                         }
@@ -711,10 +712,10 @@ void Em202MothersSpider::vf184() {
     }
 }
 
-RoutePlace_unk* Em202MothersSpider::vf170() {
+gs::WarpPoint* Em202MothersSpider::vf170() {
     atn::Vector3 center;
     fn_80278218(center);
-    RoutePlace_unk* best = 0;
+    gs::WarpPoint* best = 0;
     float bestDist = 1.0e16f;
     for (unsigned int i = 0; i < m14C0.size(); i++) {
         atn::Vector3 d = center - m14C0[i]->mPos;

@@ -4,6 +4,7 @@
 #include "std/string.h"
 #include "std/string_members.h"
 #include "game/GameTask.h"
+#include "game/GameSceneFind_unk.h"
 
 extern "C" char* strstr(const char* s, const char* sub);
 extern "C" int strcmp(const char* a, const char* b);
@@ -15,7 +16,7 @@ extern "C" void PSMTXTrans(Mtx m, float x, float y, float z);
 // fn_80370A78 and written with fn_80370AE4
 struct Field_unk {
     unsigned char m0000[0x10D8];
-    RouteTable_unk* m10D8;
+    GameScene* m10D8;
 };
 extern "C" Field_unk* lbl_8087F430;
 // inferred: effects (as in game/Em002Skelton.cpp)
@@ -202,7 +203,7 @@ void EnemyFieldMagician::fn_8032C964() {
                 for (unsigned int i = 0; i < 8; i++) {
                     int id = atoi(csv.fn_8005B9CC());
                     if (id > 0) {
-                        RoutePlace_unk* place = lbl_8087F430->m10D8->FindPlace_unk(id);
+                        gs::WarpPoint* place = lbl_8087F430->m10D8->FindPlace_unk(id);
                         if (place != 0) {
                             m162C.push_back(place);
                         }
@@ -383,7 +384,7 @@ void EnemyFieldMagician::fn_8032D48C() {
         mPos = m1624->m04;
         mRot.y = m1624->m14;
     } else {
-        RoutePlace_unk* place = m162C[m1614];
+        gs::WarpPoint* place = m162C[m1614];
         mPos = place->mPos;
         mRot.y = place->m14;
         if (m1650 != 0) {

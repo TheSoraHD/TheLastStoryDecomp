@@ -7,7 +7,9 @@
 #include "game/GimmickCommon.h"
 #include "gmk/ItemSlotAnime.h"
 
-struct RoutePoint_unk;
+namespace gs {
+struct MovePoint;
+}
 
 namespace gmk {
 
@@ -36,7 +38,7 @@ struct RandomItemDrop_unk {
     int mId;                                              // 0x00
     int m04;                                              // 0x04
     atn::SimpleVector<RandomItemLoc_unk> mLocs;             // 0x08
-    atn::FixedArray_unk<RoutePoint_unk*, 0x200> mPoints;  // 0x14
+    atn::FixedArray_unk<gs::MovePoint*, 0x200> mPoints;  // 0x14
     float m818;
     int m81C;
     int m820;

@@ -11,6 +11,7 @@
 #include "game/BattleTask.h"
 #include "math/VecAssign_unk.h"
 #include "atn/ColliBase.h"
+#include "game/GameSceneFind_unk.h"
 
 extern "C" int sprintf(char* buf, const char* fmt, ...);
 extern "C" unsigned long strlen(const char* s);
@@ -47,7 +48,7 @@ extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the nex
 // inferred: field (lbl_8087F430), route tables at 0x10D8
 struct GhoulField_unk {
     unsigned char m0000[0x10D8];
-    RouteTable_unk* m10D8;
+    GameScene* m10D8;
 };
 extern "C" GhoulField_unk* lbl_8087F430;
 
@@ -717,8 +718,8 @@ void Em309GhoulSimple::vf108() {
                 for (unsigned int i = 0; i < m1574.mCount; i++) {
                     GhoulPair_unk* pair = &m1574.mData[i];
                     EnemyTask* enemy = EnemyManager::sInstance != 0 ? EnemyManager::sInstance->Find_unk(pair->m00) : 0;
-                    RouteTable_unk* table = lbl_8087F430 != 0 ? lbl_8087F430->m10D8 : 0;
-                    RoutePlace_unk* place = table != 0 ? table->FindPlace_unk(pair->m04) : 0;
+                    GameScene* table = lbl_8087F430 != 0 ? lbl_8087F430->m10D8 : 0;
+                    gs::WarpPoint* place = table != 0 ? table->FindPlace_unk(pair->m04) : 0;
                     if (enemy != 0 && place != 0) {
                         atn::Vector3 pos = place->mPos;
                         Mtx m;

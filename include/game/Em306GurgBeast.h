@@ -5,7 +5,9 @@
 #include "game/ResHandle.h"
 #include "game/SpecialEnemyBase.h"
 
-struct RoutePlace_unk;
+namespace gs {
+struct WarpPoint;
+}
 
 // inferred from __vt__14Em306GurgBeast (0x8078778C): beast ridden by another enemy ("ride=" id;
 // "rideplayer", "reride"). Data file "/database/chara/special/" + db_name (default "db_em306_00_00.csv").
@@ -39,8 +41,8 @@ public:
     EnemyTask* m14E8;          // inferred: rider
     int m14EC;                 // inferred: "SkillId"
     int m14F0;                 // inferred: "WaitFrame"
-    atn::FixedArray_unk<RoutePlace_unk*, 8> m14F4; // inferred: "HomePoint" list
-    RoutePlace_unk* m1518;     // inferred: route place the beast runs to (vf108)
+    atn::FixedArray_unk<gs::WarpPoint*, 8> m14F4; // inferred: "HomePoint" list
+    gs::WarpPoint* m1518;     // inferred: route place the beast runs to (vf108)
     ResHandle m151C;           // inferred: debug menu group
     int m1520;
     int m1524;                 // inferred: "rideplayer"

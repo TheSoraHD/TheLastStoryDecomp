@@ -213,6 +213,7 @@ struct MpSettings_unk {
 #include "game/ErrorManager.h"
 #include "game/InventoryExp_unk.h"
 #include "db/PlayerParam_unk.h"
+#include "game/GameSceneFind_unk.h"
 extern "C" Collision_unk* lbl_8087EE98;
 extern "C" void* lbl_8087F610; // inferred: multiplayer session (null in single player)
 extern "C" atn::EffectManager* lbl_8087F3C0;
@@ -3482,8 +3483,8 @@ extern "C" void fn_8036FE74(GameTask* task, atn::Vector3* pos, atn::Vector3* rot
         return;
     }
     if (task->m550C.mScene != 0) {
-        RouteTable_unk* table = (RouteTable_unk*)task->m550C.mScene;
-        RoutePlace_unk* place = table->FindPlace_unk(task->m550C.m14);
+        GameScene* table = (GameScene*)task->m550C.mScene;
+        gs::WarpPoint* place = table->FindPlace_unk(task->m550C.m14);
         if (place == 0) {
             place = table->FindPlace_unk(table->m70);
         }
@@ -3500,8 +3501,8 @@ extern "C" void fn_8036FE74(GameTask* task, atn::Vector3* pos, atn::Vector3* rot
         return;
     }
     if (task->m10D8 != 0) {
-        RouteTable_unk* table = (RouteTable_unk*)task->m10D8;
-        RoutePlace_unk* place = table->FindPlace_unk(task->mOption.m10);
+        GameScene* table = (GameScene*)task->m10D8;
+        gs::WarpPoint* place = table->FindPlace_unk(task->mOption.m10);
         if (place == 0) {
             place = table->FindPlace_unk(table->m70);
         }
@@ -4461,7 +4462,7 @@ void GameTask::fn_803729B4(CharaTask* chara) {
     fn_800F7FA0()->fn_8023A60C(3);
     fn_800F7FA0()->fn_8023A60C(5);
     // inferred: m10D8 is read as the route table here (as in gmk/BulletPoint.cpp)
-    RoutePlace_unk* place = ((RouteTable_unk*)m10D8)->FindPlace_unk(99991);
+    gs::WarpPoint* place = ((GameScene*)m10D8)->FindPlace_unk(99991);
     atn::Vector3 base(*(place != 0 ? &place->mPos : chara->fn_8013C38C()));
     atn::Vector3 rot;
     if (place != 0) {
@@ -4983,8 +4984,8 @@ void GameTask::fn_80374710(int id) {
     float angle = -leader->mRot.y;
     if (id > 0) {
         // inferred: m10D8 is read as the route table here (as in gmk/BulletPoint.cpp)
-        RouteTable_unk* table = (RouteTable_unk*)m10D8;
-        RoutePlace_unk* place = table != 0 ? table->FindPlace_unk(id) : 0;
+        GameScene* table = (GameScene*)m10D8;
+        gs::WarpPoint* place = table != 0 ? table->FindPlace_unk(id) : 0;
         if (place != 0) {
             pos = place->mPos;
             angle = -place->m14;

@@ -12,6 +12,7 @@
 #include "macros.h"
 #include "game/BattleTask.h"
 #include "game/DamageResult_unk.h"
+#include "game/GameSceneFind_unk.h"
 
 // inferred: effect manager (class unknown), global instance at 0x8087F3C0
 struct EffectMgr_unk {
@@ -41,8 +42,8 @@ struct Field_unk {
     float m974; // inferred: x amplitude
     float m978; // inferred: y amplitude
     unsigned char m97C[0x10D8 - 0x97C];
-    RouteTable_unk* m10D8; // inferred: route table of the map
-    RouteTable_unk* fn_8013C504(); // inferred: route table (game/LastCocoonQuadruped)
+    GameScene* m10D8; // inferred: route table of the map
+    GameScene* fn_8013C504(); // inferred: route table (game/LastCocoonQuadruped)
     // inferred: starts a camera shake (name invented)
     void Shake_unk(int frame, float x, float y) {
         m96C = m96C % 2;
@@ -669,7 +670,7 @@ void LastCocoonEgg::fn_80454F08() {
             m14C8 = 0;
         }
         float bob = 3.0f * (float)sin(6.2831855f * (m14C8 / 240.0f));
-        RoutePlace_unk* place = lbl_8087F430->m10D8->FindPlace_unk(601);
+        gs::WarpPoint* place = lbl_8087F430->m10D8->FindPlace_unk(601);
         if (place != 0) {
             mPos = place->mPos;
         } else {

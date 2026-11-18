@@ -16,6 +16,7 @@
 #include "std/string_members.h"
 #include "game/BattleTask.h"
 #include "atn/ColliBase.h"
+#include "game/GameSceneFind_unk.h"
 
 extern "C" unsigned long strlen(const char* s);
 extern "C" int strcmp(const char* a, const char* b);
@@ -56,7 +57,7 @@ extern "C" MpSession_unk* lbl_8087F610;
 extern "C" void fn_804DA48C(MpSession_unk* session, int arg);
 // inferred: field object (lbl_8087F430): camera shake at 0x96C (names invented, as in game/Em301LShade.cpp)
 struct Field_unk {
-    RouteTable_unk* fn_8013C504(); // inferred: route tables (as in gmk/FlamingArrow.cpp)
+    GameScene* fn_8013C504(); // inferred: route tables (as in gmk/FlamingArrow.cpp)
     unsigned char m000[0x96C];
     int m96C;
     int m970;
@@ -317,7 +318,7 @@ int Em302KrakenMp::vf0C() {
                         int id;
                         do {
                             id = fn_800DC12C(csv.fn_8005B9CC());
-                            RoutePlace_unk* place = fn_80121F00()->fn_8013C504()->FindPlace_unk(id);
+                            gs::WarpPoint* place = fn_80121F00()->fn_8013C504()->FindPlace_unk(id);
                             if (place != 0) {
                                 m15E8.push_back(place);
                             }
@@ -355,7 +356,7 @@ int Em302KrakenMp::vf0C() {
                         int id;
                         do {
                             id = fn_800DC12C(csv.fn_8005B9CC());
-                            RoutePlace_unk* place = fn_80121F00()->fn_8013C504()->FindPlace_unk(id);
+                            gs::WarpPoint* place = fn_80121F00()->fn_8013C504()->FindPlace_unk(id);
                             if (id != 0 && place != 0) {
                                 m160C.push_back(place);
                             }
@@ -377,7 +378,7 @@ int Em302KrakenMp::vf0C() {
                             }
                         }
                     } else if (strcmp(key, "charge_point") == 0) {
-                        RoutePlace_unk* place =
+                        gs::WarpPoint* place =
                             fn_80121F00()->fn_8013C504()->FindPlace_unk(fn_800DC12C(csv.fn_8005B9CC()));
                         if (place != 0) {
                             m15AC = place;
@@ -511,7 +512,7 @@ void Em302KrakenMp::vf10() {
             fn_8003EA3C(&result, fn_80219E6C(0x271), this, this, 0, &lbl_807C6B90, 0, 0);
         }
         vf104();
-        RoutePlace_unk* place = m15E0;
+        gs::WarpPoint* place = m15E0;
         if (place != 0) {
             mPos = place->mPos;
             mRot.y = 3.1415927f + place->m14;
@@ -796,7 +797,7 @@ void Em302KrakenMp::fn_802E03F0() {
                     m15E4 = 0;
                 }
                 m15E0 = m15E8[m15E4];
-                RoutePlace_unk* place = m15E0;
+                gs::WarpPoint* place = m15E0;
                 if (place != 0) {
                     mPos = place->mPos;
                     mRot.y = 3.1415927f + place->m14;

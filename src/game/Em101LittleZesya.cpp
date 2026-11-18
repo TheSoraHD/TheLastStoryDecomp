@@ -13,6 +13,7 @@
 #include "game/BattleTask.h"
 #include "game/GameTask.h"
 #include "atn/ColliBase.h"
+#include "game/GameSceneFind_unk.h"
 
 // inferred: empty release assert (the original functions are not auto-inlined)
 #define ASSERT_UNK(x) ((void)0)
@@ -24,7 +25,7 @@ extern "C" float fn_800DC288(const char* s); // inferred: string to float
 // inferred: field (lbl_8087F430): route tables at 0x10D8 (as in game/Em306GurgBeast.cpp)
 struct Field_unk {
     unsigned char m0000[0x10D8];
-    RouteTable_unk* m10D8;
+    GameScene* m10D8;
 };
 extern "C" Field_unk* lbl_8087F430;
 extern "C" void* lbl_8087EE98;
@@ -160,7 +161,7 @@ int Em101LittleZesya::vf0C() {
 }
 
 void Em101LittleZesya::fn_8025CFF4() {
-    RouteTable_unk* table = lbl_8087F430->m10D8;
+    GameScene* table = lbl_8087F430->m10D8;
     atn::Csv csv((const char*)m14B0.fn_80470580(), m14B0.fn_8047059C());
     do {
         const char* key = csv.fn_8005B9CC();
@@ -181,7 +182,7 @@ void Em101LittleZesya::fn_8025CFF4() {
                 if (id <= 0) {
                     break;
                 }
-                RoutePlace_unk* place = table->FindPlace_unk(id);
+                gs::WarpPoint* place = table->FindPlace_unk(id);
                 if (place != 0) {
                     m14C4.push_back(place->mPos);
                 }
@@ -296,7 +297,7 @@ inline int Em101LittleZesya::Nearest_unk(const atn::Vector3& pos) {
 // looking at the target; name invented
 inline void Em101LittleZesya::WarpNear_unk(CharaTask* target, atn::Vector3* dest, float* rot) {
     int point = ((GameScene*)lbl_8087F430->m10D8)->fn_803C1560(&target->mPos, 0, 0, 0, 1, -1.0f);
-    *dest = lbl_8087F430->m10D8->mPoints[point - 1].mPos;
+    *dest = lbl_8087F430->m10D8->m98.mData[point - 1].mPos;
     *rot = (target->mPos - *dest).ToRotationZ_unk().y;
     atn::Vector3 e = *dest - target->mPos;
     e.y = 0.0f;
@@ -527,7 +528,7 @@ void Em101LittleZesya::fn_8025E100() {
         mMotion.mTracks[0].m08 = 0.0f;
         if (target != 0) {
             int point = ((GameScene*)lbl_8087F430->m10D8)->fn_803C1560(&target->mPos, 0, 0, 0, 1, -1.0f);
-            atn::VecAssign_unk(*dest, lbl_8087F430->m10D8->mPoints[point - 1].mPos);
+            atn::VecAssign_unk(*dest, lbl_8087F430->m10D8->m98.mData[point - 1].mPos);
             m1558 = (target->mPos - *dest).ToRotationZ_unk().y;
             atn::Vector3 e = *dest - target->mPos;
             e.y = 0.0f;

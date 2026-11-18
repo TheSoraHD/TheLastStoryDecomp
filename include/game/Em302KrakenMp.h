@@ -7,8 +7,10 @@
 #include "game/ResHandle.h"
 #include "game/SpecialEnemyBase.h"
 #include "std/vector.h"
+namespace gs {
+struct WarpPoint;
+}
 
-struct RoutePlace_unk;
 class Em303KrakenFootMp;
 
 // inferred: 0x1C-byte entry of m1594 (a character and two positions, as KrakenTarget_unk of
@@ -27,7 +29,7 @@ struct KrakenMpCommand_unk {
 
 // inferred: classes derived from std::vector (their destructors test the address four times);
 // names invented
-typedef std::vector<RoutePlace_unk*> KrakenMpPlaceList_unk;
+typedef std::vector<gs::WarpPoint*> KrakenMpPlaceList_unk;
 struct KrakenMpIntList_unk : public std::vector<int> {};
 typedef std::vector<EnemyTask*> KrakenMpEnemyList_unk;
 typedef std::vector<Em303KrakenFootMp*> KrakenMpFootList_unk;
@@ -119,7 +121,7 @@ public:
     atn::EfpFile m1588; // inferred: "anger_efp"
     std::vector<KrakenMpTarget_unk> m1594;
     atn::Vector3 m15A0;
-    RoutePlace_unk* m15AC;      // inferred: "charge_point"
+    gs::WarpPoint* m15AC;      // inferred: "charge_point"
     int m15B0;
     float m15B4;                // inferred: "explode_center" (three values)
     float m15B8;
@@ -128,7 +130,7 @@ public:
     atn::EfpFile m15CC; // inferred: "/effect/ef_bd005.efp"
     CharaTask* m15D8;           // inferred: target
     int m15DC;
-    RoutePlace_unk* m15E0;      // inferred: current appear point
+    gs::WarpPoint* m15E0;      // inferred: current appear point
     unsigned int m15E4;         // inferred: index into m15E8
     KrakenMpPlaceList_unk m15E8; // inferred: "appear_point"
     KrakenMpIntList_unk m15F4;   // inferred: "pillar_id"

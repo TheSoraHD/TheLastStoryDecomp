@@ -15,6 +15,7 @@
 #include "game/GameTask.h"
 #include "math/VecAssign_unk.h"
 #include "game/DamageResult_unk.h"
+#include "game/GameSceneFind_unk.h"
 
 extern "C" unsigned long strlen(const char* s);
 extern "C" int strcmp(const char* a, const char* b);
@@ -103,7 +104,7 @@ struct Field_unk {
     unsigned char m8A4[0x97C - 0x8A4];
     MulueLook_unk m97C;
     unsigned char m9A4[0x10D8 - 0x9A4];
-    RouteTable_unk* m10D8;
+    GameScene* m10D8;
 };
 extern "C" Field_unk* lbl_8087F430;
 extern "C" void fn_8003EA3C(DamageResult_unk* result, HitInfo_unk* data, CharaTask* attacker, CharaTask* owner,
@@ -332,7 +333,7 @@ int Em204Mulue::vf0C() {
                     int id;
                     do {
                         id = fn_800DC12C(csv.fn_8005B9CC());
-                        RoutePlace_unk* place = lbl_8087F430->m10D8->FindPlace_unk(id);
+                        gs::WarpPoint* place = lbl_8087F430->m10D8->FindPlace_unk(id);
                         if (place != 0) {
                             m153C.push_back(place);
                         }
@@ -341,7 +342,7 @@ int Em204Mulue::vf0C() {
                     int id;
                     do {
                         id = fn_800DC12C(csv.fn_8005B9CC());
-                        RoutePlace_unk* place = lbl_8087F430->m10D8->FindPlace_unk(id);
+                        gs::WarpPoint* place = lbl_8087F430->m10D8->FindPlace_unk(id);
                         if (place != 0) {
                             m1580.push_back(place);
                         }

@@ -19,6 +19,7 @@
 #include "game/GameTask.h"
 #include "math/VecAssign_unk.h"
 #include "std/vector_vec3_unk.h"
+#include "game/GameSceneFind_unk.h"
 
 // inferred: circuit of the war lion around the arena: place id and two flags (names invented)
 struct WarLionPlace_unk {
@@ -49,9 +50,9 @@ struct Field_unk {
     float m974;
     float m978;
     unsigned char m97C[0x10D8 - 0x97C];
-    RouteTable_unk* m10D8;
+    GameScene* m10D8;
     // inferred: route tables (accessor 0x8013C504 of game/CharaTask.cpp)
-    RouteTable_unk* fn_8013C504() { return m10D8; }
+    GameScene* fn_8013C504() { return m10D8; }
 };
 extern "C" Field_unk* lbl_8087F430;
 // inferred: field accessor (weak copy 0x80121F00, as in game/EnemyJill.cpp)
@@ -1203,7 +1204,7 @@ void Em403WarLion::fn_80328270() {
             mMotion.fn_80097C08(0, 0x140, 0, 0, 1, 1.0f, 0.1f);
             atn::ColliResult_unk result;
             atn::Vector3 pos(-18.0f, 30.0f, 600.0f);
-            RoutePlace_unk* place = fn_80121F00()->fn_8013C504()->FindPlace_unk(0x262);
+            gs::WarpPoint* place = fn_80121F00()->fn_8013C504()->FindPlace_unk(0x262);
             if (place != 0) {
                 pos = place->mPos;
             }
@@ -1246,7 +1247,7 @@ void Em403WarLion::fn_8032853C() {
             mMotion.fn_80097C08(0, 0x140, 0, 0, 1, 1.0f, 0.1f);
             atn::ColliResult_unk result;
             atn::Vector3 pos(-18.0f, 30.0f, 600.0f);
-            RoutePlace_unk* place = fn_80121F00()->fn_8013C504()->FindPlace_unk(0x262);
+            gs::WarpPoint* place = fn_80121F00()->fn_8013C504()->FindPlace_unk(0x262);
             if (place != 0) {
                 pos = place->mPos;
             }
@@ -1677,7 +1678,7 @@ atn::Vector3 Em403WarLion::fn_8032A650(int* id, int a, int b) {
     for (int i = 0; i < 10; i++) {
         const WarLionPlace_unk* e = &lbl_80749B00[i];
         if (e->m08 == a && e->m04 == b) {
-            RoutePlace_unk* place = fn_80121F00()->fn_8013C504()->FindPlace_unk(e->mPlace);
+            gs::WarpPoint* place = fn_80121F00()->fn_8013C504()->FindPlace_unk(e->mPlace);
             if (place != 0) {
                 atn::Vector3 d = place->mPos - mean;
                 float len = PSVECSquareMag(&d);
@@ -1708,7 +1709,7 @@ atn::Vector3 Em403WarLion::fn_8032A894(int id, int* next) {
             }
         }
     }
-    RoutePlace_unk* p = fn_80121F00()->fn_8013C504()->FindPlace_unk(place);
+    gs::WarpPoint* p = fn_80121F00()->fn_8013C504()->FindPlace_unk(place);
     if (p != 0) {
         result = p->mPos;
     }
@@ -1838,7 +1839,7 @@ int Em403WarLion::fn_8032A9F4(WarLionPath_unk* path, int id, int* next) {
             break;
         }
     }
-    RoutePlace_unk* place = fn_80121F00()->fn_8013C504()->FindPlace_unk(id);
+    gs::WarpPoint* place = fn_80121F00()->fn_8013C504()->FindPlace_unk(id);
     if (place != 0) {
         a = place->mPos;
     }

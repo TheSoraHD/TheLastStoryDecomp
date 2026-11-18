@@ -7,12 +7,14 @@
 #include "atn/SoundRef.h"
 #include "game/EnemyTask.h"
 #include "std/vector.h"
+namespace gs {
+struct WarpPoint;
+}
 
 // inferred: the destructor tests `this` once more than for a plain std::vector (as ChaserRouteList_unk in
 // game/ChaserGuard.h); name invented
-struct RoutePlace_unk;
 // inferred: route places read from "needle_point"/"outer_point" (vf0C)
-typedef std::vector<RoutePlace_unk*> SpiderList_unk;
+typedef std::vector<gs::WarpPoint*> SpiderList_unk;
 
 // inferred: color of the materials of the spider (r, g, b, a; starts white); name invented
 struct SpiderColor_unk {

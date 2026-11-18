@@ -76,6 +76,7 @@
 #include "chr/CharaEquip_unk.h"
 #include "game/BattleTask.h"
 #include "nw4r/math/triangular.h"
+#include "game/GameSceneFind_unk.h"
 
 // inferred: block of the game settings read by fn_8013A4E8 (names invented)
 struct Block454_unk {
@@ -158,7 +159,7 @@ extern "C" float fn_80050A1C(const atn::Vector3* point, const Segment_unk* seg, 
 
 // inferred: field data (lbl_8087F430); m10D8 holds the route tables (see RouteWalker_unk.cpp)
 struct Field_unk {
-    RouteTable_unk* fn_8013C504();
+    GameScene* fn_8013C504();
 
     unsigned char m00[0x48];
     int m48; // inferred: field kind (1, or 2 with a sub kind in m4C)
@@ -170,7 +171,7 @@ struct Field_unk {
     int m868; // inferred: mode (3, 4 and 6 are tested by CharaTask::fn_80149A30)
     int m86C;
     unsigned char m870[0x10D8 - 0x870];
-    RouteTable_unk* m10D8;
+    GameScene* m10D8;
     unsigned char m10DC[0x54E4 - 0x10DC];
     int m54E4; // inferred: 9 makes every hit valid (fn_801533C8)
     unsigned char m54E8[0x54F4 - 0x54E8];
@@ -1738,8 +1739,8 @@ int CharaTask::fn_8013A4E8(float* a, atn::Vector3* rot, float* b) {
         break;
     case 11:
         if (mC58.mStep == 0) {
-            RouteTable_unk* table = fn_80121F00() != 0 ? fn_80121F00()->fn_8013C504() : 0;
-            RoutePlace_unk* place = table != 0 ? table->FindPlace_unk(mC58.mPlace) : 0;
+            GameScene* table = fn_80121F00() != 0 ? fn_80121F00()->fn_8013C504() : 0;
+            gs::WarpPoint* place = table != 0 ? table->FindPlace_unk(mC58.mPlace) : 0;
             if (place != 0) {
                 mPos = place->mPos;
                 mRot.y = place->m14;
@@ -1750,8 +1751,8 @@ int CharaTask::fn_8013A4E8(float* a, atn::Vector3* rot, float* b) {
         break;
     case 12:
         if (mC58.mStep == 0) {
-            RouteTable_unk* table = fn_80121F00() != 0 ? fn_80121F00()->fn_8013C504() : 0;
-            RoutePlace_unk* place = table != 0 ? table->FindPlace_unk(mC58.mPlace) : 0;
+            GameScene* table = fn_80121F00() != 0 ? fn_80121F00()->fn_8013C504() : 0;
+            gs::WarpPoint* place = table != 0 ? table->FindPlace_unk(mC58.mPlace) : 0;
             if (place != 0) {
                 route->fn_80128818(mC58.mPlace, &mPos, 0);
                 route->mRadius = mC58.mRadius;
@@ -2091,7 +2092,7 @@ CharaTask* CharaTask::fn_8013C478() {
     return mFC0;
 }
 
-RouteTable_unk* Field_unk::fn_8013C504() {
+GameScene* Field_unk::fn_8013C504() {
     return m10D8;
 }
 
@@ -2228,7 +2229,7 @@ void CharaTask::vf34(const atn::Vector3& rot, int arg, float a, float b) {
                 if (mFlag3) {
                     mFlag31 = 0;
                     mFlag30 = 0;
-                    RouteTable_unk* table = lbl_8087F430->m10D8;
+                    GameScene* table = lbl_8087F430->m10D8;
                     if (table != 0 && mC38 > 0 && mC3C > 0) {
                         table->GetLink_unk(mC38)->m3C = 0;
                         table->GetLink_unk(mC3C)->m3C = 0;
@@ -7390,7 +7391,7 @@ inline void CharaTask::ResetParts_unk() {
 inline void CharaTask::ReleaseLedge_unk() {
     mFlag31 = 0;
     mFlag30 = 0;
-    RouteTable_unk* table = lbl_8087F430->fn_8013C504();
+    GameScene* table = lbl_8087F430->fn_8013C504();
     if (table != 0 && mC38 > 0 && mC3C > 0) {
         table->GetLink_unk(mC38)->m3C = 0;
         table->GetLink_unk(mC3C)->m3C = 0;
@@ -7564,7 +7565,7 @@ void CharaTask::fn_80153698(const GameSceneRoute_unk* ledge, int keep) {
     } else {
         mFlag29 = 0;
     }
-    RouteTable_unk* table = lbl_8087F430->fn_8013C504();
+    GameScene* table = lbl_8087F430->fn_8013C504();
     if (table != 0 && mC44 == 0) {
         table->GetLink_unk(mC38)->m3C = 1;
         table->GetLink_unk(mC3C)->m3C = 1;
@@ -8523,7 +8524,7 @@ void CharaTask::fn_8015F568(const atn::Vector3& dest, CharaTask* target, HitInfo
         }
         mFlag31 = 0;
         mFlag30 = 0;
-        RouteTable_unk* table = lbl_8087F430->fn_8013C504();
+        GameScene* table = lbl_8087F430->fn_8013C504();
         if (table != 0 && mC38 > 0 && mC3C > 0) {
             table->GetLink_unk(mC38)->m3C = 0;
             table->GetLink_unk(mC3C)->m3C = 0;
@@ -9723,7 +9724,7 @@ bool CharaTask::fn_8016F67C() {
 
 
 void CharaTask::fn_8016F824(int point, int arg) {
-    RouteTable_unk* table = lbl_8087F430 != 0 ? lbl_8087F430->m10D8 : 0;
+    GameScene* table = lbl_8087F430 != 0 ? lbl_8087F430->m10D8 : 0;
     if (table == 0) {
         return;
     }
@@ -9744,7 +9745,7 @@ void CharaTask::fn_8016F824(int point, int arg) {
 
 
 void CharaTask::fn_8016FDCC(int point, int arg) {
-    RouteTable_unk* table = lbl_8087F430 != 0 ? lbl_8087F430->m10D8 : 0;
+    GameScene* table = lbl_8087F430 != 0 ? lbl_8087F430->m10D8 : 0;
     if (table == 0) {
         return;
     }
@@ -9840,7 +9841,7 @@ void CharaTask::fn_80171DB0() {
     Reset_unk(0, 0, 1, 1);
     mC58.fn_8011C044(0);
     lbl_8087EE68->fn_80017064(this);
-    RouteTable_unk* table = lbl_8087F430 != 0 ? lbl_8087F430->m10D8 : 0;
+    GameScene* table = lbl_8087F430 != 0 ? lbl_8087F430->m10D8 : 0;
     if (table != 0) {
         ((GameEventScript*)table->m134)->fn_803AB37C(this);
     }
@@ -10376,10 +10377,10 @@ struct GimmickLook_unk : public GimmickCommon {
 };
 
 // inferred: finds the look point `id` (name invented)
-inline RouteLook_unk* FindLook_unk(RouteTable_unk* table, int id) {
-    for (unsigned int i = 0; i < table->mNumLooks; i++) {
-        if (id == table->mLooks[i].mId) {
-            return &table->mLooks[i];
+inline gs::AttentionPoint* FindLook_unk(GameScene* table, int id) {
+    for (unsigned int i = 0; i < table->mFC.size(); i++) {
+        if (id == table->mFC.mData[i].mId) {
+            return &table->mFC.mData[i];
         }
     }
     return 0;
@@ -10469,24 +10470,24 @@ void CharaTask::fn_80175B18(float distSq) {
         }
     }
     int found = 0;
-    RouteTable_unk* table = lbl_8087F430->m10D8;
+    GameScene* table = lbl_8087F430->m10D8;
     atn::Vector3 pos;
-    for (unsigned int i = 0; i < table->mNumLooks; i++) {
-        RouteLook_unk* look = &table->mLooks[i];
-        int enabled = look->mEnabled;
-        int priority = look->mPriority;
+    for (unsigned int i = 0; i < table->mFC.size(); i++) {
+        gs::AttentionPoint* look = &table->mFC.mData[i];
+        int enabled = look->m38;
+        int priority = look->m18;
         pos = look->mPos;
-        if (look->mLink > 0) {
-            RouteLook_unk* link = FindLook_unk(table, look->mLink);
+        if (look->m3C > 0) {
+            gs::AttentionPoint* link = FindLook_unk(table, look->m3C);
             if (link != 0) {
-                enabled = enabled != 0 && link->mEnabled != 0;
-                priority = link->mPriority;
+                enabled = enabled != 0 && link->m38 != 0;
+                priority = link->m18;
                 pos = link->mPos;
             }
         }
         if (enabled && priority > found) {
             atn::Vector3 diff = look->mPos - mPos;
-            if (PSVECMag(&diff) - look->mRadius < 10.0f) {
+            if (PSVECMag(&diff) - look->m14 < 10.0f) {
                 mLook.fn_80129930(pos, 0.3f);
                 found = priority;
             }
@@ -10642,8 +10643,8 @@ void CharaTask::fn_801765D8() {
     Unlink_unk();
     m1220.fn_80121E14(0);
     if (lbl_8087F430 != 0) {
-        RouteTable_unk* table = lbl_8087F430->m10D8;
-        if (table != 0 && (table->m38 & 2) == 2) {
+        GameScene* table = lbl_8087F430->m10D8;
+        if (table != 0 && (table->mFlags & 2) == 2) {
             ((GameScene*)table)->fn_803CC718(this, 0);
         }
     }
@@ -10656,8 +10657,8 @@ void CharaTask::fn_80176ACC() {
     vf38(1);
     vf98();
     if (lbl_8087F430 != 0) {
-        RouteTable_unk* table = lbl_8087F430->m10D8;
-        if (table != 0 && (table->m38 & 2) == 2) {
+        GameScene* table = lbl_8087F430->m10D8;
+        if (table != 0 && (table->mFlags & 2) == 2) {
             ((GameScene*)table)->fn_803CC718(this, 1);
         }
     }
@@ -11882,7 +11883,7 @@ bool CharaTask::fn_8017B3C0() {
 }
 
 // inferred: route tables of the field (name invented)
-inline RouteTable_unk* GetRouteTable_unk() {
+inline GameScene* GetGameScene() {
     return lbl_8087F430 != 0 ? lbl_8087F430->m10D8 : 0;
 }
 
@@ -11893,14 +11894,14 @@ void CharaTask::fn_8017B434() {
     if (m1400.mSize < 2) {
         return;
     }
-    RouteTable_unk* table = GetRouteTable_unk();
+    GameScene* table = GetGameScene();
     if (table == 0) {
         return;
     }
     float best = 1e16f;
-    RoutePlace_unk* nearest = 0;
+    gs::WarpPoint* nearest = 0;
     for (unsigned int i = 0; i < m1400.size(); i++) {
-        RoutePlace_unk* place = table->FindPlace_unk(m1400[i]);
+        gs::WarpPoint* place = table->FindPlace_unk(m1400[i]);
         if (place != 0) {
             float dist = LengthSq_unk(place->mPos - mPos);
             if (dist < best) {

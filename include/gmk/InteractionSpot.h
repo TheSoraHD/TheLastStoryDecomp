@@ -4,7 +4,9 @@
 #include "game/CharaTask.h"
 #include "game/GimmickCommon.h"
 
-struct Spot_unk;
+namespace gs {
+struct InteractionPoint;
+}
 
 namespace gmk {
 
@@ -40,7 +42,7 @@ public:
     int mState;             // 0x108
     int m10C;               // inferred: handle returned by fn_803C1560
     int mTimer;             // 0x110
-    Spot_unk* mSpot[2];     // 0x114
+    gs::InteractionPoint* mSpot[2];     // 0x114
     int mSide;              // 0x11C: inferred: index of the nearer spot
 };
 

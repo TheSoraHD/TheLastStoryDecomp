@@ -9,6 +9,7 @@
 #include "atn/DrawHelper.h"
 #include "game/GameTask.h"
 #include "game/BattleTask.h"
+#include "game/GameSceneFind_unk.h"
 
 extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3, int arg4);
 extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, int arg6,
@@ -18,9 +19,9 @@ extern "C" void fn_8008771C(void* group, const char* name, float* value, int arg
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 // inferred: field (lbl_8087F430); the event flags are read with fn_80370A78
 struct Field_unk {
-    RouteTable_unk* fn_8013C504(); // inferred: returns m10D8
+    GameScene* fn_8013C504(); // inferred: returns m10D8
     unsigned char m00[0x10D8];
-    RouteTable_unk* m10D8; // inferred: route tables (as in gmk/ReinforcePoint.cpp)
+    GameScene* m10D8; // inferred: route tables (as in gmk/ReinforcePoint.cpp)
 };
 extern "C" Field_unk* lbl_8087F430;
 extern "C" int fn_800DC12C(const char* s); // inferred: string to int
@@ -50,7 +51,7 @@ Em310Gargoyle::Em310Gargoyle(atn::Task* parent, EnemyInfo_unk* info)
       m14D4(0), m14DC(0), m14E0(0), m14E4(0), m14EC(0), m14F0(0), m14F1(0), m150D(1), m1588(0), m158C(0),
       m15D0(0.0f), m15E0(2), m15F0(0), m15F1(0), m1604(0), m1608(1.3f), m160C(0.5f) {
     int type = *(int*)info - 0x385;
-    RouteTable_unk* table = lbl_8087F430->m10D8;
+    GameScene* table = lbl_8087F430->m10D8;
     m14C0 = type;
     mData = lbl_80787F68[type];
     for (int i = 0; i < 4; i++) {
@@ -110,8 +111,8 @@ int Em310Gargoyle::vf0C() {
 }
 
 // inferred: route point by 1-based index (first emitted here as fn_8030C190)
-extern "C" inline RoutePoint_unk* fn_8030C190(RouteTable_unk* table, int index) {
-    return &table->mPoints[index - 1];
+extern "C" inline gs::MovePoint* fn_8030C190(GameScene* table, int index) {
+    return &table->m98.mData[index - 1];
 }
 
 // inferred: unit vector rotated around y (name invented, as Front_unk in game/Em203GreaterDaemon.cpp)
@@ -213,12 +214,7 @@ extern "C" inline atn::Vector3 fn_8028AC70(const atn::Vector3& p0, const atn::Ve
             p3 * (t3 - t2)) * 0.5f;
 }
 extern "C" float fn_800F8524(const float* a, const float* b, float t); // inferred: lerp of two floats
-// inferred: route between two points (8 bytes, as in game/Em203GreaterDaemon.cpp)
-struct RoutePath_unk {
-    int m00;
-    int m04;
-};
-extern "C" unsigned short fn_803CD958(RoutePath_unk* path, int point); // inferred: next point towards `point`
+extern "C" unsigned short fn_803CD958(U16Table_unk* path, int point); // inferred: next point towards `point`
 // inferred: fn_8010A308 moves a hit capsule (as in game/EnemySeaLizerd.cpp)
 class BattleTask;
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
@@ -424,7 +420,7 @@ void Em310Gargoyle::vf14() {
     fn_800F7250()->fn_80063764(mPos, mPos + v2, 100.0f, atn::Color4f_unk(1.0f, 0.0f, 0.0f, 1.0f).ToU32());
     fn_800F7250()->fn_80063764(mPos, mPos + v3, 100.0f, atn::Color4f_unk(1.0f, 0.0f, 0.0f, 1.0f).ToU32());
     for (int i = 0; i < 4; i++) {
-        RouteTable_unk* table = fn_80121F00()->fn_8013C504();
+        GameScene* table = fn_80121F00()->fn_8013C504();
         atn::Color4f_unk c(0.0f, 0.0f, 0.0f, 0.0f);
         c.Set_unk(0.25f * i, 0.25f * i, 0.25f * i, 1.0f);
         atn::Vector3 rot = mData.mOfs[i].ToRotation_unk().GetNormalize();
@@ -559,11 +555,11 @@ void Em310Gargoyle::fn_8030B92C() {
     end = ((GameScene*)lbl_8087F430->m10D8)->fn_803C17FC(mData.m18);
     cur = m1588;
     prev = m158C;
-    next = fn_803CD958(&lbl_8087F430->m10D8->mPaths[cur - 1], end - 1);
+    next = fn_803CD958(&lbl_8087F430->m10D8->mA0.mData[cur - 1], end - 1);
     if (next == 0) {
         next = start;
     }
-    int next2 = fn_803CD958(&lbl_8087F430->m10D8->mPaths[next - 1], end - 1);
+    int next2 = fn_803CD958(&lbl_8087F430->m10D8->mA0.mData[next - 1], end - 1);
     if (next2 == 0) {
         next2 = start;
     }
@@ -630,14 +626,14 @@ void Em310Gargoyle::fn_8030C1A4(EnemyTask* rider, const atn::Vector3* dir) {
 // inferred: state 7 (flying the route): once defeated it picks the nearest seat in front of it and lands;
 // otherwise the riders shoot from the seats, are dropped near the place mData.m20 and the route ends at m18
 void Em310Gargoyle::fn_8030C490() {
-    RouteTable_unk* table = fn_80121F00()->fn_8013C504();
+    GameScene* table = fn_80121F00()->fn_8013C504();
     fn_8016E970(3);
     fn_8030B92C();
     if (m14F1 != 0) {
         float best = 1e16f;
         int index = -1;
         for (int i = 0; i < 4; i++) {
-            RouteTable_unk* t = fn_80121F00()->fn_8013C504();
+            GameScene* t = fn_80121F00()->fn_8013C504();
             atn::Vector3 front = mPos + fn_8014052C() * 150.0f;
             atn::Vector3 d = t->FindPlace_unk(mData.mSeats[i].m00)->mPos - front;
 
@@ -829,7 +825,7 @@ void Em310Gargoyle::fn_8030CF84(int warp) {
 void Em310Gargoyle::fn_8030D0D8() {
     m58C = 8;
     fn_8016E970(3);
-    RouteTable_unk* table = lbl_8087F430->m10D8;
+    GameScene* table = lbl_8087F430->m10D8;
     m1594 = fn_8030C190(table, m158C)->mPos;
     m15A0 = mPos;
     m15AC = mPos + GargoyleFront_unk(mRot.y) * 150.0f;
