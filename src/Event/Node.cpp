@@ -103,14 +103,23 @@ atn::Vector3 Action::fn_805381F0(int n) {
 
 namespace Event {
 
-// NONMATCHING: 98.3% - scheduling of the first mChannel load (as fn_805389B8)
-atn::Vector3 Action::fn_805382BC(int n) {
+// inferred: const copy of Action::GetParamAt_unk for the const getters (a declaration in Event/Action.h
+// renumbers the labels of every unit that includes it)
+static inline const ActionParam_unk* GetConstParam_unk(const Action* action, int n) {
+    bool valid = false;
+    if (n >= 0 && n < (int)action->mParams.size()) {
+        valid = true;
+    }
+    return valid ? &action->mParams[n] : 0;
+}
+
+atn::Vector3 Action::fn_805382BC(int n) const {
     EventManager_unk* manager = (EventManager_unk*)mChannel->mSection->mCut->mSequence;
-    Actor* actor = manager->FindActor_unk(GetParamAt_unk(n)->m04.i);
+    Actor* actor = manager->FindActor_unk(GetConstParam_unk(this, n)->m04.i);
     atn::Vector3 v;
-    v.x = GetParamAt_unk(n + 1)->m04.f;
-    v.y = GetParamAt_unk(n + 2)->m04.f;
-    v.z = GetParamAt_unk(n + 3)->m04.f;
+    v.x = GetConstParam_unk(this, n + 1)->m04.f;
+    v.y = GetConstParam_unk(this, n + 2)->m04.f;
+    v.z = GetConstParam_unk(this, n + 3)->m04.f;
     if (actor->m20 == 6) {
         return manager->fn_80541BD8(v);
     }
@@ -155,17 +164,18 @@ atn::Vector3 Action::fn_805384CC(int n) {
     return v;
 }
 
-// NONMATCHING: 96.9% - scheduling: the original loads mChannel before the first range check (same in
-// fn_805382BC); tried the fn_805381C8 accessor, a typed chain and the id in a local first
-MtxPtr Action::fn_805389B8(int n) {
+// NONMATCHING: 99.6% - r5/r6 swapped between the sequence and the range checks (the const method fixed
+// the early mChannel load); tried a typed chain, the id or the parameter in a local, the search written out
+MtxPtr Action::fn_805389B8(int n) const {
     // inferred: the event manager is the Sequence of the cut (fn_80541C94 is in Event/Sequence)
     EventManager_unk* manager = (EventManager_unk*)mChannel->mSection->mCut->mSequence;
-    Actor* actor = manager->FindActor_unk(GetParamAt_unk(n)->m04.i);
-    atn::Vector3 pos = lbl_807C7030; // inferred: unused (only the copy is left)
+    Actor* actor = manager->FindActor_unk(GetConstParam_unk(this, n)->m04.i);
+    atn::Vector3 pos;
+    __VecCopy(&pos.x, &lbl_807C7030.x);
     MtxPtr mtx = 0;
     atn::Model* model = actor->fn_80012A1C();
     if (model != 0) {
-        mtx = model->GetNodeMtx_unk(model->fn_800928B0(GetParamAt_unk(n + 1)->m04.i, 0));
+        mtx = model->GetNodeMtx_unk(model->fn_800928B0(GetConstParam_unk(this, n + 1)->m04.i, 0));
     }
     return mtx;
 }

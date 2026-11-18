@@ -314,8 +314,8 @@ extern "C" const wchar_t* fn_80211770(int id, int slot) {
     return name;
 }
 
-extern "C" void fn_80212840(WeaponParamEntry_unk* weapon, WeaponParamEntry_unk* base, int level);
-extern "C" void fn_80212C34(EquipParamEntry_unk* equip, EquipParamEntry_unk* base, int level);
+extern "C" void fn_80212840(WeaponParamEntry_unk* weapon, const WeaponParamEntry_unk* base, int level);
+extern "C" void fn_80212C34(EquipParamEntry_unk* equip, const EquipParamEntry_unk* base, int level);
 
 // inferred: creates the upgraded item of a level in a free slot; returns its id (0 if none)
 // NONMATCHING: 90.59% - the original copies the BulletParam_unk part with blocks (0x14-0x74 in a
@@ -426,15 +426,14 @@ extern "C" void fn_80212790() {
 }
 
 // inferred: builds the upgraded weapon of a level from its base weapon
-// NONMATCHING: 90.90% - register allocation and scheduling around the copy (the original keeps
-// `base` in a fifth saved register)
-extern "C" void fn_80212840(WeaponParamEntry_unk* weapon, WeaponParamEntry_unk* base, int level) {
+// inferred: `base` is const (the original loads base->mId before saving r31)
+extern "C" void fn_80212840(WeaponParamEntry_unk* weapon, const WeaponParamEntry_unk* base, int level) {
     WeaponParamEntry_unk* orig = fn_80206B14(base->mKind, base->mId % 1000);
     level += base->mId / 1000;
     *weapon = *orig;
     weapon->mId = orig->mId + level * 1000;
     int bonus = IP_MIN(level, 15) * 200 + IP_MIN(IP_MAX(level - 15, 0), 15) * 100 +
-                (IP_MAX(level - 50, 0) * 20 + IP_MIN(IP_MAX(level - 30, 0), 20) * 50);
+                IP_MIN(IP_MAX(level - 30, 0), 20) * 50 + IP_MAX(level - 50, 0) * 20;
     float sum = orig->m00 + orig->m04;
     if (sum > 0.001f) {
         float ratio = orig->m00 / sum;
@@ -444,16 +443,15 @@ extern "C" void fn_80212840(WeaponParamEntry_unk* weapon, WeaponParamEntry_unk* 
 }
 
 // inferred: builds the upgraded equipment of a level from its base equipment
-// NONMATCHING: 85.25% - as fn_80212840 (the original computes the bonus before the new id and
-// keeps `base` in a fifth saved register)
-extern "C" void fn_80212C34(EquipParamEntry_unk* equip, EquipParamEntry_unk* base, int level) {
+// inferred: `base` is const (as fn_80212840)
+extern "C" void fn_80212C34(EquipParamEntry_unk* equip, const EquipParamEntry_unk* base, int level) {
     EquipParamEntry_unk* orig = fn_8020ED84(base->mKind, base->mId % 1000);
     level += base->mId / 1000;
     *equip = *orig;
     int bonus = level * 30;
     equip->mId = orig->mId + level * 1000;
     if (fn_8020EF4C(orig)) {
-        bonus *= 2;
+        bonus += level * 30;
     }
     float sum = orig->m08 + orig->m0C;
     if (sum > 0.001f) {
