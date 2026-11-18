@@ -4,14 +4,9 @@
 #include "atn/Task.h"
 #include "atn/FixedArray.h"
 
-// inferred: d2anime task (made by fn_801F3FF8); only the members used here
-struct CrossbowD2A_unk : public atn::Task {
-    unsigned char m48[0x58 - 0x48];
-    unsigned char m58[0xFC - 0x58]; // 0x58: inferred: layout
-    unsigned int mFC;               // inferred: flags (0x10000000 is cleared by vf0C)
-    float mFrame;                   // 0x100
-    float mSpeed;                   // 0x104
-};
+namespace atn {
+class D2A_Task;
+}
 
 // inferred: color of an arrow kind (table of 7 entries at 0x80782900); names invented
 struct CrossbowColor_unk {
@@ -47,7 +42,7 @@ public:
 
     static CrossbowMenuTask* sInstance;
 
-    CrossbowD2A_unk* m48;
+    atn::D2A_Task* m48; // inferred: d2anime task (fn_801F3FF8)
     atn::FixedArray_unk<int, 64> m4C; // inferred: arrow ids
     int m150; // inferred: selected index
     int m154; // inferred: rebuild request

@@ -98,7 +98,7 @@ CrossbowMenuTask* CrossbowMenuTask::fn_801E9398(atn::Task* parent) {
 // inferred: not inline; auto-inlined in fn_801E9398 and stripped by the linker (its path stays in the string pool)
 CrossbowMenuTask::CrossbowMenuTask(atn::Task* parent)
     : atn::Task(parent), m150(0), m154(1), m158(0x65), m15C(1), m160(1) {
-    m48 = (CrossbowD2A_unk*)fn_801F3FF8(this, "/data/d2anime/ui_bowgun_select.d2a", 0);
+    m48 = fn_801F3FF8(this, "/data/d2anime/ui_bowgun_select.d2a", 0);
     m48->fn_800D246C(1);
 }
 
@@ -114,7 +114,7 @@ int CrossbowMenuTask::vf0C() {
     }
     m48->fn_800D246C(0);
     m48->mSpeed = 0.0f;
-    m48->mFC &= ~0x10000000;
+    m48->mRepeat = 0;
     fn_801E9544();
     return 1;
 }
@@ -224,9 +224,9 @@ void CrossbowMenuTask::vf14() {
         fn_801E9ECC(-1, 0);
     }
     if (m160 != 0) {
-        SetPaneValue2_unk(m48->m58, "multiArrow", 0.0f);
+        SetPaneValue2_unk(&m48->mData.m10, "multiArrow", 0.0f);
     } else {
-        SetPaneValue2_unk(m48->m58, "multiArrow", 1.0f);
+        SetPaneValue2_unk(&m48->mData.m10, "multiArrow", 1.0f);
     }
     if (m4C.mData[m150] == 0x19C) {
         lbl_8087F490->m10FC = 1;
@@ -255,8 +255,8 @@ void CrossbowMenuTask::fn_801E9B84(int index, int slot) {
         } else {
             visible = 1.0f;
         }
-        SetPaneValue2_unk(m48->m58, show, visible);
-        SetPaneValue2_unk(m48->m58, icon, (float)info.mIndex);
+        SetPaneValue2_unk(&m48->mData.m10, show, visible);
+        SetPaneValue2_unk(&m48->mData.m10, icon, (float)info.mIndex);
         ((atn::D2A_Task*)m48)->SetColor_unk(color, 255.0f * info.mColor.r, 255.0f * info.mColor.g, 255.0f * info.mColor.b);
         char text[0x20];
         sprintf(text, "%d", count);
@@ -284,8 +284,8 @@ void CrossbowMenuTask::fn_801E9B84(int index, int slot) {
                 fn_800DD3FC(label, L"%s", fn_80219E6C(bullet)->mName);
             }
         }
-        SetPaneText_unk(m48->m58, name, label);
-        ((atn::D2A_Task*)m48)->SetText_unk(num, (int)text);
+        SetPaneText_unk(&m48->mData.m10, name, label);
+        m48->SetText_unk(num, (int)text);
     }
 }
 
