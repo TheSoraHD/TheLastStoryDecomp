@@ -295,11 +295,13 @@ extern "C" int atoi(const char* s);
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" float fn_800DC288(const char* s); // inferred: string to float
 
-// inferred: reads the camera csv of the map (lines "camera, gun|sword, mode, 14 parameters"): the lines of `camera`
+// inferred: reads the camera csv of the map (lines "camera, gun|sword, mode, 13 parameters" Length..AutoLockOnSpeed,
+// then LockOnLength, LockOnReleaseLength, LockOnTheta): m34 (OffsetRotY) is not in the csv and keeps its 0.0f
+// (0x8037E418); the lines of `camera`
 // set the parameters of their mode (fn_8038EF94; the default mode also reads the two lock-on lengths of the player,
 // 60 added); "fixRotY" blends into the fixed camera over 30 frames (none on the first map load), otherwise over
 // `frames` frames from the parameters of the hips mode
-// NONMATCHING: 66% - the original copies the player settings of GameConfig_unk (0x244-0x333, a struct there,
+// NONMATCHING: 70% - the original copies the player settings of GameConfig_unk (0x244-0x333, a struct there,
 // separate members here) into a local and back for the two lock-on lengths (0xF0 more bytes of stack)
 void GameCamera::fn_8037E12C(void* data, int size, int camera, int frames) {
     GameCameraParam_unk base(m51C);
@@ -360,7 +362,6 @@ void GameCamera::fn_8037E12C(void* data, int size, int camera, int frames) {
         param.m28 = fn_800DC288(csv.fn_8005B9CC());
         param.m2C = fn_800DC288(csv.fn_8005B9CC());
         param.m30 = fn_800DC288(csv.fn_8005B9CC());
-        param.m34 = fn_800DC288(csv.fn_8005B9CC());
         param.m38 = mode != 6;
         fn_8038EF94(&param, mode);
         if (mode == 0) {
