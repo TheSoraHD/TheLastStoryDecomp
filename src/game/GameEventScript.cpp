@@ -1777,7 +1777,7 @@ void GameEventScript::fn_8039AB10() {
                     PSMTXMultVec(r, &dir, &dir);
                     facing = PSVECDotProduct(&front, &dir) > 0.70710677f;
                 }
-                if ((facing & fn_803ACE18(i, &sphere, 0)) && CanStartTalk_unk(leader) && TalkAllowed_unk(this)) {
+                if ((facing & fn_803ACE18(i, &sphere, 0)) && CanStartTalk_unk(leader) && !TalkAllowed_unk(this)) {
                     state.mFlags |= 0x20;
                     state.m08 = -1.0f;
                     if (mF4 == 0 || state.m08 < mF4->m08) {
@@ -1816,7 +1816,7 @@ void GameEventScript::fn_8039AF50() {
             const ScriptEventConds_unk* e =
                 (const ScriptEventConds_unk*)FindEvent_unk(scene->mEC[group].m18[state.m00]);
             if (e != 0 && e->m0C == 0 && fn_803ACF88(i, &sphere, 0) && CanStartTalk_unk(leader) &&
-                TalkAllowed_unk(this)) {
+                !TalkAllowed_unk(this)) {
                 state.mFlags |= 0x20;
                 state.m08 = -1.0f;
                 if (mF4 == 0 || state.m08 < mF4->m08) {
