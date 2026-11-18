@@ -140,4 +140,26 @@ public:
     unsigned char m4CC[0x4D0 - 0x4CC];
 };
 
+// inferred: the save and load menus (defined in game/CampSaveLoad.cpp; also used by game/NewTitleTask.cpp,
+// game/GameOverTask.cpp and game/NewCampPartsTop.cpp)
+class GameLoadBackground;
+class MenuSaveTask : public CampSaveLoad {
+public:
+    MenuSaveTask(atn::Task* parent);
+    static MenuSaveTask* fn_8011770C(atn::Task* parent);
+    virtual ~MenuSaveTask();
+    virtual void vf20();
+
+    static MenuSaveTask* sInstance; // 0x8087F068
+};
+
+class MenuLoadTask : public CampSaveLoad {
+public:
+    MenuLoadTask(atn::Task* parent, GameLoadTask* data);
+    static MenuLoadTask* fn_80117914(atn::Task* parent, GameLoadTask* data, GameLoadBackground* bg); // inferred: bg unused
+    virtual ~MenuLoadTask();
+
+    static MenuLoadTask* sInstance; // 0x8087F06C
+};
+
 #endif

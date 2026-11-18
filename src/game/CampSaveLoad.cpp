@@ -68,24 +68,6 @@ int lbl_8087D990 = -1;
 // inferred: separators of atn::CsvU (declared in atn/Csv.h)
 wchar_t lbl_8077A0A8[3] = L" \t";
 
-class MenuSaveTask : public CampSaveLoad {
-public:
-    MenuSaveTask(atn::Task* parent);
-    static MenuSaveTask* fn_8011770C(atn::Task* parent);
-    virtual ~MenuSaveTask();
-    virtual void vf20();
-
-    static MenuSaveTask* sInstance; // 0x8087F068
-};
-
-class MenuLoadTask : public CampSaveLoad {
-public:
-    MenuLoadTask(atn::Task* parent, GameLoadTask* data);
-    static MenuLoadTask* fn_80117914(atn::Task* parent, GameLoadTask* data, GameLoadBackground* bg); // inferred: bg unused
-    virtual ~MenuLoadTask();
-
-    static MenuLoadTask* sInstance; // 0x8087F06C
-};
 
 MenuSaveTask* MenuSaveTask::sInstance;
 MenuLoadTask* MenuLoadTask::sInstance;
