@@ -867,7 +867,7 @@
    "chr::ControlGmkCoffinOpen",
    "chr::ControlGmkCoffinOpening"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "chr/ControlJumpAt.cpp",
@@ -945,7 +945,7 @@
    "chr::ControlOttotto",
    "chr::ControlPushedDown"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "chr/ControlRide.cpp",
@@ -1265,7 +1265,7 @@
  {
   "name": "db/CharaParam_unk.cpp",
   "classes": [],
-  "matching": false
+  "matching": true
  },
  {
   "name": "db/WeaponParam_unk.cpp",
@@ -1453,7 +1453,7 @@
  {
   "name": "atn/EffectSequencer_unk.cpp",
   "classes": [],
-  "matching": false
+  "matching": true
  },
  {
   "name": "game/Em001Necromancer.cpp",
@@ -2295,7 +2295,7 @@
   "classes": [
    "gmk::ShakeCamera"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "gmk/AttractHatePoint.cpp",
@@ -2337,7 +2337,7 @@
   "classes": [
    "gmk::FlyObjManager"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "gmk/InteractionSpot.cpp",
@@ -3342,7 +3342,7 @@
    "LightSet_unk",
    "LightList_unk"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "atn/Light_unk.cpp",
@@ -3466,7 +3466,7 @@
   "classes": [
    "GameSaveLoadCommon"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "game/U16Table_unk.cpp",
@@ -3499,7 +3499,7 @@
   "classes": [
    "atn::Texture_unk"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "atn/Se_unk.cpp",
@@ -3629,7 +3629,7 @@
   "classes": [
    "PlayerManager"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "game/PlayerTask.cpp",

@@ -131,12 +131,19 @@ public:
     virtual void vf18(int a, int b, int c, int d); // inferred: debug drawing
     virtual void vf1C(const ColliGrid_unk* grid);  // inferred: updates the grid cell (m10-m18)
 
+    // inferred: bit 0 of mFlags = the shape takes part in the tests (names invented); defined in
+    // atn/ColliFlags_unk.h (member inlines: the original reloads mFlags before each write)
+    bool IsOn_unk() const;
+    void SetOn_unk();
+    void SetOff_unk();
+
     int fn_80056EB0(const int* cell) const; // inferred: the shape is in the cell range (x, z, size)
     // inferred: cell of a bounding sphere (inlined by the vf1C of the sphere, box and object; name
     // invented)
     void SetCell_unk(const ColliSphereShape_unk& s, const ColliGrid_unk* grid) {
+        float inv;
         float size = grid->mCellSize;
-        float inv = 1.0f / size;
+        inv = 1.0f / size;
         Vector3 c = s.mCenter - grid->mOrigin;
         c *= inv;
         m10 = (int)c.x;
@@ -193,6 +200,9 @@ public:
 
 // The name is in the DOL (__vt__Q23atn8ColliBox, 0x807775F8). 0x378 bytes: gmk::FloatingBox
 // has its own members right after it.
+// inferred: translation of a matrix read y first (defined in atn_colli.cpp; name invented)
+inline Vector3 GetTransY_unk(const Matrix3x4&);
+
 class ColliBox : public ColliBase {
 public:
     ColliBox() : ColliBase(2) {}
@@ -211,7 +221,7 @@ public:
     // inferred: bounding sphere of the box (inlined in vf1C; name invented)
     ColliSphereShape_unk GetBound_unk() const {
         ColliSphereShape_unk bound;
-        bound.mCenter = m3C.mMtx.GetTrans_unk();
+        bound.mCenter = GetTransY_unk(m3C.mMtx);
         bound.mRadius = PSVECMag(&m3C.mSize);
         return bound;
     }

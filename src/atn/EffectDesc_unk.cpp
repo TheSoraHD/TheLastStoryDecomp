@@ -708,37 +708,44 @@ void EffectSystem_unk::fn_802368B0(void* arg) {
 }
 
 
-// NONMATCHING: 94.73% - scheduling of the position loads/FIFO stores, the registers that hold the
-// addresses of the vector temporaries and the camera copy (r3/r4)
-// inferred: draws a strip; with `lit` the normals point halfway between the center and the camera
+// inferred: copies `v` into `d` and normalizes it (the temporary of `v` stays in the caller: stack
+// slots of the original); name invented
+inline void NormalizeTo_unk(atn::Vector3& d, const atn::Vector3& v) {
+    d = v;
+    PSVECNormalize(&d, &d);
+}
+
+// inferred: draws a strip; with `lit` the normals point halfway between the center and the camera.
+// The position and the texture coordinates are written to the FIFO one by one (each load after the
+// previous store in the original); the camera position is copied with __VecCopy (source address first)
 extern "C" void fn_80236938(int count, EffectVertex_unk* verts, const float* color, const atn::Vector3* center,
                             int lit) {
     atn::Vector3 eye;
     if (lit != 0) {
-        eye = atn::RenderManager::instance_->mCamera.mPos;
+        __VecCopy(&eye.x, &atn::RenderManager::instance_->mCamera.mPos.x);
     }
     GXSetChanMatColor(4, ToGXColor_unk(color));
     fn_800761A8(lbl_8087EEE0);
     GXBegin(0x98, 0, count);
     for (int i = 0; i < count; i++) {
         float x = verts[i].mPos.x;
+        GXWGFifo.f = x;
         float y = verts[i].mPos.y;
+        GXWGFifo.f = y;
         float z = verts[i].mPos.z;
-        GXPosition3f32(x, y, z);
+        GXWGFifo.f = z;
         if (lit != 0) {
             atn::Vector3 pos(x, y, z);
             atn::Vector3 toCenter;
-            toCenter = pos - *center;
-            PSVECNormalize(&toCenter, &toCenter);
+            NormalizeTo_unk(toCenter, pos - *center);
             atn::Vector3 toEye;
-            toEye = eye - pos;
-            PSVECNormalize(&toEye, &toEye);
+            NormalizeTo_unk(toEye, eye - pos);
             atn::Vector3 normal;
-            normal = toCenter + toEye;
-            PSVECNormalize(&normal, &normal);
+            NormalizeTo_unk(normal, toCenter + toEye);
             GXNormal3f32(normal.x, normal.y, normal.z);
         }
-        GXTexCoord2f32(verts[i].u, verts[i].v);
+        GXWGFifo.f = verts[i].u;
+        GXWGFifo.f = verts[i].v;
     }
 }
 

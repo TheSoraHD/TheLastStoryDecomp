@@ -13,6 +13,7 @@
 #include "game/PlayerTask.h"
 #include "math/Vec.h"
 #include "atn/DrawHelper.h"
+#include "game/GameSceneFind_unk.h"
 
 extern "C" int sprintf(char* buf, const char* fmt, ...);
 extern "C" void* fn_8008937C(void* menu, const char* name);
@@ -31,11 +32,7 @@ extern "C" void fn_8044D6AC(void* mgr, int money); // inferred: adds money (gmk/
 struct Field_unk;
 extern "C" Field_unk* lbl_8087F430;
 // inferred: path of a route point (8 bytes; as in gmk/MeetingSpot.cpp)
-struct RoutePath_unk {
-    int m00;
-    int m04;
-};
-extern "C" unsigned short fn_803CD958(RoutePath_unk* path, int point); // inferred: next point towards `point`
+extern "C" unsigned short fn_803CD958(U16Table_unk* path, int point); // inferred: next point towards `point`
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
 
 // inferred: sound effects of the ivy
@@ -93,25 +90,25 @@ int Em314Ivy::vf0C() {
     if (scene != 0) {
         int point = scene->fn_803C1560(&mPos, 0, 0, mC58.m0C.mA0, 1, -1.0f);
         if (point > 0) {
-            RouteTable_unk* table = (RouteTable_unk*)scene; // inferred: route tables of the scene
-            int count = table->mNumPoints;
-            mPoints.push_back(&table->mPoints[point - 1]);
+            GameScene* table = (GameScene*)scene; // inferred: route tables of the scene
+            int count = table->m74;
+            mPoints.push_back(&table->m98.mData[point - 1]);
             for (int i = 1; i <= count; i++) {
                 if (mPoints.size() >= 0x20) {
                     break;
                 }
-                if (i == fn_803CD958(&table->mPaths[point - 1], i - 1)) {
-                    mPoints.push_back(&table->mPoints[i - 1]);
+                if (i == fn_803CD958(&table->mA0.mData[point - 1], i - 1)) {
+                    mPoints.push_back(&table->m98.mData[i - 1]);
                 }
             }
-            atn::FixedArray_unk<RoutePoint_unk*, 0x20> more;
+            atn::FixedArray_unk<gs::MovePoint*, 0x20> more;
             for (unsigned int j = 0; j < mPoints.size(); j++) {
-                RoutePoint_unk* from = mPoints.mData[j];
+                gs::MovePoint* from = mPoints.mData[j];
                 for (int i = 1; i < count; i++) {
                     if (more.size() >= 0x20) {
                         break;
                     }
-                    RoutePoint_unk* p = &table->mPoints[i - 1];
+                    gs::MovePoint* p = &table->m98.mData[i - 1];
                     bool found = false;
                     for (unsigned int k = 0; k < mPoints.size(); k++) {
                         if (mPoints.mData[k] == p) {
@@ -119,7 +116,7 @@ int Em314Ivy::vf0C() {
                             break;
                         }
                     }
-                    if (!found && i == fn_803CD958(&table->mPaths[from->m10 - 1], i - 1)) {
+                    if (!found && i == fn_803CD958(&table->mA0.mData[from->mIndex - 1], i - 1)) {
                         more.push_back(p);
                     }
                 }
@@ -212,12 +209,12 @@ void Em314Ivy::vf14() {
     fn_80149A30();
     if (m15B8 != 0) {
         for (unsigned int i = 0; i < mPoints.mSize; i++) {
-            RoutePoint_unk* p = mPoints.mData[i];
+            gs::MovePoint* p = mPoints.mData[i];
             unsigned int color = 0xFFFFFF00;
             if (i == 0) {
                 color = 0xFFFFAA00;
             }
-            lbl_8087EEB0->fn_80062C8C(16, color, p->mPos.x, p->mPos.y, p->mPos.z, 0.0f, p->mRadius, 5.0f);
+            lbl_8087EEB0->fn_80062C8C(16, color, p->mPos.x, p->mPos.y, p->mPos.z, 0.0f, p->m14, 5.0f);
         }
     }
 }
@@ -325,7 +322,7 @@ void Em314Ivy::vf100(int state) {
         if (n != 0 && m15A0 != 0) {
             GameScene* scene = lbl_8087F430 != 0 ? ((GameTask*)lbl_8087F430)->m10D8 : 0;
             if (scene != 0) {
-                mPos = scene->fn_803C11A4(mPoints.mData[rand() % n]->m10);
+                mPos = scene->fn_803C11A4(mPoints.mData[rand() % n]->mIndex);
             }
         }
         mFlag30 = 1;

@@ -142,9 +142,8 @@ void Bullet::fn_8010EFF0(BulletShot_unk* shot, const atn::Vector3* pos, const at
     fn_8010F018(shot, pos, dir, count, flags, 1, speed);
 }
 
-// NONMATCHING: 62.7% - the original reads shot->m04 before the stores of the effect group and the call
-// arguments are scheduled differently
-void Bullet::fn_8010F018(BulletShot_unk* shot, const atn::Vector3* pos, const atn::Vector3* dir, int count,
+// NONMATCHING: 97.3% - registers of the effect start block (as fn_8010F26C; a call to it, a local id: same)
+void Bullet::fn_8010F018(const BulletShot_unk* shot, const atn::Vector3* pos, const atn::Vector3* dir, int count,
                          unsigned int flags, int record, float speed) {
     m04 = flags | 0x10000;
     m5C = shot->m00;
@@ -165,9 +164,8 @@ void Bullet::fn_8010F018(BulletShot_unk* shot, const atn::Vector3* pos, const at
     m78 = 0.0f;
     m9C = 0;
     fn_8010F4BC();
-    int id = shot->m04;
     lbl_8087F3C0->mB8 = 3;
-    if (id != 0) {
+    if (shot->m04 != 0) {
         fn_80232B7C(this, 0);
         fn_8023A680(lbl_8087F3C0, shot->m04, -1, 5, &m2C, 0, 0, 0, 0, -1, 1, 1.0f);
     }
@@ -195,11 +193,10 @@ void Bullet::fn_8010F018(BulletShot_unk* shot, const atn::Vector3* pos, const at
     }
 }
 
-// NONMATCHING: 63.9% - scheduling of the shot->m04 loads around the prologue (see fn_8010F018)
-void Bullet::fn_8010F26C(BulletShot_unk* shot) {
-    int id = shot->m04;
+// inferred: `shot` is const (the original loads shot->m04 before saving r31)
+void Bullet::fn_8010F26C(const BulletShot_unk* shot) {
     lbl_8087F3C0->mB8 = 3;
-    if (id != 0) {
+    if (shot->m04 != 0) {
         fn_80232B7C(this, 0);
         fn_8023A680(lbl_8087F3C0, shot->m04, -1, 5, &m2C, 0, 0, 0, 0, -1, 1, 1.0f);
     }

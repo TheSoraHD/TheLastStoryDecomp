@@ -315,8 +315,9 @@ extern "C" int fn_8050F404(MpFriendList_unk* list);
 extern "C" int wcscmp(const wchar_t* a, const wchar_t* b);
 extern "C" wchar_t* wcscpy(wchar_t* dst, const wchar_t* src);
 extern "C" void fn_806AC0A0(const char* keyValues, int arg); // inferred: DWC buddy status data
+extern "C" void fn_8050F198(MpFriendList_unk* list);
 
-// NONMATCHING: 99.64% - the stack slots of the two string temporaries and r30/r31 swapped
+// inferred: calls fn_8050F198, defined below and inlined by -ipa file (stack slots and registers)
 // inferred: sets the own name (reported to the friends as "\name\<name>"); with `save`, writes the list
 extern "C" void fn_8050EFCC(MpFriendList_unk* list, const wchar_t* name, int save) {
     if (wcscmp(list->mName, name) == 0) {
@@ -330,11 +331,7 @@ extern "C" void fn_8050EFCC(MpFriendList_unk* list, const wchar_t* name, int sav
         }
         fn_800A5218("online/playerinfo7", sizeof(list->mUserData), list->mFriends, 0x9B0);
     }
-    std::basic_string<wchar_t> status(L"\\name\\");
-    status += list->mName;
-    char buf[0x100];
-    fn_8006F420(lbl_8087EEC8, buf, status.c_str(), status.size() * 2);
-    fn_806AC0A0(buf, 0);
+    fn_8050F198(list);
 }
 
 // inferred: reports the own name again

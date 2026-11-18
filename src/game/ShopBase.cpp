@@ -154,7 +154,7 @@ extern "C" int fn_801173A8(ShopItem_unk* item); // inferred: sort group of an it
 extern "C" int wcscmp(const wchar_t* a, const wchar_t* b);
 extern "C" unsigned long wcslen(const wchar_t* s);
 extern "C" wchar_t* wcschr(const wchar_t* s, wchar_t c);
-// NONMATCHING: 99.93% - registers of the names of the new items (r25 for r30). In an unnamed namespace
+// In an unnamed namespace
 // (local linkage: its L"%s" goes to the file pool @wstringBase0 + 0x12 as in the original). The std::sort
 // code of the list (0x80582598-0x80584174) is game/MslSort_unk.h (both sorts at 100%)
 // inferred: order of the list (std::sort predicate, 0x805828B0): by group and kind of the item; the
@@ -216,12 +216,13 @@ struct ShopEntryLess_unk {
         }
         if (wcscmp(sa, sb) == 0) {
             if (a.m48 == 0 && b.m48 == 0) {
-                nb = ib->mName;
-                const wchar_t* xa = ia->mName;
-                if (wcscmp(xa, nb) == 0) {
+                // inferred: na/nb reused with the names swapped (registers of the original)
+                na = ib->mName;
+                nb = ia->mName;
+                if (wcscmp(nb, na) == 0) {
                     return a.m4C > b.m4C;
                 }
-                return wcscmp(xa, nb) < 0;
+                return wcscmp(nb, na) < 0;
             } else {
                 int la = wcslen(na);
                 int lb = wcslen(nb);
@@ -524,8 +525,10 @@ void ShopBase::fn_8058036C() {
         m68->MeltTask();
         m6C = 0;
     }
-    SetPaneText_unk(m70->mLayout, "title", lbl_8087F1E4->Get_unk(mTitle + 0x1D1));
-    SetPaneText_unk(m70->mLayout, "shopName", lbl_8087F1E4->Get_unk(mName + 0x1D1));
+    const wchar_t* title = lbl_8087F1E4->Get_unk(mTitle + 0x1D1);
+    SetPaneText_unk(m70->mLayout, "title", title);
+    const wchar_t* name = lbl_8087F1E4->Get_unk(mName + 0x1D1);
+    SetPaneText_unk(m70->mLayout, "shopName", name);
     switch (vf3C()) {
     case 0:
         SetPaneFloat_unk(m70->mLayout, "iconType", 0.0f);
@@ -918,7 +921,6 @@ void ShopBase::fn_80581964(int show, int message, int arg) {
     }
 }
 
-// NONMATCHING: id/item registers of the second loop swapped (the first one is fixed by declaring item first)
 // inferred: price of `num` items at the rate `rate` (inlined in vf38)
 inline int GetPrice_unk(ShopItem_unk* item, int num, float rate) {
     if (item == 0) {
@@ -996,6 +998,7 @@ void ShopBase::vf38(const char* data, int size) {
     } while (csv.fn_8005BBF8());
 }
 
+// inferred: item declared before id in both loops (registers of the original)
 void ShopBase::fn_80581FD8() {
     ShopEntry5C_unk entry;
     float b = mKind == 4 ? 2.0f : 1.0f;
@@ -1022,8 +1025,9 @@ void ShopBase::fn_80581FD8() {
     }
     int num = fn_8044D560(Inventory::instance_);
     for (int i = 0; i < num; i++) {
+        ShopItem_unk* item;
         int id = fn_8044D500(Inventory::instance_, i);
-        ShopItem_unk* item = fn_80211480(id);
+        item = fn_80211480(id);
         if (item != 0 && fn_8011728C(m25B00, item)) {
             entry.m00 = id;
             entry.m48 = 0;

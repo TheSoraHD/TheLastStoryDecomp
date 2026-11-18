@@ -17,6 +17,7 @@
 #include "atn/ColliBase.h"
 #include "game/BattleTask.h"
 #include "game/DamageResult_unk.h"
+#include "game/GameSceneFind_unk.h"
 
 extern "C" unsigned long strlen(const char* s);
 extern "C" int strcmp(const char* a, const char* b);
@@ -50,7 +51,7 @@ struct Field_unk {
     float m974;
     float m978;
     unsigned char m97C[0x10D8 - 0x97C];
-    RouteTable_unk* m10D8;
+    GameScene* m10D8;
 };
 extern "C" Field_unk* lbl_8087F430;
 extern "C" Field_unk* fn_80121F00();
@@ -554,28 +555,28 @@ inline atn::Vector3 FrontR_unk(const atn::Vector3& rot) {
     PSMTXMultVec(m.m, &v, &v);
     return v;
 }
-// inferred: RouteTable_unk::FindPlace_unk with the array read inside the loop (as in game/Em208Queen.cpp)
-inline RoutePlace_unk* FindRoutePlace2_unk(RouteTable_unk* table, int id) {
-    for (unsigned int i = 0; i < table->mNumPlaces; i++) {
-        RoutePlace_unk* places = table->mPlaces;
+// inferred: GameScene::FindPlace_unk with the array read inside the loop (as in game/Em208Queen.cpp)
+inline gs::WarpPoint* FindRoutePlace2_unk(GameScene* table, int id) {
+    for (unsigned int i = 0; i < table->m78.size(); i++) {
+        gs::WarpPoint* places = table->m78.mData;
         if (id == places[i].mId) {
             return &places[i];
         }
     }
     return 0;
 }
-inline RoutePlace_unk* FindRoutePlace3_unk(RouteTable_unk* table, int id) {
-    for (unsigned int i = 0; i < table->mNumPlaces; i++) {
-        if (table->mPlaces[i].mId == id) {
-            return &table->mPlaces[i];
+inline gs::WarpPoint* FindRoutePlace3_unk(GameScene* table, int id) {
+    for (unsigned int i = 0; i < table->m78.size(); i++) {
+        if (table->m78.mData[i].mId == id) {
+            return &table->m78.mData[i];
         }
     }
     return 0;
 }
-inline RoutePlace_unk* FindRoutePlace4_unk(int id) {
-    RouteTable_unk* table = lbl_8087F430->m10D8;
-    for (unsigned int i = 0; i < table->mNumPlaces; i++) {
-        RoutePlace_unk* places = table->mPlaces;
+inline gs::WarpPoint* FindRoutePlace4_unk(int id) {
+    GameScene* table = lbl_8087F430->m10D8;
+    for (unsigned int i = 0; i < table->m78.size(); i++) {
+        gs::WarpPoint* places = table->m78.mData;
         if (id == places[i].mId) {
             return &places[i];
         }
@@ -677,7 +678,7 @@ int Em201ZanGurgFinal::vf0C() {
 
 void Em201ZanGurgFinal::fn_8026580C() {
     if (lbl_8087F430 != 0) {
-        RoutePlace_unk* place = FindRoutePlace4_unk(0x262);
+        gs::WarpPoint* place = FindRoutePlace4_unk(0x262);
         if (place != 0) {
             m14F4 = place->mPos;
         }
@@ -690,7 +691,7 @@ void Em201ZanGurgFinal::fn_8026580C() {
         }
         if (strcmp(key, "CenterPoint") == 0) {
             if (lbl_8087F430 != 0) {
-                RoutePlace_unk* place = lbl_8087F430->m10D8->FindPlace_unk(atoi(csv.fn_8005B9CC()));
+                gs::WarpPoint* place = lbl_8087F430->m10D8->FindPlace_unk(atoi(csv.fn_8005B9CC()));
                 if (place != 0) {
                     m14F4 = place->mPos;
                 }
@@ -1402,11 +1403,12 @@ void Em201ZanGurgFinal::fn_80267F88() {
     }
 }
 
-// NONMATCHING: order of the loads of the motion ids (lwz 0x4EC before 0x2DC; 5 variants)
+// inferred: the test is kept in a bool (with the test in the `if` the two loads come in the other order)
 void Em201ZanGurgFinal::fn_802682C4() {
     fn_8016E970(9);
     fn_80267134();
-    if (mMotion.mTracks[0].m00 == m484[26]) {
+    bool playing = mMotion.mTracks[0].m00 == m484[26];
+    if (playing) {
         float frame = mMotion.mTracks[0].m08;
         if (frame >= mMotion.fn_80097D7C(0)) {
             PlayMotion_unk(&mMotion, m484[25], 1, 0.1f);
@@ -2077,7 +2079,7 @@ void Em201ZanGurgFinal::fn_8026A8E4() {
     }
 }
 
-// NONMATCHING: f3/f4 of the frame and of the new yaw (6 variants)
+// inferred: the frame read into a local (in place, f3/f4 of the frame and of the new yaw swap)
 // inferred: jump (state 24): turns to the target and throws the shield in the middle of the jump
 void Em201ZanGurgFinal::fn_8026A9A0() {
     ASSERT_UNK(this != 0);
@@ -2093,7 +2095,8 @@ void Em201ZanGurgFinal::fn_8026A9A0() {
     if (m1630 == 0) {
         CharaTask* t = m14B8;
         mRot.y = (t->mPos - mPos).ToRotationZ_unk().y;
-        if (mMotion.mTracks[0].m08 > 67.0f) {
+        float frame = mMotion.mTracks[0].m08;
+        if (frame > 67.0f) {
             fn_8026D0F8(0);
         }
     }

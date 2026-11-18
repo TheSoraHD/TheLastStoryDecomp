@@ -11,6 +11,7 @@
 #include "std/string.h"
 #include "std/string_members.h"
 #include "math/VecAssign_unk.h"
+#include "game/GameSceneFind_unk.h"
 
 extern "C" unsigned long strlen(const char* s);
 extern "C" int strcmp(const char* a, const char* b);
@@ -56,7 +57,7 @@ extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 // inferred: field (lbl_8087F430); m10D8: route tables
 struct Field_unk {
     unsigned char m0000[0x10D8];
-    RouteTable_unk* m10D8;
+    GameScene* m10D8;
 };
 extern "C" Field_unk* lbl_8087F430;
 // inferred: player of the multiplayer session (0xD5C bytes, as in MP/D2AMpMenuCockpit.cpp)
@@ -236,7 +237,6 @@ inline void Em204MulueMp::SetTurn_unk(atn::Vector3 target) {
     }
 }
 
-// NONMATCHING: 99.81% - registers of the second std::string constructor (as in game/Em204Mulue.cpp)
 Em204MulueMp::Em204MulueMp(atn::Task* parent, EnemyInfo_unk* info)
     : SpecialEnemyBase(parent, info), m14DC(0), m14E0(0), m14E4(1), m14E8(0), m14EC(0), m14F0(0), m14F4(0),
       m14F8(0.5f), m14FC(0), m1500(0), m1504(0), m1508(0), m150C(0), m1510(0), m1518(0), m1520(600), m15E0(1e16f),
@@ -300,7 +300,7 @@ int Em204MulueMp::vf0C() {
                     int id;
                     do {
                         id = fn_800DC12C(csv.fn_8005B9CC());
-                        RoutePlace_unk* place = lbl_8087F430->m10D8->FindPlace_unk(id);
+                        gs::WarpPoint* place = lbl_8087F430->m10D8->FindPlace_unk(id);
                         if (place != 0) {
                             m154C.push_back(place);
                         }
@@ -309,7 +309,7 @@ int Em204MulueMp::vf0C() {
                     int id;
                     do {
                         id = fn_800DC12C(csv.fn_8005B9CC());
-                        RoutePlace_unk* place = lbl_8087F430->m10D8->FindPlace_unk(id);
+                        gs::WarpPoint* place = lbl_8087F430->m10D8->FindPlace_unk(id);
                         if (place != 0) {
                             m1590.push_back(place);
                         }
@@ -489,7 +489,43 @@ void Em204MulueMp::vfFC() {
     }
 }
 
-// NONMATCHING: 99.90% - stack slots of the locals of case 10 and of the default case
+// inferred: cone of the look-out of the default case (an inline: the slots of its locals follow the original
+// only through it; name invented). The position is taken through a named copy: with the call result assigned
+// directly the temporary goes above `dir` (99.99%)
+static inline void Look_unk(Em204MulueMp* self) {
+    atn::Vector3 t = self->fn_801781B0();
+    atn::Vector3 pos = t;
+    atn::Vector3 dir(0.0f, 0.0f, 1.0f);
+    Mtx m;
+    PSMTXRotRad(m, 'y', self->mRot.y);
+    PSMTXMultVec(m, &dir, &dir);
+    fn_805A5078(&pos, &dir, 100, 1.2f * self->m5B0, 3.1415927f);
+}
+// inferred: case 10, walks back to m15D4 firing stings (an inline: the stack slots of its locals follow the
+// original only through it; same body as Em204Mulue::fn_802AA534; name invented)
+static inline void Approach_unk(Em204MulueMp* self) {
+    atn::Vector3 d = self->m15D4 - self->mPos;
+    d.Length_unk();
+    if (PSVECSquareMag(&d) < 100.0f) {
+        if ((float)self->m14E0 > 35.0f) {
+            fn_80239DAC(lbl_8087F3C0, self, 0x66, 0);
+            self->SetState_unk(15);
+            self->PlayMotion_unk(0x141, 0, 1.0f);
+            return;
+        }
+    } else {
+        atn::Vector3 n = d.GetNormalize();
+        n.y = 0.0f;
+        self->mPos += n * 10.0f;
+        atn::Vector3 pos = GetNodePos_unk(self->mMotion.GetNodeMtx_unk("hips"));
+        BattleTask* mgr = lbl_8087F048;
+        mgr->fn_800FAB80(self, fn_80219E6C(0x4B5), 1000, &pos, &self->mRot, 0, 30, -1, -1, 0.0f, 1.0f);
+    }
+    if ((float)self->m14E0 <= 35.0f) {
+        self->fn_802B55B0(self->m14E0 % 10 == 0, 0);
+    }
+}
+
 void Em204MulueMp::vf104() {
     if (mC58.mC4 == 0) {
         mC58.mC4 = lbl_8087F8A0->mHead;
@@ -634,29 +670,9 @@ void Em204MulueMp::vf104() {
                 m15FC -= 1.0f;
             }
             break;
-        case 10: {
-            atn::Vector3 d = m15D4 - mPos;
-            d.Length_unk();
-            if (PSVECSquareMag(&d) < 100.0f) {
-                if ((float)m14E0 > 35.0f) {
-                    fn_80239DAC(lbl_8087F3C0, this, 0x66, 0);
-                    SetState_unk(15);
-                    PlayMotion_unk(0x141, 0, 1.0f);
-                    break;
-                }
-            } else {
-                atn::Vector3 n = d.GetNormalize();
-                n.y = 0.0f;
-                mPos += n * 10.0f;
-                atn::Vector3 pos = GetNodePos_unk(mMotion.GetNodeMtx_unk("hips"));
-                BattleTask* mgr = lbl_8087F048;
-                mgr->fn_800FAB80(this, fn_80219E6C(0x4B5), 1000, &pos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
-            }
-            if ((float)m14E0 <= 35.0f) {
-                fn_802B55B0(m14E0 % 10 == 0, 0);
-            }
+        case 10:
+            Approach_unk(this);
             break;
-        }
         case 17:
             vfEC();
             break;
@@ -666,13 +682,7 @@ void Em204MulueMp::vf104() {
                 fn_80170A20(m14D4, -1.0f, 0);
             }
             fn_802B43C8();
-            atn::Vector3 pos;
-            pos = fn_801781B0();
-            atn::Vector3 dir(0.0f, 0.0f, 1.0f);
-            Mtx m;
-            PSMTXRotRad(m, 'y', mRot.y);
-            PSMTXMultVec(m, &dir, &dir);
-            fn_805A5078(&pos, &dir, 100, 1.2f * m5B0, 3.1415927f);
+            Look_unk(this);
             fn_802B475C();
             break;
         }
@@ -745,64 +755,54 @@ void Em204MulueMp::fn_802B475C() {
     fn_802B6F80();
 }
 
-// NONMATCHING: 98.41% - float registers of the first capsule and r6/r7 of the node copies (__VecCopy family,
-// docs/mwcc-blockers.md)
+// inferred: sets the segment and radius of a capsule (an inline: the node copies take the registers of
+// the original only through it; name invented)
+static inline void SetCapsule_unk(atn::ColliCapsule& c, const atn::Vector3& a, const atn::Vector3& b, float r) {
+    c.m3C = a;
+    c.m48 = b;
+    c.m54 = r;
+}
 void Em204MulueMp::fn_802B4B08() {
     atn::Vector3 a;
     atn::Vector3 b;
-    float r0 = m5B0;
+    m620 = m5B0;
     m614 = mPos + m5A4;
-    m620 = r0;
-    m614.y += r0;
+    m614.y += m620;
     a = m614;
     b = GetNodePos_unk(mMotion.GetNodeMtx_unk("head"));
     b.y -= 1.0f;
-    mColli.m3C = a;
-    mColli.m48 = b;
-    mColli.m54 = m620;
+    SetCapsule_unk(mColli, a, b, m620);
     {
         float r = 7.0f;
-        a = GetNodePos_unk(mMotion.GetNodeMtx_unk("leftforearm"));
-        b = GetNodePos_unk(mMotion.GetNodeMtx_unk("leftmiddle1"));
-        m1698.m3C = a;
-        m1698.m48 = b;
-        m1698.m54 = r;
+        atn::VecAssign_unk(a, GetNodePos_unk(mMotion.GetNodeMtx_unk("leftforearm")));
+        atn::VecAssign_unk(b, GetNodePos_unk(mMotion.GetNodeMtx_unk("leftmiddle1")));
+        SetCapsule_unk(m1698, a, b, r);
     }
     {
         float r = 7.0f;
-        a = GetNodePos_unk(mMotion.GetNodeMtx_unk("rightforearm"));
-        b = GetNodePos_unk(mMotion.GetNodeMtx_unk("rightmiddle1"));
-        m16F0.m3C = a;
-        m16F0.m48 = b;
-        m16F0.m54 = r;
+        atn::VecAssign_unk(a, GetNodePos_unk(mMotion.GetNodeMtx_unk("rightforearm")));
+        atn::VecAssign_unk(b, GetNodePos_unk(mMotion.GetNodeMtx_unk("rightmiddle1")));
+        SetCapsule_unk(m16F0, a, b, r);
     }
     {
         float r = 5.0f;
-        a = GetNodePos_unk(mMotion.GetNodeMtx_unk("leftleg"));
-        b = GetNodePos_unk(mMotion.GetNodeMtx_unk("leftfoot"));
-        m1748.m3C = a;
-        m1748.m48 = b;
-        m1748.m54 = r;
+        atn::VecAssign_unk(a, GetNodePos_unk(mMotion.GetNodeMtx_unk("leftleg")));
+        atn::VecAssign_unk(b, GetNodePos_unk(mMotion.GetNodeMtx_unk("leftfoot")));
+        SetCapsule_unk(m1748, a, b, r);
     }
     {
         float r = 5.0f;
-        a = GetNodePos_unk(mMotion.GetNodeMtx_unk("rightleg"));
-        b = GetNodePos_unk(mMotion.GetNodeMtx_unk("rightfoot"));
-        m17A0.m3C = a;
-        m17A0.m48 = b;
-        m17A0.m54 = r;
+        atn::VecAssign_unk(a, GetNodePos_unk(mMotion.GetNodeMtx_unk("rightleg")));
+        atn::VecAssign_unk(b, GetNodePos_unk(mMotion.GetNodeMtx_unk("rightfoot")));
+        SetCapsule_unk(m17A0, a, b, r);
     }
     {
         float r = 9.0f;
-        a = GetNodePos_unk(mMotion.GetNodeMtx_unk("joint2"));
-        b = GetNodePos_unk(mMotion.GetNodeMtx_unk("joint4"));
-        m17F8.m3C = a;
-        m17F8.m48 = b;
-        m17F8.m54 = r;
+        atn::VecAssign_unk(a, GetNodePos_unk(mMotion.GetNodeMtx_unk("joint2")));
+        atn::VecAssign_unk(b, GetNodePos_unk(mMotion.GetNodeMtx_unk("joint4")));
+        SetCapsule_unk(m17F8, a, b, r);
     }
-}
-
-void Em204MulueMp::vf54() {
+}void Em204MulueMp::vf54() {
     if (m624.mSize != 0) {
         atn::Vector3 pos = GetNodePos_unk(mMotion.GetNodeMtx_unk("spine1"));
         m624[0].m04.mRadius = 1.5f * m5B0;
@@ -1024,15 +1024,13 @@ void Em204MulueMp::fn_802B5DA4() {
     }
 }
 
-// NONMATCHING: 99.83% - r4/r5 of the copies of the distance (__VecCopy family); 99.90% with
-// atn::VecAssign_unk(d, m15E4 - mPos) and the home copied through a const reference (as in fn_802B596C);
-// left: the temporary of home - mPos and the m15E4 = m15D4 copy (16 variants)
 void Em204MulueMp::fn_802B6104() {
     atn::Vector3 d(0.0f, 0.0f, 0.0f);
     if (m14DC < 2) {
-        d = m15E4 - mPos;
+        atn::VecAssign_unk(d, m15E4 - mPos);
     } else {
-        atn::Vector3 home(m15D4);
+        atn::Vector3 home;
+        __VecCopy(&home.x, &m15D4.x);
         home.y += 40.0f;
         d = home - mPos;
     }
@@ -1070,7 +1068,7 @@ void Em204MulueMp::fn_802B6104() {
                     m14F4 = -1;
                 }
                 if (m14F4 == -1) {
-                    m15E4 = m15D4;
+                    atn::VecAssign_unk(m15E4, m15D4);
                 } else {
                     m15E4 = m154C.mData[m14F4]->mPos;
                 }

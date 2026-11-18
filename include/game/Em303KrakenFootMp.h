@@ -6,7 +6,9 @@
 #include "game/ResHandle.h"
 #include "game/SpecialEnemyBase.h"
 
-struct RoutePlace_unk;
+namespace gs {
+struct WarpPoint;
+}
 
 // inferred from __vt__17Em303KrakenFootMp (0x80787290): leg of the kraken (multiplayer). Data file
 // "/database/chara/special/" + db_name (default "db_em303_00_00.csv"). The factory allocates 0x1528 bytes
@@ -52,7 +54,7 @@ public:
     HitInfo_unk* m14F8;      // inferred: "SwingSkillId"
     HitInfo_unk* m14FC;      // inferred: "PoundSkillId"
     int m1500;
-    RoutePlace_unk* m1504;   // inferred: "BasePoint"
+    gs::WarpPoint* m1504;   // inferred: "BasePoint"
     unsigned char m1508;
     int m150C;
     atn::EfpFile m1510; // inferred: "/effect/ef_bd006.efp"

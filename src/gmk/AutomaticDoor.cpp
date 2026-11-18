@@ -5,6 +5,7 @@
 #include <boost/scoped_ptr.hpp>
 #include "atn/RenderManager.h"
 #include "atn/Scene.h"
+#include "game/GameTask.h"
 
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" int strncmp(const char* a, const char* b, unsigned long n);
@@ -53,17 +54,11 @@ inline void CreateCamera_unk(atn::Model* model) {
     model->m208.reset(new ((MemoryTag)6, "", "", 0) ModelCamera_unk());
 }
 extern "C" int lbl_8087DF50; // inferred: reflections enabled
-// inferred: field and HUD (classes unknown)
-struct DoorField_unk {
-    unsigned char m000[0x268];
-    atn::Vector3 mCamPos;    // 0x268
-    atn::Vector3 mCamTarget; // 0x274
-    atn::Vector3 mCamUp;     // 0x280
-    unsigned char m28C[0x868 - 0x28C];
-    int m868; // inferred: mode (3 and 4 project the texture)
-    int GetMode_unk() const { return m868; } // inferred: name invented
-};
-extern "C" DoorField_unk* lbl_8087F430;
+// inferred: the field task (lbl_8087F430): sub mode of its camera and the render camera GameCamera::m1F4
+extern "C" GameTask* lbl_8087F430;
+inline int GameCamera::GetMode_unk() const {
+    return m7FC;
+}
 struct DoorHud_unk {
     unsigned char m0000[0x10FC];
     int m10FC;
@@ -303,8 +298,8 @@ void AutomaticDoor::fn_803F53E0() {
         return;
     }
     Camera_unk camera(0, 1);
-    DoorField_unk* field = lbl_8087F430;
-    if (lbl_8087F490->m10FC != 0 && (field->GetMode_unk() == 4 || field->GetMode_unk() == 3)) {
+    GameTask* field = lbl_8087F430;
+    if (lbl_8087F490->m10FC != 0 && (field->mCamera.GetMode_unk() == 4 || field->mCamera.GetMode_unk() == 3)) {
         float left = -1.0f;
         float bottom = left;
         float right = 1.0f;
@@ -345,9 +340,9 @@ void AutomaticDoor::fn_803F53E0() {
         right *= scale;
         bottom *= scale;
         top *= scale;
-        camera.mUp = field->mCamUp;
-        camera.mPos = field->mCamPos;
-        camera.mTarget = field->mCamTarget;
+        camera.mUp = field->mCamera.m1F4.mUp;
+        camera.mPos = field->mCamera.m1F4.mPos;
+        camera.mTarget = field->mCamera.m1F4.mTarget;
         camera.mTop = top;
         camera.mBottom = bottom;
         camera.mLeft = left;

@@ -99,6 +99,7 @@ static wchar_t* sTextTexts;
 // subscript of sTypes fixed part of it
 extern "C" void fn_8021B060() {
     atn::CsvU csv;
+    int pos;
     sTypes = new ((MemoryTag)3, "", "", 0) SpString_unk[0x49];
     sConds = new ((MemoryTag)3, "", "", 0) SpString_unk[0x1B];
     if (sTypeTexts == 0) {
@@ -114,7 +115,7 @@ extern "C" void fn_8021B060() {
             length += wcslen(csv.fn_8005B9CC()) + 1;
         }
         sTypeTexts = new ((MemoryTag)12, "", "", 0) wchar_t[length];
-        int pos = 0;
+        pos = 0;
         int i = 0;
         csv.SetData((const wchar_t*)data, (int)size / 2);
         while (csv.fn_8005BBF8() != 0) {
@@ -386,6 +387,7 @@ extern "C" bool fn_8021BFA0(wchar_t* buf, int cond, int value) {
 // subscript of sTexts fixed the row offset. Tried: declaration orders of length/size, a length local
 extern "C" void fn_8021C3F4() {
     atn::CsvU csv;
+    int pos;
     unsigned long size;
     void* data = fn_8046DC5C(lbl_8087F518, sTextFileName, &size, 0x20);
     csv.SetData((const wchar_t*)data, (int)size / 2);
@@ -404,7 +406,7 @@ extern "C" void fn_8021C3F4() {
     sTextTexts = new ((MemoryTag)12, "", "", 0) wchar_t[length];
     sTexts = new ((MemoryTag)3, "", "", 0) SpText_unk[sTextCount];
     int i = 0;
-    int pos = 0;
+    pos = 0;
     csv.SetData((const wchar_t*)data, (int)size / 2);
     while (csv.fn_8005BBF8() != 0) {
         if (*csv.fn_8005B9CC() != 0) {
@@ -457,7 +459,7 @@ void FormatEffectText_unk(wchar_t* buf, const wchar_t* cond, const wchar_t* type
 
 // inferred: text of an effect (a whole text of sp_text if there is one, else the texts of its
 // condition and type)
-extern "C" bool fn_8021C6A4(wchar_t* buf, SpEffect_unk* effect) {
+extern "C" int fn_8021C6A4(wchar_t* buf, SpEffect_unk* effect) {
     if (effect != 0) {
     SpText_unk* text = FindText_unk(effect->mType, effect->mCond, effect->mCondValue);
     if (text != 0 && text->mText[0] != 0) {

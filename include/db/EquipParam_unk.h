@@ -84,7 +84,7 @@ struct EquipParamEntry_unk {
 extern "C" EquipParamEntry_unk* fn_8020ED84(int kind, int id); // inferred: entry of a kind and id
 extern "C" int fn_8020EE58();                                  // inferred: number of entries
 extern "C" EquipParamEntry_unk* fn_8020EE60(int index);         // inferred: entry by index
-extern "C" bool fn_8020EF04(int code);                          // inferred: whether an item code is equipment
+extern "C" int fn_8020EF04(int code);                          // inferred: whether an item code is equipment
 extern "C" bool fn_8020EF4C(EquipParamEntry_unk* entry);
 extern "C" EquipParamEntry_unk* fn_8020EFEC(int code);          // inferred: entry of an item code
 

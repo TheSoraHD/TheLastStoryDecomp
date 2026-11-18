@@ -7,7 +7,8 @@ namespace chr {
 
 // Controls of chr/ControlPushedDown.cpp created by CharaTask::fn_8013CB68 when two characters bump
 // into each other (class names from the vtables). The classes declare no destructor (implicit
-// destructors 0x801C6ED0, 0x801C6F10 and 0x801C6F50).
+// destructors 0x801C6ED0, 0x801C6F10 and 0x801C6F50). Declared in the order PushedDown, Ottotto,
+// PushedAvoid: their vtables and RTTI names come out in the reverse order, as in the original.
 
 // inferred: knocked back by another character (control id 0x44)
 class ControlPushedDown : public ControlBase {
@@ -26,6 +27,16 @@ public:
     int m38;          // inferred: state (0 fall, 1 turn to the player, 2 get up, 3 walk back)
 };
 
+// inferred: created by CharaTask::fn_8016BBCC (motion 0x52) (control id 0x61)
+class ControlOttotto : public ControlBase {
+public:
+    ControlOttotto(Chara_unk* chara, const atn::Vector3* dir, int time, int motion); // 0x801C5A04
+    virtual int vf0C(); // 0x801C5C50
+
+    atn::Vector3 m08; // inferred: direction of the stagger
+    int m14;          // inferred: frames left
+};
+
 // inferred: steps aside to let another character pass (control id 0x45)
 class ControlPushedAvoid : public ControlBase {
 public:
@@ -41,16 +52,6 @@ public:
     float m30;        // inferred: time since the start
     Chara_unk* m34;   // inferred: the other character
     int m38;          // inferred: was following (control id 0x68): chr::ControlChaseFollow afterwards
-};
-
-// inferred: created by CharaTask::fn_8016BBCC (motion 0x52) (control id 0x61)
-class ControlOttotto : public ControlBase {
-public:
-    ControlOttotto(Chara_unk* chara, const atn::Vector3* dir, int time, int motion); // 0x801C5A04
-    virtual int vf0C(); // 0x801C5C50
-
-    atn::Vector3 m08; // inferred: direction of the stagger
-    int m14;          // inferred: frames left
 };
 
 } // namespace chr

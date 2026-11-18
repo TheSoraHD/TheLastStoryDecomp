@@ -8,12 +8,15 @@
 #include "game/ResHandle.h"
 #include "std/vector.h"
 #include "game/CharaStatus.h"
+namespace gs {
+struct WarpPoint;
+}
 
 // inferred: the destructor tests `this` once more than for a plain std::vector (as ChaserRouteList_unk in
 // game/ChaserGuard.h); name invented
 struct CrabList_unk : public std::vector<int> {};
 // inferred: "BasePoints" (route places); same wrapper as CrabList_unk; name invented
-typedef std::vector<RoutePlace_unk*> CrabPlaceList_unk;
+typedef std::vector<gs::WarpPoint*> CrabPlaceList_unk;
 
 // inferred from __vt__13Em308ParmCrab (0x80787A00). The factory allocates 0x1620 bytes
 // (SpecialEnemyBase.cpp). Members keep their offsets (names unknown).
@@ -71,7 +74,7 @@ public:
     float m1548;
     atn::Vector3 m154C;       // inferred: jump velocity (vf80)
     CrabList_unk m1558;
-    RoutePlace_unk* m1564;    // inferred: place of state 12 (vf10 moves there with fn_8017039C)
+    gs::WarpPoint* m1564;    // inferred: place of state 12 (vf10 moves there with fn_8017039C)
     unsigned char m1568[0x1574 - 0x1568];
     int m1574;
     HitInfo_unk* m1578;       // inferred: skill 0x400
@@ -83,7 +86,7 @@ public:
     int m1590;
     float m1594;              // inferred: "EscapeHpRate"
     float m1598;              // inferred: "EscapeSpeed"
-    RoutePlace_unk* m159C;    // inferred: escape place (fn_802FB0C4)
+    gs::WarpPoint* m159C;    // inferred: escape place (fn_802FB0C4)
     atn::Vector3 m15A0;       // inferred: escape point (fn_802FB0C4)
     CrabPlaceList_unk m15AC;  // inferred: "BasePoints"
     int m15B8;                // inferred: flags 1 Move, 2 NormalAttack, 4 Needle, 8 Recover, 0x10 RecoverMove

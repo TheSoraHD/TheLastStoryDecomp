@@ -5,7 +5,7 @@
 
 extern "C" double atan2(double y, double x);
 
-extern "C" float lbl_8087DA08; // inferred: ground height used by ControlGmkCoffinGetUp
+float lbl_8087DA08 = -0.5f; // inferred: ground height used by ControlGmkCoffinGetUp (.sdata, global)
 extern "C" void fn_80547708(void* arg, chr::GmkTarget_unk* target);
 
 // inferred: weak copy 0x8013C38C (address of the position), inlined here
@@ -161,9 +161,6 @@ boost::function<void()> ControlGmkTrapBat::vf10() const {
     return ControlBase::vf10();
 }
 
-// NONMATCHING: 99.95% - only `frsp f4, f4` instead of `frsp f3, f4` in the inlined RotZ_unk (the
-// accessor 0x8013C38C fixed mChara and the rot/dir addresses). Tried: rot by GetRot_unk, no `dir`, rot
-// first, `r` local, SetRot_unk, reference accessor, mTarget local/parameter, RotZ_unk on a copy.
 // (turns the character towards the target with Vector3::ToRotationZ_unk; the pitch is discarded)
 ControlGmkBreakArmor::ControlGmkBreakArmor(Chara_unk* chara, GmkTarget_unk* target, void* arg)
     : ControlBase(chara), mTarget(target), m0C(arg) {

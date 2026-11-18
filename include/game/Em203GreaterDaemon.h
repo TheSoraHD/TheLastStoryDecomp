@@ -10,8 +10,10 @@
 #include "game/IntVector_unk.h"
 #include "game/ResHandle.h"
 #include "std/vector.h"
+namespace gs {
+struct WarpPoint;
+}
 
-struct RoutePlace_unk;
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 class PlayerTask;
 
@@ -20,7 +22,7 @@ class PlayerTask;
 
 // inferred: list of route places, a class derived from std::vector (its destructor tests the address
 // four times, as RoutePlaceList_unk of game/Em305Vampire.h)
-typedef std::vector<RoutePlace_unk*> DaemonPlaceList_unk;
+typedef std::vector<gs::WarpPoint*> DaemonPlaceList_unk;
 
 // inferred: two effect resources loaded together (0x18 bytes, implicit destructor)
 struct DaemonResPair_unk {
@@ -162,7 +164,7 @@ public:
     HitInfo_unk* m14E4; // inferred: "SpecialBreathID"
     DaemonPlaceList_unk m14E8; // inferred: "HoverPoint"
     DaemonPlaceList_unk m14F4; // inferred: "FlyPoint"
-    RoutePlace_unk* m1500;     // inferred: "CenterPoint"
+    gs::WarpPoint* m1500;     // inferred: "CenterPoint"
     int m1504;                 // inferred: route points of the flight
     int m1508;
     int m150C;
@@ -171,8 +173,8 @@ public:
     float m1518; // inferred: "FlyingDist"
     atn::Vector3 m151C;
     float m1528;
-    RoutePlace_unk* m152C;
-    RoutePlace_unk* m1530;
+    gs::WarpPoint* m152C;
+    gs::WarpPoint* m1530;
     float m1534;
     float m1538;
     int m153C;

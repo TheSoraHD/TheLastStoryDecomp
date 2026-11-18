@@ -5,24 +5,20 @@
 #include "game/NpcManager.h"
 #include "game/NpcTask.h"
 #include "atn/RenderManager.h"
+#include "game/GameSceneFind_unk.h"
 
-// inferred: route between two points (8 bytes; declared in game/CharaStatus.h)
-struct RoutePath_unk {
-    int m00;
-    int m04;
-};
 struct Field_unk {
     unsigned char m00[0x10D8];
-    RouteTable_unk* m10D8;
+    GameScene* m10D8;
 };
 extern "C" Field_unk* lbl_8087F430;
-extern "C" unsigned short fn_803CD958(RoutePath_unk* path, int point); // inferred: link between two points
+extern "C" unsigned short fn_803CD958(U16Table_unk* path, int point); // inferred: link between two points
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 
 // inferred: link between two route points (name invented)
 static inline int GetLink_unk(int a, int b) {
-    return fn_803CD958(&lbl_8087F430->m10D8->mPaths[a - 1], b - 1);
+    return fn_803CD958(&lbl_8087F430->m10D8->mA0.mData[a - 1], b - 1);
 }
 
 static inline float SqLength_unk(const atn::Vector3& v) {

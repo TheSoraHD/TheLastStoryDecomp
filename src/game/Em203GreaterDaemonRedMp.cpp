@@ -16,6 +16,7 @@
 #include "game/BattleTask.h"
 #include "math/VecAssign_unk.h"
 #include "atn/ColliBase.h"
+#include "game/GameSceneFind_unk.h"
 
 extern "C" unsigned long strlen(const char* s);
 extern "C" int strcmp(const char* a, const char* b);
@@ -60,7 +61,7 @@ struct RedLook_unk {
 // inferred: field (lbl_8087F430): position of the camera at 0x80, the camera target at 0x8A0, a camera
 // shake at 0x96C and the route tables at 0x10D8
 struct Field_unk {
-    RouteTable_unk* fn_8013C504();
+    GameScene* fn_8013C504();
     unsigned char m0000[0x80];
     atn::Vector3 m080; // inferred: camera position
     unsigned char m008C[0x8A0 - 0x8C];
@@ -72,7 +73,7 @@ struct Field_unk {
     float m978;
     RedLook_unk m97C;
     unsigned char m09A4[0x10D8 - 0x9A4];
-    RouteTable_unk* m10D8;
+    GameScene* m10D8;
 };
 extern "C" Field_unk* lbl_8087F430;
 // inferred: field accessor (weak copy 0x80121F00 of another file)
@@ -245,13 +246,13 @@ int Em203GreaterDaemonRedMp::vf0C() {
         mStatus.m18 |= 0x8410;
         mStatus.m18 |= 0x80000;
         mStatus.m18 |= 0x4;
-        RouteTable_unk* table;
+        GameScene* table;
         if (fn_80121F00() != 0) {
             table = fn_80121F00()->fn_8013C504();
         } else {
             table = 0;
         }
-        RoutePlace_unk* center = 0;
+        gs::WarpPoint* center = 0;
         if (m167C.fn_80470580() != 0 && table != 0) {
             atn::Csv csv((const char*)m167C.fn_80470580(), m167C.fn_8047059C());
             float zero = 0.0f;
@@ -338,7 +339,7 @@ int Em203GreaterDaemonRedMp::vf0C() {
                     int id;
                     do {
                         id = fn_800DC12C(csv.fn_8005B9CC());
-                        RoutePlace_unk* place = table->FindPlace_unk(id);
+                        gs::WarpPoint* place = table->FindPlace_unk(id);
                         if (place != 0) {
                             m15A8.push_back(place);
                         }
@@ -409,7 +410,7 @@ int Em203GreaterDaemonRedMp::vf0C() {
 }
 
 // inferred: the "vector length error" of push_back is in the string pool right after the keys of vf0C
-template void std::vector<RoutePlace_unk*>::push_back(RoutePlace_unk* const& x);
+template void std::vector<gs::WarpPoint*>::push_back(gs::WarpPoint* const& x);
 
 // inferred: the owner daemon looks at its neck for 60 frames in state 2; the sub daemon looks at the head of
 // the other daemon while m1654 counts down; then the map BGM follows the height of the target
@@ -828,7 +829,7 @@ void Em203GreaterDaemonRedMp::fn_8029F3FC() {
     if (m14D8 == 0) {
         atn::Vector3 point = m1570->mPos;
         fn_801C3910(point - mPos);
-        if (m1558 == m1570->m10) {
+        if (m1558 == m1570->mIndex) {
             m1560 = point - mPos;
             ToIdle_unk();
         } else {
@@ -836,7 +837,7 @@ void Em203GreaterDaemonRedMp::fn_8029F3FC() {
             float t = 0.5f * (1.0f + (float)sin(3.1415927f * m155C - 1.5707964f));
             mPos = (m1570->mPos - m159C) * t + m159C;
             if (m155C >= 1.0f) {
-                m1558 = m1570->m10;
+                m1558 = m1570->mIndex;
             }
         }
     } else if (m14D8 == 1) {
@@ -1628,9 +1629,9 @@ int Em203GreaterDaemonRedMp::fn_802A4194(int arg) {
             nearest = i;
         }
     }
-    RouteTable_unk* table = lbl_8087F430->m10D8;
+    GameScene* table = lbl_8087F430->m10D8;
     int index = ((GameScene*)table)->fn_803C1560(&m15A8[nearest]->mPos, fn_80179D44(), 0, 1, 1, -1.0f) - 1;
-    m156C = &table->mPoints[index];
+    m156C = &table->m98.mData[index];
     return 1;
 }
 
@@ -1642,7 +1643,7 @@ int Em203GreaterDaemonRedMp::fn_802A42CC() {
     }
     float best = 0.0f;
     int farthest = -1;
-    RouteTable_unk* table;
+    GameScene* table;
     for (unsigned int i = 0; i < m15A8.size(); i++) {
         atn::Vector3 target = m14D4->mPos;
         atn::Vector3 d = m15A8[i]->mPos - target;
@@ -1658,7 +1659,7 @@ int Em203GreaterDaemonRedMp::fn_802A42CC() {
     fn_802A4194(1);
     table = lbl_8087F430->m10D8;
     int index = ((GameScene*)table)->fn_803C1560(&m15A8[farthest]->mPos, fn_80179D44(), 0, 1, 1, -1.0f) - 1;
-    m1570 = &table->mPoints[index];
+    m1570 = &table->m98.mData[index];
     if (m156C == 0 || m1570 == 0) {
         return 0;
     }

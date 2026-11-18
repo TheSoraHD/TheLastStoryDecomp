@@ -6,6 +6,9 @@
 #include "game/EnemyTask.h"
 #include "game/CharaStatus.h"
 #include "game/ResHandle.h"
+namespace gs {
+struct WarpPoint;
+}
 
 // inferred: position and rotation saved by fn_8025D6D0 / sent by Em101ElderZesya (fn_8025FE30); names
 // invented
@@ -49,8 +52,8 @@ public:
 
     atn::LH_Binary m14B0;   // inferred: data file
     CharaTask* m14B8;       // inferred: target
-    RoutePlace_unk* m14BC;  // inferred: "WaitPointID"
-    RoutePlace_unk* m14C0;  // inferred: "ShootPointID"
+    gs::WarpPoint* m14BC;  // inferred: "WaitPointID"
+    gs::WarpPoint* m14C0;  // inferred: "ShootPointID"
     atn::SimpleVector<atn::Vector3> m14C4; // inferred: points (as Em101ElderZesya::m14BC)
     int m14D0;              // inferred: frame counter
     unsigned char m14D4[0x14EC - 0x14D4];

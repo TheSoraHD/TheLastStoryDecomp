@@ -370,11 +370,9 @@ int RandomMerchant::vf1C() {
     return 0;
 }
 
-// NONMATCHING: 99.32% - the entry pointer and the position base swap r25/r26 (and the field registers)
 void RandomMerchant::vf20() {
     atn::CsvTab csv((const char*)mBinary.fn_80470580(), mBinary.fn_8047059C());
     csv.fn_8005BCE8(lbl_8087D710);
-    MerchantEntry_unk* entry = mEntries;
     int count = 0;
     int posCount = 0;
     do {
@@ -384,19 +382,18 @@ void RandomMerchant::vf20() {
         }
         if (strcmp(field, "CHARA_SET") == 0) {
             if (count < 16) {
+                MerchantEntry_unk* entry = &mEntries[count];
                 entry->mName = csv.fn_8005B9CC();
                 entry->mItem = atoi(csv.fn_8005B9CC());
                 for (int j = 0; j < 3; j++) {
-                    const char* s = csv.fn_8005B9CC();
-                    if (s[0] != 0) {
-                        entry->mMotions[j] = s;
+                    field = csv.fn_8005B9CC();
+                    if (field[0] != 0) {
+                        entry->mMotions[j] = field;
                     }
-
                 }
                 entry->m290 = atoi(csv.fn_8005B9CC());
                 entry->mEvent1 = atoi(csv.fn_8005B9CC());
                 entry->mEvent2 = atoi(csv.fn_8005B9CC());
-                entry++;
                 count++;
             }
         } else if (strcmp(field, "APPEAR_POS") == 0) {

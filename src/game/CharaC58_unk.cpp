@@ -2,6 +2,7 @@
 #include "game/AiTarget.h"
 #include "game/CharaManager.h"
 #include "game/GimmickCommon.h"
+#include "game/GameSceneFind_unk.h"
 
 extern "C" int rand();
 extern "C" float PSVECMag(const atn::Vector3* v);
@@ -13,13 +14,13 @@ extern "C" int fn_8004ECC0(void* world, atn::Vector3* hit, const atn::Vector3* f
 // inferred: field (lbl_8087F430): route tables at 0x10D8
 struct Field_unk {
     unsigned char m0000[0x10D8];
-    RouteTable_unk* m10D8;
+    GameScene* m10D8;
 };
 extern "C" Field_unk* lbl_8087F430;
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 
 // inferred: route tables of the field, null without a field (inlined everywhere; name invented)
-static inline RouteTable_unk* GetRouteTable_unk() {
+static inline GameScene* GetGameScene() {
     return lbl_8087F430 != 0 ? lbl_8087F430->m10D8 : 0;
 }
 
@@ -229,8 +230,8 @@ void CharaC58_unk::fn_8011C6C4(CharaTask* chara, int place, float radius) {
     fn_8011C074(chara, 8);
     mPlace = place;
     mRadius = radius;
-    RouteTable_unk* table = GetRouteTable_unk();
-    RoutePlace_unk* p = table != 0 ? table->FindPlace_unk(place) : 0;
+    GameScene* table = GetGameScene();
+    gs::WarpPoint* p = table != 0 ? table->FindPlace_unk(place) : 0;
     if (p != 0) {
         mDest = p->mPos;
     } else {
@@ -314,32 +315,35 @@ static inline bool IsType14_unk(CharaTask* chara) {
     return chara->mType == 1 || chara->mType == 4;
 }
 
-// NONMATCHING: 99.46% - registers in the spot search loop (the data pointer and the offset swap
-// r5/r6, the character id and the spot id swap r0/r3); tried the comparison both ways, an id local,
-// an element pointer and an inline find helper
+// inferred: route id of the character (name invented)
+static inline int RouteId_unk(CharaTask* chara) {
+    return chara->m58;
+}
+
+// inferred: the spots are read through the const operator[] of their array (registers of the original)
 void CharaC58_unk::fn_8011CAE4(CharaTask* chara, float radius) {
-    RouteTable_unk* table = GetRouteTable_unk();
+    GameScene* table = GetGameScene();
     if (table != 0) {
-        RouteSpots_unk* spots = 0;
+        const atn::SimpleArray<gs::NpcSetPoint>* spots = 0;
         if (IsType14_unk(chara)) {
-            spots = &table->m80[0];
+            spots = &table->m80;
         } else if (chara->mType == 2) {
-            spots = &table->m80[1];
+            spots = &table->m88;
         } else if (chara->mType == 3) {
-            spots = &table->m80[2];
+            spots = &table->m90;
         }
         if (spots != 0) {
-            RouteSpot_unk* spot = 0;
-            for (unsigned int i = 0; i < spots->mCount; i++) {
-                if (spots->mSpots[i].mId == chara->m58) {
-                    spot = &spots->mSpots[i];
+            const gs::NpcSetPoint* spot = 0;
+            for (unsigned int i = 0; i < spots->mSize; i++) {
+                if ((*spots)[i].mId == RouteId_unk(chara)) {
+                    spot = &(*spots)[i];
                     break;
                 }
             }
             if (spot != 0) {
                 fn_8011C074(chara, 19);
                 mRadius = radius;
-                m0C.fn_80128A30(&spot->mPos, &chara->mPos, 0, spot->mRadius);
+                m0C.fn_80128A30(&spot->mPos, &chara->mPos, 0, spot->m14);
                 m0C.mRadius = radius;
                 m0C.fn_801255C8();
             }
@@ -451,12 +455,12 @@ void CharaD74_unk::fn_8011CD84(CharaTask* chara, int kind) {
             m00 = 2;
             m06 = 0;
         } else {
-            RouteTable_unk* table = GetRouteTable_unk();
+            GameScene* table = GetGameScene();
             if (table != 0) {
-                for (unsigned int i = 0; i < table->m80[1].mCount; i++) {
-                    RouteSpot_unk* spot = &table->m80[1].mSpots[i];
+                for (unsigned int i = 0; i < table->m88.mSize; i++) {
+                    gs::NpcSetPoint* spot = &table->m88.mData[i];
                     if (spot->mId == chara->m58) {
-                        chara->fn_80170F20(&spot->mPos, 0, spot->mRadius, -1.0f);
+                        chara->fn_80170F20(&spot->mPos, 0, spot->m14, -1.0f);
                         m20 |= 1;
                         break;
                     }

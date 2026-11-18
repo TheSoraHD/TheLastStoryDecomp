@@ -84,19 +84,10 @@ extern "C" void fn_80087E9C(void* group, const char* name, atn::Vector3* value, 
                             float max, float step);
 extern "C" void fn_80088724(void* group, const char* name, atn::Vector3* value, int arg3, int arg4, float min,
                             float max, float step);
-// inferred: field (lbl_8087F430); event flags (fn_80370A78/fn_80370AE4) and global flags
-// (fn_80370174/fn_80370320); m74/m80: camera position and target, m13C: camera matrix, m868: camera
-// mode
-struct Field_unk {
-    unsigned char m0000[0x74];
-    atn::Vector3 m74;
-    atn::Vector3 m80;
-    unsigned char m008C[0x13C - 0x8C];
-    Mtx m13C;
-    unsigned char m016C[0x868 - 0x16C];
-    int m868;
-};
-extern "C" Field_unk* lbl_8087F430;
+// inferred: the field task (lbl_8087F430): event flags (fn_80370A78/fn_80370AE4), global flags
+// (fn_80370174/fn_80370320) and its camera (GameCamera::m7FC sub mode, mCamera position, target and
+// inverse view matrix)
+extern "C" GameTask* lbl_8087F430;
 namespace atn {
 struct Camera;
 }
@@ -320,10 +311,10 @@ void SpecialEnemyBase::fn_805A4980(SpecialFlag_unk* flag, atn::Csv* csv) {
 int SpecialEnemyBase::fn_805A49E4(SpecialFlag_unk* flag) {
     if (lbl_8087F430 != 0) {
         if (flag->mGlobal == 0) {
-            return ((GameTask*)lbl_8087F430)->fn_80370A78(flag->mIndex);
+            return lbl_8087F430->fn_80370A78(flag->mIndex);
         }
         if (flag->mGlobal == 1) {
-            return ((GameTask*)lbl_8087F430)->fn_80370174(flag->mIndex);
+            return lbl_8087F430->fn_80370174(flag->mIndex);
         }
     }
     return -1;
@@ -332,9 +323,9 @@ int SpecialEnemyBase::fn_805A49E4(SpecialFlag_unk* flag) {
 void SpecialEnemyBase::fn_805A4A1C(SpecialFlag_unk* flag, int value) {
     if (lbl_8087F430 != 0) {
         if (flag->mGlobal == 0) {
-            ((GameTask*)lbl_8087F430)->fn_80370AE4(flag->mIndex, value);
+            lbl_8087F430->fn_80370AE4(flag->mIndex, value);
         } else if (flag->mGlobal == 1) {
-            ((GameTask*)lbl_8087F430)->fn_80370320(flag->mIndex, value, 0);
+            lbl_8087F430->fn_80370320(flag->mIndex, value, 0);
         }
     }
 }
@@ -344,11 +335,11 @@ int SpecialEnemyBase::fn_805A4A54(SpecialAim_unk* aim) {
     if (aim->mNode == 0 || aim->mRadius <= 0.0f || aim->mEnabled == 0) {
         return 0;
     }
-    Field_unk* field = lbl_8087F430;
-    int mode = field->m868;
+    GameTask* field = lbl_8087F430;
+    int mode = field->mCamera.m7FC;
     if (mode == 3 || mode == 1 || mode == 4) {
-        atn::Vector3 eye = field->m74;
-        atn::Vector3 ray = field->m80 - eye;
+        atn::Vector3 eye = field->mCamera.mCamera.mPos;
+        atn::Vector3 ray = field->mCamera.mCamera.mTarget - eye;
         ray.Normalize_unk();
         ray = eye + ray * 800.0f;
         atn::Vector3 center(aim->mNode[0][3] + aim->mOffset.x, aim->mNode[1][3] + aim->mOffset.y,
@@ -358,7 +349,7 @@ int SpecialEnemyBase::fn_805A4A54(SpecialAim_unk* aim) {
         atn::Vector3 lo(-radius, -radius, 0.0f);
         atn::Vector3 hi(radius, radius, 0.0f);
         Mtx m;
-        __MtxCopy(m, field->m13C);
+        __MtxCopy(m, field->mCamera.mCamera.mInvView.m);
         m[0][3] = 0.0f;
         m[1][3] = 0.0f;
         m[2][3] = 0.0f;

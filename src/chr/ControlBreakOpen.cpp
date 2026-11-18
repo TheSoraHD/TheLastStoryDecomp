@@ -1,8 +1,11 @@
 #include "chr/ControlBreakOpen.h"
 #include "game/GameCamera.h"
 #include "game/Input_unk.h"
+#include "game/GameUI.h"
+#include "game/GameTask.h"
 
-// inferred: camera settings block copied into the camera manager (class names unknown)
+// inferred: settings of the fixed mode of the field camera (GameCamera::m4FC position, m508 target,
+// m514 fovy, m518 follow the character); built on the stack and copied into the camera
 struct CameraParam_unk {
     CameraParam_unk(float px, float py, float pz, float tx, float ty, float tz, float fov, int flag)
         : mPos(px, py, pz), mTarget(tx, ty, tz), mFov(fov), mFlag(flag) {}
@@ -12,30 +15,19 @@ struct CameraParam_unk {
     float mFov;
     int mFlag;
 };
-struct CameraSub_unk {
-};
-struct CameraMgr_unk {
-    void SetParam_unk(const CameraParam_unk& param) {
-        // inferred: the two vectors are copied through a atn::Vector3 pointer (second one at src + 0xC)
-        const atn::Vector3* src = &param.mPos;
-        atn::Vector3* dst = &mParam.mPos;
-        dst[0] = src[0];
-        dst[1] = src[1];
-        mParam.mFov = param.mFov;
-        mParam.mFlag = param.mFlag;
-    }
 
-    unsigned char m000[0x6C];
-    CameraSub_unk m06C;
-    unsigned char m06D[0x568 - 0x6D];
-    CameraParam_unk mParam; // 0x568
-};
-struct Flags_unk {
-    unsigned char m000[0x738];
-    int m738;
-};
-extern "C" CameraMgr_unk* lbl_8087F430;
-extern "C" Flags_unk* lbl_8087F490;
+// inferred: copies the settings into the fixed mode of the field camera (task in r3 as in the original); the two vectors are copied
+// through a atn::Vector3 pointer (second one at src + 0xC)
+static inline void SetFixedParam_unk(GameTask* task, const CameraParam_unk& param) {
+    GameCamera& camera = task->mCamera;
+    const atn::Vector3* src = &param.mPos;
+    camera.m4FC = src[0];
+    camera.m508 = src[1];
+    camera.m514 = param.mFov;
+    camera.m518 = param.mFlag;
+}
+
+extern "C" GameTask* lbl_8087F430;
 extern "C" void* lbl_8087F0A8;
 
 namespace chr {
@@ -52,8 +44,8 @@ ControlBreakOpen::ControlBreakOpen(Chara_unk* chara, BreakTarget_unk* target)
     motion->mTracks[0].m20 = 1.0f;
     motion->fn_80097C08(0, 0x237, 0, 0, 1, 0.0f, 0.1f);
     motion->mTracks[0].m0C = 1.0f;
-    lbl_8087F430->SetParam_unk(CameraParam_unk(-20.0f, 3.0f, -15.0f, 0.0f, 10.0f, 5.0f, 0.7853982f, 1));
-    ((GameCamera*)&lbl_8087F430->m06C)->fn_80389838(0x12);
+    SetFixedParam_unk(lbl_8087F430, CameraParam_unk(-20.0f, 3.0f, -15.0f, 0.0f, 10.0f, 5.0f, 0.7853982f, 1));
+    lbl_8087F430->mCamera.fn_80389838(0x12);
 }
 
 int ControlBreakOpen::vf0C() {

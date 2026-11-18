@@ -7,6 +7,9 @@
 #include "atn/SoundRef.h"
 #include "game/EnemyTask.h"
 #include "game/ResHandle.h"
+namespace gs {
+struct WarpPoint;
+}
 
 class GimmickCommon;
 
@@ -60,8 +63,8 @@ public:
     int m14F8;
     float m14FC;              // inferred: damage taken
     int m1500[3];             // inferred: place ids "base1="-"base3="
-    RoutePlace_unk* m150C[3]; // inferred: places of m1500 (m150C[0]: home of the ghoul)
-    RoutePlace_unk* m1518;    // inferred: copy of m150C[0] (debug sphere of the home place)
+    gs::WarpPoint* m150C[3]; // inferred: places of m1500 (m150C[0]: home of the ghoul)
+    gs::WarpPoint* m1518;    // inferred: copy of m150C[0] (debug sphere of the home place)
     int m151C;
     int m1520;                // inferred: frames with a control running
     int m1524;                // inferred: frames the players stayed grouped
@@ -91,8 +94,8 @@ public:
     int m15EC;
     int m15F0;
     atn::Vector3 m15F4;       // inferred: debug line offset from m1618
-    RoutePlace_unk* m1600;    // inferred: place 0x385
-    RoutePlace_unk* m1604;    // inferred: place 0x450
+    gs::WarpPoint* m1600;    // inferred: place 0x385
+    gs::WarpPoint* m1604;    // inferred: place 0x450
     atn::Vector3 m1608;       // inferred: debug sphere center
     GimmickCommon* m1614;     // inferred: gimmick with id 0x80A
     atn::Vector3 m1618;       // inferred: debug sphere and line start

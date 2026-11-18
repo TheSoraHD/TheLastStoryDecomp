@@ -13,6 +13,7 @@
 #include "math/VecAssign_unk.h"
 #include "game/MiniMapTask.h"
 #include "atn/ColliBase.h"
+#include "game/GameSceneFind_unk.h"
 
 extern "C" unsigned long strlen(const char* s);
 extern "C" int strcmp(const char* a, const char* b);
@@ -24,7 +25,7 @@ extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared len
 // inferred: field (class unknown); m10D8 holds the route tables
 struct Field_unk {
     unsigned char m00[0x10D8];
-    RouteTable_unk* m10D8;
+    GameScene* m10D8;
     unsigned char m10DC[0x5660 - 0x10DC];
     int m5660;
 };
@@ -265,7 +266,7 @@ void ChaserGuard::fn_8017D13C() {
         case 4:
             color = Color4f_unk(0.0f, 0.0f, 1.0f, 1.0f);
             lbl_8087EEB0->fn_80063764((mPos + atn::Vector3(0.0f, 5.0f, 0.0f)), (m14B8 + atn::Vector3(0.0f, 5.0f, 0.0f)), 0.0f, ToArgb_unk(Color4f_unk(1.0f, 1.0f, 1.0f, 1.0f)));
-            lbl_8087EEB0->fn_80063764((mPos + atn::Vector3(0.0f, 5.0f, 0.0f)), (lbl_8087F430->m10D8->mPoints[mC58.m0C.mPointB - 1].mPos + atn::Vector3(0.0f, 5.0f, 0.0f)), 0.0f, ToArgb_unk(Color4f_unk(1.0f, 1.0f, 1.0f, 1.0f)));
+            lbl_8087EEB0->fn_80063764((mPos + atn::Vector3(0.0f, 5.0f, 0.0f)), (lbl_8087F430->m10D8->m98.mData[mC58.m0C.mPointB - 1].mPos + atn::Vector3(0.0f, 5.0f, 0.0f)), 0.0f, ToArgb_unk(Color4f_unk(1.0f, 1.0f, 1.0f, 1.0f)));
             lbl_8087EEB0->fn_80062C8C(12, ToArgb_unk(Color4f_unk(0.5f, 0.5f, 0.0f, 1.0f)), mPos.x, mPos.y, mPos.z, 0.0f, lbl_8087F0A8->mChase.m4EC, 10.0f);
             lbl_8087EEB0->fn_80062C8C(12, ToArgb_unk(Color4f_unk(0.1f, 0.1f, 0.0f, 1.0f)), mPos.x, mPos.y, mPos.z, 0.0f, lbl_8087F0A8->mChase.m4F0, 10.0f);
             break;

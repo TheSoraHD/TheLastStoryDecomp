@@ -3,6 +3,10 @@
 
 #include "atn/Task.h"
 #include "game/CharaStatus.h"
+namespace gs {
+struct WarpPoint;
+}
+class GameScene;
 
 class CharaTask;
 
@@ -27,7 +31,7 @@ public:
         int mDefeated;
         int mScore;
         unsigned int mFlags;     // inferred: bit 0: waits to be moved to a spawn point
-        RoutePlace_unk* mSpawn; // inferred: spawn point in use
+        gs::WarpPoint* mSpawn; // inferred: spawn point in use
     };
     // inferred: pair of message ids (first, last) of a voice group
     struct Voice_unk {
@@ -62,13 +66,13 @@ public:
     }
 
     int mState;                // 0x48: inferred: 1 running, 2 finished
-    RouteTable_unk* mTable;    // 0x4C
+    GameScene* mTable;    // 0x4C
     int m50;
     int m54;
     int mMode;                 // 0x58
     int m5C;
     FixedArray_unk<Entry_unk, 16> mEntries;         // 0x60
-    FixedArray_unk<RoutePlace_unk*, 64> mSpawns;     // 0x1A4
+    FixedArray_unk<gs::WarpPoint*, 64> mSpawns;     // 0x1A4
     int mScore0;               // 0x2A8: inferred: score of team 2 (enemies)
     int mScore1;               // 0x2AC: inferred: score of the other team
     int mTimer;                // 0x2B0: inferred: frames of the score zoom

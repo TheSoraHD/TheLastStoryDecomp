@@ -75,7 +75,7 @@ struct ShopWeapon_unk {
 };
 extern "C" int fn_80206B9C(int id); // inferred: nonzero for a weapon
 extern "C" ShopWeapon_unk* fn_80206C50(int id);
-extern "C" ShopWeapon_unk* fn_80206B14(int id);
+extern "C" ShopWeapon_unk* fn_80206B14(int hand, int id); // inferred: weapon of this hand and id
 extern "C" int fn_80206D18(ShopWeapon_unk* weapon, int member, int hand); // inferred: can be equipped
 // inferred: armour data (fn_8020EFEC); names invented
 struct ShopArmor_unk {
@@ -589,8 +589,9 @@ void ShopBuySell::fn_80586620(int id) {
     }
 }
 
-// NONMATCHING: 97.23% - the layout of the first SetPaneText_unk is kept in a saved register in the original
-// (computed before the hash), the scheduling of the icon rectangle and registers
+// NONMATCHING: 97.3% - the layout of the first SetPaneText_unk is kept in a saved register in the original
+// (computed before the hash; a layout getter inline fixes it, 98.2 with the param loops), the scheduling of the
+// icon rectangle and registers
 void ShopBuySell::fn_805866F4(int id, int member, int slot) {
     ShopPoint_unk pos;
     ShopChara_unk* chara = fn_8020924C(fn_80219544(member));
@@ -624,7 +625,7 @@ void ShopBuySell::fn_805866F4(int id, int member, int slot) {
         ShopWeapon_unk* weapon = fn_80206C50(id);
         if (weapon != 0 && fn_80206D18(weapon, member, weapon->mHand == 1)) {
             SetPaneFloat_unk(anime->mLayout, "cantEquip", 0.0f);
-            now = fn_80206B14(equip->mWeapons[weapon->mHand == 1].mId);
+            now = fn_80206B14(weapon->mHand, equip->mWeapons[weapon->mHand == 1].mId);
             next = weapon;
             show = 1;
         } else {

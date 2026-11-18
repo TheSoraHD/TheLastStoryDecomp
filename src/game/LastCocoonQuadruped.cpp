@@ -21,6 +21,7 @@
 #include "atn/ColliBase.h"
 #include "game/DamageResult_unk.h"
 #include "math/VecAssign_unk.h"
+#include "game/GameScene.h"
 
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
 // inferred: field (lbl_8087F430): camera shake and event flags (as in gmk/ShakeCamera.cpp)
@@ -37,7 +38,7 @@ struct QuadField_unk {
     float m974;
     float m978;
     unsigned char m97C[0x10D8 - 0x97C];
-    RouteTable_unk* m10D8;
+    GameScene* m10D8;
 };
 extern "C" QuadField_unk* lbl_8087F430;
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
@@ -155,12 +156,12 @@ extern "C" void* lbl_8087EE98; extern "C" int fn_8004ED34(void* colli, atn::Coll
 extern "C" int fn_8004D388(void* world, atn::ColliResult_unk* result, const atn::Vector3* from,
                            const atn::Vector3* to, unsigned int mask, void* ignore, int arg,
                            float radius); // inferred: sphere sweep
-// inferred: RouteTable_unk::FindPlace_unk on the field table with the array read inside the loop
+// inferred: GameScene::FindPlace_unk on the field table with the array read inside the loop
 // (as in game/Em208Queen.cpp)
-inline RoutePlace_unk* FindQuadPlace_unk(int id) {
-    RouteTable_unk* table = lbl_8087F430->m10D8;
-    for (unsigned int i = 0; i < table->mNumPlaces; i++) {
-        RoutePlace_unk* places = table->mPlaces;
+inline gs::WarpPoint* FindQuadPlace_unk(int id) {
+    GameScene* table = lbl_8087F430->m10D8;
+    for (unsigned int i = 0; i < table->m78.size(); i++) {
+        gs::WarpPoint* places = table->m78.mData;
         if (id == places[i].mId) {
             return &places[i];
         }
@@ -257,7 +258,7 @@ int LastCocoonQuadruped::vf0C() {
 
 // inferred: field object (as in gmk/FlamingArrow.cpp)
 struct Field_unk {
-    RouteTable_unk* fn_8013C504();
+    GameScene* fn_8013C504();
 };
 extern "C" Field_unk* fn_80121F00();
 // inferred: player input of the field (as in game/Em201ZanGurgFinal.cpp; weak copies with C names)
@@ -467,7 +468,7 @@ void LastCocoonQuadruped::vf40(HitInfo_unk* hit) {
     float rate = mStatus.mParamB.m84 > 0 ? mStatus.m04 / (float)mStatus.mParamB.m84 : 0.0f;
     if (rate < 0.5f) {
         m14C4 = 7;
-        RoutePlace_unk* place = FindQuadPlace_unk(600);
+        gs::WarpPoint* place = FindQuadPlace_unk(600);
         if (place != 0) {
             m14D4 = place->mPos;
             atn::VecAssign_unk(m14E0, atn::Vector3(0.0f, place->m14, 0.0f));
@@ -1264,7 +1265,7 @@ void LastCocoonQuadruped::fn_804655AC() {
         }
         mPos += step;
         if (mMotion.mTracks[0].m08 > 20.0f) {
-            RoutePlace_unk* place = FindQuadPlace_unk(600);
+            gs::WarpPoint* place = FindQuadPlace_unk(600);
             if (place != 0) {
                 atn::Vector3 d = place->mPos - mPos;
                 mRot.y += 0.3f * atn::WrapAngle_unk(d.ToRotationZ_unk().y - mRot.y);
@@ -1673,7 +1674,7 @@ atn::Vector3 LastCocoonQuadruped::fn_804687B0(int* id, int kind8, int kind4) {
     for (int i = 0; i < 10; i++) {
         const QuadPlace_unk& e = sQuadPlaces[i];
         if (e.m08 == kind8 && e.m04 == kind4) {
-            RoutePlace_unk* place = FindQuadPlace_unk(e.mId);
+            gs::WarpPoint* place = FindQuadPlace_unk(e.mId);
             if (place != 0) {
                 float dist = LengthSq_unk(place->mPos - center);
                 if (dist > maxDist) {
@@ -1702,7 +1703,7 @@ atn::Vector3 LastCocoonQuadruped::fn_80468A08(int id, int* next) {
             }
         }
     }
-    RoutePlace_unk* place = FindQuadPlace_unk(nextId);
+    gs::WarpPoint* place = FindQuadPlace_unk(nextId);
     if (place != 0) {
         pos = place->mPos;
     }
@@ -1713,10 +1714,11 @@ atn::Vector3 LastCocoonQuadruped::fn_80468A08(int id, int* next) {
 }
 
 #include "std/vector_vec3_unk.h"
+#include "game/GameSceneFind_unk.h"
 extern "C" void fn_8032AF90(QuadRoutes_unk* path, std::vector<atn::Vector3>* pts); // inferred: builds the path
 
 // inferred: over the inlining budget (docs/inlining.md R3, push_back of std/vector_vec3_unk.h): the Vector3
-// copies, RouteTable_unk::FindPlace_unk and the vector members (weak copies of game/Em403WarLion.cpp) are calls
+// copies, GameScene::FindPlace_unk and the vector members (weak copies of game/Em403WarLion.cpp) are calls
 int LastCocoonQuadruped::fn_80468B68(QuadRoutes_unk* path, int id, int* next, int last) {
     int id2 = 0;
     int id1 = 0;
@@ -1742,7 +1744,7 @@ int LastCocoonQuadruped::fn_80468B68(QuadRoutes_unk* path, int id, int* next, in
             break;
         }
     }
-    RoutePlace_unk* place = fn_80121F00()->fn_8013C504()->FindPlace_unk(id);
+    gs::WarpPoint* place = fn_80121F00()->fn_8013C504()->FindPlace_unk(id);
     if (place != 0) {
         pos0 = place->mPos;
     }

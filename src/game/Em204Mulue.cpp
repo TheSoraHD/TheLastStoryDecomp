@@ -15,6 +15,7 @@
 #include "game/GameTask.h"
 #include "math/VecAssign_unk.h"
 #include "game/DamageResult_unk.h"
+#include "game/GameSceneFind_unk.h"
 
 extern "C" unsigned long strlen(const char* s);
 extern "C" int strcmp(const char* a, const char* b);
@@ -103,7 +104,7 @@ struct Field_unk {
     unsigned char m8A4[0x97C - 0x8A4];
     MulueLook_unk m97C;
     unsigned char m9A4[0x10D8 - 0x9A4];
-    RouteTable_unk* m10D8;
+    GameScene* m10D8;
 };
 extern "C" Field_unk* lbl_8087F430;
 extern "C" void fn_8003EA3C(DamageResult_unk* result, HitInfo_unk* data, CharaTask* attacker, CharaTask* owner,
@@ -113,26 +114,27 @@ extern "C" HitParam_unk lbl_807C6B90;
 extern "C" int fn_8004ED34(void* world, atn::ColliResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg7, CharaTask* arg8); // inferred: ray test
 // inferred: hint of the HUD (GameUI::m764) built as a temporary (as in game/Em209SmallGolem.cpp)
+// inferred: the stores of the temporary of vf10 follow the original only with m08-m14 set first
 struct MulueUIHint_unk : public GameUIElem1C_unk {
     MulueUIHint_unk(int a, int b, int c) {
-        m00 = a;
-        m04 = b;
         m08 = c;
         m0C = 0;
         m10 = 0;
         m14 = 0;
+        m00 = a;
+        m04 = b;
         m18 = 1;
     }
 };
 // inferred: shot of a sting (BulletShot_unk with defaults; name invented)
 struct MulueShot_unk : public BulletShot_unk {
     MulueShot_unk() {
-        m00 = 2.0f;
         m04 = 0;
         m08 = 0;
         m10 = 0;
         m14 = 0.0f;
         m18 = 1.0f;
+        m00 = 2.0f;
     }
 };
 
@@ -331,7 +333,7 @@ int Em204Mulue::vf0C() {
                     int id;
                     do {
                         id = fn_800DC12C(csv.fn_8005B9CC());
-                        RoutePlace_unk* place = lbl_8087F430->m10D8->FindPlace_unk(id);
+                        gs::WarpPoint* place = lbl_8087F430->m10D8->FindPlace_unk(id);
                         if (place != 0) {
                             m153C.push_back(place);
                         }
@@ -340,7 +342,7 @@ int Em204Mulue::vf0C() {
                     int id;
                     do {
                         id = fn_800DC12C(csv.fn_8005B9CC());
-                        RoutePlace_unk* place = lbl_8087F430->m10D8->FindPlace_unk(id);
+                        gs::WarpPoint* place = lbl_8087F430->m10D8->FindPlace_unk(id);
                         if (place != 0) {
                             m1580.push_back(place);
                         }
@@ -403,7 +405,31 @@ int Em204Mulue::vf0C() {
     return 0;
 }
 
-// NONMATCHING: 99.81% - order of two loads of case 9 and stack slots of the catchpoint matrix
+// inferred: cone of the look-out of the default case of vf10 (an inline: its locals take the stack slots of
+// the original only through it; the named copy of the position orders the temporary; as in
+// game/Em204MulueMp.cpp; name invented)
+static inline void Look_unk(Em204Mulue* self) {
+    atn::Vector3 t = self->fn_801781B0();
+    atn::Vector3 pos = t;
+    atn::Vector3 dir(0.0f, 0.0f, 1.0f);
+    Mtx m;
+    PSMTXRotRad(m, 'y', self->mRot.y);
+    PSMTXMultVec(m, &dir, &dir);
+    fn_805A5078(&pos, &dir, 100, 1.2f * self->m5B0, 3.1415927f);
+}
+// inferred: scales the rotation of the catchpoint matrix (an inline: stack slots of vf10; name invented)
+static inline void Scale_unk(atn::Matrix3x4& m, const atn::Vector3& s) {
+    atn::Matrix3x4 r;
+    Mtx sm;
+    PSMTXScale(sm, s.x, s.y, s.z);
+    PSMTXConcat(m.m, sm, r.m);
+    m = r;
+}
+// inferred: bite of case 9 of vf10 (an inline: the original loads m590 before the battle manager; name
+// invented)
+static inline void Attack_unk(Em204Mulue* self, HitInfo_unk* info, int kind) {
+    lbl_8087F048->fn_800F8C6C(0, 0, self, info, kind, 0.0f, 30, -1);
+}
 void Em204Mulue::vf10() {
     fn_8014C0B4(0x1B, 0x14);
     fn_8014C0B4(0x1C, 0x1C7);
@@ -434,7 +460,7 @@ void Em204Mulue::vf10() {
                 Rest_unk();
             }
             if (mMotion.mTracks[0].m08 >= 23.0f && mMotion.mTracks[0].m08 <= 27.0f) {
-                lbl_8087F048->fn_800F8C6C(0, 0, this, m166C, m590, 0.0f, 30, -1);
+                Attack_unk(this, m166C, m590);
             }
             break;
         case 10:
@@ -577,13 +603,7 @@ void Em204Mulue::vf10() {
                 fn_80170A20(m14B0, -1.0f, 0);
             }
             fn_802A711C();
-            atn::Vector3 pos;
-            pos = fn_801781B0();
-            atn::Vector3 dir(0.0f, 0.0f, 1.0f);
-            Mtx m;
-            PSMTXRotRad(m, 'y', mRot.y);
-            PSMTXMultVec(m, &dir, &dir);
-            fn_805A5078(&pos, &dir, 100, 1.2f * m5B0, 3.1415927f);
+            Look_unk(this);
             fn_802A74A4();
             break;
         }
@@ -595,16 +615,12 @@ void Em204Mulue::vf10() {
     fn_802A7970();
     if (m58C >= 11 && m58C <= 13) {
         atn::Matrix3x4 m(mMotion.GetNodeMtx_unk("catchpoint"));
-        atn::Vector3 t(m.m[0][3], m.m[1][3], m.m[2][3]);
+        atn::Vector3 t = m.GetTrans_unk();
         m.m[0][3] = 0.0f;
         m.m[1][3] = 0.0f;
         m.m[2][3] = 0.0f;
         atn::Vector3 s(1.0f / m540.x, 1.0f / m540.y, 1.0f / m540.z);
-        Mtx sm;
-        PSMTXScale(sm, s.x, s.y, s.z);
-        atn::Matrix3x4 r;
-        PSMTXConcat(m.m, sm, r.m);
-        m = r;
+        Scale_unk(m, s);
         m1614 = m;
         m1614.m[0][3] = t.x;
         m1614.m[1][3] = t.y;
@@ -786,59 +802,52 @@ void Em204Mulue::fn_802A74A4() {
     fn_802AC0E0();
 }
 
-// NONMATCHING: 98.41% - float registers of the first capsule and r6/r7 of the node copies (__VecCopy family)
+// inferred: sets the segment and radius of a capsule (an inline: the node copies take the registers of
+// the original only through it, with VecAssign_unk; as in the patch of Em204MulueMp; name invented)
+static inline void SetCapsule_unk(atn::ColliCapsule& c, const atn::Vector3& a, const atn::Vector3& b, float r) {
+    c.m3C = a;
+    c.m48 = b;
+    c.m54 = r;
+}
 void Em204Mulue::fn_802A7970() {
     atn::Vector3 a;
     atn::Vector3 b;
-    float r0 = m5B0;
+    m620 = m5B0;
     m614 = mPos + m5A4;
-    m620 = r0;
-    m614.y += r0;
+    m614.y += m620;
     a = m614;
     b = GetNodePos_unk(mMotion.GetNodeMtx_unk("head"));
     b.y -= 1.0f;
-    mColli.m3C = a;
-    mColli.m48 = b;
-    mColli.m54 = m620;
+    SetCapsule_unk(mColli, a, b, m620);
     {
         float r = 7.0f;
-        a = GetNodePos_unk(mMotion.GetNodeMtx_unk("leftforearm"));
-        b = GetNodePos_unk(mMotion.GetNodeMtx_unk("leftmiddle1"));
-        m168C.m3C = a;
-        m168C.m48 = b;
-        m168C.m54 = r;
+        atn::VecAssign_unk(a, GetNodePos_unk(mMotion.GetNodeMtx_unk("leftforearm")));
+        atn::VecAssign_unk(b, GetNodePos_unk(mMotion.GetNodeMtx_unk("leftmiddle1")));
+        SetCapsule_unk(m168C, a, b, r);
     }
     {
         float r = 7.0f;
-        a = GetNodePos_unk(mMotion.GetNodeMtx_unk("rightforearm"));
-        b = GetNodePos_unk(mMotion.GetNodeMtx_unk("rightmiddle1"));
-        m16E4.m3C = a;
-        m16E4.m48 = b;
-        m16E4.m54 = r;
+        atn::VecAssign_unk(a, GetNodePos_unk(mMotion.GetNodeMtx_unk("rightforearm")));
+        atn::VecAssign_unk(b, GetNodePos_unk(mMotion.GetNodeMtx_unk("rightmiddle1")));
+        SetCapsule_unk(m16E4, a, b, r);
     }
     {
         float r = 5.0f;
-        a = GetNodePos_unk(mMotion.GetNodeMtx_unk("leftleg"));
-        b = GetNodePos_unk(mMotion.GetNodeMtx_unk("leftfoot"));
-        m173C.m3C = a;
-        m173C.m48 = b;
-        m173C.m54 = r;
+        atn::VecAssign_unk(a, GetNodePos_unk(mMotion.GetNodeMtx_unk("leftleg")));
+        atn::VecAssign_unk(b, GetNodePos_unk(mMotion.GetNodeMtx_unk("leftfoot")));
+        SetCapsule_unk(m173C, a, b, r);
     }
     {
         float r = 5.0f;
-        a = GetNodePos_unk(mMotion.GetNodeMtx_unk("rightleg"));
-        b = GetNodePos_unk(mMotion.GetNodeMtx_unk("rightfoot"));
-        m1794.m3C = a;
-        m1794.m48 = b;
-        m1794.m54 = r;
+        atn::VecAssign_unk(a, GetNodePos_unk(mMotion.GetNodeMtx_unk("rightleg")));
+        atn::VecAssign_unk(b, GetNodePos_unk(mMotion.GetNodeMtx_unk("rightfoot")));
+        SetCapsule_unk(m1794, a, b, r);
     }
     {
         float r = 9.0f;
-        a = GetNodePos_unk(mMotion.GetNodeMtx_unk("joint2"));
-        b = GetNodePos_unk(mMotion.GetNodeMtx_unk("joint4"));
-        m17EC.m3C = a;
-        m17EC.m48 = b;
-        m17EC.m54 = r;
+        atn::VecAssign_unk(a, GetNodePos_unk(mMotion.GetNodeMtx_unk("joint2")));
+        atn::VecAssign_unk(b, GetNodePos_unk(mMotion.GetNodeMtx_unk("joint4")));
+        SetCapsule_unk(m17EC, a, b, r);
     }
 }
 
@@ -990,7 +999,7 @@ void Em204Mulue::fn_802A8BBC() {
     }
 }
 
-// NONMATCHING: 98.82% - order of the status address and the bitfield load of the damage record
+// inferred: the status of the target through a local pointer and `power` declared before `hp`
 void Em204Mulue::fn_802A91D0() {
     if (m14C0 > 160) {
         SetState_unk(13);
@@ -998,10 +1007,11 @@ void Em204Mulue::fn_802A91D0() {
         ClearPartsFlag_unk();
     }
     if (m1644 != 0 && m14C0 % 30 == 0) {
-        int hp = (int)m1644->mStatus.m04;
+        CharaStatus* status = &m1644->mStatus;
         int power = mStatus.mParamB.m78 * 20;
+        int hp = (int)status->m04;
         int dmg = MIN(power, hp - 1) < 0 ? 0 : MIN(power, hp - 1);
-        m1644->mStatus.fn_8012DF7C(dmg, 0, 0);
+        status->fn_8012DF7C(dmg, 0, 0);
         atn::Vector3 pos(m1644->fn_80148B0C(0)->m04.mCenter);
         pos += atn::Vector3(0.0f, 15.0f, 0.0f);
         DamageResult_unk damage;
@@ -1012,7 +1022,6 @@ void Em204Mulue::fn_802A91D0() {
     Release_unk();
 }
 
-// NONMATCHING: 99.95% - r3/r4 of the bitfield of the damage record
 void Em204Mulue::fn_802A94C8() {
     if (fn_80158BB4()) {
         Rest_unk();
@@ -1109,7 +1118,8 @@ inline void MulueRotZYX_unk(atn::Matrix3x4& m, const atn::Vector3& rot) {
     }
 }
 
-// NONMATCHING: 99.59% - store order of the shot fields and r26/r27 of the shadowing local
+// inferred: the shadowing `dir` from `pos - hips` with y cleared, `h` copied with __VecCopy (source
+// address first) and the shot constructor storing m00 last
 void Em204Mulue::fn_802A9ADC(int aimed, int skipKind3) {
     if (m1678 == 0) {
         return;
@@ -1123,7 +1133,8 @@ void Em204Mulue::fn_802A9ADC(int aimed, int skipKind3) {
     if (player != 0) {
         // inferred: the original normalizes a shadowing local, `dir` stays unset
         atn::Vector3 pos(player->mPos);
-        atn::Vector3 dir(pos.x - hips.x, 0.0f, pos.z - hips.z);
+        atn::Vector3 dir(pos - hips);
+        dir.y = 0.0f;
         dir.Normalize_unk();
     }
     if (aimed) {
@@ -1164,7 +1175,8 @@ void Em204Mulue::fn_802A9ADC(int aimed, int skipKind3) {
             PSMTXMultVec(m3, &v, &v);
             PSMTXMultVec(m.m, &v, &v);
             if (player != 0) {
-                atn::Vector3 h(v);
+                atn::Vector3 h;
+                __VecCopy(&h.x, &v.x);
                 h.y = 0.0f;
                 h.Normalize_unk();
                 if (PSVECDotProduct(&dir, &h) > 0.9659258f) {

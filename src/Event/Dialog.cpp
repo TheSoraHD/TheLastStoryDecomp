@@ -80,20 +80,8 @@ struct DialogText_unk {
 extern "C" void fn_800DAB68(DialogTextMgr_unk* mgr, DialogText_unk* text);
 extern "C" const wchar_t lbl_8087DBD8[2]; // inferred: one space (another unit's literal)
 
-// inferred: field (lbl_8087F430)
-// inferred: camera (CameraSub_unk at lbl_8087F430 + 0x6C)
-struct CameraSub_unk {
-    unsigned char m000[0x7FC];
-    int m7FC;
-};
-struct DialogField_unk {
-    unsigned char m00[0x4C];
-    int m4C; // inferred: map
-    int m50;
-    unsigned char m54[0x6C - 0x54];
-    CameraSub_unk m6C;
-};
-extern "C" DialogField_unk* lbl_8087F430;
+// inferred: the field task (lbl_8087F430): map of its options and sub mode of its camera
+extern "C" GameTask* lbl_8087F430;
 
 // inferred: post effects (lbl_8087EF8C)
 struct DialogPostFx_unk {
@@ -231,8 +219,11 @@ inline void Dialog::ResetPos_unk() {
     float w = lbl_8087EEE0->mWidth;
     float h = lbl_8087EEE0->mHeight;
     for (int i = 0; i < 4; i++) {
-        mSlots[i].mXY.y = h * sPos[i].y;
-        mSlots[i].mXY.x = w * sPos[i].x;
+        // inferred: y computed before x, stored x then y (load and register order of the original)
+        float y = h * sPos[i].y;
+        float x = w * sPos[i].x;
+        mSlots[i].mXY.x = x;
+        mSlots[i].mXY.y = y;
     }
 }
 
@@ -366,10 +357,10 @@ void Dialog::fn_80228AF8(int slot, Actor* actor, int kind, int arg, int frames, 
             mSlots[slot].mHead = h;
             h->fn_80227434(kind, arg, slot == 1);
             int flag = 0;
-            DialogField_unk* field = lbl_8087F430;
+            GameTask* field = lbl_8087F430;
             if (field != 0) {
-                int map = field->m4C;
-                if ((map == 14 && field->m50 == 6) || (map == 0x1D && field->m50 == 6)) {
+                int map = field->mOption.mMap;
+                if ((map == 14 && field->mOption.mSub == 6) || (map == 0x1D && field->mOption.mSub == 6)) {
                     flag = 1;
                 }
             }
@@ -463,11 +454,11 @@ void Dialog::fn_80228FD8() {
         }
     }
     if (lbl_8087F430 != 0) {
-        m118 = ((GameTask*)lbl_8087F430)->fn_80370174(3);
-        ((GameTask*)lbl_8087F430)->fn_80370320(3, 1, 0);
-        CameraSub_unk* camera = &lbl_8087F430->m6C;
+        m118 = lbl_8087F430->fn_80370174(3);
+        lbl_8087F430->fn_80370320(3, 1, 0);
+        GameCamera* camera = &lbl_8087F430->mCamera;
         if (camera->m7FC != 0) {
-            ((GameCamera*)camera)->fn_80389838(0);
+            camera->fn_80389838(0);
         }
     }
     fn_800DAA3C(lbl_8087F008, 0);
@@ -493,15 +484,13 @@ int Dialog::fn_802291BC() {
 void Dialog::fn_80229240() {
     lbl_8087EF8C->m778 = 14;
     if (lbl_8087F430 != 0) {
-        ((GameTask*)lbl_8087F430)->fn_80370320(3, m118, 0);
+        lbl_8087F430->fn_80370320(3, m118, 0);
     }
     m150 = -1;
     fn_802292AC(1);
     m199 = 0;
 }
 
-// NONMATCHING: 89.60% - scheduling of the inlined ResetPos_unk (tried the loop, explicit statements,
-// unsigned index and the operand order)
 void Dialog::fn_802292AC(int hide) {
     if (hide != 0) {
         for (int i = 0; i < 4; i++) {
@@ -616,6 +605,8 @@ int Dialog::vf0C() {
 #define DIALOG_MIN_UNK(a, b) ((a) < (b) ? (a) : (b))
 
 // NONMATCHING: 89.06% - scheduling/registers of the fog and bloom copies and the .sdata2 order
+// (98.93% with docs/enlazar2-20261117-qF-dialog297ac.patch: lerp inline with the target by reference,
+// fog built in an inline, local pointer to the pad; left: the 1 of mEnable and lbl_8087EFA8 swap r3/r8)
 void Dialog::fn_802297AC() {
     if (!m10C->IsFlag_unk(4) && m10C->mSpeed < 0.0f && m10C->mFrame <= 1.0f) {
         m10C->mFlags |= 4;

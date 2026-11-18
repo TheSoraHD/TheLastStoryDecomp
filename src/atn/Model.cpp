@@ -21,6 +21,7 @@
 #include "atn/DrawEntry_unk.h"
 #include "atn/DrawHelper.h"
 #include "atn/EulerToQuat_unk.h"
+#include "atn/TextureCompositor_unk.h"
 
 extern "C" char* strcpy(char* dst, const char* src);
 extern "C" int strcmp(const char* a, const char* b);
@@ -266,33 +267,13 @@ ModelBase::~ModelBase() {
     fn_8008AA90();
 }
 
-struct CompositeCacheEntry_unk;
-// inferred: reference to an entry of the texture composite cache (its methods are compiled in
-// atn/CompositeIntensityTintMulti.cpp: constructor 0x800D87A4, 0x800D87B0, Release_unk 0x800D87C4)
-struct CompositeCacheHandle_unk {
-    CompositeCacheHandle_unk();    // 0x800D87A4
-    void AddRef_unk() const;       // 0x800D87B0
-    void Release_unk();
-    Texture_unk* fn_800D8808(); // inferred: texture of the entry
-    CompositeCacheEntry_unk* mEntry;
-};
-
-// inferred: polymorphic texture object owned by a composite entry (a texture composite with its cache
-// reference at 0x04)
-struct ModelCompositeTex_unk {
-    virtual ~ModelCompositeTex_unk();
-    virtual int vf0C();  // inferred: still building (fn_8008B140)
-    virtual int vf10();  // inferred: finished
-    virtual void vf14(); // inferred: starts building
-    CompositeCacheHandle_unk m04;
-    int m08; // inferred: nonzero once started
-};
+// Compositor of a composite texture and its cache reference: atn/TextureCompositor_unk.h
 
 // inferred: composite texture of a model (atn::ModelBase::m1E4); names invented
 struct ModelComposite_unk {
     std::string mName;
     unsigned int m0C; // inferred: hash of the name
-    ModelCompositeTex_unk* m10;
+    ITextureCompositor* m10;
     CompositeCacheHandle_unk m14;
 };
 
@@ -442,7 +423,7 @@ int ModelBase::fn_8008B140() {
         if (m1E4.mSize != 0) {
             int busy = 0;
             for (unsigned int i = 0; i < m1E4.mSize; i++) {
-                ModelCompositeTex_unk* tex = m1E4.mData[i]->m10;
+                ITextureCompositor* tex = m1E4.mData[i]->m10;
                 if (tex != 0 && tex->vf0C()) {
                     busy = 1;
                 }
@@ -451,7 +432,7 @@ int ModelBase::fn_8008B140() {
                 return 1;
             }
             for (unsigned int i = 0; i < m1E4.mSize; i++) {
-                ModelCompositeTex_unk* tex = m1E4.mData[i]->m10;
+                ITextureCompositor* tex = m1E4.mData[i]->m10;
                 if (tex != 0) {
                     if (tex->m08 == 0) {
                         tex->vf14();
@@ -472,7 +453,7 @@ int ModelBase::fn_8008B140() {
         if (m1E4.mSize != 0) {
             int ready = 1;
             for (unsigned int i = 0; i < m1E4.mSize; i++) {
-                ModelCompositeTex_unk* tex = m1E4.mData[i]->m10;
+                ITextureCompositor* tex = m1E4.mData[i]->m10;
                 if (tex != 0 && !tex->vf10()) {
                     ready = 0;
                 }
@@ -2397,13 +2378,13 @@ void Model::fn_800954DC(void* tex, Vector2_unk uv, float scale) {
     }
 }
 
-void ModelBase::fn_80095750(const char* name, ModelCompositeTex_unk* tex) {
+void ModelBase::fn_80095750(const char* name, ITextureCompositor* tex) {
     ModelComposite_unk* e = new ((MemoryTag)6, "", "", 0) ModelComposite_unk;
     e->mName = name;
     e->m0C = fn_800DC6B4(name);
     e->m10 = tex;
-    tex->m04.AddRef_unk();
-    e->m14.mEntry = tex->m04.mEntry;
+    tex->mHandle.AddRef_unk();
+    e->m14.mEntry = tex->mHandle.mEntry;
     m1E4.push_back(e);
 }
 

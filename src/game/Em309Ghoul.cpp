@@ -14,6 +14,7 @@
 #include "game/BattleTask.h"
 #include "math/VecAssign_unk.h"
 #include "atn/ColliBase.h"
+#include "game/GameSceneFind_unk.h"
 
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
 extern "C" double sqrt(double x);
@@ -62,13 +63,13 @@ extern "C" chr::CharaData_unk* fn_8020A81C(const char* name); // inferred: chara
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 // inferred: field (lbl_8087F430); the event flags are read with fn_80370A78
 struct Field_unk {
-    RouteTable_unk* fn_8013C504(); // inferred: returns m10D8
+    GameScene* fn_8013C504(); // inferred: returns m10D8
     unsigned char m00[0x260];
     Camera_unk m260; // inferred: camera of the field (as View_unk m260 of game/CharaTask.cpp)
     unsigned char m454[0x8A0 - 0x454];
     CharaTask* m8A0_unk; // inferred: character the camera follows (as Field_unk::m8A0 in game/Em203GreaterDaemon.cpp)
     unsigned char m8A4[0x10D8 - 0x8A4];
-    RouteTable_unk* m10D8; // inferred: route tables (as in gmk/ReinforcePoint.cpp)
+    GameScene* m10D8; // inferred: route tables (as in gmk/ReinforcePoint.cpp)
 };
 extern "C" Field_unk* lbl_8087F430;
 // inferred: accessors (weak copies of other files, as in game/Em310Gargoyle.cpp and gmk/Cannonball.cpp)
@@ -147,7 +148,7 @@ Em309Ghoul::Em309Ghoul(atn::Task* parent, EnemyInfo_unk* info)
         }
     }
     for (int i = 0; i < 3; i++) {
-        RoutePlace_unk* place = lbl_8087F430->m10D8->FindPlace_unk(m1500[i]);
+        gs::WarpPoint* place = lbl_8087F430->m10D8->FindPlace_unk(m1500[i]);
         if (place != 0) {
             m150C[i] = place;
         } else {
@@ -155,8 +156,8 @@ Em309Ghoul::Em309Ghoul(atn::Task* parent, EnemyInfo_unk* info)
             m1668 = 1;
         }
     }
-    RouteTable_unk* table = lbl_8087F430->m10D8;
-    RoutePlace_unk* center = table->FindPlace_unk(0x385);
+    GameScene* table = lbl_8087F430->m10D8;
+    gs::WarpPoint* center = table->FindPlace_unk(0x385);
     if (center != 0) {
         m1600 = center;
         m1608 = table->FindPlace_unk(0x385)->mPos;
@@ -167,7 +168,7 @@ Em309Ghoul::Em309Ghoul(atn::Task* parent, EnemyInfo_unk* info)
     for (int i = 0; i < 2; i++) {
         for (int j = 0; j < 2; j++) {
             m14C4[i][j] = id;
-            RoutePlace_unk* place = table->FindPlace_unk(id++);
+            gs::WarpPoint* place = table->FindPlace_unk(id++);
             if (place != 0) {
                 atn::Vector3 pos = place->mPos;
                 m1638[i][j].x = pos.x;
@@ -699,7 +700,7 @@ void Em309Ghoul::fn_802FFFF8() {
     float leadXZ = homeDist;
     float leadAngle = homeDist;
     if (m150C != 0 && m14EC != 0) {
-        RoutePlace_unk* home = m1518;
+        gs::WarpPoint* home = m1518;
         if (home != 0) {
             atn::Vector3 d = *m14EC->fn_8013C38C() - home->mPos;
             d.y = 0.0f;
@@ -1936,9 +1937,9 @@ void Em309Ghoul::fn_80304718() {
             mMotion.fn_80097C08(0, 0x14A, 0, 0, 1, 0.0f, 0.1f);
         }
         mRot.y += 6.2831855f / (1.0f + mMotion.fn_80097D7C(0));
-        RouteTable_unk* table = lbl_8087F430->m10D8;
+        GameScene* table = lbl_8087F430->m10D8;
         atn::Vector3 step(0.0f, 0.0f, 50.0f / mMotion.fn_80097D7C(0));
-        RoutePlace_unk* place = table->FindPlace_unk(0x385);
+        gs::WarpPoint* place = table->FindPlace_unk(0x385);
         Mtx m;
         PSMTXRotRad(m, 'y', place->m14);
         PSMTXMultVec(m, &step, &step);

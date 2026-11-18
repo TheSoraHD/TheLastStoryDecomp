@@ -347,7 +347,12 @@ void ColliBox::vf18(int a, int b, int c, int d) {
     lbl_8087EEB0->fn_800629F0(zero, m3C.mSize, 0.0f, 0xFF00FF00, &m3C.mMtx);
 }
 
-// NONMATCHING: 99.08% - f9/f10 (tamano/inverso) cruzados y f0/f3 al cargar la traslacion
+// inferred: translation of a matrix read y first (inlined by ColliBox::GetBound_unk; name invented)
+inline Vector3 GetTransY_unk(const Matrix3x4& m) {
+    float y = m.m[1][3];
+    return Vector3(m.m[0][3], y, m.m[2][3]);
+}
+
 void ColliBox::vf1C(const ColliGrid_unk* grid) {
     SetCell_unk(GetBound_unk(), grid);
 }
@@ -458,7 +463,7 @@ inline Vector3 __GetColumn_unk(const Matrix3x4& m, int i) {
     return Vector3(m.m[0][i], m.m[1][i], m.m[2][i]);
 }
 
-// NONMATCHING: 99.83% - orden de los stores de la escala (y antes que x)
+// inferred: scale filled member by member, y first (store order of the original)
 void ColliObject::fn_800588FC() {
     ColliSphereShape_unk* bound = fn_80472C90(&mLoader);
     if (bound != 0) {
@@ -467,7 +472,11 @@ void ColliObject::fn_800588FC() {
         PSMTXMultVec(mMtx.m, &mBound.mCenter, &mBound.mCenter);
         float sz = __GetColumn_unk(mMtx, 2).Length_unk();
         float sy = __GetColumn_unk(mMtx, 1).Length_unk();
-        Vector3 scale(__GetColumn_unk(mMtx, 0).Length_unk(), sy, sz);
+        float sx = __GetColumn_unk(mMtx, 0).Length_unk();
+        Vector3 scale;
+        scale.y = sy;
+        scale.x = sx;
+        scale.z = sz;
         mBound.mRadius *= scale.Length_unk();
     } else {
         mBound.mCenter.x = 0.0f;

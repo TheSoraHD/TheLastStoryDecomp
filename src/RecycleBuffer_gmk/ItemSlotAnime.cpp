@@ -513,14 +513,13 @@ static inline bool IsAnimeEnd_unk(ItemSlotTask_unk* task) {
 
 // inferred: states 5-6 (item shown), as ItemSlotAnime::IsState56_unk but on a non-const object (the original
 // reuses the mState loaded for the test of state 1)
-static inline bool IsShown_unk(ItemSlotAnime* anime) {
+static inline bool IsShown_unk(const ItemSlotAnime* anime) {
     return anime->mState == 5 || anime->mState == 6;
 }
 
-// NONMATCHING: 97.5% - the state 5-6 test sets the flag to 1 on the branches in the original (li 0, then
-// li 1; here li 1, then li 0); a bool local set in an if, in the inline or in the header, is worse
+// inferred: const (the original loads mState before saving r31)
 // inferred: the animation of the item can be skipped (loading, or the slots of states 5-6 finished)
-int ItemSlotAnime::fn_8044EEC0() {
+int ItemSlotAnime::fn_8044EEC0() const {
     if (mState == 1) {
         return 1;
     }

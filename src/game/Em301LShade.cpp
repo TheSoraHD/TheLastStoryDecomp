@@ -18,6 +18,7 @@
 #include "game/BattleTask.h"
 #include "atn/ColliBase.h"
 #include "game/DamageResult_unk.h"
+#include "game/GameSceneFind_unk.h"
 
 extern "C" unsigned long strlen(const char* s);
 extern "C" int strcmp(const char* a, const char* b);
@@ -41,7 +42,7 @@ struct ShadeCamera_unk {
 struct CameraSub_unk {
 };
 struct Field_unk {
-    RouteTable_unk* fn_8013C504();
+    GameScene* fn_8013C504();
     unsigned char m000[0x6C];
     CameraSub_unk m06C;   // inferred: camera mode (fn_80389838)
     unsigned char m06D[0x568 - 0x6D];
@@ -382,7 +383,7 @@ int Em301LShade::vf0C() {
                 int id;
                 do {
                     id = fn_800DC12C(csv.fn_8005B9CC());
-                    RoutePlace_unk* place = fn_80121F00()->fn_8013C504()->FindPlace_unk(id);
+                    gs::WarpPoint* place = fn_80121F00()->fn_8013C504()->FindPlace_unk(id);
                     if (place != 0) {
                         m162C.push_back(place);
                     }
@@ -393,7 +394,7 @@ int Em301LShade::vf0C() {
                 int id;
                 do {
                     id = fn_800DC12C(csv.fn_8005B9CC());
-                    RoutePlace_unk* place = fn_80121F00()->fn_8013C504()->FindPlace_unk(id);
+                    gs::WarpPoint* place = fn_80121F00()->fn_8013C504()->FindPlace_unk(id);
                     if (place != 0) {
                         m1638.push_back(place);
                     }
@@ -463,7 +464,7 @@ int Em301LShade::vf0C() {
 
 // push_back is defined out of the class (include/std/vector.h): instantiated here so that it is emitted
 // behind vf0C and its "vector length error" goes to the pool before the literals of the next functions
-template void std::vector<RoutePlace_unk*>::push_back(RoutePlace_unk* const& x);
+template void std::vector<gs::WarpPoint*>::push_back(gs::WarpPoint* const& x);
 template void std::vector<EnemyTask*>::push_back(EnemyTask* const& x);
 
 // NONMATCHING: 96.6% - stack slots (the direction to the target is built in another slot), float
@@ -1569,7 +1570,7 @@ void Em301LShade::fn_802D67F8(int index) {
             break;
         }
         EnemyTask* e = enemies[i];
-        RoutePlace_unk* place = places[i];
+        gs::WarpPoint* place = places[i];
         lbl_8087F048->fn_80107850((atn::Model*)&e->mMotion);
         lbl_8087F048->fn_801077A8((atn::Model*)&e->mMotion, (atn::Model*)&e->mMotion);
         fn_80232B7C(e, 1000);

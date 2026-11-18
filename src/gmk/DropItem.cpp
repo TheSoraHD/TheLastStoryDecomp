@@ -15,6 +15,7 @@
 #include "atn/RenderManager.h"
 #include "game/MapTask.h"
 #include "atn/D2A_TaskInstanceC.h"
+#include "game/GameUI.h"
 
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" int rand();
@@ -27,15 +28,8 @@ extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 extern "C" atn::Vector3 lbl_807C7030;              // inferred: zero vector
 
-struct DropField_unk {
-    unsigned char m0000[0x74];
-    atn::Vector3 m74; // inferred: camera target
-    unsigned char m0080[0x9C - 0x80];
-    float m9C;
-    unsigned char m00A0[0x54E4 - 0xA0];
-    int m54E4; // inferred: state (8 while an event runs)
-};
-extern "C" DropField_unk* lbl_8087F430;
+// inferred: the field task (lbl_8087F430)
+extern "C" GameTask* lbl_8087F430;
 // inferred: effects
 struct EffectMgr_unk {
     unsigned char m00[0xB8];
@@ -65,21 +59,6 @@ extern "C" int fn_80051BC4(const DropSegment_unk* seg, const DropCapsule_unk* ca
 extern "C" int fn_8004ECC0(void* world, atn::Vector3* hit, const atn::Vector3& from, const atn::Vector3& to,
                            unsigned int flags, int arg5, int arg6);
 extern "C" void* lbl_8087EE98;
-// inferred: tutorial message (lbl_8087F490)
-struct DropTutorial_unk {
-    int m00;
-    int m04;
-    int m08;
-    int m0C;
-    int m10;
-    int m14;
-    int m18;
-};
-struct DropMessage_unk {
-    unsigned char m000[0x764];
-    DropTutorial_unk m764;
-};
-extern "C" DropMessage_unk* lbl_8087F490;
 // inferred: arena (lbl_8087F610)
 struct DropArena_unk {
     unsigned char m000[0x4FC];
@@ -245,7 +224,7 @@ void DropItem::vf10() {
         int touch = 0;
         float nearDist = 70.0f;
         float rangeDist = 40.0f;
-        if (lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->GetCurrentMap() != 0 && ((GameTask*)lbl_8087F430)->GetCurrentMap()->mType == 1) {
+        if (lbl_8087F430 != 0 && lbl_8087F430->GetCurrentMap() != 0 && lbl_8087F430->GetCurrentMap()->mType == 1) {
             rangeDist /= 1.5f;
             nearDist *= 0.5f;
         }
@@ -269,7 +248,7 @@ void DropItem::vf10() {
                 }
                 if (m190 != 0) {
                     if (m198 != 0) {
-                        DropTutorial_unk tutorial;
+                        GameUIElem1C_unk tutorial;
                         tutorial.m00 = 6;
                         tutorial.m04 = 14;
                         tutorial.m08 = -1;
@@ -498,8 +477,9 @@ void DropItem::vf14() {
     if (!(mAlpha > 0.0f)) {
         return;
     }
-    DropField_unk* field = lbl_8087F430;
-    atn::Vector3 d(m6C.x - field->m74.x, m6C.y - field->m74.y, m6C.z - field->m74.z);
+    GameTask* field = lbl_8087F430;
+    atn::Vector3 d(m6C.x - field->mCamera.mCamera.mPos.x, m6C.y - field->mCamera.mCamera.mPos.y,
+                   m6C.z - field->mCamera.mCamera.mPos.z);
     PSVECMag(&d);
     atn::Vector3 pos(m6C.x + m184.x, m6C.y + m184.y, m6C.z + m184.z);
     float scale = 1.0f;

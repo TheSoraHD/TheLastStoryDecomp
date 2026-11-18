@@ -2,24 +2,20 @@
 #define ATN_EFPDATA_UNK_H
 
 #include "atn/ResLoader_unk.h"
+#include "math/Vec.h"
 
 // inferred: effect of an effect sequence (.efp file, "Effect" block; 0x54 bytes, names invented)
 struct EfpElem_unk {
     EfpElem_unk()
-        : m00(1), mStart(0), mEnd(2000), mPos0(0.0f), mPos1(0.0f), mPos2(0.0f), mRot0(0.0f), mRot1(0.0f),
-          mRot2(0.0f), mScale(1.0f), mColor1(1.0f), mColor2(1.0f), mColor3(1.0f), mColor0(1.0f), mParent(0),
+        : m00(1), mStart(0), mEnd(2000), mPos(0.0f, 0.0f, 0.0f), mRot(0.0f, 0.0f, 0.0f), mScale(1.0f), mColor1(1.0f), mColor2(1.0f), mColor3(1.0f), mColor0(1.0f), mParent(0),
           mNode(0), m40(0), m44(-1) {}
     ~EfpElem_unk(); // 0x80243758
 
     int m00;          // 0x00: inferred: enabled ("Effect" second argument)
     int mStart;       // 0x04: "Frame" start
     int mEnd;         // 0x08: "Frame" end
-    float mPos0;      // 0x0C: "Pos"
-    float mPos1;
-    float mPos2;
-    float mRot0;      // 0x18: "Rot" (degrees, converted to radians)
-    float mRot1;
-    float mRot2;
+    atn::Vector3 mPos; // 0x0C: "Pos"
+    atn::Vector3 mRot; // 0x18: "Rot" (degrees, converted to radians)
     float mScale;     // 0x24: "Scl"
     float mColor1;    // 0x28: "Color" arguments 1-3
     float mColor2;

@@ -1,30 +1,35 @@
-# Siguiente sesion (tras escribir-20261116)
+# Siguiente sesion (tras enlazar2-20261117)
 
-> Sesion `escribir-20261116` (12 h, hasta 4 agentes, 22 colas) del 2026-11-16 23:26 al 2026-11-17 ~11:45. Notas:
-> `docs/escribir-20261116.md` y `docs/escribir-20261116-q*.md`. Para el port: `claude/port-escribir-20261116.md` (proyecto).
+> Sesion `enlazar2-20261117` (hasta 4 agentes, 31 colas) del 2026-11-17 15:28 al 2026-11-18 ~01:45 (cierre adelantado por
+> el usuario). Notas: `docs/enlazar2-20261117.md` y `docs/enlazar2-20261117-q*.md`. Para el port:
+> `claude/port-enlazar2-20261117.md` (proyecto).
 
-Estado: **15974 / 18109**, lost 0, rep100 24, labelcheck 11 lineas, `main.dol: OK`. Codigo 61,12 %, datos 75,95 %,
-732 unidades completas. DRAFT 0. Funciones al 0 %: 45 (20 sin iostream/auto_03; PacketPack 1). PacketPack 307/380 al 100 %.
+Estado: **16074 / 18109**, lost 0, rep100 23, labelcheck 11 lineas, `main.dol: OK`. Codigo 62,39 %, datos 76,18 %,
+742 unidades completas. DRAFT 0. Funciones al 0 %: 45 (20 sin iostream/auto_03). PacketPack 57 funciones < 100 %.
 
 ## Decisiones pendientes del usuario
 
-- "Para revisar" de `docs/escribir-20261116.md`: bajada aceptada de fn_804EE040 (99,88 -> 99,21, argumentos reales),
-  macros min/max de ReplayBuffer y WPad_unk, `(player->mFlagWord >> 28) & 1` en PacketPack fn_804EB26C, funciones inventadas
-  sin llamadores (`LayerOcclusionPool_unk`, `SwingUpdate_unk`, `DataList_unk<Path>::Add_unk`), instanciacion explicita del
-  ctor de subcadena en Event/Sequence, cambios de comportamiento (GameScene ctor, ShopBuySell sufijo, ForestSpider vfFC).
-- Parches sin integrar: `docs/escribir-20261116-qN6.patch` (`Traits::length` en `std/string.h`, +2, re-emparejar ~26
-  unidades sin `datafix.py` en CharaTask), `-qW4.patch` (vf0C de SmallAllocator 87 -> 96 %), `-qN7.patch`, `-qW3.patch`.
-- `atn::Abs_unk` de dos niveles (`float` que llama a `double`) en `include/math/Vec.h`: sube varias (N4, N7) pero renumera
-  casi todo.
+- Parche de push_back `docs/enlazar2-20261117-qK.patch`: arregla el cruce tamano/capacidad del push_back inline (~73 sitios)
+  pero rompe las copias debiles fuera de linea; medida orientativa +8 al 100 %, ~12 bajadas y Event/Sequence fn_8054204C
+  97,8 -> 10,3. Bloquea ArrowSet, ShopColor, FileList, Np131, Em305VampireMp, FriendRoom, AreaEffConfig, ChaserNpc...
+- `block_relocations` de OSInit en `config.yml` (`docs/enlazar2-20261117-qI-config.patch`), como las de OSFatal.
+- "Para revisar" de `docs/enlazar2-20261117.md`: `int& cur = m84;` (EnvSeManager), `float zero` (Em208Queen),
+  `FindPlace_unk(id = ...)` (Em310Gargoyle), `GXWGFifo` directo (EffectDesc_unk), `GetSaveFileName_unk` (GameSaveLoadCommon),
+  alias `self` en `std::string::operator=`, dos funciones `const` sin 100 % (C2).
 
 ## Siguiente
 
-- Los 20 al 0 % restantes son bloqueos (presupuesto de inline, asm/GQR6, iostream): solo con ideas nuevas.
-- Cerca de enlazar: SwingObject 17/20, RotaryRoom 15/18, PassBoard 12/13, RandomMerchant 21/23, Em315Coffin (ctor, `.sdata`
-  de 0.0f), EnemyTasha (5), FileList (push_back), las de `tabla.py` con `faltan` 1-2.
-- PacketPack: relectura del tamano de `mPlayers` en bucles (G6), fn_804DE884 99,99, fn_804EE040; helpers copiados
-  `HitCenter_unk`/`MakeRotZYX_unk`/`HitEvent_unk` a una cabecera comun con BattleTask/DamageCalc_unk.
-- Trucos que mas rindieron (grep `escribir-20261116` en `docs/trucos-mwcc.md`): orden de declaracion de los locales para los
-  registros volatiles, modelo de pila (locales con nombre, temporales, cada nivel de inline invierte), bools en `||` escritos
-  en el `if`, dtor no inline tras el cargador, tamano de `@stringBase0` (`strend.py`), una forma cambiada en todas las
-  funciones de una unidad a la vez (G5).
+- A una funcion de enlazar (bloqueos de registros, ver notas de R/N2): EnvSeManager vf14, Em204MulueMp fn_802B55B0,
+  ControlChaseCaught Follow vf0C 99,97, PostFxMotionBlur vf10 99,9, Em309GhoulSimple, Em209SmallGolem, Em303KrakenFootMp,
+  CannonLift, ShaderManager (push_back), las LH_* (`Loader::Get_unk<T>`).
+- Patron `m97C.Set_unk` (~20 funciones de enemigos, cola T): el original no sustituye el `this` de la inline.
+- GameEventScript: familia `SetNext_unk` (21 comandos, r0/r4 cruzados), y fn_803A2378/2210/7D94/98EC sin probar.
+- Truco `const` (P3/C2): seguir con candidatas que releen campos tras una llamada; parches de C2 (ModelDraw_unk, ReplayBuffer).
+- PacketPack: pendientes de P2/P3 (fn_804F8464, fn_804EAA84, fn_804EE4F0, destructores con `erase(begin(), end)`).
+- Regla 10 / port: ~60 vistas locales de `GameTask` (`Field_unk` y similares) con el accesor debil `fn_8013C504__9Field_unkFv`
+  declarado en 21 unidades (pasarlas todas a la vez a `GameTask::fn_8013C504()`); TownTask (`m553C` dentro de `GameTask::m550C`);
+  `atn::AudioDevice` sin cabecera (propuesta 5c del port); `EffectMgr_unk::mB8` (28 unidades de gmk), los 47 `Settings_unk`,
+  `ActionOwner_unk` = `Event::Section`, `PathData_unk` = `Event::Path`, `MenuD2A_unk` = `D2A_Task`, structs de fichero
+  compartidos (`SceneData_unk.h`, `MotionData_unk.h`, `ModelOcclusion_unk.h`).
+- Re-emparejar tras merges en conflicto: `tools/decomp/remap.py <copia_agente> <unidades>` (por posicion con el .o del agente),
+  `lcfix.py`, `lblremap.py`.

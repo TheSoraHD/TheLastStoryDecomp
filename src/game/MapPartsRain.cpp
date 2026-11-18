@@ -20,12 +20,8 @@ MapPartsRain* MapPartsRain::fn_8049CDBC(atn::Task* parent, int type, atn::CsvTab
     return 0;
 }
 
-// NONMATCHING: 99.8% - with -ipa file the stack addresses of `a`, `b` and `box.mMax` hoisted out
-// of the loop land in different registers (r24-r26), and box.mMax is read back through its own
-// register instead of box + 0xC. It matched with -inline deferred. Tried: ctor body/Set/by-value
-// arguments, struct assignment (reads box + 0xC but writes mMax through box too), field-wise
-// `box.mMin = a; box.mMax = b; mBox = box;` (same shape, 99.77%: the four addresses swap in pairs),
-// declaration order of a/b/box.
+// inferred: the BOX corners are copied into a local box with the paired-single copy helper itself
+// (src address hoisted before dst, as in the original); mBox = box reads mMax through box + 0xC
 MapPartsRain::MapPartsRain(atn::Task* parent, int type, atn::CsvTab* csv)
     : MapPartsBase(parent, type), mOn(0) {
     const char* field = csv->mField;
@@ -68,9 +64,10 @@ MapPartsRain::MapPartsRain(atn::Task* parent, int type, atn::CsvTab* csv)
             b.x = fn_800DC288(csv->fn_8005B9CC());
             b.y = fn_800DC288(csv->fn_8005B9CC());
             b.z = fn_800DC288(csv->fn_8005B9CC());
-            Box_unk box(a, b);
-            mBox.mMin = box.mMin;
-            mBox.mMax = box.mMax;
+            Box_unk box;
+            __VecCopy(&box.mMin.x, &a.x);
+            __VecCopy(&box.mMax.x, &b.x);
+            mBox = box;
         }
         field = csv->fn_8005B9CC();
     } while (field != 0 && strcmp("", field) != 0);

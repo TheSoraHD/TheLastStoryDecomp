@@ -9,6 +9,7 @@
 #include "game/GameTask.h"
 #include "atn/ColliBase.h"
 #include "game/BattleTask.h"
+#include "game/GameSceneFind_unk.h"
 
 extern "C" unsigned long strlen(const char* s);
 extern "C" int strcmp(const char* a, const char* b);
@@ -72,7 +73,7 @@ extern "C" void fn_800CB6E4(atn::SoundRef* sound, const atn::Vector3* pos); // i
 // inferred: field (lbl_8087F430); m10D8: route tables; fn_80370AE4 sets a counter (as in gmk/Coffin.cpp)
 struct VampireField_unk {
     unsigned char m0000[0x10D8];
-    RouteTable_unk* m10D8;
+    GameScene* m10D8;
 };
 extern "C" VampireField_unk* lbl_8087F430;
 
@@ -147,7 +148,7 @@ int Em305Vampire::vf0C() {
                     int id;
                     do {
                         id = fn_800DC12C(csv.fn_8005B9CC());
-                        RoutePlace_unk* place = lbl_8087F430->m10D8->FindPlace_unk(id);
+                        gs::WarpPoint* place = lbl_8087F430->m10D8->FindPlace_unk(id);
                         if (place != 0) {
                             m14E8.push_back(place);
                         }
@@ -522,8 +523,8 @@ inline void Em305Vampire::StartFlee_unk() {
 }
 
 // inferred: route point by 1-based index (as in game/Em310Gargoyle.cpp; name invented)
-inline RoutePoint_unk* GetRoutePoint_unk(RouteTable_unk* table, int index) {
-    return &table->mPoints[index - 1];
+inline gs::MovePoint* GetRoutePoint_unk(GameScene* table, int index) {
+    return &table->m98.mData[index - 1];
 }
 
 // inferred: door of "door_route" between two route points, in either direction (name invented)
@@ -550,10 +551,10 @@ void Em305Vampire::fn_802EA490() {
         mRoute.fn_80126214();
         atn::Vector3 v = mRoute.m58;
         if (lbl_8087F430 != 0 && lbl_8087F430->m10D8 != 0 && mRoute.mDestPoint > 0 && mRoute.mPointA > 0) {
-            RouteTable_unk* table = lbl_8087F430->m10D8;
-            int a = table->mPoints[mRoute.mDestPoint - 1].m00;
-            RoutePoint_unk* to = &table->mPoints[mRoute.mPointA - 1];
-            int b = to->m00;
+            GameScene* table = lbl_8087F430->m10D8;
+            int a = table->m98.mData[mRoute.mDestPoint - 1].mId;
+            gs::MovePoint* to = &table->m98.mData[mRoute.mPointA - 1];
+            int b = to->mId;
             VampireDoor_unk* door = FindDoor_unk(a, b);
             if (door != 0) {
                 atn::Vector3 dest = to->mPos;
@@ -615,7 +616,7 @@ void Em305Vampire::vf11C() {
         if (m1524 <= 0) {
             StartFlee_unk();
         } else {
-            RoutePlace_unk* place = m14E8[m1560];
+            gs::WarpPoint* place = m14E8[m1560];
             atn::Vector3 d(mPos.x - place->mPos.x, 0.0f, mPos.z - place->mPos.z);
             if (PSVECSquareMag(&d) < 100.0f) {
                 m1560++;

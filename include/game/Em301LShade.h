@@ -7,8 +7,10 @@
 #include "game/ResHandle.h"
 #include "game/SpecialEnemyBase.h"
 #include "std/vector.h"
+namespace gs {
+struct WarpPoint;
+}
 
-struct RoutePlace_unk;
 
 // inferred: same layout as SpecialFlag_unk (global flag, index) with a constructor; the empty asserts
 // (debug build only) of IsSet_unk count against the inline budget of Em301LShade::vf0C. The out-of-line
@@ -93,7 +95,7 @@ struct ShadeTarget_unk {
 
 // inferred: a class derived from std::vector (its destructor tests the address four times, as
 // RoutePlaceList_unk of game/Em305Vampire.h); names invented
-typedef std::vector<RoutePlace_unk*> ShadePlaceList_unk;
+typedef std::vector<gs::WarpPoint*> ShadePlaceList_unk;
 typedef std::vector<EnemyTask*> ShadeEnemyList_unk;
 
 // inferred from __vt__11Em301LShade (0x80786C44): the "L shade" boss (absorbs the magic of the party,

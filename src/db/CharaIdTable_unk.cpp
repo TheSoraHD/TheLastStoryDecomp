@@ -314,7 +314,7 @@ extern "C" CharaIdEntry_unk* fn_80209294(int index) {
 }
 
 // inferred: path of the character file of a name
-extern "C" bool fn_802092C0(char* dst, const char* name) {
+extern "C" int fn_802092C0(char* dst, const char* name) {
     sprintf(dst, "/data/character/%s.chr", name);
     return true;
 }

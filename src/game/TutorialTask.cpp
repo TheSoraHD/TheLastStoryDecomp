@@ -32,7 +32,7 @@ extern "C" void fn_801FEE08(void* layout, unsigned int hash, const wchar_t* text
 extern "C" const wchar_t* fn_80116FC0(int a, int id); // inferred: message text
 extern "C" atn::SoundRef fn_800C31F4(const char* name, int a, int b, float volume); // inferred: plays a sound
 extern "C" void* lbl_8087EEC8; // inferred: font
-extern "C" float fn_8006EF48(void* font, const wchar_t* text, int a, int b, float size, float spacing); // inferred: text width
+extern "C" float fn_8006EF48(void* font, float size, const wchar_t* text, float spacing, int a, int b); // inferred: text width
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 
 
@@ -163,8 +163,7 @@ inline atn::D2A_DrawRect GetPaneRect_unk(atn::D2A_Task* layout, const char* name
 
 extern "C" int fn_801231B8(SetConfig* config); // inferred: inline, defined below (weak copy)
 
-// NONMATCHING: 99.2% - the load of pos.z
-// is scheduled earlier
+// inferred: pos.z read into a local before the Vector2 store (load order of the original)
 void TutorialTask::fn_805BA934() {
     m84 = 0.0f;
     m5B4 = 0;
@@ -182,8 +181,9 @@ void TutorialTask::fn_805BA934() {
         mPages[mPage].mVideo->vf20();
         mPages[mPage].mLayout->ApplyFrame();
         atn::D2A_DrawRect pos = GetPaneRect_unk(mPages[mPage].mLayout, "tt_mv");
+        float z = pos.z;
         mPages[mPage].mVideo->mPos = atn::Vector2_unk(pos.x, pos.y);
-        mPages[mPage].mVideo->m10 = pos.z;
+        mPages[mPage].mVideo->m10 = z;
         mPages[mPage].mVideo->m04 = 1;
         mPages[mPage].mVideo->m0C = 1;
         pos.x -= 256.0f;
@@ -652,7 +652,7 @@ TutorialPopup::TutorialPopup(atn::Task* parent, int id, CharaTask* chara)
 
 // inferred: width of a message with the size of the popup (name invented)
 inline float TextWidth_unk(void* font, int id) {
-    return fn_8006EF48(font, fn_80116FC0(0, id), 1, 1, 15.0f, 0.0f);
+    return fn_8006EF48(font, 15.0f, fn_80116FC0(0, id), 0.0f, 1, 1);
 }
 
 int TutorialPopup::vf0C() {

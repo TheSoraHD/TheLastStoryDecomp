@@ -5,6 +5,7 @@
 #include "atn/IRender.h"
 #include "std/vector.h"
 #include "atn/TextureComposite.h"
+#include "atn/CompositeIntensityTintMulti.h"
 
 // The cache of composed textures (0x800D81CC-0x800D87A4) comes from another file (own "" pool at
 // 0x80734758, own destructor chain entry 0x807C77E8); its object is a function-level static of an inline
@@ -87,16 +88,12 @@ public:
     CompositeCacheList_unk mList;
 };
 
-// inferred: reference to a cache entry
-// Its constructor, AddRef_unk and Release_unk are plain functions of this file (Model.cpp calls them
-// out of line); the texture accessor is inline (weak copy 0x800D8808).
-struct CompositeCacheHandle_unk {
-    CompositeCacheHandle_unk();
-    void AddRef_unk() const;
-    void Release_unk();
-    Texture_unk* fn_800D8808() { return &mEntry->mTexture; } // weak copy 0x800D8808
-    CompositeCacheEntry_unk* mEntry;
-};
+// Reference to a cache entry and compositor interface: atn/TextureCompositor_unk.h. The handle's
+// constructor, AddRef_unk and Release_unk are plain functions of this file (Model.cpp calls them out of
+// line); the texture accessor is inline (weak copy 0x800D8808).
+inline Texture_unk* CompositeCacheHandle_unk::fn_800D8808() {
+    return &mEntry->mTexture;
+}
 
 CompositeCacheHandle_unk::CompositeCacheHandle_unk() : mEntry(0) {}
 
@@ -113,42 +110,8 @@ void CompositeCacheHandle_unk::Release_unk() {
     }
 }
 
-// inferred: interface of the texture compositors
-class ITextureCompositor {
-public:
-    ITextureCompositor() : m08(0) {}
-    virtual ~ITextureCompositor() {}
-    virtual int vf0C() = 0;
-    virtual int vf10() = 0;
-    virtual void vf14() = 0;
-    virtual Color4f_unk* vf18(int i) = 0;
-
-    CompositeCacheHandle_unk mHandle; // 0x04
-    int m08;
-};
-
-// inferred: tints the intensity of several layers and composes them on a base texture
-class CompositeIntensityTintMulti : public ITextureCompositor {
-public:
-    CompositeIntensityTintMulti(const char* base, const CompositeLayerDesc_unk* layers, int count);
-    virtual ~CompositeIntensityTintMulti();
-    virtual int vf0C();
-    virtual int vf10();
-    virtual void vf14();
-    virtual Color4f_unk* vf18(int i);
-
-    int mDone;                        // 0x0C
-    TextureComposite mComposite;      // 0x10
-    Color4f_unk mColors[6][3];        // 0x30
-    int mUse[6][3];                   // 0x150
-    Texture_unk mBase;                // 0x198
-    Texture_unk mLayers[6];           // 0x1C8
-    Texture_unk mIntensity;           // 0x2E8
-    TextureComposite mIntensityComp;  // 0x318
-    Texture_unk mAlpha;               // 0x338
-    TextureComposite mAlphaComp;      // 0x368
-    int mCount;                       // 0x388
-};
+inline ITextureCompositor::ITextureCompositor() : m08(0) {}
+inline ITextureCompositor::~ITextureCompositor() {}
 
 CompositeIntensityTintMulti::CompositeIntensityTintMulti(const char* base, const CompositeLayerDesc_unk* layers,
                                                          int count)

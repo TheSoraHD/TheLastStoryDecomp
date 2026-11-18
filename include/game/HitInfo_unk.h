@@ -40,7 +40,8 @@ struct HitInfo_unk {
     float m40; // inferred: range added to the character reach when m01 is 0 (AI/AiCommon_unk fn_8001BB04;
                // EnemyTrista::fn_8035DA94 adds CharaParam_unk::m28)
     float m44; // inferred: range used otherwise
-    long m48; // inferred: added to CharaTask::mFB4 by chr::ControlShoot (long: operand order of the add)
+    long m48; // inferred: added to CharaTask::mFB4 by chr::ControlShoot (long: operand order of the add;
+              // a 32-bit field: int, not long, on a 64-bit build)
     float m4C; // inferred: speed of the bullet (gmk::FlamingArrow)
     float m50; // inferred: arc angle of the attack (BattleTask, Em202Spider)
     float m54; // inferred: half height of the attack (BattleTask)

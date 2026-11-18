@@ -7,6 +7,9 @@
 #include "game/CopyRobotTask.h"
 #include "game/CharaStatus.h"
 #include "game/ResHandle.h"
+namespace gs {
+struct WarpPoint;
+}
 
 // inferred from __vt__17Em005DoppelGanger (0x80784210): doppelganger enemy (copies a character,
 // "SrcCopyCharaId"/"DstCopyRobotId"). Data file "database/chara/special/" + db_name (default
@@ -55,8 +58,8 @@ public:
     int m151C;
     int m1520; // inferred: hit counter of phase 2
     int m1524; // inferred: hits before the stagger (4)
-    RoutePlace_unk* m1528; // inferred: "JumpPoint"
-    RoutePlace_unk* m152C; // inferred: "WarpPoint"
+    gs::WarpPoint* m1528; // inferred: "JumpPoint"
+    gs::WarpPoint* m152C; // inferred: "WarpPoint"
     atn::Vector3 m1530; // inferred: position of the trap effect (owner of the effects started by vf10)
     float m153C;        // inferred: radius of the trap
     int m1540; // inferred: hit counter (capped at 60)

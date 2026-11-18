@@ -14,7 +14,7 @@ public:
         m68 = 1;
     }
     static GimmickCommon* fn_80421454(atn::Task* parent, GimmickDesc_unk* desc); // inferred: factory
-    virtual ~ShakeCamera() {}
+    virtual ~ShakeCamera();
     virtual int vf0C();
     virtual void vf10();
     virtual void vf14();

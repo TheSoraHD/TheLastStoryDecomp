@@ -17,6 +17,7 @@
 #include "game/MslSort_unk.h"
 #include "game/InventoryExp_unk.h"
 #include "game/BattleTask.h"
+#include "game/GameConfig_unk.h"
 
 extern "C" const char* fn_8020BD3C(int index); // inferred: name of the group of a colour (db/PaletteTable_unk)
 extern "C" const char* fn_8020BD78(int index); // inferred: name of an effect palette
@@ -55,23 +56,7 @@ void Inventory::fn_80442F68() {
     }
 }
 
-// inferred: settings (lbl_8087F0A8); only the members used here
-struct InventorySettings_unk {
-    unsigned char m000[0xD4];
-    int mD4; // inferred: mode of the level scaling of the rewards (3: by tenths; fn_80449448)
-    unsigned char m0D8[0x160 - 0xD8];
-    int m160; // inferred: debug: fixed protectors (fn_8044D208)
-    unsigned char m164[0x18C - 0x164];
-    int m18C; // inferred: debug: random protectors (fn_8044D208)
-    unsigned char m190[0x194 - 0x190];
-    int m194; // inferred: the party starts with the debug equipment and items (constructor)
-    unsigned char m198[0x280 - 0x198];
-    int m280; // inferred: experience is shared (fn_80449A18)
-    int m284; // inferred: the rewards are scaled by the difference of levels (fn_80449448)
-    unsigned char m288[0x298 - 0x288];
-    int m298; // inferred: the killer gets 1.2 times the experience (fn_80449ABC)
-};
-extern "C" InventorySettings_unk* lbl_8087F0A8;
+extern "C" GameConfig_unk* lbl_8087F0A8;
 
 // inferred: settings of the drops (db/InitSetting_unk.cpp, InitSetting_unk; only the members used here)
 struct DropSetting_unk {
@@ -222,12 +207,12 @@ void Inventory::fn_804438E0(int code) {
 static const int sWeaponRate0_unk[5] = {0, 0, 100, 100, 100};
 static const int sWeaponRate1_unk[5] = {0, 100, 100, 100, 100};
 const int lbl_80754650[7][4] = {
-    {0x12D, 0x245, 0, 0}, {0x1FF, -1, 0x14, 0x14}, {0x12D, -1, 0x14, 0x14}, {0x134, 0x134, 0, 0},
-    {0x1FF, -1, 0, 0},    {0x1FF, -1, 0x64, 0x64}, {0x1FF, -1, 0, 0},
+    {0, 0, 0x12D, 0x245}, {0, 0, 0x1FF, -1},      {0x14, 0x14, 0x12D, -1}, {0x14, 0x14, 0x134, 0x134},
+    {0, 0, 0x1FF, -1},    {0, 0, 0x1FF, -1},      {0x64, 0x64, 0x1FF, -1},
 };
 const int lbl_807546C0[7][4] = {
-    {0x292, 0x245, 0, 0}, {0x1FF, -1, 0x15, 0x15}, {0x12D, -1, 0x14, 0x14}, {0x134, 0x196, 0, 0},
-    {0x1FF, -1, 0, 0},    {0x1FF, -1, 0x64, 0x64}, {0x1FF, -1, 0, 0},
+    {0, 0, 0x292, 0x245}, {0, 0, 0x1FF, -1},      {0x15, 0x15, 0x12D, -1}, {0x14, 0x14, 0x134, 0x196},
+    {0, 0, 0x1FF, -1},    {0, 0, 0x1FF, -1},      {0x64, 0x64, 0x1FF, -1},
 };
 
 extern "C" int rand();
@@ -1341,7 +1326,7 @@ extern "C" void fn_80449448(int* a, int* b, int level, int other) {
         return;
     }
     if (level <= other) {
-        if (lbl_8087F0A8->mD4 == 3) {
+        if (lbl_8087F0A8->mCurrentLevel == 3) {
             *a = (int)(*a * INV_MAX_unk(1.0f, INV_MIN_unk(3.0f, 0.1f * (other - level))));
             *b = (int)(*b * INV_MAX_unk(1.0f, INV_MIN_unk(3.0f, 0.1f * (other - level))));
         } else {
@@ -1363,7 +1348,7 @@ void Inventory::fn_80449A18(int killer, int level, int exp, int arg4, float rate
         fn_804491F4(&a, &b, level, exp, arg4, rate);
         m6014 += a;
         m6018 += b;
-        if (lbl_8087F0A8->m280 != 0) {
+        if (lbl_8087F0A8->mAddExpImmediately != 0) {
             fn_80449ABC(killer, level);
         }
     }
@@ -1408,13 +1393,13 @@ void Inventory::fn_80449ABC(int killer, int level) {
     for (unsigned int i = 0; i < party.size(); i++) {
         party[i].mExpA = expA;
         party[i].mExpB = expB;
-        if (lbl_8087F0A8->m298 != 0 && party[i].mChara == (CharaTask*)killer) {
+        if (lbl_8087F0A8->mExpKillBounus != 0 && party[i].mChara == (CharaTask*)killer) {
             party[i].mExpA = (int)(1.2f * party[i].mExpA);
             party[i].mExpB = (int)(1.2f * party[i].mExpB);
         }
     }
     int top = lbl_8087F430->fn_80375D0C();
-    if (level > top && lbl_8087F0A8->mD4 == 3) {
+    if (level > top && lbl_8087F0A8->mCurrentLevel == 3) {
         top = level;
     }
     for (unsigned int i = 0; i < party.size(); i++) {

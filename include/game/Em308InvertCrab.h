@@ -9,10 +9,13 @@
 #include "game/ResHandle.h"
 #include "std/vector.h"
 #include "game/CharaStatus.h"
+namespace gs {
+struct WarpPoint;
+}
 
 // inferred: the destructor tests `this` once more than for a plain std::vector (as CrabList_unk in
 // game/Em308ParmCrab.h); name invented
-typedef std::vector<RoutePlace_unk*> InvertList_unk;
+typedef std::vector<gs::WarpPoint*> InvertList_unk;
 
 // inferred from __vt__15Em308InvertCrab (0x80787938): crab (sister of Em308ParmCrab). The factory allocates
 // 0x15D8 bytes (SpecialEnemyBase.cpp). Data file "database/chara/special/" + db_name (default
@@ -76,7 +79,7 @@ public:
     int m1554;
     int m1558;                // inferred: "EscapeCount"
     float m155C;              // inferred: "EscapeSpeed"
-    RoutePlace_unk* m1560;    // inferred: escape place (fn_802F5370)
+    gs::WarpPoint* m1560;    // inferred: escape place (fn_802F5370)
     atn::Vector3 m1564;       // inferred: escape point (fn_802F5370)
     InvertList_unk m1570;     // inferred: "BasePoints" (route places)
     int m157C;                // inferred: flags 2 "NormalAttack", 4 "Needle", 8 "Recover"

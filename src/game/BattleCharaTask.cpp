@@ -44,6 +44,7 @@
 #include "game/BattleTarget_unk.h"
 #include "gmk/Item.h"
 #include "math/VecAssign_unk.h"
+#include "game/GameSceneFind_unk.h"
 
 extern "C" GameConfig_unk* lbl_8087F0A8;
 // inferred: field (lbl_8087F430); only its address is used here
@@ -2858,7 +2859,7 @@ void BattleCharaTask::vf2C(const char* params, int arg) {
         } else if (strncmp(it->c_str(), "magicPointId=", 13) == 0) {
             std::string s(it->c_str());
             atn::Csv csv(s.c_str() + 13, s.size());
-            m1464 = ((RouteTable_unk*)arg)->FindPlace_unk(atoi(csv.fn_8005B9CC()));
+            m1464 = ((GameScene*)arg)->FindPlace_unk(atoi(csv.fn_8005B9CC()));
         } else if (strncmp(it->c_str(), "movePointType=", 14) == 0) {
             std::string s(it->c_str());
             atn::Csv csv(s.c_str() + 14, s.size());

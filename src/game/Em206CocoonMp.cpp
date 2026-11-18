@@ -16,6 +16,7 @@
 #include "game/PlayerManager.h"
 #include "game/GameConfig_unk.h"
 #include "gmk/Lemon.h"
+#include "game/GameSceneFind_unk.h"
 
 extern "C" int strncmp(const char* a, const char* b, unsigned long n);
 extern "C" std::string fn_8006AFF8(const std::string& a, const std::string& b); // inferred: a + b
@@ -38,7 +39,7 @@ extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* m
 // inferred: field (lbl_8087F430): route tables at 0x10D8 (as in game/Em203GreaterDaemonRedMp.cpp)
 struct Field_unk {
     unsigned char m0000[0x10D8];
-    RouteTable_unk* m10D8;
+    GameScene* m10D8;
 };
 extern "C" Field_unk* lbl_8087F430;
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector

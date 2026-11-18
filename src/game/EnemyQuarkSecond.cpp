@@ -24,6 +24,7 @@
 #include "game/BattleTask.h"
 #include "game/GameTask.h"
 #include "game/GameScene.h"
+#include "game/GameSceneFind_unk.h"
 
 inline MapTask* GameTask::GetCurrentMap() {
     if (m10D8 != 0) {
@@ -44,7 +45,7 @@ extern "C" std::string fn_8006AFF8(const std::string& a, const std::string& b);
 // inferred: field (lbl_8087F430); route tables (fn_8013C504) and the camera follow state (names
 // invented, as in game/EnemyQuarkFirst.cpp)
 struct Field_unk {
-    RouteTable_unk* fn_8013C504();
+    GameScene* fn_8013C504();
     unsigned char m000[0x4D8];
     int m4D8;
     unsigned char m4DC[0x8A0 - 0x4DC];
@@ -52,7 +53,7 @@ struct Field_unk {
     unsigned char m8A4[0x97C - 0x8A4];
     unsigned char m97C;
     unsigned char m97D[0x10D8 - 0x97D];
-    RouteTable_unk* m10D8; // inferred: route table (read directly by fn_80342674)
+    GameScene* m10D8; // inferred: route table (read directly by fn_80342674)
 };
 extern "C" Field_unk* lbl_8087F430;
 // inferred: field accessor (weak copy 0x80121F00, as in game/EnemyJill.cpp)
@@ -60,7 +61,7 @@ extern "C" inline Field_unk* fn_80121F00() {
     return lbl_8087F430;
 }
 // inferred: route tables of the field, null without a field (name invented)
-inline RouteTable_unk* GetRouteTable_unk() {
+inline GameScene* GetGameScene() {
     return fn_80121F00() != 0 ? fn_80121F00()->fn_8013C504() : 0;
 }
 extern "C" CharaManager<EnemyTask>* fn_801A03E0(); // inferred: enemy manager
@@ -161,7 +162,7 @@ int EnemyQuarkSecond::vf0C() {
         mStatus.m18 |= 0x3880000;
         mStatus.m18 |= 0x400;
         m16C4 = mStatus.mParamB.m84 / 5;
-        RouteTable_unk* table = fn_80121F00() != 0 ? fn_80121F00()->fn_8013C504() : 0;
+        GameScene* table = fn_80121F00() != 0 ? fn_80121F00()->fn_8013C504() : 0;
         if (m16B8.fn_80470580() != 0 && table != 0) {
             atn::Csv csv((const char*)m16B8.fn_80470580(), m16B8.fn_8047059C());
             do {
@@ -2158,9 +2159,9 @@ void EnemyQuarkSecond::fn_80342674() {
     m58C = 8;
     m590 = lbl_8087F048->fn_800F8548();
     PlayMotion_unk(0x13F, 0, 1.0f);
-    RouteTable_unk* table = lbl_8087F430->m10D8;
-    RoutePlace_unk* p3 = table->FindPlace_unk(3);
-    RoutePlace_unk* p4 = table->FindPlace_unk(4);
+    GameScene* table = lbl_8087F430->m10D8;
+    gs::WarpPoint* p3 = table->FindPlace_unk(3);
+    gs::WarpPoint* p4 = table->FindPlace_unk(4);
     atn::Vector3 a = p3->mPos;
     atn::Vector3 b = p4->mPos;
     atn::Vector3 leader = fn_8000D9E8()->GetHead_unk()->mPos;
@@ -2238,9 +2239,9 @@ void EnemyQuarkSecond::fn_803435B8() {
     fn_8016E970(3);
     m58C = 15;
     PlayMotion_unk(0x13F, 0, 1.0f);
-    RouteTable_unk* table = lbl_8087F430->m10D8;
-    RoutePlace_unk* p3 = table->FindPlace_unk(3);
-    RoutePlace_unk* p4 = table->FindPlace_unk(4);
+    GameScene* table = lbl_8087F430->m10D8;
+    gs::WarpPoint* p3 = table->FindPlace_unk(3);
+    gs::WarpPoint* p4 = table->FindPlace_unk(4);
     atn::Vector3 a = p3->mPos;
     atn::Vector3 b = p4->mPos;
     atn::Vector3 leader = fn_8000D9E8()->GetHead_unk()->mPos;
@@ -2261,9 +2262,9 @@ void EnemyQuarkSecond::fn_80343B0C() {
     m58C = 16;
     m590 = lbl_8087F048->fn_800F8548();
     PlayMotion_unk(0x13F, 0, 1.0f);
-    RouteTable_unk* table = lbl_8087F430->m10D8;
-    RoutePlace_unk* p3 = table->FindPlace_unk(3);
-    RoutePlace_unk* p4 = table->FindPlace_unk(4);
+    GameScene* table = lbl_8087F430->m10D8;
+    gs::WarpPoint* p3 = table->FindPlace_unk(3);
+    gs::WarpPoint* p4 = table->FindPlace_unk(4);
     atn::Vector3 a = p3->mPos;
     atn::Vector3 b = p4->mPos;
     atn::Vector3 leader = fn_8000D9E8()->GetHead_unk()->mPos;

@@ -9,6 +9,7 @@
 #include "std/string_members.h"
 #include "atn/ColliBase.h"
 #include "game/BattleTask.h"
+#include "game/GameSceneFind_unk.h"
 
 extern "C" unsigned long strlen(const char* s);
 extern "C" int strcmp(const char* a, const char* b);
@@ -18,7 +19,7 @@ extern "C" int fn_800DC12C(const char* s); // inferred: string to int
 // inferred: field (lbl_8087F430): route tables at 0x10D8 (as in game/Em306GurgBeast.cpp)
 struct Field_unk {
     unsigned char m0000[0x10D8];
-    RouteTable_unk* m10D8;
+    GameScene* m10D8;
 };
 extern "C" Field_unk* lbl_8087F430;
 // inferred: std::string concatenation (weak copy 0x8006AFF8)
@@ -104,10 +105,10 @@ Em202Spider::Em202Spider(atn::Task* parent, EnemyInfo_unk* info)
 
 Em202Spider::~Em202Spider() {}
 
-// inferred: RouteTable_unk::FindPlace_unk with the array read inside the loop (as in game/Em208Queen.cpp)
-inline RoutePlace_unk* FindRoutePlace2_unk(RouteTable_unk* table, int id) {
-    for (unsigned int i = 0; i < table->mNumPlaces; i++) {
-        RoutePlace_unk* places = table->mPlaces;
+// inferred: GameScene::FindPlace_unk with the array read inside the loop (as in game/Em208Queen.cpp)
+inline gs::WarpPoint* FindRoutePlace2_unk(GameScene* table, int id) {
+    for (unsigned int i = 0; i < table->m78.size(); i++) {
+        gs::WarpPoint* places = table->m78.mData;
         if (id == places[i].mId) {
             return &places[i];
         }
@@ -115,10 +116,10 @@ inline RoutePlace_unk* FindRoutePlace2_unk(RouteTable_unk* table, int id) {
     return 0;
 }
 // inferred: as FindRoutePlace2_unk on the field table (register order of the place lookups of vf10)
-inline RoutePlace_unk* FindRoutePlace3_unk(int id) {
-    RouteTable_unk* table = lbl_8087F430->m10D8;
-    for (unsigned int i = 0; i < table->mNumPlaces; i++) {
-        RoutePlace_unk* places = table->mPlaces;
+inline gs::WarpPoint* FindRoutePlace3_unk(int id) {
+    GameScene* table = lbl_8087F430->m10D8;
+    for (unsigned int i = 0; i < table->m78.size(); i++) {
+        gs::WarpPoint* places = table->m78.mData;
         if (id == places[i].mId) {
             return &places[i];
         }
@@ -163,7 +164,7 @@ int Em202Spider::vf0C() {
                     int id;
                     do {
                         id = fn_800DC12C(csv.fn_8005B9CC());
-                        RoutePlace_unk* place = lbl_8087F430->m10D8->FindPlace_unk(id);
+                        gs::WarpPoint* place = lbl_8087F430->m10D8->FindPlace_unk(id);
                         if (place != 0) {
                             m14C0.push_back(place);
                         }
@@ -172,7 +173,7 @@ int Em202Spider::vf0C() {
                     int id;
                     do {
                         id = fn_800DC12C(csv.fn_8005B9CC());
-                        RoutePlace_unk* place = lbl_8087F430->m10D8->FindPlace_unk(id);
+                        gs::WarpPoint* place = lbl_8087F430->m10D8->FindPlace_unk(id);
                         if (place != 0) {
                             m14CC.push_back(place);
                         }
@@ -358,7 +359,7 @@ void Em202Spider::vf10() {
             fn_8027FA7C();
             break;
         case 7: {
-            RoutePlace_unk* place = FindRoutePlace3_unk(m1504);
+            gs::WarpPoint* place = FindRoutePlace3_unk(m1504);
             if (FlatDistSq_unk(mPos, place->mPos) < 100.0f) {
                 m151C = 0;
                 fn_80281924(m14EC);
@@ -368,7 +369,7 @@ void Em202Spider::vf10() {
             break;
         }
         case 8: {
-            RoutePlace_unk* place = FindRoutePlace3_unk(m1504);
+            gs::WarpPoint* place = FindRoutePlace3_unk(m1504);
             if (FlatDistSq_unk(mPos, place->mPos) < 100.0f) {
                 if (m14F0 < 2) {
                     m1504 = m14F4[m14F0];
@@ -922,7 +923,7 @@ void Em202Spider::fn_80280184() {
             return;
         }
     } else {
-        RoutePlace_unk* place = FindRoutePlace3_unk(m1504);
+        gs::WarpPoint* place = FindRoutePlace3_unk(m1504);
         SetFlat_unk(flat, mPos.x - place->mPos.x, mPos.z - place->mPos.z);
         if (PSVECSquareMag(&flat) < 100.0f) {
             ResetState_unk();
@@ -1221,14 +1222,14 @@ void Em202Spider::fn_80281F88() {
     mMotion.fn_80097C08(0, 0x14, 0, 0, 1, 0.0f, 0.1f);
 }
 
-// NONMATCHING: 99.88% - f0/f3 of the 0.0f of ToRotationZ_unk (same case as Em003LesserDaemon::vf24)
+// inferred: the yaw read into a float (with the Vector3 local the 0.0f of ToRotationZ_unk takes f3)
 int Em202Spider::fn_802826A0(CharaTask* target, int arg) {
     if (m58C == 9) {
         return 0;
     }
     float ry = mRot.y;
-    atn::Vector3 rot = (target->mPos - mPos).ToRotationZ_unk();
-    m153C = atn::WrapAngle_unk(rot.y - ry);
+    float yaw = (target->mPos - mPos).ToRotationZ_unk().y;
+    m153C = atn::WrapAngle_unk(yaw - ry);
     if (-0.3926991f < m153C && m153C < 0.3926991f) {
         return 0;
     }

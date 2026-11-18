@@ -8,6 +8,7 @@
 #include "macros.h"
 #include "atn/DrawHelper.h"
 #include "atn/ColliBase.h"
+#include "game/GameSceneFind_unk.h"
 
 extern "C" unsigned long strlen(const char* s);
 extern "C" int strcmp(const char* a, const char* b);
@@ -43,10 +44,10 @@ extern "C" Settings_unk* lbl_8087F0A8;
 // inferred: field (class unknown); m10D8 holds the route tables
 struct Field_unk {
     unsigned char m00[0x10D8];
-    RouteTable_unk* m10D8;
+    GameScene* m10D8;
 };
 extern "C" Field_unk* lbl_8087F430;
-extern "C" unsigned short fn_803CD958(RoutePath_unk* path, int point); extern "C" void* lbl_8087EE98;
+extern "C" unsigned short fn_803CD958(U16Table_unk* path, int point); extern "C" void* lbl_8087EE98;
 extern "C" int fn_8004ED34(void* colli, atn::ColliResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg7); // inferred: ray test
 // inferred: debug drawing (lbl_8087EEB0) and camera (atn::RenderManager::instance_)
@@ -338,7 +339,7 @@ void ChaserNpc::fn_8018161C(int state) {
 // NONMATCHING: 97.6% - register allocation of the place search and two swapped stack slots.
 void ChaserNpc::fn_80181A64() {
     CharaTask* player = lbl_8087F8A0->mHead;
-    RouteTable_unk* table = lbl_8087F430->m10D8;
+    GameScene* table = lbl_8087F430->m10D8;
     int found = -1;
     int playerPoint = ((GameScene*)table)->fn_803C1560(&player->mPos, player->fn_80179D44(), 0, 0, 1, -1.0f);
     int point = ((GameScene*)table)->fn_803C1560(&mPos, fn_80179D44(), 0, 0, 1, -1.0f);
@@ -348,19 +349,19 @@ void ChaserNpc::fn_80181A64() {
     unsigned int i = rand() % m14B4.size();
     float bestAngle = 0.0f;
     while (found == -1) {
-        RoutePlace_unk* place = table->FindPlace_unk(m14B4[i]);
+        gs::WarpPoint* place = table->FindPlace_unk(m14B4[i]);
         int dest = ((GameScene*)table)->fn_803C1560(&place->mPos, fn_80179D44(), 0, 0, 1, -1.0f);
         bool ok = true;
         count++;
-        int next = fn_803CD958((RoutePath_unk*)((char*)table->mPaths + (point - 1) * 8), dest - 1);
-        atn::Vector3 dir = (table->mPoints[next - 1].mPos - mPos).GetNormalize();
+        int next = fn_803CD958((U16Table_unk*)((char*)table->mA0.mData + (point - 1) * 8), dest - 1);
+        atn::Vector3 dir = (table->m98.mData[next - 1].mPos - mPos).GetNormalize();
         float angle = acos(PSVECDotProduct(&dir, &away));
         while (next != 0 && next != dest) {
             if (next == playerPoint) {
                 ok = false;
                 break;
             }
-            next = fn_803CD958((RoutePath_unk*)((char*)table->mPaths + (next - 1) * 8), dest - 1);
+            next = fn_803CD958((U16Table_unk*)((char*)table->mA0.mData + (next - 1) * 8), dest - 1);
         }
         if (ok) {
             if (best == -1 || bestAngle < angle) {
@@ -386,15 +387,15 @@ void ChaserNpc::fn_80181A64() {
     mC58.m0C.fn_801255C8();
 }
 
-// NONMATCHING: 99.7% - register allocation of the inlined RouteTable_unk::FindPlace_unk (index/offset and
+// NONMATCHING: 99.7% - register allocation of the inlined GameScene::FindPlace_unk (index/offset and
 // the place pointer swapped). The current index in a local (`idx`) fixes the load order of m14C0.
 void ChaserNpc::fn_80181D94() {
     RouteWalker_unk& route = mC58.m0C;
     if (route.fn_80125474() == 0) {
-        RouteTable_unk* table = lbl_8087F430->m10D8;
+        GameScene* table = lbl_8087F430->m10D8;
         int point = ((GameScene*)table)->fn_803C1560(&mPos, 0, 0, 0, 1, -1.0f);
         if (point != 0) {
-            mPos = table->mPoints[point - 1].mPos;
+            mPos = table->m98.mData[point - 1].mPos;
         } else {
             int idx = m14C0;
             mPos = table->FindPlace_unk(m14B4[idx])->mPos;

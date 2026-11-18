@@ -70,7 +70,7 @@ extern "C" int fn_800CB4A4(atn::SoundRef* self) {
     return self->mPtr != 0 ? ((self->mPtr->m9C >> 3) & 1) : 0;
 }
 
-extern "C" bool fn_800CB4C4(atn::SoundRef* self) {
+extern "C" int fn_800CB4C4(atn::SoundRef* self) {
     if (self->mPtr != 0) {
         return self->mPtr->mA0 != 0;
     }

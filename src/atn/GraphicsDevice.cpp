@@ -483,7 +483,7 @@ extern "C" void fn_80071AFC(GraphicsDevice_unk* device) {
 // inferred: selects the texture cache (installs its region callback, or restores the previous one)
 inline void SetTexCache_unk(GraphicsDevice_unk* device, atn::ITextureCacheManager* cache) {
     if (cache != 0) {
-        void* prev = GXSetTexRegionCallback(fn_80076FD4);
+        void* prev = GXSetTexRegionCallback((void*)fn_80076FD4);
         if (device->mTexCache == 0) {
             device->mPrevRegionCallback = prev;
         }

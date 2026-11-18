@@ -11,6 +11,7 @@
 #include "game/GameUI.h"
 #include "game/Inventory.h"
 #include "game/PopupTask.h"
+#include "game/GameSceneFind_unk.h"
 
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" int atoi(const char* s);
@@ -24,7 +25,7 @@ struct RandomItemField_unk {
     unsigned char m00[0x10D0];
     int m10D0; // inferred: level of the random tables
     unsigned char m10D4[0x10D8 - 0x10D4];
-    RouteTable_unk* m10D8;
+    GameScene* m10D8;
 };
 extern "C" RandomItemField_unk* lbl_8087F430;
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
@@ -159,19 +160,19 @@ int RandomItem::vf0C() {
 
 void RandomItem::Start() {
     m54 = 1;
-    RouteTable_unk* table = lbl_8087F430 != 0 ? lbl_8087F430->m10D8 : 0;
+    GameScene* table = lbl_8087F430 != 0 ? lbl_8087F430->m10D8 : 0;
     if (table == 0) {
         return;
     }
-    RoutePoint_unk* point;
-    int n = table->mNumPoints;
+    gs::MovePoint* point;
+    int n = table->m74;
     for (unsigned int i = 0; i < mDrops.mSize; i++) {
         RandomItemDrop_unk& drop = mDrops[i];
         for (int j = 1; j <= n; j++) {
-            point = &table->mPoints[j - 1];
+            point = &table->m98.mData[j - 1];
             RandomItemSphere_unk sphere;
             sphere.mCenter = point->mPos;
-            sphere.mRadius = 0.5f * point->mRadius;
+            sphere.mRadius = 0.5f * point->m14;
             for (unsigned int k = 0; k < drop.mLocs.mSize; k++) {
                 RandomItemLoc_unk& loc = drop.mLocs[k];
                 RandomItemBox_unk box;
@@ -589,9 +590,9 @@ extern "C" int fn_80435908(gmk::RandomItem* item) {
         return 0;
     }
     CharaTask* player = (CharaTask*)lbl_8087F8A0->mHead;
-    atn::FixedArray_unk<RoutePoint_unk*, 0x200> points;
+    atn::FixedArray_unk<gs::MovePoint*, 0x200> points;
     for (unsigned int i = 0; i < item->m144->mPoints.mSize; i++) {
-        RoutePoint_unk* point = item->m144->mPoints[i];
+        gs::MovePoint* point = item->m144->mPoints[i];
         atn::Vector3 d = point->mPos - player->mPos;
         float distSq = PSVECSquareMag(&d);
         float range = item->m144->m818;
@@ -599,7 +600,7 @@ extern "C" int fn_80435908(gmk::RandomItem* item) {
             continue;
         }
         atn::Vector3 from = player->mPos + atn::Vector3(0.0f, 3.0f, 0.0f);
-        float r = 0.5f * point->mRadius;
+        float r = 0.5f * point->m14;
         atn::Vector3 start = from;
         atn::Vector3 to = point->mPos;
         float len = (to - start).Length_unk();

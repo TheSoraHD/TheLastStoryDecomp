@@ -16,6 +16,7 @@
 #include "math/VecAssign_unk.h"
 #include "atn/ColliBase.h"
 #include "game/BattleTask.h"
+#include "game/GameSceneFind_unk.h"
 
 // inferred: point the camera looks at (lbl_8087F430 + 0x97C, as in game/Em101ElderZesya.cpp); names invented
 struct EggLook_unk {
@@ -125,7 +126,7 @@ struct Field_unk {
     unsigned char m0000[0x6C];
     EggFieldCam_unk mCamera;
     unsigned char m9A4[0x10D8 - 0x9A4];
-    RouteTable_unk* m10D8;
+    GameScene* m10D8;
     unsigned char m10DC[0x54F4 - 0x10DC];
     unsigned char m54F4[4]; // inferred: name table (fn_803B3B38)
     unsigned char m54F8[0x5694 - 0x54F8];
@@ -984,10 +985,10 @@ int Em206EggMonster::fn_802C38E4() {
         }
     }
     if (next == 4) {
-        RouteTable_unk* routes = lbl_8087F430->m10D8;
+        GameScene* routes = lbl_8087F430->m10D8;
         int index = ((GameScene*)routes)->fn_803C17FC(0x13);
         if (index != 0) {
-            atn::Vector3 d = routes->mPoints[index - 1].mPos - mPos;
+            atn::Vector3 d = routes->m98.mData[index - 1].mPos - mPos;
             if (PSVECMag(&d) < 150.0f) {
                 next = 3;
             }
@@ -1349,14 +1350,14 @@ int Em206EggMonster::vfF4() {
     return 0;
 }
 
-// NONMATCHING: 97.9% - registers of the inlined RouteTable_unk::FindPlace_unk
+// NONMATCHING: 97.9% - registers of the inlined GameScene::FindPlace_unk
 // inferred: sends the next wave: the three characters of the table go to their route points (80 units up)
 // and the team AI is told to attack
 void Em206EggMonster::fn_802C653C() {
     if (m15C8 < 3) {
         atn::Vector3 pos;
         atn::Vector3 up(0.0f, 80.0f, 0.0f);
-        RoutePlace_unk* p = lbl_8087F430->m10D8->FindPlace_unk(sWaves_unk[m15C8].mIds[0]);
+        gs::WarpPoint* p = lbl_8087F430->m10D8->FindPlace_unk(sWaves_unk[m15C8].mIds[0]);
         if (p != 0) {
             pos = p->mPos + up;
             fn_802C6878(EnemyManager::sInstance->Find_unk(sWaves_unk[m15C8].mIds[0]), pos);

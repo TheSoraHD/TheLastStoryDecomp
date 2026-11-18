@@ -11,19 +11,21 @@
 #include "std/string.h"
 #include "std/vector.h"
 
-struct RoutePlace_unk;
+namespace gs {
+struct WarpPoint;
+}
 
 // inferred: route places read from "TacklePoint"/"SpinPoint" (count at 0, up to 16 places; the
 // count is compared as a signed int and used unsigned for rand() %); names invented
 struct MulueRoute_unk {
     MulueRoute_unk() : mSize(0) {}
     unsigned int size() const { return mSize; }
-    void push_back(RoutePlace_unk* const& place) {
-        new (&mData[mSize]) RoutePlace_unk*(place);
+    void push_back(gs::WarpPoint* const& place) {
+        new (&mData[mSize]) gs::WarpPoint*(place);
         mSize++;
     }
     int mSize;
-    RoutePlace_unk* mData[16];
+    gs::WarpPoint* mData[16];
 };
 
 // inferred: color of the shell material "em204_koura" (r, g, b, a; starts white); names invented

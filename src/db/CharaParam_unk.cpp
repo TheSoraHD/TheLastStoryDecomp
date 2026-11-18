@@ -34,8 +34,7 @@ inline Unk_8087F518* ResMgr_unk() {
 // inferred: pair of numbers ("a:b"), cleared by its constructor (weak copy fn_8020A59C)
 struct CharaParamPair_unk {
     CharaParamPair_unk() { memset(this, 0, sizeof(CharaParamPair_unk)); }
-    int m00;
-    int m04;
+    int mValues[2];
 };
 
 // inferred: two lists of up to 7 values (":"-separated columns)
@@ -142,14 +141,13 @@ extern "C" int fn_802098E0(const char* name, const char* const* table, int count
     return 0;
 }
 
-// NONMATCHING (weak copy fn_8020A5D4, tokenizer::assign): 95.93% - the original copies the strings of
-// the separator word 1 first (as basic_string(const basic_string&)); changing operator= in
-// std/string.h fixes it but lowers atn/D2A_Message, so the header is unchanged
+// weak copy fn_8020A5D4 (tokenizer::assign): matches with the copy of the second separator string
+// through a reference to *this in basic_string::operator= (std/string.h)
 typedef boost::tokenizer<boost::char_separator<char> > Tokenizer_unk;
 
 // inferred: loads /boot/chara_param.csv
-// NONMATCHING: 99.43% - register numbering of the token counters and their offsets (the original
-// gives the counter the higher register); tried moving the declaration of the counter
+// inferred: the pair values are indexed by the counter (a pointer stepped in the loop renumbers the
+// saved registers of the whole function)
 extern "C" void fn_80209960() {
     unsigned long size = 0;
     atn::Csv csv;
@@ -244,9 +242,8 @@ extern "C" void fn_80209960() {
                 int count = 0;
                 std::string text(csv.fn_8005B9CC());
                 Tokenizer_unk pairTok(text, boost::char_separator<char>(":"));
-                int* value = &pair.m00;
                 for (Tokenizer_unk::iterator it = pairTok.begin(); it != pairTok.end() && count < 2; ++it) {
-                    *value++ = atoi(it->c_str());
+                    pair.mValues[count] = atoi(it->c_str());
                     count++;
                 }
                 sEntries[i].mE8[j] = pair;

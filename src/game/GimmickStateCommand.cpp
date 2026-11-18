@@ -25,16 +25,9 @@ extern "C" const char* fn_8021823C(int id);           // inferred: motion name f
 extern "C" float fn_800DC288(const char* s);          // inferred: string to float
 extern "C" unsigned int fn_800DC6B4(const char* s);   // inferred: string hash
 extern "C" bool fn_80216AFC(const char* id, int* type, int* map, int* point); // inferred: parses a map id
-struct Field_unk {
-    unsigned char m000[0x96C];
-    int m96C; // inferred: camera shake
-    int m970;
-    float m974;
-    float m978;
-};
-extern "C" Field_unk* lbl_8087F430;
+extern "C" GameTask* lbl_8087F430;
 // inferred: accessor (weak copy 0x80121F00 kept from another file)
-extern "C" inline Field_unk* fn_80121F00() {
+extern "C" inline GameTask* fn_80121F00() {
     return lbl_8087F430;
 }
 // inferred: effects
@@ -172,8 +165,8 @@ void GimmickCommonB0_unk::fn_803EF780(void* data, int size) {
             int map;
             int point;
             if (fn_80216AFC(csv.fn_8005B9CC(), &type, &map, &point) && fn_80121F00() != 0 &&
-                ((GameTask*)fn_80121F00())->GetCurrentMap() != 0) {
-                MapTask* info = ((GameTask*)fn_80121F00())->GetCurrentMap();
+                fn_80121F00()->GetCurrentMap() != 0) {
+                MapTask* info = fn_80121F00()->GetCurrentMap();
                 if (type != info->GetMapType() || map != info->GetMapId() || point != info->GetMapSubId()) {
                     while (csv.fn_8005BBF8() != 0) {
                         const char* s = csv.fn_8005B9CC();
@@ -363,11 +356,12 @@ void GimmickCommonB0_unk::fn_803F0764(GimmickCommon* gimmick) {
                     power = 1.0f;
                 }
                 if (power > 0.0f) {
-                    Field_unk* field = lbl_8087F430;
-                    field->m96C %= 2;
-                    field->m970 = frames;
-                    field->m974 = cmd->mOffset.x * power;
-                    field->m978 = cmd->mOffset.y * power;
+                    // inferred: shake of the field camera
+                    CameraShake_unk& shake = lbl_8087F430->mCamera.mShake;
+                    shake.mFrame %= 2;
+                    shake.mLength = frames;
+                    shake.mWidth = cmd->mOffset.x * power;
+                    shake.mHeight = cmd->mOffset.y * power;
                 }
                 cmd->mDone = 1;
             }

@@ -9,6 +9,7 @@
 #include "game/BattleTask.h"
 #include "math/VecAssign_unk.h"
 #include "atn/ColliBase.h"
+#include "game/GameSceneFind_unk.h"
 
 extern "C" unsigned long strlen(const char* s);
 extern "C" int strcmp(const char* a, const char* b);
@@ -22,7 +23,7 @@ extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3,
 // inferred: field (lbl_8087F430); m10D8: route tables (as in game/Em305VampireMp.cpp)
 struct Field_unk {
     unsigned char m0000[0x10D8];
-    RouteTable_unk* m10D8;
+    GameScene* m10D8;
 };
 extern "C" Field_unk* lbl_8087F430;
 // inferred: std::string concatenation (weak copy 0x8006AFF8)
@@ -175,7 +176,7 @@ int Em308InvertCrab::vf0C() {
                     int id;
                     do {
                         id = fn_800DC12C(csv.fn_8005B9CC());
-                        RoutePlace_unk* place = lbl_8087F430->m10D8->FindPlace_unk(id);
+                        gs::WarpPoint* place = lbl_8087F430->m10D8->FindPlace_unk(id);
                         if (place != 0) {
                             m1570.push_back(place);
                         }

@@ -206,14 +206,15 @@ void EnvSeManager::fn_8035E858() {
     }
 }
 
-// NONMATCHING: 99.4% - the original reads mBgmState again for the `== 2` test (only a volatile read
-// reproduces it, not used)
+// inferred: the first test reads the state through a reference (the original reads mBgmState again
+// for the `== 2` test)
 void EnvSeManager::fn_8035EA2C() {
     if (m74 > 0) {
         m74--;
         fn_8035E7CC();
     }
-    if (m6C == 1 && (mBgmState == 0 || mBgmState == 2) && m7C == 0) {
+    const int& state = mBgmState;
+    if (m6C == 1 && (state == 0 || mBgmState == 2) && m7C == 0) {
         EnvSeArea_unk* best = 0;
         float bestDist = 1e16f;
         for (unsigned int i = 0; i < (unsigned int)mAreas.mSize; i++) {
@@ -329,19 +330,23 @@ void EnvSeManager::fn_8035ECCC() {
     }
 }
 
-// NONMATCHING: 99.7% - counter and offset of the loop swapped (r30/r31)
-void EnvSeManager::fn_8035F33C(const char* path) {
-    for (int i = 0; i < (unsigned int)mRecords.mSize; i++) {
-        if (mRecords[i].mTask != 0) {
-            fn_800D2338(mRecords[i].mTask);
+// inferred: the loop is an inline of one level (in the function the counter and the offset take swapped
+// registers)
+static inline void StopRecords_unk(atn::SimpleArray<EnvSeRecord_unk>& records) {
+    for (unsigned int i = 0; i < records.size(); i++) {
+        EnvSeRecord_unk* r = &records[i];
+        if (r->mTask != 0) {
+            fn_800D2338(r->mTask);
         }
     }
+}
+
+void EnvSeManager::fn_8035F33C(const char* path) {
+    StopRecords_unk(mRecords);
     mState = 2;
     mLoader.vf0C(path);
 }
 
-// NONMATCHING: 99.5% - instructions match; the size of the links is read through fn_80089ACC, an
-// out-of-line copy of another file whose class is unknown (ours calls SimpleArray::size)
 void EnvSeManager::fn_8035F3D4() {
     atn::Csv csv((const char*)mLoader.fn_80470580(), mLoader.fn_8047059C());
     int records = 0;
@@ -485,8 +490,9 @@ void EnvSeManager::fn_8035F3D4() {
                     }
                 }
             } else if (s == "EnvSeConnection") {
+                int count = atoi(csv.fn_8005B9CC());
                 int link = 0;
-                mLinks.Alloc0_unk(atoi(csv.fn_8005B9CC()));
+                mLinks.Alloc0_unk(count);
                 while (csv.fn_8005BBF8() != 0) {
                     s = csv.fn_8005B9CC();
                     if (s == "end") {
@@ -514,11 +520,12 @@ void EnvSeManager::fn_8035F3D4() {
     }
 }
 
-// NONMATCHING: 97.2% - the counter of point sounds and the offset take swapped registers (r5/r6)
-EnvSePoint* EnvSeManager::fn_8035FF44(int id) {
+// inferred: the search is an inline of one level (with the loop in the function the counter of point
+// sounds and the offset take swapped registers)
+static inline EnvSePoint* FindPoint_unk(atn::SimpleArray<EnvSeRecord_unk>& records, int id) {
     int n = 0;
-    for (unsigned int i = 0; i < (unsigned int)mRecords.mSize; i++) {
-        EnvSeRecord_unk* r = &mRecords.mData[i];
+    for (unsigned int i = 0; i < (unsigned int)records.mSize; i++) {
+        EnvSeRecord_unk* r = &records[i];
         if (r->mData.mType == 0) {
             if (n == id) {
                 return (EnvSePoint*)r->mTask;
@@ -529,7 +536,12 @@ EnvSePoint* EnvSeManager::fn_8035FF44(int id) {
     return 0;
 }
 
-// NONMATCHING: 97.9% - the original reads m84 again before storing it in m88
+EnvSePoint* EnvSeManager::fn_8035FF44(int id) {
+    return FindPoint_unk(mRecords, id);
+}
+
+// inferred: the test reads the current id through a reference (the original reads m84 again before
+// storing it in m88)
 void EnvSeManager::fn_8035FF94(int id, int fade, int wait) {
     EnvSeArea_unk* area = FindArea_unk(id);
     mNextReq = EnvSeBgmReq_unk();
@@ -546,7 +558,8 @@ void EnvSeManager::fn_8035FF94(int id, int fade, int wait) {
     }
     mNextReq.mFade = fade;
     mNextReq.m3C = wait;
-    if (id != m84 || mCurReq.mSoundId != mNextReq.mSoundId) {
+    int& cur = m84;
+    if (id != cur || mCurReq.mSoundId != mNextReq.mSoundId) {
         m88 = m84;
         m84 = id;
         if (mBgmState == 2 || mNext->fn_8004B0E4() != 0) {

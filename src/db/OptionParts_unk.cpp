@@ -1,4 +1,6 @@
 #include "atn/Csv.h"
+#include "atn/Model_unk.h"
+#include "atn/CompositeIntensityTintMulti.h"
 #include "atn/Memory.h"
 #include "db/OptionParts_unk.h"
 #include "gmk/SeTable.h"
@@ -22,30 +24,6 @@ extern "C" void fn_8046DD20(Unk_8087F518* mgr, void* data);
 
 // inferred: index of an equipment letter (db/EquipParam_unk.cpp)
 extern "C" int fn_8020F064(const char* letter);
-
-namespace atn {
-// inferred: model (only the name is read here, see include/atn/Model_unk.h)
-struct Model {
-    const char* fn_8008B130(); // inferred: model name
-};
-}
-
-namespace atn {
-// inferred: see src/atn/CompositeIntensityTintMulti.cpp (0x40 bytes)
-struct CompositeLayerDesc_unk {
-    const char* mPath;
-    Color4f_unk mColor[3];
-    int mUse[3];
-};
-class CompositeIntensityTintMulti {
-public:
-    CompositeIntensityTintMulti(const char* base, const CompositeLayerDesc_unk* layers, int count);
-    char m00[0x38C];
-};
-} // namespace atn
-
-// inferred: sets a texture compositor on a model (name of the texture, compositor)
-extern "C" void fn_80095750(atn::Model* model, const char* name, atn::CompositeIntensityTintMulti* compositor);
 
 // inferred: helpers of the path names (directory, name without extension, joined path)
 std::string fn_8006B0C8(const std::string& path);
@@ -305,7 +283,7 @@ extern "C" void fn_8020CC64(atn::Model* model, OptionParts_unk* parts, OptionCol
         }
         atn::CompositeIntensityTintMulti* compositor =
             new ((MemoryTag)6, "", "", 0) atn::CompositeIntensityTintMulti(base.c_str(), layers, group->mCount);
-        fn_80095750(model, name.c_str(), compositor);
+        model->fn_80095750(name.c_str(), compositor);
     }
 }
 
@@ -338,9 +316,8 @@ extern "C" OptionLevelList_unk* fn_8020DB18(int letter, int slot);
 
 // inferred: index of a slot name ("UPPER", ...), 0 if none
 static inline int FindSlotName_unk(const char* name) {
-    const char* slot;
     for (int i = 0; i < 4; i++) {
-        slot = sSlotNames[i];
+        const char* slot = sSlotNames[i];
         if (strncmp(slot, name, strlen(slot)) == 0) {
             return i;
         }
@@ -349,9 +326,8 @@ static inline int FindSlotName_unk(const char* name) {
 }
 
 // inferred: loads database/cosedit/option/option_parts.csv and its names
-// NONMATCHING: 97.57% - the original keeps the address of the atn::CsvU in a saved register while
-// its inlined constructor runs (known, see db/EquipParam_unk.cpp) and numbers the registers of the
-// slot search differently
+// NONMATCHING: 99.89% - the original keeps the slot name in r25 and the slot pointer of the inlined
+// search in r22 (swapped here)
 extern "C" void fn_8020D688() {
     if (sLevels == 0) {
         sLevels = new ((MemoryTag)1, "", "", 0) OptionLevelTable_unk;
@@ -373,7 +349,8 @@ extern "C" void fn_8020D688() {
             continue;
         }
         int letter = fn_8020F064(field);
-        int slot = FindSlotName_unk(csv.fn_8005B9CC());
+        field = csv.fn_8005B9CC();
+        int slot = FindSlotName_unk(field);
         if (!(0 <= letter && letter < 11 && 0 <= slot && slot < 4)) {
             continue;
         }

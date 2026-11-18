@@ -40,21 +40,25 @@ extern "C" void fn_8007A100() {
     lbl_8087EEF8 = new ((MemoryTag)6, "", "", 0) LightList_unk;
 }
 
-// NONMATCHING: 98.73% - the original reads mSize again after the bounds check (here the value is reused).
-// A size accessor in the check gives the reload but the src/dst/count registers move (95.6%); also
-// tried an end accessor, a reference, a copy helper and an inline erase.
-void LightList_unk::fn_8007A154(int index) {
-    if (index < 0 || (int)mSize <= index) {
-        return;
-    }
-    Light_unk* dst = &mData[index];
-    Light_unk* end = &mData[mSize];
-    if (end - dst - 1 != 0) {
+// inferred: erase of one element of the vector (an inline erase with the count of the elements moved
+// in a local: the size accessor in the check gives the reload of mSize of the original)
+static inline void EraseAt_unk(LightList_unk* v, int index) {
+    Light_unk* dst = v->begin() + index;
+    Light_unk* end = v->end();
+    int n = end - dst - 1;
+    if (n != 0) {
         for (Light_unk* src = dst + 1; src < end; src++, dst++) {
             *dst = *src;
         }
     }
-    mSize--;
+    v->mSize--;
+}
+
+void LightList_unk::fn_8007A154(int index) {
+    if (index < 0 || (int)size() <= index) {
+        return;
+    }
+    EraseAt_unk(this, index);
 }
 
 // The unsigned index makes MWCC increment i before the offset, as in the original

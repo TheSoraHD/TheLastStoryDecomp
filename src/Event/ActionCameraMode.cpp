@@ -524,15 +524,17 @@ int ActionCameraEffect::vf0C(Action* arg, int phase) {
         break;
     case 3:
         switch (arg->GetParam_unk(0)->m04.i) {
-        case 0:
+        case 0: {
             MotionBlurParam_unk* dst = &lbl_8087F540->m1DC0;
             *dst = lbl_8087EFA8->m240;
             break;
-        case 4:
+        }
+        case 4: {
             DamageEffectParam_unk damage;
             damage.mEnabled = 0;
             lbl_8087EFA8->SetDamage_unk(damage);
             break;
+        }
         case 7: {
             EventManager_unk* manager = arg->fn_805381C8();
             if (manager == 0 ||
@@ -595,6 +597,9 @@ inline DamageEffectParam_unk GetDamage_unk(Action* arg, float now, int start, in
 // NONMATCHING: 98.6% - only the saved registers (arg r28, start r31, end r30, fade in r29, fade out r27
 // in the original); tried ~15 orders of the locals. The fade helper takes start/end but reads m18/m1C
 // and the damage copy goes through a local (the original copies it twice)
+// (99.52% with docs/enlazar2-20261117-qF-acmeffect.patch: qH damage patch, loads in the order fadeIn,
+// fadeOut, start, end with the declarations start, end, fadeIn, now, fadeOut; left: arg/fadeOut swap
+// r28/r27 and the elapsed time of the fade helper in f1/f2 instead of f4)
 // inferred: per frame: 0 motion blur, 3 waits for the fade of the event, 4 damage effect, 7 fade of the
 // screen to a color
 int ActionCameraEffect::vf08(Action* arg) {

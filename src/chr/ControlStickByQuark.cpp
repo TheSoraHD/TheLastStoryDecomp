@@ -18,6 +18,7 @@
 #include "math/VecAssign_unk.h"
 #include "atn/ColliBase.h"
 #include "game/BattleTask.h"
+#include "game/GameTask.h"
 #include "game/DamageResult_unk.h"
 
 
@@ -42,32 +43,17 @@ struct Settings_unk {
     Input_unk mInput; // 0x48C
 };
 
-// inferred: camera of the field behind lbl_8087F430 (class unknown)
-struct Camera_unk {
-    unsigned char m000[0x74];
-    atn::Vector3 mEye;    // 0x74
-    atn::Vector3 mAt;     // 0x80
-    unsigned char m08C[0x8A0 - 0x8C];
-    CharaTask* m8A0;      // inferred: character the camera follows
-    unsigned char m8A4[0x96C - 0x8A4];
-    int m96C;             // inferred: camera shake
-    int m970;
-    float m974;
-    float m978;
-    unsigned char m97C[0x9C4 - 0x97C];
-    float m9C4;           // inferred: zoom of the thrust
-    float m9C8;
-    atn::Vector3 m9CC;    // inferred: eye offset kept during the thrust
-    // inferred: starts a camera shake (name invented)
-    void Shake_unk(int time, float a, float b) {
-        m96C %= 2;
-        m970 = time;
-        m974 = a;
-        m978 = b;
-    }
-};
-
-extern "C" Camera_unk* lbl_8087F430;
+// inferred: starts a shake of the field camera (GameCamera::mShake, name invented); the frame keeps its parity
+static inline void Shake_unk(GameTask* task, int time, float a, float b) {
+    CameraShake_unk& shake = task->mCamera.mShake;
+    shake.mFrame %= 2;
+    shake.mLength = time;
+    shake.mWidth = a;
+    shake.mHeight = b;
+}
+// inferred: the field task (lbl_8087F430); the thrust uses GameCamera::m834 (character followed),
+// m958 (zoom), m95C and m960 (eye offset kept during the thrust)
+extern "C" GameTask* lbl_8087F430;
 extern "C" int rand();
 extern "C" void PSMTXTrans(Mtx m, float x, float y, float z);
 class BattleTask;
@@ -377,7 +363,7 @@ ControlThrust::ControlThrust(Chara_unk* chara, Chara_unk* other, atn::Vector3 of
     PSMTXMultVec(m.m, &pos, &pos);
     pos += other->mPos;
     m14 = (3.1415927f + yaw - mChara->mRot.y) / 24.0f;
-    lbl_8087F430->m9CC = lbl_8087F430->mEye - lbl_8087F430->mAt;
+    lbl_8087F430->mCamera.m960 = lbl_8087F430->mCamera.mCamera.mPos - lbl_8087F430->mCamera.mCamera.mTarget;
     mStep = atn::Vector3(pos - mChara->mPos) * (1.0f / 24.0f);
     Motion_unk* mo = &mChara->mMotion;
     mo->m34C = 1;
@@ -406,20 +392,20 @@ int ControlThrust::vf0C() {
             m24 = 0;
         }
     } else if (m->mTracks[0].m08 >= 0.0f && m->mTracks[0].m08 < 24.0f) {
-        lbl_8087F430->m9C4 = m->mTracks[0].m08 / 24.0f;
+        lbl_8087F430->mCamera.m958 = m->mTracks[0].m08 / 24.0f;
         pos += mStep;
         rot.y += m14;
     } else if (Frame_unk(m) >= m->fn_80097D7C(0) - 24.0f && Frame_unk(m) <= m->fn_80097D7C(0)) {
-        lbl_8087F430->m9C4 = (m->fn_80097D7C(0) - Frame_unk(m)) / 24.0f;
+        lbl_8087F430->mCamera.m958 = (m->fn_80097D7C(0) - Frame_unk(m)) / 24.0f;
         pos.x -= mStep.x * 1.1f;
         pos.y -= mStep.y;
         pos.z -= mStep.z * 1.1f;
         rot.y -= m14;
     } else {
-        lbl_8087F430->m9C4 = 1.0f;
+        lbl_8087F430->mCamera.m958 = 1.0f;
         if (m->mTracks[0].m08 > 54.0f && m->mTracks[0].m08 <= 55.0f) {
             Shoot_unk(lbl_8087F048, mChara, 0xCC, &mChara->mPos, &mChara->mRot);
-            lbl_8087F430->Shake_unk(10, 0.3f, 0.3f);
+            Shake_unk(lbl_8087F430, 10, 0.3f, 0.3f);
             if (m20 >= 1) {
                 fn_800C344C("SE_SP009_002", &mChara->mPos, 0, -1, 1.5f);
             }
@@ -438,17 +424,17 @@ int ControlThrust::vf0C() {
             }
         }
         if (mOther && (mOther->mStatus.m0C & 0x20) == 0x20) {
-            Camera_unk* cam = lbl_8087F430;
+            GameTask* cam = lbl_8087F430;
             if (m->mTracks[0].m08 > 42.0f && m->mTracks[0].m08 <= 75.0f) {
                 lbl_8087EFA8->Start_unk(Slow_unk(1, lbl_8087EFA8->mSlow.mParam));
                 lbl_8087EFA8->m3A4 = 0.4f;
-                cam->m8A0 = mChara;
-                cam->m9C8 = 0.3f * ((m->mTracks[0].m08 - 42.0f) / 35.0f) + 1.0f;
+                cam->mCamera.m834 = mChara;
+                cam->mCamera.m95C = 0.3f * ((m->mTracks[0].m08 - 42.0f) / 35.0f) + 1.0f;
             } else {
                 lbl_8087EFA8->Set_unk(Slow_unk(0, lbl_8087EFA8->mSlow.mParam));
                 lbl_8087EFA8->m3A4 = 1.0f;
-                cam->m8A0 = 0;
-                cam->m9C8 = 1.0f;
+                cam->mCamera.m834 = 0;
+                cam->mCamera.m95C = 1.0f;
             }
         }
     }
@@ -497,7 +483,7 @@ int ControlThrustForCrab::vf0C() {
         CharaTask* c = mChara;
         BattleTask* mgr = lbl_8087F048;
         mgr->fn_800FAB80(mChara, fn_80219E6C(0xD1), 1000, &c->mPos, &c->mRot, 0, 0x1E, -1, -1, 0.0f, 1.0f);
-        lbl_8087F430->Shake_unk(10, 0.3f, 0.3f);
+        Shake_unk(lbl_8087F430, 10, 0.3f, 0.3f);
     }
     return Frame_unk(m) >= m->fn_80097D7C(0);
 }
@@ -697,7 +683,7 @@ int ControlThrustForGhoul::vf0C() {
             HitInfo_unk* hit = mChara->m638;
             atn::Matrix3x4* node = (atn::Matrix3x4*)m->GetNodeMtx_unk("rightwepoint");
             ShootHit_unk(lbl_8087F048, mChara, hit, node->GetTrans_unk(), &mChara->mRot);
-            lbl_8087F430->Shake_unk(6, 0.0f, 2.0f);
+            Shake_unk(lbl_8087F430, 6, 0.0f, 2.0f);
         }
         m10 = mChara->mPos;
         m10.y += 20.0f;
@@ -794,7 +780,7 @@ int ControlThrustForCocoon::vf0C() {
     } else {
         pos = mTarget;
         rot.y = mYaw;
-        lbl_8087F430->m9C4 = 1.0f;
+        lbl_8087F430->mCamera.m958 = 1.0f;
         if (!m2C && m->mTracks[0].m08 > 140.0f) {
             m2C = true;
             const atn::Vector3* r = &mChara->mRot;
