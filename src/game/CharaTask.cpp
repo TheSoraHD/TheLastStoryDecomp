@@ -84,6 +84,7 @@
 #include "atn/DebugMessages_unk.h"
 
 #include "game/GameConfig_unk.h"
+#include "math/VecAssign_unk.h"
 extern "C" GameConfig_unk* lbl_8087F0A8;
 
 
@@ -7638,9 +7639,6 @@ void CharaTask::fn_80154344() {
     fn_8023A098(lbl_8087F3C0, this, 4, 0x20);
 }
 
-// NONMATCHING: 91% - the two copies into `dir` take the source/destination registers in the other
-// order (r3/r4) and fabs uses f31 directly (original: fabs f0; frsp f31,f0); tried a ternary,
-// Assign_unk, Abs_unk, casts.
 // inferred: turns along the ledge towards the target (sets the route walker direction)
 void CharaTask::fn_80154488() {
     if (mFlag2) {
@@ -7660,9 +7658,9 @@ void CharaTask::fn_80154488() {
     }
     atn::Vector3 dir;
     if (mC58.mD0 != 0) {
-        dir = mC58.mD0->vf54() - mPos;
+        atn::VecAssign_unk(dir, mC58.mD0->vf54() - mPos);
     } else {
-        dir = mC58.mC4->mPos - mPos;
+        atn::VecAssign_unk(dir, mC58.mC4->mPos - mPos);
     }
     PSVECNormalize(&dir, &dir);
     atn::Vector3 axis;
@@ -10137,9 +10135,14 @@ int CharaTask::fn_8017380C(atn::Vector3* pos, atn::Vector3* move) {
     return 0;
 }
 
-// NONMATCHING: 96% - only the r3/r4 roles of the z-first copy of the fallback direction and the
-// .data offsets; tried: operator=, Assign_unk, a named copy. The second and third rays clear
-// result.m3C (the original stores 0 to the first result there).
+// inferred: z-first copy through one more inline level (gives the dst/src registers of the
+// original in fn_80174104); name invented
+static inline void AssignZ_unk(atn::Vector3& dst, const atn::Vector3& src) {
+    dst.Assign_unk(src);
+}
+
+// inferred: the second and third rays clear result.m3C (the original stores 0 to the first result
+// there).
 // inferred: sits down on the seat in front (chr::ControlSitting)
 int CharaTask::fn_80174104(atn::Vector3* pos, atn::Vector3* move) {
     if (mType != 0) {
@@ -10156,7 +10159,7 @@ int CharaTask::fn_80174104(atn::Vector3* pos, atn::Vector3* move) {
     }
     atn::Vector3 dir(move->x, 0.0f, move->z);
     if (PSVECSquareMag(&dir) < 0.01f) {
-        dir.Assign_unk(fn_8014052C());
+        AssignZ_unk(dir, fn_8014052C());
         return 0;
     }
     PSVECNormalize(&dir, &dir);
