@@ -1,3 +1,4 @@
+#include "atn/RenderSetting_unk.h"
 #include "atn/EffectManager.h"
 #include "game/SkillEffectManager.h"
 #include "game/GameTask.h"
@@ -63,12 +64,7 @@ extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 // inferred: arena UI (lbl_8087F490); fn_803E6850 shows a counter (as in game/Em003LesserDaemon.cpp)
 extern "C" GameUI* lbl_8087F490;
-// inferred: game state (lbl_8087EFA8): time of a frame at 0x3A4 (as in game/CharaStatus.cpp)
-struct ZanGame_unk {
-    unsigned char m000[0x3A4];
-    float m3A4;
-};
-extern "C" ZanGame_unk* lbl_8087EFA8;
+extern "C" RenderSetting_unk* lbl_8087EFA8;
 // inferred: system settings (lbl_8087F0A8): frame rate at 0x30 and pad state at 0x48C
 struct ZanSystem_unk {
     unsigned char m000[0x30];

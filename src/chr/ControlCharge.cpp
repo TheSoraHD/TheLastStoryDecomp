@@ -1,6 +1,7 @@
 // Charge of an attack (ControlCharge) and the attacks that follow it (ControlChargeAttackBase and
 // its subclasses ControlChargeAttack, ControlHighJumpAttack, ControlQuarkSeirenAttack;
 // ControlZanTackle).
+#include "atn/RenderSetting_unk.h"
 #include "game/GameConfig_unk.h"
 #include "chr/ControlCharge.h"
 #include "game/AiTarget.h"
@@ -73,12 +74,7 @@ struct VoiceEntry_unk {
 };
 extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float volume);
 extern "C" float fn_800A56A8(void* pad, int port, int axis, int arg); // inferred: stick axis
-// inferred: game state (lbl_8087EFA8, as in game/CharaTask.cpp); names invented
-struct GameState_unk {
-    unsigned char m000[0x3A4];
-    float m3A4; // inferred: time of a frame
-};
-extern "C" GameState_unk* lbl_8087EFA8;
+extern "C" RenderSetting_unk* lbl_8087EFA8;
 
 extern "C" void* lbl_8087EE98;
 extern "C" int fn_8004ED34(void* colli, atn::ColliResult_unk* result, const atn::Vector3& from, const atn::Vector3& to,

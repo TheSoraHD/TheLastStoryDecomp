@@ -1,3 +1,4 @@
+#include "atn/RenderSetting_unk.h"
 #include "game/HomingBullet.h"
 #include "game/CharaTask.h"
 #include "game/ReplayBuffer.h"
@@ -24,12 +25,7 @@ inline float CosF_unk(float x) {
     return cos(x);
 }
 
-// inferred: game parameters (only the frame time step)
-struct HomingParams_unk {
-    unsigned char m000[0x3A4];
-    float mTimeScale;
-};
-extern "C" HomingParams_unk* lbl_8087EFA8;
+extern "C" RenderSetting_unk* lbl_8087EFA8;
 
 extern "C" GameTask* lbl_8087F430;
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
@@ -119,7 +115,7 @@ void HomingBullet::vf0C(int a, int b) {
 
 
 void HomingBullet::vf10() {
-    float dt = lbl_8087EFA8->mTimeScale;
+    float dt = lbl_8087EFA8->m3A4;
     if (m94 >= 0.0f) {
         m94 -= dt;
         if (m94 <= 0.0f) {

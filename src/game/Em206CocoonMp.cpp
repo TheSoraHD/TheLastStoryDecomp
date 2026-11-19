@@ -1,3 +1,4 @@
+#include "atn/RenderSetting_unk.h"
 #include "macros.h"
 #include "game/Em206CocoonMp.h"
 #include "math/VecAssign_unk.h"
@@ -42,12 +43,7 @@ extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
 extern "C" double cos(double x);
 extern "C" double sin(double x);
 extern "C" void PSMTXRotRad(Mtx m, char axis, float rad);
-// inferred: frame time (lbl_8087EFA8, as FrameTime_unk in game/CharaStatus.cpp)
-struct FrameTime_unk {
-    unsigned char m000[0x3A4];
-    float m3A4; // inferred: time of a frame
-};
-extern "C" FrameTime_unk* lbl_8087EFA8;
+extern "C" RenderSetting_unk* lbl_8087EFA8;
 extern "C" void PSMTXMultVec(const Mtx m, const atn::Vector3* src, atn::Vector3* dst);
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 // inferred: multiplayer session (lbl_8087F610, as in game/Em204MulueMp.cpp)

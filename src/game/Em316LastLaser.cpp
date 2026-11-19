@@ -1,3 +1,4 @@
+#include "atn/RenderSetting_unk.h"
 #include "game/Em316LastLaser.h"
 #include "game/CharaStatus.h"
 #include "game/CharaManager.h"
@@ -53,12 +54,7 @@ struct Color4f_unk {
 extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
-// inferred: game state (lbl_8087EFA8): time of a frame at 0x3A4; settings (lbl_8087F0A8): frames per second
-struct GameState_unk {
-    unsigned char m000[0x3A4];
-    float m3A4;
-};
-extern "C" GameState_unk* lbl_8087EFA8;
+extern "C" RenderSetting_unk* lbl_8087EFA8;
 struct LaserSettings_unk {
     unsigned char m00[0x30];
     int mFrameRate;

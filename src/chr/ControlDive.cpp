@@ -1,3 +1,4 @@
+#include "atn/RenderSetting_unk.h"
 #include "chr/ControlDive.h"
 #include "game/GameTask.h"
 #include "game/GameVoice.h"
@@ -18,12 +19,7 @@ extern "C" GameTask* lbl_8087F430; // inferred: the field
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
 
 
-// inferred: game state (lbl_8087EFA8): m3A4 is the time scale
-struct DiveGameState_unk {
-    unsigned char m000[0x3A4];
-    float m3A4;
-};
-extern "C" DiveGameState_unk* lbl_8087EFA8;
+extern "C" RenderSetting_unk* lbl_8087EFA8;
 
 // inferred: pad state at +0x48C of the object behind lbl_8087F0A8 (class unknown)
 struct DiveInput_unk {

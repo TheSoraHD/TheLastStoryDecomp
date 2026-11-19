@@ -1,3 +1,4 @@
+#include "atn/RenderSetting_unk.h"
 #include "Event/Manager.h"
 #include "Event/Sequence.h"
 #include "game/NewStaffRoll.h"
@@ -17,12 +18,7 @@ extern "C" void fn_800D2338(atn::Task* task); // inferred: deletes the task
 
 // inferred: field (lbl_8087F430)
 extern "C" void* lbl_8087F430;
-// inferred: game state (lbl_8087EFA8)
-struct StaffRollState_unk {
-    unsigned char m00[0x3A4];
-    float m3A4; // inferred: time of a frame
-};
-extern "C" StaffRollState_unk* lbl_8087EFA8;
+extern "C" RenderSetting_unk* lbl_8087EFA8;
 // inferred: render manager (lbl_8087EEE0)
 struct StaffRollScreen_unk {
     unsigned char m00[0x3C];

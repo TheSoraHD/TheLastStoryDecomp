@@ -1,3 +1,4 @@
+#include "atn/RenderSetting_unk.h"
 #include "game/Em203GreaterDaemon.h"
 #include "game/GameScene.h"
 #include "atn/Csv.h"
@@ -113,12 +114,7 @@ extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
 struct EffectMgr_unk;
 extern "C" EffectMgr_unk* lbl_8087F3C0;
 extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
-// inferred: frame time (lbl_8087EFA8, as FrameTime_unk in game/CharaStatus.cpp)
-struct FrameTime_unk {
-    unsigned char m000[0x3A4];
-    float m3A4; // inferred: time of a frame
-};
-extern "C" FrameTime_unk* lbl_8087EFA8;
+extern "C" RenderSetting_unk* lbl_8087EFA8;
 // inferred: skill effect manager (class unknown, as in gmk/HealPoint.cpp)
 class SkillEffect;
 extern "C" void* lbl_8087F9E8;

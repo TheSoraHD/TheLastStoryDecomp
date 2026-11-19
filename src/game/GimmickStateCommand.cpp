@@ -3,6 +3,7 @@
 // docs/splits-auto-C.md. The file holds the motion commands of the gimmicks (GimmickCommonB0_unk) and
 // GimmickStateCommand.
 
+#include "atn/RenderSetting_unk.h"
 #include "atn/EffectManager.h"
 #include "game/GimmickCommon.h"
 #include "game/GameTask.h"
@@ -51,12 +52,7 @@ extern "C" void fn_800CB5C8(atn::SoundRef* sound, int frames, int arg); // infer
 extern "C" void fn_800CB518(atn::SoundRef* sound, int frames);           // inferred: fades the sound in
 extern "C" void fn_800CB688(atn::SoundRef* sound, int arg, float pitch); // inferred: sets the pitch
 extern "C" void fn_800CB6B0(atn::SoundRef* sound, int arg, float distance); // inferred: sets the distance
-// inferred: frame time (lbl_8087EFA8)
-struct FrameTime_unk {
-    unsigned char m000[0x3A4];
-    float m3A4; // inferred: frame speed
-};
-extern "C" FrameTime_unk* lbl_8087EFA8;
+extern "C" RenderSetting_unk* lbl_8087EFA8;
 // inferred: player manager (lbl_8087F8A0)
 struct ShakePlayer_unk {
     unsigned char m000[0x528];

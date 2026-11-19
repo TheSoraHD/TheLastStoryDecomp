@@ -1,3 +1,4 @@
+#include "atn/RenderSetting_unk.h"
 #include "game/GameTask.h"
 #include "game/Em001Necromancer.h"
 #include "atn/RenderManager.h"
@@ -37,13 +38,10 @@ extern "C" void* lbl_8087F9E8;
 extern "C" SkillEffect* fn_8059B66C(void* mgr, HitInfo_unk* skill, CharaTask* user, CharaTask* target,
                                    const atn::Vector3* pos, const atn::Vector3* rot,
                                    boost::function<void(SkillEffect*)> callback, float rate);
-// inferred: game state (lbl_8087EFA8): time of a frame at 0x3A4 (as in game/Em301LShade.cpp)
-struct NecroGame_unk {
-    float GetTime_unk() const { return m3A4; } // inferred: accessor (as in game/CharaStatus.cpp)
-    unsigned char m000[0x3A4];
-    float m3A4;
-};
-extern "C" NecroGame_unk* lbl_8087EFA8;
+extern "C" RenderSetting_unk* lbl_8087EFA8;
+inline float RenderSetting_unk::GetFrameSpeed_unk() const {
+    return m3A4;
+}
 // inferred: effect manager (class unknown), global instance at 0x8087F3C0
 struct EffectMgr_unk;
 struct Color4f_unk {
@@ -523,7 +521,7 @@ void Em001Necromancer::vf10() {
             break;
         }
         case 12:
-            m156C += lbl_8087EFA8->GetTime_unk();
+            m156C += lbl_8087EFA8->GetFrameSpeed_unk();
             if (m156C > 0.0f) {
                 mPos.y += 30.0f / mMotion.fn_80097D7C(0);
                 mRot.y += 6.2831855f / mMotion.fn_80097D7C(0);
@@ -738,7 +736,7 @@ void Em001Necromancer::fn_80246594() {
     mFBC = (float)hit->mC0;
     if (mFB8 < (float)hit->mC0) {
         float r = lbl_8087F048->fn_8010CB2C(this, 1.0f);
-        mFB8 += lbl_8087EFA8->GetTime_unk() * (r * r);
+        mFB8 += lbl_8087EFA8->GetFrameSpeed_unk() * (r * r);
         if (mFB8 >= (float)m638->mC0) {
             done = 1;
         }

@@ -1,3 +1,4 @@
+#include "atn/RenderSetting_unk.h"
 #include "atn/EffectManager.h"
 #include "game/GameConfig_unk.h"
 #include "gmk/SparkCube.h"
@@ -32,12 +33,7 @@ extern "C" void fn_8023A8B4(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Mod
 extern "C" void fn_80239DAC(atn::EffectManager* mgr, void* owner, int id, int arg); // inferred: stops an effect
 extern "C" void fn_80232B7C(void* owner, int arg);
 extern "C" GameConfig_unk* lbl_8087F0A8;
-// inferred: frame parameters (as gmk::ArenaFloor)
-struct Params_unk {
-    unsigned char m000[0x3A4];
-    float mTimeScale; // 0x3A4
-};
-extern "C" Params_unk* lbl_8087EFA8;
+extern "C" RenderSetting_unk* lbl_8087EFA8;
 // inferred: bullets
 class BattleTask;
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
@@ -168,7 +164,7 @@ void SparkCube::vf10() {
         Start();
     }
     int state = -1;
-    float step = lbl_8087EFA8->mTimeScale;
+    float step = lbl_8087EFA8->m3A4;
     mTimer += step;
     switch (m54) {
     case 2:

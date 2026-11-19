@@ -1,3 +1,4 @@
+#include "atn/RenderSetting_unk.h"
 #include "game/ReplayBuffer.h"
 #include "math/Vec.h"
 #include "atn/NodeChunk.h"
@@ -345,21 +346,17 @@ struct ReplayBullet_unk {
 static inline ReplayBullet_unk* GetBullet_unk(ReplayFrame_unk* frame, int i) {
     return &((ReplayBullet_unk*)frame->mBullets)[i];
 }
-// inferred: frame time (lbl_8087EFA8; as in game/GimmickStateCommand.cpp)
-struct ReplayFrameTime_unk {
-    unsigned char m000[0x3A4];
-    float m3A4; // inferred: frame speed
-    // inferred: inline getter (as in game/AiTarget.cpp: the operands of the fadds follow it)
-    float GetDelta_unk() const { return m3A4; }
-};
-extern "C" ReplayFrameTime_unk* lbl_8087EFA8;
+extern "C" RenderSetting_unk* lbl_8087EFA8;
+inline float RenderSetting_unk::GetFrameSpeed_unk() const {
+    return m3A4;
+}
 
 // NONMATCHING: 98.72% - registers: the frame pointer (r25 in the original) and the flag word/result of
 // IsSkipped_unk in the enemy loop (as in ReplayRecorder_unk::fn_8056B3D4)
 // inferred: records a frame every frame time: the party relative to the leader, the friends, the enemies, the
 // gimmick models and the homing bullets
 void ReplayBuffer::fn_8056C3D8() {
-    m5BDB8 += lbl_8087EFA8->GetDelta_unk();
+    m5BDB8 += lbl_8087EFA8->GetFrameSpeed_unk();
     if (m5BDB8 < 0.9999f) {
         return;
     }

@@ -1,3 +1,4 @@
+#include "atn/RenderSetting_unk.h"
 #include "chr/ControlTurnQuadruped.h"
 #include "atn/ColliBase.h"
 
@@ -7,12 +8,8 @@ struct System_unk {
     unsigned char m00[0x30];
     int mFrameRate; // 0x30
 };
-struct Params_unk {
-    unsigned char m000[0x3A4];
-    float mTimeScale; // 0x3A4
-};
 extern "C" System_unk* lbl_8087F0A8;
-extern "C" Params_unk* lbl_8087EFA8;
+extern "C" RenderSetting_unk* lbl_8087EFA8;
 extern "C" void* lbl_8087EE98;
 extern "C" void fn_8004D388(void* mgr, atn::ColliResult_unk* result, chr::Chara_unk::Sphere_unk* sphere, atn::Vector3* move,
                             unsigned int mask, void* ignore, int arg, float radius); // inferred: sweep test
@@ -87,7 +84,7 @@ int ControlTurnQuadruped::vf0C() {
     MtxRotZYX_unk(m.m, mRot);
     PSMTXMultVec(m.m, &move, &move);
     int fps = lbl_8087F0A8->mFrameRate;
-    float scale = lbl_8087EFA8->mTimeScale;
+    float scale = lbl_8087EFA8->m3A4;
     move.y += -98.1f / (float)(fps * fps);
     move *= scale;
     atn::ColliResult_unk result;

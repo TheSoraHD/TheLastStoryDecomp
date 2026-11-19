@@ -1,3 +1,4 @@
+#include "atn/RenderSetting_unk.h"
 #include "game/Em316LaserSphere.h"
 #include "atn/Csv.h"
 #include "atn/Material_unk.h"
@@ -54,12 +55,7 @@ extern "C" inline chr::ControlBase* fn_80318F90(CharaTask* chara) {
 extern "C" inline void fn_80319998(LaserCatch_unk* control) {
     control->m4C = 1;
 }
-// inferred: game state (lbl_8087EFA8, see game/CharaTask.cpp): time of a frame at 0x3A4
-struct GameState_unk {
-    unsigned char m000[0x3A4];
-    float m3A4;
-};
-extern "C" GameState_unk* lbl_8087EFA8;
+extern "C" RenderSetting_unk* lbl_8087EFA8;
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
 
 // inferred: sound effects of the sphere (laser, laser end, ?, death); name invented

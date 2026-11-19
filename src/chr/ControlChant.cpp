@@ -1,5 +1,6 @@
 // Chant of a magic (ControlChant), casting it (ControlMagic) and the end of the cast
 // (ControlMagicEnd).
+#include "atn/RenderSetting_unk.h"
 #include "game/GameConfig_unk.h"
 #include "chr/ControlChant.h"
 #include "game/AiTarget.h"
@@ -23,12 +24,7 @@
 extern "C" GameConfig_unk* lbl_8087F0A8;
 // inferred: arena mode object (lbl_8087F610, as in chr/ControlCharge.cpp)
 extern "C" void* lbl_8087F610;
-// inferred: game state (lbl_8087EFA8, as in game/CharaTask.cpp); names invented
-struct GameState_unk {
-    unsigned char m000[0x3A4];
-    float m3A4; // inferred: time of a frame
-};
-extern "C" GameState_unk* lbl_8087EFA8;
+extern "C" RenderSetting_unk* lbl_8087EFA8;
 // inferred: RGBA colour of the effects
 typedef EffectColor_unk Color4f_unk;
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager

@@ -1,3 +1,4 @@
+#include "atn/RenderSetting_unk.h"
 #include "chr/ControlAttackBase.h"
 #include "game/GameVoice.h"
 #include "game/CharaTask.h"
@@ -24,12 +25,7 @@ extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
 // inferred: multiplayer session (lbl_8087F610, see MP/CharaListeners_unk.cpp)
 extern "C" void* lbl_8087F610;
 
-// inferred: game state (lbl_8087EFA8): m3A4 is the time scale
-struct GameState_unk {
-    unsigned char m000[0x3A4];
-    float m3A4;
-};
-extern "C" GameState_unk* lbl_8087EFA8;
+extern "C" RenderSetting_unk* lbl_8087EFA8;
 
 
 extern "C" const char* fn_800EFF04(int id); // inferred: sound name of an effect id

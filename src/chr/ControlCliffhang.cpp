@@ -1,3 +1,4 @@
+#include "atn/RenderSetting_unk.h"
 #include "game/GameTask.h"
 #include "chr/ControlCliffhang.h"
 #include "math/VecAssign_unk.h"
@@ -14,12 +15,7 @@ extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared len
 
 extern "C" GameTask* lbl_8087F430;
 
-// inferred: game state (lbl_8087EFA8): m3A4 is the time scale
-struct GameState_unk {
-    unsigned char m000[0x3A4];
-    float m3A4;
-};
-extern "C" GameState_unk* lbl_8087EFA8;
+extern "C" RenderSetting_unk* lbl_8087EFA8;
 
 // inferred: pad (lbl_8087EF70); fn_800A55D4 tests a button of a player
 extern "C" void* lbl_8087EF70;

@@ -1,3 +1,4 @@
+#include "atn/RenderSetting_unk.h"
 #include "chr/ControlDropDown.h"
 #include "game/GameVoice.h"
 #include "game/GameScene.h"
@@ -15,12 +16,7 @@ extern "C" void* lbl_8087F610;
 class BattleTask;
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
 extern "C" GameTask* lbl_8087F430;
-// inferred: camera settings (lbl_8087EFA8)
-struct DropCamera_unk {
-    unsigned char m000[0x3A4];
-    float m3A4;
-};
-extern "C" DropCamera_unk* lbl_8087EFA8;
+extern "C" RenderSetting_unk* lbl_8087EFA8;
 extern "C" void* lbl_8087EE98;
 extern "C" int fn_8004ED34(void* colli, atn::ColliResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg7); // inferred: ray test

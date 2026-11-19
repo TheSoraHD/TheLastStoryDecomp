@@ -1,5 +1,6 @@
 // inferred file name: from the RTTI of Bullet (vtable 0x80779F10). The boot sequence task before it is
 // game/BootTask.cpp.
+#include "atn/RenderSetting_unk.h"
 #include "game/Bullet.h"
 #include "game/GameTask.h"
 #include "game/CharaTask.h"
@@ -52,12 +53,7 @@ extern "C" void fn_8023A680(BulletEffectMgr_unk* mgr, int id, int a, int b, atn:
                             int e, int f, int g, int h, float scale); // inferred: plays an effect on `mtx`
 extern "C" void fn_80239DAC(BulletEffectMgr_unk* mgr, void* owner, int group, int arg); // inferred: stops effects
 
-// inferred: frame time step (lbl_8087EFA8)
-struct BulletTime_unk {
-    unsigned char m000[0x3A4];
-    float mTimeScale;
-};
-extern "C" BulletTime_unk* lbl_8087EFA8;
+extern "C" RenderSetting_unk* lbl_8087EFA8;
 
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
 extern "C" void* lbl_8087EE98; // inferred: collision manager
@@ -374,7 +370,7 @@ inline void PlayHitEffect_unk(Bullet* bullet, const atn::Vector3& pos, const atn
 // inferred: update: removes the bullet when its time is over (with the hit effect of the data),
 // hits at the end of its range, moves it and tests the collision
 void Bullet::vf10() {
-    float dt = lbl_8087EFA8->mTimeScale;
+    float dt = lbl_8087EFA8->m3A4;
     if (m94 >= 0.0f) {
         m04 |= 0x20000;
         fn_8010F4BC();
@@ -441,7 +437,7 @@ void Bullet::vf10() {
 
 // inferred: moves the bullet one frame (falling bullets, kinds 1 and 5, are pulled by gravity)
 void Bullet::vf14(const Mtx m) {
-    float dt = lbl_8087EFA8->mTimeScale;
+    float dt = lbl_8087EFA8->m3A4;
     if (m94 >= 0.0f) {
         m94 -= dt;
         if (m94 <= 0.0f) {

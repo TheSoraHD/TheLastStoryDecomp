@@ -3,6 +3,7 @@
 // the route search 0x80018D5C-0x8001A228), so the unit is not linked. The unit ends with the weak
 // copies of std::runtime_error, boost::bad_function_call and the std::tr1::shared_ptr deleter
 // (include/std/stdexcept.h; formerly the split std/runtime_error.cpp).
+#include "atn/RenderSetting_unk.h"
 #include <boost/function.hpp>
 #include <typeinfo>
 #include "game/AiTarget.h"
@@ -55,14 +56,10 @@ inline CharaTask* NextChara_unk(CharaTask* chara) {
     return ((CharaListNode_unk*)chara)->mNext;
 }
 
-// inferred: render parameters (as FrameTime_unk in game/GimmickStateCommand.cpp)
-struct FrameTime_unk {
-    unsigned char m000[0x3A4];
-    float m3A4; // inferred: frame speed
-    // inferred: inline getter (with the member read directly the operands of the fadds are swapped)
-    float GetDelta_unk() const { return m3A4; }
-};
-extern "C" FrameTime_unk* lbl_8087EFA8;
+extern "C" RenderSetting_unk* lbl_8087EFA8;
+inline float RenderSetting_unk::GetFrameSpeed_unk() const {
+    return m3A4;
+}
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 extern "C" BattleTask* lbl_8087F048;
 extern "C" GameTask* lbl_8087F430;
@@ -150,7 +147,7 @@ int AIManager::vf0C() {
 }
 
 void AIManager::vf10() {
-    m94 += lbl_8087EFA8->GetDelta_unk();
+    m94 += lbl_8087EFA8->GetFrameSpeed_unk();
     m98 = 0;
     while (m94 >= 1.0f) {
         m94 -= 1.0f;

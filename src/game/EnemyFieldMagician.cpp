@@ -1,3 +1,4 @@
+#include "atn/RenderSetting_unk.h"
 #include "game/EnemyFieldMagician.h"
 #include "atn/Csv.h"
 #include "atn/SoundManager.h"
@@ -50,12 +51,7 @@ extern "C" inline CollWorld_unk* fn_801404F8() {
     return lbl_8087EE98;
 }
 
-// inferred: game timer (m3A4: frame time)
-struct Timer_unk {
-    unsigned char m000[0x3A4];
-    float m3A4;
-};
-extern "C" Timer_unk* lbl_8087EFA8;
+extern "C" RenderSetting_unk* lbl_8087EFA8;
 inline float GetFrameTime_unk() {
     return lbl_8087EFA8->m3A4;
 }

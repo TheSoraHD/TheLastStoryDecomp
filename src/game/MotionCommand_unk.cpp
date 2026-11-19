@@ -1,3 +1,4 @@
+#include "atn/RenderSetting_unk.h"
 #include "game/CharaTask.h"
 #include "game/GameTask.h"
 #include "atn/SoundManager.h"
@@ -46,13 +47,10 @@ extern "C" void fn_800CB5C8(atn::SoundRef* sound, int frames, int arg); // infer
 extern "C" void fn_800CB6B0(atn::SoundRef* sound, int arg, float value);
 extern "C" void fn_800CB6E4(atn::SoundRef* sound, const atn::Vector3* pos); // inferred: moves the sound
 
-// inferred: game timer (names invented)
-struct Timer_unk {
-    float GetTime_unk() const { return m3A4; } // inferred: accessor (name invented)
-    unsigned char m00[0x3A4];
-    float m3A4; // inferred: frame time
-};
-extern "C" Timer_unk* lbl_8087EFA8;
+extern "C" RenderSetting_unk* lbl_8087EFA8;
+inline float RenderSetting_unk::GetFrameSpeed_unk() const {
+    return m3A4;
+}
 // inferred: starts a shake of the field camera (GameCamera::mShake; name invented)
 static inline void SetShake_unk(GameTask* task, int type, int frames, float power, float speed) {
     CameraShake_unk& shake = task->mCamera.mShake;
@@ -284,7 +282,7 @@ int MotionCommand_unk::fn_8012133C(atn::MotionCommandData* data, int* found) {
     unsigned int hash = fn_800DC6B4(fn_80218218(m04));
     float frame = model->GetMotionFrame(m08);
     float length = model->fn_80097D7C(m08);
-    float step = model->GetMotionSpeed(m08) * lbl_8087EFA8->GetTime_unk();
+    float step = model->GetMotionSpeed(m08) * lbl_8087EFA8->GetFrameSpeed_unk();
     unsigned char loop = model->mTracks[m08].m18;
     if (m04 == 0x58) {
         if (step < 0.0f) {

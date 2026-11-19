@@ -1,3 +1,4 @@
+#include "atn/RenderSetting_unk.h"
 #include "atn/EffectManager.h"
 #include "game/LastCocoonImago.h"
 #include "chr/ControlBase.h"
@@ -648,12 +649,7 @@ void LastCocoonImago::vf54() {
 extern "C" int fn_8004D388(void* world, atn::ColliResult_unk* result, CharaTask::Sphere_unk* sphere, atn::Vector3* move,
                            unsigned int mask, void* ignore, int arg, float radius); // inferred: sweep test
 extern "C" void* lbl_8087EE98; // inferred: collision world
-// inferred: game state (as in game/LastCocoonQuadruped.cpp); names invented
-struct ImagoGameState_unk {
-    unsigned char m000[0x3A4];
-    float m3A4; // inferred: time of a frame
-};
-extern "C" ImagoGameState_unk* lbl_8087EFA8;
+extern "C" RenderSetting_unk* lbl_8087EFA8;
 
 // NONMATCHING: 96% - float registers (dt, speed, move) and stack slots
 // inferred: turns towards `rot` and walks (when `move` is over a third) at `speed`, with gravity, the push

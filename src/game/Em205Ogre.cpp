@@ -1,3 +1,4 @@
+#include "atn/RenderSetting_unk.h"
 #include "game/Em205Ogre.h"
 #include "math/VecAssign_unk.h"
 #include "game/GameTask.h"
@@ -34,12 +35,7 @@ extern "C" void fn_8023A680(EffectMgr_unk* mgr, atn::EffFile* res, int a, int b,
                             const atn::Vector3* rot, const void* color, float scale, int e, int f, int g);
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
 extern "C" void fn_800CB6B0(atn::SoundRef* sound, int arg, float distance); // inferred: sets the distance
-// inferred: frame time (as in game/CharaStatus.cpp)
-struct FrameTime_unk {
-    unsigned char m000[0x3A4];
-    float m3A4; // inferred: time of a frame
-};
-extern "C" FrameTime_unk* lbl_8087EFA8;
+extern "C" RenderSetting_unk* lbl_8087EFA8;
 extern "C" GameTask* lbl_8087F430;
 
 

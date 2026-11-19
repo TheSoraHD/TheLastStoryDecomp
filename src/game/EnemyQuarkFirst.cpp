@@ -1,3 +1,4 @@
+#include "atn/RenderSetting_unk.h"
 #include "math/VecAssign_unk.h"
 #include "game/SkillEffectManager.h"
 #include "game/GameVoice.h"
@@ -332,12 +333,7 @@ void EnemyQuarkFirst::vfFC() {
 
 extern "C" int rand();
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
-// inferred: game state (lbl_8087EFA8): time scale at 0x3A4 (as in game/Em301LShade.cpp)
-struct QuarkGame_unk {
-    unsigned char m000[0x3A4];
-    float m3A4;
-};
-extern "C" QuarkGame_unk* lbl_8087EFA8;
+extern "C" RenderSetting_unk* lbl_8087EFA8;
 struct EffectMgr_unk;
 extern "C" EffectMgr_unk* lbl_8087F3C0;
 extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect

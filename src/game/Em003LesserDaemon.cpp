@@ -1,3 +1,4 @@
+#include "atn/RenderSetting_unk.h"
 #include "game/Em003LesserDaemon.h"
 #include "game/GameUI.h"
 #include "chr/ControlChant.h"
@@ -62,13 +63,10 @@ extern "C" void fn_8023A680(EffectMgr_unk* mgr, void* res, int a, int b, void* m
 extern "C" GameUI* lbl_8087F490;
 extern "C" double fmod(double x, double y);
 extern "C" double sin(double x);
-// inferred: frame time (lbl_8087EFA8, as FrameTime_unk in game/CharaStatus.cpp)
-struct FrameTime_unk {
-    unsigned char m000[0x3A4];
-    float m3A4; // inferred: time of a frame
-    float GetTime_unk() const { return m3A4; } // inferred: accessor (name invented)
-};
-extern "C" FrameTime_unk* lbl_8087EFA8;
+extern "C" RenderSetting_unk* lbl_8087EFA8;
+inline float RenderSetting_unk::GetFrameSpeed_unk() const {
+    return m3A4;
+}
 // inferred: color as four floats (as ColorF_unk in game/Em315Coffin.cpp)
 struct ColorF_unk {
     ColorF_unk(float r_, float g_, float b_, float a_) : r(r_), g(g_), b(b_), a(a_) {}
@@ -616,9 +614,9 @@ void Em003LesserDaemon::fn_8024BE94() {
         return;
     }
     if (m1624 == 0 && m58C != 12) {
-        m1648 = MAX(0.1f, m1648 - 0.05f * lbl_8087EFA8->GetTime_unk());
+        m1648 = MAX(0.1f, m1648 - 0.05f * lbl_8087EFA8->GetFrameSpeed_unk());
     } else {
-        m1648 = MIN(1.0f, m1648 + 0.05f * lbl_8087EFA8->GetTime_unk());
+        m1648 = MIN(1.0f, m1648 + 0.05f * lbl_8087EFA8->GetFrameSpeed_unk());
     }
     for (unsigned int i = 0; i < 6; i++) {
         Material_unk* mat = mMotion.fn_80094B6C(sMaterials[i]);
@@ -631,13 +629,13 @@ void Em003LesserDaemon::fn_8024BE94() {
         float frame = mMotion.mTracks[0].m08;
         light *= 1.0f - MIN(1.0f, frame / 20.0f);
     } else if (m58C == 12) {
-        m1644 += 20.0f * lbl_8087EFA8->GetTime_unk();
+        m1644 += 20.0f * lbl_8087EFA8->GetFrameSpeed_unk();
         if (m1644 >= 360.0f) {
             m1644 -= 360.0f;
         }
         light = 0.5f * (float)sin(atn::DegToRad_unk(m1644)) + 0.5f;
     } else {
-        m1644 += 4.0f * lbl_8087EFA8->GetTime_unk();
+        m1644 += 4.0f * lbl_8087EFA8->GetFrameSpeed_unk();
         if (m1644 >= 360.0f) {
             m1644 -= 360.0f;
         }

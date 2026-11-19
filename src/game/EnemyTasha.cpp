@@ -1,3 +1,4 @@
+#include "atn/RenderSetting_unk.h"
 #include "atn/EffectManager.h"
 #include "game/SkillEffectManager.h"
 #include "game/EnemyTasha.h"
@@ -576,12 +577,7 @@ struct TashaStep_unk {
 // inferred: sets the frame of motion track `track` (weak copy of a atn::Model inline, also called by
 // game/GameTask and game/TutorialTask; defined after vf100 to keep its position)
 
-// inferred: game state (lbl_8087EFA8): m3A4 is the time scale (as in game/EnemyTrista.cpp)
-struct TashaGame_unk {
-    unsigned char m000[0x3A4];
-    float m3A4;
-};
-extern "C" TashaGame_unk* lbl_8087EFA8;
+extern "C" RenderSetting_unk* lbl_8087EFA8;
 
 // inferred: nonzero when a wall stands between Tasha and the target
 inline int TashaHitWall_unk(EnemyTasha* e) {

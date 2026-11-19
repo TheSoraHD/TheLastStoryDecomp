@@ -1,3 +1,4 @@
+#include "atn/RenderSetting_unk.h"
 #include "game/GameConfig_unk.h"
 #include "macros.h"
 #include "chr/ControlAttractHateCharge.h"
@@ -25,12 +26,7 @@ struct VoiceEntry_unk {
 extern "C" void* lbl_8087F610; // inferred: arena mode (as in game/CharaTask.cpp)
 
 extern "C" GameConfig_unk* lbl_8087F0A8;
-// inferred: game state (lbl_8087EFA8, as in game/CharaTask.cpp); names invented
-struct GameState_unk {
-    unsigned char m000[0x3A4];
-    float m3A4; // inferred: time of a frame
-};
-extern "C" GameState_unk* lbl_8087EFA8;
+extern "C" RenderSetting_unk* lbl_8087EFA8;
 // inferred: record returned by fn_80210220 (as in game/CharaTask.cpp); names invented
 struct Record80210220_unk {
     unsigned char m00[0x1C];

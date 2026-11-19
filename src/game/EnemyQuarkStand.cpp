@@ -1,3 +1,4 @@
+#include "atn/RenderSetting_unk.h"
 #include "game/EnemyQuarkStand.h"
 #include "game/GameTask.h"
 #include "game/GameVoice.h"
@@ -101,12 +102,7 @@ extern "C" void fn_80276AE4(EffectMgr_unk* mgr, atn::EfpFile* efp, void* model, 
                             const atn::Vector3* rot, int a, int b, int c, float scale);
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume); // 3D sound
-// inferred: game state (lbl_8087EFA8): the frame time at 0x3A4 (as in game/Em301LShade.cpp)
-struct QuarkGame_unk {
-    unsigned char m000[0x3A4];
-    float m3A4;
-};
-extern "C" QuarkGame_unk* lbl_8087EFA8;
+extern "C" RenderSetting_unk* lbl_8087EFA8;
 extern "C" void* lbl_8087EE98; // inferred: collision world
 extern "C" int fn_8004ED34(void* colli, void* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg7); // inferred: segment test

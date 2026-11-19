@@ -1,3 +1,4 @@
+#include "atn/RenderSetting_unk.h"
 #include "atn/LayerReflect.h"
 #include "atn/DrawHelper.h"
 
@@ -9,12 +10,8 @@ struct RenderMgr_unk {
     unsigned char m44[0x48 - 0x44];
     unsigned int mClearColor; // 0x48: ARGB
 };
-struct DebugFlags_unk {
-    unsigned char m000[0x308];
-    int m308; // inferred: show debug textures
-};
 extern "C" RenderMgr_unk* lbl_8087EEE0;
-extern "C" DebugFlags_unk* lbl_8087EFA8;
+extern "C" RenderSetting_unk* lbl_8087EFA8;
 extern "C" void fn_80075F58(RenderMgr_unk* mgr, int x, int y, int w, int h); // inferred: set viewport
 extern "C" void fn_80075DEC(RenderMgr_unk* mgr);
 

@@ -1,3 +1,4 @@
+#include "atn/RenderSetting_unk.h"
 #include "game/GameConfig_unk.h"
 #include "game/SkillEffectManager.h"
 #include "game/Em403WarLion.h"
@@ -45,12 +46,7 @@ extern "C" GameTask* lbl_8087F430;
 extern "C" inline GameTask* fn_80121F00() {
     return lbl_8087F430;
 }
-// inferred: game state (lbl_8087EFA8, see game/CharaTask.cpp); names invented
-struct GameState_unk {
-    unsigned char m000[0x3A4];
-    float m3A4; // inferred: time of a frame
-};
-extern "C" GameState_unk* lbl_8087EFA8;
+extern "C" RenderSetting_unk* lbl_8087EFA8;
 extern "C" int fn_8004D388(void* world, atn::ColliResult_unk* result, CharaTask::Sphere_unk* sphere, atn::Vector3* move,
                            unsigned int mask, void* ignore, int arg, float radius); // inferred: sweep test
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length

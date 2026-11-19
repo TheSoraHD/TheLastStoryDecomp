@@ -1,3 +1,4 @@
+#include "atn/RenderSetting_unk.h"
 #include "db/ChapterList_unk.h"
 #include "game/CharaStatus.h"
 #include "game/AiTarget.h"
@@ -723,12 +724,10 @@ int CharaStatus::fn_8012E534() {
 
 extern "C" int fn_80219344(chr::Chara_unk* chara, int arg);
 
-struct FrameTime_unk {
-    unsigned char m000[0x3A4];
-    float m3A4; // inferred: time of a frame
-    float GetTime_unk() const { return m3A4; } // inferred: accessor (name invented)
-};
-extern "C" FrameTime_unk* lbl_8087EFA8;
+extern "C" RenderSetting_unk* lbl_8087EFA8;
+inline float RenderSetting_unk::GetFrameSpeed_unk() const {
+    return m3A4;
+}
 extern "C" atn::Task* lbl_8087F9E8;
 extern "C" int fn_8021A960(HitInfo_unk* hit);
 
@@ -863,7 +862,7 @@ void CharaStatus::fn_8012E540() {
     }
     if (lbl_8087F9E8 != 0 && (lbl_8087F9E8->mFlags & 1) != 1 && (lbl_8087F9E8->mFlags & 4) != 4 && HasTimer_unk() &&
         !(mChara->m55C == 6 && mChara->m560 == 132)) {
-        m2F4 -= lbl_8087EFA8->GetTime_unk();
+        m2F4 -= lbl_8087EFA8->GetFrameSpeed_unk();
     }
     CharaStatusRef_unk* it = mRefs.begin();
     while (it != mRefs.end()) {
@@ -877,9 +876,9 @@ void CharaStatus::fn_8012E540() {
         }
     }
     if ((m0C & 0x800) == 0x800) {
-        m434 += lbl_8087EFA8->GetTime_unk();
+        m434 += lbl_8087EFA8->GetFrameSpeed_unk();
     } else if (m430 > 0) {
-        m438 -= lbl_8087EFA8->GetTime_unk();
+        m438 -= lbl_8087EFA8->GetFrameSpeed_unk();
         if (m438 < 0.0f) {
             m430 = 0;
         }

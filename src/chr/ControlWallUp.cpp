@@ -1,3 +1,4 @@
+#include "atn/RenderSetting_unk.h"
 #include "chr/ControlWallUp.h"
 #include "game/GameTask.h"
 #include "game/GameVoice.h"
@@ -19,12 +20,7 @@ extern "C" void* lbl_8087F430;
 // inferred: arena mode object (lbl_8087F610)
 extern "C" void* lbl_8087F610;
 
-// inferred: game state (lbl_8087EFA8): m3A4 is the time scale
-struct WallGameState_unk {
-    unsigned char m000[0x3A4];
-    float m3A4;
-};
-extern "C" WallGameState_unk* lbl_8087EFA8;
+extern "C" RenderSetting_unk* lbl_8087EFA8;
 
 // inferred: pad state at +0x48C of the object behind lbl_8087F0A8 (class unknown)
 struct WallInput_unk {

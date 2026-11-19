@@ -1,5 +1,6 @@
 // atn/PostFxColorMatrix.cpp: efecto de post-proceso de matriz de color (transicion suave entre matrices
 // de color y desaturacion).
+#include "atn/RenderSetting_unk.h"
 #include "atn/PostFx.h"
 #include "math/Vec.h"
 #include "atn/RenderManager.h"
@@ -10,18 +11,12 @@
 typedef atn::Vector4_unk ColorVec4_unk;
 typedef ColorMatrixParam_unk ColorMatrix_unk;
 
-// inferred: render parameters (lbl_8087EFA8)
-struct ColorMatrixParams_unk {
-    unsigned char m000[0x324];
-    ColorMatrix_unk m324; // 0x324
-    unsigned char m374[0x36C - 0x374 + 0x8];
-};
 struct ColorMatrixParams2_unk {
     unsigned char m000[0x36C];
     int m36C;   // 0x36C: inferred: desaturation enabled
     float m370; // 0x370: inferred: desaturation amount
 };
-extern "C" ColorMatrixParams_unk* lbl_8087EFA8;
+extern "C" RenderSetting_unk* lbl_8087EFA8;
 
 
 // inferred: clamp limits (0.0f, 1.0f) of the time and of the four components, kept as globals in .sdata.

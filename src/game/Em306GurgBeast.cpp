@@ -1,3 +1,4 @@
+#include "atn/RenderSetting_unk.h"
 #include "game/GameTask.h"
 #include "macros.h"
 #include "game/Em306GurgBeast.h"
@@ -36,12 +37,7 @@ struct BeastSettings_unk {
     int mFps;
 };
 extern "C" BeastSettings_unk* fn_800F52F8();
-// inferred: frame parameters (lbl_8087EFA8, as in gmk/SparkCube.cpp)
-struct BeastParams_unk {
-    unsigned char m000[0x3A4];
-    float mTimeScale; // 0x3A4
-};
-extern "C" BeastParams_unk* lbl_8087EFA8;
+extern "C" RenderSetting_unk* lbl_8087EFA8;
 extern "C" BeastSettings_unk* lbl_8087F0A8;
 extern "C" void* lbl_8087EE98; // inferred: collision world
 extern "C" double sqrt(double x);
@@ -53,10 +49,10 @@ extern "C" inline void fn_802F0964(BattleTask* mgr, CharaTask* owner, HitInfo_un
                                    float f) {
     mgr->fn_800F8C6C(0, 0, owner, bullet, id, f, time, c);
 }
-extern "C" inline float fn_802F0988(BeastParams_unk* params) {
-    return params->mTimeScale;
+extern "C" inline float fn_802F0988(RenderSetting_unk* params) {
+    return params->m3A4;
 }
-extern "C" inline BeastParams_unk* fn_802F0990() {
+extern "C" inline RenderSetting_unk* fn_802F0990() {
     return lbl_8087EFA8;
 }
 extern "C" inline float fn_802F0998(const BeastSettings_unk* settings) {
@@ -815,7 +811,7 @@ void Em306GurgBeast::fn_802F09D4(const atn::Vector3* target, float rate) {
     PSMTXRotRad(m, 'y', ry);
     PSMTXMultVec(m, &front, &front);
     float d = atn::WrapAngle_unk(target->y - rot.y);
-    float dt = lbl_8087EFA8->mTimeScale;
+    float dt = lbl_8087EFA8->m3A4;
     float turn = MIN(1.5707964f, MAX(-1.5707964f, d));
     float k = 0.1f * MAX(1.0f, 2.0f - m570);
     float t = 0.3f / MAX(1.0f, 0.6f * m570);

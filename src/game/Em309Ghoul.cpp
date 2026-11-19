@@ -1,3 +1,4 @@
+#include "atn/RenderSetting_unk.h"
 #include "game/Em309Ghoul.h"
 #include "game/GameTask.h"
 #include "atn/Keyboard.h"
@@ -1047,12 +1048,7 @@ inline void GhoulEffect_unk(atn::EfpFile* efp, atn::Model* model) {
     fn_8023A8B4(lbl_8087F3C0, efp, model, 0, pos, rot, color, -1, -1, 1, 1.0f);
 }
 
-// inferred: frame parameters (lbl_8087EFA8, as in gmk/SparkCube.cpp)
-struct GhoulParams_unk {
-    unsigned char m000[0x3A4];
-    float mTimeScale; // 0x3A4
-};
-extern "C" GhoulParams_unk* lbl_8087EFA8;
+extern "C" RenderSetting_unk* lbl_8087EFA8;
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
 extern "C" atn::Vector3 lbl_807C7030; extern "C" void* lbl_8087EE98;
 extern "C" int fn_8004ED34(void* colli, atn::ColliResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
@@ -1121,13 +1117,13 @@ void Em309Ghoul::vfEC() {
             }
         } else {
             lbl_8087F430->fn_80370320(0xD0, 0, 0);
-            lbl_8087EFA8->mTimeScale = 1.0f;
+            lbl_8087EFA8->m3A4 = 1.0f;
             mFlag15 = 1;
             fn_801765D8();
             fn_800EE360();
         }
     } else {
-        lbl_8087EFA8->mTimeScale = 0.5f;
+        lbl_8087EFA8->m3A4 = 0.5f;
         if (m15B0 > 0 && --m15B0 == 0) {
             fn_80232B7C(this, 300);
             GhoulEffect2_unk(lbl_8087F3C0, &m1528, &mMotion);
@@ -1194,9 +1190,9 @@ void Em309Ghoul::vfEC() {
     } else {
         float f = mMotion.mTracks[0].m08;
         if (f > f) {
-            m1688 += lbl_8087EFA8->mTimeScale * 0.5f;
+            m1688 += lbl_8087EFA8->m3A4 * 0.5f;
         } else {
-            m1688 = m1688 + lbl_8087EFA8->mTimeScale;
+            m1688 = m1688 + lbl_8087EFA8->m3A4;
         }
     }
     camera.mPos = eye;

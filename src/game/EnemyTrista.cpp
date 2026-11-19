@@ -1,3 +1,4 @@
+#include "atn/RenderSetting_unk.h"
 #include "atn/EffectManager.h"
 #include "game/EnemyTrista.h"
 #include "atn/Csv.h"
@@ -14,12 +15,7 @@ extern "C" int rand();
 extern "C" float fn_800DC288(const char* s); // inferred: string to float
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
-// inferred: game state (lbl_8087EFA8): m3A4 is the time scale (as in chr/ControlCliffhang.cpp)
-struct GameState_unk {
-    unsigned char m000[0x3A4];
-    float m3A4;
-};
-extern "C" GameState_unk* lbl_8087EFA8;
+extern "C" RenderSetting_unk* lbl_8087EFA8;
 // inferred: debug menu entries (as in gmk/SwingObject.cpp)
 extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, int arg6,
                             int arg7);

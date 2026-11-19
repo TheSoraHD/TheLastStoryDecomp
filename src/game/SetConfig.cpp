@@ -1,3 +1,4 @@
+#include "atn/RenderSetting_unk.h"
 #include "game/GameConfig_unk.h"
 #include "game/SetConfig.h"
 #include "atn/Memory.h"
@@ -11,11 +12,7 @@ extern "C" void fn_8008771C(void* group, const char* name, float* value, int arg
                             float step);
 extern "C" void fn_80087994(void* menu, const char* name, int* flag, int arg3, int arg4);
 
-struct Unk_8087EFA8 {
-    unsigned char m00[0x34];
-    int m34;
-};
-extern "C" Unk_8087EFA8* lbl_8087EFA8;
+extern "C" RenderSetting_unk* lbl_8087EFA8;
 extern "C" GameConfig_unk* lbl_8087F0A8;
 
 SetConfig* SetConfig::sInstance;
@@ -79,7 +76,7 @@ inline void SetConfig::Init_unk() {
     }
     mA4 = 0;
     if (lbl_8087EFA8 != 0) {
-        lbl_8087EFA8->m34 = mA4 + 10;
+        lbl_8087EFA8->m034 = mA4 + 10;
     }
 }
 
@@ -189,7 +186,7 @@ void SetConfig::fn_8057EF40() {
     }
     mA4 = 0;
     if (lbl_8087EFA8 != 0) {
-        lbl_8087EFA8->m34 = mA4 + 10;
+        lbl_8087EFA8->m034 = mA4 + 10;
     }
 }
 
@@ -219,7 +216,7 @@ void SetConfig::fn_8057F154(int soundType) {
 void SetConfig::fn_8057F198(int value) {
     mA4 = value;
     if (lbl_8087EFA8 != 0) {
-        lbl_8087EFA8->m34 = value + 10;
+        lbl_8087EFA8->m034 = value + 10;
     }
 }
 

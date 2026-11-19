@@ -1,5 +1,6 @@
 // Climbing onto a ledge (ControlMountle, ControlMountleQuadruped), onto a guarding character
 // (ControlGuardMountle) or a wall (ControlWallMountle), and the jump towards a ledge (ControlJump).
+#include "atn/RenderSetting_unk.h"
 #include "chr/ControlMountle.h"
 #include "game/GameVoice.h"
 #include "game/HitInfo_unk.h"
@@ -14,12 +15,7 @@ extern "C" double cos(double x);
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 extern "C" float fn_801A03E8(const atn::Vector3& a, const atn::Vector3& b); // inferred: dot product
 
-// inferred: game state (lbl_8087EFA8, as in chr/ControlChant.cpp); names invented
-struct MountleGameState_unk {
-    unsigned char m000[0x3A4];
-    float m3A4; // inferred: time of a frame
-};
-extern "C" MountleGameState_unk* lbl_8087EFA8;
+extern "C" RenderSetting_unk* lbl_8087EFA8;
 
 // inferred: game settings (lbl_8087F0A8, as in chr/ControlChant.cpp); names invented
 struct MountleSettings_unk {

@@ -1,3 +1,4 @@
+#include "atn/RenderSetting_unk.h"
 #include "atn/EffectManager.h"
 #include "game/LastCocoonQuadruped.h"
 #include "atn/RenderManager.h"
@@ -56,12 +57,7 @@ static const QuadCapsule_unk sQuadCapsules_unk[5] = {
 // inferred: angle used by fn_80460B48 (50 degrees; initialized in the __sinit; name invented)
 static float sAngle_unk = atn::DegToRad_unk(50.0f);
 
-// inferred: game state (as in game/CharaTask.cpp); names invented
-struct QuadGameState_unk {
-    unsigned char m000[0x3A4];
-    float m3A4; // inferred: time of a frame
-};
-extern "C" QuadGameState_unk* lbl_8087EFA8;
+extern "C" RenderSetting_unk* lbl_8087EFA8;
 extern "C" float fn_800A08D4(atn::LoadHandle* motion); // inferred: length of the motion data
 extern "C" float PSVECSquareMag(const atn::Vector3* v);
 

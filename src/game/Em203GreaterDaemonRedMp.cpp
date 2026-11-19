@@ -1,3 +1,4 @@
+#include "atn/RenderSetting_unk.h"
 #include "game/Em203GreaterDaemonRedMp.h"
 #include "game/GameTask.h"
 #include "game/GameScene.h"
@@ -89,13 +90,7 @@ struct RedBlur_unk {
     float m1C;
     float m20;
 };
-struct FrameTime_unk {
-    unsigned char m000[0x240];
-    RedBlur_unk m240; // inferred: motion blur
-    unsigned char m264[0x3A4 - 0x264];
-    float m3A4; // inferred: time of a frame
-};
-extern "C" FrameTime_unk* lbl_8087EFA8;
+extern "C" RenderSetting_unk* lbl_8087EFA8;
 extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float volume); // inferred: plays a sound
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
 // inferred: skill effect manager (lbl_8087F9E8): 32 effects of 0x140 bytes at 0x48

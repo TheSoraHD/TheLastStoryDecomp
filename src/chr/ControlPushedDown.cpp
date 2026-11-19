@@ -1,3 +1,4 @@
+#include "atn/RenderSetting_unk.h"
 #include "chr/ControlPushedDown.h"
 #include "game/GameTask.h"
 #include "game/GameVoice.h"
@@ -23,12 +24,7 @@ extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 
 extern "C" GameTask* lbl_8087F430;
 
-// inferred: frame parameters (lbl_8087EFA8, as in gmk/ArenaFloor.cpp)
-struct Params_unk {
-    unsigned char m000[0x3A4];
-    float mTimeScale; // 0x3A4
-};
-extern "C" Params_unk* lbl_8087EFA8;
+extern "C" RenderSetting_unk* lbl_8087EFA8;
 float lbl_8087DA40 = 1.5f; // inferred: side step speed at the start (.sdata, global)
 float lbl_8087DA44 = 0.5f; // inferred: side step speed at the end (.sdata, global)
 
@@ -447,7 +443,7 @@ ControlPushedAvoid::ControlPushedAvoid(Chara_unk* chara, const atn::Vector3& dir
 // member (separate address of the end, as in the original).
 int ControlPushedAvoid::vf0C() {
     int ret = 0;
-    float time = lbl_8087EFA8->mTimeScale;
+    float time = lbl_8087EFA8->m3A4;
     m30 = m30 + time;
     Motion_unk* motion = &mChara->mMotion;
     switch (m2C) {

@@ -1,3 +1,4 @@
+#include "atn/RenderSetting_unk.h"
 #include "macros.h"
 #include "game/Em401_01_WhiteLeoPard.h"
 #include "chr/ControlBase.h"
@@ -280,12 +281,7 @@ extern "C" int rand();
 extern "C" double sqrt(double x);
 extern "C" double cos(double x);
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
-// inferred: game state (lbl_8087EFA8, see game/CharaTask.cpp); names invented
-struct GameState_unk {
-    unsigned char m000[0x3A4];
-    float m3A4; // inferred: time of a frame
-};
-extern "C" GameState_unk* lbl_8087EFA8;
+extern "C" RenderSetting_unk* lbl_8087EFA8;
 
 // inferred: GameScene::FindPlace_unk with the array read inside the loop (as in game/Em208Queen.cpp)
 inline gs::WarpPoint* FindRoutePlace2_unk(GameScene* table, int id) {

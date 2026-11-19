@@ -1,5 +1,6 @@
 // Status-condition controls (stone, paralysis, betrayal, sleep, dizziness "piyo", confusion
 // "psycho") and their restore controls; the out-of-line virtuals of ControlBase are at the end.
+#include "atn/RenderSetting_unk.h"
 #include "game/GameConfig_unk.h"
 #include "chr/ControlCdn.h"
 #include "chr/ControlDamage.h"
@@ -22,12 +23,7 @@ struct CdnMessages_unk {
 };
 extern "C" CdnMessages_unk* lbl_8087F1E4;
 extern "C" const wchar_t lbl_808813D0[2]; // inferred: empty text (shared by the text tables, as in MP/Text.cpp)
-// inferred: game state (lbl_8087EFA8, as in game/CharaTask.cpp); names invented
-struct GameState_unk {
-    unsigned char m000[0x3A4];
-    float m3A4; // inferred: time of a frame
-};
-extern "C" GameState_unk* lbl_8087EFA8; // inferred: nonzero in the arena (the betrayal of an enemy has no time limit)
+extern "C" RenderSetting_unk* lbl_8087EFA8; // inferred: nonzero in the arena (the betrayal of an enemy has no time limit)
 
 // inferred: vector rotated by a matrix (by value; name invented, as in chr/ControlDropDown.cpp)
 inline atn::Vector3 RotY_unk(Mtx m, const atn::Vector3& v) {

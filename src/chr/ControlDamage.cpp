@@ -1,5 +1,6 @@
 // Hit reactions: damage, guard, dodge, knockdown and getting up, revival, falling to death, guard
 // broken and the reaction of the enemies (ControlDamageLastOne).
+#include "atn/RenderSetting_unk.h"
 #include "chr/ControlDamage.h"
 #include "atn/EffectSystem_unk.h"
 #include "game/GameTask.h"
@@ -23,12 +24,7 @@ struct Arena_unk {
 };
 extern "C" Arena_unk* lbl_8087F610;
 extern "C" void fn_804DA690(Arena_unk* arena); // inferred: the player got up
-// inferred: game state (lbl_8087EFA8, as in game/CharaTask.cpp); names invented
-struct GameState_unk {
-    unsigned char m000[0x3A4];
-    float m3A4; // inferred: time of a frame
-};
-extern "C" GameState_unk* lbl_8087EFA8;
+extern "C" RenderSetting_unk* lbl_8087EFA8;
 extern "C" GameTask* lbl_8087F430;
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
 // inferred: RGBA colour (names invented)
