@@ -21,15 +21,6 @@ extern "C" void* lbl_8087EF70;
 extern "C" int fn_800A555C(void* pad, int port, int button); // inferred: button triggered
 extern "C" int abs(int x);
 
-// Only the members used here (the full class is in atn/D2A_Task.h, whose extern "C" declarations
-// clash with the local ones of this file).
-namespace atn {
-class D2A_Task : public Task {
-public:
-    void SetParam2_unk(const char* name, const float* v);        // 0x801F48C8
-    void SetNumber_unk(const char* name, int value, int digits); // 0x801F4CB4
-};
-} // namespace atn
 
 // inferred: 2D point of a d2anime pane (0x14 bytes)
 struct ShopPoint_unk {
@@ -580,7 +571,7 @@ void ShopBuySell::fn_805866F4(int id, int member, int slot) {
     sprintf(name, "list_point%d", slot + 1);
     pos = GetPanePos_unk(base, name);
     fn_801F4728(anime, "basePos", &pos);
-    SetPaneText_unk(anime->mLayout, "name", chara->mShortName);
+    SetPaneText_unk(&anime->mData.m10, "name", chara->mShortName);
     if (chara->mIcon > 0) {
         int index = chara->mIcon - 1;
         int x = index % 4;
@@ -601,25 +592,25 @@ void ShopBuySell::fn_805866F4(int id, int member, int slot) {
     if (fn_80206B9C(id)) {
         ShopWeapon_unk* weapon = fn_80206C50(id);
         if (weapon != 0 && fn_80206D18(weapon, member, weapon->mHand == 1)) {
-            SetPaneFloat_unk(anime->mLayout, "cantEquip", 0.0f);
+            SetPaneFloat_unk(&anime->mData.m10, "cantEquip", 0.0f);
             now = fn_80206B14(weapon->mHand, equip->mWeapons[weapon->mHand == 1].mId);
             next = weapon;
             show = 1;
         } else {
-            SetPaneFloat_unk(anime->mLayout, "cantEquip", 1.0f);
+            SetPaneFloat_unk(&anime->mData.m10, "cantEquip", 1.0f);
         }
         if (now != 0 && next != 0) {
             diff[0] = (int)((ShopWeapon_unk*)next)->mPower - (int)((ShopWeapon_unk*)now)->mPower;
             diff[1] = (int)((ShopWeapon_unk*)next)->mMagic - (int)((ShopWeapon_unk*)now)->mMagic;
             diff[2] = 0;
         }
-        void* layout = base->mLayout;
+        void* layout = &base->mData.m10;
         for (int i = 0; i < 3; i++) {
             sprintf(name, "param%02d", i);
             SetPaneText_unk(layout, name, fn_80116FC0(0, sParamMsg[sWeaponParams[i]]));
         }
     } else if (fn_8020EF04(id)) {
-        SetPaneFloat_unk(anime->mLayout, "cantEquip", 0.0f);
+        SetPaneFloat_unk(&anime->mData.m10, "cantEquip", 0.0f);
         ShopArmor_unk* armor = fn_8020EFEC(id);
         float dx = 0.0f;
         float dy = dx;
@@ -650,13 +641,13 @@ void ShopBuySell::fn_805866F4(int id, int member, int slot) {
             diff[1] = (int)((ShopArmor_unk*)next)->mResist - (int)(((ShopArmor_unk*)now)->mResist + dy);
             diff[2] = 0;
         }
-        void* layout = base->mLayout;
+        void* layout = &base->mData.m10;
         for (int i = 0; i < 3; i++) {
             sprintf(name, "param%02d", i);
             SetPaneText_unk(layout, name, fn_80116FC0(0, sParamMsg[sArmorParams[i]]));
         }
     } else {
-        SetPaneFloat_unk(anime->mLayout, "cantEquip", 0.0f);
+        SetPaneFloat_unk(&anime->mData.m10, "cantEquip", 0.0f);
     }
     if (show) {
         for (int i = 0; i < 3; i++) {

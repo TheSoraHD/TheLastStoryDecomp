@@ -71,14 +71,6 @@ extern "C" void fn_804A4930(atn::Task* task, int top, int count, int page); // i
 // Only the members used here (the full class is in atn/D2A_Task.h, whose extern "C" declarations
 // clash with the local ones of this file).
 
-namespace atn {
-
-class D2A_Task : public Task {
-public:
-    void SetParam2_unk(const char* name, const float* v);        // 0x801F48C8
-    void SetNumber_unk(const char* name, int value, int digits); // 0x801F4CB4
-};
-} // namespace atn
 // inferred: texture rectangle (as in game/ShopIdentify.cpp)
 typedef atn::Vector4_unk ShopUV_unk; // inferred: texture rectangle
 // inferred: item data (fn_80211480)
@@ -514,21 +506,21 @@ void ShopBase::fn_8058036C() {
         m6C = 0;
     }
     const wchar_t* title = GetText_unk(lbl_8087F1E4, mTitle + 0x1D1);
-    SetPaneText_unk(m70->mLayout, "title", title);
+    SetPaneText_unk(&m70->mData.m10, "title", title);
     const wchar_t* name = GetText_unk(lbl_8087F1E4, mName + 0x1D1);
-    SetPaneText_unk(m70->mLayout, "shopName", name);
+    SetPaneText_unk(&m70->mData.m10, "shopName", name);
     switch (vf3C()) {
     case 0:
-        SetPaneFloat_unk(m70->mLayout, "iconType", 0.0f);
+        SetPaneFloat_unk(&m70->mData.m10, "iconType", 0.0f);
         break;
     case 1:
-        SetPaneFloat_unk(m70->mLayout, "iconType", 1.0f);
+        SetPaneFloat_unk(&m70->mData.m10, "iconType", 1.0f);
         break;
     case 2:
-        SetPaneFloat_unk(m70->mLayout, "iconType", 2.0f);
+        SetPaneFloat_unk(&m70->mData.m10, "iconType", 2.0f);
         break;
     case 3:
-        SetPaneFloat_unk(m70->mLayout, "iconType", 3.0f);
+        SetPaneFloat_unk(&m70->mData.m10, "iconType", 3.0f);
         break;
     }
 }
@@ -726,10 +718,10 @@ void ShopBase::fn_80581008(int id) {
             profit -= profit * 2;
             char text[0x20];
             sprintf(text, "%d\0", profit);
-            SetPaneFloat_unk(m90->mLayout, "priceUnit", strlen(text));
-            SetPaneFloat_unk(m90->mLayout, "minus", 1.0f);
+            SetPaneFloat_unk(&m90->mData.m10, "priceUnit", strlen(text));
+            SetPaneFloat_unk(&m90->mData.m10, "minus", 1.0f);
         } else {
-            SetPaneFloat_unk(m90->mLayout, "minus", 0.0f);
+            SetPaneFloat_unk(&m90->mData.m10, "minus", 0.0f);
         }
         ((atn::D2A_Task*)m90)->SetNumber_unk("average", average, 0);
         ((atn::D2A_Task*)m90)->SetNumber_unk("profit", profit, 0);
@@ -800,7 +792,7 @@ void ShopBase::fn_805811DC(int id) {
         int row = isWeapon ? sParamRows.mWeapon[i] : sParamRows.mArmor[i];
         char name[0x40];
         sprintf(name, "param%02d", i);
-        SetPaneText_unk(m94->mLayout, name, fn_80116FC0(0, sParamRows.mMessages[row]));
+        SetPaneText_unk(&m94->mData.m10, name, fn_80116FC0(0, sParamRows.mMessages[row]));
         sprintf(name, "param%02d_before", i);
         ((atn::D2A_Task*)m94)->SetNumber_unk(name, values[row], 0);
     }
@@ -842,8 +834,8 @@ void ShopBase::fn_80581674() {
         char name[0x40];
         sprintf(name, "list_cursor%d", m25B18 + 1);
         ShopPoint_unk pos = GetPanePos_unk(mA8, name);
-        SetPaneValue_unk(m25B2C->mLayout, "basePos", 0, pos.x);
-        SetPaneValue_unk(m25B2C->mLayout, "basePos", 1, pos.y);
+        SetPaneValue_unk(&m25B2C->mData.m10, "basePos", 0, pos.x);
+        SetPaneValue_unk(&m25B2C->mData.m10, "basePos", 1, pos.y);
         ((atn::D2A_Task*)m25B2C)->SetNumber_unk("num", m25B24, 0);
         if (m25B1C > 0) {
             m25B1C--;
@@ -869,11 +861,11 @@ void ShopBase::fn_8058181C(int show, int message, int arg) {
             if (arg) {
                 wchar_t text[0x100];
                 fn_800DD3FC(text, GetText_unk(lbl_8087F1E4, sMessages[message]), arg);
-                SetPaneText_unk(m74->mLayout, "warning_msg", text);
+                SetPaneText_unk(&m74->mData.m10, "warning_msg", text);
             } else {
                 const wchar_t* text = GetText_unk(lbl_8087F1E4, sMessages[message]);
                 if (text != 0) {
-                    SetPaneText_unk(m74->mLayout, "warning_msg", text);
+                    SetPaneText_unk(&m74->mData.m10, "warning_msg", text);
                 }
             }
         } else {
@@ -898,7 +890,7 @@ void ShopBase::fn_80581964(int show, int message, int arg) {
             m80->mSpeed = 3.0f;
             const wchar_t* text = GetText_unk(lbl_8087F1E4, sMessages[message]);
             if (text != 0) {
-                SetPaneText_unk(m80->mLayout, "check_msg", text);
+                SetPaneText_unk(&m80->mData.m10, "check_msg", text);
             }
         } else {
             m8C = 0;

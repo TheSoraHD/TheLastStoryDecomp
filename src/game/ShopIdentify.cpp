@@ -21,14 +21,7 @@ extern "C" const wchar_t* fn_801170C8(int a, int id, const wchar_t* arg); // inf
 extern "C" void* lbl_8087EF70;
 extern "C" int fn_800A555C(void* pad, int port, int button); // inferred: button triggered
 
-// Only the members used here (the full class is in atn/D2A_Task.h, whose extern "C" declarations
-// clash with the local ones of this file).
 namespace atn {
-class D2A_Task : public Task {
-public:
-    void SetParam2_unk(const char* name, const float* v);        // 0x801F48C8
-    void SetNumber_unk(const char* name, int value, int digits); // 0x801F4CB4
-};
 struct D2A_TextParam_unk;
 } // namespace atn
 extern "C" atn::D2A_TextParam_unk* fn_801FEC74(void* layout, const char* name);
@@ -545,22 +538,22 @@ void ShopIdentify::fn_80589DE0(ShopIdentifyEntry_unk* entry, int help) {
     ((atn::D2A_Task*)mContent)->SetNumber_unk("myMoney", Inventory::instance_->mMoney, 0);
     ShopItem_unk* item = fn_80211480(entry->mItem);
     if (entry->mDone == 0 || (item != 0 && fn_80211648(item) == 0)) {
-        SetPaneFloat_unk(mContent->mLayout, "showSell", 0.0f);
+        SetPaneFloat_unk(&mContent->mData.m10, "showSell", 0.0f);
     } else {
-        SetPaneFloat_unk(mContent->mLayout, "showSell", 1.0f);
+        SetPaneFloat_unk(&mContent->mData.m10, "showSell", 1.0f);
         ((atn::D2A_Task*)mContent)->SetNumber_unk("price", fn_80584DD8(item, 1, 1.0f, 1.0f, 1.0f), 0);
     }
     float width;
     {
-        std::basic_string<wchar_t> text = fn_800A4450(fn_801FEC74(mContent->mLayout, "string0012(1)"), 0, 0);
+        std::basic_string<wchar_t> text = fn_800A4450(fn_801FEC74(&mContent->mData.m10, "string0012(1)"), 0, 0);
         width = fn_8006EF48(lbl_8087EEC8, 14.0f, text.data(), 0.0f, 1, 1);
     }
-    SetPaneValue_unk(mContent->mLayout, "pos0011", 0, 175.0f - width - 16.0f);
+    SetPaneValue_unk(&mContent->mData.m10, "pos0011", 0, 175.0f - width - 16.0f);
     {
-        std::basic_string<wchar_t> text = fn_800A4450(fn_801FEC74(mContent->mLayout, "string0010(1)"), 0, 0);
+        std::basic_string<wchar_t> text = fn_800A4450(fn_801FEC74(&mContent->mData.m10, "string0010(1)"), 0, 0);
         width = fn_8006EF48(lbl_8087EEC8, 14.0f, text.data(), 0.0f, 1, 1);
     }
-    SetPaneValue_unk(mContent->mLayout, "pos0009", 0, 175.0f - width - 16.0f);
+    SetPaneValue_unk(&mContent->mData.m10, "pos0009", 0, 175.0f - width - 16.0f);
     if (help) {
         if (entry->mDone != 0) {
             ShopItem_unk* info = fn_80211480(entry->mItem);
@@ -587,16 +580,16 @@ void ShopIdentify::fn_8058A0F0(ShopIdentifyEntry_unk* entry) {
     if (weapon != 0) {
         name = lbl_8087F1E4->GetPair_unk(weapon->mKind + 0xEB);
     }
-    SetPaneText_unk(mResult->mLayout, "before", fn_801170C8(0, 0x2760, name.data()));
-    SetPaneText_unk(mResult->mLayout, "after", item->mName);
+    SetPaneText_unk(&mResult->mData.m10, "before", fn_801170C8(0, 0x2760, name.data()));
+    SetPaneText_unk(&mResult->mData.m10, "after", item->mName);
     ShopUV_unk uv = fn_80444C50(Inventory::instance_, fn_80444BE8(Inventory::instance_, item));
     SetUV_unk((atn::D2A_Task*)mResult, "iconUv01", uv);
     float width;
     {
-        std::basic_string<wchar_t> text = fn_800A4450(fn_801FEC74(mResult->mLayout, "string0012(1)(1)"), 0, 0);
+        std::basic_string<wchar_t> text = fn_800A4450(fn_801FEC74(&mResult->mData.m10, "string0012(1)(1)"), 0, 0);
         width = fn_8006EF48(lbl_8087EEC8, 14.0f, text.data(), 0.0f, 1, 1);
     }
-    SetPaneValue_unk(mResult->mLayout, "pos0011", 0, 155.0f - width - 16.0f);
+    SetPaneValue_unk(&mResult->mData.m10, "pos0011", 0, 155.0f - width - 16.0f);
 }
 
 void ShopIdentify::vf40() {

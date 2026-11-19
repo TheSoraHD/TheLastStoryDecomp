@@ -73,21 +73,10 @@ extern "C" void fn_801FECE0(void* layout, unsigned int hash, float value);
 inline void SetPaneFloat_unk(void* layout, const char* name, float value) {
     fn_801FECE0(layout, fn_800DC6B4(name), value);
 }
-// inferred: d2anime task seen through its layout
-struct CosEditTaskLayout_unk : public atn::Task {
-    unsigned char m48[0x58 - 0x48];
-    unsigned char mLayout[4]; // 0x58
-};
 // inferred: sets a value of the layout of a task (the layout address is taken after the hash)
 inline void SetTaskFloat_unk(void* task, const char* name, float value) {
-    fn_801FECE0(((CosEditTaskLayout_unk*)task)->mLayout, fn_800DC6B4(name), value);
+    fn_801FECE0(&((atn::D2A_Task*)task)->mData.m10, fn_800DC6B4(name), value);
 }
-// inferred: d2anime task seen through its frame and speed (as ShopD2A_unk in game/ShopBase.h)
-struct CosEditD2A_unk : public atn::Task {
-    unsigned char m48[0x100 - 0x48];
-    float mFrame; // 0x100
-    float mSpeed; // 0x104
-};
 // inferred: functions of NewCampPartsBase (0x8050F93C-0x80512024) still called by their automatic names
 extern "C" void fn_805113E8(atn::D3Anime* anime, int a, int b, float c, float d);
 extern "C" void fn_805114D4(atn::D3AnimeInstance* anime, int a, int b, float c, float d);
@@ -473,8 +462,8 @@ void CosEditProtector::vf24() {
         mSetCount++;
     }
     if (mBestTask != 0) {
-        ((CosEditD2A_unk*)mBestTask)->mFrame = 0.0f;
-        ((CosEditD2A_unk*)mBestTask)->mSpeed = -3.0f;
+        ((atn::D2A_Task*)mBestTask)->mFrame = 0.0f;
+        ((atn::D2A_Task*)mBestTask)->mSpeed = -3.0f;
     }
     if (mB88 != 0) {
         fn_800D2338(mB88);
@@ -586,14 +575,14 @@ inline void SetPaneVec_unk(void* layout, const char* name, int index, float valu
 }
 // inferred: sets a text of the layout of a task (the layout address is taken after the hash)
 inline void SetTaskText_unk(void* task, const char* name, const wchar_t* text) {
-    fn_801FEE08(((CosEditTaskLayout_unk*)task)->mLayout, fn_800DC6B4(name), text);
+    fn_801FEE08(&((atn::D2A_Task*)task)->mData.m10, fn_800DC6B4(name), text);
 }
 inline void SetTaskColor_unk(void* task, const char* name, int index, float value) {
-    fn_801FEDBC(((CosEditTaskLayout_unk*)task)->mLayout, fn_800DC6B4(name), index, value);
+    fn_801FEDBC(&((atn::D2A_Task*)task)->mData.m10, fn_800DC6B4(name), index, value);
 }
 // inferred: text of the layout of a d2anime task (the layout address is taken after the hash)
 inline void SetText_unk(atn::D2ATask_unk* task, const char* name, const wchar_t* text) {
-    fn_801FEE08(((CosEditTaskLayout_unk*)task)->mLayout, fn_800DC6B4(name), text);
+    fn_801FEE08(&((atn::D2A_Task*)task)->mData.m10, fn_800DC6B4(name), text);
 }
 extern "C" const wchar_t* fn_80116FC0(int a, int id); // inferred: system text
 extern "C" const wchar_t lbl_808813D0[2];             // inferred: empty text
@@ -774,30 +763,30 @@ void CosEditProtector::vf64() {
     }
 
     mBestTask->mFlags |= 4;
-    SetPaneVec_unk(((CosEditTaskLayout_unk*)mBestTask)->mLayout, "pos0002(1)", 0, 180.0f);
-    SetPaneVec_unk(((CosEditTaskLayout_unk*)mBestTask)->mLayout, "pos0002(1)", 1, 340.0f);
+    SetPaneVec_unk(&((atn::D2A_Task*)mBestTask)->mData.m10, "pos0002(1)", 0, 180.0f);
+    SetPaneVec_unk(&((atn::D2A_Task*)mBestTask)->mData.m10, "pos0002(1)", 1, 340.0f);
     if (m7C == 11) {
-        ((CosEditD2A_unk*)mBestTask)->mSpeed = 3.0f;
+        ((atn::D2A_Task*)mBestTask)->mSpeed = 3.0f;
         mBestTask->mFlags &= ~4;
     } else {
-        ((CosEditD2A_unk*)mBestTask)->mSpeed = -3.0f;
-        if (((CosEditD2A_unk*)mBestTask)->mFrame > 0.0f) {
+        ((atn::D2A_Task*)mBestTask)->mSpeed = -3.0f;
+        if (((atn::D2A_Task*)mBestTask)->mFrame > 0.0f) {
             mBestTask->mFlags &= ~4;
         }
     }
     mNaked->mFlags |= 4;
-    SetPaneVec_unk(((CosEditTaskLayout_unk*)mNaked)->mLayout, "basePos", 0, 180.0f);
-    SetPaneVec_unk(((CosEditTaskLayout_unk*)mNaked)->mLayout, "basePos", 1, 300.0f);
+    SetPaneVec_unk(&((atn::D2A_Task*)mNaked)->mData.m10, "basePos", 0, 180.0f);
+    SetPaneVec_unk(&((atn::D2A_Task*)mNaked)->mData.m10, "basePos", 1, 300.0f);
     int upper = HasDye_unk(0);
     int lower = HasDye_unk(1);
-    SetPaneFloat_unk(((CosEditTaskLayout_unk*)mNaked)->mLayout, "invUpper", upper ? 1.0f : 0.0f);
-    SetPaneFloat_unk(((CosEditTaskLayout_unk*)mNaked)->mLayout, "invLower", lower ? 1.0f : 0.0f);
+    SetPaneFloat_unk(&((atn::D2A_Task*)mNaked)->mData.m10, "invUpper", upper ? 1.0f : 0.0f);
+    SetPaneFloat_unk(&((atn::D2A_Task*)mNaked)->mData.m10, "invLower", lower ? 1.0f : 0.0f);
     if (m7C == 14) {
-        ((CosEditD2A_unk*)mNaked)->mSpeed = 3.0f;
+        ((atn::D2A_Task*)mNaked)->mSpeed = 3.0f;
         mNaked->mFlags &= ~4;
     } else {
-        ((CosEditD2A_unk*)mNaked)->mSpeed = -3.0f;
-        if (((CosEditD2A_unk*)mNaked)->mFrame > 0.0f) {
+        ((atn::D2A_Task*)mNaked)->mSpeed = -3.0f;
+        if (((atn::D2A_Task*)mNaked)->mFrame > 0.0f) {
             mNaked->mFlags &= ~4;
         }
     }
@@ -1026,8 +1015,8 @@ void CosEditProtector::vf64() {
             mCharaSelect2->mFlags &= ~4;
         }
         if (mChara[0] != 0 && (m7C == 0 || m7C == 4)) {
-            ((CosEditD2A_unk*)mCharaSelect)->mSpeed = 1.0f;
-            ((CosEditD2A_unk*)mCharaSelect2)->mSpeed = 1.0f;
+            ((atn::D2A_Task*)mCharaSelect)->mSpeed = 1.0f;
+            ((atn::D2A_Task*)mCharaSelect2)->mSpeed = 1.0f;
             if (mF4 == 0) {
                 atn::Vector3 pos = atn::RenderManager::instance_->GetScreenPosition(mChara[0]->mTarget +
                                                                                   mChara[0]->mOffsetTarget);
@@ -1037,31 +1026,31 @@ void CosEditProtector::vf64() {
                 } else {
                     pos.y = 250.0f;
                 }
-                SetPaneVec_unk(((CosEditTaskLayout_unk*)mCharaSelect)->mLayout, "base_point", 0, pos.x);
-                SetPaneVec_unk(((CosEditTaskLayout_unk*)mCharaSelect)->mLayout, "base_point", 1, pos.y);
-                SetPaneVec_unk(((CosEditTaskLayout_unk*)mCharaSelect2)->mLayout, "base_point", 0, pos.x);
-                SetPaneVec_unk(((CosEditTaskLayout_unk*)mCharaSelect2)->mLayout, "base_point", 1, pos.y);
+                SetPaneVec_unk(&((atn::D2A_Task*)mCharaSelect)->mData.m10, "base_point", 0, pos.x);
+                SetPaneVec_unk(&((atn::D2A_Task*)mCharaSelect)->mData.m10, "base_point", 1, pos.y);
+                SetPaneVec_unk(&((atn::D2A_Task*)mCharaSelect2)->mData.m10, "base_point", 0, pos.x);
+                SetPaneVec_unk(&((atn::D2A_Task*)mCharaSelect2)->mData.m10, "base_point", 1, pos.y);
             }
         } else {
-            ((CosEditD2A_unk*)mCharaSelect)->mSpeed = -1.0f;
-            ((CosEditD2A_unk*)mCharaSelect2)->mSpeed = -1.0f;
+            ((atn::D2A_Task*)mCharaSelect)->mSpeed = -1.0f;
+            ((atn::D2A_Task*)mCharaSelect2)->mSpeed = -1.0f;
         }
-        SetPaneFloat_unk(((CosEditTaskLayout_unk*)mCharaSelect)->mLayout, "arrowL", 0.0f);
-        SetPaneFloat_unk(((CosEditTaskLayout_unk*)mCharaSelect)->mLayout, "arrowR", 0.0f);
-        SetPaneFloat_unk(((CosEditTaskLayout_unk*)mCharaSelect2)->mLayout, "arrowL", 0.0f);
-        SetPaneFloat_unk(((CosEditTaskLayout_unk*)mCharaSelect2)->mLayout, "arrowR", 0.0f);
+        SetPaneFloat_unk(&((atn::D2A_Task*)mCharaSelect)->mData.m10, "arrowL", 0.0f);
+        SetPaneFloat_unk(&((atn::D2A_Task*)mCharaSelect)->mData.m10, "arrowR", 0.0f);
+        SetPaneFloat_unk(&((atn::D2A_Task*)mCharaSelect2)->mData.m10, "arrowL", 0.0f);
+        SetPaneFloat_unk(&((atn::D2A_Task*)mCharaSelect2)->mData.m10, "arrowR", 0.0f);
         if (mF8 > 0.0f) {
-            SetPaneFloat_unk(((CosEditTaskLayout_unk*)mCharaSelect)->mLayout, "arrowR", mF8);
-            SetPaneFloat_unk(((CosEditTaskLayout_unk*)mCharaSelect2)->mLayout, "arrowR", mF8);
+            SetPaneFloat_unk(&((atn::D2A_Task*)mCharaSelect)->mData.m10, "arrowR", mF8);
+            SetPaneFloat_unk(&((atn::D2A_Task*)mCharaSelect2)->mData.m10, "arrowR", mF8);
         } else if (mF8 < 0.0f) {
-            SetPaneFloat_unk(((CosEditTaskLayout_unk*)mCharaSelect)->mLayout, "arrowL", -mF8);
-            SetPaneFloat_unk(((CosEditTaskLayout_unk*)mCharaSelect2)->mLayout, "arrowL", -mF8);
+            SetPaneFloat_unk(&((atn::D2A_Task*)mCharaSelect)->mData.m10, "arrowL", -mF8);
+            SetPaneFloat_unk(&((atn::D2A_Task*)mCharaSelect2)->mData.m10, "arrowL", -mF8);
         }
     } else {
-        ((CosEditD2A_unk*)mCharaSelect)->mFrame = 0.0f;
-        ((CosEditD2A_unk*)mCharaSelect)->mSpeed = 1.0f;
-        ((CosEditD2A_unk*)mCharaSelect2)->mFrame = 0.0f;
-        ((CosEditD2A_unk*)mCharaSelect2)->mSpeed = 1.0f;
+        ((atn::D2A_Task*)mCharaSelect)->mFrame = 0.0f;
+        ((atn::D2A_Task*)mCharaSelect)->mSpeed = 1.0f;
+        ((atn::D2A_Task*)mCharaSelect2)->mFrame = 0.0f;
+        ((atn::D2A_Task*)mCharaSelect2)->mSpeed = 1.0f;
     }
 
     if (mSort != 0) {
@@ -1085,21 +1074,21 @@ void CosEditProtector::vf64() {
                     case 2:
                     case 3:
                     case 6:
-                        SetPaneText_unk(((CosEditTaskLayout_unk*)mSort)->mLayout, "sortMainName", fn_80116FC0(0, 0x191));
+                        SetPaneText_unk(&((atn::D2A_Task*)mSort)->mData.m10, "sortMainName", fn_80116FC0(0, 0x191));
                         break;
                     case 1:
                     case 4:
                     case 5:
-                        SetPaneText_unk(((CosEditTaskLayout_unk*)mSort)->mLayout, "sortMainName", fn_80116FC0(0, 0x193));
+                        SetPaneText_unk(&((atn::D2A_Task*)mSort)->mData.m10, "sortMainName", fn_80116FC0(0, 0x193));
                         break;
                     }
-                    SetPaneText_unk(((CosEditTaskLayout_unk*)mSort)->mLayout, "sortSubName", fn_80116FC0(0, 0x196));
+                    SetPaneText_unk(&((atn::D2A_Task*)mSort)->mData.m10, "sortSubName", fn_80116FC0(0, 0x196));
                     if (mB80 == 1) {
-                        SetPaneFloat_unk(((CosEditTaskLayout_unk*)mSort)->mLayout, "sortID", 0.0f);
-                        SetPaneFloat_unk(((CosEditTaskLayout_unk*)mSort)->mLayout, "sortSub", 1.0f);
+                        SetPaneFloat_unk(&((atn::D2A_Task*)mSort)->mData.m10, "sortID", 0.0f);
+                        SetPaneFloat_unk(&((atn::D2A_Task*)mSort)->mData.m10, "sortSub", 1.0f);
                     } else if (mB80 == 0) {
-                        SetPaneFloat_unk(((CosEditTaskLayout_unk*)mSort)->mLayout, "sortID", 1.0f);
-                        SetPaneFloat_unk(((CosEditTaskLayout_unk*)mSort)->mLayout, "sortSub", 0.0f);
+                        SetPaneFloat_unk(&((atn::D2A_Task*)mSort)->mData.m10, "sortID", 1.0f);
+                        SetPaneFloat_unk(&((atn::D2A_Task*)mSort)->mData.m10, "sortSub", 0.0f);
                     }
                 }
             } else if (m7C == 2) {
@@ -1112,21 +1101,21 @@ void CosEditProtector::vf64() {
                     case 2:
                     case 3:
                     case 6:
-                        SetPaneText_unk(((CosEditTaskLayout_unk*)mSort)->mLayout, "sortMainName", fn_80116FC0(0, 0x192));
+                        SetPaneText_unk(&((atn::D2A_Task*)mSort)->mData.m10, "sortMainName", fn_80116FC0(0, 0x192));
                         break;
                     case 1:
                     case 4:
                     case 5:
-                        SetPaneText_unk(((CosEditTaskLayout_unk*)mSort)->mLayout, "sortMainName", fn_80116FC0(0, 0x194));
+                        SetPaneText_unk(&((atn::D2A_Task*)mSort)->mData.m10, "sortMainName", fn_80116FC0(0, 0x194));
                         break;
                     }
-                    SetPaneText_unk(((CosEditTaskLayout_unk*)mSort)->mLayout, "sortSubName", fn_80116FC0(0, 0x196));
+                    SetPaneText_unk(&((atn::D2A_Task*)mSort)->mData.m10, "sortSubName", fn_80116FC0(0, 0x196));
                     if (mB7C == 1) {
-                        SetPaneFloat_unk(((CosEditTaskLayout_unk*)mSort)->mLayout, "sortID", 0.0f);
-                        SetPaneFloat_unk(((CosEditTaskLayout_unk*)mSort)->mLayout, "sortSub", 1.0f);
+                        SetPaneFloat_unk(&((atn::D2A_Task*)mSort)->mData.m10, "sortID", 0.0f);
+                        SetPaneFloat_unk(&((atn::D2A_Task*)mSort)->mData.m10, "sortSub", 1.0f);
                     } else if (mB7C == 0) {
-                        SetPaneFloat_unk(((CosEditTaskLayout_unk*)mSort)->mLayout, "sortID", 1.0f);
-                        SetPaneFloat_unk(((CosEditTaskLayout_unk*)mSort)->mLayout, "sortSub", 0.0f);
+                        SetPaneFloat_unk(&((atn::D2A_Task*)mSort)->mData.m10, "sortID", 1.0f);
+                        SetPaneFloat_unk(&((atn::D2A_Task*)mSort)->mData.m10, "sortSub", 0.0f);
                     }
                 }
             }
@@ -1551,7 +1540,7 @@ void CosEditProtector::fn_801D4E74(int member, atn::D2ATask_unk* task, int mode)
                 name = data->mName;
             }
         }
-        SetPaneText_unk(((CosEditTaskLayout_unk*)task)->mLayout, "item01", name.data());
+        SetPaneText_unk(&((atn::D2A_Task*)task)->mData.m10, "item01", name.data());
         SetUV_unk((atn::D2A_Task*)task, "iconUv01", uv);
     }
 }

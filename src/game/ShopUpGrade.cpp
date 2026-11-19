@@ -78,15 +78,6 @@ typedef atn::Vector4_unk ShopUV_unk; // inferred: texture rectangle
 extern "C" int fn_80444BE8(Inventory* party, ItemParamEntry_unk* item); // inferred: icon of an item
 extern "C" int fn_80444C48(Inventory* party);                          // inferred: icon of an unknown item
 extern "C" ShopUV_unk fn_80444C50(Inventory* party, int icon);
-// Only the members used here (the full class is in atn/D2A_Task.h, whose extern "C" declarations
-// clash with the local ones of this file, as in game/ShopIdentify.cpp).
-namespace atn {
-class D2A_Task : public Task {
-public:
-    void SetColor_unk(const char* name, float r, float g, float b); // 0x801F4AA0
-    void SetNumber_unk(const char* name, int value, int digits);     // 0x801F4CB4
-};
-} // namespace atn
 // inferred: the first parameters of a weapon or protector row (same prefix in both tables)
 struct ShopParamHead_unk {
     float m00;
@@ -283,7 +274,7 @@ int ShopUpGrade::vf0C() {
             if (mEffect[i] != 0) {
                 mEffect[i]->fn_800D246C(0);
                 mEffect[i]->mRepeat = 0;
-                mEffect[i]->mFrame = mEffect[i]->mLastFrame;
+                mEffect[i]->mFrame = mEffect[i]->mData.mEndFrame;
                 mEffect[i]->mFlags |= 4;
             }
         }
@@ -822,18 +813,18 @@ void ShopUpGrade::fn_8058D16C() {
     pos.w = 1.0f;
     fn_801F4728(mSort, "basePos", &pos);
     if (mTab == 1) {
-        SetPaneText_unk(mSort->mLayout, "sortMainName", fn_80116FC0(0, 0x192));
-        SetPaneText_unk(mSort->mLayout, "sortSubName", fn_80116FC0(0, 0x196));
+        SetPaneText_unk(&mSort->mData.m10, "sortMainName", fn_80116FC0(0, 0x192));
+        SetPaneText_unk(&mSort->mData.m10, "sortSubName", fn_80116FC0(0, 0x196));
     } else {
-        SetPaneText_unk(mSort->mLayout, "sortMainName", fn_80116FC0(0, 0x191));
-        SetPaneText_unk(mSort->mLayout, "sortSubName", fn_80116FC0(0, 0x196));
+        SetPaneText_unk(&mSort->mData.m10, "sortMainName", fn_80116FC0(0, 0x191));
+        SetPaneText_unk(&mSort->mData.m10, "sortSubName", fn_80116FC0(0, 0x196));
     }
     if (mSortOrder == 0) {
-        SetPaneFloat_unk(mSort->mLayout, "sortID", 1.0f);
-        SetPaneFloat_unk(mSort->mLayout, "sortSub", 0.0f);
+        SetPaneFloat_unk(&mSort->mData.m10, "sortID", 1.0f);
+        SetPaneFloat_unk(&mSort->mData.m10, "sortSub", 0.0f);
     } else if (mSortOrder == 1) {
-        SetPaneFloat_unk(mSort->mLayout, "sortID", 0.0f);
-        SetPaneFloat_unk(mSort->mLayout, "sortSub", 1.0f);
+        SetPaneFloat_unk(&mSort->mData.m10, "sortID", 0.0f);
+        SetPaneFloat_unk(&mSort->mData.m10, "sortSub", 1.0f);
     }
 }
 
@@ -854,11 +845,11 @@ void ShopUpGrade::fn_8058D458() {
             sprintf(name, "list_cursor%d", mCursors[mTab] - mTops[mTab] + 1);
             ShopPoint_unk pos = GetPanePos_unk(mListBase, name);
             mCursorAnime->mFlags &= ~4;
-            SetPaneValue_unk(mCursorAnime->mLayout, "cursor_pos", 0, pos.x);
-            SetPaneValue_unk(mCursorAnime->mLayout, "cursor_pos", 1, pos.y);
-            SetPaneValue_unk(mCursorAnime->mLayout, "cursor_pos", 4, pos.z);
-            SetPaneFloat_unk(mCursorAnime->mLayout, "wRate", pos.w);
-            SetPaneFloat_unk(mCursorAnime->mLayout, "hRate", pos.h);
+            SetPaneValue_unk(&mCursorAnime->mData.m10, "cursor_pos", 0, pos.x);
+            SetPaneValue_unk(&mCursorAnime->mData.m10, "cursor_pos", 1, pos.y);
+            SetPaneValue_unk(&mCursorAnime->mData.m10, "cursor_pos", 4, pos.z);
+            SetPaneFloat_unk(&mCursorAnime->mData.m10, "wRate", pos.w);
+            SetPaneFloat_unk(&mCursorAnime->mData.m10, "hRate", pos.h);
             if (mCursorAnime->IsEnd_unk()) {
                 m26080 = -1;
             }
@@ -1541,7 +1532,7 @@ void ShopUpGrade::fn_80597164(const ShopUpGradeEntry_unk& entry, int& cursor, in
 void ShopUpGrade::fn_80597268(int show) {
     Inventory* party = Inventory::instance_;
     mListBase->mFlags &= ~4;
-    SetPaneFloat_unk(mListBase->mLayout, "ofsOn", 1.0f);
+    SetPaneFloat_unk(&mListBase->mData.m10, "ofsOn", 1.0f);
     mContent->mFlags &= ~4;
     ((atn::D2A_Task*)mContent)->SetNumber_unk("myMoney", Inventory::instance_->mMoney, 0);
     fn_80584750(mListBase, mScroll.mTop, mItems.size(), 10);
@@ -1767,7 +1758,7 @@ void ShopUpGrade::fn_80597554(ShopUpGradeEntry_unk* entry) {
         int k = isWeapon ? sParams.mWeapon[i] : sParams.mArmor[i];
         ShopLayout_unk* arrow = 0;
         sprintf(name, "param%02d", i);
-        SetPaneText_unk(mContent->mLayout, name, fn_80116FC0(0, sParams.mMsg[k]));
+        SetPaneText_unk(&mContent->mData.m10, name, fn_80116FC0(0, sParams.mMsg[k]));
         if (entry->mHave != 0) {
             sprintf(name, "param%02d_color", i);
             if (diff[k] > 0) {
@@ -1785,15 +1776,15 @@ void ShopUpGrade::fn_80597554(ShopUpGradeEntry_unk* entry) {
             if (upgraded != 0) {
                 ((atn::D2A_Task*)mContent)->SetNumber_unk(name, after[k], 0);
             } else {
-                SetPaneText_unk(mContent->mLayout, name, L"");
+                SetPaneText_unk(&mContent->mData.m10, name, L"");
             }
         } else {
             sprintf(name, "param%02d_color", i);
             ((atn::D2A_Task*)mContent)->SetColor_unk(name, lbl_807C78C8.r, lbl_807C78C8.g, lbl_807C78C8.b);
             sprintf(name, "param%02d_before", i);
-            SetPaneText_unk(mContent->mLayout, name, L"???");
+            SetPaneText_unk(&mContent->mData.m10, name, L"???");
             sprintf(name, "param%02d_after", i);
-            SetPaneText_unk(mContent->mLayout, name, L"???");
+            SetPaneText_unk(&mContent->mData.m10, name, L"???");
         }
         if (arrow != 0) {
             char posName[0x40];

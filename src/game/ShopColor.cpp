@@ -323,7 +323,7 @@ void ShopColor::fn_80587E3C() {
             if (item != 0) {
                 wchar_t text[0x40];
                 fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0x353), item->mName);
-                SetPaneText_unk(mInfo->mLayout, "warning_msg", text);
+                SetPaneText_unk(&mInfo->mData.m10, "warning_msg", text);
             }
             fn_80117228(25);
             vf1C(8);
@@ -362,7 +362,7 @@ int ShopColor::fn_80588004(ShopColorEntry_unk* entry) {
 void ShopColor::fn_805880F0() {
     void* party = Inventory::instance_;
     mListBase->mFlags &= ~4;
-    SetPaneFloat_unk(mListBase->mLayout, "ofsOn", 1.0f);
+    SetPaneFloat_unk(&mListBase->mData.m10, "ofsOn", 1.0f);
     fn_80584750(mListBase, mScroll.mTop, mColors.size(), 10);
     ShopPoint_unk pos;
     mContent->mFlags &= ~4;
