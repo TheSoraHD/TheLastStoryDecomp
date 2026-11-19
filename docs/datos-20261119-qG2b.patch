@@ -1,0 +1,117 @@
+diff --git a/src/chr/ControlStickByQuark.cpp b/src/chr/ControlStickByQuark.cpp
+index 236602a..d20b875 100644
+--- a/src/chr/ControlStickByQuark.cpp
++++ b/src/chr/ControlStickByQuark.cpp
+@@ -201,6 +201,11 @@ static inline void TranslateXYZ_unk(atn::Matrix3x4& m, float x, float y, float z
+     TranslateMtx_unk(m, atn::Vector3(x, y, z));
+ }
+ 
++// inferred: the controlled character read again at each use (name invented)
++static inline CharaTask* Owner_unk(const ControlBase* self) {
++    return self->mChara;
++}
++
+ // inferred: frame of track 0 (name invented)
+ static inline float Frame_unk(Motion_unk* m) {
+     return m->mTracks[0].m08;
+@@ -414,21 +419,22 @@ int ControlThrust::vf0C() {
+             ThrustShoot_unk(this, &mChara->mPos, &mChara->mRot);
+             Shake_unk(lbl_8087F430, 10, 0.3f, 0.3f);
+             if (m20 >= 1) {
+-                CharaTask* c = mChara;
+-                fn_800C344C("SE_SP009_002", &c->mPos, 0, -1, 1.5f);
++                fn_800C344C("SE_SP009_002", mChara->fn_8013C38C(), 0, -1, 1.5f);
+             }
+         }
+         bool hint = CanRepeat_unk() && mOther->CanAct_unk();
+-        if (hint && m->mTracks[0].m08 > 42.0f && m->mTracks[0].m08 <= 75.0f && hint && lbl_8087F490) {
+-            lbl_8087F490->m764 = ThrustHint_unk(6, 0x10, -1);
+-        }
+-        if (m->mTracks[0].m08 > 55.0f && m->mTracks[0].m08 <= 75.0f && fn_800A555C(lbl_8087EF70, 0, 4)) {
+-            m24 = 1;
+-            m20++;
+-            m->mTracks[0].m0C = -1.5f;
+-            fn_800C31F4("SE_UICOM_011", 0, -1, 1.0f);
+-            if (lbl_8087F490) {
+-                lbl_8087F490->fn_803E3384();
++        if (hint) {
++            if (m->mTracks[0].m08 > 42.0f && m->mTracks[0].m08 <= 75.0f && hint && lbl_8087F490) {
++                lbl_8087F490->m764 = ThrustHint_unk(6, 0x10, -1);
++            }
++            if (m->mTracks[0].m08 > 55.0f && m->mTracks[0].m08 <= 75.0f && fn_800A555C(lbl_8087EF70, 0, 4)) {
++                m24 = 1;
++                m20++;
++                m->mTracks[0].m0C = -1.5f;
++                fn_800C31F4("SE_UICOM_011", 0, -1, 1.0f);
++                if (lbl_8087F490) {
++                    lbl_8087F490->fn_803E3384();
++                }
+             }
+         }
+         if (mOther && (mOther->mStatus.m0C & 0x20) == 0x20) {
+@@ -436,7 +442,7 @@ int ControlThrust::vf0C() {
+             if (m->mTracks[0].m08 > 42.0f && m->mTracks[0].m08 <= 75.0f) {
+                 lbl_8087EFA8->Start_unk(Slow_unk(1, lbl_8087EFA8->mSlow.mParam));
+                 lbl_8087EFA8->m3A4 = 0.4f;
+-                cam->mCamera.m834 = mChara;
++                cam->mCamera.m834 = Owner_unk(this);
+                 cam->mCamera.m95C = 0.3f * ((m->mTracks[0].m08 - 42.0f) / 35.0f) + 1.0f;
+             } else {
+                 lbl_8087EFA8->Set_unk(Slow_unk(0, lbl_8087EFA8->mSlow.mParam));
+@@ -726,24 +732,28 @@ int ControlThrustForGhoul::vf0C() {
+     } else if (frame <= 80.0001f) {
+         if (!m39) {
+             atn::Vector3 back = Front_unk(mChara) * -25.0f;
+-            mTarget = mChara->mPos + back;
++            mTarget = Owner_unk(this)->mPos + back;
+             atn::Vector3 from = mChara->mPos;
+             from.y += 10.0f;
+             atn::Vector3 to = from + back;
+             atn::ColliResult_unk result;
+             if (fn_8004ED34(lbl_8087EE98, &result, &from, &to, 0x80000000, 0, 0)) {
+                 back = Front_unk(mChara) * -25.0f;
+-                RotY_unk(back, 0.9424779f);
+-                mTarget = mChara->mPos + back;
++                atn::Matrix3x4 rl;
++                PSMTXRotRad(rl.m, 'y', 0.9424779f);
++                PSMTXMultVec(rl.m, &back, &back);
++                mTarget = Owner_unk(this)->mPos + back;
+                 to = from + back;
+                 if (fn_8004ED34(lbl_8087EE98, &result, &from, &to, 0x80000000, 0, 0)) {
+                     back = Front_unk(mChara) * -25.0f;
+-                    RotY_unk(back, -0.9424779f);
+-                    mTarget = mChara->mPos + back;
++                    atn::Matrix3x4 rr;
++                    PSMTXRotRad(rr.m, 'y', -0.9424779f);
++                    PSMTXMultVec(rr.m, &back, &back);
++                    mTarget = Owner_unk(this)->mPos + back;
+                     to = from + back;
+                     if (fn_8004ED34(lbl_8087EE98, &result, &from, &to, 0x80000000, 0, 0)) {
+                         back = Front_unk(mChara) * -20.0f;
+-                        mTarget = mChara->mPos + back;
++                        mTarget = Owner_unk(this)->mPos + back;
+                     }
+                 }
+             }
+@@ -758,8 +768,8 @@ int ControlThrustForGhoul::vf0C() {
+             m39 = true;
+         }
+         float t = 1.0f - (m->mTracks[0].m08 - 65.0f) / 15.0f;
+-        mChara->mPos = LerpTo_unk(mTarget, mStart, t);
+-        m10 = LerpTo_unk(mChara->mPos, mOther->mPos, t);
++        Owner_unk(this)->mPos = LerpTo_unk(mTarget, mStart, t);
++        m10 = LerpTo_unk(Owner_unk(this)->mPos, mOther->mPos, t);
+         m10.y += 20.0f * t;
+     } else {
+         m10 = mChara->mPos;
+@@ -770,9 +780,7 @@ int ControlThrustForGhoul::vf0C() {
+         return 1;
+     }
+     return 0;
+-}
+-
+-atn::Vector3 ControlThrustForGhoul::vf14() const {
++}atn::Vector3 ControlThrustForGhoul::vf14() const {
+     return m10;
+ }
+ 
