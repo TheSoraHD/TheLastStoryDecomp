@@ -9,6 +9,7 @@
 namespace atn {
 
 class D2A_Task;
+struct Color;
 class D2A_Data;
 
 // inferred: array with a fixed capacity and a count (names invented)
@@ -38,11 +39,6 @@ struct D2A_FixedArray_unk {
 template <class T, int N>
 struct D2A_FixedArray2_unk : public D2A_FixedArray_unk<T, N> {
     ~D2A_FixedArray2_unk() {}
-};
-
-// inferred: color passed by value to SetColor255_unk (name invented)
-struct D2A_RGB_unk {
-    float r, g, b;
 };
 
 // inferred: base of the d2anime task instances: they share the D2A_Task of a file (RTTI
@@ -112,7 +108,8 @@ public:
     void SetValue3_unk(const char* name, int index, float value);
     void SetColor_unk(const char* name, unsigned int color);
     void SetColor_unk(const char* name, float r, float g, float b);
-    void SetColor255_unk(const char* name, D2A_RGB_unk rgb); // inferred: [0,1] channels
+    // inferred: [0,1] channels; the callers copy the whole atn::Color (16 bytes; GameUI fn_803E4E58)
+    void SetColor255_unk(const char* name, Color rgb);
     void SetText_unk(const char* name, const wchar_t* text);
     void SetNumber_unk(const char* name, int value, int digits);
     void SetInt_unk(const char* name, int value);

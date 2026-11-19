@@ -5,6 +5,7 @@
 #include "std/string_members.h"
 #include "atn/DrawHelper.h"
 #include "atn/D2A_Manager.h"
+#include "atn/Color.h"
 
 // inferred: string hash and file helpers (automatic names)
 extern "C" unsigned int fn_800DC6B4(const char* s);
@@ -236,10 +237,10 @@ void D2A_Task::SetColor_unk(const char* name, float r, float g, float b) {
 }
 
 // NONMATCHING: 92% - same early load/multiply of rgb[0] as fn_801F4728
-void D2A_Task::SetColor255_unk(const char* name, const float* rgb) {
-    SetParamC_unk(this, name, 1, 255.0f * rgb[0]);
-    SetParamC_unk(this, name, 2, 255.0f * rgb[1]);
-    SetParamC_unk(this, name, 3, 255.0f * rgb[2]);
+void D2A_Task::SetColor255_unk(const char* name, Color rgb) {
+    SetParamC_unk(this, name, 1, 255.0f * rgb.r);
+    SetParamC_unk(this, name, 2, 255.0f * rgb.g);
+    SetParamC_unk(this, name, 3, 255.0f * rgb.b);
 }
 
 // NONMATCHING: 92.25% - the original computes &text into r6 and copies it to r4 (one extra mr)
