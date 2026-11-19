@@ -1,0 +1,30 @@
+diff --git a/src/game/GameCamera_unk.cpp b/src/game/GameCamera_unk.cpp
+index 675f9e5..4be8309 100644
+--- a/src/game/GameCamera_unk.cpp
++++ b/src/game/GameCamera_unk.cpp
+@@ -3265,19 +3265,22 @@ void GameCamera::fn_8038E23C(const CharaTask* chara, GameCameraParam_unk* param,
+         return;
+     }
+     atn::Vector3 to = *pos;
++    float height = param->m10;
+     atn::Vector3 from = chara->mPos;
+-    from.y += param->m10;
++    float y = from.y;
++    from.y = y + height;
+     if (m7FC == 2 && chara->mFlag30) {
+         from.y -= param->m18;
+     }
+     atn::ColliResult_unk result;
+     if (fn_8004ED34(lbl_8087EE98, &result, &from, &to, 0x80000008, 0, 0)) {
+         m89C++;
+-        atn::Vector3 p = result.m10;
++        atn::Vector3& hit = result.m10;
++        atn::Vector3 p = hit;
+         p += result.m28;
+         atn::Vector3 move(0.0f, 0.0f, 0.0f);
+         fn_8004D388(lbl_8087EE98, &result, &p, &move, 0x80000008, 0, 0, 1.0f);
+-        p = result.m10;
++        p = hit;
+         if (m89C >= 8) {
+             *pos = p;
+         } else {
