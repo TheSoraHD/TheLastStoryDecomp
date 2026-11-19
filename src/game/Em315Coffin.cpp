@@ -60,7 +60,7 @@ extern "C" void fn_8023A680(atn::EffectManager* mgr, atn::EffFile* res, int arg2
                             int arg6, int arg7, int arg8, int arg9, int arg10, float scale);
 extern "C" void PSMTXTrans(Mtx m, float x, float y, float z);
 extern "C" void PSMTXScale(Mtx m, float x, float y, float z);
-extern "C" void fn_80276AE4(atn::EffectManager* mgr, atn::EfpFile* efp, int arg, const atn::Vector3* pos,
+extern "C" void fn_80276AE4(atn::EffectManager* mgr, atn::EfpFile* efp, void* model, const atn::Vector3* pos,
                             const atn::Vector3* rot, int a, int b, int c, float scale);
 void* fn_801404F8();
 extern "C" int fn_8004ED34(void* colli, atn::ColliResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,

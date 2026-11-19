@@ -28,7 +28,7 @@ public:
 };
 } // namespace atn
 extern "C" atn::PostFxManager* lbl_8087EF8C;
-extern "C" void fn_800A981C(GXTexObj* src, void* dst, int width, int height, int format, int arg5, int arg6,
+extern "C" void fn_800A981C(GXTexObj* src, void* dst, int width, int height, int format, void* arg5, int arg6,
                             float offsetX, float offsetY); // inferred: directional blur pass
 extern "C" void fn_80075F58(atn::GraphicsDevice_unk* mgr, int x, int y, int w, int h);
 extern "C" void fn_80075DEC(atn::GraphicsDevice_unk* mgr);

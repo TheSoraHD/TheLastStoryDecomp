@@ -98,7 +98,7 @@ extern "C" void fn_804DDA04(MpLobbySession_unk* s); // inferred: sends the game 
 extern "C" int fn_804E4A20(); // inferred: play time of the player
 extern "C" int fn_804EB26C(MpLobbySession_unk* s, int* count); // inferred: nonzero when everybody answered
 extern "C" int fn_804FC010(MpLobbySession_unk* s);              // inferred: nonzero while a request is pending
-extern "C" int fn_804DE560(MpLobbySession_unk* s, int arg, unsigned char* ok); // inferred: ready state of the room
+extern "C" int fn_804DE560(MpLobbySession_unk* s, void* arg, unsigned char* ok); // inferred: ready state of the room
 extern "C" int sprintf(char* s, const char* format, ...);
 extern "C" void fn_804A53D4(MenuCommonTask* menu, int a, int b, const MP::MpRect_unk* rect, int c); // inferred: cursor
 extern "C" const wchar_t* fn_804FA7C8(MpLobbySession_unk* s, int mode, int map); // inferred: name of a map

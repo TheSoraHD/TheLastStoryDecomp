@@ -96,7 +96,7 @@ int RouteWalker_unk::fn_80125474() {
 // inferred: route search (lbl_8087EE68) and route registration of the field
 struct RouteFinder_unk;
 extern "C" RouteFinder_unk* lbl_8087EE68;
-extern "C" int fn_80019E88(RouteFinder_unk* finder, atn::Vector3* pos, int* point, int link, int arg);
+extern "C" int fn_80019E88(RouteFinder_unk* finder, atn::Vector3* pos, int* point, int link, void* arg);
 extern "C" unsigned short fn_803CD958(U16Table_unk* path, int point); // inferred: next point towards `point`
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 struct ColliWorld_unk;
