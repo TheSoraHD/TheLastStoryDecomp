@@ -55,11 +55,8 @@ extern "C" atn::net::Manager* lbl_8087F628;
 // inferred: sound, bgm, movie and field pauses
 extern "C" void* lbl_8087EE90;
 extern "C" void fn_8004A2CC(void* bgm, int pause, int frames, int arg);
-struct SysMovie_unk {
-    unsigned char m00[0x08];
-    int m08; // inferred: state (4 playing, 5 paused)
-};
-extern "C" SysMovie_unk* lbl_8087F010;
+#include "atn/VideoTHP.h"
+extern "C" atn::VideoTHP* lbl_8087F010;
 extern "C" GameTask* lbl_8087F430;
 namespace atn {
 class NandManager;
