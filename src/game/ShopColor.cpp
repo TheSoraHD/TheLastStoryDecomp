@@ -19,7 +19,8 @@ extern "C" ShopD2A_unk* fn_801F3FF8(atn::Task* parent, const char* path, int loo
 extern "C" void fn_801FEE08(void* layout, unsigned int hash, const wchar_t* text); // inferred: sets a text
 extern "C" void fn_801FECE0(void* layout, unsigned int hash, float value);
 extern "C" atn::SoundRef fn_80117228(int id); // inferred: plays a system sound effect
-extern "C" void* lbl_8087EF70;
+struct Pad_unk;
+extern "C" Pad_unk* lbl_8087EF70;
 extern "C" int fn_800A555C(void* pad, int port, int button); // inferred: button triggered
 
 extern "C" ShopPoint_unk fn_801F4E8C(atn::Task* layout, unsigned int hash);

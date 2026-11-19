@@ -64,7 +64,8 @@ extern "C" void PSMTXScale(Mtx m, float x, float y, float z);
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 // inferred: pad input (lbl_8087EF70, as in game/CampSaveLoad.cpp)
-extern "C" void* lbl_8087EF70;
+struct Pad_unk;
+extern "C" Pad_unk* lbl_8087EF70;
 extern "C" int fn_800A555C(void* pad, int port, int button); // inferred: button triggered
 extern "C" GameUI* lbl_8087F490;
 // inferred: point the camera looks at (lbl_8087F430 + 0x97C, as in game/Em302Kraken.cpp); names invented

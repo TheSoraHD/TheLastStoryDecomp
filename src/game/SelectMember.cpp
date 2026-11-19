@@ -28,7 +28,8 @@ extern "C" void fn_801FEE08(void* layout, unsigned int hash, const wchar_t* text
 extern "C" atn::SoundRef fn_80117228(int id);
 extern "C" void fn_800D2338(atn::Task* task); // inferred: deletes the task
 // inferred: pad input (lbl_8087EF70)
-extern "C" void* lbl_8087EF70;
+struct Pad_unk;
+extern "C" Pad_unk* lbl_8087EF70;
 extern "C" int fn_800A555C(void* pad, int port, int button); // inferred: button triggered
 extern "C" void fn_804A436C(int* cursor, int count, int wrap, int step, int arg); // inferred: moves a cursor
 // inferred: 2D point of a d2anime pane (0x14 bytes here); names invented

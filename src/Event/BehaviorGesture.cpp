@@ -1,7 +1,8 @@
 #include "Event/Section.h"
 #include "Event/Behavior.h"
 
-extern "C" void* lbl_8087EF70;                                // inferred: pad
+struct Pad_unk;
+extern "C" Pad_unk* lbl_8087EF70;                                // inferred: pad
 extern "C" int fn_800A555C(void* pad, int port, int button); // inferred: button triggered
 
 namespace Event {

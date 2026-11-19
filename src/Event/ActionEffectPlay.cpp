@@ -60,7 +60,8 @@ extern "C" void fn_8023A8B4(atn::EffectManager* mgr, void* data, atn::Model* mod
 extern "C" void fn_80239DAC(atn::EffectManager* mgr, Event::EventManager_unk* manager, void* owner, int stop); // inferred: stops
 extern "C" unsigned int fn_800DC6B4(const char* str);
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
-extern "C" void* lbl_8087EF70; // inferred: pad
+struct Pad_unk;
+extern "C" Pad_unk* lbl_8087EF70; // inferred: pad
 extern "C" int fn_800A58D0(void* pad, int port); // inferred: classic controller connected
 extern "C" void fn_801FECE0(void* layout, unsigned int hash, float value); // inferred: sets a layout value
 extern "C" void fn_800CB5B4(atn::SoundRef* sound, float volume, int frames); // inferred: sets the volume

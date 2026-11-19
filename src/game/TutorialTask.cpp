@@ -53,7 +53,8 @@ extern "C" Settings_unk* lbl_8087F0A8;
 extern "C" inline Settings_unk* fn_800F52F8() {
     return lbl_8087F0A8;
 }
-extern "C" void* lbl_8087EF70; // inferred: pad
+struct Pad_unk;
+extern "C" Pad_unk* lbl_8087EF70; // inferred: pad
 
 // HomeButtonMenu: game/HomeButtonMenu.h
 

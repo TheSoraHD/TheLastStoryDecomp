@@ -39,7 +39,8 @@ struct Camera;
 typedef atn::Camera Camera_unk;
 extern "C" PlayerManager* lbl_8087F8A0;
 extern "C" GameUI* lbl_8087F490;
-extern "C" void* lbl_8087EF70; // inferred: pad
+struct Pad_unk;
+extern "C" Pad_unk* lbl_8087EF70; // inferred: pad
 extern "C" int fn_800A555C(void* pad, int port, int button); // inferred: button triggered
 extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg, int arg2, float volume); // inferred: plays a sound
 

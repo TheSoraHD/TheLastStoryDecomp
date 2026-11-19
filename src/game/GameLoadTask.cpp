@@ -12,7 +12,8 @@
 extern "C" void* memset(void* dst, int c, unsigned long n);
 extern "C" int sprintf(char* dst, const char* fmt, ...);
 
-extern "C" void* lbl_8087EF70;                               // inferred: pad
+struct Pad_unk;
+extern "C" Pad_unk* lbl_8087EF70;                               // inferred: pad
 extern "C" int fn_800A555C(void* pad, int port, int button); // inferred: button triggered
 extern "C" int fn_800A55AC(void* pad, int port, int button); // inferred: button repeated
 extern "C" void fn_800D2338(atn::Task* task);                // inferred: removes the task

@@ -1515,7 +1515,8 @@ extern "C" void* fn_801231B0(Settings_unk* s);    // inferred: settings + 0x244
 inline SetConfig* GetSetConfig_unk() {
     return SetConfig::sInstance;
 }
-extern "C" void* lbl_8087EF70; // inferred: pad
+struct Pad_unk;
+extern "C" Pad_unk* lbl_8087EF70; // inferred: pad
 inline void* GetPad_unk() {
     return lbl_8087EF70;
 }

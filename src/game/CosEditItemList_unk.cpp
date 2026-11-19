@@ -26,7 +26,8 @@
 
 extern "C" int sprintf(char* s, const char* format, ...);
 extern "C" unsigned int fn_800DC6B4(const char* s);          // inferred: string hash
-extern "C" void* lbl_8087EF70;                                // inferred: pad
+struct Pad_unk;
+extern "C" Pad_unk* lbl_8087EF70;                                // inferred: pad
 extern "C" int fn_800A555C(void* pad, int port, int button); // inferred: button triggered
 extern "C" atn::SoundRef fn_80117228(int id);                 // inferred: plays a system sound effect
 extern "C" const wchar_t* fn_80116FC0(int a, int id);         // inferred: system text

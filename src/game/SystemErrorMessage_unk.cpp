@@ -32,7 +32,8 @@ extern "C" void fn_801FED24(void* layout, unsigned int id, int index, float valu
 extern "C" void fn_801FECE0(void* layout, unsigned int id, float value);
 extern "C" void fn_801FEE08(void* layout, unsigned int id, const wchar_t* text);
 extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float volume);
-extern "C" void* lbl_8087EF70; // inferred: pad
+struct Pad_unk;
+extern "C" Pad_unk* lbl_8087EF70; // inferred: pad
 extern "C" int fn_800A555C(void* pad, int port, int button); // inferred: button triggered
 // inferred: view of HomeButtonMenu (game/HomeButtonMenu.cpp), only the members used here
 // HomeButtonMenu: game/HomeButtonMenu.h

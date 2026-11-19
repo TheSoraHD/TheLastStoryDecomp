@@ -69,7 +69,8 @@ namespace atn {
 struct GraphicsDevice_unk;
 }
 extern "C" atn::GraphicsDevice_unk* lbl_8087EEE0;
-extern "C" void* lbl_8087EF70;
+struct Pad_unk;
+extern "C" Pad_unk* lbl_8087EF70;
 struct ColliManager_unk;
 extern "C" ColliManager_unk* lbl_8087EE98;
 extern "C" void* lbl_8087EE90;

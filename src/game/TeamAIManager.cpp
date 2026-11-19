@@ -14,7 +14,8 @@ extern "C" int sprintf(char* buf, const char* fmt, ...);
 
 // inferred: debug drawing (as in game/GameSaveTask.cpp)
 // inferred: line from `from` to `to`
-extern "C" void* lbl_8087EF70; // inferred: pad
+struct Pad_unk;
+extern "C" Pad_unk* lbl_8087EF70; // inferred: pad
 extern "C" int fn_800A555C(void* pad, int port, int button); // inferred: button triggered
 extern "C" void fn_80087994(void* menu, const char* name, int* flag, void* func, void* arg);
 

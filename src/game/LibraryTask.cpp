@@ -22,7 +22,8 @@ extern "C" void fn_800C3094(const char* group); // inferred: loads a sound group
 extern "C" void fn_800C3124(const char* group); // inferred: releases a sound group
 extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float volume); // inferred: plays a sound
 extern "C" atn::SoundRef fn_80117228(int id);
-extern "C" void* lbl_8087EF70; // inferred: pad
+struct Pad_unk;
+extern "C" Pad_unk* lbl_8087EF70; // inferred: pad
 extern "C" int fn_800A555C(void* pad, int port, int button); // inferred: button triggered
 extern "C" void fn_800D2338(atn::Task* task); // inferred: deletes the task
 extern "C" unsigned int fn_800DC6B4(const char* s); // inferred: string hash

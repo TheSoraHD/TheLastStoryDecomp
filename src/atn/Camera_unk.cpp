@@ -14,7 +14,8 @@ extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared len
 extern "C" double cos(double x);
 extern "C" double sin(double x);
 
-extern "C" void* lbl_8087EF70; // inferred: pad
+struct Pad_unk;
+extern "C" Pad_unk* lbl_8087EF70; // inferred: pad
 extern "C" int fn_800A58D0(void* pad, int port);
 extern "C" int fn_800A58F8(void* pad, int port);
 extern "C" int fn_800A55D4(void* pad, int port, int button);           // inferred: button held

@@ -25,7 +25,8 @@
 extern "C" int sprintf(char* s, const char* format, ...);
 extern "C" char* strstr(const char* s, const char* sub);
 extern "C" unsigned int fn_800DC6B4(const char* s); // inferred: string hash
-extern "C" void* lbl_8087EF70;                     // inferred: pad
+struct Pad_unk;
+extern "C" Pad_unk* lbl_8087EF70;                     // inferred: pad
 extern "C" int fn_800A555C(void* pad, int port, int button); // inferred: button triggered
 extern "C" float fn_80076FF8(void* render);        // inferred: screen aspect ratio
 namespace atn {

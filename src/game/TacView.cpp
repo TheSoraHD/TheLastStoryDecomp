@@ -146,7 +146,8 @@ int TacView::vf0C() {
 extern "C" double sqrt(double x);
 extern "C" GameTask* lbl_8087F430;
 extern "C" PlayerManager* lbl_8087F8A0;
-extern "C" void* lbl_8087EF70; // inferred: pad input
+struct Pad_unk;
+extern "C" Pad_unk* lbl_8087EF70; // inferred: pad input
 extern "C" GameConfig_unk* lbl_8087F0A8;
 extern "C" int fn_800A555C(void* pad, int port, int button); // inferred: button pressed
 extern "C" int fn_800A55FC(void* pad, int port, int button); // inferred: button released
@@ -926,7 +927,8 @@ void TacView::fn_805AA4C8(SkillEffect* effect) {
 
 extern "C" GameTask* lbl_8087F430;
 extern "C" PlayerManager* lbl_8087F8A0;
-extern "C" void* lbl_8087EF70; // inferred: pad input
+struct Pad_unk;
+extern "C" Pad_unk* lbl_8087EF70; // inferred: pad input
 extern "C" int fn_800A55D4(void* pad, int port, int button); // inferred: button held
 
 void TacView::fn_805AA4E4() {

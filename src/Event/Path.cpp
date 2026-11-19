@@ -53,7 +53,8 @@ extern "C" void PSMTXRotAxisRad(Mtx m, const atn::Vector3* axis, float rad);
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 
 // inferred: pad (lbl_8087EF70)
-extern "C" void* lbl_8087EF70;
+struct Pad_unk;
+extern "C" Pad_unk* lbl_8087EF70;
 extern "C" float fn_800A56A8(void* pad, int port, int axis, int arg); // inferred: stick axis
 extern "C" int fn_800A58D0(void* pad, int port);                     // inferred: second stick available
 

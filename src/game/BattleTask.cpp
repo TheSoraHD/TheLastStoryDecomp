@@ -4298,7 +4298,8 @@ void BattleTask::fn_801021B4(atn::ColliBase* obj, int a, int b) {
 }
 
 extern "C" atn::GraphicsDevice_unk* lbl_8087EEE0;
-extern "C" void* lbl_8087EF70; // inferred: pad
+struct Pad_unk;
+extern "C" Pad_unk* lbl_8087EF70; // inferred: pad
 extern "C" float fn_800A56A8(void* pad, int port, int axis, int arg); // inferred: stick axis
 extern "C" atn::Vector2_unk lbl_807C7028; // inferred: zero 2D vector (atn/Math_unk.cpp)
 // inferred: playing with less than 5 ... (m50C) in multiplayer (inlined; name invented)

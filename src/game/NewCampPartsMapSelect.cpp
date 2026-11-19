@@ -112,7 +112,8 @@ extern "C" atn::SoundRef fn_80117228(int id);                   // inferred: pla
 extern "C" void fn_800CB5B4(atn::SoundRef* sound, float b, int a);
 // inferred: changes the map
 extern "C" void fn_8036F268(GameTask* field, int type, int id, int subId, int entry, int a, void* b, int reason, int c);
-extern "C" void* lbl_8087EF70;
+struct Pad_unk;
+extern "C" Pad_unk* lbl_8087EF70;
 extern "C" int fn_800A555C(void* pad, int port, int button); // inferred: button triggered
 extern "C" void PSMTXScale(Mtx m, float x, float y, float z);
 extern "C" void PSMTXConcat(const Mtx a, const Mtx b, Mtx ab);

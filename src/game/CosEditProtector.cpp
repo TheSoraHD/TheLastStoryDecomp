@@ -65,7 +65,8 @@ extern "C" int fn_8020BDE0(int index);         // inferred: palette id of a colo
 extern "C" int fn_8020BE10(int index);         // inferred: part id of a part cell
 extern "C" void fn_800D2338(atn::Task* task);  // inferred: deletes a task
 extern "C" atn::Vector3 lbl_807C7030;          // inferred: zero vector
-extern "C" void* lbl_8087EF70;                                // inferred: pad
+struct Pad_unk;
+extern "C" Pad_unk* lbl_8087EF70;                                // inferred: pad
 extern "C" int fn_800A555C(void* pad, int port, int button); // inferred: button triggered
 extern "C" int fn_800A58D0(void* pad, int port);              // inferred: second stick available
 extern "C" atn::SoundRef fn_80117228(int id);                 // inferred: plays a system sound effect

@@ -49,7 +49,8 @@ struct Xsca_unk {
     XsfCurveSet_unk* fn_805BDCBC(unsigned int index);
 };
 
-extern "C" void* lbl_8087EF70; // inferred: pad
+struct Pad_unk;
+extern "C" Pad_unk* lbl_8087EF70; // inferred: pad
 extern "C" float fn_800A56A8(void* pad, int port, int axis, int arg); // inferred: stick axis
 extern "C" GameConfig_unk* lbl_8087F0A8;
 

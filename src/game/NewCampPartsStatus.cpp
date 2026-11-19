@@ -27,7 +27,8 @@ extern "C" void fn_800D2338(atn::Task* task);        // inferred: deletes the ta
 extern "C" void* fn_8008937C(void* menu, const char* name); // inferred: debug menu group
 extern "C" void fn_80087E9C(void* group, const char* name, atn::Vector3* value, float min, float max, float step,
                             void* func, void* arg);
-extern "C" void* lbl_8087EF70;
+struct Pad_unk;
+extern "C" Pad_unk* lbl_8087EF70;
 extern "C" int fn_800A555C(void* pad, int port, int button); // inferred: button triggered
 extern "C" int fn_800A55AC(void* pad, int port, int button); // inferred: button repeated
 extern "C" int fn_800A58D0(void* pad, int port);

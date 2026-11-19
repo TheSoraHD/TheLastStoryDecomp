@@ -153,7 +153,8 @@ extern "C" int fn_80444020(Inventory* party, int item, int a, int b, void* c, in
 extern "C" int rand();
 extern "C" int atoi(const char* s);
 extern "C" int sprintf(char* buf, const char* format, ...);
-extern "C" void* lbl_8087EF70;                                     // inferred: pad input
+struct Pad_unk;
+extern "C" Pad_unk* lbl_8087EF70;                                     // inferred: pad input
 extern "C" int fn_800A555C(void* pad, int port, int button);       // inferred: button triggered
 extern "C" unsigned int fn_800DC6B4(const char* s); // inferred: string hash
 extern "C" void fn_8044441C(Inventory* inv, int id, int num); // inferred: removes items

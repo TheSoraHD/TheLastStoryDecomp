@@ -630,7 +630,8 @@ void GameCameraParam_unk::fn_8037F830(const GameCameraParam_unk& a, const GameCa
 }
 
 extern "C" void PSMTXRotAxisRad(Mtx m, const atn::Vector3* axis, float rad);
-extern "C" void* lbl_8087EF70; // inferred: pad
+struct Pad_unk;
+extern "C" Pad_unk* lbl_8087EF70; // inferred: pad
 extern "C" float fn_800A56A8(void* pad, int port, int axis, int arg); // inferred: stick axis (as in Em306GurgBeast)
 
 // inferred: interpolation (b - a) * t + a (as in RedMp)
@@ -2148,7 +2149,8 @@ static inline void AddViewHeight_unk(atn::Vector3* p) {
     }
 }
 
-extern "C" void* lbl_8087EF70; // inferred: pads
+struct Pad_unk;
+extern "C" Pad_unk* lbl_8087EF70; // inferred: pads
 extern "C" int fn_800A58D0(void* pad, int port);                          // inferred: classic controller connected
 extern "C" float fn_800A56A8(void* pad, int port, int axis, int arg); // inferred: stick axis
 

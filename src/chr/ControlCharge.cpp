@@ -37,7 +37,8 @@ inline bool IsArenaMode_unk(int mode) {
 }
 
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
-extern "C" void* lbl_8087EF70; // inferred: pad
+struct Pad_unk;
+extern "C" Pad_unk* lbl_8087EF70; // inferred: pad
 extern "C" int fn_800A55D4(void* pad, int port, int button); // inferred: button held
 // inferred: cursor shown by the tactical view (lbl_8087F9F8 + 0x15D8); names invented
 struct TacCursor_unk {

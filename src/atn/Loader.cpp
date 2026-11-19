@@ -49,7 +49,8 @@ class Font_unk;
 }
 extern "C" atn::Font_unk* lbl_8087EEC8; // inferred: font
 extern "C" float fn_8006EF48(void* font, const wchar_t* text, float size, float f2, int a, int b);
-extern "C" void* lbl_8087EF70; // inferred: pad
+struct Pad_unk;
+extern "C" Pad_unk* lbl_8087EF70; // inferred: pad
 extern "C" int fn_800A55D4(void* pad, int player, int button);
 extern "C" int fn_800A5B38(void* pad); // inferred: battery level
 namespace atn {

@@ -30,7 +30,8 @@ extern "C" int fn_8020EF80(EquipParamEntry_unk* equip); // inferred: item code o
 extern "C" int fn_8044453C(Inventory* inv, int index);  // inferred: number of items of an entry of the item table
 extern "C" int fn_8044D560(Inventory* party);           // inferred: number of items to identify
 extern "C" int fn_8044D500(Inventory* party, int index); // inferred: item to identify
-extern "C" void* lbl_8087EF70; // inferred: pad
+struct Pad_unk;
+extern "C" Pad_unk* lbl_8087EF70; // inferred: pad
 extern "C" int fn_800A555C(void* pad, int port, int button); // inferred: button triggered
 namespace atn {
 class Loader;

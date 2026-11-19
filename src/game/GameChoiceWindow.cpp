@@ -270,7 +270,8 @@ extern "C" atn::SoundRef fn_803B4338(int index, float volume) {
 
 // inferred: sets a texture rectangle (D2A_TaskInstanceBase<32, 8>::SetValues2_unk; the rectangle is copied)
 extern "C" int fn_800A555C(void* pad, int port, int button); // inferred: button triggered
-extern "C" void* lbl_8087EF70; // inferred: pad
+struct Pad_unk;
+extern "C" Pad_unk* lbl_8087EF70; // inferred: pad
 extern "C" GameConfig_unk* lbl_8087F0A8; // inferred: game settings
 
 // inferred: creates the window, as fn_803B5470 and fn_803B612C for the other windows; unused, so removed

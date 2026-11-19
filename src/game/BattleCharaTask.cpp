@@ -494,7 +494,8 @@ inline atn::Vector3 NodePos_unk(MtxPtr m) {
 }
 
 extern "C" float fn_800A56A8(void* pad, int port, int axis, int arg); // inferred: stick axis (as in game/GameTask.cpp)
-extern "C" void* lbl_8087EF70; // inferred: pad of the stick
+struct Pad_unk;
+extern "C" Pad_unk* lbl_8087EF70; // inferred: pad of the stick
 // inferred: target in front of the character for the cover actions (game/BattleTask.cpp, BattleAim_unk)
 extern "C" int fn_80211734(HitInfo_unk* item);                 // inferred: infinite item
 extern "C" void fn_8044441C(Inventory* inv, int id, int num);  // inferred: removes items

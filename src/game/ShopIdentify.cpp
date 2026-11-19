@@ -18,7 +18,8 @@ extern "C" void fn_801FED24(void* layout, unsigned int hash, int index, float va
 extern "C" atn::SoundRef fn_80117228(int id); // inferred: plays a system sound effect
 extern "C" const wchar_t* fn_80116FC0(int a, int id); // inferred: message text
 extern "C" const wchar_t* fn_801170C8(int a, int id, const wchar_t* arg); // inferred: formatted message text
-extern "C" void* lbl_8087EF70;
+struct Pad_unk;
+extern "C" Pad_unk* lbl_8087EF70;
 extern "C" int fn_800A555C(void* pad, int port, int button); // inferred: button triggered
 
 namespace atn {

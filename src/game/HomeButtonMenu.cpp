@@ -12,7 +12,8 @@
 #include "atn/NandManager.h"
 extern "C" atn::NandManager* lbl_8087EF68;
 extern "C" int fn_800A4228(atn::NandManager* nand, int* err); // inferred: busy
-extern "C" void* lbl_8087EF70;                               // inferred: pad
+struct Pad_unk;
+extern "C" Pad_unk* lbl_8087EF70;                               // inferred: pad
 extern "C" int fn_800A555C(void* pad, int port, int button); // inferred: button triggered
 extern "C" void* lbl_8087EE90;
 extern "C" void fn_8004A2CC(void* obj, int a, int b, int c);

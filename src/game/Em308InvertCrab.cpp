@@ -93,7 +93,8 @@ struct CrabMessage_unk {
     CrabTutorial_unk m764;
 };
 extern "C" CrabMessage_unk* lbl_8087F490;
-extern "C" void* lbl_8087EF70; // inferred: pad
+struct Pad_unk;
+extern "C" Pad_unk* lbl_8087EF70; // inferred: pad
 extern "C" int fn_800A555C(void* pad, int port, int button); // inferred: button triggered
 extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float volume); // inferred: 2D sound
 extern "C" double sqrt(double x);

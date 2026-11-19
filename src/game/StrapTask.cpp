@@ -17,7 +17,8 @@ struct GimmickUvOwner_unk {
 
 #include "atn/WPad_unk.h"
 extern "C" WPad_unk* lbl_8087F018;
-extern "C" void* lbl_8087EF70;
+struct Pad_unk;
+extern "C" Pad_unk* lbl_8087EF70;
 extern "C" int fn_800A5920(void* obj, int a, int b); // inferred: a button was pressed
 #include "atn/SequenceBoot_unk.h"
 #include "atn/DrawHelper.h"

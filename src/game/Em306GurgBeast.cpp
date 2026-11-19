@@ -56,7 +56,8 @@ extern "C" inline float fn_802F0998(const GameConfig_unk* settings) {
     return -98.1f / (float)(settings->m030 * settings->m030);
 }
 
-extern "C" void* lbl_8087EF70; // inferred: pad
+struct Pad_unk;
+extern "C" Pad_unk* lbl_8087EF70; // inferred: pad
 extern "C" int fn_800A555C(void* pad, int port, int button);           // inferred: button triggered
 extern "C" int fn_800A55D4(void* pad, int port, int button);           // inferred: button held
 extern "C" float fn_800A56A8(void* pad, int port, int axis, int arg);  // inferred: stick axis

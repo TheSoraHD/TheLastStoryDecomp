@@ -14,7 +14,8 @@
 #include "atn/TextTable_unk.h"
 
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
-extern "C" void* lbl_8087EF70;                                // inferred: pad
+struct Pad_unk;
+extern "C" Pad_unk* lbl_8087EF70;                                // inferred: pad
 extern "C" int fn_800A555C(void* pad, int port, int button); // inferred: button triggered
 extern "C" void fn_804A436C(int* cursor, int count, int wrap, int step, int arg); // inferred: moves a cursor
 extern "C" atn::SoundRef fn_80117228(int id);                // inferred: plays a system sound effect

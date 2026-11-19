@@ -18,7 +18,8 @@ extern "C" char* strstr(const char* s, const char* sub);
 extern "C" void PSMTXScale(Mtx m, float x, float y, float z);
 extern "C" unsigned int fn_800DC6B4(const char* s); // inferred: string hash
 extern "C" atn::SoundRef fn_80117228(int id);        // inferred: plays a system sound effect
-extern "C" void* lbl_8087EF70;                       // inferred: pad
+struct Pad_unk;
+extern "C" Pad_unk* lbl_8087EF70;                       // inferred: pad
 extern "C" int fn_800A55AC(void* pad, int port, int button); // inferred: button repeated
 extern "C" float fn_800A08D4(atn::LH_Motion* motion);       // inferred: motion length
 extern "C" int fn_800A0548(atn::LH_Motion* motion, MotionPose_unk* pose, unsigned int hash, char* work,

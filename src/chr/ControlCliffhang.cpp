@@ -18,7 +18,8 @@ extern "C" GameTask* lbl_8087F430;
 extern "C" RenderSetting_unk* lbl_8087EFA8;
 
 // inferred: pad (lbl_8087EF70); fn_800A55D4 tests a button of a player
-extern "C" void* lbl_8087EF70;
+struct Pad_unk;
+extern "C" Pad_unk* lbl_8087EF70;
 extern "C" int fn_800A55D4(void* pad, int player, int button);
 
 // inferred: collision (lbl_8087EE98); fn_8004ECC0 casts a ray

@@ -35,7 +35,8 @@ extern "C" int sprintf(char* buf, const char* format, ...);
 
 extern "C" GameConfig_unk* lbl_8087F0A8;
 extern "C" RenderSetting_unk* lbl_8087EFA8; // render settings
-extern "C" void* lbl_8087EF70; // inferred: pad (atn/Pad_unk.cpp)
+struct Pad_unk;
+extern "C" Pad_unk* lbl_8087EF70; // inferred: pad (atn/Pad_unk.cpp)
 extern "C" int fn_800A555C(void* pad, int port, int button); // inferred: button triggered
 extern "C" int fn_800A55AC(void* pad, int port, int button); // inferred: button repeated
 extern "C" int fn_800A55D4(void* pad, int port, int button); // inferred: button held

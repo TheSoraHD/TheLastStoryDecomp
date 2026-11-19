@@ -123,7 +123,8 @@ extern "C" float lbl_8087DBD0;
 extern "C" float lbl_8087DBD4;
 
 // inferred: pad and font, as declared by the menus of MP/D2AMpMenu_unk.h
-extern "C" void* lbl_8087EF70;
+struct Pad_unk;
+extern "C" Pad_unk* lbl_8087EF70;
 extern "C" int fn_800A555C(void* pad, int port, int button); // inferred: button triggered
 namespace atn {
 class Font_unk;

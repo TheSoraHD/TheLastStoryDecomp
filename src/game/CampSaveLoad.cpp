@@ -31,7 +31,8 @@ extern "C" GameConfig_unk* lbl_8087F0A8; // inferred: game settings
 extern "C" int fn_803BEB54(SaveSlot_unk* slot); // inferred: nonzero if the slot is empty
 
 // inferred: pad input (lbl_8087EF70); names invented
-extern "C" void* lbl_8087EF70;
+struct Pad_unk;
+extern "C" Pad_unk* lbl_8087EF70;
 extern "C" int fn_800A555C(void* pad, int port, int button); // inferred: button triggered
 extern "C" int fn_800A55AC(void* pad, int port, int button); // inferred: button repeated
 inline int IsTriggered_unk(int button) {

@@ -28,7 +28,8 @@ class NandManager;
 }
 extern "C" atn::NandManager* lbl_8087EF68; // inferred: save manager
 extern "C" int fn_800A4228(void* obj, int* out); // inferred: nonzero while saving
-extern "C" void* lbl_8087EF70; // inferred: pad
+struct Pad_unk;
+extern "C" Pad_unk* lbl_8087EF70; // inferred: pad
 extern "C" bool fn_800A5920(void* pad, int port, int all); // inferred: a button was pressed
 extern "C" bool fn_800A59F0(void* pad, int port);          // inferred: a stick was moved
 extern "C" atn::Task* lbl_8087F530; // inferred: root task (parent of the fade)

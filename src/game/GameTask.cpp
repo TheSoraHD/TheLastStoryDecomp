@@ -205,7 +205,8 @@ extern "C" atn::Task* lbl_8087FA20;
 extern "C" int fn_8006AA20(const char* path); // inferred: the file exists
 extern "C" void fn_800EFA18(int type, int map);
 extern "C" int fn_800A555C(void* obj, int a, int b);
-extern "C" void* lbl_8087EF70;
+struct Pad_unk;
+extern "C" Pad_unk* lbl_8087EF70;
 extern "C" void fn_804A5E40(MenuCommonTask* menu, int kind, atn::Vector3* pos, int arg);
 extern "C" atn::Vector3 lbl_807C7030;
 extern "C" void fn_800D2494(atn::Task* task); // inferred: runs one update of the task

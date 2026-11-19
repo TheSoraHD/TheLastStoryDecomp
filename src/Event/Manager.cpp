@@ -97,7 +97,8 @@ extern "C" float fn_800A56A8(void* pad, int port, int axis, int arg); // inferre
 extern "C" float fn_802A7964(float rad);
 extern "C" void* fn_802F0990();         // inferred: returns lbl_8087EFA8
 extern "C" float fn_802F0988(void* rs); // inferred: frame time (+0x3A4)
-extern "C" void* lbl_8087EF70;          // inferred: pad
+struct Pad_unk;
+extern "C" Pad_unk* lbl_8087EF70;          // inferred: pad
 extern "C" void fn_801FECE0(void* layout, unsigned int hash, float value);
 // inferred: weak copies, as in Event/Path.cpp and game/GameUI.cpp
 inline void* GetPad_unk() {

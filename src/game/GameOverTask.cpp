@@ -49,7 +49,8 @@ extern "C" GameOverPoint_unk fn_801F4E8C(atn::Task* layout, unsigned int hash);
 extern "C" void fn_804A39EC(GameOverD2A_unk* anime, int arg1, int repeat, float frame, float speed);
 
 extern "C" const wchar_t lbl_808813D0[2]; // inferred: empty text
-extern "C" void* lbl_8087EF70;
+struct Pad_unk;
+extern "C" Pad_unk* lbl_8087EF70;
 extern "C" int fn_800A555C(void* pad, int port, int button); // inferred: button triggered
 extern "C" int fn_800A55AC(void* pad, int port, int button); // inferred: button repeated
 extern "C" int lbl_8087DCCC;

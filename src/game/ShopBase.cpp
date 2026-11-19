@@ -28,7 +28,8 @@ inline ShopLayout_unk* CreateLayout_unk(atn::Task* parent, const char* path) {
     return D2A_TaskInstance32_unk::Create(parent, path);
 }
 extern "C" atn::SoundRef fn_80117228(int id); // inferred: plays a system sound effect
-extern "C" void* lbl_8087EF70;
+struct Pad_unk;
+extern "C" Pad_unk* lbl_8087EF70;
 extern "C" int fn_800A555C(void* pad, int port, int button); // inferred: button triggered
 extern "C" void fn_804A436C(int* cursor, int count, int page, int step, int arg); // inferred: moves a cursor
 extern "C" void fn_804A39EC(ShopD2A_unk* anime, int arg1, int repeat, float frame, float speed);
