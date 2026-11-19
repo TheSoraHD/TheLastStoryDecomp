@@ -1,5 +1,6 @@
 // Controls of the chase mode: caught, held and released by a guard; catching, holding and
 // releasing a character; moving beside and following the leader.
+#include "game/GameConfig_unk.h"
 #include "chr/ControlChaseCaught.h"
 #include "atn/Memory.h"
 #include "game/CharaManager.h"
@@ -9,17 +10,7 @@
 #include "math/VecAssign_unk.h"
 #include "game/GameUI.h"
 
-// inferred: game settings (as in chr/ControlCdnStone.cpp)
-struct Input_unk {
-    int fn_8012476C(int button); // inferred: nonzero while `button` is pressed
-};
-struct Settings_unk {
-    unsigned char m000[0x48C];
-    Input_unk mInput; // 0x48C
-    unsigned char m490[0x520 - 0x490];
-    float m520; // inferred: rate of the damage while held
-};
-extern "C" Settings_unk* lbl_8087F0A8;
+extern "C" GameConfig_unk* lbl_8087F0A8;
 // inferred: event state (lbl_8087F098, as in gmk/LemonBucket.cpp); names invented
 struct ChaseEvent_unk {
     unsigned char m00[0x48];
@@ -159,7 +150,7 @@ int ControlChaseHeld::vf0C() {
     int period = ((GameTask*)lbl_8087F430)->fn_80370174(0xD4) ? 18 : 12;
     if (m10 % period == 0 && mChara->mType != 2) {
         CharaStatus* status = &mChara->mStatus;
-        status->fn_8012DF7C(status->mParamB.m84 * lbl_8087F0A8->m520, 0, 0);
+        status->fn_8012DF7C(status->mParamB.m84 * lbl_8087F0A8->m4DC.m44, 0, 0);
     }
     return 0;
 }

@@ -1,3 +1,4 @@
+#include "atn/EffectManager.h"
 #include "gmk/FallingTower.h"
 #include "atn/Csv.h"
 #include "atn/Memory.h"
@@ -14,17 +15,12 @@ extern "C" float fn_800DC288(const char* s); // inferred: string to float
 extern "C" int fn_800DC12C(const char* s);   // inferred: string to int
 extern "C" int fn_802180A8(const char* s); // inferred: motion id from its name
 
-// inferred: effect manager (class unknown), global instance at 0x8087F3C0
-struct EffectMgr_unk {
-    unsigned char m00[0xB8];
-    int mB8;
-};
 struct Color4f_unk {
     Color4f_unk() {}
     float r, g, b, a;
 };
-extern "C" EffectMgr_unk* lbl_8087F3C0;
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
+extern "C" atn::EffectManager* lbl_8087F3C0;
+extern "C" void fn_8023A8B4(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
 

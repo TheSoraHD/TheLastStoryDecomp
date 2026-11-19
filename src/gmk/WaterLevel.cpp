@@ -1,3 +1,4 @@
+#include "atn/EffectManager.h"
 #include "game/GameConfig_unk.h"
 #include "gmk/WaterLevel.h"
 #include "atn/Csv.h"
@@ -23,17 +24,12 @@ extern "C" void fn_80088724(void* group, const char* name, atn::Vector3* value, 
                             float max, float step);
 extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3, int arg4);
 
-// inferred: effect manager (class unknown), global instance at 0x8087F3C0
-struct EffectMgr_unk {
-    unsigned char m00[0xB8];
-    int mB8;
-};
 struct Color4f_unk {
     Color4f_unk() {}
     float r, g, b, a;
 };
-extern "C" EffectMgr_unk* lbl_8087F3C0;
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
+extern "C" atn::EffectManager* lbl_8087F3C0;
+extern "C" void fn_8023A8B4(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
 extern "C" GameConfig_unk* lbl_8087F0A8;

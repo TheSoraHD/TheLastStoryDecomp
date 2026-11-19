@@ -1,3 +1,4 @@
+#include "game/GameConfig_unk.h"
 #include "game/GameTask.h"
 #include "game/ChaserNpc.h"
 #include "atn/RenderManager.h"
@@ -21,27 +22,7 @@ extern "C" void PSMTXScale(Mtx m, float x, float y, float z);
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 extern "C" int fn_800DC12C(const char* s); // inferred: string to int
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
-// inferred: game settings (parameters of the chased character at 0x53C)
-struct Settings_unk {
-    unsigned char m00[0x53C];
-    int m53C;   // inferred: debug display
-    float m540; // inferred: walk speed
-    float m544; // inferred: minimum run speed
-    float m548; // inferred: maximum run speed
-    float m54C; // inferred: speed change per frame
-    int m550;   // inferred: frames out of sight before walking again
-    float m554; // inferred: distance beyond which the player can be lost
-    float m558; // inferred: distance at which the NPC starts running (player seen)
-    float m55C; // inferred: same, player not seen
-    float m560; // inferred: distance at which the NPC stops at a place
-    float m564; // inferred: distance at which the player catches the NPC
-    int m568;   // inferred: frames before the NPC can be caught again
-    float m56C; // inferred: sight range
-    float m570; // inferred: sight angle
-    float m574; // inferred: slow down per period of m578 frames
-    int m578;
-};
-extern "C" Settings_unk* lbl_8087F0A8;
+extern "C" GameConfig_unk* lbl_8087F0A8;
 extern "C" GameTask* lbl_8087F430;
 extern "C" unsigned short fn_803CD958(U16Table_unk* path, int point); extern "C" void* lbl_8087EE98;
 extern "C" int fn_8004ED34(void* colli, atn::ColliResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
@@ -107,7 +88,7 @@ void ChaserNpc::vf10() {
     if (m55C == 6) {
         if (m14B0 != 0 && m14B0 != 4 && m14D0 == 0 && lbl_8087F8A0->mHead->m560 != 0x69) {
             atn::Vector3 d = lbl_8087F8A0->mHead->mPos - mPos;
-            if (PSVECMag(&d) < lbl_8087F0A8->m564) {
+            if (PSVECMag(&d) < lbl_8087F0A8->m53C.m28) {
                 fn_8018161C(4);
                 return;
             }
@@ -140,7 +121,7 @@ void ChaserNpc::fn_80180AE0() {
     case 1: {
         CharaTask* player = lbl_8087F8A0->mHead;
         atn::Vector3 d = player->mPos - mPos;
-        if (PSVECMag(&d) < lbl_8087F0A8->m564 && m14D0 == 0 && lbl_8087F8A0->mHead->m560 != 0x69) {
+        if (PSVECMag(&d) < lbl_8087F0A8->m53C.m28 && m14D0 == 0 && lbl_8087F8A0->mHead->m560 != 0x69) {
             fn_8018161C(4);
         } else {
             m14C4 = 1.0f;
@@ -155,14 +136,14 @@ void ChaserNpc::fn_80180AE0() {
         fn_801814F0();
         break;
     case 4:
-        m14D0 = lbl_8087F0A8->m568;
+        m14D0 = lbl_8087F0A8->m53C.m2C;
         fn_8018161C(3);
         break;
     case 5:
         m14C8 = 0;
         break;
     }
-    if (lbl_8087F0A8->m53C != 0) {
+    if (lbl_8087F0A8->m53C.m00 != 0) {
         atn::Vector3 screen = atn::RenderManager::instance_->GetScreenPosition(mPos + atn::Vector3(0.0f, 25.0f, 0.0f));
         if (screen.z > 0.0f && screen.z < 1.0f) {
             char text[0x100];
@@ -197,15 +178,15 @@ void ChaserNpc::fn_8018128C() {
     mC58.m11C.m01 = 1;
     atn::Vector3 d = lbl_8087F8A0->mHead->mPos - mPos;
     float dist = PSVECMag(&d);
-    Settings_unk* settings = lbl_8087F0A8;
-    if (dist < settings->m564 && m14D0 == 0 && lbl_8087F8A0->mHead->m560 != 0x69) {
+    GameConfig_unk* settings = lbl_8087F0A8;
+    if (dist < settings->m53C.m28 && m14D0 == 0 && lbl_8087F8A0->mHead->m560 != 0x69) {
         fn_8018161C(4);
         return;
     }
     m14C8++;
-    if (dist > settings->m554 &&
+    if (dist > settings->m53C.m18 &&
         fn_8004ED34(lbl_8087EE98, 0, &mPos, &lbl_8087F8A0->mHead->mPos, 0x80000000, 0, 0) != 0) {
-        if (++m14CC > settings->m550) {
+        if (++m14CC > settings->m53C.m14) {
             fn_8018161C(2);
             return;
         }
@@ -214,17 +195,17 @@ void ChaserNpc::fn_8018128C() {
     }
     m14C4 /= 1.32f;
     if (dist > 100.0f) {
-        m14C4 = MAX(m14C4 - settings->m54C, settings->m544);
+        m14C4 = MAX(m14C4 - settings->m53C.m10, settings->m53C.m08);
     } else if (dist < 60.0f) {
-        m14C4 = MIN(m14C4 + settings->m54C, settings->m548);
+        m14C4 = MIN(m14C4 + settings->m53C.m10, settings->m53C.m0C);
     }
-    float slow = settings->m574 * (float)(m14C8 / settings->m578);
-    float limit = settings->m548 - slow;
+    float slow = settings->m53C.m38 * (float)(m14C8 / settings->m53C.m3C);
+    float limit = settings->m53C.m0C - slow;
     m14C4 = MIN(m14C4, limit);
-    m14C4 = (float)MAX((double)m14C4, settings->m544);
+    m14C4 = (float)MAX((double)m14C4, settings->m53C.m08);
     m14C4 *= 1.32f;
     if (mC58.m0C.m2C != 0) {
-        if (dist > settings->m560) {
+        if (dist > settings->m53C.m24) {
             fn_8018161C(1);
             return;
         }
@@ -234,11 +215,11 @@ void ChaserNpc::fn_8018128C() {
 }
 
 void ChaserNpc::fn_801814F0() {
-    Settings_unk* settings = lbl_8087F0A8;
-    m14C4 = 1.32f * settings->m540;
+    GameConfig_unk* settings = lbl_8087F0A8;
+    m14C4 = 1.32f * settings->m53C.m04;
     atn::Vector3 d = lbl_8087F8A0->mHead->mPos - mPos;
     float dist = PSVECMag(&d);
-    if (dist < settings->m564 && m14D0 == 0 && lbl_8087F8A0->mHead->m560 != 0x69) {
+    if (dist < settings->m53C.m28 && m14D0 == 0 && lbl_8087F8A0->mHead->m560 != 0x69) {
         fn_8018161C(4);
         return;
     }
@@ -246,7 +227,7 @@ void ChaserNpc::fn_801814F0() {
         fn_8018161C(1);
         return;
     }
-    if (dist < (fn_80182134() ? settings->m558 : settings->m55C)) {
+    if (dist < (fn_80182134() ? settings->m53C.m1C : settings->m53C.m20)) {
         fn_8018161C(3);
         return;
     }
@@ -417,8 +398,8 @@ void ChaserNpc::fn_80181D94() {
 bool ChaserNpc::fn_80182134() {
     CharaTask* player = lbl_8087F8A0->mHead;
     float dist = PSVECMag(&(player->mPos - mPos));
-    float angleMax = lbl_8087F0A8->m570;
-    if (dist < lbl_8087F0A8->m56C) {
+    float angleMax = lbl_8087F0A8->m53C.m34;
+    if (dist < lbl_8087F0A8->m53C.m30) {
         atn::Vector3 up(0.0f, 20.0f, 0.0f);
         bool seen = false;
         atn::Vector3 eye = mPos + up;
@@ -432,7 +413,7 @@ bool ChaserNpc::fn_80182134() {
         if (angle < 0.5f * angleMax) {
             atn::ColliResult_unk result;
             seen = fn_8004ED34(lbl_8087EE98, &result, &eye, &target, 0x80000000, 0, 0) == 0;
-            if (lbl_8087F0A8->m53C != 0) {
+            if (lbl_8087F0A8->m53C.m00 != 0) {
                 if (!seen) {
                     lbl_8087EEB0->fn_80063764(eye, result.m04, 0.0f, 0xFFFFFF00);
                     lbl_8087EEB0->fn_80063764(result.m04, target, 0.0f, 0xFF4D4D00);

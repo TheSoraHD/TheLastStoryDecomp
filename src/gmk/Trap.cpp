@@ -1,3 +1,4 @@
+#include "game/GameConfig_unk.h"
 #include "gmk/Trap.h"
 #include "atn/Csv.h"
 #include "atn/Memory.h"
@@ -12,15 +13,7 @@ extern "C" char lbl_8087D710[2]; // inferred: " " (field separators of the tab C
 extern "C" float fn_800DC288(const char* s); // inferred: string to float
 extern "C" int fn_802180A8(const char* s); // inferred: motion id from its name
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
-// inferred: game settings (the pad state is at 0x48C)
-struct Input_unk {
-    int fn_8012476C(int button); // inferred: nonzero while `button` is pressed
-};
-struct Settings_unk {
-    unsigned char m00[0x48C];
-    Input_unk mInput; // 0x48C
-};
-extern "C" Settings_unk* lbl_8087F0A8;
+extern "C" GameConfig_unk* lbl_8087F0A8;
 // inferred: global object (class unknown)
 struct TrapFlag_unk {
     unsigned char m000[0x728];
