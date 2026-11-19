@@ -21,6 +21,7 @@
 #include "gmk/SparkCube.h"
 #include "game/GimmickManager.h"
 #include "game/PlayerTask.h"
+#include "game/PlayerManager.h"
 #include "math/Vec.h"
 #include "std/string.h"
 #include "std/string_members.h"
@@ -149,7 +150,7 @@ struct QColor_unk {
 extern "C" GameConfig_unk* lbl_8087F0A8;
 // inferred: weak copies of small inline helpers of other files, called out of line because vf0C is over
 // the inline budget (names kept)
-extern "C" CharaManager<PlayerTask>* fn_8000D9E8();
+extern "C" PlayerManager* fn_8000D9E8();
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager                  // inferred: player manager
 // inferred: more weak copies of small inline helpers called out of line by vf10 (names kept)
 extern "C" void fn_80339F34(CharaTask* chara, int on);           // inferred: bit 0x2000 of m54C
@@ -157,7 +158,6 @@ extern "C" void fn_80339F5C(atn::Model* model, int track, float speed); // infer
 extern "C" void fn_80339F74(CharaTask* chara, int value);        // inferred: m1454 = value
 extern "C" float fn_8029F3AC(CharaStatus* status);               // inferred: hit point ratio
 extern "C" void fn_80265804(CharaStatus* status, float value);   // inferred: m128 = value
-extern "C" CharaTask* fn_8000DCF4(CharaManager<PlayerTask>* mgr); // inferred: leader
 extern "C" CharaTask* fn_802A36B0(CharaManager<PlayerTask>* mgr); // inferred: first player
 extern "C" CharaTask* fn_802A4094(CharaTask* chara);             // inferred: next player
 extern "C" int fn_80267B28(CharaTask* chara);                    // inferred: returns m560
@@ -360,9 +360,8 @@ int EnemyQuarkStand::vf0C() {
     return 0;
 }
 
-// NONMATCHING: 98.59% - the `camera` flag lives in r29 in the original (ours r30, the map group and the
-// light mode swap with it) and the original repeats the branch on m14B0 before the switch; ~6 forms
-// (bool for the idle test, init of the mode, order of the locals)
+// inferred: the camera mode is declared before the `camera` flag (r30/r29 of the original); the switch is
+// guarded again by m14B0 (the original repeats the branch)
 void EnemyQuarkStand::vf10() {
     if (m1809 != 0) {
         if (mMotion.GetMotionFrame(0) >= 110.0f) {
@@ -391,7 +390,7 @@ void EnemyQuarkStand::vf10() {
     m14B0 = mC58.mC4;
     fn_8035359C();
     if (m14B0 == 0) {
-        CharaTask* leader = fn_8000DCF4(fn_8000D9E8());
+        CharaTask* leader = fn_8000D9E8()->GetHead_unk();
         m14B0 = leader;
         mC58.mC4 = leader;
     }
@@ -431,10 +430,11 @@ void EnemyQuarkStand::vf10() {
     } else {
         fn_80265804(&mStatus, 0.0f);
     }
-    CharaTask* leader = fn_8000DCF4(fn_8000D9E8());
+    CharaTask* leader = fn_8000D9E8()->GetHead_unk();
     if (m1808 == 0 && leader->fn_8013C38C()->y >= 25.0f) {
         m1808 = 1;
     }
+    int mode;
     int camera = 0;
     if (mC58.mC0 == 0 || m14B0 == 0) {
         if (m58C == 13) {
@@ -444,68 +444,69 @@ void EnemyQuarkStand::vf10() {
             fn_80339F74(this, 1);
         }
     } else {
-        switch (m58C) {
-        case 6:
-            fn_80348FF4();
-            break;
-        case 7:
-            fn_803494AC();
-            break;
-        case 8:
-            fn_80349BA0();
-            break;
-        case 9:
-            fn_8034A194();
-            break;
-        case 10:
-            fn_8034A644();
-            break;
-        case 11:
-            fn_8034AE48();
-            camera = 1;
-            break;
-        case 12:
-            fn_8034B8CC();
-            camera = 1;
-            break;
-        case 13:
-            fn_8034DE90();
-            break;
-        case 14:
-            fn_8034E898();
-            break;
-        case 15:
-            fn_8034EA50();
-            break;
-        case 16:
-            fn_8034ECE8();
-            break;
-        case 18:
-            fn_8034C714();
-            camera = 1;
-            break;
-        case 19:
-            fn_8034CF48();
-            camera = 1;
-            break;
-        case 20:
-            fn_8034DA0C();
-            camera = 1;
-            break;
-        default:
-            fn_80348568();
-            fn_80346D8C();
-            camera = 1;
-            break;
+        if (m14B0 != 0) {
+            switch (m58C) {
+            case 6:
+                fn_80348FF4();
+                break;
+            case 7:
+                fn_803494AC();
+                break;
+            case 8:
+                fn_80349BA0();
+                break;
+            case 9:
+                fn_8034A194();
+                break;
+            case 10:
+                fn_8034A644();
+                break;
+            case 11:
+                fn_8034AE48();
+                camera = 1;
+                break;
+            case 12:
+                fn_8034B8CC();
+                camera = 1;
+                break;
+            case 13:
+                fn_8034DE90();
+                break;
+            case 14:
+                fn_8034E898();
+                break;
+            case 15:
+                fn_8034EA50();
+                break;
+            case 16:
+                fn_8034ECE8();
+                break;
+            case 18:
+                fn_8034C714();
+                camera = 1;
+                break;
+            case 19:
+                fn_8034CF48();
+                camera = 1;
+                break;
+            case 20:
+                fn_8034DA0C();
+                camera = 1;
+                break;
+            default:
+                fn_80348568();
+                fn_80346D8C();
+                camera = 1;
+                break;
+            }
         }
         int roam = 1;
         if (m58C - 6U <= 7) {
             roam = 0;
         }
         fn_80339F74(this, roam);
-        int mode;
         MapTask* group = fn_80121F00()->GetCurrentMap();
-        if (mPos.y - fn_8000DCF4(fn_8000D9E8())->fn_8013C38C()->y > 20.0f) {
+        if (mPos.y - fn_8000D9E8()->GetHead_unk()->fn_8013C38C()->y > 20.0f) {
             mode = 3;
         } else {
             mode = 1;
@@ -520,8 +521,8 @@ void EnemyQuarkStand::vf10() {
     fn_803470F0();
     fn_80352C3C(100, camera, 45.0f, 6.2831855f);
     if (m58C == 12 && m14B4 == 1 && m17E4 != 0 && m17EC == 0) {
-        fn_80144710();
-        m17E4->GetModel_unk()->CalcMatrixStack(atn::ModelNodeCallback_unk());
+        m17E4->fn_80144710();
+        m17E4->GetModel_unk()->CalcMatrixStack(atn::ModelNodeCallback_unk(0));
         m17E4->fn_80148B38(10.0f);
     }
     if (m1CC4 != 0) {
