@@ -122,7 +122,12 @@ inline void ResetState_unk(Em202_01_BSpider* self) {
     fn_80239DAC(lbl_8087F3C0, self, 200, 0);
 }
 
-// NONMATCHING: 99.62% - r4/r5 of the target and of the copy of its position in the default case (8 variants)
+// inferred: position of a character by value (name invented); as an inline the copy gets the registers of
+// the original
+static inline atn::Vector3 Pos_unk(CharaTask* c) {
+    return c->mPos;
+}
+
 void Em202_01_BSpider::vf10() {
     mC58.mC8 = (int)mC58.mC4; // inferred: previous target (mC8 is an int in the shared header)
     int state = m58C;
@@ -202,9 +207,9 @@ void Em202_01_BSpider::vf10() {
             }
             break;
         default:
-            CharaTask* target = m14B0;
+            CharaTask*& target = m14B0; // inferred: by reference, the original reloads m14B0
             if (m55C != 6 && target != 0) {
-                float dist = (atn::Vector3(target->mPos) - mPos).Length_unk();
+                float dist = (Pos_unk(target) - mPos).Length_unk();
                 if (m14C8 >= 2) {
                     m14C8 = 0;
                     fn_802721A0();
