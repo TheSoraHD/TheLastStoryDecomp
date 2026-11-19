@@ -878,38 +878,13 @@ struct PPStateVar_unk {
     int mLast;
 };
 
-// inferred: node of the list of MP::Manager2 at 0x99A4 (MSL list); names invented
-struct PPListNode_unk {
-    PPListNode_unk* mPrev;
-    PPListNode_unk* mNext;
-};
 // inferred: MSL list: the storage and the clear live two levels below the list (three null checks of `this` in
 // ~Manager2, as std::vector); names invented
-struct PPListBase_unk {
-    PPListBase_unk() : mCount(0) {
-        mHead.mNext = &mHead;
-        mHead.mPrev = &mHead;
-    }
-    ~PPListBase_unk() { Clear_unk(); }
-    void Clear_unk() { Erase_unk(mHead.mNext, &mHead); }
-    void Erase_unk(PPListNode_unk* first, PPListNode_unk* end) {
-        if (first != end) {
-            PPListNode_unk* last = end->mPrev;
-            first->mPrev->mNext = last->mNext;
-            last->mNext->mPrev = first->mPrev;
-            while (first != end) {
-                PPListNode_unk* node = first;
-                first = first->mNext;
-                delete node;
-                mCount--;
-            }
-        }
-    }
-    int mCount;
-    PPListNode_unk mHead;
-};
-struct PPListImp_unk : public PPListBase_unk {
+struct PPListImp_unk : public std::__list_owned_imp_unk<int> {
     ~PPListImp_unk() {}
+    // inferred: fn_804D6058 builds the end from the sentinel itself (the base of the count is computed again,
+    // 0x804D6088)
+    void Clear_unk() { erase(begin(), iterator(&mTail)); }
 };
 struct PPList_unk : public PPListImp_unk {
     ~PPList_unk() {}
@@ -2363,10 +2338,12 @@ MP::Manager2::~Manager2() {
     fn_8004895C(lbl_8087EE90);
     lbl_8087EFE8->fn_800CE368();
     SetConfig::sInstance->mShowTutorial = 1;
-    while (lbl_8087F628->mThread.mRunning == 0) {
+    // inferred: the thread pointer of the wait is reused for the stop (0x804D20B0)
+    atn::net::NetThread_unk* thread;
+    while ((thread = &lbl_8087F628->mThread)->mRunning == 0) {
         OSSleepTicks((long long)100 * (*(unsigned int*)0x800000F8 / 4 / 1000));
     }
-    lbl_8087F628->mThread.fn_8050CE9C();
+    thread->fn_8050CE9C();
     while (lbl_8087F628->mThread.fn_8050CF14() == 0) {
         OSSleepTicks((long long)100 * (*(unsigned int*)0x800000F8 / 4 / 1000));
     }
