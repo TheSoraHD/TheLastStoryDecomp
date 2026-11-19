@@ -9,70 +9,61 @@ extern "C" wchar_t* wcstok(wchar_t* s, const wchar_t* delim, wchar_t** context);
 extern "C" char* strupr(char* s);
 extern "C" char* itoa(int value, char* buf, int radix);
 
-// inferred: string to int (spaces skipped, optional '-'); 0 if it does not start with a number
-// NONMATCHING: 97.73% - the original starts with a `b` to the next instruction (empty entry block) that no tested form
-// (labels, loops, do/while, inline helpers) reproduces
-extern "C" int fn_800DC12C(const char* s) {
-    if (s == 0) {
-        return 0;
-    }
-    while (*s == ' ') {
-        s++;
-    }
-    int start = 0;
-    if ((unsigned char)(*s - '0') > 9 && *s != '-' && *s != '.') {
-        return 0;
-    }
-    int value = 0;
-    int sign = 1;
-    if (*s == '-') {
-        sign = -1;
-        start = 1;
-    }
-    s += start;
-    while ((unsigned char)(*s - '0') <= 9) {
-        value *= 10;
-        value += *s++ - '0';
-    }
-    return value * sign;
+// inferred: digit test of the parsers (overloads for char and wchar_t, names invented)
+static inline bool IsDigit_unk(char c) {
+    return (unsigned char)(c - '0') <= 9;
+}
+static inline bool IsDigit_unk(wchar_t c) {
+    return (wchar_t)(c + (wchar_t)-L'0') <= 9;
 }
 
-// inferred: wide version of fn_800DC12C (written with an index)
-// NONMATCHING: 90.81% - the original starts with a `b` to the next instruction (empty entry block) that no tested form
-// (labels, loops, do/while, inline helpers) reproduces; the digit loop also
-// reads s[i] through a second pointer register instead of the index
-extern "C" int fn_800DC1DC(const wchar_t* s) {
+// inferred: string to int (spaces skipped, optional '-'); 0 if it does not start with a number.
+// A template: each wrapper below is a `b` to its instance, emitted right after it (0x800DC130, 0x800DC1E0)
+// NONMATCHING: StrToInt_unk<wchar_t> - the digit test of the loop condition reads through a second pointer
+// register (the original indexes s with the byte offset in both reads)
+template <typename T>
+int StrToInt_unk(const T* s) {
     if (s == 0) {
         return 0;
     }
-    while (*s == L' ') {
+    while (*s == (T)' ') {
         s++;
     }
     int i = 0;
-    if ((wchar_t)(*s + (wchar_t)-L'0') > 9 && *s != L'-' && *s != L'.') {
+    if (!IsDigit_unk(*s) && *s != (T)'-' && *s != (T)'.') {
         return 0;
     }
     int value = 0;
     int sign = 1;
-    if (*s == L'-') {
+    if (*s == (T)'-') {
         sign = -1;
         i = 1;
     }
-    while ((wchar_t)(s[i] + (wchar_t)-L'0') <= 9) {
+    while (IsDigit_unk(s[i])) {
         value *= 10;
-        value += s[i] - L'0';
-        i++;
+        value += s[i++] - '0';
     }
     return value * sign;
 }
 
-// inferred: string to float (spaces skipped, optional '-', one '.'); -0 becomes 0
-inline float fn_StrToFloat_unk(const char* s) {
-    while (*s == ' ') {
+extern "C" int fn_800DC12C(const char* s) {
+    return StrToInt_unk(s);
+}
+
+extern "C" int fn_800DC1DC(const wchar_t* s) {
+    return StrToInt_unk(s);
+}
+
+// inferred: string to float (spaces skipped, optional '-', one '.'); -0 becomes 0. A template like StrToInt_unk
+// NONMATCHING: both instances - the body tests '.' again (the original jumps from the loop condition straight
+// to each case), value/scale in swapped FPRs; the wide one also indexes s
+template <typename T>
+float StrToFloat_unk(const T* s) {
+    while (*s == (T)' ') {
         s++;
     }
     int start = 0;
-    if ((unsigned char)(*s - '0') > 9 && *s != '-' && *s != '.') {
+    if (!IsDigit_unk(*s) && *s != (T)'-' && *s != (T)'.') {
         return 0.0f;
     }
     double scale;
@@ -81,13 +72,13 @@ inline float fn_StrToFloat_unk(const char* s) {
     sign = 1.0;
     scale = 1.0;
     bool fraction = false;
-    if (*s == '-') {
+    if (*s == (T)'-') {
         sign = -1.0;
         start = 1;
     }
     s += start;
-    while ((unsigned char)(*s - '0') <= 9 || *s == '.') {
-        if (*s == '.') {
+    while (IsDigit_unk(*s) || *s == (T)'.') {
+        if (*s == (T)'.') {
             fraction = true;
             s++;
         } else if (!fraction) {
@@ -105,57 +96,16 @@ inline float fn_StrToFloat_unk(const char* s) {
     return result;
 }
 
-// NONMATCHING: 94.56% - the original starts with a `b` to the next instruction (empty entry block) that no tested form
-// (labels, loops, do/while, inline helpers) reproduces; the body tests '.' again
-// (the original jumps from the loop condition straight to each case) and the doubles of
-// lbl_80734870 are one 0x30 object in symbols.txt
 extern "C" float fn_800DC288(const char* s) {
-    return fn_StrToFloat_unk(s);
+    return StrToFloat_unk(s);
 }
 
 extern "C" wchar_t* fn_800DC3C8(wchar_t* s, const wchar_t* delim, wchar_t** context) {
     return wcstok(s, delim, context);
 }
 
-// NONMATCHING: 94.87% - same differences as fn_800DC288
-// inferred: wide version of fn_800DC288 (written with an index; the digit test is computed as
-// c + (wchar_t)-'0', addis + subi in the original)
 extern "C" float fn_800DC3CC(const wchar_t* s) {
-    while (*s == L' ') {
-        s++;
-    }
-    int start = 0;
-    if ((wchar_t)(*s + (wchar_t)-L'0') > 9 && *s != L'-' && *s != L'.') {
-        return 0.0f;
-    }
-    double scale;
-    double sign;
-    double value = 0.0;
-    sign = 1.0;
-    scale = 1.0;
-    bool fraction = false;
-    if (*s == L'-') {
-        sign = -1.0;
-        start = 1;
-    }
-    int i = start;
-    while ((wchar_t)(s[i] + (wchar_t)-L'0') <= 9 || s[i] == L'.') {
-        if (s[i] == L'.') {
-            fraction = true;
-            i++;
-        } else if (!fraction) {
-            value *= 10.0;
-            value += (float)(s[i++] - L'0');
-        } else {
-            scale *= 0.1f;
-            value += scale * (float)(s[i++] - L'0');
-        }
-    }
-    float result = value * sign;
-    if (-0.0f == result) {
-        result = 0.0f;
-    }
-    return result;
+    return StrToFloat_unk(s);
 }
 
 // inferred: CRC-32 (MSB first, polynomial 0x04C11DB7)
