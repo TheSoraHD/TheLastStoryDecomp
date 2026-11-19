@@ -4555,7 +4555,6 @@ void GameTask::fn_80373164(CharaTask* owner, const atn::Vector3* pos, int id) {
     }
 }
 
-extern "C" ArenaTask* lbl_8087EE78;
 
 // NONMATCHING: 93.4% - scheduling of the second copy of the colour matrix (the constants of the camera blend are
 // loaded earlier in the original) and registers of the frames of the finish camera
@@ -4618,8 +4617,8 @@ void GameTask::fn_803731E8() {
         GameBgm::sInstance->fn_8037D49C(0.2f * volume, 10);
     }
     m55A8 = fn_800C31F4(sFieldSounds_unk[1], 0, -1, 1.0f);
-    if (lbl_8087EE78 != 0) {
-        lbl_8087EE78->fn_80043D58(2);
+    if (ArenaTask::sInstance != 0) {
+        ArenaTask::sInstance->fn_80043D58(2);
     }
     lbl_8087EFA8->m240.mEnabled = 1;
     ColorMatrixParam_unk cm(*lbl_8087EFA8->GetColorMatrix_unk());
@@ -4798,8 +4797,8 @@ void GameTask::fn_80373AE8() {
         fn_802328DC(60);
         lbl_8087F9E8->fn_8059D178();
         fn_802328DC(0);
-        if (lbl_8087EE78 != 0) {
-            lbl_8087EE78->fn_80043D58(3);
+        if (ArenaTask::sInstance != 0) {
+            ArenaTask::sInstance->fn_80043D58(3);
         }
         lbl_8087F3C0->mPaused = 0;
         lbl_8087F3C0->fn_800D246C(1);

@@ -3133,7 +3133,6 @@ void BattleTask::fn_800FDE60(CharaTask* attacker, CharaTask* chara, const atn::V
 
 
 extern "C" double cos(double x);
-extern "C" ArenaTask* lbl_8087EE78; // inferred: the arena (ArenaTask's sInstance)
 extern "C" int fn_80444020(Inventory* party, int item, int a, int b, int c, int d, int* outA, int* outB,
                            int* outC); // inferred: adds an item (as in game/BattleResult.cpp)
 extern "C" int fn_8021E48C(int item, int arg); // inferred: count of the item given at once
@@ -3670,8 +3669,8 @@ int BattleTask::fn_800FDF14(BattleCalcParam_unk* p) {
             }
         }
     }
-    if (lbl_8087EE78 != 0 && (p->m80 >> 31)) {
-        lbl_8087EE78->fn_80043BF4(1, attacker, target);
+    if (ArenaTask::sInstance != 0 && (p->m80 >> 31)) {
+        ArenaTask::sInstance->fn_80043BF4(1, attacker, target);
     }
     if (attacker != 0 && attacker->mType == 0) {
         if (p->m80 >> 31) {
