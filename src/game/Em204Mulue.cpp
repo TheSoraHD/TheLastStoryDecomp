@@ -16,6 +16,7 @@
 #include "math/VecAssign_unk.h"
 #include "game/DamageResult_unk.h"
 #include "game/GameSceneFind_unk.h"
+#include "atn/EffectManager.h"
 
 extern "C" unsigned long strlen(const char* s);
 extern "C" int strcmp(const char* a, const char* b);
@@ -43,20 +44,15 @@ struct MulueMsgTable_unk {
 extern "C" MulueMsgTable_unk* lbl_8087F1E4;
 // inferred: effect manager (class unknown), global instance at 0x8087F3C0 (two flags at 0xC4/0xC8 are
 // set around the spin effect, as in game/Em209SmallGolem.cpp)
-struct EffectMgr_unk {
-    unsigned char m00[0xC4];
-    int mC4;
-    int mC8;
-};
-extern "C" EffectMgr_unk* lbl_8087F3C0;
+extern "C" atn::EffectManager* lbl_8087F3C0;
 struct Color4f_unk {
     Color4f_unk() {}
     float r, g, b, a;
 };
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
+extern "C" void fn_8023A8B4(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
-extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
+extern "C" void fn_80239DAC(atn::EffectManager* mgr, void* owner, int id, int arg); // inferred: stops an effect
 extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the next effects
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
@@ -1372,8 +1368,8 @@ void Em204Mulue::fn_802AB5E8() {
     m560 = 4;
     PlayMotion_unk(0x140, 1, 1.0f);
     if (m1648 > 0) {
-        lbl_8087F3C0->mC4 = 1;
-        lbl_8087F3C0->mC8 = 1;
+        lbl_8087F3C0->mSystem.m78 = 1;
+        lbl_8087F3C0->mSystem.m7C = 1;
         fn_80232B7C(this, 0x66);
         {
             Color4f_unk color;
@@ -1389,11 +1385,11 @@ void Em204Mulue::fn_802AB5E8() {
             color.g = 1.0f;
             color.b = 1.0f;
             color.a = 1.0f;
-            EffectMgr_unk* mgr = lbl_8087F3C0;
+            atn::EffectManager* mgr = lbl_8087F3C0;
             fn_8023A8B4(mgr, &m1514, &mMotion, 0, pos, rot, color, -1, -1, 1, 1.0f);
         }
-        lbl_8087F3C0->mC4 = 0;
-        lbl_8087F3C0->mC8 = 0;
+        lbl_8087F3C0->mSystem.m78 = 0;
+        lbl_8087F3C0->mSystem.m7C = 0;
         ClearPartsFlag_unk();
         ShowMessage_unk(0xEB);
     }
@@ -1406,8 +1402,8 @@ void Em204Mulue::fn_802AB794(int arg) {
     m560 = 4;
     PlayMotion_unk(0x140, 1, 1.0f);
     if (m1648 > 0) {
-        lbl_8087F3C0->mC4 = 1;
-        lbl_8087F3C0->mC8 = 1;
+        lbl_8087F3C0->mSystem.m78 = 1;
+        lbl_8087F3C0->mSystem.m7C = 1;
         fn_80232B7C(this, 0x66);
         {
             Color4f_unk color;
@@ -1423,11 +1419,11 @@ void Em204Mulue::fn_802AB794(int arg) {
             color.g = 1.0f;
             color.b = 1.0f;
             color.a = 1.0f;
-            EffectMgr_unk* mgr = lbl_8087F3C0;
+            atn::EffectManager* mgr = lbl_8087F3C0;
             fn_8023A8B4(mgr, &m1514, &mMotion, 0, pos, rot, color, -1, -1, 1, 1.0f);
         }
-        lbl_8087F3C0->mC4 = 0;
-        lbl_8087F3C0->mC8 = 0;
+        lbl_8087F3C0->mSystem.m78 = 0;
+        lbl_8087F3C0->mSystem.m7C = 0;
         ClearPartsFlag_unk();
         ShowMessage_unk(0xEB);
     }

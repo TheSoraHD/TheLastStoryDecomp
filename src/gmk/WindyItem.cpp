@@ -10,6 +10,7 @@
 #include "game/GameUI.h"
 #include "game/Inventory.h"
 #include "game/PopupTask.h"
+#include "atn/EffectManager.h"
 
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" int atoi(const char* s);
@@ -35,23 +36,18 @@ extern "C" void* lbl_8087EE98;                     // inferred: collision world
 extern "C" int fn_8004ECC0(void* world, atn::Vector3* hit, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg); // inferred: ray test
 
-// inferred: effect manager (class unknown), global instance at 0x8087F3C0
-struct WindyEffectMgr_unk {
-    unsigned char m00[0xB8];
-    int mB8;
-};
 struct WindyColor_unk {
     WindyColor_unk(float r_, float g_, float b_, float a_) : r(r_), g(g_), b(b_), a(a_) {}
     float r, g, b, a;
 };
-extern "C" WindyEffectMgr_unk* lbl_8087F3C0;
-extern "C" void fn_8023A8B4(WindyEffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
+extern "C" atn::EffectManager* lbl_8087F3C0;
+extern "C" void fn_8023A8B4(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
                             const atn::Vector3& pos, const atn::Vector3& rot, const WindyColor_unk& color,
                             int arg7, int arg8, int arg9, float scale);
-extern "C" void fn_80239DAC(WindyEffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
+extern "C" void fn_80239DAC(atn::EffectManager* mgr, void* owner, int id, int arg); // inferred: stops an effect
 extern "C" void fn_80232B7C(void* owner, int arg);
-extern "C" int fn_80239D58(WindyEffectMgr_unk* mgr, void* owner, int id); // inferred: the effect is playing
-extern "C" void fn_8023A680(WindyEffectMgr_unk* mgr, atn::EffFile* res, int arg2, int arg3, atn::Model* model,
+extern "C" int fn_80239D58(atn::EffectManager* mgr, void* owner, int id); // inferred: the effect is playing
+extern "C" void fn_8023A680(atn::EffectManager* mgr, atn::EffFile* res, int arg2, int arg3, atn::Model* model,
                             const atn::Vector3* pos, const atn::Vector3* rot, int arg7, int arg8, int arg9,
                             int arg10, float scale);
 extern "C" void fn_800CB688(atn::SoundRef* sound, int arg, float pitch); // inferred: sets the pitch

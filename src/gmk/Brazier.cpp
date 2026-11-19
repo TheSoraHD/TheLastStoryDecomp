@@ -11,6 +11,7 @@
 #include "gmk/Lemon.h"
 #include "atn/DrawHelper.h"
 #include "game/GameTask.h"
+#include "atn/EffectManager.h"
 
 extern "C" void* memset(void* dst, int c, unsigned long n);
 extern "C" int strcmp(const char* a, const char* b);
@@ -22,20 +23,15 @@ extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared len
 extern "C" int fn_802180A8(const char* s); // inferred: motion id from its name
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 
-// inferred: effect manager (class unknown), global instance at 0x8087F3C0
-struct BrazierEffectMgr_unk {
-    unsigned char m00[0xB8];
-    int mB8;
-};
 struct Color4f_unk {
     Color4f_unk() {}
     float r, g, b, a;
 };
-extern "C" BrazierEffectMgr_unk* lbl_8087F3C0;
-extern "C" void fn_8023A8B4(BrazierEffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
+extern "C" atn::EffectManager* lbl_8087F3C0;
+extern "C" void fn_8023A8B4(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
-extern "C" void fn_80239DAC(BrazierEffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
+extern "C" void fn_80239DAC(atn::EffectManager* mgr, void* owner, int id, int arg); // inferred: stops an effect
 extern "C" void fn_80232B7C(void* owner, int arg);
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
 extern "C" void fn_800CB5C8(atn::SoundRef* sound, int frames, int arg); // inferred: stops the sound
@@ -108,7 +104,7 @@ inline void NotifyListeners_unk(CharaListeners_unk* listeners, int id, void* cha
 static const char* const sSe[] = {"SE_DGCOM_004", "SE_DGCOM_005"};
 
 // inferred: plays an effect at the model (name invented)
-inline void PlayEfp_unk(BrazierEffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model) {
+inline void PlayEfp_unk(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Model* model) {
     atn::Vector3 pos;
     atn::Vector3 rot;
     Color4f_unk color;
@@ -350,11 +346,11 @@ int Brazier::vf40(GimmickMsg_unk* msg) {
         mModelCrush.mTracks[0].m08 = 0.0f;
         mColli.SetMtx_unk(*(atn::Matrix3x4*)mModel.mMtx.m);
         mColli.mFlags |= 1;
-        lbl_8087F3C0->mB8 = 1;
+        lbl_8087F3C0->mSystem.mLayer = 1;
         fn_80239DAC(lbl_8087F3C0, this, 1, 0);
         fn_80232B7C(this, 1);
         PlayEfp_unk(lbl_8087F3C0, &mEfp, &mModel);
-        lbl_8087F3C0->mB8 = 0;
+        lbl_8087F3C0->mSystem.mLayer = 0;
         break;
     }
     case 3:

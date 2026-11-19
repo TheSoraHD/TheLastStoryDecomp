@@ -11,6 +11,7 @@
 #include "std/string.h"
 #include "std/string_members.h"
 #include "game/MapTask.h"
+#include "atn/EffectManager.h"
 
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" int strncmp(const char* a, const char* b, unsigned long n);
@@ -20,16 +21,8 @@ extern "C" unsigned int fn_800DC6B4(const char* s); // inferred: string hash
 extern "C" unsigned int fn_800DC12C(const char* s); // inferred: string to flags
 extern "C" const char* fn_80218218(int motion);     // inferred: motion name
 
-// inferred: effect manager (names invented)
-struct EffectMgr_unk {
-    unsigned char m00[0xB8];
-    int mB8;
-    unsigned char mBC[0xC4 - 0xBC];
-    int mC4;
-    int mC8;
-};
-extern "C" EffectMgr_unk* lbl_8087F3C0;
-extern "C" void fn_8023A680(EffectMgr_unk* mgr, atn::EffFile* res, int arg2, int arg3, const void* model,
+extern "C" atn::EffectManager* lbl_8087F3C0;
+extern "C" void fn_8023A680(atn::EffectManager* mgr, atn::EffFile* res, int arg2, int arg3, const void* model,
                             const atn::Vector3* pos, const atn::Vector3* rot, int arg7, int arg8, int arg9,
                             int arg10, float scale);
 // inferred: color of the effect (four floats)
@@ -37,10 +30,10 @@ struct Color4f_unk {
     Color4f_unk(float r_, float g_, float b_, float a_) : r(r_), g(g_), b(b_), a(a_) {}
     float r, g, b, a;
 };
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, const void* model, int arg3,
+extern "C" void fn_8023A8B4(atn::EffectManager* mgr, atn::EfpFile* efp, const void* model, int arg3,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
-extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
+extern "C" void fn_80239DAC(atn::EffectManager* mgr, void* owner, int id, int arg); // inferred: stops an effect
 extern "C" void fn_80232B7C(void* owner, int arg);
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
 extern "C" void fn_800CB5C8(atn::SoundRef* sound, int frames, int arg); // inferred: stops the sound
@@ -363,13 +356,13 @@ int MotionCommand_unk::fn_8012133C(atn::MotionCommandData* data, int* found) {
                 break;
             }
             if (entry.mType == 3) {
-                lbl_8087F3C0->mB8 = 2;
+                lbl_8087F3C0->mSystem.mLayer = 2;
             }
             if ((entry.mFlags & 1) == 1) {
-                lbl_8087F3C0->mC4 = 1;
+                lbl_8087F3C0->mSystem.m78 = 1;
             } else if ((entry.mFlags & 2) == 2) {
-                lbl_8087F3C0->mC4 = 1;
-                lbl_8087F3C0->mC8 = 1;
+                lbl_8087F3C0->mSystem.m78 = 1;
+                lbl_8087F3C0->mSystem.m7C = 1;
             }
             fn_80232B7C(&data->mEfps[entry.mIndex], m04);
             if (entry.mUseNode != 0) {
@@ -396,13 +389,13 @@ int MotionCommand_unk::fn_8012133C(atn::MotionCommandData* data, int* found) {
                             Color4f_unk(1.0f, 1.0f, 1.0f, 1.0f), -1, -1, 1, entry.mScale);
             }
             if ((entry.mFlags & 1) == 1) {
-                lbl_8087F3C0->mC4 = 0;
+                lbl_8087F3C0->mSystem.m78 = 0;
             } else if ((entry.mFlags & 2) == 2) {
-                lbl_8087F3C0->mC4 = 0;
-                lbl_8087F3C0->mC8 = 0;
+                lbl_8087F3C0->mSystem.m78 = 0;
+                lbl_8087F3C0->mSystem.m7C = 0;
             }
             if (entry.mType == 3) {
-                lbl_8087F3C0->mB8 = 0;
+                lbl_8087F3C0->mSystem.mLayer = 0;
                 m24 = &data->mEfps[entry.mIndex];
             }
             ran = 1;

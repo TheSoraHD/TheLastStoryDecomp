@@ -22,6 +22,7 @@
 #include "atn/DrawHelper.h"
 #include "macros.h"
 #include "atn/D2A_TaskInstanceC.h"
+#include "atn/EffectManager.h"
 
 extern "C" GameTask* lbl_8087F430; // inferred: the field
 
@@ -66,23 +67,17 @@ struct NewCampMapCamp_unk {
     unsigned char m11F4[0x1350 - 0x11F4];
     int m1350; // inferred: all the routes are shown (debug)
 };
-// inferred: effect manager (class unknown), global instance at 0x8087F3C0
-struct EffectMgr_unk {
-    unsigned char m00[0xB8];
-    int mB8;
-    int mBC;
-};
 struct Color4f_unk {
     Color4f_unk() {}
     Color4f_unk(float r_, float g_, float b_, float a_) : r(r_), g(g_), b(b_), a(a_) {}
     float r, g, b, a;
 };
-extern "C" EffectMgr_unk* lbl_8087F3C0;
-extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
+extern "C" atn::EffectManager* lbl_8087F3C0;
+extern "C" void fn_80239DAC(atn::EffectManager* mgr, void* owner, int id, int arg); // inferred: stops an effect
+extern "C" void fn_8023A8B4(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
-extern "C" void fn_8023A680(EffectMgr_unk* mgr, atn::EffFile* res, int arg2, int arg3, atn::Model* model,
+extern "C" void fn_8023A680(atn::EffectManager* mgr, atn::EffFile* res, int arg2, int arg3, atn::Model* model,
                             const atn::Vector3* pos, const atn::Vector3* rot, int arg7, int arg8, int arg9,
                             int arg10, float scale);
 extern "C" void fn_80232B7C(void* owner, int arg);
@@ -1565,8 +1560,8 @@ void NewCampPartsMapSelect::fn_80521A00(int dir) {
         if (sRouteEffects[i].mMin <= chapter && sRouteEffects[i].mMax > chapter && m19A8 == sRouteEffects[i].mArea) {
             MapSelectPoint_unk* point = FindPoint_unk(500 + i);
             if (point != 0 && point->m18 != 0) {
-                lbl_8087F3C0->mBC = 1;
-                lbl_8087F3C0->mB8 = 6;
+                lbl_8087F3C0->mSystem.m70 = 1;
+                lbl_8087F3C0->mSystem.mLayer = 6;
                 fn_80232B7C(this, 1);
                 atn::Vector3 rot = m4828[i];
                 atn::Vector3 pos = GetModel_unk(point->m18->mModel)->mMtx.GetTrans_unk();
@@ -1577,8 +1572,8 @@ void NewCampPartsMapSelect::fn_80521A00(int dir) {
                     RotAssign_unk(rot, atn::Vector3(0.0f, 3.1415927f, 0.0f));
                     PlayEfp_unk(&m47E8, pos, rot);
                 }
-                lbl_8087F3C0->mB8 = 0;
-                lbl_8087F3C0->mBC = 0;
+                lbl_8087F3C0->mSystem.mLayer = 0;
+                lbl_8087F3C0->mSystem.m70 = 0;
             }
         }
     }

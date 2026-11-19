@@ -12,6 +12,7 @@
 #include "atn/DrawHelper.h"
 #include "atn/Lerp_unk.h"
 #include "game/GameTask.h"
+#include "atn/EffectManager.h"
 
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
@@ -27,23 +28,16 @@ extern "C" chr::CharaData_unk* fn_8020A81C(const char* name);
 extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3, int arg4);
 extern "C" void fn_80088FAC(void* group, const char* name, float* color, int arg3, int arg4, float min, float max,
                             float step);
-// inferred: effect manager (as in game/CharaTask.cpp); mB8 is 2 while an effect of vf98 starts
-struct EffectMgr_unk {
-    unsigned char m00[0xB8];
-    int mB8;
-    unsigned char mBC[0xC4 - 0xBC];
-    int mC4; // inferred: set to 1 while the effect of the death sequence starts (vfEC)
-};
-extern "C" EffectMgr_unk* lbl_8087F3C0;
+extern "C" atn::EffectManager* lbl_8087F3C0;
 extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the next effects
-extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int a, int b); // inferred: stops the effects
+extern "C" void fn_80239DAC(atn::EffectManager* mgr, void* owner, int a, int b); // inferred: stops the effects
 // inferred: color as four floats (as in game/CharaTask.cpp)
 struct Color4f_unk {
     Color4f_unk() {}
     Color4f_unk(float r_, float g_, float b_, float a_) : r(r_), g(g_), b(b_), a(a_) {}
     float r, g, b, a;
 };
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
+extern "C" void fn_8023A8B4(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
 
@@ -486,7 +480,7 @@ void Em209SmallGolem::vf40(HitInfo_unk* hit) {
 }
 
 // inferred: effect `efp` on the model at its origin (as in Em202ForestSpider)
-inline void EffOrigin_unk(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model) {
+inline void EffOrigin_unk(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Model* model) {
     atn::Vector3 pos;
     atn::Vector3 rot;
     Color4f_unk color;
@@ -511,15 +505,15 @@ void Em209SmallGolem::vf98() {
     }
     if (m121C) {
         fn_80232B7C(m121C.get(), 0);
-        lbl_8087F3C0->mB8 = 2;
+        lbl_8087F3C0->mSystem.mLayer = 2;
         EffOrigin_unk(lbl_8087F3C0, m121C.get(), &mMotion);
-        lbl_8087F3C0->mB8 = 0;
+        lbl_8087F3C0->mSystem.mLayer = 0;
     }
     if (m648 != 0) {
         fn_80232B7C(&m1534, 0);
-        lbl_8087F3C0->mB8 = 2;
+        lbl_8087F3C0->mSystem.mLayer = 2;
         EffOrigin_unk(lbl_8087F3C0, &m1534, (atn::Model*)m648->m010);
-        lbl_8087F3C0->mB8 = 0;
+        lbl_8087F3C0->mSystem.mLayer = 0;
     }
     mFlag18 = 1;
 }
@@ -705,7 +699,7 @@ void Em209SmallGolem::fn_802CF728() {
 
 // inferred: plays the effect of the death sequence (locals in ascending order as in an inline; name invented)
 inline void PlayDeathEffect_unk(atn::EfpFile* efp, atn::Model* model, int flag) {
-    lbl_8087F3C0->mC4 = flag;
+    lbl_8087F3C0->mSystem.m78 = flag;
     atn::Vector3 pos;
     atn::Vector3 rot;
     Color4f_unk color;
@@ -720,7 +714,7 @@ inline void PlayDeathEffect_unk(atn::EfpFile* efp, atn::Model* model, int flag) 
     color.b = 1.0f;
     color.a = 1.0f;
     fn_8023A8B4(lbl_8087F3C0, efp, model, 0, pos, rot, color, -1, -1, flag, 1.0f);
-    lbl_8087F3C0->mC4 = 0;
+    lbl_8087F3C0->mSystem.m78 = 0;
 }
 
 void Em209SmallGolem::vfEC() {

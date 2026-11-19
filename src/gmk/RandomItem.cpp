@@ -12,6 +12,7 @@
 #include "game/Inventory.h"
 #include "game/PopupTask.h"
 #include "game/GameSceneFind_unk.h"
+#include "atn/EffectManager.h"
 
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" int atoi(const char* s);
@@ -23,20 +24,15 @@ extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 extern "C" GameTask* lbl_8087F430;
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 extern "C" int rand();
-// inferred: effect manager (class unknown), global instance at 0x8087F3C0
-struct RandomItemEffectMgr_unk {
-    unsigned char m00[0xB8];
-    int mB8;
-};
 struct RandomItemColor_unk {
     RandomItemColor_unk(float r_, float g_, float b_, float a_) : r(r_), g(g_), b(b_), a(a_) {}
     float r, g, b, a;
 };
-extern "C" RandomItemEffectMgr_unk* lbl_8087F3C0;
-extern "C" void fn_8023A8B4(RandomItemEffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
+extern "C" atn::EffectManager* lbl_8087F3C0;
+extern "C" void fn_8023A8B4(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
                             const atn::Vector3& pos, const atn::Vector3& rot, const RandomItemColor_unk& color,
                             int arg7, int arg8, int arg9, float scale);
-extern "C" void fn_80239DAC(RandomItemEffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
+extern "C" void fn_80239DAC(atn::EffectManager* mgr, void* owner, int id, int arg); // inferred: stops an effect
 extern "C" void fn_80232B7C(void* owner, int arg);
 extern "C" int fn_80435908(gmk::RandomItem* item); // inferred: places the item at a random point
 struct RandomTable_unk;
@@ -527,11 +523,11 @@ void RandomItem::fn_80435684(int state) {
             m168 = 1;
             m14C = m144->m824;
             if (lbl_8087F3C0 != 0) {
-                lbl_8087F3C0->mB8 = 1;
+                lbl_8087F3C0->mSystem.mLayer = 1;
                 fn_80232B7C(this, 0);
                 fn_8023A8B4(lbl_8087F3C0, &mEfp, 0, 0, m154, lbl_807C7030,
                             RandomItemColor_unk(1.0f, 1.0f, 1.0f, 1.0f), -1, -1, 1, 1.0f);
-                lbl_8087F3C0->mB8 = 0;
+                lbl_8087F3C0->mSystem.mLayer = 0;
             }
         }
         break;
@@ -541,11 +537,11 @@ void RandomItem::fn_80435684(int state) {
         m168 = 1;
         if (lbl_8087F3C0 != 0) {
             fn_80239DAC(lbl_8087F3C0, this, 0, 0);
-            lbl_8087F3C0->mB8 = 1;
+            lbl_8087F3C0->mSystem.mLayer = 1;
             fn_80232B7C(this, 0);
             fn_8023A8B4(lbl_8087F3C0, &mEfpItem, 0, 0, m154, lbl_807C7030,
                         RandomItemColor_unk(1.0f, 1.0f, 1.0f, 1.0f), -1, -1, 1, 1.0f);
-            lbl_8087F3C0->mB8 = 0;
+            lbl_8087F3C0->mSystem.mLayer = 0;
         }
         break;
     case 4:

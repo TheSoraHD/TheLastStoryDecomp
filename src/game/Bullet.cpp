@@ -23,6 +23,7 @@
 #include "game/NpcTask.h"
 #include "game/GameVoice.h"
 #include "atn/FixedArray.h"
+#include "atn/EffectManager.h"
 
 extern "C" GameConfig_unk* lbl_8087F0A8;
 
@@ -36,16 +37,11 @@ Bullet::~Bullet() {}
 
 extern "C" GameTask* lbl_8087F430;
 
-// inferred: effect manager (lbl_8087F3C0); mB8 selects the effect group of the next effects
-struct BulletEffectMgr_unk {
-    unsigned char m00[0xB8];
-    int mB8;
-};
-extern "C" BulletEffectMgr_unk* lbl_8087F3C0;
+extern "C" atn::EffectManager* lbl_8087F3C0;
 extern "C" void fn_80232B7C(void* owner, int arg); // inferred: sets the owner of the next effects
-extern "C" void fn_8023A680(BulletEffectMgr_unk* mgr, int id, int a, int b, atn::Matrix3x4* mtx, int c, int d,
+extern "C" void fn_8023A680(atn::EffectManager* mgr, int id, int a, int b, atn::Matrix3x4* mtx, int c, int d,
                             int e, int f, int g, int h, float scale); // inferred: plays an effect on `mtx`
-extern "C" void fn_80239DAC(BulletEffectMgr_unk* mgr, void* owner, int group, int arg); // inferred: stops effects
+extern "C" void fn_80239DAC(atn::EffectManager* mgr, void* owner, int group, int arg); // inferred: stops effects
 
 extern "C" RenderSetting_unk* lbl_8087EFA8;
 
@@ -154,12 +150,12 @@ void Bullet::fn_8010F018(const BulletShot_unk* shot, const atn::Vector3* pos, co
     m78 = 0.0f;
     m9C = 0;
     fn_8010F4BC();
-    lbl_8087F3C0->mB8 = 3;
+    lbl_8087F3C0->mSystem.mLayer = 3;
     if (shot->m04 != 0) {
         fn_80232B7C(this, 0);
         fn_8023A680(lbl_8087F3C0, shot->m04, -1, 5, &m2C, 0, 0, 0, 0, -1, 1, 1.0f);
     }
-    lbl_8087F3C0->mB8 = 0;
+    lbl_8087F3C0->mSystem.mLayer = 0;
     if (count < 0) {
         m7C = lbl_8087F048->fn_800F8548();
     } else {
@@ -185,12 +181,12 @@ void Bullet::fn_8010F018(const BulletShot_unk* shot, const atn::Vector3* pos, co
 
 // inferred: `shot` is const (the original loads shot->m04 before saving r31)
 void Bullet::fn_8010F26C(const BulletShot_unk* shot) {
-    lbl_8087F3C0->mB8 = 3;
+    lbl_8087F3C0->mSystem.mLayer = 3;
     if (shot->m04 != 0) {
         fn_80232B7C(this, 0);
         fn_8023A680(lbl_8087F3C0, shot->m04, -1, 5, &m2C, 0, 0, 0, 0, -1, 1, 1.0f);
     }
-    lbl_8087F3C0->mB8 = 0;
+    lbl_8087F3C0->mSystem.mLayer = 0;
 }
 
 // inferred: removes the bullet (`record`: add a replay event)
@@ -206,13 +202,13 @@ void Bullet::vf0C(int record, int b) {
 }
 
 void Bullet::fn_8010F41C() {
-    lbl_8087F3C0->mB8 = 3;
+    lbl_8087F3C0->mSystem.mLayer = 3;
     int keep = (m04 >> 6) & 1;
     fn_80239DAC(lbl_8087F3C0, this, 0, keep);
     fn_80239DAC(lbl_8087F3C0, this, 10, keep);
     fn_80239DAC(lbl_8087F3C0, this, 1, 1);
     fn_80239DAC(lbl_8087F3C0, this, 11, 1);
-    lbl_8087F3C0->mB8 = 0;
+    lbl_8087F3C0->mSystem.mLayer = 0;
 }
 
 // NONMATCHING: 97.1% - over the inline budget as the original (empty asserts in Translate_unk), with the flag
@@ -551,9 +547,9 @@ void Bullet::vf20(CharaTask* chara, const atn::Vector3* pos, atn::Vector3* dir) 
     lbl_8087F048->fn_800F8574(chara, m68, pos, dir, 0, 0, 0, 0.0f, 1.0f);
 }
 
-extern "C" void fn_8023A108(BulletEffectMgr_unk* mgr, void* owner, int group, int flags); // inferred: effect flags on
-extern "C" void fn_8023A02C(BulletEffectMgr_unk* mgr, void* owner, int group, int flags); // inferred: effect flags off
-extern "C" void fn_8023A098(BulletEffectMgr_unk* mgr, void* owner, int group, int flags);
+extern "C" void fn_8023A108(atn::EffectManager* mgr, void* owner, int group, int flags); // inferred: effect flags on
+extern "C" void fn_8023A02C(atn::EffectManager* mgr, void* owner, int group, int flags); // inferred: effect flags off
+extern "C" void fn_8023A098(atn::EffectManager* mgr, void* owner, int group, int flags);
 // inferred: damage of a bullet hit (mgr, attacker, chara, hit, data, id, pos, dir, effect, rate); returns the
 // kind of the hit effect
 extern "C" int fn_800FDB20(BattleTask* mgr, CharaTask* attacker, CharaTask* chara, int hit, HitInfo_unk* data, int id,
@@ -649,12 +645,12 @@ void Bullet::fn_80110858(atn::ColliResult_unk* res) {
                 m80 = 1.0f;
                 m78 = m68->m44 - 15.0f * (30.0f * m80);
                 fn_8010F4BC();
-                lbl_8087F3C0->mB8 = 3;
+                lbl_8087F3C0->mSystem.mLayer = 3;
                 fn_8023A108(lbl_8087F3C0, this, 0, 1);
                 fn_8023A108(lbl_8087F3C0, this, 10, 1);
                 fn_8023A02C(lbl_8087F3C0, this, 0, 2);
                 fn_8023A02C(lbl_8087F3C0, this, 10, 2);
-                lbl_8087F3C0->mB8 = 0;
+                lbl_8087F3C0->mSystem.mLayer = 0;
                 return;
             }
             atn::Vector3 normal = res->m28 * PSVECDotProduct(&res->m28, &m20);
@@ -690,10 +686,10 @@ void Bullet::fn_80110858(atn::ColliResult_unk* res) {
         m80 = PSVECMag(&m20);
         m78 = m68->m44 - 30.0f * m80;
         kind = -1;
-        lbl_8087F3C0->mB8 = 3;
+        lbl_8087F3C0->mSystem.mLayer = 3;
         fn_8023A098(lbl_8087F3C0, this, 0, 2);
         fn_8023A098(lbl_8087F3C0, this, 10, 2);
-        lbl_8087F3C0->mB8 = 0;
+        lbl_8087F3C0->mSystem.mLayer = 0;
     }
     if (m64 != 0 && (m04 & 0x80) != 0x80) {
         if (m68->m60 == 0) {
