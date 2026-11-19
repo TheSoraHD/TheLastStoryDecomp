@@ -23,11 +23,6 @@ extern "C" int fn_800A555C(void* pad, int port, int button); // inferred: button
 extern "C" int abs(int x);
 
 
-// inferred: 2D point of a d2anime pane (0x14 bytes)
-struct ShopPoint_unk {
-    ShopPoint_unk() : x(0.0f), y(0.0f), w(0.0f), h(0.0f), z(0.0f) {}
-    float x, y, w, h, z;
-};
 extern "C" ShopPoint_unk fn_801F4E8C(atn::Task* layout, unsigned int hash);
 extern "C" void fn_801F4728(atn::Task* task, const char* name, const ShopPoint_unk* pos); // inferred: SetParam0
 inline ShopPoint_unk GetPanePos_unk(atn::Task* layout, const char* name) {

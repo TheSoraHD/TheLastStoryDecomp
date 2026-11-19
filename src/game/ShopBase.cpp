@@ -40,11 +40,6 @@ extern "C" int fn_804444E8(Inventory* inv, int id);           // inferred: numbe
 extern "C" void fn_8044441C(Inventory* inv, int id, int num); // inferred: removes items
 extern "C" void fn_8044D490(Inventory* inv, int index, int num); // inferred: removes the item at `index`
 extern "C" unsigned int fn_800DC6B4(const char* s); // inferred: string hash
-// inferred: 2D point of a d2anime pane (0x14 bytes; as in game/ShopBuySell.cpp)
-struct ShopPoint_unk {
-    ShopPoint_unk() : x(0.0f), y(0.0f), w(0.0f), h(0.0f), z(0.0f) {}
-    float x, y, w, h, z;
-};
 extern "C" ShopPoint_unk fn_801F4E8C(atn::Task* layout, unsigned int hash);
 inline ShopPoint_unk GetPanePos_unk(atn::Task* layout, const char* name) {
     return fn_801F4E8C(layout, fn_800DC6B4(name));

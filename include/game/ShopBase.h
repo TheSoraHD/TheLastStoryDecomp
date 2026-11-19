@@ -12,6 +12,8 @@
 
 // inferred: d2anime task (made by fn_801F3FF8)
 typedef atn::D2A_Task ShopD2A_unk;
+// inferred: rectangle of a d2anime pane
+typedef atn::D2A_DrawRect ShopPoint_unk;
 // inferred: layout anime task of the shops (made by D2A_TaskInstanceBase<32, 8>::Create)
 typedef D2A_TaskInstance32_unk ShopLayout_unk;
 
