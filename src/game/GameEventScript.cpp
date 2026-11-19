@@ -347,6 +347,10 @@ GameEventScript::GameEventScript(atn::Task* parent, const char* path, int area, 
     memset(m154, 0, sizeof(m154));
 }
 
+std::bad_cast::~bad_cast() {}
+
+boost::bad_lexical_cast::~bad_lexical_cast() {}
+
 // inferred: starts or stops the log of the checked events (name invented)
 static inline void SetLog_unk(GameEventScript* self, int on) {
     if (self->m37C != on) {
@@ -381,10 +385,6 @@ static inline void SetLog_unk(GameEventScript* self, int on) {
 GameEventScript::~GameEventScript() {
     SetLog_unk(this, 0);
 }
-
-std::bad_cast::~bad_cast() {}
-
-boost::bad_lexical_cast::~bad_lexical_cast() {}
 
 extern "C" const char lbl_8078B34C[];
 extern "C" const char lbl_8078B394[];
@@ -4069,7 +4069,7 @@ void GameEventScript::fn_803A2E20(ScriptResult_unk& result, const ScriptCmd_unk*
     result.SetNext_unk(cmd, wait);
 }
 
-// NONMATCHING: 87% - the original keeps the character and the value in r5/r4 across fn_8014C468
+// inferred: value 0 resets the character (fn_8014C468), otherwise fn_8014C0B4 with value + 0xD5
 void GameEventScript::fn_803A330C(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
     const ScriptArgs_unk* args = static_cast<const ScriptArgs_unk*>(cmd);
     CharaTask* chara = GetChara_unk(args->m08, args->m0C);
@@ -4077,8 +4077,9 @@ void GameEventScript::fn_803A330C(ScriptResult_unk& result, const ScriptCmd_unk*
         int value = args->m10;
         if (value == 0) {
             chara->fn_8014C468();
+        } else {
+            chara->fn_8014C0B4(0, value + 0xD5);
         }
-        chara->fn_8014C0B4(0, value + 0xD5);
     }
     result.SetNext_unk(cmd);
 }
@@ -4399,17 +4400,18 @@ void GameEventScript::fn_803A4474(ScriptResult_unk& result, const ScriptCmd_unk*
     result.SetNext_unk(cmd);
 }
 
-// NONMATCHING: 86% - register allocation (registers of the camera, the table and the frame)
-void GameEventScript::fn_803A450C(ScriptResult_unk& result, ScriptCmd_unk* cmd) {
-    ScriptArgsF_unk* args = static_cast<ScriptArgsF_unk*>(cmd);
-    GameCamera& camera = lbl_8087F430->mCamera;
-    ScriptCmd_unk* next = NextCmd_unk(cmd);
+// inferred: shakes the camera (keeps the parity of the frame); the arguments are read before the camera
+void GameEventScript::fn_803A450C(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
+    const ScriptArgsF_unk* args = static_cast<const ScriptArgsF_unk*>(cmd);
     int length = args->m08;
+    float width = args->m0C;
+    float height = args->m10;
+    GameCamera& camera = lbl_8087F430->mCamera;
     camera.mShake.mFrame = camera.mShake.mFrame % 2;
     camera.mShake.mLength = length;
-    camera.mShake.mWidth = args->m0C;
-    camera.mShake.mHeight = args->m10;
-    result.mNext = next;
+    camera.mShake.mWidth = width;
+    camera.mShake.mHeight = height;
+    result.mNext = NextCmd_unk(cmd);
     result.mWait = 0;
 }
 
