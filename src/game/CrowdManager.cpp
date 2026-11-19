@@ -1,3 +1,4 @@
+#include "game/GameTask.h"
 #include "game/CrowdManager.h"
 #include "game/AiTarget.h"
 #include "game/GameVoice.h"
@@ -21,17 +22,7 @@ inline float LengthSq_unk(const atn::Vector3& v) {
     return PSVECSquareMag(&v);
 }
 
-// inferred: field data (only the members used here)
-struct CrowdField_unk {
-    unsigned char m0000[0x4C];
-    int mMap;   // 0x4C
-    int mArea;  // 0x50
-    unsigned char m0054[0x10D8 - 0x54];
-    void* mRoutes; // 0x10D8
-    unsigned char m10DC[0x54E4 - 0x10DC];
-    int mMode;  // 0x54E4
-};
-extern "C" CrowdField_unk* lbl_8087F430;
+extern "C" GameTask* lbl_8087F430;
 extern "C" int rand();
 extern "C" void* lbl_8087EE98; // inferred: collision world
 extern "C" int fn_8004ECC0(void* world, atn::Vector3* hit, const atn::Vector3* from, const atn::Vector3* to,
@@ -57,8 +48,8 @@ CrowdManager::CrowdManager(atn::Task* parent, CrowdDesc_unk* desc, int arg)
     mSizeMax = desc->mNumGroups != 0 ? 14 : 0;
     mSizeMin = desc->mNumGroups != 0 ? 5 : 0;
     mLimit = 0;
-    if (mSizeMax > 0 && lbl_8087F430->mArea == 1) {
-        int map = lbl_8087F430->mMap;
+    if (mSizeMax > 0 && lbl_8087F430->mOption.mSub == 1) {
+        int map = lbl_8087F430->mOption.mMap;
         if (map == 0xE || map == 0x3C || map == 0x15 || map == 0x1F || map == 0x21 || map == 0x29) {
             mSizeMax = 5;
         }
@@ -106,7 +97,7 @@ inline void CrowdManager::UpdateLimit_unk() {
 void CrowdManager::vf10() {
     mCenter = atn::RenderManager::instance_->mCamera.mTarget;
     UpdateLimit_unk();
-    if (lbl_8087F430->mMode != 8) {
+    if (lbl_8087F430->m54E4 != 8) {
         if (mCount < mLimit) {
             int n = mLimit - mCount;
             while (n-- > 0) {
@@ -281,7 +272,7 @@ void CrowdManager::fn_801EB7C4(CrowdWalker_unk* walker) {
     int i;
     mCount--;
     mGroupCount.mData[npc->m142C]--;
-    routes = lbl_8087F430->mRoutes;
+    routes = lbl_8087F430->m10D8;
     int point = ((GameScene*)routes)->fn_803C1560(&npc->mPos, npc->fn_80179D44(), 0, 0, 1, -1.0f);
     i = 0;
     walker->mPoint = point;

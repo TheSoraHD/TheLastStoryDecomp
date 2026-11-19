@@ -46,16 +46,7 @@ struct VoiceEntry_unk {
     int fn_8021FFB0(int kind) const;         // inferred: message of the voice
 };
 
-// inferred: the field (lbl_8087F430, game/GameTask.cpp); only the members used here
-struct GameVoiceField_unk {
-    unsigned char m0000[0x10D8];
-    void* m10D8;       // inferred: the scene (route tables, messages)
-    unsigned char m10DC[0x54E4 - 0x10DC];
-    int m54E4;         // inferred: state of the field (8: no voices)
-    unsigned char m54E8[0x5538 - 0x54E8];
-    int m5538;         // inferred: nonzero mutes the voices
-};
-extern "C" GameVoiceField_unk* lbl_8087F430;
+extern "C" GameTask* lbl_8087F430;
 // inferred: the battle (lbl_8087F540); only the pause flag
 struct GameVoiceBattle_unk {
     unsigned char m00[0x70];
@@ -474,7 +465,7 @@ atn::SoundRef GameVoice::fn_803EA09C(CharaTask* chara, const char* name, int at,
 // NONMATCHING: 96.88% - branch shape of the check of lbl_8087F540 (beq; beq; b in the original), registers of
 // the party loop
 void GameVoice::fn_803EA77C(CharaTask* chara, int kind, int delay, float volume, float time) {
-    if (lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->fn_803761CC() == 0) {
+    if (lbl_8087F430 != 0 && lbl_8087F430->fn_803761CC() == 0) {
         return;
     }
     if (lbl_8087F430 != 0 && lbl_8087F430->m54E4 == 8) {
@@ -483,7 +474,7 @@ void GameVoice::fn_803EA77C(CharaTask* chara, int kind, int delay, float volume,
     if (lbl_8087F540 != 0 && lbl_8087F540->m70 != 0) {
         return;
     }
-    if (lbl_8087F430 != 0 && lbl_8087F430->m5538 != 0) {
+    if (lbl_8087F430 != 0 && lbl_8087F430->m550C.mState != 0) {
         return;
     }
     if (!IsMessageFree_unk(time)) {
@@ -533,7 +524,7 @@ void GameVoice::fn_803EA77C(CharaTask* chara, int kind, int delay, float volume,
 // inferred: plays the message of the voice `kind` of `chara` in the HUD
 void GameVoice::fn_803EAA7C(CharaTask* chara, int kind, float time) {
     atn::SoundRef sound;
-    if (lbl_8087F430 != 0 && lbl_8087F430->m5538 != 0) {
+    if (lbl_8087F430 != 0 && lbl_8087F430->m550C.mState != 0) {
         return;
     }
     if (!IsMessageFree_unk(time)) {

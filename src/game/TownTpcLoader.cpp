@@ -1,3 +1,4 @@
+#include "game/GameTask.h"
 #include "game/TownTpcLoader.h"
 #include "game/GameEventScript.h"
 #include "game/GameVoice.h"
@@ -7,19 +8,6 @@
 #include "game/CharaTask.h"
 #include "game/TownTask.h"
 
-// inferred: classes of the globals are unknown
-struct CharaList_unk {
-    unsigned char m00[0x48];
-    int m48;                  // 0x48
-    unsigned char m4C[0x80 - 0x4C];
-    unsigned int mNum;        // 0x80
-    unsigned char m84[0x134 - 0x84];
-    void* m134;               // 0x134
-};
-struct Field_unk {
-    unsigned char m0000[0x10D8];
-    CharaList_unk* m10D8; // 0x10D8
-};
 extern "C" atn::Vector3 lbl_807C7030;
 struct Target_unk {
     unsigned char m000[0xD3C];
@@ -45,7 +33,7 @@ struct Target_unk {
     }
 };
 
-extern "C" Field_unk* lbl_8087F430;
+extern "C" GameTask* lbl_8087F430;
 extern "C" Target_unk* lbl_8087F490;
 extern "C" void fn_800D2338(atn::Task* task); // inferred: deletes the task
 
@@ -72,9 +60,9 @@ static inline void StartCharas_unk(atn::FixedArray_unk<atn::Task*, 64>& charas) 
 int TownTpcLoader::vf0C() {
     if (mState < 2) {
         if (mState >= 1) {
-            CharaList_unk* list = lbl_8087F430->m10D8;
+            GameScene* list = lbl_8087F430->m10D8;
             if (list->m48 > 0) {
-                for (unsigned int i = 0; i < list->mNum; i++) {
+                for (unsigned int i = 0; i < list->m80.mSize; i++) {
                     atn::Vector3 pos = ((GameScene*)list)->fn_803CC754(i);
                     int x = 0;
                     int z = 0;
@@ -106,10 +94,10 @@ int TownTpcLoader::vf0C() {
 }
 
 void TownTpcLoader::fn_805B9D58() {
-    CharaList_unk* list = lbl_8087F430->m10D8;
+    GameScene* list = lbl_8087F430->m10D8;
     for (int i = 0; i < mCharas.size(); i++) {
         ((GameScene*)list)->fn_803CC774(mCharas[i]);
-        ((GameEventScript*)list->m134)->fn_803957F0((int)((Chara_unk*)mCharas[i])->m58);
+        list->m134->fn_803957F0((int)((Chara_unk*)mCharas[i])->m58);
         ((GameScene*)list)->fn_803CC718(mCharas[i], 0);
         if (lbl_8087F498 != 0) {
             lbl_8087F498->fn_803EAC3C((CharaTask*)mCharas[i]);

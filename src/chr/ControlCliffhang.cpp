@@ -1,3 +1,4 @@
+#include "game/GameTask.h"
 #include "chr/ControlCliffhang.h"
 #include "math/VecAssign_unk.h"
 #include "game/GameVoice.h"
@@ -11,29 +12,7 @@ extern "C" void PSVECNormalize(const atn::Vector3* src, atn::Vector3* dst);
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 
-// inferred: point of the route tables (0x30 bytes); names invented
-struct CliffPoint_unk {
-    int m00;            // inferred: route link of the point
-    atn::Vector3 mPos;  // 0x04
-    unsigned char m10[0x18 - 0x10];
-    int mType;          // 0x18: inferred: kind of ledge (motion set)
-    unsigned char m1C[0x30 - 0x1C];
-};
-// inferred: link of type 5 (two points)
-struct CliffLink_unk {
-    int mA;
-    int mB;
-};
-// inferred: route tables of the field (lbl_8087F430->m10D8); only the points used here
-struct CliffTable_unk {
-    unsigned char m00[0xC8];
-    CliffPoint_unk* mPoints; // 0xC8
-};
-struct CliffField_unk {
-    unsigned char m0000[0x10D8];
-    CliffTable_unk* m10D8;
-};
-extern "C" CliffField_unk* lbl_8087F430;
+extern "C" GameTask* lbl_8087F430;
 
 // inferred: game state (lbl_8087EFA8): m3A4 is the time scale
 struct GameState_unk {
@@ -273,20 +252,20 @@ inline atn::Vector3 Cross_unk(const atn::Vector3& a, const atn::Vector3& b) {
 
 int ControlCliffhang::fn_801AB9E4(int route) {
     atn::Vector3 normal;
-    CliffTable_unk* table = lbl_8087F430 != 0 ? lbl_8087F430->m10D8 : 0;
+    GameScene* table = lbl_8087F430 != 0 ? lbl_8087F430->m10D8 : 0;
     if (table == 0) {
         return 0;
     }
-    CliffLink_unk* link = (CliffLink_unk*)((GameScene*)table)->fn_803C18DC(5, route);
+    gs::InteractionConnection* link = (gs::InteractionConnection*)table->fn_803C18DC(5, route);
     if (link == 0) {
         return 0;
     }
-    CliffPoint_unk* b = &table->mPoints[link->mB];
-    CliffPoint_unk* a = &table->mPoints[link->mA];
+    gs::InteractionPoint* b = &table->mC4.mData[link->m04];
+    gs::InteractionPoint* a = &table->mC4.mData[link->m00];
     m14 = a->mPos;
     m20 = b->mPos;
     m2C = route;
-    m30 = b->m00;
+    m30 = b->mId;
     m74 = 0.0f;
     m78 = 0;
     m40 = 1;
@@ -331,7 +310,7 @@ int ControlCliffhang::fn_801AB9E4(int route) {
         m10 = 2;
     }
     m34 = normal.ToRotation_unk();
-    switch (a->mType) {
+    switch (a->m18) {
     case 0:
         if (m98 != 0) {
             m44[0] = 0x205;

@@ -1,3 +1,4 @@
+#include "db/ChapterList_unk.h"
 #include "game/CharaStatus.h"
 #include "game/AiTarget.h"
 #include "game/GameTask.h"
@@ -46,19 +47,7 @@ struct Settings_unk {
 };
 extern "C" Settings_unk* lbl_8087F0A8;
 
-// inferred: field data (lbl_8087F430); names invented
-struct FieldInfo_unk {
-    unsigned char m00[0x54];
-    int m54;
-    int m58; // inferred: level of the field
-};
-struct StatusField_unk {
-    unsigned char m00[0x10D4];
-    FieldInfo_unk* m10D4;
-    unsigned char m10D8[0x5694 - 0x10D8];
-    int m5694;
-};
-extern "C" StatusField_unk* lbl_8087F430;
+extern "C" GameTask* lbl_8087F430;
 extern "C" float fn_800A6BDC(void* tree); // inferred: evaluates an atn::ParseTree
 
 // inferred: formula of one variable (an atn::ParseTree and the value of its variable); names
@@ -188,7 +177,7 @@ void CharaStatus::fn_8012B3E8() {
     chr::CharaData_unk* data = mChara->m5C;
     mParamA = data->mParam;
     mParamA.m9C |= mChara->mC10;
-    FieldInfo_unk* info = lbl_8087F430 != 0 ? lbl_8087F430->m10D4 : 0;
+    ChapterEntry_unk* info = lbl_8087F430 != 0 ? lbl_8087F430->m10D4 : 0;
     int bonus = 0;
     int extra = 0;
     if (lbl_8087F0A8->m284 != 0 && mChara->mType == 2 && info != 0 && fn_8020FCE8(mChara->m5C->mC8)) {
@@ -203,7 +192,7 @@ void CharaStatus::fn_8012B3E8() {
         }
     }
     if (lbl_8087F430 != 0 && mChara->mType == 2) {
-        bonus += ((GameTask*)lbl_8087F430)->fn_80375B78(1);
+        bonus += lbl_8087F430->fn_80375B78(1);
     }
     fn_8012C6D4(&mParamA, (int)m1A8.m08 + (bonus + mParamA.m78), m1C - ((m0C & 0x400) ? 3 : 0),
                 mChara->m5C->mC8);
@@ -234,7 +223,7 @@ void CharaStatus::fn_8012B988() {
     mParamB.m78 = MAX(1, mParamB.m78 + m1C - ((m0C & 0x400) == 0x400 ? 3 : 0));
     if (mChara->mType == 2 && (lbl_8087F0A8->m5A0 == 2 || !fn_8020FCE8(mChara->m5C->mC8)) &&
         lbl_8087F430 != 0) {
-        int n = ((GameTask*)lbl_8087F430)->fn_80370174(282);
+        int n = lbl_8087F430->fn_80370174(282);
         if (n > 0) {
             float rate = MAX(0.1f, 1.0f - 0.2f * n);
             mParamB.m00 *= rate;
@@ -322,7 +311,7 @@ void CharaStatus::fn_8012C6D4(CharaParam_unk* param, int level, int arg, int id)
         total = MIN(99, MAX(1, level + arg));
     }
     if (lbl_8087F610 == 0 && mChara != 0 && mChara->mType == 2) {
-        if (lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->fn_80370174(283) == 0) {
+        if (lbl_8087F430 != 0 && lbl_8087F430->fn_80370174(283) == 0) {
             param->m78 = MIN(69, MAX(1, level));
             total = MIN(69, MAX(1, level + arg));
         } else {
@@ -339,7 +328,7 @@ void CharaStatus::fn_8012C6D4(CharaParam_unk* param, int level, int arg, int id)
         if (mChara != 0 && mChara->mType == 2) {
             cap = 120;
         }
-        if (lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->fn_80370174(283) > 0) {
+        if (lbl_8087F430 != 0 && lbl_8087F430->fn_80370174(283) > 0) {
             cap = 120;
         }
         int over = MAX(0, total - cap);
@@ -393,41 +382,41 @@ void CharaStatus::fn_8012CE4C(int kind) {
             case 10:
             case 13:
                 if (kind == 2) {
-                    if (((GameTask*)lbl_8087F430)->fn_80370174(283) == 0) {
+                    if (lbl_8087F430->fn_80370174(283) == 0) {
                         allowed = false;
                     }
-                } else if (((GameTask*)lbl_8087F430)->fn_80370174(5) > 0) {
+                } else if (lbl_8087F430->fn_80370174(5) > 0) {
                     allowed = false;
                 }
                 break;
             case 9:
-                if (((GameTask*)lbl_8087F430)->fn_80370174(136) > 0) {
+                if (lbl_8087F430->fn_80370174(136) > 0) {
                     allowed = false;
                 }
                 break;
             case 61:
                 if (kind == 2) {
-                    if (((GameTask*)lbl_8087F430)->fn_80370174(283) == 0) {
+                    if (lbl_8087F430->fn_80370174(283) == 0) {
                         allowed = false;
                     }
-                } else if (((GameTask*)lbl_8087F430)->fn_80370174(286) > 0) {
+                } else if (lbl_8087F430->fn_80370174(286) > 0) {
                     allowed = false;
                 }
                 break;
             case 62:
             case 63:
-                if (kind == 2 && ((GameTask*)lbl_8087F430)->fn_80370174(283) == 0) {
+                if (kind == 2 && lbl_8087F430->fn_80370174(283) == 0) {
                     allowed = false;
                 }
                 break;
             case 2:
-                if (((GameTask*)lbl_8087F430)->fn_80370174(287) > 0) {
+                if (lbl_8087F430->fn_80370174(287) > 0) {
                     allowed = false;
                 }
                 break;
             case 14:
             case 16:
-                if ((kind == 2 || kind == 3) && ((GameTask*)lbl_8087F430)->fn_80370174(283) == 0 &&
+                if ((kind == 2 || kind == 3) && lbl_8087F430->fn_80370174(283) == 0 &&
                     lbl_8087F0A8->m194 == 0) {
                     allowed = false;
                 }
@@ -486,7 +475,7 @@ void CharaStatus::fn_8012D180() {
         } else {
             m2CC[0] = CharaStatusPair_unk(ids[3]);
         }
-        if (lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->fn_80370174(909) == 1) {
+        if (lbl_8087F430 != 0 && lbl_8087F430->fn_80370174(909) == 1) {
             m2CC[3] = CharaStatusPair_unk(1730);
         } else {
             m2CC[3] = CharaStatusPair_unk(ids[5]);
@@ -505,7 +494,7 @@ void CharaStatus::fn_8012D180() {
         } else {
             m2CC[0] = CharaStatusPair_unk(ids[4]);
         }
-        if (lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->fn_80370174(908) == 1) {
+        if (lbl_8087F430 != 0 && lbl_8087F430->fn_80370174(908) == 1) {
             m2CC[3] = CharaStatusPair_unk(6042);
         } else {
             m2CC[3] = CharaStatusPair_unk(ids[5]);
@@ -669,7 +658,7 @@ void CharaStatus::fn_8012DF7C(int damage, unsigned int flags, HitInfo_unk* hit) 
         }
     }
     int result = fn_8012F440(flags, power, kind2, damage, bit8, bit9, noBit21);
-    if (result != 0 && mChara != 0 && lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->fn_80375184() && lbl_8087F048 != 0) {
+    if (result != 0 && mChara != 0 && lbl_8087F430 != 0 && lbl_8087F430->fn_80375184() && lbl_8087F048 != 0) {
         if (result > 0) {
             if (mChara->mType == 2) {
                 lbl_8087F048->fn_801092C8(8, mChara, 0, 0);
@@ -923,7 +912,7 @@ void CharaStatus::fn_8012F034(float amount) {
 // (ours reuses the first test) and passes the new gauge value to the second one from a register
 // (frsp) instead of reloading m42C. Tried: a HasGauge_unk helper, the body in an inline helper.
 void CharaStatus::fn_8012F188(float amount) {
-    if (lbl_8087F430 != 0 && !((GameTask*)lbl_8087F430)->fn_80375184()) {
+    if (lbl_8087F430 != 0 && !lbl_8087F430->fn_80375184()) {
         return;
     }
     if (mChara == 0 || !mChara->mFlag28) {
@@ -1525,7 +1514,7 @@ int CharaStatus::fn_80133BD8(int force) const {
     if (lbl_8087F430 != 0 && lbl_8087F430->m10D4 != 0) {
         level = lbl_8087F430->m10D4->m54;
         level += mParamB.m7C;
-        level += ((GameTask*)lbl_8087F430)->fn_80375B78(1);
+        level += lbl_8087F430->fn_80375B78(1);
     }
     if (fn_8020FCE8(mChara->m5C->mC8)) {
         if (mChara->mFlag22 == 1 || (mChara->m5C->mParam.m9C & 0x20000) == 0x20000) {
@@ -1538,7 +1527,7 @@ int CharaStatus::fn_80133BD8(int force) const {
     if (lbl_8087F610 == 0 || force != 0) {
         const FixedLevel_unk* fixed = FindFixedLevel_unk(mChara->m50);
         if (fixed != 0) {
-            if (lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->fn_80370174(283) == 0) {
+            if (lbl_8087F430 != 0 && lbl_8087F430->fn_80370174(283) == 0) {
                 level = fixed->mLevelA;
             } else {
                 level = fixed->mLevelB;
@@ -1546,7 +1535,7 @@ int CharaStatus::fn_80133BD8(int force) const {
         }
     }
     if (lbl_8087F610 == 0 && mChara != 0 && mChara->mType == 2) {
-        if (lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->fn_80370174(283) == 0) {
+        if (lbl_8087F430 != 0 && lbl_8087F430->fn_80370174(283) == 0) {
             level = MIN(69, MAX(1, level));
         } else {
             level = MIN(999, MAX(1, level));
@@ -1776,8 +1765,8 @@ void CharaStatus::fn_801342D0(const StatusItem_unk* item, int stat) {
     case 11:
         if (lbl_8087F430 != 0) {
             int n = (int)value;
-            n += ((GameTask*)lbl_8087F430)->fn_80370174(218);
-            ((GameTask*)lbl_8087F430)->fn_80370320(218, MIN(n, 990), 0);
+            n += lbl_8087F430->fn_80370174(218);
+            lbl_8087F430->fn_80370320(218, MIN(n, 990), 0);
             msg = 0x1F;
         }
         break;
