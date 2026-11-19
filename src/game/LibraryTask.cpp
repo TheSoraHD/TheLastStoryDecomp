@@ -30,7 +30,10 @@ extern "C" int fn_800DC1DC(const wchar_t* s); // inferred: wide string to int
 extern "C" void fn_801FECE0(void* layout, unsigned int hash, float value);
 extern "C" void fn_801FED24(void* layout, unsigned int hash, int index, float value);
 extern "C" void fn_801FEE08(void* layout, unsigned int hash, const wchar_t* text);
-extern "C" void* lbl_8087EEC8; // inferred: font
+namespace atn {
+class Font_unk;
+}
+extern "C" atn::Font_unk* lbl_8087EEC8; // inferred: font
 extern "C" float fn_8006EF48(void* font, float size, const wchar_t* text, float f2, int a, int b); // inferred: width
 extern "C" void fn_8006F420(void* font, char* out, const wchar_t* in, int size); // inferred: wide to multibyte
 // inferred: word wrap of a text

@@ -121,7 +121,10 @@ struct StrapMsgTable_unk {
     const wchar_t* mText[1];
 };
 extern "C" StrapMsgTable_unk* lbl_8087F1E4;
-extern "C" void* lbl_8087EEC8; // inferred: font
+namespace atn {
+class Font_unk;
+}
+extern "C" atn::Font_unk* lbl_8087EEC8; // inferred: font
 extern "C" float fn_8006EF48(void* font, float size, const wchar_t* text, float f2, int a, int b); // inferred: width
 
 // inferred: draws a texture of texW x texH over the screen (4:3 or 16:9); name invented

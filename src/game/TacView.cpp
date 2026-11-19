@@ -1539,7 +1539,10 @@ inline atn::D2A_DrawRect GetPaneRect_unk(atn::D2A_Task* task, const char* name) 
 }
 extern "C" void fn_804A4AEC(atn::D2A_Task* task, CharaInfo_unk* info, int cols, int rows); // inferred: name pane size
 extern "C" void fn_803DDD54(atn::D2A_TaskInstanceBase<32, 8>* inst, int job); // inferred: job icon (game/GameUI.cpp)
-extern "C" void* lbl_8087EEC8; // inferred: font
+namespace atn {
+class Font_unk;
+}
+extern "C" atn::Font_unk* lbl_8087EEC8; // inferred: font
 extern "C" float fn_8006EF48(void* font, float size, const wchar_t* text, float space, int a, int b); // inferred: width
 extern "C" int fn_800DD3FC(wchar_t* s, const wchar_t* format, ...); // inferred: wide sprintf
 extern "C" unsigned long wcslen(const wchar_t* s);

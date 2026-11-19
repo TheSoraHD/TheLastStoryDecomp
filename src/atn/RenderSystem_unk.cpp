@@ -42,7 +42,10 @@ extern "C" atn::Scene* lbl_8087EFB8; // inferred: default scene
 #include "atn/RenderSetting_unk.h"
 
 extern "C" RenderSetting_unk* lbl_8087EFA8; // render settings
-extern "C" void* lbl_8087EF8C;
+namespace atn {
+class PostFxManager;
+}
+extern "C" atn::PostFxManager* lbl_8087EF8C;
 
 extern "C" void GXSetTexCopySrc(unsigned short left, unsigned short top, unsigned short width,
                                   unsigned short height);

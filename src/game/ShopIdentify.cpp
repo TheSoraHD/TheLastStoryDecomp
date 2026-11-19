@@ -26,7 +26,10 @@ struct D2A_TextParam_unk;
 } // namespace atn
 extern "C" atn::D2A_TextParam_unk* fn_801FEC74(void* layout, const char* name);
 extern "C" std::basic_string<wchar_t> fn_800A4450(atn::D2A_TextParam_unk* text, int index, int table); // inferred
-extern "C" void* lbl_8087EEC8; // inferred: font
+namespace atn {
+class Font_unk;
+}
+extern "C" atn::Font_unk* lbl_8087EEC8; // inferred: font
 extern "C" float fn_8006EF48(void* font, float size, const wchar_t* text, float f2, int a, int b); // inferred: width
 
 extern "C" ShopPoint_unk fn_801F4E8C(atn::Task* layout, unsigned int hash);

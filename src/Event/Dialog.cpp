@@ -125,7 +125,10 @@ extern "C" float lbl_8087DBD4;
 // inferred: pad and font, as declared by the menus of MP/D2AMpMenu_unk.h
 extern "C" void* lbl_8087EF70;
 extern "C" int fn_800A555C(void* pad, int port, int button); // inferred: button triggered
-extern "C" void* lbl_8087EEC8;
+namespace atn {
+class Font_unk;
+}
+extern "C" atn::Font_unk* lbl_8087EEC8;
 extern "C" float fn_8006EF48(void* font, float size, const wchar_t* text, float f2, int a, int b);
 
 extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float volume);

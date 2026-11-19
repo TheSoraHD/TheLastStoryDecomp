@@ -15,7 +15,10 @@ extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3,
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 extern "C" GameTask* lbl_8087F430;
 // inferred: debug drawing (lbl_8087EEB0) and the font used to measure the text (lbl_8087EEC8)
-extern "C" void* lbl_8087EEC8;
+namespace atn {
+class Font_unk;
+}
+extern "C" atn::Font_unk* lbl_8087EEC8;
 extern "C" float fn_8006EF48(void* font, float size, const wchar_t* text, float f2, int a, int b); // inferred: width
 namespace atn {
 struct Camera;

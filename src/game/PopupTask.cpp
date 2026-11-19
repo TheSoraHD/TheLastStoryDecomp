@@ -295,7 +295,10 @@ extern "C" void fn_801F465C(PopupD2A_unk* task, int arg); // inferred: draws the
 extern "C" wchar_t* wcscpy(wchar_t* dst, const wchar_t* src);
 extern "C" atn::GraphicsDevice_unk* lbl_8087EEE0;
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
-extern "C" void* lbl_8087EEC8;                    // inferred: font
+namespace atn {
+class Font_unk;
+}
+extern "C" atn::Font_unk* lbl_8087EEC8;                    // inferred: font
 extern "C" float fn_8006EF48(void* font, float size, const wchar_t* text, float f2, int a, int b); // inferred: width
 extern "C" void* fn_801FEC74(void* layout, const char* name); // inferred: finds a pane
 extern "C" std::basic_string<wchar_t> fn_800A4450(void* pane, int a, int b); // inferred: text of a pane

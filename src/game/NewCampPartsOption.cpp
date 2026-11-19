@@ -29,7 +29,10 @@ extern "C" void* lbl_8087EF70;
 extern "C" int fn_800A555C(void* pad, int port, int button); // inferred: button triggered
 extern "C" int fn_800A55AC(void* pad, int port, int button); // inferred: button repeated
 extern "C" int fn_800A58D0(void* pad, int port);             // inferred: classic controller connected
-extern "C" void* lbl_8087EEC8;                        // inferred: font
+namespace atn {
+class Font_unk;
+}
+extern "C" atn::Font_unk* lbl_8087EEC8;                        // inferred: font
 extern "C" void fn_8006F5E8(void* font, std::string* dst, const wchar_t* src);
 extern "C" void PSMTXConcat(const float a[3][4], const float b[3][4], float ab[3][4]);
 

@@ -19,7 +19,10 @@ extern "C" wchar_t* wcscpy(wchar_t* dst, const wchar_t* src);
 extern "C" int fn_800DC1DC(const wchar_t* s);                 // inferred: wide string to int
 extern "C" unsigned int fn_80209120(const char* name);        // inferred: id of a character name
 extern "C" int fn_8006F420(void* font, char* dst, const wchar_t* src, int size); // inferred: to the game encoding
-extern "C" void* lbl_8087EEC8;                                // inferred: font
+namespace atn {
+class Font_unk;
+}
+extern "C" atn::Font_unk* lbl_8087EEC8;                                // inferred: font
 extern "C" const wchar_t lbl_8077A0A8[];                      // inferred: separators of the message CSV
 extern "C" float fn_801F0544(void* key, int frame); // inferred: value of a key of a layout track
 extern "C" CharaInfo_unk* fn_8020924C(int id);      // inferred: character table entry

@@ -9,7 +9,10 @@ extern "C" wchar_t* wmemcpy(wchar_t* dst, const wchar_t* src, unsigned long n);
 extern "C" int fn_800DC1DC(const wchar_t* s); // inferred: wide string to int
 
 // inferred: the font (lbl_8087EEC8) converts UTF-16 text to the game encoding
-extern "C" void* lbl_8087EEC8;
+namespace atn {
+class Font_unk;
+}
+extern "C" atn::Font_unk* lbl_8087EEC8;
 extern "C" void fn_8006F5E8(void* font, std::string* dst, const wchar_t* src);
 
 // inferred: resource manager (lbl_8087F518): loads a whole file / releases it

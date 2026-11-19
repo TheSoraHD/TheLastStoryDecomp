@@ -220,7 +220,10 @@ extern "C" int strncmp(const char* a, const char* b, unsigned long n);
 extern "C" int atoi(const char* s);
 extern "C" int fn_800DC12C(const char* s);    // inferred: string to int (item codes too)
 extern "C" float fn_800DC288(const char* s); // inferred: string to float
-extern "C" void* lbl_8087EEC8;                // inferred: font
+namespace atn {
+class Font_unk;
+}
+extern "C" atn::Font_unk* lbl_8087EEC8;                // inferred: font
 extern "C" void fn_8006F2F0(void* font, wchar_t* dst, const char* src, int n); // inferred: to wide characters
 extern "C" int fn_80444564(Inventory* party, int id); // inferred: number of equipment items
 extern "C" int fn_80444BE8(Inventory* party, ShopItem_unk* item);

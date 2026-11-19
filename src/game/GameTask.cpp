@@ -83,7 +83,10 @@
 #include "game/BattleEfp_unk.h"
 #include "game/ReplayBuffer.h"
 // inferred: post effect manager (atn/PostFx.h, which redefines atn::IRender here)
-extern "C" void* lbl_8087EF8C;
+namespace atn {
+class PostFxManager;
+}
+extern "C" atn::PostFxManager* lbl_8087EF8C;
 
 extern "C" void fn_800D2338(atn::Task* task); // inferred: deletes the task
 extern "C" GameTask* lbl_8087F430;

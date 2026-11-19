@@ -367,7 +367,10 @@ inline void SetLayoutValue2_unk(void* layout, const char* name, int index, float
 extern "C" void* fn_801FEC74(void* layout, const char* name); // inferred: finds a pane
 // inferred: text of a pane (returned by value)
 extern "C" std::basic_string<wchar_t> fn_800A4450(void* pane, int a, int b);
-extern "C" void* lbl_8087EEC8; // inferred: font manager
+namespace atn {
+class Font_unk;
+}
+extern "C" atn::Font_unk* lbl_8087EEC8; // inferred: font manager
 extern "C" float fn_8006EF48(void* font, float size, const wchar_t* text, float f2, int a, int b); // text width
 
 // inferred: extra draw parameters of a pane (the color at 0x08; names invented)

@@ -11,7 +11,10 @@ extern "C" int fn_800DC12C(const char* s);   // inferred: string to int
 extern "C" float fn_800DC288(const char* s); // inferred: string to float
 
 // inferred: the font (lbl_8087EEC8) converts UTF-16 text to the game encoding
-extern "C" void* lbl_8087EEC8;
+namespace atn {
+class Font_unk;
+}
+extern "C" atn::Font_unk* lbl_8087EEC8;
 extern "C" int fn_8006F420(void* font, char* dst, const wchar_t* src, int size);
 
 // inferred: resource manager (lbl_8087F518): loads a whole file / releases it

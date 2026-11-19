@@ -796,7 +796,10 @@ extern "C" void fn_804A55FC(MenuCommonTask* menu, int id, const char* name, cons
 }
 
 extern "C" std::basic_string<wchar_t> fn_800A4450(atn::D2A_TextParam_unk* text, int index, int table); // inferred
-extern "C" void* lbl_8087EEC8; // inferred: font
+namespace atn {
+class Font_unk;
+}
+extern "C" atn::Font_unk* lbl_8087EEC8; // inferred: font
 extern "C" float fn_8006EF48(void* font, const wchar_t* text, float size, float f2, int a, int b); // inferred: width
 
 // NONMATCHING: 98.8% - scheduling of the size argument of fn_8006EF48

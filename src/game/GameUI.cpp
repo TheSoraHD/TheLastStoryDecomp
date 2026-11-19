@@ -1563,7 +1563,10 @@ inline BattleTask* fn_8013A194() {
 // inferred: names of the places (db/MapLink_unk.cpp)
 extern "C" const wchar_t* fn_802168BC(int place);
 extern "C" int fn_80216908(int place);
-extern "C" void* lbl_8087EEC8; // inferred: font
+namespace atn {
+class Font_unk;
+}
+extern "C" atn::Font_unk* lbl_8087EEC8; // inferred: font
 inline void* GetFont_unk() {
     return lbl_8087EEC8;
 }

@@ -18,7 +18,10 @@ extern "C" int fn_80219544(void* member);     // inferred: character id of a par
 extern "C" int fn_8006BA30();                 // inferred: language check (the short name is the long one)
 
 // inferred: the font (lbl_8087EEC8) converts UTF-16 text to the game encoding
-extern "C" void* lbl_8087EEC8;
+namespace atn {
+class Font_unk;
+}
+extern "C" atn::Font_unk* lbl_8087EEC8;
 extern "C" int fn_8006F420(void* font, char* dst, const wchar_t* src, int size);
 
 // inferred: loads a whole file / releases it

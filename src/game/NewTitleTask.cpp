@@ -53,7 +53,10 @@ extern "C" void fn_801FECE0(void* layout, unsigned int hash, float value); // in
 extern "C" void fn_801F4728(atn::D2A_Task* task, const char* name, const float* v); // inferred: SetParam0
 extern "C" float fn_8006EF48(void* font, float size, const wchar_t* text, float f2, int a, int b); // inferred: width
 extern "C" void fn_8006F2F0(void* font, wchar_t* dst, const char* src, int n); // inferred: to wide characters
-extern "C" void* lbl_8087EEC8; // inferred: font
+namespace atn {
+class Font_unk;
+}
+extern "C" atn::Font_unk* lbl_8087EEC8; // inferred: font
 extern "C" float fn_800DC288(const char* s); // inferred: string to float
 extern "C" int fn_800DC12C(const char* s);   // inferred: string to int
 extern "C" char* strtok(char* s, const char* delim);

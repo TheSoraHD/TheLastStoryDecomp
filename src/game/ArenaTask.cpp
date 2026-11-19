@@ -17,7 +17,10 @@ extern "C" unsigned int fn_800DC6B4(const char* s); // inferred: string hash
 extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float volume);
 extern "C" int swprintf(wchar_t* s, unsigned long n, const wchar_t* format, ...);
 // inferred: debug drawing (lbl_8087EEB0) and the font used to measure the text (lbl_8087EEC8)
-extern "C" void* lbl_8087EEC8;
+namespace atn {
+class Font_unk;
+}
+extern "C" atn::Font_unk* lbl_8087EEC8;
 extern "C" float fn_8006EF48(void* font, float size, const wchar_t* text, float f2, int a, int b); // inferred: width
 
 extern "C" GameTask* lbl_8087F430;

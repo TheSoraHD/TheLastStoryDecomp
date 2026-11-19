@@ -12,7 +12,10 @@ extern "C" wchar_t* wmemcpy(wchar_t* dst, const wchar_t* src, unsigned long n);
 extern "C" void NANDInitBanner(NANDBanner_unk* banner, unsigned int flags, const wchar_t* title,
                                const wchar_t* comment);
 extern "C" void fn_803B84DC(char* name); // inferred: name of the save file
-extern "C" void* lbl_8087EEC8;            // inferred: font
+namespace atn {
+class Font_unk;
+}
+extern "C" atn::Font_unk* lbl_8087EEC8;            // inferred: font
 // inferred: converts a wide string with the font (as in game/CharaTask.cpp)
 extern "C" void fn_8006F420(void* font, char* out, const wchar_t* in, int size);
 

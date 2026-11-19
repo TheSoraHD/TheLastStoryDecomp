@@ -23,7 +23,10 @@ extern "C" void VISetBlack(int black);
 extern "C" void VIFlush();
 extern "C" void VIWaitForRetrace();
 
-extern "C" void* lbl_8087EF68; // inferred: save manager
+namespace atn {
+class NandManager;
+}
+extern "C" atn::NandManager* lbl_8087EF68; // inferred: save manager
 extern "C" int fn_800A4228(void* obj, int* out); // inferred: nonzero while saving
 extern "C" void* lbl_8087EF70; // inferred: pad
 extern "C" bool fn_800A5920(void* pad, int port, int all); // inferred: a button was pressed

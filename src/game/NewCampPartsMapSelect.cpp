@@ -441,7 +441,10 @@ void NewCampPartsMapSelect::vf1C(NewCampScene_unk* scene) {
 }
 
 extern "C" const wchar_t* fn_802168BC(int id);                // inferred: name of a map point
-extern "C" void* lbl_8087EEC8;                                  // inferred: font used to measure the text
+namespace atn {
+class Font_unk;
+}
+extern "C" atn::Font_unk* lbl_8087EEC8;                                  // inferred: font used to measure the text
 extern "C" float fn_8006EF48(void* font, float size, const wchar_t* text, float f2, int a, int b); // inferred: width
 extern "C" void fn_801FEE08(void* layout, unsigned int hash, const wchar_t* text); // inferred: sets a text
 extern "C" void fn_801FED24(void* layout, unsigned int hash, int index, float value); // inferred: sets a vector item

@@ -32,7 +32,10 @@ extern "C" void fn_801FED24(void* layout, unsigned int hash, int index, float va
 extern "C" void fn_801FEE08(void* layout, unsigned int hash, const wchar_t* text); // inferred: sets a text
 extern "C" const wchar_t* fn_80116FC0(int a, int id); // inferred: message text
 extern "C" atn::SoundRef fn_800C31F4(const char* name, int a, int b, float volume); // inferred: plays a sound
-extern "C" void* lbl_8087EEC8; // inferred: font
+namespace atn {
+class Font_unk;
+}
+extern "C" atn::Font_unk* lbl_8087EEC8; // inferred: font
 extern "C" float fn_8006EF48(void* font, float size, const wchar_t* text, float spacing, int a, int b); // inferred: text width
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 

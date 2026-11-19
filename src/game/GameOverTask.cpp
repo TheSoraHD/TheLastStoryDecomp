@@ -27,7 +27,10 @@ extern "C" void fn_801FED24(void* layout, unsigned int hash, int index, float va
 extern "C" const wchar_t* fn_80116FC0(int a, int id); // inferred: message text
 extern "C" atn::SoundRef fn_80117228(int id);        // inferred: plays a system sound effect
 extern "C" void fn_800D2338(atn::Task* task);        // inferred: deletes the task
-extern "C" void* lbl_8087EEC8;                       // inferred: font
+namespace atn {
+class Font_unk;
+}
+extern "C" atn::Font_unk* lbl_8087EEC8;                       // inferred: font
 extern "C" float fn_8006EF48(void* font, float size, const wchar_t* text, float f2, int a, int b); // inferred: width
 
 // inferred: d2anime task (made by fn_801F3FF8; the view of game/MenuCommonTask.h)

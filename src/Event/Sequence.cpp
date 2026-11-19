@@ -58,7 +58,10 @@ extern "C" void* fn_801FEC74(atn::D2A_Layout_unk* layout, const char* name);
 extern "C" void fn_801FECE0(atn::D2A_Layout_unk* layout, unsigned int hash, float value);
 // inferred: text of a pane (returned by value) and its width with the font lbl_8087EEC8
 extern "C" std::basic_string<wchar_t> fn_800A4450(void* pane, int a, int b);
-extern "C" void* lbl_8087EEC8;
+namespace atn {
+class Font_unk;
+}
+extern "C" atn::Font_unk* lbl_8087EEC8;
 extern "C" atn::GraphicsDevice_unk* lbl_8087EEE0; // inferred: graphics device (screen size)
 extern "C" unsigned long wcslen(const wchar_t* s);
 extern "C" wchar_t* wcscpy(wchar_t* dst, const wchar_t* src);

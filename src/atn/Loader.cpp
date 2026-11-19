@@ -44,12 +44,18 @@ extern "C" void* fn_801FEC74(void* layout, const char* name);
 extern "C" void fn_801FECE0(void* layout, unsigned int hash, float value);
 extern "C" void fn_801FED24(void* layout, unsigned int hash, int index, float value);
 extern "C" std::basic_string<wchar_t> fn_800A4450(void* text, int index, int table);
-extern "C" void* lbl_8087EEC8; // inferred: font
+namespace atn {
+class Font_unk;
+}
+extern "C" atn::Font_unk* lbl_8087EEC8; // inferred: font
 extern "C" float fn_8006EF48(void* font, const wchar_t* text, float size, float f2, int a, int b);
 extern "C" void* lbl_8087EF70; // inferred: pad
 extern "C" int fn_800A55D4(void* pad, int player, int button);
 extern "C" int fn_800A5B38(void* pad); // inferred: battery level
-extern "C" void* lbl_8087EF68;
+namespace atn {
+class NandManager;
+}
+extern "C" atn::NandManager* lbl_8087EF68;
 extern "C" int fn_800A4460(void* obj);
 extern "C" atn::GraphicsDevice_unk* lbl_8087EEE0;
 

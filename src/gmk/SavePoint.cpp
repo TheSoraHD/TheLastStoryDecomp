@@ -30,7 +30,10 @@ extern "C" void fn_80232B7C(void* owner, int arg);
 // inferred: the field task (lbl_8087F430)
 extern "C" GameTask* lbl_8087F430;
 extern "C" ChaseManager* lbl_8087F098;
-extern "C" void* lbl_8087EF68;
+namespace atn {
+class NandManager;
+}
+extern "C" atn::NandManager* lbl_8087EF68;
 extern "C" int fn_800A4228(void* obj, int* out);
 extern "C" GameConfig_unk* lbl_8087F0A8;
 

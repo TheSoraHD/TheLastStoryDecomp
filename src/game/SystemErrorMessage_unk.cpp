@@ -61,7 +61,10 @@ struct SysMovie_unk {
 };
 extern "C" SysMovie_unk* lbl_8087F010;
 extern "C" GameTask* lbl_8087F430;
-extern "C" void* lbl_8087EF68; // inferred: save manager
+namespace atn {
+class NandManager;
+}
+extern "C" atn::NandManager* lbl_8087EF68; // inferred: save manager
 extern "C" int fn_800A4228(void* obj, int* out); // inferred: nonzero while saving
 struct SysSave_unk {
     unsigned char m000[0x174];
