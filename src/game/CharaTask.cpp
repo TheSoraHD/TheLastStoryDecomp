@@ -1275,9 +1275,8 @@ extern "C" int fn_8003F440(CharaTask* chara, SkillRef_unk* data);
 
 // inferred: moves the character for its current mode (mC58.mMode); called by fn_80139560 with the
 // speed, direction and rate passed to vf34.
-// NONMATCHING: 99.75% - f30 instead of f31 in mode 10 (its matrix comes by value from Matrix3x4::fn_8013A13C);
-// the 0.0f argument of fn_80097C08 is loaded later. Not inline: the original is a global function with
-// its literals in the file pool, and fn_80139560 still matches.
+// Not inline: the original is a global function with its literals in the file pool, and fn_80139560
+// still matches.
 int CharaTask::fn_8013A4E8(float* a, atn::Vector3* rot, float* b) {
     RouteWalker_unk* route = &mC58.m0C;
     if (mC58.m2B4 > 0) {
@@ -1632,8 +1631,8 @@ int CharaTask::fn_8013A4E8(float* a, atn::Vector3* rot, float* b) {
             if (!(fn_80011220(dir.LengthSq_unk()) < 1.1920929e-7f)) {
                 dir.Normalize_unk();
             }
-            float sign = 2.0f * (float)(rand() % 2) - 1.0f;
-            atn::Matrix3x4 m = atn::Matrix3x4::fn_8013A13C(atn::DegToRad_unk(45.0f) * sign);
+            atn::Matrix3x4 m =
+                atn::Matrix3x4::fn_8013A13C(atn::DegToRad_unk(45.0f) * (2.0f * (float)(rand() % 2) - 1.0f));
             dir.fn_80011410(m);
             fn_80155790(dir);
             mC58.mStep = 1;
@@ -1898,7 +1897,9 @@ int CharaTask::fn_8013A4E8(float* a, atn::Vector3* rot, float* b) {
                 mMotion.fn_80139F24(1);
                 mMotion.SetMotionSpeed(0, 1.0f);
                 mMotion.fn_8013C554(0, 1.0f);
-                mMotion.fn_80097C08(0, mC58.mMotions[0], mC58.mLoop_unk && mC58.mEC <= 0, 0, 1, 0.0f, 0.1f);
+                int motion = mC58.mMotions[0];
+                float blend = 0.0f;
+                mMotion.fn_80097C08(0, motion, mC58.mLoop_unk && mC58.mEC <= 0, 0, 1, blend, 0.1f);
                 mC58.mStep++;
             } else {
                 mC58.mStep = -1;
@@ -1912,7 +1913,8 @@ int CharaTask::fn_8013A4E8(float* a, atn::Vector3* rot, float* b) {
                     mMotion.fn_80139F24(1);
                     mMotion.SetMotionSpeed(0, 1.0f);
                     mMotion.fn_8013C554(0, 1.0f);
-                    mMotion.fn_80097C08(0, mC58.mMotions[mC58.mStep], mC58.mLoop_unk && mC58.mEC <= 0, 0, 1, 0.0f,
+                    float blend = 0.0f;
+                    mMotion.fn_80097C08(0, mC58.mMotions[mC58.mStep], mC58.mLoop_unk && mC58.mEC <= 0, 0, 1, blend,
                                         0.1f);
                     mC58.mStep++;
                 } else {
