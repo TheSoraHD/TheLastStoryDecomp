@@ -39,23 +39,8 @@ extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
 extern "C" GameTask* lbl_8087F430;
 // inferred: finds the place where `chara` stands in the route tables
 
-// inferred: request of an event (names invented)
-struct EventRequest_unk {
-    EventRequest_unk(int type) : m04(-1), m08(-1), m0C(0), m10(0), m14(0), m18(0) { mType = type; }
-    int mType;
-    int m04;
-    int m08;
-    int m0C;
-    int m10;
-    int m14;
-    int m18;
-};
-struct EventMgr_unk {
-    void Request_unk(int type) { m7C0 = EventRequest_unk(type); }
-    unsigned char m000[0x7C0];
-    EventRequest_unk m7C0;
-};
-extern "C" EventMgr_unk* lbl_8087F490;
+#include "game/GameUI.h"
+extern "C" GameUI* lbl_8087F490;
 
 extern "C" void* fn_8008937C(void* menu, const char* name);
 extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, void* func,

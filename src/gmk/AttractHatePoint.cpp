@@ -33,18 +33,8 @@ extern "C" void fn_80232B7C(void* owner, int arg);
 extern "C" GameConfig_unk* lbl_8087F0A8;
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 extern "C" GameTask* lbl_8087F430;
-// inferred: request of the battle object (class unknown)
-struct HateBattle_unk {
-    unsigned char m000[0x7C0];
-    int m7C0;
-    int m7C4;
-    int m7C8;
-    int m7CC;
-    int m7D0;
-    int m7D4;
-    int m7D8;
-};
-extern "C" HateBattle_unk* lbl_8087F490;
+#include "game/GameUI.h"
+extern "C" GameUI* lbl_8087F490;
 
 namespace gmk {
 
@@ -123,14 +113,14 @@ void AttractHatePoint::vf10() {
         if (PSVECSquareMag(&d) < mRadius * mRadius) {
             if (!player->mFlag6) {
                 if (!player->HasC48_unk() && !player->mFlag31) {
-                    HateBattle_unk* battle = lbl_8087F490;
-                    battle->m7C0 = 15;
-                    battle->m7C4 = -1;
-                    battle->m7C8 = -1;
-                    battle->m7CC = 0;
-                    battle->m7D0 = 0;
-                    battle->m7D4 = 0;
-                    battle->m7D8 = 0;
+                    GameUI* battle = lbl_8087F490;
+                    battle->m7C0.m00 = 15;
+                    battle->m7C0.m04 = -1;
+                    battle->m7C0.m08 = -1;
+                    battle->m7C0.m0C = 0;
+                    battle->m7C0.m10 = 0;
+                    battle->m7C0.m14 = 0;
+                    battle->m7C0.m18 = 0;
                     mInRange = 1;
                 }
             }
