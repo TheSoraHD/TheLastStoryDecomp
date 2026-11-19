@@ -1,0 +1,44 @@
+diff --git a/src/game/GameCamera_unk.cpp b/src/game/GameCamera_unk.cpp
+index c97d46c..5ce5c5c 100644
+--- a/src/game/GameCamera_unk.cpp
++++ b/src/game/GameCamera_unk.cpp
+@@ -1497,7 +1497,7 @@ extern "C" void fn_80383F7C(float* angle, atn::Vector3* pos, const atn::Vector3*
+         speed *= param->m1C;
+         speed = 1.2f * speed;
+         *angle = 0.15f * speed + *angle;
+-        *angle = GAMECAMERA_MIN_UNK((float)__fabs(speed), GAMECAMERA_MAX_UNK(-(float)__fabs(speed), *angle));
++        *angle = GAMECAMERA_MIN_UNK(atn::Abs_unk(speed), GAMECAMERA_MAX_UNK(-atn::Abs_unk(speed), *angle));
+         Mtx m;
+         PSMTXRotAxisRad(m, axis, *angle);
+         atn::Vector3 v;
+diff --git a/src/game/GameCamera_unk.cpp b/src/game/GameCamera_unk.cpp
+index c97d46c..e843e95 100644
+--- a/src/game/GameCamera_unk.cpp
++++ b/src/game/GameCamera_unk.cpp
+@@ -3159,6 +3159,13 @@ void GameCamera::fn_8038D4D4(const CharaTask* chara) {
+ // fixed direction turned with the character; then back to the sub mode with m83C = 6
+ // NONMATCHING: 99.8% - stack slot of the normalized direction (a temporary below the one of m824 in the original;
+ // as a named local, a reference to it or a named source vector it stays above)
++static inline atn::Vector3 CamTurnY_unk(const atn::Vector3& v, float a) {
++    Mtx m;
++    PSMTXRotRad(m, 'y', a);
++    atn::Vector3 r = v;
++    PSMTXMultVec(m, &r, &r);
++    return r;
++}
+ void GameCamera::fn_8038D854(const CharaTask* chara) {
+     if (m808 == 0) {
+         m80C = mCamera.mPos;
+@@ -3169,11 +3176,7 @@ void GameCamera::fn_8038D854(const CharaTask* chara) {
+     }
+     atn::Vector3 target = chara->mPos;
+     target.y += 20.451f;
+-    atn::Vector3 dir = atn::Vector3(0.4f, 0.2f, 1.0f).GetNormalize();
+-    Mtx m;
+-    PSMTXRotRad(m, 'y', chara->mRot.y);
+-    atn::Vector3 back = dir;
+-    PSMTXMultVec(m, &back, &back);
++    atn::Vector3 back = CamTurnY_unk(atn::Vector3(0.4f, 0.2f, 1.0f).GetNormalize(), chara->mRot.y);
+     back *= 30.0f;
+     atn::Vector3 pos = target - back;
+     target = LerpV_unk(m818, target, ((float)m808 / 23.0f));
