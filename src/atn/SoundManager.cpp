@@ -299,8 +299,12 @@ void SoundManager::fn_800CE368() {
     }
 }
 
-// NONMATCHING: 99.72% - numeracion de registros en el primer erase() (indice y texto cruzados; el segundo ya
-// coincide)
+// inferred: the first erase of fn_800CE6E0 goes through one more inline level than the second (register
+// order of its copy loop); name invented
+static inline void EraseLog_unk(SoundLog_unk& log, SoundLogEntry_unk* it) {
+    log.erase(it);
+}
+
 void SoundManager::fn_800CE6E0() {
     fn_800499F4(lbl_8087EE90, mOutputMode);
     fn_80049AAC(lbl_8087EE90, mMasterVolume);
@@ -320,7 +324,7 @@ void SoundManager::fn_800CE6E0() {
         it->mAge++;
         it->mVolume = it->mSound->fn_800CA844();
         if (it->mAge >= 120) {
-            mLog.erase(it);
+            EraseLog_unk(mLog, it);
         } else if (it->mSound != 0 && (it->mSound->fn_800C8278() || it->mId != it->mSound->m98)) {
             mLog.erase(it);
         } else {

@@ -1,0 +1,135 @@
+diff --git a/src/game/GameConfig_unk.cpp b/src/game/GameConfig_unk.cpp
+index 835cde0..5f136d5 100644
+--- a/src/game/GameConfig_unk.cpp
++++ b/src/game/GameConfig_unk.cpp
+@@ -168,6 +168,20 @@ void GameConfig_unk::fn_80185AD4() {
+     }
+ }
+ 
++static inline unsigned int ToU32_unk(const atn::Color& c) {
++    unsigned int ur = atn::ColorToU8_unk(c.r);
++    unsigned int ug = atn::ColorToU8_unk(c.g);
++    unsigned int ub = atn::ColorToU8_unk(c.b);
++    unsigned int ua = atn::ColorToU8_unk(c.a);
++    unsigned int x = (ua << 24) | (ur << 16);
++    x = (ug << 8) | x;
++    return ub | x;
++}
++
++static inline unsigned int LineColor_unk(float r, float g, float b, float a) {
++    return ToU32_unk(atn::Color4f_unk(r, g, b, a));
++}
++
+ // NONMATCHING: 93.1% - the original keeps 255 in r30 from the title defaults for the first line color; register allocation of the constants 0/1/90
+ GameConfig_unk::GameConfig_unk()
+     : mMenu(0), mDrawSystemInfo(0), mDrawCollision(0), mDrawColliWire(1), mDrawColliAttrColor(1),
+@@ -258,9 +272,9 @@ GameConfig_unk::GameConfig_unk()
+     mHateRatioDown = 1;
+     mHateLineFadeout = 0;
+     mLineColorNormal = 0xFFFFFFFF;
+-    mLineColorSword = atn::Color4f_unk(1.0f, 0.85f, 0.2f, 1.0f).ToU32();
+-    mLineColorArcher = atn::Color4f_unk(0.77f, 0.31f, 0.98f, 1.0f).ToU32();
+-    mLineColorMagic = atn::Color4f_unk(0.9f, 0.18f, 0.18f, 1.0f).ToU32();
++    mLineColorSword = LineColor_unk(1.0f, 0.85f, 0.2f, 1.0f);
++    mLineColorArcher = LineColor_unk(0.77f, 0.31f, 0.98f, 1.0f);
++    mLineColorMagic = LineColor_unk(0.9f, 0.18f, 0.18f, 1.0f);
+     mPlayerMinusHate = 40;
+     mIgnoreLongHate = 1;
+     memset(mIgnoreLongHateValue, 0, sizeof(mIgnoreLongHateValue));
+diff --git a/src/atn/SoundManager.cpp b/src/atn/SoundManager.cpp
+index 8d6554d..8b3b649 100644
+--- a/src/atn/SoundManager.cpp
++++ b/src/atn/SoundManager.cpp
+@@ -382,6 +382,11 @@ namespace atn {
+ 
+ // NONMATCHING: 99.47% - registros: x/y de los bloques 1-2 (f26/f25 en el original), los de las llamadas del
+ // bloque 2 y los GPR de los bloques 5-6
++static inline void DrawName_unk(SoundCore& sound, const Vector3& screen, float size) {
++    DrawHelper* draw = lbl_8087EEB0;
++    draw->fn_800616C0(screen.x, screen.y, 0.0f, size, size, sound.fn_800CA834(), -1, 0.0f, 1, 1, 0);
++}
++
+ void SoundManager::fn_800CECF0() {
+     if (lbl_8087EEB0 == 0) {
+         return;
+@@ -405,17 +410,12 @@ void SoundManager::fn_800CECF0() {
+         for (int i = 0; i < 32; i++) {
+             SoundCore& sound = mSounds[i];
+             if (!sound.fn_800C8278()) {
+-                float volume;
+                 if ((sound.m9C & 2) == 2) {
+                     Vector3 pos = sound.m08.mActor.mPosition;
+-                    float span = sound.fn_800CA8E0();
+-                    float pan = sound.fn_800CA8B0();
+-                    volume = sound.fn_800CA844();
+                     sprintf(buf, "[%s] Pos(%.2f, %.2f, %.2f) Vol:%.2f Pan:%.2f SPan:%.2f", sound.fn_800CA834(), pos.x,
+-                            pos.y, pos.z, volume, pan, span);
++                            pos.y, pos.z, sound.fn_800CA844(), sound.fn_800CA8B0(), sound.fn_800CA8E0());
+                 } else {
+-                    volume = sound.fn_800CA844();
+-                    sprintf(buf, "[%s] Vol:%.2f", sound.fn_800CA834(), volume);
++                    sprintf(buf, "[%s] Vol:%.2f", sound.fn_800CA834(), sound.fn_800CA844());
+                 }
+                 lbl_8087EEB0->fn_800616C0(x, y, z, h, h, buf, -1, 0.0f, 1, 1, 0);
+                 y += h;
+@@ -437,8 +437,7 @@ void SoundManager::fn_800CECF0() {
+                         color = 0xFFFF0000;
+                     }
+                     lbl_8087EEB0->fn_80063D3C(sound.m08.mActor.mPosition, 2.0f, 0.0f, color);
+-                    DrawHelper* draw = lbl_8087EEB0;
+-                    draw->fn_800616C0(screen.x, screen.y, 0.0f, size, size, sound.fn_800CA834(), -1, 0.0f, 1, 1, 0);
++                    DrawName_unk(sound, screen, size);
+                 }
+             }
+         }
+@@ -458,9 +457,8 @@ void SoundManager::fn_800CECF0() {
+                 int scope = sound.mB0 != 0 ? sound.mB0->m00 : -1;
+                 int category = sound.mAC != 0 ? sound.mAC->m00 : -1;
+                 int player = sound.mA8 != 0 ? sound.mA8->m00 : -1;
+-                float volume = sound.fn_800CA844();
+-                sprintf(buf, "%02d: [%s] Vol:%.2f, Ply:%d, Ctg:%d Scp:%d\0", i, sound.fn_800CA834(), volume, player,
+-                        category, scope);
++                sprintf(buf, "%02d: [%s] Vol:%.2f, Ply:%d, Ctg:%d Scp:%d\0", i, sound.fn_800CA834(),
++                        sound.fn_800CA844(), player, category, scope);
+                 color = 0xCCFFFFFF;
+             }
+             lbl_8087EEB0->fn_800616C0(1.0f + x, 1.0f + y, z, h, h, buf, 0xCC000000, 0.0f, 1, 1, 0);
+@@ -493,20 +491,21 @@ void SoundManager::fn_800CECF0() {
+     if (mDebugLevel == 6 || mDebugLevel == 7) {
+         x = 10.0f;
+         y = 20.0f;
++        float d = 180.0f;
+         float w = 60.0f;
+         for (int i = 0; i < 32; i++) {
+             SoundCore& sound = mSounds[i];
+             if (!sound.fn_800C8278() && sound.mHandle.mSound != 0 && (sound.m9C & 8) == 8) {
+                 if (mDebugLevel == 6) {
+-                    float volume = sound.fn_800CA844();
+-                    sprintf(buf, "[%s] Vol:%.2f", sound.fn_800CA834(), volume);
++                    sprintf(buf, "[%s] Vol:%.2f", sound.fn_800CA834(), sound.fn_800CA844());
+                 } else {
+                     unsigned int id = sound.m98;
+-                    sprintf(buf, "[%d] Vol:%.2f", id, sound.fn_800CA844());
++                    float volume = sound.fn_800CA844();
++                    sprintf(buf, "[%d] Vol:%.2f", id, volume);
+                 }
+                 lbl_8087EEB0->fn_800616C0(1.0f + x, 1.0f + y, z, h, h, buf, 0xCC000000, 0.0f, 1, 1, 0);
+                 lbl_8087EEB0->fn_800616C0(x, y, z, h, h, buf, 0xCCFFFFFF, 0.0f, 1, 1, 0);
+-                fn_800CE9A4(&sound, x + 180.0f, y, z, w, h);
++                fn_800CE9A4(&sound, x + d, y, z, w, h);
+                 y += h;
+             }
+         }
+diff --git a/src/atn/NetManager.cpp b/src/atn/NetManager.cpp
+index bc534f4..35e8707 100644
+--- a/src/atn/NetManager.cpp
++++ b/src/atn/NetManager.cpp
+@@ -1625,7 +1625,7 @@ void* fn_8050CFC8(void* arg) {
+                 lbl_8087F628->mThread.mCmd = 11;
+             } else {
+                 if (mgr->IsJoined_unk() == 1) {
+-                    mgr->mThread.mCmd = 11;
++                    lbl_8087F628->mThread.mCmd = 11;
+                 } else {
+                     mgr->mC0 = 1;
+                     fn_806AFAA0();
