@@ -3428,9 +3428,20 @@ struct SavePosition_unk {
     atn::Vector3 mRot; // 0x4F70
 };
 
+// inferred: GameScene::FindPlace_unk with the array read inside the loop (as in game/Em208Queen.cpp)
+static inline gs::WarpPoint* FindRoutePlace_unk(GameScene* table, int id) {
+    for (unsigned int i = 0; i < table->m78.size(); i++) {
+        gs::WarpPoint* places = table->m78.mData;
+        if (id == places[i].mId) {
+            return &places[i];
+        }
+    }
+    return 0;
+}
+
 // inferred: start position of the party: from the save data, else from the route place of the entry
 // (called by game/GameScene)
-// NONMATCHING: 98.2% - registers of the inlined FindPlace_unk loops (as fn_80374710)
+// NONMATCHING: 98.7% - registers of the inlined FindRoutePlace_unk loops (the id in r6/r8, ours r3)
 extern "C" void fn_8036FE74(GameTask* task, atn::Vector3* pos, atn::Vector3* rot) {
     *pos = lbl_807C7030;
     *rot = lbl_807C7030;
@@ -3442,9 +3453,9 @@ extern "C" void fn_8036FE74(GameTask* task, atn::Vector3* pos, atn::Vector3* rot
     }
     if (task->m550C.mScene != 0) {
         GameScene* table = (GameScene*)task->m550C.mScene;
-        gs::WarpPoint* place = table->FindPlace_unk(task->m550C.m14);
+        gs::WarpPoint* place = FindRoutePlace_unk(table, task->m550C.m14);
         if (place == 0) {
-            place = table->FindPlace_unk(table->m70);
+            place = FindRoutePlace_unk(table, table->m70);
         }
         if (place != 0) {
             *pos = place->mPos;
@@ -3460,9 +3471,9 @@ extern "C" void fn_8036FE74(GameTask* task, atn::Vector3* pos, atn::Vector3* rot
     }
     if (task->m10D8 != 0) {
         GameScene* table = (GameScene*)task->m10D8;
-        gs::WarpPoint* place = table->FindPlace_unk(task->mOption.m10);
+        gs::WarpPoint* place = FindRoutePlace_unk(table, task->mOption.m10);
         if (place == 0) {
-            place = table->FindPlace_unk(table->m70);
+            place = FindRoutePlace_unk(table, table->m70);
         }
         if (place != 0) {
             *pos = place->mPos;
@@ -4934,7 +4945,6 @@ void GameTask::fn_803743AC() {
 }
 
 // inferred: starts the grapple camera, toward the route place `id` when there is one
-// NONMATCHING: 99.5% - registers of the inlined FindPlace_unk loop (index and table swapped; tried if/else, a helper)
 void GameTask::fn_80374710(int id) {
     PlayerTask* leader = lbl_8087F8A0->mHead;
     mCamera.fn_80389838(6);
@@ -4943,7 +4953,7 @@ void GameTask::fn_80374710(int id) {
     if (id > 0) {
         // inferred: m10D8 is read as the route table here (as in gmk/BulletPoint.cpp)
         GameScene* table = (GameScene*)m10D8;
-        gs::WarpPoint* place = table != 0 ? table->FindPlace_unk(id) : 0;
+        gs::WarpPoint* place = table != 0 ? FindRoutePlace_unk(table, id) : 0;
         if (place != 0) {
             pos = place->mPos;
             angle = -place->m14;
