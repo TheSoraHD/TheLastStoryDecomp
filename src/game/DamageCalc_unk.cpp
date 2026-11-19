@@ -40,14 +40,8 @@ extern "C" void* lbl_8087EE98;
 extern "C" int fn_8004ED34(void* world, void* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* a, int b);
 
-// inferred: multiplayer state (lbl_8087F628, see gmk/Item.cpp)
-struct MpState_unk {
-    unsigned char m000[0x1F8];
-    unsigned int m1F8_31_20 : 12;
-    unsigned int mDisabled : 1;
-    unsigned int m1F8_18_0 : 19;
-};
-extern "C" MpState_unk* lbl_8087F628;
+#include "atn/net/Manager.h"
+extern "C" atn::net::Manager* lbl_8087F628;
 
 // inferred: player of a multiplayer session (fn_804EB7C4)
 struct MpPlayer_unk {
@@ -757,7 +751,7 @@ int fn_80040B44(DamageResult_unk* result, HitInfo_unk* data, CharaStatus* attack
         result->m14 = fn_80040664(data, attacker, target, flags);
         result->m18 = fn_800407F4(data, attacker, target, flags);
         bool local = true;
-        if (lbl_8087F628 != 0 && !lbl_8087F628->mDisabled && lbl_8087F610 != 0) {
+        if (lbl_8087F628 != 0 && !lbl_8087F628->mFlags.mB12 && lbl_8087F610 != 0) {
             local = lbl_8087F610->m99BC;
             if (!local) {
                 CharaTask* chara = target->mChara;
