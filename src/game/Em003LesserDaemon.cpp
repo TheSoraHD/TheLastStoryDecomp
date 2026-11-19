@@ -412,13 +412,26 @@ inline void Em003LesserDaemon::WarpFar_unk() {
     m14C4 = 0;
 }
 
+// inferred: the linked daemons that are not in state 2 warp too (name invented; the loop in an inline gives the
+// registers of the original)
+static inline void WarpLinks_unk(Em003LesserDaemon* self) {
+    for (unsigned int i = 0; i < self->mLinks.mSize; i++) {
+        if (self->mLinks.mData[i]->m58C != 2) {
+            self->mLinks.mData[i]->fn_8024FE18(0);
+        }
+    }
+}
+
 // inferred: index of the warp point farthest from the target (name invented)
+// inferred: `i` declared first and set to 0 before the point pointer (registers of the original)
 inline int Em003LesserDaemon::FarthestPoint_unk() {
+    unsigned int i;
     float bestDist = 0.0f;
     int best = 0;
     if (m14B0 != 0) {
-        for (unsigned int i = 0; i < mPoints.mSize; i++) {
-            atn::Vector3 d = GetPoint_unk(i) - m14B0->mPos;
+        i = 0;
+        for (const atn::Vector3* p = mPoints.mData; i < mPoints.mSize; p++, i++) {
+            atn::Vector3 d = *p - m14B0->mPos;
             float dist = d.Length_unk();
             if (dist > bestDist) {
                 best = i;
@@ -1562,8 +1575,6 @@ void Em003LesserDaemon::fn_8024FFE8() {
     }
 }
 
-// NONMATCHING: 99.49% - the point pointer and the index of the loop get r28/r30 swapped (12 variants:
-// pointer walk, index, while, helper inline, declaration orders)
 void Em003LesserDaemon::fn_802506AC() {
     if (mPoints.mSize == 0) {
         m58C = 0;
@@ -1578,11 +1589,7 @@ void Em003LesserDaemon::fn_802506AC() {
     m14B8 = 0;
     m14BC = 0;
     int best = FarthestPoint_unk();
-    for (unsigned int i = 0; i < mLinks.mSize; i++) {
-        if (mLinks.mData[i]->m58C != 2) {
-            mLinks.mData[i]->fn_8024FE18(0);
-        }
-    }
+    WarpLinks_unk(this);
     mWarpDest = mPoints.mData[best];
     m58C = 6;
     fn_8016E970(3);
