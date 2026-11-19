@@ -30,6 +30,8 @@ public:
         mTimes[2] = -1;
         mTimes[3] = -1;
     }
+    // inferred: delete in MP::Manager2::~Manager2 tests the pointer twice (inline destructor, 0x804D2118)
+    ~NetRanking_unk() {}
     int fn_8050C1D8(void* userData);
     int fn_8050C2F4();
     int fn_8050C7F0();
