@@ -1,5 +1,6 @@
 // Controls of the chase mode: caught, held and released by a guard; catching, holding and
 // releasing a character; moving beside and following the leader.
+#include "game/ChaseManager.h"
 #include "game/GameConfig_unk.h"
 #include "chr/ControlChaseCaught.h"
 #include "atn/Memory.h"
@@ -11,14 +12,7 @@
 #include "game/GameUI.h"
 
 extern "C" GameConfig_unk* lbl_8087F0A8;
-// inferred: event state (lbl_8087F098, as in gmk/LemonBucket.cpp); names invented
-struct ChaseEvent_unk {
-    unsigned char m00[0x48];
-    int m48; // inferred: chase mode (2: the leader is set)
-    unsigned char m4C[0xF8 - 0x4C];
-    CharaTask* mF8; // inferred: leader
-};
-extern "C" ChaseEvent_unk* lbl_8087F098;
+extern "C" ChaseManager* lbl_8087F098;
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 extern "C" void* lbl_8087F430; // inferred: field state
 extern "C" void PSMTXScale(Mtx m, float x, float y, float z);
@@ -198,8 +192,8 @@ ControlChaseAssist::ControlChaseAssist(Chara_unk* chara) : ControlBase(chara), m
 
 // inferred: walks to the side of the leader, then turns like it
 int ControlChaseAssist::vf0C() {
-    CharaTask* leader = lbl_8087F098->mF8;
-    if (lbl_8087F098->m48 != 2 || leader == 0) {
+    CharaTask* leader = lbl_8087F098->mCaught;
+    if (lbl_8087F098->mState != 2 || leader == 0) {
         return 1;
     }
     if (!m08) {
@@ -245,7 +239,7 @@ ControlChaseFollow::ControlChaseFollow(Chara_unk* chara) : ControlBase(chara) {
 // dist/near in f30/f29 as in the original
 // inferred: keeps behind the leader, faster when far
 int ControlChaseFollow::vf0C() {
-    if (lbl_8087F098->m48 == 0) {
+    if (lbl_8087F098->mState == 0) {
         return 1;
     }
     float near;

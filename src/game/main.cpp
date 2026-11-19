@@ -1,6 +1,7 @@
 // inferred file name (splits-auto): entry point of the game. main() runs the start-up (fn_8047A4C8)
 // and then the frame loop, which times each part of the frame into HeapInfo_unk and calls the
 // per-frame callbacks registered in lbl_8087EE94 (bound members of ResetShutdown/ErrorManager).
+#include "Event/Manager.h"
 #include "atn/Array_unk.h"
 #include "atn/MemoryManager.h"
 #include "atn/Memory.h"
@@ -51,12 +52,7 @@ struct DebugMessages_unk {
 };
 extern "C" DebugMessages_unk* lbl_8087EEB8;
 
-// inferred: dialog game object (float at 0x1EB4: frame rate shown)
-struct MainDialog_unk {
-    unsigned char m0000[0x1EB4];
-    float m1EB4;
-};
-extern "C" MainDialog_unk* lbl_8087F540;
+extern "C" Event::Manager* lbl_8087F540;
 
 struct MainLoadMgr_unk {
     unsigned char m0000[0x3ED8];

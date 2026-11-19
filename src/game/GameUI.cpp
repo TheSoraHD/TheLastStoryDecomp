@@ -1,3 +1,4 @@
+#include "game/ChaseManager.h"
 #include "atn/EffectManager.h"
 #include "Event/Manager.h"
 #include "game/GameTask.h"
@@ -4876,12 +4877,7 @@ void GameUI::fn_803E0D84() {
     m30C.clear();
 }
 
-// inferred: global object at lbl_8087F098 (class unknown, as in game/CharaTask.cpp); m48 nonzero shows all
-struct GameUIGlobal98_unk {
-    unsigned char m00[0x48];
-    int m48;
-};
-extern "C" GameUIGlobal98_unk* lbl_8087F098;
+extern "C" ChaseManager* lbl_8087F098;
 extern "C" HitInfo_unk* fn_80219344(CharaTask* chara, int kind); // inferred: skill of a kind of a party member
 // inferred: magic points of a character as a rate (name invented)
 inline float GetMpRate_unk(CharaTask* c) {
@@ -4923,7 +4919,7 @@ void GameUI::fn_803E0E10(CharaTask* chara, GameUIElem60_unk* window, int index) 
                 show = 1;
             }
         }
-    } else if (tutorial != 2 && (lbl_8087F098 == 0 || lbl_8087F098->m48 == 0) && first != 0) {
+    } else if (tutorial != 2 && (lbl_8087F098 == 0 || lbl_8087F098->mState == 0) && first != 0) {
         show = 0;
         bool on = true;
         bool party = true;

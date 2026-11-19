@@ -1,3 +1,4 @@
+#include "game/GameUI.h"
 #include "game/GameConfig_unk.h"
 #include "gmk/Trap.h"
 #include "atn/Csv.h"
@@ -14,12 +15,7 @@ extern "C" float fn_800DC288(const char* s); // inferred: string to float
 extern "C" int fn_802180A8(const char* s); // inferred: motion id from its name
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 extern "C" GameConfig_unk* lbl_8087F0A8;
-// inferred: global object (class unknown)
-struct TrapFlag_unk {
-    unsigned char m000[0x728];
-    int m728; // inferred: set while a character is caught
-};
-extern "C" TrapFlag_unk* lbl_8087F490;
+extern "C" GameUI* lbl_8087F490;
 
 namespace gmk {
 

@@ -1,3 +1,4 @@
+#include "Event/Manager.h"
 #include "game/EnvSeManager.h"
 #include "game/GameTask.h"
 #include "game/GameVoice.h"
@@ -39,11 +40,7 @@ extern "C" unsigned int fn_80049B74(void* engine, const char* name); // inferred
 extern "C" int fn_80049B2C(void* engine, unsigned int id);
 extern "C" void* lbl_8087F430;
 class MapTask;
-struct SongBattle_unk {
-    unsigned char m00[0x70];
-    int m70;
-};
-extern "C" SongBattle_unk* lbl_8087F540;
+extern "C" Event::Manager* lbl_8087F540;
 extern "C" int fn_803CE160(int a, int b, int c);
 
 // inferred: limit of the sounds of kind 8

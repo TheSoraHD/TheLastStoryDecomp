@@ -1,3 +1,4 @@
+#include "game/ChaseManager.h"
 #include "game/CosEditBase.h"
 #include "game/CostumeEditChara.h"
 #include "game/CharaTask.h"
@@ -95,12 +96,7 @@ struct CosEditParent_unk {
     CosEditMember_unk mMembers1[8]; // 0x126C
 };
 
-// inferred: lemon event (lbl_8087F098)
-struct CosEditLemon_unk {
-    unsigned char m00[0x48];
-    int m48;
-};
-extern "C" CosEditLemon_unk* lbl_8087F098;
+extern "C" ChaseManager* lbl_8087F098;
 
 // inferred: the eight statics of the .bss (0x807C7CB8-0x807C7D18; one label in the DOL, named after them in
 // symbols.txt)
@@ -228,7 +224,7 @@ void CosEditBase::vf10() {
                     }
                     mLoads[i].mChara->mStatus.fn_8012B988();
                     CharaTask* chara = mLoads[i].mChara;
-                    if (chara->m674 < 0 && (!lbl_8087F098 || !lbl_8087F098->m48)) {
+                    if (chara->m674 < 0 && (!lbl_8087F098 || !lbl_8087F098->mState)) {
                         chara->mStatus.fn_8012D8B8();
                     }
                 }

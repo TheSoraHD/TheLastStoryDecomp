@@ -1,3 +1,4 @@
+#include "Event/Manager.h"
 #include "game/CharaStatus.h"
 #include "game/GameScene.h"
 #include "atn/Model_unk.h"
@@ -9,12 +10,8 @@
 #include "game/GameTask.h"
 #include "game/GameSceneFind_unk.h"
 
-struct RouteField2_unk {
-    unsigned char m00[0x1A6C];
-    GameScene* m1A6C;
-};
 extern "C" GameTask* lbl_8087F430;
-extern "C" RouteField2_unk* lbl_8087F540;
+extern "C" Event::Manager* lbl_8087F540;
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 
 // inferred: route tables of the current field (name invented)

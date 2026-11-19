@@ -1,3 +1,4 @@
+#include "game/ChaseManager.h"
 #include "atn/GraphicsDevice.h"
 #include "atn/EffectManager.h"
 #include "game/SetConfig.h"
@@ -349,13 +350,7 @@ struct MsgTable_unk {
     const wchar_t* mText[1];
 };
 extern "C" MsgTable_unk* lbl_8087F1E4;
-// inferred: global object at lbl_8087F098 (class unknown); m48 nonzero shows the labels of all
-// characters (fn_80149A30)
-struct Global98_unk {
-    unsigned char m00[0x48];
-    int m48;
-};
-extern "C" Global98_unk* lbl_8087F098;
+extern "C" ChaseManager* lbl_8087F098;
 extern "C" atn::GraphicsDevice_unk* lbl_8087EEE0;
 
 // inferred: node position (name invented)
@@ -2585,7 +2580,7 @@ void CharaTask::fn_8013CB68(const atn::Vector3& target, int arg, float speed, fl
                 if (IsHeld_unk(other)) {
                     push = 0;
                 }
-                if (lbl_8087F098 != 0 && lbl_8087F098->m48 != 0) {
+                if (lbl_8087F098 != 0 && lbl_8087F098->mState != 0) {
                     if (otherType == 0 || otherType == 3) {
                         push = 0;
                     }
@@ -5477,7 +5472,7 @@ void CharaTask::fn_80149A30() {
                 screen.y = MIN(MAX(screen.y, 0.1f * lbl_8087EEE0->mHeight), 0.9f * lbl_8087EEE0->mHeight - size);
             }
             lbl_8087EEB0->fn_80061824(screen.x - 0.5f * w, screen.y - 12.0f - m12C8, 0.0f, size, size, 0.0f, 0.0f, 0.0f, text, color, 1, 1, 0, 0, 0xFF000000);
-        } else if (lbl_8087F098 != 0 && lbl_8087F098->m48 != 0) {
+        } else if (lbl_8087F098 != 0 && lbl_8087F098->mState != 0) {
             if (mC58.m11C.m01 == 0) {
                 return;
             }
@@ -10189,7 +10184,7 @@ int CharaTask::fn_80174104(atn::Vector3* pos, atn::Vector3* move) {
     if (mType != 0) {
         return 0;
     }
-    if (lbl_8087F098 != 0 && lbl_8087F098->m48 != 0) {
+    if (lbl_8087F098 != 0 && lbl_8087F098->mState != 0) {
         return 0;
     }
     if (m55C == 6 || m55C == 8) {
@@ -10420,7 +10415,7 @@ void CharaTask::fn_80175B18(float distSq) {
         mLook.fn_80129A48(0.3f);
         return;
     }
-    if (lbl_8087F098 != 0 && lbl_8087F098->m48 != 0 && IsPartyMember_unk()) {
+    if (lbl_8087F098 != 0 && lbl_8087F098->mState != 0 && IsPartyMember_unk()) {
         target = lbl_8087F8A0->mHead;
         float best = PSVECSquareMag(&(target->mPos - mPos));
         for (CharaTask* enemy = (CharaTask*)EnemyManager::sInstance->mHead; enemy != 0; enemy = NextChara_unk(enemy)) {

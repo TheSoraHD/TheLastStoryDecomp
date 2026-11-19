@@ -1,3 +1,4 @@
+#include "Event/Manager.h"
 #include "game/GameConfig_unk.h"
 #include "game/EnvSeBase.h"
 #include "atn/RenderManager.h"
@@ -21,11 +22,7 @@ extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector (.bss, 0x10 bytes
 
 
 extern "C" GameTask* lbl_8087F430;
-struct EnvSeMute_unk {
-    unsigned char m00[0x70];
-    int m70;
-};
-extern "C" EnvSeMute_unk* lbl_8087F540;
+extern "C" Event::Manager* lbl_8087F540;
 extern "C" GameConfig_unk* lbl_8087F0A8;
 
 // inferred: debug drawing and camera

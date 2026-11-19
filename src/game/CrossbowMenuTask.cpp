@@ -1,3 +1,4 @@
+#include "game/GameUI.h"
 #include "game/CrossbowMenuTask.h"
 #include "db/SkillParam_unk.h"
 #include "db/ItemParam_unk.h"
@@ -41,11 +42,7 @@ extern "C" int fn_80211734(CrossbowItem_unk* item); // inferred: infinite arrows
 extern "C" int lbl_8087DAA0 = 0x19C;
 // inferred: bullet data (db/SkillParam_unk)
 extern "C" SkillParam_unk* fn_80219E6C(int id);
-struct Unk_8087F490 {
-    unsigned char m0000[0x10FC];
-    int m10FC;
-};
-extern "C" Unk_8087F490* lbl_8087F490;
+extern "C" GameUI* lbl_8087F490;
 extern "C" int lbl_8087F610;
 // inferred: player (only the members used here)
 struct CrossbowPlayerInfo_unk {

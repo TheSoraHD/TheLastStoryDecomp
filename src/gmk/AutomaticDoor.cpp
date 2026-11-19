@@ -1,3 +1,4 @@
+#include "game/GameUI.h"
 #include "atn/EffectManager.h"
 #include "game/GameConfig_unk.h"
 #include "gmk/AutomaticDoor.h"
@@ -51,12 +52,7 @@ extern "C" GameTask* lbl_8087F430;
 inline int GameCamera::GetMode_unk() const {
     return m7FC;
 }
-struct DoorHud_unk {
-    unsigned char m0000[0x10FC];
-    int m10FC;
-    float m1100;
-};
-extern "C" DoorHud_unk* lbl_8087F490;
+extern "C" GameUI* lbl_8087F490;
 
 // inferred: normalizes unless the vector is (almost) zero (as in gmk::WaterLevel); name invented
 inline void SafeNormalize_unk(atn::Vector3* v) {

@@ -1,3 +1,4 @@
+#include "game/ChaseManager.h"
 #include "game/GameConfig_unk.h"
 #include "gmk/LemonBucket.h"
 #include "gmk/Lemon.h"
@@ -29,12 +30,7 @@ extern "C" void fn_80087858(void* group, const char* name, float* value, int arg
                             float step);
 
 extern "C" GameConfig_unk* lbl_8087F0A8;
-// inferred: event state (class unknown): m48 nonzero while an event runs
-struct LemonEvent_unk {
-    unsigned char m00[0x48];
-    int m48;
-};
-extern "C" LemonEvent_unk* lbl_8087F098;
+extern "C" ChaseManager* lbl_8087F098;
 // inferred: player manager and its first character (only the rotation is read)
 struct LemonPlayer_unk {
     unsigned char m000[0x538];
@@ -360,7 +356,7 @@ int LemonBucket::vf48(const atn::Vector3* pos, const atn::Vector3* dir, int flag
         if (len > 0.0f) {
             PSVECNormalize(&d, &d);
         }
-        if (lbl_8087F098 != 0 && lbl_8087F098->m48 != 0) {
+        if (lbl_8087F098 != 0 && lbl_8087F098->mState != 0) {
             if (len < 400.0f) {
                 return 1;
             }

@@ -2,6 +2,7 @@
 // Nunchuk) shown over the game, with a direct GX text fallback while its layouts are not loaded.
 // No vtable or RTTI; class name ErrorManager from the boost::bind type names (game/main.cpp). Instance at lbl_8087F420 (see game/GameSystem_unk.cpp).
 
+#include "atn/net/Manager.h"
 #include "atn/GraphicsDevice.h"
 #include "atn/D2A_Task.h"
 #include "atn/D2A_TaskApi_unk.h"
@@ -50,11 +51,7 @@ extern "C" int DVDCheckDisk();
 struct SysArena_unk;
 extern "C" SysArena_unk* lbl_8087F610;
 extern "C" void fn_804FB530(SysArena_unk* arena);
-struct SysArenaState_unk {
-    unsigned char m00[0xC8];
-    int mC8;
-};
-extern "C" SysArenaState_unk* lbl_8087F628;
+extern "C" atn::net::Manager* lbl_8087F628;
 // inferred: sound, bgm, movie and field pauses
 extern "C" void* lbl_8087EE90;
 extern "C" void fn_8004A2CC(void* bgm, int pause, int frames, int arg);
@@ -586,7 +583,7 @@ void ErrorManager::fn_80363DBC() {
         }
     } else {
         int pause = 1;
-        if (lbl_8087F610 != 0 && lbl_8087F628->mC8 >= 8) {
+        if (lbl_8087F610 != 0 && lbl_8087F628->mState >= 8) {
             pause = 0;
         }
         void* save = lbl_8087EF68;

@@ -1,3 +1,4 @@
+#include "game/ChaseManager.h"
 #include "game/GameConfig_unk.h"
 #include "atn/EffectManager.h"
 #include "gmk/SavePoint.h"
@@ -28,12 +29,7 @@ extern "C" void fn_80232B7C(void* owner, int arg);
 
 // inferred: the field task (lbl_8087F430)
 extern "C" GameTask* lbl_8087F430;
-// inferred: global objects (classes unknown)
-struct SaveEvent_unk {
-    unsigned char m00[0x48];
-    int m48; // inferred: an event is running
-};
-extern "C" SaveEvent_unk* lbl_8087F098;
+extern "C" ChaseManager* lbl_8087F098;
 extern "C" void* lbl_8087EF68;
 extern "C" int fn_800A4228(void* obj, int* out);
 extern "C" GameConfig_unk* lbl_8087F0A8;
@@ -133,7 +129,7 @@ void SavePoint::vf10() {
         if (LenSq_unk(lbl_8087F430->mCamera.mCamera.mPos - m6C) >= 90000.0f) {
             mEnabled = 0;
         }
-        if (lbl_8087F098 != 0 && lbl_8087F098->m48 != 0) {
+        if (lbl_8087F098 != 0 && lbl_8087F098->mState != 0) {
             mEnabled = 0;
         }
     }

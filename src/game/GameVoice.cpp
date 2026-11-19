@@ -1,3 +1,4 @@
+#include "Event/Manager.h"
 #include "math/VecAssign_unk.h"
 #include "game/GameVoice.h"
 #include "game/GameTask.h"
@@ -47,12 +48,7 @@ struct VoiceEntry_unk {
 };
 
 extern "C" GameTask* lbl_8087F430;
-// inferred: the battle (lbl_8087F540); only the pause flag
-struct GameVoiceBattle_unk {
-    unsigned char m00[0x70];
-    int m70;
-};
-extern "C" GameVoiceBattle_unk* lbl_8087F540;
+extern "C" Event::Manager* lbl_8087F540;
 
 // inferred: sound id of a voice name (0 without a name; name invented)
 static inline unsigned int VoiceId_unk(const char* name) {

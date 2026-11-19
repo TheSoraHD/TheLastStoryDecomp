@@ -1,3 +1,4 @@
+#include "game/GameUI.h"
 #include "atn/GraphicsDevice.h"
 #include "MP/D2AMpMenu_unk.h"
 #include "MP/D2AMpMenu.h"
@@ -93,11 +94,7 @@ extern "C" MpPlayerInfos_unk* lbl_8087F628;
 extern "C" atn::GraphicsDevice_unk* lbl_8087EEE0;
 
 extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float volume);
-struct MpArena_unk {
-    unsigned char m0000[0x255C];
-    int m255C;
-};
-extern "C" MpArena_unk* lbl_8087F490;
+extern "C" GameUI* lbl_8087F490;
 
 namespace MP {
 
