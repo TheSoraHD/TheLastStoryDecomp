@@ -1689,7 +1689,7 @@ void EnemyQuarkStand::fn_8034DA0C() {
 void EnemyQuarkStand::fn_8034DE90() {
     int done = 0;
     if (m14B4 == 0) {
-        CharaTask* chara = (CharaTask*)m16F0;
+        CharaTask* chara = m16F0;
         if (chara->m55C == 6 && chara->m560 == 0x89) {
             chr::ControlBase* control = chara->mControl.get();
             if (control != 0 && control->vf54() != 0) {
@@ -1714,7 +1714,7 @@ void EnemyQuarkStand::fn_8034DE90() {
         if (m16F4 != 2) {
             base = &mPos;
         } else {
-            base = &((CharaTask*)m16F0)->mPos;
+            base = &m16F0->mPos;
         }
         atn::Matrix3x4 m;
         PSMTXTrans(m.m, base->x, base->y, base->z);
@@ -1735,7 +1735,7 @@ void EnemyQuarkStand::fn_8034DE90() {
     }
     mRot = m16F8;
     if (m16F4 == 2) {
-        mMotion.mTracks[0].m0C = ((CharaTask*)m16F0)->mMotion.mTracks[0].m0C;
+        mMotion.mTracks[0].m0C = m16F0->mMotion.mTracks[0].m0C;
         if (mMotion.mTracks[0].m08 >= 87.0f && lbl_8087F430->fn_80370A78(0x88) == 0) {
             lbl_8087F430->fn_80370AE4(0x88, 1);
         }
@@ -2185,7 +2185,7 @@ enum {
 // NONMATCHING: 99.9% - the original builds the slot address (Inventory::instance_ + 0x8310) through r3 before r31
 // (tried pointer forms, a chained assignment, an Inventory local). The motion is a ?: of enum constants.
 void EnemyQuarkStand::fn_80351AB8(CharaTask* chara, int kind) {
-    m16F0 = (int)chara;
+    m16F0 = chara;
     m16F4 = kind;
     m1714 = 1;
     fn_8034F384();

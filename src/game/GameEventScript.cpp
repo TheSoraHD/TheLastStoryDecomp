@@ -2163,7 +2163,7 @@ void GameEventScript::ApproachCharas_unk(Manager* manager, atn::SimpleArray<gs::
                     }
                     }
                     if (start) {
-                        m98 = (int)chara;
+                        m98 = chara;
                         for (int j = 0; j < e->mCount; j++) {
                             if (e->mConds[j].m00 < 0) {
                                 Done_unk(e->m00) = true;

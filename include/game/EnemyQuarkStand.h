@@ -225,7 +225,7 @@ public:
     float m16DC;
     atn::Vector3 m16E0;
     int m16EC;
-    int m16F0;
+    CharaTask* m16F0; // inferred: character held (fn_80348568)
     int m16F4;
     atn::Vector3 m16F8;
     atn::LH_Xsca m1704;            // inferred: "/camera/battle/cm000_em211_00.xsca"
