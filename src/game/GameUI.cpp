@@ -221,26 +221,25 @@ GAMEUI_CHECK(m288C, 0x288C);
 GameUI* lbl_8087F490;
 int lbl_8087F494;     // inferred: debug flag "ChantTimeHalf" (fn_803CFC78): frames counted at 60 per second (else 30)
 
-// inferred: colours of the HUD (0x807C8628, .bss of this file); they are set by the static initializer
-// (__sinit, 0x803E78B4) and registered in the debug menu by fn_803CFC78
-atn::Color lbl_807C8628[16] = {
-    atn::Color(255 / 255.0f, 217 / 255.0f, 51 / 255.0f, 0.0f),
-    atn::Color(230 / 255.0f, 46 / 255.0f, 46 / 255.0f, 0.0f),
-    atn::Color(125 / 255.0f, 125 / 255.0f, 125 / 255.0f, 0.0f),
-    atn::Color(197 / 255.0f, 80 / 255.0f, 254 / 255.0f, 0.0f),
-    atn::Color(197 / 255.0f, 80 / 255.0f, 254 / 255.0f, 0.0f),
-    atn::Color(153 / 255.0f, 153 / 255.0f, 153 / 255.0f, 0.0f),
-    atn::Color(125 / 255.0f, 125 / 255.0f, 125 / 255.0f, 0.0f),
-    atn::Color(255 / 255.0f, 60 / 255.0f, 15 / 255.0f, 0.0f),
-    atn::Color(10 / 255.0f, 10 / 255.0f, 255 / 255.0f, 0.0f),
-    atn::Color(51 / 255.0f, 255 / 255.0f, 102 / 255.0f, 0.0f),
-    atn::Color(250 / 255.0f, 240 / 255.0f, 130 / 255.0f, 0.0f),
-    atn::Color(167 / 255.0f, 248 / 255.0f, 255 / 255.0f, 0.0f),
-    atn::Color(102 / 255.0f, 26 / 255.0f, 153 / 255.0f, 0.0f),
-    atn::Color(153 / 255.0f, 27 / 255.0f, 27 / 255.0f, 0.0f),
-    atn::Color(255 / 255.0f, 255 / 255.0f, 255 / 255.0f, 0.0f),
-    atn::Color(25 / 255.0f, 25 / 255.0f, 25 / 255.0f, 0.0f),
-};
+// inferred: colours of the HUD (0x807C8628-0x807C8728, .bss of this file); they are set by the static
+// initializer (__sinit, 0x803E78B4) and registered in the debug menu by fn_803CFC78 (names from its
+// entries). Sixteen objects, not one array: the code keeps a pointer to each one (anchor + offset)
+atn::Color sColorJobSoldier_unk(255 / 255.0f, 217 / 255.0f, 51 / 255.0f, 0.0f);
+atn::Color sColorJobMagic_unk(230 / 255.0f, 46 / 255.0f, 46 / 255.0f, 0.0f);
+atn::Color sColorJobHealer_unk(125 / 255.0f, 125 / 255.0f, 125 / 255.0f, 0.0f);
+atn::Color sColorJobReverser_unk(197 / 255.0f, 80 / 255.0f, 254 / 255.0f, 0.0f);
+atn::Color sColorJobArcher_unk(197 / 255.0f, 80 / 255.0f, 254 / 255.0f, 0.0f);
+atn::Color sColorJobOthers_unk(153 / 255.0f, 153 / 255.0f, 153 / 255.0f, 0.0f);
+atn::Color sColorJobGuard_unk(125 / 255.0f, 125 / 255.0f, 125 / 255.0f, 0.0f);
+atn::Color sColorAttrFire_unk(255 / 255.0f, 60 / 255.0f, 15 / 255.0f, 0.0f);
+atn::Color sColorAttrIce_unk(10 / 255.0f, 10 / 255.0f, 255 / 255.0f, 0.0f);
+atn::Color sColorAttrForest_unk(51 / 255.0f, 255 / 255.0f, 102 / 255.0f, 0.0f);
+atn::Color sColorAttrHoly_unk(250 / 255.0f, 240 / 255.0f, 130 / 255.0f, 0.0f);
+atn::Color sColorAttrWind_unk(167 / 255.0f, 248 / 255.0f, 255 / 255.0f, 0.0f);
+atn::Color sColorAttrDark_unk(102 / 255.0f, 26 / 255.0f, 153 / 255.0f, 0.0f);
+atn::Color sColorAttrStar_unk(153 / 255.0f, 27 / 255.0f, 27 / 255.0f, 0.0f);
+atn::Color sColorAttrBack_unk(255 / 255.0f, 255 / 255.0f, 255 / 255.0f, 0.0f);
+atn::Color sColorAttrBack2_unk(25 / 255.0f, 25 / 255.0f, 25 / 255.0f, 0.0f);
 
 // inferred: frames to whole seconds, rounded up past the first (60 or 30 frames per second)
 extern "C" int fn_803CE854(int frames) {
@@ -439,8 +438,6 @@ void GameUI::fn_803CF74C() {
     mD3C = 0;
 }
 
-
-
 GameUI::~GameUI() {
     lbl_8087F490 = 0;
 }
@@ -518,11 +515,8 @@ extern "C" void fn_80088FAC(void* group, const char* name, float* rgba, float mi
 
 // inferred: registers the parameters of the HUD in the debug menu ("GameUI": job and attribute colours, the
 // colours of the tactical view cursor, the flash counters and the access icon)
-// NONMATCHING: 99.8% - the original passes the first colour as `addi r5, r30, 0` (here `mr`), which also
-// moves one string load; tried the table as a pointer, the array directly, two static arrays
 void GameUI::fn_803CFC78() {
     const char* name = "GameUI";
-    atn::Color* colors = lbl_807C8628;
     void* group;
     if (m2664.mRes == 0 && lbl_8087EF10 != 0) {
         group = m2664.mRes = fn_8008937C(lbl_8087EF10->m10, name);
@@ -530,22 +524,22 @@ void GameUI::fn_803CFC78() {
         group = 0;
     }
     fn_80087994(group, "ChantTimeHalf", &lbl_8087F494, 0, 0);
-    fn_80088FAC(group, "Job_Soldier", &colors[0].r, 0.0f, 1.0f, 1.0f, 0, 0);
-    fn_80088FAC(group, "Job_Magic", &colors[1].r, 0.0f, 1.0f, 1.0f, 0, 0);
-    fn_80088FAC(group, "Job_Healer", &colors[2].r, 0.0f, 1.0f, 1.0f, 0, 0);
-    fn_80088FAC(group, "Job_Reverser", &colors[3].r, 0.0f, 1.0f, 1.0f, 0, 0);
-    fn_80088FAC(group, "Job_Archer", &colors[4].r, 0.0f, 1.0f, 1.0f, 0, 0);
-    fn_80088FAC(group, "Job_Others", &colors[5].r, 0.0f, 1.0f, 1.0f, 0, 0);
-    fn_80088FAC(group, "Job_Guard", &colors[6].r, 0.0f, 1.0f, 1.0f, 0, 0);
-    fn_80088FAC(group, "Attr_Fire", &colors[7].r, 0.0f, 1.0f, 1.0f, 0, 0);
-    fn_80088FAC(group, "Attr_Ice", &colors[8].r, 0.0f, 1.0f, 1.0f, 0, 0);
-    fn_80088FAC(group, "Attr_Forest", &colors[9].r, 0.0f, 1.0f, 1.0f, 0, 0);
-    fn_80088FAC(group, "Attr_Wind", &colors[11].r, 0.0f, 1.0f, 1.0f, 0, 0);
-    fn_80088FAC(group, "Attr_Holy", &colors[10].r, 0.0f, 1.0f, 1.0f, 0, 0);
-    fn_80088FAC(group, "Attr_Dark", &colors[12].r, 0.0f, 1.0f, 1.0f, 0, 0);
-    fn_80088FAC(group, "Attr_Star", &colors[13].r, 0.0f, 1.0f, 1.0f, 0, 0);
-    fn_80088FAC(group, "Attr_Back", &colors[14].r, 0.0f, 1.0f, 1.0f, 0, 0);
-    fn_80088FAC(group, "Attr_Back2", &colors[15].r, 0.0f, 1.0f, 1.0f, 0, 0);
+    fn_80088FAC(group, "Job_Soldier", &sColorJobSoldier_unk.r, 0.0f, 1.0f, 1.0f, 0, 0);
+    fn_80088FAC(group, "Job_Magic", &sColorJobMagic_unk.r, 0.0f, 1.0f, 1.0f, 0, 0);
+    fn_80088FAC(group, "Job_Healer", &sColorJobHealer_unk.r, 0.0f, 1.0f, 1.0f, 0, 0);
+    fn_80088FAC(group, "Job_Reverser", &sColorJobReverser_unk.r, 0.0f, 1.0f, 1.0f, 0, 0);
+    fn_80088FAC(group, "Job_Archer", &sColorJobArcher_unk.r, 0.0f, 1.0f, 1.0f, 0, 0);
+    fn_80088FAC(group, "Job_Others", &sColorJobOthers_unk.r, 0.0f, 1.0f, 1.0f, 0, 0);
+    fn_80088FAC(group, "Job_Guard", &sColorJobGuard_unk.r, 0.0f, 1.0f, 1.0f, 0, 0);
+    fn_80088FAC(group, "Attr_Fire", &sColorAttrFire_unk.r, 0.0f, 1.0f, 1.0f, 0, 0);
+    fn_80088FAC(group, "Attr_Ice", &sColorAttrIce_unk.r, 0.0f, 1.0f, 1.0f, 0, 0);
+    fn_80088FAC(group, "Attr_Forest", &sColorAttrForest_unk.r, 0.0f, 1.0f, 1.0f, 0, 0);
+    fn_80088FAC(group, "Attr_Wind", &sColorAttrWind_unk.r, 0.0f, 1.0f, 1.0f, 0, 0);
+    fn_80088FAC(group, "Attr_Holy", &sColorAttrHoly_unk.r, 0.0f, 1.0f, 1.0f, 0, 0);
+    fn_80088FAC(group, "Attr_Dark", &sColorAttrDark_unk.r, 0.0f, 1.0f, 1.0f, 0, 0);
+    fn_80088FAC(group, "Attr_Star", &sColorAttrStar_unk.r, 0.0f, 1.0f, 1.0f, 0, 0);
+    fn_80088FAC(group, "Attr_Back", &sColorAttrBack_unk.r, 0.0f, 1.0f, 1.0f, 0, 0);
+    fn_80088FAC(group, "Attr_Back2", &sColorAttrBack2_unk.r, 0.0f, 1.0f, 1.0f, 0, 0);
     void* cursor = fn_8008937C(group, "TacviewCursor");
     fn_80088FAC(cursor, "WindF", &m2698.r, 0.0f, 1.0f, 1.0f, 0, 0);
     fn_80088FAC(cursor, "WindB", &m26A8.r, 0.0f, 1.0f, 1.0f, 0, 0);
@@ -3029,12 +3023,10 @@ inline GameUIAimTarget_unk* GetAimTarget_unk(AiTarget* t) {
 }
 // inferred: colour parameters of the skill icon (names invented)
 inline void SetIconColor_unk(atn::D2A_Task* task, const char* name, const GameUIColor_unk& c) {
-    GameUIColor_unk tmp(c.r, c.g, c.b, c.a);
-    task->SetColor255_unk(name, &tmp.r);
+    task->SetColor255_unk(name, atn::Color(c.r, c.g, c.b, c.a));
 }
 inline void SetIconColorHalf_unk(atn::D2A_Task* task, const char* name, const GameUIColor_unk& c) {
-    GameUIColor_unk tmp(c.r * 0.5f, c.g * 0.5f, c.b * 0.5f, c.a * 0.5f);
-    task->SetColor255_unk(name, &tmp.r);
+    task->SetColor255_unk(name, atn::Color(c.r * 0.5f, c.g * 0.5f, c.b * 0.5f, c.a * 0.5f));
 }
 // inferred: text of a message id, checked and then read again (name invented)
 inline const wchar_t* GetMsgEntry_unk(int id) {
@@ -4103,11 +4095,6 @@ struct GameUIUvRect_unk {
 inline void SetJobUv_unk(atn::D2A_Task* task, const char* name, const GameUIUvRect_unk& r) {
     task->SetParam2_unk(name, r.v);
 }
-inline void SetJobColor_unk(atn::D2A_Task* task, const char* name, const atn::Color& c) {
-    atn::Color tmp = c;
-    task->SetColor255_unk(name, &tmp.r);
-}
-
 
 extern "C" void fn_801FEEFC(atn::D2A_Layout_unk* layout, unsigned int hash, int value); // inferred: int parameter
 // inferred: int layout parameter of a d2anime task by name (name invented)
@@ -4116,18 +4103,11 @@ inline void SetLayoutInt_unk(atn::D2A_Task* task, const char* name, int value) {
 }
 
 extern "C" void fn_803DD90C(atn::D2A_Task* task, int job);
-// inferred: colour parameter from a colour passed by value (name invented)
-inline void SetAttrColor_unk(atn::D2A_Task* task, const char* name, atn::Color c) {
-    task->SetColor255_unk(name, &c.r);
-}
-
 // inferred: job and attribute icons of a character (attribute: UV of the icon, two colours and the blend
 // mode); called by game/NewCampPartsStatus
-// NONMATCHING: 87.5% - register allocation (the original keeps the task in r31 and the data in r28), the
-// original takes the address of each colour before copying it (same as fn_803DD90C), and the offsets into
-// the string pool (the functions before it are not written yet)
+// NONMATCHING: 97.9% - register allocation (the original keeps the task in r31, the strings in r30 and the
+// colour anchor in r29; here r29, r31 and r30); tried the order and form of the null checks
 extern "C" void fn_803DD160(atn::D2A_Task* task, chr::CharaData_unk* data) {
-    atn::Color* colors = lbl_807C8628;
     if (data == 0 || task == 0) {
         return;
     }
@@ -4139,50 +4119,50 @@ extern "C" void fn_803DD160(atn::D2A_Task* task, chr::CharaData_unk* data) {
         task->SetLayoutValue_unk("attr01", 1.0f);
         SetJobUv_unk(task, "attrUv01ma", GameUIUvRect_unk(0.25f, 0.25f, 0.5f, 0.5f));
         SetJobUv_unk(task, "attrUv01mb", GameUIUvRect_unk(0.25f, 0.25f, 0.5f, 0.5f));
-        SetAttrColor_unk(task, "attrCol01a", colors[7]);
-        SetAttrColor_unk(task, "attrCol01b", colors[14]);
+        task->SetColor255_unk("attrCol01a", sColorAttrFire_unk);
+        task->SetColor255_unk("attrCol01b", sColorAttrBack_unk);
         SetLayoutInt_unk(task, "attrBlend", 0);
     } else if (attr == 1) {
         task->SetLayoutValue_unk("attr01", 1.0f);
         SetJobUv_unk(task, "attrUv01ma", GameUIUvRect_unk(0.5f, 0.25f, 0.75f, 0.5f));
         SetJobUv_unk(task, "attrUv01mb", GameUIUvRect_unk(0.5f, 0.25f, 0.75f, 0.5f));
-        SetAttrColor_unk(task, "attrCol01a", colors[8]);
-        SetAttrColor_unk(task, "attrCol01b", colors[14]);
+        task->SetColor255_unk("attrCol01a", sColorAttrIce_unk);
+        task->SetColor255_unk("attrCol01b", sColorAttrBack_unk);
         SetLayoutInt_unk(task, "attrBlend", 0);
     } else if (attr == 4) {
         task->SetLayoutValue_unk("attr01", 1.0f);
         SetJobUv_unk(task, "attrUv01ma", GameUIUvRect_unk(0.75f, 0.25f, 1.0f, 0.5f));
         SetJobUv_unk(task, "attrUv01mb", GameUIUvRect_unk(0.75f, 0.25f, 1.0f, 0.5f));
-        SetAttrColor_unk(task, "attrCol01a", colors[9]);
-        SetAttrColor_unk(task, "attrCol01b", colors[14]);
+        task->SetColor255_unk("attrCol01a", sColorAttrForest_unk);
+        task->SetColor255_unk("attrCol01b", sColorAttrBack_unk);
         SetLayoutInt_unk(task, "attrBlend", 0);
     } else if (attr == 3) {
         task->SetLayoutValue_unk("attr01", 1.0f);
         SetJobUv_unk(task, "attrUv01ma", GameUIUvRect_unk(0.0f, 0.5f, 0.25f, 0.75f));
         SetJobUv_unk(task, "attrUv01mb", GameUIUvRect_unk(0.0f, 0.5f, 0.25f, 0.75f));
-        SetAttrColor_unk(task, "attrCol01a", colors[11]);
-        SetAttrColor_unk(task, "attrCol01b", colors[14]);
+        task->SetColor255_unk("attrCol01a", sColorAttrWind_unk);
+        task->SetColor255_unk("attrCol01b", sColorAttrBack_unk);
         SetLayoutInt_unk(task, "attrBlend", 0);
     } else if (attr == 5) {
         task->SetLayoutValue_unk("attr01", 1.0f);
         SetJobUv_unk(task, "attrUv01ma", GameUIUvRect_unk(0.0f, 0.25f, 0.25f, 0.5f));
         SetJobUv_unk(task, "attrUv01mb", GameUIUvRect_unk(0.0f, 0.25f, 0.25f, 0.5f));
-        SetAttrColor_unk(task, "attrCol01a", colors[10]);
-        SetAttrColor_unk(task, "attrCol01b", colors[14]);
+        task->SetColor255_unk("attrCol01a", sColorAttrHoly_unk);
+        task->SetColor255_unk("attrCol01b", sColorAttrBack_unk);
         SetLayoutInt_unk(task, "attrBlend", 0);
     } else if (attr == 6) {
         task->SetLayoutValue_unk("attr01", 1.0f);
         SetJobUv_unk(task, "attrUv01ma", GameUIUvRect_unk(0.5f, 0.5f, 0.75f, 0.75f));
         SetJobUv_unk(task, "attrUv01mb", GameUIUvRect_unk(0.5f, 0.5f, 0.75f, 0.75f));
-        SetAttrColor_unk(task, "attrCol01a", colors[12]);
-        SetAttrColor_unk(task, "attrCol01b", colors[15]);
+        task->SetColor255_unk("attrCol01a", sColorAttrDark_unk);
+        task->SetColor255_unk("attrCol01b", sColorAttrBack2_unk);
         SetLayoutInt_unk(task, "attrBlend", 3);
     } else if (attr == 7) {
         task->SetLayoutValue_unk("attr01", 1.0f);
         SetJobUv_unk(task, "attrUv01ma", GameUIUvRect_unk(0.75f, 0.5f, 1.0f, 0.75f));
         SetJobUv_unk(task, "attrUv01mb", GameUIUvRect_unk(0.75f, 0.5f, 1.0f, 0.75f));
-        SetAttrColor_unk(task, "attrCol01a", colors[13]);
-        SetAttrColor_unk(task, "attrCol01b", colors[15]);
+        task->SetColor255_unk("attrCol01a", sColorAttrStar_unk);
+        task->SetColor255_unk("attrCol01b", sColorAttrBack2_unk);
         SetLayoutInt_unk(task, "attrBlend", 3);
     } else {
         task->SetLayoutValue_unk("attr01", 0.0f);
@@ -4190,114 +4170,103 @@ extern "C" void fn_803DD160(atn::D2A_Task* task, chr::CharaData_unk* data) {
 }
 
 // inferred: job icon of a character window (UV of the icon and its colours)
-// NONMATCHING: 91.2% - the original keeps the colour table in r29 and the entry in r30 (one more saved
-// register); tried the colour by value, by reference, with a local copy and a reference per branch
 extern "C" void fn_803DD90C(atn::D2A_Task* task, int job) {
-    atn::Color* colors = lbl_807C8628;
     if (job == 4) {
         SetJobUv_unk(task, "jobUv01ma", GameUIUvRect_unk(0.5f, 0.0f, 0.75f, 0.25f));
         SetJobUv_unk(task, "jobUv01mb", GameUIUvRect_unk(0.5f, 0.0f, 0.75f, 0.25f));
-        SetJobColor_unk(task, "jobCol01a", colors[4]);
-        SetJobColor_unk(task, "jobGradation", colors[4]);
+        task->SetColor255_unk("jobCol01a", sColorJobArcher_unk);
+        task->SetColor255_unk("jobGradation", sColorJobArcher_unk);
     } else if (job == 2) {
         SetJobUv_unk(task, "jobUv01ma", GameUIUvRect_unk(0.0f, 0.0f, 0.25f, 0.25f));
         SetJobUv_unk(task, "jobUv01mb", GameUIUvRect_unk(0.0f, 0.0f, 0.25f, 0.25f));
-        SetJobColor_unk(task, "jobCol01a", colors[1]);
-        SetJobColor_unk(task, "jobGradation", colors[1]);
+        task->SetColor255_unk("jobCol01a", sColorJobMagic_unk);
+        task->SetColor255_unk("jobGradation", sColorJobMagic_unk);
     } else if (job == 3) {
         SetJobUv_unk(task, "jobUv01ma", GameUIUvRect_unk(0.25f, 0.0f, 0.5f, 0.25f));
         SetJobUv_unk(task, "jobUv01mb", GameUIUvRect_unk(0.25f, 0.0f, 0.5f, 0.25f));
-        SetJobColor_unk(task, "jobCol01a", colors[2]);
-        SetJobColor_unk(task, "jobGradation", colors[2]);
+        task->SetColor255_unk("jobCol01a", sColorJobHealer_unk);
+        task->SetColor255_unk("jobGradation", sColorJobHealer_unk);
     } else if (job == 1) {
         SetJobUv_unk(task, "jobUv01ma", GameUIUvRect_unk(0.75f, 0.0f, 1.0f, 0.25f));
         SetJobUv_unk(task, "jobUv01mb", GameUIUvRect_unk(0.75f, 0.0f, 1.0f, 0.25f));
-        SetJobColor_unk(task, "jobCol01a", colors[0]);
-        SetJobColor_unk(task, "jobGradation", colors[0]);
+        task->SetColor255_unk("jobCol01a", sColorJobSoldier_unk);
+        task->SetColor255_unk("jobGradation", sColorJobSoldier_unk);
     } else {
         SetJobUv_unk(task, "jobUv01ma", GameUIUvRect_unk(0.75f, 0.0f, 1.0f, 0.25f));
         SetJobUv_unk(task, "jobUv01mb", GameUIUvRect_unk(0.75f, 0.0f, 1.0f, 0.25f));
-        SetJobColor_unk(task, "jobCol01a", colors[5]);
-        SetJobColor_unk(task, "jobGradation", colors[5]);
+        task->SetColor255_unk("jobCol01a", sColorJobOthers_unk);
+        task->SetColor255_unk("jobGradation", sColorJobOthers_unk);
     }
 }
 
-// inferred: colour parameter of a d2anime instance from a colour of the table (see SetWindowColor_unk)
-inline void SetInstColor_unk(GameUIInst_unk* inst, const char* name, const atn::Color& c) {
-    inst->SetColor255_unk(name, c);
-}
-
 // inferred: job icon of a d2anime instance by job index (UV of the icon and its colours; 10 jobs)
-// NONMATCHING: the original keeps &colors[k] in a register (the red channel is read from the table base,
-// the rest from that pointer; direct calls and references tried) and registers
 extern "C" void fn_803DDD54(GameUIInst_unk* inst, int job) {
-    atn::Color* colors = lbl_807C8628;
     switch (job) {
     case 0:
         inst->SetValues2_unk("jobUv01ma", atn::Vector4_unk(0.75f, 0.0f, 1.0f, 0.25f));
         inst->SetValues2_unk("jobUv01mb", atn::Vector4_unk(0.75f, 0.0f, 1.0f, 0.25f));
-        SetInstColor_unk(inst, "jobCol01a", colors[0]);
-        SetInstColor_unk(inst, "jobGradation", colors[0]);
+        inst->SetColor255_unk("jobCol01a", sColorJobSoldier_unk);
+        inst->SetColor255_unk("jobGradation", sColorJobSoldier_unk);
         break;
     case 1:
         inst->SetValues2_unk("jobUv01ma", atn::Vector4_unk(0.5f, 0.0f, 0.75f, 0.25f));
         inst->SetValues2_unk("jobUv01mb", atn::Vector4_unk(0.5f, 0.0f, 0.75f, 0.25f));
-        SetInstColor_unk(inst, "jobCol01a", colors[4]);
-        SetInstColor_unk(inst, "jobGradation", colors[4]);
+        inst->SetColor255_unk("jobCol01a", sColorJobArcher_unk);
+        inst->SetColor255_unk("jobGradation", sColorJobArcher_unk);
         break;
     case 2:
         inst->SetValues2_unk("jobUv01ma", atn::Vector4_unk(0.25f, 0.5f, 0.5f, 0.75f));
         inst->SetValues2_unk("jobUv01mb", atn::Vector4_unk(0.25f, 0.5f, 0.5f, 0.75f));
-        SetInstColor_unk(inst, "jobCol01a", colors[6]);
-        SetInstColor_unk(inst, "jobGradation", colors[6]);
+        inst->SetColor255_unk("jobCol01a", sColorJobGuard_unk);
+        inst->SetColor255_unk("jobGradation", sColorJobGuard_unk);
         break;
     case 3:
         inst->SetValues2_unk("jobUv01ma", atn::Vector4_unk(0.25f, 0.0f, 0.5f, 0.25f));
         inst->SetValues2_unk("jobUv01mb", atn::Vector4_unk(0.25f, 0.0f, 0.5f, 0.25f));
-        SetInstColor_unk(inst, "jobCol01a", colors[2]);
-        SetInstColor_unk(inst, "jobGradation", colors[2]);
+        inst->SetColor255_unk("jobCol01a", sColorJobHealer_unk);
+        inst->SetColor255_unk("jobGradation", sColorJobHealer_unk);
         break;
     case 4:
         inst->SetValues2_unk("jobUv01ma", atn::Vector4_unk(0.25f, 0.0f, 0.5f, 0.25f));
         inst->SetValues2_unk("jobUv01mb", atn::Vector4_unk(0.25f, 0.0f, 0.5f, 0.25f));
-        SetInstColor_unk(inst, "jobCol01a", colors[3]);
-        SetInstColor_unk(inst, "jobGradation", colors[3]);
+        inst->SetColor255_unk("jobCol01a", sColorJobReverser_unk);
+        inst->SetColor255_unk("jobGradation", sColorJobReverser_unk);
         break;
     case 5:
         inst->SetValues2_unk("jobUv01ma", atn::Vector4_unk(0.25f, 0.25f, 0.5f, 0.5f));
         inst->SetValues2_unk("jobUv01mb", atn::Vector4_unk(0.25f, 0.25f, 0.5f, 0.5f));
-        SetInstColor_unk(inst, "jobCol01a", colors[7]);
-        SetInstColor_unk(inst, "jobGradation", colors[7]);
+        inst->SetColor255_unk("jobCol01a", sColorAttrFire_unk);
+        inst->SetColor255_unk("jobGradation", sColorAttrFire_unk);
         break;
     case 6:
         inst->SetValues2_unk("jobUv01ma", atn::Vector4_unk(0.5f, 0.25f, 0.75f, 0.5f));
         inst->SetValues2_unk("jobUv01mb", atn::Vector4_unk(0.5f, 0.25f, 0.75f, 0.5f));
-        SetInstColor_unk(inst, "jobCol01a", colors[8]);
-        SetInstColor_unk(inst, "jobGradation", colors[8]);
+        inst->SetColor255_unk("jobCol01a", sColorAttrIce_unk);
+        inst->SetColor255_unk("jobGradation", sColorAttrIce_unk);
         break;
     case 7:
         inst->SetValues2_unk("jobUv01ma", atn::Vector4_unk(0.75f, 0.25f, 1.0f, 0.5f));
         inst->SetValues2_unk("jobUv01mb", atn::Vector4_unk(0.75f, 0.25f, 1.0f, 0.5f));
-        SetInstColor_unk(inst, "jobCol01a", colors[9]);
-        SetInstColor_unk(inst, "jobGradation", colors[9]);
+        inst->SetColor255_unk("jobCol01a", sColorAttrForest_unk);
+        inst->SetColor255_unk("jobGradation", sColorAttrForest_unk);
         break;
     case 8:
         inst->SetValues2_unk("jobUv01ma", atn::Vector4_unk(0.0f, 0.5f, 0.25f, 0.75f));
         inst->SetValues2_unk("jobUv01mb", atn::Vector4_unk(0.0f, 0.5f, 0.25f, 0.75f));
-        SetInstColor_unk(inst, "jobCol01a", colors[11]);
-        SetInstColor_unk(inst, "jobGradation", colors[11]);
+        inst->SetColor255_unk("jobCol01a", sColorAttrWind_unk);
+        inst->SetColor255_unk("jobGradation", sColorAttrWind_unk);
         break;
     case 9:
         inst->SetValues2_unk("jobUv01ma", atn::Vector4_unk(0.0f, 0.25f, 0.25f, 0.5f));
         inst->SetValues2_unk("jobUv01mb", atn::Vector4_unk(0.0f, 0.25f, 0.25f, 0.5f));
-        SetInstColor_unk(inst, "jobCol01a", colors[10]);
-        SetInstColor_unk(inst, "jobGradation", colors[10]);
+        inst->SetColor255_unk("jobCol01a", sColorAttrHoly_unk);
+        inst->SetColor255_unk("jobGradation", sColorAttrHoly_unk);
         break;
     default:
         inst->SetValues2_unk("jobUv01ma", atn::Vector4_unk(0.75f, 0.0f, 1.0f, 0.25f));
         inst->SetValues2_unk("jobUv01mb", atn::Vector4_unk(0.75f, 0.0f, 1.0f, 0.25f));
-        SetInstColor_unk(inst, "jobCol01a", colors[5]);
-        SetInstColor_unk(inst, "jobGradation", colors[5]);
+        inst->SetColor255_unk("jobCol01a", sColorJobOthers_unk);
+        inst->SetColor255_unk("jobGradation", sColorJobOthers_unk);
         break;
     }
 }
@@ -5830,7 +5799,6 @@ void GameUI::fn_803E4100() {
     m834 = 0;
 }
 
-
 // inferred: starts the marker over the head of a character
 void GameUI::fn_803E41AC(CharaTask* chara) {
     if (m1104 != 0) {
@@ -6635,17 +6603,11 @@ bool GameUI::fn_803E6C88(unsigned int id) {
     return false;
 }
 
-// inferred: colour parameter of a character window (the original copies the whole atn::Color; name invented)
-inline void SetWindowColor_unk(GameUIWindow_unk* task, const char* name, const atn::Color& c) {
-    task->SetColor255_unk(name, c);
-}
-
 extern "C" void fn_803E746C(GameUIWindow_unk* task, int job);
 
 // inferred: same as fn_803DD160 for a character window (D2A_TaskInstanceBase<64, 8>)
-// NONMATCHING: &colors[k] kept in a register as in fn_803DDD54, registers and the string pool offsets
+// NONMATCHING: 97.7% - register allocation, as fn_803DD160 (task r31, strings r30, colour anchor r29)
 extern "C" void fn_803E6D4C(GameUIWindow_unk* task, chr::CharaData_unk* data) {
-    atn::Color* colors = lbl_807C8628;
     if (data == 0 || task == 0) {
         return;
     }
@@ -6657,50 +6619,50 @@ extern "C" void fn_803E6D4C(GameUIWindow_unk* task, chr::CharaData_unk* data) {
         task->SetValue0_unk("attr01", 1.0f);
         task->SetValues2_unk("attrUv01ma", atn::Vector4_unk(0.25f, 0.25f, 0.5f, 0.5f));
         task->SetValues2_unk("attrUv01mb", atn::Vector4_unk(0.25f, 0.25f, 0.5f, 0.5f));
-        SetWindowColor_unk(task, "attrCol01a", colors[7]);
-        SetWindowColor_unk(task, "attrCol01b", colors[14]);
+        task->SetColor255_unk("attrCol01a", sColorAttrFire_unk);
+        task->SetColor255_unk("attrCol01b", sColorAttrBack_unk);
         task->SetInt_unk("attrBlend", 0);
     } else if (attr == 1) {
         task->SetValue0_unk("attr01", 1.0f);
         task->SetValues2_unk("attrUv01ma", atn::Vector4_unk(0.5f, 0.25f, 0.75f, 0.5f));
         task->SetValues2_unk("attrUv01mb", atn::Vector4_unk(0.5f, 0.25f, 0.75f, 0.5f));
-        SetWindowColor_unk(task, "attrCol01a", colors[8]);
-        SetWindowColor_unk(task, "attrCol01b", colors[14]);
+        task->SetColor255_unk("attrCol01a", sColorAttrIce_unk);
+        task->SetColor255_unk("attrCol01b", sColorAttrBack_unk);
         task->SetInt_unk("attrBlend", 0);
     } else if (attr == 4) {
         task->SetValue0_unk("attr01", 1.0f);
         task->SetValues2_unk("attrUv01ma", atn::Vector4_unk(0.75f, 0.25f, 1.0f, 0.5f));
         task->SetValues2_unk("attrUv01mb", atn::Vector4_unk(0.75f, 0.25f, 1.0f, 0.5f));
-        SetWindowColor_unk(task, "attrCol01a", colors[9]);
-        SetWindowColor_unk(task, "attrCol01b", colors[14]);
+        task->SetColor255_unk("attrCol01a", sColorAttrForest_unk);
+        task->SetColor255_unk("attrCol01b", sColorAttrBack_unk);
         task->SetInt_unk("attrBlend", 0);
     } else if (attr == 3) {
         task->SetValue0_unk("attr01", 1.0f);
         task->SetValues2_unk("attrUv01ma", atn::Vector4_unk(0.0f, 0.5f, 0.25f, 0.75f));
         task->SetValues2_unk("attrUv01mb", atn::Vector4_unk(0.0f, 0.5f, 0.25f, 0.75f));
-        SetWindowColor_unk(task, "attrCol01a", colors[11]);
-        SetWindowColor_unk(task, "attrCol01b", colors[14]);
+        task->SetColor255_unk("attrCol01a", sColorAttrWind_unk);
+        task->SetColor255_unk("attrCol01b", sColorAttrBack_unk);
         task->SetInt_unk("attrBlend", 0);
     } else if (attr == 5) {
         task->SetValue0_unk("attr01", 1.0f);
         task->SetValues2_unk("attrUv01ma", atn::Vector4_unk(0.0f, 0.25f, 0.25f, 0.5f));
         task->SetValues2_unk("attrUv01mb", atn::Vector4_unk(0.0f, 0.25f, 0.25f, 0.5f));
-        SetWindowColor_unk(task, "attrCol01a", colors[10]);
-        SetWindowColor_unk(task, "attrCol01b", colors[14]);
+        task->SetColor255_unk("attrCol01a", sColorAttrHoly_unk);
+        task->SetColor255_unk("attrCol01b", sColorAttrBack_unk);
         task->SetInt_unk("attrBlend", 0);
     } else if (attr == 6) {
         task->SetValue0_unk("attr01", 1.0f);
         task->SetValues2_unk("attrUv01ma", atn::Vector4_unk(0.5f, 0.5f, 0.75f, 0.75f));
         task->SetValues2_unk("attrUv01mb", atn::Vector4_unk(0.5f, 0.5f, 0.75f, 0.75f));
-        SetWindowColor_unk(task, "attrCol01a", colors[12]);
-        SetWindowColor_unk(task, "attrCol01b", colors[15]);
+        task->SetColor255_unk("attrCol01a", sColorAttrDark_unk);
+        task->SetColor255_unk("attrCol01b", sColorAttrBack2_unk);
         task->SetInt_unk("attrBlend", 3);
     } else if (attr == 7) {
         task->SetValue0_unk("attr01", 1.0f);
         task->SetValues2_unk("attrUv01ma", atn::Vector4_unk(0.75f, 0.5f, 1.0f, 0.75f));
         task->SetValues2_unk("attrUv01mb", atn::Vector4_unk(0.75f, 0.5f, 1.0f, 0.75f));
-        SetWindowColor_unk(task, "attrCol01a", colors[13]);
-        SetWindowColor_unk(task, "attrCol01b", colors[15]);
+        task->SetColor255_unk("attrCol01a", sColorAttrStar_unk);
+        task->SetColor255_unk("attrCol01b", sColorAttrBack2_unk);
         task->SetInt_unk("attrBlend", 3);
     } else {
         task->SetValue0_unk("attr01", 0.0f);
@@ -6708,33 +6670,31 @@ extern "C" void fn_803E6D4C(GameUIWindow_unk* task, chr::CharaData_unk* data) {
 }
 
 // inferred: same as fn_803DD90C for a character window (D2A_TaskInstanceBase<64, 8>)
-// NONMATCHING: &colors[k] kept in a register as in fn_803DDD54 and the string pool offsets
 extern "C" void fn_803E746C(GameUIWindow_unk* task, int job) {
-    atn::Color* colors = lbl_807C8628;
     if (job == 4) {
         task->SetValues2_unk("jobUv01ma", atn::Vector4_unk(0.5f, 0.0f, 0.75f, 0.25f));
         task->SetValues2_unk("jobUv01mb", atn::Vector4_unk(0.5f, 0.0f, 0.75f, 0.25f));
-        SetWindowColor_unk(task, "jobCol01a", colors[4]);
-        SetWindowColor_unk(task, "jobGradation", colors[4]);
+        task->SetColor255_unk("jobCol01a", sColorJobArcher_unk);
+        task->SetColor255_unk("jobGradation", sColorJobArcher_unk);
     } else if (job == 2) {
         task->SetValues2_unk("jobUv01ma", atn::Vector4_unk(0.0f, 0.0f, 0.25f, 0.25f));
         task->SetValues2_unk("jobUv01mb", atn::Vector4_unk(0.0f, 0.0f, 0.25f, 0.25f));
-        SetWindowColor_unk(task, "jobCol01a", colors[1]);
-        SetWindowColor_unk(task, "jobGradation", colors[1]);
+        task->SetColor255_unk("jobCol01a", sColorJobMagic_unk);
+        task->SetColor255_unk("jobGradation", sColorJobMagic_unk);
     } else if (job == 3) {
         task->SetValues2_unk("jobUv01ma", atn::Vector4_unk(0.25f, 0.0f, 0.5f, 0.25f));
         task->SetValues2_unk("jobUv01mb", atn::Vector4_unk(0.25f, 0.0f, 0.5f, 0.25f));
-        SetWindowColor_unk(task, "jobCol01a", colors[2]);
-        SetWindowColor_unk(task, "jobGradation", colors[2]);
+        task->SetColor255_unk("jobCol01a", sColorJobHealer_unk);
+        task->SetColor255_unk("jobGradation", sColorJobHealer_unk);
     } else if (job == 1) {
         task->SetValues2_unk("jobUv01ma", atn::Vector4_unk(0.75f, 0.0f, 1.0f, 0.25f));
         task->SetValues2_unk("jobUv01mb", atn::Vector4_unk(0.75f, 0.0f, 1.0f, 0.25f));
-        SetWindowColor_unk(task, "jobCol01a", colors[0]);
-        SetWindowColor_unk(task, "jobGradation", colors[0]);
+        task->SetColor255_unk("jobCol01a", sColorJobSoldier_unk);
+        task->SetColor255_unk("jobGradation", sColorJobSoldier_unk);
     } else {
         task->SetValues2_unk("jobUv01ma", atn::Vector4_unk(0.75f, 0.0f, 1.0f, 0.25f));
         task->SetValues2_unk("jobUv01mb", atn::Vector4_unk(0.75f, 0.0f, 1.0f, 0.25f));
-        SetWindowColor_unk(task, "jobCol01a", colors[5]);
-        SetWindowColor_unk(task, "jobGradation", colors[5]);
+        task->SetColor255_unk("jobCol01a", sColorJobOthers_unk);
+        task->SetColor255_unk("jobGradation", sColorJobOthers_unk);
     }
 }
