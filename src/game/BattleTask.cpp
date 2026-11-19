@@ -6414,9 +6414,9 @@ void BattleTask::fn_8010A4A8(CharaTask* chara) {
     e.m60.y = 3.0f;
     e.m60.z = 0.0f;
     atn::Model* model = fn_800F84C8(chara);
-    e.mB0 = (int)model->GetNodeMtx_unk("neck");
+    e.mB0 = model->GetNodeMtx_unk("neck");
     if (e.mB0 == 0) {
-        e.mB0 = (int)&chara->mMotion.mMtx;
+        e.mB0 = chara->mMotion.mMtx.m;
         e.m60.y += chara->m5B4;
     }
     e.m04 = 40.0f;

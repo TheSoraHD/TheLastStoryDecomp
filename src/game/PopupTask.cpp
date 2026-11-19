@@ -325,7 +325,7 @@ void PopupTask::vf14() {
     for (PopupEntry_unk* e = mEntries.begin(); e != mEntries.end(); e++) {
         atn::Vector3 pos = e->m60;
         if (e->mB0 != 0) {
-            MtxPtr m = (MtxPtr)e->mB0;
+            MtxPtr m = e->mB0;
             atn::Vector3 trans(m[0][3], m[1][3], m[2][3]);
             pos += trans;
         }

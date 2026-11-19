@@ -121,7 +121,7 @@ struct PopupEntry_unk {
     PopupAnime_unk* mA4;
     PopupAnime_unk* mA8;
     PopupAnime_unk* mAC;
-    int mB0;
+    MtxPtr mB0; // inferred: node matrix the popup follows (BattleTask: "neck" or the motion matrix)
 };
 
 // inferred: d2anime task (bits 30 and 28 of the word at 0xFC are cleared after the creation)
