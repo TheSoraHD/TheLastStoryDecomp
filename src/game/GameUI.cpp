@@ -45,6 +45,7 @@ struct GameUIGauge_unk : public atn::D2A_Task {};
 #include "game/BattleCharaTask.h"
 #include "game/Arms.h"
 #include "std/vector.h"
+#include "math/VecAssign_unk.h"
 #include "atn/RenderSetting_unk.h"
 #include "db/PlayerParam_unk.h"
 #include "atn/Lerp_unk.h"
@@ -5208,8 +5209,6 @@ extern "C" int fn_8021A888(HitInfo_unk* hit); // inferred: the magic is an attac
 // inferred: magic point gauge over a character: the chant of its current magic (kind 0/1 by the magic for
 // the party, 2/3 for kind-2 characters), the magic chosen in the tactics view, or the time of the states
 // of bits 0 and 31 (kinds 4 and 5); characters of flag B13 draw their own (vfC0)
-// NONMATCHING: 99.7% - the result flags of the inlined CharaTask::CanAct_unk (r0/r3 of IsFree/IsActive swapped)
-// and the registers of the copy of the fixed screen position of the player
 void GameUI::fn_803E2410(CharaTask* chara) {
     if (chara->mFlagB13) {
         chara->vfC0(this);
@@ -5237,7 +5236,7 @@ void GameUI::fn_803E2410(CharaTask* chara) {
         atn::Vector3 pos = chara->vf58();
         atn::Vector3 screen = atn::RenderManager::instance_->GetScreenPosition(pos);
         if (chara->mType == 0) {
-            screen = atn::Vector3(320.0f, 170.0f, 0.5f);
+            atn::VecAssign_unk(screen, atn::Vector3(320.0f, 170.0f, 0.5f));
         }
         if (0.0f < screen.z && screen.z < 1.0f) {
             int frames = chara->fn_8016DAB0();
