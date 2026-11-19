@@ -1,3 +1,4 @@
+#include "db/CharaIdTable_unk.h"
 #include "atn/Csv.h"
 #include "atn/Memory.h"
 #include "std/string.h"
@@ -19,11 +20,6 @@ extern "C" void fn_8046DD20(Unk_8087F518* mgr, void* data);
 // inferred: current field of the CSV reader (weak copy of an inline accessor of atn::CsvBase in
 // another file; its name is unknown)
 
-// inferred: entry of the character id table (db/CharaIdTable_unk.cpp)
-struct CharaIdEntry_unk {
-    char m00[0x14];
-    const char* m14; // inferred: name of the character parameters
-};
 extern "C" CharaIdEntry_unk* fn_802091E8(void* member);
 
 // inferred: accessor of the resource manager (weak copy fn_8020A3E4)

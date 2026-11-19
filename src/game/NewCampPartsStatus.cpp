@@ -1,3 +1,4 @@
+#include "db/CharaIdTable_unk.h"
 #include "game/NewCampPartsStatus.h"
 #include "game/GameTask.h"
 #include "game/NewCampTask.h"
@@ -87,16 +88,8 @@ extern "C" GameTask* lbl_8087F430;
 
 // inferred: characters (fn_8000D9E8 returns the manager lbl_8087F8A0)
 extern "C" void* fn_8000D9E8();
-// inferred: character name data (fn_8020924C)
-struct NewCampStatusName_unk {
-    unsigned char m00[8];
-    const wchar_t* mName; // 0x08
-    unsigned char m0C[0x14 - 0x0C];
-    int m14;
-};
 extern "C" int fn_80219544(int chara);
-extern "C" NewCampStatusName_unk* fn_8020924C(int id);
-extern "C" int fn_8020A81C(int id);
+extern "C" int fn_8020A81C(const char* name);
 CharaParam_unk fn_80134800(CharaStatus* status, int id, int kindA, int indexA, int itemA, int kindB, int indexB,
                            int itemB);
 // inferred: message reference (weak copy of the getter 0x805282B8)
@@ -120,7 +113,7 @@ public:
 };
 extern "C" void fn_804A3C24(MenuCommonTask* menu, const wchar_t* text, int id);
 extern "C" void fn_804A5E40(MenuCommonTask* menu, int type, atn::Vector3 ofs, int id);
-extern "C" void fn_804A4AEC(atn::D2ATask_unk* task, NewCampStatusName_unk* item, int cols, int rows);
+extern "C" void fn_804A4AEC(atn::D2ATask_unk* task, CharaIdEntry_unk* item, int cols, int rows);
 
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 
@@ -460,11 +453,11 @@ void NewCampPartsStatus::fn_80527938() {
         } else {
             status = Inventory::Order()->GetPlayerStatusInfo(set.mChara);
         }
-        NewCampStatusName_unk* info = fn_8020924C(fn_80219544(set.mChara));
+        CharaIdEntry_unk* info = fn_8020924C(fn_80219544(set.mChara));
         Inventory::Order()->GetEquip_unk(set.mChara);
         fn_803DD160(base, fn_8020A81C(info->m14));
-        fn_803D70B4(base, "name", info->mName);
-        fn_803D70B4(base, "nameSub", info->mName);
+        fn_803D70B4(base, "name", info->mShortName);
+        fn_803D70B4(base, "nameSub", info->mShortName);
         fn_804A4AEC(base, info, 4, 2);
         fn_80511D9C(param, status, set.mChara, task == 0);
         CharaParam_unk p = fn_80134800(status, set.mChara, 0, 0, 0, 0, 0, 0);

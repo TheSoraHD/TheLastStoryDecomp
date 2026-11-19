@@ -1,3 +1,5 @@
+#include "db/ItemParam_unk.h"
+#include "db/CharaIdTable_unk.h"
 #include "game/MenuCommonTask.h"
 #include "atn/Memory.h"
 #include "atn/D3AnimeInstance.h"
@@ -652,19 +654,11 @@ extern "C" void fn_804A4934(MenuLayout_unk* layout, int pos, int count, int page
     }
 }
 
-// inferred: item data (only the icon is used here)
-struct MenuItem_unk {
-    unsigned char m00[0x08];
-    const wchar_t* mName; // 0x08
-    unsigned char m0C[0x2C - 0x0C];
-    int mIcon; // 0x2C: inferred: face icon (1-based, 4 per row)
-};
-extern "C" MenuItem_unk* fn_802091E8(int id); // inferred: item data
-extern "C" MenuItem_unk* fn_80211480(int id); // inferred: item data
+extern "C" CharaIdEntry_unk* fn_802091E8(int id); // inferred: character entry of a party member (db/CharaIdTable_unk.cpp)
 
 // inferred: texture rectangle (u0, v0, u1, v1); passed by value to the setters (names invented)
 typedef atn::Vector4_unk MenuUV_unk; // inferred: texture rectangle
-inline MenuUV_unk GetIconUV_unk(MenuItem_unk* item, int cols, int rows) {
+inline MenuUV_unk GetIconUV_unk(CharaIdEntry_unk* item, int cols, int rows) {
     MenuUV_unk uv(0.0f, 0.0f, 0.0f, 0.0f);
     if (item != 0 && item->mIcon > 0 && item->mIcon < cols * rows) {
         int index = item->mIcon - 1;
@@ -682,7 +676,7 @@ inline void SetUV_unk(MenuLayout_unk* layout, const char* name, const MenuUV_unk
 }
 
 // inferred: sets the face icon of an item on a d2anime
-extern "C" void fn_804A4AEC(MenuD2A_unk* menuAnime, MenuItem_unk* item, int cols, int rows) {
+extern "C" void fn_804A4AEC(MenuD2A_unk* menuAnime, CharaIdEntry_unk* item, int cols, int rows) {
     atn::D2A_Task* anime = (atn::D2A_Task*)menuAnime;
     MenuUV_unk uv = GetIconUV_unk(item, cols, rows);
     SetUV_unk(anime, "faceUV", uv);
@@ -1180,7 +1174,7 @@ extern "C" int fn_800DD3FC(wchar_t* s, const wchar_t* format, ...); // inferred:
 
 // inferred: draws the name of an item at the top right
 extern "C" void fn_804A7DD4(MenuCommonTask* menu, int id) {
-    MenuItem_unk* item = fn_80211480(id);
+    ItemParamEntry_unk* item = fn_80211480(id);
     if (item != 0) {
         wchar_t text[0x80];
         float y = 120.0f;

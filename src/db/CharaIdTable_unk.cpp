@@ -1,3 +1,4 @@
+#include "db/CharaIdTable_unk.h"
 #include "atn/Csv.h"
 #include "atn/FileList.h"
 #include "atn/Memory.h"
@@ -25,22 +26,6 @@ extern "C" void* fn_8006BA8C(const char* path, unsigned long* size, int arg);
 
 typedef std::basic_string<wchar_t> WString_unk;
 
-// inferred: one row of /boot/chara_id_table_xx.u16 (0x30 bytes); the texts point into the two
-// buffers sWideTexts and sTexts
-struct CharaIdEntry_unk {
-    int mId;
-    const wchar_t* mName;      // inferred
-    const wchar_t* mShortName; // inferred: the name again when fn_8006BA30 is set
-    const char* m0C;
-    const char* m10;
-    const char* m14;
-    const char* m18;
-    const char* m1C;
-    const char* m20;
-    int m24;
-    const char* m28;
-    int m2C;
-};
 
 static const char sFileNameStr[] = "/boot/chara_id_table_xx.u16";
 static const char* const sFileName = sFileNameStr; // inferred: .rodata array + .sdata2 pointer
@@ -264,7 +249,7 @@ extern "C" void fn_80208BE8(const char* path) {
         fn_802088A4(text, csv.fn_8005B9CC(), 0x40);
         entry->m24 = fn_805A52F4(text);
         textSize = fn_80208A3C(&entry->m28, csv.fn_8005B9CC(), sTexts, textSize);
-        entry->m2C = fn_800DC1DC(csv.fn_8005B9CC());
+        entry->mIcon = fn_800DC1DC(csv.fn_8005B9CC());
         i++;
     }
     atn::FileFreeBuffer((char*)data, false);
@@ -291,7 +276,6 @@ extern "C" int fn_80209184(const wchar_t* id) {
 }
 
 // inferred: entry of a party member
-extern "C" CharaIdEntry_unk* fn_8020924C(int id);
 
 extern "C" CharaIdEntry_unk* fn_802091E8(void* member) {
     return fn_8020924C(fn_80219544(member));

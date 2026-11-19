@@ -1,3 +1,4 @@
+#include "db/CharaIdTable_unk.h"
 #include "game/GameTask.h"
 #include "game/ShopBuySell.h"
 #include "game/Inventory.h"
@@ -90,15 +91,7 @@ extern "C" int fn_8020EF04(int id); // inferred: nonzero for an armour
 extern "C" ShopArmor_unk* fn_8020EFEC(int id);
 extern "C" ShopArmor_unk* fn_8020ED84(int part, int id);
 extern "C" int fn_8020EF4C(ShopArmor_unk* armor);
-// inferred: character table entry (fn_8020924C)
-struct ShopChara_unk {
-    unsigned char m00[0x08];
-    const wchar_t* mName; // 0x08
-    unsigned char m0C[0x2C - 0x0C];
-    int mIcon;            // 0x2C: inferred: face icon (1-based, 4 per row)
-};
 extern "C" int fn_80219544(int member); // inferred: character id
-extern "C" ShopChara_unk* fn_8020924C(int id);
 extern "C" int fn_80444564(Inventory* party, int id);
 extern "C" int fn_804444E8(Inventory* party, int id); // inferred: number of items
 extern "C" int fn_80444BE8(Inventory* party, ShopItem_unk* item);
@@ -590,7 +583,7 @@ void ShopBuySell::fn_80586620(int id) {
 // icon rectangle and registers
 void ShopBuySell::fn_805866F4(int id, int member, int slot) {
     ShopPoint_unk pos;
-    ShopChara_unk* chara = fn_8020924C(fn_80219544(member));
+    CharaIdEntry_unk* chara = fn_8020924C(fn_80219544(member));
     Inventory::Equip_unk* equip = &Inventory::instance_->mEquip[member];
     ShopD2A_unk* base = mStatusBase;
     ShopD2A_unk* anime = mStatus[slot];
@@ -599,7 +592,7 @@ void ShopBuySell::fn_805866F4(int id, int member, int slot) {
     sprintf(name, "list_point%d", slot + 1);
     pos = GetPanePos_unk(base, name);
     fn_801F4728(anime, "basePos", &pos);
-    SetPaneText_unk(anime->mLayout, "name", chara->mName);
+    SetPaneText_unk(anime->mLayout, "name", chara->mShortName);
     if (chara->mIcon > 0) {
         int index = chara->mIcon - 1;
         int x = index % 4;
