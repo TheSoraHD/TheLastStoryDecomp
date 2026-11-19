@@ -75,8 +75,8 @@ public:
     int fn_8044909C(); // inferred: flags of the items that can be found (gmk/TreasureBox, gmk/DropItem)
     void fn_804490E0(ItemParamEntry_unk* item, int member); // inferred: uses a stat item on a party member
     // inferred: rewards of a defeated enemy (game/BattleCharaTask, gmk/FlyObjManager)
-    void fn_80449A18(int killer, int level, int exp, int arg4, float rate);
-    void fn_80449ABC(int killer, int level); // inferred: shares the experience of fn_80449A18
+    void fn_80449A18(CharaTask* killer, int level, int exp, int arg4, float rate);
+    void fn_80449ABC(CharaTask* killer, int level); // inferred: shares the experience of fn_80449A18
     int fn_8044D208(int slot, int chara); // inferred: protector of a party member (debug settings, game/CharaTask)
     void fn_8044D404(const int& code); // inferred: adds an item to identify
 

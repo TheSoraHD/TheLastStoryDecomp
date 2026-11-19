@@ -2657,7 +2657,7 @@ void BattleCharaTask::fn_800EB7A0() {
     }
     if (lbl_8087F0A8->mAddExpImmediately != 0 && lbl_8087F610 == 0 && !mFlag16 && mType == 2 &&
         (mStatus.m0C & 0x100) != 0x100 && (mStatus.m0C & 0x10000) != 0x10000) {
-        CharaTask* killer = (CharaTask*)m13B0;
+        CharaTask* killer = m13B0;
         if (killer != 0 && killer->mType == 2 && (killer->mStatus.m0C & 0x10000) != 0x10000) {
             return;
         }

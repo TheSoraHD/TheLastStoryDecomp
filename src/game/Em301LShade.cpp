@@ -1202,7 +1202,7 @@ void Em301LShade::fn_802D4628() {
             dir.Normalize_unk();
             dir *= 0.01f;
             chara->fn_8015E7A0(dir, -1, 0);
-            chara->m13B0 = (int)this;
+            chara->m13B0 = this;
         }
         if (total < 0) {
             damage.mDamage = total;

@@ -1322,7 +1322,7 @@ public:
     CharaTask* m139C; // inferred: character whose motion follows this one (vf24)
     atn::Vector3 m13A0; // inferred: position of the bullets fired by fn_80139560
     int m13AC;
-    int m13B0;
+    CharaTask* m13B0; // inferred: character that defeated it (BattleTask, Inventory::fn_80449A18)
     float m13B4;
     atn::Vector3 m13B8[2]; // inferred: cleared with memset, set to the position on load
     float m13D0[2];        // inferred: cleared with memset, set to the rotation on load

@@ -3560,7 +3560,7 @@ int BattleTask::fn_800FDF14(BattleCalcParam_unk* p) {
     }
     if (attacker != 0 && !attacker->fn_8016F3D0(target, 1)) {
         if (p->m80 >> 31) {
-            target->m13B0 = (int)attacker;
+            target->m13B0 = attacker;
             if (attacker->mType == 3) {
                 lbl_8087F490->fn_803E2110(4, attacker);
                 lbl_8087F498->fn_803EA77C(attacker, 0x1C, 0xF, 1.0f, 10.0f);
