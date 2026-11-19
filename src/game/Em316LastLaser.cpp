@@ -41,13 +41,13 @@ extern "C" CharaManager<PlayerTask>* lbl_8087F8A0;   extern "C" void* lbl_8087EE
 extern "C" int fn_8004ED34(void* world, atn::ColliResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg); // inferred: ray test
 extern "C" int atoi(const char* s);
-extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3, int arg4);
-extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, int arg6,
-                            int arg7);
-extern "C" void fn_8008771C(void* group, const char* name, float* value, int arg3, int arg4, float min, float max,
-                            float step);
-extern "C" void fn_80087E9C(void* group, const char* name, atn::Vector3* value, int arg3, int arg4, float min,
-                            float max, float step);
+extern "C" void fn_80087994(void* group, const char* name, int* value, void* func, void* arg);
+extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, void* func,
+                            void* arg);
+extern "C" void fn_8008771C(void* group, const char* name, float* value, float min, float max, float step, void* func,
+                            void* arg);
+extern "C" void fn_80087E9C(void* group, const char* name, atn::Vector3* value, float min, float max, float step,
+                            void* func, void* arg);
 extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the next effects
 // inferred: color as four floats (as in game/Em315Coffin.cpp)
 struct Color4f_unk {
@@ -148,9 +148,9 @@ int Em316LastLaser::vf0C() {
         void* group = m15BC.Load("Bit");
         fn_80087994(group, "DebugDisp", &m15C0, 0, 0);
         fn_80087994(group, "DebugLog", &m15C4, 0, 0);
-        fn_8008771C(group, "AppearMoveRate", &m14EC, 0, 0, 0.01f, 0.99f, 0.1f);
+        fn_8008771C(group, "AppearMoveRate", &m14EC, 0.01f, 0.99f, 0.1f, 0, 0);
         fn_800874C8(group, "ActionMode", &m58C, 1, 100, 1, 0, 0);
-        fn_80087E9C(group, "Pos", &mPos, 0, 0, 1.0f, 100.0f, 1.0f);
+        fn_80087E9C(group, "Pos", &mPos, 1.0f, 100.0f, 1.0f, 0, 0);
         if (m14B0.fn_80470580() != 0) {
             atn::Csv csv((const char*)m14B0.fn_80470580(), m14B0.fn_8047059C());
             do {

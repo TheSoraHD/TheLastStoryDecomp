@@ -41,11 +41,11 @@ extern "C" void* memset(void* dst, int c, unsigned long n);
 extern "C" void PSMTXScale(Mtx m, float x, float y, float z);
 extern "C" void PSMTXTrans(Mtx m, float x, float y, float z);
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
-extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3, int arg4);
-extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, int arg6,
-                            int arg7);
-extern "C" void fn_8008771C(void* group, const char* name, float* value, int arg3, int arg4, float min, float max,
-                            float step);
+extern "C" void fn_80087994(void* group, const char* name, int* value, void* func, void* arg);
+extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, void* func,
+                            void* arg);
+extern "C" void fn_8008771C(void* group, const char* name, float* value, float min, float max, float step, void* func,
+                            void* arg);
 extern "C" int fn_800DC12C(const char* s);   // inferred: string to int
 extern "C" float fn_800DC288(const char* s); // inferred: string to float
 // inferred: std::string concatenation (weak copy 0x8006AFF8)
@@ -2441,12 +2441,12 @@ void EnemyQuarkStand::fn_80353370() {
     fn_800874C8(group, "DownCount", &m17FC, 1, 999999, 1, 0, 0);
     fn_800874C8(group, "StundUpDamageCount", &m1800, 1, 999999, 1, 0, 0);
     fn_800874C8(group, "AttakedInStick", &m1CD4, 1, 999, 1, 0, 0);
-    fn_8008771C(group, "ShortRange", &m1CE0, 0, 0, 0.0f, 9999.0f, 0.01f);
-    fn_8008771C(group, "MiddleRange", &m1CE4, 0, 0, 0.0f, 9999.0f, 0.01f);
-    fn_8008771C(group, "LongRange", &m1CE8, 0, 0, 0.0f, 9999.0f, 0.01f);
-    fn_8008771C(group, "SwordDirectionLine", &m1CD8, 0, 0, 0.0f, 1000.0f, 0.01f);
+    fn_8008771C(group, "ShortRange", &m1CE0, 0.0f, 9999.0f, 0.01f, 0, 0);
+    fn_8008771C(group, "MiddleRange", &m1CE4, 0.0f, 9999.0f, 0.01f, 0, 0);
+    fn_8008771C(group, "LongRange", &m1CE8, 0.0f, 9999.0f, 0.01f, 0, 0);
+    fn_8008771C(group, "SwordDirectionLine", &m1CD8, 0.0f, 1000.0f, 0.01f, 0, 0);
     fn_800874C8(group, "SwordThrowTime", &m1CDC, 0, 999999, 1, 0, 0);
-    fn_8008771C(group, "ShockExpandSonicWave", &m1CC8, 0, 0, 0.0f, 100.0f, 0.01f);
+    fn_8008771C(group, "ShockExpandSonicWave", &m1CC8, 0.0f, 100.0f, 0.01f, 0, 0);
 }
 
 // inferred: picks the character stuck by the sword: the target when it can be stuck (control 0x17), else the

@@ -66,12 +66,12 @@ extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
 extern "C" HitInfo_unk* fn_80219E6C(int id); // inferred: bullet data by id
 // inferred: debug menu
 extern "C" void* fn_8008937C(void* menu, const char* name);
-extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, int arg6,
-                            int arg7);
-extern "C" void fn_80087E9C(void* group, const char* name, atn::Vector3* value, int arg3, int arg4, float min,
-                            float max, float step);
-extern "C" void fn_8008771C(void* group, const char* name, float* value, int arg3, int arg4, float min, float max,
-                            float step);
+extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, void* func,
+                            void* arg);
+extern "C" void fn_80087E9C(void* group, const char* name, atn::Vector3* value, float min, float max, float step,
+                            void* func, void* arg);
+extern "C" void fn_8008771C(void* group, const char* name, float* value, float min, float max, float step, void* func,
+                            void* arg);
 
 // inferred: iterator over a std::vector (weak copies 0x803EFDB4, 0x803F05F0-0x803F0688; name invented)
 template <class T>
@@ -408,8 +408,8 @@ void GimmickCommonB0_unk::fn_803F11F8(void* menu) {
         sprintf(name, "%s %s\0", fn_8021823C(cmd->mMotion), sCommandNames[cmd->mType]);
         void* sub = fn_8008937C(group, name);
         fn_800874C8(sub, "Frame", &cmd->mFrame, 0, 9999, 1, 0, 0);
-        fn_80087E9C(sub, "Offset", &cmd->mOffset, 0, 0, -9999.0f, 9999.0f, 1.0f);
-        fn_8008771C(sub, "Scale", &cmd->mScale, 0, 0, 0.0f, 9999.0f, 0.5f);
+        fn_80087E9C(sub, "Offset", &cmd->mOffset, -9999.0f, 9999.0f, 1.0f, 0, 0);
+        fn_8008771C(sub, "Scale", &cmd->mScale, 0.0f, 9999.0f, 0.5f, 0, 0);
     }
 }
 

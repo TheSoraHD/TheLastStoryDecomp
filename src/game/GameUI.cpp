@@ -508,13 +508,13 @@ float GameUIDuration_unk::fn_803CFC6C() {
 void GameUI::vf14() {}
 
 // inferred: debug parameter menu (atn/ParamMenu_unk; same declarations as gmk/SwingObject.cpp)
-extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, int arg6,
-                            int arg7);
-extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3, int arg4);
-extern "C" void fn_8008771C(void* group, const char* name, float* value, int arg3, int arg4, float min, float max,
-                            float step);
-extern "C" void fn_80088FAC(void* group, const char* name, float* rgba, int arg3, int arg4, float min, float max,
-                            float step); // inferred: colour (four floats)
+extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, void* func,
+                            void* arg);
+extern "C" void fn_80087994(void* group, const char* name, int* value, void* func, void* arg);
+extern "C" void fn_8008771C(void* group, const char* name, float* value, float min, float max, float step, void* func,
+                            void* arg);
+extern "C" void fn_80088FAC(void* group, const char* name, float* rgba, float min, float max, float step, void* func,
+                            void* arg); // inferred: colour (four floats)
 
 // inferred: registers the parameters of the HUD in the debug menu ("GameUI": job and attribute colours, the
 // colours of the tactical view cursor, the flash counters and the access icon)
@@ -530,43 +530,43 @@ void GameUI::fn_803CFC78() {
         group = 0;
     }
     fn_80087994(group, "ChantTimeHalf", &lbl_8087F494, 0, 0);
-    fn_80088FAC(group, "Job_Soldier", &colors[0].r, 0, 0, 0.0f, 1.0f, 1.0f);
-    fn_80088FAC(group, "Job_Magic", &colors[1].r, 0, 0, 0.0f, 1.0f, 1.0f);
-    fn_80088FAC(group, "Job_Healer", &colors[2].r, 0, 0, 0.0f, 1.0f, 1.0f);
-    fn_80088FAC(group, "Job_Reverser", &colors[3].r, 0, 0, 0.0f, 1.0f, 1.0f);
-    fn_80088FAC(group, "Job_Archer", &colors[4].r, 0, 0, 0.0f, 1.0f, 1.0f);
-    fn_80088FAC(group, "Job_Others", &colors[5].r, 0, 0, 0.0f, 1.0f, 1.0f);
-    fn_80088FAC(group, "Job_Guard", &colors[6].r, 0, 0, 0.0f, 1.0f, 1.0f);
-    fn_80088FAC(group, "Attr_Fire", &colors[7].r, 0, 0, 0.0f, 1.0f, 1.0f);
-    fn_80088FAC(group, "Attr_Ice", &colors[8].r, 0, 0, 0.0f, 1.0f, 1.0f);
-    fn_80088FAC(group, "Attr_Forest", &colors[9].r, 0, 0, 0.0f, 1.0f, 1.0f);
-    fn_80088FAC(group, "Attr_Wind", &colors[11].r, 0, 0, 0.0f, 1.0f, 1.0f);
-    fn_80088FAC(group, "Attr_Holy", &colors[10].r, 0, 0, 0.0f, 1.0f, 1.0f);
-    fn_80088FAC(group, "Attr_Dark", &colors[12].r, 0, 0, 0.0f, 1.0f, 1.0f);
-    fn_80088FAC(group, "Attr_Star", &colors[13].r, 0, 0, 0.0f, 1.0f, 1.0f);
-    fn_80088FAC(group, "Attr_Back", &colors[14].r, 0, 0, 0.0f, 1.0f, 1.0f);
-    fn_80088FAC(group, "Attr_Back2", &colors[15].r, 0, 0, 0.0f, 1.0f, 1.0f);
+    fn_80088FAC(group, "Job_Soldier", &colors[0].r, 0.0f, 1.0f, 1.0f, 0, 0);
+    fn_80088FAC(group, "Job_Magic", &colors[1].r, 0.0f, 1.0f, 1.0f, 0, 0);
+    fn_80088FAC(group, "Job_Healer", &colors[2].r, 0.0f, 1.0f, 1.0f, 0, 0);
+    fn_80088FAC(group, "Job_Reverser", &colors[3].r, 0.0f, 1.0f, 1.0f, 0, 0);
+    fn_80088FAC(group, "Job_Archer", &colors[4].r, 0.0f, 1.0f, 1.0f, 0, 0);
+    fn_80088FAC(group, "Job_Others", &colors[5].r, 0.0f, 1.0f, 1.0f, 0, 0);
+    fn_80088FAC(group, "Job_Guard", &colors[6].r, 0.0f, 1.0f, 1.0f, 0, 0);
+    fn_80088FAC(group, "Attr_Fire", &colors[7].r, 0.0f, 1.0f, 1.0f, 0, 0);
+    fn_80088FAC(group, "Attr_Ice", &colors[8].r, 0.0f, 1.0f, 1.0f, 0, 0);
+    fn_80088FAC(group, "Attr_Forest", &colors[9].r, 0.0f, 1.0f, 1.0f, 0, 0);
+    fn_80088FAC(group, "Attr_Wind", &colors[11].r, 0.0f, 1.0f, 1.0f, 0, 0);
+    fn_80088FAC(group, "Attr_Holy", &colors[10].r, 0.0f, 1.0f, 1.0f, 0, 0);
+    fn_80088FAC(group, "Attr_Dark", &colors[12].r, 0.0f, 1.0f, 1.0f, 0, 0);
+    fn_80088FAC(group, "Attr_Star", &colors[13].r, 0.0f, 1.0f, 1.0f, 0, 0);
+    fn_80088FAC(group, "Attr_Back", &colors[14].r, 0.0f, 1.0f, 1.0f, 0, 0);
+    fn_80088FAC(group, "Attr_Back2", &colors[15].r, 0.0f, 1.0f, 1.0f, 0, 0);
     void* cursor = fn_8008937C(group, "TacviewCursor");
-    fn_80088FAC(cursor, "WindF", &m2698.r, 0, 0, 0.0f, 1.0f, 1.0f);
-    fn_80088FAC(cursor, "WindB", &m26A8.r, 0, 0, 0.0f, 1.0f, 1.0f);
-    fn_80088FAC(cursor, "CommandF", &m2678.r, 0, 0, 0.0f, 1.0f, 1.0f);
-    fn_80088FAC(cursor, "CommandB", &m2688.r, 0, 0, 0.0f, 1.0f, 1.0f);
-    fn_80088FAC(cursor, "EnHealF", &m26B8.r, 0, 0, 0.0f, 1.0f, 1.0f);
-    fn_80088FAC(cursor, "EnHealB", &m26C8.r, 0, 0, 0.0f, 1.0f, 1.0f);
-    fn_80088FAC(cursor, "FrHealB", &m26D8.r, 0, 0, 0.0f, 1.0f, 1.0f);
-    fn_80088FAC(cursor, "FrFlameB", &m26E8.r, 0, 0, 0.0f, 1.0f, 1.0f);
-    fn_80088FAC(cursor, "FrFreezeB", &m26F8.r, 0, 0, 0.0f, 1.0f, 1.0f);
-    fn_80088FAC(cursor, "FrForestB", &m2708.r, 0, 0, 0.0f, 1.0f, 1.0f);
-    fn_80088FAC(cursor, "FrHolyB", &m2718.r, 0, 0, 0.0f, 1.0f, 1.0f);
+    fn_80088FAC(cursor, "WindF", &m2698.r, 0.0f, 1.0f, 1.0f, 0, 0);
+    fn_80088FAC(cursor, "WindB", &m26A8.r, 0.0f, 1.0f, 1.0f, 0, 0);
+    fn_80088FAC(cursor, "CommandF", &m2678.r, 0.0f, 1.0f, 1.0f, 0, 0);
+    fn_80088FAC(cursor, "CommandB", &m2688.r, 0.0f, 1.0f, 1.0f, 0, 0);
+    fn_80088FAC(cursor, "EnHealF", &m26B8.r, 0.0f, 1.0f, 1.0f, 0, 0);
+    fn_80088FAC(cursor, "EnHealB", &m26C8.r, 0.0f, 1.0f, 1.0f, 0, 0);
+    fn_80088FAC(cursor, "FrHealB", &m26D8.r, 0.0f, 1.0f, 1.0f, 0, 0);
+    fn_80088FAC(cursor, "FrFlameB", &m26E8.r, 0.0f, 1.0f, 1.0f, 0, 0);
+    fn_80088FAC(cursor, "FrFreezeB", &m26F8.r, 0.0f, 1.0f, 1.0f, 0, 0);
+    fn_80088FAC(cursor, "FrForestB", &m2708.r, 0.0f, 1.0f, 1.0f, 0, 0);
+    fn_80088FAC(cursor, "FrHolyB", &m2718.r, 0.0f, 1.0f, 1.0f, 0, 0);
     fn_800874C8(group, "NewFlashCount", &mD78, 0, 999, 1, 0, 0);
     fn_800874C8(group, "NewFlashCountMax", &mD7C, 0, 999, 1, 0, 0);
     fn_80087994(group, "NewFlashInfinity", &mD80, 0, 0);
-    fn_80088FAC(group, "OnCursor", &m288C.r, 0, 0, 0.0f, 1.0f, 1.0f);
-    fn_80088FAC(group, "OnCursorShadow", &m289C.r, 0, 0, 0.0f, 1.0f, 1.0f);
-    fn_8008771C(group, "AccessIconSizeMin", &m2668, 0, 0, 0.0f, 1.0f, 0.01f);
-    fn_8008771C(group, "AccessIconSizeMax", &m266C, 0, 0, 0.0f, 1.0f, 0.01f);
-    fn_8008771C(group, "AccessIconDistMin", &m2670, 0, 0, 0.0f, 100000.0f, 0.01f);
-    fn_8008771C(group, "AccessIconDistMax", &m2674, 0, 0, 0.0f, 100000.0f, 0.01f);
+    fn_80088FAC(group, "OnCursor", &m288C.r, 0.0f, 1.0f, 1.0f, 0, 0);
+    fn_80088FAC(group, "OnCursorShadow", &m289C.r, 0.0f, 1.0f, 1.0f, 0, 0);
+    fn_8008771C(group, "AccessIconSizeMin", &m2668, 0.0f, 1.0f, 0.01f, 0, 0);
+    fn_8008771C(group, "AccessIconSizeMax", &m266C, 0.0f, 1.0f, 0.01f, 0, 0);
+    fn_8008771C(group, "AccessIconDistMin", &m2670, 0.0f, 100000.0f, 0.01f, 0, 0);
+    fn_8008771C(group, "AccessIconDistMax", &m2674, 0.0f, 100000.0f, 0.01f, 0, 0);
 }
 
 // inferred: creates the parts of the HUD (d2anime tasks and instances; called by game/GameTask, released by

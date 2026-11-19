@@ -32,9 +32,9 @@
 extern "C" void* memset(void* dst, int c, unsigned long n);
 extern "C" void* memcpy(void* dst, const void* src, unsigned long n);
 extern "C" int sprintf(char* buf, const char* fmt, ...);
-extern "C" void fn_80087994(void* menu, const char* name, int* flag, int arg3, int arg4); // AddBool
-extern "C" void fn_800874C8(void* menu, const char* name, int* value, int min, int max, int step, int func,
-                            int arg); // AddInt
+extern "C" void fn_80087994(void* menu, const char* name, int* flag, void* func, void* arg); // AddBool
+extern "C" void fn_800874C8(void* menu, const char* name, int* value, int min, int max, int step, void* func,
+                            void* arg); // AddInt
 extern "C" HitInfo_unk* fn_80219E6C(int id); // inferred: bullet data by id
 extern "C" int fn_8021A984(HitInfo_unk* hit); // inferred: the skill is offensive (as in AI/AiCommon_unk.cpp)
 extern "C" void fn_8001C1B4(); // inferred: AI/AI_archer_attack01.cpp (empty)

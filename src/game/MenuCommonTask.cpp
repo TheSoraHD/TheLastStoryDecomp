@@ -21,8 +21,8 @@
 extern "C" MenuD2A_unk* fn_801F3FF8(atn::Task* parent, const char* path, int arg); // inferred: creates a D2A anime
 extern "C" void fn_805115D0(MenuD2A_unk* anime, int arg1, int arg2, float a, float b);
 extern "C" void fn_805114D4(atn::Task* anime, int arg1, int arg2, float a, float b);
-extern "C" void fn_80087BB4(void* group, const char* name, float* value, int arg3, int arg4, float min, float max,
-                            float step); // inferred: two floats
+extern "C" void fn_80087BB4(void* group, const char* name, float* value, float min, float max, float step, void* func,
+                            void* arg); // inferred: two floats
 extern "C" void* lbl_8087EF70; // inferred: pad
 extern "C" int fn_800A555C(void* pad, int port, int button); // inferred: button triggered
 extern "C" int fn_800A55AC(void* pad, int port, int button); // inferred: button repeated
@@ -53,8 +53,8 @@ inline void SetPaneValue2_unk(void* layout, const char* name, float value) {
 }
 extern "C" atn::GraphicsDevice_unk* lbl_8087EEE0;
 extern "C" float fn_80076FF8(void* obj); // inferred: screen aspect ratio
-extern "C" void fn_8008771C(void* group, const char* name, float* value, int arg3, int arg4, float min, float max,
-                            float step);
+extern "C" void fn_8008771C(void* group, const char* name, float* value, float min, float max, float step, void* func,
+                            void* arg);
 
 MenuCommonTask* MenuCommonTask::sInstance;
 
@@ -141,9 +141,9 @@ int MenuCommonTask::vf0C() {
             m1D0[i] = 0;
         }
         void* group = m1E8.Load("MenuCommon");
-        fn_80087BB4(group, "EquipFace Ofs", &m1EC.x, 0, 0, -1000.0f, 1000.0f, 1.0f);
-        fn_80087BB4(group, "EquipFace Scl", &m1F4.x, 0, 0, -1000.0f, 1000.0f, 1.0f);
-        fn_8008771C(group, "4:3 Desc Ofs", &m1FC, 0, 0, -1000.0f, 1000.0f, 1.0f);
+        fn_80087BB4(group, "EquipFace Ofs", &m1EC.x, -1000.0f, 1000.0f, 1.0f, 0, 0);
+        fn_80087BB4(group, "EquipFace Scl", &m1F4.x, -1000.0f, 1000.0f, 1.0f, 0, 0);
+        fn_8008771C(group, "4:3 Desc Ofs", &m1FC, -1000.0f, 1000.0f, 1.0f, 0, 0);
         return 1;
     }
     return 0;
@@ -1153,7 +1153,8 @@ void MenuCommonTask::fn_804A7DD4(int id) {
         float y = 120.0f;
         fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0x36F), item->mName);
         float w = fn_8006EF48(lbl_8087EEC8, text, 14.0f, 0.0f, 1, 1);
-        lbl_8087EEB0->fn_80061824(590.0f - w, y, 0.0f, 14.0f, 14.0f, 0.0f, 0.0f, 0.0f, text, -1, 1, 1, 0, 0, 0xFF000000);
+        lbl_8087EEB0->fn_80061824(590.0f - w, y, 0.0f, 14.0f, 14.0f, 0.0f, 0.0f, 0.0f, text, -1, 1, 1, 0, 0,
+                                  0xFF000000);
     }
 }
 

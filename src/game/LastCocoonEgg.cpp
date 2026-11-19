@@ -1245,14 +1245,14 @@ void LastCocoonEgg::fn_80457E98() {
     }
 }
 
-extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3, int arg4);
-extern "C" void fn_8008771C(void* group, const char* name, float* value, int arg3, int arg4, float min, float max,
-                            float step);
+extern "C" void fn_80087994(void* group, const char* name, int* value, void* func, void* arg);
+extern "C" void fn_8008771C(void* group, const char* name, float* value, float min, float max, float step, void* func,
+                            void* arg);
 
 void LastCocoonEgg::fn_8045817C() {
     void* group = m2A40.Load("LastCocoonEgg");
     fn_80087994(group, "DebugDisp", &m2A44, 0, 0);
     fn_80087994(group, "GrowScaling", &m2A4C, 0, 0);
-    fn_8008771C(group, "ThrowPower", &m2A48, 0, 0, 1.0f, 10000.0f, 10.0f);
+    fn_8008771C(group, "ThrowPower", &m2A48, 1.0f, 10000.0f, 10.0f, 0, 0);
 }
 

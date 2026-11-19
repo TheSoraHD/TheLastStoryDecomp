@@ -38,16 +38,17 @@ extern "C" void fn_8023A8B4(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Mod
 extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the next effects
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
  extern "C" void* lbl_8087EE98;
-extern "C" int fn_8004D388(void* world, atn::ColliResult_unk* result, const atn::Vector3* center, const atn::Vector3* move,
+extern "C" int fn_8004D388(void* world, atn::ColliResult_unk* result, const atn::Vector3* center,
+                           const atn::Vector3* move, 
                            unsigned int mask, void* ignore, int arg, float radius); // inferred: sweep test
 // inferred: debug menu entries (as in game/CharaTask.cpp and game/NewCampPartsHint.cpp)
-extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3, int arg4);
-extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, int arg6,
-                            int arg7);
-extern "C" void fn_8008771C(void* group, const char* name, float* value, int arg3, int arg4, float min, float max,
-                            float step);
-extern "C" void fn_80088FAC(void* group, const char* name, atn::Model::Float4_unk* value, int arg3, int arg4,
-                            float min, float max, float step);
+extern "C" void fn_80087994(void* group, const char* name, int* value, void* func, void* arg);
+extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, void* func,
+                            void* arg);
+extern "C" void fn_8008771C(void* group, const char* name, float* value, float min, float max, float step, void* func,
+                            void* arg);
+extern "C" void fn_80088FAC(void* group, const char* name, atn::Model::Float4_unk* value, float min, float max,
+                            float step, void* func, void* arg);
 
 // inferred: plays an effect on the model (same as in Em305VampireMp.cpp)
 inline void PlayEffect_unk(atn::EfpFile* efp, atn::Model* model) {
@@ -914,22 +915,22 @@ void Em305Vampire::fn_802EC280() {
 void Em305Vampire::fn_802EC38C() {
     void* group = m15BC.Load("em305");
     fn_80087994(group, "DebugDisp", &m15C0, 0, 0);
-    fn_80088FAC(group, "WeakenColor", &m15C4, 0, 0, 0.0f, 1.0f, 0.1f);
-    fn_8008771C(group, "Speed1st", &m15D8[0], 0, 0, 0.1f, 10.0f, 0.1f);
+    fn_80088FAC(group, "WeakenColor", &m15C4, 0.0f, 1.0f, 0.1f, 0, 0);
+    fn_8008771C(group, "Speed1st", &m15D8[0], 0.1f, 10.0f, 0.1f, 0, 0);
     fn_800874C8(group, "Time1st", &m15E4[0], 0, 100, 1, 0, 0);
-    fn_8008771C(group, "Speed2nd", &m15D8[1], 0, 0, 0.1f, 10.0f, 0.1f);
+    fn_8008771C(group, "Speed2nd", &m15D8[1], 0.1f, 10.0f, 0.1f, 0, 0);
     fn_800874C8(group, "Time2nd", &m15E4[1], 0, 100, 1, 0, 0);
-    fn_8008771C(group, "Speed3rd", &m15D8[2], 0, 0, 0.1f, 10.0f, 0.1f);
+    fn_8008771C(group, "Speed3rd", &m15D8[2], 0.1f, 10.0f, 0.1f, 0, 0);
     fn_800874C8(group, "Time3rd", &m15E4[2], 0, 100, 1, 0, 0);
-    fn_8008771C(group, "1stTo2nd", &m15F0, 0, 0, 0.0f, 1.0f, 0.01f);
-    fn_8008771C(group, "2ndTo3rd", &m15F4, 0, 0, 0.0f, 1.0f, 0.01f);
+    fn_8008771C(group, "1stTo2nd", &m15F0, 0.0f, 1.0f, 0.01f, 0, 0);
+    fn_8008771C(group, "2ndTo3rd", &m15F4, 0.0f, 1.0f, 0.01f, 0, 0);
     fn_800874C8(group, "WeakenType", &m1528, 0, 10, 1, 0, 0);
-    fn_8008771C(group, "SpdUpRate", &m15F8, 0, 0, 0.0f, 1.0f, 0.01f);
+    fn_8008771C(group, "SpdUpRate", &m15F8, 0.0f, 1.0f, 0.01f, 0, 0);
     fn_800874C8(group, "SpdUpTime", &m15FC, 0, 100, 1, 0, 0);
     fn_800874C8(group, "SpdUpWait", &m1600, 0, 100, 1, 0, 0);
     fn_800874C8(group, "xxxState", &m1530, 0, 100, 1, 0, 0);
     fn_800874C8(group, "xxxTime", &m1534, 0, 100, 1, 0, 0);
-    fn_8008771C(group, "xxxSpeed", &m152C, 0, 0, 0.0f, 100.0f, 1.0f);
+    fn_8008771C(group, "xxxSpeed", &m152C, 0.0f, 100.0f, 1.0f, 0, 0);
 }
 
 void Em305Vampire::vf108() {}

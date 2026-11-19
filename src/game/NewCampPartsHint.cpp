@@ -17,10 +17,10 @@ extern "C" const wchar_t* fn_80116FC0(int a, int id); // inferred: message text
 extern "C" atn::SoundRef fn_80117228(int id);        // inferred: plays a system sound effect
 extern "C" void fn_800D2338(atn::Task* task);        // inferred: deletes the task
 extern "C" void* fn_8008937C(void* menu, const char* name); // inferred: debug menu group
-extern "C" void fn_80087E9C(void* group, const char* name, atn::Vector3* value, int arg3, int arg4, float min,
-                            float max, float step);
-extern "C" void fn_80088FAC(void* group, const char* name, NewCampColor_unk* value, int arg3, int arg4, float min,
-                            float max, float step);
+extern "C" void fn_80087E9C(void* group, const char* name, atn::Vector3* value, float min, float max, float step,
+                            void* func, void* arg);
+extern "C" void fn_80088FAC(void* group, const char* name, NewCampColor_unk* value, float min, float max, float step,
+                            void* func, void* arg);
 extern "C" void fn_804A436C(int* cursor, int count, int wrap, int step, int arg); // inferred: moves a cursor
 extern "C" void fn_804A4494(int* cursor, int* top, int count, int page, int a, int b); // inferred: moves a list cursor
 extern "C" void fn_804A4930(atn::Task* task, int top, int count, int page); // inferred: scroll bar
@@ -522,16 +522,16 @@ void NewCampPartsHint::fn_80516544() {
 
 void NewCampPartsHint::vf40(void* group) {
     group = fn_8008937C(group, m98.data());
-    fn_80087E9C(group, "MoveOffset", &mMove, 0, 0, -1000000.0f, 1000000.0f, 1.0f);
-    fn_80088FAC(group, "Tutorial", &mTutorialCol, 0, 0, 0.0f, 1.0f, 0.1f);
-    fn_80088FAC(group, "TutorialShadow", &mTutorialShadow, 0, 0, 0.0f, 1.0f, 0.1f);
-    fn_80088FAC(group, "Tips", &mTipsCol, 0, 0, 0.0f, 1.0f, 0.1f);
-    fn_80088FAC(group, "TipsShadow", &mTipsShadow, 0, 0, 0.0f, 1.0f, 0.1f);
-    fn_80087E9C(group, "OpenOffset", &mOpenOffset, 0, 0, -1000000.0f, 1000000.0f, 1.0f);
-    fn_80087E9C(group, "OffsetPos", &mA4, 0, 0, -1000000.0f, 1000000.0f, 1.0f);
-    fn_80087E9C(group, "OffsetScl", &mB0, 0, 0, -1000000.0f, 1000000.0f, 1.0f);
-    fn_80087E9C(group, "LocatorScl", &mBC, 0, 0, -1000000.0f, 1000000.0f, 1.0f);
-    fn_80087E9C(group, "BasePos", &mC8, 0, 0, -1000000.0f, 1000000.0f, 1.0f);
+    fn_80087E9C(group, "MoveOffset", &mMove, -1000000.0f, 1000000.0f, 1.0f, 0, 0);
+    fn_80088FAC(group, "Tutorial", &mTutorialCol, 0.0f, 1.0f, 0.1f, 0, 0);
+    fn_80088FAC(group, "TutorialShadow", &mTutorialShadow, 0.0f, 1.0f, 0.1f, 0, 0);
+    fn_80088FAC(group, "Tips", &mTipsCol, 0.0f, 1.0f, 0.1f, 0, 0);
+    fn_80088FAC(group, "TipsShadow", &mTipsShadow, 0.0f, 1.0f, 0.1f, 0, 0);
+    fn_80087E9C(group, "OpenOffset", &mOpenOffset, -1000000.0f, 1000000.0f, 1.0f, 0, 0);
+    fn_80087E9C(group, "OffsetPos", &mA4, -1000000.0f, 1000000.0f, 1.0f, 0, 0);
+    fn_80087E9C(group, "OffsetScl", &mB0, -1000000.0f, 1000000.0f, 1.0f, 0, 0);
+    fn_80087E9C(group, "LocatorScl", &mBC, -1000000.0f, 1000000.0f, 1.0f, 0, 0);
+    fn_80087E9C(group, "BasePos", &mC8, -1000000.0f, 1000000.0f, 1.0f, 0, 0);
 }
 
 void NewCampPartsHint::vf48() {

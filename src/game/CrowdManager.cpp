@@ -11,11 +11,11 @@
 #include "atn/DrawHelper.h"
 #include "atn/RenderManager.h"
 
-extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, int arg6,
-                            int arg7);
-extern "C" void fn_8008771C(void* group, const char* name, float* value, int arg3, int arg4, float min, float max,
-                            float step);
-extern "C" void fn_80087994(void* menu, const char* name, int* flag, int arg3, int arg4);
+extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, void* func,
+                            void* arg);
+extern "C" void fn_8008771C(void* group, const char* name, float* value, float min, float max, float step, void* func,
+                            void* arg);
+extern "C" void fn_80087994(void* menu, const char* name, int* flag, void* func, void* arg);
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 extern "C" void fn_800D2338(atn::Task* task);         // inferred: deletes a task
 inline float LengthSq_unk(const atn::Vector3& v) {
@@ -66,9 +66,9 @@ CrowdManager::CrowdManager(atn::Task* parent, CrowdDesc_unk* desc, int arg)
     fn_800874C8(group, "SizeMin", &mSizeMin, 0, 200, 1, 0, 0);
     fn_800874C8(group, "Limit", &mLimit, 0, 200, 1, 0, 0);
     fn_800874C8(group, "TpcSize", &mTpcSize, 0, 200, 1, 0, 0);
-    fn_8008771C(group, "Inner", &mInner, 0, 0, 1.0f, 10000.0f, 1.0f);
-    fn_8008771C(group, "Outer", &mOuter, 0, 0, 1.0f, 10000.0f, 1.0f);
-    fn_8008771C(group, "Kill", &mKill, 0, 0, 1.0f, 10000.0f, 1.0f);
+    fn_8008771C(group, "Inner", &mInner, 1.0f, 10000.0f, 1.0f, 0, 0);
+    fn_8008771C(group, "Outer", &mOuter, 1.0f, 10000.0f, 1.0f, 0, 0);
+    fn_8008771C(group, "Kill", &mKill, 1.0f, 10000.0f, 1.0f, 0, 0);
     CrowdSimulation::fn_801EB93C(this, desc);
 }
 
@@ -165,7 +165,8 @@ void CrowdManager::vf14() {
             lbl_8087EEB0->fn_80063764(walker->mPos, tip, 0.0f, 0xFF0000FF);
         } else {
             CrowdColor_unk color(1.0f, 0.0f, 0.0f, 1.0f);
-            lbl_8087EEB0->fn_80062C8C(16, CrowdRGBA_unk(color), walker->mPos.x, walker->mPos.y, walker->mPos.z, 0.0f, 5.0f, 10.0f);
+            lbl_8087EEB0->fn_80062C8C(16, CrowdRGBA_unk(color), walker->mPos.x, walker->mPos.y, walker->mPos.z, 0.0f,
+                                      5.0f, 10.0f);
         }
         if (LengthSq_unk(atn::RenderManager::instance_->mCamera.mPos - walker->mPos) < 1600.0f) {
             atn::Vector3 screen = atn::RenderManager::instance_->GetScreenPosition(walker->mPos);
@@ -173,15 +174,18 @@ void CrowdManager::vf14() {
                 float y = screen.y;
                 sprintf(text, "Point: %3d to %3d", walker->mPoint, walker->mDest);
                 fn_8006F2F0(lbl_8087EEC8, wtext, text, 256);
-                lbl_8087EEB0->fn_80061824(screen.x, y, 0.0f, 12.0f, 12.0f, 0.0f, 0.0f, 0.0f, wtext, 0xAFFFFFFF, 1, 1, 0, 0, 0xFF000000);
+                lbl_8087EEB0->fn_80061824(screen.x, y, 0.0f, 12.0f, 12.0f, 0.0f, 0.0f, 0.0f, wtext, 0xAFFFFFFF, 1, 1, 0,
+                                          0, 0xFF000000);
                 y += 12.0f;
                 sprintf(text, "Unit %d, Chara %d", walker->mGroup, mDesc->mGroups[walker->mGroup].mChara);
                 fn_8006F2F0(lbl_8087EEC8, wtext, text, 256);
-                lbl_8087EEB0->fn_80061824(screen.x, y, 0.0f, 12.0f, 12.0f, 0.0f, 0.0f, 0.0f, wtext, 0xAFFFFFFF, 1, 1, 0, 0, 0xFF000000);
+                lbl_8087EEB0->fn_80061824(screen.x, y, 0.0f, 12.0f, 12.0f, 0.0f, 0.0f, 0.0f, wtext, 0xAFFFFFFF, 1, 1, 0,
+                                          0, 0xFF000000);
                 y += 12.0f;
                 sprintf(text, "DPos: %3.3f, %3.3f, %3.3f", walker->mNext.x, walker->mNext.y, walker->mNext.z);
                 fn_8006F2F0(lbl_8087EEC8, wtext, text, 256);
-                lbl_8087EEB0->fn_80061824(screen.x, y, 0.0f, 12.0f, 12.0f, 0.0f, 0.0f, 0.0f, wtext, 0xAFFFFFFF, 1, 1, 0, 0, 0xFF000000);
+                lbl_8087EEB0->fn_80061824(screen.x, y, 0.0f, 12.0f, 12.0f, 0.0f, 0.0f, 0.0f, wtext, 0xAFFFFFFF, 1, 1, 0,
+                                          0, 0xFF000000);
             }
         }
     }

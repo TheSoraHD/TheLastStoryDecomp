@@ -34,12 +34,12 @@ struct GimmickUvOwner_unk {
 };
 
 // inferred: debug menu entries
-extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, int arg6,
-                            int arg7);
-extern "C" void fn_8008771C(void* group, const char* name, float* value, int arg3, int arg4, float min, float max,
-                            float step);
-extern "C" void fn_80088AF4(void* group, const char* name, float* value, int arg3, int arg4, float min, float max,
-                            float step); // inferred: color
+extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, void* func,
+                            void* arg);
+extern "C" void fn_8008771C(void* group, const char* name, float* value, float min, float max, float step, void* func,
+                            void* arg);
+extern "C" void fn_80088AF4(void* group, const char* name, float* value, float min, float max, float step, void* func,
+                            void* arg); // inferred: color
 
 extern "C" RenderSetting_unk* lbl_8087EFA8;
 
@@ -132,9 +132,9 @@ LensFlare::LensFlare(int arg, int count, const Vector3& pos, float size) : m04(a
         sprintf(name, "Flare %d", i);
         void* elemGroup = fn_8008937C(group, name);
         fn_800874C8(elemGroup, "Type", &e->m00, 0, 6, 1, 0, 0);
-        fn_8008771C(elemGroup, "Size", &e->m04, 0, 0, 0.0f, 1000.0f, 0.1f);
-        fn_8008771C(elemGroup, "Position", &e->m08, 0, 0, -100.0f, 100.0f, 0.01f);
-        fn_80088AF4(elemGroup, "Color", &e->m0C, 0, 0, 0.0f, 1.0f, 0.01f);
+        fn_8008771C(elemGroup, "Size", &e->m04, 0.0f, 1000.0f, 0.1f, 0, 0);
+        fn_8008771C(elemGroup, "Position", &e->m08, -100.0f, 100.0f, 0.01f, 0, 0);
+        fn_80088AF4(elemGroup, "Color", &e->m0C, 0.0f, 1.0f, 0.01f, 0, 0);
     }
 }
 

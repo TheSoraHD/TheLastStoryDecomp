@@ -39,10 +39,10 @@ extern "C" void fn_802F0964(BattleTask* mgr, CharaTask* owner, HitInfo_unk* bull
                             float arg9); // inferred: fires a bullet (weak copy, game/Em306GurgBeast.cpp)
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
-extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, int arg6,
-                            int arg7);
-extern "C" void fn_8008771C(void* group, const char* name, float* value, int arg3, int arg4, float min, float max,
-                            float step);
+extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, void* func,
+                            void* arg);
+extern "C" void fn_8008771C(void* group, const char* name, float* value, float min, float max, float step, void* func,
+                            void* arg);
 
 Em312DarkServant::Em312DarkServant(atn::Task* parent, EnemyInfo_unk* info)
     : SpecialEnemyBase(parent, info), m14D4(0), m14D8(1), m14DC(0), m14E0(0), m14E4(50.0f), m14E8(40.0f), m1570(900),
@@ -773,8 +773,8 @@ void Em312DarkServant::vf30(void* menu) {
         group = 0;
     }
     fn_805A5220(group);
-    fn_8008771C(group, "MoveRadius", &m14E4, 0, 0, 0.0f, 9999.0f, 1.0f);
-    fn_8008771C(group, "AttackLength", &m14E8, 0, 0, 0.0f, 9999.0f, 1.0f);
+    fn_8008771C(group, "MoveRadius", &m14E4, 0.0f, 9999.0f, 1.0f, 0, 0);
+    fn_8008771C(group, "AttackLength", &m14E8, 0.0f, 9999.0f, 1.0f, 0, 0);
     fn_800874C8(group, "BreathIntervalInit", &m1570, 0, 9999, 1, 0, 0);
     fn_800874C8(group, "BreathInterval", &m1574, 0, 9999, 1, 0, 0);
     fn_800874C8(group, "AttackCountMax", &m1578, 0, 9999, 1, 0, 0);

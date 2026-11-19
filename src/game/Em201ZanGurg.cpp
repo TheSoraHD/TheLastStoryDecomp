@@ -32,7 +32,7 @@ extern "C" void fn_8023A8B4(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Mod
                             int arg8, int arg9, float scale);
 extern "C" void fn_80239DAC(atn::EffectManager* mgr, void* owner, int id, int arg); // inferred: stops an effect
 extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the next effects
-extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3, int arg4);
+extern "C" void fn_80087994(void* group, const char* name, int* value, void* func, void* arg);
 // inferred: field (lbl_8087F430); fn_80370AE4 sets an event flag
 extern "C" GameTask* lbl_8087F430;
 

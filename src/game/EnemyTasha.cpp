@@ -21,11 +21,11 @@ extern "C" float fn_800DC288(const char* s); // inferred: string to float
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 // inferred: debug menu entries (as in game/EnemyTrista.cpp)
-extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3, int arg4);
-extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, int arg6,
-                            int arg7);
-extern "C" void fn_8008771C(void* group, const char* name, float* value, int arg3, int arg4, float min, float max,
-                            float step);
+extern "C" void fn_80087994(void* group, const char* name, int* value, void* func, void* arg);
+extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, void* func,
+                            void* arg);
+extern "C" void fn_8008771C(void* group, const char* name, float* value, float min, float max, float step, void* func,
+                            void* arg);
 // inferred: work area of the damage computation (as in game/EnemyTask.cpp)
 extern "C" char lbl_807C6B90[0x18];
 // inferred: damage of `hit` from `attacker` to `target` (game/DamageCalc_unk.cpp)
@@ -1293,9 +1293,9 @@ void EnemyTasha::vf30(void* menu) {
     fn_800874C8(group, "WaitFrame", &m1518, 0, 500, 1, 0, 0);
     fn_800874C8(group, "ChaseCancelFrame", &m1520, 0, 500, 1, 0, 0);
     fn_800874C8(group, "AttackChanceFrame", &m151C, 0, 500, 1, 0, 0);
-    fn_8008771C(group, "AttackDistance", &m14FC, 0, 0, 0.0f, 500.0f, 1.0f);
-    fn_8008771C(group, "BackstepDisRate", &m16C0, 0, 0, 0.0f, 500.0f, 0.1f);
-    fn_8008771C(group, "HP", &mStatus.m04, 0, 0, 0.0f, 50000.0f, 1.0f);
+    fn_8008771C(group, "AttackDistance", &m14FC, 0.0f, 500.0f, 1.0f, 0, 0);
+    fn_8008771C(group, "BackstepDisRate", &m16C0, 0.0f, 500.0f, 0.1f, 0, 0);
+    fn_8008771C(group, "HP", &mStatus.m04, 0.0f, 50000.0f, 1.0f, 0, 0);
 }
 
 int EnemyTasha::vf68(CharaTask* attacker) {

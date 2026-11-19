@@ -23,13 +23,13 @@ extern "C" char lbl_8087D710[2]; // inferred: " " (field separators of the tab C
 extern "C" float fn_800DC288(const char* s); // inferred: string to float
 extern "C" unsigned int fn_800DC6B4(const char* s); // inferred: hash of a name (as atn/MapModelCache_unk.h)
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
-extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, int arg6,
-                            int arg7);
-extern "C" void fn_80087E9C(void* group, const char* name, atn::Vector3* value, int arg3, int arg4, float min,
-                            float max, float step);
-extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3, int arg4);
-extern "C" void fn_8008771C(void* group, const char* name, float* value, int arg3, int arg4, float min, float max,
-                            float step);
+extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, void* func,
+                            void* arg);
+extern "C" void fn_80087E9C(void* group, const char* name, atn::Vector3* value, float min, float max, float step,
+                            void* func, void* arg);
+extern "C" void fn_80087994(void* group, const char* name, int* value, void* func, void* arg);
+extern "C" void fn_8008771C(void* group, const char* name, float* value, float min, float max, float step, void* func,
+                            void* arg);
 
 // inferred: node callback of a model (as in game/CharaTask.cpp)
 typedef boost::function<void(atn::Matrix3x4*, const atn::NodeChunk&, const atn::ModelNodeCallbackContext&),
@@ -420,22 +420,22 @@ void SwingObject::vf6C(void* menu) {
     SwingParam_unk* param;
     void* group = MenuGroup_unk(this, menu, name);
     fn_800874C8(group, "state", &m54, 0, 9999, 1, 0, 0);
-    fn_80087E9C(group, "pos", &m6C, 0, 0, -9999.0f, 9999.0f, 0.25f);
+    fn_80087E9C(group, "pos", &m6C, -9999.0f, 9999.0f, 0.25f, 0, 0);
     fn_80087994(group, "isShow", &m9C, 0, 0);
     param = mCore.mParams;
     for (int i = 0; i < 2; i++) {
         char text[0x100];
         sprintf(text, "Param%d\0", i + 1);
         void* sub = fn_8008937C(group, text);
-        fn_8008771C(sub, "wind_power", &param->mWindPower, 0, 0, 0.0f, 100.0f, 1.0f);
-        fn_8008771C(sub, "wind_vec", &param->mWindVec, 0, 0, -1.0f, 1.0f, 1.0f);
-        fn_8008771C(sub, "degree_min", &param->mDegMin, 0, 0, 0.0f, 90.0f, 1.0f);
-        fn_8008771C(sub, "degree_max", &param->mDegMax, 0, 0, 0.0f, 90.0f, 1.0f);
-        fn_8008771C(sub, "middle/bottom (%)", &param->mMiddle, 0, 0, 0.0f, 100.0f, 1.0f);
-        fn_8008771C(sub, "node_time_lag", &param->mLag, 0, 0, 0.0f, 99.0f, 1.0f);
-        fn_8008771C(sub, "time_speed", &param->mSpeed, 0, 0, 0.0f, 99.0f, 1.0f);
-        fn_8008771C(sub, "twist_power", &param->mTwist, 0, 0, 0.0f, 99.0f, 0.1f);
-        fn_8008771C(sub, "wind_power_rand", &param->mWindRand, 0, 0, 0.0f, 100.0f, 1.0f);
+        fn_8008771C(sub, "wind_power", &param->mWindPower, 0.0f, 100.0f, 1.0f, 0, 0);
+        fn_8008771C(sub, "wind_vec", &param->mWindVec, -1.0f, 1.0f, 1.0f, 0, 0);
+        fn_8008771C(sub, "degree_min", &param->mDegMin, 0.0f, 90.0f, 1.0f, 0, 0);
+        fn_8008771C(sub, "degree_max", &param->mDegMax, 0.0f, 90.0f, 1.0f, 0, 0);
+        fn_8008771C(sub, "middle/bottom (%)", &param->mMiddle, 0.0f, 100.0f, 1.0f, 0, 0);
+        fn_8008771C(sub, "node_time_lag", &param->mLag, 0.0f, 99.0f, 1.0f, 0, 0);
+        fn_8008771C(sub, "time_speed", &param->mSpeed, 0.0f, 99.0f, 1.0f, 0, 0);
+        fn_8008771C(sub, "twist_power", &param->mTwist, 0.0f, 99.0f, 0.1f, 0, 0);
+        fn_8008771C(sub, "wind_power_rand", &param->mWindRand, 0.0f, 100.0f, 1.0f, 0, 0);
         param++;
     }
     fn_800874C8(group, "axis1", &mCore.mAxis1, 0, 5, 1, 0, 0);

@@ -32,8 +32,8 @@ extern "C" int fn_805B6474(void* rmode, int x, int y, int w, int h); // THPPlaye
 extern "C" void GXDrawDone();
 
 extern "C" void OSPanic(const char* file, int line, const char* msg, ...);
-extern "C" void fn_80087BB4(void* group, const char* name, float* value, int arg3, int arg4, float min,
-                            float max, float step); // inferred: debug slider for a 2D vector
+extern "C" void fn_80087BB4(void* group, const char* name, float* value, float min, float max, float step, void* func,
+                            void* arg); // inferred: debug slider for a 2D vector
 extern "C" std::string fn_8006B174(const std::string& path); // inferred: file name of a path
 extern "C" int fn_800499D0(void* audio);          // inferred: AudioDevice output mode
 
@@ -91,8 +91,8 @@ VideoTHP::VideoTHP(const char* name) {
     m80 = 0;
     m94.mGroup = 0;
     void* group = m94.Create(fn_8006B174(std::string(name)).c_str());
-    fn_80087BB4(group, "Scale", &m84.x, 0, 0, 0.1f, 100.0f, 0.01f);
-    fn_80087BB4(group, "Offset", &m8C.x, 0, 0, -640.0f, 640.0f, 0.5f);
+    fn_80087BB4(group, "Scale", &m84.x, 0.1f, 100.0f, 0.01f, 0, 0);
+    fn_80087BB4(group, "Offset", &m8C.x, -640.0f, 640.0f, 0.5f, 0, 0);
 }
 
 VideoTHP::~VideoTHP() {

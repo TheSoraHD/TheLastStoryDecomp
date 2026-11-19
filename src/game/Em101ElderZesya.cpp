@@ -30,13 +30,13 @@ static const int sBarrierKinds_unk[4] = {3, 0, 1, 4};
 // inferred: std::string concatenation (weak copy 0x8006AFF8)
 extern "C" std::string fn_8006AFF8(const std::string& a, const std::string& b);
 // inferred: debug menu entries (as in gmk/SwingObject.cpp)
-extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3, int arg4);
-extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, int arg6,
-                            int arg7);
-extern "C" void fn_8008771C(void* group, const char* name, float* value, int arg3, int arg4, float min, float max,
-                            float step);
-extern "C" void fn_80088FAC(void* group, const char* name, ZesyaColor_unk* value, int arg3, int arg4, float min,
-                            float max, float step);
+extern "C" void fn_80087994(void* group, const char* name, int* value, void* func, void* arg);
+extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, void* func,
+                            void* arg);
+extern "C" void fn_8008771C(void* group, const char* name, float* value, float min, float max, float step, void* func,
+                            void* arg);
+extern "C" void fn_80088FAC(void* group, const char* name, ZesyaColor_unk* value, float min, float max, float step,
+                            void* func, void* arg);
 
 struct Gimmick_unk {
     unsigned char m00[0x04];
@@ -223,13 +223,13 @@ Em101ElderZesya::Em101ElderZesya(atn::Task* parent, EnemyInfo_unk* info)
     void* group = m16B8.Load("Em101ElderZesya");
     fn_80087994(group, "DebugDisp", &m16BC, 0, 0);
     fn_800874C8(group, "WaitFrame", &m16B0, 0, 1000000, 1, 0, 0);
-    fn_8008771C(group, "AttackChanceFrame", &m16B4, 0, 0, 0.0f, 100000.0f, 1.0f);
+    fn_8008771C(group, "AttackChanceFrame", &m16B4, 0.0f, 100000.0f, 1.0f, 0, 0);
     fn_800874C8(group, "ComboWaitTime", &m14FC, 0, 100000, 1, 0, 0);
     fn_800874C8(group, "bossActPhase_", &m14CC, 3, 5, 1, 0, 0);
-    fn_80088FAC(group, "FireBarrier", &m16C0, 0, 0, 0.0f, 1.0f, 0.01f);
-    fn_80088FAC(group, "IceBarrier", &m16D0, 0, 0, 0.0f, 1.0f, 0.01f);
-    fn_80088FAC(group, "ForestBarrier", &m16F0, 0, 0, 0.0f, 1.0f, 0.01f);
-    fn_80088FAC(group, "HolyBarrier", &m1700, 0, 0, 0.0f, 1.0f, 0.01f);
+    fn_80088FAC(group, "FireBarrier", &m16C0, 0.0f, 1.0f, 0.01f, 0, 0);
+    fn_80088FAC(group, "IceBarrier", &m16D0, 0.0f, 1.0f, 0.01f, 0, 0);
+    fn_80088FAC(group, "ForestBarrier", &m16F0, 0.0f, 1.0f, 0.01f, 0, 0);
+    fn_80088FAC(group, "HolyBarrier", &m1700, 0.0f, 1.0f, 0.01f, 0, 0);
     m15F8.LoadRequest("ef_bs007a.efp");
     m1604.LoadRequest("ef_bs066e.efp");
     m1610.LoadRequest("ef_bs066c.efp");

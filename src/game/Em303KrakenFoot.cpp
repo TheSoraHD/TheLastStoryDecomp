@@ -25,7 +25,7 @@ extern "C" GameTask* lbl_8087F430;
 extern "C" inline GameTask* fn_80121F00() {
     return lbl_8087F430;
 }
-extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3, int arg4);
+extern "C" void fn_80087994(void* group, const char* name, int* value, void* func, void* arg);
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 extern "C" double cos(double x);

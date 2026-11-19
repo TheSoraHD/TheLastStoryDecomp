@@ -18,9 +18,9 @@
 #include "atn/TextTable_unk.h"
 
 // inferred: debug menu entries (as in game/Em101LittleZesya.cpp)
-extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3, int arg4);
-extern "C" void fn_8008771C(void* group, const char* name, float* value, int arg3, int arg4, float min, float max,
-                            float step);
+extern "C" void fn_80087994(void* group, const char* name, int* value, void* func, void* arg);
+extern "C" void fn_8008771C(void* group, const char* name, float* value, float min, float max, float step, void* func,
+                            void* arg);
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 extern "C" atn::Vector3 lbl_807C7030;              // inferred: zero vector
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
@@ -192,9 +192,9 @@ int Em208Queen::vf0C() {
         mStatus.m18 |= 0x3800000;
         void* group = m1548.Load("em208");
         fn_80087994(group, "DebugDisp", &m154C, 0, 0);
-        fn_8008771C(group, "Hungry_Jump", &m1550, 0, 0, 0.0f, 1.0f, 0.1f);
-        fn_8008771C(group, "Hungry_Tackle", &m1554, 0, 0, 0.0f, 1.0f, 0.1f);
-        fn_8008771C(group, "NowHungryRate", &m14CC, 0, 0, 0.0f, 1.0f, 0.1f);
+        fn_8008771C(group, "Hungry_Jump", &m1550, 0.0f, 1.0f, 0.1f, 0, 0);
+        fn_8008771C(group, "Hungry_Tackle", &m1554, 0.0f, 1.0f, 0.1f, 0, 0);
+        fn_8008771C(group, "NowHungryRate", &m14CC, 0.0f, 1.0f, 0.1f, 0, 0);
         m14C0 = 1;
         m14CC = 0.0f;
         if (m1438 != 0) {

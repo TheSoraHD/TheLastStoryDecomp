@@ -78,12 +78,12 @@ extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared len
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0;  // inferred: player manager
 extern "C" CharaInfo_unk* fn_8020924C(int id);
 // inferred: debug menu entries (as in gmk/SwingObject.cpp)
-extern "C" void fn_8008771C(void* group, const char* name, float* value, int arg3, int arg4, float min, float max,
-                            float step);
-extern "C" void fn_80087E9C(void* group, const char* name, atn::Vector3* value, int arg3, int arg4, float min,
-                            float max, float step);
-extern "C" void fn_80088724(void* group, const char* name, atn::Vector3* value, int arg3, int arg4, float min,
-                            float max, float step);
+extern "C" void fn_8008771C(void* group, const char* name, float* value, float min, float max, float step, void* func,
+                            void* arg);
+extern "C" void fn_80087E9C(void* group, const char* name, atn::Vector3* value, float min, float max, float step,
+                            void* func, void* arg);
+extern "C" void fn_80088724(void* group, const char* name, atn::Vector3* value, float min, float max, float step,
+                            void* func, void* arg);
 // inferred: the field task (lbl_8087F430): event flags (fn_80370A78/fn_80370AE4), global flags
 // (fn_80370174/fn_80370320) and its camera (GameCamera::m7FC sub mode, mCamera position, target and
 // inverse view matrix)
@@ -449,8 +449,8 @@ extern "C" void fn_805A5078(const atn::Vector3* pos, const atn::Vector3* dir, in
 // out_of_range" before "position")
 // inferred: debug menu entries of a special enemy
 void SpecialEnemyBase::fn_805A5220(void* group) {
-    fn_80087E9C(group, "position", &mPos, 0, 0, -9999.0f, 9999.0f, 1.0f);
-    fn_80088724(group, "rotation", &mRot, 0, 0, -360.0f, 360.0f, 10.0f);
-    fn_80087E9C(group, "scale", &m540, 0, 0, -9999.0f, 9999.0f, 0.25f);
-    fn_8008771C(group, "moveSpeed", &m568, 0, 0, 0.0f, 9999.0f, 0.05f);
+    fn_80087E9C(group, "position", &mPos, -9999.0f, 9999.0f, 1.0f, 0, 0);
+    fn_80088724(group, "rotation", &mRot, -360.0f, 360.0f, 10.0f, 0, 0);
+    fn_80087E9C(group, "scale", &m540, -9999.0f, 9999.0f, 0.25f, 0, 0);
+    fn_8008771C(group, "moveSpeed", &m568, 0.0f, 9999.0f, 0.05f, 0, 0);
 }

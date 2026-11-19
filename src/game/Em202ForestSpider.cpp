@@ -76,7 +76,7 @@ extern "C" void fn_8023A8B4(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Mod
                             int arg8, int arg9, float scale);
 extern "C" void fn_8023A680(atn::EffectManager* mgr, atn::EffFile* eff, int a, int b, const atn::Matrix3x4* mtx, int c,
                             int d, int e, int f, int g, int h, float scale); // inferred: effect on a matrix
-extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3, int arg4); // debug menu
+extern "C" void fn_80087994(void* group, const char* name, int* value, void* func, void* arg); // debug menu
 // inferred: effect `efp` on the model (shared with gmk/FlamingArrow, Em315Coffin and the Quark enemies)
 extern "C" void fn_80276AE4(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Model* model, const atn::Vector3& pos,
                             const atn::Vector3& rot, int a5, int a6, int a7, float scale);
@@ -1530,7 +1530,8 @@ void Em202ForestSpider::fn_80279280() {
                         t->m88->fn_8015C0C0((int)this, t->m0C);
                         fn_800C344C("SE_EM202_012", t->m28.GetTrans_unk(), 0, -1, 1.0f);
                         fn_800F7FA8(fn_800F7FA0(), 0, 0);
-                        fn_80276AE4(fn_800F7FA0(), &t->mA4, 0, t->m28.GetTrans_unk(), t->m10.ToRotation_unk(), -1, -1, 1,
+                        fn_80276AE4(fn_800F7FA0(), &t->mA4, 0, t->m28.GetTrans_unk(), t->m10.ToRotation_unk(), -1, -1,
+                                    1, 
                                     1.0f);
                         fn_800F7FA8(fn_800F7FA0(), t, 0x66);
                         fn_8026607C(fn_800F7FA0(), &t->mC8, t->m88->GetModel_unk(), 1);

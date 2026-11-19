@@ -18,8 +18,8 @@
 #include "game/MapPartsRain.h"
 #include "game/GameTask.h"
 
-extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, int arg6,
-                            int arg7);
+extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, void* func,
+                            void* arg);
 extern "C" void* fn_804A7EA4(TownTask* task, const char* path); // inferred: loads a minimap csv
 extern "C" GameTask* lbl_8087F430;
 

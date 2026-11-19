@@ -45,7 +45,7 @@ inline void SetCameraMode_unk(GameCameraModeParam_unk& camera, int mode, const G
 extern "C" GameTask* lbl_8087F430;
 extern "C" GameConfig_unk* lbl_8087F0A8;
 extern "C" chr::CharaData_unk* fn_8020A81C(const char* name);
-extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3, int arg4); // debug menu
+extern "C" void fn_80087994(void* group, const char* name, int* value, void* func, void* arg); // debug menu
 // inferred: name table of the field (lbl_8087F430 + 0x54F4) (as in game/CharaTask.cpp)
 extern "C" wchar_t* wcscpy(wchar_t* dst, const wchar_t* src);
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager

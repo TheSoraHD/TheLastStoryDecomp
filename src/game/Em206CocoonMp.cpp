@@ -21,7 +21,7 @@
 
 extern "C" int strncmp(const char* a, const char* b, unsigned long n);
 extern "C" std::string fn_8006AFF8(const std::string& a, const std::string& b); // inferred: a + b
-extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3, int arg4); // debug menu
+extern "C" void fn_80087994(void* group, const char* name, int* value, void* func, void* arg); // debug menu
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
 extern "C" HitInfo_unk* fn_80219E6C(int id); // inferred: skill data
 // inferred: effect manager (class unknown), global instance at 0x8087F3C0

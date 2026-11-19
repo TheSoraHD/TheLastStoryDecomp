@@ -11,7 +11,7 @@
 #include "atn/TextTable_unk.h"
 
 extern "C" int strncmp(const char* a, const char* b, unsigned long n);
-extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3, int arg4);
+extern "C" void fn_80087994(void* group, const char* name, int* value, void* func, void* arg);
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 extern "C" GameTask* lbl_8087F430;
 // inferred: debug drawing (lbl_8087EEB0) and the font used to measure the text (lbl_8087EEC8)
@@ -114,7 +114,8 @@ void LastCocoonChrysalis::vf10() {
         float w = fn_8006EF48(lbl_8087EEC8, size, text, 0.0f, 1, 1);
         atn::Vector3 screen = atn::RenderManager::instance_->GetScreenPosition(pos);
         if (screen.z > 0.0f && screen.z < 1.0f) {
-            lbl_8087EEB0->fn_80061824(screen.x - 0.5f * w, screen.y, 0.0f, size, size, 0.0f, 0.0f, 0.0f, text, 0xA000FFFF, 1, 1, 0, 0, 0xFF000000);
+            lbl_8087EEB0->fn_80061824(screen.x - 0.5f * w, screen.y, 0.0f, size, size, 0.0f, 0.0f, 0.0f, text,
+                                      0xA000FFFF, 1, 1, 0, 0, 0xFF000000);
         }
         CharaTask* leader = (CharaTask*)lbl_8087F8A0->mHead;
         if (leader->m55C == 6 && leader->m560 == 10) {

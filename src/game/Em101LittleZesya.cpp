@@ -32,11 +32,11 @@ extern "C" int strncmp(const char* a, const char* b, unsigned long n);
 // inferred: std::string concatenation (weak copy 0x8006AFF8)
 extern "C" std::string fn_8006AFF8(const std::string& a, const std::string& b);
 // inferred: debug menu entries (as in game/Em101ElderZesya.cpp)
-extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3, int arg4);
-extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, int arg6,
-                            int arg7);
-extern "C" void fn_8008771C(void* group, const char* name, float* value, int arg3, int arg4, float min, float max,
-                            float step);
+extern "C" void fn_80087994(void* group, const char* name, int* value, void* func, void* arg);
+extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, void* func,
+                            void* arg);
+extern "C" void fn_8008771C(void* group, const char* name, float* value, float min, float max, float step, void* func,
+                            void* arg);
 
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 extern "C" atn::Vector3 lbl_807C7030;              // inferred: zero vector
@@ -123,7 +123,7 @@ Em101LittleZesya::Em101LittleZesya(atn::Task* parent, EnemyInfo_unk* info)
     void* group = m15C8.Load("Em101LittleZesya");
     fn_80087994(group, "DebugDisp", &m15CC, 0, 0);
     fn_800874C8(group, "WaitFrame", &m15C0, 0, 1000000, 1, 0, 0);
-    fn_8008771C(group, "AttackChanceFrame", &m15C4, 0, 0, 0.0f, 100000.0f, 1.0f);
+    fn_8008771C(group, "AttackChanceFrame", &m15C4, 0.0f, 100000.0f, 1.0f, 0, 0);
     m156C.LoadRequest("/effect/ef_bs007a.efp");
     m1578.LoadRequest("cm002_00.efp");
     m1584.LoadRequest("/effect/ef_sc019a.efp");

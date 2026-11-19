@@ -44,17 +44,17 @@ inline void SetPaneFloat_unk(void* layout, const char* name, float value) {
 }
 // inferred: debug menu (atn/MindowsCommon.h; arguments in the order of game/NewCampPartsBase.cpp)
 extern "C" void* fn_8008937C(void* menu, const char* name);
-extern "C" void fn_80087E9C(void* group, const char* name, void* value, int arg3, int arg4, float min, float max,
-                            float step); // x, y, z
-extern "C" void fn_80087BB4(void* group, const char* name, void* value, int arg3, int arg4, float min, float max,
-                            float step); // x, y
-extern "C" void fn_8008771C(void* group, const char* name, float* value, int arg3, int arg4, float min, float max,
-                            float step);
-extern "C" void fn_80088724(void* group, const char* name, void* value, int arg3, int arg4, float min, float max,
-                            float step); // degrees
-extern "C" void fn_80088AF4(void* group, const char* name, float* value, int arg3, int arg4, float min, float max,
-                            float step); // colour
-extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3, int arg4);
+extern "C" void fn_80087E9C(void* group, const char* name, void* value, float min, float max, float step, void* func,
+                            void* arg); // x, y, z
+extern "C" void fn_80087BB4(void* group, const char* name, void* value, float min, float max, float step, void* func,
+                            void* arg); // x, y
+extern "C" void fn_8008771C(void* group, const char* name, float* value, float min, float max, float step, void* func,
+                            void* arg);
+extern "C" void fn_80088724(void* group, const char* name, void* value, float min, float max, float step, void* func,
+                            void* arg); // degrees
+extern "C" void fn_80088AF4(void* group, const char* name, float* value, float min, float max, float step, void* func,
+                            void* arg); // colour
+extern "C" void fn_80087994(void* group, const char* name, int* value, void* func, void* arg);
 extern "C" int strncmp(const char* a, const char* b, unsigned long n);
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 // inferred: camp task (the parent m48); only the members used here
@@ -288,30 +288,30 @@ NewCampPartsMapSelect::~NewCampPartsMapSelect() {
 
 void NewCampPartsMapSelect::vf40(void* menu) {
     void* group = fn_8008937C(menu, m98.c_str());
-    fn_80087E9C(group, "ZoomOffset", &m4864, 0, 0, -1000000.0f, 1000000.0f, 1.0f);
-    fn_80087E9C(group, "ZoomOffset2", &m4870, 0, 0, -1000000.0f, 1000000.0f, 1.0f);
+    fn_80087E9C(group, "ZoomOffset", &m4864, -1000000.0f, 1000000.0f, 1.0f, 0, 0);
+    fn_80087E9C(group, "ZoomOffset2", &m4870, -1000000.0f, 1000000.0f, 1.0f, 0, 0);
     fn_80087994(group, "CursorDebug", &m48A8, 0, 0);
-    fn_80087BB4(group, "CursorMin", &m48AC, 0, 0, -1000000.0f, 1000000.0f, 1.0f);
-    fn_80087BB4(group, "CursorMax", &m48B4, 0, 0, -1000000.0f, 1000000.0f, 1.0f);
-    fn_80087E9C(group, "BackOffset", &m487C, 0, 0, -1000000.0f, 1000000.0f, 1.0f);
+    fn_80087BB4(group, "CursorMin", &m48AC, -1000000.0f, 1000000.0f, 1.0f, 0, 0);
+    fn_80087BB4(group, "CursorMax", &m48B4, -1000000.0f, 1000000.0f, 1.0f, 0, 0);
+    fn_80087E9C(group, "BackOffset", &m487C, -1000000.0f, 1000000.0f, 1.0f, 0, 0);
     void* color = fn_8008937C(group, "MaterialColor");
-    fn_80088AF4(color, "Type0", m4888, 0, 0, 0.0f, 1.0f, 1.0f);
-    fn_80088AF4(color, "Type1", m4898, 0, 0, 0.0f, 1.0f, 1.0f);
+    fn_80088AF4(color, "Type0", m4888, 0.0f, 1.0f, 1.0f, 0, 0);
+    fn_80088AF4(color, "Type1", m4898, 0.0f, 1.0f, 1.0f, 0, 0);
     void* rot = fn_8008937C(group, "EffectRot");
-    fn_80088724(rot, "Ruri to Volno", &m4828[0], 0, 0, -360.0f, 360.0f, 1.0f);
-    fn_80088724(rot, "Volno to Ruri", &m4828[1], 0, 0, -360.0f, 360.0f, 1.0f);
-    fn_80088724(rot, "Volno to Grug", &m4828[2], 0, 0, -360.0f, 360.0f, 1.0f);
-    fn_80088724(rot, "Grug to Volno", &m4828[3], 0, 0, -360.0f, 360.0f, 1.0f);
-    fn_80088724(rot, "Volno to Volno", &m4828[4], 0, 0, -360.0f, 360.0f, 1.0f);
+    fn_80088724(rot, "Ruri to Volno", &m4828[0], -360.0f, 360.0f, 1.0f, 0, 0);
+    fn_80088724(rot, "Volno to Ruri", &m4828[1], -360.0f, 360.0f, 1.0f, 0, 0);
+    fn_80088724(rot, "Volno to Grug", &m4828[2], -360.0f, 360.0f, 1.0f, 0, 0);
+    fn_80088724(rot, "Grug to Volno", &m4828[3], -360.0f, 360.0f, 1.0f, 0, 0);
+    fn_80088724(rot, "Volno to Volno", &m4828[4], -360.0f, 360.0f, 1.0f, 0, 0);
     void* cursor = fn_8008937C(group, "Cursor");
-    fn_8008771C(cursor, "MoveSpeed", &m4818, 0, 0, 0.0f, 10000.0f, 1.0f);
-    fn_8008771C(cursor, "LockLength", &m481C, 0, 0, 0.0f, 10000.0f, 1.0f);
-    fn_8008771C(cursor, "LockSpeed", &m4820, 0, 0, 0.0f, 10000.0f, 1.0f);
-    fn_8008771C(cursor, "LockRate", &m4824, 0, 0, 0.0f, 10000.0f, 1.0f);
-    fn_80087E9C(group, "OffsetPos", &mA4, 0, 0, -1000000.0f, 1000000.0f, 1.0f);
-    fn_80087E9C(group, "OffsetScl", &mB0, 0, 0, -1000000.0f, 1000000.0f, 1.0f);
-    fn_80087E9C(group, "LocatorScl", &mBC, 0, 0, -1000000.0f, 1000000.0f, 1.0f);
-    fn_80087E9C(group, "BasePos", &mC8, 0, 0, -1000000.0f, 1000000.0f, 1.0f);
+    fn_8008771C(cursor, "MoveSpeed", &m4818, 0.0f, 10000.0f, 1.0f, 0, 0);
+    fn_8008771C(cursor, "LockLength", &m481C, 0.0f, 10000.0f, 1.0f, 0, 0);
+    fn_8008771C(cursor, "LockSpeed", &m4820, 0.0f, 10000.0f, 1.0f, 0, 0);
+    fn_8008771C(cursor, "LockRate", &m4824, 0.0f, 10000.0f, 1.0f, 0, 0);
+    fn_80087E9C(group, "OffsetPos", &mA4, -1000000.0f, 1000000.0f, 1.0f, 0, 0);
+    fn_80087E9C(group, "OffsetScl", &mB0, -1000000.0f, 1000000.0f, 1.0f, 0, 0);
+    fn_80087E9C(group, "LocatorScl", &mBC, -1000000.0f, 1000000.0f, 1.0f, 0, 0);
+    fn_80087E9C(group, "BasePos", &mC8, -1000000.0f, 1000000.0f, 1.0f, 0, 0);
 }
 
 inline void NewCampPartsMapSelect::SetCursorPoint_unk(MapSelectPoint_unk* point) {

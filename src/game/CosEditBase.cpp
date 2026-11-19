@@ -42,8 +42,8 @@ extern "C" atn::SoundRef fn_80117228(int id);      // inferred: plays a system s
 class BattleTask;
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
 extern "C" void fn_800D2338(atn::Task* task); // inferred: removes the task
-extern "C" void fn_80087E9C(void* group, const char* name, atn::Vector3* value, int arg3, int arg4, float min,
-                            float max, float step);
+extern "C" void fn_80087E9C(void* group, const char* name, atn::Vector3* value, float min, float max, float step,
+                            void* func, void* arg);
 extern "C" int fn_80219558(int id); // inferred: party member of a character id (negative for others)
 // inferred: item data returned by fn_80206C50 / fn_80206B14 (names invented)
 struct CosEditItemData_unk {
@@ -884,11 +884,11 @@ void* CosEditBase::fn_801CFAA8(int member, int slot) {
 
 void CosEditBase::vf40(void* group) {
     group = fn_8008937C(group, m98.c_str());
-    fn_80087E9C(group, "OffsetPos", &mA4, 0, 0, -1000000.0f, 1000000.0f, 1.0f);
-    fn_80087E9C(group, "OffsetScl", &mB0, 0, 0, -1000000.0f, 1000000.0f, 1.0f);
-    fn_80087E9C(group, "LocatorScl", &mBC, 0, 0, -1000000.0f, 1000000.0f, 1.0f);
-    fn_80087E9C(group, "BasePos", &mC8, 0, 0, -1000000.0f, 1000000.0f, 1.0f);
-    fn_80087E9C(group, "CharaUpperOfs", &mCharaUpperOfs, 0, 0, -1000000.0f, 1000000.0f, 1.0f);
-    fn_80087E9C(group, "CharaLowerOfs", &mCharaLowerOfs, 0, 0, -1000000.0f, 1000000.0f, 1.0f);
-    fn_80087E9C(group, "CharaZoomOfs", &mCharaZoomOfs, 0, 0, -1000000.0f, 1000000.0f, 1.0f);
+    fn_80087E9C(group, "OffsetPos", &mA4, -1000000.0f, 1000000.0f, 1.0f, 0, 0);
+    fn_80087E9C(group, "OffsetScl", &mB0, -1000000.0f, 1000000.0f, 1.0f, 0, 0);
+    fn_80087E9C(group, "LocatorScl", &mBC, -1000000.0f, 1000000.0f, 1.0f, 0, 0);
+    fn_80087E9C(group, "BasePos", &mC8, -1000000.0f, 1000000.0f, 1.0f, 0, 0);
+    fn_80087E9C(group, "CharaUpperOfs", &mCharaUpperOfs, -1000000.0f, 1000000.0f, 1.0f, 0, 0);
+    fn_80087E9C(group, "CharaLowerOfs", &mCharaLowerOfs, -1000000.0f, 1000000.0f, 1.0f, 0, 0);
+    fn_80087E9C(group, "CharaZoomOfs", &mCharaZoomOfs, -1000000.0f, 1000000.0f, 1.0f, 0, 0);
 }

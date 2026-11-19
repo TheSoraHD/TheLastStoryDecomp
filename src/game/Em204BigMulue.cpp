@@ -22,13 +22,13 @@ extern "C" float fn_800DC288(const char* s); // inferred: string to float
 extern "C" int fn_800DC12C(const char* s);   // inferred: string to int
 extern "C" HitInfo_unk* fn_80219E6C(int id); // inferred: bullet/skill data by id
 // inferred: debug menu helpers (as in game/CharaTask.cpp)
-extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3, int arg4);
-extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, int arg6,
-                            int arg7);
-extern "C" void fn_8008771C(void* group, const char* name, float* value, int arg3, int arg4, float min, float max,
-                            float step);
-extern "C" void fn_80087E9C(void* group, const char* name, atn::Vector3* value, int arg3, int arg4, float min,
-                            float max, float step);
+extern "C" void fn_80087994(void* group, const char* name, int* value, void* func, void* arg);
+extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, void* func,
+                            void* arg);
+extern "C" void fn_8008771C(void* group, const char* name, float* value, float min, float max, float step, void* func,
+                            void* arg);
+extern "C" void fn_80087E9C(void* group, const char* name, atn::Vector3* value, float min, float max, float step,
+                            void* func, void* arg);
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
 BattleTask* fn_8013A194(); // inferred: effect/bullet manager (weak copy of another file)
 // inferred: effect manager (class unknown), global instance at 0x8087F3C0
@@ -180,13 +180,13 @@ int Em204BigMulue::vf0C() {
         for (unsigned int i = 0; i < m1558.size(); i++) {
             char name[0x100];
             sprintf(name, "%s-%s\0", m1558[i].mFrom.data(), m1558[i].mTo.data());
-            fn_8008771C(group, name, &m1558[i].mRadius, 0, 0, 0.0f, 9999.0f, 1.0f);
+            fn_8008771C(group, name, &m1558[i].mRadius, 0.0f, 9999.0f, 1.0f, 0, 0);
         }
         group = fn_8008937C(m1A9C, "DamageColli");
         for (unsigned int i = 0; i < m1A34.size(); i++) {
             char name[0x100];
             sprintf(name, "%s\0", m1A34[i].mNode.data());
-            fn_8008771C(group, name, &m1A34[i].mScale, 0, 0, 0.0f, 9999.0f, 1.0f);
+            fn_8008771C(group, name, &m1A34[i].mScale, 0.0f, 9999.0f, 1.0f, 0, 0);
         }
     }
     mColli.mFlags &= ~0x80000000;
@@ -1251,16 +1251,16 @@ void Em204BigMulue::vf30(void* menu) {
     fn_80087994(group, "DebugDisp", &m1AA0, 0, 0);
     fn_80087994(group, "DebugLog", &m1AA4, 0, 0);
     fn_800874C8(group, "ActionMode", &m58C, 0, 0x186A0, 1, 0, 0);
-    fn_8008771C(group, "AttackDistance", &m14FC, 0, 0, 0.0f, 500.0f, 1.0f);
+    fn_8008771C(group, "AttackDistance", &m14FC, 0.0f, 500.0f, 1.0f, 0, 0);
     fn_800874C8(group, "WaitFrame", &m1510, 0, 500, 1, 0, 0);
     fn_800874C8(group, "AttackChanceFrame", &m1514, 0, 500, 1, 0, 0);
     fn_800874C8(group, "TumbleFrame", &m1518, 0, 500, 1, 0, 0);
     fn_800874C8(group, "StaggerFrame", &m151C, 0, 500, 1, 0, 0);
-    fn_8008771C(group, "BaseMotionSpeed", &m1524, 0, 0, 0.0f, 50.0f, 1.0f);
-    fn_8008771C(group, "BaseMotionBlendSpeed", &m1528, 0, 0, 0.0f, 50.0f, 0.01f);
-    fn_80087E9C(group, "WallSlashPos", &m1AB4, 0, 0, -5000.0f, 5000.0f, 1.0f);
-    fn_80087E9C(group, "CenterPos", &m1AC4, 0, 0, -5000.0f, 5000.0f, 1.0f);
-    fn_8008771C(group, "BodyPressOffset", &m1A94, 0, 0, -5000.0f, 5000.0f, 1.0f);
+    fn_8008771C(group, "BaseMotionSpeed", &m1524, 0.0f, 50.0f, 1.0f, 0, 0);
+    fn_8008771C(group, "BaseMotionBlendSpeed", &m1528, 0.0f, 50.0f, 0.01f, 0, 0);
+    fn_80087E9C(group, "WallSlashPos", &m1AB4, -5000.0f, 5000.0f, 1.0f, 0, 0);
+    fn_80087E9C(group, "CenterPos", &m1AC4, -5000.0f, 5000.0f, 1.0f, 0, 0);
+    fn_8008771C(group, "BodyPressOffset", &m1A94, -5000.0f, 5000.0f, 1.0f, 0, 0);
     fn_80087994(group, "CollisionOnOff", &m1A44, 0, 0);
     fn_800874C8(group, "ActionTimer", &m14C0, 0, 500, 1, 0, 0);
     fn_800874C8(group, "ActionState", &m14BC, -1, 500, 1, 0, 0);

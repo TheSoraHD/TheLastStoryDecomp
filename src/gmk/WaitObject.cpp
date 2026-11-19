@@ -62,15 +62,15 @@ struct WaitArea_unk {
 };
 // debug menu (see gmk/Cannon.cpp); lbl_8087EF10 is declared in the headers
 extern "C" void* fn_8008937C(void* menu, const char* name);
-extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, int arg6,
-                            int arg7);
-extern "C" void fn_80087E9C(void* group, const char* name, atn::Vector3* value, int arg3, int arg4, float min,
-                            float max, float step);
-extern "C" void fn_80088724(void* group, const char* name, atn::Vector3* value, int arg3, int arg4, float min,
-                            float max, float step);
-extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3, int arg4);
-extern "C" void fn_8008771C(void* group, const char* name, float* value, int arg3, int arg4, float min, float max,
-                            float step);
+extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, void* func,
+                            void* arg);
+extern "C" void fn_80087E9C(void* group, const char* name, atn::Vector3* value, float min, float max, float step,
+                            void* func, void* arg);
+extern "C" void fn_80088724(void* group, const char* name, atn::Vector3* value, float min, float max, float step,
+                            void* func, void* arg);
+extern "C" void fn_80087994(void* group, const char* name, int* value, void* func, void* arg);
+extern "C" void fn_8008771C(void* group, const char* name, float* value, float min, float max, float step, void* func,
+                            void* arg);
 // inferred: collision target of a state (the collision of mStates[]: position at 0x3C, radius at
 // 0x48)
 struct WaitTarget_unk {
@@ -630,9 +630,9 @@ void WaitObject::vf6C(void* menu) {
     fn_803EC758(name);
     void* group = MenuGroup_unk(this, menu, name);
     fn_800874C8(group, "state", &m54, 0, 99, 1, 0, 0);
-    fn_80087E9C(group, "pos", &m6C, 0, 0, -9999.0f, 9999.0f, 0.25f);
-    fn_80088724(group, "rot", &m78, 0, 0, -3.1415927f, 3.1415927f, 0.05235988f);
-    fn_80087E9C(group, "scl", &m90, 0, 0, -9999.0f, 9999.0f, 0.25f);
+    fn_80087E9C(group, "pos", &m6C, -9999.0f, 9999.0f, 0.25f, 0, 0);
+    fn_80088724(group, "rot", &m78, -3.1415927f, 3.1415927f, 0.05235988f, 0, 0);
+    fn_80087E9C(group, "scl", &m90, -9999.0f, 9999.0f, 0.25f, 0, 0);
     fn_80087994(group, "isShow", &m9C, 0, 0);
     fn_800874C8(group, "locData", &m58, 0, 99, 1, 0, 0);
     mB0.fn_803F11F8(group);
@@ -641,9 +641,9 @@ void WaitObject::vf6C(void* menu) {
             char sub[0x40];
             sprintf(sub, "targetCollision%d", i);
             void* target = fn_8008937C(group, sub);
-            fn_80087E9C(target, "pos", &((WaitTarget_unk*)mStates[i].mColli)->mPos, 0, 0, -9999.0f, 9999.0f, 0.25f);
-            fn_8008771C(target, "radius", &((WaitTarget_unk*)mStates[i].mColli)->mRadius, 0, 0, -9999.0f, 9999.0f,
-                        0.25f);
+            fn_80087E9C(target, "pos", &((WaitTarget_unk*)mStates[i].mColli)->mPos, -9999.0f, 9999.0f, 0.25f, 0, 0);
+            fn_8008771C(target, "radius", &((WaitTarget_unk*)mStates[i].mColli)->mRadius, -9999.0f, 9999.0f, 0.25f, 0,
+                        0);
         }
     }
 }

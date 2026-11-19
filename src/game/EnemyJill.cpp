@@ -19,13 +19,13 @@ extern "C" int rand();
 extern "C" float fn_800DC288(const char* s); // inferred: string to float
 extern "C" HitInfo_unk* fn_80219E6C(int id);
 // inferred: debug menu entries (as in gmk/SwingObject.cpp)
-extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, int arg6,
-                            int arg7);
-extern "C" void fn_80087E9C(void* group, const char* name, atn::Vector3* value, int arg3, int arg4, float min,
-                            float max, float step);
-extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3, int arg4);
-extern "C" void fn_8008771C(void* group, const char* name, float* value, int arg3, int arg4, float min, float max,
-                            float step);
+extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, void* func,
+                            void* arg);
+extern "C" void fn_80087E9C(void* group, const char* name, atn::Vector3* value, float min, float max, float step,
+                            void* func, void* arg);
+extern "C" void fn_80087994(void* group, const char* name, int* value, void* func, void* arg);
+extern "C" void fn_8008771C(void* group, const char* name, float* value, float min, float max, float step, void* func,
+                            void* arg);
 // inferred: render parameters (lbl_8087EFA8): color matrix at 0x324 (as in atn/PostFxColorMatrix.cpp)
 struct JillParams_unk {
     unsigned char m000[0x324];
@@ -45,15 +45,15 @@ EnemyJill::EnemyJill(atn::Task* parent, const EnemyInfo_unk* info)
     fn_80087994(group, "DebugDisp", &m1654, 0, 0);
     fn_80087994(group, "DebugLog", &m1658, 0, 0);
     fn_800874C8(group, "WaitFrame", &m157C, 0, 1000000, 1, 0, 0);
-    fn_8008771C(group, "AttackChanceFrame", &m1580, 0, 0, 0.0f, 100000.0f, 1.0f);
-    fn_8008771C(group, "AttackBonusRate", &m1584, 0, 0, 0.0f, 100000.0f, 1.0f);
+    fn_8008771C(group, "AttackChanceFrame", &m1580, 0.0f, 100000.0f, 1.0f, 0, 0);
+    fn_8008771C(group, "AttackBonusRate", &m1584, 0.0f, 100000.0f, 1.0f, 0, 0);
     fn_800874C8(group, "AttackTest", &m165C, -1, 100, 1, 0, 0);
-    fn_8008771C(group, "GuardBonusRate", &m1588, 0, 0, 0.0f, 100000.0f, 1.0f);
+    fn_8008771C(group, "GuardBonusRate", &m1588, 0.0f, 100000.0f, 1.0f, 0, 0);
     fn_80087994(group, "StopTalking", &m15AC, 0, 0);
     fn_800874C8(group, "ActionMode", &m58C, 0, 100000, 1, 0, 0);
-    fn_80087E9C(group, "Pos", &mPos, 0, 0, -1000.0f, 1000.0f, 1.0f);
+    fn_80087E9C(group, "Pos", &mPos, -1000.0f, 1000.0f, 1.0f, 0, 0);
     fn_800874C8(group, "EventPlayIndex", &m1570, 0, 100, 1, 0, 0);
-    fn_8008771C(group, "HP", &mStatus.m04, 0, 0, 0.0f, 100000.0f, 1.0f);
+    fn_8008771C(group, "HP", &mStatus.m04, 0.0f, 100000.0f, 1.0f, 0, 0);
     m15B4.mCount = 0;
     m15E4.mCount = 0;
     m1614.mCount = 0;

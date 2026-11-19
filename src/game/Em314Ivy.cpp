@@ -17,7 +17,7 @@
 
 extern "C" int sprintf(char* buf, const char* fmt, ...);
 extern "C" void* fn_8008937C(void* menu, const char* name);
-extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3, int arg4);
+extern "C" void fn_80087994(void* group, const char* name, int* value, void* func, void* arg);
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" int atoi(const char* s);
 extern "C" int rand();

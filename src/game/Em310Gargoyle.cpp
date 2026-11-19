@@ -11,11 +11,11 @@
 #include "game/BattleTask.h"
 #include "game/GameSceneFind_unk.h"
 
-extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3, int arg4);
-extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, int arg6,
-                            int arg7);
-extern "C" void fn_8008771C(void* group, const char* name, float* value, int arg3, int arg4, float min, float max,
-                            float step);
+extern "C" void fn_80087994(void* group, const char* name, int* value, void* func, void* arg);
+extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, void* func,
+                            void* arg);
+extern "C" void fn_8008771C(void* group, const char* name, float* value, float min, float max, float step, void* func,
+                            void* arg);
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 extern "C" GameTask* lbl_8087F430;
 extern "C" int fn_800DC12C(const char* s); // inferred: string to int
@@ -94,8 +94,8 @@ int Em310Gargoyle::vf0C() {
         void* group = m1600.Load("em310");
         fn_80087994(group, "DebugDisp", &m1604, 0, 0);
         fn_800874C8(group, "DamageCalcMode", &m15E0, 0, 2, 1, 0, 0);
-        fn_8008771C(group, "BulletRotX", &m1608, 0, 0, -3.14f, 3.14f, 0.01f);
-        fn_8008771C(group, "BulletRotY", &m160C, 0, 0, -3.14f, 3.14f, 0.01f);
+        fn_8008771C(group, "BulletRotX", &m1608, -3.14f, 3.14f, 0.01f, 0, 0);
+        fn_8008771C(group, "BulletRotY", &m160C, -3.14f, 3.14f, 0.01f, 0, 0);
         mRoute.mA0 = 2;
         m56C = 1.0f;
         SetFlagC26_unk(0);
@@ -399,7 +399,8 @@ void Em310Gargoyle::vf14() {
     for (int i = 0; i < 3; i++) {
         char buf[0x8];
         sprintf(buf, "flag::%d", fn_80121F00()->fn_80370A78(i + 0xC9));
-        fn_800F7250()->fn_800616C0(200.0f, 100.0f + i * 10, 10000.0f, 10.0f, 10.0f, buf, atn::Color4f_unk(0.0f, 0.5f, 0.0f, 1.0f).ToU32(), 0.0f, 1, 1, 0);
+        fn_800F7250()->fn_800616C0(200.0f, 100.0f + i * 10, 10000.0f, 10.0f, 10.0f, buf,
+                    atn::Color4f_unk(0.0f, 0.5f, 0.0f, 1.0f).ToU32(), 0.0f, 1, 1, 0);
     }
     atn::Matrix3x4 m1 = fn_800109E0(mRot);
     atn::Matrix3x4 m2 = fn_800109E0(mRot);
@@ -425,7 +426,8 @@ void Em310Gargoyle::vf14() {
         atn::Matrix3x4 m = fn_800109E0(rot);
         atn::Vector3 v(0.0f, 0.0f, 1000.0f);
         v.fn_80011410(m);
-        fn_800F7250()->fn_80063764(table->FindPlace_unk(mData.mSeats[i].m00)->mPos, (table->FindPlace_unk(mData.mSeats[i].m00)->mPos + v), 1000.0f, c.ToU32());
+        fn_800F7250()->fn_80063764(table->FindPlace_unk(mData.mSeats[i].m00)->mPos,
+                    (table->FindPlace_unk(mData.mSeats[i].m00)->mPos + v), 1000.0f, c.ToU32());
         char buf[0x20];
         sprintf(buf, "rot[%d]%f", i, fn_802A7964((mData.mOfs[i].ToRotation_unk() - mRot).GetNormalize().y));
         fn_800F7250()->fn_800616C0(300.0f, i * 10 + 100, 1000.0f, 20.0f, 10.0f, buf, c.ToU32(), 0.0f, 1, 1, 0);

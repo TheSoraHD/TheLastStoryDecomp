@@ -208,7 +208,7 @@ inline atn::Matrix3x4 TransMtx_unk(float x, float y, float z) {
     return m;
 }
 
-extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3, int arg4);
+extern "C" void fn_80087994(void* group, const char* name, int* value, void* func, void* arg);
 
 // inferred: debug menu of the enemy; removed by the linker, only its strings are left in the pool (after
 // "waist"), as Em201ZanGurg::fn_DebugMenu_unk. The member is a guess.

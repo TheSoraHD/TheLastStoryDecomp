@@ -2082,11 +2082,11 @@ void Em309Ghoul::fn_80304FC0() {
 }
 
 // inferred: debug menu items (atn::Mindows, see gmk/FloatingBox.cpp)
-extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3, int arg4);
-extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, int arg6,
-                            int arg7);
-extern "C" void fn_8008771C(void* group, const char* name, float* value, int arg3, int arg4, float min, float max,
-                            float step);
+extern "C" void fn_80087994(void* group, const char* name, int* value, void* func, void* arg);
+extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, void* func,
+                            void* arg);
+extern "C" void fn_8008771C(void* group, const char* name, float* value, float min, float max, float step, void* func,
+                            void* arg);
 
 // inferred: "AllDirCharaNum" is added twice in the original
 void Em309Ghoul::fn_803057A8() {
@@ -2094,29 +2094,29 @@ void Em309Ghoul::fn_803057A8() {
     fn_80087994(group, "DebugDisp", &m1690, 0, 0);
     fn_800874C8(group, "WaitTime", &m1698, 0, 3000, 30, 0, 0);
     fn_800874C8(group, "StayTime", &m169C, 0, 9999 * 30, 30, 0, 0);
-    fn_8008771C(group, "BaseRadius", &m1694, 0, 0, 10.0f, 1000.0f, 10.0f);
+    fn_8008771C(group, "BaseRadius", &m1694, 10.0f, 1000.0f, 10.0f, 0, 0);
     fn_800874C8(group, "ChargeTime", &m16A0, 0, 3000, 30, 0, 0);
-    fn_8008771C(group, "ShakeRot", &m16A4, 0, 0, 0.0f, 180.0f, 10.0f);
-    fn_8008771C(group, "ShakeGap", &m16A8, 0, 0, 0.0f, 180.0f, 10.0f);
-    fn_8008771C(group, "ShakeLength", &m16AC, 0, 0, 0.0f, 300.0f, 10.0f);
+    fn_8008771C(group, "ShakeRot", &m16A4, 0.0f, 180.0f, 10.0f, 0, 0);
+    fn_8008771C(group, "ShakeGap", &m16A8, 0.0f, 180.0f, 10.0f, 0, 0);
+    fn_8008771C(group, "ShakeLength", &m16AC, 0.0f, 300.0f, 10.0f, 0, 0);
     fn_800874C8(group, "AllDirCharaNum", &m16B0, 0, 5, 1, 0, 0);
     fn_800874C8(group, "AllDirCharaNum", &m16B0, 0, 5, 1, 0, 0);
-    fn_8008771C(group, "AttackLenge", &m16B8, 0, 0, 0.0f, 100.0f, 0.1f);
-    fn_8008771C(group, "DamageRollingSpeed", &m16BC, 0, 0, 0.0f, 100.0f, 0.1f);
-    fn_8008771C(group, "DamageRollingRot", &m16C0, 0, 0, 0.0f, 180.0f, 0.1f);
-    fn_8008771C(group, "AttackRollingSpeed", &m16C4, 0, 0, 0.0f, 100.0f, 0.1f);
-    fn_8008771C(group, "AttackRollingRot", &m16C8, 0, 0, 0.0f, 180.0f, 0.1f);
+    fn_8008771C(group, "AttackLenge", &m16B8, 0.0f, 100.0f, 0.1f, 0, 0);
+    fn_8008771C(group, "DamageRollingSpeed", &m16BC, 0.0f, 100.0f, 0.1f, 0, 0);
+    fn_8008771C(group, "DamageRollingRot", &m16C0, 0.0f, 180.0f, 0.1f, 0, 0);
+    fn_8008771C(group, "AttackRollingSpeed", &m16C4, 0.0f, 100.0f, 0.1f, 0, 0);
+    fn_8008771C(group, "AttackRollingRot", &m16C8, 0.0f, 180.0f, 0.1f, 0, 0);
     fn_80087994(group, "AttackKey", &m16CC, 0, 0);
     fn_800874C8(group, "RollTime", &m16D0, 0, 9999, 1, 0, 0);
     fn_800874C8(group, "AttackTime", &m16D4, 0, 9999, 1, 0, 0);
     fn_800874C8(group, "RollWait", &m16D8, 0, 9999, 1, 0, 0);
     fn_800874C8(group, "FitTime", &m16DC, 0, 99, 1, 0, 0);
-    fn_8008771C(group, "ColliRadius", &m16E0, 0, 0, 0.0f, 100.0f, 0.1f);
+    fn_8008771C(group, "ColliRadius", &m16E0, 0.0f, 100.0f, 0.1f, 0, 0);
     fn_800874C8(group, "NoHitFrame", &m16E4, 0, 9999, 1, 0, 0);
     fn_800874C8(group, "HitLag", &m16E8, 0, 9999, 1, 0, 0);
-    fn_8008771C(group, "headSpeareRadius", &m16EC, 0, 0, 0.0f, 100.0f, 0.1f);
-    fn_8008771C(group, "headSpeareOfs", &m16F0, 0, 0, 0.0f, 100.0f, 0.1f);
-    fn_8008771C(group, "JumpTgtOfsetY", &m16F4, 0, 0, 0.0f, 100.0f, 0.1f);
+    fn_8008771C(group, "headSpeareRadius", &m16EC, 0.0f, 100.0f, 0.1f, 0, 0);
+    fn_8008771C(group, "headSpeareOfs", &m16F0, 0.0f, 100.0f, 0.1f, 0, 0);
+    fn_8008771C(group, "JumpTgtOfsetY", &m16F4, 0.0f, 100.0f, 0.1f, 0, 0);
 }
 
 void Em309Ghoul::vf14() {

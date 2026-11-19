@@ -133,7 +133,8 @@ static inline void PlayEfp_unk(atn::EfpFile* efp, void* model) {
 }
 
 extern "C" void fn_80239DAC(atn::EffectManager* mgr, void* owner, int id, int arg); // inferred: stops an effect
-extern "C" void* lbl_8087EE98; extern "C" int fn_8004ED34(void* colli, atn::ColliResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
+extern "C" void* lbl_8087EE98; extern "C" int fn_8004ED34(void* colli, atn::ColliResult_unk* result,
+                                                          const atn::Vector3* from, const atn::Vector3* to, 
                            unsigned int mask, void* ignore, int arg7); // inferred: ray test
 
 extern "C" int fn_8004D388(void* world, atn::ColliResult_unk* result, const atn::Vector3* from,
@@ -165,7 +166,7 @@ inline void LastCocoonQuadruped::SetMode_unk(int mode) {
 
 extern "C" int strncmp(const char* a, const char* b, unsigned long n);
 extern "C" std::string fn_8006AFF8(const std::string& a, const std::string& b); // inferred: a + b
-extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3, int arg4);
+extern "C" void fn_80087994(void* group, const char* name, int* value, void* func, void* arg);
 // inferred: node callbacks of the model (as in game/CharaTask.cpp and game/Em403WarLion.cpp)
 typedef boost::function<void(atn::Matrix3x4*, const atn::NodeChunk&, const atn::ModelNodeCallbackContext&),
                         std::allocator<boost::function_base> >

@@ -6,10 +6,10 @@
 #include "game/TownTask.h"
 
 extern "C" int rand();
-extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, int arg6,
-                            int arg7); // inferred: debug menu int
-extern "C" void fn_8008771C(void* group, const char* name, float* value, int arg3, int arg4, float min, float max,
-                            float step); // inferred: debug menu float
+extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, void* func,
+                            void* arg); // inferred: debug menu int
+extern "C" void fn_8008771C(void* group, const char* name, float* value, float min, float max, float step, void* func,
+                            void* arg); // inferred: debug menu float
 extern "C" void fn_800CB5C8(atn::SoundRef* sound, int frames, int arg); // inferred: stops the sound
 extern "C" void fn_800CB518(atn::SoundRef* sound, int frames);          // inferred: fades the sound in
 extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float volume); // inferred: plays a sound
@@ -79,7 +79,7 @@ int MarketTask::vf0C() {
     }
     void* group = m244.Load("Market");
     fn_800874C8(group, "Interval", &m4C, 1, 999999, 1, 0, 0);
-    fn_8008771C(group, "Power", &m50, 0, 0, 0.0f, 10.0f, 0.1f);
+    fn_8008771C(group, "Power", &m50, 0.0f, 10.0f, 0.1f, 0, 0);
     fn_800874C8(group, "MessageId", &m54, 0, 999999, 1, 0, 0);
     return 1;
 }

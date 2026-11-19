@@ -27,7 +27,7 @@ extern "C" int fn_800DC12C(const char* s);   // inferred: string to int
 extern "C" std::string fn_8006AFF8(const std::string& a, const std::string& b);
 extern "C" HitInfo_unk* fn_80219E6C(int id); // inferred: bullet/skill data by id
 // inferred: debug menu helper (as in game/CharaTask.cpp)
-extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3, int arg4);
+extern "C" void fn_80087994(void* group, const char* name, int* value, void* func, void* arg);
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
 // inferred: effect manager (class unknown), global instance at 0x8087F3C0 (two flags at 0xC4/0xC8 are
 // set around the spin effect, as in game/Em209SmallGolem.cpp)

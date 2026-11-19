@@ -5,10 +5,10 @@
 #include "atn/DrawHelper.h"
 
 extern "C" double sqrt(double x);
-extern "C" void fn_80087E9C(void* group, const char* name, atn::Vector3* value, int arg3, int arg4, float min,
-                            float max, float step);
-extern "C" void fn_8008771C(void* group, const char* name, float* value, int arg3, int arg4, float min, float max,
-                            float step);
+extern "C" void fn_80087E9C(void* group, const char* name, atn::Vector3* value, float min, float max, float step,
+                            void* func, void* arg);
+extern "C" void fn_8008771C(void* group, const char* name, float* value, float min, float max, float step, void* func,
+                            void* arg);
 
 atn::Light::Light()
     : mData(0), mType(4), mPos(0.0f, 0.0f, 0.0f), mDir(0.0f, 1.0f, 0.0f), mAttnType(0), mRadius(0.0f) {
@@ -207,28 +207,28 @@ void atn::Light::fn_80079994(GXLightObj* obj, Mtx viewMtx) {
 void atn::Light::fn_80079BC8(void* menu) {
     switch (mType) {
     case 3:
-        fn_80087E9C(menu, "Position", &mPos, 0, 0, -10000.0f, 10000.0f, 1.0f);
-        fn_8008771C(menu, "Radius", &mRadius, 0, 0, 0.0f, 10000.0f, 1.0f);
-        fn_8008771C(menu, "Radius2", &mRefDist, 0, 0, 0.0f, 10000.0f, 1.0f);
-        fn_8008771C(menu, "Color R", &mColor.r, 0, 0, 0.0f, 1.0f, 0.01f);
-        fn_8008771C(menu, "Color G", &mColor.g, 0, 0, 0.0f, 1.0f, 0.01f);
-        fn_8008771C(menu, "Color B", &mColor.b, 0, 0, 0.0f, 1.0f, 0.01f);
+        fn_80087E9C(menu, "Position", &mPos, -10000.0f, 10000.0f, 1.0f, 0, 0);
+        fn_8008771C(menu, "Radius", &mRadius, 0.0f, 10000.0f, 1.0f, 0, 0);
+        fn_8008771C(menu, "Radius2", &mRefDist, 0.0f, 10000.0f, 1.0f, 0, 0);
+        fn_8008771C(menu, "Color R", &mColor.r, 0.0f, 1.0f, 0.01f, 0, 0);
+        fn_8008771C(menu, "Color G", &mColor.g, 0.0f, 1.0f, 0.01f, 0, 0);
+        fn_8008771C(menu, "Color B", &mColor.b, 0.0f, 1.0f, 0.01f, 0, 0);
         break;
     case 2:
-        fn_80087E9C(menu, "Position", &mPos, 0, 0, -10000.0f, 10000.0f, 1.0f);
-        fn_80087E9C(menu, "Direction", &mDir, 0, 0, -1.0f, 1.0f, 0.01f);
-        fn_8008771C(menu, "Length", &mRadius, 0, 0, 0.0f, 10000.0f, 1.0f);
-        fn_8008771C(menu, "Length2", &mRefDist, 0, 0, 0.0f, 10000.0f, 1.0f);
-        fn_8008771C(menu, "Angle", &mAngle, 0, 0, 0.0f, 360.0f, 1.0f);
-        fn_8008771C(menu, "Color R", &mColor.r, 0, 0, 0.0f, 1.0f, 0.01f);
-        fn_8008771C(menu, "Color G", &mColor.g, 0, 0, 0.0f, 1.0f, 0.01f);
-        fn_8008771C(menu, "Color B", &mColor.b, 0, 0, 0.0f, 1.0f, 0.01f);
+        fn_80087E9C(menu, "Position", &mPos, -10000.0f, 10000.0f, 1.0f, 0, 0);
+        fn_80087E9C(menu, "Direction", &mDir, -1.0f, 1.0f, 0.01f, 0, 0);
+        fn_8008771C(menu, "Length", &mRadius, 0.0f, 10000.0f, 1.0f, 0, 0);
+        fn_8008771C(menu, "Length2", &mRefDist, 0.0f, 10000.0f, 1.0f, 0, 0);
+        fn_8008771C(menu, "Angle", &mAngle, 0.0f, 360.0f, 1.0f, 0, 0);
+        fn_8008771C(menu, "Color R", &mColor.r, 0.0f, 1.0f, 0.01f, 0, 0);
+        fn_8008771C(menu, "Color G", &mColor.g, 0.0f, 1.0f, 0.01f, 0, 0);
+        fn_8008771C(menu, "Color B", &mColor.b, 0.0f, 1.0f, 0.01f, 0, 0);
         break;
     case 1:
-        fn_80087E9C(menu, "Direction", &mDir, 0, 0, -1.0f, 1.0f, 0.01f);
-        fn_8008771C(menu, "Color R", &mColor.r, 0, 0, 0.0f, 1.0f, 0.01f);
-        fn_8008771C(menu, "Color G", &mColor.g, 0, 0, 0.0f, 1.0f, 0.01f);
-        fn_8008771C(menu, "Color B", &mColor.b, 0, 0, 0.0f, 1.0f, 0.01f);
+        fn_80087E9C(menu, "Direction", &mDir, -1.0f, 1.0f, 0.01f, 0, 0);
+        fn_8008771C(menu, "Color R", &mColor.r, 0.0f, 1.0f, 0.01f, 0, 0);
+        fn_8008771C(menu, "Color G", &mColor.g, 0.0f, 1.0f, 0.01f, 0, 0);
+        fn_8008771C(menu, "Color B", &mColor.b, 0.0f, 1.0f, 0.01f, 0, 0);
         break;
     }
 }

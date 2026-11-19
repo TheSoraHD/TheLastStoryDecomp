@@ -19,7 +19,7 @@ extern "C" int atoi(const char* s);
 // inferred: std::string concatenation (weak copy 0x8006AFF8)
 extern "C" std::string fn_8006AFF8(const std::string& a, const std::string& b);
 // inferred: debug menu entry (as in game/Em101ElderZesya.cpp)
-extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3, int arg4);
+extern "C" void fn_80087994(void* group, const char* name, int* value, void* func, void* arg);
 // inferred: point the camera looks at (lbl_8087F430 + 0x97C, as ElderLook_unk in game/Em101ElderZesya.cpp)
 // inferred: the camera looks at a point (GameCamera::m910..m934; formerly the view ZesyaLook_unk at GameTask + 0x97C)
 inline void SetCameraLook_unk(GameCamera& camera, const atn::Vector3& pos, bool flag) {

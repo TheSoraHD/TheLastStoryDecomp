@@ -30,7 +30,7 @@ extern "C" std::string fn_8006AFF8(const std::string& a, const std::string& b);
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
 extern "C" int fn_800DD3FC(wchar_t* s, const wchar_t* format, ...); // inferred: wide sprintf
 extern "C" const wchar_t lbl_808813D0[2]; // inferred: empty text
-extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3, int arg4);
+extern "C" void fn_80087994(void* group, const char* name, int* value, void* func, void* arg);
 
 // inferred: effect manager (class unknown), global instance at 0x8087F3C0
 namespace atn {

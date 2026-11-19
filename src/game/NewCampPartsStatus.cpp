@@ -25,8 +25,8 @@ extern "C" const wchar_t* fn_80116FC0(int a, int id); // inferred: message text
 extern "C" atn::SoundRef fn_80117228(int id);        // inferred: plays a system sound effect
 extern "C" void fn_800D2338(atn::Task* task);        // inferred: deletes the task
 extern "C" void* fn_8008937C(void* menu, const char* name); // inferred: debug menu group
-extern "C" void fn_80087E9C(void* group, const char* name, atn::Vector3* value, int arg3, int arg4, float min,
-                            float max, float step);
+extern "C" void fn_80087E9C(void* group, const char* name, atn::Vector3* value, float min, float max, float step,
+                            void* func, void* arg);
 extern "C" void* lbl_8087EF70;
 extern "C" int fn_800A555C(void* pad, int port, int button); // inferred: button triggered
 extern "C" int fn_800A55AC(void* pad, int port, int button); // inferred: button repeated
@@ -817,11 +817,11 @@ void NewCampPartsStatus::vf3C(int show) {
 
 void NewCampPartsStatus::vf40(void* group) {
     group = fn_8008937C(group, m98.data());
-    fn_80087E9C(group, "MoveOffset", &mMove, 0, 0, -1000000.0f, 1000000.0f, 1.0f);
-    fn_80087E9C(group, "OffsetPos", &mA4, 0, 0, -1000000.0f, 1000000.0f, 1.0f);
-    fn_80087E9C(group, "OffsetScl", &mB0, 0, 0, -1000000.0f, 1000000.0f, 1.0f);
-    fn_80087E9C(group, "LocatorScl", &mBC, 0, 0, -1000000.0f, 1000000.0f, 1.0f);
-    fn_80087E9C(group, "BasePos", &mC8, 0, 0, -1000000.0f, 1000000.0f, 1.0f);
+    fn_80087E9C(group, "MoveOffset", &mMove, -1000000.0f, 1000000.0f, 1.0f, 0, 0);
+    fn_80087E9C(group, "OffsetPos", &mA4, -1000000.0f, 1000000.0f, 1.0f, 0, 0);
+    fn_80087E9C(group, "OffsetScl", &mB0, -1000000.0f, 1000000.0f, 1.0f, 0, 0);
+    fn_80087E9C(group, "LocatorScl", &mBC, -1000000.0f, 1000000.0f, 1.0f, 0, 0);
+    fn_80087E9C(group, "BasePos", &mC8, -1000000.0f, 1000000.0f, 1.0f, 0, 0);
 }
 
 void NewCampPartsStatus::vf48() {

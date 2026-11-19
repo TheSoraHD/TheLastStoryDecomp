@@ -399,15 +399,15 @@ void GameCameraModeParam_unk::fn_8037E89C(int mode, const GameCameraParam_unk& p
 
 // inferred: debug menu items (atn debug menu, as in gmk/SwingObject.cpp and gmk/Ocean.cpp)
 extern "C" void* fn_8008937C(void* menu, const char* name); // inferred: group of a menu
-extern "C" void fn_8008771C(void* group, const char* name, float* value, int arg3, int arg4, float min, float max,
-                            float step);
-extern "C" void fn_80087858(void* group, const char* name, float* value, int arg3, int arg4, float min, float max,
-                            float step); // inferred: angle item
-extern "C" void fn_80087994(void* group, const char* name, int* flag, int arg3, int arg4); // inferred: switch item
-extern "C" void fn_800874C8(void* group, const char* name, int* value, int min, int max, int step, int arg6,
-                            int arg7); // inferred: integer item
-extern "C" void fn_80087E9C(void* group, const char* name, atn::Vector3* value, int arg3, int arg4, float min,
-                            float max, float step); // inferred: vector item
+extern "C" void fn_8008771C(void* group, const char* name, float* value, float min, float max, float step, void* func,
+                            void* arg);
+extern "C" void fn_80087858(void* group, const char* name, float* value, float min, float max, float step, void* func,
+                            void* arg); // inferred: angle item
+extern "C" void fn_80087994(void* group, const char* name, int* flag, void* func, void* arg); // inferred: switch item
+extern "C" void fn_800874C8(void* group, const char* name, int* value, int min, int max, int step, void* func,
+                            void* arg); // inferred: integer item
+extern "C" void fn_80087E9C(void* group, const char* name, atn::Vector3* value, float min, float max, float step,
+                            void* func, void* arg); // inferred: vector item
 
 // inferred: debug menu of the camera: the parameters of every mode and the global settings
 void GameCamera::fn_8037E9E0() {
@@ -425,37 +425,37 @@ void GameCamera::fn_8037E9E0() {
     fn_8037ECF0("Fix", group, &m738);
     fn_8037ECF0("FixRotY", group, &m774);
     fn_80087994(group, "DrawDebugInfo", &m7F0, 0, 0);
-    fn_80087858(group, "PadDisableAngle", &mA04, 0, 0, 0.0f, 180.0f, 1.0f);
+    fn_80087858(group, "PadDisableAngle", &mA04, 0.0f, 180.0f, 1.0f, 0, 0);
     fn_800874C8(group, "PadDisableFrame", &mA08, 0, 300, 1, 0, 0);
-    fn_8008771C(group, "BirdViewLockOnSpeed", &m8D8, 0, 0, 0.0f, 100.0f, 0.01f);
-    fn_8008771C(group, "BirdViewLockOnLength", &m8DC, 0, 0, 0.0f, 100.0f, 0.01f);
+    fn_8008771C(group, "BirdViewLockOnSpeed", &m8D8, 0.0f, 100.0f, 0.01f, 0, 0);
+    fn_8008771C(group, "BirdViewLockOnLength", &m8DC, 0.0f, 100.0f, 0.01f, 0, 0);
     fn_800874C8(group, "CollisionMode", &m9F4, 0, 2, 1, 0, 0);
     fn_800874C8(group, "InterpFrame", &m9F0, 1, 999, 1, 0, 0);
-    fn_8008771C(group, "InterpSpeed", &m9EC, 0, 0, 0.0f, 1.0f, 0.001f);
+    fn_8008771C(group, "InterpSpeed", &m9EC, 0.0f, 1.0f, 0.001f, 0, 0);
     void* fix = fn_8008937C(group, "FixProgram");
-    fn_80087E9C(fix, "Position", &m4FC, 0, 0, -10000.0f, 10000.0f, 1.0f);
-    fn_80087E9C(fix, "Target", &m508, 0, 0, -10000.0f, 10000.0f, 1.0f);
-    fn_80087858(fix, "AngleOfView", &m514, 0, 0, -10000.0f, 10000.0f, 1.0f);
+    fn_80087E9C(fix, "Position", &m4FC, -10000.0f, 10000.0f, 1.0f, 0, 0);
+    fn_80087E9C(fix, "Target", &m508, -10000.0f, 10000.0f, 1.0f, 0, 0);
+    fn_80087858(fix, "AngleOfView", &m514, -10000.0f, 10000.0f, 1.0f, 0, 0);
     fn_80087994(fix, "PlayerOffset", &m518, 0, 0);
 }
 
 // inferred: debug menu of the parameters of a camera mode
 void GameCamera::fn_8037ECF0(const char* name, void* menu, GameCameraParam_unk* param) {
     void* group = fn_8008937C(menu, name);
-    fn_8008771C(group, "Length", &param->m00, 0, 0, 1.0f, 10000.0f, 5.0f);
-    fn_80087858(group, "AngleOfView", &param->m04, 0, 0, 0.0f, 90.0f, 5.0f);
-    fn_80087858(group, "Pitch", &param->m08, 0, 0, -90.0f, 90.0f, 5.0f);
-    fn_8008771C(group, "OffsetX", &param->m0C, 0, 0, -1000.0f, 1000.0f, 1.0f);
-    fn_8008771C(group, "OffsetY", &param->m10, 0, 0, -1000.0f, 1000.0f, 1.0f);
-    fn_8008771C(group, "OffsetZ", &param->m14, 0, 0, -1000.0f, 1000.0f, 1.0f);
-    fn_8008771C(group, "CrouchOffset", &param->m18, 0, 0, -1000.0f, 1000.0f, 1.0f);
-    fn_8008771C(group, "MoveSpeed", &param->m1C, 0, 0, 0.0f, 1.0f, 0.01f);
-    fn_8008771C(group, "PitchSpeed", &param->m20, 0, 0, 0.0f, 1.0f, 0.01f);
-    fn_8008771C(group, "ZoomSpeed", &param->m24, 0, 0, 0.0f, 1.0f, 0.01f);
-    fn_8008771C(group, "RollSpeed", &param->m28, 0, 0, 0.0f, 1.0f, 0.01f);
-    fn_8008771C(group, "AutoRollSpeed", &param->m2C, 0, 0, 0.0f, 1.0f, 0.001f);
-    fn_8008771C(group, "AutoLockOnSpeed", &param->m30, 0, 0, 0.0f, 1.0f, 0.01f);
-    fn_80087858(group, "OffsetRotY", &param->m34, 0, 0, -180.0f, 180.0f, 1.0f);
+    fn_8008771C(group, "Length", &param->m00, 1.0f, 10000.0f, 5.0f, 0, 0);
+    fn_80087858(group, "AngleOfView", &param->m04, 0.0f, 90.0f, 5.0f, 0, 0);
+    fn_80087858(group, "Pitch", &param->m08, -90.0f, 90.0f, 5.0f, 0, 0);
+    fn_8008771C(group, "OffsetX", &param->m0C, -1000.0f, 1000.0f, 1.0f, 0, 0);
+    fn_8008771C(group, "OffsetY", &param->m10, -1000.0f, 1000.0f, 1.0f, 0, 0);
+    fn_8008771C(group, "OffsetZ", &param->m14, -1000.0f, 1000.0f, 1.0f, 0, 0);
+    fn_8008771C(group, "CrouchOffset", &param->m18, -1000.0f, 1000.0f, 1.0f, 0, 0);
+    fn_8008771C(group, "MoveSpeed", &param->m1C, 0.0f, 1.0f, 0.01f, 0, 0);
+    fn_8008771C(group, "PitchSpeed", &param->m20, 0.0f, 1.0f, 0.01f, 0, 0);
+    fn_8008771C(group, "ZoomSpeed", &param->m24, 0.0f, 1.0f, 0.01f, 0, 0);
+    fn_8008771C(group, "RollSpeed", &param->m28, 0.0f, 1.0f, 0.01f, 0, 0);
+    fn_8008771C(group, "AutoRollSpeed", &param->m2C, 0.0f, 1.0f, 0.001f, 0, 0);
+    fn_8008771C(group, "AutoLockOnSpeed", &param->m30, 0.0f, 1.0f, 0.01f, 0, 0);
+    fn_80087858(group, "OffsetRotY", &param->m34, -180.0f, 180.0f, 1.0f, 0, 0);
 }
 
 void GameCamera::fn_8037EF30(int a, int b, float f) {

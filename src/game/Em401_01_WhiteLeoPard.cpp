@@ -901,11 +901,11 @@ void Em401_01_WhiteLeoPard::fn_80322AD4() {
     }
 }
 
-extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3, int arg4);
-extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, int arg6,
-                            int arg7);
-extern "C" void fn_8008771C(void* group, const char* name, float* value, int arg3, int arg4, float min, float max,
-                            float step);
+extern "C" void fn_80087994(void* group, const char* name, int* value, void* func, void* arg);
+extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, void* func,
+                            void* arg);
+extern "C" void fn_8008771C(void* group, const char* name, float* value, float min, float max, float step, void* func,
+                            void* arg);
 
 // inferred: debug menu of the enemy; removed by the linker, only its strings are left in the pool (after
 // "tale"), as Em403WarLion::fn_DebugMenu_unk. The calls and the ranges are guesses.
@@ -913,7 +913,7 @@ void Em401_01_WhiteLeoPard::fn_DebugMenu_unk() {
     void* group = m158C.Load("em401_01_WhiteLeoPard");
     fn_80087994(group, "DebugDisp", &m1590, 0, 0);
     fn_80087994(group, "DamageIgnore", &m1594, 0, 0);
-    fn_8008771C(group, "ReturnEndLength", &m1598, 0, 0, 0.0f, 10000.0f, 1.0f);
+    fn_8008771C(group, "ReturnEndLength", &m1598, 0.0f, 10000.0f, 1.0f, 0, 0);
     fn_800874C8(group, "UpPhysicalAttack", &m159C, 0, 9999, 1, 0, 0);
     fn_800874C8(group, "interval", &m15A0, 0, 9999, 1, 0, 0);
     fn_800874C8(group, "AttackTime", &m15A4, 0, 9999, 1, 0, 0);

@@ -16,7 +16,7 @@ extern "C" int sprintf(char* buf, const char* fmt, ...);
 // inferred: line from `from` to `to`
 extern "C" void* lbl_8087EF70; // inferred: pad
 extern "C" int fn_800A555C(void* pad, int port, int button); // inferred: button triggered
-extern "C" void fn_80087994(void* menu, const char* name, int* flag, int arg3, int arg4);
+extern "C" void fn_80087994(void* menu, const char* name, int* flag, void* func, void* arg);
 
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 

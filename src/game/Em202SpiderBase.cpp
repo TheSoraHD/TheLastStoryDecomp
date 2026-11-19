@@ -21,7 +21,7 @@ extern "C" int fn_800DC12C(const char* s);   // inferred: string to int
 extern "C" float fn_800DC288(const char* s); // inferred: string to float
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
 struct HomingParam_unk;
-extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3, int arg4); // inferred: debug menu
+extern "C" void fn_80087994(void* group, const char* name, int* value, void* func, void* arg); // inferred: debug menu
 extern "C" GameTask* lbl_8087F430;
 // inferred: std::string concatenation (weak copy 0x8006AFF8)
 extern "C" std::string fn_8006AFF8(const std::string& a, const std::string& b);

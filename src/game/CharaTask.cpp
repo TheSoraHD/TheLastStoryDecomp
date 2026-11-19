@@ -1222,7 +1222,8 @@ void CharaTask::fn_80139560() {
             HitInfo_unk* bullet = fn_80219E6C(0x7DE);
             m13A0.y += 6.0f;
             fn_8013A194()->fn_8013A19C(1);
-            fn_8013A194()->fn_800FAB80(this, bullet, fn_8013A194()->fn_800F8548(), &m13A0, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
+            fn_8013A194()->fn_800FAB80(this, bullet, fn_8013A194()->fn_800F8548(), &m13A0, &mRot, 0, 30, -1, -1, 0.0f,
+                        1.0f);
             fn_8013A194()->fn_8013A19C(0);
         }
         m54C &= ~0x60000;
@@ -1230,7 +1231,8 @@ void CharaTask::fn_80139560() {
     if ((m54C & 0x100000) == 0x100000) {
         if (fn_8013A194()) {
             HitInfo_unk* bullet = fn_80219E6C(0x7E8);
-            fn_8013A194()->fn_800FAB80(0, bullet, fn_8013A194()->fn_800F8548(), &m13A0, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
+            fn_8013A194()->fn_800FAB80(0, bullet, fn_8013A194()->fn_800F8548(), &m13A0, &mRot, 0, 30, -1, -1, 0.0f,
+                        1.0f);
         }
         m54C &= ~0x100000;
     }
@@ -2122,7 +2124,8 @@ struct GameState_unk {
 };
 extern "C" GameState_unk* lbl_8087EFA8;
 
-extern "C" int fn_8004ED34(void* colli, atn::ColliResult_unk* result, const atn::Vector3* from, const atn::Vector3* to, unsigned int mask,
+extern "C" int fn_8004ED34(void* colli, atn::ColliResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
+                           unsigned int mask, 
                            void* ignore, int arg7); // inferred: ray test
 
 // inferred: true when the attribute of the hit has id 0x1A (name invented)
@@ -4215,10 +4218,14 @@ void CharaTask::fn_80145334() {
         chr::CharaEquip_unk* coat = m680[0];
         if (coat != 0 && coat->m004 % 1000 / 10 == 46) {
             if (m648 != 0 || m55C == 8) {
-                mMotion.fn_80093F1C("leftcoat1", chr::lbl_807C7030, chr::lbl_807C7030, atn::Vector3(1.0f, 1.0f, 1.0f), 8);
-                mMotion.fn_80093F1C("leftcoat2", chr::lbl_807C7030, chr::lbl_807C7030, atn::Vector3(1.0f, 1.0f, 1.0f), 8);
-                mMotion.fn_80093F1C("rightcoat1", chr::lbl_807C7030, chr::lbl_807C7030, atn::Vector3(1.0f, 1.0f, 1.0f), 8);
-                mMotion.fn_80093F1C("rightcoat2", chr::lbl_807C7030, chr::lbl_807C7030, atn::Vector3(1.0f, 1.0f, 1.0f), 8);
+                mMotion.fn_80093F1C("leftcoat1", chr::lbl_807C7030, chr::lbl_807C7030, atn::Vector3(1.0f, 1.0f, 1.0f),
+                                    8);
+                mMotion.fn_80093F1C("leftcoat2", chr::lbl_807C7030, chr::lbl_807C7030, atn::Vector3(1.0f, 1.0f, 1.0f),
+                                    8);
+                mMotion.fn_80093F1C("rightcoat1", chr::lbl_807C7030, chr::lbl_807C7030, atn::Vector3(1.0f, 1.0f, 1.0f),
+                                    8);
+                mMotion.fn_80093F1C("rightcoat2", chr::lbl_807C7030, chr::lbl_807C7030, atn::Vector3(1.0f, 1.0f, 1.0f),
+                                    8);
             } else {
                 mMotion.fn_80094778("leftcoat1");
                 mMotion.fn_80094778("leftcoat2");
@@ -5288,21 +5295,25 @@ void CharaTask::fn_80149A30() {
                 sprintf(lbl_807C7B28, "ch%04d_%02d", m50 / 100, m50 % 100);
                 fn_8006F2F0(lbl_8087EEC8, text, lbl_807C7B28, 256);
                 float w = fn_8006EF48(lbl_8087EEC8, 12.0f, text, 0.0f, 1, 1);
-                lbl_8087EEB0->fn_80061824(screen.x - 0.5f * w, y, 0.0f, 12.0f, 12.0f, 0.0f, 0.0f, 0.0f, text, -1, 1, 1, 0, 0, 0xFF000000);
+                lbl_8087EEB0->fn_80061824(screen.x - 0.5f * w, y, 0.0f, 12.0f, 12.0f, 0.0f, 0.0f, 0.0f, text, -1, 1, 1,
+                                          0, 0, 0xFF000000);
                 y += 12.0f;
                 swprintf(text, 256, L"ControlMode %d, %d", m55C, m560);
                 w = fn_8006EF48(lbl_8087EEC8, 12.0f, text, 0.0f, 1, 1);
-                lbl_8087EEB0->fn_80061824(screen.x - 0.5f * w, y, 0.0f, 12.0f, 12.0f, 0.0f, 0.0f, 0.0f, text, -1, 1, 1, 0, 0, 0xFF000000);
+                lbl_8087EEB0->fn_80061824(screen.x - 0.5f * w, y, 0.0f, 12.0f, 12.0f, 0.0f, 0.0f, 0.0f, text, -1, 1, 1,
+                                          0, 0, 0xFF000000);
                 y += 12.0f;
                 swprintf(text, 256, L"Motion(blend, speed) wt(%.2f, %.2f) wk(%.2f, %.2f) rn(%.2f, %.2f)",
                          mMotion.fn_8013C3E4(0), mMotion.GetMotionSpeed(0), mMotion.fn_8013C3E4(1),
                          mMotion.GetMotionSpeed(1), mMotion.fn_8013C3E4(2), mMotion.GetMotionSpeed(2));
                 w = fn_8006EF48(lbl_8087EEC8, 12.0f, text, 0.0f, 1, 1);
-                lbl_8087EEB0->fn_80061824(screen.x - 0.5f * w, y, 0.0f, 12.0f, 12.0f, 0.0f, 0.0f, 0.0f, text, -1, 1, 1, 0, 0, 0xFF000000);
+                lbl_8087EEB0->fn_80061824(screen.x - 0.5f * w, y, 0.0f, 12.0f, 12.0f, 0.0f, 0.0f, 0.0f, text, -1, 1, 1,
+                                          0, 0, 0xFF000000);
                 y += 12.0f;
                 swprintf(text, 256, L"inertia %.2f", m570);
                 w = fn_8006EF48(lbl_8087EEC8, 12.0f, text, 0.0f, 1, 1);
-                lbl_8087EEB0->fn_80061824(screen.x - 0.5f * w, y, 0.0f, 12.0f, 12.0f, 0.0f, 0.0f, 0.0f, text, -1, 1, 1, 0, 0, 0xFF000000);
+                lbl_8087EEB0->fn_80061824(screen.x - 0.5f * w, y, 0.0f, 12.0f, 12.0f, 0.0f, 0.0f, 0.0f, text, -1, 1, 1,
+                                          0, 0, 0xFF000000);
                 y += 12.0f;
             }
         }
@@ -5317,7 +5328,8 @@ void CharaTask::fn_80149A30() {
                 sprintf(buf, "Area: ---\0", area->mName);
             }
             fn_8006F2F0(lbl_8087EEC8, text, buf, 256);
-            lbl_8087EEB0->fn_80061824(screen.x, y, 0.0f, 12.0f, 12.0f, 0.0f, 0.0f, 0.0f, text, 0xAFFFFFFF, 1, 1, 0, 0, 0xFF000000);
+            lbl_8087EEB0->fn_80061824(screen.x, y, 0.0f, 12.0f, 12.0f, 0.0f, 0.0f, 0.0f, text, 0xAFFFFFFF, 1, 1, 0, 0,
+                                      0xFF000000);
             y += 12.0f;
         }
         if (lbl_8087F0A8->m54 != 0 && mType != 5 && dist < 62500.0f && screen.z > 0.0f && screen.z < 1.0f) {
@@ -5327,7 +5339,8 @@ void CharaTask::fn_80149A30() {
             sprintf(lbl_807C7B28, "ch%04d_%02d", m50 / 100, m50 % 100);
             sprintf(buf, "%d: %s (%s)\0", m58, m60->m0C, lbl_807C7B28);
             fn_8006F2F0(lbl_8087EEC8, text, buf, 256);
-            lbl_8087EEB0->fn_80061824(screen.x, y, 0.0f, 12.0f, 12.0f, 0.0f, 0.0f, 0.0f, text, 0xAFFFFFFF, 1, 1, 0, 0, 0xFF000000);
+            lbl_8087EEB0->fn_80061824(screen.x, y, 0.0f, 12.0f, 12.0f, 0.0f, 0.0f, 0.0f, text, 0xAFFFFFFF, 1, 1, 0, 0,
+                                      0xFF000000);
             y += 12.0f;
             if (mType == 0) {
                 swprintf(text, 256, L"Lv %d   Life %d   Ten %.3f   Explosion %.3f", mStatus.mParamB.m78,
@@ -5337,23 +5350,28 @@ void CharaTask::fn_80149A30() {
             } else {
                 swprintf(text, 256, L"Lv %d   Ten %.3f", mStatus.mParamB.m78, mStatus.m228);
             }
-            lbl_8087EEB0->fn_80061824(screen.x, y, 0.0f, 12.0f, 12.0f, 0.0f, 0.0f, 0.0f, text, 0xAFFFFFFF, 1, 1, 0, 0, 0xFF000000);
+            lbl_8087EEB0->fn_80061824(screen.x, y, 0.0f, 12.0f, 12.0f, 0.0f, 0.0f, 0.0f, text, 0xAFFFFFFF, 1, 1, 0, 0,
+                                      0xFF000000);
             y += 12.0f;
             swprintf(text, 256, L"HP %.2f   MP %.2f   %c", mStatus.m04, mStatus.m08,
                      mStatus.IsState_unk(0x20) ? 'D' : ' ');
-            lbl_8087EEB0->fn_80061824(screen.x, y, 0.0f, 12.0f, 12.0f, 0.0f, 0.0f, 0.0f, text, 0xAFFFFFFF, 1, 1, 0, 0, 0xFF000000);
+            lbl_8087EEB0->fn_80061824(screen.x, y, 0.0f, 12.0f, 12.0f, 0.0f, 0.0f, 0.0f, text, 0xAFFFFFFF, 1, 1, 0, 0,
+                                      0xFF000000);
             y += 12.0f;
             swprintf(text, 256, L"Atk %.2f   MAtk %.2f", mStatus.mParamB.m00, mStatus.mParamB.m04);
-            lbl_8087EEB0->fn_80061824(screen.x, y, 0.0f, 12.0f, 12.0f, 0.0f, 0.0f, 0.0f, text, 0xAFFFFFFF, 1, 1, 0, 0, 0xFF000000);
+            lbl_8087EEB0->fn_80061824(screen.x, y, 0.0f, 12.0f, 12.0f, 0.0f, 0.0f, 0.0f, text, 0xAFFFFFFF, 1, 1, 0, 0,
+                                      0xFF000000);
             y += 12.0f;
             swprintf(text, 256, L"Def %.2f   MDef %.2f", mStatus.mParamB.m08, mStatus.mParamB.m0C);
-            lbl_8087EEB0->fn_80061824(screen.x, y, 0.0f, 12.0f, 12.0f, 0.0f, 0.0f, 0.0f, text, 0xAFFFFFFF, 1, 1, 0, 0, 0xFF000000);
+            lbl_8087EEB0->fn_80061824(screen.x, y, 0.0f, 12.0f, 12.0f, 0.0f, 0.0f, 0.0f, text, 0xAFFFFFFF, 1, 1, 0, 0,
+                                      0xFF000000);
             y += 12.0f;
             for (unsigned int i = 0; i < m12D0.mCount; i++) {
                 CharaHit_unk* hit = &m12D0.mData[i];
                 if (hit->mHit != 0 && hit->m04 == 0) {
                     fn_800DD3FC(text, L"CIRCLE [%d:%s] count=%d\0", hit->mHit->m04, hit->mHit->m08, hit->m08);
-                    lbl_8087EEB0->fn_80061824(screen.x, y, 0.0f, 12.0f, 12.0f, 0.0f, 0.0f, 0.0f, text, 0xAFFFFFFF, 1, 1, 0, 0, 0xFF000000);
+                    lbl_8087EEB0->fn_80061824(screen.x, y, 0.0f, 12.0f, 12.0f, 0.0f, 0.0f, 0.0f, text, 0xAFFFFFFF, 1, 1,
+                                              0, 0, 0xFF000000);
                     y += 12.0f;
                 }
             }
@@ -5361,7 +5379,8 @@ void CharaTask::fn_80149A30() {
                 CharaStatusRef_unk* ref = &mStatus.mRefs.mData[i];
                 if (fn_8021BE98(name, ref->mEntry) != 0) {
                     fn_800DD3FC(text, L"SP [%s] count=%d\0", name, ref->m0C);
-                    lbl_8087EEB0->fn_80061824(screen.x, y, 0.0f, 12.0f, 12.0f, 0.0f, 0.0f, 0.0f, text, 0xAFFFFFFF, 1, 1, 0, 0, 0xFF000000);
+                    lbl_8087EEB0->fn_80061824(screen.x, y, 0.0f, 12.0f, 12.0f, 0.0f, 0.0f, 0.0f, text, 0xAFFFFFFF, 1, 1,
+                                              0, 0, 0xFF000000);
                     y += 12.0f;
                 }
             }
@@ -5369,7 +5388,8 @@ void CharaTask::fn_80149A30() {
                 if (mStatus.IsState_unk(1 << i)) {
                     sprintf(buf, "COND [%s] count=%d\0", sStatusNames_unk[i], mStatus.fn_801333A4(1 << i));
                     fn_8006F2F0(lbl_8087EEC8, text, buf, 256);
-                    lbl_8087EEB0->fn_80061824(screen.x, y, 0.0f, 12.0f, 12.0f, 0.0f, 0.0f, 0.0f, text, 0xAFFFFFFF, 1, 1, 0, 0, 0xFF000000);
+                    lbl_8087EEB0->fn_80061824(screen.x, y, 0.0f, 12.0f, 12.0f, 0.0f, 0.0f, 0.0f, text, 0xAFFFFFFF, 1, 1,
+                                              0, 0, 0xFF000000);
                     y += 12.0f;
                 }
             }
@@ -5408,7 +5428,8 @@ void CharaTask::fn_80149A30() {
                 float w = fn_8006EF48(lbl_8087EEC8, size, text, 0.0f, 1, 1);
                 atn::Vector3 screen = atn::RenderManager::instance_->GetScreenPosition(pos);
                 if (screen.z > 0.0f && screen.z < 1.0f) {
-                    lbl_8087EEB0->fn_80061824(screen.x - 0.5f * w, screen.y, 0.0f, size, size, 0.0f, 0.0f, 0.0f, text, 0xA000FFFF, 1, 1, 0, 0, 0xFF000000);
+                    lbl_8087EEB0->fn_80061824(screen.x - 0.5f * w, screen.y, 0.0f, size, size, 0.0f, 0.0f, 0.0f, text,
+                                              0xA000FFFF, 1, 1, 0, 0, 0xFF000000);
                 }
             } else if (mStatus.IsState_unk(1)) {
                 atn::Vector3 pos = mColli.m48 + atn::Vector3(0.0f, 1.5f * m5B0, 0.0f);
@@ -5417,7 +5438,8 @@ void CharaTask::fn_80149A30() {
                 float w = fn_8006EF48(lbl_8087EEC8, size, text, 0.0f, 1, 1);
                 atn::Vector3 screen = atn::RenderManager::instance_->GetScreenPosition(pos);
                 if (screen.z > 0.0f && screen.z < 1.0f) {
-                    lbl_8087EEB0->fn_80061824(screen.x - 0.5f * w, screen.y, 0.0f, size, size, 0.0f, 0.0f, 0.0f, text, 0xD0AA88AA, 1, 1, 0, 0, 0xFF000000);
+                    lbl_8087EEB0->fn_80061824(screen.x - 0.5f * w, screen.y, 0.0f, size, size, 0.0f, 0.0f, 0.0f, text,
+                                              0xD0AA88AA, 1, 1, 0, 0, 0xFF000000);
                 }
             } else if (mStatus.IsState_unk(0x400000)) {
                 atn::Vector3 pos = mColli.m48 + atn::Vector3(0.0f, 1.5f * m5B0, 0.0f);
@@ -5426,7 +5448,8 @@ void CharaTask::fn_80149A30() {
                 float w = fn_8006EF48(lbl_8087EEC8, size, text, 0.0f, 1, 1);
                 atn::Vector3 screen = atn::RenderManager::instance_->GetScreenPosition(pos);
                 if (screen.z > 0.0f && screen.z < 1.0f) {
-                    lbl_8087EEB0->fn_80061824(screen.x - 0.5f * w, screen.y, 0.0f, size, size, 0.0f, 0.0f, 0.0f, text, 0xC0AA88FF, 1, 1, 0, 0, 0xFF000000);
+                    lbl_8087EEB0->fn_80061824(screen.x - 0.5f * w, screen.y, 0.0f, size, size, 0.0f, 0.0f, 0.0f, text,
+                                              0xC0AA88FF, 1, 1, 0, 0, 0xFF000000);
                 }
             }
         }
@@ -5469,7 +5492,8 @@ void CharaTask::fn_80149A30() {
             if (lbl_8087F430 != 0 && lbl_8087F430->mCamera.m7FC != 6) {
                 screen.y = MIN(MAX(screen.y, 0.1f * lbl_8087EEE0->mHeight), 0.9f * lbl_8087EEE0->mHeight - size);
             }
-            lbl_8087EEB0->fn_80061824(screen.x - 0.5f * w, screen.y - 12.0f - m12C8, 0.0f, size, size, 0.0f, 0.0f, 0.0f, text, color, 1, 1, 0, 0, 0xFF000000);
+            lbl_8087EEB0->fn_80061824(screen.x - 0.5f * w, screen.y - 12.0f - m12C8, 0.0f, size, size, 0.0f, 0.0f, 0.0f,
+                                      text, color, 1, 1, 0, 0, 0xFF000000);
         } else if (lbl_8087F098 != 0 && lbl_8087F098->mState != 0) {
             if (mC58.m11C.m01 == 0) {
                 return;
@@ -5482,7 +5506,8 @@ void CharaTask::fn_80149A30() {
             float w = fn_8006EF48(lbl_8087EEC8, size, text, 0.0f, 1, 1);
             atn::Vector3 screen = atn::RenderManager::instance_->GetScreenPosition(pos);
             if (screen.z > 0.0f && screen.z < 1.0f) {
-                lbl_8087EEB0->fn_80061824(screen.x - 0.5f * w, screen.y - 12.0f - m12C8, 0.0f, size, size, 0.0f, 0.0f, 0.0f, text, color, 1, 1, 0, 0, 0xFF000000);
+                lbl_8087EEB0->fn_80061824(screen.x - 0.5f * w, screen.y - 12.0f - m12C8, 0.0f, size, size, 0.0f, 0.0f,
+                                          0.0f, text, color, 1, 1, 0, 0, 0xFF000000);
             }
         } else if (m55C == 6 && m560 == 96 && !mStatus.fn_80134290()) {
             atn::Vector3 pos = mColli.m48 + atn::Vector3(0.0f, 1.5f * m5B0, 0.0f);
@@ -5491,22 +5516,23 @@ void CharaTask::fn_80149A30() {
             float w = fn_8006EF48(lbl_8087EEC8, size, text, 0.0f, 1, 1);
             atn::Vector3 screen = atn::RenderManager::instance_->GetScreenPosition(pos);
             if (screen.z > 0.0f && screen.z < 1.0f) {
-                lbl_8087EEB0->fn_80061824(screen.x - 0.5f * w, screen.y - 12.0f - m12C8, 0.0f, size, size, 0.0f, 0.0f, 0.0f, text, 0xA0FFC040, 1, 1, 0, 0, 0xFF000000);
+                lbl_8087EEB0->fn_80061824(screen.x - 0.5f * w, screen.y - 12.0f - m12C8, 0.0f, size, size, 0.0f, 0.0f,
+                                          0.0f, text, 0xA0FFC040, 1, 1, 0, 0, 0xFF000000);
             }
         }
     }
 }
 
 // inferred: debug menu helpers (signatures as in game/GimmickCommon.cpp)
-extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, int arg6,
-                            int arg7);
-extern "C" void fn_8008771C(void* group, const char* name, float* value, int arg3, int arg4, float min, float max,
-                            float step);
-extern "C" void fn_80087E9C(void* group, const char* name, atn::Vector3* value, int arg3, int arg4, float min,
-                            float max, float step);
-extern "C" void fn_80088724(void* group, const char* name, atn::Vector3* value, int arg3, int arg4, float min,
-                            float max, float step);
-extern "C" void fn_80087AA0(void* group, const char* name, unsigned int* flags, int bit, int arg4, int arg5); // inferred: bit toggle
+extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, void* func,
+                            void* arg);
+extern "C" void fn_8008771C(void* group, const char* name, float* value, float min, float max, float step, void* func,
+                            void* arg);
+extern "C" void fn_80087E9C(void* group, const char* name, atn::Vector3* value, float min, float max, float step,
+                            void* func, void* arg);
+extern "C" void fn_80088724(void* group, const char* name, atn::Vector3* value, float min, float max, float step,
+                            void* func, void* arg);
+extern "C" void fn_80087AA0(void* group, const char* name, unsigned int* flags, int bit, void* func, void* arg); // inferred: bit toggle
 
 // NONMATCHING: pool offsets only - instructions identical; the @stringBase0 offsets of the menu
 // labels differ until the strings of the earlier functions (0x80136544-0x80149A30) exist.
@@ -5524,10 +5550,10 @@ void CharaTask::vf30(void* menu) {
     } else {
         group = 0;
     }
-    fn_80087E9C(group, "position", &mPos, 0, 0, -9999.0f, 9999.0f, 1.0f);
-    fn_80088724(group, "rotation", &mRot, 0, 0, -360.0f, 360.0f, 10.0f);
-    fn_80087E9C(group, "scale", &m540, 0, 0, -9999.0f, 9999.0f, 0.25f);
-    fn_8008771C(group, "moveSpeed", &m568, 0, 0, 0.0f, 9999.0f, 0.05f);
+    fn_80087E9C(group, "position", &mPos, -9999.0f, 9999.0f, 1.0f, 0, 0);
+    fn_80088724(group, "rotation", &mRot, -360.0f, 360.0f, 10.0f, 0, 0);
+    fn_80087E9C(group, "scale", &m540, -9999.0f, 9999.0f, 0.25f, 0, 0);
+    fn_8008771C(group, "moveSpeed", &m568, 0.0f, 9999.0f, 0.05f, 0, 0);
     fn_800874C8(group, "ctrlMode", &m55C, 0, 10, 1, 0, 0);
     fn_80087AA0(group, "invincible", &m54C, 4, 0, 0);
     fn_800874C8(group, "attackedMax", &m1028, 0, 16, 1, 0, 0);
@@ -5536,11 +5562,11 @@ void CharaTask::vf30(void* menu) {
     }
     if (mType == 2) {
         void* pick = fn_8008937C(group, "Pick");
-        fn_8008771C(pick, "DetectRadius", &mC58.m11C.m14, 0, 0, 0.0f, 9999.0f, 1.0f);
-        fn_8008771C(pick, "WarnRadius", &mC58.m11C.m18, 0, 0, 0.0f, 9999.0f, 1.0f);
+        fn_8008771C(pick, "DetectRadius", &mC58.m11C.m14, 0.0f, 9999.0f, 1.0f, 0, 0);
+        fn_8008771C(pick, "WarnRadius", &mC58.m11C.m18, 0.0f, 9999.0f, 1.0f, 0, 0);
         fn_800874C8(pick, "WarpPointId", &mC58.m11C.m08, 0, 9999999, 1, 0, 0);
         fn_800874C8(pick, "SafeAreaId", &mC58.m11C.m0C, 0, 9999999, 1, 0, 0);
-        fn_8008771C(pick, "SightRadius", &mC58.m11C.m1C, 0, 0, 0.0f, 9999.0f, 1.0f);
+        fn_8008771C(pick, "SightRadius", &mC58.m11C.m1C, 0.0f, 9999.0f, 1.0f, 0, 0);
         fn_800874C8(pick, "UnsafeAreaId", &mC58.m11C.m10, 0, 9999999, 1, 0, 0);
     }
 }

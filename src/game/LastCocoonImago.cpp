@@ -63,7 +63,7 @@ LastCocoonImago::LastCocoonImago(atn::Task* parent, EnemyInfo_unk* info)
     mFlagC31 = 1;
 }
 
-extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3, int arg4);
+extern "C" void fn_80087994(void* group, const char* name, int* value, void* func, void* arg);
 // inferred: GameScene::FindPlace_unk with the array read inside the loop (as in
 // game/LastCocoonQuadruped.cpp)
 inline gs::WarpPoint* FindImagoPlace_unk(GameScene* table, int id) {

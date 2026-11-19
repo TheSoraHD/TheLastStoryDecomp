@@ -25,9 +25,9 @@ extern "C" float fn_800DC288(const char* s); // inferred: string to float
 // inferred: character data by name (game/CharaTask.cpp declares it with an int id; same C symbol)
 extern "C" chr::CharaData_unk* fn_8020A81C(const char* name);
 // inferred: debug menu entries (as in game/Em101LittleZesya.cpp and game/NewCampPartsHint.cpp)
-extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3, int arg4);
-extern "C" void fn_80088FAC(void* group, const char* name, float* color, int arg3, int arg4, float min, float max,
-                            float step);
+extern "C" void fn_80087994(void* group, const char* name, int* value, void* func, void* arg);
+extern "C" void fn_80088FAC(void* group, const char* name, float* color, float min, float max, float step, void* func,
+                            void* arg);
 extern "C" atn::EffectManager* lbl_8087F3C0;
 extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the next effects
 extern "C" void fn_80239DAC(atn::EffectManager* mgr, void* owner, int a, int b); // inferred: stops the effects
@@ -205,7 +205,7 @@ int Em209SmallGolem::vf0C() {
         m1528.IsLoading() == 0 && m1534.IsLoading() == 0) {
         void* group = m1550.Load("Em209SmallGolem");
         fn_80087994(group, "DebugDisp", &m1554, 0, 0);
-        fn_80088FAC(group, "StoneColor", &m14FC.r, 0, 0, 0.0f, 1.0f, 0.01f);
+        fn_80088FAC(group, "StoneColor", &m14FC.r, 0.0f, 1.0f, 0.01f, 0, 0);
         m1540 = m5C;
         mStatus.m18 |= 0xC2D8;
         mStatus.m18 |= 0x3800000;

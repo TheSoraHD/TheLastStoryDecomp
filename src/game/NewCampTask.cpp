@@ -140,15 +140,15 @@ class Loader;
 atn::Loader* ResMgr_unk(); // inferred: loader of the game (lbl_8087F518)
 extern "C" void fn_8046ECDC(atn::Loader* loader, int show); // inferred: shows the loading screen
 // inferred: debug menu (atn/MindowsCommon.h; arguments in the order of game/NewCampPartsBase.cpp)
-extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3, int arg4); // AddBool
-extern "C" void fn_80087E9C(void* group, const char* name, void* value, int arg3, int arg4, float min, float max,
-                            float step); // x, y, z
-extern "C" void fn_8008771C(void* group, const char* name, float* value, int arg3, int arg4, float min, float max,
-                            float step); // AddFloat
-extern "C" void fn_80087858(void* group, const char* name, float* value, int arg3, int arg4, float min, float max,
-                            float step); // AddRadian
-extern "C" void fn_800874C8(void* group, const char* name, int* value, int min, int max, int step, int arg6,
-                            int arg7); // AddInt
+extern "C" void fn_80087994(void* group, const char* name, int* value, void* func, void* arg); // AddBool
+extern "C" void fn_80087E9C(void* group, const char* name, void* value, float min, float max, float step, void* func,
+                            void* arg); // x, y, z
+extern "C" void fn_8008771C(void* group, const char* name, float* value, float min, float max, float step, void* func,
+                            void* arg); // AddFloat
+extern "C" void fn_80087858(void* group, const char* name, float* value, float min, float max, float step, void* func,
+                            void* arg); // AddRadian
+extern "C" void fn_800874C8(void* group, const char* name, int* value, int min, int max, int step, void* func,
+                            void* arg); // AddInt
 // inferred: gamma settings of the render settings (weak copy)
 extern "C" inline GammaParams_unk* fn_8052B7F0(RenderSetting_unk* settings) {
     return &settings->m3DC;
@@ -193,11 +193,11 @@ int NewCampTask::vf0C() {
             fn_805305D0();
             void* group = m1218.Load("NewCamp");
             fn_80087994(group, "FreeCamera", &m121C, 0, 0);
-            fn_80087E9C(group, "CameraOfs(Aspect4:3)", &m1370, 0, 0, -1000.0f, 1000.0f, 1.0f);
-            fn_8008771C(group, "CameraSpeed", &m1368, 0, 0, 0.0f, 100.0f, 1.0f);
+            fn_80087E9C(group, "CameraOfs(Aspect4:3)", &m1370, -1000.0f, 1000.0f, 1.0f, 0, 0);
+            fn_8008771C(group, "CameraSpeed", &m1368, 0.0f, 100.0f, 1.0f, 0, 0);
             fn_80087994(group, "DispLocId", &m1220, 0, 0);
             fn_800874C8(group, "InfoOnTime", &m135C, 0, 999999, 1, 0, 0);
-            fn_80087858(group, "CamAng", &m1214, 0, 0, 0.0f, 360.0f, 1.0f);
+            fn_80087858(group, "CamAng", &m1214, 0.0f, 360.0f, 1.0f, 0, 0);
             fn_80087994(group, "UnlockMapAll", &m1350, 0, 0);
             fn_80087994(group, "MapLinkDebug", &m1364, 0, 0);
             fn_800874C8(group, "BackType", &m1354, 0, 7, 1, 0, 0);

@@ -14,10 +14,10 @@ extern "C" char lbl_8087D710[2]; // inferred: " " (field separators of the tab C
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
 extern "C" void fn_800CB5C8(atn::SoundRef* sound, int frames, int arg); // inferred: stops the sound
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
-extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, int arg6,
-                            int arg7);
-extern "C" void fn_8008771C(void* group, const char* name, float* value, int arg3, int arg4, float min, float max,
-                            float step);
+extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, void* func,
+                            void* arg);
+extern "C" void fn_8008771C(void* group, const char* name, float* value, float min, float max, float step, void* func,
+                            void* arg);
 
 struct Color4f_unk {
     Color4f_unk(float r_, float g_, float b_, float a_) : r(r_), g(g_), b(b_), a(a_) {}
@@ -245,7 +245,7 @@ void AttractHatePoint::vf6C(void* menu) {
         group = 0;
     }
     fn_800874C8(group, "state", &m54, 0, 99, 1, 0, 0);
-    fn_8008771C(group, "check_radius", &mRadius, 0, 0, 0.0f, 1000.0f, 0.1f);
+    fn_8008771C(group, "check_radius", &mRadius, 0.0f, 1000.0f, 0.1f, 0, 0);
 }
 
 } // namespace gmk

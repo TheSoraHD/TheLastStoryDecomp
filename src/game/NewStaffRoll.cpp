@@ -12,9 +12,9 @@ extern "C" int wcscmp(const wchar_t* a, const wchar_t* b);
 extern "C" unsigned long wcslen(const wchar_t* s);
 extern "C" wchar_t* wmemcpy(wchar_t* dst, const wchar_t* src, unsigned long n);
 extern "C" float fn_800DC3CC(const wchar_t* s); // inferred: wide string to float
-extern "C" void fn_80087994(void* menu, const char* name, int* flag, int arg3, int arg4); // inferred: debug switch
-extern "C" void fn_8008771C(void* menu, const char* name, float* value, int arg3, int arg4, float min, float max,
-                            float step); // inferred: debug float slider
+extern "C" void fn_80087994(void* menu, const char* name, int* flag, void* func, void* arg); // inferred: debug switch
+extern "C" void fn_8008771C(void* menu, const char* name, float* value, float min, float max, float step, void* func,
+                            void* arg); // inferred: debug float slider
 extern "C" void fn_800D2338(atn::Task* task); // inferred: deletes the task
 
 // inferred: field (lbl_8087F430)
@@ -120,7 +120,7 @@ NewStaffRoll::NewStaffRoll(atn::Task* parent)
     mLoader.vf0C("database/staffroll/staffroll_type1_xx.u16");
     void* menu = mMenu.Load("StaffRoll");
     fn_80087994(menu, "DrawOff", &mDrawOff, 0, 0);
-    fn_8008771C(menu, "Speed", &mSpeed, 0, 0, 0.0f, 10000.0f, 1.0f);
+    fn_8008771C(menu, "Speed", &mSpeed, 0.0f, 10000.0f, 1.0f, 0, 0);
     mLogo.fn_800D5908("ui_logo_nm.texture");
 }
 
@@ -245,8 +245,10 @@ void NewStaffRoll::vf14() {
                 float w = fn_8006EF48(lbl_8087EEC8, line.mSize, line.mText, 0.0f, 1, 1);
                 float x = __GetX_unk(line.mAlign, width, w);
                 lbl_8087EEB0->mA0 = 19;
-                lbl_8087EEB0->fn_80061824(1.0f + x, 1.0f + y, -1.05f, line.mSize, line.mSize, 0.0f, 0.0f, 0.0f, line.mText, 0xFF000000, 1, 1, 0, 0, 0xFF000000);
-                lbl_8087EEB0->fn_80061824(x, y, -1.05f, line.mSize, line.mSize, 0.0f, 0.0f, 0.0f, line.mText, -1, 1, 1, 0, 0, 0xFF000000);
+                lbl_8087EEB0->fn_80061824(1.0f + x, 1.0f + y, -1.05f, line.mSize, line.mSize, 0.0f, 0.0f, 0.0f,
+                                          line.mText, 0xFF000000, 1, 1, 0, 0, 0xFF000000);
+                lbl_8087EEB0->fn_80061824(x, y, -1.05f, line.mSize, line.mSize, 0.0f, 0.0f, 0.0f, line.mText, -1, 1, 1,
+                                          0, 0, 0xFF000000);
                 lbl_8087EEB0->mA0 = 18;
             }
         }

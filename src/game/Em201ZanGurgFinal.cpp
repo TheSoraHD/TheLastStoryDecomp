@@ -34,7 +34,7 @@ extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
 extern "C" void PSMTXTrans(Mtx m, float x, float y, float z);
 // inferred: std::string concatenation (weak copy 0x8006AFF8)
 extern "C" std::string fn_8006AFF8(const std::string& a, const std::string& b);
-extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3, int arg4);
+extern "C" void fn_80087994(void* group, const char* name, int* value, void* func, void* arg);
 // inferred: shield of the arena (fn_800457A4 makes a part, as in game/CharaTask.cpp; fn_80206C50 returns the
 // weapon data of an item id, as in gmk/DropItem.cpp)
 struct ZanWeapon_unk {

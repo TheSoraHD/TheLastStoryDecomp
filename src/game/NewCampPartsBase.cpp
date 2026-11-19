@@ -27,8 +27,8 @@ extern "C" void fn_801FECE0(void* layout, unsigned int hash, float value); // in
 extern "C" int fn_8021946C(int chara, int a, int b);
 // debug menu (see game/CosEditBase.cpp)
 extern "C" void* fn_8008937C(void* menu, const char* name);
-extern "C" void fn_80087E9C(void* group, const char* name, atn::Vector3* value, int arg3, int arg4, float min,
-                            float max, float step);
+extern "C" void fn_80087E9C(void* group, const char* name, atn::Vector3* value, float min, float max, float step,
+                            void* func, void* arg);
 CharaParam_unk fn_80134800(CharaStatus* status, int id, int kindA, int indexA, int itemA, int kindB, int indexB,
                            int itemB);
 
@@ -519,10 +519,10 @@ void NewCampPartsBase::fn_805112A8(NewCampPartsEntry_unk* entry, atn::D3AnimeIns
 // NONMATCHING: 99.4% - only the string pool (see fn_8050FB38)
 void NewCampPartsBase::vf40(void* menu) {
     void* group = fn_8008937C(menu, m98.c_str());
-    fn_80087E9C(group, "OffsetPos", &mA4, 0, 0, -1000000.0f, 1000000.0f, 1.0f);
-    fn_80087E9C(group, "OffsetScl", &mB0, 0, 0, -1000000.0f, 1000000.0f, 1.0f);
-    fn_80087E9C(group, "LocatorScl", &mBC, 0, 0, -1000000.0f, 1000000.0f, 1.0f);
-    fn_80087E9C(group, "BasePos", &mC8, 0, 0, -1000000.0f, 1000000.0f, 1.0f);
+    fn_80087E9C(group, "OffsetPos", &mA4, -1000000.0f, 1000000.0f, 1.0f, 0, 0);
+    fn_80087E9C(group, "OffsetScl", &mB0, -1000000.0f, 1000000.0f, 1.0f, 0, 0);
+    fn_80087E9C(group, "LocatorScl", &mBC, -1000000.0f, 1000000.0f, 1.0f, 0, 0);
+    fn_80087E9C(group, "BasePos", &mC8, -1000000.0f, 1000000.0f, 1.0f, 0, 0);
 }
 
 void fn_80511668(atn::D2A_Common* element, atn::D2A_DrawColor* color, void* outlineColor);

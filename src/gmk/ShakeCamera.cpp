@@ -7,10 +7,10 @@
 
 extern "C" int rand();
 extern "C" double sqrt(double x);
-extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, int arg6,
-                            int arg7);
-extern "C" void fn_8008771C(void* group, const char* name, float* value, int arg3, int arg4, float min, float max,
-                            float step);
+extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, void* func,
+                            void* arg);
+extern "C" void fn_8008771C(void* group, const char* name, float* value, float min, float max, float step, void* func,
+                            void* arg);
 // inferred: plays the sound `name` (not positioned)
 extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float volume);
 extern "C" void fn_800CB688(atn::SoundRef* sound, int arg, float pitch); // inferred: sets the pitch
@@ -88,7 +88,8 @@ void ShakeCamera::vf10() {
                                    : 1.5f;
                 atn::SoundRef sound = fn_800C31F4("SE_DGCOM_008", 0, -1, volume);
                 atn::SoundManager* cfg = lbl_8087EFE8;
-                fn_800CB688(&sound, 0, 1.0f + (cfg->mRandomPitch * ((float)(rand() % 1001) / 1000.0f) - 0.5f * cfg->mRandomPitch));
+                fn_800CB688(&sound, 0,
+                            1.0f + (cfg->mRandomPitch * ((float)(rand() % 1001) / 1000.0f) - 0.5f * cfg->mRandomPitch));
             }
         }
     }
@@ -128,13 +129,13 @@ void ShakeCamera::vf6C(void* menu) {
         group = 0;
     }
     fn_800874C8(group, "state", &m54, 0, 99, 1, 0, 0);
-    fn_8008771C(group, "shake_x", &mShakeX, 0, 0, 0.0f, 1000.0f, 0.1f);
-    fn_8008771C(group, "shake_y", &mShakeY, 0, 0, 0.0f, 1000.0f, 0.1f);
+    fn_8008771C(group, "shake_x", &mShakeX, 0.0f, 1000.0f, 0.1f, 0, 0);
+    fn_8008771C(group, "shake_y", &mShakeY, 0.0f, 1000.0f, 0.1f, 0, 0);
     fn_800874C8(group, "shake_frame", &mShakeFrame, 0, 100000, 1, 0, 0);
     fn_800874C8(group, "wait_frame", &mWaitFrame, 0, 100000, 1, 0, 0);
     fn_800874C8(group, "wait_frame_min", &mWaitFrameMin, 0, 100000, 1, 0, 0);
-    fn_8008771C(group, "rate_max", &mRateMax, 0, 0, 0.0f, 1000.0f, 0.01f);
-    fn_8008771C(group, "rate_min", &mRateMin, 0, 0, 0.0f, 1000.0f, 0.01f);
+    fn_8008771C(group, "rate_max", &mRateMax, 0.0f, 1000.0f, 0.01f, 0, 0);
+    fn_8008771C(group, "rate_min", &mRateMin, 0.0f, 1000.0f, 0.01f, 0, 0);
 }
 
 } // namespace gmk

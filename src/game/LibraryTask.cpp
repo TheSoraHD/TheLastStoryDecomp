@@ -54,10 +54,10 @@ extern "C" float lbl_8087E034; // FontH
 extern "C" float lbl_8087E038; // FontWindowW
 extern "C" int lbl_8087E03C;   // LineNum
 extern "C" float lbl_8087E040; // LineSpace
-extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, int arg6,
-                            int arg7);
-extern "C" void fn_8008771C(void* group, const char* name, float* value, int arg3, int arg4, float min, float max,
-                            float step);
+extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, void* func,
+                            void* arg);
+extern "C" void fn_8008771C(void* group, const char* name, float* value, float min, float max, float step, void* func,
+                            void* arg);
 
 static const char* const sSeTable[] = {"SE_EV1605_001", "SE_EV1605_003", "SE_EV1605_002"};
 
@@ -137,11 +137,11 @@ int LibraryTask::vf0C() {
         m58[i]->mFlags |= 4;
     }
     void* menu = mMenu.Load("Library");
-    fn_8008771C(menu, "FontW", &lbl_8087E030, 0, 0, -1000.0f, 1000.0f, 0.1f);
-    fn_8008771C(menu, "FontH", &lbl_8087E034, 0, 0, -1000.0f, 1000.0f, 0.1f);
-    fn_8008771C(menu, "FontWindowW", &lbl_8087E038, 0, 0, -1000.0f, 1000.0f, 0.1f);
+    fn_8008771C(menu, "FontW", &lbl_8087E030, -1000.0f, 1000.0f, 0.1f, 0, 0);
+    fn_8008771C(menu, "FontH", &lbl_8087E034, -1000.0f, 1000.0f, 0.1f, 0, 0);
+    fn_8008771C(menu, "FontWindowW", &lbl_8087E038, -1000.0f, 1000.0f, 0.1f, 0, 0);
     fn_800874C8(menu, "LineNum", &lbl_8087E03C, 0, 10000, 1, 0, 0);
-    fn_8008771C(menu, "LineSpace", &lbl_8087E040, 0, 0, -1000.0f, 1000.0f, 0.1f);
+    fn_8008771C(menu, "LineSpace", &lbl_8087E040, -1000.0f, 1000.0f, 0.1f, 0, 0);
     return 1;
 }
 

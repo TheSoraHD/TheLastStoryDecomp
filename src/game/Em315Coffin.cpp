@@ -24,8 +24,8 @@ extern "C" inline atn::EffectManager* fn_800F7FA0() {
 }
 extern "C" int fn_80239D58(atn::EffectManager* mgr, void* owner, int id); // inferred: the effect is playing
 extern "C" void fn_80239DAC(atn::EffectManager* mgr, void* owner, int id, int arg); // inferred: stops an effect
-extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, int arg6,
-                            int arg7);
+extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, void* func,
+                            void* arg);
 
 class BattleTask;
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager

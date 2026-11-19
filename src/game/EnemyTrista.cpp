@@ -17,10 +17,10 @@ extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
 extern "C" RenderSetting_unk* lbl_8087EFA8;
 // inferred: debug menu entries (as in gmk/SwingObject.cpp)
-extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, int arg6,
-                            int arg7);
-extern "C" void fn_8008771C(void* group, const char* name, float* value, int arg3, int arg4, float min, float max,
-                            float step);
+extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, void* func,
+                            void* arg);
+extern "C" void fn_8008771C(void* group, const char* name, float* value, float min, float max, float step, void* func,
+                            void* arg);
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
 struct Color4f_unk {
     Color4f_unk() {}
@@ -133,7 +133,7 @@ EnemyTrista::EnemyTrista(atn::Task* parent, const EnemyInfo_unk* info)
     void* group = m15B4.Load("EnemyTrista");
     fn_800874C8(group, "WaitFrame", &m15A4, 0, 1000000, 1, 0, 0);
     fn_800874C8(group, "DamageSubtractWait", &m15A8, 0, 1000000, 1, 0, 0);
-    fn_8008771C(group, "AttackChanceFrame", &m15AC, 0, 0, 0.0f, 100000.0f, 1.0f);
+    fn_8008771C(group, "AttackChanceFrame", &m15AC, 0.0f, 100000.0f, 1.0f, 0, 0);
     fn_800874C8(group, "ChaseCancelFrame", &m15B0, 0, 1000000, 1, 0, 0);
     m14F8.LoadRequest(sEffect0);
     m1504.LoadRequest(sEffect1);

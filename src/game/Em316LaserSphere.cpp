@@ -37,13 +37,13 @@ class BattleTask;
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 // inferred: debug menu entries (as in game/CharaTask.cpp)
-extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3, int arg4);
-extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, int arg6,
-                            int arg7);
-extern "C" void fn_8008771C(void* group, const char* name, float* value, int arg3, int arg4, float min, float max,
-                            float step);
-extern "C" void fn_80087E9C(void* group, const char* name, atn::Vector3* value, int arg3, int arg4, float min,
-                            float max, float step);
+extern "C" void fn_80087994(void* group, const char* name, int* value, void* func, void* arg);
+extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, void* func,
+                            void* arg);
+extern "C" void fn_8008771C(void* group, const char* name, float* value, float min, float max, float step, void* func,
+                            void* arg);
+extern "C" void fn_80087E9C(void* group, const char* name, atn::Vector3* value, float min, float max, float step,
+                            void* func, void* arg);
 extern "C" void fn_80094D88(atn::Model* model, int blend, int a, int b, int c, int d);
 extern "C" int fn_800DC12C(const char* s); // inferred: string to int
 // inferred: control of a character caught by the tackle (only m4C, set to end it); name invented
@@ -242,9 +242,9 @@ int Em316LaserSphere::vf0C() {
         fn_800874C8(group, "LaserWait", &m1C84, 1, 10000, 1, 0, 0);
         fn_800874C8(group, "MoveWait", &m1C88, 1, 10000, 1, 0, 0);
         fn_80087994(group, "DebugLog", &m1C94, 0, 0);
-        fn_8008771C(group, "AppearMoveRate", &m14F0, 0, 0, 0.01f, 0.99f, 0.1f);
+        fn_8008771C(group, "AppearMoveRate", &m14F0, 0.01f, 0.99f, 0.1f, 0, 0);
         fn_800874C8(group, "ActionMode", &m58C, 1, 100, 1, 0, 0);
-        fn_80087E9C(group, "Pos", &mPos, 0, 0, 1.0f, 100.0f, 1.0f);
+        fn_80087E9C(group, "Pos", &mPos, 1.0f, 100.0f, 1.0f, 0, 0);
         if (m14B0.fn_80470580() != 0) {
             atn::Csv csv((const char*)m14B0.fn_80470580(), m14B0.fn_8047059C());
             do {
@@ -800,7 +800,8 @@ void Em316LaserSphere::fn_80318F9C() {
     }
 }
 
-extern "C" void* lbl_8087EE98; extern "C" int fn_8004D388(void* world, atn::ColliResult_unk* result, CharaTask::Sphere_unk* sphere, atn::Vector3* move,
+extern "C" void* lbl_8087EE98; extern "C" int fn_8004D388(void* world, atn::ColliResult_unk* result,
+                                                          CharaTask::Sphere_unk* sphere, atn::Vector3* move, 
                            unsigned int mask, void* ignore, int arg7, float radius);
 
 // NONMATCHING: 94.2% - the mask 0x80000080 is built in r0 then or-ed into r7 in the original, the 0.5f is

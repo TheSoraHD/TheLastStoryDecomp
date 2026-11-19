@@ -11,12 +11,12 @@ extern "C" char* strcpy(char* dst, const char* src);
 extern "C" char lbl_8087D710[2]; // inferred: " " (field separators of the tab CSV)
 extern "C" int fn_8006AA20(const char* path); // inferred: the file exists
 // inferred: plays a face motion on CharaTask::m1188
-extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, int arg6,
-                            int arg7);
-extern "C" void fn_80087E9C(void* group, const char* name, atn::Vector3* value, int arg3, int arg4, float min,
-                            float max, float step);
-extern "C" void fn_80088724(void* group, const char* name, atn::Vector3* value, int arg3, int arg4, float min,
-                            float max, float step);
+extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, void* func,
+                            void* arg);
+extern "C" void fn_80087E9C(void* group, const char* name, atn::Vector3* value, float min, float max, float step,
+                            void* func, void* arg);
+extern "C" void fn_80088724(void* group, const char* name, atn::Vector3* value, float min, float max, float step,
+                            void* func, void* arg);
 namespace gmk {
 // inferred: creates the character of the file `path` (name invented). Also defined in gmk/CharaPathMove.cpp:
 // inline in both files, its two empty names are weak .sdata objects emitted here (0x8087DFC0); in
@@ -156,9 +156,9 @@ void CharaObj::vf6C(void* menu) {
         group = 0;
     }
     fn_800874C8(group, "state", &m54, 0, 99, 1, 0, 0);
-    fn_80087E9C(group, "pos", &m6C, 0, 0, -9999.0f, 9999.0f, 0.25f);
-    fn_80088724(group, "rot", &m78, 0, 0, -3.1415927f, 3.1415927f, 0.05235988f);
-    fn_80087E9C(group, "scl", &m90, 0, 0, -9999.0f, 9999.0f, 0.25f);
+    fn_80087E9C(group, "pos", &m6C, -9999.0f, 9999.0f, 0.25f, 0, 0);
+    fn_80088724(group, "rot", &m78, -3.1415927f, 3.1415927f, 0.05235988f, 0, 0);
+    fn_80087E9C(group, "scl", &m90, -9999.0f, 9999.0f, 0.25f, 0, 0);
 }
 
 } // namespace gmk
