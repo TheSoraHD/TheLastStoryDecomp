@@ -14,39 +14,9 @@
 #include "chr/CharaEquip_unk.h"
 #include "game/BattleTask.h"
 #include "game/DamageResult_unk.h"
+#include "game/GameConfig_unk.h"
 
-// inferred: input state embedded at +0x48C of the object behind lbl_8087F0A8 (class unknown)
-struct Input_unk {
-    int fn_8012476C(int button); // inferred: nonzero when `button` was pressed
-};
-
-// inferred: game settings (lbl_8087F0A8); per-difficulty table of status factors at 0xD8
-struct StatusRate_unk {
-    float m00;
-    int m04;
-    float m08;
-    int m0C;
-    float m10;
-    int m14;
-    float m18;
-    int m1C;
-};
-struct Settings_unk {
-    unsigned char m00[0xD4];
-    int mD4; // inferred: index into mD8 (difficulty?)
-    StatusRate_unk mD8[4];
-    unsigned char m158[0x194 - 0x158];
-    int m194;
-    unsigned char m198[0x284 - 0x198];
-    int m284;
-    unsigned char m288[0x2CC - 0x288];
-    int m2CC;
-    unsigned char m2D0[0x48C - 0x2D0];
-    Input_unk mInput; // 0x48C
-    unsigned char m48D[0x5A0 - 0x48D];
-    int m5A0;
-};
-extern "C" Settings_unk* lbl_8087F0A8;
+extern "C" GameConfig_unk* lbl_8087F0A8;
 
 extern "C" GameTask* lbl_8087F430;
 extern "C" float fn_800A6BDC(void* tree); // inferred: evaluates an atn::ParseTree
@@ -183,12 +153,12 @@ void CharaStatus::fn_8012B3E8() {
     int extra = 0;
     if (lbl_8087F0A8->m284 != 0 && mChara->mType == 2 && info != 0 && fn_8020FCE8(mChara->m5C->mC8)) {
         if (mChara->mFlag22 == 1 || (mChara->m5C->mParam.m9C & 0x20000) == 0x20000) {
-            bonus = (int)((float)info->m58 * lbl_8087F0A8->mD8[lbl_8087F0A8->mD4].m08 + 0.2f);
-            bonus += lbl_8087F0A8->mD8[lbl_8087F0A8->mD4].m0C;
+            bonus = (int)((float)info->m58 * lbl_8087F0A8->mDifficulty[lbl_8087F0A8->mCurrentLevel].mLevelMulBoss + 0.2f);
+            bonus += lbl_8087F0A8->mDifficulty[lbl_8087F0A8->mCurrentLevel].mLevelAddBoss;
             extra = MAX(0, (bonus - 70) * 20 + 1000);
         } else {
-            bonus = (int)((float)info->m58 * lbl_8087F0A8->mD8[lbl_8087F0A8->mD4].m00 + 0.2f);
-            bonus += lbl_8087F0A8->mD8[lbl_8087F0A8->mD4].m04;
+            bonus = (int)((float)info->m58 * lbl_8087F0A8->mDifficulty[lbl_8087F0A8->mCurrentLevel].mLevelMul + 0.2f);
+            bonus += lbl_8087F0A8->mDifficulty[lbl_8087F0A8->mCurrentLevel].mLevelAdd;
             bonus = MIN(bonus, MAX(info->m58, 60));
         }
     }
@@ -204,12 +174,12 @@ void CharaStatus::fn_8012B3E8() {
     mParamA.m0C += m1A8.m1C;
     mParamA.m94 += m1A8.m20;
     if (lbl_8087F0A8->m284 != 0 && mChara->mType == 2 && info != 0 && !fn_8020FCE8(mChara->m5C->mC8)) {
-        mParamA.m84 = (int)((float)mParamA.m84 * lbl_8087F0A8->mD8[lbl_8087F0A8->mD4].m10 + 0.2f);
-        mParamA.m84 += lbl_8087F0A8->mD8[lbl_8087F0A8->mD4].m14;
-        mParamA.m00 *= lbl_8087F0A8->mD8[lbl_8087F0A8->mD4].m18;
-        mParamA.m00 += lbl_8087F0A8->mD8[lbl_8087F0A8->mD4].m1C;
-        mParamA.m04 *= lbl_8087F0A8->mD8[lbl_8087F0A8->mD4].m18;
-        mParamA.m04 += lbl_8087F0A8->mD8[lbl_8087F0A8->mD4].m1C;
+        mParamA.m84 = (int)((float)mParamA.m84 * lbl_8087F0A8->mDifficulty[lbl_8087F0A8->mCurrentLevel].mHPMul + 0.2f);
+        mParamA.m84 += lbl_8087F0A8->mDifficulty[lbl_8087F0A8->mCurrentLevel].mHPAdd;
+        mParamA.m00 *= lbl_8087F0A8->mDifficulty[lbl_8087F0A8->mCurrentLevel].mAttack;
+        mParamA.m00 += lbl_8087F0A8->mDifficulty[lbl_8087F0A8->mCurrentLevel].mAttackAdd;
+        mParamA.m04 *= lbl_8087F0A8->mDifficulty[lbl_8087F0A8->mCurrentLevel].mAttack;
+        mParamA.m04 += lbl_8087F0A8->mDifficulty[lbl_8087F0A8->mCurrentLevel].mAttackAdd;
     }
     fn_8012D180();
 }
@@ -222,7 +192,7 @@ void CharaStatus::fn_8012B988() {
     }
     mParamB = mParamA;
     mParamB.m78 = MAX(1, mParamB.m78 + m1C - ((m0C & 0x400) == 0x400 ? 3 : 0));
-    if (mChara->mType == 2 && (lbl_8087F0A8->m5A0 == 2 || !fn_8020FCE8(mChara->m5C->mC8)) &&
+    if (mChara->mType == 2 && (lbl_8087F0A8->mTitle.mEasyModeType == 2 || !fn_8020FCE8(mChara->m5C->mC8)) &&
         lbl_8087F430 != 0) {
         int n = lbl_8087F430->fn_80370174(282);
         if (n > 0) {
@@ -1517,9 +1487,9 @@ int CharaStatus::fn_80133BD8(int force) const {
     }
     if (fn_8020FCE8(mChara->m5C->mC8)) {
         if (mChara->mFlag22 == 1 || (mChara->m5C->mParam.m9C & 0x20000) == 0x20000) {
-            level += lbl_8087F0A8->mD8[lbl_8087F0A8->mD4].m0C;
+            level += lbl_8087F0A8->mDifficulty[lbl_8087F0A8->mCurrentLevel].mLevelAddBoss;
         } else {
-            level += lbl_8087F0A8->mD8[lbl_8087F0A8->mD4].m04;
+            level += lbl_8087F0A8->mDifficulty[lbl_8087F0A8->mCurrentLevel].mLevelAdd;
         }
     }
     level += (int)m1A8.m08;
@@ -1778,7 +1748,7 @@ void CharaStatus::fn_801342D0(const StatusItem_unk* item, int stat) {
 
 void CharaStatus::fn_8013459C() {
     static const RandomPick_unk sTable[6] = {{30, 0}, {50, 1}, {70, 2}, {80, 3}, {90, 4}, {100, 5}};
-    if (lbl_8087F0A8->m2CC != 0) {
+    if (lbl_8087F0A8->mEnemyRandOfs != 0) {
         bool active = false;
         if (lbl_8087F430 != 0 && lbl_8087F430->m5694 != 0) {
             active = true;

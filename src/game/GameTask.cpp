@@ -165,53 +165,12 @@ struct SysInput_unk {
     int m40E0;
 };
 
-// inferred: per-difficulty factors (as in game/CharaStatus.cpp)
-struct StatusRate_unk {
-    float m00;
-    int m04;
-    float m08;
-    int m0C;
-    float m10;
-    int m14;
-    float m18;
-    int m1C;
-};
-struct MpSettings_unk {
-    unsigned char m000[0x28];
-    int m028; // inferred: map file lists are used (GameTask::vf10)
-    unsigned char m02C[0x7C - 0x2C];
-    int m07C;
-    unsigned char m080[0x90 - 0x80];
-    int m090; // inferred: battle flag checked when the replay ends (GameTask::fn_803737C0)
-    unsigned char m094[0xD0 - 0x94];
-    int mD0; // inferred: 1 while the battle is replayed (GameTask::fn_803727DC)
-    int mD4; // inferred: index into mD8 (difficulty?)
-    StatusRate_unk mD8[4];
-    unsigned char m158[0x184 - 0x158];
-    int m184; // inferred: debug text of the field (GameTask::vf14)
-    unsigned char m188[0x194 - 0x188];
-    int m194;
-    unsigned char m198[0x280 - 0x198];
-    int m280; // inferred: no experience is shared at the end of a battle (GameTask fn_80374964)
-    int m284; // inferred: the party level follows the chapter (GameTask::fn_80367A40)
-    unsigned char m288[0x290 - 0x288];
-    int m290; // inferred: the map name stays shown with the default camera (GameTask fn_8036CFA4)
-    unsigned char m294[0x2BC - 0x294];
-    float m2BC; // inferred: added to the frame limit of the finish camera (GameTask fn_8036D2D0)
-    unsigned char m2C0[0x320 - 0x2C0];
-    int m320; // inferred: halves the talk range (GameTask fn_8036DDD4)
-    unsigned char m324[0x3DC - 0x324];
-    int m3DC; // inferred: the party is healed at the end of a battle (GameTask fn_80374964)
-    unsigned char m3E0[0x48C - 0x3E0];
-    Input_unk mInput; // 0x48C
-    unsigned char m4DC[0x5A0 - 0x4DC];
-    int m5A0;
-};
 #include "game/ErrorManager.h"
 #include "game/InventoryExp_unk.h"
 #include "db/PlayerParam_unk.h"
 #include "game/GameSceneFind_unk.h"
 #include "atn/DebugMessages_unk.h"
+#include "game/GameConfig_unk.h"
 extern "C" Collision_unk* lbl_8087EE98;
 extern "C" void* lbl_8087F610; // inferred: multiplayer session (null in single player)
 extern "C" atn::EffectManager* lbl_8087F3C0;
@@ -219,7 +178,7 @@ extern "C" atn::SoundManager* lbl_8087EFE8;
 extern "C" void* lbl_8087EE90; // inferred: sound engine
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle task
 extern "C" int fn_80219558(int id);
-extern "C" MpSettings_unk* lbl_8087F0A8;
+extern "C" GameConfig_unk* lbl_8087F0A8;
 extern "C" SysInput_unk* lbl_8087F018;
 extern "C" MP::SaveData_unk* lbl_8087F460; // inferred: pending save data
 
@@ -513,7 +472,7 @@ GameTask::GameTask(atn::Task* parent, const Option& option)
     fn_80370094(mOption.mPos);
     mGlobalFlags[0] = 1;
     mGlobalFlags[44] = 1;
-    lbl_8087F0A8->mD4 = 1;
+    lbl_8087F0A8->mCurrentLevel = 1;
     SetConfig::sInstance->mShowTutorial = 1;
     if (lbl_8087F0A8->m194 != 0) {
         mGlobalFlags[290] = 1;
@@ -966,8 +925,8 @@ void GameTask::fn_80367A40(int arg) {
         }
         if (m10D4 != 0 && player->m5C->mC8 >= 0) {
             if (mGlobalFlags[283] > 0) {
-                int level = (int)(m10D4->m58 * lbl_8087F0A8->mD8[lbl_8087F0A8->mD4].m00 + 0.2f);
-                level += lbl_8087F0A8->mD8[lbl_8087F0A8->mD4].m04;
+                int level = (int)(m10D4->m58 * lbl_8087F0A8->mDifficulty[lbl_8087F0A8->mCurrentLevel].mLevelMul + 0.2f);
+                level += lbl_8087F0A8->mDifficulty[lbl_8087F0A8->mCurrentLevel].mLevelAdd;
                 player->mStatus.m1A8.m08 += MAX(60, level + 4) - 4;
             } else {
                 player->mStatus.m1A8.m08 += m10D4->m54 - 4;
@@ -1253,7 +1212,7 @@ void GameTask::vf10() {
             char path[0x100];
             MapTask::GetMapNameFromId(name, m550C.mType, m550C.mId, m550C.mSub);
             sprintf(path, "flist/%s.flist", name);
-            if (IsSameField_unk(m550C) && m550C.m30 == 0 && m5764 < 20 && lbl_8087F0A8->m028 != 0 &&
+            if (IsSameField_unk(m550C) && m550C.m30 == 0 && m5764 < 20 && lbl_8087F0A8->mFileListCache != 0 &&
                 fn_8006AA20(path)) {
                 m5764++;
                 m550C.mFile.vf0C(path);
@@ -2083,7 +2042,7 @@ static inline float GetHeapFree_unk(atn::DLAllocator* heap) {
 // NONMATCHING: 99.2% - registers: y in f31 in the original (f29 here; tried the heap values declared first or in
 // an inline) and the 0x4330 constant of the conversions at the start
 void GameTask::vf14() {
-    if (lbl_8087F0A8->m184 != 0) {
+    if (lbl_8087F0A8->mDrawGameInfo != 0) {
         lbl_8087EEB0->mA0 = 0x13;
         float y = 45.0f;
         wchar_t text[0x100];
@@ -2434,7 +2393,7 @@ void GameTask::fn_8036CFA4() {
     case 2:
     case 8:
     case 9:
-        if (lbl_8087F0A8->m290 != 0) {
+        if (lbl_8087F0A8->mAlwaysBirdview != 0) {
             show = 1;
         }
         break;
@@ -2576,7 +2535,7 @@ void GameTask::fn_8036D2D0() {
     case 5:
     case 6:
         if (chara->m55C == 6 && chara->m560 == 0x1E && mFinish.m00 == 0 &&
-            chara->mMotion.mTracks[0].m08 < 3.0f + lbl_8087F0A8->m2BC && chara->m638 != 0) {
+            chara->mMotion.mTracks[0].m08 < 3.0f + lbl_8087F0A8->mMagicCutFrame && chara->m638 != 0) {
             BattleEfpEntry_unk* entry = fn_800EFB78(chara->m638->mB0);
             if (entry != 0 && entry->m34.fn_804786F8() != 0) {
                 mFinish.fn_80378610(2, chara, chara->mPos);
@@ -2741,7 +2700,7 @@ extern "C" EnemyTask* fn_8036DDD4(GameTask* task) {
         float dist = PSVECSquareMag(&d);
         PSVECNormalize(&d, &d);
         float range = 30.0f;
-        if (lbl_8087F0A8->m320 != 0) {
+        if (lbl_8087F0A8->mTouchHelp != 0) {
             range *= 0.667f;
         }
         int found = 0;
@@ -4026,7 +3985,7 @@ void GameTask::fn_80371790() {
         m5594 = 0;
         m55A4 = 0;
     }
-    if (lbl_8087F0A8->mD0 != 1) {
+    if (lbl_8087F0A8->m0D0 != 1) {
         m558C.mPtr->fn_8056B3D4();
     }
     for (unsigned int i = 0; i < entries.size(); i++) {
@@ -4041,7 +4000,7 @@ void GameTask::fn_80371790() {
         if (first == 0) {
             first = c;
         }
-        if (lbl_8087F0A8->mD0 == 1) {
+        if (lbl_8087F0A8->m0D0 == 1) {
             mFinish.fn_8037865C(c, c->mPos, c->mRot, 0);
         } else {
             int point = m10D8->fn_803C1560(&c->mPos, c->fn_80179D44(), 0, 0, 1, 8.0f);
@@ -4134,7 +4093,7 @@ void GameTask::fn_80371790() {
     DamageEffectParam_unk damage(*lbl_8087EFA8->GetDamage_unk());
     damage.mEnabled = 0;
     lbl_8087EFA8->SetDamage_unk(damage);
-    if (lbl_8087F0A8->mD0 == 1) {
+    if (lbl_8087F0A8->m0D0 == 1) {
         lbl_8087F8A0->fn_800D246C(1);
     } else {
         lbl_8087F8A0->FreezeTask();
@@ -4150,13 +4109,13 @@ void GameTask::fn_803727DC() {
         m5590->fn_80570A14(0);
         m5590->fn_80570A40(0);
     }
-    if (lbl_8087F0A8->mD0 != 1) {
+    if (lbl_8087F0A8->m0D0 != 1) {
         m558C.mPtr->fn_8056BD34();
     }
     MotionBlurParam_unk blur = lbl_8087EFA8->m240;
     blur.mEnabled = 0;
     lbl_8087EFA8->m240 = blur;
-    if (lbl_8087F0A8->mD0 == 1) {
+    if (lbl_8087F0A8->m0D0 == 1) {
         lbl_8087F8A0->fn_800D246C(0);
     } else {
         lbl_8087F8A0->MeltTask();
@@ -5044,7 +5003,7 @@ void GameTask::fn_80374964(int kind) {
         }
         return;
     }
-    if (lbl_8087F0A8->m280 == 0) {
+    if (lbl_8087F0A8->mAddExpImmediately == 0) {
         Inventory::instance_->fn_80449ABC(0, -1);
     }
     if (lbl_8087F048 != 0) {
@@ -5077,7 +5036,7 @@ void GameTask::fn_80374964(int kind) {
         mGlobalFlags[4] = 1;
     }
     for (PlayerTask* player = lbl_8087F8A0->mHead; player != 0; player = player->mNext) {
-        if (lbl_8087F0A8->m3DC != 0) {
+        if (lbl_8087F0A8->mBattleEndReset != 0) {
             player->fn_80164DCC(1);
         }
         if ((player->mStatus.m0C & 0x20) == 0x20) {
@@ -5365,7 +5324,7 @@ int GameTask::fn_80375B78(int arg) {
         } else if (arg != 0) {
             level = map->mBC;
         }
-        if (lbl_8087F0A8->m5A0 == 1 && arg != 0) {
+        if (lbl_8087F0A8->mTitle.mEasyModeType == 1 && arg != 0) {
             level -= mGlobalFlags[282];
         }
     }
@@ -5381,8 +5340,8 @@ int GameTask::fn_80375D0C() {
         chapter = fn_80208694(lbl_8087F430->m10D0);
     }
     if (chapter != 0) {
-        cap = (int)((float)chapter->m54 * lbl_8087F0A8->mD8[lbl_8087F0A8->mD4].m00 + 0.2f);
-        cap += lbl_8087F0A8->mD8[lbl_8087F0A8->mD4].m04;
+        cap = (int)((float)chapter->m54 * lbl_8087F0A8->mDifficulty[lbl_8087F0A8->mCurrentLevel].mLevelMul + 0.2f);
+        cap += lbl_8087F0A8->mDifficulty[lbl_8087F0A8->mCurrentLevel].mLevelAdd;
     }
     MapId_unk* map = fn_8021771C(mOption.mType, mOption.mMap, mOption.mSub);
     if (map != 0 && map->mType == 2) {

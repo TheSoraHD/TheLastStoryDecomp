@@ -24,6 +24,7 @@ extern "C" void PSMTXMultVecArray(const Mtx m, const atn::Vector3* src, atn::Vec
 
 #include "atn/AABB_unk.h"
 #include "game/TownTask.h"
+#include "game/GameConfig_unk.h"
 
 // inferred: resource data of an instance (bounding box at 0x10)
 struct LocatorInstRes_unk {
@@ -67,15 +68,7 @@ inline atn::AABB_unk TransformBox_unk(const Mtx m, const atn::AABB_unk* box) {
     return atn::AABB_unk(min, max);
 }
 
-// inferred: settings (only the members used here)
-struct LocatorConfig_unk {
-    unsigned char m000[0x18];
-    int mDrawMap; // 0x18
-    unsigned char m01C[0x5B0 - 0x1C];
-    int m5B0; // inferred: use the merged occlusion models
-    int m5B4; // inferred: use the merged locator models
-};
-extern "C" LocatorConfig_unk* lbl_8087F0A8;
+extern "C" GameConfig_unk* lbl_8087F0A8;
 
 
 
@@ -103,7 +96,7 @@ MapPartsLocatorSet::MapPartsLocatorSet(atn::Task* parent, int type, atn::CsvTab*
     const char* path = csv->fn_8005B9CC();
     mLoader.vf0C(path);
     mName = mLoader.fn_80473F18();
-    if (lbl_8087F0A8->m5B0 != 0) {
+    if (lbl_8087F0A8->mTitle.m2C != 0) {
         char name[0x100];
         sprintf(name, "merge_%s_occ.model", fn_8006B2D8(fn_8006B174(std::string(path))).c_str());
         if (fn_8006AA20(name)) {
@@ -111,7 +104,7 @@ MapPartsLocatorSet::MapPartsLocatorSet(atn::Task* parent, int type, atn::CsvTab*
             mModel.GetModel_unk()->fn_8008AD4C(name, 0);
         }
     }
-    if (lbl_8087F0A8->m5B4 != 0) {
+    if (lbl_8087F0A8->mTitle.m30 != 0) {
         char name[0x100];
         sprintf(name, "merge_%s_loc.model", fn_8006B2D8(fn_8006B174(std::string(path))).c_str());
         if (fn_8006AA20(name)) {
@@ -226,7 +219,7 @@ void MapPartsLocatorSet::vf10() {
 void MapPartsLocatorSet::vf14() {
     if (mDraw) {
         int shadow = 1;
-        if (mHasModel && lbl_8087F0A8->m5B0 != 0) {
+        if (mHasModel && lbl_8087F0A8->mTitle.m2C != 0) {
             shadow = 0;
             mModel.GetModel_unk()->fn_8008CD60();
         }

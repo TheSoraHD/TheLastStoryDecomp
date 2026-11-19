@@ -171,8 +171,8 @@ struct TitleConfig_unk {
     int mLogoFadeStart;          // 0x20
     int m24;
     int m28;
-    int m2C;
-    int m30;
+    int m2C;                     // 0x2C: inferred: merged occlusion models are used (MapPartsLocatorSet)
+    int m30;                     // 0x30: inferred: merged locator models are used (MapPartsLocatorSet)
     int m34;
 };
 

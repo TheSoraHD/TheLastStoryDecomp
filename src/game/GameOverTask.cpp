@@ -56,17 +56,11 @@ extern "C" int lbl_8087F434;
 #include "atn/SequenceBoot_unk.h"
 #include "atn/RenderManager.h"
 #include "atn/TextTable_unk.h"
+#include "game/GameConfig_unk.h"
 extern "C" MP::SaveData_unk* lbl_8087F460;
 extern "C" int fn_803BE854(MP::SaveData_unk* data);
 extern "C" GameTask* lbl_8087F430;
-// inferred: options (lbl_8087F0A8)
-struct GameOverOptions_unk {
-    unsigned char m000[0x194];
-    int m194; // inferred: demo version
-    unsigned char m198[0x5A4 - 0x198];
-    int m5A4; // inferred: frames before the choices
-};
-extern "C" GameOverOptions_unk* lbl_8087F0A8;
+extern "C" GameConfig_unk* lbl_8087F0A8;
 // inferred: effects
 struct EffectMgr_unk;
 extern "C" EffectMgr_unk* lbl_8087F3C0;
@@ -328,7 +322,7 @@ void GameOverTask::vf10() {
         fn_800D2338(this);
         return;
     }
-    GameOverOptions_unk* options = lbl_8087F0A8;
+    GameConfig_unk* options = lbl_8087F0A8;
     mTimer++;
     mMenu->mFlags |= 4;
     mCursor->mFlags |= 4;
@@ -337,7 +331,7 @@ void GameOverTask::vf10() {
     }
     int fade = 0;
     if (mState == 0) {
-        if (mTimer > options->m5A4) {
+        if (mTimer > options->mTitle.mLogoFadeStart) {
             if (mDemoEnd != 0) {
                 mDemoEnd->mFlags &= ~4;
                 if (mDemoEnd->IsEnd_unk() &&
