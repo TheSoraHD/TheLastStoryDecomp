@@ -6074,10 +6074,10 @@ void GameEventScript::fn_803A956C(ScriptResult_unk& result, const ScriptCmd_unk*
     result.SetNext_unk(cmd, wait);
 }
 
-// NONMATCHING: 98% - registers r0/r6 swapped in the next command (as fn_803A61CC)
+// inferred: starts the walk of fn_803A98EC (45 frames with bit 2 of m14, else 25)
 void GameEventScript::fn_803A98C4(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
-    unsigned int flags = static_cast<const ScriptArgs_unk*>(cmd)->m14;
     mB8 = 0;
+    unsigned int flags = static_cast<const ScriptArgs_unk*>(cmd)->m14;
     int n = 25;
     if ((flags & 4) == 4) n = 45;
     mC0 = n;
