@@ -108,15 +108,15 @@ int D2AMpMenuFriendRoom::vf0C() {
         SetAll_unk(0);
         m80->mFlags |= 4;
         m78->mFlags |= 4;
-        SetPaneValue_unk(m78->mLayout, "pos0007", 4, -110.0f);
-        SetPaneValue_unk(m78->mLayout, "pos0017", 4, -110.0f);
-        void* pane = FindPane_unk(m78->mLayout, "string0007(1)");
+        SetPaneValue_unk(&m78->mData.m10, "pos0007", 4, -110.0f);
+        SetPaneValue_unk(&m78->mData.m10, "pos0017", 4, -110.0f);
+        void* pane = FindPane_unk(&m78->mData.m10, "string0007(1)");
         if (pane != 0) {
             float w = fn_8006EF48(lbl_8087EEC8, 16.0f, fn_800A4450(pane, 0, 0).data(), 0.0f, 1, 1);
-            SetPaneValue_unk(m78->mLayout, "pos0017", 0, 590.0f - w);
+            SetPaneValue_unk(&m78->mData.m10, "pos0017", 0, 590.0f - w);
         }
         SetTaskText_unk(m4C, "string0001(1)", L"");
-        SetPaneText_unk(m4C->mLayout, "string0002(1)", L"");
+        SetPaneText_unk(&m4C->mData.m10, "string0002(1)", L"");
         return 1;
     }
     return 0;
@@ -155,8 +155,8 @@ void D2AMpMenuFriendRoom::fn_804BA350(int state) {
                 msg = 0x100;
             }
             Play_unk(m84, 1, 1.0f);
-            SetPaneText_unk(m84->mLayout, "cmd01", lbl_8087F86C->Get_unk(msg));
-            SetPaneText_unk(m84->mLayout, "string0003(1)", lbl_8087F86C->Get_unk(msg));
+            SetPaneText_unk(&m84->mData.m10, "cmd01", lbl_8087F86C->Get_unk(msg));
+            SetPaneText_unk(&m84->mData.m10, "string0003(1)", lbl_8087F86C->Get_unk(msg));
             Stop_unk(m78);
             Play_unk(m7C, 0, 1.0f);
             break;
@@ -204,7 +204,7 @@ void D2AMpMenuFriendRoom::UpdateScrollBar_unk() {
     rect.z = pos.z;
     rect.h = 1.0f;
     fn_801F4728(m80, "basePos", &rect);
-    void* layout = m80->mLayout;
+    void* layout = &m80->mData.m10;
     SetPaneValue3_unk(layout, "s_hightMax", 197.0f);
 }
 
@@ -300,7 +300,7 @@ void D2AMpMenuFriendRoom::fn_804BA970() {
                 D2AMpMenu::sInstance->mC4 = 3;
             }
         } else if ((unsigned int)mAC <= mFC.size()) {
-            const wchar_t* text = fn_800A4450(FindPane_unk(m50[mAC - 1]->mLayout, "string0027(1)"), 0, 0).data();
+            const wchar_t* text = fn_800A4450(FindPane_unk(&m50[mAC - 1]->mData.m10, "string0027(1)"), 0, 0).data();
             int members = fn_804DC7C0(lbl_8087F610, mFC[m94 + mAC - 1]);
             int capacity = fn_804DC80C(lbl_8087F610, mFC[m94 + mAC - 1]);
             if (wcscmp(text, L"") != 0 && members < capacity) {
@@ -331,7 +331,7 @@ void D2AMpMenuFriendRoom::fn_804BA970() {
     rect.z = pos.z;
     rect.h = 1.0f;
     fn_801F4728(m80, "basePos", &rect);
-    void* layout = m80->mLayout;
+    void* layout = &m80->mData.m10;
     SetPaneValue3_unk(layout, "s_hightMax", 197.0f);
 }
 
@@ -352,7 +352,7 @@ void D2AMpMenuFriendRoom::vf14() {
         m48->mFlags &= ~4;
         m4C->mFlags &= ~4;
         m80->mFlags &= ~4;
-        SetPaneValue2_unk(m4C->mLayout, "col0005", 0, 128.0f);
+        SetPaneValue2_unk(&m4C->mData.m10, "col0005", 0, 128.0f);
         break;
     case 8:
         m84->mFlags &= ~4;
@@ -380,7 +380,7 @@ void D2AMpMenuFriendRoom::fn_804BB10C() {
         }
         m80->mFlags &= ~4;
         m78->mFlags &= ~4;
-        SetPaneValue2_unk(m4C->mLayout, "col0005", 0, 128.0f);
+        SetPaneValue2_unk(&m4C->mData.m10, "col0005", 0, 128.0f);
         fn_804A4738(m80, m94, mFC.size(), 10);
     }
 }
@@ -430,7 +430,7 @@ void D2AMpMenuFriendRoom::fn_804BB2CC(int refresh) {
             float frame = 10.0f;
             if (state >= 0) {
                 fn_8050F764(list, mFC[index]);
-                SetPaneText_unk(m50[i]->mLayout, "string0028(1)", fn_8050F724(list, mFC[index]));
+                SetPaneText_unk(&m50[i]->mData.m10, "string0028(1)", fn_8050F724(list, mFC[index]));
                 int msg;
                 if (state == 1) {
                     if (fn_804DC7C0(lbl_8087F610, mFC[index]) >= fn_804DC80C(lbl_8087F610, mFC[index])) {
@@ -442,33 +442,33 @@ void D2AMpMenuFriendRoom::fn_804BB2CC(int refresh) {
                 } else {
                     msg = state == 5 ? 0x123 : state + 0x11B;
                 }
-                SetPaneText_unk(m50[i]->mLayout, "string0006(1)", lbl_8087F86C->Get_unk(msg));
+                SetPaneText_unk(&m50[i]->mData.m10, "string0006(1)", lbl_8087F86C->Get_unk(msg));
             } else {
-                SetPaneText_unk(m50[i]->mLayout, "string0028(1)", L"");
-                SetPaneText_unk(m50[i]->mLayout, "string0006(1)", L"");
+                SetPaneText_unk(&m50[i]->mData.m10, "string0028(1)", L"");
+                SetPaneText_unk(&m50[i]->mData.m10, "string0006(1)", L"");
             }
             m50[i]->mSpeed = 0.0f;
             m50[i]->mFrame = frame;
             if (state == 1) {
                 wchar_t text[16];
                 fn_800DD3FC(text, L"%d", fn_804DC7C0(lbl_8087F610, mFC[index]));
-                SetPaneText_unk(m50[i]->mLayout, "string0027(1)", text);
+                SetPaneText_unk(&m50[i]->mData.m10, "string0027(1)", text);
                 fn_800DD3FC(text, L"/");
-                SetPaneText_unk(m50[i]->mLayout, "string0010(1)", text);
+                SetPaneText_unk(&m50[i]->mData.m10, "string0010(1)", text);
                 fn_800DD3FC(text, L"%d", fn_804DC80C(lbl_8087F610, mFC[index]));
-                SetPaneText_unk(m50[i]->mLayout, "string0011(1)", text);
+                SetPaneText_unk(&m50[i]->mData.m10, "string0011(1)", text);
             } else {
-                SetPaneText_unk(m50[i]->mLayout, "string0027(1)", L"");
-                SetPaneText_unk(m50[i]->mLayout, "string0010(1)", L"");
-                SetPaneText_unk(m50[i]->mLayout, "string0011(1)", L"");
+                SetPaneText_unk(&m50[i]->mData.m10, "string0027(1)", L"");
+                SetPaneText_unk(&m50[i]->mData.m10, "string0010(1)", L"");
+                SetPaneText_unk(&m50[i]->mData.m10, "string0011(1)", L"");
             }
         } else {
-            SetPaneText_unk(m50[i]->mLayout, "string0028(1)", L"");
+            SetPaneText_unk(&m50[i]->mData.m10, "string0028(1)", L"");
             // inferred: the original passes the address of "" as the text id
             m50[i]->SetText_unk("string0006(1)", (int)"");
-            SetPaneText_unk(m50[i]->mLayout, "string0027(1)", L"");
-            SetPaneText_unk(m50[i]->mLayout, "string0010(1)", L"");
-            SetPaneText_unk(m50[i]->mLayout, "string0011(1)", L"");
+            SetPaneText_unk(&m50[i]->mData.m10, "string0027(1)", L"");
+            SetPaneText_unk(&m50[i]->mData.m10, "string0010(1)", L"");
+            SetPaneText_unk(&m50[i]->mData.m10, "string0011(1)", L"");
             m50[i]->mSpeed = 0.0f;
             m50[i]->mFrame = 0.0f;
         }

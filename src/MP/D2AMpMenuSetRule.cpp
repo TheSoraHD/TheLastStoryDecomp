@@ -110,10 +110,10 @@ int D2AMpMenuSetRule::vf0C() {
         SetAll_unk(0);
         fn_804CECEC();
         UpdateListPos_unk();
-        void* pane = FindPane_unk(m58->mLayout, "string0007(1)");
+        void* pane = FindPane_unk(&m58->mData.m10, "string0007(1)");
         if (pane != 0) {
             float w = fn_8006EF48(lbl_8087EEC8, 16.0f, fn_800A4450(pane, 0, 0).data(), 0.0f, 1, 1);
-            SetPaneValue_unk(m58->mLayout, "pos0017", 0, 590.0f - w);
+            SetPaneValue_unk(&m58->mData.m10, "pos0017", 0, 590.0f - w);
         }
         m5C = 5;
         m60 = 5;
@@ -141,8 +141,8 @@ void D2AMpMenuSetRule::fn_804CDE1C(int state) {
             fn_804CECEC();
             UpdateListPos_unk();
             m68 = 0;
-            SetPaneValue_unk(m58->mLayout, "pos0007", 4, -200.0f);
-            SetPaneValue_unk(m58->mLayout, "pos0017", 4, -200.0f);
+            SetPaneValue_unk(&m58->mData.m10, "pos0007", 4, -200.0f);
+            SetPaneValue_unk(&m58->mData.m10, "pos0017", 4, -200.0f);
             fn_804A5CD8(MenuCommonTask::sInstance, -100.0f);
             break;
         case 2:
@@ -283,8 +283,8 @@ void D2AMpMenuSetRule::fn_804CE82C(int row, int before, int after, int dir) {
         fn_800DD3FC(textAfter, lbl_8087F86C->Get_unk(0xDA), sTimes[after]);
     }
     Play_unk(m4C[row], 0, dir);
-    SetPaneText_unk(m4C[row]->mLayout, "conf_before(1)", textBefore);
-    SetPaneText_unk(m4C[row]->mLayout, "conf_after(1)", textAfter);
+    SetPaneText_unk(&m4C[row]->mData.m10, "conf_before(1)", textBefore);
+    SetPaneText_unk(&m4C[row]->mData.m10, "conf_after(1)", textAfter);
     if (dir > 0) {
         m4C[row]->mFrame = 0.0f;
     } else {
@@ -346,16 +346,16 @@ void D2AMpMenuSetRule::fn_804CECEC() {
     m78 = lbl_8087F610->m540;
     const wchar_t* text = lbl_8087F86C->Get_unk(0xDB);
     const char* name = "name(1)";
-    void* layout = m4C[0]->mLayout;
+    void* layout = &m4C[0]->mData.m10;
     fn_801FEE08(layout, fn_800DC6B4(name), text);
     m6C[0] = lbl_8087F610->m5A4;
     if (m78 == 2) {
-        SetPaneText_unk(m4C[1]->mLayout, "name(1)", lbl_8087F86C->Get_unk(0xDC));
+        SetPaneText_unk(&m4C[1]->mData.m10, "name(1)", lbl_8087F86C->Get_unk(0xDC));
         m6C[1] = lbl_8087F610->m5B0 != 0;
     } else {
-        SetPaneText_unk(m4C[1]->mLayout, "name(1)", lbl_8087F86C->Get_unk(0xDD));
+        SetPaneText_unk(&m4C[1]->mData.m10, "name(1)", lbl_8087F86C->Get_unk(0xDD));
         m6C[1] = m78 != 0;
-        SetPaneText_unk(m4C[2]->mLayout, "name(1)", lbl_8087F86C->Get_unk(0xDE));
+        SetPaneText_unk(&m4C[2]->mData.m10, "name(1)", lbl_8087F86C->Get_unk(0xDE));
         m6C[2] = 1;
         int min = lbl_8087F610->m564 / 60;
         for (int i = 0; i < 4; i++) {

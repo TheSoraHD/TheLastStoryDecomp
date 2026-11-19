@@ -98,16 +98,16 @@ D2AMpMenuMessageList::~D2AMpMenuMessageList() {
 // inferred: texts of the open state; not inline (its literals are in @stringBase0)
 void D2AMpMenuMessageList::SetTexts_unk() {
     if (SetConfig::sInstance->mInTacviewType == 0) {
-        fn_801FEE08(m48->mLayout, fn_800DC6B4("controllerType"), L"$Bu");
+        fn_801FEE08(&m48->mData.m10, fn_800DC6B4("controllerType"), L"$Bu");
     } else {
-        fn_801FEE08(m48->mLayout, fn_800DC6B4("controllerType"), L"$Bd");
+        fn_801FEE08(&m48->mData.m10, fn_800DC6B4("controllerType"), L"$Bd");
     }
-    fn_801FEE08(m48->mLayout, fn_800DC6B4("string0017(1)"), L"$Br");
-    fn_801FEE08(m48->mLayout, fn_800DC6B4("string0030(1)"), L"$Bl");
-    SetPaneText_unk(m48->mLayout, "string0031(1)", lbl_8087F86C->Get_unk(0x136));
-    SetPaneText_unk(m48->mLayout, "string0032(1)", lbl_8087F86C->Get_unk(0x137));
-    SetPaneText_unk(m48->mLayout, "string0033(1)", lbl_8087F86C->Get_unk(0x138));
-    SetPaneText_unk(m48->mLayout, "string0034(1)", lbl_8087F86C->Get_unk(0x138));
+    fn_801FEE08(&m48->mData.m10, fn_800DC6B4("string0017(1)"), L"$Br");
+    fn_801FEE08(&m48->mData.m10, fn_800DC6B4("string0030(1)"), L"$Bl");
+    SetPaneText_unk(&m48->mData.m10, "string0031(1)", lbl_8087F86C->Get_unk(0x136));
+    SetPaneText_unk(&m48->mData.m10, "string0032(1)", lbl_8087F86C->Get_unk(0x137));
+    SetPaneText_unk(&m48->mData.m10, "string0033(1)", lbl_8087F86C->Get_unk(0x138));
+    SetPaneText_unk(&m48->mData.m10, "string0034(1)", lbl_8087F86C->Get_unk(0x138));
 }
 
 int D2AMpMenuMessageList::vf0C() {
@@ -165,34 +165,34 @@ void D2AMpMenuMessageList::vf20() {}
 
 void D2AMpMenuMessageList::fn_804C38C0(int show) {
     if (SetConfig::sInstance->mInTacviewType == 0) {
-        SetPaneText_unk(m48->mLayout, "controllerType", show != 0 ? L"$Bu" : L"");
+        SetPaneText_unk(&m48->mData.m10, "controllerType", show != 0 ? L"$Bu" : L"");
     } else {
-        SetPaneText_unk(m48->mLayout, "controllerType", show != 0 ? L"$Bd" : L"");
+        SetPaneText_unk(&m48->mData.m10, "controllerType", show != 0 ? L"$Bd" : L"");
     }
-    SetPaneText_unk(m48->mLayout, "string0017(1)", show != 0 ? L"$Br" : L"");
-    SetPaneText_unk(m48->mLayout, "string0030(1)", show != 0 ? L"$Bl" : L"");
+    SetPaneText_unk(&m48->mData.m10, "string0017(1)", show != 0 ? L"$Br" : L"");
+    SetPaneText_unk(&m48->mData.m10, "string0030(1)", show != 0 ? L"$Bl" : L"");
     {
         const wchar_t* text = show != 0 ? lbl_8087F86C->Get_unk(0x136) : L"";
         const char* name = "string0031(1)";
-        void* layout = m48->mLayout;
+        void* layout = &m48->mData.m10;
         fn_801FEE08(layout, fn_800DC6B4(name), text);
     }
     {
         const wchar_t* text = show != 0 ? lbl_8087F86C->Get_unk(0x137) : L"";
         const char* name = "string0032(1)";
-        void* layout = m48->mLayout;
+        void* layout = &m48->mData.m10;
         fn_801FEE08(layout, fn_800DC6B4(name), text);
     }
     {
         const wchar_t* text = show != 0 ? lbl_8087F86C->Get_unk(0x138) : L"";
         const char* name = "string0033(1)";
-        void* layout = m48->mLayout;
+        void* layout = &m48->mData.m10;
         fn_801FEE08(layout, fn_800DC6B4(name), text);
     }
     {
         const wchar_t* text = show != 0 ? lbl_8087F86C->Get_unk(0x138) : L"";
         const char* name = "string0034(1)";
-        void* layout = m48->mLayout;
+        void* layout = &m48->mData.m10;
         fn_801FEE08(layout, fn_800DC6B4(name), text);
     }
 }

@@ -262,7 +262,7 @@ D2AMpMenuResult::~D2AMpMenuResult() {
 int D2AMpMenuResult::vf0C() {
     if (fn_800D3FA4() != 0) {
         SetTaskText_unk(mC0, "desc0", L"");
-        SetPaneText_unk(mC0->mLayout, "string0001(1)", L"");
+        SetPaneText_unk(&mC0->mData.m10, "string0001(1)", L"");
         return 1;
     }
     return 0;
@@ -315,7 +315,7 @@ void D2AMpMenuResult::fn_804C5E9C(int state) {
                 Play_unk(m50, 0, 1.0f);
                 fn_804C7D7C();
                 const wchar_t* text = lbl_8087F86C->Get_unk(0x12B);
-                SetPaneText_unk(mC0->mLayout, "string0003(1)", text);
+                SetPaneText_unk(&mC0->mData.m10, "string0003(1)", text);
             } else {
                 Play_unk(m48, 0, 1.0f);
             }
@@ -547,7 +547,7 @@ void D2AMpMenuResult::vf14() {
         for (int i = 0; i < 8; i++) {
             Show_unk(m80[i]);
         }
-        SetPaneText_unk(m50->mLayout, "string0028(1)", L"");
+        SetPaneText_unk(&m50->mData.m10, "string0028(1)", L"");
         MpPlayer_unk* player = fn_804EB870(lbl_8087F610);
         const wchar_t* result;
         if (mF0 == 0) {
@@ -636,7 +636,7 @@ void D2AMpMenuResult::fn_804C7408() {
     rect = GetPaneRect_unk(m5C[0], "lv_b10(1)");
     if (rect.h != 0.0f) {
         rect.w *= mD8[0];
-        SetPaneValue_unk(m5C[0]->mLayout, "hp_pos(1)", 2, rect.w);
+        SetPaneValue_unk(&m5C[0]->mData.m10, "hp_pos(1)", 2, rect.w);
         mD8[0] = 1.0f;
     }
 }
@@ -687,22 +687,22 @@ void D2AMpMenuResult::fn_804C76EC() {
         } else {
             str = lbl_8087F86C->Get_unk(0x130);
         }
-        SetPaneText_unk(m5C[n]->mLayout, "string0027(2)", str);
+        SetPaneText_unk(&m5C[n]->mData.m10, "string0027(2)", str);
         if (fn_804EB480(lbl_8087F610, player) == 0) {
             str = fn_804FA88C(lbl_8087F610, exp - gain);
         } else {
             str = L"";
         }
-        SetPaneText_unk(m5C[n]->mLayout, "string0001(1)(1)", str);
+        SetPaneText_unk(&m5C[n]->mData.m10, "string0001(1)(1)", str);
         if (chara != 0) {
-            SetPaneText_unk(m5C[n]->mLayout, "string0007(1)(1)", chara->mName);
+            SetPaneText_unk(&m5C[n]->mData.m10, "string0007(1)(1)", chara->mName);
         } else {
-            SetPaneText_unk(m5C[n]->mLayout, "string0007(1)(1)", L"");
+            SetPaneText_unk(&m5C[n]->mData.m10, "string0007(1)(1)", L"");
         }
         m5C[n]->SetNumber_unk("string0017(1)", player->mE0, 0);
         m5C[n]->SetNumber_unk("string0018(1)", player->mE4, 0);
         fn_800DD3FC(text, L"%d\0", exp);
-        SetPaneText_unk(m5C[n]->mLayout, "string0020(1)", fn_804EB480(lbl_8087F610, player) != 0 ? L"" : text);
+        SetPaneText_unk(&m5C[n]->mData.m10, "string0020(1)", fn_804EB480(lbl_8087F610, player) != 0 ? L"" : text);
         int prev = exp - gain;
         D2AMpMenuRankMark::sInstance->fn_804B47E0(prev, n);
         mCC[n] = prev;
@@ -717,7 +717,7 @@ void D2AMpMenuResult::fn_804C76EC() {
             break;
         }
     }
-    SetPaneText_unk(mC0->mLayout, "string0001(1)", L"");
+    SetPaneText_unk(&mC0->mData.m10, "string0001(1)", L"");
 }
 
 void D2AMpMenuResult::fn_804C7C34(int value) {
@@ -728,10 +728,10 @@ void D2AMpMenuResult::fn_804C7C34(int value) {
     MpSession_unk* session = lbl_8087F610;
     const wchar_t* format = table->Get_unk(0x37B);
     fn_800DD3FC(text, format, fn_804FA88C(session, value));
-    SetPaneText_unk(mC8->mLayout, "check_msg", text);
+    SetPaneText_unk(&mC8->mData.m10, "check_msg", text);
     const wchar_t* str = lbl_8087F86C->Get_unk(0x12F);
     const char* pane = "string0002(1)";
-    void* layout = mC8->mLayout;
+    void* layout = &mC8->mData.m10;
     fn_801FEE08(layout, fn_800DC6B4(pane), str);
 }
 
@@ -768,7 +768,7 @@ void D2AMpMenuResult::fn_804C7D7C() {
             if (player != 0) {
                 int rank = fn_804E4B44(lbl_8087F610, player);
                 if (lbl_8087F610->m540 == 2 || fn_804E4C34(lbl_8087F610) == 0) {
-                    SetPaneText_unk(m80[i]->mLayout, "string0006(1)", L"");
+                    SetPaneText_unk(&m80[i]->mData.m10, "string0006(1)", L"");
                 } else {
                     m80[i]->SetNumber_unk("string0006(1)", rank + 1, 0);
                 }
@@ -778,17 +778,17 @@ void D2AMpMenuResult::fn_804C7D7C() {
                 } else {
                     str = lbl_8087F86C->Get_unk(0x130);
                 }
-                SetPaneText_unk(m80[i]->mLayout, "string0028(1)(1)", str);
+                SetPaneText_unk(&m80[i]->mData.m10, "string0028(1)(1)", str);
                 if (fn_804EB480(lbl_8087F610, player) == 0) {
                     str = fn_804FA88C(lbl_8087F610, exp - gain);
                 } else {
                     str = L"";
                 }
-                SetPaneText_unk(m80[i]->mLayout, "string0029(1)", str);
+                SetPaneText_unk(&m80[i]->mData.m10, "string0029(1)", str);
                 int score = player->mDC;
                 if (score < 0) {
                     fn_800DD3FC(text, L"\xFF0D%d", -score);
-                    SetPaneText_unk(m80[i]->mLayout, "string0027(1)", text);
+                    SetPaneText_unk(&m80[i]->mData.m10, "string0027(1)", text);
                 } else {
                     m80[i]->SetNumber_unk("string0027(1)", score, 0);
                 }
@@ -803,10 +803,10 @@ void D2AMpMenuResult::fn_804C7D7C() {
                 fn_801F4728(m80[i], "pos0030(1)(1)(1)", &rect);
             }
         } else {
-            SetPaneText_unk(m80[i]->mLayout, "string0006(1)", L"");
-            SetPaneText_unk(m80[i]->mLayout, "string0028(1)", L"");
-            SetPaneText_unk(m80[i]->mLayout, "string0029(1)", L"");
-            SetPaneText_unk(m80[i]->mLayout, "string0027(1)", L"");
+            SetPaneText_unk(&m80[i]->mData.m10, "string0006(1)", L"");
+            SetPaneText_unk(&m80[i]->mData.m10, "string0028(1)", L"");
+            SetPaneText_unk(&m80[i]->mData.m10, "string0029(1)", L"");
+            SetPaneText_unk(&m80[i]->mData.m10, "string0027(1)", L"");
         }
     }
 }
@@ -831,7 +831,7 @@ void D2AMpMenuResult::fn_804C822C() {
     rect = GetPaneRect_unk(m54, "item_null");
     fn_801F4728(mC4, "pos0026(1)", &rect);
     const wchar_t* str = lbl_8087F86C->Get_unk(0x135);
-    SetPaneText_unk(mC4->mLayout, "string0013(1)", str);
+    SetPaneText_unk(&mC4->mData.m10, "string0013(1)", str);
     for (int i = 0; i < result->m08.mCount; i++) {
         MpPlayer_unk* player = &result->m08.mPlayers[i];
         if (player->mValid == 1) {
@@ -843,7 +843,7 @@ void D2AMpMenuResult::fn_804C822C() {
                 }
                 int rank = fn_804E4B44(lbl_8087F610, player);
                 if (lbl_8087F610->m540 == 2 || fn_804E4C34(lbl_8087F610) == 0) {
-                    SetPaneText_unk(mA0[i]->mLayout, "string0006(1)", L"");
+                    SetPaneText_unk(&mA0[i]->mData.m10, "string0006(1)", L"");
                 } else {
                     mA0[i]->SetNumber_unk("string0006(1)", rank + 1, 0);
                 }
@@ -852,16 +852,16 @@ void D2AMpMenuResult::fn_804C822C() {
                 } else {
                     str = lbl_8087F86C->Get_unk(0x130);
                 }
-                SetPaneText_unk(mA0[i]->mLayout, "string0028(1)(1)", str);
+                SetPaneText_unk(&mA0[i]->mData.m10, "string0028(1)(1)", str);
                 mA0[i]->SetText_unk("string0029(1)", (int)"");
                 if (fn_804EB480(lbl_8087F610, player) == 0 && item > 0) {
                     MpItem_unk* data = fn_80211480(item);
                     int icon = fn_80444BE8(Inventory::instance_, data);
                     if (data != 0) {
                         fn_800DD3FC(text, L"%s\0", data->mName);
-                        SetPaneText_unk(mA0[i]->mLayout, "string0029(1)", text);
+                        SetPaneText_unk(&mA0[i]->mData.m10, "string0029(1)", text);
                         if (player->mHost == 1) {
-                            SetPaneText_unk(mC4->mLayout, "string0013(1)", text);
+                            SetPaneText_unk(&mC4->mData.m10, "string0013(1)", text);
                             MpUV_unk uv = fn_80444C50(Inventory::instance_, icon);
                             mC4->SetParam2_unk("uv0021(1)(1)(1)", uv.m);
                             MpUV_unk uv2 = fn_80444C50(Inventory::instance_, icon);
@@ -880,9 +880,9 @@ void D2AMpMenuResult::fn_804C822C() {
                 fn_801F4728(mA0[i], "pos0030(1)(1)(1)", &rect);
             }
         } else {
-            SetPaneText_unk(mA0[i]->mLayout, "string0006(1)", L"");
-            SetPaneText_unk(mA0[i]->mLayout, "string0028(1)(1)", L"");
-            SetPaneText_unk(mA0[i]->mLayout, "string0029(1)", L"");
+            SetPaneText_unk(&mA0[i]->mData.m10, "string0006(1)", L"");
+            SetPaneText_unk(&mA0[i]->mData.m10, "string0028(1)(1)", L"");
+            SetPaneText_unk(&mA0[i]->mData.m10, "string0029(1)", L"");
         }
     }
 }

@@ -5,49 +5,18 @@
 // Everything here is inferred from the uses in those files; names are invented.
 
 #include "atn/Task.h"
+#include "atn/D2A_Task.h"
 #include "atn/Color.h"
 #include "atn/FixedArray.h"
 #include "atn/Memory.h"
 #include "atn/SoundRef.h"
 #include "std/string.h"
 
-namespace atn {
-// inferred: the d2anime task, declared here with only the members used by the menus
-// (atn/D2A_Task.h declares fn_801F3FF8 with another return type, as game/MenuCommonTask.cpp notes)
-class D2A_Task : public Task {
-public:
-    void SetParam2_unk(const char* name, const float* v);             // 0x801F48C8
-    void SetColor_unk(const char* name, unsigned int color);          // 0x801F4998
-    void SetColor_unk(const char* name, float r, float g, float b);   // 0x801F4AA0
-    void SetText_unk(const char* name, int textId);                   // 0x801F4C14
-    void SetNumber_unk(const char* name, int value, int digits);      // 0x801F4CB4
-    Color GetColor_unk(unsigned int id);                              // 0x801F4F08
-};
-} // namespace atn
 
 namespace MP {
 
-// inferred: d2anime task (made by fn_801F3FF8, same layout as atn::D2A_Task); only the members
-// used by the menus
-struct MpD2A_unk : public atn::D2A_Task {
-    unsigned char m48[0x58 - 0x48];
-    unsigned char mLayout[0xA0 - 0x58]; // 0x58: inferred: layout (atn::D2A_Data + 0x10)
-    float mLastFrame;                   // 0xA0
-    unsigned char mA4[0xFC - 0xA4];
-    unsigned int mLoop : 1;             // 0xFC (as atn::D2A_Task)
-    unsigned int mVisible : 1;
-    unsigned int mPlaying : 1;
-    unsigned int mRepeat : 1;
-    unsigned int mFC_rest : 28;
-    // inferred: name invented (as MenuD2A_unk::IsEnd_unk in game/MenuCommonTask.h)
-    bool IsEnd_unk() {
-        float last = mLastFrame;
-        return mFrame >= last;
-    }
-    float mFrame;                       // 0x100
-    float mSpeed;                       // 0x104
-    int m108;
-};
+// inferred: d2anime task (made by fn_801F3FF8)
+typedef atn::D2A_Task MpD2A_unk;
 
 // inferred: rectangle of a d2anime pane (as atn::D2A_DrawRect)
 struct MpRect_unk {
@@ -109,7 +78,7 @@ inline void SetPaneText_unk(void* layout, const char* name, const wchar_t* text)
 // inferred: sets the text of a pane of a task (the layout is taken inside; this form gives the
 // register order of some calls of the original, see D2AMpMenuResult::fn_804C6888)
 inline void SetTaskText_unk(MpD2A_unk* task, const char* name, const wchar_t* text) {
-    void* layout = task->mLayout;
+    void* layout = &task->mData.m10;
     fn_801FEE08(layout, fn_800DC6B4(name), text);
 }
 // inferred: sets a float of a pane (alpha in MP/Popup.cpp, height of the scroll bar)

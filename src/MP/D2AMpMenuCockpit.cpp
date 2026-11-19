@@ -200,11 +200,11 @@ int D2AMpMenuCockpit::vf0C() {
     if (fn_800D3FA4() != 0) {
         SetAll_unk(0);
         m90->mRepeat = 0;
-        m90->mFrame = m90->mLastFrame;
+        m90->mFrame = m90->mData.mEndFrame;
         m94->mRepeat = 0;
-        m94->mFrame = m94->mLastFrame;
+        m94->mFrame = m94->mData.mEndFrame;
         m98->mRepeat = 0;
-        m98->mFrame = m98->mLastFrame;
+        m98->mFrame = m98->mData.mEndFrame;
         m98->mSpeed = 0.75f;
         return 1;
     }
@@ -228,10 +228,10 @@ void D2AMpMenuCockpit::fn_804B50C0(int state) {
             Play_unk(m4C, 0, 1.0f);
             wchar_t text0[8] = {0};
             fn_800DD3FC(text0, L"%d", 0);
-            SetPaneText_unk(m4C->mLayout, "string0036(1)", text0);
+            SetPaneText_unk(&m4C->mData.m10, "string0036(1)", text0);
             wchar_t text1[8] = {0};
             fn_800DD3FC(text1, L"%d", 0);
-            SetPaneText_unk(m4C->mLayout, "string0037(1)", text1);
+            SetPaneText_unk(&m4C->mData.m10, "string0037(1)", text1);
             for (int i = 0; i < 8; i++) {
                 MpD2A_unk* task = m50[i];
                 Play_unk(task, 1, 1.0f);
@@ -288,19 +288,19 @@ void D2AMpMenuCockpit::fn_804B5360() {
 
 void D2AMpMenuCockpit::UpdatePointPos_unk() {
     if (D2AMpMenu::sInstance->mC4 != 1) {
-        SetPaneValue_unk(m4C->mLayout, "pos0005", 0, 800.0f);
-        SetPaneValue_unk(m4C->mLayout, "pos0036", 0, 800.0f);
-        SetPaneValue_unk(m4C->mLayout, "pos0037", 0, 800.0f);
-        SetPaneValue_unk(m4C->mLayout, "pos0038", 0, 800.0f);
-        SetPaneValue_unk(m4C->mLayout, "pos0039", 0, 800.0f);
+        SetPaneValue_unk(&m4C->mData.m10, "pos0005", 0, 800.0f);
+        SetPaneValue_unk(&m4C->mData.m10, "pos0036", 0, 800.0f);
+        SetPaneValue_unk(&m4C->mData.m10, "pos0037", 0, 800.0f);
+        SetPaneValue_unk(&m4C->mData.m10, "pos0038", 0, 800.0f);
+        SetPaneValue_unk(&m4C->mData.m10, "pos0039", 0, 800.0f);
     } else {
-        SetPaneValue_unk(m4C->mLayout, "pos0005", 0, 320.0f);
-        SetPaneValue_unk(m4C->mLayout, "pos0036", 0, 261.5f);
-        SetPaneValue_unk(m4C->mLayout, "pos0037", 0, 378.5f);
-        SetPaneValue_unk(m4C->mLayout, "pos0038", 0, 210.0f);
+        SetPaneValue_unk(&m4C->mData.m10, "pos0005", 0, 320.0f);
+        SetPaneValue_unk(&m4C->mData.m10, "pos0036", 0, 261.5f);
+        SetPaneValue_unk(&m4C->mData.m10, "pos0037", 0, 378.5f);
+        SetPaneValue_unk(&m4C->mData.m10, "pos0038", 0, 210.0f);
         // inferred: the layout of the last pane is a separate local (register order of the copies
         // inlined in vf14)
-        void* layout = m4C->mLayout;
+        void* layout = &m4C->mData.m10;
         SetPaneValue_unk(layout, "pos0039", 0, 430.0f);
     }
 }
@@ -378,8 +378,8 @@ void D2AMpMenuCockpit::fn_804B5B10() {
                 m50[i]->SetColor_unk("col0002(1)", rank == 1 ? 0xFFE59E36 : 0xFF969696);
                 m50[i]->SetColor_unk("col0003(1)", rank == 1 ? 0xFFE59E36 : 0xFFCCCCCC);
                 m50[i]->mFlags &= ~4;
-                SetPaneValue_unk(m50[i]->mLayout, "BasePos", 0, screen.x - 12.0f);
-                SetPaneValue_unk(m50[i]->mLayout, "BasePos", 1, screen.y - 24.0f);
+                SetPaneValue_unk(&m50[i]->mData.m10, "BasePos", 0, screen.x - 12.0f);
+                SetPaneValue_unk(&m50[i]->mData.m10, "BasePos", 1, screen.y - 24.0f);
             }
             prev = player;
         }
@@ -397,19 +397,19 @@ void D2AMpMenuCockpit::fn_804B5B10() {
                 screen.x < 50.0f + (float)lbl_8087EEE0->mWidth && -50.0f <= screen.y &&
                 screen.y < 50.0f + (float)lbl_8087EEE0->mHeight) {
                     m70[i]->mFlags &= ~4;
-                    SetPaneValue_unk(m70[i]->mLayout, "basePoint", 0, screen.x);
-                    SetPaneValue_unk(m70[i]->mLayout, "basePoint", 1, screen.y);
+                    SetPaneValue_unk(&m70[i]->mData.m10, "basePoint", 0, screen.x);
+                    SetPaneValue_unk(&m70[i]->mData.m10, "basePoint", 1, screen.y);
                     // inferred: text, then layout, then hash (register order of the original)
                     {
                         const wchar_t* text =
                             fn_804EB480(lbl_8087F610, player) != 0 ? lbl_8087F86C->Get_unk(0x130) : info->mName;
-                        void* layout = m70[i]->mLayout;
+                        void* layout = &m70[i]->mData.m10;
                         fn_801FEE08(layout, fn_800DC6B4("name"), text);
                     }
                     {
                         const wchar_t* text =
                             fn_804EB480(lbl_8087F610, player) != 0 ? lbl_8087F86C->Get_unk(0x130) : info->mName;
-                        void* layout = m70[i]->mLayout;
+                        void* layout = &m70[i]->mData.m10;
                         fn_801FEE08(layout, fn_800DC6B4("nameSub"), text);
                     }
                     if (team == 1) {
@@ -426,20 +426,20 @@ void D2AMpMenuCockpit::fn_804B5B10() {
 void D2AMpMenuCockpit::fn_804B6204(int time) {
     if (time < 0) {
         if (lbl_8087F610->m540 == 2) {
-            SetPaneValue2_unk(m4C->mLayout, "col0040", 0, 0.0f);
-            SetPaneValue2_unk(m4C->mLayout, "col0041", 0, 0.0f);
-            SetPaneValue2_unk(m4C->mLayout, "col0042", 0, 0.0f);
-            SetPaneValue2_unk(m4C->mLayout, "col0007", 0, 0.0f);
+            SetPaneValue2_unk(&m4C->mData.m10, "col0040", 0, 0.0f);
+            SetPaneValue2_unk(&m4C->mData.m10, "col0041", 0, 0.0f);
+            SetPaneValue2_unk(&m4C->mData.m10, "col0042", 0, 0.0f);
+            SetPaneValue2_unk(&m4C->mData.m10, "col0007", 0, 0.0f);
             Stop_unk(m4C);
         }
         return;
     }
-    SetPaneValue2_unk(m4C->mLayout, "col0007", 0, 255.0f);
+    SetPaneValue2_unk(&m4C->mData.m10, "col0007", 0, 255.0f);
     Play_unk(m4C, 0, 1.0f);
     wchar_t text[0x100] = {0};
     fn_800DD3FC(text, L"%02d", time % 60);
     m4C->SetNumber_unk("string0040(1)", time / 60, 0);
-    SetPaneText_unk(m4C->mLayout, "string0041(1)", text);
+    SetPaneText_unk(&m4C->mData.m10, "string0041(1)", text);
     MpSession_unk* session = lbl_8087F610;
     int warning = 0;
     if (fn_804DB408(session) >= 0 && fn_804DB408(session) < 60) {
@@ -452,13 +452,13 @@ void D2AMpMenuCockpit::fn_804B6204(int time) {
         m4C->SetColor_unk("col0002", 0xFFFF0000);
         m4C->SetColor_unk("col0006", 0xFFFF0000);
         m4C->SetColor_unk("col0003", 0xFFFF0000);
-        SetPaneValue_unk(m4C->mLayout, "pos0040", 2, 18.0f);
-        SetPaneValue_unk(m4C->mLayout, "pos0041", 2, 18.0f);
-        SetPaneValue_unk(m4C->mLayout, "pos0042", 2, 18.0f);
-        SetPaneValue_unk(m4C->mLayout, "pos0040", 3, 18.0f);
-        SetPaneValue_unk(m4C->mLayout, "pos0041", 3, 18.0f);
-        SetPaneValue_unk(m4C->mLayout, "pos0042", 3, 18.0f);
-        SetPaneValue_unk(m4C->mLayout, "col0007", 1, 95.0f);
+        SetPaneValue_unk(&m4C->mData.m10, "pos0040", 2, 18.0f);
+        SetPaneValue_unk(&m4C->mData.m10, "pos0041", 2, 18.0f);
+        SetPaneValue_unk(&m4C->mData.m10, "pos0042", 2, 18.0f);
+        SetPaneValue_unk(&m4C->mData.m10, "pos0040", 3, 18.0f);
+        SetPaneValue_unk(&m4C->mData.m10, "pos0041", 3, 18.0f);
+        SetPaneValue_unk(&m4C->mData.m10, "pos0042", 3, 18.0f);
+        SetPaneValue_unk(&m4C->mData.m10, "col0007", 1, 95.0f);
     } else {
         m4C->SetColor_unk("col0040", 0xFFFFFFFF);
         m4C->SetColor_unk("col0041", 0xFFFFFFFF);
@@ -466,13 +466,13 @@ void D2AMpMenuCockpit::fn_804B6204(int time) {
         m4C->SetColor_unk("col0002", 0xFFFFFFFF);
         m4C->SetColor_unk("col0006", 0xFFFFFFFF);
         m4C->SetColor_unk("col0003", 0xFFFFFFFF);
-        SetPaneValue_unk(m4C->mLayout, "pos0040", 2, 16.0f);
-        SetPaneValue_unk(m4C->mLayout, "pos0041", 2, 16.0f);
-        SetPaneValue_unk(m4C->mLayout, "pos0042", 2, 16.0f);
-        SetPaneValue_unk(m4C->mLayout, "pos0040", 3, 16.0f);
-        SetPaneValue_unk(m4C->mLayout, "pos0041", 3, 16.0f);
-        SetPaneValue_unk(m4C->mLayout, "pos0042", 3, 16.0f);
-        SetPaneValue_unk(m4C->mLayout, "col0007", 1, 92.0f);
+        SetPaneValue_unk(&m4C->mData.m10, "pos0040", 2, 16.0f);
+        SetPaneValue_unk(&m4C->mData.m10, "pos0041", 2, 16.0f);
+        SetPaneValue_unk(&m4C->mData.m10, "pos0042", 2, 16.0f);
+        SetPaneValue_unk(&m4C->mData.m10, "pos0040", 3, 16.0f);
+        SetPaneValue_unk(&m4C->mData.m10, "pos0041", 3, 16.0f);
+        SetPaneValue_unk(&m4C->mData.m10, "pos0042", 3, 16.0f);
+        SetPaneValue_unk(&m4C->mData.m10, "col0007", 1, 92.0f);
     }
 }
 
@@ -480,9 +480,9 @@ void D2AMpMenuCockpit::fn_804B671C(int value, int which) {
     wchar_t text[8] = {0};
     fn_800DD3FC(text, L"%d", value);
     if (which == 0) {
-        SetPaneText_unk(m4C->mLayout, "string0036(1)", text);
+        SetPaneText_unk(&m4C->mData.m10, "string0036(1)", text);
     } else if (which == 1) {
-        SetPaneText_unk(m4C->mLayout, "string0037(1)", text);
+        SetPaneText_unk(&m4C->mData.m10, "string0037(1)", text);
     }
 }
 
@@ -497,7 +497,7 @@ void D2AMpMenuCockpit::fn_804B67E4(int message) {
     if (0 <= message && message < 7) {
         const wchar_t* text = lbl_8087F86C->Get_unk(sMessages[message]);
         const char* name = "message";
-        void* layout = m98->mLayout;
+        void* layout = &m98->mData.m10;
         fn_801FEE08(layout, fn_800DC6B4(name), text);
     }
     if (message == 6) {
@@ -508,9 +508,9 @@ void D2AMpMenuCockpit::fn_804B67E4(int message) {
 }
 
 void D2AMpMenuCockpit::fn_804B691C() {
-    m90->mFrame = m90->mLastFrame;
-    m94->mFrame = m94->mLastFrame;
-    m98->mFrame = m98->mLastFrame;
+    m90->mFrame = m90->mData.mEndFrame;
+    m94->mFrame = m94->mData.mEndFrame;
+    m98->mFrame = m98->mData.mEndFrame;
 }
 
 void D2AMpMenuCockpit::fn_804B6944() {
