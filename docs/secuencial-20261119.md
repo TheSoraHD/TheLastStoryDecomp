@@ -43,6 +43,8 @@ Inventario de vistas del port (`grep -rlw` en src + include):
 Vistas locales de globales (un `struct X` del propio .cpp y `extern "C" X* lbl_8087....`): 147 (07:15) -> 96 (08:45).
 Por global a las 08:45: lbl_8087F610 20 (`MP::Manager2`), lbl_8087EFA8 11, lbl_8087F628 10 (`atn::net::Manager`),
 lbl_8087F1E4 9, lbl_8087F0A8 7, lbl_8087F490 6, lbl_8087F018 6, lbl_8087EE98 5, lbl_8087F430 3, lbl_8087EE90 3.
+A las 10:20: 77 (lbl_8087F610 20, lbl_8087EFA8 11, lbl_8087F1E4 9, lbl_8087F0A8 7...). Globales declarados `void*`: lbl_8087EE98 87 -> 12,
+lbl_8087EF70 62 -> 6, lbl_8087EEC8 36 -> 0, lbl_8087F430 15 -> 0.
 
 ## Decisiones
 
@@ -118,6 +120,14 @@ poolcheck igual que main) salvo el `ordercheck` de GameEventScript, que ya tiene
 | efa4ee3 | 2.5 | `ShopD2A_unk` = `atn::D2A_Task`; fuera las vistas de D2A_Task de las tiendas y CosEditProtector |
 | fe81365 | 2.5 | `ShopPoint_unk` = `atn::D2A_DrawRect` en ShopBase.h |
 | c91c026 | 2.5 | `atn::D2A_Manager` y `D2A_MessageTable_unk` en cabeceras; 5 vistas de lbl_8087F138 fuera |
+| 5da5afc, 15e69c0 | 2.5 | `WPad_unk` (GameTask, HomeButtonMenu, StrapTask, main) y `GameUI` (EnemyJill) |
+| 014478c, da8a5f6, 97ac04f | 2.5 | tipos opacos de globales -> clase real (`atn::EffectManager` 48 unidades, `atn::Loader` 35, otros 8) |
+| 5de5f08, 856f6e2, dc70760 | 2.5 | globales `void*` -> clase (GameTask, Loader, SkillEffectManager, GraphicsDevice_unk, GameConfig_unk, Event::Manager, D2A_Manager, Font_unk, NandManager, PostFxManager; ~76 unidades) |
+| b96f79d ... a9cb196 | firmas | `tools/decomp/sigcheck.py`; firmas `extern "C"` corregidas: menu de depuracion (97 unidades, callback al final), `fn_8023A8B4` (100), rayos de colision, `fn_800CB5B4`, punteros declarados `int` (162 -> 82 funciones distintas) |
+| f5118ef, 25290be, 0e3ab2a | 64 bits | retornos puntero declarados `int`; `BulletShot_unk::m04/m08` y `Bullet::m60/m64` como punteros |
+| 479e5d2, 4ff7155 | 2.5 | `atn::net::Manager` (DamageCalc, Item, DropItem, ControlCannonLift, PPDATAU) |
+| 87bbbaa, 3c247af, 31ca307, c593860 | 2.5 | ChaseManager (ChaserGuard), Loader (GameSaveBackground, main), NandManager (HomeButtonMenu), VideoTHP (SystemErrorMessage) |
+| 04309f2, 60bc31f | 2.5 | `lbl_8087EE98` -> `ColliManager_unk*` (75 unidades), `lbl_8087EF70` -> `Pad_unk*` (56) |
 
 Re-emparejado: `pdbatch.sh` y, para lo que queda (pools iguales que main), `refmap.py` (scratch): nombre en symbols.txt de main ->
 (seccion, desplazamiento) en el .o de main -> nombre en nuestro .o. Mas fiable que lblseq/valfix cuando el pool no cambia;
