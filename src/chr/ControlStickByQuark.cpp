@@ -63,21 +63,25 @@ extern "C" int fn_8003EA3C(DamageResult_unk* result, HitInfo_unk* data, CharaTas
                            unsigned int flags, const DamageParam_unk* param, const atn::Vector3* pos,
                            const atn::Vector3* rot);
 extern "C" int swprintf(wchar_t* buf, unsigned long size, const wchar_t* format, ...);
-// inferred: start yaw of the climb (a zero float in .sdata in the original, only read here; ours goes to
-// .sbss without explicit_zero_data)
+// inferred: start yaw of the climb (a zero float in .sdata in the original, only read here); MWCC only keeps
+// it in .sdata with explicit_zero_data (approved exception, only around the zero definition; without it the
+// variable goes to .sbss)
+#pragma push
+#pragma explicit_zero_data on
 float lbl_8087DA00 = 0.0f;
+#pragma pop
 
 extern "C" int fn_800A555C(void* pad, int port, int button); // inferred: button pressed
 
 // inferred: HUD hint request (as ZanUIHint_unk of game/Em201ZanGurgFinal.cpp)
 struct ThrustHint_unk : public GameUIElem1C_unk {
     ThrustHint_unk(int a, int b, int c) {
-        m00 = a;
-        m04 = b;
         m08 = c;
         m0C = 0;
         m10 = 0;
         m14 = 0;
+        m00 = a;
+        m04 = b;
         m18 = 1;
     }
 };
@@ -96,7 +100,7 @@ struct SlowParam_unk {
     float m1C;
 };
 struct Slow_unk {
-    Slow_unk(int on, const SlowParam_unk& param) : mOn(on), mParam(param) {}
+    Slow_unk(int on, const SlowParam_unk& param) : mParam(param) { mOn = on; }
     int mOn;
     SlowParam_unk mParam;
 };
@@ -259,8 +263,12 @@ ControlStickByQuark::ControlStickByQuark(Chara_unk* chara, int quark)
     mChara->SetControlId_unk(0x53);
 }
 
-// NONMATCHING: 98.98% - the original tests 0xE/0xF/0x10 with three cmpwi/beq to one `ret = 1` (the
-// `||` form is merged into a range check, the else-if form duplicates the store)
+// inferred: state test of a character; through an inline the three tests of vf0C are not merged into a
+// range check (the original has three cmpwi/beq)
+static inline bool StateIs_unk(const Chara_unk* c, int s) {
+    return c->m58C == s;
+}
+
 int ControlStickByQuark::vf0C() {
     EnemyQuarkStand* quark = mQuark;
     int ret = 0;
@@ -291,11 +299,7 @@ int ControlStickByQuark::vf0C() {
             }
         }
     }
-    if (quark->m58C == 0xE) {
-        ret = 1;
-    } else if (quark->m58C == 0xF) {
-        ret = 1;
-    } else if (quark->m58C == 0x10) {
+    if (StateIs_unk(quark, 0xE) || StateIs_unk(quark, 0xF) || StateIs_unk(quark, 0x10)) {
         ret = 1;
     }
     if (mChara->mF1C) {
@@ -342,7 +346,13 @@ void ControlStickByQuark::vf1C() {
     mChara->mF1C = 0;
 }
 
-// NONMATCHING: 94.6% - stack slots of the temporaries (the eye offset is the lowest one in the original)
+// inferred: keeps the offset of the eye from the target (name invented)
+static inline void SaveEyeOffset_unk(GameTask* t) {
+    t->mCamera.m960 = t->mCamera.mCamera.mPos - t->mCamera.mCamera.mTarget;
+}
+
+// NONMATCHING: 94.7% - float registers shifted by one and r3/r9 around the eye offset (SaveEyeOffset_unk
+// gives its stack slot)
 // inferred: thrust at `other` from the offset `offset` (turned by its yaw) in 24 frames
 ControlThrust::ControlThrust(Chara_unk* chara, Chara_unk* other, atn::Vector3 offset, int b)
     : ControlBase(chara), mOther(other), m1C(b), m20(0), m24(0) {
@@ -355,7 +365,7 @@ ControlThrust::ControlThrust(Chara_unk* chara, Chara_unk* other, atn::Vector3 of
     PSMTXMultVec(m.m, &pos, &pos);
     pos += other->mPos;
     m14 = (3.1415927f + yaw - mChara->mRot.y) / 24.0f;
-    lbl_8087F430->mCamera.m960 = lbl_8087F430->mCamera.mCamera.mPos - lbl_8087F430->mCamera.mCamera.mTarget;
+    SaveEyeOffset_unk(lbl_8087F430);
     mStep = atn::Vector3(pos - mChara->mPos) * (1.0f / 24.0f);
     Motion_unk* mo = &mChara->mMotion;
     mo->m34C = 1;
@@ -367,10 +377,15 @@ ControlThrust::ControlThrust(Chara_unk* chara, Chara_unk* other, atn::Vector3 of
     }
 }
 
-// NONMATCHING: 95% - copies of the slow motion parameters (the original keeps the stack copy of the
-// second one) and register order around the bullet call
+// NONMATCHING: 98.2% - volatile registers of the slow motion block (cam/lbl_8087EFA8 in r7/r8 and the 1
+// in r0 in the original) and of the sound call
 // inferred: forward, hold and back phases of the thrust; the player can push again (button 4) for
 // a second thrust while the enemy is down
+static inline void ThrustShoot_unk(ControlBase* self, const atn::Vector3* pos, const atn::Vector3* rot) {
+    BattleTask* mgr = lbl_8087F048;
+    mgr->fn_800FAB80(self->mChara, fn_80219E6C(0xCC), mgr->fn_800F8548(), pos, rot, 0, 0x1E, -1, -1, 0.0f, 1.0f);
+}
+
 int ControlThrust::vf0C() {
     Motion_unk* m = &mChara->mMotion;
     atn::Vector3 pos = mChara->mPos;
@@ -396,10 +411,11 @@ int ControlThrust::vf0C() {
     } else {
         lbl_8087F430->mCamera.m958 = 1.0f;
         if (m->mTracks[0].m08 > 54.0f && m->mTracks[0].m08 <= 55.0f) {
-            Shoot_unk(lbl_8087F048, mChara, 0xCC, &mChara->mPos, &mChara->mRot);
+            ThrustShoot_unk(this, &mChara->mPos, &mChara->mRot);
             Shake_unk(lbl_8087F430, 10, 0.3f, 0.3f);
             if (m20 >= 1) {
-                fn_800C344C("SE_SP009_002", &mChara->mPos, 0, -1, 1.5f);
+                CharaTask* c = mChara;
+                fn_800C344C("SE_SP009_002", &c->mPos, 0, -1, 1.5f);
             }
         }
         bool hint = CanRepeat_unk() && mOther->CanAct_unk();
@@ -430,7 +446,8 @@ int ControlThrust::vf0C() {
             }
         }
     }
-    mChara->mPos = pos;
+    CharaTask* c = mChara;
+    c->mPos = pos;
     mChara->mRot = rot;
     float frame = m->mTracks[0].m08;
     return frame >= m->fn_80097D7C(0);
@@ -457,7 +474,14 @@ ControlThrustForCrab::ControlThrustForCrab(Chara_unk* chara, Chara_unk* crab) : 
     }
 }
 
-// NONMATCHING: 99.5% - r29/r31 swapped between the motion and the bullet manager
+// inferred: bullet of the thrust at the crab; through an inline the bullet manager gets r31 as in the
+// original
+static inline void CrabShoot_unk(ControlBase* self) {
+    CharaTask* c = self->mChara;
+    BattleTask* mgr = lbl_8087F048;
+    mgr->fn_800FAB80(self->mChara, fn_80219E6C(0xD1), 1000, &c->mPos, &c->mRot, 0, 0x1E, -1, -1, 0.0f, 1.0f);
+}
+
 int ControlThrustForCrab::vf0C() {
     Motion_unk* m = &mChara->mMotion;
     atn::Vector3 pos = mChara->mPos;
@@ -472,9 +496,7 @@ int ControlThrustForCrab::vf0C() {
     }
     mChara->mPos = pos;
     if (m->mTracks[0].m08 >= 41.0f && m->mTracks[0].m08 < 43.0f) {
-        CharaTask* c = mChara;
-        BattleTask* mgr = lbl_8087F048;
-        mgr->fn_800FAB80(mChara, fn_80219E6C(0xD1), 1000, &c->mPos, &c->mRot, 0, 0x1E, -1, -1, 0.0f, 1.0f);
+        CrabShoot_unk(this);
         Shake_unk(lbl_8087F430, 10, 0.3f, 0.3f);
     }
     return Frame_unk(m) >= m->fn_80097D7C(0);
@@ -511,7 +533,13 @@ ControlThrustForKraken::ControlThrustForKraken(Chara_unk* chara, int kraken, atn
     }
 }
 
-// NONMATCHING: 98.6% - f3/f4 of the frame and 23.0f, register order of the lerps
+// inferred: bullet of the thrust at the kraken from the weapon node; the rotation is the last argument
+// (evaluated first: the original takes &mRot before the node lookup) and the manager is read inside
+static inline void KrakenShoot_unk(ControlBase* self, const atn::Vector3& pos, const atn::Vector3* r) {
+    BattleTask* mgr = lbl_8087F048;
+    mgr->fn_800FAB80(self->mChara, fn_80219E6C(0xD5), 1000, &pos, r, 0, 0x1E, -1, -1, 0.0f, 1.0f);
+}
+
 // inferred: swings the weapon around the kraken and thrusts it (frames 23-62), holds it, then pulls
 // back (frames 112-153); the bullet is fired from the weapon node at frame 48
 int ControlThrustForKraken::vf0C() {
@@ -520,7 +548,7 @@ int ControlThrustForKraken::vf0C() {
     atn::Vector3 rot = mChara->mRot;
     if (m->mTracks[0].m08 > 23.0f && m->mTracks[0].m08 <= 62.0f) {
         mChara->mF1C = 0;
-        float t = (m->mTracks[0].m08 - 23.0f) / 39.0f;
+        float t = (Frame_unk(m) - 23.0f) / 39.0f;
         pos = LerpTo_unk(mTarget - mDir2 * 45.0f, mFrom, t);
         rot = LerpTo_unk(mDir, mDir2, t);
         rot.RotZ_unk();
@@ -528,19 +556,17 @@ int ControlThrustForKraken::vf0C() {
         pos = mFrom;
     } else if (m->mTracks[0].m08 > 112.0f && m->mTracks[0].m08 <= 153.0f) {
         float t = (m->mTracks[0].m08 - 112.0f) / 41.0f;
-        pos = LerpTo_unk(mFrom, mDest, t);
+        atn::VecAssign_unk(pos, LerpTo_unk(mFrom, mDest, t));
     }
-    mChara->mPos = pos;
+    CharaTask* c = mChara;
+    c->mPos = pos;
     mChara->mRot = rot;
     if (m->mTracks[0].m08 >= 48.0f && m->mTracks[0].m08 < 50.0f) {
-        const atn::Vector3* r = &mChara->mRot;
-        atn::Matrix3x4* node = (atn::Matrix3x4*)m->GetNodeMtx_unk("rightwepoint");
-        ShootFrom_unk(lbl_8087F048, mChara, 0xD5, 1000, node->GetTrans_unk(), r);
+        KrakenShoot_unk(this, ((atn::Matrix3x4*)m->GetNodeMtx_unk("rightwepoint"))->GetTrans_unk(), &mChara->mRot);
     }
     return Frame_unk(m) >= m->fn_80097D7C(0);
 }
 
-// NONMATCHING: 71.9% - the original loads m10/m1C before saving r31 (as in a const method)
 atn::Vector3 ControlThrustForKraken::vf14() const {
     return mFrom + (mFrom - mTarget).GetNormalize() * 30.0f;
 }
@@ -577,15 +603,25 @@ ControlThrustForQuarkStand::ControlThrustForQuarkStand(Chara_unk* chara, Chara_u
     mFront = Front_unk(mChara);
 }
 
-// NONMATCHING: 89% - order of the lerp products and of the bullet call, copy of the position
+// inferred: bullet of a thrust with the hit data `hit` (the manager and the rotation are read inside)
+static inline void StandShoot_unk(ControlBase* self, const atn::Vector3& pos, HitInfo_unk* hit) {
+    BattleTask* mgr = lbl_8087F048;
+    const atn::Vector3* r = &self->mChara->mRot;
+    mgr->fn_800FAB80(self->mChara, hit, mgr->fn_800F8548(), &pos, r, 0, 0x1E, -1, -1, 0.0f, 1.0f);
+}
+
+// NONMATCHING: 99.9% - stack slot of the temporary of the bullet position (0x4c in the original, between the
+// first phase and the step back; naming it swaps the saved registers of the bullet call)
 int ControlThrustForQuarkStand::vf0C() {
     Motion_unk* m = &mChara->mMotion;
     float frame = m->mTracks[0].m08;
     if (frame <= 20.0001f) {
         if (mKind != 2) {
-            mChara->mPos = LerpTo_unk(mStart, mTarget, frame / 20.0f);
+            atn::Vector3 pos = LerpTo_unk(mStart, mTarget, Frame_unk(m) / 20.0f);
+            mChara->mPos = pos;
         } else {
-            mChara->mPos = atn::Vector3(mTarget);
+            atn::Vector3 pos = mTarget;
+            mChara->mPos = pos;
         }
         lbl_8087EFA8->mSlow.mOn = 1;
     } else if (mKind == 2) {
@@ -606,15 +642,16 @@ int ControlThrustForQuarkStand::vf0C() {
         if (m28 == 0 && m->mTracks[0].m08 > 55.0f) {
             m28 = 1;
             mChara->fn_8016DA4C();
-            HitInfo_unk* hit = mChara->m638;
-            atn::Matrix3x4* node = (atn::Matrix3x4*)m->GetNodeMtx_unk("rightwepoint");
-            ShootHit_unk(lbl_8087F048, mChara, hit, node->GetTrans_unk(), &mChara->mRot);
+            StandShoot_unk(this, ((atn::Matrix3x4*)m->GetNodeMtx_unk("rightwepoint"))->GetTrans_unk(), mChara->m638);
         }
     } else if (frame > 90.0001f) {
-        mChara->mPos = atn::Vector3(mChara->mPos) + mFront * 1.8333334f;
+        atn::Vector3 pos = mChara->mPos;
+        pos += mFront * 1.8333334f;
+        mChara->mPos = pos;
         atn::Vector3 rot = mChara->mRot;
         rot.y = atn::WrapAngle_unk(rot.y + 3.1415927f / (m->fn_80097D7C(0) - 90.0f));
-        mChara->mRot = rot;
+        CharaTask* c = mChara;
+        c->mRot = rot;
     }
     if (Frame_unk(m) >= m->fn_80097D7C(0)) {
         mChara->m570 = 0.0f;
@@ -652,19 +689,23 @@ static inline void RotY_unk(atn::Vector3& v, float rad) {
     PSMTXMultVec(m.m, &v, &v);
 }
 
-// NONMATCHING: 93.8% - the thrust (frames 0-15), the hit (15-65) and the step back (65-80); the back
+// NONMATCHING: 99.5% - saved registers of the bullet call (hit r27, manager r29, rotation r28 in the
+// original), f4/f5 of m34 and stack slots of the third phase
+// inferred: the thrust (frames 0-15), the hit (15-65) and the step back (65-80); the back
 // point is moved aside when a wall is behind the character
 int ControlThrustForGhoul::vf0C() {
     Motion_unk* m = &mChara->mMotion;
-    m34 -= lbl_8087EFA8->m3A4 * m->mTracks[0].m0C;
+    m34 -= m->mTracks[0].m0C * lbl_8087EFA8->m3A4;
     float frame = m->mTracks[0].m08;
     if (frame <= 15.0001f) {
         float scale = lbl_8087EFA8->m3A4 - 0.05f;
         lbl_8087EFA8->m3A4 = 0.5f > scale ? 0.5f : scale;
         lbl_8087EFA8->mSlow.mOn = 1;
         float t = m->mTracks[0].m08 / 15.0f;
-        mChara->mPos = LerpTo_unk(mStart, mOther->mPos, t);
-        m10 = mChara->mPos;
+        atn::Vector3 target = mOther->mPos;
+        atn::Vector3 pos = LerpTo_unk(mStart, target, t);
+        mChara->mPos = pos;
+        m10 = pos;
         m10.y += 20.0f * t;
     } else if (frame <= 65.0001f) {
         lbl_8087EFA8->mSlow.mOn = 0;
@@ -674,7 +715,10 @@ int ControlThrustForGhoul::vf0C() {
             mChara->fn_8016DA4C();
             HitInfo_unk* hit = mChara->m638;
             atn::Matrix3x4* node = (atn::Matrix3x4*)m->GetNodeMtx_unk("rightwepoint");
-            ShootHit_unk(lbl_8087F048, mChara, hit, node->GetTrans_unk(), &mChara->mRot);
+            atn::Vector3 pos = node->GetTrans_unk();
+            BattleTask* mgr = lbl_8087F048;
+            const atn::Vector3* r = &mChara->mRot;
+            mgr->fn_800FAB80(mChara, hit, mgr->fn_800F8548(), &pos, r, 0, 0x1E, -1, -1, 0.0f, 1.0f);
             Shake_unk(lbl_8087F430, 6, 0.0f, 2.0f);
         }
         m10 = mChara->mPos;
@@ -728,7 +772,6 @@ int ControlThrustForGhoul::vf0C() {
     return 0;
 }
 
-// NONMATCHING: 60% - psq_st before the stfs of z in the original (same as ControlWallSlash::vf14)
 atn::Vector3 ControlThrustForGhoul::vf14() const {
     return m10;
 }
@@ -756,34 +799,40 @@ ControlThrustForCocoon::ControlThrustForCocoon(Chara_unk* chara, Chara_unk* coco
     mStart = mChara->mPos;
 }
 
-// NONMATCHING: 96.7% - registers around the bullet call; approach (frames 0-25), thrust and bullet (140), step back from frame 175
+// inferred: bullet of the thrust at the cocoon (as KrakenShoot_unk, with the bullet kind m28)
+static inline void CocoonShoot_unk(ControlThrustForCocoon* self, const atn::Vector3& pos, const atn::Vector3* r) {
+    BattleTask* mgr = lbl_8087F048;
+    mgr->fn_800FAB80(self->mChara, fn_80219E6C(self->m28), mgr->fn_800F8548(), &pos, r, 0, 0x1E, -1, -1, 0.0f, 1.0f);
+}
+
+// inferred: approach (frames 0-25), thrust and bullet (140), step back from frame 175
+
 int ControlThrustForCocoon::vf0C() {
     Motion_unk* m = &mChara->mMotion;
     atn::Vector3 pos = mChara->mPos;
     atn::Vector3 rot = mChara->mRot;
     float frame = m->mTracks[0].m08;
     if (frame < 25.0f) {
-        pos = LerpTo_unk(mStart, mTarget, frame / 30.0f);
+        pos = LerpTo_unk(mStart, mTarget, Frame_unk(m) / 30.0f);
         rot.y += 0.1f * atn::WrapAngle_unk(mYaw - rot.y);
     } else if (frame > 175.0f) {
         float t = (frame - 175.0f) / 50.0f;
         t = 1.0f < t ? 1.0f : t;
-        pos = LerpTo_unk(mTarget, mStart, t);
+        atn::VecAssign_unk(pos, LerpTo_unk(mTarget, mStart, t));
     } else {
         pos = mTarget;
         rot.y = mYaw;
         lbl_8087F430->mCamera.m958 = 1.0f;
         if (!m2C && m->mTracks[0].m08 > 140.0f) {
             m2C = true;
-            const atn::Vector3* r = &mChara->mRot;
-            atn::Matrix3x4* node = (atn::Matrix3x4*)m->GetNodeMtx_unk("rightwepoint");
-            ShootIdFrom_unk(lbl_8087F048, mChara, m28, node->GetTrans_unk(), r);
+            CocoonShoot_unk(this, ((atn::Matrix3x4*)m->GetNodeMtx_unk("rightwepoint"))->GetTrans_unk(), &mChara->mRot);
         }
     }
     rot.x = atn::WrapAngle_unk(rot.x);
     rot.y = atn::WrapAngle_unk(rot.y);
     rot.z = atn::WrapAngle_unk(rot.z);
-    mChara->mPos = pos;
+    CharaTask* c = mChara;
+    c->mPos = pos;
     mChara->mRot = rot;
     if (Frame_unk(m) >= m->fn_80097D7C(0)) {
         return 1;
@@ -1072,11 +1121,9 @@ ControlMatHoldDamage::ControlMatHoldDamage(Chara_unk* chara) : ControlBase(chara
     m->mTracks[0].m0C = 1.0f;
 }
 
-// NONMATCHING: 94.6% - checked against the asm (same flow, calls and constants); the stack slots of the
-// three rotation temporaries are reversed and the saved registers differ (the original keeps the
-// motion in r31 and this in r30). A RotZYX_unk inline with the temporaries in blocks (as in
-// chr/ControlBase.cpp) fixes the stack but not the registers; it and a `Matrix3x4* p = &rot;` local
-// renumber the @N of the unit.
+// NONMATCHING: 95.6% - the saved registers differ (the original keeps the motion in r31, this in r30, the
+// character in r28 and the matrix pointer in r29) and f8/f11 of the zero; the stack slots of the rotation
+// temporaries are right with the Mtx locals declared x, y, z (as in game/Em309Ghoul.cpp)
 // inferred: falls back for 64 frames, then takes a 10000 damage
 int ControlMatHoldDamage::vf0C() {
     CharaTask* c = mChara;
@@ -1085,15 +1132,28 @@ int ControlMatHoldDamage::vf0C() {
         int fps = lbl_8087F0A8->m030;
         atn::Vector3 move(0.0f, -98.1f / (float)(fps * fps), -0.46875f);
         atn::Matrix3x4 rot;
-        rot.SetIdentity();
+        Mtx rx;
+        Mtx tx;
+        Mtx ry;
+        Mtx ty;
+        Mtx rz;
+        Mtx tz;
+        atn::Matrix3x4* p = &rot;
+        p->SetIdentity();
         if (0.0f != c->mRot.z) {
-            atn::Matrix3x4::RotateAxis_unk(rot, 'z', c->mRot.z);
+            PSMTXRotRad(rz, 'z', c->mRot.z);
+            PSMTXConcat(p->m, rz, tz);
+            __MtxCopy(p->m, tz);
         }
         if (0.0f != c->mRot.y) {
-            atn::Matrix3x4::RotateAxis_unk(rot, 'y', c->mRot.y);
+            PSMTXRotRad(ry, 'y', c->mRot.y);
+            PSMTXConcat(p->m, ry, ty);
+            __MtxCopy(p->m, ty);
         }
         if (0.0f != c->mRot.x) {
-            atn::Matrix3x4::RotateAxis_unk(rot, 'x', c->mRot.x);
+            PSMTXRotRad(rx, 'x', c->mRot.x);
+            PSMTXConcat(p->m, rx, tx);
+            __MtxCopy(p->m, tx);
         }
         PSMTXMultVec(rot.m, &move, &move);
         atn::ColliResult_unk result;
@@ -1114,8 +1174,6 @@ int ControlMatHoldDamage::vf0C() {
     }
     return 0;
 }
-
-// NONMATCHING: 89.6% - copies of the direction vector and the order of the velocity products
 // inferred: thrown by the mat towards `target` (control id 0x71), landing after `frames` frames
 ControlThrown::ControlThrown(Chara_unk* chara, const atn::Vector3& target, int frames)
     : ControlBase(chara), mTarget(target), mFrames(frames), mCount(15), mDone(0) {
@@ -1127,16 +1185,20 @@ ControlThrown::ControlThrown(Chara_unk* chara, const atn::Vector3& target, int f
     if (mChara->mFlag31) {
         mChara->fn_801539E0();
     }
-    if (mChara->mFlag5) {
+    if (mChara->IsFlag5_unk() != 0) {
         mChara->mFlag5 = 0;
     }
+    float inv;
     float n = (float)frames;
-    mVel = (mTarget - mChara->mPos) * (1.0f / n);
+    inv = 1.0f / n;
+    CharaTask* c = mChara;
+    mVel = (mTarget - c->mPos) * inv;
     mVel.y -= 0.5f * (n * (0.5f * (-98.1f / (float)(lbl_8087F0A8->m030 *
                                                      lbl_8087F0A8->m030))));
-    atn::Vector3 dir = mTarget - mChara->mPos;
-    dir.y = 0.0f;
+    atn::Vector3 dir;
+    dir = mTarget - mChara->mPos;
     dir.Normalize_unk();
+    dir.y = 0.0f;
     mChara->mRot = dir.ToRotation_unk();
     Motion_unk* m = &mChara->mMotion;
     m->m34C = 1;
@@ -1154,21 +1216,29 @@ ControlThrown::ControlThrown(Chara_unk* chara, const atn::Vector3& target, int f
     }
 }
 
-// NONMATCHING: 92.3% - flight, then landing (the player can shake the remote to land on his feet)
+// inferred: as CharaTask::fn_80139E9C, inlined (name invented)
+static inline bool HasGimmick_unk(const CharaTask* c) {
+    return c->m1208 != 0;
+}
+
+// inferred: flight, then landing (the player can shake the remote to land on his feet)
 int ControlThrown::vf0C() {
     Motion_unk* m = &mChara->mMotion;
     mChara->mPos = mChara->mPos + mVel;
     int fps = lbl_8087F0A8->m030;
-    mVel.y += lbl_8087EFA8->m3A4 * (0.5f * (-98.1f / (float)(fps * fps)));
+    float scale = lbl_8087EFA8->m3A4;
+    mVel.y += scale * (0.5f * (-98.1f / (float)(fps * fps)));
     mFrames--;
     switch (mState) {
     case 0:
         if (mFrames < 0) {
-            if (mChara->m1208) {
+            if (HasGimmick_unk(mChara)) {
                 GimmickCommon* gimmick = (GimmickCommon*)mChara->m1208;
                 mChara->fn_801750FC();
-                GimmickMsg_unk msg(6);
+                GimmickMsg_unk msg;
+                msg.mType = 6;
                 msg.mVec = mTarget;
+                msg.m10 = 0; // inferred: stored again after the constructor in the original
                 msg.m04 = 1;
                 gimmick->vf40(&msg);
             }
@@ -1211,7 +1281,6 @@ int ControlThrown::vf0C() {
     return 0;
 }
 
-// NONMATCHING: 60% - psq_st before the stfs of z in the original (same as ControlWallSlash::vf14)
 atn::Vector3 ControlThrown::vf14() const {
     return mTarget;
 }
@@ -1240,7 +1309,6 @@ ControlThrownAway::~ControlThrownAway() {
     }
 }
 
-// NONMATCHING: 97.1% - the original copies the facing vector to mRot through the stack
 int ControlThrownAway::vf0C() {
     if (mChara->mF1C) {
         atn::Matrix3x4 mtx = FollowMtx_unk(mChara)->GetRotation_unk();
@@ -1248,6 +1316,8 @@ int ControlThrownAway::vf0C() {
         dir = atn::Vector3(0.0f, 0.0f, 1.0f);
         PSMTXMultVec(mtx.m, &dir, &dir);
         dir.RotZ_unk();
+        dir.x = 0.0f; // inferred: only the yaw of the matrix is kept
+        dir.z = 0.0f;
         mChara->mRot = dir;
         mChara->mPos = FollowMtx_unk(mChara)->GetTrans_unk();
     }
@@ -1263,7 +1333,6 @@ atn::Vector3 ControlThrownAway::vf14() const {
     return pos;
 }
 
-// NONMATCHING: 96.2% - copies of the facing vector (as in ControlThrownAway::vf0C)
 // inferred: thrown and caught again on the matrix `mtx` (control id 0x73)
 ControlThrownAvoid::ControlThrownAvoid(Chara_unk* chara, int mtx, const atn::Vector3& dir)
     : ControlBase(chara), mMtx(mtx), mDir(dir) {
@@ -1275,6 +1344,8 @@ ControlThrownAvoid::ControlThrownAvoid(Chara_unk* chara, int mtx, const atn::Vec
         dir = atn::Vector3(0.0f, 0.0f, 1.0f);
         PSMTXMultVec(mtx.m, &dir, &dir);
         dir.RotZ_unk();
+        dir.x = 0.0f; // inferred: only the yaw of the matrix is kept
+        dir.z = 0.0f;
         mChara->mRot = dir;
         mChara->mPos = FollowMtx_unk(mChara)->GetTrans_unk();
     }
@@ -1285,7 +1356,7 @@ ControlThrownAvoid::ControlThrownAvoid(Chara_unk* chara, int mtx, const atn::Vec
     m->mTracks[0].m0C = 1.0f;
 }
 
-// NONMATCHING: 97.5% - follows the matrix for 8 frames, then flies along mDir
+// inferred: follows the matrix for 8 frames, then flies along mDir
 int ControlThrownAvoid::vf0C() {
     Motion_unk* m = &mChara->mMotion;
     if (Frame_unk(m) >= m->fn_80097D7C(0)) {
@@ -1294,15 +1365,16 @@ int ControlThrownAvoid::vf0C() {
     if (m->mTracks[0].m08 >= 8.0f) {
         mChara->mF1C = 0;
         float speed = mDir.Length_unk();
-        atn::Vector3 dir = mDir;
-        dir.fn_80139F60();
-        mChara->fn_801426A4(&dir, speed, 1.5f);
+        atn::Vector3 rot = mDir.ToRotation_unk();
+        mChara->fn_801426A4(&rot, speed, 1.5f);
     } else if (mChara->mF1C) {
         atn::Matrix3x4 mtx = FollowMtx_unk(mChara)->GetRotation_unk();
         atn::Vector3 dir;
         dir = atn::Vector3(0.0f, 0.0f, 1.0f);
         PSMTXMultVec(mtx.m, &dir, &dir);
         dir.RotZ_unk();
+        dir.x = 0.0f; // inferred: only the yaw of the matrix is kept
+        dir.z = 0.0f;
         mChara->mRot = dir;
         mChara->mPos = FollowMtx_unk(mChara)->GetTrans_unk();
     }
@@ -1345,10 +1417,10 @@ ControlCaughtSkelton::ControlCaughtSkelton(Chara_unk* chara, CharaTask* holder) 
     mChara->mPos = mNode->GetTrans_unk();
 }
 
-// NONMATCHING: 98.5% - r4/r5/r6 order of the node, the temporary and mChara
 int ControlCaughtSkelton::vf0C() {
-    atn::Matrix3x4* node = mNode;
-    mChara->mPos = node->GetTrans_unk();
+    atn::Vector3 pos = mNode->GetTrans_unk();
+    CharaTask* c = mChara;
+    c->mPos = pos;
     mChara->mRot.Assign_unk(mHolder->mRot);
     return 0;
 }
@@ -1378,19 +1450,24 @@ ControlThrownSkelton::ControlThrownSkelton(Chara_unk* chara, const atn::Vector3&
     mChara->mF1C = 0;
 }
 
-// NONMATCHING: 93.1% - flies along mDir until it hits a wall; the hit fires the bullet mHit
+// inferred: flies along mDir until it hits a wall; the hit fires the bullet mHit
 int ControlThrownSkelton::vf0C() {
+    ColliManager_unk* world = lbl_8087EE98;
     atn::ColliResult_unk result;
+    atn::ColliCapsule* colli = &mChara->mColli;
     atn::Vector3 from = mChara->mPos + mDir * 5.0f;
     atn::Vector3 to = mChara->mPos + mDir * 30.0f;
-    if (fn_8004ED34(lbl_8087EE98, &result, &from, &to, mChara->fn_80179D44(), &mChara->mColli, 0)) {
-        mChara->mPos = result.m04;
+    if (fn_8004ED34(world, &result, &from, &to, mChara->fn_80179D44(), colli, 0)) {
+        CharaTask* c = mChara;
+        c->mPos = result.m04;
         mDir.y = 0.0f;
         mChara->mRot = mDir.ToRotation_unk();
-        ShootHit_unk(lbl_8087F048, mChara, mHit, result.m04, &mChara->mRot);
+        BattleTask* mgr = lbl_8087F048;
+        mgr->fn_800FAB80(mChara, mHit, mgr->fn_800F8548(), &result.m04, &mChara->mRot, 0, 0x1E, -1, -1, 0.0f, 1.0f);
         return 1;
     }
-    mChara->mPos = mChara->mPos + mDir * 10.0f;
+    CharaTask* c = mChara;
+    c->mPos = c->mPos + mDir * 10.0f;
     return 0;
 }
 
@@ -1621,7 +1698,6 @@ boost::function<void()> ControlBoundShade::vf10() const {
     return boost::bind(&CharaTask::fn_8016E970, (CharaTask*)mChara, mChara->m564);
 }
 
-// NONMATCHING: 98.2% - float register numbering (f6/f7 for the int-to-float constant and the time scale)
 int ControlThrownSimple::vf0C() {
     CharaTask* c = mChara;
     c->mPos = c->mPos + mVel;
@@ -1631,7 +1707,6 @@ int ControlThrownSimple::vf0C() {
     return 0;
 }
 
-// NONMATCHING: 60% - the original stores x/y with psq_st before the stfs of z
 atn::Vector3 ControlThrownSimple::vf14() const {
     return mTarget;
 }
@@ -1655,7 +1730,6 @@ ControlAbsorbedHP::ControlAbsorbedHP(Chara_unk* chara, CharaTask* other, HitInfo
     m->fn_80097C08(0, 0x227, 0, 0, 1, 0.0f, 0.1f);
 }
 
-// NONMATCHING: 99.95% - only the label of the L"%d" string (fixed by pairdata)
 int ControlAbsorbedHP::vf0C() {
     Motion_unk* m = &mChara->mMotion;
     if (mChara->mStatus.IsState_unk(0x20)) {
@@ -1706,7 +1780,8 @@ inline ControlAbsorbedHPReleased::ControlAbsorbedHPReleased(Chara_unk* chara) : 
     m->mTracks[0].m0C = 1.0f;
 }
 
-// NONMATCHING: 99.86% - the original loads mCount before saving r31 (as StickByQuark::vf10)
+// NONMATCHING: 99.85% - the boost node of the Released branch gets r29 (r30 in the original, the register of
+// `next`)
 boost::function<void()> ControlAbsorbedHP::vf10() const {
     if (mCount > 0) {
         atn::Vector3 dir(0.0f, 0.0f, -1.0f);
@@ -1811,7 +1886,14 @@ ControlEndCliffhangZanGurg::ControlEndCliffhangZanGurg(Chara_unk* chara, const a
     m->mTracks[0].m0C = 1.0f;
 }
 
-// NONMATCHING: 99.7% - stack slots of offset/pos/rot
+// inferred: m * v (name invented); through an inline the turned offset is a temporary below pos and rot, as
+// in the original
+static inline atn::Vector3 MulVec_unk(Mtx m, const atn::Vector3& v) {
+    atn::Vector3 r = v;
+    PSMTXMultVec(m, &r, &r);
+    return r;
+}
+
 int ControlEndCliffhangZanGurg::vf0C() {
     Motion_unk* m = &mChara->mMotion;
     float frame = Frame_unk(m);
@@ -1819,11 +1901,10 @@ int ControlEndCliffhangZanGurg::vf0C() {
     float t = frame / end;
     Mtx mtx;
     PSMTXRotRad(mtx, 'y', t * (2.0943952f - lbl_8087DA00) + lbl_8087DA00);
-    atn::Vector3 offset = mOffset;
-    PSMTXMultVec(mtx, &offset, &offset);
-    atn::Vector3 pos = mTarget + offset;
+    atn::Vector3 pos = mTarget + MulVec_unk(mtx, mOffset);
     atn::Vector3 rot = (mTarget - pos).ToRotationZ_unk();
-    mChara->mPos = pos;
+    CharaTask* c = mChara;
+    c->mPos = pos;
     mChara->mRot = rot;
     if (frame >= end) {
         return 1;

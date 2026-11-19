@@ -471,7 +471,7 @@ void Em403WarLion::vf40(HitInfo_unk* hit) {
 atn::Vector3 Em403WarLion::vf94() {
     atn::Vector3 v(0.0f, 0.0f, -7.0f);
     atn::Matrix3x4 m;
-    m.fn_8013A13C(mRot.y);
+    m.SetRotationY_unk(mRot.y);
     PSMTXMultVec(m.m, &v, &v);
     return v;
 }
@@ -791,13 +791,13 @@ inline atn::Matrix3x4& MakeRotationZYX_unk(atn::Matrix3x4& m, const atn::Vector3
 }
 
 // inferred: turns the neck with the lean and the waist with m14B4 (node matrix callback)
-// NONMATCHING: 98.79% - r30/r31 del nodo y huecos de pila de las matrices de MakeRotationZYX_unk
 void Em403WarLion::fn_803258D4(atn::Matrix3x4* mtx, const atn::NodeChunk& chunk) {
-    ModelNodeDesc_unk* node = (ModelNodeDesc_unk*)&chunk;
-    if (mLook.fn_8012A288(mtx, node) != 0) {
+    // inferred: matrix pointer declared up front (as QuadrupedTask::fn_805688CC; keeps the saved register)
+    atn::Matrix3x4* p;
+    if (mLook.fn_8012A288(mtx, (ModelNodeDesc_unk*)&chunk) != 0) {
         return;
     }
-    const char* name = node->mName;
+    const char* name = ((ModelNodeDesc_unk*)&chunk)->mName;
     if (strcmp(name, "neck") == 0) {
         if (m648 == 0) {
             atn::Vector3 pos = mtx->GetTrans_unk();
@@ -819,7 +819,17 @@ void Em403WarLion::fn_803258D4(atn::Matrix3x4* mtx, const atn::NodeChunk& chunk)
             mtx->m[2][3] = 0.0f;
             atn::Vector3 rot(0.0f, m14B4, 0.1f * m14B4);
             atn::Matrix3x4 r;
-            MakeRotationZYX_unk(r, rot);
+            p = &r;
+            p->SetIdentity();
+            if (rot.z != 0.0f) {
+                atn::Matrix3x4::RotateAxis_unk(*p, 'z', rot.z);
+            }
+            if (rot.y != 0.0f) {
+                atn::Matrix3x4::RotateAxis_unk(*p, 'y', rot.y);
+            }
+            if (rot.x != 0.0f) {
+                atn::Matrix3x4::RotateAxis_unk(*p, 'x', rot.x);
+            }
             PSMTXConcat(r.m, mtx->m, mtx->m);
             mtx->m[0][3] = pos.x;
             mtx->m[1][3] = pos.y;

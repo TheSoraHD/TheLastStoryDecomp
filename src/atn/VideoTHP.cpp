@@ -132,8 +132,8 @@ void VideoTHP::vf28() {
     atn::RenderManager::instance_->AddRender(this, 0x12, m10);
 }
 
-// NONMATCHING: 99.28% - only volatile register choices differ (r8/r9 for the converted height,
-// r6/r8 for the converted draw height, and one lis/addi pair); tried variable orders and temporaries
+// inferred: the draw width is computed from (h - 64) before dh is assigned (that order gives the volatile
+// registers of the original)
 void VideoTHP::vf10(RenderManager*) {
     switch (m08) {
     case 3:
@@ -182,8 +182,8 @@ void VideoTHP::vf10(RenderManager*) {
             y = 0;
         } else {
             if (m04 == 2) {
+                dw = (int)((float)(h - 64) * ((float)(w * 48 / 36) / aspect) / (float)h);
                 dh = h - 64;
-                dw = (int)((float)dh * ((float)(w * 48 / 36) / aspect) / (float)h);
             } else {
                 dh = h;
                 dw = w * 48 / 36;
@@ -198,9 +198,9 @@ void VideoTHP::vf10(RenderManager*) {
             x = 0;
             y = (int)(0.5f * ((float)h - (float)dh));
         } else {
+            dw = (int)((float)(w * (h - 64) / (h * 36 / 48)) / aspect);
             dh = h - 64;
             y = 32;
-            dw = (int)((float)(w * dh / (h * 36 / 48)) / aspect);
             x = (w - dw) / 2;
         }
     }

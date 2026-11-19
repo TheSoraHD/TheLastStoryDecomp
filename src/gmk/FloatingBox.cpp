@@ -25,28 +25,26 @@ extern "C" void fn_80087994(void* group, const char* name, int* value, void* fun
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 extern "C" GameConfig_unk* lbl_8087F0A8;
 
-// inferred: bounding box of the model resource (atn::Model::m16C); names invented
-struct ModelBounds_unk {
-    unsigned char m00[0x10];
-    atn::Vector3 mMin; // 0x10
-    atn::Vector3 mMax; // 0x1C
-};
+// inferred: bounding box of the model resource; names invented. The corners are returned by value from
+// inline getters and assigned (temporary + copy, one load feeding both stores), as in gmk/OpenBoard.
 struct Box_unk {
-    Box_unk(atn::Vector3 a, atn::Vector3 b) : mMin(a), mMax(b) {}
+    Box_unk() {}
     atn::Vector3 mMin;
     atn::Vector3 mMax;
 };
+inline atn::Vector3 BoxMin_unk(const atn::Model::Res_unk* r) { return r->mMin; }
+inline atn::Vector3 BoxMax_unk(const atn::Model::Res_unk* r) { return r->mMax; }
 inline float AbsF_unk(float x) {
     if (x < 0.0f) {
         x = -x;
     }
     return x;
 }
-// inferred: link of the character lists of the managers (CharaTask + 0x14AC)
-struct CharaListNode_unk {
-    unsigned char m0000[0x14AC];
-    CharaTask* mNext;
-};
+// inferred: position of a chara read through a reference (the original computes the address of the
+// position before the return slot of fn_80176548; name invented)
+static inline const atn::Vector3& PosOf_unk(CharaTask* c) {
+    return c->mPos;
+}
 
 namespace gmk {
 
@@ -59,15 +57,17 @@ GimmickCommon* FloatingBox::fn_8042C21C(atn::Task* parent, int id, int arg) {
 
 FloatingBox::~FloatingBox() {}
 
-// NONMATCHING: the original copies the corners of the bounds twice straight from the resource (one
-// load feeding both stores, see vf10 too); here the second copy reads the first. Tried: by-value and
-// by-reference box constructors, plain structs, temporaries.
+// The half sizes are assigned one by one (each product right after its absolute value).
 int FloatingBox::vf0C() {
     if (fn_803EC91C() == 0) {
-        ModelBounds_unk* res = *(ModelBounds_unk**)((char*)&mModel + 0x16C);
-        Box_unk box(res->mMin, res->mMax);
-        atn::Vector3 size(AbsF_unk(box.mMax.x - box.mMin.x) * 0.5f, AbsF_unk(box.mMax.y - box.mMin.y) * 0.5f,
-                          AbsF_unk(box.mMax.z - box.mMin.z) * 0.5f);
+        atn::Model::Res_unk* res = mModel.GetRes_unk();
+        Box_unk box;
+        box.mMin = BoxMin_unk(res);
+        box.mMax = BoxMax_unk(res);
+        atn::Vector3 size;
+        size.x = AbsF_unk(box.mMax.x - box.mMin.x) / 2.0f;
+        size.y = AbsF_unk(box.mMax.y - box.mMin.y) / 2.0f;
+        size.z = AbsF_unk(box.mMax.z - box.mMin.z) / 2.0f;
         fn_803EDB18(&mModel);
         mColli.m0C = this;
         mColli.fn_800575BC(&m6C, &m78, &size);
@@ -90,7 +90,6 @@ void FloatingBox::Start() {
     vf40(&msg);
 }
 
-// NONMATCHING: same bounds copies as vf0C, which also changes the register of this/chara.
 void FloatingBox::vf10() {
     if (m54 == 0) {
         Start();
@@ -98,19 +97,23 @@ void FloatingBox::vf10() {
     if (lbl_8087F8A0 == 0) {
         return;
     }
-    ModelBounds_unk* res = *(ModelBounds_unk**)((char*)&mModel + 0x16C);
-    Box_unk box(res->mMin, res->mMax);
-    atn::Vector3 size(1.1f * (AbsF_unk(box.mMax.x - box.mMin.x) * 0.5f), AbsF_unk(box.mMax.y - box.mMin.y) * 0.5f,
-                      1.1f * (AbsF_unk(box.mMax.z - box.mMin.z) * 0.5f));
+    atn::Model::Res_unk* res = mModel.GetRes_unk();
+    Box_unk box;
+    box.mMin = BoxMin_unk(res);
+    box.mMax = BoxMax_unk(res);
+    atn::Vector3 size;
+    size.x = 1.1f * (AbsF_unk(box.mMax.x - box.mMin.x) / 2.0f);
+    size.y = AbsF_unk(box.mMax.y - box.mMin.y) / 2.0f;
+    size.z = 1.1f * (AbsF_unk(box.mMax.z - box.mMin.z) / 2.0f);
     if (mCurAmp > 0.0f) {
         mCurAmp -= 0.01f;
     }
     mPhase -= 0.17453292f;
-    for (CharaTask* chara = lbl_8087F8A0->mHead; chara != 0; chara = ((CharaListNode_unk*)chara)->mNext) {
+    for (PlayerTask* chara = lbl_8087F8A0->mHead; chara != 0; chara = chara->mNext) {
         int inside = 0;
         atn::Vector3 d = m6C - chara->mPos;
         if (PSVECSquareMag(&d) < 1.5f * (size.z * size.z)) {
-            CharaTask::Sphere_unk sphere = chara->fn_80176548(chara->mPos);
+            CharaTask::Sphere_unk sphere = chara->fn_80176548(PosOf_unk(chara));
             sphere.mCenter.y -= 5.0f;
             if (fn_80051CD8(&sphere, &mColli.m3C) != 0) {
                 inside = 1;
@@ -139,8 +142,9 @@ void FloatingBox::vf10() {
     if (mCurAmp <= 0.0f) {
         mPhase = 0.0f;
     }
+    float phase = mPhase;
     m6C = mBasePos;
-    m6C.y += mCurAmp * (float)sin(mPhase);
+    m6C.y += mCurAmp * (float)sin(phase);
     mColli.fn_800575BC(&m6C, &m78, &size);
     if (vf38() != 0) {
         fn_803ED5D0(vf38());
@@ -148,7 +152,7 @@ void FloatingBox::vf10() {
     if (vf38() != 0) {
         fn_803ED0D4(vf38(), 1);
     }
-    if (m878 != 0.0f) {
+    if (m878) {
         for (GimmickCommon* g = GimmickManager::instance_->mHead; g != 0; g = g->m5C) {
         }
     }

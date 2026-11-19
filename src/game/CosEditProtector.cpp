@@ -477,9 +477,13 @@ void CosEditProtector::vf24() {
 
 // NONMATCHING: 93% - the copy of the zero vector takes the destination before the source (blocker of
 // docs/trucos-mwcc.md: Vector3 operator= register crossing)
-void CosEditProtector::vf28() {
-    atn::Vector3* pos = &m1B84;
+// inferred: clears a vector with the zero vector (name invented)
+static inline void ZeroVec_unk(atn::Vector3* pos) {
     *pos = lbl_807C7030;
+}
+
+void CosEditProtector::vf28() {
+    ZeroVec_unk(&m1B84);
     mB28 = 0.0f;
     for (int i = 0; i < m4C; i++) {
         m54[i].mFrame = 0.0f;
@@ -1500,7 +1504,15 @@ void CosEditProtector::vf34(int state) {
     }
 }
 
-// NONMATCHING: registers of member/item swapped; the original takes the address of the bars literal once
+// inferred: copy of an uv rectangle through an inline (as XAssign_unk; name invented)
+static inline void UVAssign_unk(CosEditUV_unk& dst, const CosEditUV_unk& src) {
+    dst = src;
+}
+// inferred: the layout taken before the hash (name invented)
+static inline void SetItemText_unk(atn::D2ATask_unk* task, const char* name, const wchar_t* text) {
+    void* layout = &((atn::D2A_Task*)task)->mData.m10;
+    fn_801FEE08(layout, fn_800DC6B4(name), text);
+}
 void CosEditProtector::fn_801D4E74(int member, atn::D2ATask_unk* task, int mode) {
     if (task != 0) {
         CosEditUV_unk uv;
@@ -1515,7 +1527,7 @@ void CosEditProtector::fn_801D4E74(int member, atn::D2ATask_unk* task, int mode)
                 }
             } else {
                 fn_80444C48(Inventory::instance_);
-                uv = CosEditUV_unk(0.0f, 0.0f, 0.0f, 0.0f);
+                UVAssign_unk(uv, CosEditUV_unk(0.0f, 0.0f, 0.0f, 0.0f));
                 name = L"\x2015\x2015\x2015\x2015";
             }
         } else if ((unsigned int)(mode - 2) <= 1) {
@@ -1531,7 +1543,7 @@ void CosEditProtector::fn_801D4E74(int member, atn::D2ATask_unk* task, int mode)
                 name = data->mName;
             }
         } else if (mode < 0) {
-            uv = CosEditUV_unk(0.0f, 0.0f, 0.0f, 0.0f);
+            UVAssign_unk(uv, CosEditUV_unk(0.0f, 0.0f, 0.0f, 0.0f));
             name = L"\x2015\x2015\x2015\x2015";
         } else {
             int id = fn_8020EF80((EquipParamEntry_unk*)fn_801CFAA8(member, 2));
@@ -1541,7 +1553,7 @@ void CosEditProtector::fn_801D4E74(int member, atn::D2ATask_unk* task, int mode)
                 name = data->mName;
             }
         }
-        SetPaneText_unk(&((atn::D2A_Task*)task)->mData.m10, "item01", name.data());
+        SetItemText_unk(task, "item01", name.data());
         SetUV_unk((atn::D2A_Task*)task, "iconUv01", uv);
     }
 }

@@ -134,7 +134,7 @@
   "classes": [
    "ArenaTask"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "game/Arms.cpp",
@@ -510,7 +510,7 @@
    "atn::VideoTHP",
    "atn::Video"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "atn/Util_unk.cpp",
@@ -878,7 +878,7 @@
    "chr::ControlGrapple",
    "chr::ControlJumpAt"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "chr/ControlAttractHateCharge.cpp",
@@ -968,7 +968,7 @@
    "chr::ControlSlip",
    "chr::ControlStagger"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "chr/ControlTurnQuadruped.cpp",
@@ -1171,7 +1171,7 @@
    "Event::AnimationData",
    "Event::MotionData"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "atn/CsvBase_char_124_13_34.cpp",
@@ -1488,7 +1488,7 @@
   "classes": [
    "Em003LesserDaemon"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "game/em005_doppel_ganger.cpp",
@@ -1775,7 +1775,7 @@
   "classes": [
    "Em315Coffin"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "game/Em316LaserSphere.cpp",
@@ -2372,7 +2372,7 @@
   "classes": [
    "gmk::FloatingBox"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "gmk/CharaObj.cpp",
@@ -2416,7 +2416,7 @@
    "RandomMerchantChara",
    "gmk::RandomMerchant"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "gmk/RandomItem.cpp",
@@ -2761,7 +2761,7 @@
   "classes": [
    "MapPartsRain"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "game/MapTask.cpp",
@@ -3533,7 +3533,7 @@
   "classes": [
    "atn::PostFxMotionBlur"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "atn/TextureDraw_unk.cpp",

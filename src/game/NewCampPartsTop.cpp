@@ -100,6 +100,11 @@ inline NewCampPartsPoint_unk GetPanePos_unk(atn::Task* layout, const char* name)
 inline void SetPaneText_unk(void* layout, const char* name, const wchar_t* text) {
     fn_801FEE08(layout, fn_800DC6B4(name), text);
 }
+// inferred: the layout taken before the hash (name invented)
+static inline void SetTaskText_unk(atn::D2A_Task* task, const char* name, const wchar_t* text) {
+    void* layout = &task->mData.m10;
+    fn_801FEE08(layout, fn_800DC6B4(name), text);
+}
 inline void SetPaneFloat_unk(void* layout, const char* name, float value) {
     fn_801FECE0(layout, fn_800DC6B4(name), value);
 }
@@ -180,9 +185,9 @@ void NewCampPartsTop::vf10() {
     }
 }
 
-// NONMATCHING: 99.8% - register allocation only (text/layout of the inlined SetPaneText_unk swapped and
-// the value of enableLoad in f31, f29 in the original)
-// inferred: zero declared first and assigned after one (saved FPRs f30/f29 of the loop constants)
+// inferred: zero declared first and assigned after one (saved FPRs f30/f29 of the loop constants); the value
+// of enableLoad in a local declared after them and set in an if/else (f29 of the original), a second local in
+// the other branch
 void NewCampPartsTop::vf14() {
     if (m4C <= 0) {
         return;
@@ -196,6 +201,7 @@ void NewCampPartsTop::vf14() {
     float zero;
     float one = 1.0f;
     zero = 0.0f;
+    float enable;
     for (unsigned int i = 0; i < mList.size(); i++) {
         NewCampTopEntry_unk* entry = mList.mData[i];
         fn_805112A8(m50.mData, entry->mList, atn::Vector3(zero, zero, zero), atn::Vector3(one, one, one), "reference");
@@ -234,16 +240,27 @@ void NewCampPartsTop::vf14() {
         task->SetNumber_unk("price(1)", Inventory::instance_->mMoney, 0);
     }
     if (lbl_8087F430->fn_803754F0()) {
-        SetPaneText_unk(&mInfoAnime->mData.m10, "select00_text", fn_80116FC0(0, 0x2767));
-        SetPaneFloat_unk(&mInfoAnime->mData.m10, "enableLoad", mCanLoad != 0 ? 1.0f : 0.5f);
+        SetTaskText_unk(mInfoAnime, "select00_text", fn_80116FC0(0, 0x2767));
+        if (mCanLoad != 0) {
+            enable = 1.0f;
+        } else {
+            enable = 0.5f;
+        }
+        SetPaneFloat_unk(&mInfoAnime->mData.m10, "enableLoad", enable);
         SetPaneFloat_unk(&mInfoAnime->mData.m10, "enableCheckPoint", 1.0f);
     } else {
-        SetPaneText_unk(&mInfoAnime->mData.m10, "select00_text", fn_80116FC0(0, 0x2764));
+        SetTaskText_unk(mInfoAnime, "select00_text", fn_80116FC0(0, 0x2764));
         if (lbl_8087F430->fn_80370174(0x394)) {
             SetPaneFloat_unk(&mInfoAnime->mData.m10, "enableLoad", 0.5f);
             SetPaneFloat_unk(&mInfoAnime->mData.m10, "enableCheckPoint", 0.5f);
         } else {
-            SetPaneFloat_unk(&mInfoAnime->mData.m10, "enableLoad", mCanLoad != 0 ? 1.0f : 0.5f);
+            float enable2;
+            if (mCanLoad != 0) {
+                enable2 = 1.0f;
+            } else {
+                enable2 = 0.5f;
+            }
+            SetPaneFloat_unk(&mInfoAnime->mData.m10, "enableLoad", enable2);
             if (lbl_8087DCCC != 0) {
                 SetPaneFloat_unk(&mInfoAnime->mData.m10, "enableCheckPoint", 1.0f);
             } else {

@@ -1,0 +1,93 @@
+diff --git a/src/gmk/AutomaticDoor.cpp b/src/gmk/AutomaticDoor.cpp
+index 1c0f501..5a8107c 100644
+--- a/src/gmk/AutomaticDoor.cpp
++++ b/src/gmk/AutomaticDoor.cpp
+@@ -276,30 +276,38 @@ void AutomaticDoor::vf10() {
+     }
+ }
+ 
++// inferred: name invented
++static inline GameTask* GetField_unk() {
++    return lbl_8087F430;
++}
++
++// inferred: name invented
++static inline void GetViewDir_unk(atn::Vector3& dir) {
++    dir = atn::RenderManager::instance_->mCamera.mTarget - atn::RenderManager::instance_->mCamera.mPos;
++    PSVECNormalize(&dir, &dir);
++}
++
+ // NONMATCHING: approximate - projection of the texture with a camera placed in front of the door
+ // (stack layout of the cameras and vectors, register allocation)
+ void AutomaticDoor::fn_803F53E0() {
+-    if (mProject == 0 || lbl_8087F430 == 0) {
+-        return;
+-    }
+-    if (lbl_8087F490 == 0) {
++    if (mProject == 0 || lbl_8087F430 == 0 || lbl_8087F490 == 0) {
+         return;
+     }
+     Camera_unk camera(0, 1);
+-    GameTask* field = lbl_8087F430;
++    GameTask* field = GetField_unk();
+     if (lbl_8087F490->m10FC != 0 && (field->mCamera.GetMode_unk() == 4 || field->mCamera.GetMode_unk() == 3)) {
+         float left = -1.0f;
+-        float bottom = left;
+         float right = 1.0f;
++        float bottom = left;
+         float top = right;
+         atn::Vector3 dir;
+-        dir = atn::RenderManager::instance_->mCamera.mTarget - atn::RenderManager::instance_->mCamera.mPos;
+-        PSVECNormalize(&dir, &dir);
++        GetViewDir_unk(dir);
+         atn::Vector3 pos;
+-        atn::Vector3 front(0.0f, 0.0f, 1.0f);
+         pos = m6C;
++        atn::Vector3 front(0.0f, 0.0f, 1.0f);
+         Mtx mtx;
+-        PSMTXRotRad(mtx, 'y', m78.y);
++        float ry = m78.y;
++        PSMTXRotRad(mtx, 'y', ry);
+         PSMTXMultVec(mtx, &front, &front);
+         pos += front * 11.5f;
+         float d = -PSVECDotProduct(&front, &dir);
+@@ -308,13 +316,12 @@ void AutomaticDoor::fn_803F53E0() {
+             return;
+         }
+         atn::Vector3 eye(atn::RenderManager::instance_->mCamera.mPos);
+-        float t = (front.x * (pos.x - eye.x) + front.y * (pos.y - eye.y) + front.z * (pos.z - eye.z)) / d;
+-        atn::Vector3 hit = eye - dir * t;
+-        atn::Vector3 p0 = atn::RenderManager::instance_->GetScreenPosition(hit);
+-        atn::Vector3 up(0.0f, 1.0f, 0.0f);
+-        atn::Vector3 p1;
+-        atn::Vector3 top_pos = hit + up;
+-        p1 = atn::RenderManager::instance_->GetScreenPosition(top_pos);
++        float num = front.x * (pos.x - eye.x) + front.y * (pos.y - eye.y) + front.z * (pos.z - eye.z);
++        atn::Vector3 hit = eye - dir * (num / d);
++        atn::Vector3 p0 = hit;
++        p0 = atn::RenderManager::instance_->GetScreenPosition(p0);
++        atn::Vector3 p1 = hit + atn::Vector3(0.0f, 1.0f, 0.0f);
++        p1 = atn::RenderManager::instance_->GetScreenPosition(p1);
+         if (p0.z < 0.0f || 1.0f < p0.z || p1.z < 0.0f || 1.0f < p1.z) {
+             mModel.mFlags &= ~0x80000;
+             return;
+@@ -322,7 +329,8 @@ void AutomaticDoor::fn_803F53E0() {
+         float scale = 1e-05f;
+         float dy = __fabs(p1.y - p0.y);
+         if (dy > 0.0f) {
+-            scale = lbl_8087F490->m1100 / dy;
++            float h = lbl_8087F490->m1100;
++            scale = h / dy;
+         }
+         left *= scale;
+         right *= scale;
+@@ -338,8 +346,8 @@ void AutomaticDoor::fn_803F53E0() {
+         camera.fn_8004B378();
+         ModelCameraParam_unk project;
+         project.mCamera = camera;
+-        project.m00 = 3;
+         project.m04 = &mTexture;
++        project.m00 = 3;
+         fn_80095F10(&mModel, &project);
+     } else {
+         mModel.mFlags &= ~0x80000;

@@ -111,7 +111,7 @@ extern "C" SpiderBaseColor_unk lbl_807C8398;
 static inline atn::Vector3 FrontDir_unk(const atn::Vector3& rot) {
     atn::Vector3 v(0.0f, 0.0f, 1.0f);
     atn::Matrix3x4 m;
-    m.fn_8013A13C(rot.y);
+    m.SetRotationY_unk(rot.y);
     PSMTXMultVec(m.m, &v, &v);
     return v;
 }
@@ -1238,7 +1238,7 @@ void Em202ForestSpider::fn_80277DC4() {
         EnemyTask* e = m14B0[i];
         if (e != 0 && (e->mStatus.IsState_unk(0x20) || e->mC58.mC0 == 0)) {
             atn::Matrix3x4 m;
-            m.fn_8013A13C(1.5707964f);
+            m.SetRotationY_unk(1.5707964f);
             PSMTXMultVec(m.m, &off, &off);
             atn::Vector3 pos = mPos + off;
             atn::Vector3 r = off.ToRotation_unk();

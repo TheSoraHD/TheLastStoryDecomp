@@ -1098,16 +1098,18 @@ int ShopBase::fn_805848E0(ShopEntry64_unk* entry) {
     return num < money ? num : money;
 }
 
-// NONMATCHING: push_back growth residue (stack slots of the two growth temporaries, docs/msl_cpp.md)
+// inferred: bonus declared at the top and read after AddItem (saved registers of the original)
 void ShopBase::fn_805849E8(ShopEntry64_unk* entry, int num) {
+    int bonus;
     int price = entry->m04 * num;
     Inventory::instance_->mDB0C = 0;
     Inventory::instance_->AddItem(entry->m00, entry->m58 * num, entry->m54, 0, 0, 1, 1);
     Inventory::instance_->mDB0C = 1;
-    if (entry->m5C != 0) {
+    bonus = entry->m5C;
+    if (bonus != 0) {
         ShopBought_unk bought;
         bought.mId = entry->m00;
-        bought.m04 = entry->m5C;
+        bought.m04 = bonus;
         m25B30.push_back(bought);
     }
     fn_8044D6AC(Inventory::instance_, price);

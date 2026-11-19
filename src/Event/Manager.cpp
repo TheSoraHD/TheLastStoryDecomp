@@ -1922,8 +1922,8 @@ int Manager::vf0C() {
     m2438->FreezeTask();
     return 1;
 }
-// NONMATCHING: 99.4% - the original calls no constructor for the rotation matrix (Matrix3x4() is called
-// here, all the inlines being out of line: over the inlining budget)
+// Over the inlining budget (all the inlines out of line): the rotation matrix is built by
+// atn::Matrix3x4::fn_8013A13C, which returns it by value (no constructor call).
 // inferred: update of the manager: light settings blend (m1AB0.m01), pending map change, the check
 // sphere (m1EA4), the queue of sequences, the movie fade and a BGM of event 0xCE7
 void Manager::vf10() {
@@ -1989,8 +1989,7 @@ void Manager::vf10() {
                     dir.Set_unk(0.0f, 0.0f, 1.0f);
                 }
                 dir.Normalize_unk();
-                atn::Matrix3x4 rot;
-                rot.fn_8013A13C(target.ToRotation_unk().y);
+                atn::Matrix3x4 rot = atn::Matrix3x4::fn_8013A13C(target.ToRotation_unk().y);
                 dir = dir - target;
                 dir.fn_80011410(Inverse_unk(rot));
                 dir.z = 0.0f;

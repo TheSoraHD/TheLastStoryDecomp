@@ -1,0 +1,71 @@
+diff --git a/src/game/Em314Ivy.cpp b/src/game/Em314Ivy.cpp
+index d5cac1f..40addd0 100644
+--- a/src/game/Em314Ivy.cpp
++++ b/src/game/Em314Ivy.cpp
+@@ -451,7 +451,8 @@ void Em314Ivy::vf104() {
+     }
+ }
+ 
+-// NONMATCHING: 99.4% - registers of the flag word and the stored values, and of the inlined CanAct_unk tests
++// NONMATCHING: 99.99% - only the register of the second read of lbl_8087F048 (r30 in the original: same
++// variable, new local, declared at the top or before effect: nothing)
+ // inferred: action of the current state (motion speed, the catch and its damage, the turn towards the target)
+ void Em314Ivy::vf108() {
+     float dist = 0.0f;
+@@ -499,8 +500,8 @@ void Em314Ivy::vf108() {
+         }
+         if (mC58.mC0 != 0 && (m54C & 0x2000) == 0x2000 && m15A8 != 0 && lbl_8087F430 != 0 &&
+             lbl_8087F430->fn_80375184() != 0) {
+-            m15A4 = 0;
+             m54C &= ~0x2000;
++            m15A4 = 0;
+             m15A8 = 0;
+         }
+         return;
+@@ -512,8 +513,7 @@ void Em314Ivy::vf108() {
+         float frame = mMotion.mTracks[0].m08;
+         if (m14E4 == 0 && 22.0f <= frame && frame <= 30.0f) {
+             if (mC58.mC4 != 0) {
+-                atn::Vector3 d = mC58.mC4->mPos - mPos;
+-                m14E0 = PSVECSquareMag(&d);
++                m14E0 = PSVECSquareMag(&(mC58.mC4->mPos - mPos));
+             }
+             if (m14E0 < m1508 * m1508) {
+                 fn_8031319C(mC58.mC4);
+@@ -535,7 +535,7 @@ void Em314Ivy::vf108() {
+             }
+             rot = d.ToRotation_unk();
+         } else {
+-            rot = m14D4;
++            __VecCopy(&rot.x, &m14D4.x);
+         }
+         break;
+     }
+@@ -548,8 +548,7 @@ void Em314Ivy::vf108() {
+             m14C0 = 0;
+             BattleTask* effect = lbl_8087F048;
+             if (effect != 0 && m14EC > 0) {
+-                int id = effect->fn_800F8548();
+-                effect->fn_800FD658(0, m14E4, fn_80219E6C(m14EC), id, 0, 30);
++                effect->fn_800FD658(0, m14E4, fn_80219E6C(m14EC), effect->fn_800F8548(), 0, 30);
+                 if (m14E4 != 0 && lbl_8087F498 != 0 && rand() % 2 == 0) {
+                     lbl_8087F498->fn_803EA77C(m14E4, 0x2A, 0, 1.0f, 10.0f);
+                 }
+@@ -578,7 +577,7 @@ void Em314Ivy::vf108() {
+             }
+             m14C4 = state;
+         }
+-        rot = m14D4;
++        __VecCopy(&rot.x, &m14D4.x);
+         break;
+     }
+     case 13: {
+@@ -590,7 +589,7 @@ void Em314Ivy::vf108() {
+         if (frame >= mMotion.fn_80097D7C(0)) {
+             mFlag31 = 1;
+         }
+-        rot = m14D4;
++        __VecCopy(&rot.x, &m14D4.x);
+         break;
+     }
+     }

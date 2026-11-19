@@ -5,6 +5,7 @@
 #include "std/string.h"
 #include "std/string_members.h"
 #include "atn/D2A_Manager.h"
+#include "atn/Color.h"
 
 // Instances of d2anime files: each one keeps its own frame and pane values and applies them to the
 // D2A_Task of the file (shared by all the instances of the same path) before drawing it. Three
@@ -313,7 +314,7 @@ void D2A_TaskInstanceBase<N, M>::SetColor_unk(const char* name, float r, float g
 }
 
 template <int N, int M>
-void D2A_TaskInstanceBase<N, M>::SetColor255_unk(const char* name, D2A_RGB_unk rgb) {
+void D2A_TaskInstanceBase<N, M>::SetColor255_unk(const char* name, Color rgb) {
     SetValue3_unk(name, 1, 255.0f * rgb.r);
     SetValue3_unk(name, 2, 255.0f * rgb.g);
     SetValue3_unk(name, 3, 255.0f * rgb.b);
@@ -398,7 +399,7 @@ template void D2A_TaskInstanceBase<64, 8>::Apply();
 template void D2A_TaskInstanceBase<64, 8>::SetValue0_unk(const char* name, float value);
 template void D2A_TaskInstanceBase<64, 8>::SetValue1_unk(const char* name, int index, float value);
 template void D2A_TaskInstanceBase<64, 8>::SetValues2_unk(const char* name, Vector4_unk uv);
-template void D2A_TaskInstanceBase<64, 8>::SetColor255_unk(const char* name, D2A_RGB_unk rgb);
+template void D2A_TaskInstanceBase<64, 8>::SetColor255_unk(const char* name, Color rgb);
 template void D2A_TaskInstanceBase<64, 8>::SetText_unk(const char* name, const wchar_t* text);
 template void D2A_TaskInstanceBase<64, 8>::SetNumber_unk(const char* name, int value, int digits);
 template void D2A_TaskInstanceBase<64, 8>::SetInt_unk(const char* name, int value);
@@ -424,7 +425,7 @@ template void D2A_TaskInstanceBase<32, 8>::SetValues2_unk(const char* name, Vect
 template void D2A_TaskInstanceBase<32, 8>::SetValue3_unk(const char* name, int index, float value);
 template void D2A_TaskInstanceBase<32, 8>::SetColor_unk(const char* name, unsigned int color);
 template void D2A_TaskInstanceBase<32, 8>::SetColor_unk(const char* name, float r, float g, float b);
-template void D2A_TaskInstanceBase<32, 8>::SetColor255_unk(const char* name, D2A_RGB_unk rgb);
+template void D2A_TaskInstanceBase<32, 8>::SetColor255_unk(const char* name, Color rgb);
 template void D2A_TaskInstanceBase<32, 8>::SetText_unk(const char* name, const wchar_t* text);
 template void D2A_TaskInstanceBase<32, 8>::SetNumber_unk(const char* name, int value, int digits);
 template D2A_DrawRect D2A_TaskInstanceBase<32, 8>::GetRect_unk(const char* name);

@@ -76,7 +76,7 @@ static inline void PlayEffect_unk(atn::EfpFile* efp, atn::Model* model) {
 static inline atn::Vector3 FrontDir_unk(const atn::Vector3& rot) {
     atn::Vector3 v(0.0f, 0.0f, 1.0f);
     atn::Matrix3x4 m;
-    m.fn_8013A13C(rot.y);
+    m.SetRotationY_unk(rot.y);
     PSMTXMultVec(m.m, &v, &v);
     return v;
 }
@@ -347,7 +347,7 @@ void Em202MothersSpider::vf10() {
     atn::Vector3 fwd = FrontDir_unk(mRot);
     fn_805A5078(&pos, &fwd, 1000, 1.2f * m5B0, 3.1415927f);
     atn::Matrix3x4 rm;
-    rm.fn_8013A13C(mRot.y);
+    rm.SetRotationY_unk(mRot.y);
     m196C = rm;
     atn::Vector3 base = mPos;
     atn::Vector3 off(0.0f, 24.0f, -2.0f);
@@ -358,7 +358,14 @@ void Em202MothersSpider::vf10() {
     m196C.m[2][3] = base.z;
 }
 
-// NONMATCHING: 99.3% - stack slots of fwd/d and operand order of m1514 * 0.5f (as Em202ForestSpider::vf3C)
+// inferred: dot of the direction to `pos` with the front of `rot` (local helper: its vectors go to the bottom of
+// the frame as in the original)
+static inline float FrontDot_unk(const atn::Vector3& rot, const atn::Vector3& pos, const atn::Vector3& from) {
+    atn::Vector3 fwd = FrontDir_unk(rot);
+    atn::Vector3 d(pos - from);
+    return PSVECDotProduct(&d, &fwd);
+}
+
 void Em202MothersSpider::vf3C(HitInfo_unk* hit, int) {
     HitMsg_unk* msg = (HitMsg_unk*)hit;
     if (fn_8021A888(msg->mData) != 0 && msg->mAttacker->mType == 3 && fn_80277B84(msg->mAttacker) == 0 &&
@@ -380,10 +387,8 @@ void Em202MothersSpider::vf3C(HitInfo_unk* hit, int) {
         }
         if (msg->mData->m01 != 1) {
             int guard = 0;
-            atn::Vector3 fwd = FrontDir_unk(mRot);
-            atn::Vector3 d(msg->m1C - mPos);
-            float dot = PSVECDotProduct(&d, &fwd);
-            if (dot > (float)cos(m1514 * 0.5f)) {
+            float dot = FrontDot_unk(mRot, msg->m1C, mPos);
+            if (dot > (float)cos(m1514 / 2.0f)) {
                 guard = 1;
             }
             if (guard) {
@@ -425,7 +430,7 @@ void Em202MothersSpider::vf40(HitInfo_unk* hit) {
             if (m199C == 0 && m19A4 > m19AC) {
                 atn::Vector3 back = FrontDir_unk(mRot);
                 atn::Matrix3x4 m;
-                m.fn_8013A13C(3.1415927f);
+                m.SetRotationY_unk(3.1415927f);
                 PSMTXMultVec(m.m, &back, &back);
                 fn_8015E4B0(back, -1);
                 m199C = 1;
@@ -434,7 +439,7 @@ void Em202MothersSpider::vf40(HitInfo_unk* hit) {
         if (msg->mData->m01 == 1) {
             atn::Vector3 back = FrontDir_unk(mRot);
             atn::Matrix3x4 m;
-            m.fn_8013A13C(3.1415927f);
+            m.SetRotationY_unk(3.1415927f);
             PSMTXMultVec(m.m, &back, &back);
             fn_8015E4B0(back, -1);
             m199C = 1;

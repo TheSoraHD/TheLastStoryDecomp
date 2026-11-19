@@ -51,6 +51,9 @@ public:
     virtual void vf10();          // 0x8004350C
     virtual void vf14();          // 0x800437A4
 
+    // inferred: the instance; read directly by BattleTask, GameScene, GameEventScript and GameTask (0x8087EE78)
+    static ArenaTask* sInstance;
+
     static ArenaTask* fn_8004318C(atn::Task* parent);  // inferred: creates the instance
     static bool fn_800431F4(int a, int b, int);        // inferred: arena map (2, 9); the sub map is not used
     void fn_80043A24();                                 // inferred: reads the fighters and the spawn points

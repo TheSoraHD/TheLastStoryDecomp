@@ -59,7 +59,7 @@ inline atn::Vector3 atn::Vector3::operator-() const {
 inline atn::Vector3 FrontDir_unk(const atn::Vector3& rot) {
     atn::Vector3 v(0.0f, 0.0f, 1.0f);
     atn::Matrix3x4 mtx;
-    mtx.fn_8013A13C(rot.y);
+    mtx.SetRotationY_unk(rot.y);
     PSMTXMultVec(mtx.m, &v, &v);
     return v;
 }
@@ -741,7 +741,7 @@ ControlDamageLastOne::ControlDamageLastOne(Chara_unk* chara, const atn::Vector3*
         model->fn_80097C08(0, 0x172, 0, 1, 1, 0.0f, 0.1f);
         m08.Set_unk(-10.0f, 0.0f, -25.0f);
         atn::Matrix3x4 mtx;
-        mtx.fn_8013A13C(m14.y);
+        mtx.SetRotationY_unk(m14.y);
         PSMTXMultVec(mtx.m, &m08, &m08);
         float scale = 0.04f;
         m08 *= scale;

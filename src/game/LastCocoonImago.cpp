@@ -151,7 +151,7 @@ inline void LastCocoonImago::Lunge_unk(const atn::Vector3& dir) {
 inline atn::Vector3 LastCocoonImago::Front_unk() {
     atn::Vector3 v(0.0f, 0.0f, 1.0f);
     atn::Matrix3x4 rot;
-    rot.fn_8013A13C(mRot.y);
+    rot.SetRotationY_unk(mRot.y);
     PSMTXMultVec(rot.m, &v, &v);
     return v;
 }
@@ -624,7 +624,7 @@ void LastCocoonImago::vf54() {
                 dir.y = 0.0f;
                 dir.z = 1.0f;
                 atn::Matrix3x4 rot;
-                rot.fn_8013A13C(mRot.y);
+                rot.SetRotationY_unk(mRot.y);
                 PSMTXMultVec(rot.m, &dir, &dir);
                 m624.mData[i].m04.mCenter = mPos - dir * 3.0f;
                 m624.mData[i].m04.mCenter.y += 0.5f * sImagoAttacks_unk[i].mRadius;
@@ -671,7 +671,7 @@ void LastCocoonImago::fn_8045ABB4(const atn::Vector3& target, float move, float 
     rot.y += step;
     atn::Vector3 vel(0.0f, 0.0f, 1.0f);
     atn::Matrix3x4 m;
-    m.fn_8013A13C(rot.y);
+    m.SetRotationY_unk(rot.y);
     PSMTXMultVec(m.m, &vel, &vel);
     if (move > 0.33333334f) {
         vel *= 0.33333334f * speed;
@@ -1224,7 +1224,7 @@ void LastCocoonImago::fn_8045DF34() {
                 HitInfo_unk* bullet = fn_80219E6C(0x5BD);
                 atn::Vector3 dir(0.0f, 0.0f, 1.0f);
                 atn::Matrix3x4 m;
-                m.fn_8013A13C(mRot.y);
+                m.SetRotationY_unk(mRot.y);
                 PSMTXMultVec(m.m, &dir, &dir);
                 atn::Vector3 at = mPos + dir;
                 CharaTask* player = lbl_8087F8A0->mHead;
@@ -1262,7 +1262,7 @@ void LastCocoonImago::fn_8045DF34() {
             PSVECNormalize(&d, &d);
             atn::Vector3 front(0.0f, 0.0f, 1.0f);
             atn::Matrix3x4 m;
-            m.fn_8013A13C(mRot.y);
+            m.SetRotationY_unk(mRot.y);
             PSMTXMultVec(m.m, &front, &front);
             if (PSVECDotProduct(&d, &front) < 0.0f) {
                 ok = 0;
@@ -1306,7 +1306,7 @@ void LastCocoonImago::fn_8045E548() {
             dir.y = 0.0f;
             dir.z = 1.0f;
             atn::Matrix3x4 rot;
-            rot.fn_8013A13C(mRot.y);
+            rot.SetRotationY_unk(mRot.y);
             PSMTXMultVec(rot.m, &dir, &dir);
             dir *= 15.0f;
             atn::Vector3 pos = dir;
@@ -1347,7 +1347,7 @@ void LastCocoonImago::fn_8045E780() {
         dir.y = 0.0f;
         dir.z = 1.0f;
         atn::Matrix3x4 m;
-        m.fn_8013A13C(mRot.y);
+        m.SetRotationY_unk(mRot.y);
         PSMTXMultVec(m.m, &dir, &dir);
         mPos += dir * 3.75f * t;
         float turn = t * (0.15f * (m14D4.ToRotation_unk().y - mRot.y));

@@ -83,7 +83,7 @@ inline atn::Vector3 Neg_unk(const atn::Vector3& v) {
 inline atn::Vector3 GetFront_unk(const atn::Vector3& rot) {
     atn::Vector3 v(0.0f, 0.0f, 1.0f);
     atn::Matrix3x4 m;
-    m.fn_8013A13C(rot.y);
+    m.SetRotationY_unk(rot.y);
     PSMTXMultVec(m.m, &v, &v);
     return v;
 }

@@ -1,0 +1,133 @@
+diff --git a/src/game/LibraryTask.cpp b/src/game/LibraryTask.cpp
+index 13109bf..7eddf7b 100644
+--- a/src/game/LibraryTask.cpp
++++ b/src/game/LibraryTask.cpp
+@@ -641,7 +641,8 @@ void BookTask::fn_8046B798(const void* data, unsigned int size) {
+             page->mPicture.fn_800D5908(path);
+         }
+         page->m3C = csv.fn_8005B9CC();
+-        page->mText = std::basic_string<wchar_t>(csv.fn_8005B9CC());
++        std::basic_string<wchar_t> text(csv.fn_8005B9CC());
++        page->mText = text;
+         i++;
+     } while (csv.fn_8005BBF8());
+ }
+diff --git a/src/game/NewCampPartsOption.cpp b/src/game/NewCampPartsOption.cpp
+index 35b1a5d..9d939f5 100644
+--- a/src/game/NewCampPartsOption.cpp
++++ b/src/game/NewCampPartsOption.cpp
+@@ -400,13 +400,11 @@ void NewCampPartsOption::vf10() {
+         float v = 0.2f + mD4;
+         mD4 = 0.0f < v ? 0.0f : v;
+     }
+-    float arrow = m180;
+-    if (arrow > 0.0f) {
+-        float v = arrow - 0.2f;
++    if (m180 > 0.0f) {
++        float v = m180 - 0.2f;
+         m180 = 0.0f > v ? 0.0f : v;
+-    }
+-    if (arrow < 0.0f) {
+-        float v = 0.2f + arrow;
++    } else if (m180 < 0.0f) {
++        float v = 0.2f + m180;
+         m180 = 0.0f < v ? 0.0f : v;
+     }
+ }
+@@ -710,28 +708,31 @@ inline int IsLoading_unk(atn::D3Anime* anime) {
+     return anime != 0 && anime->mState == 1;
+ }
+ 
++// inferred: an item of the page is still loading (name invented)
++static inline bool ItemsLoading_unk(NewCampOptionPage_unk* page) {
++    for (int j = 0; j < page->mCount; j++) {
++        if (page->mItems[j].mAnime->mState == 1) {
++            return true;
++        }
++    }
++    return false;
++}
+ // NONMATCHING: 91.81% - not tuned
+ void NewCampPartsOption::vf20() {
+     if (m96 != 0) {
+         int ready = 1;
+         for (int i = 0; i < m4C; i++) {
+-            if (IsLoading_unk(m50[i].mAnime)) {
++            if (m50[i].mAnime != 0 && m50[i].mAnime->mState == 1) {
+                 ready = 0;
+                 break;
+             }
+         }
+         for (int i = 0; i < 6; i++) {
+-            int loading;
+-            if (IsLoading_unk(mPages[i].mAnime)) {
+-                loading = 1;
++            bool loading;
++            if (mPages[i].mAnime != 0 && mPages[i].mAnime->mState == 1) {
++                loading = true;
+             } else {
+-                loading = 0;
+-                for (int j = 0; j < mPages[i].mCount; j++) {
+-                    if (mPages[i].mItems[j].mAnime->mState == 1) {
+-                        loading = 1;
+-                        break;
+-                    }
+-                }
++                loading = ItemsLoading_unk(&mPages[i]);
+             }
+             if (loading) {
+                 ready = 0;
+@@ -772,12 +773,11 @@ void NewCampPartsOption::vf20() {
+             for (int i = 0; i < 6; i++) {
+                 const NewCampOptionDef_unk* defs = sPages[i];
+                 fn_805113E8(mPages[i].mAnime, 1, 0, 0.0f, 0.0f);
+-                const NewCampOptionDef_unk* def = defs;
+-                for (int j = 0; j < mPages[i].mCount; j++, def++) {
++                for (int j = 0; j < mPages[i].mCount; j++) {
+                     NewCampOptionItem_unk* item = &mPages[i].mItems[j];
+                     fn_805114D4(item->mAnime, 1, 0, 0.0f, 0.0f);
+                     if (defs != 0) {
+-                        item->SetDef_unk(def);
++                        item->SetDef_unk(&defs[j]);
+                     }
+                 }
+             }
+@@ -1168,7 +1168,7 @@ void NewCampPartsOption::fn_80525A08(int count, int ofs) {
+     m80 = mE4 - ofs;
+     fn_80510D64(1, 3);
+     mE4 = m80 + ofs;
+-    NewCampOptionItem_unk* item = &mPages[mE8].mItems[mE4];
++    NewCampOptionItem_unk* item = &mPages[mE8].mItems.mData[mE4];
+     int old = item->mValue;
+     m80 = old;
+     m84 = item->mCount;
+diff --git a/src/game/NewCampPartsTop.cpp b/src/game/NewCampPartsTop.cpp
+index 30f6499..c7b00b4 100644
+--- a/src/game/NewCampPartsTop.cpp
++++ b/src/game/NewCampPartsTop.cpp
+@@ -100,6 +100,11 @@ inline NewCampPartsPoint_unk GetPanePos_unk(atn::Task* layout, const char* name)
+ inline void SetPaneText_unk(void* layout, const char* name, const wchar_t* text) {
+     fn_801FEE08(layout, fn_800DC6B4(name), text);
+ }
++// inferred: the layout taken before the hash (name invented)
++static inline void SetTaskText_unk(atn::D2A_Task* task, const char* name, const wchar_t* text) {
++    void* layout = &task->mData.m10;
++    fn_801FEE08(layout, fn_800DC6B4(name), text);
++}
+ inline void SetPaneFloat_unk(void* layout, const char* name, float value) {
+     fn_801FECE0(layout, fn_800DC6B4(name), value);
+ }
+@@ -234,11 +239,11 @@ void NewCampPartsTop::vf14() {
+         task->SetNumber_unk("price(1)", Inventory::instance_->mMoney, 0);
+     }
+     if (lbl_8087F430->fn_803754F0()) {
+-        SetPaneText_unk(&mInfoAnime->mData.m10, "select00_text", fn_80116FC0(0, 0x2767));
++        SetTaskText_unk(mInfoAnime, "select00_text", fn_80116FC0(0, 0x2767));
+         SetPaneFloat_unk(&mInfoAnime->mData.m10, "enableLoad", mCanLoad != 0 ? 1.0f : 0.5f);
+         SetPaneFloat_unk(&mInfoAnime->mData.m10, "enableCheckPoint", 1.0f);
+     } else {
+-        SetPaneText_unk(&mInfoAnime->mData.m10, "select00_text", fn_80116FC0(0, 0x2764));
++        SetTaskText_unk(mInfoAnime, "select00_text", fn_80116FC0(0, 0x2764));
+         if (lbl_8087F430->fn_80370174(0x394)) {
+             SetPaneFloat_unk(&mInfoAnime->mData.m10, "enableLoad", 0.5f);
+             SetPaneFloat_unk(&mInfoAnime->mData.m10, "enableCheckPoint", 0.5f);

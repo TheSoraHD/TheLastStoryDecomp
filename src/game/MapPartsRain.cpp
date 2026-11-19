@@ -4,8 +4,15 @@
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" float fn_800DC288(const char* str); // inferred: string to float
 extern "C" int fn_800DC12C(const char* str);    // inferred: string to int
-extern "C" int lbl_8087E0D0; // inferred: minimum rain drop count
-extern "C" int lbl_8087E0D4; // inferred: maximum rain drop count
+// inferred: minimum and maximum rain drop count (.sdata 0x8087E0D0/0x8087E0D4). The original keeps the zero in
+// .sdata, which MWCC only does with explicit_zero_data (approved exception, only around the zero definition).
+extern "C" {
+#pragma push
+#pragma explicit_zero_data on
+int lbl_8087E0D0 = 0;
+#pragma pop
+int lbl_8087E0D4 = 0x1000;
+}
 
 // inferred: clamp helper (the bounds are read twice at 0x8049CFB8)
 template <class T>

@@ -175,8 +175,25 @@ void Em314Ivy::fn_80310C64(const char* text, int length) {
     } while (csv.fn_8005BBF8());
 }
 
-// NONMATCHING: 99.34% - stack slots of the node position temporaries and r3/r4/r5 of the Vector3 copies
-// (__VecCopy family); 12 variants (declaration order, inline helpers, named temporaries)
+// inferred: collision capsule on the reference node (local helper: in a static inline the stack slots of its
+// vectors are those of the original; the node position copied with __VecCopy for the r3/r4 of the copy)
+static inline void UpdateColli_unk(Em314Ivy* p) {
+    atn::Vector3 base = p->mPos;
+    MtxPtr ref = p->mMotion.GetNodeMtx_unk("reference");
+    if (ref != 0) {
+        __VecCopy(&base.x, &GetNodePos_unk(ref).x);
+    }
+    p->m620 = p->m5B0;
+    p->m614 = base + p->m5A4;
+    p->m614.y += p->m620;
+    atn::Vector3 top = p->m614;
+    atn::Vector3 head = top;
+    head.y += p->m5B4 - 2.0f * p->m620;
+    p->mColli.m3C = top;
+    p->mColli.m48 = head;
+    p->mColli.m54 = p->m620;
+}
+
 void Em314Ivy::vf10() {
     fn_80312EF8();
     vf104();
@@ -184,20 +201,7 @@ void Em314Ivy::vf10() {
     if ((mFlags & 1) != 1 && !CharaTask::mFlag25) {
         fn_80145334();
     }
-    atn::Vector3 base = mPos;
-    MtxPtr ref = mMotion.GetNodeMtx_unk("reference");
-    if (ref != 0) {
-        base = GetNodePos_unk(ref);
-    }
-    m620 = m5B0;
-    m614 = base + m5A4;
-    m614.y += m620;
-    atn::Vector3 top = m614;
-    atn::Vector3 head = top;
-    head.y += m5B4 - 2.0f * m620;
-    mColli.m3C = top;
-    mColli.m48 = head;
-    mColli.m54 = m620;
+    UpdateColli_unk(this);
 }
 
 // NONMATCHING: 83.25% - the original loads the point and the arguments before the branch that picks the color

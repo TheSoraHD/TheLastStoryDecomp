@@ -508,7 +508,8 @@ int EnemyTasha::fn_8035738C(float rate, float limit) {
     return 0;
 }
 
-// NONMATCHING: 98.69% - FPR numbering of the products of front * radius and r27/r28 of the copy into m1534
+// inferred: the offset built component by component (front * radius gives other FPRs) and copied into m1534
+// with __VecCopy from the temporary (VecAssign_unk / operator= cross r27/r28)
 void EnemyTasha::fn_803576F8(float radius) {
     atn::Vector3 front(0.0f, 0.0f, 0.0f);
     atn::Vector3 center = mC58.mC4->mPos;
@@ -527,7 +528,7 @@ void EnemyTasha::fn_803576F8(float radius) {
         Mtx m;
         PSMTXRotRad(m, 'y', angle);
         PSMTXMultVec(m, &front, &front);
-        atn::VecAssign_unk(m1534, center + front * radius);
+        __VecCopy(&m1534.x, &(center + atn::Vector3(front.x * radius, front.y * radius, front.z * radius)).x);
         void* colli = lbl_8087EE98;
         if (fn_8004ED34(colli, 0, &center, &m1534, fn_80179D44() | 0x80000000, 0, 0) == 0) {
             return;

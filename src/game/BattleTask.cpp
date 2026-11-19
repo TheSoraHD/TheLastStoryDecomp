@@ -1280,7 +1280,7 @@ inline float HitHeight_unk(const HitInfo_unk* data) { return data->m54; }
 // inferred: rotates `v` around y by `rad` (inlined in vf14, a matrix per call; name invented)
 inline void RotateY_unk(atn::Vector3& v, float rad) {
     atn::Matrix3x4 m;
-    m.fn_8013A13C(rad);
+    m.SetRotationY_unk(rad);
     PSMTXMultVec(m.m, &v, &v);
 }
 
@@ -2631,7 +2631,6 @@ inline float SquareMagXZ_unk(const atn::Vector3& v) {
 // inferred: index of the hit sphere of `chara` reached by the melee arc of `attacker` (reach data->m40 plus
 // the reach of the attacker, angle data->m50 around the facing of the attacker turned by `angle`, height
 // data->m54) nearest to the attacker; -1 when nothing is reached. Called by the enemies.
-// NONMATCHING: 99.96% - register of the absolute height (f3/f4)
 int BattleTask::fn_800FBA9C(CharaTask* attacker, CharaTask* chara, HitInfo_unk* data, int id,
                            float angle) {
     if (chara->fn_801533C8(id, data)) {
@@ -2660,7 +2659,7 @@ int BattleTask::fn_800FBA9C(CharaTask* attacker, CharaTask* chara, HitInfo_unk* 
         }
         float range = reach + item->m04.mRadius;
         atn::Vector3 d = item->m04.mCenter - attacker->mPos;
-        float dy = __fabs(d.y);
+        float dy = atn::Abs_unk(d.y);
         if (dy > range) {
             continue;
         }
@@ -2846,7 +2845,7 @@ void BattleTask::fn_800FC410(CharaTask* attacker, CharaTask* chara, int index, H
     m38A5C.m40 = index;
     m38A5C.m08 = hit;
     atn::Vector3 dir = attacker->mPos - HitCenterAt_unk(chara, index);
-    if (!((float)__fabs(PSVECSquareMag(&dir)) < 1.1920929e-7f)) {
+    if (!(atn::Abs_unk(PSVECSquareMag(&dir)) < 1.1920929e-7f)) {
         PSVECNormalize(&dir, &dir);
         dir *= chara->m5B0;
         m38A5C.m1C = dir + HitCenterAt_unk(chara, index);
@@ -3134,7 +3133,6 @@ void BattleTask::fn_800FDE60(CharaTask* attacker, CharaTask* chara, const atn::V
 
 
 extern "C" double cos(double x);
-extern "C" ArenaTask* lbl_8087EE78; // inferred: the arena (ArenaTask's sInstance)
 extern "C" int fn_80444020(Inventory* party, int item, int a, int b, int c, int d, int* outA, int* outB,
                            int* outC); // inferred: adds an item (as in game/BattleResult.cpp)
 extern "C" int fn_8021E48C(int item, int arg); // inferred: count of the item given at once
@@ -3239,7 +3237,7 @@ int BattleTask::fn_800FDF14(BattleCalcParam_unk* p) {
     if (p->m44 == 0) {
         atn::Vector3 front(0.0f, 0.0f, target->mFlag31 ? 1.0f : -1.0f);
         atn::Matrix3x4 m;
-        m.fn_8013A13C(target->mRot.y);
+        m.SetRotationY_unk(target->mRot.y);
         PSMTXMultVec(m.m, &front, &front);
         float dot = PSVECDotProduct(&front, &p->m28);
         if (dot < (float)cos(2.0943952f)) {
@@ -3671,8 +3669,8 @@ int BattleTask::fn_800FDF14(BattleCalcParam_unk* p) {
             }
         }
     }
-    if (lbl_8087EE78 != 0 && (p->m80 >> 31)) {
-        lbl_8087EE78->fn_80043BF4(1, attacker, target);
+    if (ArenaTask::sInstance != 0 && (p->m80 >> 31)) {
+        ArenaTask::sInstance->fn_80043BF4(1, attacker, target);
     }
     if (attacker != 0 && attacker->mType == 0) {
         if (p->m80 >> 31) {
@@ -6200,7 +6198,7 @@ atn::Vector3 BattleTask::fn_80109950(CharaTask* chara) {
     if (hit) {
         atn::Vector3 v(0.0f, 0.0f, chara->m64->m30);
         atn::Matrix3x4 m;
-        m.fn_8013A13C(atn::WrapAngle_unk(rot + angle - offset));
+        m.SetRotationY_unk(atn::WrapAngle_unk(rot + angle - offset));
         PSMTXMultVec(m.m, &v, &v);
         atn::Vector3 pos(center->mPos.x + v.x, chara->mPos.y, center->mPos.z + v.z);
         return pos;
@@ -6232,7 +6230,7 @@ atn::Vector3 BattleTask::fn_80109950(CharaTask* chara) {
     if (hit) {
         atn::Vector3 v(0.0f, 0.0f, chara->m64->m30);
         atn::Matrix3x4 m;
-        m.fn_8013A13C(atn::WrapAngle_unk(offset + (rot + angle)));
+        m.SetRotationY_unk(atn::WrapAngle_unk(offset + (rot + angle)));
         PSMTXMultVec(m.m, &v, &v);
         atn::Vector3 pos(center->mPos.x + v.x, chara->mPos.y, center->mPos.z + v.z);
         return pos;
@@ -7195,7 +7193,7 @@ void BattleTask::fn_8010D320(atn::Vector3 pos) {
     }
     to.Normalize_unk();
     atn::Vector3 rot = dir.ToRotation_unk();
-    atn::Matrix3x4 m = atn::Matrix3x4::RotY_unk(rot.y);
+    atn::Matrix3x4 m = atn::Matrix3x4::fn_8013A13C(rot.y);
     atn::Vector3 diff = to - dir;
     to = diff;
     atn::Matrix3x4 inv(m);

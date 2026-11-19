@@ -243,7 +243,7 @@ void MiniMapTask::vf14() {
         break;
     }
     }
-    atn::Matrix3x4 mtx = atn::Matrix3x4::RotY_unk(angle);
+    atn::Matrix3x4 mtx = atn::Matrix3x4::fn_8013A13C(angle);
     atn::Vector3 front(0.0f, 0.0f, -1.0f);
     PSMTXMultVec(mtx.m, &front, &front);
     atn::Vector3 frontRot(front.x, 0.0f, -front.z);

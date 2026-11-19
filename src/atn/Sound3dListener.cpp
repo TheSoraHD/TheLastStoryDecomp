@@ -61,7 +61,7 @@ void Sound3dListener::fn_800C7F08(const Vector3& pos, const Vector3& rot) {
     Matrix3x4 rotY;
     Matrix3x4 view;
     Vector3 dir(0.0f, 0.0f, 1.0f);
-    rotY.fn_8013A13C(mRot.y);
+    rotY.SetRotationY_unk(mRot.y);
     PSMTXMultVec(rotY.m, &dir, &dir);
     Vector3 target;
     Vector3 up(0.0f, 1.0f, 0.0f);

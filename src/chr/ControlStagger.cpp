@@ -190,12 +190,12 @@ ControlSlip::ControlSlip(Chara_unk* chara, int stop) : ControlBase(chara), mStop
     }
 }
 
-// NONMATCHING: 99.9% - mChara is loaded into r3 instead of r5 (the rotation is passed as a temporary).
+// inferred: motion and frame first, read through `motion` (mChara in r5 as in the original)
 int ControlSlip::vf0C() {
+    Motion_unk* motion = &mChara->mMotion;
+    float frame = motion->mTracks[0].m08;
     float speed = 0.0f;
     float rate = speed;
-    Motion_unk* motion = &mChara->mMotion;
-    float frame = mChara->mMotion.mTracks[0].m08;
     if (frame >= motion->fn_80097D7C(0)) {
         return 1;
     }

@@ -3428,9 +3428,20 @@ struct SavePosition_unk {
     atn::Vector3 mRot; // 0x4F70
 };
 
+// inferred: GameScene::FindPlace_unk with the array read inside the loop (as in game/Em208Queen.cpp)
+static inline gs::WarpPoint* FindRoutePlace_unk(GameScene* table, int id) {
+    for (unsigned int i = 0; i < table->m78.size(); i++) {
+        gs::WarpPoint* places = table->m78.mData;
+        if (id == places[i].mId) {
+            return &places[i];
+        }
+    }
+    return 0;
+}
+
 // inferred: start position of the party: from the save data, else from the route place of the entry
 // (called by game/GameScene)
-// NONMATCHING: 98.2% - registers of the inlined FindPlace_unk loops (as fn_80374710)
+// NONMATCHING: 98.7% - registers of the inlined FindRoutePlace_unk loops (the id in r6/r8, ours r3)
 extern "C" void fn_8036FE74(GameTask* task, atn::Vector3* pos, atn::Vector3* rot) {
     *pos = lbl_807C7030;
     *rot = lbl_807C7030;
@@ -3442,9 +3453,9 @@ extern "C" void fn_8036FE74(GameTask* task, atn::Vector3* pos, atn::Vector3* rot
     }
     if (task->m550C.mScene != 0) {
         GameScene* table = (GameScene*)task->m550C.mScene;
-        gs::WarpPoint* place = table->FindPlace_unk(task->m550C.m14);
+        gs::WarpPoint* place = FindRoutePlace_unk(table, task->m550C.m14);
         if (place == 0) {
-            place = table->FindPlace_unk(table->m70);
+            place = FindRoutePlace_unk(table, table->m70);
         }
         if (place != 0) {
             *pos = place->mPos;
@@ -3460,9 +3471,9 @@ extern "C" void fn_8036FE74(GameTask* task, atn::Vector3* pos, atn::Vector3* rot
     }
     if (task->m10D8 != 0) {
         GameScene* table = (GameScene*)task->m10D8;
-        gs::WarpPoint* place = table->FindPlace_unk(task->mOption.m10);
+        gs::WarpPoint* place = FindRoutePlace_unk(table, task->mOption.m10);
         if (place == 0) {
-            place = table->FindPlace_unk(table->m70);
+            place = FindRoutePlace_unk(table, table->m70);
         }
         if (place != 0) {
             *pos = place->mPos;
@@ -4012,7 +4023,7 @@ void GameTask::fn_80371790() {
                 from.y += 5.0f;
                 atn::Vector3 dir(0.0f, 0.0f, 1.0f);
                 atn::Matrix3x4 m;
-                m.fn_8013A13C(rot.y);
+                m.SetRotationY_unk(rot.y);
                 PSMTXMultVec(m.m, &dir, &dir);
                 atn::Vector3 to = from + dir * 20.0f;
                 if (fn_8004ED34(lbl_8087EE98, 0, &from, &to, 0x80000008, 0, 0) == 0) {
@@ -4404,8 +4415,8 @@ inline ColorMatrixParam_unk* RenderSetting_unk::GetColorMatrix_unk() {
     return &m324;
 }
 
-// NONMATCHING: 98.9% - the default constructor of the atn::Matrix3x4 of the ray loop is called out of line here
-// (the original emits nothing for it), and registers. Victory pose of the multiplayer battle (places the members
+// NONMATCHING: 99.4% - registers and stack slots (the matrix of the ray loop comes by value from
+// atn::Matrix3x4::fn_8013A13C, without constructor call). Victory pose of the multiplayer battle (places the members
 // around the leader and starts the finish camera); every inline is called out of line in the original (R3)
 void GameTask::fn_803729B4(CharaTask* chara) {
     if (chara == 0) {
@@ -4431,8 +4442,7 @@ void GameTask::fn_803729B4(CharaTask* chara) {
             atn::Vector3 from(base);
             from.y += 5.0f;
             atn::Vector3 dir(0.0f, 0.0f, 1.0f);
-            atn::Matrix3x4 m;
-            m.fn_8013A13C(rot.y);
+            atn::Matrix3x4 m = atn::Matrix3x4::fn_8013A13C(rot.y);
             dir.fn_80011410(m);
             atn::Vector3 to = from + dir * 20.0f;
             if (fn_8004ED34(fn_801404F8(), 0, &from, &to, 0x80000008, 0, 0) == 0) {
@@ -4545,7 +4555,6 @@ void GameTask::fn_80373164(CharaTask* owner, const atn::Vector3* pos, int id) {
     }
 }
 
-extern "C" ArenaTask* lbl_8087EE78;
 
 // NONMATCHING: 93.4% - scheduling of the second copy of the colour matrix (the constants of the camera blend are
 // loaded earlier in the original) and registers of the frames of the finish camera
@@ -4608,8 +4617,8 @@ void GameTask::fn_803731E8() {
         GameBgm::sInstance->fn_8037D49C(0.2f * volume, 10);
     }
     m55A8 = fn_800C31F4(sFieldSounds_unk[1], 0, -1, 1.0f);
-    if (lbl_8087EE78 != 0) {
-        lbl_8087EE78->fn_80043D58(2);
+    if (ArenaTask::sInstance != 0) {
+        ArenaTask::sInstance->fn_80043D58(2);
     }
     lbl_8087EFA8->m240.mEnabled = 1;
     ColorMatrixParam_unk cm(*lbl_8087EFA8->GetColorMatrix_unk());
@@ -4788,8 +4797,8 @@ void GameTask::fn_80373AE8() {
         fn_802328DC(60);
         lbl_8087F9E8->fn_8059D178();
         fn_802328DC(0);
-        if (lbl_8087EE78 != 0) {
-            lbl_8087EE78->fn_80043D58(3);
+        if (ArenaTask::sInstance != 0) {
+            ArenaTask::sInstance->fn_80043D58(3);
         }
         lbl_8087F3C0->mPaused = 0;
         lbl_8087F3C0->fn_800D246C(1);
@@ -4934,7 +4943,6 @@ void GameTask::fn_803743AC() {
 }
 
 // inferred: starts the grapple camera, toward the route place `id` when there is one
-// NONMATCHING: 99.5% - registers of the inlined FindPlace_unk loop (index and table swapped; tried if/else, a helper)
 void GameTask::fn_80374710(int id) {
     PlayerTask* leader = lbl_8087F8A0->mHead;
     mCamera.fn_80389838(6);
@@ -4943,7 +4951,7 @@ void GameTask::fn_80374710(int id) {
     if (id > 0) {
         // inferred: m10D8 is read as the route table here (as in gmk/BulletPoint.cpp)
         GameScene* table = (GameScene*)m10D8;
-        gs::WarpPoint* place = table != 0 ? table->FindPlace_unk(id) : 0;
+        gs::WarpPoint* place = table != 0 ? FindRoutePlace_unk(table, id) : 0;
         if (place != 0) {
             pos = place->mPos;
             angle = -place->m14;
@@ -5332,12 +5340,29 @@ int GameTask::fn_80375B78(int arg) {
     return level;
 }
 
+// inferred: fn_803754F0 as inlined in fn_80375D0C (the original keeps the map type in r29 and the id in r28 there,
+// the other way round in the out-of-line copy); name invented
+static inline int InClearedDungeon_unk(GameTask* task) {
+    if (task->m5694 != 0 && task->GetCurrentMap() != 0) {
+        int sub, id, type;
+        type = task->GetCurrentMap()->mType;
+        id = task->GetCurrentMap()->mId;
+        sub = task->GetCurrentMap()->mSubId;
+        if (task->fn_8037587C(type, id, sub)) {
+            if (type == 2 && id == 9) {
+                return 0;
+            }
+            return 1;
+        }
+    }
+    return 0;
+}
+
 // inferred: level cap of the field (chapter level scaled by the difficulty, plus the dungeon bonus)
-// NONMATCHING: 99.7% - the map type and id of the inlined fn_803754F0 get r28/r29 swapped
 int GameTask::fn_80375D0C() {
     int cap = 0;
     ChapterEntry_unk* chapter = lbl_8087F430->m10D4;
-    if (fn_803754F0()) {
+    if (InClearedDungeon_unk(this)) {
         chapter = fn_80208694(lbl_8087F430->m10D0);
     }
     if (chapter != 0) {

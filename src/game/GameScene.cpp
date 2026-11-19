@@ -105,7 +105,6 @@ extern "C" void* lbl_8087F610; // inferred: multiplayer session
 
 extern "C" EnvSeManager* lbl_8087F418;
 extern "C" TownTask* lbl_8087FA20;
-extern "C" ArenaTask* lbl_8087EE78;
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
 extern "C" PlayerManager* lbl_8087F8A0;
 extern "C" atn::SoundManager* lbl_8087EFE8;
@@ -354,8 +353,8 @@ int GameScene::vf0C() {
                 fn_8047E5DC(lbl_8087F540, m180[i]);
             }
         }
-        if (lbl_8087EE78 != 0) {
-            lbl_8087EE78->fn_80043A24();
+        if (ArenaTask::sInstance != 0) {
+            ArenaTask::sInstance->fn_80043A24();
         }
         m48++;
     } else if (m48 == 2) {
@@ -849,7 +848,7 @@ gs::CameraBox* GameScene::fn_803C2090(atn::SimpleArray<gs::CameraBox>& boxes, Ch
             continue;
         }
         atn::ColliBoxShape_unk shape;
-        shape.mMtx = atn::Matrix3x4::RotY_unk(box.m14);
+        shape.mMtx = atn::Matrix3x4::fn_8013A13C(box.m14);
         atn::Vector3 center = box.mPos;
         center.y += box.mSize.y;
         shape.mMtx.fn_801479E4(center);
@@ -2879,7 +2878,7 @@ gs::BgmBox* GameScene::fn_803CCDAC(atn::SimpleArray<gs::BgmBox>& boxes, CharaTas
             continue;
         }
         atn::ColliBoxShape_unk shape;
-        shape.mMtx = atn::Matrix3x4::RotY_unk(box.m14);
+        shape.mMtx = atn::Matrix3x4::fn_8013A13C(box.m14);
         atn::Vector3 center = box.mPos;
         center.y += box.mSize.y;
         shape.mMtx.fn_801479E4(center);

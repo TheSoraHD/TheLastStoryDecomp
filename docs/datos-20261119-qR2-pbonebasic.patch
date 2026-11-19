@@ -1,0 +1,49 @@
+diff --git a/src/atn/PBoneBasic.cpp b/src/atn/PBoneBasic.cpp
+index 4fcd033..4dc0219 100644
+--- a/src/atn/PBoneBasic.cpp
++++ b/src/atn/PBoneBasic.cpp
+@@ -36,6 +36,10 @@ struct PBoneModel_unk {
+     void* m220;
+ 
+     atn::Matrix3x4* GetNodeMtx_unk(int index) { return index < 0 ? 0 : &mNodeMtx[index]; }
++    // inferred: accessors (the original loads the pose arguments right to left; names invented)
++    ModelData_unk* GetData_unk() { return m16C; }
++    atn::Matrix3x4* GetMtx_unk() { return mNodeMtx; }
++    const atn::MotionBuffer* GetMotion_unk() { return (const atn::MotionBuffer*)m220; }
+ };
+ 
+ // inferred: rotation (x, y, z) that turns the z axis to dir
+@@ -154,6 +158,7 @@ void PBoneBasic::vf10() {
+     if (angles.z > m58) {
+         angles.z = m58;
+     }
++    Vector3 axis(1.0f, 0.0f, 0.0f);
+     m14 = Vector3(1.0f, 0.0f, 0.0f);
+     Matrix3x4 m;
+     m.SetIdentity();
+@@ -165,7 +170,13 @@ void PBoneBasic::vf10() {
+     m14 *= m5C;
+     Matrix3x4 local;
+     local.SetIdentity();
+-    RotateAlways_unk(local, 'y', angles.y);
++    {
++        Mtx r;
++        PSMTXRotRad(r, 'y', angles.y);
++        Mtx t;
++        PSMTXConcat(local.m, r, t);
++        __MtxCopy(local.m, t);
++    }
+     RotateAlways_unk(local, 'z', angles.z);
+     Matrix3x4 world;
+     PSMTXConcat(root->m, local.m, world.m);
+@@ -173,8 +184,8 @@ void PBoneBasic::vf10() {
+     SetTrans_unk(root, rootPos);
+     SetTrans_unk(m64->GetNodeMtx_unk(m3C), rootPos + m14);
+     ModelJoint_unk* joint = m64->m16C->m48[m3C];
+-    ModelPose_unk pose(m64->m16C, m64->mNodeMtx, 0, atn::ModelNodeCallback_unk(), 0, 0);
+-    fn_8009ADA4(&pose, m3C, (const atn::MotionBuffer*)m64->m220, m64->GetNodeMtx_unk(joint->m1C), 0);
++    ModelPose_unk pose(m64->GetData_unk(), m64->GetMtx_unk(), 0, atn::ModelNodeCallback_unk(), 0, 0);
++    fn_8009ADA4(&pose, m3C, m64->GetMotion_unk(), m64->GetNodeMtx_unk(joint->m1C), 0);
+     m08 = rootPos;
+     m2C = lbl_807C7030;
+ }

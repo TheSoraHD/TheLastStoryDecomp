@@ -356,7 +356,7 @@ void EnvSeBox::vf1C(atn::Csv* csv) {
     mSize.y = fn_800DC288(csv->fn_8005B9CC());
     mSize.z = fn_800DC288(csv->fn_8005B9CC());
     pos.y += mSize.y;
-    mMtx = atn::Matrix3x4::RotY_unk(rot);
+    mMtx = atn::Matrix3x4::fn_8013A13C(rot);
     mMtx.m[0][3] = pos.x;
     mMtx.m[1][3] = pos.y;
     mMtx.m[2][3] = pos.z;
@@ -453,7 +453,7 @@ void EnvSeArea_unk::fn_80362FA4(atn::Csv* csv) {
     mSize.y = fn_800DC288(csv->fn_8005B9CC());
     mSize.z = fn_800DC288(csv->fn_8005B9CC());
     pos.y += mSize.y;
-    mMtx = atn::Matrix3x4::RotY_unk(rot);
+    mMtx = atn::Matrix3x4::fn_8013A13C(rot);
     mMtx.m[0][3] = pos.x;
     mMtx.m[1][3] = pos.y;
     mMtx.m[2][3] = pos.z;

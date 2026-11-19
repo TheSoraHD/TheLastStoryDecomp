@@ -1,0 +1,142 @@
+diff --git a/src/game/GameEventScript.cpp b/src/game/GameEventScript.cpp
+index 2e3c920..bd2472a 100644
+--- a/src/game/GameEventScript.cpp
++++ b/src/game/GameEventScript.cpp
+@@ -439,11 +439,11 @@ void GameEventScript::fn_80394C68() {
+             }
+         }
+     }
+-    scene = mScene;
+-    for (unsigned int i = 0; i < scene->mEC.size(); i++) {
+-        gs::EventSphere& sphere = scene->mEC[i];
+-        for (unsigned int j = 0; j < scene->mEC.size(); j++) {
+-            gs::EventSphere& other = scene->mEC[j];
++    atn::SimpleArray<gs::EventSphere>& spheres = mScene->mEC;
++    for (unsigned int i = 0; i < spheres.size(); i++) {
++        gs::EventSphere& sphere = spheres[i];
++        for (unsigned int j = 0; j < spheres.size(); j++) {
++            gs::EventSphere& other = spheres[j];
+             if (i == j || sphere.m20 == j || other.m20 == i || (sphere.m20 >= 0 && sphere.m20 == other.m20)) {
+                 m14C[i].push_back(j);
+             }
+@@ -3469,6 +3469,7 @@ static inline void SetLightIntensity_unk(const EventIdEntry_unk* entry) {
+ // event the running one is stopped first (event 0x23F1 also turns the leader towards the enemy 400004); the
+ // entry gives the light of the event and, for a camera event (m44 2), its camera starts from the field
+ // camera; 1 if it started
++#include "math/VecAssign_unk.h"
+ extern "C" int fn_803A11D8(int id, int arg, int warpId, EventIdEntry_unk* entry) {
+     GameScene* scene;
+     int started = 0;
+@@ -3495,13 +3496,14 @@ extern "C" int fn_803A11D8(int id, int arg, int warpId, EventIdEntry_unk* entry)
+                     dir.fn_80139F60();
+                     dir.x = 0.0f;
+                     dir.y = atn::WrapAngle_unk(dir.y + (rand() % 2 == 0 ? 1.0f : -1.0f) * 0.62831855f);
+-                    lbl_8087F8A0->mHead->mRot = dir;
++                    lbl_8087F8A0->mHead->SetRot_unk(dir);
+                 }
+             }
+         }
+         started = 1;
+     }
+-    atn::Vector3 pos = lbl_807C7030;
++    atn::Vector3 pos;
++    atn::VecAssign_unk(pos, lbl_807C7030);
+     float rot = 0.0f;
+     gs::WarpPoint* warp = scene != 0 ? FindWarpIn_unk(scene, warpId) : 0;
+     if (warp != 0) {
+@@ -3519,8 +3521,9 @@ extern "C" int fn_803A11D8(int id, int arg, int warpId, EventIdEntry_unk* entry)
+     }
+     lbl_8087F540->fn_8047EA34(id, pos, arg, rot);
+     SetLightFix_unk(entry);
++    int type = entry->m44;
+     SetLightIntensity_unk(entry);
+-    if (entry->m44 == 2) {
++    if (type == 2) {
+         Event::EventCamera_unk* camera = lbl_8087F540->GetCamera_unk();
+         GameTask* field = lbl_8087F430;
+         float speed = 30.0f;
+@@ -4237,6 +4240,19 @@ void GameEventScript::fn_803A39F8(ScriptResult_unk& result, ScriptCmd_unk* cmd)
+ 
+ // inferred: waits for the tactical view (m08 2) or for a button after showing a guide (3: guide 13,
+ // else 12) in the UI; then ends the grapple camera
++// inferred: guide request of the UI (as ZanUIHint_unk of game/Em201ZanGurgFinal.cpp)
++struct ScriptGuide_unk : public GameUIElem1C_unk {
++    ScriptGuide_unk(int type, int id, int c) {
++        m00 = type;
++        m04 = id;
++        m08 = c;
++        m0C = 0;
++        m10 = 0;
++        m14 = 0;
++        m18 = 0;
++    }
++};
++
+ // NONMATCHING: 93.7% - registers of the guide fields and the store of mWait
+ void GameEventScript::fn_803A3AB4(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
+     const ScriptArgs_unk* args = static_cast<const ScriptArgs_unk*>(cmd);
+@@ -4252,14 +4268,7 @@ void GameEventScript::fn_803A3AB4(ScriptResult_unk& result, const ScriptCmd_unk*
+             }
+         } else {
+             if (lbl_8087F490 != 0) {
+-                GameUIElem1C_unk& guide = lbl_8087F490->m764;
+-                guide.m00 = 6;
+-                guide.m04 = (args->m08 == 3) + 12;
+-                guide.m08 = -1;
+-                guide.m0C = 0;
+-                guide.m10 = 0;
+-                guide.m14 = 0;
+-                guide.m18 = 0;
++                lbl_8087F490->m764 = ScriptGuide_unk(6, (args->m08 == 3) + 12, -1);
+             }
+             if (fn_800A555C(lbl_8087EF70, 0, 4) != 0) {
+                 fn_800C31F4(lbl_8074EF78[8], 0, -1, 1.0f);
+@@ -4711,6 +4720,7 @@ void GameEventScript::fn_803A5650(ScriptResult_unk& result, const ScriptCmd_unk*
+ }
+ 
+ // NONMATCHING: 95.5% - IsFree_unk is computed as a bool (cror) in the original and mState is reused
++static inline bool TextFree_unk(GameTextMessageWindow* w, float t) { bool free = true; if (w->mState != 0) { bool ok = t <= w->m60; if (!ok) free = false; } return free; }
+ // inferred: shows the text messages m10 to m1C of the scene in the text window (m14 bit 0: do not wait,
+ // bit 1: closes the window instead, bit 2: sets the event counter (m08, m0C))
+ void GameEventScript::fn_803A5804(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
+@@ -4718,7 +4728,7 @@ void GameEventScript::fn_803A5804(ScriptResult_unk& result, const ScriptCmd_unk*
+     GameMessage* msg = (GameMessage*)mScene->fn_803CC6B4(args->m10);
+     GameTextMessageWindow* window = lbl_8087F490->m2640;
+     if ((args->m14 & 2) != 2) {
+-        if (window != 0 && window->IsFree_unk(5.0f) && msg != 0) {
++        if (window != 0 && TextFree_unk(window, 5.0f) && msg != 0) {
+             if (window->mState == 2) {
+                 window->fn_803B6E04(msg, args->m18, 5.0f);
+             } else {
+@@ -6004,7 +6014,6 @@ void GameEventScript::fn_803A956C(ScriptResult_unk& result, const ScriptCmd_unk*
+         GameTask* field = lbl_8087F430;
+         if (field != 0 && ((unsigned int)args->m10 & 4) != 4 && ((unsigned int)args->m10 & 0x20) != 0x20) {
+             float t; float amp; float scale;
+-            t = (float)mBC / (float)mC0;
+             ScriptShake_unk shake;
+             shake.mPos.x = 0.0f;
+             shake.mPos.y = 0.0f;
+@@ -6013,6 +6022,7 @@ void GameEventScript::fn_803A956C(ScriptResult_unk& result, const ScriptCmd_unk*
+             shake.mTarget.y = 0.0f;
+             shake.mTarget.z = 0.0f;
+             shake.mFovy = 0.0f;
++            t = (float)mBC / (float)mC0;
+             amp = 1.0f - (float)sin(0.5f * (3.1415927f * t));
+             scale = field->mCamera.mCamera.mDist / 3.0f;
+             if (((unsigned int)args->m10 & 0x20) != 0x20) {
+@@ -6577,6 +6587,7 @@ void GameEventScript::PrintLog_unk(atn::SimpleArray<ScriptLog_unk>& log) {
+         if (entry.m10 == entry.m14) {
+             continue;
+         }
++        char line[256];
+         char pages[256];
+         if (entry.m10 == -1) {
+             sprintf(pages, "START Page%d\0", entry.m14 + 1);
+@@ -6585,7 +6596,6 @@ void GameEventScript::PrintLog_unk(atn::SimpleArray<ScriptLog_unk>& log) {
+         } else {
+             sprintf(pages, "Page%d -> %d", entry.m10 + 1, entry.m14 + 1);
+         }
+-        char line[256];
+         sprintf(line, "%d,%s,%d,\x83y\x81[\x83W\x90\xD8\x82\xE8\x91\xD6\x82\xA6,%s,\0", mB0, lbl_8074EFC8[entry.m04],
+                 entry.m08, pages);
+         m384.push_back(std::string(line));

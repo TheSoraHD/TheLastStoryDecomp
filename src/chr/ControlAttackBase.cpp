@@ -82,7 +82,7 @@ static inline bool UseAuto_unk(bool on, CharaTask* chara) {
 static inline atn::Vector3 GetFront_unk(const atn::Vector3& rot) {
     atn::Vector3 v(0.0f, 0.0f, 1.0f);
     atn::Matrix3x4 m;
-    m.fn_8013A13C(rot.y);
+    m.SetRotationY_unk(rot.y);
     PSMTXMultVec(m.m, &v, &v);
     return v;
 }
@@ -261,7 +261,7 @@ ControlAttack::ControlAttack(Chara_unk* chara, const atn::Vector3& dir) : Contro
         id = self->m484[24];
         atn::Vector3 front(0.0f, 0.0f, 1.0f);
         atn::Matrix3x4 m;
-        m.fn_8013A13C(self->mRot.y);
+        m.SetRotationY_unk(self->mRot.y);
         PSMTXMultVec(m.m, &front, &front);
         mDir = front;
     } else {
@@ -367,7 +367,9 @@ int ControlAttack::vf0C() {
     return 0;
 }
 
-// NONMATCHING: 98.3% - as ControlAttack::ControlAttack.
+// inferred: the two bools of the auto attack test are named locals (materialized like the original), the
+// two character ids are tested with a negated && (no range compare) and the yaw of the direction is read
+// into a local (FPR order of the original)
 ControlAttackNext::ControlAttackNext(Chara_unk* chara, const atn::Vector3& dir) : ControlAttackBase(chara, dir) {
     chara->m560 = 5;
     Motion_unk* motion = &mChara->mMotion;
@@ -386,10 +388,14 @@ ControlAttackNext::ControlAttackNext(Chara_unk* chara, const atn::Vector3& dir) 
         float back70 = cos(atn::DegToRad_unk(70.0f));
         Chara_unk* player = mChara;
         bool on = false;
-        if (player->IsPlayer() && !IsManualAttack_unk()) {
-            on = true;
+        bool isPlayer = player->IsPlayer();
+        if (isPlayer) {
+            bool manual = IsManualAttack_unk();
+            if (!manual) {
+                on = true;
+            }
         }
-        if (player->m50 == 0xAAE76 || player->m50 == 0xAAE77) {
+        if (!(player->m50 != 0xAAE76 && player->m50 != 0xAAE77)) {
             on = false;
         }
         if (motion->fn_80097D40(0x158) != 0) {
@@ -407,7 +413,8 @@ ControlAttackNext::ControlAttackNext(Chara_unk* chara, const atn::Vector3& dir) 
                 }
             } else if (dot < -back70) {
                 atn::Vector3 r = dir.ToRotation_unk();
-                float angle = atn::WrapAngle_unk(r.y - rot.y);
+                float y = r.y;
+                float angle = atn::WrapAngle_unk(y - rot.y);
                 if (angle > 0.0f) {
                     id = 0x15A;
                 } else {
@@ -415,7 +422,8 @@ ControlAttackNext::ControlAttackNext(Chara_unk* chara, const atn::Vector3& dir) 
                 }
             } else {
                 atn::Vector3 r = dir.ToRotation_unk();
-                float angle = atn::WrapAngle_unk(r.y - rot.y);
+                float y = r.y;
+                float angle = atn::WrapAngle_unk(y - rot.y);
                 if (angle > 0.0f) {
                     id = 0x158;
                 } else {
@@ -795,19 +803,19 @@ void ControlGuardCounter::vf1C() {
     lbl_8087EFA8->m3A4 = 1.0f;
 }
 
-// NONMATCHING: 96.2% - temporaries of the rotation.
+// inferred: the yaw comes from the dir argument (kept in a saved register like the original) and the new
+// rotation is a temporary (stack slots of the original)
 ControlHitBackBullet::ControlHitBackBullet(Chara_unk* chara, const atn::Vector3& dir, HomingBullet* bullet)
     : ControlAttackBase(chara, dir) {
     chara->m560 = 0x80;
-    mChara->mMotion.m34C = 1;
     Motion_unk* motion = &mChara->mMotion;
+    motion->m34C = 1;
     motion->mTracks[0].m20 = 1.0f;
     motion->fn_80097C08(0, 0x1D2, 0, 0, 1, 0.0f, 0.1f);
     motion->mTracks[0].m0C = vf60();
     motion->mTracks[0].m08 = 5.0f;
     mChara->fn_801446F0();
-    atn::Vector3 rot = mDir.ToRotation_unk();
-    mChara->mRot = atn::Vector3(0.0f, rot.y, 0.0f);
+    mChara->mRot = atn::Vector3(0.0f, dir.ToRotation_unk().y, 0.0f);
     LoadTable_unk();
     mBullets.push_back(bullet);
     if (lbl_8087F498 != 0 && rand() % 2 == 0) {
@@ -828,7 +836,7 @@ int ControlHitBackBullet::vf0C() {
     if (vf24() != 0) {
         atn::Vector3 front(0.0f, 0.0f, 1.0f);
         atn::Matrix3x4 m;
-        m.fn_8013A13C(mChara->mRot.y);
+        m.SetRotationY_unk(mChara->mRot.y);
         PSMTXMultVec(m.m, &front, &front);
         for (unsigned int i = 0; i < mBullets.mCount; i++) {
             HomingBullet* bullet = mBullets.mData[i];

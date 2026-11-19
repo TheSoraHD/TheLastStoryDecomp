@@ -2,8 +2,9 @@
 #define GAME_EVENTSCRIPTCMD_UNK_H
 
 // inferred: size in bytes of each event script command, by command type (.rodata of
-// game/GameEventScript, 0x8074ED24)
-extern "C" int lbl_8074ED24[];
+// game/GameEventScript, 0x8074ED24); const: the original loads the size before the stores of the
+// command (fn_8039EACC, fn_803A6B9C, fn_803A2378)
+extern "C" const int lbl_8074ED24[];
 
 // inferred: header of one compiled event script command; the arguments follow it and their
 // layout depends on the type (names invented)
@@ -42,7 +43,7 @@ struct ScriptResult_unk {
     ScriptResult_unk(const ScriptResult_unk& r) : mNext(r.mNext), mWait(r.mWait) {}
     // inferred: goes on with the command after `cmd` without waiting
     void SetNext_unk(const ScriptCmd_unk* cmd, int wait = 0) {
-        int& size = lbl_8074ED24[cmd->mCmd];
+        const int& size = lbl_8074ED24[cmd->mCmd];
         mWait = wait;
         mNext = (ScriptCmd_unk*)((const char*)cmd + size);
     }

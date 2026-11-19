@@ -15,6 +15,7 @@
 #include "std/string_members.h"
 #include "atn/D2A_TaskInstanceC.h"
 #include "game/MenuCommonTask.h"
+#include "atn/D2A_Task.h"
 
 extern "C" int sprintf(char* s, const char* format, ...);
 extern "C" int strcmp(const char* a, const char* b);
@@ -49,8 +50,6 @@ inline NewCampStatusD2A_unk* GetD2A_unk(atn::D3Anime* anime) {
 }
 // inferred: functions on the d2anime task of a page (names unknown)
 extern "C" void fn_803DD160(atn::D2ATask_unk* task, int arg);
-extern "C" void fn_803D70B4(atn::D2ATask_unk* task, const char* name, const wchar_t* text); // inferred: sets a text
-extern "C" void fn_803D6EF8(atn::D2ATask_unk* task, const char* name, float value);         // inferred: sets a value
 
 extern "C" NewCampPartsPoint_unk fn_801F4E8C(atn::Task* layout, unsigned int hash);
 
@@ -151,9 +150,11 @@ inline void SetPaneText_unk(void* layout, const char* name, const wchar_t* text)
 inline void SetPaneFloat_unk(void* layout, const char* name, float value) {
     fn_801FECE0(layout, fn_800DC6B4(name), value);
 }
+// inferred: the layout (0x58) taken as a byte offset here and as the member in SetTaskText_unk: with the same
+// expression in both setters MWCC keeps task + 0x58 in a register across the calls (fn_80528310/454/574)
 inline void SetTaskFloat_unk(atn::D2ATask_unk* task, const char* name, float value) {
     unsigned int hash = fn_800DC6B4(name);
-    fn_801FECE0(((NewCampStatusD2A_unk*)task)->mLayout, hash, value);
+    fn_801FECE0((char*)task + 0x58, hash, value);
 }
 inline void SetTaskText_unk(atn::D2ATask_unk* task, const char* name, const wchar_t* text) {
     unsigned int hash = fn_800DC6B4(name);
@@ -425,8 +426,7 @@ void NewCampPartsStatus::vf30() {
     fn_80527938();
 }
 
-// NONMATCHING: 99.40% - register allocation only (the page tasks, the character task and the status
-// get other saved registers)
+// inferred: status declared at the top of the loop body (saved registers of the original)
 void NewCampPartsStatus::fn_80527938() {
     CharaTask* leaderTask = ((PlayerManager*)fn_8000D9E8())->fn_8054A33C(0);
     CharaStatus* leader;
@@ -436,6 +436,7 @@ void NewCampPartsStatus::fn_80527938() {
         leader = Inventory::Order()->GetPlayerStatusInfo(0);
     }
     for (unsigned int i = 0; i < mSets.size(); i++) {
+        CharaStatus* status;
         NewCampStatusSet_unk& set = mSets[i];
         ((GameUICounter_unk*)&set.mSkills)->fn_803CF734();
         atn::D2ATask_unk* base = mPages[i].mBase->GetTask();
@@ -444,7 +445,6 @@ void NewCampPartsStatus::fn_80527938() {
             continue;
         }
         CharaTask* task = ((PlayerManager*)fn_8000D9E8())->fn_8054A33C(set.mChara);
-        CharaStatus* status;
         if (task != 0) {
             status = task->GetStatus_unk();
         } else {
@@ -453,8 +453,8 @@ void NewCampPartsStatus::fn_80527938() {
         CharaIdEntry_unk* info = fn_8020924C(fn_80219544(set.mChara));
         Inventory::Order()->GetEquip_unk(set.mChara);
         fn_803DD160(base, fn_8020A81C(info->m14));
-        fn_803D70B4(base, "name", info->mShortName);
-        fn_803D70B4(base, "nameSub", info->mShortName);
+        ((atn::D2A_Task*)base)->SetLayoutText_unk("name", info->mShortName);
+        ((atn::D2A_Task*)base)->SetLayoutText_unk("nameSub", info->mShortName);
         fn_804A4AEC(base, info, 4, 2);
         fn_80511D9C(param, status, set.mChara, task == 0);
         CharaParam_unk p = fn_80134800(status, set.mChara, 0, 0, 0, 0, 0, 0);
@@ -471,7 +471,7 @@ void NewCampPartsStatus::fn_80527938() {
         char name[0x20];
         for (int j = 0; j < 9; j++) {
             sprintf(name, "skillOn%02d", j);
-            fn_803D6EF8(base, name, 0.0f);
+            ((atn::D2A_Task*)base)->SetLayoutValue_unk(name, 0.0f);
         }
         int count = 0;
         int tension = 0;
@@ -569,8 +569,8 @@ void NewCampPartsStatus::fn_80527938() {
         }
         if (status->fn_801346C8(tension)) {
             NewCampStatusSkillInfo_unk* skill = fn_8021AF50(tension);
-            fn_803D70B4(base, "skill_tension", skill->mName.Get_unk());
-            fn_803D6EF8(base, "tensionSkillOn", 1.0f);
+            ((atn::D2A_Task*)base)->SetLayoutText_unk("skill_tension", skill->mName.Get_unk());
+            ((atn::D2A_Task*)base)->SetLayoutValue_unk("tensionSkillOn", 1.0f);
             NewCampStatusSkill_unk entry;
             entry.mIndex = count;
             entry.mText = skill->mHelp.Get_unk();
@@ -578,14 +578,12 @@ void NewCampPartsStatus::fn_80527938() {
             entry.mHelp = tensionHelp;
             set.mSkills.push_back(entry);
         } else {
-            fn_803D70B4(base, "skill_tension", L"-");
-            fn_803D6EF8(base, "tensionSkillOn", 0.0f);
+            ((atn::D2A_Task*)base)->SetLayoutText_unk("skill_tension", L"-");
+            ((atn::D2A_Task*)base)->SetLayoutValue_unk("tensionSkillOn", 0.0f);
         }
     }
 }
 
-// NONMATCHING: 96.47% - the original computes base + 0x58 at each call; here it is computed once (and the
-// saved registers follow); tried member/free setters and evaluation orders
 void NewCampPartsStatus::fn_80528310(atn::D2ATask_unk* base, CharaStatus* status, int skill, int* count,
                                      NewCampStatusSet_unk* set, int help) {
     if (status->fn_801346C8(skill)) {
@@ -605,7 +603,6 @@ void NewCampPartsStatus::fn_80528310(atn::D2ATask_unk* base, CharaStatus* status
     }
 }
 
-// NONMATCHING: 93.11% - same layout address difference as fn_80528310
 void NewCampPartsStatus::fn_80528454(atn::D2ATask_unk* base, int* count, NewCampStatusSet_unk* set) {
     char name[0x20];
     sprintf(name, "skillOn%02d", *count);
@@ -621,7 +618,6 @@ void NewCampPartsStatus::fn_80528454(atn::D2ATask_unk* base, int* count, NewCamp
     (*count)++;
 }
 
-// NONMATCHING: 93.11% - same layout address difference as fn_80528310
 void NewCampPartsStatus::fn_80528574(atn::D2ATask_unk* base, int* count, NewCampStatusSet_unk* set) {
     char name[0x20];
     sprintf(name, "skillOn%02d", *count);

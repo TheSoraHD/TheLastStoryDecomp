@@ -425,16 +425,23 @@ void Em204BigMulue::vf54() {
     }
 }
 
-// NONMATCHING: 99.52% - store order of m620/m61C and r6/r7 of the node copies (__VecCopy family)
+// inferred: sets the segment and radius of a capsule (as in Em204MulueMp: the copies of the loop take the
+// registers of the original only through it; name invented)
+static inline void SetCapsule_unk(atn::ColliCapsule& c, const atn::Vector3& a, const atn::Vector3& b, float r) {
+    c.m3C = a;
+    c.m48 = b;
+    c.m54 = r;
+}
+
 void Em204BigMulue::vf20() {
-    m614 = mPos + m5A4;
     m620 = m5B0;
+    m614 = mPos + m5A4;
     m614.y += m620;
     float radius = 0.1f * m5B0;
     atn::Vector3 a;
     atn::Vector3 b;
-    a = GetNodePos_unk(mMotion.GetNodeMtx_unk("spine1"));
-    b = GetNodePos_unk(mMotion.GetNodeMtx_unk("neck"));
+    __VecCopy(&a.x, &GetNodePos_unk(mMotion.GetNodeMtx_unk("spine1")).x);
+    __VecCopy(&b.x, &GetNodePos_unk(mMotion.GetNodeMtx_unk("neck")).x);
     b.y -= 1.0f;
     mColli.m3C = a;
     mColli.m48 = b;
@@ -443,9 +450,7 @@ void Em204BigMulue::vf20() {
         radius = m5B0 * m1558[i].mRadius;
         a = GetNodePos_unk(mMotion.GetNodeMtx_unk(m1558[i].mFrom.data()));
         b = GetNodePos_unk(mMotion.GetNodeMtx_unk(m1558[i].mTo.data()));
-        m1564[i].m3C = a;
-        m1564[i].m48 = b;
-        m1564[i].m54 = radius;
+        SetCapsule_unk(m1564[i], a, b, radius);
     }
 }
 

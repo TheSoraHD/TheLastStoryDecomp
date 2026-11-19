@@ -55,7 +55,7 @@ void fn_800A73A4(atn::Vector3* rot, atn::Vector3* dir) {
     } else if (dir->x < 0.0f) {
         rot->y = -(float)atan2(dir->z, -dir->x);
         atn::Matrix3x4 m;
-        m.fn_8013A13C(rot->y);
+        m.SetRotationY_unk(rot->y);
         atn::Vector3 v(*dir);
         PSMTXMultVec(m.m, &v, &v);
         atn::Vector3 r = dir->ToRotation_unk();
@@ -63,7 +63,7 @@ void fn_800A73A4(atn::Vector3* rot, atn::Vector3* dir) {
     } else {
         rot->y = -(float)atan2(dir->z, dir->x);
         atn::Matrix3x4 m;
-        m.fn_8013A13C(-rot->y);
+        m.SetRotationY_unk(-rot->y);
         atn::Vector3 v(*dir);
         PSMTXMultVec(m.m, &v, &v);
         atn::Vector3 r = dir->ToRotation_unk();

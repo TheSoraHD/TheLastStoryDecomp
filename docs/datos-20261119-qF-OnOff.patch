@@ -1,0 +1,45 @@
+diff --git a/src/gmk/OnOff.cpp b/src/gmk/OnOff.cpp
+index 5c73493..d2b0786 100644
+--- a/src/gmk/OnOff.cpp
++++ b/src/gmk/OnOff.cpp
+@@ -133,6 +133,24 @@ inline void PlayEfpAt_unk(atn::EffectManager* mgr, atn::EfpFile* efp, const atn:
+     fn_8023A8B4(mgr, efp, 0, 0, pos, rot, color, -1, -1, 1, scale);
+ }
+ 
++inline atn::Vector3 GetCol_unk(const atn::Matrix3x4& m, int i) {
++    return atn::Vector3(m.m[0][i], m.m[1][i], m.m[2][i]);
++}
++// inferred: largest scale axis of a matrix (as in gmk/PigeonManager.cpp; names invented)
++inline float MaxScale_unk(const atn::Matrix3x4& mtx) {
++    atn::Vector3 s;
++    atn::Vector3 az = GetCol_unk(mtx, 2);
++    float sz = PSVECMag(&az);
++    atn::Vector3 ay = GetCol_unk(mtx, 1);
++    float sy = PSVECMag(&ay);
++    atn::Vector3 ax = GetCol_unk(mtx, 0);
++    float sx = PSVECMag(&ax);
++    s.x = sx;
++    s.y = sy;
++    s.z = sz;
++    return __MAX_unk(s.x, __MAX_unk(s.y, s.z));
++}
++
+ namespace gmk {
+ 
+ GimmickCommon* OnOff::fn_803F744C(atn::Task* parent, int id, int arg) {
+@@ -183,14 +201,7 @@ int OnOff::vf0C() {
+                 PSMTXConcat(rot.m, mtx.m, mtx.m);
+                 __SetTrans_unk(mtx, mtx.GetTrans_unk() + m6C);
+                 __MtxCopy(model->mMtx.m, mtx.m);
+-                atn::Vector3 az(mtx.m[0][2], mtx.m[1][2], mtx.m[2][2]);
+-                float sz = PSVECMag(&az);
+-                atn::Vector3 ay(mtx.m[0][1], mtx.m[1][1], mtx.m[2][1]);
+-                float sy = PSVECMag(&ay);
+-                atn::Vector3 ax(mtx.m[0][0], mtx.m[1][0], mtx.m[2][0]);
+-                float sx = PSVECMag(&ax);
+-                atn::Vector3 s(sx, sy, sz);
+-                model->m54 = __MAX_unk(s.x, __MAX_unk(s.y, s.z));
++                model->m54 = MaxScale_unk(mtx);
+                 model->CalcMatrixStack(atn::ModelNodeCallback_unk());
+                 break;
+             }

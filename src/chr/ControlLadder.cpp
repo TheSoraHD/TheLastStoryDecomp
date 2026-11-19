@@ -379,7 +379,7 @@ ControlClimbDeck::ControlClimbDeck(Chara_unk* chara, const atn::Vector3& rot) : 
     m->mTracks[0].m08 = 30.0f;
     atn::Vector3 front(0.0f, 0.0f, 1.0f);
     atn::Matrix3x4 mtx;
-    mtx.fn_8013A13C(rot.y);
+    mtx.SetRotationY_unk(rot.y);
     PSMTXMultVec(mtx.m, &front, &front);
     atn::Vector3 from = mChara->mPos;
     atn::Vector3 to = mChara->mPos;

@@ -157,7 +157,7 @@ inline void FragileObject::UpdateColli_unk() {
     atn::ColliSphere::Sphere_unk sphere;
     atn::Matrix3x4 rot;
     atn::Vector3 base = mtx.GetTrans_unk();
-    rot.fn_8013A13C(m78.y);
+    rot.SetRotationY_unk(m78.y);
     atn::VecAssign_unk(sphere.mCenter, base + atn::Transform_unk(rot, mTarget.mOffset));
     sphere.mRadius = mTarget.mSize;
     mSphere.mSphere = sphere;

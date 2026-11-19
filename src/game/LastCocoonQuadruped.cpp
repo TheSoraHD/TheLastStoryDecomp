@@ -402,8 +402,7 @@ void LastCocoonQuadruped::vf10() {
     m1578 = *fn_80266154(&mMotion);
     offset += m1578.GetTrans_unk();
     m1578.fn_8010F668();
-    atn::Matrix3x4 turn;
-    turn.fn_8013A13C(3.1415927f);
+    atn::Matrix3x4 turn = atn::Matrix3x4::fn_8013A13C(3.1415927f);
     m1578.fn_801495E8(turn);
     m1578.fn_801479E4(offset);
     m148C = ((atn::Matrix3x4*)mMotion.GetNodeMtx_unk("neck"))->GetTrans_unk();
@@ -1013,7 +1012,7 @@ void LastCocoonQuadruped::fn_80463610() {
                     dir.y = 0.0f;
                     dir.z = 1.0f;
                     atn::Matrix3x4 rot;
-                    rot.fn_8013A13C(mRot.y);
+                    rot.SetRotationY_unk(mRot.y);
                     PSMTXMultVec(rot.m, &dir, &dir);
                     enemy->vf80(mPos, dir);
                 }
@@ -1306,7 +1305,7 @@ void LastCocoonQuadruped::fn_80465B88() {
         mMotion.fn_80097C08(0, 0x141, 0, 0, 1, 0.0f, 0.1f);
         atn::Vector3 v(0.0f, -140.0f, 40.0f);
         atn::Matrix3x4 m;
-        m.fn_8013A13C(mRot.y);
+        m.SetRotationY_unk(mRot.y);
         PSMTXMultVec(m.m, &v, &v);
         m15BC = v * 0.022222223f;
         v.y = 0.0f;
@@ -1323,7 +1322,7 @@ void LastCocoonQuadruped::fn_80465B88() {
             m14BC = 2;
             atn::Vector3 v(0.0f, 0.0f, 1.0f);
             atn::Matrix3x4 m;
-            m.fn_8013A13C(mRot.y);
+            m.SetRotationY_unk(mRot.y);
             PSMTXMultVec(m.m, &v, &v);
             atn::Vector3 pos = mPos + v * 20.0f;
             atn::Vector3 to = m14B8->mPos;
@@ -1617,7 +1616,7 @@ void LastCocoonQuadruped::fn_80468534(atn::Vector3* pos, float* angle, const atn
     for (int i = 0; i < 2; i++) {
         float a = base + 3.1415927f * i - 1.5707964f;
         atn::Matrix3x4 m;
-        m.fn_8013A13C(a);
+        m.SetRotationY_unk(a);
         atn::Vector3 v = dir;
         PSMTXMultVec(m.m, &v, &v);
         fn_8004D388(lbl_8087EE98, &result, &from, &v, 0x80000000, &mColli, 0, m620);

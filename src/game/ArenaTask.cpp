@@ -28,7 +28,7 @@ extern "C" GameTask* lbl_8087F430;
 
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
 
-static ArenaTask* sInstance;
+ArenaTask* ArenaTask::sInstance;
 
 
 static const char* const sAnimPaths[4] = {
@@ -75,9 +75,6 @@ int ArenaTask::vf0C() {
     return fn_800D3FA4();
 }
 
-// NONMATCHING: 99.4% - in the spawn block the quotient of rand() % n and the character pointer take
-// r4/r5/r6 in another order (the erase loop of FixedArray_unk then uses r5/r6 instead of r4/r5).
-// Tried: index/iterator/local orders, rand() in the subscript, unsigned index.
 void ArenaTask::vf10() {
     if (mState == 1) {
         mScore0 = 0;
@@ -103,11 +100,14 @@ void ArenaTask::vf10() {
                 if (n != 0) {
                     int index = rand() % n;
                     atn::Vector3 rot;
-                    rot.Assign_unk(e.mChara->mRot);
+                    // inferred: the character in a local for the rotation and the position; the original
+                    // reloads e.mChara for the rotation store (all three through the local: 98.0%)
+                    CharaTask* chara = e.mChara;
+                    rot.Assign_unk(chara->mRot);
                     gs::WarpPoint** it = &mSpawns.mData[index];
                     gs::WarpPoint* spawn = *it;
                     rot.y = spawn->m14;
-                    e.mChara->mPos.Assign_unk(spawn->mPos);
+                    chara->mPos.Assign_unk(spawn->mPos);
                     e.mChara->mRot.Assign_unk(rot);
                     e.mSpawn = spawn;
                     mSpawns.erase(it);
@@ -168,9 +168,22 @@ void ArenaTask::vf14() {
     }
 }
 
-// NONMATCHING: 98.8% - the enemy pointer and the slot address (first loop) and the table pointer and
-// the place offset (second loop) are allocated to swapped registers. Tried: locals for the chara and
-// the place, index or pointer loops, if/else for mTable, PushBack_unk with an implicit conversion.
+// inferred: adds the character of a battle slot (name invented)
+static inline void AddEntry_unk(ArenaTask* self, BattleChara_unk* slot) {
+    self->mEntries.PushBack_unk(ArenaTask::Entry_unk(slot->mChara));
+}
+
+// inferred: collects the spawn points of the arena (ids from 50000; name invented). The counter is the one
+// of the caller's first loop (same register in both loops in the original)
+static inline void AddSpawns_unk(ArenaTask* self, GameScene* table, int& i) {
+    for (i = 0; i < table->m78.size(); i++) {
+        gs::WarpPoint& place = table->m78.mData[i];
+        if (place.mId >= 50000) {
+            self->mSpawns.PushBack_unk(&place);
+        }
+    }
+}
+
 void ArenaTask::fn_80043A24() {
     mTable = lbl_8087F430 != 0 ? lbl_8087F430->m10D8 : 0;
     if (mTable == 0) {
@@ -182,17 +195,13 @@ void ArenaTask::fn_80043A24() {
     }
     BattleChara_unk* slot = mgr->mCharas;
     int n = mgr->mCharaCount;
-    for (int i = 0; i < n && !mEntries.full(); i++) {
-        mEntries.PushBack_unk(Entry_unk(slot->mChara));
+    int i;
+    for (i = 0; i < n && !mEntries.full(); i++) {
+        AddEntry_unk(this, slot);
         slot++;
     }
     mSpawns.mCount = 0;
-    GameScene* table = mTable;
-    for (unsigned int i = 0; i < table->m78.size(); i++) {
-        if (table->m78.mData[i].mId >= 50000) {
-            mSpawns.PushBack_unk(&table->m78.mData[i]);
-        }
-    }
+    AddSpawns_unk(this, mTable, i);
 }
 
 void ArenaTask::fn_80043B34() {

@@ -135,7 +135,7 @@ void BulletPoint::vf10() {
     }
     atn::Vector3 offset(0.0f, 0.0f, mDesc->m40 * (rand() % 1001 / 1000.0f));
     atn::Matrix3x4 rot;
-    rot.fn_8013A13C(6.2831855f * (rand() % 1001 / 1000.0f));
+    rot.SetRotationY_unk(6.2831855f * (rand() % 1001 / 1000.0f));
     PSMTXMultVec(rot.m, &offset, &offset);
     target += offset;
     atn::Vector3 dir;

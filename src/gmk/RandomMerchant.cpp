@@ -27,12 +27,9 @@ extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
 extern "C" GimmickCommon* fn_803EC16C(atn::Task* parent, int item, int index);
 extern "C" void fn_800CB5C8(atn::SoundRef* sound, int frames, int arg); // inferred: stops the sound
 extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float volume); // inferred: plays a sound
-// inferred: empty names passed to operator new (in .sdata of another file)
-extern "C" char lbl_8087DFD0[4];
-extern "C" char lbl_8087DFD4[4];
 extern "C" GameTask* lbl_8087F430;
 extern "C" void* fn_8021DE88(int level);                                  // inferred: next lot (null when none is left)
-extern "C" int fn_8021DECC(void* lot, int* item, int* num, int* price);  // inferred: item of the lot
+extern "C" bool fn_8021DECC(void* lot, int* item, int* num, int* price);  // inferred: item of the lot
 typedef ItemParamEntry_unk MerchantItem_unk; // inferred: item definition (db/ItemParam_unk.h)
 extern "C" wchar_t* wcscpy(wchar_t* dst, const wchar_t* src);
 // inferred: message of the message table (class unknown)
@@ -106,10 +103,11 @@ RandomMerchant::~RandomMerchant() {
     fn_800CB5C8(&mSound, 0, 0);
 }
 
-// inferred: merchant character of an entry (names invented)
-static inline void NewChara_unk(RandomMerchant* self, MerchantEntry_unk* entry) {
+// inferred: merchant character of an entry (names invented). Not static: its two empty names are weak
+// .sdata objects of an extern inline (0x8087DFD0/0x8087DFD4), as CreateChara_unk of gmk/CharaObj.
+inline void NewChara_unk(RandomMerchant* self, MerchantEntry_unk* entry) {
     std::string name(entry->mName.mStr);
-    entry->mChara = self != 0 ? new ((MemoryTag)1, lbl_8087DFD4, lbl_8087DFD0, 0) RandomMerchantChara(self, name) : 0;
+    entry->mChara = self != 0 ? new ((MemoryTag)1, "", "", 0) RandomMerchantChara(self, name) : 0;
 }
 // inferred: set up of an entry (name invented)
 static inline void NewMerchant_unk(RandomMerchant* self, MerchantEntry_unk* entry) {
@@ -172,37 +170,44 @@ void RandomMerchant::Start() {
     mTimer = mFirstTime;
 }
 
+// inferred: position of a chara read through a reference (the original computes the address of the
+// sum temporary first, as with an accessor; name invented)
+static inline const atn::Vector3& PosOf_unk(CharaTask* c) {
+    return c->mPos;
+}
+
+// inferred: places the item gimmick (name invented)
+static inline void SetItemPos_unk(GimmickCommon* g, const atn::Vector3& p) {
+    g->m6C = p;
+}
+
+// inferred: item, number and price of the lot (name invented)
+static inline void SetLot_unk(RandomMerchant* self, int item, int num, int price) {
+    self->mItemId = item;
+    self->mItemNum = num;
+    self->mPrice = price;
+}
+
 inline void RandomMerchant::PlayMotion2_unk(RandomMerchantChara* chara, int index) {
     chara->mMotion.m34C = 1;
     chara->mMotion.fn_80097C08(0, mEntries[mCur].mMotionBase + index, 1, 0, 1, 0.0f, 0.1f);
     chara->mMotion.mTracks[0].m0C = 1.0f;
 }
 
-inline void RandomMerchant::PlayMotion3_unk(atn::Model* motion, int index) {
-    motion->m34C = 1;
-    motion->fn_80097C08(0, mEntries[mCur].mMotionBase + index, 1, 0, 1, 0.0f, 0.1f);
-    motion->mTracks[0].m0C = 1.0f;
-}
-
-// NONMATCHING: 98.28% - stack slots of several Vector3 locals, the busy check branches over a b, and a few
-// register choices (item kept in r4, motion pointer of state 2)
 void RandomMerchant::vf10() {
     if (mState >= 2 && mEntries[mCur].mItemGimmick != 0) {
         atn::Vector3 off(0.0f, 0.0f, -3.0f);
         atn::Matrix3x4 mtx;
         __MakeRotation_unk(mtx, m78);
         PSMTXMultVec(mtx.m, &off, &off);
-        mEntries[mCur].mItemGimmick->m6C = mEntries[mCur].mChara->mPos + off;
+        SetItemPos_unk(mEntries[mCur].mItemGimmick, PosOf_unk(mEntries[mCur].mChara) + off);
         mEntries[mCur].mItemGimmick->m78 = mEntries[mCur].mChara->mRot;
     }
     CharaTask* player = lbl_8087F8A0 != 0 ? lbl_8087F8A0->mHead : 0;
     if (lbl_8087F430 != 0 && lbl_8087F430->m54E4 != 0) {
         return;
     }
-    if (player == 0) {
-        return;
-    }
-    if (player->fn_8017C974() != 0) {
+    if (player == 0 || player->fn_8017C974() != 0) {
         return;
     }
     if (m54 == 0) {
@@ -224,9 +229,7 @@ void RandomMerchant::vf10() {
                 int num;
                 int price;
                 if (fn_8021DECC(lot, &item, &num, &price) != 0 && item > 0) {
-                    mItemNum = num;
-                    mItemId = item;
-                    mPrice = price;
+                    SetLot_unk(this, item, num, price);
                     if (MarketTask::sInstance != 0 && MarketTask::sInstance->fn_804A24C4(item) != 0) {
                         mPrice = 0.2f * (mItemNum * MarketTask::sInstance->fn_804A251C(mItemId));
                     } else {
@@ -245,8 +248,7 @@ void RandomMerchant::vf10() {
             atn::Vector3 ppos = player->mPos;
             MerchantPos_unk* pos = mPositions;
             for (int i = 0; i < mPosCount; i++) {
-                atn::Vector3 d = pos->mPos - ppos;
-                float dist = PSVECSquareMag(&d);
+                float dist = (pos->mPos - ppos).LengthSq_unk();
                 if (mLength1 * mLength1 < dist && dist < mLength2 * mLength2) {
                     list.push_back(i);
                 }
@@ -264,7 +266,7 @@ void RandomMerchant::vf10() {
             m78.Assign_unk(mPositions[index].mRot);
             mDir.Set_unk(0.0f, 0.0f, 1.0f);
             atn::Matrix3x4 rot;
-            rot.fn_8013A13C(m78.y);
+            rot.SetRotationY_unk(m78.y);
             PSMTXMultVec(rot.m, &mDir, &mDir);
             MerchantEntry_unk* cur = &mEntries[mCur];
             RandomMerchantChara* chara = cur->mChara;
@@ -280,7 +282,7 @@ void RandomMerchant::vf10() {
                 atn::Matrix3x4 mtx;
                 __MakeRotation_unk(mtx, m78);
                 PSMTXMultVec(mtx.m, &off, &off);
-                cur->mItemGimmick->m6C = chara->mPos + off;
+                SetItemPos_unk(cur->mItemGimmick, PosOf_unk(chara) + off);
                 cur->mItemGimmick->m78 = chara->mRot;
             }
             mLimit = mTimeLimit;
@@ -317,14 +319,16 @@ void RandomMerchant::vf10() {
     } else if (mState == 2) {
         RandomMerchantChara* chara = mEntries[mCur].mChara;
         PlayMotion2_unk(chara, 0);
-        atn::Model* motion = &chara->mMotion;
+        atn::Model& motion = chara->mMotion;
         if (mLimit >= 0) {
             mLimit--;
             if (mTimeLimit - mLimit > mTimeLimit * 2 / 3 && mSound.mPtr != 0) {
                 fn_800CB5C8(&mSound, 150, 0);
             }
         } else {
-            PlayMotion3_unk(motion, 2);
+            motion.m34C = 1;
+            chara->mMotion.fn_80097C08(0, mEntries[mCur].mMotionBase + 2, 1, 0, 1, 0.0f, 0.1f);
+            chara->mMotion.mTracks[0].m0C = 1.0f;
         }
     } else if (mState == 3) {
         RandomMerchantChara* chara = mEntries[mCur].mChara;
@@ -338,8 +342,7 @@ void RandomMerchant::vf10() {
     }
     if ((mState == 2 && mLimit < 0) || mState >= 3) {
         atn::Vector3 ppos = player->mPos;
-        atn::Vector3 d = m6C - ppos;
-        if (PSVECSquareMag(&d) >= mLength2 * mLength2) {
+        if ((m6C - ppos).LengthSq_unk() >= mLength2 * mLength2) {
             mState = 1;
         }
     }

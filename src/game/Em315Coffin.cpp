@@ -76,7 +76,12 @@ struct ColorF_unk {
 };
 
 // inferred: statics of the file (.sdata 0x8087DC40/0x8087DC44)
+// inferred: the original keeps the zero in .sdata, which MWCC only does with explicit_zero_data (approved
+// exception, only around the zero definition; without it the variable goes to .sbss).
+#pragma push
+#pragma explicit_zero_data on
 static float sZero_unk = 0.0f;
+#pragma pop
 static float sOne_unk = 1.0f;
 
 Em315Coffin::Em315Coffin(atn::Task* parent, EnemyInfo_unk* info)
