@@ -200,19 +200,23 @@ inline void Translate_unk(Matrix3x4& m, float x, float y, float z) {
     m = m * t;
 }
 
-// NONMATCHING: 99.03% - only volatile register numbers differ (camera/render state pointers and the
-// int->float constants at the top, the renderer pointer and the matrix addresses at the end)
+// inferred: DrawHelper singleton accessor (weak copy fn_800F7250 in other units; read through it the
+// pointer is reloaded in the registers of the original)
+static inline DrawHelper* GetDrawHelper_unk() {
+    return lbl_8087EEB0;
+}
+// inferred: the screen size is converted before the camera view is read (volatile registers of the original)
 void D3AnimeInstance::Draw() {
-    const Matrix3x4& camView = atn::RenderManager::instance_->mCamera.mView;
     int iw = lbl_8087EEE0->mWidth;
     int ih = lbl_8087EEE0->mHeight;
-    Matrix3x4 savedView(lbl_8087EEB0->mD4);
-    Matrix3x4 view(camView);
-    lbl_8087EEB0->mD4 = view;
-    Matrix3x4 savedModel(lbl_8087EEB0->mA4);
-    int mode = lbl_8087EEB0->mA0;
     float w = iw;
     float h = ih;
+    const Matrix3x4& camView = atn::RenderManager::instance_->mCamera.mView;
+    Matrix3x4 savedView(GetDrawHelper_unk()->mD4);
+    Matrix3x4 view(camView);
+    GetDrawHelper_unk()->mD4 = view;
+    Matrix3x4 savedModel(GetDrawHelper_unk()->mA4);
+    int mode = GetDrawHelper_unk()->mA0;
     // inferred: the draw matrix is built twice (z = -0.001f, then 0.0f) and only the second is used
     Matrix3x4 m;
     if (mFlag9) {
@@ -234,14 +238,14 @@ void D3AnimeInstance::Draw() {
     quad[1] = m * Vector3(1.0f, 0.0f, 0.0f);
     quad[2] = m * Vector3(0.0f, 1.0f, 0.0f);
     quad[3] = m * Vector3(1.0f, 1.0f, 0.0f);
-    lbl_8087EEB0->mA0 = 0xD;
-    lbl_8087EEB0->mA4 = m;
+    GetDrawHelper_unk()->mA0 = 0xD;
+    GetDrawHelper_unk()->mA4 = m;
     if (mTask != 0) {
         mTask->Draw();
     }
-    lbl_8087EEB0->mA0 = mode;
-    lbl_8087EEB0->mA4 = savedModel;
-    lbl_8087EEB0->mD4 = savedView;
+    GetDrawHelper_unk()->mA0 = mode;
+    GetDrawHelper_unk()->mA4 = savedModel;
+    GetDrawHelper_unk()->mD4 = savedView;
 }
 
 } // namespace atn
