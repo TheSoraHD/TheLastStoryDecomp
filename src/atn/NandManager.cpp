@@ -1,6 +1,7 @@
 // atn/NandManager.cpp: NAND file access of the game (real file name atn_nand.cpp, string in the
 // pool). The manager runs one asynchronous NAND command per step: the SDK callbacks below store
 // the result (fn_800A500C) and the update (vf10) starts the next command.
+#include "atn/GraphicsDevice.h"
 #include "atn/NandManager.h"
 #include "atn/MemoryManager.h"
 #include "atn/D2A_Message.h"
@@ -73,12 +74,7 @@ extern "C" void fn_801FED24(void* layout, unsigned int hash, int index, float va
 extern "C" float fn_8006EF48(void* font, const wchar_t* text, float size, float f2, int a, int b); // inferred: width
 extern "C" void* lbl_8087EEC8; // inferred: font
 
-// inferred: render manager (lbl_8087EEE0; only the widescreen flag is used here)
-struct NandRender_unk {
-    unsigned char m00[0x44];
-    int m44;
-};
-extern "C" NandRender_unk* lbl_8087EEE0;
+extern "C" atn::GraphicsDevice_unk* lbl_8087EEE0;
 
 extern "C" std::basic_string<wchar_t> fn_801F0758(atn::D2A_StringTable_unk* table, int key);
 
@@ -633,7 +629,7 @@ void NandManager::fn_800A4244() {
     if (lbl_8087EEE0 == 0) {
         return;
     }
-    if (lbl_8087EEE0->m44 != 0) {
+    if (lbl_8087EEE0->mWide != 0) {
         SetPaneValue_unk(&mIcon->mData.m10, "ofsX", 0.0f);
         SetPaneValue_unk(&mIcon->mData.m10, "ofsY", 0.0f);
     } else {

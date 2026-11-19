@@ -1,3 +1,4 @@
+#include "atn/GraphicsDevice.h"
 #include "atn/D2A_Task.h"
 #include "atn/D2A_TaskApi_unk.h"
 #include "game/GameCamera.h"
@@ -32,13 +33,7 @@ class Dialog;
 
 extern "C" int fn_8006AA20(const char* path); // inferred: nonzero if the file exists
 
-// inferred: render manager (see game/MenuCommonTask.cpp)
-struct DialogRender_unk {
-    unsigned char m00[0x3C];
-    int mWidth;  // 0x3C
-    int mHeight; // 0x40
-};
-extern "C" DialogRender_unk* lbl_8087EEE0;
+extern "C" atn::GraphicsDevice_unk* lbl_8087EEE0;
 
 // inferred: text renderer (lbl_8087F008)
 struct DialogTextMgr_unk {

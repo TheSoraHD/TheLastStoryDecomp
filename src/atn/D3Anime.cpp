@@ -1,3 +1,4 @@
+#include "atn/GraphicsDevice.h"
 #include "atn/D3Anime.h"
 #include "atn/Memory.h"
 #include "atn/DrawHelper.h"
@@ -15,13 +16,7 @@ extern "C" void fn_801F4484(atn::D2ATask_unk* task);
 extern "C" void fn_801F465C(atn::D2ATask_unk* task, int arg);
 
 
-// inferred: globals of unknown classes
-struct RenderState_unk {
-    unsigned char m00[0x3C];
-    int mWidth;  // 0x3C
-    int mHeight; // 0x40
-};
-extern "C" RenderState_unk* lbl_8087EEE0;
+extern "C" atn::GraphicsDevice_unk* lbl_8087EEE0;
 
 // inferred: frustum of the camera of the render manager and sphere test (inlined; names invented)
 inline Frustum_unk* GetFrustum_unk(atn::RenderManager* manager) {

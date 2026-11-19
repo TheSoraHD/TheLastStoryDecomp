@@ -1,19 +1,12 @@
+#include "atn/GraphicsDevice.h"
 #include "atn/RenderSetting_unk.h"
 #include "atn/LayerReflect.h"
 #include "atn/DrawHelper.h"
 
-// inferred: render manager (class unknown), global instance at 0x8087EEE0
-struct RenderMgr_unk {
-    unsigned char m00[0x3C];
-    int mWidth;  // 0x3C
-    int mHeight; // 0x40
-    unsigned char m44[0x48 - 0x44];
-    unsigned int mClearColor; // 0x48: ARGB
-};
-extern "C" RenderMgr_unk* lbl_8087EEE0;
+extern "C" atn::GraphicsDevice_unk* lbl_8087EEE0;
 extern "C" RenderSetting_unk* lbl_8087EFA8;
-extern "C" void fn_80075F58(RenderMgr_unk* mgr, int x, int y, int w, int h); // inferred: set viewport
-extern "C" void fn_80075DEC(RenderMgr_unk* mgr);
+extern "C" void fn_80075F58(atn::GraphicsDevice_unk* mgr, int x, int y, int w, int h); // inferred: set viewport
+extern "C" void fn_80075DEC(atn::GraphicsDevice_unk* mgr);
 
 namespace atn {
 
@@ -33,7 +26,7 @@ LayerReflect::LayerReflect() : Layer3D("Reflect", 3, -27) {
 }
 
 void LayerReflect::vf1C() {
-    RenderMgr_unk* mgr = lbl_8087EEE0;
+    atn::GraphicsDevice_unk* mgr = lbl_8087EEE0;
     Layer3D::vf1C();
     int h = GXGetTexObjHeight(&mTexture.mObj);
     int w = GXGetTexObjWidth(&mTexture.mObj);
@@ -41,7 +34,7 @@ void LayerReflect::vf1C() {
 }
 
 void LayerReflect::vf20() {
-    RenderMgr_unk* mgr = lbl_8087EEE0;
+    atn::GraphicsDevice_unk* mgr = lbl_8087EEE0;
     int w = GXGetTexObjWidth(&mTexture.mObj);
     int h = GXGetTexObjHeight(&mTexture.mObj);
     unsigned int argb = mgr->mClearColor;
@@ -55,7 +48,7 @@ void LayerReflect::vf20() {
     Layer3D::vf20();
     fn_80075DEC(lbl_8087EEE0);
     if (lbl_8087EFA8->m308 != 0) {
-        RenderMgr_unk* m = lbl_8087EEE0;
+        atn::GraphicsDevice_unk* m = lbl_8087EEE0;
         int height = m->mHeight;
         lbl_8087EEB0->fn_8005DFC8(-1, &mTexture, 0, 32.0f, (float)(height - height / 4) - 16.0f, 0.0f, (float)m->mWidth / 4.0f, (float)height / 4.0f);
     }

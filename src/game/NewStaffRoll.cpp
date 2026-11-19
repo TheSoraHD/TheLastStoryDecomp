@@ -1,3 +1,4 @@
+#include "atn/GraphicsDevice.h"
 #include "atn/RenderSetting_unk.h"
 #include "Event/Manager.h"
 #include "Event/Sequence.h"
@@ -19,13 +20,7 @@ extern "C" void fn_800D2338(atn::Task* task); // inferred: deletes the task
 // inferred: field (lbl_8087F430)
 extern "C" void* lbl_8087F430;
 extern "C" RenderSetting_unk* lbl_8087EFA8;
-// inferred: render manager (lbl_8087EEE0)
-struct StaffRollScreen_unk {
-    unsigned char m00[0x3C];
-    int mWidth;  // 0x3C
-    int mHeight; // 0x40
-};
-extern "C" StaffRollScreen_unk* lbl_8087EEE0;
+extern "C" atn::GraphicsDevice_unk* lbl_8087EEE0;
 // inferred: the event manager (lbl_8087F540, Event/Manager.h) and its current sequence
 // inferred: debug drawing (lbl_8087EEB0) and the font used to measure the text (lbl_8087EEC8)
 extern "C" void* lbl_8087EEC8;

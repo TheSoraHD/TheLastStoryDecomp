@@ -1,6 +1,7 @@
 // atn/RenderSetting_unk.cpp: render settings edited from the debug menu (lbl_8087EFA8) and the
 // parameter blocks of the post effects (god ray, rain, haze, shadow, color matrix, gamma) that the
 // map parts also load from their csv (file name invented).
+#include "atn/GraphicsDevice.h"
 #include "atn/RenderSetting_unk.h"
 #include "atn/Memory.h"
 
@@ -36,13 +37,7 @@ struct RsDebug_unk {
 };
 extern "C" RsDebug_unk* lbl_8087EF10;
 
-// inferred: render manager (lbl_8087EEE0): screen size
-struct RsRenderMgr_unk {
-    unsigned char m00[0x3C];
-    int mWidth;  // 0x3C
-    int mHeight; // 0x40
-};
-extern "C" RsRenderMgr_unk* lbl_8087EEE0;
+extern "C" atn::GraphicsDevice_unk* lbl_8087EEE0;
 
 extern "C" RenderSetting_unk* lbl_8087EFA8;
 

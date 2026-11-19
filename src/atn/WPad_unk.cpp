@@ -1,5 +1,6 @@
 // atn/WPad_unk.cpp: Wii Remote manager of the engine (lbl_8087F018; file name invented). Reads the
 // KPAD samples of the four remotes and turns them into per-button states for atn/Pad_unk.cpp.
+#include "atn/GraphicsDevice.h"
 #include "atn/WPad_unk.h"
 #include "atn/MemoryManager.h"
 #include "atn/Memory.h"
@@ -25,13 +26,7 @@ extern "C" void WPADControlMotor(int chan, unsigned int command);
 
 // inferred: engine heap
 
-// inferred: render manager (include/atn/PostFx.h); m3C/m40 are the screen size
-struct ScreenSize_unk {
-    unsigned char m00[0x3C];
-    int m3C;
-    int m40;
-};
-extern "C" ScreenSize_unk* lbl_8087EEE0;
+extern "C" atn::GraphicsDevice_unk* lbl_8087EEE0;
 
 extern "C" {
 
@@ -304,8 +299,8 @@ extern "C" void fn_800DDD18(WPad_unk* wpad) {
         fn_800DEB04(wpad, port, 0, 20, 21);
         fn_800DEB04(wpad, port, 1, 22, 23);
         if (status[port].mDpdValid >= 2) {
-            float width = lbl_8087EEE0->m3C;
-            float height = lbl_8087EEE0->m40;
+            float width = lbl_8087EEE0->mWidth;
+            float height = lbl_8087EEE0->mHeight;
             wpad->mPointer[port].x = WPAD_MAX(0.0f, WPAD_MIN(width, width * (1.1f * status->mPos[0] + 1.0f) * 0.5f));
             wpad->mPointer[port].y = WPAD_MAX(0.0f, WPAD_MIN(height, height * (1.1f * status->mPos[1] + 1.0f) * 0.5f));
         } else {

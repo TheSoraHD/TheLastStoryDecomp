@@ -1,6 +1,7 @@
 // atn::Loader: path resolution (language suffix, override directory, data/<kind>/ prefix from the
 // extension), creation of the loader, update of the pending loads, cache purge, loading screen and
 // the archives opened at boot. Other methods: atn/LoadManager_unk.cpp and atn/FileSystem_unk.cpp.
+#include "atn/GraphicsDevice.h"
 #include "atn/LoadManager.h"
 #include "atn/MemoryManager.h"
 #include "atn/LH_Binary.h"
@@ -50,12 +51,7 @@ extern "C" int fn_800A55D4(void* pad, int player, int button);
 extern "C" int fn_800A5B38(void* pad); // inferred: battery level
 extern "C" void* lbl_8087EF68;
 extern "C" int fn_800A4460(void* obj);
-// inferred: render manager (see game/MenuCommonTask.cpp); only the member used here
-struct LoaderRender_unk {
-    unsigned char m00[0x44];
-    int mWide; // 0x44: inferred: 16:9 screen
-};
-extern "C" LoaderRender_unk* lbl_8087EEE0;
+extern "C" atn::GraphicsDevice_unk* lbl_8087EEE0;
 
 extern "C" atn::Loader* lbl_8087F518 = 0;
 

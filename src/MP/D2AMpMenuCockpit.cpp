@@ -1,3 +1,4 @@
+#include "atn/GraphicsDevice.h"
 #include "MP/D2AMpMenu_unk.h"
 #include "MP/D2AMpMenu.h"
 #include "atn/RenderManager.h"
@@ -89,13 +90,7 @@ struct MpPlayerInfos_unk {
 extern "C" MpPlayerInfos_unk* lbl_8087F628;
 
 
-// inferred: render manager (see game/MenuCommonTask.cpp)
-struct MpRender_unk {
-    unsigned char m00[0x3C];
-    int mWidth;  // 0x3C
-    int mHeight; // 0x40
-};
-extern "C" MpRender_unk* lbl_8087EEE0;
+extern "C" atn::GraphicsDevice_unk* lbl_8087EEE0;
 
 extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float volume);
 struct MpArena_unk {

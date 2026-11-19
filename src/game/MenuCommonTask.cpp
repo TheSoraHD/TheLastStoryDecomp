@@ -1,3 +1,4 @@
+#include "atn/GraphicsDevice.h"
 #include "db/ItemParam_unk.h"
 #include "atn/D2A_Task.h"
 #include "db/CharaIdTable_unk.h"
@@ -47,12 +48,7 @@ inline D2APoint_unk GetPanePos_unk(atn::Task* layout, const char* name) {
 inline void SetPaneValue2_unk(void* layout, const char* name, float value) {
     fn_801FECE0(layout, fn_800DC6B4(name), value);
 }
-// inferred: render manager (see game/CharaTask.cpp); only the member used here
-struct MenuRender_unk {
-    unsigned char m00[0x44];
-    int mWide; // 0x44: inferred: 16:9 screen
-};
-extern "C" MenuRender_unk* lbl_8087EEE0;
+extern "C" atn::GraphicsDevice_unk* lbl_8087EEE0;
 extern "C" float fn_80076FF8(void* obj); // inferred: screen aspect ratio
 extern "C" void fn_8008771C(void* group, const char* name, float* value, int arg3, int arg4, float min, float max,
                             float step);

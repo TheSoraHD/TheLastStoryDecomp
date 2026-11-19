@@ -2,6 +2,7 @@
 // Nunchuk) shown over the game, with a direct GX text fallback while its layouts are not loaded.
 // No vtable or RTTI; class name ErrorManager from the boost::bind type names (game/main.cpp). Instance at lbl_8087F420 (see game/GameSystem_unk.cpp).
 
+#include "atn/GraphicsDevice.h"
 #include "atn/D2A_Task.h"
 #include "atn/D2A_TaskApi_unk.h"
 #include "atn/FadeCommon.h"
@@ -69,19 +70,11 @@ struct SysSave_unk {
     unsigned char m000[0x174];
     int m174;
 };
-// inferred: debug drawing and graphics device
-struct SysGraphics_unk {
-    unsigned char m00[0x3C];
-    int mWidth;  // 0x3C
-    int mHeight; // 0x40
-    unsigned char m44[0x48 - 0x44];
-    unsigned int mClearColor; // 0x48
-};
-extern "C" SysGraphics_unk* lbl_8087EEE0;
-extern "C" void fn_8007192C(SysGraphics_unk* gfx); // inferred: begins the frame
-extern "C" void fn_80075DEC(SysGraphics_unk* gfx);
-extern "C" void fn_80071AFC(SysGraphics_unk* gfx);
-extern "C" void fn_80071D60(SysGraphics_unk* gfx, int arg);
+extern "C" atn::GraphicsDevice_unk* lbl_8087EEE0;
+extern "C" void fn_8007192C(atn::GraphicsDevice_unk* gfx); // inferred: begins the frame
+extern "C" void fn_80075DEC(atn::GraphicsDevice_unk* gfx);
+extern "C" void fn_80071AFC(atn::GraphicsDevice_unk* gfx);
+extern "C" void fn_80071D60(atn::GraphicsDevice_unk* gfx, int arg);
 // GX and OS
 typedef float SysMtx[3][4];
 typedef float SysMtx44[4][4];
@@ -653,8 +646,8 @@ static inline void DrawLine_unk(ErrorManager* m, const char* msg, int y) {
 
 // inferred: clears the screen before drawing the message with the OS font when the layouts are not available
 // (name invented; gfx has to come from an inline for the loop registers to match)
-static inline SysGraphics_unk* BeginFontDraw_unk() {
-    SysGraphics_unk* gfx;
+static inline atn::GraphicsDevice_unk* BeginFontDraw_unk() {
+    atn::GraphicsDevice_unk* gfx;
     gfx = lbl_8087EEE0;
     gfx->mClearColor = ErrColor_unk(0.0f, 0.0f, 0.0f, 1.0f).ToARGB_unk();
     fn_8007192C(gfx);
@@ -681,7 +674,7 @@ void ErrorManager::fn_803646C4() {
             return;
         }
         if (mFont) {
-            SysGraphics_unk* gfx = BeginFontDraw_unk();
+            atn::GraphicsDevice_unk* gfx = BeginFontDraw_unk();
             for (unsigned int i = 0; i < 4; i++) {
                 DrawLine_unk(this, sMessages[fn_8006BA30()][mError][i], i * 30 + 50);
             }
@@ -700,7 +693,7 @@ void ErrorManager::fn_80364BE8() {
         mFont.reset(new ((MemoryTag)1, "", "", 0) unsigned char[0x20120]);
     }
     OSInitFont(mFont.get());
-    SysGraphics_unk* gfx = lbl_8087EEE0;
+    atn::GraphicsDevice_unk* gfx = lbl_8087EEE0;
     SysMtx44 proj;
     C_MTXOrtho(proj, 0.0f, gfx->mHeight, 0.0f, gfx->mWidth, 0.0f, -100.0f);
     GXSetProjection(proj, 1);

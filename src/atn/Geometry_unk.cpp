@@ -1,5 +1,6 @@
 // atn/Geometry_unk.cpp: utilidades de cajas alineadas (AABB): interseccion con rayos, volumen,
 // dibujo de depuracion, proyeccion a pantalla y escalado (nombre de fichero inventado).
+#include "atn/GraphicsDevice.h"
 #include "math/Vec.h"
 #include "math/VecAssign_unk.h"
 #include "atn/Sphere.h"
@@ -73,13 +74,7 @@ extern "C" void fn_8006FE08(const atn::AABB_unk* box, unsigned int color) {
     lbl_8087EEB0->fn_800629F0(center, half, 0.0f, color, 0);
 }
 
-// inferred: render state (viewport size at 0x3C/0x40, as in atn/LensFlare.cpp)
-struct GeoRenderState_unk {
-    unsigned char m00[0x3C];
-    int mWidth;  // 0x3C
-    int mHeight; // 0x40
-};
-extern "C" GeoRenderState_unk* lbl_8087EEE0;
+extern "C" atn::GraphicsDevice_unk* lbl_8087EEE0;
 
 // inferred: 4x4 matrix from a 3x4 one (the column 3 is cleared first, unlike the constructor of
 // atn::Matrix44_unk; the rows go through temporaries in ascending order: inlined); name invented

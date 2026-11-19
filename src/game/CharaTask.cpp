@@ -1,3 +1,4 @@
+#include "atn/GraphicsDevice.h"
 #include "atn/EffectManager.h"
 #include "game/SetConfig.h"
 #include "db/StrategyAiTable_unk.h"
@@ -355,12 +356,7 @@ struct Global98_unk {
     int m48;
 };
 extern "C" Global98_unk* lbl_8087F098;
-// inferred: render manager (lbl_8087EEE0, see atn/LayerReflect.cpp)
-struct RenderMgr_unk {
-    unsigned char m00[0x40];
-    int mHeight; // 0x40
-};
-extern "C" RenderMgr_unk* lbl_8087EEE0;
+extern "C" atn::GraphicsDevice_unk* lbl_8087EEE0;
 
 // inferred: node position (name invented)
 inline atn::Vector3 GetNodePos_unk(MtxPtr m) {
