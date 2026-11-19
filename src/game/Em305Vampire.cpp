@@ -740,7 +740,7 @@ inline int Em305Vampire::NearestWeakenPoint_unk() {
     float best = 1e16f;
     for (unsigned int i = 0; i < m14E8.size(); i++) {
         atn::Vector3 d;
-        d = mPos - m14E8[i]->mPos;
+        __VecCopy(&d.x, &(mPos - m14E8[i]->mPos).x);
         if (PSVECSquareMag(&d) < best) {
             best = PSVECSquareMag(&d);
             found = i;
@@ -749,8 +749,8 @@ inline int Em305Vampire::NearestWeakenPoint_unk() {
     return found;
 }
 
-// NONMATCHING: 99.33% - f3/f4/f5 of the hit point rate and r28/r29 of the two vectors of the route loop
-// (~20 forms: locals, helpers, declaration orders)
+// inferred: the hit points read into a local before the division (f3/f4/f5 of the rate) and the distance
+// copied with __VecCopy from the temporary in NearestWeakenPoint_unk (r28/r29 of the two vectors)
 // inferred: state 13 (weakened): weaken level from the hit points and nearest point of the weaken route
 void Em305Vampire::fn_802EB61C() {
     float frame = mMotion.mTracks[0].m08;
@@ -760,7 +760,8 @@ void Em305Vampire::fn_802EB61C() {
     }
     float f = mMotion.mTracks[0].m08;
     if (2.0f <= f && f <= 2.5f) {
-        float rate = mStatus.m04 / (float)mStatus.mParamB.m84;
+        float hp = mStatus.m04;
+        float rate = hp / (float)mStatus.mParamB.m84;
         if (rate < m15F4) {
             m1528 = 3;
         } else if (rate < m15F0) {

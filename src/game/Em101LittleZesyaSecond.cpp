@@ -437,9 +437,8 @@ inline void PlayEffect_unk(atn::EfpFile* efp, atn::Model* model) {
     fn_8023A8B4(lbl_8087F3C0, efp, model, 0, pos, rot, color, -1, -1, 1, 1.0f);
 }
 
-// NONMATCHING: 98.51% - registers of the two status tests (r0/r3/r4 swapped) and stack slots of the effect
-// locals and of the rotation of the normal attack (8 variants: bool locals, inline predicate, if/else,
-// declaration orders, ToRotationZ_unk)
+// inferred: the two status tests written on the mask (with CharaStatus::IsState_unk the bool and the mask
+// swap r0/r3/r4) and the attack range computed before them
 // inferred: chooses the next action: warp after 5 hits, the warp attacks every m14D0 actions, the normal
 // attack in range, otherwise the warp slash or a warp
 // inferred: yaw towards a point (name invented)
@@ -454,8 +453,8 @@ void Em101LittleZesyaSecond::fn_80261078() {
     atn::Vector3 d = target - mPos;
     float dist = PSVECMag(&d);
     float reach = m14C8->m40 + mStatus.mParamB.m28;
-    m14D4 = mStatus.IsState_unk(8) || mStatus.IsState_unk(0x200) ? 40 : 20;
     float range = reach - 8.0f;
+    m14D4 = (mStatus.m0C & 8) == 8 || (mStatus.m0C & 0x200) == 0x200 ? 40 : 20;
     m14D8 = 90;
     float rate = mStatus.mParamB.m84 > 0 ? mStatus.m04 / (float)mStatus.mParamB.m84 : 0.0f;
     if (rate < 0.5f) {
@@ -506,7 +505,7 @@ void Em101LittleZesyaSecond::fn_80261078() {
             ResetAction_unk();
             m58C = 1;
             fn_801561E4(fn_80219E6C(200));
-            bool fast = mStatus.IsState_unk(8) || mStatus.IsState_unk(0x200);
+            bool fast = (mStatus.m0C & 8) == 8 || (mStatus.m0C & 0x200) == 0x200;
             if (!fast) {
                 mMotion.mTracks[0].m0C = 1.5f;
             } else {
