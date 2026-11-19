@@ -44,7 +44,8 @@ extern "C" GameConfig_unk* lbl_8087F0A8;
 extern "C" MP::MpMsgTable_unk* lbl_8087F1E4; // inferred: camp message table (same layout as lbl_8087F86C)
 extern "C" void fn_804A4738(MP::MpD2A_unk* bar, int top, int count, int visible); // inferred: scroll bar
 extern "C" int wcscmp(const wchar_t* a, const wchar_t* b);
-extern "C" void fn_804A53D4(MenuCommonTask* menu, int a, void* b, const MP::MpRect_unk* rect, int c); // inferred: cursor
+// inferred: cursor
+extern "C" void fn_804A53D4(MenuCommonTask* menu, int a, void* b, const MP::MpRect_unk* rect, int c);
 
 extern "C" MpMsgData_unk* lbl_8087F628;
 

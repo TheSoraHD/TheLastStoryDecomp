@@ -100,15 +100,18 @@ extern "C" int fn_804EB26C(MpLobbySession_unk* s, int* count); // inferred: nonz
 extern "C" int fn_804FC010(MpLobbySession_unk* s);              // inferred: nonzero while a request is pending
 extern "C" int fn_804DE560(MpLobbySession_unk* s, void* arg, unsigned char* ok); // inferred: ready state of the room
 extern "C" int sprintf(char* s, const char* format, ...);
-extern "C" void fn_804A53D4(MenuCommonTask* menu, int a, void* b, const MP::MpRect_unk* rect, int c); // inferred: cursor
+// inferred: cursor
+extern "C" void fn_804A53D4(MenuCommonTask* menu, int a, void* b, const MP::MpRect_unk* rect, int c);
 extern "C" const wchar_t* fn_804FA7C8(MpLobbySession_unk* s, int mode, int map); // inferred: name of a map
 // inferred: list of the connected aids
 struct MpLobbyAids_unk {
     unsigned char* mAids;
 };
 extern "C" int fn_804EB1AC(MpLobbySession_unk* s); // inferred: nonzero for the host
-extern "C" void fn_804DD9CC(MpLobbySession_unk* s, MpLobbyPlayerInfo_unk* player, int face); // inferred: sets the face (host)
-extern "C" unsigned int fn_804FAB40(MpLobbySession_unk* s, int face, MpLobbyPlayerInfo_unk* player, int* id, int arg); // inferred: requests the face
+// inferred: sets the face (host)
+extern "C" void fn_804DD9CC(MpLobbySession_unk* s, MpLobbyPlayerInfo_unk* player, int face);
+// inferred: requests the face
+extern "C" unsigned int fn_804FAB40(MpLobbySession_unk* s, int face, MpLobbyPlayerInfo_unk* player, int* id, int arg);
 extern "C" int fn_804F5E38(MpLobbySession_unk* s, unsigned char id);  // inferred: state of a request
 extern "C" int* fn_804F5B08(MpLobbySession_unk* s, unsigned char id); // inferred: result of a request
 extern "C" void fn_804F5C9C(MpLobbySession_unk* s, unsigned char id); // inferred: frees a request
@@ -131,7 +134,8 @@ extern "C" const wchar_t* fn_804FA88C(MpLobbySession_unk* s, int value); // infe
 extern "C" int fn_804EB2D8(MpLobbySession_unk* s);
 extern "C" int fn_804EAFD0(MpLobbySession_unk* s);              // inferred: number of players ready
 extern "C" int fn_804DDE34(MpLobbySession_unk* s, int mode);    // inferred: sends the start of the game
-extern "C" void fn_804E8A80(MpLobbySession_unk* s, int id);     // inferred: debug command              // inferred: nonzero once the game starts
+// inferred: debug command              // inferred: nonzero once the game starts
+extern "C" void fn_804E8A80(MpLobbySession_unk* s, int id);    
 extern "C" int fn_804DBD08(MpLobbySession_unk* s, int mode);
 extern "C" void fn_804FB470(MpLobbySession_unk* s, int code, int arg); // inferred: error of the session
 extern "C" void fn_804DD33C(MpLobbySession_unk* s, int arg, int* value); // inferred: next character

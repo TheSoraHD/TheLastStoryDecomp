@@ -43,7 +43,8 @@ extern "C" void fn_804A53D4(MenuCommonTask* menu, int a, void* b, const MP::MpRe
 extern "C" int fn_804DCA4C(MpMsgSession_unk* s, int id, int arg); // inferred: state of a friend
 extern "C" int wcscmp(const wchar_t* a, const wchar_t* b);
 extern "C" int fn_804E4DD4(MpMsgSession_unk* s, int mode, int arg); // inferred: starts the ranking request
-extern "C" void fn_804FB220(int* state, int value); // inferred: changes the state of the session (as atn/PacketPack.cpp)
+// inferred: changes the state of the session (as atn/PacketPack.cpp)
+extern "C" void fn_804FB220(int* state, int value);
 extern "C" atn::GraphicsDevice_unk* lbl_8087EEE0; // inferred: graphics device (screen size)
 extern "C" const wchar_t* fn_804FA8E8(MpMsgSession_unk* s, int value); // inferred: text of a score
 extern "C" void fn_800D2338(atn::Task* task);                 // inferred: removes the task
