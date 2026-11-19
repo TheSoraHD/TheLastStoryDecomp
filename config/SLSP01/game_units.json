@@ -2416,7 +2416,7 @@
    "RandomMerchantChara",
    "gmk::RandomMerchant"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "gmk/RandomItem.cpp",
