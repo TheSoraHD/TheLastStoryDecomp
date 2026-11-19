@@ -72,16 +72,7 @@ public:
 #include "std/string_members.h"
 #include "atn/D2A_TaskInstanceC.h"
 #include "atn/TextTable_unk.h"
-class MenuCommonTask {
-public:
-    static MenuCommonTask* sInstance;
-    unsigned char m00[0x54];
-    int m54;
-    unsigned char m58[0x68 - 0x58];
-    int m68;
-};
-extern "C" void fn_804A4300(MenuCommonTask* menu, const wchar_t* text);
-extern "C" void fn_804A62C8(MenuCommonTask* menu, int a, int b);
+#include "game/MenuCommonTask.h"
 extern "C" void fn_804A5824(MenuCommonTask* menu, atn::D2A_Task* anime, const char* name, int end);
 extern "C" void fn_804A436C(int* cursor, int count, int wrap, int step, int arg); // inferred: moves a cursor
 extern "C" const wchar_t lbl_808813D0[2]; // inferred: empty text
@@ -388,7 +379,7 @@ void NewCampPartsTop::vf2C() {
                 save->mD60 = 0;
                 save->mC84 = 0;
             }
-            fn_804A4300(MenuCommonTask::sInstance, lbl_8087F1E4->Get_unk(0x237));
+            MenuCommonTask::sInstance->fn_804A4300(lbl_8087F1E4->Get_unk(0x237));
             m7C = 6;
             fn_80117228(11);
         }
@@ -428,7 +419,7 @@ void NewCampPartsTop::vf2C() {
                     return;
                 }
                 if (lbl_8087DCCC != 0) {
-                    fn_804A62C8(MenuCommonTask::sInstance, 2, 0);
+                    MenuCommonTask::sInstance->fn_804A62C8(2, 0);
                     m7C = 2;
                 } else {
                     fn_80117228(11);
@@ -446,11 +437,11 @@ void NewCampPartsTop::vf2C() {
                 }
                 break;
             case 2:
-                fn_804A62C8(MenuCommonTask::sInstance, 1, 0);
+                MenuCommonTask::sInstance->fn_804A62C8(1, 0);
                 m7C = 2;
                 break;
             case 3:
-                fn_804A62C8(MenuCommonTask::sInstance, 10, 0);
+                MenuCommonTask::sInstance->fn_804A62C8(10, 0);
                 m7C = 2;
                 break;
             }

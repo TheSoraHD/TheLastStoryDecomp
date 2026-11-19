@@ -45,7 +45,6 @@ struct GameOverPoint_unk {
 extern "C" GameOverPoint_unk fn_801F4E8C(atn::Task* layout, unsigned int hash);
 extern "C" void fn_804A39EC(GameOverD2A_unk* anime, int arg1, int repeat, float frame, float speed);
 
-extern "C" void fn_804A4300(MenuCommonTask* menu, const wchar_t* text);
 extern "C" const wchar_t lbl_808813D0[2]; // inferred: empty text
 extern "C" void* lbl_8087EF70;
 extern "C" int fn_800A555C(void* pad, int port, int button); // inferred: button triggered
@@ -429,7 +428,7 @@ void GameOverTask::vf10() {
             }
             fn_80377298();
             MenuCommonTask::sInstance->fn_804A2F98();
-            fn_804A4300(MenuCommonTask::sInstance, lbl_8087F1E4->Get_unk(0x237));
+            MenuCommonTask::sInstance->fn_804A4300(lbl_8087F1E4->Get_unk(0x237));
             SetState_unk(4);
             fn_80117228(11);
         }

@@ -21,7 +21,6 @@ extern "C" atn::SoundRef fn_80117228(int id);                // inferred: plays 
 extern "C" void fn_804A4494(int* cursor, int* top, int count, int page, int a, int b); // inferred: moves a list cursor
 extern "C" const wchar_t* fn_80116FC0(int a, int id);       // inferred: message text
 extern "C" void fn_804A3C24(MenuCommonTask* menu, const wchar_t* text, int arg); // inferred: help text
-extern "C" void fn_804A7DD4(MenuCommonTask* menu, int id);   // inferred: shows the item
 extern "C" GameConfig_unk* lbl_8087F0A8;
 // inferred: item data returned by fn_80211480 (only the members used here)
 struct NewCampItemData_unk {
@@ -547,7 +546,7 @@ static inline void ShowHelp_unk(NewCampItemEntry_unk* entry) {
         fn_804A3C24(menu, fn_80116FC0(1, 0x15B), 0);
     }
     if (lbl_8087F0A8->mShowReleadBar2 != 0) {
-        fn_804A7DD4(MenuCommonTask::sInstance, entry->mId);
+        MenuCommonTask::sInstance->fn_804A7DD4(entry->mId);
     }
 }
 

@@ -476,9 +476,9 @@ void MenuCommonTask::fn_804A4294(const wchar_t* text) {
 }
 
 // inferred: shows a warning in the info window (camp_info6.d2a)
-extern "C" void fn_804A4300(MenuCommonTask* menu, const wchar_t* text) {
-    SetPaneText_unk(&menu->m58->mData.m10, "warning_msg", text);
-    menu->m54 = 1;
+void MenuCommonTask::fn_804A4300(const wchar_t* text) {
+    SetPaneText_unk(&m58->mData.m10, "warning_msg", text);
+    m54 = 1;
 }
 
 // inferred: moves a list cursor with up/down (wrapping or clamping) and plays `sound` when it moved
@@ -965,45 +965,45 @@ extern "C" void fn_804A5E40(MenuCommonTask* menu, int type, const float* ofs, in
 }
 
 // inferred: shows a confirmation message in camp_info2.d2a
-extern "C" void fn_804A62C8(MenuCommonTask* menu, int type, int noCancel) {
-    MenuD2A_unk* anime = menu->m6C;
+void MenuCommonTask::fn_804A62C8(int type, int noCancel) {
+    MenuD2A_unk* anime = m6C;
     if (anime == 0) {
         return;
     }
     switch (type) {
     case 0:
-        SetPaneText_unk(&menu->m6C->mData.m10, "check_msg", fn_80116FC0(1, 0x104));
+        SetPaneText_unk(&m6C->mData.m10, "check_msg", fn_80116FC0(1, 0x104));
         break;
     case 1:
-        SetPaneText_unk(&menu->m6C->mData.m10, "check_msg", fn_80116FC0(1, 0x108));
+        SetPaneText_unk(&m6C->mData.m10, "check_msg", fn_80116FC0(1, 0x108));
         break;
     case 2:
-        SetPaneText_unk(&menu->m6C->mData.m10, "check_msg", fn_80116FC0(1, 0x109));
+        SetPaneText_unk(&m6C->mData.m10, "check_msg", fn_80116FC0(1, 0x109));
         break;
     case 3:
-        SetPaneText_unk(&menu->m6C->mData.m10, "check_msg", fn_80116FC0(1, 0x10A));
+        SetPaneText_unk(&m6C->mData.m10, "check_msg", fn_80116FC0(1, 0x10A));
         break;
     case 4:
-        SetPaneText_unk(&menu->m6C->mData.m10, "check_msg", fn_80116FC0(1, 0x10B));
+        SetPaneText_unk(&m6C->mData.m10, "check_msg", fn_80116FC0(1, 0x10B));
         break;
     case 7:
-        SetPaneText_unk(&menu->m6C->mData.m10, "check_msg", fn_80116FC0(1, 0x10C));
+        SetPaneText_unk(&m6C->mData.m10, "check_msg", fn_80116FC0(1, 0x10C));
         break;
     case 8:
-        SetPaneText_unk(&menu->m6C->mData.m10, "check_msg", fn_80116FC0(1, 0x10E));
+        SetPaneText_unk(&m6C->mData.m10, "check_msg", fn_80116FC0(1, 0x10E));
         break;
     case 9:
-        SetPaneText_unk(&menu->m6C->mData.m10, "check_msg", fn_80116FC0(1, 0x10F));
+        SetPaneText_unk(&m6C->mData.m10, "check_msg", fn_80116FC0(1, 0x10F));
         break;
     case 10:
-        SetPaneText_unk(&menu->m6C->mData.m10, "check_msg", fn_80116FC0(1, 0x110));
+        SetPaneText_unk(&m6C->mData.m10, "check_msg", fn_80116FC0(1, 0x110));
         break;
     default:
         SetPaneText_unk(&anime->mData.m10, "check_msg", lbl_8087F1E4->Get_unk(0x36D));
         break;
     }
-    menu->m64 = 1;
-    menu->m68 = noCancel == 0;
+    m64 = 1;
+    m68 = noCancel == 0;
 }
 
 // inferred: shows a warning in the info window (third camp_info.d2a)
@@ -1149,7 +1149,7 @@ void MenuCommonTask::fn_804A71F0(void* layout, atn::D2A_Common* element, atn::D2
 extern "C" int fn_800DD3FC(wchar_t* s, const wchar_t* format, ...); // inferred: wide sprintf
 
 // inferred: draws the name of an item at the top right
-extern "C" void fn_804A7DD4(MenuCommonTask* menu, int id) {
+void MenuCommonTask::fn_804A7DD4(int id) {
     ItemParamEntry_unk* item = fn_80211480(id);
     if (item != 0) {
         wchar_t text[0x80];

@@ -112,7 +112,6 @@ extern "C" int fn_8021C6A4(wchar_t* out, const void* skill); // inferred: name o
 extern "C" void fn_80212C34(EquipParamEntry_unk* equip, const EquipParamEntry_unk* base, int level);
 extern "C" void fn_80212840(WeaponParamEntry_unk* weapon, const WeaponParamEntry_unk* base, int level);
 extern "C" void fn_804A3C24(MenuCommonTask* menu, const wchar_t* text, int id);
-extern "C" void fn_804A7DD4(MenuCommonTask* menu, int item);
 extern "C" GameConfig_unk* lbl_8087F0A8;
 // inferred: party members available at a progress (as game/ShopBuySell.cpp)
 struct ShopMembers_unk {
@@ -1806,7 +1805,7 @@ void ShopUpGrade::fn_80597554(ShopUpGradeEntry_unk* entry) {
         }
     }
     if (lbl_8087F0A8->mShowReleadBar2 != 0) {
-        fn_804A7DD4(MenuCommonTask::sInstance, entry->mCode);
+        MenuCommonTask::sInstance->fn_804A7DD4(entry->mCode);
     }
 }
 

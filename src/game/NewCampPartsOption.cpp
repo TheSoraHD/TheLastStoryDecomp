@@ -10,6 +10,7 @@
 #include "std/string_members.h"
 #include "game/GameTask.h"
 #include "atn/D2A_TaskInstanceC.h"
+#include "game/MenuCommonTask.h"
 
 extern "C" int sprintf(char* s, const char* format, ...);
 extern "C" int strcmp(const char* a, const char* b);
@@ -65,17 +66,10 @@ struct NewCampOptionCamp_unk {
 };
 extern "C" GameTask* lbl_8087F430;
 
-class MenuCommonTask {
-public:
-    static MenuCommonTask* sInstance;
-    unsigned char m00[0x68];
-    int m68; // inferred: answer of the dialog
-};
 extern "C" void fn_804A3C24(MenuCommonTask* menu, const wchar_t* text, int id);
 extern "C" void fn_804A53D4(MenuCommonTask* menu, atn::Task* task, const char* name, const NewCampPartsPoint_unk* rect,
                             int end);
 extern "C" void fn_804A5E40(MenuCommonTask* menu, int type, atn::Vector3 ofs, int id);
-extern "C" void fn_804A62C8(MenuCommonTask* menu, int type, int noCancel); // inferred: opens a dialog
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 
 static const NewCampPartsFile_unk sFiles[7] = {
@@ -1068,7 +1062,7 @@ void NewCampPartsOption::fn_805256C4(int mode, int last) {
         list = 1;
         break;
     case 8:
-        fn_804A62C8(MenuCommonTask::sInstance, 8, 1);
+        MenuCommonTask::sInstance->fn_804A62C8(8, 1);
         break;
     }
     if (list) {

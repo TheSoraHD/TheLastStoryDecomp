@@ -158,7 +158,6 @@ void CosEditProtector::fn_801D80BC() {
 }
 
 extern "C" void fn_804A4494(int* cursor, int* top, int count, int page, int a, int b); // inferred: moves a list cursor
-extern "C" void fn_804A4300(MenuCommonTask* menu, const wchar_t* text);              // inferred: shows a message
 extern "C" int fn_800DD3FC(wchar_t* s, const wchar_t* format, ...);                  // inferred: wide sprintf
 extern "C" const wchar_t lbl_808813D0[2];                                            // inferred: empty text
 // inferred: camp message table (lbl_8087F1E4, as in game/CosEditPalette_unk.cpp)
@@ -242,7 +241,7 @@ void CosEditProtector::fn_801D8560() {
                     wchar_t text[0x100];
                     fn_800DD3FC(text, format, info->mName,
                                 ((CosEditListName_unk*)fn_80211480(fn_8020EF80(cur)))->mName);
-                    fn_804A4300(MenuCommonTask::sInstance, text);
+                    MenuCommonTask::sInstance->fn_804A4300(text);
                     return;
                 }
                 int other = fn_80219558(e->mOwner);
@@ -379,7 +378,7 @@ void CosEditProtector::fn_801D8CC4() {
                     wchar_t text[0x100];
                     fn_800DD3FC(text, format, info->mName,
                                 ((CosEditListName_unk*)fn_80211480(fn_80206BE4(cur)))->mName);
-                    fn_804A4300(MenuCommonTask::sInstance, text);
+                    MenuCommonTask::sInstance->fn_804A4300(text);
                     return;
                 }
                 int other = fn_80219558(e->mOwner);

@@ -31,7 +31,6 @@ extern "C" atn::SoundRef fn_80117228(int id);                      // inferred: 
 extern "C" int fn_80117214(int index);                             // inferred: palette slot of a colour index
 extern "C" const wchar_t* fn_80116FC0(int a, int id);              // inferred: system text
 extern "C" const wchar_t lbl_808813D0[2];                          // inferred: empty text
-extern "C" void fn_804A62C8(MenuCommonTask* menu, int type, int noCancel); // inferred: opens a dialog
 extern "C" void fn_804A4494(int* cursor, int* top, int count, int page, int a, int b); // inferred: moves a list cursor
 extern "C" void* lbl_8087F430; // inferred: field
 extern "C" int fn_80219558(int id); // inferred: party member of a character id
@@ -246,7 +245,7 @@ void CosEditProtector::fn_801D5AB0() {
                 fn_80117228(0xB);
             } else if (m1BB0 == 1) {
                 if (m1BA8 < mSetCount) {
-                    fn_804A62C8(MenuCommonTask::sInstance, 4, 1);
+                    MenuCommonTask::sInstance->fn_804A62C8(4, 1);
                     m1B90 = 1;
                     fn_80117228(1);
                 } else {
@@ -256,7 +255,7 @@ void CosEditProtector::fn_801D5AB0() {
                 MenuCommonTask::sInstance->ShowWarning_unk(0x107);
                 fn_80117228(0xB);
             } else {
-                fn_804A62C8(MenuCommonTask::sInstance, 4, 1);
+                MenuCommonTask::sInstance->fn_804A62C8(4, 1);
                 m1B90 = 1;
                 fn_80117228(1);
             }
@@ -321,7 +320,7 @@ void CosEditProtector::fn_801D5F04() {
                 MenuCommonTask::sInstance->ShowWarning_unk(0x105);
                 fn_80117228(0xB);
             } else {
-                fn_804A62C8(MenuCommonTask::sInstance, 3, 1);
+                MenuCommonTask::sInstance->fn_804A62C8(3, 1);
                 m1B90 = 1;
                 fn_80117228(1);
             }
