@@ -43,11 +43,6 @@ struct ReplayEvent_unk {
     class Bullet* mBullet;
 };
 
-// inferred: field object; m5590 is the replay recorder
-struct HomingField_unk {
-    unsigned char m0000[0x5590];
-    ReplayBuffer* m5590;
-};
 
 // inferred: data of listener event 12 (a bullet was shot); names invented
 struct ShotEvent_unk {

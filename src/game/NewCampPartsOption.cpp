@@ -63,11 +63,7 @@ struct NewCampOptionCamp_unk {
     unsigned char m0000[0x11F8];
     int m11F8;
 };
-// inferred: field (lbl_8087F430); only the member used here
-class Field_unk {
-public:
-};
-extern "C" Field_unk* lbl_8087F430;
+extern "C" GameTask* lbl_8087F430;
 
 class MenuCommonTask {
 public:
@@ -1216,7 +1212,7 @@ void NewCampPartsOption::fn_80525A08(int count, int ofs) {
         }
         fn_805251CC();
         if (mE8 == 1 && mE4 == 1 && item->mValue == 1) {
-            ((GameTask*)lbl_8087F430)->fn_803750E4(0x155);
+            lbl_8087F430->fn_803750E4(0x155);
         }
     }
     if (fn_800A555C(pad, 0, 5) != 0) {

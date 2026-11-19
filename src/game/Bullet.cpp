@@ -39,7 +39,7 @@ Bullet::Bullet()
 
 Bullet::~Bullet() {}
 
-extern "C" HomingField_unk* lbl_8087F430;
+extern "C" GameTask* lbl_8087F430;
 
 // inferred: effect manager (lbl_8087F3C0); mB8 selects the effect group of the next effects
 struct BulletEffectMgr_unk {
@@ -367,7 +367,7 @@ inline void PlayHitEffect_unk(Bullet* bullet, const atn::Vector3& pos, const atn
         id = lbl_8087F048->fn_800FAB80(bullet->m88, bullet->m68, bullet->m7C, &pos, &angle, 0, 30, -1, -1,
                                           bullet->m5C, bullet->m74);
     }
-    ((GameTask*)lbl_8087F430)->fn_80373164(bullet->m88, &pos, id);
+    lbl_8087F430->fn_80373164(bullet->m88, &pos, id);
 }
 
 // NONMATCHING: 96.2% - stack slots and FPR numbering of the inlined ToRotation_unk of the effect angle
@@ -763,7 +763,7 @@ void Bullet::fn_80110858(atn::ColliResult_unk* res) {
         if (skill != 0 && fn_8021A960(skill) && (m04 & 0x80) != 0x80) {
             fn_8059B66C(lbl_8087F9E8, skill, m88, m9C, &pos, &rot, boost::function<void(SkillEffect*)>(), 1.0f);
         }
-        ((GameTask*)lbl_8087F430)->fn_80373164(m88, &res->m04, stuck);
+        lbl_8087F430->fn_80373164(m88, &res->m04, stuck);
     }
     if ((m68->mAC & 0x8000) != 0x8000 && (int)m68->m02 != 9) {
         if ((m04 & 4) == 4) {
@@ -805,7 +805,7 @@ void Bullet::fn_80110858(atn::ColliResult_unk* res) {
         }
     }
     if (lbl_8087F498 != 0 && rand() % 2 == 0 && m68->m04 >= 0x148 && m68->m04 <= 0x14A && lbl_8087F430 != 0 &&
-        !((GameTask*)lbl_8087F430)->fn_80375184() && m88 != 0) {
+        !lbl_8087F430->fn_80375184() && m88 != 0) {
         atn::FixedArray_unk<CharaTask*, 16> near;
         for (PlayerTask* p = lbl_8087F8A0->mHead; p != 0; p = p->mNext) {
             if (near.size() >= 16) {
@@ -834,7 +834,7 @@ void Bullet::fn_80110858(atn::ColliResult_unk* res) {
         }
     }
     if (lbl_8087F430 != 0 && m68 != 0 && (m68->mAC & 0x40000) == 0x40000) {
-        CameraShake_unk& shake = ((GameTask*)lbl_8087F430)->mCamera.mShake;
+        CameraShake_unk& shake = lbl_8087F430->mCamera.mShake;
         shake.mFrame = shake.mFrame % 2;
         shake.mLength = 15;
         shake.mWidth = 1.0f;
