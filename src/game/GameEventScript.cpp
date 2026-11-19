@@ -182,6 +182,13 @@ static inline int ScriptValue_unk(int type, int value) {
 }
 // inferred: command after the end of the block that starts at `cmd` (commands 0x44 open nested
 // blocks, 0x45 closes one); the end of the script if missing (name invented)
+static inline ScriptCmd_unk* ScriptEndOf_unk(ScriptData_unk* data) {
+    ScriptCmd_unk* end = &data->mCmds;
+    for (unsigned int i = 0; i < data->mCmdCount; i++) {
+        end = (ScriptCmd_unk*)((char*)end + lbl_8074ED24[end->mCmd]);
+    }
+    return end;
+}
 static inline ScriptCmd_unk* SkipBlock_unk(ScriptData_unk* data, const ScriptCmd_unk* cmd) {
     ScriptCmd_unk* end = &data->mCmds;
     for (unsigned int i = 0; i < data->mCmdCount; i++) {
@@ -982,19 +989,13 @@ inline int GameEventScript::CanStartArg_unk(int event, int arg) {
     return ok;
 }
 
-// NONMATCHING: 99.4% - volatile registers of the range test reversed (r5-r8), as fn_80398530
 // inferred: the event can start (field value in range and all its conditions; arg 0 tests only the
 // conditions of kind 1)
 int GameEventScript::fn_80398590(int event, int arg) {
     int ok = 0;
     if (event != 0) {
         const ScriptEventConds_unk* e = (const ScriptEventConds_unk*)event;
-        int value = lbl_8087F430->m10D0;
-        bool pass = true;
-        if (!e->IsAlways_unk() && !e->Contains_unk(value)) {
-            pass = false;
-        }
-        if (pass) {
+        bool pass = InEventRange_unk(event);        if (pass) {
             ok = 1;
             const ScriptEventCond_unk* cond = e->mConds;
             for (int i = 0; i < e->mCount; cond++, i++) {
@@ -2454,15 +2455,11 @@ int GameEventScript::fn_8039CCD0(const ScriptCmd_unk* cmd) {
     return 0;
 }
 
-// NONMATCHING: 99.2% - `end` and `count` take r30/r29 swapped
 // inferred: runs the commands of `data` from `cmd`; 0 when a command waits, 1 at the end
 int GameEventScript::fn_8039CF8C(ScriptData_unk* data, ScriptCmd_unk* cmd) {
     m94 = data;
-    ScriptCmd_unk* end = &data->mCmds;
+    ScriptCmd_unk* end = ScriptEndOf_unk(data);
     unsigned int count = data->mCmdCount;
-    for (unsigned int i = 0; i < count; i++) {
-        end = (ScriptCmd_unk*)((char*)end + lbl_8074ED24[end->mCmd]);
-    }
     for (unsigned int n = 0; n < count; n++) {
         if (cmd == 0 || cmd >= end) {
             break;
