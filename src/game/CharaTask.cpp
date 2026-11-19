@@ -10234,7 +10234,7 @@ void CharaTask::fn_801750FC() {
     if (m1208 != 0) {
         GimmickMsg_unk msg;
         msg.mType = 3;
-        msg.m10 = (int)this;
+        msg.m10 = this;
         ((CharaGimmick_unk*)m1208)->vf40(&msg);
         ((CharaGimmick_unk*)m1208)->m520 = 0xFF;
         m1208 = 0;

@@ -2873,7 +2873,7 @@ void BattleCharaTask::fn_800EE360() {
         m1438->mFlags &= ~4;
         GimmickMsg_unk msg;
         msg.mType = 3;
-        msg.m10 = (int)this;
+        msg.m10 = this;
         ((GimmickCommon*)m1438)->vf40(&msg);
     }
 }

@@ -699,7 +699,7 @@ void Cannonball::fn_803FB870(const atn::Vector3* pos, CharaTask* owner, int flag
 void Cannonball::fn_803FBC34(const atn::Vector3* pos) {
     if (mBulletId > 0) {
         GimmickMsg_unk msg;
-        msg.m10 = (int)mHolder;
+        msg.m10 = mHolder;
         msg.mType = 7;
         atn::VecAssign_unk(msg.mVec, *pos - mVel.GetNormalize() * 1.5f);
         vf40(&msg);

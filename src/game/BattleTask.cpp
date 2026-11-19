@@ -3568,7 +3568,7 @@ int BattleTask::fn_800FDF14(BattleCalcParam_unk* p) {
             for (GimmickCommon* g = GimmickManager::instance_->mHead; g != 0; g = g->m5C) {
                 if (g->m50 == 0x3A) {
                     GimmickMsg_unk msg(3);
-                    msg.m10 = (int)attacker;
+                    msg.m10 = attacker;
                     g->vf40(&msg);
                 }
             }

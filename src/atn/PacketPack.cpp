@@ -6932,7 +6932,7 @@ extern "C" void fn_804E9360(PPManager2_unk* mgr) {
                             gmk::Cannonball* cannon = (gmk::Cannonball*)gimmick;
                             if (i == cannon->m520) {
                                 GimmickMsg_unk msg(3);
-                                msg.m10 = (int)player->mRef.mChara;
+                                msg.m10 = player->mRef.mChara;
                                 msg.m08 = 0;
                                 msg.mVec = gimmick->m6C;
                                 msg.mVec.y += 2.0f;
@@ -8792,7 +8792,7 @@ extern "C" void fn_804EF0F0(unsigned int aid) {
             chara = 0;
             break;
         }
-        msg.m10 = (int)chara;
+        msg.m10 = chara;
         bool taken = false;
         if (gimmick->m50 == 7) {
             int forward = 1;
@@ -8922,7 +8922,7 @@ extern "C" void fn_804EF9B4() {
             if (held != 0 && chara->m1208 == 0) {
                 GimmickMsg_unk msg;
                 msg.mType = 3;
-                msg.m10 = (int)chara;
+                msg.m10 = chara;
                 held->vf40(&msg);
             }
         }

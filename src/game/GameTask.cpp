@@ -2660,7 +2660,7 @@ extern "C" int fn_8036DBC0(GameTask* task, const atn::Vector3* pos, const atn::V
                 if (dist < 64.0f) {
                     GimmickMsg_unk msg;
                     msg.mType = 3;
-                    msg.m10 = (int)chara;
+                    msg.m10 = chara;
                     g->vf40(&msg);
                     chara->fn_8016D0A0(0);
                     return 1;

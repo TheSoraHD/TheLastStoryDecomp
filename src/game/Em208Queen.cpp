@@ -764,7 +764,7 @@ void Em208Queen::fn_802CA8C0() {
             pos.y -= 10.0f;
             GimmickMsg_unk msg(6);
             msg.mVec = pos;
-            msg.m10 = (int)lbl_8087F8A0->mHead;
+            msg.m10 = lbl_8087F8A0->mHead;
             msg.m04 = 0x76;
             ((GimmickCommon*)m14D8)->vf40(&msg);
         } else if (m14D0 != 0) {

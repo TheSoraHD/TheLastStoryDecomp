@@ -137,7 +137,7 @@ int ControlCannonLift::vf0C() {
                 if (((Cannon_unk*)mCannon)->m520 == 0xFF) {
                     GimmickMsg_unk ev;
                     ev.mType = 2;
-                    ev.m10 = (int)chara;
+                    ev.m10 = chara;
                     ev.m08 = -1;
                     NotifyListeners_unk(fn_8014F8F4(), 11, mCannon, &ev);
                     ((Cannon_unk*)mCannon)->m520 = lbl_8087F628->GetMyAid_unk();
@@ -183,14 +183,14 @@ int ControlCannonLift::vf0C() {
                 mChara->m1208 = mCannon;
                 GimmickMsg_unk msg;
                 msg.mType = 2;
-                msg.m10 = (int)mChara;
+                msg.m10 = mChara;
                 mCannon->vf40(&msg);
             }
         } else if (motion->mTracks[0].m08 >= 15.0f && chara->m1208 == 0) {
             chara->m1208 = mCannon;
             GimmickMsg_unk msg;
             msg.mType = 2;
-            msg.m10 = (int)mChara;
+            msg.m10 = mChara;
             mCannon->vf40(&msg);
         }
     } else if (chara->mType == 0 && (&lbl_8087F0A8->mInput)->fn_801240B4(0x20)) {
@@ -230,7 +230,7 @@ void ControlCannonLift::vf1C() {
         }
         GimmickMsg_unk ev;
         ev.mType = 3;
-        ev.m10 = (int)mChara;
+        ev.m10 = mChara;
         ev.m08 = -1;
         ev.mVec = mCannon->m6C;
         ev.mVec.y += 2.0f;
@@ -268,7 +268,7 @@ int ControlCannonThrow::vf0C() {
                 GimmickMsg_unk msg;
                 msg.mType = 6;
                 msg.mVec = point;
-                msg.m10 = (int)mChara;
+                msg.m10 = mChara;
                 msg.m04 = 0x32;
                 ((GimmickCommon*)mChara->m1208)->vf40(&msg);
                 mChara->m1208 = 0;
@@ -277,7 +277,7 @@ int ControlCannonThrow::vf0C() {
         }
         GimmickMsg_unk msg;
         msg.mType = 5;
-        msg.m10 = (int)mChara;
+        msg.m10 = mChara;
         msg.mVec = m08;
         ((Cannon_unk*)mChara->m1208)->m520 = 0xFF;
         ((GimmickCommon*)mChara->m1208)->vf40(&msg);

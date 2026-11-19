@@ -82,7 +82,7 @@ int ControlAttractHateCharge::vf0C() {
                 switch (g->m50) {
                 case 0x2B: {
                     GimmickMsg_unk msg(3);
-                    msg.m10 = (int)mChara;
+                    msg.m10 = mChara;
                     msg.mVec = mChara->mPos;
                     g->vf40(&msg);
                     break;
@@ -90,7 +90,7 @@ int ControlAttractHateCharge::vf0C() {
                 case 0x41:
                     if (g->vf60()) {
                         GimmickMsg_unk msg(3);
-                        msg.m10 = (int)mChara;
+                        msg.m10 = mChara;
                         msg.mVec = mChara->mPos;
                         g->vf40(&msg);
                     }
