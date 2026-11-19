@@ -1,8 +1,12 @@
 #!/usr/bin/env python3
-# refmap.py unit...: rename the @N labels of the unit in symbols.txt by going through clean main:
-# main symbols name -> main .o (section, offset) -> our .o name at the same (section, offset)
-import re,subprocess,sys
-R='/home/claude/TheLastStoryDecomp/'; M='/home/claude/mainref/'
+# refmap.py unit...: rename the @N labels of the units in symbols.txt by going through a clean build of main:
+# main symbols name -> main .o (section, offset) -> our .o name at the same (section, offset).
+# Exact when only types changed (the pools are the same). Needs a clean build of main in $MAINREF (a worktree
+# or clone with build/SLSP01/src/*.o and config/SLSP01/symbols.txt); run from the repo root, then
+# configure + `ninja build/SLSP01/config.json` and labelcheck.py. Restore @STRING@ names afterwards if they move.
+import os,re,subprocess,sys
+R=os.getcwd()+'/'; M=os.environ.get('MAINREF','../mainref').rstrip('/')+'/'
+OBJDUMP=os.environ.get('OBJDUMP','build/binutils/powerpc-eabi-objdump')
 sp=open(R+'config/SLSP01/splits.txt').read()
 def rng(u):
     m=re.search(r'^'+re.escape(u)+r'\.(?:cpp|c):\n((?:\t.*\n)+)',sp,re.M); r=[]
@@ -11,7 +15,7 @@ def rng(u):
         if mm and mm.group(1)!='.text': r.append((mm.group(1),int(mm.group(2),16),int(mm.group(3),16)))
     return r
 def labels(o):
-    out=subprocess.run(['/home/claude/binutils/powerpc-eabi-objdump','-t',o],capture_output=True,text=True).stdout
+    out=subprocess.run([OBJDUMP,'-t',o],capture_output=True,text=True).stdout
     byname={}; bypos={}
     for l in out.split('\n'):
         t=l.split()

@@ -84,3 +84,5 @@ Sin argumentos recorren todas las unidades del juego sin enlazar que tienen fuen
 - `slots.py <unidad> <simbolo>`: pares de huecos de pila original -> nuestro.
 - `strend.py`: `@stringBase0` cuyo tamano en symbols.txt deja fuera el `""` final (corregir el tamano).
 - `ppfixlbl.py`: tras `pd.sh atn/PacketPack`, re-etiqueta por direccion los objetos que pd deja sin emparejar.
+- `refmap.py <unidades...>`: re-empareja las etiquetas `@N` de symbols.txt por (seccion, desplazamiento) a traves de un build limpio de `main` en `$MAINREF` (por defecto `../mainref`). Exacto cuando solo cambian tipos. (secuencial-20261119)
+- `sigcheck.py [--all] [--func fn_X]`: funciones `extern "C"` declaradas con distinta secuencia de clases de argumento o de retorno entre unidades (para el port de 64 bits); `*` marca el fichero que la define. (secuencial-20261119)
