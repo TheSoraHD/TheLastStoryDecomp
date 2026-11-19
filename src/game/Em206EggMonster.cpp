@@ -1164,7 +1164,7 @@ void Em206EggMonster::vf54() {
 
 extern "C" int fn_80051B70(const atn::Vector3* from, const atn::Vector3* to); // inferred: visibility test
 extern "C" int fn_803ABE54(const atn::Vector3* from, const atn::Vector3* to, float radius);
-extern "C" atn::SoundRef fn_800C31F4(const char* name, float volume, int arg2, int arg3);
+extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float volume);
 
 // inferred: half size and centre of the mark on the screen (as SpecialRect_unk in game/SpecialEnemyBase.cpp)
 struct EggRect_unk {
@@ -1226,7 +1226,7 @@ void Em206EggMonster::fn_802C5F5C() {
                 GameCamera* cam = &lbl_8087F430->mCamera;
                 atn::Vector3 neck = GetNodePos_unk(mMotion.GetNodeMtx_unk("neck"));
                 ((GameCamera*)cam)->fn_8037F6D8(&neck);
-                fn_800C31F4("SE_UICOM_011", 1.0f, 0, -1);
+                fn_800C31F4("SE_UICOM_011", 0, -1, 1.0f);
             }
             if (hit == 0 && dist < 800.0f) {
                 lbl_8087F490->fn_803E3050(sphere.mCenter, atn::Vector3(rect.mX, rect.mY, a.z), rect.mSize, dist);
@@ -1360,7 +1360,7 @@ void Em206EggMonster::fn_802C6DF4() {
             data = fn_80219E6C(0x579);
         }
         lbl_8087F048->fn_800FAB80(this, data, 2000, &pos, &lbl_807C7030, 0, 30, -1, -1, 0.0f, 1.0f);
-        fn_800C31F4("SE_EM206_035", 1.0f, 0, -1);
+        fn_800C31F4("SE_EM206_035", 0, -1, 1.0f);
         GameTask* field = lbl_8087F430;
         field->mCamera.mShake.mFrame %= 2;
         field->mCamera.mShake.mLength = 10;

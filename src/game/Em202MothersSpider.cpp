@@ -12,7 +12,7 @@ extern "C" int strcmp(const char* a, const char* b);
 extern "C" int atoi(const char* s);
 extern "C" int rand();
 extern "C" int fn_800DC12C(const char* s);   // inferred: string to int
-extern "C" double fn_800DC288(const char* s); // inferred: string to float
+extern "C" float fn_800DC288(const char* s); // inferred: string to float
 extern "C" double cos(double x);
 extern "C" double sqrt(double x);
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);

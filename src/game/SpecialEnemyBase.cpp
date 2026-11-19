@@ -94,7 +94,7 @@ struct Camera;
 typedef atn::Camera Camera_unk;
 extern "C" int fn_80051B70(const atn::Vector3* from, const atn::Vector3* to); // inferred: visibility test
 extern "C" int fn_803ABE54(const atn::Vector3* from, const atn::Vector3* to, float radius);
-extern "C" atn::SoundRef fn_800C31F4(const char* name, float volume, int arg2, int arg3);
+extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float volume);
 
 // inferred: reference to a flag of the data files ("G" = global flag, else event flag); names invented
 struct SpecialFlag_unk {
@@ -368,7 +368,7 @@ int SpecialEnemyBase::fn_805A4A54(SpecialAim_unk* aim) {
             atn::Vector3 a = center + lo;
             atn::Vector3 b = center + hi;
             lbl_8087F490->fn_803E6ADC(a, b);
-            fn_800C31F4(sSound, 1.0f, 0, -1);
+            fn_800C31F4(sSound, 0, -1, 1.0f);
             return 1;
         }
         if (dist < 800.0f && fn_803ABE54(&eye, &center, radius) != 0) {
