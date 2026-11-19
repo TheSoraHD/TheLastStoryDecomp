@@ -744,41 +744,15 @@ void QuadrupedTask::fn_805686F0(atn::MotionBuffer* nodes, int count) {
     }
 }
 
-// inferred: m = m * rotation(r) z, y, x (as in game/Em403WarLion.cpp; name invented)
-inline atn::Matrix3x4& MakeRotationZYX_unk(atn::Matrix3x4& m, const atn::Vector3& r) {
-    m.SetIdentity();
-    if (r.z != 0.0f) {
-        Mtx t;
-        Mtx a;
-        PSMTXRotRad(a, 'z', r.z);
-        PSMTXConcat(m.m, a, t);
-        __MtxCopy(m.m, t);
-    }
-    if (r.y != 0.0f) {
-        Mtx t;
-        Mtx a;
-        PSMTXRotRad(a, 'y', r.y);
-        PSMTXConcat(m.m, a, t);
-        __MtxCopy(m.m, t);
-    }
-    if (r.x != 0.0f) {
-        Mtx t;
-        Mtx a;
-        PSMTXRotRad(a, 'x', r.x);
-        PSMTXConcat(m.m, a, t);
-        __MtxCopy(m.m, t);
-    }
-    return m;
-}
-
 // inferred: turns the neck with the lean and the waist with m14B0.y (node matrix callback; as in Em403WarLion)
-// NONMATCHING: 98.65% - same as Em403WarLion::fn_803258D4 (r30/r31 of the node, stack of the matrices)
+// inferred: rotation z, y, x written in place with the matrix through a pointer declared at the top (with an
+// inline taking the matrix the temporaries of the three axes get the stack slots in the other order)
 void QuadrupedTask::fn_805688CC(atn::Matrix3x4* mtx, const atn::NodeChunk& chunk) {
-    ModelNodeDesc_unk* node = (ModelNodeDesc_unk*)&chunk;
-    if (mLook.fn_8012A288(mtx, node) != 0) {
+    atn::Matrix3x4* p;
+    if (mLook.fn_8012A288(mtx, (ModelNodeDesc_unk*)&chunk) != 0) {
         return;
     }
-    const char* name = node->mName;
+    const char* name = ((ModelNodeDesc_unk*)&chunk)->mName;
     if (strcmp(name, "neck") == 0) {
         if (m648 == 0) {
             atn::Vector3 pos = mtx->GetTrans_unk();
@@ -800,7 +774,17 @@ void QuadrupedTask::fn_805688CC(atn::Matrix3x4* mtx, const atn::NodeChunk& chunk
             mtx->m[2][3] = 0.0f;
             atn::Vector3 rot(0.0f, m14B0.y, 0.1f * m14B0.y);
             atn::Matrix3x4 r;
-            MakeRotationZYX_unk(r, rot);
+            p = &r;
+            p->SetIdentity();
+            if (rot.z != 0.0f) {
+                atn::Matrix3x4::RotateAxis_unk(*p, 'z', rot.z);
+            }
+            if (rot.y != 0.0f) {
+                atn::Matrix3x4::RotateAxis_unk(*p, 'y', rot.y);
+            }
+            if (rot.x != 0.0f) {
+                atn::Matrix3x4::RotateAxis_unk(*p, 'x', rot.x);
+            }
             PSMTXConcat(r.m, mtx->m, mtx->m);
             mtx->m[0][3] = pos.x;
             mtx->m[1][3] = pos.y;
