@@ -1381,19 +1381,24 @@ ControlThrownSkelton::ControlThrownSkelton(Chara_unk* chara, const atn::Vector3&
     mChara->mF1C = 0;
 }
 
-// NONMATCHING: 93.1% - flies along mDir until it hits a wall; the hit fires the bullet mHit
+// inferred: flies along mDir until it hits a wall; the hit fires the bullet mHit
 int ControlThrownSkelton::vf0C() {
+    ColliManager_unk* world = lbl_8087EE98;
     atn::ColliResult_unk result;
+    atn::ColliCapsule* colli = &mChara->mColli;
     atn::Vector3 from = mChara->mPos + mDir * 5.0f;
     atn::Vector3 to = mChara->mPos + mDir * 30.0f;
-    if (fn_8004ED34(lbl_8087EE98, &result, &from, &to, mChara->fn_80179D44(), &mChara->mColli, 0)) {
-        mChara->mPos = result.m04;
+    if (fn_8004ED34(world, &result, &from, &to, mChara->fn_80179D44(), colli, 0)) {
+        CharaTask* c = mChara;
+        c->mPos = result.m04;
         mDir.y = 0.0f;
         mChara->mRot = mDir.ToRotation_unk();
-        ShootHit_unk(lbl_8087F048, mChara, mHit, result.m04, &mChara->mRot);
+        BattleTask* mgr = lbl_8087F048;
+        mgr->fn_800FAB80(mChara, mHit, mgr->fn_800F8548(), &result.m04, &mChara->mRot, 0, 0x1E, -1, -1, 0.0f, 1.0f);
         return 1;
     }
-    mChara->mPos = mChara->mPos + mDir * 10.0f;
+    CharaTask* c = mChara;
+    c->mPos = c->mPos + mDir * 10.0f;
     return 0;
 }
 
