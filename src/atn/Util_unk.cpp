@@ -145,18 +145,17 @@ static const unsigned int sCrcTable_unk[256] = {
 };
 
 // inferred: CRC-32 of `len` bytes
-// NONMATCHING: 81.56% - register allocation and scheduling of the unrolled loop (the original keeps
-// the CRC in r0 and addresses the bytes as data + i)
-extern "C" unsigned int fn_800DC500(const void* data, unsigned long len) {
+extern "C" unsigned int fn_800DC500(const char* data, unsigned long len) {
     unsigned int crc = 0xFFFFFFFF;
     for (unsigned long i = 0; i < len; i++) {
-        crc = (crc << 8) ^ sCrcTable_unk[((crc >> 24) ^ ((const char*)data)[i]) & 0xFF];
+        unsigned int idx = ((crc >> 24) ^ data[i]) & 0xFF;
+        crc <<= 8;
+        crc ^= sCrcTable_unk[idx];
     }
     return crc ^ 0xFFFFFFFF;
 }
 
 // inferred: CRC-32 of a string (hash of the names)
-// NONMATCHING: 82.78% - fn_800DC500 inlined, same differences
 extern "C" unsigned int fn_800DC6B4(const char* s) {
     return fn_800DC500(s, strlen(s));
 }
