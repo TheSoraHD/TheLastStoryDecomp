@@ -1,5 +1,5 @@
 diff --git a/src/game/GameEventScript.cpp b/src/game/GameEventScript.cpp
-index 2e3c920..3003d54 100644
+index 2e3c920..bd2472a 100644
 --- a/src/game/GameEventScript.cpp
 +++ b/src/game/GameEventScript.cpp
 @@ -439,11 +439,11 @@ void GameEventScript::fn_80394C68() {
@@ -91,7 +91,40 @@ index 2e3c920..3003d54 100644
              }
              if (fn_800A555C(lbl_8087EF70, 0, 4) != 0) {
                  fn_800C31F4(lbl_8074EF78[8], 0, -1, 1.0f);
-@@ -6577,6 +6586,7 @@ void GameEventScript::PrintLog_unk(atn::SimpleArray<ScriptLog_unk>& log) {
+@@ -4711,6 +4720,7 @@ void GameEventScript::fn_803A5650(ScriptResult_unk& result, const ScriptCmd_unk*
+ }
+ 
+ // NONMATCHING: 95.5% - IsFree_unk is computed as a bool (cror) in the original and mState is reused
++static inline bool TextFree_unk(GameTextMessageWindow* w, float t) { bool free = true; if (w->mState != 0) { bool ok = t <= w->m60; if (!ok) free = false; } return free; }
+ // inferred: shows the text messages m10 to m1C of the scene in the text window (m14 bit 0: do not wait,
+ // bit 1: closes the window instead, bit 2: sets the event counter (m08, m0C))
+ void GameEventScript::fn_803A5804(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
+@@ -4718,7 +4728,7 @@ void GameEventScript::fn_803A5804(ScriptResult_unk& result, const ScriptCmd_unk*
+     GameMessage* msg = (GameMessage*)mScene->fn_803CC6B4(args->m10);
+     GameTextMessageWindow* window = lbl_8087F490->m2640;
+     if ((args->m14 & 2) != 2) {
+-        if (window != 0 && window->IsFree_unk(5.0f) && msg != 0) {
++        if (window != 0 && TextFree_unk(window, 5.0f) && msg != 0) {
+             if (window->mState == 2) {
+                 window->fn_803B6E04(msg, args->m18, 5.0f);
+             } else {
+@@ -6004,7 +6014,6 @@ void GameEventScript::fn_803A956C(ScriptResult_unk& result, const ScriptCmd_unk*
+         GameTask* field = lbl_8087F430;
+         if (field != 0 && ((unsigned int)args->m10 & 4) != 4 && ((unsigned int)args->m10 & 0x20) != 0x20) {
+             float t; float amp; float scale;
+-            t = (float)mBC / (float)mC0;
+             ScriptShake_unk shake;
+             shake.mPos.x = 0.0f;
+             shake.mPos.y = 0.0f;
+@@ -6013,6 +6022,7 @@ void GameEventScript::fn_803A956C(ScriptResult_unk& result, const ScriptCmd_unk*
+             shake.mTarget.y = 0.0f;
+             shake.mTarget.z = 0.0f;
+             shake.mFovy = 0.0f;
++            t = (float)mBC / (float)mC0;
+             amp = 1.0f - (float)sin(0.5f * (3.1415927f * t));
+             scale = field->mCamera.mCamera.mDist / 3.0f;
+             if (((unsigned int)args->m10 & 0x20) != 0x20) {
+@@ -6577,6 +6587,7 @@ void GameEventScript::PrintLog_unk(atn::SimpleArray<ScriptLog_unk>& log) {
          if (entry.m10 == entry.m14) {
              continue;
          }
@@ -99,7 +132,7 @@ index 2e3c920..3003d54 100644
          char pages[256];
          if (entry.m10 == -1) {
              sprintf(pages, "START Page%d\0", entry.m14 + 1);
-@@ -6585,7 +6595,6 @@ void GameEventScript::PrintLog_unk(atn::SimpleArray<ScriptLog_unk>& log) {
+@@ -6585,7 +6596,6 @@ void GameEventScript::PrintLog_unk(atn::SimpleArray<ScriptLog_unk>& log) {
          } else {
              sprintf(pages, "Page%d -> %d", entry.m10 + 1, entry.m14 + 1);
          }
