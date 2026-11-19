@@ -1488,7 +1488,7 @@
   "classes": [
    "Em003LesserDaemon"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "game/em005_doppel_ganger.cpp",

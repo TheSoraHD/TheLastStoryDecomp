@@ -1,3 +1,4 @@
+#include "atn/Task.h"
 #include "atn/RenderSetting_unk.h"
 #include "game/Em003LesserDaemon.h"
 #include "game/GameUI.h"
@@ -26,6 +27,10 @@ extern "C" int strcmp(const char* a, const char* b);
 extern "C" int strncmp(const char* a, const char* b, unsigned long n);
 // inferred: std::string concatenation (weak copy 0x8006AFF8)
 extern "C" std::string fn_8006AFF8(const std::string& a, const std::string& b);
+// inferred: debug menu entries (as in game/Em101ElderZesya.cpp)
+extern "C" void fn_80087994(void* group, const char* name, int* value, void* func, void* arg);
+extern "C" void fn_800874C8(void* group, const char* name, int* value, int min, int max, int step, void* func,
+                            void* arg);
 
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0;
 struct ColliManager_unk;
@@ -81,28 +86,20 @@ extern "C" void fn_8023A8B4(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Mod
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
 
-// NONMATCHING: 99.74% - li order of the per-phase defaults (r0/r4/r5/r6; 5 orders of the loop body) and the
-// second std::string registers (same as Em101ElderZesya / Em201ZanGurg)
+// inferred: the zero members are in the initializer list (declaration order: the stores of m16E8 by
+// its ResHandle constructor fall between m16E4 and m16EC, and the li of the per-phase defaults are scheduled
+// as in the original)
 Em003LesserDaemon::Em003LesserDaemon(atn::Task* parent, EnemyInfo_unk* info)
     : EnemyTask(parent, info->m20), m14B0(0), m14B4(0), m14B8(0), m14BC(0), m14C0(0), m14C4(0), m14C8(0), m14D0(0),
-      m14D4(0), m14D8(0), m161C(10000), m1620(1), m1644(0.0f), m1648(1.0f), m1654(-1), m1658(-1), m1660(35.0f),
-      m1664(50.0f), m1668(80.0f), m166C(60.0f), m16C0(1.0f), m16C8(0.0f), m16CC(-1), m16D0(-1), m16D4(-1) {
+      m14D4(0), m14D8(0), m161C(10000), m1620(1), m1624(0), m1640(0), m1644(0.0f), m1648(1.0f), m164C(0), m1654(-1),
+      m1658(-1), m1660(35.0f), m1664(50.0f), m1668(80.0f), m166C(60.0f), m1670(0), m16BC(0), m16C0(1.0f), m16C4(0),
+      m16C8(0.0f), m16CC(-1), m16D0(-1), m16D4(-1), m16E4(0), m16EC(0) {
     for (int i = 0; i < 6; i++) {
         m168C[i] = 60;
         m16A4[i] = 30;
         m1674[i] = 600;
         m1628[i] = 10;
     }
-    mPoints.mSize = 0;
-    m1624 = 0;
-    m1640 = 0;
-    m164C = 0;
-    m1670 = 0;
-    m16BC = 0;
-    m16C4 = 0;
-    mLinks.mSize = 0;
-    m16E4 = 0;
-    m16EC = 0;
     m14DC = 0;
     m14E4 = 0;
     std::string dir("database/chara/special/");
@@ -420,13 +417,26 @@ inline void Em003LesserDaemon::WarpFar_unk() {
     m14C4 = 0;
 }
 
+// inferred: the linked daemons that are not in state 2 warp too (name invented; the loop in an inline gives the
+// registers of the original)
+static inline void WarpLinks_unk(Em003LesserDaemon* self) {
+    for (unsigned int i = 0; i < self->mLinks.mSize; i++) {
+        if (self->mLinks.mData[i]->m58C != 2) {
+            self->mLinks.mData[i]->fn_8024FE18(0);
+        }
+    }
+}
+
 // inferred: index of the warp point farthest from the target (name invented)
+// inferred: `i` declared first and set to 0 before the point pointer (registers of the original)
 inline int Em003LesserDaemon::FarthestPoint_unk() {
+    unsigned int i;
     float bestDist = 0.0f;
     int best = 0;
     if (m14B0 != 0) {
-        for (unsigned int i = 0; i < mPoints.mSize; i++) {
-            atn::Vector3 d = GetPoint_unk(i) - m14B0->mPos;
+        i = 0;
+        for (const atn::Vector3* p = mPoints.mData; i < mPoints.mSize; p++, i++) {
+            atn::Vector3 d = *p - m14B0->mPos;
             float dist = d.Length_unk();
             if (dist > bestDist) {
                 best = i;
@@ -451,16 +461,51 @@ inline void ClearHate_unk(CharaTask* self) {
     }
 }
 
+// inferred: the expressions of vf10 below are in inlines in the original: their temporaries go to the bottom of
+// the frame, under the effect locals (names invented)
+// inferred: distance to the warp destination
+static inline float WarpDist_unk(Em003LesserDaemon* self) {
+    return (self->mWarpDest - self->mPos).Length_unk();
+}
+
+// inferred: point of the dash at progress t
+static inline atn::Vector3 DashLerp_unk(const atn::Vector3& a, const atn::Vector3& b, float t) {
+    return (b - a) * t + a;
+}
+
+// inferred: state 9 (dash to the warp point); the frame is read by the caller (FPR of the original)
+static inline void Case9_unk(Em003LesserDaemon* self, float frame) {
+    if (frame >= self->mMotion.fn_80097D7C(0)) {
+        fn_80232B7C(&self->m1504, 0);
+        PlayEffectAM_unk(lbl_8087F3C0, &self->m1504, &self->mMotion);
+        self->ResetAction_unk();
+        if (self->mFlag22 == 1 && self->m1640 >= 2 && self->m16D0 >= 0 && lbl_8087F430->fn_80370A78(self->m16D0) == 0) {
+            lbl_8087F430->fn_80370AE4(self->m16D0, 1);
+        }
+        fn_800C344C("SE_SP007_001", &self->mPos, 0, -1, 1.0f);
+    }
+    self->m160C = MIN(1.0f, MAX(0.0f, (self->mMotion.mTracks[0].m08 - 16.0f) / 12.0f));
+    self->mPos = DashLerp_unk(self->m1600, self->mWarpDest, self->m160C);
+}
+
+// inferred: hits left of the barrier (name invented; the test in vf10 through this getter makes the original
+// read m1624 again in ShowHits_unk)
+static inline int GetHits_unk(const Em003LesserDaemon* self) {
+    return self->m1624;
+}
+
 // inferred: shows the barrier hits left (name invented)
-// (the original reads m1624 again after the test: `*(volatile int*)&`, as in the notes of the q5 queue)
 inline void Em003LesserDaemon::ShowHits_unk() {
-    lbl_8087F490->fn_803E6850(this, *(volatile int*)&m1624, m1628[m14C0], 0);
+    lbl_8087F490->fn_803E6850(this, m1624, m1628[m14C0], 0);
 }
 
 // inferred: turns towards a position (name invented)
 inline void Em003LesserDaemon::TurnTo_unk(const atn::Vector3& pos) {
     atn::Vector3 d = pos - mPos;
-    float t = 0.3f * atn::WrapAngle_unk(d.ToRotationZ_unk().y - mRot.y);
+    // inferred: `y` and `t *= 0.3f` give the FPRs and operand order of the original
+    float y = d.ToRotationZ_unk().y;
+    float t = atn::WrapAngle_unk(y - mRot.y);
+    t *= 0.3f;
     mRot.y += t;
 }
 
@@ -473,8 +518,6 @@ inline void Em003LesserDaemon::ResetAction_unk() {
     m14DC = 0;
 }
 
-// NONMATCHING: 99.72% - stack slots of the two effect locals and of the dash vectors (state 9), and f9/f10
-// of the dash factor (8 variants); the pool offsets depend on the unwritten functions
 void Em003LesserDaemon::vf10() {
     ClearHate_unk(this);
     m14B4 = 0;
@@ -515,7 +558,7 @@ void Em003LesserDaemon::vf10() {
         }
         return;
     }
-    if (m1624 != 0) {
+    if (GetHits_unk(this) != 0) {
         ShowHits_unk();
     }
     if (m55C == 2) {
@@ -554,23 +597,13 @@ void Em003LesserDaemon::vf10() {
         break;
     case 9: {
         float frame = mMotion.mTracks[0].m08;
-        if (frame >= mMotion.fn_80097D7C(0)) {
-            fn_80232B7C(&m1504, 0);
-            PlayEffectM_unk(lbl_8087F3C0, &m1504, &mMotion);
-            ResetAction_unk();
-            if (mFlag22 == 1 && m1640 >= 2 && m16D0 >= 0 && lbl_8087F430->fn_80370A78(m16D0) == 0) {
-                lbl_8087F430->fn_80370AE4(m16D0, 1);
-            }
-            fn_800C344C("SE_SP007_001", &mPos, 0, -1, 1.0f);
-        }
-        m160C = MIN(1.0f, MAX(0.0f, (mMotion.mTracks[0].m08 - 16.0f) / 12.0f));
-        mPos = (mWarpDest - m1600) * m160C + m1600;
+        Case9_unk(this, frame);
         break;
     }
     case 10:
         if (m55C != 6) {
             if (m55C == 7) {
-                if ((mWarpDest - mPos).Length_unk() < 20.0f || m14BC > 600) {
+                if (WarpDist_unk(this) < 20.0f || m14BC > 600) {
                     fn_8016E970(3);
                     ResetAction_unk();
                 }
@@ -1253,8 +1286,31 @@ void Em003LesserDaemon::fn_8024ED68() {
     }
 }
 
-// NONMATCHING: 98.46% - saved registers of the fan loop (count/index/vectors) and of the farthest point
-// search, f29/f30 of the frame (10 variants: declaration orders, pointer loop, locals)
+// inferred: fires `count` penetrating lasers in a fan from the hand towards the center (name invented; as an
+// inline its locals go to the bottom of the frame and &hand stays in a register, as in the original; the copy
+// through VecAssign_unk gives the registers of the two vector addresses)
+static inline void FireFan_unk(Em003LesserDaemon* self, const atn::Vector3& hand, const atn::Vector3& center, int count) {
+    atn::Vector3 dir = center - hand;
+    PSVECNormalize(&dir, &dir);
+    int n = count - 1;
+    atn::Vector3 d;
+    for (int i = 0; i < count; i++) {
+        atn::VecAssign_unk(d, dir);
+        Mtx rm;
+        PSMTXRotRad(rm, 'y', 0.7853982f * (((float)i - 0.5f * (float)n) / (0.5f * (float)n)));
+        PSMTXMultVec(rm, &d, &d);
+        lbl_8087F048->fn_800F8574(self, self->m14D4, &hand, &d, 0, 0, 0, 0.0f, 1.0f);
+    }
+}
+
+// inferred: squared distance (name invented; its local goes to the bottom of the frame as in the original)
+static inline float SqDist_unk(const atn::Vector3& a, const atn::Vector3& b) {
+    atn::Vector3 d = a - b;
+    return PSVECSquareMag(&d);
+}
+
+// inferred: `diff` named (stack slot above rot), `frame` declared before `end` and assigned after (f29/f30), `i`
+// of the search declared first and set after `best` (registers and order of the li)
 // inferred: state 8 (aims at the target from the left hand, fires a fan of penetrating lasers and warps
 // between the points while m164C lasts)
 void Em003LesserDaemon::fn_8024F1DC() {
@@ -1263,14 +1319,15 @@ void Em003LesserDaemon::fn_8024F1DC() {
         if (m14B0 == 0) {
             break;
         }
-        MtxPtr m = mMotion.GetNodeMtx_unk("lefthand");
-        atn::Vector3 hand(m[0][3], m[1][3], m[2][3]);
+        atn::Vector3 hand = ((atn::Matrix3x4*)mMotion.GetNodeMtx_unk("lefthand"))->GetTrans_unk();
         CharaTask* target = m14B0;
         atn::Vector3 center = (target->mColli.m3C + target->mColli.m48) * 0.5f;
-        atn::Vector3 rot = (center - hand).ToRotationZ_unk();
+        atn::Vector3 diff = center - hand;
+        atn::Vector3 rot = diff.ToRotationZ_unk();
         rot.x = MAX(-0.31415927f, MIN(0.31415927f, rot.x));
+        float frame;
         float end = mMotion.fn_80097D7C(0) - 32.0f;
-        float frame = mMotion.mTracks[0].m08;
+        frame = mMotion.mTracks[0].m08;
         if (!(frame >= mMotion.fn_80097D7C(0) - 18.0f)) {
             if (mMotion.mTracks[0].m08 >= end) {
                 rot.x *= MIN(1.0f, (mMotion.mTracks[0].m08 - end) / 14.0f);
@@ -1286,21 +1343,13 @@ void Em003LesserDaemon::fn_8024F1DC() {
         mRot = rot;
         float frame2 = mMotion.mTracks[0].m08;
         if (frame2 >= mMotion.fn_80097D7C(0) - 8.0f) {
-            int count = 5;
+            int count;
             if (m16E4 != 0) {
                 count = 3;
+            } else {
+                count = 5;
             }
-            atn::Vector3 dir = center - hand;
-            PSVECNormalize(&dir, &dir);
-            int n = count - 1;
-            atn::Vector3 d;
-            for (int i = 0; i < count; i++) {
-                d = dir;
-                Mtx rm;
-                PSMTXRotRad(rm, 'y', 0.7853982f * (((float)i - 0.5f * (float)n) / (0.5f * (float)n)));
-                PSMTXMultVec(rm, &d, &d);
-                lbl_8087F048->fn_800F8574(this, m14D4, &hand, &d, 0, 0, 0, 0.0f, 1.0f);
-            }
+            FireFan_unk(this, hand, center, count);
             m14B8 = 1;
         }
         break;
@@ -1313,12 +1362,12 @@ void Em003LesserDaemon::fn_8024F1DC() {
         if (--m164C > 0) {
             if (mPoints.mSize != 0) {
                 if (m1650 < 0) {
+                    unsigned int i;
                     float bestDist = 0.0f;
-                    const atn::Vector3* point = mPoints.mData;
                     int best = -1;
-                    for (unsigned int i = 0; i < mPoints.mSize; point++, i++) {
-                        atn::Vector3 d = mPos - *point;
-                        float dist = PSVECSquareMag(&d);
+                    i = 0;
+                    for (const atn::Vector3* point = mPoints.mData; i < mPoints.mSize; point++, i++) {
+                        float dist = SqDist_unk(mPos, *point);
                         if (dist > bestDist) {
                             best = i;
                             bestDist = dist;
@@ -1554,8 +1603,6 @@ void Em003LesserDaemon::fn_8024FFE8() {
     }
 }
 
-// NONMATCHING: 99.49% - the point pointer and the index of the loop get r28/r30 swapped (12 variants:
-// pointer walk, index, while, helper inline, declaration orders)
 void Em003LesserDaemon::fn_802506AC() {
     if (mPoints.mSize == 0) {
         m58C = 0;
@@ -1570,11 +1617,7 @@ void Em003LesserDaemon::fn_802506AC() {
     m14B8 = 0;
     m14BC = 0;
     int best = FarthestPoint_unk();
-    for (unsigned int i = 0; i < mLinks.mSize; i++) {
-        if (mLinks.mData[i]->m58C != 2) {
-            mLinks.mData[i]->fn_8024FE18(0);
-        }
-    }
+    WarpLinks_unk(this);
     mWarpDest = mPoints.mData[best];
     m58C = 6;
     fn_8016E970(3);
@@ -1607,4 +1650,26 @@ int Em003LesserDaemon::fn_80250884(float radius) {
         }
     }
     return count;
+}
+
+// inferred: debug menu of the daemon, with no caller left in the game (stripped by the linker): only its names
+// stay in @stringBase0, between "lefthand" and the std::string messages. Body and name invented (the
+// members are guessed from the CSV keys: AngryCount m1674, WaitCount m168C, AngryWaitCount m16A4,
+// BarrierHitCount m1628, two entries per phase); it only needs to use the names in this order.
+void Em003LesserDaemon::InitDebug_unk() {
+    void* group = m16E8.Load("Em003_LesserDaemon");
+    fn_80087994(group, "DebugDisp", &m165C, 0, 0);
+    fn_800874C8(group, "Phase", &m14C0, 0, 2, 1, 0, 0);
+    fn_800874C8(group, "AngryCount1", &m1674[0], 0, 100000, 1, 0, 0);
+    fn_800874C8(group, "WaitCount1", &m168C[0], 0, 100000, 1, 0, 0);
+    fn_800874C8(group, "AngryWaitCount1", &m16A4[0], 0, 100000, 1, 0, 0);
+    fn_800874C8(group, "AngryCount2", &m1674[2], 0, 100000, 1, 0, 0);
+    fn_800874C8(group, "WaitCount2", &m168C[2], 0, 100000, 1, 0, 0);
+    fn_800874C8(group, "AngryWaitCount2", &m16A4[2], 0, 100000, 1, 0, 0);
+    fn_800874C8(group, "AngryCount3", &m1674[4], 0, 100000, 1, 0, 0);
+    fn_800874C8(group, "WaitCount3", &m168C[4], 0, 100000, 1, 0, 0);
+    fn_800874C8(group, "AngryWaitCount3", &m16A4[4], 0, 100000, 1, 0, 0);
+    fn_800874C8(group, "BarrierHitCount1", &m1628[0], 0, 100000, 1, 0, 0);
+    fn_800874C8(group, "BarrierHitCount2", &m1628[2], 0, 100000, 1, 0, 0);
+    fn_800874C8(group, "BarrierHitCount3", &m1628[4], 0, 100000, 1, 0, 0);
 }

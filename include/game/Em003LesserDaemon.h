@@ -42,6 +42,7 @@ public:
     int fn_8024F9B8();  // inferred: finds a free warp position behind the target (mWarpDest)
     void fn_802506AC(); // inferred: warps to the point farthest from the target
     int fn_80250884(float radius);
+    void InitDebug_unk(); // inferred: debug menu (stripped by the linker)
     inline int FarthestPoint_unk();
     inline void StartWarp_unk();
     inline int FarthestFromSelf_unk();
