@@ -1240,7 +1240,6 @@ ControlThrownAway::~ControlThrownAway() {
     }
 }
 
-// NONMATCHING: 97.1% - the original copies the facing vector to mRot through the stack
 int ControlThrownAway::vf0C() {
     if (mChara->mF1C) {
         atn::Matrix3x4 mtx = FollowMtx_unk(mChara)->GetRotation_unk();
@@ -1248,6 +1247,8 @@ int ControlThrownAway::vf0C() {
         dir = atn::Vector3(0.0f, 0.0f, 1.0f);
         PSMTXMultVec(mtx.m, &dir, &dir);
         dir.RotZ_unk();
+        dir.x = 0.0f; // inferred: only the yaw of the matrix is kept
+        dir.z = 0.0f;
         mChara->mRot = dir;
         mChara->mPos = FollowMtx_unk(mChara)->GetTrans_unk();
     }
@@ -1263,7 +1264,6 @@ atn::Vector3 ControlThrownAway::vf14() const {
     return pos;
 }
 
-// NONMATCHING: 96.2% - copies of the facing vector (as in ControlThrownAway::vf0C)
 // inferred: thrown and caught again on the matrix `mtx` (control id 0x73)
 ControlThrownAvoid::ControlThrownAvoid(Chara_unk* chara, int mtx, const atn::Vector3& dir)
     : ControlBase(chara), mMtx(mtx), mDir(dir) {
@@ -1275,6 +1275,8 @@ ControlThrownAvoid::ControlThrownAvoid(Chara_unk* chara, int mtx, const atn::Vec
         dir = atn::Vector3(0.0f, 0.0f, 1.0f);
         PSMTXMultVec(mtx.m, &dir, &dir);
         dir.RotZ_unk();
+        dir.x = 0.0f; // inferred: only the yaw of the matrix is kept
+        dir.z = 0.0f;
         mChara->mRot = dir;
         mChara->mPos = FollowMtx_unk(mChara)->GetTrans_unk();
     }
@@ -1285,7 +1287,7 @@ ControlThrownAvoid::ControlThrownAvoid(Chara_unk* chara, int mtx, const atn::Vec
     m->mTracks[0].m0C = 1.0f;
 }
 
-// NONMATCHING: 97.5% - follows the matrix for 8 frames, then flies along mDir
+// inferred: follows the matrix for 8 frames, then flies along mDir
 int ControlThrownAvoid::vf0C() {
     Motion_unk* m = &mChara->mMotion;
     if (Frame_unk(m) >= m->fn_80097D7C(0)) {
@@ -1294,15 +1296,16 @@ int ControlThrownAvoid::vf0C() {
     if (m->mTracks[0].m08 >= 8.0f) {
         mChara->mF1C = 0;
         float speed = mDir.Length_unk();
-        atn::Vector3 dir = mDir;
-        dir.fn_80139F60();
-        mChara->fn_801426A4(&dir, speed, 1.5f);
+        atn::Vector3 rot = mDir.ToRotation_unk();
+        mChara->fn_801426A4(&rot, speed, 1.5f);
     } else if (mChara->mF1C) {
         atn::Matrix3x4 mtx = FollowMtx_unk(mChara)->GetRotation_unk();
         atn::Vector3 dir;
         dir = atn::Vector3(0.0f, 0.0f, 1.0f);
         PSMTXMultVec(mtx.m, &dir, &dir);
         dir.RotZ_unk();
+        dir.x = 0.0f; // inferred: only the yaw of the matrix is kept
+        dir.z = 0.0f;
         mChara->mRot = dir;
         mChara->mPos = FollowMtx_unk(mChara)->GetTrans_unk();
     }
@@ -1345,10 +1348,10 @@ ControlCaughtSkelton::ControlCaughtSkelton(Chara_unk* chara, CharaTask* holder) 
     mChara->mPos = mNode->GetTrans_unk();
 }
 
-// NONMATCHING: 98.5% - r4/r5/r6 order of the node, the temporary and mChara
 int ControlCaughtSkelton::vf0C() {
-    atn::Matrix3x4* node = mNode;
-    mChara->mPos = node->GetTrans_unk();
+    atn::Vector3 pos = mNode->GetTrans_unk();
+    CharaTask* c = mChara;
+    c->mPos = pos;
     mChara->mRot.Assign_unk(mHolder->mRot);
     return 0;
 }
