@@ -7,15 +7,11 @@
 #include "atn/GXDecl.h"
 #include "atn/Material_unk.h"
 #include "std/new.h"
+#include "atn/DebugMessages_unk.h"
 
 extern "C" int sprintf(char* buf, const char* fmt, ...);
 extern "C" unsigned int fn_800DC6B4(const char* s); // inferred: string hash
 
-// inferred: debug message output (lbl_8087EEB8)
-struct DebugMessages_unk {
-    void fn_800697D8(const char* message);
-};
-extern "C" DebugMessages_unk* lbl_8087EEB8;
 
 
 extern "C" int fn_8007B078(const char* name);         // inferred: texture id by name, -1 if unknown

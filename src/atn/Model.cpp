@@ -40,11 +40,6 @@ extern "C" int rand();
 extern "C" void PSMTXMultVecArray(const Mtx m, const atn::Vector3* srcBase, atn::Vector3* dstBase, unsigned int count);
 extern "C" void PSMTXInverse(const Mtx src, Mtx inv);
 extern "C" void PSMTXConcatArray(const Mtx a, const Mtx* srcBase, Mtx* dstBase, unsigned int count);
-// inferred: collects the warnings of the loaders (see game/main.cpp)
-struct DebugMessages_unk {
-    void fn_800697D8(const char* msg);
-};
-extern "C" DebugMessages_unk* lbl_8087EEB8;
 extern "C" atn::Matrix3x4* fn_80476130(atn::LH_Model* model); // inferred: inverse joint matrices
 extern "C" int fn_80476194(atn::LH_Model* model); // inferred: the model has no occlusion data
 extern "C" int fn_804761B0(atn::LH_Model* model); // inferred: the occlusion data is ready
@@ -99,6 +94,7 @@ extern "C" void fn_80090C58(atn::Matrix3x4** out, const atn::Matrix3x4* mats, co
 extern "C" void fn_800910D4(atn::Matrix3x4** out, const atn::Matrix3x4* mats, const SkinWeight4_unk* w, int n);
 
 #include "atn/MotionCmd_unk.h"
+#include "atn/DebugMessages_unk.h"
 extern "C" void fn_800A0A68(atn::MotionCmd_unk* cmd, atn::Model* model, const atn::LH_Motion* src); // inferred: copies
 extern "C" float fn_800A08D4(atn::LH_Motion* motion); // inferred: length of the motion
 

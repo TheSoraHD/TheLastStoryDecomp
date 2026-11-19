@@ -5,6 +5,7 @@
 // string_members.h: this file has the weak copy of the wchar_t range replace (its error messages
 // are in the string pool); NONMATCHING 86% like the char one (see std/string.h)
 #include "std/string_members.h"
+#include "atn/DebugMessages_unk.h"
 
 // inferred: font manager (file name unknown). Loads the font textures and their glyph tables
 // ("gly" files) and the SJIS/unicode conversion table, measures and draws text.
@@ -487,10 +488,6 @@ extern "C" float fn_8006F17C(Font_unk* self, unsigned int c, int proportional, i
     return w;
 }
 
-struct DebugMessages_unk {
-    void fn_800697D8(const char* message);
-};
-extern "C" DebugMessages_unk* lbl_8087EEB8; // inferred: debug message output
 
 // inferred: SJIS to wide string; returns the number of characters written with the terminator
 // NONMATCHING: 91% - loop variables (pointer and index) allocation

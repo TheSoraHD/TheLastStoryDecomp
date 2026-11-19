@@ -1,9 +1,8 @@
 #include "atn/LoadCore.h"
 #include "atn/LoadManager.h"
 #include <string.h>
+#include "atn/DebugMessages_unk.h"
 
-struct DebugMessages_unk { void fn_800698DC(const char* path); }; // inferred: see atn/FileUtil_unk.cpp
-extern "C" DebugMessages_unk* lbl_8087EEB8;                               // inferred: listener of failed loads
 
 namespace atn {
 

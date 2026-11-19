@@ -81,6 +81,7 @@
 #include "game/BattleTask.h"
 #include "nw4r/math/triangular.h"
 #include "game/GameSceneFind_unk.h"
+#include "atn/DebugMessages_unk.h"
 
 // inferred: block of the game settings read by fn_8013A4E8 (names invented)
 struct Block454_unk {
@@ -249,15 +250,10 @@ static const ModelName_unk sModelNames_unk[] = {
     {"em102_00_bs00.model", "em102_00_bs01.model"},
 };
 
-extern "C" void* lbl_8087EEB8; // inferred: debug message output
 extern "C" char lbl_807C7B28[32];
 extern "C" int sprintf(char* s, const char* format, ...);
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" int rand();
-// inferred: debug message list (atn/FileUtil_unk.cpp)
-struct DebugMessages_unk {
-    void fn_800697D8(const char* message);
-};
 extern "C" CharaInfo_unk* fn_8020924C(int id);
 extern "C" int fn_802092C0(char* path, const char* name);
 extern "C" chr::CharaData_unk* fn_8020A81C(const char* name);
@@ -388,7 +384,7 @@ CharaTask::CharaTask(atn::Task* parent, int type, void* data)
                 char message[0x100];
                 sprintf(lbl_807C7B28, "ch%04d_%02d", m50 / 100, m50 % 100);
                 sprintf(message, "charactor not found! %s", lbl_807C7B28); // sic, as in the original pool
-                ((DebugMessages_unk*)lbl_8087EEB8)->fn_800697D8(message);
+                lbl_8087EEB8->fn_800697D8(message);
             }
             m60 = fn_8020924C(0);
         }
@@ -9696,7 +9692,7 @@ void CharaTask::fn_8016F824(int point, int arg) {
         char message[0x100];
         sprintf(lbl_807C7B28, "ch%04d_%02d", m50 / 100, m50 % 100);
         sprintf(message, "error: invalid pointmove chara[%d:%s] -> movepoint[%d]\n", m58, lbl_807C7B28, point);
-        ((DebugMessages_unk*)lbl_8087EEB8)->fn_800697D8(message);
+        lbl_8087EEB8->fn_800697D8(message);
     }
 }
 
@@ -9721,7 +9717,7 @@ void CharaTask::fn_8016FDCC(int point, int arg) {
         char message[0x100];
         sprintf(lbl_807C7B28, "ch%04d_%02d", m50 / 100, m50 % 100);
         sprintf(message, "error: invalid pointmove chara[%d:%s] -> hidepoint[%d]\n", m58, lbl_807C7B28, point);
-        ((DebugMessages_unk*)lbl_8087EEB8)->fn_800697D8(message);
+        lbl_8087EEB8->fn_800697D8(message);
     }
 }
 
@@ -9744,7 +9740,7 @@ void CharaTask::fn_8017039C(int place, int arg) {
         char message[0x100];
         sprintf(lbl_807C7B28, "ch%04d_%02d", m50 / 100, m50 % 100);
         sprintf(message, "error: invalid pointmove chara[%d:%s] -> warppoint[%d]\n", m58, lbl_807C7B28, place);
-        ((DebugMessages_unk*)lbl_8087EEB8)->fn_800697D8(message);
+        lbl_8087EEB8->fn_800697D8(message);
     }
 }
 

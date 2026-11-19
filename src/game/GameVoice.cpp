@@ -12,6 +12,7 @@
 #include "game/PlayerManager.h"
 #include "game/FriendManager.h"
 #include "game/GameConfig_unk.h"
+#include "atn/DebugMessages_unk.h"
 
 extern "C" int sprintf(char* s, const char* format, ...);
 extern "C" int rand();
@@ -34,11 +35,6 @@ extern "C" void fn_800CB5B4(atn::SoundRef* sound, float volume, int frames); // 
 extern "C" void fn_800CB654(atn::SoundRef* sound, float a, float b, float c); // inferred: sets the effect sends
 extern "C" int fn_80049C3C(atn::SoundEngine_unk* engine, const char* name);  // inferred: the sound has no effects
 
-extern "C" void* lbl_8087EEB8; // inferred: debug message output
-// inferred: debug message list (atn/FileUtil_unk.cpp)
-struct DebugMessages_unk {
-    void fn_800697D8(const char* message);
-};
 
 // inferred: one line of the voice table of the characters (CharaTask::m7C; db/VoiceTable, see
 // atn/ptr_string_base_char_0.cpp)
@@ -237,7 +233,7 @@ void GameVoiceChannel_unk::CheckPrepared_unk(const char* name) {
                 const char* label = fn_80049CDC(engine, fn_800CB6F8(&mSound));
                 sprintf(buf, "SoundWarning: cannot match [%d:%s] with prepared voice [%d:%s]\0", id, name,
                         fn_800CB6F8(&mSound), label);
-                ((DebugMessages_unk*)lbl_8087EEB8)->fn_800697D8(buf);
+                lbl_8087EEB8->fn_800697D8(buf);
             }
             Stop_unk(0);
         }
@@ -256,7 +252,7 @@ void GameVoiceChannel_unk::CheckPreparedId_unk(unsigned int id) {
                 const char* label = fn_80049CDC(engine, fn_800CB6F8(&mSound));
                 sprintf(buf, "SoundWarning: cannot match [%d:%s] with prepared voice [%d:%s]\0", id, name,
                         fn_800CB6F8(&mSound), label);
-                ((DebugMessages_unk*)lbl_8087EEB8)->fn_800697D8(buf);
+                lbl_8087EEB8->fn_800697D8(buf);
             }
             Stop_unk(0);
         }
@@ -706,7 +702,7 @@ void GameVoice::StopInvalid_unk() {
                 atn::SoundEngine_unk* engine = lbl_8087EE90;
                 const char* label = fn_80049CDC(engine, fn_800CB6F8(&channel.mSound));
                 sprintf(buf, "SoundWarning: stopped invalid prepared voice [%d:%s]", fn_800CB6F8(&channel.mSound), label);
-                ((DebugMessages_unk*)lbl_8087EEB8)->fn_800697D8(buf);
+                lbl_8087EEB8->fn_800697D8(buf);
             }
             channel.Stop_unk(0);
         }

@@ -1,6 +1,7 @@
 #include "math/Vec.h"
 
 #include "atn/SoundCore.h"
+#include "atn/DebugMessages_unk.h"
 
 extern "C" atn::SoundEngine_unk* lbl_8087EE90;
 
@@ -16,11 +17,6 @@ inline atn::Sound3dActor::Sound3dActor()
     : mActor(*reinterpret_cast<nw4r::snd::SoundArchivePlayer*>(lbl_8087EE90->mPlayer),
              *reinterpret_cast<nw4r::snd::Sound3DManager*>(&lbl_8087EE90->m364)) {}
 
-// inferred: debug message output (lbl_8087EEB8)
-struct DebugMessages_unk {
-    void fn_800697D8(const char* msg);
-};
-extern "C" DebugMessages_unk* lbl_8087EEB8;
 
 // inferred: nw4r::snd::SoundStartable::StartResult names
 static const char* const sSoundErrors[] = {

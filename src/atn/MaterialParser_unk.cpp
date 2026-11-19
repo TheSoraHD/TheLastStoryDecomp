@@ -9,6 +9,7 @@
 #include "game/GimmickCommon.h"
 #include "std/string.h"
 #include "std/string_members.h"
+#include "atn/DebugMessages_unk.h"
 
 extern "C" RenderSetting_unk* lbl_8087EFA8;
 
@@ -33,11 +34,6 @@ extern "C" void fn_800875F8(void* group, const char* name, GXColor* value, int m
 extern "C" void fn_8008771C(void* group, const char* name, float* value, void (*callback)(void*), void* arg,
                             float min, float max, float step);
 
-// inferred: debug message output (lbl_8087EEB8, as in atn/Shader_unk.cpp)
-struct DebugMessages_unk {
-    void fn_800697D8(const char* message);
-};
-extern "C" DebugMessages_unk* lbl_8087EEB8;
 extern "C" int strncmp(const char* a, const char* b, unsigned long n);
 
 extern "C" {

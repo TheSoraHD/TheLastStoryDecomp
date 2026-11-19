@@ -133,11 +133,6 @@ public:
     int m74;
 };
 
-// inferred: debug message output (lbl_8087EEB8; atn/FileUtil_unk.cpp)
-struct DebugMessages_unk {
-    void fn_800697D8(const char* message);
-};
-extern "C" DebugMessages_unk* lbl_8087EEB8;
 
 namespace atn {
 // inferred: motion blur post effect (class in atn/PostFxMotionBlur.cpp)
@@ -216,6 +211,7 @@ struct MpSettings_unk {
 #include "game/InventoryExp_unk.h"
 #include "db/PlayerParam_unk.h"
 #include "game/GameSceneFind_unk.h"
+#include "atn/DebugMessages_unk.h"
 extern "C" Collision_unk* lbl_8087EE98;
 extern "C" void* lbl_8087F610; // inferred: multiplayer session (null in single player)
 extern "C" atn::EffectManager* lbl_8087F3C0;

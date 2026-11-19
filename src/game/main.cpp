@@ -32,6 +32,7 @@ extern "C" unsigned long strlen(const char* s);
 #include "game/ErrorManager.h"
 #include "game/HomeButtonMenu.h"
 #include "game/GameConfig_unk.h"
+#include "atn/DebugMessages_unk.h"
 extern "C" void fn_80363CE4(); // inferred: creates the ErrorManager singleton
 
 // inferred: HOME button menu (game/HomeButtonMenu.cpp), only the members used here
@@ -47,10 +48,6 @@ public:
     static SetConfig* sInstance;
 };
 
-struct DebugMessages_unk {
-    void fn_80069E50(int arg);
-};
-extern "C" DebugMessages_unk* lbl_8087EEB8;
 
 extern "C" Event::Manager* lbl_8087F540;
 

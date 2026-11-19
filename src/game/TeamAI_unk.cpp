@@ -9,6 +9,7 @@
 #include "game/PlayerManager.h"
 #include "std/tree.h"
 #include "std/msl_common.h"
+#include "atn/DebugMessages_unk.h"
 
 extern "C" GameTask* lbl_8087F430; // inferred: the field
 
@@ -20,11 +21,6 @@ extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
 extern "C" BattleTask* lbl_8087F048; // inferred: battle task
 extern "C" PlayerManager* lbl_8087F8A0; // inferred: player manager
 extern "C" int sprintf(char* buf, const char* fmt, ...);
-// inferred: debug message list (as in gmk/RandomMerchant.cpp)
-struct DebugMessages_unk {
-    void fn_800697D8(const char* message);
-};
-extern "C" DebugMessages_unk* lbl_8087EEB8;
 
 // inferred: the member as a character (TeamChara_unk is a partial view)
 inline CharaTask* Chara_unk(TeamChara_unk* chara) {

@@ -2,10 +2,9 @@
 // Loader::fn_8046F460, PfsArchive_unk::fn_80470198/804701F8/80470264 out of line and "%sh" is a
 // .rodata object after the FileSystem_unk string pool. Name invented.
 #include "atn/PfsArchive_unk.h"
+#include "atn/DebugMessages_unk.h"
 
 extern "C" int sprintf(char* s, const char* format, ...);
-struct DebugMessages_unk { void fn_800698DC(const char* path); }; // inferred: see atn/FileUtil_unk.cpp
-extern "C" DebugMessages_unk* lbl_8087EEB8;                                 // inferred: listener of failed loads
 
 void ResRef_unk::fn_80470364(const char* name, int a, int b, int c) {
     if (mRes != 0) {
