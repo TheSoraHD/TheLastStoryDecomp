@@ -1,0 +1,16 @@
+diff --git a/src/game/GameEventScript.cpp b/src/game/GameEventScript.cpp
+index ca631c3..7a0a6ce 100644
+--- a/src/game/GameEventScript.cpp
++++ b/src/game/GameEventScript.cpp
+@@ -1196,7 +1196,10 @@ static inline bool CanStartTalk_unk(PlayerTask* chara) {
+     case 1:
+     case 9:
+     case 10:
+-        return !chara->mFlag31 && !chara->mFlag6 && chara->m14A0 <= 0 && chara->m1208 == 0;
++        if (!chara->mFlag31 && !chara->mFlag6 && chara->m14A0 <= 0 && chara->m1208 == 0) {
++            return true;
++        }
++        break;
+     case 6:
+         if (chara->m560 >= 60 && chara->m560 <= 61) {
+             return true;
