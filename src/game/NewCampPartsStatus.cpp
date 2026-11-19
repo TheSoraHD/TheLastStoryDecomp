@@ -151,9 +151,11 @@ inline void SetPaneText_unk(void* layout, const char* name, const wchar_t* text)
 inline void SetPaneFloat_unk(void* layout, const char* name, float value) {
     fn_801FECE0(layout, fn_800DC6B4(name), value);
 }
+// inferred: the layout (0x58) taken as a byte offset here and as the member in SetTaskText_unk: with the same
+// expression in both setters MWCC keeps task + 0x58 in a register across the calls (fn_80528310/454/574)
 inline void SetTaskFloat_unk(atn::D2ATask_unk* task, const char* name, float value) {
     unsigned int hash = fn_800DC6B4(name);
-    fn_801FECE0(((NewCampStatusD2A_unk*)task)->mLayout, hash, value);
+    fn_801FECE0((char*)task + 0x58, hash, value);
 }
 inline void SetTaskText_unk(atn::D2ATask_unk* task, const char* name, const wchar_t* text) {
     unsigned int hash = fn_800DC6B4(name);
@@ -584,8 +586,6 @@ void NewCampPartsStatus::fn_80527938() {
     }
 }
 
-// NONMATCHING: 96.47% - the original computes base + 0x58 at each call; here it is computed once (and the
-// saved registers follow); tried member/free setters and evaluation orders
 void NewCampPartsStatus::fn_80528310(atn::D2ATask_unk* base, CharaStatus* status, int skill, int* count,
                                      NewCampStatusSet_unk* set, int help) {
     if (status->fn_801346C8(skill)) {
@@ -605,7 +605,6 @@ void NewCampPartsStatus::fn_80528310(atn::D2ATask_unk* base, CharaStatus* status
     }
 }
 
-// NONMATCHING: 93.11% - same layout address difference as fn_80528310
 void NewCampPartsStatus::fn_80528454(atn::D2ATask_unk* base, int* count, NewCampStatusSet_unk* set) {
     char name[0x20];
     sprintf(name, "skillOn%02d", *count);
@@ -621,7 +620,6 @@ void NewCampPartsStatus::fn_80528454(atn::D2ATask_unk* base, int* count, NewCamp
     (*count)++;
 }
 
-// NONMATCHING: 93.11% - same layout address difference as fn_80528310
 void NewCampPartsStatus::fn_80528574(atn::D2ATask_unk* base, int* count, NewCampStatusSet_unk* set) {
     char name[0x20];
     sprintf(name, "skillOn%02d", *count);
