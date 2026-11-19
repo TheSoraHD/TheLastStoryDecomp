@@ -1483,83 +1483,84 @@ extern "C" __declspec(noinline) AiTargets_unk* fn_8001C278() {
     return &lbl_807C6B30;
 }
 
-// NONMATCHING: 92.27% - registry population is reconstructed; local layout and call scheduling differ.
 // inferred: registers each script name with a heap-3 instance in the global AI script tree.
 extern "C" void fn_8001C284() {
-    unsigned char pairs[64][8];
-    AIStringWithAllocator_unk values[64];
-    void* objects[64];
-#define REGISTER_AI_SCRIPT(I, NAME, CLASS) do { \
+    // inferred: a macro and not an inline: 64 inline candidates exceed MWCC's per-caller inline budget
+    // (docs/inlining.md R3) and none would be inlined
+#define REGISTER_AI_SCRIPT(NAME, CLASS) do { \
         std::string key(NAME); \
-        objects[I] = new ((MemoryTag)3, "", "", 0) AI::Script::CLASS(); \
-        fn_8001E0B8(&values[I], (const AIStringWithAllocator_unk*)&key, (const unsigned int*)&objects[I]); \
-        fn_8001E1D0(pairs[I], &lbl_807C6B84, &values[I]); \
-        fn_8001E168(&values[I].mString, -1); \
+        AIStringWithAllocator_unk value; \
+        void* obj; \
+        unsigned char result[8]; \
+        obj = new ((MemoryTag)3, "", "", 0) AI::Script::CLASS(); \
+        fn_8001E0B8(&value, (const AIStringWithAllocator_unk*)&key, (const unsigned int*)&obj); \
+        fn_8001E1D0(result, &lbl_807C6B84, &value); \
+        fn_8001E168(&value.mString, -1); \
     } while (0)
-    REGISTER_AI_SCRIPT(0, "archer_attack01", AI_archer_attack01);
-    REGISTER_AI_SCRIPT(1, "archer_guard01", AI_archer_guard01);
-    REGISTER_AI_SCRIPT(2, "arganan01", AI_arganan01);
-    REGISTER_AI_SCRIPT(3, "buffer_attackstable01", AI_buffer_attackstable01);
-    REGISTER_AI_SCRIPT(4, "buffer_guard01", AI_buffer_guard01);
-    REGISTER_AI_SCRIPT(5, "buffer_guard02", AI_buffer_guard02);
-    REGISTER_AI_SCRIPT(6, "buffer_pointguard01", AI_buffer_pointguard01);
-    REGISTER_AI_SCRIPT(7, "em_archer_attack02", AI_em_archer_attack02);
-    REGISTER_AI_SCRIPT(8, "em_bridge_archer", AI_em_bridge_archer);
-    REGISTER_AI_SCRIPT(9, "em_monster_attack01", AI_em_monster_attack01);
-    REGISTER_AI_SCRIPT(10, "em_scout", AI_em_scout);
-    REGISTER_AI_SCRIPT(11, "em_sword_attack01", AI_em_sword_attack01);
-    REGISTER_AI_SCRIPT(12, "em_sword_attack02", AI_em_sword_attack02);
-    REGISTER_AI_SCRIPT(13, "em_sword_pointguard01", AI_em_sword_pointguard01);
-    REGISTER_AI_SCRIPT(14, "em_type003", AI_em_type003);
-    REGISTER_AI_SCRIPT(15, "em_type010", AI_em_type010);
-    REGISTER_AI_SCRIPT(16, "em_type102", AI_em_type102);
-    REGISTER_AI_SCRIPT(17, "em_type103", AI_em_type103);
-    REGISTER_AI_SCRIPT(18, "em_type104", AI_em_type104);
-    REGISTER_AI_SCRIPT(19, "em_type105", AI_em_type105);
-    REGISTER_AI_SCRIPT(20, "em_type106", AI_em_type106);
-    REGISTER_AI_SCRIPT(21, "fr_archer_pick01", AI_fr_archer_pick01);
-    REGISTER_AI_SCRIPT(22, "fr_buffer_pick01", AI_fr_buffer_pick01);
-    REGISTER_AI_SCRIPT(23, "fr_follow_player", AI_fr_follow_player);
-    REGISTER_AI_SCRIPT(24, "fr_magic_pick01", AI_fr_magic_pick01);
-    REGISTER_AI_SCRIPT(25, "fr_magic_pick02", AI_fr_magic_pick02);
-    REGISTER_AI_SCRIPT(26, "fr_runaway", AI_fr_runaway);
-    REGISTER_AI_SCRIPT(27, "fr_sword_attack01", AI_fr_sword_attack01);
-    REGISTER_AI_SCRIPT(28, "fr_sword_pick01", AI_fr_sword_pick01);
-    REGISTER_AI_SCRIPT(29, "fr_sword_pointguard", AI_fr_sword_pointguard);
-    REGISTER_AI_SCRIPT(30, "fr_sword_pointguard01", AI_fr_sword_pointguard01);
-    REGISTER_AI_SCRIPT(31, "fr_type005", AI_fr_type005);
-    REGISTER_AI_SCRIPT(32, "fr_warppointescape", AI_fr_warppointescape);
-    REGISTER_AI_SCRIPT(33, "jackal01", AI_jackal01);
-    REGISTER_AI_SCRIPT(34, "magic_attack01", AI_magic_attack01);
-    REGISTER_AI_SCRIPT(35, "magic_attack01_2", AI_magic_attack01_2);
-    REGISTER_AI_SCRIPT(36, "magic_attack02", AI_magic_attack02);
-    REGISTER_AI_SCRIPT(37, "magic_attackstable01", AI_magic_attackstable01);
-    REGISTER_AI_SCRIPT(38, "magic_cure01", AI_magic_cure01);
-    REGISTER_AI_SCRIPT(39, "magic_guard01", AI_magic_guard01);
-    REGISTER_AI_SCRIPT(40, "magic_guard01_2", AI_magic_guard01_2);
-    REGISTER_AI_SCRIPT(41, "magic_guard02", AI_magic_guard02);
-    REGISTER_AI_SCRIPT(42, "np_approach", AI_np_approach);
-    REGISTER_AI_SCRIPT(43, "np_approach_plus", AI_np_approach_plus);
-    REGISTER_AI_SCRIPT(44, "np_follow_player", AI_np_follow_player);
-    REGISTER_AI_SCRIPT(45, "np_tagger_random", AI_np_tagger_random);
-    REGISTER_AI_SCRIPT(46, "np_type001", AI_np_type001);
-    REGISTER_AI_SCRIPT(47, "np_type002", AI_np_type002);
-    REGISTER_AI_SCRIPT(48, "np_type003", AI_np_type003);
-    REGISTER_AI_SCRIPT(49, "np_type004", AI_np_type004);
-    REGISTER_AI_SCRIPT(50, "np_type005", AI_np_type005);
-    REGISTER_AI_SCRIPT(51, "np_wait_reaction", AI_np_wait_reaction);
-    REGISTER_AI_SCRIPT(52, "np_wait_reaction_minus", AI_np_wait_reaction_minus);
-    REGISTER_AI_SCRIPT(53, "np_wait_reaction_minus2", AI_np_wait_reaction_minus2);
-    REGISTER_AI_SCRIPT(54, "np_wait_reaction_plus", AI_np_wait_reaction_plus);
-    REGISTER_AI_SCRIPT(55, "quark01", AI_quark01);
-    REGISTER_AI_SCRIPT(56, "quark02", AI_quark02);
-    REGISTER_AI_SCRIPT(57, "silence_guard01", AI_silence_guard01);
-    REGISTER_AI_SCRIPT(58, "sword_guard01", AI_sword_guard01);
-    REGISTER_AI_SCRIPT(59, "sword_leaderguard01", AI_sword_leaderguard01);
-    REGISTER_AI_SCRIPT(60, "sword_leaderguard02", AI_sword_leaderguard02);
-    REGISTER_AI_SCRIPT(61, "sword_leaderguard03", AI_sword_leaderguard03);
-    REGISTER_AI_SCRIPT(62, "sword_pointguard01", AI_sword_pointguard01);
-    REGISTER_AI_SCRIPT(63, "return_guard01", AI_return_guard01);
+    REGISTER_AI_SCRIPT("archer_attack01", AI_archer_attack01);
+    REGISTER_AI_SCRIPT("archer_guard01", AI_archer_guard01);
+    REGISTER_AI_SCRIPT("arganan01", AI_arganan01);
+    REGISTER_AI_SCRIPT("buffer_attackstable01", AI_buffer_attackstable01);
+    REGISTER_AI_SCRIPT("buffer_guard01", AI_buffer_guard01);
+    REGISTER_AI_SCRIPT("buffer_guard02", AI_buffer_guard02);
+    REGISTER_AI_SCRIPT("buffer_pointguard01", AI_buffer_pointguard01);
+    REGISTER_AI_SCRIPT("em_archer_attack02", AI_em_archer_attack02);
+    REGISTER_AI_SCRIPT("em_bridge_archer", AI_em_bridge_archer);
+    REGISTER_AI_SCRIPT("em_monster_attack01", AI_em_monster_attack01);
+    REGISTER_AI_SCRIPT("em_scout", AI_em_scout);
+    REGISTER_AI_SCRIPT("em_sword_attack01", AI_em_sword_attack01);
+    REGISTER_AI_SCRIPT("em_sword_attack02", AI_em_sword_attack02);
+    REGISTER_AI_SCRIPT("em_sword_pointguard01", AI_em_sword_pointguard01);
+    REGISTER_AI_SCRIPT("em_type003", AI_em_type003);
+    REGISTER_AI_SCRIPT("em_type010", AI_em_type010);
+    REGISTER_AI_SCRIPT("em_type102", AI_em_type102);
+    REGISTER_AI_SCRIPT("em_type103", AI_em_type103);
+    REGISTER_AI_SCRIPT("em_type104", AI_em_type104);
+    REGISTER_AI_SCRIPT("em_type105", AI_em_type105);
+    REGISTER_AI_SCRIPT("em_type106", AI_em_type106);
+    REGISTER_AI_SCRIPT("fr_archer_pick01", AI_fr_archer_pick01);
+    REGISTER_AI_SCRIPT("fr_buffer_pick01", AI_fr_buffer_pick01);
+    REGISTER_AI_SCRIPT("fr_follow_player", AI_fr_follow_player);
+    REGISTER_AI_SCRIPT("fr_magic_pick01", AI_fr_magic_pick01);
+    REGISTER_AI_SCRIPT("fr_magic_pick02", AI_fr_magic_pick02);
+    REGISTER_AI_SCRIPT("fr_runaway", AI_fr_runaway);
+    REGISTER_AI_SCRIPT("fr_sword_attack01", AI_fr_sword_attack01);
+    REGISTER_AI_SCRIPT("fr_sword_pick01", AI_fr_sword_pick01);
+    REGISTER_AI_SCRIPT("fr_sword_pointguard", AI_fr_sword_pointguard);
+    REGISTER_AI_SCRIPT("fr_sword_pointguard01", AI_fr_sword_pointguard01);
+    REGISTER_AI_SCRIPT("fr_type005", AI_fr_type005);
+    REGISTER_AI_SCRIPT("fr_warppointescape", AI_fr_warppointescape);
+    REGISTER_AI_SCRIPT("jackal01", AI_jackal01);
+    REGISTER_AI_SCRIPT("magic_attack01", AI_magic_attack01);
+    REGISTER_AI_SCRIPT("magic_attack01_2", AI_magic_attack01_2);
+    REGISTER_AI_SCRIPT("magic_attack02", AI_magic_attack02);
+    REGISTER_AI_SCRIPT("magic_attackstable01", AI_magic_attackstable01);
+    REGISTER_AI_SCRIPT("magic_cure01", AI_magic_cure01);
+    REGISTER_AI_SCRIPT("magic_guard01", AI_magic_guard01);
+    REGISTER_AI_SCRIPT("magic_guard01_2", AI_magic_guard01_2);
+    REGISTER_AI_SCRIPT("magic_guard02", AI_magic_guard02);
+    REGISTER_AI_SCRIPT("np_approach", AI_np_approach);
+    REGISTER_AI_SCRIPT("np_approach_plus", AI_np_approach_plus);
+    REGISTER_AI_SCRIPT("np_follow_player", AI_np_follow_player);
+    REGISTER_AI_SCRIPT("np_tagger_random", AI_np_tagger_random);
+    REGISTER_AI_SCRIPT("np_type001", AI_np_type001);
+    REGISTER_AI_SCRIPT("np_type002", AI_np_type002);
+    REGISTER_AI_SCRIPT("np_type003", AI_np_type003);
+    REGISTER_AI_SCRIPT("np_type004", AI_np_type004);
+    REGISTER_AI_SCRIPT("np_type005", AI_np_type005);
+    REGISTER_AI_SCRIPT("np_wait_reaction", AI_np_wait_reaction);
+    REGISTER_AI_SCRIPT("np_wait_reaction_minus", AI_np_wait_reaction_minus);
+    REGISTER_AI_SCRIPT("np_wait_reaction_minus2", AI_np_wait_reaction_minus2);
+    REGISTER_AI_SCRIPT("np_wait_reaction_plus", AI_np_wait_reaction_plus);
+    REGISTER_AI_SCRIPT("quark01", AI_quark01);
+    REGISTER_AI_SCRIPT("quark02", AI_quark02);
+    REGISTER_AI_SCRIPT("silence_guard01", AI_silence_guard01);
+    REGISTER_AI_SCRIPT("sword_guard01", AI_sword_guard01);
+    REGISTER_AI_SCRIPT("sword_leaderguard01", AI_sword_leaderguard01);
+    REGISTER_AI_SCRIPT("sword_leaderguard02", AI_sword_leaderguard02);
+    REGISTER_AI_SCRIPT("sword_leaderguard03", AI_sword_leaderguard03);
+    REGISTER_AI_SCRIPT("sword_pointguard01", AI_sword_pointguard01);
+    REGISTER_AI_SCRIPT("return_guard01", AI_return_guard01);
 #undef REGISTER_AI_SCRIPT
 }
 
