@@ -5342,12 +5342,29 @@ int GameTask::fn_80375B78(int arg) {
     return level;
 }
 
+// inferred: fn_803754F0 as inlined in fn_80375D0C (the original keeps the map type in r29 and the id in r28 there,
+// the other way round in the out-of-line copy); name invented
+static inline int InClearedDungeon_unk(GameTask* task) {
+    if (task->m5694 != 0 && task->GetCurrentMap() != 0) {
+        int sub, id, type;
+        type = task->GetCurrentMap()->mType;
+        id = task->GetCurrentMap()->mId;
+        sub = task->GetCurrentMap()->mSubId;
+        if (task->fn_8037587C(type, id, sub)) {
+            if (type == 2 && id == 9) {
+                return 0;
+            }
+            return 1;
+        }
+    }
+    return 0;
+}
+
 // inferred: level cap of the field (chapter level scaled by the difficulty, plus the dungeon bonus)
-// NONMATCHING: 99.7% - the map type and id of the inlined fn_803754F0 get r28/r29 swapped
 int GameTask::fn_80375D0C() {
     int cap = 0;
     ChapterEntry_unk* chapter = lbl_8087F430->m10D4;
-    if (fn_803754F0()) {
+    if (InClearedDungeon_unk(this)) {
         chapter = fn_80208694(lbl_8087F430->m10D0);
     }
     if (chapter != 0) {
