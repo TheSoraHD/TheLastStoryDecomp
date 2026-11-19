@@ -1,0 +1,294 @@
+# sigcheck.py al cierre de secuencial-20261119 (09:40): funciones extern "C" declaradas de forma distinta
+# (clases: I int, P puntero/referencia, F float, D double, S struct por valor; * = fichero que la define)
+
+fn_80018C80 (argument count):
+    1    I(P I F)  src/AI/AiCommon_unk.cpp
+    1    I(P P I I F F F)  src/game/AiTarget.cpp*
+fn_8003EA3C (argument classes):
+    12   v(P P P P I P I I)  src/RecycleBuffer_gmk/ItemSlotAnime.cpp src/chr/ControlUseSkill.cpp src/game/CharaTask.cpp ...
+    2    I(P P P P I P P P)  include/game/DamageCalc_unk.h src/chr/ControlStickByQuark.cpp
+    1    v(P P P P I P P P)  src/chr/ControlChant.cpp
+fn_80046398 (argument count):
+    1    v(I)  src/atn/AudioDevice.cpp*
+    1    v(I P)  src/nw4r/DvdSoundArchive.cpp
+fn_80048F8C (argument classes):
+    1    I(P P)  src/atn/AudioDevice.cpp*
+    1    v(P I)  src/atn/Se_unk.cpp
+fn_80049268 (argument classes):
+    1    I(P P)  src/atn/AudioDevice.cpp*
+    1    v(P I)  src/atn/Se_unk.cpp
+fn_80049CDC (return):
+    2    P(P I)  src/atn/Sound3dListener.cpp src/game/GameVoice.cpp
+    1    I(P I)  src/atn/AudioDevice.cpp*
+fn_80049E3C (argument count):
+    1    I(P)  src/atn/AudioDevice.cpp*
+    1    v(P I)  src/atn/Sound3dListener.cpp
+fn_8004D314 (argument classes):
+    3    I(P P P P I P I F)  src/atn/ColliBaseFunc_unk.cpp* src/game/Em204BigMulue.cpp src/gmk/PigeonManager.cpp
+    3    I(P I P P I I I F)  src/game/CharaTask.cpp src/game/Em202SpiderBase.cpp src/gmk/Brazier.cpp
+    2    I(P I P P I P I F)  src/game/Em308InvertCrab.cpp src/game/Em308ParmCrab.cpp
+fn_8004D388 (argument count):
+    22   I(P P P P I P I F)  src/atn/ColliBaseFunc_unk.cpp src/atn/ColliBaseFunc_unk.cpp* src/chr/ControlCharge.cpp ...
+    4    v(P P P P I P I F)  src/chr/ControlJumpAt.cpp src/chr/ControlTurnQuadruped.cpp src/game/Em201ZanGurgFinal.cpp ...
+    1    I(P P P P I P I P F)  src/game/Bullet.cpp
+fn_8004ECC0 (argument count):
+    21   I(P P P P I P I)  src/Event/ActionEffectPlay.cpp src/atn/ColliBaseFunc_unk.cpp* src/atn/Rain.cpp ...
+    1    I(P P P P I P I P)  src/game/Em206EggMonster.cpp
+fn_8004ED34 (argument count):
+    70   I(P P P P I P I)  src/atn/ColliBaseFunc_unk.cpp src/atn/ColliBaseFunc_unk.cpp* src/chr/ControlAppear.cpp ...
+    1    I(P P P P I P I P)  src/game/Em204Mulue.cpp
+fn_80050900 (argument count):
+    1    F(P P P P)  src/atn/ColliBaseFunc_unk.cpp
+    1    F(P P P)  src/atn/ColliTest_unk.cpp*
+    1    v(P P P)  src/game/GameCamera_unk.cpp
+fn_80050A1C (argument count):
+    4    F(P P P)  src/atn/ColliTest_unk.cpp* src/atn/Geometry_unk.cpp src/game/CharaTask.cpp ...
+    1    v(P S:Vector3 P S:Vector3)  src/chr/ControlInteractionBase.cpp
+fn_8006C858 (argument count):
+    1    v(P)  src/atn/DrawHelper.cpp
+    1    v()  src/atn/Font_unk.cpp*
+fn_8006EF48 (argument classes):
+    24   F(P F P F I I)  include/MP/D2AMpMenu_unk.h src/Event/Dialog.cpp src/Event/Sequence.cpp ...
+    3    F(P P F F I I)  src/atn/Loader.cpp src/atn/NandManager.cpp src/game/MenuCommonTask.cpp
+fn_8006F17C (argument classes):
+    3    F(P I I I F)  src/atn/D2A_Manager.cpp src/atn/Font_unk.cpp* src/atn/WordWrap_unk.cpp
+    1    F(P I I F I)  src/atn/DrawHelper.cpp
+fn_8006F548 (argument classes):
+    1    v(P P I)  src/atn/D2A_Task.cpp
+    1    I(P P P)  src/atn/Font_unk.cpp*
+fn_800838AC (argument count):
+    1    P(P I I P P I)  src/atn/Loader.cpp
+    1    P(P I I)  src/atn/SmallAllocator_8.cpp*
+fn_800838B8 (argument count):
+    5    P(P I I I P P I)  src/atn/GraphicsDevice.cpp src/atn/NandManager.cpp src/atn/NetManager.cpp ...
+    2    P(P I I I P)  src/atn/SmallAllocator_8.cpp src/atn/SmallAllocator_8.cpp*
+fn_80089620 (argument count):
+    1    v(P)  src/atn/MindowsCommon.cpp*
+    1    v()  src/game/main.cpp
+fn_80099F74 (argument classes):
+    2    S:asm void(P P P S:register int)  src/atn/Model.cpp src/atn/Model.cpp*
+    1    v(P P P I)  src/atn/Model.cpp
+fn_8009A018 (argument classes):
+    2    S:asm void(P P P S:register int)  src/atn/Model.cpp src/atn/Model.cpp*
+    1    v(P P P I)  src/atn/Model.cpp
+fn_800A48B8 (argument count):
+    1    v(P P P I I P)  include/game/GameSaveLoadBackgroundCommon.h
+    1    I(P P P I I)  src/atn/NandManager.cpp*
+fn_800A49C4 (argument classes):
+    1    v(P P I I I P)  include/game/GameSaveLoadBackgroundCommon.h
+    1    I(P P P I I P)  src/atn/NandManager.cpp*
+fn_800C310C (argument classes):
+    2    I(P)  src/Event/Sequence.cpp src/game/NewTitleTask.cpp
+    1    I(I)  src/atn/PacketPack.cpp
+    1    v(I)  src/atn/Se_unk.cpp*
+fn_800C3118 (argument classes):
+    3    I(P)  src/game/Em202ForestSpider.cpp src/game/Em202Spider.cpp src/game/GameScene.cpp
+    1    v(I)  src/atn/Se_unk.cpp*
+fn_800CB5B4 (argument count):
+    8    v(P F I)  src/Event/ActionEffectPlay.cpp src/atn/Bgm.cpp src/atn/SoundManager.cpp* ...
+    1    v(P I)  src/game/CharaTask.cpp
+fn_800D5C84 (argument classes):
+    3    v(P F F F F F F)  src/atn/GraphicsDevice.cpp src/atn/PostFxDamage.cpp src/atn/TextureDraw_unk.cpp*
+    1    v(S:Mtx F F F F F F)  src/atn/ModelDraw_unk.cpp
+fn_800D5F68 (argument classes):
+    1    v(S:Mtx I I I I)  src/atn/RenderSystem_unk.cpp
+    1    v(S:Mtx I I I P)  src/atn/TextureDraw_unk.cpp*
+fn_800DC880 (argument count):
+    1    I(P S:int arg = 0)  include/Event/Node.h
+    1    I(P)  src/atn/Util_unk.cpp*
+fn_800DFB40 (argument classes):
+    1    S:basic_string<wchar_t>(P F F F I I S:MeasureChar_unk I)  src/game/GameChoiceWindow.cpp
+    1    S:basic_string<wchar_t>(P F F F I I I I)  src/game/LibraryTask.cpp
+fn_800EFD04 (return):
+    3    I(I)  src/atn/PacketPack.cpp src/game/EnemyQuarkStand.cpp src/gmk/BulletPoint.cpp
+    2    P(I)  src/game/BattleEfp_unk.cpp* src/game/BattleTask.cpp
+fn_800EFDA0 (return):
+    4    P(I)  src/game/BattleEfp_unk.cpp* src/game/BattleTask.cpp src/game/GameEventScript.cpp
+    2    I(I)  src/game/EnemyQuarkStand.cpp src/gmk/BulletPoint.cpp
+fn_800F80A8 (argument count):
+    8    S:Matrix3x4(P)  src/chr/ControlStickByQuark.cpp* src/game/BattleTask.cpp* src/game/Em316LaserSphere.cpp* ...
+    2    v(P P)  src/gmk/Cannonball.cpp* src/gmk/FlamingArrow.cpp
+fn_801170C8 (argument classes):
+    1    P(I I I)  src/game/MenuCommon_unk.cpp*
+    1    P(I I P)  src/game/ShopIdentify.cpp
+fn_801FD5A0 (argument classes):
+    1    v(P I I)  src/atn/D2A_Task.cpp
+    1    I(P P I)  src/atn/D2A_Texture.cpp*
+    1    v(P P I)  src/atn/D2Anime_unk.cpp
+fn_801FDA20 (argument classes):
+    1    v(P I I)  src/atn/D2A_Task.cpp
+    1    I(P P I)  src/atn/D2A_Texture.cpp*
+    1    v(P P I)  src/atn/D2Anime_unk.cpp
+fn_80206B14 (return):
+    9    P(I I)  include/db/WeaponParam_unk.h src/db/WeaponParam_unk.cpp* src/game/Arms.cpp ...
+    1    I(I I)  src/atn/PacketPack.cpp
+fn_80206BE4 (return):
+    10   I(P)  src/RecycleBuffer_gmk/ItemSlotAnime.cpp src/db/WeaponParam_unk.cpp* src/game/CosEditBase.cpp ...
+    1    P(P)  src/game/CharaTask.cpp
+fn_802091E8 (argument classes):
+    3    P(I)  src/game/CosEditPalette_unk.cpp src/game/CosEditProtector.cpp src/game/MenuCommonTask.cpp
+    2    P(P)  src/db/CharaIdTable_unk.cpp* src/db/CharaParam_unk.cpp
+fn_8020A81C (return):
+    10   P(P)  src/atn/PacketPack.cpp src/db/CharaParam_unk.cpp* src/game/CharaTask.cpp ...
+    1    I(P)  src/game/NewCampPartsStatus.cpp
+fn_8020A888 (argument classes):
+    1    P(P)  src/db/CharaParam_unk.cpp*
+    1    P(I)  src/game/CharaStatus.cpp
+fn_8020B208 (argument classes):
+    1    I(P)  src/db/ColliAttrTable_unk.cpp*
+    1    I(I)  src/game/ColliAttrManager.cpp
+fn_8020B27C (argument classes):
+    1    I(P)  src/db/ColliAttrTable_unk.cpp*
+    1    I(I)  src/game/ColliAttrManager.cpp
+fn_8020ED84 (return):
+    9    P(I I)  include/db/EquipParam_unk.h src/RecycleBuffer_gmk/ItemSlotAnime.cpp src/db/EquipParam_unk.cpp* ...
+    1    I(I I)  src/atn/PacketPack.cpp
+fn_8020EF80 (return):
+    9    I(P)  src/RecycleBuffer_gmk/ItemSlotAnime.cpp src/db/EquipParam_unk.cpp* src/game/CosEditItemList_unk.cpp ...
+    1    P(P)  src/game/CharaTask.cpp
+fn_80211480 (argument classes):
+    23   P(I)  include/db/ItemParam_unk.h src/MP/D2AMpMenuResult.cpp src/atn/PacketPack.cpp ...
+    1    P(P)  src/game/CharaTask.cpp
+fn_8021446C (argument count):
+    2    I(I I)  src/game/BattleCharaTask.cpp src/game/GameTask.cpp
+    1    I(I)  src/db/LevelEquipTable_unk.cpp*
+fn_80218260 (argument count):
+    1    P(P)  src/db/HairBackControl_unk.cpp*
+    1    v()  src/game/CharaTask.cpp
+fn_80219344 (argument count, return):
+    3    P(P I)  src/db/PlayerParam_unk.cpp* src/game/BattleCharaTask.cpp src/game/GameUI.cpp
+    2    I(P I)  src/chr/ControlChant.cpp src/game/CharaStatus.cpp
+    1    P(P)  src/game/TacView.cpp
+fn_8021946C (return):
+    1    P(I I I)  src/db/PlayerParam_unk.cpp*
+    1    I(I I I)  src/game/NewCampPartsBase.cpp
+fn_80219544 (argument classes):
+    13   I(I)  src/Event/Manager.cpp src/db/ReverbPresetParam_unk.cpp* src/game/CharaManager_PlayerTask.cpp ...
+    1    I(P)  src/db/CharaIdTable_unk.cpp
+fn_8021AF50 (return):
+    4    P(I)  src/db/SkillGrowth_unk.cpp* src/game/BattleTask.cpp src/game/GameUI.cpp ...
+    1    I(I)  src/game/CharaStatus.cpp
+fn_8021AFF4 (return):
+    2    P(I)  src/db/PlayerParam_unk.cpp src/db/SkillGrowth_unk.cpp*
+    1    I(I)  src/game/CharaStatus.cpp
+fn_8021FC00 (return):
+    1    P(P)  src/atn/ptr_string_base_char_0.cpp*
+    1    I(I)  src/game/CharaTask.cpp
+fn_80232B7C (argument classes):
+    94   v(P I)  src/game/Arms.cpp src/game/Bullet.cpp src/game/CharaTask.cpp ...
+    2    v(I I)  include/atn/EffectApi_unk.h src/atn/EffectSystem_unk.cpp*
+    1    v(P P)  src/Event/ActionEffectPlay.cpp
+fn_80234A8C (argument count):
+    1    v(I I I I)  src/atn/EffectDesc_unk.cpp*
+    1    v()  src/atn/EffectLoader_unk.cpp
+fn_80239794 (argument count):
+    1    v()  src/atn/EffectLoader_unk.cpp*
+    1    v(I I I I)  src/game/main.cpp
+fn_80239D58 (argument classes):
+    13   I(P P I)  src/game/BattleTask.cpp src/game/ChaseManager.cpp src/game/Em312DarkServant.cpp ...
+    1    I(P I I)  src/atn/EffectManager.cpp*
+fn_80239DAC (argument classes):
+    82   v(P P I I)  src/chr/ControlStickByQuark.cpp src/game/Arms.cpp src/game/Bullet.cpp ...
+    2    v(P I I I)  include/atn/EffectApi_unk.h src/atn/EffectManager.cpp*
+    1    v(P P P I)  src/Event/ActionEffectPlay.cpp
+fn_8023A02C (argument classes):
+    7    v(P P I I)  src/game/Bullet.cpp src/game/CharaTask.cpp src/game/CopyRobotTask.cpp ...
+    2    v(P I I I)  include/atn/EffectApi_unk.h src/atn/EffectManager.cpp*
+fn_8023A098 (argument classes):
+    3    v(P P I I)  src/game/Bullet.cpp src/game/CharaTask.cpp src/game/ChaseManager.cpp
+    1    v(P I I I)  src/atn/EffectManager.cpp*
+fn_8023A108 (argument classes):
+    5    v(P P I I)  src/game/Bullet.cpp src/game/EnemyQuarkFirst.cpp src/game/EnemyQuarkSecond.cpp ...
+    3    v(P I I I)  src/atn/EffectManager.cpp* src/game/BattleTask.cpp src/game/MapPartsGimmickLoc.cpp
+fn_8023A680 (argument classes):
+    11   v(P P I I P P P I I I I F)  src/Event/ActionEffectPlay.cpp src/game/Em308InvertCrab.cpp src/game/EnemyQuarkSecond.cpp ...
+    6    v(P P I I P P P P F I I I)  src/game/ColliAttrManager.cpp src/game/Em003LesserDaemon.cpp src/game/Em203GreaterDaemon.cpp ...
+    4    v(P P I I P I I P F I I I)  src/game/CharaTask.cpp src/game/ChaseManager.cpp src/game/Em301LShade.cpp ...
+    4    v(P P I I P I I I I I I F)  src/game/Em202ForestSpider.cpp src/game/Em206EggMonster.cpp src/game/Em315Coffin.cpp ...
+    2    P(P P I I I P P P I I I F)  include/atn/EffectApi_unk.h src/atn/EffectManager.cpp*
+    2    v(P P I I P P P P I I I F)  src/game/EnemyFieldMagician.cpp src/game/Np131LivingArmor.cpp
+    1    v(P I I I P I I I I I I F)  src/game/Bullet.cpp
+    1    v(P P I I P P I P I I I F)  src/game/SkillEffect.cpp
+    1    v(P P I I P P I I I I I F)  src/game/SkillEffectManager.cpp
+fn_8023A8B4 (argument classes):
+    100  v(P P P P P P P I I I F)  src/Event/ActionEffectPlay.cpp src/atn/PacketPack.cpp src/chr/CharaEquip_unk.cpp ...
+    1    I(P P P P P P P I I I F)  src/atn/EffectManager.cpp*
+    1    v(P P I P P P P I I I F)  src/game/MapPartsEfp.cpp
+fn_8025D6D0 (argument classes):
+    1    v(I)  src/game/Em101ElderZesya.cpp
+    1    v(P)  src/game/Em101LittleZesya.cpp*
+fn_8025D704 (argument classes):
+    1    v(I)  src/game/Em101ElderZesya.cpp
+    1    v(P)  src/game/Em101LittleZesya.cpp*
+fn_8025FE30 (argument classes):
+    1    v(I P)  src/game/Em101ElderZesya.cpp
+    1    v(P P)  src/game/Em101LittleZesya.cpp*
+fn_8026616C (argument classes):
+    2    v(P I)  src/game/Em201ZanGurgFinal.cpp* src/game/EnemyJill.cpp*
+    1    v(P P)  src/game/LastCocoonQuadruped.cpp
+fn_8036F268 (argument classes):
+    2    v(P I I I I I I I I)  src/game/GameEventScript.cpp src/game/NewCampPartsMapSelect.cpp
+    1    v(P I I I I I P I I)  src/game/GameTask.cpp*
+fn_803CE070 (argument count):
+    1    v()  src/game/GameSoundControl.cpp*
+    1    v(P)  src/game/GameTask.cpp
+fn_803DD160 (argument classes):
+    1    v(P P)  src/game/GameUI.cpp*
+    1    v(P I)  src/game/NewCampPartsStatus.cpp
+fn_80418318 (return):
+    1    I()  src/game/CharaTask.cpp
+    1    P()  src/gmk/Ocean.cpp*
+fn_804188A0 (argument classes):
+    1    S:Vector3(I P)  src/game/CharaTask.cpp
+    1    S:Vector3(P P)  src/gmk/Ocean.cpp*
+fn_80444020 (argument classes):
+    4    I(P I I I I I P P P)  src/game/BattleResult.cpp src/game/BattleTask.cpp src/game/GameEventScript.cpp
+    2    I(P I I I P I P P P)  src/atn/PacketPack.cpp src/game/ItemManager_unk.cpp*
+fn_8044D490 (argument count):
+    3    v(P I)  src/game/CosEditBase.cpp src/game/ItemManager_unk.cpp src/game/ItemManager_unk.cpp*
+    1    v(P I I)  src/game/ShopBase.cpp
+fn_80476194 (return):
+    2    P(P)  src/atn/LH_Model.cpp* src/atn/LayerOcclusionCPU.cpp
+    1    I(P)  src/atn/Model.cpp
+fn_804761B0 (return):
+    2    P(P)  src/atn/LH_Model.cpp* src/atn/LayerOcclusionCPU.cpp
+    1    I(P)  src/atn/Model.cpp
+fn_804A53D4 (argument classes):
+    10   v(P I I P I)  src/MP/D2ACommonDialog.cpp src/MP/D2AMpMenu.cpp src/MP/D2AMpMenuFriend.cpp ...
+    2    v(P I P P I)  src/game/MenuCommonTask.cpp* src/game/ShopBase.cpp
+    1    v(P P P P I)  src/game/NewCampPartsOption.cpp
+fn_804A55FC (argument classes):
+    4    v(P P P P I)  src/game/ShopBase.cpp src/game/ShopColor.cpp src/game/ShopIdentify.cpp ...
+    1    v(P P I P I)  src/game/LibraryTask.cpp
+    1    v(P I P P I)  src/game/MenuCommonTask.cpp*
+fn_804A5E40 (argument classes):
+    5    v(P I S:Vector3 I)  src/game/FinishCamera_unk.cpp src/game/NewCampPartsMapSelect.cpp src/game/NewCampPartsOption.cpp ...
+    4    v(P I P I)  src/game/CosEditProtector.cpp src/game/GameTask.cpp src/game/MenuCommonTask.cpp* ...
+fn_804D824C (argument classes):
+    2    v(P P I)  src/atn/PacketPack.cpp src/atn/PacketPack.cpp*
+    1    v(P I I)  src/MP/D2AMpMenuSetRule.cpp
+fn_804D9C14 (argument classes):
+    1    I(P I I)  src/MP/D2AMpMenuSetRule.cpp
+    1    I(P P I)  src/atn/PacketPack.cpp*
+fn_804DCA4C (argument count):
+    2    I(P I I)  src/MP/D2AMpMenu.cpp src/MP/D2AMpMenuFriend.cpp
+    1    I()  src/atn/PacketPack.cpp*
+fn_804DDE34 (argument count):
+    1    I(P I)  src/MP/D2AMpMenuLobby.cpp
+    1    I(P)  src/atn/PacketPack.cpp*
+fn_804E4A20 (argument count):
+    1    I()  src/MP/D2AMpMenuLobby.cpp
+    1    I(P)  src/atn/PacketPack.cpp*
+fn_804EB7C4 (return):
+    3    P(P P)  src/atn/PacketPack.cpp src/atn/PacketPack.cpp* src/game/DamageCalc_unk.cpp
+    2    I(P P)  src/game/BattleTask.cpp src/game/GameUI.cpp
+fn_804EB814 (return):
+    3    P(P P)  src/atn/PacketPack.cpp src/atn/PacketPack.cpp* src/game/DamageCalc_unk.cpp
+    2    I(P P)  src/game/BattleTask.cpp src/game/CharaTask.cpp
+fn_804EB870 (return):
+    8    P(P)  src/MP/D2AMpMenuCockpit.cpp src/MP/D2AMpMenuLobby.cpp src/MP/D2AMpMenuResult.cpp ...
+    1    I(P)  src/MP/D2AMpMenuSetRule.cpp
+fn_8050D728 (argument count):
+    1    v(I P)  src/atn/DwcAllocator_unk.cpp*
+    1    v(I P I)  src/atn/NetManager.cpp
+# 90 functions

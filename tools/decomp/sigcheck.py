@@ -5,7 +5,8 @@ For the PC port: on the Wii, ints/pointers and floats go in separate register fi
 that moves a float among the ints, or uses double for float, still compiles to the same code; on x86-64
 (Windows above all) it does not. This lists the functions whose declarations disagree in the sequence of
 argument classes (I = int-sized, P = pointer/reference, F = float, D = double, S = struct by value,
-V = variadic) or in the return class.
+V = variadic) or in the return class. A file marked * defines the function (its signature is the
+reference).
 
 usage: python3 tools/decomp/sigcheck.py [--all] [--func fn_XXXXXXXX]
   default: only mismatches that matter on x86-64 (pointer vs int, float vs double, a float moved among
@@ -94,7 +95,8 @@ def main():
                 continue
             cls = tuple(c for c in (arg_class(a) for a in split_args(re.sub(r'\s+', ' ', args))) if c)
             key = (ret_class(ret), cls)
-            decl[name][key].append(f)
+            isdef = s[m.end() - 1] == '{'
+            decl[name][key].append(f + ('*' if isdef else ''))
     n = 0
     for name in sorted(decl):
         v = decl[name]
