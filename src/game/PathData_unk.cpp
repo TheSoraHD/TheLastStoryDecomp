@@ -3,6 +3,7 @@
 #include "Event/Node.h"
 #include "Event/Sequence.h"
 #include "Event/PathSpline.h"
+#include "Event/Path.h"
 #include "math/Vec.h"
 #include "std/vector.h"
 
@@ -53,103 +54,72 @@ std::vector<T>::vector(size_type n, const T& value) {
     }
 }
 
-namespace Event {
-class Sequence;
-}
-typedef Event::Sequence PathOwner_unk; // inferred: the owner of the path is the event sequence
-struct PathData_unk;
-extern "C" void fn_8054875C(PathData_unk* path);
-// inferred: local point of the path to world (Event/Path)
-
-// inferred: point of a path (position and rotation around y)
-struct PathPoint_unk {
-    atn::Vector3 mPos;
-    float mRotY;
-};
-
-struct PathSpline_unk;
+extern "C" void fn_8054875C(Event::Path* path);
+using Event::PathPoint_unk;
+using Event::PathSpline_unk;
 // inferred: helpers of the spline (another unit; C names)
 extern "C" void fn_8032B7F0(PathSpline_unk* spline, const float* values, PathCubic_unk* cubics); // inferred: solve
 extern "C" float fn_8032C1EC(PathSpline_unk* spline, int i);       // inferred: length of a segment
 
-// inferred: natural cubic spline through the points (names invented)
-struct PathSpline_unk {
-    void Build_unk(const atn::Vector3* pts, int n) {
-        mNumSegments = n;
-        mX.resize(n - 1);
-        mY.resize(n - 1);
-        mZ.resize(n - 1);
-        Event::PathLengths_unk xs(n);
-        Event::PathLengths_unk ys(n);
-        Event::PathLengths_unk zs(n);
-        for (int i = 0; i < n; i++) {
-            xs.begin()[i] = pts[i].x;
-            ys.begin()[i] = pts[i].y;
-            zs.begin()[i] = pts[i].z;
-        }
-        fn_8032B7F0(this, xs.begin(), mX.begin());
-        fn_8032B7F0(this, ys.begin(), mY.begin());
-        fn_8032B7F0(this, zs.begin(), mZ.begin());
-        mStart = pts[0];
-        mEnd = pts[n - 1];
-        mLength = 0.0f;
-        mLengths.resize(n - 1);
-        for (int i = 0; i < n - 1; i++) {
-            mLengths[i] = fn_8032C1EC(this, i);
-            mLength += mLengths[i];
-        }
+// inferred: natural cubic spline through the points (declared in Event/PathSpline.h)
+inline void Event::PathSpline_unk::Build_unk(const atn::Vector3* pts, int n) {
+    mNumSegments = n;
+    mX.resize(n - 1);
+    mY.resize(n - 1);
+    mZ.resize(n - 1);
+    Event::PathLengths_unk xs(n);
+    Event::PathLengths_unk ys(n);
+    Event::PathLengths_unk zs(n);
+    for (int i = 0; i < n; i++) {
+        xs.begin()[i] = pts[i].x;
+        ys.begin()[i] = pts[i].y;
+        zs.begin()[i] = pts[i].z;
     }
-    void Clear_unk() {
-        mNumSegments = 0;
-        mLength = 0.0f;
-        mStart = lbl_807C7030;
-        mEnd = lbl_807C7030;
-        ClearVec_unk(mX);
-        ClearVec_unk(mY);
-        ClearVec_unk(mZ);
-        ClearVec_unk(mLengths);
+    fn_8032B7F0(this, xs.begin(), mX.begin());
+    fn_8032B7F0(this, ys.begin(), mY.begin());
+    fn_8032B7F0(this, zs.begin(), mZ.begin());
+    mStart = pts[0];
+    mEnd = pts[n - 1];
+    mLength = 0.0f;
+    mLengths.resize(n - 1);
+    for (int i = 0; i < n - 1; i++) {
+        mLengths[i] = fn_8032C1EC(this, i);
+        mLength += mLengths[i];
     }
+}
+inline void Event::PathSpline_unk::Clear_unk() {
+    mNumSegments = 0;
+    mLength = 0.0f;
+    mStart = lbl_807C7030;
+    mEnd = lbl_807C7030;
+    ClearVec_unk(mX);
+    ClearVec_unk(mY);
+    ClearVec_unk(mZ);
+    ClearVec_unk(mLengths);
+}
 
-    int mNumSegments;                    // 0x00
-    float mLength;                       // 0x04
-    atn::Vector3 mStart;                 // 0x08
-    atn::Vector3 mEnd;                   // 0x14
-    std::vector<PathCubic_unk> mX;       // 0x20
-    std::vector<PathCubic_unk> mY;       // 0x2C
-    std::vector<PathCubic_unk> mZ;       // 0x38
-    std::vector<float> mLengths;         // 0x44
-};
-
-// inferred: path data (names invented)
-struct PathData_unk {
-    // inferred: point of segment `i` at `u`
-    atn::Vector3 GetPoint_unk(int i, float u) const {
-        if (i < 0) {
-            return mSpline.mStart;
-        }
-        if (i >= mSpline.mNumSegments - 1) {
-            return mSpline.mEnd;
-        }
-        if (mSpline.mNumSegments < 2) {
-            return lbl_807C7030;
-        }
-        atn::Vector3 p;
-        p.x = EvalCubic_unk(mSpline.mX.mData[i], u);
-        p.y = EvalCubic_unk(mSpline.mY.mData[i], u);
-        p.z = EvalCubic_unk(mSpline.mZ.mData[i], u);
-        return p;
+// inferred: point of segment `i` at `u` of the path
+inline atn::Vector3 GetPoint_unk(const Event::Path* path, int i, float u) {
+    if (i < 0) {
+        return path->mSpline.mStart;
     }
-    unsigned char m00[0x04];
-    PathOwner_unk* mOwner;               // 0x04
-    unsigned char m08[0x28 - 0x08];
-    PathVec_unk<PathPoint_unk> mPoints;  // 0x28
-    PathSpline_unk mSpline;              // 0x34
-};
+    if (i >= path->mSpline.mNumSegments - 1) {
+        return path->mSpline.mEnd;
+    }
+    if (path->mSpline.mNumSegments < 2) {
+        return lbl_807C7030;
+    }
+    atn::Vector3 p;
+    p.x = EvalCubic_unk(path->mSpline.mX.mData[i], u);
+    p.y = EvalCubic_unk(path->mSpline.mY.mData[i], u);
+    p.z = EvalCubic_unk(path->mSpline.mZ.mData[i], u);
+    return p;
+}
 
 // inferred: removes the point `point` and rebuilds the path
 // NONMATCHING: 95.7% - same differences as fn_8054875C (inlined here) plus the register of the
 // erase loop.
-extern "C" void fn_80547EA0(PathData_unk* path, PathPoint_unk* point) {
+extern "C" void fn_80547EA0(Event::Path* path, PathPoint_unk* point) {
     int index = -1;
     for (int i = 0; i < (int)path->mPoints.mSize; i++) {
         if (&path->mPoints.mData[i] == point) {
@@ -169,7 +139,7 @@ extern "C" void fn_80547EA0(PathData_unk* path, PathPoint_unk* point) {
 }
 
 // inferred: local position at `t` (0..1) along the path (name invented)
-inline atn::Vector3 GetLocal_unk(PathData_unk* path, float t) {
+inline atn::Vector3 GetLocal_unk(Event::Path* path, float t) {
     if (t <= 0.0f) {
         return path->mSpline.mStart;
     }
@@ -181,7 +151,7 @@ inline atn::Vector3 GetLocal_unk(PathData_unk* path, float t) {
         float len = path->mSpline.mLengths.mData[i];
         if (d <= len) {
             float u = 0.0f == d ? 0.0f : d / len;
-            return path->GetPoint_unk(i, u);
+            return GetPoint_unk(path, i, u);
         }
         d -= len;
     }
@@ -191,17 +161,17 @@ inline atn::Vector3 GetLocal_unk(PathData_unk* path, float t) {
 // inferred: world position at `t` (0..1) along the path
 // NONMATCHING: 89.9% - order of the z store in the Vector3 copies (paired-single helper of
 // math/Vec.h) and the reload of the segment count.
-extern "C" atn::Vector3 fn_8054856C(PathData_unk* path, float t) {
+extern "C" atn::Vector3 fn_8054856C(Event::Path* path, float t) {
     if (path->mPoints.mSize < 2) {
         return lbl_807C7030;
     }
-    return path->mOwner->fn_80541BD8(GetLocal_unk(path, t));
+    return path->m04->fn_80541BD8(GetLocal_unk(path, t));
 }
 
 // inferred: rebuilds the path from its points (also inlined by fn_80547EA0)
 // NONMATCHING: 97.8% - the original rebuilds the address of the default Vector3 of the
 // vector(n, value) constructor after the allocation (here kept in r29) and saves r27-r31.
-extern "C" void fn_8054875C(PathData_unk* path) {
+extern "C" void fn_8054875C(Event::Path* path) {
         if (path->mPoints.mSize >= 2) {
             std::vector<atn::Vector3> pts(path->mPoints.mSize, atn::Vector3());
             for (int i = 0; i < (int)path->mPoints.mSize; i++) {

@@ -28,6 +28,7 @@ struct PathSpline_unk {
     inline atn::Vector3 Segment_unk(int i, float u);
     inline atn::Vector3 GetPos_unk(float t);
     inline void Build_unk(const atn::Vector3* pts, int n);
+    inline void Clear_unk(); // inferred: defined in game/PathData_unk.cpp
 
     int mNumSegments;                    // 0x00
     float mLength;                       // 0x04
