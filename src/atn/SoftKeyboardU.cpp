@@ -58,20 +58,25 @@ public:
 
 
 // inferred: characters of the keys for each keyboard layout (QWERTY, AZERTY, QWERTZ); 0x2190
-// deletes, 0x2193 confirms, '+' picks a random name
-static const wchar_t sKeyChars_unk[3][4][11] = {
-    {{L'1', L'2', L'3', L'4', L'5', L'6', L'7', L'8', L'9', L'0', 0x2190},
-     {L'Q', L'W', L'E', L'R', L'T', L'Y', L'U', L'I', L'O', L'P', L' '},
-     {L'A', L'S', L'D', L'F', L'G', L'H', L'J', L'K', L'L', L' ', L'+'},
-     {L'Z', L'X', L'C', L'V', L'B', L'N', L'M', L'!', L'?', L' ', 0x2193}},
-    {{L'1', L'2', L'3', L'4', L'5', L'6', L'7', L'8', L'9', L'0', 0x2190},
-     {L'A', L'Z', L'E', L'R', L'T', L'Y', L'U', L'I', L'O', L'P', L' '},
-     {L'Q', L'S', L'D', L'F', L'G', L'H', L'J', L'K', L'L', L' ', L'+'},
-     {L'W', L'X', L'C', L'V', L'B', L'N', L'M', L'!', L'?', L' ', 0x2193}},
-    {{L'1', L'2', L'3', L'4', L'5', L'6', L'7', L'8', L'9', L'0', 0x2190},
-     {L'Q', L'W', L'E', L'R', L'T', L'Z', L'U', L'I', L'O', L'P', L' '},
-     {L'A', L'S', L'D', L'F', L'G', L'H', L'J', L'K', L'L', L' ', L'+'},
-     {L'Y', L'X', L'C', L'V', L'B', L'N', L'M', L'!', L'?', L' ', 0x2193}},
+// deletes, 0x2193 confirms, '+' picks a random name. Three arrays, not one [3][4][11]: fn_805028D8
+// adds 0x58/0xB0 to the common base register before the row and the column (separate objects)
+static const wchar_t sKeyChars_unk[4][11] = {
+    {L'1', L'2', L'3', L'4', L'5', L'6', L'7', L'8', L'9', L'0', 0x2190},
+    {L'Q', L'W', L'E', L'R', L'T', L'Y', L'U', L'I', L'O', L'P', L' '},
+    {L'A', L'S', L'D', L'F', L'G', L'H', L'J', L'K', L'L', L' ', L'+'},
+    {L'Z', L'X', L'C', L'V', L'B', L'N', L'M', L'!', L'?', L' ', 0x2193},
+};
+static const wchar_t sKeyCharsFr_unk[4][11] = {
+    {L'1', L'2', L'3', L'4', L'5', L'6', L'7', L'8', L'9', L'0', 0x2190},
+    {L'A', L'Z', L'E', L'R', L'T', L'Y', L'U', L'I', L'O', L'P', L' '},
+    {L'Q', L'S', L'D', L'F', L'G', L'H', L'J', L'K', L'L', L' ', L'+'},
+    {L'W', L'X', L'C', L'V', L'B', L'N', L'M', L'!', L'?', L' ', 0x2193},
+};
+static const wchar_t sKeyCharsDe_unk[4][11] = {
+    {L'1', L'2', L'3', L'4', L'5', L'6', L'7', L'8', L'9', L'0', 0x2190},
+    {L'Q', L'W', L'E', L'R', L'T', L'Z', L'U', L'I', L'O', L'P', L' '},
+    {L'A', L'S', L'D', L'F', L'G', L'H', L'J', L'K', L'L', L' ', L'+'},
+    {L'Y', L'X', L'C', L'V', L'B', L'N', L'M', L'!', L'?', L' ', 0x2193},
 };
 
 // NOTE: in the original the constructor of MP::SoftKeyboard goes over the inline budget and calls
@@ -79,8 +84,7 @@ static const wchar_t sKeyChars_unk[3][4][11] = {
 // fn_80503AB8/fn_80503B04, the seven boost::bind and the seven boost::function constructors (all
 // weak copies of this file, 0x805028D8-0x80503B04). The empty asserts (debug build only) of this
 // function put it over the budget.
-// NONMATCHING (fn_805028D8, 82%): the original adds the layout offset to the table base in every
-// branch (addi r0, base, 0x58/0xB0/0) before the row and the column. Also, the original builds the key corners in place (Vector2 constructor on the key) without an
+// The original builds the key corners in place (Vector2 constructor on the key) without an
 // operator=: not reproduced (tried temporaries, named locals, a corner type with implicit copy).
 // inferred: character of a key for the current language
 #define SOFTKB_ASSERT_UNK(x) ((void)0)
@@ -115,15 +119,14 @@ inline wchar_t fn_805028D8(int row, int col) {
     SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0);
     SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0);
     SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0);
-    const wchar_t (*keys)[4][11] = sKeyChars_unk;
     wchar_t c;
     int lang = fn_8006BA30();
     if (lang == 3) {
-        c = keys[1][row][col];
+        c = sKeyCharsFr_unk[row][col];
     } else if (lang == 2) {
-        c = keys[2][row][col];
+        c = sKeyCharsDe_unk[row][col];
     } else {
-        c = keys[0][row][col];
+        c = sKeyChars_unk[row][col];
     }
     return c;
 }
