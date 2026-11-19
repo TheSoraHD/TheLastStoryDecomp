@@ -1,3 +1,4 @@
+#include "game/GameConfig_unk.h"
 #include "gmk/Brazier.h"
 #include "game/BattleTask.h"
 #include "atn/Csv.h"
@@ -45,15 +46,7 @@ extern "C" int fn_8004D314(void* world, int arg, const atn::Vector3* pos, const 
                            int arg5, int arg6, float radius); // inferred: sphere test
 extern "C" int fn_8004D388(void* world, atn::ColliResult_unk* result, CharaTask::Sphere_unk* sphere, atn::Vector3* move,
                            unsigned int mask, void* ignore, int arg, float); // inferred: sweep test (last: radius)
-// inferred: debug drawing (lbl_8087EEB0)
-// inferred: game settings
-struct BrazierSettings_unk {
-    unsigned char m00[0x08];
-    int m08; // inferred: debug draw of the gimmicks
-    unsigned char m0C[0x30 - 0x0C];
-    int mFps; // 0x30: inferred: frames per second
-};
-extern "C" BrazierSettings_unk* lbl_8087F0A8;
+extern "C" GameConfig_unk* lbl_8087F0A8;
 // inferred: the field task (lbl_8087F430); the frustum of its camera tests the spawn points
 extern "C" GameTask* lbl_8087F430;
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
@@ -261,7 +254,7 @@ void Brazier::vf14() {
     if (vf38() != 0) {
         fn_803ED774(vf38());
     }
-    if (lbl_8087F0A8->m08 != 0) {
+    if (lbl_8087F0A8->mDrawCollision != 0) {
         atn::Vector3 pos(m6C);
         pos.y += mRadius;
         atn::Vector3 dir;
@@ -449,7 +442,7 @@ void Brazier::fn_80407D24() {
     if (fn_8004D388(lbl_8087EE98, &res, &sphere, &mDir, 0, 0, 0, sphere.mRadius) != 0) {
         mDir.y = 0.0f;
     } else {
-        mDir.y += -98.1f / (float)(lbl_8087F0A8->mFps * lbl_8087F0A8->mFps);
+        mDir.y += -98.1f / (float)(lbl_8087F0A8->m030 * lbl_8087F0A8->m030);
     }
     m6C = res.m10;
     m6C.y -= mRadius;

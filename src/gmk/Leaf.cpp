@@ -1,3 +1,4 @@
+#include "game/GameConfig_unk.h"
 #include "gmk/Leaf.h"
 #include "atn/Csv.h"
 #include "atn/Memory.h"
@@ -28,12 +29,7 @@ extern "C" void PSMTXMultVec(const Mtx m, const atn::Vector3* src, atn::Vector3*
 extern "C" InstData_unk* fn_8009F788(const char* name); // inferred: finds or loads a building model
 extern "C" int fn_8009FFCC(InstData_unk* data);         // inferred: nonzero while loading
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0;      // inferred: player manager
-// inferred: game settings
-struct LeafSettings_unk {
-    unsigned char m00[0x18];
-    int m18; // inferred: draw the gimmicks
-};
-extern "C" LeafSettings_unk* lbl_8087F0A8;
+extern "C" GameConfig_unk* lbl_8087F0A8;
 // inferred: debug menu
 extern "C" void* fn_8008937C(void* menu, const char* name);
 extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, int arg6,
@@ -200,7 +196,7 @@ void Leaf::vf10() {
 // The unsigned subscript gives the index/offset registers of the original
 void Leaf::vf14() {
     for (int i = 0; i < mNumLeaf; i++) {
-        if (lbl_8087F0A8->m18 != 0) {
+        if (lbl_8087F0A8->mDrawMap != 0) {
             atn::ModelInstance* inst = mLeaves.mData[(unsigned int)i].mInst;
             if (m9C != 0) {
                 inst->m64 = 0;

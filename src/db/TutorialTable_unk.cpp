@@ -1,3 +1,4 @@
+#include "game/GameConfig_unk.h"
 #include "atn/Csv.h"
 #include "atn/Memory.h"
 #include "gmk/SeTable.h"
@@ -17,12 +18,7 @@ extern "C" Unk_8087F518* lbl_8087F518;
 extern "C" void* fn_8046DC5C(Unk_8087F518* mgr, const char* path, unsigned long* size, int align);
 extern "C" void fn_8046DD20(Unk_8087F518* mgr, void* data);
 
-// inferred: game settings (lbl_8087F0A8); only the member used here
-struct TutorialSettings_unk {
-    char m000[0x194];
-    int mDemo; // inferred: 0x194, demo version (selects the tutorial table)
-};
-extern "C" TutorialSettings_unk* lbl_8087F0A8;
+extern "C" GameConfig_unk* lbl_8087F0A8;
 
 // inferred: wide fixed-size string (as atn::FixedString_unk, with wcslen + wmemcpy). Name invented.
 template <int N>
@@ -64,7 +60,7 @@ static int sCount;
 extern "C" void fn_8021ED08() {
     if (sEntries == 0) {
         unsigned long size;
-        void* data = fn_8046DC5C(lbl_8087F518, lbl_8087F0A8->mDemo != 0 ? sDemoFileName : sFileName, &size, 0x20);
+        void* data = fn_8046DC5C(lbl_8087F518, lbl_8087F0A8->m194 != 0 ? sDemoFileName : sFileName, &size, 0x20);
         atn::CsvU csv((const wchar_t*)data, (int)size / 2);
         while (csv.fn_8005BBF8() != 0) {
             if (*csv.fn_8005B9CC() != L';') {

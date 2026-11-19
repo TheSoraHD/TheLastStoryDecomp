@@ -1,3 +1,4 @@
+#include "game/GameConfig_unk.h"
 #include "atn/RenderSetting_unk.h"
 #include "atn/EffectManager.h"
 #include "game/SkillEffectManager.h"
@@ -65,14 +66,7 @@ extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared len
 // inferred: arena UI (lbl_8087F490); fn_803E6850 shows a counter (as in game/Em003LesserDaemon.cpp)
 extern "C" GameUI* lbl_8087F490;
 extern "C" RenderSetting_unk* lbl_8087EFA8;
-// inferred: system settings (lbl_8087F0A8): frame rate at 0x30 and pad state at 0x48C
-struct ZanSystem_unk {
-    unsigned char m000[0x30];
-    int mFrameRate;
-    unsigned char m034[0x48C - 0x34];
-    unsigned char mPad[1];
-};
-extern "C" ZanSystem_unk* lbl_8087F0A8;
+extern "C" GameConfig_unk* lbl_8087F0A8;
 extern "C" void* lbl_8087EE98;
 extern "C" int fn_8004ED34(void* colli, atn::ColliResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg7); // inferred: ray test
@@ -1561,7 +1555,7 @@ void Em201ZanGurgFinal::fn_80268CB4() {
         int id = m590;
         lbl_8087F048->fn_800F8C6C(0, 0, this, data, id, 0.0f, 30, -1);
     }
-    int fps = lbl_8087F0A8->mFrameRate;
+    int fps = lbl_8087F0A8->m030;
     float g = -98.1f / (float)(fps * fps);
     atn::Vector3 move(0.0f, g, 0.29999998f);
     atn::Matrix3x4 m;
@@ -1813,7 +1807,7 @@ void Em201ZanGurgFinal::fn_8026A010() {
         }
     }
     atn::Vector3 move = m1530 * speed;
-    int fps = lbl_8087F0A8->mFrameRate;
+    int fps = lbl_8087F0A8->m030;
     move.y += -98.1f / (float)(fps * fps);
     atn::ColliResult_unk result;
     CharaTask::Sphere_unk sphere = fn_80176548(mPos);
@@ -2568,7 +2562,7 @@ void Em201ZanGurgFinal::fn_8026DB8C() {
             if (lbl_8087F490 != 0) {
                 lbl_8087F490->m764 = ZanUIHint_unk(6, 14, -1);
             }
-            if (((Input_unk*)lbl_8087F0A8->mPad)->fn_801231D0(2)) {
+            if ((&lbl_8087F0A8->mInput)->fn_801231D0(2)) {
                 if (lbl_8087F430->fn_80370A78(0xF1) == 0) {
                     lbl_8087F430->fn_80370AE4(0xF1, 1);
                 }

@@ -1,3 +1,4 @@
+#include "game/GameConfig_unk.h"
 #include "atn/RenderSetting_unk.h"
 #include "macros.h"
 #include "game/QuadrupedTask.h"
@@ -76,13 +77,7 @@ inline float LengthXZ_unk(const atn::Vector3& v) {
 
 
 
-// inferred: settings (lbl_8087F0A8) as in game/Em403WarLion.cpp
-struct QuadSettings_unk {
-    unsigned char m00[0x30];
-    int m30;        // inferred: frames per second (as in game/CharaTask.cpp)
-    int mDrawDebug; // 0x34
-};
-extern "C" QuadSettings_unk* lbl_8087F0A8;
+extern "C" GameConfig_unk* lbl_8087F0A8;
 
 QuadrupedTask::QuadrupedTask(atn::Task* parent, void* data)
     : EnemyTask(parent, data), m14B0(0.0f, 0.0f, 0.0f), m1564(0) {
@@ -187,7 +182,7 @@ void QuadrupedTask::fn_DebugMenu_unk() {
 
 void QuadrupedTask::vf14() {
     fn_80149A30();
-    if (lbl_8087F0A8->mDrawDebug != 0) {
+    if (lbl_8087F0A8->mDrawCharaColli != 0) {
         lbl_8087EEB0->fn_80063484(20, 0xFFFF0000, mPos.x, 3.0f + mPos.y, mPos.z, mRot.y, 0.0f, 12.0f, 1.5707964f);
     }
 }
@@ -566,7 +561,7 @@ void QuadrupedTask::fn_80567968(const atn::Vector3& target, int arg, float speed
     // inferred: the original tests a default-constructed status here (temporary built and destroyed
     // around the test), not mStatus
     if ((CharaStatus().mParamB.m9C & 1) != 1) {
-        int fps = lbl_8087F0A8->m30;
+        int fps = lbl_8087F0A8->m030;
         m574.y += dt * (-98.1f / (float)(fps * fps));
     }
     move += m6B8;

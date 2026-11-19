@@ -1,5 +1,6 @@
 // MP/D2AMpMenuSetMessage.cpp (0x804C8778-0x804CD97C): message settings of the multiplayer lobby. Only the
 // first functions are reconstructed so far.
+#include "game/GameConfig_unk.h"
 #include "MP/D2AMpMenu_unk.h"
 #include "game/MenuCommonTask.h"
 #include "MP/D2ACommonDialog.h"
@@ -39,12 +40,7 @@ struct MpMsgData_unk {
 };
 extern "C" CharaInfo_unk* fn_8020924C(int id);
 
-// inferred: game settings (lbl_8087F0A8): input at 0x48C
-struct MpMsgSettings_unk {
-    unsigned char m000[0x48C];
-    unsigned char mPad[1]; // 0x48C
-};
-extern "C" MpMsgSettings_unk* lbl_8087F0A8;
+extern "C" GameConfig_unk* lbl_8087F0A8;
 extern "C" MP::MpMsgTable_unk* lbl_8087F1E4; // inferred: camp message table (same layout as lbl_8087F86C)
 extern "C" void fn_804A4738(MP::MpD2A_unk* bar, int top, int count, int visible); // inferred: scroll bar
 extern "C" int wcscmp(const wchar_t* a, const wchar_t* b);
@@ -502,7 +498,7 @@ void D2AMpMenuSetMessage::fn_804C9EF8() {
     if (next != page) {
         m170 = 0.0f;
     }
-    if (((Input_unk*)lbl_8087F0A8->mPad)->fn_801231D0(0x34) != 0) {
+    if ((&lbl_8087F0A8->mInput)->fn_801231D0(0x34) != 0) {
         MpMsgRef_unk* ref = &lbl_8087F628->mC20.mMessages[mE4 + D2AMpMenuMessageList::sPage * 10];
         MpMessage_unk* msg = lbl_8087F610->m2A50.fn_804C54FC(ref->mCategory, ref->mIndex);
         if (msg != 0) {
@@ -534,7 +530,7 @@ void D2AMpMenuSetMessage::fn_804CA250() {
         return;
     }
     if (mE8 != 0) {
-        if (((Input_unk*)lbl_8087F0A8->mPad)->fn_801231D0(0x34) != 0) {
+        if ((&lbl_8087F0A8->mInput)->fn_801231D0(0x34) != 0) {
             PlayVoice_unk(m164, mF0[mE4]);
         } else if (fn_800A55AC(pad, 0, 0x1A) != 0 || fn_800A55AC(pad, 0, 0) != 0) {
             if (--mE4 < 0) {

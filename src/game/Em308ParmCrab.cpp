@@ -1,3 +1,4 @@
+#include "game/GameConfig_unk.h"
 #include "game/GameTask.h"
 #include "game/Em308ParmCrab.h"
 #include "atn/Material_unk.h"
@@ -53,12 +54,7 @@ struct ColorF_unk {
     float r, g, b, a;
 };
 extern "C" ColorF_unk lbl_807C8398; // inferred: color of the downed enemies (bss)
-// inferred: game settings (lbl_8087F0A8); frames per second at 0x30 (as in game/Em308InvertCrab.cpp)
-struct CrabSettings_unk {
-    unsigned char m00[0x30];
-    int mFps;
-};
-extern "C" CrabSettings_unk* lbl_8087F0A8;
+extern "C" GameConfig_unk* lbl_8087F0A8;
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
 extern "C" double cos(double x);
@@ -241,8 +237,8 @@ int Em308ParmCrab::vf0C() {
     return 0;
 }
 // inferred: gravity per frame (as fn_802F0998 of gmk/Cannonball.cpp)
-inline float Gravity_unk(CrabSettings_unk* s) {
-    return -98.1f / (float)(s->mFps * s->mFps);
+inline float Gravity_unk(GameConfig_unk* s) {
+    return -98.1f / (float)(s->m030 * s->m030);
 }
 
 // inferred: the ground under the crab has an attribute 0x14, 0x15 or 0x1A-0x1D (as

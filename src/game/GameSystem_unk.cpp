@@ -1,6 +1,7 @@
 // inferred file name (splits-auto): power/reset handling of the game (power and reset callbacks,
 // fade out and shutdown, return to the Wii menu, idle timer). The ReplayBuffer members before it are at the
 // end of game/ReplayBuffer.cpp.
+#include "game/GameConfig_unk.h"
 #include "atn/FadeCommon.h"
 #include "atn/SequenceControl.h"
 #include "atn/Memory.h"
@@ -36,12 +37,7 @@ extern "C" {
 ResetShutdown* lbl_8087F9A0;
 }
 
-// inferred: game settings (lbl_8087F0A8), only the member read here
-struct GameSettings_unk {
-    unsigned char m000[0x194];
-    int m194; // inferred: idle timeout enabled
-};
-extern "C" GameSettings_unk* lbl_8087F0A8;
+extern "C" GameConfig_unk* lbl_8087F0A8;
 
 
 // inferred: stops the game while the request is handled (name invented)

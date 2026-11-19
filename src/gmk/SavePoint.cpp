@@ -1,3 +1,4 @@
+#include "game/GameConfig_unk.h"
 #include "atn/EffectManager.h"
 #include "gmk/SavePoint.h"
 #include "game/GameTask.h"
@@ -35,13 +36,7 @@ struct SaveEvent_unk {
 extern "C" SaveEvent_unk* lbl_8087F098;
 extern "C" void* lbl_8087EF68;
 extern "C" int fn_800A4228(void* obj, int* out);
-struct SaveDebug_unk {
-    unsigned char m00[0x18];
-    int m18; // inferred: debug draw
-    unsigned char m1C[0x198 - 0x1C];
-    int m198; // inferred: the gimmick is disabled
-};
-extern "C" SaveDebug_unk* lbl_8087F0A8;
+extern "C" GameConfig_unk* lbl_8087F0A8;
 
 extern "C" void* fn_8008937C(void* menu, const char* name);
 extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, int arg6,
@@ -212,7 +207,7 @@ int SavePoint::vf60() {
 }
 
 void SavePoint::vf14() {
-    if (lbl_8087F0A8->m18 != 0 && lbl_8087F0A8->m198 == 0) {
+    if (lbl_8087F0A8->mDrawMap != 0 && lbl_8087F0A8->m198 == 0) {
         mModel.GetModel_unk()->fn_8008CD60();
     }
 }

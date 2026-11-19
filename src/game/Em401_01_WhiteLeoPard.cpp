@@ -1,3 +1,4 @@
+#include "game/GameConfig_unk.h"
 #include "atn/RenderSetting_unk.h"
 #include "macros.h"
 #include "game/Em401_01_WhiteLeoPard.h"
@@ -167,13 +168,7 @@ struct LeoColor_unk {
     float r, g, b, a;
 };
 extern "C" double sin(double x);
-// inferred: settings (lbl_8087F0A8) and debug drawing (lbl_8087EEB0), as in game/Em403WarLion.cpp
-struct LeoSettings_unk {
-    unsigned char m00[0x30];
-    int m30;        // inferred: frames per second (as in game/CharaTask.cpp)
-    int mDrawDebug; // 0x34
-};
-extern "C" LeoSettings_unk* lbl_8087F0A8;
+extern "C" GameConfig_unk* lbl_8087F0A8;
 
 // inferred: pulses the alpha of the "em405_efc" material every 120 frames; draws the view fan in debug
 void Em401_01_WhiteLeoPard::vf14() {
@@ -185,7 +180,7 @@ void Em401_01_WhiteLeoPard::vf14() {
     float s = (float)sin(6.2831855f * t);
     diffuse.a = 0.5f * (1.0f + s);
     mMotion.fn_80094958("em405_efc", &diffuse, &LeoColor_unk(material->m20), &LeoColor_unk(material->m1C));
-    if (lbl_8087F0A8->mDrawDebug != 0) {
+    if (lbl_8087F0A8->mDrawCharaColli != 0) {
         lbl_8087EEB0->fn_80063484(20, 0xFFFF0000, mPos.x, 3.0f + mPos.y, mPos.z, mRot.y, 0.0f, 12.0f, 1.5707964f);
     }
 }
@@ -542,7 +537,7 @@ void Em401_01_WhiteLeoPard::fn_803209E0(const atn::Vector3& target, int arg, flo
         move.z *= 2.0f;
     }
     if ((mStatus.mParamB.m9C & 1) != 1) {
-        int fps = lbl_8087F0A8->m30;
+        int fps = lbl_8087F0A8->m030;
         m574.y += dt * (-98.1f / (float)(fps * fps));
     }
     move += m6B8;

@@ -1,3 +1,4 @@
+#include "game/GameConfig_unk.h"
 #include "game/GameTask.h"
 #include "game/SkillEffectManager.h"
 #include "game/Em308InvertCrab.h"
@@ -51,12 +52,7 @@ struct PlayerManager_unk {
     CharaTask* mHead;
 };
 extern "C" PlayerManager_unk* lbl_8087F8A0;
-// inferred: game settings (lbl_8087F0A8); frames per second at 0x30 (as in gmk/Cannonball.cpp)
-struct CrabSettings_unk {
-    unsigned char m00[0x30];
-    int mFps;
-};
-extern "C" CrabSettings_unk* lbl_8087F0A8;
+extern "C" GameConfig_unk* lbl_8087F0A8;
 // inferred: skill effect manager (lbl_8087F9E8, as in gmk/HealPoint.cpp); fn_8059C6DC tests whether the
 // skill is already running for the user; the callback is empty here
 struct CrabSkill_unk;
@@ -245,8 +241,8 @@ inline void PlayEffect_unk(atn::EfpFile* efp, atn::Model* model) {
 }
 
 // inferred: gravity per frame (as fn_802F0998 of gmk/Cannonball.cpp)
-inline float Gravity_unk(CrabSettings_unk* s) {
-    return -98.1f / (float)(s->mFps * s->mFps);
+inline float Gravity_unk(GameConfig_unk* s) {
+    return -98.1f / (float)(s->m030 * s->m030);
 }
 
 // inferred: resets the attack sub-state (name invented)

@@ -1,3 +1,4 @@
+#include "game/GameConfig_unk.h"
 #include "gmk/OnOff.h"
 #include "atn/Csv.h"
 #include "atn/Memory.h"
@@ -41,15 +42,7 @@ extern "C" void fn_8023A680(OnOffEffectMgr_unk* mgr, atn::EffFile* res, int arg2
 extern "C" void fn_8023A02C(OnOffEffectMgr_unk* mgr, void* owner, int arg2, int arg3);
 extern "C" void fn_80239DAC(OnOffEffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
 extern "C" void fn_80232B7C(void* owner, int arg);
-// inferred: debug drawing (lbl_8087EEB0)
-// inferred: game settings
-struct OnOffSettings_unk {
-    unsigned char m00[0x08];
-    int m08; // inferred: debug draw of the gimmicks
-    unsigned char m0C[0x18 - 0x0C];
-    int m18; // inferred: debug draw of the models
-};
-extern "C" OnOffSettings_unk* lbl_8087F0A8;
+extern "C" GameConfig_unk* lbl_8087F0A8;
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 
 
@@ -329,12 +322,12 @@ void OnOff::vf14() {
     if (mDesc != 0 && mDesc->m7C == 0) {
         return;
     }
-    if (lbl_8087F0A8->m18 != 0 && mHasModel != 0 && (mOn != 0 || (mFlags & 1) == 1)) {
+    if (lbl_8087F0A8->mDrawMap != 0 && mHasModel != 0 && (mOn != 0 || (mFlags & 1) == 1)) {
         if (vf38() != 0) {
             fn_803ED774(vf38());
         }
     }
-    if (lbl_8087F0A8->m08 != 0 && mHasBox == 0 && mHasSphere == 0 && mHasColli == 0) {
+    if (lbl_8087F0A8->mDrawCollision != 0 && mHasBox == 0 && mHasSphere == 0 && mHasColli == 0) {
         lbl_8087EEB0->fn_80063D3C(m6C, 3.0f, 0.0f, 0xFFFFFF00);
     }
 }

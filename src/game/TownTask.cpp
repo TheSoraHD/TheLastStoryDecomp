@@ -1,3 +1,4 @@
+#include "game/GameConfig_unk.h"
 #include "atn/RenderSetting_unk.h"
 #include "game/MapPartsLocatorSet.h"
 #include "std/tree.h"
@@ -483,12 +484,7 @@ inline bool TownInside_unk(const atn::Vector3& pos, float minX, float maxX, floa
     return false;
 }
 
-// inferred: debug settings (lbl_8087F0A8); only the member used here
-struct TownSettings_unk {
-    unsigned char m000[0x164];
-    int mLoadAllBlocks; // 0x164: inferred: debug, loads every block of the town
-};
-extern "C" TownSettings_unk* lbl_8087F0A8;
+extern "C" GameConfig_unk* lbl_8087F0A8;
 extern "C" int sprintf(char* s, const char* format, ...);
 extern "C" int fn_8006AA20(const char* path); // inferred: the file exists
 extern "C" void fn_800D2338(void* task); // inferred: deletes the task
@@ -496,7 +492,7 @@ extern "C" void fn_800D2338(void* task); // inferred: deletes the task
 // inferred: loads the blocks around the player (all of them with the debug setting); `reload` is set by
 // vf0C on the first frame (the NPC loaders do not wait for the map part then)
 void TownTask::fn_805B8DB4(int reload) {
-    if (lbl_8087F0A8->mLoadAllBlocks != 0) {
+    if (lbl_8087F0A8->mTownAllLoad != 0) {
         if (m124 == 0) {
             return;
         }

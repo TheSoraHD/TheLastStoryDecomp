@@ -1,3 +1,4 @@
+#include "game/GameConfig_unk.h"
 #include "game/EnemyQuarkSecond.h"
 #include "macros.h"
 #include "game/GameVoice.h"
@@ -970,12 +971,7 @@ extern "C" void fn_8008771C(void* group, const char* name, float* value, float m
 
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 
-// inferred: game settings (lbl_8087F0A8, as in game/CharaTask.cpp): frames per second at 0x30
-struct QuarkSettings_unk {
-    unsigned char m00[0x30];
-    int m30;
-};
-extern "C" QuarkSettings_unk* lbl_8087F0A8;
+extern "C" GameConfig_unk* lbl_8087F0A8;
 
 // inferred: the motion of track 0 has reached its end (the frame is read before the length); name
 // invented
@@ -989,7 +985,7 @@ inline bool EnemyQuarkSecond::IsMotionEnd_unk() {
 
 // inferred: falls to the ground (inlined in the states 12 and 13); name invented
 inline void EnemyQuarkSecond::Fall_unk() {
-    int fps = lbl_8087F0A8->m30;
+    int fps = lbl_8087F0A8->m030;
     m574.y += -98.1f / (float)(fps * fps);
     mPos.y += m574.y;
     if (mPos.y < 0.0f) {

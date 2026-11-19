@@ -1,3 +1,4 @@
+#include "game/GameConfig_unk.h"
 #include "atn/RenderSetting_unk.h"
 #include "chr/ControlDive.h"
 #include "game/GameTask.h"
@@ -21,12 +22,7 @@ extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
 
 extern "C" RenderSetting_unk* lbl_8087EFA8;
 
-// inferred: pad state at +0x48C of the object behind lbl_8087F0A8 (class unknown)
-struct DiveInput_unk {
-    unsigned char m000[0x48C];
-    unsigned char mInput[1];
-};
-extern "C" DiveInput_unk* lbl_8087F0A8;
+extern "C" GameConfig_unk* lbl_8087F0A8;
 
 // inferred: moves the back step destination out of the walls (chr/ControlCharge.cpp)
 
@@ -218,7 +214,7 @@ int ControlSwapPos::vf0C() {
             pos.y += 0.47368422f;
             vel.y = 0.0f;
         } else if (m14 == 0) {
-            if (chara->mType != 0 || ((Input_unk*)lbl_8087F0A8->mInput)->fn_801240B4(7)) {
+            if (chara->mType != 0 || (&lbl_8087F0A8->mInput)->fn_801240B4(7)) {
                 m14 = 1;
             } else {
                 m14 = 2;

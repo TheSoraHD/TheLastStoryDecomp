@@ -1,3 +1,4 @@
+#include "game/GameConfig_unk.h"
 #include "atn/RenderSetting_unk.h"
 #include "chr/ControlWallUp.h"
 #include "game/GameTask.h"
@@ -22,12 +23,7 @@ extern "C" void* lbl_8087F610;
 
 extern "C" RenderSetting_unk* lbl_8087EFA8;
 
-// inferred: pad state at +0x48C of the object behind lbl_8087F0A8 (class unknown)
-struct WallInput_unk {
-    unsigned char m000[0x48C];
-    unsigned char mInput[1];
-};
-extern "C" WallInput_unk* lbl_8087F0A8;
+extern "C" GameConfig_unk* lbl_8087F0A8;
 
 extern "C" void* lbl_8087EE98;
 extern "C" int fn_8004ED34(void* colli, atn::ColliResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
@@ -123,11 +119,11 @@ int ControlWallUp::vf0C() {
         mChara->mRot = m34.ToRotation_unk();
         float frame2 = motion->mTracks[0].m08;
         if (frame2 >= motion->fn_80097D7C(0) - 5.0f) {
-            if (((Input_unk*)lbl_8087F0A8->mInput)->fn_801240B4(0)) {
+            if ((&lbl_8087F0A8->mInput)->fn_801240B4(0)) {
                 m4C = true;
                 ret = 1;
             }
-            if (((Input_unk*)lbl_8087F0A8->mInput)->fn_801231D0(1)) {
+            if ((&lbl_8087F0A8->mInput)->fn_801231D0(1)) {
                 ret = 1;
             }
         }
@@ -150,7 +146,7 @@ int ControlWallUp::vf0C() {
             m4C = true;
             ret = 1;
         }
-        if (m4D && ((Input_unk*)lbl_8087F0A8->mInput)->fn_801240B4(9)) {
+        if (m4D && (&lbl_8087F0A8->mInput)->fn_801240B4(9)) {
             m4D = false;
         }
     }

@@ -1,3 +1,4 @@
+#include "game/GameConfig_unk.h"
 #include "atn/RenderSetting_unk.h"
 #include "game/EnemyQuarkStand.h"
 #include "game/GameTask.h"
@@ -143,14 +144,7 @@ struct QColor_unk {
     float r, g, b, a;
 };
 
-// inferred: game settings (lbl_8087F0A8): m30 is the frame rate (as in chr/ControlJumpAt.cpp)
-struct QuarkSettings_unk {
-    unsigned char m000[0x30];
-    int mFrameRate;
-    unsigned char m034[0x48C - 0x34];
-    unsigned char mPad[1]; // 0x48C: inferred: pad state (as in MP/D2AMpMenuFriend.cpp)
-};
-extern "C" QuarkSettings_unk* lbl_8087F0A8;
+extern "C" GameConfig_unk* lbl_8087F0A8;
 // inferred: weak copies of small inline helpers of other files, called out of line because vf0C is over
 // the inline budget (names kept)
 extern "C" CharaManager<PlayerTask>* fn_8000D9E8();
@@ -1753,7 +1747,7 @@ void EnemyQuarkStand::fn_8034DE90() {
 
 // inferred: state 17 (falls with gravity until the ground, then waits) (the state helpers are inlined)
 void EnemyQuarkStand::fn_8034E898() {
-    m574.y += -98.1f / (float)(lbl_8087F0A8->mFrameRate * lbl_8087F0A8->mFrameRate);
+    m574.y += -98.1f / (float)(lbl_8087F0A8->m030 * lbl_8087F0A8->m030);
     mPos.y += m574.y;
     if (mPos.y < 0.0f) {
         mPos.y = 0.0f;
@@ -1767,7 +1761,7 @@ void EnemyQuarkStand::fn_8034E898() {
 
 // inferred: state 15 (stunned): falls, then waits "DownCount" frames or "StundUpDamageCount" hits
 void EnemyQuarkStand::fn_8034EA50() {
-    m574.y += -98.1f / (float)(lbl_8087F0A8->mFrameRate * lbl_8087F0A8->mFrameRate);
+    m574.y += -98.1f / (float)(lbl_8087F0A8->m030 * lbl_8087F0A8->m030);
     mPos.y += m574.y;
     if (mPos.y < 0.0f) {
         mPos.y = 0.0f;
@@ -1800,7 +1794,7 @@ void EnemyQuarkStand::fn_8034EA50() {
 // NONMATCHING: 89.62% - same camera parameter copy as fn_8034B8CC (FPRs f29-f31, EnemyTrista::fn_8035D294)
 // and the stack slots of the distance and of the front direction; ~3 forms
 void EnemyQuarkStand::fn_8034ECE8() {
-    m574.y += -98.1f / (float)(lbl_8087F0A8->mFrameRate * lbl_8087F0A8->mFrameRate);
+    m574.y += -98.1f / (float)(lbl_8087F0A8->m030 * lbl_8087F0A8->m030);
     mPos.y += m574.y;
     if (mPos.y < 0.0f) {
         mPos.y = 0.0f;
@@ -1871,7 +1865,7 @@ void EnemyQuarkStand::fn_8034ECE8() {
                     prompt.m18 = 1;
                     ui->m764 = prompt;
                 }
-                if (((Input_unk*)lbl_8087F0A8->mPad)->fn_801231D0(0) != 0) {
+                if ((&lbl_8087F0A8->mInput)->fn_801231D0(0) != 0) {
                     leader->SetHit_unk(m1550);
                     leader->fn_80178208(new ((MemoryTag)3, "", "", 0) chr::ControlThrustForQuarkStand(leader, this, 2));
                     lbl_8087F430->fn_80370AE4(0x6F, 1);

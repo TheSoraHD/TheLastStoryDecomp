@@ -1,3 +1,4 @@
+#include "game/GameConfig_unk.h"
 #include "atn/RenderSetting_unk.h"
 #include "game/Em316LastLaser.h"
 #include "game/CharaStatus.h"
@@ -55,11 +56,7 @@ extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* m
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
 extern "C" RenderSetting_unk* lbl_8087EFA8;
-struct LaserSettings_unk {
-    unsigned char m00[0x30];
-    int mFrameRate;
-};
-extern "C" LaserSettings_unk* lbl_8087F0A8;
+extern "C" GameConfig_unk* lbl_8087F0A8;
 
 // inferred: plays `efp` on `model` with default placement (as CoffinEffect_unk of game/Em315Coffin.cpp)
 inline void LastLaserEffect_unk(atn::EfpFile* efp, atn::Model* model) {
@@ -387,7 +384,7 @@ void Em316LastLaser::vf40(HitInfo_unk* hit) {
             m14F0.y = 0.0f;
         }
         float dt = lbl_8087EFA8->m3A4;
-        int fps = lbl_8087F0A8->mFrameRate;
+        int fps = lbl_8087F0A8->m030;
         float g = -98.1f / (float)(fps * fps);
         m14FC = 1.5f * (g * dt);
         fn_800EB7A0();

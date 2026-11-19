@@ -1,3 +1,4 @@
+#include "game/GameConfig_unk.h"
 #include "game/ShopUpGrade.h"
 #include "game/GameTask.h"
 #include "game/Inventory.h"
@@ -124,12 +125,7 @@ extern "C" void fn_80212C34(EquipParamEntry_unk* equip, const EquipParamEntry_un
 extern "C" void fn_80212840(WeaponParamEntry_unk* weapon, const WeaponParamEntry_unk* base, int level);
 extern "C" void fn_804A3C24(MenuCommonTask* menu, const wchar_t* text, int id);
 extern "C" void fn_804A7DD4(MenuCommonTask* menu, int item);
-// inferred: debug settings (lbl_8087F0A8)
-struct ShopSettings_unk {
-    unsigned char m000[0x488];
-    int m488;
-};
-extern "C" ShopSettings_unk* lbl_8087F0A8;
+extern "C" GameConfig_unk* lbl_8087F0A8;
 // inferred: party members available at a progress (as game/ShopBuySell.cpp)
 struct ShopMembers_unk {
     unsigned char m00[0x0C];
@@ -1821,7 +1817,7 @@ void ShopUpGrade::fn_80597554(ShopUpGradeEntry_unk* entry) {
             arrow->SetValues1_unk("basePos", *(atn::D2A_DrawRect*)&arrowPos);
         }
     }
-    if (lbl_8087F0A8->m488 != 0) {
+    if (lbl_8087F0A8->mShowReleadBar2 != 0) {
         fn_804A7DD4(MenuCommonTask::sInstance, entry->mCode);
     }
 }

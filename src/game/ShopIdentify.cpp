@@ -1,3 +1,4 @@
+#include "game/GameConfig_unk.h"
 #include "game/ShopIdentify.h"
 #include "game/Inventory.h"
 #include "atn/Memory.h"
@@ -101,12 +102,7 @@ struct ShopMsg_unk {
 extern "C" ShopMsg_unk* lbl_8087F1E4;
 // inferred: wide literals of this file kept in .sdata (L"", L"1", L"WEAPON")
 extern "C" const wchar_t lbl_8087E690[2];
-// inferred: debug settings (lbl_8087F0A8)
-struct ShopSettings_unk {
-    unsigned char m000[0x488];
-    int m488;
-};
-extern "C" ShopSettings_unk* lbl_8087F0A8;
+extern "C" GameConfig_unk* lbl_8087F0A8;
 class MenuCommonTask {
 public:
     static MenuCommonTask* sInstance;
@@ -592,7 +588,7 @@ void ShopIdentify::fn_80589DE0(ShopIdentifyEntry_unk* entry, int help) {
             MenuCommonTask* menu = MenuCommonTask::sInstance;
             fn_804A3C24(menu, fn_80116FC0(1, 0x15B), 0);
         }
-        if (lbl_8087F0A8->m488 != 0) {
+        if (lbl_8087F0A8->mShowReleadBar2 != 0) {
             fn_804A7DD4(MenuCommonTask::sInstance, entry->mItem);
         }
     }

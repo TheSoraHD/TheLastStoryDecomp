@@ -1,3 +1,4 @@
+#include "game/GameConfig_unk.h"
 #include "atn/Color4f_unk.h"
 #include "game/GameCamera.h"
 #include "atn/RenderManager.h"
@@ -42,14 +43,7 @@ inline void SetCameraMode_unk(GameCameraModeParam_unk& camera, int mode, const G
     }
 }
 extern "C" GameTask* lbl_8087F430;
-// inferred: game settings (lbl_8087F0A8); class unknown
-struct GameSetting_unk {
-    unsigned char m000[0x30];
-    int mFrameRate; // 0x30 (as in game/Em208Queen.cpp)
-    unsigned char m034[0x194 - 0x34];
-    int m194;
-};
-extern "C" GameSetting_unk* lbl_8087F0A8;
+extern "C" GameConfig_unk* lbl_8087F0A8;
 extern "C" chr::CharaData_unk* fn_8020A81C(const char* name);
 extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3, int arg4); // debug menu
 // inferred: name table of the field (lbl_8087F430 + 0x54F4) (as in game/CharaTask.cpp)
@@ -991,7 +985,7 @@ void Em206EggMonster::fn_802C4480() {
     if (frame >= mMotion.fn_80097D7C(0)) {
         EndAction_unk();
     } else if (mMotion.mTracks[0].m08 >= 28.0f && mMotion.mTracks[0].m08 <= 60.0f) {
-        int fps = lbl_8087F0A8->mFrameRate;
+        int fps = lbl_8087F0A8->m030;
         atn::Vector3 move(0.0f, -98.1f / (float)(fps * fps), 1.5f);
         atn::Matrix3x4 m;
         m.fn_8013A13C(mRot.y);

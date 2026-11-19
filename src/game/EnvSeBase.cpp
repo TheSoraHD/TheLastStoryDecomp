@@ -1,3 +1,4 @@
+#include "game/GameConfig_unk.h"
 #include "game/EnvSeBase.h"
 #include "atn/RenderManager.h"
 #include "atn/SoundManager.h"
@@ -25,11 +26,7 @@ struct EnvSeMute_unk {
     int m70;
 };
 extern "C" EnvSeMute_unk* lbl_8087F540;
-struct EnvSeConfig_unk {
-    unsigned char m00[0x7C];
-    int m7C; // inferred: debug menus enabled
-};
-extern "C" EnvSeConfig_unk* lbl_8087F0A8;
+extern "C" GameConfig_unk* lbl_8087F0A8;
 
 // inferred: debug drawing and camera
 
@@ -73,7 +70,7 @@ void EnvSeBase::fn_80360CDC(atn::Csv* csv) {
     csv->fn_8005B9CC();
     mData->fn_80360B40(csv);
     vf1C(csv);
-    if (lbl_8087F418 != 0 && lbl_8087F0A8->m7C != 0) {
+    if (lbl_8087F418 != 0 && lbl_8087F0A8->m07C != 0) {
         void* root = lbl_8087F418->m1AC;
         if (root != 0) {
             char name[0x100];

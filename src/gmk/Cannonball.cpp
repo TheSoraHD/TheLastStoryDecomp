@@ -1,3 +1,4 @@
+#include "game/GameConfig_unk.h"
 #include "gmk/Cannonball.h"
 #include "game/BattleTask.h"
 #include "game/GameTask.h"
@@ -105,18 +106,13 @@ struct CannonCapsule_unk {
 extern "C" inline CannonCapsule_unk* fn_80315644(atn::ColliCapsule* colli) {
     return (CannonCapsule_unk*)&colli->m3C;
 }
-// inferred: settings
-struct CannonSettings_unk {
-    unsigned char m00[0x30];
-    int mFps; // 0x30: inferred: frames per second
-};
-extern "C" CannonSettings_unk* lbl_8087F0A8;
-extern "C" inline CannonSettings_unk* fn_800F52F8() {
+extern "C" GameConfig_unk* lbl_8087F0A8;
+extern "C" inline GameConfig_unk* fn_800F52F8() {
     return lbl_8087F0A8;
 }
 // inferred: gravity per frame
-extern "C" inline float fn_802F0998(CannonSettings_unk* settings) {
-    return -98.1f / (float)(settings->mFps * settings->mFps);
+extern "C" inline float fn_802F0998(GameConfig_unk* settings) {
+    return -98.1f / (float)(settings->m030 * settings->m030);
 }
 // inferred: collision world and its tests
 extern "C" void* lbl_8087EE98;

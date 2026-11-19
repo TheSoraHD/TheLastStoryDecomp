@@ -1,3 +1,4 @@
+#include "game/GameConfig_unk.h"
 #include "atn/EffectManager.h"
 #include "macros.h"
 // inferred: file boundaries from the vtable/RTTI of gmk::DropItem, its own 0.0f in .sdata2 (0x808862C0) and
@@ -71,12 +72,7 @@ extern "C" int fn_804F5E38(DropArena_unk* arena, unsigned char id);
 extern "C" DropArenaSlot_unk* fn_804F5B08(DropArena_unk* arena, unsigned char id);
 extern "C" void fn_804F5C9C(DropArena_unk* arena, unsigned char id);
 extern "C" void fn_804DB1C4(DropArena_unk* arena, PlayerTask* player, int count);
-// inferred: options (lbl_8087F0A8)
-struct DropOptions_unk {
-    unsigned char m000[0x170];
-    int m170;
-};
-extern "C" DropOptions_unk* lbl_8087F0A8;
+extern "C" GameConfig_unk* lbl_8087F0A8;
 // inferred: global object at lbl_8087F628 (as in gmk/Item.cpp)
 extern "C" unsigned char DWC_GetMyAID();
 extern "C" int fn_806A8E40();
@@ -372,7 +368,7 @@ void DropItem::vf10() {
         break;
     }
     case 5:
-        if (lbl_8087F0A8->m170 == 0 || mSlot.fn_8044EEC0() != 0) {
+        if (lbl_8087F0A8->mDropItemType == 0 || mSlot.fn_8044EEC0() != 0) {
             fn_8014F8F4()->mEnabled = 0;
             GimmickMsg_unk msg(6);
             vf40(&msg);
@@ -419,7 +415,7 @@ void DropItem::vf10() {
         break;
     }
     case 8:
-        if (lbl_8087F0A8->m170 == 0 || mSlot.fn_8044EEC0() != 0) {
+        if (lbl_8087F0A8->mDropItemType == 0 || mSlot.fn_8044EEC0() != 0) {
             mFlags |= 4;
         }
         break;

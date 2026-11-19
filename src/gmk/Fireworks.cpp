@@ -1,3 +1,4 @@
+#include "game/GameConfig_unk.h"
 #include "atn/EffectManager.h"
 #include "gmk/Fireworks.h"
 #include "atn/Csv.h"
@@ -29,12 +30,7 @@ namespace atn {
 struct Camera;
 }
 typedef atn::Camera Camera_unk;
-// inferred: debug settings
-struct FireworksDebug_unk {
-    unsigned char m00[0x74];
-    int m74; // inferred: debug draw
-};
-extern "C" FireworksDebug_unk* lbl_8087F0A8;
+extern "C" GameConfig_unk* lbl_8087F0A8;
 
 // inferred: speed of the light size change
 static float sRate = 0.1f;
@@ -174,7 +170,7 @@ void Fireworks::vf10() {
 }
 
 void Fireworks::vf14() {
-    if (lbl_8087F0A8->m74 != 0) {
+    if (lbl_8087F0A8->mDrawGimmickName != 0) {
         fn_803EDCF4();
     }
 }

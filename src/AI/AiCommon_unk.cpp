@@ -1,5 +1,6 @@
 // inferred file name (splits-auto): AI helpers of the scripts of AI/AI_archer_attack01.cpp. They
 // work on the current character (lbl_8087EE60) and on lists of 16 characters.
+#include "game/GameConfig_unk.h"
 #include "game/CharaTask.h"
 #include "game/TeamAIManager.h"
 #include "game/BattleTask.h"
@@ -29,12 +30,7 @@ extern "C" AiList_unk* lbl_8087EE64;
 extern "C" int fn_800197A4(void* ai, atn::Vector3* out, int* count, CharaTask* chara, const atn::Vector3* dir,
                            int arg, float angle);
 extern "C" int fn_80018C80(void* ai, int arg, float angle);
-// inferred: game settings (lbl_8087F0A8), only the field read here
-struct AiSettings_unk {
-    unsigned char m000[0x468];
-    float m468; // inferred: factor applied to the wait time of characters with CharaTask::mFlag10
-};
-extern "C" AiSettings_unk* lbl_8087F0A8;
+extern "C" GameConfig_unk* lbl_8087F0A8;
 extern "C" GameTask* lbl_8087F430;
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
 extern "C" int fn_8003F440(CharaTask* chara, CharaStatusPair_unk* skill);
@@ -291,7 +287,7 @@ extern "C" void fn_8001AEDC(unsigned int order, int* a, int* b, int* c, int* d) 
         int time = *b;
         CharaTask* other = (CharaTask*)*a;
         if (other != 0 && other->mFlag10) {
-            time = time * lbl_8087F0A8->m468;
+            time = time * lbl_8087F0A8->mBattleWaitRatio;
         }
         if (self->mType == 3) {
             time = AI_MAX(time + fn_800142D4(self), 0);

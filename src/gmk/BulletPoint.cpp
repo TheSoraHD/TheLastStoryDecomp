@@ -1,3 +1,4 @@
+#include "game/GameConfig_unk.h"
 #include "game/GameTask.h"
 #include "gmk/BulletPoint.h"
 #include "game/BattleTask.h"
@@ -14,12 +15,7 @@
 extern "C" int rand();
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 extern "C" GameTask* lbl_8087F430;
-// inferred: game settings
-struct BulletSettings_unk {
-    unsigned char m00[0x30];
-    int mFps; // 0x30: inferred: frames per second
-};
-extern "C" BulletSettings_unk* lbl_8087F0A8;
+extern "C" GameConfig_unk* lbl_8087F0A8;
 // inferred: bullet pool (class unknown)
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
 extern "C" HitInfo_unk* fn_80219E6C(int id);          // inferred: bullet data by id
@@ -27,7 +23,7 @@ extern "C" int fn_800EFD04(int id);                   // inferred: effect resour
 extern "C" int fn_800EFDA0(int id);
 // inferred: gravity per frame (names invented)
 inline float Gravity_unk() {
-    return -98.1f / (float)(lbl_8087F0A8->mFps * lbl_8087F0A8->mFps);
+    return -98.1f / (float)(lbl_8087F0A8->m030 * lbl_8087F0A8->m030);
 }
 // inferred: scale of the shot (an inline function: its constant goes before 1.0f in the pool)
 inline float ShotScale_unk() { return 0.1f; }

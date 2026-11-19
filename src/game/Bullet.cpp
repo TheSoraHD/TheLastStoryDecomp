@@ -1,5 +1,6 @@
 // inferred file name: from the RTTI of Bullet (vtable 0x80779F10). The boot sequence task before it is
 // game/BootTask.cpp.
+#include "game/GameConfig_unk.h"
 #include "atn/RenderSetting_unk.h"
 #include "game/Bullet.h"
 #include "game/GameTask.h"
@@ -23,14 +24,7 @@
 #include "game/GameVoice.h"
 #include "atn/FixedArray.h"
 
-// inferred: game settings (lbl_8087F0A8); only the fields read here
-struct BootSettings_unk {
-    unsigned char m000[0x30];
-    int m30; // inferred: frames per second
-    unsigned char m034[0x1B4 - 0x34];
-    char m1B4[1]; // inferred: name of the sequence started after the boot
-};
-extern "C" BootSettings_unk* lbl_8087F0A8;
+extern "C" GameConfig_unk* lbl_8087F0A8;
 
 Bullet::Bullet()
     : m04(0), m08(0.0f, 0.0f, 0.0f), m14(0.0f, 0.0f, 0.0f), m20(0.0f, 0.0f, 0.0f), m5C(0.1f), m60(0), m64(0),
@@ -412,14 +406,14 @@ void Bullet::vf10() {
     signed char kind = m68->m02;
     if (kind == 1 || kind == 5) {
         if ((m68->mAC & 0x8000) != 0x8000 || !HasFlag_unk(0x10)) {
-            m20.y += dt * (-98.1f / (float)(lbl_8087F0A8->m30 * lbl_8087F0A8->m30));
+            m20.y += dt * (-98.1f / (float)(lbl_8087F0A8->m030 * lbl_8087F0A8->m030));
         }
     }
     if (HasFlag_unk(0x800000)) {
         if (m20.y < 0.0f) {
             m20.y *= 0.8f;
         }
-        m20.y += 5.0f * (dt * -(-98.1f / (float)(lbl_8087F0A8->m30 * lbl_8087F0A8->m30)));
+        m20.y += 5.0f * (dt * -(-98.1f / (float)(lbl_8087F0A8->m030 * lbl_8087F0A8->m030)));
     }
     fn_8010F4BC();
     if (!HasFlag_unk(0x200000)) {
@@ -451,7 +445,7 @@ void Bullet::vf14(const Mtx m) {
     m78 += m80 * dt;
     signed char kind = m68->m02;
     if (kind == 1 || kind == 5) {
-        m20.y += -98.1f / (float)(lbl_8087F0A8->m30 * lbl_8087F0A8->m30);
+        m20.y += -98.1f / (float)(lbl_8087F0A8->m030 * lbl_8087F0A8->m030);
     }
     fn_8010F4BC();
 }

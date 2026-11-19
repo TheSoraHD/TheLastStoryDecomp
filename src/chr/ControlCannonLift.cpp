@@ -1,3 +1,4 @@
+#include "game/GameConfig_unk.h"
 #include "chr/ControlCannonLift.h"
 #include "game/GameTask.h"
 #include "game/CharaTask.h"
@@ -50,12 +51,7 @@ struct ItemState_unk {
 };
 extern "C" ItemState_unk* lbl_8087F628;
 
-// inferred: pad state at +0x48C of the object behind lbl_8087F0A8 (class unknown)
-struct Unk_8087F0A8 {
-    unsigned char m000[0x48C];
-    unsigned char mInput[1]; // 0x48C
-};
-extern "C" Unk_8087F0A8* lbl_8087F0A8;
+extern "C" GameConfig_unk* lbl_8087F0A8;
 
 extern "C" GameTask* lbl_8087F430;
 
@@ -216,7 +212,7 @@ int ControlCannonLift::vf0C() {
             msg.m10 = (int)mChara;
             mCannon->vf40(&msg);
         }
-    } else if (chara->mType == 0 && ((Input_unk*)lbl_8087F0A8->mInput)->fn_801240B4(0x20)) {
+    } else if (chara->mType == 0 && (&lbl_8087F0A8->mInput)->fn_801240B4(0x20)) {
         m0C = true;
     } else {
         m0C = false;
@@ -365,10 +361,10 @@ int ControlCannonTarget::vf0C() {
                 queen2->m1544 = 1;
             }
         }
-        if (((Input_unk*)lbl_8087F0A8->mInput)->fn_801231D0(0x21)) {
+        if ((&lbl_8087F0A8->mInput)->fn_801231D0(0x21)) {
             m2C = 1;
             ret = 1;
-        } else if (((Input_unk*)lbl_8087F0A8->mInput)->fn_801231D0(0x1F)) {
+        } else if ((&lbl_8087F0A8->mInput)->fn_801231D0(0x1F)) {
             mChara->fn_801750FC();
             ret = 1;
         }

@@ -1,3 +1,4 @@
+#include "game/GameConfig_unk.h"
 #include "game/Em208Queen.h"
 #include "atn/RenderManager.h"
 #include "game/CharaManager.h"
@@ -39,12 +40,7 @@ extern "C" int fn_8004ED34(void* colli, atn::ColliResult_unk* result, const atn:
 extern "C" void* lbl_8087EE98; // inferred: collision world
 extern "C" void fn_8004D388(void* mgr, atn::ColliResult_unk* result, CharaTask::Sphere_unk* sphere, atn::Vector3* move,
                             unsigned int mask, void* ignore, int arg, float radius); // inferred: sweep test
-// inferred: frame rate (as in chr/ControlTurnQuadruped.cpp)
-struct System_unk {
-    unsigned char m00[0x30];
-    int mFrameRate; // 0x30
-};
-extern "C" System_unk* lbl_8087F0A8;
+extern "C" GameConfig_unk* lbl_8087F0A8;
 // inferred: debug drawing (lbl_8087EEB0, as in gmk/Brazier.cpp)
 extern "C" int fn_8004ECC0(void* world, atn::Vector3* hit, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg); // inferred: ray test
@@ -647,7 +643,7 @@ void Em208Queen::fn_802CA490() {
     if (mMotion.mTracks[0].m08 > 36.0f && mMotion.mTracks[0].m08 <= 56.0f) {
         if (m153C != 0) {
             atn::Vector3 move = m1530;
-            int fps = lbl_8087F0A8->mFrameRate;
+            int fps = lbl_8087F0A8->m030;
             move.y += -98.1f / (float)(fps * fps);
             atn::ColliResult_unk result;
             CharaTask::Sphere_unk sphere = fn_80176548(mPos);

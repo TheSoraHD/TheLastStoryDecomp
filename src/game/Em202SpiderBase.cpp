@@ -1,3 +1,4 @@
+#include "game/GameConfig_unk.h"
 #include "game/GameTask.h"
 #include "game/Em202SpiderBase.h"
 #include "atn/Material_unk.h"
@@ -37,12 +38,7 @@ extern "C" double sqrt(double x);
 extern "C" void* lbl_8087EE98; // inferred: collision world
 extern "C" int fn_8004D314(void* world, int arg, const atn::Vector3* pos, const atn::Vector3* dir, unsigned int mask,
                            int arg5, int arg6, float radius); // inferred: sphere test
-// inferred: frame rate (as in chr/ControlTurnQuadruped.cpp)
-struct System_unk {
-    unsigned char m00[0x30];
-    int mFrameRate; // 0x30
-};
-extern "C" System_unk* lbl_8087F0A8;
+extern "C" GameConfig_unk* lbl_8087F0A8;
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the next effects
@@ -321,7 +317,7 @@ void Em202SpiderBase::vf10() {
                     mColli.mFlags |= 1;
                 } else {
                     MovePos_unk(this, m1548);
-                    int fps = lbl_8087F0A8->mFrameRate;
+                    int fps = lbl_8087F0A8->m030;
                     m1548.y += -98.1f / (float)(fps * fps);
                 }
             }
@@ -490,7 +486,7 @@ void Em202SpiderBase::vf80(const atn::Vector3& pos, const atn::Vector3& offset) 
     m1548 = (dest - mPos) * inv;
     m1590 = 0;
     mColli.mFlags &= ~1;
-    int fps = lbl_8087F0A8->mFrameRate;
+    int fps = lbl_8087F0A8->m030;
     m1548.y -= 0.5f * (frames * (-98.1f / (float)(fps * fps)));
 }
 

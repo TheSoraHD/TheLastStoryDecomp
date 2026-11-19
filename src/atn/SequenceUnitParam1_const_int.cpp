@@ -1,6 +1,7 @@
 // atn/SequenceUnitParam1_const_int.cpp: boot of the game sequences (name of the unit taken from the
 // template; the real file is the one that registers BootTask/Title/Multiplayer/GameLoad/Game/Strap in the
 // SequenceHolder tables, created from `main`, plus the debug map tables).
+#include "game/GameConfig_unk.h"
 #include "atn/SequenceControl.h"
 #include "game/GameTask.h"
 #include "atn/SequenceHolder.h"
@@ -44,12 +45,7 @@ public:
 };
 } // namespace MP
 
-// inferred: game settings (lbl_8087F0A8), only the boot mode is read here
-struct BootSettings_unk {
-    char m00[0x1B0];
-    int mBootMode; // 0x1B0
-};
-extern "C" BootSettings_unk* lbl_8087F0A8;
+extern "C" GameConfig_unk* lbl_8087F0A8;
 
 // inferred: GameTask::Option is passed by value to SequenceUnitParam1 (copied by the caller)
 template <>
@@ -217,7 +213,7 @@ SequenceBoot_unk::SequenceBoot_unk(Task* parent) : mParent(parent) {
     mHolders[2] = new ((MemoryTag)1, "", "", 0) SequenceHolder;
     mHolders[3] = new ((MemoryTag)1, "", "", 0) SequenceHolder;
     SequenceControl::fn_800C3610(mParent, mHolders[0]);
-    if (lbl_8087F0A8->mBootMode == 2) {
+    if (lbl_8087F0A8->m1B0 == 2) {
         RegistBoot_unk("BootTask");
     } else {
         fn_80572BA0();

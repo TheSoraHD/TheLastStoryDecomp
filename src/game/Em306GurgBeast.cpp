@@ -1,3 +1,4 @@
+#include "game/GameConfig_unk.h"
 #include "atn/RenderSetting_unk.h"
 #include "game/GameTask.h"
 #include "macros.h"
@@ -31,14 +32,9 @@ extern "C" float fn_80011220(float x);       // inferred: fabs (weak copy of ano
 extern "C" float fn_801A03E8(const atn::Vector3& a, const atn::Vector3& b); // inferred: dot product
 BattleTask* fn_8013A194();                   // inferred: effect/bullet manager (weak copy of another file)
 void* fn_801404F8();                         // inferred: collision world (weak copy of another file)
-// inferred: game settings (lbl_8087F0A8); frames per second at 0x30 (as in gmk/Cannonball.cpp)
-struct BeastSettings_unk {
-    unsigned char m00[0x30];
-    int mFps;
-};
-extern "C" BeastSettings_unk* fn_800F52F8();
+extern "C" GameConfig_unk* fn_800F52F8();
 extern "C" RenderSetting_unk* lbl_8087EFA8;
-extern "C" BeastSettings_unk* lbl_8087F0A8;
+extern "C" GameConfig_unk* lbl_8087F0A8;
 extern "C" void* lbl_8087EE98; // inferred: collision world
 extern "C" double sqrt(double x);
 extern "C" int fn_8004D388(void* world, atn::ColliResult_unk* result, atn::Vector3* sphere, atn::Vector3* move,
@@ -55,8 +51,8 @@ extern "C" inline float fn_802F0988(RenderSetting_unk* params) {
 extern "C" inline RenderSetting_unk* fn_802F0990() {
     return lbl_8087EFA8;
 }
-extern "C" inline float fn_802F0998(const BeastSettings_unk* settings) {
-    return -98.1f / (float)(settings->mFps * settings->mFps);
+extern "C" inline float fn_802F0998(const GameConfig_unk* settings) {
+    return -98.1f / (float)(settings->m030 * settings->m030);
 }
 
 extern "C" void* lbl_8087EF70; // inferred: pad
@@ -838,7 +834,7 @@ void Em306GurgBeast::fn_802F09D4(const atn::Vector3* target, float rate) {
     vel.y *= MIN(1.0f, dt);
     vel.z *= MIN(1.0f, dt);
     if ((mStatus.mParamB.m9C & 1U) != 1U) {
-        m574.y += dt * (-98.1f / (float)(lbl_8087F0A8->mFps * lbl_8087F0A8->mFps));
+        m574.y += dt * (-98.1f / (float)(lbl_8087F0A8->m030 * lbl_8087F0A8->m030));
     }
     vel += m574;
     if (vel.y < -6.0f) {

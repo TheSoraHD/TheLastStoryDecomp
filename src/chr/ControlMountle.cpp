@@ -1,5 +1,6 @@
 // Climbing onto a ledge (ControlMountle, ControlMountleQuadruped), onto a guarding character
 // (ControlGuardMountle) or a wall (ControlWallMountle), and the jump towards a ledge (ControlJump).
+#include "game/GameConfig_unk.h"
 #include "atn/RenderSetting_unk.h"
 #include "chr/ControlMountle.h"
 #include "game/GameVoice.h"
@@ -17,17 +18,10 @@ extern "C" float fn_801A03E8(const atn::Vector3& a, const atn::Vector3& b); // i
 
 extern "C" RenderSetting_unk* lbl_8087EFA8;
 
-// inferred: game settings (lbl_8087F0A8, as in chr/ControlChant.cpp); names invented
-struct MountleSettings_unk {
-    unsigned char m000[0x30];
-    int m30; // inferred: frames per second (the gravity is divided by its square)
-    unsigned char m034[0x2C0 - 0x34];
-    int m2C0; // inferred: any ledge can be jumped to (debug)
-};
-extern "C" MountleSettings_unk* lbl_8087F0A8;
+extern "C" GameConfig_unk* lbl_8087F0A8;
 // inferred: gravity per frame (as in gmk/Cannonball.cpp)
-inline float Gravity_unk(MountleSettings_unk* settings) {
-    return -98.1f / (float)(settings->m30 * settings->m30);
+inline float Gravity_unk(GameConfig_unk* settings) {
+    return -98.1f / (float)(settings->m030 * settings->m030);
 }
 
 extern "C" void* lbl_8087EE98;
@@ -254,7 +248,7 @@ int ControlGuardMountle::vf0C() {
         float speed = m->mTracks[0].m0C;
         atn::Vector3 move = m08 * m20 * lbl_8087EFA8->m3A4 * speed;
         float scale = lbl_8087EFA8->m3A4;
-        float g = -98.1f / (lbl_8087F0A8->m30 * lbl_8087F0A8->m30);
+        float g = -98.1f / (lbl_8087F0A8->m030 * lbl_8087F0A8->m030);
         m24 += g * scale;
         move.y = m24 - 1.0f;
         atn::Vector3 old = mChara->mPos;
@@ -434,7 +428,7 @@ bool ControlJump::fn_801C2198(atn::Vector3& out, const atn::Vector3& dir) {
     from.y -= 3.0f;
     to.y -= 3.0f;
     if (fn_8004ED34(fn_801404F8(), &res, &from, &to, mChara->fn_80179D44() | 0x80000000, 0, 0)) {
-        if ((res.m3C & 0x400) == 0x400 || lbl_8087F0A8->m2C0 != 0) {
+        if ((res.m3C & 0x400) == 0x400 || lbl_8087F0A8->mWallMountleTest != 0) {
             to = res.m04 - res.m28 * 5.0f;
             float dist = (to - from).Length_unk();
             out.y = (sDownHeight1 - sDownHeight0) * MIN(1.0f, MAX(0.0f, (dist - 20.0f) / 40.0f)) + sDownHeight0;
@@ -455,7 +449,7 @@ bool ControlJump::fn_801C2198(atn::Vector3& out, const atn::Vector3& dir) {
     from.y += 3.0f;
     to.y += 3.0f;
     if (fn_8004ED34(fn_801404F8(), &res, &from, &to, mChara->fn_80179D44() | 0x80000000, 0, 0)) {
-        if ((res.m3C & 0x400) == 0x400 || lbl_8087F0A8->m2C0 != 0) {
+        if ((res.m3C & 0x400) == 0x400 || lbl_8087F0A8->mWallMountleTest != 0) {
             float dist = (res.m04 - from).Length_unk();
             out.y = (sUpHeight1 - sUpHeight0) * MIN(1.0f, MAX(0.0f, (dist - 20.0f) / 40.0f)) + sUpHeight0;
             m2C = (sUpSpeed1 - sUpSpeed0) * MIN(1.0f, MAX(0.0f, (dist - 20.0f) / 40.0f)) + sUpSpeed0;

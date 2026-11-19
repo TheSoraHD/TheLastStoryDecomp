@@ -1,14 +1,10 @@
+#include "game/GameConfig_unk.h"
 #include "atn/RenderSetting_unk.h"
 #include "chr/ControlTurnQuadruped.h"
 #include "atn/ColliBase.h"
 
 
-// inferred: globals of unknown classes
-struct System_unk {
-    unsigned char m00[0x30];
-    int mFrameRate; // 0x30
-};
-extern "C" System_unk* lbl_8087F0A8;
+extern "C" GameConfig_unk* lbl_8087F0A8;
 extern "C" RenderSetting_unk* lbl_8087EFA8;
 extern "C" void* lbl_8087EE98;
 extern "C" void fn_8004D388(void* mgr, atn::ColliResult_unk* result, chr::Chara_unk::Sphere_unk* sphere, atn::Vector3* move,
@@ -83,7 +79,7 @@ int ControlTurnQuadruped::vf0C() {
     m.SetIdentity();
     MtxRotZYX_unk(m.m, mRot);
     PSMTXMultVec(m.m, &move, &move);
-    int fps = lbl_8087F0A8->mFrameRate;
+    int fps = lbl_8087F0A8->m030;
     float scale = lbl_8087EFA8->m3A4;
     move.y += -98.1f / (float)(fps * fps);
     move *= scale;

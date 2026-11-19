@@ -1,3 +1,4 @@
+#include "game/GameConfig_unk.h"
 #include "atn/RenderSetting_unk.h"
 #include "game/Em316LaserSphere.h"
 #include "atn/Csv.h"
@@ -1050,12 +1051,7 @@ void Em316LaserSphere::fn_80319C90() {
     fn_8023A680(lbl_8087F3C0, &m15A8, -1, 5, &m15E8, 0, 0, 0, 1.0f, 0, -1, 1);
 }
 
-// inferred: settings (lbl_8087F0A8, as in game/CopyRobotTask.cpp): frames per second at 0x30
-struct LaserSettings_unk {
-    unsigned char m00[0x30];
-    int mFrameRate;
-};
-extern "C" LaserSettings_unk* lbl_8087F0A8;
+extern "C" GameConfig_unk* lbl_8087F0A8;
 
 // NONMATCHING: 99.23% - FPR numbering of the gravity (f3-f6 permuted) and r3/r4 of the copy to m1540
 // (__VecCopy family); ~10 variants
@@ -1075,7 +1071,7 @@ void Em316LaserSphere::fn_8031A484() {
             m1540.y = 0.0f;
         }
     }
-    int fps = lbl_8087F0A8->mFrameRate;
+    int fps = lbl_8087F0A8->m030;
     float g = -98.1f / (float)(fps * fps);
     m154C = 1.5f * (lbl_8087EFA8->m3A4 * g);
     CharaTask* caught = m15B4;
