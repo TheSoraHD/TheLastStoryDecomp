@@ -42,7 +42,6 @@ struct CosEditListItem_unk {
 extern "C" CosEditListItem_unk* fn_80211480(int id);    // inferred: item data
 extern "C" int fn_80206BE4(void* item);                  // inferred: item id of a protector
 extern "C" int fn_8020EF80(void* entry);                 // inferred: item id of an equipment entry
-extern "C" void fn_804A3C24(MenuCommonTask* menu, const wchar_t* text, int id); // inferred: help text
 extern "C" void fn_801E7D78(atn::D3Anime* anime, void* item, int arg); // inferred: shows a protector
 extern "C" void fn_801E7EA8(atn::D3Anime* anime, void* entry, int arg); // inferred: shows an equipment
 
@@ -58,7 +57,7 @@ void CosEditProtector::fn_801D80BC() {
         fn_801E7D78(mSelect, item, 1);
         CosEditListItem_unk* data = fn_80211480(fn_80206BE4(item));
         if (data != 0) {
-            fn_804A3C24(MenuCommonTask::sInstance, data->mHelp, 0);
+            MenuCommonTask::sInstance->fn_804A3C24(data->mHelp, 0);
         }
         break;
     }
@@ -74,7 +73,7 @@ void CosEditProtector::fn_801D80BC() {
         fn_801E7EA8(mSelect, entry, 1);
         CosEditListItem_unk* data = fn_80211480(fn_8020EF80(entry));
         if (data != 0) {
-            fn_804A3C24(MenuCommonTask::sInstance, data->mHelp, 0);
+            MenuCommonTask::sInstance->fn_804A3C24(data->mHelp, 0);
         }
         break;
     }
@@ -208,7 +207,7 @@ void CosEditProtector::fn_801D8560() {
             fn_801E7EA8(mSelect, e->mItem, 1);
             CosEditListItem_unk* data = fn_80211480(fn_8020EF80(e->mItem));
             if (data != 0) {
-                fn_804A3C24(MenuCommonTask::sInstance, data->mHelp, 0);
+                MenuCommonTask::sInstance->fn_804A3C24(data->mHelp, 0);
             }
         }
     }
@@ -350,7 +349,7 @@ void CosEditProtector::fn_801D8CC4() {
         fn_801E7D78(mSelect, item, e->mIndex < 0);
         CosEditListItem_unk* data = fn_80211480(fn_80206BE4(item));
         if (data != 0) {
-            fn_804A3C24(MenuCommonTask::sInstance, data->mHelp, 0);
+            MenuCommonTask::sInstance->fn_804A3C24(data->mHelp, 0);
         }
     }
     void* pad = lbl_8087EF70;

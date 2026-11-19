@@ -71,6 +71,7 @@ public:
     void fn_804A4300(const wchar_t*);
     void fn_804A62C8(int, int);
     void fn_804A7DD4(int);
+    void fn_804A3C24(const wchar_t*, int);
     void ResetInfo_unk(); // inferred: inline body of fn_804A313C (name invented)
     void fn_804A660C(void* anime, atn::D2A_Common* a, atn::Color* b, void* c); // inferred: event of a d2anime
     void fn_804A71F0(void* layout, atn::D2A_Common* a, atn::Color* b, void* c); // inferred: event of a layout anime

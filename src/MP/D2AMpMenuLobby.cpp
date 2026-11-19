@@ -107,7 +107,6 @@ struct MpLobbyAids_unk {
     unsigned char* mAids;
 };
 extern "C" int fn_804EB1AC(MpLobbySession_unk* s); // inferred: nonzero for the host
-extern "C" void fn_804A3C24(MenuCommonTask* menu, const wchar_t* text, int arg); // inferred: help text
 extern "C" void fn_804DD9CC(MpLobbySession_unk* s, MpLobbyPlayerInfo_unk* player, int face); // inferred: sets the face (host)
 extern "C" unsigned int fn_804FAB40(MpLobbySession_unk* s, int face, MpLobbyPlayerInfo_unk* player, int* id, int arg); // inferred: requests the face
 extern "C" int fn_804F5E38(MpLobbySession_unk* s, unsigned char id);  // inferred: state of a request
@@ -1337,9 +1336,9 @@ void D2AMpMenuLobby::fn_804C0EA4() {
     }
     if (D2ACommonDialog::sInstance->m4C == 0) {
         if (chara >= 0) {
-            fn_804A3C24(MenuCommonTask::sInstance, lbl_8087F86C->Get_unk(chara + 0xB3), 0);
+            MenuCommonTask::sInstance->fn_804A3C24(lbl_8087F86C->Get_unk(chara + 0xB3), 0);
         } else {
-            fn_804A3C24(MenuCommonTask::sInstance, lbl_8087F86C->Get_unk(0xC9), 0);
+            MenuCommonTask::sInstance->fn_804A3C24(lbl_8087F86C->Get_unk(0xC9), 0);
         }
     }
 }
@@ -1383,7 +1382,7 @@ void D2AMpMenuLobby::fn_804C0F88() {
                 MenuCommonTask::sInstance->fn_804A5D34(0, lbl_8087F86C->Get_unk(0xCA), L"", L"");
             }
         } else {
-            fn_804A3C24(MenuCommonTask::sInstance, lbl_8087F86C->Get_unk(0xE1), 0);
+            MenuCommonTask::sInstance->fn_804A3C24(lbl_8087F86C->Get_unk(0xE1), 0);
         }
         if (!host) {
             if (++mDD0 > 240) {

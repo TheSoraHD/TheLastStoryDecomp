@@ -38,7 +38,6 @@ extern "C" void fn_804EA6B0(MpMsgSession_unk* s, int value, int b);
 extern "C" void fn_804EA810(MpMsgSession_unk* s, int value, int b);
 extern "C" void fn_804EA608(MpMsgSession_unk* s, int time, int b);
 extern "C" int fn_804EAA50(MpMsgSession_unk* s); // inferred: nonzero for the host of the room
-extern "C" void fn_804A3C24(MenuCommonTask* menu, const wchar_t* text, int arg); // inferred: help text
 extern "C" void fn_804A4738(MP::MpD2A_unk* bar, int top, int count, int visible); // inferred: scroll bar
 extern "C" void fn_804A53D4(MenuCommonTask* menu, int a, int b, const MP::MpRect_unk* rect, int c);
 extern "C" int fn_804DCA4C(MpMsgSession_unk* s, int id, int arg); // inferred: state of a friend
@@ -944,7 +943,7 @@ static void SetTopCursor_unk(D2AMpMenu* menu, MpD2A_unk* base) {
         fn_804A53D4(MenuCommonTask::sInstance, 0, 0, &rect, 0);
         const wchar_t* text = menu->fn_804B424C(menu->mBC, menu->mE4);
         if (wcscmp(text, L"") != 0) {
-            fn_804A3C24(MenuCommonTask::sInstance, text, 0);
+            MenuCommonTask::sInstance->fn_804A3C24(text, 0);
         }
     }
 }
@@ -1185,7 +1184,7 @@ void D2AMpMenu::fn_804B3838() {
         for (int i = 0; i < 10; i++) {
             m8C[i]->mFlags &= ~4;
         }
-        fn_804A3C24(MenuCommonTask::sInstance, lbl_8087F86C->Get_unk(mC8 + 0xAD), 0);
+        MenuCommonTask::sInstance->fn_804A3C24(lbl_8087F86C->Get_unk(mC8 + 0xAD), 0);
         fn_804A4738(mB4, mLists[mC8]->m00, mLists[mC8]->m04, 10);
     }
 }

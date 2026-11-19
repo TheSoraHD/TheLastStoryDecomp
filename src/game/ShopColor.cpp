@@ -6,6 +6,7 @@
 #include "math/Vec.h"
 #include "atn/D2A_TaskInstanceC.h"
 #include "atn/TextTable_unk.h"
+#include "game/MenuCommonTask.h"
 
 extern "C" int sprintf(char* s, const char* format, ...);
 extern "C" int strcmp(const char* a, const char* b);
@@ -53,14 +54,9 @@ extern "C" int fn_804444E8(void* party, int id); // inferred: number of items
 extern "C" void fn_8044441C(void* party, int id, int num); // inferred: removes items
 extern "C" int fn_80444BE8(void* party, ShopItem_unk* item);
 extern "C" ShopUV_unk fn_80444C50(void* party, int icon);
-class MenuCommonTask {
-public:
-    static MenuCommonTask* sInstance;
-};
 extern "C" void fn_804A5824(MenuCommonTask* menu, atn::Task* anime, const char* name, int end);
 extern "C" void fn_804A55FC(MenuCommonTask* menu, atn::Task* id, const char* name, const ShopPoint_unk* rect,
                             int end);
-extern "C" void fn_804A3C24(MenuCommonTask* menu, const wchar_t* text, int id);
 extern "C" void fn_804A39EC(ShopD2A_unk* anime, int arg1, int repeat, float frame, float speed);
 extern "C" void fn_804A3A68(ShopLayout_unk* layout, int arg1, int repeat, float frame, float speed);
 
@@ -410,7 +406,7 @@ void ShopColor::fn_805883D8(ShopColorEntry_unk* entry) {
     void* party = Inventory::instance_;
     ShopItem_unk* item = fn_80211480(entry->mId);
     if (item != 0) {
-        fn_804A3C24(MenuCommonTask::sInstance, item->mText, 0);
+        MenuCommonTask::sInstance->fn_804A3C24(item->mText, 0);
     }
     ShopPoint_unk pos;
     for (int i = 0; i < 3; i++) {

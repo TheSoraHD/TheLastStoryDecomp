@@ -44,7 +44,6 @@ extern "C" GameConfig_unk* lbl_8087F0A8;
 extern "C" MP::MpMsgTable_unk* lbl_8087F1E4; // inferred: camp message table (same layout as lbl_8087F86C)
 extern "C" void fn_804A4738(MP::MpD2A_unk* bar, int top, int count, int visible); // inferred: scroll bar
 extern "C" int wcscmp(const wchar_t* a, const wchar_t* b);
-extern "C" void fn_804A3C24(MenuCommonTask* menu, const wchar_t* text, int arg); // inferred: help text
 extern "C" void fn_804A53D4(MenuCommonTask* menu, int a, int b, const MP::MpRect_unk* rect, int c); // inferred: cursor
 
 extern "C" MpMsgData_unk* lbl_8087F628;
@@ -786,9 +785,9 @@ void D2AMpMenuSetMessage::fn_804CB74C() {
         fn_804CB0B8();
         if (mE4 < 19) {
             fn_800DD3FC(text, lbl_8087F86C->Get_unk(0x103), GetCharaName_unk(mE4));
-            fn_804A3C24(MenuCommonTask::sInstance, text, 0);
+            MenuCommonTask::sInstance->fn_804A3C24(text, 0);
         } else if (mE4 < 22) {
-            fn_804A3C24(MenuCommonTask::sInstance, lbl_8087F86C->Get_unk(mE4 + 0xF1), 0);
+            MenuCommonTask::sInstance->fn_804A3C24(lbl_8087F86C->Get_unk(mE4 + 0xF1), 0);
         }
     }
 }
@@ -812,7 +811,7 @@ void D2AMpMenuSetMessage::fn_804CBA1C() {
         if (mE4 < 20) {
             const wchar_t* text = lbl_8087F86C->Get_unk(mE4 + 0x107);
             if (wcscmp(text, L"") != 0) {
-                fn_804A3C24(MenuCommonTask::sInstance, text, 0);
+                MenuCommonTask::sInstance->fn_804A3C24(text, 0);
             }
         }
     }

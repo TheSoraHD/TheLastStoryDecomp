@@ -66,7 +66,6 @@ struct NewCampOptionCamp_unk {
 };
 extern "C" GameTask* lbl_8087F430;
 
-extern "C" void fn_804A3C24(MenuCommonTask* menu, const wchar_t* text, int id);
 extern "C" void fn_804A53D4(MenuCommonTask* menu, atn::Task* task, const char* name, const NewCampPartsPoint_unk* rect,
                             int end);
 extern "C" void fn_804A5E40(MenuCommonTask* menu, int type, atn::Vector3 ofs, int id);
@@ -1127,14 +1126,14 @@ inline void ShowHelp_unk(const NewCampOptionDef_unk* def) {
         if (def->mHelp.mId == 0xF4241) {
             if (fn_800A58D0(lbl_8087EF70, 0) != 0) {
                 menu = MenuCommonTask::sInstance;
-                fn_804A3C24(menu, fn_80116FC0(0, 0xF4258), 1);
+                menu->fn_804A3C24(fn_80116FC0(0, 0xF4258), 1);
             } else {
                 menu = MenuCommonTask::sInstance;
-                fn_804A3C24(menu, fn_80116EB8(&def->mHelp), 1);
+                menu->fn_804A3C24(fn_80116EB8(&def->mHelp), 1);
             }
         } else {
             menu = MenuCommonTask::sInstance;
-            fn_804A3C24(menu, fn_80116EB8(&def->mHelp), 1);
+            menu->fn_804A3C24(fn_80116EB8(&def->mHelp), 1);
         }
     }
 }
@@ -1263,7 +1262,7 @@ void NewCampPartsOption::fn_80525F08() {
         }
     }
     menu = MenuCommonTask::sInstance;
-    fn_804A3C24(menu, fn_80116EB8(&sSwapHelp[mE4]), 1);
+    menu->fn_804A3C24(fn_80116EB8(&sSwapHelp[mE4]), 1);
 }
 
 void NewCampPartsOption::vf40(void* group) {

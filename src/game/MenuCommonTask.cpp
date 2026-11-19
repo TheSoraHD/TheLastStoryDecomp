@@ -441,7 +441,7 @@ struct __vec_split_unk<basic_string<wchar_t> > : public __vec_storage_unk<basic_
 extern "C" wchar_t lbl_8087E0E0[2]; // inferred: empty text
 
 // inferred: shows a description (up to three lines) in the info bar
-extern "C" void fn_804A3C24(MenuCommonTask* menu, const wchar_t* text, int id) {
+void MenuCommonTask::fn_804A3C24(const wchar_t* text, int id) {
     if (text == 0) {
         return;
     }
@@ -450,8 +450,8 @@ extern "C" void fn_804A3C24(MenuCommonTask* menu, const wchar_t* text, int id) {
     while (lines.size() < 3) {
         lines.push_back(std::basic_string<wchar_t>(lbl_8087E0E0));
     }
-    menu->fn_804A5D34(0, lines[0].data(), lines[1].data(), lines[2].data());
-    menu->m1C4 = id;
+    fn_804A5D34(0, lines[0].data(), lines[1].data(), lines[2].data());
+    m1C4 = id;
 }
 
 // inferred: info bar helpers (names keep the address)

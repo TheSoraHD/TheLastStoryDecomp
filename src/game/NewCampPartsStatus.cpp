@@ -14,6 +14,7 @@
 #include "game/PlayerManager.h"
 #include "std/string_members.h"
 #include "atn/D2A_TaskInstanceC.h"
+#include "game/MenuCommonTask.h"
 
 extern "C" int sprintf(char* s, const char* format, ...);
 extern "C" int strcmp(const char* a, const char* b);
@@ -107,11 +108,6 @@ struct NewCampStatusSkillInfo_unk {
 };
 extern "C" NewCampStatusSkillInfo_unk* fn_8021AF50(int id);
 
-class MenuCommonTask {
-public:
-    static MenuCommonTask* sInstance;
-};
-extern "C" void fn_804A3C24(MenuCommonTask* menu, const wchar_t* text, int id);
 extern "C" void fn_804A5E40(MenuCommonTask* menu, int type, atn::Vector3 ofs, int id);
 extern "C" void fn_804A4AEC(atn::D2ATask_unk* task, CharaIdEntry_unk* item, int cols, int rows);
 
@@ -265,7 +261,7 @@ void NewCampPartsStatus::vf14() {
         if (skill >= 0) {
             NewCampStatusSet_unk& set = mSets[mPage];
             if (skill < (int)set.mSkills.mSize && set.mSkills.mData[skill].mText != 0) {
-                fn_804A3C24(MenuCommonTask::sInstance, set.mSkills.mData[skill].mText, 0);
+                MenuCommonTask::sInstance->fn_804A3C24(set.mSkills.mData[skill].mText, 0);
             }
         }
     }

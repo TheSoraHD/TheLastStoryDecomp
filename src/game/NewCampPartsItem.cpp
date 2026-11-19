@@ -20,7 +20,6 @@ extern "C" void fn_804A436C(int* cursor, int count, int wrap, int step, int arg)
 extern "C" atn::SoundRef fn_80117228(int id);                // inferred: plays a system sound effect
 extern "C" void fn_804A4494(int* cursor, int* top, int count, int page, int a, int b); // inferred: moves a list cursor
 extern "C" const wchar_t* fn_80116FC0(int a, int id);       // inferred: message text
-extern "C" void fn_804A3C24(MenuCommonTask* menu, const wchar_t* text, int arg); // inferred: help text
 extern "C" GameConfig_unk* lbl_8087F0A8;
 // inferred: item data returned by fn_80211480 (only the members used here)
 struct NewCampItemData_unk {
@@ -539,11 +538,11 @@ static inline void ShowHelp_unk(NewCampItemEntry_unk* entry) {
     if (entry->m08 != 0) {
         NewCampItemData_unk* data = fn_80211480(entry->mId);
         if (data != 0) {
-            fn_804A3C24(MenuCommonTask::sInstance, data->mHelp, 0);
+            MenuCommonTask::sInstance->fn_804A3C24(data->mHelp, 0);
         }
     } else {
         MenuCommonTask* menu = MenuCommonTask::sInstance;
-        fn_804A3C24(menu, fn_80116FC0(1, 0x15B), 0);
+        menu->fn_804A3C24(fn_80116FC0(1, 0x15B), 0);
     }
     if (lbl_8087F0A8->mShowReleadBar2 != 0) {
         MenuCommonTask::sInstance->fn_804A7DD4(entry->mId);

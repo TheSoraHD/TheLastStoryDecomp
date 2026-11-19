@@ -32,7 +32,6 @@ extern "C" int fn_804FB620(MpSession_unk* s, int mode); // inferred: highest val
 
 
 extern "C" void fn_804A53D4(MenuCommonTask* menu, int a, int b, const MP::MpRect_unk* rect, int c);
-extern "C" void fn_804A3C24(MenuCommonTask* menu, const wchar_t* text, int arg);
 
 inline void* FindPane_unk(void* layout, const char* name) { return fn_801FEC74(layout, name); }
 
@@ -316,9 +315,9 @@ void D2AMpMenuSetRule::vf14() {
             fn_804A53D4(MenuCommonTask::sInstance, 0, 0, &rect, 0);
         }
         if (m78 == 2) {
-            fn_804A3C24(MenuCommonTask::sInstance, lbl_8087F86C->Get_unk(m68 + 0xD6), 0);
+            MenuCommonTask::sInstance->fn_804A3C24(lbl_8087F86C->Get_unk(m68 + 0xD6), 0);
         } else {
-            fn_804A3C24(MenuCommonTask::sInstance, lbl_8087F86C->Get_unk(m68 + 0xD3), 0);
+            MenuCommonTask::sInstance->fn_804A3C24(lbl_8087F86C->Get_unk(m68 + 0xD3), 0);
         }
         break;
     case 4:

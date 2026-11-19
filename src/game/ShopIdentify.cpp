@@ -95,7 +95,6 @@ extern "C" GameConfig_unk* lbl_8087F0A8;
 extern "C" void fn_804A5824(MenuCommonTask* menu, atn::Task* anime, const char* name, int end);
 extern "C" void fn_804A55FC(MenuCommonTask* menu, atn::Task* id, const char* name, const ShopPoint_unk* rect,
                             int end);
-extern "C" void fn_804A3C24(MenuCommonTask* menu, const wchar_t* text, int id);
 extern "C" void fn_804A39EC(ShopD2A_unk* anime, int arg1, int repeat, float frame, float speed);
 extern "C" void fn_804A3A68(ShopLayout_unk* layout, int arg1, int repeat, float frame, float speed);
 ShopIdentify* ShopIdentify::sInstance;
@@ -566,11 +565,11 @@ void ShopIdentify::fn_80589DE0(ShopIdentifyEntry_unk* entry, int help) {
         if (entry->mDone != 0) {
             ShopItem_unk* info = fn_80211480(entry->mItem);
             if (info != 0) {
-                fn_804A3C24(MenuCommonTask::sInstance, info->mText, 0);
+                MenuCommonTask::sInstance->fn_804A3C24(info->mText, 0);
             }
         } else {
             MenuCommonTask* menu = MenuCommonTask::sInstance;
-            fn_804A3C24(menu, fn_80116FC0(1, 0x15B), 0);
+            menu->fn_804A3C24(fn_80116FC0(1, 0x15B), 0);
         }
         if (lbl_8087F0A8->mShowReleadBar2 != 0) {
             MenuCommonTask::sInstance->fn_804A7DD4(entry->mItem);

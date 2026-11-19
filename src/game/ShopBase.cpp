@@ -134,7 +134,6 @@ extern "C" ShopParams_unk* fn_8020ED84(int slot, int item); // inferred: armour 
 extern "C" int fn_8021C6A4(wchar_t* out, const ShopSkill_unk* skill); // inferred: name of a skill
 extern "C" int fn_8020EF04(int id); // inferred: nonzero for an armour
 extern "C" ShopArmor_unk* fn_8020EFEC(int id);
-extern "C" void fn_804A3C24(MenuCommonTask* menu, const wchar_t* text, int id); // inferred: help text
 extern "C" const wchar_t* fn_80116FC0(int a, int id); // inferred: message text
 extern "C" unsigned long strlen(const char* s);
 extern "C" ShopWeapon_unk* fn_80206C50(int id);
@@ -814,19 +813,19 @@ void ShopBase::fn_80581570(int id, int flag) {
             if (flag) {
                 ShopWeapon_unk* weapon = fn_80206C50(item->mCountId);
                 if (weapon != 0) {
-                    fn_804A3C24(MenuCommonTask::sInstance, weapon->mHelp, 0);
+                    MenuCommonTask::sInstance->fn_804A3C24(weapon->mHelp, 0);
                 }
             } else {
                 MenuCommonTask* menu = MenuCommonTask::sInstance;
-                fn_804A3C24(menu, fn_80116FC0(1, 0x15B), 0);
+                menu->fn_804A3C24(fn_80116FC0(1, 0x15B), 0);
             }
         } else if (fn_8020EF04(item->mCountId)) {
             ShopArmor_unk* armor = fn_8020EFEC(item->mCountId);
             if (armor != 0) {
-                fn_804A3C24(MenuCommonTask::sInstance, armor->mHelp, 0);
+                MenuCommonTask::sInstance->fn_804A3C24(armor->mHelp, 0);
             }
         } else {
-            fn_804A3C24(MenuCommonTask::sInstance, item->mText, 0);
+            MenuCommonTask::sInstance->fn_804A3C24(item->mText, 0);
         }
     }
 }
