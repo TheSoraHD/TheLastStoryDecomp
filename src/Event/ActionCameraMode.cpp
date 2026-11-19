@@ -1,3 +1,4 @@
+#include "Event/Section.h"
 #include "Event/Cut.h"
 #include "atn/RenderManager.h"
 #include "Event/Manager.h"
@@ -39,7 +40,7 @@ struct EventScene_unk {
 namespace Event {
 
 // inferred: camera of the section of an action
-inline EventCamera_unk* GetCamera_unk(ActionOwner_unk* section) {
+inline EventCamera_unk* GetCamera_unk(Section* section) {
     return &lbl_8087F540->mCameras[section->m10];
 }
 
@@ -67,7 +68,7 @@ namespace Event {
 int ActionCameraMode::vf0C(Action* arg, int phase) {
     switch (phase) {
     case 0: {
-        ActionOwner_unk* section = arg->fn_805381A0();
+        Section* section = arg->fn_805381A0();
         EventManager_unk* manager = arg->fn_805381C8();
         int mode = arg->GetParam_unk(0)->m04.i;
         int a = arg->GetParam_unk(1)->m04.i;
@@ -259,7 +260,7 @@ int ActionCameraMode::vf0C(Action* arg, int phase) {
 
 int ActionCameraMode::vf08(Action* arg) {
     EventManager_unk* manager = arg->fn_805381C8();
-    ActionOwner_unk* section = arg->fn_805381A0();
+    Section* section = arg->fn_805381A0();
     float now = manager->m198;
     int length;
     int start = arg->m10;
@@ -284,7 +285,7 @@ int ActionCameraShake::vf0C(Action* arg, int phase) {
     switch (phase) {
     case 0: {
         lbl_8087F540->fn_80481818();
-        ActionOwner_unk* section = arg->fn_805381A0();
+        Section* section = arg->fn_805381A0();
         arg->fn_805381C8();
         atn::Vector3 amp;
         amp.x = arg->GetParam_unk(0)->m04.f;
@@ -310,7 +311,7 @@ int ActionCameraShake::vf0C(Action* arg, int phase) {
 int ActionCameraSetting::vf0C(Action* arg, int phase) {
     if (phase == 0) {
         lbl_8087F540->fn_80481818();
-        ActionOwner_unk* section = arg->fn_805381A0();
+        Section* section = arg->fn_805381A0();
         if (arg->GetParam_unk(0)->m04.i != 0) {
             GetCamera_unk(section)->fn_80112840();
         }
@@ -321,7 +322,7 @@ int ActionCameraSetting::vf0C(Action* arg, int phase) {
 // NONMATCHING: 98.7% - the interpolation factor is in f2 here, f3 in the original (tried ternaries,
 // inverted branches, a copy of the factor)
 int ActionCameraSetting::vf08(Action* arg) {
-    ActionOwner_unk* section = arg->fn_805381A0();
+    Section* section = arg->fn_805381A0();
     EventManager_unk* manager = arg->fn_805381C8();
     float now = manager->m198;
     float left = (float)(arg->m10 + arg->m18) - now;
@@ -673,7 +674,7 @@ static float sFocusSpeed_unk[5][2] = {
 int ActionCameraFocus::vf0C(Action* arg, int phase) {
     if (phase == 0) {
         lbl_8087F540->fn_80481818();
-        ActionOwner_unk* section = arg->fn_805381A0();
+        Section* section = arg->fn_805381A0();
         if (arg->GetParam_unk(0)->m04.i != 0) {
             float a = arg->GetParam_unk(1)->m04.f;
             float b = arg->GetParam_unk(2)->m04.f;
@@ -712,7 +713,7 @@ int ActionCameraMotion::vf0C(Action* arg, int phase) {
     switch (phase) {
     case 0: {
         lbl_8087F540->fn_80481818();
-        ActionOwner_unk* section = arg->fn_805381A0();
+        Section* section = arg->fn_805381A0();
         EventManager_unk* manager = arg->fn_805381C8();
         int id = arg->GetParam_unk(0)->GetIndex_unk();
         float a = arg->GetParam_unk(1)->m04.f;
@@ -735,7 +736,7 @@ int ActionCameraMotion::vf0C(Action* arg, int phase) {
         break;
     }
     case 2: {
-        ActionOwner_unk* section = arg->fn_805381A0();
+        Section* section = arg->fn_805381A0();
         EventManager_unk* manager = arg->fn_805381C8();
         float now = manager->m198;
         float t = -(arg->m18 + ((arg->m14 - arg->m1C) - now));
@@ -763,7 +764,7 @@ int ActionCameraInertia::vf0C(Action* arg, int phase) {
     switch (phase) {
     case 0: {
         lbl_8087F540->fn_80481818();
-        ActionOwner_unk* section = arg->fn_805381A0();
+        Section* section = arg->fn_805381A0();
         float a = arg->GetParam_unk(0)->m04.f;
         float b = arg->GetParam_unk(1)->m04.f;
         GetCamera_unk(section)->fn_80112974(1, a, b);

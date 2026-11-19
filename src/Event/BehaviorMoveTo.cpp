@@ -1,3 +1,4 @@
+#include "Event/Section.h"
 #include "Event/Behavior.h"
 #include "game/CharaTask.h"
 
@@ -7,7 +8,7 @@ namespace Event {
 int BehaviorMoveTo::vf0C(Action* arg, int phase) {
     switch (phase) {
     case 0: {
-        ActionOwner_unk* owner = arg->fn_805381A0();
+        Section* owner = arg->fn_805381A0();
         EventManager_unk* mgr = arg->fn_805381C8();
         int id = owner->m10;
         Actor* actor = mgr->FindActor_unk(id);
@@ -36,7 +37,7 @@ int BehaviorMoveTo::vf0C(Action* arg, int phase) {
 }
 
 int BehaviorMoveTo::vf08(Action* arg) {
-    ActionOwner_unk* owner = arg->fn_805381A0();
+    Section* owner = arg->fn_805381A0();
     EventManager_unk* mgr = arg->fn_805381C8();
     int id = owner->m10;
     Actor* actor = mgr->FindActor_unk(id);

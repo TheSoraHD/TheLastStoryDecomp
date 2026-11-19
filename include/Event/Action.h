@@ -8,7 +8,7 @@
 namespace Event {
 
 class Channel;
-struct ActionOwner_unk;
+class Section;
 class Sequence;
 typedef Sequence EventManager_unk; // inferred: the event manager of the actions is the sequence (Event/Sequence.h)
 
@@ -50,7 +50,7 @@ public:
     virtual void vf0C(int n, int value); // 0x8053A3CC: inferred: sets the value of parameter n
 
     void fn_805377F0(int arg, int index); // inferred: reads the action from the event data
-    ActionOwner_unk* fn_805381A0();       // inferred: section of the channel
+    Section* fn_805381A0();       // inferred: section of the channel
     EventManager_unk* fn_805381C8();      // inferred: sequence of the cut of the section
     atn::Vector3 fn_805382BC(int n) const;    // inferred: a position read from the parameters
     atn::Vector3 fn_805384CC(int n);      // inferred: a position read from the parameters (actor node)

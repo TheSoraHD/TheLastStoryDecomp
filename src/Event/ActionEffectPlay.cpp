@@ -1,3 +1,4 @@
+#include "Event/Section.h"
 #include "Event/Behavior.h"
 #include "Event/ActionProcessors_unk.h"
 #include "game/GameTask.h"
@@ -1625,7 +1626,7 @@ inline Cut* FindCut_unk(EventManager_unk* manager, int index) {
 // the parameters; tried ~13 forms (slot local, early return, switch, frames local, bool flag)
 int ActionDialogSpeaker::vf0C(Action* arg, int phase) {
     if (phase == 0) {
-        ActionOwner_unk* owner = arg->fn_805381A0();
+        Section* owner = arg->fn_805381A0();
         EventManager_unk* manager = arg->fn_805381C8();
         Dialog* dialog = manager->m280;
         if (dialog != 0) {
@@ -1652,7 +1653,7 @@ int ActionDialogSpeaker::vf0C(Action* arg, int phase) {
 static wchar_t sNewLine_unk[] = L"\n";
 int ActionDialogText::vf0C(Action* arg, int phase) {
     if (phase == 0) {
-        ActionOwner_unk* owner = arg->fn_805381A0();
+        Section* owner = arg->fn_805381A0();
         EventManager_unk* manager = arg->fn_805381C8();
         Dialog* dialog = manager->m280;
         if (dialog != 0) {
