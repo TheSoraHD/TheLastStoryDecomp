@@ -1,0 +1,30 @@
+diff --git a/src/game/CharaTask.cpp b/src/game/CharaTask.cpp
+index be1facf..62f6fbc 100644
+--- a/src/game/CharaTask.cpp
++++ b/src/game/CharaTask.cpp
+@@ -10736,7 +10736,14 @@ void Sort_unk(T* first, T* last, Compare comp) {
+         if (n <= 20) {
+             if (first != last) {
+                 for (T* end = last - 1; first != end; first++) {
+-                    T* min = MinElement_unk(first, last, comp);
++                    T* min = first;
++                    if (first != last) {
++                        for (T* it = first + 1; it != last; it++) {
++                            if (comp(it->m00, min->m00)) {
++                                min = it;
++                            }
++                        }
++                    }
+                     if (min != first) {
+                         Swap_unk(*min, *first);
+                     }
+@@ -10748,7 +10755,8 @@ void Sort_unk(T* first, T* last, Compare comp) {
+         if (++sOffset >= 5) {
+             sOffset = -4;
+         }
+-        T* b = first + (n * 3 / 4 + sOffset % 5);
++        int q3 = n * 3 / 4;
++        T* b = first + (q3 + sOffset % 5);
+         if (++sOffset >= 5) {
+             sOffset = -4;
+         }
