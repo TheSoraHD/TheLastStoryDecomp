@@ -240,23 +240,22 @@ void MovieTask::vf14() {
     }
 }
 
-// NONMATCHING: 99.8% - two saved registers swap (r28/r29: the original coalesces parent with the
-// pool base and the two literal pointers of the find calls; here parent with the "RTMV" pointer).
-// Tried: ternary/if-else forms of the task creation, RTMV check in a helper, literal as argument.
+// inferred: factory (name invented); with the parent as its parameter the saved registers come out
+// as in the original
+static inline MovieTask* Create_unk(atn::Task* parent, const std::string& name) {
+    if (parent != 0) {
+        return new ((MemoryTag)1, "", "", 0) MovieTask(parent, name);
+    }
+    return 0;
+}
+
 void MovieData::vf08() {
     for (int i = 0; i < (int)m08.size(); i++) {
         if (m08[i] == '\\') {
             m08[i] = '/';
         }
     }
-    atn::Task* parent = m04;
-    MovieTask* task;
-    if (parent != 0) {
-        task = new ((MemoryTag)1, "", "", 0) MovieTask(parent, m08);
-    } else {
-        task = 0;
-    }
-    m18 = task;
+    m18 = Create_unk(m04, m08);
 }
 
 void MovieData::vf0C() {
