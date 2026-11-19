@@ -1,4 +1,5 @@
 #include "game/CampSaveLoad.h"
+#include "atn/D2A_TaskApi_unk.h"
 #include "game/GameTask.h"
 #include "macros.h"
 #include "atn/Csv.h"

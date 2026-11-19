@@ -4,6 +4,7 @@
 #include "atn/Camera_unk.h"
 #include "atn/D2A_Task.h"
 #include "game/GameTask.h"
+#include "game/CampSaveLoad.h"
 #include "atn/EfpHandle_unk.h"
 #include "atn/FadeCommon.h"
 #include "atn/FixedArray.h"
@@ -44,13 +45,6 @@ struct GameOverPoint_unk {
 extern "C" GameOverPoint_unk fn_801F4E8C(atn::Task* layout, unsigned int hash);
 extern "C" void fn_804A39EC(GameOverD2A_unk* anime, int arg1, int repeat, float frame, float speed);
 
-class MenuLoadTask : public atn::Task {
-public:
-    static MenuLoadTask* fn_80117914(atn::Task* parent, GameLoadTask* data, GameLoadBackground* bg); // inferred: bg unused
-    static MenuLoadTask* sInstance;
-    unsigned char m48[0x13C - 0x48];
-    int m13C; // inferred: state
-};
 extern "C" void fn_804A4300(MenuCommonTask* menu, const wchar_t* text);
 extern "C" void fn_804A5B9C(MenuCommonTask* menu, int id, const char* name); // inferred: adds an entry
 extern "C" const wchar_t lbl_808813D0[2]; // inferred: empty text
