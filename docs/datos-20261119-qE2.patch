@@ -1,0 +1,142 @@
+diff --git a/src/Event/Dialog.cpp b/src/Event/Dialog.cpp
+index a8f0b1f..a88ba8f 100644
+--- a/src/Event/Dialog.cpp
++++ b/src/Event/Dialog.cpp
+@@ -237,21 +237,18 @@ inline Dialog::Head_unk* Dialog::FindHead_unk(Actor* actor, int kind) {
+     return 0;
+ }
+ 
+-// NONMATCHING: 95.03% - register allocation of the event loops (this in r21 in the original), the
+-// element constructor passed to __construct_new_array (0x8007A748 in the original) and the .sdata2 order
+-Dialog::Dialog(atn::Task* parent)
+-    : atn::Task(parent), m110(0), m114(-1), m118(0), m11C(-1), m150(-1), m198(0), m199(0) {
+-    for (int i = 0; i < 4; i++) {
+-        mSlots[i].mPos = &sPos[i];
+-        mSlots[i].mHead = 0;
+-    }
+-    for (int i = 0; i < 16; i++) {
+-        mHeads[i].mHead = 0;
+-    }
+-    ResetPos_unk();
+-    m198 = 0;
+-    m48 = 0;
+-    Sequence* event = (Sequence*)m20;
++static inline Dialog::Head_unk* NewHead_unk(Dialog* self, Actor* actor, int kind) {
++    self->mHeads[self->m48].mKey = self->MakeKey_unk(actor, kind);
++    std::basic_string<char> path = GetPath_unk(actor, kind);
++    if (fn_8006AA20(path.c_str()) != 0) {
++        self->mHeads[self->m48].mHead = DialogHead::fn_802251F8(self, actor->fn_80012934());
++        self->mHeads[self->m48].mHead->fn_800D246C(1);
++    }
++    return &self->mHeads[self->m48++];
++}
++
++static inline void LoadHeads_unk(Dialog* self) {
++    Sequence* event = (Sequence*)self->m20;
+     for (int i = 0; i < (int)event->mB8.size(); i++) {
+         Cut* cut = event->IsCutIndex_unk(i) ? event->mB8[i].get() : 0;
+         for (int j = 0; j < (int)cut->mSections.size(); j++) {
+@@ -272,18 +269,12 @@ Dialog::Dialog(atn::Task* parent)
+                     }
+                     int kind = cmd->GetParam_unk(1)->m04.i;
+                     int arg = cmd->GetParam_unk(3)->m04.i;
+-                    Head_unk* head = FindHead_unk(actor, kind);
++                    Dialog::Head_unk* head = self->FindHead_unk(actor, kind);
+                     if (head == 0) {
+-                        if (m48 >= 16) {
++                        if (self->m48 >= 16) {
+                             break;
+                         }
+-                        mHeads[m48].mKey = MakeKey_unk(actor, kind);
+-                        std::basic_string<char> path = GetPath_unk(actor, kind);
+-                        if (fn_8006AA20(path.c_str()) != 0) {
+-                            mHeads[m48].mHead = DialogHead::fn_802251F8(this, actor->fn_80012934());
+-                            mHeads[m48].mHead->fn_800D246C(1);
+-                        }
+-                        head = &mHeads[m48++];
++                        head = NewHead_unk(self, actor, kind);
+                     }
+                     if (head->mHead != 0) {
+                         head->mHead->fn_80227D2C(kind, arg);
+@@ -292,6 +283,23 @@ Dialog::Dialog(atn::Task* parent)
+             }
+         }
+     }
++}
++
++// NONMATCHING: 95.03% - register allocation of the event loops (this in r21 in the original), the
++// element constructor passed to __construct_new_array (0x8007A748 in the original) and the .sdata2 order
++Dialog::Dialog(atn::Task* parent)
++    : atn::Task(parent), m110(0), m114(-1), m118(0), m11C(-1), m150(-1), m198(0), m199(0) {
++    for (int i = 0; i < 4; i++) {
++        mSlots[i].mPos = &sPos[i];
++        mSlots[i].mHead = 0;
++    }
++    for (int i = 0; i < 16; i++) {
++        mHeads[i].mHead = 0;
++    }
++    ResetPos_unk();
++    m198 = 0;
++    m48 = 0;
++    LoadHeads_unk(this);
+     m10C = fn_801F3FF8(this, "/data/d2anime/ui_c_event_button.d2a", 0);
+     m10C->fn_800D246C(1);
+     m120.fn_800D5908("/data/texture/ui_c_event_under_filter.texture");
+@@ -590,12 +598,34 @@ int Dialog::vf0C() {
+ // NONMATCHING: 89.06% - scheduling/registers of the fog and bloom copies and the .sdata2 order
+ // (98.93% with docs/enlazar2-20261117-qF-dialog297ac.patch: lerp inline with the target by reference,
+ // fog built in an inline, local pointer to the pad; left: the 1 of mEnable and lbl_8087EFA8 swap r3/r8)
++static inline float LerpF_unk(float a, const float& b, float t) {
++    return a + t * (b - a);
++}
++
++static inline void FadeFog_unk(const DialogFog_unk& src, float t) {
++    DialogFog_unk fog;
++    fog.m04 = src.m04;
++    fog.m08 = src.m08;
++    fog.m0C = src.m0C;
++    fog.m20 = src.m20;
++    fog.m24 = src.m24;
++    fog.mEnable = 1;
++    fog.m10 = LerpF_unk(src.m10, lbl_8087DBB8, t);
++    fog.m14 = LerpF_unk(src.m14, lbl_8087DBBC, t);
++    fog.m18 = LerpF_unk(src.m18, lbl_8087DBC0, t);
++    fog.m1C = LerpF_unk(src.m1C, lbl_8087DBC4, t);
++    fog.m28 = LerpF_unk(src.m28, lbl_8087DBC8, t);
++    fog.m2C = LerpF_unk(src.m28, lbl_8087DBCC, t);
++    lbl_8087EFA8->mFog = fog;
++}
++
+ void Dialog::fn_802297AC() {
+     if (!m10C->IsFlag_unk(4) && m10C->mSpeed < 0.0f && m10C->mFrame <= 1.0f) {
+         m10C->mFlags |= 4;
+     }
+     if (lbl_8087F0A8 != 0) {
+-        ButtonUv_unk uv = lbl_8087F0A8->mInput.fn_80124C6C(0);
++        Input_unk* input = &lbl_8087F0A8->mInput;
++        ButtonUv_unk uv = input->fn_80124C6C(0);
+         ButtonUv_unk uv0 = uv;
+         m10C->SetParam2_unk("btnUv", &uv0.x);
+         ButtonUv_unk uv1 = uv;
+@@ -608,20 +638,7 @@ void Dialog::fn_802297AC() {
+     }
+     if (m150 >= 0 && ++m150 <= 30) {
+         float t = DIALOG_MIN_UNK(1.0f, m150 / 30.0f);
+-        DialogFog_unk fog;
+-        fog.mEnable = 1;
+-        fog.m04 = mFog.m04;
+-        fog.m08 = mFog.m08;
+-        fog.m0C = mFog.m0C;
+-        fog.m10 = mFog.m10 + t * (lbl_8087DBB8 - mFog.m10);
+-        fog.m14 = mFog.m14 + t * (lbl_8087DBBC - mFog.m14);
+-        fog.m18 = mFog.m18 + t * (lbl_8087DBC0 - mFog.m18);
+-        fog.m1C = mFog.m1C + t * (lbl_8087DBC4 - mFog.m1C);
+-        fog.m20 = mFog.m20;
+-        fog.m24 = mFog.m24;
+-        fog.m28 = mFog.m28 + t * (lbl_8087DBC8 - mFog.m28);
+-        fog.m2C = mFog.m28 + t * (lbl_8087DBCC - mFog.m28);
+-        lbl_8087EFA8->mFog = fog;
++        FadeFog_unk(mFog, t);
+         DialogBloom_unk bloom = lbl_8087EFA8->mBloom;
+         bloom.mEnable = 1;
+         bloom.m48 = 1;
