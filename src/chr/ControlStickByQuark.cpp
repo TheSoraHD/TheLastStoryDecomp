@@ -20,21 +20,10 @@
 #include "game/BattleTask.h"
 #include "game/GameTask.h"
 #include "game/DamageResult_unk.h"
+#include "game/GameConfig_unk.h"
 
 
-// inferred: input state embedded at +0x48C of the object behind lbl_8087F0A8
-struct Input_unk {
-    int fn_8012476C(int button); // inferred: nonzero when `button` was pressed
-    int fn_801231D0(int action); // inferred: action triggered
-    int fn_801240B4(int action); // inferred: action held
-};
 
-struct Unk_8087F0A8 {
-    unsigned char m000[0x30];
-    int mFps; // 0x30: inferred: frame rate
-    unsigned char m034[0x48C - 0x34];
-    Input_unk mInput; // 0x48C
-};
 
 // inferred: the same object seen from the game settings (fn_800F52F8 returns lbl_8087F0A8)
 struct Settings_unk {
@@ -178,7 +167,7 @@ public:
     unsigned char m04[0x5C - 0x04];
     SwordParam_unk mParam; // 0x5C
 };
-extern "C" Unk_8087F0A8* lbl_8087F0A8;
+extern "C" GameConfig_unk* lbl_8087F0A8;
 
 // inferred: weak copy 0x8013C38C (address of the position), inlined here
 inline atn::Vector3* CharaTask::fn_8013C38C() {
@@ -1090,7 +1079,7 @@ int ControlMatHoldDamage::vf0C() {
     CharaTask* c = mChara;
     Motion_unk* m = &c->mMotion;
     if (m->mTracks[0].m08 < 64.0f) {
-        int fps = lbl_8087F0A8->mFps;
+        int fps = lbl_8087F0A8->m030;
         atn::Vector3 move(0.0f, -98.1f / (float)(fps * fps), -0.46875f);
         atn::Matrix3x4 rot;
         rot.SetIdentity();
@@ -1140,8 +1129,8 @@ ControlThrown::ControlThrown(Chara_unk* chara, const atn::Vector3& target, int f
     }
     float n = (float)frames;
     mVel = (mTarget - mChara->mPos) * (1.0f / n);
-    mVel.y -= 0.5f * (n * (0.5f * (-98.1f / (float)(lbl_8087F0A8->mFps *
-                                                     lbl_8087F0A8->mFps))));
+    mVel.y -= 0.5f * (n * (0.5f * (-98.1f / (float)(lbl_8087F0A8->m030 *
+                                                     lbl_8087F0A8->m030))));
     atn::Vector3 dir = mTarget - mChara->mPos;
     dir.y = 0.0f;
     dir.Normalize_unk();
@@ -1166,7 +1155,7 @@ ControlThrown::ControlThrown(Chara_unk* chara, const atn::Vector3& target, int f
 int ControlThrown::vf0C() {
     Motion_unk* m = &mChara->mMotion;
     mChara->mPos = mChara->mPos + mVel;
-    int fps = lbl_8087F0A8->mFps;
+    int fps = lbl_8087F0A8->m030;
     mVel.y += lbl_8087EFA8->m3A4 * (0.5f * (-98.1f / (float)(fps * fps)));
     mFrames--;
     switch (mState) {
@@ -1633,7 +1622,7 @@ boost::function<void()> ControlBoundShade::vf10() const {
 int ControlThrownSimple::vf0C() {
     CharaTask* c = mChara;
     c->mPos = c->mPos + mVel;
-    int fps = lbl_8087F0A8->mFps;
+    int fps = lbl_8087F0A8->m030;
     mVel.y += (float)lbl_8087EFA8->m3A4 * (0.5f * (-98.1f / (float)(fps * fps)));
     mFrames--;
     return 0;
