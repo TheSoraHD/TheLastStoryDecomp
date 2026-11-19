@@ -1,3 +1,4 @@
+#include "atn/GraphicsDevice.h"
 #include "atn/Texture_unk.h"
 #include "std/vector.h"
 #include "atn/RenderManager.h"
@@ -25,17 +26,10 @@ void DCInvalidateRange(void* addr, unsigned int size);
 void DCFlushRange(void* addr, unsigned int size);
 }
 
-// inferred: render state (automatic names, as in other atn files)
-struct RenderState_unk {
-    unsigned char m00[0x3C];
-    int mWidth;  // 0x3C
-    int mHeight; // 0x40
-};
-extern "C" RenderState_unk* lbl_8087EEE0;
-extern "C" void fn_80071E04(RenderState_unk* rs);
-extern "C" void fn_80075F58(RenderState_unk* rs, int x, int y, int w, int h); // inferred: set viewport
-extern "C" void fn_80075DEC(RenderState_unk* rs);
-extern "C" void fn_800763FC(RenderState_unk* rs, atn::Texture_unk* texture, int map); // inferred: loads a texture
+extern "C" atn::GraphicsDevice_unk* lbl_8087EEE0;
+extern "C" void fn_80071E04(atn::GraphicsDevice_unk* rs);
+extern "C" void fn_80075F58(atn::GraphicsDevice_unk* rs, int x, int y, int w, int h); // inferred: set viewport
+extern "C" void fn_80075DEC(atn::GraphicsDevice_unk* rs);
 extern "C" void fn_800C0FBC(void* image, int format, int width, int height); // inferred: untiles an image
 extern "C" void fn_8006945C(const unsigned char* src, int width, int height, unsigned char* dst); // inferred: DXT1
 extern "C" void* memset(void* dst, int c, unsigned long n);

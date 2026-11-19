@@ -9,6 +9,7 @@
 #include "game/GimmickCommon.h"
 #include "std/string.h"
 #include "std/string_members.h"
+#include "atn/DebugMessages_unk.h"
 
 extern "C" RenderSetting_unk* lbl_8087EFA8;
 
@@ -30,14 +31,9 @@ extern "C" void fn_800874C8(void* group, const char* name, void* value, int min,
                             void (*callback)(void*), void* arg);
 extern "C" void fn_800875F8(void* group, const char* name, GXColor* value, int min, int max, int step,
                             void (*callback)(void*), void* arg);
-extern "C" void fn_8008771C(void* group, const char* name, float* value, void (*callback)(void*), void* arg,
-                            float min, float max, float step);
+extern "C" void fn_8008771C(void* group, const char* name, float* value, float min, float max, float step,
+                            void (*callback)(void*), void* arg);
 
-// inferred: debug message output (lbl_8087EEB8, as in atn/Shader_unk.cpp)
-struct DebugMessages_unk {
-    void fn_800697D8(const char* message);
-};
-extern "C" DebugMessages_unk* lbl_8087EEB8;
 extern "C" int strncmp(const char* a, const char* b, unsigned long n);
 
 extern "C" {
@@ -420,16 +416,16 @@ void TexStageMenu_unk(void* parent, TexStage_unk* stage) {
     char buf[0x100];
     sprintf(buf, "%s", sTexNames[stage->mId]);
     void* g = fn_8008937C(parent, buf);
-    fn_8008771C(g, "ScaleX", &stage->mUv->mScaleU, fn_8007C0D4, stage, -1000.0f, 1000.0f, 0.01f);
-    fn_8008771C(g, "ScaleY", &stage->mUv->mScaleV, fn_8007C0D4, stage, -1000.0f, 1000.0f, 0.01f);
-    fn_8008771C(g, "Rot", &stage->mUv->mRot, fn_8007C0D4, stage, -1000.0f, 1000.0f, 0.01f);
-    fn_8008771C(g, "TranxX", &stage->mUv->mTransU, fn_8007C0D4, stage, -1000.0f, 1000.0f, 0.01f);
-    fn_8008771C(g, "TransY", &stage->mUv->mTransV, fn_8007C0D4, stage, -1000.0f, 1000.0f, 0.01f);
-    fn_8008771C(g, "IndScaleX", &stage->mIndUv->mScaleU, fn_8007C0D4, stage, -1000.0f, 1000.0f, 0.01f);
-    fn_8008771C(g, "IndScaleY", &stage->mIndUv->mScaleV, fn_8007C0D4, stage, -1000.0f, 1000.0f, 0.01f);
-    fn_8008771C(g, "IndRot", &stage->mIndUv->mRot, fn_8007C0D4, stage, -1000.0f, 1000.0f, 0.01f);
-    fn_8008771C(g, "IndTranxX", &stage->mIndUv->mTransU, fn_8007C0D4, stage, -1000.0f, 1000.0f, 0.01f);
-    fn_8008771C(g, "IndTransY", &stage->mIndUv->mTransV, fn_8007C0D4, stage, -1000.0f, 1000.0f, 0.01f);
+    fn_8008771C(g, "ScaleX", &stage->mUv->mScaleU, -1000.0f, 1000.0f, 0.01f, fn_8007C0D4, stage);
+    fn_8008771C(g, "ScaleY", &stage->mUv->mScaleV, -1000.0f, 1000.0f, 0.01f, fn_8007C0D4, stage);
+    fn_8008771C(g, "Rot", &stage->mUv->mRot, -1000.0f, 1000.0f, 0.01f, fn_8007C0D4, stage);
+    fn_8008771C(g, "TranxX", &stage->mUv->mTransU, -1000.0f, 1000.0f, 0.01f, fn_8007C0D4, stage);
+    fn_8008771C(g, "TransY", &stage->mUv->mTransV, -1000.0f, 1000.0f, 0.01f, fn_8007C0D4, stage);
+    fn_8008771C(g, "IndScaleX", &stage->mIndUv->mScaleU, -1000.0f, 1000.0f, 0.01f, fn_8007C0D4, stage);
+    fn_8008771C(g, "IndScaleY", &stage->mIndUv->mScaleV, -1000.0f, 1000.0f, 0.01f, fn_8007C0D4, stage);
+    fn_8008771C(g, "IndRot", &stage->mIndUv->mRot, -1000.0f, 1000.0f, 0.01f, fn_8007C0D4, stage);
+    fn_8008771C(g, "IndTranxX", &stage->mIndUv->mTransU, -1000.0f, 1000.0f, 0.01f, fn_8007C0D4, stage);
+    fn_8008771C(g, "IndTransY", &stage->mIndUv->mTransV, -1000.0f, 1000.0f, 0.01f, fn_8007C0D4, stage);
     fn_800874C8(g, "WrapU", &stage->mWrapS, 0, 2, 1, fn_8007C0D4, stage);
     fn_800874C8(g, "WrapV", &stage->mWrapT, 0, 2, 1, fn_8007C0D4, stage);
 }
@@ -1360,10 +1356,10 @@ void Material_unk::fn_800816B4(void* parent, const char* name) {
             char buf[0x100];
             sprintf(buf, "%s", sTexNames[m10[i].mStageId]);
             void* g = fn_8008937C(anims, buf);
-            fn_8008771C(g, "TransX", &m10[i].mScrollU, 0, 0, -100.0f, 100.0f, 0.01f);
-            fn_8008771C(g, "TransY", &m10[i].mScrollV, 0, 0, -100.0f, 100.0f, 0.01f);
-            fn_8008771C(g, "IndTransX", &m10[i].mIndScrollU, 0, 0, -100.0f, 100.0f, 0.01f);
-            fn_8008771C(g, "IndTransY", &m10[i].mIndScrollV, 0, 0, -100.0f, 100.0f, 0.01f);
+            fn_8008771C(g, "TransX", &m10[i].mScrollU, -100.0f, 100.0f, 0.01f, 0, 0);
+            fn_8008771C(g, "TransY", &m10[i].mScrollV, -100.0f, 100.0f, 0.01f, 0, 0);
+            fn_8008771C(g, "IndTransX", &m10[i].mIndScrollU, -100.0f, 100.0f, 0.01f, 0, 0);
+            fn_8008771C(g, "IndTransY", &m10[i].mIndScrollV, -100.0f, 100.0f, 0.01f, 0, 0);
         }
     }
 }

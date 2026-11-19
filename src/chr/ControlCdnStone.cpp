@@ -1,5 +1,7 @@
 // Status-condition controls (stone, paralysis, betrayal, sleep, dizziness "piyo", confusion
 // "psycho") and their restore controls; the out-of-line virtuals of ControlBase are at the end.
+#include "atn/RenderSetting_unk.h"
+#include "game/GameConfig_unk.h"
 #include "chr/ControlCdn.h"
 #include "chr/ControlDamage.h"
 #include "atn/Memory.h"
@@ -8,17 +10,7 @@
 #include "game/TownTask.h"
 #include "game/BattleTask.h"
 
-// inferred: game settings (the pad state is at 0x48C)
-struct Input_unk {
-    int fn_8012476C(int button); // inferred: nonzero while `button` is pressed
-};
-struct Settings_unk {
-    unsigned char m000[0x68];
-    int m68; // inferred: side of the player (restored after a betrayal)
-    unsigned char m06C[0x48C - 0x6C];
-    Input_unk mInput; // 0x48C
-};
-extern "C" Settings_unk* lbl_8087F0A8;
+extern "C" GameConfig_unk* lbl_8087F0A8;
 
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
@@ -31,12 +23,7 @@ struct CdnMessages_unk {
 };
 extern "C" CdnMessages_unk* lbl_8087F1E4;
 extern "C" const wchar_t lbl_808813D0[2]; // inferred: empty text (shared by the text tables, as in MP/Text.cpp)
-// inferred: game state (lbl_8087EFA8, as in game/CharaTask.cpp); names invented
-struct GameState_unk {
-    unsigned char m000[0x3A4];
-    float m3A4; // inferred: time of a frame
-};
-extern "C" GameState_unk* lbl_8087EFA8; // inferred: nonzero in the arena (the betrayal of an enemy has no time limit)
+extern "C" RenderSetting_unk* lbl_8087EFA8; // inferred: nonzero in the arena (the betrayal of an enemy has no time limit)
 
 // inferred: vector rotated by a matrix (by value; name invented, as in chr/ControlDropDown.cpp)
 inline atn::Vector3 RotY_unk(Mtx m, const atn::Vector3& v) {
@@ -276,7 +263,7 @@ int ControlCdnBetray::vf0C() {
         mChara->fn_8015495C(0, 1, 1, 1);
         mChara->mC58.mC4 = 0;
         if (mChara->mType == 0) {
-            mChara->mF84 = lbl_8087F0A8->m68;
+            mChara->mF84 = lbl_8087F0A8->m068;
         }
         mChara->SetSide_unk(m08);
         return 1;

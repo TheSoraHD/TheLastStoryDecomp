@@ -1,3 +1,4 @@
+#include "atn/SoundManager.h"
 #include "game/GameChoiceWindow.h"
 #include "game/GameTask.h"
 #include "game/GameScene.h"
@@ -18,7 +19,10 @@ extern "C" wchar_t* wcscpy(wchar_t* dst, const wchar_t* src);
 extern "C" int fn_800DC1DC(const wchar_t* s);                 // inferred: wide string to int
 extern "C" unsigned int fn_80209120(const char* name);        // inferred: id of a character name
 extern "C" int fn_8006F420(void* font, char* dst, const wchar_t* src, int size); // inferred: to the game encoding
-extern "C" void* lbl_8087EEC8;                                // inferred: font
+namespace atn {
+class Font_unk;
+}
+extern "C" atn::Font_unk* lbl_8087EEC8;                                // inferred: font
 extern "C" const wchar_t lbl_8077A0A8[];                      // inferred: separators of the message CSV
 extern "C" float fn_801F0544(void* key, int frame); // inferred: value of a key of a layout track
 extern "C" CharaInfo_unk* fn_8020924C(int id);      // inferred: character table entry
@@ -112,18 +116,13 @@ static const GameMessageAlias_unk sAliases_unk[6] = {
     {0x3B06, 0x3B09, 0xC8}, {0x3B07, 0x3B0A, 0xC9}, {0x3B08, 0x3B0B, 0xCA},
 };
 
-// inferred: field (lbl_8087F430); only the members used here
-struct GameChoiceField_unk {
-    unsigned char m0000[0x10D8];
-    void* m10D8; // inferred: the scene (game/GameScene)
-};
-extern "C" GameChoiceField_unk* lbl_8087F430;
+extern "C" GameTask* lbl_8087F430;
 
 GameMessage* GameMessageList::fn_803B3B38(int id) const {
     if (lbl_8087F430 != 0) {
         const GameMessageAlias_unk* alias = sAliases_unk;
         for (unsigned int i = 0; i < 6; i++, alias++) {
-            if (alias->mId == id && ((GameTask*)lbl_8087F430)->fn_80370174(alias->mCounter) == 1) {
+            if (alias->mId == id && lbl_8087F430->fn_80370174(alias->mCounter) == 1) {
                 id = alias->mAlias;
                 break;
             }
@@ -200,12 +199,12 @@ extern "C" int fn_803B3D2C(std::basic_string<wchar_t>* text) {
         if (kind == L'L') {
             value = fn_800DC1DC(std::basic_string<wchar_t>(*text, open + 2, close).c_str());
             if (lbl_8087F430 != 0) {
-                value = ((GameTask*)lbl_8087F430)->fn_80370A78(value);
+                value = lbl_8087F430->fn_80370A78(value);
             }
         } else if (kind == L'G') {
             value = fn_800DC1DC(std::basic_string<wchar_t>(*text, open + 2, close).c_str());
             if (lbl_8087F430 != 0) {
-                value = ((GameTask*)lbl_8087F430)->fn_80370174(value);
+                value = lbl_8087F430->fn_80370174(value);
             }
         } else {
             value = fn_800DC1DC(std::basic_string<wchar_t>(*text, open + 1, close).c_str());
@@ -248,12 +247,7 @@ extern "C" int fn_803B3D2C(std::basic_string<wchar_t>* text) {
     return 1;
 }
 
-// inferred: sound manager (lbl_8087EFE8); only the member used here
-struct GameChoiceSound_unk {
-    unsigned char m0000[0x34D0];
-    int m34D0; // inferred: category of the next sound
-};
-extern "C" GameChoiceSound_unk* lbl_8087EFE8;
+extern "C" atn::SoundManager* lbl_8087EFE8;
 extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float volume); // inferred: 2D sound
 
 // inferred: plays a sound of the interface
@@ -276,7 +270,8 @@ extern "C" atn::SoundRef fn_803B4338(int index, float volume) {
 
 // inferred: sets a texture rectangle (D2A_TaskInstanceBase<32, 8>::SetValues2_unk; the rectangle is copied)
 extern "C" int fn_800A555C(void* pad, int port, int button); // inferred: button triggered
-extern "C" void* lbl_8087EF70; // inferred: pad
+struct Pad_unk;
+extern "C" Pad_unk* lbl_8087EF70; // inferred: pad
 extern "C" GameConfig_unk* lbl_8087F0A8; // inferred: game settings
 
 // inferred: creates the window, as fn_803B5470 and fn_803B612C for the other windows; unused, so removed
@@ -777,7 +772,7 @@ inline GameMessageWindow* GetMessageWindow_unk() {
 // keeps the inner ones in volatile registers (bool r = false; if (...) r = true; in nested inlines, int flags,
 // static or out-of-line helpers: MWCC threads the jumps over them)
 void GameTextMessageWindow::vf10() {
-    if (lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->m54E4 == 8) {
+    if (lbl_8087F430 != 0 && lbl_8087F430->m54E4 == 8) {
         mLayout->FreezeTask();
         return;
     }
@@ -951,9 +946,9 @@ void GameTextMessageWindow::fn_803B78E8() {
         m71 = 0;
         if (lbl_8087F430 != 0) {
             if (m74 == 0) {
-                ((GameTask*)lbl_8087F430)->fn_80370AE4(m78, 1);
+                lbl_8087F430->fn_80370AE4(m78, 1);
             } else if (m74 == 1) {
-                ((GameTask*)lbl_8087F430)->fn_80370320(m78, 1, 0);
+                lbl_8087F430->fn_80370320(m78, 1, 0);
             }
         }
     }

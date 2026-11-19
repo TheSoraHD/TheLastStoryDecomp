@@ -10,28 +10,10 @@ extern "C" void* fn_800838B8(atn::MemoryManager* mgr, unsigned long size, unsign
                              const char* file, const char* func, int line);
 
 // inferred: global network state (class unknown, see gmk/Item.cpp)
-extern "C" unsigned char DWC_GetMyAID();
-extern "C" int fn_806A8E40();
-struct NetState_unk {
-    unsigned char m000[0x1F8];
-    unsigned int m1F8_31_20 : 12;
-    unsigned int mDisabled : 1; // inferred
-    unsigned int m1F8_18_0 : 19;
-    unsigned char m1FC[0xC215 - 0x1FC];
-    unsigned char mC215;
-
-    // inferred: own aid
-    unsigned char GetMyAid_unk() {
-        if (mC215 == 0) {
-            return mDisabled ? 0 : DWC_GetMyAID();
-        } else {
-            return mDisabled ? 0 : fn_806A8E40();
-        }
-    }
-};
-extern "C" NetState_unk* lbl_8087F628;
+#include "atn/net/Manager.h"
+extern "C" atn::net::Manager* lbl_8087F628;
 extern "C" int fn_8050BA68(unsigned char** aids); // inferred: list of connected aids
-extern "C" void fn_8050B7EC(NetState_unk* net, const void* data, unsigned int size, unsigned char aid,
+extern "C" void fn_8050B7EC(atn::net::Manager* net, const void* data, unsigned int size, unsigned char aid,
                             int reliable); // inferred: sends a packet
 extern "C" int fn_805089E0(atn::net::Crypt* crypt, int decode, const void* data, unsigned int* size);
 

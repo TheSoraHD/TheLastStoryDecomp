@@ -1,3 +1,4 @@
+#include "atn/RenderSetting_unk.h"
 #include "game/Em203GreaterDaemonRedMp.h"
 #include "game/GameTask.h"
 #include "game/GameScene.h"
@@ -17,6 +18,8 @@
 #include "math/VecAssign_unk.h"
 #include "atn/ColliBase.h"
 #include "game/GameSceneFind_unk.h"
+#include "game/SkillEffectManager.h"
+#include "atn/TextTable_unk.h"
 
 extern "C" unsigned long strlen(const char* s);
 extern "C" int strcmp(const char* a, const char* b);
@@ -37,47 +40,21 @@ extern "C" double sin(double x);
 extern "C" int rand();
 
 // inferred: point the camera looks at (lbl_8087F430 + 0x97C, as in game/Em203GreaterDaemon.cpp)
-struct RedLook_unk {
-    void Set_unk(const atn::Vector3& pos, int flag) {
-        m01 = m00;
-        m00 = 1;
-        mPos = pos;
-        m24 = 0.0f;
-        if (flag) {
-            m04 = 1;
-        } else {
-            m04 = 0;
-        }
+// inferred: the camera looks at a point (GameCamera::m910..m934; formerly the view RedLook_unk at GameTask + 0x97C)
+inline void SetCameraLook_unk(GameCamera& camera, const atn::Vector3& pos, int flag) {
+    camera.m911 = camera.m910;
+    camera.m910 = 1;
+    camera.m91C = pos;
+    camera.m934 = 0.0f;
+    if (flag) {
+        camera.m914 = 1;
+    } else {
+        camera.m914 = 0;
     }
-    unsigned char m00;
-    unsigned char m01;
-    unsigned char m02[2];
-    int m04;
-    unsigned char m08[4];
-    atn::Vector3 mPos;
-    unsigned char m18[0x24 - 0x18];
-    float m24;
-};
-// inferred: field (lbl_8087F430): position of the camera at 0x80, the camera target at 0x8A0, a camera
-// shake at 0x96C and the route tables at 0x10D8
-struct Field_unk {
-    GameScene* fn_8013C504();
-    unsigned char m0000[0x80];
-    atn::Vector3 m080; // inferred: camera position
-    unsigned char m008C[0x8A0 - 0x8C];
-    CharaTask* m8A0; // inferred: character the camera follows
-    unsigned char m08A4[0x96C - 0x8A4];
-    int m96C;
-    int m970;   // inferred: shake frames
-    float m974; // inferred: shake strength
-    float m978;
-    RedLook_unk m97C;
-    unsigned char m09A4[0x10D8 - 0x9A4];
-    GameScene* m10D8;
-};
-extern "C" Field_unk* lbl_8087F430;
+}
+extern "C" GameTask* lbl_8087F430;
 // inferred: field accessor (weak copy 0x80121F00 of another file)
-extern "C" inline Field_unk* fn_80121F00() {
+extern "C" inline GameTask* fn_80121F00() {
     return lbl_8087F430;
 }
 extern "C" PlayerManager* lbl_8087F8A0; // inferred: player manager
@@ -85,22 +62,18 @@ extern "C" atn::Vector3 lbl_807C7030;   // inferred: zero vector
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
 extern "C" int fn_800DD3FC(wchar_t* s, const wchar_t* format, ...); // inferred: wide sprintf
 extern "C" const wchar_t lbl_808813D0[2]; // inferred: empty text
-// inferred: camp message table (lbl_8087F1E4, as in game/Em101ElderZesya.cpp)
-struct RedMsgTable_unk {
-    const wchar_t* Get_unk(int id) { return mText[id] != 0 ? mText[id] : lbl_808813D0; }
-    const wchar_t* mText[1];
-};
-extern "C" RedMsgTable_unk* lbl_8087F1E4;
 // inferred: effect manager (class unknown), global instance at 0x8087F3C0
-struct EffectMgr_unk;
-extern "C" EffectMgr_unk* lbl_8087F3C0;
-extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
+namespace atn {
+class EffectManager;
+}
+extern "C" atn::EffectManager* lbl_8087F3C0;
+extern "C" void fn_80239DAC(atn::EffectManager* mgr, void* owner, int id, int arg); // inferred: stops an effect
 extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the next effects
 struct Color4f_unk {
     Color4f_unk() {}
     float r, g, b, a;
 };
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
+extern "C" void fn_8023A8B4(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Model* model, void* node,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
 // inferred: frame time and the motion blur parameters (lbl_8087EFA8, as in atn/PostFxMotionBlur.cpp)
@@ -115,35 +88,12 @@ struct RedBlur_unk {
     float m1C;
     float m20;
 };
-struct FrameTime_unk {
-    unsigned char m000[0x240];
-    RedBlur_unk m240; // inferred: motion blur
-    unsigned char m264[0x3A4 - 0x264];
-    float m3A4; // inferred: time of a frame
-};
-extern "C" FrameTime_unk* lbl_8087EFA8;
+extern "C" RenderSetting_unk* lbl_8087EFA8;
 extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float volume); // inferred: plays a sound
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
-// inferred: skill effect manager (lbl_8087F9E8): 32 effects of 0x140 bytes at 0x48
-struct RedSkill_unk {
-    int m00; // inferred: state (3 = finished)
-    HitInfo_unk* m04;
-    struct RedSkillOwner_unk* m08;
-    unsigned char m0C[0x10 - 0x0C];
-    atn::Vector3 m10;
-    atn::Vector3 m1C;
-    unsigned char m28[0x140 - 0x28];
-};
-struct RedSkillOwner_unk {
-    unsigned char m00[0x48];
-    int m48;
-};
-struct RedSkillMgr_unk {
-    unsigned char m00[0x48];
-    RedSkill_unk mSkills[32];
-};
-extern "C" RedSkillMgr_unk* lbl_8087F9E8;
-extern "C" void* lbl_8087EE98;
+extern "C" SkillEffectManager* lbl_8087F9E8;
+struct ColliManager_unk;
+extern "C" ColliManager_unk* lbl_8087EE98;
 extern "C" int fn_8004ED34(void* colli, atn::ColliResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg7); // inferred: ray test
 // inferred: weak copies of other files, called out of line
@@ -430,46 +380,46 @@ void Em203GreaterDaemonRedMp::vf10() {
     }
     if (m1650 != 0) {
         m1654--;
-        if (((GameTask*)lbl_8087F430)->fn_80370A78(100) == 0) {
-            ((GameTask*)lbl_8087F430)->fn_80370AE4(100, 1);
+        if (lbl_8087F430->fn_80370A78(100) == 0) {
+            lbl_8087F430->fn_80370AE4(100, 1);
         }
     }
     if (m58C == 2) {
-        Field_unk* field = lbl_8087F430;
+        GameTask* field = lbl_8087F430;
         m1678++;
         if (m1678 < 60) {
             atn::Vector3 pos = GetNodePos_unk(mMotion.GetNodeMtx_unk("neck"));
             if (m1554 == 0) {
-                field->m8A0 = this;
-                field->m97C.Set_unk(pos, false);
+                field->mCamera.m834 = this;
+                SetCameraLook_unk(field->mCamera, pos, false);
                 m1554 = 1;
             } else {
-                field->m8A0 = this;
-                field->m97C.mPos = pos;
+                field->mCamera.m834 = this;
+                field->mCamera.m91C = pos;
             }
         } else if (m1554 != 0) {
-            field->m8A0 = 0;
-            field->m97C.m00 = 0;
+            field->mCamera.m834 = 0;
+            field->mCamera.m910 = 0;
             m1554 = 0;
         }
     }
     if (m1644 == 0 && m1650 != 0 && m1658 == 0 && m164C != 0) {
-        Field_unk* field = lbl_8087F430;
+        GameTask* field = lbl_8087F430;
         if (m1654 > 0) {
             atn::Vector3 pos = GetNodePos_unk(m164C->mMotion.GetNodeMtx_unk("head"));
             if (m1554 == 0) {
-                field->m8A0 = this;
-                field->m97C.Set_unk(pos, false);
+                field->mCamera.m834 = this;
+                SetCameraLook_unk(field->mCamera, pos, false);
                 m1554 = 1;
             } else {
-                field->m8A0 = this;
-                field->m97C.mPos = pos;
+                field->mCamera.m834 = this;
+                field->mCamera.m91C = pos;
             }
         } else {
             m1658 = 1;
             if (m1554 != 0) {
-                field->m8A0 = 0;
-                field->m97C.m00 = 0;
+                field->mCamera.m834 = 0;
+                field->mCamera.m910 = 0;
                 m1554 = 0;
             }
         }
@@ -477,7 +427,7 @@ void Em203GreaterDaemonRedMp::vf10() {
     fn_8014C540();
     fn_80145334();
     vf11C();
-    MapTask* map = lbl_8087F430 != 0 ? ((GameTask*)lbl_8087F430)->GetCurrentMap() : 0;
+    MapTask* map = lbl_8087F430 != 0 ? lbl_8087F430->GetCurrentMap() : 0;
     if (map != 0 && m1644 == 0) {
         int kind;
         if (atn::Abs_unk(m14D4->mPos.y - mPos.y) < 20.0f) {
@@ -958,11 +908,11 @@ static inline atn::Vector3 Front_unk(const float& angle) {
 
 // inferred: camera shake (as in game/Em203GreaterDaemonRed.cpp)
 inline void ShakeCamera_unk(int frames, float a, float b) {
-    Field_unk* field = lbl_8087F430;
-    field->m96C = field->m96C % 2;
-    field->m970 = frames;
-    field->m974 = a;
-    field->m978 = b;
+    GameTask* field = lbl_8087F430;
+    field->mCamera.mShake.mFrame = field->mCamera.mShake.mFrame % 2;
+    field->mCamera.mShake.mLength = frames;
+    field->mCamera.mShake.mWidth = a;
+    field->mCamera.mShake.mHeight = b;
 }
 
 // inferred: starts state 13 (lands on the ground)
@@ -1003,7 +953,7 @@ void Em203GreaterDaemonRedMp::fn_8029FD34() {
                 int x = rand() % (int)(2.0f * m16B4 / step);
                 int z = rand() % (int)(2.0f * m16B4 / step);
                 atn::Vector3 target = m14D4->mPos;
-                atn::Vector3 mid = target + (lbl_8087F430->m080 - target) * 0.5f;
+                atn::Vector3 mid = target + (lbl_8087F430->mCamera.mCamera.mTarget - target) * 0.5f;
                 atn::Vector3 pos(step * (float)x + (mid.x - m16B4), 0.0f, step * (float)z + (mid.z - m16B4));
                 thunder.mPos = pos;
                 thunder.mFrame = m160C;
@@ -1271,10 +1221,10 @@ void Em203GreaterDaemonRedMp::fn_802A2070() {
             mFlag15 = 1;
             fn_800D246C(1);
             fn_801765D8();
-            Field_unk* field = lbl_8087F430;
+            GameTask* field = lbl_8087F430;
             if (m1554 != 0) {
-                field->m8A0 = 0;
-                field->m97C.m00 = 0;
+                field->mCamera.m834 = 0;
+                field->mCamera.m910 = 0;
                 m1554 = 0;
             }
         }

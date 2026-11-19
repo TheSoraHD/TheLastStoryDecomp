@@ -1,3 +1,5 @@
+#include "game/GameConfig_unk.h"
+#include "atn/RenderSetting_unk.h"
 #include "macros.h"
 #include "game/QuadrupedTask.h"
 #include "game/GameScene.h"
@@ -22,16 +24,7 @@
 inline atn::Vector3 GetNodePos_unk(MtxPtr m) {
     return atn::Vector3(m[0][3], m[1][3], m[2][3]);
 }
-// inferred: field (lbl_8087F430); names invented (as in game/CharaTask.cpp)
-struct Field_unk {
-    unsigned char m000[0x868];
-    int m868; // inferred: mode
-    unsigned char m86C[0x8A0 - 0x86C];
-    int m8A0;
-    unsigned char m8A4[0x10D8 - 0x8A4];
-    GameScene* m10D8; // inferred: route tables (as in game/Em403WarLion.cpp)
-};
-extern "C" Field_unk* lbl_8087F430;
+extern "C" GameTask* lbl_8087F430;
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
@@ -53,7 +46,9 @@ typedef boost::function<void(atn::Matrix3x4*, const atn::NodeChunk&, const atn::
     NodeCallback_unk;
 extern "C" void fn_800F29D0(atn::Model* model, NodeCallback_unk callback);
 
-extern "C" void fn_8031F2A4(atn::Model* model, boost::function<void(atn::MotionBuffer*, int)> callback); extern "C" void* lbl_8087EE98; // inferred: collision world
+extern "C" void fn_8031F2A4(atn::Model* model, boost::function<void(atn::MotionBuffer*, int)> callback);
+struct ColliManager_unk;
+extern "C" ColliManager_unk* lbl_8087EE98; // inferred: collision world
 extern "C" int fn_8004D388(void* world, atn::ColliResult_unk* result, CharaTask::Sphere_unk* sphere, atn::Vector3* move,
                            unsigned int mask, void* ignore, int arg, float radius); // inferred: sweep test
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
@@ -63,12 +58,7 @@ extern "C" double sqrt(double x);
 extern "C" double sin(double x);
 extern "C" double cos(double x);
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
-// inferred: game state (lbl_8087EFA8, see game/CharaTask.cpp); names invented
-struct GameState_unk {
-    unsigned char m000[0x3A4];
-    float m3A4; // inferred: time of a frame
-};
-extern "C" GameState_unk* lbl_8087EFA8;
+extern "C" RenderSetting_unk* lbl_8087EFA8;
 
 // inferred: GameScene::FindPlace_unk with the array read inside the loop (as in game/Em208Queen.cpp)
 inline gs::WarpPoint* FindRoutePlace2_unk(GameScene* table, int id) {
@@ -89,13 +79,7 @@ inline float LengthXZ_unk(const atn::Vector3& v) {
 
 
 
-// inferred: settings (lbl_8087F0A8) as in game/Em403WarLion.cpp
-struct QuadSettings_unk {
-    unsigned char m00[0x30];
-    int m30;        // inferred: frames per second (as in game/CharaTask.cpp)
-    int mDrawDebug; // 0x34
-};
-extern "C" QuadSettings_unk* lbl_8087F0A8;
+extern "C" GameConfig_unk* lbl_8087F0A8;
 
 QuadrupedTask::QuadrupedTask(atn::Task* parent, void* data)
     : EnemyTask(parent, data), m14B0(0.0f, 0.0f, 0.0f), m1564(0) {
@@ -190,7 +174,7 @@ void QuadrupedTask::vf10() {
 }
 
 
-extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3, int arg4);
+extern "C" void fn_80087994(void* group, const char* name, int* value, void* func, void* arg);
 // inferred: debug menu of the enemy; removed by the linker, only its strings are left in the pool
 // ("Quadruped", "DebugDisp" between "waist" and "spine"), as Em401_01_WhiteLeoPard::fn_DebugMenu_unk.
 void QuadrupedTask::fn_DebugMenu_unk() {
@@ -200,7 +184,7 @@ void QuadrupedTask::fn_DebugMenu_unk() {
 
 void QuadrupedTask::vf14() {
     fn_80149A30();
-    if (lbl_8087F0A8->mDrawDebug != 0) {
+    if (lbl_8087F0A8->mDrawCharaColli != 0) {
         lbl_8087EEB0->fn_80063484(20, 0xFFFF0000, mPos.x, 3.0f + mPos.y, mPos.z, mRot.y, 0.0f, 12.0f, 1.5707964f);
     }
 }
@@ -579,7 +563,7 @@ void QuadrupedTask::fn_80567968(const atn::Vector3& target, int arg, float speed
     // inferred: the original tests a default-constructed status here (temporary built and destroyed
     // around the test), not mStatus
     if ((CharaStatus().mParamB.m9C & 1) != 1) {
-        int fps = lbl_8087F0A8->m30;
+        int fps = lbl_8087F0A8->m030;
         m574.y += dt * (-98.1f / (float)(fps * fps));
     }
     move += m6B8;

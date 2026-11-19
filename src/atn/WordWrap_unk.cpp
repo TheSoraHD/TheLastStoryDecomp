@@ -18,7 +18,10 @@
 extern "C" unsigned long wcslen(const wchar_t* s);
 
 // inferred: font of the game texts and the width of one character
-extern "C" void* lbl_8087EEC8;
+namespace atn {
+class Font_unk;
+}
+extern "C" atn::Font_unk* lbl_8087EEC8;
 extern "C" float fn_8006F17C(void* font, wchar_t c, int a, int b, float size);
 
 // inferred: kinsoku table (sorted by character)

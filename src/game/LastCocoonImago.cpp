@@ -1,3 +1,5 @@
+#include "atn/RenderSetting_unk.h"
+#include "atn/EffectManager.h"
 #include "game/LastCocoonImago.h"
 #include "chr/ControlBase.h"
 #include "game/GameMessageList.h"
@@ -20,16 +22,7 @@
 #include "game/GameSceneFind_unk.h"
 
 extern "C" BattleTask* lbl_8087F048; // inferred: battle manager
-// inferred: field (lbl_8087F430); only the member used here
-struct Field_unk {
-    unsigned char m0000[0x6C];
-    atn::Camera m006C; // inferred: camera of the field (as in game/EnemyQuarkStand.cpp)
-    unsigned char m0260[0x10D8 - 0x260];
-    GameScene* m10D8; // inferred: route table of the map
-    unsigned char m10DC[0x54F4 - 0x10DC];
-    unsigned char m54F4[4]; // inferred: name table (fn_803B3B38)
-};
-extern "C" Field_unk* lbl_8087F430;
+extern "C" GameTask* lbl_8087F430;
 extern "C" wchar_t* wcscpy(wchar_t* dst, const wchar_t* src);
 extern "C" atn::Vector3 lbl_807C7030;        // inferred: zero vector
 extern "C" int fn_80051B14(const atn::ColliSphereShape_unk* s, const atn::ColliCapsuleShape_unk* c); // inferred: hit test
@@ -70,7 +63,7 @@ LastCocoonImago::LastCocoonImago(atn::Task* parent, EnemyInfo_unk* info)
     mFlagC31 = 1;
 }
 
-extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3, int arg4);
+extern "C" void fn_80087994(void* group, const char* name, int* value, void* func, void* arg);
 // inferred: GameScene::FindPlace_unk with the array read inside the loop (as in
 // game/LastCocoonQuadruped.cpp)
 inline gs::WarpPoint* FindImagoPlace_unk(GameScene* table, int id) {
@@ -99,11 +92,11 @@ int LastCocoonImago::vf0C() {
         m5B4 = 120.0f;
         for (int i = 0; i < 11; i++) {
             mCapsules[i].mFlags |= 3;
-            mCapsules[i].m0C = (int)this;
+            mCapsules[i].m0C = this;
             mCapsules[i].mFlags &= ~0x80000000;
         }
         m18FC.mFlags |= 3;
-        m18FC.m0C = (int)this;
+        m18FC.m0C = this;
         vf20();
         ResetAttacks_unk();
         return 1;
@@ -111,19 +104,14 @@ int LastCocoonImago::vf0C() {
     return 0;
 }
 
-// inferred: effect manager (class unknown), global instance at 0x8087F3C0 (as in game/LastCocoonEgg.cpp)
-struct EffectMgr_unk {
-    unsigned char m00[0xB8];
-    int mB8;
-};
 struct Color4f_unk {
     Color4f_unk() {}
     float r, g, b, a;
 };
-extern "C" EffectMgr_unk* lbl_8087F3C0;
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, void* model, int arg3, const atn::Vector3& pos,
-                            const atn::Vector3& rot, const Color4f_unk& color, int arg7, int arg8, int arg9,
-                            float scale);
+extern "C" atn::EffectManager* lbl_8087F3C0;
+extern "C" void fn_8023A8B4(atn::EffectManager* mgr, atn::EfpFile* efp, void* model, void* node,
+                            const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
+                            int arg8, int arg9, float scale);
 extern "C" void fn_80232B7C(void* owner, int arg);
 extern "C" double sqrt(double x);
 // inferred: plays an effect on the model with the default color and scale (as in game/LastCocoonEgg.cpp)
@@ -200,7 +188,7 @@ inline void LastCocoonImago::Roar_unk() {
     } else if (m14BC == 1) {
         float frame = mMotion.mTracks[0].m08;
         if (frame > 60.0f) {
-            ((GameTask*)lbl_8087F430)->fn_80370AE4(0x5A, 1);
+            lbl_8087F430->fn_80370AE4(0x5A, 1);
         } else if (frame >= mMotion.fn_80097D7C(0)) {
             EndMode_unk();
         }
@@ -353,12 +341,12 @@ void LastCocoonImago::vf10() {
             break;
         }
         fn_8045CB24();
-        if (m18EC == 0 && ((GameTask*)lbl_8087F430)->fn_80370A78(0xCE) == 2) {
+        if (m18EC == 0 && lbl_8087F430->fn_80370A78(0xCE) == 2) {
             m18EC = 1;
         }
         if (m195C > 0 && ++m195C > 150) {
-            if (((GameTask*)lbl_8087F430)->fn_80370A78(0xD1) == 0) {
-                ((GameTask*)lbl_8087F430)->fn_80370AE4(0xD1, 1);
+            if (lbl_8087F430->fn_80370A78(0xD1) == 0) {
+                lbl_8087F430->fn_80370AE4(0xD1, 1);
             }
         }
     }
@@ -416,8 +404,8 @@ void LastCocoonImago::vf3C(HitInfo_unk* hit, int) {
             GimmickMsg_unk gm;
             gm.mType = m1958 % 2 == 0 ? 2 : 6;
             m18F8->vf40(&gm);
-            if (((GameTask*)lbl_8087F430)->fn_80370A78(0xD3) == 0) {
-                ((GameTask*)lbl_8087F430)->fn_80370AE4(0xD3, 1);
+            if (lbl_8087F430->fn_80370A78(0xD3) == 0) {
+                lbl_8087F430->fn_80370AE4(0xD3, 1);
             }
         }
         return;
@@ -484,8 +472,8 @@ void LastCocoonImago::vf40(HitInfo_unk* hit) {
     if (msg->mData->m04 == 0x1791) {
         atn::Vector3 dir = msg->m28 * 0.5f;
         if (m18EC != 0) {
-            if (((GameTask*)lbl_8087F430)->fn_80370A78(0xCF) == 0) {
-                ((GameTask*)lbl_8087F430)->fn_80370AE4(0xCF, 1);
+            if (lbl_8087F430->fn_80370A78(0xCF) == 0) {
+                lbl_8087F430->fn_80370AE4(0xCF, 1);
             }
             dir = m18F4->mPos - mPos;
             dir.y = 0.0f;
@@ -509,8 +497,8 @@ void LastCocoonImago::vf40(HitInfo_unk* hit) {
         m18D4[1].mCount = 15;
     }
     if (m18EC == 0 && fn_8029F3AC(&mStatus) < 0.7f) {
-        if (((GameTask*)lbl_8087F430)->fn_80370A78(0xCE) == 0) {
-            ((GameTask*)lbl_8087F430)->fn_80370AE4(0xCE, 1);
+        if (lbl_8087F430->fn_80370A78(0xCE) == 0) {
+            lbl_8087F430->fn_80370AE4(0xCE, 1);
         }
     }
 }
@@ -584,7 +572,7 @@ inline void LastCocoonImago::SetMode_unk(int mode) {
 // inferred: name of the character, unless the current target is its sphere
 int LastCocoonImago::vfB8(wchar_t* name) {
     if (lbl_8087F048 != 0 && lbl_8087F048->m3E2E8 != &m18FC && m5C != 0 && m5C->mC4 > 0 && lbl_8087F430 != 0) {
-        GameMessage* entry = ((GameMessageList*)lbl_8087F430->m54F4)->fn_803B3B38(m5C->mC4);
+        GameMessage* entry = lbl_8087F430->mMessages.fn_803B3B38(m5C->mC4);
         if (entry != 0) {
             wcscpy(name, entry->mText);
             return 1;
@@ -660,13 +648,9 @@ void LastCocoonImago::vf54() {
 
 extern "C" int fn_8004D388(void* world, atn::ColliResult_unk* result, CharaTask::Sphere_unk* sphere, atn::Vector3* move,
                            unsigned int mask, void* ignore, int arg, float radius); // inferred: sweep test
-extern "C" void* lbl_8087EE98; // inferred: collision world
-// inferred: game state (as in game/LastCocoonQuadruped.cpp); names invented
-struct ImagoGameState_unk {
-    unsigned char m000[0x3A4];
-    float m3A4; // inferred: time of a frame
-};
-extern "C" ImagoGameState_unk* lbl_8087EFA8;
+struct ColliManager_unk;
+extern "C" ColliManager_unk* lbl_8087EE98; // inferred: collision world
+extern "C" RenderSetting_unk* lbl_8087EFA8;
 
 // NONMATCHING: 96% - float registers (dt, speed, move) and stack slots
 // inferred: turns towards `rot` and walks (when `move` is over a third) at `speed`, with gravity, the push
@@ -875,8 +859,8 @@ void LastCocoonImago::fn_8045BFFC() {
                 atn::Vector3 v = Front_unk();
                 PlayMode_unk(10, 0x14D);
                 m14D4 = v;
-                if (((GameTask*)lbl_8087F430)->fn_80370A78(0xD2) == 0) {
-                    ((GameTask*)lbl_8087F430)->fn_80370AE4(0xD2, 1);
+                if (lbl_8087F430->fn_80370A78(0xD2) == 0) {
+                    lbl_8087F430->fn_80370AE4(0xD2, 1);
                 }
             } else {
                 Charge_unk();
@@ -1066,8 +1050,8 @@ void LastCocoonImago::fn_8045D224() {
     }
     if (m14C0 == 120) {
         LastCocoonImago::vf38(0);
-        if (((GameTask*)lbl_8087F430)->fn_80370A78(0xCD) == 0) {
-            ((GameTask*)lbl_8087F430)->fn_80370AE4(0xCD, 1);
+        if (lbl_8087F430->fn_80370A78(0xCD) == 0) {
+            lbl_8087F430->fn_80370AE4(0xCD, 1);
         }
     } else {
         mMotion.fn_80097D7C(0);
@@ -1140,7 +1124,7 @@ void LastCocoonImago::fn_8045D3A4() {
     ImagoRotateYXZ_unk(m, atn::Vector3(0.0f, mRot.y, 0.0f));
     PSMTXMultVec(m.m, &eye, &eye);
     PSMTXMultVec(m.m, &target, &target);
-    atn::Camera camera = lbl_8087F430->m006C;
+    atn::Camera camera = lbl_8087F430->mCamera.mCamera;
     camera.mPos = eye;
     camera.mTarget = target;
     float fov = curve->fn_805BF204(mMotion.mTracks[0].m08, 0);
@@ -1153,8 +1137,8 @@ void LastCocoonImago::fn_8045D3A4() {
         LastCocoonImago::vf38(0);
     }
     frame = mMotion.mTracks[0].m08;
-    if (frame >= mMotion.fn_80097D7C(0) - 30.0f && ((GameTask*)lbl_8087F430)->fn_80370A78(0xCD) == 0) {
-        ((GameTask*)lbl_8087F430)->fn_80370AE4(0xCD, 1);
+    if (frame >= mMotion.fn_80097D7C(0) - 30.0f && lbl_8087F430->fn_80370A78(0xCD) == 0) {
+        lbl_8087F430->fn_80370AE4(0xCD, 1);
     }
     if ((m14BC == 0 && mMotion.mTracks[0].m08 > 139.0f) || (m14BC == 1 && mMotion.mTracks[0].m08 > 144.0f) ||
         (m14BC == 2 && mMotion.mTracks[0].m08 > 150.0f) || (m14BC == 3 && mMotion.mTracks[0].m08 > 155.0f) ||
@@ -1174,7 +1158,7 @@ void LastCocoonImago::fn_8045D3A4() {
         ((ImagoEventState_unk*)lbl_8087EFA8)->m240 = 0;
     }
     if (mMotion.mTracks[0].m08 >= 200.0f && (mStatus.m0C & 0x20) != 0x20) {
-        ((GameTask*)lbl_8087F430)->mCamera.fn_80392D2C(&camera, 0.033333335f);
+        lbl_8087F430->mCamera.fn_80392D2C(&camera, 0.033333335f);
         m14BC = 0;
         m14C0 = 0;
         m590 = lbl_8087F048->fn_800F8548();
@@ -1261,8 +1245,8 @@ void LastCocoonImago::fn_8045DF34() {
         if (frame >= mMotion.fn_80097D7C(0)) {
             m14BC++;
             mMotion.fn_80097C08(0, 0x30, 1, 0, 1, 1.0f, 0.1f);
-            if (((GameTask*)lbl_8087F430)->fn_80370A78(0xD0) == 0) {
-                ((GameTask*)lbl_8087F430)->fn_80370AE4(0xD0, 1);
+            if (lbl_8087F430->fn_80370A78(0xD0) == 0) {
+                lbl_8087F430->fn_80370AE4(0xD0, 1);
             }
         }
     } else {
@@ -1477,7 +1461,7 @@ void LastCocoonImago::fn_8045EDEC(int index) {
                 held = 1;
             }
             if (held != 0 && m18D0 == 0 && index < 3) {
-                ((GameTask*)lbl_8087F430)->fn_80370AE4(sImagoAttacks_unk[index].m10, 1);
+                lbl_8087F430->fn_80370AE4(sImagoAttacks_unk[index].m10, 1);
                 m18D0 = 1;
             }
         }

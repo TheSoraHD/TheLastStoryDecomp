@@ -1,3 +1,4 @@
+#include "game/GameScene.h"
 #include "game/PickTask.h"
 #include "game/BattleTask.h"
 #include "atn/Memory.h"
@@ -20,31 +21,10 @@ inline CharaTask* GetBattleChara_unk(BattleChara_unk* charas, int i) {
     return s[i].mChara;
 }
 
-// inferred: area of the map (0x30 bytes)
-struct PickArea_unk {
-    int m00;
-    atn::Vector3 mPos;  // 0x04
-    int m10;
-    float mRotY;        // 0x14
-    atn::Vector3 mSize; // 0x18
-    int mId;            // 0x24
-    unsigned char m28[0x30 - 0x28];
-};
-struct PickAreaTable_unk {
-    unsigned char m00[0xF4];
-    unsigned int mNumAreas; // 0xF4
-    PickArea_unk* mAreas;   // 0xF8
-};
-// inferred: field object (see gmk/ReinforcePoint.cpp)
-struct PickField_unk {
-    unsigned char m00[0x10D8];
-    PickAreaTable_unk* m10D8;
-    unsigned char m10DC[0x54E4 - 0x10DC];
-    int m54E4;
-};
-extern "C" PickField_unk* lbl_8087F430;
+extern "C" GameTask* lbl_8087F430;
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0;     // inferred: player manager
-extern "C" void* lbl_8087EE98;
+struct ColliManager_unk;
+extern "C" ColliManager_unk* lbl_8087EE98;
 extern "C" int fn_8004ECC0(void* world, atn::Vector3* hit, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int flags, void* colli, int arg);
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
@@ -214,17 +194,17 @@ void PickTask::vf10() {
             }
         }
         if (label->m0C > 0 || label->m10 > 0) {
-            PickAreaTable_unk* table = lbl_8087F430 != 0 ? lbl_8087F430->m10D8 : 0;
+            GameScene* table = lbl_8087F430 != 0 ? lbl_8087F430->m10D8 : 0;
             if (table != 0) {
                 bool inSafe = false;
                 bool inUnsafe = false;
-                for (unsigned int k = 0; k < table->mNumAreas; k++) {
-                    PickArea_unk* area = &table->mAreas[k];
-                    if (area->mId == label->m0C || area->mId == label->m10) {
+                for (unsigned int k = 0; k < table->mF4.mSize; k++) {
+                    gs::AiArea* area = &table->mF4.mData[k];
+                    if (area->m24 == label->m0C || area->m24 == label->m10) {
                         CharaTask::Sphere_unk* sphere = (CharaTask::Sphere_unk*)&c->m614;
                         PickBox_unk box;
                         box.mMtx.SetIdentity();
-                        RotateY_unk(box.mMtx.m, area->mRotY);
+                        RotateY_unk(box.mMtx.m, area->m14);
                         atn::Vector3 off(0.0f, area->mSize.y, 0.0f);
                         atn::Vector3 pos = area->mPos + off;
                         box.mMtx.m[0][3] = pos.x;
@@ -233,7 +213,7 @@ void PickTask::vf10() {
                         box.mSize = area->mSize;
                         box.mSize.y += 10.0f;
                         if (fn_80051CD8(sphere, &box)) {
-                            if (area->mId == label->m0C) {
+                            if (area->m24 == label->m0C) {
                                 inSafe = true;
                                 break;
                             }
@@ -248,7 +228,7 @@ void PickTask::vf10() {
                 }
             }
         }
-        if (!safe && lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->fn_80370174(0xD8) == 1 && numSeers == 1) {
+        if (!safe && lbl_8087F430 != 0 && lbl_8087F430->fn_80370174(0xD8) == 1 && numSeers == 1) {
             atn::Vector3 d = player->mPos - c->mPos;
             if (PSVECSquareMag(&d) < 4900.0f) {
                 safe = true;

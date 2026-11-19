@@ -138,7 +138,10 @@ extern "C" void DWC_CreateUserData(void* userData);
 extern "C" void DWC_ReportUserData(void* userData);
 extern "C" void DWC_ReportFriendData(void* userData, void* friendData);
 extern "C" wchar_t* wcsncpy(wchar_t* dst, const wchar_t* src, unsigned long n);
-extern "C" void* lbl_8087EEC8; // inferred: font
+namespace atn {
+class Font_unk;
+}
+extern "C" atn::Font_unk* lbl_8087EEC8; // inferred: font
 // inferred: wide to multibyte text with the font
 extern "C" void fn_8006F420(void* font, char* out, const wchar_t* in, int size);
 extern "C" const wchar_t* fn_8050F2F0(MpFriendList_unk* list, DWCFriendData_unk* data, unsigned char* status,

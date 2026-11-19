@@ -2,6 +2,7 @@
 // (fn_8008E818) builds a DrawEntry_unk on the stack and calls fn_8009B93C; every visible node
 // draws its parts with fn_8009D58C, which either queues a draw command in the camera (sorted
 // later) or draws it at once with fn_8009DE60. All names are invented.
+#include "atn/RenderSetting_unk.h"
 #include "atn/GXDecl.h"
 #include "atn/LH_Model.h"
 #include "atn/Material_unk.h"
@@ -249,55 +250,20 @@ inline void atn::RenderManager::Push_unk(const DrawCmd_unk& cmd) {
     mCmds.push_back(cmd);
 }
 
-// inferred: render options (lbl_8087EFA8)
-struct DrawParams_unk {
-    unsigned char m000[0x28];
-    int m028;
-    unsigned char m02C[0x104 - 0x2C];
-    int m104;
-    int m108;
-    float m10C;
-    float m110[4];
-    unsigned char m120[0x134 - 0x120];
-    int m134;
-    unsigned char m138[0x13C - 0x138];
-    int m13C;
-    unsigned char m140[0x144 - 0x140];
-    int m144;
-    int m148;
-    unsigned char m14C[0x150 - 0x14C];
-    int m150;
-    unsigned char m154[0x184 - 0x154];
-    int m184;
-    int m188;
-    int m18C;
-    unsigned char m190[0x208 - 0x190];
-    int m208;
-    unsigned char m20C[0x224 - 0x20C];
-    int m224;
-    int m228;
-    float m22C;
-    unsigned char m230[0x234 - 0x230];
-    int m234;
-    unsigned char m238[0x2F8 - 0x238];
-    int m2F8;
-    unsigned char m2FC[0x398 - 0x2FC];
-    int m398;
-    unsigned char m39C[0x3A0 - 0x39C];
-    int m3A0;
-};
-extern "C" DrawParams_unk* lbl_8087EFA8;
+extern "C" RenderSetting_unk* lbl_8087EFA8; // inferred: render options
 
 // inferred: render state cache (lbl_8087EEE0)
-struct DrawRender_unk;
-extern "C" DrawRender_unk* lbl_8087EEE0;
-extern "C" void fn_800761A8(DrawRender_unk* rs);
-extern "C" void fn_800763C0(DrawRender_unk* rs, int stage, void* texture);
-extern "C" void fn_8007642C(DrawRender_unk* rs, int index, void* light);
-extern "C" void fn_80076760(DrawRender_unk* rs, int state, int value);
-extern "C" void fn_80076A28(DrawRender_unk* rs, const atn::GXStateBits_unk* state);
-extern "C" void fn_80076BE4(DrawRender_unk* rs, void* vtx);
-extern "C" void fn_80074EC8(DrawRender_unk* rs, DrawDesc_unk* desc, unsigned int flags, void* light, void* shadow,
+namespace atn {
+struct GraphicsDevice_unk;
+}
+extern "C" atn::GraphicsDevice_unk* lbl_8087EEE0;
+extern "C" void fn_800761A8(atn::GraphicsDevice_unk* rs);
+extern "C" void fn_800763C0(atn::GraphicsDevice_unk* rs, int stage, void* texture);
+extern "C" void fn_8007642C(atn::GraphicsDevice_unk* rs, int index, void* light);
+extern "C" void fn_80076760(atn::GraphicsDevice_unk* rs, int state, int value);
+extern "C" void fn_80076A28(atn::GraphicsDevice_unk* rs, const atn::GXStateBits_unk* state);
+extern "C" void fn_80076BE4(atn::GraphicsDevice_unk* rs, void* vtx);
+extern "C" void fn_80074EC8(atn::GraphicsDevice_unk* rs, DrawDesc_unk* desc, unsigned int flags, void* light, void* shadow,
                             void* arg);
 
 // inferred: default textures (lbl_8087EEB0)
@@ -558,7 +524,7 @@ static inline void SetMatColor_unk(Material_unk* mat, atn::Scene* lens, DrawColo
     GXSetTevKColor(2, ToGXColor_unk(&lens->mLS.r));
     GXSetChanAmbColor(4, ac);
     if (mat->m4C) {
-        DrawRender_unk* rs = lbl_8087EEE0;
+        atn::GraphicsDevice_unk* rs = lbl_8087EEE0;
         fn_8007642C(rs, 0, (void*)((const atn::Scene*)lens)->GetLight(0));
     }
 }
@@ -602,7 +568,7 @@ void fn_8009BF3C(DrawMesh_unk* mesh, Material_unk* mat, atn::Scene* lens, DrawCo
     fn_8009C508(mat);
     fn_8009C688(mat);
     fn_8009C84C(mat);
-    DrawRender_unk* rs = lbl_8087EEE0;
+    atn::GraphicsDevice_unk* rs = lbl_8087EEE0;
     fn_80076A28(rs, &mat->mState);
     GXSetTevSwapModeTable(3, SwapR_unk(mat->m38), SwapG_unk(mat->m38), SwapB_unk(mat->m38), SwapA_unk(mat->m38));
     if (atn::RenderManager::instance_->m2F8 == 4 && (int)mat->m14_19 == 1) {
@@ -754,13 +720,13 @@ void fn_8009C84C(Material_unk* mat) {
 void fn_8009CC28(DrawMesh_unk* mesh, Material_unk* mat, DrawShader_unk* shader, int flag, float dist) {
     atn::RenderManager::instance_->fn_800C08B0();
     atn::Scene* lens = atn::RenderManager::instance_->mScene;
-    DrawParams_unk* p = lbl_8087EFA8;
+    RenderSetting_unk* p = lbl_8087EFA8;
     float c[4];
-    c[0] = p->m110[0];
-    c[1] = p->m110[1];
-    c[2] = p->m110[2];
-    c[3] = p->m110[3];
-    int mode = p->m108;
+    c[0] = p->m104.mColor.r;
+    c[1] = p->m104.mColor.g;
+    c[2] = p->m104.mColor.b;
+    c[3] = p->m104.mColor.a;
+    int mode = p->m104.mMode;
     if (lens->mShadowSet != 0) {
         c[0] = lens->mShadow.mColor.r;
         c[1] = lens->mShadow.mColor.g;
@@ -769,9 +735,9 @@ void fn_8009CC28(DrawMesh_unk* mesh, Material_unk* mat, DrawShader_unk* shader, 
         mode = lens->mShadow.mMode;
     }
     float t = 0.0f;
-    float start = p->m10C * sFogStart_unk;
+    float start = p->m104.mCullDist * sFogStart_unk;
     if (dist > start) {
-        t = (dist - start) / (p->m10C - start);
+        t = (dist - start) / (p->m104.mCullDist - start);
     }
     t = 1.0f - t;
     c[0] = (1.0f - c[0]) * t;
@@ -793,7 +759,7 @@ void fn_8009CC28(DrawMesh_unk* mesh, Material_unk* mat, DrawShader_unk* shader, 
     GXSetChanMatColor(4, col);
     GXSetNumChans(1);
     GXSetChanCtrl(4, 0, 0, 0, 0, 2, 2);
-    DrawRender_unk* rs = lbl_8087EEE0;
+    atn::GraphicsDevice_unk* rs = lbl_8087EEE0;
     if (on) {
         fn_80076760(rs, 3, 1);
         fn_80076760(rs, 0, 1);
@@ -887,7 +853,7 @@ void fn_8009D1A4(Material_unk* mat) {
     } else {
         tex = &sMip64;
     }
-    DrawParams_unk* p = lbl_8087EFA8;
+    RenderSetting_unk* p = lbl_8087EFA8;
     int aniso = p->m224;
     int edge = 0;
     if (aniso != 0) {
@@ -943,12 +909,12 @@ void fn_8009D58C(DrawEntry_unk* entry, DrawNode_unk* node, DrawPart_unk* part, i
     if (mesh->m14 == -1) {
         flags |= 1;
     }
-    DrawParams_unk* p = lbl_8087EFA8;
+    RenderSetting_unk* p = lbl_8087EFA8;
     if (p->m148 != 0) {
         flags |= 4;
     } else {
         int ef = entry->m04;
-        if (((ef & 8) == 8 && p->m104 != 0) || p->m13C != 0) {
+        if (((ef & 8) == 8 && p->m104.mEnabled != 0) || p->m13C != 0) {
             if (visible) {
                 if (p->m184 != 0) {
                     flags |= 2;
@@ -1101,7 +1067,7 @@ void fn_8009DE60(DrawCmd_unk* cmd, float dist) {
     } else {
         fn_8009BF3C(mesh, mat, lens, &cmd->m24);
         if ((flags & 0x20) == 0x20 && (*(unsigned int*)cmd->m34 & 2)) {
-            DrawRender_unk* rs = lbl_8087EEE0;
+            atn::GraphicsDevice_unk* rs = lbl_8087EEE0;
             fn_80076760(rs, 0, 1);
             fn_80076760(rs, 1, 4);
             fn_80076760(rs, 2, 0xC0);
@@ -1131,7 +1097,7 @@ void fn_8009DE60(DrawCmd_unk* cmd, float dist) {
         cache[i] = -1;
     }
     if (sSecondPass_unk != 0) {
-        DrawRender_unk* rs = lbl_8087EEE0;
+        atn::GraphicsDevice_unk* rs = lbl_8087EEE0;
         fn_80076760(rs, 0xB, 0);
         fn_80076760(rs, 8, 1);
         fn_80076760(rs, 9, 2);
@@ -1181,7 +1147,7 @@ DrawEntry_unk::DrawEntry_unk(atn::LH_Model* model, Mtx* mtx, Mtx* nodes, int m18
 
 void fn_8009E448(DrawEntry_unk* entry, DrawNode_unk* root) {
     int visible = 1;
-    if ((((entry->m04 & 8) == 8 && lbl_8087EFA8->m104 != 0) || lbl_8087EFA8->m13C != 0) &&
+    if ((((entry->m04 & 8) == 8 && lbl_8087EFA8->m104.mEnabled != 0) || lbl_8087EFA8->m13C != 0) &&
         lbl_8087EFA8->m150 != 0) {
         if (fn_8004FF58(&atn::RenderManager::instance_->mShadowCamera.mFrustum, &entry->m30) == 0) {
             visible = 0;

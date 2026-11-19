@@ -62,7 +62,7 @@ struct WindySlot_unk {
     atn::Matrix3x4 mMtx;   // 0x04
     WindyPath_unk mPath;   // 0x34
     ItemSlotAnime mAnime;  // 0x90
-    int m184;
+    WindyArea_unk* m184; // inferred: area of the item
 };
 
 // inferred: items carried by the wind through "LOC" areas ("PARAM", effects "EFP"/"EFF"). The

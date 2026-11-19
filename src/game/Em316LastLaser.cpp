@@ -1,3 +1,5 @@
+#include "game/GameConfig_unk.h"
+#include "atn/RenderSetting_unk.h"
 #include "game/Em316LastLaser.h"
 #include "game/CharaStatus.h"
 #include "game/CharaManager.h"
@@ -22,10 +24,12 @@ extern "C" inline void fn_802660FC(CharaParam_unk* param, unsigned int flag) {
 }
 
 // inferred: effect manager (class unknown), global instance at 0x8087F3C0
-struct EffectMgr_unk;
-extern "C" EffectMgr_unk* lbl_8087F3C0;
-extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
-extern "C" int fn_80239D58(EffectMgr_unk* mgr, void* owner, int id); // inferred: the effect is playing
+namespace atn {
+class EffectManager;
+}
+extern "C" atn::EffectManager* lbl_8087F3C0;
+extern "C" void fn_80239DAC(atn::EffectManager* mgr, void* owner, int id, int arg); // inferred: stops an effect
+extern "C" int fn_80239D58(atn::EffectManager* mgr, void* owner, int id); // inferred: the effect is playing
 extern "C" void fn_800CB5C8(atn::SoundRef* sound, int frames, int arg); // inferred: stops the sound
 class BattleTask;
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
@@ -37,33 +41,24 @@ extern "C" CharaManager<PlayerTask>* lbl_8087F8A0;   extern "C" void* lbl_8087EE
 extern "C" int fn_8004ED34(void* world, atn::ColliResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg); // inferred: ray test
 extern "C" int atoi(const char* s);
-extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3, int arg4);
-extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, int arg6,
-                            int arg7);
-extern "C" void fn_8008771C(void* group, const char* name, float* value, int arg3, int arg4, float min, float max,
-                            float step);
-extern "C" void fn_80087E9C(void* group, const char* name, atn::Vector3* value, int arg3, int arg4, float min,
-                            float max, float step);
+extern "C" void fn_80087994(void* group, const char* name, int* value, void* func, void* arg);
+extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, void* func,
+                            void* arg);
+extern "C" void fn_8008771C(void* group, const char* name, float* value, float min, float max, float step, void* func,
+                            void* arg);
+extern "C" void fn_80087E9C(void* group, const char* name, atn::Vector3* value, float min, float max, float step,
+                            void* func, void* arg);
 extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the next effects
 // inferred: color as four floats (as in game/Em315Coffin.cpp)
 struct Color4f_unk {
     Color4f_unk() {}
     float r, g, b, a;
 };
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
+extern "C" void fn_8023A8B4(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Model* model, void* node,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
-// inferred: game state (lbl_8087EFA8): time of a frame at 0x3A4; settings (lbl_8087F0A8): frames per second
-struct GameState_unk {
-    unsigned char m000[0x3A4];
-    float m3A4;
-};
-extern "C" GameState_unk* lbl_8087EFA8;
-struct LaserSettings_unk {
-    unsigned char m00[0x30];
-    int mFrameRate;
-};
-extern "C" LaserSettings_unk* lbl_8087F0A8;
+extern "C" RenderSetting_unk* lbl_8087EFA8;
+extern "C" GameConfig_unk* lbl_8087F0A8;
 
 // inferred: plays `efp` on `model` with default placement (as CoffinEffect_unk of game/Em315Coffin.cpp)
 inline void LastLaserEffect_unk(atn::EfpFile* efp, atn::Model* model) {
@@ -153,9 +148,9 @@ int Em316LastLaser::vf0C() {
         void* group = m15BC.Load("Bit");
         fn_80087994(group, "DebugDisp", &m15C0, 0, 0);
         fn_80087994(group, "DebugLog", &m15C4, 0, 0);
-        fn_8008771C(group, "AppearMoveRate", &m14EC, 0, 0, 0.01f, 0.99f, 0.1f);
+        fn_8008771C(group, "AppearMoveRate", &m14EC, 0.01f, 0.99f, 0.1f, 0, 0);
         fn_800874C8(group, "ActionMode", &m58C, 1, 100, 1, 0, 0);
-        fn_80087E9C(group, "Pos", &mPos, 0, 0, 1.0f, 100.0f, 1.0f);
+        fn_80087E9C(group, "Pos", &mPos, 1.0f, 100.0f, 1.0f, 0, 0);
         if (m14B0.fn_80470580() != 0) {
             atn::Csv csv((const char*)m14B0.fn_80470580(), m14B0.fn_8047059C());
             do {
@@ -391,7 +386,7 @@ void Em316LastLaser::vf40(HitInfo_unk* hit) {
             m14F0.y = 0.0f;
         }
         float dt = lbl_8087EFA8->m3A4;
-        int fps = lbl_8087F0A8->mFrameRate;
+        int fps = lbl_8087F0A8->m030;
         float g = -98.1f / (float)(fps * fps);
         m14FC = 1.5f * (g * dt);
         fn_800EB7A0();
@@ -547,10 +542,10 @@ extern "C" inline void fn_802657FC(CharaTask* chara, int state) {
     LASER_ASSERT100_UNK(chara != 0);
     chara->m58C = state;
 }
-extern "C" inline EffectMgr_unk* fn_800F7FA0() {
+extern "C" inline atn::EffectManager* fn_800F7FA0() {
     return lbl_8087F3C0;
 }
-extern "C" inline void fn_800F7FA8(EffectMgr_unk* mgr, void* owner, int arg) {
+extern "C" inline void fn_800F7FA8(atn::EffectManager* mgr, void* owner, int arg) {
     LASER_ASSERT100_UNK(mgr != 0);
     LASER_ASSERT100_UNK(mgr != 0);
     LASER_ASSERT100_UNK(mgr != 0);
@@ -560,7 +555,7 @@ extern "C" inline void fn_800F7FA8(EffectMgr_unk* mgr, void* owner, int arg) {
     fn_80232B7C(owner, arg);
 }
 // inferred: plays an effect on the model (as in game/Em201ZanGurgFinal.cpp)
-extern "C" inline void fn_8026607C(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg) {
+extern "C" inline void fn_8026607C(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Model* model, int arg) {
     atn::Vector3 pos;
     atn::Vector3 rot;
     Color4f_unk color;
@@ -579,7 +574,7 @@ extern "C" inline void fn_8026607C(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::M
 inline void* fn_801404F8() {
     return lbl_8087EE98;
 }
-extern "C" void fn_8023A680(EffectMgr_unk* mgr, void* res, int a, int b, void* mtx, const atn::Vector3* pos,
+extern "C" void fn_8023A680(atn::EffectManager* mgr, void* res, int a, int b, void* mtx, const atn::Vector3* pos,
                             const atn::Vector3* rot, const float* color, float scale, int e, int f, int g);
 extern "C" float fn_801A03E8(const atn::Vector3& a, const atn::Vector3& b); // inferred: dot product
 extern "C" void fn_800CB6E4(atn::SoundRef* sound, const atn::Vector3* pos); // inferred: moves the sound

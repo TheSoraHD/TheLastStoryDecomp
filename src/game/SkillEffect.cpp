@@ -4,24 +4,18 @@
 #include "game/GameTask.h"
 #include "game/MapTask.h"
 #include "gmk/Lemon.h"
+#include "atn/EffectManager.h"
 
 // Methods of SkillEffect (class name from the RTTI of the boost::bind in gmk::HealPoint and TacView;
 // file name inferred). A file of its own: its float pool
 // (0x80888178-0x808881C0) repeats 0.0f, which SkillEffectManager.cpp also uses (0x808881FC).
 
-// inferred: effect manager of the efp files (fields set around the stop calls)
-struct EffectMgr_unk {
-    unsigned char m00[0xB8];
-    int mB8;
-    unsigned char mBC[0xD0 - 0xBC];
-    int mD0;
-};
-extern "C" EffectMgr_unk* lbl_8087F3C0;
-extern "C" int fn_80239D58(EffectMgr_unk* mgr, void* owner, int id); // inferred: the effect is playing
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
+extern "C" atn::EffectManager* lbl_8087F3C0;
+extern "C" int fn_80239D58(atn::EffectManager* mgr, void* owner, int id); // inferred: the effect is playing
+extern "C" void fn_8023A8B4(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Model* model, void* node,
                             const atn::Vector3& pos, const atn::Vector3& rot, const MapColor_unk& color, int arg7,
                             int arg8, int arg9, float scale);
-extern "C" void fn_8023A680(EffectMgr_unk* mgr, atn::EffFile* res, int arg2, int arg3, atn::Model* model,
+extern "C" void fn_8023A680(atn::EffectManager* mgr, atn::EffFile* res, int arg2, int arg3, atn::Model* model,
                             const atn::Vector3* pos, int arg6, const MapColor_unk* color, int arg8, int arg9,
                             int arg10, float scale);
 extern "C" void fn_80232B7C(void* owner, int id); // inferred: names the next effect of `owner`
@@ -36,7 +30,8 @@ extern "C" const char* fn_800EFE3C(int id); // inferred: start sound of a skill 
 extern "C" const char* fn_800EFEA0(int id); // inferred: loop sound of a skill effect
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
 extern "C" void fn_800CB6E4(atn::SoundRef* sound, const atn::Vector3* pos); // inferred: moves the sound
-extern "C" void* lbl_8087EE98; // inferred: collision world
+struct ColliManager_unk;
+extern "C" ColliManager_unk* lbl_8087EE98; // inferred: collision world
 extern "C" int fn_8004ECC0(void* world, atn::Vector3* hit, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg); // inferred: ray test
 extern "C" int fn_8059A298(atn::Vector3* pos, atn::Vector3* rot, int arg); // inferred: places a ground effect
@@ -46,7 +41,7 @@ extern "C" float PSVECSquareMag(const atn::Vector3* v);
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
 extern "C" double cos(double x);
 extern "C" GameTask* lbl_8087F430; // inferred: field task
-extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
+extern "C" void fn_80239DAC(atn::EffectManager* mgr, void* owner, int id, int arg); // inferred: stops an effect
 
 SkillEffect::SkillEffect() : m00(3), m04(0), m08(0), m10(0.0f, 0.0f, 0.0f), m1C(0.0f, 0.0f, 0.0f), m28(1.0f), m60(0),
       m7C(0) {
@@ -354,8 +349,8 @@ void SkillEffect::fn_8059A0B4(atn::EffFile* eff) {
     if (m7C) {
         return;
     }
-    lbl_8087F3C0->mD0 = 1;
-    lbl_8087F3C0->mB8 = 5;
+    lbl_8087F3C0->mSystem.mReplaying = 1;
+    lbl_8087F3C0->mSystem.mLayer = 5;
     if (!fn_80239D58(lbl_8087F3C0, &m2C, 1)) {
         atn::Vector3 offset(0.0f, 5.0f, 0.0f);
         MapColor_unk light = MapManager::instance_->fn_80491DF8(atn::Sphere(m2C.GetTrans_unk(), 2.0f));
@@ -363,16 +358,16 @@ void SkillEffect::fn_8059A0B4(atn::EffFile* eff) {
         fn_8023A680(lbl_8087F3C0, eff, -1, 5, (atn::Model*)&m2C, &offset, 0, &light, 0, -1, 1,
                     (1.0f + m5C) / 15.0f * m28);
     }
-    lbl_8087F3C0->mB8 = 0;
-    lbl_8087F3C0->mD0 = 0;
+    lbl_8087F3C0->mSystem.mLayer = 0;
+    lbl_8087F3C0->mSystem.mReplaying = 0;
     m7C = 1;
 }
 
 void SkillEffect::fn_8059A1FC(int keep) {
     if (m7C) {
-        lbl_8087F3C0->mD0 = 1;
+        lbl_8087F3C0->mSystem.mReplaying = 1;
         fn_80239DAC(lbl_8087F3C0, &m2C, 1, !keep);
-        lbl_8087F3C0->mD0 = 0;
+        lbl_8087F3C0->mSystem.mReplaying = 0;
         m7C = 0;
     }
 }

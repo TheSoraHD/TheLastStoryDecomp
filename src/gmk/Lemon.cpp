@@ -1,3 +1,4 @@
+#include "game/GameConfig_unk.h"
 #include "gmk/Lemon.h"
 #include "atn/Csv.h"
 #include "atn/Memory.h"
@@ -15,12 +16,7 @@ extern "C" atn::Matrix3x4 lbl_807C7060; // inferred: identity matrix
 extern "C" char lbl_807C88A0[0x40];     // inferred: name buffer
 extern "C" InstData_unk* fn_8009F788(const char* name); // inferred: finds or loads a building model
 extern "C" int fn_8009FFCC(InstData_unk* data);         // inferred: nonzero while loading
-// inferred: game settings
-struct LemonSettings_unk {
-    unsigned char m00[0x30];
-    int mFps; // 0x30: inferred: frames per second
-};
-extern "C" LemonSettings_unk* lbl_8087F0A8;
+extern "C" GameConfig_unk* lbl_8087F0A8;
 // inferred: collision manager (lbl_8087EE98) with a buffer of results at 0x4008
 struct LemonColli_unk {
     unsigned char m00[0x4008];
@@ -219,7 +215,7 @@ void Lemon::fn_80415F6C() {
     if (m54 != 2) {
         return;
     }
-    mVel.y += -98.1f / (float)(lbl_8087F0A8->mFps * lbl_8087F0A8->mFps);
+    mVel.y += -98.1f / (float)(lbl_8087F0A8->m030 * lbl_8087F0A8->m030);
     LemonSegment_unk seg(m6C, m6C + atn::Vector3(0.0f, mRadius, 0.0f));
     atn::ColliResult_unk res;
     LemonSphere_unk sphere;

@@ -1,3 +1,5 @@
+#include "atn/RenderSetting_unk.h"
+#include "atn/EffectManager.h"
 #include "game/LastCocoonQuadruped.h"
 #include "atn/RenderManager.h"
 #include "chr/ControlBase.h"
@@ -24,23 +26,14 @@
 #include "game/GameScene.h"
 
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
-// inferred: field (lbl_8087F430): camera shake and event flags (as in gmk/ShakeCamera.cpp)
-struct QuadField_unk {
-    void Shake_unk(int frame, float x, float y) {
-        m96C = m96C % 2;
-        m970 = frame;
-        m974 = x;
-        m978 = y;
-    }
-    unsigned char m00[0x96C];
-    int m96C;
-    int m970;
-    float m974;
-    float m978;
-    unsigned char m97C[0x10D8 - 0x97C];
-    GameScene* m10D8;
-};
-extern "C" QuadField_unk* lbl_8087F430;
+extern "C" GameTask* lbl_8087F430;
+// inferred: shakes the camera of the field keeping the parity of the frame (as gmk/ShakeCamera)
+inline void Shake_unk(GameTask* field, int frame, float x, float y) {
+    field->mCamera.mShake.mFrame = field->mCamera.mShake.mFrame % 2;
+    field->mCamera.mShake.mLength = frame;
+    field->mCamera.mShake.mWidth = x;
+    field->mCamera.mShake.mHeight = y;
+}
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 
@@ -64,12 +57,7 @@ static const QuadCapsule_unk sQuadCapsules_unk[5] = {
 // inferred: angle used by fn_80460B48 (50 degrees; initialized in the __sinit; name invented)
 static float sAngle_unk = atn::DegToRad_unk(50.0f);
 
-// inferred: game state (as in game/CharaTask.cpp); names invented
-struct QuadGameState_unk {
-    unsigned char m000[0x3A4];
-    float m3A4; // inferred: time of a frame
-};
-extern "C" QuadGameState_unk* lbl_8087EFA8;
+extern "C" RenderSetting_unk* lbl_8087EFA8;
 extern "C" float fn_800A08D4(atn::LoadHandle* motion); // inferred: length of the motion data
 extern "C" float PSVECSquareMag(const atn::Vector3* v);
 
@@ -120,19 +108,14 @@ static const QuadPlace_unk sQuadPlaces[10] = {
     {608, 0, 1}, {604, 1, 0}, {609, 0, 1}, {605, 1, 0}, {610, 0, 1},
 };
 
-// inferred: effect manager (class unknown), global instance at 0x8087F3C0
-struct EffectMgr_unk {
-    unsigned char m00[0xB8];
-    int mB8;
-};
 struct Color4f_unk {
     Color4f_unk() {}
     float r, g, b, a;
 };
-extern "C" EffectMgr_unk* lbl_8087F3C0;
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, void* model, int arg3, const atn::Vector3& pos,
-                            const atn::Vector3& rot, const Color4f_unk& color, int arg7, int arg8, int arg9,
-                            float scale);
+extern "C" atn::EffectManager* lbl_8087F3C0;
+extern "C" void fn_8023A8B4(atn::EffectManager* mgr, atn::EfpFile* efp, void* model, void* node,
+                            const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
+                            int arg8, int arg9, float scale);
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
 extern "C" void fn_80232B7C(void* owner, int arg);
 // inferred: plays an effect on the model with the default color and scale (as in game/LastCocoonEgg.cpp)
@@ -149,8 +132,10 @@ static inline void PlayEfp_unk(atn::EfpFile* efp, void* model) {
     fn_8023A8B4(lbl_8087F3C0, efp, model, 0, pos, rot, color, -1, -1, 1, 1.0f);
 }
 
-extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
-extern "C" void* lbl_8087EE98; extern "C" int fn_8004ED34(void* colli, atn::ColliResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
+extern "C" void fn_80239DAC(atn::EffectManager* mgr, void* owner, int id, int arg); // inferred: stops an effect
+struct ColliManager_unk;
+extern "C" ColliManager_unk* lbl_8087EE98; extern "C" int fn_8004ED34(void* colli, atn::ColliResult_unk* result,
+                                                          const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg7); // inferred: ray test
 
 extern "C" int fn_8004D388(void* world, atn::ColliResult_unk* result, const atn::Vector3* from,
@@ -174,7 +159,7 @@ inline void LastCocoonQuadruped::SetMode_unk(int mode) {
     m14C0 = 0;
     m590 = lbl_8087F048->fn_800F8548();
     if (lbl_8087F430 != 0) {
-        ((GameTask*)lbl_8087F430)->fn_80370AE4(0x8C, 0);
+        lbl_8087F430->fn_80370AE4(0x8C, 0);
     }
     m58C = mode;
     fn_8016E970(3);
@@ -182,7 +167,7 @@ inline void LastCocoonQuadruped::SetMode_unk(int mode) {
 
 extern "C" int strncmp(const char* a, const char* b, unsigned long n);
 extern "C" std::string fn_8006AFF8(const std::string& a, const std::string& b); // inferred: a + b
-extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3, int arg4);
+extern "C" void fn_80087994(void* group, const char* name, int* value, void* func, void* arg);
 // inferred: node callbacks of the model (as in game/CharaTask.cpp and game/Em403WarLion.cpp)
 typedef boost::function<void(atn::Matrix3x4*, const atn::NodeChunk&, const atn::ModelNodeCallbackContext&),
                         std::allocator<boost::function_base> >
@@ -236,7 +221,7 @@ int LastCocoonQuadruped::vf0C() {
         m56C = 0.125f;
         mColli.mFlags &= ~0x80000000;
         for (int i = 0; i < 5; i++) {
-            mCapsules[i].m0C = (int)this;
+            mCapsules[i].m0C = this;
             mCapsules[i].mFlags |= 3;
             mCapsules[i].mFlags &= ~0x80000000;
         }
@@ -244,7 +229,7 @@ int LastCocoonQuadruped::vf0C() {
         m17A8.m20 = 0x98;
         m17A8.mFlags &= ~1;
         m17A8.mFlags |= 2;
-        m17A8.m0C = (int)this;
+        m17A8.m0C = this;
         fn_800F29D0(&mMotion, boost::bind(&LastCocoonQuadruped::fn_80462CCC, this, _1, _2));
         mMotion.fn_80091CFC("neck");
         mMotion.fn_80091CFC("waist");
@@ -256,14 +241,10 @@ int LastCocoonQuadruped::vf0C() {
     return 0;
 }
 
-// inferred: field object (as in gmk/FlamingArrow.cpp)
-struct Field_unk {
-    GameScene* fn_8013C504();
-};
-extern "C" Field_unk* fn_80121F00();
+extern "C" GameTask* fn_80121F00();
 // inferred: player input of the field (as in game/Em201ZanGurgFinal.cpp; weak copies with C names)
 struct QuadInput_unk;
-extern "C" QuadInput_unk* fn_80122550(Field_unk* field);
+extern "C" QuadInput_unk* fn_80122550(GameTask* field);
 extern "C" void fn_8026616C(QuadInput_unk* input, CharaTask* chara);
 extern "C" void fn_8026610C(QuadInput_unk* input, const atn::Vector3& pos, float f, int keep);
 extern "C" atn::Vector3* fn_80266164(QuadInput_unk* input);
@@ -363,7 +344,7 @@ void LastCocoonQuadruped::vf10() {
             } else {
                 mLook.fn_80129978(m14B8->GetModel_unk(), "neck", lbl_807C7030, 0.3f);
             }
-            MapTask* map = ((GameTask*)fn_80121F00())->GetCurrentMap();
+            MapTask* map = fn_80121F00()->GetCurrentMap();
             QuadInput_unk* input = fn_80122550(fn_80121F00());
             if (m58C == 15 || m58C == 16) {
                 if (map->GetCamera_unk() != 2) {
@@ -1001,7 +982,7 @@ void LastCocoonQuadruped::fn_804635B4() {
 void LastCocoonQuadruped::fn_80463610() {
     if (mMotion.mTracks[0].m00 == 0x14A) {
         if ((float)__fabs(mMotion.mTracks[0].m08 - 3.0f) < 1.1920929e-7f) {
-            lbl_8087F430->Shake_unk(60, 0.3f, 0.3f);
+            Shake_unk(lbl_8087F430, 60, 0.3f, 0.3f);
         }
         float frame = mMotion.mTracks[0].m08;
         if (frame >= mMotion.fn_80097D7C(0)) {
@@ -1009,13 +990,13 @@ void LastCocoonQuadruped::fn_80463610() {
             mMotion.mTracks[0].m20 = 1.0f;
             mMotion.mTracks[0].m0C = 1.0f;
             mMotion.fn_80097C08(0, 0x14D, 0, 0, 1, 0.0f, 0.1f);
-            lbl_8087F430->Shake_unk(180, 0.1f, 0.1f);
+            Shake_unk(lbl_8087F430, 180, 0.1f, 0.1f);
             fn_800C344C("SE_EM206_027", &mPos, 0, -1, 1.0f);
         }
     } else {
         float frame = mMotion.mTracks[0].m08;
         if ((float)__fabs(frame - 50.0f) < 1.1920929e-7f) {
-            ((GameTask*)lbl_8087F430)->fn_80370AE4(0x5B, 1);
+            lbl_8087F430->fn_80370AE4(0x5B, 1);
         } else if (frame >= mMotion.fn_80097D7C(0)) {
             mFlag25 = 1;
             mColli.mFlags &= ~1;
@@ -1250,7 +1231,7 @@ void LastCocoonQuadruped::fn_804655AC() {
         mMotion.mTracks[0].m0C = 1.0f;
         mMotion.fn_80097C08(0, 0x143, 1, 0, 1, 0.0f, 0.1f);
         if (lbl_8087F430 != 0) {
-            ((GameTask*)lbl_8087F430)->fn_80370AE4(0x8C, (int)m15AC);
+            lbl_8087F430->fn_80370AE4(0x8C, (int)m15AC);
         }
         m18E8 = 0;
         return;
@@ -1298,8 +1279,8 @@ struct QuadShot_unk {
     QuadShot_unk(const Bullet& b)
         : m00(b.m5C), m04(b.m60), m08(b.m64), m0C(b.m68), m10(b.m6C), m14(b.m70), m18(b.m74) {}
     float m00;
-    int m04;
-    int m08;
+    atn::EffFile* m04;
+    atn::EfpFile* m08;
     HitInfo_unk* m0C;
     int m10;
     float m14;
@@ -1372,7 +1353,7 @@ void LastCocoonQuadruped::fn_80465B88() {
         mMotion.mTracks[0].m0C = 1.0f;
         mMotion.fn_80097C08(0, 0x144, 0, 0, 1, 0.0f, 0.1f);
         if (lbl_8087F430 != 0) {
-            ((GameTask*)lbl_8087F430)->fn_80370AE4(0x8C, 0);
+            lbl_8087F430->fn_80370AE4(0x8C, 0);
         }
         m15C8 = target;
         m15BC = target->mPos - mPos;
@@ -1439,7 +1420,7 @@ void LastCocoonQuadruped::fn_804666D8() {
 
 void LastCocoonQuadruped::fn_80466868() {
     if ((float)__fabs(mMotion.mTracks[0].m08 - 3.0f) < 1.1920929e-7f) {
-        lbl_8087F430->Shake_unk(60, 0.3f, 0.3f);
+        Shake_unk(lbl_8087F430, 60, 0.3f, 0.3f);
     }
     float frame = mMotion.mTracks[0].m08;
     if (frame >= mMotion.fn_80097D7C(0)) {
@@ -1589,7 +1570,7 @@ int LastCocoonQuadruped::fn_80468038(int* count, atn::Vector3* pos, float* angle
                 atn::ColliResult_unk result;
                 if (fn_8004ED34(lbl_8087EE98, &result, &from, &to, 0, &p->mColli, 0) != 0 &&
                     (((atn::ColliBase*)result.m38)->mFlags & 2) == 2 &&
-                    ((atn::ColliBase*)result.m38)->m0C == (int)this) {
+                    ((atn::ColliBase*)result.m38)->m0C == this) {
                     at = mPos;
                     yaw = dir.ToRotationZ_unk().y;
                     found = 1;

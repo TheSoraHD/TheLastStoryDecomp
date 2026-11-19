@@ -5,6 +5,9 @@
 #include "atn/IRender.h"
 #include "atn/Layer3D.h"
 #include "atn/VideoTHP.h"
+#include "atn/GraphicsDevice.h"
+
+extern "C" atn::GraphicsDevice_unk* lbl_8087EEE0;
 
 // inferred: THP player of the SDK sample library (automatic names)
 extern "C" int fn_805B55A8(int audio);            // THPPlayerInit
@@ -29,8 +32,8 @@ extern "C" int fn_805B6474(void* rmode, int x, int y, int w, int h); // THPPlaye
 extern "C" void GXDrawDone();
 
 extern "C" void OSPanic(const char* file, int line, const char* msg, ...);
-extern "C" void fn_80087BB4(void* group, const char* name, float* value, int arg3, int arg4, float min,
-                            float max, float step); // inferred: debug slider for a 2D vector
+extern "C" void fn_80087BB4(void* group, const char* name, float* value, float min, float max, float step, void* func,
+                            void* arg); // inferred: debug slider for a 2D vector
 extern "C" std::string fn_8006B174(const std::string& path); // inferred: file name of a path
 extern "C" int fn_800499D0(void* audio);          // inferred: AudioDevice output mode
 
@@ -59,16 +62,7 @@ inline void* DebugGroup_unk::Create(const char* name) {
 extern "C" unsigned long strlen(const char* s);
 extern "C" void* memcpy(void* dst, const void* src, unsigned long n);
 
-// inferred: globals of unknown classes
-struct RenderState_unk {
-    unsigned char m00[0x10];
-    unsigned short m10; // inferred: frame buffer height
-    unsigned char m12[0x3C - 0x12];
-    int mWidth;  // 0x3C
-    int mHeight; // 0x40
-    int m44;     // inferred: progressive / 16:9 flag
-};
-extern "C" RenderState_unk* lbl_8087EEE0;
+// inferred: global of unknown class
 extern "C" void* lbl_8087EE90;
 
 namespace atn {
@@ -97,8 +91,8 @@ VideoTHP::VideoTHP(const char* name) {
     m80 = 0;
     m94.mGroup = 0;
     void* group = m94.Create(fn_8006B174(std::string(name)).c_str());
-    fn_80087BB4(group, "Scale", &m84.x, 0, 0, 0.1f, 100.0f, 0.01f);
-    fn_80087BB4(group, "Offset", &m8C.x, 0, 0, -640.0f, 640.0f, 0.5f);
+    fn_80087BB4(group, "Scale", &m84.x, 0.1f, 100.0f, 0.01f, 0, 0);
+    fn_80087BB4(group, "Offset", &m8C.x, -640.0f, 640.0f, 0.5f, 0, 0);
 }
 
 VideoTHP::~VideoTHP() {
@@ -167,9 +161,9 @@ void VideoTHP::vf10(RenderManager*) {
     case 2:
         return;
     }
-    RenderState_unk* rs = lbl_8087EEE0;
+    atn::GraphicsDevice_unk* rs = lbl_8087EEE0;
     int h = rs->mHeight;
-    float aspect = (float)h / (float)(int)rs->m10;
+    float aspect = (float)h / (float)(int)rs->mRMode.viHeight;
     int w = rs->mWidth;
     int x;
     int y;
@@ -181,7 +175,7 @@ void VideoTHP::vf10(RenderManager*) {
         x = (int)(mPos.x - (float)(m20[0] >> 1));
         y = (int)(mPos.y - (float)(m20[1] >> 1));
     } else if (m04 == 2 || m04 == 3) {
-        if (rs->m44 != 0) {
+        if (rs->mWide != 0) {
             dh = h;
             dw = w;
             x = 0;
@@ -198,7 +192,7 @@ void VideoTHP::vf10(RenderManager*) {
             y = (h - dh) / 2;
         }
     } else {
-        if (rs->m44 != 0) {
+        if (rs->mWide != 0) {
             dh = 416;
             dw = w;
             x = 0;

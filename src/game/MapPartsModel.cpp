@@ -1,3 +1,4 @@
+#include "game/GameConfig_unk.h"
 #include "game/MapPartsModel.h"
 #include "atn/Memory.h"
 #include "std/string.h"
@@ -16,12 +17,7 @@ extern "C" void PSMTXScale(Mtx m, float x, float y, float z);
 extern "C" int fn_800709F4(const atn::AABB_unk* box, const atn::Vector3* pos); // inferred: pos inside box
 
 
-// inferred: game settings
-struct Settings_unk {
-    unsigned char m00[0x18];
-    int mDrawMap; // 0x18
-};
-extern "C" Settings_unk* lbl_8087F0A8;
+extern "C" GameConfig_unk* lbl_8087F0A8;
 
 #define __MAX_unk(a, b) ((a) > (b) ? (a) : (b))
 

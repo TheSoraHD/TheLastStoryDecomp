@@ -1,7 +1,9 @@
+#include "game/GameUI.h"
 #include "game/CrossbowMenuTask.h"
 #include "db/SkillParam_unk.h"
 #include "db/ItemParam_unk.h"
 #include "atn/D2A_Task.h"
+#include "atn/D2A_TaskApi_unk.h"
 #include "game/Inventory.h"
 #include "atn/Memory.h"
 #include "game/GameTask.h"
@@ -29,7 +31,8 @@ struct ItemList_unk {
     unsigned int mCount;
     int* mIds;
 };
-extern "C" void* lbl_8087F430;
+class GameTask;
+extern "C" GameTask* lbl_8087F430;
 extern "C" ItemList_unk* fn_8020787C(int id);
 extern "C" SkillParam_unk* fn_80219EB4(); // inferred: skill/bullet table (db/SkillParam_unk)
 extern "C" int fn_80219EBC();
@@ -40,11 +43,7 @@ extern "C" int fn_80211734(CrossbowItem_unk* item); // inferred: infinite arrows
 extern "C" int lbl_8087DAA0 = 0x19C;
 // inferred: bullet data (db/SkillParam_unk)
 extern "C" SkillParam_unk* fn_80219E6C(int id);
-struct Unk_8087F490 {
-    unsigned char m0000[0x10FC];
-    int m10FC;
-};
-extern "C" Unk_8087F490* lbl_8087F490;
+extern "C" GameUI* lbl_8087F490;
 extern "C" int lbl_8087F610;
 // inferred: player (only the members used here)
 struct CrossbowPlayerInfo_unk {

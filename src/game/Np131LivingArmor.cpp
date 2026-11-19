@@ -1,3 +1,5 @@
+#include "game/PlayerManager.h"
+#include "game/GameConfig_unk.h"
 #include "game/Np131LivingArmor.h"
 #include "game/BattleTask.h"
 #include "game/GameUI.h"
@@ -22,33 +24,23 @@ extern "C" void fn_80239DAC(atn::EffectManager* mgr, void* owner, int id, int ar
 extern "C" void fn_8023A680(atn::EffectManager* mgr, atn::EffFile* res, int arg2, int arg3, const void* mtx,
                             const atn::Vector3* pos, const atn::Vector3* rot, const EffectColor_unk* color,
                             int arg8, int arg9, int arg10, float scale); // inferred: plays an effect
-extern "C" void fn_8023A8B4(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
-                            const atn::Vector3& pos, const atn::Vector3& rot, const EffectColor_unk& color,
-                            int arg7, int arg8, int arg9, float scale);
+extern "C" void fn_8023A8B4(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Model* model, void* node,
+                            const atn::Vector3& pos, const atn::Vector3& rot, const EffectColor_unk& color, int arg7,
+                            int arg8, int arg9, float scale);
 extern "C" void fn_80232B7C(void* owner, int arg);
 // inferred: bullets (as in gmk/LandMine.cpp)
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
 // inferred: field (lbl_8087F430); the event flags are read with fn_80370A78 and written with fn_80370AE4
-struct Field_unk;
-extern "C" Field_unk* lbl_8087F430;
-// inferred: game settings
-struct Settings_unk {
-    unsigned char m00[0x34];
-    int mDrawDebug; // 0x34
-};
-extern "C" Settings_unk* lbl_8087F0A8;
+extern "C" GameTask* lbl_8087F430;
+extern "C" GameConfig_unk* lbl_8087F0A8;
 namespace atn {
 struct Camera;
 }
 typedef atn::Camera Camera_unk;
-// inferred: player manager
-struct PlayerManager_unk {
-    unsigned char m00[0x48];
-    CharaTask* mHead;
-};
-extern "C" PlayerManager_unk* lbl_8087F8A0;
+extern "C" PlayerManager* lbl_8087F8A0;
 extern "C" GameUI* lbl_8087F490;
-extern "C" void* lbl_8087EF70; // inferred: pad
+struct Pad_unk;
+extern "C" Pad_unk* lbl_8087EF70; // inferred: pad
 extern "C" int fn_800A555C(void* pad, int port, int button); // inferred: button triggered
 extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg, int arg2, float volume); // inferred: plays a sound
 
@@ -190,8 +182,8 @@ void Np131LivingArmor::vf10() {
             mC58.mC0 = 1;
             m14B4 = 0;
             m14F0 = 0;
-            if (((GameTask*)lbl_8087F430)->fn_80370A78(250) == 0) {
-                ((GameTask*)lbl_8087F430)->fn_80370AE4(250, m58);
+            if (lbl_8087F430->fn_80370A78(250) == 0) {
+                lbl_8087F430->fn_80370AE4(250, m58);
             }
         }
         m54C &= ~0x2000;
@@ -210,7 +202,7 @@ void Np131LivingArmor::vf10() {
 void Np131LivingArmor::vf14() {
     sChecked = 0;
     fn_80149A30();
-    if (lbl_8087F0A8->mDrawDebug != 0) {
+    if (lbl_8087F0A8->mDrawCharaColli != 0) {
         lbl_8087EEB0->fn_80063484(20, 0xFFFF0000, mPos.x, 3.0f + mPos.y, mPos.z, mRot.y, 0.0f, 12.0f, 1.5707964f);
     }
 }

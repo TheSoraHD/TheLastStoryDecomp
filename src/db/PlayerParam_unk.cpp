@@ -1,3 +1,4 @@
+#include "game/GameConfig_unk.h"
 #include "atn/Csv.h"
 #include "db/PlayerParam_unk.h"
 #include "atn/Memory.h"
@@ -10,17 +11,14 @@ struct HitInfo_unk;
 extern "C" HitInfo_unk* fn_8021AFF4(int id); // inferred: skill data of a skill growth entry
 
 // inferred: resource manager (lbl_8087F518): loads a whole file / releases it
-struct Unk_8087F518;
-extern "C" Unk_8087F518* lbl_8087F518;
-extern "C" void* fn_8046DC5C(Unk_8087F518* mgr, const char* path, unsigned long* size, int align);
-extern "C" void fn_8046DD20(Unk_8087F518* mgr, void* data);
+namespace atn {
+class Loader;
+}
+extern "C" atn::Loader* lbl_8087F518;
+extern "C" void* fn_8046DC5C(atn::Loader* mgr, const char* path, unsigned long* size, int align);
+extern "C" void fn_8046DD20(atn::Loader* mgr, void* data);
 
-// inferred: game settings (lbl_8087F0A8); only the member used here
-struct PlayerParamSettings_unk {
-    char m000[0x194];
-    int mDemo; // inferred: 0x194, demo version (selects the table)
-};
-extern "C" PlayerParamSettings_unk* lbl_8087F0A8;
+extern "C" GameConfig_unk* lbl_8087F0A8;
 
 // inferred: a player character; only the members used here
 struct PlayerChara_unk {
@@ -51,7 +49,7 @@ static PlayerParam_unk* sEntries;
 // (level, skill, slot) up to "end"
 extern "C" void fn_80218BD4() {
     unsigned long size;
-    void* data = fn_8046DC5C(lbl_8087F518, lbl_8087F0A8->mDemo != 0 ? sDemoFileName : sFileName, &size, 0x20);
+    void* data = fn_8046DC5C(lbl_8087F518, lbl_8087F0A8->m194 != 0 ? sDemoFileName : sFileName, &size, 0x20);
     sEntries = new ((MemoryTag)3, "", "", 0) PlayerParam_unk[7 * 32];
     atn::Csv csv((const char*)data, size);
     while (csv.fn_8005BBF8() != 0) {

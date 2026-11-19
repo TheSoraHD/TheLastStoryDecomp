@@ -1,3 +1,4 @@
+#include "game/GameConfig_unk.h"
 #include "game/EnemyQuarkSecond.h"
 #include "macros.h"
 #include "game/GameVoice.h"
@@ -42,22 +43,9 @@ extern "C" float fn_800DC288(const char* s); // inferred: string to float
 extern "C" int fn_800DC12C(const char* s);   // inferred: string to int
 // inferred: std::string concatenation (weak copy 0x8006AFF8)
 extern "C" std::string fn_8006AFF8(const std::string& a, const std::string& b);
-// inferred: field (lbl_8087F430); route tables (fn_8013C504) and the camera follow state (names
-// invented, as in game/EnemyQuarkFirst.cpp)
-struct Field_unk {
-    GameScene* fn_8013C504();
-    unsigned char m000[0x4D8];
-    int m4D8;
-    unsigned char m4DC[0x8A0 - 0x4DC];
-    CharaTask* m8A0;
-    unsigned char m8A4[0x97C - 0x8A4];
-    unsigned char m97C;
-    unsigned char m97D[0x10D8 - 0x97D];
-    GameScene* m10D8; // inferred: route table (read directly by fn_80342674)
-};
-extern "C" Field_unk* lbl_8087F430;
+extern "C" GameTask* lbl_8087F430;
 // inferred: field accessor (weak copy 0x80121F00, as in game/EnemyJill.cpp)
-extern "C" inline Field_unk* fn_80121F00() {
+extern "C" inline GameTask* fn_80121F00() {
     return lbl_8087F430;
 }
 // inferred: route tables of the field, null without a field (name invented)
@@ -106,8 +94,8 @@ EnemyQuarkSecond::EnemyQuarkSecond(atn::Task* parent, EnemyInfo_unk* info)
     m1680.LoadRequest("ef_bu047b.efp");
     m168C.LoadRequest("ef_bu047c.efp");
     m1698.LoadRequest("ef_bs079b.efp");
-    ((GameTask*)fn_80121F00())->fn_80370320(0x65, 1, 0);
-    ((GameTask*)fn_80121F00())->fn_80370320(0x68, 1, 0);
+    fn_80121F00()->fn_80370320(0x65, 1, 0);
+    fn_80121F00()->fn_80370320(0x68, 1, 0);
     fn_80338CDC(&mColli, 0);
     m1598.Set_unk(0.0f, 0.0f, 0.0f);
     mFlagB11 = 1;
@@ -248,22 +236,24 @@ int EnemyQuarkSecond::vf0C() {
 // --- declarations used by the state functions (names invented unless noted) ---
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
 // inferred: effect manager (atn::EffectManager, global instance at 0x8087F3C0)
-struct EffectMgr_unk;
-extern "C" EffectMgr_unk* lbl_8087F3C0;
+namespace atn {
+class EffectManager;
+}
+extern "C" atn::EffectManager* lbl_8087F3C0;
 // inferred: accessor of the effect manager (weak copy 0x800F7FA0; inlined unless the caller is over
 // the inline budget)
-extern "C" inline EffectMgr_unk* fn_800F7FA0() {
+extern "C" inline atn::EffectManager* fn_800F7FA0() {
     return lbl_8087F3C0;
 }
 extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the next effects
-extern "C" inline void fn_800F7FA8(EffectMgr_unk* mgr, void* owner, int arg) {
+extern "C" inline void fn_800F7FA8(atn::EffectManager* mgr, void* owner, int arg) {
     fn_80232B7C(owner, arg);
 }
-extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
+extern "C" void fn_80239DAC(atn::EffectManager* mgr, void* owner, int id, int arg); // inferred: stops an effect
 // inferred: plays `efp` on `model` (weak copy 0x8026607C of game/Em201ZanGurgFinal.cpp; declared without
 // a body: its constants are in the pool of that unit, not in this one)
-extern "C" void fn_8026607C(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg);
-extern "C" void fn_8023A108(EffectMgr_unk* mgr, atn::EfpFile* efp, int id, int arg);
+extern "C" void fn_8026607C(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Model* model, int arg);
+extern "C" void fn_8023A108(atn::EffectManager* mgr, atn::EfpFile* efp, int id, int arg);
 namespace atn {
 // inferred: effect manager (atn/EffectManager.cpp); only the member called here is declared (as in
 // game/EnemyQuarkStand.cpp)
@@ -272,13 +262,13 @@ public:
     void fn_8023A254(unsigned int owner, int group, float rate); // inferred: speed of the effects
 };
 } // namespace atn
-extern "C" void fn_80276AE4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, const atn::Vector3& pos,
+extern "C" void fn_80276AE4(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Model* model, const atn::Vector3& pos,
                             const atn::Vector3& rot, int a, int b, int c, float scale);
 struct Color4f_unk {
     Color4f_unk() {}
     float r, g, b, a;
 };
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
+extern "C" void fn_8023A8B4(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Model* model, void* node,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
@@ -312,7 +302,7 @@ struct PlayerInput_unk {
     float m908;
     float m90C;
 };
-extern "C" inline PlayerInput_unk* fn_80122550(Field_unk* field) {
+extern "C" inline PlayerInput_unk* fn_80122550(GameTask* field) {
     return (PlayerInput_unk*)((char*)field + 0x6C);
 }
 // inferred: starts a rumble (weak copy 0x8028CFB8 of game/Em203GreaterDaemon.cpp: toggles bit 0)
@@ -337,7 +327,8 @@ struct FieldMap_unk {
     MapHolder_unk* m10D8;
 };
 extern "C" void fn_80354110(EnemyTask* enemy); // inferred: EnemyQuarkStand member of another queue
-extern "C" void* lbl_8087EE98;
+struct ColliManager_unk;
+extern "C" ColliManager_unk* lbl_8087EE98;
 extern "C" int fn_8004ED34(void* colli, void* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg7); // inferred: ray test
 // inferred: size of a vector (weak copy 0x800E0AA8 of atn/WordWrap_unk.cpp) and element i (weak copy
@@ -393,19 +384,19 @@ extern "C" inline void fn_80339F74(BattleCharaTask* chara, int value) {
 
 // inferred: releases the field camera (inline: expanded in vf40, weak copy 0x80344BB4)
 inline void EnemyQuarkSecond::fn_80344BB4() {
-    Field_unk* field = lbl_8087F430;
-    if (field->m8A0 != 0) {
-        field->m8A0 = 0;
-        field->m4D8 = 0;
-        field->m97C = 0;
+    GameTask* field = lbl_8087F430;
+    if (field->mCamera.m834 != 0) {
+        field->mCamera.m834 = 0;
+        field->mCamera.m46C.mMode = 0;
+        field->mCamera.m910 = 0;
     }
 }
 
 // inferred: sets the event flag `index` once (inline: expanded in vf3C, weak copy 0x8034472C called by
 // the functions over the inline budget)
 inline void EnemyQuarkSecond::fn_8034472C(int index, int value) {
-    if (((GameTask*)lbl_8087F430)->fn_80370A78(index) == 0) {
-        ((GameTask*)lbl_8087F430)->fn_80370AE4(index, value);
+    if (lbl_8087F430->fn_80370A78(index) == 0) {
+        lbl_8087F430->fn_80370AE4(index, value);
     }
 }
 
@@ -455,7 +446,7 @@ void EnemyQuarkSecond::vf10() {
         m14B0 = leader;
         mC58.mC4 = leader;
     }
-    if (((GameTask*)fn_80121F00())->fn_80370A78(0x8C) != 0) {
+    if (fn_80121F00()->fn_80370A78(0x8C) != 0) {
         if (m58C == 13) {
             fn_8016E970(3);
             fn_8034441C(0x3E, 1, 1.0f);
@@ -473,13 +464,13 @@ void EnemyQuarkSecond::vf10() {
                 }
             }
         }
-        ((GameTask*)fn_80121F00())->fn_80370AE4(0x8C, 0);
+        fn_80121F00()->fn_80370AE4(0x8C, 0);
         if (m14BC == 1) {
             fn_80239DAC(fn_800F7FA0(), &m1610, 0, 0);
             fn_800F7FA8(fn_800F7FA0(), &m1610, 0);
             fn_80276AE4(fn_800F7FA0(), &m1610, &mMotion, atn::Vector3(0.0f, 0.0f, 0.0f),
                         atn::Vector3(0.0f, 0.0f, 0.0f), -1, -1, 1, 4.0f);
-            ((GameTask*)fn_80121F00())->fn_80370320(0x38C, 1, 0);
+            fn_80121F00()->fn_80370320(0x38C, 1, 0);
             m14C4->GetStatus_unk()->fn_8012D180();
             m14C4->GetStatus_unk()->m228 = 1.0f;
             m14C4->GetModel_unk()->fn_8009373C("op_eyepatch", 0);
@@ -579,7 +570,7 @@ void EnemyQuarkSecond::vf10() {
             free = 0;
         }
         fn_80339F74(this, free);
-        MapTask* map = ((GameTask*)fn_80121F00())->GetCurrentMap();
+        MapTask* map = fn_80121F00()->GetCurrentMap();
         if (mPos.y - fn_8000D9E8()->GetHead_unk()->fn_8013C38C()->y > 20.0f) {
             kind = 3;
         } else {
@@ -706,7 +697,7 @@ void EnemyQuarkSecond::vf40(HitInfo_unk* hit) {
                 mStatus.m04 = 1.0f;
                 mStatus.fn_8013322C(0x20);
             } else {
-                ((GameTask*)lbl_8087F430)->fn_80370AE4(0xCE, 1);
+                lbl_8087F430->fn_80370AE4(0xCE, 1);
                 mMotion.fn_8009373C("op_01_horn_l", 0);
                 mMotion.fn_8009373C("op_01_hornlight_l", 0);
             }
@@ -975,20 +966,15 @@ extern "C" double acos(double x);
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
 
 // inferred: debug menu entries (as in game/Em315Coffin.cpp)
-extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3, int arg4);
-extern "C" void fn_800874C8(void* group, const char* name, int* value, int min, int max, int step, int arg6,
-                            int arg7);
-extern "C" void fn_8008771C(void* group, const char* name, float* value, float min, float max, float step,
-                            int arg6, int arg7);
+extern "C" void fn_80087994(void* group, const char* name, int* value, void* func, void* arg);
+extern "C" void fn_800874C8(void* group, const char* name, int* value, int min, int max, int step, void* func,
+                            void* arg);
+extern "C" void fn_8008771C(void* group, const char* name, float* value, float min, float max, float step, void* func,
+                            void* arg);
 
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 
-// inferred: game settings (lbl_8087F0A8, as in game/CharaTask.cpp): frames per second at 0x30
-struct QuarkSettings_unk {
-    unsigned char m00[0x30];
-    int m30;
-};
-extern "C" QuarkSettings_unk* lbl_8087F0A8;
+extern "C" GameConfig_unk* lbl_8087F0A8;
 
 // inferred: the motion of track 0 has reached its end (the frame is read before the length); name
 // invented
@@ -1002,7 +988,7 @@ inline bool EnemyQuarkSecond::IsMotionEnd_unk() {
 
 // inferred: falls to the ground (inlined in the states 12 and 13); name invented
 inline void EnemyQuarkSecond::Fall_unk() {
-    int fps = lbl_8087F0A8->m30;
+    int fps = lbl_8087F0A8->m030;
     m574.y += -98.1f / (float)(fps * fps);
     mPos.y += m574.y;
     if (mPos.y < 0.0f) {
@@ -1094,7 +1080,7 @@ inline void QuarkRotZYX_unk(atn::Matrix3x4& m, const atn::Vector3& rot) {
 
 // inferred: plays an effect bound to a matrix (kind 5: `target` is a Matrix3x4; as gmk/PlayEffect.cpp, which
 // passes a model)
-extern "C" void fn_8023A680(EffectMgr_unk* mgr, atn::EffFile* res, int arg2, int kind, const void* target,
+extern "C" void fn_8023A680(atn::EffectManager* mgr, atn::EffFile* res, int arg2, int kind, const void* target,
                             const atn::Vector3* pos, const atn::Vector3* rot, int arg7, int arg8, int arg9,
                             int arg10, float scale);
 
@@ -1205,7 +1191,7 @@ void EnemyQuarkSecond::fn_8033D040() {
     } else if (m14B4 == 2) {
         float t = MIN(1.0f, MAX(0.0f, 0.25f * (mMotion.mTracks[0].m08 - 45.0f)));
         mPos.y = sRiseFrom_unk + (sRiseTo_unk - sRiseFrom_unk) * t;
-        Field_unk* field = lbl_8087F430;
+        GameTask* field = lbl_8087F430;
         if (mMotion.mTracks[0].m08 >= 49.0f) {
             m14B4++;
             PlayerInput_unk* input = fn_80122550(field);
@@ -1970,7 +1956,7 @@ struct QuarkLook_unk {
     unsigned char m18[0x24 - 0x18];
     float m24;
 };
-// inferred: the same field seen with its camera members (Field_unk of this file keeps only the words it clears)
+// inferred: the same field seen with its camera members (GameTask of this file keeps only the words it clears)
 struct QuarkField_unk {
     unsigned char m000[0x4D8];
     QuarkCamera_unk m4D8;
@@ -2002,7 +1988,7 @@ inline float QuarkFinaleRate_unk(atn::Model* model) {
 // original folds it after the test (two `b`), ours keeps a zero in r29; 5 variants
 void EnemyQuarkSecond::fn_803412AC() {
     Fall_unk();
-    QuarkField_unk* field = (QuarkField_unk*)lbl_8087F430;
+    QuarkField_unk* field = (QuarkField_unk*)lbl_8087F430; // inferred: view of GameTask::mCamera (m46C, m51C, m834, mShake, m910); kept, see docs/secuencial-20261119.md
     if (m14B4 == 0) {
         CharaTask* t = m14B0 = lbl_8087F8A0->mHead;
         float target = (t->mPos - mPos).ToRotationZ_unk().y;

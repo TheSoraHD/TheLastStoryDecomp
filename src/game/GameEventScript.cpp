@@ -58,6 +58,7 @@
 #include "game/ChaserNpc.h"
 #include "gmk/TreasureBox.h"
 #include "atn/EffectManager.h"
+#include "atn/EffectApi_unk.h"
 #include "game/SkillEffectManager.h"
 #include "game/DamageCalc_unk.h"
 #include "db/ChapterList_unk.h"
@@ -147,12 +148,13 @@ extern "C" int strncmp(const char* a, const char* b, unsigned long n);
 extern "C" int fn_802180A8(const char* s); // inferred: motion id from its name
 extern "C" void fn_800D2338(atn::Task* task); // inferred: deletes a task
 extern "C" ArenaTask* lbl_8087EE78;
-extern "C" int fn_80444020(Inventory* party, int item, int a, int b, int c, int d, int* outA, int* outB,
-                           int* outC); // inferred: adds an item (as in game/BattleResult.cpp)
+// inferred: adds an item (as in game/BattleResult.cpp)
+extern "C" int fn_80444020(Inventory* party, int item, int a, int b, void* c, int d, int* outA, int* outB, int* outC);
 extern "C" int rand();
 extern "C" int atoi(const char* s);
 extern "C" int sprintf(char* buf, const char* format, ...);
-extern "C" void* lbl_8087EF70;                                     // inferred: pad input
+struct Pad_unk;
+extern "C" Pad_unk* lbl_8087EF70;                                     // inferred: pad input
 extern "C" int fn_800A555C(void* pad, int port, int button);       // inferred: button triggered
 extern "C" unsigned int fn_800DC6B4(const char* s); // inferred: string hash
 extern "C" void fn_8044441C(Inventory* inv, int id, int num); // inferred: removes items
@@ -251,7 +253,7 @@ struct ScriptMotionArgs_unk : public ScriptCmd_unk {
     int m34;          // inferred: flags (bit 0: wait)
 };
 extern "C" const char* const lbl_8074EF78[];
-extern "C" void fn_8036F268(GameTask* field, int type, int id, int subId, int entry, int a, int b, int reason,
+extern "C" void fn_8036F268(GameTask* field, int type, int id, int subId, int entry, int a, void* b, int reason,
                             int arg9); // inferred: changes the map (game/NewCampPartsMapSelect.cpp)
 extern "C" int lbl_8087D990; // inferred: last save slot (-1: none)
 extern "C" int fn_804444E8(Inventory* inv, int id); // inferred: number of items
@@ -1180,7 +1182,8 @@ static inline int FlagValue_unk(int kind, int flag) {
     return lbl_8087F430->fn_80370A78(flag);
 }
 
-extern "C" void* lbl_8087EE98; // inferred: collision manager
+struct ColliManager_unk;
+extern "C" ColliManager_unk* lbl_8087EE98; // inferred: collision manager
 extern "C" int fn_8004ED34(void* world, atn::ColliResult_unk* result, const atn::Vector3* from,
                            const atn::Vector3* to, unsigned int mask, void* ignore, int arg); // inferred: ray test
 
@@ -1322,7 +1325,7 @@ void GameEventScript::CharaMarkers_unk(Manager* manager, atn::SimpleArray<gs::Np
         marker.m1C = 1.0f - ((marker.m1C > 0.0f ? marker.m1C : 0.0f) < 1.0f
                                  ? (marker.m1C > 0.0f ? marker.m1C : 0.0f)
                                  : 1.0f);
-        marker.m10 = (int)chara; // inferred: the character of the marker
+        marker.m10 = chara;
         lbl_8087F490->fn_803E3C78(marker);
     }
 }
@@ -2160,7 +2163,7 @@ void GameEventScript::ApproachCharas_unk(Manager* manager, atn::SimpleArray<gs::
                     }
                     }
                     if (start) {
-                        m98 = (int)chara;
+                        m98 = chara;
                         for (int j = 0; j < e->mCount; j++) {
                             if (e->mConds[j].m00 < 0) {
                                 Done_unk(e->m00) = true;
@@ -3819,10 +3822,9 @@ extern "C" int fn_80267B20(CharaTask* chara); // inferred: returns m55C (game/Ga
 extern "C" float fn_80011220(float x); // inferred: fabs (weak copy of another helper)
 gs::AttentionPoint* FindAttention_unk(GameScene* scene, int id);
 
-// NONMATCHING: 98.5% - the original calls the weak accessor fn_8013C504 (named after the Field_unk view
-// in symbols.txt) where this loads GameTask::m10D8, and the weak lookup FindPlace_unk__14RouteTable_unk
-// (RouteTable_unk is a view of the warp points of GameScene) where this calls FindWarpIn_unk; the
-// store of mBC is scheduled after the first flag extraction
+// NONMATCHING: 99.3% - the store of mBC is scheduled after the first flag extraction (the scene comes from the
+// weak getter GameTask::fn_8013C504 and the warp points from the weak GameScene::FindPlace_unk, as in the
+// original)
 // inferred: turns or places the character m08/m0C (m10: 0 turns by m14, 1 turns to m14, 2 next to the
 // character m18/m1C, 3 faces it, 4 scene position, 5 route place m28, 6 faces it, 7 faces the attention
 // point m28); instant with bit 1 of m24, otherwise walking. Every inline is called (budget, R3)
@@ -3890,7 +3892,7 @@ void GameEventScript::fn_803A26F4(ScriptResult_unk& result, ScriptCmd_unk* cmd) 
             break;
         }
         case 4: {
-            GameScene* scene = fn_80121F00() != 0 ? fn_80121F00()->m10D8 : 0;
+            GameScene* scene = fn_80121F00() != 0 ? fn_80121F00()->fn_8013C504() : 0;
             if (scene != 0) {
                 atn::Vector3 pos;
                 atn::Vector3 rot;
@@ -3910,8 +3912,8 @@ void GameEventScript::fn_803A26F4(ScriptResult_unk& result, ScriptCmd_unk* cmd) 
             if (!instant) {
                 chara->fn_8017039C(args->m28, 0);
             } else {
-                GameScene* scene = fn_80121F00() != 0 ? fn_80121F00()->m10D8 : 0;
-                gs::WarpPoint* warp = scene != 0 ? FindWarpIn_unk(scene, args->m28) : 0;
+                GameScene* scene = fn_80121F00() != 0 ? fn_80121F00()->fn_8013C504() : 0;
+                gs::WarpPoint* warp = scene != 0 ? scene->FindPlace_unk(args->m28) : 0;
                 if (warp != 0) {
                     chara->SetPosition_unk(warp->mPos);
                     chara->SetRot_unk(atn::Vector3(0.0f, warp->m14, 0.0f));
@@ -3920,8 +3922,8 @@ void GameEventScript::fn_803A26F4(ScriptResult_unk& result, ScriptCmd_unk* cmd) 
             break;
         }
         case 6: {
-            GameScene* scene = fn_80121F00() != 0 ? fn_80121F00()->m10D8 : 0;
-            gs::WarpPoint* warp = scene != 0 ? FindWarpIn_unk(scene, args->m28) : 0;
+            GameScene* scene = fn_80121F00() != 0 ? fn_80121F00()->fn_8013C504() : 0;
+            gs::WarpPoint* warp = scene != 0 ? scene->FindPlace_unk(args->m28) : 0;
             if (warp != 0) {
                 atn::Vector3 dir = warp->mPos - *chara->fn_8013C38C();
                 if (!(fn_80011220(dir.LengthSq_unk()) < 1.1920929e-7f)) {
@@ -3938,7 +3940,7 @@ void GameEventScript::fn_803A26F4(ScriptResult_unk& result, ScriptCmd_unk* cmd) 
             break;
         }
         case 7: {
-            GameScene* scene = fn_80121F00() != 0 ? fn_80121F00()->m10D8 : 0;
+            GameScene* scene = fn_80121F00() != 0 ? fn_80121F00()->fn_8013C504() : 0;
             gs::AttentionPoint* point = scene != 0 ? FindAttention_unk(scene, args->m28) : 0;
             if (point != 0) {
                 atn::Vector3 dir = point->mPos - *chara->fn_8013C38C();
@@ -4520,7 +4522,7 @@ void GameEventScript::fn_803A49F4(ScriptResult_unk& result, ScriptCmd_unk* cmd) 
 extern "C" atn::EfpFile* fn_800EFBC4(int id); // inferred: battle effect of row `id` (game/BattleTask.cpp)
 extern "C" atn::EfpFile* fn_800EFC64(int id); // inferred: effect of a skill
 extern "C" atn::EfpFile* fn_800EFDA0(int id); // inferred: skill effect of row `id`
-extern "C" void fn_8023A8B4(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
+extern "C" void fn_8023A8B4(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Model* model, void* node,
                             const atn::Vector3& pos, const atn::Vector3& rot, const atn::Color& color, int arg7,
                             int arg8, int arg9, float scale); // inferred: plays an effect
 
@@ -4807,19 +4809,19 @@ static inline int ChaseValue_unk(int kind) {
         }
         break;
     case 5:
-        value = lbl_8087F0A8->m4DC.m08;
+        value = lbl_8087F0A8->m4DC.mVisSearchDistance;
         break;
     case 6:
-        value = lbl_8087F0A8->m4DC.m04;
+        value = lbl_8087F0A8->m4DC.mVisChaseDistance;
         break;
     case 7:
-        value = lbl_8087F0A8->m4DC.m0C * 57.295776f;
+        value = lbl_8087F0A8->m4DC.mVisAngle * 57.295776f;
         break;
     case 9:
-        value = lbl_8087F0A8->m53C.m44;
+        value = lbl_8087F0A8->m53C.mChPlayerHit;
         break;
     case 10:
-        value = lbl_8087F0A8->m53C.m40;
+        value = lbl_8087F0A8->m53C.mChRunnerHit;
         break;
     case 11:
         if (lbl_8087F098 != 0) {
@@ -4883,16 +4885,16 @@ void GameEventScript::fn_803A5CDC(ScriptResult_unk& result, const ScriptCmd_unk*
         }
         break;
     case 4:
-        lbl_8087F0A8->m4DC.m38 = value;
+        lbl_8087F0A8->m4DC.mChaseDelay = value;
         break;
     case 5:
-        lbl_8087F0A8->m4DC.m08 = value;
+        lbl_8087F0A8->m4DC.mVisSearchDistance = value;
         break;
     case 6:
-        lbl_8087F0A8->m4DC.m04 = value;
+        lbl_8087F0A8->m4DC.mVisChaseDistance = value;
         break;
     case 7:
-        lbl_8087F0A8->m4DC.m0C = 0.017453292f * value;
+        lbl_8087F0A8->m4DC.mVisAngle = 0.017453292f * value;
         break;
     case 8:
         if (ChaserNpc::fn_8018059C() != 0) {
@@ -4904,10 +4906,10 @@ void GameEventScript::fn_803A5CDC(ScriptResult_unk& result, const ScriptCmd_unk*
         }
         break;
     case 9:
-        lbl_8087F0A8->m53C.m44 = value;
+        lbl_8087F0A8->m53C.mChPlayerHit = value;
         break;
     case 10:
-        lbl_8087F0A8->m53C.m40 = value;
+        lbl_8087F0A8->m53C.mChRunnerHit = value;
         break;
     case 11:
         if (lbl_8087F098 != 0) {
@@ -6406,7 +6408,7 @@ void GameEventScript::fn_803AAA74(ScriptResult_unk& result, const ScriptCmd_unk*
 }
 
 extern "C" CharaInfo_unk* fn_8020924C(int id);         // inferred: character table entry
-extern "C" chr::CharaData_unk* fn_8020A81C(int id);    // inferred: character data
+extern "C" chr::CharaData_unk* fn_8020A81C(const char* name);    // inferred: character data
 extern "C" db::GrowthEntry_unk* fn_8020FCE8(int id);   // inferred: growth table
 
 // inferred: gives the party the experience of defeating the character m08 (its level and experience; scaled
@@ -6602,7 +6604,8 @@ void GameEventScript::fn_803AB96C(int scope, unsigned int index, int old, int va
     }
 }
 
-extern "C" void* lbl_8087EE98; // inferred: collision manager
+struct ColliManager_unk;
+extern "C" ColliManager_unk* lbl_8087EE98; // inferred: collision manager
 extern "C" int fn_8004ECC0(void* world, atn::Vector3* hit, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg); // inferred: ray test
 

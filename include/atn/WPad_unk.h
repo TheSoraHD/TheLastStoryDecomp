@@ -39,6 +39,9 @@ struct KPADStatus_unk {
 
 struct WPad_unk {
     WPad_unk();
+    // inferred: first Wii Remote (game/SystemErrorMessage_unk.cpp); names invented
+    int GetExt_unk() { return mStatus[0][0].mDevType; }
+    bool IsNoPad_unk() const { return mConnected[0] == 0; }
 
     // inferred: button state helpers (inlined everywhere in the original)
     void Press_unk(int port, int button) {

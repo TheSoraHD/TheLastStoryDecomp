@@ -1,5 +1,6 @@
 // inferred file name (splits-auto): AI helpers of the scripts of AI/AI_archer_attack01.cpp. They
 // work on the current character (lbl_8087EE60) and on lists of 16 characters.
+#include "game/GameConfig_unk.h"
 #include "game/CharaTask.h"
 #include "game/TeamAIManager.h"
 #include "game/BattleTask.h"
@@ -18,29 +19,14 @@ extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared len
 extern "C" int fn_802180A8(const char* name);        // inferred: motion id from its name
 extern "C" atn::Vector3 lbl_807C7030;                // inferred: zero vector
 
-// inferred: current character and its list of 16 known characters (set by AI/AiUtil_unk)
-struct AiList_unk {
-    unsigned char m000[0x24C];
-    unsigned char mCount; // 0x24C
-    CharaTask* mCharas[16]; // 0x250
-};
+// inferred: current character and its link with 16 known characters (set by AI/AiUtil_unk)
 extern "C" CharaTask* lbl_8087EE60;
-extern "C" AiList_unk* lbl_8087EE64;
+extern "C" CharaLink_unk* lbl_8087EE64;
 extern "C" int fn_800197A4(void* ai, atn::Vector3* out, int* count, CharaTask* chara, const atn::Vector3* dir,
                            int arg, float angle);
 extern "C" int fn_80018C80(void* ai, int arg, float angle);
-// inferred: game settings (lbl_8087F0A8), only the field read here
-struct AiSettings_unk {
-    unsigned char m000[0x468];
-    float m468; // inferred: factor applied to the wait time of characters with CharaTask::mFlag10
-};
-extern "C" AiSettings_unk* lbl_8087F0A8;
-// inferred: field (lbl_8087F430)
-struct Field_unk {
-    unsigned char m0000[0x10D8];
-    GameScene* m10D8;
-};
-extern "C" Field_unk* lbl_8087F430;
+extern "C" GameConfig_unk* lbl_8087F0A8;
+extern "C" GameTask* lbl_8087F430;
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
 extern "C" int fn_8003F440(CharaTask* chara, CharaStatusPair_unk* skill);
 
@@ -64,13 +50,13 @@ static inline void Compact_unk(CharaTask** list) {
 
 extern "C" int fn_8001A444(int index) {
     if (lbl_8087F430 != 0) {
-        return ((GameTask*)lbl_8087F430)->fn_80370174(index);
+        return lbl_8087F430->fn_80370174(index);
     }
     return 0;
 }
 
 // inferred: accessor of the list (it is reloaded for every element)
-static inline AiList_unk* GetList_unk() {
+static inline CharaLink_unk* GetList_unk() {
     return lbl_8087EE64;
 }
 
@@ -79,7 +65,7 @@ static inline AiList_unk* GetList_unk() {
 extern "C" void fn_8001A464(CharaTask** list) {
     int i;
     for (i = 0; i < GetList_unk()->mCount && i < 16; i++) {
-        list[i] = (*(AiList_unk* volatile*)&lbl_8087EE64)->mCharas[i];
+        list[i] = (*(CharaLink_unk* volatile*)&lbl_8087EE64)->mCharas[i];
     }
     for (; i < 16; i++) {
         list[i] = 0;
@@ -296,7 +282,7 @@ extern "C" void fn_8001AEDC(unsigned int order, int* a, int* b, int* c, int* d) 
         int time = *b;
         CharaTask* other = (CharaTask*)*a;
         if (other != 0 && other->mFlag10) {
-            time = time * lbl_8087F0A8->m468;
+            time = time * lbl_8087F0A8->mSurround.mBattleWaitRatio;
         }
         if (self->mType == 3) {
             time = AI_MAX(time + fn_800142D4(self), 0);
@@ -552,7 +538,7 @@ extern "C" float fn_8001BD14(CharaTask* chara) {
             reach = chara->m64->m38;
             break;
         }
-        if (chara->mType == 3 && lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->fn_80370174(10) > 0 && chara->m5C != 0 &&
+        if (chara->mType == 3 && lbl_8087F430 != 0 && lbl_8087F430->fn_80370174(10) > 0 && chara->m5C != 0 &&
             (chara->m5C->m122 == 4 || chara->m5C->m122 == 2)) {
             reach *= 3.0f;
         }

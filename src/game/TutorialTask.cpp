@@ -6,6 +6,7 @@
 #include "atn/Memory.h"
 #include "atn/Csv.h"
 #include "atn/D2A_Task.h"
+#include "atn/D2A_TaskApi_unk.h"
 #include "atn/VideoTHP.h"
 #include "atn/SoundRef.h"
 #include "atn/Keyboard.h"
@@ -31,25 +32,26 @@ extern "C" void fn_801FED24(void* layout, unsigned int hash, int index, float va
 extern "C" void fn_801FEE08(void* layout, unsigned int hash, const wchar_t* text); // inferred: sets a text
 extern "C" const wchar_t* fn_80116FC0(int a, int id); // inferred: message text
 extern "C" atn::SoundRef fn_800C31F4(const char* name, int a, int b, float volume); // inferred: plays a sound
-extern "C" void* lbl_8087EEC8; // inferred: font
+namespace atn {
+class Font_unk;
+}
+extern "C" atn::Font_unk* lbl_8087EEC8; // inferred: font
 extern "C" float fn_8006EF48(void* font, float size, const wchar_t* text, float spacing, int a, int b); // inferred: text width
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 
 
-// inferred: settings (lbl_8087F0A8); only the members used here
-struct Settings_unk {
-    Input_unk* fn_80116BAC() { return &mInput; } // inferred: weak copy 0x80116BAC
-    unsigned char m000[0x484];
-    float m484;         // inferred: offset of the popups
-    unsigned char m488[0x48C - 0x488];
-    Input_unk mInput;   // 0x48C
-};
-extern "C" Settings_unk* lbl_8087F0A8;
+#include "game/GameConfig_unk.h"
+extern "C" GameConfig_unk* lbl_8087F0A8;
+// inferred: weak copy 0x80116BAC
+inline Input_unk* GameConfig_unk::fn_80116BAC() {
+    return &mInput;
+}
 // inferred: accessor of the settings (weak copy 0x800F52F8 of another file)
-extern "C" inline Settings_unk* fn_800F52F8() {
+extern "C" inline GameConfig_unk* fn_800F52F8() {
     return lbl_8087F0A8;
 }
-extern "C" void* lbl_8087EF70; // inferred: pad
+struct Pad_unk;
+extern "C" Pad_unk* lbl_8087EF70; // inferred: pad
 
 // HomeButtonMenu: game/HomeButtonMenu.h
 
@@ -200,16 +202,13 @@ void TutorialTask::fn_805BA934() {
     }
 }
 
-// inferred: helpers of the field and of the UI (names keep the addresses)
-// inferred: field (lbl_8087F430); name invented
-struct TutorialField_unk {
-    void SetFadeMode_unk(int mode) { m563C = mode; } // inferred: weak copy 0x805BB594
-    unsigned char m00[0x563C];
-    int m563C;
-};
-extern "C" TutorialField_unk* lbl_8087F430;
+// inferred: weak setter 0x805BB594 of the fade mode of the field (emitted here)
+inline void GameTask::SetFadeMode_unk(int mode) {
+    m563C = mode;
+}
+extern "C" GameTask* lbl_8087F430;
 // inferred: accessor of the field (weak copy 0x80121F00 of another file)
-extern "C" inline TutorialField_unk* fn_80121F00() {
+extern "C" inline GameTask* fn_80121F00() {
     return lbl_8087F430;
 }
 extern "C" RenderSetting_unk* fn_802F0990(); // inferred: returns lbl_8087EFA8 (render settings)
@@ -446,7 +445,7 @@ void TutorialTask::vf10() {
         if (m5B8 != 0) {
             m5B8->vf0C(-1, 0xFFFFFF, 0, 0, 15);
         } else {
-            ((GameTask*)fn_80121F00())->fn_8037529C(-1, 0xFFFFFF, 0, 0, 15);
+            fn_80121F00()->fn_8037529C(-1, 0xFFFFFF, 0, 0, 15);
         }
         fn_805BBD7C();
         return;
@@ -586,7 +585,8 @@ void TutorialTask::fn_805BBD7C() {
 
 extern "C" int fn_8004ED34(void* colli, atn::ColliResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg7); // inferred: ray test (game/BattleCharaTask.cpp)
-extern "C" void* lbl_8087EE98; // inferred: collision of the map
+struct ColliManager_unk;
+extern "C" ColliManager_unk* lbl_8087EE98; // inferred: collision of the map
 
 // inferred: free position of the camera around the character: the camera of the page looks from the
 // character (and from the nearest route point) in the direction of the page; when the 20 units in front hit
@@ -595,7 +595,7 @@ extern "C" void* lbl_8087EE98; // inferred: collision of the map
 // allocated in another order
 __declspec(noinline) void TutorialTask::fn_805BC1C0() {
     if (lbl_8087F430 != 0 && mChara != 0) {
-        GameScene* scene = ((GameTask*)lbl_8087F430)->m10D8;
+        GameScene* scene = lbl_8087F430->m10D8;
         int point = scene->fn_803C1560(&mPos, mChara->fn_80179D44(), 0, 0, 1, -1.0f);
         TutorialPage_unk& page = mPages[mPage];
         atn::Vector3 eye = scene->m98.mData[point - 1].mPos;
@@ -665,7 +665,7 @@ int TutorialPopup::vf0C() {
     } else if (fn_800D3FA4() != 0) {
         float ofs = -16.0f;
         if (lbl_8087F0A8 != 0) {
-            ofs = lbl_8087F0A8->m484;
+            ofs = lbl_8087F0A8->mTipsYOffset;
         }
         if (mId == 0xC6) {
             ofs = 0.0f;

@@ -1,3 +1,4 @@
+#include "game/PlayerManager.h"
 #include "game/Em209SmallGolem.h"
 #include "game/BattleTask.h"
 #include "math/Vec.h"
@@ -11,6 +12,7 @@
 #include "atn/DrawHelper.h"
 #include "atn/Lerp_unk.h"
 #include "game/GameTask.h"
+#include "atn/EffectManager.h"
 
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
@@ -23,41 +25,29 @@ extern "C" float fn_800DC288(const char* s); // inferred: string to float
 // inferred: character data by name (game/CharaTask.cpp declares it with an int id; same C symbol)
 extern "C" chr::CharaData_unk* fn_8020A81C(const char* name);
 // inferred: debug menu entries (as in game/Em101LittleZesya.cpp and game/NewCampPartsHint.cpp)
-extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3, int arg4);
-extern "C" void fn_80088FAC(void* group, const char* name, float* color, int arg3, int arg4, float min, float max,
-                            float step);
-// inferred: effect manager (as in game/CharaTask.cpp); mB8 is 2 while an effect of vf98 starts
-struct EffectMgr_unk {
-    unsigned char m00[0xB8];
-    int mB8;
-    unsigned char mBC[0xC4 - 0xBC];
-    int mC4; // inferred: set to 1 while the effect of the death sequence starts (vfEC)
-};
-extern "C" EffectMgr_unk* lbl_8087F3C0;
+extern "C" void fn_80087994(void* group, const char* name, int* value, void* func, void* arg);
+extern "C" void fn_80088FAC(void* group, const char* name, float* color, float min, float max, float step, void* func,
+                            void* arg);
+extern "C" atn::EffectManager* lbl_8087F3C0;
 extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the next effects
-extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int a, int b); // inferred: stops the effects
+extern "C" void fn_80239DAC(atn::EffectManager* mgr, void* owner, int a, int b); // inferred: stops the effects
 // inferred: color as four floats (as in game/CharaTask.cpp)
 struct Color4f_unk {
     Color4f_unk() {}
     Color4f_unk(float r_, float g_, float b_, float a_) : r(r_), g(g_), b(b_), a(a_) {}
     float r, g, b, a;
 };
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
+extern "C" void fn_8023A8B4(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Model* model, void* node,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
 
 // inferred: field (lbl_8087F430) and its event counters (as in gmk/Coffin.cpp)
-struct Field_unk;
-extern "C" Field_unk* lbl_8087F430;
-// inferred: player manager (lbl_8087F8A0; first character at 0x48, as in game/CharaTask.cpp)
-struct PlayerManager_unk {
-    unsigned char m00[0x48];
-    CharaTask* mHead;
-};
-extern "C" PlayerManager_unk* lbl_8087F8A0;
+extern "C" GameTask* lbl_8087F430;
+extern "C" PlayerManager* lbl_8087F8A0;
 extern "C" GameUI* lbl_8087F490;
 extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg, int arg2, float volume); // inferred: plays a sound
-extern "C" void* lbl_8087F0A8; // inferred: settings (pad at 0x48C)
+class GameConfig_unk;
+extern "C" GameConfig_unk* lbl_8087F0A8; // inferred: settings (pad at 0x48C)
 struct HomingParam_unk;
 // inferred: hint of the HUD (GameUI::m764) built as a temporary (name invented)
 struct GolemUIHint_unk : public GameUIElem1C_unk {
@@ -215,7 +205,7 @@ int Em209SmallGolem::vf0C() {
         m1528.IsLoading() == 0 && m1534.IsLoading() == 0) {
         void* group = m1550.Load("Em209SmallGolem");
         fn_80087994(group, "DebugDisp", &m1554, 0, 0);
-        fn_80088FAC(group, "StoneColor", &m14FC.r, 0, 0, 0.0f, 1.0f, 0.01f);
+        fn_80088FAC(group, "StoneColor", &m14FC.r, 0.0f, 1.0f, 0.01f, 0, 0);
         m1540 = m5C;
         mStatus.m18 |= 0xC2D8;
         mStatus.m18 |= 0x3800000;
@@ -285,11 +275,11 @@ inline void Em209SmallGolem::StartRevive_unk(CharaTask* by) {
 // loads of the skill call; 12 variants (helpers, temporaries, named colors, reversed arguments)
 void Em209SmallGolem::vf10() {
     m14B8 = mC58.mC4;
-    if (mStatus.IsState_unk(0x20) && m1548 != 0 && m58C == 2 && ((GameTask*)lbl_8087F430)->fn_80370A78(0xC9) == 1) {
+    if (mStatus.IsState_unk(0x20) && m1548 != 0 && m58C == 2 && lbl_8087F430->fn_80370A78(0xC9) == 1) {
         CharaTask* player = lbl_8087F8A0->mHead;
         atn::Vector3 d = mPos - player->mPos;
         float dist = PSVECMag(&d);
-        if (m1549 != 0 && ((GameTask*)lbl_8087F430)->fn_80370A78(0xC8) == 1) {
+        if (m1549 != 0 && lbl_8087F430->fn_80370A78(0xC8) == 1) {
             StartRevive_unk(0);
         } else if (dist < 50.0f && player->fn_8016DDB0(0) && player->m55C != 6) {
             GameUI* ui = lbl_8087F490;
@@ -491,7 +481,7 @@ void Em209SmallGolem::vf40(HitInfo_unk* hit) {
 }
 
 // inferred: effect `efp` on the model at its origin (as in Em202ForestSpider)
-inline void EffOrigin_unk(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model) {
+inline void EffOrigin_unk(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Model* model) {
     atn::Vector3 pos;
     atn::Vector3 rot;
     Color4f_unk color;
@@ -516,15 +506,15 @@ void Em209SmallGolem::vf98() {
     }
     if (m121C) {
         fn_80232B7C(m121C.get(), 0);
-        lbl_8087F3C0->mB8 = 2;
+        lbl_8087F3C0->mSystem.mLayer = 2;
         EffOrigin_unk(lbl_8087F3C0, m121C.get(), &mMotion);
-        lbl_8087F3C0->mB8 = 0;
+        lbl_8087F3C0->mSystem.mLayer = 0;
     }
     if (m648 != 0) {
         fn_80232B7C(&m1534, 0);
-        lbl_8087F3C0->mB8 = 2;
+        lbl_8087F3C0->mSystem.mLayer = 2;
         EffOrigin_unk(lbl_8087F3C0, &m1534, (atn::Model*)m648->m010);
-        lbl_8087F3C0->mB8 = 0;
+        lbl_8087F3C0->mSystem.mLayer = 0;
     }
     mFlag18 = 1;
 }
@@ -710,7 +700,7 @@ void Em209SmallGolem::fn_802CF728() {
 
 // inferred: plays the effect of the death sequence (locals in ascending order as in an inline; name invented)
 inline void PlayDeathEffect_unk(atn::EfpFile* efp, atn::Model* model, int flag) {
-    lbl_8087F3C0->mC4 = flag;
+    lbl_8087F3C0->mSystem.m78 = flag;
     atn::Vector3 pos;
     atn::Vector3 rot;
     Color4f_unk color;
@@ -725,7 +715,7 @@ inline void PlayDeathEffect_unk(atn::EfpFile* efp, atn::Model* model, int flag) 
     color.b = 1.0f;
     color.a = 1.0f;
     fn_8023A8B4(lbl_8087F3C0, efp, model, 0, pos, rot, color, -1, -1, flag, 1.0f);
-    lbl_8087F3C0->mC4 = 0;
+    lbl_8087F3C0->mSystem.m78 = 0;
 }
 
 void Em209SmallGolem::vfEC() {

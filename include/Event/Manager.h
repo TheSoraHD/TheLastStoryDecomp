@@ -16,6 +16,7 @@
 #include "atn/RenderSetting_unk.h"
 #include "atn/Light_unk.h"
 #include "atn/D2A_Task.h"
+#include "atn/D2A_TaskApi_unk.h"
 #include "atn/FadeCommon.h"
 #include "game/ResHandle.h"
 #include "atn/CharaLightData_unk.h"

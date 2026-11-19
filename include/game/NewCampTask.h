@@ -34,7 +34,7 @@ class NewCampPartsGmk;
 struct NewCampPair_unk {
     NewCampPair_unk() : mId(0), m04(0) {} // inferred: weak copy 0x8052AFF0 (sNullPair is built by __sinit)
     int mId;
-    int m04;
+    CharaTask* m04; // inferred: character of the member (PlayerManager::fn_8054A33C)
 };
 
 // inferred: what the camp opens with (GameTask::fn_8036E494; -1: none); names invented

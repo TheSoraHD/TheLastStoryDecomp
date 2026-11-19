@@ -4,6 +4,7 @@
 #include "atn/Model_unk.h"
 #include "atn/SoundRef.h"
 #include "atn/EffectManager.h"
+#include "atn/EffectApi_unk.h"
 #include "game/NewCampPartsTop.h"
 #include "game/NewCampPartsStatus.h"
 #include "game/NewCampPartsMapSelect.h"
@@ -36,13 +37,9 @@
 
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 extern "C" atn::SoundRef fn_80117228(int id); // inferred: plays a system sound effect
-// inferred: field (lbl_8087F430); only the members used here
-struct Field_unk {
-    unsigned char m0000[0x563C];
-    int m563C; // inferred: reason of the next map change
-};
-extern "C" Field_unk* lbl_8087F430;
-extern "C" void* lbl_8087FA20; // inferred: town task
+extern "C" GameTask* lbl_8087F430;
+class TownTask;
+extern "C" TownTask* lbl_8087FA20; // inferred: town task
 // inferred: xsca camera curves (as in game/Em309Ghoul.cpp)
 struct XsfCurveSet_unk {
     void fn_805BF410(float time, float* out, int x, int y, int z);
@@ -53,7 +50,8 @@ struct Xsca_unk {
     XsfCurveSet_unk* fn_805BDCBC(unsigned int index);
 };
 
-extern "C" void* lbl_8087EF70; // inferred: pad
+struct Pad_unk;
+extern "C" Pad_unk* lbl_8087EF70; // inferred: pad
 extern "C" float fn_800A56A8(void* pad, int port, int axis, int arg); // inferred: stick axis
 extern "C" GameConfig_unk* lbl_8087F0A8;
 
@@ -144,15 +142,15 @@ class Loader;
 atn::Loader* ResMgr_unk(); // inferred: loader of the game (lbl_8087F518)
 extern "C" void fn_8046ECDC(atn::Loader* loader, int show); // inferred: shows the loading screen
 // inferred: debug menu (atn/MindowsCommon.h; arguments in the order of game/NewCampPartsBase.cpp)
-extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3, int arg4); // AddBool
-extern "C" void fn_80087E9C(void* group, const char* name, void* value, int arg3, int arg4, float min, float max,
-                            float step); // x, y, z
-extern "C" void fn_8008771C(void* group, const char* name, float* value, int arg3, int arg4, float min, float max,
-                            float step); // AddFloat
-extern "C" void fn_80087858(void* group, const char* name, float* value, int arg3, int arg4, float min, float max,
-                            float step); // AddRadian
-extern "C" void fn_800874C8(void* group, const char* name, int* value, int min, int max, int step, int arg6,
-                            int arg7); // AddInt
+extern "C" void fn_80087994(void* group, const char* name, int* value, void* func, void* arg); // AddBool
+extern "C" void fn_80087E9C(void* group, const char* name, void* value, float min, float max, float step, void* func,
+                            void* arg); // x, y, z
+extern "C" void fn_8008771C(void* group, const char* name, float* value, float min, float max, float step, void* func,
+                            void* arg); // AddFloat
+extern "C" void fn_80087858(void* group, const char* name, float* value, float min, float max, float step, void* func,
+                            void* arg); // AddRadian
+extern "C" void fn_800874C8(void* group, const char* name, int* value, int min, int max, int step, void* func,
+                            void* arg); // AddInt
 // inferred: gamma settings of the render settings (weak copy)
 extern "C" inline GammaParams_unk* fn_8052B7F0(RenderSetting_unk* settings) {
     return &settings->m3DC;
@@ -197,11 +195,11 @@ int NewCampTask::vf0C() {
             fn_805305D0();
             void* group = m1218.Load("NewCamp");
             fn_80087994(group, "FreeCamera", &m121C, 0, 0);
-            fn_80087E9C(group, "CameraOfs(Aspect4:3)", &m1370, 0, 0, -1000.0f, 1000.0f, 1.0f);
-            fn_8008771C(group, "CameraSpeed", &m1368, 0, 0, 0.0f, 100.0f, 1.0f);
+            fn_80087E9C(group, "CameraOfs(Aspect4:3)", &m1370, -1000.0f, 1000.0f, 1.0f, 0, 0);
+            fn_8008771C(group, "CameraSpeed", &m1368, 0.0f, 100.0f, 1.0f, 0, 0);
             fn_80087994(group, "DispLocId", &m1220, 0, 0);
             fn_800874C8(group, "InfoOnTime", &m135C, 0, 999999, 1, 0, 0);
-            fn_80087858(group, "CamAng", &m1214, 0, 0, 0.0f, 360.0f, 1.0f);
+            fn_80087858(group, "CamAng", &m1214, 0.0f, 360.0f, 1.0f, 0, 0);
             fn_80087994(group, "UnlockMapAll", &m1350, 0, 0);
             fn_80087994(group, "MapLinkDebug", &m1364, 0, 0);
             fn_800874C8(group, "BackType", &m1354, 0, 7, 1, 0, 0);
@@ -349,7 +347,7 @@ extern "C" atn::PostFxManager* fn_804ABF20(); // inferred: post effect manager
 extern "C" PlayerManager* lbl_8087F8A0;
 extern "C" RenderSetting_unk* lbl_8087EFA8; // render settings (atn::RenderConfig)
 // inferred: global accessors (inline: weak copies of other files; they count for the inline budget)
-extern "C" inline Field_unk* fn_80121F00() {
+extern "C" inline GameTask* fn_80121F00() {
     return lbl_8087F430;
 }
 extern "C" inline PlayerManager* fn_8000D9E8() {
@@ -433,7 +431,7 @@ void NewCampTask::fn_8052C108(NewCampOpen_unk* open) {
     ((GameUICounter_unk*)&m1268)->fn_803CF734();
     NewCampPair_unk pair;
     pair.mId = 0;
-    pair.m04 = (int)fn_8000D9E8()->fn_8054A33C(pair.mId);
+    pair.m04 = fn_8000D9E8()->fn_8054A33C(pair.mId);
     m1224.push_back(pair);
     ((atn::FixedArray_unk<NewCampPair_unk, 8>*)&m1268)->push_back(pair);
     ShopMembers_unk* members = fn_80217D9C(fn_8052C64C((GameTask*)fn_80121F00()));
@@ -442,29 +440,29 @@ void NewCampTask::fn_8052C108(NewCampOpen_unk* open) {
             int left = 0;
             switch (i) {
             case 0:
-                left = ((GameTask*)fn_80121F00())->fn_80370174(0x124);
+                left = fn_80121F00()->fn_80370174(0x124);
                 break;
             case 1:
-                left = ((GameTask*)fn_80121F00())->fn_80370174(0x125);
+                left = fn_80121F00()->fn_80370174(0x125);
                 if (fn_8052C64C((GameTask*)fn_80121F00()) <= 109000 &&
-                    ((GameTask*)fn_80121F00())->fn_80370174(0x764) < 1) {
+                    fn_80121F00()->fn_80370174(0x764) < 1) {
                     left = 1;
                 }
                 break;
             case 2:
-                left = ((GameTask*)fn_80121F00())->fn_80370174(0x126);
+                left = fn_80121F00()->fn_80370174(0x126);
                 break;
             case 3:
-                left = ((GameTask*)fn_80121F00())->fn_80370174(0x127);
+                left = fn_80121F00()->fn_80370174(0x127);
                 break;
             case 4:
-                left = ((GameTask*)fn_80121F00())->fn_80370174(0x128);
+                left = fn_80121F00()->fn_80370174(0x128);
                 break;
             case 5:
-                left = ((GameTask*)fn_80121F00())->fn_80370174(0x12A);
+                left = fn_80121F00()->fn_80370174(0x12A);
                 break;
             case 6:
-                left = ((GameTask*)fn_80121F00())->fn_80370174(0x129);
+                left = fn_80121F00()->fn_80370174(0x129);
                 break;
             }
             if (members->mIn[i] == 0 || left != 0) {
@@ -488,7 +486,7 @@ void NewCampTask::fn_8052C108(NewCampOpen_unk* open) {
             if (chara != 0 && (!fn_80244CA0(chara) || chara->IsFrozen_unk())) {
                 chara = 0;
             }
-            pair.m04 = (int)chara;
+            pair.m04 = chara;
             m1224.push_back(pair);
             if (chara != 0) {
                 ((atn::FixedArray_unk<NewCampPair_unk, 8>*)&m1268)->push_back(pair);
@@ -496,7 +494,7 @@ void NewCampTask::fn_8052C108(NewCampOpen_unk* open) {
         }
     }
     if (fn_80121F00() != 0) {
-        ((GameTask*)fn_80121F00())->fn_8037529C(0xFFFFFFFF, 0, 0, 0, 10);
+        fn_80121F00()->fn_8037529C(0xFFFFFFFF, 0, 0, 0, 10);
     }
     mOpen = *open;
     mTop->vf24();
@@ -546,7 +544,7 @@ void NewCampTask::fn_8052C9C4() {
         fn_8052CA6C();
         m133C = 0;
         if (lbl_8087F430 != 0) {
-            ((GameTask*)lbl_8087F430)->fn_8037529C(-1, 0xFFFFFF, 0, 0, 10);
+            lbl_8087F430->fn_8037529C(-1, 0xFFFFFF, 0, 0, 10);
         }
     }
     m5C = 0;
@@ -704,13 +702,13 @@ void NewCampTask::fn_8052DEEC(int state) {
         top = 1;
         break;
     case 1:
-        ((GameTask*)lbl_8087F430)->fn_803750E4(0x146);
+        lbl_8087F430->fn_803750E4(0x146);
         m11F0 = (NewCampPartsBase*)mStatus;
         break;
     case 2:
-        ((GameTask*)lbl_8087F430)->fn_803750E4(0xEC);
+        lbl_8087F430->fn_803750E4(0xEC);
         if (lbl_8087FA20 != 0) {
-            ((GameTask*)lbl_8087F430)->fn_803750E4(0x1BA);
+            lbl_8087F430->fn_803750E4(0x1BA);
         }
         m11F0 = (NewCampPartsBase*)mMapSelect;
         break;

@@ -1,3 +1,4 @@
+#include "atn/RenderSetting_unk.h"
 #include "game/Em203GreaterDaemon.h"
 #include "game/GameScene.h"
 #include "atn/Csv.h"
@@ -14,6 +15,7 @@
 #include "atn/ColliBase.h"
 #include "game/DamageResult_unk.h"
 #include "game/GameSceneFind_unk.h"
+#include "atn/TextTable_unk.h"
 
 // inferred: empty release assert (some state functions of the original are not auto-inlined)
 #define ASSERT_UNK(x) ((void)0)
@@ -37,45 +39,23 @@ struct PlayerInput_unk {
     float m90C;
 };
 // inferred: point the camera looks at (lbl_8087F430 + 0x97C, as KrakenLook_unk of game/Em302Kraken.cpp)
-struct DaemonLook_unk {
-    void Set_unk(const atn::Vector3& pos, bool flag) {
-        m01 = m00;
-        m00 = 1;
-        mPos = pos;
-        m24 = 0.0f;
-        if (flag) {
-            m04 = 1;
-        } else {
-            m04 = 0;
-        }
+// inferred: the camera looks at a point (GameCamera::m910..m934; formerly the view DaemonLook_unk at GameTask + 0x97C)
+inline void SetCameraLook_unk(GameCamera& camera, const atn::Vector3& pos, bool flag) {
+    camera.m911 = camera.m910;
+    camera.m910 = 1;
+    camera.m91C = pos;
+    camera.m934 = 0.0f;
+    if (flag) {
+        camera.m914 = 1;
+    } else {
+        camera.m914 = 0;
     }
-    void SetPos_unk(const atn::Vector3& pos) { mPos = pos; }
-    unsigned char m00;
-    unsigned char m01;
-    unsigned char m02[2];
-    int m04;
-    unsigned char m08[4];
-    atn::Vector3 mPos;
-    unsigned char m18[0x24 - 0x18];
-    float m24;
-};
-// inferred: field (lbl_8087F430): route tables at 0x10D8 (fn_8013C504 returns them) and a camera shake
-// at 0x96C (as in game/Em301LShade.cpp)
-struct Field_unk {
-    GameScene* fn_8013C504();
-    unsigned char m0000[0x8A0];
-    CharaTask* m8A0; // inferred: character the camera follows
-    unsigned char m08A4[0x96C - 0x8A4];
-    int m96C;
-    int m970;   // inferred: shake frames
-    float m974; // inferred: shake strength
-    float m978;
-    DaemonLook_unk m97C;
-    unsigned char m09A4[0x10D8 - 0x9A4];
-    GameScene* m10D8;
-};
+}
+inline void SetCameraLookPos_unk(GameCamera& camera, const atn::Vector3& pos) {
+    camera.m91C = pos;
+}
 // inferred: input of the field (weak copy 0x80122550 of another file)
-extern "C" inline PlayerInput_unk* fn_80122550(Field_unk* field) {
+extern "C" inline PlayerInput_unk* fn_80122550(GameTask* field) {
     return (PlayerInput_unk*)((char*)field + 0x6C);
 }
 // inferred: starts a rumble (weak copy 0x8028CFB8, also called by Em309Ghoul and EnemyQuarkSecond)
@@ -118,9 +98,9 @@ extern "C" inline void fn_8028CFB8(PlayerInput_unk* input, int frames, float a, 
     input->m900 = input->m900 % 2;
     input->m90C = b;
 }
-extern "C" Field_unk* lbl_8087F430;
+extern "C" GameTask* lbl_8087F430;
 // inferred: field accessor (weak copy 0x80121F00 of another file)
-extern "C" inline Field_unk* fn_80121F00() {
+extern "C" inline GameTask* fn_80121F00() {
     return lbl_8087F430;
 }
 // inferred: player manager accessor (weak copy 0x8000D9E8 of another file)
@@ -132,18 +112,16 @@ extern "C" int rand();
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
 // inferred: effect manager (class unknown), global instance at 0x8087F3C0
-struct EffectMgr_unk;
-extern "C" EffectMgr_unk* lbl_8087F3C0;
-extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
-// inferred: frame time (lbl_8087EFA8, as FrameTime_unk in game/CharaStatus.cpp)
-struct FrameTime_unk {
-    unsigned char m000[0x3A4];
-    float m3A4; // inferred: time of a frame
-};
-extern "C" FrameTime_unk* lbl_8087EFA8;
+namespace atn {
+class EffectManager;
+}
+extern "C" atn::EffectManager* lbl_8087F3C0;
+extern "C" void fn_80239DAC(atn::EffectManager* mgr, void* owner, int id, int arg); // inferred: stops an effect
+extern "C" RenderSetting_unk* lbl_8087EFA8;
 // inferred: skill effect manager (class unknown, as in gmk/HealPoint.cpp)
 class SkillEffect;
-extern "C" void* lbl_8087F9E8;
+class SkillEffectManager;
+extern "C" SkillEffectManager* lbl_8087F9E8;
 extern "C" SkillEffect* fn_8059B66C(void* mgr, HitInfo_unk* skill, CharaTask* user, CharaTask* target,
                                     const atn::Vector3* pos, const atn::Vector3* rot,
                                     boost::function<void(SkillEffect*)> callback, float rate);
@@ -196,7 +174,8 @@ extern "C" inline atn::Matrix3x4 fn_800109E0(const atn::Vector3& rot) {
     }
     return m;
 }
-extern "C" void* lbl_8087EE98;
+struct ColliManager_unk;
+extern "C" ColliManager_unk* lbl_8087EE98;
 inline void* fn_801404F8() {
     return lbl_8087EE98;
 }
@@ -212,31 +191,25 @@ extern "C" inline void fn_801C0730(CharaTask* chara, int value) {
 }
 extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the next effects
 // inferred: weak copies 0x800F7FA0 and 0x800F7FA8 of another file (as in game/EnemyQuarkSecond.cpp)
-extern "C" inline EffectMgr_unk* fn_800F7FA0() {
+extern "C" inline atn::EffectManager* fn_800F7FA0() {
     return lbl_8087F3C0;
 }
-extern "C" inline void fn_800F7FA8(EffectMgr_unk* mgr, void* owner, int arg) {
+extern "C" inline void fn_800F7FA8(atn::EffectManager* mgr, void* owner, int arg) {
     fn_80232B7C(owner, arg);
 }
-extern "C" void fn_8026607C(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg);
-extern "C" void fn_8023A680(EffectMgr_unk* mgr, void* res, int a, int b, void* mtx, const atn::Vector3* pos,
+extern "C" void fn_8026607C(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Model* model, int arg);
+extern "C" void fn_8023A680(atn::EffectManager* mgr, void* res, int a, int b, void* mtx, const atn::Vector3* pos,
                             const atn::Vector3* rot, const float* color, float scale, int e, int f, int g);
 struct Color4f_unk {
     Color4f_unk() {}
     float r, g, b, a;
 };
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
+extern "C" void fn_8023A8B4(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Model* model, void* node,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
 struct HomingParam_unk;
 extern "C" int fn_800DD3FC(wchar_t* s, const wchar_t* format, ...); // inferred: wide sprintf
 extern "C" const wchar_t lbl_808813D0[2]; // inferred: empty text
-// inferred: camp message table (lbl_8087F1E4, as in game/Em101ElderZesya.cpp)
-struct DaemonMsgTable_unk {
-    const wchar_t* Get_unk(int id) { return mText[id] != 0 ? mText[id] : lbl_808813D0; }
-    const wchar_t* mText[1];
-};
-extern "C" DaemonMsgTable_unk* lbl_8087F1E4;
 extern "C" void PSMTXScale(Mtx m, float x, float y, float z);
 // inferred: homing parameters with their defaults (the constants are pooled before the values set by
 // the callers); name invented
@@ -647,8 +620,8 @@ void Em203GreaterDaemon::vf3C(HitInfo_unk* hit, int) {
             fn_80239DAC(lbl_8087F3C0, this, -2, 1);
             mStatus.fn_80133130(4, 600, 0);
             m14C0 = 3;
-            if (((GameTask*)lbl_8087F430)->fn_80370A78(0xE6) == 0) {
-                ((GameTask*)lbl_8087F430)->fn_80370AE4(0xE6, 1);
+            if (lbl_8087F430->fn_80370A78(0xE6) == 0) {
+                lbl_8087F430->fn_80370AE4(0xE6, 1);
             }
         }
     }
@@ -1029,7 +1002,7 @@ void Em203GreaterDaemon::fn_8028B47C() {
                 m1628 = 0;
             }
             if (m1628 == 0) {
-                int done = ((GameTask*)fn_80121F00())->fn_80370A78(0x9B);
+                int done = fn_80121F00()->fn_80370A78(0x9B);
                 state = 1;
                 if (done == 0) {
                     state = 2;
@@ -1100,8 +1073,8 @@ void Em203GreaterDaemon::fn_8028BFE0() {
         GameScene* table = lbl_8087F430->m10D8;
         if (m150C == ((GameScene*)table)->fn_803C1560(&m1530->mPos, fn_80179D44(), 0, 2, 1, -1.0f) && m1514 > m1518) {
             if (m14C8 != 0) {
-                if (((GameTask*)lbl_8087F430)->fn_80370A78(0x14) == 0) {
-                    ((GameTask*)lbl_8087F430)->fn_80370AE4(0x14, 1);
+                if (lbl_8087F430->fn_80370A78(0x14) == 0) {
+                    lbl_8087F430->fn_80370AE4(0x14, 1);
                 }
             } else {
                 PlayMotion_unk(0x144, 0, 0, 1.0f);
@@ -1193,8 +1166,8 @@ void Em203GreaterDaemon::fn_8028CB38() {
             m14B8 = 0;
             m1550 = fn_8013A194()->fn_800F8548();
             m1554 = fn_8013A194()->fn_800F8548();
-            if (((GameTask*)fn_80121F00())->fn_80370A78(0x96) == 0) {
-                ((GameTask*)fn_80121F00())->fn_80370AE4(0x96, 1);
+            if (fn_80121F00()->fn_80370A78(0x96) == 0) {
+                fn_80121F00()->fn_80370AE4(0x96, 1);
             }
             m1558 = fn_801C3910(*m14B0->fn_8013C38C() - mPos);
             fn_800F7FA8(fn_800F7FA0(), this, 1000);
@@ -1260,8 +1233,8 @@ void Em203GreaterDaemon::fn_8028CFE0() {
         return;
     }
     if (mMotion.mTracks[0].m08 >= 10.0f && mMotion.mTracks[0].m08 < 11.0f) {
-        if (((GameTask*)lbl_8087F430)->fn_80370A78(0x97) == 0) {
-            ((GameTask*)lbl_8087F430)->fn_80370AE4(0x97, 1);
+        if (lbl_8087F430->fn_80370A78(0x97) == 0) {
+            lbl_8087F430->fn_80370AE4(0x97, 1);
         }
     }
     if (mMotion.mTracks[0].m08 >= 32.0f && mMotion.mTracks[0].m08 < 33.0f) {
@@ -1351,11 +1324,11 @@ void Em203GreaterDaemon::fn_8028D5C8() {
             PlayMotion_unk(2, 1, 0, 1.0f);
         }
         if (mMotion.mTracks[0].m08 > 38.0f && mMotion.mTracks[0].m08 <= 39.0f) {
-            Field_unk* field = lbl_8087F430;
-            field->m96C = field->m96C % 2;
-            field->m970 = 10;
-            field->m974 = 3.0f;
-            field->m978 = 3.0f;
+            GameTask* field = lbl_8087F430;
+            field->mCamera.mShake.mFrame = field->mCamera.mShake.mFrame % 2;
+            field->mCamera.mShake.mLength = 10;
+            field->mCamera.mShake.mWidth = 3.0f;
+            field->mCamera.mShake.mHeight = 3.0f;
         }
     }
     if (done && IsMotionNearEnd_unk(2.0f)) {
@@ -1370,11 +1343,11 @@ void Em203GreaterDaemon::fn_8028D5C8() {
 
 // inferred: shakes the camera (name invented)
 inline void ShakeCamera_unk(int frames, float a, float b) {
-    Field_unk* field = lbl_8087F430;
-    field->m96C = field->m96C % 2;
-    field->m970 = frames;
-    field->m974 = a;
-    field->m978 = b;
+    GameTask* field = lbl_8087F430;
+    field->mCamera.mShake.mFrame = field->mCamera.mShake.mFrame % 2;
+    field->mCamera.mShake.mLength = frames;
+    field->mCamera.mShake.mWidth = a;
+    field->mCamera.mShake.mHeight = b;
 }
 
 // inferred: starts state 14 (tackle; name invented)
@@ -1400,8 +1373,8 @@ void Em203GreaterDaemon::fn_8028DF34() {
     }
     if (m14DC != 0 && mMotion.mTracks[0].m08 < 41.0f && m14DC != 0 && mMotion.mTracks[0].m08 >= 40.0f) {
         ShakeCamera_unk(10, 1.0f, 2.0f);
-        if (((GameTask*)lbl_8087F430)->fn_80370A78(0xA0) == 0) {
-            ((GameTask*)lbl_8087F430)->fn_80370AE4(0xA0, 1);
+        if (lbl_8087F430->fn_80370A78(0xA0) == 0) {
+            lbl_8087F430->fn_80370AE4(0xA0, 1);
         }
     }
     if (m14DC != 0 && mMotion.mTracks[0].m08 < 44.0f) {
@@ -1463,20 +1436,20 @@ void Em203GreaterDaemon::fn_8028E488() {
 // NONMATCHING: 99.57% - camera look store order r4/r5 (known, as Em101LittleZesyaSecond)
 void Em203GreaterDaemon::fn_8028E800() {
     if (m14B4 == 0) {
-        Field_unk* field = lbl_8087F430;
+        GameTask* field = lbl_8087F430;
         if (mMotion.mTracks[0].m08 < 24.0f) {
             atn::Vector3 pos = ((atn::Matrix3x4*)mMotion.GetNodeMtx_unk("neck"))->GetTrans_unk();
             if (m1540 == 0) {
-                field->m8A0 = this;
-                field->m97C.Set_unk(pos, false);
+                field->mCamera.m834 = this;
+                SetCameraLook_unk(field->mCamera, pos, false);
                 m1540 = 1;
             } else {
-                field->m8A0 = this;
-                field->m97C.mPos = pos;
+                field->mCamera.m834 = this;
+                field->mCamera.m91C = pos;
             }
         } else if (m1540 != 0) {
-            field->m8A0 = 0;
-            field->m97C.m00 = 0;
+            field->mCamera.m834 = 0;
+            field->mCamera.m910 = 0;
             m1540 = 0;
         }
         if (m14DC != 0 && mMotion.mTracks[0].m08 < 36.0f && m14DC != 0 && mMotion.mTracks[0].m08 >= 35.0f) {
@@ -1499,20 +1472,20 @@ void Em203GreaterDaemon::fn_8028E800() {
 // inferred: state 19 (stunned by the cannon: falls and stays down)
 // NONMATCHING: 98.24% - camera look store order r4/r5 (known)
 void Em203GreaterDaemon::fn_8028EDC4() {
-    Field_unk* field = lbl_8087F430;
+    GameTask* field = lbl_8087F430;
     if (mMotion.mTracks[0].m08 < 20.0f) {
         atn::Vector3 pos = ((atn::Matrix3x4*)mMotion.GetNodeMtx_unk("neck"))->GetTrans_unk();
         if (m1540 == 0) {
-            field->m8A0 = this;
-            field->m97C.Set_unk(pos, false);
+            field->mCamera.m834 = this;
+            SetCameraLook_unk(field->mCamera, pos, false);
             m1540 = 1;
         } else {
-            field->m8A0 = this;
-            field->m97C.mPos = pos;
+            field->mCamera.m834 = this;
+            field->mCamera.m91C = pos;
         }
     } else if (m1540 != 0) {
-        field->m8A0 = 0;
-        field->m97C.m00 = 0;
+        field->mCamera.m834 = 0;
+        field->mCamera.m910 = 0;
         m1540 = 0;
     }
     float frame = mMotion.mTracks[0].m08;
@@ -1525,20 +1498,20 @@ void Em203GreaterDaemon::fn_8028EDC4() {
 // inferred: state 20 (falls to the ground and goes back up)
 // NONMATCHING: 98.73% - camera look store order r4/r5 (known)
 void Em203GreaterDaemon::fn_8028EF20() {
-    Field_unk* field = lbl_8087F430;
+    GameTask* field = lbl_8087F430;
     if (mMotion.mTracks[0].m08 < 30.0f) {
         atn::Vector3 pos = ((atn::Matrix3x4*)mMotion.GetNodeMtx_unk("neck"))->GetTrans_unk();
         if (m1540 == 0) {
-            field->m8A0 = this;
-            field->m97C.Set_unk(pos, false);
+            field->mCamera.m834 = this;
+            SetCameraLook_unk(field->mCamera, pos, false);
             m1540 = 1;
         } else {
-            field->m8A0 = this;
-            field->m97C.mPos = pos;
+            field->mCamera.m834 = this;
+            field->mCamera.m91C = pos;
         }
     } else if (m1540 != 0) {
-        field->m8A0 = 0;
-        field->m97C.m00 = 0;
+        field->mCamera.m834 = 0;
+        field->mCamera.m910 = 0;
         m1540 = 0;
     }
     float frame = mMotion.mTracks[0].m08;

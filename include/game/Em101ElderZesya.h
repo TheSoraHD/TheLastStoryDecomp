@@ -8,6 +8,10 @@
 
 #include "atn/ColliBase.h"
 
+namespace atn {
+class EffectManager;
+}
+
 // inferred: gimmick of a barrier; only its position is read here (name invented)
 struct Gimmick_unk;
 
@@ -20,6 +24,8 @@ struct ZesyaColor_unk {
 // inferred from __vt__15Em101ElderZesya (0x807846A0): Zesya (first form). Data file
 // "database/chara/special/" + db_name (default "db_em101_00_00.csv"). The factory allocates 0x1710
 // bytes (SpecialEnemyBase.cpp, case 7).
+class Em101LittleZesya;
+
 class Em101ElderZesya : public EnemyTask {
 public:
     // inferred: one of the four barriers (0x34 bytes; constructor 0x80255F2C and destructor
@@ -72,7 +78,7 @@ public:
     void fn_80258A50(); // inferred: state of the light sword magic (10 homing bullets)
     void fn_80258574(); // inferred: starts the next action of the phase (m14CC)
     inline void StartMagic_unk();
-    inline void PlayBarrierM_unk(struct EffectMgr_unk* mgr, atn::EfpFile* efp, const atn::Vector3& pos,
+    inline void PlayBarrierM_unk(atn::EffectManager* mgr, atn::EfpFile* efp, const atn::Vector3& pos,
                                  const atn::Vector3& rot, int kind);
     inline void PlayBarrierK_unk(atn::EfpFile* efp, const atn::Vector3& pos, const atn::Vector3& rot, int kind);
     inline void PlayBarrier_unk(atn::EfpFile* efp, const atn::Vector3& pos, const atn::Vector3& rot, int kind);
@@ -119,7 +125,7 @@ public:
     atn::Vector3 m1684;
     float m1690;
     atn::Vector3 m1694;       // inferred: chosen chant point
-    int m16A0;                // inferred: the little Zesya (Em101LittleZesya*, "LittleID")
+    Em101LittleZesya* m16A0;  // inferred: the little Zesya ("LittleID")
     int m16A4;
     int m16A8;
     int m16AC;

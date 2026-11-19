@@ -59,7 +59,7 @@ public:
     void fn_805A4F1C(int motion, int arg2, int arg3, float speed, float blend); // inferred: plays a motion
     void fn_805A5220(void* group); // inferred: debug menu entries
 
-    int m14B0;            // inferred: spawn description (EnemyInfo_unk*)
+    EnemyInfo_unk* m14B0; // inferred: spawn description
     atn::LH_Binary m14B4; // inferred: data file of the enemy
     int m14BC;            // inferred: step of the current state
     int m14C0;            // inferred: frame counter

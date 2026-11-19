@@ -1,3 +1,5 @@
+#include "atn/EffectManager.h"
+#include "Event/Section.h"
 #include "Event/Behavior.h"
 #include "Event/ActionProcessors_unk.h"
 #include "game/GameTask.h"
@@ -15,6 +17,7 @@
 #include "game/EnvSeManager.h"
 #include "game/GameUI.h"
 #include "atn/D2A_Task.h"
+#include "atn/D2A_TaskApi_unk.h"
 #include "atn/Color4f_unk.h"
 #include "atn/Model_unk.h"
 #include "Event/Path.h"
@@ -48,32 +51,28 @@ struct Camera;
 } // namespace atn
 typedef atn::Camera Camera_unk;
 #include "Event/MessageLayoutPos_unk.h"
-// inferred: prints a message of the event (window, text, kind, style, size, flags, start, length, speeds)
-// inferred: effect manager lbl_8087F3C0 (only the member used here)
-struct EffectMgr_unk {
-    unsigned char m00[0xB8];
-    int mB8; // inferred: owner kind of the next effects (4: events)
-};
-extern "C" EffectMgr_unk* lbl_8087F3C0;
+extern "C" atn::EffectManager* lbl_8087F3C0;
 extern "C" void fn_80232B7C(Event::EventManager_unk* manager, Event::Action* arg); // inferred: owner of the next effects
-extern "C" void fn_8023A680(EffectMgr_unk* mgr, void* efp, int a, int b, MtxPtr mtx, const atn::Vector3* pos,
+extern "C" void fn_8023A680(atn::EffectManager* mgr, void* efp, int a, int b, MtxPtr mtx, const atn::Vector3* pos,
                             const atn::Vector3* rot, int c, int d, int e, int f, float scale); // inferred: plays an efp
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, void* data, atn::Model* model, int a, const atn::Vector3* pos,
+extern "C" void fn_8023A8B4(atn::EffectManager* mgr, void* data, atn::Model* model, void* node, const atn::Vector3* pos,
                             const atn::Vector3* rot, const atn::Color4f_unk* color, int b, int c, int d, float scale);
-extern "C" void fn_80239DAC(EffectMgr_unk* mgr, Event::EventManager_unk* manager, void* owner, int stop); // inferred: stops
+extern "C" void fn_80239DAC(atn::EffectManager* mgr, Event::EventManager_unk* manager, void* owner, int stop); // inferred: stops
 extern "C" unsigned int fn_800DC6B4(const char* str);
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
-extern "C" void* lbl_8087EF70; // inferred: pad
+struct Pad_unk;
+extern "C" Pad_unk* lbl_8087EF70; // inferred: pad
 extern "C" int fn_800A58D0(void* pad, int port); // inferred: classic controller connected
 extern "C" void fn_801FECE0(void* layout, unsigned int hash, float value); // inferred: sets a layout value
-extern "C" void fn_800CB5B4(atn::SoundRef* sound, int frames, float volume); // inferred: sets the volume
+extern "C" void fn_800CB5B4(atn::SoundRef* sound, float volume, int frames); // inferred: sets the volume
 // inferred: point light (index, position, radius, color)
 // inferred: spot light (position, direction, two angles, color)
 
 // inferred: cloud map shadow (scale, position, rate)
 extern "C" int fn_800A555C(void* pad, int port, int button); // inferred: button triggered
 extern "C" void* fn_8001260C(Event::Actor* actor);        // inferred: collision of an actor
-extern "C" void* lbl_8087EE98;                                // inferred: collision world
+struct ColliManager_unk;
+extern "C" ColliManager_unk* lbl_8087EE98;                                // inferred: collision world
 extern "C" int fn_8004ECC0(void* world, atn::Vector3* hit, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg); // inferred: ray test
 
@@ -131,8 +130,7 @@ extern "C" float fn_800A56A8(void* pad, int port, int axis, int arg); // inferre
 extern "C" float PSVECMag(const atn::Vector3* v);
 extern "C" void PSVECNormalize(const atn::Vector3* src, atn::Vector3* dst);
 
-struct GameVars_unk; // inferred: lbl_8087F430 (only its variable accessors are used here)
-extern "C" GameVars_unk* lbl_8087F430;
+extern "C" GameTask* lbl_8087F430;
 
 namespace Event {
 
@@ -252,7 +250,7 @@ int ActionEffectPlay::vf0C(Action* arg, int phase) {
         atn::Model* model = actor->fn_8001296C();
         MtxPtr mtx = actor->fn_80012AC4(node);
         fn_800DC6B4("[weapon]");
-        lbl_8087F3C0->mB8 = 4;
+        lbl_8087F3C0->mSystem.mLayer = 4;
         if (entry->m1C == 2) {
             void* efp = entry->m18;
             fn_80232B7C(manager, arg);
@@ -267,7 +265,7 @@ int ActionEffectPlay::vf0C(Action* arg, int phase) {
             atn::Color4f_unk color(1.0f, 1.0f, 1.0f, 1.0f);
             fn_8023A8B4(lbl_8087F3C0, data, model, 0, &pos, &angle, &color, -1, -1, 1, scale);
         }
-        lbl_8087F3C0->mB8 = 0;
+        lbl_8087F3C0->mSystem.mLayer = 0;
         break;
     }
     case 3:
@@ -288,9 +286,9 @@ int ActionEffectPlay::vf0C(Action* arg, int phase) {
         }
         if ((arg->m14 - arg->m10 > 0 && keyed == 0) || (keyed != 0 && key == 1)) {
             int keep = arg->GetParam_unk(11)->m04.i;
-            lbl_8087F3C0->mB8 = 4;
+            lbl_8087F3C0->mSystem.mLayer = 4;
             fn_80239DAC(lbl_8087F3C0, manager, owner, keep == 0);
-            lbl_8087F3C0->mB8 = 0;
+            lbl_8087F3C0->mSystem.mLayer = 0;
         }
         break;
     }
@@ -606,7 +604,7 @@ int ActionNotify::vf0C(Action* arg, int phase) {
         if (id == -1) {
             return 2;
         }
-        int value = ((GameTask*)lbl_8087F430)->fn_80370A78(id);
+        int value = lbl_8087F430->fn_80370A78(id);
         int result = value;
         int op = arg->GetParam_unk(0)->m04.i;
         int operand = arg->GetParam_unk(1)->m04.i;
@@ -621,7 +619,7 @@ int ActionNotify::vf0C(Action* arg, int phase) {
         } else if (op == 4) {
             result = value / operand;
         }
-        ((GameTask*)lbl_8087F430)->fn_80370AE4(id, result);
+        lbl_8087F430->fn_80370AE4(id, result);
     }
     return 0;
 }
@@ -852,7 +850,7 @@ int ActionSoundPlay::vf08(Action* arg) {
         sound.mPtr->mRefCount--;
         int frame = arg->fn_805381C8()->m198;
         float volume = arg->GetParam_unk(7)->m04.f;
-        fn_800CB5B4(&sound, 0, volume * arg->fn_8053A2E8(arg->fn_805393A4(frame)));
+        fn_800CB5B4(&sound, volume * arg->fn_8053A2E8(arg->fn_805393A4(frame)), 0);
     }
     return 0;
 }
@@ -999,7 +997,7 @@ int ActionVoicePlay::vf0C(Action* arg, int phase) {
         }
         fn_800CB688(&sound, 0, pitch);
         if (lbl_8087F540->mC4 != 0) {
-            fn_800CB5B4(&sound, 10, 0.0f);
+            fn_800CB5B4(&sound, 0.0f, 10);
         }
         atn::SoundObject* handle = 0;
         if (noKeep == 0 && sound.mPtr != 0) {
@@ -1140,7 +1138,7 @@ int ActionMoviePlay::vf0C(Action* arg, int phase) {
         }
         lbl_8087F540->fn_8048EC7C();
         if (lbl_8087F0A8->m194 != 0 && manager->m190 == 0x19D) {
-            ((GameTask*)lbl_8087F430)->fn_80370B78(-1, 0, 0, 0.0f);
+            lbl_8087F430->fn_80370B78(-1, 0, 0, 0.0f);
             manager->fn_8053E8C8(11);
         } else {
             manager->fn_8053E8C8(13);
@@ -1626,7 +1624,7 @@ inline Cut* FindCut_unk(EventManager_unk* manager, int index) {
 // the parameters; tried ~13 forms (slot local, early return, switch, frames local, bool flag)
 int ActionDialogSpeaker::vf0C(Action* arg, int phase) {
     if (phase == 0) {
-        ActionOwner_unk* owner = arg->fn_805381A0();
+        Section* owner = arg->fn_805381A0();
         EventManager_unk* manager = arg->fn_805381C8();
         Dialog* dialog = manager->m280;
         if (dialog != 0) {
@@ -1653,7 +1651,7 @@ int ActionDialogSpeaker::vf0C(Action* arg, int phase) {
 static wchar_t sNewLine_unk[] = L"\n";
 int ActionDialogText::vf0C(Action* arg, int phase) {
     if (phase == 0) {
-        ActionOwner_unk* owner = arg->fn_805381A0();
+        Section* owner = arg->fn_805381A0();
         EventManager_unk* manager = arg->fn_805381C8();
         Dialog* dialog = manager->m280;
         if (dialog != 0) {

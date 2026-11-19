@@ -3,6 +3,7 @@
 // the route search 0x80018D5C-0x8001A228), so the unit is not linked. The unit ends with the weak
 // copies of std::runtime_error, boost::bad_function_call and the std::tr1::shared_ptr deleter
 // (include/std/stdexcept.h; formerly the split std/runtime_error.cpp).
+#include "atn/RenderSetting_unk.h"
 #include <boost/function.hpp>
 #include <typeinfo>
 #include "game/AiTarget.h"
@@ -31,9 +32,9 @@
 extern "C" void* memset(void* dst, int c, unsigned long n);
 extern "C" void* memcpy(void* dst, const void* src, unsigned long n);
 extern "C" int sprintf(char* buf, const char* fmt, ...);
-extern "C" void fn_80087994(void* menu, const char* name, int* flag, int arg3, int arg4); // AddBool
-extern "C" void fn_800874C8(void* menu, const char* name, int* value, int min, int max, int step, int func,
-                            int arg); // AddInt
+extern "C" void fn_80087994(void* menu, const char* name, int* flag, void* func, void* arg); // AddBool
+extern "C" void fn_800874C8(void* menu, const char* name, int* value, int min, int max, int step, void* func,
+                            void* arg); // AddInt
 extern "C" HitInfo_unk* fn_80219E6C(int id); // inferred: bullet data by id
 extern "C" int fn_8021A984(HitInfo_unk* hit); // inferred: the skill is offensive (as in AI/AiCommon_unk.cpp)
 extern "C" void fn_8001C1B4(); // inferred: AI/AI_archer_attack01.cpp (empty)
@@ -44,7 +45,7 @@ extern "C" AiScriptInput_unk* fn_8001C260();  // inferred: input block of the AI
 extern "C" AiScriptOutput_unk* fn_8001C26C(); // inferred: output block
 extern "C" void fn_8001C1C0(void* script);    // inferred: runs an AI script
 extern "C" void fn_800142C4(CharaTask* chara); // inferred: sets the character of the script
-extern "C" void fn_800142CC(void* link);       // inferred: sets the link of the script
+extern "C" void fn_800142CC(CharaLink_unk* link); // inferred: sets the link of the script
 
 // inferred: link of the friend list (CharaTask + 0x14AC, as in game/Em301LShade.cpp)
 struct CharaListNode_unk {
@@ -55,14 +56,10 @@ inline CharaTask* NextChara_unk(CharaTask* chara) {
     return ((CharaListNode_unk*)chara)->mNext;
 }
 
-// inferred: render parameters (as FrameTime_unk in game/GimmickStateCommand.cpp)
-struct FrameTime_unk {
-    unsigned char m000[0x3A4];
-    float m3A4; // inferred: frame speed
-    // inferred: inline getter (with the member read directly the operands of the fadds are swapped)
-    float GetDelta_unk() const { return m3A4; }
-};
-extern "C" FrameTime_unk* lbl_8087EFA8;
+extern "C" RenderSetting_unk* lbl_8087EFA8;
+inline float RenderSetting_unk::GetFrameSpeed_unk() const {
+    return m3A4;
+}
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 extern "C" BattleTask* lbl_8087F048;
 extern "C" GameTask* lbl_8087F430;
@@ -150,7 +147,7 @@ int AIManager::vf0C() {
 }
 
 void AIManager::vf10() {
-    m94 += lbl_8087EFA8->GetDelta_unk();
+    m94 += lbl_8087EFA8->GetFrameSpeed_unk();
     m98 = 0;
     while (m94 >= 1.0f) {
         m94 -= 1.0f;

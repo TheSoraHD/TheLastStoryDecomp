@@ -1,3 +1,5 @@
+#include "game/GameConfig_unk.h"
+#include "atn/EffectManager.h"
 #include "gmk/Fireworks.h"
 #include "atn/Csv.h"
 #include "atn/Memory.h"
@@ -14,17 +16,12 @@ extern "C" char lbl_8087D710[2]; // inferred: field separators of the tab CSV
 extern "C" float fn_800DC288(const char* s); // inferred: string to float
 extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float volume); // inferred: plays a sound
 
-// inferred: effect manager (class unknown), global instance at 0x8087F3C0
-struct EffectMgr_unk {
-    unsigned char m00[0xB8];
-    int mB8;
-};
 struct Color4f_unk {
     Color4f_unk(float r, float g, float b, float a) : r(r), g(g), b(b), a(a) {}
     float r, g, b, a;
 };
-extern "C" EffectMgr_unk* lbl_8087F3C0;
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
+extern "C" atn::EffectManager* lbl_8087F3C0;
+extern "C" void fn_8023A8B4(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Model* model, void* node,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
 extern "C" void fn_80232B7C(void* owner, int arg);
@@ -33,12 +30,7 @@ namespace atn {
 struct Camera;
 }
 typedef atn::Camera Camera_unk;
-// inferred: debug settings
-struct FireworksDebug_unk {
-    unsigned char m00[0x74];
-    int m74; // inferred: debug draw
-};
-extern "C" FireworksDebug_unk* lbl_8087F0A8;
+extern "C" GameConfig_unk* lbl_8087F0A8;
 
 // inferred: speed of the light size change
 static float sRate = 0.1f;
@@ -147,7 +139,7 @@ void Fireworks::vf10() {
         pos.z += mRange.z * Rand_unk() - mRange.z / 2.0f;
         fn_80232B7C(this, 0);
         float scale = m90.x;
-        EffectMgr_unk* mgr = lbl_8087F3C0;
+        atn::EffectManager* mgr = lbl_8087F3C0;
         fn_8023A8B4(mgr, &mEfp[index], 0, 0, pos, m78, Color4f_unk(1.0f, 1.0f, 1.0f, 1.0f), -1, -1, 1, scale);
         fn_800C31F4(mSe[index].mStr, 0, -1, 1.0f);
         SetLightPos_unk(&mLight, atn::Vector2_unk(pos.x, pos.z));
@@ -178,7 +170,7 @@ void Fireworks::vf10() {
 }
 
 void Fireworks::vf14() {
-    if (lbl_8087F0A8->m74 != 0) {
+    if (lbl_8087F0A8->mDrawGimmickName != 0) {
         fn_803EDCF4();
     }
 }

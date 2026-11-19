@@ -1,3 +1,5 @@
+#include "db/CharaIdTable_unk.h"
+#include "game/GameTask.h"
 #include "game/ShopBuySell.h"
 #include "game/Inventory.h"
 #include "atn/Memory.h"
@@ -6,6 +8,8 @@
 #include "std/string.h"
 #include "std/string_members.h"
 #include "atn/D2A_TaskInstanceC.h"
+#include "atn/TextTable_unk.h"
+#include "game/MenuCommonTask.h"
 
 extern "C" int sprintf(char* s, const char* format, ...);
 extern "C" unsigned int fn_800DC6B4(const char* s); // inferred: string hash
@@ -14,25 +18,12 @@ extern "C" void fn_801FEE08(void* layout, unsigned int hash, const wchar_t* text
 extern "C" void fn_801FECE0(void* layout, unsigned int hash, float value);
 extern "C" atn::SoundRef fn_80117228(int id); // inferred: plays a system sound effect
 extern "C" const wchar_t* fn_80116FC0(int a, int id); // inferred: message text
-extern "C" void* lbl_8087EF70;
+struct Pad_unk;
+extern "C" Pad_unk* lbl_8087EF70;
 extern "C" int fn_800A555C(void* pad, int port, int button); // inferred: button triggered
 extern "C" int abs(int x);
 
-// Only the members used here (the full class is in atn/D2A_Task.h, whose extern "C" declarations
-// clash with the local ones of this file).
-namespace atn {
-class D2A_Task : public Task {
-public:
-    void SetParam2_unk(const char* name, const float* v);        // 0x801F48C8
-    void SetNumber_unk(const char* name, int value, int digits); // 0x801F4CB4
-};
-} // namespace atn
 
-// inferred: 2D point of a d2anime pane (0x14 bytes)
-struct ShopPoint_unk {
-    ShopPoint_unk() : x(0.0f), y(0.0f), w(0.0f), h(0.0f), z(0.0f) {}
-    float x, y, w, h, z;
-};
 extern "C" ShopPoint_unk fn_801F4E8C(atn::Task* layout, unsigned int hash);
 extern "C" void fn_801F4728(atn::Task* task, const char* name, const ShopPoint_unk* pos); // inferred: SetParam0
 inline ShopPoint_unk GetPanePos_unk(atn::Task* layout, const char* name) {
@@ -89,50 +80,19 @@ extern "C" int fn_8020EF04(int id); // inferred: nonzero for an armour
 extern "C" ShopArmor_unk* fn_8020EFEC(int id);
 extern "C" ShopArmor_unk* fn_8020ED84(int part, int id);
 extern "C" int fn_8020EF4C(ShopArmor_unk* armor);
-// inferred: character table entry (fn_8020924C)
-struct ShopChara_unk {
-    unsigned char m00[0x08];
-    const wchar_t* mName; // 0x08
-    unsigned char m0C[0x2C - 0x0C];
-    int mIcon;            // 0x2C: inferred: face icon (1-based, 4 per row)
-};
 extern "C" int fn_80219544(int member); // inferred: character id
-extern "C" ShopChara_unk* fn_8020924C(int id);
 extern "C" int fn_80444564(Inventory* party, int id);
 extern "C" int fn_804444E8(Inventory* party, int id); // inferred: number of items
 extern "C" int fn_80444BE8(Inventory* party, ShopItem_unk* item);
 extern "C" int fn_80444C48(Inventory* party);
 extern "C" ShopUV_unk fn_80444C50(Inventory* party, int icon);
-// inferred: field (lbl_8087F430)
-struct ShopField_unk {
-    unsigned char m0000[0x10D0];
-    int m10D0; // inferred: story progress
-};
-extern "C" ShopField_unk* lbl_8087F430;
+extern "C" GameTask* lbl_8087F430;
 // inferred: members of the party (fn_80217D9C); flags at 0x0C
 struct ShopMembers_unk {
     unsigned char m00[0x0C];
     unsigned char mIn[8];
 };
 extern "C" ShopMembers_unk* fn_80217D9C(int progress);
-// inferred: message table (lbl_8087F1E4)
-extern "C" const wchar_t lbl_808813D0[2]; // inferred: empty text
-struct ShopMsgPair_unk {
-    const wchar_t* m00;
-    const wchar_t* mText;
-};
-struct ShopMsg_unk {
-    const wchar_t* GetPair_unk(int id) {
-        return mPairs[id].mText != 0 ? mPairs[id].mText : lbl_808813D0;
-    }
-    ShopMsgPair_unk mPairs[1];
-};
-extern "C" ShopMsg_unk* lbl_8087F1E4;
-class MenuCommonTask {
-public:
-    static MenuCommonTask* sInstance;
-};
-extern "C" void fn_804A5824(MenuCommonTask* menu, atn::Task* anime, const char* name, int end);
 extern "C" void fn_804A39EC(ShopD2A_unk* anime, int arg1, int repeat, float frame, float speed);
 
 // inferred: message ids of the parameters (weapon: 0, 4, 2; armour: 1, 3, 2)
@@ -295,7 +255,7 @@ void ShopBuySell::vf14() {
         mTop->mFlags &= ~4;
         char name[0x40];
         sprintf(name, "lw_list_text_select%02d", mTopCursor);
-        fn_804A5824(MenuCommonTask::sInstance, mTop, name, 0);
+        MenuCommonTask::sInstance->fn_804A5824(mTop, name, 0);
         break;
     }
     case 7:
@@ -594,7 +554,7 @@ void ShopBuySell::fn_80586620(int id) {
 // icon rectangle and registers
 void ShopBuySell::fn_805866F4(int id, int member, int slot) {
     ShopPoint_unk pos;
-    ShopChara_unk* chara = fn_8020924C(fn_80219544(member));
+    CharaIdEntry_unk* chara = fn_8020924C(fn_80219544(member));
     Inventory::Equip_unk* equip = &Inventory::instance_->mEquip[member];
     ShopD2A_unk* base = mStatusBase;
     ShopD2A_unk* anime = mStatus[slot];
@@ -603,7 +563,7 @@ void ShopBuySell::fn_805866F4(int id, int member, int slot) {
     sprintf(name, "list_point%d", slot + 1);
     pos = GetPanePos_unk(base, name);
     fn_801F4728(anime, "basePos", &pos);
-    SetPaneText_unk(anime->mLayout, "name", chara->mName);
+    SetPaneText_unk(&anime->mData.m10, "name", chara->mShortName);
     if (chara->mIcon > 0) {
         int index = chara->mIcon - 1;
         int x = index % 4;
@@ -624,25 +584,25 @@ void ShopBuySell::fn_805866F4(int id, int member, int slot) {
     if (fn_80206B9C(id)) {
         ShopWeapon_unk* weapon = fn_80206C50(id);
         if (weapon != 0 && fn_80206D18(weapon, member, weapon->mHand == 1)) {
-            SetPaneFloat_unk(anime->mLayout, "cantEquip", 0.0f);
+            SetPaneFloat_unk(&anime->mData.m10, "cantEquip", 0.0f);
             now = fn_80206B14(weapon->mHand, equip->mWeapons[weapon->mHand == 1].mId);
             next = weapon;
             show = 1;
         } else {
-            SetPaneFloat_unk(anime->mLayout, "cantEquip", 1.0f);
+            SetPaneFloat_unk(&anime->mData.m10, "cantEquip", 1.0f);
         }
         if (now != 0 && next != 0) {
             diff[0] = (int)((ShopWeapon_unk*)next)->mPower - (int)((ShopWeapon_unk*)now)->mPower;
             diff[1] = (int)((ShopWeapon_unk*)next)->mMagic - (int)((ShopWeapon_unk*)now)->mMagic;
             diff[2] = 0;
         }
-        void* layout = base->mLayout;
+        void* layout = &base->mData.m10;
         for (int i = 0; i < 3; i++) {
             sprintf(name, "param%02d", i);
             SetPaneText_unk(layout, name, fn_80116FC0(0, sParamMsg[sWeaponParams[i]]));
         }
     } else if (fn_8020EF04(id)) {
-        SetPaneFloat_unk(anime->mLayout, "cantEquip", 0.0f);
+        SetPaneFloat_unk(&anime->mData.m10, "cantEquip", 0.0f);
         ShopArmor_unk* armor = fn_8020EFEC(id);
         float dx = 0.0f;
         float dy = dx;
@@ -673,13 +633,13 @@ void ShopBuySell::fn_805866F4(int id, int member, int slot) {
             diff[1] = (int)((ShopArmor_unk*)next)->mResist - (int)(((ShopArmor_unk*)now)->mResist + dy);
             diff[2] = 0;
         }
-        void* layout = base->mLayout;
+        void* layout = &base->mData.m10;
         for (int i = 0; i < 3; i++) {
             sprintf(name, "param%02d", i);
             SetPaneText_unk(layout, name, fn_80116FC0(0, sParamMsg[sArmorParams[i]]));
         }
     } else {
-        SetPaneFloat_unk(anime->mLayout, "cantEquip", 0.0f);
+        SetPaneFloat_unk(&anime->mData.m10, "cantEquip", 0.0f);
     }
     if (show) {
         for (int i = 0; i < 3; i++) {

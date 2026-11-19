@@ -1,3 +1,4 @@
+#include "Event/Manager.h"
 #include "game/CharaStatus.h"
 #include "game/GameScene.h"
 #include "atn/Model_unk.h"
@@ -9,17 +10,8 @@
 #include "game/GameTask.h"
 #include "game/GameSceneFind_unk.h"
 
-// inferred: field objects that own the route tables
-struct RouteField_unk {
-    unsigned char m00[0x10D8];
-    GameScene* m10D8;
-};
-struct RouteField2_unk {
-    unsigned char m00[0x1A6C];
-    GameScene* m1A6C;
-};
-extern "C" RouteField_unk* lbl_8087F430;
-extern "C" RouteField2_unk* lbl_8087F540;
+extern "C" GameTask* lbl_8087F430;
+extern "C" Event::Manager* lbl_8087F540;
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 
 // inferred: route tables of the current field (name invented)
@@ -104,13 +96,13 @@ int RouteWalker_unk::fn_80125474() {
 // inferred: route search (lbl_8087EE68) and route registration of the field
 struct RouteFinder_unk;
 extern "C" RouteFinder_unk* lbl_8087EE68;
-extern "C" int fn_80019E88(RouteFinder_unk* finder, atn::Vector3* pos, int* point, int link, int arg);
+extern "C" int fn_80019E88(RouteFinder_unk* finder, atn::Vector3* pos, int* point, int link, void* arg);
 extern "C" unsigned short fn_803CD958(U16Table_unk* path, int point); // inferred: next point towards `point`
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 struct ColliWorld_unk;
 extern "C" ColliWorld_unk* lbl_8087EE98;
-extern "C" int fn_8004ECC0(ColliWorld_unk* world, int arg1, const atn::Vector3* from, const atn::Vector3* to,
-                           unsigned int mask, int arg5, int arg6); // inferred: line check
+extern "C" int fn_8004ECC0(ColliWorld_unk* world, void* arg1, const atn::Vector3* from, const atn::Vector3* to,
+                           unsigned int mask, void* arg5, int arg6); // inferred: line check
 
 // inferred: name invented
 inline float LengthSq_unk(const atn::Vector3& v) {
@@ -335,7 +327,7 @@ void RouteWalker_unk::fn_80126214() {
             ((float)__fabs(m58.y) < 10.0f &&
              (m58.x * m58.x + m58.z * m58.z) < 1.5f * (1.5f * mChara->m5B0 * mChara->m5B0))) {
             GameSceneRoute_unk route;
-            if (((GameTask*)lbl_8087F430)->fn_8036DAF4(&route, mChara, 0, mLink) != 0) {
+            if (lbl_8087F430->fn_8036DAF4(&route, mChara, 0, mLink) != 0) {
                 mChara->fn_80153698(&route, 0);
                 if (m1C == 3) {
                     fn_80127D8C(1, 0, 0);

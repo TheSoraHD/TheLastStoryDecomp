@@ -17,10 +17,10 @@ extern "C" int sprintf(char* s, const char* format, ...);
 extern "C" char lbl_8087D710[2]; // inferred: " " (field separators of the tab CSV)
 extern "C" float fn_800DC288(const char* s); // inferred: string to float
 extern "C" int fn_800DC12C(const char* s);   // inferred: string to int
-extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, int arg6,
-                            int arg7);
-extern "C" void fn_8008771C(void* group, const char* name, float* value, int arg3, int arg4, float min, float max,
-                            float step);
+extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, void* func,
+                            void* arg);
+extern "C" void fn_8008771C(void* group, const char* name, float* value, float min, float max, float step, void* func,
+                            void* arg);
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 // inferred: name invented (the id is loaded before the manager)
 inline PlayerTask* FindPlayer_unk(int id) {
@@ -213,13 +213,13 @@ void CharaLight::vf6C(void* menu) {
     void* group = MenuGroup_unk(this, menu, name);
     fn_800874C8(group, "state", &m54, 0, 99, 1, 0, 0);
     void* current = fn_8008937C(group, "CurrentParam");
-    fn_8008771C(current, "SizeX", &mCurSize.x, 0, 0, 0.0f, 10000.0f, 1.0f);
-    fn_8008771C(current, "SizeZ", &mCurSize.y, 0, 0, 0.0f, 10000.0f, 1.0f);
+    fn_8008771C(current, "SizeX", &mCurSize.x, 0.0f, 10000.0f, 1.0f, 0, 0);
+    fn_8008771C(current, "SizeZ", &mCurSize.y, 0.0f, 10000.0f, 1.0f, 0, 0);
     for (int i = 0; i < 5; i++) {
         sprintf(name, "StateParam:%d", i + 2);
         void* sub = fn_8008937C(group, name);
-        fn_8008771C(sub, "SizeX", &mParams[i].mSize.x, 0, 0, 0.0f, 10000.0f, 1.0f);
-        fn_8008771C(sub, "SizeZ", &mParams[i].mSize.y, 0, 0, 0.0f, 10000.0f, 1.0f);
+        fn_8008771C(sub, "SizeX", &mParams[i].mSize.x, 0.0f, 10000.0f, 1.0f, 0, 0);
+        fn_8008771C(sub, "SizeZ", &mParams[i].mSize.y, 0.0f, 10000.0f, 1.0f, 0, 0);
     }
 }
 

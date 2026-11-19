@@ -212,6 +212,8 @@ public:
     int fn_80508D9C(NetCallbacks_unk* callbacks); // inferred: initializes the library
     int fn_80508FAC();                             // inferred: initializes the sockets
     int fn_805092FC();                             // inferred: update
+    void fn_80509A88(); // inferred: locks mMutex
+    void fn_80509A90(); // inferred: unlocks mMutex
     int fn_80509A98();
     int fn_80509AF8();
     int fn_80509B20(unsigned long long);

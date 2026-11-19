@@ -19,6 +19,8 @@
 #include "atn/ColliBase.h"
 #include "game/DamageResult_unk.h"
 #include "game/GameSceneFind_unk.h"
+#include "atn/TextTable_unk.h"
+#include "atn/RenderSetting_unk.h"
 
 extern "C" unsigned long strlen(const char* s);
 extern "C" int strcmp(const char* a, const char* b);
@@ -28,9 +30,6 @@ extern "C" float fn_800DC288(const char* s); // inferred: string to float
 extern "C" int fn_800DC12C(const char* s);   // inferred: string to int
 // inferred: std::string concatenation (weak copy 0x8006AFF8)
 extern "C" std::string fn_8006AFF8(const std::string& a, const std::string& b);
-// inferred: field object (as in gmk/FlamingArrow.cpp)
-// inferred: field object (lbl_8087F430): route tables (fn_8013C504, as in gmk/FlamingArrow.cpp) and a
-// camera shake at 0x96C (names invented)
 // inferred: camera settings block of the field (as CameraParam_unk of chr/ControlBreakOpen.cpp)
 struct ShadeCamera_unk {
     atn::Vector3 mPos;
@@ -38,88 +37,49 @@ struct ShadeCamera_unk {
     float mFov;
     int mFlag;
 };
-// inferred: camera mode switch of the field (same name as in chr/ControlBreakOpen.cpp)
-struct CameraSub_unk {
-};
-struct Field_unk {
-    GameScene* fn_8013C504();
-    unsigned char m000[0x6C];
-    CameraSub_unk m06C;   // inferred: camera mode (fn_80389838)
-    unsigned char m06D[0x568 - 0x6D];
-    ShadeCamera_unk m568;      // inferred: camera of the events
-    unsigned char m588[0x870 - 0x588];
-    int m870;                  // inferred: previous camera mode (read at m06C + 0x804)
-    unsigned char m874[0x96C - 0x874];
-    int m96C;
-    int m970;   // inferred: shake frames
-    float m974; // inferred: shake strength
-    float m978;
-};
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
-struct EffectMgr_unk;
-extern "C" void fn_8023A680(EffectMgr_unk* mgr, void* res, int a, int b, atn::Vector3* pos, int c, int d, const float* color,
+namespace atn {
+class EffectManager;
+}
+extern "C" void fn_8023A680(atn::EffectManager* mgr, void* res, int a, int b, atn::Vector3* pos, int c, int d, const float* color,
                             float scale, int e, int f, int g);
 // inferred: copy of the event camera (as CameraMgr_unk::SetParam_unk of chr/ControlBreakOpen.cpp: the two
 // vectors through a Vector3 pointer); name invented
-inline void SetCamera_unk(Field_unk* field, const ShadeCamera_unk& c) {
+inline void SetCamera_unk(GameTask* field, const ShadeCamera_unk& c) {
     const atn::Vector3* src = &c.mPos;
-    atn::Vector3* dst = &field->m568.mPos;
+    atn::Vector3* dst = &field->mCamera.m4FC;
     dst[0] = src[0];
     dst[1] = src[1];
-    field->m568.mFov = c.mFov;
-    field->m568.mFlag = c.mFlag;
+    field->mCamera.m514 = c.mFov;
+    field->mCamera.m518 = c.mFlag;
 }
-// inferred: game state (lbl_8087EFA8): a block of the camera blur at 0x240 and the time scale at 0x3A4
-struct ShadeBlur_unk {
-    int m00;
-    int m04;
-    int m08;
-    float m0C;
-    float m10;
-    int m14;
-    int m18;
-    float m1C;
-    float m20;
-};
-struct ShadeGame_unk {
-    unsigned char m000[0x240];
-    ShadeBlur_unk m240;
-    unsigned char m264[0x3A4 - 0x264];
-    float m3A4;
-};
-extern "C" ShadeGame_unk* lbl_8087EFA8;
-extern "C" Field_unk* lbl_8087F430;
-extern "C" Field_unk* fn_80121F00();
+extern "C" RenderSetting_unk* lbl_8087EFA8;
+extern "C" GameTask* lbl_8087F430;
+extern "C" GameTask* fn_80121F00();
 extern "C" CharaManager<EnemyTask>* fn_801A03E0(); // inferred: enemy manager
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
 extern "C" int fn_800DD3FC(wchar_t* s, const wchar_t* format, ...); // inferred: wide sprintf
 extern "C" const wchar_t lbl_808813D0[2]; // inferred: empty text
-// inferred: camp message table (lbl_8087F1E4, as in game/Em309Ghoul.cpp)
-struct ShadeMsgTable_unk {
-    const wchar_t* Get_unk(int id) { return mText[id] != 0 ? mText[id] : lbl_808813D0; }
-    const wchar_t* mText[1];
-};
-extern "C" ShadeMsgTable_unk* lbl_8087F1E4;
 // inferred: effect manager (class unknown), global instance at 0x8087F3C0
-struct EffectMgr_unk;
 struct Color4f_unk {
     Color4f_unk() {}
     float r, g, b, a;
 };
-extern "C" EffectMgr_unk* lbl_8087F3C0;
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
+extern "C" atn::EffectManager* lbl_8087F3C0;
+extern "C" void fn_8023A8B4(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Model* model, void* node,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
 extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the next effects
 
-extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
+extern "C" void fn_80239DAC(atn::EffectManager* mgr, void* owner, int id, int arg); // inferred: stops an effect
 extern "C" int fn_8021A888(HitInfo_unk* hit);
 extern "C" SkillEffectManager* lbl_8087F9E8;
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 extern "C" HitInfo_unk* fn_80219E6C(int id); // inferred: bullet/skill data by id
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
-extern "C" void* lbl_8087EE98;
+struct ColliManager_unk;
+extern "C" ColliManager_unk* lbl_8087EE98;
 extern "C" int fn_8004ED34(void* colli, atn::ColliResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg7); // inferred: ray test
 
@@ -174,7 +134,7 @@ inline void PlayEffect2_unk(atn::EfpFile* efp, atn::Model* model) {
     color.g = 1.0f;
     color.b = 1.0f;
     color.a = 1.0f;
-    EffectMgr_unk* mgr = lbl_8087F3C0;
+    atn::EffectManager* mgr = lbl_8087F3C0;
     fn_8023A8B4(mgr, efp, model, 0, pos, rot, color, -1, -1, 1, 1.0f);
 }
 
@@ -245,7 +205,7 @@ inline bool Em301LShade::IsMotionEnd_unk() {
 
 // inferred: same as PlayEffect_unk with the manager read first (name invented)
 inline void PlayEffectD_unk(atn::EfpFile* efp, atn::Model* model) {
-    EffectMgr_unk* mgr = lbl_8087F3C0;
+    atn::EffectManager* mgr = lbl_8087F3C0;
     Color4f_unk color;
     atn::Vector3 rot;
     atn::Vector3 pos;
@@ -278,7 +238,7 @@ inline void PlayEffectC_unk(atn::EfpFile* efp, atn::Model* model) {
     color.g = 1.0f;
     color.b = 1.0f;
     color.a = 1.0f;
-    EffectMgr_unk* mgr = lbl_8087F3C0;
+    atn::EffectManager* mgr = lbl_8087F3C0;
     fn_8023A8B4(mgr, efp, model, 0, pos, rot, color, -1, -1, 1, 1.0f);
 }
 
@@ -553,7 +513,7 @@ void Em301LShade::vf10() {
         }
     }
     if (m14D4 != 0 && m1620 != 0) {
-        MapTask* map = ((GameTask*)lbl_8087F430)->GetCurrentMap();
+        MapTask* map = lbl_8087F430->GetCurrentMap();
         if (map != 0) {
             int kind = m14E0 != 3;
             if (kind != map->mCamera) {
@@ -737,9 +697,9 @@ void Em301LShade::vf3C(HitInfo_unk* hit, int) {
     int ok = 0;
     if (m15E8 > 0) {
         ok = 1;
-        if (((GameTask*)lbl_8087F430)->GetCurrentMap()->mId == 3 && msg->mData->m01 == 0 &&
-            ((GameTask*)lbl_8087F430)->fn_80370A78(0x6E) == 0) {
-            ((GameTask*)lbl_8087F430)->fn_80370AE4(0x6E, 1);
+        if (lbl_8087F430->GetCurrentMap()->mId == 3 && msg->mData->m01 == 0 &&
+            lbl_8087F430->fn_80370A78(0x6E) == 0) {
+            lbl_8087F430->fn_80370AE4(0x6E, 1);
         }
     }
     if (ok == 0) {
@@ -856,7 +816,7 @@ inline void StartAbsorbAttack_unk(Em301LShade* e) {
     e->mMotion.mTracks[0].m20 = 1.0f;
     e->mMotion.mTracks[0].m0C = 1.0f;
     e->mMotion.fn_80097C08(0, 0x33, 1, 0, 1, 0.0f, 0.1f);
-    ((GameTask*)lbl_8087F430)->fn_80370AE4(0x32, 3);
+    lbl_8087F430->fn_80370AE4(0x32, 3);
 }
 
 // inferred: starts state 12 (hides) with the hide kind m1510 (names invented)
@@ -1087,7 +1047,7 @@ int Em301LShade::fn_802D3C74() {
                 mMotion.mTracks[0].m20 = 1.0f;
                 mMotion.mTracks[0].m0C = 1.0f;
                 mMotion.fn_80097C08(0, 0x142, 0, 0, 1, 0.0f, 0.1f);
-                ((GameTask*)lbl_8087F430)->fn_80370AE4(0x32, 2);
+                lbl_8087F430->fn_80370AE4(0x32, 2);
                 m1538 = 1;
             }
             m14FC++;
@@ -1242,7 +1202,7 @@ void Em301LShade::fn_802D4628() {
             dir.Normalize_unk();
             dir *= 0.01f;
             chara->fn_8015E7A0(dir, -1, 0);
-            chara->m13B0 = (int)this;
+            chara->m13B0 = this;
         }
         if (total < 0) {
             damage.mDamage = total;
@@ -1257,9 +1217,9 @@ void Em301LShade::fn_802D4628() {
             fn_805A4A1C((SpecialFlag_unk*)&m1698, 1);
         }
         if (m1538 != 0) {
-            ((GameTask*)lbl_8087F430)->fn_80370AE4(0x32, 2);
+            lbl_8087F430->fn_80370AE4(0x32, 2);
         } else {
-            ((GameTask*)lbl_8087F430)->fn_80370AE4(0x32, 1);
+            lbl_8087F430->fn_80370AE4(0x32, 1);
         }
     }
 }
@@ -1270,18 +1230,18 @@ void Em301LShade::fn_802D4E9C() {
         SetState_unk(0);
     }
     if (m14E8 == 15) {
-        Field_unk* field = lbl_8087F430;
-        field->m96C = field->m96C % 2;
-        field->m970 = 25;
-        field->m974 = 0.2f;
-        field->m978 = 0.2f;
+        GameTask* field = lbl_8087F430;
+        field->mCamera.mShake.mFrame = field->mCamera.mShake.mFrame % 2;
+        field->mCamera.mShake.mLength = 25;
+        field->mCamera.mShake.mWidth = 0.2f;
+        field->mCamera.mShake.mHeight = 0.2f;
     }
     if (m14E8 == 70) {
-        Field_unk* field = lbl_8087F430;
-        field->m96C = field->m96C % 2;
-        field->m970 = 40;
-        field->m974 = 1.0f;
-        field->m978 = 1.0f;
+        GameTask* field = lbl_8087F430;
+        field->mCamera.mShake.mFrame = field->mCamera.mShake.mFrame % 2;
+        field->mCamera.mShake.mLength = 40;
+        field->mCamera.mShake.mWidth = 1.0f;
+        field->mCamera.mShake.mHeight = 1.0f;
         for (CharaTask* c = lbl_8087F8A0->mHead; c != 0; c = NextChara_unk(c)) {
             if ((c->mStatus.m0C & 0x20) != 0x20 && c->mC58.mC0 == 1) {
                 c->fn_8016CDB8(40, 0);
@@ -1342,23 +1302,15 @@ void Em301LShade::vfEC() {
     if (frame >= mMotion.fn_80097D7C(0)) {
         mFlag25 = 1;
         mColli.mFlags &= ~1;
-        ((GameTask*)lbl_8087F430)->fn_80370320(0xD0, 0, 0);
+        lbl_8087F430->fn_80370320(0xD0, 0, 0);
         fn_800EE360();
         mFlag15 = 1;
         fn_801765D8();
-        CameraSub_unk* sub = &lbl_8087F430->m06C;
-        ((GameCamera*)sub)->fn_80389838(((GameCamera*)sub)->m804);
-        ShadeGame_unk* game = lbl_8087EFA8;
-        ShadeBlur_unk blur;
-        blur.m04 = game->m240.m04;
-        blur.m08 = game->m240.m08;
-        blur.m0C = game->m240.m0C;
-        blur.m10 = game->m240.m10;
-        blur.m14 = game->m240.m14;
-        blur.m18 = game->m240.m18;
-        blur.m1C = game->m240.m1C;
-        blur.m20 = game->m240.m20;
-        blur.m00 = 0;
+        GameCamera* sub = &lbl_8087F430->mCamera;
+        sub->fn_80389838(sub->m804);
+        RenderSetting_unk* game = lbl_8087EFA8;
+        MotionBlurParam_unk blur = game->m240;
+        blur.mEnabled = 0;
         game->m240 = blur;
         lbl_8087EFA8->m3A4 = 1.0f;
     }
@@ -1411,10 +1363,10 @@ void Em301LShade::fn_802D57B8() {
         color.g = 1.0f;
         color.b = 1.0f;
         color.a = 1.0f;
-        EffectMgr_unk* mgr = lbl_8087F3C0;
+        atn::EffectManager* mgr = lbl_8087F3C0;
         fn_8023A8B4(mgr, &m1608, (atn::Model*)&mMotion, 0, pos, lbl_807C7030, color, -1, -1, 1, 1.0f);
     }
-    if (lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->fn_80375184() != 0 && mType == 2) {
+    if (lbl_8087F430 != 0 && lbl_8087F430->fn_80375184() != 0 && mType == 2) {
         lbl_8087F048->fn_801092C8(6, this, 0, 0);
     }
     fn_800EB7A0();
@@ -1428,21 +1380,13 @@ void Em301LShade::fn_802D57B8() {
     c.mFov = 0.9599311f;
     c.mFlag = 0;
     SetCamera_unk(lbl_8087F430, c);
-    ((GameCamera*)&lbl_8087F430->m06C)->fn_80389838(0x13);
-    ShadeGame_unk* game = lbl_8087EFA8;
-    ShadeBlur_unk blur;
-    blur.m04 = game->m240.m04;
-    blur.m08 = game->m240.m08;
-    blur.m0C = game->m240.m0C;
-    blur.m10 = game->m240.m10;
-    blur.m14 = game->m240.m14;
-    blur.m18 = game->m240.m18;
-    blur.m1C = game->m240.m1C;
-    blur.m20 = game->m240.m20;
-    blur.m00 = 1;
+    lbl_8087F430->mCamera.fn_80389838(0x13);
+    RenderSetting_unk* game = lbl_8087EFA8;
+    MotionBlurParam_unk blur = game->m240;
+    blur.mEnabled = 1;
     game->m240 = blur;
     lbl_8087EFA8->m3A4 = 0.5f;
-    ((GameTask*)lbl_8087F430)->fn_80370320(0xD0, 1, 0);
+    lbl_8087F430->fn_80370320(0xD0, 1, 0);
     dir.Set_unk(c.mPos.x - mPos.x, 0.0f, c.mPos.z - mPos.z);
     atn::Vector3 rot = dir.ToRotationZ_unk();
     mRot.y = rot.y;

@@ -1,3 +1,4 @@
+#include "game/GameConfig_unk.h"
 #include "MP/D2AMpMenu_unk.h"
 #include "game/SetConfig.h"
 #include "game/Input_unk.h"
@@ -46,13 +47,9 @@ extern "C" void fn_800D2338(atn::Task* task); // inferred: removes the task
 extern "C" int fn_806A8E70();
 
 
-// inferred: game settings (lbl_8087F0A8): help/button display at 0x48C
-struct MpSettings_unk {
-    unsigned char m000[0x48C];
-    unsigned char mPad[1]; // 0x48C
-};
-extern "C" MpSettings_unk* lbl_8087F0A8;
-extern "C" void* lbl_8087F430;
+extern "C" GameConfig_unk* lbl_8087F0A8;
+class GameTask;
+extern "C" GameTask* lbl_8087F430;
 
 // inferred: debug text drawing
 
@@ -98,16 +95,16 @@ D2AMpMenuMessageList::~D2AMpMenuMessageList() {
 // inferred: texts of the open state; not inline (its literals are in @stringBase0)
 void D2AMpMenuMessageList::SetTexts_unk() {
     if (SetConfig::sInstance->mInTacviewType == 0) {
-        fn_801FEE08(m48->mLayout, fn_800DC6B4("controllerType"), L"$Bu");
+        fn_801FEE08(&m48->mData.m10, fn_800DC6B4("controllerType"), L"$Bu");
     } else {
-        fn_801FEE08(m48->mLayout, fn_800DC6B4("controllerType"), L"$Bd");
+        fn_801FEE08(&m48->mData.m10, fn_800DC6B4("controllerType"), L"$Bd");
     }
-    fn_801FEE08(m48->mLayout, fn_800DC6B4("string0017(1)"), L"$Br");
-    fn_801FEE08(m48->mLayout, fn_800DC6B4("string0030(1)"), L"$Bl");
-    SetPaneText_unk(m48->mLayout, "string0031(1)", lbl_8087F86C->Get_unk(0x136));
-    SetPaneText_unk(m48->mLayout, "string0032(1)", lbl_8087F86C->Get_unk(0x137));
-    SetPaneText_unk(m48->mLayout, "string0033(1)", lbl_8087F86C->Get_unk(0x138));
-    SetPaneText_unk(m48->mLayout, "string0034(1)", lbl_8087F86C->Get_unk(0x138));
+    fn_801FEE08(&m48->mData.m10, fn_800DC6B4("string0017(1)"), L"$Br");
+    fn_801FEE08(&m48->mData.m10, fn_800DC6B4("string0030(1)"), L"$Bl");
+    SetPaneText_unk(&m48->mData.m10, "string0031(1)", lbl_8087F86C->Get_unk(0x136));
+    SetPaneText_unk(&m48->mData.m10, "string0032(1)", lbl_8087F86C->Get_unk(0x137));
+    SetPaneText_unk(&m48->mData.m10, "string0033(1)", lbl_8087F86C->Get_unk(0x138));
+    SetPaneText_unk(&m48->mData.m10, "string0034(1)", lbl_8087F86C->Get_unk(0x138));
 }
 
 int D2AMpMenuMessageList::vf0C() {
@@ -165,34 +162,34 @@ void D2AMpMenuMessageList::vf20() {}
 
 void D2AMpMenuMessageList::fn_804C38C0(int show) {
     if (SetConfig::sInstance->mInTacviewType == 0) {
-        SetPaneText_unk(m48->mLayout, "controllerType", show != 0 ? L"$Bu" : L"");
+        SetPaneText_unk(&m48->mData.m10, "controllerType", show != 0 ? L"$Bu" : L"");
     } else {
-        SetPaneText_unk(m48->mLayout, "controllerType", show != 0 ? L"$Bd" : L"");
+        SetPaneText_unk(&m48->mData.m10, "controllerType", show != 0 ? L"$Bd" : L"");
     }
-    SetPaneText_unk(m48->mLayout, "string0017(1)", show != 0 ? L"$Br" : L"");
-    SetPaneText_unk(m48->mLayout, "string0030(1)", show != 0 ? L"$Bl" : L"");
+    SetPaneText_unk(&m48->mData.m10, "string0017(1)", show != 0 ? L"$Br" : L"");
+    SetPaneText_unk(&m48->mData.m10, "string0030(1)", show != 0 ? L"$Bl" : L"");
     {
         const wchar_t* text = show != 0 ? lbl_8087F86C->Get_unk(0x136) : L"";
         const char* name = "string0031(1)";
-        void* layout = m48->mLayout;
+        void* layout = &m48->mData.m10;
         fn_801FEE08(layout, fn_800DC6B4(name), text);
     }
     {
         const wchar_t* text = show != 0 ? lbl_8087F86C->Get_unk(0x137) : L"";
         const char* name = "string0032(1)";
-        void* layout = m48->mLayout;
+        void* layout = &m48->mData.m10;
         fn_801FEE08(layout, fn_800DC6B4(name), text);
     }
     {
         const wchar_t* text = show != 0 ? lbl_8087F86C->Get_unk(0x138) : L"";
         const char* name = "string0033(1)";
-        void* layout = m48->mLayout;
+        void* layout = &m48->mData.m10;
         fn_801FEE08(layout, fn_800DC6B4(name), text);
     }
     {
         const wchar_t* text = show != 0 ? lbl_8087F86C->Get_unk(0x138) : L"";
         const char* name = "string0034(1)";
-        void* layout = m48->mLayout;
+        void* layout = &m48->mData.m10;
         fn_801FEE08(layout, fn_800DC6B4(name), text);
     }
 }
@@ -236,22 +233,22 @@ int D2AMpMenuMessageList::fn_804C4150(int count) {
         if (--mAC < 0) {
             mAC += 10;
         }
-        ((Input_unk*)lbl_8087F0A8->mPad)->fn_80124BFC(0, 1);
+        (&lbl_8087F0A8->mInput)->fn_80124BFC(0, 1);
     } else if (IsRepeated_unk(1) || (lbl_8087F430 == 0 && IsRepeated_unk(0x19))) {
         if (++mAC >= 10) {
             mAC -= 10;
         }
-        ((Input_unk*)lbl_8087F0A8->mPad)->fn_80124BFC(1, 1);
+        (&lbl_8087F0A8->mInput)->fn_80124BFC(1, 1);
     } else if (IsRepeated_unk(2) || (lbl_8087F430 == 0 && IsRepeated_unk(0x17))) {
         if (--sPage < 0) {
             sPage += 4;
         }
-        ((Input_unk*)lbl_8087F0A8->mPad)->fn_80124BFC(2, 1);
+        (&lbl_8087F0A8->mInput)->fn_80124BFC(2, 1);
     } else if (IsRepeated_unk(3) || (lbl_8087F430 == 0 && IsRepeated_unk(0x18))) {
         if (++sPage >= 4) {
             sPage -= 4;
         }
-        ((Input_unk*)lbl_8087F0A8->mPad)->fn_80124BFC(3, 1);
+        (&lbl_8087F0A8->mInput)->fn_80124BFC(3, 1);
     }
     if (cursor != mAC || page != sPage) {
         fn_80117228(3);
@@ -259,11 +256,11 @@ int D2AMpMenuMessageList::fn_804C4150(int count) {
     }
     if (IsTriggered_unk(4) != 0) {
         fn_80117228(1);
-        ((Input_unk*)lbl_8087F0A8->mPad)->fn_80124BFC(4, 1);
+        (&lbl_8087F0A8->mInput)->fn_80124BFC(4, 1);
         result = 1;
     } else if (IsTriggered_unk(5) != 0) {
         fn_80117228(2);
-        ((Input_unk*)lbl_8087F0A8->mPad)->fn_80124BFC(5, 1);
+        (&lbl_8087F0A8->mInput)->fn_80124BFC(5, 1);
         result = 2;
     }
     return result;
@@ -297,7 +294,7 @@ void D2AMpMenuMessageList::fn_804C4530() {
             fn_804C35F0(3);
         }
     }
-    if (((Input_unk*)lbl_8087F0A8->mPad)->fn_801231D0(0x34) != 0) {
+    if ((&lbl_8087F0A8->mInput)->fn_801231D0(0x34) != 0) {
         fn_80117228(2);
         fn_804C35F0(3);
     }

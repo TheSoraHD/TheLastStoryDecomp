@@ -46,7 +46,7 @@ struct __vec_split_unk<basic_string<wchar_t> > : public __vec_storage_unk<basic_
 // inferred: splits a text in lines (see game/MenuCommonTask.cpp)
 // inferred: moves a list cursor (game/MenuCommonTask.cpp)
 extern "C" void fn_804A436C(int* cursor, int count, int arg2, int wrap, int sound);
-extern "C" void fn_804A53D4(MenuCommonTask* menu, int a, int b, const MP::MpRect_unk* rect, int c);
+extern "C" void fn_804A53D4(MenuCommonTask* menu, int a, void* b, const MP::MpRect_unk* rect, int c);
 
 namespace MP {
 
@@ -77,13 +77,13 @@ D2ACommonDialog::~D2ACommonDialog() {}
 
 int D2ACommonDialog::vf0C() {
     if (fn_800D3FA4() != 0) {
-        SetPaneValue_unk(m54->mLayout, "pos0001(1)", 4, -500.0f);
-        SetPaneValue_unk(m58->mLayout, "pos0001(1)", 4, -800.0f);
-        SetPaneValue_unk(m5C->mLayout, "pos0001(1)", 4, -1200.0f);
-        SetPaneValue_unk(m60->mLayout, "pos0001(1)", 4, -300.0f);
-        SetPaneValue_unk(m64->mLayout, "pos0001(1)", 4, -300.0f);
-        SetPaneValue_unk(m68->mLayout, "pos0017", 4, -200.0f);
-        SetPaneValue_unk(m68->mLayout, "pos0007", 4, -200.0f);
+        SetPaneValue_unk(&m54->mData.m10, "pos0001(1)", 4, -500.0f);
+        SetPaneValue_unk(&m58->mData.m10, "pos0001(1)", 4, -800.0f);
+        SetPaneValue_unk(&m5C->mData.m10, "pos0001(1)", 4, -1200.0f);
+        SetPaneValue_unk(&m60->mData.m10, "pos0001(1)", 4, -300.0f);
+        SetPaneValue_unk(&m64->mData.m10, "pos0001(1)", 4, -300.0f);
+        SetPaneValue_unk(&m68->mData.m10, "pos0017", 4, -200.0f);
+        SetPaneValue_unk(&m68->mData.m10, "pos0007", 4, -200.0f);
         return 1;
     }
     return 0;
@@ -132,11 +132,11 @@ void D2ACommonDialog::fn_804AC96C(int repeat, float speed, int cursor, int type)
     if (type == 0) {
         Play_unk(m60, repeat, speed);
     } else if (type == 1) {
-        SetPaneValue_unk(m64->mLayout, "cursor_pos(1)", 1, 9.0f);
-        SetPaneValue_unk(m64->mLayout, "pos0009(1)", 1, 27.5f);
-        SetPaneValue_unk(m64->mLayout, "pos0002", 1, 9.0f);
-        SetPaneValue_unk(m64->mLayout, "pos0004", 1, 30.0f);
-        SetPaneValue_unk(m64->mLayout, "pos0003", 1, -40.0f);
+        SetPaneValue_unk(&m64->mData.m10, "cursor_pos(1)", 1, 9.0f);
+        SetPaneValue_unk(&m64->mData.m10, "pos0009(1)", 1, 27.5f);
+        SetPaneValue_unk(&m64->mData.m10, "pos0002", 1, 9.0f);
+        SetPaneValue_unk(&m64->mData.m10, "pos0004", 1, 30.0f);
+        SetPaneValue_unk(&m64->mData.m10, "pos0003", 1, -40.0f);
         Play_unk(m64, repeat, speed);
     }
     m4C = 3;
@@ -158,27 +158,27 @@ void D2ACommonDialog::fn_804ACAF8() {
     {
         const wchar_t* text = L"";
         const char* name = "select00_text";
-        void* layout = m58->mLayout;
+        void* layout = &m58->mData.m10;
         fn_801FEE08(layout, fn_800DC6B4(name), text);
     }
     {
-        void* layout = m58->mLayout;
+        void* layout = &m58->mData.m10;
         SetPaneText_unk(layout, "select01_text", L"");
     }
     {
-        void* layout = m58->mLayout;
+        void* layout = &m58->mData.m10;
         SetPaneText_unk(layout, "select02_text", L"");
     }
     {
-        void* layout = m5C->mLayout;
+        void* layout = &m5C->mData.m10;
         SetPaneText_unk(layout, "select00_text", L"");
     }
     {
-        void* layout = m5C->mLayout;
+        void* layout = &m5C->mData.m10;
         SetPaneText_unk(layout, "select01_text", L"");
     }
     {
-        void* layout = m5C->mLayout;
+        void* layout = &m5C->mData.m10;
         SetPaneText_unk(layout, "select02_text", L"");
     }
     m4C = 0;
@@ -224,28 +224,28 @@ void D2ACommonDialog::fn_804ACDBC() {
 
 // NONMATCHING: 98.63% - text/layout registers of the calls before the loop (r29/r26 in the original)
 void D2ACommonDialog::fn_804ACE68() {
-    SetPaneText_unk(m54->mLayout, "warning_msg", L"");
-    SetPaneText_unk(m60->mLayout, "check_msg", L"");
-    SetPaneText_unk(m64->mLayout, "select00_text", L"");
+    SetPaneText_unk(&m54->mData.m10, "warning_msg", L"");
+    SetPaneText_unk(&m60->mData.m10, "check_msg", L"");
+    SetPaneText_unk(&m64->mData.m10, "select00_text", L"");
     for (int i = 0; i < 3; i++) {
         char name[0x100] = {0};
         sprintf(name, "select%02d_text", i);
-        SetPaneText_unk(m58->mLayout, name, L"");
-        SetPaneText_unk(m5C->mLayout, name, L"");
+        SetPaneText_unk(&m58->mData.m10, name, L"");
+        SetPaneText_unk(&m5C->mData.m10, name, L"");
     }
-    SetPaneText_unk(m5C->mLayout, "string0007(1)", L"");
-    SetPaneText_unk(m5C->mLayout, "string0009(1)", L"");
-    SetPaneText_unk(m5C->mLayout, "string0010(1)", L"");
+    SetPaneText_unk(&m5C->mData.m10, "string0007(1)", L"");
+    SetPaneText_unk(&m5C->mData.m10, "string0009(1)", L"");
+    SetPaneText_unk(&m5C->mData.m10, "string0010(1)", L"");
 }
 
 void D2ACommonDialog::fn_804AD000(const wchar_t* text, int line) {
     char name[0x100] = {0};
     if (m4C == 1 || m4C == 2) {
         if (m50 == 0) {
-            SetPaneText_unk(m54->mLayout, "warning_msg", text);
+            SetPaneText_unk(&m54->mData.m10, "warning_msg", text);
         } else if (m50 == 1) {
             sprintf(name, "select%02d_text", line);
-            SetPaneText_unk(m58->mLayout, name, text);
+            SetPaneText_unk(&m58->mData.m10, name, text);
         } else {
             if (line == 3) {
                 sprintf(name, "string0007(1)");
@@ -256,13 +256,13 @@ void D2ACommonDialog::fn_804AD000(const wchar_t* text, int line) {
             } else {
                 sprintf(name, "select%02d_text", line);
             }
-            SetPaneText_unk(m5C->mLayout, name, text);
+            SetPaneText_unk(&m5C->mData.m10, name, text);
         }
     } else if (m4C != 0) {
         if (m50 == 0) {
-            SetPaneText_unk(m60->mLayout, "check_msg", text);
+            SetPaneText_unk(&m60->mData.m10, "check_msg", text);
         } else {
-            SetPaneText_unk(m64->mLayout, "select00_text", text);
+            SetPaneText_unk(&m64->mData.m10, "select00_text", text);
         }
     }
 }

@@ -22,7 +22,8 @@ extern "C" ColliAttrData_unk* fn_8020B1E0(int id);
 extern "C" int fn_8020B208(int kind); // inferred: sound index of a kind
 extern "C" int fn_8020B27C(int kind); // inferred: effect index of a kind
 
-extern "C" void* lbl_8087EE98;
+struct ColliManager_unk;
+extern "C" ColliManager_unk* lbl_8087EE98;
 extern "C" int fn_8004ED34(void* colli, atn::ColliResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg7); // inferred: ray test
 
@@ -54,12 +55,14 @@ struct ColorF_unk {
     }
     float r, g, b, a;
 };
-struct EffectMgr_unk;
-extern "C" EffectMgr_unk* lbl_8087F3C0;
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
+namespace atn {
+class EffectManager;
+}
+extern "C" atn::EffectManager* lbl_8087F3C0;
+extern "C" void fn_8023A8B4(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Model* model, void* node,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
-extern "C" void fn_8023A680(EffectMgr_unk* mgr, atn::EffFile* res, int a, int b, void* mtx, const atn::Vector3* pos,
+extern "C" void fn_8023A680(atn::EffectManager* mgr, atn::EffFile* res, int a, int b, void* mtx, const atn::Vector3* pos,
                             const atn::Vector3* rot, const ColorF_unk& color, float scale, int e, int f, int g);
 extern "C" void fn_80232B7C(void* owner, int arg);
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);

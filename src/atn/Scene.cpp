@@ -14,11 +14,11 @@ extern "C" double fmod(double x, double y);
 
 
 // inferred: debug menu entries (see game/GimmickCommon.cpp)
-extern "C" void fn_80087994(void* menu, const char* name, int* value, int arg3, int arg4);
-extern "C" void fn_80087E9C(void* menu, const char* name, atn::Vector3* value, void (*cb)(void*), void* arg,
-                            float min, float max, float step);
-extern "C" void fn_8008771C(void* menu, const char* name, float* value, void (*cb)(void*), void* arg, float min,
-                            float max, float step);
+extern "C" void fn_80087994(void* menu, const char* name, int* value, void* func, void* arg);
+extern "C" void fn_80087E9C(void* menu, const char* name, atn::Vector3* value, float min, float max, float step,
+                            void (*cb)(void*), void* arg);
+extern "C" void fn_8008771C(void* menu, const char* name, float* value, float min, float max, float step,
+                            void (*cb)(void*), void* arg);
 
 using namespace atn;
 
@@ -303,8 +303,8 @@ extern "C" void fn_800C2EE0(Scene* scene);
 
 void Scene::fn_800C2E30(void* menu) {
     fn_80087994(menu, "Reflect Chara", &mReflectChara, 0, 0);
-    fn_80087E9C(menu, "Reflect Plane", &mPlane.mNormal, (void (*)(void*))fn_800C2EE0, this, -1.0f, 1.0f, 0.1f);
-    fn_8008771C(menu, "Reflect Y", &mPlane.mDist, (void (*)(void*))fn_800C2EE0, this, -10000.0f, 100000.0f, 0.01f);
+    fn_80087E9C(menu, "Reflect Plane", &mPlane.mNormal, -1.0f, 1.0f, 0.1f, (void (*)(void*))fn_800C2EE0, this);
+    fn_8008771C(menu, "Reflect Y", &mPlane.mDist, -10000.0f, 100000.0f, 0.01f, (void (*)(void*))fn_800C2EE0, this);
 }
 
 // NONMATCHING: 71.86% - fn_800C2C20 inlined with a different FPR allocation (the original converts n.z for m23)

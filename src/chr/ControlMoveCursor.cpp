@@ -8,7 +8,8 @@ extern "C" double sqrt(double x);
 extern "C" double cos(double x);
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
 
-extern "C" void* lbl_8087EF70; // inferred: pad
+struct Pad_unk;
+extern "C" Pad_unk* lbl_8087EF70; // inferred: pad
 extern "C" float fn_800A56A8(void* pad, int port, int axis, int arg); // inferred: stick axis
 
 // inferred: weak copies of small inlines (getters of the pad, the camera and its rotation, cosine,
@@ -40,7 +41,8 @@ static inline atn::Vector3 GetDir_unk(const atn::Camera& camera) {
 // inferred: the field task (lbl_8087F430)
 extern "C" GameTask* lbl_8087F430;
 
-extern "C" void* lbl_8087EE98;
+struct ColliManager_unk;
+extern "C" ColliManager_unk* lbl_8087EE98;
 extern "C" int fn_8004ED34(void* colli, atn::ColliResult_unk* result, const atn::Vector3& from, const atn::Vector3& to,
                            unsigned int mask, void* ignore, int arg7); // inferred: ray test
 atn::Vector3 fn_8017C9AC(CharaTask* chara); // inferred: position of the character's eyes

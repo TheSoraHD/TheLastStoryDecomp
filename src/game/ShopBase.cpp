@@ -11,6 +11,15 @@
 #include "std/new.h"
 #include "game/MslSort_unk.h"
 #include "atn/D2A_TaskInstanceC.h"
+#include "atn/TextTable_unk.h"
+
+// inferred: TextTable_unk::GetPair_unk written with an if (as the original allocates it here)
+inline const wchar_t* GetText_unk(TextTable_unk* table, int id) {
+    if (table->mStrings[id].mPtr != 0) {
+        return table->mStrings[id].mPtr;
+    }
+    return lbl_808813D0;
+}
 
 extern "C" int sprintf(char* s, const char* format, ...);
 extern "C" ShopD2A_unk* fn_801F3FF8(atn::Task* parent, const char* path, int loop); // inferred: d2anime task
@@ -19,23 +28,19 @@ inline ShopLayout_unk* CreateLayout_unk(atn::Task* parent, const char* path) {
     return D2A_TaskInstance32_unk::Create(parent, path);
 }
 extern "C" atn::SoundRef fn_80117228(int id); // inferred: plays a system sound effect
-extern "C" void* lbl_8087EF70;
+struct Pad_unk;
+extern "C" Pad_unk* lbl_8087EF70;
 extern "C" int fn_800A555C(void* pad, int port, int button); // inferred: button triggered
 extern "C" void fn_804A436C(int* cursor, int count, int page, int step, int arg); // inferred: moves a cursor
 extern "C" void fn_804A39EC(ShopD2A_unk* anime, int arg1, int repeat, float frame, float speed);
 extern "C" void fn_804A3A68(ShopLayout_unk* layout, int arg1, int repeat, float frame, float speed);
-struct ShopField_unk;
-extern "C" ShopField_unk* lbl_8087F430;           // inferred: field
+struct GameTask;
+extern "C" GameTask* lbl_8087F430;           // inferred: field
 extern "C" void fn_804A4494(int* cursor, int* top, int count, int page, int a, int b); // inferred: moves a list cursor
 extern "C" int fn_804444E8(Inventory* inv, int id);           // inferred: number of items
 extern "C" void fn_8044441C(Inventory* inv, int id, int num); // inferred: removes items
 extern "C" void fn_8044D490(Inventory* inv, int index, int num); // inferred: removes the item at `index`
 extern "C" unsigned int fn_800DC6B4(const char* s); // inferred: string hash
-// inferred: 2D point of a d2anime pane (0x14 bytes; as in game/ShopBuySell.cpp)
-struct ShopPoint_unk {
-    ShopPoint_unk() : x(0.0f), y(0.0f), w(0.0f), h(0.0f), z(0.0f) {}
-    float x, y, w, h, z;
-};
 extern "C" ShopPoint_unk fn_801F4E8C(atn::Task* layout, unsigned int hash);
 inline ShopPoint_unk GetPanePos_unk(atn::Task* layout, const char* name) {
     return fn_801F4E8C(layout, fn_800DC6B4(name));
@@ -57,34 +62,11 @@ inline void SetPaneValue_unk(void* layout, const char* name, int index, float va
 }
 extern "C" int fn_800DD3FC(wchar_t* buf, const wchar_t* format, ...); // inferred: swprintf
 extern "C" const wchar_t lbl_808813D0[2]; // inferred: empty text
-// inferred: message table (lbl_8087F1E4) seen as pairs; name invented
-struct ShopMsgTable_unk {
-    struct Entry {
-        int m00;
-        const wchar_t* mText;
-    };
-    const wchar_t* Get_unk(int id) {
-        if (mEntries[id].mText != 0) {
-            return mEntries[id].mText;
-        }
-        return lbl_808813D0;
-    }
-    Entry mEntries[1];
-};
-extern "C" ShopMsgTable_unk* lbl_8087F1E4;
 extern "C" int fn_800A55AC(void* pad, int port, int button); // inferred: button repeated
 extern "C" void fn_804A4930(atn::Task* task, int top, int count, int page); // inferred: scroll bar
 // Only the members used here (the full class is in atn/D2A_Task.h, whose extern "C" declarations
 // clash with the local ones of this file).
 
-namespace atn {
-
-class D2A_Task : public Task {
-public:
-    void SetParam2_unk(const char* name, const float* v);        // 0x801F48C8
-    void SetNumber_unk(const char* name, int value, int digits); // 0x801F4CB4
-};
-} // namespace atn
 // inferred: texture rectangle (as in game/ShopIdentify.cpp)
 typedef atn::Vector4_unk ShopUV_unk; // inferred: texture rectangle
 // inferred: item data (fn_80211480)
@@ -140,7 +122,6 @@ extern "C" ShopParams_unk* fn_8020ED84(int slot, int item); // inferred: armour 
 extern "C" int fn_8021C6A4(wchar_t* out, const ShopSkill_unk* skill); // inferred: name of a skill
 extern "C" int fn_8020EF04(int id); // inferred: nonzero for an armour
 extern "C" ShopArmor_unk* fn_8020EFEC(int id);
-extern "C" void fn_804A3C24(MenuCommonTask* menu, const wchar_t* text, int id); // inferred: help text
 extern "C" const wchar_t* fn_80116FC0(int a, int id); // inferred: message text
 extern "C" unsigned long strlen(const char* s);
 extern "C" ShopWeapon_unk* fn_80206C50(int id);
@@ -196,11 +177,11 @@ struct ShopEntryLess_unk {
         }
         const wchar_t* na = ia->mName;
         if (a.m48 == 0 && wa != 0) {
-            na = lbl_8087F1E4->Get_unk(wa->mKind + 0xEB);
+            na = GetText_unk(lbl_8087F1E4, wa->mKind + 0xEB);
         }
         const wchar_t* nb = ib->mName;
         if (b.m48 == 0 && wb != 0) {
-            nb = lbl_8087F1E4->Get_unk(wb->mKind + 0xEB);
+            nb = GetText_unk(lbl_8087F1E4, wb->mKind + 0xEB);
         }
         wchar_t sa[0x40];
         fn_800DD3FC(sa, L"%s", na);
@@ -240,13 +221,11 @@ extern "C" int strncmp(const char* a, const char* b, unsigned long n);
 extern "C" int atoi(const char* s);
 extern "C" int fn_800DC12C(const char* s);    // inferred: string to int (item codes too)
 extern "C" float fn_800DC288(const char* s); // inferred: string to float
-extern "C" void* lbl_8087EEC8;                // inferred: font
+namespace atn {
+class Font_unk;
+}
+extern "C" atn::Font_unk* lbl_8087EEC8;                // inferred: font
 extern "C" void fn_8006F2F0(void* font, wchar_t* dst, const char* src, int n); // inferred: to wide characters
-// inferred: field (lbl_8087F430): chapter at 0x10D0
-struct ShopField_unk {
-    unsigned char m0000[0x10D0];
-    int mChapter; // 0x10D0
-};
 extern "C" int fn_80444564(Inventory* party, int id); // inferred: number of equipment items
 extern "C" int fn_80444BE8(Inventory* party, ShopItem_unk* item);
 extern "C" int fn_80444C48(Inventory* party);
@@ -394,7 +373,7 @@ void ShopBase::vf2C() {
             lbl_8087F490->fn_803E63D0();
         }
         if (lbl_8087F430 != 0) {
-            ((GameTask*)lbl_8087F430)->fn_8036E89C();
+            lbl_8087F430->fn_8036E89C();
         }
     }
 }
@@ -525,22 +504,22 @@ void ShopBase::fn_8058036C() {
         m68->MeltTask();
         m6C = 0;
     }
-    const wchar_t* title = lbl_8087F1E4->Get_unk(mTitle + 0x1D1);
-    SetPaneText_unk(m70->mLayout, "title", title);
-    const wchar_t* name = lbl_8087F1E4->Get_unk(mName + 0x1D1);
-    SetPaneText_unk(m70->mLayout, "shopName", name);
+    const wchar_t* title = GetText_unk(lbl_8087F1E4, mTitle + 0x1D1);
+    SetPaneText_unk(&m70->mData.m10, "title", title);
+    const wchar_t* name = GetText_unk(lbl_8087F1E4, mName + 0x1D1);
+    SetPaneText_unk(&m70->mData.m10, "shopName", name);
     switch (vf3C()) {
     case 0:
-        SetPaneFloat_unk(m70->mLayout, "iconType", 0.0f);
+        SetPaneFloat_unk(&m70->mData.m10, "iconType", 0.0f);
         break;
     case 1:
-        SetPaneFloat_unk(m70->mLayout, "iconType", 1.0f);
+        SetPaneFloat_unk(&m70->mData.m10, "iconType", 1.0f);
         break;
     case 2:
-        SetPaneFloat_unk(m70->mLayout, "iconType", 2.0f);
+        SetPaneFloat_unk(&m70->mData.m10, "iconType", 2.0f);
         break;
     case 3:
-        SetPaneFloat_unk(m70->mLayout, "iconType", 3.0f);
+        SetPaneFloat_unk(&m70->mData.m10, "iconType", 3.0f);
         break;
     }
 }
@@ -626,7 +605,7 @@ void ShopBase::fn_805807A4() {
             } else {
                 ShopWeapon_unk* weapon = fn_80206C50(entry->m00);
                 if (weapon != 0) {
-                    mAC[i]->SetText_unk("itemName", lbl_8087F1E4->Get_unk(weapon->mKind + 0xEB));
+                    mAC[i]->SetText_unk("itemName", GetText_unk(lbl_8087F1E4, weapon->mKind + 0xEB));
                 } else {
                     mAC[i]->SetText_unk("itemName", L"WEAPON");
                 }
@@ -738,10 +717,10 @@ void ShopBase::fn_80581008(int id) {
             profit -= profit * 2;
             char text[0x20];
             sprintf(text, "%d\0", profit);
-            SetPaneFloat_unk(m90->mLayout, "priceUnit", strlen(text));
-            SetPaneFloat_unk(m90->mLayout, "minus", 1.0f);
+            SetPaneFloat_unk(&m90->mData.m10, "priceUnit", strlen(text));
+            SetPaneFloat_unk(&m90->mData.m10, "minus", 1.0f);
         } else {
-            SetPaneFloat_unk(m90->mLayout, "minus", 0.0f);
+            SetPaneFloat_unk(&m90->mData.m10, "minus", 0.0f);
         }
         ((atn::D2A_Task*)m90)->SetNumber_unk("average", average, 0);
         ((atn::D2A_Task*)m90)->SetNumber_unk("profit", profit, 0);
@@ -812,7 +791,7 @@ void ShopBase::fn_805811DC(int id) {
         int row = isWeapon ? sParamRows.mWeapon[i] : sParamRows.mArmor[i];
         char name[0x40];
         sprintf(name, "param%02d", i);
-        SetPaneText_unk(m94->mLayout, name, fn_80116FC0(0, sParamRows.mMessages[row]));
+        SetPaneText_unk(&m94->mData.m10, name, fn_80116FC0(0, sParamRows.mMessages[row]));
         sprintf(name, "param%02d_before", i);
         ((atn::D2A_Task*)m94)->SetNumber_unk(name, values[row], 0);
     }
@@ -825,19 +804,19 @@ void ShopBase::fn_80581570(int id, int flag) {
             if (flag) {
                 ShopWeapon_unk* weapon = fn_80206C50(item->mCountId);
                 if (weapon != 0) {
-                    fn_804A3C24(MenuCommonTask::sInstance, weapon->mHelp, 0);
+                    MenuCommonTask::sInstance->fn_804A3C24(weapon->mHelp, 0);
                 }
             } else {
                 MenuCommonTask* menu = MenuCommonTask::sInstance;
-                fn_804A3C24(menu, fn_80116FC0(1, 0x15B), 0);
+                menu->fn_804A3C24(fn_80116FC0(1, 0x15B), 0);
             }
         } else if (fn_8020EF04(item->mCountId)) {
             ShopArmor_unk* armor = fn_8020EFEC(item->mCountId);
             if (armor != 0) {
-                fn_804A3C24(MenuCommonTask::sInstance, armor->mHelp, 0);
+                MenuCommonTask::sInstance->fn_804A3C24(armor->mHelp, 0);
             }
         } else {
-            fn_804A3C24(MenuCommonTask::sInstance, item->mText, 0);
+            MenuCommonTask::sInstance->fn_804A3C24(item->mText, 0);
         }
     }
 }
@@ -854,8 +833,8 @@ void ShopBase::fn_80581674() {
         char name[0x40];
         sprintf(name, "list_cursor%d", m25B18 + 1);
         ShopPoint_unk pos = GetPanePos_unk(mA8, name);
-        SetPaneValue_unk(m25B2C->mLayout, "basePos", 0, pos.x);
-        SetPaneValue_unk(m25B2C->mLayout, "basePos", 1, pos.y);
+        SetPaneValue_unk(&m25B2C->mData.m10, "basePos", 0, pos.x);
+        SetPaneValue_unk(&m25B2C->mData.m10, "basePos", 1, pos.y);
         ((atn::D2A_Task*)m25B2C)->SetNumber_unk("num", m25B24, 0);
         if (m25B1C > 0) {
             m25B1C--;
@@ -880,12 +859,12 @@ void ShopBase::fn_8058181C(int show, int message, int arg) {
             window->mSpeed = 3.0f;
             if (arg) {
                 wchar_t text[0x100];
-                fn_800DD3FC(text, lbl_8087F1E4->Get_unk(sMessages[message]), arg);
-                SetPaneText_unk(m74->mLayout, "warning_msg", text);
+                fn_800DD3FC(text, GetText_unk(lbl_8087F1E4, sMessages[message]), arg);
+                SetPaneText_unk(&m74->mData.m10, "warning_msg", text);
             } else {
-                const wchar_t* text = lbl_8087F1E4->Get_unk(sMessages[message]);
+                const wchar_t* text = GetText_unk(lbl_8087F1E4, sMessages[message]);
                 if (text != 0) {
-                    SetPaneText_unk(m74->mLayout, "warning_msg", text);
+                    SetPaneText_unk(&m74->mData.m10, "warning_msg", text);
                 }
             }
         } else {
@@ -908,9 +887,9 @@ void ShopBase::fn_80581964(int show, int message, int arg) {
             m84 = 1;
             m88 = message;
             m80->mSpeed = 3.0f;
-            const wchar_t* text = lbl_8087F1E4->Get_unk(sMessages[message]);
+            const wchar_t* text = GetText_unk(lbl_8087F1E4, sMessages[message]);
             if (text != 0) {
-                SetPaneText_unk(m80->mLayout, "check_msg", text);
+                SetPaneText_unk(&m80->mData.m10, "check_msg", text);
             }
         } else {
             m8C = 0;
@@ -941,7 +920,7 @@ void ShopBase::vf38(const char* data, int size) {
     mF8 = 0;
     int chapter = 0;
     if (lbl_8087F430 != 0) {
-        chapter = lbl_8087F430->mChapter;
+        chapter = lbl_8087F430->m10D0;
     }
     if (m25B4C == 0) {
         m25B4C = chapter;
@@ -970,12 +949,12 @@ void ShopBase::vf38(const char* data, int size) {
             if (from != 0 && m25B4C < from && m25B54 == 0) {
                 continue;
             }
-            if (fromFlag != 0 && !((GameTask*)lbl_8087F430)->fn_80370174(fromFlag) && m25B58 == 0) {
+            if (fromFlag != 0 && !lbl_8087F430->fn_80370174(fromFlag) && m25B58 == 0) {
                 continue;
             }
             int to = fn_800DC12C(csv.fn_8005B9CC());
             int toFlag = fn_800DC12C(csv.fn_8005B9CC());
-            if (to != 0 && m25B4C >= to && m25B54 == 0 && (toFlag == 0 || ((GameTask*)lbl_8087F430)->fn_80370174(toFlag)) &&
+            if (to != 0 && m25B4C >= to && m25B54 == 0 && (toFlag == 0 || lbl_8087F430->fn_80370174(toFlag)) &&
                 m25B58 == 0) {
                 continue;
             }

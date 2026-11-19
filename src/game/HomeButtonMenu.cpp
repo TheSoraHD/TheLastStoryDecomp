@@ -9,36 +9,22 @@
 
 #include "game/HomeButtonMenu.h"
 
-// inferred: save manager (lbl_8087EF68)
-struct HbmSaveLoad_unk {
-    unsigned char m000[0x174];
-    int m174;
-};
-extern "C" HbmSaveLoad_unk* lbl_8087EF68;
-extern "C" int fn_800A4228(HbmSaveLoad_unk* mgr, int* out); // inferred: busy
-extern "C" void* lbl_8087EF70;                               // inferred: pad
+#include "atn/NandManager.h"
+extern "C" atn::NandManager* lbl_8087EF68;
+extern "C" int fn_800A4228(atn::NandManager* nand, int* err); // inferred: busy
+struct Pad_unk;
+extern "C" Pad_unk* lbl_8087EF70;                               // inferred: pad
 extern "C" int fn_800A555C(void* pad, int port, int button); // inferred: button triggered
 extern "C" void* lbl_8087EE90;
 extern "C" void fn_8004A2CC(void* obj, int a, int b, int c);
-struct Unk_8087F018 {
-    unsigned char m0000[0x40E0];
-    int m40E0;
-};
-extern "C" Unk_8087F018* lbl_8087F018;
-extern "C" void fn_800DF0F0(Unk_8087F018* obj, int arg);
+#include "atn/WPad_unk.h"
+extern "C" WPad_unk* lbl_8087F018;
+extern "C" void fn_800DF0F0(WPad_unk* obj, int arg);
 extern "C" void KPADEnableDPD(int chan); // inferred: per controller channel (stops the rumble?)
 #include "game/ResetShutdown.h"
-// inferred: render manager (see game/StrapTask.cpp)
-struct HbmRender_unk {
-    unsigned char m00[0x0E];
-    unsigned short mFbWidth;  // 0x0E
-    unsigned short mFbHeight; // 0x10
-    unsigned char m12[0x3C - 0x12];
-    int mWidth;  // 0x3C
-    int mHeight; // 0x40
-    int mWide;   // 0x44: inferred: 16:9
-};
-extern "C" HbmRender_unk* lbl_8087EEE0;
+#include "atn/GraphicsDevice.h"
+
+extern "C" atn::GraphicsDevice_unk* lbl_8087EEE0;
 extern "C" void fn_800D594C(atn::Texture_unk* tex, const char* path); // inferred: loads a texture
 
 HomeButtonMenu* HomeButtonMenu::sInstance;
@@ -63,10 +49,10 @@ void HomeButtonMenu::fn_8044073C() {
         if (fn_800A555C(lbl_8087EF70, 0, 0x11) || fn_800A555C(lbl_8087EF70, 1, 0x11) ||
             fn_800A555C(lbl_8087EF70, 2, 0x11) || fn_800A555C(lbl_8087EF70, 3, 0x11)) {
             if (m88 != 0) {
-                HbmSaveLoad_unk* mgr = lbl_8087EF68;
+                atn::NandManager* mgr = lbl_8087EF68;
                 int out;
                 int busy = 1;
-                if (fn_800A4228(mgr, &out) == 0 && mgr->m174 <= 0) {
+                if (fn_800A4228(mgr, &out) == 0 && mgr->mIdle <= 0) {
                     busy = 0;
                 }
                 if (busy == 0) {
@@ -75,7 +61,7 @@ void HomeButtonMenu::fn_8044073C() {
                     fn_8004A2CC(lbl_8087EE90, 1, 1, 8);
                     HBMRsoInit(m44);
                     fn_800DF0F0(lbl_8087F018, 1);
-                    lbl_8087F018->m40E0 = 0;
+                    lbl_8087F018->m40E0[0] = 0;
                     for (int i = 0; i < 4; i++) {
                         KPADEnableDPD(i);
                     }
@@ -108,7 +94,7 @@ void HomeButtonMenu::fn_8044073C() {
                 lbl_8087EFE8->fn_800CF7DC(0, 1, 9);
                 fn_8004A2CC(lbl_8087EE90, 0, 1, 0);
                 fn_800DF0F0(lbl_8087F018, 0);
-                lbl_8087F018->m40E0 = 1;
+                lbl_8087F018->m40E0[0] = 1;
                 m84 = 0;
                 break;
             }
@@ -134,10 +120,10 @@ void HomeButtonMenu::fn_80440994() {
         alpha = (46 - mD0) / 8.0f;
     }
     unsigned int color = ((unsigned int)(255.0f * alpha) << 24) | 0xFFFFFF;
-    HbmRender_unk* render = lbl_8087EEE0;
+    atn::GraphicsDevice_unk* render = lbl_8087EEE0;
     float k = render->mWide != 0 ? 1.3333334f : 1.0f;
-    float sx = Ratio_unk(render->mWidth, render->mFbWidth);
-    float sy = Ratio_unk(render->mHeight, render->mFbHeight);
+    float sx = Ratio_unk(render->mWidth, render->mRMode.viWidth);
+    float sy = Ratio_unk(render->mHeight, render->mRMode.viHeight);
     float w = 64.0f;
     float h = w;
     lbl_8087EEB0->mA0 = 0x13;

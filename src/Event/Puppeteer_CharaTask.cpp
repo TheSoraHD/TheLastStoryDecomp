@@ -21,6 +21,7 @@
 #include "chr/CharaEquip_unk.h"
 #include "atn/PBone.h"
 #include "std/string_members.h"
+#include "atn/DebugMessages_unk.h"
 
 extern "C" GameTask* lbl_8087F430; // inferred: the field
 
@@ -30,11 +31,6 @@ extern "C" int atoi(const char* s);
 extern "C" unsigned int fn_800DC6B4(const char* s); // inferred: string hash
 extern "C" void fn_800D2338(atn::Task* task);       // inferred: removes the task
 extern "C" PlayerManager* lbl_8087F8A0;             // inferred: the party manager
-// inferred: debug message list (atn/FileUtil_unk.cpp)
-struct DebugMessages_unk {
-    void fn_800697D8(const char* message);
-};
-extern "C" DebugMessages_unk* lbl_8087EEB8; // inferred: debug message output
 // inferred: motion resource info (as in game/CharaTask.cpp: fn_802096A8 looks it up by the motion name)
 struct MotionInfo_unk {
     int m00;

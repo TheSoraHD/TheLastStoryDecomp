@@ -1,3 +1,4 @@
+#include "game/GameTask.h"
 #include "gmk/Augur.h"
 #include "game/GameScene.h"
 #include "atn/Memory.h"
@@ -14,17 +15,8 @@ extern "C" void PSMTXMultVec(const Mtx m, const atn::Vector3* src, atn::Vector3*
 extern "C" int rand();
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 
-// inferred: route tables of the field (class unknown)
-struct AugurRoutes_unk {
-    unsigned char m00[0xA4];
-    unsigned char* mA4; // inferred: 8-byte entries, one per route point
-};
-struct Field_unk {
-    unsigned char m00[0x10D8];
-    AugurRoutes_unk* m10D8;
-};
-extern "C" Field_unk* lbl_8087F430;
-extern "C" unsigned short fn_803CD958(void* entry, int point); // inferred: the two points are linked
+extern "C" GameTask* lbl_8087F430;
+extern "C" unsigned short fn_803CD958(U16Table_unk* entry, int point); // inferred: the two points are linked
 
 // inferred: names invented
 inline float LenSq_unk(atn::Vector3 v) {
@@ -88,12 +80,12 @@ void Augur::Start() {
     Mtx mtx;
     PSMTXRotRad(mtx, 'y', m78.y);
     PSMTXMultVec(mtx, &front, &front);
-    Field_unk* field = lbl_8087F430;
-    AugurRoutes_unk* routes = field->m10D8;
+    GameTask* field = lbl_8087F430;
+    GameScene* routes = field->m10D8;
     mFront = m6C + front;
     mFrontRot = m78;
     mFrontRot.y = atn::WrapAngle_unk(1.5707964f + mFrontRot.y);
-    mRoute = ((GameScene*)routes)->fn_803C1560(&mFront, 0, 0, 0, 1, -1.0f);
+    mRoute = routes->fn_803C1560(&mFront, 0, 0, 0, 1, -1.0f);
     mTarget = 0;
     mLast = 0;
     mLastId = 0;
@@ -263,7 +255,7 @@ CharaTask* Augur::fn_8041F434(CharaTask* last) {
         if (point <= 0) {
             continue;
         }
-        int linked = fn_803CD958(lbl_8087F430->m10D8->mA4 + (point - 1) * 8, mRoute - 1);
+        int linked = fn_803CD958(&lbl_8087F430->m10D8->mA0.mData[point - 1], mRoute - 1);
         if (linked <= 0) {
             continue;
         }

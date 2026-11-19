@@ -1,3 +1,5 @@
+#include "game/GameConfig_unk.h"
+#include "atn/RenderSetting_unk.h"
 #include "game/Em316LaserSphere.h"
 #include "atn/Csv.h"
 #include "atn/Material_unk.h"
@@ -25,21 +27,23 @@ extern "C" int rand();
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 // inferred: effect manager (class unknown), global instance at 0x8087F3C0
-struct EffectMgr_unk;
-extern "C" EffectMgr_unk* lbl_8087F3C0;
-extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
+namespace atn {
+class EffectManager;
+}
+extern "C" atn::EffectManager* lbl_8087F3C0;
+extern "C" void fn_80239DAC(atn::EffectManager* mgr, void* owner, int id, int arg); // inferred: stops an effect
 extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the next effects
 class BattleTask;
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 // inferred: debug menu entries (as in game/CharaTask.cpp)
-extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3, int arg4);
-extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, int arg6,
-                            int arg7);
-extern "C" void fn_8008771C(void* group, const char* name, float* value, int arg3, int arg4, float min, float max,
-                            float step);
-extern "C" void fn_80087E9C(void* group, const char* name, atn::Vector3* value, int arg3, int arg4, float min,
-                            float max, float step);
+extern "C" void fn_80087994(void* group, const char* name, int* value, void* func, void* arg);
+extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, void* func,
+                            void* arg);
+extern "C" void fn_8008771C(void* group, const char* name, float* value, float min, float max, float step, void* func,
+                            void* arg);
+extern "C" void fn_80087E9C(void* group, const char* name, atn::Vector3* value, float min, float max, float step,
+                            void* func, void* arg);
 extern "C" void fn_80094D88(atn::Model* model, int blend, int a, int b, int c, int d);
 extern "C" int fn_800DC12C(const char* s); // inferred: string to int
 // inferred: control of a character caught by the tackle (only m4C, set to end it); name invented
@@ -54,12 +58,7 @@ extern "C" inline chr::ControlBase* fn_80318F90(CharaTask* chara) {
 extern "C" inline void fn_80319998(LaserCatch_unk* control) {
     control->m4C = 1;
 }
-// inferred: game state (lbl_8087EFA8, see game/CharaTask.cpp): time of a frame at 0x3A4
-struct GameState_unk {
-    unsigned char m000[0x3A4];
-    float m3A4;
-};
-extern "C" GameState_unk* lbl_8087EFA8;
+extern "C" RenderSetting_unk* lbl_8087EFA8;
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
 
 // inferred: sound effects of the sphere (laser, laser end, ?, death); name invented
@@ -99,7 +98,7 @@ struct Color4f_unk {
     Color4f_unk() {}
     float r, g, b, a;
 };
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
+extern "C" void fn_8023A8B4(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Model* model, void* node,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
 extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float volume);
@@ -243,9 +242,9 @@ int Em316LaserSphere::vf0C() {
         fn_800874C8(group, "LaserWait", &m1C84, 1, 10000, 1, 0, 0);
         fn_800874C8(group, "MoveWait", &m1C88, 1, 10000, 1, 0, 0);
         fn_80087994(group, "DebugLog", &m1C94, 0, 0);
-        fn_8008771C(group, "AppearMoveRate", &m14F0, 0, 0, 0.01f, 0.99f, 0.1f);
+        fn_8008771C(group, "AppearMoveRate", &m14F0, 0.01f, 0.99f, 0.1f, 0, 0);
         fn_800874C8(group, "ActionMode", &m58C, 1, 100, 1, 0, 0);
-        fn_80087E9C(group, "Pos", &mPos, 0, 0, 1.0f, 100.0f, 1.0f);
+        fn_80087E9C(group, "Pos", &mPos, 1.0f, 100.0f, 1.0f, 0, 0);
         if (m14B0.fn_80470580() != 0) {
             atn::Csv csv((const char*)m14B0.fn_80470580(), m14B0.fn_8047059C());
             do {
@@ -801,7 +800,9 @@ void Em316LaserSphere::fn_80318F9C() {
     }
 }
 
-extern "C" void* lbl_8087EE98; extern "C" int fn_8004D388(void* world, atn::ColliResult_unk* result, CharaTask::Sphere_unk* sphere, atn::Vector3* move,
+struct ColliManager_unk;
+extern "C" ColliManager_unk* lbl_8087EE98; extern "C" int fn_8004D388(void* world, atn::ColliResult_unk* result,
+                                                          CharaTask::Sphere_unk* sphere, atn::Vector3* move,
                            unsigned int mask, void* ignore, int arg7, float radius);
 
 // NONMATCHING: 94.2% - the mask 0x80000080 is built in r0 then or-ed into r7 in the original, the 0.5f is
@@ -901,14 +902,14 @@ extern "C" inline int fn_80267B28(CharaTask* chara) {
     return chara->m560;
 }
 // inferred: weak copies 0x800F7FA0 and 0x800F7FA8 of another file (as in game/Em203GreaterDaemon.cpp)
-extern "C" inline EffectMgr_unk* fn_800F7FA0() {
+extern "C" inline atn::EffectManager* fn_800F7FA0() {
     return lbl_8087F3C0;
 }
-extern "C" inline void fn_800F7FA8(EffectMgr_unk* mgr, void* owner, int arg) {
+extern "C" inline void fn_800F7FA8(atn::EffectManager* mgr, void* owner, int arg) {
     fn_80232B7C(owner, arg);
 }
-extern "C" int fn_80239D58(EffectMgr_unk* mgr, void* owner, int id); // inferred: the effect is playing
-extern "C" void fn_8023A680(EffectMgr_unk* mgr, void* res, int a, int b, void* mtx, const atn::Vector3* pos,
+extern "C" int fn_80239D58(atn::EffectManager* mgr, void* owner, int id); // inferred: the effect is playing
+extern "C" void fn_8023A680(atn::EffectManager* mgr, void* res, int a, int b, void* mtx, const atn::Vector3* pos,
                             const atn::Vector3* rot, const float* color, float scale, int e, int f, int g);
 // inferred: bullet manager and collision world (weak copies 0x8013A194/0x801404F8 of another file)
 inline BattleTask* fn_8013A194() {
@@ -1054,12 +1055,7 @@ void Em316LaserSphere::fn_80319C90() {
     fn_8023A680(lbl_8087F3C0, &m15A8, -1, 5, &m15E8, 0, 0, 0, 1.0f, 0, -1, 1);
 }
 
-// inferred: settings (lbl_8087F0A8, as in game/CopyRobotTask.cpp): frames per second at 0x30
-struct LaserSettings_unk {
-    unsigned char m00[0x30];
-    int mFrameRate;
-};
-extern "C" LaserSettings_unk* lbl_8087F0A8;
+extern "C" GameConfig_unk* lbl_8087F0A8;
 
 // NONMATCHING: 99.23% - FPR numbering of the gravity (f3-f6 permuted) and r3/r4 of the copy to m1540
 // (__VecCopy family); ~10 variants
@@ -1079,7 +1075,7 @@ void Em316LaserSphere::fn_8031A484() {
             m1540.y = 0.0f;
         }
     }
-    int fps = lbl_8087F0A8->mFrameRate;
+    int fps = lbl_8087F0A8->m030;
     float g = -98.1f / (float)(fps * fps);
     m154C = 1.5f * (lbl_8087EFA8->m3A4 * g);
     CharaTask* caught = m15B4;

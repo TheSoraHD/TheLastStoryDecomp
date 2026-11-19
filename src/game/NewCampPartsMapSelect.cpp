@@ -6,6 +6,7 @@
 #include "atn/D3AnimeInstance.h"
 #include "std/string_members.h"
 #include "atn/D2A_Task.h"
+#include "atn/D2A_TaskApi_unk.h"
 #include "atn/SoundRef.h"
 #include "atn/SoundManager.h"
 #include "game/SelectMember.h"
@@ -21,6 +22,7 @@
 #include "atn/DrawHelper.h"
 #include "macros.h"
 #include "atn/D2A_TaskInstanceC.h"
+#include "atn/EffectManager.h"
 
 extern "C" GameTask* lbl_8087F430; // inferred: the field
 
@@ -42,17 +44,17 @@ inline void SetPaneFloat_unk(void* layout, const char* name, float value) {
 }
 // inferred: debug menu (atn/MindowsCommon.h; arguments in the order of game/NewCampPartsBase.cpp)
 extern "C" void* fn_8008937C(void* menu, const char* name);
-extern "C" void fn_80087E9C(void* group, const char* name, void* value, int arg3, int arg4, float min, float max,
-                            float step); // x, y, z
-extern "C" void fn_80087BB4(void* group, const char* name, void* value, int arg3, int arg4, float min, float max,
-                            float step); // x, y
-extern "C" void fn_8008771C(void* group, const char* name, float* value, int arg3, int arg4, float min, float max,
-                            float step);
-extern "C" void fn_80088724(void* group, const char* name, void* value, int arg3, int arg4, float min, float max,
-                            float step); // degrees
-extern "C" void fn_80088AF4(void* group, const char* name, float* value, int arg3, int arg4, float min, float max,
-                            float step); // colour
-extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3, int arg4);
+extern "C" void fn_80087E9C(void* group, const char* name, void* value, float min, float max, float step, void* func,
+                            void* arg); // x, y, z
+extern "C" void fn_80087BB4(void* group, const char* name, void* value, float min, float max, float step, void* func,
+                            void* arg); // x, y
+extern "C" void fn_8008771C(void* group, const char* name, float* value, float min, float max, float step, void* func,
+                            void* arg);
+extern "C" void fn_80088724(void* group, const char* name, void* value, float min, float max, float step, void* func,
+                            void* arg); // degrees
+extern "C" void fn_80088AF4(void* group, const char* name, float* value, float min, float max, float step, void* func,
+                            void* arg); // colour
+extern "C" void fn_80087994(void* group, const char* name, int* value, void* func, void* arg);
 extern "C" int strncmp(const char* a, const char* b, unsigned long n);
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 // inferred: camp task (the parent m48); only the members used here
@@ -65,23 +67,17 @@ struct NewCampMapCamp_unk {
     unsigned char m11F4[0x1350 - 0x11F4];
     int m1350; // inferred: all the routes are shown (debug)
 };
-// inferred: effect manager (class unknown), global instance at 0x8087F3C0
-struct EffectMgr_unk {
-    unsigned char m00[0xB8];
-    int mB8;
-    int mBC;
-};
 struct Color4f_unk {
     Color4f_unk() {}
     Color4f_unk(float r_, float g_, float b_, float a_) : r(r_), g(g_), b(b_), a(a_) {}
     float r, g, b, a;
 };
-extern "C" EffectMgr_unk* lbl_8087F3C0;
-extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
+extern "C" atn::EffectManager* lbl_8087F3C0;
+extern "C" void fn_80239DAC(atn::EffectManager* mgr, void* owner, int id, int arg); // inferred: stops an effect
+extern "C" void fn_8023A8B4(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Model* model, void* node,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
-extern "C" void fn_8023A680(EffectMgr_unk* mgr, atn::EffFile* res, int arg2, int arg3, atn::Model* model,
+extern "C" void fn_8023A680(atn::EffectManager* mgr, atn::EffFile* res, int arg2, int arg3, atn::Model* model,
                             const atn::Vector3* pos, const atn::Vector3* rot, int arg7, int arg8, int arg9,
                             int arg10, float scale);
 extern "C" void fn_80232B7C(void* owner, int arg);
@@ -112,12 +108,12 @@ struct MapSelectRouteEffect_unk {
 static const MapSelectRouteEffect_unk sRouteEffects[5] = {
     {0, 201000, 999999}, {1, 201000, 999999}, {0, 408000, 999999}, {2, 408000, 999999}, {1, 204000, 999999},
 };
-extern "C" void fn_804A62C8(MenuCommonTask* menu, int type, int noCancel); // inferred: opens a dialog
 extern "C" atn::SoundRef fn_80117228(int id);                   // inferred: plays a system sound effect
-extern "C" void fn_800CB5B4(atn::SoundRef* sound, int a, float b);
-extern "C" void fn_8036F268(GameTask* field, int type, int id, int subId, int entry, int a, int b, int reason,
-                            int c); // inferred: changes the map
-extern "C" void* lbl_8087EF70;
+extern "C" void fn_800CB5B4(atn::SoundRef* sound, float b, int a);
+// inferred: changes the map
+extern "C" void fn_8036F268(GameTask* field, int type, int id, int subId, int entry, int a, void* b, int reason, int c);
+struct Pad_unk;
+extern "C" Pad_unk* lbl_8087EF70;
 extern "C" int fn_800A555C(void* pad, int port, int button); // inferred: button triggered
 extern "C" void PSMTXScale(Mtx m, float x, float y, float z);
 extern "C" void PSMTXConcat(const Mtx a, const Mtx b, Mtx ab);
@@ -293,30 +289,30 @@ NewCampPartsMapSelect::~NewCampPartsMapSelect() {
 
 void NewCampPartsMapSelect::vf40(void* menu) {
     void* group = fn_8008937C(menu, m98.c_str());
-    fn_80087E9C(group, "ZoomOffset", &m4864, 0, 0, -1000000.0f, 1000000.0f, 1.0f);
-    fn_80087E9C(group, "ZoomOffset2", &m4870, 0, 0, -1000000.0f, 1000000.0f, 1.0f);
+    fn_80087E9C(group, "ZoomOffset", &m4864, -1000000.0f, 1000000.0f, 1.0f, 0, 0);
+    fn_80087E9C(group, "ZoomOffset2", &m4870, -1000000.0f, 1000000.0f, 1.0f, 0, 0);
     fn_80087994(group, "CursorDebug", &m48A8, 0, 0);
-    fn_80087BB4(group, "CursorMin", &m48AC, 0, 0, -1000000.0f, 1000000.0f, 1.0f);
-    fn_80087BB4(group, "CursorMax", &m48B4, 0, 0, -1000000.0f, 1000000.0f, 1.0f);
-    fn_80087E9C(group, "BackOffset", &m487C, 0, 0, -1000000.0f, 1000000.0f, 1.0f);
+    fn_80087BB4(group, "CursorMin", &m48AC, -1000000.0f, 1000000.0f, 1.0f, 0, 0);
+    fn_80087BB4(group, "CursorMax", &m48B4, -1000000.0f, 1000000.0f, 1.0f, 0, 0);
+    fn_80087E9C(group, "BackOffset", &m487C, -1000000.0f, 1000000.0f, 1.0f, 0, 0);
     void* color = fn_8008937C(group, "MaterialColor");
-    fn_80088AF4(color, "Type0", m4888, 0, 0, 0.0f, 1.0f, 1.0f);
-    fn_80088AF4(color, "Type1", m4898, 0, 0, 0.0f, 1.0f, 1.0f);
+    fn_80088AF4(color, "Type0", m4888, 0.0f, 1.0f, 1.0f, 0, 0);
+    fn_80088AF4(color, "Type1", m4898, 0.0f, 1.0f, 1.0f, 0, 0);
     void* rot = fn_8008937C(group, "EffectRot");
-    fn_80088724(rot, "Ruri to Volno", &m4828[0], 0, 0, -360.0f, 360.0f, 1.0f);
-    fn_80088724(rot, "Volno to Ruri", &m4828[1], 0, 0, -360.0f, 360.0f, 1.0f);
-    fn_80088724(rot, "Volno to Grug", &m4828[2], 0, 0, -360.0f, 360.0f, 1.0f);
-    fn_80088724(rot, "Grug to Volno", &m4828[3], 0, 0, -360.0f, 360.0f, 1.0f);
-    fn_80088724(rot, "Volno to Volno", &m4828[4], 0, 0, -360.0f, 360.0f, 1.0f);
+    fn_80088724(rot, "Ruri to Volno", &m4828[0], -360.0f, 360.0f, 1.0f, 0, 0);
+    fn_80088724(rot, "Volno to Ruri", &m4828[1], -360.0f, 360.0f, 1.0f, 0, 0);
+    fn_80088724(rot, "Volno to Grug", &m4828[2], -360.0f, 360.0f, 1.0f, 0, 0);
+    fn_80088724(rot, "Grug to Volno", &m4828[3], -360.0f, 360.0f, 1.0f, 0, 0);
+    fn_80088724(rot, "Volno to Volno", &m4828[4], -360.0f, 360.0f, 1.0f, 0, 0);
     void* cursor = fn_8008937C(group, "Cursor");
-    fn_8008771C(cursor, "MoveSpeed", &m4818, 0, 0, 0.0f, 10000.0f, 1.0f);
-    fn_8008771C(cursor, "LockLength", &m481C, 0, 0, 0.0f, 10000.0f, 1.0f);
-    fn_8008771C(cursor, "LockSpeed", &m4820, 0, 0, 0.0f, 10000.0f, 1.0f);
-    fn_8008771C(cursor, "LockRate", &m4824, 0, 0, 0.0f, 10000.0f, 1.0f);
-    fn_80087E9C(group, "OffsetPos", &mA4, 0, 0, -1000000.0f, 1000000.0f, 1.0f);
-    fn_80087E9C(group, "OffsetScl", &mB0, 0, 0, -1000000.0f, 1000000.0f, 1.0f);
-    fn_80087E9C(group, "LocatorScl", &mBC, 0, 0, -1000000.0f, 1000000.0f, 1.0f);
-    fn_80087E9C(group, "BasePos", &mC8, 0, 0, -1000000.0f, 1000000.0f, 1.0f);
+    fn_8008771C(cursor, "MoveSpeed", &m4818, 0.0f, 10000.0f, 1.0f, 0, 0);
+    fn_8008771C(cursor, "LockLength", &m481C, 0.0f, 10000.0f, 1.0f, 0, 0);
+    fn_8008771C(cursor, "LockSpeed", &m4820, 0.0f, 10000.0f, 1.0f, 0, 0);
+    fn_8008771C(cursor, "LockRate", &m4824, 0.0f, 10000.0f, 1.0f, 0, 0);
+    fn_80087E9C(group, "OffsetPos", &mA4, -1000000.0f, 1000000.0f, 1.0f, 0, 0);
+    fn_80087E9C(group, "OffsetScl", &mB0, -1000000.0f, 1000000.0f, 1.0f, 0, 0);
+    fn_80087E9C(group, "LocatorScl", &mBC, -1000000.0f, 1000000.0f, 1.0f, 0, 0);
+    fn_80087E9C(group, "BasePos", &mC8, -1000000.0f, 1000000.0f, 1.0f, 0, 0);
 }
 
 inline void NewCampPartsMapSelect::SetCursorPoint_unk(MapSelectPoint_unk* point) {
@@ -446,7 +442,10 @@ void NewCampPartsMapSelect::vf1C(NewCampScene_unk* scene) {
 }
 
 extern "C" const wchar_t* fn_802168BC(int id);                // inferred: name of a map point
-extern "C" void* lbl_8087EEC8;                                  // inferred: font used to measure the text
+namespace atn {
+class Font_unk;
+}
+extern "C" atn::Font_unk* lbl_8087EEC8;                                  // inferred: font used to measure the text
 extern "C" float fn_8006EF48(void* font, float size, const wchar_t* text, float f2, int a, int b); // inferred: width
 extern "C" void fn_801FEE08(void* layout, unsigned int hash, const wchar_t* text); // inferred: sets a text
 extern "C" void fn_801FED24(void* layout, unsigned int hash, int index, float value); // inferred: sets a vector item
@@ -1098,7 +1097,7 @@ void NewCampPartsMapSelect::fn_8051FB7C(int state) {
         break;
     }
     case 2:
-        fn_804A62C8(MenuCommonTask::sInstance, 0, 1);
+        MenuCommonTask::sInstance->fn_804A62C8(0, 1);
         break;
     case 3: {
         mDC = 2;
@@ -1107,7 +1106,7 @@ void NewCampPartsMapSelect::fn_8051FB7C(int state) {
             lbl_8087EFE8->m34C8 = 0;
         }
         atn::SoundRef sound = fn_80117228(7);
-        fn_800CB5B4(&sound, 0x37, 0.0f);
+        fn_800CB5B4(&sound, 0.0f, 0x37);
         if (lbl_8087EFE8 != 0) {
             lbl_8087EFE8->m34C8 = 1;
         }
@@ -1564,8 +1563,8 @@ void NewCampPartsMapSelect::fn_80521A00(int dir) {
         if (sRouteEffects[i].mMin <= chapter && sRouteEffects[i].mMax > chapter && m19A8 == sRouteEffects[i].mArea) {
             MapSelectPoint_unk* point = FindPoint_unk(500 + i);
             if (point != 0 && point->m18 != 0) {
-                lbl_8087F3C0->mBC = 1;
-                lbl_8087F3C0->mB8 = 6;
+                lbl_8087F3C0->mSystem.m70 = 1;
+                lbl_8087F3C0->mSystem.mLayer = 6;
                 fn_80232B7C(this, 1);
                 atn::Vector3 rot = m4828[i];
                 atn::Vector3 pos = GetModel_unk(point->m18->mModel)->mMtx.GetTrans_unk();
@@ -1576,8 +1575,8 @@ void NewCampPartsMapSelect::fn_80521A00(int dir) {
                     RotAssign_unk(rot, atn::Vector3(0.0f, 3.1415927f, 0.0f));
                     PlayEfp_unk(&m47E8, pos, rot);
                 }
-                lbl_8087F3C0->mB8 = 0;
-                lbl_8087F3C0->mBC = 0;
+                lbl_8087F3C0->mSystem.mLayer = 0;
+                lbl_8087F3C0->mSystem.m70 = 0;
             }
         }
     }

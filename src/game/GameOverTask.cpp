@@ -2,7 +2,9 @@
 // (__vt__12GameOverTask). File boundaries in docs/splits-auto-C.md (group 2).
 
 #include "atn/Camera_unk.h"
+#include "atn/D2A_Task.h"
 #include "game/GameTask.h"
+#include "game/CampSaveLoad.h"
 #include "atn/EfpHandle_unk.h"
 #include "atn/FadeCommon.h"
 #include "atn/FixedArray.h"
@@ -25,7 +27,10 @@ extern "C" void fn_801FED24(void* layout, unsigned int hash, int index, float va
 extern "C" const wchar_t* fn_80116FC0(int a, int id); // inferred: message text
 extern "C" atn::SoundRef fn_80117228(int id);        // inferred: plays a system sound effect
 extern "C" void fn_800D2338(atn::Task* task);        // inferred: deletes the task
-extern "C" void* lbl_8087EEC8;                       // inferred: font
+namespace atn {
+class Font_unk;
+}
+extern "C" atn::Font_unk* lbl_8087EEC8;                       // inferred: font
 extern "C" float fn_8006EF48(void* font, float size, const wchar_t* text, float f2, int a, int b); // inferred: width
 
 // inferred: d2anime task (made by fn_801F3FF8; the view of game/MenuCommonTask.h)
@@ -43,56 +48,33 @@ struct GameOverPoint_unk {
 extern "C" GameOverPoint_unk fn_801F4E8C(atn::Task* layout, unsigned int hash);
 extern "C" void fn_804A39EC(GameOverD2A_unk* anime, int arg1, int repeat, float frame, float speed);
 
-class MenuLoadTask : public atn::Task {
-public:
-    static MenuLoadTask* fn_80117914(atn::Task* parent, GameLoadTask* data, GameLoadBackground* bg); // inferred: bg unused
-    static MenuLoadTask* sInstance;
-    unsigned char m48[0x13C - 0x48];
-    int m13C; // inferred: state
-};
-extern "C" void fn_804A4300(MenuCommonTask* menu, const wchar_t* text);
-extern "C" void fn_804A5B9C(MenuCommonTask* menu, int id, const char* name); // inferred: adds an entry
 extern "C" const wchar_t lbl_808813D0[2]; // inferred: empty text
-// inferred: message table (lbl_8087F1E4)
-struct GameOverMsg_unk {
-    const wchar_t* Get_unk(int id) {
-        return mText[id] != 0 ? mText[id] : lbl_808813D0;
-    }
-    const wchar_t* mText[1];
-};
-extern "C" GameOverMsg_unk* lbl_8087F1E4;
-extern "C" void* lbl_8087EF70;
+struct Pad_unk;
+extern "C" Pad_unk* lbl_8087EF70;
 extern "C" int fn_800A555C(void* pad, int port, int button); // inferred: button triggered
 extern "C" int fn_800A55AC(void* pad, int port, int button); // inferred: button repeated
 extern "C" int lbl_8087DCCC;
 extern "C" int lbl_8087F434;
 #include "atn/SequenceBoot_unk.h"
 #include "atn/RenderManager.h"
+#include "atn/TextTable_unk.h"
+#include "game/GameConfig_unk.h"
 extern "C" MP::SaveData_unk* lbl_8087F460;
 extern "C" int fn_803BE854(MP::SaveData_unk* data);
-// inferred: field (lbl_8087F430); only the members used here
-struct GameOverField_unk {
-    unsigned char m0000[0x20];
-    atn::Task* m20;
-};
-extern "C" GameOverField_unk* lbl_8087F430;
-// inferred: options (lbl_8087F0A8)
-struct GameOverOptions_unk {
-    unsigned char m000[0x194];
-    int m194; // inferred: demo version
-    unsigned char m198[0x5A4 - 0x198];
-    int m5A4; // inferred: frames before the choices
-};
-extern "C" GameOverOptions_unk* lbl_8087F0A8;
+extern "C" GameTask* lbl_8087F430;
+extern "C" GameConfig_unk* lbl_8087F0A8;
 // inferred: effects
-struct EffectMgr_unk;
-extern "C" EffectMgr_unk* lbl_8087F3C0;
+namespace atn {
+class EffectManager;
+}
+extern "C" atn::EffectManager* lbl_8087F3C0;
 // inferred: weak copy 0x800F7FA0 of another file (as in game/Em203GreaterDaemon.cpp)
-extern "C" inline EffectMgr_unk* fn_800F7FA0() {
+extern "C" inline atn::EffectManager* fn_800F7FA0() {
     return lbl_8087F3C0;
 }
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, void* model, int arg3, const atn::Vector3& pos,
-                            const atn::Vector3& rot, const float* color, int arg7, int arg8, int arg9, float scale);
+extern "C" void fn_8023A8B4(atn::EffectManager* mgr, atn::EfpFile* efp, void* model, void* node,
+                            const atn::Vector3& pos, const atn::Vector3& rot, const float* color, int arg7, int arg8,
+                            int arg9, float scale);
 extern "C" void fn_80232B7C(void* owner, int arg);
 extern "C" RenderSetting_unk* lbl_8087EFA8; // inferred: render settings
 // inferred: weak copy 0x802F0990 of another file (as in game/NewCampTask.cpp)
@@ -201,7 +183,7 @@ GameOverTask::~GameOverTask() {
 }
 
 // inferred: plays an effect at the origin (as PlayEfp_unk of gmk/SwingObject.cpp)
-inline void PlayEfp_unk(EffectMgr_unk* mgr, atn::EfpFile* efp) {
+inline void PlayEfp_unk(atn::EffectManager* mgr, atn::EfpFile* efp) {
     atn::Vector3 pos;
     atn::Vector3 rot;
     float color[4];
@@ -252,16 +234,16 @@ int GameOverTask::vf0C() {
 }
 
 // inferred: the event flag is set (name invented)
-inline bool IsFlagSet_unk(GameOverField_unk* field, int id) {
+inline bool IsFlagSet_unk(GameTask* field, int id) {
     return ((GameTask*)field)->fn_80370174(id) == 1;
 }
 
 void GameOverTask::fn_80377298() {
     const int* opts;
     mChoices.mSize = 0;
-    GameOverField_unk* field = lbl_8087F430;
+    GameTask* field = lbl_8087F430;
     if (field != 0 && lbl_8087DCCC != 0) {
-        if (field != 0 && ((GameTask*)lbl_8087F430)->fn_803754F0() != 0) {
+        if (field != 0 && lbl_8087F430->fn_803754F0() != 0) {
             mMode = 5;
             mChoices.push_back((opts = sOptArena)[0]);
             mChoices.push_back(opts[1]);
@@ -274,7 +256,7 @@ void GameOverTask::fn_80377298() {
             if (IsFlagSet_unk(lbl_8087F430, 0xD4)) {
                 mSelect = 3;
             }
-        } else if (((GameTask*)lbl_8087F430)->fn_80370174(0x122) == 0) {
+        } else if (lbl_8087F430->fn_80370174(0x122) == 0) {
             mMode = 0;
             mChoices.push_back((opts = sOpt)[0]);
             mChoices.push_back(opts[1]);
@@ -323,7 +305,7 @@ void GameOverTask::vf10() {
         case 0:
         case 1:
             if (lbl_8087F430 != 0) {
-                ((GameTask*)lbl_8087F430)->fn_80370F8C(0, lbl_8087F460, 0);
+                lbl_8087F430->fn_80370F8C(0, lbl_8087F460, 0);
             }
             break;
         case 2:
@@ -332,20 +314,20 @@ void GameOverTask::vf10() {
             break;
         case 3:
             if (lbl_8087F430 != 0) {
-                ((GameTask*)lbl_8087F430)->fn_80370F8C(1, lbl_8087F460, 0);
+                lbl_8087F430->fn_80370F8C(1, lbl_8087F460, 0);
             }
             break;
         case 4:
             if (lbl_8087F430 != 0) {
-                ((GameTask*)lbl_8087F430)->fn_80370320(0x1B, 1, 0);
-                ((GameTask*)lbl_8087F430)->fn_80370F8C(0, 0, 1);
+                lbl_8087F430->fn_80370320(0x1B, 1, 0);
+                lbl_8087F430->fn_80370F8C(0, 0, 1);
             }
             break;
         }
         fn_800D2338(this);
         return;
     }
-    GameOverOptions_unk* options = lbl_8087F0A8;
+    GameConfig_unk* options = lbl_8087F0A8;
     mTimer++;
     mMenu->mFlags |= 4;
     mCursor->mFlags |= 4;
@@ -354,7 +336,7 @@ void GameOverTask::vf10() {
     }
     int fade = 0;
     if (mState == 0) {
-        if (mTimer > options->m5A4) {
+        if (mTimer > options->mTitle.mLogoFadeStart) {
             if (mDemoEnd != 0) {
                 mDemoEnd->mFlags &= ~4;
                 if (mDemoEnd->IsEnd_unk() &&
@@ -369,8 +351,8 @@ void GameOverTask::vf10() {
                 }
             }
         }
-        SetParam_unk(mCursor->m58, "cursor_pos", 0, -1000.0f);
-        SetParam_unk(mCursor->m58, "cursor_pos", 1, -1000.0f);
+        SetParam_unk(&mCursor->mData.m10, "cursor_pos", 0, -1000.0f);
+        SetParam_unk(&mCursor->mData.m10, "cursor_pos", 1, -1000.0f);
     } else if (mState == 1) {
         mMenu->mFlags &= ~4;
         mCursor->mFlags &= ~4;
@@ -453,7 +435,7 @@ void GameOverTask::vf10() {
             }
             fn_80377298();
             MenuCommonTask::sInstance->fn_804A2F98();
-            fn_804A4300(MenuCommonTask::sInstance, lbl_8087F1E4->Get_unk(0x237));
+            MenuCommonTask::sInstance->fn_804A4300(lbl_8087F1E4->Get_unk(0x237));
             SetState_unk(4);
             fn_80117228(11);
         }
@@ -491,9 +473,9 @@ void GameOverTask::vf10() {
         const wchar_t* text = fn_80116FC0(0, id);
         float len = fn_8006EF48(lbl_8087EEC8, 14.0f, text, 0.0f, 1, 1);
         sprintf(name, "msgLen%02d", i);
-        SetRate_unk(mMenu->m58, name, len);
+        SetRate_unk(&mMenu->mData.m10, name, len);
         sprintf(name, "msg%02d", i);
-        SetText_unk(mMenu->m58, name, text);
+        SetText_unk(&mMenu->mData.m10, name, text);
     }
     int pos = 0;
     switch (mChoices.mData[mSelect]) {
@@ -515,17 +497,17 @@ void GameOverTask::vf10() {
     }
     sprintf(name, "cursor_point%02d", pos);
     GameOverPoint_unk point = GetPoint_unk(mMenu, name);
-    SetParam_unk(mCursor->m58, "cursor_pos", 0, point.x);
-    SetParam_unk(mCursor->m58, "cursor_pos", 1, point.y);
-    SetParam_unk(mCursor->m58, "cursor_pos", 4, point.m10);
-    SetRate_unk(mCursor->m58, "wRate", point.m08);
-    SetRate_unk(mCursor->m58, "hRate", point.m0C);
+    SetParam_unk(&mCursor->mData.m10, "cursor_pos", 0, point.x);
+    SetParam_unk(&mCursor->mData.m10, "cursor_pos", 1, point.y);
+    SetParam_unk(&mCursor->mData.m10, "cursor_pos", 4, point.m10);
+    SetRate_unk(&mCursor->mData.m10, "wRate", point.m08);
+    SetRate_unk(&mCursor->mData.m10, "hRate", point.m0C);
     if (MenuCommonTask::sInstance != 0) {
         sprintf(name, "select_text%02d", pos);
-        fn_804A5B9C(MenuCommonTask::sInstance, (int)mMenu, name);
+        MenuCommonTask::sInstance->fn_804A5B9C((int)mMenu, name);
     }
     if (fade) {
-        mFade = atn::FadeColor::Create(lbl_8087F430->m20, 30, 0, 0xFF000000);
+        mFade = atn::FadeColor::Create((atn::Task*)lbl_8087F430->m20, 30, 0, 0xFF000000);
         mFade->mWait = 2;
         mFade->mActive = 1;
         mFade->mDeleteAtEnd = 1;
@@ -535,9 +517,9 @@ void GameOverTask::vf10() {
 // inferred: the camera position and target go through local copies (asm copies, not removed)
 void GameOverTask::vf14() {
     if (mState == 1) {
-        SetRate_unk(mMenu->m58, "selectOn", 1.0f);
+        SetRate_unk(&mMenu->mData.m10, "selectOn", 1.0f);
     } else {
-        SetRate_unk(mMenu->m58, "selectOn", 0.0f);
+        SetRate_unk(&mMenu->mData.m10, "selectOn", 0.0f);
     }
     atn::Vector3 pos = *mCamera.GetPosition_unk();
     atn::Vector3 target = *mCamera.GetTarget_unk();

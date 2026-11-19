@@ -1,3 +1,4 @@
+#include "Event/Section.h"
 #include "Event/Behavior.h"
 #include "Event/ActionProcessors_unk.h"
 #include "Event/Path.h"
@@ -157,7 +158,7 @@ namespace Event {
 // inferred: getters compiled in another file (weak copies in Event/DebugInfo_unk)
 extern "C" int fn_80224610(ActionParam_unk* param);   // inferred: flag value of a parameter
 extern "C" int fn_802245B8(ActionParam_unk* param);   // inferred: integer value of a parameter
-extern "C" int fn_80224618(ActionOwner_unk* section); // inferred: section->m10 (actor id)
+extern "C" int fn_80224618(Section* section); // inferred: section->m10 (actor id)
 extern "C" int fn_80223EB8(Action* arg);              // inferred: arg->m18 (length in frames)
 extern "C" Manager* fn_8000DB1C();              // inferred: returns lbl_8087F540
 extern "C" void PSMTXTranspose(const Mtx src, Mtx dst);
@@ -255,7 +256,7 @@ inline T Clamp_unk(T x, T lo, T hi) {
 }
 
 void ActionActorPosition::fn_80551194(Action* arg, float t) {
-    ActionOwner_unk* section = arg->fn_805381A0();
+    Section* section = arg->fn_805381A0();
     EventManager_unk* manager = arg->fn_805381C8();
     Actor* actor = manager->GetActors_unk()->Find_unk(fn_80224618(section));
     atn::Vector3 start = actor->fn_80010374();
@@ -522,7 +523,7 @@ int ActionActorPosition::vf0C(Action* arg, int phase) {
     case 0: {
         int mode = arg->GetParam_unk(0)->m04.i;
         if (mode == 0) {
-            ActionOwner_unk* section = arg->fn_805381A0();
+            Section* section = arg->fn_805381A0();
             EventManager_unk* manager = arg->fn_805381C8();
             Actor* actor = manager->FindActor_unk(section->m10);
             arg->fn_80538CE0(14, actor->fn_80010B68());
@@ -534,7 +535,7 @@ int ActionActorPosition::vf0C(Action* arg, int phase) {
             }
             ActionActorPosition::vf08(arg);
         } else if (mode == 1) {
-            ActionOwner_unk* section = arg->fn_805381A0();
+            Section* section = arg->fn_805381A0();
             EventManager_unk* manager = arg->fn_805381C8();
             Actor* actor = manager->FindActor_unk(section->m10);
             int id = arg->GetParam_unk(1)->m04.i;
@@ -548,7 +549,7 @@ int ActionActorPosition::vf0C(Action* arg, int phase) {
                 actor->fn_800119C0(0, arg->GetParam_unk(4)->m04.i, 1, 10, manager, 0, 1, 1.0f, 0.0f);
             }
         } else if (mode == 2) {
-            ActionOwner_unk* section = arg->fn_805381A0();
+            Section* section = arg->fn_805381A0();
             EventManager_unk* manager = arg->fn_805381C8();
             Actor* actor = manager->FindActor_unk(section->m10);
             if (arg->GetParam_unk(8)->m04.i != 0) {
@@ -558,7 +559,7 @@ int ActionActorPosition::vf0C(Action* arg, int phase) {
                 actor->m130 = lbl_8087F540->fn_8048B3B8(arg->GetParam_unk(10)->m04.i);
             }
         } else if (mode == 3) {
-            ActionOwner_unk* section = arg->fn_805381A0();
+            Section* section = arg->fn_805381A0();
             EventManager_unk* manager = arg->fn_805381C8();
             Actor* actor = manager->FindActor_unk(section->m10);
             arg->fn_80538CE0(7, actor->fn_80010B68());
@@ -568,7 +569,7 @@ int ActionActorPosition::vf0C(Action* arg, int phase) {
     case 3: {
         int mode = arg->GetParam_unk(0)->m04.i;
         if ((mode == 0 || mode == 2) && arg->m18 > 0) {
-            ActionOwner_unk* section = arg->fn_805381A0();
+            Section* section = arg->fn_805381A0();
             EventManager_unk* manager = arg->fn_805381C8();
             Actor* actor = manager->FindActor_unk(section->m10);
             lbl_8087F540->fn_8048C884(actor->m130);
@@ -579,7 +580,7 @@ int ActionActorPosition::vf0C(Action* arg, int phase) {
         if (arg->GetParam_unk(0)->m04.i == 1) {
             int id = arg->GetParam_unk(1)->m04.i;
             if (id != -1) {
-                ActionOwner_unk* section = arg->fn_805381A0();
+                Section* section = arg->fn_805381A0();
                 EventManager_unk* manager = arg->fn_805381C8();
                 Actor* actor = manager->FindActor_unk(section->m10);
                 Path* path = manager->FindPath_unk(id);
@@ -641,7 +642,7 @@ inline int AddMotionAction_unk(Actor* actor, Action* arg) {
 int ActionActorMotion::vf0C(Action* arg, int phase) {
     switch (phase) {
     case 0: {
-        ActionOwner_unk* section = arg->fn_805381A0();
+        Section* section = arg->fn_805381A0();
         EventManager_unk* manager = arg->fn_805381C8();
         Actor* actor = manager->FindActor_unk(section->m10);
         int motion = arg->GetParam_unk(0)->m04.i;
@@ -672,7 +673,7 @@ int ActionActorMotion::vf0C(Action* arg, int phase) {
     }
     case 3:
     case 4: {
-        ActionOwner_unk* section = arg->fn_805381A0();
+        Section* section = arg->fn_805381A0();
         EventManager_unk* manager = arg->fn_805381C8();
         Actor* actor = manager->FindActor_unk(section->m10);
         if (actor->mB8[0] == arg) {
@@ -693,7 +694,7 @@ int ActionActorMotion::vf0C(Action* arg, int phase) {
 
 int ActionActorFacial::vf0C(Action* arg, int phase) {
     if (phase == 0) {
-        ActionOwner_unk* section = arg->fn_805381A0();
+        Section* section = arg->fn_805381A0();
         EventManager_unk* manager = arg->fn_805381C8();
         int id = section->m10;
         Actor* actor = manager->FindActor_unk(id);
@@ -716,7 +717,7 @@ extern "C" int rand();
 // NONMATCHING: 98.5% - volatile registers of the two inlined actor lookups and the parameter checks; the
 // weight 1.0 in f29 (ours f30)
 void ActionActorEyes::fn_80553A74(Action* arg, float now) {
-    ActionOwner_unk* section = arg->fn_805381A0();
+    Section* section = arg->fn_805381A0();
     EventManager_unk* manager = arg->fn_805381C8();
     Actor* actor = manager->FindActor_unk(section->m10);
     float t = now - (float)arg->m10;
@@ -747,7 +748,7 @@ void ActionActorEyes::fn_80553A74(Action* arg, float now) {
 // inferred: the actor of the section through DataList_unk::Find_unk, the target through
 // Sequence::FindActor_unk (the second lookup loads the count again)
 void ActionActorEyes::fn_80553DC8(Action* arg, atn::Vector3* cur, const atn::Vector3* goal, int mode, float frames) {
-    ActionOwner_unk* section = arg->fn_805381A0();
+    Section* section = arg->fn_805381A0();
     EventManager_unk* manager = arg->fn_805381C8();
     Actor* actor = manager->GetActors_unk()->Find_unk(section->m10);
     float weight = 1.0f;
@@ -775,7 +776,7 @@ void ActionActorEyes::fn_80553DC8(Action* arg, atn::Vector3* cur, const atn::Vec
 // NONMATCHING: 93.7% - stack frame 0x10 smaller here (slots of the vectors), volatile registers of the two
 // actor lookups and the order of the loads of arg->m18 and of the event manager
 void ActionActorEyes::fn_80554088(Action* arg, int length, atn::Vector3* v, int mode, float left, float now) {
-    ActionOwner_unk* section = arg->fn_805381A0();
+    Section* section = arg->fn_805381A0();
     EventManager_unk* manager = arg->fn_805381C8();
     Actor* actor = manager->FindActor_unk(section->m10);
     float weight = 1.0f;
@@ -843,7 +844,7 @@ int ActionActorEyes::vf08(Action* arg) {
     float frames = arg->GetParam_unk(12)->m04.f;
     int camera = arg->GetParam_unk(13)->m04.i;
     int mode = arg->GetParam_unk(9)->m04.i;
-    ActionOwner_unk* section = arg->fn_805381A0();
+    Section* section = arg->fn_805381A0();
     EventManager_unk* manager = arg->fn_805381C8();
     Actor* actor = manager->FindActor_unk(section->m10);
     Actor* target = manager->FindActor_unk(arg->GetParam_unk(0)->m04.i);
@@ -899,7 +900,7 @@ int ActionActorEyes::vf08(Action* arg) {
 int ActionActorEyes::vf0C(Action* arg, int phase) {
     switch (phase) {
     case 0: {
-        ActionOwner_unk* section = arg->fn_805381A0();
+        Section* section = arg->fn_805381A0();
         EventManager_unk* manager = arg->fn_805381C8();
         Actor* actor = manager->FindActor_unk(section->m10);
         int length = arg->m18;
@@ -941,7 +942,7 @@ int ActionActorEyes::vf0C(Action* arg, int phase) {
         break;
     }
     case 2: {
-        ActionOwner_unk* section = arg->fn_805381A0();
+        Section* section = arg->fn_805381A0();
         EventManager_unk* manager = arg->fn_805381C8();
         Actor* actor = manager->FindActor_unk(section->m10);
         if (arg->m18 > 0) {
@@ -954,7 +955,7 @@ int ActionActorEyes::vf0C(Action* arg, int phase) {
         break;
     }
     case 3: {
-        ActionOwner_unk* section = arg->fn_805381A0();
+        Section* section = arg->fn_805381A0();
         EventManager_unk* manager = arg->fn_805381C8();
         Actor* actor = manager->FindActor_unk(section->m10);
         if (arg->GetParam_unk(5)->m04.i == 0) {
@@ -987,7 +988,7 @@ int ActionActorEyes::vf0C(Action* arg, int phase) {
 // of the saved keys (the original adds the offset to the source before each load)
 int ActionActorPose::vf0C(Action* arg, int phase) {
     if (phase == 0) {
-        ActionOwner_unk* section = arg->fn_805381A0();
+        Section* section = arg->fn_805381A0();
         EventManager_unk* manager = arg->fn_805381C8();
         Actor* actor = manager->FindActor_unk(section->m10);
         PoseData* pose = manager->m134.Find_unk(arg->GetParam_unk(0)->m04.i);
@@ -1031,7 +1032,7 @@ int ActionActorHeading::vf08(Action* arg) {
     if (!(now >= 1.0f)) {
         return 0;
     }
-    ActionOwner_unk* section = arg->fn_805381A0();
+    Section* section = arg->fn_805381A0();
     EventManager_unk* manager = arg->fn_805381C8();
     Actor* actor = manager->GetActors_unk()->Find_unk(section->m10);
     Actor* target = manager->GetActors_unk()->Find_unk(arg->GetParam_unk(0)->m04.i);
@@ -1118,7 +1119,7 @@ int ActionActorHeading::vf08(Action* arg) {
 int ActionActorHeading::vf0C(Action* arg, int phase) {
     switch (phase) {
     case 0: {
-        ActionOwner_unk* section = arg->fn_805381A0();
+        Section* section = arg->fn_805381A0();
         EventManager_unk* manager = arg->fn_805381C8();
         Actor* actor = manager->FindActor_unk(section->m10);
         if (arg->m18 > 0) {
@@ -1149,7 +1150,7 @@ int ActionActorHeading::vf0C(Action* arg, int phase) {
     }
     case 3:
         if (arg->m18 > 0) {
-            ActionOwner_unk* section = arg->fn_805381A0();
+            Section* section = arg->fn_805381A0();
             EventManager_unk* manager = arg->fn_805381C8();
             int id = section->m10;
             Actor* actor = manager->FindActor_unk(id);
@@ -1158,7 +1159,7 @@ int ActionActorHeading::vf0C(Action* arg, int phase) {
         break;
     case 2:
         if (arg->GetParam_unk(8)->m04.i == 0) {
-            ActionOwner_unk* section = arg->fn_805381A0();
+            Section* section = arg->fn_805381A0();
             EventManager_unk* manager = arg->fn_805381C8();
             int id = section->m10;
             Actor* actor = manager->FindActor_unk(id);
@@ -1187,7 +1188,7 @@ int ActionActorHeading::vf0C(Action* arg, int phase) {
 // of the key searches (the original adds the offset to the data pointer of the loop); degrees by DegToRad_unk
 int ActionActorNode::vf08(Action* arg) {
     float now = arg->fn_805381C8()->m198;
-    ActionOwner_unk* section = arg->fn_805381A0();
+    Section* section = arg->fn_805381A0();
     EventManager_unk* manager = arg->fn_805381C8();
     Actor* owner = manager->FindActor_unk(section->m10);
     Actor* actor = manager->FindActor_unk(section->m10);
@@ -1267,7 +1268,7 @@ int ActionActorNode::vf08(Action* arg) {
 int ActionActorNode::vf0C(Action* arg, int phase) {
     switch (phase) {
     case 0: {
-        ActionOwner_unk* section = arg->fn_805381A0();
+        Section* section = arg->fn_805381A0();
         EventManager_unk* manager = arg->fn_805381C8();
         Actor* actor = manager->FindActor_unk(section->m10);
         if (arg->m18 > 0) {
@@ -1282,7 +1283,7 @@ int ActionActorNode::vf0C(Action* arg, int phase) {
         break;
     }
     case 2: {
-        ActionOwner_unk* section = arg->fn_805381A0();
+        Section* section = arg->fn_805381A0();
         EventManager_unk* manager = arg->fn_805381C8();
         Actor* actor = manager->FindActor_unk(section->m10);
         if (arg->m1C >= 1) {
@@ -1290,7 +1291,7 @@ int ActionActorNode::vf0C(Action* arg, int phase) {
         }
     }
     case 3: {
-        ActionOwner_unk* section = arg->fn_805381A0();
+        Section* section = arg->fn_805381A0();
         EventManager_unk* manager = arg->fn_805381C8();
         int id = section->m10;
         manager->FindActor_unk(id);
@@ -1472,7 +1473,7 @@ int ActionActorSetting::vf0C(Action* arg, int phase) {
     int show;
     switch (phase) {
     case 0: {
-        ActionOwner_unk* section = arg->fn_805381A0();
+        Section* section = arg->fn_805381A0();
         EventManager_unk* manager = arg->fn_805381C8();
         int id = section->m10;
         Actor* actor = manager->FindActor_unk(id);
@@ -1560,7 +1561,7 @@ int ActionActorSetting::vf0C(Action* arg, int phase) {
         break;
     }
     case 5: {
-        ActionOwner_unk* section = arg->fn_805381A0();
+        Section* section = arg->fn_805381A0();
         EventManager_unk* manager = arg->fn_805381C8();
         int id = section->m10;
         Actor* actor = manager->FindActor_unk(id);
@@ -1570,7 +1571,7 @@ int ActionActorSetting::vf0C(Action* arg, int phase) {
         break;
     }
     case 3: {
-        ActionOwner_unk* section = arg->fn_805381A0();
+        Section* section = arg->fn_805381A0();
         EventManager_unk* manager = arg->fn_805381C8();
         int id = section->m10;
         Actor* actor = manager->FindActor_unk(id);
@@ -1618,7 +1619,7 @@ int ActionActorSetting::vf0C(Action* arg, int phase) {
 // inferred: per frame part of the settings: kind 3 starts a blink of the character, kind 9 moves its
 // counter mF94 towards zero or towards mF98 over the frames left
 int ActionActorSetting::vf08(Action* arg) {
-    ActionOwner_unk* section = arg->fn_805381A0();
+    Section* section = arg->fn_805381A0();
     EventManager_unk* manager = arg->fn_805381C8();
     int id = section->m10;
     Actor* actor = manager->FindActor_unk(id);
@@ -1683,7 +1684,7 @@ int ActionActorSetting::vf08(Action* arg) {
 int ActionActorWind::vf0C(Action* arg, int phase) {
     switch (phase) {
     case 0: {
-        ActionOwner_unk* section = arg->fn_805381A0();
+        Section* section = arg->fn_805381A0();
         EventManager_unk* manager = arg->fn_805381C8();
         int id = section->m10;
         atn::Model* model = manager->FindActor_unk(id)->fn_8001296C();
@@ -1710,7 +1711,7 @@ int ActionActorWind::vf0C(Action* arg, int phase) {
 // load of the actor: parameters 6 and 7)
 int ActionActorMaterial::vf08(Action* arg) {
     arg->fn_805381C8();
-    ActionOwner_unk* section = arg->fn_805381A0();
+    Section* section = arg->fn_805381A0();
     EventManager_unk* manager = arg->fn_805381C8();
     int length;
     int start;
@@ -1813,7 +1814,7 @@ int ActionActorMaterial::vf0C(Action* arg, int phase) {
     case 0: {
         int length = arg->m14 - arg->m10;
         int fadeIn = arg->m18;
-        ActionOwner_unk* section = arg->fn_805381A0();
+        Section* section = arg->fn_805381A0();
         EventManager_unk* manager = arg->fn_805381C8();
         Actor* actor = manager->FindActor_unk(section->m10);
         atn::Model* model = actor->fn_8001296C();
@@ -1847,7 +1848,7 @@ int ActionActorMaterial::vf0C(Action* arg, int phase) {
     }
     case 3:
     case 4: {
-        ActionOwner_unk* section = arg->fn_805381A0();
+        Section* section = arg->fn_805381A0();
         EventManager_unk* manager = arg->fn_805381C8();
         Actor* actor = manager->FindActor_unk(section->m10);
         atn::Model* model = actor->fn_8001296C();

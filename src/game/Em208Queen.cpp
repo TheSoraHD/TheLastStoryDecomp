@@ -1,3 +1,4 @@
+#include "game/GameConfig_unk.h"
 #include "game/Em208Queen.h"
 #include "atn/RenderManager.h"
 #include "game/CharaManager.h"
@@ -14,11 +15,12 @@
 #include "math/VecAssign_unk.h"
 #include "game/DamageResult_unk.h"
 #include "game/GameScene.h"
+#include "atn/TextTable_unk.h"
 
 // inferred: debug menu entries (as in game/Em101LittleZesya.cpp)
-extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3, int arg4);
-extern "C" void fn_8008771C(void* group, const char* name, float* value, int arg3, int arg4, float min, float max,
-                            float step);
+extern "C" void fn_80087994(void* group, const char* name, int* value, void* func, void* arg);
+extern "C" void fn_8008771C(void* group, const char* name, float* value, float min, float max, float step, void* func,
+                            void* arg);
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 extern "C" atn::Vector3 lbl_807C7030;              // inferred: zero vector
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
@@ -28,7 +30,7 @@ extern "C" double acos(double x);
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
 extern "C" void* memset(void* dst, int c, unsigned long n);
 extern "C" int fn_800DD3FC(wchar_t* s, const wchar_t* format, ...); // inferred: wide sprintf
-struct Field_unk;
+struct GameTask;
 // inferred: kind and value of a damage record (inline; name invented)
 inline void SetDamage_unk(DamageResult_unk& damage, int kind, int value) {
     damage.mType = kind;
@@ -36,15 +38,11 @@ inline void SetDamage_unk(DamageResult_unk& damage, int kind, int value) {
 }
 extern "C" int fn_8004ED34(void* colli, atn::ColliResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg7); // inferred: ray test
-extern "C" void* lbl_8087EE98; // inferred: collision world
+struct ColliManager_unk;
+extern "C" ColliManager_unk* lbl_8087EE98; // inferred: collision world
 extern "C" void fn_8004D388(void* mgr, atn::ColliResult_unk* result, CharaTask::Sphere_unk* sphere, atn::Vector3* move,
                             unsigned int mask, void* ignore, int arg, float radius); // inferred: sweep test
-// inferred: frame rate (as in chr/ControlTurnQuadruped.cpp)
-struct System_unk {
-    unsigned char m00[0x30];
-    int mFrameRate; // 0x30
-};
-extern "C" System_unk* lbl_8087F0A8;
+extern "C" GameConfig_unk* lbl_8087F0A8;
 // inferred: debug drawing (lbl_8087EEB0, as in gmk/Brazier.cpp)
 extern "C" int fn_8004ECC0(void* world, atn::Vector3* hit, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg); // inferred: ray test
@@ -54,12 +52,6 @@ extern "C" unsigned int fn_800DC6B4(const char* s); // inferred: string hash
 extern "C" void fn_801FED24(void* layout, unsigned int hash, int index, float value);
 extern "C" void fn_801FEE08(void* layout, unsigned int hash, const wchar_t* text);
 extern "C" const wchar_t lbl_808813D0[2]; // inferred: empty text
-// inferred: camp message table (lbl_8087F1E4, as in game/Em309Ghoul.cpp)
-struct QueenMsgTable_unk {
-    const wchar_t* Get_unk(int id) { return mText[id] != 0 ? mText[id] : lbl_808813D0; }
-    const wchar_t* mText[1];
-};
-extern "C" QueenMsgTable_unk* lbl_8087F1E4;
 
 // inferred: d2anime task made by fn_801F3FF8 (same layout as atn::D2A_Task; as MenuD2A_unk of
 // game/MenuCommonTask.h); only the members used here
@@ -83,16 +75,12 @@ extern "C" atn::Task* fn_801F3FF8(atn::Task* parent, const char* path, int loop)
 
 // inferred: skill effects (as in gmk/HealPoint.cpp); the callback is empty here
 struct SkillEffect;
-extern "C" void* lbl_8087F9E8;
+class SkillEffectManager;
+extern "C" SkillEffectManager* lbl_8087F9E8;
 extern "C" SkillEffect* fn_8059B66C(void* mgr, HitInfo_unk* skill, CharaTask* user, CharaTask* target,
                                    const atn::Vector3* pos, const atn::Vector3* rot,
                                    boost::function<void(SkillEffect*)> callback, float rate);
-// inferred: field (lbl_8087F430): route tables at 0x10D8 (as in game/Em306GurgBeast.cpp)
-struct Field_unk {
-    unsigned char m0000[0x10D8];
-    GameScene* m10D8;
-};
-extern "C" Field_unk* lbl_8087F430;
+extern "C" GameTask* lbl_8087F430;
 
 // inferred: offset of the point hit by the cannon shots (same values as chr/ControlCannonLift.cpp)
 static atn::Vector3 sShotOffset_unk(3.882f, 98.679f, 10.846f);
@@ -205,9 +193,9 @@ int Em208Queen::vf0C() {
         mStatus.m18 |= 0x3800000;
         void* group = m1548.Load("em208");
         fn_80087994(group, "DebugDisp", &m154C, 0, 0);
-        fn_8008771C(group, "Hungry_Jump", &m1550, 0, 0, 0.0f, 1.0f, 0.1f);
-        fn_8008771C(group, "Hungry_Tackle", &m1554, 0, 0, 0.0f, 1.0f, 0.1f);
-        fn_8008771C(group, "NowHungryRate", &m14CC, 0, 0, 0.0f, 1.0f, 0.1f);
+        fn_8008771C(group, "Hungry_Jump", &m1550, 0.0f, 1.0f, 0.1f, 0, 0);
+        fn_8008771C(group, "Hungry_Tackle", &m1554, 0.0f, 1.0f, 0.1f, 0, 0);
+        fn_8008771C(group, "NowHungryRate", &m14CC, 0.0f, 1.0f, 0.1f, 0, 0);
         m14C0 = 1;
         m14CC = 0.0f;
         if (m1438 != 0) {
@@ -632,7 +620,7 @@ void Em208Queen::fn_802C9BF8() {
             SetState_unk(9);
             PlayMotion_unk(0x145);
             FaceTarget_unk();
-            ((GameTask*)lbl_8087F430)->fn_80370AE4(0x5D, 2);
+            lbl_8087F430->fn_80370AE4(0x5D, 2);
         }
     }
 }
@@ -652,7 +640,7 @@ void Em208Queen::fn_802CA490() {
     if (mMotion.mTracks[0].m08 > 36.0f && mMotion.mTracks[0].m08 <= 56.0f) {
         if (m153C != 0) {
             atn::Vector3 move = m1530;
-            int fps = lbl_8087F0A8->mFrameRate;
+            int fps = lbl_8087F0A8->m030;
             move.y += -98.1f / (float)(fps * fps);
             atn::ColliResult_unk result;
             CharaTask::Sphere_unk sphere = fn_80176548(mPos);
@@ -776,7 +764,7 @@ void Em208Queen::fn_802CA8C0() {
             pos.y -= 10.0f;
             GimmickMsg_unk msg(6);
             msg.mVec = pos;
-            msg.m10 = (int)lbl_8087F8A0->mHead;
+            msg.m10 = lbl_8087F8A0->mHead;
             msg.m04 = 0x76;
             ((GimmickCommon*)m14D8)->vf40(&msg);
         } else if (m14D0 != 0) {
@@ -961,7 +949,7 @@ void Em208Queen::fn_802CB8A0() {
                 SetState_unk(9);
                 PlayMotion_unk(0x145);
                 FaceTarget_unk();
-                ((GameTask*)lbl_8087F430)->fn_80370AE4(0x5D, 2);
+                lbl_8087F430->fn_80370AE4(0x5D, 2);
                 return;
             case 8:
                 SetState_unk(8);

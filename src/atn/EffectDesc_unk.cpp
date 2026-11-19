@@ -1,3 +1,4 @@
+#include "atn/RenderSetting_unk.h"
 #include "atn/Memory.h"
 #include "atn/GXDecl.h"
 #include "atn/Light_unk.h"
@@ -58,13 +59,9 @@ static inline void GXTexCoord2f32(float s, float t) {
 
 // inferred: debug menu entries (see atn/LensFlare.cpp)
 extern "C" void* fn_8008937C(void* menu, const char* name);
-extern "C" void fn_8008771C(void* group, const char* name, float* value, int arg3, int arg4, float min, float max,
-                            float step);
-struct EffectSettings_unk {
-    unsigned char m00[0x4C];
-    void* m4C; // root debug menu group
-};
-extern "C" EffectSettings_unk* lbl_8087EFA8;
+extern "C" void fn_8008771C(void* group, const char* name, float* value, float min, float max, float step, void* func,
+                            void* arg);
+extern "C" RenderSetting_unk* lbl_8087EFA8;
 
 
 // inferred: renderer (automatic names)
@@ -158,9 +155,9 @@ extern "C" void fn_80234A8C(int strips, int models, int buf, int verts) {
     sVertPos = 0;
     sBufCount = 0;
     if (lbl_8087EFA8 != 0) {
-        void* group = fn_8008937C(lbl_8087EFA8->m4C, "Effect");
-        fn_8008771C(group, "FadeNear", &sFadeNear, 0, 0, -1000.0f, 0.0f, 1.0f);
-        fn_8008771C(group, "FadeNearWidth", &sFadeNearWidth, 0, 0, 1.0f, 10000.0f, 1.0f);
+        void* group = fn_8008937C(lbl_8087EFA8->m04C, "Effect");
+        fn_8008771C(group, "FadeNear", &sFadeNear, -1000.0f, 0.0f, 1.0f, 0, 0);
+        fn_8008771C(group, "FadeNearWidth", &sFadeNearWidth, 1.0f, 10000.0f, 1.0f, 0, 0);
     }
 }
 

@@ -1,3 +1,4 @@
+#include "game/GameScene.h"
 #include "game/PlayerManager.h"
 #include "game/GameTask.h"
 #include "game/TeamAIManager.h"
@@ -13,24 +14,12 @@ struct MpPlayer_unk {
 extern "C" void* lbl_8087F610;
 extern "C" MpPlayer_unk* fn_804EB870(void* session);
 
-// inferred: route/party slot table of the field (lbl_8087F430->m10D8); entries of 0x90 bytes
-struct PartySlot_unk {
-    unsigned char m00[0x0C];
-    PlayerTask* m0C[32];
-    PlayerTask* m8C;
-};
-struct PartyTable_unk {
-    unsigned char m000[0x148];
-    unsigned int mNumSlots; // 0x148
-    PartySlot_unk* mSlots;  // 0x14C
-};
-struct Field_unk {
-    PartyTable_unk* fn_8013C504() { return m10D8; }
-    unsigned char m0000[0x10D8];
-    PartyTable_unk* m10D8;
-};
-extern "C" Field_unk* lbl_8087F430;
-extern "C" inline Field_unk* fn_80121F00() {
+// inferred: weak getter 0x8013C504 of game/CharaTask.cpp, inlined here
+inline GameScene* GameTask::fn_8013C504() {
+    return m10D8;
+}
+extern "C" GameTask* lbl_8087F430;
+extern "C" inline GameTask* fn_80121F00() {
     return lbl_8087F430;
 }
 class MapTask;
@@ -97,7 +86,7 @@ void PlayerManager::fn_80549F14(int mode) {
 }
 
 void PlayerManager::vf1C() {
-    ((GameTask*)lbl_8087F430)->GetCurrentMap();
+    lbl_8087F430->GetCurrentMap();
     for (PlayerTask* player = mHead; player != 0; player = player->mNext) {
         if (mHead == player) {
             player->fn_8016DF3C(0);
@@ -110,7 +99,7 @@ void PlayerManager::vf1C() {
     }
 }
 
-// inferred: the table of the field is read through its weak getters (fn_80121F00, Field_unk::fn_8013C504),
+// inferred: the table of the field is read through its weak getters (fn_80121F00, GameTask::fn_8013C504),
 // the ids through accessors and the counter of the team loop is declared before the manager (registers
 // of the original)
 void PlayerManager::fn_8054A09C(PlayerTask* player, int swap) {
@@ -121,24 +110,24 @@ void PlayerManager::fn_8054A09C(PlayerTask* player, int swap) {
             player->fn_80176ACC();
         }
         if (lbl_8087F430 != 0) {
-            ((GameTask*)lbl_8087F430)->fn_80371320(player);
+            lbl_8087F430->fn_80371320(player);
         }
         if (swap != 0) {
             int tmp = GetId_unk(mHead);
             SetId_unk(mHead, GetId_unk(player));
             SetId_unk(player, tmp);
-            PartyTable_unk* table = fn_80121F00()->fn_8013C504();
-            for (unsigned int i = 0; i < table->mNumSlots; i++) {
-                if (table->mSlots[i].m8C == mHead) {
-                    table->mSlots[i].m8C = player;
-                } else if (table->mSlots[i].m8C == player) {
-                    table->mSlots[i].m8C = mHead;
+            GameScene* table = fn_80121F00()->fn_8013C504();
+            for (unsigned int i = 0; i < table->m148.mSize; i++) {
+                if (table->m148.mData[i].mLeader == mHead) {
+                    table->m148.mData[i].mLeader = player;
+                } else if (table->m148.mData[i].mLeader == player) {
+                    table->m148.mData[i].mLeader = mHead;
                 }
                 for (int j = 0; j < 32; j++) {
-                    if (table->mSlots[i].m0C[j] == mHead) {
-                        table->mSlots[i].m0C[j] = player;
-                    } else if (table->mSlots[i].m0C[j] == player) {
-                        table->mSlots[i].m0C[j] = mHead;
+                    if (table->m148.mData[i].mCharas[j] == mHead) {
+                        table->m148.mData[i].mCharas[j] = player;
+                    } else if (table->m148.mData[i].mCharas[j] == player) {
+                        table->m148.mData[i].mCharas[j] = mHead;
                     }
                 }
             }

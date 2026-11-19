@@ -1,3 +1,5 @@
+#include "atn/GraphicsDevice.h"
+#include "atn/RenderSetting_unk.h"
 #include "atn/LensFlare.h"
 #include "atn/GXDecl.h"
 #include "atn/RenderManager.h"
@@ -32,35 +34,23 @@ struct GimmickUvOwner_unk {
 };
 
 // inferred: debug menu entries
-extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, int arg6,
-                            int arg7);
-extern "C" void fn_8008771C(void* group, const char* name, float* value, int arg3, int arg4, float min, float max,
-                            float step);
-extern "C" void fn_80088AF4(void* group, const char* name, float* value, int arg3, int arg4, float min, float max,
-                            float step); // inferred: color
+extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, void* func,
+                            void* arg);
+extern "C" void fn_8008771C(void* group, const char* name, float* value, float min, float max, float step, void* func,
+                            void* arg);
+extern "C" void fn_80088AF4(void* group, const char* name, float* value, float min, float max, float step, void* func,
+                            void* arg); // inferred: color
 
-// inferred: global render settings; m4C is the root debug menu group
-struct LensSettings_unk {
-    unsigned char m00[0x4C];
-    void* m4C;
-};
-extern "C" LensSettings_unk* lbl_8087EFA8;
+extern "C" RenderSetting_unk* lbl_8087EFA8;
 
 
 
 extern "C" void fn_8006FEBC(atn::AABB_unk* screen, const atn::AABB_unk* box);     // inferred: projects a box
 
-// inferred: render state (viewport size at 0x3C/0x40)
-struct LensRenderState_unk {
-    unsigned char m00[0x3C];
-    int mWidth;
-    int mHeight;
-};
-extern "C" LensRenderState_unk* lbl_8087EEE0;
-extern "C" void fn_80076760(LensRenderState_unk* rs, int index, int value); // inferred: sets a render state
-extern "C" void fn_80072914(LensRenderState_unk* rs, int mode);
-extern "C" void fn_800761A8(LensRenderState_unk* rs);                     // inferred: sends the render states
-extern "C" void fn_800763C0(LensRenderState_unk* rs, int map, atn::Texture_unk* tex); // inferred: loads a texture
+extern "C" atn::GraphicsDevice_unk* lbl_8087EEE0;
+extern "C" void fn_80076760(atn::GraphicsDevice_unk* rs, int index, int value); // inferred: sets a render state
+extern "C" void fn_80072914(atn::GraphicsDevice_unk* rs, int mode);
+extern "C" void fn_800761A8(atn::GraphicsDevice_unk* rs);                     // inferred: sends the render states
 
 // inferred: screen limits and alpha range (globals of another file)
 extern "C" float lbl_8087D740;
@@ -131,7 +121,7 @@ LensFlare::LensFlare(int arg, int count, const Vector3& pos, float size) : m04(a
         m20[i].fn_800D5908(name);
     }
     mElems.Resize_unk(count);
-    void* group = LensCreateGroup_unk(m140, lbl_8087EFA8->m4C, "LensFlare");
+    void* group = LensCreateGroup_unk(m140, lbl_8087EFA8->m04C, "LensFlare");
     for (unsigned int i = 0; i < mElems.mCount; i++) {
         LensFlareElem* e = &mElems[i];
         e->m08 = 0.0f;
@@ -142,9 +132,9 @@ LensFlare::LensFlare(int arg, int count, const Vector3& pos, float size) : m04(a
         sprintf(name, "Flare %d", i);
         void* elemGroup = fn_8008937C(group, name);
         fn_800874C8(elemGroup, "Type", &e->m00, 0, 6, 1, 0, 0);
-        fn_8008771C(elemGroup, "Size", &e->m04, 0, 0, 0.0f, 1000.0f, 0.1f);
-        fn_8008771C(elemGroup, "Position", &e->m08, 0, 0, -100.0f, 100.0f, 0.01f);
-        fn_80088AF4(elemGroup, "Color", &e->m0C, 0, 0, 0.0f, 1.0f, 0.01f);
+        fn_8008771C(elemGroup, "Size", &e->m04, 0.0f, 1000.0f, 0.1f, 0, 0);
+        fn_8008771C(elemGroup, "Position", &e->m08, -100.0f, 100.0f, 0.01f, 0, 0);
+        fn_80088AF4(elemGroup, "Color", &e->m0C, 0.0f, 1.0f, 0.01f, 0, 0);
     }
 }
 
@@ -267,7 +257,7 @@ void LensFlare::fn_80078938(float alpha) {
     GXSetVtxAttrFmt(0, 9, 1, 4, 0);
     GXSetVtxAttrFmt(0, 0xB, 1, 5, 0);
     GXSetVtxAttrFmt(0, 0xD, 1, 4, 0);
-    LensRenderState_unk* rs = lbl_8087EEE0;
+    atn::GraphicsDevice_unk* rs = lbl_8087EEE0;
     fn_80076760(rs, 8, 0);
     fn_80076760(rs, 9, 7);
     fn_80076760(rs, 10, 0);

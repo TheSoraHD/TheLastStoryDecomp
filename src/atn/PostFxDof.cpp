@@ -1,4 +1,5 @@
 // atn/PostFxDof.cpp: depth of field post effect (blurred copy of the frame mixed by a depth lookup table).
+#include "atn/RenderSetting_unk.h"
 #include "atn/PostFx.h"
 #include "atn/MemoryManager.h"
 #include "atn/DrawHelper.h"
@@ -17,22 +18,7 @@ extern "C" void DCFlushRange(void* addr, unsigned int size);
 
 // inferred: engine memory manager (class of atn/SmallAllocator_8.cpp; opaque here)
 
-// inferred: render parameters (lbl_8087EFA8, fields named by offset; see atn/PostFxBloom.cpp)
-struct DofParams_unk {
-    unsigned char m00[0xD8];
-    int mD8;   // 0xD8: inferred: debug display
-    int mDC;   // 0xDC: inferred: alpha mask with the K color
-    int mE0;   // 0xE0: inferred: clears the far corner of the table
-    float mE4; // 0xE4: inferred: distances of the near ramp (start, end)
-    float mE8;
-    float mEC; // 0xEC: inferred: distances of the far ramp (start, end)
-    float mF0;
-    int mF4;   // 0xF4: inferred: size of the blurred copy
-    int mF8;
-    float mFC;  // 0xFC: inferred: blur length X
-    float m100; // 0x100: inferred: blur length Y
-};
-extern "C" DofParams_unk* lbl_8087EFA8;
+extern "C" RenderSetting_unk* lbl_8087EFA8;
 
 
 extern "C" void fn_800C0D4C(void* image, int format, int width, int height); // inferred: converts to texture tiles
@@ -69,8 +55,8 @@ PostFxDof::PostFxDof() : m6C(-1), m70(-1), m74(-1), m78(-1) {
 void PostFxDof::vf10(RenderManager* view) {
     int fullW = lbl_8087EEE0->mWidth;
     int fullH = lbl_8087EEE0->mHeight;
-    int w = lbl_8087EFA8->mF4;
-    int h = lbl_8087EFA8->mF8;
+    int w = lbl_8087EFA8->mDof.mWidth;
+    int h = lbl_8087EFA8->mDof.mHeight;
     fn_800ACCB8();
     void* image0 = lbl_8087EF8C->fn_800A96AC(w, h, 6);
     GXInitTexObj(&m08, image0, w, h, 6, 0, 0, 0);
@@ -85,8 +71,8 @@ void PostFxDof::vf10(RenderManager* view) {
     GXSetTexCopyDst(w, h, 6, 1);
     GXCopyTex(image0, 1);
     GXPixModeSync();
-    fn_800A981C(&m08, image1, w, h, 6, 0, 0, lbl_8087EFA8->mFC, 0.0f);
-    fn_800A981C(&m28, image0, w, h, 6, 0, 0, 0.0f, lbl_8087EFA8->m100);
+    fn_800A981C(&m08, image1, w, h, 6, 0, 0, lbl_8087EFA8->mDof.mBlurWidth, 0.0f);
+    fn_800A981C(&m28, image0, w, h, 6, 0, 0, 0.0f, lbl_8087EFA8->mDof.mBlurHeight);
     GXSetNumTevStages(3);
     GXSetNumChans(0);
     GXSetNumTexGens(4);
@@ -129,7 +115,7 @@ void PostFxDof::vf10(RenderManager* view) {
     GXSetTevSwapMode(2, 0, 0);
     GXSetTevAlphaIn(2, 7, 7, 7, 5);
     GXSetTevAlphaOp(2, 0, 0, 0, 1, 0);
-    if (lbl_8087EFA8->mDC != 0) {
+    if (lbl_8087EFA8->mDof.mView != 0) {
         GXColor kColor = {0, 0, 0xFF, 0xFF};
         GXSetTevKColor(1, kColor);
         GXSetTevKColorSel(2, 0xD);
@@ -137,7 +123,7 @@ void PostFxDof::vf10(RenderManager* view) {
     }
     fn_80075DEC(lbl_8087EEE0);
     atn::RenderManager::instance_->fn_800BFB70();
-    if (lbl_8087EFA8->mD8 != 0) {
+    if (lbl_8087EFA8->mDof.mDebug != 0) {
         lbl_8087EEB0->fn_8005DF90(-1, &atn::RenderManager::instance_->m77C, 0, 16.0f, 16.0f, 0.0f, fullW / 3.0f, fullH / 3.0f);
         lbl_8087EEB0->fn_8005DF90(-1, &m08, 0, 16.0f, 32.0f + fullH / 3.0f, 0.0f, fullW / 3.0f, fullH / 3.0f);
         lbl_8087EEB0->fn_8005DF90(-1, &m48, 0, 32.0f + fullW / 3.0f, 32.0f + fullH / 3.0f, 0.0f, fullW / 3.0f, fullH / 3.0f);
@@ -154,10 +140,10 @@ void PostFxDof::fn_800ACCB8() {
     atn::RenderManager* fb = atn::RenderManager::instance_;
     float n = fb->mCamera.mNear;
     float f = fb->mCamera.mFar;
-    float z0 = DofDepth_unk(n, f, lbl_8087EFA8->mE4);
-    float z1 = DofDepth_unk(n, f, lbl_8087EFA8->mE8);
-    float z2 = DofDepth_unk(n, f, lbl_8087EFA8->mEC);
-    float z3 = DofDepth_unk(n, f, lbl_8087EFA8->mF0);
+    float z0 = DofDepth_unk(n, f, lbl_8087EFA8->mDof.mStart);
+    float z1 = DofDepth_unk(n, f, lbl_8087EFA8->mDof.mEnd);
+    float z2 = DofDepth_unk(n, f, lbl_8087EFA8->mDof.mNearStart);
+    float z3 = DofDepth_unk(n, f, lbl_8087EFA8->mDof.mNearEnd);
     int d0 = 65535.0f * z0;
     int d1 = 65535.0f * z1;
     int d2 = 65535.0f * z2;
@@ -168,7 +154,7 @@ void PostFxDof::fn_800ACCB8() {
     if (d2 <= d3) {
         d2 = d3 + 1;
     }
-    if (m6C != d0 || m70 != d1 || m74 != d2 || m78 != d3 || m04 != lbl_8087EFA8->mE0) {
+    if (m6C != d0 || m70 != d1 || m74 != d2 || m78 != d3 || m04 != lbl_8087EFA8->mDof.mClearFar) {
         unsigned char* table = (unsigned char*)mTable;
         for (int i = 0; i < 0x10000; i++) {
             int y = i / 256;
@@ -194,7 +180,7 @@ void PostFxDof::fn_800ACCB8() {
             }
             table[x * 256 + y] = (int)(65535.0f * c) >> 8;
         }
-        m04 = lbl_8087EFA8->mE0;
+        m04 = lbl_8087EFA8->mDof.mClearFar;
         if (m04 != 0) {
             for (int y = 1; y <= 2; y++) {
                 for (int x = 1; x <= 2; x++) {

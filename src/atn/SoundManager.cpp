@@ -22,11 +22,11 @@ extern "C" void fn_8004A660(atn::SoundEngine_unk* engine);
 // inferred: debug menu entries
 // The callback and its argument are pointers passed as integers: long gives the same code as int
 // and holds a pointer in a 64-bit build (PC port).
-extern "C" void fn_80087994(void* menu, const char* name, int* value, long callback, long arg);
-extern "C" void fn_800874C8(void* menu, const char* name, int* value, int min, int max, int step, long callback,
-                            long arg);
-extern "C" void fn_8008771C(void* menu, const char* name, float* value, long callback, long arg, float min, float max,
-                            float step);
+extern "C" void fn_80087994(void* menu, const char* name, int* value, void* func, void* arg);
+extern "C" void fn_800874C8(void* menu, const char* name, int* value, int min, int max, int step, void* func,
+                            void* arg);
+extern "C" void fn_8008771C(void* menu, const char* name, float* value, float min, float max, float step, void* func,
+                            void* arg);
 // inferred: debug drawing (atn::DrawHelper)
 extern "C" int sprintf(char* buf, const char* fmt, ...);
 
@@ -834,55 +834,55 @@ void SoundManager::fn_800D1430() {
     fn_80087994(menu, "StreamEnabled", &mStreamEnabled, 0, 0);
     fn_800874C8(menu, "DebugLevel", &mDebugLevel, 0, 99, 1, 0, 0);
     fn_800874C8(menu, "OutputMode", &mOutputMode, 0, 3, 1, 0, 0);
-    fn_8008771C(menu, "MasterVolume", &mMasterVolume, 0, 0, 0.0f, 2.0f, 0.1f);
+    fn_8008771C(menu, "MasterVolume", &mMasterVolume, 0.0f, 2.0f, 0.1f, 0, 0);
     void* players = fn_8008937C(menu, "PlayerParam");
     for (int i = 0; i < 8; i++) {
         char name[0x20];
         sprintf(name, "Player %d\0", i);
         void* group = fn_8008937C(players, name);
-        fn_80087994(group, "Mute", &mPlayers[i].mMute, (long)fn_800CB800, (long)&mPlayers[i]);
-        fn_8008771C(group, "Volume", &mPlayers[i].mVolume, (long)fn_800CB800, (long)&mPlayers[i], 0.0f, 2.0f, 0.1f);
-        fn_8008771C(group, "Pitch", &mPlayers[i].mPitch, (long)fn_800CB800, (long)&mPlayers[i], 0.1f, 10.0f, 0.1f);
-        fn_8008771C(group, "LPF", &mPlayers[i].mPan, (long)fn_800CB800, (long)&mPlayers[i], 0.0f, 1.0f, 0.1f);
-        fn_8008771C(group, "FxSendA", &mPlayers[i].mFxSend, (long)fn_800CB800, (long)&mPlayers[i], 0.0f, 1.0f, 0.1f);
+        fn_80087994(group, "Mute", &mPlayers[i].mMute, (void*)fn_800CB800, (void*)&mPlayers[i]);
+        fn_8008771C(group, "Volume", &mPlayers[i].mVolume, 0.0f, 2.0f, 0.1f, (void*)fn_800CB800, (void*)&mPlayers[i]);
+        fn_8008771C(group, "Pitch", &mPlayers[i].mPitch, 0.1f, 10.0f, 0.1f, (void*)fn_800CB800, (void*)&mPlayers[i]);
+        fn_8008771C(group, "LPF", &mPlayers[i].mPan, 0.0f, 1.0f, 0.1f, (void*)fn_800CB800, (void*)&mPlayers[i]);
+        fn_8008771C(group, "FxSendA", &mPlayers[i].mFxSend, 0.0f, 1.0f, 0.1f, (void*)fn_800CB800, (void*)&mPlayers[i]);
     }
     void* categories = fn_8008937C(menu, "CategoryParam");
     for (int i = 0; i < 32; i++) {
         char name[0x20];
         sprintf(name, "Category %d\0", i);
         void* group = fn_8008937C(categories, name);
-        fn_80087994(group, "Mute", &mCategories[i].mMute, (long)fn_800CBE8C, (long)&mCategories[i]);
-        fn_8008771C(group, "Volume", &mCategories[i].mVolume, (long)fn_800CBE8C, (long)&mCategories[i], 0.0f, 2.0f,
-                    0.1f);
-        fn_8008771C(group, "Pitch", &mCategories[i].mPitch, (long)fn_800CBE8C, (long)&mCategories[i], 0.1f, 10.0f,
-                    0.1f);
-        fn_8008771C(group, "LPF", &mCategories[i].mPan, (long)fn_800CBE8C, (long)&mCategories[i], 0.0f, 1.0f, 0.1f);
-        fn_8008771C(group, "FxSendA", &mCategories[i].mFxSend, (long)fn_800CBE8C, (long)&mCategories[i], 0.0f, 1.0f,
-                    0.1f);
+        fn_80087994(group, "Mute", &mCategories[i].mMute, (void*)fn_800CBE8C, (void*)&mCategories[i]);
+        fn_8008771C(group, "Volume", &mCategories[i].mVolume, 0.0f, 2.0f, 0.1f, (void*)fn_800CBE8C,
+                    (void*)&mCategories[i]);
+        fn_8008771C(group, "Pitch", &mCategories[i].mPitch, 0.1f, 10.0f, 0.1f, (void*)fn_800CBE8C,
+                    (void*)&mCategories[i]);
+        fn_8008771C(group, "LPF", &mCategories[i].mPan, 0.0f, 1.0f, 0.1f, (void*)fn_800CBE8C, (void*)&mCategories[i]);
+        fn_8008771C(group, "FxSendA", &mCategories[i].mFxSend, 0.0f, 1.0f, 0.1f, (void*)fn_800CBE8C,
+                    (void*)&mCategories[i]);
     }
     void* scopes = fn_8008937C(menu, "ScopeParam");
     for (int i = 0; i < 16; i++) {
         char name[0x20];
         sprintf(name, "Scope %d\0", i);
         void* group = fn_8008937C(scopes, name);
-        fn_80087994(group, "Mute", &mScopes[i].mMute, (long)fn_800CC518, (long)&mScopes[i]);
-        fn_8008771C(group, "Volume", &mScopes[i].mVolume, (long)fn_800CC518, (long)&mScopes[i], 0.0f, 2.0f, 0.1f);
-        fn_8008771C(group, "Pitch", &mScopes[i].mPitch, (long)fn_800CC518, (long)&mScopes[i], 0.1f, 10.0f, 0.1f);
-        fn_8008771C(group, "LPF", &mScopes[i].mPan, (long)fn_800CC518, (long)&mScopes[i], 0.0f, 1.0f, 0.1f);
-        fn_8008771C(group, "FxSendA", &mScopes[i].mFxSend, (long)fn_800CC518, (long)&mScopes[i], 0.0f, 1.0f, 0.1f);
+        fn_80087994(group, "Mute", &mScopes[i].mMute, (void*)fn_800CC518, (void*)&mScopes[i]);
+        fn_8008771C(group, "Volume", &mScopes[i].mVolume, 0.0f, 2.0f, 0.1f, (void*)fn_800CC518, (void*)&mScopes[i]);
+        fn_8008771C(group, "Pitch", &mScopes[i].mPitch, 0.1f, 10.0f, 0.1f, (void*)fn_800CC518, (void*)&mScopes[i]);
+        fn_8008771C(group, "LPF", &mScopes[i].mPan, 0.0f, 1.0f, 0.1f, (void*)fn_800CC518, (void*)&mScopes[i]);
+        fn_8008771C(group, "FxSendA", &mScopes[i].mFxSend, 0.0f, 1.0f, 0.1f, (void*)fn_800CC518, (void*)&mScopes[i]);
     }
     void* sound3d = fn_8008937C(menu, "3DSound");
     fn_80087994(sound3d, "Enabled", &m3dEnabled, 0, 0);
-    fn_8008771C(sound3d, "MaxVolumeDistance", &mMaxVolumeDistance, 0, 0, 0.0f, 9999.0f, 1.0f);
-    fn_8008771C(sound3d, "UnitDistance", &mUnitDistance, 0, 0, 0.0f, 9999.0f, 1.0f);
-    fn_8008771C(sound3d, "InteriorSize", &mInteriorSize, 0, 0, 0.0f, 9999.0f, 1.0f);
+    fn_8008771C(sound3d, "MaxVolumeDistance", &mMaxVolumeDistance, 0.0f, 9999.0f, 1.0f, 0, 0);
+    fn_8008771C(sound3d, "UnitDistance", &mUnitDistance, 0.0f, 9999.0f, 1.0f, 0, 0);
+    fn_8008771C(sound3d, "InteriorSize", &mInteriorSize, 0.0f, 9999.0f, 1.0f, 0, 0);
     void* fx = fn_8008937C(menu, "SoundFx");
     fn_80087994(fx, "Enabled", &mFxEnabled, 0, 0);
     fn_80087994(fx, "2D Enabled", &mFx2dEnabled, 0, 0);
     fn_80087994(menu, "Compressor", &mCompressor, 0, 0);
     fn_800874C8(menu, "DupLimitFrame", &mDupLimitFrame, -1, 30, 1, 0, 0);
-    fn_8008771C(menu, "MinimumVolume", &mMinimumVolume, 0, 0, 0.0f, 2.0f, 0.05f);
-    fn_8008771C(menu, "RandomPitch", &mRandomPitch, 0, 0, 0.0f, 2.0f, 0.1f);
+    fn_8008771C(menu, "MinimumVolume", &mMinimumVolume, 0.0f, 2.0f, 0.05f, 0, 0);
+    fn_8008771C(menu, "RandomPitch", &mRandomPitch, 0.0f, 2.0f, 0.1f, 0, 0);
 }
 
 void SoundManager::fn_800D19FC(SoundCore* sound, float volume) {

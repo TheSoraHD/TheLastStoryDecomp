@@ -10,6 +10,7 @@
 #include "std/string_members.h"
 #include "game/GameTask.h"
 #include "atn/D2A_TaskInstanceC.h"
+#include "game/MenuCommonTask.h"
 
 extern "C" int sprintf(char* s, const char* format, ...);
 extern "C" int strcmp(const char* a, const char* b);
@@ -22,13 +23,17 @@ extern "C" const wchar_t* fn_80116FC0(int a, int id); // inferred: message text
 extern "C" const wchar_t* fn_80116EB8(const NewCampOptionText_unk* ref); // inferred: message text of a reference
 extern "C" atn::SoundRef fn_80117228(int id);        // inferred: plays a system sound effect
 extern "C" void* fn_8008937C(void* menu, const char* name); // inferred: debug menu group
-extern "C" void fn_80087E9C(void* group, const char* name, atn::Vector3* value, int arg3, int arg4, float min,
-                            float max, float step);
-extern "C" void* lbl_8087EF70;
+extern "C" void fn_80087E9C(void* group, const char* name, atn::Vector3* value, float min, float max, float step,
+                            void* func, void* arg);
+struct Pad_unk;
+extern "C" Pad_unk* lbl_8087EF70;
 extern "C" int fn_800A555C(void* pad, int port, int button); // inferred: button triggered
 extern "C" int fn_800A55AC(void* pad, int port, int button); // inferred: button repeated
 extern "C" int fn_800A58D0(void* pad, int port);             // inferred: classic controller connected
-extern "C" void* lbl_8087EEC8;                        // inferred: font
+namespace atn {
+class Font_unk;
+}
+extern "C" atn::Font_unk* lbl_8087EEC8;                        // inferred: font
 extern "C" void fn_8006F5E8(void* font, std::string* dst, const wchar_t* src);
 extern "C" void PSMTXConcat(const float a[3][4], const float b[3][4], float ab[3][4]);
 
@@ -63,23 +68,11 @@ struct NewCampOptionCamp_unk {
     unsigned char m0000[0x11F8];
     int m11F8;
 };
-// inferred: field (lbl_8087F430); only the member used here
-class Field_unk {
-public:
-};
-extern "C" Field_unk* lbl_8087F430;
+extern "C" GameTask* lbl_8087F430;
 
-class MenuCommonTask {
-public:
-    static MenuCommonTask* sInstance;
-    unsigned char m00[0x68];
-    int m68; // inferred: answer of the dialog
-};
-extern "C" void fn_804A3C24(MenuCommonTask* menu, const wchar_t* text, int id);
 extern "C" void fn_804A53D4(MenuCommonTask* menu, atn::Task* task, const char* name, const NewCampPartsPoint_unk* rect,
                             int end);
 extern "C" void fn_804A5E40(MenuCommonTask* menu, int type, atn::Vector3 ofs, int id);
-extern "C" void fn_804A62C8(MenuCommonTask* menu, int type, int noCancel); // inferred: opens a dialog
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 
 static const NewCampPartsFile_unk sFiles[7] = {
@@ -1072,7 +1065,7 @@ void NewCampPartsOption::fn_805256C4(int mode, int last) {
         list = 1;
         break;
     case 8:
-        fn_804A62C8(MenuCommonTask::sInstance, 8, 1);
+        MenuCommonTask::sInstance->fn_804A62C8(8, 1);
         break;
     }
     if (list) {
@@ -1137,14 +1130,14 @@ inline void ShowHelp_unk(const NewCampOptionDef_unk* def) {
         if (def->mHelp.mId == 0xF4241) {
             if (fn_800A58D0(lbl_8087EF70, 0) != 0) {
                 menu = MenuCommonTask::sInstance;
-                fn_804A3C24(menu, fn_80116FC0(0, 0xF4258), 1);
+                menu->fn_804A3C24(fn_80116FC0(0, 0xF4258), 1);
             } else {
                 menu = MenuCommonTask::sInstance;
-                fn_804A3C24(menu, fn_80116EB8(&def->mHelp), 1);
+                menu->fn_804A3C24(fn_80116EB8(&def->mHelp), 1);
             }
         } else {
             menu = MenuCommonTask::sInstance;
-            fn_804A3C24(menu, fn_80116EB8(&def->mHelp), 1);
+            menu->fn_804A3C24(fn_80116EB8(&def->mHelp), 1);
         }
     }
 }
@@ -1216,7 +1209,7 @@ void NewCampPartsOption::fn_80525A08(int count, int ofs) {
         }
         fn_805251CC();
         if (mE8 == 1 && mE4 == 1 && item->mValue == 1) {
-            ((GameTask*)lbl_8087F430)->fn_803750E4(0x155);
+            lbl_8087F430->fn_803750E4(0x155);
         }
     }
     if (fn_800A555C(pad, 0, 5) != 0) {
@@ -1273,16 +1266,16 @@ void NewCampPartsOption::fn_80525F08() {
         }
     }
     menu = MenuCommonTask::sInstance;
-    fn_804A3C24(menu, fn_80116EB8(&sSwapHelp[mE4]), 1);
+    menu->fn_804A3C24(fn_80116EB8(&sSwapHelp[mE4]), 1);
 }
 
 void NewCampPartsOption::vf40(void* group) {
     group = fn_8008937C(group, m98.data());
-    fn_80087E9C(group, "MoveOffset", &mMove, 0, 0, -1000000.0f, 1000000.0f, 1.0f);
-    fn_80087E9C(group, "OffsetPos", &mA4, 0, 0, -1000000.0f, 1000000.0f, 1.0f);
-    fn_80087E9C(group, "OffsetScl", &mB0, 0, 0, -1000000.0f, 1000000.0f, 1.0f);
-    fn_80087E9C(group, "LocatorScl", &mBC, 0, 0, -1000000.0f, 1000000.0f, 1.0f);
-    fn_80087E9C(group, "BasePos", &mC8, 0, 0, -1000000.0f, 1000000.0f, 1.0f);
+    fn_80087E9C(group, "MoveOffset", &mMove, -1000000.0f, 1000000.0f, 1.0f, 0, 0);
+    fn_80087E9C(group, "OffsetPos", &mA4, -1000000.0f, 1000000.0f, 1.0f, 0, 0);
+    fn_80087E9C(group, "OffsetScl", &mB0, -1000000.0f, 1000000.0f, 1.0f, 0, 0);
+    fn_80087E9C(group, "LocatorScl", &mBC, -1000000.0f, 1000000.0f, 1.0f, 0, 0);
+    fn_80087E9C(group, "BasePos", &mC8, -1000000.0f, 1000000.0f, 1.0f, 0, 0);
 }
 
 void NewCampPartsOption::vf48() {

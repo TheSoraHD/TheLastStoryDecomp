@@ -1,3 +1,6 @@
+#include "game/PlayerManager.h"
+#include "game/GameConfig_unk.h"
+#include "atn/RenderSetting_unk.h"
 #include "game/MapPartsLocatorSet.h"
 #include "std/tree.h"
 #include "game/TownTask.h"
@@ -15,21 +18,10 @@
 #include "game/MapPartsRain.h"
 #include "game/GameTask.h"
 
-extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, int arg6,
-                            int arg7);
+extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, void* func,
+                            void* arg);
 extern "C" void* fn_804A7EA4(TownTask* task, const char* path); // inferred: loads a minimap csv
-// inferred: field (lbl_8087F430); only the members used here
-struct TownField_unk {
-    unsigned char m0000[0x38];
-    unsigned int m38; // inferred: bit 1: town field
-    unsigned char m003C[0x868 - 0x3C];
-    int m868;
-    unsigned char m086C[0x54E4 - 0x86C];
-    int m54E4; // inferred: 8 while the field is paused
-    unsigned char m54E8[0x553C - 0x54E8];
-    int m553C;
-};
-extern "C" TownField_unk* lbl_8087F430;
+extern "C" GameTask* lbl_8087F430;
 
 TownTask* lbl_8087FA20;
 
@@ -112,17 +104,9 @@ struct TownPlayer_unk {
     unsigned char m000[0x528];
     atn::Vector3 mPos; // 0x528
 };
-struct TownPlayers_unk {
-    unsigned char m00[0x48];
-    TownPlayer_unk* mHead; // 0x48
-};
-extern "C" TownPlayers_unk* lbl_8087F8A0;
+extern "C" PlayerManager* lbl_8087F8A0;
 
-struct TownDefaults_unk {
-    unsigned char m000[0x324];
-    ColorMatrixParam_unk m324;
-};
-extern "C" TownDefaults_unk* lbl_8087EFA8;
+extern "C" RenderSetting_unk* lbl_8087EFA8;
 inline const ColorMatrixParam_unk& TownGetE_unk(const atn::Override_unk<ColorMatrixParam_unk>& p) {
     return p.mSet != 0 ? p.mValue : lbl_8087EFA8->m324;
 }
@@ -139,7 +123,7 @@ void TownTask::vf10() {
         m168 = atn::RenderManager::instance_->mCamera.mPos;
         break;
     }
-    if (lbl_8087F430 != 0 && (lbl_8087F430->m868 == 3 || lbl_8087F430->m868 == 4)) {
+    if (lbl_8087F430 != 0 && (lbl_8087F430->mCamera.m7FC == 3 || lbl_8087F430->mCamera.m7FC == 4)) {
         m168 = lbl_8087F8A0->mHead->mPos;
     }
     if (lbl_8087F430 != 0 && lbl_8087F430->m54E4 != 8 && m12C < 0) {
@@ -392,10 +376,10 @@ inline TownNode_unk* TownTreeFind_unk(TownTree_unk* tree, int key) {
 // BLOCKSHOW list of the block, or the blocks of the mWidth x mHeight area around it (names invented)
 extern "C" TownBlockList_unk fn_805B827C(TownTask* town, int x, int z, int special) {
     TownBlockList_unk list;
-    if (special != 0 && lbl_8087F430 != 0 && (lbl_8087F430->m38 & 2) == 2 && lbl_8087F430->m553C == 0) {
+    if (special != 0 && lbl_8087F430 != 0 && (lbl_8087F430->mFlags & 2) == 2 && lbl_8087F430->m550C.m30 == 0) {
         atn::Vector3 v = town->m168 - atn::Vector3(104.0f, 0.0f, 235.0f);
         v.y = 0.0f;
-        if (PSVECSquareMag(&v) < 900.0f && lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->fn_80370174(0x713)) {
+        if (PSVECSquareMag(&v) < 900.0f && lbl_8087F430 != 0 && lbl_8087F430->fn_80370174(0x713)) {
             TOWN_SET(list, TOWN_ID(3, 2), TOWN_ID(2, 2), TOWN_ID(4, 2), TOWN_ID(2, 3), TOWN_ID(3, 3), -1, -1, -1, -1);
             return list;
         }
@@ -497,12 +481,7 @@ inline bool TownInside_unk(const atn::Vector3& pos, float minX, float maxX, floa
     return false;
 }
 
-// inferred: debug settings (lbl_8087F0A8); only the member used here
-struct TownSettings_unk {
-    unsigned char m000[0x164];
-    int mLoadAllBlocks; // 0x164: inferred: debug, loads every block of the town
-};
-extern "C" TownSettings_unk* lbl_8087F0A8;
+extern "C" GameConfig_unk* lbl_8087F0A8;
 extern "C" int sprintf(char* s, const char* format, ...);
 extern "C" int fn_8006AA20(const char* path); // inferred: the file exists
 extern "C" void fn_800D2338(void* task); // inferred: deletes the task
@@ -510,7 +489,7 @@ extern "C" void fn_800D2338(void* task); // inferred: deletes the task
 // inferred: loads the blocks around the player (all of them with the debug setting); `reload` is set by
 // vf0C on the first frame (the NPC loaders do not wait for the map part then)
 void TownTask::fn_805B8DB4(int reload) {
-    if (lbl_8087F0A8->mLoadAllBlocks != 0) {
+    if (lbl_8087F0A8->mTownAllLoad != 0) {
         if (m124 == 0) {
             return;
         }

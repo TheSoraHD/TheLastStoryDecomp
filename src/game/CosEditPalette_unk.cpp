@@ -8,6 +8,7 @@
 #include "atn/D3Anime.h"
 #include "atn/D3AnimeInstance.h"
 #include "atn/D2A_Task.h"
+#include "atn/D2A_TaskApi_unk.h"
 #include "atn/D2A_TaskInstanceC.h"
 #include "atn/SoundRef.h"
 #include "atn/SoundManager.h"
@@ -15,6 +16,7 @@
 #include "db/OptionParts_unk.h"
 #include "macros.h"
 #include "chr/CharaEquip_unk.h"
+#include "atn/TextTable_unk.h"
 
 // Second file of CosEditProtector (game/CosEditProtector.cpp has the rest): the palette and part
 // pages of the costume menu.
@@ -29,9 +31,9 @@ extern "C" atn::SoundRef fn_80117228(int id);                      // inferred: 
 extern "C" int fn_80117214(int index);                             // inferred: palette slot of a colour index
 extern "C" const wchar_t* fn_80116FC0(int a, int id);              // inferred: system text
 extern "C" const wchar_t lbl_808813D0[2];                          // inferred: empty text
-extern "C" void fn_804A62C8(MenuCommonTask* menu, int type, int noCancel); // inferred: opens a dialog
 extern "C" void fn_804A4494(int* cursor, int* top, int count, int page, int a, int b); // inferred: moves a list cursor
-extern "C" void* lbl_8087F430; // inferred: field
+class GameTask;
+extern "C" GameTask* lbl_8087F430; // inferred: field
 extern "C" int fn_80219558(int id); // inferred: party member of a character id
 extern "C" int fn_8020EF80(EquipParamEntry_unk* entry); // inferred: item id of an equipment entry
 extern "C" int fn_80444A50(Inventory* inv, int kind);   // inferred: item of a kind
@@ -77,12 +79,6 @@ struct CosEditItemInfo_unk {
 };
 extern "C" CosEditItemInfo_unk* fn_802091E8(int id);
 
-// inferred: camp message table (lbl_8087F1E4, as in MP/D2AMpMenuSetRule.cpp)
-struct CosEditMsgTable_unk {
-    const wchar_t* Get_unk(int id) { return mText[id] != 0 ? mText[id] : lbl_808813D0; }
-    const wchar_t* mText[1];
-};
-extern "C" CosEditMsgTable_unk* lbl_8087F1E4;
 
 // inferred: not used by this file (only its __sinit is left)
 static atn::Vector3 sHidePos(0.0f, -600.0f, 0.0f);
@@ -250,7 +246,7 @@ void CosEditProtector::fn_801D5AB0() {
                 fn_80117228(0xB);
             } else if (m1BB0 == 1) {
                 if (m1BA8 < mSetCount) {
-                    fn_804A62C8(MenuCommonTask::sInstance, 4, 1);
+                    MenuCommonTask::sInstance->fn_804A62C8(4, 1);
                     m1B90 = 1;
                     fn_80117228(1);
                 } else {
@@ -260,7 +256,7 @@ void CosEditProtector::fn_801D5AB0() {
                 MenuCommonTask::sInstance->ShowWarning_unk(0x107);
                 fn_80117228(0xB);
             } else {
-                fn_804A62C8(MenuCommonTask::sInstance, 4, 1);
+                MenuCommonTask::sInstance->fn_804A62C8(4, 1);
                 m1B90 = 1;
                 fn_80117228(1);
             }
@@ -325,7 +321,7 @@ void CosEditProtector::fn_801D5F04() {
                 MenuCommonTask::sInstance->ShowWarning_unk(0x105);
                 fn_80117228(0xB);
             } else {
-                fn_804A62C8(MenuCommonTask::sInstance, 3, 1);
+                MenuCommonTask::sInstance->fn_804A62C8(3, 1);
                 m1B90 = 1;
                 fn_80117228(1);
             }

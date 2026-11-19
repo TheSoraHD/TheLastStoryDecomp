@@ -184,7 +184,10 @@ static void fn_800D993C(TextAnimVec_unk* out, float t) {
     out->z = t;
 }
 
-extern "C" void* lbl_8087EEC8; // inferred: font of the game texts
+namespace atn {
+class Font_unk;
+}
+extern "C" atn::Font_unk* lbl_8087EEC8; // inferred: font of the game texts
 extern "C" float fn_8006EF48(void* font, float size, const wchar_t* text, float f2, int a, int b);
 extern "C" wchar_t* fn_800DC3C8(wchar_t* s, const wchar_t* delim, wchar_t** context); // inferred: wcstok
 extern "C" wchar_t* wcscpy(wchar_t* dst, const wchar_t* src);

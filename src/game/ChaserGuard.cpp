@@ -14,6 +14,8 @@
 #include "game/MiniMapTask.h"
 #include "atn/ColliBase.h"
 #include "game/GameSceneFind_unk.h"
+#include "game/GameConfig_unk.h"
+#include "game/ChaseManager.h"
 
 extern "C" unsigned long strlen(const char* s);
 extern "C" int strcmp(const char* a, const char* b);
@@ -22,14 +24,7 @@ extern "C" double acos(double x);
 extern "C" double fabs(double x);
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
-// inferred: field (class unknown); m10D8 holds the route tables
-struct Field_unk {
-    unsigned char m00[0x10D8];
-    GameScene* m10D8;
-    unsigned char m10DC[0x5660 - 0x10DC];
-    int m5660;
-};
-extern "C" Field_unk* lbl_8087F430;
+extern "C" GameTask* lbl_8087F430;
 extern "C" GameUI* lbl_8087F490; // inferred: the HUD (fn_803E3BE8 shows a message)
 // inferred: color as four floats (as in gmk/PlayEffect.cpp)
 struct Color4f_unk {
@@ -37,57 +32,22 @@ struct Color4f_unk {
     Color4f_unk(float r_, float g_, float b_, float a_) : r(r_), g(g_), b(b_), a(a_) {}
     float r, g, b, a;
 };
-// inferred: chase manager (class unknown)
-struct ChaseState_unk {
-    unsigned char m00[0x48];
-    int m48; // inferred: state (0: idle, 3: the guards stop)
-    unsigned char m4C[0x58 - 0x4C];
-    int m58; // inferred: frames since the chase started
-    unsigned char m5C[0x70 - 0x5C];
-    ChaserGuard* m70; // inferred: guard that caught the player
-    int m74;          // inferred: number of guards
-    unsigned char m78[0xF8 - 0x78];
-    int mF8;
-};
-extern "C" ChaseState_unk* lbl_8087F098;
-extern "C" CharaTask* fn_80183860(ChaseState_unk* mgr, const atn::Vector3* pos); // inferred: player to chase
-extern "C" void fn_80182788(ChaseState_unk* mgr, ChaserGuard* guard, CharaTask* target); // inferred: catch
-extern "C" void fn_80182874(ChaseState_unk* mgr); // inferred: release
-// inferred: parameters of the chase (game settings + 0x4DC); names keep the settings offsets
-struct ChaseParam_unk {
-    int m4DC;   // inferred: debug display of the guards
-    float m4E0; // inferred: sight range while chasing
-    float m4E4; // inferred: sight range
-    float m4E8; // inferred: sight angle
-    float m4EC; // inferred: catch distance (slow player)
-    float m4F0; // inferred: catch distance
-    float m4F4; // inferred: hearing distance
-    float m4F8; // inferred: head swing speed
-    float m4FC; // inferred: speeds of the states
-    float m500;
-    float m504;
-    float m508;
-    int m50C;   // inferred: frames of the states
-    int m510;
-    int m514;
-    int m518;
-    int m51C;
-};
-// inferred: game settings
-struct Settings_unk {
-    unsigned char m00[0x4DC];
-    ChaseParam_unk mChase; // 0x4DC
-};
-extern "C" Settings_unk* lbl_8087F0A8;
+extern "C" ChaseManager* lbl_8087F098;
+extern "C" GameConfig_unk* lbl_8087F0A8;
 // inferred: accessor (the original computes the address of the parameters once and reuses it)
-inline ChaseParam_unk* GetChaseParam_unk() {
-    return &lbl_8087F0A8->mChase;
+inline GameConfig4DC_unk* GetChaseParam_unk() {
+    return &lbl_8087F0A8->m4DC;
 }
-extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; extern "C" void* lbl_8087EE98;
+extern "C" CharaManager<PlayerTask>* lbl_8087F8A0;
+struct ColliManager_unk;
+extern "C" ColliManager_unk* lbl_8087EE98;
 extern "C" int fn_8004ED34(void* colli, atn::ColliResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg7); // inferred: ray test
 // inferred: debug drawing (lbl_8087EEB0), font (lbl_8087EEC8) and camera (atn::RenderManager::instance_)
-extern "C" void* lbl_8087EEC8;
+namespace atn {
+class Font_unk;
+}
+extern "C" atn::Font_unk* lbl_8087EEC8;
 extern "C" void fn_8006F2F0(void* font, wchar_t* dst, const char* src, int n); // inferred: to wide characters
 extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg, int arg2, float volume); // inferred: plays a sound
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
@@ -113,7 +73,7 @@ inline atn::Vector3 Negate_unk(const atn::Vector3& v) {
 
 // inferred: direction from `pos` to the chased player (name invented)
 inline atn::Vector3 DirToPlayer_unk(const atn::Vector3& pos) {
-    return fn_80183860(lbl_8087F098, &pos)->mPos - pos;
+    return lbl_8087F098->fn_80183860(&pos)->mPos - pos;
 }
 
 // inferred: names of the states (debug display)
@@ -160,7 +120,7 @@ ChaserGuard::~ChaserGuard() {
 }
 
 void ChaserGuard::vf10() {
-    int state = lbl_8087F098->m48;
+    int state = lbl_8087F098->mState;
     if (state != 0) {
         PlayerTask* player = lbl_8087F8A0->mHead;
         if (player != 0 && (player->mStatus.m0C & 0x20) != 0x20) {
@@ -180,8 +140,8 @@ void ChaserGuard::vf14() {
 }
 
 // inferred: swings the head left and right (names invented)
-inline void ChaserGuard::SwingHead_unk(const ChaseParam_unk* param) {
-    atn::Vector3 off(0.0f, m1500 * param->m4F8, 0.0f);
+inline void ChaserGuard::SwingHead_unk(const GameConfig4DC_unk* param) {
+    atn::Vector3 off(0.0f, m1500 * param->mScanRate, 0.0f);
     atn::Vector3 rot = mLook.mRot + off;
     mLook.fn_80129954(rot, 0.3f);
     if ((float)__fabs(rot.y) > mLook.mLimit.y) {
@@ -191,16 +151,16 @@ inline void ChaserGuard::SwingHead_unk(const ChaseParam_unk* param) {
 
 // inferred: the chased player is close enough to be caught (name invented)
 inline bool ChaserGuard::IsPlayerNear_unk() {
-    CharaTask* player = fn_80183860(lbl_8087F098, &mPos);
+    CharaTask* player = lbl_8087F098->fn_80183860(&mPos);
     if (player == 0) {
         return false;
     }
     atn::Vector3 d = player->mPos - mPos;
     float dist = PSVECSquareMag(&d);
     bool slow = player->m570 <= 0.6f;
-    float range = lbl_8087F0A8->mChase.m4F0;
+    float range = lbl_8087F0A8->m4DC.mHearRun;
     if (slow) {
-        range = lbl_8087F0A8->mChase.m4EC;
+        range = lbl_8087F0A8->m4DC.mHearWalk;
     }
     return dist < range * range;
 }
@@ -210,11 +170,11 @@ inline bool ChaserGuard::IsPlayerNear_unk() {
 void ChaserGuard::fn_8017D13C() {
     mC58.mC4 = lbl_8087F8A0->mHead;
     mC58.m11C.m01 = 0;
-    if (lbl_8087F098->m48 == 0 && m14B0 != 3 && m14B0 != 5) {
+    if (lbl_8087F098->mState == 0 && m14B0 != 3 && m14B0 != 5) {
         fn_8017F4A0(5);
         return;
     }
-    if (lbl_8087F098->m48 == 0) {
+    if (lbl_8087F098->mState == 0) {
         m14D0 = 0;
     }
     mColli.mFlags |= 1;
@@ -229,7 +189,7 @@ void ChaserGuard::fn_8017D13C() {
         mC58.m11C.m01 = 1;
         fn_8017FBEC();
         m14D4 = 0;
-        if (++m14D0 > lbl_8087F0A8->mChase.m514) {
+        if (++m14D0 > lbl_8087F0A8->m4DC.mChaseDelay) {
             fn_8016EB48(0, 0, 0);
             fn_8017F4A0(1);
         }
@@ -247,39 +207,39 @@ void ChaserGuard::fn_8017D13C() {
     if (m14B0 != 1) {
         m1504 = 0;
     }
-    Settings_unk* settings = lbl_8087F0A8;
-    float range = settings->mChase.m4E4;
-    if (settings->mChase.m4DC != 0) {
+    GameConfig_unk* settings = lbl_8087F0A8;
+    float range = settings->m4DC.mVisSearchDistance;
+    if (settings->m4DC.m00 != 0) {
         Color4f_unk color(1.0f, 1.0f, 1.0f, 1.0f);
         switch (m14B0) {
         case 1:
         case 2:
             color = Color4f_unk(1.0f, 1.0f, 0.0f, 1.0f);
-            range = settings->mChase.m4E0;
+            range = settings->m4DC.mVisChaseDistance;
             lbl_8087EEB0->fn_80063764((mPos + atn::Vector3(0.0f, 5.0f, 0.0f)), (m14B8 + atn::Vector3(0.0f, 5.0f, 0.0f)), 0.0f, ToArgb_unk(Color4f_unk(1.0f, 1.0f, 1.0f, 1.0f)));
-            lbl_8087EEB0->fn_80062C8C(12, ToArgb_unk(color), mPos.x, mPos.y, mPos.z, 0.0f, lbl_8087F0A8->mChase.m4F4, 10.0f);
+            lbl_8087EEB0->fn_80062C8C(12, ToArgb_unk(color), mPos.x, mPos.y, mPos.z, 0.0f, lbl_8087F0A8->m4DC.mCatchDistance, 10.0f);
             break;
         case 3:
             color = Color4f_unk(1.0f, 0.0f, 0.0f, 1.0f);
-            lbl_8087EEB0->fn_80062C8C(12, ToArgb_unk(color), mPos.x, mPos.y, mPos.z, 0.0f, settings->mChase.m4F4, 10.0f);
+            lbl_8087EEB0->fn_80062C8C(12, ToArgb_unk(color), mPos.x, mPos.y, mPos.z, 0.0f, settings->m4DC.mCatchDistance, 10.0f);
             break;
         case 4:
             color = Color4f_unk(0.0f, 0.0f, 1.0f, 1.0f);
             lbl_8087EEB0->fn_80063764((mPos + atn::Vector3(0.0f, 5.0f, 0.0f)), (m14B8 + atn::Vector3(0.0f, 5.0f, 0.0f)), 0.0f, ToArgb_unk(Color4f_unk(1.0f, 1.0f, 1.0f, 1.0f)));
             lbl_8087EEB0->fn_80063764((mPos + atn::Vector3(0.0f, 5.0f, 0.0f)), (lbl_8087F430->m10D8->m98.mData[mC58.m0C.mPointB - 1].mPos + atn::Vector3(0.0f, 5.0f, 0.0f)), 0.0f, ToArgb_unk(Color4f_unk(1.0f, 1.0f, 1.0f, 1.0f)));
-            lbl_8087EEB0->fn_80062C8C(12, ToArgb_unk(Color4f_unk(0.5f, 0.5f, 0.0f, 1.0f)), mPos.x, mPos.y, mPos.z, 0.0f, lbl_8087F0A8->mChase.m4EC, 10.0f);
-            lbl_8087EEB0->fn_80062C8C(12, ToArgb_unk(Color4f_unk(0.1f, 0.1f, 0.0f, 1.0f)), mPos.x, mPos.y, mPos.z, 0.0f, lbl_8087F0A8->mChase.m4F0, 10.0f);
+            lbl_8087EEB0->fn_80062C8C(12, ToArgb_unk(Color4f_unk(0.5f, 0.5f, 0.0f, 1.0f)), mPos.x, mPos.y, mPos.z, 0.0f, lbl_8087F0A8->m4DC.mHearWalk, 10.0f);
+            lbl_8087EEB0->fn_80062C8C(12, ToArgb_unk(Color4f_unk(0.1f, 0.1f, 0.0f, 1.0f)), mPos.x, mPos.y, mPos.z, 0.0f, lbl_8087F0A8->m4DC.mHearRun, 10.0f);
             break;
         case 5:
             color = Color4f_unk(0.0f, 1.0f, 0.0f, 1.0f);
             lbl_8087EEB0->fn_80062C8C(12, ToArgb_unk(IsPlayerNear_unk() ? Color4f_unk(1.0f, 0.5f, 0.0f, 1.0f)
-                                                      : Color4f_unk(0.5f, 0.5f, 0.0f, 1.0f)), mPos.x, mPos.y, mPos.z, 0.0f, lbl_8087F0A8->mChase.m4EC, 10.0f);
+                                                      : Color4f_unk(0.5f, 0.5f, 0.0f, 1.0f)), mPos.x, mPos.y, mPos.z, 0.0f, lbl_8087F0A8->m4DC.mHearWalk, 10.0f);
             lbl_8087EEB0->fn_80062C8C(12, ToArgb_unk(IsPlayerNear_unk() ? Color4f_unk(1.0f, 0.5f, 0.0f, 1.0f)
-                                                      : Color4f_unk(0.1f, 0.1f, 0.0f, 1.0f)), mPos.x, mPos.y, mPos.z, 0.0f, lbl_8087F0A8->mChase.m4F0, 10.0f);
+                                                      : Color4f_unk(0.1f, 0.1f, 0.0f, 1.0f)), mPos.x, mPos.y, mPos.z, 0.0f, lbl_8087F0A8->m4DC.mHearRun, 10.0f);
             break;
         }
         float rot = mRot.y + mLook.mRot.y;
-        lbl_8087EEB0->fn_80063484(12, ToArgb_unk(color), mPos.x, 15.0f + mPos.y, mPos.z, rot, 0.0f, range, lbl_8087F0A8->mChase.m4E8);
+        lbl_8087EEB0->fn_80063484(12, ToArgb_unk(color), mPos.x, 15.0f + mPos.y, mPos.z, rot, 0.0f, range, lbl_8087F0A8->m4DC.mVisAngle);
         atn::Vector3 screen = atn::RenderManager::instance_->GetScreenPosition(mPos + atn::Vector3(0.0f, 25.0f, 0.0f));
         if (screen.z > 0.0f && screen.z < 1.0f) {
             wchar_t text[0x100];
@@ -296,7 +256,7 @@ void ChaserGuard::fn_8017E650() {
     if (fn_8017FBEC()) {
         m14D4 = 0;
         m1504 = 1;
-        CharaTask* player = fn_80183860(lbl_8087F098, &mPos);
+        CharaTask* player = lbl_8087F098->fn_80183860(&mPos);
         if (player == 0 || (player->m55C == 6 && player->m560 == 0x66)) {
             fn_8017F4A0(3);
             const atn::Vector3& dir = (player != 0) ? (mPos - player->mPos).GetNormalize()
@@ -305,14 +265,14 @@ void ChaserGuard::fn_8017E650() {
             mMotion.mTracks[0].m0C = 0.5f;
             m14B4 = 0;
         } else {
-            float range = lbl_8087F0A8->mChase.m4F4;
-            if (lbl_8087F098->mF8 != 0) {
+            float range = lbl_8087F0A8->m4DC.mCatchDistance;
+            if (lbl_8087F098->mCaught != 0) {
                 range *= 1.8f;
             }
             range *= range;
             atn::Vector3 d = player->mPos - mPos;
             if (PSVECSquareMag(&d) < range) {
-                fn_80182788(lbl_8087F098, this, player);
+                lbl_8087F098->fn_80182788(this, player);
                 fn_8017F4A0(3);
                 m14B4 = player;
                 return;
@@ -320,7 +280,7 @@ void ChaserGuard::fn_8017E650() {
         }
     } else {
         m1504 = 0;
-        if (++m14D4 > lbl_8087F0A8->mChase.m50C) {
+        if (++m14D4 > lbl_8087F0A8->m4DC.mLoseTime) {
             fn_8017F4A0(4);
             return;
         }
@@ -359,7 +319,7 @@ void ChaserGuard::fn_8017E9D8() {
                         mMotion.mTracks[0].m0C = 1.5f;
                         m580 = 0.0f;
                         m584 = 0.0f;
-                        if (fn_80183860(lbl_8087F098, &mPos) != 0) {
+                        if (lbl_8087F098->fn_80183860(&mPos) != 0) {
                             atn::Vector3 dir = DirToPlayer_unk(mPos);
                             dir.fn_80139F60();
                             mRot = dir;
@@ -381,14 +341,14 @@ void ChaserGuard::fn_8017E9D8() {
             }
         } else {
             m14B4 = 0;
-            if (lbl_8087F098->m70 == this) {
-                fn_80182874(lbl_8087F098);
+            if (lbl_8087F098->mCatcher == this) {
+                lbl_8087F098->fn_80182874();
             }
             if (mMotion.mTracks[0].m00 == 0x88) {
                 fn_80161570(0x89, 0, 0, -1.0f, -1.0f);
                 mMotion.mTracks[0].m0C = 0.7f;
-            } else if (fn_80183860(lbl_8087F098, &mPos) != 0) {
-                atn::Vector3 d = mPos - fn_80183860(lbl_8087F098, &mPos)->mPos;
+            } else if (lbl_8087F098->fn_80183860(&mPos) != 0) {
+                atn::Vector3 d = mPos - lbl_8087F098->fn_80183860(&mPos)->mPos;
                 if (PSVECSquareMag(&d) > 0.01f) {
                     PSVECNormalize(&d, &d);
                     d *= 3.0f;
@@ -405,7 +365,7 @@ void ChaserGuard::fn_8017E9D8() {
             fn_80139560();
         } else {
             lbl_8087F430->m5660 = 0;
-            if (++m14D0 > lbl_8087F0A8->mChase.m518) {
+            if (++m14D0 > lbl_8087F0A8->m4DC.mCatchDelay) {
                 m14D8 = 0x2D;
                 fn_8017F4A0(1);
             }
@@ -415,17 +375,17 @@ void ChaserGuard::fn_8017E9D8() {
 
 void ChaserGuard::fn_8017F118() {
     mC58.m11C.m01 = 5;
-    ChaseParam_unk* param;
+    GameConfig4DC_unk* param;
     if (fn_8017FBEC()) {
         m14D4 = 0;
-        if (++m14D0 > (param = &lbl_8087F0A8->mChase)->m510) {
+        if (++m14D0 > (param = &lbl_8087F0A8->m4DC)->mFindTime) {
             fn_8016EB48(0, 0, 0);
             fn_8017F4A0(1);
             return;
         }
     } else {
         m14D0 = 0;
-        if (++m14D4 > (param = &lbl_8087F0A8->mChase)->m51C) {
+        if (++m14D4 > (param = &lbl_8087F0A8->m4DC)->mWaitTime) {
             fn_8016EB48(0, 0, 0);
             m14FC = 1;
             fn_8017F4A0(5);
@@ -439,7 +399,7 @@ void ChaserGuard::fn_8017F118() {
             mMotion.fn_80097C08(0, 0x45, 1, 0, 1, 0.0f, 0.1f);
             mMotion.mTracks[0].m0C = 1.0f;
         }
-        SwingHead_unk(&lbl_8087F0A8->mChase);
+        SwingHead_unk(&lbl_8087F0A8->m4DC);
     } else {
         SwingHead_unk(param);
         fn_8017FED0();
@@ -448,9 +408,9 @@ void ChaserGuard::fn_8017F118() {
 
 void ChaserGuard::fn_8017F348() {
     bool seen = fn_8017FBEC();
-    if (lbl_8087F098->m48 != 0) {
+    if (lbl_8087F098->mState != 0) {
         if (seen) {
-            if (++m14D0 > lbl_8087F0A8->mChase.m510) {
+            if (++m14D0 > lbl_8087F0A8->m4DC.mFindTime) {
                 fn_8017F4A0(2);
                 return;
             }
@@ -464,7 +424,7 @@ void ChaserGuard::fn_8017F348() {
         mC58.m0C.fn_80128508(m14EC[m14F8], &mPos, 8);
         mC58.m0C.fn_801255C8();
     }
-    SwingHead_unk(&lbl_8087F0A8->mChase);
+    SwingHead_unk(&lbl_8087F0A8->m4DC);
     fn_8017FED0();
 }
 
@@ -483,8 +443,8 @@ void ChaserGuard::fn_8017F4A0(int state) {
         mC58.m0C.fn_80128A30(&m14B8, &mPos, 8, 0.0f);
         mC58.m0C.fn_801255C8();
         mC58.mC0 = 0;
-        if (fn_80183860(lbl_8087F098, &mPos) != 0) {
-            fn_80183860(lbl_8087F098, &mPos)->mC58.mC0--;
+        if (lbl_8087F098->fn_80183860(&mPos) != 0) {
+            lbl_8087F098->fn_80183860(&mPos)->mC58.mC0--;
         }
         GameUI* player = lbl_8087F490;
         if (player != 0) {
@@ -500,14 +460,14 @@ void ChaserGuard::fn_8017F4A0(int state) {
         }
         mC58.m0C.fn_801255C8();
         GameUI* player = lbl_8087F490;
-        if (player != 0 && lbl_8087F098->m48 != 0 && m14B0 == 4) {
+        if (player != 0 && lbl_8087F098->mState != 0 && m14B0 == 4) {
             player->fn_803E3BE8(((GameScene*)lbl_8087F430->m10D8)->fn_803CC6B4(0x2715), 0, 10.0f);
         }
         break;
     }
     case 3: {
         m150C = 0;
-        if (lbl_8087F098->m70 == this) {
+        if (lbl_8087F098->mCatcher == this) {
             mMotion.m34C = 1;
             mMotion.mTracks[0].m20 = 1.0f;
             mMotion.fn_80097C08(0, 0x87, 0, 0, 1, 0.0f, 0.1f);
@@ -517,10 +477,10 @@ void ChaserGuard::fn_8017F4A0(int state) {
             GameUI* player = lbl_8087F490;
             player->fn_803E3BE8(((GameScene*)lbl_8087F430->m10D8)->fn_803CC6B4(0x2717), 0, 10.0f);
         } else {
-            m150C = lbl_8087F098->m70;
+            m150C = lbl_8087F098->mCatcher;
             m1510 = mPos;
             if (m150C != 0) {
-                float base = 6.2831855f * (float)(lbl_8087F098->m74 - 2) / 8.0f;
+                float base = 6.2831855f * (float)((int)lbl_8087F098->mGuards.size() - 2) / 8.0f;
                 for (int i = 0; i < 8; i++) {
                     Mtx m2;
                     Mtx m1;
@@ -545,7 +505,7 @@ void ChaserGuard::fn_8017F4A0(int state) {
                 mMotion.mTracks[0].m0C = 1.5f;
             }
         }
-        CharaTask* target = fn_80183860(lbl_8087F098, &mPos);
+        CharaTask* target = lbl_8087F098->fn_80183860(&mPos);
         if (mC58.mC0 != 0) {
             mC58.mC0 = 0;
             if (target != 0) {
@@ -560,7 +520,7 @@ void ChaserGuard::fn_8017F4A0(int state) {
     case 2: {
         m12C8 = 10;
         fn_800C31F4("SE_UI001_020", 0, -1, 1.0f);
-        CharaTask* target = fn_80183860(lbl_8087F098, &mPos);
+        CharaTask* target = lbl_8087F098->fn_80183860(&mPos);
         if (target != 0) {
             mLook.fn_80129978(&target->mMotion, "neck", lbl_807C7030, 0.3f);
         }
@@ -577,7 +537,7 @@ void ChaserGuard::fn_8017F4A0(int state) {
             m12C8 = 10;
         }
         mC58.mC0 = 1;
-        CharaTask* target = fn_80183860(lbl_8087F098, &mPos);
+        CharaTask* target = lbl_8087F098->fn_80183860(&mPos);
         if (target != 0) {
             target->mC58.mC0++;
             mLook.fn_80129978(&target->mMotion, "neck", lbl_807C7030, 0.3f);
@@ -600,14 +560,14 @@ void ChaserGuard::fn_8017F4A0(int state) {
 
 
 bool ChaserGuard::fn_8017FBEC() {
-    CharaTask* player = fn_80183860(lbl_8087F098, &mPos);
+    CharaTask* player = lbl_8087F098->fn_80183860(&mPos);
     if (player == 0) {
         return false;
     }
     float dist = PSVECSquareMag(&(player->mPos - mPos));
-    float range = lbl_8087F0A8->mChase.m4E4;
+    float range = lbl_8087F0A8->m4DC.mVisSearchDistance;
     if (m14B0 == 1) {
-        range = lbl_8087F0A8->mChase.m4E0;
+        range = lbl_8087F0A8->m4DC.mVisChaseDistance;
     }
     if (dist < range * range) {
         atn::Vector3 up(0.0f, 20.0f, 0.0f);
@@ -620,10 +580,10 @@ bool ChaserGuard::fn_8017FBEC() {
         PSMTXRotRad(m, 'y', mRot.y + mLook.mRot.y);
         PSMTXMultVec(m, &front, &front);
         float angle = acos(PSVECDotProduct(&front.GetNormalize(), &dir));
-        if (angle < 0.5f * lbl_8087F0A8->mChase.m4E8) {
+        if (angle < 0.5f * lbl_8087F0A8->m4DC.mVisAngle) {
             atn::ColliResult_unk result;
             seen = fn_8004ED34(lbl_8087EE98, &result, &eye, &target, 0x80000000, 0, 0) == 0;
-            if (lbl_8087F0A8->mChase.m4DC != 0) {
+            if (lbl_8087F0A8->m4DC.m00 != 0) {
                 if (!seen) {
                     lbl_8087EEB0->fn_80063764(eye, result.m04, 0.0f, 0xFFFFFF00);
                     lbl_8087EEB0->fn_80063764(result.m04, target, 0.0f, 0xFF4D4D00);
@@ -655,20 +615,20 @@ void ChaserGuard::fn_8017FED0() {
     } else {
         look = 0.0f;
     }
-    if (m14B0 - 4 <= 1u && IsPlayerNear_unk() && fn_80183860(lbl_8087F098, &mPos) != 0) {
+    if (m14B0 - 4 <= 1u && IsPlayerNear_unk() && lbl_8087F098->fn_80183860(&mPos) != 0) {
         const atn::Vector3& pos = mPos;
         atn::Vector3 to = DirToPlayer_unk(pos);
         rot = to.ToRotationZ_unk();
     }
-    float speed = lbl_8087F0A8->mChase.m500;
+    float speed = lbl_8087F0A8->m4DC.mRunSpeed;
     if (m14B0 == 5) {
         if (m14FC != 0) {
-            speed = lbl_8087F0A8->mChase.m508;
+            speed = lbl_8087F0A8->m4DC.mReturnSpeed;
         } else {
-            speed = lbl_8087F0A8->mChase.m4FC;
+            speed = lbl_8087F0A8->m4DC.mWalkSpeed;
         }
     } else if (m14B0 == 4) {
-        speed = lbl_8087F0A8->mChase.m504;
+        speed = lbl_8087F0A8->m4DC.mLostSpeed;
     } else if (m14B0 == 1) {
         if (m1508 < 450) {
             speed *= 1.15f;
@@ -688,15 +648,15 @@ void ChaserGuard::fn_8017FED0() {
             m14D8--;
             speed *= 0.85f;
         }
-        bool hard = ((GameTask*)lbl_8087F430)->fn_80370174(0xD4) == 1;
+        bool hard = lbl_8087F430->fn_80370174(0xD4) == 1;
         if (hard) {
             speed *= 0.9f;
         }
-        if (lbl_8087F098->m58 > 4500) {
+        if (lbl_8087F098->mFrames > 4500) {
             speed *= hard ? 0.5f : 0.7f;
-        } else if (lbl_8087F098->m58 > 3600) {
+        } else if (lbl_8087F098->mFrames > 3600) {
             speed *= hard ? 0.65f : 0.8f;
-        } else if (lbl_8087F098->m58 > 2700) {
+        } else if (lbl_8087F098->mFrames > 2700) {
             speed *= hard ? 0.8f : 0.9f;
         }
     }

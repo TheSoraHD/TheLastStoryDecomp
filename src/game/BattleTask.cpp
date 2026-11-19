@@ -5,6 +5,7 @@
 #include "game/DamageResult_unk.h"
 #include "atn/Memory.h"
 #include "atn/EffectManager.h"
+#include "atn/EffectApi_unk.h"
 #include "atn/EffectSystem_unk.h"
 #include "math/Vec.h"
 #include "atn/SoundRef.h"
@@ -29,6 +30,7 @@
 #include "atn/DrawHelper.h"
 #include "atn/Color.h"
 #include "atn/D2A_Task.h"
+#include "atn/D2A_TaskApi_unk.h"
 #include "atn/ResLoader_unk.h"
 #include "atn/Texture_unk.h"
 #include "game/GimmickCommon.h"
@@ -102,7 +104,7 @@ typedef boost::function<void(atn::Matrix3x4*, const atn::NodeChunk&, const atn::
 // other files call by this name; ModelBase::mB8 is declared with another signature)
 extern "C" void fn_800F29D0(atn::Model* model, NodeCallback_unk callback);
 extern "C" void PSMTXScale(Mtx m, float x, float y, float z);
-extern "C" void fn_8023A8B4(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
+extern "C" void fn_8023A8B4(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Model* model, void* node,
                             const atn::Vector3& pos, const atn::Vector3& rot, const EffectColor_unk& color, int arg7,
                             int arg8, int arg9, float scale);
 
@@ -1833,8 +1835,8 @@ int BattleTask::fn_800F8574(CharaTask* owner, HitInfo_unk* data, const atn::Vect
         shot.m14 = 0.0f;
         shot.m18 = 1.0f;
         shot.m00 = fn_8010B250(data->m3C, 0);
-        shot.m04 = (int)fn_800EFD04(data->mB0);
-        shot.m08 = (int)fn_800EFDA0(data->mB0);
+        shot.m04 = fn_800EFD04(data->mB0);
+        shot.m08 = fn_800EFDA0(data->mB0);
         shot.m0C = data;
         shot.m10 = arg;
         shot.m14 = a;
@@ -2933,7 +2935,7 @@ void BattleTask::fn_800FC410(CharaTask* attacker, CharaTask* chara, int index, H
     }
     m38A5C.m10 *= scale;
     if (chara->mFlag10 && PSVECSquareMag(&m38A5C.m10) > 0.01f) {
-        m38A5C.m10 *= lbl_8087F0A8->mForceRatio;
+        m38A5C.m10 *= lbl_8087F0A8->mSurround.mForceRatio;
         if (PSVECMag(&m38A5C.m10) < 0.11f) {
             PSVECNormalize(&m38A5C.m10, &m38A5C.m10);
             m38A5C.m10 *= 0.11f;
@@ -3117,9 +3119,9 @@ int BattleTask::fn_800FDB20(CharaTask* attacker, CharaTask* chara, int arg, HitI
     return 0;
 }
 
-void BattleTask::fn_800FDE60(int effect, CharaTask* chara, const atn::Vector3& dir) {
+void BattleTask::fn_800FDE60(CharaTask* attacker, CharaTask* chara, const atn::Vector3& dir) {
     fn_800E2A24(&m38A5C);
-    m38A5C.m00 = (CharaTask*)effect; // inferred: an attacker kept as an int (status entry m10)
+    m38A5C.m00 = attacker; // inferred: attacker of the status entry (CharaHit_unk::m10)
     m38A5C.m04 = chara;
     m38A5C.m08 = fn_80219E6C(10000);
     m38A5C.m44 = 3;
@@ -3558,7 +3560,7 @@ int BattleTask::fn_800FDF14(BattleCalcParam_unk* p) {
     }
     if (attacker != 0 && !attacker->fn_8016F3D0(target, 1)) {
         if (p->m80 >> 31) {
-            target->m13B0 = (int)attacker;
+            target->m13B0 = attacker;
             if (attacker->mType == 3) {
                 lbl_8087F490->fn_803E2110(4, attacker);
                 lbl_8087F498->fn_803EA77C(attacker, 0x1C, 0xF, 1.0f, 10.0f);
@@ -3566,7 +3568,7 @@ int BattleTask::fn_800FDF14(BattleCalcParam_unk* p) {
             for (GimmickCommon* g = GimmickManager::instance_->mHead; g != 0; g = g->m5C) {
                 if (g->m50 == 0x3A) {
                     GimmickMsg_unk msg(3);
-                    msg.m10 = (int)attacker;
+                    msg.m10 = attacker;
                     g->vf40(&msg);
                 }
             }
@@ -4296,7 +4298,8 @@ void BattleTask::fn_801021B4(atn::ColliBase* obj, int a, int b) {
 }
 
 extern "C" atn::GraphicsDevice_unk* lbl_8087EEE0;
-extern "C" void* lbl_8087EF70; // inferred: pad
+struct Pad_unk;
+extern "C" Pad_unk* lbl_8087EF70; // inferred: pad
 extern "C" float fn_800A56A8(void* pad, int port, int axis, int arg); // inferred: stick axis
 extern "C" atn::Vector2_unk lbl_807C7028; // inferred: zero 2D vector (atn/Math_unk.cpp)
 // inferred: playing with less than 5 ... (m50C) in multiplayer (inlined; name invented)
@@ -5795,8 +5798,8 @@ void BattleTask::fn_80108A5C(CharaTask* chara, const atn::Vector3* dir) {
 }
 
 // inferred: the early return as !(a) || !(b) gives the bne over a blr of the original
-extern "C" int fn_804EB7C4(Arena_unk* arena, CharaTask* chara); // inferred: player of a multiplayer session
-extern "C" int fn_804EB814(Arena_unk* arena, CharaTask* chara); // inferred: team of a multiplayer session
+extern "C" void* fn_804EB7C4(Arena_unk* arena, CharaTask* chara); // inferred: player of a multiplayer session
+extern "C" void* fn_804EB814(Arena_unk* arena, CharaTask* chara); // inferred: team of a multiplayer session
 extern "C" int swprintf(wchar_t* s, unsigned int n, const wchar_t* format, ...);
 
 // inferred: the kind of damage has a popup (inlined); name invented
@@ -6237,7 +6240,8 @@ atn::Vector3 BattleTask::fn_80109950(CharaTask* chara) {
     return chara->mPos;
 }
 
-extern "C" void* lbl_8087EE98; // inferred: collision manager
+struct ColliManager_unk;
+extern "C" ColliManager_unk* lbl_8087EE98; // inferred: collision manager
 extern "C" int fn_8004ED34(void* colli, atn::ColliResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg7); // inferred: ray test
 
@@ -6410,9 +6414,9 @@ void BattleTask::fn_8010A4A8(CharaTask* chara) {
     e.m60.y = 3.0f;
     e.m60.z = 0.0f;
     atn::Model* model = fn_800F84C8(chara);
-    e.mB0 = (int)model->GetNodeMtx_unk("neck");
+    e.mB0 = model->GetNodeMtx_unk("neck");
     if (e.mB0 == 0) {
-        e.mB0 = (int)&chara->mMotion.mMtx;
+        e.mB0 = chara->mMotion.mMtx.m;
         e.m60.y += chara->m5B4;
     }
     e.m04 = 40.0f;

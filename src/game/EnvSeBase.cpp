@@ -1,3 +1,5 @@
+#include "Event/Manager.h"
+#include "game/GameConfig_unk.h"
 #include "game/EnvSeBase.h"
 #include "atn/RenderManager.h"
 #include "atn/SoundManager.h"
@@ -19,31 +21,18 @@ extern "C" void PSVECNormalize(const atn::Vector3* src, atn::Vector3* dst);
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector (.bss, 0x10 bytes)
 
 
-// inferred: event flags of the field
-struct EnvSeField_unk {
-    unsigned char m0000[0x54E4];
-    int m54E4; // inferred: mode (0 and 8 allow the environment sounds)
-};
-extern "C" EnvSeField_unk* lbl_8087F430;
-struct EnvSeMute_unk {
-    unsigned char m00[0x70];
-    int m70;
-};
-extern "C" EnvSeMute_unk* lbl_8087F540;
-struct EnvSeConfig_unk {
-    unsigned char m00[0x7C];
-    int m7C; // inferred: debug menus enabled
-};
-extern "C" EnvSeConfig_unk* lbl_8087F0A8;
+extern "C" GameTask* lbl_8087F430;
+extern "C" Event::Manager* lbl_8087F540;
+extern "C" GameConfig_unk* lbl_8087F0A8;
 
 // inferred: debug drawing and camera
 
 // inferred: debug menu entries
 typedef void (*EnvSeMenuCallback_unk)(void* arg);
-extern "C" void fn_80087E9C(void* group, const char* name, atn::Vector3* value, EnvSeMenuCallback_unk callback,
-                            void* arg, float min, float max, float step);
-extern "C" void fn_8008771C(void* group, const char* name, float* value, EnvSeMenuCallback_unk callback, void* arg,
-                            float min, float max, float step);
+extern "C" void fn_80087E9C(void* group, const char* name, atn::Vector3* value, float min, float max, float step,
+                            EnvSeMenuCallback_unk callback, void* arg);
+extern "C" void fn_8008771C(void* group, const char* name, float* value, float min, float max, float step,
+                            EnvSeMenuCallback_unk callback, void* arg);
 extern "C" void fn_800874C8(void* group, const char* name, int* value, int min, int max, int step,
                             EnvSeMenuCallback_unk callback, void* arg);
 
@@ -78,19 +67,18 @@ void EnvSeBase::fn_80360CDC(atn::Csv* csv) {
     csv->fn_8005B9CC();
     mData->fn_80360B40(csv);
     vf1C(csv);
-    if (lbl_8087F418 != 0 && lbl_8087F0A8->m7C != 0) {
+    if (lbl_8087F418 != 0 && lbl_8087F0A8->m07C != 0) {
         void* root = lbl_8087F418->m1AC;
         if (root != 0) {
             char name[0x100];
             sprintf(name, "%s[%d] %s\0", sTypeNames[mData->mType], m4C, mData->mName);
             void* menu = LoadMenu_unk(mMenu, root, name);
-            fn_80087E9C(menu, "Position", &mData->mPos, (EnvSeMenuCallback_unk)fn_80361100, this, -9999.0f,
-                        9999.0f, 1.0f);
-            fn_8008771C(menu, "Distance", &mData->mDistance, (EnvSeMenuCallback_unk)fn_80361100, this, 1.0f,
-                        9999.0f, 1.0f);
-            fn_8008771C(menu, "Volume", &mData->mVolume, (EnvSeMenuCallback_unk)fn_80361100, this, 0.0f, 2.0f,
-                        0.1f);
-            fn_8008771C(menu, "LPF", &mData->mLPF, (EnvSeMenuCallback_unk)fn_80361100, this, 0.0f, 1.0f, 0.1f);
+            fn_80087E9C(menu, "Position", &mData->mPos, -9999.0f, 9999.0f, 1.0f, (EnvSeMenuCallback_unk)fn_80361100,
+                        this);
+            fn_8008771C(menu, "Distance", &mData->mDistance, 1.0f, 9999.0f, 1.0f, (EnvSeMenuCallback_unk)fn_80361100,
+                        this);
+            fn_8008771C(menu, "Volume", &mData->mVolume, 0.0f, 2.0f, 0.1f, (EnvSeMenuCallback_unk)fn_80361100, this);
+            fn_8008771C(menu, "LPF", &mData->mLPF, 0.0f, 1.0f, 0.1f, (EnvSeMenuCallback_unk)fn_80361100, this);
         }
     }
 }
@@ -115,9 +103,9 @@ void EnvSeBase::fn_80360EA4() {
         if (mActive != 0 && mData->m44 != 0 && lbl_8087F430 != 0) {
             int value;
             if (mData->m48 == 1) {
-                value = ((GameTask*)lbl_8087F430)->fn_80370174(mData->m4C);
+                value = lbl_8087F430->fn_80370174(mData->m4C);
             } else {
-                value = ((GameTask*)lbl_8087F430)->fn_80370A78(mData->m4C);
+                value = lbl_8087F430->fn_80370A78(mData->m4C);
             }
             if (value == mData->m50) {
                 mActive = 1;
@@ -173,7 +161,8 @@ void EnvSeBase::DrawName_unk(const atn::Vector3& pos) {
     if (0.0f < screen.z && screen.z < 1.0f) {
         char text[0x100];
         sprintf(text, "%s[%d] %s\0", sTypeNames[mData->mType], m4C, mData->mName);
-        lbl_8087EEB0->fn_800616C0(screen.x, screen.y, 0.0f, 12.0f, 12.0f, text, m58 != 0 ? 0xFFFFFFFF : 0xFF7F7F7F, 0.0f, 1, 1, 0);
+        lbl_8087EEB0->fn_800616C0(screen.x, screen.y, 0.0f, 12.0f, 12.0f, text, m58 != 0 ? 0xFFFFFFFF : 0xFF7F7F7F,
+                                  0.0f, 1, 1, 0);
     }
 }
 
@@ -477,10 +466,9 @@ void EnvSeArea_unk::fn_80363108(void* root) {
         char name[0x100];
         sprintf(name, "Area[%d] %s\0", mId, mData.mName);
         void* menu = LoadMenu_unk(mMenu, root, name);
-        fn_80087E9C(menu, "Position", &mData.mPos, (EnvSeMenuCallback_unk)fn_8036324C, this, -9999.0f, 9999.0f,
-                    1.0f);
-        fn_8008771C(menu, "Volume", &mData.mVolume, (EnvSeMenuCallback_unk)fn_8036324C, this, 0.0f, 2.0f, 0.1f);
-        fn_8008771C(menu, "LPF", &mData.mLPF, (EnvSeMenuCallback_unk)fn_8036324C, this, 0.0f, 1.0f, 0.1f);
+        fn_80087E9C(menu, "Position", &mData.mPos, -9999.0f, 9999.0f, 1.0f, (EnvSeMenuCallback_unk)fn_8036324C, this);
+        fn_8008771C(menu, "Volume", &mData.mVolume, 0.0f, 2.0f, 0.1f, (EnvSeMenuCallback_unk)fn_8036324C, this);
+        fn_8008771C(menu, "LPF", &mData.mLPF, 0.0f, 1.0f, 0.1f, (EnvSeMenuCallback_unk)fn_8036324C, this);
         fn_800874C8(menu, "ReverbParamId", &mReverb, 0, 20, 1, (EnvSeMenuCallback_unk)fn_8036324C, this);
     }
 }

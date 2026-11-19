@@ -53,9 +53,9 @@ void Action::fn_805377F0(int id, int variant) {
     mKeys.push_back(end);
 }
 
-ActionOwner_unk* Action::fn_805381A0() {
+Section* Action::fn_805381A0() {
     void* context = reinterpret_cast<void**>(this)[2];
-    return reinterpret_cast<ActionOwner_unk**>(context)[2];
+    return reinterpret_cast<Section**>(context)[2];
 }
 
 } // namespace Event

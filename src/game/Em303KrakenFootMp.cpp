@@ -1,3 +1,4 @@
+#include "game/GameTask.h"
 #include "game/Em303KrakenFootMp.h"
 #include "math/VecAssign_unk.h"
 #include "atn/Csv.h"
@@ -16,16 +17,18 @@ extern "C" int atoi(const char* s);
 extern "C" float fn_800DC288(const char* s); // inferred: string to float
 extern "C" int fn_800DC12C(const char* s);   // inferred: string to int
 extern "C" HitInfo_unk* fn_80219E6C(int id); // inferred: bullet/skill data by id
-extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3, int arg4);
+extern "C" void fn_80087994(void* group, const char* name, int* value, void* func, void* arg);
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
 // inferred: effect manager (class unknown), global instance at 0x8087F3C0 (as in game/Em209BigGolem.cpp)
-struct EffectMgr_unk;
+namespace atn {
+class EffectManager;
+}
 struct Color4f_unk {
     Color4f_unk() {}
     float r, g, b, a;
 };
-extern "C" EffectMgr_unk* lbl_8087F3C0;
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
+extern "C" atn::EffectManager* lbl_8087F3C0;
+extern "C" void fn_8023A8B4(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Model* model, void* node,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
 extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the next effects
@@ -33,12 +36,7 @@ extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the nex
 inline atn::Vector3 GetNodePos_unk(MtxPtr m) {
     return atn::Vector3(m[0][3], m[1][3], m[2][3]);
 }
-// inferred: field (lbl_8087F430): route tables at 0x10D8 (as in game/CharaC58_unk.cpp)
-struct Field_unk {
-    unsigned char m0000[0x10D8];
-    GameScene* m10D8;
-};
-extern "C" Field_unk* lbl_8087F430;
+extern "C" GameTask* lbl_8087F430;
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 extern "C" int rand();
 
@@ -79,7 +77,7 @@ inline void Em303KrakenFootMp::PlayMotion_unk(int motion) {
 }
 
 inline void Em303KrakenFootMp::FaceTarget_unk() {
-    CharaTask* target = (CharaTask*)m14F4;
+    CharaTask* target = m14F4;
     atn::Vector3 d;
     float z = target->mPos.z - mPos.z;
     d.x = target->mPos.x - mPos.x;
@@ -256,10 +254,10 @@ void Em303KrakenFootMp::vf100(int state) {
 // NONMATCHING: 99.82% - stack slots of the temporaries of the two inlined movement blocks (written out with a
 // goto; with the helper Move_unk they get other FPRs, 99.0%)
 void Em303KrakenFootMp::vf104() {
-    m14F4 = (int)mC58.mC4;
+    m14F4 = mC58.mC4;
     if (m14F4 == 0) {
-        m14F4 = (int)lbl_8087F8A0->mHead;
-        mC58.mC4 = (CharaTask*)m14F4;
+        m14F4 = lbl_8087F8A0->mHead;
+        mC58.mC4 = m14F4;
     }
     m14E0++;
     if (mC58.mC0 == 0 || m14F4 == 0) {
@@ -462,7 +460,7 @@ void Em303KrakenFootMp::fn_802E7740() {
         }
         break;
     case 1: {
-        CharaTask* target = (CharaTask*)m14F4;
+        CharaTask* target = m14F4;
         if (target != 0) {
             float dist = (target->mPos - mPos).Length_unk();
             switch (m14E8) {

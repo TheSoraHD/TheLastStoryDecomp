@@ -3,27 +3,13 @@
 #include "math/Vec.h"
 #include "atn/DrawHelper.h"
 #include "atn/RenderManager.h"
+#include "atn/RenderSetting_unk.h"
 
 extern "C" double sin(double x);
 extern "C" double cos(double x);
 extern "C" void PSMTXTrans(Mtx m, float x, float y, float z);
 
-struct BloomParams_unk {
-    unsigned char m00[0x58];
-    int m58;      // 0x58: inferred: debug display
-    int m5C;      // 0x5C: inferred: size shift
-    int m60;
-    int m64;      // 0x64: inferred: number of additive passes
-    float m68;    // 0x68: inferred: intensity
-    float m6C;    // 0x6C: inferred: blur length X
-    float m70;    // 0x70: inferred: blur length Y
-    float m74;    // 0x74: inferred: blur angle
-    float m78[5]; // 0x78: inferred: blur weights
-    atn::Color m8C[3]; // 0x8C: inferred: color of each threshold pass
-    int mBC[3];   // 0xBC: inferred: TEV bias of each pass
-    int mC8[3];   // 0xC8: inferred: TEV scale of each pass
-};
-extern "C" BloomParams_unk* lbl_8087EFA8;
+extern "C" RenderSetting_unk* lbl_8087EFA8;
 
 // inferred: translation matrix by value (names invented)
 static inline atn::Matrix3x4 MakeTrans_unk(const atn::Vector3& v) {
@@ -135,7 +121,7 @@ PostFxBloom::PostFxBloom() {}
 void PostFxBloom::vf10(RenderManager* view) {
     int fullW = lbl_8087EEE0->mWidth;
     int fullH = lbl_8087EEE0->mHeight;
-    int div = 1 << lbl_8087EFA8->m5C;
+    int div = 1 << lbl_8087EFA8->m054.mSize;
     int w = fullW / div;
     int h = fullH / div;
     void* image0 = lbl_8087EF8C->fn_800A96AC(w, h, 6);
@@ -192,12 +178,12 @@ void PostFxBloom::vf10(RenderManager* view) {
     atn::RenderManager::instance_->fn_800BFB70();
     for (int i = 0; i < 3; i++) {
         GXSetTevColorIn(0, 0xF, 8, 0xE, 0xF);
-        GXSetTevColorOp(0, 0, lbl_8087EFA8->mBC[i], lbl_8087EFA8->mC8[i], 1, 0);
+        GXSetTevColorOp(0, 0, lbl_8087EFA8->m054.mBias[i], lbl_8087EFA8->m054.mScale[i], 1, 0);
         GXSetTevSwapMode(0, 0, 0);
         GXSetTevOrder(0, 0, 0, 0xFF);
         GXSetTevKColorSel(0, 0xC);
         GXSetTevDirect(0);
-        atn::Color& c = lbl_8087EFA8->m8C[i];
+        atn::Color& c = lbl_8087EFA8->m054.mColor[i];
         GXColor color = {(unsigned char)(255.0f * c.r), (unsigned char)(255.0f * c.g), (unsigned char)(255.0f * c.b),
                          (unsigned char)(255.0f * c.a)};
         GXSetTevKColor(0, color);
@@ -210,10 +196,10 @@ void PostFxBloom::vf10(RenderManager* view) {
     GXCopyTex(image1, 0);
     GXPixModeSync();
     // inferred: blur in two directions
-    fn_800A981C(&m24, image0, w, h, 6, lbl_8087EFA8->m78, 0, cos(lbl_8087EFA8->m74) * lbl_8087EFA8->m6C,
-                -sin(lbl_8087EFA8->m74) * lbl_8087EFA8->m6C);
-    fn_800A981C(&m04, image0, w, h, 6, lbl_8087EFA8->m78, 0, -sin(lbl_8087EFA8->m74) * lbl_8087EFA8->m70,
-                cos(lbl_8087EFA8->m74) * lbl_8087EFA8->m70);
+    fn_800A981C(&m24, image0, w, h, 6, lbl_8087EFA8->m054.mKernel, 0, cos(lbl_8087EFA8->m054.mBlurAngle) * lbl_8087EFA8->m054.mBlurWidth,
+                -sin(lbl_8087EFA8->m054.mBlurAngle) * lbl_8087EFA8->m054.mBlurWidth);
+    fn_800A981C(&m04, image0, w, h, 6, lbl_8087EFA8->m054.mKernel, 0, -sin(lbl_8087EFA8->m054.mBlurAngle) * lbl_8087EFA8->m054.mBlurHeight,
+                cos(lbl_8087EFA8->m054.mBlurAngle) * lbl_8087EFA8->m054.mBlurHeight);
     // inferred: restores the saved corner
     GXSetBlendMode(0, 1, 0, 3);
     GXSetNumTexGens(1);
@@ -230,14 +216,14 @@ void PostFxBloom::vf10(RenderManager* view) {
     fn_80075DEC(lbl_8087EEE0);
     // inferred: adds the bloom to the frame buffer
     GXSetBlendMode(1, 1, 1, 3);
-    float intensity = lbl_8087EFA8->m68;
+    float intensity = lbl_8087EFA8->m054.mStrengthScale;
     atn::Color color(intensity, intensity, intensity, 1.0f);
     fn_800763FC(lbl_8087EEE0, &m04, 0);
-    for (int i = 1; i <= lbl_8087EFA8->m64; i++) {
+    for (int i = 1; i <= lbl_8087EFA8->m054.mStrength; i++) {
         atn::RenderManager::instance_->fn_800BFC18(color, 0.0f, 0.0f);
     }
     GXSetBlendMode(0, 1, 0, 3);
-    if (lbl_8087EFA8->m58 != 0) {
+    if (lbl_8087EFA8->m054.mDebug != 0) {
         lbl_8087EEB0->fn_8005DF90(-1, &m24, 0, 16.0f, 16.0f, 0.0f, fullW / 3.0f, fullH / 3.0f);
         lbl_8087EEB0->fn_8005DF90(-1, &m04, 0, 16.0f, 32.0f + fullH / 3.0f, 0.0f, fullW / 3.0f, fullH / 3.0f);
     }

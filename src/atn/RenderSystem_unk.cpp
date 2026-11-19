@@ -42,7 +42,10 @@ extern "C" atn::Scene* lbl_8087EFB8; // inferred: default scene
 #include "atn/RenderSetting_unk.h"
 
 extern "C" RenderSetting_unk* lbl_8087EFA8; // render settings
-extern "C" void* lbl_8087EF8C;
+namespace atn {
+class PostFxManager;
+}
+extern "C" atn::PostFxManager* lbl_8087EF8C;
 
 extern "C" void GXSetTexCopySrc(unsigned short left, unsigned short top, unsigned short width,
                                   unsigned short height);
@@ -91,10 +94,10 @@ template <class T, class Compare>
 void Sort_unk(T* first, T* last, Compare comp);
 
 extern "C" void* fn_8008937C(void* menu, const char* name);
-extern "C" void fn_800874C8(void* group, const char* name, int* value, int min, int max, int step, int arg6,
-                              int arg7);
-extern "C" void fn_8008771C(void* group, const char* name, float* value, int arg3, int arg4, float min,
-                            float max, float step);
+extern "C" void fn_800874C8(void* group, const char* name, int* value, int min, int max, int step, void* func,
+                            void* arg);
+extern "C" void fn_8008771C(void* group, const char* name, float* value, float min, float max, float step, void* func,
+                            void* arg);
 
 void fn_800C5644();
 extern "C" void fn_8007A100();
@@ -107,8 +110,12 @@ namespace atn {
 class Scene;
 } // namespace atn
 
-extern "C" void fn_800C0AA4(unsigned char* data, unsigned int width, unsigned int height, unsigned int xShift, unsigned int yShift, unsigned int elementSize, unsigned int rowStride, unsigned char* scratch);
-extern "C" void fn_800C0BF8(unsigned char* data, unsigned int width, unsigned int height, unsigned int xShift, unsigned int yShift, unsigned int elementSize, unsigned int rowStride, unsigned char* scratch);
+extern "C" void fn_800C0AA4(unsigned char* data, unsigned int width, unsigned int height, unsigned int xShift,
+                            unsigned int yShift, unsigned int elementSize, unsigned int rowStride,
+                            unsigned char* scratch);
+extern "C" void fn_800C0BF8(unsigned char* data, unsigned int width, unsigned int height, unsigned int xShift,
+                            unsigned int yShift, unsigned int elementSize, unsigned int rowStride,
+                            unsigned char* scratch);
 extern "C" int fn_800C0D4C(unsigned char* image, unsigned int format, unsigned int width, unsigned int height);
 extern "C" int fn_800C0FBC(unsigned char* image, unsigned int format, unsigned int width, unsigned int height);
 
@@ -297,32 +304,21 @@ atn::RenderManager::RenderManager()
     menuGroup = fn_8008937C(lbl_8087EFA8->m04C, "Fog");
     fn_800874C8(menuGroup, "Fog Mode", &mScene->mFog.mMode, 0, 6, 1,
                 0, 0);
-    fn_8008771C(menuGroup, "Fog Start", &mScene->mFog.mStart, 0, 0,
-                0.0f, 10000.0f, 1.0f);
-    fn_8008771C(menuGroup, "Fog End", &mScene->mFog.mEnd, 0, 0,
-                0.0f, 10000.0f, 1.0f);
-    fn_8008771C(menuGroup, "Fog R", &mScene->mFog.mColor.r, 0, 0,
-                0.0f, 1.0f, 0.01f);
-    fn_8008771C(menuGroup, "Fog G", &mScene->mFog.mColor.g, 0, 0,
-                0.0f, 1.0f, 0.01f);
-    fn_8008771C(menuGroup, "Fog B", &mScene->mFog.mColor.b, 0, 0,
-                0.0f, 1.0f, 0.01f);
+    fn_8008771C(menuGroup, "Fog Start", &mScene->mFog.mStart, 0.0f, 10000.0f, 1.0f, 0, 0);
+    fn_8008771C(menuGroup, "Fog End", &mScene->mFog.mEnd, 0.0f, 10000.0f, 1.0f, 0, 0);
+    fn_8008771C(menuGroup, "Fog R", &mScene->mFog.mColor.r, 0.0f, 1.0f, 0.01f, 0, 0);
+    fn_8008771C(menuGroup, "Fog G", &mScene->mFog.mColor.g, 0.0f, 1.0f, 0.01f, 0, 0);
+    fn_8008771C(menuGroup, "Fog B", &mScene->mFog.mColor.b, 0.0f, 1.0f, 0.01f, 0, 0);
 
     menuGroup = fn_8008937C(lbl_8087EFA8->m04C, "KeyLight");
     mScene->GetLight(0)->fn_80079BC8(menuGroup);
     menuGroup = fn_8008937C(lbl_8087EFA8->m04C, "Ambient");
-    fn_8008771C(menuGroup, "Ambient R", &mScene->mAmbient.r, 0, 0,
-                0.0f, 1.0f, 0.01f);
-    fn_8008771C(menuGroup, "Ambient G", &mScene->mAmbient.g, 0, 0,
-                0.0f, 1.0f, 0.01f);
-    fn_8008771C(menuGroup, "Ambient B", &mScene->mAmbient.b, 0, 0,
-                0.0f, 1.0f, 0.01f);
-    fn_8008771C(menuGroup, "LS R", &mScene->mLS.r, 0, 0,
-                0.0f, 1.0f, 0.01f);
-    fn_8008771C(menuGroup, "LS G", &mScene->mLS.g, 0, 0,
-                0.0f, 1.0f, 0.01f);
-    fn_8008771C(menuGroup, "LS B", &mScene->mLS.b, 0, 0,
-                0.0f, 1.0f, 0.01f);
+    fn_8008771C(menuGroup, "Ambient R", &mScene->mAmbient.r, 0.0f, 1.0f, 0.01f, 0, 0);
+    fn_8008771C(menuGroup, "Ambient G", &mScene->mAmbient.g, 0.0f, 1.0f, 0.01f, 0, 0);
+    fn_8008771C(menuGroup, "Ambient B", &mScene->mAmbient.b, 0.0f, 1.0f, 0.01f, 0, 0);
+    fn_8008771C(menuGroup, "LS R", &mScene->mLS.r, 0.0f, 1.0f, 0.01f, 0, 0);
+    fn_8008771C(menuGroup, "LS G", &mScene->mLS.g, 0.0f, 1.0f, 0.01f, 0, 0);
+    fn_8008771C(menuGroup, "LS B", &mScene->mLS.b, 0.0f, 1.0f, 0.01f, 0, 0);
 
     // The layer pointer table occupies the first 20 words of RenderSystem.
     atn::IRenderLayer** layers = (atn::IRenderLayer**)self;

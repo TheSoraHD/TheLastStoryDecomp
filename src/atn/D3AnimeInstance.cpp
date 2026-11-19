@@ -1,3 +1,4 @@
+#include "atn/GraphicsDevice.h"
 #include "atn/D3AnimeInstance.h"
 #include "atn/Memory.h"
 #include "atn/DrawHelper.h"
@@ -13,13 +14,7 @@ extern "C" void PSMTXTrans(Mtx m, float x, float y, float z);
 // inferred: d2anime task functions (automatic names)
 
 
-// inferred: globals of unknown classes
-struct RenderState_unk {
-    unsigned char m00[0x3C];
-    int mWidth;  // 0x3C
-    int mHeight; // 0x40
-};
-extern "C" RenderState_unk* lbl_8087EEE0;
+extern "C" atn::GraphicsDevice_unk* lbl_8087EEE0;
 
 // inferred: frustum of the camera of the render manager and sphere test (inlined; names invented)
 inline Frustum_unk* GetFrustum_unk(atn::RenderManager* manager) {

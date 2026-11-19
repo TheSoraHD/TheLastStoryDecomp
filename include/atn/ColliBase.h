@@ -153,7 +153,7 @@ public:
 
     int m04;             // inferred: type (0 sphere, 1 capsule, 2 box, 3 object, 4 tree)
     unsigned int mFlags; // 0x08: bit 2 set by ColliTree; 0x80000000 = upright capsule
-    int m0C;             // inferred: owner
+    void* m0C;           // inferred: owner
     int m10;             // inferred: grid cell x (-1 = none)
     int m14;             // inferred: grid cell z
     int m18;             // inferred: size in cells

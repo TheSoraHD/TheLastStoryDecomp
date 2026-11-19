@@ -4,18 +4,11 @@
 #include "atn/Memory.h"
 #include <boost/bind.hpp>
 #include "game/GameUI.h"
+#include "game/GameConfig_unk.h"
 
-// inferred: input state embedded at +0x48C of the object behind lbl_8087F0A8 (class unknown)
-struct Input_unk {
-    int fn_8012476C(int button); // inferred: nonzero when `button` was pressed
-};
 
-struct Unk_8087F0A8 {
-    unsigned char m000[0x48C];
-    Input_unk mInput; // 0x48C
-};
 
-extern "C" Unk_8087F0A8* lbl_8087F0A8;
+extern "C" GameConfig_unk* lbl_8087F0A8;
 
 namespace chr {
 

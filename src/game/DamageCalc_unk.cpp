@@ -23,33 +23,26 @@ extern "C" void* fn_800EFC64(int id);         // inferred: effect of a skill (ga
 
 // inferred: skill effect manager (as in gmk/HealPoint.cpp)
 class SkillEffect;
-extern "C" void* lbl_8087F9E8;
+class SkillEffectManager;
+extern "C" SkillEffectManager* lbl_8087F9E8;
 extern "C" SkillEffect* fn_8059B66C(void* mgr, HitInfo_unk* skill, CharaTask* user, CharaTask* target,
                                     const atn::Vector3* pos, const atn::Vector3* rot,
                                     boost::function<void(SkillEffect*)> callback, float rate);
 
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
 
-// inferred: field (lbl_8087F430)
-struct Field_unk {
-};
-extern "C" Field_unk* lbl_8087F430;
+extern "C" GameTask* lbl_8087F430;
 
 extern "C" GameConfig_unk* lbl_8087F0A8;
 
 // inferred: collision world (lbl_8087EE98)
-extern "C" void* lbl_8087EE98;
+struct ColliManager_unk;
+extern "C" ColliManager_unk* lbl_8087EE98;
 extern "C" int fn_8004ED34(void* world, void* result, const atn::Vector3* from, const atn::Vector3* to,
-                           unsigned int mask, int a, int b);
+                           unsigned int mask, void* a, int b);
 
-// inferred: multiplayer state (lbl_8087F628, see gmk/Item.cpp)
-struct MpState_unk {
-    unsigned char m000[0x1F8];
-    unsigned int m1F8_31_20 : 12;
-    unsigned int mDisabled : 1;
-    unsigned int m1F8_18_0 : 19;
-};
-extern "C" MpState_unk* lbl_8087F628;
+#include "atn/net/Manager.h"
+extern "C" atn::net::Manager* lbl_8087F628;
 
 // inferred: player of a multiplayer session (fn_804EB7C4)
 struct MpPlayer_unk {
@@ -297,8 +290,8 @@ int fn_8003F538(HitInfo_unk* data, CharaStatus* attacker, CharaStatus* target, u
         power += data->m14;
         power += data->m18 > 0 ? rand() % data->m18 : 0;
         if ((flags & 0x40) == 0x40 && attacker->mChara != 0) {
-            float ratio = attacker->mChara->mType == 2 ? lbl_8087F0A8->mEnemyDamageRatio
-                                                       : lbl_8087F0A8->mPlayerDamageRatio;
+            float ratio = attacker->mChara->mType == 2 ? lbl_8087F0A8->mSurround.mEnemyDamageRatio
+                                                       : lbl_8087F0A8->mSurround.mPlayerDamageRatio;
             power = (int)(power * ratio);
         }
         if (!fn_80040994(data, attacker, target, flags)) {
@@ -510,7 +503,7 @@ float fn_80040588(const float* elements, CharaStatus* status, int positiveOnly) 
     if (positiveOnly != 0 && best >= 0.0f) {
         return 0.0f;
     }
-    if (lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->fn_80370174(0x11B) > 0) {
+    if (lbl_8087F430 != 0 && lbl_8087F430->fn_80370174(0x11B) > 0) {
         best *= 2.0f;
     }
     return best;
@@ -759,7 +752,7 @@ int fn_80040B44(DamageResult_unk* result, HitInfo_unk* data, CharaStatus* attack
         result->m14 = fn_80040664(data, attacker, target, flags);
         result->m18 = fn_800407F4(data, attacker, target, flags);
         bool local = true;
-        if (lbl_8087F628 != 0 && !lbl_8087F628->mDisabled && lbl_8087F610 != 0) {
+        if (lbl_8087F628 != 0 && !lbl_8087F628->mFlags.mB12 && lbl_8087F610 != 0) {
             local = lbl_8087F610->m99BC;
             if (!local) {
                 CharaTask* chara = target->mChara;
@@ -809,14 +802,14 @@ int fn_80040B44(DamageResult_unk* result, HitInfo_unk* data, CharaStatus* attack
         if (element <= -2) {
             result->mType = 5;
             if (lbl_8087F430 != 0) {
-                ((GameTask*)lbl_8087F430)->fn_803750E4(0x15B);
+                lbl_8087F430->fn_803750E4(0x15B);
             }
         } else if (element <= -1) {
             result->mType = 4;
         } else if (element >= 1) {
             result->mType = 1;
             if (attacker->mChara != 0 && attacker->mChara->mType == 0 && lbl_8087F430 != 0) {
-                ((GameTask*)lbl_8087F430)->fn_803750E4(0x15A);
+                lbl_8087F430->fn_803750E4(0x15A);
             }
         } else {
             result->mType = 1;

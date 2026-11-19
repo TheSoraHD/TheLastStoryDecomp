@@ -1,15 +1,10 @@
+#include "atn/GraphicsDevice.h"
 #include "atn/FadeCommon.h"
 #include "atn/RenderManager.h"
 #include "atn/Memory.h"
 #include "atn/DrawHelper.h"
 
-// inferred: globals of unknown classes (automatic names)
-struct RenderState_unk {
-    unsigned char m00[0x3C];
-    int mWidth;  // 0x3C
-    int mHeight; // 0x40
-};
-extern "C" RenderState_unk* lbl_8087EEE0;
+extern "C" atn::GraphicsDevice_unk* lbl_8087EEE0;
 extern "C" void fn_800D2338(atn::Task* task); // inferred: deletes the task
 extern "C" void fn_800D5A3C(atn::Texture_unk* tex);
 

@@ -1,3 +1,5 @@
+#include "atn/EffectManager.h"
+#include "game/GameConfig_unk.h"
 #include "gmk/WaterLevel.h"
 #include "atn/Csv.h"
 #include "atn/Memory.h"
@@ -14,33 +16,23 @@ extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared len
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
 extern "C" unsigned int PSMTXInverse(const Mtx src, Mtx inv);
 extern "C" void PSMTXTranspose(const Mtx src, Mtx dst);
-extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, int arg6,
-                            int arg7);
-extern "C" void fn_80087E9C(void* group, const char* name, atn::Vector3* value, int arg3, int arg4, float min,
-                            float max, float step);
-extern "C" void fn_80088724(void* group, const char* name, atn::Vector3* value, int arg3, int arg4, float min,
-                            float max, float step);
-extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3, int arg4);
+extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, void* func,
+                            void* arg);
+extern "C" void fn_80087E9C(void* group, const char* name, atn::Vector3* value, float min, float max, float step,
+                            void* func, void* arg);
+extern "C" void fn_80088724(void* group, const char* name, atn::Vector3* value, float min, float max, float step,
+                            void* func, void* arg);
+extern "C" void fn_80087994(void* group, const char* name, int* value, void* func, void* arg);
 
-// inferred: effect manager (class unknown), global instance at 0x8087F3C0
-struct EffectMgr_unk {
-    unsigned char m00[0xB8];
-    int mB8;
-};
 struct Color4f_unk {
     Color4f_unk() {}
     float r, g, b, a;
 };
-extern "C" EffectMgr_unk* lbl_8087F3C0;
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
+extern "C" atn::EffectManager* lbl_8087F3C0;
+extern "C" void fn_8023A8B4(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Model* model, void* node,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
-// inferred: game settings
-struct Settings_unk {
-    unsigned char m00[0x18];
-    int m18;
-};
-extern "C" Settings_unk* lbl_8087F0A8;
+extern "C" GameConfig_unk* lbl_8087F0A8;
 namespace atn {
 struct Camera;
 }
@@ -81,7 +73,7 @@ WaterLevel::~WaterLevel() {}
 int WaterLevel::vf0C() {
     if (fn_803EC91C() == 0) {
         fn_803EDB18(&mModel);
-        mColli.m0C = (int)this;
+        mColli.m0C = this;
         mColli.m1C = 0x1A;
         return 1;
     }
@@ -131,7 +123,7 @@ void WaterLevel::vf10() {
 }
 
 void WaterLevel::vf14() {
-    if (lbl_8087F0A8->m18 != 0 && vf38() != 0) {
+    if (lbl_8087F0A8->mDrawMap != 0 && vf38() != 0) {
         fn_803ED774(vf38());
     }
 }
@@ -242,9 +234,9 @@ void WaterLevel::vf6C(void* menu) {
         group = 0;
     }
     fn_800874C8(group, "state", &m54, 0, 99, 1, 0, 0);
-    fn_80087E9C(group, "pos", &m6C, 0, 0, -9999.0f, 9999.0f, 0.25f);
-    fn_80088724(group, "rot", &m78, 0, 0, -3.1415927f, 3.1415927f, 0.05235988f);
-    fn_80087E9C(group, "scl", &m90, 0, 0, -9999.0f, 9999.0f, 0.25f);
+    fn_80087E9C(group, "pos", &m6C, -9999.0f, 9999.0f, 0.25f, 0, 0);
+    fn_80088724(group, "rot", &m78, -3.1415927f, 3.1415927f, 0.05235988f, 0, 0);
+    fn_80087E9C(group, "scl", &m90, -9999.0f, 9999.0f, 0.25f, 0, 0);
     fn_80087994(group, "isShow", &m9C, 0, 0);
     fn_800874C8(group, "locData", &m58, 0, 99, 1, 0, 0);
     mB0.fn_803F11F8(group);

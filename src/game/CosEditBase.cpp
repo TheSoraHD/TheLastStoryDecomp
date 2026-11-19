@@ -1,3 +1,4 @@
+#include "game/ChaseManager.h"
 #include "game/CosEditBase.h"
 #include "game/CostumeEditChara.h"
 #include "game/CharaTask.h"
@@ -24,19 +25,26 @@
 extern "C" int sprintf(char* s, const char* format, ...);
 extern "C" char* strstr(const char* s, const char* sub);
 extern "C" unsigned int fn_800DC6B4(const char* s); // inferred: string hash
-extern "C" void* lbl_8087EF70;                     // inferred: pad
+struct Pad_unk;
+extern "C" Pad_unk* lbl_8087EF70;                     // inferred: pad
 extern "C" int fn_800A555C(void* pad, int port, int button); // inferred: button triggered
 extern "C" float fn_80076FF8(void* render);        // inferred: screen aspect ratio
-extern "C" void* lbl_8087EEE0;
-extern "C" void* lbl_8087F518;                     // inferred: loading screen
+namespace atn {
+struct GraphicsDevice_unk;
+}
+extern "C" atn::GraphicsDevice_unk* lbl_8087EEE0;
+namespace atn {
+class Loader;
+}
+extern "C" atn::Loader* lbl_8087F518;                     // inferred: loading screen
 extern "C" void fn_8046ECDC(void* obj, int arg);
 extern "C" void fn_8046EED8(void* obj);
 extern "C" atn::SoundRef fn_80117228(int id);      // inferred: plays a system sound effect
 class BattleTask;
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
 extern "C" void fn_800D2338(atn::Task* task); // inferred: removes the task
-extern "C" void fn_80087E9C(void* group, const char* name, atn::Vector3* value, int arg3, int arg4, float min,
-                            float max, float step);
+extern "C" void fn_80087E9C(void* group, const char* name, atn::Vector3* value, float min, float max, float step,
+                            void* func, void* arg);
 extern "C" int fn_80219558(int id); // inferred: party member of a character id (negative for others)
 // inferred: item data returned by fn_80206C50 / fn_80206B14 (names invented)
 struct CosEditItemData_unk {
@@ -95,12 +103,7 @@ struct CosEditParent_unk {
     CosEditMember_unk mMembers1[8]; // 0x126C
 };
 
-// inferred: lemon event (lbl_8087F098)
-struct CosEditLemon_unk {
-    unsigned char m00[0x48];
-    int m48;
-};
-extern "C" CosEditLemon_unk* lbl_8087F098;
+extern "C" ChaseManager* lbl_8087F098;
 
 // inferred: the eight statics of the .bss (0x807C7CB8-0x807C7D18; one label in the DOL, named after them in
 // symbols.txt)
@@ -228,7 +231,7 @@ void CosEditBase::vf10() {
                     }
                     mLoads[i].mChara->mStatus.fn_8012B988();
                     CharaTask* chara = mLoads[i].mChara;
-                    if (chara->m674 < 0 && (!lbl_8087F098 || !lbl_8087F098->m48)) {
+                    if (chara->m674 < 0 && (!lbl_8087F098 || !lbl_8087F098->mState)) {
                         chara->mStatus.fn_8012D8B8();
                     }
                 }
@@ -882,11 +885,11 @@ void* CosEditBase::fn_801CFAA8(int member, int slot) {
 
 void CosEditBase::vf40(void* group) {
     group = fn_8008937C(group, m98.c_str());
-    fn_80087E9C(group, "OffsetPos", &mA4, 0, 0, -1000000.0f, 1000000.0f, 1.0f);
-    fn_80087E9C(group, "OffsetScl", &mB0, 0, 0, -1000000.0f, 1000000.0f, 1.0f);
-    fn_80087E9C(group, "LocatorScl", &mBC, 0, 0, -1000000.0f, 1000000.0f, 1.0f);
-    fn_80087E9C(group, "BasePos", &mC8, 0, 0, -1000000.0f, 1000000.0f, 1.0f);
-    fn_80087E9C(group, "CharaUpperOfs", &mCharaUpperOfs, 0, 0, -1000000.0f, 1000000.0f, 1.0f);
-    fn_80087E9C(group, "CharaLowerOfs", &mCharaLowerOfs, 0, 0, -1000000.0f, 1000000.0f, 1.0f);
-    fn_80087E9C(group, "CharaZoomOfs", &mCharaZoomOfs, 0, 0, -1000000.0f, 1000000.0f, 1.0f);
+    fn_80087E9C(group, "OffsetPos", &mA4, -1000000.0f, 1000000.0f, 1.0f, 0, 0);
+    fn_80087E9C(group, "OffsetScl", &mB0, -1000000.0f, 1000000.0f, 1.0f, 0, 0);
+    fn_80087E9C(group, "LocatorScl", &mBC, -1000000.0f, 1000000.0f, 1.0f, 0, 0);
+    fn_80087E9C(group, "BasePos", &mC8, -1000000.0f, 1000000.0f, 1.0f, 0, 0);
+    fn_80087E9C(group, "CharaUpperOfs", &mCharaUpperOfs, -1000000.0f, 1000000.0f, 1.0f, 0, 0);
+    fn_80087E9C(group, "CharaLowerOfs", &mCharaLowerOfs, -1000000.0f, 1000000.0f, 1.0f, 0, 0);
+    fn_80087E9C(group, "CharaZoomOfs", &mCharaZoomOfs, -1000000.0f, 1000000.0f, 1.0f, 0, 0);
 }

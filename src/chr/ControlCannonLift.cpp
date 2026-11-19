@@ -1,3 +1,4 @@
+#include "game/GameConfig_unk.h"
 #include "chr/ControlCannonLift.h"
 #include "game/GameTask.h"
 #include "game/CharaTask.h"
@@ -28,37 +29,12 @@ extern "C" int fn_804F5E38(Arena_unk* arena, unsigned char id);
 extern "C" ArenaSlot_unk* fn_804F5B08(Arena_unk* arena, unsigned char id);
 extern "C" void fn_804F5C9C(Arena_unk* arena, unsigned char id);
 
-// inferred: global object at lbl_8087F628 (class unknown); same accessor as in gmk/Item.cpp
-extern "C" unsigned char DWC_GetMyAID();
-extern "C" int fn_806A8E40();
-struct ItemState_unk {
-    unsigned char m000[0x1F8];
-    unsigned int m1F8_31_20 : 12;
-    unsigned int mDisabled : 1; // inferred
-    unsigned int m1F8_18_0 : 19;
-    unsigned char m1FC[0xC215 - 0x1FC];
-    unsigned char mC215; // inferred: selects the source of the value
+#include "atn/net/Manager.h"
+extern "C" atn::net::Manager* lbl_8087F628;
 
-    // inferred: name invented
-    unsigned char Get1_unk() {
-        if (mC215 == 0) {
-            return mDisabled ? 0 : DWC_GetMyAID();
-        } else {
-            return mDisabled ? 0 : fn_806A8E40();
-        }
-    }
-};
-extern "C" ItemState_unk* lbl_8087F628;
+extern "C" GameConfig_unk* lbl_8087F0A8;
 
-// inferred: pad state at +0x48C of the object behind lbl_8087F0A8 (class unknown)
-struct Unk_8087F0A8 {
-    unsigned char m000[0x48C];
-    unsigned char mInput[1]; // 0x48C
-};
-extern "C" Unk_8087F0A8* lbl_8087F0A8;
-
-struct Field_unk;
-extern "C" Field_unk* lbl_8087F430;
+extern "C" GameTask* lbl_8087F430;
 
 // inferred: the boss of the cannon battle (enemy id 4, chr Em208Queen); m1544 is set when a shot
 // reaches it
@@ -161,10 +137,10 @@ int ControlCannonLift::vf0C() {
                 if (((Cannon_unk*)mCannon)->m520 == 0xFF) {
                     GimmickMsg_unk ev;
                     ev.mType = 2;
-                    ev.m10 = (int)chara;
+                    ev.m10 = chara;
                     ev.m08 = -1;
                     NotifyListeners_unk(fn_8014F8F4(), 11, mCannon, &ev);
-                    ((Cannon_unk*)mCannon)->m520 = lbl_8087F628->Get1_unk();
+                    ((Cannon_unk*)mCannon)->m520 = lbl_8087F628->GetMyAid_unk();
                 } else {
                     fail = true;
                 }
@@ -173,7 +149,7 @@ int ControlCannonLift::vf0C() {
                 bool release = true;
                 int id = ((Cannon_unk*)mCannon)->m524;
                 if (id == -2) {
-                    if (((Cannon_unk*)mCannon)->m520 == lbl_8087F628->Get1_unk()) {
+                    if (((Cannon_unk*)mCannon)->m520 == lbl_8087F628->GetMyAid_unk()) {
                         ok = true;
                     } else {
                         fail = true;
@@ -207,17 +183,17 @@ int ControlCannonLift::vf0C() {
                 mChara->m1208 = mCannon;
                 GimmickMsg_unk msg;
                 msg.mType = 2;
-                msg.m10 = (int)mChara;
+                msg.m10 = mChara;
                 mCannon->vf40(&msg);
             }
         } else if (motion->mTracks[0].m08 >= 15.0f && chara->m1208 == 0) {
             chara->m1208 = mCannon;
             GimmickMsg_unk msg;
             msg.mType = 2;
-            msg.m10 = (int)mChara;
+            msg.m10 = mChara;
             mCannon->vf40(&msg);
         }
-    } else if (chara->mType == 0 && ((Input_unk*)lbl_8087F0A8->mInput)->fn_801240B4(0x20)) {
+    } else if (chara->mType == 0 && (&lbl_8087F0A8->mInput)->fn_801240B4(0x20)) {
         m0C = true;
     } else {
         m0C = false;
@@ -254,7 +230,7 @@ void ControlCannonLift::vf1C() {
         }
         GimmickMsg_unk ev;
         ev.mType = 3;
-        ev.m10 = (int)mChara;
+        ev.m10 = mChara;
         ev.m08 = -1;
         ev.mVec = mCannon->m6C;
         ev.mVec.y += 2.0f;
@@ -282,8 +258,8 @@ int ControlCannonThrow::vf0C() {
     Motion_unk* motion = &mChara->mMotion;
     if (motion->mTracks[0].m08 >= 10.0f && mChara->m1208 != 0) {
         Queen_unk* queen;
-        if (lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->GetCurrentMap() != 0 && ((GameTask*)lbl_8087F430)->GetCurrentMap()->mId == 11 &&
-            ((GameTask*)lbl_8087F430)->GetCurrentMap()->mSubId == 3 && (queen = (Queen_unk*)EnemyManager::sInstance->Find_unk(4)) != 0 &&
+        if (lbl_8087F430 != 0 && lbl_8087F430->GetCurrentMap() != 0 && lbl_8087F430->GetCurrentMap()->mId == 11 &&
+            lbl_8087F430->GetCurrentMap()->mSubId == 3 && (queen = (Queen_unk*)EnemyManager::sInstance->Find_unk(4)) != 0 &&
             fn_802CCA0C(queen)) {
             Mtx mtx;
             PSMTXRotRad(mtx, 'y', queen->mRot.y);
@@ -292,7 +268,7 @@ int ControlCannonThrow::vf0C() {
                 GimmickMsg_unk msg;
                 msg.mType = 6;
                 msg.mVec = point;
-                msg.m10 = (int)mChara;
+                msg.m10 = mChara;
                 msg.m04 = 0x32;
                 ((GimmickCommon*)mChara->m1208)->vf40(&msg);
                 mChara->m1208 = 0;
@@ -301,7 +277,7 @@ int ControlCannonThrow::vf0C() {
         }
         GimmickMsg_unk msg;
         msg.mType = 5;
-        msg.m10 = (int)mChara;
+        msg.m10 = mChara;
         msg.mVec = m08;
         ((Cannon_unk*)mChara->m1208)->m520 = 0xFF;
         ((GimmickCommon*)mChara->m1208)->vf40(&msg);
@@ -313,8 +289,8 @@ int ControlCannonThrow::vf0C() {
         }
     }
     Queen_unk* queen2;
-    if (lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->GetCurrentMap() != 0 && ((GameTask*)lbl_8087F430)->GetCurrentMap()->mId == 11 &&
-            ((GameTask*)lbl_8087F430)->GetCurrentMap()->mSubId == 3 && (queen2 = (Queen_unk*)EnemyManager::sInstance->Find_unk(4)) != 0 &&
+    if (lbl_8087F430 != 0 && lbl_8087F430->GetCurrentMap() != 0 && lbl_8087F430->GetCurrentMap()->mId == 11 &&
+            lbl_8087F430->GetCurrentMap()->mSubId == 3 && (queen2 = (Queen_unk*)EnemyManager::sInstance->Find_unk(4)) != 0 &&
         fn_802CCA0C(queen2)) {
         atn::Vector3 point = GetQueenPoint_unk(queen2);
         if (Dist_unk(point, m08) < m14) {
@@ -344,8 +320,8 @@ int ControlCannonTarget::vf0C() {
         int found = 0;
         CursorTarget_unk target;
         Queen_unk* queen;
-        if (lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->GetCurrentMap() != 0 && ((GameTask*)lbl_8087F430)->GetCurrentMap()->mId == 11 &&
-            ((GameTask*)lbl_8087F430)->GetCurrentMap()->mSubId == 3 && (queen = (Queen_unk*)EnemyManager::sInstance->Find_unk(4)) != 0 &&
+        if (lbl_8087F430 != 0 && lbl_8087F430->GetCurrentMap() != 0 && lbl_8087F430->GetCurrentMap()->mId == 11 &&
+            lbl_8087F430->GetCurrentMap()->mSubId == 3 && (queen = (Queen_unk*)EnemyManager::sInstance->Find_unk(4)) != 0 &&
             fn_802CCA0C(queen)) {
             target.mPos = queen->mPos;
             target.mRadius = m28;
@@ -358,18 +334,18 @@ int ControlCannonTarget::vf0C() {
             fn_801C3458(0, 30.0f, 450.0f, 6.2831855f);
         }
         Queen_unk* queen2;
-        if (lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->GetCurrentMap() != 0 && ((GameTask*)lbl_8087F430)->GetCurrentMap()->mId == 11 &&
-            ((GameTask*)lbl_8087F430)->GetCurrentMap()->mSubId == 3 && (queen2 = (Queen_unk*)EnemyManager::sInstance->Find_unk(4)) != 0 &&
+        if (lbl_8087F430 != 0 && lbl_8087F430->GetCurrentMap() != 0 && lbl_8087F430->GetCurrentMap()->mId == 11 &&
+            lbl_8087F430->GetCurrentMap()->mSubId == 3 && (queen2 = (Queen_unk*)EnemyManager::sInstance->Find_unk(4)) != 0 &&
             fn_802CCA0C(queen2)) {
             atn::Vector3 point = GetQueenPoint_unk(queen2);
             if (Dist_unk(point, m08) < m28) {
                 queen2->m1544 = 1;
             }
         }
-        if (((Input_unk*)lbl_8087F0A8->mInput)->fn_801231D0(0x21)) {
+        if ((&lbl_8087F0A8->mInput)->fn_801231D0(0x21)) {
             m2C = 1;
             ret = 1;
-        } else if (((Input_unk*)lbl_8087F0A8->mInput)->fn_801231D0(0x1F)) {
+        } else if ((&lbl_8087F0A8->mInput)->fn_801231D0(0x1F)) {
             mChara->fn_801750FC();
             ret = 1;
         }

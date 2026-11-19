@@ -1,3 +1,4 @@
+#include "game/GameTask.h"
 #include "gmk/MeetingSpot.h"
 #include "game/GameScene.h"
 #include "atn/Memory.h"
@@ -7,11 +8,7 @@
 #include "atn/RenderManager.h"
 #include "game/GameSceneFind_unk.h"
 
-struct Field_unk {
-    unsigned char m00[0x10D8];
-    GameScene* m10D8;
-};
-extern "C" Field_unk* lbl_8087F430;
+extern "C" GameTask* lbl_8087F430;
 extern "C" unsigned short fn_803CD958(U16Table_unk* path, int point); // inferred: link between two points
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager

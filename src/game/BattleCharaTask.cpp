@@ -47,44 +47,7 @@
 #include "game/GameSceneFind_unk.h"
 
 extern "C" GameConfig_unk* lbl_8087F0A8;
-// inferred: field (lbl_8087F430); only its address is used here
-// inferred: camera of the field (lbl_8087F430 + 0x6C, as in game/FinishCamera_unk.cpp)
-struct CameraSub_unk {
-    unsigned char m000[0x08];
-    atn::Vector3 m08; // inferred: eye (field + 0x74)
-    atn::Vector3 m14; // inferred: target point (field + 0x80)
-    unsigned char m020[0x1FC - 0x20];
-    atn::Vector3 m1FC; // inferred: eye of the aim (field + 0x268)
-    atn::Vector3 m208; // inferred: target of the aim (field + 0x274)
-    unsigned char m214[0x868 - 0x280];
-};
-// inferred: battle area of the field (lbl_8087F430->m10D8); names invented
-struct BattleAreaInfo_unk {
-    unsigned char m00[0x48];
-    int m48;
-};
-struct BattleArea_unk {
-    unsigned char m00[0x64];
-    BattleAreaInfo_unk* m64;
-};
-struct Field_unk {
-    unsigned char m0000[0x6C];
-    CameraSub_unk m006C; // inferred: also the object of fn_8037EF30 (as in game/Em306GurgBeast.cpp)
-    int m868; // inferred: mode (3 and 4: battle, as in game/CharaTask.cpp)
-    unsigned char m86C[0x94C - 0x86C];
-    int m94C;
-    unsigned char m950[0x10D0 - 0x950];
-    int m10D0; // inferred: story progress (as in game/GameBgm.cpp)
-    int m10D4;
-    BattleArea_unk* m10D8;
-    unsigned char m10DC[0x54E4 - 0x10DC];
-    int m54E4; // inferred: nonzero stops the combined attack
-    unsigned char m54E8[0x5674 - 0x54E8];
-    int m5674; // inferred: nonzero allows the specials (fn_800E62AC)
-    unsigned char m5678[0x5744 - 0x5678];
-    unsigned int m5744; // inferred: frame counter of the field
-};
-extern "C" Field_unk* lbl_8087F430;
+extern "C" GameTask* lbl_8087F430;
 extern "C" void fn_804776F4(atn::LH_MotionSet* set, atn::Model* model); // inferred: applies the motions
 // inferred: effect manager (lbl_8087F048, as in game/CharaTask.cpp)
 extern "C" BattleTask* lbl_8087F048;
@@ -236,7 +199,7 @@ int BattleCharaTask::vf0C() {
             // inferred: m1438 is a gimmick (GimmickCommon::vf68)
             if ((m137C & 0x400) == 0x400 && lbl_8087F610 == 0) {
                 ((GimmickCommon*)m1438)->vf68(0x2724, 1);
-            } else if (m50 == 0x30ED4 && lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->fn_80370174(0x11B) > 0) {
+            } else if (m50 == 0x30ED4 && lbl_8087F430 != 0 && lbl_8087F430->fn_80370174(0x11B) > 0) {
                 ((GimmickCommon*)m1438)->vf68(0x2747, 1);
             }
         }
@@ -256,7 +219,8 @@ int BattleCharaTask::vf0C() {
 
 extern "C" int fn_8004ED34(void* colli, atn::ColliResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg7); // inferred: ray test
-extern "C" void* lbl_8087EE98;
+struct ColliManager_unk;
+extern "C" ColliManager_unk* lbl_8087EE98;
 atn::Vector3 fn_8017C9AC(CharaTask* chara); // inferred: position of the character's eyes
 
 // inferred: record of the parameters of fn_80210220 (as Record80210220_unk in chr/ControlAttractHateCharge.cpp)
@@ -355,7 +319,7 @@ void BattleCharaTask::fn_800E2FE0() {
                 }
                 break;
             case 10:
-                if (((GameTask*)lbl_8087F430)->fn_8036DAA8(this)) {
+                if (lbl_8087F430->fn_8036DAA8(this)) {
                     HitInfo_unk* skill = fn_80219344(this, 5);
                     m63C = m638;
                     m638 = skill;
@@ -364,7 +328,7 @@ void BattleCharaTask::fn_800E2FE0() {
                 }
                 break;
             case 11:
-                if (((GameTask*)lbl_8087F430)->fn_8036DAA8(this)) {
+                if (lbl_8087F430->fn_8036DAA8(this)) {
                     HitInfo_unk* skill = fn_80219344(this, 5);
                     m63C = m638;
                     m638 = skill;
@@ -465,15 +429,15 @@ static inline void ViewDir_unk(atn::Vector3& dir, atn::RenderManager* camera) {
 }
 // inferred: looks for the character under the camera ray
 void BattleCharaTask::fn_800E3F5C() {
-    Field_unk* field = lbl_8087F430;
+    GameTask* field = lbl_8087F430;
     if (field == 0 || lbl_8087F048 == 0) {
         return;
     }
     atn::ColliBase* obj = 0;
     int enemy = 0;
     int b = 0;
-    BattleArea_unk* area = field->m10D8;
-    int mode = field->m868;
+    GameScene* area = field->m10D8;
+    int mode = field->mCamera.m7FC;
     if (!(mode != 3 && mode != 4)) {
         atn::RenderManager* camera = atn::RenderManager::instance_;
         atn::Vector3 from = fn_8017C9AC(this);
@@ -485,7 +449,7 @@ void BattleCharaTask::fn_800E3F5C() {
         atn::Vector3 to = from + dir * range;
         atn::ColliResult_unk result;
         unsigned int mask = 4;
-        if (area != 0 && area->m64 != 0 && area->m64->m48 == 1) {
+        if (area != 0 && area->m64 != 0 && area->m64->mType == 1) {
             mask = 0x10;
         }
         int found = 0;
@@ -530,7 +494,8 @@ inline atn::Vector3 NodePos_unk(MtxPtr m) {
 }
 
 extern "C" float fn_800A56A8(void* pad, int port, int axis, int arg); // inferred: stick axis (as in game/GameTask.cpp)
-extern "C" void* lbl_8087EF70; // inferred: pad of the stick
+struct Pad_unk;
+extern "C" Pad_unk* lbl_8087EF70; // inferred: pad of the stick
 // inferred: target in front of the character for the cover actions (game/BattleTask.cpp, BattleAim_unk)
 extern "C" int fn_80211734(HitInfo_unk* item);                 // inferred: infinite item
 extern "C" void fn_8044441C(Inventory* inv, int id, int num);  // inferred: removes items
@@ -735,7 +700,7 @@ void BattleCharaTask::fn_800E4278(GameTask* task) {
                         fn_80153FA0();
                     }
                     if (!mFlag6 && !HasC48_unk() && m139C == 0 && fn_80153B44() != 0 &&
-                        !lbl_8087F0A8->mInput.fn_80124B60() && ((GameTask*)lbl_8087F430)->fn_80370174(0xD0) == 0) {
+                        !lbl_8087F0A8->mInput.fn_80124B60() && lbl_8087F430->fn_80370174(0xD0) == 0) {
                         GameUI* hud = lbl_8087F490;
                         GameUIElem1C_unk hint;
                         hint.m00 = 0xD;
@@ -878,7 +843,7 @@ void BattleCharaTask::fn_800E4278(GameTask* task) {
         if (hud->m7C0.m00 == 0xD ||
             (hud->m7C0.m00 == -1 && !mFlag6 && !HasC48_unk() && !mFlag31 && !lbl_8087F0A8->mInput.fn_80124B60())) {
             if (lbl_8087F430 != 0 && lbl_8087F490 != 0) {
-                scene = ((GameTask*)lbl_8087F430)->m10D8;
+                scene = lbl_8087F430->m10D8;
                 if (scene != 0 && !scene->fn_803CCC4C() && scene->fn_803CC77C() > 0 && !mFlag3) {
                     GameUIElem1C_unk& hint = hud->m7C0;
                     hint.m00 = 0x11;
@@ -888,7 +853,7 @@ void BattleCharaTask::fn_800E4278(GameTask* task) {
         }
         if (task->fn_80370174(0x8F) == 1 && task->fn_80370174(0xA9) == 0 && (mFlag6 || HasC48_unk()) &&
             mMotion.mTracks[0].m10 >= 0.99f) {
-            ((GameTask*)lbl_8087F430)->fn_80370320(0xA9, 1, 0);
+            lbl_8087F430->fn_80370320(0xA9, 1, 0);
         }
     } else if (m55C == 6) {
         switch (m560) {
@@ -926,9 +891,9 @@ void BattleCharaTask::fn_800E4278(GameTask* task) {
         default:
             if (m648 != 0) {
                 if (m648->m04 == 0) {
-                    fn_800E62AC((Field_unk*)task, a, b);
+                    fn_800E62AC((GameTask*)task, a, b);
                 } else if (m648->m04 == 1) {
-                    fn_800E7650((Field_unk*)task, a, b);
+                    fn_800E7650((GameTask*)task, a, b);
                 }
             } else if (mFlag6) {
                 if (!lbl_8087F0A8->mInput.fn_801240B4(0x12)) {
@@ -1011,9 +976,9 @@ void BattleCharaTask::fn_800E589C() {
             m1188.SetMotion(200, false, false, false, 1.0f, 0.0f);
         }
         fn_80139560();
-        if (grappled && (m55C != 6 || m560 != 28) && lbl_8087F430 != 0 && lbl_8087F430->m868 == 6) {
-            ((GameTask*)lbl_8087F430)->fn_803748E0(1);
-            lbl_8087F430->m94C = 1;
+        if (grappled && (m55C != 6 || m560 != 28) && lbl_8087F430 != 0 && lbl_8087F430->mCamera.m7FC == 6) {
+            lbl_8087F430->fn_803748E0(1);
+            lbl_8087F430->mCamera.m8E0 = 1;
         }
         break;
     case 1: {
@@ -1165,7 +1130,7 @@ void BattleCharaTask::fn_800E610C() {
     atn::Vector3 front(0.0f, 0.0f, 1.0f);
     RotateY_unk(front, mRot.y);
     if (PSVECDotProduct(&front, &input) < (float)cos(0.5235987901687622) || !fn_8016AFE8(front)) {
-        int mode = lbl_8087F0A8->mSurroundMode;
+        int mode = lbl_8087F0A8->mSurround.mMode;
         if (!mFlag10 || mode != 1) {
             atn::Vector3 dir(0.0f, 0.0f, 1.0f);
             Mtx m3;
@@ -1203,11 +1168,11 @@ inline float HpRate_unk(CharaTask* c) {
 // NONMATCHING: 98.7% - the flag word is not reloaded before clearing mFlag5; registers of the magic slot
 // inferred: input of the player in the field: cursor of the field at full life, lock-on, crossbow,
 // attacks (fn_800E73EC) and the skills of the special button
-void BattleCharaTask::fn_800E62AC(Field_unk* field, int a, int b) {
+void BattleCharaTask::fn_800E62AC(GameTask* field, int a, int b) {
     GameConfig_unk* config = lbl_8087F0A8;
     int attack = 1;
-    if (lbl_8087F610 == 0 && ((GameTask*)lbl_8087F430)->fn_80375184() && atn::Abs_unk(HpRate_unk(this) - 1.0f) < 1.1920929e-7f &&
-        ((GameTask*)lbl_8087F430)->fn_80370174(0x88) == 0 && lbl_8087F0A8->mInput.fn_801231D0(0x31)) {
+    if (lbl_8087F610 == 0 && lbl_8087F430->fn_80375184() && atn::Abs_unk(HpRate_unk(this) - 1.0f) < 1.1920929e-7f &&
+        lbl_8087F430->fn_80370174(0x88) == 0 && lbl_8087F0A8->mInput.fn_801231D0(0x31)) {
         int cursor = 0;
         if (m55C == 1) {
             cursor = 1;
@@ -1226,7 +1191,7 @@ void BattleCharaTask::fn_800E62AC(Field_unk* field, int a, int b) {
             cursor = 0;
         }
         if (cursor) {
-            ((GameTask*)lbl_8087F430)->fn_80373FC4();
+            lbl_8087F430->fn_80373FC4();
             return;
         }
     }
@@ -1268,7 +1233,7 @@ void BattleCharaTask::fn_800E62AC(Field_unk* field, int a, int b) {
         if (m1424 > 0) {
             m1424--;
         }
-        CameraSub_unk* camera = &field->m006C;
+        GameCamera* camera = &field->mCamera;
         if (mFlag27) {
             mFC0 = 0;
             attack = 0;
@@ -1489,12 +1454,12 @@ int BattleCharaTask::fn_800E7214(CharaTask** out, int keep) {
     return 0;
 }
 
-int BattleCharaTask::fn_800E73EC(Field_unk* field, int b, int c) {
+int BattleCharaTask::fn_800E73EC(GameTask* field, int b, int c) {
     GameConfig_unk* config = lbl_8087F0A8;
-    void* obj = &field->m006C;
+    GameCamera* obj = &field->mCamera;
     int ret = 1;
     if (config->mInput.fn_801231D0(0x11)) {
-        ((GameCamera*)obj)->fn_8037EF30(0, 1, -1.0f);
+        obj->fn_8037EF30(0, 1, -1.0f);
         mFC0 = 0;
     }
     if (lbl_8087F0A8->mInput.fn_801240B4(0x12) && !mFlagB9) {
@@ -1503,8 +1468,8 @@ int BattleCharaTask::fn_800E73EC(Field_unk* field, int b, int c) {
         }
     } else if ((lbl_8087F0A8->mInput.fn_801240B4(7) || mFlagB16) && (!mFlag31 || !mFlag30) && !mFlagB9) {
         fn_800C344C(sBattleSe_unk[0], &mPos, 0, -1, 1.0f);
-        if (((GameTask*)lbl_8087F430)->fn_80370174(0xEF) == 0 && ((GameTask*)lbl_8087F430)->fn_80370174(0xEE) == 1) {
-            ((GameTask*)lbl_8087F430)->fn_80370320(0xEF, 1, 0);
+        if (lbl_8087F430->fn_80370174(0xEF) == 0 && lbl_8087F430->fn_80370174(0xEE) == 1) {
+            lbl_8087F430->fn_80370320(0xEF, 1, 0);
         }
         if (mFC0 == 0) {
             if (mFC4 != 0) {
@@ -1529,9 +1494,9 @@ int BattleCharaTask::fn_800E73EC(Field_unk* field, int b, int c) {
     return ret;
 }
 
-void BattleCharaTask::fn_800E7650(Field_unk* field, int, int) {
+void BattleCharaTask::fn_800E7650(GameTask* field, int, int) {
     GameConfig_unk* config = lbl_8087F0A8;
-    void* obj = &field->m006C;
+    GameCamera* obj = &field->mCamera;
     mFlag5 = 0;
     if (m55C != 1) {
         mFlag4 = 0;
@@ -1546,7 +1511,7 @@ void BattleCharaTask::fn_800E7650(Field_unk* field, int, int) {
         mFlag5 = 0;
         mFlag4 = 0;
         if (lbl_8087F0A8->mInput.fn_801231D0(0x11)) {
-            ((GameCamera*)obj)->fn_8037EF30(0, 1, -1.0f);
+            obj->fn_8037EF30(0, 1, -1.0f);
         }
     } else if (mFlag31) {
         mFC0 = 0;
@@ -1559,7 +1524,7 @@ void BattleCharaTask::fn_800E7650(Field_unk* field, int, int) {
         }
     } else if (mFlag4) {
         if (lbl_8087F0A8->mInput.fn_801231D0(0x16)) {
-            int mode = lbl_8087F0A8->mSurroundMode;
+            int mode = lbl_8087F0A8->mSurround.mMode;
             if (!mFlag10 || mode != 1) {
                 atn::Vector3 dir(0.0f, 0.0f, 1.0f);
                 atn::Vector3 rot = fn_80178018();
@@ -1589,12 +1554,12 @@ void BattleCharaTask::fn_800E7650(Field_unk* field, int, int) {
         mFC0 = 0;
         mFlag4 = 0;
         if (lbl_8087F0A8->mInput.fn_801231D0(0x11)) {
-            ((GameCamera*)obj)->fn_8037EF30(0, 1, -1.0f);
+            obj->fn_8037EF30(0, 1, -1.0f);
             mFC0 = 0;
         } else if (lbl_8087F0A8->mInput.fn_801240B4(7)) {
             fn_800C344C(sBattleSe_unk[0], &mPos, 0, -1, 1.0f);
-            if (((GameTask*)lbl_8087F430)->fn_80370174(0xEF) == 0 && ((GameTask*)lbl_8087F430)->fn_80370174(0xEE) == 1) {
-                ((GameTask*)lbl_8087F430)->fn_80370320(0xEF, 1, 0);
+            if (lbl_8087F430->fn_80370174(0xEF) == 0 && lbl_8087F430->fn_80370174(0xEE) == 1) {
+                lbl_8087F430->fn_80370320(0xEF, 1, 0);
             }
             if (mFC0 == 0) {
                 BattleTask* mgr = lbl_8087F048;
@@ -1602,7 +1567,7 @@ void BattleCharaTask::fn_800E7650(Field_unk* field, int, int) {
                 mFC0 = mgr->fn_800FFE68(this, &dir, 0, 1, config->mLockOnLen, config->mLockOnTheta);
             }
             mFlag4 = 1;
-            ((GameCamera*)obj)->fn_8037EF30(0, 1, -1.0f);
+            obj->fn_8037EF30(0, 1, -1.0f);
         } else if (lbl_8087F0A8->mInput.fn_801240B4(0x12)) {
             fn_80155DAC(1);
         }
@@ -1663,7 +1628,7 @@ void BattleCharaTask::fn_800E7BB0() {
         switch (skill) {
         case 0x1774:
         case 0x1775:
-            if (lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->fn_8036DAA8(this)) {
+            if (lbl_8087F430 != 0 && lbl_8087F430->fn_8036DAA8(this)) {
                 fn_80178208(new ((MemoryTag)0, "", "", 0) chr::ControlOverdrive(this, skill));
             }
             break;
@@ -1820,7 +1785,7 @@ void BattleCharaTask::vf44() {
         m1434 = 30;
     }
     if (lbl_8087F430 != 0) {
-        ((GameTask*)lbl_8087F430)->fn_80375184();
+        lbl_8087F430->fn_80375184();
     }
     m1470 = 0;
 }
@@ -1915,7 +1880,7 @@ void BattleCharaTask::fn_800E8688(int id, int b, CharaTask* target, const atn::V
         case 2: {
             mPos += mC48 == 1 ? mC14 * -5.0f : mC14 * 5.0f;
             atn::Vector3 dir;
-            dir = lbl_8087F430->m006C.m14 - lbl_8087F430->m006C.m08;
+            dir = lbl_8087F430->mCamera.mCamera.mTarget - lbl_8087F430->mCamera.mCamera.mPos;
             PSVECNormalize(&dir, &dir);
             dir *= 80.0f;
             found = 1;
@@ -1926,7 +1891,7 @@ void BattleCharaTask::fn_800E8688(int id, int b, CharaTask* target, const atn::V
         }
         case 3: {
             atn::Vector3 dir;
-            dir = lbl_8087F430->m006C.m14 - lbl_8087F430->m006C.m08;
+            dir = lbl_8087F430->mCamera.mCamera.mTarget - lbl_8087F430->mCamera.mCamera.mPos;
             PSVECNormalize(&dir, &dir);
             dir *= 80.0f;
             found = 1;
@@ -2077,7 +2042,7 @@ void BattleCharaTask::fn_800E9110() {
         pos = mPos + front * 0.1f;
     }
     if (mFlag6) {
-        ((GameCamera*)&lbl_8087F430->m006C)->fn_80389838(3);
+        lbl_8087F430->mCamera.fn_80389838(3);
     }
     fn_8015F568(pos, 0, hit);
     mFC0 = 0;
@@ -2085,9 +2050,9 @@ void BattleCharaTask::fn_800E9110() {
 }
 
 // inferred: direction of the aim camera (name invented)
-inline atn::Vector3 AimDir_unk(Field_unk* field) {
+inline atn::Vector3 AimDir_unk(GameTask* field) {
     atn::Vector3 dir;
-    dir = field->m006C.m208 - field->m006C.m1FC;
+    dir = field->mCamera.m1F4.mTarget - field->mCamera.m1F4.mPos;
     PSVECNormalize(&dir, &dir);
     return dir;
 }
@@ -2145,7 +2110,7 @@ void BattleCharaTask::fn_800E932C(atn::Vector3* pos, atn::Vector3* dir, int from
                 pos->z += -shift * (float)sin(mRot.y);
             }
         } else {
-            Field_unk* field = lbl_8087F430;
+            GameTask* field = lbl_8087F430;
             *dir = AimDir_unk(field);
             *pos = fn_8017C9AC(this);
             if (m648 != 0 && m648->m04 != 0) {
@@ -2171,7 +2136,7 @@ void BattleCharaTask::fn_800E932C(atn::Vector3* pos, atn::Vector3* dir, int from
             }
         }
     } else if (mFlag6) {
-        Field_unk* field = lbl_8087F430;
+        GameTask* field = lbl_8087F430;
         *dir = AimDir_unk(field);
         *pos = fn_8017C9AC(this);
         if (m648 != 0) {
@@ -2331,9 +2296,9 @@ void BattleCharaTask::fn_800E9ED8() {
                     grappled = 1;
                 }
                 fn_80139560();
-                if (grappled && (m55C != 6 || m560 != 28) && lbl_8087F430 != 0 && lbl_8087F430->m868 == 6) {
-                    ((GameTask*)lbl_8087F430)->fn_803748E0(1);
-                    lbl_8087F430->m94C = 1;
+                if (grappled && (m55C != 6 || m560 != 28) && lbl_8087F430 != 0 && lbl_8087F430->mCamera.m7FC == 6) {
+                    lbl_8087F430->fn_803748E0(1);
+                    lbl_8087F430->mCamera.m8E0 = 1;
                 }
             } else {
                 fn_80139560();
@@ -2494,8 +2459,8 @@ void BattleCharaTask::vfEC() {
             mColli.mFlags &= ~1;
             if (mStatus.m224 <= 0) {
                 fn_800D246C(1);
-                if (((GameTask*)lbl_8087F430)->fn_80370174(0x66) == 0) {
-                    ((GameTask*)lbl_8087F430)->fn_80370C6C();
+                if (lbl_8087F430->fn_80370174(0x66) == 0) {
+                    lbl_8087F430->fn_80370C6C();
                 }
             } else {
                 m1450 = 30;
@@ -2518,7 +2483,7 @@ void BattleCharaTask::vfF0() {
     if (((const BattleCharaTask*)this)->mFlag16) {
         if (mF50 == 0 && !fn_80175AEC() && !(m55C == 6 && m560 == 0x65)) {
             if (m1450 > 0) {
-                if (lbl_8087F430 == 0 || ((GameTask*)lbl_8087F430)->fn_80370174(0xAC) == 0) {
+                if (lbl_8087F430 == 0 || lbl_8087F430->fn_80370174(0xAC) == 0) {
                     m1450--;
                 }
                 if (m1450 == 0) {
@@ -2528,8 +2493,8 @@ void BattleCharaTask::vfF0() {
                     }
                     DamageResult_unk result;
                     fn_8003EA3C(&result, data, this, this, 0, &lbl_807C6B90, 0, 0);
-                    if (mType == 3 && lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->fn_80370174(5) == 0) {
-                        ((GameTask*)lbl_8087F430)->fn_803750E4(0x1B7);
+                    if (mType == 3 && lbl_8087F430 != 0 && lbl_8087F430->fn_80370174(5) == 0) {
+                        lbl_8087F430->fn_803750E4(0x1B7);
                     }
                 }
             } else if (mStatus.m224 <= 0) {
@@ -2590,9 +2555,9 @@ void BattleCharaTask::vfE8(HitMsg_unk* msg) {
         if (before > 0.3f && after < 0.3f) {
             lbl_8087F490->fn_803E2110(3, this); // 3: low hit points
         }
-        if (((GameTask*)lbl_8087F430)->fn_80370174(0x38A) == 1 && msg->mAttacker != 0 && msg->mAttacker->mType == 0 &&
-            ((GameTask*)lbl_8087F430)->fn_80370A78(0xFA) == 0) {
-            Field_unk* field = lbl_8087F430;
+        if (lbl_8087F430->fn_80370174(0x38A) == 1 && msg->mAttacker != 0 && msg->mAttacker->mType == 0 &&
+            lbl_8087F430->fn_80370A78(0xFA) == 0) {
+            GameTask* field = lbl_8087F430;
             ((GameTask*)field)->fn_80370AE4(0xFA, fn_80219558(m50));
         }
     }
@@ -2687,12 +2652,12 @@ void BattleCharaTask::fn_800EB4AC() {
 
 // inferred: experience of the kill (popup text and the inventory)
 void BattleCharaTask::fn_800EB7A0() {
-    if (lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->fn_803754F0() != 0) {
+    if (lbl_8087F430 != 0 && lbl_8087F430->fn_803754F0() != 0) {
         return;
     }
     if (lbl_8087F0A8->mAddExpImmediately != 0 && lbl_8087F610 == 0 && !mFlag16 && mType == 2 &&
         (mStatus.m0C & 0x100) != 0x100 && (mStatus.m0C & 0x10000) != 0x10000) {
-        CharaTask* killer = (CharaTask*)m13B0;
+        CharaTask* killer = m13B0;
         if (killer != 0 && killer->mType == 2 && (killer->mStatus.m0C & 0x10000) != 0x10000) {
             return;
         }
@@ -2704,7 +2669,7 @@ void BattleCharaTask::fn_800EB7A0() {
         int cap = 4;
         fn_804491F4(&a, &b, level, exp, 0, 1.0f);
         if (lbl_8087F430 != 0) {
-            cap = ((GameTask*)lbl_8087F430)->fn_80375D0C();
+            cap = lbl_8087F430->fn_80375D0C();
         }
         if (level > cap && lbl_8087F0A8->mCurrentLevel == 3) {
             cap = level;
@@ -2718,7 +2683,7 @@ void BattleCharaTask::fn_800EB7A0() {
             kind = 2;
             rate *= lbl_8087F0A8->mPickSucceedBounus;
             if (lbl_8087F430 != 0) {
-                ((GameTask*)lbl_8087F430)->fn_803750E4(0xEB);
+                lbl_8087F430->fn_803750E4(0xEB);
             }
         }
         if (fn_8017CB2C()) {
@@ -2887,7 +2852,7 @@ int BattleCharaTask::fn_800EE180() {
     if ((mStatus.m0C & 0x2000) == 0x2000) {
         return 0;
     }
-    if (lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->fn_803761BC() == 0) {
+    if (lbl_8087F430 != 0 && lbl_8087F430->fn_803761BC() == 0) {
         return 0;
     }
     return 1;
@@ -2897,7 +2862,7 @@ void BattleCharaTask::fn_800EE360() {
     if (lbl_8087F610 != 0 && fn_804EB1AC(lbl_8087F610) == 0) {
         return;
     }
-    if (mFlag22 != 1 && lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->fn_80370174(0x399) > 0) {
+    if (mFlag22 != 1 && lbl_8087F430 != 0 && lbl_8087F430->fn_80370174(0x399) > 0) {
         return;
     }
     if (((unsigned int)m5C->mParam.m9C & 0x4000) == 0x4000) {
@@ -2908,7 +2873,7 @@ void BattleCharaTask::fn_800EE360() {
         m1438->mFlags &= ~4;
         GimmickMsg_unk msg;
         msg.mType = 3;
-        msg.m10 = (int)this;
+        msg.m10 = this;
         ((GimmickCommon*)m1438)->vf40(&msg);
     }
 }
@@ -3133,8 +3098,8 @@ int BattleCharaTask::fn_800EE794(SkillEffect* effect) {
 }
 
 int BattleCharaTask::fn_800EEFDC() {
-    if (m50 == 0x189C1 && lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->GetCurrentMap() != 0) {
-        MapTask* info = ((GameTask*)lbl_8087F430)->GetCurrentMap();
+    if (m50 == 0x189C1 && lbl_8087F430 != 0 && lbl_8087F430->GetCurrentMap() != 0) {
+        MapTask* info = lbl_8087F430->GetCurrentMap();
         if (info->mType == 2 && info->mId == 0xD) {
             return 0;
         }

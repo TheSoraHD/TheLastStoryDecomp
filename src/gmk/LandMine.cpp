@@ -1,3 +1,5 @@
+#include "atn/EffectManager.h"
+#include "game/GameConfig_unk.h"
 #include "gmk/LandMine.h"
 #include "atn/Csv.h"
 #include "atn/Memory.h"
@@ -12,27 +14,17 @@ extern "C" float fn_800DC288(const char* s); // inferred: string to float
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
 
-// inferred: effect manager (class unknown), global instance at 0x8087F3C0
-struct EffectMgr_unk {
-    unsigned char m00[0xB8];
-    int mB8;
-};
 struct Color4f_unk {
     Color4f_unk() {}
     float r, g, b, a;
 };
-extern "C" EffectMgr_unk* lbl_8087F3C0;
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
+extern "C" atn::EffectManager* lbl_8087F3C0;
+extern "C" void fn_8023A8B4(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Model* model, void* node,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
-extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
+extern "C" void fn_80239DAC(atn::EffectManager* mgr, void* owner, int id, int arg); // inferred: stops an effect
 extern "C" void fn_80232B7C(void* owner, int arg);
-// inferred: game settings
-struct Settings_unk {
-    unsigned char m00[0x18];
-    int m18;
-};
-extern "C" Settings_unk* lbl_8087F0A8;
+extern "C" GameConfig_unk* lbl_8087F0A8;
 // inferred: player character in the list of the player manager
 struct MinePlayer_unk {
     unsigned char m000[0x528];
@@ -111,7 +103,7 @@ void LandMine::Start() {
     mBulletId = mDesc->m24;
     mColli.mSphere = atn::ColliSphere::Sphere_unk(m6C, mColliRadius);
     mColli.mFlags |= 8;
-    mColli.m0C = (int)this;
+    mColli.m0C = this;
 }
 
 void LandMine::vf10() {
@@ -151,7 +143,7 @@ void LandMine::vf10() {
 }
 
 void LandMine::vf14() {
-    if (m54 == 2 && lbl_8087F0A8->m18 != 0 && mHasModel != 0 && vf38() != 0) {
+    if (m54 == 2 && lbl_8087F0A8->mDrawMap != 0 && mHasModel != 0 && vf38() != 0) {
         fn_803ED774(vf38());
     }
 }
@@ -171,7 +163,7 @@ int LandMine::vf40(GimmickMsg_unk* msg) {
     case 2:
         if (mHasModel != 0 && mEfpWait.mResource != 0 && lbl_8087F3C0 != 0) {
             fn_80239DAC(lbl_8087F3C0, this, 0, 1);
-            lbl_8087F3C0->mB8 = 1;
+            lbl_8087F3C0->mSystem.mLayer = 1;
             fn_80232B7C(this, 0);
             Color4f_unk color;
             atn::Vector3 rot;
@@ -187,7 +179,7 @@ int LandMine::vf40(GimmickMsg_unk* msg) {
             color.b = 1.0f;
             color.a = 1.0f;
             fn_8023A8B4(lbl_8087F3C0, &mEfpWait, &mModel, 0, pos, rot, color, -1, -1, 1, 1.0f);
-            lbl_8087F3C0->mB8 = 0;
+            lbl_8087F3C0->mSystem.mLayer = 0;
         }
         break;
     }

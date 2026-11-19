@@ -1,3 +1,4 @@
+#include "atn/RenderSetting_unk.h"
 #include "game/Em205Ogre.h"
 #include "math/VecAssign_unk.h"
 #include "game/GameTask.h"
@@ -25,23 +26,19 @@ extern "C" int rand();
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
 struct HomingParam_unk;
 // inferred: effect manager (class unknown), global instance at 0x8087F3C0
-struct EffectMgr_unk;
-extern "C" EffectMgr_unk* lbl_8087F3C0;
-extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
+namespace atn {
+class EffectManager;
+}
+extern "C" atn::EffectManager* lbl_8087F3C0;
+extern "C" void fn_80239DAC(atn::EffectManager* mgr, void* owner, int id, int arg); // inferred: stops an effect
 extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the next effects
 // inferred: plays an effect resource (as in game/ColliAttrManager.cpp; the color is passed as null here)
-extern "C" void fn_8023A680(EffectMgr_unk* mgr, atn::EffFile* res, int a, int b, void* mtx, const atn::Vector3* pos,
+extern "C" void fn_8023A680(atn::EffectManager* mgr, atn::EffFile* res, int a, int b, void* mtx, const atn::Vector3* pos,
                             const atn::Vector3* rot, const void* color, float scale, int e, int f, int g);
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
 extern "C" void fn_800CB6B0(atn::SoundRef* sound, int arg, float distance); // inferred: sets the distance
-// inferred: frame time (as in game/CharaStatus.cpp)
-struct FrameTime_unk {
-    unsigned char m000[0x3A4];
-    float m3A4; // inferred: time of a frame
-};
-extern "C" FrameTime_unk* lbl_8087EFA8;
-struct Field_unk;
-extern "C" Field_unk* lbl_8087F430;
+extern "C" RenderSetting_unk* lbl_8087EFA8;
+extern "C" GameTask* lbl_8087F430;
 
 
 // inferred: node position (name invented, as in game/Em209BigGolem.cpp)
@@ -122,8 +119,8 @@ Em205Ogre::Em205Ogre(atn::Task* parent, EnemyInfo_unk* info)
         sprintf(path, "/database/chara/special/db_em205_00_00.csv\0");
     }
     m14B4.vf0C(path);
-    if (lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->GetCurrentMap() != 0) {
-        MapTask* map = ((GameTask*)lbl_8087F430)->GetCurrentMap();
+    if (lbl_8087F430 != 0 && lbl_8087F430->GetCurrentMap() != 0) {
+        MapTask* map = lbl_8087F430->GetCurrentMap();
         if (map->mType == 2 && map->mId == 10 && map->mSubId == 2) {
             m1514.reset(new ((MemoryTag)3, "", "", 0) atn::EffFile());
             m1514->LoadRequest("/data/eff/gm001_000a02.eff");

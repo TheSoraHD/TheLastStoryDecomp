@@ -1,3 +1,4 @@
+#include "game/GameConfig_unk.h"
 #include "gmk/FlyObjManager.h"
 #include "game/PopupTask.h"
 #include "game/Inventory.h"
@@ -18,12 +19,7 @@ extern "C" float PSVECMag(const atn::Vector3* v);
 extern "C" void PSVECNormalize(const atn::Vector3* src, atn::Vector3* dst);
 extern "C" atn::Matrix3x4 lbl_807C7060; // inferred: identity matrix
 extern "C" int fn_802180A8(const char* s); // inferred: motion id from its name
-// inferred: debug settings
-struct FlyDebug_unk {
-    unsigned char m00[0x18];
-    int m18; // inferred: draw
-};
-extern "C" FlyDebug_unk* lbl_8087F0A8;
+extern "C" GameConfig_unk* lbl_8087F0A8;
 // inferred: item manager and popup text (classes unknown)
 extern "C" void fn_804491F4(int* a, int* b, int arg2, int arg3, int arg4, float rate);
 
@@ -104,7 +100,7 @@ inline void FlyObj::Start_unk(const atn::Vector3& pos, const atn::Vector3& vel) 
     mPos = pos;
     mVel = vel;
     mColli.mFlags = (mColli.mFlags & ~1) | 8;
-    mColli.m0C = (int)mOwner;
+    mColli.m0C = mOwner;
 }
 
 inline int FlyObjManager::FindNearest_unk(const atn::Vector3& pos) {
@@ -131,7 +127,7 @@ FlyObj::FlyObj() : mRadius(3.0f), mModel(8, 32), mPos(0.0f, 0.0f, 0.0f), mRot(0.
     mState = 1;
     mVel = mVel;
     mColli.mFlags = (mColli.mFlags & ~1) | 8;
-    mColli.m0C = (int)mOwner;
+    mColli.m0C = mOwner;
 }
 
 FlyObj::~FlyObj() {}
@@ -235,7 +231,7 @@ void FlyObjManager::vf14() {
     if (mDesc->m7C != 0 && mPhase == 3) {
         for (unsigned int i = 0; i < mCount; i++) {
             FlyObj* obj = &mObjs.mData[i];
-            if (obj->mState > 1 && (obj->mState != 3 || obj->mTimer >= 0) && lbl_8087F0A8->m18 != 0) {
+            if (obj->mState > 1 && (obj->mState != 3 || obj->mTimer >= 0) && lbl_8087F0A8->mDrawMap != 0) {
                 obj->mModel.fn_8008CD60();
             }
         }

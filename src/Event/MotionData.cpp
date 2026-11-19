@@ -13,6 +13,7 @@
 #include "std/string_members.h"
 #include "atn/DrawHelper.h"
 #include "atn/D2A_Task.h"
+#include "atn/D2A_TaskApi_unk.h"
 
 extern "C" char* strstr(const char* s, const char* sub);
 extern "C" int sprintf(char* buf, const char* fmt, ...);

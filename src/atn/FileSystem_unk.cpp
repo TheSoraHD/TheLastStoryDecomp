@@ -6,10 +6,9 @@
 #include <string.h>
 #include <ctype.h>
 #include "std/string.h"
+#include "atn/DebugMessages_unk.h"
 
 extern "C" int sprintf(char* s, const char* format, ...);
-struct DebugMessages_unk { void fn_800698DC(const char* path); }; // inferred: see atn/FileUtil_unk.cpp
-extern "C" DebugMessages_unk* lbl_8087EEB8;                                 // inferred: listener of failed loads
 extern "C" int DVDConvertPathToEntrynum(const char* name);                  // inferred: opens the archive file
 extern "C" std::string fn_8006AC08(const std::string& path);     // inferred: extension of a path
 

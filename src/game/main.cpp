@@ -1,6 +1,7 @@
 // inferred file name (splits-auto): entry point of the game. main() runs the start-up (fn_8047A4C8)
 // and then the frame loop, which times each part of the frame into HeapInfo_unk and calls the
 // per-frame callbacks registered in lbl_8087EE94 (bound members of ResetShutdown/ErrorManager).
+#include "Event/Manager.h"
 #include "atn/Array_unk.h"
 #include "atn/MemoryManager.h"
 #include "atn/Memory.h"
@@ -31,6 +32,8 @@ extern "C" unsigned long strlen(const char* s);
 #include "game/ErrorManager.h"
 #include "game/HomeButtonMenu.h"
 #include "game/GameConfig_unk.h"
+#include "atn/DebugMessages_unk.h"
+#include "atn/WPad_unk.h"
 extern "C" void fn_80363CE4(); // inferred: creates the ErrorManager singleton
 
 // inferred: HOME button menu (game/HomeButtonMenu.cpp), only the members used here
@@ -46,33 +49,13 @@ public:
     static SetConfig* sInstance;
 };
 
-struct DebugMessages_unk {
-    void fn_80069E50(int arg);
-};
-extern "C" DebugMessages_unk* lbl_8087EEB8;
 
-// inferred: dialog game object (float at 0x1EB4: frame rate shown)
-struct MainDialog_unk {
-    unsigned char m0000[0x1EB4];
-    float m1EB4;
-};
-extern "C" MainDialog_unk* lbl_8087F540;
+extern "C" Event::Manager* lbl_8087F540;
 
-struct MainLoadMgr_unk {
-    unsigned char m0000[0x3ED8];
-    int m3ED8;
-};
-extern "C" MainLoadMgr_unk* lbl_8087F518;
-extern "C" void fn_8046F014(MainLoadMgr_unk* mgr);
-extern "C" void fn_8046F2C4(MainLoadMgr_unk* mgr);
+#include "atn/LoadManager.h"
+extern "C" atn::Loader* lbl_8087F518;
 
-struct MainSound_unk {
-    unsigned char m0000[0x40D4];
-    int m40D4;
-    int m40D8;
-    int m40DC;
-};
-extern "C" MainSound_unk* lbl_8087F018;
+extern "C" WPad_unk* lbl_8087F018;
 
 
 namespace atn {
@@ -82,9 +65,14 @@ public:
 };
 } // namespace atn
 
-extern "C" void* lbl_8087EEE0;
-extern "C" void* lbl_8087EF70;
-extern "C" void* lbl_8087EE98;
+namespace atn {
+struct GraphicsDevice_unk;
+}
+extern "C" atn::GraphicsDevice_unk* lbl_8087EEE0;
+struct Pad_unk;
+extern "C" Pad_unk* lbl_8087EF70;
+struct ColliManager_unk;
+extern "C" ColliManager_unk* lbl_8087EE98;
 extern "C" void* lbl_8087EE90;
 extern "C" void fn_8006BA54(unsigned char lang);
 extern "C" void fn_80071220();
@@ -92,7 +80,6 @@ extern "C" void fn_800713D4(void* obj, int w, int h);
 extern "C" void fn_80089620();
 extern "C" void fn_800B95C4();
 extern "C" void fn_800696C8();
-extern "C" void fn_8046D7D8(atn::Task* root);
 extern "C" void fn_800BC798();
 extern "C" void fn_80239794(int a, int b, int c, int d);
 extern "C" void fn_8004C9B4();
@@ -267,9 +254,9 @@ void fn_8047A4C8() {
     fn_8004C9B4();
     fn_800A5508();
     if (lbl_8087F018 != 0) {
-        lbl_8087F018->m40D4 = 0;
-        lbl_8087F018->m40D8 = 0;
-        lbl_8087F018->m40DC = 0;
+        lbl_8087F018->m40D0[1] = 0;
+        lbl_8087F018->m40D0[2] = 0;
+        lbl_8087F018->m40D0[3] = 0;
     }
     fn_800463A8();
     fn_800CCBA4();

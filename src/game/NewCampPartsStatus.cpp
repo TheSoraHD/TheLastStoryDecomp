@@ -1,3 +1,4 @@
+#include "db/CharaIdTable_unk.h"
 #include "game/NewCampPartsStatus.h"
 #include "game/GameTask.h"
 #include "game/NewCampTask.h"
@@ -13,6 +14,7 @@
 #include "game/PlayerManager.h"
 #include "std/string_members.h"
 #include "atn/D2A_TaskInstanceC.h"
+#include "game/MenuCommonTask.h"
 
 extern "C" int sprintf(char* s, const char* format, ...);
 extern "C" int strcmp(const char* a, const char* b);
@@ -23,9 +25,10 @@ extern "C" const wchar_t* fn_80116FC0(int a, int id); // inferred: message text
 extern "C" atn::SoundRef fn_80117228(int id);        // inferred: plays a system sound effect
 extern "C" void fn_800D2338(atn::Task* task);        // inferred: deletes the task
 extern "C" void* fn_8008937C(void* menu, const char* name); // inferred: debug menu group
-extern "C" void fn_80087E9C(void* group, const char* name, atn::Vector3* value, int arg3, int arg4, float min,
-                            float max, float step);
-extern "C" void* lbl_8087EF70;
+extern "C" void fn_80087E9C(void* group, const char* name, atn::Vector3* value, float min, float max, float step,
+                            void* func, void* arg);
+struct Pad_unk;
+extern "C" Pad_unk* lbl_8087EF70;
 extern "C" int fn_800A555C(void* pad, int port, int button); // inferred: button triggered
 extern "C" int fn_800A55AC(void* pad, int port, int button); // inferred: button repeated
 extern "C" int fn_800A58D0(void* pad, int port);
@@ -83,21 +86,12 @@ struct NewCampStatusHelp_unk {
 extern "C" NewCampStatusHelp_unk* fn_8021F09C(int id);
 
 // inferred: field (lbl_8087F430)
-struct NewCampStatusField_unk;
-extern "C" NewCampStatusField_unk* lbl_8087F430;
+extern "C" GameTask* lbl_8087F430;
 
 // inferred: characters (fn_8000D9E8 returns the manager lbl_8087F8A0)
 extern "C" void* fn_8000D9E8();
-// inferred: character name data (fn_8020924C)
-struct NewCampStatusName_unk {
-    unsigned char m00[8];
-    const wchar_t* mName; // 0x08
-    unsigned char m0C[0x14 - 0x0C];
-    int m14;
-};
 extern "C" int fn_80219544(int chara);
-extern "C" NewCampStatusName_unk* fn_8020924C(int id);
-extern "C" int fn_8020A81C(int id);
+extern "C" int fn_8020A81C(const char* name);
 CharaParam_unk fn_80134800(CharaStatus* status, int id, int kindA, int indexA, int itemA, int kindB, int indexB,
                            int itemB);
 // inferred: message reference (weak copy of the getter 0x805282B8)
@@ -115,13 +109,8 @@ struct NewCampStatusSkillInfo_unk {
 };
 extern "C" NewCampStatusSkillInfo_unk* fn_8021AF50(int id);
 
-class MenuCommonTask {
-public:
-    static MenuCommonTask* sInstance;
-};
-extern "C" void fn_804A3C24(MenuCommonTask* menu, const wchar_t* text, int id);
 extern "C" void fn_804A5E40(MenuCommonTask* menu, int type, atn::Vector3 ofs, int id);
-extern "C" void fn_804A4AEC(atn::D2ATask_unk* task, NewCampStatusName_unk* item, int cols, int rows);
+extern "C" void fn_804A4AEC(atn::D2ATask_unk* task, CharaIdEntry_unk* item, int cols, int rows);
 
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 
@@ -273,7 +262,7 @@ void NewCampPartsStatus::vf14() {
         if (skill >= 0) {
             NewCampStatusSet_unk& set = mSets[mPage];
             if (skill < (int)set.mSkills.mSize && set.mSkills.mData[skill].mText != 0) {
-                fn_804A3C24(MenuCommonTask::sInstance, set.mSkills.mData[skill].mText, 0);
+                MenuCommonTask::sInstance->fn_804A3C24(set.mSkills.mData[skill].mText, 0);
             }
         }
     }
@@ -461,11 +450,11 @@ void NewCampPartsStatus::fn_80527938() {
         } else {
             status = Inventory::Order()->GetPlayerStatusInfo(set.mChara);
         }
-        NewCampStatusName_unk* info = fn_8020924C(fn_80219544(set.mChara));
+        CharaIdEntry_unk* info = fn_8020924C(fn_80219544(set.mChara));
         Inventory::Order()->GetEquip_unk(set.mChara);
         fn_803DD160(base, fn_8020A81C(info->m14));
-        fn_803D70B4(base, "name", info->mName);
-        fn_803D70B4(base, "nameSub", info->mName);
+        fn_803D70B4(base, "name", info->mShortName);
+        fn_803D70B4(base, "nameSub", info->mShortName);
         fn_804A4AEC(base, info, 4, 2);
         fn_80511D9C(param, status, set.mChara, task == 0);
         CharaParam_unk p = fn_80134800(status, set.mChara, 0, 0, 0, 0, 0, 0);
@@ -704,8 +693,8 @@ void NewCampPartsStatus::fn_805288BC(int state) {
         if (help != 0) {
             if (help->mSeen != 0) {
                 if (lbl_8087F430 != 0) {
-                    ((GameTask*)lbl_8087F430)->fn_803766E4();
-                    ((GameTask*)lbl_8087F430)->fn_80376324(help->mFlag);
+                    lbl_8087F430->fn_803766E4();
+                    lbl_8087F430->fn_80376324(help->mFlag);
                 }
                 fn_805288BC(1);
             } else {
@@ -829,11 +818,11 @@ void NewCampPartsStatus::vf3C(int show) {
 
 void NewCampPartsStatus::vf40(void* group) {
     group = fn_8008937C(group, m98.data());
-    fn_80087E9C(group, "MoveOffset", &mMove, 0, 0, -1000000.0f, 1000000.0f, 1.0f);
-    fn_80087E9C(group, "OffsetPos", &mA4, 0, 0, -1000000.0f, 1000000.0f, 1.0f);
-    fn_80087E9C(group, "OffsetScl", &mB0, 0, 0, -1000000.0f, 1000000.0f, 1.0f);
-    fn_80087E9C(group, "LocatorScl", &mBC, 0, 0, -1000000.0f, 1000000.0f, 1.0f);
-    fn_80087E9C(group, "BasePos", &mC8, 0, 0, -1000000.0f, 1000000.0f, 1.0f);
+    fn_80087E9C(group, "MoveOffset", &mMove, -1000000.0f, 1000000.0f, 1.0f, 0, 0);
+    fn_80087E9C(group, "OffsetPos", &mA4, -1000000.0f, 1000000.0f, 1.0f, 0, 0);
+    fn_80087E9C(group, "OffsetScl", &mB0, -1000000.0f, 1000000.0f, 1.0f, 0, 0);
+    fn_80087E9C(group, "LocatorScl", &mBC, -1000000.0f, 1000000.0f, 1.0f, 0, 0);
+    fn_80087E9C(group, "BasePos", &mC8, -1000000.0f, 1000000.0f, 1.0f, 0, 0);
 }
 
 void NewCampPartsStatus::vf48() {

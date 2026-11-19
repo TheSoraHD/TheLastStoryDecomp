@@ -13,7 +13,7 @@ extern "C" BgmEngine_unk* lbl_8087EE90;
 extern "C" unsigned int fn_80049B74(BgmEngine_unk* engine, const char* name); // inferred: sound id of a name
 extern "C" int fn_800CB4EC(atn::SoundRef* sound);
 extern "C" void fn_800CB504(atn::SoundRef* sound);
-extern "C" void fn_800CB5B4(atn::SoundRef* sound, int frames, float volume);
+extern "C" void fn_800CB5B4(atn::SoundRef* sound, float volume, int frames);
 extern "C" void fn_800CB654(atn::SoundRef* sound, float a, float b, float c);
 extern "C" void fn_800CB518(atn::SoundRef* sound, int frames); // inferred: fades the sound in
 
@@ -105,7 +105,7 @@ int Bgm::fn_8004B0E4() {
 
 int Bgm::fn_8004B158(float volume, int fade) {
     fn_800CB504(&mSound);
-    fn_800CB5B4(&mSound, 0, volume);
+    fn_800CB5B4(&mSound, volume, 0);
     fn_800CB654(&mSound, 0.0f, 0.0f, 0.0f);
     fn_800CB518(&mSound, fade);
     lbl_8087EFE8->fn_800D19FC((SoundCore*)mSound.mPtr, 1.0f);

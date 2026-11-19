@@ -7,15 +7,11 @@
 #include "atn/GXDecl.h"
 #include "atn/Material_unk.h"
 #include "std/new.h"
+#include "atn/DebugMessages_unk.h"
 
 extern "C" int sprintf(char* buf, const char* fmt, ...);
 extern "C" unsigned int fn_800DC6B4(const char* s); // inferred: string hash
 
-// inferred: debug message output (lbl_8087EEB8)
-struct DebugMessages_unk {
-    void fn_800697D8(const char* message);
-};
-extern "C" DebugMessages_unk* lbl_8087EEB8;
 
 
 extern "C" int fn_8007B078(const char* name);         // inferred: texture id by name, -1 if unknown
@@ -24,10 +20,10 @@ extern "C" int fn_800D1C60(int mode); // inferred: converts a blend mode
 
 // inferred: debug parameter menu (gmk/SwingObject.cpp)
 extern "C" void* fn_8008937C(void* parent, const char* name);
-extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, int arg6,
-                            int arg7);
-extern "C" void fn_8008771C(void* group, const char* name, float* value, int arg3, int arg4, float min, float max,
-                            float step);
+extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, void* func,
+                            void* arg);
+extern "C" void fn_8008771C(void* group, const char* name, float* value, float min, float max, float step, void* func,
+                            void* arg);
 
 // inferred: std::less of the entries (the comparison is an operator< of the entry)
 struct ShaderTexLess_unk {
@@ -281,7 +277,7 @@ void ShaderLOD_unk::fn_800C4F70(void* parent) {
     void* group = fn_8008937C(parent, mLODs.begin()->mShader->mDesc->m010);
     fn_800874C8(group, "RefCount", &m00, 0, 10000000, 0, 0, 0);
     for (unsigned int i = 0; i < mLODs.size(); i++) {
-        fn_8008771C(group, mLODs[i].mShader->mDesc->m010, &mLODs[i].mDistance, 0, 0, 0.0f, 10000.0f, 1.0f);
+        fn_8008771C(group, mLODs[i].mShader->mDesc->m010, &mLODs[i].mDistance, 0.0f, 10000.0f, 1.0f, 0, 0);
     }
     std::vector<int> unused;
 }

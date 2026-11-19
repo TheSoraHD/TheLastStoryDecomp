@@ -35,7 +35,7 @@ inline EnvSeEngine_unk* GetEngine_unk() {
 extern "C" void fn_800CB5C8(atn::SoundRef* sound, int frames, int arg); // inferred: stops the sound
 extern "C" int fn_800CB58C(atn::SoundRef* sound);                      // inferred: playing
 extern "C" int fn_800CB538(atn::SoundRef* sound);                      // inferred: playing
-extern "C" void fn_800CB5B4(atn::SoundRef* sound, int frames, float volume);
+extern "C" void fn_800CB5B4(atn::SoundRef* sound, float volume, int frames);
 extern "C" void fn_800CB69C(atn::SoundRef* sound, int frames, float lpf);
 extern "C" void fn_800CB6B0(atn::SoundRef* sound, int arg, float distance);  // inferred: sets the distance
 extern "C" void fn_800CB6E4(atn::SoundRef* sound, const atn::Vector3* pos); // inferred: moves the sound
@@ -54,8 +54,7 @@ extern "C" bool fn_80215018(LoadingEnvSe_unk* entry, char* buf);
 extern "C" bool fn_80215084(LoadingEnvSe_unk* entry, char* buf);
 
 // inferred: field and its event flags (lbl_8087F430)
-struct EnvSeField_unk;
-extern "C" EnvSeField_unk* lbl_8087F430;
+extern "C" GameTask* lbl_8087F430;
 
 // inferred: game settings (fn_800F52F8 returns lbl_8087F0A8; weak copy of another file)
 extern "C" GameConfig_unk* lbl_8087F0A8;
@@ -72,8 +71,8 @@ extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector (.bss, 0x10 bytes
 
 // inferred: debug menu entries
 typedef void (*EnvSeMenuCallback_unk)(void* arg);
-extern "C" void fn_8008771C(void* group, const char* name, float* value, EnvSeMenuCallback_unk callback, void* arg,
-                            float min, float max, float step);
+extern "C" void fn_8008771C(void* group, const char* name, float* value, float min, float max, float step,
+                            EnvSeMenuCallback_unk callback, void* arg);
 extern "C" void fn_800874C8(void* group, const char* name, int* value, int min, int max, int step,
                             EnvSeMenuCallback_unk callback, void* arg);
 
@@ -100,7 +99,7 @@ EnvSeManager::EnvSeManager(atn::Task* parent)
     m1AC = m1A8.Load("EnvSE");
     if (m1AC != 0) {
         fn_800874C8(m1AC, "DebugLevel", &m1A4, 0, 99, 1, 0, 0);
-        fn_8008771C(m1AC, "ReduceVolume", &m190, 0, 0, 0.0f, 2.0f, 0.1f);
+        fn_8008771C(m1AC, "ReduceVolume", &m190, 0.0f, 2.0f, 0.1f, 0, 0);
     }
     mBgm[0].m0C = 1;
     mBgm[1].m0C = 1;
@@ -145,7 +144,8 @@ void EnvSeManager::vf14() {
             if (0.0f < screen.z && screen.z < 1.0f) {
                 char text[0x100];
                 sprintf(text, "Area[%d] %s\0", area->mId, area->mData.mName);
-                lbl_8087EEB0->fn_800616C0(screen.x, screen.y, 0.0f, 12.0f, 12.0f, text, current ? 0xFFFFFFFF : 0xFF7F7F7F, 0.0f, 1, 1, 0);
+                lbl_8087EEB0->fn_800616C0(screen.x, screen.y, 0.0f, 12.0f, 12.0f, text,
+                                          current ? 0xFFFFFFFF : 0xFF7F7F7F, 0.0f, 1, 1, 0);
             }
         }
     }
@@ -222,9 +222,9 @@ void EnvSeManager::fn_8035EA2C() {
             if (area->mData.m44 != 0 && lbl_8087F430 != 0) {
                 int value;
                 if (area->mData.m48 == 1) {
-                    value = ((GameTask*)lbl_8087F430)->fn_80370174(area->mData.m4C);
+                    value = lbl_8087F430->fn_80370174(area->mData.m4C);
                 } else {
-                    value = ((GameTask*)lbl_8087F430)->fn_80370A78(area->mData.m4C);
+                    value = lbl_8087F430->fn_80370A78(area->mData.m4C);
                 }
                 if (value == area->mData.m50) {
                     area->m5C = 1;
@@ -276,7 +276,7 @@ void EnvSeManager::fn_8035ECCC() {
         } else {
             mBgmState = 6;
             float volume = mNextReq.mVolume;
-            fn_800CB5B4(&mCur->mSound, mNextReq.mFade, volume);
+            fn_800CB5B4(&mCur->mSound, volume, mNextReq.mFade);
             float lpf = mNextReq.mLPF;
             fn_800CB69C(&mCur->mSound, mNextReq.mFade, lpf);
             fn_803601E4(mNextReq.mReverb);
@@ -644,15 +644,15 @@ void EnvSeManager::fn_80360574(int id) {
     atn::SoundRef* sound = &r->mSound;
     fn_800CB6E4(sound, &r->mData.mPos);
     fn_800CB6B0(sound, 1, r->mData.mDistance);
-    fn_800CB5B4(sound, 0, r->mData.mVolume);
+    fn_800CB5B4(sound, r->mData.mVolume, 0);
     fn_800CB69C(sound, 0, r->mData.mLPF);
 }
 
 void EnvSeManager::fn_803605EC(int fade, float volume) {
     atn::SoundCategory_unk* scope = lbl_8087EFE8->fn_800CFDC8(2);
     m188 = scope != 0 ? scope->mVolume : 0.0f;
-    if (lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->GetCurrentMap() != 0) {
-        MapTask* group = ((GameTask*)lbl_8087F430)->GetCurrentMap();
+    if (lbl_8087F430 != 0 && lbl_8087F430->GetCurrentMap() != 0) {
+        MapTask* group = lbl_8087F430->GetCurrentMap();
         if (group->mType == 2 && group->mId == 40 && 9 <= group->mSubId && group->mSubId <= 12) {
             volume = 1.0f;
         }
@@ -729,7 +729,7 @@ void EnvSeManager::fn_803608A8() {
                 }
             }
         }
-        ((GameTask*)lbl_8087F430)->fn_80370320(0x393, id, 0);
+        lbl_8087F430->fn_80370320(0x393, id, 0);
     }
 }
 
@@ -740,7 +740,7 @@ void EnvSeManager::fn_8036097C(int a, int b, int c, int d, int useFlag) {
         }
         m1A0 = 0;
         if (useFlag != 0) {
-            m1A0 = fn_80214F38(((GameTask*)lbl_8087F430)->fn_80370174(0x393));
+            m1A0 = fn_80214F38(lbl_8087F430->fn_80370174(0x393));
         } else {
             m1A0 = fn_80214ED4(a, b, c, d);
         }

@@ -1,9 +1,13 @@
+#include "game/ChaseManager.h"
+#include "game/GameConfig_unk.h"
 #include "gmk/LemonBucket.h"
 #include "gmk/Lemon.h"
 #include "atn/Csv.h"
 #include "atn/Memory.h"
 #include "atn/SoundRef.h"
 #include "atn/RenderManager.h"
+#include "game/PlayerTask.h"
+#include "game/CharaManager.h"
 
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" char* strcpy(char* dst, const char* src);
@@ -15,40 +19,21 @@ extern "C" int fn_802180A8(const char* s); // inferred: motion id from its name
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
 extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float volume); // inferred: plays a sound
-extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, int arg6,
-                            int arg7);
-extern "C" void fn_80087E9C(void* group, const char* name, atn::Vector3* value, int arg3, int arg4, float min,
-                            float max, float step);
-extern "C" void fn_80088724(void* group, const char* name, atn::Vector3* value, int arg3, int arg4, float min,
-                            float max, float step);
-extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3, int arg4);
-extern "C" void fn_8008771C(void* group, const char* name, float* value, int arg3, int arg4, float min, float max,
-                            float step);
-extern "C" void fn_80087858(void* group, const char* name, float* value, int arg3, int arg4, float min, float max,
-                            float step);
+extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, void* func,
+                            void* arg);
+extern "C" void fn_80087E9C(void* group, const char* name, atn::Vector3* value, float min, float max, float step,
+                            void* func, void* arg);
+extern "C" void fn_80088724(void* group, const char* name, atn::Vector3* value, float min, float max, float step,
+                            void* func, void* arg);
+extern "C" void fn_80087994(void* group, const char* name, int* value, void* func, void* arg);
+extern "C" void fn_8008771C(void* group, const char* name, float* value, float min, float max, float step, void* func,
+                            void* arg);
+extern "C" void fn_80087858(void* group, const char* name, float* value, float min, float max, float step, void* func,
+                            void* arg);
 
-// inferred: game settings
-struct Settings_unk {
-    unsigned char m00[0x18];
-    int m18;
-};
-extern "C" Settings_unk* lbl_8087F0A8;
-// inferred: event state (class unknown): m48 nonzero while an event runs
-struct LemonEvent_unk {
-    unsigned char m00[0x48];
-    int m48;
-};
-extern "C" LemonEvent_unk* lbl_8087F098;
-// inferred: player manager and its first character (only the rotation is read)
-struct LemonPlayer_unk {
-    unsigned char m000[0x538];
-    float mRotY; // 0x538
-};
-struct LemonPlayers_unk {
-    unsigned char m00[0x48];
-    LemonPlayer_unk* mHead; // 0x48
-};
-extern "C" LemonPlayers_unk* lbl_8087F8A0;
+extern "C" GameConfig_unk* lbl_8087F0A8;
+extern "C" ChaseManager* lbl_8087F098;
+extern "C" CharaManager<PlayerTask>* lbl_8087F8A0;
 // inferred: view of gmk::Lemon (velocity at 0x17C)
 struct LemonView_unk {
     unsigned char m000[0x17C];
@@ -227,7 +212,7 @@ void LemonBucket::fn_8042FDBC() {
 }
 
 void LemonBucket::vf14() {
-    if (mDesc->m7C != 0 && lbl_8087F0A8->m18 != 0 && m54 != 5) {
+    if (mDesc->m7C != 0 && lbl_8087F0A8->mDrawMap != 0 && m54 != 5) {
         if (CameraDistSq_unk(m6C) > 62500.0f) {
             return;
         }
@@ -364,16 +349,16 @@ int LemonBucket::vf48(const atn::Vector3* pos, const atn::Vector3* dir, int flag
         if (len > 0.0f) {
             PSVECNormalize(&d, &d);
         }
-        if (lbl_8087F098 != 0 && lbl_8087F098->m48 != 0) {
+        if (lbl_8087F098 != 0 && lbl_8087F098->mState != 0) {
             if (len < 400.0f) {
                 return 1;
             }
         } else {
-            LemonPlayer_unk* player = lbl_8087F8A0 != 0 ? lbl_8087F8A0->mHead : 0;
+            PlayerTask* player = lbl_8087F8A0 != 0 ? lbl_8087F8A0->mHead : 0;
             if (len < 144.0f && player != 0) {
                 atn::Vector3 fwd(0.0f, 0.0f, 1.0f);
                 Mtx mtx;
-                PSMTXRotRad(mtx, 'y', player->mRotY);
+                PSMTXRotRad(mtx, 'y', player->mRot.y);
                 PSMTXMultVec(mtx, &fwd, &fwd);
                 if (PSVECDotProduct(&fwd, &d) >= 0.70710677f) {
                     atn::Vector3 back(-d.x, -d.y, -d.z);
@@ -402,14 +387,14 @@ void LemonBucket::vf6C(void* menu) {
         group = 0;
     }
     fn_800874C8(group, "state", &m54, 0, 99, 1, 0, 0);
-    fn_80087E9C(group, "pos", &m6C, 0, 0, -9999.0f, 9999.0f, 0.25f);
-    fn_80088724(group, "rot", &m78, 0, 0, -3.1415927f, 3.1415927f, 0.05235988f);
-    fn_80087E9C(group, "scl", &m90, 0, 0, -9999.0f, 9999.0f, 0.25f);
+    fn_80087E9C(group, "pos", &m6C, -9999.0f, 9999.0f, 0.25f, 0, 0);
+    fn_80088724(group, "rot", &m78, -3.1415927f, 3.1415927f, 0.05235988f, 0, 0);
+    fn_80087E9C(group, "scl", &m90, -9999.0f, 9999.0f, 0.25f, 0, 0);
     fn_80087994(group, "isShow", &m9C, 0, 0);
-    fn_8008771C(group, "positionRand", &mPosRand, 0, 0, 0.0f, 100.0f, 0.5f);
-    fn_80087858(group, "rotationRand", &mRotRand, 0, 0, 0.0f, 90.0f, 1.0f);
-    fn_8008771C(group, "speedRand", &mSpeedRand, 0, 0, 0.0f, 100.0f, 0.5f);
-    fn_8008771C(group, "speedBase", &mSpeedBase, 0, 0, 0.0f, 100.0f, 0.5f);
+    fn_8008771C(group, "positionRand", &mPosRand, 0.0f, 100.0f, 0.5f, 0, 0);
+    fn_80087858(group, "rotationRand", &mRotRand, 0.0f, 90.0f, 1.0f, 0, 0);
+    fn_8008771C(group, "speedRand", &mSpeedRand, 0.0f, 100.0f, 0.5f, 0, 0);
+    fn_8008771C(group, "speedBase", &mSpeedBase, 0.0f, 100.0f, 0.5f, 0, 0);
 }
 
 atn::Model* LemonBucket::vf38() {

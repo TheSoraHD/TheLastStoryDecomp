@@ -1,3 +1,4 @@
+#include "Event/Manager.h"
 #include "math/VecAssign_unk.h"
 #include "game/GameVoice.h"
 #include "game/GameTask.h"
@@ -11,6 +12,7 @@
 #include "game/PlayerManager.h"
 #include "game/FriendManager.h"
 #include "game/GameConfig_unk.h"
+#include "atn/DebugMessages_unk.h"
 
 extern "C" int sprintf(char* s, const char* format, ...);
 extern "C" int rand();
@@ -33,11 +35,6 @@ extern "C" void fn_800CB5B4(atn::SoundRef* sound, float volume, int frames); // 
 extern "C" void fn_800CB654(atn::SoundRef* sound, float a, float b, float c); // inferred: sets the effect sends
 extern "C" int fn_80049C3C(atn::SoundEngine_unk* engine, const char* name);  // inferred: the sound has no effects
 
-extern "C" void* lbl_8087EEB8; // inferred: debug message output
-// inferred: debug message list (atn/FileUtil_unk.cpp)
-struct DebugMessages_unk {
-    void fn_800697D8(const char* message);
-};
 
 // inferred: one line of the voice table of the characters (CharaTask::m7C; db/VoiceTable, see
 // atn/ptr_string_base_char_0.cpp)
@@ -46,22 +43,8 @@ struct VoiceEntry_unk {
     int fn_8021FFB0(int kind) const;         // inferred: message of the voice
 };
 
-// inferred: the field (lbl_8087F430, game/GameTask.cpp); only the members used here
-struct GameVoiceField_unk {
-    unsigned char m0000[0x10D8];
-    void* m10D8;       // inferred: the scene (route tables, messages)
-    unsigned char m10DC[0x54E4 - 0x10DC];
-    int m54E4;         // inferred: state of the field (8: no voices)
-    unsigned char m54E8[0x5538 - 0x54E8];
-    int m5538;         // inferred: nonzero mutes the voices
-};
-extern "C" GameVoiceField_unk* lbl_8087F430;
-// inferred: the battle (lbl_8087F540); only the pause flag
-struct GameVoiceBattle_unk {
-    unsigned char m00[0x70];
-    int m70;
-};
-extern "C" GameVoiceBattle_unk* lbl_8087F540;
+extern "C" GameTask* lbl_8087F430;
+extern "C" Event::Manager* lbl_8087F540;
 
 // inferred: sound id of a voice name (0 without a name; name invented)
 static inline unsigned int VoiceId_unk(const char* name) {
@@ -250,7 +233,7 @@ void GameVoiceChannel_unk::CheckPrepared_unk(const char* name) {
                 const char* label = fn_80049CDC(engine, fn_800CB6F8(&mSound));
                 sprintf(buf, "SoundWarning: cannot match [%d:%s] with prepared voice [%d:%s]\0", id, name,
                         fn_800CB6F8(&mSound), label);
-                ((DebugMessages_unk*)lbl_8087EEB8)->fn_800697D8(buf);
+                lbl_8087EEB8->fn_800697D8(buf);
             }
             Stop_unk(0);
         }
@@ -269,7 +252,7 @@ void GameVoiceChannel_unk::CheckPreparedId_unk(unsigned int id) {
                 const char* label = fn_80049CDC(engine, fn_800CB6F8(&mSound));
                 sprintf(buf, "SoundWarning: cannot match [%d:%s] with prepared voice [%d:%s]\0", id, name,
                         fn_800CB6F8(&mSound), label);
-                ((DebugMessages_unk*)lbl_8087EEB8)->fn_800697D8(buf);
+                lbl_8087EEB8->fn_800697D8(buf);
             }
             Stop_unk(0);
         }
@@ -474,7 +457,7 @@ atn::SoundRef GameVoice::fn_803EA09C(CharaTask* chara, const char* name, int at,
 // NONMATCHING: 96.88% - branch shape of the check of lbl_8087F540 (beq; beq; b in the original), registers of
 // the party loop
 void GameVoice::fn_803EA77C(CharaTask* chara, int kind, int delay, float volume, float time) {
-    if (lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->fn_803761CC() == 0) {
+    if (lbl_8087F430 != 0 && lbl_8087F430->fn_803761CC() == 0) {
         return;
     }
     if (lbl_8087F430 != 0 && lbl_8087F430->m54E4 == 8) {
@@ -483,7 +466,7 @@ void GameVoice::fn_803EA77C(CharaTask* chara, int kind, int delay, float volume,
     if (lbl_8087F540 != 0 && lbl_8087F540->m70 != 0) {
         return;
     }
-    if (lbl_8087F430 != 0 && lbl_8087F430->m5538 != 0) {
+    if (lbl_8087F430 != 0 && lbl_8087F430->m550C.mState != 0) {
         return;
     }
     if (!IsMessageFree_unk(time)) {
@@ -533,7 +516,7 @@ void GameVoice::fn_803EA77C(CharaTask* chara, int kind, int delay, float volume,
 // inferred: plays the message of the voice `kind` of `chara` in the HUD
 void GameVoice::fn_803EAA7C(CharaTask* chara, int kind, float time) {
     atn::SoundRef sound;
-    if (lbl_8087F430 != 0 && lbl_8087F430->m5538 != 0) {
+    if (lbl_8087F430 != 0 && lbl_8087F430->m550C.mState != 0) {
         return;
     }
     if (!IsMessageFree_unk(time)) {
@@ -719,7 +702,7 @@ void GameVoice::StopInvalid_unk() {
                 atn::SoundEngine_unk* engine = lbl_8087EE90;
                 const char* label = fn_80049CDC(engine, fn_800CB6F8(&channel.mSound));
                 sprintf(buf, "SoundWarning: stopped invalid prepared voice [%d:%s]", fn_800CB6F8(&channel.mSound), label);
-                ((DebugMessages_unk*)lbl_8087EEB8)->fn_800697D8(buf);
+                lbl_8087EEB8->fn_800697D8(buf);
             }
             channel.Stop_unk(0);
         }

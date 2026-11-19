@@ -5,6 +5,7 @@
 #include "atn/FixedArray.h"
 #include "atn/D2A_TaskInstanceC.h"
 #include "atn/D2A_Task.h"
+#include "atn/D2A_TaskApi_unk.h"
 
 // inferred: d2anime task of the window (made by fn_801F3FF8)
 typedef atn::D2A_Task ResultD2A_unk;

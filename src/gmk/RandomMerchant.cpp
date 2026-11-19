@@ -11,6 +11,7 @@
 #include "std/string_members.h"
 #include "game/BattleTask.h"
 #include "db/ItemParam_unk.h"
+#include "atn/DebugMessages_unk.h"
 
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" int atoi(const char* s);
@@ -29,25 +30,11 @@ extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float
 // inferred: empty names passed to operator new (in .sdata of another file)
 extern "C" char lbl_8087DFD0[4];
 extern "C" char lbl_8087DFD4[4];
-// inferred: field object (class unknown)
-struct Field_unk {
-    unsigned char m00[0x10D0];
-    void* m10D0; // inferred: item lottery of the merchants
-    void* m10D4;
-    void* m10D8; // inferred: message table
-    unsigned char m10DC[0x54E4 - 0x10DC];
-    int m54E4; // inferred: nonzero while the field is paused
-};
-extern "C" Field_unk* lbl_8087F430;
-extern "C" void* fn_8021DE88(void* lottery);                              // inferred: next lot (null when none is left)
+extern "C" GameTask* lbl_8087F430;
+extern "C" void* fn_8021DE88(int level);                                  // inferred: next lot (null when none is left)
 extern "C" int fn_8021DECC(void* lot, int* item, int* num, int* price);  // inferred: item of the lot
 typedef ItemParamEntry_unk MerchantItem_unk; // inferred: item definition (db/ItemParam_unk.h)
 extern "C" wchar_t* wcscpy(wchar_t* dst, const wchar_t* src);
-extern "C" void* lbl_8087EEB8; // inferred: debug message output
-// inferred: debug message list (atn/FileUtil_unk.cpp)
-struct DebugMessages_unk {
-    void fn_800697D8(const char* message);
-};
 // inferred: message of the message table (class unknown)
 struct MerchantMsg_unk {
     int m00;
@@ -305,9 +292,9 @@ void RandomMerchant::vf10() {
             } else {
                 char buf[0x100];
                 sprintf(buf, "cannot found item %d!", mItemId);
-                ((DebugMessages_unk*)lbl_8087EEB8)->fn_800697D8(buf);
+                lbl_8087EEB8->fn_800697D8(buf);
             }
-            MerchantMsg_unk* msg = (MerchantMsg_unk*)((GameScene*)lbl_8087F430->m10D8)->fn_803CC6B4(mEntries[mCur].m290);
+            MerchantMsg_unk* msg = (MerchantMsg_unk*)lbl_8087F430->m10D8->fn_803CC6B4(mEntries[mCur].m290);
             wchar_t numText[0x40] = {0};
             wchar_t priceText[0x40] = {0};
             itow(mItemNum, numText, 10);
@@ -320,7 +307,7 @@ void RandomMerchant::vf10() {
             m3074 = msg->m0C;
             lbl_8087F490->fn_803E3BE8(&m3068, m309C, 7.5f);
             if (lbl_8087F430 != 0) {
-                ((GameTask*)lbl_8087F430)->fn_803750E4(0xDC);
+                lbl_8087F430->fn_803750E4(0xDC);
             }
             m54 = 1;
             mState = 2;
@@ -487,7 +474,7 @@ void RandomMerchant::vf4C(CharaTask* chara) {
             if (mLimit >= 0) {
                 PlayMotion_unk(1);
                 if (lbl_8087F430 != 0) {
-                    ((GameTask*)lbl_8087F430)->fn_80370320(mEntries[mCur].mEvent1, 1, 0);
+                    lbl_8087F430->fn_80370320(mEntries[mCur].mEvent1, 1, 0);
                 }
                 if (mSound.mPtr != 0) {
                     fn_800CB5C8(&mSound, 15, 0);
@@ -497,7 +484,7 @@ void RandomMerchant::vf4C(CharaTask* chara) {
             } else {
                 PlayMotion_unk(2);
                 if (lbl_8087F430 != 0) {
-                    ((GameTask*)lbl_8087F430)->fn_80370320(mEntries[mCur].mEvent2, 1, 0);
+                    lbl_8087F430->fn_80370320(mEntries[mCur].mEvent2, 1, 0);
                 }
                 if (mSound.mPtr != 0) {
                     fn_800CB5C8(&mSound, 15, 0);
@@ -507,20 +494,20 @@ void RandomMerchant::vf4C(CharaTask* chara) {
             }
         } else if (mState == 3) {
             if (lbl_8087F430 != 0) {
-                ((GameTask*)lbl_8087F430)->fn_80370320(mEntries[mCur].mEvent1, 1, 0);
+                lbl_8087F430->fn_80370320(mEntries[mCur].mEvent1, 1, 0);
             }
         } else if (mState == 4) {
             if (lbl_8087F430 != 0) {
-                ((GameTask*)lbl_8087F430)->fn_80370320(mEntries[mCur].mEvent2, 1, 0);
+                lbl_8087F430->fn_80370320(mEntries[mCur].mEvent2, 1, 0);
             }
         }
     } else if (mState == 3) {
         if (lbl_8087F430 != 0) {
-            ((GameTask*)lbl_8087F430)->fn_80370320(mEntries[mCur].mEvent1, 1, 0);
+            lbl_8087F430->fn_80370320(mEntries[mCur].mEvent1, 1, 0);
         }
     } else if (mState == 4) {
         if (lbl_8087F430 != 0) {
-            ((GameTask*)lbl_8087F430)->fn_80370320(mEntries[mCur].mEvent2, 1, 0);
+            lbl_8087F430->fn_80370320(mEntries[mCur].mEvent2, 1, 0);
         }
     }
 }

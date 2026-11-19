@@ -179,7 +179,7 @@ public:
     void fn_8035359C();
     void fn_80353370(); // inferred: debug menu entries
 
-    int m14B0;                     // inferred: target (CharaTask*)
+    CharaTask* m14B0;              // inferred: target
     int m14B4;                     // inferred: step of the state
     int m14B8;                     // inferred: frame counter of the state
     int m14BC;                     // inferred: 1 once the hit points reach zero
@@ -225,7 +225,7 @@ public:
     float m16DC;
     atn::Vector3 m16E0;
     int m16EC;
-    int m16F0;
+    CharaTask* m16F0; // inferred: character held (fn_80348568)
     int m16F4;
     atn::Vector3 m16F8;
     atn::LH_Xsca m1704;            // inferred: "/camera/battle/cm000_em211_00.xsca"

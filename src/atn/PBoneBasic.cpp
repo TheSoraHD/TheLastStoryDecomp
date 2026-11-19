@@ -20,11 +20,11 @@ extern "C" float fn_800DC288(const char* s);         // inferred: string to floa
 
 // inferred: debug menu entries and debug drawing
 extern "C" void* fn_8008937C(void* parent, const char* name);
-extern "C" void fn_80087994(void* group, const char* name, int* flag, int arg3, int arg4);
-extern "C" void fn_80087858(void* group, const char* name, float* value, int arg3, int arg4, float min, float max,
-                            float step); // inferred: angle
-extern "C" void fn_8008771C(void* group, const char* name, float* value, int arg3, int arg4, float min, float max,
-                            float step);
+extern "C" void fn_80087994(void* group, const char* name, int* flag, void* func, void* arg);
+extern "C" void fn_80087858(void* group, const char* name, float* value, float min, float max, float step, void* func,
+                            void* arg); // inferred: angle
+extern "C" void fn_8008771C(void* group, const char* name, float* value, float min, float max, float step, void* func,
+                            void* arg);
 
 // inferred: model of the bone (node matrices at m3C)
 struct PBoneModel_unk {
@@ -258,12 +258,12 @@ void PBoneBasic::vf2C(void* menu) {
     fn_80087994(group, "Enable", &m04, 0, 0);
     fn_80087994(group, "DebugDisp", &m68, 0, 0);
     void* y = fn_8008937C(group, "Y LIMIT");
-    fn_80087858(y, "MIN", &m48, 0, 0, -180.0f, 180.0f, 2.0f);
-    fn_80087858(y, "MAX", &m54, 0, 0, -180.0f, 180.0f, 2.0f);
+    fn_80087858(y, "MIN", &m48, -180.0f, 180.0f, 2.0f, 0, 0);
+    fn_80087858(y, "MAX", &m54, -180.0f, 180.0f, 2.0f, 0, 0);
     void* z = fn_8008937C(group, "Z LIMIT");
-    fn_80087858(z, "MIN", &m4C, 0, 0, -180.0f, 180.0f, 2.0f);
-    fn_80087858(z, "MAX", &m58, 0, 0, -180.0f, 180.0f, 2.0f);
-    fn_8008771C(group, "WAIT", &m60, 0, 0, -10.0f, 10.0f, 0.01f);
+    fn_80087858(z, "MIN", &m4C, -180.0f, 180.0f, 2.0f, 0, 0);
+    fn_80087858(z, "MAX", &m58, -180.0f, 180.0f, 2.0f, 0, 0);
+    fn_8008771C(group, "WAIT", &m60, -10.0f, 10.0f, 0.01f, 0, 0);
 }
 
 PBoneOutForce::PBoneOutForce() {}

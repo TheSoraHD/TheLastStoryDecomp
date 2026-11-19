@@ -98,20 +98,20 @@ extern "C" void fn_804DDA04(MpLobbySession_unk* s); // inferred: sends the game 
 extern "C" int fn_804E4A20(); // inferred: play time of the player
 extern "C" int fn_804EB26C(MpLobbySession_unk* s, int* count); // inferred: nonzero when everybody answered
 extern "C" int fn_804FC010(MpLobbySession_unk* s);              // inferred: nonzero while a request is pending
-extern "C" int fn_804DE560(MpLobbySession_unk* s, int arg, unsigned char* ok); // inferred: ready state of the room
+extern "C" int fn_804DE560(MpLobbySession_unk* s, void* arg, unsigned char* ok); // inferred: ready state of the room
 extern "C" int sprintf(char* s, const char* format, ...);
-extern "C" void fn_804A53D4(MenuCommonTask* menu, int a, int b, const MP::MpRect_unk* rect, int c); // inferred: cursor
+// inferred: cursor
+extern "C" void fn_804A53D4(MenuCommonTask* menu, int a, void* b, const MP::MpRect_unk* rect, int c);
 extern "C" const wchar_t* fn_804FA7C8(MpLobbySession_unk* s, int mode, int map); // inferred: name of a map
 // inferred: list of the connected aids
 struct MpLobbyAids_unk {
     unsigned char* mAids;
 };
 extern "C" int fn_804EB1AC(MpLobbySession_unk* s); // inferred: nonzero for the host
-extern "C" void fn_804A5D34(MenuCommonTask* menu, int id, const wchar_t* desc0, const wchar_t* desc1,
-                            const wchar_t* desc2); // inferred: help text (three lines)
-extern "C" void fn_804A3C24(MenuCommonTask* menu, const wchar_t* text, int arg); // inferred: help text
-extern "C" void fn_804DD9CC(MpLobbySession_unk* s, MpLobbyPlayerInfo_unk* player, int face); // inferred: sets the face (host)
-extern "C" unsigned int fn_804FAB40(MpLobbySession_unk* s, int face, MpLobbyPlayerInfo_unk* player, int* id, int arg); // inferred: requests the face
+// inferred: sets the face (host)
+extern "C" void fn_804DD9CC(MpLobbySession_unk* s, MpLobbyPlayerInfo_unk* player, int face);
+// inferred: requests the face
+extern "C" unsigned int fn_804FAB40(MpLobbySession_unk* s, int face, MpLobbyPlayerInfo_unk* player, int* id, int arg);
 extern "C" int fn_804F5E38(MpLobbySession_unk* s, unsigned char id);  // inferred: state of a request
 extern "C" int* fn_804F5B08(MpLobbySession_unk* s, unsigned char id); // inferred: result of a request
 extern "C" void fn_804F5C9C(MpLobbySession_unk* s, unsigned char id); // inferred: frees a request
@@ -123,7 +123,6 @@ extern "C" int fn_804EA5DC(MpLobbySession_unk* s, int mode); // inferred: number
 extern "C" void fn_804EA534(MpLobbySession_unk* s, int map, int host); // inferred: sets the map
 extern "C" int rand();
 extern "C" void* memset(void* dst, int c, unsigned long n);
-extern "C" void fn_804A5CD8(MenuCommonTask* menu, float y); // inferred: places the help window
 extern "C" void fn_804DDD50(MpLobbySession_unk* s);              // inferred: sends the rules (server)
 extern "C" void fn_804DE2F8(MpLobbySession_unk* s, int mode);   // inferred: sends the map lottery
 extern "C" void fn_804DC450(MpLobbySession_unk* s, int state);
@@ -135,7 +134,8 @@ extern "C" const wchar_t* fn_804FA88C(MpLobbySession_unk* s, int value); // infe
 extern "C" int fn_804EB2D8(MpLobbySession_unk* s);
 extern "C" int fn_804EAFD0(MpLobbySession_unk* s);              // inferred: number of players ready
 extern "C" int fn_804DDE34(MpLobbySession_unk* s, int mode);    // inferred: sends the start of the game
-extern "C" void fn_804E8A80(MpLobbySession_unk* s, int id);     // inferred: debug command              // inferred: nonzero once the game starts
+// inferred: debug command              // inferred: nonzero once the game starts
+extern "C" void fn_804E8A80(MpLobbySession_unk* s, int id);    
 extern "C" int fn_804DBD08(MpLobbySession_unk* s, int mode);
 extern "C" void fn_804FB470(MpLobbySession_unk* s, int code, int arg); // inferred: error of the session
 extern "C" void fn_804DD33C(MpLobbySession_unk* s, int arg, int* value); // inferred: next character
@@ -156,13 +156,13 @@ static inline void ShowRules_unk(MP::D2AMpMenuLobby* lobby) {
     wchar_t text[32] = {0};
     int menuMode = MP::D2AMpMenu::sInstance->mC4;
     int time = lbl_8087F610->m564;
-    MP::SetPaneValue2_unk(lobby->m4C->mLayout, "time_color", 0, (int)(unsigned char)(time != -1 ? 0xFF : 0));
-    MP::SetPaneValue2_unk(lobby->m4C->mLayout, "healer_color", 0, (int)(unsigned char)(menuMode == 2 ? 0xFF : 0));
+    MP::SetPaneValue2_unk(&lobby->m4C->mData.m10, "time_color", 0, (int)(unsigned char)(time != -1 ? 0xFF : 0));
+    MP::SetPaneValue2_unk(&lobby->m4C->mData.m10, "healer_color", 0, (int)(unsigned char)(menuMode == 2 ? 0xFF : 0));
     lobby->m4C->SetNumber_unk("string0007(1)", lbl_8087F610->m5A4, 0);
-    MP::SetPaneText_unk(lobby->m4C->mLayout, "string0011(1)", lbl_8087F610->m5B0 != 0 ? L"ON" : L"OFF");
+    MP::SetPaneText_unk(&lobby->m4C->mData.m10, "string0011(1)", lbl_8087F610->m5B0 != 0 ? L"ON" : L"OFF");
     if (lbl_8087F610->m564 != -1) {
         fn_800DD3FC(text, L"%02d", lbl_8087F610->m564 / 60);
-        MP::SetPaneText_unk(lobby->m4C->mLayout, "string0014(1)", text);
+        MP::SetPaneText_unk(&lobby->m4C->mData.m10, "string0014(1)", text);
     }
 }
 
@@ -175,15 +175,15 @@ static inline int IsServer_unk() {
 static inline void SetModeText_unk(MP::D2AMpMenuLobby* lobby, int mode) {
     if (mode == 2) {
         const wchar_t* empty = L"";
-        MP::SetPaneText_unk(lobby->m64->mLayout, "string0002(1)", empty);
-        MP::SetPaneText_unk(lobby->m64->mLayout, "string0001(1)", empty);
+        MP::SetPaneText_unk(&lobby->m64->mData.m10, "string0002(1)", empty);
+        MP::SetPaneText_unk(&lobby->m64->mData.m10, "string0001(1)", empty);
     } else {
-        MP::SetPaneText_unk(lobby->m64->mLayout, "string0002(1)", L"$B+");
+        MP::SetPaneText_unk(&lobby->m64->mData.m10, "string0002(1)", L"$B+");
         int id = 0xD1;
         if (mode == 1) {
             id = 0xD0;
         }
-        MP::SetPaneText_unk(lobby->m64->mLayout, "string0001(1)", lbl_8087F86C->Get_unk(id));
+        MP::SetPaneText_unk(&lobby->m64->mData.m10, "string0001(1)", lbl_8087F86C->Get_unk(id));
     }
 }
 
@@ -325,7 +325,7 @@ int D2AMpMenuLobby::vf0C() {
         if (ready != 0) {
             SetAll_unk(0);
             mDA0 = 1;
-            SetPaneFloat_unk(m70->mLayout, "zoomFrame", 0.0f);
+            SetPaneFloat_unk(&m70->mData.m10, "zoomFrame", 0.0f);
             fn_804BC628(1);
             return 1;
         }
@@ -355,7 +355,7 @@ void D2AMpMenuLobby::fn_804BC628(int state) {
         vf1C();
         fn_804BF550();
         ShowRules_unk(this);
-        fn_804A5CD8(MenuCommonTask::sInstance, -100.0f);
+        MenuCommonTask::sInstance->fn_804A5CD8(-100.0f);
         if (mode == 2) {
             Play_unk(m54, 0, 1.0f);
         } else {
@@ -408,12 +408,12 @@ void D2AMpMenuLobby::fn_804BC628(int state) {
         mE68 = -1;
         fn_804C18A8();
         fn_804BFB54();
-        SetPaneValue2_unk(mPlayers[mE60].mTasks[0]->mLayout, "col0003(1)", 0, 0.0f);
-        SetPaneValue2_unk(mPlayers[mE60].mTasks[0]->mLayout, "col0004(1)", 0, 0.0f);
-        SetPaneValue2_unk(m5C->mLayout, "col0001(1)", 0, 0.0f);
-        SetPaneValue2_unk(m5C->mLayout, "col0004(1)", 0, 0.0f);
-        SetPaneValue_unk(mPlayers[mE60].mTasks[0]->mLayout, "pos0010_01(1)(1)", 4, -120.0f);
-        SetPaneValue_unk(mPlayers[mE60].mTasks[0]->mLayout, "pos0011_01(1)", 4, -120.0f);
+        SetPaneValue2_unk(&mPlayers[mE60].mTasks[0]->mData.m10, "col0003(1)", 0, 0.0f);
+        SetPaneValue2_unk(&mPlayers[mE60].mTasks[0]->mData.m10, "col0004(1)", 0, 0.0f);
+        SetPaneValue2_unk(&m5C->mData.m10, "col0001(1)", 0, 0.0f);
+        SetPaneValue2_unk(&m5C->mData.m10, "col0004(1)", 0, 0.0f);
+        SetPaneValue_unk(&mPlayers[mE60].mTasks[0]->mData.m10, "pos0010_01(1)(1)", 4, -120.0f);
+        SetPaneValue_unk(&mPlayers[mE60].mTasks[0]->mData.m10, "pos0011_01(1)", 4, -120.0f);
         if (player != 0) {
             player->mD0_20 = 1;
             player->mD0_3 = 0;
@@ -428,10 +428,10 @@ void D2AMpMenuLobby::fn_804BC628(int state) {
         break;
     case 6:
         mDD0 = 0;
-        SetPaneValue_unk(mPlayers[mE60].mTasks[0]->mLayout, "pos0010_01(1)(1)", 4, 200.0f);
-        SetPaneValue_unk(mPlayers[mE60].mTasks[0]->mLayout, "pos0011_01(1)", 4, 200.0f);
-        SetPaneText_unk(m64->mLayout, "string0002(1)", L"$Ba");
-        SetPaneText_unk(m64->mLayout, "string0001(1)", lbl_8087F86C->Get_unk(0xCE));
+        SetPaneValue_unk(&mPlayers[mE60].mTasks[0]->mData.m10, "pos0010_01(1)(1)", 4, 200.0f);
+        SetPaneValue_unk(&mPlayers[mE60].mTasks[0]->mData.m10, "pos0011_01(1)", 4, 200.0f);
+        SetPaneText_unk(&m64->mData.m10, "string0002(1)", L"$Ba");
+        SetPaneText_unk(&m64->mData.m10, "string0001(1)", lbl_8087F86C->Get_unk(0xCE));
         fn_804BF550();
         if (player != 0) {
             player->mD0_3 = 1;
@@ -444,8 +444,8 @@ void D2AMpMenuLobby::fn_804BC628(int state) {
         D2ACommonDialog::sInstance->fn_804ACAF8();
         D2ACommonDialog::sInstance->fn_804ACDBC();
         Play_unk(m68, 1, 1.0f);
-        SetPaneText_unk(m68->mLayout, "cmd01", lbl_8087F86C->Get_unk(0x102));
-        SetPaneText_unk(m68->mLayout, "string0003(1)", lbl_8087F86C->Get_unk(0x102));
+        SetPaneText_unk(&m68->mData.m10, "cmd01", lbl_8087F86C->Get_unk(0x102));
+        SetPaneText_unk(&m68->mData.m10, "string0003(1)", lbl_8087F86C->Get_unk(0x102));
         mDB8 = 30;
         break;
     case 7: {
@@ -727,7 +727,7 @@ void D2AMpMenuLobby::fn_804BE4A4() {
         } else if (session->m540 == 1) {
             session->m540 = 0;
             D2AMpMenu::sInstance->mC4 = 3;
-            SetPaneValue2_unk(m64->mLayout, "col0005", 0, 0.0f);
+            SetPaneValue2_unk(&m64->mData.m10, "col0005", 0, 0.0f);
         }
         fn_804BC628(mD8C);
     } else if (D2ACommonDialog::sInstance->fn_804AC7EC()) {
@@ -991,15 +991,15 @@ void D2AMpMenuLobby::fn_804BF550() {
     if (fn_804EB1AC(lbl_8087F610) != 0) {
         if (mD88 == 6) {
             if (fn_804FC010(lbl_8087F610)) {
-                SetPaneValue2_unk(m64->mLayout, "col0003", 0, 0.0f);
+                SetPaneValue2_unk(&m64->mData.m10, "col0003", 0, 0.0f);
                 mDB0 = 5;
             } else {
                 int count;
                 if (fn_804EB26C(lbl_8087F610, &count) && mDB0 <= 0 && count > 1 &&
                     (GetHostCount_unk() > 1 || lbl_8087F628->mC215 != 0)) {
-                    SetPaneValue2_unk(m64->mLayout, "col0003", 0, 255.0f);
+                    SetPaneValue2_unk(&m64->mData.m10, "col0003", 0, 255.0f);
                 } else {
-                    SetPaneValue2_unk(m64->mLayout, "col0003", 0, 0.0f);
+                    SetPaneValue2_unk(&m64->mData.m10, "col0003", 0, 0.0f);
                 }
                 if (mDB0 > 0) {
                     mDB0--;
@@ -1009,23 +1009,23 @@ void D2AMpMenuLobby::fn_804BF550() {
             unsigned char ok = 1;
             if (fn_804DE560(lbl_8087F610, 0, &ok) == 0 && ok == 0 && GetHostCount_unk() > 1 &&
                 lbl_8087F610->m540 != 2) {
-                SetPaneValue2_unk(m64->mLayout, "col0003", 0, 255.0f);
+                SetPaneValue2_unk(&m64->mData.m10, "col0003", 0, 255.0f);
             } else if (lbl_8087F610->m540 != 2 &&
                        (lbl_8087F610->m508 == -1 || lbl_8087F610->m508 > 900 || GetHostCount_unk() == 1)) {
-                SetPaneValue2_unk(m64->mLayout, "col0003", 0, 255.0f);
+                SetPaneValue2_unk(&m64->mData.m10, "col0003", 0, 255.0f);
             } else {
-                SetPaneValue2_unk(m64->mLayout, "col0003", 0, 0.0f);
+                SetPaneValue2_unk(&m64->mData.m10, "col0003", 0, 0.0f);
             }
         }
     } else {
-        SetPaneValue2_unk(m64->mLayout, "col0003", 0, 0.0f);
+        SetPaneValue2_unk(&m64->mData.m10, "col0003", 0, 0.0f);
     }
-    SetPaneValue2_unk(m64->mLayout, "col0004", 0, 255.0f);
-    SetPaneFloat_unk(m64->mLayout, "index", (float)mE60);
+    SetPaneValue2_unk(&m64->mData.m10, "col0004", 0, 255.0f);
+    SetPaneFloat_unk(&m64->mData.m10, "index", (float)mE60);
     if (mD88 == 4 && D2AMpMenu::sInstance->mC4 == 1 && lbl_8087F628->m25C == 1) {
-        SetPaneValue2_unk(m64->mLayout, "col0005", 0, 255.0f);
+        SetPaneValue2_unk(&m64->mData.m10, "col0005", 0, 255.0f);
     } else {
-        SetPaneValue2_unk(m64->mLayout, "col0005", 0, 0.0f);
+        SetPaneValue2_unk(&m64->mData.m10, "col0005", 0, 0.0f);
     }
 }
 
@@ -1038,13 +1038,13 @@ void D2AMpMenuLobby::fn_804BF9AC() {
         }
         float value = (float)(mDBC[i] <= 5 ? mDBC[i] * 0x33 : 0xFF - (mDBC[i] - 5) * 0x33);
         if (i == 0) {
-            SetPaneValue2_unk(m5C->mLayout, "col0004(1)", 0, value);
+            SetPaneValue2_unk(&m5C->mData.m10, "col0004(1)", 0, value);
         } else if (i == 1) {
-            SetPaneValue2_unk(m5C->mLayout, "col0001(1)", 0, value);
+            SetPaneValue2_unk(&m5C->mData.m10, "col0001(1)", 0, value);
         } else if (i == 2) {
-            SetPaneValue2_unk(mPlayers[mE60].mTasks[0]->mLayout, "col0003(1)", 0, value);
+            SetPaneValue2_unk(&mPlayers[mE60].mTasks[0]->mData.m10, "col0003(1)", 0, value);
         } else if (i == 3) {
-            SetPaneValue2_unk(mPlayers[mE60].mTasks[0]->mLayout, "col0004(1)", 0, value);
+            SetPaneValue2_unk(&mPlayers[mE60].mTasks[0]->mData.m10, "col0004(1)", 0, value);
         }
         if (++mDBC[i] > 10) {
             mDBC[i] = -1;
@@ -1159,7 +1159,7 @@ void D2AMpMenuLobby::fn_804C0430() {
             fn_804BC628(next);
         }
     } else if (mDCC < 30) {
-        SetPaneFloat_unk(m70->mLayout, "zoomFrame", (float)(30 - mDCC));
+        SetPaneFloat_unk(&m70->mData.m10, "zoomFrame", (float)(30 - mDCC));
         if (mDCC < 29) {
             if (mDCC == 15) {
                 m7C->mWait = 5;
@@ -1227,7 +1227,7 @@ void D2AMpMenuLobby::vf14() {
         break;
     case 1:
         fn_804C0A40();
-        SetPaneValue2_unk(m4C->mLayout, "col0005", 0, 128.0f);
+        SetPaneValue2_unk(&m4C->mData.m10, "col0005", 0, 128.0f);
         m64->MeltTask();
         break;
     case 4:
@@ -1296,11 +1296,11 @@ void D2AMpMenuLobby::fn_804C0A40() {
         m58->MeltTask();
     } else if (mode == 2) {
         m54->MeltTask();
-        SetPaneText_unk(m4C->mLayout, "string0010(1)", L"");
-        SetPaneText_unk(m4C->mLayout, "string0011(1)", L"");
+        SetPaneText_unk(&m4C->mData.m10, "string0010(1)", L"");
+        SetPaneText_unk(&m4C->mData.m10, "string0011(1)", L"");
     }
-    SetPaneText_unk(m4C->mLayout, "string0006(1)", L"");
-    SetPaneText_unk(m4C->mLayout, "string0007(1)", L"");
+    SetPaneText_unk(&m4C->mData.m10, "string0006(1)", L"");
+    SetPaneText_unk(&m4C->mData.m10, "string0007(1)", L"");
     if (mD88 == 5) {
         return;
     }
@@ -1340,9 +1340,9 @@ void D2AMpMenuLobby::fn_804C0EA4() {
     }
     if (D2ACommonDialog::sInstance->m4C == 0) {
         if (chara >= 0) {
-            fn_804A3C24(MenuCommonTask::sInstance, lbl_8087F86C->Get_unk(chara + 0xB3), 0);
+            MenuCommonTask::sInstance->fn_804A3C24(lbl_8087F86C->Get_unk(chara + 0xB3), 0);
         } else {
-            fn_804A3C24(MenuCommonTask::sInstance, lbl_8087F86C->Get_unk(0xC9), 0);
+            MenuCommonTask::sInstance->fn_804A3C24(lbl_8087F86C->Get_unk(0xC9), 0);
         }
     }
 }
@@ -1367,26 +1367,26 @@ void D2AMpMenuLobby::fn_804C0F88() {
             if (ready == true) {
                 if (host) {
                     if (mDB0 > 0) {
-                        fn_804A5D34(MenuCommonTask::sInstance, 0, lbl_8087F86C->Get_unk(0xD2), L"", L"");
+                        MenuCommonTask::sInstance->fn_804A5D34(0, lbl_8087F86C->Get_unk(0xD2), L"", L"");
                     } else {
-                        fn_804A5D34(MenuCommonTask::sInstance, 0, lbl_8087F86C->Get_unk(0xCB), L"", L"");
+                        MenuCommonTask::sInstance->fn_804A5D34(0, lbl_8087F86C->Get_unk(0xCB), L"", L"");
                         m64->mFlags &= ~4;
                     }
                 } else if (fn_804FC010(lbl_8087F610) != 0) {
-                    fn_804A5D34(MenuCommonTask::sInstance, 0, lbl_8087F86C->Get_unk(0xD2), L"", L"");
+                    MenuCommonTask::sInstance->fn_804A5D34(0, lbl_8087F86C->Get_unk(0xD2), L"", L"");
                 } else {
                     wchar_t text[256] = {0};
                     atn::net::NetPlayerInfo_unk* info = lbl_8087F628->vf14(lbl_8087F628->GetServerAid_unk());
                     if (info != 0) {
                         fn_800DD3FC(text, lbl_8087F86C->Get_unk(0xCC), info->mName);
-                        fn_804A5D34(MenuCommonTask::sInstance, 0, text, L"", L"");
+                        MenuCommonTask::sInstance->fn_804A5D34(0, text, L"", L"");
                     }
                 }
             } else {
-                fn_804A5D34(MenuCommonTask::sInstance, 0, lbl_8087F86C->Get_unk(0xCA), L"", L"");
+                MenuCommonTask::sInstance->fn_804A5D34(0, lbl_8087F86C->Get_unk(0xCA), L"", L"");
             }
         } else {
-            fn_804A3C24(MenuCommonTask::sInstance, lbl_8087F86C->Get_unk(0xE1), 0);
+            MenuCommonTask::sInstance->fn_804A3C24(lbl_8087F86C->Get_unk(0xE1), 0);
         }
         if (!host) {
             if (++mDD0 > 240) {
@@ -1419,7 +1419,7 @@ void D2AMpMenuLobby::fn_804C1370() {
         list = m78;
     }
     list->MeltTask();
-    SetPaneValue2_unk(m70->mLayout, "col0005", 0, 128.0f);
+    SetPaneValue2_unk(&m70->mData.m10, "col0005", 0, 128.0f);
     if (MenuCommonTask::sInstance != 0 && !(list->mFrame < 2.0f)) {
         sprintf(name, "message_list%02d", mDB4 + 1);
         MpRect_unk cursor = GetPaneRect_unk(list, name);
@@ -1547,24 +1547,24 @@ void D2AMpMenuLobby::fn_804C18A8() {
             chara = mE6C;
             map = mE5C;
             if (mD88 == 4) {
-                SetPaneValue_unk(mPlayers[mE60].mTasks[0]->mLayout, "pos0010_01(1)(1)", 4, 0.0f);
-                SetPaneValue_unk(mPlayers[mE60].mTasks[0]->mLayout, "pos0011_01(1)", 4, 0.0f);
+                SetPaneValue_unk(&mPlayers[mE60].mTasks[0]->mData.m10, "pos0010_01(1)(1)", 4, 0.0f);
+                SetPaneValue_unk(&mPlayers[mE60].mTasks[0]->mData.m10, "pos0011_01(1)", 4, 0.0f);
             }
         } else {
-            SetPaneValue_unk(mPlayers[i].mTasks[0]->mLayout, "pos0010_01(1)(1)", 4, 200.0f);
-            SetPaneValue_unk(mPlayers[i].mTasks[0]->mLayout, "pos0011_01(1)", 4, 200.0f);
-            SetPaneValue2_unk(mPlayers[i].mTasks[0]->mLayout, "col0003(1)", 0, 0.0f);
-            SetPaneValue2_unk(mPlayers[i].mTasks[0]->mLayout, "col0004(1)", 0, 0.0f);
+            SetPaneValue_unk(&mPlayers[i].mTasks[0]->mData.m10, "pos0010_01(1)(1)", 4, 200.0f);
+            SetPaneValue_unk(&mPlayers[i].mTasks[0]->mData.m10, "pos0011_01(1)", 4, 200.0f);
+            SetPaneValue2_unk(&mPlayers[i].mTasks[0]->mData.m10, "col0003(1)", 0, 0.0f);
+            SetPaneValue2_unk(&mPlayers[i].mTasks[0]->mData.m10, "col0004(1)", 0, 0.0f);
         }
         if (wcscmp(info->mName, L"") == 0) {
             const wchar_t* none = lbl_8087F86C->Get_unk(0xCD);
-            SetPaneText_unk(mPlayers[i].mTasks[0]->mLayout, "string0027(2)", none);
-            SetPaneText_unk(mPlayers[i].mTasks[0]->mLayout, "string0007(1)(1)", L"");
-            SetPaneText_unk(mPlayers[i].mTasks[0]->mLayout, "string0001(1)(1)", L"");
-            SetPaneText_unk(mPlayers[i].mTasks[0]->mLayout, "string0001(1)", L"");
-            SetPaneFloat_unk(mPlayers[i].mTasks[1]->mLayout, "patternIndex", 0.0f);
+            SetPaneText_unk(&mPlayers[i].mTasks[0]->mData.m10, "string0027(2)", none);
+            SetPaneText_unk(&mPlayers[i].mTasks[0]->mData.m10, "string0007(1)(1)", L"");
+            SetPaneText_unk(&mPlayers[i].mTasks[0]->mData.m10, "string0001(1)(1)", L"");
+            SetPaneText_unk(&mPlayers[i].mTasks[0]->mData.m10, "string0001(1)", L"");
+            SetPaneFloat_unk(&mPlayers[i].mTasks[1]->mData.m10, "patternIndex", 0.0f);
         } else {
-            SetPaneText_unk(mPlayers[i].mTasks[0]->mLayout, "string0027(2)", info->mName);
+            SetPaneText_unk(&mPlayers[i].mTasks[0]->mData.m10, "string0027(2)", info->mName);
             CharaInfo_unk* ci = fn_8020924C(chara + 0xAAE60);
             if (chara == -1) {
                 fn_800DD3FC(text, lbl_8087F86C->Get_unk(0x2A));
@@ -1573,21 +1573,21 @@ void D2AMpMenuLobby::fn_804C18A8() {
             } else {
                 fn_800DD3FC(text, ci != 0 ? ci->m04 : L"");
             }
-            SetPaneText_unk(mPlayers[i].mTasks[0]->mLayout, "string0007(1)(1)", text);
-            SetPaneText_unk(mPlayers[i].mTasks[0]->mLayout, "string0001(1)(1)", fn_804FA88C(lbl_8087F610, info->m30));
-            SetPaneText_unk(mPlayers[i].mTasks[0]->mLayout, "string0001(1)", fn_804FA7C8(lbl_8087F610, lbl_8087F610->m540, map));
+            SetPaneText_unk(&mPlayers[i].mTasks[0]->mData.m10, "string0007(1)(1)", text);
+            SetPaneText_unk(&mPlayers[i].mTasks[0]->mData.m10, "string0001(1)(1)", fn_804FA88C(lbl_8087F610, info->m30));
+            SetPaneText_unk(&mPlayers[i].mTasks[0]->mData.m10, "string0001(1)", fn_804FA7C8(lbl_8087F610, lbl_8087F610->m540, map));
             int pattern = ci != 0 ? ci->m2C : 0;
-            SetPaneInt_unk(mPlayers[i].mTasks[1]->mLayout, "patternIndex", pattern);
-            SetPaneValue2Int_unk(mPlayers[i].mTasks[1]->mLayout, "col0006", 0, (unsigned char)(pattern == 0 ? 0xFF : 0));
+            SetPaneInt_unk(&mPlayers[i].mTasks[1]->mData.m10, "patternIndex", pattern);
+            SetPaneValue2Int_unk(&mPlayers[i].mTasks[1]->mData.m10, "col0006", 0, (unsigned char)(pattern == 0 ? 0xFF : 0));
         }
         if (info == server) {
-            SetPaneValue2_unk(mPlayers[i].mTasks[0]->mLayout, "col0001", 3, 180.0f);
-            SetPaneValue2_unk(mPlayers[i].mTasks[0]->mLayout, "col0027", 3, 180.0f);
+            SetPaneValue2_unk(&mPlayers[i].mTasks[0]->mData.m10, "col0001", 3, 180.0f);
+            SetPaneValue2_unk(&mPlayers[i].mTasks[0]->mData.m10, "col0027", 3, 180.0f);
         } else {
-            SetPaneValue2_unk(mPlayers[i].mTasks[0]->mLayout, "col0001", 3, 255.0f);
-            SetPaneValue2_unk(mPlayers[i].mTasks[0]->mLayout, "col0027", 3, 255.0f);
+            SetPaneValue2_unk(&mPlayers[i].mTasks[0]->mData.m10, "col0001", 3, 255.0f);
+            SetPaneValue2_unk(&mPlayers[i].mTasks[0]->mData.m10, "col0027", 3, 255.0f);
         }
-        SetPaneInt_unk(mPlayers[i].mTasks[1]->mLayout, "drawFlg1", mode == 1);
+        SetPaneInt_unk(&mPlayers[i].mTasks[1]->mData.m10, "drawFlg1", mode == 1);
         if (mode == 1) {
             unsigned int color = 0xFFFFFFFF;
             if (mPlayers[i].m1C == 2) {
@@ -1600,8 +1600,8 @@ void D2AMpMenuLobby::fn_804C18A8() {
         Play_unk(mPlayers[i].mTasks[0], 0, 1.0f);
         Play_unk(mPlayers[i].mTasks[1], 0, 1.0f);
         Play_unk(mPlayers[i].mTasks[5], 0, 1.0f);
-        mPlayers[i].mTasks[0]->mFrame = mPlayers[i].mTasks[0]->mLastFrame;
-        StopAt_unk(mPlayers[i].mTasks[2], mPlayers[i].mTasks[2]->mLastFrame);
+        mPlayers[i].mTasks[0]->mFrame = mPlayers[i].mTasks[0]->mData.mEndFrame;
+        StopAt_unk(mPlayers[i].mTasks[2], mPlayers[i].mTasks[2]->mData.mEndFrame);
     }
 }
 
@@ -1613,10 +1613,10 @@ void D2AMpMenuLobby::fn_804C2260(int v) { mDCC = v; }
 // NONMATCHING: 85% - the branchless color value and the string offsets
 void D2AMpMenuLobby::fn_804C2268(int time) {
     m50->SetNumber_unk("string0100(1)", time, 0);
-    SetPaneValue2_unk(m50->mLayout, "col0100", 1, 255.0f);
+    SetPaneValue2_unk(&m50->mData.m10, "col0100", 1, 255.0f);
     int full = 0xFF;
-    SetPaneValue2_unk(m50->mLayout, "col0100", 2, (float)(time <= 30 ? 0 : full));
-    SetPaneValue2_unk(m50->mLayout, "col0100", 3, (float)(time <= 30 ? 0 : full));
+    SetPaneValue2_unk(&m50->mData.m10, "col0100", 2, (float)(time <= 30 ? 0 : full));
+    SetPaneValue2_unk(&m50->mData.m10, "col0100", 3, (float)(time <= 30 ? 0 : full));
     if (mD88 != 0) {
         MpD2A_unk* task = m50;
         if (task != 0) {
@@ -1725,17 +1725,17 @@ void D2AMpMenuLobby::fn_804C2994(int id) {
     const char* names[3] = {"draw1", "draw2", "draw3"};
     for (int i = 0; i < 3; i++) {
         if (i == mE58) {
-            SetPaneFloat_unk(m70->mLayout, names[i], 1.0f);
+            SetPaneFloat_unk(&m70->mData.m10, names[i], 1.0f);
         } else {
-            SetPaneFloat_unk(m70->mLayout, names[i], 0.0f);
+            SetPaneFloat_unk(&m70->mData.m10, names[i], 0.0f);
         }
     }
     if (lbl_8087F610->m514 != 0) {
         int time = fn_804E4A20();
         int full = 0xFF;
-        SetPaneValue2_unk(m70->mLayout, "col0002(1)", 0, (float)(time >= 407000 ? 0 : full));
-        SetPaneValue2_unk(m70->mLayout, "col0009(1)", 0, (float)(time >= 407000 ? 0 : full));
-        SetPaneFloat_unk(m70->mLayout, "ruriXposCorrection", (float)(time >= 407000 ? -100 : 0));
+        SetPaneValue2_unk(&m70->mData.m10, "col0002(1)", 0, (float)(time >= 407000 ? 0 : full));
+        SetPaneValue2_unk(&m70->mData.m10, "col0009(1)", 0, (float)(time >= 407000 ? 0 : full));
+        SetPaneFloat_unk(&m70->mData.m10, "ruriXposCorrection", (float)(time >= 407000 ? -100 : 0));
     }
 }
 
@@ -1763,10 +1763,10 @@ void D2AMpMenuLobby::fn_804C2D5C(MpLobbyMember_unk* member, const wchar_t* text,
     }
     if (index < 6) {
         if (kind == 0) {
-            SetPaneText_unk(mPlayers[index].mTasks[3]->mLayout, "string0007(1)", L"");
+            SetPaneText_unk(&mPlayers[index].mTasks[3]->mData.m10, "string0007(1)", L"");
             mPlayers[index].mTasks[3]->mFrame = 0.0f;
         } else {
-            SetPaneText_unk(mPlayers[index].mTasks[4]->mLayout, "string0007(1)", L"");
+            SetPaneText_unk(&mPlayers[index].mTasks[4]->mData.m10, "string0007(1)", L"");
             mPlayers[index].mTasks[4]->mFrame = 0.0f;
         }
         mPlayers[index].m20 = frames > 0 ? frames + 30 : 90;

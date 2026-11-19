@@ -3,6 +3,7 @@
 // helpers of the models (pose of a node, MotionPose_unk, atn::MotionCommandData). The motion banks
 // (0x800A0A68-0x800A2978) are another file: atn/MotionBank_unk.cpp.
 #include "atn/Csv.h"
+#include "atn/MotionData_unk.h"
 #include "atn/Model_unk.h"
 #include "atn/MotionCmd_unk.h"
 #include "atn/MotionModelRes_unk.h"
@@ -164,20 +165,6 @@ int LH_Motion::fn_800A0448() {
 
 } // namespace atn
 
-// inferred: animated node of a motion (tracks of scale, rotation and translation)
-struct MotionNode_unk {
-    unsigned char m00[0x14];
-    unsigned int m14; // inferred: name hash
-    unsigned int m18; // inferred: 1 translation, 2 rotation, 4 scale
-    SceneTrack_unk* m1C;
-};
-// inferred: loaded motion
-struct MotionData_unk {
-    unsigned char m00[0x10];
-    float m10; // inferred: length
-    int m14;   // inferred: number of nodes
-    MotionNode_unk** m18;
-};
 
 // NONMATCHING: 90.45% - order of the track/key increments and scheduling of the stores
 extern "C" void fn_800A0610(atn::LH_Motion* motion, MotionPose_unk* pose, MotionNode_unk* node, short* keys,

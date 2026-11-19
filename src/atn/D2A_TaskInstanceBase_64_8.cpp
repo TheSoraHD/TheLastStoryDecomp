@@ -1,8 +1,10 @@
 #include "atn/D2A_TaskInstanceC.h"
 #include "atn/D2A_Task.h"
+#include "atn/D2A_TaskApi_unk.h"
 #include "atn/Memory.h"
 #include "std/string.h"
 #include "std/string_members.h"
+#include "atn/D2A_Manager.h"
 
 // Instances of d2anime files: each one keeps its own frame and pane values and applies them to the
 // D2A_Task of the file (shared by all the instances of the same path) before drawing it. Three
@@ -40,12 +42,6 @@ inline void SetLayoutInt_unk(atn::D2A_Task* task, unsigned int id, int value) {
     fn_801FEEFC(&task->mData.m10, id, value);
 }
 
-// inferred: d2anime manager (lbl_8087F138): the instance being drawn
-struct D2AInstanceManager_unk {
-    unsigned char m000[0x1AC];
-    atn::ID2A_TaskInstance* mInstance; // 0x1AC
-};
-extern "C" D2AInstanceManager_unk* lbl_8087F138;
 
 namespace atn {
 

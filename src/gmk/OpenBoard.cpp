@@ -1,3 +1,4 @@
+#include "game/GameConfig_unk.h"
 #include "gmk/OpenBoard.h"
 #include "atn/Csv.h"
 #include "atn/Memory.h"
@@ -15,29 +16,26 @@ extern "C" int fn_802180A8(const char* s); // inferred: motion id from its name
 // inferred: float variables in .sdata used only here (values 0)
 extern "C" float lbl_8087DFB8;
 extern "C" float lbl_8087DFBC;
-// inferred: game settings
-struct Settings_unk {
-    unsigned char m00[0x18];
-    int m18;
-};
-extern "C" Settings_unk* lbl_8087F0A8;
+extern "C" GameConfig_unk* lbl_8087F0A8;
 extern "C" void PSMTXInverse(const Mtx src, Mtx inv);
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 // inferred: effect manager (class unknown), global instance at 0x8087F3C0
-struct EffectMgr_unk;
+namespace atn {
+class EffectManager;
+}
 struct Color4f_unk {
     Color4f_unk(float r, float g, float b, float a) : r(r), g(g), b(b), a(a) {}
     float r, g, b, a;
 };
-extern "C" EffectMgr_unk* lbl_8087F3C0;
-extern "C" int fn_80239D58(EffectMgr_unk* mgr, void* owner, int id); // inferred: the effect is playing
+extern "C" atn::EffectManager* lbl_8087F3C0;
+extern "C" int fn_80239D58(atn::EffectManager* mgr, void* owner, int id); // inferred: the effect is playing
 extern "C" void fn_80232B7C(void* owner, int arg);
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
+extern "C" void fn_8023A8B4(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Model* model, void* node,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
 // inferred: plays an effect on a model (names invented)
 // inferred: plays an effect on a model (the vectors and the color are locals; names invented)
-inline void PlayEfp3_unk(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model) {
+inline void PlayEfp3_unk(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Model* model) {
     atn::Vector3 pos;
     atn::Vector3 rot;
     rot.Set_unk(0.0f, 0.0f, 0.0f);
@@ -82,7 +80,7 @@ OpenBoard::OpenBoard(atn::Task* parent, int id, int arg)
 int OpenBoard::vf0C() {
     if (fn_803EC91C() == 0) {
         fn_803EDB18(&mModel);
-        mColli.m0C = (int)this;
+        mColli.m0C = this;
         return 1;
     }
     return 0;
@@ -182,7 +180,7 @@ void OpenBoard::vf10() {
 }
 
 void OpenBoard::vf14() {
-    if (lbl_8087F0A8->m18 != 0 && vf38() != 0) {
+    if (lbl_8087F0A8->mDrawMap != 0 && vf38() != 0) {
         fn_803ED774(vf38());
     }
 }

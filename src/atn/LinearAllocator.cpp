@@ -9,23 +9,8 @@
 // The real file defines atn::PostFxManager (RTTI name at 0x80732AC8), a task that owns the
 // post effects and a linear allocator for their temporary textures.
 
-// inferred: render parameters (fields named by offset)
-struct PostFxParams_unk {
-    unsigned char m000[0x54];
-    int mBloom;      // 0x54
-    unsigned char m058[0xD4 - 0x58];
-    int mDof;        // 0xD4
-    unsigned char m0D8[0x238 - 0xD8];
-    float mBloomAlpha; // 0x238
-    float mDofAlpha;   // 0x23C
-    unsigned char m240[0x324 - 0x240];
-    int mColorMatrix; // 0x324
-    unsigned char m328[0x374 - 0x328];
-    int mDamage;      // 0x374
-    unsigned char m378[0x3E4 - 0x378];
-    float mGammaAlpha; // 0x3E4
-};
-extern "C" PostFxParams_unk* lbl_8087EFA8;
+#include "atn/RenderSetting_unk.h"
+extern "C" RenderSetting_unk* lbl_8087EFA8;
 // inferred: allocates from a memory manager
 extern "C" unsigned long GXGetTexBufferSize(unsigned short width, unsigned short height, unsigned int format,
                                             unsigned char mipmap, unsigned char maxLod);
@@ -203,26 +188,26 @@ PostFxManager::PostFxManager(Task* parent)
 PostFxManager::~PostFxManager() {}
 
 void PostFxManager::fn_800A9558() {
-    if (lbl_8087EFA8->mBloom != 0) {
-        float alpha = lbl_8087EFA8->mBloomAlpha;
+    if (lbl_8087EFA8->m054.mEnabled != 0) {
+        float alpha = lbl_8087EFA8->m238;
         atn::RenderManager::instance_->AddRender(&mBloom, m778, alpha);
     }
     if (mGodRay.fn_800AEF4C() != 0) {
         atn::RenderManager::instance_->AddRender(&mGodRay, 0xE, 0.0f);
     }
-    if (lbl_8087EFA8->mDof != 0) {
-        float alpha = lbl_8087EFA8->mDofAlpha;
+    if (lbl_8087EFA8->mDof.mEnabled != 0) {
+        float alpha = lbl_8087EFA8->m23C;
         atn::RenderManager::instance_->AddRender(&mDof, 0xE, alpha);
     }
     atn::RenderManager::instance_->AddRender(&mMotionBlur, 0xE, 0.0f);
-    if (lbl_8087EFA8->mColorMatrix != 0) {
+    if (lbl_8087EFA8->m324.mEnabled != 0) {
         atn::RenderManager::instance_->AddRender(&mColorMatrix, m778, (float)mColorMatrix.m48);
     }
-    atn::RenderManager::instance_->AddRender(&mGamma, 0xE, lbl_8087EFA8->mGammaAlpha);
+    atn::RenderManager::instance_->AddRender(&mGamma, 0xE, lbl_8087EFA8->m3DC.mDepth);
     if (mRain.fn_800B0A48() != 0) {
         atn::RenderManager::instance_->AddRender(&mRain, 0xE, 0.0f);
     }
-    if (lbl_8087EFA8->mDamage != 0) {
+    if (lbl_8087EFA8->m374.mEnabled != 0) {
         atn::RenderManager::instance_->AddRender(&mDamage, 0xE, 0.0f);
     }
     mAlloc.mUsed = 0;

@@ -17,6 +17,7 @@
 #include "game/BattleTask.h"
 #include "atn/ColliBase.h"
 #include "game/GameSceneFind_unk.h"
+#include "atn/TextTable_unk.h"
 
 extern "C" unsigned long strlen(const char* s);
 extern "C" int strcmp(const char* a, const char* b);
@@ -24,48 +25,35 @@ extern "C" int strncmp(const char* a, const char* b, unsigned long n);
 extern "C" void* memset(void* dst, int c, unsigned long n);
 extern "C" int fn_800DD3FC(wchar_t* s, const wchar_t* format, ...); // inferred: wide sprintf
 extern "C" const wchar_t lbl_808813D0[2]; // inferred: empty text
-// inferred: camp message table (lbl_8087F1E4, as in game/Em302Kraken.cpp)
-struct KrakenMpMsgTable_unk {
-    const wchar_t* Get_unk(int id) { return mText[id] != 0 ? mText[id] : lbl_808813D0; }
-    const wchar_t* mText[1];
-};
-extern "C" KrakenMpMsgTable_unk* lbl_8087F1E4;
 extern "C" float fn_800DC288(const char* s); // inferred: string to float
 extern "C" int fn_800DC12C(const char* s);   // inferred: string to int
 // inferred: std::string concatenation (weak copy 0x8006AFF8)
 extern "C" std::string fn_8006AFF8(const std::string& a, const std::string& b);
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
-extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3, int arg4);
+extern "C" void fn_80087994(void* group, const char* name, int* value, void* func, void* arg);
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
 extern "C" void fn_800CB5C8(atn::SoundRef* sound, int frames, int arg); // inferred: stops the sound
 // inferred: effect manager (class unknown), global instance at 0x8087F3C0
-struct EffectMgr_unk;
+namespace atn {
+class EffectManager;
+}
 struct Color4f_unk {
     Color4f_unk() {}
     float r, g, b, a;
 };
-extern "C" EffectMgr_unk* lbl_8087F3C0;
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
+extern "C" atn::EffectManager* lbl_8087F3C0;
+extern "C" void fn_8023A8B4(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Model* model, void* node,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
-extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
+extern "C" void fn_80239DAC(atn::EffectManager* mgr, void* owner, int id, int arg); // inferred: stops an effect
 extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the next effects
 // inferred: multiplayer session (lbl_8087F610, as in game/Em305VampireMp.cpp)
 struct MpSession_unk;
 extern "C" MpSession_unk* lbl_8087F610;
 extern "C" void fn_804DA48C(MpSession_unk* session, int arg);
-// inferred: field object (lbl_8087F430): camera shake at 0x96C (names invented, as in game/Em301LShade.cpp)
-struct Field_unk {
-    GameScene* fn_8013C504(); // inferred: route tables (as in gmk/FlamingArrow.cpp)
-    unsigned char m000[0x96C];
-    int m96C;
-    int m970;
-    float m974;
-    float m978;
-};
-extern "C" Field_unk* lbl_8087F430;
-extern "C" Field_unk* fn_80121F00();
+extern "C" GameTask* lbl_8087F430;
+extern "C" GameTask* fn_80121F00();
 
 // inferred: route tables of the field (as in gmk/FlamingArrow.cpp)
 extern "C" CharaManager<EnemyTask>* fn_801A03E0(); // inferred: enemy manager
@@ -84,7 +72,8 @@ inline void ClearModelFlag_unk(atn::Model* model, unsigned int flag) {
 }
 
 extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float volume);
-extern "C" void* lbl_8087EE98;
+struct ColliManager_unk;
+extern "C" ColliManager_unk* lbl_8087EE98;
 extern "C" int fn_8004ED34(void* colli, atn::ColliResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg7);
 extern "C" HitInfo_unk* fn_80219E6C(int id); // inferred: bullet/skill data by id
@@ -260,7 +249,7 @@ inline void PlayEffect2_unk(atn::EfpFile* efp, atn::Model* model) {
     color.g = 1.0f;
     color.b = 1.0f;
     color.a = 1.0f;
-    EffectMgr_unk* mgr = lbl_8087F3C0;
+    atn::EffectManager* mgr = lbl_8087F3C0;
     fn_8023A8B4(mgr, efp, model, 0, pos, rot, color, -1, -1, 1, 1.0f);
 }
 
@@ -459,16 +448,16 @@ inline KrakenMpGimmick_unk* RaisePillar_unk(Em302KrakenMp* k) {
 void Em302KrakenMp::vf10() {
     if (m1540 != m1544) {
         if (m1540 == 1) {
-            ((GameTask*)lbl_8087F430)->fn_80370AE4(11, 1);
+            lbl_8087F430->fn_80370AE4(11, 1);
             m1648++;
         } else if (m1540 == 2) {
-            ((GameTask*)lbl_8087F430)->fn_80370AE4(10, 1);
+            lbl_8087F430->fn_80370AE4(10, 1);
             m1648++;
         } else if (m1540 == 3) {
-            ((GameTask*)lbl_8087F430)->fn_80370AE4(11, 1);
+            lbl_8087F430->fn_80370AE4(11, 1);
             m1648++;
         } else if (m1540 == 4) {
-            ((GameTask*)lbl_8087F430)->fn_80370AE4(10, 1);
+            lbl_8087F430->fn_80370AE4(10, 1);
             m1648++;
         }
         m1544 = m1540;
@@ -883,7 +872,7 @@ void Em302KrakenMp::fn_802E03F0() {
             fn_802E10D8(1);
         }
         if (m14E4 == 1) {
-            ((GameTask*)lbl_8087F430)->fn_80370AE4(0xCC, 1);
+            lbl_8087F430->fn_80370AE4(0xCC, 1);
             fn_802E1414();
         }
         if (m14E4 == 2) {
@@ -979,11 +968,11 @@ void Em302KrakenMp::fn_802E0C60() {
         fn_80239DAC(lbl_8087F3C0, this, 101, 1);
     }
     if (m14E8 == 20) {
-        Field_unk* field = lbl_8087F430;
-        field->m96C = field->m96C % 2;
-        field->m970 = 120;
-        field->m974 = 1.0f;
-        field->m978 = 1.0f;
+        GameTask* field = lbl_8087F430;
+        field->mCamera.mShake.mFrame = field->mCamera.mShake.mFrame % 2;
+        field->mCamera.mShake.mLength = 120;
+        field->mCamera.mShake.mWidth = 1.0f;
+        field->mCamera.mShake.mHeight = 1.0f;
         for (KrakenMpGimmick_unk* g = FirstGimmick_unk(); g != 0; g = g->mNext) {
             if (g->m48 == 0x444) {
                 KrakenMpGimmickMsg_unk msg;
@@ -1167,7 +1156,7 @@ void Em302KrakenMp::fn_802E177C() {
     fn_800CB5C8(&m1560, 0, 0);
     fn_80239DAC(lbl_8087F3C0, this, 100, 1);
     fn_80239DAC(lbl_8087F3C0, this, 101, 1);
-    if (lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->fn_80375184() != 0 && mType == 2) {
+    if (lbl_8087F430 != 0 && lbl_8087F430->fn_80375184() != 0 && mType == 2) {
         lbl_8087F048->fn_801092C8(6, this, 0, 0);
     }
     fn_800C31F4("SE_EM302_020", 0, -1, 1.0f);
@@ -1193,11 +1182,11 @@ void Em302KrakenMp::vf114(const SpecialState_unk* state) {
     if (state->m00 == 10 && m58C != 10) {
         fn_80232B7C(0, 0);
         PlayEffect_unk(&m1570, (atn::Model*)&mMotion);
-        Field_unk* field = lbl_8087F430;
-        field->m96C = field->m96C % 2;
-        field->m970 = 140;
-        field->m974 = 1.0f;
-        field->m978 = 1.0f;
+        GameTask* field = lbl_8087F430;
+        field->mCamera.mShake.mFrame = field->mCamera.mShake.mFrame % 2;
+        field->mCamera.mShake.mLength = 140;
+        field->mCamera.mShake.mWidth = 1.0f;
+        field->mCamera.mShake.mHeight = 1.0f;
     }
     if (state->m00 == 2 && m1650 == 0) {
         vf44();

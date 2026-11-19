@@ -424,7 +424,10 @@ struct MpTextTable_unk {
     wchar_t* mText; // 0xFC
 };
 
-extern "C" void* lbl_8087EEC8; // inferred: font used to convert the names
+namespace atn {
+class Font_unk;
+}
+extern "C" atn::Font_unk* lbl_8087EEC8; // inferred: font used to convert the names
 extern "C" void* lbl_8087EE90; // inferred: sound engine
 extern "C" void fn_8006F420(void* font, char* out, const wchar_t* in, int size); // inferred: wide to multibyte
 extern "C" unsigned int fn_80049B74(void* engine, const char* name); // inferred: sound id of a name

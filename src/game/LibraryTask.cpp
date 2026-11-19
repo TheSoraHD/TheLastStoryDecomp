@@ -22,7 +22,8 @@ extern "C" void fn_800C3094(const char* group); // inferred: loads a sound group
 extern "C" void fn_800C3124(const char* group); // inferred: releases a sound group
 extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float volume); // inferred: plays a sound
 extern "C" atn::SoundRef fn_80117228(int id);
-extern "C" void* lbl_8087EF70; // inferred: pad
+struct Pad_unk;
+extern "C" Pad_unk* lbl_8087EF70; // inferred: pad
 extern "C" int fn_800A555C(void* pad, int port, int button); // inferred: button triggered
 extern "C" void fn_800D2338(atn::Task* task); // inferred: deletes the task
 extern "C" unsigned int fn_800DC6B4(const char* s); // inferred: string hash
@@ -30,7 +31,10 @@ extern "C" int fn_800DC1DC(const wchar_t* s); // inferred: wide string to int
 extern "C" void fn_801FECE0(void* layout, unsigned int hash, float value);
 extern "C" void fn_801FED24(void* layout, unsigned int hash, int index, float value);
 extern "C" void fn_801FEE08(void* layout, unsigned int hash, const wchar_t* text);
-extern "C" void* lbl_8087EEC8; // inferred: font
+namespace atn {
+class Font_unk;
+}
+extern "C" atn::Font_unk* lbl_8087EEC8; // inferred: font
 extern "C" float fn_8006EF48(void* font, float size, const wchar_t* text, float f2, int a, int b); // inferred: width
 extern "C" void fn_8006F420(void* font, char* out, const wchar_t* in, int size); // inferred: wide to multibyte
 // inferred: word wrap of a text
@@ -42,8 +46,7 @@ struct GimmickUvOwner_unk {
 };
 
 // inferred: event flags of the field
-struct LibraryField_unk;
-extern "C" LibraryField_unk* lbl_8087F430;
+extern "C" GameTask* lbl_8087F430;
 
 
 // inferred: parameters of the text (debug menu "Library")
@@ -52,10 +55,10 @@ extern "C" float lbl_8087E034; // FontH
 extern "C" float lbl_8087E038; // FontWindowW
 extern "C" int lbl_8087E03C;   // LineNum
 extern "C" float lbl_8087E040; // LineSpace
-extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, int arg6,
-                            int arg7);
-extern "C" void fn_8008771C(void* group, const char* name, float* value, int arg3, int arg4, float min, float max,
-                            float step);
+extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, void* func,
+                            void* arg);
+extern "C" void fn_8008771C(void* group, const char* name, float* value, float min, float max, float step, void* func,
+                            void* arg);
 
 static const char* const sSeTable[] = {"SE_EV1605_001", "SE_EV1605_003", "SE_EV1605_002"};
 
@@ -135,11 +138,11 @@ int LibraryTask::vf0C() {
         m58[i]->mFlags |= 4;
     }
     void* menu = mMenu.Load("Library");
-    fn_8008771C(menu, "FontW", &lbl_8087E030, 0, 0, -1000.0f, 1000.0f, 0.1f);
-    fn_8008771C(menu, "FontH", &lbl_8087E034, 0, 0, -1000.0f, 1000.0f, 0.1f);
-    fn_8008771C(menu, "FontWindowW", &lbl_8087E038, 0, 0, -1000.0f, 1000.0f, 0.1f);
+    fn_8008771C(menu, "FontW", &lbl_8087E030, -1000.0f, 1000.0f, 0.1f, 0, 0);
+    fn_8008771C(menu, "FontH", &lbl_8087E034, -1000.0f, 1000.0f, 0.1f, 0, 0);
+    fn_8008771C(menu, "FontWindowW", &lbl_8087E038, -1000.0f, 1000.0f, 0.1f, 0, 0);
     fn_800874C8(menu, "LineNum", &lbl_8087E03C, 0, 10000, 1, 0, 0);
-    fn_8008771C(menu, "LineSpace", &lbl_8087E040, 0, 0, -1000.0f, 1000.0f, 0.1f);
+    fn_8008771C(menu, "LineSpace", &lbl_8087E040, -1000.0f, 1000.0f, 0.1f, 0, 0);
     return 1;
 }
 
@@ -222,7 +225,7 @@ void LibraryTask::vf1C(int state) {
     switch (state) {
     case 1:
         if (lbl_8087F430 != 0) {
-            ((GameTask*)lbl_8087F430)->fn_8036EA3C();
+            lbl_8087F430->fn_8036EA3C();
         }
         break;
     case 3:
@@ -233,8 +236,8 @@ void LibraryTask::vf1C(int state) {
                 mBook = 0;
             }
             mBook = new ((MemoryTag)1, "", "", 0) BookTask(this, book->mName, book->mTitle);
-            if (((GameTask*)lbl_8087F430)->fn_80370174(book->mId) == 1) {
-                ((GameTask*)lbl_8087F430)->fn_80370320(book->mId, 2, 0);
+            if (lbl_8087F430->fn_80370174(book->mId) == 1) {
+                lbl_8087F430->fn_80370320(book->mId, 2, 0);
             }
         } else {
             vf1C(2);
@@ -301,11 +304,11 @@ void LibraryTask::fn_80469D60(const void* data, unsigned int size, int unlock) {
         }
         LibraryBook_unk book;
         book.mId = fn_800DC1DC(field);
-        if (book.mId != 0 && lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->fn_80370174(book.mId) == 0) {
+        if (book.mId != 0 && lbl_8087F430 != 0 && lbl_8087F430->fn_80370174(book.mId) == 0) {
             if (unlock == 0) {
                 continue;
             }
-            ((GameTask*)lbl_8087F430)->fn_80370320(book.mId, 1, 0);
+            lbl_8087F430->fn_80370320(book.mId, 1, 0);
         }
         void* font = lbl_8087EEC8;
         fn_8006F420(font, book.mName, csv.fn_8005B9CC(), 0x10);
@@ -326,7 +329,7 @@ void LibraryTask::fn_8046A20C() {
         int index = i + mTop;
         if (index < (int)mBooks.size()) {
             LibraryBook_unk* book = &mBooks[index];
-            isNew = book->mId > 0 && ((GameTask*)lbl_8087F430)->fn_80370174(book->mId) == 1;
+            isNew = book->mId > 0 && lbl_8087F430->fn_80370174(book->mId) == 1;
             m58[i]->SetText_unk("bookName", book->mTitle);
             m58[i]->SetValue0_unk("newIcon", isNew ? 1.0f : 0.0f);
             m58[i]->mFlags &= ~4;

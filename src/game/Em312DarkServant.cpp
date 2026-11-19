@@ -16,18 +16,20 @@ extern "C" float fn_800DC288(const char* s); // inferred: string to float
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0;  // inferred: player manager
 // inferred: effect manager (class unknown), global instance at 0x8087F3C0
-struct EffectMgr_unk;
+namespace atn {
+class EffectManager;
+}
 struct Color4f_unk {
     Color4f_unk() {}
     float r, g, b, a;
 };
-extern "C" EffectMgr_unk* lbl_8087F3C0;
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
+extern "C" atn::EffectManager* lbl_8087F3C0;
+extern "C" void fn_8023A8B4(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Model* model, void* node,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
-extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
+extern "C" void fn_80239DAC(atn::EffectManager* mgr, void* owner, int id, int arg); // inferred: stops an effect
 extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the next effects
-extern "C" int fn_80239D58(EffectMgr_unk* mgr, void* owner, int id); // inferred: the effect is playing
+extern "C" int fn_80239D58(atn::EffectManager* mgr, void* owner, int id); // inferred: the effect is playing
 extern "C" int rand();
 extern "C" float fn_80011220(float x); // inferred: fabs (weak copy of another helper)
 // inferred: effect manager methods (as in game/CharaTask.cpp)
@@ -37,10 +39,10 @@ extern "C" void fn_802F0964(BattleTask* mgr, CharaTask* owner, HitInfo_unk* bull
                             float arg9); // inferred: fires a bullet (weak copy, game/Em306GurgBeast.cpp)
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
-extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, int arg6,
-                            int arg7);
-extern "C" void fn_8008771C(void* group, const char* name, float* value, int arg3, int arg4, float min, float max,
-                            float step);
+extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, void* func,
+                            void* arg);
+extern "C" void fn_8008771C(void* group, const char* name, float* value, float min, float max, float step, void* func,
+                            void* arg);
 
 Em312DarkServant::Em312DarkServant(atn::Task* parent, EnemyInfo_unk* info)
     : SpecialEnemyBase(parent, info), m14D4(0), m14D8(1), m14DC(0), m14E0(0), m14E4(50.0f), m14E8(40.0f), m1570(900),
@@ -117,7 +119,7 @@ int Em312DarkServant::vf0C() {
         m1438->fn_800D246C(0);
         m1438->mFlags |= 4;
     }
-    const char* master = strstr(((EnemyInfo_unk*)m14B0)->m2C, "master=");
+    const char* master = strstr(m14B0->m2C, "master=");
     if (master != 0) {
         EnemyManager* mgr = EnemyManager::sInstance;
         if (mgr != 0) {
@@ -771,8 +773,8 @@ void Em312DarkServant::vf30(void* menu) {
         group = 0;
     }
     fn_805A5220(group);
-    fn_8008771C(group, "MoveRadius", &m14E4, 0, 0, 0.0f, 9999.0f, 1.0f);
-    fn_8008771C(group, "AttackLength", &m14E8, 0, 0, 0.0f, 9999.0f, 1.0f);
+    fn_8008771C(group, "MoveRadius", &m14E4, 0.0f, 9999.0f, 1.0f, 0, 0);
+    fn_8008771C(group, "AttackLength", &m14E8, 0.0f, 9999.0f, 1.0f, 0, 0);
     fn_800874C8(group, "BreathIntervalInit", &m1570, 0, 9999, 1, 0, 0);
     fn_800874C8(group, "BreathInterval", &m1574, 0, 9999, 1, 0, 0);
     fn_800874C8(group, "AttackCountMax", &m1578, 0, 9999, 1, 0, 0);

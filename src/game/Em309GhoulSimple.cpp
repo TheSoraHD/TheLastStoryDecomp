@@ -1,3 +1,4 @@
+#include "game/GameTask.h"
 #include "game/Em309GhoulSimple.h"
 #include "atn/Csv.h"
 #include "chr/ControlStickByQuark.h"
@@ -19,16 +20,17 @@ extern "C" void* memcpy(void* dst, const void* src, unsigned long n);
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" int atoi(const char* s);
 extern "C" float fn_800DC288(const char* s); // inferred: string to float
-extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, int arg6,
-                            int arg7);
-extern "C" void fn_8008771C(void* group, const char* name, float* value, int arg3, int arg4, float min, float max,
-                            float step);
+extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, void* func,
+                            void* arg);
+extern "C" void fn_8008771C(void* group, const char* name, float* value, float min, float max, float step, void* func,
+                            void* arg);
 extern "C" int rand();
 extern "C" HitInfo_unk* fn_80219E6C(int id); // inferred: skill data by id
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
-extern "C" void* lbl_8087EE98;
+struct ColliManager_unk;
+extern "C" ColliManager_unk* lbl_8087EE98;
 extern "C" int fn_8004D388(void* world, atn::ColliResult_unk* result, CharaTask::Sphere_unk* sphere, atn::Vector3* move,
                            unsigned int mask, void* ignore, int arg, float radius); // inferred: sweep test
 extern "C" int fn_8004ED34(void* world, atn::ColliResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
@@ -36,21 +38,18 @@ extern "C" int fn_8004ED34(void* world, atn::ColliResult_unk* result, const atn:
 extern "C" void PSMTXRotAxisRad(Mtx m, const atn::Vector3* axis, float rad);
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
 // inferred: effect manager (class unknown, as in game/Em309Ghoul.cpp)
-struct EffectMgr_unk;
-extern "C" EffectMgr_unk* lbl_8087F3C0;
+namespace atn {
+class EffectManager;
+}
+extern "C" atn::EffectManager* lbl_8087F3C0;
 struct GhoulColor_unk {
     float r, g, b, a;
 };
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
+extern "C" void fn_8023A8B4(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Model* model, void* node,
                             const atn::Vector3& pos, const atn::Vector3& rot, const GhoulColor_unk& color, int arg7,
                             int arg8, int arg9, float scale);
 extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the next effects
-// inferred: field (lbl_8087F430), route tables at 0x10D8
-struct GhoulField_unk {
-    unsigned char m0000[0x10D8];
-    GameScene* m10D8;
-};
-extern "C" GhoulField_unk* lbl_8087F430;
+extern "C" GameTask* lbl_8087F430;
 
 inline GhoulStr_unk& GhoulStr_unk::operator=(const char* str) {
     if (str != mStr) {
@@ -886,7 +885,7 @@ void Em309GhoulSimple::vf30(void* menu) {
         void* sub = fn_8008937C(group, "AttackRolling");
         fn_800874C8(sub, "SkillID", &m14E8, 0, 999999, 1, 0, 0);
     }
-    fn_8008771C(group, "AttackDistance", &m14E4, 0, 0, 0.0f, 9999.0f, 1.0f);
+    fn_8008771C(group, "AttackDistance", &m14E4, 0.0f, 9999.0f, 1.0f, 0, 0);
     fn_800874C8(group, "WaitFrame", &m1528, 0, 999, 1, 0, 0);
     fn_800874C8(group, "SometimeAttackLong", &m1538, 0, 999, 1, 0, 0);
 }

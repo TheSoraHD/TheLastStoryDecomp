@@ -1,3 +1,4 @@
+#include "atn/RenderSetting_unk.h"
 #include "game/EnemyFieldMagician.h"
 #include "atn/Csv.h"
 #include "atn/SoundManager.h"
@@ -12,32 +13,28 @@ extern "C" int atoi(const char* s);
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
 extern "C" void PSMTXTrans(Mtx m, float x, float y, float z);
-// inferred: field (lbl_8087F430); m10D8 holds the route tables, the event flags are read with
-// fn_80370A78 and written with fn_80370AE4
-struct Field_unk {
-    unsigned char m0000[0x10D8];
-    GameScene* m10D8;
-};
-extern "C" Field_unk* lbl_8087F430;
+extern "C" GameTask* lbl_8087F430;
 // inferred: effects (as in game/Em002Skelton.cpp)
-struct EffectMgr_unk;
+namespace atn {
+class EffectManager;
+}
 struct Color4f_unk {
     Color4f_unk() {}
     Color4f_unk(float r_, float g_, float b_, float a_) : r(r_), g(g_), b(b_), a(a_) {}
     float r, g, b, a;
 };
-extern "C" EffectMgr_unk* lbl_8087F3C0;
+extern "C" atn::EffectManager* lbl_8087F3C0;
 // inferred: weak getter of the effect manager (lwz r3, lbl_8087F3C0; blr)
-extern "C" inline EffectMgr_unk* fn_800F7FA0() {
+extern "C" inline atn::EffectManager* fn_800F7FA0() {
     return lbl_8087F3C0;
 }
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
+extern "C" void fn_8023A8B4(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Model* model, void* node,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
-extern "C" void fn_8023A680(EffectMgr_unk* mgr, atn::EffFile* res, int arg2, int arg3, const void* mtx,
+extern "C" void fn_8023A680(atn::EffectManager* mgr, atn::EffFile* res, int arg2, int arg3, const void* mtx,
                             const atn::Vector3* pos, const atn::Vector3* rot, const Color4f_unk* color, int arg8,
                             int arg9, int arg10, float scale); // inferred: plays an effect
-extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
+extern "C" void fn_80239DAC(atn::EffectManager* mgr, void* owner, int id, int arg); // inferred: stops an effect
 extern "C" void fn_80232B7C(void* owner, int arg);
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
 // inferred: result of a segment test (hit position at +4)
@@ -56,12 +53,7 @@ extern "C" inline CollWorld_unk* fn_801404F8() {
     return lbl_8087EE98;
 }
 
-// inferred: game timer (m3A4: frame time)
-struct Timer_unk {
-    unsigned char m000[0x3A4];
-    float m3A4;
-};
-extern "C" Timer_unk* lbl_8087EFA8;
+extern "C" RenderSetting_unk* lbl_8087EFA8;
 inline float GetFrameTime_unk() {
     return lbl_8087EFA8->m3A4;
 }
@@ -226,7 +218,7 @@ void EnemyFieldMagician::fn_8032C964() {
 
 void EnemyFieldMagician::vf10() {
     bool unused = false;
-    if (m1660 >= 0 && lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->fn_80370A78(m1660) == 1) {
+    if (m1660 >= 0 && lbl_8087F430 != 0 && lbl_8087F430->fn_80370A78(m1660) == 1) {
         unused = true;
     }
     if (m55C == 7 || unused) {
@@ -252,7 +244,7 @@ void EnemyFieldMagician::vf10() {
         break;
     case 7:
         if (++m1610 >= 600) {
-            ((GameTask*)lbl_8087F430)->fn_803750E4(0xF7);
+            lbl_8087F430->fn_803750E4(0xF7);
         }
         fn_80145334();
         fn_8014C540();
@@ -360,8 +352,8 @@ void EnemyFieldMagician::fn_8032D1F4() {
         m1608 = 1;
         m160C = 0;
         int flag = m1654;
-        if (flag >= 0 && ((GameTask*)lbl_8087F430)->fn_80370A78(flag) == 0) {
-            ((GameTask*)lbl_8087F430)->fn_80370AE4(flag, 1);
+        if (flag >= 0 && lbl_8087F430->fn_80370A78(flag) == 0) {
+            lbl_8087F430->fn_80370AE4(flag, 1);
         }
     }
     float frame2 = mMotion.mTracks[0].m08;
@@ -454,8 +446,8 @@ void EnemyFieldMagician::vf3C(HitInfo_unk* hit, int) {
                         lbl_8087EFE8->m34D8 = 0;
                     }
                     int flag = m1658;
-                    if (flag >= 0 && ((GameTask*)lbl_8087F430)->fn_80370A78(flag) == 0) {
-                        ((GameTask*)lbl_8087F430)->fn_80370AE4(flag, 1);
+                    if (flag >= 0 && lbl_8087F430->fn_80370A78(flag) == 0) {
+                        lbl_8087F430->fn_80370AE4(flag, 1);
                     }
                 }
                 if (weak && msg->mData->m01 == 0) {
@@ -500,8 +492,8 @@ void EnemyFieldMagician::vf40(HitInfo_unk* hit) {
             m14B0[0].mFlags &= ~1;
             m14B0[1].mFlags &= ~1;
             m1608 = 0;
-            if (flag >= 0 && ((GameTask*)lbl_8087F430)->fn_80370A78(flag) == 0) {
-                ((GameTask*)lbl_8087F430)->fn_80370AE4(flag, 1);
+            if (flag >= 0 && lbl_8087F430->fn_80370A78(flag) == 0) {
+                lbl_8087F430->fn_80370AE4(flag, 1);
             }
         }
     }

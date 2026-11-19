@@ -1,3 +1,4 @@
+#include "game/GameConfig_unk.h"
 #include "atn/Color4f_unk.h"
 #include "game/GameCamera.h"
 #include "atn/RenderManager.h"
@@ -19,140 +20,42 @@
 #include "game/GameSceneFind_unk.h"
 
 // inferred: point the camera looks at (lbl_8087F430 + 0x97C, as in game/Em101ElderZesya.cpp); names invented
-struct EggLook_unk {
-    void Set_unk(const atn::Vector3& pos, bool flag) {
-        m01 = m00;
-        m00 = 1;
-        mPos = pos;
-        m24 = 0.0f;
-        if (flag) {
-            m04 = 1;
-        } else {
-            m04 = 0;
-        }
+// inferred: the camera looks at a point (GameCamera::m910..m934; formerly the view EggLook_unk at GameTask + 0x97C)
+inline void SetCameraLook_unk(GameCamera& camera, const atn::Vector3& pos, bool flag) {
+    camera.m911 = camera.m910;
+    camera.m910 = 1;
+    camera.m91C = pos;
+    camera.m934 = 0.0f;
+    if (flag) {
+        camera.m914 = 1;
+    } else {
+        camera.m914 = 0;
     }
-    unsigned char m00;
-    unsigned char m01;
-    unsigned char m02[2];
-    int m04;
-    unsigned char m08[4];
-    atn::Vector3 mPos;
-    unsigned char m18[0x24 - 0x18];
-    float m24;
-};
-// inferred: camera parameters of the field (lbl_8087F430 + 0x588; as ElderCamParam_unk in game/Em101ElderZesya.cpp)
-struct EggCamParam_unk {
-    EggCamParam_unk(const EggCamParam_unk& o)
-        : m00(o.m00), m04(o.m04), m08(o.m08), m0C(o.m0C), m10(o.m10), m14(o.m14), m18(o.m18), m1C(o.m1C),
-          m20(o.m20), m24(o.m24), m28(o.m28), m2C(o.m2C), m30(o.m30), m34(o.m34), m38(o.m38) {}
-    EggCamParam_unk& operator=(const EggCamParam_unk& o) {
-        m00 = o.m00;
-        m04 = o.m04;
-        m08 = o.m08;
-        m0C = o.m0C;
-        m10 = o.m10;
-        m14 = o.m14;
-        m18 = o.m18;
-        m1C = o.m1C;
-        m20 = o.m20;
-        m24 = o.m24;
-        m28 = o.m28;
-        m2C = o.m2C;
-        m30 = o.m30;
-        m34 = o.m34;
-        m38 = o.m38;
-        return *this;
+}
+// inferred: starts a camera mode with its parameters (GameCamera::m46C; formerly the view EggCamera_unk at GameTask
+// + 0x4D8)
+inline void SetCameraMode_unk(GameCameraModeParam_unk& camera, int mode, const GameCameraParam_unk& param) {
+    if (camera.mMode != mode) {
+        camera.mMode = mode;
+        camera.mParam = param;
+        camera.mStep = 0.05f;
+        camera.mWeight = 1.0f;
     }
-    float m00;
-    float m04;
-    float m08;
-    float m0C;
-    float m10;
-    float m14;
-    float m18;
-    float m1C;
-    float m20;
-    float m24;
-    float m28;
-    float m2C;
-    float m30;
-    float m34;
-    int m38;
-};
-// inferred: camera mode of the field (lbl_8087F430 + 0x4D8); names invented
-struct EggCamera_unk {
-    void Set_unk(int mode, const EggCamParam_unk& param) {
-        if (mMode != mode) {
-            mMode = mode;
-            mParam = param;
-            m08 = 0.05f;
-            m04 = 1.0f;
-        }
-    }
-    int mMode;
-    float m04;
-    float m08;
-    EggCamParam_unk mParam;
-};
-// inferred: camera of the field (lbl_8087F430 + 0x6C, CameraSub_unk in game/BattleCharaTask.cpp); only the
-// members used here (names invented)
-struct EggFieldCam_unk {
-    unsigned char m000[0x08];
-    atn::Vector3 m08;     // inferred: eye (field + 0x74)
-    atn::Vector3 m14;     // inferred: target point (field + 0x80)
-    unsigned char m020[0xD0 - 0x20];
-    Mtx mD0;              // inferred: view matrix (field + 0x13C)
-    unsigned char m100[0x46C - 0x100];
-    EggCamera_unk m46C;   // field + 0x4D8
-    unsigned char m4B4[0x51C - 0x4B4];
-    EggCamParam_unk m51C; // field + 0x588
-    unsigned char m558[0x7FC - 0x558];
-    int m7FC;             // inferred: camera mode (field + 0x868; 3 and 4: battle)
-    int m800;             // inferred: previous mode
-    unsigned char m804[0x834 - 0x804];
-    CharaTask* m834;      // inferred: character the camera follows (field + 0x8A0)
-    int m838;
-    unsigned char m83C[0x858 - 0x83C];
-    int m858;
-    unsigned char m85C[0x900 - 0x85C];
-    int m900;             // inferred: shake of the camera (field + 0x96C)
-    int m904;             // inferred: frames of the shake
-    float m908;
-    float m90C;
-    EggLook_unk m910;     // field + 0x97C
-};
-// inferred: field (lbl_8087F430); only the members used here (names invented)
-struct Field_unk {
-    unsigned char m0000[0x6C];
-    EggFieldCam_unk mCamera;
-    unsigned char m9A4[0x10D8 - 0x9A4];
-    GameScene* m10D8;
-    unsigned char m10DC[0x54F4 - 0x10DC];
-    unsigned char m54F4[4]; // inferred: name table (fn_803B3B38)
-    unsigned char m54F8[0x5694 - 0x54F8];
-    int m5694;            // inferred: nonzero in the multiplayer mode
-    unsigned char m5698[0x5744 - 0x5698];
-    unsigned int m5744;
-};
-extern "C" Field_unk* lbl_8087F430;
-// inferred: game settings (lbl_8087F0A8); class unknown
-struct GameSetting_unk {
-    unsigned char m000[0x30];
-    int mFrameRate; // 0x30 (as in game/Em208Queen.cpp)
-    unsigned char m034[0x194 - 0x34];
-    int m194;
-};
-extern "C" GameSetting_unk* lbl_8087F0A8;
+}
+extern "C" GameTask* lbl_8087F430;
+extern "C" GameConfig_unk* lbl_8087F0A8;
 extern "C" chr::CharaData_unk* fn_8020A81C(const char* name);
-extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3, int arg4); // debug menu
+extern "C" void fn_80087994(void* group, const char* name, int* value, void* func, void* arg); // debug menu
 // inferred: name table of the field (lbl_8087F430 + 0x54F4) (as in game/CharaTask.cpp)
 extern "C" wchar_t* wcscpy(wchar_t* dst, const wchar_t* src);
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
 // inferred: effect manager (class unknown), global instance at 0x8087F3C0
-struct EffectMgr_unk;
-extern "C" EffectMgr_unk* lbl_8087F3C0;
+namespace atn {
+class EffectManager;
+}
+extern "C" atn::EffectManager* lbl_8087F3C0;
 extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the next effects
-extern "C" void fn_8023A680(EffectMgr_unk* mgr, atn::EffFile* eff, int a, int b, const atn::Matrix3x4* mtx, int c,
+extern "C" void fn_8023A680(atn::EffectManager* mgr, atn::EffFile* eff, int a, int b, const atn::Matrix3x4* mtx, int c,
                             int d, int e, int f, int g, int h, float scale); // inferred: effect on a matrix
 
 // inferred: color as four floats (as in game/CharaTask.cpp)
@@ -162,8 +65,8 @@ struct Color4f_unk {
 };
 
 extern "C" HitInfo_unk* fn_80219E6C(int id); // inferred: skill data
-extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
+extern "C" void fn_80239DAC(atn::EffectManager* mgr, void* owner, int id, int arg); // inferred: stops an effect
+extern "C" void fn_8023A8B4(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Model* model, void* node,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
 extern "C" double acos(double x);
@@ -171,7 +74,8 @@ extern "C" double fmod(double x, double y);
 extern "C" double sqrt(double x);
 extern "C" double sin(double x);
 extern "C" int rand();
-extern "C" void* lbl_8087EE98; // inferred: collision world
+struct ColliManager_unk;
+extern "C" ColliManager_unk* lbl_8087EE98; // inferred: collision world
 extern "C" int fn_8004ECC0(void* world, atn::Vector3* hit, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* a, int b, CharaTask* ignore); extern "C" void fn_8004D388(void* mgr, atn::ColliResult_unk* result, CharaTask::Sphere_unk* sphere, atn::Vector3* move,
                             unsigned int mask, void* ignore, int arg, float radius); // inferred: sweep test
@@ -215,7 +119,7 @@ static inline void PlayEffect_unk(atn::EfpFile* efp, atn::Model* model) {
 }
 
 // inferred: same with the manager passed in (name invented)
-static inline void PlayEffectM_unk(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model) {
+static inline void PlayEffectM_unk(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Model* model) {
     atn::Vector3 pos;
     atn::Vector3 rot;
     Color4f_unk color;
@@ -303,7 +207,7 @@ Em206EggMonster::Em206EggMonster(atn::Task* parent, void* data)
     m15BC = 0;
     m15C0 = 0;
     m15C4 = 0;
-    ((GameTask*)lbl_8087F430)->fn_80370AE4(0xFF, 0);
+    lbl_8087F430->fn_80370AE4(0xFF, 0);
     m568 = 0.15f;
     m1704 = m5C;
     m1708 = fn_8020A81C("em_dg004Boss_B");
@@ -322,9 +226,9 @@ int Em206EggMonster::vf0C() {
         mStatus.m18 |= 0x401;
         mC10 &= ~0x2000;
         m1600.mFlags |= 3;
-        m1600.m0C = (int)this;
+        m1600.m0C = this;
         m164C.mFlags |= 3;
-        m164C.m0C = (int)this;
+        m164C.m0C = this;
         m164C.mFlags &= ~0x80000000;
         m1600.mSphere.mCenter = GetNodePos_unk(mMotion.GetNodeMtx_unk("neck"));
         m1600.mSphere.mRadius = 20.0f;
@@ -430,7 +334,7 @@ void Em206EggMonster::vf10() {
                 *mtx = MtxMul_unk(*mtx, ScaleMtx_unk(sEffectScale_unk));
                 m14F4.fn_801479E4(hand);
                 fn_80232B7C(this, 0x65);
-                EffectMgr_unk* mgr = lbl_8087F3C0;
+                atn::EffectManager* mgr = lbl_8087F3C0;
                 fn_8023A680(mgr, &m156C, -1, 5, mtx, 0, 0, 0, 0, -1, 1, 1.0f);
             }
             break;
@@ -449,8 +353,8 @@ void Em206EggMonster::vf10() {
                 fn_80239DAC(lbl_8087F3C0, this, 1000, 0);
             } else if (mMotion.mTracks[0].m08 >= 55.1f && mMotion.mTracks[0].m08 <= 56.0f) {
                 fn_802C653C();
-                if (((GameTask*)lbl_8087F430)->fn_80370A78(0xF8) == 0) {
-                    ((GameTask*)lbl_8087F430)->fn_80370AE4(0xF8, 1);
+                if (lbl_8087F430->fn_80370A78(0xF8) == 0) {
+                    lbl_8087F430->fn_80370AE4(0xF8, 1);
                 }
                 BattleTask* mgr = lbl_8087F048;
                 HitInfo_unk* data = fn_80219E6C(0x57C);
@@ -531,11 +435,11 @@ void Em206EggMonster::vf10() {
         }
     }
     if (((CharaTask*)lbl_8087F8A0->mHead)->mFlag28) {
-        if (((GameTask*)lbl_8087F430)->fn_80370A78(0xFD) == 0) {
-            ((GameTask*)lbl_8087F430)->fn_80370AE4(0xFD, 1);
+        if (lbl_8087F430->fn_80370A78(0xFD) == 0) {
+            lbl_8087F430->fn_80370AE4(0xFD, 1);
         }
-    } else if (((GameTask*)lbl_8087F430)->fn_80370A78(0xFD) != 0) {
-        ((GameTask*)lbl_8087F430)->fn_80370AE4(0xFD, 0);
+    } else if (lbl_8087F430->fn_80370A78(0xFD) != 0) {
+        lbl_8087F430->fn_80370AE4(0xFD, 0);
     }
     if (turn != 0) {
         float radius = 20.0f;
@@ -566,7 +470,7 @@ void Em206EggMonster::vf10() {
         m16BC = 0;
         fn_80239DAC(lbl_8087F3C0, this, 200, 0);
         m1594 = 2;
-        ((GameTask*)lbl_8087F430)->fn_80370AE4(0xFA, 1);
+        lbl_8087F430->fn_80370AE4(0xFA, 1);
         m58C = 0;
     }
 }
@@ -668,7 +572,7 @@ void Em206EggMonster::vf3C(HitInfo_unk* hit, int) {
     msg->m10 *= 0.0f;
     if (msg->mData->m01 == 1 && *(int*)&msg->m3C[4] == 1 && msg->mData->m04 != 0x4E88) {
         fn_8017A300(m1708);
-        if (((GameTask*)lbl_8087F430)->fn_80370A78(0xFC) == 0 && m15F4 == 0) {
+        if (lbl_8087F430->fn_80370A78(0xFC) == 0 && m15F4 == 0) {
             msg->m0C |= 0x200000;
             m15F8++;
             float hp = mStatus.m04;
@@ -684,14 +588,14 @@ void Em206EggMonster::vf3C(HitInfo_unk* hit, int) {
                 m15B4 = 1;
                 m15F4 = 1;
                 if (m15B0 != 0) {
-                    ((GameTask*)lbl_8087F430)->fn_80370AE4(0xFC, 1);
+                    lbl_8087F430->fn_80370AE4(0xFC, 1);
                 } else {
-                    ((GameTask*)lbl_8087F430)->fn_80370AE4(0xFC, 3);
+                    lbl_8087F430->fn_80370AE4(0xFC, 3);
                 }
                 m1594 = 1;
                 m16BC = 1;
                 fn_80232B7C(this, 200);
-                EffectMgr_unk* mgr = lbl_8087F3C0;
+                atn::EffectManager* mgr = lbl_8087F3C0;
                 fn_8023A680(mgr, &m16F4, -1, 5, &m16C4, 0, 0, 0, 0, -1, 1, 1.0f);
             } else {
                 m1590 = 0;
@@ -730,7 +634,7 @@ void Em206EggMonster::vf40(HitInfo_unk* hit) {
         fn_802C4B70();
         return;
     }
-    if (((GameTask*)lbl_8087F430)->fn_80370A78(0xFC) == 0) {
+    if (lbl_8087F430->fn_80370A78(0xFC) == 0) {
         float hp = mStatus.m04;
         float ratio = hp / mStatus.mParamB.m84;
         if (ratio < 0.5f && lbl_8087F430->m5694 == 0) {
@@ -742,9 +646,9 @@ void Em206EggMonster::vf40(HitInfo_unk* hit) {
             mMotion.mTracks[0].m0C = 1.0f;
             mMotion.fn_80097C08(0, 0x33, 0, 0, 1, 0.0f, 0.025f);
             if (m15B0 != 0) {
-                ((GameTask*)lbl_8087F430)->fn_80370AE4(0xFC, 1);
+                lbl_8087F430->fn_80370AE4(0xFC, 1);
             } else {
-                ((GameTask*)lbl_8087F430)->fn_80370AE4(0xFC, 3);
+                lbl_8087F430->fn_80370AE4(0xFC, 3);
             }
             m1594 = 1;
             m16BC = 1;
@@ -760,7 +664,7 @@ void Em206EggMonster::vf40(HitInfo_unk* hit) {
 int Em206EggMonster::vfB8(wchar_t* name) {
     if (lbl_8087F430->m5694 == 0) {
         if (m5C != 0 && m5C->mC4 > 0 && lbl_8087F430 != 0) {
-            GameMessage* entry = ((GameMessageList*)lbl_8087F430->m54F4)->fn_803B3B38(m5C->mC4);
+            GameMessage* entry = lbl_8087F430->mMessages.fn_803B3B38(m5C->mC4);
             if (entry != 0) {
                 wcscpy(name, entry->mText);
                 return 1;
@@ -1001,7 +905,7 @@ atn::Vector3 Em206EggMonster::vf64(int center) {
     atn::Vector3 result = mPos;
     if (center == 0) {
         result = mPos;
-    } else if (((GameTask*)lbl_8087F430)->fn_80370A78(0xF5) == 0) {
+    } else if (lbl_8087F430->fn_80370A78(0xF5) == 0) {
         result = mPos;
     } else {
         result = GetNodePos_unk(mMotion.GetNodeMtx_unk("neck"));
@@ -1084,7 +988,7 @@ void Em206EggMonster::fn_802C4480() {
     if (frame >= mMotion.fn_80097D7C(0)) {
         EndAction_unk();
     } else if (mMotion.mTracks[0].m08 >= 28.0f && mMotion.mTracks[0].m08 <= 60.0f) {
-        int fps = lbl_8087F0A8->mFrameRate;
+        int fps = lbl_8087F0A8->m030;
         atn::Vector3 move(0.0f, -98.1f / (float)(fps * fps), 1.5f);
         atn::Matrix3x4 m;
         m.fn_8013A13C(mRot.y);
@@ -1112,7 +1016,7 @@ void Em206EggMonster::fn_802C4480() {
 
 
 void Em206EggMonster::vfEC() {
-    Field_unk* field = lbl_8087F430;
+    GameTask* field = lbl_8087F430;
     float frame = mMotion.mTracks[0].m08;
     if (frame >= mMotion.fn_80097D7C(0)) {
         int done = 1;
@@ -1130,10 +1034,10 @@ void Em206EggMonster::vfEC() {
             m164C.mFlags &= ~1;
             mFlag15 = 1;
             fn_801765D8();
-            ((GameTask*)lbl_8087F430)->fn_80370AE4(0xF9, 1);
+            lbl_8087F430->fn_80370AE4(0xF9, 1);
             field->mCamera.m834 = 0;
             field->mCamera.m46C.mMode = 0;
-            field->mCamera.m910.m00 = 0;
+            field->mCamera.m910 = 0;
         }
     } else {
         atn::Vector3 p = GetNodePos_unk(mMotion.GetNodeMtx_unk("neck"));
@@ -1141,7 +1045,7 @@ void Em206EggMonster::vfEC() {
             p.y = 5.0f + mPos.y;
         }
         field->mCamera.m834 = this;
-        atn::VecAssign_unk(field->mCamera.m910.mPos, p);
+        atn::VecAssign_unk(field->mCamera.m91C, p);
     }
 }
 
@@ -1184,17 +1088,17 @@ void Em206EggMonster::fn_802C4B70() {
     fn_80239DAC(lbl_8087F3C0, this, 200, 0);
     fn_80232B7C(0, 0);
     PlayEffectM_unk(lbl_8087F3C0, &m16A4, &mMotion);
-    Field_unk* field = lbl_8087F430;
+    GameTask* field = lbl_8087F430;
     atn::Vector3 pos = GetNodePos_unk(mMotion.GetNodeMtx_unk("neck"));
-    EggCamera_unk* cam = &field->mCamera.m46C;
-    EggCamParam_unk param = field->mCamera.m51C;
+    GameCameraModeParam_unk* cam = &field->mCamera.m46C;
+    GameCameraParam_unk param = field->mCamera.m51C;
     param.m08 = 0.0f;
     param.m04 = 0.61086524f;
     param.m00 = 15.0f;
     param.m10 = 12.0f;
     field->mCamera.m834 = this;
-    cam->Set_unk(4, param);
-    field->mCamera.m910.Set_unk(pos, false);
+    SetCameraMode_unk(*cam, 4, param);
+    SetCameraLook_unk(field->mCamera, pos, false);
 }
 
 // inferred: sends `id` to the egg gimmicks (0x40F, 0x410, 0x412) in a cone in front (as fn_805A5078)
@@ -1261,7 +1165,7 @@ void Em206EggMonster::vf54() {
 
 extern "C" int fn_80051B70(const atn::Vector3* from, const atn::Vector3* to); // inferred: visibility test
 extern "C" int fn_803ABE54(const atn::Vector3* from, const atn::Vector3* to, float radius);
-extern "C" atn::SoundRef fn_800C31F4(const char* name, float volume, int arg2, int arg3);
+extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float volume);
 
 // inferred: half size and centre of the mark on the screen (as SpecialRect_unk in game/SpecialEnemyBase.cpp)
 struct EggRect_unk {
@@ -1281,25 +1185,25 @@ inline atn::Vector3 ToScreen_unk(const atn::Vector3& pos) {
 // inferred: aim of the crossbow at the egg (as SpecialEnemyBase::fn_805A4A54): marks it on the HUD and,
 // when it is hit, makes the camera look at the neck for 45 frames
 void Em206EggMonster::fn_802C5F5C() {
-    if (((GameTask*)lbl_8087F430)->fn_80370A78(0xFF) == 0 && m15B0 == 0) {
-        Field_unk* field = lbl_8087F430;
+    if (lbl_8087F430->fn_80370A78(0xFF) == 0 && m15B0 == 0) {
+        GameTask* field = lbl_8087F430;
         CharaTask::Sphere_unk sphere = m624.mData[1].m04;
         int prev = field->mCamera.m800;
         int mode = field->mCamera.m7FC;
         if (mode == prev && (mode == 3 || mode == 1 || mode == 4)) {
-            atn::Vector3 eye = field->mCamera.m08;
-            atn::Vector3 ray = field->mCamera.m14;
+            atn::Vector3 eye = field->mCamera.mCamera.mPos;
+            atn::Vector3 ray = field->mCamera.mCamera.mTarget;
             ray -= eye;
             PSVECNormalize(&ray, &ray);
             ray *= 800.0f;
             ray += eye;
             CharaTask::Sphere_unk aim = sphere;
             aim.mRadius = sphere.mRadius * 1.4f;
-            float dist = PSVECMag(&(aim.mCenter - field->mCamera.m08));
+            float dist = PSVECMag(&(aim.mCenter - field->mCamera.mCamera.mPos));
             atn::Vector3 lo(-sphere.mRadius, -sphere.mRadius, 0.0f);
             atn::Vector3 hi(sphere.mRadius, sphere.mRadius, 0.0f);
             Mtx m;
-            __MtxCopy(m, field->mCamera.mD0);
+            __MtxCopy(m, field->mCamera.mCamera.mInvView.m);
             m[0][3] = 0.0f;
             m[1][3] = 0.0f;
             m[2][3] = 0.0f;
@@ -1318,12 +1222,12 @@ void Em206EggMonster::fn_802C5F5C() {
             if (fn_80051B70(&eye, &aim.mCenter) != 0 && fn_803ABE54(&eye, &aim.mCenter, aim.mRadius) != 0) {
                 hit = 1;
                 lbl_8087F490->fn_803E6ADC(sphere.mCenter + lo, sphere.mCenter + hi);
-                ((GameTask*)lbl_8087F430)->fn_80370AE4(0xFF, 1);
+                lbl_8087F430->fn_80370AE4(0xFF, 1);
                 m15CC = 45;
-                EggFieldCam_unk* cam = &lbl_8087F430->mCamera;
+                GameCamera* cam = &lbl_8087F430->mCamera;
                 atn::Vector3 neck = GetNodePos_unk(mMotion.GetNodeMtx_unk("neck"));
                 ((GameCamera*)cam)->fn_8037F6D8(&neck);
-                fn_800C31F4("SE_UICOM_011", 1.0f, 0, -1);
+                fn_800C31F4("SE_UICOM_011", 0, -1, 1.0f);
             }
             if (hit == 0 && dist < 800.0f) {
                 lbl_8087F490->fn_803E3050(sphere.mCenter, atn::Vector3(rect.mX, rect.mY, a.z), rect.mSize, dist);
@@ -1332,7 +1236,7 @@ void Em206EggMonster::fn_802C5F5C() {
     }
     if (m15CC >= 0) {
         m15CC--;
-        EggFieldCam_unk* cam = &lbl_8087F430->mCamera;
+        GameCamera* cam = &lbl_8087F430->mCamera;
         if (m15CC < 0) {
             cam->m858 = 0;
             cam->m838 = 0;
@@ -1344,7 +1248,7 @@ void Em206EggMonster::fn_802C5F5C() {
 }
 
 int Em206EggMonster::vfF4() {
-    if (lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->fn_80370A78(0xFF) == 0 && m15B0 == 0) {
+    if (lbl_8087F430 != 0 && lbl_8087F430->fn_80370A78(0xFF) == 0 && m15B0 == 0) {
         return 1;
     }
     return 0;
@@ -1457,12 +1361,12 @@ void Em206EggMonster::fn_802C6DF4() {
             data = fn_80219E6C(0x579);
         }
         lbl_8087F048->fn_800FAB80(this, data, 2000, &pos, &lbl_807C7030, 0, 30, -1, -1, 0.0f, 1.0f);
-        fn_800C31F4("SE_EM206_035", 1.0f, 0, -1);
-        Field_unk* field = lbl_8087F430;
-        field->mCamera.m900 %= 2;
-        field->mCamera.m904 = 10;
-        field->mCamera.m908 = 1.5f;
-        field->mCamera.m90C = 1.5f;
+        fn_800C31F4("SE_EM206_035", 0, -1, 1.0f);
+        GameTask* field = lbl_8087F430;
+        field->mCamera.mShake.mFrame %= 2;
+        field->mCamera.mShake.mLength = 10;
+        field->mCamera.mShake.mWidth = 1.5f;
+        field->mCamera.mShake.mHeight = 1.5f;
         m14D0 = 0;
         fn_80239DAC(lbl_8087F3C0, this, 0x65, 1);
         m14D4 = 0;

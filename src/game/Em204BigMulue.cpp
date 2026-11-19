@@ -22,30 +22,33 @@ extern "C" float fn_800DC288(const char* s); // inferred: string to float
 extern "C" int fn_800DC12C(const char* s);   // inferred: string to int
 extern "C" HitInfo_unk* fn_80219E6C(int id); // inferred: bullet/skill data by id
 // inferred: debug menu helpers (as in game/CharaTask.cpp)
-extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3, int arg4);
-extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, int arg6,
-                            int arg7);
-extern "C" void fn_8008771C(void* group, const char* name, float* value, int arg3, int arg4, float min, float max,
-                            float step);
-extern "C" void fn_80087E9C(void* group, const char* name, atn::Vector3* value, int arg3, int arg4, float min,
-                            float max, float step);
+extern "C" void fn_80087994(void* group, const char* name, int* value, void* func, void* arg);
+extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, void* func,
+                            void* arg);
+extern "C" void fn_8008771C(void* group, const char* name, float* value, float min, float max, float step, void* func,
+                            void* arg);
+extern "C" void fn_80087E9C(void* group, const char* name, atn::Vector3* value, float min, float max, float step,
+                            void* func, void* arg);
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
 BattleTask* fn_8013A194(); // inferred: effect/bullet manager (weak copy of another file)
 // inferred: effect manager (class unknown), global instance at 0x8087F3C0
-struct EffectMgr_unk;
-extern "C" EffectMgr_unk* lbl_8087F3C0;
+namespace atn {
+class EffectManager;
+}
+extern "C" atn::EffectManager* lbl_8087F3C0;
 struct Color4f_unk {
     Color4f_unk() {}
     float r, g, b, a;
 };
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
+extern "C" void fn_8023A8B4(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Model* model, void* node,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
 extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the next effects
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
 extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float volume);
-extern "C" void* lbl_8087EE98; // inferred: collision world
+struct ColliManager_unk;
+extern "C" ColliManager_unk* lbl_8087EE98; // inferred: collision world
 extern "C" void fn_8004D124(void* world); // inferred: rebuilds the active shapes
 // inferred: collision world (as in gmk/Cannonball.cpp; weak copy of another file)
 inline void* fn_801404F8() {
@@ -53,12 +56,12 @@ inline void* fn_801404F8() {
 }
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
-extern "C" void* lbl_8087EF70;
+struct Pad_unk;
+extern "C" Pad_unk* lbl_8087EF70;
 extern "C" int fn_800A555C(void* pad, int port, int button); // inferred: button triggered
 extern "C" GameUI* lbl_8087F490;
 extern "C" bool fn_80051A88(const CharaTask::Sphere_unk* sphere, const atn::Vector3* point); // inferred: point in sphere
-struct Field_unk;
-extern "C" Field_unk* lbl_8087F430;
+extern "C" GameTask* lbl_8087F430;
 extern "C" int fn_8004ED34(void* world, atn::ColliResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg7); // inferred: ray test
 extern "C" int fn_8004D314(void* world, atn::Vector3* hit, const atn::Vector3* pos, const atn::Vector3* move,
@@ -179,13 +182,13 @@ int Em204BigMulue::vf0C() {
         for (unsigned int i = 0; i < m1558.size(); i++) {
             char name[0x100];
             sprintf(name, "%s-%s\0", m1558[i].mFrom.data(), m1558[i].mTo.data());
-            fn_8008771C(group, name, &m1558[i].mRadius, 0, 0, 0.0f, 9999.0f, 1.0f);
+            fn_8008771C(group, name, &m1558[i].mRadius, 0.0f, 9999.0f, 1.0f, 0, 0);
         }
         group = fn_8008937C(m1A9C, "DamageColli");
         for (unsigned int i = 0; i < m1A34.size(); i++) {
             char name[0x100];
             sprintf(name, "%s\0", m1A34[i].mNode.data());
-            fn_8008771C(group, name, &m1A34[i].mScale, 0, 0, 0.0f, 9999.0f, 1.0f);
+            fn_8008771C(group, name, &m1A34[i].mScale, 0.0f, 9999.0f, 1.0f, 0, 0);
         }
     }
     mColli.mFlags &= ~0x80000000;
@@ -199,7 +202,7 @@ int Em204BigMulue::vf0C() {
     for (unsigned int i = 0; i < m1558.size(); i++) {
         m1564[i].mFlags &= ~1;
         m1564[i].mFlags |= 2;
-        m1564[i].m0C = (int)this;
+        m1564[i].m0C = this;
         m1564[i].mFlags &= ~0x80000000;
     }
     m54C |= 0x200;
@@ -282,7 +285,7 @@ void Em204BigMulue::vf10() {
         for (unsigned int i = 0; i < m1558.size(); i++) {
             m1564[i].mFlags |= 1;
         }
-        ((GameTask*)lbl_8087F430)->fn_80370320(0x68, 1, 0);
+        lbl_8087F430->fn_80370320(0x68, 1, 0);
     }
     if (!mFlag2 || !CanAct_unk()) {
         if (CanAct_unk() && m58C != 6 && !vfF8()) {
@@ -1228,7 +1231,7 @@ void Em204BigMulue::fn_802B1B50(int fire) {
                 atn::Vector3 dir = (to - hips).GetNormalize();
                 BigMulueShot_unk shot;
                 shot.m00 = 2.0f;
-                shot.m04 = (int)&m1A6C;
+                shot.m04 = &m1A6C;
                 shot.m08 = 0;
                 shot.m0C = m1540;
                 bullet->fn_8010EE78(&shot, &hips, &dir, this, -1, 0, -1.0f);
@@ -1250,16 +1253,16 @@ void Em204BigMulue::vf30(void* menu) {
     fn_80087994(group, "DebugDisp", &m1AA0, 0, 0);
     fn_80087994(group, "DebugLog", &m1AA4, 0, 0);
     fn_800874C8(group, "ActionMode", &m58C, 0, 0x186A0, 1, 0, 0);
-    fn_8008771C(group, "AttackDistance", &m14FC, 0, 0, 0.0f, 500.0f, 1.0f);
+    fn_8008771C(group, "AttackDistance", &m14FC, 0.0f, 500.0f, 1.0f, 0, 0);
     fn_800874C8(group, "WaitFrame", &m1510, 0, 500, 1, 0, 0);
     fn_800874C8(group, "AttackChanceFrame", &m1514, 0, 500, 1, 0, 0);
     fn_800874C8(group, "TumbleFrame", &m1518, 0, 500, 1, 0, 0);
     fn_800874C8(group, "StaggerFrame", &m151C, 0, 500, 1, 0, 0);
-    fn_8008771C(group, "BaseMotionSpeed", &m1524, 0, 0, 0.0f, 50.0f, 1.0f);
-    fn_8008771C(group, "BaseMotionBlendSpeed", &m1528, 0, 0, 0.0f, 50.0f, 0.01f);
-    fn_80087E9C(group, "WallSlashPos", &m1AB4, 0, 0, -5000.0f, 5000.0f, 1.0f);
-    fn_80087E9C(group, "CenterPos", &m1AC4, 0, 0, -5000.0f, 5000.0f, 1.0f);
-    fn_8008771C(group, "BodyPressOffset", &m1A94, 0, 0, -5000.0f, 5000.0f, 1.0f);
+    fn_8008771C(group, "BaseMotionSpeed", &m1524, 0.0f, 50.0f, 1.0f, 0, 0);
+    fn_8008771C(group, "BaseMotionBlendSpeed", &m1528, 0.0f, 50.0f, 0.01f, 0, 0);
+    fn_80087E9C(group, "WallSlashPos", &m1AB4, -5000.0f, 5000.0f, 1.0f, 0, 0);
+    fn_80087E9C(group, "CenterPos", &m1AC4, -5000.0f, 5000.0f, 1.0f, 0, 0);
+    fn_8008771C(group, "BodyPressOffset", &m1A94, -5000.0f, 5000.0f, 1.0f, 0, 0);
     fn_80087994(group, "CollisionOnOff", &m1A44, 0, 0);
     fn_800874C8(group, "ActionTimer", &m14C0, 0, 500, 1, 0, 0);
     fn_800874C8(group, "ActionState", &m14BC, -1, 500, 1, 0, 0);

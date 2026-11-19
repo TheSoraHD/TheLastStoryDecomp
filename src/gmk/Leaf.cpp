@@ -1,3 +1,4 @@
+#include "game/GameConfig_unk.h"
 #include "gmk/Leaf.h"
 #include "atn/Csv.h"
 #include "atn/Memory.h"
@@ -28,23 +29,18 @@ extern "C" void PSMTXMultVec(const Mtx m, const atn::Vector3* src, atn::Vector3*
 extern "C" InstData_unk* fn_8009F788(const char* name); // inferred: finds or loads a building model
 extern "C" int fn_8009FFCC(InstData_unk* data);         // inferred: nonzero while loading
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0;      // inferred: player manager
-// inferred: game settings
-struct LeafSettings_unk {
-    unsigned char m00[0x18];
-    int m18; // inferred: draw the gimmicks
-};
-extern "C" LeafSettings_unk* lbl_8087F0A8;
+extern "C" GameConfig_unk* lbl_8087F0A8;
 // inferred: debug menu
 extern "C" void* fn_8008937C(void* menu, const char* name);
-extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, int arg6,
-                            int arg7);
-extern "C" void fn_80087E9C(void* group, const char* name, atn::Vector3* value, int arg3, int arg4, float min,
-                            float max, float step);
-extern "C" void fn_80088724(void* group, const char* name, atn::Vector3* value, int arg3, int arg4, float min,
-                            float max, float step);
-extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3, int arg4);
-extern "C" void fn_8008771C(void* group, const char* name, float* value, int arg3, int arg4, float min, float max,
-                            float step);
+extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, void* func,
+                            void* arg);
+extern "C" void fn_80087E9C(void* group, const char* name, atn::Vector3* value, float min, float max, float step,
+                            void* func, void* arg);
+extern "C" void fn_80088724(void* group, const char* name, atn::Vector3* value, float min, float max, float step,
+                            void* func, void* arg);
+extern "C" void fn_80087994(void* group, const char* name, int* value, void* func, void* arg);
+extern "C" void fn_8008771C(void* group, const char* name, float* value, float min, float max, float step, void* func,
+                            void* arg);
 // inferred: next character of the player and friend lists (0x14AC)
 struct LeafCharaNode_unk {
     unsigned char m0000[0x14AC];
@@ -200,7 +196,7 @@ void Leaf::vf10() {
 // The unsigned subscript gives the index/offset registers of the original
 void Leaf::vf14() {
     for (int i = 0; i < mNumLeaf; i++) {
-        if (lbl_8087F0A8->m18 != 0) {
+        if (lbl_8087F0A8->mDrawMap != 0) {
             atn::ModelInstance* inst = mLeaves.mData[(unsigned int)i].mInst;
             if (m9C != 0) {
                 inst->m64 = 0;
@@ -416,16 +412,16 @@ void Leaf::vf6C(void* menu) {
         group = 0;
     }
     fn_800874C8(group, "state", (int*)&mState, 0, 99, 1, 0, 0);
-    fn_80087E9C(group, "pos", &m6C, 0, 0, -9999.0f, 9999.0f, 0.25f);
-    fn_80088724(group, "rot", &m78, 0, 0, -3.1415927f, 3.1415927f, 0.05235988f);
-    fn_80087E9C(group, "scl", &m90, 0, 0, -9999.0f, 9999.0f, 0.25f);
+    fn_80087E9C(group, "pos", &m6C, -9999.0f, 9999.0f, 0.25f, 0, 0);
+    fn_80088724(group, "rot", &m78, -3.1415927f, 3.1415927f, 0.05235988f, 0, 0);
+    fn_80087E9C(group, "scl", &m90, -9999.0f, 9999.0f, 0.25f, 0, 0);
     fn_80087994(group, "isShow", &m9C, 0, 0);
     fn_800874C8(group, "type", &mType, 0, 99, 1, 0, 0);
     fn_800874C8(group, "numleaf", &mNumLeaf, 0, mNumLeaf, 1, 0, 0);
-    fn_80087E9C(group, "winddir", &mWindDir, 0, 0, -9999.0f, 9999.0f, 0.25f);
-    fn_8008771C(group, "windvel", &mWindVel, 0, 0, -9999.0f, 9999.0f, 0.25f);
-    fn_8008771C(group, "flowlength", &mFlowLength, 0, 0, -9999.0f, 9999.0f, 0.25f);
-    fn_8008771C(group, "size", &mSize, 0, 0, 0.1f, 9999.0f, 0.1f);
+    fn_80087E9C(group, "winddir", &mWindDir, -9999.0f, 9999.0f, 0.25f, 0, 0);
+    fn_8008771C(group, "windvel", &mWindVel, -9999.0f, 9999.0f, 0.25f, 0, 0);
+    fn_8008771C(group, "flowlength", &mFlowLength, -9999.0f, 9999.0f, 0.25f, 0, 0);
+    fn_8008771C(group, "size", &mSize, 0.1f, 9999.0f, 0.1f, 0, 0);
 }
 
 float Leaf::vf58() {

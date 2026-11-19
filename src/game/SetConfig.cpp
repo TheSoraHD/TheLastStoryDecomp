@@ -1,25 +1,19 @@
+#include "atn/RenderSetting_unk.h"
+#include "game/GameConfig_unk.h"
 #include "game/SetConfig.h"
 #include "atn/Memory.h"
 #include "atn/SoundManager.h"
 #include "string.h"
 
 extern "C" unsigned char SCGetSoundMode();
-extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, int arg6,
-                            int arg7);
-extern "C" void fn_8008771C(void* group, const char* name, float* value, int arg3, int arg4, float min, float max,
-                            float step);
-extern "C" void fn_80087994(void* menu, const char* name, int* flag, int arg3, int arg4);
+extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, void* func,
+                            void* arg);
+extern "C" void fn_8008771C(void* group, const char* name, float* value, float min, float max, float step, void* func,
+                            void* arg);
+extern "C" void fn_80087994(void* menu, const char* name, int* flag, void* func, void* arg);
 
-struct Unk_8087EFA8 {
-    unsigned char m00[0x34];
-    int m34;
-};
-extern "C" Unk_8087EFA8* lbl_8087EFA8;
-struct Settings_unk {
-    unsigned char m000[0x244];
-    int m244;
-};
-extern "C" Settings_unk* lbl_8087F0A8;
+extern "C" RenderSetting_unk* lbl_8087EFA8;
+extern "C" GameConfig_unk* lbl_8087F0A8;
 
 SetConfig* SetConfig::sInstance;
 
@@ -82,7 +76,7 @@ inline void SetConfig::Init_unk() {
     }
     mA4 = 0;
     if (lbl_8087EFA8 != 0) {
-        lbl_8087EFA8->m34 = mA4 + 10;
+        lbl_8087EFA8->m034 = mA4 + 10;
     }
 }
 
@@ -107,11 +101,11 @@ void SetConfig::fn_8057EAF0() {
     fn_800874C8(group, "InTacviewType", &mInTacviewType, 0, 2, 1, 0, 0);
     fn_800874C8(group, "GatheringType", &mGatheringType, 0, 2, 1, 0, 0);
     group = fn_8008937C(root, "Camera");
-    fn_8008771C(group, "RollbackSpeed", &mRollbackSpeed, 0, 0, 0.0f, 1.0f, 0.1f);
-    fn_8008771C(group, "CameraRotSpeed", &mCameraRotSpeed, 0, 0, 0.0f, 2.0f, 0.1f);
-    fn_8008771C(group, "TurnSpeed", &mTurnSpeed, 0, 0, 0.2f, 1.5f, 0.1f);
-    fn_8008771C(group, "AttackTurnSpeed", &mAttackTurnSpeed, 0, 0, 0.2f, 1.5f, 0.1f);
-    fn_8008771C(group, "RotDelay", &mRotDelay, 0, 0, 1.0f, 60.0f, 1.0f);
+    fn_8008771C(group, "RollbackSpeed", &mRollbackSpeed, 0.0f, 1.0f, 0.1f, 0, 0);
+    fn_8008771C(group, "CameraRotSpeed", &mCameraRotSpeed, 0.0f, 2.0f, 0.1f, 0, 0);
+    fn_8008771C(group, "TurnSpeed", &mTurnSpeed, 0.2f, 1.5f, 0.1f, 0, 0);
+    fn_8008771C(group, "AttackTurnSpeed", &mAttackTurnSpeed, 0.2f, 1.5f, 0.1f, 0, 0);
+    fn_8008771C(group, "RotDelay", &mRotDelay, 1.0f, 60.0f, 1.0f, 0, 0);
     group = fn_8008937C(root, "BattleUI");
     fn_800874C8(group, "DrawHateLine", &mBattleDrawHateLine, 0, 4, 1, 0, 0);
     fn_80087994(group, "DrawEnemyHP", &mDrawEnemyHP, 0, 0);
@@ -124,9 +118,9 @@ void SetConfig::fn_8057EAF0() {
     fn_80087994(group, "EventCameraControl", &mEventCameraControl, 0, 0);
     group = fn_8008937C(root, "Sound");
     fn_800874C8(group, "SoundType", &mSound.mSoundType, 0, 3, 1, 0, 0);
-    fn_8008771C(group, "BGM Volume", &mSound.mBgmVolume, 0, 0, 0.0f, 1.0f, 0.1f);
-    fn_8008771C(group, "SE Volume", &mSound.mSeVolume, 0, 0, 0.0f, 1.0f, 0.1f);
-    fn_8008771C(group, "Voice Volume", &mSound.mVoiceVolume, 0, 0, 0.0f, 1.0f, 0.1f);
+    fn_8008771C(group, "BGM Volume", &mSound.mBgmVolume, 0.0f, 1.0f, 0.1f, 0, 0);
+    fn_8008771C(group, "SE Volume", &mSound.mSeVolume, 0.0f, 1.0f, 0.1f, 0, 0);
+    fn_8008771C(group, "Voice Volume", &mSound.mVoiceVolume, 0.0f, 1.0f, 0.1f, 0, 0);
     fn_800874C8(root, "WindKey", &mWindKey, 0, 2, 1, 0, 0);
     fn_80087994(root, "PlayerHpBarShow", &mPlayerHpBarShow, 0, 0);
     fn_80087994(root, "DrawHateLine", &mDrawHateLine, 0, 0);
@@ -192,7 +186,7 @@ void SetConfig::fn_8057EF40() {
     }
     mA4 = 0;
     if (lbl_8087EFA8 != 0) {
-        lbl_8087EFA8->m34 = mA4 + 10;
+        lbl_8087EFA8->m034 = mA4 + 10;
     }
 }
 
@@ -222,7 +216,7 @@ void SetConfig::fn_8057F154(int soundType) {
 void SetConfig::fn_8057F198(int value) {
     mA4 = value;
     if (lbl_8087EFA8 != 0) {
-        lbl_8087EFA8->m34 = value + 10;
+        lbl_8087EFA8->m034 = value + 10;
     }
 }
 

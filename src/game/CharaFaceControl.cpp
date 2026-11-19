@@ -1,3 +1,4 @@
+#include "atn/RenderSetting_unk.h"
 #include "game/CharaFaceControl.h"
 #include "game/CharaTask.h"
 #include "atn/Csv.h"
@@ -20,12 +21,7 @@ extern "C" void fn_80099010(void* pose, atn::Model::NodeRes_unk* node);   // inf
 extern "C" void fn_80098948(void* dst, int arg, void* a, void* b, float t); // inferred: blends two poses
 // inferred: pose of the node `hash` of a motion at `frame`; zero on success
 extern "C" int fn_800A0548(atn::LoadHandle* motion, void* pose, unsigned int hash, void* work, float frame);
-// inferred: frame parameters (as gmk::ArenaFloor)
-struct FaceParams_unk {
-    unsigned char m000[0x3A4];
-    float mTimeScale; // 0x3A4
-};
-extern "C" FaceParams_unk* lbl_8087EFA8;
+extern "C" RenderSetting_unk* lbl_8087EFA8;
 // inferred: work buffer of fn_800A0548 (0x12 bytes are cleared before each call)
 extern "C" {
 unsigned char lbl_807C7AF8[0x18];
@@ -96,7 +92,7 @@ void CharaFaceControl::fn_8011D844(atn::MotionBuffer* nodes, int arg) {
         if (weight > 0.0001f) {
             fn_8011E200(&m04[m5C], &m44[m5C], weight);
         }
-        m60 -= lbl_8087EFA8->mTimeScale;
+        m60 -= lbl_8087EFA8->m3A4;
     }
     if (m44[!m5C].mSize != 0 || m44[m5C].mSize != 0) {
         atn::Model::Res_unk* res = m00->GetRes_unk();

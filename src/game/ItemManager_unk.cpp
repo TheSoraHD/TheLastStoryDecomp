@@ -1341,7 +1341,7 @@ extern "C" void fn_80449448(int* a, int* b, int level, int other) {
     *b = INV_MAX_unk(0, INV_MIN_unk(*b, 99999 - *a));
 }
 
-void Inventory::fn_80449A18(int killer, int level, int exp, int arg4, float rate) {
+void Inventory::fn_80449A18(CharaTask* killer, int level, int exp, int arg4, float rate) {
     if (lbl_8087F610 == 0) {
         int a = 0;
         int b = 0;
@@ -1377,7 +1377,7 @@ struct ExpOrderLess_unk {
 // the constructor of ExpEntry_unk (game/InventoryExp_unk.h) as in the original
 // inferred: shares the experience of the battle (m6014/m6018) among the party members that can act and
 // adds it to the list of the last battle (sorted for game/BattleResult)
-void Inventory::fn_80449ABC(int killer, int level) {
+void Inventory::fn_80449ABC(CharaTask* killer, int level) {
     atn::FixedArray_unk<ExpEntry_unk, 8> party;
     party.clear();
     ExpEntry_unk entry;
@@ -1393,7 +1393,7 @@ void Inventory::fn_80449ABC(int killer, int level) {
     for (unsigned int i = 0; i < party.size(); i++) {
         party[i].mExpA = expA;
         party[i].mExpB = expB;
-        if (lbl_8087F0A8->mExpKillBounus != 0 && party[i].mChara == (CharaTask*)killer) {
+        if (lbl_8087F0A8->mExpKillBounus != 0 && party[i].mChara == killer) {
             party[i].mExpA = (int)(1.2f * party[i].mExpA);
             party[i].mExpB = (int)(1.2f * party[i].mExpB);
         }

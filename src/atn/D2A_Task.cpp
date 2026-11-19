@@ -1,8 +1,10 @@
 #include "atn/D2A_Task.h"
+#include "atn/D2A_TaskApi_unk.h"
 #include "atn/Memory.h"
 #include "std/string.h"
 #include "std/string_members.h"
 #include "atn/DrawHelper.h"
+#include "atn/D2A_Manager.h"
 
 // inferred: string hash and file helpers (automatic names)
 extern "C" unsigned int fn_800DC6B4(const char* s);
@@ -19,13 +21,6 @@ extern "C" void fn_801FD5A0(atn::D2A_Common* element, int arg, int arg2);
 extern "C" void fn_801FDA20(atn::D2A_Common* element, int arg, int arg2);
 extern "C" void fn_801FFA04(void* data, int size, atn::D2A_Data* d2a, void* textures, int arg);
 
-// inferred: d2anime manager (lbl_8087F138) and text table (lbl_8087EEC8)
-struct D2AManager_unk {
-    unsigned char m000[0x168];
-    unsigned char m168[0x1A8 - 0x168]; // inferred: texture list
-    atn::D2A_Task* mCurrent;            // 0x1A8
-};
-extern "C" D2AManager_unk* lbl_8087F138;
 extern "C" int fn_801F362C(void* textures); // inferred: nonzero while busy
 struct TextMgr_unk;
 extern "C" TextMgr_unk* lbl_8087EEC8;
@@ -84,11 +79,11 @@ int D2A_Task::vf0C() {
         mState = 1;
         break;
     case 1:
-        if (mFile.fn_80473F50() == 0 && fn_801F362C(lbl_8087F138->m168) == 0) {
+        if (mFile.fn_80473F50() == 0 && fn_801F362C(&lbl_8087F138->mTexts) == 0) {
             if (mFile.fn_80470580() != 0) {
                 mLoaded = 1;
                 int size = mFile.fn_8047059C();
-                fn_801FFA04(mFile.fn_80470580(), size, &mData, lbl_8087F138->m168, 1);
+                fn_801FFA04(mFile.fn_80470580(), size, &mData, &lbl_8087F138->mTexts, 1);
                 mData.fn_801EFB00();
                 mFile.fn_80473F88();
                 if (mLoop) {

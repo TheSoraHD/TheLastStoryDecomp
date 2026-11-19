@@ -1,3 +1,4 @@
+#include "atn/GraphicsDevice.h"
 #include "atn/GXDecl.h"
 #include "atn/Camera_unk.h"
 #include "math/Vec.h"
@@ -24,19 +25,10 @@ extern "C" RenderSetting_unk* lbl_8087EFA8;
 
 
 
-// inferred: render manager (lbl_8087EEE0)
-struct ShadowRenderMgr_unk {
-    unsigned char m00[0x3C];
-    int mWidth;  // 0x3C
-    int mHeight; // 0x40
-    unsigned char m44[0x48 - 0x44];
-    unsigned int mClearColor; // 0x48: ARGB
-};
-extern "C" ShadowRenderMgr_unk* lbl_8087EEE0;
-extern "C" void fn_80071E04(ShadowRenderMgr_unk* rs);
-extern "C" void fn_80071D74(ShadowRenderMgr_unk* rs, const atn::Matrix44_unk& proj);
-extern "C" void fn_80076760(ShadowRenderMgr_unk* rs, int arg1, int arg2);
-extern "C" void fn_80075DEC(ShadowRenderMgr_unk* rs);
+extern "C" atn::GraphicsDevice_unk* lbl_8087EEE0;
+extern "C" void fn_80071E04(atn::GraphicsDevice_unk* rs);
+extern "C" void fn_80076760(atn::GraphicsDevice_unk* rs, int arg1, int arg2);
+extern "C" void fn_80075DEC(atn::GraphicsDevice_unk* rs);
 extern "C" unsigned char lbl_8087EFB0; // inferred: z pre-pass active
 
 // inferred: debug drawing
@@ -336,10 +328,10 @@ void LayerShadow::vf1C() {
     GXInitTexObj(&mDepthTex, atn::RenderManager::instance_->m79C, w, h, 3, 0, 0, 0);
     GXInitTexObjLOD(&mDepthTex, 0, 0, 0.0f, 0.0f, 0.0f, 0, 0, 0);
     atn::RenderManager::instance_->mCamera = mLightCamera;
-    ShadowRenderMgr_unk* rs = lbl_8087EEE0;
+    atn::GraphicsDevice_unk* rs = lbl_8087EEE0;
     fn_80071E04(rs);
     fn_80076760(rs, 6, 2);
-    fn_80071D74(rs, mLightCamera.mProj);
+    fn_80071D74(rs, mLightCamera.mProj.m);
     fn_80076760(rs, 8, 1);
     fn_80076760(rs, 9, 2);
     fn_80076760(rs, 10, 1);
@@ -374,7 +366,7 @@ void LayerShadow::vf20() {
     GXSetColorUpdate(1);
     atn::RenderManager::instance_->mCamera = mCamera;
     if (lbl_8087EFA8->m12C != 0) {
-        ShadowRenderMgr_unk* rs = lbl_8087EEE0;
+        atn::GraphicsDevice_unk* rs = lbl_8087EEE0;
         int height = rs->mHeight;
         int width = rs->mWidth;
         lbl_8087EEB0->fn_8005DF90(-1, &mDepthTex, 0, (float)(width - width / 4) - 16.0f, (float)(height - height / 4) - 32.0f, 0.0f, (float)width * 0.25f, (float)height * 0.25f);

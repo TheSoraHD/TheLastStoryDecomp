@@ -68,10 +68,11 @@ public:
     int m1504;                // inferred: the kraken (CharaTask*, set by fn_802E2468)
     ResHandle m1508;          // inferred: debug menu group
     int m150C;                // inferred: "DebugDisp"
+
+    int fn_802E2328();            // inferred: nonzero when the leg can act
+    float fn_802E2360();          // inferred: damage rate of the leg near the player
+    void fn_802E2468(int value);  // inferred: sets the kraken (m1504)
 };
 
-extern "C" int fn_802E2328(Em303KrakenFoot* foot);
-extern "C" float fn_802E2360(Em303KrakenFoot* foot);
-extern "C" void fn_802E2468(Em303KrakenFoot* foot, int value);
 
 #endif

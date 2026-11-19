@@ -8,6 +8,7 @@
 #include "atn/D3AnimeInstance.h"
 #include "std/string_members.h"
 #include "atn/D2A_TaskInstanceC.h"
+#include "atn/TextTable_unk.h"
 extern "C" int sprintf(char* s, const char* format, ...);
 extern "C" void fn_801FEE08(void* layout, unsigned int hash, const wchar_t* text); // inferred: sets a text
 extern "C" void fn_801FECE0(void* layout, unsigned int hash, float value);
@@ -16,14 +17,15 @@ extern "C" const wchar_t* fn_80116FC0(int a, int id); // inferred: message text
 extern "C" atn::SoundRef fn_80117228(int id);        // inferred: plays a system sound effect
 extern "C" void fn_800D2338(atn::Task* task);        // inferred: deletes the task
 extern "C" void* fn_8008937C(void* menu, const char* name); // inferred: debug menu group
-extern "C" void fn_80087E9C(void* group, const char* name, atn::Vector3* value, int arg3, int arg4, float min,
-                            float max, float step);
-extern "C" void fn_80088FAC(void* group, const char* name, NewCampColor_unk* value, int arg3, int arg4, float min,
-                            float max, float step);
+extern "C" void fn_80087E9C(void* group, const char* name, atn::Vector3* value, float min, float max, float step,
+                            void* func, void* arg);
+extern "C" void fn_80088FAC(void* group, const char* name, NewCampColor_unk* value, float min, float max, float step,
+                            void* func, void* arg);
 extern "C" void fn_804A436C(int* cursor, int count, int wrap, int step, int arg); // inferred: moves a cursor
 extern "C" void fn_804A4494(int* cursor, int* top, int count, int page, int a, int b); // inferred: moves a list cursor
 extern "C" void fn_804A4930(atn::Task* task, int top, int count, int page); // inferred: scroll bar
-extern "C" void* lbl_8087EF70;
+struct Pad_unk;
+extern "C" Pad_unk* lbl_8087EF70;
 extern "C" int fn_800A555C(void* pad, int port, int button); // inferred: button triggered
 
 extern "C" NewCampPartsPoint_unk fn_801F4E8C(atn::Task* layout, unsigned int hash);
@@ -52,24 +54,11 @@ struct NewCampHintCamp_unk {
 };
 
 // inferred: field (lbl_8087F430)
-struct NewCampHintField_unk;
-extern "C" NewCampHintField_unk* lbl_8087F430;
+extern "C" GameTask* lbl_8087F430;
 extern "C" int fn_8021F094();                      // inferred: number of tutorials
 extern "C" NewCampTutorial_unk* fn_8021F0D4(int index); // inferred: tutorial entry
 
 extern "C" const wchar_t lbl_808813D0[2]; // inferred: empty text
-// inferred: message table (lbl_8087F1E4), entries of 8 bytes
-struct NewCampHintMsg_unk {
-    struct Entry_unk {
-        int m00;
-        const wchar_t* mText;
-    };
-    const wchar_t* Get_unk(int id) {
-        return mEntries[id].mText != 0 ? mEntries[id].mText : lbl_808813D0;
-    }
-    Entry_unk mEntries[1];
-};
-extern "C" NewCampHintMsg_unk* lbl_8087F1E4;
 
 // inferred: category of the list (kind of tutorial and message id)
 struct NewCampHintCategory_unk {
@@ -266,7 +255,7 @@ inline void NewCampPartsHint::ReadList_unk() {
     int count = fn_8021F094();
     for (int i = 0; i < count; i++) {
         NewCampTutorial_unk* tutorial = fn_8021F0D4(i);
-        if (tutorial != 0 && ((GameTask*)lbl_8087F430)->fn_80370174(tutorial->mFlag) > 0 && tutorial->mCategory < 7 &&
+        if (tutorial != 0 && lbl_8087F430->fn_80370174(tutorial->mFlag) > 0 && tutorial->mCategory < 7 &&
             (kind < 0 || tutorial->mCategory == kind)) {
             mList.push_back(tutorial);
         }
@@ -314,7 +303,7 @@ void NewCampPartsHint::vf20() {
         int index = i + 5;
         NewCampPartsEntry_unk* entries = m50.mData;
         if (entries[index].mAnime->GetTask() != 0) {
-            const wchar_t* text = lbl_8087F1E4->Get_unk(sCategories[i].mMsg);
+            const wchar_t* text = lbl_8087F1E4->GetPair_unk(sCategories[i].mMsg);
             SetPaneText_unk(GetD2A_unk(entries[index].mAnime)->mLayout, "name", text);
             GetD2A_unk(entries[index].mAnime)->mSpeed = 0.0f;
             GetD2A_unk(entries[index].mAnime)->mFrame = 10.0f;
@@ -373,7 +362,7 @@ void NewCampPartsHint::vf28() {
     }
     mWait = 0;
     if (m128 != 0) {
-        ((GameTask*)lbl_8087F430)->fn_803766E4();
+        lbl_8087F430->fn_803766E4();
     }
     m128 = 0;
     m96 = 0;
@@ -441,8 +430,8 @@ void NewCampPartsHint::fn_80515F28(int mode) {
             if (tutorial->mSeen != 0) {
                 m128 = 1;
                 if (lbl_8087F430 != 0) {
-                    ((GameTask*)lbl_8087F430)->fn_803766E4();
-                    ((GameTask*)lbl_8087F430)->fn_80376324(mList[mCursor]->mFlag);
+                    lbl_8087F430->fn_803766E4();
+                    lbl_8087F430->fn_80376324(mList[mCursor]->mFlag);
                 }
                 fn_80515F28(1);
             } else {
@@ -489,7 +478,7 @@ void NewCampPartsHint::fn_8051640C() {
         fn_80117228(2);
         fn_80515F28(0);
     } else if (fn_800A555C(pad, 0, 4) && mCursor < (int)mList.size()) {
-        if (((GameTask*)lbl_8087F430)->fn_80370174(mList[mCursor]->mFlag) >= 1) {
+        if (lbl_8087F430->fn_80370174(mList[mCursor]->mFlag) >= 1) {
             fn_80117228(1);
             fn_80515F28(2);
         } else {
@@ -506,7 +495,7 @@ void NewCampPartsHint::fn_80516544() {
             int index = mTop + i;
             NewCampTutorial_unk* tutorial;
             if (index < (int)mList.size() && (tutorial = mList[index]) != 0 &&
-                ((GameTask*)lbl_8087F430)->fn_80370174(tutorial->mFlag) >= 1) {
+                lbl_8087F430->fn_80370174(tutorial->mFlag) >= 1) {
                 task->SetText_unk("item", tutorial->mName);
                 if (tutorial->mSeen != 0) {
                     task->SetValues2_unk("iconUvMask", atn::Vector4_unk(0.5f, 0.0f, 1.0f, 1.0f));
@@ -534,16 +523,16 @@ void NewCampPartsHint::fn_80516544() {
 
 void NewCampPartsHint::vf40(void* group) {
     group = fn_8008937C(group, m98.data());
-    fn_80087E9C(group, "MoveOffset", &mMove, 0, 0, -1000000.0f, 1000000.0f, 1.0f);
-    fn_80088FAC(group, "Tutorial", &mTutorialCol, 0, 0, 0.0f, 1.0f, 0.1f);
-    fn_80088FAC(group, "TutorialShadow", &mTutorialShadow, 0, 0, 0.0f, 1.0f, 0.1f);
-    fn_80088FAC(group, "Tips", &mTipsCol, 0, 0, 0.0f, 1.0f, 0.1f);
-    fn_80088FAC(group, "TipsShadow", &mTipsShadow, 0, 0, 0.0f, 1.0f, 0.1f);
-    fn_80087E9C(group, "OpenOffset", &mOpenOffset, 0, 0, -1000000.0f, 1000000.0f, 1.0f);
-    fn_80087E9C(group, "OffsetPos", &mA4, 0, 0, -1000000.0f, 1000000.0f, 1.0f);
-    fn_80087E9C(group, "OffsetScl", &mB0, 0, 0, -1000000.0f, 1000000.0f, 1.0f);
-    fn_80087E9C(group, "LocatorScl", &mBC, 0, 0, -1000000.0f, 1000000.0f, 1.0f);
-    fn_80087E9C(group, "BasePos", &mC8, 0, 0, -1000000.0f, 1000000.0f, 1.0f);
+    fn_80087E9C(group, "MoveOffset", &mMove, -1000000.0f, 1000000.0f, 1.0f, 0, 0);
+    fn_80088FAC(group, "Tutorial", &mTutorialCol, 0.0f, 1.0f, 0.1f, 0, 0);
+    fn_80088FAC(group, "TutorialShadow", &mTutorialShadow, 0.0f, 1.0f, 0.1f, 0, 0);
+    fn_80088FAC(group, "Tips", &mTipsCol, 0.0f, 1.0f, 0.1f, 0, 0);
+    fn_80088FAC(group, "TipsShadow", &mTipsShadow, 0.0f, 1.0f, 0.1f, 0, 0);
+    fn_80087E9C(group, "OpenOffset", &mOpenOffset, -1000000.0f, 1000000.0f, 1.0f, 0, 0);
+    fn_80087E9C(group, "OffsetPos", &mA4, -1000000.0f, 1000000.0f, 1.0f, 0, 0);
+    fn_80087E9C(group, "OffsetScl", &mB0, -1000000.0f, 1000000.0f, 1.0f, 0, 0);
+    fn_80087E9C(group, "LocatorScl", &mBC, -1000000.0f, 1000000.0f, 1.0f, 0, 0);
+    fn_80087E9C(group, "BasePos", &mC8, -1000000.0f, 1000000.0f, 1.0f, 0, 0);
 }
 
 void NewCampPartsHint::vf48() {

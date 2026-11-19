@@ -3,16 +3,12 @@
 #include "std/string.h"
 #include "atn/SoundManager.h"
 #include "atn/SoundRef.h"
+#include "atn/D2A_Manager.h"
 
 extern "C" void* memset(void* dst, int c, unsigned long n);
 
-// inferred: message manager (lbl_8087F138); the text lookup object is at +0x168
+// inferred: text table of the d2anime manager (lbl_8087F138)
 struct MenuMsg_unk;
-struct MenuMsgOwner_unk {
-    unsigned char m000[0x168];
-    unsigned char m168[1];
-};
-extern "C" MenuMsgOwner_unk* lbl_8087F138;
 extern "C" void fn_801F3E20(void* msg, std::basic_string<wchar_t>* out, int id); // inferred: text by id
 extern "C" const wchar_t lbl_808813D0[2]; // inferred: empty text
 // inferred: message table (lbl_8087F1E4) with 8-byte entries
@@ -96,7 +92,7 @@ extern "C" const wchar_t* fn_80116EB8(const MenuTextRef_unk* ref) {
 extern "C" const wchar_t* fn_80116FC0(int kind, int id) {
     lbl_807C78E4 = L"";
     if (kind == 0) {
-        void* msg = lbl_8087F138->m168;
+        void* msg = &lbl_8087F138->mTexts;
         if (msg != 0) {
             fn_801F3E20(msg, &lbl_807C78E4, id);
         }

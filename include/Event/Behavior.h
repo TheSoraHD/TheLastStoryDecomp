@@ -45,10 +45,6 @@ class Cut;
 // inferred: the event manager returned by Action::fn_805381C8 is the sequence of the cut
 
 
-struct ActionOwner_unk {
-    unsigned char m00[0x10];
-    int m10; // inferred: id of the actor
-};
 
 
 class ActionProcessor {

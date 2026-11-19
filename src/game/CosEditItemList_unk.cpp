@@ -9,6 +9,7 @@
 #include "atn/D3Anime.h"
 #include "atn/D3AnimeInstance.h"
 #include "atn/D2A_Task.h"
+#include "atn/D2A_TaskApi_unk.h"
 #include "atn/D2A_TaskInstance.h"
 #include "atn/SoundRef.h"
 #include "atn/SoundManager.h"
@@ -25,7 +26,8 @@
 
 extern "C" int sprintf(char* s, const char* format, ...);
 extern "C" unsigned int fn_800DC6B4(const char* s);          // inferred: string hash
-extern "C" void* lbl_8087EF70;                                // inferred: pad
+struct Pad_unk;
+extern "C" Pad_unk* lbl_8087EF70;                                // inferred: pad
 extern "C" int fn_800A555C(void* pad, int port, int button); // inferred: button triggered
 extern "C" atn::SoundRef fn_80117228(int id);                 // inferred: plays a system sound effect
 extern "C" const wchar_t* fn_80116FC0(int a, int id);         // inferred: system text
@@ -41,7 +43,6 @@ struct CosEditListItem_unk {
 extern "C" CosEditListItem_unk* fn_80211480(int id);    // inferred: item data
 extern "C" int fn_80206BE4(void* item);                  // inferred: item id of a protector
 extern "C" int fn_8020EF80(void* entry);                 // inferred: item id of an equipment entry
-extern "C" void fn_804A3C24(MenuCommonTask* menu, const wchar_t* text, int id); // inferred: help text
 extern "C" void fn_801E7D78(atn::D3Anime* anime, void* item, int arg); // inferred: shows a protector
 extern "C" void fn_801E7EA8(atn::D3Anime* anime, void* entry, int arg); // inferred: shows an equipment
 
@@ -57,7 +58,7 @@ void CosEditProtector::fn_801D80BC() {
         fn_801E7D78(mSelect, item, 1);
         CosEditListItem_unk* data = fn_80211480(fn_80206BE4(item));
         if (data != 0) {
-            fn_804A3C24(MenuCommonTask::sInstance, data->mHelp, 0);
+            MenuCommonTask::sInstance->fn_804A3C24(data->mHelp, 0);
         }
         break;
     }
@@ -73,7 +74,7 @@ void CosEditProtector::fn_801D80BC() {
         fn_801E7EA8(mSelect, entry, 1);
         CosEditListItem_unk* data = fn_80211480(fn_8020EF80(entry));
         if (data != 0) {
-            fn_804A3C24(MenuCommonTask::sInstance, data->mHelp, 0);
+            MenuCommonTask::sInstance->fn_804A3C24(data->mHelp, 0);
         }
         break;
     }
@@ -157,7 +158,6 @@ void CosEditProtector::fn_801D80BC() {
 }
 
 extern "C" void fn_804A4494(int* cursor, int* top, int count, int page, int a, int b); // inferred: moves a list cursor
-extern "C" void fn_804A4300(MenuCommonTask* menu, const wchar_t* text);              // inferred: shows a message
 extern "C" int fn_800DD3FC(wchar_t* s, const wchar_t* format, ...);                  // inferred: wide sprintf
 extern "C" const wchar_t lbl_808813D0[2];                                            // inferred: empty text
 // inferred: camp message table (lbl_8087F1E4, as in game/CosEditPalette_unk.cpp)
@@ -208,7 +208,7 @@ void CosEditProtector::fn_801D8560() {
             fn_801E7EA8(mSelect, e->mItem, 1);
             CosEditListItem_unk* data = fn_80211480(fn_8020EF80(e->mItem));
             if (data != 0) {
-                fn_804A3C24(MenuCommonTask::sInstance, data->mHelp, 0);
+                MenuCommonTask::sInstance->fn_804A3C24(data->mHelp, 0);
             }
         }
     }
@@ -241,7 +241,7 @@ void CosEditProtector::fn_801D8560() {
                     wchar_t text[0x100];
                     fn_800DD3FC(text, format, info->mName,
                                 ((CosEditListName_unk*)fn_80211480(fn_8020EF80(cur)))->mName);
-                    fn_804A4300(MenuCommonTask::sInstance, text);
+                    MenuCommonTask::sInstance->fn_804A4300(text);
                     return;
                 }
                 int other = fn_80219558(e->mOwner);
@@ -350,7 +350,7 @@ void CosEditProtector::fn_801D8CC4() {
         fn_801E7D78(mSelect, item, e->mIndex < 0);
         CosEditListItem_unk* data = fn_80211480(fn_80206BE4(item));
         if (data != 0) {
-            fn_804A3C24(MenuCommonTask::sInstance, data->mHelp, 0);
+            MenuCommonTask::sInstance->fn_804A3C24(data->mHelp, 0);
         }
     }
     void* pad = lbl_8087EF70;
@@ -378,7 +378,7 @@ void CosEditProtector::fn_801D8CC4() {
                     wchar_t text[0x100];
                     fn_800DD3FC(text, format, info->mName,
                                 ((CosEditListName_unk*)fn_80211480(fn_80206BE4(cur)))->mName);
-                    fn_804A4300(MenuCommonTask::sInstance, text);
+                    MenuCommonTask::sInstance->fn_804A4300(text);
                     return;
                 }
                 int other = fn_80219558(e->mOwner);
@@ -713,7 +713,7 @@ void CosEditProtector::fn_801D94D0() {
         for (unsigned int i = 0; i < m1C30.size(); i++) {
             NewCampPair_unk* pair = m1C30[i];
             int member = pair->mId;
-            CharaTask* chara = (CharaTask*)pair->m04;
+            CharaTask* chara = pair->m04;
             if (fn_801D5420(member, 0)) {
                 fn_801DCF60(member, chara, 0, 0);
             }
@@ -874,7 +874,7 @@ void CosEditProtector::fn_801D94D0() {
     NewCampPair_unk* pair = m1C0C[0];
     fn_801DD26C(pair->mId);
     int member = pair->mId;
-    CharaTask* chara = (CharaTask*)pair->m04;
+    CharaTask* chara = pair->m04;
     if (fn_801D5420(member, 0)) {
         fn_801DCF60(member, chara, 0, 0);
     }

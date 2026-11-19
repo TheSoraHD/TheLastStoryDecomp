@@ -1,3 +1,5 @@
+#include "game/GameConfig_unk.h"
+#include "game/GameTask.h"
 #include "game/Em202SpiderBase.h"
 #include "atn/Material_unk.h"
 #include "game/HitInfo_unk.h"
@@ -19,34 +21,27 @@ extern "C" int fn_800DC12C(const char* s);   // inferred: string to int
 extern "C" float fn_800DC288(const char* s); // inferred: string to float
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
 struct HomingParam_unk;
-extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3, int arg4); // inferred: debug menu
-// inferred: field (lbl_8087F430): route tables at 0x10D8 (as in game/Em306GurgBeast.cpp)
-struct Field_unk {
-    unsigned char m0000[0x10D8];
-    GameScene* m10D8;
-};
-extern "C" Field_unk* lbl_8087F430;
+extern "C" void fn_80087994(void* group, const char* name, int* value, void* func, void* arg); // inferred: debug menu
+extern "C" GameTask* lbl_8087F430;
 // inferred: std::string concatenation (weak copy 0x8006AFF8)
 extern "C" std::string fn_8006AFF8(const std::string& a, const std::string& b);
 
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
 // inferred: effect manager (class unknown), global instance at 0x8087F3C0
-struct EffectMgr_unk;
-extern "C" EffectMgr_unk* lbl_8087F3C0;
-extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
+namespace atn {
+class EffectManager;
+}
+extern "C" atn::EffectManager* lbl_8087F3C0;
+extern "C" void fn_80239DAC(atn::EffectManager* mgr, void* owner, int id, int arg); // inferred: stops an effect
 extern "C" void fn_800CB5C8(atn::SoundRef* sound, int frames, int arg); // inferred: stops the sound
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 extern "C" double cos(double x);
 extern "C" double sqrt(double x);
-extern "C" void* lbl_8087EE98; // inferred: collision world
-extern "C" int fn_8004D314(void* world, int arg, const atn::Vector3* pos, const atn::Vector3* dir, unsigned int mask,
-                           int arg5, int arg6, float radius); // inferred: sphere test
-// inferred: frame rate (as in chr/ControlTurnQuadruped.cpp)
-struct System_unk {
-    unsigned char m00[0x30];
-    int mFrameRate; // 0x30
-};
-extern "C" System_unk* lbl_8087F0A8;
+struct ColliManager_unk;
+extern "C" ColliManager_unk* lbl_8087EE98; // inferred: collision world
+extern "C" int fn_8004D314(void* world, void* arg, const atn::Vector3* pos, const atn::Vector3* dir, unsigned int mask,
+                           void* arg5, int arg6, float radius); // inferred: sphere test
+extern "C" GameConfig_unk* lbl_8087F0A8;
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the next effects
@@ -55,7 +50,7 @@ struct Color4f_unk {
     Color4f_unk() {}
     float r, g, b, a;
 };
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
+extern "C" void fn_8023A8B4(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Model* model, void* node,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
 
@@ -325,7 +320,7 @@ void Em202SpiderBase::vf10() {
                     mColli.mFlags |= 1;
                 } else {
                     MovePos_unk(this, m1548);
-                    int fps = lbl_8087F0A8->mFrameRate;
+                    int fps = lbl_8087F0A8->m030;
                     m1548.y += -98.1f / (float)(fps * fps);
                 }
             }
@@ -494,7 +489,7 @@ void Em202SpiderBase::vf80(const atn::Vector3& pos, const atn::Vector3& offset) 
     m1548 = (dest - mPos) * inv;
     m1590 = 0;
     mColli.mFlags &= ~1;
-    int fps = lbl_8087F0A8->mFrameRate;
+    int fps = lbl_8087F0A8->m030;
     m1548.y -= 0.5f * (frames * (-98.1f / (float)(fps * fps)));
 }
 

@@ -20,28 +20,15 @@
 #include "game/BattleTask.h"
 #include "game/GameTask.h"
 #include "game/DamageResult_unk.h"
+#include "game/GameConfig_unk.h"
 
 
-// inferred: input state embedded at +0x48C of the object behind lbl_8087F0A8
-struct Input_unk {
-    int fn_8012476C(int button); // inferred: nonzero when `button` was pressed
-    int fn_801231D0(int action); // inferred: action triggered
-    int fn_801240B4(int action); // inferred: action held
-};
 
-struct Unk_8087F0A8 {
-    unsigned char m000[0x30];
-    int mFps; // 0x30: inferred: frame rate
-    unsigned char m034[0x48C - 0x34];
-    Input_unk mInput; // 0x48C
-};
 
-// inferred: the same object seen from the game settings (fn_800F52F8 returns lbl_8087F0A8)
-struct Settings_unk {
-    Input_unk* fn_80116BAC() { return &mInput; } // inferred: weak copy 0x80116BAC
-    unsigned char m000[0x48C];
-    Input_unk mInput; // 0x48C
-};
+// inferred: weak copy 0x80116BAC
+inline Input_unk* GameConfig_unk::fn_80116BAC() {
+    return &mInput;
+}
 
 // inferred: starts a shake of the field camera (GameCamera::mShake, name invented); the frame keeps its parity
 static inline void Shake_unk(GameTask* task, int time, float a, float b) {
@@ -61,7 +48,10 @@ extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
 extern "C" HitInfo_unk* fn_80219E6C(int id); // inferred: bullet data by id
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
 extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float volume);
-extern "C" void* lbl_8087EF70; extern "C" void* lbl_8087EE98; // inferred: collision world
+struct Pad_unk;
+extern "C" Pad_unk* lbl_8087EF70;
+struct ColliManager_unk;
+extern "C" ColliManager_unk* lbl_8087EE98; // inferred: collision world
 extern "C" int fn_8004ED34(void* colli, atn::ColliResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg7);
 extern "C" int fn_8004D388(void* world, atn::ColliResult_unk* result, CharaTask::Sphere_unk* sphere, atn::Vector3* move,
@@ -125,21 +115,23 @@ struct GameState_unk {
 };
 extern "C" GameState_unk* lbl_8087EFA8;
 
-struct EffectMgr_unk;
+namespace atn {
+class EffectManager;
+}
 struct Color4f_unk {
     Color4f_unk() {}
     Color4f_unk(float r_, float g_, float b_, float a_) : r(r_), g(g_), b(b_), a(a_) {}
     float r, g, b, a;
 };
-extern "C" EffectMgr_unk* lbl_8087F3C0;
-extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
+extern "C" atn::EffectManager* lbl_8087F3C0;
+extern "C" void fn_80239DAC(atn::EffectManager* mgr, void* owner, int id, int arg); // inferred: stops an effect
 extern "C" atn::EfpFile* fn_800EFBC4(int id); // inferred: battle effect of row `id`
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
+extern "C" void fn_8023A8B4(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Model* model, void* node,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
 
 // inferred: plays an effect on a model (name invented)
-static inline void PlayEfp_unk(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model) {
+static inline void PlayEfp_unk(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Model* model) {
     atn::Vector3 pos;
     atn::Vector3 rot;
     Color4f_unk color;
@@ -178,7 +170,7 @@ public:
     unsigned char m04[0x5C - 0x04];
     SwordParam_unk mParam; // 0x5C
 };
-extern "C" Unk_8087F0A8* lbl_8087F0A8;
+extern "C" GameConfig_unk* lbl_8087F0A8;
 
 // inferred: weak copy 0x8013C38C (address of the position), inlined here
 inline atn::Vector3* CharaTask::fn_8013C38C() {
@@ -1090,7 +1082,7 @@ int ControlMatHoldDamage::vf0C() {
     CharaTask* c = mChara;
     Motion_unk* m = &c->mMotion;
     if (m->mTracks[0].m08 < 64.0f) {
-        int fps = lbl_8087F0A8->mFps;
+        int fps = lbl_8087F0A8->m030;
         atn::Vector3 move(0.0f, -98.1f / (float)(fps * fps), -0.46875f);
         atn::Matrix3x4 rot;
         rot.SetIdentity();
@@ -1140,8 +1132,8 @@ ControlThrown::ControlThrown(Chara_unk* chara, const atn::Vector3& target, int f
     }
     float n = (float)frames;
     mVel = (mTarget - mChara->mPos) * (1.0f / n);
-    mVel.y -= 0.5f * (n * (0.5f * (-98.1f / (float)(lbl_8087F0A8->mFps *
-                                                     lbl_8087F0A8->mFps))));
+    mVel.y -= 0.5f * (n * (0.5f * (-98.1f / (float)(lbl_8087F0A8->m030 *
+                                                     lbl_8087F0A8->m030))));
     atn::Vector3 dir = mTarget - mChara->mPos;
     dir.y = 0.0f;
     dir.Normalize_unk();
@@ -1166,7 +1158,7 @@ ControlThrown::ControlThrown(Chara_unk* chara, const atn::Vector3& target, int f
 int ControlThrown::vf0C() {
     Motion_unk* m = &mChara->mMotion;
     mChara->mPos = mChara->mPos + mVel;
-    int fps = lbl_8087F0A8->mFps;
+    int fps = lbl_8087F0A8->m030;
     mVel.y += lbl_8087EFA8->m3A4 * (0.5f * (-98.1f / (float)(fps * fps)));
     mFrames--;
     switch (mState) {
@@ -1633,7 +1625,7 @@ boost::function<void()> ControlBoundShade::vf10() const {
 int ControlThrownSimple::vf0C() {
     CharaTask* c = mChara;
     c->mPos = c->mPos + mVel;
-    int fps = lbl_8087F0A8->mFps;
+    int fps = lbl_8087F0A8->m030;
     mVel.y += (float)lbl_8087EFA8->m3A4 * (0.5f * (-98.1f / (float)(fps * fps)));
     mFrames--;
     return 0;
@@ -2071,8 +2063,8 @@ extern "C" inline atn::Matrix3x4 fn_800F80A8(const atn::Vector3* pos) {
     PSMTXTrans(m.m, pos->x, pos->y, pos->z);
     return m;
 }
-extern "C" inline Settings_unk* fn_800F52F8() {
-    return (Settings_unk*)lbl_8087F0A8;
+extern "C" inline GameConfig_unk* fn_800F52F8() {
+    return lbl_8087F0A8;
 }
 } // namespace chr
 // inferred: global accessors (weak copies of other files, outside chr)

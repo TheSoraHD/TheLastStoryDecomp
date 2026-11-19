@@ -1,3 +1,4 @@
+#include "Event/Manager.h"
 #include "game/EnvSeManager.h"
 #include "game/GameTask.h"
 #include "game/GameVoice.h"
@@ -9,6 +10,8 @@
 #include "game/GameBgm.h"
 #include "math/Vec.h"
 #include "game/SongManager.h"
+#include "game/PlayerTask.h"
+#include "game/CharaManager.h"
 
 extern "C" double sqrt(double x);
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
@@ -21,29 +24,16 @@ extern "C" atn::Vector3* fn_800CB6C4(atn::SoundRef* sound); // inferred: positio
 
 
 
-// inferred: party manager (lbl_8087F8A0) and its leader, only the members used here
-struct SongChara_unk {
-    unsigned char m000[0x528];
-    atn::Vector3 mPos; // 0x528
-    atn::Vector3 mRot; // 0x534
-};
-struct SongParty_unk {
-    unsigned char m00[0x48];
-    SongChara_unk* m48; // inferred: leader
-};
-extern "C" SongParty_unk* lbl_8087F8A0;
+extern "C" CharaManager<PlayerTask>* lbl_8087F8A0;
 
 // inferred: sound engine and field (as in game/GameBgm.cpp)
 extern "C" void* lbl_8087EE90;
 extern "C" unsigned int fn_80049B74(void* engine, const char* name); // inferred: sound id of a name
 extern "C" int fn_80049B2C(void* engine, unsigned int id);
-extern "C" void* lbl_8087F430;
+class GameTask;
+extern "C" GameTask* lbl_8087F430;
 class MapTask;
-struct SongBattle_unk {
-    unsigned char m00[0x70];
-    int m70;
-};
-extern "C" SongBattle_unk* lbl_8087F540;
+extern "C" Event::Manager* lbl_8087F540;
 extern "C" int fn_803CE160(int a, int b, int c);
 
 // inferred: limit of the sounds of kind 8
@@ -130,7 +120,7 @@ void SongManager::vf10() {
     if (mBgm->mSound.mPtr != 0) {
         fn_800CB6E4(&mBgm->mSound, &mPos.mCur);
         ((atn::SoundCore*)mBgm->mSound.mPtr)->fn_800CA798(1, mDistance.mCur);
-        SongChara_unk* leader = lbl_8087F8A0 != 0 ? lbl_8087F8A0->m48 : 0;
+        PlayerTask* leader = lbl_8087F8A0 != 0 ? lbl_8087F8A0->mHead : 0;
         if (leader == 0) {
             return;
         }

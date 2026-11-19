@@ -16,6 +16,8 @@
 #include "math/VecAssign_unk.h"
 #include "game/DamageResult_unk.h"
 #include "game/GameSceneFind_unk.h"
+#include "atn/EffectManager.h"
+#include "atn/TextTable_unk.h"
 
 extern "C" unsigned long strlen(const char* s);
 extern "C" int strcmp(const char* a, const char* b);
@@ -29,34 +31,23 @@ extern "C" int fn_800DC12C(const char* s);   // inferred: string to int
 extern "C" std::string fn_8006AFF8(const std::string& a, const std::string& b);
 extern "C" HitInfo_unk* fn_80219E6C(int id); // inferred: bullet/skill data by id
 // inferred: debug menu helpers (as in game/CharaTask.cpp)
-extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3, int arg4);
-extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, int arg6,
-                            int arg7);
+extern "C" void fn_80087994(void* group, const char* name, int* value, void* func, void* arg);
+extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, void* func,
+                            void* arg);
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
 extern "C" int fn_800DD3FC(wchar_t* s, const wchar_t* format, ...); // inferred: wide sprintf
 extern "C" const wchar_t lbl_808813D0[2]; // inferred: empty text
-// inferred: camp message table (lbl_8087F1E4, as in game/Em302Kraken.cpp)
-struct MulueMsgTable_unk {
-    const wchar_t* Get_unk(int id) { return mText[id] != 0 ? mText[id] : lbl_808813D0; }
-    const wchar_t* mText[1];
-};
-extern "C" MulueMsgTable_unk* lbl_8087F1E4;
 // inferred: effect manager (class unknown), global instance at 0x8087F3C0 (two flags at 0xC4/0xC8 are
 // set around the spin effect, as in game/Em209SmallGolem.cpp)
-struct EffectMgr_unk {
-    unsigned char m00[0xC4];
-    int mC4;
-    int mC8;
-};
-extern "C" EffectMgr_unk* lbl_8087F3C0;
+extern "C" atn::EffectManager* lbl_8087F3C0;
 struct Color4f_unk {
     Color4f_unk() {}
     float r, g, b, a;
 };
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
+extern "C" void fn_8023A8B4(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Model* model, void* node,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
-extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
+extern "C" void fn_80239DAC(atn::EffectManager* mgr, void* owner, int id, int arg); // inferred: stops an effect
 extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the next effects
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
@@ -64,7 +55,8 @@ extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float
 extern "C" void fn_800CB5C8(atn::SoundRef* sound, int frames, int arg); // inferred: stops the sound
 extern "C" void fn_800CB6E4(atn::SoundRef* sound, const atn::Vector3* pos); // inferred: moves the sound
 extern "C" void fn_800CB688(atn::SoundRef* sound, int arg, float pitch); // inferred: sets the pitch
-extern "C" void* lbl_8087EE98; // inferred: collision world
+struct ColliManager_unk;
+extern "C" ColliManager_unk* lbl_8087EE98; // inferred: collision world
 extern "C" void fn_8004D124(void* world); // inferred: rebuilds the active shapes
 extern "C" void fn_805A5078(const atn::Vector3* pos, const atn::Vector3* dir, int id, float radius, float angle);
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
@@ -72,41 +64,24 @@ extern "C" void PSMTXScale(Mtx m, float x, float y, float z);
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 // inferred: pad input (lbl_8087EF70, as in game/CampSaveLoad.cpp)
-extern "C" void* lbl_8087EF70;
+struct Pad_unk;
+extern "C" Pad_unk* lbl_8087EF70;
 extern "C" int fn_800A555C(void* pad, int port, int button); // inferred: button triggered
 extern "C" GameUI* lbl_8087F490;
 // inferred: point the camera looks at (lbl_8087F430 + 0x97C, as in game/Em302Kraken.cpp); names invented
-struct MulueLook_unk {
-    void Set_unk(const atn::Vector3& pos, bool flag) {
-        m01 = m00;
-        m00 = 1;
-        mPos = pos;
-        m24 = 0.0f;
-        if (flag) {
-            m04 = 1;
-        } else {
-            m04 = 0;
-        }
+// inferred: the camera looks at a point (GameCamera::m910..m934; formerly the view MulueLook_unk at GameTask + 0x97C)
+inline void SetCameraLook_unk(GameCamera& camera, const atn::Vector3& pos, bool flag) {
+    camera.m911 = camera.m910;
+    camera.m910 = 1;
+    camera.m91C = pos;
+    camera.m934 = 0.0f;
+    if (flag) {
+        camera.m914 = 1;
+    } else {
+        camera.m914 = 0;
     }
-    unsigned char m00;
-    unsigned char m01;
-    unsigned char m02[2];
-    int m04;
-    unsigned char m08[4];
-    atn::Vector3 mPos;
-    unsigned char m18[0x24 - 0x18];
-    float m24;
-};
-// inferred: field (lbl_8087F430); names invented
-struct Field_unk {
-    unsigned char m0000[0x8A0];
-    CharaTask* m8A0; // inferred: character the camera follows
-    unsigned char m8A4[0x97C - 0x8A4];
-    MulueLook_unk m97C;
-    unsigned char m9A4[0x10D8 - 0x9A4];
-    GameScene* m10D8;
-};
-extern "C" Field_unk* lbl_8087F430;
+}
+extern "C" GameTask* lbl_8087F430;
 extern "C" void fn_8003EA3C(DamageResult_unk* result, HitInfo_unk* data, CharaTask* attacker, CharaTask* owner,
                             unsigned int flags, const void* param, int arg, int arg2); // inferred: computes the damage
 struct HitParam_unk;
@@ -244,7 +219,7 @@ inline void Em204Mulue::StartThrust_unk() {
     PlayMotion_unk(0x3D, 0, 0.0f);
     mMotion.mTracks[0].m0C = 0.0f;
     if (m1854 != 0) {
-        ((GameTask*)lbl_8087F430)->fn_80370AE4(m1684, 1);
+        lbl_8087F430->fn_80370AE4(m1684, 1);
     }
 }
 inline void Em204Mulue::ShowMessage_unk(int id) {
@@ -306,15 +281,15 @@ int Em204Mulue::vf0C() {
         m152C.IsLoading() == 0 && m1654.IsLoading() == 0 && m1844.fn_80473F50() == 0) {
         mColli.mFlags &= ~0x80000000;
         m168C.mFlags |= 3;
-        m168C.m0C = (int)this;
+        m168C.m0C = this;
         m16E4.mFlags |= 3;
-        m16E4.m0C = (int)this;
+        m16E4.m0C = this;
         m173C.mFlags |= 3;
-        m173C.m0C = (int)this;
+        m173C.m0C = this;
         m1794.mFlags |= 3;
-        m1794.m0C = (int)this;
+        m1794.m0C = this;
         m17EC.mFlags |= 3;
-        m17EC.m0C = (int)this;
+        m17EC.m0C = this;
         fn_802A7970();
         m153C.mSize = 0;
         if (m1844.fn_80470580() != 0 && lbl_8087F430 != 0 && lbl_8087F430->m10D8 != 0) {
@@ -772,8 +747,8 @@ void Em204Mulue::fn_802A74A4() {
     float angle = fn_802A7910(fn_802A7964(rot.y - mRot.y));
     PlayerTask* player = lbl_8087F8A0->mHead;
     if (m15E4 >= 60 && (player->fn_801789D8(0x9C, 0) || player->fn_801789D8(0xA0, 0))) {
-        if (((GameTask*)lbl_8087F430)->fn_80370A78(0xDC) == 0) {
-            ((GameTask*)lbl_8087F430)->fn_80370AE4(0xDC, 1);
+        if (lbl_8087F430->fn_80370A78(0xDC) == 0) {
+            lbl_8087F430->fn_80370AE4(0xDC, 1);
         }
         m14F4 = 6;
         m15E4 = 0;
@@ -1150,7 +1125,7 @@ void Em204Mulue::fn_802A9ADC(int aimed, int skipKind3) {
                 }
                 MulueShot_unk shot;
                 shot.m00 = 2.0f;
-                shot.m04 = (int)&m1508;
+                shot.m04 = &m1508;
                 shot.m08 = 0;
                 shot.m0C = m1678;
                 bullet->fn_8010EE78(&shot, &hips, &to, this, -1, 0, -1.0f);
@@ -1184,7 +1159,7 @@ void Em204Mulue::fn_802A9ADC(int aimed, int skipKind3) {
                 }
             }
             MulueShot_unk shot;
-            shot.m04 = i % 3 != 1 ? 0 : (int)&m1508;
+            shot.m04 = i % 3 != 1 ? 0 : &m1508;
             shot.m08 = 0;
             shot.m0C = m1678;
             bullet->fn_8010EE78(&shot, &hips, &v, this, -1, 0, -1.0f);
@@ -1264,8 +1239,8 @@ void Em204Mulue::fn_802AA534() {
                 PlayMotion_unk(0x141, 0, 1.0f);
                 PlayerTask* player = lbl_8087F8A0->mHead;
                 if (player->fn_801789D8(0x9C, 0) || player->fn_801789D8(0xA0, 0)) {
-                    if (((GameTask*)lbl_8087F430)->fn_80370A78(0xDC) == 0) {
-                        ((GameTask*)lbl_8087F430)->fn_80370AE4(0xDC, 1);
+                    if (lbl_8087F430->fn_80370A78(0xDC) == 0) {
+                        lbl_8087F430->fn_80370AE4(0xDC, 1);
                     }
                 }
                 return;
@@ -1316,20 +1291,20 @@ void Em204Mulue::vfEC() {
                 PSMTXMultVec(m, &v, &v);
                 mPos += v;
             }
-            Field_unk* field = lbl_8087F430;
+            GameTask* field = lbl_8087F430;
             if (mMotion.mTracks[0].m08 < 60.0f) {
                 atn::Vector3 pos = GetNodePos_unk(mMotion.GetNodeMtx_unk("hips"));
                 if (m15F0 == 0) {
-                    field->m8A0 = this;
-                    field->m97C.Set_unk(pos, false);
+                    field->mCamera.m834 = this;
+                    SetCameraLook_unk(field->mCamera, pos, false);
                     m15F0 = 1;
                 } else {
-                    field->m8A0 = this;
-                    field->m97C.mPos = pos;
+                    field->mCamera.m834 = this;
+                    field->mCamera.m91C = pos;
                 }
             } else if (m15F0 != 0) {
-                field->m8A0 = 0;
-                field->m97C.m00 = 0;
+                field->mCamera.m834 = 0;
+                field->mCamera.m910 = 0;
                 m15F0 = 0;
             }
         }
@@ -1390,8 +1365,8 @@ void Em204Mulue::fn_802AB5E8() {
     m560 = 4;
     PlayMotion_unk(0x140, 1, 1.0f);
     if (m1648 > 0) {
-        lbl_8087F3C0->mC4 = 1;
-        lbl_8087F3C0->mC8 = 1;
+        lbl_8087F3C0->mSystem.m78 = 1;
+        lbl_8087F3C0->mSystem.m7C = 1;
         fn_80232B7C(this, 0x66);
         {
             Color4f_unk color;
@@ -1407,11 +1382,11 @@ void Em204Mulue::fn_802AB5E8() {
             color.g = 1.0f;
             color.b = 1.0f;
             color.a = 1.0f;
-            EffectMgr_unk* mgr = lbl_8087F3C0;
+            atn::EffectManager* mgr = lbl_8087F3C0;
             fn_8023A8B4(mgr, &m1514, &mMotion, 0, pos, rot, color, -1, -1, 1, 1.0f);
         }
-        lbl_8087F3C0->mC4 = 0;
-        lbl_8087F3C0->mC8 = 0;
+        lbl_8087F3C0->mSystem.m78 = 0;
+        lbl_8087F3C0->mSystem.m7C = 0;
         ClearPartsFlag_unk();
         ShowMessage_unk(0xEB);
     }
@@ -1424,8 +1399,8 @@ void Em204Mulue::fn_802AB794(int arg) {
     m560 = 4;
     PlayMotion_unk(0x140, 1, 1.0f);
     if (m1648 > 0) {
-        lbl_8087F3C0->mC4 = 1;
-        lbl_8087F3C0->mC8 = 1;
+        lbl_8087F3C0->mSystem.m78 = 1;
+        lbl_8087F3C0->mSystem.m7C = 1;
         fn_80232B7C(this, 0x66);
         {
             Color4f_unk color;
@@ -1441,11 +1416,11 @@ void Em204Mulue::fn_802AB794(int arg) {
             color.g = 1.0f;
             color.b = 1.0f;
             color.a = 1.0f;
-            EffectMgr_unk* mgr = lbl_8087F3C0;
+            atn::EffectManager* mgr = lbl_8087F3C0;
             fn_8023A8B4(mgr, &m1514, &mMotion, 0, pos, rot, color, -1, -1, 1, 1.0f);
         }
-        lbl_8087F3C0->mC4 = 0;
-        lbl_8087F3C0->mC8 = 0;
+        lbl_8087F3C0->mSystem.m78 = 0;
+        lbl_8087F3C0->mSystem.m7C = 0;
         ClearPartsFlag_unk();
         ShowMessage_unk(0xEB);
     }
@@ -1475,15 +1450,15 @@ void Em204Mulue::fn_802AB97C() {
     mMotion.mTracks[0].m0C = 1.0f;
     mMotion.fn_80097C08(0, 0x35, 0, 0, 1, 0.0f, 0.03f);
     m14B8 = 0;
-    ((GameTask*)lbl_8087F430)->fn_80370AE4(0x50, 2);
+    lbl_8087F430->fn_80370AE4(0x50, 2);
     fn_80232B7C(0, 0);
     PlayEffect_unk(&m152C, &mMotion);
     ShowMessage_unk(0xED);
     if (m1854 != 0) {
-        ((GameTask*)lbl_8087F430)->fn_80370AE4(m1680, 1);
+        lbl_8087F430->fn_80370AE4(m1680, 1);
     }
-    if (m1688 != 0 && ((GameTask*)lbl_8087F430)->fn_80370A78(m1688) == 0) {
-        ((GameTask*)lbl_8087F430)->fn_80370AE4(m1688, 1);
+    if (m1688 != 0 && lbl_8087F430->fn_80370A78(m1688) == 0) {
+        lbl_8087F430->fn_80370AE4(m1688, 1);
     }
     if (m1644 != 0) {
         m1644->fn_8015AC48(-1);

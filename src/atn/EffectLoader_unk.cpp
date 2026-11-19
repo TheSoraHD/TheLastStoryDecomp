@@ -1,5 +1,6 @@
 #include "atn/SwapDesc_unk.h"
 #include "atn/Memory.h"
+#include "atn/DebugMessages_unk.h"
 
 // Loader of the effect resources (.eff files, big endian with offsets relative to the file):
 // byte swap, relocation, unit conversion and the default flags of old versions. Name of the file
@@ -9,11 +10,6 @@ extern "C" void* memcpy(void* dst, const void* src, unsigned long n);
 extern "C" unsigned int fn_802386FC(struct EffectResData_unk* res, int frames); // inferred: (atn/EffectRes_unk.cpp)
 extern "C" void fn_80234A8C();
 
-// inferred: debug message window (see gmk/RandomMerchant.cpp)
-struct DebugMessages_unk {
-    void fn_800697D8(const char* message);
-};
-extern "C" DebugMessages_unk* lbl_8087EEB8;
 
 // inferred: byte reverse of a 32-bit value (the stores of it are compiled as stwbrx)
 #define SWAP32_UNK(v) (((v) << 24) | (((v) >> 8) & 0xFF00) | ((v) >> 24) | (((v) << 8) & 0xFF0000))

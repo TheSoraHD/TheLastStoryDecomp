@@ -1,3 +1,4 @@
+#include "game/GameConfig_unk.h"
 #include "game/Em005DoppelGanger.h"
 #include "game/GameTask.h"
 #include "game/CharaManager.h"
@@ -11,17 +12,13 @@
 #include "game/BattleTask.h"
 #include "atn/ColliBase.h"
 #include "game/GameSceneFind_unk.h"
+#include "atn/EffectManager.h"
 
 extern "C" unsigned long strlen(const char* s);
 extern "C" int atoi(const char* s);
 extern "C" int fn_800DC12C(const char* s); // inferred: string to int
 // inferred: character data by name (game/CharaTask.cpp declares it with an int id; same C symbol)
 extern "C" chr::CharaData_unk* fn_8020A81C(const char* name);
-// inferred: field (lbl_8087F430): route tables at 0x10D8 (as in game/Em306GurgBeast.cpp)
-struct Field_unk {
-    unsigned char m0000[0x10D8];
-    GameScene* m10D8;
-};
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" int strncmp(const char* a, const char* b, unsigned long n);
 // inferred: std::string concatenation (weak copy 0x8006AFF8)
@@ -31,24 +28,19 @@ extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 extern "C" double acos(double x);
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
 extern "C" int rand();
-extern "C" Field_unk* lbl_8087F430;
+extern "C" GameTask* lbl_8087F430;
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
-// inferred: effect manager (class unknown), global instance at 0x8087F3C0
-struct EffectMgr_unk {
-    unsigned char m00[0xEC];
-    unsigned int mEC; // inferred: flags (bit 3 set while a doppelganger exists)
-};
-extern "C" EffectMgr_unk* lbl_8087F3C0;
+extern "C" atn::EffectManager* lbl_8087F3C0;
 extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the next effects
 struct Color4f_unk {
     Color4f_unk() {}
     Color4f_unk(float r_, float g_, float b_, float a_) : r(r_), g(g_), b(b_), a(a_) {}
     float r, g, b, a;
 };
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
+extern "C" void fn_8023A8B4(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Model* model, void* node,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
-extern "C" void fn_8023A02C(EffectMgr_unk* mgr, void* owner, int arg2, int arg3);
+extern "C" void fn_8023A02C(atn::EffectManager* mgr, void* owner, int arg2, int arg3);
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
 
 // inferred: plays an effect on the model (locals in the order of game/Em305Vampire.cpp)
@@ -87,7 +79,7 @@ inline void PlayEffectB_unk(atn::EfpFile* efp, atn::Model* model) {
     fn_8023A8B4(lbl_8087F3C0, efp, model, 0, pos, rot, color, -1, -1, 1, 1.0f);
 }
 
-inline void PlayEffectM_unk(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model) {
+inline void PlayEffectM_unk(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Model* model) {
     atn::Vector3 pos;
     atn::Vector3 rot;
     Color4f_unk color;
@@ -139,22 +131,18 @@ static atn::Vector3 sOffsetC_unk(-130.0f, 0.0f, 26.81f);
 // store of the original is dropped (name invented)
 inline void ClearDoppel_unk(Em005DoppelGanger* self) {
     if (lbl_8087F3C0 != 0) {
-        lbl_8087F3C0->mEC &= ~8;
+        lbl_8087F3C0->mFlags &= ~8;
     }
 }
 
 // inferred: field events and the doppelganger helpers called by vf10 (classes unknown)
-extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
+extern "C" void fn_80239DAC(atn::EffectManager* mgr, void* owner, int id, int arg); // inferred: stops an effect
 extern "C" SkillEffectManager* lbl_8087F9E8;
 extern "C" atn::EfpFile* fn_800EFC64(int id); // inferred: effect of a skill (game/BattleEfp_unk.cpp)
-// inferred: game settings (lbl_8087F0A8, class unknown); m80 is the attack setup id
-struct Settings_unk {
-    unsigned char m00[0x80];
-    int m80;
-};
-extern "C" Settings_unk* lbl_8087F0A8;
+extern "C" GameConfig_unk* lbl_8087F0A8;
 
-extern "C" void* lbl_8087EE98;
+struct ColliManager_unk;
+extern "C" ColliManager_unk* lbl_8087EE98;
 extern "C" int fn_8004ED34(void* colli, atn::ColliResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg7); // inferred: ray test
 extern "C" int fn_8004D388(void* world, atn::ColliResult_unk* result, const atn::Vector3* center, const atn::Vector3* move,
@@ -349,7 +337,7 @@ public:
 void Em005DoppelGanger::vf10() {
     if (m151C != 0) {
         m151C = 0;
-        ((GameTask*)lbl_8087F430)->fn_80370320(0xD9, 3, 0);
+        lbl_8087F430->fn_80370320(0xD9, 3, 0);
         switch (fn_80219558(m1504->m50)) {
         case 0:
         case 2:
@@ -369,7 +357,7 @@ void Em005DoppelGanger::vf10() {
             break;
         }
     }
-    if (((GameTask*)lbl_8087F430)->fn_80370A78(0xC9) == 1) {
+    if (lbl_8087F430->fn_80370A78(0xC9) == 1) {
         gs::WarpPoint* jump = m1528;
         if (jump != 0) {
             mPos = jump->mPos;
@@ -419,7 +407,7 @@ void Em005DoppelGanger::vf10() {
         lbl_8087F9E8->fn_8059C98C(m14FC); // inferred: frees the character
     }
     if (m14BC == 0) {
-        ((GameTask*)lbl_8087F430)->fn_80370320(0x389, 1, 0);
+        lbl_8087F430->fn_80370320(0x389, 1, 0);
         if (m14FC != 0) {
             m14FC->fn_80179AD0(0x20, 1);
             m14FC->fn_80179AD0(0x10, 1);
@@ -464,8 +452,8 @@ void Em005DoppelGanger::vf10() {
                                     Color4f_unk(1.0f, 1.0f, 1.0f, 1.0f), -1, -1, 1, scale);
                         fn_8023A02C(lbl_8087F3C0, &m1530, 0, 16);
                         fn_8023A02C(lbl_8087F3C0, &m1530, 0, 8);
-                        if (((GameTask*)lbl_8087F430)->fn_80370A78(0xE6) == 0) {
-                            ((GameTask*)lbl_8087F430)->fn_80370AE4(0xE6, 1);
+                        if (lbl_8087F430->fn_80370A78(0xE6) == 0) {
+                            lbl_8087F430->fn_80370AE4(0xE6, 1);
                         }
                     }
                 }
@@ -474,7 +462,7 @@ void Em005DoppelGanger::vf10() {
         }
     } else if (m14BC == 1) {
         fn_80239DAC(lbl_8087F3C0, &m1530, 0, 0);
-        ((GameTask*)lbl_8087F430)->fn_80370320(0x389, 0, 0);
+        lbl_8087F430->fn_80370320(0x389, 0, 0);
         CopyRobotTask* robot = m14FC;
         m1540 = 0;
         if (robot != 0 && IsShown_unk(robot)) {
@@ -490,7 +478,7 @@ void Em005DoppelGanger::vf10() {
             fn_8016E4C4(IsHiddenPhase_unk());
         }
     } else if (m14BC == 2) {
-        ((GameTask*)lbl_8087F430)->fn_80370320(0x38A, 1, 0);
+        lbl_8087F430->fn_80370320(0x38A, 1, 0);
         CopyRobotTask* robot = m14FC;
         if (robot != 0) {
             if (m1520 < m1524) {
@@ -590,7 +578,7 @@ void Em005DoppelGanger::vf10() {
             if (mMotion.mTracks[0].m00 == 0x145) {
                 float frame = mMotion.mTracks[0].m08;
                 if (frame >= mMotion.fn_80097D7C(0)) {
-                    fn_80158EF0(lbl_8087F0A8->m80);
+                    fn_80158EF0(lbl_8087F0A8->m080);
                 }
                 break;
             }
@@ -698,11 +686,11 @@ void Em005DoppelGanger::vf10() {
         }
     }
     if (lbl_8087F3D8 == 0) {
-        if (((GameTask*)lbl_8087F430)->fn_80370A78(0xEA) == 0) {
+        if (lbl_8087F430->fn_80370A78(0xEA) == 0) {
             for (unsigned int i = 0; i < 32; i++) {
                 SkillEffect* b = lbl_8087F9E8->GetBullet_unk(i);
                 if (b != 0 && b->IsActive_unk() && b->fn_8059A264()) {
-                    ((GameTask*)lbl_8087F430)->fn_80370AE4(0xEA, 1);
+                    lbl_8087F430->fn_80370AE4(0xEA, 1);
                     break;
                 }
             }
@@ -710,8 +698,8 @@ void Em005DoppelGanger::vf10() {
         lbl_8087F3D8 = 1;
     }
     if (m14BC != 0 && mStatus.IsState_unk(4)) {
-        if (((GameTask*)lbl_8087F430)->fn_80370A78(0xEB) == 0) {
-            ((GameTask*)lbl_8087F430)->fn_80370AE4(0xEB, 1);
+        if (lbl_8087F430->fn_80370A78(0xEB) == 0) {
+            lbl_8087F430->fn_80370AE4(0xEB, 1);
         }
     }
 }
@@ -746,8 +734,8 @@ void Em005DoppelGanger::vf3C(HitInfo_unk* hit, int) {
                 PSVECNormalize(&msg->m10, &msg->m10);
             }
             msg->m10 *= 8.0f;
-            if (((GameTask*)lbl_8087F430)->fn_80370A78(0xE9) == 0) {
-                ((GameTask*)lbl_8087F430)->fn_80370AE4(0xE9, 1);
+            if (lbl_8087F430->fn_80370A78(0xE9) == 0) {
+                lbl_8087F430->fn_80370AE4(0xE9, 1);
             }
         } else {
             HitInfo_unk* data = msg->mData;
@@ -880,8 +868,8 @@ void Em005DoppelGanger::fn_80252E6C() {
             mMotion.fn_80097C08(0, 0x14B, 0, 1, 1, 0.0f, 0.1f);
             m1544 = 0;
             m1540 = m1540 < 60 ? m1540 : 60;
-            if (((GameTask*)lbl_8087F430)->fn_80370A78(0xE7) == 0) {
-                ((GameTask*)lbl_8087F430)->fn_80370AE4(0xE7, 1);
+            if (lbl_8087F430->fn_80370A78(0xE7) == 0) {
+                lbl_8087F430->fn_80370AE4(0xE7, 1);
             }
         }
     } else {
@@ -899,7 +887,7 @@ void Em005DoppelGanger::fn_802531F4() {
         Move_unk();
         if (m560 == 126) {
             if ((float)__fabs(mMotion.mTracks[0].m08 - 43.0f) < 1.1920929e-7f) {
-                EffectMgr_unk* mgr = lbl_8087F3C0;
+                atn::EffectManager* mgr = lbl_8087F3C0;
                 PlayEffectM_unk(mgr, &m14C8, &mMotion);
                 fn_800C344C("SE_EM005_010_1", &mPos, 0, -1, 1.0f);
             }

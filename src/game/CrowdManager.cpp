@@ -1,3 +1,4 @@
+#include "game/GameTask.h"
 #include "game/CrowdManager.h"
 #include "game/AiTarget.h"
 #include "game/GameVoice.h"
@@ -10,30 +11,21 @@
 #include "atn/DrawHelper.h"
 #include "atn/RenderManager.h"
 
-extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, int arg6,
-                            int arg7);
-extern "C" void fn_8008771C(void* group, const char* name, float* value, int arg3, int arg4, float min, float max,
-                            float step);
-extern "C" void fn_80087994(void* menu, const char* name, int* flag, int arg3, int arg4);
+extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, void* func,
+                            void* arg);
+extern "C" void fn_8008771C(void* group, const char* name, float* value, float min, float max, float step, void* func,
+                            void* arg);
+extern "C" void fn_80087994(void* menu, const char* name, int* flag, void* func, void* arg);
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 extern "C" void fn_800D2338(atn::Task* task);         // inferred: deletes a task
 inline float LengthSq_unk(const atn::Vector3& v) {
     return PSVECSquareMag(&v);
 }
 
-// inferred: field data (only the members used here)
-struct CrowdField_unk {
-    unsigned char m0000[0x4C];
-    int mMap;   // 0x4C
-    int mArea;  // 0x50
-    unsigned char m0054[0x10D8 - 0x54];
-    void* mRoutes; // 0x10D8
-    unsigned char m10DC[0x54E4 - 0x10DC];
-    int mMode;  // 0x54E4
-};
-extern "C" CrowdField_unk* lbl_8087F430;
+extern "C" GameTask* lbl_8087F430;
 extern "C" int rand();
-extern "C" void* lbl_8087EE98; // inferred: collision world
+struct ColliManager_unk;
+extern "C" ColliManager_unk* lbl_8087EE98; // inferred: collision world
 extern "C" int fn_8004ECC0(void* world, atn::Vector3* hit, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int flags, void* colli, int arg);
 
@@ -57,8 +49,8 @@ CrowdManager::CrowdManager(atn::Task* parent, CrowdDesc_unk* desc, int arg)
     mSizeMax = desc->mNumGroups != 0 ? 14 : 0;
     mSizeMin = desc->mNumGroups != 0 ? 5 : 0;
     mLimit = 0;
-    if (mSizeMax > 0 && lbl_8087F430->mArea == 1) {
-        int map = lbl_8087F430->mMap;
+    if (mSizeMax > 0 && lbl_8087F430->mOption.mSub == 1) {
+        int map = lbl_8087F430->mOption.mMap;
         if (map == 0xE || map == 0x3C || map == 0x15 || map == 0x1F || map == 0x21 || map == 0x29) {
             mSizeMax = 5;
         }
@@ -75,9 +67,9 @@ CrowdManager::CrowdManager(atn::Task* parent, CrowdDesc_unk* desc, int arg)
     fn_800874C8(group, "SizeMin", &mSizeMin, 0, 200, 1, 0, 0);
     fn_800874C8(group, "Limit", &mLimit, 0, 200, 1, 0, 0);
     fn_800874C8(group, "TpcSize", &mTpcSize, 0, 200, 1, 0, 0);
-    fn_8008771C(group, "Inner", &mInner, 0, 0, 1.0f, 10000.0f, 1.0f);
-    fn_8008771C(group, "Outer", &mOuter, 0, 0, 1.0f, 10000.0f, 1.0f);
-    fn_8008771C(group, "Kill", &mKill, 0, 0, 1.0f, 10000.0f, 1.0f);
+    fn_8008771C(group, "Inner", &mInner, 1.0f, 10000.0f, 1.0f, 0, 0);
+    fn_8008771C(group, "Outer", &mOuter, 1.0f, 10000.0f, 1.0f, 0, 0);
+    fn_8008771C(group, "Kill", &mKill, 1.0f, 10000.0f, 1.0f, 0, 0);
     CrowdSimulation::fn_801EB93C(this, desc);
 }
 
@@ -106,7 +98,7 @@ inline void CrowdManager::UpdateLimit_unk() {
 void CrowdManager::vf10() {
     mCenter = atn::RenderManager::instance_->mCamera.mTarget;
     UpdateLimit_unk();
-    if (lbl_8087F430->mMode != 8) {
+    if (lbl_8087F430->m54E4 != 8) {
         if (mCount < mLimit) {
             int n = mLimit - mCount;
             while (n-- > 0) {
@@ -130,7 +122,10 @@ void CrowdManager::vf10() {
     }
 }
 
-extern "C" void* lbl_8087EEC8; // inferred: font
+namespace atn {
+class Font_unk;
+}
+extern "C" atn::Font_unk* lbl_8087EEC8; // inferred: font
 extern "C" void fn_8006F2F0(void* font, wchar_t* dst, const char* src, int n); // inferred: to wide characters
 extern "C" int sprintf(char* dst, const char* format, ...);
 
@@ -171,7 +166,8 @@ void CrowdManager::vf14() {
             lbl_8087EEB0->fn_80063764(walker->mPos, tip, 0.0f, 0xFF0000FF);
         } else {
             CrowdColor_unk color(1.0f, 0.0f, 0.0f, 1.0f);
-            lbl_8087EEB0->fn_80062C8C(16, CrowdRGBA_unk(color), walker->mPos.x, walker->mPos.y, walker->mPos.z, 0.0f, 5.0f, 10.0f);
+            lbl_8087EEB0->fn_80062C8C(16, CrowdRGBA_unk(color), walker->mPos.x, walker->mPos.y, walker->mPos.z, 0.0f,
+                                      5.0f, 10.0f);
         }
         if (LengthSq_unk(atn::RenderManager::instance_->mCamera.mPos - walker->mPos) < 1600.0f) {
             atn::Vector3 screen = atn::RenderManager::instance_->GetScreenPosition(walker->mPos);
@@ -179,15 +175,18 @@ void CrowdManager::vf14() {
                 float y = screen.y;
                 sprintf(text, "Point: %3d to %3d", walker->mPoint, walker->mDest);
                 fn_8006F2F0(lbl_8087EEC8, wtext, text, 256);
-                lbl_8087EEB0->fn_80061824(screen.x, y, 0.0f, 12.0f, 12.0f, 0.0f, 0.0f, 0.0f, wtext, 0xAFFFFFFF, 1, 1, 0, 0, 0xFF000000);
+                lbl_8087EEB0->fn_80061824(screen.x, y, 0.0f, 12.0f, 12.0f, 0.0f, 0.0f, 0.0f, wtext, 0xAFFFFFFF, 1, 1, 0,
+                                          0, 0xFF000000);
                 y += 12.0f;
                 sprintf(text, "Unit %d, Chara %d", walker->mGroup, mDesc->mGroups[walker->mGroup].mChara);
                 fn_8006F2F0(lbl_8087EEC8, wtext, text, 256);
-                lbl_8087EEB0->fn_80061824(screen.x, y, 0.0f, 12.0f, 12.0f, 0.0f, 0.0f, 0.0f, wtext, 0xAFFFFFFF, 1, 1, 0, 0, 0xFF000000);
+                lbl_8087EEB0->fn_80061824(screen.x, y, 0.0f, 12.0f, 12.0f, 0.0f, 0.0f, 0.0f, wtext, 0xAFFFFFFF, 1, 1, 0,
+                                          0, 0xFF000000);
                 y += 12.0f;
                 sprintf(text, "DPos: %3.3f, %3.3f, %3.3f", walker->mNext.x, walker->mNext.y, walker->mNext.z);
                 fn_8006F2F0(lbl_8087EEC8, wtext, text, 256);
-                lbl_8087EEB0->fn_80061824(screen.x, y, 0.0f, 12.0f, 12.0f, 0.0f, 0.0f, 0.0f, wtext, 0xAFFFFFFF, 1, 1, 0, 0, 0xFF000000);
+                lbl_8087EEB0->fn_80061824(screen.x, y, 0.0f, 12.0f, 12.0f, 0.0f, 0.0f, 0.0f, wtext, 0xAFFFFFFF, 1, 1, 0,
+                                          0, 0xFF000000);
             }
         }
     }
@@ -281,7 +280,7 @@ void CrowdManager::fn_801EB7C4(CrowdWalker_unk* walker) {
     int i;
     mCount--;
     mGroupCount.mData[npc->m142C]--;
-    routes = lbl_8087F430->mRoutes;
+    routes = lbl_8087F430->m10D8;
     int point = ((GameScene*)routes)->fn_803C1560(&npc->mPos, npc->fn_80179D44(), 0, 0, 1, -1.0f);
     i = 0;
     walker->mPoint = point;

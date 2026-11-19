@@ -1,3 +1,6 @@
+#include "game/PlayerManager.h"
+#include "atn/RenderSetting_unk.h"
+#include "game/GameConfig_unk.h"
 #include "game/SkillEffectManager.h"
 #include "game/Em403WarLion.h"
 #include "Event/PathSpline.h"
@@ -34,37 +37,17 @@ extern "C" const WarLionPlace_unk lbl_80749B00[10] = {
 
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
-// inferred: settings (lbl_8087F0A8) and debug drawing (lbl_8087EEB0), as in game/CopyRobotTask.cpp
-struct Settings_unk {
-    unsigned char m00[0x30];
-    int m30; // inferred: frames per second (as in game/CharaTask.cpp)
-    int mDrawDebug; // 0x34
-};
-extern "C" Settings_unk* lbl_8087F0A8;
-// inferred: field (lbl_8087F430): camera shake at 0x96C (as in game/GimmickStateCommand.cpp) and route
-// tables at 0x10D8
-struct Field_unk {
-    unsigned char m000[0x96C];
-    int m96C; // inferred: camera shake
-    int m970;
-    float m974;
-    float m978;
-    unsigned char m97C[0x10D8 - 0x97C];
-    GameScene* m10D8;
-    // inferred: route tables (accessor 0x8013C504 of game/CharaTask.cpp)
-    GameScene* fn_8013C504() { return m10D8; }
-};
-extern "C" Field_unk* lbl_8087F430;
+extern "C" GameConfig_unk* lbl_8087F0A8;
+// inferred: weak getter 0x8013C504 of game/CharaTask.cpp, inlined here where the budget allows
+inline GameScene* GameTask::fn_8013C504() {
+    return m10D8;
+}
+extern "C" GameTask* lbl_8087F430;
 // inferred: field accessor (weak copy 0x80121F00, as in game/EnemyJill.cpp)
-extern "C" inline Field_unk* fn_80121F00() {
+extern "C" inline GameTask* fn_80121F00() {
     return lbl_8087F430;
 }
-// inferred: game state (lbl_8087EFA8, see game/CharaTask.cpp); names invented
-struct GameState_unk {
-    unsigned char m000[0x3A4];
-    float m3A4; // inferred: time of a frame
-};
-extern "C" GameState_unk* lbl_8087EFA8;
+extern "C" RenderSetting_unk* lbl_8087EFA8;
 extern "C" int fn_8004D388(void* world, atn::ColliResult_unk* result, CharaTask::Sphere_unk* sphere, atn::Vector3* move,
                            unsigned int mask, void* ignore, int arg, float radius); // inferred: sweep test
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
@@ -90,19 +73,22 @@ inline float Clamp01_unk(float x) {
 }
 extern "C" HitInfo_unk* fn_80219E6C(int id);
 // inferred: effect manager (class unknown), global instance at 0x8087F3C0
-struct EffectMgr_unk;
+namespace atn {
+class EffectManager;
+}
 struct Color4f_unk {
     Color4f_unk() {}
     float r, g, b, a;
 };
-extern "C" EffectMgr_unk* lbl_8087F3C0;
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
+extern "C" atn::EffectManager* lbl_8087F3C0;
+extern "C" void fn_8023A8B4(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Model* model, void* node,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
-extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
+extern "C" void fn_80239DAC(atn::EffectManager* mgr, void* owner, int id, int arg); // inferred: stops an effect
 extern "C" void fn_80232B7C(void* owner, int arg);
 // inferred: collision world and its ray tests (as in gmk/Cannonball.cpp)
-extern "C" void* lbl_8087EE98;
+struct ColliManager_unk;
+extern "C" ColliManager_unk* lbl_8087EE98;
 void* fn_801404F8();
 extern "C" int fn_8004ECC0(void* world, atn::Vector3* hit, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg); // inferred: ray test
@@ -223,7 +209,7 @@ inline atn::Matrix3x4 TransMtx_unk(float x, float y, float z) {
     return m;
 }
 
-extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3, int arg4);
+extern "C" void fn_80087994(void* group, const char* name, int* value, void* func, void* arg);
 
 // inferred: debug menu of the enemy; removed by the linker, only its strings are left in the pool (after
 // "waist"), as Em201ZanGurg::fn_DebugMenu_unk. The member is a guess.
@@ -381,7 +367,7 @@ void Em403WarLion::vf10() {
 
 void Em403WarLion::vf14() {
     fn_80149A30();
-    if (lbl_8087F0A8->mDrawDebug != 0) {
+    if (lbl_8087F0A8->mDrawCharaColli != 0) {
         lbl_8087EEB0->fn_80063484(20, 0xFFFF0000, mPos.x, 3.0f + mPos.y, mPos.z, mRot.y, 0.0f, 12.0f, 1.5707964f);
     }
 }
@@ -459,7 +445,7 @@ void Em403WarLion::vf40(HitInfo_unk* hit) {
             m15F4 = 0;
             lbl_8087F048->fn_80107A68(&mMotion);
             lbl_8087F048->fn_801079C0(&mMotion, &mMotion);
-            ((GameTask*)lbl_8087F430)->fn_80370AE4(0x5B, 1);
+            lbl_8087F430->fn_80370AE4(0x5B, 1);
         }
     }
     if ((mStatus.m0C & 0x20) == 0x20) {
@@ -609,7 +595,7 @@ void Em403WarLion::fn_80324A38(const atn::Vector3& target, int arg, float speed,
         move.z *= 2.0f;
     }
     if ((mStatus.mParamB.m9C & 1) != 1) {
-        int fps = lbl_8087F0A8->m30;
+        int fps = lbl_8087F0A8->m030;
         m574.y += dt * (-98.1f / (float)(fps * fps));
     }
     move += m6B8;
@@ -993,7 +979,7 @@ void Em403WarLion::fn_803267E8() {
         } else if (m14CC == 1) {
             if (m15E4 == 0) {
                 m15E4 = 1;
-                ((GameTask*)fn_80121F00())->fn_80370AE4(0x5A, 3);
+                fn_80121F00()->fn_80370AE4(0x5A, 3);
             }
             if (m14F8 <= 0) {
                 m14CC = 0;
@@ -1125,7 +1111,7 @@ void Em403WarLion::fn_80327A64() {
     d.y = 0.0f;
     m1580 -= d.GetNormalize() * 10.0f;
     mRot = d.GetNormalize().ToRotation_unk();
-    ((GameTask*)lbl_8087F430)->fn_80370AE4(0x5D, 2);
+    lbl_8087F430->fn_80370AE4(0x5D, 2);
     m1598 = m14BC;
     if (m1598 != 0) {
         m1598->fn_80178208(new ((MemoryTag)3, "", "", 0) chr::ControlMatHoldPre(m1598, this));
@@ -1229,7 +1215,7 @@ void Em403WarLion::fn_80328270() {
     } else {
         float frame = mMotion.mTracks[0].m08;
         if (frame >= mMotion.fn_80097D7C(0)) {
-            ((GameTask*)lbl_8087F430)->fn_80370AE4(0xCD, 1);
+            lbl_8087F430->fn_80370AE4(0xCD, 1);
             SetState_unk(6);
         }
     }
@@ -1275,8 +1261,8 @@ void Em403WarLion::fn_8032853C() {
             SetState_unk(6);
         } else {
             frame = mMotion.mTracks[0].m08;
-            if (45.0f <= frame && frame <= 47.0f && ((GameTask*)lbl_8087F430)->fn_80370A78(0x5C) < 1) {
-                ((GameTask*)lbl_8087F430)->fn_80370AE4(0x5C, 1);
+            if (45.0f <= frame && frame <= 47.0f && lbl_8087F430->fn_80370A78(0x5C) < 1) {
+                lbl_8087F430->fn_80370AE4(0x5C, 1);
                 lbl_8087F9E8->fn_8059C32C(0);
                 for (GimmickCommon* g = GimmickManager::instance_->mHead; g != 0; g = g->m5C) {
                     if (g->m50 == 40 && g->m4C == 1) {
@@ -1295,11 +1281,11 @@ void Em403WarLion::fn_803288C4() {
         if (mMotion.mTracks[0].m08 >= 40.0f) {
             m14C4 = 1;
             lbl_8087F048->fn_800FAB80(this, fn_80219E6C(0x675), m590, &mPos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
-            Field_unk* field = lbl_8087F430;
-            field->m96C %= 2;
-            field->m970 = 10;
-            field->m974 = 4.0f;
-            field->m978 = 10.0f;
+            GameTask* field = lbl_8087F430;
+            field->mCamera.mShake.mFrame %= 2;
+            field->mCamera.mShake.mLength = 10;
+            field->mCamera.mShake.mWidth = 4.0f;
+            field->mCamera.mShake.mHeight = 10.0f;
         }
     } else if (m14C4 == 1) {
         float frame = mMotion.mTracks[0].m08;
@@ -1313,7 +1299,7 @@ void Em403WarLion::fn_803289EC() {
     if (mMotion.mTracks[0].m08 >= 6.0f) {
         if (m15E0 == 0) {
             m15E0 = 1;
-            ((GameTask*)lbl_8087F430)->fn_80370AE4(0x5A, 1);
+            lbl_8087F430->fn_80370AE4(0x5A, 1);
         }
         SetState_unk(12);
         mMotion.m34C = 1;
@@ -1492,8 +1478,8 @@ void Em403WarLion::fn_80329A20() {
         m1598->fn_8015B520();
         m1598 = 0;
     } else if (m15E8 == 0 && m14C8 == 10) {
-        if (((GameTask*)lbl_8087F430)->fn_80370A78(0x5B) < 1) {
-            ((GameTask*)lbl_8087F430)->fn_80370AE4(0x5B, 1);
+        if (lbl_8087F430->fn_80370A78(0x5B) < 1) {
+            lbl_8087F430->fn_80370AE4(0x5B, 1);
         }
         m15E8 = 1;
     }
@@ -1538,19 +1524,11 @@ void Em403WarLion::vfEC() {
     }
 }
 
-// inferred: player manager (as in game/CharaTask.cpp)
-struct PlayerManager_unk {
-    unsigned char m00[0x48];
-    CharaTask* mHead;
-};
-extern "C" PlayerManager_unk* lbl_8087F8A0;
+extern "C" PlayerManager* lbl_8087F8A0;
 // inferred: link of the character lists of the managers (CharaTask + 0x14AC, as in game/CharaTask.cpp)
-struct CharaListNode_unk {
-    unsigned char m0000[0x14AC];
-    CharaTask* mNext;
-};
+// inferred: every caller walks the player list (lbl_8087F8A0)
 inline CharaTask* NextChara_unk(CharaTask* chara) {
-    return ((CharaListNode_unk*)chara)->mNext;
+    return static_cast<PlayerTask*>(chara)->mNext;
 }
 // inferred: object hit by a ray (the character is at 0x0C, as in game/CharaTask.cpp)
 struct CollObj_unk {

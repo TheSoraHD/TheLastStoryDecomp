@@ -1,3 +1,4 @@
+#include "game/GameConfig_unk.h"
 #include "gmk/Bat.h"
 #include "atn/Csv.h"
 #include "atn/Memory.h"
@@ -18,14 +19,10 @@ extern "C" char lbl_8087D710[2]; // inferred: field separators of the tab CSV
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 extern "C" atn::Matrix3x4 lbl_807C7060; // inferred: identity matrix
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
-// inferred: debug settings
-struct BatDebug_unk {
-    unsigned char m00[0x18];
-    int m18; // inferred: draw
-};
-extern "C" BatDebug_unk* lbl_8087F0A8;
+extern "C" GameConfig_unk* lbl_8087F0A8;
 // inferred: unknown manager; ((GameTask*)mgr)->fn_80370A78(0) == 1 starts the bats (class unknown)
-extern "C" void* lbl_8087F430;
+class GameTask;
+extern "C" GameTask* lbl_8087F430;
 
 #define __MAX_unk(a, b) ((a) > (b) ? (a) : (b))
 
@@ -214,7 +211,7 @@ void Bat::vf10() {
 void Bat::vf14() {
     for (int i = 0; i < mNum; i++) {
         BatUnit_unk* bat = &mBats.mData[(unsigned int)i];
-        if (bat->mStateNo != 4 && lbl_8087F0A8->m18 != 0) {
+        if (bat->mStateNo != 4 && lbl_8087F0A8->mDrawMap != 0) {
 
             fn_803ED774(&bat->mModel);
         }

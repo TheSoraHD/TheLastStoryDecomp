@@ -1,23 +1,19 @@
+#include "atn/EffectManager.h"
 #include "gmk/RainDrops.h"
 #include "atn/Memory.h"
 
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" char lbl_8087D710[2]; // inferred: " " (field separators of the tab CSV)
 
-// inferred: effect manager (class unknown), global instance at 0x8087F3C0
-struct EffectMgr_unk {
-    unsigned char m00[0xB8];
-    int mB8;
-};
 struct Color4f_unk {
     Color4f_unk(float r_, float g_, float b_, float a_) : r(r_), g(g_), b(b_), a(a_) {}
     float r, g, b, a;
 };
-extern "C" EffectMgr_unk* lbl_8087F3C0;
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, int id, int arg3, const atn::Vector3& pos,
-                            const atn::Vector3& rot, const Color4f_unk& color, int arg7, int arg8, int arg9,
-                            float scale);
-extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
+extern "C" atn::EffectManager* lbl_8087F3C0;
+extern "C" void fn_8023A8B4(atn::EffectManager* mgr, atn::EfpFile* efp, void* model, void* node,
+                            const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
+                            int arg8, int arg9, float scale);
+extern "C" void fn_80239DAC(atn::EffectManager* mgr, void* owner, int id, int arg); // inferred: stops an effect
 extern "C" void fn_80232B7C(void* owner, int arg);
 
 namespace gmk {
@@ -56,12 +52,12 @@ void RainDrops::vf10() {
     if (m54 != mCurrent) {
         fn_80239DAC(lbl_8087F3C0, this, mCurrent, 1);
         if (mEfp[m54].mResource != 0) {
-            lbl_8087F3C0->mB8 = 1;
+            lbl_8087F3C0->mSystem.mLayer = 1;
             fn_80232B7C(this, m54);
             atn::EfpFile* efp = &mEfp[m54];
             float scale = m90.x;
             fn_8023A8B4(lbl_8087F3C0, efp, 0, 0, m6C, m78, Color4f_unk(1.0f, 1.0f, 1.0f, 1.0f), -1, -1, 1, scale);
-            lbl_8087F3C0->mB8 = 0;
+            lbl_8087F3C0->mSystem.mLayer = 0;
         }
         if (mRain[m54] != 0) {
             mRain[m54]->mFlags &= ~4;

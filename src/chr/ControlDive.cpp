@@ -1,3 +1,5 @@
+#include "game/GameConfig_unk.h"
+#include "atn/RenderSetting_unk.h"
 #include "chr/ControlDive.h"
 #include "game/GameTask.h"
 #include "game/GameVoice.h"
@@ -18,19 +20,9 @@ extern "C" GameTask* lbl_8087F430; // inferred: the field
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
 
 
-// inferred: game state (lbl_8087EFA8): m3A4 is the time scale
-struct DiveGameState_unk {
-    unsigned char m000[0x3A4];
-    float m3A4;
-};
-extern "C" DiveGameState_unk* lbl_8087EFA8;
+extern "C" RenderSetting_unk* lbl_8087EFA8;
 
-// inferred: pad state at +0x48C of the object behind lbl_8087F0A8 (class unknown)
-struct DiveInput_unk {
-    unsigned char m000[0x48C];
-    unsigned char mInput[1];
-};
-extern "C" DiveInput_unk* lbl_8087F0A8;
+extern "C" GameConfig_unk* lbl_8087F0A8;
 
 // inferred: moves the back step destination out of the walls (chr/ControlCharge.cpp)
 
@@ -222,7 +214,7 @@ int ControlSwapPos::vf0C() {
             pos.y += 0.47368422f;
             vel.y = 0.0f;
         } else if (m14 == 0) {
-            if (chara->mType != 0 || ((Input_unk*)lbl_8087F0A8->mInput)->fn_801240B4(7)) {
+            if (chara->mType != 0 || (&lbl_8087F0A8->mInput)->fn_801240B4(7)) {
                 m14 = 1;
             } else {
                 m14 = 2;

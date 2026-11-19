@@ -17,13 +17,15 @@
 
 extern "C" GameConfig_unk* lbl_8087F0A8;
 // inferred: graphics device (lbl_8087EEE0, atn/GraphicsDevice.cpp)
+namespace atn {
 struct GraphicsDevice_unk;
-extern "C" GraphicsDevice_unk* lbl_8087EEE0;
-extern "C" float fn_80076FF8(GraphicsDevice_unk* device); // inferred: screen aspect ratio
-extern "C" void fn_8007642C(GraphicsDevice_unk* device, int a, int b);
-extern "C" void fn_80071D68(GraphicsDevice_unk* device, const float projection[4][4]);
-extern "C" void fn_800760BC(GraphicsDevice_unk* device, int left, int top, int width, int height); // inferred: viewport
-extern "C" void fn_800760D0(GraphicsDevice_unk* device); // inferred: restores the viewport
+}
+extern "C" atn::GraphicsDevice_unk* lbl_8087EEE0;
+extern "C" float fn_80076FF8(atn::GraphicsDevice_unk* device); // inferred: screen aspect ratio
+extern "C" void fn_8007642C(atn::GraphicsDevice_unk* device, int a, void* b);
+extern "C" void fn_80071D68(atn::GraphicsDevice_unk* device, const float projection[4][4]);
+extern "C" void fn_800760BC(atn::GraphicsDevice_unk* device, int left, int top, int width, int height); // inferred: viewport
+extern "C" void fn_800760D0(atn::GraphicsDevice_unk* device); // inferred: restores the viewport
 extern "C" std::string fn_8006B174(const std::string& path); // inferred: file name of a path
 extern "C" std::string fn_800DC980(const char* format, ...); // inferred: formatted string
 extern "C" int fn_802180A8(const char* name);                // inferred: motion id from its name

@@ -24,25 +24,28 @@ extern "C" float PSVECSquareMag(const atn::Vector3* v);
 extern "C" void PSVECNormalize(const atn::Vector3* src, atn::Vector3* dst);
 
 // inferred: graphics device (lbl_8087EEE0)
+namespace atn {
 struct GraphicsDevice_unk;
-extern "C" GraphicsDevice_unk* lbl_8087EEE0;
-extern "C" float fn_80076FF8(GraphicsDevice_unk* device); // inferred: screen aspect ratio
+}
+extern "C" atn::GraphicsDevice_unk* lbl_8087EEE0;
+extern "C" float fn_80076FF8(atn::GraphicsDevice_unk* device); // inferred: screen aspect ratio
 
 // inferred: debug menu entries
 typedef void (*FinishMenuCallback_unk)(void* arg);
-extern "C" void fn_8008771C(void* group, const char* name, float* value, FinishMenuCallback_unk callback, void* arg,
-                            float min, float max, float step);
-extern "C" void fn_80087858(void* group, const char* name, float* value, FinishMenuCallback_unk callback, void* arg,
-                            float min, float max, float step); // inferred: angle shown in degrees
+extern "C" void fn_8008771C(void* group, const char* name, float* value, float min, float max, float step,
+                            FinishMenuCallback_unk callback, void* arg);
+extern "C" void fn_80087858(void* group, const char* name, float* value, float min, float max, float step,
+                            FinishMenuCallback_unk callback, void* arg); // inferred: angle shown in degrees
 
 // inferred: collision world (lbl_8087EE98)
-extern "C" void* lbl_8087EE98;
+struct ColliManager_unk;
+extern "C" ColliManager_unk* lbl_8087EE98;
 extern "C" int fn_8004ECC0(void* world, atn::Vector3* hit, const atn::Vector3* from, const atn::Vector3* to,
-                           unsigned int mask, int a, int b); // inferred: segment test, hit position
+                           unsigned int mask, void* a, int b); // inferred: segment test, hit position
 extern "C" int fn_8004ED34(void* world, atn::ColliResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
-                           unsigned int mask, int a, int b);
-extern "C" int fn_8004D388(void* world, atn::ColliResult_unk* result, const atn::Vector3* center, const atn::Vector3* move,
-                           unsigned int mask, int a, int b, float radius); // inferred: sphere test
+                           unsigned int mask, void* a, int b);
+extern "C" int fn_8004D388(void* world, atn::ColliResult_unk* result, const atn::Vector3* center,
+                           const atn::Vector3* move, unsigned int mask, void* a, int b, float radius); // inferred: sphere test
 
 extern "C" GameConfig_unk* lbl_8087F0A8;
 
@@ -69,7 +72,8 @@ extern "C" RenderSetting_unk* lbl_8087EFA8;
 extern "C" GameUI* lbl_8087F490;
 extern "C" GameVoice* lbl_8087F498;
 extern "C" void* lbl_8087F610; // inferred: multiplayer session (only tested against 0 here)
-extern "C" void* lbl_8087EF70; // inferred: pad
+struct Pad_unk;
+extern "C" Pad_unk* lbl_8087EF70; // inferred: pad
 extern "C" float fn_800A56A8(void* pad, int port, int axis, int arg); // inferred: stick axis
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 extern "C" void fn_804A5E40(MenuCommonTask* menu, int type, atn::Vector3 ofs, int id); // inferred: info window
@@ -137,10 +141,10 @@ FinishCamera_unk::FinishCamera_unk()
     mTargetRatio = 0.5f;
     mOffsetY = 12.0f;
     void* menu = mMenu.Load("FinishCamera");
-    fn_8008771C(menu, "Length", &mLength, 0, 0, 0.0f, 1000.0f, 1.0f);
-    fn_8008771C(menu, "TargetRatio", &mTargetRatio, 0, 0, 0.0f, 1.0f, 0.1f);
-    fn_8008771C(menu, "OffsetY", &mOffsetY, 0, 0, 0.0f, 100.0f, 1.0f);
-    fn_80087858(menu, "AngleOfView", &mAngleOfView, 0, 0, 0.0f, 360.0f, 1.0f);
+    fn_8008771C(menu, "Length", &mLength, 0.0f, 1000.0f, 1.0f, 0, 0);
+    fn_8008771C(menu, "TargetRatio", &mTargetRatio, 0.0f, 1.0f, 0.1f, 0, 0);
+    fn_8008771C(menu, "OffsetY", &mOffsetY, 0.0f, 100.0f, 1.0f, 0, 0);
+    fn_80087858(menu, "AngleOfView", &mAngleOfView, 0.0f, 360.0f, 1.0f, 0, 0);
 }
 
 void FinishCamera_unk::fn_80378610(int mode, CharaTask* chara, const atn::Vector3& target) {

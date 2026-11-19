@@ -1,3 +1,6 @@
+#include "game/GameConfig_unk.h"
+#include "atn/RenderSetting_unk.h"
+#include "game/GameTask.h"
 #include "macros.h"
 #include "game/Em306GurgBeast.h"
 #include "game/GameCamera.h"
@@ -19,13 +22,7 @@ extern "C" int strcmp(const char* a, const char* b);
 extern "C" char* strstr(const char* s, const char* sub);
 extern "C" int atoi(const char* s);
 extern "C" int fn_800DC12C(const char* s); // inferred: string to int
-// inferred: field (lbl_8087F430): route tables at 0x10D8 (as in game/CharaC58_unk.cpp)
-struct Field_unk {
-    unsigned char m0000[0x6C];
-    unsigned char m006C[0x10D8 - 0x6C]; // inferred: object of fn_8037EF30
-    GameScene* m10D8;
-};
-extern "C" Field_unk* lbl_8087F430;
+extern "C" GameTask* lbl_8087F430;
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
 extern "C" double cos(double x);
@@ -35,20 +32,11 @@ extern "C" float fn_80011220(float x);       // inferred: fabs (weak copy of ano
 extern "C" float fn_801A03E8(const atn::Vector3& a, const atn::Vector3& b); // inferred: dot product
 BattleTask* fn_8013A194();                   // inferred: effect/bullet manager (weak copy of another file)
 void* fn_801404F8();                         // inferred: collision world (weak copy of another file)
-// inferred: game settings (lbl_8087F0A8); frames per second at 0x30 (as in gmk/Cannonball.cpp)
-struct BeastSettings_unk {
-    unsigned char m00[0x30];
-    int mFps;
-};
-extern "C" BeastSettings_unk* fn_800F52F8();
-// inferred: frame parameters (lbl_8087EFA8, as in gmk/SparkCube.cpp)
-struct BeastParams_unk {
-    unsigned char m000[0x3A4];
-    float mTimeScale; // 0x3A4
-};
-extern "C" BeastParams_unk* lbl_8087EFA8;
-extern "C" BeastSettings_unk* lbl_8087F0A8;
-extern "C" void* lbl_8087EE98; // inferred: collision world
+extern "C" GameConfig_unk* fn_800F52F8();
+extern "C" RenderSetting_unk* lbl_8087EFA8;
+extern "C" GameConfig_unk* lbl_8087F0A8;
+struct ColliManager_unk;
+extern "C" ColliManager_unk* lbl_8087EE98; // inferred: collision world
 extern "C" double sqrt(double x);
 extern "C" int fn_8004D388(void* world, atn::ColliResult_unk* result, atn::Vector3* sphere, atn::Vector3* move,
                            unsigned int mask, void* ignore, int arg, float radius); // inferred: sweep test
@@ -58,17 +46,18 @@ extern "C" inline void fn_802F0964(BattleTask* mgr, CharaTask* owner, HitInfo_un
                                    float f) {
     mgr->fn_800F8C6C(0, 0, owner, bullet, id, f, time, c);
 }
-extern "C" inline float fn_802F0988(BeastParams_unk* params) {
-    return params->mTimeScale;
+extern "C" inline float fn_802F0988(RenderSetting_unk* params) {
+    return params->m3A4;
 }
-extern "C" inline BeastParams_unk* fn_802F0990() {
+extern "C" inline RenderSetting_unk* fn_802F0990() {
     return lbl_8087EFA8;
 }
-extern "C" inline float fn_802F0998(const BeastSettings_unk* settings) {
-    return -98.1f / (float)(settings->mFps * settings->mFps);
+extern "C" inline float fn_802F0998(const GameConfig_unk* settings) {
+    return -98.1f / (float)(settings->m030 * settings->m030);
 }
 
-extern "C" void* lbl_8087EF70; // inferred: pad
+struct Pad_unk;
+extern "C" Pad_unk* lbl_8087EF70; // inferred: pad
 extern "C" int fn_800A555C(void* pad, int port, int button);           // inferred: button triggered
 extern "C" int fn_800A55D4(void* pad, int port, int button);           // inferred: button held
 extern "C" float fn_800A56A8(void* pad, int port, int axis, int arg);  // inferred: stick axis
@@ -591,7 +580,7 @@ void Em306GurgBeast::vf104() {
             fn_802F1320(1);
         } else if (fn_800A555C(lbl_8087EF70, 0, 9) != 0) {
             if (lbl_8087F430 != 0) {
-                ((GameCamera*)lbl_8087F430->m006C)->fn_8037EF30(0, 0, -1.0f);
+                lbl_8087F430->mCamera.fn_8037EF30(0, 0, -1.0f);
             }
         } else if (fn_800A55D4(lbl_8087EF70, 0, 4) != 0) {
             m154C = 1;
@@ -820,7 +809,7 @@ void Em306GurgBeast::fn_802F09D4(const atn::Vector3* target, float rate) {
     PSMTXRotRad(m, 'y', ry);
     PSMTXMultVec(m, &front, &front);
     float d = atn::WrapAngle_unk(target->y - rot.y);
-    float dt = lbl_8087EFA8->mTimeScale;
+    float dt = lbl_8087EFA8->m3A4;
     float turn = MIN(1.5707964f, MAX(-1.5707964f, d));
     float k = 0.1f * MAX(1.0f, 2.0f - m570);
     float t = 0.3f / MAX(1.0f, 0.6f * m570);
@@ -847,7 +836,7 @@ void Em306GurgBeast::fn_802F09D4(const atn::Vector3* target, float rate) {
     vel.y *= MIN(1.0f, dt);
     vel.z *= MIN(1.0f, dt);
     if ((mStatus.mParamB.m9C & 1U) != 1U) {
-        m574.y += dt * (-98.1f / (float)(lbl_8087F0A8->mFps * lbl_8087F0A8->mFps));
+        m574.y += dt * (-98.1f / (float)(lbl_8087F0A8->m030 * lbl_8087F0A8->m030));
     }
     vel += m574;
     if (vel.y < -6.0f) {

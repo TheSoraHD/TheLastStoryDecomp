@@ -1,3 +1,4 @@
+#include "game/GameConfig_unk.h"
 #include "gmk/Chain.h"
 #include "atn/Memory.h"
 #include "game/CharaManager.h"
@@ -14,12 +15,7 @@ extern "C" void C_QUATRotAxisRad(atn::Quaternion_unk* q, const atn::Vector3* axi
 extern "C" double acos(double x);
 extern "C" int sprintf(char* buf, const char* format, ...);
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
-// inferred: game settings
-struct Settings_unk {
-    unsigned char m00[0x18];
-    int m18;
-};
-extern "C" Settings_unk* lbl_8087F0A8;
+extern "C" GameConfig_unk* lbl_8087F0A8;
 
 // inferred: node names of the characters the chain hangs from (indexed by mDesc->m28)
 static const char* sNodes[] = {"const_foot_l", "const_foot_r", "left_chainpoint", "right_chainpoint",
@@ -160,7 +156,7 @@ void Chain::vf10() {
 }
 
 void Chain::vf14() {
-    if (mTarget != 0 && lbl_8087F0A8->m18 != 0) {
+    if (mTarget != 0 && lbl_8087F0A8->mDrawMap != 0) {
         fn_803ED610(mModel.GetModel_unk());
     }
 }

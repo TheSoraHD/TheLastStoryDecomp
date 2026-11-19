@@ -1,3 +1,5 @@
+#include "atn/RenderSetting_unk.h"
+#include "atn/EffectManager.h"
 #include "game/SkillEffectManager.h"
 #include "game/EnemyTasha.h"
 #include "math/VecAssign_unk.h"
@@ -19,37 +21,32 @@ extern "C" float fn_800DC288(const char* s); // inferred: string to float
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 // inferred: debug menu entries (as in game/EnemyTrista.cpp)
-extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3, int arg4);
-extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, int arg6,
-                            int arg7);
-extern "C" void fn_8008771C(void* group, const char* name, float* value, int arg3, int arg4, float min, float max,
-                            float step);
+extern "C" void fn_80087994(void* group, const char* name, int* value, void* func, void* arg);
+extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, void* func,
+                            void* arg);
+extern "C" void fn_8008771C(void* group, const char* name, float* value, float min, float max, float step, void* func,
+                            void* arg);
 // inferred: work area of the damage computation (as in game/EnemyTask.cpp)
 extern "C" char lbl_807C6B90[0x18];
 // inferred: damage of `hit` from `attacker` to `target` (game/DamageCalc_unk.cpp)
 extern "C" int fn_8003F538(HitInfo_unk* hit, CharaStatus* attacker, CharaStatus* target, int flags, void* work);
 
-// inferred: effect manager (class unknown), global instance at 0x8087F3C0; mB8 is a mode used while an
-// effect is created (as in game/Arms.cpp)
-struct EffectMgr_unk {
-    unsigned char m00[0xB8];
-    int mB8;
-};
 struct Color4f_unk {
     Color4f_unk() {}
     float r, g, b, a;
 };
-extern "C" EffectMgr_unk* lbl_8087F3C0;
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
+extern "C" atn::EffectManager* lbl_8087F3C0;
+extern "C" void fn_8023A8B4(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Model* model, void* node,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
-extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
+extern "C" void fn_80239DAC(atn::EffectManager* mgr, void* owner, int id, int arg); // inferred: stops an effect
 extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the next effects
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
 BattleTask* fn_8013A194();
 // inferred: skill effect manager (lbl_8087F9E8; weak copy 0x80356FFC is its accessor)
 
-extern "C" void* lbl_8087EE98;
+struct ColliManager_unk;
+extern "C" ColliManager_unk* lbl_8087EE98;
 extern "C" int fn_8004ED34(void* colli, atn::ColliResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg7); // inferred: ray test
 
@@ -581,12 +578,7 @@ struct TashaStep_unk {
 // inferred: sets the frame of motion track `track` (weak copy of a atn::Model inline, also called by
 // game/GameTask and game/TutorialTask; defined after vf100 to keep its position)
 
-// inferred: game state (lbl_8087EFA8): m3A4 is the time scale (as in game/EnemyTrista.cpp)
-struct TashaGame_unk {
-    unsigned char m000[0x3A4];
-    float m3A4;
-};
-extern "C" TashaGame_unk* lbl_8087EFA8;
+extern "C" RenderSetting_unk* lbl_8087EFA8;
 
 // inferred: nonzero when a wall stands between Tasha and the target
 inline int TashaHitWall_unk(EnemyTasha* e) {
@@ -1011,9 +1003,9 @@ void EnemyTasha::vf108() {
             }
             case 14:
                 fn_80232B7C(this, 5);
-                lbl_8087F3C0->mB8 = 2;
+                lbl_8087F3C0->mSystem.mLayer = 2;
                 TashaPlayEffect_unk(&m1640, &mMotion);
-                lbl_8087F3C0->mB8 = 0;
+                lbl_8087F3C0->mSystem.mLayer = 0;
                 break;
             case 17:
                 fn_80232B7C(this, 0);
@@ -1280,9 +1272,9 @@ void EnemyTasha::fn_8035ACF0(int state) {
     }
     case 14:
         fn_80232B7C(this, 5);
-        lbl_8087F3C0->mB8 = 2;
+        lbl_8087F3C0->mSystem.mLayer = 2;
         TashaPlayEffect_unk(&m1640, &mMotion);
-        lbl_8087F3C0->mB8 = 0;
+        lbl_8087F3C0->mSystem.mLayer = 0;
         break;
     case 17:
         fn_80232B7C(this, 0);
@@ -1302,9 +1294,9 @@ void EnemyTasha::vf30(void* menu) {
     fn_800874C8(group, "WaitFrame", &m1518, 0, 500, 1, 0, 0);
     fn_800874C8(group, "ChaseCancelFrame", &m1520, 0, 500, 1, 0, 0);
     fn_800874C8(group, "AttackChanceFrame", &m151C, 0, 500, 1, 0, 0);
-    fn_8008771C(group, "AttackDistance", &m14FC, 0, 0, 0.0f, 500.0f, 1.0f);
-    fn_8008771C(group, "BackstepDisRate", &m16C0, 0, 0, 0.0f, 500.0f, 0.1f);
-    fn_8008771C(group, "HP", &mStatus.m04, 0, 0, 0.0f, 50000.0f, 1.0f);
+    fn_8008771C(group, "AttackDistance", &m14FC, 0.0f, 500.0f, 1.0f, 0, 0);
+    fn_8008771C(group, "BackstepDisRate", &m16C0, 0.0f, 500.0f, 0.1f, 0, 0);
+    fn_8008771C(group, "HP", &mStatus.m04, 0.0f, 50000.0f, 1.0f, 0, 0);
 }
 
 int EnemyTasha::vf68(CharaTask* attacker) {

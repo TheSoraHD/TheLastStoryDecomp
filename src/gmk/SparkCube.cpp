@@ -1,3 +1,6 @@
+#include "atn/RenderSetting_unk.h"
+#include "atn/EffectManager.h"
+#include "game/GameConfig_unk.h"
 #include "gmk/SparkCube.h"
 #include "atn/Csv.h"
 #include "atn/Memory.h"
@@ -11,41 +14,26 @@ extern "C" int rand();
 extern "C" char lbl_8087D710[2]; // inferred: " " (field separators of the tab CSV)
 extern "C" float fn_800DC288(const char* s); // inferred: string to float
 extern "C" int fn_802180A8(const char* s); // inferred: motion id from its name
-extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, int arg6,
-                            int arg7);
-extern "C" void fn_80087E9C(void* group, const char* name, atn::Vector3* value, int arg3, int arg4, float min,
-                            float max, float step);
-extern "C" void fn_80088724(void* group, const char* name, atn::Vector3* value, int arg3, int arg4, float min,
-                            float max, float step);
-extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3, int arg4);
+extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, void* func,
+                            void* arg);
+extern "C" void fn_80087E9C(void* group, const char* name, atn::Vector3* value, float min, float max, float step,
+                            void* func, void* arg);
+extern "C" void fn_80088724(void* group, const char* name, atn::Vector3* value, float min, float max, float step,
+                            void* func, void* arg);
+extern "C" void fn_80087994(void* group, const char* name, int* value, void* func, void* arg);
 
-// inferred: effect manager (class unknown), global instance at 0x8087F3C0
-struct EffectMgr_unk {
-    unsigned char m00[0xB8];
-    int mB8;
-};
 struct Color4f_unk {
     Color4f_unk() {}
     float r, g, b, a;
 };
-extern "C" EffectMgr_unk* lbl_8087F3C0;
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
+extern "C" atn::EffectManager* lbl_8087F3C0;
+extern "C" void fn_8023A8B4(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Model* model, void* node,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
-extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
+extern "C" void fn_80239DAC(atn::EffectManager* mgr, void* owner, int id, int arg); // inferred: stops an effect
 extern "C" void fn_80232B7C(void* owner, int arg);
-// inferred: game settings
-struct Settings_unk {
-    unsigned char m00[0x18];
-    int m18;
-};
-extern "C" Settings_unk* lbl_8087F0A8;
-// inferred: frame parameters (as gmk::ArenaFloor)
-struct Params_unk {
-    unsigned char m000[0x3A4];
-    float mTimeScale; // 0x3A4
-};
-extern "C" Params_unk* lbl_8087EFA8;
+extern "C" GameConfig_unk* lbl_8087F0A8;
+extern "C" RenderSetting_unk* lbl_8087EFA8;
 // inferred: bullets
 class BattleTask;
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
@@ -93,7 +81,7 @@ inline void NotifyListeners_unk(CharaListeners_unk* listeners, int id, void* cha
         }
     }
 }
-inline void PlayEfp_unk(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model) {
+inline void PlayEfp_unk(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Model* model) {
     atn::Vector3 pos;
     atn::Vector3 rot;
     Color4f_unk color;
@@ -144,7 +132,7 @@ int SparkCube::vf0C() {
     if (fn_803EC91C() == 0) {
         fn_803EDB18(&mModel);
         fn_803EDB18(&mSpark);
-        mColli.m0C = (int)this;
+        mColli.m0C = this;
         mColli.mFlags |= 8;
         if (mId == 48000) {
             mColli.m20 = 0xF8;
@@ -176,7 +164,7 @@ void SparkCube::vf10() {
         Start();
     }
     int state = -1;
-    float step = lbl_8087EFA8->mTimeScale;
+    float step = lbl_8087EFA8->m3A4;
     mTimer += step;
     switch (m54) {
     case 2:
@@ -219,7 +207,7 @@ void SparkCube::vf10() {
 }
 
 void SparkCube::vf14() {
-    if (lbl_8087F0A8->m18 != 0) {
+    if (lbl_8087F0A8->mDrawMap != 0) {
         if (mHasSpark != 0 && m54 == 3) {
             float frame = mSpark.mTracks[0].m08;
             if (frame >= mSpark.fn_80097D7C(0)) {
@@ -306,10 +294,10 @@ int SparkCube::vf40(GimmickMsg_unk* msg) {
     switch (m54) {
     case 1:
         if (mEfp[m54].mResource != 0) {
-            lbl_8087F3C0->mB8 = 2;
+            lbl_8087F3C0->mSystem.mLayer = 2;
             fn_80232B7C(this, 0);
             PlayEfp_unk(lbl_8087F3C0, &mEfp[m54], &mModel);
-            lbl_8087F3C0->mB8 = 0;
+            lbl_8087F3C0->mSystem.mLayer = 0;
         }
         m9C = 1;
         mColli.mFlags |= 1;
@@ -454,9 +442,9 @@ void SparkCube::vf6C(void* menu) {
         group = 0;
     }
     fn_800874C8(group, "state", &m54, 0, 99, 1, 0, 0);
-    fn_80087E9C(group, "pos", &m6C, 0, 0, -9999.0f, 9999.0f, 0.25f);
-    fn_80088724(group, "rot", &m78, 0, 0, -3.1415927f, 3.1415927f, 0.05235988f);
-    fn_80087E9C(group, "scl", &m90, 0, 0, -9999.0f, 9999.0f, 0.25f);
+    fn_80087E9C(group, "pos", &m6C, -9999.0f, 9999.0f, 0.25f, 0, 0);
+    fn_80088724(group, "rot", &m78, -3.1415927f, 3.1415927f, 0.05235988f, 0, 0);
+    fn_80087E9C(group, "scl", &m90, -9999.0f, 9999.0f, 0.25f, 0, 0);
     fn_80087994(group, "isShow", &m9C, 0, 0);
     fn_800874C8(group, "locData", &m58, 0, 99, 1, 0, 0);
     mB0.fn_803F11F8(group);

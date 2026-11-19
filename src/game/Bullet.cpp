@@ -1,5 +1,7 @@
 // inferred file name: from the RTTI of Bullet (vtable 0x80779F10). The boot sequence task before it is
 // game/BootTask.cpp.
+#include "game/GameConfig_unk.h"
+#include "atn/RenderSetting_unk.h"
 #include "game/Bullet.h"
 #include "game/GameTask.h"
 #include "game/CharaTask.h"
@@ -21,15 +23,9 @@
 #include "game/NpcTask.h"
 #include "game/GameVoice.h"
 #include "atn/FixedArray.h"
+#include "atn/EffectManager.h"
 
-// inferred: game settings (lbl_8087F0A8); only the fields read here
-struct BootSettings_unk {
-    unsigned char m000[0x30];
-    int m30; // inferred: frames per second
-    unsigned char m034[0x1B4 - 0x34];
-    char m1B4[1]; // inferred: name of the sequence started after the boot
-};
-extern "C" BootSettings_unk* lbl_8087F0A8;
+extern "C" GameConfig_unk* lbl_8087F0A8;
 
 Bullet::Bullet()
     : m04(0), m08(0.0f, 0.0f, 0.0f), m14(0.0f, 0.0f, 0.0f), m20(0.0f, 0.0f, 0.0f), m5C(0.1f), m60(0), m64(0),
@@ -39,28 +35,19 @@ Bullet::Bullet()
 
 Bullet::~Bullet() {}
 
-extern "C" HomingField_unk* lbl_8087F430;
+extern "C" GameTask* lbl_8087F430;
 
-// inferred: effect manager (lbl_8087F3C0); mB8 selects the effect group of the next effects
-struct BulletEffectMgr_unk {
-    unsigned char m00[0xB8];
-    int mB8;
-};
-extern "C" BulletEffectMgr_unk* lbl_8087F3C0;
+extern "C" atn::EffectManager* lbl_8087F3C0;
 extern "C" void fn_80232B7C(void* owner, int arg); // inferred: sets the owner of the next effects
-extern "C" void fn_8023A680(BulletEffectMgr_unk* mgr, int id, int a, int b, atn::Matrix3x4* mtx, int c, int d,
+extern "C" void fn_8023A680(atn::EffectManager* mgr, atn::EffFile* res, int a, int b, atn::Matrix3x4* mtx, int c, int d,
                             int e, int f, int g, int h, float scale); // inferred: plays an effect on `mtx`
-extern "C" void fn_80239DAC(BulletEffectMgr_unk* mgr, void* owner, int group, int arg); // inferred: stops effects
+extern "C" void fn_80239DAC(atn::EffectManager* mgr, void* owner, int group, int arg); // inferred: stops effects
 
-// inferred: frame time step (lbl_8087EFA8)
-struct BulletTime_unk {
-    unsigned char m000[0x3A4];
-    float mTimeScale;
-};
-extern "C" BulletTime_unk* lbl_8087EFA8;
+extern "C" RenderSetting_unk* lbl_8087EFA8;
 
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
-extern "C" void* lbl_8087EE98; // inferred: collision manager
+struct ColliManager_unk;
+extern "C" ColliManager_unk* lbl_8087EE98; // inferred: collision manager
 extern "C" int fn_8004ED34(void* colli, atn::ColliResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg);
 extern "C" int fn_8004D388(void* colli, atn::ColliResult_unk* result, const atn::Vector3* center, const atn::Vector3* move,
@@ -164,12 +151,12 @@ void Bullet::fn_8010F018(const BulletShot_unk* shot, const atn::Vector3* pos, co
     m78 = 0.0f;
     m9C = 0;
     fn_8010F4BC();
-    lbl_8087F3C0->mB8 = 3;
+    lbl_8087F3C0->mSystem.mLayer = 3;
     if (shot->m04 != 0) {
         fn_80232B7C(this, 0);
         fn_8023A680(lbl_8087F3C0, shot->m04, -1, 5, &m2C, 0, 0, 0, 0, -1, 1, 1.0f);
     }
-    lbl_8087F3C0->mB8 = 0;
+    lbl_8087F3C0->mSystem.mLayer = 0;
     if (count < 0) {
         m7C = lbl_8087F048->fn_800F8548();
     } else {
@@ -195,12 +182,12 @@ void Bullet::fn_8010F018(const BulletShot_unk* shot, const atn::Vector3* pos, co
 
 // inferred: `shot` is const (the original loads shot->m04 before saving r31)
 void Bullet::fn_8010F26C(const BulletShot_unk* shot) {
-    lbl_8087F3C0->mB8 = 3;
+    lbl_8087F3C0->mSystem.mLayer = 3;
     if (shot->m04 != 0) {
         fn_80232B7C(this, 0);
         fn_8023A680(lbl_8087F3C0, shot->m04, -1, 5, &m2C, 0, 0, 0, 0, -1, 1, 1.0f);
     }
-    lbl_8087F3C0->mB8 = 0;
+    lbl_8087F3C0->mSystem.mLayer = 0;
 }
 
 // inferred: removes the bullet (`record`: add a replay event)
@@ -216,13 +203,13 @@ void Bullet::vf0C(int record, int b) {
 }
 
 void Bullet::fn_8010F41C() {
-    lbl_8087F3C0->mB8 = 3;
+    lbl_8087F3C0->mSystem.mLayer = 3;
     int keep = (m04 >> 6) & 1;
     fn_80239DAC(lbl_8087F3C0, this, 0, keep);
     fn_80239DAC(lbl_8087F3C0, this, 10, keep);
     fn_80239DAC(lbl_8087F3C0, this, 1, 1);
     fn_80239DAC(lbl_8087F3C0, this, 11, 1);
-    lbl_8087F3C0->mB8 = 0;
+    lbl_8087F3C0->mSystem.mLayer = 0;
 }
 
 // NONMATCHING: 97.1% - over the inline budget as the original (empty asserts in Translate_unk), with the flag
@@ -367,14 +354,14 @@ inline void PlayHitEffect_unk(Bullet* bullet, const atn::Vector3& pos, const atn
         id = lbl_8087F048->fn_800FAB80(bullet->m88, bullet->m68, bullet->m7C, &pos, &angle, 0, 30, -1, -1,
                                           bullet->m5C, bullet->m74);
     }
-    ((GameTask*)lbl_8087F430)->fn_80373164(bullet->m88, &pos, id);
+    lbl_8087F430->fn_80373164(bullet->m88, &pos, id);
 }
 
 // NONMATCHING: 96.2% - stack slots and FPR numbering of the inlined ToRotation_unk of the effect angle
 // inferred: update: removes the bullet when its time is over (with the hit effect of the data),
 // hits at the end of its range, moves it and tests the collision
 void Bullet::vf10() {
-    float dt = lbl_8087EFA8->mTimeScale;
+    float dt = lbl_8087EFA8->m3A4;
     if (m94 >= 0.0f) {
         m04 |= 0x20000;
         fn_8010F4BC();
@@ -416,14 +403,14 @@ void Bullet::vf10() {
     signed char kind = m68->m02;
     if (kind == 1 || kind == 5) {
         if ((m68->mAC & 0x8000) != 0x8000 || !HasFlag_unk(0x10)) {
-            m20.y += dt * (-98.1f / (float)(lbl_8087F0A8->m30 * lbl_8087F0A8->m30));
+            m20.y += dt * (-98.1f / (float)(lbl_8087F0A8->m030 * lbl_8087F0A8->m030));
         }
     }
     if (HasFlag_unk(0x800000)) {
         if (m20.y < 0.0f) {
             m20.y *= 0.8f;
         }
-        m20.y += 5.0f * (dt * -(-98.1f / (float)(lbl_8087F0A8->m30 * lbl_8087F0A8->m30)));
+        m20.y += 5.0f * (dt * -(-98.1f / (float)(lbl_8087F0A8->m030 * lbl_8087F0A8->m030)));
     }
     fn_8010F4BC();
     if (!HasFlag_unk(0x200000)) {
@@ -441,7 +428,7 @@ void Bullet::vf10() {
 
 // inferred: moves the bullet one frame (falling bullets, kinds 1 and 5, are pulled by gravity)
 void Bullet::vf14(const Mtx m) {
-    float dt = lbl_8087EFA8->mTimeScale;
+    float dt = lbl_8087EFA8->m3A4;
     if (m94 >= 0.0f) {
         m94 -= dt;
         if (m94 <= 0.0f) {
@@ -455,7 +442,7 @@ void Bullet::vf14(const Mtx m) {
     m78 += m80 * dt;
     signed char kind = m68->m02;
     if (kind == 1 || kind == 5) {
-        m20.y += -98.1f / (float)(lbl_8087F0A8->m30 * lbl_8087F0A8->m30);
+        m20.y += -98.1f / (float)(lbl_8087F0A8->m030 * lbl_8087F0A8->m030);
     }
     fn_8010F4BC();
 }
@@ -561,9 +548,9 @@ void Bullet::vf20(CharaTask* chara, const atn::Vector3* pos, atn::Vector3* dir) 
     lbl_8087F048->fn_800F8574(chara, m68, pos, dir, 0, 0, 0, 0.0f, 1.0f);
 }
 
-extern "C" void fn_8023A108(BulletEffectMgr_unk* mgr, void* owner, int group, int flags); // inferred: effect flags on
-extern "C" void fn_8023A02C(BulletEffectMgr_unk* mgr, void* owner, int group, int flags); // inferred: effect flags off
-extern "C" void fn_8023A098(BulletEffectMgr_unk* mgr, void* owner, int group, int flags);
+extern "C" void fn_8023A108(atn::EffectManager* mgr, void* owner, int group, int flags); // inferred: effect flags on
+extern "C" void fn_8023A02C(atn::EffectManager* mgr, void* owner, int group, int flags); // inferred: effect flags off
+extern "C" void fn_8023A098(atn::EffectManager* mgr, void* owner, int group, int flags);
 // inferred: damage of a bullet hit (mgr, attacker, chara, hit, data, id, pos, dir, effect, rate); returns the
 // kind of the hit effect
 extern "C" int fn_800FDB20(BattleTask* mgr, CharaTask* attacker, CharaTask* chara, int hit, HitInfo_unk* data, int id,
@@ -659,12 +646,12 @@ void Bullet::fn_80110858(atn::ColliResult_unk* res) {
                 m80 = 1.0f;
                 m78 = m68->m44 - 15.0f * (30.0f * m80);
                 fn_8010F4BC();
-                lbl_8087F3C0->mB8 = 3;
+                lbl_8087F3C0->mSystem.mLayer = 3;
                 fn_8023A108(lbl_8087F3C0, this, 0, 1);
                 fn_8023A108(lbl_8087F3C0, this, 10, 1);
                 fn_8023A02C(lbl_8087F3C0, this, 0, 2);
                 fn_8023A02C(lbl_8087F3C0, this, 10, 2);
-                lbl_8087F3C0->mB8 = 0;
+                lbl_8087F3C0->mSystem.mLayer = 0;
                 return;
             }
             atn::Vector3 normal = res->m28 * PSVECDotProduct(&res->m28, &m20);
@@ -700,10 +687,10 @@ void Bullet::fn_80110858(atn::ColliResult_unk* res) {
         m80 = PSVECMag(&m20);
         m78 = m68->m44 - 30.0f * m80;
         kind = -1;
-        lbl_8087F3C0->mB8 = 3;
+        lbl_8087F3C0->mSystem.mLayer = 3;
         fn_8023A098(lbl_8087F3C0, this, 0, 2);
         fn_8023A098(lbl_8087F3C0, this, 10, 2);
-        lbl_8087F3C0->mB8 = 0;
+        lbl_8087F3C0->mSystem.mLayer = 0;
     }
     if (m64 != 0 && (m04 & 0x80) != 0x80) {
         if (m68->m60 == 0) {
@@ -763,7 +750,7 @@ void Bullet::fn_80110858(atn::ColliResult_unk* res) {
         if (skill != 0 && fn_8021A960(skill) && (m04 & 0x80) != 0x80) {
             fn_8059B66C(lbl_8087F9E8, skill, m88, m9C, &pos, &rot, boost::function<void(SkillEffect*)>(), 1.0f);
         }
-        ((GameTask*)lbl_8087F430)->fn_80373164(m88, &res->m04, stuck);
+        lbl_8087F430->fn_80373164(m88, &res->m04, stuck);
     }
     if ((m68->mAC & 0x8000) != 0x8000 && (int)m68->m02 != 9) {
         if ((m04 & 4) == 4) {
@@ -805,7 +792,7 @@ void Bullet::fn_80110858(atn::ColliResult_unk* res) {
         }
     }
     if (lbl_8087F498 != 0 && rand() % 2 == 0 && m68->m04 >= 0x148 && m68->m04 <= 0x14A && lbl_8087F430 != 0 &&
-        !((GameTask*)lbl_8087F430)->fn_80375184() && m88 != 0) {
+        !lbl_8087F430->fn_80375184() && m88 != 0) {
         atn::FixedArray_unk<CharaTask*, 16> near;
         for (PlayerTask* p = lbl_8087F8A0->mHead; p != 0; p = p->mNext) {
             if (near.size() >= 16) {
@@ -834,7 +821,7 @@ void Bullet::fn_80110858(atn::ColliResult_unk* res) {
         }
     }
     if (lbl_8087F430 != 0 && m68 != 0 && (m68->mAC & 0x40000) == 0x40000) {
-        CameraShake_unk& shake = ((GameTask*)lbl_8087F430)->mCamera.mShake;
+        CameraShake_unk& shake = lbl_8087F430->mCamera.mShake;
         shake.mFrame = shake.mFrame % 2;
         shake.mLength = 15;
         shake.mWidth = 1.0f;

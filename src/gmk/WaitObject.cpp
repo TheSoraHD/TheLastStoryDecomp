@@ -1,3 +1,5 @@
+#include "atn/EffectManager.h"
+#include "game/GameConfig_unk.h"
 #include "gmk/WaitObject.h"
 #include "math/VecAssign_unk.h"
 #include "game/GameTask.h"
@@ -16,12 +18,7 @@
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
-// inferred: game settings
-struct Settings_unk {
-    unsigned char m00[0x18];
-    int m18;
-};
-extern "C" Settings_unk* lbl_8087F0A8;
+extern "C" GameConfig_unk* lbl_8087F0A8;
 extern "C" int sprintf(char* dst, const char* fmt, ...);
 extern "C" double cos(double x);
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
@@ -33,22 +30,16 @@ extern "C" char lbl_8087D710[2]; // inferred: " " (field separators of the tab C
 extern "C" float fn_800DC288(const char* s); // inferred: string to float
 extern "C" int fn_802180A8(const char* s); // inferred: motion id from its name
 // inferred: field (lbl_8087F430); class unknown
-struct WaitField_unk;
-extern "C" WaitField_unk* lbl_8087F430;
-// inferred: effect manager (class unknown), global instance at 0x8087F3C0
-struct EffectMgr_unk {
-    unsigned char m00[0xB8];
-    int mB8;
-};
+extern "C" GameTask* lbl_8087F430;
 struct Color4f_unk {
     Color4f_unk(float r, float g, float b, float a) : r(r), g(g), b(b), a(a) {}
     float r, g, b, a;
 };
-extern "C" EffectMgr_unk* lbl_8087F3C0;
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
+extern "C" atn::EffectManager* lbl_8087F3C0;
+extern "C" void fn_8023A8B4(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Model* model, void* node,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
-extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
+extern "C" void fn_80239DAC(atn::EffectManager* mgr, void* owner, int id, int arg); // inferred: stops an effect
 extern "C" void fn_80232B7C(void* owner, int arg);
 class BattleTask;
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
@@ -71,15 +62,15 @@ struct WaitArea_unk {
 };
 // debug menu (see gmk/Cannon.cpp); lbl_8087EF10 is declared in the headers
 extern "C" void* fn_8008937C(void* menu, const char* name);
-extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, int arg6,
-                            int arg7);
-extern "C" void fn_80087E9C(void* group, const char* name, atn::Vector3* value, int arg3, int arg4, float min,
-                            float max, float step);
-extern "C" void fn_80088724(void* group, const char* name, atn::Vector3* value, int arg3, int arg4, float min,
-                            float max, float step);
-extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3, int arg4);
-extern "C" void fn_8008771C(void* group, const char* name, float* value, int arg3, int arg4, float min, float max,
-                            float step);
+extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, void* func,
+                            void* arg);
+extern "C" void fn_80087E9C(void* group, const char* name, atn::Vector3* value, float min, float max, float step,
+                            void* func, void* arg);
+extern "C" void fn_80088724(void* group, const char* name, atn::Vector3* value, float min, float max, float step,
+                            void* func, void* arg);
+extern "C" void fn_80087994(void* group, const char* name, int* value, void* func, void* arg);
+extern "C" void fn_8008771C(void* group, const char* name, float* value, float min, float max, float step, void* func,
+                            void* arg);
 // inferred: collision target of a state (the collision of mStates[]: position at 0x3C, radius at
 // 0x48)
 struct WaitTarget_unk {
@@ -94,7 +85,7 @@ namespace gmk {
 // invented)
 inline void WaitObject::PlayEfp_unk() {
     fn_80232B7C(this, m54);
-    lbl_8087F3C0->mB8 = 1;
+    lbl_8087F3C0->mSystem.mLayer = 1;
     atn::EfpFile* efp = &mEfp[m54];
     atn::Model* model = &mModel;
     atn::Vector3 pos;
@@ -103,7 +94,7 @@ inline void WaitObject::PlayEfp_unk() {
     pos.Set_unk(0.0f, 0.0f, 0.0f);
     Color4f_unk color(1.0f, 1.0f, 1.0f, 1.0f);
     fn_8023A8B4(lbl_8087F3C0, efp, model, 0, pos, rot, color, -1, -1, 1, 1.0f);
-    lbl_8087F3C0->mB8 = 0;
+    lbl_8087F3C0->mSystem.mLayer = 0;
 }
 
 GimmickCommon* WaitObject::fn_80418EAC(atn::Task* parent, int id, int arg) {
@@ -150,7 +141,7 @@ int WaitObject::vf0C() {
         for (int i = 0; i < 7; i++) {
             if (mStates[i].mColli != 0) {
                 mStates[i].mColli->mFlags |= 8;
-                mStates[i].mColli->m0C = (int)this;
+                mStates[i].mColli->m0C = this;
                 mStates[i].mColli->m20 = 0x808F8;
             }
         }
@@ -195,7 +186,7 @@ void WaitObject::vf10() {
     }
     atn::Vector3 d = atn::RenderManager::instance_->mCamera.mPos - m6C;
     float dist = PSVECSquareMag(&d);
-    if (lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->GetCurrentMap() != 0 && ((GameTask*)lbl_8087F430)->GetCurrentMap()->mType == 1 &&
+    if (lbl_8087F430 != 0 && lbl_8087F430->GetCurrentMap() != 0 && lbl_8087F430->GetCurrentMap()->mType == 1 &&
         dist > 360000.0f) {
         return;
     }
@@ -237,7 +228,7 @@ void WaitObject::vf14() {
     if ((mDesc != 0 && mDesc->m7C == 0) || m54 == 0) {
         return;
     }
-    if (lbl_8087F0A8->m18 != 0 && (mStates[m54].mFlags & 2) != 2 && vf38() != 0) {
+    if (lbl_8087F0A8->mDrawMap != 0 && (mStates[m54].mFlags & 2) != 2 && vf38() != 0) {
         fn_803ED774(vf38());
     }
 }
@@ -639,9 +630,9 @@ void WaitObject::vf6C(void* menu) {
     fn_803EC758(name);
     void* group = MenuGroup_unk(this, menu, name);
     fn_800874C8(group, "state", &m54, 0, 99, 1, 0, 0);
-    fn_80087E9C(group, "pos", &m6C, 0, 0, -9999.0f, 9999.0f, 0.25f);
-    fn_80088724(group, "rot", &m78, 0, 0, -3.1415927f, 3.1415927f, 0.05235988f);
-    fn_80087E9C(group, "scl", &m90, 0, 0, -9999.0f, 9999.0f, 0.25f);
+    fn_80087E9C(group, "pos", &m6C, -9999.0f, 9999.0f, 0.25f, 0, 0);
+    fn_80088724(group, "rot", &m78, -3.1415927f, 3.1415927f, 0.05235988f, 0, 0);
+    fn_80087E9C(group, "scl", &m90, -9999.0f, 9999.0f, 0.25f, 0, 0);
     fn_80087994(group, "isShow", &m9C, 0, 0);
     fn_800874C8(group, "locData", &m58, 0, 99, 1, 0, 0);
     mB0.fn_803F11F8(group);
@@ -650,9 +641,9 @@ void WaitObject::vf6C(void* menu) {
             char sub[0x40];
             sprintf(sub, "targetCollision%d", i);
             void* target = fn_8008937C(group, sub);
-            fn_80087E9C(target, "pos", &((WaitTarget_unk*)mStates[i].mColli)->mPos, 0, 0, -9999.0f, 9999.0f, 0.25f);
-            fn_8008771C(target, "radius", &((WaitTarget_unk*)mStates[i].mColli)->mRadius, 0, 0, -9999.0f, 9999.0f,
-                        0.25f);
+            fn_80087E9C(target, "pos", &((WaitTarget_unk*)mStates[i].mColli)->mPos, -9999.0f, 9999.0f, 0.25f, 0, 0);
+            fn_8008771C(target, "radius", &((WaitTarget_unk*)mStates[i].mColli)->mRadius, -9999.0f, 9999.0f, 0.25f, 0,
+                        0);
         }
     }
 }

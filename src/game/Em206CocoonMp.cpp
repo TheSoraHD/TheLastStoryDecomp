@@ -1,3 +1,4 @@
+#include "atn/RenderSetting_unk.h"
 #include "macros.h"
 #include "game/Em206CocoonMp.h"
 #include "math/VecAssign_unk.h"
@@ -20,40 +21,31 @@
 
 extern "C" int strncmp(const char* a, const char* b, unsigned long n);
 extern "C" std::string fn_8006AFF8(const std::string& a, const std::string& b); // inferred: a + b
-extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3, int arg4); // debug menu
+extern "C" void fn_80087994(void* group, const char* name, int* value, void* func, void* arg); // debug menu
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
 extern "C" HitInfo_unk* fn_80219E6C(int id); // inferred: skill data
 // inferred: effect manager (class unknown), global instance at 0x8087F3C0
-struct EffectMgr_unk;
-extern "C" EffectMgr_unk* lbl_8087F3C0;
+namespace atn {
+class EffectManager;
+}
+extern "C" atn::EffectManager* lbl_8087F3C0;
 extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the next effects
 // inferred: color as four floats (as in game/CharaTask.cpp)
 struct Color4f_unk {
     Color4f_unk() {}
     float r, g, b, a;
 };
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
+extern "C" void fn_8023A8B4(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Model* model, void* node,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
-// inferred: field (lbl_8087F430); class unknown
-// inferred: field (lbl_8087F430): route tables at 0x10D8 (as in game/Em203GreaterDaemonRedMp.cpp)
-struct Field_unk {
-    unsigned char m0000[0x10D8];
-    GameScene* m10D8;
-};
-extern "C" Field_unk* lbl_8087F430;
+extern "C" GameTask* lbl_8087F430;
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 extern "C" void PSVECNormalize(const atn::Vector3* src, atn::Vector3* dst);
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
 extern "C" double cos(double x);
 extern "C" double sin(double x);
 extern "C" void PSMTXRotRad(Mtx m, char axis, float rad);
-// inferred: frame time (lbl_8087EFA8, as FrameTime_unk in game/CharaStatus.cpp)
-struct FrameTime_unk {
-    unsigned char m000[0x3A4];
-    float m3A4; // inferred: time of a frame
-};
-extern "C" FrameTime_unk* lbl_8087EFA8;
+extern "C" RenderSetting_unk* lbl_8087EFA8;
 extern "C" void PSMTXMultVec(const Mtx m, const atn::Vector3* src, atn::Vector3* dst);
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 // inferred: multiplayer session (lbl_8087F610, as in game/Em204MulueMp.cpp)
@@ -133,7 +125,7 @@ extern "C" void fn_8003EA3C(CocoonDamage_unk* result, HitInfo_unk* data, CharaTa
                             unsigned int flags, const void* param, int arg, int arg2); // inferred: computes the damage
 
 // inferred: effect `efp` on a model with no offset (name invented, as in game/Em206EggMonster.cpp)
-static inline void PlayEffectM_unk(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model) {
+static inline void PlayEffectM_unk(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Model* model) {
     atn::Vector3 pos;
     atn::Vector3 rot;
     Color4f_unk color;
@@ -191,7 +183,7 @@ inline void Em206CocoonMp::Die_unk() {
     fn_80232B7C(0, 0);
     PlayEffectM_unk(lbl_8087F3C0, &m191C, &mMotion);
     m574 = lbl_807C7030;
-    ((GameTask*)lbl_8087F430)->fn_80370AE4(0x65, 1);
+    lbl_8087F430->fn_80370AE4(0x65, 1);
     BattleTask* mgr = lbl_8087F048;
     CharaTask* player = lbl_8087F8A0->mHead;
     mgr->fn_800FAB80(player, fn_80219E6C(0x5C3), mgr->fn_800F8548(), &mPos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
@@ -236,7 +228,7 @@ int Em206CocoonMp::vf0C() {
         m5B4 = 84.0f;
         for (int i = 0; i < 11; i++) {
             m1538[i].mFlags |= 3;
-            m1538[i].m0C = (int)this;
+            m1538[i].m0C = this;
             m1538[i].mFlags &= ~0x80000000;
         }
         vf20();
@@ -250,7 +242,7 @@ template void std::vector<EnemyTask*>::push_back(EnemyTask* const& x);
 
 void Em206CocoonMp::vf10() {
     if (m1520 != m1524) {
-        ((GameTask*)lbl_8087F430)->fn_80370AE4(10, 1);
+        lbl_8087F430->fn_80370AE4(10, 1);
         m1524 = m1520;
     }
     if (!CharaTask::mFlag2 || !CanAct_unk()) {
@@ -597,7 +589,8 @@ void Em206CocoonMp::vf54() {
 
 extern "C" int fn_8004D388(void* world, atn::ColliResult_unk* result, CharaTask::Sphere_unk* sphere, atn::Vector3* move,
                            unsigned int mask, void* ignore, int arg, float radius); // inferred: sweep test
-extern "C" void* lbl_8087EE98; // inferred: collision world
+struct ColliManager_unk;
+extern "C" ColliManager_unk* lbl_8087EE98; // inferred: collision world
 extern "C" GameConfig_unk* lbl_8087F0A8; // inferred: game settings
 
 // NONMATCHING: 96.25% - float registers and stack slots (as LastCocoonImago::fn_8045ABB4, the same walk
@@ -1065,8 +1058,8 @@ void Em206CocoonMp::fn_802BE9C8() {
         fn_8016E970(3);
     }
     if (mMotion.mTracks[0].m08 >= 55.1f && m1904 == 0) {
-        if (((GameTask*)lbl_8087F430)->fn_80370A78(0x96) == 0) {
-            ((GameTask*)lbl_8087F430)->fn_80370AE4(0x96, 1);
+        if (lbl_8087F430->fn_80370A78(0x96) == 0) {
+            lbl_8087F430->fn_80370AE4(0x96, 1);
         }
         m1520 = m1520 == 0;
         BattleTask* mgr = lbl_8087F048;

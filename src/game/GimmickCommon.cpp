@@ -79,21 +79,15 @@ extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 extern "C" atn::Matrix3x4 lbl_807C7060;              // inferred: identity matrix
 
-// inferred: game settings (debug switches)
-struct Settings_unk {
-    unsigned char m00[0x74];
-    int mDrawGimmickState; // 0x74
-    unsigned char m78[0x7C - 0x78];
-    int m7C;
-};
-extern "C" Settings_unk* lbl_8087F0A8;
-extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, int arg6,
-                            int arg7);
-extern "C" void fn_80087E9C(void* group, const char* name, atn::Vector3* value, int arg3, int arg4, float min,
-                            float max, float step);
-extern "C" void fn_80088724(void* group, const char* name, atn::Vector3* value, int arg3, int arg4, float min,
-                            float max, float step);
-extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3, int arg4);
+#include "game/GameConfig_unk.h"
+extern "C" GameConfig_unk* lbl_8087F0A8;
+extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, void* func,
+                            void* arg);
+extern "C" void fn_80087E9C(void* group, const char* name, atn::Vector3* value, float min, float max, float step,
+                            void* func, void* arg);
+extern "C" void fn_80088724(void* group, const char* name, atn::Vector3* value, float min, float max, float step,
+                            void* func, void* arg);
+extern "C" void fn_80087994(void* group, const char* name, int* value, void* func, void* arg);
 
 #define __MAX_unk(a, b) ((a) > (b) ? (a) : (b))
 #define __MIN_unk(a, b) ((a) < (b) ? (a) : (b))
@@ -424,7 +418,7 @@ int GimmickCommon::fn_803EC91C() {
         if (busy == 0) {
             vf24();
             m68 = 3;
-            if (GimmickManager::instance_ != 0 && lbl_8087F0A8->m7C != 0 && lbl_8087FA20 == 0) {
+            if (GimmickManager::instance_ != 0 && lbl_8087F0A8->m07C != 0 && lbl_8087FA20 == 0) {
                 vf6C(GimmickManager::instance_->fn_803EEE44(m50));
             }
             if (mE4 != 0) {
@@ -519,7 +513,7 @@ void GimmickCommon::fn_803ED5D0(atn::Model* model) {
 void GimmickCommon::fn_803ED610(atn::Model* model) {
     if (m9C != 0) {
         model->fn_8008CD60();
-        if (lbl_8087F0A8->mDrawGimmickState != 0) {
+        if (lbl_8087F0A8->mDrawGimmickName != 0) {
             atn::Vector3 d = atn::RenderManager::instance_->mCamera.mPos - m6C;
             if (PSVECSquareMag(&d) < 90000.0f) {
                 atn::Vector3 screen = atn::RenderManager::instance_->GetScreenPosition(m6C);
@@ -538,7 +532,7 @@ void GimmickCommon::fn_803ED610(atn::Model* model) {
 void GimmickCommon::fn_803ED774(atn::Model* model) {
     if (m9C != 0) {
         model->fn_8008CD60();
-        if (lbl_8087F0A8->mDrawGimmickState != 0) {
+        if (lbl_8087F0A8->mDrawGimmickName != 0) {
             if (PSVECSquareMag(&(atn::RenderManager::instance_->mCamera.mPos - m6C)) < 90000.0f) {
                 atn::Vector3 screen = atn::RenderManager::instance_->GetScreenPosition(m6C);
                 if (0.0f < screen.z && screen.z < 1.0f) {
@@ -582,10 +576,10 @@ void GimmickCommon::vf6C(void* menu) {
         group = 0;
     }
     fn_800874C8(group, "state", &m54, 0, 99, 1, 0, 0);
-    fn_80087E9C(group, "pos", &m6C, 0, 0, -9999.0f, 9999.0f, 0.25f);
-    fn_80088724(group, "rot", &m78, 0, 0, -3.1415927f, 3.1415927f, 0.05235988f);
-    fn_80088724(group, "rotOffset", &m84, 0, 0, -3.1415927f, 3.1415927f, 0.05235988f);
-    fn_80087E9C(group, "scl", &m90, 0, 0, -9999.0f, 9999.0f, 0.25f);
+    fn_80087E9C(group, "pos", &m6C, -9999.0f, 9999.0f, 0.25f, 0, 0);
+    fn_80088724(group, "rot", &m78, -3.1415927f, 3.1415927f, 0.05235988f, 0, 0);
+    fn_80088724(group, "rotOffset", &m84, -3.1415927f, 3.1415927f, 0.05235988f, 0, 0);
+    fn_80087E9C(group, "scl", &m90, -9999.0f, 9999.0f, 0.25f, 0, 0);
     fn_80087994(group, "isShow", &m9C, 0, 0);
     fn_800874C8(group, "locData", &m58, 0, 99, 1, 0, 0);
     mB0.fn_803F11F8(group);

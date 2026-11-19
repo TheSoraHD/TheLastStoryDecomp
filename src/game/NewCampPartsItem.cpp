@@ -11,16 +11,16 @@
 #include "game/Inventory.h"
 #include "game/MslSort_unk.h"
 #include "atn/D2A_TaskInstanceC.h"
+#include "atn/TextTable_unk.h"
 
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
-extern "C" void* lbl_8087EF70;                                // inferred: pad
+struct Pad_unk;
+extern "C" Pad_unk* lbl_8087EF70;                                // inferred: pad
 extern "C" int fn_800A555C(void* pad, int port, int button); // inferred: button triggered
 extern "C" void fn_804A436C(int* cursor, int count, int wrap, int step, int arg); // inferred: moves a cursor
 extern "C" atn::SoundRef fn_80117228(int id);                // inferred: plays a system sound effect
 extern "C" void fn_804A4494(int* cursor, int* top, int count, int page, int a, int b); // inferred: moves a list cursor
 extern "C" const wchar_t* fn_80116FC0(int a, int id);       // inferred: message text
-extern "C" void fn_804A3C24(MenuCommonTask* menu, const wchar_t* text, int arg); // inferred: help text
-extern "C" void fn_804A7DD4(MenuCommonTask* menu, int id);   // inferred: shows the item
 extern "C" GameConfig_unk* lbl_8087F0A8;
 // inferred: item data returned by fn_80211480 (only the members used here)
 struct NewCampItemData_unk {
@@ -43,7 +43,6 @@ extern "C" unsigned int fn_800DC6B4(const char* s); // inferred: string hash
 extern "C" void fn_801FEE08(void* layout, unsigned int hash, const wchar_t* text); // inferred: sets a text
 extern "C" void fn_801FECE0(void* layout, unsigned int hash, float value);
 extern "C" void fn_801F4728(atn::Task* task, const char* name, const NewCampPartsPoint_unk* rect); // inferred: sets a rect
-extern "C" float fn_804A4264(MenuCommonTask* menu); // inferred: position of the help window
 // inferred: functions of NewCampPartsBase (0x8050F93C-0x80512024) still called by their automatic names
 extern "C" void fn_805113E8(atn::D3Anime* anime, int a, int b, float c, float d);
 extern "C" void fn_805114D4(atn::D3AnimeInstance* anime, int a, int b, float c, float d);
@@ -229,7 +228,7 @@ void NewCampPartsItem::vf14() {
     }
     if (mSort != 0) {
         mSort->FreezeTask();
-        if (m7C == 1 && fn_804A4264(MenuCommonTask::sInstance) >= -5.0f) {
+        if (m7C == 1 && MenuCommonTask::sInstance->fn_804A4264() >= -5.0f) {
             mSort->MeltTask();
             pos.x = 515.0f;
             pos.y = 360.0f;
@@ -372,17 +371,6 @@ struct NewCampWeapon_unk {
 };
 extern "C" NewCampWeapon_unk* fn_80206C50(int code);
 extern "C" const wchar_t lbl_808813D0[2]; // inferred: empty text
-struct NewCampMsgPair_unk {
-    int m00;
-    const wchar_t* mText;
-};
-struct NewCampMsg_unk {
-    const wchar_t* GetPair_unk(int id) {
-        return mPairs[id].mText != 0 ? mPairs[id].mText : lbl_808813D0;
-    }
-    NewCampMsgPair_unk mPairs[1];
-};
-extern "C" NewCampMsg_unk* lbl_8087F1E4;
 extern "C" NewCampItemData_unk* fn_802114E0(int index); // inferred: entry of the item table by index
 extern "C" int fn_8011728C(int category, NewCampItemData_unk* item); // inferred: the item is in the category
 extern "C" int fn_801173A8(NewCampItemData_unk* item);               // inferred: category of the item
@@ -551,14 +539,14 @@ static inline void ShowHelp_unk(NewCampItemEntry_unk* entry) {
     if (entry->m08 != 0) {
         NewCampItemData_unk* data = fn_80211480(entry->mId);
         if (data != 0) {
-            fn_804A3C24(MenuCommonTask::sInstance, data->mHelp, 0);
+            MenuCommonTask::sInstance->fn_804A3C24(data->mHelp, 0);
         }
     } else {
         MenuCommonTask* menu = MenuCommonTask::sInstance;
-        fn_804A3C24(menu, fn_80116FC0(1, 0x15B), 0);
+        menu->fn_804A3C24(fn_80116FC0(1, 0x15B), 0);
     }
     if (lbl_8087F0A8->mShowReleadBar2 != 0) {
-        fn_804A7DD4(MenuCommonTask::sInstance, entry->mId);
+        MenuCommonTask::sInstance->fn_804A7DD4(entry->mId);
     }
 }
 

@@ -7,14 +7,16 @@
 class CharaTask;
 namespace atn {
 struct ColliResult_unk;
+struct EffFile;
+class EfpFile;
 }
 class ReplayBuffer;
 
 // inferred: shot parameters (0x1C bytes, copied into the replay event by HomingBullet::vf28)
 struct BulletShot_unk {
     float m00;
-    int m04;
-    int m08;
+    atn::EffFile* m04; // inferred: effect resources (fn_800EFD04)
+    atn::EfpFile* m08; // inferred: skill effect (fn_800EFDA0)
     HitInfo_unk* m0C; // inferred: skill
     int m10;
     float m14;
@@ -43,11 +45,6 @@ struct ReplayEvent_unk {
     class Bullet* mBullet;
 };
 
-// inferred: field object; m5590 is the replay recorder
-struct HomingField_unk {
-    unsigned char m0000[0x5590];
-    ReplayBuffer* m5590;
-};
 
 // inferred: data of listener event 12 (a bullet was shot); names invented
 struct ShotEvent_unk {
@@ -112,8 +109,8 @@ public:
     atn::Vector3 m20;       // inferred: velocity
     atn::Matrix3x4 m2C;
     float m5C;              // 0x5C..0x74: BulletShot_unk
-    int m60;
-    int m64;
+    atn::EffFile* m60; // inferred: BulletShot_unk::m04
+    atn::EfpFile* m64; // inferred: BulletShot_unk::m08
     HitInfo_unk* m68;       // inferred: bullet data (m44 range, m4C speed bonus, m02 kind)
     int m6C;
     float m70;

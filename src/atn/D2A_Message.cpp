@@ -26,9 +26,11 @@ extern "C" void fn_801F1658(std::vector<D2A_MsgPiece_unk>* pieces, std::basic_st
 struct D2A_IconRect_unk {
     float x, y, w, h, z;
 };
-struct D2A_Icons_unk;
-extern "C" D2A_Icons_unk* lbl_8087F138;
-extern "C" void fn_801F10E0(D2A_Icons_unk* icons, int icon, D2A_IconRect_unk* rect, float alpha);
+namespace atn {
+class D2A_Manager;
+}
+extern "C" atn::D2A_Manager* lbl_8087F138;
+extern "C" void fn_801F10E0(atn::D2A_Manager* icons, int icon, D2A_IconRect_unk* rect, float alpha);
 extern "C" float fn_801F1E7C(int icon, float size); // inferred: width of an icon
 
 struct TextMgr_unk;

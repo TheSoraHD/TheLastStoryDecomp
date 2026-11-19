@@ -166,7 +166,7 @@ struct CharaInfo_unk {
     const char* m08; // inferred: name (shown by game/BattleResult)
     const char* m0C; // inferred: name (shown by fn_80149A30)
     const char* m10; // inferred: name (passed to fn_802092C0; digits read by fn_801546F4)
-    int m14;         // inferred: passed to fn_8020A81C (character data)
+    const char* m14; // inferred: name of the character parameters, passed to fn_8020A81C (CharaIdEntry_unk::m14)
     const char* m18; // inferred: motion set file name ("/database/chara/motion/<m18>.mchr")
     const char* m1C; // inferred: motion command file name
     const char* m20; // inferred: extension file name
@@ -192,6 +192,9 @@ struct CharaLink_unk {
     unsigned char m00[0x218];
     CharaLinkTarget_unk* m218;
     CharaTask* GetChara_unk() { return m218 != 0 ? m218->m8C : 0; }
+    unsigned char m21C[0x24C - 0x21C];
+    unsigned char mCount;   // 0x24C: inferred: known characters (AI/AiCommon_unk, set by fn_800142CC)
+    CharaTask* mCharas[16]; // 0x250
 };
 
 struct CharaC58_unk {
@@ -1319,7 +1322,7 @@ public:
     CharaTask* m139C; // inferred: character whose motion follows this one (vf24)
     atn::Vector3 m13A0; // inferred: position of the bullets fired by fn_80139560
     int m13AC;
-    int m13B0;
+    CharaTask* m13B0; // inferred: character that defeated it (BattleTask, Inventory::fn_80449A18)
     float m13B4;
     atn::Vector3 m13B8[2]; // inferred: cleared with memset, set to the position on load
     float m13D0[2];        // inferred: cleared with memset, set to the rotation on load

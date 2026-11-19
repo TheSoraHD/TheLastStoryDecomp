@@ -1,3 +1,4 @@
+#include "atn/EffectManager.h"
 #include "game/LastCocoonEgg.h"
 #include "game/PopupTask.h"
 #include "game/CharaManager.h"
@@ -14,45 +15,28 @@
 #include "game/DamageResult_unk.h"
 #include "game/GameSceneFind_unk.h"
 
-// inferred: effect manager (class unknown), global instance at 0x8087F3C0
-struct EffectMgr_unk {
-    unsigned char m00[0xB8];
-    int mB8;
-};
 struct Color4f_unk {
     Color4f_unk() {}
     Color4f_unk(float r_, float g_, float b_, float a_) : r(r_), g(g_), b(b_), a(a_) {}
     float r, g, b, a;
 };
-extern "C" EffectMgr_unk* lbl_8087F3C0;
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, void* model, int arg3, const atn::Vector3& pos,
-                            const atn::Vector3& rot, const Color4f_unk& color, int arg7, int arg8, int arg9,
-                            float scale);
-extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
+extern "C" atn::EffectManager* lbl_8087F3C0;
+extern "C" void fn_8023A8B4(atn::EffectManager* mgr, atn::EfpFile* efp, void* model, void* node,
+                            const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
+                            int arg8, int arg9, float scale);
+extern "C" void fn_80239DAC(atn::EffectManager* mgr, void* owner, int id, int arg); // inferred: stops an effect
 extern "C" void fn_80232B7C(void* owner, int arg);
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
-// inferred: camera shake request of the field (lbl_8087F430); as in gmk/ShakeCamera.cpp
-// inferred: named Field_unk as in game/LastCocoonImago.cpp (fn_8013C504__9Field_unkFv)
-struct Field_unk {
-    unsigned char m00[0x96C];
-    int m96C;
-    int m970;   // inferred: frames
-    float m974; // inferred: x amplitude
-    float m978; // inferred: y amplitude
-    unsigned char m97C[0x10D8 - 0x97C];
-    GameScene* m10D8; // inferred: route table of the map
-    GameScene* fn_8013C504(); // inferred: route table (game/LastCocoonQuadruped)
-    // inferred: starts a camera shake (name invented)
-    void Shake_unk(int frame, float x, float y) {
-        m96C = m96C % 2;
-        m970 = frame;
-        m974 = x;
-        m978 = y;
-    }
-};
-extern "C" Field_unk* lbl_8087F430;
+extern "C" GameTask* lbl_8087F430;
+// inferred: shakes the camera of the field keeping the parity of the frame (as gmk/ShakeCamera)
+inline void Shake_unk(GameTask* field, int frame, float x, float y) {
+    field->mCamera.mShake.mFrame = field->mCamera.mShake.mFrame % 2;
+    field->mCamera.mShake.mLength = frame;
+    field->mCamera.mShake.mWidth = x;
+    field->mCamera.mShake.mHeight = y;
+}
 
 extern "C" int strncmp(const char* a, const char* b, unsigned long n);
 extern "C" std::string fn_8006AFF8(const std::string& a, const std::string& b); // inferred: a + b
@@ -111,7 +95,7 @@ LastCocoonEgg::LastCocoonEgg(atn::Task* parent, EnemyInfo_unk* info)
 
 LastCocoonEgg::~LastCocoonEgg() {}
 
-extern "C" Field_unk* fn_80121F00();
+extern "C" GameTask* fn_80121F00();
 // inferred: weak copies of other files (as in game/TacView.cpp and game/EnemyQuarkSecond.cpp)
 extern "C" inline void fn_80339F74(BattleCharaTask* chara, int value) {
     chara->m1454 = value;
@@ -544,7 +528,7 @@ static inline void PlayEfp3_unk(atn::EfpFile* efp, void* model) {
     color.a = 1.0f;
     fn_8023A8B4(lbl_8087F3C0, efp, model, 0, pos, rot, color, -1, -1, 1, 1.0f);
 }
-static inline void PlayEfp4_unk(EffectMgr_unk* mgr, atn::EfpFile* efp, void* model) {
+static inline void PlayEfp4_unk(atn::EffectManager* mgr, atn::EfpFile* efp, void* model) {
     atn::Vector3 pos;
     atn::Vector3 rot;
     rot.Set_unk(0.0f, 0.0f, 0.0f);
@@ -590,7 +574,7 @@ void LastCocoonEgg::vf40(HitInfo_unk* hit) {
         m14D0 = 4.0f;
         m14D4 = 0.05f;
         m2548.Shake_unk(0x58, 2.0f, 2.0f);
-        lbl_8087F430->Shake_unk(60, 1.5f, 1.5f);
+        Shake_unk(lbl_8087F430, 60, 1.5f, 1.5f);
         atn::Vector3 pos = fn_80148B0C(0)->m04.mCenter;
         pos += atn::Vector3(0.0f, 15.0f, 0.0f);
         lbl_8087F8A8->fn_8054D794(0, L"Shield Break!!", &pos, 0, 0, 1, 0, 0, 0, 1, -1, -1);
@@ -733,7 +717,7 @@ void LastCocoonEgg::fn_8045531C() {
 }
 
 // inferred: plays an effect bound to a matrix (kind 5; as in game/EnemyQuarkSecond.cpp)
-extern "C" void fn_8023A680(EffectMgr_unk* mgr, atn::EffFile* res, int arg2, int kind, const void* target,
+extern "C" void fn_8023A680(atn::EffectManager* mgr, atn::EffFile* res, int arg2, int kind, const void* target,
                             const atn::Vector3* pos, const atn::Vector3* rot, int arg7, int arg8, int arg9,
                             int arg10, float scale);
 // inferred: party member that can be targeted (as IsBurstTarget_unk of game/EnemyQuarkSecond.cpp)
@@ -785,7 +769,7 @@ void LastCocoonEgg::fn_80455638() {
         LastCocoonEggPart_unk& part = m19A0[i];
         int state = (part.m00->mStatus.m0C >> 17) & 1;
         if (part.m10 == 0 && state != 0) {
-            ((GameTask*)lbl_8087F430)->fn_80370AE4(part.m14, 1);
+            lbl_8087F430->fn_80370AE4(part.m14, 1);
         }
         part.m10 = state;
         part.m04 = 0.0f;
@@ -1051,7 +1035,7 @@ void LastCocoonEgg::fn_80456DB8() {
         }
     } else if (m14BC == 1) {
         if (m14C0 > 60) {
-            ((GameTask*)lbl_8087F430)->fn_80370AE4(0x5A, 1);
+            lbl_8087F430->fn_80370AE4(0x5A, 1);
         }
     }
 }
@@ -1092,7 +1076,7 @@ void LastCocoonEgg::fn_80456F94() {
     m14D0 = 4.0f;
     m14D4 = 0.05f;
     m2548.Shake_unk(0x58, 2.0f, 2.0f);
-    lbl_8087F430->Shake_unk(60, 1.5f, 1.5f);
+    Shake_unk(lbl_8087F430, 60, 1.5f, 1.5f);
 }
 
 extern "C" void PSMTXTrans(Mtx m, float x, float y, float z);
@@ -1261,14 +1245,14 @@ void LastCocoonEgg::fn_80457E98() {
     }
 }
 
-extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3, int arg4);
-extern "C" void fn_8008771C(void* group, const char* name, float* value, int arg3, int arg4, float min, float max,
-                            float step);
+extern "C" void fn_80087994(void* group, const char* name, int* value, void* func, void* arg);
+extern "C" void fn_8008771C(void* group, const char* name, float* value, float min, float max, float step, void* func,
+                            void* arg);
 
 void LastCocoonEgg::fn_8045817C() {
     void* group = m2A40.Load("LastCocoonEgg");
     fn_80087994(group, "DebugDisp", &m2A44, 0, 0);
     fn_80087994(group, "GrowScaling", &m2A4C, 0, 0);
-    fn_8008771C(group, "ThrowPower", &m2A48, 0, 0, 1.0f, 10000.0f, 10.0f);
+    fn_8008771C(group, "ThrowPower", &m2A48, 1.0f, 10000.0f, 10.0f, 0, 0);
 }
 

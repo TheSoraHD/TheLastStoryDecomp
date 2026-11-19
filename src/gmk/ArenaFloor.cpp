@@ -1,3 +1,4 @@
+#include "atn/RenderSetting_unk.h"
 #include "gmk/ArenaFloor.h"
 #include "atn/Csv.h"
 #include "atn/Memory.h"
@@ -13,11 +14,7 @@ extern "C" char lbl_8087D710[2]; // inferred: " " (field separators of the tab C
 extern "C" float fn_800DC288(const char* s); // inferred: string to float
 
 
-struct Params_unk {
-    unsigned char m000[0x3A4];
-    float mTimeScale; // 0x3A4
-};
-extern "C" Params_unk* lbl_8087EFA8;
+extern "C" RenderSetting_unk* lbl_8087EFA8;
 
 // inferred: a macro (the inner maximum is evaluated twice)
 #define __MAX_unk(a, b) ((a) > (b) ? (a) : (b))
@@ -146,7 +143,7 @@ void ArenaFloor::vf10() {
         vf40(&msg);
     }
     if (m54 == 3 || m54 == 5) {
-        float step = lbl_8087EFA8->mTimeScale;
+        float step = lbl_8087EFA8->m3A4;
         fn_8041E480(1.0f - mValue / mTime);
         if (m54 == 3) {
             mValue += step;

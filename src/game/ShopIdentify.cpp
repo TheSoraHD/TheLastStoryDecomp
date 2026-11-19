@@ -1,3 +1,4 @@
+#include "game/GameConfig_unk.h"
 #include "game/ShopIdentify.h"
 #include "game/Inventory.h"
 #include "atn/Memory.h"
@@ -5,6 +6,8 @@
 #include "math/Vec.h"
 #include "std/string.h"
 #include "atn/D2A_TaskInstanceC.h"
+#include "atn/TextTable_unk.h"
+#include "game/MenuCommonTask.h"
 
 extern "C" int sprintf(char* s, const char* format, ...);
 extern "C" unsigned int fn_800DC6B4(const char* s); // inferred: string hash
@@ -15,29 +18,21 @@ extern "C" void fn_801FED24(void* layout, unsigned int hash, int index, float va
 extern "C" atn::SoundRef fn_80117228(int id); // inferred: plays a system sound effect
 extern "C" const wchar_t* fn_80116FC0(int a, int id); // inferred: message text
 extern "C" const wchar_t* fn_801170C8(int a, int id, const wchar_t* arg); // inferred: formatted message text
-extern "C" void* lbl_8087EF70;
+struct Pad_unk;
+extern "C" Pad_unk* lbl_8087EF70;
 extern "C" int fn_800A555C(void* pad, int port, int button); // inferred: button triggered
 
-// Only the members used here (the full class is in atn/D2A_Task.h, whose extern "C" declarations
-// clash with the local ones of this file).
 namespace atn {
-class D2A_Task : public Task {
-public:
-    void SetParam2_unk(const char* name, const float* v);        // 0x801F48C8
-    void SetNumber_unk(const char* name, int value, int digits); // 0x801F4CB4
-};
 struct D2A_TextParam_unk;
 } // namespace atn
 extern "C" atn::D2A_TextParam_unk* fn_801FEC74(void* layout, const char* name);
 extern "C" std::basic_string<wchar_t> fn_800A4450(atn::D2A_TextParam_unk* text, int index, int table); // inferred
-extern "C" void* lbl_8087EEC8; // inferred: font
+namespace atn {
+class Font_unk;
+}
+extern "C" atn::Font_unk* lbl_8087EEC8; // inferred: font
 extern "C" float fn_8006EF48(void* font, float size, const wchar_t* text, float f2, int a, int b); // inferred: width
 
-// inferred: 2D point of a d2anime pane (0x14 bytes)
-struct ShopPoint_unk {
-    ShopPoint_unk() : x(0.0f), y(0.0f), w(0.0f), h(0.0f), z(0.0f) {}
-    float x, y, w, h, z;
-};
 extern "C" ShopPoint_unk fn_801F4E8C(atn::Task* layout, unsigned int hash);
 inline ShopPoint_unk GetPanePos_unk(atn::Task* layout, const char* name) {
     return fn_801F4E8C(layout, fn_800DC6B4(name));
@@ -86,36 +81,11 @@ extern "C" int fn_8044D560(Inventory* party);           // inferred: number of i
 extern "C" int fn_8044D500(Inventory* party, int index); // inferred: item to identify
 extern "C" void fn_8044D56C(Inventory* party, int index);
 extern "C" void fn_8044D6AC(Inventory* party, int money);
-// inferred: message table (lbl_8087F1E4)
-extern "C" const wchar_t lbl_808813D0[2]; // inferred: empty text
-struct ShopMsgPair_unk {
-    const wchar_t* m00;
-    const wchar_t* mText;
-};
-struct ShopMsg_unk {
-    const wchar_t* GetPair_unk(int id) {
-        return mPairs[id].mText != 0 ? mPairs[id].mText : lbl_808813D0;
-    }
-    ShopMsgPair_unk mPairs[1];
-};
-extern "C" ShopMsg_unk* lbl_8087F1E4;
 // inferred: wide literals of this file kept in .sdata (L"", L"1", L"WEAPON")
 extern "C" const wchar_t lbl_8087E690[2];
-// inferred: debug settings (lbl_8087F0A8)
-struct ShopSettings_unk {
-    unsigned char m000[0x488];
-    int m488;
-};
-extern "C" ShopSettings_unk* lbl_8087F0A8;
-class MenuCommonTask {
-public:
-    static MenuCommonTask* sInstance;
-};
-extern "C" void fn_804A5824(MenuCommonTask* menu, atn::Task* anime, const char* name, int end);
+extern "C" GameConfig_unk* lbl_8087F0A8;
 extern "C" void fn_804A55FC(MenuCommonTask* menu, atn::Task* id, const char* name, const ShopPoint_unk* rect,
                             int end);
-extern "C" void fn_804A3C24(MenuCommonTask* menu, const wchar_t* text, int id);
-extern "C" void fn_804A7DD4(MenuCommonTask* menu, int item);
 extern "C" void fn_804A39EC(ShopD2A_unk* anime, int arg1, int repeat, float frame, float speed);
 extern "C" void fn_804A3A68(ShopLayout_unk* layout, int arg1, int repeat, float frame, float speed);
 ShopIdentify* ShopIdentify::sInstance;
@@ -229,7 +199,7 @@ void ShopIdentify::vf14() {
         mTop->mFlags &= ~4;
         char name[0x40];
         sprintf(name, "lw_list_text_select%02d", mTopCursor);
-        fn_804A5824(MenuCommonTask::sInstance, mTop, name, 0);
+        MenuCommonTask::sInstance->fn_804A5824(mTop, name, 0);
         break;
     }
     case 7: {
@@ -566,34 +536,34 @@ void ShopIdentify::fn_80589DE0(ShopIdentifyEntry_unk* entry, int help) {
     ((atn::D2A_Task*)mContent)->SetNumber_unk("myMoney", Inventory::instance_->mMoney, 0);
     ShopItem_unk* item = fn_80211480(entry->mItem);
     if (entry->mDone == 0 || (item != 0 && fn_80211648(item) == 0)) {
-        SetPaneFloat_unk(mContent->mLayout, "showSell", 0.0f);
+        SetPaneFloat_unk(&mContent->mData.m10, "showSell", 0.0f);
     } else {
-        SetPaneFloat_unk(mContent->mLayout, "showSell", 1.0f);
+        SetPaneFloat_unk(&mContent->mData.m10, "showSell", 1.0f);
         ((atn::D2A_Task*)mContent)->SetNumber_unk("price", fn_80584DD8(item, 1, 1.0f, 1.0f, 1.0f), 0);
     }
     float width;
     {
-        std::basic_string<wchar_t> text = fn_800A4450(fn_801FEC74(mContent->mLayout, "string0012(1)"), 0, 0);
+        std::basic_string<wchar_t> text = fn_800A4450(fn_801FEC74(&mContent->mData.m10, "string0012(1)"), 0, 0);
         width = fn_8006EF48(lbl_8087EEC8, 14.0f, text.data(), 0.0f, 1, 1);
     }
-    SetPaneValue_unk(mContent->mLayout, "pos0011", 0, 175.0f - width - 16.0f);
+    SetPaneValue_unk(&mContent->mData.m10, "pos0011", 0, 175.0f - width - 16.0f);
     {
-        std::basic_string<wchar_t> text = fn_800A4450(fn_801FEC74(mContent->mLayout, "string0010(1)"), 0, 0);
+        std::basic_string<wchar_t> text = fn_800A4450(fn_801FEC74(&mContent->mData.m10, "string0010(1)"), 0, 0);
         width = fn_8006EF48(lbl_8087EEC8, 14.0f, text.data(), 0.0f, 1, 1);
     }
-    SetPaneValue_unk(mContent->mLayout, "pos0009", 0, 175.0f - width - 16.0f);
+    SetPaneValue_unk(&mContent->mData.m10, "pos0009", 0, 175.0f - width - 16.0f);
     if (help) {
         if (entry->mDone != 0) {
             ShopItem_unk* info = fn_80211480(entry->mItem);
             if (info != 0) {
-                fn_804A3C24(MenuCommonTask::sInstance, info->mText, 0);
+                MenuCommonTask::sInstance->fn_804A3C24(info->mText, 0);
             }
         } else {
             MenuCommonTask* menu = MenuCommonTask::sInstance;
-            fn_804A3C24(menu, fn_80116FC0(1, 0x15B), 0);
+            menu->fn_804A3C24(fn_80116FC0(1, 0x15B), 0);
         }
-        if (lbl_8087F0A8->m488 != 0) {
-            fn_804A7DD4(MenuCommonTask::sInstance, entry->mItem);
+        if (lbl_8087F0A8->mShowReleadBar2 != 0) {
+            MenuCommonTask::sInstance->fn_804A7DD4(entry->mItem);
         }
     }
 }
@@ -608,16 +578,16 @@ void ShopIdentify::fn_8058A0F0(ShopIdentifyEntry_unk* entry) {
     if (weapon != 0) {
         name = lbl_8087F1E4->GetPair_unk(weapon->mKind + 0xEB);
     }
-    SetPaneText_unk(mResult->mLayout, "before", fn_801170C8(0, 0x2760, name.data()));
-    SetPaneText_unk(mResult->mLayout, "after", item->mName);
+    SetPaneText_unk(&mResult->mData.m10, "before", fn_801170C8(0, 0x2760, name.data()));
+    SetPaneText_unk(&mResult->mData.m10, "after", item->mName);
     ShopUV_unk uv = fn_80444C50(Inventory::instance_, fn_80444BE8(Inventory::instance_, item));
     SetUV_unk((atn::D2A_Task*)mResult, "iconUv01", uv);
     float width;
     {
-        std::basic_string<wchar_t> text = fn_800A4450(fn_801FEC74(mResult->mLayout, "string0012(1)(1)"), 0, 0);
+        std::basic_string<wchar_t> text = fn_800A4450(fn_801FEC74(&mResult->mData.m10, "string0012(1)(1)"), 0, 0);
         width = fn_8006EF48(lbl_8087EEC8, 14.0f, text.data(), 0.0f, 1, 1);
     }
-    SetPaneValue_unk(mResult->mLayout, "pos0011", 0, 155.0f - width - 16.0f);
+    SetPaneValue_unk(&mResult->mData.m10, "pos0011", 0, 155.0f - width - 16.0f);
 }
 
 void ShopIdentify::vf40() {

@@ -1,3 +1,5 @@
+#include "atn/RenderSetting_unk.h"
+#include "game/GameTask.h"
 #include "game/Em001Necromancer.h"
 #include "atn/RenderManager.h"
 #include "chr/ControlChant.h"
@@ -14,6 +16,7 @@
 #include "game/BattleTask.h"
 #include "atn/ColliBase.h"
 #include "game/GameSceneFind_unk.h"
+#include "atn/TextTable_unk.h"
 
 extern "C" unsigned long strlen(const char* s);
 extern "C" int strcmp(const char* a, const char* b);
@@ -25,42 +28,39 @@ extern "C" float fn_800DC288(const char* s); // inferred: string to float
 extern "C" int fn_800DC12C(const char* s);   // inferred: string to int
 // inferred: std::string concatenation (weak copy 0x8006AFF8)
 extern "C" std::string fn_8006AFF8(const std::string& a, const std::string& b);
-// inferred: field object (route tables through fn_8013C504, as in gmk/FlamingArrow.cpp)
-struct Field_unk {
-    GameScene* fn_8013C504();
-};
-extern "C" Field_unk* fn_80121F00();
+extern "C" GameTask* fn_80121F00();
 extern "C" CharaManager<EnemyTask>* fn_801A03E0(); // inferred: enemy manager
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
 // inferred: skill effects (as in gmk/HealPoint.cpp); the callback is empty here
 struct SkillEffect;
-extern "C" void* lbl_8087F9E8;
+class SkillEffectManager;
+extern "C" SkillEffectManager* lbl_8087F9E8;
 extern "C" SkillEffect* fn_8059B66C(void* mgr, HitInfo_unk* skill, CharaTask* user, CharaTask* target,
                                    const atn::Vector3* pos, const atn::Vector3* rot,
                                    boost::function<void(SkillEffect*)> callback, float rate);
-// inferred: game state (lbl_8087EFA8): time of a frame at 0x3A4 (as in game/Em301LShade.cpp)
-struct NecroGame_unk {
-    float GetTime_unk() const { return m3A4; } // inferred: accessor (as in game/CharaStatus.cpp)
-    unsigned char m000[0x3A4];
-    float m3A4;
-};
-extern "C" NecroGame_unk* lbl_8087EFA8;
+extern "C" RenderSetting_unk* lbl_8087EFA8;
+inline float RenderSetting_unk::GetFrameSpeed_unk() const {
+    return m3A4;
+}
 // inferred: effect manager (class unknown), global instance at 0x8087F3C0
-struct EffectMgr_unk;
+namespace atn {
+class EffectManager;
+}
 struct Color4f_unk {
     Color4f_unk() {}
     float r, g, b, a;
 };
-extern "C" EffectMgr_unk* lbl_8087F3C0;
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
+extern "C" atn::EffectManager* lbl_8087F3C0;
+extern "C" void fn_8023A8B4(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Model* model, void* node,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
-extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
+extern "C" void fn_80239DAC(atn::EffectManager* mgr, void* owner, int id, int arg); // inferred: stops an effect
 extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the next effects
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
-extern "C" void* lbl_8087EE98;
+struct ColliManager_unk;
+extern "C" ColliManager_unk* lbl_8087EE98;
 extern "C" int fn_8004ED34(void* colli, atn::ColliResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg7); // inferred: ray test
 // inferred: camera and projection to the screen (as in game/Em208Queen.cpp)
@@ -70,12 +70,6 @@ extern "C" void fn_801FED24(void* layout, unsigned int hash, int index, float va
 extern "C" void fn_801FEE08(void* layout, unsigned int hash, const wchar_t* text);
 extern "C" int fn_800DD3FC(wchar_t* s, const wchar_t* format, ...); // inferred: wide sprintf
 extern "C" const wchar_t lbl_808813D0[2]; // inferred: empty text
-// inferred: camp message table (lbl_8087F1E4, as in game/Em309Ghoul.cpp)
-struct NecroMsgTable_unk {
-    const wchar_t* Get_unk(int id) { return mText[id] != 0 ? mText[id] : lbl_808813D0; }
-    const wchar_t* mText[1];
-};
-extern "C" NecroMsgTable_unk* lbl_8087F1E4;
 extern "C" atn::Task* fn_801F3FF8(atn::Task* parent, const char* path, int loop);
 
 // inferred: d2anime task made by fn_801F3FF8 (same layout as atn::D2A_Task, as QueenD2A_unk of
@@ -226,7 +220,7 @@ inline void PlayEffect2_unk(atn::EfpFile* efp, atn::Model* model) {
     color.g = 1.0f;
     color.b = 1.0f;
     color.a = 1.0f;
-    EffectMgr_unk* mgr = lbl_8087F3C0;
+    atn::EffectManager* mgr = lbl_8087F3C0;
     fn_8023A8B4(mgr, efp, model, 0, pos, rot, color, -1, -1, 1, 1.0f);
 }
 
@@ -526,7 +520,7 @@ void Em001Necromancer::vf10() {
             break;
         }
         case 12:
-            m156C += lbl_8087EFA8->GetTime_unk();
+            m156C += lbl_8087EFA8->GetFrameSpeed_unk();
             if (m156C > 0.0f) {
                 mPos.y += 30.0f / mMotion.fn_80097D7C(0);
                 mRot.y += 6.2831855f / mMotion.fn_80097D7C(0);
@@ -741,7 +735,7 @@ void Em001Necromancer::fn_80246594() {
     mFBC = (float)hit->mC0;
     if (mFB8 < (float)hit->mC0) {
         float r = lbl_8087F048->fn_8010CB2C(this, 1.0f);
-        mFB8 += lbl_8087EFA8->GetTime_unk() * (r * r);
+        mFB8 += lbl_8087EFA8->GetFrameSpeed_unk() * (r * r);
         if (mFB8 >= (float)m638->mC0) {
             done = 1;
         }

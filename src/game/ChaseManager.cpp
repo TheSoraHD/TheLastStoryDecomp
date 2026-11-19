@@ -1,3 +1,4 @@
+#include "game/GameTask.h"
 #include "game/EnvSeManager.h"
 #include "game/ChaseManager.h"
 #include "game/CharaTask.h"
@@ -13,9 +14,11 @@
 #include "game/GameSceneFind_unk.h"
 
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
-struct ChaseEffectMgr_unk;
-extern "C" ChaseEffectMgr_unk* lbl_8087F3C0;
-extern "C" void fn_80239DAC(ChaseEffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
+namespace atn {
+class EffectManager;
+}
+extern "C" atn::EffectManager* lbl_8087F3C0;
+extern "C" void fn_80239DAC(atn::EffectManager* mgr, void* owner, int id, int arg); // inferred: stops an effect
 // inferred: camera settings (only the members used here)
 struct ChaseSettings_unk {
     unsigned char m000[0x524];
@@ -25,17 +28,7 @@ struct ChaseSettings_unk {
     float m538;
 };
 extern "C" ChaseSettings_unk* lbl_8087F0A8;
-struct ChaseField_unk {
-    unsigned char m0000[0x8A0];
-    CharaTask* m8A0; // inferred: caught character (cleared every frame while chasing)
-    unsigned char m08A4[0x10D8 - 0x8A4];
-    GameScene* m10D8; // inferred: scene of the field (goal points GameScene::m78)
-    unsigned char m10DC[0x54E4 - 0x10DC];
-    int m54E4;
-    unsigned char m54E8[0x5660 - 0x54E8];
-    int m5660;
-};
-extern "C" ChaseField_unk* lbl_8087F430;
+extern "C" GameTask* lbl_8087F430;
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 
 ChaseManager* lbl_8087F098;
@@ -105,7 +98,7 @@ ChaseManager::~ChaseManager() {
 }
 
 void ChaseManager::fn_801826E0() {
-    fn_80182874(this);
+    fn_80182874();
     mFrames = 0;
     for (unsigned int i = 0; i < mCharas.mSize; i++) {
         if (mCharas.mData[i] != (CharaTask*)lbl_8087F8A0->mHead) {
@@ -117,30 +110,30 @@ void ChaseManager::fn_801826E0() {
     }
 }
 
-extern "C" void fn_80182788(ChaseManager* mgr, ChaserGuard* guard, CharaTask* target) {
-    if (mgr->mCatcher == 0) {
-        mgr->mCatcher = guard;
-        mgr->m6C = 0;
-        mgr->mState = 2;
-        mgr->mCaught = target;
+void ChaseManager::fn_80182788(ChaserGuard* guard, CharaTask* target) {
+    if (mCatcher == 0) {
+        mCatcher = guard;
+        m6C = 0;
+        mState = 2;
+        mCaught = target;
         target->fn_801598B4(guard, lbl_8087F0A8->m524, lbl_8087F0A8->m528);
         lbl_8087F430->m5660 = 1;
-        for (unsigned int i = 0; i < mgr->mCharas.mSize; i++) {
-            if (mgr->mCharas.mData[i] != mgr->mCaught) {
-                mgr->mCharas.mData[i]->fn_80159E9C();
+        for (unsigned int i = 0; i < mCharas.mSize; i++) {
+            if (mCharas.mData[i] != mCaught) {
+                mCharas.mData[i]->fn_80159E9C();
             }
         }
     }
-    if (mgr->mGuards.size() < 32) {
-        mgr->mGuards.push_back(guard);
+    if (mGuards.size() < 32) {
+        mGuards.push_back(guard);
     }
 }
 
-extern "C" void fn_80182874(ChaseManager* mgr) {
-    mgr->mCatcher = 0;
-    mgr->mCaught = 0;
-    mgr->mState = 1;
-    mgr->mGuards.mSize = 0;
+void ChaseManager::fn_80182874() {
+    mCatcher = 0;
+    mCaught = 0;
+    mState = 1;
+    mGuards.mSize = 0;
 }
 
 void ChaseManager::fn_80182890() {
@@ -171,10 +164,10 @@ int ChaseManager::vf0C() {
     return ret;
 }
 
-extern "C" int fn_80239D58(ChaseEffectMgr_unk* mgr, void* owner, int id); // inferred: the effect is playing
+extern "C" int fn_80239D58(atn::EffectManager* mgr, void* owner, int id); // inferred: the effect is playing
 extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the next effects
-extern "C" void fn_8023A098(ChaseEffectMgr_unk* mgr, void* owner, int arg2, int arg3);
-extern "C" void fn_8023A680(ChaseEffectMgr_unk* mgr, atn::EffFile* res, int a, int b, Mtx* mtx, int c, int d,
+extern "C" void fn_8023A098(atn::EffectManager* mgr, void* owner, int arg2, int arg3);
+extern "C" void fn_8023A680(atn::EffectManager* mgr, atn::EffFile* res, int a, int b, Mtx* mtx, int c, int d,
                             const float* color, float scale, int e, int f, int g); // inferred: starts an effect
 extern "C" void PSMTXRotAxisRad(Mtx m, const atn::Vector3* axis, float rad);
 extern "C" void PSMTXTrans(Mtx m, float x, float y, float z);
@@ -208,7 +201,7 @@ inline bool IsLedgeHold_unk(CharaTask* chara) {
 void ChaseManager::vf10() {
     if (mState != 0 && lbl_8087F8A0 != 0 && lbl_8087F8A0->mHead != 0) {
         mFrames++;
-        lbl_8087F430->m8A0 = 0;
+        lbl_8087F430->mCamera.m834 = 0;
         if (lbl_8087F8A0->mHead->m484[3] != 0x1F) {
             lbl_8087F8A0->mHead->fn_8014C0B4(3, 0x1F);
             lbl_8087F8A0->mHead->fn_8014C0B4(2, 0x19);
@@ -236,7 +229,7 @@ void ChaseManager::vf10() {
     }
     if (mState == 2) {
         m6C++;
-        lbl_8087F430->m8A0 = mCaught;
+        lbl_8087F430->mCamera.m834 = mCaught;
     }
     CharaTask* player = lbl_8087F8A0->mHead;
     if (mShowGoal != 0 && lbl_8087F430 != 0 && lbl_8087F430->m54E4 == 0 && mGoalId > 0 && !player->mFlag25 &&
@@ -366,14 +359,14 @@ void ChaseManager::fn_80183774(int show) {
     }
 }
 
-extern "C" CharaTask* fn_80183860(ChaseManager* mgr, const atn::Vector3* pos) {
-    if (mgr->mCaught != 0) {
-        return mgr->mCaught;
+CharaTask* ChaseManager::fn_80183860(const atn::Vector3* pos) {
+    if (mCaught != 0) {
+        return mCaught;
     }
     float best = 1.0e10f;
     CharaTask* ret = 0;
-    for (unsigned int i = 0; i < mgr->mCharas.mSize; i++) {
-        CharaTask* chara = mgr->mCharas.mData[i];
+    for (unsigned int i = 0; i < mCharas.mSize; i++) {
+        CharaTask* chara = mCharas.mData[i];
         atn::Vector3 d(pos->x - chara->mPos.x, pos->y - chara->mPos.y, pos->z - chara->mPos.z);
         float dist = PSVECSquareMag(&d);
         if (dist < best) {

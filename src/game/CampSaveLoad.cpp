@@ -1,4 +1,5 @@
 #include "game/CampSaveLoad.h"
+#include "atn/D2A_TaskApi_unk.h"
 #include "game/GameTask.h"
 #include "macros.h"
 #include "atn/Csv.h"
@@ -14,6 +15,7 @@
 #include "atn/GraphicsDevice.h"
 #include "atn/DrawHelper.h"
 #include "atn/D2A_TaskInstanceC.h"
+#include "atn/TextTable_unk.h"
 
 extern "C" unsigned long strlen(const char* s);
 extern "C" void* memcpy(void* dst, const void* src, unsigned long n);
@@ -22,19 +24,15 @@ extern "C" void* memcpy(void* dst, const void* src, unsigned long n);
 // inferred: creates a d2anime task (other variant of fn_801F3FF8, no extra argument)
 
 
-// inferred: field data (lbl_8087F430)
-struct Field_unk {
-    unsigned char m0000[0x5634];
-    void* m5634;
-};
-extern "C" Field_unk* lbl_8087F430;
+extern "C" GameTask* lbl_8087F430;
 
 extern "C" GameConfig_unk* lbl_8087F0A8; // inferred: game settings
 
 extern "C" int fn_803BEB54(SaveSlot_unk* slot); // inferred: nonzero if the slot is empty
 
 // inferred: pad input (lbl_8087EF70); names invented
-extern "C" void* lbl_8087EF70;
+struct Pad_unk;
+extern "C" Pad_unk* lbl_8087EF70;
 extern "C" int fn_800A555C(void* pad, int port, int button); // inferred: button triggered
 extern "C" int fn_800A55AC(void* pad, int port, int button); // inferred: button repeated
 inline int IsTriggered_unk(int button) {
@@ -246,7 +244,7 @@ int CampSaveLoad::vf0C() {
         m4AC.fn_80470528();
         return 1;
     }
-    if (lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->fn_80370174(0x391) > 0) {
+    if (lbl_8087F430 != 0 && lbl_8087F430->fn_80370174(0x391) > 0) {
         lbl_8087EEB0->fn_80060D58(0.0f, 0.0f, 100.0f, (float)lbl_8087EEE0->mWidth, (float)lbl_8087EEE0->mHeight,
                                   0xFF000000);
     }
@@ -370,7 +368,10 @@ inline void SetLayoutValue2_unk(void* layout, const char* name, int index, float
 extern "C" void* fn_801FEC74(void* layout, const char* name); // inferred: finds a pane
 // inferred: text of a pane (returned by value)
 extern "C" std::basic_string<wchar_t> fn_800A4450(void* pane, int a, int b);
-extern "C" void* lbl_8087EEC8; // inferred: font manager
+namespace atn {
+class Font_unk;
+}
+extern "C" atn::Font_unk* lbl_8087EEC8; // inferred: font manager
 extern "C" float fn_8006EF48(void* font, float size, const wchar_t* text, float f2, int a, int b); // text width
 
 // inferred: extra draw parameters of a pane (the color at 0x08; names invented)
@@ -438,7 +439,7 @@ void CampSaveLoad::vf14() {
     } else {
         SetLayoutValue2_unk(&m5C->mData.m10, "logColor", 0, 0.0f);
     }
-    if (lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->fn_80370174(0x391) > 0) {
+    if (lbl_8087F430 != 0 && lbl_8087F430->fn_80370174(0x391) > 0) {
         lbl_8087EEB0->fn_80060D58(0.0f, 0.0f, 100.0f, (float)lbl_8087EEE0->mWidth, (float)lbl_8087EEE0->mHeight,
                                   0xFF000000);
     }
@@ -473,7 +474,7 @@ void CampSaveLoad::fn_80119030(int state, int arg) {
     case 7:
         vf20();
         if (mMode == 0 && lbl_8087F430 != 0 && m4B0 == 0) {
-            ((GameTask*)lbl_8087F430)->fn_8036E964();
+            lbl_8087F430->fn_8036E964();
         }
         break;
     case 6:
@@ -520,7 +521,7 @@ void CampSaveLoad::fn_801191A8() {
         }
     } else if (IsTriggered_unk(5)) {
         if (lbl_8087F430 != 0) {
-            if (((GameTask*)lbl_8087F430)->fn_80370174(0x391) > 0) {
+            if (lbl_8087F430->fn_80370174(0x391) > 0) {
                 m16C = 2;
                 fn_80117228(2);
                 fn_80119030(3, 0);
@@ -745,12 +746,6 @@ extern "C" void fn_801FED24(void* layout, unsigned int hash, int index, float va
 extern "C" int fn_8006BA30(); // inferred: language of the game
 extern "C" int fn_800DD3FC(wchar_t* s, const wchar_t* format, ...); // inferred: swprintf
 extern "C" const wchar_t lbl_808813D0[2]; // inferred: empty text
-// inferred: camp message table (lbl_8087F1E4, as in game/CosEditItemList_unk.cpp)
-struct CampSaveLoadMsg_unk {
-    const wchar_t* Get_unk(int id) { return mText[id] != 0 ? mText[id] : lbl_808813D0; }
-    const wchar_t* mText[1];
-};
-extern "C" CampSaveLoadMsg_unk* lbl_8087F1E4;
 
 // NONMATCHING: 99.08% - string pool offsets and the registers of the message text of "ampm" (r27/r28)
 // inferred: fills the info bar (m5C) with the slot m128: map, act, level, date and play time

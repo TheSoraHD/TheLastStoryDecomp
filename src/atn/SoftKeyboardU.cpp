@@ -16,7 +16,7 @@ extern "C" int fn_800A58D0(void* pad, int port);
 extern "C" int fn_804F7F18();
 
 class MenuCommonTask;
-extern "C" void fn_804A53D4(MenuCommonTask* menu, int a, int b, const MP::MpRect_unk* rect, int c);
+extern "C" void fn_804A53D4(MenuCommonTask* menu, int a, void* b, const MP::MpRect_unk* rect, int c);
 class MenuCommonTask {
 public:
     static MenuCommonTask* sInstance;
@@ -276,10 +276,10 @@ void SoftKeyboard::fn_80504C00() {
             wchar_t c[8] = {0};
             c[0] = text.m[i];
             c[1] = 0;
-            SetPaneText_unk(m4C->mLayout, name, c);
+            SetPaneText_unk(&m4C->mData.m10, name, c);
             m25B4++;
         } else {
-            SetPaneText_unk(m4C->mLayout, name, L"_");
+            SetPaneText_unk(&m4C->mData.m10, name, L"_");
         }
     }
 }
@@ -350,31 +350,31 @@ void SoftKeyboard::vf14() {
         } else {
             label = sKeyLabels_unk[i];
         }
-        SetPaneText_unk(m50[i]->mLayout, "num", label);
+        SetPaneText_unk(&m50[i]->mData.m10, "num", label);
     }
     for (int i = 0; i < 4; i++) {
         sprintf(name, "null_020%d", i + 1);
         MpRect_unk rect = GetPaneRect_unk(m4C, name);
         fn_801F4728(mE8[i], "pos0068(1)", &rect);
         const wchar_t* text = lbl_8087F1E4->Get_unk(sSpecialText_unk[i]);
-        SetPaneText_unk(mE8[i]->mLayout, "string0066(1)", text);
+        SetPaneText_unk(&mE8[i]->mData.m10, "string0066(1)", text);
     }
     if (fn_800A58D0(lbl_8087EF70, 0) != 0) {
-        SetPaneText_unk(mE8[0]->mLayout, "string0001(1)", L"$B+");
-        SetPaneText_unk(mE8[3]->mLayout, "string0001(1)", L"$B-");
+        SetPaneText_unk(&mE8[0]->mData.m10, "string0001(1)", L"$B+");
+        SetPaneText_unk(&mE8[3]->mData.m10, "string0001(1)", L"$B-");
     } else {
-        SetPaneText_unk(mE8[0]->mLayout, "string0001(1)", L"$B-");
-        SetPaneText_unk(mE8[3]->mLayout, "string0001(1)", L"$B+");
+        SetPaneText_unk(&mE8[0]->mData.m10, "string0001(1)", L"$B-");
+        SetPaneText_unk(&mE8[3]->mData.m10, "string0001(1)", L"$B+");
     }
     sprintf(name, "cursor_%04d", m25B0 + 1);
     MpRect_unk rect = GetPaneRect_unk(m4C, name);
     fn_804A53D4(MenuCommonTask::sInstance, 0, 0, &rect, 0);
     if (wcslen(lbl_8087F628->m5F0) == 0) {
-        SetPaneValue_unk(m4C->mLayout, "pos0017", 0, 1000.0f);
-        SetPaneValue_unk(m4C->mLayout, "pos0007", 0, 1000.0f);
+        SetPaneValue_unk(&m4C->mData.m10, "pos0017", 0, 1000.0f);
+        SetPaneValue_unk(&m4C->mData.m10, "pos0007", 0, 1000.0f);
     } else {
-        SetPaneValue_unk(m4C->mLayout, "pos0017", 0, 475.0f);
-        SetPaneValue_unk(m4C->mLayout, "pos0007", 0, 496.0f);
+        SetPaneValue_unk(&m4C->mData.m10, "pos0017", 0, 475.0f);
+        SetPaneValue_unk(&m4C->mData.m10, "pos0007", 0, 496.0f);
     }
 }
 
@@ -422,13 +422,13 @@ void SoftKeyboard::fn_80505510(int row, int col, Key* key) {
                 sprintf(name, "string00%d", i + 1);
                 c[0] = *p;
                 c[1] = 0;
-                SetPaneText_unk(m4C->mLayout, name, c);
+                SetPaneText_unk(&m4C->mData.m10, name, c);
             }
             for (; i < 8; i++) {
                 sprintf(name, "string00%d", i + 1);
                 c[0] = L'_';
                 c[1] = 0;
-                SetPaneText_unk(m4C->mLayout, name, c);
+                SetPaneText_unk(&m4C->mData.m10, name, c);
             }
         }
         fn_80117228(1);
@@ -438,7 +438,7 @@ void SoftKeyboard::fn_80505510(int row, int col, Key* key) {
             sprintf(name, "string00%d", m25B4 + 1);
             c[0] = key->m04;
             c[1] = 0;
-            SetPaneText_unk(m4C->mLayout, name, c);
+            SetPaneText_unk(&m4C->mData.m10, name, c);
             if (++m25B4 >= 8) {
                 mKeyboard.fn_800C7568(3, 10);
             }

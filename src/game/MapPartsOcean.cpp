@@ -7,10 +7,10 @@ extern "C" double sin(double x);
 extern "C" float fn_800DC288(const char* str);  // inferred: string to float
 extern "C" int fn_800DC12C(const char* str);    // inferred: string to int
 extern "C" void* fn_8008937C(void* menu, const char* name); // inferred: child by name
-extern "C" void fn_8008771C(void* menu, const char* name, float* value, int arg3, int arg4,
-                            float min, float max, float step); // inferred: debug float slider
-extern "C" void fn_80087858(void* menu, const char* name, float* value, int arg3, int arg4,
-                            float min, float max, float step); // inferred: debug angle slider
+extern "C" void fn_8008771C(void* menu, const char* name, float* value, float min, float max, float step, void* func,
+                            void* arg); // inferred: debug float slider
+extern "C" void fn_80087858(void* menu, const char* name, float* value, float min, float max, float step, void* func,
+                            void* arg); // inferred: debug angle slider
 extern "C" void PSMTXTrans(Mtx m, float x, float y, float z);
 
 MapPartsOcean* MapPartsOcean::fn_8049C8DC(atn::Task* parent, int type, atn::CsvTab* csv) {
@@ -48,9 +48,9 @@ void MapPartsOcean::vf1C(void* menu) {
         char name[0x100];
         sprintf(name, "Wave %d\n", i);
         void* group = fn_8008937C(menu, name);
-        fn_8008771C(group, "Amplitude", &mWave[i].mAmplitude, 0, 0, -10000.0f, 10000.0f, 0.01f);
-        fn_8008771C(group, "Period", &mWave[i].mPeriod, 0, 0, -10000.0f, 10000.0f, 0.01f);
-        fn_80087858(group, "Phase", &mWave[i].mPhase, 0, 0, -10000.0f, 10000.0f, 0.01f);
+        fn_8008771C(group, "Amplitude", &mWave[i].mAmplitude, -10000.0f, 10000.0f, 0.01f, 0, 0);
+        fn_8008771C(group, "Period", &mWave[i].mPeriod, -10000.0f, 10000.0f, 0.01f, 0, 0);
+        fn_80087858(group, "Phase", &mWave[i].mPhase, -10000.0f, 10000.0f, 0.01f, 0, 0);
     }
 }
 

@@ -60,56 +60,58 @@ struct GameConfig418_unk {
     int m38;
 };
 
-// inferred: 0x60 bytes at 0x4DC, constructor 0x80184B4C; not in the debug menu
+// inferred: 0x60 bytes at 0x4DC, constructor 0x80184B4C; not in the debug menu. Chase parameters:
+// names from the keys of db/ChaseParam_unk.cpp (m00 and m50-m5C are not loaded there)
 struct GameConfig4DC_unk {
     GameConfig4DC_unk();
     int m00;
-    float m04;
-    float m08;
-    float m0C;
-    float m10;
-    float m14;
-    float m18;
-    float m1C;
-    float m20;
-    float m24;
-    float m28;
-    float m2C;
-    int m30;
-    int m34;
-    int m38;
-    int m3C;
-    int m40;
-    float m44;
-    int m48;
-    int m4C;
+    float mVisChaseDistance;
+    float mVisSearchDistance;
+    float mVisAngle; // radians
+    float mHearWalk;
+    float mHearRun;
+    float mCatchDistance;
+    float mScanRate; // radians
+    float mWalkSpeed;
+    float mRunSpeed;
+    float mLostSpeed;
+    float mReturnSpeed;
+    int mLoseTime;
+    int mFindTime;
+    int mChaseDelay;
+    int mCatchDelay;
+    int mWaitTime;
+    float mCatchDamage;
+    int mReleaseSwingCount;
+    int mCapturedTime;
     float m50;
     float m54;
     float m58;
     float m5C;
 };
 
-// inferred: 0x48 bytes at 0x53C, constructor 0x80184AD4; not in the debug menu
+// inferred: 0x48 bytes at 0x53C, constructor 0x80184AD4; not in the debug menu. Chaser parameters:
+// names from the "ch*" keys of db/ChaseParam_unk.cpp
 struct GameConfig53C_unk {
     GameConfig53C_unk();
     int m00;
-    float m04;
-    float m08;
-    float m0C;
-    float m10;
-    int m14;
-    float m18;
-    float m1C;
-    float m20;
-    float m24;
-    float m28;
-    int m2C;
+    float mChWalkSpeed;
+    float mChMinSpeed;
+    float mChMaxSpeed;
+    float mChAcceleration;
+    int mChRunToWalkFrames;
+    float mChRunToWalkDistance;
+    float mChSeeRunDistance;
+    float mChMinRunDistance;
+    float mChRunStopDistance;
+    float mChCatchDistance;
+    int mChCatchRest;
     float m30;
     float m34;
-    float m38;
-    int m3C;
-    int m40;
-    int m44;
+    float mChDeceleration;
+    int mChDecelerationFrames;
+    int mChRunnerHit;
+    int mChPlayerHit;
 };
 
 namespace atn {
@@ -169,8 +171,8 @@ struct TitleConfig_unk {
     int mLogoFadeStart;          // 0x20
     int m24;
     int m28;
-    int m2C;
-    int m30;
+    int m2C;                     // 0x2C: inferred: merged occlusion models are used (MapPartsLocatorSet)
+    int m30;                     // 0x30: inferred: merged locator models are used (MapPartsLocatorSet)
     int m34;
 };
 
@@ -191,6 +193,17 @@ struct SceneDebugConfig_unk {
     int mBgmBox;           // 0x2C
 };
 
+// inferred: debug menu "Surround" (0x1C bytes at 0x454; GameConfig_unk::fn_8013C434 returns its address)
+struct GameConfigSurround_unk {
+    int mEnabled;             // 0x00: "Enabled"
+    int mMode;                // 0x04
+    float mPlayerDamageRatio; // 0x08
+    float mEnemyDamageRatio;  // 0x0C
+    float mForceRatio;        // 0x10
+    float mBattleWaitRatio;   // 0x14
+    float mMoveSpeedRatio;    // 0x18
+};
+
 class GameConfig_unk {
 public:
     static void fn_80185AD4(); // inferred: creates the instance
@@ -199,6 +212,11 @@ public:
     void fn_80187C44(const char* path); // inferred: resets the strap name and some flags; path of
                                         // config.ini (main), unused in this build
     float fn_80187CC0(int diff); // inferred: bonus damage for a level difference (-5..5)
+    // inferred: weak accessors (defined inline by game/TutorialTask.cpp and game/CharaTask.cpp)
+    Input_unk* fn_80116BAC();               // 0x80116BAC: &mInput
+    int fn_8013C41C();                      // 0x8013C41C: m418.m00
+    GameConfigSurround_unk* fn_8013C434();  // 0x8013C434: &mSurround
+    float fn_8013C50C();                    // 0x8013C50C: m048
 
     void* mMenu;                 // 0x000
     int mDrawSystemInfo;         // 0x004
@@ -372,13 +390,7 @@ public:
     float mExplsnAddDamage;      // 0x410
     float mExplsnAddTime;        // 0x414
     GameConfig418_unk m418;
-    int mSurround;               // 0x454: debug menu "Surround"
-    int mSurroundMode;           // 0x458
-    float mPlayerDamageRatio;    // 0x45C
-    float mEnemyDamageRatio;     // 0x460
-    float mForceRatio;           // 0x464
-    float mBattleWaitRatio;      // 0x468
-    float mMoveSpeedRatio;       // 0x46C
+    GameConfigSurround_unk mSurround; // 0x454: debug menu "Surround"
     int mShowPlayerUI;           // 0x470: debug menu "UI"
     int mShowActionIcon;         // 0x474
     int mShowBattleCommand;      // 0x478

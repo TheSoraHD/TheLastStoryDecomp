@@ -37,15 +37,14 @@ extern "C" void fn_804EAA68(MpMsgSession_unk* s, int value);
 extern "C" void fn_804EA6B0(MpMsgSession_unk* s, int value, int b);
 extern "C" void fn_804EA810(MpMsgSession_unk* s, int value, int b);
 extern "C" void fn_804EA608(MpMsgSession_unk* s, int time, int b);
-extern "C" void fn_804A5CD8(MenuCommonTask* menu, float y); // inferred: places the help window
 extern "C" int fn_804EAA50(MpMsgSession_unk* s); // inferred: nonzero for the host of the room
-extern "C" void fn_804A3C24(MenuCommonTask* menu, const wchar_t* text, int arg); // inferred: help text
 extern "C" void fn_804A4738(MP::MpD2A_unk* bar, int top, int count, int visible); // inferred: scroll bar
-extern "C" void fn_804A53D4(MenuCommonTask* menu, int a, int b, const MP::MpRect_unk* rect, int c);
+extern "C" void fn_804A53D4(MenuCommonTask* menu, int a, void* b, const MP::MpRect_unk* rect, int c);
 extern "C" int fn_804DCA4C(MpMsgSession_unk* s, int id, int arg); // inferred: state of a friend
 extern "C" int wcscmp(const wchar_t* a, const wchar_t* b);
 extern "C" int fn_804E4DD4(MpMsgSession_unk* s, int mode, int arg); // inferred: starts the ranking request
-extern "C" void fn_804FB220(int* state, int value); // inferred: changes the state of the session (as atn/PacketPack.cpp)
+// inferred: changes the state of the session (as atn/PacketPack.cpp)
+extern "C" void fn_804FB220(int* state, int value);
 extern "C" atn::GraphicsDevice_unk* lbl_8087EEE0; // inferred: graphics device (screen size)
 extern "C" const wchar_t* fn_804FA8E8(MpMsgSession_unk* s, int value); // inferred: text of a score
 extern "C" void fn_800D2338(atn::Task* task);                 // inferred: removes the task
@@ -168,8 +167,8 @@ static inline float TextWidth_unk(const std::basic_string<wchar_t>& text, float 
     return fn_8006EF48(lbl_8087EEC8, size, text.data(), 0.0f, 1, 1);
 }
 static inline void FitCursor_unk(MpD2A_unk* task, const char* str, const char* pos) {
-    float w = TextWidth_unk(fn_800A4450(fn_801FEC74(task->mLayout, str), 0, 0), 21.0f);
-    SetPaneValue_unk(task->mLayout, pos, 2, (7.0f + w) / 100.0f);
+    float w = TextWidth_unk(fn_800A4450(fn_801FEC74(&task->mData.m10, str), 0, 0), 21.0f);
+    SetPaneValue_unk(&task->mData.m10, pos, 2, (7.0f + w) / 100.0f);
 }
 
 // inferred: fills the screen with `color` at depth `z`
@@ -182,13 +181,13 @@ int D2AMpMenu::vf0C() {
         SetAll_unk(0);
         mD0 = 1;
         fn_804AF520(1);
-        SetPaneValue_unk(m70->mLayout, "pos0007", 4, -110.0f);
-        SetPaneValue_unk(m70->mLayout, "pos0017", 4, -110.0f);
-        void* pane = fn_801FEC74(m70->mLayout, "string0007(1)");
+        SetPaneValue_unk(&m70->mData.m10, "pos0007", 4, -110.0f);
+        SetPaneValue_unk(&m70->mData.m10, "pos0017", 4, -110.0f);
+        void* pane = fn_801FEC74(&m70->mData.m10, "string0007(1)");
         if (pane != 0) {
             fn_8006EF48(lbl_8087EEC8, 16.0f, fn_800A4450(pane, 0, 0).data(), 0.0f, 1, 1);
         }
-        fn_804A5CD8(MenuCommonTask::sInstance, -100.0f);
+        MenuCommonTask::sInstance->fn_804A5CD8(-100.0f);
         D2AMpMenuRankMark::sInstance->fn_804B4770(-1);
         return 1;
     }
@@ -297,8 +296,8 @@ void D2AMpMenu::fn_804AF520(int state) {
         }
         mDC = ok;
         Play_unk(mB8, 1, 1.0f);
-        SetPaneText_unk(&mB8->mLayout, "cmd01", lbl_8087F86C->Get_unk(0xFA));
-        SetPaneText_unk(&mB8->mLayout, "string0003(1)", lbl_8087F86C->Get_unk(0xFA));
+        SetPaneText_unk(&mB8->mData.m10, "cmd01", lbl_8087F86C->Get_unk(0xFA));
+        SetPaneText_unk(&mB8->mData.m10, "string0003(1)", lbl_8087F86C->Get_unk(0xFA));
         fn_804FB220(&lbl_8087F610->m4FC, 8);
         break;
     }
@@ -342,10 +341,10 @@ void D2AMpMenu::fn_804AF520(int state) {
         wchar_t text[64] = {0};
         MpData_unk* data = lbl_8087F628;
         int exp = data->m430.m7F8;
-        SetPaneText_unk(&m64->mLayout, "string0027(2)(1)", data->m430.m1C0);
+        SetPaneText_unk(&m64->mData.m10, "string0027(2)(1)", data->m430.m1C0);
         fn_800DD3FC(text, L"%d", exp);
-        SetPaneText_unk(&m64->mLayout, "string0008(1)(1)", text);
-        SetPaneText_unk(&m64->mLayout, "string0007(1)(1)", fn_804FA88C(lbl_8087F610, exp));
+        SetPaneText_unk(&m64->mData.m10, "string0008(1)(1)", text);
+        SetPaneText_unk(&m64->mData.m10, "string0007(1)(1)", fn_804FA88C(lbl_8087F610, exp));
         D2AMpMenuRankMark::sInstance->fn_804B47E0(-1, 0);
         if (D2AMpMenuLobby::sInstance != 0) {
             fn_800D2338(D2AMpMenuLobby::sInstance);
@@ -367,8 +366,8 @@ void D2AMpMenu::fn_804AF520(int state) {
         break;
     case 12:
         Play_unk(mB8, 1, 1.0f);
-        SetPaneText_unk(&mB8->mLayout, "cmd01", lbl_8087F86C->Get_unk(0xFB));
-        SetPaneText_unk(&mB8->mLayout, "string0003(1)", lbl_8087F86C->Get_unk(0xFB));
+        SetPaneText_unk(&mB8->mData.m10, "cmd01", lbl_8087F86C->Get_unk(0xFB));
+        SetPaneText_unk(&mB8->mData.m10, "string0003(1)", lbl_8087F86C->Get_unk(0xFB));
         Play_unk(m74, 0, 1.0f);
         fn_804B4150(mC4);
         fn_804DB474(lbl_8087F610);
@@ -393,7 +392,7 @@ void D2AMpMenu::fn_804AF520(int state) {
         Play_unk(m84, 0, 1.0f);
         Play_unk(mB4, 0, 1.0f);
         m88->mFrame = 0.0f;
-        SetPaneText_unk(&m88->mLayout, "conf_before", fn_80116FC0(0, 0x89547B));
+        SetPaneText_unk(&m88->mData.m10, "conf_before", fn_80116FC0(0, 0x89547B));
         fn_804B3EFC(-1, 0, 10);
         if (mC0 != 18) {
             m78->mFrame = 0.0f;
@@ -409,8 +408,8 @@ void D2AMpMenu::fn_804AF520(int state) {
         break;
     case 15:
         Play_unk(mB8, 1, 1.0f);
-        SetPaneText_unk(&mB8->mLayout, "cmd01", lbl_8087F86C->Get_unk(0xFC));
-        SetPaneText_unk(&mB8->mLayout, "string0003(1)", lbl_8087F86C->Get_unk(0xFC));
+        SetPaneText_unk(&mB8->mData.m10, "cmd01", lbl_8087F86C->Get_unk(0xFC));
+        SetPaneText_unk(&mB8->mData.m10, "string0003(1)", lbl_8087F86C->Get_unk(0xFC));
         break;
     case 16:
     case 21:
@@ -687,9 +686,9 @@ void D2AMpMenu::fn_804B1528() {
             for (int i = 0; i < sizeof(m58) / sizeof(m58[0]); i++) {
                 Play_unk(m58[i], 1, 1.0f);
             }
-            float w = fn_8006EF48(lbl_8087EEC8, 16.0f, fn_800A4450(fn_801FEC74(m64->mLayout, "string0001(1)(1)"), 0, 0).data(), 0.0f, 1, 1);
-            w += fn_801F0544((char*)fn_801FEC08(m64->mLayout, "pos0001") + 4, 0);
-            SetPaneValue_unk(m64->mLayout, "pos0008(2)", 0, w);
+            float w = fn_8006EF48(lbl_8087EEC8, 16.0f, fn_800A4450(fn_801FEC74(&m64->mData.m10, "string0001(1)(1)"), 0, 0).data(), 0.0f, 1, 1);
+            w += fn_801F0544((char*)fn_801FEC08(&m64->mData.m10, "pos0001") + 4, 0);
+            SetPaneValue_unk(&m64->mData.m10, "pos0008(2)", 0, w);
             Play_unk(m64, 0, 1.0f);
             D2AMpMenuRankMark::sInstance->fn_804B4678(0, 1.0f, 0);
             D2AMpMenuRankMark::sInstance->fn_804B4700(0);
@@ -778,7 +777,7 @@ void D2AMpMenu::fn_804B1C88() {
         MpRect_unk rect = GetPaneRect_unk(m80, "sb_null_0003(1)");
         rect.h = 1.0f;
         fn_801F4728(mB4, "basePos", &rect);
-        SetPaneFloat_unk(&mB4->mLayout, "s_hightMax", 170.0f);
+        SetPaneFloat_unk(&mB4->mData.m10, "s_hightMax", 170.0f);
     }
 }
 
@@ -906,7 +905,7 @@ void D2AMpMenu::fn_804B1E48() {
     rect = GetPaneRect_unk(m80, "sb_null_0003(1)");
     rect.h = 1.0f;
     fn_801F4728(mB4, "basePos", &rect);
-    SetPaneFloat_unk(&mB4->mLayout, "s_hightMax", 170.0f);
+    SetPaneFloat_unk(&mB4->mData.m10, "s_hightMax", 170.0f);
 }
 
 // inferred: input of the room type (state 10)
@@ -945,7 +944,7 @@ static void SetTopCursor_unk(D2AMpMenu* menu, MpD2A_unk* base) {
         fn_804A53D4(MenuCommonTask::sInstance, 0, 0, &rect, 0);
         const wchar_t* text = menu->fn_804B424C(menu->mBC, menu->mE4);
         if (wcscmp(text, L"") != 0) {
-            fn_804A3C24(MenuCommonTask::sInstance, text, 0);
+            MenuCommonTask::sInstance->fn_804A3C24(text, 0);
         }
     }
 }
@@ -1075,7 +1074,7 @@ void D2AMpMenu::vf14() {
         m84->mFlags &= ~4;
         m88->mFlags &= ~4;
         fn_804A4738(mB4, 0, 0, 10);
-        SetPaneValue2_unk(&m80->mLayout, "col0005", 0, 125.0f);
+        SetPaneValue2_unk(&m80->mData.m10, "col0005", 0, 125.0f);
         break;
     case 12:
         mB8->mFlags &= ~4;
@@ -1182,11 +1181,11 @@ void D2AMpMenu::fn_804B3838() {
         m88->mFlags &= ~4;
         mB4->mFlags &= ~4;
         m70->mFlags &= ~4;
-        SetPaneValue2_unk(&m80->mLayout, "col0005", 0, 125.0f);
+        SetPaneValue2_unk(&m80->mData.m10, "col0005", 0, 125.0f);
         for (int i = 0; i < 10; i++) {
             m8C[i]->mFlags &= ~4;
         }
-        fn_804A3C24(MenuCommonTask::sInstance, lbl_8087F86C->Get_unk(mC8 + 0xAD), 0);
+        MenuCommonTask::sInstance->fn_804A3C24(lbl_8087F86C->Get_unk(mC8 + 0xAD), 0);
         fn_804A4738(mB4, mLists[mC8]->m00, mLists[mC8]->m04, 10);
     }
 }
@@ -1239,12 +1238,12 @@ __declspec(noinline) void D2AMpMenu::fn_804B3C78(int before, int after, int back
     if (back == 0) {
         {
             const char* name = "conf_before";
-            void* layout = &m88->mLayout;
+            void* layout = &m88->mData.m10;
             fn_801FEE08(layout, fn_800DC6B4(name), textBefore);
         }
         {
             const char* name = "conf_after(1)";
-            void* layout = &m88->mLayout;
+            void* layout = &m88->mData.m10;
             fn_801FEE08(layout, fn_800DC6B4(name), textAfter);
         }
         m88->mFrame = 0.0f;
@@ -1252,12 +1251,12 @@ __declspec(noinline) void D2AMpMenu::fn_804B3C78(int before, int after, int back
     } else {
         {
             const char* name = "conf_before";
-            void* layout = &m88->mLayout;
+            void* layout = &m88->mData.m10;
             fn_801FEE08(layout, fn_800DC6B4(name), textAfter);
         }
         {
             const char* name = "conf_after(1)";
-            void* layout = &m88->mLayout;
+            void* layout = &m88->mData.m10;
             fn_801FEE08(layout, fn_800DC6B4(name), textBefore);
         }
         m88->mFrame = 10.0f;
@@ -1274,7 +1273,7 @@ void D2AMpMenu::fn_804B3EFC(int list, int first, int count) {
         if (list >= 0 && mLists[list]->Get(i)->m48 != 0) {
             RANKING_DATA* data = mLists[list]->Get(i);
             m8C[row]->SetNumber_unk("string0006(1)", data->m00, 0);
-            SetPaneText_unk(&m8C[row]->mLayout, "string0028(1)", data->mName);
+            SetPaneText_unk(&m8C[row]->mData.m10, "string0028(1)", data->mName);
             SetTaskText_unk(m8C[row], "string0029(1)", fn_804FA8E8(lbl_8087F610, data->m04));
             m8C[row]->SetNumber_unk("string0027(1)", data->m04, 0);
             Play_unk(m8C[row], 0, 1.0f);
@@ -1284,9 +1283,9 @@ void D2AMpMenu::fn_804B3EFC(int list, int first, int count) {
         } else {
             m8C[row]->SetNumber_unk("string0006(1)", i + 1, 0);
             const wchar_t* empty = L"";
-            SetPaneText_unk(&m8C[row]->mLayout, "string0028(1)", empty);
-            SetPaneText_unk(&m8C[row]->mLayout, "string0029(1)", empty);
-            SetPaneText_unk(&m8C[row]->mLayout, "string0027(1)", empty);
+            SetPaneText_unk(&m8C[row]->mData.m10, "string0028(1)", empty);
+            SetPaneText_unk(&m8C[row]->mData.m10, "string0029(1)", empty);
+            SetPaneText_unk(&m8C[row]->mData.m10, "string0027(1)", empty);
             Stop_unk(m8C[row]);
         }
     }
@@ -1427,14 +1426,14 @@ void D2AMpMenuRankMark::fn_804B47E0(int exp, int index) {
     if (row >= mRows.mCount) {
         row = mRows.mCount - 1;
     }
-    SetPaneFloat_unk(&mMarks[index]->mLayout, "patternIndex", (float)(unsigned int)mRows.mEntries[row].m04);
-    SetPaneFloat_unk(&mMarks[index]->mLayout, "swordIndex", (float)(unsigned int)(mRows.mEntries[row].m08 + 3));
+    SetPaneFloat_unk(&mMarks[index]->mData.m10, "patternIndex", (float)(unsigned int)mRows.mEntries[row].m04);
+    SetPaneFloat_unk(&mMarks[index]->mData.m10, "swordIndex", (float)(unsigned int)(mRows.mEntries[row].m08 + 3));
     for (int i = 0; i < 4; i++) {
         sprintf(name, "drawFlg%d", i + 1);
         if ((unsigned int)i < mRows.mEntries[row].m0C) {
-            SetPaneFloat_unk(&mMarks[index]->mLayout, name, 1.0f);
+            SetPaneFloat_unk(&mMarks[index]->mData.m10, name, 1.0f);
         } else {
-            SetPaneFloat_unk(&mMarks[index]->mLayout, name, 0.0f);
+            SetPaneFloat_unk(&mMarks[index]->mData.m10, name, 0.0f);
         }
     }
 }

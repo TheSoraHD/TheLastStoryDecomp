@@ -14,51 +14,45 @@ extern "C" int atoi(const char* s);
 extern "C" CharaRes_unk* fn_80204E04(int type, int arg);
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 // inferred: effect manager (class unknown), global instance at 0x8087F3C0
-struct EffectMgr_unk;
-extern "C" EffectMgr_unk* lbl_8087F3C0;
+namespace atn {
+class EffectManager;
+}
+extern "C" atn::EffectManager* lbl_8087F3C0;
 // inferred: weak getter of the effect manager (lwz r3, lbl_8087F3C0; blr)
-extern "C" inline EffectMgr_unk* fn_800F7FA0() {
+extern "C" inline atn::EffectManager* fn_800F7FA0() {
     return lbl_8087F3C0;
 }
-extern "C" int fn_80239D58(EffectMgr_unk* mgr, void* owner, int id); // inferred: the effect is playing
-extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
-extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, int arg6,
-                            int arg7);
+extern "C" int fn_80239D58(atn::EffectManager* mgr, void* owner, int id); // inferred: the effect is playing
+extern "C" void fn_80239DAC(atn::EffectManager* mgr, void* owner, int id, int arg); // inferred: stops an effect
+extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, void* func,
+                            void* arg);
 
 class BattleTask;
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
-// inferred: game settings (as in game/CharaTask.cpp); names invented
-struct CoffinBlock454_unk {
-    int m00; // inferred: enabled
-    unsigned char m04[0x18 - 0x04];
-    float m18;
-};
-struct Settings_unk {
-    CoffinBlock454_unk* fn_8013C434();
-};
-extern "C" Settings_unk* fn_800F52F8();
+#include "game/GameConfig_unk.h"
+extern "C" GameConfig_unk* fn_800F52F8();
 BattleTask* fn_8013A194();
 extern "C" float fn_80011220(float x); // inferred: fabs (weak copy of another helper)
 extern "C" int fn_80267B20(CharaTask* chara); // inferred: returns m55C
 extern "C" int fn_80267B28(CharaTask* chara); // inferred: returns m560
 extern "C" void* fn_802F0990(); // inferred: returns lbl_8087EFA8
 extern "C" float fn_802F0988(void* p); // inferred: returns +0x3A4
-extern "C" EffectMgr_unk* fn_800F7FA0(); // inferred: returns lbl_8087F3C0
-extern "C" void fn_800F7FA8(EffectMgr_unk* mgr, void* owner, int arg); // inferred: fn_80232B7C(owner, arg)
+extern "C" atn::EffectManager* fn_800F7FA0(); // inferred: returns lbl_8087F3C0
+extern "C" void fn_800F7FA8(atn::EffectManager* mgr, void* owner, int arg); // inferred: fn_80232B7C(owner, arg)
 extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the next effects
 struct Color4f_unk {
     Color4f_unk() {}
     float r, g, b, a;
 };
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
+extern "C" void fn_8023A8B4(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Model* model, void* node,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
-extern "C" void fn_8023A680(EffectMgr_unk* mgr, atn::EffFile* res, int arg2, int arg3, Mtx* mtx, int arg5,
+extern "C" void fn_8023A680(atn::EffectManager* mgr, atn::EffFile* res, int arg2, int arg3, Mtx* mtx, int arg5,
                             int arg6, int arg7, int arg8, int arg9, int arg10, float scale);
 extern "C" void PSMTXTrans(Mtx m, float x, float y, float z);
 extern "C" void PSMTXScale(Mtx m, float x, float y, float z);
-extern "C" void fn_80276AE4(EffectMgr_unk* mgr, atn::EfpFile* efp, int arg, const atn::Vector3* pos,
+extern "C" void fn_80276AE4(atn::EffectManager* mgr, atn::EfpFile* efp, void* model, const atn::Vector3* pos,
                             const atn::Vector3* rot, int a, int b, int c, float scale);
 void* fn_801404F8();
 extern "C" int fn_8004ED34(void* colli, atn::ColliResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
@@ -464,7 +458,7 @@ extern "C" inline CoffinCapsule_unk* fn_80315644(atn::ColliCapsule* colli) {
     return (CoffinCapsule_unk*)&colli->m3C;
 }
 // inferred: sets the owner of the next effects (weak copy; name keeps the address)
-extern "C" inline void fn_8031564C(EffectMgr_unk* mgr, int on) {
+extern "C" inline void fn_8031564C(atn::EffectManager* mgr, int on) {
     *(int*)((char*)mgr + 0xC4) = on;
 }
 
@@ -515,7 +509,7 @@ void Em315Coffin::vf108() {
                     rot = dir.ToRotation_unk();
                     break;
                 }
-                if (fn_800F52F8()->fn_8013C434()->m00 != 0) {
+                if (fn_800F52F8()->fn_8013C434()->mEnabled != 0) {
                     atn::Vector3 pos = fn_8013A194()->fn_80109950(this);
                     atn::Vector3 dir2 = pos - mPos;
                     speed = dir2.Length_unk();
@@ -538,7 +532,7 @@ void Em315Coffin::vf108() {
                     } else {
                         rot = dir2.ToRotation_unk();
                     }
-                    rate = fn_800F52F8()->fn_8013C434()->m18;
+                    rate = fn_800F52F8()->fn_8013C434()->mMoveSpeedRatio;
                 } else {
                     speed = 0.0f;
                     rot = dir.ToRotation_unk();

@@ -1,3 +1,4 @@
+#include "game/GameScene.h"
 #include "game/EnvSeManager.h"
 #include "game/GameTask.h"
 #include "game/GameBgm.h"
@@ -20,24 +21,9 @@ extern "C" void __destroy_arr(void* block, void (*dtor)(), unsigned long size, u
 
 extern "C" const char* fn_80207EE8(int id); // inferred: BGM name of an id
 extern "C" int fn_80207F34(int id);
-// inferred: game settings (lbl_8087F0A8)
-struct GameBgmSettings_unk {
-    unsigned char m00[0x15C];
-    int m15C; // inferred: alternative BGM set
-};
-extern "C" GameBgmSettings_unk* lbl_8087F0A8;
-struct GameBgmTable_unk {
-    unsigned char m00[0x140];
-    int m140;
-};
-// inferred: field (lbl_8087F430)
-struct GameBgmField_unk {
-    unsigned char m0000[0x10D0];
-    int m10D0; // inferred: story progress
-    unsigned char m10D4[0x10D8 - 0x10D4];
-    GameBgmTable_unk* m10D8;
-};
-extern "C" GameBgmField_unk* lbl_8087F430;
+#include "game/GameConfig_unk.h"
+extern "C" GameConfig_unk* lbl_8087F0A8;
+extern "C" GameTask* lbl_8087F430;
 // inferred: sound engine (lbl_8087EE90) and sound configuration (lbl_8087EFE8)
 extern "C" void* lbl_8087EE90;
 extern "C" unsigned int fn_80049B74(void* engine, const char* name); // inferred: sound id of a name
@@ -49,7 +35,7 @@ extern "C" int fn_805A38F0(const char* name, int a, int b); // inferred: the str
 extern "C" int fn_800CB4C4(atn::SoundRef* sound);
 extern "C" int fn_800CB538(atn::SoundRef* sound);
 extern "C" int fn_800CB58C(atn::SoundRef* sound);
-extern "C" void fn_800CB5B4(atn::SoundRef* sound, int frames, float volume);
+extern "C" void fn_800CB5B4(atn::SoundRef* sound, float volume, int frames);
 extern "C" void fn_800CB640(atn::SoundRef* sound, int a, int b, int c);
 extern "C" int fn_800CB6F8(atn::SoundRef* sound);
 
@@ -89,7 +75,7 @@ static const char* fn_8037C71C(int id) {
             name = fn_80207EE8(0x193);
         }
         if (progress >= 600000) {
-            if (((GameTask*)lbl_8087F430)->GetCurrentMap() != 0 && ((GameTask*)lbl_8087F430)->GetCurrentMap()->mType == 1) {
+            if (lbl_8087F430->GetCurrentMap() != 0 && lbl_8087F430->GetCurrentMap()->mType == 1) {
                 if (id == 0x191 || id == 0x1F5) {
                     name = fn_80207EE8(0x194);
                 }
@@ -368,7 +354,7 @@ void GameBgm::fn_8037D49C(float volume, int frames) {
     mE0 = mReq.mVolume;
     mReq.mVolume = volume;
     if (mCur != 0) {
-        fn_800CB5B4(&mCur->mSound, frames, volume);
+        fn_800CB5B4(&mCur->mSound, volume, frames);
     }
 }
 
@@ -424,18 +410,18 @@ int GameBgm::fn_8037D4C0(int id, int fade, int b, int c, float volume) {
     mE0 = (double)volume;
     mReq.mVolume = volume;
     if (mCur != 0) {
-        fn_800CB5B4(&mCur->mSound, fade, volume);
+        fn_800CB5B4(&mCur->mSound, volume, fade);
     }
     m84 = 0;
     return 0;
 }
 
 void GameBgm::fn_8037D684(int a, int b) {
-    if (lbl_8087F430 == 0 || ((GameTask*)lbl_8087F430)->GetCurrentMap() == 0) {
+    if (lbl_8087F430 == 0 || lbl_8087F430->GetCurrentMap() == 0) {
         return;
     }
     if (m84 == 0 && mReq.mId > 0) {
-        MapTask* info = ((GameTask*)lbl_8087F430)->GetCurrentMap();
+        MapTask* info = lbl_8087F430->GetCurrentMap();
         if ((a != info->mType || b != info->mId) && m84 == 0 && (mReq.mId == 0x191 || mReq.mId == 0x1F5)) {
             fn_8037D4C0(0, 45, 1, 0, 1.0f);
         }
@@ -446,8 +432,8 @@ void GameBgm::fn_8037D758() {
     if (lbl_8087F430 == 0 || lbl_8087F430->m10D8 == 0) {
         return;
     }
-    int id = ((GameTask*)lbl_8087F430)->fn_80370174(0x38F);
-    float volume = ((GameTask*)lbl_8087F430)->fn_80370174(0x390) / 100.0f;
+    int id = lbl_8087F430->fn_80370174(0x38F);
+    float volume = lbl_8087F430->fn_80370174(0x390) / 100.0f;
     if (id > 0) {
         fn_8037D4C0(id, 60, 1, 0, volume);
     }
@@ -468,6 +454,6 @@ void GameBgm::fn_8037D808() {
             volume = mReq.mVolume;
         }
     }
-    ((GameTask*)lbl_8087F430)->fn_80370320(0x38F, id, 0);
-    ((GameTask*)lbl_8087F430)->fn_80370320(0x390, (int)(100.0f * volume), 0);
+    lbl_8087F430->fn_80370320(0x38F, id, 0);
+    lbl_8087F430->fn_80370320(0x390, (int)(100.0f * volume), 0);
 }

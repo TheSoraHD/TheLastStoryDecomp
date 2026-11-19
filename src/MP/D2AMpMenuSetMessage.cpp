@@ -1,5 +1,6 @@
 // MP/D2AMpMenuSetMessage.cpp (0x804C8778-0x804CD97C): message settings of the multiplayer lobby. Only the
 // first functions are reconstructed so far.
+#include "game/GameConfig_unk.h"
 #include "MP/D2AMpMenu_unk.h"
 #include "game/MenuCommonTask.h"
 #include "MP/D2ACommonDialog.h"
@@ -39,17 +40,12 @@ struct MpMsgData_unk {
 };
 extern "C" CharaInfo_unk* fn_8020924C(int id);
 
-// inferred: game settings (lbl_8087F0A8): input at 0x48C
-struct MpMsgSettings_unk {
-    unsigned char m000[0x48C];
-    unsigned char mPad[1]; // 0x48C
-};
-extern "C" MpMsgSettings_unk* lbl_8087F0A8;
+extern "C" GameConfig_unk* lbl_8087F0A8;
 extern "C" MP::MpMsgTable_unk* lbl_8087F1E4; // inferred: camp message table (same layout as lbl_8087F86C)
 extern "C" void fn_804A4738(MP::MpD2A_unk* bar, int top, int count, int visible); // inferred: scroll bar
 extern "C" int wcscmp(const wchar_t* a, const wchar_t* b);
-extern "C" void fn_804A3C24(MenuCommonTask* menu, const wchar_t* text, int arg); // inferred: help text
-extern "C" void fn_804A53D4(MenuCommonTask* menu, int a, int b, const MP::MpRect_unk* rect, int c); // inferred: cursor
+// inferred: cursor
+extern "C" void fn_804A53D4(MenuCommonTask* menu, int a, void* b, const MP::MpRect_unk* rect, int c);
 
 extern "C" MpMsgData_unk* lbl_8087F628;
 
@@ -161,10 +157,10 @@ void D2AMpMenuSetMessage::fn_804C8D80(int state) {
             Play_unk(m4C, 0, 1.0f);
             Play_unk(m48, 0, 1.0f);
             SetTaskText_unk(m50, "string0037(1)", L"");
-            SetPaneText_unk(m50->mLayout, "string0038(1)", L"");
-            SetPaneText_unk(m50->mLayout, "string0039(1)", L"");
-            SetPaneText_unk(m50->mLayout, "string0035(1)", L"");
-            SetPaneText_unk(m50->mLayout, "string0029(1)", L"");
+            SetPaneText_unk(&m50->mData.m10, "string0038(1)", L"");
+            SetPaneText_unk(&m50->mData.m10, "string0039(1)", L"");
+            SetPaneText_unk(&m50->mData.m10, "string0035(1)", L"");
+            SetPaneText_unk(&m50->mData.m10, "string0029(1)", L"");
             mE4 = 0;
             break;
         case 2:
@@ -282,10 +278,10 @@ void D2AMpMenuSetMessage::fn_804C9360() {
         Stop_unk(m54);
         Stop_unk(mD4);
         SetTaskText_unk(m50, "string0037(1)", L"");
-        SetPaneText_unk(m50->mLayout, "string0038(1)", L"");
-        SetPaneText_unk(m50->mLayout, "string0039(1)", L"");
-        SetPaneText_unk(m50->mLayout, "string0035(1)", L"");
-        SetPaneText_unk(m50->mLayout, "string0029(1)", L"");
+        SetPaneText_unk(&m50->mData.m10, "string0038(1)", L"");
+        SetPaneText_unk(&m50->mData.m10, "string0039(1)", L"");
+        SetPaneText_unk(&m50->mData.m10, "string0035(1)", L"");
+        SetPaneText_unk(&m50->mData.m10, "string0029(1)", L"");
         break;
     }
 }
@@ -389,7 +385,7 @@ void D2AMpMenuSetMessage::vf10() {
                 if (mE4 <= 21) {
                     fn_804C8D80(5);
                     const wchar_t* text = GetCharaName_unk(m164);
-                    SetPaneText_unk(m6C[0]->mLayout, "string0029(1)", text);
+                    SetPaneText_unk(&m6C[0]->mData.m10, "string0029(1)", text);
                 }
             } else if (ret == 2) {
                 fn_804C8D80(1);
@@ -404,7 +400,7 @@ void D2AMpMenuSetMessage::vf10() {
                 fn_804C8D80(6);
                 const wchar_t* text = GetListName_unk(m168);
                 const char* name = "string0029(1)";
-                void* layout = m6C[1]->mLayout;
+                void* layout = &m6C[1]->mData.m10;
                 fn_801FEE08(layout, fn_800DC6B4(name), text);
             }
         } else if (ret == 2) {
@@ -502,7 +498,7 @@ void D2AMpMenuSetMessage::fn_804C9EF8() {
     if (next != page) {
         m170 = 0.0f;
     }
-    if (((Input_unk*)lbl_8087F0A8->mPad)->fn_801231D0(0x34) != 0) {
+    if ((&lbl_8087F0A8->mInput)->fn_801231D0(0x34) != 0) {
         MpMsgRef_unk* ref = &lbl_8087F628->mC20.mMessages[mE4 + D2AMpMenuMessageList::sPage * 10];
         MpMessage_unk* msg = lbl_8087F610->m2A50.fn_804C54FC(ref->mCategory, ref->mIndex);
         if (msg != 0) {
@@ -534,7 +530,7 @@ void D2AMpMenuSetMessage::fn_804CA250() {
         return;
     }
     if (mE8 != 0) {
-        if (((Input_unk*)lbl_8087F0A8->mPad)->fn_801231D0(0x34) != 0) {
+        if ((&lbl_8087F0A8->mInput)->fn_801231D0(0x34) != 0) {
             PlayVoice_unk(m164, mF0[mE4]);
         } else if (fn_800A55AC(pad, 0, 0x1A) != 0 || fn_800A55AC(pad, 0, 0) != 0) {
             if (--mE4 < 0) {
@@ -594,19 +590,19 @@ void D2AMpMenuSetMessage::fn_804CA250() {
     }
     MpMessage_unk* msg = lbl_8087F610->m2A50.fn_804C54FC(m164, mF0[mE4]);
     if (msg != 0 && (msg->m08 >> 24) < 20) {
-        SetPaneValue2_unk(m50->mLayout, "col0035", 1, 255.0f);
-        SetPaneValue2_unk(m50->mLayout, "col0035", 2, 255.0f);
-        SetPaneValue2_unk(m50->mLayout, "col0035", 3, 255.0f);
-        SetPaneValue2_unk(m50->mLayout, "col0029", 1, 255.0f);
-        SetPaneValue2_unk(m50->mLayout, "col0029", 2, 255.0f);
-        SetPaneValue2_unk(m50->mLayout, "col0029", 3, 255.0f);
+        SetPaneValue2_unk(&m50->mData.m10, "col0035", 1, 255.0f);
+        SetPaneValue2_unk(&m50->mData.m10, "col0035", 2, 255.0f);
+        SetPaneValue2_unk(&m50->mData.m10, "col0035", 3, 255.0f);
+        SetPaneValue2_unk(&m50->mData.m10, "col0029", 1, 255.0f);
+        SetPaneValue2_unk(&m50->mData.m10, "col0029", 2, 255.0f);
+        SetPaneValue2_unk(&m50->mData.m10, "col0029", 3, 255.0f);
     } else {
-        SetPaneValue2_unk(m50->mLayout, "col0035", 1, 127.0f);
-        SetPaneValue2_unk(m50->mLayout, "col0035", 2, 127.0f);
-        SetPaneValue2_unk(m50->mLayout, "col0035", 3, 127.0f);
-        SetPaneValue2_unk(m50->mLayout, "col0029", 1, 127.0f);
-        SetPaneValue2_unk(m50->mLayout, "col0029", 2, 127.0f);
-        SetPaneValue2_unk(m50->mLayout, "col0029", 3, 127.0f);
+        SetPaneValue2_unk(&m50->mData.m10, "col0035", 1, 127.0f);
+        SetPaneValue2_unk(&m50->mData.m10, "col0035", 2, 127.0f);
+        SetPaneValue2_unk(&m50->mData.m10, "col0035", 3, 127.0f);
+        SetPaneValue2_unk(&m50->mData.m10, "col0029", 1, 127.0f);
+        SetPaneValue2_unk(&m50->mData.m10, "col0029", 2, 127.0f);
+        SetPaneValue2_unk(&m50->mData.m10, "col0029", 3, 127.0f);
     }
 }
 
@@ -648,7 +644,7 @@ void D2AMpMenuSetMessage::fn_804CAD90() {
     rect = GetPaneRect_unk(m54, "sb_null_0003(1)");
     rect.h = 1.0f;
     fn_801F4728(mD4, "basePos", &rect);
-    SetPaneFloat_unk(mD4->mLayout, "s_hightMax", 192.0f);
+    SetPaneFloat_unk(&mD4->mData.m10, "s_hightMax", 192.0f);
 }
 
 void D2AMpMenuSetMessage::vf14() {
@@ -737,9 +733,9 @@ void D2AMpMenuSetMessage::fn_804CB2F0() {
     }
     m4C->SetNumber_unk("page", D2AMpMenuMessageList::sPage + 1, 0);
     if (SetConfig::sInstance->mInTacviewType == 0) {
-        SetPaneText_unk(m4C->mLayout, "controllerType", L"$Bu");
+        SetPaneText_unk(&m4C->mData.m10, "controllerType", L"$Bu");
     } else {
-        SetPaneText_unk(m4C->mLayout, "controllerType", L"$Bd");
+        SetPaneText_unk(&m4C->mData.m10, "controllerType", L"$Bd");
     }
     for (int i = 0; i < 10; i++) {
         MpMsgRef_unk* ref = &save->mMessages[i + D2AMpMenuMessageList::sPage * 10];
@@ -790,9 +786,9 @@ void D2AMpMenuSetMessage::fn_804CB74C() {
         fn_804CB0B8();
         if (mE4 < 19) {
             fn_800DD3FC(text, lbl_8087F86C->Get_unk(0x103), GetCharaName_unk(mE4));
-            fn_804A3C24(MenuCommonTask::sInstance, text, 0);
+            MenuCommonTask::sInstance->fn_804A3C24(text, 0);
         } else if (mE4 < 22) {
-            fn_804A3C24(MenuCommonTask::sInstance, lbl_8087F86C->Get_unk(mE4 + 0xF1), 0);
+            MenuCommonTask::sInstance->fn_804A3C24(lbl_8087F86C->Get_unk(mE4 + 0xF1), 0);
         }
     }
 }
@@ -816,7 +812,7 @@ void D2AMpMenuSetMessage::fn_804CBA1C() {
         if (mE4 < 20) {
             const wchar_t* text = lbl_8087F86C->Get_unk(mE4 + 0x107);
             if (wcscmp(text, L"") != 0) {
-                fn_804A3C24(MenuCommonTask::sInstance, text, 0);
+                MenuCommonTask::sInstance->fn_804A3C24(text, 0);
             }
         }
     }
@@ -913,16 +909,16 @@ void D2AMpMenuSetMessage::fn_804CC618() {
     MpMsgPoint_unk unused2[4];
     for (int i = 0; i < 24; i++) {
         m74[i]->SetText_unk("string0029(1)", (int)"");
-        SetPaneValue2_unk(m74[i]->mLayout, "col0030", 0, 255.0f);
+        SetPaneValue2_unk(&m74[i]->mData.m10, "col0030", 0, 255.0f);
         if (i <= 21) {
             const wchar_t* text = GetCharaName_unk(i);
             if (text != 0) {
-                SetPaneText_unk(m74[i]->mLayout, "string0029(1)", text);
+                SetPaneText_unk(&m74[i]->mData.m10, "string0029(1)", text);
             }
         }
     }
     for (int i = 0; i < 2; i++) {
-        SetPaneText_unk(m6C[i]->mLayout, "string0029(1)", L"");
+        SetPaneText_unk(&m6C[i]->mData.m10, "string0029(1)", L"");
     }
 }
 
@@ -936,15 +932,15 @@ void D2AMpMenuSetMessage::fn_804CC7A4() {
             const wchar_t* text = lbl_8087F86C->Get_unk(i + 0x45);
             if (text != 0) {
                 const char* name = "string0029(1)";
-                void* layout = m74[i]->mLayout;
+                void* layout = &m74[i]->mData.m10;
                 fn_801FEE08(layout, fn_800DC6B4(name), text);
             }
             if (HasMessage_unk(m164, i)) {
                 m110[i] = 1;
-                SetPaneValue2_unk(m74[i]->mLayout, "col0030", 0, 255.0f);
+                SetPaneValue2_unk(&m74[i]->mData.m10, "col0030", 0, 255.0f);
             } else {
                 m110[i] = 0;
-                SetPaneValue2_unk(m74[i]->mLayout, "col0030", 0, 100.0f);
+                SetPaneValue2_unk(&m74[i]->mData.m10, "col0030", 0, 100.0f);
             }
         }
     }
@@ -976,18 +972,18 @@ void D2AMpMenuSetMessage::fn_804CCB54() {
         MpMessage_unk* msg = lbl_8087F610->m2A50.fn_804C54FC(m164, index);
         if (msg != 0 && ((msg->m04 >> 8) & (1 << m168)) != 0 && (int)n < 8) {
             mF0[n] = index;
-            SetPaneText_unk(m74[n]->mLayout, "string0029(1)", L"");
+            SetPaneText_unk(&m74[n]->mData.m10, "string0029(1)", L"");
             n++;
         }
     }
     for (; n < 8; n++) {
         mF0[n] = -1;
-        SetPaneText_unk(m74[n]->mLayout, "string0029(1)", L"");
+        SetPaneText_unk(&m74[n]->mData.m10, "string0029(1)", L"");
     }
     m50->SetNumber_unk("string0037(1)", mE8, 0);
     m50->SetNumber_unk("string0038(1)", mE8 == 0 ? 0 : mEC + mE4 + 1, 0);
-    SetPaneText_unk(m50->mLayout, "string0039(1)", L"/");
-    SetPaneText_unk(m50->mLayout, "string0035(1)", L"$B-");
+    SetPaneText_unk(&m50->mData.m10, "string0039(1)", L"/");
+    SetPaneText_unk(&m50->mData.m10, "string0035(1)", L"$B-");
     SetTaskText_unk(m50, "string0029(1)", lbl_8087F1E4->Get_unk(0x1B3));
 }
 

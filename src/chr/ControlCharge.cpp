@@ -1,6 +1,8 @@
 // Charge of an attack (ControlCharge) and the attacks that follow it (ControlChargeAttackBase and
 // its subclasses ControlChargeAttack, ControlHighJumpAttack, ControlQuarkSeirenAttack;
 // ControlZanTackle).
+#include "atn/RenderSetting_unk.h"
+#include "game/GameConfig_unk.h"
 #include "chr/ControlCharge.h"
 #include "game/AiTarget.h"
 #include "game/GameTask.h"
@@ -19,14 +21,7 @@
 #include "game/BattleTask.h"
 #include "math/VecAssign_unk.h"
 
-// inferred: game settings (as in chr/ControlCdnStone.cpp)
-struct Settings_unk {
-    unsigned char m000[0x314];
-    int m314; // inferred: nonzero when the target is chosen with the cursor
-    unsigned char m318[0x48C - 0x318];
-    Input_unk mInput; // 0x48C
-};
-extern "C" Settings_unk* lbl_8087F0A8;
+extern "C" GameConfig_unk* lbl_8087F0A8;
 // inferred: arena mode object (lbl_8087F610, as in game/CharaTask.cpp)
 struct Arena_unk {
     unsigned char m000[0x540];
@@ -42,7 +37,8 @@ inline bool IsArenaMode_unk(int mode) {
 }
 
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
-extern "C" void* lbl_8087EF70; // inferred: pad
+struct Pad_unk;
+extern "C" Pad_unk* lbl_8087EF70; // inferred: pad
 extern "C" int fn_800A55D4(void* pad, int port, int button); // inferred: button held
 // inferred: cursor shown by the tactical view (lbl_8087F9F8 + 0x15D8); names invented
 struct TacCursor_unk {
@@ -62,11 +58,7 @@ struct TacView_unk {
     TacCursor_unk m15D8;
 };
 extern "C" TacView_unk* lbl_8087F9F8;
-struct Field_unk {
-    unsigned char m0000[0x10D8];
-    void* m10D8; // inferred: collision of the walls
-};
-extern "C" Field_unk* lbl_8087F430;
+extern "C" GameTask* lbl_8087F430;
 extern "C" int fn_8004D388(void* colli, atn::ColliResult_unk* result, const atn::Vector3* pos, const atn::Vector3* move,
                            unsigned int mask, void* ignore, int arg7, float); // inferred: sweep test (last: radius)
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
@@ -83,14 +75,10 @@ struct VoiceEntry_unk {
 };
 extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float volume);
 extern "C" float fn_800A56A8(void* pad, int port, int axis, int arg); // inferred: stick axis
-// inferred: game state (lbl_8087EFA8, as in game/CharaTask.cpp); names invented
-struct GameState_unk {
-    unsigned char m000[0x3A4];
-    float m3A4; // inferred: time of a frame
-};
-extern "C" GameState_unk* lbl_8087EFA8;
+extern "C" RenderSetting_unk* lbl_8087EFA8;
 
-extern "C" void* lbl_8087EE98;
+struct ColliManager_unk;
+extern "C" ColliManager_unk* lbl_8087EE98;
 extern "C" int fn_8004ED34(void* colli, atn::ColliResult_unk* result, const atn::Vector3& from, const atn::Vector3& to,
                            unsigned int mask, void* ignore, int arg7); // inferred: ray test
 
@@ -121,7 +109,7 @@ inline float LengthXZSq_unk(const atn::Vector3& v) {
 // inferred: the target is chosen with the cursor (name invented)
 inline bool IsCursorMode_unk() {
     bool result = false;
-    if (lbl_8087F610 == 0 && lbl_8087F0A8->m314 != 0) {
+    if (lbl_8087F610 == 0 && lbl_8087F0A8->mTacViewWind != 0) {
         result = true;
     }
     return result;
@@ -289,7 +277,7 @@ int ControlCharge::vf0C() {
                 cursor.m14 = false;
                 lbl_8087F9F8->m15D8 = cursor;
             }
-            ((GameTask*)lbl_8087F430)->fn_80373FC4();
+            lbl_8087F430->fn_80373FC4();
             done = 1;
         }
         mChara->mF6C = m08;
@@ -330,7 +318,7 @@ int ControlCharge::vf0C() {
     if (done && m30) {
         HitInfo_unk* hit = mChara->m638;
         if ((hit->m04 == 0x1788 || hit->m04 == 0x1791) && (hit->mAC & 0x40000) == 0x40000 &&
-            ((GameTask*)lbl_8087F430)->fn_8036DAA8(mChara) == 0) {
+            lbl_8087F430->fn_8036DAA8(mChara) == 0) {
             done = 0;
         }
     }
@@ -527,7 +515,7 @@ void ControlChargeAttackBase::fn_801A4E08(Chara_unk* chara, const atn::Vector3& 
     if (lbl_8087F610 != 0 && IsArenaMode_unk(lbl_8087F610->m540)) {
         arena = true;
     }
-    if (arena && ((GameTask*)lbl_8087F430)->GetCurrentMap()->mId == 1 && ((GameTask*)lbl_8087F430)->GetCurrentMap()->mSubId == 5) {
+    if (arena && lbl_8087F430->GetCurrentMap()->mId == 1 && lbl_8087F430->GetCurrentMap()->mSubId == 5) {
         atn::ColliResult_unk floor;
         atn::Vector3 top(target);
         atn::Vector3 bottom(target);

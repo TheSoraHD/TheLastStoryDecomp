@@ -15,32 +15,18 @@ struct GimmickUvOwner_unk {
     int fn_800D59B8();
 };
 
-// inferred: view of HomeButtonMenu (game/HomeButtonMenu.cpp), only the members used here (as in
-// game/GameSystem_unk.cpp)
-// HomeButtonMenu: game/HomeButtonMenu.h
-// inferred: globals of unknown classes
-struct Unk_8087F018 {
-    unsigned char m0000[0x40E0];
-    int m40E0;
-};
-extern "C" Unk_8087F018* lbl_8087F018;
-// inferred: render manager (see atn/LayerReflect.cpp); vf10 reads the frame buffer height
-struct StrapRender_unk {
-    unsigned char m00[0x0E];
-    unsigned short mFbWidth;  // 0x0E
-    unsigned short mFbHeight; // 0x10
-    unsigned char m12[0x3C - 0x12];
-    int mWidth;  // 0x3C
-    int mHeight; // 0x40
-    int mWide;   // 0x44: inferred: 16:9
-};
-extern "C" StrapRender_unk* lbl_8087EEE0;
-extern "C" void* lbl_8087EF70;
+#include "atn/WPad_unk.h"
+extern "C" WPad_unk* lbl_8087F018;
+struct Pad_unk;
+extern "C" Pad_unk* lbl_8087EF70;
 extern "C" int fn_800A5920(void* obj, int a, int b); // inferred: a button was pressed
 #include "atn/SequenceBoot_unk.h"
 #include "atn/DrawHelper.h"
 #include "game/ResetShutdown.h"
 #include "game/HomeButtonMenu.h"
+#include "atn/GraphicsDevice.h"
+
+extern "C" atn::GraphicsDevice_unk* lbl_8087EEE0;
 
 StrapTask* StrapTask::fn_805A6208(atn::Task* parent) {
     if (parent != 0) {
@@ -63,13 +49,13 @@ StrapTask::StrapTask(atn::Task* parent) : atn::Task(parent), m48(1), m4C(0), m50
     HomeButtonMenu::sInstance->m88 = 0;
     HomeButtonMenu::sInstance->m90 = 0;
     if (lbl_8087F018 != 0) {
-        lbl_8087F018->m40E0 = 0;
+        lbl_8087F018->m40E0[0] = 0;
     }
 }
 
 static void fn_set(int v) {
     if (lbl_8087F018 != 0) {
-        lbl_8087F018->m40E0 = v;
+        lbl_8087F018->m40E0[0] = v;
     }
 }
 StrapTask::~StrapTask() {
@@ -103,7 +89,7 @@ void StrapTask::vf10() {
         break;
     }
     case 1:
-        if ((float)(int)lbl_8087EEE0->mFbHeight > 500.0f) {
+        if ((float)(int)lbl_8087EEE0->mRMode.viHeight > 500.0f) {
             m4C = 0;
             m48 = 3;
         }
@@ -136,7 +122,10 @@ struct StrapMsgTable_unk {
     const wchar_t* mText[1];
 };
 extern "C" StrapMsgTable_unk* lbl_8087F1E4;
-extern "C" void* lbl_8087EEC8; // inferred: font
+namespace atn {
+class Font_unk;
+}
+extern "C" atn::Font_unk* lbl_8087EEC8; // inferred: font
 extern "C" float fn_8006EF48(void* font, float size, const wchar_t* text, float f2, int a, int b); // inferred: width
 
 // inferred: draws a texture of texW x texH over the screen (4:3 or 16:9); name invented
@@ -146,10 +135,10 @@ inline float Ratio_unk(int a, int b) {
 inline void DrawScreen_unk(atn::Texture_unk* tex, unsigned int color, float texW, float texH) {
     float w = texW;
     float h = texH;
-    StrapRender_unk* render = lbl_8087EEE0;
-    float sx = Ratio_unk(render->mWidth, render->mFbWidth);
+    atn::GraphicsDevice_unk* render = lbl_8087EEE0;
+    float sx = Ratio_unk(render->mWidth, render->mRMode.viWidth);
     float scrW = render->mWidth;
-    float sy = Ratio_unk(render->mHeight, render->mFbHeight);
+    float sy = Ratio_unk(render->mHeight, render->mRMode.viHeight);
     float kx = 1.0f;
     float ky = 1.0f;
     float x0;

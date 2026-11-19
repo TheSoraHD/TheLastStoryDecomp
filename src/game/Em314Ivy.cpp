@@ -17,7 +17,7 @@
 
 extern "C" int sprintf(char* buf, const char* fmt, ...);
 extern "C" void* fn_8008937C(void* menu, const char* name);
-extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3, int arg4);
+extern "C" void fn_80087994(void* group, const char* name, int* value, void* func, void* arg);
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" int atoi(const char* s);
 extern "C" int rand();
@@ -29,8 +29,7 @@ extern "C" HitInfo_unk* fn_80219E6C(int id); // inferred: bullet/skill data by i
 // inferred: color as four floats (name invented)
 typedef EffectColor_unk IvyColor_unk;
 extern "C" void fn_8044D6AC(void* mgr, int money); // inferred: adds money (gmk/RandomMerchant.cpp)
-struct Field_unk;
-extern "C" Field_unk* lbl_8087F430;
+extern "C" GameTask* lbl_8087F430;
 // inferred: path of a route point (8 bytes; as in gmk/MeetingSpot.cpp)
 extern "C" unsigned short fn_803CD958(U16Table_unk* path, int point); // inferred: next point towards `point`
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
@@ -86,7 +85,7 @@ int Em314Ivy::vf0C() {
     }
     fn_80310C64((const char*)m14B4.fn_80470580(), m14B4.fn_8047059C());
     vfFC();
-    GameScene* scene = lbl_8087F430 != 0 ? ((GameTask*)lbl_8087F430)->m10D8 : 0;
+    GameScene* scene = lbl_8087F430 != 0 ? lbl_8087F430->m10D8 : 0;
     if (scene != 0) {
         int point = scene->fn_803C1560(&mPos, 0, 0, mC58.m0C.mA0, 1, -1.0f);
         if (point > 0) {
@@ -320,7 +319,7 @@ void Em314Ivy::vf100(int state) {
         fn_80178A6C();
         unsigned int n = mPoints.mSize;
         if (n != 0 && m15A0 != 0) {
-            GameScene* scene = lbl_8087F430 != 0 ? ((GameTask*)lbl_8087F430)->m10D8 : 0;
+            GameScene* scene = lbl_8087F430 != 0 ? lbl_8087F430->m10D8 : 0;
             if (scene != 0) {
                 mPos = scene->fn_803C11A4(mPoints.mData[rand() % n]->mIndex);
             }
@@ -355,7 +354,7 @@ void Em314Ivy::vf100(int state) {
 // the inlined push_back (r29/r30, r6/r7); ~8 variants (target local, inverted test, element pointer)
 void Em314Ivy::vf104() {
     m14C0++;
-    if (lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->fn_80375184() == 0 && (m58C == 8 || m58C == 10) &&
+    if (lbl_8087F430 != 0 && lbl_8087F430->fn_80375184() == 0 && (m58C == 8 || m58C == 10) &&
         (m137C & 0x400) == 0x400) {
         m15A8 = 1;
     }
@@ -495,7 +494,7 @@ void Em314Ivy::vf108() {
             m150C = 0;
         }
         if (mC58.mC0 != 0 && (m54C & 0x2000) == 0x2000 && m15A8 != 0 && lbl_8087F430 != 0 &&
-            ((GameTask*)lbl_8087F430)->fn_80375184() != 0) {
+            lbl_8087F430->fn_80375184() != 0) {
             m15A4 = 0;
             m54C &= ~0x2000;
             m15A8 = 0;
@@ -504,7 +503,7 @@ void Em314Ivy::vf108() {
     case 11: {
         mMotion.mTracks[0].m0C = anim;
         if (m15AC != 0 && m14E4 != 0 && m14E4->mType == 0 && lbl_8087F430 != 0) {
-            ((GameTask*)lbl_8087F430)->m55B8 = 2;
+            lbl_8087F430->m55B8 = 2;
         }
         float frame = mMotion.mTracks[0].m08;
         if (m14E4 == 0 && 22.0f <= frame && frame <= 30.0f) {
@@ -539,7 +538,7 @@ void Em314Ivy::vf108() {
     case 12: {
         mMotion.mTracks[0].m0C = anim;
         if (m15AC != 0 && m14E4 != 0 && m14E4->mType == 0 && lbl_8087F430 != 0) {
-            ((GameTask*)lbl_8087F430)->m55B8 = 2;
+            lbl_8087F430->m55B8 = 2;
         }
         if (m14C0 > (int)((float)m14F8 / mStatus.fn_8012DB04())) {
             m14C0 = 0;
@@ -600,7 +599,7 @@ void Em314Ivy::vf108() {
     } else {
         fn_8013CB68(rot, 0, dist, m568 * speed);
     }
-    if (lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->m54E4 == 8 && m14E4 != 0) {
+    if (lbl_8087F430 != 0 && lbl_8087F430->m54E4 == 8 && m14E4 != 0) {
         if ((unsigned int)m14E4->mF1C == (unsigned int)m14E8) {
             m14E4->mF1C = 0;
         }

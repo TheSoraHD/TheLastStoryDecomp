@@ -1,3 +1,4 @@
+#include "game/GameTask.h"
 #include "gmk/FlamingArrow.h"
 #include "atn/Csv.h"
 #include "atn/Memory.h"
@@ -29,7 +30,7 @@ extern "C" ArrowEffectMgr_unk* fn_800F7FA0();
 extern "C" void fn_80239DAC(ArrowEffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
 extern "C" void fn_800F7FA8(ArrowEffectMgr_unk* mgr, void* owner, int id);
 extern "C" void fn_8026607C(ArrowEffectMgr_unk* mgr, atn::EfpFile* efp, void* owner, int arg);
-extern "C" void fn_80276AE4(ArrowEffectMgr_unk* mgr, atn::EfpFile* efp, int arg2, const atn::Vector3* pos,
+extern "C" void fn_80276AE4(ArrowEffectMgr_unk* mgr, atn::EfpFile* efp, void* model, const atn::Vector3* pos,
                             const atn::Vector3* rot, int arg5, int arg6, int arg7, float scale);
 // inferred: sounds
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
@@ -125,11 +126,7 @@ extern "C" int fn_803D6EDC(ArrowTargets_unk* list);           // inferred: empty
 extern "C" unsigned int fn_80372574(ArrowTargets_unk* list);  // inferred: size
 extern "C" CharaManager<PlayerTask>* fn_8000D9E8(); // inferred: player manager
 extern "C" CharaManager<EnemyTask>* fn_801A03E0();  // inferred: enemy manager
-// inferred: field object (see CharaTask.cpp)
-struct Field_unk {
-    GameScene* fn_8013C504();
-};
-extern "C" Field_unk* fn_80121F00();
+extern "C" GameTask* fn_80121F00();
 
 // inferred: sounds of the hit
 static const char* const sHitSounds[] = {"SE_DG013_001_1", "SE_DG013_001_2", "SE_DG013_001_3"};

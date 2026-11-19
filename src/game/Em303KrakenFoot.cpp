@@ -20,34 +20,32 @@ extern "C" int atoi(const char* s);
 extern "C" float fn_800DC288(const char* s); // inferred: string to float
 extern "C" int fn_800DC12C(const char* s);   // inferred: string to int
 extern "C" HitInfo_unk* fn_80219E6C(int id); // inferred: bullet/skill data by id
-// inferred: field (lbl_8087F430): route tables at 0x10D8 (as in game/CharaC58_unk.cpp)
-struct Field_unk {
-    unsigned char m0000[0x10D8];
-    GameScene* m10D8;
-};
-extern "C" Field_unk* lbl_8087F430;
+extern "C" GameTask* lbl_8087F430;
 // inferred: weak getter of the field (lwz r3, lbl_8087F430; blr; as in gmk/Cannonball.cpp)
-extern "C" inline Field_unk* fn_80121F00() {
+extern "C" inline GameTask* fn_80121F00() {
     return lbl_8087F430;
 }
-extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3, int arg4);
+extern "C" void fn_80087994(void* group, const char* name, int* value, void* func, void* arg);
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 extern "C" double cos(double x);
 extern "C" double acos(double x);
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
-extern "C" void* lbl_8087EE98;
+struct ColliManager_unk;
+extern "C" ColliManager_unk* lbl_8087EE98;
 extern "C" int fn_8004ED34(void* colli, atn::ColliResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg7); // inferred: ray test
 // inferred: effect manager (class unknown), global instance at 0x8087F3C0 (as in game/Em303KrakenFootMp.cpp)
-struct EffectMgr_unk;
+namespace atn {
+class EffectManager;
+}
 struct Color4f_unk {
     Color4f_unk() {}
     float r, g, b, a;
 };
-extern "C" EffectMgr_unk* lbl_8087F3C0;
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
+extern "C" atn::EffectManager* lbl_8087F3C0;
+extern "C" void fn_8023A8B4(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Model* model, void* node,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
 extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the next effects
@@ -73,12 +71,12 @@ Em303KrakenFoot::Em303KrakenFoot(atn::Task* parent, EnemyInfo_unk* info)
 
 Em303KrakenFoot::~Em303KrakenFoot() {}
 
-extern "C" int fn_802E2328(Em303KrakenFoot* foot) {
-    if ((foot->mStatus.m0C & 0x20) == 0x20) {
+int Em303KrakenFoot::fn_802E2328() {
+    if ((mStatus.m0C & 0x20) == 0x20) {
         return 1;
     }
     bool r = false;
-    if (foot->m14C0 != 1 && foot->m14C0 != 2) {
+    if (m14C0 != 1 && m14C0 != 2) {
         r = true;
     }
     return r;
@@ -93,26 +91,26 @@ inline float GetFrame_unk(Em303KrakenFoot* foot) {
     return foot->mMotion.mTracks[0].m08;
 }
 
-extern "C" float fn_802E2360(Em303KrakenFoot* foot) {
+float Em303KrakenFoot::fn_802E2360() {
     float result = 0.0f;
-    atn::Vector3 d = lbl_8087F8A0->mHead->mPos - foot->mPos;
+    atn::Vector3 d = lbl_8087F8A0->mHead->mPos - mPos;
     float rate = (60.0f - PSVECMag(&d)) / 60.0f;
     if (rate > 0.0f) {
-        int s = foot->m58C;
-        if (s == 2 && foot->mMotion.mTracks[0].m00 == 0x2F && 10.0f < GetFrame_unk(foot) &&
-            GetFrame_unk(foot) < 20.0f) {
+        int s = m58C;
+        if (s == 2 && mMotion.mTracks[0].m00 == 0x2F && 10.0f < GetFrame_unk(this) &&
+            GetFrame_unk(this) < 20.0f) {
 
             result += 0.5f * rate;
         }
-        if (s == 13 && foot->mMotion.mTracks[0].m08 >= 25.0f && foot->mMotion.mTracks[0].m08 <= 34.0f) {
+        if (s == 13 && mMotion.mTracks[0].m08 >= 25.0f && mMotion.mTracks[0].m08 <= 34.0f) {
             result += 0.5f * rate;
         }
     }
     return result;
 }
 
-extern "C" void fn_802E2468(Em303KrakenFoot* foot, int value) {
-    foot->m1504 = value;
+void Em303KrakenFoot::fn_802E2468(int value) {
+    m1504 = value;
 }
 
 int Em303KrakenFoot::vf0C() {
@@ -624,9 +622,9 @@ struct FootFlag_unk {
 // inferred: as SpecialEnemyBase::fn_805A4A1C (name invented)
 inline void SetFlag_unk(FootFlag_unk* flag, int value) {
     if (flag->mGlobal == 0) {
-        ((GameTask*)fn_80121F00())->fn_80370AE4(flag->mIndex, value);
+        fn_80121F00()->fn_80370AE4(flag->mIndex, value);
     } else if (flag->mGlobal == 1) {
-        ((GameTask*)fn_80121F00())->fn_80370320(flag->mIndex, value, 0);
+        fn_80121F00()->fn_80370320(flag->mIndex, value, 0);
     }
 }
 
@@ -879,7 +877,7 @@ void Em303KrakenFoot::fn_802E55B0(int kind) {
         color.g = 1.0f;
         color.b = 1.0f;
         color.a = 1.0f;
-        EffectMgr_unk* mgr = lbl_8087F3C0;
+        atn::EffectManager* mgr = lbl_8087F3C0;
         fn_8023A8B4(mgr, &m14F8, &mMotion, 0, pos, rot, color, -1, -1, 1, 1.0f);
         break;
     }

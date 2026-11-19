@@ -1,3 +1,6 @@
+#include "game/PlayerManager.h"
+#include "game/GameConfig_unk.h"
+#include "game/GameTask.h"
 #include "game/Em308ParmCrab.h"
 #include "atn/Material_unk.h"
 #include "game/HitInfo_unk.h"
@@ -18,27 +21,24 @@ extern "C" int rand();
 extern "C" int sprintf(char* s, const char* format, ...);
 extern "C" int fn_800DC12C(const char* s);   // inferred: string to int
 extern "C" float fn_800DC288(const char* s); // inferred: string to float
-extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3, int arg4); // inferred: debug flag
-// inferred: field (lbl_8087F430); m10D8: route tables (as in game/Em305VampireMp.cpp)
-struct Field_unk {
-    unsigned char m0000[0x10D8];
-    GameScene* m10D8;
-};
-extern "C" Field_unk* lbl_8087F430;
+extern "C" void fn_80087994(void* group, const char* name, int* value, void* func, void* arg); // inferred: debug flag
+extern "C" GameTask* lbl_8087F430;
 // inferred: std::string concatenation (weak copy 0x8006AFF8)
 extern "C" std::string fn_8006AFF8(const std::string& a, const std::string& b);
 
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
 // inferred: effect manager (class unknown), global instance at 0x8087F3C0
-struct EffectMgr_unk;
-extern "C" EffectMgr_unk* lbl_8087F3C0;
-extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
+namespace atn {
+class EffectManager;
+}
+extern "C" atn::EffectManager* lbl_8087F3C0;
+extern "C" void fn_80239DAC(atn::EffectManager* mgr, void* owner, int id, int arg); // inferred: stops an effect
 extern "C" void fn_800CB5C8(atn::SoundRef* sound, int frames, int arg); // inferred: stops the sound
 struct Color4f_unk {
     Color4f_unk() {}
     float r, g, b, a;
 };
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
+extern "C" void fn_8023A8B4(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Model* model, void* node,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
 extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the next effects
@@ -57,27 +57,19 @@ struct ColorF_unk {
     float r, g, b, a;
 };
 extern "C" ColorF_unk lbl_807C8398; // inferred: color of the downed enemies (bss)
-// inferred: game settings (lbl_8087F0A8); frames per second at 0x30 (as in game/Em308InvertCrab.cpp)
-struct CrabSettings_unk {
-    unsigned char m00[0x30];
-    int mFps;
-};
-extern "C" CrabSettings_unk* lbl_8087F0A8;
+extern "C" GameConfig_unk* lbl_8087F0A8;
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
 extern "C" double cos(double x);
-// inferred: player manager (lbl_8087F8A0, as in game/Em308InvertCrab.cpp)
-struct PlayerManager_unk {
-    unsigned char m00[0x48];
-    CharaTask* mHead;
-};
-extern "C" PlayerManager_unk* lbl_8087F8A0;
-extern "C" void* lbl_8087EE98;
+extern "C" PlayerManager* lbl_8087F8A0;
+struct ColliManager_unk;
+extern "C" ColliManager_unk* lbl_8087EE98;
 extern "C" int fn_8004ED34(void* colli, atn::ColliResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg7); // inferred: ray test
 // inferred: skill effects (as in game/Em308InvertCrab.cpp)
 struct CrabSkill_unk;
-extern "C" void* lbl_8087F9E8;
+class SkillEffectManager;
+extern "C" SkillEffectManager* lbl_8087F9E8;
 extern "C" CrabSkill_unk* fn_8059B66C(void* mgr, HitInfo_unk* skill, CharaTask* user, CharaTask* target,
                                       const atn::Vector3* pos, const atn::Vector3* rot,
                                       boost::function<void(CrabSkill_unk*)> callback, float rate);
@@ -101,7 +93,7 @@ struct CrabDamage_unk {
 extern "C" void fn_80040B40(CrabDamage_unk* result, HitInfo_unk* data, CharaStatus* status, CharaStatus* owner,
                             unsigned int flags, const HitParam_unk* param); // inferred: applies the skill
 extern "C" double sqrt(double x);
-extern "C" int fn_8004D314(void* world, int arg, const atn::Vector3* pos, const atn::Vector3* dir, unsigned int mask,
+extern "C" int fn_8004D314(void* world, void* arg, const atn::Vector3* pos, const atn::Vector3* dir, unsigned int mask,
                            void* ignore, int arg7, float radius); // inferred: sphere/ray test (as in gmk/Brazier.cpp)
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
 
@@ -245,8 +237,8 @@ int Em308ParmCrab::vf0C() {
     return 0;
 }
 // inferred: gravity per frame (as fn_802F0998 of gmk/Cannonball.cpp)
-inline float Gravity_unk(CrabSettings_unk* s) {
-    return -98.1f / (float)(s->mFps * s->mFps);
+inline float Gravity_unk(GameConfig_unk* s) {
+    return -98.1f / (float)(s->m030 * s->m030);
 }
 
 // inferred: the ground under the crab has an attribute 0x14, 0x15 or 0x1A-0x1D (as

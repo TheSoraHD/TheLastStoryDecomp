@@ -1,20 +1,12 @@
+#include "game/GameConfig_unk.h"
 #include "game/GameSaveBackground.h"
 #include "atn/Memory.h"
 
 extern "C" char* strcpy(char* dst, const char* src);
 
-// inferred: globals of unknown classes
-struct Unk_8087F0A8 {
-    unsigned char m000[0x198];
-    int m198;
-};
-struct Unk_8087F518 {
-    unsigned char m0000[0x3EF4];
-    int m3EF4;
-};
-extern "C" Unk_8087F0A8* lbl_8087F0A8;
-extern "C" Unk_8087F518* lbl_8087F518;
-extern "C" void fn_8046EED8(Unk_8087F518* obj);
+extern "C" GameConfig_unk* lbl_8087F0A8;
+#include "atn/LoadManager.h"
+extern "C" atn::Loader* lbl_8087F518;
 extern "C" int lbl_8087DCC8;
 extern "C" int lbl_8087DCCC;
 extern "C" int lbl_8087F434;

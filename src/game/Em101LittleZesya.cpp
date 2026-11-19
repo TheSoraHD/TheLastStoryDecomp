@@ -14,6 +14,7 @@
 #include "game/GameTask.h"
 #include "atn/ColliBase.h"
 #include "game/GameSceneFind_unk.h"
+#include "atn/TextTable_unk.h"
 
 // inferred: empty release assert (the original functions are not auto-inlined)
 #define ASSERT_UNK(x) ((void)0)
@@ -22,13 +23,9 @@ extern "C" unsigned long strlen(const char* s);
 extern "C" int atoi(const char* s);
 extern "C" int fn_800DC12C(const char* s);   // inferred: string to int
 extern "C" float fn_800DC288(const char* s); // inferred: string to float
-// inferred: field (lbl_8087F430): route tables at 0x10D8 (as in game/Em306GurgBeast.cpp)
-struct Field_unk {
-    unsigned char m0000[0x10D8];
-    GameScene* m10D8;
-};
-extern "C" Field_unk* lbl_8087F430;
-extern "C" void* lbl_8087EE98;
+extern "C" GameTask* lbl_8087F430;
+struct ColliManager_unk;
+extern "C" ColliManager_unk* lbl_8087EE98;
 extern "C" int fn_8004ED34(void* colli, atn::ColliResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg7); // inferred: ray test
 extern "C" int strcmp(const char* a, const char* b);
@@ -36,11 +33,11 @@ extern "C" int strncmp(const char* a, const char* b, unsigned long n);
 // inferred: std::string concatenation (weak copy 0x8006AFF8)
 extern "C" std::string fn_8006AFF8(const std::string& a, const std::string& b);
 // inferred: debug menu entries (as in game/Em101ElderZesya.cpp)
-extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3, int arg4);
-extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, int arg6,
-                            int arg7);
-extern "C" void fn_8008771C(void* group, const char* name, float* value, int arg3, int arg4, float min, float max,
-                            float step);
+extern "C" void fn_80087994(void* group, const char* name, int* value, void* func, void* arg);
+extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, void* func,
+                            void* arg);
+extern "C" void fn_8008771C(void* group, const char* name, float* value, float min, float max, float step, void* func,
+                            void* arg);
 
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 extern "C" atn::Vector3 lbl_807C7030;              // inferred: zero vector
@@ -49,20 +46,16 @@ extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
 extern "C" int fn_800DD3FC(wchar_t* s, const wchar_t* format, ...); // inferred: wide sprintf
 extern "C" void* memset(void* dst, int c, unsigned long n);
 extern "C" const wchar_t lbl_808813D0[2]; // inferred: empty text
-// inferred: camp message table (lbl_8087F1E4, as in game/Em309Ghoul.cpp)
-struct ZesyaMsgTable_unk {
-    const wchar_t* Get_unk(int id) { return mText[id] != 0 ? mText[id] : lbl_808813D0; }
-    const wchar_t* mText[1];
-};
-extern "C" ZesyaMsgTable_unk* lbl_8087F1E4;
 // inferred: effect manager (class unknown), global instance at 0x8087F3C0
-struct EffectMgr_unk;
-extern "C" EffectMgr_unk* lbl_8087F3C0;
+namespace atn {
+class EffectManager;
+}
+extern "C" atn::EffectManager* lbl_8087F3C0;
 struct Color4f_unk {
     Color4f_unk() {}
     float r, g, b, a;
 };
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
+extern "C" void fn_8023A8B4(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Model* model, void* node,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
 extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the next effects
@@ -101,7 +94,7 @@ inline void PlayEffectA_unk(atn::EfpFile* efp, atn::Model* model) {
     color.a = 1.0f;
     fn_8023A8B4(lbl_8087F3C0, efp, model, 0, pos, rot, color, -1, -1, 1, 1.0f);
 }
-extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
+extern "C" void fn_80239DAC(atn::EffectManager* mgr, void* owner, int id, int arg); // inferred: stops an effect
 
 // NONMATCHING: 99.74% - r26/r27 of the second std::string (address and literal swapped) and r25/r26 of the
 // strlen of the parameters: same as Em101ElderZesya and Em201ZanGurg (3 variants: literal in a local,
@@ -131,7 +124,7 @@ Em101LittleZesya::Em101LittleZesya(atn::Task* parent, EnemyInfo_unk* info)
     void* group = m15C8.Load("Em101LittleZesya");
     fn_80087994(group, "DebugDisp", &m15CC, 0, 0);
     fn_800874C8(group, "WaitFrame", &m15C0, 0, 1000000, 1, 0, 0);
-    fn_8008771C(group, "AttackChanceFrame", &m15C4, 0, 0, 0.0f, 100000.0f, 1.0f);
+    fn_8008771C(group, "AttackChanceFrame", &m15C4, 0.0f, 100000.0f, 1.0f, 0, 0);
     m156C.LoadRequest("/effect/ef_bs007a.efp");
     m1578.LoadRequest("cm002_00.efp");
     m1584.LoadRequest("/effect/ef_sc019a.efp");
@@ -220,10 +213,10 @@ void Em101LittleZesya::vf10() {
     fn_80145334();
 }
 
-extern "C" void fn_8025D6D0(Em101LittleZesya* zesya) {
-    zesya->m14FC = zesya->mPos;
-    zesya->m14F8 = 1;
-    zesya->m1508 = zesya->mRot;
+void Em101LittleZesya::fn_8025D6D0() {
+    m14FC = mPos;
+    m14F8 = 1;
+    m1508 = mRot;
 }
 
 inline void Em101LittleZesya::Idle_unk() {
@@ -235,13 +228,13 @@ inline void Em101LittleZesya::Idle_unk() {
     fn_80239DAC(lbl_8087F3C0, this, 102, 1);
 }
 
-extern "C" void fn_8025D704(Em101LittleZesya* zesya) {
-    zesya->mColli.mFlags |= 1;
-    zesya->fn_8016DA4C();
-    zesya->Idle_unk();
-    zesya->fn_8016E970(3);
-    zesya->fn_8015495C(0, 1, 1, 1);
-    zesya->m14F8 = 0;
+void Em101LittleZesya::fn_8025D704() {
+    mColli.mFlags |= 1;
+    fn_8016DA4C();
+    Idle_unk();
+    fn_8016E970(3);
+    fn_8015495C(0, 1, 1, 1);
+    m14F8 = 0;
 }
 
 // inferred: back to state 0 (name invented; the same block is inlined in fn_8025DE7C and fn_8025E9E4)
@@ -834,8 +827,8 @@ void Em101LittleZesya::vf40(HitInfo_unk* hit) {
     float rate = mStatus.m04 / (float)mStatus.mParamB.m84;
     if (rate < 0.5f) {
         if (msg->mAttacker != 0 && msg->mAttacker->mType == 0) {
-            if (((GameTask*)lbl_8087F430)->fn_80370A78(0x6B) == 0) {
-                ((GameTask*)lbl_8087F430)->fn_80370AE4(0x6B, 1);
+            if (lbl_8087F430->fn_80370A78(0x6B) == 0) {
+                lbl_8087F430->fn_80370AE4(0x6B, 1);
             }
         }
         if (m15BC == 0) {
@@ -861,7 +854,7 @@ void Em101LittleZesya::vf40(HitInfo_unk* hit) {
     }
 }
 
-extern "C" void fn_8025FE30(Em101LittleZesya* zesya, const ZesyaWarp_unk* warp) {
-    zesya->m15BC = 1;
-    zesya->m15A8 = *warp;
+void Em101LittleZesya::fn_8025FE30(const ZesyaWarp_unk* warp) {
+    m15BC = 1;
+    m15A8 = *warp;
 }

@@ -1,3 +1,4 @@
+#include "game/GameConfig_unk.h"
 #include "game/EnemySeaLizerd.h"
 #include "atn/Csv.h"
 #include "std/string.h"
@@ -12,15 +13,11 @@ extern "C" double sqrt(double x);
 // inferred: bullets (as in gmk/LandMine.cpp)
 class BattleTask;
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
-extern "C" void* lbl_8087EE98;
+struct ColliManager_unk;
+extern "C" ColliManager_unk* lbl_8087EE98;
 extern "C" int fn_8004ED34(void* colli, atn::ColliResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg7); // inferred: ray test
-// inferred: game settings (m30: frames per second)
-struct Settings_unk {
-    unsigned char m00[0x30];
-    int m30;
-};
-extern "C" Settings_unk* lbl_8087F0A8;
+extern "C" GameConfig_unk* lbl_8087F0A8;
 
 EnemySeaLizerd::EnemySeaLizerd(atn::Task* parent, EnemyInfo_unk* info)
     : EnemyTask(parent, info->m20), m14B8(0), m14BC(120), m14C0(0), m14C4(0), m14C8(2), m14CC(0), m14D0(0),
@@ -156,7 +153,7 @@ void EnemySeaLizerd::fn_80354DA4() {
 
 // inferred: gravity per frame squared (name invented)
 inline float Gravity_unk() {
-    return -98.1f / (lbl_8087F0A8->m30 * lbl_8087F0A8->m30);
+    return -98.1f / (lbl_8087F0A8->m030 * lbl_8087F0A8->m030);
 }
 
 // NONMATCHING: 98.4% - store order of the first direction, scheduling of dir.y += 8, f0/f5 at the end

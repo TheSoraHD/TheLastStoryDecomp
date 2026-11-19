@@ -1,3 +1,5 @@
+#include "atn/RenderSetting_unk.h"
+#include "atn/GraphicsDevice.h"
 #include "atn/Layer2DBlur.h"
 #include "atn/GXDecl.h"
 #include "atn/RenderManager.h"
@@ -8,23 +10,11 @@ extern "C" double cos(double x);
 static inline float SinF_unk(float x) { return sin(x); }
 static inline float CosF_unk(float x) { return cos(x); }
 
-// inferred: globals of unknown classes
-struct RenderMgr_unk {
-    unsigned char m00[0x3C];
-    int mWidth;  // 0x3C
-    int mHeight; // 0x40
-};
-struct DebugParams_unk {
-    unsigned char m000[0x418];
-    float m418; // inferred: blur scale X
-    float m41C; // inferred: blur scale Y
-    float m420; // inferred: blur angle
-    // inferred: accessors (read after the sin/cos call of each argument, as in the target)
-    float GetScaleX_unk() const { return m418; }
-    float GetScaleY_unk() const { return m41C; }
-};
-extern "C" RenderMgr_unk* lbl_8087EEE0;
-extern "C" DebugParams_unk* lbl_8087EFA8;
+extern "C" atn::GraphicsDevice_unk* lbl_8087EEE0;
+extern "C" RenderSetting_unk* lbl_8087EFA8;
+// inferred: blur size (read after the sin/cos call of each argument, as in the target); names invented
+static inline float BlurWidth_unk(const RenderSetting_unk* r) { return r->m418; }
+static inline float BlurHeight_unk(const RenderSetting_unk* r) { return r->m41C; }
 namespace atn {
 // inferred: see atn/LinearAllocator.cpp
 class PostFxManager {
@@ -33,11 +23,10 @@ public:
 };
 } // namespace atn
 extern "C" atn::PostFxManager* lbl_8087EF8C;
-extern "C" void fn_800A981C(GXTexObj* src, void* dst, int width, int height, int format, int arg5, int arg6,
+extern "C" void fn_800A981C(GXTexObj* src, void* dst, int width, int height, int format, void* arg5, int arg6,
                             float offsetX, float offsetY); // inferred: directional blur pass
-extern "C" void fn_800763FC(RenderMgr_unk* mgr, GXTexObj* obj, int map);
-extern "C" void fn_80075F58(RenderMgr_unk* mgr, int x, int y, int w, int h);
-extern "C" void fn_80075DEC(RenderMgr_unk* mgr);
+extern "C" void fn_80075F58(atn::GraphicsDevice_unk* mgr, int x, int y, int w, int h);
+extern "C" void fn_80075DEC(atn::GraphicsDevice_unk* mgr);
 
 namespace atn {
 
@@ -78,10 +67,10 @@ void Layer2DBlur::vf20() {
     GXSetTexCopyDst(w, h, 6, 1);
     GXCopyTex(image0, 1);
     GXPixModeSync();
-    fn_800A981C(&obj0, image1, w, h, 6, 0, 0, CosF_unk(lbl_8087EFA8->m420) * lbl_8087EFA8->GetScaleX_unk(),
-                -SinF_unk(lbl_8087EFA8->m420) * lbl_8087EFA8->GetScaleX_unk());
-    fn_800A981C(&obj1, image0, w, h, 6, 0, 0, -SinF_unk(lbl_8087EFA8->m420) * lbl_8087EFA8->GetScaleY_unk(),
-                CosF_unk(lbl_8087EFA8->m420) * lbl_8087EFA8->GetScaleY_unk());
+    fn_800A981C(&obj0, image1, w, h, 6, 0, 0, CosF_unk(lbl_8087EFA8->m420) * BlurWidth_unk(lbl_8087EFA8),
+                -SinF_unk(lbl_8087EFA8->m420) * BlurWidth_unk(lbl_8087EFA8));
+    fn_800A981C(&obj1, image0, w, h, 6, 0, 0, -SinF_unk(lbl_8087EFA8->m420) * BlurHeight_unk(lbl_8087EFA8),
+                CosF_unk(lbl_8087EFA8->m420) * BlurHeight_unk(lbl_8087EFA8));
     GXSetNumTexGens(1);
     GXSetNumChans(0);
     GXSetNumTevStages(1);

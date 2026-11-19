@@ -2,7 +2,10 @@
 // Nunchuk) shown over the game, with a direct GX text fallback while its layouts are not loaded.
 // No vtable or RTTI; class name ErrorManager from the boost::bind type names (game/main.cpp). Instance at lbl_8087F420 (see game/GameSystem_unk.cpp).
 
+#include "atn/net/Manager.h"
+#include "atn/GraphicsDevice.h"
 #include "atn/D2A_Task.h"
+#include "atn/D2A_TaskApi_unk.h"
 #include "atn/FadeCommon.h"
 #include "atn/GXDecl.h"
 #include "atn/Memory.h"
@@ -29,59 +32,39 @@ extern "C" void fn_801FED24(void* layout, unsigned int id, int index, float valu
 extern "C" void fn_801FECE0(void* layout, unsigned int id, float value);
 extern "C" void fn_801FEE08(void* layout, unsigned int id, const wchar_t* text);
 extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float volume);
-extern "C" void* lbl_8087EF70; // inferred: pad
+struct Pad_unk;
+extern "C" Pad_unk* lbl_8087EF70; // inferred: pad
 extern "C" int fn_800A555C(void* pad, int port, int button); // inferred: button triggered
 // inferred: view of HomeButtonMenu (game/HomeButtonMenu.cpp), only the members used here
 // HomeButtonMenu: game/HomeButtonMenu.h
-// inferred: input manager (lbl_8087F018)
-struct SysInput_unk {
-    int GetExt_unk() { return m5C; } // inferred: name invented
-    bool IsNoPad_unk() const { return m40C0 == 0; }
-    unsigned char m0000[0x5C];
-    unsigned char m5C; // inferred: extension type of the first Wii Remote
-    unsigned char m005D[0x40C0 - 0x5D];
-    int m40C0; // inferred: the first Wii Remote is connected
-};
-extern "C" SysInput_unk* lbl_8087F018;
+#include "atn/WPad_unk.h"
+extern "C" WPad_unk* lbl_8087F018; // inferred: input manager
 extern "C" int DVDCheckDisk();
 // inferred: arena (lbl_8087F610)
 struct SysArena_unk;
 extern "C" SysArena_unk* lbl_8087F610;
 extern "C" void fn_804FB530(SysArena_unk* arena);
-struct SysArenaState_unk {
-    unsigned char m00[0xC8];
-    int mC8;
-};
-extern "C" SysArenaState_unk* lbl_8087F628;
+extern "C" atn::net::Manager* lbl_8087F628;
 // inferred: sound, bgm, movie and field pauses
 extern "C" void* lbl_8087EE90;
 extern "C" void fn_8004A2CC(void* bgm, int pause, int frames, int arg);
-struct SysMovie_unk {
-    unsigned char m00[0x08];
-    int m08; // inferred: state (4 playing, 5 paused)
-};
-extern "C" SysMovie_unk* lbl_8087F010;
-struct SysField_unk;
-extern "C" SysField_unk* lbl_8087F430;
-extern "C" void* lbl_8087EF68; // inferred: save manager
+#include "atn/VideoTHP.h"
+extern "C" atn::VideoTHP* lbl_8087F010;
+extern "C" GameTask* lbl_8087F430;
+namespace atn {
+class NandManager;
+}
+extern "C" atn::NandManager* lbl_8087EF68; // inferred: save manager
 extern "C" int fn_800A4228(void* obj, int* out); // inferred: nonzero while saving
 struct SysSave_unk {
     unsigned char m000[0x174];
     int m174;
 };
-// inferred: debug drawing and graphics device
-struct SysGraphics_unk {
-    unsigned char m00[0x3C];
-    int mWidth;  // 0x3C
-    int mHeight; // 0x40
-    unsigned char m44[0x48 - 0x44];
-    unsigned int mClearColor; // 0x48
-};
-extern "C" SysGraphics_unk* lbl_8087EEE0;
-extern "C" void fn_8007192C(SysGraphics_unk* gfx); // inferred: begins the frame
-extern "C" void fn_80075DEC(SysGraphics_unk* gfx);
-extern "C" void fn_80071AFC(SysGraphics_unk* gfx);
-extern "C" void fn_80071D60(SysGraphics_unk* gfx, int arg);
+extern "C" atn::GraphicsDevice_unk* lbl_8087EEE0;
+extern "C" void fn_8007192C(atn::GraphicsDevice_unk* gfx); // inferred: begins the frame
+extern "C" void fn_80075DEC(atn::GraphicsDevice_unk* gfx);
+extern "C" void fn_80071AFC(atn::GraphicsDevice_unk* gfx);
+extern "C" void fn_80071D60(atn::GraphicsDevice_unk* gfx, int arg);
 // GX and OS
 typedef float SysMtx[3][4];
 typedef float SysMtx44[4][4];
@@ -470,7 +453,7 @@ void ErrorManager::fn_80363DBC() {
     }
     int error = 0;
     if (!IsBusy_unk()) {
-        SysInput_unk* input;
+        WPad_unk* input;
         if (m0C != 0 && (input = lbl_8087F018) != 0 &&
             (HomeButtonMenu::sInstance == 0 || HomeButtonMenu::sInstance->m84 != 1)) {
             if (lbl_8087F018->IsNoPad_unk()) {
@@ -587,13 +570,13 @@ void ErrorManager::fn_80363DBC() {
                 lbl_8087F010->m08 = 4;
             }
             if (lbl_8087F430 != 0) {
-                ((GameTask*)lbl_8087F430)->fn_8037177C();
+                lbl_8087F430->fn_8037177C();
             }
             mPaused = 0;
         }
     } else {
         int pause = 1;
-        if (lbl_8087F610 != 0 && lbl_8087F628->mC8 >= 8) {
+        if (lbl_8087F610 != 0 && lbl_8087F628->mState >= 8) {
             pause = 0;
         }
         void* save = lbl_8087EF68;
@@ -653,8 +636,8 @@ static inline void DrawLine_unk(ErrorManager* m, const char* msg, int y) {
 
 // inferred: clears the screen before drawing the message with the OS font when the layouts are not available
 // (name invented; gfx has to come from an inline for the loop registers to match)
-static inline SysGraphics_unk* BeginFontDraw_unk() {
-    SysGraphics_unk* gfx;
+static inline atn::GraphicsDevice_unk* BeginFontDraw_unk() {
+    atn::GraphicsDevice_unk* gfx;
     gfx = lbl_8087EEE0;
     gfx->mClearColor = ErrColor_unk(0.0f, 0.0f, 0.0f, 1.0f).ToARGB_unk();
     fn_8007192C(gfx);
@@ -681,7 +664,7 @@ void ErrorManager::fn_803646C4() {
             return;
         }
         if (mFont) {
-            SysGraphics_unk* gfx = BeginFontDraw_unk();
+            atn::GraphicsDevice_unk* gfx = BeginFontDraw_unk();
             for (unsigned int i = 0; i < 4; i++) {
                 DrawLine_unk(this, sMessages[fn_8006BA30()][mError][i], i * 30 + 50);
             }
@@ -700,7 +683,7 @@ void ErrorManager::fn_80364BE8() {
         mFont.reset(new ((MemoryTag)1, "", "", 0) unsigned char[0x20120]);
     }
     OSInitFont(mFont.get());
-    SysGraphics_unk* gfx = lbl_8087EEE0;
+    atn::GraphicsDevice_unk* gfx = lbl_8087EEE0;
     SysMtx44 proj;
     C_MTXOrtho(proj, 0.0f, gfx->mHeight, 0.0f, gfx->mWidth, 0.0f, -100.0f);
     GXSetProjection(proj, 1);

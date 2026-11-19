@@ -1,3 +1,4 @@
+#include "game/GameTask.h"
 #include "game/Em204Mulue.h"
 #include "game/BattleTask.h"
 #include "atn/Material_unk.h"
@@ -12,6 +13,7 @@
 #include "std/string_members.h"
 #include "math/VecAssign_unk.h"
 #include "game/GameSceneFind_unk.h"
+#include "atn/EffectManager.h"
 
 extern "C" unsigned long strlen(const char* s);
 extern "C" int strcmp(const char* a, const char* b);
@@ -25,41 +27,32 @@ extern "C" int fn_800DC12C(const char* s);   // inferred: string to int
 extern "C" std::string fn_8006AFF8(const std::string& a, const std::string& b);
 extern "C" HitInfo_unk* fn_80219E6C(int id); // inferred: bullet/skill data by id
 // inferred: debug menu helper (as in game/CharaTask.cpp)
-extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3, int arg4);
+extern "C" void fn_80087994(void* group, const char* name, int* value, void* func, void* arg);
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
 // inferred: effect manager (class unknown), global instance at 0x8087F3C0 (two flags at 0xC4/0xC8 are
 // set around the spin effect, as in game/Em209SmallGolem.cpp)
-struct EffectMgr_unk {
-    unsigned char m00[0xC4];
-    int mC4;
-    int mC8;
-};
-extern "C" EffectMgr_unk* lbl_8087F3C0;
+extern "C" atn::EffectManager* lbl_8087F3C0;
 struct Color4f_unk {
     Color4f_unk() {}
     float r, g, b, a;
 };
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
+extern "C" void fn_8023A8B4(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Model* model, void* node,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
-extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
+extern "C" void fn_80239DAC(atn::EffectManager* mgr, void* owner, int id, int arg); // inferred: stops an effect
 extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the next effects
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
 extern "C" int fn_800CB58C(atn::SoundRef* sound); // inferred: nonzero while playing
 extern "C" void fn_800CB5C8(atn::SoundRef* sound, int frames, int arg); // inferred: stops the sound
 extern "C" void fn_800CB6E4(atn::SoundRef* sound, const atn::Vector3* pos); // inferred: moves the sound
-extern "C" void* lbl_8087EE98; // inferred: collision world
+struct ColliManager_unk;
+extern "C" ColliManager_unk* lbl_8087EE98; // inferred: collision world
 extern "C" void fn_8004D124(void* world); // inferred: rebuilds the active shapes
 extern "C" void fn_805A5078(const atn::Vector3* pos, const atn::Vector3* dir, int id, float radius, float angle);
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
-// inferred: field (lbl_8087F430); m10D8: route tables
-struct Field_unk {
-    unsigned char m0000[0x10D8];
-    GameScene* m10D8;
-};
-extern "C" Field_unk* lbl_8087F430;
+extern "C" GameTask* lbl_8087F430;
 // inferred: player of the multiplayer session (0xD5C bytes, as in MP/D2AMpMenuCockpit.cpp)
 struct MulueMpPlayer_unk {
     CharaTask* m00;
@@ -279,15 +272,15 @@ int Em204MulueMp::vf0C() {
         m1530.IsLoading() == 0 && m153C.IsLoading() == 0 && m1850.fn_80473F50() == 0) {
         mColli.mFlags &= ~0x80000000;
         m1698.mFlags |= 3;
-        m1698.m0C = (int)this;
+        m1698.m0C = this;
         m16F0.mFlags |= 3;
-        m16F0.m0C = (int)this;
+        m16F0.m0C = this;
         m1748.mFlags |= 3;
-        m1748.m0C = (int)this;
+        m1748.m0C = this;
         m17A0.mFlags |= 3;
-        m17A0.m0C = (int)this;
+        m17A0.m0C = this;
         m17F8.mFlags |= 3;
-        m17F8.m0C = (int)this;
+        m17F8.m0C = this;
         fn_802B4B08();
         m154C.mSize = 0;
         if (m1850.fn_80470580() != 0 && lbl_8087F430 != 0 && lbl_8087F430->m10D8 != 0) {
@@ -608,8 +601,8 @@ void Em204MulueMp::vf104() {
                     fn_8016E970(6);
                     m560 = 4;
                     PlayMotion_unk(0x140, 1, 1.0f);
-                    lbl_8087F3C0->mC4 = 1;
-                    lbl_8087F3C0->mC8 = 1;
+                    lbl_8087F3C0->mSystem.m78 = 1;
+                    lbl_8087F3C0->mSystem.m7C = 1;
                     fn_80232B7C(this, 0x66);
                     {
                         Color4f_unk color;
@@ -627,8 +620,8 @@ void Em204MulueMp::vf104() {
                         color.a = 1.0f;
                         fn_8023A8B4(lbl_8087F3C0, &m1530, &mMotion, 0, pos, rot, color, -1, -1, 1, 1.0f);
                     }
-                    lbl_8087F3C0->mC4 = 0;
-                    lbl_8087F3C0->mC8 = 0;
+                    lbl_8087F3C0->mSystem.m78 = 0;
+                    lbl_8087F3C0->mSystem.m7C = 0;
                     m151C = 0;
                     m1518 = 0;
                     break;
@@ -909,7 +902,7 @@ void Em204MulueMp::fn_802B55B0(int aimed, int arg) {
                 }
                 MulueMpShot_unk shot;
                 shot.m00 = 2.0f;
-                shot.m04 = (int)&m1524;
+                shot.m04 = &m1524;
                 shot.m08 = 0;
                 shot.m0C = m1680;
                 bullet->fn_8010EE78(&shot, &hips, &to, this, -1, 0, -1.0f);
@@ -1172,8 +1165,8 @@ void Em204MulueMp::fn_802B6AF8(int arg) {
     fn_8016E970(6);
     m560 = 4;
     PlayMotion_unk(0x140, 1, 1.0f);
-    lbl_8087F3C0->mC4 = 1;
-    lbl_8087F3C0->mC8 = 1;
+    lbl_8087F3C0->mSystem.m78 = 1;
+    lbl_8087F3C0->mSystem.m7C = 1;
     fn_80232B7C(this, 0x66);
     {
         Color4f_unk color;
@@ -1189,11 +1182,11 @@ void Em204MulueMp::fn_802B6AF8(int arg) {
         color.g = 1.0f;
         color.b = 1.0f;
         color.a = 1.0f;
-        EffectMgr_unk* mgr = lbl_8087F3C0;
+        atn::EffectManager* mgr = lbl_8087F3C0;
         fn_8023A8B4(mgr, &m1530, &mMotion, 0, pos, rot, color, -1, -1, 1, 1.0f);
     }
-    lbl_8087F3C0->mC4 = 0;
-    lbl_8087F3C0->mC8 = 0;
+    lbl_8087F3C0->mSystem.m78 = 0;
+    lbl_8087F3C0->mSystem.m7C = 0;
     m151C = 0;
     int i = rand() % m1590.size();
     m15E4 = m1590.mData[i]->mPos;

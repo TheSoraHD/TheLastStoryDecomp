@@ -446,13 +446,13 @@ int Manager::fn_805092FC() {
 }
 
 // 0x80509A88: inferred: locks the mutex of the manager
-extern "C" void fn_80509A88(Manager* mgr) {
-    OSLockMutex(&mgr->mMutex);
+void Manager::fn_80509A88() {
+    OSLockMutex(&mMutex);
 }
 
 // 0x80509A90: inferred: unlocks the mutex of the manager
-extern "C" void fn_80509A90(Manager* mgr) {
-    OSUnlockMutex(&mgr->mMutex);
+void Manager::fn_80509A90() {
+    OSUnlockMutex(&mMutex);
 }
 
 // 0x80509A98

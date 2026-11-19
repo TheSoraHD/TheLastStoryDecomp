@@ -47,23 +47,26 @@ inline void GXPosition3f32_unk(float x, float y, float z) {
 }
 
 // inferred: render state and debug menu functions (automatic names)
-struct RenderState_unk;
-extern "C" RenderState_unk* lbl_8087EEE0;
-extern "C" void fn_80076760(RenderState_unk* rs, int state, int value);
-extern "C" void fn_800761A8(RenderState_unk* rs);
+namespace atn {
+struct GraphicsDevice_unk;
+}
+extern "C" atn::GraphicsDevice_unk* lbl_8087EEE0;
+extern "C" void fn_80076760(atn::GraphicsDevice_unk* rs, int state, int value);
+extern "C" void fn_800761A8(atn::GraphicsDevice_unk* rs);
 // inferred: ray test against the map (start, end, hit), returns nonzero on hit
 extern "C" int fn_8004ECC0(void* map, atn::Vector3* hit, const atn::Vector3* start, const atn::Vector3* end,
-                           unsigned int mask, int arg5, int arg6);
-extern "C" void* lbl_8087EE98;
+                           unsigned int mask, void* arg5, int arg6);
+struct ColliManager_unk;
+extern "C" ColliManager_unk* lbl_8087EE98;
 extern "C" void* fn_8008937C(void* parent, const char* name);
-extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, int arg6,
-                            int arg7);
-extern "C" void fn_8008771C(void* group, const char* name, float* value, int arg3, int arg4, float min, float max,
-                            float step);
-extern "C" void fn_80087E9C(void* group, const char* name, float* value, int arg3, int arg4, float min, float max,
-                            float step); // inferred: 3D vector
-extern "C" void fn_80088AF4(void* group, const char* name, float* value, int arg3, int arg4, float min, float max,
-                            float step); // inferred: color
+extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, void* func,
+                            void* arg);
+extern "C" void fn_8008771C(void* group, const char* name, float* value, float min, float max, float step, void* func,
+                            void* arg);
+extern "C" void fn_80087E9C(void* group, const char* name, float* value, float min, float max, float step, void* func,
+                            void* arg); // inferred: 3D vector
+extern "C" void fn_80088AF4(void* group, const char* name, float* value, float min, float max, float step, void* func,
+                            void* arg); // inferred: color
 
 // inferred: draws the drops as lines (1) or points (0)
 static int sRainLines = 1;
@@ -210,7 +213,7 @@ void fn_800B1C44(Rain* rain, RenderManager* camera) {
     if (rain->mCount <= 0) {
         return;
     }
-    RenderState_unk* rs = lbl_8087EEE0;
+    atn::GraphicsDevice_unk* rs = lbl_8087EEE0;
     fn_80076760(rs, 8, 1);
     fn_80076760(rs, 9, 2);
     fn_80076760(rs, 10, 0);
@@ -278,15 +281,15 @@ void Rain::fn_800B2180() {
 void Rain::fn_800B23C8(void* menu) {
     void* group = fn_8008937C(menu, "RainDrops");
     fn_800874C8(group, "Count", &mCount, 0, mCount, 1, 0, 0);
-    fn_80088AF4(group, "Color", &mColor.r, 0, 0, -255.0f, 255.0f, 0.1f);
-    fn_80087E9C(group, "Direction", &mDirection.x, 0, 0, -1.0f, 1.0f, 0.1f);
-    fn_8008771C(group, "Min Spd", &mMinSpeed, 0, 0, 0.0f, 1000.0f, 0.01f);
-    fn_8008771C(group, "Max Spd", &mMaxSpeed, 0, 0, 0.0f, 1000.0f, 0.01f);
-    fn_8008771C(group, "Size", &mSize, 0, 0, 1.0f, 42.0f, 1.0f / 6.0f);
-    fn_8008771C(group, "Length", &mLength, 0, 0, 0.0f, 42.0f, 1.0f / 6.0f);
-    fn_8008771C(group, "Length Var", &mLengthVar, 0, 0, 0.0f, 42.0f, 1.0f / 6.0f);
-    fn_80087E9C(group, "Area Min", &mAreaMin.x, 0, 0, -10000.0f, 10000.0f, 0.1f);
-    fn_80087E9C(group, "Area Max", &mAreaMax.x, 0, 0, -10000.0f, 10000.0f, 0.1f);
+    fn_80088AF4(group, "Color", &mColor.r, -255.0f, 255.0f, 0.1f, 0, 0);
+    fn_80087E9C(group, "Direction", &mDirection.x, -1.0f, 1.0f, 0.1f, 0, 0);
+    fn_8008771C(group, "Min Spd", &mMinSpeed, 0.0f, 1000.0f, 0.01f, 0, 0);
+    fn_8008771C(group, "Max Spd", &mMaxSpeed, 0.0f, 1000.0f, 0.01f, 0, 0);
+    fn_8008771C(group, "Size", &mSize, 1.0f, 42.0f, 1.0f / 6.0f, 0, 0);
+    fn_8008771C(group, "Length", &mLength, 0.0f, 42.0f, 1.0f / 6.0f, 0, 0);
+    fn_8008771C(group, "Length Var", &mLengthVar, 0.0f, 42.0f, 1.0f / 6.0f, 0, 0);
+    fn_80087E9C(group, "Area Min", &mAreaMin.x, -10000.0f, 10000.0f, 0.1f, 0, 0);
+    fn_80087E9C(group, "Area Max", &mAreaMax.x, -10000.0f, 10000.0f, 0.1f, 0, 0);
 }
 
 // NONMATCHING: 89.93% - stack slots and scheduling of the vector temporaries of the ray test

@@ -61,7 +61,7 @@ struct GameUIMarker_unk {
     GameUIMarker_unk() : m00(0), mPos(0.0f, 0.0f, 0.0f), m14(0), m18(0), m1C(0.0f) {}
     int m00;
     atn::Vector3 mPos;
-    int m10;
+    CharaTask* m10; // inferred: character of the marker (GameEventScript, GameUI::fn_803D2A6C)
     int m14;
     int m18;
     float m1C;
@@ -165,6 +165,8 @@ struct GameUIDistList_unk {
 // inferred: 0x1C-byte entry at 0x748 (names invented)
 struct GameUIElem1C_unk {
     GameUIElem1C_unk() : m00(-1), m04(-1), m08(-1), m0C(0), m10(0), m14(0), m18(0) {}
+    // inferred: request of type `type` (gmk/LottaSummon.cpp)
+    GameUIElem1C_unk(int type) : m04(-1), m08(-1), m0C(0), m10(0), m14(0), m18(0) { m00 = type; }
     // inferred: back to the constructed state (name invented)
     void Reset_unk() {
         m00 = -1;
@@ -278,6 +280,8 @@ public:
     // defines them. game/SkillEffectManager calls the weak copy (out of its inline budget), so the
     // bodies are not in this header.
     static GameUI* Get_unk();
+    // inferred: posts a request of type `type` in m7C0 (gmk/LottaSummon.cpp); name invented
+    void Request_unk(int type) { m7C0 = GameUIElem1C_unk(type); }
     // inferred: weak copies of game/GameTask.cpp (0x8036E428, 0x8036EE04); names invented
     inline GameMessageWindow* GetMessageWindow_unk();
     inline GameTextMessageWindow* GetTextWindow_unk();

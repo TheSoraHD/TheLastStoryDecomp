@@ -1,3 +1,4 @@
+#include "atn/GraphicsDevice.h"
 #include "atn/GXDecl.h"
 #include "atn/MemoryManager.h"
 #include "atn/Memory.h"
@@ -17,15 +18,9 @@ extern "C" unsigned int GXGetTexBufferSize(unsigned short width, unsigned short 
 // inferred: aligned array allocation (size, align, heap, name, file, line)
 extern "C" void* fn_800848B4(unsigned long size, int align, int heap, const char* name, const char* file, int line);
 
-// inferred: render state (viewport) and debug drawing
-struct RenderState_unk {
-    unsigned char m00[0x3C];
-    int mWidth;  // 0x3C
-    int mHeight; // 0x40
-};
-extern "C" RenderState_unk* lbl_8087EEE0;
-extern "C" void fn_80075F58(RenderState_unk* rs, int x, int y, int w, int h); // inferred: set viewport
-extern "C" void fn_80075DEC(RenderState_unk* rs);
+extern "C" atn::GraphicsDevice_unk* lbl_8087EEE0;
+extern "C" void fn_80075F58(atn::GraphicsDevice_unk* rs, int x, int y, int w, int h); // inferred: set viewport
+extern "C" void fn_80075DEC(atn::GraphicsDevice_unk* rs);
 extern "C" void fn_800C0D4C(void* data, int arg1, int w, int h); // inferred: flushes a texture
 
 extern "C" RenderSetting_unk* lbl_8087EFA8; // inferred: render settings (atn/RenderSetting_unk.h)

@@ -1,3 +1,5 @@
+#include "game/GameConfig_unk.h"
+#include "atn/RenderSetting_unk.h"
 #include "game/EnemyQuarkStand.h"
 #include "game/GameTask.h"
 #include "game/GameVoice.h"
@@ -8,6 +10,7 @@
 #include "chr/ControlStickByQuark.h"
 #include <boost/bind.hpp>
 #include "atn/D2A_Task.h"
+#include "atn/D2A_TaskApi_unk.h"
 #include "atn/Memory.h"
 #include "atn/SoundManager.h"
 #include "game/CharaManager.h"
@@ -38,99 +41,38 @@ extern "C" void* memset(void* dst, int c, unsigned long n);
 extern "C" void PSMTXScale(Mtx m, float x, float y, float z);
 extern "C" void PSMTXTrans(Mtx m, float x, float y, float z);
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
-extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3, int arg4);
-extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, int arg6,
-                            int arg7);
-extern "C" void fn_8008771C(void* group, const char* name, float* value, int arg3, int arg4, float min, float max,
-                            float step);
+extern "C" void fn_80087994(void* group, const char* name, int* value, void* func, void* arg);
+extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, void* func,
+                            void* arg);
+extern "C" void fn_8008771C(void* group, const char* name, float* value, float min, float max, float step, void* func,
+                            void* arg);
 extern "C" int fn_800DC12C(const char* s);   // inferred: string to int
 extern "C" float fn_800DC288(const char* s); // inferred: string to float
 // inferred: std::string concatenation (weak copy 0x8006AFF8)
 extern "C" std::string fn_8006AFF8(const std::string& a, const std::string& b);
 // inferred: field (lbl_8087F430): camera taken by the boss (m8A0/m4D8/m97C, as in game/EnemyTrista.cpp)
 class GameScene;
-// inferred: camera parameters of the field (0x3C bytes, as TristaCamParam_unk of game/EnemyTrista.cpp)
-struct QuarkCamParam_unk {
-    QuarkCamParam_unk(const QuarkCamParam_unk& o) {
-        Copy_unk(o);
-    }
-    QuarkCamParam_unk& operator=(const QuarkCamParam_unk& o) {
-        Copy_unk(o);
-        return *this;
-    }
-    void Copy_unk(const QuarkCamParam_unk& o) {
-        m00 = o.m00;
-        m04 = o.m04;
-        m08 = o.m08;
-        m0C = o.m0C;
-        m10 = o.m10;
-        for (int i = 0; i < 9; i++) {
-            m14[i] = o.m14[i];
-        }
-        m38 = o.m38;
-    }
-    float m00;
-    float m04;
-    float m08;
-    float m0C;
-    float m10;
-    float m14[9];
-    int m38;
-};
-// inferred: camera mode of the field (lbl_8087F430 + 0x4D8, as FieldCamera_unk of game/EnemyTrista.cpp)
-struct QuarkFieldCamera_unk {
-    void Set_unk(int mode, const QuarkCamParam_unk& param) {
-        if (mMode != mode) {
-            mMode = mode;
-            mParam = param;
-            m08 = 0.05f;
-            m04 = 1.0f;
-        }
-    }
-    int mMode;
-    float m04;
-    float m08;
-    QuarkCamParam_unk mParam;
-};
 // inferred: point the camera looks at (lbl_8087F430 + 0x97C, as FieldLook_unk of game/EnemyTrista.cpp)
-struct QuarkFieldLook_unk {
-    void Set_unk(const atn::Vector3& pos, bool flag) {
-        m01 = m00;
-        m00 = 1;
-        mPos = pos;
-        m24 = 0.0f;
-        m04 = flag ? 1 : 0;
+// inferred: starts a camera mode with its parameters (GameCamera::m46C; formerly the view QuarkFieldCamera_unk
+// at GameTask + 0x4D8)
+inline void SetCameraMode_unk(GameCameraModeParam_unk& camera, int mode, const GameCameraParam_unk& param) {
+    if (camera.mMode != mode) {
+        camera.mMode = mode;
+        camera.mParam = param;
+        camera.mStep = 0.05f;
+        camera.mWeight = 1.0f;
     }
-    unsigned char m00;
-    unsigned char m01;
-    unsigned char m02[2];
-    int m04;
-    unsigned char m08[4];
-    atn::Vector3 mPos;
-    unsigned char m18[0x24 - 0x18];
-    float m24;
-};
-struct Field_unk {
-    GameScene* fn_8013C504(); // inferred: route tables (as in game/Em302Kraken.cpp)
-    unsigned char m0000[0x6C];
-    Camera_unk m06C;        // inferred: camera of the field (copied by EnemyQuarkStand::fn_8034DE90)
-    unsigned char m260[0x4D8 - 0x260];
-    QuarkFieldCamera_unk m4D8;
-    unsigned char m520[0x588 - 0x520];
-    QuarkCamParam_unk m588; // inferred: default camera parameters
-    unsigned char m5C4[0x8A0 - 0x5C4];
-    CharaTask* m8A0;        // inferred: character the camera follows
-    unsigned char m8A4[0x96C - 0x8A4];
-    int m96C;   // inferred: camera shake (as in game/Em101ElderZesyaSecond.cpp)
-    int m970;   // inferred: shake frames
-    float m974;
-    float m978;
-    QuarkFieldLook_unk m97C;
-    unsigned char m9A4[0x10D8 - 0x9A4];
-    GameScene* m10D8; // inferred: route tables (as in game/ArenaTask.cpp)
-};
-extern "C" Field_unk* lbl_8087F430;
-extern "C" Field_unk* fn_80121F00(); // inferred: field accessor
+}
+// inferred: the camera looks at a point (GameCamera::m910..m934; formerly the view QuarkFieldLook_unk at GameTask + 0x97C)
+inline void SetCameraLook_unk(GameCamera& camera, const atn::Vector3& pos, bool flag) {
+    camera.m911 = camera.m910;
+    camera.m910 = 1;
+    camera.m91C = pos;
+    camera.m934 = 0.0f;
+    camera.m914 = flag ? 1 : 0;
+}
+extern "C" GameTask* lbl_8087F430;
+extern "C" GameTask* fn_80121F00(); // inferred: field accessor
 extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float volume); // inferred: 2D sound
 // inferred: effect manager (lbl_8087F3C0) and its methods (as in game/EnemyTasha.cpp)
 struct EffectMgr_unk {
@@ -150,8 +92,8 @@ extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); /
 extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the next effects
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
 BattleTask* fn_8013A194(); // inferred: bullet manager (returns lbl_8087F048)
-extern "C" int fn_800EFD04(int id); // inferred: effect resources of a bullet
-extern "C" int fn_800EFDA0(int id);
+extern "C" atn::EffFile* fn_800EFD04(int id); // inferred: effect resources of a bullet
+extern "C" atn::EfpFile* fn_800EFDA0(int id);
 extern "C" float fn_800F8524(const float* a, const float* b, float t); // inferred: lerp of two floats
 extern "C" EffectMgr_unk* fn_800F7FA0(); // inferred: returns lbl_8087F3C0
 extern "C" void fn_800F7FA8(EffectMgr_unk* mgr, void* owner, int arg); // inferred: fn_80232B7C(owner, arg)
@@ -161,13 +103,9 @@ extern "C" void fn_80276AE4(EffectMgr_unk* mgr, atn::EfpFile* efp, void* model, 
                             const atn::Vector3* rot, int a, int b, int c, float scale);
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume); // 3D sound
-// inferred: game state (lbl_8087EFA8): the frame time at 0x3A4 (as in game/Em301LShade.cpp)
-struct QuarkGame_unk {
-    unsigned char m000[0x3A4];
-    float m3A4;
-};
-extern "C" QuarkGame_unk* lbl_8087EFA8;
-extern "C" void* lbl_8087EE98; // inferred: collision world
+extern "C" RenderSetting_unk* lbl_8087EFA8;
+struct ColliManager_unk;
+extern "C" ColliManager_unk* lbl_8087EE98; // inferred: collision world
 extern "C" int fn_8004ED34(void* colli, void* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg7); // inferred: segment test
 extern "C" void fn_8023A108(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: effect fade
@@ -198,23 +136,16 @@ extern "C" int fn_8020EF80(void* item); // inferred: item id
 // inferred: weak copy of an accessor of game/EnemyQuarkSecond (bit 31 of the word at 8 of a model
 // part); name kept
 extern "C" void fn_80338CDC(void* part, int on);
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
-                            const atn::Vector3& pos, const atn::Vector3& rot, const struct QColor_unk& color,
-                            int arg7, int arg8, int arg9, float scale);
+extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, void* node,
+                            const atn::Vector3& pos, const atn::Vector3& rot, const struct QColor_unk& color, int arg7,
+                            int arg8, int arg9, float scale);
 // inferred: color as four floats (as Color4f_unk of game/EnemyTrista.cpp)
 struct QColor_unk {
     QColor_unk() {}
     float r, g, b, a;
 };
 
-// inferred: game settings (lbl_8087F0A8): m30 is the frame rate (as in chr/ControlJumpAt.cpp)
-struct QuarkSettings_unk {
-    unsigned char m000[0x30];
-    int mFrameRate;
-    unsigned char m034[0x48C - 0x34];
-    unsigned char mPad[1]; // 0x48C: inferred: pad state (as in MP/D2AMpMenuFriend.cpp)
-};
-extern "C" QuarkSettings_unk* lbl_8087F0A8;
+extern "C" GameConfig_unk* lbl_8087F0A8;
 // inferred: weak copies of small inline helpers of other files, called out of line because vf0C is over
 // the inline budget (names kept)
 extern "C" CharaManager<PlayerTask>* fn_8000D9E8();
@@ -289,8 +220,8 @@ EnemyQuarkStand::EnemyQuarkStand(atn::Task* parent, EnemyInfo_unk* info)
     m17F4->fn_800D246C(1);
     m17F8 = fn_801F3FF8(this, "/data/d2anime/ui_direction_r.d2a", 0);
     m17F8->fn_800D246C(1);
-    ((GameTask*)fn_80121F00())->fn_80370320(0x65, 1, 0);
-    ((GameTask*)fn_80121F00())->fn_80370320(0x68, 1, 0);
+    fn_80121F00()->fn_80370320(0x65, 1, 0);
+    fn_80121F00()->fn_80370320(0x68, 1, 0);
     fn_80338CDC(&mColli, 0);
     m160C.Set_unk(0.0f, 0.0f, 0.0f);
     mFlagB11 = 1;
@@ -456,15 +387,15 @@ void EnemyQuarkStand::vf10() {
     m508 = 1.0f;
     m14B8++;
     m14C0++;
-    m14B0 = (int)mC58.mC4;
+    m14B0 = mC58.mC4;
     fn_8035359C();
     if (m14B0 == 0) {
         CharaTask* leader = fn_8000DCF4(fn_8000D9E8());
-        m14B0 = (int)leader;
+        m14B0 = leader;
         mC58.mC4 = leader;
     }
     fn_80352EA4();
-    if (((GameTask*)fn_80121F00())->fn_80370A78(0x8C) != 0) {
+    if (fn_80121F00()->fn_80370A78(0x8C) != 0) {
         if (m58C == 15) {
             fn_8016E970(3);
             fn_803524AC(0x3E, 1, 1.0f);
@@ -483,7 +414,7 @@ void EnemyQuarkStand::vf10() {
                 }
             }
         }
-        ((GameTask*)fn_80121F00())->fn_80370AE4(0x8C, 0);
+        fn_80121F00()->fn_80370AE4(0x8C, 0);
     }
     if (fn_8029F3AC(&mStatus) < 0.5f) {
         m15CC = 2;
@@ -572,7 +503,7 @@ void EnemyQuarkStand::vf10() {
         }
         fn_80339F74(this, roam);
         int mode;
-        MapTask* group = ((GameTask*)fn_80121F00())->GetCurrentMap();
+        MapTask* group = fn_80121F00()->GetCurrentMap();
         if (mPos.y - fn_8000DCF4(fn_8000D9E8())->fn_8013C38C()->y > 20.0f) {
             mode = 3;
         } else {
@@ -676,10 +607,10 @@ void EnemyQuarkStand::vf40(HitInfo_unk* hit) {
             m58C = 16;
             QuarkPlayMotion_unk(&mMotion, 0x38, 0, 0, 0.25f);
             m14BC = 1;
-            if (((GameTask*)lbl_8087F430)->fn_80370A78(0xC9) == 0) {
-                ((GameTask*)lbl_8087F430)->fn_80370AE4(0xC9, 1);
+            if (lbl_8087F430->fn_80370A78(0xC9) == 0) {
+                lbl_8087F430->fn_80370AE4(0xC9, 1);
             }
-            ((GameTask*)lbl_8087F430)->fn_80370320(0x389, 1, 0);
+            lbl_8087F430->fn_80370320(0x389, 1, 0);
             m14A8 &= ~0x04000000;
             fn_800C31F4("SE_DG040_109", 0, -1, 1.0f);
         } else if (msg->mData->m04 == 0x1791) {
@@ -743,7 +674,7 @@ inline int EnemyQuarkStand::NextLong_unk() {
 
 // inferred: picks the next attack from the tables of the current mode by the distance to the target
 void EnemyQuarkStand::fn_80346D8C() {
-    CharaTask* target = (CharaTask*)m14B0;
+    CharaTask* target = m14B0;
     if (target == 0) {
         return;
     }
@@ -831,7 +762,7 @@ inline atn::Vector3 QuarkFrontOf_unk(CharaTask* c) {
 
 // inferred: turns toward the target by 12 degrees per frame scaled by `rate` (name invented)
 inline void EnemyQuarkStand::TurnTo_unk(float rate) {
-    CharaTask* target = (CharaTask*)m14B0;
+    CharaTask* target = m14B0;
     atn::Vector3 rot = (target->mPos - mPos).ToRotationZ_unk();
     float y = rot.y;
     float diff = atn::WrapAngle_unk(y - mRot.y);
@@ -926,7 +857,7 @@ atn::Vector3 EnemyQuarkStand::vf64(int center) {
 // inferred: walks toward the target, turning 12 degrees per frame, until it is in front within the
 // short range
 void EnemyQuarkStand::fn_80348568() {
-    CharaTask* target = (CharaTask*)m14B0;
+    CharaTask* target = m14B0;
     atn::Vector3 d(target->mPos.x - mPos.x, target->mPos.y, target->mPos.z - mPos.z);
     d.y = 0.0f;
     float len = PSVECMag(&d);
@@ -1192,13 +1123,13 @@ void EnemyQuarkStand::fn_803494AC() {
     } else if (m14B4 == 2) {
         float t = QS_MIN_unk(1.0f, QS_MAX_unk(0.0f, (mMotion.mTracks[0].m08 - 45.0f) / 4.0f));
         mPos.y = (sSonicTo_unk - sSonicFrom_unk) * t + sSonicFrom_unk;
-        Field_unk* field = lbl_8087F430;
+        GameTask* field = lbl_8087F430;
         if (mMotion.mTracks[0].m08 >= 49.0f) {
             m14B4++;
-            field->m96C %= 2;
-            field->m970 = 10;
-            field->m974 = 7.0f;
-            field->m978 = 8.0f;
+            field->mCamera.mShake.mFrame %= 2;
+            field->mCamera.mShake.mLength = 10;
+            field->mCamera.mShake.mWidth = 7.0f;
+            field->mCamera.mShake.mHeight = 8.0f;
             atn::Vector3 off(0.0f, 0.0f, 65.0f);
             atn::Matrix3x4 m;
             QuarkRotationZYX_unk(m, mRot);
@@ -1257,7 +1188,7 @@ void EnemyQuarkStand::fn_80349BA0() {
         if (mMotion.mTracks[0].m08 >= 35.0f) {
             QuarkTargets_unk targets;
             targets.mCount = 0;
-            CharaTask* target = (CharaTask*)m14B0;
+            CharaTask* target = m14B0;
             if (target->mFlag28) {
                 CharaTask** slot = &targets.mTargets[0];
                 if (slot != 0) {
@@ -1316,11 +1247,11 @@ void EnemyQuarkStand::fn_8034A194() {
         }
         if (mMotion.mTracks[0].m08 >= 21.0f) {
             lbl_8087F048->fn_800F8C6C(0, 0, this, m1548, lbl_8087F048->fn_800F8548(), 0.0f, 30, -1);
-            Field_unk* field = lbl_8087F430;
-            field->m96C %= 2;
-            field->m970 = 10;
-            field->m974 = 1.0f;
-            field->m978 = 1.0f;
+            GameTask* field = lbl_8087F430;
+            field->mCamera.mShake.mFrame %= 2;
+            field->mCamera.mShake.mLength = 10;
+            field->mCamera.mShake.mWidth = 1.0f;
+            field->mCamera.mShake.mHeight = 1.0f;
             m14B4++;
         }
     } else {
@@ -1340,11 +1271,11 @@ void EnemyQuarkStand::fn_8034A644() {
         }
         if (mMotion.mTracks[0].m08 >= 33.0f) {
             lbl_8087F048->fn_800F8C6C(0, 0, this, m1544, lbl_8087F048->fn_800F8548(), 0.0f, 30, -1);
-            Field_unk* field = lbl_8087F430;
-            field->m96C %= 2;
-            field->m970 = 10;
-            field->m974 = 2.0f;
-            field->m978 = 3.0f;
+            GameTask* field = lbl_8087F430;
+            field->mCamera.mShake.mFrame %= 2;
+            field->mCamera.mShake.mLength = 10;
+            field->mCamera.mShake.mWidth = 2.0f;
+            field->mCamera.mShake.mHeight = 3.0f;
             m14B4++;
         }
     } else if (m14B4 == 1) {
@@ -1353,11 +1284,11 @@ void EnemyQuarkStand::fn_8034A644() {
         }
         if (mMotion.mTracks[0].m08 >= 61.0f) {
             lbl_8087F048->fn_800F8C6C(0, 0, this, m1548, lbl_8087F048->fn_800F8548(), 0.0f, 30, -1);
-            Field_unk* field = lbl_8087F430;
-            field->m96C %= 2;
-            field->m970 = 10;
-            field->m974 = 2.0f;
-            field->m978 = 3.0f;
+            GameTask* field = lbl_8087F430;
+            field->mCamera.mShake.mFrame %= 2;
+            field->mCamera.mShake.mLength = 10;
+            field->mCamera.mShake.mWidth = 2.0f;
+            field->mCamera.mShake.mHeight = 3.0f;
             m14B4++;
         }
     } else {
@@ -1396,11 +1327,11 @@ void EnemyQuarkStand::fn_8034AE48() {
         mPos = QuarkLerp_unk(m15DC.mStart, m15DC.mTarget, t);
         if (mMotion.mTracks[0].m08 >= 30.0f) {
             lbl_8087F048->fn_800F8C6C(0, 0, this, m1534, lbl_8087F048->fn_800F8548(), 0.0f, 30, -1);
-            Field_unk* field = lbl_8087F430;
-            field->m96C %= 2;
-            field->m970 = 10;
-            field->m974 = 1.0f;
-            field->m978 = 1.0f;
+            GameTask* field = lbl_8087F430;
+            field->mCamera.mShake.mFrame %= 2;
+            field->mCamera.mShake.mLength = 10;
+            field->mCamera.mShake.mWidth = 1.0f;
+            field->mCamera.mShake.mHeight = 1.0f;
             m15DC.mStart = mPos;
             m15DC.mTarget += QuarkFront_unk(mRot.y) * 10.0f;
             m14B4++;
@@ -1410,11 +1341,11 @@ void EnemyQuarkStand::fn_8034AE48() {
         mPos = QuarkLerp_unk(m15DC.mStart, m15DC.mTarget, t);
         if (mMotion.mTracks[0].m08 >= 39.0f) {
             lbl_8087F048->fn_800F8C6C(0, 0, this, m1538, lbl_8087F048->fn_800F8548(), 0.0f, 30, -1);
-            Field_unk* field = lbl_8087F430;
-            field->m96C %= 2;
-            field->m970 = 10;
-            field->m974 = 1.0f;
-            field->m978 = 1.0f;
+            GameTask* field = lbl_8087F430;
+            field->mCamera.mShake.mFrame %= 2;
+            field->mCamera.mShake.mLength = 10;
+            field->mCamera.mShake.mWidth = 1.0f;
+            field->mCamera.mShake.mHeight = 1.0f;
             m14B4++;
         }
     } else {
@@ -1428,11 +1359,11 @@ void EnemyQuarkStand::fn_8034AE48() {
 // inferred: state 13 (the sword is stuck in a character, motion 0x14A from state 12): at frame 27 the
 // character is stuck (chr::ControlStickByQuark), then the camera follows the "rightarm" node and at frame 88
 // the sword fires "StickSkill"; the state ends after "AttackedMaxInStick" hits
-// NONMATCHING: 89.52% - the original copies the default camera parameters (Field_unk::m588) with the
+// NONMATCHING: 89.52% - the original copies the default camera parameters (GameTask::m588) with the
 // FPRs f29-f31 live across Set_unk (same open case as EnemyTrista::fn_8035D294) and the look/node copies sit
 // in other slots; ~4 forms (copy ctor, member copy, inline Set_unk)
 void EnemyQuarkStand::fn_8034B8CC() {
-    Field_unk* field = lbl_8087F430;
+    GameTask* field = lbl_8087F430;
     if (m14B4 == 0) {
         if (m17E4 == 0) {
             fn_8034F41C();
@@ -1445,30 +1376,30 @@ void EnemyQuarkStand::fn_8034B8CC() {
         }
     } else if (m14B4 == 1) {
         if (m17E4 != 0 && m17E4->mType == 0) {
-            if (field->m8A0 == 0) {
-                QuarkCamParam_unk param = field->m588;
-                field->m8A0 = (CharaTask*)this;
+            if (field->mCamera.m834 == 0) {
+                GameCameraParam_unk param = field->mCamera.m51C;
+                field->mCamera.m834 = (CharaTask*)this;
                 param.m00 = 25.0f;
                 param.m04 = 0.9599311f;
                 param.m08 = 0.2617994f;
                 param.m10 = 10.0f;
-                field->m4D8.Set_unk(4, param);
-                field->m97C.Set_unk(GetTransOf_unk(mMotion.GetNodeMtx_unk("rightarm")), false);
+                SetCameraMode_unk(field->mCamera.m46C, 4, param);
+                SetCameraLook_unk(field->mCamera, GetTransOf_unk(mMotion.GetNodeMtx_unk("rightarm")), false);
                 m180B = 1;
             } else {
-                field->m8A0 = (CharaTask*)this;
-                field->m97C.mPos = GetTransOf_unk(mMotion.GetNodeMtx_unk("rightarm"));
+                field->mCamera.m834 = (CharaTask*)this;
+                field->mCamera.m91C = GetTransOf_unk(mMotion.GetNodeMtx_unk("rightarm"));
                 m180B = 1;
             }
         }
         mMotion.mTracks[0].m0C = mMotion.mTracks[0].m08 < 60.0f ? 0.5f : 1.0f;
         ((atn::EffectManager*)lbl_8087F3C0)->fn_8023A254((unsigned int)&m16A8, 0, mMotion.mTracks[0].m0C);
         if (mMotion.mTracks[0].m08 >= 88.0f) {
-            Field_unk* f = lbl_8087F430;
-            f->m96C %= 2;
-            f->m970 = 10;
-            f->m974 = 4.0f;
-            f->m978 = 5.0f;
+            GameTask* f = lbl_8087F430;
+            f->mCamera.mShake.mFrame %= 2;
+            f->mCamera.mShake.mLength = 10;
+            f->mCamera.mShake.mWidth = 4.0f;
+            f->mCamera.mShake.mHeight = 5.0f;
             if (m17E4 != 0 && m17EC == 0) {
                 atn::Vector3 front = QuarkFrontOf_unk(this);
                 atn::Vector3 pos = m17E4->mPos - front * 0.5f;
@@ -1479,9 +1410,9 @@ void EnemyQuarkStand::fn_8034B8CC() {
         }
     } else {
         if (m180B != 0) {
-            field->m8A0 = 0;
-            field->m4D8.mMode = 0;
-            field->m97C.m00 = 0;
+            field->mCamera.m834 = 0;
+            field->mCamera.m46C.mMode = 0;
+            field->mCamera.m910 = 0;
             m180B = 0;
         }
         float frame = mMotion.mTracks[0].m08;
@@ -1500,10 +1431,10 @@ void EnemyQuarkStand::fn_8034B8CC() {
         m58C = 0;
         QuarkPlayMotion_unk(&mMotion, 2, 1, 0, 1.0f);
         if (m180B != 0) {
-            Field_unk* f = lbl_8087F430;
-            f->m8A0 = 0;
-            f->m4D8.mMode = 0;
-            f->m97C.m00 = 0;
+            GameTask* f = lbl_8087F430;
+            f->mCamera.m834 = 0;
+            f->mCamera.m46C.mMode = 0;
+            f->mCamera.m910 = 0;
             m180B = 0;
         }
         if (m17E4 != 0) {
@@ -1517,10 +1448,10 @@ void EnemyQuarkStand::fn_8034B8CC() {
 // inferred: lets the camera go back to the field (name invented)
 inline void EnemyQuarkStand::ReleaseCamera_unk() {
     if (m180B != 0) {
-        Field_unk* field = lbl_8087F430;
-        field->m8A0 = 0;
-        field->m4D8.mMode = 0;
-        field->m97C.m00 = 0;
+        GameTask* field = lbl_8087F430;
+        field->mCamera.m834 = 0;
+        field->mCamera.m46C.mMode = 0;
+        field->mCamera.m910 = 0;
         m180B = 0;
     }
 }
@@ -1710,7 +1641,7 @@ void EnemyQuarkStand::fn_8034D450() {
     }
     for (CharaTask* p = lbl_8087F8A0->mHead; p != 0; p = ((PlayerTask*)p)->mNext) {
         atn::Vector3 base = p->mPos + QuarkFront_unk(p->mRot.y) * 0.1f;
-        if (p->mType == 0 || p == (CharaTask*)m14B0) {
+        if (p->mType == 0 || p == m14B0) {
             w.m00 = base + QuarkFront_unk(p->mRot.y) * 0.1f;
             w.m0C = QuarkRandDelay_unk();
             w.m10 = 0;
@@ -1758,7 +1689,7 @@ void EnemyQuarkStand::fn_8034DA0C() {
 void EnemyQuarkStand::fn_8034DE90() {
     int done = 0;
     if (m14B4 == 0) {
-        CharaTask* chara = (CharaTask*)m16F0;
+        CharaTask* chara = m16F0;
         if (chara->m55C == 6 && chara->m560 == 0x89) {
             chr::ControlBase* control = chara->mControl.get();
             if (control != 0 && control->vf54() != 0) {
@@ -1783,14 +1714,14 @@ void EnemyQuarkStand::fn_8034DE90() {
         if (m16F4 != 2) {
             base = &mPos;
         } else {
-            base = &((CharaTask*)m16F0)->mPos;
+            base = &m16F0->mPos;
         }
         atn::Matrix3x4 m;
         PSMTXTrans(m.m, base->x, base->y, base->z);
         QuarkRotateYXZ_unk(m, atn::Vector3(0.0f, mRot.y, 0.0f));
         PSMTXMultVec(m.m, &eye, &eye);
         PSMTXMultVec(m.m, &target, &target);
-        Camera_unk camera = lbl_8087F430->m06C;
+        Camera_unk camera = lbl_8087F430->mCamera.mCamera;
         camera.mPos = eye;
         camera.mTarget = target;
         float fov = curve->fn_805BF204(mMotion.mTracks[0].m08, 0);
@@ -1798,15 +1729,15 @@ void EnemyQuarkStand::fn_8034DE90() {
         camera.fn_8004B378();
         atn::RenderManager::instance_->mCamera = camera;
         if (done != 0 || mMotion.mTracks[0].m08 >= curve->m14) {
-            ((GameTask*)lbl_8087F430)->mCamera.fn_80392D2C(&camera, 0.05f);
+            lbl_8087F430->mCamera.fn_80392D2C(&camera, 0.05f);
             m1714 = 0;
         }
     }
     mRot = m16F8;
     if (m16F4 == 2) {
-        mMotion.mTracks[0].m0C = ((CharaTask*)m16F0)->mMotion.mTracks[0].m0C;
-        if (mMotion.mTracks[0].m08 >= 87.0f && ((GameTask*)lbl_8087F430)->fn_80370A78(0x88) == 0) {
-            ((GameTask*)lbl_8087F430)->fn_80370AE4(0x88, 1);
+        mMotion.mTracks[0].m0C = m16F0->mMotion.mTracks[0].m0C;
+        if (mMotion.mTracks[0].m08 >= 87.0f && lbl_8087F430->fn_80370A78(0x88) == 0) {
+            lbl_8087F430->fn_80370AE4(0x88, 1);
         }
     }
     float frame;
@@ -1817,7 +1748,7 @@ void EnemyQuarkStand::fn_8034DE90() {
 
 // inferred: state 17 (falls with gravity until the ground, then waits) (the state helpers are inlined)
 void EnemyQuarkStand::fn_8034E898() {
-    m574.y += -98.1f / (float)(lbl_8087F0A8->mFrameRate * lbl_8087F0A8->mFrameRate);
+    m574.y += -98.1f / (float)(lbl_8087F0A8->m030 * lbl_8087F0A8->m030);
     mPos.y += m574.y;
     if (mPos.y < 0.0f) {
         mPos.y = 0.0f;
@@ -1831,7 +1762,7 @@ void EnemyQuarkStand::fn_8034E898() {
 
 // inferred: state 15 (stunned): falls, then waits "DownCount" frames or "StundUpDamageCount" hits
 void EnemyQuarkStand::fn_8034EA50() {
-    m574.y += -98.1f / (float)(lbl_8087F0A8->mFrameRate * lbl_8087F0A8->mFrameRate);
+    m574.y += -98.1f / (float)(lbl_8087F0A8->m030 * lbl_8087F0A8->m030);
     mPos.y += m574.y;
     if (mPos.y < 0.0f) {
         mPos.y = 0.0f;
@@ -1864,13 +1795,13 @@ void EnemyQuarkStand::fn_8034EA50() {
 // NONMATCHING: 89.62% - same camera parameter copy as fn_8034B8CC (FPRs f29-f31, EnemyTrista::fn_8035D294)
 // and the stack slots of the distance and of the front direction; ~3 forms
 void EnemyQuarkStand::fn_8034ECE8() {
-    m574.y += -98.1f / (float)(lbl_8087F0A8->mFrameRate * lbl_8087F0A8->mFrameRate);
+    m574.y += -98.1f / (float)(lbl_8087F0A8->m030 * lbl_8087F0A8->m030);
     mPos.y += m574.y;
     if (mPos.y < 0.0f) {
         mPos.y = 0.0f;
         m574.y = 0.0f;
     }
-    Field_unk* field = lbl_8087F430;
+    GameTask* field = lbl_8087F430;
     if (m14B4 == 0) {
         if (mMotion.mTracks[0].m08 >= 10.0f) {
             m14B4++;
@@ -1885,19 +1816,19 @@ void EnemyQuarkStand::fn_8034ECE8() {
             m14C4->mStatus.m2FC = 1.0f;
         }
     } else if (m14B4 == 1) {
-        if (field->m8A0 == 0) {
-            QuarkCamParam_unk param = field->m588;
-            field->m8A0 = (CharaTask*)this;
+        if (field->mCamera.m834 == 0) {
+            GameCameraParam_unk param = field->mCamera.m51C;
+            field->mCamera.m834 = (CharaTask*)this;
             param.m00 = 15.0f;
             param.m04 = 0.7853982f;
             param.m08 = 0.08726646f;
             param.m10 = 8.0f;
-            field->m4D8.Set_unk(4, param);
-            field->m97C.Set_unk(GetTransOf_unk(mMotion.GetNodeMtx_unk("spine1")), false);
+            SetCameraMode_unk(field->mCamera.m46C, 4, param);
+            SetCameraLook_unk(field->mCamera, GetTransOf_unk(mMotion.GetNodeMtx_unk("spine1")), false);
             m180B = 1;
         } else {
-            field->m8A0 = (CharaTask*)this;
-            field->m97C.mPos = GetTransOf_unk(mMotion.GetNodeMtx_unk("spine1"));
+            field->mCamera.m834 = (CharaTask*)this;
+            field->mCamera.m91C = GetTransOf_unk(mMotion.GetNodeMtx_unk("spine1"));
             m180B = 1;
         }
         float frame = mMotion.mTracks[0].m08;
@@ -1908,9 +1839,9 @@ void EnemyQuarkStand::fn_8034ECE8() {
         }
     } else {
         if (m180B != 0) {
-            field->m8A0 = 0;
-            field->m4D8.mMode = 0;
-            field->m97C.m00 = 0;
+            field->mCamera.m834 = 0;
+            field->mCamera.m46C.mMode = 0;
+            field->mCamera.m910 = 0;
             m180B = 0;
         }
         CharaTask* leader = lbl_8087F8A0->mHead;
@@ -1935,10 +1866,10 @@ void EnemyQuarkStand::fn_8034ECE8() {
                     prompt.m18 = 1;
                     ui->m764 = prompt;
                 }
-                if (((Input_unk*)lbl_8087F0A8->mPad)->fn_801231D0(0) != 0) {
+                if ((&lbl_8087F0A8->mInput)->fn_801231D0(0) != 0) {
                     leader->SetHit_unk(m1550);
                     leader->fn_80178208(new ((MemoryTag)3, "", "", 0) chr::ControlThrustForQuarkStand(leader, this, 2));
-                    ((GameTask*)lbl_8087F430)->fn_80370AE4(0x6F, 1);
+                    lbl_8087F430->fn_80370AE4(0x6F, 1);
                     fn_80351AB8(leader, 2);
                     if (lbl_8087F490 != 0) {
                         lbl_8087F490->fn_803E3384();
@@ -2001,7 +1932,7 @@ void EnemyQuarkStand::fn_8034F53C() {
     fn_80232B7C(this, 0x3E8);
     QuarkPlayMotion_unk(&mMotion, 0x147, 0, 0, 1.0f);
     QuarkPlayEffectAt_unk(&m1630, &mMotion);
-    atn::Vector3 spine = GetTransOf_unk(((CharaTask*)m14B0)->mMotion.GetNodeMtx_unk("spine"));
+    atn::Vector3 spine = GetTransOf_unk(m14B0->mMotion.GetNodeMtx_unk("spine"));
     atn::Vector3 head = GetTransOf_unk(mMotion.GetNodeMtx_unk("head"));
     m1654 = spine - head;
     PSVECNormalize(&m1654, &m1654);
@@ -2010,7 +1941,7 @@ void EnemyQuarkStand::fn_8034F53C() {
 
 // inferred: aims the attack at the target (names invented)
 inline void EnemyQuarkStand::AimAt_unk() {
-    CharaTask* target = (CharaTask*)m14B0;
+    CharaTask* target = m14B0;
     atn::Vector3 pos = target->mPos;
     m15DC.SetTarget_unk(pos);
     m15DC.mRot = (pos - mPos).ToRotationZ_unk();
@@ -2126,7 +2057,7 @@ void EnemyQuarkStand::fn_80350BF0() {
     m590 = lbl_8087F048->fn_800F8548();
     QuarkPlayMotion_unk(&mMotion, 0x14A, 0, 0, 1.0f);
     mMotion.mTracks[0].m08 = 5.0f;
-    m14B0 = (int)m17E4;
+    m14B0 = m17E4;
     mC58.mC4 = m17E4;
     m17EC = 0;
     m17F0 = rand() % 2;
@@ -2195,7 +2126,7 @@ void EnemyQuarkStand::fn_80351480(int near) {
     m58C = 19;
     QuarkPlayMotion_unk(&mMotion, 0x143, 0, 0, 1.5f);
     if (m17E4 != 0) {
-        m14B0 = (int)m17E4;
+        m14B0 = m17E4;
     }
     float dist;
     if (near != 0) {
@@ -2203,15 +2134,15 @@ void EnemyQuarkStand::fn_80351480(int near) {
     } else {
         dist = m1CE8 - 10.0f;
     }
-    CharaTask* target = (CharaTask*)m14B0;
+    CharaTask* target = m14B0;
     atn::Vector3 dir = m160C - target->mPos;
     dir.y = 0.0f;
     if (PSVECSquareMag(&dir) < 0.0001f) {
-        dir = QuarkFrontOf_unk((CharaTask*)m14B0);
+        dir = QuarkFrontOf_unk(m14B0);
     } else {
         PSVECNormalize(&dir, &dir);
     }
-    atn::Vector3 pos = ((CharaTask*)m14B0)->mPos + dir * dist;
+    atn::Vector3 pos = m14B0->mPos + dir * dist;
     m15DC.SetTarget_unk(pos);
     m15DC.mRot = (pos - mPos).ToRotationZ_unk();
     m15DC.mDir = pos - mPos;
@@ -2254,7 +2185,7 @@ enum {
 // NONMATCHING: 99.9% - the original builds the slot address (Inventory::instance_ + 0x8310) through r3 before r31
 // (tried pointer forms, a chained assignment, an Inventory local). The motion is a ?: of enum constants.
 void EnemyQuarkStand::fn_80351AB8(CharaTask* chara, int kind) {
-    m16F0 = (int)chara;
+    m16F0 = chara;
     m16F4 = kind;
     m1714 = 1;
     fn_8034F384();
@@ -2303,10 +2234,10 @@ void EnemyQuarkStand::fn_803520D8() {
     m58C = 16;
     QuarkPlayMotion_unk(&mMotion, 0x38, 0, 0, 0.25f);
     m14BC = 1;
-    if (((GameTask*)lbl_8087F430)->fn_80370A78(0xC9) == 0) {
-        ((GameTask*)lbl_8087F430)->fn_80370AE4(0xC9, 1);
+    if (lbl_8087F430->fn_80370A78(0xC9) == 0) {
+        lbl_8087F430->fn_80370AE4(0xC9, 1);
     }
-    ((GameTask*)lbl_8087F430)->fn_80370320(0x389, 1, 0);
+    lbl_8087F430->fn_80370320(0x389, 1, 0);
     m14A8 &= ~0x4000000;
     fn_800C31F4("SE_DG040_109", 0, -1, 1.0f);
 }
@@ -2355,11 +2286,11 @@ void EnemyQuarkStand::fn_803524E4() {
                 m1A24++;
                 if (m1A24 % 4 == 0) {
                     fn_800C344C("SE_MB003_003", &it->m04, 0, -1, 1.0f);
-                    Field_unk* field = lbl_8087F430;
-                    field->m96C %= 2;
-                    field->m970 = 3;
-                    field->m974 = 0.0f;
-                    field->m978 = 1.0f;
+                    GameTask* field = lbl_8087F430;
+                    field->mCamera.mShake.mFrame %= 2;
+                    field->mCamera.mShake.mLength = 3;
+                    field->mCamera.mShake.mWidth = 0.0f;
+                    field->mCamera.mShake.mHeight = 1.0f;
                 }
             }
             it++;
@@ -2395,11 +2326,11 @@ void EnemyQuarkStand::fn_803526A8() {
                 m1CB8++;
                 if (m1CB8 % 3 == 0) {
                     fn_800C344C("SE_EM203_004", &it->m00, 0, -1, 1.0f);
-                    Field_unk* field = lbl_8087F430;
-                    field->m96C %= 2;
-                    field->m970 = 3;
-                    field->m974 = 0.0f;
-                    field->m978 = 1.0f;
+                    GameTask* field = lbl_8087F430;
+                    field->mCamera.mShake.mFrame %= 2;
+                    field->mCamera.mShake.mLength = 3;
+                    field->mCamera.mShake.mWidth = 0.0f;
+                    field->mCamera.mShake.mHeight = 1.0f;
                 }
             }
             it++;
@@ -2414,7 +2345,7 @@ void EnemyQuarkStand::fn_803526A8() {
 // NONMATCHING: 99.11% - slots de pila de la diferencia y de la copia de ToRotationZ_unk intercambiados
 // (0x50/0x5C); ~8 variantes (inline TurnTo_unk, temporales, bloques)
 void EnemyQuarkStand::fn_80352938(float rate) {
-    CharaTask* target = (CharaTask*)m14B0;
+    CharaTask* target = m14B0;
     atn::Vector3 d(target->mPos - mPos);
     float y = d.ToRotationZ_unk().y;
     float diff = atn::WrapAngle_unk(y - mRot.y);
@@ -2485,7 +2416,7 @@ int EnemyQuarkStand::vfB0(atn::Vector3* out) {
 // (chr::ControlThrustForQuarkStand); the return is a boost::function of fn_80178208
 boost::function<void()> EnemyQuarkStand::vfB4(CharaTask* chara) {
     if (m14BC == 1) {
-        ((GameTask*)lbl_8087F430)->fn_80370AE4(0x6F, 1);
+        lbl_8087F430->fn_80370AE4(0x6F, 1);
         fn_80351AB8(chara, 2);
         chara->SetHit_unk(m1550);
         if (lbl_8087EFE8 != 0) {
@@ -2511,12 +2442,12 @@ void EnemyQuarkStand::fn_80353370() {
     fn_800874C8(group, "DownCount", &m17FC, 1, 999999, 1, 0, 0);
     fn_800874C8(group, "StundUpDamageCount", &m1800, 1, 999999, 1, 0, 0);
     fn_800874C8(group, "AttakedInStick", &m1CD4, 1, 999, 1, 0, 0);
-    fn_8008771C(group, "ShortRange", &m1CE0, 0, 0, 0.0f, 9999.0f, 0.01f);
-    fn_8008771C(group, "MiddleRange", &m1CE4, 0, 0, 0.0f, 9999.0f, 0.01f);
-    fn_8008771C(group, "LongRange", &m1CE8, 0, 0, 0.0f, 9999.0f, 0.01f);
-    fn_8008771C(group, "SwordDirectionLine", &m1CD8, 0, 0, 0.0f, 1000.0f, 0.01f);
+    fn_8008771C(group, "ShortRange", &m1CE0, 0.0f, 9999.0f, 0.01f, 0, 0);
+    fn_8008771C(group, "MiddleRange", &m1CE4, 0.0f, 9999.0f, 0.01f, 0, 0);
+    fn_8008771C(group, "LongRange", &m1CE8, 0.0f, 9999.0f, 0.01f, 0, 0);
+    fn_8008771C(group, "SwordDirectionLine", &m1CD8, 0.0f, 1000.0f, 0.01f, 0, 0);
     fn_800874C8(group, "SwordThrowTime", &m1CDC, 0, 999999, 1, 0, 0);
-    fn_8008771C(group, "ShockExpandSonicWave", &m1CC8, 0, 0, 0.0f, 100.0f, 0.01f);
+    fn_8008771C(group, "ShockExpandSonicWave", &m1CC8, 0.0f, 100.0f, 0.01f, 0, 0);
 }
 
 // inferred: picks the character stuck by the sword: the target when it can be stuck (control 0x17), else the
@@ -2526,13 +2457,13 @@ void EnemyQuarkStand::fn_80353370() {
 // temporaries (0x90/0xA4); ~6 forms (vector forms, temporaries, order of the bind)
 void EnemyQuarkStand::fn_8035359C() {
     if (m17E4 == 0) {
-        if (m14BC == 0 && m14B0 != 0 && !((CharaTask*)m14B0)->mFlag28) {
+        if (m14BC == 0 && m14B0 != 0 && !m14B0->mFlag28) {
             float best = 1e16f;
             for (CharaTask* p = lbl_8087F8A0->mHead; p != 0; p = ((PlayerTask*)p)->mNext) {
                 if (p->m560 == 0x17 && p->CanAct_unk()) {
                     atn::Vector3 d(p->mPos.x - m160C.x, p->mPos.y - m160C.y, p->mPos.z - m160C.z);
                     if (!((float)sqrt(d.x * d.x + d.z * d.z) >= 380.0f)) {
-                        if ((CharaTask*)m14B0 == p) {
+                        if (m14B0 == p) {
                             m17E4 = p;
                             break;
                         }

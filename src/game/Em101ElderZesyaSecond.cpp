@@ -1,3 +1,4 @@
+#include "atn/EffectManager.h"
 #include "game/SkillEffectManager.h"
 #include "game/Em101ElderZesyaSecond.h"
 #include "math/VecAssign_unk.h"
@@ -15,43 +16,30 @@
 #include "game/GameTask.h"
 #include "atn/ColliBase.h"
 #include "game/GameSceneFind_unk.h"
+#include "atn/TextTable_unk.h"
 
 extern "C" unsigned long strlen(const char* s);
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" int strncmp(const char* a, const char* b, unsigned long n);
 // inferred: std::string concatenation (weak copy 0x8006AFF8)
 extern "C" std::string fn_8006AFF8(const std::string& a, const std::string& b);
-// inferred: field (lbl_8087F430): camera shake at 0x96C (as in game/GimmickStateCommand.cpp) and route
-// tables at 0x10D8 (as in game/Em306GurgBeast.cpp)
-struct Field_unk {
-    unsigned char m000[0x96C];
-    int m96C; // inferred: camera shake
-    int m970;
-    float m974;
-    float m978;
-    unsigned char m97C[0x10D8 - 0x97C];
-    GameScene* m10D8;
-};
-extern "C" Field_unk* lbl_8087F430;
+extern "C" GameTask* lbl_8087F430;
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
-// inferred: effect manager (class unknown), global instance at 0x8087F3C0
-struct EffectMgr_unk {
-    unsigned char m00[0xB8];
-    int mB8; // inferred: effect layer (set to 2 around some effects, as in game/Arms.cpp)
-};
-extern "C" EffectMgr_unk* lbl_8087F3C0;
-extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
+extern "C" atn::EffectManager* lbl_8087F3C0;
+extern "C" void fn_80239DAC(atn::EffectManager* mgr, void* owner, int id, int arg); // inferred: stops an effect
 extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the next effects
 struct Color4f_unk {
     Color4f_unk() {}
     Color4f_unk(float r_, float g_, float b_, float a_) : r(r_), g(g_), b(b_), a(a_) {}
     float r, g, b, a;
 };
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
+extern "C" void fn_8023A8B4(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Model* model, void* node,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
 extern "C" int rand();
-extern "C" float PSVECSquareMag(const atn::Vector3* v); extern "C" void* lbl_8087EE98;
+extern "C" float PSVECSquareMag(const atn::Vector3* v);
+struct ColliManager_unk;
+extern "C" ColliManager_unk* lbl_8087EE98;
 extern "C" int fn_8004ED34(void* colli, atn::ColliResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg7); // inferred: ray test
 extern "C" int atoi(const char* s);
@@ -61,12 +49,6 @@ extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float
 extern "C" void* memset(void* dst, int c, unsigned long n);
 extern "C" int fn_800DD3FC(wchar_t* s, const wchar_t* format, ...); // inferred: wide sprintf
 extern "C" const wchar_t lbl_808813D0[2]; // inferred: empty text
-// inferred: camp message table (lbl_8087F1E4, as in game/Em309Ghoul.cpp)
-struct ElderMsgTable_unk {
-    const wchar_t* Get_unk(int id) { return mText[id] != 0 ? mText[id] : lbl_808813D0; }
-    const wchar_t* mText[1];
-};
-extern "C" ElderMsgTable_unk* lbl_8087F1E4;
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 extern "C" atn::Vector3 lbl_807C7030;              // inferred: zero vector
@@ -174,7 +156,7 @@ int Em101ElderZesyaSecond::vf0C() {
         mStatus.m18 |= 0x3000000;
         m1580.mSphere = atn::ColliSphere::Sphere_unk(atn::Vector3(0.0f, -10000.0f, 0.0f), 20.0f);
         m1580.mFlags |= 3;
-        m1580.m0C = (int)this;
+        m1580.m0C = this;
         m1580.m20 = 0x80;
         if (m1438 != 0) {
             m1438->fn_800D246C(0);
@@ -186,7 +168,7 @@ int Em101ElderZesyaSecond::vf0C() {
 }
 
 // inferred: same as PlayEffect_unk with the manager as a parameter (name invented)
-inline void PlayEffectM_unk(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model) {
+inline void PlayEffectM_unk(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Model* model) {
     atn::Vector3 pos;
     atn::Vector3 rot;
     Color4f_unk color;
@@ -204,7 +186,7 @@ inline void PlayEffectM_unk(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* m
 }
 
 // inferred: plays a colored effect on the model (name invented)
-inline void PlayColorEffect_unk(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, const Color4f_unk& color) {
+inline void PlayColorEffect_unk(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Model* model, const Color4f_unk& color) {
     fn_8023A8B4(mgr, efp, model, 0, lbl_807C7030, lbl_807C7030, color, -1, -1, 1, 1.0f);
 }
 
@@ -248,7 +230,7 @@ void Em101ElderZesyaSecond::vf10() {
     if (m58C != 10 && m58C != 11) {
         m1504 += CountNear_unk(m14BC);
     }
-    if (m15D8 > 2 || ((GameTask*)lbl_8087F430)->fn_80370A78(0xE8) == 1) {
+    if (m15D8 > 2 || lbl_8087F430->fn_80370A78(0xE8) == 1) {
         m14DC = 1;
     }
     if (mC58.mC0 == 0 || m14D0 == 0) {
@@ -309,16 +291,16 @@ void Em101ElderZesyaSecond::vf10() {
             if ((float)__fabs(frame - 24.0f) < 1.1920929e-7f) {
                 m1554 = 1;
                 m1558 = 0;
-                lbl_8087F3C0->mB8 = 2;
+                lbl_8087F3C0->mSystem.mLayer = 2;
                 fn_80232B7C(this, 1001);
                 Color4f_unk color = m15D4 == 0 ? Color4f_unk(0.0f, 1.0f, 0.35f, 1.0f)
                                                : Color4f_unk(1.0f, 0.3f, 0.0f, 1.0f);
                 PlayColorEffect_unk(lbl_8087F3C0, &m155C, &mMotion, color);
-                lbl_8087F3C0->mB8 = 0;
+                lbl_8087F3C0->mSystem.mLayer = 0;
                 fn_800C344C(sSounds_unk[0], &mPos, 0, -1, 1.0f);
                 int flag = m15D4 == 0 ? 0xE9 : 0xEA;
-                if (((GameTask*)lbl_8087F430)->fn_80370A78(flag) == 0) {
-                    ((GameTask*)lbl_8087F430)->fn_80370AE4(flag, 1);
+                if (lbl_8087F430->fn_80370A78(flag) == 0) {
+                    lbl_8087F430->fn_80370AE4(flag, 1);
                 }
                 wchar_t text[256];
                 memset(text, 0, sizeof(text));
@@ -338,8 +320,8 @@ void Em101ElderZesyaSecond::vf10() {
         default:
             if (m55C == 6) {
                 if (m560 == 30 && mControl && ((ControlMagic_unk*)mControl.get())->m1D != 0) {
-                    if (((GameTask*)lbl_8087F430)->fn_80370A78(0xEC) == 0) {
-                        ((GameTask*)lbl_8087F430)->fn_80370AE4(0xEC, 1);
+                    if (lbl_8087F430->fn_80370A78(0xEC) == 0) {
+                        lbl_8087F430->fn_80370AE4(0xEC, 1);
                     }
                 }
             } else {
@@ -421,8 +403,8 @@ void Em101ElderZesyaSecond::vf3C(HitInfo_unk* hit, int) {
             }
             if (ok != 0) {
                 if (m15D0 != 0) {
-                    if (((GameTask*)lbl_8087F430)->fn_80370A78(0xE6) == 0) {
-                        ((GameTask*)lbl_8087F430)->fn_80370AE4(0xE6, 1);
+                    if (lbl_8087F430->fn_80370A78(0xE6) == 0) {
+                        lbl_8087F430->fn_80370AE4(0xE6, 1);
                     }
                     m15D0 = 0;
                 }
@@ -431,7 +413,7 @@ void Em101ElderZesyaSecond::vf3C(HitInfo_unk* hit, int) {
             }
         }
         if (m15CC != 0) {
-            ((GameTask*)lbl_8087F430)->fn_80370AE4(0xE7, 1);
+            lbl_8087F430->fn_80370AE4(0xE7, 1);
             m15CC = 0;
         }
         msg->m64 = 1;
@@ -475,7 +457,7 @@ void Em101ElderZesyaSecond::vf40(HitInfo_unk* hit) {
         }
     }
     if (mStatus.IsState_unk(0x20)) {
-        if (((GameTask*)lbl_8087F430)->fn_80370A78(0x26) > 0 && msg->mAttacker != 0 && msg->mAttacker->mType == 0) {
+        if (lbl_8087F430->fn_80370A78(0x26) > 0 && msg->mAttacker != 0 && msg->mAttacker->mType == 0) {
             vf48();
             fn_80178A6C();
             fn_8015495C(0, 1, 1, 1);
@@ -654,11 +636,11 @@ void Em101ElderZesyaSecond::fn_8025C624() {
     fn_80232B7C(0, 0);
     PlayEffect_unk(&m1574, &mMotion);
     fn_800C344C(sSounds_unk[1], &mPos, 0, -1, 1.0f);
-    Field_unk* field = lbl_8087F430;
-    field->m96C %= 2;
-    field->m970 = 5;
-    field->m974 = 1.0f;
-    field->m978 = 2.0f;
+    GameTask* field = lbl_8087F430;
+    field->mCamera.mShake.mFrame %= 2;
+    field->mCamera.mShake.mLength = 5;
+    field->mCamera.mShake.mWidth = 1.0f;
+    field->mCamera.mShake.mHeight = 2.0f;
     m15DC++;
     if (m15DC < 2) {
         m15D4 = 0;

@@ -5,12 +5,12 @@
 #include "atn/ColliBase.h"
 
 extern "C" int rand();
-extern "C" void* lbl_8087EE98;
+struct ColliManager_unk;
+extern "C" ColliManager_unk* lbl_8087EE98;
 extern "C" int fn_8004ED34(void* colli, atn::ColliResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg7); // inferred: ray test
 // inferred: field (lbl_8087F430, as in game/CharaTask.cpp)
-struct Field_unk;
-extern "C" Field_unk* lbl_8087F430;
+extern "C" GameTask* lbl_8087F430;
 
 namespace chr {
 
@@ -174,7 +174,7 @@ ControlSlip::ControlSlip(Chara_unk* chara, int stop) : ControlBase(chara), mStop
         lbl_8087F498->fn_803EA77C(mChara, 0x12, 0x2D, 1.0f, 10.0f);
     }
     if (mChara->mType == 0 && lbl_8087F430 != 0) {
-        ((GameTask*)lbl_8087F430)->fn_80370320(0xF9, MIN(((GameTask*)lbl_8087F430)->fn_80370174(0xF9) + 1, 999), 0);
+        lbl_8087F430->fn_80370320(0xF9, MIN(lbl_8087F430->fn_80370174(0xF9) + 1, 999), 0);
     }
     if (mStop) {
         Chara_unk* c = mChara;

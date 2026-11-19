@@ -1,13 +1,15 @@
+#include "Event/Section.h"
 #include "Event/Behavior.h"
 
-extern "C" void* lbl_8087EF70;                                // inferred: pad
+struct Pad_unk;
+extern "C" Pad_unk* lbl_8087EF70;                                // inferred: pad
 extern "C" int fn_800A555C(void* pad, int port, int button); // inferred: button triggered
 
 namespace Event {
 
 // inferred: test behaviour, plays one of four motions when its pad button is pressed
 int BehaviorGesture::vf08(Action* arg) {
-    ActionOwner_unk* owner = arg->fn_805381A0();
+    Section* owner = arg->fn_805381A0();
     EventManager_unk* mgr = arg->fn_805381C8();
     int id = owner->m10;
     Actor* actor = mgr->FindActor_unk(id);

@@ -6,8 +6,10 @@
 #include "atn/Camera_unk.h"
 #include "string.h"
 #include "game/GameTask.h"
+#include "game/TacView.h"
 
-extern "C" void* lbl_8087EF70; // inferred: pad
+struct Pad_unk;
+extern "C" Pad_unk* lbl_8087EF70; // inferred: pad
 extern "C" int fn_800A555C(void* pad, int port, int button); // inferred: button triggered
 extern "C" int fn_800A5584(void* pad, int port, int button);
 extern "C" int fn_800A55AC(void* pad, int port, int button); // inferred: button repeated
@@ -17,18 +19,8 @@ extern "C" int fn_800A5870(void* pad, int port, int axis, float threshold); // i
 extern "C" int fn_800A58D0(void* pad, int port); // inferred: classic controller connected
 extern "C" float PSVECMag(const atn::Vector3* v);
 
-// inferred: field (lbl_8087F430), only the members read here
-struct Field_unk {
-    unsigned char m0000[0x54E4];
-    int m54E4; // inferred: nonzero while a menu of the field is open
-};
-extern "C" Field_unk* lbl_8087F430;
-// inferred: tactics view (lbl_8087F9F8, as in game/CharaTask.cpp)
-struct TacView_unk {
-    unsigned char m000[0xA70];
-    int mA70; // inferred: nonzero while the view is active
-};
-extern "C" TacView_unk* lbl_8087F9F8;
+extern "C" GameTask* lbl_8087F430;
+extern "C" TacView* lbl_8087F9F8; // inferred: tactics view
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 
 // inferred: settings (lbl_8087F0A8), only the members read here
@@ -88,7 +80,7 @@ inline int IsLocked_unk() {
 }
 
 // inferred: field (weak copy, also in the enemy files)
-extern "C" Field_unk* fn_80121F00() {
+extern "C" GameTask* fn_80121F00() {
     return lbl_8087F430;
 }
 // inferred: button triggered (0x21: no button); `lock` ignores it while the leader is locked
@@ -131,7 +123,7 @@ extern "C" ControlConfig_unk* fn_80122280(SetConfig* config) {
 // inferred: field flag 0xD0 not set
 extern "C" int fn_80122288() {
     int result = 1;
-    if (fn_80121F00() && ((GameTask*)fn_80121F00())->fn_80370174(0xD0)) {
+    if (fn_80121F00() && fn_80121F00()->fn_80370174(0xD0)) {
         result = 0;
     }
     return result;
@@ -149,7 +141,7 @@ struct FieldCursor_unk {
     float m08;
     float m0C;
 };
-extern "C" inline FieldInput_unk* fn_80122550(Field_unk* field) {
+extern "C" inline FieldInput_unk* fn_80122550(GameTask* field) {
     return (FieldInput_unk*)((char*)field + 0x6C);
 }
 extern "C" inline FieldCursor_unk* fn_80122558(FieldInput_unk* input) {

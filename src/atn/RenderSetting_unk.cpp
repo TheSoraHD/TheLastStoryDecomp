@@ -1,6 +1,7 @@
 // atn/RenderSetting_unk.cpp: render settings edited from the debug menu (lbl_8087EFA8) and the
 // parameter blocks of the post effects (god ray, rain, haze, shadow, color matrix, gamma) that the
 // map parts also load from their csv (file name invented).
+#include "atn/GraphicsDevice.h"
 #include "atn/RenderSetting_unk.h"
 #include "atn/Memory.h"
 
@@ -11,23 +12,23 @@ extern "C" int fn_800DC12C(const char* s);    // inferred: string to integer (at
 
 // inferred: debug menu (class unknown): groups, toggles and sliders
 extern "C" void* fn_8008937C(void* parent, const char* name); // inferred: adds a group
-extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3, int arg4); // inferred: toggle
-extern "C" void fn_800874C8(void* group, const char* name, int* value, int min, int max, int step, int arg6,
-                            int arg7);
-extern "C" void fn_8008771C(void* group, const char* name, float* value, int arg3, int arg4, float min, float max,
-                            float step);
-extern "C" void fn_80087858(void* group, const char* name, float* value, int arg3, int arg4, float min, float max,
-                            float step); // inferred: angle
-extern "C" void fn_80087BB4(void* group, const char* name, atn::Vector2_unk* value, int arg3, int arg4, float min,
-                            float max, float step);
-extern "C" void fn_80087E9C(void* group, const char* name, atn::Vector3* value, int arg3, int arg4, float min,
-                            float max, float step);
-extern "C" void fn_8008826C(void* group, const char* name, RsVector4_unk* value, int arg3, int arg4, float min,
-                            float max, float step);
-extern "C" void fn_80088AF4(void* group, const char* name, RsColor_unk* value, int arg3, int arg4, float min,
-                            float max, float step); // inferred: color
-extern "C" void fn_80088FAC(void* group, const char* name, RsColor_unk* value, int arg3, int arg4, float min,
-                            float max, float step); // inferred: color (rgb)
+extern "C" void fn_80087994(void* group, const char* name, int* value, void* func, void* arg); // inferred: toggle
+extern "C" void fn_800874C8(void* group, const char* name, int* value, int min, int max, int step, void* func,
+                            void* arg);
+extern "C" void fn_8008771C(void* group, const char* name, float* value, float min, float max, float step, void* func,
+                            void* arg);
+extern "C" void fn_80087858(void* group, const char* name, float* value, float min, float max, float step, void* func,
+                            void* arg); // inferred: angle
+extern "C" void fn_80087BB4(void* group, const char* name, atn::Vector2_unk* value, float min, float max, float step,
+                            void* func, void* arg);
+extern "C" void fn_80087E9C(void* group, const char* name, atn::Vector3* value, float min, float max, float step,
+                            void* func, void* arg);
+extern "C" void fn_8008826C(void* group, const char* name, RsVector4_unk* value, float min, float max, float step,
+                            void* func, void* arg);
+extern "C" void fn_80088AF4(void* group, const char* name, RsColor_unk* value, float min, float max, float step,
+                            void* func, void* arg); // inferred: color
+extern "C" void fn_80088FAC(void* group, const char* name, RsColor_unk* value, float min, float max, float step,
+                            void* func, void* arg); // inferred: color (rgb)
 
 // inferred: owner of the debug menu (lbl_8087EF10; menu at 0x10)
 struct RsDebug_unk {
@@ -36,13 +37,7 @@ struct RsDebug_unk {
 };
 extern "C" RsDebug_unk* lbl_8087EF10;
 
-// inferred: render manager (lbl_8087EEE0): screen size
-struct RsRenderMgr_unk {
-    unsigned char m00[0x3C];
-    int mWidth;  // 0x3C
-    int mHeight; // 0x40
-};
-extern "C" RsRenderMgr_unk* lbl_8087EEE0;
+extern "C" atn::GraphicsDevice_unk* lbl_8087EEE0;
 
 extern "C" RenderSetting_unk* lbl_8087EFA8;
 
@@ -95,8 +90,8 @@ RenderSetting_unk::RenderSetting_unk()
     fn_800874C8(g1, "CacheMode", &m3A8, 0, 2, 1, 0, 0);
     fn_800874C8(g1, "Gamma", &m030, 0, 2, 1, 0, 0);
     fn_800874C8(g1, "Gamma", &m034, 1, 30, 1, 0, 0);
-    fn_8008771C(g1, "Camera Near", &m1C0, 0, 0, 1.0f, 10000.0f, 1.0f);
-    fn_8008771C(g1, "Camera Far", &m1C4, 0, 0, 1.0f, 10000.0f, 1.0f);
+    fn_8008771C(g1, "Camera Near", &m1C0, 1.0f, 10000.0f, 1.0f, 0, 0);
+    fn_8008771C(g1, "Camera Far", &m1C4, 1.0f, 10000.0f, 1.0f, 0, 0);
     fn_80087994(g1, "Deferred", &m398, 0, 0);
     fn_80087994(g1, "DeferredSort", &m39C, 0, 0);
     fn_80087994(g1, "Material Delta", &m3A0, 0, 0);
@@ -136,105 +131,105 @@ RenderSetting_unk::RenderSetting_unk()
     fn_80087994(g1, "DrawSafeArea", &m018, 0, 0);
     fn_80087994(g1, "Draw4:3Area", &m01C, 0, 0);
     fn_80087994(g1, "Wireframe", &m020, 0, 0);
-    fn_8008771C(g1, "FrameSpeed", &m3A4, 0, 0, 0.1f, 100.0f, 0.1f);
+    fn_8008771C(g1, "FrameSpeed", &m3A4, 0.1f, 100.0f, 0.1f, 0, 0);
     void* g3 = fn_8008937C(m04C, "PostFX");
     void* g4 = fn_8008937C(m04C, "Textures");
     fn_80087994(g4, "Force No Mips", &m230, 0, 0);
     fn_80087994(g4, "Show Mips", &m234, 0, 0);
     fn_800874C8(g4, "Aniso", &m224, 0, 3, 1, 0, 0);
     fn_80087994(g4, "Edge Filter", &m228, 0, 0);
-    fn_8008771C(g4, "Mip Bias", &m22C, 0, 0, -10.0f, 10.0f, 0.01f);
+    fn_8008771C(g4, "Mip Bias", &m22C, -10.0f, 10.0f, 0.01f, 0, 0);
     void* g5 = fn_8008937C(m04C, "LOD");
-    fn_8008771C(g5, "Distance 1", &m20C[0], 0, 0, -1000.0f, 1000.0f, 0.5f);
-    fn_8008771C(g5, "Distance 2", &m20C[1], 0, 0, -1000.0f, 1000.0f, 0.5f);
-    fn_8008771C(g5, "Distance 3", &m20C[2], 0, 0, -1000.0f, 1000.0f, 0.5f);
-    fn_8008771C(g5, "No Motion", &m20C[3], 0, 0, -1000.0f, 1000.0f, 0.5f);
-    fn_8008771C(g5, "Half Motion", &m20C[4], 0, 0, -1000.0f, 1000.0f, 0.5f);
+    fn_8008771C(g5, "Distance 1", &m20C[0], -1000.0f, 1000.0f, 0.5f, 0, 0);
+    fn_8008771C(g5, "Distance 2", &m20C[1], -1000.0f, 1000.0f, 0.5f, 0, 0);
+    fn_8008771C(g5, "Distance 3", &m20C[2], -1000.0f, 1000.0f, 0.5f, 0, 0);
+    fn_8008771C(g5, "No Motion", &m20C[3], -1000.0f, 1000.0f, 0.5f, 0, 0);
+    fn_8008771C(g5, "Half Motion", &m20C[4], -1000.0f, 1000.0f, 0.5f, 0, 0);
     fn_800874C8(g5, "Half Rate", &m220, 1, 1000, 1, 0, 0);
-    fn_8008771C(g5, "Shader Dist", &m1B0, 0, 0, -1000.0f, 1000.0f, 0.5f);
+    fn_8008771C(g5, "Shader Dist", &m1B0, -1000.0f, 1000.0f, 0.5f, 0, 0);
     fn_800874C8(g5, "Shader Bias", &m1B4, -10, 10, 1, 0, 0);
-    fn_8008771C(g5, "Node Area", &m1B8, 0, 0, 0.0f, 10000.0f, 1.0f);
+    fn_8008771C(g5, "Node Area", &m1B8, 0.0f, 10000.0f, 1.0f, 0, 0);
     fn_80087994(g5, "Node Debug", &m1BC, 0, 0);
     void* g6 = fn_8008937C(m04C, "Occlusion");
     fn_80087994(g6, "Enabled", &m1D0, 0, 0);
     fn_80087994(g6, "Enabled AABB", &m1D4, 0, 0);
-    fn_8008771C(g6, "ZBias", &m1D8, 0, 0, -1000.0f, 1000.0f, 0.01f);
+    fn_8008771C(g6, "ZBias", &m1D8, -1000.0f, 1000.0f, 0.01f, 0, 0);
     fn_80087994(g6, "Debug Enabled", &m1DC, 0, 0);
     fn_80087994(g6, "Debug Enabled 3D", &m1E4, 0, 0);
     fn_80087994(g6, "Debug Model", &m1E0, 0, 0);
-    fn_80087E9C(g6, "Scale", &m1F8, 0, 0, 0.0f, 10.0f, 0.001f);
-    fn_8008771C(g6, "Model Area", &m1F4, 0, 0, 0.0f, 10000.0f, 5.0f);
-    fn_8008771C(g6, "Cull Dist", &m1EC, 0, 0, 0.0f, 10000.0f, 5.0f);
-    fn_8008771C(g6, "Cull Area", &m1F0, 0, 0, 0.0f, 10000.0f, 5.0f);
+    fn_80087E9C(g6, "Scale", &m1F8, 0.0f, 10.0f, 0.001f, 0, 0);
+    fn_8008771C(g6, "Model Area", &m1F4, 0.0f, 10000.0f, 5.0f, 0, 0);
+    fn_8008771C(g6, "Cull Dist", &m1EC, 0.0f, 10000.0f, 5.0f, 0, 0);
+    fn_8008771C(g6, "Cull Area", &m1F0, 0.0f, 10000.0f, 5.0f, 0, 0);
     void* g7 = fn_8008937C(g3, "ColorMatrix");
     m324.fn_800BC194(g7);
     void* g8 = fn_8008937C(g3, "Gamma");
     fn_80087994(g8, "Enabled", &m3DC.mEnable, 0, 0);
     fn_80087994(g8, "Debug", &m3DC.mDebug, 0, 0);
-    fn_8008771C(g8, "Priority", &m3DC.mDepth, 0, 0, -10000.0f, 10000.0f, 0.01f);
-    fn_8008771C(g8, "LUT Scale", &m3DC.mIndX, 0, 0, -10000.0f, 10000.0f, 0.01f);
-    fn_8008771C(g8, "Gamma Scale", &m3DC.mIndY, 0, 0, -10000.0f, 10000.0f, 0.01f);
+    fn_8008771C(g8, "Priority", &m3DC.mDepth, -10000.0f, 10000.0f, 0.01f, 0, 0);
+    fn_8008771C(g8, "LUT Scale", &m3DC.mIndX, -10000.0f, 10000.0f, 0.01f, 0, 0);
+    fn_8008771C(g8, "Gamma Scale", &m3DC.mIndY, -10000.0f, 10000.0f, 0.01f, 0, 0);
     for (int i = 0; i < 8; i++) {
         char name[256];
         sprintf(name, "Gamma %d", i);
-        fn_8008771C(g8, name, &m3DC.mGamma[i], 0, 0, -10.0f, 10.0f, 0.01f);
+        fn_8008771C(g8, name, &m3DC.mGamma[i], -10.0f, 10.0f, 0.01f, 0, 0);
     }
     void* g9 = fn_8008937C(g3, "GodRay");
     m264.fn_800BB4FC(g9);
     void* g10 = fn_8008937C(g3, "Bloom");
     fn_80087994(g10, "*Bloom Enabled", &m054.mEnabled, 0, 0);
     fn_80087994(g10, "Bloom Debug", &m054.mDebug, 0, 0);
-    fn_80088AF4(g10, "*Color 1", &m054.mColor[0], 0, 0, 0.0f, 1.0f, 0.01f);
-    fn_80088AF4(g10, "*Color 2", &m054.mColor[1], 0, 0, 0.0f, 1.0f, 0.01f);
-    fn_80088AF4(g10, "*Color 3", &m054.mColor[2], 0, 0, 0.0f, 1.0f, 0.01f);
+    fn_80088AF4(g10, "*Color 1", &m054.mColor[0], 0.0f, 1.0f, 0.01f, 0, 0);
+    fn_80088AF4(g10, "*Color 2", &m054.mColor[1], 0.0f, 1.0f, 0.01f, 0, 0);
+    fn_80088AF4(g10, "*Color 3", &m054.mColor[2], 0.0f, 1.0f, 0.01f, 0, 0);
     fn_800874C8(g10, "*Bias 1", &m054.mBias[0], 0, 2, 1, 0, 0);
     fn_800874C8(g10, "*Bias 2", &m054.mBias[1], 0, 2, 1, 0, 0);
     fn_800874C8(g10, "*Bias 3", &m054.mBias[2], 0, 2, 1, 0, 0);
     fn_800874C8(g10, "*Scale 1", &m054.mScale[0], 0, 3, 1, 0, 0);
     fn_800874C8(g10, "*Scale 2", &m054.mScale[1], 0, 3, 1, 0, 0);
     fn_800874C8(g10, "*Scale 3", &m054.mScale[2], 0, 3, 1, 0, 0);
-    fn_8008771C(g10, "*Blur Width", &m054.mBlurWidth, 0, 0, 0.0f, 10.0f, 0.1f);
-    fn_8008771C(g10, "*Blur Height", &m054.mBlurHeight, 0, 0, 0.0f, 10.0f, 0.1f);
+    fn_8008771C(g10, "*Blur Width", &m054.mBlurWidth, 0.0f, 10.0f, 0.1f, 0, 0);
+    fn_8008771C(g10, "*Blur Height", &m054.mBlurHeight, 0.0f, 10.0f, 0.1f, 0, 0);
     fn_800874C8(g10, "BloomSize", &m054.mSize, 1, 8, 1, 0, 0);
     fn_800874C8(g10, "Strength", &m054.mStrength, 0, 128, 1, 0, 0);
-    fn_8008771C(g10, "Strength Scale", &m054.mStrengthScale, 0, 0, 0.0f, 1.0f, 0.02f);
+    fn_8008771C(g10, "Strength Scale", &m054.mStrengthScale, 0.0f, 1.0f, 0.02f, 0, 0);
     fn_800874C8(g10, "Dark Steps", &m054.mDarkSteps, 0, 64, 1, 0, 0);
-    fn_80087858(g10, "Blur Angle", &m054.mBlurAngle, 0, 0, -180.0f, 180.0f, 2.0f);
-    fn_8008771C(g10, "Kernel0", &m054.mKernel[0], 0, 0, 0.0f, 100.0f, 0.1f);
-    fn_8008771C(g10, "Kernel1", &m054.mKernel[1], 0, 0, 0.0f, 100.0f, 0.1f);
-    fn_8008771C(g10, "Kernel2", &m054.mKernel[2], 0, 0, 0.0f, 100.0f, 0.1f);
-    fn_8008771C(g10, "Kernel3", &m054.mKernel[3], 0, 0, 0.0f, 100.0f, 0.1f);
-    fn_8008771C(g10, "Kernel4", &m054.mKernel[4], 0, 0, 0.0f, 100.0f, 0.1f);
+    fn_80087858(g10, "Blur Angle", &m054.mBlurAngle, -180.0f, 180.0f, 2.0f, 0, 0);
+    fn_8008771C(g10, "Kernel0", &m054.mKernel[0], 0.0f, 100.0f, 0.1f, 0, 0);
+    fn_8008771C(g10, "Kernel1", &m054.mKernel[1], 0.0f, 100.0f, 0.1f, 0, 0);
+    fn_8008771C(g10, "Kernel2", &m054.mKernel[2], 0.0f, 100.0f, 0.1f, 0, 0);
+    fn_8008771C(g10, "Kernel3", &m054.mKernel[3], 0.0f, 100.0f, 0.1f, 0, 0);
+    fn_8008771C(g10, "Kernel4", &m054.mKernel[4], 0.0f, 100.0f, 0.1f, 0, 0);
     void* g11 = fn_8008937C(g3, "DoF");
     fn_80087994(g11, "*Dof Enabled", &mDof.mEnabled, 0, 0);
     fn_80087994(g11, "Dof Debug", &mDof.mDebug, 0, 0);
     fn_80087994(g11, "Dof View", &mDof.mView, 0, 0);
     fn_80087994(g11, "Clear Far", &mDof.mClearFar, 0, 0);
-    fn_8008771C(g11, "*Dof Start", &mDof.mStart, 0, 0, 0.0f, 100000.0f, 1.0f);
-    fn_8008771C(g11, "*Dof End", &mDof.mEnd, 0, 0, 0.0f, 100000.0f, 1.0f);
-    fn_8008771C(g11, "*Dof Near Start", &mDof.mNearStart, 0, 0, 0.0f, 100000.0f, 1.0f);
-    fn_8008771C(g11, "*Dof Near End", &mDof.mNearEnd, 0, 0, 0.0f, 100000.0f, 1.0f);
+    fn_8008771C(g11, "*Dof Start", &mDof.mStart, 0.0f, 100000.0f, 1.0f, 0, 0);
+    fn_8008771C(g11, "*Dof End", &mDof.mEnd, 0.0f, 100000.0f, 1.0f, 0, 0);
+    fn_8008771C(g11, "*Dof Near Start", &mDof.mNearStart, 0.0f, 100000.0f, 1.0f, 0, 0);
+    fn_8008771C(g11, "*Dof Near End", &mDof.mNearEnd, 0.0f, 100000.0f, 1.0f, 0, 0);
     fn_800874C8(g11, "*Width", &mDof.mWidth, 16, 320, 16, 0, 0);
     fn_800874C8(g11, "*Height", &mDof.mHeight, 16, lbl_8087EEE0->mHeight / 2, 16, 0, 0);
-    fn_8008771C(g11, "Blur Width", &mDof.mBlurWidth, 0, 0, 0.0f, 10.0f, 0.1f);
-    fn_8008771C(g11, "Blur Height", &mDof.mBlurHeight, 0, 0, 0.0f, 10.0f, 0.1f);
+    fn_8008771C(g11, "Blur Width", &mDof.mBlurWidth, 0.0f, 10.0f, 0.1f, 0, 0);
+    fn_8008771C(g11, "Blur Height", &mDof.mBlurHeight, 0.0f, 10.0f, 0.1f, 0, 0);
     void* g12 = fn_8008937C(g3, "MotionBlur");
     fn_80087994(g12, "Enabled", &m240.mEnabled, 0, 0);
     fn_80087994(g12, "Debug", &m240.mDebug, 0, 0);
     fn_80087994(g12, "Frozen", &m240.mFrozen, 0, 0);
-    fn_8008771C(g12, "Scale", &m240.mScale, 0, 0, 0.0f, 100.0f, 0.1f);
-    fn_8008771C(g12, "Shift", &m240.mShift, 0, 0, 0.0f, 100.0f, 0.1f);
+    fn_8008771C(g12, "Scale", &m240.mScale, 0.0f, 100.0f, 0.1f, 0, 0);
+    fn_8008771C(g12, "Shift", &m240.mShift, 0.0f, 100.0f, 0.1f, 0, 0);
     fn_80087994(g12, "StartBlend", &m240.mStartBlend, 0, 0);
     fn_80087994(g12, "EndBlend", &m240.mEndBlend, 0, 0);
-    fn_8008771C(g12, "StartBlendSpeed", &m240.mStartBlendSpeed, 0, 0, 0.0f, 100.0f, 0.01f);
-    fn_8008771C(g12, "EndBlendSpeed", &m240.mEndBlendSpeed, 0, 0, 0.0f, 100.0f, 0.01f);
+    fn_8008771C(g12, "StartBlendSpeed", &m240.mStartBlendSpeed, 0.0f, 100.0f, 0.01f, 0, 0);
+    fn_8008771C(g12, "EndBlendSpeed", &m240.mEndBlendSpeed, 0.0f, 100.0f, 0.01f, 0, 0);
     void* g13 = fn_8008937C(g3, "Damage");
     fn_80087994(g13, "Enabled", &m374.mEnabled, 0, 0);
     fn_80087994(g13, "Debug", &m374.mDebug, 0, 0);
-    fn_80087858(g13, "Angle", &m374.mAngle, 0, 0, -360.0f, 360.0f, 0.05f);
-    fn_8008771C(g13, "Scale", &m374.mScale, 0, 0, -180.0f, 180.0f, 0.05f);
-    fn_8008771C(g13, "Zoom", &m374.mZoom, 0, 0, -0.9999999f, 100.0f, 0.05f);
-    fn_80088AF4(g13, "Color", &m374.mColor, 0, 0, 0.0f, 4.0f, 0.01f);
+    fn_80087858(g13, "Angle", &m374.mAngle, -360.0f, 360.0f, 0.05f, 0, 0);
+    fn_8008771C(g13, "Scale", &m374.mScale, -180.0f, 180.0f, 0.05f, 0, 0);
+    fn_8008771C(g13, "Zoom", &m374.mZoom, -0.9999999f, 100.0f, 0.05f, 0, 0);
+    fn_80088AF4(g13, "Color", &m374.mColor, 0.0f, 4.0f, 0.01f, 0, 0);
     void* g14 = fn_8008937C(g3, "Rain");
     m2AC.fn_800BB8D8(g14);
     void* g15 = fn_8008937C(g3, "Haze");
@@ -247,9 +242,9 @@ RenderSetting_unk::RenderSetting_unk()
     fn_80087994(g16, "Force depth", &m184, 0, 0);
     fn_80087994(g16, "Force project", &m188, 0, 0);
     fn_80087994(g16, "Simple project", &m18C, 0, 0);
-    fn_8008771C(g16, "AABB bias", &m190, 0, 0, 0.0f, 10000.0f, 0.01f);
+    fn_8008771C(g16, "AABB bias", &m190, 0.0f, 10000.0f, 0.01f, 0, 0);
     fn_80087994(g16, "Shadow Clamp", &m17C, 0, 0);
-    fn_8008771C(g16, "Clamp", &m180, 0, 0, 1.0f, 1000.0f, 1.0f);
+    fn_8008771C(g16, "Clamp", &m180, 1.0f, 1000.0f, 1.0f, 0, 0);
     fn_800874C8(g16, "Lod Bias", &m178, 0, 5, 1, 0, 0);
     fn_80087994(g16, "Caster AABB", &m138, 0, 0);
     fn_80087994(g16, "Generate Frustum", &m140, 0, 0);
@@ -259,25 +254,25 @@ RenderSetting_unk::RenderSetting_unk()
     fn_80087994(g16, "Cull shadow shaders", &m150, 0, 0);
     fn_800874C8(g16, "Map Width", &m158, 16, 640, 16, 0, 0);
     fn_800874C8(g16, "Map Height", &m15C, 16, 528, 16, 0, 0);
-    fn_8008771C(g16, "Min X", &m174, 0, 0, -5000.0f, 5000.0f, 10.0f);
-    fn_8008771C(g16, "Max X", &m170, 0, 0, -5000.0f, 5000.0f, 10.0f);
-    fn_8008771C(g16, "Min Y", &m16C, 0, 0, -5000.0f, 5000.0f, 10.0f);
-    fn_8008771C(g16, "Max Y", &m168, 0, 0, -5000.0f, 5000.0f, 10.0f);
-    fn_8008771C(g16, "Min Z", &m164, 0, 0, -5000.0f, 5000.0f, 10.0f);
-    fn_8008771C(g16, "Max Z", &m160, 0, 0, -5000.0f, 5000.0f, 10.0f);
+    fn_8008771C(g16, "Min X", &m174, -5000.0f, 5000.0f, 10.0f, 0, 0);
+    fn_8008771C(g16, "Max X", &m170, -5000.0f, 5000.0f, 10.0f, 0, 0);
+    fn_8008771C(g16, "Min Y", &m16C, -5000.0f, 5000.0f, 10.0f, 0, 0);
+    fn_8008771C(g16, "Max Y", &m168, -5000.0f, 5000.0f, 10.0f, 0, 0);
+    fn_8008771C(g16, "Min Z", &m164, -5000.0f, 5000.0f, 10.0f, 0, 0);
+    fn_8008771C(g16, "Max Z", &m160, -5000.0f, 5000.0f, 10.0f, 0, 0);
     fn_80087994(g16, "Use Depth Map", &m130, 0, 0);
     fn_80087994(g16, "Self Shadow", &m13C, 0, 0);
     fn_800874C8(g16, "Bias", &m154, -30000, 30000, 8, 0, 0);
     void* g17 = fn_8008937C(m04C, "Weather");
     fn_80087994(g17, "Clouds Enabled", &m2F8, 0, 0);
-    fn_8008771C(g17, "Cloud Size", &m2FC, 0, 0, 1.0f, 100000.0f, 1.0f);
-    fn_8008771C(g17, "Cloud Speed X", &m300, 0, 0, -10000.0f, 10000.0f, 1.0f);
-    fn_8008771C(g17, "Cloud Speed Y", &m304, 0, 0, -10000.0f, 10000.0f, 1.0f);
-    fn_80088FAC(m04C, "ClearColor", &m03C, 0, 0, 0.0f, 1.0f, 0.01f);
+    fn_8008771C(g17, "Cloud Size", &m2FC, 1.0f, 100000.0f, 1.0f, 0, 0);
+    fn_8008771C(g17, "Cloud Speed X", &m300, -10000.0f, 10000.0f, 1.0f, 0, 0);
+    fn_8008771C(g17, "Cloud Speed Y", &m304, -10000.0f, 10000.0f, 1.0f, 0, 0);
+    fn_80088FAC(m04C, "ClearColor", &m03C, 0.0f, 1.0f, 0.01f, 0, 0);
     void* g18 = fn_8008937C(m04C, "2DBlur");
-    fn_8008771C(g18, "Blur Width", &m418, 0, 0, 0.0f, 10.0f, 0.1f);
-    fn_8008771C(g18, "Blur Height", &m41C, 0, 0, 0.0f, 10.0f, 0.1f);
-    fn_80087858(g18, "Blur Angle", &m420, 0, 0, -180.0f, 180.0f, 2.0f);
+    fn_8008771C(g18, "Blur Width", &m418, 0.0f, 10.0f, 0.1f, 0, 0);
+    fn_8008771C(g18, "Blur Height", &m41C, 0.0f, 10.0f, 0.1f, 0, 0);
+    fn_80087858(g18, "Blur Angle", &m420, -180.0f, 180.0f, 2.0f, 0, 0);
 }
 
 void GodRayParam_unk::fn_800BB4FC(void* menu) {
@@ -285,13 +280,13 @@ void GodRayParam_unk::fn_800BB4FC(void* menu) {
     fn_80087994(menu, "Debug", &mDebug, 0, 0);
     fn_800874C8(menu, "*Mode", &mMode, 0, 2, 1, 0, 0);
     fn_80087994(menu, "*Directional", &mDirectional, 0, 0);
-    fn_80087E9C(menu, "*Position", &mPos, 0, 0, -10000.0f, 10000.0f, 0.01f);
-    fn_80088AF4(menu, "*Color", &mColor, 0, 0, 0.0f, 1.0f, 0.01f);
-    fn_8008771C(menu, "*BlurWidth", &mBlurWidth, 0, 0, -100.0f, 100.0f, 0.01f);
-    fn_8008771C(menu, "*BlurHeight", &mBlurHeight, 0, 0, -100.0f, 100.0f, 0.01f);
+    fn_80087E9C(menu, "*Position", &mPos, -10000.0f, 10000.0f, 0.01f, 0, 0);
+    fn_80088AF4(menu, "*Color", &mColor, 0.0f, 1.0f, 0.01f, 0, 0);
+    fn_8008771C(menu, "*BlurWidth", &mBlurWidth, -100.0f, 100.0f, 0.01f, 0, 0);
+    fn_8008771C(menu, "*BlurHeight", &mBlurHeight, -100.0f, 100.0f, 0.01f, 0, 0);
     fn_80087994(menu, "Use Color", &mUseColor, 0, 0);
-    fn_8008771C(menu, "Radius", &mRadius, 0, 0, 0.0f, 1000.0f, 0.01f);
-    fn_8008771C(menu, "RadialScale", &mRadialScale, 0, 0, -100.0f, 100.0f, 0.01f);
+    fn_8008771C(menu, "Radius", &mRadius, 0.0f, 1000.0f, 0.01f, 0, 0);
+    fn_8008771C(menu, "RadialScale", &mRadialScale, -100.0f, 100.0f, 0.01f, 0, 0);
     fn_800874C8(menu, "Iterations", &mIterations, 0, 64, 1, 0, 0);
 }
 
@@ -336,8 +331,8 @@ void GodRayParam_unk::fn_800BB6C0(RsCsv_unk* csv) {
 void RainParam_unk::fn_800BB8D8(void* menu) {
     fn_80087994(menu, "Enabled", &mEnabled, 0, 0);
     fn_80087994(menu, "Debug", &mDebug, 0, 0);
-    fn_8008771C(menu, "Rate", &mRate, 0, 0, 0.0f, 10.0f, 0.01f);
-    fn_8008771C(menu, "Warp", &mWarp, 0, 0, -100.0f, 100.0f, 0.01f);
+    fn_8008771C(menu, "Rate", &mRate, 0.0f, 10.0f, 0.01f, 0, 0);
+    fn_8008771C(menu, "Warp", &mWarp, -100.0f, 100.0f, 0.01f, 0, 0);
 }
 
 void RainParam_unk::fn_800BB994(RsCsv_unk* csv) {
@@ -359,12 +354,12 @@ void RainParam_unk::fn_800BB994(RsCsv_unk* csv) {
 void HazeParam_unk::fn_800BBA64(void* menu) {
     fn_80087994(menu, "Enabled", &mEnabled, 0, 0);
     fn_80087994(menu, "Debug", &mDebug, 0, 0);
-    fn_8008771C(menu, "Warp", &mWarp, 0, 0, -100.0f, 100.0f, 0.01f);
-    fn_80087BB4(menu, "Scale", &mScale, 0, 0, 0.0f, 100.0f, 0.01f);
-    fn_80087BB4(menu, "Scroll", &mScroll, 0, 0, 0.0f, 100.0f, 0.001f);
-    fn_80087BB4(menu, "Position", &mPos, 0, 0, 0.0f, 640.0f, 0.001f);
-    fn_80087BB4(menu, "Size", &mSize, 0, 0, 1.0f, 640.0f, 0.001f);
-    fn_8008826C(menu, "Fade", &mFade, 0, 0, 0.0f, 1.0f, 0.001f);
+    fn_8008771C(menu, "Warp", &mWarp, -100.0f, 100.0f, 0.01f, 0, 0);
+    fn_80087BB4(menu, "Scale", &mScale, 0.0f, 100.0f, 0.01f, 0, 0);
+    fn_80087BB4(menu, "Scroll", &mScroll, 0.0f, 100.0f, 0.001f, 0, 0);
+    fn_80087BB4(menu, "Position", &mPos, 0.0f, 640.0f, 0.001f, 0, 0);
+    fn_80087BB4(menu, "Size", &mSize, 1.0f, 640.0f, 0.001f, 0, 0);
+    fn_8008826C(menu, "Fade", &mFade, 0.0f, 1.0f, 0.001f, 0, 0);
 }
 
 void HazeParam_unk::fn_800BBBB0(RsCsv_unk* csv) {
@@ -420,9 +415,9 @@ void ShadowParam_unk::fn_800BBD90(RsCsv_unk* csv) {
 
 void ShadowParam_unk::fn_800BBEFC(void* menu) {
     fn_80087994(menu, "Shadow Enabled", &mEnabled, 0, 0);
-    fn_80087E9C(menu, "Direction", &mDir, 0, 0, -1.0f, 1.0f, 0.01f);
-    fn_8008771C(menu, "Cull Distance", &mCullDist, 0, 0, 0.0f, 5000.0f, 10.0f);
-    fn_80088AF4(menu, "Color", &mColor, 0, 0, 0.0f, 1.0f, 0.01f);
+    fn_80087E9C(menu, "Direction", &mDir, -1.0f, 1.0f, 0.01f, 0, 0);
+    fn_8008771C(menu, "Cull Distance", &mCullDist, 0.0f, 5000.0f, 10.0f, 0, 0);
+    fn_80088AF4(menu, "Color", &mColor, 0.0f, 1.0f, 0.01f, 0, 0);
     fn_800874C8(menu, "Mode", &mMode, 0, 1, 1, 0, 0);
 }
 
@@ -456,12 +451,12 @@ void ColorMatrixParam_unk::fn_800BBFE8(RsCsv_unk* csv) {
 void ColorMatrixParam_unk::fn_800BC194(void* menu) {
     fn_80087994(menu, "Enabled", &mEnabled, 0, 0);
     fn_800874C8(menu, "Priority", &mPriority, -10, 10, 1, 0, 0);
-    fn_8008826C(menu, "Row 0", &mRows[0], 0, 0, 0.0f, 4.0f, 0.01f);
-    fn_8008826C(menu, "Row 1", &mRows[1], 0, 0, 0.0f, 4.0f, 0.01f);
-    fn_8008826C(menu, "Row 2", &mRows[2], 0, 0, 0.0f, 4.0f, 0.01f);
-    fn_8008826C(menu, "Row 3", &mRows[3], 0, 0, -0.5f, 0.5f, 0.01f);
+    fn_8008826C(menu, "Row 0", &mRows[0], 0.0f, 4.0f, 0.01f, 0, 0);
+    fn_8008826C(menu, "Row 1", &mRows[1], 0.0f, 4.0f, 0.01f, 0, 0);
+    fn_8008826C(menu, "Row 2", &mRows[2], 0.0f, 4.0f, 0.01f, 0, 0);
+    fn_8008826C(menu, "Row 3", &mRows[3], -0.5f, 0.5f, 0.01f, 0, 0);
     fn_80087994(menu, "MonoEnable", &mMono, 0, 0);
-    fn_8008771C(menu, "MonoRate", &mMonoRate, 0, 0, 0.0f, 4.0f, 0.01f);
+    fn_8008771C(menu, "MonoRate", &mMonoRate, 0.0f, 4.0f, 0.01f, 0, 0);
 }
 
 GammaParams_unk::GammaParams_unk() : mDebug(0), mEnable(0), mDepth(0.0f), mIndX(0.08f), mIndY(1.0f) {

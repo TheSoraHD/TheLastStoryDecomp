@@ -143,7 +143,7 @@ struct GimmickMsg_unk {
     int m04;
     int m08;
     int m0C;
-    int m10;
+    CharaTask* m10; // inferred: character that sends the message
     atn::Vector3 mVec;
 };
 

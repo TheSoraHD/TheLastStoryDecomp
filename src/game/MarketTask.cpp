@@ -1,3 +1,4 @@
+#include "game/GameScene.h"
 #include "game/MarketTask.h"
 #include "game/GameTask.h"
 #include "atn/Memory.h"
@@ -5,10 +6,10 @@
 #include "game/TownTask.h"
 
 extern "C" int rand();
-extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, int arg6,
-                            int arg7); // inferred: debug menu int
-extern "C" void fn_8008771C(void* group, const char* name, float* value, int arg3, int arg4, float min, float max,
-                            float step); // inferred: debug menu float
+extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, void* func,
+                            void* arg); // inferred: debug menu int
+extern "C" void fn_8008771C(void* group, const char* name, float* value, float min, float max, float step, void* func,
+                            void* arg); // inferred: debug menu float
 extern "C" void fn_800CB5C8(atn::SoundRef* sound, int frames, int arg); // inferred: stops the sound
 extern "C" void fn_800CB518(atn::SoundRef* sound, int frames);          // inferred: fades the sound in
 extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float volume); // inferred: plays a sound
@@ -28,19 +29,9 @@ extern "C" float fn_802179BC(int level, int step);      // inferred: price rate 
 extern "C" int fn_802114D8();
 extern "C" int fn_802179B4(); // inferred: number of price levels
 
-// inferred: field status (lbl_8087F430, as in game/CharaTask.cpp); only the members used here
-struct Field_unk : public atn::Task {
-    unsigned char m48[0x10D0 - 0x48];
-    int m10D0; // inferred: story progress
-    unsigned char m10D4[0x10D8 - 0x10D4];
-    atn::Task* m10D8;
-    unsigned char m10DC[0x54E4 - 0x10DC];
-    int m54E4;
-    unsigned char m54E8[0x5744 - 0x54E8];
-    unsigned int m5744; // inferred: time counter
-};
-extern "C" Field_unk* lbl_8087F430;
-extern "C" void* lbl_8087F0A8;
+extern "C" GameTask* lbl_8087F430;
+class GameConfig_unk;
+extern "C" GameConfig_unk* lbl_8087F0A8;
 
 MarketTask* MarketTask::sInstance;
 
@@ -82,13 +73,13 @@ int MarketTask::vf0C() {
             int levels = fn_802179B4();
             int base = rand() % levels * 58;
             int offset = rand() % 58;
-            ((GameTask*)lbl_8087F430)->fn_80370320(item->mFlag, offset + base, 1);
+            lbl_8087F430->fn_80370320(item->mFlag, offset + base, 1);
             item++;
         }
     }
     void* group = m244.Load("Market");
     fn_800874C8(group, "Interval", &m4C, 1, 999999, 1, 0, 0);
-    fn_8008771C(group, "Power", &m50, 0, 0, 0.0f, 10.0f, 0.1f);
+    fn_8008771C(group, "Power", &m50, 0.0f, 10.0f, 0.1f, 0, 0);
     fn_800874C8(group, "MessageId", &m54, 0, 999999, 1, 0, 0);
     return 1;
 }
@@ -100,7 +91,7 @@ void MarketTask::vf10() {
     if (m240 <= 0 && m23C.mPtr != 0) {
         fn_800CB5C8(&m23C, 90, 0);
     }
-    if (((GameTask*)lbl_8087F430)->fn_80370174(250) != 1 && lbl_8087F430->m5744 != 0 &&
+    if (lbl_8087F430->fn_80370174(250) != 1 && lbl_8087F430->m5744 != 0 &&
         lbl_8087F430->m5744 % m4C == 0) {
         fn_804A233C();
     }
@@ -112,16 +103,16 @@ void MarketTask::fn_804A233C() {
     if (lbl_8087F430 != 0) {
         MarketItem_unk* item = &m58[0];
         for (unsigned int i = 0; i < m58.size(); i++) {
-            int value = ((GameTask*)lbl_8087F430)->fn_80370174(item->mFlag) + 1;
+            int value = lbl_8087F430->fn_80370174(item->mFlag) + 1;
             if (value % 58 == 0) {
                 int levels = fn_802179B4();
                 value = rand() % levels * 58;
             }
-            ((GameTask*)lbl_8087F430)->fn_80370320(item->mFlag, value, 0);
+            lbl_8087F430->fn_80370320(item->mFlag, value, 0);
             item++;
         }
     }
-    Field_unk* field = lbl_8087F430;
+    GameTask* field = lbl_8087F430;
     if (field != 0 && field->IsFlag_unk(2)) {
         if (field->m10D8 == 0 || !field->m10D8->IsFlag_unk(2)) {
             return;
@@ -155,7 +146,7 @@ int MarketTask::fn_804A251C(int id) {
     if (data != 0 && lbl_8087F430 != 0) {
         MarketItem_unk* item = Find_unk(id);
         if (item != 0) {
-            int value = ((GameTask*)lbl_8087F430)->fn_80370174(item->mFlag);
+            int value = lbl_8087F430->fn_80370174(item->mFlag);
             float rate = fn_802179BC(value / 58, value % 58);
             if (rate > 100.0f) {
                 rate = (rate - 100.0f) * m50 + 100.0f;
@@ -175,15 +166,15 @@ int MarketTask::fn_804A251C(int id) {
 }
 
 int MarketTask::fn_804A26DC() {
-    return ((GameTask*)lbl_8087F430)->fn_80370174(251) % 11;
+    return lbl_8087F430->fn_80370174(251) % 11;
 }
 
 int MarketTask::fn_804A2724(int id) {
     if (__GetItem_unk(id) != 0 && lbl_8087F430 != 0) {
         MarketItem_unk* item = Find_unk(id);
         if (item != 0) {
-            int total = ((GameTask*)lbl_8087F430)->fn_80370174(item->mFlag2);
-            int num = ((GameTask*)lbl_8087F430)->fn_80370174(item->mFlag3);
+            int total = lbl_8087F430->fn_80370174(item->mFlag2);
+            int num = lbl_8087F430->fn_80370174(item->mFlag3);
             if (num <= 0) {
                 return 0;
             }
@@ -197,13 +188,13 @@ void MarketTask::fn_804A2800(int id, int num) {
     if (__GetItem_unk(id) != 0 && lbl_8087F430 != 0) {
         MarketItem_unk* item = Find_unk(id);
         if (item != 0) {
-            int total = ((GameTask*)lbl_8087F430)->fn_80370174(item->mFlag2);
+            int total = lbl_8087F430->fn_80370174(item->mFlag2);
             int price = fn_804A251C(id);
             total += price * num;
-            ((GameTask*)lbl_8087F430)->fn_80370320(item->mFlag2, total, 0);
-            int count = ((GameTask*)lbl_8087F430)->fn_80370174(item->mFlag3);
+            lbl_8087F430->fn_80370320(item->mFlag2, total, 0);
+            int count = lbl_8087F430->fn_80370174(item->mFlag3);
             count += num;
-            ((GameTask*)lbl_8087F430)->fn_80370320(item->mFlag3, count, 0);
+            lbl_8087F430->fn_80370320(item->mFlag3, count, 0);
         }
     }
 }
@@ -212,8 +203,8 @@ void MarketTask::fn_804A28F8(int id) {
     if (__GetItem_unk(id) != 0 && lbl_8087F430 != 0) {
         MarketItem_unk* item = Find_unk(id);
         if (item != 0) {
-            ((GameTask*)lbl_8087F430)->fn_80370320(item->mFlag2, 0, 0);
-            ((GameTask*)lbl_8087F430)->fn_80370320(item->mFlag3, 0, 0);
+            lbl_8087F430->fn_80370320(item->mFlag2, 0, 0);
+            lbl_8087F430->fn_80370320(item->mFlag3, 0, 0);
         }
     }
 }

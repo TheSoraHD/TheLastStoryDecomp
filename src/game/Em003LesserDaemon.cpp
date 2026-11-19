@@ -1,3 +1,4 @@
+#include "atn/RenderSetting_unk.h"
 #include "game/Em003LesserDaemon.h"
 #include "game/GameUI.h"
 #include "chr/ControlChant.h"
@@ -20,18 +21,15 @@
 extern "C" unsigned long strlen(const char* s);
 extern "C" int atoi(const char* s);
 extern "C" float fn_800DC288(const char* s); // inferred: string to float
-// inferred: field (lbl_8087F430): route tables at 0x10D8 (as in game/Em306GurgBeast.cpp)
-struct Field_unk {
-    unsigned char m0000[0x10D8];
-    GameScene* m10D8;
-};
-extern "C" Field_unk* lbl_8087F430;
+extern "C" GameTask* lbl_8087F430;
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" int strncmp(const char* a, const char* b, unsigned long n);
 // inferred: std::string concatenation (weak copy 0x8006AFF8)
 extern "C" std::string fn_8006AFF8(const std::string& a, const std::string& b);
 
-extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; extern "C" void* lbl_8087EE98;
+extern "C" CharaManager<PlayerTask>* lbl_8087F8A0;
+struct ColliManager_unk;
+extern "C" ColliManager_unk* lbl_8087EE98;
 extern "C" void PSMTXRotAxisRad(Mtx m, const atn::Vector3* axis, float rad);
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
 extern "C" int rand();
@@ -52,35 +50,34 @@ extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared len
 
 extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the next effects
 // inferred: effect manager (class unknown), global instance at 0x8087F3C0
-struct EffectMgr_unk;
+namespace atn {
+class EffectManager;
+}
 struct Color4f_unk {
     Color4f_unk() {}
     float r, g, b, a;
 };
-extern "C" EffectMgr_unk* lbl_8087F3C0;
-extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
+extern "C" atn::EffectManager* lbl_8087F3C0;
+extern "C" void fn_80239DAC(atn::EffectManager* mgr, void* owner, int id, int arg); // inferred: stops an effect
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
 // inferred: starts an effect resource at a position (argument layout of this unit; see game/Em301LShade.cpp)
-extern "C" void fn_8023A680(EffectMgr_unk* mgr, void* res, int a, int b, void* mtx, const atn::Vector3* pos,
+extern "C" void fn_8023A680(atn::EffectManager* mgr, void* res, int a, int b, void* mtx, const atn::Vector3* pos,
                             const atn::Vector3* rot, const float* color, float scale, int e, int f, int g);
 // inferred: arena/UI (lbl_8087F490); fn_803E6850 shows a counter (as in game/Em305VampireMp.cpp)
 extern "C" GameUI* lbl_8087F490;
 extern "C" double fmod(double x, double y);
 extern "C" double sin(double x);
-// inferred: frame time (lbl_8087EFA8, as FrameTime_unk in game/CharaStatus.cpp)
-struct FrameTime_unk {
-    unsigned char m000[0x3A4];
-    float m3A4; // inferred: time of a frame
-    float GetTime_unk() const { return m3A4; } // inferred: accessor (name invented)
-};
-extern "C" FrameTime_unk* lbl_8087EFA8;
+extern "C" RenderSetting_unk* lbl_8087EFA8;
+inline float RenderSetting_unk::GetFrameSpeed_unk() const {
+    return m3A4;
+}
 // inferred: color as four floats (as ColorF_unk in game/Em315Coffin.cpp)
 struct ColorF_unk {
     ColorF_unk(float r_, float g_, float b_, float a_) : r(r_), g(g_), b(b_), a(a_) {}
     ColorF_unk(GXColor c) : r(c.r / 255.0f), g(c.g / 255.0f), b(c.b / 255.0f), a(c.a / 255.0f) {}
     float r, g, b, a;
 };
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
+extern "C" void fn_8023A8B4(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Model* model, void* node,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
 
@@ -285,7 +282,7 @@ inline void PlayEffectA_unk(atn::EfpFile* efp, atn::Model* model) {
 }
 
 // inferred: same as PlayEffect_unk with the manager read first (name invented)
-inline void PlayEffectM_unk(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model) {
+inline void PlayEffectM_unk(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Model* model) {
     Color4f_unk color;
     atn::Vector3 rot;
     atn::Vector3 pos;
@@ -303,7 +300,7 @@ inline void PlayEffectM_unk(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* m
 }
 
 // inferred: same as PlayEffectA_unk with the manager read first (name invented)
-inline void PlayEffectAM_unk(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model) {
+inline void PlayEffectAM_unk(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Model* model) {
     atn::Vector3 pos;
     atn::Vector3 rot;
     Color4f_unk color;
@@ -496,7 +493,7 @@ void Em003LesserDaemon::vf10() {
     if ((CharaTask*)mC58.mC8 != m14B0) {
         m14B4 = 1;
     }
-    if (m16C4 == 0 && m16CC >= 0 && ((GameTask*)lbl_8087F430)->fn_80370174(m16CC) == 1) {
+    if (m16C4 == 0 && m16CC >= 0 && lbl_8087F430->fn_80370174(m16CC) == 1) {
         m16C4 = 1;
         if (mStatus.IsState_unk(0x20)) {
             fn_8024FCDC();
@@ -561,8 +558,8 @@ void Em003LesserDaemon::vf10() {
             fn_80232B7C(&m1504, 0);
             PlayEffectM_unk(lbl_8087F3C0, &m1504, &mMotion);
             ResetAction_unk();
-            if (mFlag22 == 1 && m1640 >= 2 && m16D0 >= 0 && ((GameTask*)lbl_8087F430)->fn_80370A78(m16D0) == 0) {
-                ((GameTask*)lbl_8087F430)->fn_80370AE4(m16D0, 1);
+            if (mFlag22 == 1 && m1640 >= 2 && m16D0 >= 0 && lbl_8087F430->fn_80370A78(m16D0) == 0) {
+                lbl_8087F430->fn_80370AE4(m16D0, 1);
             }
             fn_800C344C("SE_SP007_001", &mPos, 0, -1, 1.0f);
         }
@@ -621,9 +618,9 @@ void Em003LesserDaemon::fn_8024BE94() {
         return;
     }
     if (m1624 == 0 && m58C != 12) {
-        m1648 = MAX(0.1f, m1648 - 0.05f * lbl_8087EFA8->GetTime_unk());
+        m1648 = MAX(0.1f, m1648 - 0.05f * lbl_8087EFA8->GetFrameSpeed_unk());
     } else {
-        m1648 = MIN(1.0f, m1648 + 0.05f * lbl_8087EFA8->GetTime_unk());
+        m1648 = MIN(1.0f, m1648 + 0.05f * lbl_8087EFA8->GetFrameSpeed_unk());
     }
     for (unsigned int i = 0; i < 6; i++) {
         Material_unk* mat = mMotion.fn_80094B6C(sMaterials[i]);
@@ -636,13 +633,13 @@ void Em003LesserDaemon::fn_8024BE94() {
         float frame = mMotion.mTracks[0].m08;
         light *= 1.0f - MIN(1.0f, frame / 20.0f);
     } else if (m58C == 12) {
-        m1644 += 20.0f * lbl_8087EFA8->GetTime_unk();
+        m1644 += 20.0f * lbl_8087EFA8->GetFrameSpeed_unk();
         if (m1644 >= 360.0f) {
             m1644 -= 360.0f;
         }
         light = 0.5f * (float)sin(atn::DegToRad_unk(m1644)) + 0.5f;
     } else {
-        m1644 += 4.0f * lbl_8087EFA8->GetTime_unk();
+        m1644 += 4.0f * lbl_8087EFA8->GetFrameSpeed_unk();
         if (m1644 >= 360.0f) {
             m1644 -= 360.0f;
         }
@@ -724,7 +721,7 @@ void Em003LesserDaemon::vf3C(HitInfo_unk* hit, int) {
             fn_800C344C("SE_SP007_003", &mPos, 0, -1, 1.0f);
             m1640++;
             if (m16D4 > 0) {
-                ((GameTask*)lbl_8087F430)->fn_80370AE4(m16D4, 1);
+                lbl_8087F430->fn_80370AE4(m16D4, 1);
             }
             for (unsigned int i = 0; i < mLinks.mSize; i++) {
                 if (mLinks.mData[i]->m58C != 2) {
@@ -1552,8 +1549,8 @@ void Em003LesserDaemon::fn_8024FFE8() {
         mLinks.mData[i]->m1654 = 11;
         mLinks.mData[i]->m1658 = rand() % 2 != 0 ? next : -1;
     }
-    if (((GameTask*)lbl_8087F430)->fn_80370A78(0xFA) == 0) {
-        ((GameTask*)lbl_8087F430)->fn_80370AE4(0xFA, 1);
+    if (lbl_8087F430->fn_80370A78(0xFA) == 0) {
+        lbl_8087F430->fn_80370AE4(0xFA, 1);
     }
 }
 

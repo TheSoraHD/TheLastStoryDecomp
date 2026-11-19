@@ -13,6 +13,7 @@
 #include "std/new.h"
 #include <boost/function.hpp>
 #include "std/string_members.h"
+#include "atn/DebugMessages_unk.h"
 
 extern "C" int sprintf(char* s, const char* format, ...);
 extern "C" unsigned long strlen(const char* s);
@@ -987,11 +988,6 @@ extern "C" void fn_80047DBC(long result, DVDFileInfo_unk* fileInfo) {
 extern "C" int DVDReadAsyncPrio(DVDFileInfo_unk* file, void* addr, long length, long offset,
                                 void (*callback)(long, DVDFileInfo_unk*), int prio);
 
-// inferred: debug message list (atn/FileUtil_unk.cpp)
-struct DebugMessages_unk {
-    void fn_800697D8(const char* message);
-};
-extern "C" DebugMessages_unk* lbl_8087EEB8;
 
 // inferred: updates the device and the loads of the banks
 extern "C" void fn_80047DCC(AudioDevice* audio) {
@@ -1517,10 +1513,12 @@ extern "C" void fn_8004A388(AudioDevice* audio, int on) {
 }
 
 // inferred: resource manager (lbl_8087F518): loads a whole file / releases it
-struct Unk_8087F518;
-extern "C" Unk_8087F518* lbl_8087F518;
-extern "C" void* fn_8046DC5C(Unk_8087F518* mgr, const char* path, unsigned long* size, int align);
-extern "C" void fn_8046DD20(Unk_8087F518* mgr, void* data);
+namespace atn {
+class Loader;
+}
+extern "C" atn::Loader* lbl_8087F518;
+extern "C" void* fn_8046DC5C(atn::Loader* mgr, const char* path, unsigned long* size, int align);
+extern "C" void fn_8046DD20(atn::Loader* mgr, void* data);
 
 // inferred: reads the sound id table (rsid.csv: label, id, bit, flag, bank)
 extern "C" void fn_8004A3FC(AudioDevice* audio, const char* path) {

@@ -1,3 +1,4 @@
+#include "game/GameConfig_unk.h"
 #include "gmk/Banana.h"
 #include "atn/Csv.h"
 #include "atn/Memory.h"
@@ -10,12 +11,7 @@ extern "C" char lbl_8087D710[2]; // inferred: " " (field separators of the tab C
 extern "C" float fn_800DC288(const char* s); // inferred: string to float
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 
-// inferred: game settings
-struct Settings_unk {
-    unsigned char m00[0x30];
-    int mFps; // 0x30: inferred: frames per second
-};
-extern "C" Settings_unk* lbl_8087F0A8;
+extern "C" GameConfig_unk* lbl_8087F0A8;
 extern "C" int rand();
 
 // inferred: listeners (see gmk/Item.cpp; this object defines the local static, so the unit cannot
@@ -93,7 +89,7 @@ void Banana::vf10() {
     case 3:
         m6C += mVel;
         m78 += mRotVel;
-        mVel.y += -98.1f / (float)(lbl_8087F0A8->mFps * lbl_8087F0A8->mFps);
+        mVel.y += -98.1f / (float)(lbl_8087F0A8->m030 * lbl_8087F0A8->m030);
         if (++mTimer > 45) {
             m54 = 4;
             mTimer = 0;

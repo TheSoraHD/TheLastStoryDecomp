@@ -237,7 +237,7 @@ public:
     }
     // inferred: start (model, group) and stop (character, group) of the battle effects; the stop
     // functions call fn_80239DAC with the effect group of the start
-    void fn_800FDE60(int effect, CharaTask* chara, const atn::Vector3& dir); // inferred: starts an attack effect
+    void fn_800FDE60(CharaTask* attacker, CharaTask* chara, const atn::Vector3& dir); // inferred: starts an attack effect
     int fn_800FDF14(BattleCalcParam_unk* param); // inferred: returns the result of the hit (fn_800FD658)
     // inferred: hit sphere of `chara` nearest to the position (-1: none or the hit does not reach it); game/Bullet
     int fn_800FC1D0(CharaTask*, CharaTask*, HitInfo_unk*, int, const atn::Vector3*, int, int);
@@ -515,7 +515,7 @@ public:
     int m38CD0; // inferred: previous m38CCC
     BattleShots_unk mShots; // 0x38CD4
     BattleHateRow_unk m391E0[0x48]; // inferred: hate of each character toward each other (fn_8010C948)
-    int m3E2E0; // inferred: character under the cursor
+    void* m3E2E0; // inferred: owner of the object under the cursor (flag 2; atn::ColliBase::m0C)
     CharaTask* m3E2E4; // inferred: object under the cursor
     atn::ColliBase* m3E2E8; // inferred: cursor target
     int m3E2EC;

@@ -20,6 +20,8 @@ struct ZesyaWarp_unk {
 
 // inferred from __vt__16Em101LittleZesya (0x80784958): small Zesya (summoned by Em101ElderZesya, which
 // calls fn_8025D6D0, fn_8025D704 and fn_8025FE30).
+class Em101ElderZesya;
+
 class Em101LittleZesya : public EnemyTask {
 public:
     Em101LittleZesya(atn::Task* parent, EnemyInfo_unk* info);
@@ -38,6 +40,9 @@ public:
     void fn_8025DE54(); // inferred: state 0
     void fn_8025F35C(); // inferred: back to state 0 (half of m15C0 as frame counter)
     void fn_8025E9E4(); // inferred: state 12 (warp at frame 60, back to state 0 at frame 100)
+    void fn_8025D6D0(); // inferred: saves its position (called by Em101ElderZesya)
+    void fn_8025D704(); // inferred: goes back to idle (called by Em101ElderZesya)
+    void fn_8025FE30(const ZesyaWarp_unk* warp); // inferred: order of Em101ElderZesya
     void fn_8025EAE4(); // inferred: warp
     void fn_8025E008(); // inferred: starts state 11 (effect m156C)
     void fn_8025E834(); // inferred: starts state 13 after 10 frames (effect m1578)
@@ -70,7 +75,7 @@ public:
     HitInfo_unk* m1524;     // inferred: "LightSwordID"
     HitInfo_unk* m1528;     // inferred: "WarpSlashID" (attack skill)
     int m152C;
-    int m1530;
+    Em101ElderZesya* m1530; // inferred: the elder Zesya (Em101ElderZesya::m16A0 links back)
     int m1534;
     int m1538;
     int m153C;

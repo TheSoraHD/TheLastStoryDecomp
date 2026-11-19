@@ -1,3 +1,5 @@
+#include "atn/EffectManager.h"
+#include "game/GameConfig_unk.h"
 #include "game/CopyRobotTask.h"
 #include "game/Inventory.h"
 #include "std/string.h"
@@ -12,25 +14,17 @@ extern "C" void fn_804776F4(atn::LH_MotionSet* set, atn::Model* model);    // in
 
 extern "C" int fn_80219544(int member); // inferred: character id of a party member
 
-struct Settings_unk {
-    unsigned char m00[0x34];
-    int mDrawDebug; // 0x34
-};
-extern "C" Settings_unk* lbl_8087F0A8;
+extern "C" GameConfig_unk* lbl_8087F0A8;
 
-struct EffectMgr_unk {
-    unsigned char m00[0xB8];
-    int mB8;
-};
 struct Color4f_unk {
     float r, g, b, a;
 };
-extern "C" EffectMgr_unk* lbl_8087F3C0;
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
+extern "C" atn::EffectManager* lbl_8087F3C0;
+extern "C" void fn_8023A8B4(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Model* model, void* node,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
-extern "C" void fn_8023A02C(EffectMgr_unk* mgr, void* owner, int arg2, int arg3);
-extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
+extern "C" void fn_8023A02C(atn::EffectManager* mgr, void* owner, int arg2, int arg3);
+extern "C" void fn_80239DAC(atn::EffectManager* mgr, void* owner, int id, int arg); // inferred: stops an effect
 extern "C" void fn_80232B7C(void* owner, int arg);
 
 extern "C" double acos(double x);
@@ -237,7 +231,7 @@ void CopyRobotTask::vf10() {
 
 void CopyRobotTask::vf14() {
     fn_80149A30();
-    if (lbl_8087F0A8->mDrawDebug != 0) {
+    if (lbl_8087F0A8->mDrawCharaColli != 0) {
         lbl_8087EEB0->fn_80063484(20, 0xFFFF0000, mPos.x, 3.0f + mPos.y, mPos.z, mRot.y, 0.0f, 12.0f, 1.5707964f);
     }
 }
@@ -247,7 +241,7 @@ void CopyRobotTask::vf3C(HitInfo_unk* hit, int) {}
 void CopyRobotTask::fn_801CCD00(int state) {
     if (state != m14B0) {
         m14B0 = state;
-        lbl_8087F3C0->mB8 = 2;
+        lbl_8087F3C0->mSystem.mLayer = 2;
         fn_80239DAC(lbl_8087F3C0, this, 100, 1);
         if ((unsigned int)(m14B0 - 1) <= 1) {
             fn_80232B7C(this, 100);
@@ -270,6 +264,6 @@ void CopyRobotTask::fn_801CCD00(int state) {
                 fn_8023A02C(lbl_8087F3C0, this, 100, 8);
             }
         }
-        lbl_8087F3C0->mB8 = 0;
+        lbl_8087F3C0->mSystem.mLayer = 0;
     }
 }

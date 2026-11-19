@@ -1,3 +1,5 @@
+#include "atn/EffectManager.h"
+#include "game/GameConfig_unk.h"
 #include "gmk/MotionObject.h"
 #include "atn/Csv.h"
 #include "atn/Memory.h"
@@ -16,31 +18,23 @@ extern "C" char lbl_8087D710[2]; // inferred: " " (field separators of the tab C
 extern "C" float fn_800DC288(const char* s); // inferred: string to float
 extern "C" int fn_802180A8(const char* s); // inferred: motion id from its name
 
-// inferred: effect manager (class unknown), global instance at 0x8087F3C0
-struct EffectMgr_unk {
-    unsigned char m00[0xB8];
-    int mB8;
-};
 struct Color4f_unk {
     Color4f_unk() {}
     float r, g, b, a;
 };
-extern "C" EffectMgr_unk* lbl_8087F3C0;
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
+extern "C" atn::EffectManager* lbl_8087F3C0;
+extern "C" void fn_8023A8B4(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Model* model, void* node,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
-extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
-extern "C" void fn_8023A02C(EffectMgr_unk* mgr, void* owner, int arg2, int arg3);
+extern "C" void fn_80239DAC(atn::EffectManager* mgr, void* owner, int id, int arg); // inferred: stops an effect
+extern "C" void fn_8023A02C(atn::EffectManager* mgr, void* owner, int arg2, int arg3);
 extern "C" void fn_80232B7C(void* owner, int arg);
 extern "C" int fn_802378C4(atn::EfpFile* efp); // inferred: number of loops of the effect
-// inferred: game settings
-struct Settings_unk {
-    unsigned char m00[0x18];
-    int m18;
-};
-extern "C" Settings_unk* lbl_8087F0A8;
+extern "C" GameConfig_unk* lbl_8087F0A8;
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
-extern "C" atn::Matrix3x4 lbl_807C7060; extern "C" void* lbl_8087EE98;
+extern "C" atn::Matrix3x4 lbl_807C7060;
+struct ColliManager_unk;
+extern "C" ColliManager_unk* lbl_8087EE98;
 extern "C" int fn_8004ED34(void* colli, atn::ColliResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg7); // inferred: ray test
 // inferred: link of the character lists of the managers (CharaTask + 0x14AC)
@@ -63,7 +57,7 @@ struct MotionHitMsg_unk {
     MotionHitSkill_unk* mSkill; // 0x2C
 };
 
-inline void PlayEfp_unk(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model) {
+inline void PlayEfp_unk(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Model* model) {
     atn::Vector3 pos;
     atn::Vector3 rot;
     Color4f_unk color;
@@ -81,7 +75,7 @@ inline void PlayEfp_unk(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model
 }
 
 // inferred: plays an effect at a position (name invented)
-inline void PlayEfpAt_unk(EffectMgr_unk* mgr, atn::EfpFile* efp, const atn::Vector3& pos,
+inline void PlayEfpAt_unk(atn::EffectManager* mgr, atn::EfpFile* efp, const atn::Vector3& pos,
                           const atn::Vector3& rot, float scale) {
     Color4f_unk color;
     color.r = 1.0f;
@@ -170,7 +164,7 @@ void MotionObject::vf10() {
         fn_80239DAC(lbl_8087F3C0, this, 0, (prevEfp->mFlags & 1) ^ 1);
         if (efp->mEfp.mResource != 0) {
             if (fn_802378C4(&efp->mEfp) <= 0) {
-                lbl_8087F3C0->mB8 = 1;
+                lbl_8087F3C0->mSystem.mLayer = 1;
             }
             fn_80232B7C(this, 0);
             if (mHasModel[m54] != 0) {
@@ -182,7 +176,7 @@ void MotionObject::vf10() {
                 fn_8023A02C(lbl_8087F3C0, this, 0, 8);
             }
             if (fn_802378C4(&efp->mEfp) <= 0) {
-                lbl_8087F3C0->mB8 = 0;
+                lbl_8087F3C0->mSystem.mLayer = 0;
             }
         }
         if (prevColli->mTarget != 0) {
@@ -290,7 +284,7 @@ void MotionObject::fn_804139D8() {
 }
 
 void MotionObject::vf14() {
-    if (lbl_8087F0A8->m18 != 0 && vf38() != 0) {
+    if (lbl_8087F0A8->mDrawMap != 0 && vf38() != 0) {
         fn_803ED774(vf38());
     }
 }
@@ -366,7 +360,7 @@ void MotionObject::vf20() {
             }
             target->mSphere.m20 = mask;
             target->mSphere.mFlags |= 8;
-            target->mSphere.m0C = (int)this;
+            target->mSphere.m0C = this;
         } else if (strcmp(field, "EFP") == 0) {
             MotionEfp_unk* efp = &mEfp[model];
             efp->mEfp.LoadRequest(csv.fn_8005B9CC());

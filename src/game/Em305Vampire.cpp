@@ -23,29 +23,32 @@ extern "C" HitInfo_unk* fn_80219E6C(int id); // inferred: bullet/skill data by i
 
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
 // inferred: effect manager (class unknown), global instance at 0x8087F3C0
-struct EffectMgr_unk;
-extern "C" EffectMgr_unk* lbl_8087F3C0;
-extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
+namespace atn {
+class EffectManager;
+}
+extern "C" atn::EffectManager* lbl_8087F3C0;
+extern "C" void fn_80239DAC(atn::EffectManager* mgr, void* owner, int id, int arg); // inferred: stops an effect
 struct Color4f_unk {
     Color4f_unk() {}
     float r, g, b, a;
 };
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
+extern "C" void fn_8023A8B4(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Model* model, void* node,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
 extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the next effects
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
  extern "C" void* lbl_8087EE98;
-extern "C" int fn_8004D388(void* world, atn::ColliResult_unk* result, const atn::Vector3* center, const atn::Vector3* move,
+extern "C" int fn_8004D388(void* world, atn::ColliResult_unk* result, const atn::Vector3* center,
+                           const atn::Vector3* move,
                            unsigned int mask, void* ignore, int arg, float radius); // inferred: sweep test
 // inferred: debug menu entries (as in game/CharaTask.cpp and game/NewCampPartsHint.cpp)
-extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3, int arg4);
-extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, int arg6,
-                            int arg7);
-extern "C" void fn_8008771C(void* group, const char* name, float* value, int arg3, int arg4, float min, float max,
-                            float step);
-extern "C" void fn_80088FAC(void* group, const char* name, atn::Model::Float4_unk* value, int arg3, int arg4,
-                            float min, float max, float step);
+extern "C" void fn_80087994(void* group, const char* name, int* value, void* func, void* arg);
+extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, void* func,
+                            void* arg);
+extern "C" void fn_8008771C(void* group, const char* name, float* value, float min, float max, float step, void* func,
+                            void* arg);
+extern "C" void fn_80088FAC(void* group, const char* name, atn::Model::Float4_unk* value, float min, float max,
+                            float step, void* func, void* arg);
 
 // inferred: plays an effect on the model (same as in Em305VampireMp.cpp)
 inline void PlayEffect_unk(atn::EfpFile* efp, atn::Model* model) {
@@ -70,12 +73,7 @@ extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2
 extern "C" int fn_800CB58C(atn::SoundRef* sound);                           // inferred: nonzero while playing
 extern "C" void fn_800CB6E4(atn::SoundRef* sound, const atn::Vector3* pos); // inferred: moves the sound
 
-// inferred: field (lbl_8087F430); m10D8: route tables; fn_80370AE4 sets a counter (as in gmk/Coffin.cpp)
-struct VampireField_unk {
-    unsigned char m0000[0x10D8];
-    GameScene* m10D8;
-};
-extern "C" VampireField_unk* lbl_8087F430;
+extern "C" GameTask* lbl_8087F430;
 
 // inferred: multiplayer session (lbl_8087F610), as in Em305VampireMp.cpp
 struct MpSession_unk;
@@ -246,7 +244,7 @@ inline void Em305Vampire::Rolling_unk() {
         if (80.0f <= f && f <= 83.0f) {
             BattleTask* mgr = lbl_8087F048;
             mgr->fn_800FAB80(this, m1514, mgr->fn_800F8548(), &mPos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
-            ((GameTask*)lbl_8087F430)->fn_80370AE4(5, 1);
+            lbl_8087F430->fn_80370AE4(5, 1);
             m1528 = 0;
             m1540 = 0;
         }
@@ -377,7 +375,7 @@ void Em305Vampire::vf3C(HitInfo_unk* hit, int) {
         msg->m84 = 1;
         msg->m90 = 1;
         if (++m1504 == 3) {
-            ((GameTask*)lbl_8087F430)->fn_80370AE4(4, 1);
+            lbl_8087F430->fn_80370AE4(4, 1);
         }
         if (m1528 == 0 && m58C == 0) {
             fn_802EBBA8();
@@ -394,10 +392,10 @@ void Em305Vampire::vf3C(HitInfo_unk* hit, int) {
     }
     if (msg->mData->m04 == 0x134) {
         if (m153C == 0) {
-            ((GameTask*)lbl_8087F430)->fn_80370AE4(4, 2);
+            lbl_8087F430->fn_80370AE4(4, 2);
             m153C = 1;
         } else {
-            ((GameTask*)lbl_8087F430)->fn_80370AE4(4, 4);
+            lbl_8087F430->fn_80370AE4(4, 4);
         }
         msg->m0C |= 0x800;
     }
@@ -917,22 +915,22 @@ void Em305Vampire::fn_802EC280() {
 void Em305Vampire::fn_802EC38C() {
     void* group = m15BC.Load("em305");
     fn_80087994(group, "DebugDisp", &m15C0, 0, 0);
-    fn_80088FAC(group, "WeakenColor", &m15C4, 0, 0, 0.0f, 1.0f, 0.1f);
-    fn_8008771C(group, "Speed1st", &m15D8[0], 0, 0, 0.1f, 10.0f, 0.1f);
+    fn_80088FAC(group, "WeakenColor", &m15C4, 0.0f, 1.0f, 0.1f, 0, 0);
+    fn_8008771C(group, "Speed1st", &m15D8[0], 0.1f, 10.0f, 0.1f, 0, 0);
     fn_800874C8(group, "Time1st", &m15E4[0], 0, 100, 1, 0, 0);
-    fn_8008771C(group, "Speed2nd", &m15D8[1], 0, 0, 0.1f, 10.0f, 0.1f);
+    fn_8008771C(group, "Speed2nd", &m15D8[1], 0.1f, 10.0f, 0.1f, 0, 0);
     fn_800874C8(group, "Time2nd", &m15E4[1], 0, 100, 1, 0, 0);
-    fn_8008771C(group, "Speed3rd", &m15D8[2], 0, 0, 0.1f, 10.0f, 0.1f);
+    fn_8008771C(group, "Speed3rd", &m15D8[2], 0.1f, 10.0f, 0.1f, 0, 0);
     fn_800874C8(group, "Time3rd", &m15E4[2], 0, 100, 1, 0, 0);
-    fn_8008771C(group, "1stTo2nd", &m15F0, 0, 0, 0.0f, 1.0f, 0.01f);
-    fn_8008771C(group, "2ndTo3rd", &m15F4, 0, 0, 0.0f, 1.0f, 0.01f);
+    fn_8008771C(group, "1stTo2nd", &m15F0, 0.0f, 1.0f, 0.01f, 0, 0);
+    fn_8008771C(group, "2ndTo3rd", &m15F4, 0.0f, 1.0f, 0.01f, 0, 0);
     fn_800874C8(group, "WeakenType", &m1528, 0, 10, 1, 0, 0);
-    fn_8008771C(group, "SpdUpRate", &m15F8, 0, 0, 0.0f, 1.0f, 0.01f);
+    fn_8008771C(group, "SpdUpRate", &m15F8, 0.0f, 1.0f, 0.01f, 0, 0);
     fn_800874C8(group, "SpdUpTime", &m15FC, 0, 100, 1, 0, 0);
     fn_800874C8(group, "SpdUpWait", &m1600, 0, 100, 1, 0, 0);
     fn_800874C8(group, "xxxState", &m1530, 0, 100, 1, 0, 0);
     fn_800874C8(group, "xxxTime", &m1534, 0, 100, 1, 0, 0);
-    fn_8008771C(group, "xxxSpeed", &m152C, 0, 0, 0.0f, 100.0f, 1.0f);
+    fn_8008771C(group, "xxxSpeed", &m152C, 0.0f, 100.0f, 1.0f, 0, 0);
 }
 
 void Em305Vampire::vf108() {}

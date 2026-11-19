@@ -1,5 +1,7 @@
 // Chant of a magic (ControlChant), casting it (ControlMagic) and the end of the cast
 // (ControlMagicEnd).
+#include "atn/RenderSetting_unk.h"
+#include "game/GameConfig_unk.h"
 #include "chr/ControlChant.h"
 #include "game/AiTarget.h"
 #include "game/TacView.h"
@@ -19,26 +21,10 @@
 #include "atn/EffectSystem_unk.h"
 #include "game/DamageResult_unk.h"
 
-// inferred: game settings (lbl_8087F0A8, as in chr/ControlCharge.cpp); names invented
-struct Settings_unk {
-    unsigned char m000[0x40];
-    int m40;   // inferred: the casters rise while chanting
-    unsigned char m044[0x2BC - 0x44];
-    float m2BC; // inferred: first frame of the chant motions
-    unsigned char m2C0[0x2C4 - 0x2C0];
-    int m2C4;  // inferred: the magic follows the target
-    unsigned char m2C8[0x48C - 0x2C8];
-    Input_unk mInput; // 0x48C
-};
-extern "C" Settings_unk* lbl_8087F0A8;
+extern "C" GameConfig_unk* lbl_8087F0A8;
 // inferred: arena mode object (lbl_8087F610, as in chr/ControlCharge.cpp)
 extern "C" void* lbl_8087F610;
-// inferred: game state (lbl_8087EFA8, as in game/CharaTask.cpp); names invented
-struct GameState_unk {
-    unsigned char m000[0x3A4];
-    float m3A4; // inferred: time of a frame
-};
-extern "C" GameState_unk* lbl_8087EFA8;
+extern "C" RenderSetting_unk* lbl_8087EFA8;
 // inferred: RGBA colour of the effects
 typedef EffectColor_unk Color4f_unk;
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
@@ -66,16 +52,12 @@ extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2
 extern "C" int sprintf(char* buf, const char* fmt, ...);
 extern "C" unsigned long strlen(const char* s);
 extern "C" int rand();
-// inferred: field object (class unknown, as in gmk/LottaSummon.cpp)
-struct Field_unk {
-    unsigned char m0000[0x10D0];
-    int m10D0; // inferred: play time
-};
-extern "C" Field_unk* lbl_8087F430;
+extern "C" GameTask* lbl_8087F430;
 // inferred: tactics manager (TacView, as in game/CharaTask.cpp)
 // inferred: party manager (as in game/CharaTask.cpp)
 extern "C" PlayerManager* lbl_8087F8A0;
-extern "C" void* lbl_8087EE98; // inferred: collision world
+struct ColliManager_unk;
+extern "C" ColliManager_unk* lbl_8087EE98; // inferred: collision world
 extern "C" int fn_8004ED34(void* colli, atn::ColliResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg7); // inferred: ray test
 extern "C" int fn_8004ECC0(void* world, atn::Vector3* hit, const atn::Vector3* from, const atn::Vector3* to,
@@ -374,7 +356,7 @@ int ControlChant::vf0C() {
     if (hit && (hit->mAC & 0x20)) {
         limit *= 1.5f;
     }
-    if (lbl_8087F0A8->m40 && mChara->mPos.y - m14.y < limit && fn_801C3D1C()) {
+    if (lbl_8087F0A8->m040 && mChara->mPos.y - m14.y < limit && fn_801C3D1C()) {
         atn::Vector3 pos(mChara->mPos);
         pos.y += 0.08f * rate;
         mChara->mPos = pos;
@@ -400,7 +382,7 @@ int ControlChant::vf0C() {
         m44 = false;
         done = 1;
     }
-    if (done && m44 && (mChara->m638->mAC & 0x40000) == 0x40000 && !((GameTask*)lbl_8087F430)->fn_8036DAA8(mChara)) {
+    if (done && m44 && (mChara->m638->mAC & 0x40000) == 0x40000 && !lbl_8087F430->fn_8036DAA8(mChara)) {
         done = 0;
     }
     return done;
@@ -474,7 +456,7 @@ ControlMagic::ControlMagic(Chara_unk* chara, CharaTask* target, float f, const a
     }
     model->mTracks[0].m0C = 1.0f;
     if ((mChara->mType == 0 || mChara->mType == 3) && !m1F) {
-        model->mTracks[0].m08 = lbl_8087F0A8->m2BC;
+        model->mTracks[0].m08 = lbl_8087F0A8->mMagicCutFrame;
     }
     lbl_8087F490->fn_803E2110(2, mChara);
     if (m1F) {
@@ -518,7 +500,7 @@ int ControlMagic::vf0C() {
         m18 += dt;
     }
     int follow = 0;
-    if (lbl_8087F0A8->m2C4 && !m1D && (int)hit->m02 == 2 && m14 && m14 != mChara && m14->CanAct_unk()) {
+    if (lbl_8087F0A8->mFlickMagic && !m1D && (int)hit->m02 == 2 && m14 && m14 != mChara && m14->CanAct_unk()) {
         atn::Vector3 p = m14->vf64(2);
         m08 = p;
         atn::Vector3 d(p.x - mChara->mPos.x, 0.0f, p.z - mChara->mPos.z);
@@ -534,8 +516,8 @@ int ControlMagic::vf0C() {
         mChara->fn_8016DA4C();
         m1D = true;
         if (hit->m04 == 0x6C2) {
-            if (((GameTask*)lbl_8087F430)->fn_80370174(0x38D) > 0) {
-                ((GameTask*)lbl_8087F430)->fn_80370320(0x38E, 1, 0);
+            if (lbl_8087F430->fn_80370174(0x38D) > 0) {
+                lbl_8087F430->fn_80370320(0x38E, 1, 0);
                 mChara->mStatus.m228 = 0.0f;
             }
             if (lbl_8087EE68 && lbl_8087EE68->fn_800185B4(mChara, hit)) {
@@ -696,33 +678,33 @@ int ControlMagic::vf0C() {
                 }
             }
             if ((mChara->mType == 0 || mChara->mType == 3) && fn_8021A984(hit) &&
-                ((GameTask*)lbl_8087F430)->fn_80370174(0x442) >= 7) {
-                ((GameTask*)lbl_8087F430)->fn_803750E4(0x9C);
+                lbl_8087F430->fn_80370174(0x442) >= 7) {
+                lbl_8087F430->fn_803750E4(0x9C);
             }
         }
-        if (lbl_8087F430 && ((GameTask*)lbl_8087F430)->fn_803761AC() && fn_80219344(lbl_8087F8A0->fn_8054A33C(0), 1) && mChara &&
+        if (lbl_8087F430 && lbl_8087F430->fn_803761AC() && fn_80219344(lbl_8087F8A0->fn_8054A33C(0), 1) && mChara &&
             (mChara->mType == 0 || mChara->mType == 3)) {
             switch (fn_80219558(mChara->m50)) {
             case 1:
             case 9:
             case 10:
                 if (fn_8021A888(hit)) {
-                    ((GameTask*)lbl_8087F430)->fn_803750E4(0xE0);
+                    lbl_8087F430->fn_803750E4(0xE0);
                 }
                 break;
             case 6:
                 if (fn_8021A888(hit)) {
-                    ((GameTask*)lbl_8087F430)->fn_803750E4(0xF5);
+                    lbl_8087F430->fn_803750E4(0xF5);
                 }
                 break;
             case 4:
                 if (fn_8021A888(hit) && lbl_8087F430 && lbl_8087F430->m10D0 >= 0x31CE0) {
-                    ((GameTask*)lbl_8087F430)->fn_803750E4(0x1C2);
+                    lbl_8087F430->fn_803750E4(0x1C2);
                 }
                 break;
             }
         }
-        if (lbl_8087F430 && ((GameTask*)lbl_8087F430)->fn_80375184()) {
+        if (lbl_8087F430 && lbl_8087F430->fn_80375184()) {
             if (mChara->mType == 2) {
                 lbl_8087F048->fn_801092C8(0xC, mChara, hit->m04, 0);
             } else {

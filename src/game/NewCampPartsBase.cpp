@@ -2,6 +2,7 @@
 #include "game/NewCampTask.h"
 #include "atn/Memory.h"
 #include "atn/D2A_Task.h"
+#include "atn/D2A_TaskApi_unk.h"
 #include "atn/D2A_TaskInstanceC.h"
 #include "atn/D3Anime.h"
 #include "atn/D3AnimeInstance.h"
@@ -10,23 +11,25 @@
 #include "game/CharaStatus.h"
 #include "game/MenuCommonTask.h"
 #include "atn/RenderManager.h"
+#include "atn/D2A_Manager.h"
 
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" char* strstr(const char* s, const char* sub);
 extern "C" void PSMTXScale(Mtx m, float x, float y, float z);
 extern "C" unsigned int fn_800DC6B4(const char* s); // inferred: string hash
 extern "C" atn::SoundRef fn_80117228(int id);        // inferred: plays a system sound effect
-extern "C" void* lbl_8087EF70;                       // inferred: pad
+struct Pad_unk;
+extern "C" Pad_unk* lbl_8087EF70;                       // inferred: pad
 extern "C" int fn_800A55AC(void* pad, int port, int button); // inferred: button repeated
 extern "C" float fn_800A08D4(atn::LH_Motion* motion);       // inferred: motion length
 extern "C" int fn_800A0548(atn::LH_Motion* motion, MotionPose_unk* pose, unsigned int hash, char* work,
                            float frame); // inferred: pose of the node `hash` at `frame`
 extern "C" void fn_801FECE0(void* layout, unsigned int hash, float value); // inferred: sets a layout value
-extern "C" int fn_8021946C(int chara, int a, int b);
+extern "C" void* fn_8021946C(int chara, int a, int b);
 // debug menu (see game/CosEditBase.cpp)
 extern "C" void* fn_8008937C(void* menu, const char* name);
-extern "C" void fn_80087E9C(void* group, const char* name, atn::Vector3* value, int arg3, int arg4, float min,
-                            float max, float step);
+extern "C" void fn_80087E9C(void* group, const char* name, atn::Vector3* value, float min, float max, float step,
+                            void* func, void* arg);
 CharaParam_unk fn_80134800(CharaStatus* status, int id, int kindA, int indexA, int itemA, int kindB, int indexB,
                            int itemB);
 
@@ -37,13 +40,6 @@ struct NewCampCamp_unk {
     NewCampPartsBase* mCurrent; // 0x11F0: inferred: parts shown now
 };
 
-// inferred: d2anime manager of the menus; m1A8/m1AC: the current anime and layout
-struct NewCampD2AManager_unk {
-    unsigned char m000[0x1A8];
-    void* m1A8;
-    void* m1AC;
-};
-extern "C" NewCampD2AManager_unk* lbl_8087F138;
 
 #define __MAX_unk(a, b) ((a) > (b) ? (a) : (b))
 #define __MIN_unk(a, b) ((a) < (b) ? (a) : (b))
@@ -524,10 +520,10 @@ void NewCampPartsBase::fn_805112A8(NewCampPartsEntry_unk* entry, atn::D3AnimeIns
 // NONMATCHING: 99.4% - only the string pool (see fn_8050FB38)
 void NewCampPartsBase::vf40(void* menu) {
     void* group = fn_8008937C(menu, m98.c_str());
-    fn_80087E9C(group, "OffsetPos", &mA4, 0, 0, -1000000.0f, 1000000.0f, 1.0f);
-    fn_80087E9C(group, "OffsetScl", &mB0, 0, 0, -1000000.0f, 1000000.0f, 1.0f);
-    fn_80087E9C(group, "LocatorScl", &mBC, 0, 0, -1000000.0f, 1000000.0f, 1.0f);
-    fn_80087E9C(group, "BasePos", &mC8, 0, 0, -1000000.0f, 1000000.0f, 1.0f);
+    fn_80087E9C(group, "OffsetPos", &mA4, -1000000.0f, 1000000.0f, 1.0f, 0, 0);
+    fn_80087E9C(group, "OffsetScl", &mB0, -1000000.0f, 1000000.0f, 1.0f, 0, 0);
+    fn_80087E9C(group, "LocatorScl", &mBC, -1000000.0f, 1000000.0f, 1.0f, 0, 0);
+    fn_80087E9C(group, "BasePos", &mC8, -1000000.0f, 1000000.0f, 1.0f, 0, 0);
 }
 
 void fn_80511668(atn::D2A_Common* element, atn::D2A_DrawColor* color, void* outlineColor);
@@ -593,10 +589,10 @@ __declspec(noinline) void fn_80511664(int event) {}
 void fn_80511668(atn::D2A_Common* element, atn::D2A_DrawColor* color, void* outlineColor) {
     fn_80511664(1);
     if (lbl_8087F138 != 0 && MenuCommonTask::sInstance != 0) {
-        if (lbl_8087F138->m1AC != 0) {
-            MenuCommonTask::sInstance->fn_804A71F0(lbl_8087F138->m1AC, element, color, outlineColor);
-        } else if (lbl_8087F138->m1A8 != 0) {
-            MenuCommonTask::sInstance->fn_804A660C(lbl_8087F138->m1A8, element, color, outlineColor);
+        if (lbl_8087F138->mInstance != 0) {
+            MenuCommonTask::sInstance->fn_804A71F0(lbl_8087F138->mInstance, element, color, outlineColor);
+        } else if (lbl_8087F138->mCurrent != 0) {
+            MenuCommonTask::sInstance->fn_804A660C(lbl_8087F138->mCurrent, element, color, outlineColor);
         }
     }
 }

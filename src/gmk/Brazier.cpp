@@ -1,3 +1,4 @@
+#include "game/GameConfig_unk.h"
 #include "gmk/Brazier.h"
 #include "game/BattleTask.h"
 #include "atn/Csv.h"
@@ -10,6 +11,7 @@
 #include "gmk/Lemon.h"
 #include "atn/DrawHelper.h"
 #include "game/GameTask.h"
+#include "atn/EffectManager.h"
 
 extern "C" void* memset(void* dst, int c, unsigned long n);
 extern "C" int strcmp(const char* a, const char* b);
@@ -21,39 +23,27 @@ extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared len
 extern "C" int fn_802180A8(const char* s); // inferred: motion id from its name
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 
-// inferred: effect manager (class unknown), global instance at 0x8087F3C0
-struct BrazierEffectMgr_unk {
-    unsigned char m00[0xB8];
-    int mB8;
-};
 struct Color4f_unk {
     Color4f_unk() {}
     float r, g, b, a;
 };
-extern "C" BrazierEffectMgr_unk* lbl_8087F3C0;
-extern "C" void fn_8023A8B4(BrazierEffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
+extern "C" atn::EffectManager* lbl_8087F3C0;
+extern "C" void fn_8023A8B4(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Model* model, void* node,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
-extern "C" void fn_80239DAC(BrazierEffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
+extern "C" void fn_80239DAC(atn::EffectManager* mgr, void* owner, int id, int arg); // inferred: stops an effect
 extern "C" void fn_80232B7C(void* owner, int arg);
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
 extern "C" void fn_800CB5C8(atn::SoundRef* sound, int frames, int arg); // inferred: stops the sound
 extern "C" void fn_800CB6E4(atn::SoundRef* sound, const atn::Vector3* pos); // inferred: moves the sound
 // inferred: collision world (lbl_8087EE98)
-extern "C" void* lbl_8087EE98;
-extern "C" int fn_8004D314(void* world, int arg, const atn::Vector3* pos, const atn::Vector3* dir, unsigned int mask,
-                           int arg5, int arg6, float radius); // inferred: sphere test
+struct ColliManager_unk;
+extern "C" ColliManager_unk* lbl_8087EE98;
+extern "C" int fn_8004D314(void* world, void* arg, const atn::Vector3* pos, const atn::Vector3* dir, unsigned int mask,
+                           void* arg5, int arg6, float radius); // inferred: sphere test
 extern "C" int fn_8004D388(void* world, atn::ColliResult_unk* result, CharaTask::Sphere_unk* sphere, atn::Vector3* move,
                            unsigned int mask, void* ignore, int arg, float); // inferred: sweep test (last: radius)
-// inferred: debug drawing (lbl_8087EEB0)
-// inferred: game settings
-struct BrazierSettings_unk {
-    unsigned char m00[0x08];
-    int m08; // inferred: debug draw of the gimmicks
-    unsigned char m0C[0x30 - 0x0C];
-    int mFps; // 0x30: inferred: frames per second
-};
-extern "C" BrazierSettings_unk* lbl_8087F0A8;
+extern "C" GameConfig_unk* lbl_8087F0A8;
 // inferred: the field task (lbl_8087F430); the frustum of its camera tests the spawn points
 extern "C" GameTask* lbl_8087F430;
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
@@ -115,7 +105,7 @@ inline void NotifyListeners_unk(CharaListeners_unk* listeners, int id, void* cha
 static const char* const sSe[] = {"SE_DGCOM_004", "SE_DGCOM_005"};
 
 // inferred: plays an effect at the model (name invented)
-inline void PlayEfp_unk(BrazierEffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model) {
+inline void PlayEfp_unk(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Model* model) {
     atn::Vector3 pos;
     atn::Vector3 rot;
     Color4f_unk color;
@@ -165,7 +155,7 @@ Brazier::Brazier(atn::Task* parent, int id, int arg)
       mRadius(3.0f), mBulletId(0), mWait(0), mTimer(-1), mDesc(0), mEnabled(1) {
     m54 = 0;
     mColli.mFlags |= 8;
-    mColli.m0C = (int)this;
+    mColli.m0C = this;
     mE8 = 6;
     mEC = 0;
 }
@@ -261,7 +251,7 @@ void Brazier::vf14() {
     if (vf38() != 0) {
         fn_803ED774(vf38());
     }
-    if (lbl_8087F0A8->m08 != 0) {
+    if (lbl_8087F0A8->mDrawCollision != 0) {
         atn::Vector3 pos(m6C);
         pos.y += mRadius;
         atn::Vector3 dir;
@@ -357,11 +347,11 @@ int Brazier::vf40(GimmickMsg_unk* msg) {
         mModelCrush.mTracks[0].m08 = 0.0f;
         mColli.SetMtx_unk(*(atn::Matrix3x4*)mModel.mMtx.m);
         mColli.mFlags |= 1;
-        lbl_8087F3C0->mB8 = 1;
+        lbl_8087F3C0->mSystem.mLayer = 1;
         fn_80239DAC(lbl_8087F3C0, this, 1, 0);
         fn_80232B7C(this, 1);
         PlayEfp_unk(lbl_8087F3C0, &mEfp, &mModel);
-        lbl_8087F3C0->mB8 = 0;
+        lbl_8087F3C0->mSystem.mLayer = 0;
         break;
     }
     case 3:
@@ -449,7 +439,7 @@ void Brazier::fn_80407D24() {
     if (fn_8004D388(lbl_8087EE98, &res, &sphere, &mDir, 0, 0, 0, sphere.mRadius) != 0) {
         mDir.y = 0.0f;
     } else {
-        mDir.y += -98.1f / (float)(lbl_8087F0A8->mFps * lbl_8087F0A8->mFps);
+        mDir.y += -98.1f / (float)(lbl_8087F0A8->m030 * lbl_8087F0A8->m030);
     }
     m6C = res.m10;
     m6C.y -= mRadius;

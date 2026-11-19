@@ -18,6 +18,7 @@
 #include "math/VecAssign_unk.h"
 #include "atn/ColliBase.h"
 #include "game/GameSceneFind_unk.h"
+#include "atn/TextTable_unk.h"
 
 extern "C" unsigned long strlen(const char* s);
 extern "C" int strcmp(const char* a, const char* b);
@@ -29,13 +30,13 @@ static const int sBarrierKinds_unk[4] = {3, 0, 1, 4};
 // inferred: std::string concatenation (weak copy 0x8006AFF8)
 extern "C" std::string fn_8006AFF8(const std::string& a, const std::string& b);
 // inferred: debug menu entries (as in gmk/SwingObject.cpp)
-extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3, int arg4);
-extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, int arg6,
-                            int arg7);
-extern "C" void fn_8008771C(void* group, const char* name, float* value, int arg3, int arg4, float min, float max,
-                            float step);
-extern "C" void fn_80088FAC(void* group, const char* name, ZesyaColor_unk* value, int arg3, int arg4, float min,
-                            float max, float step);
+extern "C" void fn_80087994(void* group, const char* name, int* value, void* func, void* arg);
+extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, void* func,
+                            void* arg);
+extern "C" void fn_8008771C(void* group, const char* name, float* value, float min, float max, float step, void* func,
+                            void* arg);
+extern "C" void fn_80088FAC(void* group, const char* name, ZesyaColor_unk* value, float min, float max, float step,
+                            void* func, void* arg);
 
 struct Gimmick_unk {
     unsigned char m00[0x04];
@@ -54,100 +55,29 @@ inline atn::Vector3 FlatDiff_unk(const atn::Vector3& a, const atn::Vector3& b) {
 }
 
 // inferred: point the camera looks at (lbl_8087F430 + 0x97C, as in game/EnemyJill.cpp); names invented
-struct ElderLook_unk {
-    void Set_unk(const atn::Vector3& pos, bool flag) {
-        m01 = m00;
-        m00 = 1;
-        mPos = pos;
-        m24 = 0.0f;
-        if (flag) {
-            m04 = 1;
-        } else {
-            m04 = 0;
-        }
+// inferred: the camera looks at a point (GameCamera::m910..m934; formerly the view ElderLook_unk at GameTask + 0x97C)
+inline void SetCameraLook_unk(GameCamera& camera, const atn::Vector3& pos, bool flag) {
+    camera.m911 = camera.m910;
+    camera.m910 = 1;
+    camera.m91C = pos;
+    camera.m934 = 0.0f;
+    if (flag) {
+        camera.m914 = 1;
+    } else {
+        camera.m914 = 0;
     }
-    unsigned char m00;
-    unsigned char m01;
-    unsigned char m02[2];
-    int m04;
-    unsigned char m08[4];
-    atn::Vector3 mPos;
-    unsigned char m18[0x24 - 0x18];
-    float m24;
-};
-// inferred: camera parameters of the field (lbl_8087F430 + 0x588; as JillCamParam_unk in game/EnemyJill.cpp)
-struct ElderCamParam_unk {
-    ElderCamParam_unk(const ElderCamParam_unk& o)
-        : m00(o.m00), m04(o.m04), m08(o.m08), m0C(o.m0C), m10(o.m10), m14(o.m14), m18(o.m18), m1C(o.m1C),
-          m20(o.m20), m24(o.m24), m28(o.m28), m2C(o.m2C), m30(o.m30), m34(o.m34), m38(o.m38) {}
-    ElderCamParam_unk& operator=(const ElderCamParam_unk& o) {
-        m00 = o.m00;
-        m04 = o.m04;
-        m08 = o.m08;
-        m0C = o.m0C;
-        m10 = o.m10;
-        m14 = o.m14;
-        m18 = o.m18;
-        m1C = o.m1C;
-        m20 = o.m20;
-        m24 = o.m24;
-        m28 = o.m28;
-        m2C = o.m2C;
-        m30 = o.m30;
-        m34 = o.m34;
-        m38 = o.m38;
-        return *this;
+}
+// inferred: starts a camera mode with its parameters (GameCamera::m46C; formerly the view ElderCamera_unk at GameTask
+// + 0x4D8)
+inline void SetCameraMode_unk(GameCameraModeParam_unk& camera, int mode, const GameCameraParam_unk& param) {
+    if (camera.mMode != mode) {
+        camera.mMode = mode;
+        camera.mParam = param;
+        camera.mStep = 0.05f;
+        camera.mWeight = 1.0f;
     }
-    float m00;
-    float m04;
-    float m08;
-    float m0C;
-    float m10;
-    float m14;
-    float m18;
-    float m1C;
-    float m20;
-    float m24;
-    float m28;
-    float m2C;
-    float m30;
-    float m34;
-    int m38;
-};
-// inferred: camera mode of the field (lbl_8087F430 + 0x4D8); names invented
-struct ElderCamera_unk {
-    void Set_unk(int mode, const ElderCamParam_unk& param) {
-        if (mMode != mode) {
-            mMode = mode;
-            mParam = param;
-            m08 = 0.05f;
-            m04 = 1.0f;
-        }
-    }
-    int mMode;
-    float m04;
-    float m08;
-    ElderCamParam_unk mParam;
-};
-// inferred: field (lbl_8087F430): camera shake at 0x96C (as in game/Em101ElderZesyaSecond.cpp), look point at
-// 0x97C, route tables at 0x10D8 (as in game/Em306GurgBeast.cpp)
-struct Field_unk {
-    unsigned char m0000[0x4D8];
-    ElderCamera_unk m4D8;
-    unsigned char m520[0x588 - 0x520];
-    ElderCamParam_unk m588;
-    unsigned char m5C4[0x8A0 - 0x5C4];
-    CharaTask* m8A0; // inferred: character the camera follows
-    unsigned char m8A4[0x96C - 0x8A4];
-    int m96C; // inferred: camera shake
-    int m970;
-    float m974;
-    float m978;
-    ElderLook_unk m97C;
-    unsigned char m9A4[0x10D8 - 0x9A4];
-    GameScene* m10D8;
-};
-extern "C" Field_unk* lbl_8087F430;
+}
+extern "C" GameTask* lbl_8087F430;
 // inferred: result of fn_8003EA3C (as DamageResult_unk in game/Em002Skelton.cpp); names invented
 struct ElderDamage_unk {
     ElderDamage_unk() : m00(0), m04(0), m08(0), m0C(0), m10(0), m14(-1) {
@@ -170,20 +100,23 @@ extern "C" void fn_8003EA3C(ElderDamage_unk* result, HitInfo_unk* data, CharaTas
                             unsigned int flags, const HitParam_unk* param, int arg, int arg2); // inferred: damage
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
 
-extern "C" void* lbl_8087EE98;
+struct ColliManager_unk;
+extern "C" ColliManager_unk* lbl_8087EE98;
 extern "C" int fn_8004ED34(void* colli, atn::ColliResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg7); // inferred: ray test
 // inferred: effect manager (class unknown), global instance at 0x8087F3C0
-struct EffectMgr_unk;
-extern "C" EffectMgr_unk* lbl_8087F3C0;
+namespace atn {
+class EffectManager;
+}
+extern "C" atn::EffectManager* lbl_8087F3C0;
 extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the next effects
-extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
+extern "C" void fn_80239DAC(atn::EffectManager* mgr, void* owner, int id, int arg); // inferred: stops an effect
 struct Color4f_unk {
     Color4f_unk() {}
     Color4f_unk(float r_, float g_, float b_, float a_) : r(r_), g(g_), b(b_), a(a_) {}
     float r, g, b, a;
 };
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
+extern "C" void fn_8023A8B4(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Model* model, void* node,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
 
@@ -210,21 +143,6 @@ extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float
 extern "C" int fn_800DD3FC(wchar_t* s, const wchar_t* format, ...); // inferred: wide sprintf
 extern "C" void* memset(void* dst, int c, unsigned long n);
 extern "C" const wchar_t lbl_808813D0[2]; // inferred: empty text
-// inferred: camp message table (lbl_8087F1E4, as in game/Em309Ghoul.cpp)
-struct ElderMsgTable_unk {
-    const wchar_t* Get_unk(int id) { return mText[id] != 0 ? mText[id] : lbl_808813D0; }
-    const wchar_t* mText[1];
-};
-extern "C" ElderMsgTable_unk* lbl_8087F1E4;
-// inferred: order sent to the little Zesya (game/Em101LittleZesya.h ZesyaWarp_unk)
-struct ElderOrder_unk {
-    int m00;
-    int m04;
-    atn::Vector3 m08;
-};
-extern "C" void fn_8025FE30(int zesya, const ElderOrder_unk* order); // inferred: Em101LittleZesya order
-extern "C" void fn_8025D6D0(int zesya); // inferred: Em101LittleZesya saves its position (game/Em101LittleZesya.cpp)
-extern "C" void fn_8025D704(int zesya); // inferred: Em101LittleZesya goes back to idle
 
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 extern "C" atn::Vector3 lbl_807C7030;              // inferred: zero vector
@@ -297,13 +215,13 @@ Em101ElderZesya::Em101ElderZesya(atn::Task* parent, EnemyInfo_unk* info)
     void* group = m16B8.Load("Em101ElderZesya");
     fn_80087994(group, "DebugDisp", &m16BC, 0, 0);
     fn_800874C8(group, "WaitFrame", &m16B0, 0, 1000000, 1, 0, 0);
-    fn_8008771C(group, "AttackChanceFrame", &m16B4, 0, 0, 0.0f, 100000.0f, 1.0f);
+    fn_8008771C(group, "AttackChanceFrame", &m16B4, 0.0f, 100000.0f, 1.0f, 0, 0);
     fn_800874C8(group, "ComboWaitTime", &m14FC, 0, 100000, 1, 0, 0);
     fn_800874C8(group, "bossActPhase_", &m14CC, 3, 5, 1, 0, 0);
-    fn_80088FAC(group, "FireBarrier", &m16C0, 0, 0, 0.0f, 1.0f, 0.01f);
-    fn_80088FAC(group, "IceBarrier", &m16D0, 0, 0, 0.0f, 1.0f, 0.01f);
-    fn_80088FAC(group, "ForestBarrier", &m16F0, 0, 0, 0.0f, 1.0f, 0.01f);
-    fn_80088FAC(group, "HolyBarrier", &m1700, 0, 0, 0.0f, 1.0f, 0.01f);
+    fn_80088FAC(group, "FireBarrier", &m16C0, 0.0f, 1.0f, 0.01f, 0, 0);
+    fn_80088FAC(group, "IceBarrier", &m16D0, 0.0f, 1.0f, 0.01f, 0, 0);
+    fn_80088FAC(group, "ForestBarrier", &m16F0, 0.0f, 1.0f, 0.01f, 0, 0);
+    fn_80088FAC(group, "HolyBarrier", &m1700, 0.0f, 1.0f, 0.01f, 0, 0);
     m15F8.LoadRequest("ef_bs007a.efp");
     m1604.LoadRequest("ef_bs066e.efp");
     m1610.LoadRequest("ef_bs066c.efp");
@@ -406,7 +324,7 @@ void Em101ElderZesya::fn_80256384() {
                             b->m04.mObjects[j][i]->mFlags &= ~1;
                             b->m04.mObjects[j][i]->mFlags |= 2;
                             b->m04.mObjects[j][i]->mFlags |= 0x40000000;
-                            b->m04.mObjects[j][i]->m0C = (int)this;
+                            b->m04.mObjects[j][i]->m0C = this;
                             atn::Matrix3x4 m;
                             m.SetIdentity();
                             b->m04.mObjects[j][i]->SetMtx_unk(m);
@@ -418,8 +336,8 @@ void Em101ElderZesya::fn_80256384() {
             }
         } else if (strcmp(key, "LittleID") == 0) {
             EnemyManager* mgr = EnemyManager::sInstance;
-            m16A0 = (int)mgr->Find_unk(atoi(csv.fn_8005B9CC()));
-            *(Em101ElderZesya**)((char*)m16A0 + 0x1530) = this;
+            m16A0 = (Em101LittleZesya*)mgr->Find_unk(atoi(csv.fn_8005B9CC()));
+            m16A0->m1530 = this;
         } else if (strcmp(key, "NormalAttackID") == 0) {
             m1500 = fn_80219E6C(atoi(csv.fn_8005B9CC()));
         } else if (strcmp(key, "HighJumpAttackID") == 0) {
@@ -450,24 +368,24 @@ inline void ElderRotZYX_unk(atn::Matrix3x4& m, const atn::Vector3& rot) {
 // rotation and r0/r3 of two stores (8 variants: temporaries, case order, rotation inline, array init)
 void Em101ElderZesya::vf10() {
     m16A4++;
-    if (((GameTask*)lbl_8087F430)->fn_80370A78(0x65) == 1) {
+    if (lbl_8087F430->fn_80370A78(0x65) == 1) {
         return;
     }
     if (m16A8 > 0) {
         if (--m16A8 <= 0) {
-            ((GameTask*)lbl_8087F430)->fn_80370AE4(0x65, 1);
+            lbl_8087F430->fn_80370AE4(0x65, 1);
             m58C = 6;
             m14C8 = 0;
             fn_8016DA4C();
             m14D4 = 1;
             mColli.mFlags |= 1;
-            fn_8025D6D0(m16A0);
+            m16A0->fn_8025D6D0();
             m14D8 = mPos;
             m14E4 = mRot;
             return;
         }
     } else if (m16A8 == 0 && m14D4 == 0) {
-        Em101LittleZesya* little = (Em101LittleZesya*)m16A0;
+        Em101LittleZesya* little = m16A0;
         bool ready = false;
         if (little->m58C == 9 && little->m14F4 == 1) {
             ready = true;
@@ -489,11 +407,11 @@ void Em101ElderZesya::vf10() {
                 }
             }
             if (m15EC % 16 == 15) {
-                Field_unk* field = lbl_8087F430;
-                field->m96C %= 2;
-                field->m970 = 10;
-                field->m974 = 0.15f;
-                field->m978 = 0.15f;
+                GameTask* field = lbl_8087F430;
+                field->mCamera.mShake.mFrame %= 2;
+                field->mCamera.mShake.mLength = 10;
+                field->mCamera.mShake.mWidth = 0.15f;
+                field->mCamera.mShake.mHeight = 0.15f;
                 fn_800C31F4("SE_DG036_014", 0, -1, 1.0f);
             }
             m1650 = 1;
@@ -575,7 +493,7 @@ void Em101ElderZesya::vf10() {
             if (r != 0 && r->m08 == 0 && r->m0C == this) {
                 lbl_8087F048->fn_801028E4(p, this, 0x30D40);
             } else {
-                lbl_8087F048->fn_801028E4(p, (CharaTask*)m16A0, 0x30D40);
+                lbl_8087F048->fn_801028E4(p, m16A0, 0x30D40);
             }
         }
         int wait = m14D4;
@@ -586,7 +504,7 @@ void Em101ElderZesya::vf10() {
             m58C = 6;
             m14CC = 2;
             m14C8 = m16B0;
-            fn_8025D704(m16A0);
+            m16A0->fn_8025D704();
             PlayerTask* player = lbl_8087F8A0->mHead;
             player->fn_80166A54();
             ElderDamage_unk result;
@@ -702,21 +620,21 @@ void Em101ElderZesya::vf10() {
     }
     fn_8014C540();
     fn_80145334();
-    Field_unk* field = lbl_8087F430;
+    GameTask* field = lbl_8087F430;
     if (m1650 != 0) {
         if (m164C == 0) {
-            field->m8A0 = this;
-            field->m97C.Set_unk(m1654, false);
+            field->mCamera.m834 = this;
+            SetCameraLook_unk(field->mCamera, m1654, false);
             m164C = 1;
         } else {
-            field->m8A0 = this;
-            field->m97C.mPos = m1654;
+            field->mCamera.m834 = this;
+            field->mCamera.m91C = m1654;
         }
     } else if (m164C != 0) {
-        field->m8A0 = 0;
-        field->m97C.m00 = 0;
+        field->mCamera.m834 = 0;
+        field->mCamera.m910 = 0;
         m164C = 0;
-        field->m4D8.mMode = 0;
+        field->mCamera.m46C.mMode = 0;
     }
     m1650 = 0;
 }
@@ -900,11 +818,11 @@ void Em101ElderZesya::fn_80258574() {
         lbl_8087F048->fn_80109828(text);
         fn_802598DC();
         fn_8016D74C(m1510, 0, &m1694);
-        ElderOrder_unk order;
+        ZesyaWarp_unk order;
         order.m00 = 1;
         order.m08 = m1694;
         order.m04 = 2;
-        fn_8025FE30(m16A0, &order);
+        m16A0->fn_8025FE30(&order);
         break;
     }
     case 3:
@@ -919,7 +837,7 @@ void Em101ElderZesya::fn_80258574() {
         m14CC = 3;
         break;
     }
-    *(int*)(m16A0 + 0x14EC) = m14CC;
+    m16A0->m14EC = m14CC;
 }
 
 // NONMATCHING: 99.33% - nonvolatile registers shifted by one (r24-r30: the original keeps the list base in
@@ -1036,20 +954,20 @@ void Em101ElderZesya::fn_80258F1C() {
 // loading the default parameters; same open case as EnemyJill::fn_80330D74 (3 variants)
 // inferred: state 9 (jump: the camera follows it with the parameters of mode 4)
 void Em101ElderZesya::fn_8025922C() {
-    Field_unk* field = lbl_8087F430;
+    GameTask* field = lbl_8087F430;
     if (m55C == 6) {
         if (m560 == 14) {
             atn::Vector3 pos = mPos;
             pos.y += 15.0f;
             if (m164C == 0) {
-                ElderCamera_unk* cam = &field->m4D8;
-                ElderCamParam_unk param = field->m588;
+                GameCameraModeParam_unk* cam = &field->mCamera.m46C;
+                GameCameraParam_unk param = field->mCamera.m51C;
                 param.m08 = -0.43633232f;
                 param.m04 = 0.7853982f;
                 param.m00 = 15.0f;
                 param.m10 = 8.0f;
-                field->m8A0 = this;
-                cam->Set_unk(4, param);
+                field->mCamera.m834 = this;
+                SetCameraMode_unk(*cam, 4, param);
             }
             m1654 = mPos;
             m1650 = 1;
@@ -1057,9 +975,9 @@ void Em101ElderZesya::fn_8025922C() {
         }
     } else {
         if (m164C != 0) {
-            field->m8A0 = 0;
-            field->m4D8.mMode = 0;
-            field->m97C.m00 = 0;
+            field->mCamera.m834 = 0;
+            field->mCamera.m46C.mMode = 0;
+            field->mCamera.m910 = 0;
             m164C = 0;
         }
         m14F4 = 1;
@@ -1121,8 +1039,8 @@ void Em101ElderZesya::vf3C(HitInfo_unk* hit, int arg) {
                 fn_80259AB4(index, 2);
                 m15F4 = 1;
                 m15EC = 0;
-                if (((GameTask*)lbl_8087F430)->fn_80370A78(200) == 0) {
-                    ((GameTask*)lbl_8087F430)->fn_80370AE4(200, 1);
+                if (lbl_8087F430->fn_80370A78(200) == 0) {
+                    lbl_8087F430->fn_80370AE4(200, 1);
                 }
             }
         }
@@ -1137,13 +1055,13 @@ void Em101ElderZesya::vf3C(HitInfo_unk* hit, int arg) {
     }
     float hp = mStatus.m04;
     if (hp / (float)mStatus.mParamB.m84 < 0.1f) {
-        ((GameTask*)lbl_8087F430)->fn_80370AE4(210, 1);
+        lbl_8087F430->fn_80370AE4(210, 1);
         for (unsigned int i = 0; i < 4; i++) {
             fn_80259AB4(i, 2);
         }
     }
     if (msg->m68 > 0) {
-        lbl_8087F048->fn_80102EAC((CharaTask*)m16A0, msg->mAttacker, 100, -1);
+        lbl_8087F048->fn_80102EAC(m16A0, msg->mAttacker, 100, -1);
     }
     if (m55C == 6) {
         switch (m560) {
@@ -1205,7 +1123,7 @@ inline void Em101ElderZesya::PlayBarrier_unk(atn::EfpFile* efp, const atn::Vecto
 }
 
 // inferred: same with the manager read first (name invented)
-inline void Em101ElderZesya::PlayBarrierM_unk(EffectMgr_unk* mgr, atn::EfpFile* efp, const atn::Vector3& pos,
+inline void Em101ElderZesya::PlayBarrierM_unk(atn::EffectManager* mgr, atn::EfpFile* efp, const atn::Vector3& pos,
                                               const atn::Vector3& rot, int kind) {
     fn_8023A8B4(mgr, efp, 0, 0, pos, rot, *(const Color4f_unk*)&(&m16C0)[kind], -1, -1, 1, 1.5f);
 }
@@ -1241,24 +1159,24 @@ void Em101ElderZesya::fn_80259AB4(int index, int state) {
             PlayBarrier_unk(&m1640, pos1, rot1, c->mKind);
             PlayBarrier_unk(&m1640, pos2, rot2, c->mKind);
         } else {
-            EffectMgr_unk* mgr = lbl_8087F3C0;
+            atn::EffectManager* mgr = lbl_8087F3C0;
             PlayBarrierM_unk(mgr, &m161C, pos, rot, c->mKind);
-            EffectMgr_unk* mgr2 = lbl_8087F3C0;
+            atn::EffectManager* mgr2 = lbl_8087F3C0;
             PlayBarrierM_unk(mgr2, &m161C, pos1, rot1, c->mKind);
-            EffectMgr_unk* mgr3 = lbl_8087F3C0;
+            atn::EffectManager* mgr3 = lbl_8087F3C0;
             PlayBarrierM_unk(mgr3, &m161C, pos2, rot2, c->mKind);
-            Field_unk* field = lbl_8087F430;
-            field->m97C.Set_unk(pos, false);
+            GameTask* field = lbl_8087F430;
+            SetCameraLook_unk(field->mCamera, pos, false);
         }
-        ((GameTask*)lbl_8087F430)->fn_80370AE4(0xCA, 1);
+        lbl_8087F430->fn_80370AE4(0xCA, 1);
         if (c->mKind == 3) {
-            ((GameTask*)lbl_8087F430)->fn_80370AE4(0xCB, 1);
+            lbl_8087F430->fn_80370AE4(0xCB, 1);
         } else if (c->mKind == 0) {
-            ((GameTask*)lbl_8087F430)->fn_80370AE4(0xCB, 2);
+            lbl_8087F430->fn_80370AE4(0xCB, 2);
         } else if (c->mKind == 1) {
-            ((GameTask*)lbl_8087F430)->fn_80370AE4(0xCB, 3);
+            lbl_8087F430->fn_80370AE4(0xCB, 3);
         } else if (c->mKind == 4) {
-            ((GameTask*)lbl_8087F430)->fn_80370AE4(0xCB, 4);
+            lbl_8087F430->fn_80370AE4(0xCB, 4);
         }
         break;
     case 1:

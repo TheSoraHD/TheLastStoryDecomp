@@ -4,10 +4,12 @@
 #include "game/NewTitleTask.h"
 #include "atn/Memory.h"
 #include "atn/D2A_Task.h"
+#include "atn/D2A_TaskApi_unk.h"
 #include "atn/FadeCommon.h"
 #include "atn/SoundRef.h"
 #include "atn/SoundManager.h"
 #include "atn/EffectManager.h"
+#include "atn/EffectApi_unk.h"
 #include "atn/LoadManager.h"
 #include "atn/RenderManager.h"
 #include "atn/Layer3D.h"
@@ -33,7 +35,8 @@ extern "C" int sprintf(char* buf, const char* format, ...);
 
 extern "C" GameConfig_unk* lbl_8087F0A8;
 extern "C" RenderSetting_unk* lbl_8087EFA8; // render settings
-extern "C" void* lbl_8087EF70; // inferred: pad (atn/Pad_unk.cpp)
+struct Pad_unk;
+extern "C" Pad_unk* lbl_8087EF70; // inferred: pad (atn/Pad_unk.cpp)
 extern "C" int fn_800A555C(void* pad, int port, int button); // inferred: button triggered
 extern "C" int fn_800A55AC(void* pad, int port, int button); // inferred: button repeated
 extern "C" int fn_800A55D4(void* pad, int port, int button); // inferred: button held
@@ -51,7 +54,10 @@ extern "C" void fn_801FECE0(void* layout, unsigned int hash, float value); // in
 extern "C" void fn_801F4728(atn::D2A_Task* task, const char* name, const float* v); // inferred: SetParam0
 extern "C" float fn_8006EF48(void* font, float size, const wchar_t* text, float f2, int a, int b); // inferred: width
 extern "C" void fn_8006F2F0(void* font, wchar_t* dst, const char* src, int n); // inferred: to wide characters
-extern "C" void* lbl_8087EEC8; // inferred: font
+namespace atn {
+class Font_unk;
+}
+extern "C" atn::Font_unk* lbl_8087EEC8; // inferred: font
 extern "C" float fn_800DC288(const char* s); // inferred: string to float
 extern "C" int fn_800DC12C(const char* s);   // inferred: string to int
 extern "C" char* strtok(char* s, const char* delim);
@@ -66,7 +72,7 @@ extern "C" void fn_800874C8(void* folder, const char* name, int* value, int min,
                             void* arg); // AddInt
 extern "C" void fn_8008771C(void* folder, const char* name, float* value, float min, float max, float step,
                             void* func, void* arg); // AddFloat
-extern "C" void fn_8023A8B4(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
+extern "C" void fn_8023A8B4(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Model* model, void* node,
                             const atn::Vector3& pos, const atn::Vector3& rot, const atn::Color& color, int arg7,
                             int arg8, int arg9, float scale); // inferred: plays an efp effect
 

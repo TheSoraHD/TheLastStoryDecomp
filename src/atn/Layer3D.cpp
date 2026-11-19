@@ -1,22 +1,15 @@
+#include "atn/GraphicsDevice.h"
 #include "atn/Layer3D.h"
 #include "math/Vec.h"
 #include "std/new.h"
 #include "atn/RenderManager.h"
 
-// inferred: globals of unknown classes (automatic names)
-struct RenderState_unk {
-    unsigned char m00[0x3C];
-    int mWidth;  // 0x3C
-    int mHeight; // 0x40
-};
-extern "C" RenderState_unk* lbl_8087EEE0;
+extern "C" atn::GraphicsDevice_unk* lbl_8087EEE0;
 extern "C" unsigned char lbl_8087EFB0; // inferred: z pre-pass active
 
-extern "C" void fn_80071E04(RenderState_unk* rs);
-extern "C" void fn_80071D68(RenderState_unk* rs, void* camera);
-extern "C" void fn_80071D74(RenderState_unk* rs, const atn::Matrix44_unk& proj);
-extern "C" void fn_80076760(RenderState_unk* rs, int arg1, int arg2);
-extern "C" void fn_800761A8(RenderState_unk* rs);
+extern "C" void fn_80071E04(atn::GraphicsDevice_unk* rs);
+extern "C" void fn_80076760(atn::GraphicsDevice_unk* rs, int arg1, int arg2);
+extern "C" void fn_800761A8(atn::GraphicsDevice_unk* rs);
 extern "C" void C_MTXOrtho(float m[4][4], float t, float b, float l, float r, float n, float f);
 extern "C" void GXSetColorUpdate(unsigned char enable);
 extern "C" void GXSetTexCopySrc(unsigned short left, unsigned short top, unsigned short wd, unsigned short ht);
@@ -48,9 +41,9 @@ void Layer3D::vf18() {
 }
 
 void Layer3D::vf1C() {
-    RenderState_unk* rs = lbl_8087EEE0;
+    atn::GraphicsDevice_unk* rs = lbl_8087EEE0;
     fn_80071E04(rs);
-    fn_80071D68(rs, &atn::RenderManager::instance_->mCamera.mProj);
+    fn_80071D68(rs, atn::RenderManager::instance_->mCamera.mProj.m);
     fn_80076760(rs, 6, 0);
     fn_80076760(rs, 8, 1);
     fn_80076760(rs, 9, 2);
@@ -72,7 +65,7 @@ void Layer2D::vf14(void* arg) {
 }
 
 void Layer2D::vf1C() {
-    RenderState_unk* rs = lbl_8087EEE0;
+    atn::GraphicsDevice_unk* rs = lbl_8087EEE0;
     fn_80071E04(rs);
     // inferred: the projection is built in an inner block and copied out (stack order of the
     // original: the copy above the ortho matrix)
@@ -87,7 +80,7 @@ void Layer2D::vf1C() {
         C_MTXOrtho(ortho.m, 0.0f, fh, 0.0f, fw, 0.0f, zfar);
         __Mtx44Copy(proj.m, ortho.m);
     }
-    fn_80071D74(rs, proj);
+    fn_80071D74(rs, proj.m);
 
     fn_80076760(rs, 6, 0);
     fn_80076760(rs, 8, 0);
@@ -113,7 +106,7 @@ void LayerPrerender::vf20() {}
 void LayerZPrePass::vf1C() {
     Layer3D::vf1C();
     lbl_8087EFB0 = 1;
-    RenderState_unk* rs = lbl_8087EEE0;
+    atn::GraphicsDevice_unk* rs = lbl_8087EEE0;
     fn_80076760(rs, 11, 0);
     fn_80076760(rs, 8, 1);
     fn_80076760(rs, 9, 2);

@@ -1,3 +1,5 @@
+#include "game/GameConfig_unk.h"
+#include "atn/RenderSetting_unk.h"
 #include "macros.h"
 #include "game/Em401_01_WhiteLeoPard.h"
 #include "chr/ControlBase.h"
@@ -50,16 +52,7 @@ Em401_01_WhiteLeoPard::Em401_01_WhiteLeoPard(atn::Task* parent, const EnemyInfo_
 
 Em401_01_WhiteLeoPard::~Em401_01_WhiteLeoPard() {}
 
-// inferred: field (lbl_8087F430); names invented (as in game/CharaTask.cpp)
-struct Field_unk {
-    unsigned char m000[0x868];
-    int m868; // inferred: mode
-    unsigned char m86C[0x8A0 - 0x86C];
-    int m8A0;
-    unsigned char m8A4[0x10D8 - 0x8A4];
-    GameScene* m10D8; // inferred: route tables (as in game/Em403WarLion.cpp)
-};
-extern "C" Field_unk* lbl_8087F430;
+extern "C" GameTask* lbl_8087F430;
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
@@ -137,10 +130,10 @@ void Em401_01_WhiteLeoPard::vf10() {
     if ((mStatus.m0C & 0x20) != 0x20) {
         fn_8031FAA4();
     } else {
-        lbl_8087F430->m8A0 = 0;
+        lbl_8087F430->mCamera.m834 = 0;
     }
     if (lbl_8087F8A0->mHead->mFlag28 && m156C == 0) {
-        ((GameTask*)lbl_8087F430)->fn_80370AE4(0x3C, 1);
+        lbl_8087F430->fn_80370AE4(0x3C, 1);
     }
     atn::Vector3 pos(mPos);
     m156C = LeaderFlag_unk();
@@ -164,7 +157,7 @@ void Em401_01_WhiteLeoPard::vf10() {
         mFlag24 = 1;
     }
     fn_80145334();
-    if (lbl_8087F430->m868 == 6) {
+    if (lbl_8087F430->mCamera.m7FC == 6) {
         mRoute.fn_80127D8C(0, 0, 0);
     }
 }
@@ -175,13 +168,7 @@ struct LeoColor_unk {
     float r, g, b, a;
 };
 extern "C" double sin(double x);
-// inferred: settings (lbl_8087F0A8) and debug drawing (lbl_8087EEB0), as in game/Em403WarLion.cpp
-struct LeoSettings_unk {
-    unsigned char m00[0x30];
-    int m30;        // inferred: frames per second (as in game/CharaTask.cpp)
-    int mDrawDebug; // 0x34
-};
-extern "C" LeoSettings_unk* lbl_8087F0A8;
+extern "C" GameConfig_unk* lbl_8087F0A8;
 
 // inferred: pulses the alpha of the "em405_efc" material every 120 frames; draws the view fan in debug
 void Em401_01_WhiteLeoPard::vf14() {
@@ -193,7 +180,7 @@ void Em401_01_WhiteLeoPard::vf14() {
     float s = (float)sin(6.2831855f * t);
     diffuse.a = 0.5f * (1.0f + s);
     mMotion.fn_80094958("em405_efc", &diffuse, &LeoColor_unk(material->m20), &LeoColor_unk(material->m1C));
-    if (lbl_8087F0A8->mDrawDebug != 0) {
+    if (lbl_8087F0A8->mDrawCharaColli != 0) {
         lbl_8087EEB0->fn_80063484(20, 0xFFFF0000, mPos.x, 3.0f + mPos.y, mPos.z, mRot.y, 0.0f, 12.0f, 1.5707964f);
     }
 }
@@ -201,7 +188,7 @@ void Em401_01_WhiteLeoPard::vf14() {
 // inferred: picks the target: the leader when it has mFlag28, else (field flag 0x3D set) a player held by
 // a control 0x1D-0x1F
 void Em401_01_WhiteLeoPard::fn_8031FAA4() {
-    if (((GameTask*)lbl_8087F430)->fn_80370A78(0x3D) == 0) {
+    if (lbl_8087F430->fn_80370A78(0x3D) == 0) {
         if (lbl_8087F8A0->mHead->mFlag28) {
             mC58.mC8 = (int)mC58.mC4;
             m1454 = 0;
@@ -228,7 +215,7 @@ void Em401_01_WhiteLeoPard::fn_8031FAA4() {
             m1454 = 1;
         }
     }
-    lbl_8087F430->m8A0 = 0;
+    lbl_8087F430->mCamera.m834 = 0;
     if (mC58.mC4 != (CharaTask*)mC58.mC8) {
         mRoute.fn_8012539C();
     }
@@ -245,14 +232,14 @@ void Em401_01_WhiteLeoPard::vf3C(HitInfo_unk* hit, int) {
                 msg->m90 = 1;
                 return;
             }
-            if (m58C == 1 && ((GameTask*)lbl_8087F430)->fn_80370A78(0x3D) == 1) {
+            if (m58C == 1 && lbl_8087F430->fn_80370A78(0x3D) == 1) {
                 msg->m10 *= 0.0f;
             } else {
                 msg->m10 *= 0.7f;
                 msg->m50 |= 0x90;
             }
         }
-        ((GameTask*)lbl_8087F430)->fn_80370A78(0x3D);
+        lbl_8087F430->fn_80370A78(0x3D);
     }
     fn_80151448(msg);
     fn_8031FD34(msg);
@@ -280,7 +267,8 @@ void Em401_01_WhiteLeoPard::fn_8031FD34(HitMsg_unk* msg) {
     }
 }
 
-extern "C" void* lbl_8087EE98; // inferred: collision world
+struct ColliManager_unk;
+extern "C" ColliManager_unk* lbl_8087EE98; // inferred: collision world
 extern "C" int fn_8004D388(void* world, atn::ColliResult_unk* result, CharaTask::Sphere_unk* sphere, atn::Vector3* move,
                            unsigned int mask, void* ignore, int arg, float radius); // inferred: sweep test
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
@@ -289,12 +277,7 @@ extern "C" int rand();
 extern "C" double sqrt(double x);
 extern "C" double cos(double x);
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
-// inferred: game state (lbl_8087EFA8, see game/CharaTask.cpp); names invented
-struct GameState_unk {
-    unsigned char m000[0x3A4];
-    float m3A4; // inferred: time of a frame
-};
-extern "C" GameState_unk* lbl_8087EFA8;
+extern "C" RenderSetting_unk* lbl_8087EFA8;
 
 // inferred: GameScene::FindPlace_unk with the array read inside the loop (as in game/Em208Queen.cpp)
 inline gs::WarpPoint* FindRoutePlace2_unk(GameScene* table, int id) {
@@ -352,10 +335,10 @@ void Em401_01_WhiteLeoPard::fn_8031FE4C() {
         if (lbl_8087F048 != 0 && fn_80158CA4() && m594 != 0) {
             fn_80144710();
             HitInfo_unk* hit = fn_80219E6C(0x687);
-            if (((GameTask*)lbl_8087F430)->fn_80370A78(0x3D) == 0) {
+            if (lbl_8087F430->fn_80370A78(0x3D) == 0) {
                 int left = 3;
                 for (int i = 0; i < 3; i++) {
-                    if (((GameTask*)lbl_8087F430)->fn_80370A78(lbl_80749898[i]) >= 200) {
+                    if (lbl_8087F430->fn_80370A78(lbl_80749898[i]) >= 200) {
                         left--;
                     }
                 }
@@ -414,7 +397,7 @@ void Em401_01_WhiteLeoPard::fn_803202E0() {
         if (FindRoutePlace2_unk(table, m1568) == 0) {
             mRoute.fn_8012539C();
             fn_80170A20(mC58.mC4, -1.0f, 0);
-        } else if (((GameTask*)lbl_8087F430)->fn_80370A78(0x3D) != 0) {
+        } else if (lbl_8087F430->fn_80370A78(0x3D) != 0) {
             mRoute.fn_8012539C();
             fn_8017039C(m1568, 0);
         }
@@ -432,7 +415,7 @@ void Em401_01_WhiteLeoPard::fn_803202E0() {
                 rot = mRot;
             }
         }
-        if (((GameTask*)lbl_8087F430)->fn_80370A78(0x3D) == 0) {
+        if (lbl_8087F430->fn_80370A78(0x3D) == 0) {
             rate *= 0.7f;
             if (dist < m1524 && m1560 > m15A0) {
                 fn_800EB270(200);
@@ -555,7 +538,7 @@ void Em401_01_WhiteLeoPard::fn_803209E0(const atn::Vector3& target, int arg, flo
         move.z *= 2.0f;
     }
     if ((mStatus.mParamB.m9C & 1) != 1) {
-        int fps = lbl_8087F0A8->m30;
+        int fps = lbl_8087F0A8->m030;
         m574.y += dt * (-98.1f / (float)(fps * fps));
     }
     move += m6B8;
@@ -919,11 +902,11 @@ void Em401_01_WhiteLeoPard::fn_80322AD4() {
     }
 }
 
-extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3, int arg4);
-extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, int arg6,
-                            int arg7);
-extern "C" void fn_8008771C(void* group, const char* name, float* value, int arg3, int arg4, float min, float max,
-                            float step);
+extern "C" void fn_80087994(void* group, const char* name, int* value, void* func, void* arg);
+extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, void* func,
+                            void* arg);
+extern "C" void fn_8008771C(void* group, const char* name, float* value, float min, float max, float step, void* func,
+                            void* arg);
 
 // inferred: debug menu of the enemy; removed by the linker, only its strings are left in the pool (after
 // "tale"), as Em403WarLion::fn_DebugMenu_unk. The calls and the ranges are guesses.
@@ -931,7 +914,7 @@ void Em401_01_WhiteLeoPard::fn_DebugMenu_unk() {
     void* group = m158C.Load("em401_01_WhiteLeoPard");
     fn_80087994(group, "DebugDisp", &m1590, 0, 0);
     fn_80087994(group, "DamageIgnore", &m1594, 0, 0);
-    fn_8008771C(group, "ReturnEndLength", &m1598, 0, 0, 0.0f, 10000.0f, 1.0f);
+    fn_8008771C(group, "ReturnEndLength", &m1598, 0.0f, 10000.0f, 1.0f, 0, 0);
     fn_800874C8(group, "UpPhysicalAttack", &m159C, 0, 9999, 1, 0, 0);
     fn_800874C8(group, "interval", &m15A0, 0, 9999, 1, 0, 0);
     fn_800874C8(group, "AttackTime", &m15A4, 0, 9999, 1, 0, 0);

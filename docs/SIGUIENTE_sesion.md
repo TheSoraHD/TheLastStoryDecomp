@@ -1,35 +1,48 @@
-# Siguiente sesion (tras enlazar2-20261117)
+# Siguiente sesion (tras secuencial-20261119)
 
-> Sesion `enlazar2-20261117` (hasta 4 agentes, 31 colas) del 2026-11-17 15:28 al 2026-11-18 ~01:45 (cierre adelantado por
-> el usuario). Notas: `docs/enlazar2-20261117.md` y `docs/enlazar2-20261117-q*.md`. Para el port:
-> `claude/port-enlazar2-20261117.md` (proyecto).
+> Sesion `secuencial-20261119` (sin agentes) del 2026-11-19 02:12 a 14:12. Notas: `docs/secuencial-20261119.md`; para el
+> port: `docs/secuencial-20261119-port.md` y `claude/port-secuencial-20261119.md` (proyecto).
 
-Estado: **16074 / 18109**, lost 0, rep100 23, labelcheck 11 lineas, `main.dol: OK`. Codigo 62,39 %, datos 76,18 %,
-742 unidades completas. DRAFT 0. Funciones al 0 %: 45 (20 sin iostream/auto_03). PacketPack 57 funciones < 100 %.
+Estado: **16075 / 18109**, lost 0, rep100 23, labelcheck 10 lineas, `main.dol: OK`. Codigo 62,40 %, datos 76,18 %,
+742 unidades completas. DRAFT 0. Funciones al 0 %: 45 (20 sin iostream/auto_03).
 
 ## Decisiones pendientes del usuario
 
-- Parche de push_back `docs/enlazar2-20261117-qK.patch`: arregla el cruce tamano/capacidad del push_back inline (~73 sitios)
-  pero rompe las copias debiles fuera de linea; medida orientativa +8 al 100 %, ~12 bajadas y Event/Sequence fn_8054204C
-  97,8 -> 10,3. Bloquea ArrowSet, ShopColor, FileList, Np131, Em305VampireMp, FriendRoom, AreaEffConfig, ChaserNpc...
-- `block_relocations` de OSInit en `config.yml` (`docs/enlazar2-20261117-qI-config.patch`), como las de OSFatal.
-- "Para revisar" de `docs/enlazar2-20261117.md`: `int& cur = m84;` (EnvSeManager), `float zero` (Em208Queen),
-  `FindPlace_unk(id = ...)` (Em310Gargoyle), `GXWGFifo` directo (EffectDesc_unk), `GetSaveFileName_unk` (GameSaveLoadCommon),
-  alias `self` en `std::string::operator=`, dos funciones `const` sin 100 % (C2).
+- Ninguna nueva. D1 (OSInit) aplicada; D2 (parche qK de push_back) revertida con la medida en `docs/secuencial-20261119.md`
+  (neto -14; diff en `docs/secuencial-20261119-D2.patch`).
 
-## Siguiente
+## Siguiente (port de PC)
 
-- A una funcion de enlazar (bloqueos de registros, ver notas de R/N2): EnvSeManager vf14, Em204MulueMp fn_802B55B0,
-  ControlChaseCaught Follow vf0C 99,97, PostFxMotionBlur vf10 99,9, Em309GhoulSimple, Em209SmallGolem, Em303KrakenFootMp,
-  CannonLift, ShaderManager (push_back), las LH_* (`Loader::Get_unk<T>`).
-- Patron `m97C.Set_unk` (~20 funciones de enemigos, cola T): el original no sustituye el `this` de la inline.
-- GameEventScript: familia `SetNext_unk` (21 comandos, r0/r4 cruzados), y fn_803A2378/2210/7D94/98EC sin probar.
-- Truco `const` (P3/C2): seguir con candidatas que releen campos tras una llamada; parches de C2 (ModelDraw_unk, ReplayBuffer).
-- PacketPack: pendientes de P2/P3 (fn_804F8464, fn_804EAA84, fn_804EE4F0, destructores con `erase(begin(), end)`).
-- Regla 10 / port: ~60 vistas locales de `GameTask` (`Field_unk` y similares) con el accesor debil `fn_8013C504__9Field_unkFv`
-  declarado en 21 unidades (pasarlas todas a la vez a `GameTask::fn_8013C504()`); TownTask (`m553C` dentro de `GameTask::m550C`);
-  `atn::AudioDevice` sin cabecera (propuesta 5c del port); `EffectMgr_unk::mB8` (28 unidades de gmk), los 47 `Settings_unk`,
-  `ActionOwner_unk` = `Event::Section`, `PathData_unk` = `Event::Path`, `MenuD2A_unk` = `D2A_Task`, structs de fichero
-  compartidos (`SceneData_unk.h`, `MotionData_unk.h`, `ModelOcclusion_unk.h`).
-- Re-emparejar tras merges en conflicto: `tools/decomp/remap.py <copia_agente> <unidades>` (por posicion con el .o del agente),
-  `lcfix.py`, `lblremap.py`.
+- Regla 10, `extern "C"` con el objeto como primer argumento que quedan (no empezadas por tamano):
+  `atn::AudioDevice` (35, clase en el .cpp con ~700 lineas de tipos locales), `atn::Font_unk` (12, ~40 llamadores),
+  `atn::TextAnimation` (6; Event/Dialog, Event/Manager y ActionEffectPlay la ven como `DialogTextMgr_unk`),
+  `atn::EffectManager` (5) y `atn::MindowsCommon` (3).
+- GameTask: `fn_8036DBC0`, `fn_8036DDD4`, `fn_8036E624`, `fn_8036E6D4`, `fn_8036FE74` como miembros cambian registros y la
+  pila de GameEventScript (ver `docs/mwcc-blockers.md`).
+- Punteros guardados en `int` que quedan (bugs de 64 bits): `CharaTask::mF1C` (arrastra los constructores de
+  ControlCaught/ControlMatHold/ControlThrownAway/ControlThrownAvoid), `Em303KrakenFoot::m1504` (`CharaTask::fn_8016C4D8(int, ...)`
+  -> `ControlThrustForKraken`), `TacView::m54.mType` (`(int)chara`), `atn/DrawHelper` `m1C`, y el `owner` `unsigned int` de
+  `atn::EffectManager`/`EffectSystem` (pide `uintptr_t` o `void*` en toda la familia, ~50 unidades).
+- Vistas locales de globales que quedan (`/home/claude/scratch/gviews.py` en la sesion; ~70): `MpSession_unk` de
+  lbl_8087F610 (20, MP), `RenderSetting_unk` de Dialog/CosEditBase/EnemyJill/Em302Kraken/NewCampPartsGmk (copias de structs
+  enteros), tablas de texto de lbl_8087F1E4 que leen pares con cast (9), `TacView_unk` de ControlCharge (constructor propio
+  del cursor), `CrossbowPlayer_unk` (0xAA4/0xAAC de CharaTask sin documentar), GameUI de MenuCommonTask (`m288C` como
+  `float[4]`) y de Em308InvertCrab (pila de vf10 con `GameUIElem1C_unk`).
+- Firmas: `tools/decomp/sigcheck.py` lista 77 funciones con declaraciones distintas; las que quedan cambian codigo al
+  unificarlas (ver `docs/secuencial-20261119-sigcheck.txt`).
+
+## Siguiente (decomp)
+
+- A una funcion de enlazar (bloqueos de registros): EnvSeManager vf14, Em204MulueMp fn_802B55B0, ControlChaseCaught Follow
+  vf0C, PostFxMotionBlur vf10, Em309GhoulSimple, Em209SmallGolem, Em303KrakenFootMp, CannonLift, ShaderManager, las LH_*.
+- GameEventScript: familia `SetNext_unk` (21 comandos, r0/r4 cruzados; 10 variantes probadas en esta sesion sin exito).
+- Patron `m97C.Set_unk` (~20 funciones de enemigos).
+
+## Herramientas
+
+- Re-emparejar `@N` tras cambios de tipos o cabeceras: `MAINREF=<build limpio de main> python3 tools/decomp/refmap.py <unidades>`
+  (dos pasadas; las unidades sin `.o` en la referencia, a mano por direccion, como gmk/Trap). Despues restaurar `@STRING@` y las
+  etiquetas vigiladas, `configure` y `labelcheck.py`.
+- Cualquier inline nueva, parametro con nombre o declaracion adelantada en una cabecera muy incluida (`GameUI.h`,
+  `RenderSetting_unk.h`, `ChaseManager.h`, `GameTask.h`) renumera los `@N` de todas sus unidades; una `static inline` del
+  propio .cpp no (truco de Layer2DBlur/TownTpcLoader).

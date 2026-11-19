@@ -1,3 +1,5 @@
+#include "atn/EffectManager.h"
+#include "game/GameConfig_unk.h"
 #include "gmk/SwingObject.h"
 #include "game/GameTask.h"
 #include "atn/Csv.h"
@@ -21,13 +23,13 @@ extern "C" char lbl_8087D710[2]; // inferred: " " (field separators of the tab C
 extern "C" float fn_800DC288(const char* s); // inferred: string to float
 extern "C" unsigned int fn_800DC6B4(const char* s); // inferred: hash of a name (as atn/MapModelCache_unk.h)
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
-extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, int arg6,
-                            int arg7);
-extern "C" void fn_80087E9C(void* group, const char* name, atn::Vector3* value, int arg3, int arg4, float min,
-                            float max, float step);
-extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3, int arg4);
-extern "C" void fn_8008771C(void* group, const char* name, float* value, int arg3, int arg4, float min, float max,
-                            float step);
+extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, void* func,
+                            void* arg);
+extern "C" void fn_80087E9C(void* group, const char* name, atn::Vector3* value, float min, float max, float step,
+                            void* func, void* arg);
+extern "C" void fn_80087994(void* group, const char* name, int* value, void* func, void* arg);
+extern "C" void fn_8008771C(void* group, const char* name, float* value, float min, float max, float step, void* func,
+                            void* arg);
 
 // inferred: node callback of a model (as in game/CharaTask.cpp)
 typedef boost::function<void(atn::Matrix3x4*, const atn::NodeChunk&, const atn::ModelNodeCallbackContext&),
@@ -35,27 +37,18 @@ typedef boost::function<void(atn::Matrix3x4*, const atn::NodeChunk&, const atn::
     NodeCallback_unk;
 extern "C" void fn_800F29D0(atn::Model* model, NodeCallback_unk callback);
 
-// inferred: effect manager (class unknown), global instance at 0x8087F3C0
-struct EffectMgr_unk {
-    unsigned char m00[0xB8];
-    int mB8;
-};
 struct Color4f_unk {
     Color4f_unk() {}
     float r, g, b, a;
 };
-extern "C" EffectMgr_unk* lbl_8087F3C0;
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, void* owner,
+extern "C" atn::EffectManager* lbl_8087F3C0;
+extern "C" void fn_8023A8B4(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Model* model, void* owner,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
 extern "C" void fn_80232B7C(void* owner, int arg);
-// inferred: game settings
-struct Settings_unk {
-    unsigned char m00[0x18];
-    int m18;
-};
-extern "C" Settings_unk* lbl_8087F0A8;
-extern "C" void* lbl_8087F430; // inferred: field
+extern "C" GameConfig_unk* lbl_8087F0A8;
+class GameTask;
+extern "C" GameTask* lbl_8087F430; // inferred: field
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 // inferred: node chunk passed to the node callback (only the hash is read)
 
@@ -132,7 +125,7 @@ static void LoadSwing_unk(const char* data, int size, gmk::SwingParam_unk* param
 
 // inferred: not inline: MWCC inlines it into vf0C and the linker removes its own copy; compiled here, its
 // 0.0f and 1.0f are the first constants of the .sdata2 of the unit, as in the original (name invented)
-void PlayEfp_unk(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model) {
+void PlayEfp_unk(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Model* model) {
     atn::Vector3 pos;
     atn::Vector3 rot;
     Color4f_unk color;
@@ -323,9 +316,9 @@ int SwingObject::vf0C() {
         }
         if ((m58 & 2) != 2) {
             fn_80232B7C(this, 1);
-            lbl_8087F3C0->mB8 = 1;
+            lbl_8087F3C0->mSystem.mLayer = 1;
             PlayEfp_unk(lbl_8087F3C0, &mEfp, mModel.GetModel_unk());
-            lbl_8087F3C0->mB8 = 0;
+            lbl_8087F3C0->mSystem.mLayer = 0;
         }
         m54 = 1;
         mCore.mCur = &mCore.mParams[0];
@@ -392,7 +385,7 @@ void SwingObject::fn_803FEF78(atn::Matrix3x4* mtx, const atn::NodeChunk& node) {
 }
 
 void SwingObject::vf14() {
-    if (lbl_8087F0A8->m18 != 0) {
+    if (lbl_8087F0A8->mDrawMap != 0) {
         fn_803ED610(mModel.GetModel_unk());
     }
 }
@@ -427,22 +420,22 @@ void SwingObject::vf6C(void* menu) {
     SwingParam_unk* param;
     void* group = MenuGroup_unk(this, menu, name);
     fn_800874C8(group, "state", &m54, 0, 9999, 1, 0, 0);
-    fn_80087E9C(group, "pos", &m6C, 0, 0, -9999.0f, 9999.0f, 0.25f);
+    fn_80087E9C(group, "pos", &m6C, -9999.0f, 9999.0f, 0.25f, 0, 0);
     fn_80087994(group, "isShow", &m9C, 0, 0);
     param = mCore.mParams;
     for (int i = 0; i < 2; i++) {
         char text[0x100];
         sprintf(text, "Param%d\0", i + 1);
         void* sub = fn_8008937C(group, text);
-        fn_8008771C(sub, "wind_power", &param->mWindPower, 0, 0, 0.0f, 100.0f, 1.0f);
-        fn_8008771C(sub, "wind_vec", &param->mWindVec, 0, 0, -1.0f, 1.0f, 1.0f);
-        fn_8008771C(sub, "degree_min", &param->mDegMin, 0, 0, 0.0f, 90.0f, 1.0f);
-        fn_8008771C(sub, "degree_max", &param->mDegMax, 0, 0, 0.0f, 90.0f, 1.0f);
-        fn_8008771C(sub, "middle/bottom (%)", &param->mMiddle, 0, 0, 0.0f, 100.0f, 1.0f);
-        fn_8008771C(sub, "node_time_lag", &param->mLag, 0, 0, 0.0f, 99.0f, 1.0f);
-        fn_8008771C(sub, "time_speed", &param->mSpeed, 0, 0, 0.0f, 99.0f, 1.0f);
-        fn_8008771C(sub, "twist_power", &param->mTwist, 0, 0, 0.0f, 99.0f, 0.1f);
-        fn_8008771C(sub, "wind_power_rand", &param->mWindRand, 0, 0, 0.0f, 100.0f, 1.0f);
+        fn_8008771C(sub, "wind_power", &param->mWindPower, 0.0f, 100.0f, 1.0f, 0, 0);
+        fn_8008771C(sub, "wind_vec", &param->mWindVec, -1.0f, 1.0f, 1.0f, 0, 0);
+        fn_8008771C(sub, "degree_min", &param->mDegMin, 0.0f, 90.0f, 1.0f, 0, 0);
+        fn_8008771C(sub, "degree_max", &param->mDegMax, 0.0f, 90.0f, 1.0f, 0, 0);
+        fn_8008771C(sub, "middle/bottom (%)", &param->mMiddle, 0.0f, 100.0f, 1.0f, 0, 0);
+        fn_8008771C(sub, "node_time_lag", &param->mLag, 0.0f, 99.0f, 1.0f, 0, 0);
+        fn_8008771C(sub, "time_speed", &param->mSpeed, 0.0f, 99.0f, 1.0f, 0, 0);
+        fn_8008771C(sub, "twist_power", &param->mTwist, 0.0f, 99.0f, 0.1f, 0, 0);
+        fn_8008771C(sub, "wind_power_rand", &param->mWindRand, 0.0f, 100.0f, 1.0f, 0, 0);
         param++;
     }
     fn_800874C8(group, "axis1", &mCore.mAxis1, 0, 5, 1, 0, 0);
@@ -491,7 +484,7 @@ SwingPart_unk::SwingPart_unk(int id, void* arg, SwingPartPos_unk* pos, unsigned 
 
 // inferred: plays the effect of a swinging map part (the manager is evaluated first, as in the
 // original; name invented)
-inline void PlayPartEfp_unk(EffectMgr_unk* mgr, atn::EfpFile* efp, void* owner) {
+inline void PlayPartEfp_unk(atn::EffectManager* mgr, atn::EfpFile* efp, void* owner) {
     Color4f_unk color;
     color.r = 1.0f;
     color.g = 1.0f;
@@ -550,9 +543,9 @@ int SwingPart_unk::fn_803FFF40() {
         }
         if ((m134 & 2) != 2) {
             fn_80232B7C(this, 1);
-            lbl_8087F3C0->mB8 = 1;
+            lbl_8087F3C0->mSystem.mLayer = 1;
             PlayPartEfp_unk(lbl_8087F3C0, &mEfp, this);
-            lbl_8087F3C0->mB8 = 0;
+            lbl_8087F3C0->mSystem.mLayer = 0;
         }
         mCore.mCur = &mCore.mParams[0];
         UpdateSwing_unk(&mCore);
@@ -578,7 +571,7 @@ void SwingPart_unk::fn_804003E0() {
 
 // inferred: draw of a swinging map part (called by MapPartsGimmickLoc::vf14)
 void SwingPart_unk::fn_804006E0() {
-    if (lbl_8087F0A8->m18 != 0) {
+    if (lbl_8087F0A8->mDrawMap != 0) {
         mInst.fn_8009E6EC(0);
     }
 }

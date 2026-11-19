@@ -42,14 +42,15 @@ extern "C" char* strncpy(char* dst, const char* src, unsigned long n);
 extern "C" void* memset(void* dst, int c, unsigned long n);
 extern "C" int rand();
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
-extern "C" void* lbl_8087EE98; // inferred: collision world
+struct ColliManager_unk;
+extern "C" ColliManager_unk* lbl_8087EE98; // inferred: collision world
 extern "C" int fn_8004ED34(void* world, void* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg7); // inferred: ray test
 extern "C" double sin(double x);
 extern "C" double cos(double x);
 extern "C" void fn_80016888(void* arg);
 extern "C" void* lbl_8087EE68;
-struct Field_unk;
+struct GameTask;
 extern "C" int fn_80435CBC(GimmickCommon* item); // inferred: gmk::RandomItem (game/RandomItem.cpp)
 extern "C" int fn_8043A530(GimmickCommon* item); // inferred: gmk::WindyItem (gmk/WindyItem.cpp)
 extern "C" gmk::TreasureBox::Data_unk* fn_8021ECD0(int id); // inferred: treasure data
@@ -93,30 +94,11 @@ extern "C" SaveEntry_unk* fn_803BA0CC(void* save, int type, int id); // inferred
 #include "game/ErrorManager.h"
 
 #include "game/GameConfig_unk.h"
+#include "atn/SoundManager.h"
 extern "C" GameConfig_unk* lbl_8087F0A8;
 
 
-// inferred: field (lbl_8087F430, as in game/CharaTask.cpp); only the members used here
-struct Field_unk {
-    unsigned char m0000[0x10D0];
-    int m10D0;
-    unsigned char m10D4[0x54E4 - 0x10D4];
-    int m54E4; // inferred: mode (8: no BGM boxes)
-    unsigned char m54E8[0x54F4 - 0x54E8];
-    GameMessageList m54F4; // inferred: common message table (fn_803B3B38)
-    unsigned char m550C[0x5514 - 0x550C];
-    int m5514;
-    int m5518;
-    int m551C;
-    unsigned char m5520[0x5538 - 0x5520];
-    int m5538;
-    unsigned char m553C[0x5664 - 0x553C];
-    int m5664;
-    unsigned char m5668[0x5694 - 0x5668];
-    int m5694; // inferred: night
-
-};
-extern "C" Field_unk* lbl_8087F430;
+extern "C" GameTask* lbl_8087F430;
 
 
 extern "C" void* lbl_8087F610; // inferred: multiplayer session
@@ -126,11 +108,7 @@ extern "C" TownTask* lbl_8087FA20;
 extern "C" ArenaTask* lbl_8087EE78;
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
 extern "C" PlayerManager* lbl_8087F8A0;
-struct SoundManager_unk {
-    unsigned char m0000[0x2984];
-    atn::Sound3dListener m2984;
-};
-extern "C" SoundManager_unk* lbl_8087EFE8;
+extern "C" atn::SoundManager* lbl_8087EFE8;
 
 // inferred: paths of the scene script and of the message table of a map (inline: "li r0, 1" before the
 // test; names invented)
@@ -276,8 +254,8 @@ GameScene::~GameScene() {
         lbl_8087F418->fn_8035E858();
     }
     int stop = 1;
-    if ((mFlags & 2) == 2 && m144 != 0 && lbl_8087F430 != 0 && lbl_8087F430->m5538 != 0) {
-        MapId_unk* next = fn_8021771C(lbl_8087F430->m5514, lbl_8087F430->m5518, lbl_8087F430->m551C);
+    if ((mFlags & 2) == 2 && m144 != 0 && lbl_8087F430 != 0 && lbl_8087F430->m550C.mState != 0) {
+        MapId_unk* next = fn_8021771C(lbl_8087F430->m550C.mType, lbl_8087F430->m550C.mId, lbl_8087F430->m550C.mSub);
         if (next != 0 && next->mType != 1 && strcmp(m144->m68, next->m68) == 0) {
             stop = 0;
         }
@@ -287,8 +265,8 @@ GameScene::~GameScene() {
     }
     fn_800C31EC();
     if (SongManager::sInstance != 0) {
-        if (lbl_8087F430->m5538 == 0 ||
-            !SongManager::fn_805A2404(lbl_8087F430->m5514, lbl_8087F430->m5518, lbl_8087F430->m551C)) {
+        if (lbl_8087F430->m550C.mState == 0 ||
+            !SongManager::fn_805A2404(lbl_8087F430->m550C.mType, lbl_8087F430->m550C.mId, lbl_8087F430->m550C.mSub)) {
             fn_800D2338(SongManager::sInstance);
         }
     }
@@ -365,7 +343,7 @@ int GameScene::vf0C() {
             atn::Vector3 listener = pos;
             atn::Vector3 dir = rot;
             listener.y += 1.0f;
-            lbl_8087EFE8->m2984.fn_800C7F08(listener, dir);
+            lbl_8087EFE8->mListener.fn_800C7F08(listener, dir);
             if (lbl_8087FA20 != 0) {
                 m998[5].fn_80470528();
             }
@@ -576,10 +554,10 @@ void GameScene::fn_803C0F48(int warp) {
     if (lbl_8087F430 != 0) {
         lbl_8087F430->m5664 = 1;
         int on = 0;
-        if (((GameTask*)lbl_8087F430)->fn_803761BC() && ((GameTask*)lbl_8087F430)->fn_80375184()) {
+        if (lbl_8087F430->fn_803761BC() && lbl_8087F430->fn_80375184()) {
             on = 1;
         }
-        ((GameTask*)lbl_8087F430)->fn_80376194(on);
+        lbl_8087F430->fn_80376194(on);
     }
     fn_803CAABC();
 }
@@ -780,9 +758,9 @@ inline int CheckFlag_unk(const int* cond) {
     if (cond[0] != 0) {
         int v;
         if (cond[1] == 1) {
-            v = ((GameTask*)lbl_8087F430)->fn_80370174(cond[2]);
+            v = lbl_8087F430->fn_80370174(cond[2]);
         } else {
-            v = ((GameTask*)lbl_8087F430)->fn_80370A78(cond[2]);
+            v = lbl_8087F430->fn_80370A78(cond[2]);
         }
         ok = v == cond[3];
     }
@@ -2106,7 +2084,7 @@ void GameScene::fn_803CA604() {
     if (lbl_8087F430 != 0) {
         if (lbl_8087F430->m5694 != 0) {
             reset = 1;
-            int maps = ((GameTask*)lbl_8087F430)->fn_80370174(0x392);
+            int maps = lbl_8087F430->fn_80370174(0x392);
             int map = m64->mSubId;
             for (int i = 0; i < 8; i++) {
                 if (map == (maps & 0xF)) {
@@ -2116,10 +2094,10 @@ void GameScene::fn_803CA604() {
                 maps >>= 4;
             }
             if (reset) {
-                ((GameTask*)lbl_8087F430)->fn_80370320(0x392, (((GameTask*)lbl_8087F430)->fn_80370174(0x392) << 4) | (map & 0xF), 1);
+                lbl_8087F430->fn_80370320(0x392, (lbl_8087F430->fn_80370174(0x392) << 4) | (map & 0xF), 1);
             }
         } else {
-            ((GameTask*)lbl_8087F430)->fn_80370320(0x392, 0, 1);
+            lbl_8087F430->fn_80370320(0x392, 0, 1);
         }
     }
     int n = 0;
@@ -2167,7 +2145,7 @@ void GameScene::fn_803CA604() {
         box.mSize = size;
         box.m40 = 0;
         if (type % 1000 == 1 && reset && data != 0 && lbl_8087F430 != 0) {
-            ((GameTask*)lbl_8087F430)->fn_80370320(data->mFlag, 0, 1);
+            lbl_8087F430->fn_80370320(data->mFlag, 0, 1);
         }
     }
 }
@@ -2692,7 +2670,7 @@ void* GameScene::fn_803CC6B4(int id) {
     if (id < 10000) {
         return m11C.fn_803B3B38(id);
     }
-    return lbl_8087F430->m54F4.fn_803B3B38(id);
+    return lbl_8087F430->mMessages.fn_803B3B38(id);
 }
 
 gs::ConstrainModel* GameScene::fn_803CC6D0(int id) {
@@ -2744,7 +2722,7 @@ int GameScene::fn_803CC77C() const {
             n += fn_8043A530(g);
         }
     }
-    if (lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->fn_80370174(0xA1E) > 0) {
+    if (lbl_8087F430 != 0 && lbl_8087F430->fn_80370174(0xA1E) > 0) {
         n = 0;
     }
     return n;
@@ -2763,7 +2741,7 @@ int GameScene::fn_803CC900() const {
             }
         }
     }
-    if (lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->fn_80370174(0xA1E) > 0) {
+    if (lbl_8087F430 != 0 && lbl_8087F430->fn_80370174(0xA1E) > 0) {
         n = 0;
     }
     return n;

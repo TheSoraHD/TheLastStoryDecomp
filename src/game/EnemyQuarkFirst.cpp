@@ -1,3 +1,4 @@
+#include "atn/RenderSetting_unk.h"
 #include "math/VecAssign_unk.h"
 #include "game/SkillEffectManager.h"
 #include "game/GameVoice.h"
@@ -88,15 +89,16 @@ extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
 // inferred: skill effect manager (lbl_8087F9E8); fn_8059C2A8 shows the skill of a character
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 // inferred: collision world and its ray test (see game/ChaserNpc.cpp)
-extern "C" void* lbl_8087EE98;
+struct ColliManager_unk;
+extern "C" ColliManager_unk* lbl_8087EE98;
 extern "C" int fn_8004ED34(void* colli, atn::ColliResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg7);
 // inferred: debug menu entries (as in game/Em315Coffin.cpp)
-extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3, int arg4);
-extern "C" void fn_800874C8(void* group, const char* name, int* value, int min, int max, int step, int arg6,
-                            int arg7);
-extern "C" void fn_8008771C(void* group, const char* name, float* value, float min, float max, float step,
-                            int arg6, int arg7);
+extern "C" void fn_80087994(void* group, const char* name, int* value, void* func, void* arg);
+extern "C" void fn_800874C8(void* group, const char* name, int* value, int min, int max, int step, void* func,
+                            void* arg);
+extern "C" void fn_8008771C(void* group, const char* name, float* value, float min, float max, float step, void* func,
+                            void* arg);
 
 EnemyQuarkFirst::EnemyQuarkFirst(atn::Task* parent, EnemyInfo_unk* info)
     : SpecialEnemyBase(parent, info), m14D4(0), m14D8(2), m14DC(1), m14E0(300.0f), m14E8(60.0f), m1504(40),
@@ -332,15 +334,12 @@ void EnemyQuarkFirst::vfFC() {
 
 extern "C" int rand();
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
-// inferred: game state (lbl_8087EFA8): time scale at 0x3A4 (as in game/Em301LShade.cpp)
-struct QuarkGame_unk {
-    unsigned char m000[0x3A4];
-    float m3A4;
-};
-extern "C" QuarkGame_unk* lbl_8087EFA8;
-struct EffectMgr_unk;
-extern "C" EffectMgr_unk* lbl_8087F3C0;
-extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
+extern "C" RenderSetting_unk* lbl_8087EFA8;
+namespace atn {
+class EffectManager;
+}
+extern "C" atn::EffectManager* lbl_8087F3C0;
+extern "C" void fn_80239DAC(atn::EffectManager* mgr, void* owner, int id, int arg); // inferred: stops an effect
 
 // inferred: hit parameters (lbl_807C6B90, as in game/Em302KrakenMp.cpp); only the default is used
 struct HitParam_unk {
@@ -366,7 +365,7 @@ struct Color4f_unk {
     Color4f_unk() {}
     float r, g, b, a;
 };
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
+extern "C" void fn_8023A8B4(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Model* model, void* node,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
 extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the next effects
@@ -680,7 +679,7 @@ void EnemyQuarkFirst::vf104() {
     }
 }
 
-extern "C" void fn_8023A108(EffectMgr_unk* mgr, atn::EfpFile* efp, int id, int arg); // inferred: effect fade
+extern "C" void fn_8023A108(atn::EffectManager* mgr, atn::EfpFile* efp, int id, int arg); // inferred: effect fade
 extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float volume); // inferred: plays a sound
 
 // inferred: the counter attack reaches m14E4 (name invented)

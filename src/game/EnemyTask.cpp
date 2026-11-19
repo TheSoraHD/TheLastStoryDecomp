@@ -1,3 +1,4 @@
+#include "game/GameConfig_unk.h"
 #include "game/EnemyTask.h"
 #include "atn/Memory.h"
 #include "game/EnemyManager.h"
@@ -11,12 +12,7 @@ extern "C" EnemyTask* fn_805A5374(atn::Task* parent, EnemyInfo_unk* info); // in
 extern "C" GimmickCommon* fn_803EC16C(atn::Task* parent, int item, int index); // inferred: creates a gimmick
 extern "C" void* lbl_8087F610; // inferred: multiplayer session
 
-// inferred: game settings (lbl_8087F0A8), only the field read here
-struct EnemySettings_unk {
-    unsigned char m000[0x330];
-    int m330; // inferred: debug switch that always offers the finishing move
-};
-extern "C" EnemySettings_unk* lbl_8087F0A8;
+extern "C" GameConfig_unk* lbl_8087F0A8;
 
 extern "C" HitInfo_unk* fn_80219E6C(int id); // inferred: bullet/skill data by id
 extern "C" char lbl_807C6B90[0x18];          // inferred: work area of the damage computation

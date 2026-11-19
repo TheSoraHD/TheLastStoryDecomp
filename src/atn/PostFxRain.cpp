@@ -1,5 +1,6 @@
 // atn/PostFxRain.cpp: rain post effect (drops on the lens drawn into an indirect texture that warps the
 // frame, plus scrolling heat waves).
+#include "atn/RenderSetting_unk.h"
 #include "atn/PostFx.h"
 #include "atn/Texture_unk.h"
 #include "math/Vec.h"
@@ -18,14 +19,7 @@ extern "C" void GXSetIndTexMtx(int id, const float offset[2][3], signed char sca
 extern "C" void GXSetTevAlphaIn(int stage, int a, int b, int c, int d);
 extern "C" void GXSetTevAlphaOp(int stage, int op, int bias, int scale, unsigned char clamp, int outReg);
 
-// inferred: drop settings: RainParam_unk (lbl_8087EFA8 + 0x2AC, or the one of the scene); heat wave
-// settings: HazeParam_unk (lbl_8087EFA8 + 0x2BC, or the one of the scene)
-struct RainParams_unk {
-    unsigned char m00[0x2AC];
-    RainParam_unk m2AC;
-    HazeParam_unk m2BC;
-};
-extern "C" RainParams_unk* lbl_8087EFA8;
+extern "C" RenderSetting_unk* lbl_8087EFA8;
 
 
 

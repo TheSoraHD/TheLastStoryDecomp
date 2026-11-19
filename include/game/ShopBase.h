@@ -3,31 +3,17 @@
 
 #include "atn/Task.h"
 #include "atn/D2A_TaskInstanceC.h"
+#include "atn/D2A_Task.h"
 #include "atn/LH_Binary.h"
 #include "std/vector.h"
 #include "atn/ResRef_unk.h"
 #include "game/ResHandle.h"
 #include <string.h>
 
-// inferred: d2anime task (made by fn_801F3FF8); only the members used by the shops
-struct ShopD2A_unk : public atn::Task {
-    // inferred: as MenuD2A_unk::IsEnd_unk (name invented)
-    bool IsEnd_unk() {
-        float last = mLastFrame;
-        return mFrame >= last;
-    }
-    unsigned char m48[0x58 - 0x48];
-    unsigned char mLayout[0xA0 - 0x58]; // 0x58: inferred: layout
-    float mLastFrame;                   // 0xA0
-    unsigned char mA4[0xFC - 0xA4];
-    unsigned int mLoop : 1;             // 0xFC (as atn::D2A_Task)
-    unsigned int mVisible : 1;
-    unsigned int mPlaying : 1;
-    unsigned int mRepeat : 1;
-    unsigned int mFC_rest : 28;
-    float mFrame; // 0x100
-    float mSpeed; // 0x104
-};
+// inferred: d2anime task (made by fn_801F3FF8)
+typedef atn::D2A_Task ShopD2A_unk;
+// inferred: rectangle of a d2anime pane
+typedef atn::D2A_DrawRect ShopPoint_unk;
 // inferred: layout anime task of the shops (made by D2A_TaskInstanceBase<32, 8>::Create)
 typedef D2A_TaskInstance32_unk ShopLayout_unk;
 

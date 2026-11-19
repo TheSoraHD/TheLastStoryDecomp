@@ -1,3 +1,5 @@
+#include "atn/RenderSetting_unk.h"
+#include "db/ChapterList_unk.h"
 #include "game/CharaStatus.h"
 #include "game/AiTarget.h"
 #include "game/GameTask.h"
@@ -12,53 +14,11 @@
 #include "chr/CharaEquip_unk.h"
 #include "game/BattleTask.h"
 #include "game/DamageResult_unk.h"
+#include "game/GameConfig_unk.h"
 
-// inferred: input state embedded at +0x48C of the object behind lbl_8087F0A8 (class unknown)
-struct Input_unk {
-    int fn_8012476C(int button); // inferred: nonzero when `button` was pressed
-};
+extern "C" GameConfig_unk* lbl_8087F0A8;
 
-// inferred: game settings (lbl_8087F0A8); per-difficulty table of status factors at 0xD8
-struct StatusRate_unk {
-    float m00;
-    int m04;
-    float m08;
-    int m0C;
-    float m10;
-    int m14;
-    float m18;
-    int m1C;
-};
-struct Settings_unk {
-    unsigned char m00[0xD4];
-    int mD4; // inferred: index into mD8 (difficulty?)
-    StatusRate_unk mD8[4];
-    unsigned char m158[0x194 - 0x158];
-    int m194;
-    unsigned char m198[0x284 - 0x198];
-    int m284;
-    unsigned char m288[0x2CC - 0x288];
-    int m2CC;
-    unsigned char m2D0[0x48C - 0x2D0];
-    Input_unk mInput; // 0x48C
-    unsigned char m48D[0x5A0 - 0x48D];
-    int m5A0;
-};
-extern "C" Settings_unk* lbl_8087F0A8;
-
-// inferred: field data (lbl_8087F430); names invented
-struct FieldInfo_unk {
-    unsigned char m00[0x54];
-    int m54;
-    int m58; // inferred: level of the field
-};
-struct StatusField_unk {
-    unsigned char m00[0x10D4];
-    FieldInfo_unk* m10D4;
-    unsigned char m10D8[0x5694 - 0x10D8];
-    int m5694;
-};
-extern "C" StatusField_unk* lbl_8087F430;
+extern "C" GameTask* lbl_8087F430;
 extern "C" float fn_800A6BDC(void* tree); // inferred: evaluates an atn::ParseTree
 
 // inferred: formula of one variable (an atn::ParseTree and the value of its variable); names
@@ -93,7 +53,7 @@ extern "C" float fn_80040588(void* obj, CharaStatus* status, int arg);
 extern "C" int fn_80219558(int kind);
 extern "C" PlayerParam_unk* fn_80219160(int kind, int level); // db/PlayerParam_unk.cpp
 extern "C" int fn_8021AF98(int slot);
-extern "C" int fn_8021AFF4(int slot);
+extern "C" HitInfo_unk* fn_8021AFF4(int slot);
 
 // inferred: name invented
 inline int SumRefs_unk(FixedArray_unk<CharaStatusRef_unk, 8>& refs, int id) {
@@ -188,22 +148,22 @@ void CharaStatus::fn_8012B3E8() {
     chr::CharaData_unk* data = mChara->m5C;
     mParamA = data->mParam;
     mParamA.m9C |= mChara->mC10;
-    FieldInfo_unk* info = lbl_8087F430 != 0 ? lbl_8087F430->m10D4 : 0;
+    ChapterEntry_unk* info = lbl_8087F430 != 0 ? lbl_8087F430->m10D4 : 0;
     int bonus = 0;
     int extra = 0;
     if (lbl_8087F0A8->m284 != 0 && mChara->mType == 2 && info != 0 && fn_8020FCE8(mChara->m5C->mC8)) {
         if (mChara->mFlag22 == 1 || (mChara->m5C->mParam.m9C & 0x20000) == 0x20000) {
-            bonus = (int)((float)info->m58 * lbl_8087F0A8->mD8[lbl_8087F0A8->mD4].m08 + 0.2f);
-            bonus += lbl_8087F0A8->mD8[lbl_8087F0A8->mD4].m0C;
+            bonus = (int)((float)info->m58 * lbl_8087F0A8->mDifficulty[lbl_8087F0A8->mCurrentLevel].mLevelMulBoss + 0.2f);
+            bonus += lbl_8087F0A8->mDifficulty[lbl_8087F0A8->mCurrentLevel].mLevelAddBoss;
             extra = MAX(0, (bonus - 70) * 20 + 1000);
         } else {
-            bonus = (int)((float)info->m58 * lbl_8087F0A8->mD8[lbl_8087F0A8->mD4].m00 + 0.2f);
-            bonus += lbl_8087F0A8->mD8[lbl_8087F0A8->mD4].m04;
+            bonus = (int)((float)info->m58 * lbl_8087F0A8->mDifficulty[lbl_8087F0A8->mCurrentLevel].mLevelMul + 0.2f);
+            bonus += lbl_8087F0A8->mDifficulty[lbl_8087F0A8->mCurrentLevel].mLevelAdd;
             bonus = MIN(bonus, MAX(info->m58, 60));
         }
     }
     if (lbl_8087F430 != 0 && mChara->mType == 2) {
-        bonus += ((GameTask*)lbl_8087F430)->fn_80375B78(1);
+        bonus += lbl_8087F430->fn_80375B78(1);
     }
     fn_8012C6D4(&mParamA, (int)m1A8.m08 + (bonus + mParamA.m78), m1C - ((m0C & 0x400) ? 3 : 0),
                 mChara->m5C->mC8);
@@ -214,12 +174,12 @@ void CharaStatus::fn_8012B3E8() {
     mParamA.m0C += m1A8.m1C;
     mParamA.m94 += m1A8.m20;
     if (lbl_8087F0A8->m284 != 0 && mChara->mType == 2 && info != 0 && !fn_8020FCE8(mChara->m5C->mC8)) {
-        mParamA.m84 = (int)((float)mParamA.m84 * lbl_8087F0A8->mD8[lbl_8087F0A8->mD4].m10 + 0.2f);
-        mParamA.m84 += lbl_8087F0A8->mD8[lbl_8087F0A8->mD4].m14;
-        mParamA.m00 *= lbl_8087F0A8->mD8[lbl_8087F0A8->mD4].m18;
-        mParamA.m00 += lbl_8087F0A8->mD8[lbl_8087F0A8->mD4].m1C;
-        mParamA.m04 *= lbl_8087F0A8->mD8[lbl_8087F0A8->mD4].m18;
-        mParamA.m04 += lbl_8087F0A8->mD8[lbl_8087F0A8->mD4].m1C;
+        mParamA.m84 = (int)((float)mParamA.m84 * lbl_8087F0A8->mDifficulty[lbl_8087F0A8->mCurrentLevel].mHPMul + 0.2f);
+        mParamA.m84 += lbl_8087F0A8->mDifficulty[lbl_8087F0A8->mCurrentLevel].mHPAdd;
+        mParamA.m00 *= lbl_8087F0A8->mDifficulty[lbl_8087F0A8->mCurrentLevel].mAttack;
+        mParamA.m00 += lbl_8087F0A8->mDifficulty[lbl_8087F0A8->mCurrentLevel].mAttackAdd;
+        mParamA.m04 *= lbl_8087F0A8->mDifficulty[lbl_8087F0A8->mCurrentLevel].mAttack;
+        mParamA.m04 += lbl_8087F0A8->mDifficulty[lbl_8087F0A8->mCurrentLevel].mAttackAdd;
     }
     fn_8012D180();
 }
@@ -232,9 +192,9 @@ void CharaStatus::fn_8012B988() {
     }
     mParamB = mParamA;
     mParamB.m78 = MAX(1, mParamB.m78 + m1C - ((m0C & 0x400) == 0x400 ? 3 : 0));
-    if (mChara->mType == 2 && (lbl_8087F0A8->m5A0 == 2 || !fn_8020FCE8(mChara->m5C->mC8)) &&
+    if (mChara->mType == 2 && (lbl_8087F0A8->mTitle.mEasyModeType == 2 || !fn_8020FCE8(mChara->m5C->mC8)) &&
         lbl_8087F430 != 0) {
-        int n = ((GameTask*)lbl_8087F430)->fn_80370174(282);
+        int n = lbl_8087F430->fn_80370174(282);
         if (n > 0) {
             float rate = MAX(0.1f, 1.0f - 0.2f * n);
             mParamB.m00 *= rate;
@@ -322,7 +282,7 @@ void CharaStatus::fn_8012C6D4(CharaParam_unk* param, int level, int arg, int id)
         total = MIN(99, MAX(1, level + arg));
     }
     if (lbl_8087F610 == 0 && mChara != 0 && mChara->mType == 2) {
-        if (lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->fn_80370174(283) == 0) {
+        if (lbl_8087F430 != 0 && lbl_8087F430->fn_80370174(283) == 0) {
             param->m78 = MIN(69, MAX(1, level));
             total = MIN(69, MAX(1, level + arg));
         } else {
@@ -339,7 +299,7 @@ void CharaStatus::fn_8012C6D4(CharaParam_unk* param, int level, int arg, int id)
         if (mChara != 0 && mChara->mType == 2) {
             cap = 120;
         }
-        if (lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->fn_80370174(283) > 0) {
+        if (lbl_8087F430 != 0 && lbl_8087F430->fn_80370174(283) > 0) {
             cap = 120;
         }
         int over = MAX(0, total - cap);
@@ -393,41 +353,41 @@ void CharaStatus::fn_8012CE4C(int kind) {
             case 10:
             case 13:
                 if (kind == 2) {
-                    if (((GameTask*)lbl_8087F430)->fn_80370174(283) == 0) {
+                    if (lbl_8087F430->fn_80370174(283) == 0) {
                         allowed = false;
                     }
-                } else if (((GameTask*)lbl_8087F430)->fn_80370174(5) > 0) {
+                } else if (lbl_8087F430->fn_80370174(5) > 0) {
                     allowed = false;
                 }
                 break;
             case 9:
-                if (((GameTask*)lbl_8087F430)->fn_80370174(136) > 0) {
+                if (lbl_8087F430->fn_80370174(136) > 0) {
                     allowed = false;
                 }
                 break;
             case 61:
                 if (kind == 2) {
-                    if (((GameTask*)lbl_8087F430)->fn_80370174(283) == 0) {
+                    if (lbl_8087F430->fn_80370174(283) == 0) {
                         allowed = false;
                     }
-                } else if (((GameTask*)lbl_8087F430)->fn_80370174(286) > 0) {
+                } else if (lbl_8087F430->fn_80370174(286) > 0) {
                     allowed = false;
                 }
                 break;
             case 62:
             case 63:
-                if (kind == 2 && ((GameTask*)lbl_8087F430)->fn_80370174(283) == 0) {
+                if (kind == 2 && lbl_8087F430->fn_80370174(283) == 0) {
                     allowed = false;
                 }
                 break;
             case 2:
-                if (((GameTask*)lbl_8087F430)->fn_80370174(287) > 0) {
+                if (lbl_8087F430->fn_80370174(287) > 0) {
                     allowed = false;
                 }
                 break;
             case 14:
             case 16:
-                if ((kind == 2 || kind == 3) && ((GameTask*)lbl_8087F430)->fn_80370174(283) == 0 &&
+                if ((kind == 2 || kind == 3) && lbl_8087F430->fn_80370174(283) == 0 &&
                     lbl_8087F0A8->m194 == 0) {
                     allowed = false;
                 }
@@ -461,7 +421,7 @@ void CharaStatus::fn_8012D180() {
     }
     fn_8012CE4C(kind);
     int ids[6];
-    int items[6];
+    HitInfo_unk* items[6];
     int owned[6];
     for (int i = 0; i < 6; i++) {
         ids[i] = fn_8021AF98(set->mSlots[i]);
@@ -470,7 +430,7 @@ void CharaStatus::fn_8012D180() {
         if (lbl_8087EE68 != 0 && items[i] != 0) {
             ok = true;
         }
-        owned[i] = ok ? (int)lbl_8087EE68->fn_800185B4(mChara, (HitInfo_unk*)items[i]) : 0;
+        owned[i] = ok ? (int)lbl_8087EE68->fn_800185B4(mChara, items[i]) : 0;
     }
     for (int i = 0; i < 4; i++) {
         m2CC.mData[i] = CharaStatusPair_unk(0);
@@ -486,7 +446,7 @@ void CharaStatus::fn_8012D180() {
         } else {
             m2CC[0] = CharaStatusPair_unk(ids[3]);
         }
-        if (lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->fn_80370174(909) == 1) {
+        if (lbl_8087F430 != 0 && lbl_8087F430->fn_80370174(909) == 1) {
             m2CC[3] = CharaStatusPair_unk(1730);
         } else {
             m2CC[3] = CharaStatusPair_unk(ids[5]);
@@ -505,7 +465,7 @@ void CharaStatus::fn_8012D180() {
         } else {
             m2CC[0] = CharaStatusPair_unk(ids[4]);
         }
-        if (lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->fn_80370174(908) == 1) {
+        if (lbl_8087F430 != 0 && lbl_8087F430->fn_80370174(908) == 1) {
             m2CC[3] = CharaStatusPair_unk(6042);
         } else {
             m2CC[3] = CharaStatusPair_unk(ids[5]);
@@ -669,7 +629,7 @@ void CharaStatus::fn_8012DF7C(int damage, unsigned int flags, HitInfo_unk* hit) 
         }
     }
     int result = fn_8012F440(flags, power, kind2, damage, bit8, bit9, noBit21);
-    if (result != 0 && mChara != 0 && lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->fn_80375184() && lbl_8087F048 != 0) {
+    if (result != 0 && mChara != 0 && lbl_8087F430 != 0 && lbl_8087F430->fn_80375184() && lbl_8087F048 != 0) {
         if (result > 0) {
             if (mChara->mType == 2) {
                 lbl_8087F048->fn_801092C8(8, mChara, 0, 0);
@@ -734,12 +694,10 @@ int CharaStatus::fn_8012E534() {
 
 extern "C" int fn_80219344(chr::Chara_unk* chara, int arg);
 
-struct FrameTime_unk {
-    unsigned char m000[0x3A4];
-    float m3A4; // inferred: time of a frame
-    float GetTime_unk() const { return m3A4; } // inferred: accessor (name invented)
-};
-extern "C" FrameTime_unk* lbl_8087EFA8;
+extern "C" RenderSetting_unk* lbl_8087EFA8;
+inline float RenderSetting_unk::GetFrameSpeed_unk() const {
+    return m3A4;
+}
 extern "C" atn::Task* lbl_8087F9E8;
 extern "C" int fn_8021A960(HitInfo_unk* hit);
 
@@ -752,7 +710,7 @@ void CharaStatus::fn_8012E540() {
         m04 += mParamB.m84 * mParamB.m8C / 30.0f;
         if (m04 < 1.0f) {
             FixedArray_unk<CharaHit_unk, 8>& hits = mChara->m12D0;
-            int effect = 0;
+            CharaTask* effect = 0;
             for (CharaHit_unk* it = hits.begin(); it != hits.end(); it++) {
                 if (fn_8021A960(it->mHit) && it->mHit->mA0 < 0.0f && (it->mHit->mAC & 0x20) == 0x20) {
                     effect = it->m10;
@@ -874,7 +832,7 @@ void CharaStatus::fn_8012E540() {
     }
     if (lbl_8087F9E8 != 0 && (lbl_8087F9E8->mFlags & 1) != 1 && (lbl_8087F9E8->mFlags & 4) != 4 && HasTimer_unk() &&
         !(mChara->m55C == 6 && mChara->m560 == 132)) {
-        m2F4 -= lbl_8087EFA8->GetTime_unk();
+        m2F4 -= lbl_8087EFA8->GetFrameSpeed_unk();
     }
     CharaStatusRef_unk* it = mRefs.begin();
     while (it != mRefs.end()) {
@@ -888,9 +846,9 @@ void CharaStatus::fn_8012E540() {
         }
     }
     if ((m0C & 0x800) == 0x800) {
-        m434 += lbl_8087EFA8->GetTime_unk();
+        m434 += lbl_8087EFA8->GetFrameSpeed_unk();
     } else if (m430 > 0) {
-        m438 -= lbl_8087EFA8->GetTime_unk();
+        m438 -= lbl_8087EFA8->GetFrameSpeed_unk();
         if (m438 < 0.0f) {
             m430 = 0;
         }
@@ -923,7 +881,7 @@ void CharaStatus::fn_8012F034(float amount) {
 // (ours reuses the first test) and passes the new gauge value to the second one from a register
 // (frsp) instead of reloading m42C. Tried: a HasGauge_unk helper, the body in an inline helper.
 void CharaStatus::fn_8012F188(float amount) {
-    if (lbl_8087F430 != 0 && !((GameTask*)lbl_8087F430)->fn_80375184()) {
+    if (lbl_8087F430 != 0 && !lbl_8087F430->fn_80375184()) {
         return;
     }
     if (mChara == 0 || !mChara->mFlag28) {
@@ -1525,20 +1483,20 @@ int CharaStatus::fn_80133BD8(int force) const {
     if (lbl_8087F430 != 0 && lbl_8087F430->m10D4 != 0) {
         level = lbl_8087F430->m10D4->m54;
         level += mParamB.m7C;
-        level += ((GameTask*)lbl_8087F430)->fn_80375B78(1);
+        level += lbl_8087F430->fn_80375B78(1);
     }
     if (fn_8020FCE8(mChara->m5C->mC8)) {
         if (mChara->mFlag22 == 1 || (mChara->m5C->mParam.m9C & 0x20000) == 0x20000) {
-            level += lbl_8087F0A8->mD8[lbl_8087F0A8->mD4].m0C;
+            level += lbl_8087F0A8->mDifficulty[lbl_8087F0A8->mCurrentLevel].mLevelAddBoss;
         } else {
-            level += lbl_8087F0A8->mD8[lbl_8087F0A8->mD4].m04;
+            level += lbl_8087F0A8->mDifficulty[lbl_8087F0A8->mCurrentLevel].mLevelAdd;
         }
     }
     level += (int)m1A8.m08;
     if (lbl_8087F610 == 0 || force != 0) {
         const FixedLevel_unk* fixed = FindFixedLevel_unk(mChara->m50);
         if (fixed != 0) {
-            if (lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->fn_80370174(283) == 0) {
+            if (lbl_8087F430 != 0 && lbl_8087F430->fn_80370174(283) == 0) {
                 level = fixed->mLevelA;
             } else {
                 level = fixed->mLevelB;
@@ -1546,7 +1504,7 @@ int CharaStatus::fn_80133BD8(int force) const {
         }
     }
     if (lbl_8087F610 == 0 && mChara != 0 && mChara->mType == 2) {
-        if (lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->fn_80370174(283) == 0) {
+        if (lbl_8087F430 != 0 && lbl_8087F430->fn_80370174(283) == 0) {
             level = MIN(69, MAX(1, level));
         } else {
             level = MIN(999, MAX(1, level));
@@ -1711,7 +1669,7 @@ struct StatusItem_unk {
     int mB4;
     float mB8;
 };
-extern "C" int fn_8021AF50(int stat);
+extern "C" void* fn_8021AF50(int stat);
 
 void CharaStatus::fn_801342D0(const StatusItem_unk* item, int stat) {
     float value = 0.0f;
@@ -1776,8 +1734,8 @@ void CharaStatus::fn_801342D0(const StatusItem_unk* item, int stat) {
     case 11:
         if (lbl_8087F430 != 0) {
             int n = (int)value;
-            n += ((GameTask*)lbl_8087F430)->fn_80370174(218);
-            ((GameTask*)lbl_8087F430)->fn_80370320(218, MIN(n, 990), 0);
+            n += lbl_8087F430->fn_80370174(218);
+            lbl_8087F430->fn_80370320(218, MIN(n, 990), 0);
             msg = 0x1F;
         }
         break;
@@ -1790,7 +1748,7 @@ void CharaStatus::fn_801342D0(const StatusItem_unk* item, int stat) {
 
 void CharaStatus::fn_8013459C() {
     static const RandomPick_unk sTable[6] = {{30, 0}, {50, 1}, {70, 2}, {80, 3}, {90, 4}, {100, 5}};
-    if (lbl_8087F0A8->m2CC != 0) {
+    if (lbl_8087F0A8->mEnemyRandOfs != 0) {
         bool active = false;
         if (lbl_8087F430 != 0 && lbl_8087F430->m5694 != 0) {
             active = true;

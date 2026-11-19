@@ -4,27 +4,19 @@
 #include <boost/bind.hpp>
 #include "atn/ColliBase.h"
 #include "game/GameUI.h"
+#include "game/GameConfig_unk.h"
 
 extern "C" int rand();
 
-// inferred: input state embedded at +0x48C of the object behind lbl_8087F0A8
-struct Input_unk {
-    int fn_8012476C(int button); // inferred: nonzero when `button` was pressed
-};
 
-struct Unk_8087F0A8 {
-    unsigned char m000[0x30];
-    int mFrameRate; // 0x30
-    unsigned char m034[0x48C - 0x34];
-    Input_unk mInput; // 0x48C
-};
 
-extern "C" void* lbl_8087EE98;
+struct ColliManager_unk;
+extern "C" ColliManager_unk* lbl_8087EE98;
 extern "C" void fn_8004D388(void* mgr, atn::ColliResult_unk* result, chr::Chara_unk::Sphere_unk* sphere,
                             atn::Vector3* move, unsigned int mask, void* ignore, int arg,
                             float radius); // inferred: sweep test
 
-extern "C" Unk_8087F0A8* lbl_8087F0A8;
+extern "C" GameConfig_unk* lbl_8087F0A8;
 
 // inferred: `from` moved toward `to` by the fraction `t` (name invented, as in
 // chr/ControlChaseCaught.cpp)
@@ -233,7 +225,7 @@ int ControlGrappleThrown::vf0C() {
         atn::Vector3 rot = mChara->mRot;
         rot.y += 0.028049935f;
         mChara->mRot = rot;
-        int fps = lbl_8087F0A8->mFrameRate;
+        int fps = lbl_8087F0A8->m030;
         float g = -98.1f / (float)(fps * fps);
         atn::Vector3 move(0.0f, g, 0.125f);
         Chara_unk* chara = mChara;

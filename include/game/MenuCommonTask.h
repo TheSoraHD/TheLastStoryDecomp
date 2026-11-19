@@ -27,28 +27,11 @@ struct MenuCommonEntry_unk {
     MenuText_unk m08;
 };
 
-// inferred: d2anime task (made by fn_801F3FF8); only the members used here
-struct MenuD2A_unk : public atn::Task {
-    // inferred: name invented
-    bool IsEnd_unk() {
-        float last = mLastFrame;
-        return mFrame >= last;
-    }
-    unsigned char m48[0x58 - 0x48];
-    unsigned char m58[0xA0 - 0x58]; // 0x58: inferred: layout
-    float mLastFrame; // 0xA0
-    unsigned char mA4[0xE4 - 0xA4];
-    void (*mCallback)(atn::D2A_Common*, atn::Color*, void*); // 0xE4: inferred: event callback of the anime (atn::D2A_Data + 0x9C)
-    unsigned char mE8[0xFC - 0xE8];
-    unsigned int mLoop : 1;   // 0xFC (as atn::D2A_Task)
-    unsigned int mVisible : 1;
-    unsigned int mPlaying : 1;
-    unsigned int mRepeat : 1;
-    unsigned int mFC_rest : 28;
-    float mFrame;   // 0x100: inferred: current frame
-    float mSpeed;   // 0x104: inferred: playback speed
-    int m108;       // inferred: draw priority
-};
+// inferred: d2anime task (made by fn_801F3FF8); the units that use its members include atn/D2A_Task.h
+namespace atn {
+class D2A_Task;
+}
+typedef atn::D2A_Task MenuD2A_unk;
 
 // inferred: layout anime task of the menus (made by D2A_TaskInstanceBase<32, 8>::Create; full class in
 // atn/D2A_TaskInstanceC.h)
@@ -78,6 +61,18 @@ public:
     void fn_804A2F98(); // inferred: hides everything
     void fn_804A2FBC(); // inferred: resets everything
     void fn_804A313C(); // inferred: resets the info windows
+    // inferred: info bar helpers (were extern "C" with the menu as first argument)
+    float fn_804A4264();
+    float fn_804A4280();
+    void fn_804A5B9C(int, const char*);
+    void fn_804A5CD8(float);
+    void fn_804A5D34(int, const wchar_t*, const wchar_t*, const wchar_t*);
+    void fn_804A65A0(const wchar_t*);
+    void fn_804A4300(const wchar_t*);
+    void fn_804A62C8(int, int);
+    void fn_804A7DD4(int);
+    void fn_804A3C24(const wchar_t*, int);
+    void fn_804A5824(atn::D2A_Task*, const char*, int);
     void ResetInfo_unk(); // inferred: inline body of fn_804A313C (name invented)
     void fn_804A660C(void* anime, atn::D2A_Common* a, atn::Color* b, void* c); // inferred: event of a d2anime
     void fn_804A71F0(void* layout, atn::D2A_Common* a, atn::Color* b, void* c); // inferred: event of a layout anime

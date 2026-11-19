@@ -1,3 +1,5 @@
+#include "game/GameConfig_unk.h"
+#include "game/GameTask.h"
 #include "game/LogMessageTask.h"
 #include "atn/Memory.h"
 #include "std/string.h"
@@ -6,13 +8,7 @@
 #include "atn/DrawHelper.h"
 #include "std/string_members.h"
 
-// inferred: debug settings (only the members used here)
-struct LogSettings_unk {
-    unsigned char m00[0x6C];
-    int mLogMode;  // 0x6C: inferred: 2 = messages expire
-    int mLogLevel; // 0x70
-};
-extern "C" LogSettings_unk* lbl_8087F0A8;
+extern "C" GameConfig_unk* lbl_8087F0A8;
 
 // inferred: colours of the message kinds (names invented)
 struct LogColor_unk {
@@ -64,7 +60,7 @@ void LogMessageTask::vf10() {
     LogEntry_unk* entry = mEntries.begin();
     while (entry != mEntries.end()) {
         entry->mFrames++;
-        if (lbl_8087F0A8->mLogMode == 2 && entry->mFrames > 150) {
+        if (lbl_8087F0A8->m06C == 2 && entry->mFrames > 150) {
             mEntries.erase(entry);
         } else {
             entry++;
@@ -82,12 +78,7 @@ void LogMessageTask::vf10() {
     }
 }
 
-// inferred: field (only the pause state is used here)
-struct LogField_unk {
-    unsigned char m00[0x54E4];
-    int m54E4;
-};
-extern "C" LogField_unk* lbl_8087F430;
+extern "C" GameTask* lbl_8087F430;
 extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float volume);
 extern "C" double sin(double x);
 
@@ -112,7 +103,7 @@ void LogMessageTask::vf14() {
     if (mAlpha <= 0.0f) {
         return;
     }
-    int mode = lbl_8087F0A8->mLogMode;
+    int mode = lbl_8087F0A8->m06C;
     if (mode == 1) {
         unsigned int lines = 8;
         for (unsigned int i = 0; i < 8; i++) {
@@ -178,7 +169,7 @@ inline const wchar_t* CStr_unk(const wchar_t* s) {
 // NONMATCHING: 89.7% - the parameters take r25-r28 in the original (loop registers above them), and the
 // c_str checks of the temporary text are not CSE-d there (pointer kept in r24).
 void LogMessageTask::fn_8047961C(const wchar_t* text, int kind, int flags, int level) {
-    if (lbl_8087F0A8->mLogMode > 0 && level >= lbl_8087F0A8->mLogLevel && text != 0) {
+    if (lbl_8087F0A8->m06C > 0 && level >= lbl_8087F0A8->mLogMessageLimitLevel && text != 0) {
         if (HasFlag_unk(flags, 2) && mAlpha > 0.25f) {
             bool same = mEntries.mSize != 0 &&
                         mEntries.mData[mEntries.mSize - 1].mText == text;

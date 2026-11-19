@@ -35,7 +35,8 @@ extern "C" atn::GraphicsDevice_unk* lbl_8087EEE0;
 extern "C" void fn_80071E04(atn::GraphicsDevice_unk* device);
 extern "C" void fn_80076760(atn::GraphicsDevice_unk* device, int arg1, int arg2);
 
-extern "C" unsigned char* lbl_8087F018; // inferred: input manager; KPAD buffers of 0xF00 bytes first
+#include "atn/WPad_unk.h"
+extern "C" WPad_unk* lbl_8087F018; // inferred: input manager
 
 static const char* const sHbmDir_unk = "/hbm/HomeButton2";
 
@@ -218,7 +219,7 @@ int HBMRsoCalc(HBMControllerData& con) {
         int ret = WPADProbe(i, &type);
         pad->use_devtype = type;
         if ((ret >= -4 && ret <= -2) || ret == -7 || ret == 0) {
-            pad->kpad = (HBMKPADStatus_unk*)(lbl_8087F018 + i * 0xF00);
+            pad->kpad = (HBMKPADStatus_unk*)lbl_8087F018->mStatus[i];
             int digital = fn_80440DC0(pad->kpad->clHold, &pad->posX);
             float sy = pad->kpad->clStickY / 14.222222f;
             float sx = pad->kpad->clStickX / 14.222222f;

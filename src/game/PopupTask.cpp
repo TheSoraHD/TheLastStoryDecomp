@@ -18,6 +18,7 @@
 #include "atn/DrawHelper.h"
 #include "game/PlayerTask.h"
 #include "game/CharaManager.h"
+#include "atn/TextTable_unk.h"
 
 extern "C" int rand();
 extern "C" GameTask* lbl_8087F430;
@@ -294,17 +295,13 @@ extern "C" void fn_801F465C(PopupD2A_unk* task, int arg); // inferred: draws the
 extern "C" wchar_t* wcscpy(wchar_t* dst, const wchar_t* src);
 extern "C" atn::GraphicsDevice_unk* lbl_8087EEE0;
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
-extern "C" void* lbl_8087EEC8;                    // inferred: font
+namespace atn {
+class Font_unk;
+}
+extern "C" atn::Font_unk* lbl_8087EEC8;                    // inferred: font
 extern "C" float fn_8006EF48(void* font, float size, const wchar_t* text, float f2, int a, int b); // inferred: width
 extern "C" void* fn_801FEC74(void* layout, const char* name); // inferred: finds a pane
 extern "C" std::basic_string<wchar_t> fn_800A4450(void* pane, int a, int b); // inferred: text of a pane
-// inferred: message table (lbl_8087F1E4; as MP/MpCampMsgTable_unk.h, whose header conflicts here)
-extern "C" const wchar_t lbl_808813D0[2]; // inferred: empty text
-struct PopupMsgTable_unk {
-    const wchar_t* Get_unk(int id) { return mText[id] != 0 ? mText[id] : lbl_808813D0; }
-    const wchar_t* mText[1];
-};
-extern "C" PopupMsgTable_unk* lbl_8087F1E4;
 inline void SetPaneFloat_unk(void* layout, const char* name, float value) {
     fn_801FECE0(layout, fn_800DC6B4(name), value);
 }
@@ -328,7 +325,7 @@ void PopupTask::vf14() {
     for (PopupEntry_unk* e = mEntries.begin(); e != mEntries.end(); e++) {
         atn::Vector3 pos = e->m60;
         if (e->mB0 != 0) {
-            MtxPtr m = (MtxPtr)e->mB0;
+            MtxPtr m = e->mB0;
             atn::Vector3 trans(m[0][3], m[1][3], m[2][3]);
             pos += trans;
         }

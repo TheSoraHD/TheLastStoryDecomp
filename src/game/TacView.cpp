@@ -2,6 +2,7 @@
 // are reconstructed so far.
 #include "game/TacView.h"
 #include "atn/D2A_Task.h"
+#include "atn/D2A_TaskApi_unk.h"
 #include "atn/D2A_TaskInstance.h"
 #include "game/CharaTask.h"
 #include "game/SkillEffectManager.h"
@@ -21,6 +22,7 @@
 #include "atn/RenderManager.h"
 #include "std/vector_wstring.h"
 #include "atn/D2A_TaskInstanceC.h"
+#include "atn/TextTable_unk.h"
 
 // inferred: sector (0 ahead, 1-7 clockwise, 8 none) of the direction `dir` seen from above
 int fn_805A6D20(const atn::Vector3& dir) {
@@ -69,18 +71,6 @@ static SkillParam_unk sSkillParams_unk[6];
 
 // inferred: layout anime task (declared with other return types by game/CosEditProtector.cpp and others)
 
-// inferred: message table (lbl_8087F1E4) as the view reads it: {id, text} entries (8 bytes each)
-extern "C" const wchar_t lbl_808813D0[2]; // inferred: empty text
-struct TacViewMsgTable_unk {
-    struct Entry {
-        int mId;
-        const wchar_t* mText;
-    };
-    const wchar_t* Get_unk(int id) { return mEntries[id].mText != 0 ? mEntries[id].mText : lbl_808813D0; }
-    Entry mEntries[1];
-};
-extern "C" TacViewMsgTable_unk* lbl_8087F1E4;
-
 TacView* TacView::fn_805A70F0(atn::Task* parent) {
     if (lbl_8087F9F8 == 0) {
         lbl_8087F9F8 = new ((MemoryTag)3, "", "", 0) TacView(parent);
@@ -113,14 +103,14 @@ TacView::TacView(atn::Task* parent)
         sSkillParams_unk[i].mId = sIds[i];
         sSkillParams_unk[i].m64 = 0;
         if (sNames2[i] < 0) {
-            sSkillParams_unk[i].mName = lbl_8087F1E4->Get_unk(sNames[i]);
+            sSkillParams_unk[i].mName = lbl_8087F1E4->GetPair_unk(sNames[i]);
         } else {
-            sSkillParams_unk[i].mName = lbl_8087F1E4->Get_unk(sNames2[i]);
+            sSkillParams_unk[i].mName = lbl_8087F1E4->GetPair_unk(sNames2[i]);
         }
         if (sTexts2[i] < 0) {
-            sSkillParams_unk[i].mText = lbl_8087F1E4->Get_unk(sTexts[i]);
+            sSkillParams_unk[i].mText = lbl_8087F1E4->GetPair_unk(sTexts[i]);
         } else {
-            sSkillParams_unk[i].mText = lbl_8087F1E4->Get_unk(sTexts2[i]);
+            sSkillParams_unk[i].mText = lbl_8087F1E4->GetPair_unk(sTexts2[i]);
         }
     }
 }
@@ -156,7 +146,8 @@ int TacView::vf0C() {
 extern "C" double sqrt(double x);
 extern "C" GameTask* lbl_8087F430;
 extern "C" PlayerManager* lbl_8087F8A0;
-extern "C" void* lbl_8087EF70; // inferred: pad input
+struct Pad_unk;
+extern "C" Pad_unk* lbl_8087EF70; // inferred: pad input
 extern "C" GameConfig_unk* lbl_8087F0A8;
 extern "C" int fn_800A555C(void* pad, int port, int button); // inferred: button pressed
 extern "C" int fn_800A55FC(void* pad, int port, int button); // inferred: button released
@@ -936,7 +927,8 @@ void TacView::fn_805AA4C8(SkillEffect* effect) {
 
 extern "C" GameTask* lbl_8087F430;
 extern "C" PlayerManager* lbl_8087F8A0;
-extern "C" void* lbl_8087EF70; // inferred: pad input
+struct Pad_unk;
+extern "C" Pad_unk* lbl_8087EF70; // inferred: pad input
 extern "C" int fn_800A55D4(void* pad, int port, int button); // inferred: button held
 
 void TacView::fn_805AA4E4() {
@@ -1549,7 +1541,10 @@ inline atn::D2A_DrawRect GetPaneRect_unk(atn::D2A_Task* task, const char* name) 
 }
 extern "C" void fn_804A4AEC(atn::D2A_Task* task, CharaInfo_unk* info, int cols, int rows); // inferred: name pane size
 extern "C" void fn_803DDD54(atn::D2A_TaskInstanceBase<32, 8>* inst, int job); // inferred: job icon (game/GameUI.cpp)
-extern "C" void* lbl_8087EEC8; // inferred: font
+namespace atn {
+class Font_unk;
+}
+extern "C" atn::Font_unk* lbl_8087EEC8; // inferred: font
 extern "C" float fn_8006EF48(void* font, float size, const wchar_t* text, float space, int a, int b); // inferred: width
 extern "C" int fn_800DD3FC(wchar_t* s, const wchar_t* format, ...); // inferred: wide sprintf
 extern "C" unsigned long wcslen(const wchar_t* s);

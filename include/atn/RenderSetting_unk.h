@@ -104,6 +104,8 @@ public:
     inline void SetMotionBlur_unk(int enabled);
     inline void SetFrameSpeed_unk(float speed);
     inline ColorMatrixParam_unk* GetColorMatrix_unk();
+    // inferred: frame speed m3A4 (defined inline by the units that read it through an accessor)
+    inline float GetFrameSpeed_unk() const;
     // inferred: default post effects (inlined in MapTask::fn_8049ED90: its temporaries are laid out as
     // in an inlined call; name invented)
     void ResetPostFx_unk() {

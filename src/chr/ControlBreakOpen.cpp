@@ -28,7 +28,8 @@ static inline void SetFixedParam_unk(GameTask* task, const CameraParam_unk& para
 }
 
 extern "C" GameTask* lbl_8087F430;
-extern "C" void* lbl_8087F0A8;
+class GameConfig_unk;
+extern "C" GameConfig_unk* lbl_8087F0A8;
 
 namespace chr {
 

@@ -19,15 +19,10 @@ inline void SetPaneValue_unk(void* layout, const char* name, int index, float va
     fn_801FED24(layout, fn_800DC6B4(name), index, value);
 }
 
-extern "C" int fn_80444020(Inventory* party, int item, int a, int b, int c, int d, int* outA, int* outB,
-                           int* outC); // inferred: adds an item
+// inferred: adds an item
+extern "C" int fn_80444020(Inventory* party, int item, int a, int b, void* c, int d, int* outA, int* outB, int* outC);
 extern "C" void fn_80444CF8(char* text, int a, int b, int c); // inferred: item name
-// inferred: field (lbl_8087F430)
-struct ResultField_unk {
-    unsigned char m0000[0x54E4];
-    int m54E4; // inferred: state
-};
-extern "C" ResultField_unk* lbl_8087F430;
+extern "C" GameTask* lbl_8087F430;
 // inferred: LogMessageTask (game/LogMessageTask.h); only the entry count
 struct ResultLog_unk {
     unsigned char m00[0x48];
@@ -348,7 +343,7 @@ void BattleResult::fn_800F0D14(int mode) {
             }
         }
     }
-    if (lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->fn_80370174(0x11B) > 0 && mItemCount == 1) {
+    if (lbl_8087F430 != 0 && lbl_8087F430->fn_80370174(0x11B) > 0 && mItemCount == 1) {
         Inventory::instance_->AddItem(0x143, 5, 1, 0, 0, 1, 1);
         char text[0x80];
         memset(text, 0, sizeof(text));

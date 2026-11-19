@@ -1,3 +1,4 @@
+#include "game/GameTask.h"
 #include "game/CharaTask.h"
 #include "game/AiTarget.h"
 #include "game/CharaManager.h"
@@ -8,15 +9,11 @@ extern "C" int rand();
 extern "C" float PSVECMag(const atn::Vector3* v);
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 // inferred: collision world and its ray test (as in gmk/Cannonball.cpp)
-extern "C" void* lbl_8087EE98;
+struct ColliManager_unk;
+extern "C" ColliManager_unk* lbl_8087EE98;
 extern "C" int fn_8004ECC0(void* world, atn::Vector3* hit, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg);
-// inferred: field (lbl_8087F430): route tables at 0x10D8
-struct Field_unk {
-    unsigned char m0000[0x10D8];
-    GameScene* m10D8;
-};
-extern "C" Field_unk* lbl_8087F430;
+extern "C" GameTask* lbl_8087F430;
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 
 // inferred: route tables of the field, null without a field (inlined everywhere; name invented)

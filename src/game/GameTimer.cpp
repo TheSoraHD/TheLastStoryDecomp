@@ -3,7 +3,8 @@
 #include "atn/Memory.h"
 
 // inferred: timer display object and its setters (class unknown)
-extern "C" void* lbl_8087F430;
+class GameTask;
+extern "C" GameTask* lbl_8087F430;
 
 GameTimer* GameTimer::sInstance;
 

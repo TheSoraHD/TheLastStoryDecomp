@@ -7,6 +7,7 @@
 #include "game/MenuCommonTask.h"
 #include "game/GameTask.h"
 #include "atn/D2A_TaskInstanceC.h"
+#include "atn/TextTable_unk.h"
 
 // Only the two members called here (the full class is in atn/D2A_Task.h, whose extern "C" declarations
 // clash with the local ones of this file).
@@ -27,7 +28,8 @@ extern "C" void fn_801FEE08(void* layout, unsigned int hash, const wchar_t* text
 extern "C" atn::SoundRef fn_80117228(int id);
 extern "C" void fn_800D2338(atn::Task* task); // inferred: deletes the task
 // inferred: pad input (lbl_8087EF70)
-extern "C" void* lbl_8087EF70;
+struct Pad_unk;
+extern "C" Pad_unk* lbl_8087EF70;
 extern "C" int fn_800A555C(void* pad, int port, int button); // inferred: button triggered
 extern "C" void fn_804A436C(int* cursor, int count, int wrap, int step, int arg); // inferred: moves a cursor
 // inferred: 2D point of a d2anime pane (0x14 bytes here); names invented
@@ -40,23 +42,10 @@ struct SelectMemberPoint_unk {
     float m10;
 };
 extern "C" SelectMemberPoint_unk fn_801F4E8C(atn::Task* layout, unsigned int hash);
-extern "C" void fn_804A53D4(void* cursor, int a, int b, const SelectMemberPoint_unk* pos, int c);
+extern "C" void fn_804A53D4(void* cursor, int a, void* b, const SelectMemberPoint_unk* pos, int c);
 extern "C" const wchar_t* fn_80116FC0(int a, int id); // inferred: message text
 extern "C" const wchar_t lbl_808813D0[2]; // inferred: empty text
-// inferred: message table (lbl_8087F1E4); name invented
-struct SelectMemberMsg_unk {
-    const wchar_t* Get_unk(int id) {
-        return mText[id] != 0 ? mText[id] : lbl_808813D0;
-    }
-    const wchar_t* mText[1];
-};
-extern "C" SelectMemberMsg_unk* lbl_8087F1E4;
-// inferred: field (lbl_8087F430)
-struct SelectMemberField_unk {
-    unsigned char m0000[0x10D0];
-    int m10D0; // inferred: story progress
-};
-extern "C" SelectMemberField_unk* lbl_8087F430;
+extern "C" GameTask* lbl_8087F430;
 // inferred: members available at a point of the story
 struct SelectMemberAvail_unk {
     unsigned char m00[4];
@@ -354,7 +343,7 @@ void SelectMember::fn_80572290() {
     int value = 0;
     if (lbl_8087F430 != 0) {
         progress = lbl_8087F430->m10D0;
-        value = ((GameTask*)lbl_8087F430)->fn_80370174(99);
+        value = lbl_8087F430->fn_80370174(99);
     }
     SelectMemberAvail_unk* avail = fn_80217D9C(progress);
     if (avail != 0) {

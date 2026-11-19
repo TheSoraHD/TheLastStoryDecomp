@@ -1,3 +1,4 @@
+#include "game/GameConfig_unk.h"
 #include "gmk/OnOff.h"
 #include "atn/Csv.h"
 #include "atn/Memory.h"
@@ -12,6 +13,7 @@
 #include "game/MapPartsGimmickLoc_unk.h"
 #include "game/MapPartsLocatorSet.h"
 #include "game/MapPartsModel.h"
+#include "atn/EffectManager.h"
 
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" char* strcpy(char* dst, const char* src);
@@ -21,35 +23,22 @@ extern "C" int fn_802180A8(const char* s); // inferred: motion id from its name
 extern "C" void PSMTXScale(Mtx m, float x, float y, float z);
 extern "C" atn::Matrix3x4 lbl_807C7060; // inferred: identity matrix
 
-// inferred: effect manager (class unknown), global instance at 0x8087F3C0
-struct OnOffEffectMgr_unk {
-    unsigned char m00[0xB8];
-    int mB8;
-};
 struct Color4f_unk {
     Color4f_unk() {}
     Color4f_unk(float r_, float g_, float b_, float a_) : r(r_), g(g_), b(b_), a(a_) {}
     float r, g, b, a;
 };
-extern "C" OnOffEffectMgr_unk* lbl_8087F3C0;
-extern "C" void fn_8023A8B4(OnOffEffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
+extern "C" atn::EffectManager* lbl_8087F3C0;
+extern "C" void fn_8023A8B4(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Model* model, void* node,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
-extern "C" void fn_8023A680(OnOffEffectMgr_unk* mgr, atn::EffFile* res, int arg2, int arg3, atn::Model* model,
+extern "C" void fn_8023A680(atn::EffectManager* mgr, atn::EffFile* res, int arg2, int arg3, atn::Model* model,
                             const atn::Vector3* pos, const atn::Vector3* rot, int arg7, int arg8, int arg9,
                             int arg10, float scale);
-extern "C" void fn_8023A02C(OnOffEffectMgr_unk* mgr, void* owner, int arg2, int arg3);
-extern "C" void fn_80239DAC(OnOffEffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
+extern "C" void fn_8023A02C(atn::EffectManager* mgr, void* owner, int arg2, int arg3);
+extern "C" void fn_80239DAC(atn::EffectManager* mgr, void* owner, int id, int arg); // inferred: stops an effect
 extern "C" void fn_80232B7C(void* owner, int arg);
-// inferred: debug drawing (lbl_8087EEB0)
-// inferred: game settings
-struct OnOffSettings_unk {
-    unsigned char m00[0x08];
-    int m08; // inferred: debug draw of the gimmicks
-    unsigned char m0C[0x18 - 0x0C];
-    int m18; // inferred: debug draw of the models
-};
-extern "C" OnOffSettings_unk* lbl_8087F0A8;
+extern "C" GameConfig_unk* lbl_8087F0A8;
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 
 
@@ -116,7 +105,7 @@ inline void SetSphere_unk(atn::ColliSphere* colli, const atn::Vector3& center, f
     colli->mSphere.mRadius = radius;
 }
 // inferred: plays an effect at the model (name invented)
-inline void PlayEfp_unk(OnOffEffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model) {
+inline void PlayEfp_unk(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Model* model) {
     atn::Vector3 pos;
     atn::Vector3 rot;
     Color4f_unk color;
@@ -134,7 +123,7 @@ inline void PlayEfp_unk(OnOffEffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* 
 }
 
 // inferred: plays an effect at a position (name invented)
-inline void PlayEfpAt_unk(OnOffEffectMgr_unk* mgr, atn::EfpFile* efp, const atn::Vector3& pos,
+inline void PlayEfpAt_unk(atn::EffectManager* mgr, atn::EfpFile* efp, const atn::Vector3& pos,
                           const atn::Vector3& rot, float scale) {
     Color4f_unk color;
     color.r = 1.0f;
@@ -329,12 +318,12 @@ void OnOff::vf14() {
     if (mDesc != 0 && mDesc->m7C == 0) {
         return;
     }
-    if (lbl_8087F0A8->m18 != 0 && mHasModel != 0 && (mOn != 0 || (mFlags & 1) == 1)) {
+    if (lbl_8087F0A8->mDrawMap != 0 && mHasModel != 0 && (mOn != 0 || (mFlags & 1) == 1)) {
         if (vf38() != 0) {
             fn_803ED774(vf38());
         }
     }
-    if (lbl_8087F0A8->m08 != 0 && mHasBox == 0 && mHasSphere == 0 && mHasColli == 0) {
+    if (lbl_8087F0A8->mDrawCollision != 0 && mHasBox == 0 && mHasSphere == 0 && mHasColli == 0) {
         lbl_8087EEB0->fn_80063D3C(m6C, 3.0f, 0.0f, 0xFFFFFF00);
     }
 }
@@ -531,11 +520,11 @@ void OnOff::fn_803F8F30(int on) {
     fn_80239DAC(lbl_8087F3C0, this, 0, ((mFlags >> 2) & 1) ^ 1);
     if (mOn != 0 || (mFlags & 0x100) == 0x100) {
         fn_80232B7C(this, 0);
-        lbl_8087F3C0->mB8 = 1;
+        lbl_8087F3C0->mSystem.mLayer = 1;
         if (mId == 5049) {
-            lbl_8087F3C0->mB8 = 7;
+            lbl_8087F3C0->mSystem.mLayer = 7;
         }
-        OnOffEffectMgr_unk* mgr = lbl_8087F3C0;
+        atn::EffectManager* mgr = lbl_8087F3C0;
         fn_8023A680(mgr, &mEff, -1, 5, (atn::Model*)&mMtx, 0, 0, 0, 0, -1, 1, 1.0f);
         CharaTask* player = lbl_8087F8A0 != 0 ? lbl_8087F8A0->mHead : 0;
         if ((mFlags & 0x10) == 0x10 && player != 0) {
@@ -554,7 +543,7 @@ void OnOff::fn_803F8F30(int on) {
         if ((mFlags & 0x40) == 0x40) {
             fn_8023A02C(lbl_8087F3C0, this, 0, 8);
         }
-        lbl_8087F3C0->mB8 = 0;
+        lbl_8087F3C0->mSystem.mLayer = 0;
     }
 }
 

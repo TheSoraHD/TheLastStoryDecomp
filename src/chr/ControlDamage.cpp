@@ -1,5 +1,6 @@
 // Hit reactions: damage, guard, dodge, knockdown and getting up, revival, falling to death, guard
 // broken and the reaction of the enemies (ControlDamageLastOne).
+#include "atn/RenderSetting_unk.h"
 #include "chr/ControlDamage.h"
 #include "atn/EffectSystem_unk.h"
 #include "game/GameTask.h"
@@ -23,21 +24,14 @@ struct Arena_unk {
 };
 extern "C" Arena_unk* lbl_8087F610;
 extern "C" void fn_804DA690(Arena_unk* arena); // inferred: the player got up
-// inferred: game state (lbl_8087EFA8, as in game/CharaTask.cpp); names invented
-struct GameState_unk {
-    unsigned char m000[0x3A4];
-    float m3A4; // inferred: time of a frame
-};
-extern "C" GameState_unk* lbl_8087EFA8;
-// inferred: field object (class unknown, as in gmk/LottaSummon.cpp)
-struct Field_unk {
-};
-extern "C" Field_unk* lbl_8087F430;
+extern "C" RenderSetting_unk* lbl_8087EFA8;
+extern "C" GameTask* lbl_8087F430;
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
 // inferred: RGBA colour (names invented)
 typedef EffectColor_unk Color4f_unk;
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
-extern "C" void* lbl_8087EE98; // inferred: collision world
+struct ColliManager_unk;
+extern "C" ColliManager_unk* lbl_8087EE98; // inferred: collision world
 // inferred: collision world (out-of-line copy 0x801404F8 in game/CharaTask.cpp)
 inline void* fn_801404F8() {
     return lbl_8087EE98;
@@ -284,8 +278,8 @@ ControlKnockdown::ControlKnockdown(Chara_unk* chara, const atn::Vector3& dir, in
     if (lbl_8087F498 && !mChara->mFlag2) {
         if (mChara->mStatus.IsState_unk(0x20)) {
             lbl_8087F498->fn_803EA77C(chara, 0xA, 0, 1.0f, 10.0f);
-            if (mChara->mType == 0 && lbl_8087F430 && !((GameTask*)lbl_8087F430)->fn_80370174(0xB6)) {
-                ((GameTask*)lbl_8087F430)->fn_80370320(0xB6, 1, 0);
+            if (mChara->mType == 0 && lbl_8087F430 && !lbl_8087F430->fn_80370174(0xB6)) {
+                lbl_8087F430->fn_80370320(0xB6, 1, 0);
             }
         } else if (rand() % 2 == 0) {
             lbl_8087F498->fn_803EA77C(chara, 8, 0, 1.0f, 10.0f);
@@ -723,7 +717,7 @@ ControlDamageLastOne::ControlDamageLastOne(Chara_unk* chara, const atn::Vector3*
     m14 = (-n).ToRotation_unk();
     mChara->fn_8016DA4C();
     if (mChara->mFlag28 && lbl_8087F430) {
-        ((GameTask*)lbl_8087F430)->fn_803750E4(0xB5);
+        lbl_8087F430->fn_803750E4(0xB5);
     }
     mChara->fn_80164DCC(1);
     if (mChara->mFlag31) {

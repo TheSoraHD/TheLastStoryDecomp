@@ -3,6 +3,8 @@
 // docs/splits-auto-C.md. The file holds the motion commands of the gimmicks (GimmickCommonB0_unk) and
 // GimmickStateCommand.
 
+#include "atn/RenderSetting_unk.h"
+#include "atn/EffectManager.h"
 #include "game/GimmickCommon.h"
 #include "game/GameTask.h"
 #include "atn/SoundManager.h"
@@ -15,6 +17,8 @@
 #include "std/vector_string.h"
 #include "game/MapTask.h"
 #include "game/BattleTask.h"
+#include "game/PlayerTask.h"
+#include "game/CharaManager.h"
 
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" int strncmp(const char* a, const char* b, unsigned long n);
@@ -30,24 +34,19 @@ extern "C" GameTask* lbl_8087F430;
 extern "C" inline GameTask* fn_80121F00() {
     return lbl_8087F430;
 }
-// inferred: effects
-struct EffectMgr_unk {
-    unsigned char m00[0xB8];
-    int mB8; // inferred: loop flag of the next effect
-};
 struct Color4f_unk {
     Color4f_unk(float r_, float g_, float b_, float a_) : r(r_), g(g_), b(b_), a(a_) {}
     float r, g, b, a;
 };
-extern "C" EffectMgr_unk* lbl_8087F3C0;
+extern "C" atn::EffectManager* lbl_8087F3C0;
 extern "C" void fn_80232B7C(void* owner, int id); // inferred: sets the owner of the next effects
-extern "C" void fn_8023A680(EffectMgr_unk* mgr, atn::EffFile* res, int arg2, int arg3, void* node,
+extern "C" void fn_8023A680(atn::EffectManager* mgr, atn::EffFile* res, int arg2, int arg3, void* node,
                             const atn::Vector3* pos, const atn::Vector3* rot, int arg7, int arg8, int arg9,
                             int arg10, float scale);
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
+extern "C" void fn_8023A8B4(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Model* model, void* node,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
-extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops the effects
+extern "C" void fn_80239DAC(atn::EffectManager* mgr, void* owner, int id, int arg); // inferred: stops the effects
 extern "C" int fn_805A38F0(const char* name, int a, int b); // inferred: the sound is ready
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
 extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float volume);
@@ -55,22 +54,8 @@ extern "C" void fn_800CB5C8(atn::SoundRef* sound, int frames, int arg); // infer
 extern "C" void fn_800CB518(atn::SoundRef* sound, int frames);           // inferred: fades the sound in
 extern "C" void fn_800CB688(atn::SoundRef* sound, int arg, float pitch); // inferred: sets the pitch
 extern "C" void fn_800CB6B0(atn::SoundRef* sound, int arg, float distance); // inferred: sets the distance
-// inferred: frame time (lbl_8087EFA8)
-struct FrameTime_unk {
-    unsigned char m000[0x3A4];
-    float m3A4; // inferred: frame speed
-};
-extern "C" FrameTime_unk* lbl_8087EFA8;
-// inferred: player manager (lbl_8087F8A0)
-struct ShakePlayer_unk {
-    unsigned char m000[0x528];
-    atn::Vector3 m528; // inferred: camera position
-};
-struct ShakePlayerMgr_unk {
-    unsigned char m00[0x48];
-    ShakePlayer_unk* m48;
-};
-extern "C" ShakePlayerMgr_unk* lbl_8087F8A0;
+extern "C" RenderSetting_unk* lbl_8087EFA8;
+extern "C" CharaManager<PlayerTask>* lbl_8087F8A0;
 extern "C" float PSVECMag(const atn::Vector3* v);
 extern "C" void PSMTXRotRad(Mtx m, char axis, float rad);
 extern "C" void PSMTXMultVec(const Mtx m, const atn::Vector3* src, atn::Vector3* dst);
@@ -81,12 +66,12 @@ extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
 extern "C" HitInfo_unk* fn_80219E6C(int id); // inferred: bullet data by id
 // inferred: debug menu
 extern "C" void* fn_8008937C(void* menu, const char* name);
-extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, int arg6,
-                            int arg7);
-extern "C" void fn_80087E9C(void* group, const char* name, atn::Vector3* value, int arg3, int arg4, float min,
-                            float max, float step);
-extern "C" void fn_8008771C(void* group, const char* name, float* value, int arg3, int arg4, float min, float max,
-                            float step);
+extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, void* func,
+                            void* arg);
+extern "C" void fn_80087E9C(void* group, const char* name, atn::Vector3* value, float min, float max, float step,
+                            void* func, void* arg);
+extern "C" void fn_8008771C(void* group, const char* name, float* value, float min, float max, float step, void* func,
+                            void* arg);
 
 // inferred: iterator over a std::vector (weak copies 0x803EFDB4, 0x803F05F0-0x803F0688; name invented)
 template <class T>
@@ -281,13 +266,13 @@ void GimmickCommonB0_unk::fn_803F0764(GimmickCommon* gimmick) {
             MtxPtr node = model->GetNodeMtx_unk(model->fn_800928B0(cmd->mNode, 0));
             if (node != 0) {
                 fn_80232B7C(this, motion);
-                EffectMgr_unk* mgr = lbl_8087F3C0;
+                atn::EffectManager* mgr = lbl_8087F3C0;
                 fn_8023A680(mgr, &mEff[cmd->mIndex], -1, 5, node, &cmd->mOffset, 0, 0, 0, -1, 1, cmd->mScale);
             } else {
                 atn::Vector3 pos = gimmick->m6C + cmd->mOffset;
                 atn::Vector3 rot = gimmick->m78;
                 fn_80232B7C(this, motion);
-                EffectMgr_unk* mgr = lbl_8087F3C0;
+                atn::EffectManager* mgr = lbl_8087F3C0;
                 fn_8023A680(mgr, &mEff[cmd->mIndex], -1, 0, 0, &pos, &rot, 0, 0, -1, 1, cmd->mScale);
             }
             cmd->mDone = 1;
@@ -298,13 +283,13 @@ void GimmickCommonB0_unk::fn_803F0764(GimmickCommon* gimmick) {
             if (cmd->mType == 1 || cmd->mDone == 0) {
                 atn::Vector3 rot(0.0f, 0.0f, 0.0f);
                 if (cmd->mType == 2) {
-                    lbl_8087F3C0->mB8 = 1;
+                    lbl_8087F3C0->mSystem.mLayer = 1;
                 }
                 fn_80232B7C(this, motion);
                 fn_8023A8B4(lbl_8087F3C0, &mEfp[cmd->mIndex], model, 0, cmd->mOffset, rot,
                             Color4f_unk(1.0f, 1.0f, 1.0f, 1.0f), -1, -1, 1, cmd->mScale);
                 if (cmd->mType == 2) {
-                    lbl_8087F3C0->mB8 = 0;
+                    lbl_8087F3C0->mSystem.mLayer = 0;
                 }
                 cmd->mDone = 1;
             }
@@ -345,7 +330,7 @@ void GimmickCommonB0_unk::fn_803F0764(GimmickCommon* gimmick) {
                 } else {
                     pos += gimmick->m6C;
                 }
-                atn::Vector3 camera = lbl_8087F8A0->m48->m528;
+                atn::Vector3 camera = lbl_8087F8A0->mHead->mPos;
                 int frames = cmd->mOffset.z;
                 atn::Vector3 d(pos.x - camera.x, pos.y - camera.y, pos.z - camera.z);
                 float dist = PSVECMag(&d);
@@ -423,8 +408,8 @@ void GimmickCommonB0_unk::fn_803F11F8(void* menu) {
         sprintf(name, "%s %s\0", fn_8021823C(cmd->mMotion), sCommandNames[cmd->mType]);
         void* sub = fn_8008937C(group, name);
         fn_800874C8(sub, "Frame", &cmd->mFrame, 0, 9999, 1, 0, 0);
-        fn_80087E9C(sub, "Offset", &cmd->mOffset, 0, 0, -9999.0f, 9999.0f, 1.0f);
-        fn_8008771C(sub, "Scale", &cmd->mScale, 0, 0, 0.0f, 9999.0f, 0.5f);
+        fn_80087E9C(sub, "Offset", &cmd->mOffset, -9999.0f, 9999.0f, 1.0f, 0, 0);
+        fn_8008771C(sub, "Scale", &cmd->mScale, 0.0f, 9999.0f, 0.5f, 0, 0);
     }
 }
 

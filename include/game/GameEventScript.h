@@ -474,7 +474,7 @@ public:
     int m8C; // inferred: a script is running
     ScriptCmd_unk* m90; // inferred: command being run
     ScriptData_unk* m94; // inferred: compiled script of the running event
-    int m98; // inferred: cleared when the approach events are checked (fn_80399148)
+    CharaTask* m98; // inferred: character that approached; cleared when the approach events are checked (fn_80399148)
     int m9C; // inferred: id of the running event (printed by fn_8039BC6C)
     int mA0;
     int mA4;

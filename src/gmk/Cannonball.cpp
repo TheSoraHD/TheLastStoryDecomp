@@ -1,3 +1,4 @@
+#include "game/GameConfig_unk.h"
 #include "gmk/Cannonball.h"
 #include "game/BattleTask.h"
 #include "game/GameTask.h"
@@ -26,31 +27,30 @@ extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 
 // inferred: effect manager (class unknown), global instance at 0x8087F3C0
-struct CannonEffectMgr_unk;
+namespace atn {
+class EffectManager;
+}
 struct Color4f_unk {
     Color4f_unk() {}
     float r, g, b, a;
 };
-extern "C" CannonEffectMgr_unk* lbl_8087F3C0;
-extern "C" void fn_8023A8B4(CannonEffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
+extern "C" atn::EffectManager* lbl_8087F3C0;
+extern "C" void fn_8023A8B4(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Model* model, void* node,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
-extern "C" void fn_80239DAC(CannonEffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
+extern "C" void fn_80239DAC(atn::EffectManager* mgr, void* owner, int id, int arg); // inferred: stops an effect
 extern "C" void fn_80232B7C(void* owner, int arg);
 // inferred: sounds
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
 extern "C" void fn_800CB5C8(atn::SoundRef* sound, int frames, int arg); // inferred: stops the sound
 extern "C" void fn_800CB6E4(atn::SoundRef* sound, const atn::Vector3* pos); // inferred: moves the sound
-struct Field_unk {
-    // inferred: weak copy 0x803D6E24 (name from symbols.txt)
-    int GetState_unk() const { return m54E4; }
-
-    unsigned char m0000[0x54E4];
-    int m54E4; // inferred: state (8-11 while an event runs)
-};
-extern "C" Field_unk* lbl_8087F430;
+// inferred: weak getter 0x803D6E24 (emitted by game/GameUI)
+inline int GameTask::GetState_unk() const {
+    return m54E4;
+}
+extern "C" GameTask* lbl_8087F430;
 // inferred: accessors (weak copies elsewhere; names keep the addresses)
-extern "C" inline Field_unk* fn_80121F00() {
+extern "C" inline GameTask* fn_80121F00() {
     return lbl_8087F430;
 }
 // inferred: arena (lbl_8087F610)
@@ -108,21 +108,17 @@ struct CannonCapsule_unk {
 extern "C" inline CannonCapsule_unk* fn_80315644(atn::ColliCapsule* colli) {
     return (CannonCapsule_unk*)&colli->m3C;
 }
-// inferred: settings
-struct CannonSettings_unk {
-    unsigned char m00[0x30];
-    int mFps; // 0x30: inferred: frames per second
-};
-extern "C" CannonSettings_unk* lbl_8087F0A8;
-extern "C" inline CannonSettings_unk* fn_800F52F8() {
+extern "C" GameConfig_unk* lbl_8087F0A8;
+extern "C" inline GameConfig_unk* fn_800F52F8() {
     return lbl_8087F0A8;
 }
 // inferred: gravity per frame
-extern "C" inline float fn_802F0998(CannonSettings_unk* settings) {
-    return -98.1f / (float)(settings->mFps * settings->mFps);
+extern "C" inline float fn_802F0998(GameConfig_unk* settings) {
+    return -98.1f / (float)(settings->m030 * settings->m030);
 }
 // inferred: collision world and its tests
-extern "C" void* lbl_8087EE98;
+struct ColliManager_unk;
+extern "C" ColliManager_unk* lbl_8087EE98;
 inline void* fn_801404F8() {
     return lbl_8087EE98;
 }
@@ -194,7 +190,7 @@ inline void NotifyListeners_unk(CharaListeners_unk* listeners, int id, void* cha
 static const char* const sSe[4] = {"SE_BTCOM_036", "SE_BTCOM_037", "SE_BTCOM_038"};
 
 // inferred: plays an effect at the model (name invented)
-inline void PlayEfp_unk(CannonEffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model) {
+inline void PlayEfp_unk(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Model* model) {
     atn::Vector3 pos;
     atn::Vector3 rot;
     Color4f_unk color;
@@ -211,7 +207,7 @@ inline void PlayEfp_unk(CannonEffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model*
     fn_8023A8B4(mgr, efp, model, 0, pos, rot, color, -1, -1, 1, 1.0f);
 }
 // inferred: plays an effect at a position (name invented)
-inline void PlayEfpAt_unk(CannonEffectMgr_unk* mgr, atn::EfpFile* efp, const atn::Vector3& pos,
+inline void PlayEfpAt_unk(atn::EffectManager* mgr, atn::EfpFile* efp, const atn::Vector3& pos,
                           const atn::Vector3& rot) {
     Color4f_unk color;
     color.r = 1.0f;
@@ -381,8 +377,8 @@ void Cannonball::vf10() {
         } else if (mTimer < 150) {
             SetSound_unk(mSound, fn_800C344C(sSe[1], &m6C, 0, -1, 1.0f));
         }
-        if (fn_80121F00() != 0 && ((GameTask*)fn_80121F00())->GetCurrentMap() != 0 &&
-            ((GameTask*)fn_80121F00())->GetCurrentMap()->GetMapId() == 11 && ((GameTask*)fn_80121F00())->GetCurrentMap()->GetMapSubId() == 3 &&
+        if (fn_80121F00() != 0 && fn_80121F00()->GetCurrentMap() != 0 &&
+            fn_80121F00()->GetCurrentMap()->GetMapId() == 11 && fn_80121F00()->GetCurrentMap()->GetMapSubId() == 3 &&
             m54 == 2 && mTimer <= 180) {
             mTimer = 180;
         }
@@ -534,8 +530,8 @@ int Cannonball::vf40(GimmickMsg_unk* msg) {
         break;
     case 2: {
         int skip = 0;
-        if (fn_80121F00() != 0 && ((GameTask*)fn_80121F00())->GetCurrentMap() != 0 &&
-            ((GameTask*)fn_80121F00())->GetCurrentMap()->GetMapId() == 11 && ((GameTask*)fn_80121F00())->GetCurrentMap()->GetMapSubId() == 3) {
+        if (fn_80121F00() != 0 && fn_80121F00()->GetCurrentMap() != 0 &&
+            fn_80121F00()->GetCurrentMap()->GetMapId() == 11 && fn_80121F00()->GetCurrentMap()->GetMapSubId() == 3) {
             skip = 1;
         }
         mTimer = mExplodeTime;
@@ -550,9 +546,9 @@ int Cannonball::vf40(GimmickMsg_unk* msg) {
         int kind = mId % 1000;
         if (kind != 1 && lbl_8087F430 != 0) {
             if (kind == 3) {
-                ((GameTask*)lbl_8087F430)->fn_803750E4(0xF4);
+                lbl_8087F430->fn_803750E4(0xF4);
             } else {
-                ((GameTask*)lbl_8087F430)->fn_803750E4(0x94);
+                lbl_8087F430->fn_803750E4(0x94);
             }
         }
         mIgnore = mHolder != 0 ? mHolder->GetColli_unk() : 0;
@@ -703,7 +699,7 @@ void Cannonball::fn_803FB870(const atn::Vector3* pos, CharaTask* owner, int flag
 void Cannonball::fn_803FBC34(const atn::Vector3* pos) {
     if (mBulletId > 0) {
         GimmickMsg_unk msg;
-        msg.m10 = (int)mHolder;
+        msg.m10 = mHolder;
         msg.mType = 7;
         atn::VecAssign_unk(msg.mVec, *pos - mVel.GetNormalize() * 1.5f);
         vf40(&msg);

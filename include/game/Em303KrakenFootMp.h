@@ -50,7 +50,7 @@ public:
     int m14E8;
     float m14EC;             // inferred: "YOffset"
     int m14F0;
-    int m14F4;               // inferred: target character (CharaTask*)
+    CharaTask* m14F4;        // inferred: target character
     HitInfo_unk* m14F8;      // inferred: "SwingSkillId"
     HitInfo_unk* m14FC;      // inferred: "PoundSkillId"
     int m1500;

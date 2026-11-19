@@ -5,6 +5,8 @@
 #include "atn/Csv.h"
 #include "math/Vec.h"
 #include "atn/D2A_TaskInstanceC.h"
+#include "atn/TextTable_unk.h"
+#include "game/MenuCommonTask.h"
 
 extern "C" int sprintf(char* s, const char* format, ...);
 extern "C" int strcmp(const char* a, const char* b);
@@ -17,14 +19,10 @@ extern "C" ShopD2A_unk* fn_801F3FF8(atn::Task* parent, const char* path, int loo
 extern "C" void fn_801FEE08(void* layout, unsigned int hash, const wchar_t* text); // inferred: sets a text
 extern "C" void fn_801FECE0(void* layout, unsigned int hash, float value);
 extern "C" atn::SoundRef fn_80117228(int id); // inferred: plays a system sound effect
-extern "C" void* lbl_8087EF70;
+struct Pad_unk;
+extern "C" Pad_unk* lbl_8087EF70;
 extern "C" int fn_800A555C(void* pad, int port, int button); // inferred: button triggered
 
-// inferred: 2D point of a d2anime pane (0x14 bytes)
-struct ShopPoint_unk {
-    ShopPoint_unk() : x(0.0f), y(0.0f), w(0.0f), h(0.0f), z(0.0f) {}
-    float x, y, w, h, z;
-};
 extern "C" ShopPoint_unk fn_801F4E8C(atn::Task* layout, unsigned int hash);
 inline ShopPoint_unk GetPanePos_unk(atn::Task* layout, const char* name) {
     return fn_801F4E8C(layout, fn_800DC6B4(name));
@@ -52,23 +50,8 @@ extern "C" int fn_804444E8(void* party, int id); // inferred: number of items
 extern "C" void fn_8044441C(void* party, int id, int num); // inferred: removes items
 extern "C" int fn_80444BE8(void* party, ShopItem_unk* item);
 extern "C" ShopUV_unk fn_80444C50(void* party, int icon);
-// inferred: message table (lbl_8087F1E4)
-extern "C" const wchar_t lbl_808813D0[2]; // inferred: empty text
-struct ShopMsg_unk {
-    const wchar_t* Get_unk(int id) {
-        return mText[id] != 0 ? mText[id] : lbl_808813D0;
-    }
-    const wchar_t* mText[1];
-};
-extern "C" ShopMsg_unk* lbl_8087F1E4;
-class MenuCommonTask {
-public:
-    static MenuCommonTask* sInstance;
-};
-extern "C" void fn_804A5824(MenuCommonTask* menu, atn::Task* anime, const char* name, int end);
 extern "C" void fn_804A55FC(MenuCommonTask* menu, atn::Task* id, const char* name, const ShopPoint_unk* rect,
                             int end);
-extern "C" void fn_804A3C24(MenuCommonTask* menu, const wchar_t* text, int id);
 extern "C" void fn_804A39EC(ShopD2A_unk* anime, int arg1, int repeat, float frame, float speed);
 extern "C" void fn_804A3A68(ShopLayout_unk* layout, int arg1, int repeat, float frame, float speed);
 
@@ -187,7 +170,7 @@ void ShopColor::vf14() {
         mTop->mFlags &= ~4;
         char name[0x40];
         sprintf(name, "lw_list_text_select%02d", mTopCursor);
-        fn_804A5824(MenuCommonTask::sInstance, mTop, name, 0);
+        MenuCommonTask::sInstance->fn_804A5824(mTop, name, 0);
         break;
     }
     case 7:
@@ -335,7 +318,7 @@ void ShopColor::fn_80587E3C() {
             if (item != 0) {
                 wchar_t text[0x40];
                 fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0x353), item->mName);
-                SetPaneText_unk(mInfo->mLayout, "warning_msg", text);
+                SetPaneText_unk(&mInfo->mData.m10, "warning_msg", text);
             }
             fn_80117228(25);
             vf1C(8);
@@ -374,7 +357,7 @@ int ShopColor::fn_80588004(ShopColorEntry_unk* entry) {
 void ShopColor::fn_805880F0() {
     void* party = Inventory::instance_;
     mListBase->mFlags &= ~4;
-    SetPaneFloat_unk(mListBase->mLayout, "ofsOn", 1.0f);
+    SetPaneFloat_unk(&mListBase->mData.m10, "ofsOn", 1.0f);
     fn_80584750(mListBase, mScroll.mTop, mColors.size(), 10);
     ShopPoint_unk pos;
     mContent->mFlags &= ~4;
@@ -418,7 +401,7 @@ void ShopColor::fn_805883D8(ShopColorEntry_unk* entry) {
     void* party = Inventory::instance_;
     ShopItem_unk* item = fn_80211480(entry->mId);
     if (item != 0) {
-        fn_804A3C24(MenuCommonTask::sInstance, item->mText, 0);
+        MenuCommonTask::sInstance->fn_804A3C24(item->mText, 0);
     }
     ShopPoint_unk pos;
     for (int i = 0; i < 3; i++) {

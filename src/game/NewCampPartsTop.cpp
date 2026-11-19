@@ -1,5 +1,6 @@
 #include "game/NewCampPartsTop.h"
 #include "game/GameTask.h"
+#include "game/CampSaveLoad.h"
 #include "game/TacView.h"
 #include "game/NewCampTask.h"
 #include "game/GameScene.h"
@@ -26,17 +27,6 @@ extern "C" const wchar_t* fn_80116FC0(int a, int id); // inferred: message text
 extern "C" atn::SoundRef fn_80117228(int id);        // inferred: plays a system sound effect
 extern "C" void fn_800D2338(atn::Task* task);        // inferred: deletes the task
 
-// Only the members used here (the full class is in atn/D2A_Task.h, whose extern "C" declarations
-// clash with the local ones of this file).
-namespace atn {
-class D2A_Task : public Task {
-public:
-    void SetNumber_unk(const char* name, int value, int digits); // 0x801F4CB4
-    unsigned char m48[0x58 - 0x48];
-    unsigned char mLayout[0x104 - 0x58]; // 0x58: inferred: layout
-    float mSpeed;                        // 0x104
-};
-} // namespace atn
 extern "C" atn::D2A_Task* fn_801F3FF8(atn::Task* parent, const char* path, int loop); // inferred: d2anime task
 extern "C" NewCampPartsPoint_unk fn_801F4E8C(atn::Task* layout, unsigned int hash);
 // inferred: text parameter of a d2anime message (fn_801FEC74)
@@ -45,7 +35,10 @@ struct D2A_TextParam_unk;
 }
 extern "C" atn::D2A_TextParam_unk* fn_801FEC74(void* layout, const char* name);
 extern "C" std::basic_string<wchar_t> fn_800A4450(atn::D2A_TextParam_unk* text, int index, int table); // inferred
-extern "C" void* lbl_8087EEC8; // inferred: font
+namespace atn {
+class Font_unk;
+}
+extern "C" atn::Font_unk* lbl_8087EEC8; // inferred: font
 extern "C" float fn_8006EF48(void* font, float size, const wchar_t* text, float f2, int a, int b); // inferred: width
 
 
@@ -60,24 +53,8 @@ struct NewCampTopLayout_unk : public atn::Task {
     float mFrame; // 0x50
 };
 
-class MenuLoadTask : public atn::Task {
-public:
-    static MenuLoadTask* fn_80117914(atn::Task* parent, GameLoadTask* data, GameLoadBackground* bg); // inferred: bg unused
-    static MenuLoadTask* sInstance;
-    unsigned char m48[0x13C - 0x48];
-    int m13C; // inferred: state
-};
 
-// inferred: field (lbl_8087F430); only the members used here
-struct NewCampTopField_unk {
-    unsigned char m0000[0x20];
-    atn::Task* m20;
-    unsigned char m0024[0x10D8 - 0x24];
-    atn::Task* m10D8;
-    unsigned char m10DC[0x5744 - 0x10DC];
-    unsigned int m5744; // inferred: play time in frames
-};
-extern "C" NewCampTopField_unk* lbl_8087F430;
+extern "C" GameTask* lbl_8087F430;
 extern "C" MP::SaveData_unk* lbl_8087F460;
 extern "C" int fn_803BE854(MP::SaveData_unk* data);
 extern "C" atn::Task* lbl_8087F8A0;
@@ -97,27 +74,10 @@ public:
 #include "atn/SequenceBoot_unk.h"
 #include "std/string_members.h"
 #include "atn/D2A_TaskInstanceC.h"
-class MenuCommonTask {
-public:
-    static MenuCommonTask* sInstance;
-    unsigned char m00[0x54];
-    int m54;
-    unsigned char m58[0x68 - 0x58];
-    int m68;
-};
-extern "C" void fn_804A4300(MenuCommonTask* menu, const wchar_t* text);
-extern "C" void fn_804A62C8(MenuCommonTask* menu, int a, int b);
-extern "C" void fn_804A5824(MenuCommonTask* menu, atn::D2A_Task* anime, const char* name, int end);
+#include "atn/TextTable_unk.h"
+#include "game/MenuCommonTask.h"
 extern "C" void fn_804A436C(int* cursor, int count, int wrap, int step, int arg); // inferred: moves a cursor
 extern "C" const wchar_t lbl_808813D0[2]; // inferred: empty text
-// inferred: message table (lbl_8087F1E4)
-struct NewCampTopMsg_unk {
-    const wchar_t* Get_unk(int id) {
-        return mText[id] != 0 ? mText[id] : lbl_808813D0;
-    }
-    const wchar_t* mText[1];
-};
-extern "C" NewCampTopMsg_unk* lbl_8087F1E4;
 extern "C" void* lbl_8087EF70;
 extern "C" int fn_800A555C(void* pad, int port, int button); // inferred: button triggered
 extern "C" int lbl_8087DCCC;
@@ -146,7 +106,7 @@ inline void SetPaneFloat_unk(void* layout, const char* name, float value) {
 
 // inferred: starts a fade (name invented)
 inline void StartFade_unk(int wait) {
-    atn::FadeColor* fade = atn::FadeColor::Create(lbl_8087F430->m20, 0, 0, 0);
+    atn::FadeColor* fade = atn::FadeColor::Create((atn::Task*)lbl_8087F430->m20, 0, 0, 0);
     fade->mDeleteAtEnd = 1;
     fade->mFrame = 0;
     fade->mDelay = 0;
@@ -270,31 +230,31 @@ void NewCampPartsTop::vf14() {
         unsigned int min = sec / 60;
         unsigned int hour = min / 60;
         fn_800DD3FC(time, L"%d:%02d:%02d", hour, min % 60, sec % 60);
-        fn_801FEE08(task->mLayout, fn_800DC6B4("playTime(1)"), time);
+        fn_801FEE08(&task->mData.m10, fn_800DC6B4("playTime(1)"), time);
         task->SetNumber_unk("price(1)", Inventory::instance_->mMoney, 0);
     }
-    if (((GameTask*)lbl_8087F430)->fn_803754F0()) {
-        SetPaneText_unk(mInfoAnime->mLayout, "select00_text", fn_80116FC0(0, 0x2767));
-        SetPaneFloat_unk(mInfoAnime->mLayout, "enableLoad", mCanLoad != 0 ? 1.0f : 0.5f);
-        SetPaneFloat_unk(mInfoAnime->mLayout, "enableCheckPoint", 1.0f);
+    if (lbl_8087F430->fn_803754F0()) {
+        SetPaneText_unk(&mInfoAnime->mData.m10, "select00_text", fn_80116FC0(0, 0x2767));
+        SetPaneFloat_unk(&mInfoAnime->mData.m10, "enableLoad", mCanLoad != 0 ? 1.0f : 0.5f);
+        SetPaneFloat_unk(&mInfoAnime->mData.m10, "enableCheckPoint", 1.0f);
     } else {
-        SetPaneText_unk(mInfoAnime->mLayout, "select00_text", fn_80116FC0(0, 0x2764));
-        if (((GameTask*)lbl_8087F430)->fn_80370174(0x394)) {
-            SetPaneFloat_unk(mInfoAnime->mLayout, "enableLoad", 0.5f);
-            SetPaneFloat_unk(mInfoAnime->mLayout, "enableCheckPoint", 0.5f);
+        SetPaneText_unk(&mInfoAnime->mData.m10, "select00_text", fn_80116FC0(0, 0x2764));
+        if (lbl_8087F430->fn_80370174(0x394)) {
+            SetPaneFloat_unk(&mInfoAnime->mData.m10, "enableLoad", 0.5f);
+            SetPaneFloat_unk(&mInfoAnime->mData.m10, "enableCheckPoint", 0.5f);
         } else {
-            SetPaneFloat_unk(mInfoAnime->mLayout, "enableLoad", mCanLoad != 0 ? 1.0f : 0.5f);
+            SetPaneFloat_unk(&mInfoAnime->mData.m10, "enableLoad", mCanLoad != 0 ? 1.0f : 0.5f);
             if (lbl_8087DCCC != 0) {
-                SetPaneFloat_unk(mInfoAnime->mLayout, "enableCheckPoint", 1.0f);
+                SetPaneFloat_unk(&mInfoAnime->mData.m10, "enableCheckPoint", 1.0f);
             } else {
-                SetPaneFloat_unk(mInfoAnime->mLayout, "enableCheckPoint", 0.5f);
+                SetPaneFloat_unk(&mInfoAnime->mData.m10, "enableCheckPoint", 0.5f);
             }
         }
     }
     if (m7C == 1) {
         char name[0x40];
         sprintf(name, "lw_list_text_select%02d", mCursor);
-        fn_804A5824(MenuCommonTask::sInstance, mInfoAnime, name, 0);
+        MenuCommonTask::sInstance->fn_804A5824(mInfoAnime, name, 0);
     }
 }
 
@@ -332,14 +292,14 @@ void NewCampPartsTop::vf2C() {
     if (mSave == 0 || !mSave->IsFlag_unk(2)) {
         return;
     }
-    const int* actions = ((GameTask*)lbl_8087F430)->fn_803754F0() ? sActionsB : sActions;
+    const int* actions = lbl_8087F430->fn_803754F0() ? sActionsB : sActions;
     if (m7C == 4) {
         if (++mTimer > 60) {
             switch (actions[mCursor]) {
             case 0:
             case 1:
                 ((NewCampTask*)m48)->fn_8052CA6C();
-                ((GameTask*)lbl_8087F430)->fn_80370F8C(0, lbl_8087F460, 0);
+                lbl_8087F430->fn_80370F8C(0, lbl_8087F460, 0);
                 if (lbl_8087F430->m10D8 != 0) {
                     lbl_8087F430->m10D8->mFlags |= 4;
                 }
@@ -350,7 +310,7 @@ void NewCampPartsTop::vf2C() {
                 break;
             case 3:
                 ((NewCampTask*)m48)->fn_8052CA6C();
-                ((GameTask*)lbl_8087F430)->fn_80370320(0x1B, 1, 0);
+                lbl_8087F430->fn_80370320(0x1B, 1, 0);
                 if (lbl_8087F430->m10D8 != 0) {
                     ((GameScene*)lbl_8087F430->m10D8)->fn_803CCC70(999999);
                 }
@@ -361,7 +321,7 @@ void NewCampPartsTop::vf2C() {
                 NpcManager::sInstance->fn_800D246C(1);
                 if (lbl_8087F9F8 != 0 && lbl_8087F9F8->mA70 != 0) {
                     lbl_8087F9F8->fn_805AA734();
-                    ((GameTask*)lbl_8087F430)->fn_803743AC();
+                    lbl_8087F430->fn_803743AC();
                 }
                 if (GameBgm::sInstance != 0) {
                     GameBgm::sInstance->fn_8037D4C0(0, 90, 1, 0, 1.0f);
@@ -421,7 +381,7 @@ void NewCampPartsTop::vf2C() {
                 save->mD60 = 0;
                 save->mC84 = 0;
             }
-            fn_804A4300(MenuCommonTask::sInstance, lbl_8087F1E4->Get_unk(0x237));
+            MenuCommonTask::sInstance->fn_804A4300(lbl_8087F1E4->Get_unk(0x237));
             m7C = 6;
             fn_80117228(11);
         }
@@ -456,12 +416,12 @@ void NewCampPartsTop::vf2C() {
         if (fn_800A555C(pad, 0, 4)) {
             switch (actions[mCursor]) {
             case 0:
-                if (((GameTask*)lbl_8087F430)->fn_80370174(0x394)) {
+                if (lbl_8087F430->fn_80370174(0x394)) {
                     fn_80117228(11);
                     return;
                 }
                 if (lbl_8087DCCC != 0) {
-                    fn_804A62C8(MenuCommonTask::sInstance, 2, 0);
+                    MenuCommonTask::sInstance->fn_804A62C8(2, 0);
                     m7C = 2;
                 } else {
                     fn_80117228(11);
@@ -469,7 +429,7 @@ void NewCampPartsTop::vf2C() {
                 }
                 break;
             case 1:
-                if (mCanLoad == 0 || ((GameTask*)lbl_8087F430)->fn_80370174(0x394)) {
+                if (mCanLoad == 0 || lbl_8087F430->fn_80370174(0x394)) {
                     fn_80117228(11);
                     return;
                 }
@@ -479,11 +439,11 @@ void NewCampPartsTop::vf2C() {
                 }
                 break;
             case 2:
-                fn_804A62C8(MenuCommonTask::sInstance, 1, 0);
+                MenuCommonTask::sInstance->fn_804A62C8(1, 0);
                 m7C = 2;
                 break;
             case 3:
-                fn_804A62C8(MenuCommonTask::sInstance, 10, 0);
+                MenuCommonTask::sInstance->fn_804A62C8(10, 0);
                 m7C = 2;
                 break;
             }
@@ -502,10 +462,10 @@ void NewCampPartsTop::vf2C() {
         atn::D2A_Task* task = (atn::D2A_Task*)m50[0].mAnime->GetTask();
         float width;
         {
-            std::basic_string<wchar_t> text = fn_800A4450(fn_801FEC74(task->mLayout, "string0004(1)(1)"), 0, 0);
+            std::basic_string<wchar_t> text = fn_800A4450(fn_801FEC74(&task->mData.m10, "string0004(1)(1)"), 0, 0);
             width = fn_8006EF48(lbl_8087EEC8, 16.0f, text.data(), 0.0f, 1, 1);
         }
-        fn_801FED24(task->mLayout, fn_800DC6B4("TimePos"), 0, 18.0f + width);
+        fn_801FED24(&task->mData.m10, fn_800DC6B4("TimePos"), 0, 18.0f + width);
         void* pad = lbl_8087EF70;
         if (fn_800A555C(pad, 0, 4)) {
             switch (mList[m80]->mId) {

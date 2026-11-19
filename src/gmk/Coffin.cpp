@@ -15,19 +15,20 @@ extern "C" float fn_800DC288(const char* s); // inferred: string to float
 extern "C" int fn_802180A8(const char* s); // inferred: motion id from its name
 
 // inferred: effect manager (class unknown), global instance at 0x8087F3C0
-struct EffectMgr_unk;
+namespace atn {
+class EffectManager;
+}
 struct Color4f_unk {
     Color4f_unk() {}
     float r, g, b, a;
 };
-extern "C" EffectMgr_unk* lbl_8087F3C0;
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
+extern "C" atn::EffectManager* lbl_8087F3C0;
+extern "C" void fn_8023A8B4(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Model* model, void* node,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
 extern "C" void fn_80232B7C(void* owner, int arg);
 // inferred: field counters (lbl_8087F430)
-struct CoffinField_unk;
-extern "C" CoffinField_unk* lbl_8087F430;
+extern "C" GameTask* lbl_8087F430;
 extern "C" int fn_80219558(int id); // inferred: party member kind of a character id (negative for enemies)
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 // inferred: bullets
@@ -54,7 +55,7 @@ inline atn::Vector3 OffsetY_unk(const atn::Vector3& v, float dy) {
 }
 
 // inferred: plays an effect at the model (name invented)
-inline void PlayEfp_unk(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model) {
+inline void PlayEfp_unk(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Model* model) {
     atn::Vector3 pos;
     atn::Vector3 rot;
     Color4f_unk color;
@@ -206,9 +207,9 @@ void Coffin::vf10() {
     }
     switch (m54) {
     case 3: {
-        int n = ((GameTask*)lbl_8087F430)->fn_80370A78(3);
+        int n = lbl_8087F430->fn_80370A78(3);
         if (--mCount < 0) {
-            ((GameTask*)lbl_8087F430)->fn_80370AE4(3, n + 1);
+            lbl_8087F430->fn_80370AE4(3, n + 1);
             GimmickMsg_unk msg(4);
             vf40(&msg);
         }
@@ -392,7 +393,7 @@ void Coffin::fn_80412968() {
     if (counter < 0) {
         return;
     }
-    int id = ((GameTask*)lbl_8087F430)->fn_80370A78(counter);
+    int id = lbl_8087F430->fn_80370A78(counter);
     int kind = fn_80219558(id);
     if (kind < 0) {
         mChara = EnemyManager::sInstance->Find_unk(id);
@@ -400,7 +401,7 @@ void Coffin::fn_80412968() {
             mKind = 0;
         } else {
             mKind = 1;
-            ((GameTask*)lbl_8087F430)->fn_80370AE4(0x6F, 1);
+            lbl_8087F430->fn_80370AE4(0x6F, 1);
         }
     } else {
         mChara = lbl_8087F8A0->FindByChara_unk(id);
@@ -408,16 +409,16 @@ void Coffin::fn_80412968() {
             mKind = 2;
             switch (kind) {
             case 2:
-                ((GameTask*)lbl_8087F430)->fn_80370AE4(0x1E, 0);
+                lbl_8087F430->fn_80370AE4(0x1E, 0);
                 break;
             case 6:
-                ((GameTask*)lbl_8087F430)->fn_80370AE4(0x1F, 0);
+                lbl_8087F430->fn_80370AE4(0x1F, 0);
                 break;
             case 4:
-                ((GameTask*)lbl_8087F430)->fn_80370AE4(0x20, 0);
+                lbl_8087F430->fn_80370AE4(0x20, 0);
                 break;
             case 11:
-                ((GameTask*)lbl_8087F430)->fn_80370AE4(0x21, 0);
+                lbl_8087F430->fn_80370AE4(0x21, 0);
                 break;
             }
         } else {

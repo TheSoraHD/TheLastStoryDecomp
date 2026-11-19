@@ -1,3 +1,4 @@
+#include "game/PlayerManager.h"
 #include "game/EnemyJill.h"
 #include "game/GameVoice.h"
 #include "atn/Keyboard.h"
@@ -9,6 +10,8 @@
 #include "game/GameTask.h"
 #include "math/VecAssign_unk.h"
 #include "game/BattleTask.h"
+#include "game/GameUI.h"
+#include "game/GameChoiceWindow.h"
 
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" int atoi(const char* s);
@@ -16,13 +19,13 @@ extern "C" int rand();
 extern "C" float fn_800DC288(const char* s); // inferred: string to float
 extern "C" HitInfo_unk* fn_80219E6C(int id);
 // inferred: debug menu entries (as in gmk/SwingObject.cpp)
-extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, int arg6,
-                            int arg7);
-extern "C" void fn_80087E9C(void* group, const char* name, atn::Vector3* value, int arg3, int arg4, float min,
-                            float max, float step);
-extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3, int arg4);
-extern "C" void fn_8008771C(void* group, const char* name, float* value, int arg3, int arg4, float min, float max,
-                            float step);
+extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, void* func,
+                            void* arg);
+extern "C" void fn_80087E9C(void* group, const char* name, atn::Vector3* value, float min, float max, float step,
+                            void* func, void* arg);
+extern "C" void fn_80087994(void* group, const char* name, int* value, void* func, void* arg);
+extern "C" void fn_8008771C(void* group, const char* name, float* value, float min, float max, float step, void* func,
+                            void* arg);
 // inferred: render parameters (lbl_8087EFA8): color matrix at 0x324 (as in atn/PostFxColorMatrix.cpp)
 struct JillParams_unk {
     unsigned char m000[0x324];
@@ -42,15 +45,15 @@ EnemyJill::EnemyJill(atn::Task* parent, const EnemyInfo_unk* info)
     fn_80087994(group, "DebugDisp", &m1654, 0, 0);
     fn_80087994(group, "DebugLog", &m1658, 0, 0);
     fn_800874C8(group, "WaitFrame", &m157C, 0, 1000000, 1, 0, 0);
-    fn_8008771C(group, "AttackChanceFrame", &m1580, 0, 0, 0.0f, 100000.0f, 1.0f);
-    fn_8008771C(group, "AttackBonusRate", &m1584, 0, 0, 0.0f, 100000.0f, 1.0f);
+    fn_8008771C(group, "AttackChanceFrame", &m1580, 0.0f, 100000.0f, 1.0f, 0, 0);
+    fn_8008771C(group, "AttackBonusRate", &m1584, 0.0f, 100000.0f, 1.0f, 0, 0);
     fn_800874C8(group, "AttackTest", &m165C, -1, 100, 1, 0, 0);
-    fn_8008771C(group, "GuardBonusRate", &m1588, 0, 0, 0.0f, 100000.0f, 1.0f);
+    fn_8008771C(group, "GuardBonusRate", &m1588, 0.0f, 100000.0f, 1.0f, 0, 0);
     fn_80087994(group, "StopTalking", &m15AC, 0, 0);
     fn_800874C8(group, "ActionMode", &m58C, 0, 100000, 1, 0, 0);
-    fn_80087E9C(group, "Pos", &mPos, 0, 0, -1000.0f, 1000.0f, 1.0f);
+    fn_80087E9C(group, "Pos", &mPos, -1000.0f, 1000.0f, 1.0f, 0, 0);
     fn_800874C8(group, "EventPlayIndex", &m1570, 0, 100, 1, 0, 0);
-    fn_8008771C(group, "HP", &mStatus.m04, 0, 0, 0.0f, 100000.0f, 1.0f);
+    fn_8008771C(group, "HP", &mStatus.m04, 0.0f, 100000.0f, 1.0f, 0, 0);
     m15B4.mCount = 0;
     m15E4.mCount = 0;
     m1614.mCount = 0;
@@ -163,24 +166,21 @@ void EnemyJill::fn_8032E3DC() {
     } while (csv.fn_8005BBF8());
 }
 
-// inferred: field state (lbl_8087F430 + 0x54E4, as in game/BattleResult.cpp)
-struct JillField_unk {
-    unsigned char m0000[0x54E4];
-    int m54E4;
-};
-extern "C" JillField_unk* lbl_8087F430;
+extern "C" GameTask* lbl_8087F430;
 
 // inferred: effect manager (class unknown), global instance at 0x8087F3C0
-struct EffectMgr_unk;
+namespace atn {
+class EffectManager;
+}
 struct Color4f_unk {
     Color4f_unk() {}
     float r, g, b, a;
 };
-extern "C" EffectMgr_unk* lbl_8087F3C0;
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
+extern "C" atn::EffectManager* lbl_8087F3C0;
+extern "C" void fn_8023A8B4(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Model* model, void* node,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
-extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
+extern "C" void fn_80239DAC(atn::EffectManager* mgr, void* owner, int id, int arg); // inferred: stops an effect
 extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the next effects
 
 // inferred: plays an effect on the model (name invented, as in game/Em002Skelton.cpp)
@@ -208,10 +208,9 @@ struct JillControl_unk : public chr::ControlBase {
 };
 
 // inferred: accessors kept out of line (weak copies of other files; C names)
-struct Field_unk;
 // inferred: field accessor (weak copy 0x80121F00; inlined unless the caller is over the inline budget)
-extern "C" inline Field_unk* fn_80121F00() {
-    return (Field_unk*)lbl_8087F430;
+extern "C" inline GameTask* fn_80121F00() {
+    return (GameTask*)lbl_8087F430;
 }
 // inferred: input state of the field (0x80122550) with a byte flag at 0x910 and a value at 0x834 (weak
 // copies 0x8026616C/0x80266174 of game/Em201ZanGurgFinal.cpp); names invented
@@ -225,7 +224,7 @@ struct PlayerInput_unk {
     unsigned char m911[0x914 - 0x911];
     int m914;
 };
-extern "C" inline PlayerInput_unk* fn_80122550(Field_unk* field) {
+extern "C" inline PlayerInput_unk* fn_80122550(GameTask* field) {
     return (PlayerInput_unk*)((char*)field + 0x6C);
 }
 extern "C" inline void fn_8026616C(PlayerInput_unk* input, int value) {
@@ -246,16 +245,11 @@ extern "C" inline void fn_8032EC94(int* p) {
 extern "C" inline JillEvent_unk* fn_8032ECA8(FixedArray_unk<JillEvent_unk, 8>* events, int i) {
     return &events->mData[i];
 }
-// inferred: player manager (as in gmk/Cannonball.cpp)
-struct PlayerMgr_unk {
-    unsigned char m00[0x48];
-    CharaTask* mHead;
-};
-extern "C" PlayerMgr_unk* lbl_8087F8A0;
-extern "C" inline PlayerMgr_unk* fn_8000D9E8() {
+extern "C" PlayerManager* lbl_8087F8A0;
+extern "C" inline PlayerManager* fn_8000D9E8() {
     return lbl_8087F8A0;
 }
-extern "C" inline CharaTask* fn_8000DCF4(PlayerMgr_unk* mgr) {
+extern "C" inline CharaTask* fn_8000DCF4(PlayerManager* mgr) {
     return mgr->mHead;
 }
 BattleTask* fn_8013A194();
@@ -289,8 +283,8 @@ void EnemyJill::vf10() {
         }
         if (m1570 >= 0) {
             JillEvent_unk* e = fn_8032ECA8(&m14EC, m1570);
-            if (((GameTask*)fn_80121F00())->fn_80370A78(e->m00) != 1) {
-                if (((GameTask*)fn_80121F00())->fn_80370A78(e->m04) == 1) {
+            if (fn_80121F00()->fn_80370A78(e->m00) != 1) {
+                if (fn_80121F00()->fn_80370A78(e->m04) == 1) {
                     m1574 = e->m0C;
                     fn_803333BC();
                     m1598 = 1;
@@ -458,7 +452,8 @@ int EnemyJill::fn_8032F0EC() {
 }
 
 // inferred: collision world and its ray test (as in game/EnemyTrista.cpp)
-extern "C" void* lbl_8087EE98;
+struct ColliManager_unk;
+extern "C" ColliManager_unk* lbl_8087EE98;
 extern "C" int fn_8004ED34(void* colli, atn::ColliResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg7); // inferred: ray test
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: length
@@ -544,17 +539,7 @@ float EnemyJill::Stripped1_unk() {
     return 57.295776f * (rot.y - y);
 }
 
-// inferred: arena (lbl_8087F490): two players at 0x263C/0x2640 (nonzero m50 = talking); names invented
-struct JillArenaPlayer_unk {
-    unsigned char m00[0x50];
-    int m50;
-};
-struct JillArena_unk {
-    unsigned char m0000[0x263C];
-    JillArenaPlayer_unk* m263C;
-    JillArenaPlayer_unk* m2640;
-};
-extern "C" JillArena_unk* lbl_8087F490;
+extern "C" GameUI* lbl_8087F490;
 extern "C" int fn_800CB58C(atn::SoundRef* sound); // inferred: playing
 
 void EnemyJill::fn_8032F6A8() {
@@ -568,12 +553,12 @@ void EnemyJill::fn_8032F6A8() {
     if (lbl_8087F430 != 0 && lbl_8087F430->m54E4 != 0) {
         ok = 0;
     }
-    JillArena_unk* arena = lbl_8087F490;
+    GameUI* arena = lbl_8087F490;
     if (arena != 0) {
-        if (arena->m263C != 0 && arena->m263C->m50 != 0) {
+        if (arena->m263C != 0 && arena->m263C->mState != 0) {
             ok = 0;
         }
-        if (arena->m2640 != 0 && arena->m2640->m50 != 0) {
+        if (arena->m2640 != 0 && arena->m2640->mState != 0) {
             ok = 0;
         }
     }
@@ -658,7 +643,7 @@ int EnemyJill::fn_8032FBF4() {
     }
     float ratio = mStatus.m04 / (float)mStatus.mParamB.m84;
     for (int i = m14EC.mCount - 1; i >= 0; i--) {
-        if (((GameTask*)fn_80121F00())->fn_80370A78(m14EC.mData[i].m00) == 0 && ratio <= m14EC.mData[i].m08) {
+        if (fn_80121F00()->fn_80370A78(m14EC.mData[i].m00) == 0 && ratio <= m14EC.mData[i].m08) {
             return 1;
         }
     }
@@ -670,8 +655,8 @@ extern "C" void fn_800CB5C8(atn::SoundRef* sound, int frames, int arg); // infer
 void EnemyJill::fn_8032FD30() {
     JillEvent_unk* e = m14EC.mData;
     for (unsigned int i = 0; i < m14EC.mCount; i++) {
-        if (((GameTask*)fn_80121F00())->fn_80370A78(e->m00) == 0) {
-            ((GameTask*)fn_80121F00())->fn_80370AE4(e->m00, 1);
+        if (fn_80121F00()->fn_80370A78(e->m00) == 0) {
+            fn_80121F00()->fn_80370AE4(e->m00, 1);
             m1570 = i;
             fn_800CB5C8(&m15B0, 20, 0);
             m15B4.mCount = 0;
