@@ -52,13 +52,8 @@ public:
 
 extern "C" Event::Manager* lbl_8087F540;
 
-struct MainLoadMgr_unk {
-    unsigned char m0000[0x3ED8];
-    int m3ED8;
-};
-extern "C" MainLoadMgr_unk* lbl_8087F518;
-extern "C" void fn_8046F014(MainLoadMgr_unk* mgr);
-extern "C" void fn_8046F2C4(MainLoadMgr_unk* mgr);
+#include "atn/LoadManager.h"
+extern "C" atn::Loader* lbl_8087F518;
 
 extern "C" WPad_unk* lbl_8087F018;
 
@@ -83,7 +78,6 @@ extern "C" void fn_800713D4(void* obj, int w, int h);
 extern "C" void fn_80089620();
 extern "C" void fn_800B95C4();
 extern "C" void fn_800696C8();
-extern "C" void fn_8046D7D8(atn::Task* root);
 extern "C" void fn_800BC798();
 extern "C" void fn_80239794(int a, int b, int c, int d);
 extern "C" void fn_8004C9B4();
