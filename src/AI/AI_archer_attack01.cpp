@@ -37,7 +37,6 @@ AiScriptOutput_unk lbl_807C6A40;
 AiTargets_unk lbl_807C6B30;
 extern unsigned char lbl_807307A0[];
 extern float lbl_80880798;
-extern float lbl_808807B8;
 extern float lbl_808807AC;
 extern float lbl_8088079C;
 extern float lbl_808807A0;
@@ -824,6 +823,19 @@ static inline void Command_unk(int mode, int a, int b, int c, int d) {
     fn_8001AEDC(mode, &a_, &b_, &c_, &d_);
 }
 
+// inferred: same command, with the argument slots laid out from the last one (em_type003 vf08)
+static inline void CommandR_unk(int mode, int a, int b, int c, int d) {
+    int d_;
+    int c_;
+    int b_;
+    int a_;
+    d_ = d;
+    c_ = c;
+    b_ = b;
+    a_ = a;
+    fn_8001AEDC(mode, &a_, &b_, &c_, &d_);
+}
+
 // inferred: 1 (and out.m00 set) while out.m10 is still 0
 static inline int CheckCount_unk() {
     if (lbl_807C6A40.mC0 >= 1) {
@@ -1275,6 +1287,11 @@ struct AIString_unk {
     char* mData;
 };
 
+// inferred: operator< of the map's key compare (std::less<std::string>)
+static inline bool StrLess_unk(const std::string& a, const std::string& b) {
+    return a.compare(b) < 0;
+}
+
 // inferred: map value (script name, factory) stored in the node at +0xC; node size 0x1C (fn_8003DD50)
 struct AIScriptMapValue_unk {
     std::string first;
@@ -1325,7 +1342,7 @@ struct AIScriptMap_unk {
                 x = x->mRight;
             }
         }
-        if (result == End_unk() || key.compare(result->mValue.first) < 0) {
+        if (result == End_unk() || StrLess_unk(key, result->mValue.first)) {
             result = End_unk();
         }
         return result;
@@ -1377,7 +1394,7 @@ struct AIScriptMapL1_unk : public AIScriptMapL2_unk {
 };
 
 extern "C" int memcmp(const void*, const void*, unsigned long);
-extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key, AIScriptMapNode_unk** parent, bool* insertLeft, bool* insertFirst);
+extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const std::string* key, AIScriptMapNode_unk** parent, bool* insertLeft, bool* insertFirst);
 
 void operator delete(void* ptr);
 extern "C" void* fn_8001E168(AIString_unk* str, int freeObject);
@@ -1471,83 +1488,84 @@ extern "C" __declspec(noinline) AiTargets_unk* fn_8001C278() {
     return &lbl_807C6B30;
 }
 
-// NONMATCHING: 92.27% - registry population is reconstructed; local layout and call scheduling differ.
 // inferred: registers each script name with a heap-3 instance in the global AI script tree.
 extern "C" void fn_8001C284() {
-    unsigned char pairs[64][8];
-    AIStringWithAllocator_unk values[64];
-    void* objects[64];
-#define REGISTER_AI_SCRIPT(I, NAME, CLASS) do { \
+    // inferred: a macro and not an inline: 64 inline candidates exceed MWCC's per-caller inline budget
+    // (docs/inlining.md R3) and none would be inlined
+#define REGISTER_AI_SCRIPT(NAME, CLASS) do { \
         std::string key(NAME); \
-        objects[I] = new ((MemoryTag)3, "", "", 0) AI::Script::CLASS(); \
-        fn_8001E0B8(&values[I], (const AIStringWithAllocator_unk*)&key, (const unsigned int*)&objects[I]); \
-        fn_8001E1D0(pairs[I], &lbl_807C6B84, &values[I]); \
-        fn_8001E168(&values[I].mString, -1); \
+        AIStringWithAllocator_unk value; \
+        void* obj; \
+        unsigned char result[8]; \
+        obj = new ((MemoryTag)3, "", "", 0) AI::Script::CLASS(); \
+        fn_8001E0B8(&value, (const AIStringWithAllocator_unk*)&key, (const unsigned int*)&obj); \
+        fn_8001E1D0(result, &lbl_807C6B84, &value); \
+        fn_8001E168(&value.mString, -1); \
     } while (0)
-    REGISTER_AI_SCRIPT(0, "archer_attack01", AI_archer_attack01);
-    REGISTER_AI_SCRIPT(1, "archer_guard01", AI_archer_guard01);
-    REGISTER_AI_SCRIPT(2, "arganan01", AI_arganan01);
-    REGISTER_AI_SCRIPT(3, "buffer_attackstable01", AI_buffer_attackstable01);
-    REGISTER_AI_SCRIPT(4, "buffer_guard01", AI_buffer_guard01);
-    REGISTER_AI_SCRIPT(5, "buffer_guard02", AI_buffer_guard02);
-    REGISTER_AI_SCRIPT(6, "buffer_pointguard01", AI_buffer_pointguard01);
-    REGISTER_AI_SCRIPT(7, "em_archer_attack02", AI_em_archer_attack02);
-    REGISTER_AI_SCRIPT(8, "em_bridge_archer", AI_em_bridge_archer);
-    REGISTER_AI_SCRIPT(9, "em_monster_attack01", AI_em_monster_attack01);
-    REGISTER_AI_SCRIPT(10, "em_scout", AI_em_scout);
-    REGISTER_AI_SCRIPT(11, "em_sword_attack01", AI_em_sword_attack01);
-    REGISTER_AI_SCRIPT(12, "em_sword_attack02", AI_em_sword_attack02);
-    REGISTER_AI_SCRIPT(13, "em_sword_pointguard01", AI_em_sword_pointguard01);
-    REGISTER_AI_SCRIPT(14, "em_type003", AI_em_type003);
-    REGISTER_AI_SCRIPT(15, "em_type010", AI_em_type010);
-    REGISTER_AI_SCRIPT(16, "em_type102", AI_em_type102);
-    REGISTER_AI_SCRIPT(17, "em_type103", AI_em_type103);
-    REGISTER_AI_SCRIPT(18, "em_type104", AI_em_type104);
-    REGISTER_AI_SCRIPT(19, "em_type105", AI_em_type105);
-    REGISTER_AI_SCRIPT(20, "em_type106", AI_em_type106);
-    REGISTER_AI_SCRIPT(21, "fr_archer_pick01", AI_fr_archer_pick01);
-    REGISTER_AI_SCRIPT(22, "fr_buffer_pick01", AI_fr_buffer_pick01);
-    REGISTER_AI_SCRIPT(23, "fr_follow_player", AI_fr_follow_player);
-    REGISTER_AI_SCRIPT(24, "fr_magic_pick01", AI_fr_magic_pick01);
-    REGISTER_AI_SCRIPT(25, "fr_magic_pick02", AI_fr_magic_pick02);
-    REGISTER_AI_SCRIPT(26, "fr_runaway", AI_fr_runaway);
-    REGISTER_AI_SCRIPT(27, "fr_sword_attack01", AI_fr_sword_attack01);
-    REGISTER_AI_SCRIPT(28, "fr_sword_pick01", AI_fr_sword_pick01);
-    REGISTER_AI_SCRIPT(29, "fr_sword_pointguard", AI_fr_sword_pointguard);
-    REGISTER_AI_SCRIPT(30, "fr_sword_pointguard01", AI_fr_sword_pointguard01);
-    REGISTER_AI_SCRIPT(31, "fr_type005", AI_fr_type005);
-    REGISTER_AI_SCRIPT(32, "fr_warppointescape", AI_fr_warppointescape);
-    REGISTER_AI_SCRIPT(33, "jackal01", AI_jackal01);
-    REGISTER_AI_SCRIPT(34, "magic_attack01", AI_magic_attack01);
-    REGISTER_AI_SCRIPT(35, "magic_attack01_2", AI_magic_attack01_2);
-    REGISTER_AI_SCRIPT(36, "magic_attack02", AI_magic_attack02);
-    REGISTER_AI_SCRIPT(37, "magic_attackstable01", AI_magic_attackstable01);
-    REGISTER_AI_SCRIPT(38, "magic_cure01", AI_magic_cure01);
-    REGISTER_AI_SCRIPT(39, "magic_guard01", AI_magic_guard01);
-    REGISTER_AI_SCRIPT(40, "magic_guard01_2", AI_magic_guard01_2);
-    REGISTER_AI_SCRIPT(41, "magic_guard02", AI_magic_guard02);
-    REGISTER_AI_SCRIPT(42, "np_approach", AI_np_approach);
-    REGISTER_AI_SCRIPT(43, "np_approach_plus", AI_np_approach_plus);
-    REGISTER_AI_SCRIPT(44, "np_follow_player", AI_np_follow_player);
-    REGISTER_AI_SCRIPT(45, "np_tagger_random", AI_np_tagger_random);
-    REGISTER_AI_SCRIPT(46, "np_type001", AI_np_type001);
-    REGISTER_AI_SCRIPT(47, "np_type002", AI_np_type002);
-    REGISTER_AI_SCRIPT(48, "np_type003", AI_np_type003);
-    REGISTER_AI_SCRIPT(49, "np_type004", AI_np_type004);
-    REGISTER_AI_SCRIPT(50, "np_type005", AI_np_type005);
-    REGISTER_AI_SCRIPT(51, "np_wait_reaction", AI_np_wait_reaction);
-    REGISTER_AI_SCRIPT(52, "np_wait_reaction_minus", AI_np_wait_reaction_minus);
-    REGISTER_AI_SCRIPT(53, "np_wait_reaction_minus2", AI_np_wait_reaction_minus2);
-    REGISTER_AI_SCRIPT(54, "np_wait_reaction_plus", AI_np_wait_reaction_plus);
-    REGISTER_AI_SCRIPT(55, "quark01", AI_quark01);
-    REGISTER_AI_SCRIPT(56, "quark02", AI_quark02);
-    REGISTER_AI_SCRIPT(57, "silence_guard01", AI_silence_guard01);
-    REGISTER_AI_SCRIPT(58, "sword_guard01", AI_sword_guard01);
-    REGISTER_AI_SCRIPT(59, "sword_leaderguard01", AI_sword_leaderguard01);
-    REGISTER_AI_SCRIPT(60, "sword_leaderguard02", AI_sword_leaderguard02);
-    REGISTER_AI_SCRIPT(61, "sword_leaderguard03", AI_sword_leaderguard03);
-    REGISTER_AI_SCRIPT(62, "sword_pointguard01", AI_sword_pointguard01);
-    REGISTER_AI_SCRIPT(63, "return_guard01", AI_return_guard01);
+    REGISTER_AI_SCRIPT("archer_attack01", AI_archer_attack01);
+    REGISTER_AI_SCRIPT("archer_guard01", AI_archer_guard01);
+    REGISTER_AI_SCRIPT("arganan01", AI_arganan01);
+    REGISTER_AI_SCRIPT("buffer_attackstable01", AI_buffer_attackstable01);
+    REGISTER_AI_SCRIPT("buffer_guard01", AI_buffer_guard01);
+    REGISTER_AI_SCRIPT("buffer_guard02", AI_buffer_guard02);
+    REGISTER_AI_SCRIPT("buffer_pointguard01", AI_buffer_pointguard01);
+    REGISTER_AI_SCRIPT("em_archer_attack02", AI_em_archer_attack02);
+    REGISTER_AI_SCRIPT("em_bridge_archer", AI_em_bridge_archer);
+    REGISTER_AI_SCRIPT("em_monster_attack01", AI_em_monster_attack01);
+    REGISTER_AI_SCRIPT("em_scout", AI_em_scout);
+    REGISTER_AI_SCRIPT("em_sword_attack01", AI_em_sword_attack01);
+    REGISTER_AI_SCRIPT("em_sword_attack02", AI_em_sword_attack02);
+    REGISTER_AI_SCRIPT("em_sword_pointguard01", AI_em_sword_pointguard01);
+    REGISTER_AI_SCRIPT("em_type003", AI_em_type003);
+    REGISTER_AI_SCRIPT("em_type010", AI_em_type010);
+    REGISTER_AI_SCRIPT("em_type102", AI_em_type102);
+    REGISTER_AI_SCRIPT("em_type103", AI_em_type103);
+    REGISTER_AI_SCRIPT("em_type104", AI_em_type104);
+    REGISTER_AI_SCRIPT("em_type105", AI_em_type105);
+    REGISTER_AI_SCRIPT("em_type106", AI_em_type106);
+    REGISTER_AI_SCRIPT("fr_archer_pick01", AI_fr_archer_pick01);
+    REGISTER_AI_SCRIPT("fr_buffer_pick01", AI_fr_buffer_pick01);
+    REGISTER_AI_SCRIPT("fr_follow_player", AI_fr_follow_player);
+    REGISTER_AI_SCRIPT("fr_magic_pick01", AI_fr_magic_pick01);
+    REGISTER_AI_SCRIPT("fr_magic_pick02", AI_fr_magic_pick02);
+    REGISTER_AI_SCRIPT("fr_runaway", AI_fr_runaway);
+    REGISTER_AI_SCRIPT("fr_sword_attack01", AI_fr_sword_attack01);
+    REGISTER_AI_SCRIPT("fr_sword_pick01", AI_fr_sword_pick01);
+    REGISTER_AI_SCRIPT("fr_sword_pointguard", AI_fr_sword_pointguard);
+    REGISTER_AI_SCRIPT("fr_sword_pointguard01", AI_fr_sword_pointguard01);
+    REGISTER_AI_SCRIPT("fr_type005", AI_fr_type005);
+    REGISTER_AI_SCRIPT("fr_warppointescape", AI_fr_warppointescape);
+    REGISTER_AI_SCRIPT("jackal01", AI_jackal01);
+    REGISTER_AI_SCRIPT("magic_attack01", AI_magic_attack01);
+    REGISTER_AI_SCRIPT("magic_attack01_2", AI_magic_attack01_2);
+    REGISTER_AI_SCRIPT("magic_attack02", AI_magic_attack02);
+    REGISTER_AI_SCRIPT("magic_attackstable01", AI_magic_attackstable01);
+    REGISTER_AI_SCRIPT("magic_cure01", AI_magic_cure01);
+    REGISTER_AI_SCRIPT("magic_guard01", AI_magic_guard01);
+    REGISTER_AI_SCRIPT("magic_guard01_2", AI_magic_guard01_2);
+    REGISTER_AI_SCRIPT("magic_guard02", AI_magic_guard02);
+    REGISTER_AI_SCRIPT("np_approach", AI_np_approach);
+    REGISTER_AI_SCRIPT("np_approach_plus", AI_np_approach_plus);
+    REGISTER_AI_SCRIPT("np_follow_player", AI_np_follow_player);
+    REGISTER_AI_SCRIPT("np_tagger_random", AI_np_tagger_random);
+    REGISTER_AI_SCRIPT("np_type001", AI_np_type001);
+    REGISTER_AI_SCRIPT("np_type002", AI_np_type002);
+    REGISTER_AI_SCRIPT("np_type003", AI_np_type003);
+    REGISTER_AI_SCRIPT("np_type004", AI_np_type004);
+    REGISTER_AI_SCRIPT("np_type005", AI_np_type005);
+    REGISTER_AI_SCRIPT("np_wait_reaction", AI_np_wait_reaction);
+    REGISTER_AI_SCRIPT("np_wait_reaction_minus", AI_np_wait_reaction_minus);
+    REGISTER_AI_SCRIPT("np_wait_reaction_minus2", AI_np_wait_reaction_minus2);
+    REGISTER_AI_SCRIPT("np_wait_reaction_plus", AI_np_wait_reaction_plus);
+    REGISTER_AI_SCRIPT("quark01", AI_quark01);
+    REGISTER_AI_SCRIPT("quark02", AI_quark02);
+    REGISTER_AI_SCRIPT("silence_guard01", AI_silence_guard01);
+    REGISTER_AI_SCRIPT("sword_guard01", AI_sword_guard01);
+    REGISTER_AI_SCRIPT("sword_leaderguard01", AI_sword_leaderguard01);
+    REGISTER_AI_SCRIPT("sword_leaderguard02", AI_sword_leaderguard02);
+    REGISTER_AI_SCRIPT("sword_leaderguard03", AI_sword_leaderguard03);
+    REGISTER_AI_SCRIPT("sword_pointguard01", AI_sword_pointguard01);
+    REGISTER_AI_SCRIPT("return_guard01", AI_return_guard01);
 #undef REGISTER_AI_SCRIPT
 }
 
@@ -1608,7 +1626,7 @@ extern "C" void fn_8001E1D0(void* result, void* tree, const AIStringWithAllocato
     AIScriptMapNode_unk* pred;
     bool leftmost;
     bool left;
-    AIScriptMapNode_unk* parent = fn_8003E530(tree, &value->mString, &pred, &left, &leftmost);
+    AIScriptMapNode_unk* parent = fn_8003E530(tree, (const std::string*)&value->mString, &pred, &left, &leftmost);
     AIScriptInsertResult_unk r;
     if (pred == 0 || pred->mValue.first.compare(v.first) < 0) {
         r.first = ((AIScriptMap_unk*)tree)->InsertNode_unk(parent, left, leftmost, v);
@@ -1776,12 +1794,15 @@ extern "C" void fn_8001E730() {
 }
 
 // inferred: called with bl by fn_8001C1C0 (MWCC would inline it: noinline as in fn_8003DBA4)
-// NONMATCHING: 88.02% - the key size and data are loaded once before the search loop (the original reads
-// them again for every node and saves four registers instead of seven)
+// NONMATCHING: 97.67% - r29/r30 swapped between the end node and the short key data pointer
 // inferred: std::map<std::string, factory>::find on the script map (0x807C6B84, end node at +0x04 whose
 // left link is the root): the factory of the named script, 0 if there is none
 extern "C" __declspec(noinline) void* fn_8001EA18(const char* name) {
-    AIScriptMapNode_unk* it = lbl_807C6B84.Find_unk(std::string(name));
+    AIScriptMapNode_unk* it;
+    {
+        const std::string& key = std::string(name);
+        it = lbl_807C6B84.Find_unk(key);
+    }
     return it != lbl_807C6B84.End_unk() ? it->mValue.second : 0;
 }
 
@@ -4090,17 +4111,11 @@ int AI::Script::AI_em_sword_pointguard01::vf0C() {
     return -1;
 }
 
-// NONMATCHING: 89.70% - the local-slot allocation and scratch-store scheduling differ.
 int AI::Script::AI_em_type003::vf08() {
-    int d = 0;
-    int c = 0xA;
-    int b = 0;
-    int a = 0;
     lbl_807C6A40.m18[0] = 0x28;
-    d = lbl_807C68C0.m7C[0];
-    lbl_807C6A40.m18[1] = d;
+    lbl_807C6A40.m18[1] = lbl_807C68C0.m7C[0];
     lbl_807C6A40.mValid = 1;
-    fn_8001AEDC(8, &d, &c, &b, &a);
+    CommandR_unk(8, lbl_807C6A40.m18[1], 0xA, 0, 0);
     return 1;
 }
 
@@ -4156,19 +4171,14 @@ int AI::Script::AI_em_type003::vf0C() {
     return -1;
 }
 
-// NONMATCHING: 76.72% - MWCC's parameter stack slots and scratch-store order differ.
 int AI::Script::AI_em_type010::vf08() {
-    int a = lbl_807C68C0.m7C[0];
     lbl_807C6A40.m18[0] = 0x28;
-    lbl_807C6A40.m18[1] = a;
+    lbl_807C6A40.m18[1] = lbl_807C68C0.m7C[0];
     lbl_807C6A40.m18[2] = lbl_807C68C0.m7C[1];
     lbl_807C6A40.m18[3] = 0;
     lbl_807C6A40.m18[4] = lbl_807C68C0.m7C[2];
     lbl_807C6A40.mValid = 1;
-    int b = 0xA;
-    int c = 0;
-    int d = 0;
-    fn_8001AEDC(8, &a, &b, &c, &d);
+    CommandR_unk(8, lbl_807C6A40.m18[1], 0xA, 0, 0);
     return 1;
 }
 
@@ -4222,7 +4232,6 @@ int AI::Script::AI_em_type010::vf28() {
     return -1;
 }
 
-// NONMATCHING: 93.63% - out base register (r10/r7 instead of r7/r4).
 int AI::Script::AI_em_type010::vf40() {
     int result = CheckCount_unk();
     if (result == 1) {
@@ -4232,8 +4241,8 @@ int AI::Script::AI_em_type010::vf40() {
     }
     if (lbl_807C6A40.m18[3] == 1) {
         if (lbl_807C68C0.mLife == 100) {
-            lbl_807C6A40.mValid = 1;
             lbl_807C6A40.m18[3] = 0;
+            lbl_807C6A40.mValid = 1;
             UseSkill_unk();
             return 1;
         }
@@ -5425,16 +5434,11 @@ int AI::Script::AI_fr_buffer_pick01::vf40() {
     return -1;
 }
 
-// NONMATCHING: 88.31% - local output aggregate and register allocation differ.
-// inferred: the helper receives four consecutive output words; only the first is initialized from m80.
 int AI::Script::AI_fr_follow_player::vf08() {
-    int results[4] = {0, 0, 0, 0};
-    int value = lbl_807C68C0.m7C[0];
-    results[0] = lbl_807C68C0.m7C[1];
-    lbl_807C6A40.m18[0] = value;
+    lbl_807C6A40.m18[0] = lbl_807C68C0.m7C[0];
     lbl_807C6A40.m18[1] = 1;
     lbl_807C6A40.mValid = 1;
-    fn_8001AEDC(0, &results[0], &results[1], &results[2], &results[3]);
+    Command_unk(0, lbl_807C68C0.m7C[1], 0, 0, 0);
     return 3;
 }
 
@@ -6214,16 +6218,11 @@ int AI::Script::AI_fr_sword_pick01::vf0C() {
     return -1;
 }
 
-// NONMATCHING: 89.57% - stack output order and register allocation differ.
 int AI::Script::AI_fr_sword_pointguard::vf08() {
-    int d = lbl_807C68C0.m7C[0];
-    int c = 0x1E;
-    int b = 0;
-    int a = 0;
     lbl_807C6A40.m18[0] = 0x3C;
-    lbl_807C6A40.m18[1] = d;
+    lbl_807C6A40.m18[1] = lbl_807C68C0.m7C[0];
     lbl_807C6A40.mValid = 1;
-    fn_8001AEDC(8, &d, &c, &b, &a);
+    CommandR_unk(8, lbl_807C6A40.m18[1], 0x1E, 0, 0);
     return 1;
 }
 
@@ -8211,16 +8210,12 @@ int AI::Script::AI_np_approach_plus::vf34() {
     return result;
 }
 
-// NONMATCHING: 88.31% - local output aggregate and register allocation differ.
 // inferred: duplicate script stub of fn_8002B818 at a second address.
 int AI::Script::AI_np_follow_player::vf08() {
-    int results[4] = {0, 0, 0, 0};
-    int value = lbl_807C68C0.m7C[0];
-    results[0] = lbl_807C68C0.m7C[1];
-    lbl_807C6A40.m18[0] = value;
+    lbl_807C6A40.m18[0] = lbl_807C68C0.m7C[0];
     lbl_807C6A40.m18[1] = 1;
     lbl_807C6A40.mValid = 1;
-    fn_8001AEDC(0, &results[0], &results[1], &results[2], &results[3]);
+    Command_unk(0, lbl_807C68C0.m7C[1], 0, 0, 0);
     return 3;
 }
 
@@ -8277,21 +8272,14 @@ int AI::Script::AI_np_tagger_random::vf14() {
 }
 
 // inferred: picks a target near the current position (first within 120, then anywhere)
-// NONMATCHING: 95.15% - the order of the zero stores to the output arguments differs.
 int AI::Script::AI_np_type001::vf08() {
     int base = fn_8001B5B4(lbl_807C68C0.mPos, 0);
     int a;
-    int b;
-    int c;
-    int d;
     if ((a = fn_8001BA88(lbl_807C68C0.mChara, base, 1, -1, lbl_8088079C, lbl_808807A0, lbl_80880798)) <= 0 &&
         (a = fn_8001BA88(lbl_807C68C0.mChara, base, 1, -1, lbl_808807A4, lbl_808807A8, lbl_80880798)) <= 0) {
         a = base;
     }
-    d = 0;
-    c = 0;
-    b = 0;
-    fn_8001AEDC(1, &a, &b, &c, &d);
+    CommandR_unk(1, a, 0, 0, 0);
     lbl_807C6A40.mValid = 1;
     return 3;
 }
@@ -8339,12 +8327,12 @@ int AI::Script::AI_np_type002::vf0C() {
     return -1;
 }
 
-// NONMATCHING: 99.32% - register coloring of the out base/m08 temps and stack slot order of the two MovePick groups.
 int AI::Script::AI_np_type002::vf14() {
     if (lbl_807C6A40.m18[0] < lbl_807C6A40.m18[1]) {
         lbl_807C6A40.m18[0]++;
         lbl_807C6A40.mValid = 1;
-        if (lbl_807C68C0.mDone != 0) {
+        int done = lbl_807C68C0.mDone;
+        if (done != 0) {
             int base = fn_8001B5B4(lbl_807C68C0.mPos, 0);
             Command_unk(1, PickPoint_unk(base), 0, 0, 0);
             return 3;
@@ -8359,7 +8347,8 @@ int AI::Script::AI_np_type002::vf14() {
     }
     lbl_807C6A40.m18[0] -= 90;
     lbl_807C6A40.mValid = 1;
-    if (lbl_807C68C0.mDone != 0) {
+    int done = lbl_807C68C0.mDone;
+    if (done != 0) {
         int base = fn_8001B5B4(lbl_807C68C0.mPos, 0);
         Command_unk(1, PickPoint_unk(base), 0, 0, 0);
         return 3;
@@ -8399,12 +8388,12 @@ int AI::Script::AI_np_type003::vf0C() {
     return -1;
 }
 
-// NONMATCHING: 99.25% - register coloring of the out base/m08 temps (as AI_np_type002::vf14).
 int AI::Script::AI_np_type003::vf14() {
     if (lbl_807C6A40.m18[0] < lbl_807C6A40.m18[1]) {
         lbl_807C6A40.m18[0]++;
         lbl_807C6A40.mValid = 1;
-        if (lbl_807C68C0.mDone != 0) {
+        int done = lbl_807C68C0.mDone;
+        if (done != 0) {
             int base = fn_8001B5B4(lbl_807C68C0.mPos, 0);
             Command_unk(1, PickPoint_unk(base), 0, 0, 0);
             return 3;
@@ -8419,7 +8408,8 @@ int AI::Script::AI_np_type003::vf14() {
     }
     lbl_807C6A40.m18[0] -= 90;
     lbl_807C6A40.mValid = 1;
-    if (lbl_807C68C0.mDone != 0) {
+    int done = lbl_807C68C0.mDone;
+    if (done != 0) {
         int base = fn_8001B5B4(lbl_807C68C0.mPos, 0);
         Command_unk(1, PickPoint_unk(base), 0, 0, 0);
         return 3;
@@ -8442,14 +8432,10 @@ int AI::Script::AI_np_type004::vf08() {
     return 3;
 }
 
-// NONMATCHING: 70.77% - argument setup and local register allocation differ.
 // inferred: a 0x12-byte helper allocation is passed as the first output word.
 int AI::Script::AI_np_type004::vf14() {
-    int a = fn_8001AEBC(0x12);
     int b = lbl_807C6A40.m18[0];
-    int c = 0;
-    int d = 0;
-    fn_8001AEDC(0xD, &a, &b, &c, &d);
+    Command_unk(0xD, fn_8001AEBC(0x12), b, 0, 0);
     lbl_807C6A40.mValid = 1;
     return 6;
 }
@@ -8678,11 +8664,10 @@ int AI::Script::AI_np_wait_reaction_plus::vf34() {
     return 1;
 }
 
-// NONMATCHING: 61.90% - the original loads the 1.5f factor before the input count.
 int AI::Script::AI_quark01::vf08() {
     int result = 1;
     lbl_807C6A40.m18[0] = 240;
-    lbl_807C6A40.m18[1] = (int)(lbl_808807B8 * (float)lbl_807C68C0.m30[0]);
+    lbl_807C6A40.m18[1] = 1.5f * lbl_807C68C0.m30[0];
     lbl_807C6A40.m18[3] = lbl_807C68C0.m7C[0];
     lbl_807C6A40.m18[4] = 100;
     lbl_807C6A40.mValid = 1;
@@ -10009,11 +9994,10 @@ int AI::Script::AI_sword_pointguard01::vf0C() {
     return -1;
 }
 
-// NONMATCHING: 89.40% - conversion to float and generated constant do not match MWCC's sequence.
 int AI::Script::AI_return_guard01::vf08() {
-    int count = lbl_807C68C0.m30[0];
+    float f = lbl_807C68C0.m30[0];
     lbl_807C6A40.mValid = 1;
-    lbl_807C6A40.m18[1] = (int)(lbl_808807B8 * (float)count);
+    lbl_807C6A40.m18[1] = 1.5f * f;
     return 1;
 }
 
@@ -10279,8 +10263,6 @@ void AIScriptMap_unk::Destroy_unk(AIScriptMapNode_unk* node) {
     operator delete(node);
 }
 
-// NONMATCHING: 92.93% - stack slots of the size temporaries of the inlined basic_string::compare
-// (std/string.h) differ (12/8 here, 16/20 in the original)
 // inferred: finds the insertion position for a string key and returns the last visited node.
 namespace std {
 
@@ -10331,19 +10313,19 @@ template void __red_black_tree<__tree_node_base_void*>::balance_insert(__tree_no
 
 } // namespace std
 
-extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key,
+extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const std::string* key,
                                             AIScriptMapNode_unk** parent,
                                             bool* insertLeft,
                                             bool* insertFirst) {
-    AIScriptMapNode_unk* candidate = ((AIScriptMap_unk*)tree)->End_unk();
+    AIScriptMap_unk* map = (AIScriptMap_unk*)tree;
+    AIScriptMapNode_unk* candidate = map->End_unk();
     *parent = 0;
-    AIScriptMapNode_unk* node = ((AIScriptMap_unk*)tree)->mRoot;
+    AIScriptMapNode_unk* node = map->mRoot;
     *insertLeft = 1;
     *insertFirst = 1;
     while (node != 0) {
         candidate = node;
-        int cmp = ((const std::string*)key)->compare(node->mValue.first);
-        if (cmp < 0) {
+        if (StrLess_unk(*key, node->mValue.first)) {
             node = node->mLeft;
             *insertLeft = 1;
         } else {

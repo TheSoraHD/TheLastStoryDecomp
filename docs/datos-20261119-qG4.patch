@@ -1,0 +1,47 @@
+diff --git a/src/AI/AI_archer_attack01.cpp b/src/AI/AI_archer_attack01.cpp
+index f0f9cc0..8085560 100644
+--- a/src/AI/AI_archer_attack01.cpp
++++ b/src/AI/AI_archer_attack01.cpp
+@@ -1621,14 +1621,14 @@ struct AIScriptInsertResult_unk {
+     bool second;
+ };
+ 
+-extern "C" void fn_8001E1D0(void* result, void* tree, const AIStringWithAllocator_unk* value) {
++static inline void InsertValue_unk(void* result, void* tree, const AIStringWithAllocator_unk* value) {
+     const AIScriptMapValue_unk& v = *(const AIScriptMapValue_unk*)value;
+     AIScriptMapNode_unk* pred;
+-    bool leftmost;
+     bool left;
++    bool leftmost;
+     AIScriptMapNode_unk* parent = fn_8003E530(tree, (const std::string*)&value->mString, &pred, &left, &leftmost);
+     AIScriptInsertResult_unk r;
+-    if (pred == 0 || pred->mValue.first.compare(v.first) < 0) {
++    if (pred == 0 || StrLess_unk(pred->mValue.first, v.first)) {
+         r.first = ((AIScriptMap_unk*)tree)->InsertNode_unk(parent, left, leftmost, v);
+         r.second = lbl_8087D6F0;
+     } else {
+@@ -1638,6 +1638,10 @@ extern "C" void fn_8001E1D0(void* result, void* tree, const AIStringWithAllocato
+     *(AIScriptInsertResult_unk*)result = r;
+ }
+ 
++extern "C" void fn_8001E1D0(void* result, void* tree, const AIStringWithAllocator_unk* value) {
++    InsertValue_unk(result, tree, value);
++}
++
+ namespace AI {
+ 
+ namespace Script {
+diff --git a/src/AI/AI_archer_attack01.cpp b/src/AI/AI_archer_attack01.cpp
+index f0f9cc0..a843f0c 100644
+--- a/src/AI/AI_archer_attack01.cpp
++++ b/src/AI/AI_archer_attack01.cpp
+@@ -1774,7 +1774,8 @@ AI_return_guard01::AI_return_guard01() {} // 0x8001E720
+ // after the loop and for each call) and one more saved register
+ // inferred: empties the script map: deletes the factories in key order, then the nodes
+ extern "C" void fn_8001E730() {
+-    for (AIScriptMapNode_unk* x = lbl_807C6B84.mFirst; x != lbl_807C6B84.End_unk();) {
++    AIScriptMapNode_unk* end = lbl_807C6B84.End_unk();
++    for (AIScriptMapNode_unk* x = lbl_807C6B84.mFirst; x != end;) {
+         operator delete(x->mValue.second);
+         if (x->mRight != 0) {
+             AIScriptMapNode_unk* y = x->mRight;
