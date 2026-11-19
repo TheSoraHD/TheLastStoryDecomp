@@ -32,7 +32,10 @@ extern "C" int fn_8044D560(Inventory* party);           // inferred: number of i
 extern "C" int fn_8044D500(Inventory* party, int index); // inferred: item to identify
 extern "C" void* lbl_8087EF70; // inferred: pad
 extern "C" int fn_800A555C(void* pad, int port, int button); // inferred: button triggered
-extern "C" void* lbl_8087F518; // inferred: loader
+namespace atn {
+class Loader;
+}
+extern "C" atn::Loader* lbl_8087F518; // inferred: loader
 extern "C" void fn_8046ECDC(void* loader, int show); // inferred: shows the loading screen
 extern "C" void fn_8046EED8(void* loader);           // inferred: hides the loading screen
 extern "C" PlayerManager* lbl_8087F8A0; // inferred: the party

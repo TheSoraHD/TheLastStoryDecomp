@@ -5,7 +5,10 @@
 
 extern "C" void* memset(void* dst, int c, unsigned long n);
 extern "C" void* memcpy(void* dst, const void* src, unsigned long n);
-extern "C" void* lbl_8087F518;
+namespace atn {
+class Loader;
+}
+extern "C" atn::Loader* lbl_8087F518;
 extern "C" void fn_8046ECDC(void* obj, int arg);
 extern "C" MP::SaveData_unk* lbl_8087F460; // inferred: pending save data
 extern "C" int lbl_8087DD60;               // inferred: its slot

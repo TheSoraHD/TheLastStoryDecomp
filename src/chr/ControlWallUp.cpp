@@ -16,7 +16,8 @@ extern "C" int rand();
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 extern "C" HitInfo_unk* fn_80219E6C(int id);           // inferred: bullet/skill data by id
 
-extern "C" void* lbl_8087F430;
+class GameTask;
+extern "C" GameTask* lbl_8087F430;
 
 // inferred: arena mode object (lbl_8087F610)
 extern "C" void* lbl_8087F610;

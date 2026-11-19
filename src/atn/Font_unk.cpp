@@ -262,7 +262,10 @@ union FontWGPipe_unk {
 };
 #define FONT_GX_FIFO (*(volatile FontWGPipe_unk*)0xCC008000)
 
-extern "C" void* lbl_8087EEE0; // inferred: graphics device
+namespace atn {
+struct GraphicsDevice_unk;
+}
+extern "C" atn::GraphicsDevice_unk* lbl_8087EEE0; // inferred: graphics device
 extern "C" void fn_800763C0(void* device, int map, Texture_unk* tex); // inferred: loads a texture
 extern "C" void GXBegin(int type, int fmt, unsigned short n);
 extern "C" double floor(double x);

@@ -15,7 +15,8 @@ class BattleTask;
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
 
 // inferred: field object (lbl_8087F430) and its counters (same calls as in gmk/AttractHatePoint.cpp)
-extern "C" void* lbl_8087F430;
+class GameTask;
+extern "C" GameTask* lbl_8087F430;
 
 // inferred: flag test through an accessor (the flag word is loaded again before it is changed);
 // name invented (same as in gmk/ReinforcePoint.cpp)

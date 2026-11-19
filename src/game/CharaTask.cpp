@@ -327,7 +327,10 @@ extern "C" int fn_800DD3FC(wchar_t* s, const wchar_t* format, ...); // inferred:
 extern "C" int fn_8021BE98(char* name, CharaStatusEntry_unk* entry);  // inferred: name of an entry
 
 
-extern "C" void* lbl_8087F540;
+namespace Event {
+class Manager;
+}
+extern "C" Event::Manager* lbl_8087F540;
 extern "C" int fn_80481654(void* obj);
 
 extern "C" const wchar_t lbl_808813D0[2]; // inferred: empty text

@@ -45,7 +45,10 @@ extern "C" Field_unk* lbl_8087F430;
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
 extern "C" void* lbl_8087EE90;
 extern "C" void* lbl_8087F418;
-extern "C" void* lbl_8087F540;
+namespace Event {
+class Manager;
+}
+extern "C" Event::Manager* lbl_8087F540;
 struct Unk8087F540_unk {
     unsigned char m00[0x70];
     struct {

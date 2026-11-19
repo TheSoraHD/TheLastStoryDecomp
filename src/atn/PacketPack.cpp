@@ -1515,7 +1515,10 @@ extern "C" __declspec(noinline) inline int fn_804D810C(PPCharaArray_unk* charas)
     return charas->size();
 }
 
-extern "C" void* lbl_8087F518;
+namespace atn {
+class Loader;
+}
+extern "C" atn::Loader* lbl_8087F518;
 inline void* ResMgr_unk() {
     return lbl_8087F518;
 }

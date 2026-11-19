@@ -31,7 +31,8 @@ struct ItemList_unk {
     unsigned int mCount;
     int* mIds;
 };
-extern "C" void* lbl_8087F430;
+class GameTask;
+extern "C" GameTask* lbl_8087F430;
 extern "C" ItemList_unk* fn_8020787C(int id);
 extern "C" SkillParam_unk* fn_80219EB4(); // inferred: skill/bullet table (db/SkillParam_unk)
 extern "C" int fn_80219EBC();

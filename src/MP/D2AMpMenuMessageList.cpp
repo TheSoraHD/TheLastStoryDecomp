@@ -48,7 +48,8 @@ extern "C" int fn_806A8E70();
 
 
 extern "C" GameConfig_unk* lbl_8087F0A8;
-extern "C" void* lbl_8087F430;
+class GameTask;
+extern "C" GameTask* lbl_8087F430;
 
 // inferred: debug text drawing
 

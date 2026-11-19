@@ -23,7 +23,8 @@ extern "C" void* fn_800EFC64(int id);         // inferred: effect of a skill (ga
 
 // inferred: skill effect manager (as in gmk/HealPoint.cpp)
 class SkillEffect;
-extern "C" void* lbl_8087F9E8;
+class SkillEffectManager;
+extern "C" SkillEffectManager* lbl_8087F9E8;
 extern "C" SkillEffect* fn_8059B66C(void* mgr, HitInfo_unk* skill, CharaTask* user, CharaTask* target,
                                     const atn::Vector3* pos, const atn::Vector3* rot,
                                     boost::function<void(SkillEffect*)> callback, float rate);

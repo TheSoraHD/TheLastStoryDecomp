@@ -4,7 +4,8 @@
 #include "game/BattleTask.h"
 
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
-extern "C" void* lbl_8087F430; // inferred: field manager (as in game/CharaTask.cpp)
+class GameTask;
+extern "C" GameTask* lbl_8087F430; // inferred: field manager (as in game/CharaTask.cpp)
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 // inferred: parameters of fn_8003EA3C (defined in game/CharaTask.cpp)
 struct HitParam_unk;

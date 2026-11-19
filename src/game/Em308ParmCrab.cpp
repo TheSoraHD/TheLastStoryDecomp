@@ -67,7 +67,8 @@ extern "C" int fn_8004ED34(void* colli, atn::ColliResult_unk* result, const atn:
                            unsigned int mask, void* ignore, int arg7); // inferred: ray test
 // inferred: skill effects (as in game/Em308InvertCrab.cpp)
 struct CrabSkill_unk;
-extern "C" void* lbl_8087F9E8;
+class SkillEffectManager;
+extern "C" SkillEffectManager* lbl_8087F9E8;
 extern "C" CrabSkill_unk* fn_8059B66C(void* mgr, HitInfo_unk* skill, CharaTask* user, CharaTask* target,
                                       const atn::Vector3* pos, const atn::Vector3* rot,
                                       boost::function<void(CrabSkill_unk*)> callback, float rate);

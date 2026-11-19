@@ -35,7 +35,8 @@ extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared len
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
 // inferred: skill effects (as in gmk/HealPoint.cpp); the callback is empty here
 struct SkillEffect;
-extern "C" void* lbl_8087F9E8;
+class SkillEffectManager;
+extern "C" SkillEffectManager* lbl_8087F9E8;
 extern "C" SkillEffect* fn_8059B66C(void* mgr, HitInfo_unk* skill, CharaTask* user, CharaTask* target,
                                    const atn::Vector3* pos, const atn::Vector3* rot,
                                    boost::function<void(SkillEffect*)> callback, float rate);

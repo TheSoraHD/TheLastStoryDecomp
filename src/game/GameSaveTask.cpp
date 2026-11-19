@@ -8,7 +8,10 @@ extern "C" void* memcpy(void* dst, const void* src, unsigned long n);
 extern "C" void* lbl_8087EF70;                               // inferred: pad
 extern "C" int fn_800A555C(void* pad, int port, int button); // inferred: button triggered
 extern "C" int fn_800A55AC(void* pad, int port, int button); // inferred: button repeated
-extern "C" void* lbl_8087F518;
+namespace atn {
+class Loader;
+}
+extern "C" atn::Loader* lbl_8087F518;
 extern "C" void fn_8046ECDC(void* obj, int arg);
 
 

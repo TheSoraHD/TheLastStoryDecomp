@@ -67,7 +67,10 @@ void GXBegin(int type, int fmt, unsigned short n);
 }
 
 // inferred: engine renderer (global 0x8087EEE0); fn_800763FC loads a texture object into a map
-extern "C" void* lbl_8087EEE0;
+namespace atn {
+struct GraphicsDevice_unk;
+}
+extern "C" atn::GraphicsDevice_unk* lbl_8087EEE0;
 extern "C" void fn_800763FC(void* renderer, GXTexObj* obj, int map);
 
 extern "C" void fn_805B4DF0() {

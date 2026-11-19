@@ -32,7 +32,8 @@ extern "C" int fn_80117214(int index);                             // inferred: 
 extern "C" const wchar_t* fn_80116FC0(int a, int id);              // inferred: system text
 extern "C" const wchar_t lbl_808813D0[2];                          // inferred: empty text
 extern "C" void fn_804A4494(int* cursor, int* top, int count, int page, int a, int b); // inferred: moves a list cursor
-extern "C" void* lbl_8087F430; // inferred: field
+class GameTask;
+extern "C" GameTask* lbl_8087F430; // inferred: field
 extern "C" int fn_80219558(int id); // inferred: party member of a character id
 extern "C" int fn_8020EF80(EquipParamEntry_unk* entry); // inferred: item id of an equipment entry
 extern "C" int fn_80444A50(Inventory* inv, int kind);   // inferred: item of a kind

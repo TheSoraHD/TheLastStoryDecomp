@@ -70,7 +70,10 @@ public:
 };
 } // namespace atn
 
-extern "C" void* lbl_8087EEE0;
+namespace atn {
+struct GraphicsDevice_unk;
+}
+extern "C" atn::GraphicsDevice_unk* lbl_8087EEE0;
 extern "C" void* lbl_8087EF70;
 extern "C" void* lbl_8087EE98;
 extern "C" void* lbl_8087EE90;

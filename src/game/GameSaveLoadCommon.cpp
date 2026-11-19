@@ -34,7 +34,10 @@ extern "C" int lbl_8087F434;
 extern "C" void fn_800A4BE4(SaveLoadMgr_unk* mgr, const char* name, void* work); // inferred: open
 extern "C" void fn_800A4D00(SaveLoadMgr_unk* mgr, void* buf, int size, int offset, void* work); // inferred: read
 extern "C" void fn_800A4E08(SaveLoadMgr_unk* mgr, void* work); // inferred: close
-extern "C" void* lbl_8087F518;
+namespace atn {
+class Loader;
+}
+extern "C" atn::Loader* lbl_8087F518;
 extern "C" void fn_8046ECDC(void* obj, int arg);
 // inferred: text (the float after the color is evaluated after it, see game/GameSaveTask.cpp)
 

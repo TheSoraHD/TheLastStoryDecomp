@@ -23,7 +23,8 @@ extern "C" void fn_8023A8B4(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Mod
                             int arg8, int arg9, float scale);
 extern "C" void fn_80239DAC(atn::EffectManager* mgr, void* owner, int id, int arg); // inferred: stops an effect
 extern "C" void fn_80232B7C(void* owner, int arg);
-extern "C" void* lbl_8087F430; // inferred: field object
+class GameTask;
+extern "C" GameTask* lbl_8087F430; // inferred: field object
 // inferred: item tables (names invented)
 struct ItemEntry_unk {
     int mId;

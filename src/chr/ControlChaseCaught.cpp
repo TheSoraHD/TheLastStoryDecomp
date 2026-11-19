@@ -14,7 +14,8 @@
 extern "C" GameConfig_unk* lbl_8087F0A8;
 extern "C" ChaseManager* lbl_8087F098;
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
-extern "C" void* lbl_8087F430; // inferred: field state
+class GameTask;
+extern "C" GameTask* lbl_8087F430; // inferred: field state
 extern "C" void PSMTXScale(Mtx m, float x, float y, float z);
 extern "C" double fmod(double x, double y);
 extern "C" double sqrt(double x);

@@ -21,7 +21,8 @@ extern "C" atn::Matrix3x4 lbl_807C7060; // inferred: identity matrix
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 extern "C" GameConfig_unk* lbl_8087F0A8;
 // inferred: unknown manager; ((GameTask*)mgr)->fn_80370A78(0) == 1 starts the bats (class unknown)
-extern "C" void* lbl_8087F430;
+class GameTask;
+extern "C" GameTask* lbl_8087F430;
 
 #define __MAX_unk(a, b) ((a) > (b) ? (a) : (b))
 

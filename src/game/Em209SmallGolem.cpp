@@ -46,7 +46,8 @@ extern "C" GameTask* lbl_8087F430;
 extern "C" PlayerManager* lbl_8087F8A0;
 extern "C" GameUI* lbl_8087F490;
 extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg, int arg2, float volume); // inferred: plays a sound
-extern "C" void* lbl_8087F0A8; // inferred: settings (pad at 0x48C)
+class GameConfig_unk;
+extern "C" GameConfig_unk* lbl_8087F0A8; // inferred: settings (pad at 0x48C)
 struct HomingParam_unk;
 // inferred: hint of the HUD (GameUI::m764) built as a temporary (name invented)
 struct GolemUIHint_unk : public GameUIElem1C_unk {

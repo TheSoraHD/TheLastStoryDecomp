@@ -3,7 +3,10 @@
 #include "atn/DrawHelper.h"
 
 // inferred: texture lookup and 2D renderer (classes unknown, automatic names)
-extern "C" void* lbl_8087F138;
+namespace atn {
+class D2A_Manager;
+}
+extern "C" atn::D2A_Manager* lbl_8087F138;
 extern "C" void* fn_801F1098(void* textures, int id, int index);
 
 namespace atn {

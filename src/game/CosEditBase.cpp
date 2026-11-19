@@ -28,8 +28,14 @@ extern "C" unsigned int fn_800DC6B4(const char* s); // inferred: string hash
 extern "C" void* lbl_8087EF70;                     // inferred: pad
 extern "C" int fn_800A555C(void* pad, int port, int button); // inferred: button triggered
 extern "C" float fn_80076FF8(void* render);        // inferred: screen aspect ratio
-extern "C" void* lbl_8087EEE0;
-extern "C" void* lbl_8087F518;                     // inferred: loading screen
+namespace atn {
+struct GraphicsDevice_unk;
+}
+extern "C" atn::GraphicsDevice_unk* lbl_8087EEE0;
+namespace atn {
+class Loader;
+}
+extern "C" atn::Loader* lbl_8087F518;                     // inferred: loading screen
 extern "C" void fn_8046ECDC(void* obj, int arg);
 extern "C" void fn_8046EED8(void* obj);
 extern "C" atn::SoundRef fn_80117228(int id);      // inferred: plays a system sound effect

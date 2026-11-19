@@ -18,7 +18,8 @@ extern "C" void fn_8008771C(void* menu, const char* name, float* value, int arg3
 extern "C" void fn_800D2338(atn::Task* task); // inferred: deletes the task
 
 // inferred: field (lbl_8087F430)
-extern "C" void* lbl_8087F430;
+class GameTask;
+extern "C" GameTask* lbl_8087F430;
 extern "C" RenderSetting_unk* lbl_8087EFA8;
 extern "C" atn::GraphicsDevice_unk* lbl_8087EEE0;
 // inferred: the event manager (lbl_8087F540, Event/Manager.h) and its current sequence

@@ -30,7 +30,8 @@ extern "C" CharaManager<PlayerTask>* lbl_8087F8A0;
 extern "C" void* lbl_8087EE90;
 extern "C" unsigned int fn_80049B74(void* engine, const char* name); // inferred: sound id of a name
 extern "C" int fn_80049B2C(void* engine, unsigned int id);
-extern "C" void* lbl_8087F430;
+class GameTask;
+extern "C" GameTask* lbl_8087F430;
 class MapTask;
 extern "C" Event::Manager* lbl_8087F540;
 extern "C" int fn_803CE160(int a, int b, int c);

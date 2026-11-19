@@ -30,7 +30,8 @@ extern "C" int fn_802114D8();
 extern "C" int fn_802179B4(); // inferred: number of price levels
 
 extern "C" GameTask* lbl_8087F430;
-extern "C" void* lbl_8087F0A8;
+class GameConfig_unk;
+extern "C" GameConfig_unk* lbl_8087F0A8;
 
 MarketTask* MarketTask::sInstance;
 
