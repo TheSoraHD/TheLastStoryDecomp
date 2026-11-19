@@ -236,22 +236,24 @@ int EnemyQuarkSecond::vf0C() {
 // --- declarations used by the state functions (names invented unless noted) ---
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
 // inferred: effect manager (atn::EffectManager, global instance at 0x8087F3C0)
-struct EffectMgr_unk;
-extern "C" EffectMgr_unk* lbl_8087F3C0;
+namespace atn {
+class EffectManager;
+}
+extern "C" atn::EffectManager* lbl_8087F3C0;
 // inferred: accessor of the effect manager (weak copy 0x800F7FA0; inlined unless the caller is over
 // the inline budget)
-extern "C" inline EffectMgr_unk* fn_800F7FA0() {
+extern "C" inline atn::EffectManager* fn_800F7FA0() {
     return lbl_8087F3C0;
 }
 extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the next effects
-extern "C" inline void fn_800F7FA8(EffectMgr_unk* mgr, void* owner, int arg) {
+extern "C" inline void fn_800F7FA8(atn::EffectManager* mgr, void* owner, int arg) {
     fn_80232B7C(owner, arg);
 }
-extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
+extern "C" void fn_80239DAC(atn::EffectManager* mgr, void* owner, int id, int arg); // inferred: stops an effect
 // inferred: plays `efp` on `model` (weak copy 0x8026607C of game/Em201ZanGurgFinal.cpp; declared without
 // a body: its constants are in the pool of that unit, not in this one)
-extern "C" void fn_8026607C(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg);
-extern "C" void fn_8023A108(EffectMgr_unk* mgr, atn::EfpFile* efp, int id, int arg);
+extern "C" void fn_8026607C(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Model* model, int arg);
+extern "C" void fn_8023A108(atn::EffectManager* mgr, atn::EfpFile* efp, int id, int arg);
 namespace atn {
 // inferred: effect manager (atn/EffectManager.cpp); only the member called here is declared (as in
 // game/EnemyQuarkStand.cpp)
@@ -260,13 +262,13 @@ public:
     void fn_8023A254(unsigned int owner, int group, float rate); // inferred: speed of the effects
 };
 } // namespace atn
-extern "C" void fn_80276AE4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, const atn::Vector3& pos,
+extern "C" void fn_80276AE4(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Model* model, const atn::Vector3& pos,
                             const atn::Vector3& rot, int a, int b, int c, float scale);
 struct Color4f_unk {
     Color4f_unk() {}
     float r, g, b, a;
 };
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
+extern "C" void fn_8023A8B4(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
@@ -1077,7 +1079,7 @@ inline void QuarkRotZYX_unk(atn::Matrix3x4& m, const atn::Vector3& rot) {
 
 // inferred: plays an effect bound to a matrix (kind 5: `target` is a Matrix3x4; as gmk/PlayEffect.cpp, which
 // passes a model)
-extern "C" void fn_8023A680(EffectMgr_unk* mgr, atn::EffFile* res, int arg2, int kind, const void* target,
+extern "C" void fn_8023A680(atn::EffectManager* mgr, atn::EffFile* res, int arg2, int kind, const void* target,
                             const atn::Vector3* pos, const atn::Vector3* rot, int arg7, int arg8, int arg9,
                             int arg10, float scale);
 

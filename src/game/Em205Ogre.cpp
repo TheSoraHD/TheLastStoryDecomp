@@ -26,12 +26,14 @@ extern "C" int rand();
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
 struct HomingParam_unk;
 // inferred: effect manager (class unknown), global instance at 0x8087F3C0
-struct EffectMgr_unk;
-extern "C" EffectMgr_unk* lbl_8087F3C0;
-extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
+namespace atn {
+class EffectManager;
+}
+extern "C" atn::EffectManager* lbl_8087F3C0;
+extern "C" void fn_80239DAC(atn::EffectManager* mgr, void* owner, int id, int arg); // inferred: stops an effect
 extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the next effects
 // inferred: plays an effect resource (as in game/ColliAttrManager.cpp; the color is passed as null here)
-extern "C" void fn_8023A680(EffectMgr_unk* mgr, atn::EffFile* res, int a, int b, void* mtx, const atn::Vector3* pos,
+extern "C" void fn_8023A680(atn::EffectManager* mgr, atn::EffFile* res, int a, int b, void* mtx, const atn::Vector3* pos,
                             const atn::Vector3* rot, const void* color, float scale, int e, int f, int g);
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
 extern "C" void fn_800CB6B0(atn::SoundRef* sound, int arg, float distance); // inferred: sets the distance

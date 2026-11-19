@@ -31,20 +31,22 @@ extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
 extern "C" double cos(double x);
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
 // inferred: effect manager (class unknown), global instance at 0x8087F3C0
-struct EffectMgr_unk;
-extern "C" EffectMgr_unk* lbl_8087F3C0;
-extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
+namespace atn {
+class EffectManager;
+}
+extern "C" atn::EffectManager* lbl_8087F3C0;
+extern "C" void fn_80239DAC(atn::EffectManager* mgr, void* owner, int id, int arg); // inferred: stops an effect
 extern "C" void fn_800CB5C8(atn::SoundRef* sound, int frames, int arg); // inferred: stops the sound
 struct Color4f_unk {
     Color4f_unk() {}
     float r, g, b, a;
 };
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
+extern "C" void fn_8023A8B4(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
 extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the next effects
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
-extern "C" void fn_8023A680(EffectMgr_unk* mgr, atn::EffFile* res, int arg2, int arg3, atn::Model* model,
+extern "C" void fn_8023A680(atn::EffectManager* mgr, atn::EffFile* res, int arg2, int arg3, atn::Model* model,
                             const atn::Vector3* pos, const atn::Vector3* rot, int arg7, int arg8, int arg9,
                             int arg10, float scale); // inferred: plays an effect (as in gmk/PlayEffect.cpp)
 extern "C" PlayerManager* lbl_8087F8A0;
@@ -1176,7 +1178,7 @@ void Em308InvertCrab::fn_802F66CC() {
         pos.y -= 5.0f;
     }
     fn_80232B7C(this, 0);
-    EffectMgr_unk* mgr = lbl_8087F3C0;
+    atn::EffectManager* mgr = lbl_8087F3C0;
     fn_8023A680(mgr, &m15B8, -1, 0, 0, &pos, &player->mRot, 0, 0, -1, 1, 1.0f);
     m6B8 = lbl_807C7030;
 }

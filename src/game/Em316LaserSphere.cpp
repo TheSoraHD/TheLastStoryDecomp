@@ -27,9 +27,11 @@ extern "C" int rand();
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 // inferred: effect manager (class unknown), global instance at 0x8087F3C0
-struct EffectMgr_unk;
-extern "C" EffectMgr_unk* lbl_8087F3C0;
-extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
+namespace atn {
+class EffectManager;
+}
+extern "C" atn::EffectManager* lbl_8087F3C0;
+extern "C" void fn_80239DAC(atn::EffectManager* mgr, void* owner, int id, int arg); // inferred: stops an effect
 extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the next effects
 class BattleTask;
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
@@ -96,7 +98,7 @@ struct Color4f_unk {
     Color4f_unk() {}
     float r, g, b, a;
 };
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
+extern "C" void fn_8023A8B4(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
 extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float volume);
@@ -898,14 +900,14 @@ extern "C" inline int fn_80267B28(CharaTask* chara) {
     return chara->m560;
 }
 // inferred: weak copies 0x800F7FA0 and 0x800F7FA8 of another file (as in game/Em203GreaterDaemon.cpp)
-extern "C" inline EffectMgr_unk* fn_800F7FA0() {
+extern "C" inline atn::EffectManager* fn_800F7FA0() {
     return lbl_8087F3C0;
 }
-extern "C" inline void fn_800F7FA8(EffectMgr_unk* mgr, void* owner, int arg) {
+extern "C" inline void fn_800F7FA8(atn::EffectManager* mgr, void* owner, int arg) {
     fn_80232B7C(owner, arg);
 }
-extern "C" int fn_80239D58(EffectMgr_unk* mgr, void* owner, int id); // inferred: the effect is playing
-extern "C" void fn_8023A680(EffectMgr_unk* mgr, void* res, int a, int b, void* mtx, const atn::Vector3* pos,
+extern "C" int fn_80239D58(atn::EffectManager* mgr, void* owner, int id); // inferred: the effect is playing
+extern "C" void fn_8023A680(atn::EffectManager* mgr, void* res, int a, int b, void* mtx, const atn::Vector3* pos,
                             const atn::Vector3* rot, const float* color, float scale, int e, int f, int g);
 // inferred: bullet manager and collision world (weak copies 0x8013A194/0x801404F8 of another file)
 inline BattleTask* fn_8013A194() {

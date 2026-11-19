@@ -48,16 +48,18 @@ extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared len
 
 extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the next effects
 // inferred: effect manager (class unknown), global instance at 0x8087F3C0
-struct EffectMgr_unk;
+namespace atn {
+class EffectManager;
+}
 struct Color4f_unk {
     Color4f_unk() {}
     float r, g, b, a;
 };
-extern "C" EffectMgr_unk* lbl_8087F3C0;
-extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
+extern "C" atn::EffectManager* lbl_8087F3C0;
+extern "C" void fn_80239DAC(atn::EffectManager* mgr, void* owner, int id, int arg); // inferred: stops an effect
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
 // inferred: starts an effect resource at a position (argument layout of this unit; see game/Em301LShade.cpp)
-extern "C" void fn_8023A680(EffectMgr_unk* mgr, void* res, int a, int b, void* mtx, const atn::Vector3* pos,
+extern "C" void fn_8023A680(atn::EffectManager* mgr, void* res, int a, int b, void* mtx, const atn::Vector3* pos,
                             const atn::Vector3* rot, const float* color, float scale, int e, int f, int g);
 // inferred: arena/UI (lbl_8087F490); fn_803E6850 shows a counter (as in game/Em305VampireMp.cpp)
 extern "C" GameUI* lbl_8087F490;
@@ -73,7 +75,7 @@ struct ColorF_unk {
     ColorF_unk(GXColor c) : r(c.r / 255.0f), g(c.g / 255.0f), b(c.b / 255.0f), a(c.a / 255.0f) {}
     float r, g, b, a;
 };
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
+extern "C" void fn_8023A8B4(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
 
@@ -278,7 +280,7 @@ inline void PlayEffectA_unk(atn::EfpFile* efp, atn::Model* model) {
 }
 
 // inferred: same as PlayEffect_unk with the manager read first (name invented)
-inline void PlayEffectM_unk(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model) {
+inline void PlayEffectM_unk(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Model* model) {
     Color4f_unk color;
     atn::Vector3 rot;
     atn::Vector3 pos;
@@ -296,7 +298,7 @@ inline void PlayEffectM_unk(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* m
 }
 
 // inferred: same as PlayEffectA_unk with the manager read first (name invented)
-inline void PlayEffectAM_unk(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model) {
+inline void PlayEffectAM_unk(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Model* model) {
     atn::Vector3 pos;
     atn::Vector3 rot;
     Color4f_unk color;

@@ -20,13 +20,15 @@ extern "C" HitInfo_unk* fn_80219E6C(int id); // inferred: bullet/skill data by i
 extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3, int arg4);
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
 // inferred: effect manager (class unknown), global instance at 0x8087F3C0 (as in game/Em209BigGolem.cpp)
-struct EffectMgr_unk;
+namespace atn {
+class EffectManager;
+}
 struct Color4f_unk {
     Color4f_unk() {}
     float r, g, b, a;
 };
-extern "C" EffectMgr_unk* lbl_8087F3C0;
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
+extern "C" atn::EffectManager* lbl_8087F3C0;
+extern "C" void fn_8023A8B4(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
 extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the next effects

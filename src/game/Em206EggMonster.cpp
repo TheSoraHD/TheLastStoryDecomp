@@ -50,10 +50,12 @@ extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3,
 extern "C" wchar_t* wcscpy(wchar_t* dst, const wchar_t* src);
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
 // inferred: effect manager (class unknown), global instance at 0x8087F3C0
-struct EffectMgr_unk;
-extern "C" EffectMgr_unk* lbl_8087F3C0;
+namespace atn {
+class EffectManager;
+}
+extern "C" atn::EffectManager* lbl_8087F3C0;
 extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the next effects
-extern "C" void fn_8023A680(EffectMgr_unk* mgr, atn::EffFile* eff, int a, int b, const atn::Matrix3x4* mtx, int c,
+extern "C" void fn_8023A680(atn::EffectManager* mgr, atn::EffFile* eff, int a, int b, const atn::Matrix3x4* mtx, int c,
                             int d, int e, int f, int g, int h, float scale); // inferred: effect on a matrix
 
 // inferred: color as four floats (as in game/CharaTask.cpp)
@@ -63,8 +65,8 @@ struct Color4f_unk {
 };
 
 extern "C" HitInfo_unk* fn_80219E6C(int id); // inferred: skill data
-extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
+extern "C" void fn_80239DAC(atn::EffectManager* mgr, void* owner, int id, int arg); // inferred: stops an effect
+extern "C" void fn_8023A8B4(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
 extern "C" double acos(double x);
@@ -116,7 +118,7 @@ static inline void PlayEffect_unk(atn::EfpFile* efp, atn::Model* model) {
 }
 
 // inferred: same with the manager passed in (name invented)
-static inline void PlayEffectM_unk(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model) {
+static inline void PlayEffectM_unk(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Model* model) {
     atn::Vector3 pos;
     atn::Vector3 rot;
     Color4f_unk color;
@@ -331,7 +333,7 @@ void Em206EggMonster::vf10() {
                 *mtx = MtxMul_unk(*mtx, ScaleMtx_unk(sEffectScale_unk));
                 m14F4.fn_801479E4(hand);
                 fn_80232B7C(this, 0x65);
-                EffectMgr_unk* mgr = lbl_8087F3C0;
+                atn::EffectManager* mgr = lbl_8087F3C0;
                 fn_8023A680(mgr, &m156C, -1, 5, mtx, 0, 0, 0, 0, -1, 1, 1.0f);
             }
             break;
@@ -592,7 +594,7 @@ void Em206EggMonster::vf3C(HitInfo_unk* hit, int) {
                 m1594 = 1;
                 m16BC = 1;
                 fn_80232B7C(this, 200);
-                EffectMgr_unk* mgr = lbl_8087F3C0;
+                atn::EffectManager* mgr = lbl_8087F3C0;
                 fn_8023A680(mgr, &m16F4, -1, 5, &m16C4, 0, 0, 0, 0, -1, 1, 1.0f);
             } else {
                 m1590 = 0;

@@ -104,16 +104,18 @@ extern "C" void* lbl_8087EE98;
 extern "C" int fn_8004ED34(void* colli, atn::ColliResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg7); // inferred: ray test
 // inferred: effect manager (class unknown), global instance at 0x8087F3C0
-struct EffectMgr_unk;
-extern "C" EffectMgr_unk* lbl_8087F3C0;
+namespace atn {
+class EffectManager;
+}
+extern "C" atn::EffectManager* lbl_8087F3C0;
 extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the next effects
-extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
+extern "C" void fn_80239DAC(atn::EffectManager* mgr, void* owner, int id, int arg); // inferred: stops an effect
 struct Color4f_unk {
     Color4f_unk() {}
     Color4f_unk(float r_, float g_, float b_, float a_) : r(r_), g(g_), b(b_), a(a_) {}
     float r, g, b, a;
 };
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
+extern "C" void fn_8023A8B4(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
 
@@ -1129,7 +1131,7 @@ inline void Em101ElderZesya::PlayBarrier_unk(atn::EfpFile* efp, const atn::Vecto
 }
 
 // inferred: same with the manager read first (name invented)
-inline void Em101ElderZesya::PlayBarrierM_unk(EffectMgr_unk* mgr, atn::EfpFile* efp, const atn::Vector3& pos,
+inline void Em101ElderZesya::PlayBarrierM_unk(atn::EffectManager* mgr, atn::EfpFile* efp, const atn::Vector3& pos,
                                               const atn::Vector3& rot, int kind) {
     fn_8023A8B4(mgr, efp, 0, 0, pos, rot, *(const Color4f_unk*)&(&m16C0)[kind], -1, -1, 1, 1.5f);
 }
@@ -1165,11 +1167,11 @@ void Em101ElderZesya::fn_80259AB4(int index, int state) {
             PlayBarrier_unk(&m1640, pos1, rot1, c->mKind);
             PlayBarrier_unk(&m1640, pos2, rot2, c->mKind);
         } else {
-            EffectMgr_unk* mgr = lbl_8087F3C0;
+            atn::EffectManager* mgr = lbl_8087F3C0;
             PlayBarrierM_unk(mgr, &m161C, pos, rot, c->mKind);
-            EffectMgr_unk* mgr2 = lbl_8087F3C0;
+            atn::EffectManager* mgr2 = lbl_8087F3C0;
             PlayBarrierM_unk(mgr2, &m161C, pos1, rot1, c->mKind);
-            EffectMgr_unk* mgr3 = lbl_8087F3C0;
+            atn::EffectManager* mgr3 = lbl_8087F3C0;
             PlayBarrierM_unk(mgr3, &m161C, pos2, rot2, c->mKind);
             GameTask* field = lbl_8087F430;
             SetCameraLook_unk(field->mCamera, pos, false);

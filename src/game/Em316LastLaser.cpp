@@ -24,10 +24,12 @@ extern "C" inline void fn_802660FC(CharaParam_unk* param, unsigned int flag) {
 }
 
 // inferred: effect manager (class unknown), global instance at 0x8087F3C0
-struct EffectMgr_unk;
-extern "C" EffectMgr_unk* lbl_8087F3C0;
-extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
-extern "C" int fn_80239D58(EffectMgr_unk* mgr, void* owner, int id); // inferred: the effect is playing
+namespace atn {
+class EffectManager;
+}
+extern "C" atn::EffectManager* lbl_8087F3C0;
+extern "C" void fn_80239DAC(atn::EffectManager* mgr, void* owner, int id, int arg); // inferred: stops an effect
+extern "C" int fn_80239D58(atn::EffectManager* mgr, void* owner, int id); // inferred: the effect is playing
 extern "C" void fn_800CB5C8(atn::SoundRef* sound, int frames, int arg); // inferred: stops the sound
 class BattleTask;
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
@@ -52,7 +54,7 @@ struct Color4f_unk {
     Color4f_unk() {}
     float r, g, b, a;
 };
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
+extern "C" void fn_8023A8B4(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
 extern "C" RenderSetting_unk* lbl_8087EFA8;
@@ -540,10 +542,10 @@ extern "C" inline void fn_802657FC(CharaTask* chara, int state) {
     LASER_ASSERT100_UNK(chara != 0);
     chara->m58C = state;
 }
-extern "C" inline EffectMgr_unk* fn_800F7FA0() {
+extern "C" inline atn::EffectManager* fn_800F7FA0() {
     return lbl_8087F3C0;
 }
-extern "C" inline void fn_800F7FA8(EffectMgr_unk* mgr, void* owner, int arg) {
+extern "C" inline void fn_800F7FA8(atn::EffectManager* mgr, void* owner, int arg) {
     LASER_ASSERT100_UNK(mgr != 0);
     LASER_ASSERT100_UNK(mgr != 0);
     LASER_ASSERT100_UNK(mgr != 0);
@@ -553,7 +555,7 @@ extern "C" inline void fn_800F7FA8(EffectMgr_unk* mgr, void* owner, int arg) {
     fn_80232B7C(owner, arg);
 }
 // inferred: plays an effect on the model (as in game/Em201ZanGurgFinal.cpp)
-extern "C" inline void fn_8026607C(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg) {
+extern "C" inline void fn_8026607C(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Model* model, int arg) {
     atn::Vector3 pos;
     atn::Vector3 rot;
     Color4f_unk color;
@@ -572,7 +574,7 @@ extern "C" inline void fn_8026607C(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::M
 inline void* fn_801404F8() {
     return lbl_8087EE98;
 }
-extern "C" void fn_8023A680(EffectMgr_unk* mgr, void* res, int a, int b, void* mtx, const atn::Vector3* pos,
+extern "C" void fn_8023A680(atn::EffectManager* mgr, void* res, int a, int b, void* mtx, const atn::Vector3* pos,
                             const atn::Vector3* rot, const float* color, float scale, int e, int f, int g);
 extern "C" float fn_801A03E8(const atn::Vector3& a, const atn::Vector3& b); // inferred: dot product
 extern "C" void fn_800CB6E4(atn::SoundRef* sound, const atn::Vector3* pos); // inferred: moves the sound

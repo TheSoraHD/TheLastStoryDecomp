@@ -38,8 +38,10 @@ struct ShadeCamera_unk {
     int mFlag;
 };
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
-struct EffectMgr_unk;
-extern "C" void fn_8023A680(EffectMgr_unk* mgr, void* res, int a, int b, atn::Vector3* pos, int c, int d, const float* color,
+namespace atn {
+class EffectManager;
+}
+extern "C" void fn_8023A680(atn::EffectManager* mgr, void* res, int a, int b, atn::Vector3* pos, int c, int d, const float* color,
                             float scale, int e, int f, int g);
 // inferred: copy of the event camera (as CameraMgr_unk::SetParam_unk of chr/ControlBreakOpen.cpp: the two
 // vectors through a Vector3 pointer); name invented
@@ -60,18 +62,17 @@ extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
 extern "C" int fn_800DD3FC(wchar_t* s, const wchar_t* format, ...); // inferred: wide sprintf
 extern "C" const wchar_t lbl_808813D0[2]; // inferred: empty text
 // inferred: effect manager (class unknown), global instance at 0x8087F3C0
-struct EffectMgr_unk;
 struct Color4f_unk {
     Color4f_unk() {}
     float r, g, b, a;
 };
-extern "C" EffectMgr_unk* lbl_8087F3C0;
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
+extern "C" atn::EffectManager* lbl_8087F3C0;
+extern "C" void fn_8023A8B4(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
 extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the next effects
 
-extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
+extern "C" void fn_80239DAC(atn::EffectManager* mgr, void* owner, int id, int arg); // inferred: stops an effect
 extern "C" int fn_8021A888(HitInfo_unk* hit);
 extern "C" SkillEffectManager* lbl_8087F9E8;
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
@@ -132,7 +133,7 @@ inline void PlayEffect2_unk(atn::EfpFile* efp, atn::Model* model) {
     color.g = 1.0f;
     color.b = 1.0f;
     color.a = 1.0f;
-    EffectMgr_unk* mgr = lbl_8087F3C0;
+    atn::EffectManager* mgr = lbl_8087F3C0;
     fn_8023A8B4(mgr, efp, model, 0, pos, rot, color, -1, -1, 1, 1.0f);
 }
 
@@ -203,7 +204,7 @@ inline bool Em301LShade::IsMotionEnd_unk() {
 
 // inferred: same as PlayEffect_unk with the manager read first (name invented)
 inline void PlayEffectD_unk(atn::EfpFile* efp, atn::Model* model) {
-    EffectMgr_unk* mgr = lbl_8087F3C0;
+    atn::EffectManager* mgr = lbl_8087F3C0;
     Color4f_unk color;
     atn::Vector3 rot;
     atn::Vector3 pos;
@@ -236,7 +237,7 @@ inline void PlayEffectC_unk(atn::EfpFile* efp, atn::Model* model) {
     color.g = 1.0f;
     color.b = 1.0f;
     color.a = 1.0f;
-    EffectMgr_unk* mgr = lbl_8087F3C0;
+    atn::EffectManager* mgr = lbl_8087F3C0;
     fn_8023A8B4(mgr, efp, model, 0, pos, rot, color, -1, -1, 1, 1.0f);
 }
 
@@ -1361,7 +1362,7 @@ void Em301LShade::fn_802D57B8() {
         color.g = 1.0f;
         color.b = 1.0f;
         color.a = 1.0f;
-        EffectMgr_unk* mgr = lbl_8087F3C0;
+        atn::EffectManager* mgr = lbl_8087F3C0;
         fn_8023A8B4(mgr, &m1608, (atn::Model*)&mMotion, 0, pos, lbl_807C7030, color, -1, -1, 1, 1.0f);
     }
     if (lbl_8087F430 != 0 && lbl_8087F430->fn_80375184() != 0 && mType == 2) {

@@ -8,6 +8,10 @@
 
 #include "atn/ColliBase.h"
 
+namespace atn {
+class EffectManager;
+}
+
 // inferred: gimmick of a barrier; only its position is read here (name invented)
 struct Gimmick_unk;
 
@@ -72,7 +76,7 @@ public:
     void fn_80258A50(); // inferred: state of the light sword magic (10 homing bullets)
     void fn_80258574(); // inferred: starts the next action of the phase (m14CC)
     inline void StartMagic_unk();
-    inline void PlayBarrierM_unk(struct EffectMgr_unk* mgr, atn::EfpFile* efp, const atn::Vector3& pos,
+    inline void PlayBarrierM_unk(atn::EffectManager* mgr, atn::EfpFile* efp, const atn::Vector3& pos,
                                  const atn::Vector3& rot, int kind);
     inline void PlayBarrierK_unk(atn::EfpFile* efp, const atn::Vector3& pos, const atn::Vector3& rot, int kind);
     inline void PlayBarrier_unk(atn::EfpFile* efp, const atn::Vector3& pos, const atn::Vector3& rot, int kind);

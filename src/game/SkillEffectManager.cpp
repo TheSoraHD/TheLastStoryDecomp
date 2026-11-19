@@ -33,14 +33,16 @@ extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared len
 // inferred: methods of SkillEffect in the auto split before this file
 // inferred: starts it
 extern "C" int fn_8059A298(atn::Vector3* pos, atn::Vector3* rot, int arg); // inferred: reflection test
-struct EffectMgr_unk;
-extern "C" EffectMgr_unk* lbl_8087F3C0; // inferred: effect manager of the efp files
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
+namespace atn {
+class EffectManager;
+}
+extern "C" atn::EffectManager* lbl_8087F3C0; // inferred: effect manager of the efp files
+extern "C" void fn_8023A8B4(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
                             const atn::Vector3& pos, const atn::Vector3& rot, const MapColor_unk& color, int arg7,
                             int arg8, int arg9, float scale);
-extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
+extern "C" void fn_80239DAC(atn::EffectManager* mgr, void* owner, int id, int arg); // inferred: stops an effect
 extern "C" void fn_80232B7C(void* owner, int id); // inferred: names the next effect of `owner`
-extern "C" void fn_8023A680(EffectMgr_unk* mgr, atn::EffFile* res, int arg2, int arg3, atn::Model* model,
+extern "C" void fn_8023A680(atn::EffectManager* mgr, atn::EffFile* res, int arg2, int arg3, atn::Model* model,
                             const atn::Vector3* pos, int arg6, int arg7, int arg8, int arg9, int arg10, float scale);
 extern "C" unsigned long strlen(const char* s);
 // inferred: weapon of a character (CharaTask keeps it as chr::CharaPart_unk)

@@ -36,13 +36,15 @@ extern "C" void* lbl_8087EE98;
 extern "C" int fn_8004ED34(void* colli, atn::ColliResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg7); // inferred: ray test
 // inferred: effect manager (class unknown), global instance at 0x8087F3C0 (as in game/Em303KrakenFootMp.cpp)
-struct EffectMgr_unk;
+namespace atn {
+class EffectManager;
+}
 struct Color4f_unk {
     Color4f_unk() {}
     float r, g, b, a;
 };
-extern "C" EffectMgr_unk* lbl_8087F3C0;
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
+extern "C" atn::EffectManager* lbl_8087F3C0;
+extern "C" void fn_8023A8B4(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
 extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the next effects
@@ -874,7 +876,7 @@ void Em303KrakenFoot::fn_802E55B0(int kind) {
         color.g = 1.0f;
         color.b = 1.0f;
         color.a = 1.0f;
-        EffectMgr_unk* mgr = lbl_8087F3C0;
+        atn::EffectManager* mgr = lbl_8087F3C0;
         fn_8023A8B4(mgr, &m14F8, &mMotion, 0, pos, rot, color, -1, -1, 1, 1.0f);
         break;
     }

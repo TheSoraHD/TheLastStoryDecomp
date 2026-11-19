@@ -60,23 +60,25 @@ extern "C" double sqrt(double x);
 extern "C" HitInfo_unk* fn_80219E6C(int id);  // inferred: skill data
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
 // inferred: effect manager (class unknown), global instance at 0x8087F3C0 (as in game/Em202Spider.cpp)
-struct EffectMgr_unk;
-extern "C" EffectMgr_unk* lbl_8087F3C0;
-extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
+namespace atn {
+class EffectManager;
+}
+extern "C" atn::EffectManager* lbl_8087F3C0;
+extern "C" void fn_80239DAC(atn::EffectManager* mgr, void* owner, int id, int arg); // inferred: stops an effect
 extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the next effects
 // inferred: color as four floats (as in game/CharaTask.cpp)
 struct Color4f_unk {
     Color4f_unk() {}
     float r, g, b, a;
 };
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
+extern "C" void fn_8023A8B4(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
-extern "C" void fn_8023A680(EffectMgr_unk* mgr, atn::EffFile* eff, int a, int b, const atn::Matrix3x4* mtx, int c,
+extern "C" void fn_8023A680(atn::EffectManager* mgr, atn::EffFile* eff, int a, int b, const atn::Matrix3x4* mtx, int c,
                             int d, int e, int f, int g, int h, float scale); // inferred: effect on a matrix
 extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3, int arg4); // debug menu
 // inferred: effect `efp` on the model (shared with gmk/FlamingArrow, Em315Coffin and the Quark enemies)
-extern "C" void fn_80276AE4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, const atn::Vector3& pos,
+extern "C" void fn_80276AE4(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Model* model, const atn::Vector3& pos,
                             const atn::Vector3& rot, int a5, int a6, int a7, float scale);
 extern "C" int fn_800DD3FC(wchar_t* s, const wchar_t* format, ...); // inferred: wide sprintf
 extern "C" void* memset(void* dst, int c, unsigned long n);
@@ -964,7 +966,7 @@ void Em202ForestSpider::vf164() {
     fn_80239DAC(lbl_8087F3C0, this, 200, 0);
 }
 
-extern "C" void fn_80276AE4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, const atn::Vector3& pos,
+extern "C" void fn_80276AE4(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Model* model, const atn::Vector3& pos,
                             const atn::Vector3& rot, int a5, int a6, int a7, float scale) {
     Color4f_unk color;
     color.r = 1.0f;
@@ -1128,7 +1130,7 @@ void Em202ForestSpider::vf160() {
 }
 
 // inferred: effect `efp` on the model at its origin (as PlayEffectM_unk of game/em005_doppel_ganger.cpp)
-inline void PlayEffectOrigin_unk(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model) {
+inline void PlayEffectOrigin_unk(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Model* model) {
     atn::Vector3 pos;
     atn::Vector3 rot;
     Color4f_unk color;
@@ -1453,9 +1455,9 @@ extern "C" inline int fn_80267B28(CharaTask* chara) {
     return chara->m560;
 }
 // inferred: weak copies of other files called out of line below
-extern "C" EffectMgr_unk* fn_800F7FA0();
-extern "C" void fn_800F7FA8(EffectMgr_unk* mgr, void* owner, int arg);
-extern "C" void fn_8026607C(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg);
+extern "C" atn::EffectManager* fn_800F7FA0();
+extern "C" void fn_800F7FA8(atn::EffectManager* mgr, void* owner, int arg);
+extern "C" void fn_8026607C(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Model* model, int arg);
 extern "C" void fn_800F80B8(atn::Matrix3x4* mtx, const atn::Vector3* rot);
 extern "C" void fn_800F8290(atn::Matrix3x4* mtx, float x, float y, float z);
 void* fn_801404F8(); // inferred: collision world

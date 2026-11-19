@@ -25,9 +25,11 @@ extern "C" const wchar_t lbl_808813D0[2]; // inferred: empty text
 // inferred: debug drawing (lbl_8087EEB0, see game/CharaTask.cpp)
 
 // inferred: effect manager (class unknown), global instance at 0x8087F3C0
-struct EffectMgr_unk;
-extern "C" EffectMgr_unk* lbl_8087F3C0;
-extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
+namespace atn {
+class EffectManager;
+}
+extern "C" atn::EffectManager* lbl_8087F3C0;
+extern "C" void fn_80239DAC(atn::EffectManager* mgr, void* owner, int id, int arg); // inferred: stops an effect
 // inferred: [0,1] float channel to 0..255 (as in atn/D2A_Window.cpp; name invented)
 inline unsigned int GhoulToU8_unk(float f) {
     if (f >= 1.0f) {
@@ -51,7 +53,7 @@ struct Color4f_unk {
     }
     float r, g, b, a;
 };
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
+extern "C" void fn_8023A8B4(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
 extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the next effects
@@ -403,7 +405,7 @@ inline void Em309Ghoul::Die_unk(int motion, int flag) {
 }
 
 // inferred: effect `efp` on the model at its origin (as in Em202ForestSpider)
-inline void EffOrigin_unk(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model) {
+inline void EffOrigin_unk(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Model* model) {
     atn::Vector3 pos;
     atn::Vector3 rot;
     Color4f_unk color;
@@ -1060,7 +1062,7 @@ struct Xsca_unk {
 };
 
 // inferred: same with the manager passed in (name invented)
-inline void GhoulEffect2_unk(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model) {
+inline void GhoulEffect2_unk(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Model* model) {
     atn::Vector3 pos;
     atn::Vector3 rot;
     Color4f_unk color;
@@ -1078,7 +1080,7 @@ inline void GhoulEffect2_unk(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* 
 }
 
 // inferred: same at a world position (name invented)
-inline void GhoulEffectAt_unk(EffectMgr_unk* mgr, atn::EfpFile* efp, const atn::Vector3& pos,
+inline void GhoulEffectAt_unk(atn::EffectManager* mgr, atn::EfpFile* efp, const atn::Vector3& pos,
                               const atn::Vector3& rot) {
     Color4f_unk color;
     color.r = 1.0f;
@@ -1757,7 +1759,7 @@ extern "C" inline atn::Matrix3x4 fn_800109E0(const atn::Vector3& rot) {
     return m;
 }
 // inferred: managers (weak copies 0x800F7FA0 and 0x8013A194 of other files)
-extern "C" inline EffectMgr_unk* fn_800F7FA0() {
+extern "C" inline atn::EffectManager* fn_800F7FA0() {
     return lbl_8087F3C0;
 }
 inline BattleTask* fn_8013A194() {

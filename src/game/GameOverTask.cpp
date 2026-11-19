@@ -60,13 +60,15 @@ extern "C" int fn_803BE854(MP::SaveData_unk* data);
 extern "C" GameTask* lbl_8087F430;
 extern "C" GameConfig_unk* lbl_8087F0A8;
 // inferred: effects
-struct EffectMgr_unk;
-extern "C" EffectMgr_unk* lbl_8087F3C0;
+namespace atn {
+class EffectManager;
+}
+extern "C" atn::EffectManager* lbl_8087F3C0;
 // inferred: weak copy 0x800F7FA0 of another file (as in game/Em203GreaterDaemon.cpp)
-extern "C" inline EffectMgr_unk* fn_800F7FA0() {
+extern "C" inline atn::EffectManager* fn_800F7FA0() {
     return lbl_8087F3C0;
 }
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, void* model, int arg3, const atn::Vector3& pos,
+extern "C" void fn_8023A8B4(atn::EffectManager* mgr, atn::EfpFile* efp, void* model, int arg3, const atn::Vector3& pos,
                             const atn::Vector3& rot, const float* color, int arg7, int arg8, int arg9, float scale);
 extern "C" void fn_80232B7C(void* owner, int arg);
 extern "C" RenderSetting_unk* lbl_8087EFA8; // inferred: render settings
@@ -176,7 +178,7 @@ GameOverTask::~GameOverTask() {
 }
 
 // inferred: plays an effect at the origin (as PlayEfp_unk of gmk/SwingObject.cpp)
-inline void PlayEfp_unk(EffectMgr_unk* mgr, atn::EfpFile* efp) {
+inline void PlayEfp_unk(atn::EffectManager* mgr, atn::EfpFile* efp) {
     atn::Vector3 pos;
     atn::Vector3 rot;
     float color[4];
