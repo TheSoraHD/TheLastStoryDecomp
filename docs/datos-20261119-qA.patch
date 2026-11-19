@@ -1,8 +1,8 @@
 diff --git a/src/game/GameConfig_unk.cpp b/src/game/GameConfig_unk.cpp
-index 835cde0..5b88b89 100644
+index 835cde0..5f136d5 100644
 --- a/src/game/GameConfig_unk.cpp
 +++ b/src/game/GameConfig_unk.cpp
-@@ -168,6 +168,18 @@ void GameConfig_unk::fn_80185AD4() {
+@@ -168,6 +168,20 @@ void GameConfig_unk::fn_80185AD4() {
      }
  }
  
@@ -11,26 +11,28 @@ index 835cde0..5b88b89 100644
 +    unsigned int ug = atn::ColorToU8_unk(c.g);
 +    unsigned int ub = atn::ColorToU8_unk(c.b);
 +    unsigned int ua = atn::ColorToU8_unk(c.a);
-+    unsigned int x = ua << 24;
-+    x |= ur << 16;
-+    x |= ug << 8;
-+    x |= ub;
-+    return x;
++    unsigned int x = (ua << 24) | (ur << 16);
++    x = (ug << 8) | x;
++    return ub | x;
++}
++
++static inline unsigned int LineColor_unk(float r, float g, float b, float a) {
++    return ToU32_unk(atn::Color4f_unk(r, g, b, a));
 +}
 +
  // NONMATCHING: 93.1% - the original keeps 255 in r30 from the title defaults for the first line color; register allocation of the constants 0/1/90
  GameConfig_unk::GameConfig_unk()
      : mMenu(0), mDrawSystemInfo(0), mDrawCollision(0), mDrawColliWire(1), mDrawColliAttrColor(1),
-@@ -258,9 +270,9 @@ GameConfig_unk::GameConfig_unk()
+@@ -258,9 +272,9 @@ GameConfig_unk::GameConfig_unk()
      mHateRatioDown = 1;
      mHateLineFadeout = 0;
      mLineColorNormal = 0xFFFFFFFF;
 -    mLineColorSword = atn::Color4f_unk(1.0f, 0.85f, 0.2f, 1.0f).ToU32();
 -    mLineColorArcher = atn::Color4f_unk(0.77f, 0.31f, 0.98f, 1.0f).ToU32();
 -    mLineColorMagic = atn::Color4f_unk(0.9f, 0.18f, 0.18f, 1.0f).ToU32();
-+    mLineColorSword = ToU32_unk(atn::Color4f_unk(1.0f, 0.85f, 0.2f, 1.0f));
-+    mLineColorArcher = ToU32_unk(atn::Color4f_unk(0.77f, 0.31f, 0.98f, 1.0f));
-+    mLineColorMagic = ToU32_unk(atn::Color4f_unk(0.9f, 0.18f, 0.18f, 1.0f));
++    mLineColorSword = LineColor_unk(1.0f, 0.85f, 0.2f, 1.0f);
++    mLineColorArcher = LineColor_unk(0.77f, 0.31f, 0.98f, 1.0f);
++    mLineColorMagic = LineColor_unk(0.9f, 0.18f, 0.18f, 1.0f);
      mPlayerMinusHate = 40;
      mIgnoreLongHate = 1;
      memset(mIgnoreLongHateValue, 0, sizeof(mIgnoreLongHateValue));
