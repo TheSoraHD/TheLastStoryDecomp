@@ -39,7 +39,7 @@ extern "C" GameTask* lbl_8087F430;
 
 extern "C" atn::EffectManager* lbl_8087F3C0;
 extern "C" void fn_80232B7C(void* owner, int arg); // inferred: sets the owner of the next effects
-extern "C" void fn_8023A680(atn::EffectManager* mgr, int id, int a, int b, atn::Matrix3x4* mtx, int c, int d,
+extern "C" void fn_8023A680(atn::EffectManager* mgr, atn::EffFile* res, int a, int b, atn::Matrix3x4* mtx, int c, int d,
                             int e, int f, int g, int h, float scale); // inferred: plays an effect on `mtx`
 extern "C" void fn_80239DAC(atn::EffectManager* mgr, void* owner, int group, int arg); // inferred: stops effects
 

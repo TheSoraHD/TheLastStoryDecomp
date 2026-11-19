@@ -901,7 +901,7 @@ void Em204MulueMp::fn_802B55B0(int aimed, int arg) {
                 }
                 MulueMpShot_unk shot;
                 shot.m00 = 2.0f;
-                shot.m04 = (int)&m1524;
+                shot.m04 = &m1524;
                 shot.m08 = 0;
                 shot.m0C = m1680;
                 bullet->fn_8010EE78(&shot, &hips, &to, this, -1, 0, -1.0f);

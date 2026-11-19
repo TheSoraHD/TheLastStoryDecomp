@@ -92,8 +92,8 @@ extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); /
 extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the next effects
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
 BattleTask* fn_8013A194(); // inferred: bullet manager (returns lbl_8087F048)
-extern "C" int fn_800EFD04(int id); // inferred: effect resources of a bullet
-extern "C" int fn_800EFDA0(int id);
+extern "C" atn::EffFile* fn_800EFD04(int id); // inferred: effect resources of a bullet
+extern "C" atn::EfpFile* fn_800EFDA0(int id);
 extern "C" float fn_800F8524(const float* a, const float* b, float t); // inferred: lerp of two floats
 extern "C" EffectMgr_unk* fn_800F7FA0(); // inferred: returns lbl_8087F3C0
 extern "C" void fn_800F7FA8(EffectMgr_unk* mgr, void* owner, int arg); // inferred: fn_80232B7C(owner, arg)

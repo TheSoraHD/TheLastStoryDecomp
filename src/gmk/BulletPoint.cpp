@@ -19,8 +19,8 @@ extern "C" GameConfig_unk* lbl_8087F0A8;
 // inferred: bullet pool (class unknown)
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
 extern "C" HitInfo_unk* fn_80219E6C(int id);          // inferred: bullet data by id
-extern "C" int fn_800EFD04(int id);                   // inferred: effect resources of a bullet
-extern "C" int fn_800EFDA0(int id);
+extern "C" atn::EffFile* fn_800EFD04(int id);                   // inferred: effect resources of a bullet
+extern "C" atn::EfpFile* fn_800EFDA0(int id);
 // inferred: gravity per frame (names invented)
 inline float Gravity_unk() {
     return -98.1f / (float)(lbl_8087F0A8->m030 * lbl_8087F0A8->m030);

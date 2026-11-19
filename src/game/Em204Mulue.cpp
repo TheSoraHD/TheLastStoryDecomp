@@ -1123,7 +1123,7 @@ void Em204Mulue::fn_802A9ADC(int aimed, int skipKind3) {
                 }
                 MulueShot_unk shot;
                 shot.m00 = 2.0f;
-                shot.m04 = (int)&m1508;
+                shot.m04 = &m1508;
                 shot.m08 = 0;
                 shot.m0C = m1678;
                 bullet->fn_8010EE78(&shot, &hips, &to, this, -1, 0, -1.0f);
@@ -1157,7 +1157,7 @@ void Em204Mulue::fn_802A9ADC(int aimed, int skipKind3) {
                 }
             }
             MulueShot_unk shot;
-            shot.m04 = i % 3 != 1 ? 0 : (int)&m1508;
+            shot.m04 = i % 3 != 1 ? 0 : &m1508;
             shot.m08 = 0;
             shot.m0C = m1678;
             bullet->fn_8010EE78(&shot, &hips, &v, this, -1, 0, -1.0f);

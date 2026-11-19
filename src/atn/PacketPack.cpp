@@ -8485,7 +8485,7 @@ static inline CharaTask* GetHitChara_unk(PPManager2_unk* mgr, const PPMsgCharaRe
 }
 
 #include "game/Bullet.h"
-extern "C" int fn_800EFD04(int id); // inferred: effect resources of a bullet (as gmk/BulletPoint.cpp)
+extern "C" atn::EffFile* fn_800EFD04(int id); // inferred: effect resources of a bullet (as gmk/BulletPoint.cpp)
 
 
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);

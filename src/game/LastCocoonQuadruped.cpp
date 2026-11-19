@@ -1278,8 +1278,8 @@ struct QuadShot_unk {
     QuadShot_unk(const Bullet& b)
         : m00(b.m5C), m04(b.m60), m08(b.m64), m0C(b.m68), m10(b.m6C), m14(b.m70), m18(b.m74) {}
     float m00;
-    int m04;
-    int m08;
+    atn::EffFile* m04;
+    atn::EfpFile* m08;
     HitInfo_unk* m0C;
     int m10;
     float m14;

@@ -1229,7 +1229,7 @@ void Em204BigMulue::fn_802B1B50(int fire) {
                 atn::Vector3 dir = (to - hips).GetNormalize();
                 BigMulueShot_unk shot;
                 shot.m00 = 2.0f;
-                shot.m04 = (int)&m1A6C;
+                shot.m04 = &m1A6C;
                 shot.m08 = 0;
                 shot.m0C = m1540;
                 bullet->fn_8010EE78(&shot, &hips, &dir, this, -1, 0, -1.0f);

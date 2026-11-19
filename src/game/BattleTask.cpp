@@ -1835,8 +1835,8 @@ int BattleTask::fn_800F8574(CharaTask* owner, HitInfo_unk* data, const atn::Vect
         shot.m14 = 0.0f;
         shot.m18 = 1.0f;
         shot.m00 = fn_8010B250(data->m3C, 0);
-        shot.m04 = (int)fn_800EFD04(data->mB0);
-        shot.m08 = (int)fn_800EFDA0(data->mB0);
+        shot.m04 = fn_800EFD04(data->mB0);
+        shot.m08 = fn_800EFDA0(data->mB0);
         shot.m0C = data;
         shot.m10 = arg;
         shot.m14 = a;
