@@ -1,6 +1,6 @@
 # Siguiente sesion (tras datos-20261119)
 
-> Sesion `datos-20261119` (hasta 4 agentes, 32 colas) del 2026-11-19 13:50 al 2026-11-20 ~00:15. Notas: `docs/datos-20261119.md`
+> Mergeada en `main` (b0c6c0b). Sesion `datos-20261119` (hasta 4 agentes, 32 colas) del 2026-11-19 13:50 al 2026-11-20 ~00:15. Notas: `docs/datos-20261119.md`
 > y `docs/datos-20261119-q*.md`; para el port: `docs/datos-20261119-port.md` y `claude/port-datos-20261119.md` (proyecto).
 
 Estado: **16222 / 18113**, lost 0, rep100 23, labelcheck 10 lineas, `main.dol: OK`. Codigo 64,05 %, datos **76,72 %**
@@ -20,9 +20,17 @@ Estado: **16222 / 18113**, lost 0, rep100 23, labelcheck 10 lineas, `main.dol: O
 - Unidades grandes: GameEventScript 55 que faltan, ControlStickByQuark 8, GameUI 19, CharaTask 56, AI_archer_attack01 14 (+ pool de cadenas y `.sdata2` en el fuente), BattleTask 35, GameTask 16, PacketPack 54 (sus 20 `""` a cero de `.sdata` son `@STRING@` de inlines: no salen con el pragma).
 - Trucos que mas rindieron en esta sesion (ver `docs/trucos-mwcc.md`, seccion datos-20261119): accesores y bloques en `static inline` del propio .cpp, orden de declaracion de locales (y dentro de las inlines), tablas `const`, comparaciones sueltas por una inline `bool`, arrays estaticos separados en vez de uno multidimensional, funcion devuelta por valor en vez de modificar en el sitio.
 
+## Siguiente (port de PC; sigue de secuencial-20261119)
+
+- Regla 10, `extern "C"` con el objeto como primer argumento: `atn::AudioDevice` (35), `atn::Font_unk` (12), `atn::TextAnimation` (6), `atn::EffectManager` (5), `atn::MindowsCommon` (3).
+- Punteros guardados en `int`: `CharaTask::mF1C`, `Em303KrakenFoot::m1504`, `TacView::m54.mType`, `atn/DrawHelper` `m1C`, `owner` de `atn::EffectManager`/`EffectSystem`.
+- Vistas locales de globales (~70: `MpSession_unk`, copias de `RenderSetting_unk`, tablas de texto de lbl_8087F1E4...) y las 77 firmas de `sigcheck.py`.
+- De esta sesion: `CharaTask::m648` es `Arms*` (hoy con cast en CharaTask; unificar `chr::CharaPart_unk` con `Arms`); cambios de firmas y comportamiento en `docs/datos-20261119-port.md`.
+
 ## Herramientas
 
 - Re-emparejar `@N` tras cambios que renumeran: `MAINREF=<build de referencia> python3 tools/decomp/refmap2.py <unidades>` (por direccion; `refmap.py` falla si symbols.txt cambia de numero de lineas). Al integrar ramas que renumeran la misma unidad (cabecera compartida + cambio local): HEAD + `refmap2.py` con MAINREF = la copia del agente que toco la unidad.
+- Ojo: una `static inline` nueva en el propio .cpp TAMBIEN renumera los `@N` de esa unidad (no los de otras): re-emparejar siempre.
 - `tools/decomp/sdz.py`: unidades sin enlazar con globales a cero en `.sdata` (candidatas al pragma). `tools/decomp/cand.py`: tabla de candidatas por datos (abajo).
 
 ## Candidatas por datos (report.json de datos-20261119)
