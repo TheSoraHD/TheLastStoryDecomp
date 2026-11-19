@@ -1,3 +1,4 @@
+#include "atn/RenderSetting_unk.h"
 #include "atn/Model_unk.h"
 #include "atn/Memory.h"
 #include "atn/Sphere.h"
@@ -20,14 +21,7 @@ struct InstPlane_unk {
     float mDist;
 };
 
-
-struct InstGame_unk {
-    unsigned char m000[0x1D0];
-    int m1D0; // inferred: occlusion test enabled
-    unsigned char m1D4[0x208 - 0x1D4];
-    float m208[8]; // inferred: LOD distances of the options
-};
-extern "C" InstGame_unk* lbl_8087EFA8;
+extern "C" RenderSetting_unk* lbl_8087EFA8;
 
 // inferred: LOD entry of a model (0x18 bytes)
 struct InstLod_unk {
@@ -305,7 +299,7 @@ void ModelInstance::fn_8009EB20() {
     for (mLod = mData->mModel.mLodCount - 1; mLod != 0; mLod--) {
         float lod = ((InstLod_unk*)((unsigned char*)mData->mModel.mLods + mLod * 0x18))->mDistance;
         if ((float)__fabs(lod) < 1.1920929e-7f) {
-            lod = lbl_8087EFA8->m208[mLod];
+            lod = lbl_8087EFA8->m20C[mLod - 1];
         }
         if (lod <= zero) {
             break;
