@@ -719,7 +719,7 @@ int GameTask::vf0C() {
                 CharaInfo_unk* info = fn_8020924C(fn_80219544(i));
                 chr::CharaData_unk* data;
                 if (info != 0) {
-                    data = fn_8020A81C((const char*)info->m14);
+                    data = fn_8020A81C(info->m14);
                 } else {
                     data = 0;
                 }

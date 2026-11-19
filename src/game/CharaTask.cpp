@@ -256,7 +256,7 @@ struct DebugMessages_unk {
 };
 extern "C" CharaInfo_unk* fn_8020924C(int id);
 extern "C" int fn_802092C0(char* path, const char* name);
-extern "C" chr::CharaData_unk* fn_8020A81C(int id);
+extern "C" chr::CharaData_unk* fn_8020A81C(const char* name);
 extern "C" CharaRes_unk* fn_80204E04(int type, int arg);
 extern "C" int fn_8021FC00(int id);
 extern "C" void fn_80218260();

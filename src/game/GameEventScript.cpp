@@ -6405,7 +6405,7 @@ void GameEventScript::fn_803AAA74(ScriptResult_unk& result, const ScriptCmd_unk*
 }
 
 extern "C" CharaInfo_unk* fn_8020924C(int id);         // inferred: character table entry
-extern "C" chr::CharaData_unk* fn_8020A81C(int id);    // inferred: character data
+extern "C" chr::CharaData_unk* fn_8020A81C(const char* name);    // inferred: character data
 extern "C" db::GrowthEntry_unk* fn_8020FCE8(int id);   // inferred: growth table
 
 // inferred: gives the party the experience of defeating the character m08 (its level and experience; scaled

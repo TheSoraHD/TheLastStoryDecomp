@@ -166,7 +166,7 @@ struct CharaInfo_unk {
     const char* m08; // inferred: name (shown by game/BattleResult)
     const char* m0C; // inferred: name (shown by fn_80149A30)
     const char* m10; // inferred: name (passed to fn_802092C0; digits read by fn_801546F4)
-    int m14;         // inferred: passed to fn_8020A81C (character data)
+    const char* m14; // inferred: name of the character parameters, passed to fn_8020A81C (CharaIdEntry_unk::m14)
     const char* m18; // inferred: motion set file name ("/database/chara/motion/<m18>.mchr")
     const char* m1C; // inferred: motion command file name
     const char* m20; // inferred: extension file name
