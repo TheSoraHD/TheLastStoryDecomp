@@ -39,7 +39,7 @@ public:
     void Insert(Iterator it, LinkListNode* p);
     void Erase(LinkListNode* p);
 
-    unsigned long mSize;
+    unsigned int mSize; // u32 of NW4R
     LinkListNode mEndNode;
 };
 } // namespace detail
@@ -401,7 +401,7 @@ struct SoundStartInfo_unk {
 
     SoundStartInfo_unk() : enableFlag(0) {}
 
-    unsigned long enableFlag;
+    unsigned int enableFlag; // u32 of NW4R
     int startOffsetType;
     int startOffset;
     int playerId;
@@ -415,7 +415,7 @@ struct SoundDataInfo_unk {
     int m00;
     int mSampleRate;      // 0x04
     int m08;
-    unsigned long mLength; // 0x0C
+    unsigned int mLength; // 0x0C: u32 of NW4R
 };
 
 // inferred: nw4r::snd::detail::StrmSound / WaveSound (only the player at 0x110)
