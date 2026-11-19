@@ -29,27 +29,8 @@ extern "C" int fn_804F5E38(Arena_unk* arena, unsigned char id);
 extern "C" ArenaSlot_unk* fn_804F5B08(Arena_unk* arena, unsigned char id);
 extern "C" void fn_804F5C9C(Arena_unk* arena, unsigned char id);
 
-// inferred: global object at lbl_8087F628 (class unknown); same accessor as in gmk/Item.cpp
-extern "C" unsigned char DWC_GetMyAID();
-extern "C" int fn_806A8E40();
-struct ItemState_unk {
-    unsigned char m000[0x1F8];
-    unsigned int m1F8_31_20 : 12;
-    unsigned int mDisabled : 1; // inferred
-    unsigned int m1F8_18_0 : 19;
-    unsigned char m1FC[0xC215 - 0x1FC];
-    unsigned char mC215; // inferred: selects the source of the value
-
-    // inferred: name invented
-    unsigned char Get1_unk() {
-        if (mC215 == 0) {
-            return mDisabled ? 0 : DWC_GetMyAID();
-        } else {
-            return mDisabled ? 0 : fn_806A8E40();
-        }
-    }
-};
-extern "C" ItemState_unk* lbl_8087F628;
+#include "atn/net/Manager.h"
+extern "C" atn::net::Manager* lbl_8087F628;
 
 extern "C" GameConfig_unk* lbl_8087F0A8;
 
@@ -159,7 +140,7 @@ int ControlCannonLift::vf0C() {
                     ev.m10 = (int)chara;
                     ev.m08 = -1;
                     NotifyListeners_unk(fn_8014F8F4(), 11, mCannon, &ev);
-                    ((Cannon_unk*)mCannon)->m520 = lbl_8087F628->Get1_unk();
+                    ((Cannon_unk*)mCannon)->m520 = lbl_8087F628->GetMyAid_unk();
                 } else {
                     fail = true;
                 }
@@ -168,7 +149,7 @@ int ControlCannonLift::vf0C() {
                 bool release = true;
                 int id = ((Cannon_unk*)mCannon)->m524;
                 if (id == -2) {
-                    if (((Cannon_unk*)mCannon)->m520 == lbl_8087F628->Get1_unk()) {
+                    if (((Cannon_unk*)mCannon)->m520 == lbl_8087F628->GetMyAid_unk()) {
                         ok = true;
                     } else {
                         fail = true;

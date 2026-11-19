@@ -8,34 +8,8 @@ extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared len
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 
-// inferred: global object at lbl_8087F628 (class unknown); the two tests are inline accessors
-extern "C" unsigned char DWC_GetMyAID();
-extern "C" int fn_806A8E40();
-extern "C" unsigned char fn_806B1250();
-struct ItemState_unk {
-    unsigned char m000[0x1F8];
-    unsigned int m1F8_31_20 : 12;
-    unsigned int mDisabled : 1; // inferred
-    unsigned int m1F8_18_0 : 19;
-    unsigned char m1FC[0xC215 - 0x1FC];
-    unsigned char mC215; // inferred: selects the source of the first value
-
-    // inferred: names invented
-    unsigned char Get1_unk() {
-        if (mC215 == 0) {
-            return mDisabled ? 0 : DWC_GetMyAID();
-        } else {
-            return mDisabled ? 0 : fn_806A8E40();
-        }
-    }
-    unsigned char Get2_unk() {
-        if (mC215 == 0) {
-            return mDisabled ? 0 : fn_806B1250();
-        }
-        return 0;
-    }
-};
-extern "C" ItemState_unk* lbl_8087F628;
+#include "atn/net/Manager.h"
+extern "C" atn::net::Manager* lbl_8087F628;
 
 // inferred: inlined here (the local static is shared with the out-of-line copy in CharaTask.cpp).
 // All functions of this file match, but the unit cannot be linked: this object defines the local
@@ -70,7 +44,7 @@ void Item::vf10() {
     }
     int ok = 1;
     if (lbl_8087F628 != 0) {
-        if (lbl_8087F628->Get1_unk() != lbl_8087F628->Get2_unk()) {
+        if (lbl_8087F628->GetMyAid_unk() != lbl_8087F628->GetServerAid_unk()) {
             ok = 0;
         }
     }

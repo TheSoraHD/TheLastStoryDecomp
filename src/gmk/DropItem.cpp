@@ -73,26 +73,8 @@ extern "C" DropArenaSlot_unk* fn_804F5B08(DropArena_unk* arena, unsigned char id
 extern "C" void fn_804F5C9C(DropArena_unk* arena, unsigned char id);
 extern "C" void fn_804DB1C4(DropArena_unk* arena, PlayerTask* player, int count);
 extern "C" GameConfig_unk* lbl_8087F0A8;
-// inferred: global object at lbl_8087F628 (as in gmk/Item.cpp)
-extern "C" unsigned char DWC_GetMyAID();
-extern "C" int fn_806A8E40();
-struct DropState_unk {
-    unsigned char m000[0x1F8];
-    unsigned int m1F8_31_20 : 12;
-    unsigned int mDisabled : 1;
-    unsigned int m1F8_18_0 : 19;
-    unsigned char m1FC[0xC215 - 0x1FC];
-    unsigned char mC215;
-
-    unsigned char Get1_unk() {
-        if (mC215 == 0) {
-            return mDisabled ? 0 : DWC_GetMyAID();
-        } else {
-            return mDisabled ? 0 : fn_806A8E40();
-        }
-    }
-};
-extern "C" DropState_unk* lbl_8087F628;
+#include "atn/net/Manager.h"
+extern "C" atn::net::Manager* lbl_8087F628;
 // inferred: items
 struct DropWeapon_unk {
     unsigned char m00[0x78];
@@ -305,7 +287,7 @@ void DropItem::vf10() {
                     player->mMotion.mTracks[0].m0C = 0.4f;
                 }
                 if (m29C == 0xFF) {
-                    m29C = lbl_8087F628->Get1_unk();
+                    m29C = lbl_8087F628->GetMyAid_unk();
                 }
             }
             GimmickMsg_unk msg(5);
@@ -388,7 +370,7 @@ void DropItem::vf10() {
     case 7: {
         unsigned int done = 1;
         if (m2A0 == -2) {
-            if (m29C == lbl_8087F628->Get1_unk()) {
+            if (m29C == lbl_8087F628->GetMyAid_unk()) {
                 if (mData != 0) {
                     mSlot.fn_8044F14C();
                 }
