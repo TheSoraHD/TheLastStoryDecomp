@@ -73,12 +73,9 @@ extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* m
 extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the next effects
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 // inferred: link of the character lists (CharaTask + 0x14AC, as in game/CharaTask.cpp)
-struct CharaListNode_unk {
-    unsigned char m0000[0x14AC];
-    CharaTask* mNext;
-};
+// inferred: every caller walks the player list (lbl_8087F8A0)
 inline CharaTask* NextChara_unk(CharaTask* chara) {
-    return ((CharaListNode_unk*)chara)->mNext;
+    return static_cast<PlayerTask*>(chara)->mNext;
 }
 
 // inferred: plays an effect on the model (same as in game/Em305Vampire.cpp; names invented)

@@ -25,12 +25,9 @@ extern "C" void PSMTXRotRad(Mtx m, char axis, float rad);
 extern "C" GameTask* lbl_8087F430;
 extern "C" PlayerManager* lbl_8087F8A0;
 // inferred: link of the character lists of the managers (CharaTask + 0x14AC, as in game/Em202Spider.cpp)
-struct CharaListNode_unk {
-    unsigned char m0000[0x14AC];
-    CharaTask* mNext;
-};
+// inferred: every caller walks the player list (lbl_8087F8A0)
 inline CharaTask* NextChara_unk(CharaTask* chara) {
-    return ((CharaListNode_unk*)chara)->mNext;
+    return static_cast<PlayerTask*>(chara)->mNext;
 }
 // inferred: sends `id` to the gimmicks in a cone (game/SpecialEnemyBase.cpp)
 extern "C" void fn_805A5078(const atn::Vector3* pos, const atn::Vector3* dir, int id, float radius, float angle);
