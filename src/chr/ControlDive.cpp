@@ -237,8 +237,8 @@ int ControlSwapPos::vf0C() {
     return 1;
 }
 
-// NONMATCHING: 91.6% - r30/r31 swapped (motion/a) and the order of the subtractions of the
-// negated direction.
+// inferred: the difference is a named local negated in place (stack slots and order of the
+// subtractions of the original)
 ControlBackStep::ControlBackStep(Chara_unk* chara, const atn::Vector3& dir, int a)
     : ControlBase(chara), m08(dir), m20(15.0f) {
     chara->m560 = 2;
@@ -251,7 +251,8 @@ ControlBackStep::ControlBackStep(Chara_unk* chara, const atn::Vector3& dir, int 
     if (a != 0) {
         ControlChargeAttackBase::fn_801A4E08(mChara, m14, m08);
     }
-    atn::Vector3 dir2 = NegDive_unk(m08 - m14);
+    atn::Vector3 dir2 = m08 - m14;
+    dir2 = NegDive_unk(dir2);
     dir2.y = 0.0f;
     if (PSVECSquareMag(&dir2) > 0.00001f) {
         mChara->mRot = dir2.ToRotation_unk();

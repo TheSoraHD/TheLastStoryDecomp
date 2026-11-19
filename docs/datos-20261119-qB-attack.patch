@@ -1,0 +1,227 @@
+diff --git a/src/chr/ControlAttackBase.cpp b/src/chr/ControlAttackBase.cpp
+index ab99279..1034dd8 100644
+--- a/src/chr/ControlAttackBase.cpp
++++ b/src/chr/ControlAttackBase.cpp
+@@ -48,6 +48,16 @@ static const AttackLevel_unk sAttackLevel[6] = {
+     {0.0f, 1.0f}, {0.0f, 1.1f}, {0.0f, 1.2f}, {0.0f, 1.3f}, {0.0f, 1.4f}, {0.0f, 1.5f},
+ };
+ 
++// inferred: one of the three swing sounds at pos (name invented)
++static inline void PlaySwingSe_unk(const atn::Vector3* pos) {
++    fn_800C344C(sSwingSe[rand() % 3], pos, 0, -1, 1.0f);
++}
++
++// inferred: position accessor (weak 0x8013C38C, inlined here)
++inline atn::Vector3* CharaTask::fn_8013C38C() {
++    return &mPos;
++}
++
+ // inferred: automatic attack setting of the player (name invented)
+ static inline bool IsAutoAttack_unk(CharaTask* chara) {
+     bool on = false;
+@@ -224,7 +234,8 @@ int ControlAttackBase::vf38(int arg) {
+ float ControlAttackBase::vf60() {
+     Chara_unk* chara = mChara;
+     CharaStatus* status = &chara->mStatus;
+-    float rate = sAttackLevel[MIN(5, MAX(0, chara->mStatus.mParamB.m94 / 100))].mSpeed;
++    const AttackLevel_unk* level = &sAttackLevel[MIN(5, MAX(0, status->mParamB.m94 / 100))];
++    float rate = level->mSpeed;
+     if (status->IsState_unk(0x40)) {
+         rate *= MAX(0.3f, 1.0f - chara->GetF94Rate_unk());
+     }
+@@ -259,11 +270,7 @@ ControlAttack::ControlAttack(Chara_unk* chara, const atn::Vector3& dir) : Contro
+     int id = self->m484[19];
+     if (self->mFlag31) {
+         id = self->m484[24];
+-        atn::Vector3 front(0.0f, 0.0f, 1.0f);
+-        atn::Matrix3x4 m;
+-        m.fn_8013A13C(self->mRot.y);
+-        PSMTXMultVec(m.m, &front, &front);
+-        mDir = front;
++        mDir = GetFront_unk(self->mRot);
+     } else {
+         atn::Vector3 rot = self->mRot;
+         atn::Vector3 front = GetFront_unk(self->mRot);
+@@ -273,22 +280,30 @@ ControlAttack::ControlAttack(Chara_unk* chara, const atn::Vector3& dir) : Contro
+         if (motion->fn_80097D40(0x158) != 0) {
+             if (dot > front35) {
+                 int kind = rand() % 2 == 0 ? kAttackKind19_unk : kAttackKind20_unk;
+-                if (IsAutoAttack_unk(mChara)) {
++                Chara_unk* c = mChara;
++                bool on = false;
++                if (c->mType == 0 && SetConfig::sInstance->mAttackType != 0) {
++                    on = true;
++                }
++                if (c->m50 == 0xAAE76 || c->m50 == 0xAAE77) {
++                    on = false;
++                }
++                if (UseAuto_unk(on, c)) {
+                     id = 0x162;
+                 } else {
+                     id = mChara->m484[kind];
+                 }
+             } else if (dot < -back70) {
+-                atn::Vector3 r = dir.ToRotation_unk();
+-                float angle = atn::WrapAngle_unk(r.y - rot.y);
++                float y = dir.ToRotation_unk().y;
++                float angle = atn::WrapAngle_unk(y - rot.y);
+                 if (angle > 0.0f) {
+                     id = 0x15A;
+                 } else {
+                     id = 0x15B;
+                 }
+             } else {
+-                atn::Vector3 r = dir.ToRotation_unk();
+-                float angle = atn::WrapAngle_unk(r.y - rot.y);
++                float y = dir.ToRotation_unk().y;
++                float angle = atn::WrapAngle_unk(y - rot.y);
+                 if (angle > 0.0f) {
+                     id = 0x158;
+                 } else {
+@@ -332,12 +347,12 @@ int ControlAttack::vf0C() {
+         return 1;
+     }
+     Motion_unk* motion = &chara->mMotion;
+-    if (chara->mMotion.mTracks[0].m08 < 6.0f && 6.0f <= chara->mMotion.mTracks[0].m08 + chara->mMotion.mTracks[0].m0C) {
+-        fn_800C344C(sSwingSe[rand() % 3], &chara->mPos, 0, -1, 1.0f);
++    if (motion->mTracks[0].m08 < 6.0f && 6.0f <= motion->mTracks[0].m08 + motion->mTracks[0].m0C) {
++        PlaySwingSe_unk(chara->fn_8013C38C());
+     }
+     float speed = 0.0f;
+     if (mChara->mType == 0 && SetConfig::sInstance->mAttackType != 0 &&
+-        (motion->mTracks[0].m00 == 0x162 || mChara->mMotion.mTracks[0].m00 == 0x163)) {
++        !(motion->mTracks[0].m00 != 0x162 && motion->mTracks[0].m00 != 0x163)) {
+         if (motion->mTracks[0].m08 > 4.0f && motion->mTracks[0].m08 <= 16.0f) {
+             speed = 1.0f;
+         } else {
+@@ -348,7 +363,7 @@ int ControlAttack::vf0C() {
+         }
+     }
+     if (mChara->mType == 0 && mChara->m50 == 0xAAE76 &&
+-        (motion->mTracks[0].m00 == 0x157 || motion->mTracks[0].m00 == 0x156)) {
++        !(motion->mTracks[0].m00 != 0x156 && motion->mTracks[0].m00 != 0x157)) {
+         if (motion->mTracks[0].m08 < 72.0f) {
+             if (motion->mTracks[0].m08 > 50.0f) {
+                 speed = 1.0f;
+@@ -367,9 +382,7 @@ int ControlAttack::vf0C() {
+     return 0;
+ }
+ 
+-// inferred: the two bools of the auto attack test are named locals (materialized like the original), the
+-// two character ids are tested with a negated && (no range compare) and the yaw of the direction is read
+-// into a local (FPR order of the original)
++// NONMATCHING: 98.3% - as ControlAttack::ControlAttack.
+ ControlAttackNext::ControlAttackNext(Chara_unk* chara, const atn::Vector3& dir) : ControlAttackBase(chara, dir) {
+     chara->m560 = 5;
+     Motion_unk* motion = &mChara->mMotion;
+@@ -466,12 +479,12 @@ int ControlAttackNext::vf0C() {
+         return 1;
+     }
+     Motion_unk* motion = &chara->mMotion;
+-    if (chara->mMotion.mTracks[0].m08 < 6.0f && 6.0f <= chara->mMotion.mTracks[0].m08 + chara->mMotion.mTracks[0].m0C) {
+-        fn_800C344C(sSwingSe[rand() % 3], &chara->mPos, 0, -1, 1.0f);
++    if (motion->mTracks[0].m08 < 6.0f && 6.0f <= motion->mTracks[0].m08 + motion->mTracks[0].m0C) {
++        PlaySwingSe_unk(chara->fn_8013C38C());
+     }
+     float speed = 0.0f;
+     if (mChara->mType == 0 && SetConfig::sInstance->mAttackType != 0 &&
+-        (motion->mTracks[0].m00 == 0x162 || mChara->mMotion.mTracks[0].m00 == 0x163)) {
++        !(motion->mTracks[0].m00 != 0x162 && motion->mTracks[0].m00 != 0x163)) {
+         if (motion->mTracks[0].m08 > 4.0f && motion->mTracks[0].m08 <= 16.0f) {
+             speed = 1.0f;
+         } else {
+@@ -482,7 +495,7 @@ int ControlAttackNext::vf0C() {
+         }
+     }
+     if (mChara->mType == 0 && mChara->m50 == 0xAAE76 &&
+-        (motion->mTracks[0].m00 == 0x157 || motion->mTracks[0].m00 == 0x156)) {
++        !(motion->mTracks[0].m00 != 0x156 && motion->mTracks[0].m00 != 0x157)) {
+         if (motion->mTracks[0].m08 < 72.0f) {
+             if (motion->mTracks[0].m08 > 50.0f) {
+                 speed = 1.0f;
+@@ -898,50 +911,49 @@ ControlSwapAttack::ControlSwapAttack(Chara_unk* chara, Chara_unk* target)
+ 
+ // NONMATCHING: 95.6% - stack layout of the saved state (position, rotation, velocity).
+ int ControlSwapAttack::vf0C() {
+-    mTime = mTime + lbl_8087EFA8->m3A4;
++    float dt = lbl_8087EFA8->m3A4;
++    mTime = mTime + dt;
+     Motion_unk* motion = &mChara->mMotion;
+-    float speed = mTime < 20.0f ? 1.0f : 0.0f;
++    float rate = 1.0f;
++    float speed = mTime < 20.0f ? rate : 0.0f;
+     atn::Vector3 rot = mDir.ToRotation_unk();
+     if (mTime >= 23.0f && motion->mTracks[0].m00 != 0x1D2) {
+         motion->fn_80097C08(0, 0x1D2, 0, 1, 1, 0.0f, 0.05f);
+         motion->mTracks[0].m08 = 14.0f;
+     }
+     float frame = motion->mTracks[0].m08;
+-    if (frame >= motion->fn_80097D7C(0) - 1.0f) {
+-        return 1;
+-    }
+-    Chara_unk* chara = mChara;
+-    atn::Vector3 pos = chara->mPos;
+-    atn::Vector3 crot = chara->mRot;
+-    atn::Vector3 vel = chara->m574;
+-    atn::Vector3 rot2 = crot;
+-    if (mTime <= 19.0f) {
+-        vel.y = 0.0f;
+-        pos.y += 0.47368422f;
+-    } else {
+-        crot = rot;
+-    }
+-    atn::Vector3 d(mTarget->mPos.x - mStartPos.x, 0.0f, mTarget->mPos.z - mStartPos.z);
+-    if (mTime < 15.0f) {
+-        atn::Vector3 step = d * 0.06666667f;
+-        mChara->mPos = pos + step;
+-    } else {
+-        mChara->mPos = pos;
+-        mChara->mRot = crot;
+-        mChara->m574 = vel;
+-        mChara->fn_8013CB68(rot, 1, 1.0f, speed * mChara->m568);
+-    }
+-    if (mTime > 15.0f) {
+-        crot = mStartRot;
+-        atn::Vector3 back(-mDir.x, -mDir.y, -mDir.z);
+-        atn::Vector3 r = back.ToRotation_unk();
+-        float angle = atn::WrapAngle_unk(r.y - mStartRot.y);
+-        crot.y += angle * MIN(1.0f, (mTime - 15.0f) / 15.0f);
+-        mChara->mRot = crot;
+-    } else {
+-        mStartRot = mChara->mRot;
++    if (!(frame >= motion->fn_80097D7C(0) - 1.0f)) {
++        Chara_unk* chara = mChara;
++        atn::Vector3 pos = chara->mPos;
++        atn::Vector3 crot = chara->mRot;
++        atn::Vector3 vel = chara->m574;
++        atn::Vector3 rot2 = crot;
++        if (mTime <= 19.0f) {
++            vel.y = 0.0f;
++            pos.y += 0.47368422f;
++        } else {
++            crot = rot;
++        }
++        atn::Vector3 d(mTarget->mPos.x - mStartPos.x, 0.0f, mTarget->mPos.z - mStartPos.z);
++        if (mTime < 15.0f) {
++            mChara->mPos = pos + d * 0.06666667f;
++        } else {
++            mChara->mPos = pos;
++            mChara->mRot = crot;
++            mChara->m574 = vel;
++            mChara->fn_8013CB68(rot, 1, rate, speed * mChara->m568);
++        }
++        if (mTime > 15.0f) {
++            crot = mStartRot;
++            float angle = atn::WrapAngle_unk(atn::Vector3(-mDir.x, -mDir.y, -mDir.z).ToRotation_unk().y - mStartRot.y);
++            crot.y += angle * MIN(1.0f, (mTime - 15.0f) / 15.0f);
++            mChara->mRot = crot;
++        } else {
++            mStartRot = mChara->mRot;
++        }
++        return 0;
+     }
+-    return 0;
++    return 1;
+ }
+ 
+ void ControlSwapAttack::vf1C() {}
