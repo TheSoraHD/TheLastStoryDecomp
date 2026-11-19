@@ -10,6 +10,8 @@
 #include "game/GameTask.h"
 #include "math/VecAssign_unk.h"
 #include "game/BattleTask.h"
+#include "game/GameUI.h"
+#include "game/GameChoiceWindow.h"
 
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" int atoi(const char* s);
@@ -534,17 +536,7 @@ float EnemyJill::Stripped1_unk() {
     return 57.295776f * (rot.y - y);
 }
 
-// inferred: arena (lbl_8087F490): two players at 0x263C/0x2640 (nonzero m50 = talking); names invented
-struct JillArenaPlayer_unk {
-    unsigned char m00[0x50];
-    int m50;
-};
-struct JillArena_unk {
-    unsigned char m0000[0x263C];
-    JillArenaPlayer_unk* m263C;
-    JillArenaPlayer_unk* m2640;
-};
-extern "C" JillArena_unk* lbl_8087F490;
+extern "C" GameUI* lbl_8087F490;
 extern "C" int fn_800CB58C(atn::SoundRef* sound); // inferred: playing
 
 void EnemyJill::fn_8032F6A8() {
@@ -558,12 +550,12 @@ void EnemyJill::fn_8032F6A8() {
     if (lbl_8087F430 != 0 && lbl_8087F430->m54E4 != 0) {
         ok = 0;
     }
-    JillArena_unk* arena = lbl_8087F490;
+    GameUI* arena = lbl_8087F490;
     if (arena != 0) {
-        if (arena->m263C != 0 && arena->m263C->m50 != 0) {
+        if (arena->m263C != 0 && arena->m263C->mState != 0) {
             ok = 0;
         }
-        if (arena->m2640 != 0 && arena->m2640->m50 != 0) {
+        if (arena->m2640 != 0 && arena->m2640->mState != 0) {
             ok = 0;
         }
     }
