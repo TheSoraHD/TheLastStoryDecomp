@@ -8319,12 +8319,12 @@ int AI::Script::AI_np_type002::vf0C() {
     return -1;
 }
 
-// NONMATCHING: 99.32% - register coloring of the out base/m08 temps and stack slot order of the two MovePick groups.
 int AI::Script::AI_np_type002::vf14() {
     if (lbl_807C6A40.m18[0] < lbl_807C6A40.m18[1]) {
         lbl_807C6A40.m18[0]++;
         lbl_807C6A40.mValid = 1;
-        if (lbl_807C68C0.mDone != 0) {
+        int done = lbl_807C68C0.mDone;
+        if (done != 0) {
             int base = fn_8001B5B4(lbl_807C68C0.mPos, 0);
             Command_unk(1, PickPoint_unk(base), 0, 0, 0);
             return 3;
@@ -8339,7 +8339,8 @@ int AI::Script::AI_np_type002::vf14() {
     }
     lbl_807C6A40.m18[0] -= 90;
     lbl_807C6A40.mValid = 1;
-    if (lbl_807C68C0.mDone != 0) {
+    int done = lbl_807C68C0.mDone;
+    if (done != 0) {
         int base = fn_8001B5B4(lbl_807C68C0.mPos, 0);
         Command_unk(1, PickPoint_unk(base), 0, 0, 0);
         return 3;
@@ -8379,12 +8380,12 @@ int AI::Script::AI_np_type003::vf0C() {
     return -1;
 }
 
-// NONMATCHING: 99.25% - register coloring of the out base/m08 temps (as AI_np_type002::vf14).
 int AI::Script::AI_np_type003::vf14() {
     if (lbl_807C6A40.m18[0] < lbl_807C6A40.m18[1]) {
         lbl_807C6A40.m18[0]++;
         lbl_807C6A40.mValid = 1;
-        if (lbl_807C68C0.mDone != 0) {
+        int done = lbl_807C68C0.mDone;
+        if (done != 0) {
             int base = fn_8001B5B4(lbl_807C68C0.mPos, 0);
             Command_unk(1, PickPoint_unk(base), 0, 0, 0);
             return 3;
@@ -8399,7 +8400,8 @@ int AI::Script::AI_np_type003::vf14() {
     }
     lbl_807C6A40.m18[0] -= 90;
     lbl_807C6A40.mValid = 1;
-    if (lbl_807C68C0.mDone != 0) {
+    int done = lbl_807C68C0.mDone;
+    if (done != 0) {
         int base = fn_8001B5B4(lbl_807C68C0.mPos, 0);
         Command_unk(1, PickPoint_unk(base), 0, 0, 0);
         return 3;
