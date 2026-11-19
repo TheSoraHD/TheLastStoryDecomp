@@ -24,23 +24,14 @@
 #include "game/GameScene.h"
 
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
-// inferred: field (lbl_8087F430): camera shake and event flags (as in gmk/ShakeCamera.cpp)
-struct QuadField_unk {
-    void Shake_unk(int frame, float x, float y) {
-        m96C = m96C % 2;
-        m970 = frame;
-        m974 = x;
-        m978 = y;
-    }
-    unsigned char m00[0x96C];
-    int m96C;
-    int m970;
-    float m974;
-    float m978;
-    unsigned char m97C[0x10D8 - 0x97C];
-    GameScene* m10D8;
-};
-extern "C" QuadField_unk* lbl_8087F430;
+extern "C" GameTask* lbl_8087F430;
+// inferred: shakes the camera of the field keeping the parity of the frame (as gmk/ShakeCamera)
+inline void Shake_unk(GameTask* field, int frame, float x, float y) {
+    field->mCamera.mShake.mFrame = field->mCamera.mShake.mFrame % 2;
+    field->mCamera.mShake.mLength = frame;
+    field->mCamera.mShake.mWidth = x;
+    field->mCamera.mShake.mHeight = y;
+}
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 
@@ -174,7 +165,7 @@ inline void LastCocoonQuadruped::SetMode_unk(int mode) {
     m14C0 = 0;
     m590 = lbl_8087F048->fn_800F8548();
     if (lbl_8087F430 != 0) {
-        ((GameTask*)lbl_8087F430)->fn_80370AE4(0x8C, 0);
+        lbl_8087F430->fn_80370AE4(0x8C, 0);
     }
     m58C = mode;
     fn_8016E970(3);
@@ -256,14 +247,10 @@ int LastCocoonQuadruped::vf0C() {
     return 0;
 }
 
-// inferred: field object (as in gmk/FlamingArrow.cpp)
-struct Field_unk {
-    GameScene* fn_8013C504();
-};
-extern "C" Field_unk* fn_80121F00();
+extern "C" GameTask* fn_80121F00();
 // inferred: player input of the field (as in game/Em201ZanGurgFinal.cpp; weak copies with C names)
 struct QuadInput_unk;
-extern "C" QuadInput_unk* fn_80122550(Field_unk* field);
+extern "C" QuadInput_unk* fn_80122550(GameTask* field);
 extern "C" void fn_8026616C(QuadInput_unk* input, CharaTask* chara);
 extern "C" void fn_8026610C(QuadInput_unk* input, const atn::Vector3& pos, float f, int keep);
 extern "C" atn::Vector3* fn_80266164(QuadInput_unk* input);
@@ -363,7 +350,7 @@ void LastCocoonQuadruped::vf10() {
             } else {
                 mLook.fn_80129978(m14B8->GetModel_unk(), "neck", lbl_807C7030, 0.3f);
             }
-            MapTask* map = ((GameTask*)fn_80121F00())->GetCurrentMap();
+            MapTask* map = fn_80121F00()->GetCurrentMap();
             QuadInput_unk* input = fn_80122550(fn_80121F00());
             if (m58C == 15 || m58C == 16) {
                 if (map->GetCamera_unk() != 2) {
@@ -1001,7 +988,7 @@ void LastCocoonQuadruped::fn_804635B4() {
 void LastCocoonQuadruped::fn_80463610() {
     if (mMotion.mTracks[0].m00 == 0x14A) {
         if ((float)__fabs(mMotion.mTracks[0].m08 - 3.0f) < 1.1920929e-7f) {
-            lbl_8087F430->Shake_unk(60, 0.3f, 0.3f);
+            Shake_unk(lbl_8087F430, 60, 0.3f, 0.3f);
         }
         float frame = mMotion.mTracks[0].m08;
         if (frame >= mMotion.fn_80097D7C(0)) {
@@ -1009,13 +996,13 @@ void LastCocoonQuadruped::fn_80463610() {
             mMotion.mTracks[0].m20 = 1.0f;
             mMotion.mTracks[0].m0C = 1.0f;
             mMotion.fn_80097C08(0, 0x14D, 0, 0, 1, 0.0f, 0.1f);
-            lbl_8087F430->Shake_unk(180, 0.1f, 0.1f);
+            Shake_unk(lbl_8087F430, 180, 0.1f, 0.1f);
             fn_800C344C("SE_EM206_027", &mPos, 0, -1, 1.0f);
         }
     } else {
         float frame = mMotion.mTracks[0].m08;
         if ((float)__fabs(frame - 50.0f) < 1.1920929e-7f) {
-            ((GameTask*)lbl_8087F430)->fn_80370AE4(0x5B, 1);
+            lbl_8087F430->fn_80370AE4(0x5B, 1);
         } else if (frame >= mMotion.fn_80097D7C(0)) {
             mFlag25 = 1;
             mColli.mFlags &= ~1;
@@ -1250,7 +1237,7 @@ void LastCocoonQuadruped::fn_804655AC() {
         mMotion.mTracks[0].m0C = 1.0f;
         mMotion.fn_80097C08(0, 0x143, 1, 0, 1, 0.0f, 0.1f);
         if (lbl_8087F430 != 0) {
-            ((GameTask*)lbl_8087F430)->fn_80370AE4(0x8C, (int)m15AC);
+            lbl_8087F430->fn_80370AE4(0x8C, (int)m15AC);
         }
         m18E8 = 0;
         return;
@@ -1372,7 +1359,7 @@ void LastCocoonQuadruped::fn_80465B88() {
         mMotion.mTracks[0].m0C = 1.0f;
         mMotion.fn_80097C08(0, 0x144, 0, 0, 1, 0.0f, 0.1f);
         if (lbl_8087F430 != 0) {
-            ((GameTask*)lbl_8087F430)->fn_80370AE4(0x8C, 0);
+            lbl_8087F430->fn_80370AE4(0x8C, 0);
         }
         m15C8 = target;
         m15BC = target->mPos - mPos;
@@ -1439,7 +1426,7 @@ void LastCocoonQuadruped::fn_804666D8() {
 
 void LastCocoonQuadruped::fn_80466868() {
     if ((float)__fabs(mMotion.mTracks[0].m08 - 3.0f) < 1.1920929e-7f) {
-        lbl_8087F430->Shake_unk(60, 0.3f, 0.3f);
+        Shake_unk(lbl_8087F430, 60, 0.3f, 0.3f);
     }
     float frame = mMotion.mTracks[0].m08;
     if (frame >= mMotion.fn_80097D7C(0)) {

@@ -1,3 +1,4 @@
+#include "game/GameTask.h"
 #include "game/Em001Necromancer.h"
 #include "atn/RenderManager.h"
 #include "chr/ControlChant.h"
@@ -25,11 +26,7 @@ extern "C" float fn_800DC288(const char* s); // inferred: string to float
 extern "C" int fn_800DC12C(const char* s);   // inferred: string to int
 // inferred: std::string concatenation (weak copy 0x8006AFF8)
 extern "C" std::string fn_8006AFF8(const std::string& a, const std::string& b);
-// inferred: field object (route tables through fn_8013C504, as in gmk/FlamingArrow.cpp)
-struct Field_unk {
-    GameScene* fn_8013C504();
-};
-extern "C" Field_unk* fn_80121F00();
+extern "C" GameTask* fn_80121F00();
 extern "C" CharaManager<EnemyTask>* fn_801A03E0(); // inferred: enemy manager
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length

@@ -17,13 +17,7 @@ extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3,
 extern "C" void fn_8008771C(void* group, const char* name, float* value, int arg3, int arg4, float min, float max,
                             float step);
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
-// inferred: field (lbl_8087F430); the event flags are read with fn_80370A78
-struct Field_unk {
-    GameScene* fn_8013C504(); // inferred: returns m10D8
-    unsigned char m00[0x10D8];
-    GameScene* m10D8; // inferred: route tables (as in gmk/ReinforcePoint.cpp)
-};
-extern "C" Field_unk* lbl_8087F430;
+extern "C" GameTask* lbl_8087F430;
 extern "C" int fn_800DC12C(const char* s); // inferred: string to int
 // inferred: per type data, indexed by type - 0x385
 extern "C" Em310Gargoyle::Data_unk lbl_80787F68[];
@@ -143,7 +137,7 @@ inline atn::Vector3 GargoyleFront3_unk(const atn::Vector3& rot) {
 // the inline budget; this accessor carries the missing cost (fewer than 50 keeps everything inlined).
 #define GARGOYLE_ASSERT_UNK(x) ((void)0)
 // inferred: field accessor (weak copy 0x80121F00 of another file, as in game/Em203GreaterDaemon.cpp)
-extern "C" inline Field_unk* fn_80121F00() {
+extern "C" inline GameTask* fn_80121F00() {
     GARGOYLE_ASSERT_UNK(0); GARGOYLE_ASSERT_UNK(0); GARGOYLE_ASSERT_UNK(0); GARGOYLE_ASSERT_UNK(0); GARGOYLE_ASSERT_UNK(0);
     GARGOYLE_ASSERT_UNK(0); GARGOYLE_ASSERT_UNK(0); GARGOYLE_ASSERT_UNK(0); GARGOYLE_ASSERT_UNK(0); GARGOYLE_ASSERT_UNK(0);
     GARGOYLE_ASSERT_UNK(0); GARGOYLE_ASSERT_UNK(0); GARGOYLE_ASSERT_UNK(0); GARGOYLE_ASSERT_UNK(0); GARGOYLE_ASSERT_UNK(0);
@@ -285,7 +279,7 @@ inline int Em310Gargoyle::SeatMtx_unk(const char* name) {
 // NONMATCHING: 99.87% - r3/r5 of the seat id and the place table in the inlined fn_8030D0D8 (its own copy is
 // at 100%; 12 forms of the two lookups) and .sdata2 offsets
 void Em310Gargoyle::vf10() {
-    if (((GameTask*)lbl_8087F430)->fn_80370A78(mData.m04) == 0) {
+    if (lbl_8087F430->fn_80370A78(mData.m04) == 0) {
         mC58.mC0 = 0;
         return;
     }
@@ -337,7 +331,7 @@ void Em310Gargoyle::vf10() {
         }
     }
     fn_80145334();
-    int flag = ((GameTask*)lbl_8087F430)->fn_80370A78(mData.m08);
+    int flag = lbl_8087F430->fn_80370A78(mData.m08);
     if (flag == 1) {
         if (m150C == 0 && m1500[1] != 0 && m1500[2] != 0) {
             m1500[1]->mC58.mC0 = 0;
@@ -375,18 +369,18 @@ void Em310Gargoyle::vf10() {
             fn_8030D0D8();
         }
         if (atn::Keyboard::Order()->Press(atn::Keyboard::PORT0_unk, 0x4D)) {
-            ((GameTask*)lbl_8087F430)->fn_80370AE4(0x66, 4);
+            lbl_8087F430->fn_80370AE4(0x66, 4);
         }
     }
 }
 
 // inferred: debug display (the seats, the flags 0xC9-0xCB and the seat directions when "DebugDisp" is on)
 void Em310Gargoyle::vf14() {
-    if (((GameTask*)fn_80121F00())->fn_80370A78(mData.m04) == 0) {
+    if (fn_80121F00()->fn_80370A78(mData.m04) == 0) {
         return;
     }
     fn_80149A30();
-    int flag = ((GameTask*)fn_80121F00())->fn_80370A78(mData.m08);
+    int flag = fn_80121F00()->fn_80370A78(mData.m08);
     if (flag == 1) {
         if (m150C == 0 && m1500[1] != 0 && m1500[2] != 0) {
             m1500[1]->fn_80149A30();
@@ -402,7 +396,7 @@ void Em310Gargoyle::vf14() {
     }
     for (int i = 0; i < 3; i++) {
         char buf[0x8];
-        sprintf(buf, "flag::%d", ((GameTask*)fn_80121F00())->fn_80370A78(i + 0xC9));
+        sprintf(buf, "flag::%d", fn_80121F00()->fn_80370A78(i + 0xC9));
         fn_800F7250()->fn_800616C0(200.0f, 100.0f + i * 10, 10000.0f, 10.0f, 10.0f, buf, atn::Color4f_unk(0.0f, 0.5f, 0.0f, 1.0f).ToU32(), 0.0f, 1, 1, 0);
     }
     atn::Matrix3x4 m1 = fn_800109E0(mRot);
@@ -478,10 +472,10 @@ void Em310Gargoyle::vf40(HitInfo_unk* hit) {
     if ((mStatus.m0C & 0x20) == 0x20) {
         if (m14F1 == 0) {
             m14F1 = 1;
-            ((GameTask*)lbl_8087F430)->fn_80370AE4(0xCF, 1);
-            ((GameTask*)lbl_8087F430)->fn_80370AE4(0x66, ((GameTask*)lbl_8087F430)->fn_80370A78(0x66) + 1);
+            lbl_8087F430->fn_80370AE4(0xCF, 1);
+            lbl_8087F430->fn_80370AE4(0x66, lbl_8087F430->fn_80370A78(0x66) + 1);
             mMotion.fn_80097C08(0, 0x33, 0, 0, 1, 0.0f, 0.1f);
-            if (((GameTask*)lbl_8087F430)->fn_80370A78(0x66) <= 3) {
+            if (lbl_8087F430->fn_80370A78(0x66) <= 3) {
                 fn_80232B7C(this, 100);
                 Color4f_unk color;
                 atn::Vector3 rot;
@@ -656,7 +650,7 @@ void Em310Gargoyle::fn_8030C490() {
         m14B8 = 1;
         m14E4 = 1;
         m15F0 = 1;
-        ((GameTask*)fn_80121F00())->fn_80370AE4(0xD0, 1);
+        fn_80121F00()->fn_80370AE4(0xD0, 1);
     }
     if (m14E0 > 60) {
         m14D4 = 0;
@@ -694,7 +688,7 @@ void Em310Gargoyle::fn_8030C490() {
                     count++;
                 }
             }
-            if (((GameTask*)fn_80121F00())->fn_80370A78(mData.m08) == 1) {
+            if (fn_80121F00()->fn_80370A78(mData.m08) == 1) {
                 if (m1500[1] != 0 && m1500[2] != 0) {
                     atn::Matrix3x4 ma(m.m);
                     atn::Matrix3x4 mb(m.m);
@@ -711,7 +705,7 @@ void Em310Gargoyle::fn_8030C490() {
                         fn_8030C1A4(m1500[2], &vb);
                     }
                 }
-            } else if (((GameTask*)fn_80121F00())->fn_80370A78(mData.m08) == 2) {
+            } else if (fn_80121F00()->fn_80370A78(mData.m08) == 2) {
                 if (m1500[0] != 0) {
                     atn::Matrix3x4 ma(m.m);
                     atn::Vector3 v(0.0f, 0.0f, 1.0f);
@@ -721,7 +715,7 @@ void Em310Gargoyle::fn_8030C490() {
                 }
             }
             m150C = 1;
-            ((GameTask*)fn_80121F00())->fn_80370AE4(mData.m10, 1);
+            fn_80121F00()->fn_80370AE4(mData.m10, 1);
             m14E4 = 0;
             m14B8 = 0;
         }
@@ -781,7 +775,7 @@ void Em310Gargoyle::fn_8030CBC0() {
             m15F0 = 0;
             m14E8 = -1;
             mStatus.fn_8012D8B8();
-            ((GameTask*)lbl_8087F430)->fn_80370AE4(mData.m04, 0);
+            lbl_8087F430->fn_80370AE4(mData.m04, 0);
             fn_80239DAC(lbl_8087F3C0, this, 100, 0);
             mColli.mFlags &= ~1;
         }
@@ -811,7 +805,7 @@ void Em310Gargoyle::fn_8030CF84(int warp) {
          ((m1500[2]->mFlags & 4) != 4 && (m1500[2]->mStatus.m0C & 0x20) != 0x20))) {
         down = 0;
     }
-    ((GameTask*)lbl_8087F430)->fn_80370AE4(mData.m08, down);
+    lbl_8087F430->fn_80370AE4(mData.m08, down);
     m150D = 0;
     m14EC = 0;
     m150C = 0;

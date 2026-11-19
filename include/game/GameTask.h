@@ -46,6 +46,7 @@ struct GameTaskTable_unk {
     int mPrevSub;
     int m24;
     GameTaskTable_unk() : m14(0), mScene(0), mState(0), m30(0), m34(0) {}
+    bool HasState_unk() const; // inferred: weak copy 0x803D7044 (game/GameUI), mState != 0
     GameScene* mScene;    // 0x28: inferred: scene of the next map
     int mState;           // 0x2C: inferred: state of the map change (GameTask::vf10)
     int m30;              // inferred: save data to restore
@@ -176,6 +177,11 @@ public:
     void fn_80376730();
     void fn_803750E4(int id); // inferred: sets a global flag once
     void fn_80367A40(int arg);
+    // inferred: weak getters emitted by game/GameUI (0x803D6E24, 0x803D7058); defined inline by the units that use
+    // them so that the other units including this header are not renumbered
+    int GetState_unk() const;
+    GameTaskTable_unk* GetRoute_unk();
+    GameScene* fn_8013C504(); // 0x8013C504 (game/CharaTask.cpp): returns m10D8; other units call it as a weak getter
     void fn_8036CA60(int arg);
 
     GameTask(atn::Task* parent, const Option& option); // 0x803658B8

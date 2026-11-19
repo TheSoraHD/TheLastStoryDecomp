@@ -3819,10 +3819,9 @@ extern "C" int fn_80267B20(CharaTask* chara); // inferred: returns m55C (game/Ga
 extern "C" float fn_80011220(float x); // inferred: fabs (weak copy of another helper)
 gs::AttentionPoint* FindAttention_unk(GameScene* scene, int id);
 
-// NONMATCHING: 98.5% - the original calls the weak accessor fn_8013C504 (named after the Field_unk view
-// in symbols.txt) where this loads GameTask::m10D8, and the weak lookup FindPlace_unk__14RouteTable_unk
-// (RouteTable_unk is a view of the warp points of GameScene) where this calls FindWarpIn_unk; the
-// store of mBC is scheduled after the first flag extraction
+// NONMATCHING: 99.3% - the store of mBC is scheduled after the first flag extraction (the scene comes from the
+// weak getter GameTask::fn_8013C504 and the warp points from the weak GameScene::FindPlace_unk, as in the
+// original)
 // inferred: turns or places the character m08/m0C (m10: 0 turns by m14, 1 turns to m14, 2 next to the
 // character m18/m1C, 3 faces it, 4 scene position, 5 route place m28, 6 faces it, 7 faces the attention
 // point m28); instant with bit 1 of m24, otherwise walking. Every inline is called (budget, R3)
@@ -3890,7 +3889,7 @@ void GameEventScript::fn_803A26F4(ScriptResult_unk& result, ScriptCmd_unk* cmd) 
             break;
         }
         case 4: {
-            GameScene* scene = fn_80121F00() != 0 ? fn_80121F00()->m10D8 : 0;
+            GameScene* scene = fn_80121F00() != 0 ? fn_80121F00()->fn_8013C504() : 0;
             if (scene != 0) {
                 atn::Vector3 pos;
                 atn::Vector3 rot;
@@ -3910,8 +3909,8 @@ void GameEventScript::fn_803A26F4(ScriptResult_unk& result, ScriptCmd_unk* cmd) 
             if (!instant) {
                 chara->fn_8017039C(args->m28, 0);
             } else {
-                GameScene* scene = fn_80121F00() != 0 ? fn_80121F00()->m10D8 : 0;
-                gs::WarpPoint* warp = scene != 0 ? FindWarpIn_unk(scene, args->m28) : 0;
+                GameScene* scene = fn_80121F00() != 0 ? fn_80121F00()->fn_8013C504() : 0;
+                gs::WarpPoint* warp = scene != 0 ? scene->FindPlace_unk(args->m28) : 0;
                 if (warp != 0) {
                     chara->SetPosition_unk(warp->mPos);
                     chara->SetRot_unk(atn::Vector3(0.0f, warp->m14, 0.0f));
@@ -3920,8 +3919,8 @@ void GameEventScript::fn_803A26F4(ScriptResult_unk& result, ScriptCmd_unk* cmd) 
             break;
         }
         case 6: {
-            GameScene* scene = fn_80121F00() != 0 ? fn_80121F00()->m10D8 : 0;
-            gs::WarpPoint* warp = scene != 0 ? FindWarpIn_unk(scene, args->m28) : 0;
+            GameScene* scene = fn_80121F00() != 0 ? fn_80121F00()->fn_8013C504() : 0;
+            gs::WarpPoint* warp = scene != 0 ? scene->FindPlace_unk(args->m28) : 0;
             if (warp != 0) {
                 atn::Vector3 dir = warp->mPos - *chara->fn_8013C38C();
                 if (!(fn_80011220(dir.LengthSq_unk()) < 1.1920929e-7f)) {
@@ -3938,7 +3937,7 @@ void GameEventScript::fn_803A26F4(ScriptResult_unk& result, ScriptCmd_unk* cmd) 
             break;
         }
         case 7: {
-            GameScene* scene = fn_80121F00() != 0 ? fn_80121F00()->m10D8 : 0;
+            GameScene* scene = fn_80121F00() != 0 ? fn_80121F00()->fn_8013C504() : 0;
             gs::AttentionPoint* point = scene != 0 ? FindAttention_unk(scene, args->m28) : 0;
             if (point != 0) {
                 atn::Vector3 dir = point->mPos - *chara->fn_8013C38C();

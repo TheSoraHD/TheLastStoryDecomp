@@ -52,22 +52,7 @@ extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float
 // inferred: sounds of the HUD ("SE_UI001_012", ...); the table is in the auto .rodata before the split
 extern "C" const char* const lbl_80750618[14];
 
-// inferred: field (lbl_8087F430) and its route table at 0x10D8
-struct GameUIField_unk {
-    unsigned char m00[0x74];
-    atn::Vector3 mEye; // inferred: camera position (GameUI::fn_803E5200)
-    unsigned char m80[0x868 - 0x80];
-    int m868; // inferred: kind of field (5, 7: the leader is the centre of the markers)
-    unsigned char m86C[0x910 - 0x86C];
-    atn::Vector3 m910; // inferred: centre of the markers in the tactical view
-    unsigned char m91C[0x10D8 - 0x91C];
-    atn::Task* m10D8;
-    unsigned char m10DC[0x54E4 - 0x10DC];
-    int m54E4; // inferred: state of the field (GameTask::m54E4; 8: an event runs)
-    unsigned char m54E8[0x56D4 - 0x54E8];
-    int m56D4; // inferred: windows of the overlook view hidden (GameUI::fn_803DBD44)
-};
-extern "C" GameUIField_unk* lbl_8087F430;
+extern "C" GameTask* lbl_8087F430;
 extern "C" void fn_800D2338(atn::Task* task); // inferred: deletes the task
 extern "C" void fn_800D58A4(atn::Texture_unk* tex); // inferred: releases a render texture
 extern "C" int fn_8021A984(HitInfo_unk* hit); // inferred: the hit heals
@@ -1488,30 +1473,25 @@ struct GameUITrack_unk {
 extern "C" RenderSetting_unk* fn_802F0990();                // inferred: returns lbl_8087EFA8
 extern "C" float fn_802F0988(RenderSetting_unk* settings);  // inferred: frame time (+0x3A4)
 
-// inferred: field (lbl_8087F430); fn_80121F00 returns it
-struct GameUIRoute_unk {
-    unsigned char m00[0x2C];
-    int m2C;
-    bool HasM2C_unk() const { return m2C != 0; } // inferred: weak copy 0x803D7044
-};
-struct GameUIPlayerInput_unk {
-    Camera_unk* GetCamera_unk() { return &mCamera; } // inferred: weak copy 0x803D6EEC
-    Camera_unk mCamera;
-    unsigned char m00[0x7FC - sizeof(Camera_unk)];
-    int m7FC;
-    int GetMode_unk() const { return m7FC; } // inferred: weak copy 0x803D6F70 (5, 6: no HUD)
-};
-struct Field_unk : public atn::Task {
-    atn::Task* fn_8013C504(); // inferred: returns its route table (accessor of another file)
-    int GetState_unk() const { return m54E4; }      // inferred: weak copy 0x803D6E24
-    GameUIRoute_unk* GetRoute_unk() { return &m550C; } // inferred: weak copy 0x803D7058
-    unsigned char m48[0x54E4 - 0x48];
-    int m54E4;
-    unsigned char m54E8[0x550C - 0x54E8];
-    GameUIRoute_unk m550C;
-};
-extern "C" Field_unk* fn_80121F00();                               // inferred: returns lbl_8087F430
-extern "C" GameUIPlayerInput_unk* fn_80122550(Field_unk* field);   // inferred: field + 0x6C
+// inferred: weak getters of the field and its camera that this unit emits (0x803D6E24, 0x803D6EEC, 0x803D6F70,
+// 0x803D7044, 0x803D7058)
+inline int GameTask::GetState_unk() const {
+    return m54E4;
+}
+inline GameTaskTable_unk* GameTask::GetRoute_unk() {
+    return &m550C;
+}
+inline bool GameTaskTable_unk::HasState_unk() const {
+    return mState != 0;
+}
+inline atn::Camera* GameCamera::GetCamera_unk() {
+    return &mCamera;
+}
+inline int GameCamera::GetMode_unk() const {
+    return m7FC;
+}
+extern "C" GameTask* fn_80121F00();                               // inferred: returns lbl_8087F430
+extern "C" GameCamera* fn_80122550(GameTask* field);   // inferred: &field->mCamera
 extern "C" int fn_80244CA0(atn::Task* table);                      // inferred: (flags >> 1) & 1
 
 extern "C" GameUISessionPlayer_unk* fn_804EB870(GameUISession_unk* s); // inferred: local player
@@ -1769,7 +1749,7 @@ void GameUI::fn_803D2A6C() {
             eventShown = true;
         }
         CharaTask* leader = fn_8000DCF4(fn_8000D9E8());
-        GameUIPlayerInput_unk* input = fn_80122550(fn_80121F00());
+        GameCamera* input = fn_80122550(fn_80121F00());
         if (resultShown) {
             fn_803E4100();
             for (unsigned int i = 0; i < fn_80372574(&m8D0); i++) {
@@ -1782,7 +1762,7 @@ void GameUI::fn_803D2A6C() {
             ((GameUICounter_unk*)&m8D0)->fn_803CF734();
         } else if (eventShown || fn_80121F00()->GetState_unk() == 0) {
             // inferred: scene colour while the leader is weak
-            if (((GameTask*)fn_80121F00())->fn_80370174(0x2B) == 1) {
+            if (fn_80121F00()->fn_80370174(0x2B) == 1) {
                 DamageEffectParam_unk fog;
                 fog.mEnabled = 1;
                 fog.mAngle = 1.0f;
@@ -1923,7 +1903,7 @@ void GameUI::fn_803D2A6C() {
                             m83C->SetFrame_unk(1.0f);
                             if (fn_80121F00() != 0 && fn_80121F00()->fn_8013C504() != 0 &&
                                 fn_80244CA0(fn_80121F00()->fn_8013C504()) &&
-                                ((GameScene*)fn_80121F00()->fn_8013C504())->fn_803CC900() > 0) {
+                                fn_80121F00()->fn_8013C504()->fn_803CC900() > 0) {
                                 mSeState = 1;
                                 mSeMask |= 0x10;
                             }
@@ -1970,7 +1950,7 @@ void GameUI::fn_803D2A6C() {
                 // inferred: markers over the other characters near the leader
                 if (leader->fn_8013C3A8() && fn_8038B648(leader) == 0 && !leader->fn_80139ED0() &&
                     leader->fn_8013C458() != 0 && !leader->fn_8013C458()->fn_8013C43C() &&
-                    ((GameTask*)fn_80121F00())->fn_803761A4()) {
+                    fn_80121F00()->fn_803761A4()) {
                     for (unsigned int i = 0; i < fn_80372574(&m85C); i++) {
                         if (m85C[i] != m764.m0C) {
                             MtxPtr mtx = m85C[i]->GetModel_unk()->GetNodeMtx_unk("head");
@@ -2128,7 +2108,7 @@ void GameUI::fn_803D2A6C() {
 
             // inferred: windows of the party
             if (input->GetMode_unk() != 6 || fn_800F7F90() != 0) {
-                if (fn_80121F00() != 0 && !fn_80121F00()->GetRoute_unk()->HasM2C_unk()) {
+                if (fn_80121F00() != 0 && !fn_80121F00()->GetRoute_unk()->HasState_unk()) {
                     fn_803DF648(1);
                 }
                 for (unsigned int i = 0; i < fn_80372574(&m2F0); i++) {
@@ -2222,10 +2202,10 @@ void GameUI::fn_803D2A6C() {
                         }
                         if (!show && static_cast<BattleCharaTask*>(c)->m146C == 5 && fn_80121F00() != 0) {
                             if (fn_8000D9F8(c) == 0x49A85 &&
-                                (((GameTask*)fn_80121F00())->fn_80370174(0x4BA) == 30 || ((GameTask*)fn_80121F00())->fn_80370174(0x4C2) == 14)) {
+                                (fn_80121F00()->fn_80370174(0x4BA) == 30 || fn_80121F00()->fn_80370174(0x4C2) == 14)) {
                                 show = true;
                             }
-                            if (((GameTask*)fn_80121F00())->fn_80370174(0x4BA) == 31 || ((GameTask*)fn_80121F00())->fn_80370174(0x4C2) == 15) {
+                            if (fn_80121F00()->fn_80370174(0x4BA) == 31 || fn_80121F00()->fn_80370174(0x4C2) == 15) {
                                 show = true;
                             }
                         }
@@ -3020,7 +3000,7 @@ extern "C" void fn_801F465C(atn::D2A_Task* task, int arg);
 extern "C" RenderSetting_unk* lbl_8087EFA8;
 extern "C" const int lbl_80750658[12]; // inferred: message of each skill icon
 // inferred: the field is in an event (names invented)
-inline bool IsEventState_unk(GameUIField_unk* field) {
+inline bool IsEventState_unk(GameTask* field) {
     return field->m54E4 == 8 && lbl_8087F540 != 0;
 }
 inline bool IsNotEvent_unk() {
@@ -3089,14 +3069,14 @@ inline const wchar_t* GetSkillName_unk(GameUISkill_unk* s) {
 // NONMATCHING: written from the asm
 void GameUI::fn_803D83A8() {
     if (mDC8 != 0) {
-        if (((GameTask*)lbl_8087F430)->fn_80370174(0x6A) == 1) {
-            ((GameTask*)lbl_8087F430)->fn_80370320(0x6A, 0, 0);
+        if (lbl_8087F430->fn_80370174(0x6A) == 1) {
+            lbl_8087F430->fn_80370320(0x6A, 0, 0);
         }
         m10F8->FreezeTask();
         if (m10FC != 0) {
             m10F8->MeltTask();
-            if (((GameTask*)lbl_8087F430)->fn_80370174(0x6A) == 0) {
-                ((GameTask*)lbl_8087F430)->fn_80370320(0x6A, 1, 0);
+            if (lbl_8087F430->fn_80370174(0x6A) == 0) {
+                lbl_8087F430->fn_80370320(0x6A, 1, 0);
             }
         }
         m10FC = 0;
@@ -3129,13 +3109,13 @@ void GameUI::fn_803D83A8() {
         mDC4->FreezeTask();
         GameUIFreezeGauges_unk(this);
 
-        GameUIField_unk* field = lbl_8087F430;
+        GameTask* field = lbl_8087F430;
         bool event = false;
         if (IsEventState_unk(field) && lbl_8087F540->fn_80481654() != 0) {
             event = true;
         }
         bool playing = IsFieldPlaying_unk();
-        if (field->m868 != 6 && field->m868 != 5) {
+        if (field->mCamera.m7FC != 6 && field->mCamera.m7FC != 5) {
             // inferred: status icons over the nearest enemies
             fn_803E4A5C(&m2788, fn_803E4DD4);
             for (unsigned int i = 0; i < 16; i++) {
@@ -3584,7 +3564,7 @@ void GameUI::fn_803DAB4C(int show, int keep) {
             m253C = 0;
             TacView* tac = lbl_8087F9F8;
             if (tac != 0 && tac->mA70 != 0) {
-                atn::Vector3 center = lbl_8087F430->m910;
+                atn::Vector3 center = lbl_8087F430->mCamera.m8A4;
                 if (tac->m48.mState != 2) {
                     mDD0 -= 0.12566371f;
                     mDD0 = WrapAngleF_unk(mDD0);
@@ -3608,7 +3588,7 @@ void GameUI::fn_803DAB4C(int show, int keep) {
                     }
                 }
                 if (lbl_8087F9F8->mAim.mMode != 0) {
-                    atn::Vector3 pos = lbl_8087F430->m910;
+                    atn::Vector3 pos = lbl_8087F430->mCamera.m8A4;
                     bool colored = true;
                     SkillEffect* best = 0;
                     if (lbl_8087F9F8->mAim.mMode == 1) {
@@ -4459,15 +4439,15 @@ void GameUI::fn_803DE89C(SkillEffect* bullet, int index) {
     PlayerTask* player = lbl_8087F8A0->mHead;
     atn::Vector3 center(0.0f, 0.0f, 0.0f);
     bool hasCenter = false;
-    GameUIField_unk* field = lbl_8087F430;
+    GameTask* field = lbl_8087F430;
     if (field != 0) {
         if (lbl_8087F9F8->mAim.mMode == 1) {
-            center.Assign_unk(field->m910);
+            center.Assign_unk(field->mCamera.m8A4);
             hasCenter = true;
-        } else if (field->m868 == 7) {
+        } else if (field->mCamera.m7FC == 7) {
             center = player->mF6C;
             hasCenter = true;
-        } else if (field->m868 == 5 && lbl_8087F610 != 0 && player->m55C == 6 && player->m560 == 13) {
+        } else if (field->mCamera.m7FC == 5 && lbl_8087F610 != 0 && player->m55C == 6 && player->m560 == 13) {
             center = player->mF6C;
             hasCenter = true;
         }
@@ -4923,12 +4903,12 @@ void GameUI::fn_803E0E10(CharaTask* chara, GameUIElem60_unk* window, int index) 
     if (lbl_8087F610 != 0 && (lbl_8087F610->m50C != 0 || lbl_8087F610->m4FC != 30)) {
         return;
     }
-    GameUIField_unk* field = lbl_8087F430;
+    GameTask* field = lbl_8087F430;
     int show = 1;
     int tutorial = ((GameTask*)field)->fn_80370174(0x69);
     CharaTask* first = lbl_8087F8A0 != 0 ? (CharaTask*)lbl_8087F8A0->mHead : 0;
-    int forced = ((GameTask*)lbl_8087F430)->m5660;
-    int flag25 = ((GameTask*)lbl_8087F430)->fn_80370174(0x25);
+    int forced = lbl_8087F430->m5660;
+    int flag25 = lbl_8087F430->fn_80370174(0x25);
     if (tutorial == 1) {
         if (index != -1 && first != 0) {
             show = 0;
@@ -4974,7 +4954,7 @@ void GameUI::fn_803E0E10(CharaTask* chara, GameUIElem60_unk* window, int index) 
     bool visible = false;
     if (hasJob) {
         bool r = true;
-        if (field->m868 == 6 && lbl_8087F610 == 0) {
+        if (field->mCamera.m7FC == 6 && lbl_8087F610 == 0) {
             r = false;
         }
         if (r) {
@@ -5048,7 +5028,7 @@ void GameUI::fn_803E0E10(CharaTask* chara, GameUIElem60_unk* window, int index) 
     float join = (float)window->m00 / 20.0f;
     int mp = fn_80219344(chara, 1) != 0;
     bool noFlag = true;
-    if (lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->fn_80370174(0x88) != 0) {
+    if (lbl_8087F430 != 0 && lbl_8087F430->fn_80370174(0x88) != 0) {
         noFlag = false;
     }
     mp |= noFlag;
@@ -6160,7 +6140,7 @@ inline atn::Vector3 LerpB_unk(const atn::Vector3& a, const atn::Vector3& b, floa
 // NONMATCHING: 99.3% - float registers (f10/f11 swapped in two places) and the store of the flags of
 // MeltTask is scheduled one instruction later
 void GameUI::fn_803E5200(atn::D3AnimeInstance* icon, CharaTask* chara, atn::Vector3* pos, int) {
-    GameUIField_unk* field = lbl_8087F430;
+    GameTask* field = lbl_8087F430;
     MtxPtr head = chara->GetModel_unk()->GetNodeMtx_unk("head");
     MtxPtr neck = chara->GetModel_unk()->GetNodeMtx_unk("neck");
     atn::Vector3 top(head != 0   ? ((atn::Matrix3x4*)head)->GetTrans_unk()
@@ -6168,7 +6148,7 @@ void GameUI::fn_803E5200(atn::D3AnimeInstance* icon, CharaTask* chara, atn::Vect
                                  : chara->mColli.m48);
     top.y += 5.0f;
     top.y += static_cast<BattleCharaTask*>(chara)->m149C;
-    atn::Vector3 dir = field->mEye - top;
+    atn::Vector3 dir = field->mCamera.mCamera.mPos - top;
     float dist = dir.Length_unk();
     dir.Normalize_unk();
     atn::Vector3 base = top + dir * 3.0f;
@@ -6432,7 +6412,7 @@ bool GameUI::fn_803E644C() {
     if (m262C.m08 != 0 && (m262C.m08->mFlags & 2) != 2) {
         return true;
     }
-    if (!((GameTask*)lbl_8087F430)->fn_80370C2C()) {
+    if (!lbl_8087F430->fn_80370C2C()) {
         return true;
     }
     return false;
@@ -6461,7 +6441,7 @@ void GameUI::fn_803E656C() {
     m262C.m08->mFrame = 0.0f;
     m262C.m0C = 1;
     if (lbl_8087F430 != 0) {
-        ((GameTask*)lbl_8087F430)->fn_80370BD0(30, 0, 1e-5f);
+        lbl_8087F430->fn_80370BD0(30, 0, 1e-5f);
     }
 }
 
@@ -6478,7 +6458,7 @@ void GameUI::fn_803E65F8() {
     m262C.m04->mSpeed = -1.0f;
     m262C.m0C = 3;
     if (lbl_8087F430 != 0) {
-        ((GameTask*)lbl_8087F430)->fn_80370B78(0xFF000000, 30, 0, 1e-4f);
+        lbl_8087F430->fn_80370B78(0xFF000000, 30, 0, 1e-4f);
     }
 }
 

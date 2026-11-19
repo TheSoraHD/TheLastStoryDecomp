@@ -45,34 +45,15 @@ extern "C" void fn_800CB5C8(atn::SoundRef* sound, int frames, int arg); // infer
 extern "C" float fn_802E2360(Em303KrakenFoot* foot);
 extern "C" int fn_802E2328(Em303KrakenFoot* foot); // inferred: nonzero when the leg can act
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
-// inferred: point the camera looks at (lbl_8087F430 + 0x97C, as in game/EnemyTrista.cpp); names invented
-struct KrakenLook_unk {
-    void Set_unk(const atn::Vector3& pos, bool flag) {
-        m01 = m00;
-        m00 = 1;
-        mPos = pos;
-        m24 = 0.0f;
-        m04 = flag ? 1 : 0;
-    }
-    unsigned char m00;
-    unsigned char m01;
-    unsigned char m02[2];
-    int m04;
-    unsigned char m08[4];
-    atn::Vector3 mPos;
-    unsigned char m18[0x24 - 0x18];
-    float m24;
-};
-// inferred: field (lbl_8087F430); names invented
-struct Field_unk {
-    GameScene* fn_8013C504(); // inferred: route tables (as in gmk/FlamingArrow.cpp)
-    unsigned char m0000[0x8A0];
-    CharaTask* m8A0; // inferred: character the camera follows
-    unsigned char m8A4[0x97C - 0x8A4];
-    KrakenLook_unk m97C;
-    atn::Vector3 m988;
-};
-extern "C" Field_unk* lbl_8087F430;
+// inferred: makes the camera look at a point (GameCamera::m910..m934, as in game/EnemyTrista.cpp); names invented
+inline void SetCameraLook_unk(GameCamera& camera, const atn::Vector3& pos, bool flag) {
+    camera.m911 = camera.m910;
+    camera.m910 = 1;
+    camera.m91C = pos;
+    camera.m934 = 0.0f;
+    camera.m914 = flag ? 1 : 0;
+}
+extern "C" GameTask* lbl_8087F430;
 extern "C" void* lbl_8087EE98;
 extern "C" int fn_8004ED34(void* colli, atn::ColliResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg7);
@@ -165,7 +146,7 @@ static int fn_802D73E4(const char* name) {
     return -1;
 }
 
-extern "C" Field_unk* fn_80121F00();
+extern "C" GameTask* fn_80121F00();
 extern "C" CharaManager<EnemyTask>* fn_801A03E0(); // inferred: enemy manager
 extern "C" void* fn_8020A81C(const char* name); // inferred: character data by name
 // inferred: element `i` of a vector (weak copies 0x802D8550/0x802D8B6C); names invented
@@ -479,21 +460,21 @@ void Em302Kraken::vf10() {
         m1658--;
         CharaTask* target = (CharaTask*)m1654;
         if (target != 0) {
-            Field_unk* field = lbl_8087F430;
+            GameTask* field = lbl_8087F430;
             if (m1658 > 0) {
                 atn::Vector3 pos = *(atn::Vector3*)((char*)target + 0x6C);
                 pos.y += 20.0f;
                 if (m165C == 0) {
-                    field->m8A0 = this;
-                    field->m97C.Set_unk(pos, false);
+                    field->mCamera.m834 = this;
+                    SetCameraLook_unk(field->mCamera, pos, false);
                     m165C = 1;
                 } else {
-                    field->m8A0 = this;
-                    field->m988 = pos;
+                    field->mCamera.m834 = this;
+                    field->mCamera.m91C = pos;
                 }
             } else if (m165C != 0) {
-                field->m8A0 = 0;
-                field->m97C.m00 = 0;
+                field->mCamera.m834 = 0;
+                field->mCamera.m910 = 0;
                 m165C = 0;
             }
         }
@@ -546,7 +527,7 @@ void Em302Kraken::vf10() {
                 mMotion.mTracks[0].m20 = 1.0f;
                 mMotion.mTracks[0].m0C = 1.0f;
                 mMotion.fn_80097C08(0, 0x146, 1, 0, 1, 0.0f, 0.1f);
-                ((GameTask*)lbl_8087F430)->fn_80370AE4(0x5B, 1);
+                lbl_8087F430->fn_80370AE4(0x5B, 1);
             } else if (frame < 20) {
                 // inferred: an unused value (the original converts the frame to float here and pools
                 // 15.0f right after 0.1f, as in Em302KrakenMp::vf104)
@@ -885,7 +866,7 @@ void Em302Kraken::fn_802DA174() {
                 PlayEffectC_unk(&m160C, (atn::Model*)&mMotion);
                 fn_800C31F4("SE_SP016_001", 0, -1, 1.0f);
             } else {
-                ((GameTask*)lbl_8087F430)->fn_80370AE4(0xCC, 1);
+                lbl_8087F430->fn_80370AE4(0xCC, 1);
                 fn_802DC1C0();
             }
         }
@@ -1076,7 +1057,7 @@ void Em302Kraken::fn_802DB534() {
     if (frame >= mMotion.fn_80097D7C(0) && m14C4 > 180) {
         Reset_unk();
         m1658 = 45;
-        ((GameTask*)lbl_8087F430)->fn_80370AE4(0xC9, 1);
+        lbl_8087F430->fn_80370AE4(0xC9, 1);
     }
     if (m14C4 == 20) {
         KrakenShake_unk* shake = Shake_unk();
@@ -1091,8 +1072,8 @@ void Em302Kraken::fn_802DB534() {
                 m15D8 = 300;
             }
         }
-        if (((GameTask*)lbl_8087F430)->fn_80370A78(0xCC) == 0) {
-            ((GameTask*)lbl_8087F430)->fn_80370AE4(0xCC, 1);
+        if (lbl_8087F430->fn_80370A78(0xCC) == 0) {
+            lbl_8087F430->fn_80370AE4(0xCC, 1);
         }
     }
     if (m14C4 - 100U <= 14) {
@@ -1178,7 +1159,7 @@ void Em302Kraken::fn_802DBA3C() {
 // inferred: state 15 (anger)
 void Em302Kraken::fn_802DBC68() {
     if (m14C4 == 50) {
-        ((GameTask*)lbl_8087F430)->fn_80370AE4(0x5C, 1);
+        lbl_8087F430->fn_80370AE4(0x5C, 1);
         fn_800C344C("SE_EM302_019", &m614, 0, -1, 1.0f);
     }
     if (mMotion.mTracks[0].m00 == 0x14D) {
@@ -1344,7 +1325,7 @@ void Em302Kraken::fn_802DC618() {
     fn_800CB5C8(&m1588, 0, 0);
     fn_80239DAC(lbl_8087F3C0, this, 100, 1);
     fn_80239DAC(lbl_8087F3C0, this, 101, 1);
-    if (lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->fn_80375184() != 0 && mType == 2) {
+    if (lbl_8087F430 != 0 && lbl_8087F430->fn_80375184() != 0 && mType == 2) {
         lbl_8087F048->fn_801092C8(6, this, 0, 0);
     }
     KrakenBlur_unk blur;

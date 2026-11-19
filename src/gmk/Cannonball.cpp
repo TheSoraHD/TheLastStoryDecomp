@@ -41,16 +41,13 @@ extern "C" void fn_80232B7C(void* owner, int arg);
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
 extern "C" void fn_800CB5C8(atn::SoundRef* sound, int frames, int arg); // inferred: stops the sound
 extern "C" void fn_800CB6E4(atn::SoundRef* sound, const atn::Vector3* pos); // inferred: moves the sound
-struct Field_unk {
-    // inferred: weak copy 0x803D6E24 (name from symbols.txt)
-    int GetState_unk() const { return m54E4; }
-
-    unsigned char m0000[0x54E4];
-    int m54E4; // inferred: state (8-11 while an event runs)
-};
-extern "C" Field_unk* lbl_8087F430;
+// inferred: weak getter 0x803D6E24 (emitted by game/GameUI)
+inline int GameTask::GetState_unk() const {
+    return m54E4;
+}
+extern "C" GameTask* lbl_8087F430;
 // inferred: accessors (weak copies elsewhere; names keep the addresses)
-extern "C" inline Field_unk* fn_80121F00() {
+extern "C" inline GameTask* fn_80121F00() {
     return lbl_8087F430;
 }
 // inferred: arena (lbl_8087F610)
@@ -381,8 +378,8 @@ void Cannonball::vf10() {
         } else if (mTimer < 150) {
             SetSound_unk(mSound, fn_800C344C(sSe[1], &m6C, 0, -1, 1.0f));
         }
-        if (fn_80121F00() != 0 && ((GameTask*)fn_80121F00())->GetCurrentMap() != 0 &&
-            ((GameTask*)fn_80121F00())->GetCurrentMap()->GetMapId() == 11 && ((GameTask*)fn_80121F00())->GetCurrentMap()->GetMapSubId() == 3 &&
+        if (fn_80121F00() != 0 && fn_80121F00()->GetCurrentMap() != 0 &&
+            fn_80121F00()->GetCurrentMap()->GetMapId() == 11 && fn_80121F00()->GetCurrentMap()->GetMapSubId() == 3 &&
             m54 == 2 && mTimer <= 180) {
             mTimer = 180;
         }
@@ -534,8 +531,8 @@ int Cannonball::vf40(GimmickMsg_unk* msg) {
         break;
     case 2: {
         int skip = 0;
-        if (fn_80121F00() != 0 && ((GameTask*)fn_80121F00())->GetCurrentMap() != 0 &&
-            ((GameTask*)fn_80121F00())->GetCurrentMap()->GetMapId() == 11 && ((GameTask*)fn_80121F00())->GetCurrentMap()->GetMapSubId() == 3) {
+        if (fn_80121F00() != 0 && fn_80121F00()->GetCurrentMap() != 0 &&
+            fn_80121F00()->GetCurrentMap()->GetMapId() == 11 && fn_80121F00()->GetCurrentMap()->GetMapSubId() == 3) {
             skip = 1;
         }
         mTimer = mExplodeTime;
@@ -550,9 +547,9 @@ int Cannonball::vf40(GimmickMsg_unk* msg) {
         int kind = mId % 1000;
         if (kind != 1 && lbl_8087F430 != 0) {
             if (kind == 3) {
-                ((GameTask*)lbl_8087F430)->fn_803750E4(0xF4);
+                lbl_8087F430->fn_803750E4(0xF4);
             } else {
-                ((GameTask*)lbl_8087F430)->fn_803750E4(0x94);
+                lbl_8087F430->fn_803750E4(0x94);
             }
         }
         mIgnore = mHolder != 0 ? mHolder->GetColli_unk() : 0;

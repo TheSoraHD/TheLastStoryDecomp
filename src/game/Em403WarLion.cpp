@@ -41,22 +41,13 @@ struct Settings_unk {
     int mDrawDebug; // 0x34
 };
 extern "C" Settings_unk* lbl_8087F0A8;
-// inferred: field (lbl_8087F430): camera shake at 0x96C (as in game/GimmickStateCommand.cpp) and route
-// tables at 0x10D8
-struct Field_unk {
-    unsigned char m000[0x96C];
-    int m96C; // inferred: camera shake
-    int m970;
-    float m974;
-    float m978;
-    unsigned char m97C[0x10D8 - 0x97C];
-    GameScene* m10D8;
-    // inferred: route tables (accessor 0x8013C504 of game/CharaTask.cpp)
-    GameScene* fn_8013C504() { return m10D8; }
-};
-extern "C" Field_unk* lbl_8087F430;
+// inferred: weak getter 0x8013C504 of game/CharaTask.cpp, inlined here where the budget allows
+inline GameScene* GameTask::fn_8013C504() {
+    return m10D8;
+}
+extern "C" GameTask* lbl_8087F430;
 // inferred: field accessor (weak copy 0x80121F00, as in game/EnemyJill.cpp)
-extern "C" inline Field_unk* fn_80121F00() {
+extern "C" inline GameTask* fn_80121F00() {
     return lbl_8087F430;
 }
 // inferred: game state (lbl_8087EFA8, see game/CharaTask.cpp); names invented
@@ -459,7 +450,7 @@ void Em403WarLion::vf40(HitInfo_unk* hit) {
             m15F4 = 0;
             lbl_8087F048->fn_80107A68(&mMotion);
             lbl_8087F048->fn_801079C0(&mMotion, &mMotion);
-            ((GameTask*)lbl_8087F430)->fn_80370AE4(0x5B, 1);
+            lbl_8087F430->fn_80370AE4(0x5B, 1);
         }
     }
     if ((mStatus.m0C & 0x20) == 0x20) {
@@ -993,7 +984,7 @@ void Em403WarLion::fn_803267E8() {
         } else if (m14CC == 1) {
             if (m15E4 == 0) {
                 m15E4 = 1;
-                ((GameTask*)fn_80121F00())->fn_80370AE4(0x5A, 3);
+                fn_80121F00()->fn_80370AE4(0x5A, 3);
             }
             if (m14F8 <= 0) {
                 m14CC = 0;
@@ -1125,7 +1116,7 @@ void Em403WarLion::fn_80327A64() {
     d.y = 0.0f;
     m1580 -= d.GetNormalize() * 10.0f;
     mRot = d.GetNormalize().ToRotation_unk();
-    ((GameTask*)lbl_8087F430)->fn_80370AE4(0x5D, 2);
+    lbl_8087F430->fn_80370AE4(0x5D, 2);
     m1598 = m14BC;
     if (m1598 != 0) {
         m1598->fn_80178208(new ((MemoryTag)3, "", "", 0) chr::ControlMatHoldPre(m1598, this));
@@ -1229,7 +1220,7 @@ void Em403WarLion::fn_80328270() {
     } else {
         float frame = mMotion.mTracks[0].m08;
         if (frame >= mMotion.fn_80097D7C(0)) {
-            ((GameTask*)lbl_8087F430)->fn_80370AE4(0xCD, 1);
+            lbl_8087F430->fn_80370AE4(0xCD, 1);
             SetState_unk(6);
         }
     }
@@ -1275,8 +1266,8 @@ void Em403WarLion::fn_8032853C() {
             SetState_unk(6);
         } else {
             frame = mMotion.mTracks[0].m08;
-            if (45.0f <= frame && frame <= 47.0f && ((GameTask*)lbl_8087F430)->fn_80370A78(0x5C) < 1) {
-                ((GameTask*)lbl_8087F430)->fn_80370AE4(0x5C, 1);
+            if (45.0f <= frame && frame <= 47.0f && lbl_8087F430->fn_80370A78(0x5C) < 1) {
+                lbl_8087F430->fn_80370AE4(0x5C, 1);
                 lbl_8087F9E8->fn_8059C32C(0);
                 for (GimmickCommon* g = GimmickManager::instance_->mHead; g != 0; g = g->m5C) {
                     if (g->m50 == 40 && g->m4C == 1) {
@@ -1295,11 +1286,11 @@ void Em403WarLion::fn_803288C4() {
         if (mMotion.mTracks[0].m08 >= 40.0f) {
             m14C4 = 1;
             lbl_8087F048->fn_800FAB80(this, fn_80219E6C(0x675), m590, &mPos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
-            Field_unk* field = lbl_8087F430;
-            field->m96C %= 2;
-            field->m970 = 10;
-            field->m974 = 4.0f;
-            field->m978 = 10.0f;
+            GameTask* field = lbl_8087F430;
+            field->mCamera.mShake.mFrame %= 2;
+            field->mCamera.mShake.mLength = 10;
+            field->mCamera.mShake.mWidth = 4.0f;
+            field->mCamera.mShake.mHeight = 10.0f;
         }
     } else if (m14C4 == 1) {
         float frame = mMotion.mTracks[0].m08;
@@ -1313,7 +1304,7 @@ void Em403WarLion::fn_803289EC() {
     if (mMotion.mTracks[0].m08 >= 6.0f) {
         if (m15E0 == 0) {
             m15E0 = 1;
-            ((GameTask*)lbl_8087F430)->fn_80370AE4(0x5A, 1);
+            lbl_8087F430->fn_80370AE4(0x5A, 1);
         }
         SetState_unk(12);
         mMotion.m34C = 1;
@@ -1492,8 +1483,8 @@ void Em403WarLion::fn_80329A20() {
         m1598->fn_8015B520();
         m1598 = 0;
     } else if (m15E8 == 0 && m14C8 == 10) {
-        if (((GameTask*)lbl_8087F430)->fn_80370A78(0x5B) < 1) {
-            ((GameTask*)lbl_8087F430)->fn_80370AE4(0x5B, 1);
+        if (lbl_8087F430->fn_80370A78(0x5B) < 1) {
+            lbl_8087F430->fn_80370AE4(0x5B, 1);
         }
         m15E8 = 1;
     }

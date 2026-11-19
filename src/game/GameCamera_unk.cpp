@@ -3533,10 +3533,7 @@ struct Settings_unk {
     Input_unk* fn_80116BAC(); // inferred: pad (this + 0x48C)
 };
 extern "C" Settings_unk* fn_800F52F8(); // inferred: returns lbl_8087F0A8
-struct Field_unk {
-    GameScene* fn_8013C504(); // inferred: scene of the field
-};
-extern "C" Field_unk* fn_80121F00(); // inferred: returns lbl_8087F430
+extern "C" GameTask* fn_80121F00(); // inferred: returns lbl_8087F430
 
 inline void GameCamera::fn_80390374() {
     fn_80389838(m804);

@@ -44,12 +44,7 @@ struct ModelSlots_unk {
     ModelSlot_unk mSlots[16];
 };
 
-// inferred: game field (lbl_8087F430), only the members used here
-struct PPField_unk {
-    unsigned char m0000[0x54E4];
-    int m54E4; // inferred: game mode
-};
-extern "C" PPField_unk* lbl_8087F430;
+extern "C" GameTask* lbl_8087F430;
 
 extern "C" void fn_804CF190(atn::Task* task) {
     fn_800D2338(task);
@@ -241,7 +236,7 @@ static inline void PPSetTargets_unk(CharaTask* chara, const PackedChara_unk* in)
 // inferred: applies the packed state of a character (fn_804CF468): part, state, values mFB8/mFBC, hit, flags,
 // the status bits of m13 (each one with its effect of the battle), the motion mode and the targets
 extern "C" void fn_804CF640(const PackedChara_unk* in, CharaTask* chara) {
-    if (lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->m54E4 == 10) {
+    if (lbl_8087F430 != 0 && lbl_8087F430->m54E4 == 10) {
         return;
     }
     if (in->m00 != chara->m674) {
@@ -395,7 +390,7 @@ extern "C" void fn_804D0090(PPFlags_unk* obj, int on) {
 
 extern "C" void fn_804D00B8(int index, int value) {
     if (lbl_8087F430 != 0) {
-        ((GameTask*)lbl_8087F430)->fn_80370AE4(index, value);
+        lbl_8087F430->fn_80370AE4(index, value);
     }
 }
 
@@ -1502,10 +1497,6 @@ struct MpArena_unk {
         PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0); PP_ASSERT_UNK(this != 0);
         return &mRoom;
     }
-};
-class Field_unk {
-public:
-    void* fn_8013C504();
 };
 
 // inferred: entry of the list returned by fn_804D649C (names invented)
@@ -3224,7 +3215,7 @@ void MP::Manager2::vf10() {
             ((BattleCharaTask*)player->mRef.mChara)->SetFlagC26_unk(0);
             player->mRef.mChara->SetSide_unk(player->mFlags.m22);
             if (player->mB0 == 12 || player->mB0 == 21) {
-                void* field = ((Field_unk*)mgr->mGame)->fn_8013C504();
+                GameScene* field = mgr->mGame->fn_8013C504();
                 if (field != 0) {
                     atn::SimpleArray<PPRoute_unk>* routes = fn_804D649C(field);
                     for (unsigned int j = 0; j < routes->size(); j++) {
@@ -5994,7 +5985,7 @@ extern "C" void fn_804E4EB0(PPManager2_unk* mgr) {
                     }
                     if (lbl_8087F430 != 0) {
                         SetConfig::sInstance->mShowTutorial = 1;
-                        ((GameTask*)lbl_8087F430)->fn_803750E4(0x1B0);
+                        lbl_8087F430->fn_803750E4(0x1B0);
                         SetConfig::sInstance->mShowTutorial = 0;
                     }
                 }
@@ -6069,7 +6060,7 @@ extern "C" void fn_804E4EB0(PPManager2_unk* mgr) {
                         }
                         if (lbl_8087F430 != 0) {
                             SetConfig::sInstance->mShowTutorial = 1;
-                            ((GameTask*)lbl_8087F430)->fn_803750E4(0x1BF);
+                            lbl_8087F430->fn_803750E4(0x1BF);
                             SetConfig::sInstance->mShowTutorial = 0;
                         }
                     }
@@ -6188,7 +6179,7 @@ extern "C" void fn_804E5BC4(PPManager2_unk* mgr) {
                     break;
                 }
             }
-            if ((lbl_8087F430 != 0 ? ((GameTask*)lbl_8087F430)->fn_80370A78(0xFB) : 0) == 2) {
+            if ((lbl_8087F430 != 0 ? lbl_8087F430->fn_80370A78(0xFB) : 0) == 2) {
                 for (int i = 0; i < (int)mgr->mCharas.size(); i++) {
                     CharaTask* chara = mgr->mCharas[i].mRef.mChara;
                     if (chara == 0 || (chara->mFlags & 4) == 4) {
@@ -6262,7 +6253,7 @@ extern "C" void fn_804E5BC4(PPManager2_unk* mgr) {
                 }
                 if (lbl_8087F430 != 0) {
                     SetConfig::sInstance->mShowTutorial = 1;
-                    ((GameTask*)lbl_8087F430)->fn_803750E4(0x1BE);
+                    lbl_8087F430->fn_803750E4(0x1BE);
                     SetConfig::sInstance->mShowTutorial = 0;
                 }
             }
@@ -6281,7 +6272,7 @@ extern "C" int fn_804E650C(CharaTask* chara) {
 // frames: 2 character states, 4 and 8 other updates) and the quick messages of the pad in the message list
 extern "C" void fn_804E6518(PPManager2_unk* mgr) {
     PPPlayer_unk* own = fn_804DD158(mgr, lbl_8087F628->GetMyAid_unk());
-    int flag = lbl_8087F430 != 0 ? ((GameTask*)lbl_8087F430)->fn_80370A78(0xFB) : 0;
+    int flag = lbl_8087F430 != 0 ? lbl_8087F430->fn_80370A78(0xFB) : 0;
     own->mFlags.m12 = flag == 3;
     int frame = lbl_80790F78[(unsigned int)mgr->mFrame % 30];
     if ((frame & 2) == 2) {
@@ -9177,7 +9168,7 @@ extern "C" void fn_804F1124() {
         }
         if (lbl_8087F430 != 0) {
             SetConfig::sInstance->mShowTutorial = 1;
-            ((GameTask*)lbl_8087F430)->fn_803750E4(0x1B0);
+            lbl_8087F430->fn_803750E4(0x1B0);
             SetConfig::sInstance->mShowTutorial = 0;
         }
     }

@@ -1,3 +1,4 @@
+#include "game/GameTask.h"
 #include "gmk/FlamingArrow.h"
 #include "atn/Csv.h"
 #include "atn/Memory.h"
@@ -125,11 +126,7 @@ extern "C" int fn_803D6EDC(ArrowTargets_unk* list);           // inferred: empty
 extern "C" unsigned int fn_80372574(ArrowTargets_unk* list);  // inferred: size
 extern "C" CharaManager<PlayerTask>* fn_8000D9E8(); // inferred: player manager
 extern "C" CharaManager<EnemyTask>* fn_801A03E0();  // inferred: enemy manager
-// inferred: field object (see CharaTask.cpp)
-struct Field_unk {
-    GameScene* fn_8013C504();
-};
-extern "C" Field_unk* fn_80121F00();
+extern "C" GameTask* fn_80121F00();
 
 // inferred: sounds of the hit
 static const char* const sHitSounds[] = {"SE_DG013_001_1", "SE_DG013_001_2", "SE_DG013_001_3"};

@@ -32,47 +32,21 @@ extern "C" double sin(double x);
 extern "C" int rand();
 
 // inferred: point the camera looks at (lbl_8087F430 + 0x97C, as in game/Em203GreaterDaemon.cpp)
-struct RedLook_unk {
-    void Set_unk(const atn::Vector3& pos, bool flag) {
-        m01 = m00;
-        m00 = 1;
-        mPos = pos;
-        m24 = 0.0f;
-        if (flag) {
-            m04 = 1;
-        } else {
-            m04 = 0;
-        }
+// inferred: the camera looks at a point (GameCamera::m910..m934; formerly the view RedLook_unk at GameTask + 0x97C)
+inline void SetCameraLook_unk(GameCamera& camera, const atn::Vector3& pos, bool flag) {
+    camera.m911 = camera.m910;
+    camera.m910 = 1;
+    camera.m91C = pos;
+    camera.m934 = 0.0f;
+    if (flag) {
+        camera.m914 = 1;
+    } else {
+        camera.m914 = 0;
     }
-    unsigned char m00;
-    unsigned char m01;
-    unsigned char m02[2];
-    int m04;
-    unsigned char m08[4];
-    atn::Vector3 mPos;
-    unsigned char m18[0x24 - 0x18];
-    float m24;
-};
-// inferred: field (lbl_8087F430): position of the camera at 0x80, the camera target at 0x8A0, a camera
-// shake at 0x96C and the route tables at 0x10D8
-struct Field_unk {
-    GameScene* fn_8013C504();
-    unsigned char m0000[0x80];
-    atn::Vector3 m080; // inferred: camera position
-    unsigned char m008C[0x8A0 - 0x8C];
-    CharaTask* m8A0; // inferred: character the camera follows
-    unsigned char m08A4[0x96C - 0x8A4];
-    int m96C;
-    int m970;   // inferred: shake frames
-    float m974; // inferred: shake strength
-    float m978;
-    RedLook_unk m97C;
-    unsigned char m09A4[0x10D8 - 0x9A4];
-    GameScene* m10D8;
-};
-extern "C" Field_unk* lbl_8087F430;
+}
+extern "C" GameTask* lbl_8087F430;
 // inferred: field accessor (weak copy 0x80121F00 of another file)
-extern "C" inline Field_unk* fn_80121F00() {
+extern "C" inline GameTask* fn_80121F00() {
     return lbl_8087F430;
 }
 extern "C" PlayerManager* lbl_8087F8A0; // inferred: player manager
@@ -459,11 +433,11 @@ inline int Em203GreaterDaemonRed::Chant_unk() {
 
 // NONMATCHING: 89.88% - state switch; register allocation and branch layout of the inlined helpers
 void Em203GreaterDaemonRed::vf10() {
-    if (((GameTask*)lbl_8087F430)->fn_80370A78(0xE6) == 1) {
-        ((GameTask*)lbl_8087F430)->fn_80370AE4(0xE6, 2);
-        Field_unk* field = lbl_8087F430;
-        field->m8A0 = 0;
-        field->m97C.m00 = 0;
+    if (lbl_8087F430->fn_80370A78(0xE6) == 1) {
+        lbl_8087F430->fn_80370AE4(0xE6, 2);
+        GameTask* field = lbl_8087F430;
+        field->mCamera.m834 = 0;
+        field->mCamera.m910 = 0;
         mPos.z = m1558.z;
         mPos = m1558;
         mRot = atn::Vector3(0.0f, 0.0f, 0.0f);
@@ -587,7 +561,7 @@ void Em203GreaterDaemonRed::vf10() {
     fn_8014C540();
     fn_80145334();
     vfF8();
-    MapTask* map = lbl_8087F430 != 0 ? ((GameTask*)lbl_8087F430)->GetCurrentMap() : 0;
+    MapTask* map = lbl_8087F430 != 0 ? lbl_8087F430->GetCurrentMap() : 0;
     if (map != 0) {
         int kind;
         if (atn::Abs_unk(m14B0->mPos.y - mPos.y) < 20.0f) {
@@ -1001,11 +975,11 @@ static inline atn::Vector3 Front_unk(const float& angle) {
 
 // inferred: shakes the camera (name invented)
 inline void ShakeCamera_unk(int frames, float a, float b) {
-    Field_unk* field = lbl_8087F430;
-    field->m96C = field->m96C % 2;
-    field->m970 = frames;
-    field->m974 = a;
-    field->m978 = b;
+    GameTask* field = lbl_8087F430;
+    field->mCamera.mShake.mFrame = field->mCamera.mShake.mFrame % 2;
+    field->mCamera.mShake.mLength = frames;
+    field->mCamera.mShake.mWidth = a;
+    field->mCamera.mShake.mHeight = b;
 }
 
 // inferred: state 9 (laser: m14B4 0 chant, 1 fires, 2 back to hovering)
@@ -1027,8 +1001,8 @@ void Em203GreaterDaemonRed::fn_80297474() {
             fn_80239DAC(lbl_8087F3C0, this, 1002, 1);
             m14B4 = 2;
         } else if (mMotion.mTracks[0].m08 >= 10.0f && mMotion.mTracks[0].m08 < 11.0f) {
-            if (((GameTask*)lbl_8087F430)->fn_80370A78(0x97) == 0) {
-                ((GameTask*)lbl_8087F430)->fn_80370AE4(0x97, 1);
+            if (lbl_8087F430->fn_80370A78(0x97) == 0) {
+                lbl_8087F430->fn_80370AE4(0x97, 1);
             }
         } else if (mMotion.mTracks[0].m08 >= 32.0f && mMotion.mTracks[0].m08 < 33.0f) {
             fn_80232B7C(this, 1002);
@@ -1120,7 +1094,7 @@ void Em203GreaterDaemonRed::fn_8029795C() {
                 int x = rand() % (int)(2.0f * m168C / step);
                 int z = rand() % (int)(2.0f * m168C / step);
                 atn::Vector3 target = m14B0->mPos;
-                atn::Vector3 mid = target + (lbl_8087F430->m080 - target) * 0.5f;
+                atn::Vector3 mid = target + (lbl_8087F430->mCamera.mCamera.mTarget - target) * 0.5f;
                 atn::Vector3 pos(step * (float)x + (mid.x - m168C), 0.0f, step * (float)z + (mid.z - m168C));
                 thunder.mPos = pos;
                 thunder.mFrame = m15E0;
@@ -1304,20 +1278,20 @@ void Em203GreaterDaemonRed::fn_80299134() {
 // NONMATCHING: 99.16% - r4/r5 order of the camera look stores (known, as Em203GreaterDaemon)
 void Em203GreaterDaemonRed::fn_802992F8() {
     if (m14B4 == 0) {
-        Field_unk* field = lbl_8087F430;
+        GameTask* field = lbl_8087F430;
         if (mMotion.mTracks[0].m08 < 24.0f) {
             atn::Vector3 pos = GetNodePos_unk(mMotion.GetNodeMtx_unk("neck"));
             if (m1524 == 0) {
-                field->m8A0 = this;
-                field->m97C.Set_unk(pos, false);
+                field->mCamera.m834 = this;
+                SetCameraLook_unk(field->mCamera, pos, false);
                 m1524 = 1;
             } else {
-                field->m8A0 = this;
-                field->m97C.mPos = pos;
+                field->mCamera.m834 = this;
+                field->mCamera.m91C = pos;
             }
         } else if (m1524 != 0) {
-            field->m8A0 = 0;
-            field->m97C.m00 = 0;
+            field->mCamera.m834 = 0;
+            field->mCamera.m910 = 0;
             m1524 = 0;
         }
         float end = mMotion.mTracks[0].m08;
@@ -1338,20 +1312,20 @@ void Em203GreaterDaemonRed::fn_802992F8() {
 // inferred: state 19 (stunned)
 // NONMATCHING: 98.74% - r4/r5 order of the camera look stores (known)
 void Em203GreaterDaemonRed::fn_802995D4() {
-    Field_unk* field = lbl_8087F430;
+    GameTask* field = lbl_8087F430;
     if (mMotion.mTracks[0].m08 < 20.0f) {
         atn::Vector3 pos = GetNodePos_unk(mMotion.GetNodeMtx_unk("neck"));
         if (m1524 == 0) {
-            field->m8A0 = this;
-            field->m97C.Set_unk(pos, false);
+            field->mCamera.m834 = this;
+            SetCameraLook_unk(field->mCamera, pos, false);
             m1524 = 1;
         } else {
-            field->m8A0 = this;
-            field->m97C.mPos = pos;
+            field->mCamera.m834 = this;
+            field->mCamera.m91C = pos;
         }
     } else if (m1524 != 0) {
-        field->m8A0 = 0;
-        field->m97C.m00 = 0;
+        field->mCamera.m834 = 0;
+        field->mCamera.m910 = 0;
         m1524 = 0;
     }
     float end = mMotion.mTracks[0].m08;
@@ -1363,20 +1337,20 @@ void Em203GreaterDaemonRed::fn_802995D4() {
 // inferred: state 20 (falls to the ground and goes back up)
 // NONMATCHING: 98.77% - r4/r5 order of the camera look stores (known)
 void Em203GreaterDaemonRed::fn_802997B8() {
-    Field_unk* field = lbl_8087F430;
+    GameTask* field = lbl_8087F430;
     if (mMotion.mTracks[0].m08 < 30.0f) {
         atn::Vector3 pos = GetNodePos_unk(mMotion.GetNodeMtx_unk("neck"));
         if (m1524 == 0) {
-            field->m8A0 = this;
-            field->m97C.Set_unk(pos, false);
+            field->mCamera.m834 = this;
+            SetCameraLook_unk(field->mCamera, pos, false);
             m1524 = 1;
         } else {
-            field->m8A0 = this;
-            field->m97C.mPos = pos;
+            field->mCamera.m834 = this;
+            field->mCamera.m91C = pos;
         }
     } else if (m1524 != 0) {
-        field->m8A0 = 0;
-        field->m97C.m00 = 0;
+        field->mCamera.m834 = 0;
+        field->mCamera.m910 = 0;
         m1524 = 0;
     }
     float end = mMotion.mTracks[0].m08;
@@ -1449,31 +1423,31 @@ void Em203GreaterDaemonRed::fn_8029A0A8() {
             mMotion.mTracks[0].m20 = 1.0f;
             mMotion.mTracks[0].m0C = 0.5f;
             mMotion.fn_80097C08(0, 0x1E1, 0, 0, 1, 0.0f, 0.01f);
-            Field_unk* field = lbl_8087F430;
+            GameTask* field = lbl_8087F430;
             atn::Vector3 pos = GetNodePos_unk(mMotion.GetNodeMtx_unk("neck"));
-            field->m8A0 = this;
-            field->m97C.Set_unk(pos, false);
+            field->mCamera.m834 = this;
+            SetCameraLook_unk(field->mCamera, pos, false);
             m14B4 = 1;
         } else if (m14B8 < 40) {
             speed = 0.1f;
         }
     } else {
-        Field_unk* field = lbl_8087F430;
+        GameTask* field = lbl_8087F430;
         atn::Vector3 pos = GetNodePos_unk(mMotion.GetNodeMtx_unk("neck"));
-        field->m8A0 = this;
-        field->m97C.mPos = pos;
+        field->mCamera.m834 = this;
+        field->mCamera.m91C = pos;
         float frame = mMotion.mTracks[0].m08;
         if (frame > 30.0f) {
-            field->m8A0 = 0;
-            field->m97C.m00 = 0;
+            field->mCamera.m834 = 0;
+            field->mCamera.m910 = 0;
             RedBlur_unk blur = lbl_8087EFA8->m240;
             blur.m00 = 0;
             lbl_8087EFA8->m240 = blur;
             lbl_8087EFA8->m3A4 = 1.0f;
-            ((GameTask*)lbl_8087F430)->fn_80370AE4(0x15, 1);
+            lbl_8087F430->fn_80370AE4(0x15, 1);
             m14B4++;
         } else if (21.0f <= frame && frame <= 22.0f) {
-            ((GameTask*)lbl_8087F430)->fn_80370B78(-1, 10, 0, -5.0f);
+            lbl_8087F430->fn_80370B78(-1, 10, 0, -5.0f);
             speed = 0.75f;
         } else if (frame < 15.0f) {
             atn::Vector3 d(m1638->mPos.x - mPos.x, 0.0f, m1638->mPos.z - mPos.z);
@@ -1496,7 +1470,7 @@ void Em203GreaterDaemonRed::fn_8029A0A8() {
         }
     }
     lbl_8087EFA8->m3A4 = speed;
-    ((GameTask*)lbl_8087F430)->fn_80370320(0x38D, 0, 0);
+    lbl_8087F430->fn_80370320(0x38D, 0, 0);
 }
 
 int Em203GreaterDaemonRed::vf68(CharaTask* attacker) {
@@ -1512,7 +1486,7 @@ void Em203GreaterDaemonRed::vf6C(int kind, CharaTask* other) {
         m58C = 23;
         ResetState_unk();
         fn_8016E970(3);
-        ((GameTask*)lbl_8087F430)->fn_80370320(0x38D, 0, 0);
+        lbl_8087F430->fn_80370320(0x38D, 0, 0);
     }
 }
 
