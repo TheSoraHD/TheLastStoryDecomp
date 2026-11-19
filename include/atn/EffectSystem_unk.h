@@ -18,6 +18,7 @@ struct EffectColor_unk {
 struct EffectRes_unk;
 namespace atn {
 class EffectManagerCallback;
+class Texture;
 }
 
 // inferred: particle of the effect system (0x94 bytes, names invented)
@@ -256,7 +257,7 @@ struct EffectSlot_unk {
     EffectSlot_unk* m00; // 0x00: inferred: previous of the list (EffectNode_unk::mPrev)
     EffectSlot_unk* mNext; // 0x04: inferred: next slot of the instance
     struct EffectInst_unk* m08; // 0x08: inferred: instance of the model drawn (position m9C, scale mA8)
-    int m0C;
+    atn::Texture* m0C; // inferred: second texture of the pair (EffectTexturePair_unk::m30), or 0
     int m10;
     float m14;
     float m18;
