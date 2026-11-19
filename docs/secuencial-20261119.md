@@ -145,6 +145,7 @@ poolcheck igual que main) salvo el `ordercheck` de GameEventScript, que ya tiene
 | b1a6996, 9b80141 | 2.6 | atacante (`CharaHit_unk::m10`) y quien derroto (`CharaTask::m13B0`) como `CharaTask*`; `BattleTask::fn_800FDE60` e `Inventory::fn_80449A18/ABC` con puntero (simbolos renombrados) |
 | bf2c660, 082973f | regla 10 | `atn::net::Manager` lock/unlock y ChaseManager (3) a miembros |
 | 7d10fd3 | 2.5 | `lbl_8087FA20` (`TownTask*`), `lbl_8087F418` (`EnvSeManager*`) |
+| bcd23c6 | regla 10 | Em303KrakenFoot: 3 `extern "C"` con `foot` a miembros |
 
 Re-emparejado: `pdbatch.sh` y, para lo que queda (pools iguales que main), `refmap.py` (scratch): nombre en symbols.txt de main ->
 (seccion, desplazamiento) en el .o de main -> nombre en nuestro .o. Mas fiable que lblseq/valfix cuando el pool no cambia;
