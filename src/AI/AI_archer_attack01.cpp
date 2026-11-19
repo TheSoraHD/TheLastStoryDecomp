@@ -37,7 +37,6 @@ AiScriptOutput_unk lbl_807C6A40;
 AiTargets_unk lbl_807C6B30;
 extern unsigned char lbl_807307A0[];
 extern float lbl_80880798;
-extern float lbl_808807B8;
 extern float lbl_808807AC;
 extern float lbl_8088079C;
 extern float lbl_808807A0;
@@ -4224,7 +4223,6 @@ int AI::Script::AI_em_type010::vf28() {
     return -1;
 }
 
-// NONMATCHING: 93.63% - out base register (r10/r7 instead of r7/r4).
 int AI::Script::AI_em_type010::vf40() {
     int result = CheckCount_unk();
     if (result == 1) {
@@ -4234,8 +4232,8 @@ int AI::Script::AI_em_type010::vf40() {
     }
     if (lbl_807C6A40.m18[3] == 1) {
         if (lbl_807C68C0.mLife == 100) {
-            lbl_807C6A40.mValid = 1;
             lbl_807C6A40.m18[3] = 0;
+            lbl_807C6A40.mValid = 1;
             UseSkill_unk();
             return 1;
         }
@@ -8655,11 +8653,10 @@ int AI::Script::AI_np_wait_reaction_plus::vf34() {
     return 1;
 }
 
-// NONMATCHING: 61.90% - the original loads the 1.5f factor before the input count.
 int AI::Script::AI_quark01::vf08() {
     int result = 1;
     lbl_807C6A40.m18[0] = 240;
-    lbl_807C6A40.m18[1] = (int)(lbl_808807B8 * (float)lbl_807C68C0.m30[0]);
+    lbl_807C6A40.m18[1] = 1.5f * lbl_807C68C0.m30[0];
     lbl_807C6A40.m18[3] = lbl_807C68C0.m7C[0];
     lbl_807C6A40.m18[4] = 100;
     lbl_807C6A40.mValid = 1;
@@ -9986,11 +9983,10 @@ int AI::Script::AI_sword_pointguard01::vf0C() {
     return -1;
 }
 
-// NONMATCHING: 89.40% - conversion to float and generated constant do not match MWCC's sequence.
 int AI::Script::AI_return_guard01::vf08() {
-    int count = lbl_807C68C0.m30[0];
+    float f = lbl_807C68C0.m30[0];
     lbl_807C6A40.mValid = 1;
-    lbl_807C6A40.m18[1] = (int)(lbl_808807B8 * (float)count);
+    lbl_807C6A40.m18[1] = 1.5f * f;
     return 1;
 }
 
