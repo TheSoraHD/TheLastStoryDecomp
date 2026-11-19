@@ -968,7 +968,7 @@
    "chr::ControlSlip",
    "chr::ControlStagger"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "chr/ControlTurnQuadruped.cpp",
