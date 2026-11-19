@@ -128,6 +128,13 @@ poolcheck igual que main) salvo el `ordercheck` de GameEventScript, que ya tiene
 | 479e5d2, 4ff7155 | 2.5 | `atn::net::Manager` (DamageCalc, Item, DropItem, ControlCannonLift, PPDATAU) |
 | 87bbbaa, 3c247af, 31ca307, c593860 | 2.5 | ChaseManager (ChaserGuard), Loader (GameSaveBackground, main), NandManager (HomeButtonMenu), VideoTHP (SystemErrorMessage) |
 | 04309f2, 60bc31f | 2.5 | `lbl_8087EE98` -> `ColliManager_unk*` (75 unidades), `lbl_8087EF70` -> `Pad_unk*` (56) |
+| 57299b2 | 2.5 | `lbl_8087EE98` -> `ColliManager_unk*` en 9 unidades mas |
+| 9ad7f65 | 2.5 | `GameConfig_unk::mSurround` (0x454) y accesores miembro; fuera las vistas `Settings_unk` de CharaTask, Em315Coffin, TutorialTask, Event/Path, GameCamera_unk, ControlStickByQuark |
+| 93fe121, 93c134a | 2.5 | `GameConfig_unk` en GameBgm, GimmickCommon, BootTask y GameSoundControl (`mInput`, `m113C`, `m1140` en vez de bytes) |
+| 1e4a41b | 2.5 | `WPad_unk` en SystemErrorMessage_unk y HomeButton_unk (`mStatus[i]` en vez de `+ i * 0xF00`) |
+| bf4a3b4 | 2.5 | `GameUI` en AttractHatePoint y LottaSummon (`Request_unk`, constructor `GameUIElem1C_unk(int)`) |
+| 4813e92, 6ca6827, f9c2260, 9c11016 | 2.5 | `RenderSetting_unk` en LinearAllocator, ModelDraw_unk (`m104` = `ShadowParam_unk`), Layer2DBlur, ModelInstance |
+| 6323082 | 2.5 | `lbl_8087EE60/EE64` de `void*` a `CharaTask*`/`CharaLink_unk*` (lista de 16 en `CharaLink_unk`); fuera `AiList_unk` |
 
 Re-emparejado: `pdbatch.sh` y, para lo que queda (pools iguales que main), `refmap.py` (scratch): nombre en symbols.txt de main ->
 (seccion, desplazamiento) en el .o de main -> nombre en nuestro .o. Mas fiable que lblseq/valfix cuando el pool no cambia;
