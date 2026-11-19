@@ -1,3 +1,4 @@
+#include "atn/RenderSetting_unk.h"
 #include "game/GameConfig_unk.h"
 #include "gmk/ChickenManager.h"
 #include "atn/Csv.h"
@@ -22,14 +23,7 @@ extern "C" double sin(double x);
 extern "C" double cos(double x);
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 extern "C" unsigned int PSMTXInverse(const Mtx src, Mtx inv);
-// inferred: game state (lbl_8087EFA8, see game/CharaTask.cpp)
-struct ChickenGameState_unk {
-    unsigned char m000[0x218];
-    float m218; // inferred: distance beyond which characters are not updated
-    float m21C; // inferred: distance beyond which characters are updated every m220 frames
-    int m220;
-};
-extern "C" ChickenGameState_unk* lbl_8087EFA8;
+extern "C" RenderSetting_unk* lbl_8087EFA8;
 
 // inferred: sound effects (calm and scared flock)
 static const char* const sSe[] = {"SE_TWGIM_007", "SE_TWGIM_008"};
@@ -128,8 +122,8 @@ void Chicken_unk::fn_8040B668() {
     int update = 1;
     atn::Vector3 d = atn::RenderManager::instance_->mCamera.mPos - mPos;
     float distSq = PSVECSquareMag(&d);
-    if (distSq > lbl_8087EFA8->m21C * lbl_8087EFA8->m21C) {
-        if (distSq > lbl_8087EFA8->m218 * lbl_8087EFA8->m218) {
+    if (distSq > lbl_8087EFA8->m20C[4] * lbl_8087EFA8->m20C[4]) {
+        if (distSq > lbl_8087EFA8->m20C[3] * lbl_8087EFA8->m20C[3]) {
             update = 0;
         } else if (m418 % (lbl_8087EFA8->m220 * 2) != 0) {
             update = 0;

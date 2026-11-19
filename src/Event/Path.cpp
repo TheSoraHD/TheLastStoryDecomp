@@ -2,6 +2,7 @@
 // event looks from an eye target to a look target (actors, nodes, offsets or paths), moves
 // towards them over the time curve of the event manager, can be turned and zoomed with the pad,
 // shaken, and driven by a camera animation (Xsca).
+#include "atn/RenderSetting_unk.h"
 #include "Event/Path.h"
 #include "Event/MotionData.h"
 #include "Event/Manager.h"
@@ -26,24 +27,7 @@ struct Screen_unk;
 extern "C" Screen_unk* lbl_8087EEE0;
 extern "C" float fn_80076FF8(Screen_unk* screen); // inferred: aspect ratio
 
-// inferred: game state (lbl_8087EFA8); names invented
-struct EventGameState_unk {
-    unsigned char m000[0xD4];
-    int mD4;    // inferred: the fog of the event is used
-    unsigned char m0D8[0xE0 - 0xD8];
-    int mE0;
-    float mE4;
-    float mE8;
-    float mEC;
-    float mF0;
-    unsigned char m0F4[0xFC - 0xF4];
-    float mFC;
-    float m100;
-    unsigned char m104[0x1C0 - 0x104];
-    float m1C0; // inferred: near plane
-    float m1C4; // inferred: far plane
-};
-extern "C" EventGameState_unk* lbl_8087EFA8;
+extern "C" RenderSetting_unk* lbl_8087EFA8;
 
 // inferred: camera animation curves (as in game/Em309Ghoul.cpp)
 struct XsfCurveSet_unk {
@@ -370,7 +354,7 @@ void EventCamera_unk::fn_801140A0(Path* path, const CameraTarget_unk& at, int id
 
 void EventCamera_unk::fn_80114468() {
     m420 = 0;
-    lbl_8087EFA8->mD4 = 0;
+    lbl_8087EFA8->mDof.mEnabled = 0;
 }
 
 void EventCamera_unk::fn_8011447C(float a, float b, float c, float d, float e, float f, int frames, int arg) {
@@ -394,13 +378,13 @@ void EventCamera_unk::fn_801144A8() {
         } else {
             t = 1.0f;
         }
-        EventGameState_unk* gs = lbl_8087EFA8;
-        float d = t * (m430 - gs->mF0) + gs->mF0;
-        float a = t * (m424 - gs->mE4) + gs->mE4;
-        float b = t * (m428 - gs->mE8) + gs->mE8;
-        float c = t * (m42C - gs->mEC) + gs->mEC;
-        float f = t * (m434 - gs->m100) + gs->m100;
-        float e = t * (m438 - gs->mFC) + gs->mFC;
+        RenderSetting_unk* gs = lbl_8087EFA8;
+        float d = t * (m430 - gs->mDof.mNearEnd) + gs->mDof.mNearEnd;
+        float a = t * (m424 - gs->mDof.mStart) + gs->mDof.mStart;
+        float b = t * (m428 - gs->mDof.mEnd) + gs->mDof.mEnd;
+        float c = t * (m42C - gs->mDof.mNearStart) + gs->mDof.mNearStart;
+        float f = t * (m434 - gs->mDof.mBlurHeight) + gs->mDof.mBlurHeight;
+        float e = t * (m438 - gs->mDof.mBlurWidth) + gs->mDof.mBlurWidth;
         float farClip = mFar;
         float nearClip = mNear;
         if (farClip <= d) {
@@ -423,14 +407,14 @@ void EventCamera_unk::fn_801144A8() {
         }
         b = farClip <= b ? farClip : b;
         b = nearClip >= b ? nearClip : b;
-        gs->mD4 = 1;
-        gs->mE4 = a;
-        gs->mE8 = b;
-        gs->mEC = c;
-        gs->mF0 = d;
-        gs->m100 = f;
-        gs->mFC = e;
-        gs->mE0 = m440;
+        gs->mDof.mEnabled = 1;
+        gs->mDof.mStart = a;
+        gs->mDof.mEnd = b;
+        gs->mDof.mNearStart = c;
+        gs->mDof.mNearEnd = d;
+        gs->mDof.mBlurHeight = f;
+        gs->mDof.mBlurWidth = e;
+        gs->mDof.mClearFar = m440;
     }
 }
 

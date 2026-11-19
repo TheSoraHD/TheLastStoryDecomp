@@ -1,6 +1,7 @@
 // atn/ShaderManager_unk.cpp: manager of the model shaders (file name invented). It loads the 76
 // shader files, builds a shader (atn/Shader_unk.cpp) for each material description and one
 // level-of-detail list per shader. It has its own string pool and 0.0f, so it is a file of its own.
+#include "atn/RenderSetting_unk.h"
 #include "atn/Shader_unk.h"
 #include "atn/LH_Model.h"
 #include "atn/Memory.h"
@@ -8,12 +9,7 @@
 extern "C" unsigned int fn_800DC6B4(const char* s); // inferred: string hash
 extern "C" void* fn_8008937C(void* parent, const char* name); // inferred: debug menu group
 
-// inferred: debug settings (lbl_8087EFA8); m4C is the root of the debug menu
-struct DebugRoot_unk {
-    unsigned char m00[0x4C];
-    void* m4C;
-};
-extern "C" DebugRoot_unk* lbl_8087EFA8;
+extern "C" RenderSetting_unk* lbl_8087EFA8;
 
 // inferred: data of a loaded shader file (LoadModel::m5C)
 struct ShaderFile_unk {
@@ -138,7 +134,7 @@ void ShaderManager_unk::LoadShaders_unk() {
 
 // inferred: one LOD list per shader (name invented; removed by the linker once inlined)
 void ShaderManager_unk::CreateLODs_unk() {
-    void* group = fn_8008937C(lbl_8087EFA8->m4C, "ShaderLODs");
+    void* group = fn_8008937C(lbl_8087EFA8->m04C, "ShaderLODs");
     for (ShaderTex_unk** it = mShaders.begin(); it != mShaders.end(); it++) {
         ShaderLOD_unk* lod = new ((MemoryTag)6, "", "", 0) ShaderLOD_unk;
         lod->fn_800C4ECC(*it, 0.0f);

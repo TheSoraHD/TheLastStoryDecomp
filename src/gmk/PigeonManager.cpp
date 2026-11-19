@@ -1,3 +1,4 @@
+#include "atn/RenderSetting_unk.h"
 #include "game/GameConfig_unk.h"
 #include "gmk/PigeonManager.h"
 #include "atn/Csv.h"
@@ -18,14 +19,7 @@ extern "C" GameConfig_unk* lbl_8087F0A8;
 extern "C" int rand();
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 extern "C" unsigned int PSMTXInverse(const Mtx src, Mtx inv);
-// inferred: game state (lbl_8087EFA8, see game/CharaTask.cpp)
-struct PigeonGameState_unk {
-    unsigned char m000[0x218];
-    float m218; // inferred: distance beyond which characters are not updated
-    float m21C; // inferred: distance beyond which characters are updated every m220 frames
-    int m220;
-};
-extern "C" PigeonGameState_unk* lbl_8087EFA8;
+extern "C" RenderSetting_unk* lbl_8087EFA8;
 extern "C" void fn_800CB6E4(atn::SoundRef* sound, const atn::Vector3* pos); // inferred: moves the sound
 // inferred: collision world (lbl_8087EE98)
 extern "C" void* lbl_8087EE98;
@@ -137,8 +131,8 @@ void Pigeon_unk::fn_804048CC() {
     atn::Vector3 d = atn::RenderManager::instance_->mCamera.mPos - mPos;
     float distSq = PSVECSquareMag(&d);
     mModel.mFlags |= 0x40;
-    if (distSq > lbl_8087EFA8->m21C * lbl_8087EFA8->m21C) {
-        if (distSq > lbl_8087EFA8->m218) {
+    if (distSq > lbl_8087EFA8->m20C[4] * lbl_8087EFA8->m20C[4]) {
+        if (distSq > lbl_8087EFA8->m20C[3]) {
             update = 0;
         } else if (m42C % (lbl_8087EFA8->m220 * 2) != 0) {
             update = 0;

@@ -1,3 +1,4 @@
+#include "atn/RenderSetting_unk.h"
 #include "atn/LensFlare.h"
 #include "atn/GXDecl.h"
 #include "atn/RenderManager.h"
@@ -39,12 +40,7 @@ extern "C" void fn_8008771C(void* group, const char* name, float* value, int arg
 extern "C" void fn_80088AF4(void* group, const char* name, float* value, int arg3, int arg4, float min, float max,
                             float step); // inferred: color
 
-// inferred: global render settings; m4C is the root debug menu group
-struct LensSettings_unk {
-    unsigned char m00[0x4C];
-    void* m4C;
-};
-extern "C" LensSettings_unk* lbl_8087EFA8;
+extern "C" RenderSetting_unk* lbl_8087EFA8;
 
 
 
@@ -131,7 +127,7 @@ LensFlare::LensFlare(int arg, int count, const Vector3& pos, float size) : m04(a
         m20[i].fn_800D5908(name);
     }
     mElems.Resize_unk(count);
-    void* group = LensCreateGroup_unk(m140, lbl_8087EFA8->m4C, "LensFlare");
+    void* group = LensCreateGroup_unk(m140, lbl_8087EFA8->m04C, "LensFlare");
     for (unsigned int i = 0; i < mElems.mCount; i++) {
         LensFlareElem* e = &mElems[i];
         e->m08 = 0.0f;
