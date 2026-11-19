@@ -824,6 +824,19 @@ static inline void Command_unk(int mode, int a, int b, int c, int d) {
     fn_8001AEDC(mode, &a_, &b_, &c_, &d_);
 }
 
+// inferred: same command, with the argument slots laid out from the last one (em_type003 vf08)
+static inline void CommandR_unk(int mode, int a, int b, int c, int d) {
+    int d_;
+    int c_;
+    int b_;
+    int a_;
+    d_ = d;
+    c_ = c;
+    b_ = b;
+    a_ = a;
+    fn_8001AEDC(mode, &a_, &b_, &c_, &d_);
+}
+
 // inferred: 1 (and out.m00 set) while out.m10 is still 0
 static inline int CheckCount_unk() {
     if (lbl_807C6A40.mC0 >= 1) {
@@ -4090,17 +4103,11 @@ int AI::Script::AI_em_sword_pointguard01::vf0C() {
     return -1;
 }
 
-// NONMATCHING: 89.70% - the local-slot allocation and scratch-store scheduling differ.
 int AI::Script::AI_em_type003::vf08() {
-    int d = 0;
-    int c = 0xA;
-    int b = 0;
-    int a = 0;
     lbl_807C6A40.m18[0] = 0x28;
-    d = lbl_807C68C0.m7C[0];
-    lbl_807C6A40.m18[1] = d;
+    lbl_807C6A40.m18[1] = lbl_807C68C0.m7C[0];
     lbl_807C6A40.mValid = 1;
-    fn_8001AEDC(8, &d, &c, &b, &a);
+    CommandR_unk(8, lbl_807C6A40.m18[1], 0xA, 0, 0);
     return 1;
 }
 
@@ -4156,19 +4163,14 @@ int AI::Script::AI_em_type003::vf0C() {
     return -1;
 }
 
-// NONMATCHING: 76.72% - MWCC's parameter stack slots and scratch-store order differ.
 int AI::Script::AI_em_type010::vf08() {
-    int a = lbl_807C68C0.m7C[0];
     lbl_807C6A40.m18[0] = 0x28;
-    lbl_807C6A40.m18[1] = a;
+    lbl_807C6A40.m18[1] = lbl_807C68C0.m7C[0];
     lbl_807C6A40.m18[2] = lbl_807C68C0.m7C[1];
     lbl_807C6A40.m18[3] = 0;
     lbl_807C6A40.m18[4] = lbl_807C68C0.m7C[2];
     lbl_807C6A40.mValid = 1;
-    int b = 0xA;
-    int c = 0;
-    int d = 0;
-    fn_8001AEDC(8, &a, &b, &c, &d);
+    CommandR_unk(8, lbl_807C6A40.m18[1], 0xA, 0, 0);
     return 1;
 }
 
@@ -5425,16 +5427,11 @@ int AI::Script::AI_fr_buffer_pick01::vf40() {
     return -1;
 }
 
-// NONMATCHING: 88.31% - local output aggregate and register allocation differ.
-// inferred: the helper receives four consecutive output words; only the first is initialized from m80.
 int AI::Script::AI_fr_follow_player::vf08() {
-    int results[4] = {0, 0, 0, 0};
-    int value = lbl_807C68C0.m7C[0];
-    results[0] = lbl_807C68C0.m7C[1];
-    lbl_807C6A40.m18[0] = value;
+    lbl_807C6A40.m18[0] = lbl_807C68C0.m7C[0];
     lbl_807C6A40.m18[1] = 1;
     lbl_807C6A40.mValid = 1;
-    fn_8001AEDC(0, &results[0], &results[1], &results[2], &results[3]);
+    Command_unk(0, lbl_807C68C0.m7C[1], 0, 0, 0);
     return 3;
 }
 
@@ -6214,16 +6211,11 @@ int AI::Script::AI_fr_sword_pick01::vf0C() {
     return -1;
 }
 
-// NONMATCHING: 89.57% - stack output order and register allocation differ.
 int AI::Script::AI_fr_sword_pointguard::vf08() {
-    int d = lbl_807C68C0.m7C[0];
-    int c = 0x1E;
-    int b = 0;
-    int a = 0;
     lbl_807C6A40.m18[0] = 0x3C;
-    lbl_807C6A40.m18[1] = d;
+    lbl_807C6A40.m18[1] = lbl_807C68C0.m7C[0];
     lbl_807C6A40.mValid = 1;
-    fn_8001AEDC(8, &d, &c, &b, &a);
+    CommandR_unk(8, lbl_807C6A40.m18[1], 0x1E, 0, 0);
     return 1;
 }
 
@@ -8211,16 +8203,12 @@ int AI::Script::AI_np_approach_plus::vf34() {
     return result;
 }
 
-// NONMATCHING: 88.31% - local output aggregate and register allocation differ.
 // inferred: duplicate script stub of fn_8002B818 at a second address.
 int AI::Script::AI_np_follow_player::vf08() {
-    int results[4] = {0, 0, 0, 0};
-    int value = lbl_807C68C0.m7C[0];
-    results[0] = lbl_807C68C0.m7C[1];
-    lbl_807C6A40.m18[0] = value;
+    lbl_807C6A40.m18[0] = lbl_807C68C0.m7C[0];
     lbl_807C6A40.m18[1] = 1;
     lbl_807C6A40.mValid = 1;
-    fn_8001AEDC(0, &results[0], &results[1], &results[2], &results[3]);
+    Command_unk(0, lbl_807C68C0.m7C[1], 0, 0, 0);
     return 3;
 }
 
@@ -8277,21 +8265,14 @@ int AI::Script::AI_np_tagger_random::vf14() {
 }
 
 // inferred: picks a target near the current position (first within 120, then anywhere)
-// NONMATCHING: 95.15% - the order of the zero stores to the output arguments differs.
 int AI::Script::AI_np_type001::vf08() {
     int base = fn_8001B5B4(lbl_807C68C0.mPos, 0);
     int a;
-    int b;
-    int c;
-    int d;
     if ((a = fn_8001BA88(lbl_807C68C0.mChara, base, 1, -1, lbl_8088079C, lbl_808807A0, lbl_80880798)) <= 0 &&
         (a = fn_8001BA88(lbl_807C68C0.mChara, base, 1, -1, lbl_808807A4, lbl_808807A8, lbl_80880798)) <= 0) {
         a = base;
     }
-    d = 0;
-    c = 0;
-    b = 0;
-    fn_8001AEDC(1, &a, &b, &c, &d);
+    CommandR_unk(1, a, 0, 0, 0);
     lbl_807C6A40.mValid = 1;
     return 3;
 }
@@ -8442,14 +8423,10 @@ int AI::Script::AI_np_type004::vf08() {
     return 3;
 }
 
-// NONMATCHING: 70.77% - argument setup and local register allocation differ.
 // inferred: a 0x12-byte helper allocation is passed as the first output word.
 int AI::Script::AI_np_type004::vf14() {
-    int a = fn_8001AEBC(0x12);
     int b = lbl_807C6A40.m18[0];
-    int c = 0;
-    int d = 0;
-    fn_8001AEDC(0xD, &a, &b, &c, &d);
+    Command_unk(0xD, fn_8001AEBC(0x12), b, 0, 0);
     lbl_807C6A40.mValid = 1;
     return 6;
 }
