@@ -1,0 +1,34 @@
+diff --git a/src/game/GameUI.cpp b/src/game/GameUI.cpp
+index c1ca50a..3994eb5 100644
+--- a/src/game/GameUI.cpp
++++ b/src/game/GameUI.cpp
+@@ -2907,7 +2907,8 @@ extern "C" void fn_8023A680(atn::EffectManager* mgr, atn::EffFile* res, int arg2
+ void GameUI::fn_803D7850(CharaTask* from, CharaTask* to, int index, int slide) {
+     atn::Vector3 p0(GetLineCenter_unk(from));
+     atn::Vector3 p1(GetLineCenter_unk(to));
+-    atn::Vector3 dir(p1.x - p0.x, 0.0f, p1.z - p0.z);
++    atn::Vector3 dir = p1 - p0;
++    dir.y = 0.0f;
+     float dist = dir.Length_unk();
+     if (dist - (1.5f * GetLineRadius_unk(from) + 1.5f * GetLineRadius_unk(to)) > 1.0f) {
+         GameUIElem7C_unk* e = &m15BC[index];
+@@ -2928,7 +2929,8 @@ void GameUI::fn_803D7850(CharaTask* from, CharaTask* to, int index, int slide) {
+         } else {
+             e->m60 = p1;
+         }
+-        dir = (p1 - dir * GetLineRadius_unk(to)) - p0;
++        atn::Vector3 tip = p1 - dir * GetLineRadius_unk(to);
++        dir = tip - p0;
+         atn::Vector3 rot = dir.ToRotation_unk();
+         float len = dir.Length_unk() / 50.0f;
+         atn::Matrix3x4 trans;
+@@ -2936,7 +2938,8 @@ void GameUI::fn_803D7850(CharaTask* from, CharaTask* to, int index, int slide) {
+         e->m00 = trans;
+         e->m00.RotateZYX_unk(rot);
+         atn::Matrix3x4 scale;
+-        PSMTXScale(scale.m, width, width, len);
++        atn::Vector3 sv(width, width, len);
++        PSMTXScale(scale.m, sv.x, sv.y, sv.z);
+         atn::Matrix3x4 t;
+         PSMTXConcat(e->m00.m, scale.m, t.m);
+         e->m00 = t;
