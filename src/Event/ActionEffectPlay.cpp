@@ -1243,8 +1243,7 @@ inline float Rate_unk(int frames) {
     return frames > 0 ? 1.0f / frames : 1.0f;
 }
 
-// NONMATCHING: 93.1% - the manager for the m1F0C store goes in r5 and is scheduled before the copies of
-// the arguments
+// inferred: the manager of the m1F0C store in a local (register and scheduling of the original)
 int ActionCloudMap::vf0C(Action* arg, int phase) {
     switch (phase) {
     case 0: {
@@ -1255,7 +1254,8 @@ int ActionCloudMap::vf0C(Action* arg, int phase) {
         size.x *= rate;
         size.y *= rate;
         lbl_8087F540->fn_80484BF4();
-        lbl_8087F540->m1F0C = 1;
+        Manager* mgr = lbl_8087F540;
+        mgr->m1F0C = 1;
         lbl_8087F540->fn_80484D40(size, pos, rate);
         break;
     }
@@ -1265,8 +1265,10 @@ int ActionCloudMap::vf0C(Action* arg, int phase) {
             atn::Vector2_unk pos = fn_80560FE8(arg);
             atn::Vector2_unk size(scale, scale);
             float rate = Rate_unk(arg->m1C);
-            lbl_8087F540->m1F0C = 0;
+            Manager* mgr = lbl_8087F540;
+            mgr->m1F0C = 0;
             lbl_8087F540->fn_80484D40(size, pos, rate);
+
         }
         break;
     case 3:
@@ -1502,15 +1504,19 @@ int ActionColorMatrix::vf08(Action* arg) {
     return 0;
 }
 
-// NONMATCHING: 99.1% - the four row pointers of the copy into the manager get the registers in reverse
-// order (tried a pointer to m1D70 and an assignment after the declaration)
+// inferred: copy into the manager through a setter (with the assignment written in the caller the four
+// row pointers of the copy get their registers in reverse order)
+static inline void SetColorMatrix_unk(Event::Manager* mgr, const ColorMatrixParam_unk& param) {
+    mgr->m1D70 = param;
+}
+
 int ActionColorMatrix::vf0C(Action* arg, int phase) {
     if (phase == 0) {
         ColorMatrixParam_unk param = *lbl_8087F540->fn_80483F70();
         param.mEnabled = 1;
-        Event::Manager* mgr = lbl_8087F540;
-        mgr->m1D70 = param;
+        SetColorMatrix_unk(lbl_8087F540, param);
     }
+
     return 0;
 }
 
