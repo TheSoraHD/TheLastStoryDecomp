@@ -259,8 +259,12 @@ ControlStickByQuark::ControlStickByQuark(Chara_unk* chara, int quark)
     mChara->SetControlId_unk(0x53);
 }
 
-// NONMATCHING: 98.98% - the original tests 0xE/0xF/0x10 with three cmpwi/beq to one `ret = 1` (the
-// `||` form is merged into a range check, the else-if form duplicates the store)
+// inferred: state test of a character; through an inline the three tests of vf0C are not merged into a
+// range check (the original has three cmpwi/beq)
+static inline bool StateIs_unk(const Chara_unk* c, int s) {
+    return c->m58C == s;
+}
+
 int ControlStickByQuark::vf0C() {
     EnemyQuarkStand* quark = mQuark;
     int ret = 0;
@@ -291,11 +295,7 @@ int ControlStickByQuark::vf0C() {
             }
         }
     }
-    if (quark->m58C == 0xE) {
-        ret = 1;
-    } else if (quark->m58C == 0xF) {
-        ret = 1;
-    } else if (quark->m58C == 0x10) {
+    if (StateIs_unk(quark, 0xE) || StateIs_unk(quark, 0xF) || StateIs_unk(quark, 0x10)) {
         ret = 1;
     }
     if (mChara->mF1C) {
@@ -457,7 +457,14 @@ ControlThrustForCrab::ControlThrustForCrab(Chara_unk* chara, Chara_unk* crab) : 
     }
 }
 
-// NONMATCHING: 99.5% - r29/r31 swapped between the motion and the bullet manager
+// inferred: bullet of the thrust at the crab; through an inline the bullet manager gets r31 as in the
+// original
+static inline void CrabShoot_unk(ControlBase* self) {
+    CharaTask* c = self->mChara;
+    BattleTask* mgr = lbl_8087F048;
+    mgr->fn_800FAB80(self->mChara, fn_80219E6C(0xD1), 1000, &c->mPos, &c->mRot, 0, 0x1E, -1, -1, 0.0f, 1.0f);
+}
+
 int ControlThrustForCrab::vf0C() {
     Motion_unk* m = &mChara->mMotion;
     atn::Vector3 pos = mChara->mPos;
@@ -472,9 +479,7 @@ int ControlThrustForCrab::vf0C() {
     }
     mChara->mPos = pos;
     if (m->mTracks[0].m08 >= 41.0f && m->mTracks[0].m08 < 43.0f) {
-        CharaTask* c = mChara;
-        BattleTask* mgr = lbl_8087F048;
-        mgr->fn_800FAB80(mChara, fn_80219E6C(0xD1), 1000, &c->mPos, &c->mRot, 0, 0x1E, -1, -1, 0.0f, 1.0f);
+        CrabShoot_unk(this);
         Shake_unk(lbl_8087F430, 10, 0.3f, 0.3f);
     }
     return Frame_unk(m) >= m->fn_80097D7C(0);
@@ -511,7 +516,13 @@ ControlThrustForKraken::ControlThrustForKraken(Chara_unk* chara, int kraken, atn
     }
 }
 
-// NONMATCHING: 98.6% - f3/f4 of the frame and 23.0f, register order of the lerps
+// inferred: bullet of the thrust at the kraken from the weapon node; the rotation is the last argument
+// (evaluated first: the original takes &mRot before the node lookup) and the manager is read inside
+static inline void KrakenShoot_unk(ControlBase* self, const atn::Vector3& pos, const atn::Vector3* r) {
+    BattleTask* mgr = lbl_8087F048;
+    mgr->fn_800FAB80(self->mChara, fn_80219E6C(0xD5), 1000, &pos, r, 0, 0x1E, -1, -1, 0.0f, 1.0f);
+}
+
 // inferred: swings the weapon around the kraken and thrusts it (frames 23-62), holds it, then pulls
 // back (frames 112-153); the bullet is fired from the weapon node at frame 48
 int ControlThrustForKraken::vf0C() {
@@ -520,7 +531,7 @@ int ControlThrustForKraken::vf0C() {
     atn::Vector3 rot = mChara->mRot;
     if (m->mTracks[0].m08 > 23.0f && m->mTracks[0].m08 <= 62.0f) {
         mChara->mF1C = 0;
-        float t = (m->mTracks[0].m08 - 23.0f) / 39.0f;
+        float t = (Frame_unk(m) - 23.0f) / 39.0f;
         pos = LerpTo_unk(mTarget - mDir2 * 45.0f, mFrom, t);
         rot = LerpTo_unk(mDir, mDir2, t);
         rot.RotZ_unk();
@@ -528,14 +539,13 @@ int ControlThrustForKraken::vf0C() {
         pos = mFrom;
     } else if (m->mTracks[0].m08 > 112.0f && m->mTracks[0].m08 <= 153.0f) {
         float t = (m->mTracks[0].m08 - 112.0f) / 41.0f;
-        pos = LerpTo_unk(mFrom, mDest, t);
+        atn::VecAssign_unk(pos, LerpTo_unk(mFrom, mDest, t));
     }
-    mChara->mPos = pos;
+    CharaTask* c = mChara;
+    c->mPos = pos;
     mChara->mRot = rot;
     if (m->mTracks[0].m08 >= 48.0f && m->mTracks[0].m08 < 50.0f) {
-        const atn::Vector3* r = &mChara->mRot;
-        atn::Matrix3x4* node = (atn::Matrix3x4*)m->GetNodeMtx_unk("rightwepoint");
-        ShootFrom_unk(lbl_8087F048, mChara, 0xD5, 1000, node->GetTrans_unk(), r);
+        KrakenShoot_unk(this, ((atn::Matrix3x4*)m->GetNodeMtx_unk("rightwepoint"))->GetTrans_unk(), &mChara->mRot);
     }
     return Frame_unk(m) >= m->fn_80097D7C(0);
 }
@@ -578,12 +588,18 @@ ControlThrustForQuarkStand::ControlThrustForQuarkStand(Chara_unk* chara, Chara_u
 }
 
 // NONMATCHING: 89% - order of the lerp products and of the bullet call, copy of the position
+static inline void StandShoot_unk(ControlBase* self, const atn::Vector3& pos, HitInfo_unk* hit) {
+    BattleTask* mgr = lbl_8087F048;
+    const atn::Vector3* r = &self->mChara->mRot;
+    mgr->fn_800FAB80(self->mChara, hit, mgr->fn_800F8548(), &pos, r, 0, 0x1E, -1, -1, 0.0f, 1.0f);
+}
+
 int ControlThrustForQuarkStand::vf0C() {
     Motion_unk* m = &mChara->mMotion;
     float frame = m->mTracks[0].m08;
     if (frame <= 20.0001f) {
         if (mKind != 2) {
-            mChara->mPos = LerpTo_unk(mStart, mTarget, frame / 20.0f);
+            mChara->mPos = LerpTo_unk(mStart, mTarget, Frame_unk(m) / 20.0f);
         } else {
             mChara->mPos = atn::Vector3(mTarget);
         }
@@ -606,15 +622,16 @@ int ControlThrustForQuarkStand::vf0C() {
         if (m28 == 0 && m->mTracks[0].m08 > 55.0f) {
             m28 = 1;
             mChara->fn_8016DA4C();
-            HitInfo_unk* hit = mChara->m638;
-            atn::Matrix3x4* node = (atn::Matrix3x4*)m->GetNodeMtx_unk("rightwepoint");
-            ShootHit_unk(lbl_8087F048, mChara, hit, node->GetTrans_unk(), &mChara->mRot);
+            StandShoot_unk(this, ((atn::Matrix3x4*)m->GetNodeMtx_unk("rightwepoint"))->GetTrans_unk(), mChara->m638);
         }
     } else if (frame > 90.0001f) {
-        mChara->mPos = atn::Vector3(mChara->mPos) + mFront * 1.8333334f;
+        atn::Vector3 pos = mChara->mPos;
+        pos += mFront * 1.8333334f;
+        mChara->mPos = pos;
         atn::Vector3 rot = mChara->mRot;
         rot.y = atn::WrapAngle_unk(rot.y + 3.1415927f / (m->fn_80097D7C(0) - 90.0f));
-        mChara->mRot = rot;
+        CharaTask* c = mChara;
+        c->mRot = rot;
     }
     if (Frame_unk(m) >= m->fn_80097D7C(0)) {
         mChara->m570 = 0.0f;
@@ -756,34 +773,40 @@ ControlThrustForCocoon::ControlThrustForCocoon(Chara_unk* chara, Chara_unk* coco
     mStart = mChara->mPos;
 }
 
-// NONMATCHING: 96.7% - registers around the bullet call; approach (frames 0-25), thrust and bullet (140), step back from frame 175
+// inferred: bullet of the thrust at the cocoon (as KrakenShoot_unk, with the bullet kind m28)
+static inline void CocoonShoot_unk(ControlThrustForCocoon* self, const atn::Vector3& pos, const atn::Vector3* r) {
+    BattleTask* mgr = lbl_8087F048;
+    mgr->fn_800FAB80(self->mChara, fn_80219E6C(self->m28), mgr->fn_800F8548(), &pos, r, 0, 0x1E, -1, -1, 0.0f, 1.0f);
+}
+
+// inferred: approach (frames 0-25), thrust and bullet (140), step back from frame 175
+
 int ControlThrustForCocoon::vf0C() {
     Motion_unk* m = &mChara->mMotion;
     atn::Vector3 pos = mChara->mPos;
     atn::Vector3 rot = mChara->mRot;
     float frame = m->mTracks[0].m08;
     if (frame < 25.0f) {
-        pos = LerpTo_unk(mStart, mTarget, frame / 30.0f);
+        pos = LerpTo_unk(mStart, mTarget, Frame_unk(m) / 30.0f);
         rot.y += 0.1f * atn::WrapAngle_unk(mYaw - rot.y);
     } else if (frame > 175.0f) {
         float t = (frame - 175.0f) / 50.0f;
         t = 1.0f < t ? 1.0f : t;
-        pos = LerpTo_unk(mTarget, mStart, t);
+        atn::VecAssign_unk(pos, LerpTo_unk(mTarget, mStart, t));
     } else {
         pos = mTarget;
         rot.y = mYaw;
         lbl_8087F430->mCamera.m958 = 1.0f;
         if (!m2C && m->mTracks[0].m08 > 140.0f) {
             m2C = true;
-            const atn::Vector3* r = &mChara->mRot;
-            atn::Matrix3x4* node = (atn::Matrix3x4*)m->GetNodeMtx_unk("rightwepoint");
-            ShootIdFrom_unk(lbl_8087F048, mChara, m28, node->GetTrans_unk(), r);
+            CocoonShoot_unk(this, ((atn::Matrix3x4*)m->GetNodeMtx_unk("rightwepoint"))->GetTrans_unk(), &mChara->mRot);
         }
     }
     rot.x = atn::WrapAngle_unk(rot.x);
     rot.y = atn::WrapAngle_unk(rot.y);
     rot.z = atn::WrapAngle_unk(rot.z);
-    mChara->mPos = pos;
+    CharaTask* c = mChara;
+    c->mPos = pos;
     mChara->mRot = rot;
     if (Frame_unk(m) >= m->fn_80097D7C(0)) {
         return 1;
