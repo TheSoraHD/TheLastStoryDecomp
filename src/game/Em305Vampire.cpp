@@ -32,14 +32,14 @@ struct Color4f_unk {
     Color4f_unk() {}
     float r, g, b, a;
 };
-extern "C" void fn_8023A8B4(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
+extern "C" void fn_8023A8B4(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Model* model, void* node,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
 extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the next effects
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
  extern "C" void* lbl_8087EE98;
 extern "C" int fn_8004D388(void* world, atn::ColliResult_unk* result, const atn::Vector3* center,
-                           const atn::Vector3* move, 
+                           const atn::Vector3* move,
                            unsigned int mask, void* ignore, int arg, float radius); // inferred: sweep test
 // inferred: debug menu entries (as in game/CharaTask.cpp and game/NewCampPartsHint.cpp)
 extern "C" void fn_80087994(void* group, const char* name, int* value, void* func, void* arg);

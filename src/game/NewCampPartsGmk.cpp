@@ -25,9 +25,9 @@ struct EffectMgr_unk {
 extern "C" EffectMgr_unk* lbl_8087F3C0;
 extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
 extern "C" void fn_8023A108(EffectMgr_unk* mgr, void* owner, int id, int arg);
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, void* model, int arg3,
-                            const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
-                            int arg8, int arg9, float scale);
+extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, void* model, void* node, const atn::Vector3& pos,
+                            const atn::Vector3& rot, const Color4f_unk& color, int arg7, int arg8, int arg9,
+                            float scale);
 extern "C" void fn_80232B7C(void* owner, int arg);
 // inferred: plays an effect with the default color and scale (name invented; the color is a
 // temporary of an inlined function, below the others on the stack of 0x80512C90)

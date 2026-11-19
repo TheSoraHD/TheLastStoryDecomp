@@ -71,8 +71,9 @@ extern "C" atn::EffectManager* lbl_8087F3C0;
 extern "C" inline atn::EffectManager* fn_800F7FA0() {
     return lbl_8087F3C0;
 }
-extern "C" void fn_8023A8B4(atn::EffectManager* mgr, atn::EfpFile* efp, void* model, int arg3, const atn::Vector3& pos,
-                            const atn::Vector3& rot, const float* color, int arg7, int arg8, int arg9, float scale);
+extern "C" void fn_8023A8B4(atn::EffectManager* mgr, atn::EfpFile* efp, void* model, void* node,
+                            const atn::Vector3& pos, const atn::Vector3& rot, const float* color, int arg7, int arg8,
+                            int arg9, float scale);
 extern "C" void fn_80232B7C(void* owner, int arg);
 extern "C" RenderSetting_unk* lbl_8087EFA8; // inferred: render settings
 // inferred: weak copy 0x802F0990 of another file (as in game/NewCampTask.cpp)

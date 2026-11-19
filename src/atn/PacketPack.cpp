@@ -11042,7 +11042,7 @@ extern "C" void fn_804FB668(PPManager2_unk* mgr) {
     mgr->m5A4 = 0;
 }
 
-extern "C" void fn_8023A8B4(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
+extern "C" void fn_8023A8B4(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Model* model, void* node,
                             const atn::Vector3& pos, const atn::Vector3& rot, const RsColor_unk& color, int arg7,
                             int arg8, int arg9, float scale);
 

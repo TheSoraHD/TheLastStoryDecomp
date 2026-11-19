@@ -44,7 +44,7 @@ extern "C" int fn_8004ECC0(void* world, atn::Vector3* hit, const atn::Vector3* f
 extern "C" int fn_8004ED34(void* world, atn::ColliResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, int a, int b);
 extern "C" int fn_8004D388(void* world, atn::ColliResult_unk* result, const atn::Vector3* center,
-                           const atn::Vector3* move, 
+                           const atn::Vector3* move,
                            unsigned int mask, int a, int b, float radius); // inferred: sphere test
 
 extern "C" GameConfig_unk* lbl_8087F0A8;

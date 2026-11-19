@@ -55,7 +55,7 @@ extern "C" atn::EffectManager* lbl_8087F3C0;
 extern "C" void fn_80232B7C(Event::EventManager_unk* manager, Event::Action* arg); // inferred: owner of the next effects
 extern "C" void fn_8023A680(atn::EffectManager* mgr, void* efp, int a, int b, MtxPtr mtx, const atn::Vector3* pos,
                             const atn::Vector3* rot, int c, int d, int e, int f, float scale); // inferred: plays an efp
-extern "C" void fn_8023A8B4(atn::EffectManager* mgr, void* data, atn::Model* model, int a, const atn::Vector3* pos,
+extern "C" void fn_8023A8B4(atn::EffectManager* mgr, void* data, atn::Model* model, void* node, const atn::Vector3* pos,
                             const atn::Vector3* rot, const atn::Color4f_unk* color, int b, int c, int d, float scale);
 extern "C" void fn_80239DAC(atn::EffectManager* mgr, Event::EventManager_unk* manager, void* owner, int stop); // inferred: stops
 extern "C" unsigned int fn_800DC6B4(const char* str);

@@ -104,7 +104,7 @@ typedef boost::function<void(atn::Matrix3x4*, const atn::NodeChunk&, const atn::
 // other files call by this name; ModelBase::mB8 is declared with another signature)
 extern "C" void fn_800F29D0(atn::Model* model, NodeCallback_unk callback);
 extern "C" void PSMTXScale(Mtx m, float x, float y, float z);
-extern "C" void fn_8023A8B4(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
+extern "C" void fn_8023A8B4(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Model* model, void* node,
                             const atn::Vector3& pos, const atn::Vector3& rot, const EffectColor_unk& color, int arg7,
                             int arg8, int arg9, float scale);
 

@@ -2125,7 +2125,7 @@ struct GameState_unk {
 extern "C" GameState_unk* lbl_8087EFA8;
 
 extern "C" int fn_8004ED34(void* colli, atn::ColliResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
-                           unsigned int mask, 
+                           unsigned int mask,
                            void* ignore, int arg7); // inferred: ray test
 
 // inferred: true when the attribute of the hit has id 0x1A (name invented)
@@ -10655,7 +10655,7 @@ struct Color4f_unk {
     Color4f_unk(float r_, float g_, float b_, float a_) : r(r_), g(g_), b(b_), a(a_) {}
     float r, g, b, a;
 };
-extern "C" void fn_8023A8B4(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
+extern "C" void fn_8023A8B4(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Model* model, void* node,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
 

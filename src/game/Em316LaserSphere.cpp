@@ -98,7 +98,7 @@ struct Color4f_unk {
     Color4f_unk() {}
     float r, g, b, a;
 };
-extern "C" void fn_8023A8B4(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
+extern "C" void fn_8023A8B4(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Model* model, void* node,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
 extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float volume);
@@ -801,7 +801,7 @@ void Em316LaserSphere::fn_80318F9C() {
 }
 
 extern "C" void* lbl_8087EE98; extern "C" int fn_8004D388(void* world, atn::ColliResult_unk* result,
-                                                          CharaTask::Sphere_unk* sphere, atn::Vector3* move, 
+                                                          CharaTask::Sphere_unk* sphere, atn::Vector3* move,
                            unsigned int mask, void* ignore, int arg7, float radius);
 
 // NONMATCHING: 94.2% - the mask 0x80000080 is built in r0 then or-ed into r7 in the original, the 0.5f is

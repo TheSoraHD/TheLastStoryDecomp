@@ -71,7 +71,7 @@ struct Color4f_unk {
     Color4f_unk() {}
     float r, g, b, a;
 };
-extern "C" void fn_8023A8B4(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
+extern "C" void fn_8023A8B4(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Model* model, void* node,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
 extern "C" void fn_8023A680(atn::EffectManager* mgr, atn::EffFile* eff, int a, int b, const atn::Matrix3x4* mtx, int c,
@@ -1531,7 +1531,7 @@ void Em202ForestSpider::fn_80279280() {
                         fn_800C344C("SE_EM202_012", t->m28.GetTrans_unk(), 0, -1, 1.0f);
                         fn_800F7FA8(fn_800F7FA0(), 0, 0);
                         fn_80276AE4(fn_800F7FA0(), &t->mA4, 0, t->m28.GetTrans_unk(), t->m10.ToRotation_unk(), -1, -1,
-                                    1, 
+                                    1,
                                     1.0f);
                         fn_800F7FA8(fn_800F7FA0(), t, 0x66);
                         fn_8026607C(fn_800F7FA0(), &t->mC8, t->m88->GetModel_unk(), 1);

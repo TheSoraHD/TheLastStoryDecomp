@@ -109,9 +109,9 @@ struct Color4f_unk {
     float r, g, b, a;
 };
 extern "C" atn::EffectManager* lbl_8087F3C0;
-extern "C" void fn_8023A8B4(atn::EffectManager* mgr, atn::EfpFile* efp, void* model, int arg3, const atn::Vector3& pos,
-                            const atn::Vector3& rot, const Color4f_unk& color, int arg7, int arg8, int arg9,
-                            float scale);
+extern "C" void fn_8023A8B4(atn::EffectManager* mgr, atn::EfpFile* efp, void* model, void* node,
+                            const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
+                            int arg8, int arg9, float scale);
 extern "C" void fn_80232B7C(void* owner, int arg);
 extern "C" double sqrt(double x);
 // inferred: plays an effect on the model with the default color and scale (as in game/LastCocoonEgg.cpp)

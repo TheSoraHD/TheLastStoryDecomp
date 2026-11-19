@@ -33,9 +33,9 @@ extern "C" atn::Vector3 lbl_807C7030;              // inferred: zero vector
 // inferred: the field task (lbl_8087F430)
 extern "C" GameTask* lbl_8087F430;
 extern "C" atn::EffectManager* lbl_8087F3C0;
-extern "C" void fn_8023A8B4(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
-                            const atn::Vector3& pos, const atn::Vector3& rot, const float* color, int arg7,
-                            int arg8, int arg9, float scale);
+extern "C" void fn_8023A8B4(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Model* model, void* node,
+                            const atn::Vector3& pos, const atn::Vector3& rot, const float* color, int arg7, int arg8,
+                            int arg9, float scale);
 extern "C" void fn_80239DAC(atn::EffectManager* mgr, void* owner, int id, int arg); // inferred: stops an effect
 extern "C" int fn_80239D58(atn::EffectManager* mgr, void* owner, int id); // inferred: the effect is playing
 extern "C" void fn_80232B7C(void* owner, int arg);

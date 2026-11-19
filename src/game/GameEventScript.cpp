@@ -4520,7 +4520,7 @@ void GameEventScript::fn_803A49F4(ScriptResult_unk& result, ScriptCmd_unk* cmd) 
 extern "C" atn::EfpFile* fn_800EFBC4(int id); // inferred: battle effect of row `id` (game/BattleTask.cpp)
 extern "C" atn::EfpFile* fn_800EFC64(int id); // inferred: effect of a skill
 extern "C" atn::EfpFile* fn_800EFDA0(int id); // inferred: skill effect of row `id`
-extern "C" void fn_8023A8B4(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
+extern "C" void fn_8023A8B4(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Model* model, void* node,
                             const atn::Vector3& pos, const atn::Vector3& rot, const atn::Color& color, int arg7,
                             int arg8, int arg9, float scale); // inferred: plays an effect
 

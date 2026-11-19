@@ -49,7 +49,7 @@ extern "C" void fn_8020C4C8(int* palettes, OptionParts_unk* parts, OptionColorOu
 extern "C" void fn_8020C5D4(OptionParts_unk* parts, const char* data, int size);
 extern "C" void fn_8020CC64(atn::Model* model, OptionParts_unk* parts, OptionColorOut_unk* out);
 extern "C" void fn_8020DE0C(OptionParts_unk* parts, const char* name);
-extern "C" void fn_8023A8B4(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
+extern "C" void fn_8023A8B4(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Model* model, void* node,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale); // inferred: plays an effect
 extern "C" std::string fn_8006B174(const std::string& path); // inferred: file name of a path

@@ -113,9 +113,9 @@ struct Color4f_unk {
     float r, g, b, a;
 };
 extern "C" atn::EffectManager* lbl_8087F3C0;
-extern "C" void fn_8023A8B4(atn::EffectManager* mgr, atn::EfpFile* efp, void* model, int arg3, const atn::Vector3& pos,
-                            const atn::Vector3& rot, const Color4f_unk& color, int arg7, int arg8, int arg9,
-                            float scale);
+extern "C" void fn_8023A8B4(atn::EffectManager* mgr, atn::EfpFile* efp, void* model, void* node,
+                            const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
+                            int arg8, int arg9, float scale);
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
 extern "C" void fn_80232B7C(void* owner, int arg);
 // inferred: plays an effect on the model with the default color and scale (as in game/LastCocoonEgg.cpp)
@@ -134,7 +134,7 @@ static inline void PlayEfp_unk(atn::EfpFile* efp, void* model) {
 
 extern "C" void fn_80239DAC(atn::EffectManager* mgr, void* owner, int id, int arg); // inferred: stops an effect
 extern "C" void* lbl_8087EE98; extern "C" int fn_8004ED34(void* colli, atn::ColliResult_unk* result,
-                                                          const atn::Vector3* from, const atn::Vector3* to, 
+                                                          const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg7); // inferred: ray test
 
 extern "C" int fn_8004D388(void* world, atn::ColliResult_unk* result, const atn::Vector3* from,

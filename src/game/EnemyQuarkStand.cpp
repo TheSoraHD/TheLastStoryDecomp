@@ -135,9 +135,9 @@ extern "C" int fn_8020EF80(void* item); // inferred: item id
 // inferred: weak copy of an accessor of game/EnemyQuarkSecond (bit 31 of the word at 8 of a model
 // part); name kept
 extern "C" void fn_80338CDC(void* part, int on);
-extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
-                            const atn::Vector3& pos, const atn::Vector3& rot, const struct QColor_unk& color,
-                            int arg7, int arg8, int arg9, float scale);
+extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, void* node,
+                            const atn::Vector3& pos, const atn::Vector3& rot, const struct QColor_unk& color, int arg7,
+                            int arg8, int arg9, float scale);
 // inferred: color as four floats (as Color4f_unk of game/EnemyTrista.cpp)
 struct QColor_unk {
     QColor_unk() {}
