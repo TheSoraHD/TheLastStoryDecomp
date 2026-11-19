@@ -930,21 +930,22 @@ void CharaTask::fn_80138528() {
     }
 }
 
-// NONMATCHING: the original is over the inlining budget and calls every inline candidate out of line
-// (std::string, char_separator, tokenizer and iterator members, atn::Csv, atn::SimpleVector<int>:
-// weak copies 0x801360C4, 0x801360D8, 0x80138A50); this compile inlines all of them (same open case
-// as LoadSeTableTask::vf0C, docs/inlining.md).
+// inferred: parses "path=<id>,<id>,..." entries of the parameter string (the iterator members are
+// called out of line: weak copies 0x801360C4, 0x801360D8, 0x80138A50)
 void CharaTask::vf2C(const char* params, int arg) {
     std::string str(params);
     typedef boost::tokenizer<boost::char_separator<char> > Tokenizer;
     Tokenizer tok(str, boost::char_separator<char>(";"));
     for (Tokenizer::iterator it = tok.begin(); it != tok.end(); ++it) {
-        if (strncmp((*it).c_str(), "path=", 5) == 0) {
-            std::string value((*it).c_str());
+        if (strncmp(it->c_str(), "path=", 5) == 0) {
+            std::string value(it->c_str());
             atn::Csv csv(value.c_str() + 5, value.size() - 5);
             atn::SimpleVector<int> points;
-            int id;
-            while ((id = atoi(csv.fn_8005B9CC())) > 0) {
+            while (true) {
+                int id = atoi(csv.fn_8005B9CC());
+                if (id <= 0) {
+                    break;
+                }
                 points.push_back(id);
             }
             fn_8017B1C4(&points);
