@@ -213,10 +213,10 @@ void Em101LittleZesya::vf10() {
     fn_80145334();
 }
 
-extern "C" void fn_8025D6D0(Em101LittleZesya* zesya) {
-    zesya->m14FC = zesya->mPos;
-    zesya->m14F8 = 1;
-    zesya->m1508 = zesya->mRot;
+void Em101LittleZesya::fn_8025D6D0() {
+    m14FC = mPos;
+    m14F8 = 1;
+    m1508 = mRot;
 }
 
 inline void Em101LittleZesya::Idle_unk() {
@@ -228,13 +228,13 @@ inline void Em101LittleZesya::Idle_unk() {
     fn_80239DAC(lbl_8087F3C0, this, 102, 1);
 }
 
-extern "C" void fn_8025D704(Em101LittleZesya* zesya) {
-    zesya->mColli.mFlags |= 1;
-    zesya->fn_8016DA4C();
-    zesya->Idle_unk();
-    zesya->fn_8016E970(3);
-    zesya->fn_8015495C(0, 1, 1, 1);
-    zesya->m14F8 = 0;
+void Em101LittleZesya::fn_8025D704() {
+    mColli.mFlags |= 1;
+    fn_8016DA4C();
+    Idle_unk();
+    fn_8016E970(3);
+    fn_8015495C(0, 1, 1, 1);
+    m14F8 = 0;
 }
 
 // inferred: back to state 0 (name invented; the same block is inlined in fn_8025DE7C and fn_8025E9E4)
@@ -854,7 +854,7 @@ void Em101LittleZesya::vf40(HitInfo_unk* hit) {
     }
 }
 
-extern "C" void fn_8025FE30(Em101LittleZesya* zesya, const ZesyaWarp_unk* warp) {
-    zesya->m15BC = 1;
-    zesya->m15A8 = *warp;
+void Em101LittleZesya::fn_8025FE30(const ZesyaWarp_unk* warp) {
+    m15BC = 1;
+    m15A8 = *warp;
 }

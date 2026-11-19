@@ -143,15 +143,6 @@ extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float
 extern "C" int fn_800DD3FC(wchar_t* s, const wchar_t* format, ...); // inferred: wide sprintf
 extern "C" void* memset(void* dst, int c, unsigned long n);
 extern "C" const wchar_t lbl_808813D0[2]; // inferred: empty text
-// inferred: order sent to the little Zesya (game/Em101LittleZesya.h ZesyaWarp_unk)
-struct ElderOrder_unk {
-    int m00;
-    int m04;
-    atn::Vector3 m08;
-};
-extern "C" void fn_8025FE30(int zesya, const ElderOrder_unk* order); // inferred: Em101LittleZesya order
-extern "C" void fn_8025D6D0(int zesya); // inferred: Em101LittleZesya saves its position (game/Em101LittleZesya.cpp)
-extern "C" void fn_8025D704(int zesya); // inferred: Em101LittleZesya goes back to idle
 
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 extern "C" atn::Vector3 lbl_807C7030;              // inferred: zero vector
@@ -345,8 +336,8 @@ void Em101ElderZesya::fn_80256384() {
             }
         } else if (strcmp(key, "LittleID") == 0) {
             EnemyManager* mgr = EnemyManager::sInstance;
-            m16A0 = (int)mgr->Find_unk(atoi(csv.fn_8005B9CC()));
-            *(Em101ElderZesya**)((char*)m16A0 + 0x1530) = this;
+            m16A0 = (Em101LittleZesya*)mgr->Find_unk(atoi(csv.fn_8005B9CC()));
+            m16A0->m1530 = this;
         } else if (strcmp(key, "NormalAttackID") == 0) {
             m1500 = fn_80219E6C(atoi(csv.fn_8005B9CC()));
         } else if (strcmp(key, "HighJumpAttackID") == 0) {
@@ -388,13 +379,13 @@ void Em101ElderZesya::vf10() {
             fn_8016DA4C();
             m14D4 = 1;
             mColli.mFlags |= 1;
-            fn_8025D6D0(m16A0);
+            m16A0->fn_8025D6D0();
             m14D8 = mPos;
             m14E4 = mRot;
             return;
         }
     } else if (m16A8 == 0 && m14D4 == 0) {
-        Em101LittleZesya* little = (Em101LittleZesya*)m16A0;
+        Em101LittleZesya* little = m16A0;
         bool ready = false;
         if (little->m58C == 9 && little->m14F4 == 1) {
             ready = true;
@@ -502,7 +493,7 @@ void Em101ElderZesya::vf10() {
             if (r != 0 && r->m08 == 0 && r->m0C == this) {
                 lbl_8087F048->fn_801028E4(p, this, 0x30D40);
             } else {
-                lbl_8087F048->fn_801028E4(p, (CharaTask*)m16A0, 0x30D40);
+                lbl_8087F048->fn_801028E4(p, m16A0, 0x30D40);
             }
         }
         int wait = m14D4;
@@ -513,7 +504,7 @@ void Em101ElderZesya::vf10() {
             m58C = 6;
             m14CC = 2;
             m14C8 = m16B0;
-            fn_8025D704(m16A0);
+            m16A0->fn_8025D704();
             PlayerTask* player = lbl_8087F8A0->mHead;
             player->fn_80166A54();
             ElderDamage_unk result;
@@ -827,11 +818,11 @@ void Em101ElderZesya::fn_80258574() {
         lbl_8087F048->fn_80109828(text);
         fn_802598DC();
         fn_8016D74C(m1510, 0, &m1694);
-        ElderOrder_unk order;
+        ZesyaWarp_unk order;
         order.m00 = 1;
         order.m08 = m1694;
         order.m04 = 2;
-        fn_8025FE30(m16A0, &order);
+        m16A0->fn_8025FE30(&order);
         break;
     }
     case 3:
@@ -846,7 +837,7 @@ void Em101ElderZesya::fn_80258574() {
         m14CC = 3;
         break;
     }
-    *(int*)(m16A0 + 0x14EC) = m14CC;
+    m16A0->m14EC = m14CC;
 }
 
 // NONMATCHING: 99.33% - nonvolatile registers shifted by one (r24-r30: the original keeps the list base in
@@ -1070,7 +1061,7 @@ void Em101ElderZesya::vf3C(HitInfo_unk* hit, int arg) {
         }
     }
     if (msg->m68 > 0) {
-        lbl_8087F048->fn_80102EAC((CharaTask*)m16A0, msg->mAttacker, 100, -1);
+        lbl_8087F048->fn_80102EAC(m16A0, msg->mAttacker, 100, -1);
     }
     if (m55C == 6) {
         switch (m560) {
