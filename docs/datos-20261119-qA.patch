@@ -35,10 +35,22 @@ index 835cde0..5b88b89 100644
      mIgnoreLongHate = 1;
      memset(mIgnoreLongHateValue, 0, sizeof(mIgnoreLongHateValue));
 diff --git a/src/atn/SoundManager.cpp b/src/atn/SoundManager.cpp
-index 3238ef5..03a6ec4 100644
+index 8d6554d..8b3b649 100644
 --- a/src/atn/SoundManager.cpp
 +++ b/src/atn/SoundManager.cpp
-@@ -401,17 +401,12 @@ void SoundManager::fn_800CECF0() {
+@@ -382,6 +382,11 @@ namespace atn {
+ 
+ // NONMATCHING: 99.47% - registros: x/y de los bloques 1-2 (f26/f25 en el original), los de las llamadas del
+ // bloque 2 y los GPR de los bloques 5-6
++static inline void DrawName_unk(SoundCore& sound, const Vector3& screen, float size) {
++    DrawHelper* draw = lbl_8087EEB0;
++    draw->fn_800616C0(screen.x, screen.y, 0.0f, size, size, sound.fn_800CA834(), -1, 0.0f, 1, 1, 0);
++}
++
+ void SoundManager::fn_800CECF0() {
+     if (lbl_8087EEB0 == 0) {
+         return;
+@@ -405,17 +410,12 @@ void SoundManager::fn_800CECF0() {
          for (int i = 0; i < 32; i++) {
              SoundCore& sound = mSounds[i];
              if (!sound.fn_800C8278()) {
@@ -58,7 +70,17 @@ index 3238ef5..03a6ec4 100644
                  }
                  lbl_8087EEB0->fn_800616C0(x, y, z, h, h, buf, -1, 0.0f, 1, 1, 0);
                  y += h;
-@@ -454,9 +449,8 @@ void SoundManager::fn_800CECF0() {
+@@ -437,8 +437,7 @@ void SoundManager::fn_800CECF0() {
+                         color = 0xFFFF0000;
+                     }
+                     lbl_8087EEB0->fn_80063D3C(sound.m08.mActor.mPosition, 2.0f, 0.0f, color);
+-                    DrawHelper* draw = lbl_8087EEB0;
+-                    draw->fn_800616C0(screen.x, screen.y, 0.0f, size, size, sound.fn_800CA834(), -1, 0.0f, 1, 1, 0);
++                    DrawName_unk(sound, screen, size);
+                 }
+             }
+         }
+@@ -458,9 +457,8 @@ void SoundManager::fn_800CECF0() {
                  int scope = sound.mB0 != 0 ? sound.mB0->m00 : -1;
                  int category = sound.mAC != 0 ? sound.mAC->m00 : -1;
                  int player = sound.mA8 != 0 ? sound.mA8->m00 : -1;
@@ -70,7 +92,7 @@ index 3238ef5..03a6ec4 100644
                  color = 0xCCFFFFFF;
              }
              lbl_8087EEB0->fn_800616C0(1.0f + x, 1.0f + y, z, h, h, buf, 0xCC000000, 0.0f, 1, 1, 0);
-@@ -489,20 +483,21 @@ void SoundManager::fn_800CECF0() {
+@@ -493,20 +491,21 @@ void SoundManager::fn_800CECF0() {
      if (mDebugLevel == 6 || mDebugLevel == 7) {
          x = 10.0f;
          y = 20.0f;
