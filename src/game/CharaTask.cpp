@@ -9,6 +9,7 @@
 #include "game/GameTask.h"
 #include "game/GameVoice.h"
 #include "game/Arms.h"
+#include "Event/Manager.h"
 #include "game/GameScene.h"
 #include "game/SkillEffectManager.h"
 #include "game/Inventory.h"
@@ -268,11 +269,6 @@ extern "C" int fn_800DD3FC(wchar_t* s, const wchar_t* format, ...); // inferred:
 extern "C" int fn_8021BE98(char* name, CharaStatusEntry_unk* entry);  // inferred: name of an entry
 
 
-namespace Event {
-class Manager;
-}
-extern "C" Event::Manager* lbl_8087F540;
-extern "C" int fn_80481654(void* obj);
 
 extern "C" const wchar_t lbl_808813D0[2]; // inferred: empty text
 // inferred: message table (lbl_8087F1E4); name invented
@@ -3746,7 +3742,6 @@ extern "C" unsigned int PSMTXInverse(const Mtx src, Mtx inv);
 // inferred: sphere cast against the collision (hit in `result`, nonzero on a hit)
 extern "C" int fn_80418318(); // inferred: id of the water (ground follow) used by fn_804188A0
 extern "C" atn::Vector3 fn_804188A0(int id, const Segment_unk* seg);
-extern "C" void fn_8009757C(atn::Model* model);
 extern "C" int fn_802185FC(const char* name);
 extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float volume);
 
@@ -4218,7 +4213,7 @@ void CharaTask::fn_80145334() {
         } else if (!IsPartyMember_unk() || mC54 != 0 || m55C != 2) {
             mMotion.fn_8009076C(inv.m);
         }
-        fn_8009757C(&mMotion);
+        mMotion.fn_8009757C();
         if (m12BC >= 0) {
             float frame = mMotion.mTracks[3].m08;
             if (frame >= mMotion.fn_80097D7C(3)) {
@@ -5337,7 +5332,7 @@ void CharaTask::fn_80149A30() {
         }
 
         int hide = 0;
-        if (lbl_8087F430 != 0 && lbl_8087F430->m54E4 == 8 && lbl_8087F540 != 0 && fn_80481654(lbl_8087F540) != 0) {
+        if (lbl_8087F430 != 0 && lbl_8087F430->m54E4 == 8 && lbl_8087F540 != 0 && lbl_8087F540->fn_80481654() != 0) {
             hide = 1;
         }
         if (IsFlag_unk(1)) {
@@ -5863,7 +5858,7 @@ void CharaTask::fn_8014C540() {
     }
     if (lbl_8087F048 != 0) {
         int hide = 0;
-        if (lbl_8087F430 != 0 && lbl_8087F430->m54E4 == 8 && lbl_8087F540 != 0 && fn_80481654(lbl_8087F540) != 0) {
+        if (lbl_8087F430 != 0 && lbl_8087F430->m54E4 == 8 && lbl_8087F540 != 0 && lbl_8087F540->fn_80481654() != 0) {
             hide = 1;
         }
         lbl_8087F048->fn_8010C00C(this);
@@ -6531,16 +6526,9 @@ void CharaTask::vf5C(CharaTask* other) {
     }
 }
 
-// inferred: parameter of a part (returned by fn_80045694); names invented
-struct PartParam_unk {
-    int m00;
-    int m04; // inferred: value (x30 frames of combo time)
-};
-extern "C" PartParam_unk* fn_80045694(chr::CharaPart_unk* part, int kind, int arg, int id, int sub);
-
-// inferred: name invented
-inline bool HasPartParam_unk(chr::CharaPart_unk* part, int kind, int arg, int id, int sub) {
-    return fn_80045694(part, kind, arg, id, sub) != 0;
+// inferred: m648 is the weapon (Arms, see game/Arms.h); name invented
+inline bool HasPartParam_unk(chr::CharaPart_unk* part, int kind, int value, int kind2, int value2) {
+    return ((Arms*)part)->fn_80045694(kind, value, kind2, value2) != 0;
 }
 
 // inferred: starts the combo window against `other` (mFE0: frames, mFDC: last opponent?)
@@ -6556,7 +6544,7 @@ void CharaTask::fn_80150460(CharaTask* other, int combo) {
         if (status->fn_80133EE8(10) != 0) {
             mFE0 += status->fn_80133F18(10, -1) * 30;
         } else if (prev != 0 && prev->m648 != 0 && HasPartParam_unk(prev->m648, 8, 0, 10, -1)) {
-            mFE0 += fn_80045694(prev->m648, 8, 0, 10, -1)->m04 * 30;
+            mFE0 += ((Arms*)prev->m648)->fn_80045694(8, 0, 10, -1)->m04 * 30;
         }
         if (other->GetFlaggedHitBullet_unk() != 0 || (prev != 0 && prev->GetFlaggedHitBullet_unk() != 0)) {
             mFE0 += 150;
