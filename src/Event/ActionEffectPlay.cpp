@@ -63,7 +63,7 @@ extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 extern "C" void* lbl_8087EF70; // inferred: pad
 extern "C" int fn_800A58D0(void* pad, int port); // inferred: classic controller connected
 extern "C" void fn_801FECE0(void* layout, unsigned int hash, float value); // inferred: sets a layout value
-extern "C" void fn_800CB5B4(atn::SoundRef* sound, int frames, float volume); // inferred: sets the volume
+extern "C" void fn_800CB5B4(atn::SoundRef* sound, float volume, int frames); // inferred: sets the volume
 // inferred: point light (index, position, radius, color)
 // inferred: spot light (position, direction, two angles, color)
 
@@ -848,7 +848,7 @@ int ActionSoundPlay::vf08(Action* arg) {
         sound.mPtr->mRefCount--;
         int frame = arg->fn_805381C8()->m198;
         float volume = arg->GetParam_unk(7)->m04.f;
-        fn_800CB5B4(&sound, 0, volume * arg->fn_8053A2E8(arg->fn_805393A4(frame)));
+        fn_800CB5B4(&sound, volume * arg->fn_8053A2E8(arg->fn_805393A4(frame)), 0);
     }
     return 0;
 }
@@ -995,7 +995,7 @@ int ActionVoicePlay::vf0C(Action* arg, int phase) {
         }
         fn_800CB688(&sound, 0, pitch);
         if (lbl_8087F540->mC4 != 0) {
-            fn_800CB5B4(&sound, 10, 0.0f);
+            fn_800CB5B4(&sound, 0.0f, 10);
         }
         atn::SoundObject* handle = 0;
         if (noKeep == 0 && sound.mPtr != 0) {

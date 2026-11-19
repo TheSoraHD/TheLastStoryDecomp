@@ -4690,7 +4690,7 @@ void GameTask::fn_803737C0() {
     lbl_8087EFA8->m3A4 = m55C0;
 }
 
-extern "C" void fn_800CB5B4(atn::SoundRef* sound, int frames, float volume); // inferred: fades the sound
+extern "C" void fn_800CB5B4(atn::SoundRef* sound, float volume, int frames); // inferred: fades the sound
 extern "C" void fn_800CB5C8(atn::SoundRef* sound, int frames, int detach);  // inferred: stops the sound
 extern "C" const char* fn_800EFE3C(int id); // inferred: sound name of a voice
 extern "C" int fn_8021A984(HitInfo_unk* hit);
@@ -4713,7 +4713,7 @@ void GameTask::fn_80373AE8() {
                 mFinish.m3A0 = 1.0f;
                 if (left <= 0) {
                     fn_800C31F4(sFieldSounds_unk[2], 0, -1, 1.0f);
-                    fn_800CB5B4(&m55A8, 5, 0.1f);
+                    fn_800CB5B4(&m55A8, 0.1f, 5);
                 }
                 mFinish.m350 = mFinish.m354;
             } else {
@@ -4726,7 +4726,7 @@ void GameTask::fn_80373AE8() {
                 if (left <= 0) {
                     lbl_8087EFA8->m240.mEnabled = 0;
                     m55A0 = 24;
-                    fn_800CB5B4(&m55A8, 30, 1.0f);
+                    fn_800CB5B4(&m55A8, 1.0f, 30);
                 }
                 float t = (float)m559C / 90.0f;
                 mFinish.m350 = mFinish.m354;

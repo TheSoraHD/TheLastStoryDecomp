@@ -39,7 +39,7 @@ extern "C" int fn_805A38F0(const char* name, int a, int b); // inferred: the str
 extern "C" int fn_800CB4C4(atn::SoundRef* sound);
 extern "C" int fn_800CB538(atn::SoundRef* sound);
 extern "C" int fn_800CB58C(atn::SoundRef* sound);
-extern "C" void fn_800CB5B4(atn::SoundRef* sound, int frames, float volume);
+extern "C" void fn_800CB5B4(atn::SoundRef* sound, float volume, int frames);
 extern "C" void fn_800CB640(atn::SoundRef* sound, int a, int b, int c);
 extern "C" int fn_800CB6F8(atn::SoundRef* sound);
 
@@ -358,7 +358,7 @@ void GameBgm::fn_8037D49C(float volume, int frames) {
     mE0 = mReq.mVolume;
     mReq.mVolume = volume;
     if (mCur != 0) {
-        fn_800CB5B4(&mCur->mSound, frames, volume);
+        fn_800CB5B4(&mCur->mSound, volume, frames);
     }
 }
 
@@ -414,7 +414,7 @@ int GameBgm::fn_8037D4C0(int id, int fade, int b, int c, float volume) {
     mE0 = (double)volume;
     mReq.mVolume = volume;
     if (mCur != 0) {
-        fn_800CB5B4(&mCur->mSound, fade, volume);
+        fn_800CB5B4(&mCur->mSound, volume, fade);
     }
     m84 = 0;
     return 0;

@@ -109,7 +109,7 @@ static const MapSelectRouteEffect_unk sRouteEffects[5] = {
     {0, 201000, 999999}, {1, 201000, 999999}, {0, 408000, 999999}, {2, 408000, 999999}, {1, 204000, 999999},
 };
 extern "C" atn::SoundRef fn_80117228(int id);                   // inferred: plays a system sound effect
-extern "C" void fn_800CB5B4(atn::SoundRef* sound, int a, float b);
+extern "C" void fn_800CB5B4(atn::SoundRef* sound, float b, int a);
 extern "C" void fn_8036F268(GameTask* field, int type, int id, int subId, int entry, int a, int b, int reason,
                             int c); // inferred: changes the map
 extern "C" void* lbl_8087EF70;
@@ -1105,7 +1105,7 @@ void NewCampPartsMapSelect::fn_8051FB7C(int state) {
             lbl_8087EFE8->m34C8 = 0;
         }
         atn::SoundRef sound = fn_80117228(7);
-        fn_800CB5B4(&sound, 0x37, 0.0f);
+        fn_800CB5B4(&sound, 0.0f, 0x37);
         if (lbl_8087EFE8 != 0) {
             lbl_8087EFE8->m34C8 = 1;
         }

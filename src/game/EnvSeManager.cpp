@@ -35,7 +35,7 @@ inline EnvSeEngine_unk* GetEngine_unk() {
 extern "C" void fn_800CB5C8(atn::SoundRef* sound, int frames, int arg); // inferred: stops the sound
 extern "C" int fn_800CB58C(atn::SoundRef* sound);                      // inferred: playing
 extern "C" int fn_800CB538(atn::SoundRef* sound);                      // inferred: playing
-extern "C" void fn_800CB5B4(atn::SoundRef* sound, int frames, float volume);
+extern "C" void fn_800CB5B4(atn::SoundRef* sound, float volume, int frames);
 extern "C" void fn_800CB69C(atn::SoundRef* sound, int frames, float lpf);
 extern "C" void fn_800CB6B0(atn::SoundRef* sound, int arg, float distance);  // inferred: sets the distance
 extern "C" void fn_800CB6E4(atn::SoundRef* sound, const atn::Vector3* pos); // inferred: moves the sound
@@ -276,7 +276,7 @@ void EnvSeManager::fn_8035ECCC() {
         } else {
             mBgmState = 6;
             float volume = mNextReq.mVolume;
-            fn_800CB5B4(&mCur->mSound, mNextReq.mFade, volume);
+            fn_800CB5B4(&mCur->mSound, volume, mNextReq.mFade);
             float lpf = mNextReq.mLPF;
             fn_800CB69C(&mCur->mSound, mNextReq.mFade, lpf);
             fn_803601E4(mNextReq.mReverb);
@@ -644,7 +644,7 @@ void EnvSeManager::fn_80360574(int id) {
     atn::SoundRef* sound = &r->mSound;
     fn_800CB6E4(sound, &r->mData.mPos);
     fn_800CB6B0(sound, 1, r->mData.mDistance);
-    fn_800CB5B4(sound, 0, r->mData.mVolume);
+    fn_800CB5B4(sound, r->mData.mVolume, 0);
     fn_800CB69C(sound, 0, r->mData.mLPF);
 }
 
