@@ -39,8 +39,6 @@ class EffectManager;
 extern "C" atn::EffectManager* lbl_8087F3C0;
 extern "C" void fn_80239DAC(atn::EffectManager* mgr, void* owner, int id, int arg); // inferred: stops an effect
 extern "C" void fn_800CB5C8(atn::SoundRef* sound, int frames, int arg); // inferred: stops the sound
-extern "C" float fn_802E2360(Em303KrakenFoot* foot);
-extern "C" int fn_802E2328(Em303KrakenFoot* foot); // inferred: nonzero when the leg can act
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 // inferred: makes the camera look at a point (GameCamera::m910..m934, as in game/EnemyTrista.cpp); names invented
 inline void SetCameraLook_unk(GameCamera& camera, const atn::Vector3& pos, bool flag) {
@@ -415,7 +413,7 @@ int Em302Kraken::vf0C() {
             mStatus.m18 |= 0xC21D;
             mStatus.m18 |= 0x3800000;
             for (unsigned int i = 0; i < fn_800E0AA8((const Count4_unk*)&m1678); i++) {
-                fn_802E2468(*At_unk(&m1678, i), (int)this);
+                (*At_unk(&m1678, i))->fn_802E2468((int)this);
             }
             fn_802DDBB0();
             m14B0 = 1;
@@ -584,7 +582,7 @@ void Em302Kraken::vf10() {
             m16A0 += 0.5f;
         }
         for (unsigned int i = 0; i < m1678.size(); i++) {
-            m16A0 += fn_802E2360(m1678[i]);
+            m16A0 += m1678[i]->fn_802E2360();
         }
         m16A0 = m16A0 < 1.0f ? m16A0 : 1.0f;
         KrakenBlur_unk blur;
@@ -1344,7 +1342,7 @@ KrakenCommand_unk* Em302Kraken::fn_802DC8B0() {
     int idle = 0;
     for (unsigned int i = 0; i < m1678.size(); i++) {
         Em303KrakenFoot* foot = m1678[i];
-        if (fn_802E2328(foot) == 0) {
+        if (foot->fn_802E2328() == 0) {
             idle++;
         }
         if ((foot->mStatus.m0C & 0x20) != 0x20) {

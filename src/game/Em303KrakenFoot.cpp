@@ -71,12 +71,12 @@ Em303KrakenFoot::Em303KrakenFoot(atn::Task* parent, EnemyInfo_unk* info)
 
 Em303KrakenFoot::~Em303KrakenFoot() {}
 
-extern "C" int fn_802E2328(Em303KrakenFoot* foot) {
-    if ((foot->mStatus.m0C & 0x20) == 0x20) {
+int Em303KrakenFoot::fn_802E2328() {
+    if ((mStatus.m0C & 0x20) == 0x20) {
         return 1;
     }
     bool r = false;
-    if (foot->m14C0 != 1 && foot->m14C0 != 2) {
+    if (m14C0 != 1 && m14C0 != 2) {
         r = true;
     }
     return r;
@@ -91,26 +91,26 @@ inline float GetFrame_unk(Em303KrakenFoot* foot) {
     return foot->mMotion.mTracks[0].m08;
 }
 
-extern "C" float fn_802E2360(Em303KrakenFoot* foot) {
+float Em303KrakenFoot::fn_802E2360() {
     float result = 0.0f;
-    atn::Vector3 d = lbl_8087F8A0->mHead->mPos - foot->mPos;
+    atn::Vector3 d = lbl_8087F8A0->mHead->mPos - mPos;
     float rate = (60.0f - PSVECMag(&d)) / 60.0f;
     if (rate > 0.0f) {
-        int s = foot->m58C;
-        if (s == 2 && foot->mMotion.mTracks[0].m00 == 0x2F && 10.0f < GetFrame_unk(foot) &&
-            GetFrame_unk(foot) < 20.0f) {
+        int s = m58C;
+        if (s == 2 && mMotion.mTracks[0].m00 == 0x2F && 10.0f < GetFrame_unk(this) &&
+            GetFrame_unk(this) < 20.0f) {
 
             result += 0.5f * rate;
         }
-        if (s == 13 && foot->mMotion.mTracks[0].m08 >= 25.0f && foot->mMotion.mTracks[0].m08 <= 34.0f) {
+        if (s == 13 && mMotion.mTracks[0].m08 >= 25.0f && mMotion.mTracks[0].m08 <= 34.0f) {
             result += 0.5f * rate;
         }
     }
     return result;
 }
 
-extern "C" void fn_802E2468(Em303KrakenFoot* foot, int value) {
-    foot->m1504 = value;
+void Em303KrakenFoot::fn_802E2468(int value) {
+    m1504 = value;
 }
 
 int Em303KrakenFoot::vf0C() {
