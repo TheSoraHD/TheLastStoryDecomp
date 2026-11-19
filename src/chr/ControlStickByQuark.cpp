@@ -1115,7 +1115,6 @@ int ControlMatHoldDamage::vf0C() {
     return 0;
 }
 
-// NONMATCHING: 89.6% - copies of the direction vector and the order of the velocity products
 // inferred: thrown by the mat towards `target` (control id 0x71), landing after `frames` frames
 ControlThrown::ControlThrown(Chara_unk* chara, const atn::Vector3& target, int frames)
     : ControlBase(chara), mTarget(target), mFrames(frames), mCount(15), mDone(0) {
@@ -1127,16 +1126,20 @@ ControlThrown::ControlThrown(Chara_unk* chara, const atn::Vector3& target, int f
     if (mChara->mFlag31) {
         mChara->fn_801539E0();
     }
-    if (mChara->mFlag5) {
+    if (mChara->IsFlag5_unk() != 0) {
         mChara->mFlag5 = 0;
     }
+    float inv;
     float n = (float)frames;
-    mVel = (mTarget - mChara->mPos) * (1.0f / n);
+    inv = 1.0f / n;
+    CharaTask* c = mChara;
+    mVel = (mTarget - c->mPos) * inv;
     mVel.y -= 0.5f * (n * (0.5f * (-98.1f / (float)(lbl_8087F0A8->m030 *
                                                      lbl_8087F0A8->m030))));
-    atn::Vector3 dir = mTarget - mChara->mPos;
-    dir.y = 0.0f;
+    atn::Vector3 dir;
+    dir = mTarget - mChara->mPos;
     dir.Normalize_unk();
+    dir.y = 0.0f;
     mChara->mRot = dir.ToRotation_unk();
     Motion_unk* m = &mChara->mMotion;
     m->m34C = 1;
@@ -1154,21 +1157,29 @@ ControlThrown::ControlThrown(Chara_unk* chara, const atn::Vector3& target, int f
     }
 }
 
-// NONMATCHING: 92.3% - flight, then landing (the player can shake the remote to land on his feet)
+// inferred: as CharaTask::fn_80139E9C, inlined (name invented)
+static inline bool HasGimmick_unk(const CharaTask* c) {
+    return c->m1208 != 0;
+}
+
+// inferred: flight, then landing (the player can shake the remote to land on his feet)
 int ControlThrown::vf0C() {
     Motion_unk* m = &mChara->mMotion;
     mChara->mPos = mChara->mPos + mVel;
     int fps = lbl_8087F0A8->m030;
-    mVel.y += lbl_8087EFA8->m3A4 * (0.5f * (-98.1f / (float)(fps * fps)));
+    float scale = lbl_8087EFA8->m3A4;
+    mVel.y += scale * (0.5f * (-98.1f / (float)(fps * fps)));
     mFrames--;
     switch (mState) {
     case 0:
         if (mFrames < 0) {
-            if (mChara->m1208) {
+            if (HasGimmick_unk(mChara)) {
                 GimmickCommon* gimmick = (GimmickCommon*)mChara->m1208;
                 mChara->fn_801750FC();
-                GimmickMsg_unk msg(6);
+                GimmickMsg_unk msg;
+                msg.mType = 6;
                 msg.mVec = mTarget;
+                msg.m10 = 0; // inferred: stored again after the constructor in the original
                 msg.m04 = 1;
                 gimmick->vf40(&msg);
             }
@@ -1240,7 +1251,6 @@ ControlThrownAway::~ControlThrownAway() {
     }
 }
 
-// NONMATCHING: 97.1% - the original copies the facing vector to mRot through the stack
 int ControlThrownAway::vf0C() {
     if (mChara->mF1C) {
         atn::Matrix3x4 mtx = FollowMtx_unk(mChara)->GetRotation_unk();
@@ -1248,6 +1258,8 @@ int ControlThrownAway::vf0C() {
         dir = atn::Vector3(0.0f, 0.0f, 1.0f);
         PSMTXMultVec(mtx.m, &dir, &dir);
         dir.RotZ_unk();
+        dir.x = 0.0f; // inferred: only the yaw of the matrix is kept
+        dir.z = 0.0f;
         mChara->mRot = dir;
         mChara->mPos = FollowMtx_unk(mChara)->GetTrans_unk();
     }
@@ -1263,7 +1275,6 @@ atn::Vector3 ControlThrownAway::vf14() const {
     return pos;
 }
 
-// NONMATCHING: 96.2% - copies of the facing vector (as in ControlThrownAway::vf0C)
 // inferred: thrown and caught again on the matrix `mtx` (control id 0x73)
 ControlThrownAvoid::ControlThrownAvoid(Chara_unk* chara, int mtx, const atn::Vector3& dir)
     : ControlBase(chara), mMtx(mtx), mDir(dir) {
@@ -1275,6 +1286,8 @@ ControlThrownAvoid::ControlThrownAvoid(Chara_unk* chara, int mtx, const atn::Vec
         dir = atn::Vector3(0.0f, 0.0f, 1.0f);
         PSMTXMultVec(mtx.m, &dir, &dir);
         dir.RotZ_unk();
+        dir.x = 0.0f; // inferred: only the yaw of the matrix is kept
+        dir.z = 0.0f;
         mChara->mRot = dir;
         mChara->mPos = FollowMtx_unk(mChara)->GetTrans_unk();
     }
@@ -1285,7 +1298,7 @@ ControlThrownAvoid::ControlThrownAvoid(Chara_unk* chara, int mtx, const atn::Vec
     m->mTracks[0].m0C = 1.0f;
 }
 
-// NONMATCHING: 97.5% - follows the matrix for 8 frames, then flies along mDir
+// inferred: follows the matrix for 8 frames, then flies along mDir
 int ControlThrownAvoid::vf0C() {
     Motion_unk* m = &mChara->mMotion;
     if (Frame_unk(m) >= m->fn_80097D7C(0)) {
@@ -1294,15 +1307,16 @@ int ControlThrownAvoid::vf0C() {
     if (m->mTracks[0].m08 >= 8.0f) {
         mChara->mF1C = 0;
         float speed = mDir.Length_unk();
-        atn::Vector3 dir = mDir;
-        dir.fn_80139F60();
-        mChara->fn_801426A4(&dir, speed, 1.5f);
+        atn::Vector3 rot = mDir.ToRotation_unk();
+        mChara->fn_801426A4(&rot, speed, 1.5f);
     } else if (mChara->mF1C) {
         atn::Matrix3x4 mtx = FollowMtx_unk(mChara)->GetRotation_unk();
         atn::Vector3 dir;
         dir = atn::Vector3(0.0f, 0.0f, 1.0f);
         PSMTXMultVec(mtx.m, &dir, &dir);
         dir.RotZ_unk();
+        dir.x = 0.0f; // inferred: only the yaw of the matrix is kept
+        dir.z = 0.0f;
         mChara->mRot = dir;
         mChara->mPos = FollowMtx_unk(mChara)->GetTrans_unk();
     }
@@ -1345,10 +1359,10 @@ ControlCaughtSkelton::ControlCaughtSkelton(Chara_unk* chara, CharaTask* holder) 
     mChara->mPos = mNode->GetTrans_unk();
 }
 
-// NONMATCHING: 98.5% - r4/r5/r6 order of the node, the temporary and mChara
 int ControlCaughtSkelton::vf0C() {
-    atn::Matrix3x4* node = mNode;
-    mChara->mPos = node->GetTrans_unk();
+    atn::Vector3 pos = mNode->GetTrans_unk();
+    CharaTask* c = mChara;
+    c->mPos = pos;
     mChara->mRot.Assign_unk(mHolder->mRot);
     return 0;
 }
@@ -1378,19 +1392,24 @@ ControlThrownSkelton::ControlThrownSkelton(Chara_unk* chara, const atn::Vector3&
     mChara->mF1C = 0;
 }
 
-// NONMATCHING: 93.1% - flies along mDir until it hits a wall; the hit fires the bullet mHit
+// inferred: flies along mDir until it hits a wall; the hit fires the bullet mHit
 int ControlThrownSkelton::vf0C() {
+    ColliManager_unk* world = lbl_8087EE98;
     atn::ColliResult_unk result;
+    atn::ColliCapsule* colli = &mChara->mColli;
     atn::Vector3 from = mChara->mPos + mDir * 5.0f;
     atn::Vector3 to = mChara->mPos + mDir * 30.0f;
-    if (fn_8004ED34(lbl_8087EE98, &result, &from, &to, mChara->fn_80179D44(), &mChara->mColli, 0)) {
-        mChara->mPos = result.m04;
+    if (fn_8004ED34(world, &result, &from, &to, mChara->fn_80179D44(), colli, 0)) {
+        CharaTask* c = mChara;
+        c->mPos = result.m04;
         mDir.y = 0.0f;
         mChara->mRot = mDir.ToRotation_unk();
-        ShootHit_unk(lbl_8087F048, mChara, mHit, result.m04, &mChara->mRot);
+        BattleTask* mgr = lbl_8087F048;
+        mgr->fn_800FAB80(mChara, mHit, mgr->fn_800F8548(), &result.m04, &mChara->mRot, 0, 0x1E, -1, -1, 0.0f, 1.0f);
         return 1;
     }
-    mChara->mPos = mChara->mPos + mDir * 10.0f;
+    CharaTask* c = mChara;
+    c->mPos = c->mPos + mDir * 10.0f;
     return 0;
 }
 
