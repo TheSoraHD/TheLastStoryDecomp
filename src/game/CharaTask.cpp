@@ -11031,17 +11031,17 @@ int CharaTask::fn_801784BC(SkillEffect* bullet, int flag) {
 int CharaTask::fn_80178668(HitInfo_unk* hit, HitInfo_unk* parent, int time, CharaTask* attacker, int flag) {
     for (CharaHit_unk* it = m12D0.begin(); it != m12D0.end(); it++) {
         if (it->mHit == hit) {
-            CharaTask* other = (CharaTask*)it->m10;
+            CharaTask* other = it->m10;
             if (other == 0 || attacker == 0 || IsSameSideHit_unk(other, attacker)) {
                 it->m04 = (int)parent;
                 it->m08 = time;
-                it->m10 = (int)attacker;
+                it->m10 = attacker;
                 return 1;
             }
         }
     }
     if (!m12D0.full()) {
-        m12D0.PushBack_unk(CharaHit_unk(hit, (int)parent, time, fn_80179730(hit, flag), flag != 0, (int)attacker));
+        m12D0.PushBack_unk(CharaHit_unk(hit, (int)parent, time, fn_80179730(hit, flag), flag != 0, attacker));
         return 1;
     }
     return 0;
@@ -11053,7 +11053,7 @@ int CharaTask::fn_80178864(HitInfo_unk* hit, CharaTask* attacker) {
     HitInfo_unk* sub = hit->m6C > 0 ? fn_80219E6C(hit->m6C) : 0;
     CharaHit_unk* it = m12D0.begin();
     while (it != m12D0.end()) {
-        if ((it->mHit == hit || (sub != 0 && it->mHit == sub)) && (CharaTask*)it->m10 == attacker) {
+        if ((it->mHit == hit || (sub != 0 && it->mHit == sub)) && it->m10 == attacker) {
             RemoveHit_unk(it);
             result = 1;
         } else {
@@ -11160,13 +11160,13 @@ void CharaTask::fn_80178BFC() {
     }
     for (CharaHit_unk* it = m12D0.begin(); it != m12D0.end(); it++) {
         if (it->m0E == 0 && it->m04 == 0 && !((guard || m55C == 5) && (it->m0C & 2) == 2) &&
-            !((it->m0C & 0x100) == 0x100 && (it->m10 == 0 || (CharaTask*)it->m10 == this))) {
+            !((it->m0C & 0x100) == 0x100 && (it->m10 == 0 || it->m10 == this))) {
             mStatus.fn_8012E244(it->mHit);
             if (it->mHit->m01 != 1 && it->mHit->m01 != 4) {
                 effect |= it->mHit->m90.mFlags;
             }
         }
-        if ((it->m0C & 0x100) == 0x100 && (CharaTask*)it->m10 == this) {
+        if ((it->m0C & 0x100) == 0x100 && it->m10 == this) {
             flags |= 0x80;
             flags &= ~0x100;
         }
@@ -11255,10 +11255,10 @@ void CharaTask::fn_80178BFC() {
         bool friendly = false;
         for (CharaHit_unk* it = m12D0.begin(); it != m12D0.end(); it++) {
             if (fn_8021A960(it->mHit) && it->mHit->mA0 < 0 && it->m10 != 0 &&
-                !IsSameSideHit_unk((CharaTask*)it->m10, this)) {
+                !IsSameSideHit_unk(it->m10, this)) {
                 enemy = true;
             }
-            if (fn_8021A984(it->mHit) && it->m10 != 0 && IsSameSideHit_unk((CharaTask*)it->m10, this)) {
+            if (fn_8021A984(it->mHit) && it->m10 != 0 && IsSameSideHit_unk(it->m10, this)) {
                 friendly = true;
             }
         }

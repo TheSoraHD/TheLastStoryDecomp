@@ -237,7 +237,7 @@ public:
     }
     // inferred: start (model, group) and stop (character, group) of the battle effects; the stop
     // functions call fn_80239DAC with the effect group of the start
-    void fn_800FDE60(int effect, CharaTask* chara, const atn::Vector3& dir); // inferred: starts an attack effect
+    void fn_800FDE60(CharaTask* attacker, CharaTask* chara, const atn::Vector3& dir); // inferred: starts an attack effect
     int fn_800FDF14(BattleCalcParam_unk* param); // inferred: returns the result of the hit (fn_800FD658)
     // inferred: hit sphere of `chara` nearest to the position (-1: none or the hit does not reach it); game/Bullet
     int fn_800FC1D0(CharaTask*, CharaTask*, HitInfo_unk*, int, const atn::Vector3*, int, int);

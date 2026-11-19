@@ -710,7 +710,7 @@ void CharaStatus::fn_8012E540() {
         m04 += mParamB.m84 * mParamB.m8C / 30.0f;
         if (m04 < 1.0f) {
             FixedArray_unk<CharaHit_unk, 8>& hits = mChara->m12D0;
-            int effect = 0;
+            CharaTask* effect = 0;
             for (CharaHit_unk* it = hits.begin(); it != hits.end(); it++) {
                 if (fn_8021A960(it->mHit) && it->mHit->mA0 < 0.0f && (it->mHit->mAC & 0x20) == 0x20) {
                     effect = it->m10;

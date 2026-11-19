@@ -3119,9 +3119,9 @@ int BattleTask::fn_800FDB20(CharaTask* attacker, CharaTask* chara, int arg, HitI
     return 0;
 }
 
-void BattleTask::fn_800FDE60(int effect, CharaTask* chara, const atn::Vector3& dir) {
+void BattleTask::fn_800FDE60(CharaTask* attacker, CharaTask* chara, const atn::Vector3& dir) {
     fn_800E2A24(&m38A5C);
-    m38A5C.m00 = (CharaTask*)effect; // inferred: an attacker kept as an int (status entry m10)
+    m38A5C.m00 = attacker; // inferred: attacker of the status entry (CharaHit_unk::m10)
     m38A5C.m04 = chara;
     m38A5C.m08 = fn_80219E6C(10000);
     m38A5C.m44 = 3;
