@@ -18,6 +18,9 @@ public:
     virtual ~ChaseManager();         // 0x801825F0
     virtual int vf0C();              // 0x80182918
     virtual void vf10();             // 0x801829B4
+    void fn_80182788(ChaserGuard* guard, CharaTask* target); // inferred: catch
+    void fn_80182874();                                      // inferred: release
+    CharaTask* fn_80183860(const atn::Vector3* pos);         // inferred: chased character
     virtual void vf14() {}           // 0x80183584
     void fn_801826E0(); // inferred: stops the chase
     void fn_80182890(); // inferred: resets the chase
@@ -61,8 +64,5 @@ public:
 // inferred: ChaseManager::sInstance (kept under the label name: CharaTask and ChaserGuard use it)
 extern "C" ChaseManager* lbl_8087F098;
 // inferred: kept as C symbols (game/ChaserGuard.cpp calls them by these names)
-extern "C" void fn_80182788(ChaseManager* mgr, ChaserGuard* guard, CharaTask* target); // inferred: catch
-extern "C" void fn_80182874(ChaseManager* mgr); // inferred: release
-extern "C" CharaTask* fn_80183860(ChaseManager* mgr, const atn::Vector3* pos); // inferred: chased character
 
 #endif

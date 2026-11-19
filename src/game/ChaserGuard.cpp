@@ -73,7 +73,7 @@ inline atn::Vector3 Negate_unk(const atn::Vector3& v) {
 
 // inferred: direction from `pos` to the chased player (name invented)
 inline atn::Vector3 DirToPlayer_unk(const atn::Vector3& pos) {
-    return fn_80183860(lbl_8087F098, &pos)->mPos - pos;
+    return lbl_8087F098->fn_80183860(&pos)->mPos - pos;
 }
 
 // inferred: names of the states (debug display)
@@ -151,7 +151,7 @@ inline void ChaserGuard::SwingHead_unk(const GameConfig4DC_unk* param) {
 
 // inferred: the chased player is close enough to be caught (name invented)
 inline bool ChaserGuard::IsPlayerNear_unk() {
-    CharaTask* player = fn_80183860(lbl_8087F098, &mPos);
+    CharaTask* player = lbl_8087F098->fn_80183860(&mPos);
     if (player == 0) {
         return false;
     }
@@ -256,7 +256,7 @@ void ChaserGuard::fn_8017E650() {
     if (fn_8017FBEC()) {
         m14D4 = 0;
         m1504 = 1;
-        CharaTask* player = fn_80183860(lbl_8087F098, &mPos);
+        CharaTask* player = lbl_8087F098->fn_80183860(&mPos);
         if (player == 0 || (player->m55C == 6 && player->m560 == 0x66)) {
             fn_8017F4A0(3);
             const atn::Vector3& dir = (player != 0) ? (mPos - player->mPos).GetNormalize()
@@ -272,7 +272,7 @@ void ChaserGuard::fn_8017E650() {
             range *= range;
             atn::Vector3 d = player->mPos - mPos;
             if (PSVECSquareMag(&d) < range) {
-                fn_80182788(lbl_8087F098, this, player);
+                lbl_8087F098->fn_80182788(this, player);
                 fn_8017F4A0(3);
                 m14B4 = player;
                 return;
@@ -319,7 +319,7 @@ void ChaserGuard::fn_8017E9D8() {
                         mMotion.mTracks[0].m0C = 1.5f;
                         m580 = 0.0f;
                         m584 = 0.0f;
-                        if (fn_80183860(lbl_8087F098, &mPos) != 0) {
+                        if (lbl_8087F098->fn_80183860(&mPos) != 0) {
                             atn::Vector3 dir = DirToPlayer_unk(mPos);
                             dir.fn_80139F60();
                             mRot = dir;
@@ -342,13 +342,13 @@ void ChaserGuard::fn_8017E9D8() {
         } else {
             m14B4 = 0;
             if (lbl_8087F098->mCatcher == this) {
-                fn_80182874(lbl_8087F098);
+                lbl_8087F098->fn_80182874();
             }
             if (mMotion.mTracks[0].m00 == 0x88) {
                 fn_80161570(0x89, 0, 0, -1.0f, -1.0f);
                 mMotion.mTracks[0].m0C = 0.7f;
-            } else if (fn_80183860(lbl_8087F098, &mPos) != 0) {
-                atn::Vector3 d = mPos - fn_80183860(lbl_8087F098, &mPos)->mPos;
+            } else if (lbl_8087F098->fn_80183860(&mPos) != 0) {
+                atn::Vector3 d = mPos - lbl_8087F098->fn_80183860(&mPos)->mPos;
                 if (PSVECSquareMag(&d) > 0.01f) {
                     PSVECNormalize(&d, &d);
                     d *= 3.0f;
@@ -443,8 +443,8 @@ void ChaserGuard::fn_8017F4A0(int state) {
         mC58.m0C.fn_80128A30(&m14B8, &mPos, 8, 0.0f);
         mC58.m0C.fn_801255C8();
         mC58.mC0 = 0;
-        if (fn_80183860(lbl_8087F098, &mPos) != 0) {
-            fn_80183860(lbl_8087F098, &mPos)->mC58.mC0--;
+        if (lbl_8087F098->fn_80183860(&mPos) != 0) {
+            lbl_8087F098->fn_80183860(&mPos)->mC58.mC0--;
         }
         GameUI* player = lbl_8087F490;
         if (player != 0) {
@@ -505,7 +505,7 @@ void ChaserGuard::fn_8017F4A0(int state) {
                 mMotion.mTracks[0].m0C = 1.5f;
             }
         }
-        CharaTask* target = fn_80183860(lbl_8087F098, &mPos);
+        CharaTask* target = lbl_8087F098->fn_80183860(&mPos);
         if (mC58.mC0 != 0) {
             mC58.mC0 = 0;
             if (target != 0) {
@@ -520,7 +520,7 @@ void ChaserGuard::fn_8017F4A0(int state) {
     case 2: {
         m12C8 = 10;
         fn_800C31F4("SE_UI001_020", 0, -1, 1.0f);
-        CharaTask* target = fn_80183860(lbl_8087F098, &mPos);
+        CharaTask* target = lbl_8087F098->fn_80183860(&mPos);
         if (target != 0) {
             mLook.fn_80129978(&target->mMotion, "neck", lbl_807C7030, 0.3f);
         }
@@ -537,7 +537,7 @@ void ChaserGuard::fn_8017F4A0(int state) {
             m12C8 = 10;
         }
         mC58.mC0 = 1;
-        CharaTask* target = fn_80183860(lbl_8087F098, &mPos);
+        CharaTask* target = lbl_8087F098->fn_80183860(&mPos);
         if (target != 0) {
             target->mC58.mC0++;
             mLook.fn_80129978(&target->mMotion, "neck", lbl_807C7030, 0.3f);
@@ -560,7 +560,7 @@ void ChaserGuard::fn_8017F4A0(int state) {
 
 
 bool ChaserGuard::fn_8017FBEC() {
-    CharaTask* player = fn_80183860(lbl_8087F098, &mPos);
+    CharaTask* player = lbl_8087F098->fn_80183860(&mPos);
     if (player == 0) {
         return false;
     }
@@ -615,7 +615,7 @@ void ChaserGuard::fn_8017FED0() {
     } else {
         look = 0.0f;
     }
-    if (m14B0 - 4 <= 1u && IsPlayerNear_unk() && fn_80183860(lbl_8087F098, &mPos) != 0) {
+    if (m14B0 - 4 <= 1u && IsPlayerNear_unk() && lbl_8087F098->fn_80183860(&mPos) != 0) {
         const atn::Vector3& pos = mPos;
         atn::Vector3 to = DirToPlayer_unk(pos);
         rot = to.ToRotationZ_unk();

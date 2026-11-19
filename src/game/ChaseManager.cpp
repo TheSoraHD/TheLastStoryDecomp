@@ -98,7 +98,7 @@ ChaseManager::~ChaseManager() {
 }
 
 void ChaseManager::fn_801826E0() {
-    fn_80182874(this);
+    fn_80182874();
     mFrames = 0;
     for (unsigned int i = 0; i < mCharas.mSize; i++) {
         if (mCharas.mData[i] != (CharaTask*)lbl_8087F8A0->mHead) {
@@ -110,30 +110,30 @@ void ChaseManager::fn_801826E0() {
     }
 }
 
-extern "C" void fn_80182788(ChaseManager* mgr, ChaserGuard* guard, CharaTask* target) {
-    if (mgr->mCatcher == 0) {
-        mgr->mCatcher = guard;
-        mgr->m6C = 0;
-        mgr->mState = 2;
-        mgr->mCaught = target;
+void ChaseManager::fn_80182788(ChaserGuard* guard, CharaTask* target) {
+    if (mCatcher == 0) {
+        mCatcher = guard;
+        m6C = 0;
+        mState = 2;
+        mCaught = target;
         target->fn_801598B4(guard, lbl_8087F0A8->m524, lbl_8087F0A8->m528);
         lbl_8087F430->m5660 = 1;
-        for (unsigned int i = 0; i < mgr->mCharas.mSize; i++) {
-            if (mgr->mCharas.mData[i] != mgr->mCaught) {
-                mgr->mCharas.mData[i]->fn_80159E9C();
+        for (unsigned int i = 0; i < mCharas.mSize; i++) {
+            if (mCharas.mData[i] != mCaught) {
+                mCharas.mData[i]->fn_80159E9C();
             }
         }
     }
-    if (mgr->mGuards.size() < 32) {
-        mgr->mGuards.push_back(guard);
+    if (mGuards.size() < 32) {
+        mGuards.push_back(guard);
     }
 }
 
-extern "C" void fn_80182874(ChaseManager* mgr) {
-    mgr->mCatcher = 0;
-    mgr->mCaught = 0;
-    mgr->mState = 1;
-    mgr->mGuards.mSize = 0;
+void ChaseManager::fn_80182874() {
+    mCatcher = 0;
+    mCaught = 0;
+    mState = 1;
+    mGuards.mSize = 0;
 }
 
 void ChaseManager::fn_80182890() {
@@ -359,14 +359,14 @@ void ChaseManager::fn_80183774(int show) {
     }
 }
 
-extern "C" CharaTask* fn_80183860(ChaseManager* mgr, const atn::Vector3* pos) {
-    if (mgr->mCaught != 0) {
-        return mgr->mCaught;
+CharaTask* ChaseManager::fn_80183860(const atn::Vector3* pos) {
+    if (mCaught != 0) {
+        return mCaught;
     }
     float best = 1.0e10f;
     CharaTask* ret = 0;
-    for (unsigned int i = 0; i < mgr->mCharas.mSize; i++) {
-        CharaTask* chara = mgr->mCharas.mData[i];
+    for (unsigned int i = 0; i < mCharas.mSize; i++) {
+        CharaTask* chara = mCharas.mData[i];
         atn::Vector3 d(pos->x - chara->mPos.x, pos->y - chara->mPos.y, pos->z - chara->mPos.z);
         float dist = PSVECSquareMag(&d);
         if (dist < best) {
