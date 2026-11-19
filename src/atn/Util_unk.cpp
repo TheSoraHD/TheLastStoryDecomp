@@ -11,7 +11,7 @@ extern "C" char* itoa(int value, char* buf, int radix);
 
 // inferred: string to int (spaces skipped, optional '-'); 0 if it does not start with a number.
 // A template: each wrapper below is a `b` to its instance, emitted right after it (0x800DC130, 0x800DC1E0)
-// NONMATCHING: StrToInt_unk<wchar_t> - the digit test of the loop condition reads through a second pointer
+// NONMATCHING: 92.7% (StrToInt_unk<wchar_t>) - the digit test of the loop condition reads through a second pointer
 // register (the original indexes s with the byte offset in both reads)
 template <typename T>
 int StrToInt_unk(const T* s) {
