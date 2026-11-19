@@ -86,7 +86,7 @@ extern "C" int fn_8004ED34(void* colli, atn::ColliResult_unk* result, const atn:
 inline atn::Vector3 FrontDir_unk(const atn::Vector3& rot) {
     atn::Vector3 v(0.0f, 0.0f, 1.0f);
     atn::Matrix3x4 mtx;
-    mtx.fn_8013A13C(rot.y);
+    mtx.SetRotationY_unk(rot.y);
     PSMTXMultVec(mtx.m, &v, &v);
     return v;
 }

@@ -4023,7 +4023,7 @@ void GameTask::fn_80371790() {
                 from.y += 5.0f;
                 atn::Vector3 dir(0.0f, 0.0f, 1.0f);
                 atn::Matrix3x4 m;
-                m.fn_8013A13C(rot.y);
+                m.SetRotationY_unk(rot.y);
                 PSMTXMultVec(m.m, &dir, &dir);
                 atn::Vector3 to = from + dir * 20.0f;
                 if (fn_8004ED34(lbl_8087EE98, 0, &from, &to, 0x80000008, 0, 0) == 0) {
@@ -4415,8 +4415,8 @@ inline ColorMatrixParam_unk* RenderSetting_unk::GetColorMatrix_unk() {
     return &m324;
 }
 
-// NONMATCHING: 98.9% - the default constructor of the atn::Matrix3x4 of the ray loop is called out of line here
-// (the original emits nothing for it), and registers. Victory pose of the multiplayer battle (places the members
+// NONMATCHING: 99.4% - registers and stack slots (the matrix of the ray loop comes by value from
+// atn::Matrix3x4::fn_8013A13C, without constructor call). Victory pose of the multiplayer battle (places the members
 // around the leader and starts the finish camera); every inline is called out of line in the original (R3)
 void GameTask::fn_803729B4(CharaTask* chara) {
     if (chara == 0) {
@@ -4442,8 +4442,7 @@ void GameTask::fn_803729B4(CharaTask* chara) {
             atn::Vector3 from(base);
             from.y += 5.0f;
             atn::Vector3 dir(0.0f, 0.0f, 1.0f);
-            atn::Matrix3x4 m;
-            m.fn_8013A13C(rot.y);
+            atn::Matrix3x4 m = atn::Matrix3x4::fn_8013A13C(rot.y);
             dir.fn_80011410(m);
             atn::Vector3 to = from + dir * 20.0f;
             if (fn_8004ED34(fn_801404F8(), 0, &from, &to, 0x80000008, 0, 0) == 0) {

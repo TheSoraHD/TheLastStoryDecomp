@@ -266,7 +266,7 @@ void RandomMerchant::vf10() {
             m78.Assign_unk(mPositions[index].mRot);
             mDir.Set_unk(0.0f, 0.0f, 1.0f);
             atn::Matrix3x4 rot;
-            rot.fn_8013A13C(m78.y);
+            rot.SetRotationY_unk(m78.y);
             PSMTXMultVec(rot.m, &mDir, &mDir);
             MerchantEntry_unk* cur = &mEntries[mCur];
             RandomMerchantChara* chara = cur->mChara;

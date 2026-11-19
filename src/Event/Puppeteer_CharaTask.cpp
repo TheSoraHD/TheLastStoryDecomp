@@ -1129,14 +1129,14 @@ atn::Vector3 Actor::fn_800112E0() const {
         CharaTask* chara = ((Puppeteer<CharaTask>*)m1C)->m48;
         front.Set_unk(0.0f, 0.0f, 1.0f);
         atn::Matrix3x4 m;
-        m.fn_8013A13C(chara->mRot.y);
+        m.SetRotationY_unk(chara->mRot.y);
         front.fn_80011410(m);
         break;
     }
     case 2: {
         front.Set_unk(0.0f, 0.0f, 1.0f);
         atn::Matrix3x4 m;
-        m.fn_8013A13C(((GimmickCommon*)m1C)->m78.y);
+        m.SetRotationY_unk(((GimmickCommon*)m1C)->m78.y);
         front.fn_80011410(m);
         break;
     }

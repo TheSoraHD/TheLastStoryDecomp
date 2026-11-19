@@ -471,7 +471,7 @@ void Em403WarLion::vf40(HitInfo_unk* hit) {
 atn::Vector3 Em403WarLion::vf94() {
     atn::Vector3 v(0.0f, 0.0f, -7.0f);
     atn::Matrix3x4 m;
-    m.fn_8013A13C(mRot.y);
+    m.SetRotationY_unk(mRot.y);
     PSMTXMultVec(m.m, &v, &v);
     return v;
 }

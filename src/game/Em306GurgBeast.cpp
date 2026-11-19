@@ -705,9 +705,8 @@ void Em306GurgBeast::vf108() {
             float step = 0.009424779f;
             atn::Vector3 diff = d.ToRotation_unk() - m14D8.ToRotation_unk();
             diff.y = atn::WrapAngle_unk(diff.y);
-            Mtx m;
-            ((atn::Matrix3x4*)m)->fn_8013A13C(diff.y > 0.0f ? step : -step);
-            m14D8.fn_80011410(*(atn::Matrix3x4*)m);
+            atn::Matrix3x4 m = atn::Matrix3x4::fn_8013A13C(diff.y > 0.0f ? step : -step);
+            m14D8.fn_80011410(m);
             speed = 1.0f;
             rot = m14D8.ToRotation_unk();
             rate = 2.0f;

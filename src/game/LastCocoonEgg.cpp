@@ -1235,7 +1235,7 @@ void LastCocoonEgg::fn_80457E98() {
             atn::Vector3 dir;
             atn::Vector3 v(0.0f, 0.0f, 1.0f);
             atn::Matrix3x4 rot;
-            rot.fn_8013A13C(mRot.y);
+            rot.SetRotationY_unk(mRot.y);
             PSMTXMultVec(rot.m, &v, &v);
             dir = v * power;
             m1908->fn_8015AC48(-1);

@@ -1280,7 +1280,7 @@ inline float HitHeight_unk(const HitInfo_unk* data) { return data->m54; }
 // inferred: rotates `v` around y by `rad` (inlined in vf14, a matrix per call; name invented)
 inline void RotateY_unk(atn::Vector3& v, float rad) {
     atn::Matrix3x4 m;
-    m.fn_8013A13C(rad);
+    m.SetRotationY_unk(rad);
     PSMTXMultVec(m.m, &v, &v);
 }
 
@@ -3238,7 +3238,7 @@ int BattleTask::fn_800FDF14(BattleCalcParam_unk* p) {
     if (p->m44 == 0) {
         atn::Vector3 front(0.0f, 0.0f, target->mFlag31 ? 1.0f : -1.0f);
         atn::Matrix3x4 m;
-        m.fn_8013A13C(target->mRot.y);
+        m.SetRotationY_unk(target->mRot.y);
         PSMTXMultVec(m.m, &front, &front);
         float dot = PSVECDotProduct(&front, &p->m28);
         if (dot < (float)cos(2.0943952f)) {
@@ -6199,7 +6199,7 @@ atn::Vector3 BattleTask::fn_80109950(CharaTask* chara) {
     if (hit) {
         atn::Vector3 v(0.0f, 0.0f, chara->m64->m30);
         atn::Matrix3x4 m;
-        m.fn_8013A13C(atn::WrapAngle_unk(rot + angle - offset));
+        m.SetRotationY_unk(atn::WrapAngle_unk(rot + angle - offset));
         PSMTXMultVec(m.m, &v, &v);
         atn::Vector3 pos(center->mPos.x + v.x, chara->mPos.y, center->mPos.z + v.z);
         return pos;
@@ -6231,7 +6231,7 @@ atn::Vector3 BattleTask::fn_80109950(CharaTask* chara) {
     if (hit) {
         atn::Vector3 v(0.0f, 0.0f, chara->m64->m30);
         atn::Matrix3x4 m;
-        m.fn_8013A13C(atn::WrapAngle_unk(offset + (rot + angle)));
+        m.SetRotationY_unk(atn::WrapAngle_unk(offset + (rot + angle)));
         PSMTXMultVec(m.m, &v, &v);
         atn::Vector3 pos(center->mPos.x + v.x, chara->mPos.y, center->mPos.z + v.z);
         return pos;
@@ -7194,7 +7194,7 @@ void BattleTask::fn_8010D320(atn::Vector3 pos) {
     }
     to.Normalize_unk();
     atn::Vector3 rot = dir.ToRotation_unk();
-    atn::Matrix3x4 m = atn::Matrix3x4::RotY_unk(rot.y);
+    atn::Matrix3x4 m = atn::Matrix3x4::fn_8013A13C(rot.y);
     atn::Vector3 diff = to - dir;
     to = diff;
     atn::Matrix3x4 inv(m);

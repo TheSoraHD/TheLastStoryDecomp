@@ -1234,9 +1234,8 @@ void GameCamera::fn_8037F9AC(const CharaTask* chara) {
 // its yaw at the speed m6FC.m2C (immediately with m8EC); lower pitch near the centre cell of the town; the eye is
 // moved in front of the walls (m880 frames back out), and the target goes m6FC.m0C beside the character
 // (over the inlining budget: the accessors are weak copies)
-// NONMATCHING: 64.6% - the original gets the two y rotations from fn_8013A13C as a function returning the matrix
-// by value (here atn::Matrix3x4::RotY_unk; `Matrix3x4 m; m.fn_8013A13C()` adds a call to its empty constructor)
-// and float registers of the pitch blend
+// NONMATCHING: 99.9% - float registers of the pitch blend (the two y rotations come by value from
+// atn::Matrix3x4::fn_8013A13C, as in the original)
 void GameCamera::fn_80382A1C(const CharaTask* chara) {
     CharaTask* c = const_cast<CharaTask*>(chara);
     atn::Vector3 pos(*mCamera.GetPosition_unk());
@@ -1271,9 +1270,9 @@ void GameCamera::fn_80382A1C(const CharaTask* chara) {
     eye = offset + target;
     float turn = -atn::WrapAngle_unk(r.y - atn::WrapAngle_unk(charaRot.y));
     atn::Vector3 e = eye - target;
-    e.fn_80011410(atn::Matrix3x4::RotY_unk(-r.y));
+    e.fn_80011410(atn::Matrix3x4::fn_8013A13C(-r.y));
     r.y = turn * m6FC.m2C + r.y;
-    e.fn_80011410(atn::Matrix3x4::RotY_unk(r.y));
+    e.fn_80011410(atn::Matrix3x4::fn_8013A13C(r.y));
     eye = e + target;
     offset = target - eye;
     offset.Length_unk();
@@ -2036,8 +2035,8 @@ void GameCamera::fn_80387548(const CharaTask* chara) {
 // inferred: tactical view camera: blends the parameters m684 to m4C0 with the timer m4B4, keeps the pitch
 // -param.m08 and the yaw m8A0, looks at m8A4 (copied to m868) from a distance blended to param.m00, keeps the
 // target in front of the yaw and, beyond 0.1, blends distance and pitch with the current camera by 0.4
-// NONMATCHING: 99.3% - the original calls fn_8013A13C on the yaw matrix without its (empty, here out of line)
-// constructor, as fn_80382A1C; and the fmuls/fadds registers of the distance blend
+// NONMATCHING: 99.9% - the fmuls/fadds registers of the distance blend (the yaw matrix comes by value from
+// atn::Matrix3x4::fn_8013A13C, without constructor call)
 void GameCamera::fn_80387910(const CharaTask* chara) {
     GameCameraParam_unk param(m684);
     if (m4B4.fn_803829C0()) {
@@ -2078,8 +2077,7 @@ void GameCamera::fn_80387910(const CharaTask* chara) {
     fovy = param.m24 * (param.m04 - fovy) + fovy;
     fn_8038E9B0(chara, &param, &pos, &target, &target);
     atn::Vector3 front(0.0f, 0.0f, 1.0f);
-    atn::Matrix3x4 yaw;
-    yaw.fn_8013A13C(-m8A0);
+    atn::Matrix3x4 yaw = atn::Matrix3x4::fn_8013A13C(-m8A0);
     front.fn_80011410(yaw);
     atn::Vector3 toTarget = target - pos;
     if (fn_801C3910(toTarget) < 0.01f) {
@@ -2256,7 +2254,7 @@ void GameCamera::fn_803884B8(const CharaTask* chara) {
     atn::Vector3 offset(0.0f, 0.0f, 0.0f);
     atn::Vector3 front(0.0f, 0.0f, 1.0f);
     atn::Matrix3x4 m;
-    m.fn_8013A13C(chara->mRot.y);
+    m.SetRotationY_unk(chara->mRot.y);
     PSMTXMultVec(m.m, &front, &front);
     float side = m7B0.m0C;
     float height = m7B0.m10;
@@ -2361,13 +2359,13 @@ void GameCamera::fn_80389060(const CharaTask* chara) {
     atn::Vector3 target = chara->mPos;
     atn::Vector3 front(0.0f, 0.0f, 10.0f);
     atn::Matrix3x4 m;
-    m.fn_8013A13C(chara->mRot.y);
+    m.SetRotationY_unk(chara->mRot.y);
     PSMTXMultVec(m.m, &front, &front);
     target += front;
     atn::Vector3 pos = chara->mPos;
     atn::Vector3 offset(0.0f, 35.0f, -20.0f);
     atn::Matrix3x4 m2;
-    m2.fn_8013A13C(chara->mRot.y);
+    m2.SetRotationY_unk(chara->mRot.y);
     PSMTXMultVec(m2.m, &offset, &offset);
     pos += offset;
     mCamera.SetPosition(pos);
@@ -2566,7 +2564,7 @@ void GameCamera::fn_8038A200(const CharaTask* chara) {
     atn::Vector3 eye = chara->mPos;
     atn::Vector3 offset(0.0f, m558.m10, 0.0f);
     atn::Matrix3x4 m;
-    m.fn_8013A13C(chara->mRot.y);
+    m.SetRotationY_unk(chara->mRot.y);
     PSMTXMultVec(m.m, &offset, &offset);
     eye += offset;
     offset.Set_unk(0.0f, m558.m10, m558.m00);
@@ -2967,7 +2965,7 @@ void GameCamera::fn_8038C5B0(const CharaTask* chara) {
     atn::Vector3 up = mCamera.mUp;
     atn::Vector3 front(0.0f, 0.0f, 1.0f);
     atn::Matrix3x4 m;
-    m.fn_8013A13C(chara->mRot.y);
+    m.SetRotationY_unk(chara->mRot.y);
     PSMTXMultVec(m.m, &front, &front);
     front = Negate_unk(front);
     pos = chara->mPos;
@@ -3102,14 +3100,14 @@ void GameCamera::fn_8038D1C0(const CharaTask* chara) {
     atn::Vector3 front(0.0f, 0.0f, 10.0f);
     atn::Matrix3x4 m;
     float rotY = chara->mRot.y;
-    m.fn_8013A13C(rotY);
+    m.SetRotationY_unk(rotY);
     PSMTXMultVec(m.m, &front, &front);
     target += front;
     target = LerpV_unk(m818, target, ((float)m808 / 30.0f));
     atn::Vector3 pos = chara->mPos;
     atn::Vector3 offset(0.0f, 35.0f, -20.0f);
     atn::Matrix3x4 m2;
-    m2.fn_8013A13C(chara->mRot.y);
+    m2.SetRotationY_unk(chara->mRot.y);
     PSMTXMultVec(m2.m, &offset, &offset);
     pos += offset;
     pos = LerpV_unk(m80C, pos, ((float)m808 / 30.0f));

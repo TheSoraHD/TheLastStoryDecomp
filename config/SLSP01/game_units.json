@@ -878,7 +878,7 @@
    "chr::ControlGrapple",
    "chr::ControlJumpAt"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "chr/ControlAttractHateCharge.cpp",

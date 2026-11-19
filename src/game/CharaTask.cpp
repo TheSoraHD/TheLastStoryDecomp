@@ -1275,7 +1275,7 @@ extern "C" int fn_8003F440(CharaTask* chara, SkillRef_unk* data);
 
 // inferred: moves the character for its current mode (mC58.mMode); called by fn_80139560 with the
 // speed, direction and rate passed to vf34.
-// NONMATCHING: 99.6% - the Matrix3x4 of mode 10 calls its empty constructor (and gets f30 instead of f31);
+// NONMATCHING: 99.75% - f30 instead of f31 in mode 10 (its matrix comes by value from Matrix3x4::fn_8013A13C);
 // the 0.0f argument of fn_80097C08 is loaded later. Not inline: the original is a global function with
 // its literals in the file pool, and fn_80139560 still matches.
 int CharaTask::fn_8013A4E8(float* a, atn::Vector3* rot, float* b) {
@@ -1632,9 +1632,8 @@ int CharaTask::fn_8013A4E8(float* a, atn::Vector3* rot, float* b) {
             if (!(fn_80011220(dir.LengthSq_unk()) < 1.1920929e-7f)) {
                 dir.Normalize_unk();
             }
-            atn::Matrix3x4 m;
             float sign = 2.0f * (float)(rand() % 2) - 1.0f;
-            m.fn_8013A13C(atn::DegToRad_unk(45.0f) * sign);
+            atn::Matrix3x4 m = atn::Matrix3x4::fn_8013A13C(atn::DegToRad_unk(45.0f) * sign);
             dir.fn_80011410(m);
             fn_80155790(dir);
             mC58.mStep = 1;
@@ -2720,7 +2719,7 @@ bool CharaTask::fn_80140518() {
 atn::Vector3 CharaTask::fn_8014052C() {
     atn::Vector3 dir(0.0f, 0.0f, 1.0f);
     atn::Matrix3x4 m;
-    m.fn_8013A13C(mRot.y);
+    m.SetRotationY_unk(mRot.y);
     PSMTXMultVec(m.m, &dir, &dir);
     return dir;
 }
@@ -4503,7 +4502,7 @@ void CharaTask::vf20() {
         case 3: {
             atn::Vector3 offset(mFlag29 ? 2.0f : -3.0f, 0.0f, -1.0f);
             atn::Matrix3x4 m;
-            m.fn_8013A13C(mRot.y);
+            m.SetRotationY_unk(mRot.y);
             PSMTXMultVec(m.m, &offset, &offset);
             a += offset;
             break;
@@ -4651,9 +4650,8 @@ void CharaTask::fn_80148CC4(atn::Matrix3x4* mtx, const atn::NodeChunk& chunk,
         if (m648 == 0) {
             atn::Vector3 pos = mtx->GetTrans_unk();
             mtx->fn_8010F668();
-            Mtx rot1; // inferred: a plain Mtx viewed as a matrix (no constructor call)
-            ((atn::Matrix3x4*)rot1)->fn_8013A13C(m580 - 0.7f * m584);
-            mtx->fn_801495E8(*(atn::Matrix3x4*)rot1);
+            atn::Matrix3x4 rot1 = atn::Matrix3x4::fn_8013A13C(m580 - 0.7f * m584);
+            mtx->fn_801495E8(rot1);
             mtx->fn_801479E4(pos);
         } else if (m648 != 0 && m648->fn_8013C43C() == 1) {
             if ((mFlag31 && mC48 != 0) || fn_801479D8()) {
@@ -4681,17 +4679,15 @@ void CharaTask::fn_80148CC4(atn::Matrix3x4* mtx, const atn::NodeChunk& chunk,
                 }
                 atn::Vector3 pos = mtx->GetTrans_unk();
                 mtx->fn_8010F668();
-                Mtx rot2; // inferred: a plain Mtx viewed as a matrix (no constructor call)
-                ((atn::Matrix3x4*)rot2)->fn_8013A13C(angle);
-                mtx->fn_801495E8(*(atn::Matrix3x4*)rot2);
+                atn::Matrix3x4 rot2 = atn::Matrix3x4::fn_8013A13C(angle);
+                mtx->fn_801495E8(rot2);
                 mtx->fn_801479E4(pos);
             }
         } else if (m648 == 0 && !mFlag6) {
             atn::Vector3 pos = mtx->GetTrans_unk();
             mtx->fn_8010F668();
-            Mtx rot3; // inferred: a plain Mtx viewed as a matrix (no constructor call)
-            ((atn::Matrix3x4*)rot3)->fn_8013A13C(0.9f * m580 + m584);
-            mtx->fn_801495E8(*(atn::Matrix3x4*)rot3);
+            atn::Matrix3x4 rot3 = atn::Matrix3x4::fn_8013A13C(0.9f * m580 + m584);
+            mtx->fn_801495E8(rot3);
             mtx->fn_801479E4(pos);
         }
     } else if (strcmp(name, "hips") == 0) {
@@ -4707,9 +4703,8 @@ void CharaTask::fn_80148CC4(atn::Matrix3x4* mtx, const atn::NodeChunk& chunk,
                     }
                     atn::Vector3 pos = mtx->GetTrans_unk();
                     mtx->fn_8010F668();
-                    Mtx rot4; // inferred: a plain Mtx viewed as a matrix (no constructor call)
-                    ((atn::Matrix3x4*)rot4)->fn_8013A13C(angle);
-                    mtx->fn_801495E8(*(atn::Matrix3x4*)rot4);
+                    atn::Matrix3x4 rot4 = atn::Matrix3x4::fn_8013A13C(angle);
+                    mtx->fn_801495E8(rot4);
                     mtx->fn_801479E4(pos);
                 }
             }

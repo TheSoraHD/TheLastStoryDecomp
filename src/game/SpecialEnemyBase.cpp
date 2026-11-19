@@ -267,7 +267,7 @@ int SpecialEnemyBase::fn_805A45F8(float radius, float angle, float rotOffset) {
     atn::Vector3 front(0.0f, 0.0f, 1.0f);
     Mtx m2;
     atn::Matrix3x4 m;
-    m.fn_8013A13C(mRot.y);
+    m.SetRotationY_unk(mRot.y);
     PSMTXMultVec(m.m, &front, &front);
     PSMTXRotRad(m2, 'y', rotOffset);
     PSMTXMultVec(m2, &front, &front);

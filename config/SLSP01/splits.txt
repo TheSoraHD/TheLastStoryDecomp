@@ -912,14 +912,14 @@ chr/ControlDropDown.cpp:
 chr/ControlGmkCoffinOpening.cpp:
 	.text       start:0x801B409C end:0x801B529C
 	.rodata     start:0x8073AD70 end:0x8073AEE0
-	.data       start:0x80780910 end:0x80780B80
+	.data       start:0x80780910 end:0x80780BA0
 	.sdata      start:0x8087DA08 end:0x8087DA10
 	.sdata2     start:0x80882480 end:0x808824C0
 
 chr/ControlJumpAt.cpp:
 	.text       start:0x801B529C end:0x801B73F0
 	.rodata     start:0x8073AEE0 end:0x8073B190
-	.data       start:0x80780B80 end:0x80780ED0
+	.data       start:0x80780BA0 end:0x80780ED0
 	.sdata2     start:0x808824C0 end:0x808824F0
 
 chr/ControlAttractHateCharge.cpp:

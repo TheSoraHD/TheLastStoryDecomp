@@ -84,9 +84,8 @@ void ControlMoveCursor::fn_801C346C(const CursorTarget_unk* target, float maxDis
         }
         float z = speed * m20;
         atn::Vector3 move(0.0f, 0.0f, z);
-        Mtx mtx;
-        ((atn::Matrix3x4*)mtx)->fn_8013A13C(rot.y);
-        move.fn_80011410(*(atn::Matrix3x4*)mtx);
+        atn::Matrix3x4 mtx = atn::Matrix3x4::fn_8013A13C(rot.y);
+        move.fn_80011410(mtx);
         atn::Vector3 next = m08 + move;
         next -= m14;
         if (next.Length_unk() > maxDist) {
@@ -130,9 +129,8 @@ void ControlMoveCursor::fn_801C346C(const CursorTarget_unk* target, float maxDis
                     rest = diff + atn::Abs_unk(0.5f * turn);
                 }
                 move.Set_unk(0.0f, 0.0f, dist * Cos_unk(rest));
-                Mtx mtx2;
-                ((atn::Matrix3x4*)mtx2)->fn_8013A13C(b);
-                move.fn_80011410(*(atn::Matrix3x4*)mtx2);
+                atn::Matrix3x4 mtx2 = atn::Matrix3x4::fn_8013A13C(b);
+                move.fn_80011410(mtx2);
                 m08 = m14 + move;
             }
         }
