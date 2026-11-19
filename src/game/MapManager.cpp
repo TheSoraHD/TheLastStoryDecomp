@@ -17,8 +17,7 @@ extern "C" int fn_800709F4(void* bound, const atn::Sphere* sphere); // inferred:
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 extern "C" int lbl_8087F610; // inferred: debug flag
 // inferred: field data (lbl_8087F430) and its current map part
-struct Field_unk;
-extern "C" Field_unk* lbl_8087F430;
+extern "C" GameTask* lbl_8087F430;
 
 // inferred: weak copy at 0x8049103C (takes the function by value, so it is never inlined)
 inline void atn::RenderManager::SetMapHit_unk(MapHitFunc_unk func, void* arg) {
@@ -175,7 +174,7 @@ MapArea* MapManager::FindArea(atn::Sphere sphere) {
             }
         }
         if (lbl_8087F430 != 0) {
-            MapTask* map = ((GameTask*)lbl_8087F430)->GetCurrentMap();
+            MapTask* map = lbl_8087F430->GetCurrentMap();
             if (map != 0 && AreaIndex_unk(map) != 0) {
                 MapPartsArea* area = map->GetArea_unk();
                 if (area != 0 && area->mAreas.size() != 0 && map->mF8 == 0) {

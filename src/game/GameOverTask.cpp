@@ -70,12 +70,7 @@ extern "C" int lbl_8087F434;
 #include "atn/RenderManager.h"
 extern "C" MP::SaveData_unk* lbl_8087F460;
 extern "C" int fn_803BE854(MP::SaveData_unk* data);
-// inferred: field (lbl_8087F430); only the members used here
-struct GameOverField_unk {
-    unsigned char m0000[0x20];
-    atn::Task* m20;
-};
-extern "C" GameOverField_unk* lbl_8087F430;
+extern "C" GameTask* lbl_8087F430;
 // inferred: options (lbl_8087F0A8)
 struct GameOverOptions_unk {
     unsigned char m000[0x194];
@@ -252,16 +247,16 @@ int GameOverTask::vf0C() {
 }
 
 // inferred: the event flag is set (name invented)
-inline bool IsFlagSet_unk(GameOverField_unk* field, int id) {
+inline bool IsFlagSet_unk(GameTask* field, int id) {
     return ((GameTask*)field)->fn_80370174(id) == 1;
 }
 
 void GameOverTask::fn_80377298() {
     const int* opts;
     mChoices.mSize = 0;
-    GameOverField_unk* field = lbl_8087F430;
+    GameTask* field = lbl_8087F430;
     if (field != 0 && lbl_8087DCCC != 0) {
-        if (field != 0 && ((GameTask*)lbl_8087F430)->fn_803754F0() != 0) {
+        if (field != 0 && lbl_8087F430->fn_803754F0() != 0) {
             mMode = 5;
             mChoices.push_back((opts = sOptArena)[0]);
             mChoices.push_back(opts[1]);
@@ -274,7 +269,7 @@ void GameOverTask::fn_80377298() {
             if (IsFlagSet_unk(lbl_8087F430, 0xD4)) {
                 mSelect = 3;
             }
-        } else if (((GameTask*)lbl_8087F430)->fn_80370174(0x122) == 0) {
+        } else if (lbl_8087F430->fn_80370174(0x122) == 0) {
             mMode = 0;
             mChoices.push_back((opts = sOpt)[0]);
             mChoices.push_back(opts[1]);
@@ -323,7 +318,7 @@ void GameOverTask::vf10() {
         case 0:
         case 1:
             if (lbl_8087F430 != 0) {
-                ((GameTask*)lbl_8087F430)->fn_80370F8C(0, lbl_8087F460, 0);
+                lbl_8087F430->fn_80370F8C(0, lbl_8087F460, 0);
             }
             break;
         case 2:
@@ -332,13 +327,13 @@ void GameOverTask::vf10() {
             break;
         case 3:
             if (lbl_8087F430 != 0) {
-                ((GameTask*)lbl_8087F430)->fn_80370F8C(1, lbl_8087F460, 0);
+                lbl_8087F430->fn_80370F8C(1, lbl_8087F460, 0);
             }
             break;
         case 4:
             if (lbl_8087F430 != 0) {
-                ((GameTask*)lbl_8087F430)->fn_80370320(0x1B, 1, 0);
-                ((GameTask*)lbl_8087F430)->fn_80370F8C(0, 0, 1);
+                lbl_8087F430->fn_80370320(0x1B, 1, 0);
+                lbl_8087F430->fn_80370F8C(0, 0, 1);
             }
             break;
         }
@@ -525,7 +520,7 @@ void GameOverTask::vf10() {
         fn_804A5B9C(MenuCommonTask::sInstance, (int)mMenu, name);
     }
     if (fade) {
-        mFade = atn::FadeColor::Create(lbl_8087F430->m20, 30, 0, 0xFF000000);
+        mFade = atn::FadeColor::Create((atn::Task*)lbl_8087F430->m20, 30, 0, 0xFF000000);
         mFade->mWait = 2;
         mFade->mActive = 1;
         mFade->mDeleteAtEnd = 1;

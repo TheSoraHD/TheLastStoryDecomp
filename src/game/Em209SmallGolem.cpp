@@ -47,8 +47,7 @@ extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* m
                             int arg8, int arg9, float scale);
 
 // inferred: field (lbl_8087F430) and its event counters (as in gmk/Coffin.cpp)
-struct Field_unk;
-extern "C" Field_unk* lbl_8087F430;
+extern "C" GameTask* lbl_8087F430;
 // inferred: player manager (lbl_8087F8A0; first character at 0x48, as in game/CharaTask.cpp)
 struct PlayerManager_unk {
     unsigned char m00[0x48];
@@ -285,11 +284,11 @@ inline void Em209SmallGolem::StartRevive_unk(CharaTask* by) {
 // loads of the skill call; 12 variants (helpers, temporaries, named colors, reversed arguments)
 void Em209SmallGolem::vf10() {
     m14B8 = mC58.mC4;
-    if (mStatus.IsState_unk(0x20) && m1548 != 0 && m58C == 2 && ((GameTask*)lbl_8087F430)->fn_80370A78(0xC9) == 1) {
+    if (mStatus.IsState_unk(0x20) && m1548 != 0 && m58C == 2 && lbl_8087F430->fn_80370A78(0xC9) == 1) {
         CharaTask* player = lbl_8087F8A0->mHead;
         atn::Vector3 d = mPos - player->mPos;
         float dist = PSVECMag(&d);
-        if (m1549 != 0 && ((GameTask*)lbl_8087F430)->fn_80370A78(0xC8) == 1) {
+        if (m1549 != 0 && lbl_8087F430->fn_80370A78(0xC8) == 1) {
             StartRevive_unk(0);
         } else if (dist < 50.0f && player->fn_8016DDB0(0) && player->m55C != 6) {
             GameUI* ui = lbl_8087F490;

@@ -200,16 +200,13 @@ void TutorialTask::fn_805BA934() {
     }
 }
 
-// inferred: helpers of the field and of the UI (names keep the addresses)
-// inferred: field (lbl_8087F430); name invented
-struct TutorialField_unk {
-    void SetFadeMode_unk(int mode) { m563C = mode; } // inferred: weak copy 0x805BB594
-    unsigned char m00[0x563C];
-    int m563C;
-};
-extern "C" TutorialField_unk* lbl_8087F430;
+// inferred: weak setter 0x805BB594 of the fade mode of the field (emitted here)
+inline void GameTask::SetFadeMode_unk(int mode) {
+    m563C = mode;
+}
+extern "C" GameTask* lbl_8087F430;
 // inferred: accessor of the field (weak copy 0x80121F00 of another file)
-extern "C" inline TutorialField_unk* fn_80121F00() {
+extern "C" inline GameTask* fn_80121F00() {
     return lbl_8087F430;
 }
 extern "C" RenderSetting_unk* fn_802F0990(); // inferred: returns lbl_8087EFA8 (render settings)
@@ -446,7 +443,7 @@ void TutorialTask::vf10() {
         if (m5B8 != 0) {
             m5B8->vf0C(-1, 0xFFFFFF, 0, 0, 15);
         } else {
-            ((GameTask*)fn_80121F00())->fn_8037529C(-1, 0xFFFFFF, 0, 0, 15);
+            fn_80121F00()->fn_8037529C(-1, 0xFFFFFF, 0, 0, 15);
         }
         fn_805BBD7C();
         return;
@@ -595,7 +592,7 @@ extern "C" void* lbl_8087EE98; // inferred: collision of the map
 // allocated in another order
 __declspec(noinline) void TutorialTask::fn_805BC1C0() {
     if (lbl_8087F430 != 0 && mChara != 0) {
-        GameScene* scene = ((GameTask*)lbl_8087F430)->m10D8;
+        GameScene* scene = lbl_8087F430->m10D8;
         int point = scene->fn_803C1560(&mPos, mChara->fn_80179D44(), 0, 0, 1, -1.0f);
         TutorialPage_unk& page = mPages[mPage];
         atn::Vector3 eye = scene->m98.mData[point - 1].mPos;

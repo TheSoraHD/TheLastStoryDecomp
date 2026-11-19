@@ -22,8 +22,8 @@
 // First file of CosEditProtector (game/CosEditPalette_unk.cpp has the palette and part pages).
 extern "C" int sprintf(char* s, const char* format, ...);
 extern "C" unsigned int fn_800DC6B4(const char* s); // inferred: string hash
-struct Field_unk;
-extern "C" Field_unk* lbl_8087F430; // inferred: field
+struct GameTask;
+extern "C" GameTask* lbl_8087F430; // inferred: field
 extern "C" int fn_80117214(int index); // inferred: palette slot of a colour index
 extern "C" int fn_8020BE40(int id);    // inferred: cell of a palette colour
 extern "C" int fn_8020BF20(int mark);  // inferred: cell of a colour mark
@@ -85,11 +85,6 @@ struct CosEditD2A_unk : public atn::Task {
     unsigned char m48[0x100 - 0x48];
     float mFrame; // 0x100
     float mSpeed; // 0x104
-};
-// inferred: field (lbl_8087F430): chapter at 0x10D0
-struct Field_unk {
-    unsigned char m0000[0x10D0];
-    int mChapter; // 0x10D0
 };
 // inferred: functions of NewCampPartsBase (0x8050F93C-0x80512024) still called by their automatic names
 extern "C" void fn_805113E8(atn::D3Anime* anime, int a, int b, float c, float d);
@@ -458,13 +453,13 @@ void CosEditProtector::vf24() {
     for (int i = 0; i < 7; i++) {
         switch (i) {
         case 1:
-            if (lbl_8087F430->mChapter <= 109000 && ((GameTask*)lbl_8087F430)->fn_80370174(0x764) < 1) {
+            if (lbl_8087F430->m10D0 <= 109000 && lbl_8087F430->fn_80370174(0x764) < 1) {
                 continue;
             }
             break;
         case 5:
         case 6:
-            if (lbl_8087F430->mChapter < 103000) {
+            if (lbl_8087F430->m10D0 < 103000) {
                 continue;
             }
             break;
@@ -1427,8 +1422,8 @@ void CosEditProtector::vf34(int state) {
         fn_801E6B10();
         break;
     case 4:
-        if (!((GameTask*)lbl_8087F430)->fn_80370174(0xE8)) {
-            ((GameTask*)lbl_8087F430)->fn_80370320(0xE8, 1, 0);
+        if (!lbl_8087F430->fn_80370174(0xE8)) {
+            lbl_8087F430->fn_80370320(0xE8, 1, 0);
         }
         fn_801CE5B0(4, (prev == 0 || prev == 1) ? 0 : 1);
         mFC = 0;
@@ -1463,7 +1458,7 @@ void CosEditProtector::vf34(int state) {
         break;
     case 10:
         if (lbl_8087F430 != 0) {
-            ((GameTask*)lbl_8087F430)->fn_803750E4(0xE7);
+            lbl_8087F430->fn_803750E4(0xE7);
         }
         fn_801CE5B0(6, 1);
         mFC = 0;
@@ -1607,8 +1602,8 @@ void CosEditProtector::vf74(int a, int b) {
 }
 
 int CosEditProtector::fn_801D5420(int a, int b) {
-    if (lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->fn_80370174(0x395) && a == 0 && b == 0 &&
-        ((GameTask*)lbl_8087F430)->fn_80370174(0x396)) {
+    if (lbl_8087F430 != 0 && lbl_8087F430->fn_80370174(0x395) && a == 0 && b == 0 &&
+        lbl_8087F430->fn_80370174(0x396)) {
         return 0;
     }
     return 1;

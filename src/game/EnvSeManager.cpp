@@ -54,8 +54,7 @@ extern "C" bool fn_80215018(LoadingEnvSe_unk* entry, char* buf);
 extern "C" bool fn_80215084(LoadingEnvSe_unk* entry, char* buf);
 
 // inferred: field and its event flags (lbl_8087F430)
-struct EnvSeField_unk;
-extern "C" EnvSeField_unk* lbl_8087F430;
+extern "C" GameTask* lbl_8087F430;
 
 // inferred: game settings (fn_800F52F8 returns lbl_8087F0A8; weak copy of another file)
 extern "C" GameConfig_unk* lbl_8087F0A8;
@@ -222,9 +221,9 @@ void EnvSeManager::fn_8035EA2C() {
             if (area->mData.m44 != 0 && lbl_8087F430 != 0) {
                 int value;
                 if (area->mData.m48 == 1) {
-                    value = ((GameTask*)lbl_8087F430)->fn_80370174(area->mData.m4C);
+                    value = lbl_8087F430->fn_80370174(area->mData.m4C);
                 } else {
-                    value = ((GameTask*)lbl_8087F430)->fn_80370A78(area->mData.m4C);
+                    value = lbl_8087F430->fn_80370A78(area->mData.m4C);
                 }
                 if (value == area->mData.m50) {
                     area->m5C = 1;
@@ -651,8 +650,8 @@ void EnvSeManager::fn_80360574(int id) {
 void EnvSeManager::fn_803605EC(int fade, float volume) {
     atn::SoundCategory_unk* scope = lbl_8087EFE8->fn_800CFDC8(2);
     m188 = scope != 0 ? scope->mVolume : 0.0f;
-    if (lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->GetCurrentMap() != 0) {
-        MapTask* group = ((GameTask*)lbl_8087F430)->GetCurrentMap();
+    if (lbl_8087F430 != 0 && lbl_8087F430->GetCurrentMap() != 0) {
+        MapTask* group = lbl_8087F430->GetCurrentMap();
         if (group->mType == 2 && group->mId == 40 && 9 <= group->mSubId && group->mSubId <= 12) {
             volume = 1.0f;
         }
@@ -729,7 +728,7 @@ void EnvSeManager::fn_803608A8() {
                 }
             }
         }
-        ((GameTask*)lbl_8087F430)->fn_80370320(0x393, id, 0);
+        lbl_8087F430->fn_80370320(0x393, id, 0);
     }
 }
 
@@ -740,7 +739,7 @@ void EnvSeManager::fn_8036097C(int a, int b, int c, int d, int useFlag) {
         }
         m1A0 = 0;
         if (useFlag != 0) {
-            m1A0 = fn_80214F38(((GameTask*)lbl_8087F430)->fn_80370174(0x393));
+            m1A0 = fn_80214F38(lbl_8087F430->fn_80370174(0x393));
         } else {
             m1A0 = fn_80214ED4(a, b, c, d);
         }

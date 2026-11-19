@@ -51,8 +51,7 @@ struct HitInfo_unk;
 extern "C" HitInfo_unk* fn_80219E6C(int id); // inferred: bullet data by id
 // inferred: map id test of the "IF" blocks (see game/GimmickStateCommand.cpp)
 extern "C" bool fn_80216AFC(const char* id, int* type, int* map, int* point);
-struct Field_unk;
-extern "C" Field_unk* lbl_8087F430;
+extern "C" GameTask* lbl_8087F430;
 // debug menu (see gmk/Cannon.cpp)
 extern "C" void* fn_8008937C(void* menu, const char* name);
 extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, int arg6,
@@ -478,8 +477,8 @@ void FragileObject::vf24() {
             int map;
             int point;
             if (fn_80216AFC(csv.fn_8005B9CC(), &type, &map, &point) && lbl_8087F430 != 0 &&
-                ((GameTask*)lbl_8087F430)->GetCurrentMap() != 0) {
-                MapTask* info = ((GameTask*)lbl_8087F430)->GetCurrentMap();
+                lbl_8087F430->GetCurrentMap() != 0) {
+                MapTask* info = lbl_8087F430->GetCurrentMap();
                 if (type != info->mType || map != info->mId || point != info->mSubId) {
                     while (csv.fn_8005BBF8() != 0) {
                         const char* s = csv.fn_8005B9CC();

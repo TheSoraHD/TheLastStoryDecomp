@@ -17,8 +17,7 @@
 
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 extern "C" void* lbl_8087F610;                     // inferred: arena mode (see game/CharaTask.cpp)
-struct Field_unk;
-extern "C" Field_unk* lbl_8087F430;
+extern "C" GameTask* lbl_8087F430;
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
 typedef EffectColor_unk Color4f_unk;
 struct Motion_unk;
@@ -279,7 +278,7 @@ void SkillEffectManager::vf10() {
                 }
             }
         }
-        ((GameTask*)lbl_8087F430)->fn_80370320(199, count, 0);
+        lbl_8087F430->fn_80370320(199, count, 0);
     }
 }
 

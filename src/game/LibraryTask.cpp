@@ -42,8 +42,7 @@ struct GimmickUvOwner_unk {
 };
 
 // inferred: event flags of the field
-struct LibraryField_unk;
-extern "C" LibraryField_unk* lbl_8087F430;
+extern "C" GameTask* lbl_8087F430;
 
 
 // inferred: parameters of the text (debug menu "Library")
@@ -222,7 +221,7 @@ void LibraryTask::vf1C(int state) {
     switch (state) {
     case 1:
         if (lbl_8087F430 != 0) {
-            ((GameTask*)lbl_8087F430)->fn_8036EA3C();
+            lbl_8087F430->fn_8036EA3C();
         }
         break;
     case 3:
@@ -233,8 +232,8 @@ void LibraryTask::vf1C(int state) {
                 mBook = 0;
             }
             mBook = new ((MemoryTag)1, "", "", 0) BookTask(this, book->mName, book->mTitle);
-            if (((GameTask*)lbl_8087F430)->fn_80370174(book->mId) == 1) {
-                ((GameTask*)lbl_8087F430)->fn_80370320(book->mId, 2, 0);
+            if (lbl_8087F430->fn_80370174(book->mId) == 1) {
+                lbl_8087F430->fn_80370320(book->mId, 2, 0);
             }
         } else {
             vf1C(2);
@@ -301,11 +300,11 @@ void LibraryTask::fn_80469D60(const void* data, unsigned int size, int unlock) {
         }
         LibraryBook_unk book;
         book.mId = fn_800DC1DC(field);
-        if (book.mId != 0 && lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->fn_80370174(book.mId) == 0) {
+        if (book.mId != 0 && lbl_8087F430 != 0 && lbl_8087F430->fn_80370174(book.mId) == 0) {
             if (unlock == 0) {
                 continue;
             }
-            ((GameTask*)lbl_8087F430)->fn_80370320(book.mId, 1, 0);
+            lbl_8087F430->fn_80370320(book.mId, 1, 0);
         }
         void* font = lbl_8087EEC8;
         fn_8006F420(font, book.mName, csv.fn_8005B9CC(), 0x10);
@@ -326,7 +325,7 @@ void LibraryTask::fn_8046A20C() {
         int index = i + mTop;
         if (index < (int)mBooks.size()) {
             LibraryBook_unk* book = &mBooks[index];
-            isNew = book->mId > 0 && ((GameTask*)lbl_8087F430)->fn_80370174(book->mId) == 1;
+            isNew = book->mId > 0 && lbl_8087F430->fn_80370174(book->mId) == 1;
             m58[i]->SetText_unk("bookName", book->mTitle);
             m58[i]->SetValue0_unk("newIcon", isNew ? 1.0f : 0.0f);
             m58[i]->mFlags &= ~4;

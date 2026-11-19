@@ -181,6 +181,7 @@ public:
     // them so that the other units including this header are not renumbered
     int GetState_unk() const;
     GameTaskTable_unk* GetRoute_unk();
+    void SetFadeMode_unk(int); // inferred: weak copy 0x805BB594 (game/TutorialTask), m563C = mode; defined inline there
     GameScene* fn_8013C504(); // 0x8013C504 (game/CharaTask.cpp): returns m10D8; other units call it as a weak getter
     void fn_8036CA60(int arg);
 

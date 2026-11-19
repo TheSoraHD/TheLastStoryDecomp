@@ -24,8 +24,8 @@ extern "C" int fn_800A555C(void* pad, int port, int button); // inferred: button
 extern "C" void fn_804A436C(int* cursor, int count, int page, int step, int arg); // inferred: moves a cursor
 extern "C" void fn_804A39EC(ShopD2A_unk* anime, int arg1, int repeat, float frame, float speed);
 extern "C" void fn_804A3A68(ShopLayout_unk* layout, int arg1, int repeat, float frame, float speed);
-struct ShopField_unk;
-extern "C" ShopField_unk* lbl_8087F430;           // inferred: field
+struct GameTask;
+extern "C" GameTask* lbl_8087F430;           // inferred: field
 extern "C" void fn_804A4494(int* cursor, int* top, int count, int page, int a, int b); // inferred: moves a list cursor
 extern "C" int fn_804444E8(Inventory* inv, int id);           // inferred: number of items
 extern "C" void fn_8044441C(Inventory* inv, int id, int num); // inferred: removes items
@@ -242,11 +242,6 @@ extern "C" int fn_800DC12C(const char* s);    // inferred: string to int (item c
 extern "C" float fn_800DC288(const char* s); // inferred: string to float
 extern "C" void* lbl_8087EEC8;                // inferred: font
 extern "C" void fn_8006F2F0(void* font, wchar_t* dst, const char* src, int n); // inferred: to wide characters
-// inferred: field (lbl_8087F430): chapter at 0x10D0
-struct ShopField_unk {
-    unsigned char m0000[0x10D0];
-    int mChapter; // 0x10D0
-};
 extern "C" int fn_80444564(Inventory* party, int id); // inferred: number of equipment items
 extern "C" int fn_80444BE8(Inventory* party, ShopItem_unk* item);
 extern "C" int fn_80444C48(Inventory* party);
@@ -394,7 +389,7 @@ void ShopBase::vf2C() {
             lbl_8087F490->fn_803E63D0();
         }
         if (lbl_8087F430 != 0) {
-            ((GameTask*)lbl_8087F430)->fn_8036E89C();
+            lbl_8087F430->fn_8036E89C();
         }
     }
 }
@@ -941,7 +936,7 @@ void ShopBase::vf38(const char* data, int size) {
     mF8 = 0;
     int chapter = 0;
     if (lbl_8087F430 != 0) {
-        chapter = lbl_8087F430->mChapter;
+        chapter = lbl_8087F430->m10D0;
     }
     if (m25B4C == 0) {
         m25B4C = chapter;
@@ -970,12 +965,12 @@ void ShopBase::vf38(const char* data, int size) {
             if (from != 0 && m25B4C < from && m25B54 == 0) {
                 continue;
             }
-            if (fromFlag != 0 && !((GameTask*)lbl_8087F430)->fn_80370174(fromFlag) && m25B58 == 0) {
+            if (fromFlag != 0 && !lbl_8087F430->fn_80370174(fromFlag) && m25B58 == 0) {
                 continue;
             }
             int to = fn_800DC12C(csv.fn_8005B9CC());
             int toFlag = fn_800DC12C(csv.fn_8005B9CC());
-            if (to != 0 && m25B4C >= to && m25B54 == 0 && (toFlag == 0 || ((GameTask*)lbl_8087F430)->fn_80370174(toFlag)) &&
+            if (to != 0 && m25B4C >= to && m25B54 == 0 && (toFlag == 0 || lbl_8087F430->fn_80370174(toFlag)) &&
                 m25B58 == 0) {
                 continue;
             }

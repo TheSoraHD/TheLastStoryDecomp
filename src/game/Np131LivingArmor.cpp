@@ -29,8 +29,7 @@ extern "C" void fn_80232B7C(void* owner, int arg);
 // inferred: bullets (as in gmk/LandMine.cpp)
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
 // inferred: field (lbl_8087F430); the event flags are read with fn_80370A78 and written with fn_80370AE4
-struct Field_unk;
-extern "C" Field_unk* lbl_8087F430;
+extern "C" GameTask* lbl_8087F430;
 // inferred: game settings
 struct Settings_unk {
     unsigned char m00[0x34];
@@ -190,8 +189,8 @@ void Np131LivingArmor::vf10() {
             mC58.mC0 = 1;
             m14B4 = 0;
             m14F0 = 0;
-            if (((GameTask*)lbl_8087F430)->fn_80370A78(250) == 0) {
-                ((GameTask*)lbl_8087F430)->fn_80370AE4(250, m58);
+            if (lbl_8087F430->fn_80370A78(250) == 0) {
+                lbl_8087F430->fn_80370AE4(250, m58);
             }
         }
         m54C &= ~0x2000;

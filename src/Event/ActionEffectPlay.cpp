@@ -131,8 +131,7 @@ extern "C" float fn_800A56A8(void* pad, int port, int axis, int arg); // inferre
 extern "C" float PSVECMag(const atn::Vector3* v);
 extern "C" void PSVECNormalize(const atn::Vector3* src, atn::Vector3* dst);
 
-struct GameVars_unk; // inferred: lbl_8087F430 (only its variable accessors are used here)
-extern "C" GameVars_unk* lbl_8087F430;
+extern "C" GameTask* lbl_8087F430;
 
 namespace Event {
 
@@ -606,7 +605,7 @@ int ActionNotify::vf0C(Action* arg, int phase) {
         if (id == -1) {
             return 2;
         }
-        int value = ((GameTask*)lbl_8087F430)->fn_80370A78(id);
+        int value = lbl_8087F430->fn_80370A78(id);
         int result = value;
         int op = arg->GetParam_unk(0)->m04.i;
         int operand = arg->GetParam_unk(1)->m04.i;
@@ -621,7 +620,7 @@ int ActionNotify::vf0C(Action* arg, int phase) {
         } else if (op == 4) {
             result = value / operand;
         }
-        ((GameTask*)lbl_8087F430)->fn_80370AE4(id, result);
+        lbl_8087F430->fn_80370AE4(id, result);
     }
     return 0;
 }
@@ -1140,7 +1139,7 @@ int ActionMoviePlay::vf0C(Action* arg, int phase) {
         }
         lbl_8087F540->fn_8048EC7C();
         if (lbl_8087F0A8->m194 != 0 && manager->m190 == 0x19D) {
-            ((GameTask*)lbl_8087F430)->fn_80370B78(-1, 0, 0, 0.0f);
+            lbl_8087F430->fn_80370B78(-1, 0, 0, 0.0f);
             manager->fn_8053E8C8(11);
         } else {
             manager->fn_8053E8C8(13);

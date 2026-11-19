@@ -42,8 +42,7 @@ struct LiftMapPart_unk {
     int mObjCount;               // 0x344
     atn::ModelInstance** mObjs;  // 0x348
 };
-struct Field_unk;
-extern "C" Field_unk* lbl_8087F430;
+extern "C" GameTask* lbl_8087F430;
 // inferred: places the gimmicks of a part (pointers in gmk/ArenaFloor.cpp; references here, the
 // offset is a temporary)
 
@@ -111,7 +110,7 @@ bool MapLift::HasLocator_unk(const char* name) {
 static inline MapTask* GetMapGroup_unk() {
     MapTask* group = 0;
     if (lbl_8087F430 != 0) {
-        group = ((GameTask*)lbl_8087F430)->GetCurrentMap();
+        group = lbl_8087F430->GetCurrentMap();
     }
     return group;
 }

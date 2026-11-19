@@ -32,8 +32,7 @@ extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); /
 extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the next effects
 extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3, int arg4);
 // inferred: field (lbl_8087F430); fn_80370AE4 sets an event flag
-struct Field_unk;
-extern "C" Field_unk* lbl_8087F430;
+extern "C" GameTask* lbl_8087F430;
 
 // inferred: four floats passed to the material edit (as in game/CharaTask.cpp); name invented
 struct Color4_unk {
@@ -474,7 +473,7 @@ void Em201ZanGurg::fn_80264C88() {
         m59F = 0;
     } else if (atn::Abs_unk(mMotion.mTracks[0].m08 - 10.0f) < 1.1920929e-7f) {
         if (++m16D0 > 2) {
-            ((GameTask*)lbl_8087F430)->fn_80370AE4(0x66, 1);
+            lbl_8087F430->fn_80370AE4(0x66, 1);
         }
     }
 }

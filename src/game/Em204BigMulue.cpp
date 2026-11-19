@@ -57,8 +57,7 @@ extern "C" void* lbl_8087EF70;
 extern "C" int fn_800A555C(void* pad, int port, int button); // inferred: button triggered
 extern "C" GameUI* lbl_8087F490;
 extern "C" bool fn_80051A88(const CharaTask::Sphere_unk* sphere, const atn::Vector3* point); // inferred: point in sphere
-struct Field_unk;
-extern "C" Field_unk* lbl_8087F430;
+extern "C" GameTask* lbl_8087F430;
 extern "C" int fn_8004ED34(void* world, atn::ColliResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg7); // inferred: ray test
 extern "C" int fn_8004D314(void* world, atn::Vector3* hit, const atn::Vector3* pos, const atn::Vector3* move,
@@ -282,7 +281,7 @@ void Em204BigMulue::vf10() {
         for (unsigned int i = 0; i < m1558.size(); i++) {
             m1564[i].mFlags |= 1;
         }
-        ((GameTask*)lbl_8087F430)->fn_80370320(0x68, 1, 0);
+        lbl_8087F430->fn_80370320(0x68, 1, 0);
     }
     if (!mFlag2 || !CanAct_unk()) {
         if (CanAct_unk() && m58C != 6 && !vfF8()) {

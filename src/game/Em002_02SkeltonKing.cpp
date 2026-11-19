@@ -7,8 +7,7 @@
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 // inferred: field (lbl_8087F430, as in game/CharaTask.cpp)
-struct Field_unk;
-extern "C" Field_unk* lbl_8087F430;
+extern "C" GameTask* lbl_8087F430;
 
 // inferred: const info (as EnemyJill): the load of info->m20 is scheduled before the register saves
 Em002_02SkeltonKing::Em002_02SkeltonKing(atn::Task* parent, const EnemyInfo_unk* info)
@@ -174,8 +173,8 @@ void Em002_02SkeltonKing::fn_80249588() {
             if (mTarget != 0) {
                 mTarget->fn_80178208(new ((MemoryTag)3, "", "", 0) chr::ControlThrownSkelton(mTarget, to, fn_80219E6C(0x69F)));
                 mTarget = 0;
-                if (((GameTask*)lbl_8087F430)->fn_80370A78(0xE6) == 0) {
-                    ((GameTask*)lbl_8087F430)->fn_80370AE4(0xE6, 1);
+                if (lbl_8087F430->fn_80370A78(0xE6) == 0) {
+                    lbl_8087F430->fn_80370AE4(0xE6, 1);
                 }
             }
         }

@@ -33,8 +33,7 @@ extern "C" char lbl_8087D710[2]; // inferred: " " (field separators of the tab C
 extern "C" float fn_800DC288(const char* s); // inferred: string to float
 extern "C" int fn_802180A8(const char* s); // inferred: motion id from its name
 // inferred: field (lbl_8087F430); class unknown
-struct WaitField_unk;
-extern "C" WaitField_unk* lbl_8087F430;
+extern "C" GameTask* lbl_8087F430;
 // inferred: effect manager (class unknown), global instance at 0x8087F3C0
 struct EffectMgr_unk {
     unsigned char m00[0xB8];
@@ -195,7 +194,7 @@ void WaitObject::vf10() {
     }
     atn::Vector3 d = atn::RenderManager::instance_->mCamera.mPos - m6C;
     float dist = PSVECSquareMag(&d);
-    if (lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->GetCurrentMap() != 0 && ((GameTask*)lbl_8087F430)->GetCurrentMap()->mType == 1 &&
+    if (lbl_8087F430 != 0 && lbl_8087F430->GetCurrentMap() != 0 && lbl_8087F430->GetCurrentMap()->mType == 1 &&
         dist > 360000.0f) {
         return;
     }

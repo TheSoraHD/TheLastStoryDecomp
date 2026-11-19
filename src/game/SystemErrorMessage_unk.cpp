@@ -61,8 +61,7 @@ struct SysMovie_unk {
     int m08; // inferred: state (4 playing, 5 paused)
 };
 extern "C" SysMovie_unk* lbl_8087F010;
-struct SysField_unk;
-extern "C" SysField_unk* lbl_8087F430;
+extern "C" GameTask* lbl_8087F430;
 extern "C" void* lbl_8087EF68; // inferred: save manager
 extern "C" int fn_800A4228(void* obj, int* out); // inferred: nonzero while saving
 struct SysSave_unk {
@@ -587,7 +586,7 @@ void ErrorManager::fn_80363DBC() {
                 lbl_8087F010->m08 = 4;
             }
             if (lbl_8087F430 != 0) {
-                ((GameTask*)lbl_8087F430)->fn_8037177C();
+                lbl_8087F430->fn_8037177C();
             }
             mPaused = 0;
         }

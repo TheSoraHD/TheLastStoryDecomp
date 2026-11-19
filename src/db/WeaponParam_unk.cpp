@@ -25,8 +25,7 @@ extern "C" void fn_8046DD20(Unk_8087F518* mgr, void* data);
 extern "C" void* fn_8006BA8C(const char* path, unsigned long* size, int arg);
 
 // inferred: field (lbl_8087F430) and its flags
-struct WeaponField_unk;
-extern "C" WeaponField_unk* lbl_8087F430;
+extern "C" GameTask* lbl_8087F430;
 
 // inferred: one row of /boot/weapon_effect.csv (0x20 bytes)
 struct WeaponEffect_unk {
@@ -310,7 +309,7 @@ extern "C" bool fn_80206D18(WeaponParamEntry_unk* entry, int member, int arg) {
                     result = true;
                 }
                 fn_80206B14(0, Inventory::instance_->mEquip[0].mWeapons[arg].mId);
-                if (lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->fn_80370174(0x395) && ((GameTask*)lbl_8087F430)->fn_80370174(0x396)) {
+                if (lbl_8087F430 != 0 && lbl_8087F430->fn_80370174(0x395) && lbl_8087F430->fn_80370174(0x396)) {
                     result = false;
                 }
             } else if (entry->mKind == 1) {

@@ -21,8 +21,7 @@ extern "C" int fn_800DD3FC(wchar_t* s, const wchar_t* format, ...); // inferred:
 extern "C" void* fn_8006BA8C(const char* path, unsigned long* size, int flag); // inferred: loads a file
 
 // inferred: field (lbl_8087F430) and its flags
-struct ItemField_unk;
-extern "C" ItemField_unk* lbl_8087F430;
+extern "C" GameTask* lbl_8087F430;
 
 // inferred: text sizes of a row of the UTF-16 text file (db/SkillParam_unk.cpp)
 extern "C" void fn_80219F1C(atn::CsvU* csv, int* a, int* b);
@@ -258,7 +257,7 @@ extern "C" bool fn_80211648(const ItemParamEntry_unk* entry) {
         if (((unsigned int)fn_80206C50(entry->mId)->m12C & 2) == 2) {
             return false;
         }
-        if (entry->mId == 100621 && lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->fn_80370174(0x11B) == 0) {
+        if (entry->mId == 100621 && lbl_8087F430 != 0 && lbl_8087F430->fn_80370174(0x11B) == 0) {
             return false;
         }
     }

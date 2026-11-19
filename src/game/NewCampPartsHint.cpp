@@ -52,8 +52,7 @@ struct NewCampHintCamp_unk {
 };
 
 // inferred: field (lbl_8087F430)
-struct NewCampHintField_unk;
-extern "C" NewCampHintField_unk* lbl_8087F430;
+extern "C" GameTask* lbl_8087F430;
 extern "C" int fn_8021F094();                      // inferred: number of tutorials
 extern "C" NewCampTutorial_unk* fn_8021F0D4(int index); // inferred: tutorial entry
 
@@ -266,7 +265,7 @@ inline void NewCampPartsHint::ReadList_unk() {
     int count = fn_8021F094();
     for (int i = 0; i < count; i++) {
         NewCampTutorial_unk* tutorial = fn_8021F0D4(i);
-        if (tutorial != 0 && ((GameTask*)lbl_8087F430)->fn_80370174(tutorial->mFlag) > 0 && tutorial->mCategory < 7 &&
+        if (tutorial != 0 && lbl_8087F430->fn_80370174(tutorial->mFlag) > 0 && tutorial->mCategory < 7 &&
             (kind < 0 || tutorial->mCategory == kind)) {
             mList.push_back(tutorial);
         }
@@ -373,7 +372,7 @@ void NewCampPartsHint::vf28() {
     }
     mWait = 0;
     if (m128 != 0) {
-        ((GameTask*)lbl_8087F430)->fn_803766E4();
+        lbl_8087F430->fn_803766E4();
     }
     m128 = 0;
     m96 = 0;
@@ -441,8 +440,8 @@ void NewCampPartsHint::fn_80515F28(int mode) {
             if (tutorial->mSeen != 0) {
                 m128 = 1;
                 if (lbl_8087F430 != 0) {
-                    ((GameTask*)lbl_8087F430)->fn_803766E4();
-                    ((GameTask*)lbl_8087F430)->fn_80376324(mList[mCursor]->mFlag);
+                    lbl_8087F430->fn_803766E4();
+                    lbl_8087F430->fn_80376324(mList[mCursor]->mFlag);
                 }
                 fn_80515F28(1);
             } else {
@@ -489,7 +488,7 @@ void NewCampPartsHint::fn_8051640C() {
         fn_80117228(2);
         fn_80515F28(0);
     } else if (fn_800A555C(pad, 0, 4) && mCursor < (int)mList.size()) {
-        if (((GameTask*)lbl_8087F430)->fn_80370174(mList[mCursor]->mFlag) >= 1) {
+        if (lbl_8087F430->fn_80370174(mList[mCursor]->mFlag) >= 1) {
             fn_80117228(1);
             fn_80515F28(2);
         } else {
@@ -506,7 +505,7 @@ void NewCampPartsHint::fn_80516544() {
             int index = mTop + i;
             NewCampTutorial_unk* tutorial;
             if (index < (int)mList.size() && (tutorial = mList[index]) != 0 &&
-                ((GameTask*)lbl_8087F430)->fn_80370174(tutorial->mFlag) >= 1) {
+                lbl_8087F430->fn_80370174(tutorial->mFlag) >= 1) {
                 task->SetText_unk("item", tutorial->mName);
                 if (tutorial->mSeen != 0) {
                     task->SetValues2_unk("iconUvMask", atn::Vector4_unk(0.5f, 0.0f, 1.0f, 1.0f));

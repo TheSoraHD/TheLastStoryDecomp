@@ -14,14 +14,7 @@ extern "C" CharaManager<PlayerTask>* lbl_8087F8A0;    // inferred: player manage
 extern "C" void* lbl_8087F610;
 class BattleTask;
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
-// inferred: field (lbl_8087F430): a task (its flag 2 is tested) with the route tables at 0x10D8
-struct DropField_unk {
-    unsigned char m0000[0x38];
-    unsigned int mFlags;
-    unsigned char m003C[0x10D8 - 0x3C];
-    void* m10D8;
-};
-extern "C" DropField_unk* lbl_8087F430;
+extern "C" GameTask* lbl_8087F430;
 // inferred: camera settings (lbl_8087EFA8)
 struct DropCamera_unk {
     unsigned char m000[0x3A4];
@@ -149,7 +142,7 @@ int ControlDropDown::vf0C() {
                     }
                 }
             }
-            if (lost && ((GameTask*)lbl_8087F430)->fn_80370174(0x12B) == 0) {
+            if (lost && lbl_8087F430->fn_80370174(0x12B) == 0) {
                 mChara->mPos = mStart;
                 mChara->m574 = lbl_807C7030;
                 mVel = lbl_807C7030;

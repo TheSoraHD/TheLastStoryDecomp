@@ -68,16 +68,7 @@ public:
     int m13C; // inferred: state
 };
 
-// inferred: field (lbl_8087F430); only the members used here
-struct NewCampTopField_unk {
-    unsigned char m0000[0x20];
-    atn::Task* m20;
-    unsigned char m0024[0x10D8 - 0x24];
-    atn::Task* m10D8;
-    unsigned char m10DC[0x5744 - 0x10DC];
-    unsigned int m5744; // inferred: play time in frames
-};
-extern "C" NewCampTopField_unk* lbl_8087F430;
+extern "C" GameTask* lbl_8087F430;
 extern "C" MP::SaveData_unk* lbl_8087F460;
 extern "C" int fn_803BE854(MP::SaveData_unk* data);
 extern "C" atn::Task* lbl_8087F8A0;
@@ -146,7 +137,7 @@ inline void SetPaneFloat_unk(void* layout, const char* name, float value) {
 
 // inferred: starts a fade (name invented)
 inline void StartFade_unk(int wait) {
-    atn::FadeColor* fade = atn::FadeColor::Create(lbl_8087F430->m20, 0, 0, 0);
+    atn::FadeColor* fade = atn::FadeColor::Create((atn::Task*)lbl_8087F430->m20, 0, 0, 0);
     fade->mDeleteAtEnd = 1;
     fade->mFrame = 0;
     fade->mDelay = 0;
@@ -273,13 +264,13 @@ void NewCampPartsTop::vf14() {
         fn_801FEE08(task->mLayout, fn_800DC6B4("playTime(1)"), time);
         task->SetNumber_unk("price(1)", Inventory::instance_->mMoney, 0);
     }
-    if (((GameTask*)lbl_8087F430)->fn_803754F0()) {
+    if (lbl_8087F430->fn_803754F0()) {
         SetPaneText_unk(mInfoAnime->mLayout, "select00_text", fn_80116FC0(0, 0x2767));
         SetPaneFloat_unk(mInfoAnime->mLayout, "enableLoad", mCanLoad != 0 ? 1.0f : 0.5f);
         SetPaneFloat_unk(mInfoAnime->mLayout, "enableCheckPoint", 1.0f);
     } else {
         SetPaneText_unk(mInfoAnime->mLayout, "select00_text", fn_80116FC0(0, 0x2764));
-        if (((GameTask*)lbl_8087F430)->fn_80370174(0x394)) {
+        if (lbl_8087F430->fn_80370174(0x394)) {
             SetPaneFloat_unk(mInfoAnime->mLayout, "enableLoad", 0.5f);
             SetPaneFloat_unk(mInfoAnime->mLayout, "enableCheckPoint", 0.5f);
         } else {
@@ -332,14 +323,14 @@ void NewCampPartsTop::vf2C() {
     if (mSave == 0 || !mSave->IsFlag_unk(2)) {
         return;
     }
-    const int* actions = ((GameTask*)lbl_8087F430)->fn_803754F0() ? sActionsB : sActions;
+    const int* actions = lbl_8087F430->fn_803754F0() ? sActionsB : sActions;
     if (m7C == 4) {
         if (++mTimer > 60) {
             switch (actions[mCursor]) {
             case 0:
             case 1:
                 ((NewCampTask*)m48)->fn_8052CA6C();
-                ((GameTask*)lbl_8087F430)->fn_80370F8C(0, lbl_8087F460, 0);
+                lbl_8087F430->fn_80370F8C(0, lbl_8087F460, 0);
                 if (lbl_8087F430->m10D8 != 0) {
                     lbl_8087F430->m10D8->mFlags |= 4;
                 }
@@ -350,7 +341,7 @@ void NewCampPartsTop::vf2C() {
                 break;
             case 3:
                 ((NewCampTask*)m48)->fn_8052CA6C();
-                ((GameTask*)lbl_8087F430)->fn_80370320(0x1B, 1, 0);
+                lbl_8087F430->fn_80370320(0x1B, 1, 0);
                 if (lbl_8087F430->m10D8 != 0) {
                     ((GameScene*)lbl_8087F430->m10D8)->fn_803CCC70(999999);
                 }
@@ -361,7 +352,7 @@ void NewCampPartsTop::vf2C() {
                 NpcManager::sInstance->fn_800D246C(1);
                 if (lbl_8087F9F8 != 0 && lbl_8087F9F8->mA70 != 0) {
                     lbl_8087F9F8->fn_805AA734();
-                    ((GameTask*)lbl_8087F430)->fn_803743AC();
+                    lbl_8087F430->fn_803743AC();
                 }
                 if (GameBgm::sInstance != 0) {
                     GameBgm::sInstance->fn_8037D4C0(0, 90, 1, 0, 1.0f);
@@ -456,7 +447,7 @@ void NewCampPartsTop::vf2C() {
         if (fn_800A555C(pad, 0, 4)) {
             switch (actions[mCursor]) {
             case 0:
-                if (((GameTask*)lbl_8087F430)->fn_80370174(0x394)) {
+                if (lbl_8087F430->fn_80370174(0x394)) {
                     fn_80117228(11);
                     return;
                 }
@@ -469,7 +460,7 @@ void NewCampPartsTop::vf2C() {
                 }
                 break;
             case 1:
-                if (mCanLoad == 0 || ((GameTask*)lbl_8087F430)->fn_80370174(0x394)) {
+                if (mCanLoad == 0 || lbl_8087F430->fn_80370174(0x394)) {
                     fn_80117228(11);
                     return;
                 }
