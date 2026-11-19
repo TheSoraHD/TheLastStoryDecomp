@@ -12,6 +12,23 @@
 #include "atn/D2A_TaskInstanceC.h"
 #include "game/MenuCommonTask.h"
 
+namespace atn {
+// inferred: inline empty destructor (as in game/PopupTask.h): the swap temporary of fn_80522DD8 is not destroyed
+// in the original. Defined here, not in the header: NewCampTask/ItemSlotAnime use the out-of-line copy
+template <>
+inline static_string<32, wchar_t, std::char_traits<wchar_t> >::~static_string() {}
+// inferred: copy assignment with the source in a local (as in game/PopupTask.h; fn_80522DD8)
+template <>
+inline static_string<32, wchar_t, std::char_traits<wchar_t> >&
+static_string<32, wchar_t, std::char_traits<wchar_t> >::operator=(const static_string& o) {
+    const wchar_t* str = o.mStr;
+    if (str != mStr) {
+        wmemcpy(mStr, str, wcslen(str) + 1);
+    }
+    return *this;
+}
+} // namespace atn
+
 extern "C" int sprintf(char* s, const char* format, ...);
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" int wcsncmp(const wchar_t* a, const wchar_t* b, unsigned long n);
@@ -295,7 +312,9 @@ void NewCampPartsOption::fn_80522938() {
 }
 
 
-// NONMATCHING: 88.18% - the original recomputes the destination address of each copy (no CSE with the previous copy)
+// inferred: swaps the texts of mInfo[6]/[7] and [12]/[13] (texts 0-1 and 2-3) and of [8]/[9] (texts 0-1). The
+// destinations are written through mData and the sources through operator[]: with the same expression MWCC keeps
+// the address of the previous copy in a register; the original recomputes it for each copy
 void NewCampPartsOption::fn_80522DD8() {
     for (int i = 0; i < 2; i++) {
         if (GetD2A_unk(mController[i]) != 0) {
@@ -305,17 +324,17 @@ void NewCampPartsOption::fn_80522DD8() {
     atn::static_string<32, wchar_t> tmp;
     if (mSwap[0] == 1) {
         tmp = mInfo[6].mText[0];
-        mInfo[6].mText[0] = mInfo[7].mText[0];
-        mInfo[7].mText[0] = tmp;
+        mInfo.mData[6].mText[0] = mInfo[7].mText[0];
+        mInfo.mData[7].mText[0] = tmp;
         tmp = mInfo[6].mText[1];
-        mInfo[6].mText[1] = mInfo[7].mText[1];
-        mInfo[7].mText[1] = tmp;
-        tmp = mInfo[12].mText[0];
-        mInfo[12].mText[0] = mInfo[13].mText[0];
-        mInfo[13].mText[0] = tmp;
-        tmp = mInfo[12].mText[1];
-        mInfo[12].mText[1] = mInfo[13].mText[1];
-        mInfo[13].mText[1] = tmp;
+        mInfo.mData[6].mText[1] = mInfo[7].mText[1];
+        mInfo.mData[7].mText[1] = tmp;
+        tmp = mInfo[12].mText[2];
+        mInfo.mData[12].mText[2] = mInfo[13].mText[2];
+        mInfo.mData[13].mText[2] = tmp;
+        tmp = mInfo[12].mText[3];
+        mInfo.mData[12].mText[3] = mInfo[13].mText[3];
+        mInfo.mData[13].mText[3] = tmp;
         for (int i = 0; i < 2; i++) {
             if (GetD2A_unk(mController[i]) != 0) {
                 SetPaneFloat_unk(GetD2A_unk(mController[i])->mLayout, "changeCZ", 1.0f);
@@ -323,12 +342,12 @@ void NewCampPartsOption::fn_80522DD8() {
         }
     }
     if (mSwap[1] == 1) {
-        tmp = mInfo[8].mText[2];
-        mInfo[8].mText[2] = mInfo[9].mText[2];
-        mInfo[9].mText[2] = tmp;
-        tmp = mInfo[8].mText[3];
-        mInfo[8].mText[3] = mInfo[9].mText[3];
-        mInfo[9].mText[3] = tmp;
+        tmp = mInfo[8].mText[0];
+        mInfo.mData[8].mText[0] = mInfo[9].mText[0];
+        mInfo.mData[9].mText[0] = tmp;
+        tmp = mInfo[8].mText[1];
+        mInfo.mData[8].mText[1] = mInfo[9].mText[1];
+        mInfo.mData[9].mText[1] = tmp;
     }
 }
 
