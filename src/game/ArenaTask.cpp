@@ -28,7 +28,7 @@ extern "C" GameTask* lbl_8087F430;
 
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
 
-static ArenaTask* sInstance;
+ArenaTask* ArenaTask::sInstance;
 
 
 static const char* const sAnimPaths[4] = {
@@ -75,9 +75,6 @@ int ArenaTask::vf0C() {
     return fn_800D3FA4();
 }
 
-// NONMATCHING: 99.4% - in the spawn block the quotient of rand() % n and the character pointer take
-// r4/r5/r6 in another order (the erase loop of FixedArray_unk then uses r5/r6 instead of r4/r5).
-// Tried: index/iterator/local orders, rand() in the subscript, unsigned index.
 void ArenaTask::vf10() {
     if (mState == 1) {
         mScore0 = 0;
@@ -103,11 +100,14 @@ void ArenaTask::vf10() {
                 if (n != 0) {
                     int index = rand() % n;
                     atn::Vector3 rot;
-                    rot.Assign_unk(e.mChara->mRot);
+                    // inferred: the character in a local for the rotation and the position; the original
+                    // reloads e.mChara for the rotation store (all three through the local: 98.0%)
+                    CharaTask* chara = e.mChara;
+                    rot.Assign_unk(chara->mRot);
                     gs::WarpPoint** it = &mSpawns.mData[index];
                     gs::WarpPoint* spawn = *it;
                     rot.y = spawn->m14;
-                    e.mChara->mPos.Assign_unk(spawn->mPos);
+                    chara->mPos.Assign_unk(spawn->mPos);
                     e.mChara->mRot.Assign_unk(rot);
                     e.mSpawn = spawn;
                     mSpawns.erase(it);

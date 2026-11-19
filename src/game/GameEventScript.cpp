@@ -147,7 +147,6 @@ extern "C" GameConfig_unk* lbl_8087F0A8;
 extern "C" int strncmp(const char* a, const char* b, unsigned long n);
 extern "C" int fn_802180A8(const char* s); // inferred: motion id from its name
 extern "C" void fn_800D2338(atn::Task* task); // inferred: deletes a task
-extern "C" ArenaTask* lbl_8087EE78;
 // inferred: adds an item (as in game/BattleResult.cpp)
 extern "C" int fn_80444020(Inventory* party, int item, int a, int b, void* c, int d, int* outA, int* outB, int* outC);
 extern "C" int rand();
@@ -4993,7 +4992,7 @@ void GameEventScript::fn_803A6230(ScriptResult_unk& result, const ScriptCmd_unk*
 void GameEventScript::fn_803A6324(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
     const ScriptArgs_unk* args = static_cast<const ScriptArgs_unk*>(cmd);
     int value = 0;
-    ArenaTask* arena = lbl_8087EE78;
+    ArenaTask* arena = ArenaTask::sInstance;
     if (arena != 0) {
         switch (args->m08) {
         case 0:
@@ -5026,7 +5025,7 @@ void GameEventScript::fn_803A6410(ScriptResult_unk& result, const ScriptCmd_unk*
     const ScriptArgs_unk* args = static_cast<const ScriptArgs_unk*>(cmd);
     int value = ScriptValue_unk(args->m0C, args->m10);
     int value2 = ScriptValue_unk(args->m14, args->m18);
-    ArenaTask* arena = lbl_8087EE78;
+    ArenaTask* arena = ArenaTask::sInstance;
     if (arena != 0) {
         switch (args->m08) {
         case 0:

@@ -134,7 +134,7 @@
   "classes": [
    "ArenaTask"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "game/Arms.cpp",
