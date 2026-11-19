@@ -1891,9 +1891,9 @@ void GameEventScript::fn_8039B2BC() {
         marker.m18 = !fn_80051CD8(&near, &shape);
         atn::Vector3 toLeader = leader->mPos - marker.mPos;
         marker.m1C = (PSVECMag(&toLeader) - 30.0f) / 120.0f;
-        marker.m1C = 0.5f - ((marker.m1C > 0.0f ? marker.m1C : 0.0f) < 0.5f
+        marker.m1C = 1.0f - ((marker.m1C > 0.0f ? marker.m1C : 0.0f) < 1.0f
                                  ? (marker.m1C > 0.0f ? marker.m1C : 0.0f)
-                                 : 0.5f);
+                                 : 1.0f);
         marker.m10 = 0;
         lbl_8087F490->fn_803E3C78(marker);
     }
@@ -2254,9 +2254,9 @@ void GameEventScript::fn_8039B7B0() {
         marker.m18 = !fn_80051A88(&near, &sphere);
         atn::Vector3 toLeader = leader->mPos - marker.mPos;
         marker.m1C = (PSVECMag(&toLeader) - 30.0f) / 120.0f;
-        marker.m1C = 0.5f - ((marker.m1C > 0.0f ? marker.m1C : 0.0f) < 0.5f
+        marker.m1C = 1.0f - ((marker.m1C > 0.0f ? marker.m1C : 0.0f) < 1.0f
                                  ? (marker.m1C > 0.0f ? marker.m1C : 0.0f)
-                                 : 0.5f);
+                                 : 1.0f);
         marker.m10 = 0;
         lbl_8087F490->fn_803E3C78(marker);
     }
@@ -4553,13 +4553,13 @@ void GameEventScript::fn_803A4A7C(ScriptResult_unk& result, const ScriptCmd_unk*
                         } else if (args->m1C == 1 && lbl_8087F048 != 0) {
                             lbl_8087F048->m3E39C = 1;
                             Mtx m;
-                            atn::Vector3 front(0.0f, 0.0f, 0.5f);
+                            atn::Vector3 front(0.0f, 0.0f, 1.0f);
                             PSMTXRotRad(m, 'y', member->mRot.y);
                             PSMTXMultVec(m, &front, &front);
                             atn::Vector3 pos = member->fn_801781B0() + front;
                             BattleTask* battle = lbl_8087F048;
                             battle->fn_800FAB80(member, hit, battle->fn_800F8548(), &pos, &member->mRot, 0, 30, -1, -1,
-                                        0.0f, 0.5f);
+                                        0.0f, 1.0f);
                             lbl_8087F048->m3E39C = 0;
                         }
                     }
@@ -4584,18 +4584,18 @@ void GameEventScript::fn_803A4A7C(ScriptResult_unk& result, const ScriptCmd_unk*
                     fn_80232B7C((unsigned int)member, 9997);
                     if (battleEfp != 0) {
                         fn_8023A8B4(lbl_8087F3C0, battleEfp, member->GetModel_unk(), 0, atn::Vector3(0.0f, 0.0f, 0.0f),
-                                    atn::Vector3(0.0f, 0.0f, 0.0f), atn::Color(0.5f, 0.5f, 0.5f, 0.5f), -1, -1, 1,
-                                    0.5f);
+                                    atn::Vector3(0.0f, 0.0f, 0.0f), atn::Color(1.0f, 1.0f, 1.0f, 1.0f), -1, -1, 1,
+                                    1.0f);
                     }
                     if (skillEfp != 0) {
                         fn_8023A8B4(lbl_8087F3C0, skillEfp, member->GetModel_unk(), 0, atn::Vector3(0.0f, 0.0f, 0.0f),
-                                    atn::Vector3(0.0f, 0.0f, 0.0f), atn::Color(0.5f, 0.5f, 0.5f, 0.5f), -1, -1, 1,
-                                    0.5f);
+                                    atn::Vector3(0.0f, 0.0f, 0.0f), atn::Color(1.0f, 1.0f, 1.0f, 1.0f), -1, -1, 1,
+                                    1.0f);
                     }
                     if (charaEfp != 0) {
                         float scale = member->vf90();
                         fn_8023A8B4(lbl_8087F3C0, charaEfp, 0, 0, member->mPos, member->mRot,
-                                    atn::Color(0.5f, 0.5f, 0.5f, 0.5f), -1, -1, 1, scale);
+                                    atn::Color(1.0f, 1.0f, 1.0f, 1.0f), -1, -1, 1, scale);
                     }
                 }
             } else {
@@ -4612,7 +4612,7 @@ void GameEventScript::fn_803A4A7C(ScriptResult_unk& result, const ScriptCmd_unk*
             if (efp != 0) {
                 fn_80232B7C((unsigned int)chara, 999);
                 fn_8023A8B4(lbl_8087F3C0, efp, chara->GetModel_unk(), 0, atn::Vector3(0.0f, 0.0f, 0.0f),
-                            atn::Vector3(0.0f, 0.0f, 0.0f), atn::Color(0.5f, 0.5f, 0.5f, 0.5f), -1, -1, 1, 0.5f);
+                            atn::Vector3(0.0f, 0.0f, 0.0f), atn::Color(1.0f, 1.0f, 1.0f, 1.0f), -1, -1, 1, 1.0f);
             } else {
                 fn_80239DAC(lbl_8087F3C0, (unsigned int)chara, 999, 1);
             }
