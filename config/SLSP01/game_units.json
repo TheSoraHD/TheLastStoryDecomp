@@ -3533,7 +3533,7 @@
   "classes": [
    "atn::PostFxMotionBlur"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "atn/TextureDraw_unk.cpp",

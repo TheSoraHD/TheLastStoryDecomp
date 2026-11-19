@@ -67,11 +67,16 @@ void PostFxMotionBlur::fn_800AFEBC(int div) {
     }
 }
 
-// NONMATCHING: 99.90% - registers only: the parameter block/flag at the start (r4/r6 against the hoisted
-// 0x4330 of the conversions); the fade loop matches with Lerp1_unk (const float&) (~25 variants)
+// inferred: fade speed of the motion blur parameters (inline helper; with the ternary written in vf10 the
+// pointer of the parameters and the hoisted 0x4330 of the conversions swap registers)
+static inline float BlendSpeed_unk(const MotionBlurParam_unk& p, int enabled) {
+    return enabled != 0 ? p.mStartBlendSpeed : p.mEndBlendSpeed;
+}
+// inferred: the enabled flag is read once into a local (its register is the one of the original)
 void PostFxMotionBlur::vf10(RenderManager* view) {
-    if (mA4 != lbl_8087EFA8->m240.mEnabled) {
-        mA4 = lbl_8087EFA8->m240.mEnabled;
+    int enabled = lbl_8087EFA8->m240.mEnabled;
+    if (mA4 != enabled) {
+        mA4 = enabled;
         if (lbl_8087EFA8->m240.mEnabled != 0) {
             mA8 = lbl_8087EFA8->m240.mStartBlend != 0 ? 1.0f : 0.0f;
         } else {
@@ -79,7 +84,7 @@ void PostFxMotionBlur::vf10(RenderManager* view) {
         }
     } else {
         if (mA8 > 0.0f) {
-            mA8 -= lbl_8087EFA8->m240.mEnabled != 0 ? lbl_8087EFA8->m240.mStartBlendSpeed : lbl_8087EFA8->m240.mEndBlendSpeed;
+            mA8 -= BlendSpeed_unk(lbl_8087EFA8->m240, enabled);
         }
         if (lbl_8087EFA8->m240.mEnabled == 0 && mA8 <= 0.0f) {
             mIndex = -1;
