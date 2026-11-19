@@ -1245,8 +1245,31 @@ void Em003LesserDaemon::fn_8024ED68() {
     }
 }
 
-// NONMATCHING: 98.46% - saved registers of the fan loop (count/index/vectors) and of the farthest point
-// search, f29/f30 of the frame (10 variants: declaration orders, pointer loop, locals)
+// inferred: fires `count` penetrating lasers in a fan from the hand towards the center (name invented; as an
+// inline its locals go to the bottom of the frame and &hand stays in a register, as in the original; the copy
+// through VecAssign_unk gives the registers of the two vector addresses)
+static inline void FireFan_unk(Em003LesserDaemon* self, const atn::Vector3& hand, const atn::Vector3& center, int count) {
+    atn::Vector3 dir = center - hand;
+    PSVECNormalize(&dir, &dir);
+    int n = count - 1;
+    atn::Vector3 d;
+    for (int i = 0; i < count; i++) {
+        atn::VecAssign_unk(d, dir);
+        Mtx rm;
+        PSMTXRotRad(rm, 'y', 0.7853982f * (((float)i - 0.5f * (float)n) / (0.5f * (float)n)));
+        PSMTXMultVec(rm, &d, &d);
+        lbl_8087F048->fn_800F8574(self, self->m14D4, &hand, &d, 0, 0, 0, 0.0f, 1.0f);
+    }
+}
+
+// inferred: squared distance (name invented; its local goes to the bottom of the frame as in the original)
+static inline float SqDist_unk(const atn::Vector3& a, const atn::Vector3& b) {
+    atn::Vector3 d = a - b;
+    return PSVECSquareMag(&d);
+}
+
+// inferred: `diff` named (stack slot above rot), `frame` declared before `end` and assigned after (f29/f30), `i`
+// of the search declared first and set after `best` (registers and order of the li)
 // inferred: state 8 (aims at the target from the left hand, fires a fan of penetrating lasers and warps
 // between the points while m164C lasts)
 void Em003LesserDaemon::fn_8024F1DC() {
@@ -1255,14 +1278,15 @@ void Em003LesserDaemon::fn_8024F1DC() {
         if (m14B0 == 0) {
             break;
         }
-        MtxPtr m = mMotion.GetNodeMtx_unk("lefthand");
-        atn::Vector3 hand(m[0][3], m[1][3], m[2][3]);
+        atn::Vector3 hand = ((atn::Matrix3x4*)mMotion.GetNodeMtx_unk("lefthand"))->GetTrans_unk();
         CharaTask* target = m14B0;
         atn::Vector3 center = (target->mColli.m3C + target->mColli.m48) * 0.5f;
-        atn::Vector3 rot = (center - hand).ToRotationZ_unk();
+        atn::Vector3 diff = center - hand;
+        atn::Vector3 rot = diff.ToRotationZ_unk();
         rot.x = MAX(-0.31415927f, MIN(0.31415927f, rot.x));
+        float frame;
         float end = mMotion.fn_80097D7C(0) - 32.0f;
-        float frame = mMotion.mTracks[0].m08;
+        frame = mMotion.mTracks[0].m08;
         if (!(frame >= mMotion.fn_80097D7C(0) - 18.0f)) {
             if (mMotion.mTracks[0].m08 >= end) {
                 rot.x *= MIN(1.0f, (mMotion.mTracks[0].m08 - end) / 14.0f);
@@ -1278,21 +1302,13 @@ void Em003LesserDaemon::fn_8024F1DC() {
         mRot = rot;
         float frame2 = mMotion.mTracks[0].m08;
         if (frame2 >= mMotion.fn_80097D7C(0) - 8.0f) {
-            int count = 5;
+            int count;
             if (m16E4 != 0) {
                 count = 3;
+            } else {
+                count = 5;
             }
-            atn::Vector3 dir = center - hand;
-            PSVECNormalize(&dir, &dir);
-            int n = count - 1;
-            atn::Vector3 d;
-            for (int i = 0; i < count; i++) {
-                d = dir;
-                Mtx rm;
-                PSMTXRotRad(rm, 'y', 0.7853982f * (((float)i - 0.5f * (float)n) / (0.5f * (float)n)));
-                PSMTXMultVec(rm, &d, &d);
-                lbl_8087F048->fn_800F8574(this, m14D4, &hand, &d, 0, 0, 0, 0.0f, 1.0f);
-            }
+            FireFan_unk(this, hand, center, count);
             m14B8 = 1;
         }
         break;
@@ -1305,12 +1321,12 @@ void Em003LesserDaemon::fn_8024F1DC() {
         if (--m164C > 0) {
             if (mPoints.mSize != 0) {
                 if (m1650 < 0) {
+                    unsigned int i;
                     float bestDist = 0.0f;
-                    const atn::Vector3* point = mPoints.mData;
                     int best = -1;
-                    for (unsigned int i = 0; i < mPoints.mSize; point++, i++) {
-                        atn::Vector3 d = mPos - *point;
-                        float dist = PSVECSquareMag(&d);
+                    i = 0;
+                    for (const atn::Vector3* point = mPoints.mData; i < mPoints.mSize; point++, i++) {
+                        float dist = SqDist_unk(mPos, *point);
                         if (dist > bestDist) {
                             best = i;
                             bestDist = dist;
