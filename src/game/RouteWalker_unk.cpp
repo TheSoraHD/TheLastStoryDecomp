@@ -101,8 +101,8 @@ extern "C" unsigned short fn_803CD958(U16Table_unk* path, int point); // inferre
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 struct ColliWorld_unk;
 extern "C" ColliWorld_unk* lbl_8087EE98;
-extern "C" int fn_8004ECC0(ColliWorld_unk* world, int arg1, const atn::Vector3* from, const atn::Vector3* to,
-                           unsigned int mask, int arg5, int arg6); // inferred: line check
+extern "C" int fn_8004ECC0(ColliWorld_unk* world, void* arg1, const atn::Vector3* from, const atn::Vector3* to,
+                           unsigned int mask, void* arg5, int arg6); // inferred: line check
 
 // inferred: name invented
 inline float LengthSq_unk(const atn::Vector3& v) {

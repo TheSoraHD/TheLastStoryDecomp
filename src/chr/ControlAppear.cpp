@@ -8,7 +8,8 @@ struct Colli_unk {};
 extern "C" Colli_unk* lbl_8087EE98;
 class BattleTask;
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
-extern "C" int fn_8004ED34(Colli_unk* colli, int arg2, atn::Vector3* from, atn::Vector3* to, int mask, int arg6, int arg7); // inferred: ray test
+extern "C" int fn_8004ED34(Colli_unk* colli, void* arg2, atn::Vector3* from, atn::Vector3* to, int mask, void* arg6,
+                           int arg7); // inferred: ray test
 
 // inferred: motion ids local to this file (the bound enum type is MOTION_ID::@enum...control_appear_cpp)
 namespace MOTION_ID {

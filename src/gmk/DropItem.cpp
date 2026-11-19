@@ -54,7 +54,7 @@ struct DropCapsule_unk {
 };
 extern "C" int fn_80051BC4(const DropSegment_unk* seg, const DropCapsule_unk* capsule);
 extern "C" int fn_8004ECC0(void* world, atn::Vector3* hit, const atn::Vector3& from, const atn::Vector3& to,
-                           unsigned int flags, int arg5, int arg6);
+                           unsigned int flags, void* arg5, int arg6);
 extern "C" void* lbl_8087EE98;
 // inferred: arena (lbl_8087F610)
 struct DropArena_unk {
