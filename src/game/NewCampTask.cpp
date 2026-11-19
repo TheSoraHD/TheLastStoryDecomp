@@ -38,7 +38,8 @@
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 extern "C" atn::SoundRef fn_80117228(int id); // inferred: plays a system sound effect
 extern "C" GameTask* lbl_8087F430;
-extern "C" void* lbl_8087FA20; // inferred: town task
+class TownTask;
+extern "C" TownTask* lbl_8087FA20; // inferred: town task
 // inferred: xsca camera curves (as in game/Em309Ghoul.cpp)
 struct XsfCurveSet_unk {
     void fn_805BF410(float time, float* out, int x, int y, int z);

@@ -45,7 +45,8 @@ struct Field_unk {
 extern "C" Field_unk* lbl_8087F430;
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
 extern "C" void* lbl_8087EE90;
-extern "C" void* lbl_8087F418;
+class EnvSeManager;
+extern "C" EnvSeManager* lbl_8087F418;
 namespace Event {
 class Manager;
 }
