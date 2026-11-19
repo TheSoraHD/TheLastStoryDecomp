@@ -11,6 +11,7 @@
 #include "game/CharaStatus.h"
 #include "game/MenuCommonTask.h"
 #include "atn/RenderManager.h"
+#include "atn/D2A_Manager.h"
 
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" char* strstr(const char* s, const char* sub);
@@ -38,13 +39,6 @@ struct NewCampCamp_unk {
     NewCampPartsBase* mCurrent; // 0x11F0: inferred: parts shown now
 };
 
-// inferred: d2anime manager of the menus; m1A8/m1AC: the current anime and layout
-struct NewCampD2AManager_unk {
-    unsigned char m000[0x1A8];
-    void* m1A8;
-    void* m1AC;
-};
-extern "C" NewCampD2AManager_unk* lbl_8087F138;
 
 #define __MAX_unk(a, b) ((a) > (b) ? (a) : (b))
 #define __MIN_unk(a, b) ((a) < (b) ? (a) : (b))
@@ -594,10 +588,10 @@ __declspec(noinline) void fn_80511664(int event) {}
 void fn_80511668(atn::D2A_Common* element, atn::D2A_DrawColor* color, void* outlineColor) {
     fn_80511664(1);
     if (lbl_8087F138 != 0 && MenuCommonTask::sInstance != 0) {
-        if (lbl_8087F138->m1AC != 0) {
-            MenuCommonTask::sInstance->fn_804A71F0(lbl_8087F138->m1AC, element, color, outlineColor);
-        } else if (lbl_8087F138->m1A8 != 0) {
-            MenuCommonTask::sInstance->fn_804A660C(lbl_8087F138->m1A8, element, color, outlineColor);
+        if (lbl_8087F138->mInstance != 0) {
+            MenuCommonTask::sInstance->fn_804A71F0(lbl_8087F138->mInstance, element, color, outlineColor);
+        } else if (lbl_8087F138->mCurrent != 0) {
+            MenuCommonTask::sInstance->fn_804A660C(lbl_8087F138->mCurrent, element, color, outlineColor);
         }
     }
 }

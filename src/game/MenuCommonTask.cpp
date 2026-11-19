@@ -16,6 +16,7 @@
 #include "atn/D2A_TaskInstanceC.h"
 #include "atn/TextTable_unk.h"
 #include "game/GameConfig_unk.h"
+#include "atn/D2A_Manager.h"
 
 extern "C" MenuD2A_unk* fn_801F3FF8(atn::Task* parent, const char* path, int arg); // inferred: creates a D2A anime
 extern "C" void fn_805115D0(MenuD2A_unk* anime, int arg1, int arg2, float a, float b);
@@ -381,21 +382,14 @@ extern "C" void fn_804A3B60(MenuLayout_unk* layout, int arg1, int repeat, float 
     }
 }
 
-// inferred: d2anime manager (see atn/D2A_Task.cpp); the menu of the current anime
-struct MenuD2AManager_unk {
-    unsigned char m000[0x1A8];
-    void* m1A8; // inferred: current d2anime task
-    void* m1AC; // inferred: current layout task
-};
-extern "C" MenuD2AManager_unk* lbl_8087F138;
 
 // inferred: event callback of the menu animes: forwards to the menu task (names keep the address)
 extern "C" void fn_804A3BD4(atn::D2A_Common* element, atn::D2A_DrawColor* color, void* outlineColor) {
     if (lbl_8087F138 != 0 && MenuCommonTask::sInstance != 0) {
-        if (lbl_8087F138->m1AC != 0) {
-            MenuCommonTask::sInstance->fn_804A71F0(lbl_8087F138->m1AC, element, color, outlineColor);
-        } else if (lbl_8087F138->m1A8 != 0) {
-            MenuCommonTask::sInstance->fn_804A660C(lbl_8087F138->m1A8, element, color, outlineColor);
+        if (lbl_8087F138->mInstance != 0) {
+            MenuCommonTask::sInstance->fn_804A71F0(lbl_8087F138->mInstance, element, color, outlineColor);
+        } else if (lbl_8087F138->mCurrent != 0) {
+            MenuCommonTask::sInstance->fn_804A660C(lbl_8087F138->mCurrent, element, color, outlineColor);
         }
     }
 }

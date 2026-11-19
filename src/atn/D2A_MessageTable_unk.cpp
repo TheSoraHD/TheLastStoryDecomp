@@ -3,45 +3,13 @@
 #include "atn/Csv.h"
 #include "std/vector.h"
 #include "std/string_members.h"
+#include "atn/D2A_MessageTable_unk.h"
 
 // Table of texts by id of the d2anime menus: a UTF-16 CSV (id, text) read with atn::CsvU into one
 // text buffer. Names invented (file between atn_d2a_message and atn_d2a_reference).
 
 extern "C" wchar_t* wcscpy(wchar_t* dst, const wchar_t* src);
 extern "C" int fn_800DC1DC(const wchar_t* s); // inferred: wide string to int (atn/Util_unk.cpp)
-
-// inferred: text of an id (8 bytes)
-struct D2A_TextEntry_unk {
-    unsigned int mId;
-    wchar_t* mText;
-};
-
-// inferred: array of entries, released by its owner
-struct D2A_TextEntries_unk {
-    D2A_TextEntries_unk() : mCount(0), mEntries(0) {}
-    ~D2A_TextEntries_unk() { Clear(); }
-    void Clear() {
-        if (mEntries != 0) {
-            delete[] mEntries;
-        }
-        mEntries = 0;
-        mCount = 0;
-    }
-    void Alloc(unsigned int count) {
-        if (mEntries != 0) {
-            delete[] mEntries;
-        }
-        mCount = count;
-        if (count != 0) {
-            mEntries = new ((MemoryTag)8, "", "", 0) D2A_TextEntry_unk[count];
-        } else {
-            mEntries = 0;
-        }
-    }
-
-    unsigned int mCount;          // 0x00
-    D2A_TextEntry_unk* mEntries;  // 0x04
-};
 
 // inferred: line of the CSV while reading (0x10 bytes)
 struct D2A_TextLine_unk {
@@ -89,15 +57,6 @@ struct __vec_split_unk<D2A_TextLine_unk> : public __vec_storage_unk<D2A_TextLine
 } // namespace std
 
 // inferred: names invented
-struct D2A_MessageTable_unk {
-    D2A_MessageTable_unk();
-    ~D2A_MessageTable_unk();
-
-    D2A_TextEntries_unk mEntries; // 0x00
-    int mState;                   // 0x08: inferred: 1 loading, 2 loaded
-    atn::LH_Binary mLoader;       // 0x0C
-    wchar_t* mText;               // 0x14
-};
 
 D2A_MessageTable_unk::D2A_MessageTable_unk() : mState(0), mText(0) {}
 

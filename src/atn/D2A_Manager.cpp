@@ -5,6 +5,8 @@
 #include "math/Vec.h"
 #include "std/vector.h"
 #include "std/string_members.h"
+#include "atn/D2A_MessageTable_unk.h"
+#include "atn/D2A_Manager.h"
 
 // Manager of the d2anime icons and textures shared by the menus: loads the icon layouts (one task
 // per icon kind), the window textures and the table of texts, and replaces the "$xx" tags of the
@@ -32,12 +34,6 @@ struct GimmickUvOwner_unk {
     int fn_800D59B8();
 };
 
-// inferred: table of texts of atn/D2A_MessageTable_unk.cpp (defined there, 0x18 bytes)
-struct D2A_MessageTable_unk {
-    D2A_MessageTable_unk();
-    ~D2A_MessageTable_unk();
-    unsigned char m00[0x18];
-};
 extern "C" void fn_801F35B4(D2A_MessageTable_unk* table, const char* path, int wait);
 extern "C" int fn_801F362C(D2A_MessageTable_unk* table);
 
@@ -157,28 +153,6 @@ inline void vector<D2A_MsgPiece_unk>::__swap_out_unk(__vec_split_unk<D2A_MsgPiec
     __vec_swap_unk(this->mSize, buf.mSize);
 }
 } // namespace std
-
-namespace atn {
-
-// inferred from __vt__Q23atn11D2A_Manager (0x80782B10); allocated with 0x1B0 bytes
-class D2A_Manager : public Task {
-public:
-    D2A_Manager(Task* parent);
-    virtual ~D2A_Manager();
-    virtual int vf0C();
-    virtual void vf10();
-    virtual void vf14();
-
-    Texture_unk mTextures[3][2];   // 0x48: inferred: window textures
-    D2A_MessageTable_unk mTexts;   // 0x168
-    D2A_Task* mIcons[10];          // 0x180: icon layouts
-    D2A_Task* mCurrent;            // 0x1A8
-    void* m1AC;
-};
-
-} // namespace atn
-
-extern "C" atn::D2A_Manager* lbl_8087F138; // inferred: the instance
 
 static const char* const sIconFiles[10] = {
     "icon_skull.d2a", "icon_upitem.d2a", "tips_button.d2a", "tips_u.d2a", "tips_d.d2a",
@@ -323,7 +297,7 @@ extern "C" atn::D2A_Manager* fn_801F0D80(atn::Task* parent) {
 
 namespace atn {
 
-D2A_Manager::D2A_Manager(Task* parent) : Task(parent), mCurrent(0), m1AC(0) {
+D2A_Manager::D2A_Manager(Task* parent) : Task(parent), mCurrent(0), mInstance(0) {
     mTextures[0][0].fn_800D5908("wd_01_02.texture");
     mTextures[0][0].m2D = 0;
     mTextures[0][0].m2E = 0;
