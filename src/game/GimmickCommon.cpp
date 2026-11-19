@@ -79,14 +79,8 @@ extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 extern "C" atn::Matrix3x4 lbl_807C7060;              // inferred: identity matrix
 
-// inferred: game settings (debug switches)
-struct Settings_unk {
-    unsigned char m00[0x74];
-    int mDrawGimmickState; // 0x74
-    unsigned char m78[0x7C - 0x78];
-    int m7C;
-};
-extern "C" Settings_unk* lbl_8087F0A8;
+#include "game/GameConfig_unk.h"
+extern "C" GameConfig_unk* lbl_8087F0A8;
 extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, void* func,
                             void* arg);
 extern "C" void fn_80087E9C(void* group, const char* name, atn::Vector3* value, float min, float max, float step,
@@ -424,7 +418,7 @@ int GimmickCommon::fn_803EC91C() {
         if (busy == 0) {
             vf24();
             m68 = 3;
-            if (GimmickManager::instance_ != 0 && lbl_8087F0A8->m7C != 0 && lbl_8087FA20 == 0) {
+            if (GimmickManager::instance_ != 0 && lbl_8087F0A8->m07C != 0 && lbl_8087FA20 == 0) {
                 vf6C(GimmickManager::instance_->fn_803EEE44(m50));
             }
             if (mE4 != 0) {
@@ -519,7 +513,7 @@ void GimmickCommon::fn_803ED5D0(atn::Model* model) {
 void GimmickCommon::fn_803ED610(atn::Model* model) {
     if (m9C != 0) {
         model->fn_8008CD60();
-        if (lbl_8087F0A8->mDrawGimmickState != 0) {
+        if (lbl_8087F0A8->mDrawGimmickName != 0) {
             atn::Vector3 d = atn::RenderManager::instance_->mCamera.mPos - m6C;
             if (PSVECSquareMag(&d) < 90000.0f) {
                 atn::Vector3 screen = atn::RenderManager::instance_->GetScreenPosition(m6C);
@@ -538,7 +532,7 @@ void GimmickCommon::fn_803ED610(atn::Model* model) {
 void GimmickCommon::fn_803ED774(atn::Model* model) {
     if (m9C != 0) {
         model->fn_8008CD60();
-        if (lbl_8087F0A8->mDrawGimmickState != 0) {
+        if (lbl_8087F0A8->mDrawGimmickName != 0) {
             if (PSVECSquareMag(&(atn::RenderManager::instance_->mCamera.mPos - m6C)) < 90000.0f) {
                 atn::Vector3 screen = atn::RenderManager::instance_->GetScreenPosition(m6C);
                 if (0.0f < screen.z && screen.z < 1.0f) {

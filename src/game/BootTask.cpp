@@ -16,14 +16,8 @@ extern "C" void fn_802144A8();                                               // 
 extern "C" int fn_803CE148();
 extern "C" void fn_800D2338(atn::Task* task); // inferred: removes the task
 
-// inferred: game settings (lbl_8087F0A8); only the fields read here
-struct BootSettings_unk {
-    unsigned char m000[0x30];
-    int m30; // inferred: frames per second
-    unsigned char m034[0x1B4 - 0x34];
-    char m1B4[1]; // inferred: name of the sequence started after the boot
-};
-extern "C" BootSettings_unk* lbl_8087F0A8;
+#include "game/GameConfig_unk.h"
+extern "C" GameConfig_unk* lbl_8087F0A8;
 
 // inferred: creator of the boot sequence (registered as "BootTask" by atn/SequenceUnitParam1_const_int)
 atn::Task* fn_8010EB58(atn::Task* const parent) {
@@ -64,7 +58,7 @@ int BootTask::vf0C() {
 // inferred: removes itself and starts the first sequence
 void BootTask::vf10() {
     fn_800D2338(this);
-    atn::SequenceControl::sInstance->mNextId = atn::SequenceControl::sInstance->fn_800C37FC(lbl_8087F0A8->m1B4);
+    atn::SequenceControl::sInstance->mNextId = atn::SequenceControl::sInstance->fn_800C37FC(lbl_8087F0A8->mStrap.mBuf);
 }
 
 BootTask::~BootTask() {}

@@ -21,12 +21,8 @@ extern "C" void __destroy_arr(void* block, void (*dtor)(), unsigned long size, u
 
 extern "C" const char* fn_80207EE8(int id); // inferred: BGM name of an id
 extern "C" int fn_80207F34(int id);
-// inferred: game settings (lbl_8087F0A8)
-struct GameBgmSettings_unk {
-    unsigned char m00[0x15C];
-    int m15C; // inferred: alternative BGM set
-};
-extern "C" GameBgmSettings_unk* lbl_8087F0A8;
+#include "game/GameConfig_unk.h"
+extern "C" GameConfig_unk* lbl_8087F0A8;
 extern "C" GameTask* lbl_8087F430;
 // inferred: sound engine (lbl_8087EE90) and sound configuration (lbl_8087EFE8)
 extern "C" void* lbl_8087EE90;
