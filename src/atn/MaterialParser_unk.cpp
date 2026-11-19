@@ -1064,21 +1064,23 @@ void Material_unk::fn_8007FE5C(const atn::ShaderDesc_unk* desc) {
     fn_80081D00();
 }
 
-// inferred: scrolls the UV transforms of the animated stages
-// NONMATCHING: 99.4% - f1/f2 swapped between the frame speed and the UV offset of each fmadds
 // inferred: sine wave {amplitude, frequency, phase} at time t
 static inline float Wave_unk(const atn::Vector3& w, float t) { return w.x * (float)sin(w.y * t + w.z); }
 
+// inferred: frame time of the render settings read through an accessor; iu/iv declared at the top (C style)
+static inline float FrameDt_unk() { return lbl_8087EFA8->m3A4; }
+// inferred: scrolls the UV transforms of the animated stages
 void Material_unk::fn_80080048(float time) {
     TexStage_unk* stage;
+    float iu;
+    float iv;
     for (int i = 0; i < m4B; i++) {
         TexAnim_unk* anim = &m10[i];
         stage = anim->mStage;
         if (stage == 0) {
             continue;
         }
-        float dt = lbl_8087EFA8->m3A4;
-        float u = anim->mScrollU * dt + stage->GetTransU();
+        float u = anim->mScrollU * FrameDt_unk() + stage->GetTransU();
         float scale = stage->GetScaleU();
         if (anim->mWave) {
             float period = 6.2831855f / anim->mWaveU.y;
@@ -1092,8 +1094,7 @@ void Material_unk::fn_80080048(float time) {
             u -= scale;
         }
         stage->SetTransU(u);
-        dt = lbl_8087EFA8->m3A4;
-        float v = anim->mScrollV * dt + stage->GetTransV();
+        float v = anim->mScrollV * FrameDt_unk() + stage->GetTransV();
         scale = stage->GetScaleV();
         if (anim->mWave) {
             float period = 6.2831855f / anim->mWaveV.y;
@@ -1108,8 +1109,7 @@ void Material_unk::fn_80080048(float time) {
         }
         stage->SetTransV(v);
         if (anim->mInd) {
-            dt = lbl_8087EFA8->m3A4;
-            float iu = anim->mIndScrollU * dt + stage->GetIndTransU();
+            iu = anim->mIndScrollU * FrameDt_unk() + stage->GetIndTransU();
             if (iu < 0.0f) {
                 iu += stage->GetIndScaleU();
             }
@@ -1117,8 +1117,7 @@ void Material_unk::fn_80080048(float time) {
                 iu -= stage->GetIndScaleU();
             }
             stage->SetIndTransU(iu);
-            dt = lbl_8087EFA8->m3A4;
-            float iv = anim->mIndScrollV * dt + stage->GetIndTransV();
+            iv = anim->mIndScrollV * FrameDt_unk() + stage->GetIndTransV();
             if (iv < 0.0f) {
                 iv += stage->GetIndScaleV();
             }

@@ -510,7 +510,7 @@
    "atn::VideoTHP",
    "atn::Video"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "atn/Util_unk.cpp",
@@ -3533,7 +3533,7 @@
   "classes": [
    "atn::PostFxMotionBlur"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "atn/TextureDraw_unk.cpp",
