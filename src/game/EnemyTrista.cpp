@@ -44,79 +44,26 @@ extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the nex
 extern "C" int fn_80041A28(int arg, CharaTask* chara, CharaTask* target); extern "C" void* lbl_8087EE98;
 extern "C" int fn_8004ED34(void* colli, atn::ColliResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg7); // inferred: ray test
-// inferred: camera parameters of the field (0x3C bytes); names invented
-struct TristaCamParam_unk {
-    TristaCamParam_unk(const TristaCamParam_unk& o) {
-        Copy_unk(o);
+// inferred: starts a camera mode with its parameters (GameCamera::m46C; formerly the view FieldCamera_unk at GameTask
+// + 0x4D8)
+inline void SetCameraMode_unk(GameCameraModeParam_unk& camera, int mode, const GameCameraParam_unk& param) {
+    if (camera.mMode != mode) {
+        camera.mMode = mode;
+        camera.mParam = param;
+        camera.mStep = 0.05f;
+        camera.mWeight = 1.0f;
     }
-    TristaCamParam_unk& operator=(const TristaCamParam_unk& o) {
-        Copy_unk(o);
-        return *this;
-    }
-    void Copy_unk(const TristaCamParam_unk& o) {
-        m00 = o.m00;
-        m04 = o.m04;
-        m08 = o.m08;
-        m0C = o.m0C;
-        m10 = o.m10;
-        for (int i = 0; i < 9; i++) {
-            m14[i] = o.m14[i];
-        }
-        m38 = o.m38;
-    }
-    float m00;
-    float m04;
-    float m08;
-    float m0C;
-    float m10;
-    float m14[9];
-    int m38;
-};
-// inferred: camera mode of the field (lbl_8087F430 + 0x4D8); names invented
-struct FieldCamera_unk {
-    void Set_unk(int mode, const TristaCamParam_unk& param) {
-        if (mMode != mode) {
-            mMode = mode;
-            mParam = param;
-            m08 = 0.05f;
-            m04 = 1.0f;
-        }
-    }
-    int mMode;
-    float m04;
-    float m08;
-    TristaCamParam_unk mParam;
-};
+}
 // inferred: point the camera looks at (lbl_8087F430 + 0x97C); names invented
-struct FieldLook_unk {
-    void Set_unk(const atn::Vector3& pos, bool flag) {
-        m01 = m00;
-        m00 = 1;
-        mPos = pos;
-        m24 = 0.0f;
-        m04 = flag ? 1 : 0;
-    }
-    unsigned char m00;
-    unsigned char m01;
-    unsigned char m02[2];
-    int m04;
-    unsigned char m08[4];
-    atn::Vector3 mPos;
-    unsigned char m18[0x24 - 0x18];
-    float m24;
-};
-// inferred: field (lbl_8087F430); the event flags are read with fn_80370A78 and written with fn_80370AE4
-struct Field_unk {
-    unsigned char m0000[0x4D8];
-    FieldCamera_unk m4D8;
-    unsigned char m520[0x588 - 0x520];
-    TristaCamParam_unk m588; // inferred: default camera parameters
-    unsigned char m5C4[0x8A0 - 0x5C4];
-    CharaTask* m8A0;         // inferred: character the camera follows
-    unsigned char m8A4[0x97C - 0x8A4];
-    FieldLook_unk m97C;
-};
-extern "C" Field_unk* lbl_8087F430;
+// inferred: the camera looks at a point (GameCamera::m910..m934; formerly the view FieldLook_unk at GameTask + 0x97C)
+inline void SetCameraLook_unk(GameCamera& camera, const atn::Vector3& pos, bool flag) {
+    camera.m911 = camera.m910;
+    camera.m910 = 1;
+    camera.m91C = pos;
+    camera.m934 = 0.0f;
+    camera.m914 = flag ? 1 : 0;
+}
+extern "C" GameTask* lbl_8087F430;
 
 static const char* const sSounds[] = {"SE_BTCOM_026", "SE_BTCOM_040"};
 static const char* const sEffect0 = "/effect/ef_sp007a.efp";
@@ -265,11 +212,11 @@ void EnemyTrista::fn_8035C1B4() {
 }
 
 inline void EnemyTrista::ResetCamera_unk() {
-    Field_unk* field = lbl_8087F430;
+    GameTask* field = lbl_8087F430;
     if (m14D8 != 0) {
-        field->m8A0 = 0;
-        field->m4D8.mMode = 0;
-        field->m97C.m00 = 0;
+        field->mCamera.m834 = 0;
+        field->mCamera.m46C.mMode = 0;
+        field->mCamera.m910 = 0;
         m14D8 = 0;
     }
 }
@@ -298,8 +245,8 @@ inline void EnemyTrista::StartEvent_unk() {
     unsigned int i = 0;
     TristaEvent_unk* e = m1540.mData;
     for (; i < m1540.mCount; i++) {
-        if (((GameTask*)lbl_8087F430)->fn_80370A78(e->m00) == 0) {
-            ((GameTask*)lbl_8087F430)->fn_80370AE4(e->m00, 1);
+        if (lbl_8087F430->fn_80370A78(e->m00) == 0) {
+            lbl_8087F430->fn_80370AE4(e->m00, 1);
             m14D0 = i;
             break;
         }
@@ -319,8 +266,8 @@ void EnemyTrista::vf10() {
         }
         if (m14D0 >= 0) {
             TristaEvent_unk* e = &m1540.mData[m14D0];
-            if (((GameTask*)lbl_8087F430)->fn_80370A78(e->m00) != 1) {
-                if (((GameTask*)lbl_8087F430)->fn_80370A78(e->m04) == 0) {
+            if (lbl_8087F430->fn_80370A78(e->m00) != 1) {
+                if (lbl_8087F430->fn_80370A78(e->m04) == 0) {
                     m14D4 = m14D0;
                     if (m14D4 >= 1) {
                         m14C0 = 1;
@@ -485,7 +432,7 @@ void EnemyTrista::fn_8035C8CC() {
                     m58C = 10;
                     m14B8 = 0;
                     fn_80178208(new ((MemoryTag)0, "", "", 0) ControlShingan(this, 900000));
-                    ((GameTask*)lbl_8087F430)->fn_80370AE4(0x67, 1);
+                    lbl_8087F430->fn_80370AE4(0x67, 1);
                 } else {
                     bool jump;
                     if (mC58.mC4 == 0) {
@@ -602,7 +549,7 @@ void EnemyTrista::fn_8035CF78() {
 // NONMATCHING: 60.9% - the original copies the default camera parameters through FPRs into
 // saved registers before the mode test (member-wise copy scheduled differently here)
 void EnemyTrista::fn_8035D294() {
-    Field_unk* field = lbl_8087F430;
+    GameTask* field = lbl_8087F430;
     switch (m55C) {
     case 6:
         if (m560 == 13) {
@@ -612,20 +559,20 @@ void EnemyTrista::fn_8035D294() {
             atn::Vector3 pos = mPos;
             pos.y += 15.0f;
             if (m14D8 == 0) {
-                field->m8A0 = this;
-                TristaCamParam_unk param = field->m588;
+                field->mCamera.m834 = this;
+                GameCameraParam_unk param = field->mCamera.m51C;
                 param.m00 = 15.0f;
                 param.m04 = 0.7853982f;
                 param.m08 = -0.43633232f;
                 param.m10 = 8.0f;
-                field->m4D8.Set_unk(4, param);
+                SetCameraMode_unk(field->mCamera.m46C, 4, param);
                 atn::Vector3 look = mPos;
                 look.y += 25.0f;
-                field->m97C.Set_unk(look, false);
+                SetCameraLook_unk(field->mCamera, look, false);
                 m14D8 = 1;
             } else {
-                field->m8A0 = this;
-                field->m97C.mPos = pos;
+                field->mCamera.m834 = this;
+                field->mCamera.m91C = pos;
             }
             break;
         }
@@ -725,7 +672,7 @@ void EnemyTrista::vf3C(HitInfo_unk* hit, int arg) {
         }
     } else if (m14E0 != 0) {
         if (HasHit_unk(m151C, msg->mData)) {
-            ((GameTask*)lbl_8087F430)->fn_80370AE4(0x6D, 1);
+            lbl_8087F430->fn_80370AE4(0x6D, 1);
             if (fn_8035D4E0(msg)) {
                 m58C = 9;
                 m14B8 = 0;
@@ -739,7 +686,7 @@ void EnemyTrista::vf3C(HitInfo_unk* hit, int arg) {
         } else {
             m151C.PushBack_unk(msg->mData);
             fn_8035DC58(0, 0.0f);
-            ((GameTask*)lbl_8087F430)->fn_80370AE4(0x76, 1);
+            lbl_8087F430->fn_80370AE4(0x76, 1);
             msg->m50 |= 8;
             m14DC = 1;
         }
@@ -784,7 +731,7 @@ int EnemyTrista::fn_8035DA94() {
     float ratio = mStatus.m04 / mStatus.mParamB.m84;
     TristaEvent_unk* e = m1540.mData;
     for (unsigned int i = 0; i < m1540.mCount; i++) {
-        if (((GameTask*)lbl_8087F430)->fn_80370A78(e->m00) == 0 && ratio <= e->m08) {
+        if (lbl_8087F430->fn_80370A78(e->m00) == 0 && ratio <= e->m08) {
             return 1;
         }
         e++;

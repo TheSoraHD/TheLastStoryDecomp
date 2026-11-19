@@ -21,97 +21,29 @@ extern "C" std::string fn_8006AFF8(const std::string& a, const std::string& b);
 // inferred: debug menu entry (as in game/Em101ElderZesya.cpp)
 extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3, int arg4);
 // inferred: point the camera looks at (lbl_8087F430 + 0x97C, as ElderLook_unk in game/Em101ElderZesya.cpp)
-struct ZesyaLook_unk {
-    void Set_unk(const atn::Vector3& pos, bool flag) {
-        m01 = m00;
-        m00 = 1;
-        mPos = pos;
-        m24 = 0.0f;
-        if (flag) {
-            m04 = 1;
-        } else {
-            m04 = 0;
-        }
+// inferred: the camera looks at a point (GameCamera::m910..m934; formerly the view ZesyaLook_unk at GameTask + 0x97C)
+inline void SetCameraLook_unk(GameCamera& camera, const atn::Vector3& pos, bool flag) {
+    camera.m911 = camera.m910;
+    camera.m910 = 1;
+    camera.m91C = pos;
+    camera.m934 = 0.0f;
+    if (flag) {
+        camera.m914 = 1;
+    } else {
+        camera.m914 = 0;
     }
-    unsigned char m00;
-    unsigned char m01;
-    unsigned char m02[2];
-    int m04;
-    unsigned char m08[4];
-    atn::Vector3 mPos;
-    unsigned char m18[0x24 - 0x18];
-    float m24;
-};
-// inferred: camera parameters of the field (lbl_8087F430 + 0x588, as ElderCamParam_unk in
-// game/Em101ElderZesya.cpp)
-struct ZesyaCamParam_unk {
-    ZesyaCamParam_unk(const ZesyaCamParam_unk& o)
-        : m00(o.m00), m04(o.m04), m08(o.m08), m0C(o.m0C), m10(o.m10), m14(o.m14), m18(o.m18), m1C(o.m1C),
-          m20(o.m20), m24(o.m24), m28(o.m28), m2C(o.m2C), m30(o.m30), m34(o.m34), m38(o.m38) {}
-    ZesyaCamParam_unk& operator=(const ZesyaCamParam_unk& o) {
-        m00 = o.m00;
-        m04 = o.m04;
-        m08 = o.m08;
-        m0C = o.m0C;
-        m10 = o.m10;
-        m14 = o.m14;
-        m18 = o.m18;
-        m1C = o.m1C;
-        m20 = o.m20;
-        m24 = o.m24;
-        m28 = o.m28;
-        m2C = o.m2C;
-        m30 = o.m30;
-        m34 = o.m34;
-        m38 = o.m38;
-        return *this;
+}
+// inferred: starts a camera mode with its parameters (GameCamera::m46C; formerly the view ZesyaCamera_unk at GameTask
+// + 0x4D8)
+inline void SetCameraMode_unk(GameCameraModeParam_unk& camera, int mode, const GameCameraParam_unk& param) {
+    if (camera.mMode != mode) {
+        camera.mMode = mode;
+        camera.mParam = param;
+        camera.mStep = 0.05f;
+        camera.mWeight = 1.0f;
     }
-    float m00;
-    float m04;
-    float m08;
-    float m0C;
-    float m10;
-    float m14;
-    float m18;
-    float m1C;
-    float m20;
-    float m24;
-    float m28;
-    float m2C;
-    float m30;
-    float m34;
-    int m38;
-};
-// inferred: camera mode of the field (lbl_8087F430 + 0x4D8, as ElderCamera_unk in game/Em101ElderZesya.cpp)
-struct ZesyaCamera_unk {
-    void Set_unk(int mode, const ZesyaCamParam_unk& param) {
-        if (mMode != mode) {
-            mMode = mode;
-            mParam = param;
-            m08 = 0.05f;
-            m04 = 1.0f;
-        }
-    }
-    int mMode;
-    float m04;
-    float m08;
-    ZesyaCamParam_unk mParam;
-};
-// inferred: field (lbl_8087F430): camera at 0x4D8, look point at 0x97C, route tables at 0x10D8 (as in
-// game/Em101ElderZesya.cpp)
-struct Field_unk {
-    unsigned char m0000[0x4D8];
-    ZesyaCamera_unk m4D8;
-    unsigned char m520[0x588 - 0x520];
-    ZesyaCamParam_unk m588;
-    unsigned char m5C4[0x8A0 - 0x5C4];
-    CharaTask* m8A0; // inferred: character the camera follows
-    unsigned char m8A4[0x97C - 0x8A4];
-    ZesyaLook_unk m97C;
-    unsigned char m9A4[0x10D8 - 0x9A4];
-    GameScene* m10D8;
-};
-extern "C" Field_unk* lbl_8087F430;
+}
+extern "C" GameTask* lbl_8087F430;
 // inferred: word at 0x1C of the running control (class unknown)
 struct Control1C_unk {
     unsigned char m00[0x1C];
@@ -226,10 +158,10 @@ inline void Em101LittleZesyaSecond::ResetAction_unk() {
 // inferred: gives the camera back (name invented)
 inline void Em101LittleZesyaSecond::ReleaseCamera_unk() {
     if (m154C != 0) {
-        Field_unk* field = lbl_8087F430;
-        field->m8A0 = 0;
-        field->m4D8.mMode = 0;
-        field->m97C.m00 = 0;
+        GameTask* field = lbl_8087F430;
+        field->mCamera.m834 = 0;
+        field->mCamera.m46C.mMode = 0;
+        field->mCamera.m910 = 0;
         m154C = 0;
     }
 }
@@ -299,12 +231,12 @@ inline void Em101LittleZesyaSecond::Slash_unk() {
 void Em101LittleZesyaSecond::vf10() {
     m14B8 = mC58.mC4;
     m14BC++;
-    if (((GameTask*)lbl_8087F430)->fn_80370A78(0xFA) == 1) {
+    if (lbl_8087F430->fn_80370A78(0xFA) == 1) {
         ReleaseCamera_unk();
         ResetAction_unk();
         m58C = 0;
         fn_8016E970(3);
-        ((GameTask*)lbl_8087F430)->fn_80370AE4(0xFA, 0);
+        lbl_8087F430->fn_80370AE4(0xFA, 0);
     }
     if (mC58.mC0 == 0 || m14B8 == 0) {
         if (m58C == 2) {
@@ -381,7 +313,7 @@ void Em101LittleZesyaSecond::vf10() {
                 m58C = 0;
                 fn_8016E970(3);
                 m14BC = m14D4;
-                Field_unk* field = lbl_8087F430;
+                GameTask* field = lbl_8087F430;
                 ((GameTask*)field)->fn_80370AE4(0xF1, ((GameTask*)field)->fn_80370A78(0xF1) + 1);
             }
             break;
@@ -395,7 +327,7 @@ void Em101LittleZesyaSecond::vf10() {
                     ResetAction_unk();
                     m58C = 0;
                     fn_8016E970(3);
-                    Field_unk* field = lbl_8087F430;
+                    GameTask* field = lbl_8087F430;
                     ((GameTask*)field)->fn_80370AE4(0xF1, ((GameTask*)field)->fn_80370A78(0xF1) + 1);
                 }
             }
@@ -428,11 +360,11 @@ void Em101LittleZesyaSecond::vf10() {
         }
         if (m58C != 11) {
             int camera = m154C;
-            Field_unk* field = lbl_8087F430;
+            GameTask* field = lbl_8087F430;
             if (camera != 0) {
-                field->m8A0 = 0;
-                field->m4D8.mMode = 0;
-                field->m97C.m00 = 0;
+                field->mCamera.m834 = 0;
+                field->mCamera.m46C.mMode = 0;
+                field->mCamera.m910 = 0;
                 m154C = 0;
             }
         }
@@ -616,7 +548,7 @@ void Em101LittleZesyaSecond::fn_80261948() {
             SetHit_unk(fn_80219E6C(0xE5));
             ((Control1C_unk*)mControl.get())->m1C = 1;
             m58C = 1;
-            Field_unk* field = lbl_8087F430;
+            GameTask* field = lbl_8087F430;
             ((GameTask*)field)->fn_80370AE4(0xF1, ((GameTask*)field)->fn_80370A78(0xF0) + 1);
         }
         break;
@@ -685,7 +617,7 @@ void Em101LittleZesyaSecond::fn_80261A50() {
 // dead branch of the original
 // inferred: state 11, the camera follows the enemy while its control runs (as Em101ElderZesya::fn_8025922C)
 void Em101LittleZesyaSecond::fn_80261DC0() {
-    Field_unk* field = lbl_8087F430;
+    GameTask* field = lbl_8087F430;
     if (m55C == 6) {
         switch (m560) {
         case 13:
@@ -696,21 +628,21 @@ void Em101LittleZesyaSecond::fn_80261DC0() {
             atn::Vector3 pos = mPos;
             pos.y += 15.0f;
             if (m154C == 0) {
-                ZesyaCamera_unk* cam = &field->m4D8;
-                ZesyaCamParam_unk param = field->m588;
+                GameCameraModeParam_unk* cam = &field->mCamera.m46C;
+                GameCameraParam_unk param = field->mCamera.m51C;
                 param.m08 = -0.43633232f;
                 param.m04 = 0.7853982f;
                 param.m00 = 15.0f;
                 param.m10 = 8.0f;
-                field->m8A0 = this;
-                cam->Set_unk(4, param);
+                field->mCamera.m834 = this;
+                SetCameraMode_unk(*cam, 4, param);
                 atn::Vector3 look = mPos;
                 look.y += 25.0f;
-                field->m97C.Set_unk(look, false);
+                SetCameraLook_unk(field->mCamera, look, false);
                 m154C = 1;
             } else {
-                field->m8A0 = this;
-                field->m97C.mPos = pos;
+                field->mCamera.m834 = this;
+                field->mCamera.m91C = pos;
             }
             break;
         }

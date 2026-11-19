@@ -76,37 +76,19 @@ extern "C" void* lbl_8087EF70;
 extern "C" int fn_800A555C(void* pad, int port, int button); // inferred: button triggered
 extern "C" GameUI* lbl_8087F490;
 // inferred: point the camera looks at (lbl_8087F430 + 0x97C, as in game/Em302Kraken.cpp); names invented
-struct MulueLook_unk {
-    void Set_unk(const atn::Vector3& pos, bool flag) {
-        m01 = m00;
-        m00 = 1;
-        mPos = pos;
-        m24 = 0.0f;
-        if (flag) {
-            m04 = 1;
-        } else {
-            m04 = 0;
-        }
+// inferred: the camera looks at a point (GameCamera::m910..m934; formerly the view MulueLook_unk at GameTask + 0x97C)
+inline void SetCameraLook_unk(GameCamera& camera, const atn::Vector3& pos, bool flag) {
+    camera.m911 = camera.m910;
+    camera.m910 = 1;
+    camera.m91C = pos;
+    camera.m934 = 0.0f;
+    if (flag) {
+        camera.m914 = 1;
+    } else {
+        camera.m914 = 0;
     }
-    unsigned char m00;
-    unsigned char m01;
-    unsigned char m02[2];
-    int m04;
-    unsigned char m08[4];
-    atn::Vector3 mPos;
-    unsigned char m18[0x24 - 0x18];
-    float m24;
-};
-// inferred: field (lbl_8087F430); names invented
-struct Field_unk {
-    unsigned char m0000[0x8A0];
-    CharaTask* m8A0; // inferred: character the camera follows
-    unsigned char m8A4[0x97C - 0x8A4];
-    MulueLook_unk m97C;
-    unsigned char m9A4[0x10D8 - 0x9A4];
-    GameScene* m10D8;
-};
-extern "C" Field_unk* lbl_8087F430;
+}
+extern "C" GameTask* lbl_8087F430;
 extern "C" void fn_8003EA3C(DamageResult_unk* result, HitInfo_unk* data, CharaTask* attacker, CharaTask* owner,
                             unsigned int flags, const void* param, int arg, int arg2); // inferred: computes the damage
 struct HitParam_unk;
@@ -244,7 +226,7 @@ inline void Em204Mulue::StartThrust_unk() {
     PlayMotion_unk(0x3D, 0, 0.0f);
     mMotion.mTracks[0].m0C = 0.0f;
     if (m1854 != 0) {
-        ((GameTask*)lbl_8087F430)->fn_80370AE4(m1684, 1);
+        lbl_8087F430->fn_80370AE4(m1684, 1);
     }
 }
 inline void Em204Mulue::ShowMessage_unk(int id) {
@@ -772,8 +754,8 @@ void Em204Mulue::fn_802A74A4() {
     float angle = fn_802A7910(fn_802A7964(rot.y - mRot.y));
     PlayerTask* player = lbl_8087F8A0->mHead;
     if (m15E4 >= 60 && (player->fn_801789D8(0x9C, 0) || player->fn_801789D8(0xA0, 0))) {
-        if (((GameTask*)lbl_8087F430)->fn_80370A78(0xDC) == 0) {
-            ((GameTask*)lbl_8087F430)->fn_80370AE4(0xDC, 1);
+        if (lbl_8087F430->fn_80370A78(0xDC) == 0) {
+            lbl_8087F430->fn_80370AE4(0xDC, 1);
         }
         m14F4 = 6;
         m15E4 = 0;
@@ -1264,8 +1246,8 @@ void Em204Mulue::fn_802AA534() {
                 PlayMotion_unk(0x141, 0, 1.0f);
                 PlayerTask* player = lbl_8087F8A0->mHead;
                 if (player->fn_801789D8(0x9C, 0) || player->fn_801789D8(0xA0, 0)) {
-                    if (((GameTask*)lbl_8087F430)->fn_80370A78(0xDC) == 0) {
-                        ((GameTask*)lbl_8087F430)->fn_80370AE4(0xDC, 1);
+                    if (lbl_8087F430->fn_80370A78(0xDC) == 0) {
+                        lbl_8087F430->fn_80370AE4(0xDC, 1);
                     }
                 }
                 return;
@@ -1316,20 +1298,20 @@ void Em204Mulue::vfEC() {
                 PSMTXMultVec(m, &v, &v);
                 mPos += v;
             }
-            Field_unk* field = lbl_8087F430;
+            GameTask* field = lbl_8087F430;
             if (mMotion.mTracks[0].m08 < 60.0f) {
                 atn::Vector3 pos = GetNodePos_unk(mMotion.GetNodeMtx_unk("hips"));
                 if (m15F0 == 0) {
-                    field->m8A0 = this;
-                    field->m97C.Set_unk(pos, false);
+                    field->mCamera.m834 = this;
+                    SetCameraLook_unk(field->mCamera, pos, false);
                     m15F0 = 1;
                 } else {
-                    field->m8A0 = this;
-                    field->m97C.mPos = pos;
+                    field->mCamera.m834 = this;
+                    field->mCamera.m91C = pos;
                 }
             } else if (m15F0 != 0) {
-                field->m8A0 = 0;
-                field->m97C.m00 = 0;
+                field->mCamera.m834 = 0;
+                field->mCamera.m910 = 0;
                 m15F0 = 0;
             }
         }
@@ -1475,15 +1457,15 @@ void Em204Mulue::fn_802AB97C() {
     mMotion.mTracks[0].m0C = 1.0f;
     mMotion.fn_80097C08(0, 0x35, 0, 0, 1, 0.0f, 0.03f);
     m14B8 = 0;
-    ((GameTask*)lbl_8087F430)->fn_80370AE4(0x50, 2);
+    lbl_8087F430->fn_80370AE4(0x50, 2);
     fn_80232B7C(0, 0);
     PlayEffect_unk(&m152C, &mMotion);
     ShowMessage_unk(0xED);
     if (m1854 != 0) {
-        ((GameTask*)lbl_8087F430)->fn_80370AE4(m1680, 1);
+        lbl_8087F430->fn_80370AE4(m1680, 1);
     }
-    if (m1688 != 0 && ((GameTask*)lbl_8087F430)->fn_80370A78(m1688) == 0) {
-        ((GameTask*)lbl_8087F430)->fn_80370AE4(m1688, 1);
+    if (m1688 != 0 && lbl_8087F430->fn_80370A78(m1688) == 0) {
+        lbl_8087F430->fn_80370AE4(m1688, 1);
     }
     if (m1644 != 0) {
         m1644->fn_8015AC48(-1);

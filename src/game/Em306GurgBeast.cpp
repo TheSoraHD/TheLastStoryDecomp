@@ -1,3 +1,4 @@
+#include "game/GameTask.h"
 #include "macros.h"
 #include "game/Em306GurgBeast.h"
 #include "game/GameCamera.h"
@@ -19,13 +20,7 @@ extern "C" int strcmp(const char* a, const char* b);
 extern "C" char* strstr(const char* s, const char* sub);
 extern "C" int atoi(const char* s);
 extern "C" int fn_800DC12C(const char* s); // inferred: string to int
-// inferred: field (lbl_8087F430): route tables at 0x10D8 (as in game/CharaC58_unk.cpp)
-struct Field_unk {
-    unsigned char m0000[0x6C];
-    unsigned char m006C[0x10D8 - 0x6C]; // inferred: object of fn_8037EF30
-    GameScene* m10D8;
-};
-extern "C" Field_unk* lbl_8087F430;
+extern "C" GameTask* lbl_8087F430;
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
 extern "C" double cos(double x);
@@ -591,7 +586,7 @@ void Em306GurgBeast::vf104() {
             fn_802F1320(1);
         } else if (fn_800A555C(lbl_8087EF70, 0, 9) != 0) {
             if (lbl_8087F430 != 0) {
-                ((GameCamera*)lbl_8087F430->m006C)->fn_8037EF30(0, 0, -1.0f);
+                lbl_8087F430->mCamera.fn_8037EF30(0, 0, -1.0f);
             }
         } else if (fn_800A55D4(lbl_8087EF70, 0, 4) != 0) {
             m154C = 1;

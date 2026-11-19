@@ -7,6 +7,7 @@ struct WarpPoint;
 }
 
 // inferred from __vt__15BattleCharaTask (0x80779B68)
+class GameTask;
 class BattleCharaTask : public CharaTask {
 public:
     BattleCharaTask(atn::Task* parent, int type, void* data); // 0x800E2AF8
@@ -39,14 +40,14 @@ public:
     // inferred: weak copy 0x800EC1F4 (name invented)
     void SetFlagC26_unk(int value) { mFlagC26 = value; }
     void fn_800E610C(); // inferred: moves (or swaps places) in the input direction; the party follows in mode 2
-    void fn_800E62AC(struct Field_unk* field, int a, int b); // inferred: input of the player in the field
+    void fn_800E62AC(GameTask* field, int a, int b); // inferred: input of the player in the field
     int fn_800E70EC(int a, int b, int c);
     int fn_800E7214(CharaTask** out, int keep);
-    int fn_800E73EC(struct Field_unk* field, int b, int c); // inferred: input of the player (lock-on, auto attack) // inferred: target of the player's attack (keep: prefer m1440) // inferred: auto attack of the player (button attack correction)
+    int fn_800E73EC(GameTask* field, int b, int c); // inferred: input of the player (lock-on, auto attack) // inferred: target of the player's attack (keep: prefer m1440) // inferred: auto attack of the player (button attack correction)
     void fn_800E8FB8(); // inferred: shoots the selected arrow of the crossbow
     void fn_800E9110(); // inferred: casts the magic m145C of mStatus.m2CC in front (or at the aimed point)
     void fn_800E932C(atn::Vector3* from, atn::Vector3* to, int arg); // inferred: aimed shot
-    void fn_800E7650(struct Field_unk* field, int, int); // inferred: input of the player in the battle mode (lock-on, crossbow)
+    void fn_800E7650(GameTask* field, int, int); // inferred: input of the player in the battle mode (lock-on, crossbow)
     void fn_800E7BB0(); // inferred: starts the overdrive/special skill of the character
     void fn_800E7F04();
     void fn_800E8688(int a, int b, CharaTask* target, const atn::Vector3* pos, int c, int d); // inferred: starts an attack
