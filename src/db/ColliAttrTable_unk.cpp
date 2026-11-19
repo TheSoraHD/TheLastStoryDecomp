@@ -6,10 +6,12 @@ extern "C" char* strncpy(char* dst, const char* src, unsigned long n);
 extern "C" int fn_800DC12C(const char* s); // inferred: string to int
 
 // inferred: resource manager (lbl_8087F518): loads a whole file / releases it
-struct Unk_8087F518;
-extern "C" Unk_8087F518* lbl_8087F518;
-extern "C" void* fn_8046DC5C(Unk_8087F518* mgr, const char* path, unsigned long* size, int align);
-extern "C" void fn_8046DD20(Unk_8087F518* mgr, void* data);
+namespace atn {
+class Loader;
+}
+extern "C" atn::Loader* lbl_8087F518;
+extern "C" void* fn_8046DC5C(atn::Loader* mgr, const char* path, unsigned long* size, int align);
+extern "C" void fn_8046DD20(atn::Loader* mgr, void* data);
 
 // inferred: one row of /boot/colli_attr_table.csv (0x80 bytes, indexed by the attribute id)
 struct ColliAttrEntry_unk {

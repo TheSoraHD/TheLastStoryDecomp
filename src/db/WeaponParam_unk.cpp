@@ -17,10 +17,12 @@ extern "C" float fn_800DC288(const char* s); // inferred: string to float
 extern "C" int fn_800DC12C(const char* s);   // inferred: string to number
 
 // inferred: resource manager (lbl_8087F518): loads a whole file / releases it
-struct Unk_8087F518;
-extern "C" Unk_8087F518* lbl_8087F518;
-extern "C" void* fn_8046DC5C(Unk_8087F518* mgr, const char* path, unsigned long* size, int align);
-extern "C" void fn_8046DD20(Unk_8087F518* mgr, void* data);
+namespace atn {
+class Loader;
+}
+extern "C" atn::Loader* lbl_8087F518;
+extern "C" void* fn_8046DC5C(atn::Loader* mgr, const char* path, unsigned long* size, int align);
+extern "C" void fn_8046DD20(atn::Loader* mgr, void* data);
 // inferred: loads a whole file / releases it
 extern "C" void* fn_8006BA8C(const char* path, unsigned long* size, int arg);
 

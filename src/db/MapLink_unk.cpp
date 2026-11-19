@@ -9,10 +9,12 @@ extern "C" wchar_t* wcscpy(wchar_t* dst, const wchar_t* src);
 extern "C" int fn_800DC1DC(const wchar_t* s); // inferred: wide string to int
 
 // inferred: resource manager (lbl_8087F518): loads a whole file / releases it
-struct Unk_8087F518;
-extern "C" Unk_8087F518* lbl_8087F518;
-extern "C" void* fn_8046DC5C(Unk_8087F518* mgr, const char* path, unsigned long* size, int align);
-extern "C" void fn_8046DD20(Unk_8087F518* mgr, void* data);
+namespace atn {
+class Loader;
+}
+extern "C" atn::Loader* lbl_8087F518;
+extern "C" void* fn_8046DC5C(atn::Loader* mgr, const char* path, unsigned long* size, int align);
+extern "C" void fn_8046DD20(atn::Loader* mgr, void* data);
 
 // inferred: splits a map id into its kind and two numbers (db/MapIdTable_unk.cpp)
 extern "C" bool fn_80216AFC(const char* id, int* type, int* map, int* point);

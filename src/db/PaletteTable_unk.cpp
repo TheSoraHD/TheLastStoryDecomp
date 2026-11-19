@@ -15,10 +15,12 @@ extern "C" void* lbl_8087EEC8;
 extern "C" int fn_8006F420(void* font, char* dst, const wchar_t* src, int size);
 
 // inferred: resource manager (lbl_8087F518): loads a whole file / releases it
-struct Unk_8087F518;
-extern "C" Unk_8087F518* lbl_8087F518;
-extern "C" void* fn_8046DC5C(Unk_8087F518* mgr, const char* path, unsigned long* size, int align);
-extern "C" void fn_8046DD20(Unk_8087F518* mgr, void* data);
+namespace atn {
+class Loader;
+}
+extern "C" atn::Loader* lbl_8087F518;
+extern "C" void* fn_8046DC5C(atn::Loader* mgr, const char* path, unsigned long* size, int align);
+extern "C" void fn_8046DD20(atn::Loader* mgr, void* data);
 
 // inferred: colour
 struct PaletteColor_unk {

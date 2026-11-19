@@ -7,9 +7,11 @@ extern "C" float fn_800DC288(const char* s); // inferred: string to float
 extern "C" int fn_800DC12C(const char* s);   // inferred: string to int
 
 // inferred: resource manager (lbl_8087F518): loads a whole file
-struct Unk_8087F518;
-extern "C" Unk_8087F518* lbl_8087F518;
-extern "C" void* fn_8046DC5C(Unk_8087F518* mgr, const char* path, unsigned long* size, int align);
+namespace atn {
+class Loader;
+}
+extern "C" atn::Loader* lbl_8087F518;
+extern "C" void* fn_8046DC5C(atn::Loader* mgr, const char* path, unsigned long* size, int align);
 
 // inferred: chase parameters of the global object lbl_8087F0A8 (only the members set here;
 // names from the CSV keys)
