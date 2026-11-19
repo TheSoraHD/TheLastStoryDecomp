@@ -68,7 +68,7 @@ Repo `TheSoraHD/TheLastStoryDecomp` (plantilla decomp-toolkit + objdiff + ninja)
 1. Match solo si objdiff da **100%**. Si no, `// NONMATCHING: X% - motivo` y seguir. Nunca contarla como hecha. `report.json` puede dar 100% donde `objdiff-cli diff` da 99,5–99,9%: no cuenta.
 2. Prohibido `asm` inline y `#pragma` para forzar código; el C++ debe ser algo que un desarrollador habría escrito. Excepciones aprobadas (no ampliar sin permiso):
    - asm paired-single de `include/math/Vec.h` (copias, sumas, min/max `__VecMin`/`__VecMax`/`__VecMinMax`): `inline` genéricas de cabecera, con `// inferred:` y una dirección de ejemplo;
-   - `#pragma explicit_zero_data on` (push/pop) solo en los `0.0f` de `.sdata` de `atn/PostFxColorMatrix`;
+   - `#pragma explicit_zero_data on` (push/pop) solo alrededor de la definicion de un global que en el `.o` original esta a cero dentro de `.sdata` (MWCC lo manda a `.sbss` sin el pragma), con `// inferred:` y una linea en las notas por uso; aprobado para `atn/PostFxColorMatrix` y, el 2026-11-19, para cualquier unidad que lo necesite para enlazar;
    - asm de librería de `boost/detail/sp_counted_base_cw_ppc.hpp` (Boost 1.35.0 en `libs/boost`);
    - `OSInitFastCast` (`include/sdk/OSFastCast.h`, usada en `game/main`);
    - paired-single cuantizado GQR6 solo en `atn/ModelDraw_unk fn_8009BF3C` (`SetGQR6_unk`, `SetMatColor_unk`); el de `LH_Binary` **no** está aprobado;
