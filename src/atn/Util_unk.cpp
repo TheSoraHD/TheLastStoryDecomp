@@ -9,14 +9,6 @@ extern "C" wchar_t* wcstok(wchar_t* s, const wchar_t* delim, wchar_t** context);
 extern "C" char* strupr(char* s);
 extern "C" char* itoa(int value, char* buf, int radix);
 
-// inferred: digit test of the parsers (overloads for char and wchar_t, names invented)
-static inline bool IsDigit_unk(char c) {
-    return (unsigned char)(c - '0') <= 9;
-}
-static inline bool IsDigit_unk(wchar_t c) {
-    return (wchar_t)(c + (wchar_t)-L'0') <= 9;
-}
-
 // inferred: string to int (spaces skipped, optional '-'); 0 if it does not start with a number.
 // A template: each wrapper below is a `b` to its instance, emitted right after it (0x800DC130, 0x800DC1E0)
 // NONMATCHING: StrToInt_unk<wchar_t> - the digit test of the loop condition reads through a second pointer
@@ -30,7 +22,7 @@ int StrToInt_unk(const T* s) {
         s++;
     }
     int i = 0;
-    if (!IsDigit_unk(*s) && *s != (T)'-' && *s != (T)'.') {
+    if ((*s < (T)'0' || *s > (T)'9') && *s != (T)'-' && *s != (T)'.') {
         return 0;
     }
     int value = 0;
@@ -39,7 +31,7 @@ int StrToInt_unk(const T* s) {
         sign = -1;
         i = 1;
     }
-    while (IsDigit_unk(s[i])) {
+    while ((s[i] >= (T)'0' && s[i] <= (T)'9')) {
         value *= 10;
         value += s[i++] - '0';
     }
@@ -55,38 +47,33 @@ extern "C" int fn_800DC1DC(const wchar_t* s) {
 }
 
 // inferred: string to float (spaces skipped, optional '-', one '.'); -0 becomes 0. A template like StrToInt_unk
-// NONMATCHING: both instances - the body tests '.' again (the original jumps from the loop condition straight
-// to each case), value/scale in swapped FPRs; the wide one also indexes s
 template <typename T>
 float StrToFloat_unk(const T* s) {
     while (*s == (T)' ') {
         s++;
     }
-    int start = 0;
-    if (!IsDigit_unk(*s) && *s != (T)'-' && *s != (T)'.') {
+    int i = 0;
+    if ((*s < (T)'0' || *s > (T)'9') && *s != (T)'-' && *s != (T)'.') {
         return 0.0f;
     }
-    double scale;
-    double sign;
     double value = 0.0;
-    sign = 1.0;
-    scale = 1.0;
+    double sign = 1.0;
+    double scale = 1.0;
     bool fraction = false;
     if (*s == (T)'-') {
         sign = -1.0;
-        start = 1;
+        i = 1;
     }
-    s += start;
-    while (IsDigit_unk(*s) || *s == (T)'.') {
-        if (*s == (T)'.') {
+    while ((s[i] >= (T)'0' && s[i] <= (T)'9') || s[i] == (T)'.') {
+        if (s[i] == (T)'.') {
             fraction = true;
-            s++;
+            i++;
         } else if (!fraction) {
             value *= 10.0;
-            value += (float)(*s++ - '0');
+            value += (float)(s[i++] - '0');
         } else {
             scale *= 0.1f;
-            value += scale * (float)(*s++ - '0');
+            value += scale * (float)(s[i++] - '0');
         }
     }
     float result = value * sign;
