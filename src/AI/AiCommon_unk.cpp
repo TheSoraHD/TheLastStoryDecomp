@@ -35,12 +35,7 @@ struct AiSettings_unk {
     float m468; // inferred: factor applied to the wait time of characters with CharaTask::mFlag10
 };
 extern "C" AiSettings_unk* lbl_8087F0A8;
-// inferred: field (lbl_8087F430)
-struct Field_unk {
-    unsigned char m0000[0x10D8];
-    GameScene* m10D8;
-};
-extern "C" Field_unk* lbl_8087F430;
+extern "C" GameTask* lbl_8087F430;
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
 extern "C" int fn_8003F440(CharaTask* chara, CharaStatusPair_unk* skill);
 
@@ -64,7 +59,7 @@ static inline void Compact_unk(CharaTask** list) {
 
 extern "C" int fn_8001A444(int index) {
     if (lbl_8087F430 != 0) {
-        return ((GameTask*)lbl_8087F430)->fn_80370174(index);
+        return lbl_8087F430->fn_80370174(index);
     }
     return 0;
 }
@@ -552,7 +547,7 @@ extern "C" float fn_8001BD14(CharaTask* chara) {
             reach = chara->m64->m38;
             break;
         }
-        if (chara->mType == 3 && lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->fn_80370174(10) > 0 && chara->m5C != 0 &&
+        if (chara->mType == 3 && lbl_8087F430 != 0 && lbl_8087F430->fn_80370174(10) > 0 && chara->m5C != 0 &&
             (chara->m5C->m122 == 4 || chara->m5C->m122 == 2)) {
             reach *= 3.0f;
         }

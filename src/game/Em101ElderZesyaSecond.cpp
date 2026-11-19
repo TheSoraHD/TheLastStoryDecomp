@@ -21,18 +21,7 @@ extern "C" int strcmp(const char* a, const char* b);
 extern "C" int strncmp(const char* a, const char* b, unsigned long n);
 // inferred: std::string concatenation (weak copy 0x8006AFF8)
 extern "C" std::string fn_8006AFF8(const std::string& a, const std::string& b);
-// inferred: field (lbl_8087F430): camera shake at 0x96C (as in game/GimmickStateCommand.cpp) and route
-// tables at 0x10D8 (as in game/Em306GurgBeast.cpp)
-struct Field_unk {
-    unsigned char m000[0x96C];
-    int m96C; // inferred: camera shake
-    int m970;
-    float m974;
-    float m978;
-    unsigned char m97C[0x10D8 - 0x97C];
-    GameScene* m10D8;
-};
-extern "C" Field_unk* lbl_8087F430;
+extern "C" GameTask* lbl_8087F430;
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
 // inferred: effect manager (class unknown), global instance at 0x8087F3C0
 struct EffectMgr_unk {
@@ -248,7 +237,7 @@ void Em101ElderZesyaSecond::vf10() {
     if (m58C != 10 && m58C != 11) {
         m1504 += CountNear_unk(m14BC);
     }
-    if (m15D8 > 2 || ((GameTask*)lbl_8087F430)->fn_80370A78(0xE8) == 1) {
+    if (m15D8 > 2 || lbl_8087F430->fn_80370A78(0xE8) == 1) {
         m14DC = 1;
     }
     if (mC58.mC0 == 0 || m14D0 == 0) {
@@ -317,8 +306,8 @@ void Em101ElderZesyaSecond::vf10() {
                 lbl_8087F3C0->mB8 = 0;
                 fn_800C344C(sSounds_unk[0], &mPos, 0, -1, 1.0f);
                 int flag = m15D4 == 0 ? 0xE9 : 0xEA;
-                if (((GameTask*)lbl_8087F430)->fn_80370A78(flag) == 0) {
-                    ((GameTask*)lbl_8087F430)->fn_80370AE4(flag, 1);
+                if (lbl_8087F430->fn_80370A78(flag) == 0) {
+                    lbl_8087F430->fn_80370AE4(flag, 1);
                 }
                 wchar_t text[256];
                 memset(text, 0, sizeof(text));
@@ -338,8 +327,8 @@ void Em101ElderZesyaSecond::vf10() {
         default:
             if (m55C == 6) {
                 if (m560 == 30 && mControl && ((ControlMagic_unk*)mControl.get())->m1D != 0) {
-                    if (((GameTask*)lbl_8087F430)->fn_80370A78(0xEC) == 0) {
-                        ((GameTask*)lbl_8087F430)->fn_80370AE4(0xEC, 1);
+                    if (lbl_8087F430->fn_80370A78(0xEC) == 0) {
+                        lbl_8087F430->fn_80370AE4(0xEC, 1);
                     }
                 }
             } else {
@@ -421,8 +410,8 @@ void Em101ElderZesyaSecond::vf3C(HitInfo_unk* hit, int) {
             }
             if (ok != 0) {
                 if (m15D0 != 0) {
-                    if (((GameTask*)lbl_8087F430)->fn_80370A78(0xE6) == 0) {
-                        ((GameTask*)lbl_8087F430)->fn_80370AE4(0xE6, 1);
+                    if (lbl_8087F430->fn_80370A78(0xE6) == 0) {
+                        lbl_8087F430->fn_80370AE4(0xE6, 1);
                     }
                     m15D0 = 0;
                 }
@@ -431,7 +420,7 @@ void Em101ElderZesyaSecond::vf3C(HitInfo_unk* hit, int) {
             }
         }
         if (m15CC != 0) {
-            ((GameTask*)lbl_8087F430)->fn_80370AE4(0xE7, 1);
+            lbl_8087F430->fn_80370AE4(0xE7, 1);
             m15CC = 0;
         }
         msg->m64 = 1;
@@ -475,7 +464,7 @@ void Em101ElderZesyaSecond::vf40(HitInfo_unk* hit) {
         }
     }
     if (mStatus.IsState_unk(0x20)) {
-        if (((GameTask*)lbl_8087F430)->fn_80370A78(0x26) > 0 && msg->mAttacker != 0 && msg->mAttacker->mType == 0) {
+        if (lbl_8087F430->fn_80370A78(0x26) > 0 && msg->mAttacker != 0 && msg->mAttacker->mType == 0) {
             vf48();
             fn_80178A6C();
             fn_8015495C(0, 1, 1, 1);
@@ -654,11 +643,11 @@ void Em101ElderZesyaSecond::fn_8025C624() {
     fn_80232B7C(0, 0);
     PlayEffect_unk(&m1574, &mMotion);
     fn_800C344C(sSounds_unk[1], &mPos, 0, -1, 1.0f);
-    Field_unk* field = lbl_8087F430;
-    field->m96C %= 2;
-    field->m970 = 5;
-    field->m974 = 1.0f;
-    field->m978 = 2.0f;
+    GameTask* field = lbl_8087F430;
+    field->mCamera.mShake.mFrame %= 2;
+    field->mCamera.mShake.mLength = 5;
+    field->mCamera.mShake.mWidth = 1.0f;
+    field->mCamera.mShake.mHeight = 2.0f;
     m15DC++;
     if (m15DC < 2) {
         m15D4 = 0;

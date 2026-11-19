@@ -1,3 +1,4 @@
+#include "game/GameTask.h"
 #include "game/GameUI.h"
 #include "gmk/ReinforcePoint.h"
 #include "atn/Memory.h"
@@ -10,14 +11,7 @@
 #include "game/GameSceneFind_unk.h"
 
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
-// inferred: field object (class unknown)
-struct ReinforceField_unk {
-    unsigned char m00[0x10D8];
-    GameScene* m10D8;
-    unsigned char m10DC[0x54E4 - 0x10DC];
-    int m54E4; // inferred: 8 while the field is paused
-};
-extern "C" ReinforceField_unk* lbl_8087F430;
+extern "C" GameTask* lbl_8087F430;
 // inferred: game settings (names invented)
 struct ReinforceLevel_unk {
     int m00; // inferred: bonus added to CharaStatusData_unk::m08

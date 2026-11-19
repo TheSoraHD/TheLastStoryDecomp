@@ -1,3 +1,4 @@
+#include "game/GameTask.h"
 #include "game/ShopBuySell.h"
 #include "game/Inventory.h"
 #include "atn/Memory.h"
@@ -103,12 +104,7 @@ extern "C" int fn_804444E8(Inventory* party, int id); // inferred: number of ite
 extern "C" int fn_80444BE8(Inventory* party, ShopItem_unk* item);
 extern "C" int fn_80444C48(Inventory* party);
 extern "C" ShopUV_unk fn_80444C50(Inventory* party, int icon);
-// inferred: field (lbl_8087F430)
-struct ShopField_unk {
-    unsigned char m0000[0x10D0];
-    int m10D0; // inferred: story progress
-};
-extern "C" ShopField_unk* lbl_8087F430;
+extern "C" GameTask* lbl_8087F430;
 // inferred: members of the party (fn_80217D9C); flags at 0x0C
 struct ShopMembers_unk {
     unsigned char m00[0x0C];

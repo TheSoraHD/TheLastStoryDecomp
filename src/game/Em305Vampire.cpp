@@ -70,12 +70,7 @@ extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2
 extern "C" int fn_800CB58C(atn::SoundRef* sound);                           // inferred: nonzero while playing
 extern "C" void fn_800CB6E4(atn::SoundRef* sound, const atn::Vector3* pos); // inferred: moves the sound
 
-// inferred: field (lbl_8087F430); m10D8: route tables; fn_80370AE4 sets a counter (as in gmk/Coffin.cpp)
-struct VampireField_unk {
-    unsigned char m0000[0x10D8];
-    GameScene* m10D8;
-};
-extern "C" VampireField_unk* lbl_8087F430;
+extern "C" GameTask* lbl_8087F430;
 
 // inferred: multiplayer session (lbl_8087F610), as in Em305VampireMp.cpp
 struct MpSession_unk;
@@ -246,7 +241,7 @@ inline void Em305Vampire::Rolling_unk() {
         if (80.0f <= f && f <= 83.0f) {
             BattleTask* mgr = lbl_8087F048;
             mgr->fn_800FAB80(this, m1514, mgr->fn_800F8548(), &mPos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
-            ((GameTask*)lbl_8087F430)->fn_80370AE4(5, 1);
+            lbl_8087F430->fn_80370AE4(5, 1);
             m1528 = 0;
             m1540 = 0;
         }
@@ -377,7 +372,7 @@ void Em305Vampire::vf3C(HitInfo_unk* hit, int) {
         msg->m84 = 1;
         msg->m90 = 1;
         if (++m1504 == 3) {
-            ((GameTask*)lbl_8087F430)->fn_80370AE4(4, 1);
+            lbl_8087F430->fn_80370AE4(4, 1);
         }
         if (m1528 == 0 && m58C == 0) {
             fn_802EBBA8();
@@ -394,10 +389,10 @@ void Em305Vampire::vf3C(HitInfo_unk* hit, int) {
     }
     if (msg->mData->m04 == 0x134) {
         if (m153C == 0) {
-            ((GameTask*)lbl_8087F430)->fn_80370AE4(4, 2);
+            lbl_8087F430->fn_80370AE4(4, 2);
             m153C = 1;
         } else {
-            ((GameTask*)lbl_8087F430)->fn_80370AE4(4, 4);
+            lbl_8087F430->fn_80370AE4(4, 4);
         }
         msg->m0C |= 0x800;
     }

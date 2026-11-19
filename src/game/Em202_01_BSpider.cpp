@@ -1,3 +1,4 @@
+#include "game/GameTask.h"
 #include "game/Em202_01_BSpider.h"
 #include "math/VecAssign_unk.h"
 #include "atn/Material_unk.h"
@@ -7,12 +8,7 @@
 #include "game/BattleTask.h"
 #include "game/GameSceneFind_unk.h"
 
-// inferred: field (lbl_8087F430): route tables at 0x10D8 (as in game/Em306GurgBeast.cpp)
-struct Field_unk {
-    unsigned char m0000[0x10D8];
-    GameScene* m10D8;
-};
-extern "C" Field_unk* lbl_8087F430;
+extern "C" GameTask* lbl_8087F430;
 
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
 // inferred: effect manager (class unknown), global instance at 0x8087F3C0

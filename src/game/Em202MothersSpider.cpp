@@ -22,14 +22,7 @@ extern "C" void PSVECNormalize(const atn::Vector3* src, atn::Vector3* dst);
 extern "C" void PSMTXMultVec(const Mtx m, const atn::Vector3* src, atn::Vector3* dst);
 extern "C" void PSMTXRotRad(Mtx m, char axis, float rad);
 
-// inferred: field (lbl_8087F430): route tables at 0x10D8 (as in game/Em202ForestSpider.cpp)
-struct Field_unk {
-    unsigned char m0000[0x10D8];
-    GameScene* m10D8;
-    unsigned char m10DC[0x5694 - 0x10DC];
-    int m5694;
-};
-extern "C" Field_unk* lbl_8087F430;
+extern "C" GameTask* lbl_8087F430;
 extern "C" PlayerManager* lbl_8087F8A0;
 // inferred: link of the character lists of the managers (CharaTask + 0x14AC, as in game/Em202Spider.cpp)
 struct CharaListNode_unk {
@@ -572,20 +565,20 @@ void Em202MothersSpider::vf14C() {
     int id;
     if (m18EC->mType == 0) {
         id = -1;
-        if (((GameTask*)lbl_8087F430)->fn_80370A78(0xE6) == 0) {
-            ((GameTask*)lbl_8087F430)->fn_80370AE4(0xE6, 1);
+        if (lbl_8087F430->fn_80370A78(0xE6) == 0) {
+            lbl_8087F430->fn_80370AE4(0xE6, 1);
         } else {
-            ((GameTask*)lbl_8087F430)->fn_80370AE4(0xEA, 1);
+            lbl_8087F430->fn_80370AE4(0xEA, 1);
         }
     } else {
         id = m18EC->m58;
-        if (((GameTask*)lbl_8087F430)->fn_80370A78(0xE7) == 0) {
-            ((GameTask*)lbl_8087F430)->fn_80370AE4(0xE7, 1);
+        if (lbl_8087F430->fn_80370A78(0xE7) == 0) {
+            lbl_8087F430->fn_80370AE4(0xE7, 1);
         } else {
-            ((GameTask*)lbl_8087F430)->fn_80370AE4(0xEB, 1);
+            lbl_8087F430->fn_80370AE4(0xEB, 1);
         }
     }
-    ((GameTask*)lbl_8087F430)->fn_80370AE4(0x79, id);
+    lbl_8087F430->fn_80370AE4(0x79, id);
 }
 
 void Em202MothersSpider::vf118() {
@@ -691,11 +684,11 @@ void Em202MothersSpider::vf184() {
                     m1908[i]->fn_8016EB48(0, 0, 0);
                     m1908[i]->fn_8015E7A0(fwd * 25.0f, -1, 0);
                     if (m1908[i]->mType == 0) {
-                        if (((GameTask*)lbl_8087F430)->fn_80370A78(0xE8) == 0) {
-                            ((GameTask*)lbl_8087F430)->fn_80370AE4(0xE8, 1);
+                        if (lbl_8087F430->fn_80370A78(0xE8) == 0) {
+                            lbl_8087F430->fn_80370AE4(0xE8, 1);
                         }
-                    } else if (((GameTask*)lbl_8087F430)->fn_80370A78(0xE9) == 0) {
-                        ((GameTask*)lbl_8087F430)->fn_80370AE4(0xE9, 1);
+                    } else if (lbl_8087F430->fn_80370A78(0xE9) == 0) {
+                        lbl_8087F430->fn_80370AE4(0xE9, 1);
                     }
                 }
                 m1908.clear();

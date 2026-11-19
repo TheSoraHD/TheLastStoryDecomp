@@ -19,12 +19,7 @@ extern "C" void PSVECNormalize(const atn::Vector3* src, atn::Vector3* dst);
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector (.bss, 0x10 bytes)
 
 
-// inferred: event flags of the field
-struct EnvSeField_unk {
-    unsigned char m0000[0x54E4];
-    int m54E4; // inferred: mode (0 and 8 allow the environment sounds)
-};
-extern "C" EnvSeField_unk* lbl_8087F430;
+extern "C" GameTask* lbl_8087F430;
 struct EnvSeMute_unk {
     unsigned char m00[0x70];
     int m70;
@@ -115,9 +110,9 @@ void EnvSeBase::fn_80360EA4() {
         if (mActive != 0 && mData->m44 != 0 && lbl_8087F430 != 0) {
             int value;
             if (mData->m48 == 1) {
-                value = ((GameTask*)lbl_8087F430)->fn_80370174(mData->m4C);
+                value = lbl_8087F430->fn_80370174(mData->m4C);
             } else {
-                value = ((GameTask*)lbl_8087F430)->fn_80370A78(mData->m4C);
+                value = lbl_8087F430->fn_80370A78(mData->m4C);
             }
             if (value == mData->m50) {
                 mActive = 1;

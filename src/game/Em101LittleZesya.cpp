@@ -22,12 +22,7 @@ extern "C" unsigned long strlen(const char* s);
 extern "C" int atoi(const char* s);
 extern "C" int fn_800DC12C(const char* s);   // inferred: string to int
 extern "C" float fn_800DC288(const char* s); // inferred: string to float
-// inferred: field (lbl_8087F430): route tables at 0x10D8 (as in game/Em306GurgBeast.cpp)
-struct Field_unk {
-    unsigned char m0000[0x10D8];
-    GameScene* m10D8;
-};
-extern "C" Field_unk* lbl_8087F430;
+extern "C" GameTask* lbl_8087F430;
 extern "C" void* lbl_8087EE98;
 extern "C" int fn_8004ED34(void* colli, atn::ColliResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg7); // inferred: ray test
@@ -834,8 +829,8 @@ void Em101LittleZesya::vf40(HitInfo_unk* hit) {
     float rate = mStatus.m04 / (float)mStatus.mParamB.m84;
     if (rate < 0.5f) {
         if (msg->mAttacker != 0 && msg->mAttacker->mType == 0) {
-            if (((GameTask*)lbl_8087F430)->fn_80370A78(0x6B) == 0) {
-                ((GameTask*)lbl_8087F430)->fn_80370AE4(0x6B, 1);
+            if (lbl_8087F430->fn_80370A78(0x6B) == 0) {
+                lbl_8087F430->fn_80370AE4(0x6B, 1);
             }
         }
         if (m15BC == 0) {

@@ -1,3 +1,4 @@
+#include "game/GameTask.h"
 #include "game/ArenaTask.h"
 #include "game/GameScene.h"
 #include "game/GameUI.h"
@@ -19,12 +20,7 @@ extern "C" int swprintf(wchar_t* s, unsigned long n, const wchar_t* format, ...)
 extern "C" void* lbl_8087EEC8;
 extern "C" float fn_8006EF48(void* font, float size, const wchar_t* text, float f2, int a, int b); // inferred: width
 
-// inferred: field (lbl_8087F430)
-struct ArenaField_unk {
-    unsigned char m00[0x10D8];
-    GameScene* m10D8;
-};
-extern "C" ArenaField_unk* lbl_8087F430;
+extern "C" GameTask* lbl_8087F430;
 
 
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager

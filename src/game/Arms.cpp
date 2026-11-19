@@ -39,12 +39,7 @@ extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* m
 extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
 extern "C" void fn_80232B7C(void* owner, int arg);
 
-// inferred: field object (class unknown)
-struct Field_unk {
-    unsigned char m0000[0x5590];
-    ReplayBuffer* m5590;
-};
-extern "C" Field_unk* lbl_8087F430;
+extern "C" GameTask* lbl_8087F430;
 
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
 
@@ -541,7 +536,7 @@ int Arms::fn_80045510(ArmsCond_unk* cond, CharaTask* chara) {
         }
         break;
     case 22:
-        if (lbl_8087F430 == 0 || ((GameTask*)lbl_8087F430)->fn_80375184()) {
+        if (lbl_8087F430 == 0 || lbl_8087F430->fn_80375184()) {
             return 1;
         }
         break;

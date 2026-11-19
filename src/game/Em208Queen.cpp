@@ -28,7 +28,7 @@ extern "C" double acos(double x);
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
 extern "C" void* memset(void* dst, int c, unsigned long n);
 extern "C" int fn_800DD3FC(wchar_t* s, const wchar_t* format, ...); // inferred: wide sprintf
-struct Field_unk;
+struct GameTask;
 // inferred: kind and value of a damage record (inline; name invented)
 inline void SetDamage_unk(DamageResult_unk& damage, int kind, int value) {
     damage.mType = kind;
@@ -87,12 +87,7 @@ extern "C" void* lbl_8087F9E8;
 extern "C" SkillEffect* fn_8059B66C(void* mgr, HitInfo_unk* skill, CharaTask* user, CharaTask* target,
                                    const atn::Vector3* pos, const atn::Vector3* rot,
                                    boost::function<void(SkillEffect*)> callback, float rate);
-// inferred: field (lbl_8087F430): route tables at 0x10D8 (as in game/Em306GurgBeast.cpp)
-struct Field_unk {
-    unsigned char m0000[0x10D8];
-    GameScene* m10D8;
-};
-extern "C" Field_unk* lbl_8087F430;
+extern "C" GameTask* lbl_8087F430;
 
 // inferred: offset of the point hit by the cannon shots (same values as chr/ControlCannonLift.cpp)
 static atn::Vector3 sShotOffset_unk(3.882f, 98.679f, 10.846f);
@@ -632,7 +627,7 @@ void Em208Queen::fn_802C9BF8() {
             SetState_unk(9);
             PlayMotion_unk(0x145);
             FaceTarget_unk();
-            ((GameTask*)lbl_8087F430)->fn_80370AE4(0x5D, 2);
+            lbl_8087F430->fn_80370AE4(0x5D, 2);
         }
     }
 }
@@ -961,7 +956,7 @@ void Em208Queen::fn_802CB8A0() {
                 SetState_unk(9);
                 PlayMotion_unk(0x145);
                 FaceTarget_unk();
-                ((GameTask*)lbl_8087F430)->fn_80370AE4(0x5D, 2);
+                lbl_8087F430->fn_80370AE4(0x5D, 2);
                 return;
             case 8:
                 SetState_unk(8);

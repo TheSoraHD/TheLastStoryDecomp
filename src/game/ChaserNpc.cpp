@@ -1,3 +1,4 @@
+#include "game/GameTask.h"
 #include "game/ChaserNpc.h"
 #include "atn/RenderManager.h"
 #include "game/GameScene.h"
@@ -41,12 +42,7 @@ struct Settings_unk {
     int m578;
 };
 extern "C" Settings_unk* lbl_8087F0A8;
-// inferred: field (class unknown); m10D8 holds the route tables
-struct Field_unk {
-    unsigned char m00[0x10D8];
-    GameScene* m10D8;
-};
-extern "C" Field_unk* lbl_8087F430;
+extern "C" GameTask* lbl_8087F430;
 extern "C" unsigned short fn_803CD958(U16Table_unk* path, int point); extern "C" void* lbl_8087EE98;
 extern "C" int fn_8004ED34(void* colli, atn::ColliResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg7); // inferred: ray test

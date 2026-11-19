@@ -22,12 +22,7 @@ extern "C" void* memcpy(void* dst, const void* src, unsigned long n);
 // inferred: creates a d2anime task (other variant of fn_801F3FF8, no extra argument)
 
 
-// inferred: field data (lbl_8087F430)
-struct Field_unk {
-    unsigned char m0000[0x5634];
-    void* m5634;
-};
-extern "C" Field_unk* lbl_8087F430;
+extern "C" GameTask* lbl_8087F430;
 
 extern "C" GameConfig_unk* lbl_8087F0A8; // inferred: game settings
 
@@ -246,7 +241,7 @@ int CampSaveLoad::vf0C() {
         m4AC.fn_80470528();
         return 1;
     }
-    if (lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->fn_80370174(0x391) > 0) {
+    if (lbl_8087F430 != 0 && lbl_8087F430->fn_80370174(0x391) > 0) {
         lbl_8087EEB0->fn_80060D58(0.0f, 0.0f, 100.0f, (float)lbl_8087EEE0->mWidth, (float)lbl_8087EEE0->mHeight,
                                   0xFF000000);
     }
@@ -438,7 +433,7 @@ void CampSaveLoad::vf14() {
     } else {
         SetLayoutValue2_unk(&m5C->mData.m10, "logColor", 0, 0.0f);
     }
-    if (lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->fn_80370174(0x391) > 0) {
+    if (lbl_8087F430 != 0 && lbl_8087F430->fn_80370174(0x391) > 0) {
         lbl_8087EEB0->fn_80060D58(0.0f, 0.0f, 100.0f, (float)lbl_8087EEE0->mWidth, (float)lbl_8087EEE0->mHeight,
                                   0xFF000000);
     }
@@ -473,7 +468,7 @@ void CampSaveLoad::fn_80119030(int state, int arg) {
     case 7:
         vf20();
         if (mMode == 0 && lbl_8087F430 != 0 && m4B0 == 0) {
-            ((GameTask*)lbl_8087F430)->fn_8036E964();
+            lbl_8087F430->fn_8036E964();
         }
         break;
     case 6:
@@ -520,7 +515,7 @@ void CampSaveLoad::fn_801191A8() {
         }
     } else if (IsTriggered_unk(5)) {
         if (lbl_8087F430 != 0) {
-            if (((GameTask*)lbl_8087F430)->fn_80370174(0x391) > 0) {
+            if (lbl_8087F430->fn_80370174(0x391) > 0) {
                 m16C = 2;
                 fn_80117228(2);
                 fn_80119030(3, 0);

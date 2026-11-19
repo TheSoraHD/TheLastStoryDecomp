@@ -20,14 +20,9 @@ extern "C" int atoi(const char* s);
 extern "C" float fn_800DC288(const char* s); // inferred: string to float
 extern "C" int fn_800DC12C(const char* s);   // inferred: string to int
 extern "C" HitInfo_unk* fn_80219E6C(int id); // inferred: bullet/skill data by id
-// inferred: field (lbl_8087F430): route tables at 0x10D8 (as in game/CharaC58_unk.cpp)
-struct Field_unk {
-    unsigned char m0000[0x10D8];
-    GameScene* m10D8;
-};
-extern "C" Field_unk* lbl_8087F430;
+extern "C" GameTask* lbl_8087F430;
 // inferred: weak getter of the field (lwz r3, lbl_8087F430; blr; as in gmk/Cannonball.cpp)
-extern "C" inline Field_unk* fn_80121F00() {
+extern "C" inline GameTask* fn_80121F00() {
     return lbl_8087F430;
 }
 extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3, int arg4);
@@ -624,9 +619,9 @@ struct FootFlag_unk {
 // inferred: as SpecialEnemyBase::fn_805A4A1C (name invented)
 inline void SetFlag_unk(FootFlag_unk* flag, int value) {
     if (flag->mGlobal == 0) {
-        ((GameTask*)fn_80121F00())->fn_80370AE4(flag->mIndex, value);
+        fn_80121F00()->fn_80370AE4(flag->mIndex, value);
     } else if (flag->mGlobal == 1) {
-        ((GameTask*)fn_80121F00())->fn_80370320(flag->mIndex, value, 0);
+        fn_80121F00()->fn_80370320(flag->mIndex, value, 0);
     }
 }
 

@@ -1,3 +1,4 @@
+#include "game/GameTask.h"
 #include "game/Em309GhoulSimple.h"
 #include "atn/Csv.h"
 #include "chr/ControlStickByQuark.h"
@@ -45,12 +46,7 @@ extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* m
                             const atn::Vector3& pos, const atn::Vector3& rot, const GhoulColor_unk& color, int arg7,
                             int arg8, int arg9, float scale);
 extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the next effects
-// inferred: field (lbl_8087F430), route tables at 0x10D8
-struct GhoulField_unk {
-    unsigned char m0000[0x10D8];
-    GameScene* m10D8;
-};
-extern "C" GhoulField_unk* lbl_8087F430;
+extern "C" GameTask* lbl_8087F430;
 
 inline GhoulStr_unk& GhoulStr_unk::operator=(const char* str) {
     if (str != mStr) {

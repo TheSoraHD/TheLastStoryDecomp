@@ -62,11 +62,7 @@ struct TacView_unk {
     TacCursor_unk m15D8;
 };
 extern "C" TacView_unk* lbl_8087F9F8;
-struct Field_unk {
-    unsigned char m0000[0x10D8];
-    void* m10D8; // inferred: collision of the walls
-};
-extern "C" Field_unk* lbl_8087F430;
+extern "C" GameTask* lbl_8087F430;
 extern "C" int fn_8004D388(void* colli, atn::ColliResult_unk* result, const atn::Vector3* pos, const atn::Vector3* move,
                            unsigned int mask, void* ignore, int arg7, float); // inferred: sweep test (last: radius)
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
@@ -289,7 +285,7 @@ int ControlCharge::vf0C() {
                 cursor.m14 = false;
                 lbl_8087F9F8->m15D8 = cursor;
             }
-            ((GameTask*)lbl_8087F430)->fn_80373FC4();
+            lbl_8087F430->fn_80373FC4();
             done = 1;
         }
         mChara->mF6C = m08;
@@ -330,7 +326,7 @@ int ControlCharge::vf0C() {
     if (done && m30) {
         HitInfo_unk* hit = mChara->m638;
         if ((hit->m04 == 0x1788 || hit->m04 == 0x1791) && (hit->mAC & 0x40000) == 0x40000 &&
-            ((GameTask*)lbl_8087F430)->fn_8036DAA8(mChara) == 0) {
+            lbl_8087F430->fn_8036DAA8(mChara) == 0) {
             done = 0;
         }
     }
@@ -527,7 +523,7 @@ void ControlChargeAttackBase::fn_801A4E08(Chara_unk* chara, const atn::Vector3& 
     if (lbl_8087F610 != 0 && IsArenaMode_unk(lbl_8087F610->m540)) {
         arena = true;
     }
-    if (arena && ((GameTask*)lbl_8087F430)->GetCurrentMap()->mId == 1 && ((GameTask*)lbl_8087F430)->GetCurrentMap()->mSubId == 5) {
+    if (arena && lbl_8087F430->GetCurrentMap()->mId == 1 && lbl_8087F430->GetCurrentMap()->mSubId == 5) {
         atn::ColliResult_unk floor;
         atn::Vector3 top(target);
         atn::Vector3 bottom(target);

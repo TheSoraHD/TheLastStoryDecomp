@@ -112,18 +112,13 @@ static const GameMessageAlias_unk sAliases_unk[6] = {
     {0x3B06, 0x3B09, 0xC8}, {0x3B07, 0x3B0A, 0xC9}, {0x3B08, 0x3B0B, 0xCA},
 };
 
-// inferred: field (lbl_8087F430); only the members used here
-struct GameChoiceField_unk {
-    unsigned char m0000[0x10D8];
-    void* m10D8; // inferred: the scene (game/GameScene)
-};
-extern "C" GameChoiceField_unk* lbl_8087F430;
+extern "C" GameTask* lbl_8087F430;
 
 GameMessage* GameMessageList::fn_803B3B38(int id) const {
     if (lbl_8087F430 != 0) {
         const GameMessageAlias_unk* alias = sAliases_unk;
         for (unsigned int i = 0; i < 6; i++, alias++) {
-            if (alias->mId == id && ((GameTask*)lbl_8087F430)->fn_80370174(alias->mCounter) == 1) {
+            if (alias->mId == id && lbl_8087F430->fn_80370174(alias->mCounter) == 1) {
                 id = alias->mAlias;
                 break;
             }
@@ -200,12 +195,12 @@ extern "C" int fn_803B3D2C(std::basic_string<wchar_t>* text) {
         if (kind == L'L') {
             value = fn_800DC1DC(std::basic_string<wchar_t>(*text, open + 2, close).c_str());
             if (lbl_8087F430 != 0) {
-                value = ((GameTask*)lbl_8087F430)->fn_80370A78(value);
+                value = lbl_8087F430->fn_80370A78(value);
             }
         } else if (kind == L'G') {
             value = fn_800DC1DC(std::basic_string<wchar_t>(*text, open + 2, close).c_str());
             if (lbl_8087F430 != 0) {
-                value = ((GameTask*)lbl_8087F430)->fn_80370174(value);
+                value = lbl_8087F430->fn_80370174(value);
             }
         } else {
             value = fn_800DC1DC(std::basic_string<wchar_t>(*text, open + 1, close).c_str());
@@ -777,7 +772,7 @@ inline GameMessageWindow* GetMessageWindow_unk() {
 // keeps the inner ones in volatile registers (bool r = false; if (...) r = true; in nested inlines, int flags,
 // static or out-of-line helpers: MWCC threads the jumps over them)
 void GameTextMessageWindow::vf10() {
-    if (lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->m54E4 == 8) {
+    if (lbl_8087F430 != 0 && lbl_8087F430->m54E4 == 8) {
         mLayout->FreezeTask();
         return;
     }
@@ -951,9 +946,9 @@ void GameTextMessageWindow::fn_803B78E8() {
         m71 = 0;
         if (lbl_8087F430 != 0) {
             if (m74 == 0) {
-                ((GameTask*)lbl_8087F430)->fn_80370AE4(m78, 1);
+                lbl_8087F430->fn_80370AE4(m78, 1);
             } else if (m74 == 1) {
-                ((GameTask*)lbl_8087F430)->fn_80370320(m78, 1, 0);
+                lbl_8087F430->fn_80370320(m78, 1, 0);
             }
         }
     }

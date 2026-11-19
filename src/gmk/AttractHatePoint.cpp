@@ -40,12 +40,7 @@ struct Settings_unk {
 };
 extern "C" Settings_unk* lbl_8087F0A8;
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
-// inferred: field object (class unknown)
-struct HateField_unk {
-    unsigned char m00[0x5694];
-    int m5694; // inferred: messages other than 1 are ignored while set
-};
-extern "C" HateField_unk* lbl_8087F430;
+extern "C" GameTask* lbl_8087F430;
 // inferred: request of the battle object (class unknown)
 struct HateBattle_unk {
     unsigned char m000[0x7C0];
@@ -147,8 +142,8 @@ void AttractHatePoint::vf10() {
                     mInRange = 1;
                 }
             }
-            if (lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->fn_80370174(0xA2) == 0) {
-                ((GameTask*)lbl_8087F430)->fn_80370320(0xA2, 1, 0);
+            if (lbl_8087F430 != 0 && lbl_8087F430->fn_80370174(0xA2) == 0) {
+                lbl_8087F430->fn_80370320(0xA2, 1, 0);
             }
         }
     }
@@ -201,8 +196,8 @@ int AttractHatePoint::vf40(GimmickMsg_unk* msg) {
         break;
     case 3:
         if (mInRange != 0) {
-            if (lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->fn_80375184() == 0 && SetConfig::sInstance->mAutoSave != 0) {
-                ((GameTask*)lbl_8087F430)->fn_80376730();
+            if (lbl_8087F430 != 0 && lbl_8087F430->fn_80375184() == 0 && SetConfig::sInstance->mAutoSave != 0) {
+                lbl_8087F430->fn_80376730();
             }
             m54 = msg->mType;
             fn_800C344C(sSounds[1], &m6C, 0, -1, 1.0f);

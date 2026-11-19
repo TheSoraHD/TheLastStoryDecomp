@@ -1,3 +1,4 @@
+#include "game/GameTask.h"
 #include "game/SkillEffectManager.h"
 #include "game/Em308InvertCrab.h"
 #include "atn/Csv.h"
@@ -20,12 +21,7 @@ extern "C" int sprintf(char* s, const char* format, ...);
 extern "C" int fn_800DC12C(const char* s);   // inferred: string to int
 extern "C" float fn_800DC288(const char* s); // inferred: string to float
 extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3, int arg4); // inferred: debug flag
-// inferred: field (lbl_8087F430); m10D8: route tables (as in game/Em305VampireMp.cpp)
-struct Field_unk {
-    unsigned char m0000[0x10D8];
-    GameScene* m10D8;
-};
-extern "C" Field_unk* lbl_8087F430;
+extern "C" GameTask* lbl_8087F430;
 // inferred: std::string concatenation (weak copy 0x8006AFF8)
 extern "C" std::string fn_8006AFF8(const std::string& a, const std::string& b);
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector

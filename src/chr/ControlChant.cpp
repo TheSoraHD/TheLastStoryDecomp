@@ -66,12 +66,7 @@ extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2
 extern "C" int sprintf(char* buf, const char* fmt, ...);
 extern "C" unsigned long strlen(const char* s);
 extern "C" int rand();
-// inferred: field object (class unknown, as in gmk/LottaSummon.cpp)
-struct Field_unk {
-    unsigned char m0000[0x10D0];
-    int m10D0; // inferred: play time
-};
-extern "C" Field_unk* lbl_8087F430;
+extern "C" GameTask* lbl_8087F430;
 // inferred: tactics manager (TacView, as in game/CharaTask.cpp)
 // inferred: party manager (as in game/CharaTask.cpp)
 extern "C" PlayerManager* lbl_8087F8A0;
@@ -400,7 +395,7 @@ int ControlChant::vf0C() {
         m44 = false;
         done = 1;
     }
-    if (done && m44 && (mChara->m638->mAC & 0x40000) == 0x40000 && !((GameTask*)lbl_8087F430)->fn_8036DAA8(mChara)) {
+    if (done && m44 && (mChara->m638->mAC & 0x40000) == 0x40000 && !lbl_8087F430->fn_8036DAA8(mChara)) {
         done = 0;
     }
     return done;
@@ -534,8 +529,8 @@ int ControlMagic::vf0C() {
         mChara->fn_8016DA4C();
         m1D = true;
         if (hit->m04 == 0x6C2) {
-            if (((GameTask*)lbl_8087F430)->fn_80370174(0x38D) > 0) {
-                ((GameTask*)lbl_8087F430)->fn_80370320(0x38E, 1, 0);
+            if (lbl_8087F430->fn_80370174(0x38D) > 0) {
+                lbl_8087F430->fn_80370320(0x38E, 1, 0);
                 mChara->mStatus.m228 = 0.0f;
             }
             if (lbl_8087EE68 && lbl_8087EE68->fn_800185B4(mChara, hit)) {
@@ -696,33 +691,33 @@ int ControlMagic::vf0C() {
                 }
             }
             if ((mChara->mType == 0 || mChara->mType == 3) && fn_8021A984(hit) &&
-                ((GameTask*)lbl_8087F430)->fn_80370174(0x442) >= 7) {
-                ((GameTask*)lbl_8087F430)->fn_803750E4(0x9C);
+                lbl_8087F430->fn_80370174(0x442) >= 7) {
+                lbl_8087F430->fn_803750E4(0x9C);
             }
         }
-        if (lbl_8087F430 && ((GameTask*)lbl_8087F430)->fn_803761AC() && fn_80219344(lbl_8087F8A0->fn_8054A33C(0), 1) && mChara &&
+        if (lbl_8087F430 && lbl_8087F430->fn_803761AC() && fn_80219344(lbl_8087F8A0->fn_8054A33C(0), 1) && mChara &&
             (mChara->mType == 0 || mChara->mType == 3)) {
             switch (fn_80219558(mChara->m50)) {
             case 1:
             case 9:
             case 10:
                 if (fn_8021A888(hit)) {
-                    ((GameTask*)lbl_8087F430)->fn_803750E4(0xE0);
+                    lbl_8087F430->fn_803750E4(0xE0);
                 }
                 break;
             case 6:
                 if (fn_8021A888(hit)) {
-                    ((GameTask*)lbl_8087F430)->fn_803750E4(0xF5);
+                    lbl_8087F430->fn_803750E4(0xF5);
                 }
                 break;
             case 4:
                 if (fn_8021A888(hit) && lbl_8087F430 && lbl_8087F430->m10D0 >= 0x31CE0) {
-                    ((GameTask*)lbl_8087F430)->fn_803750E4(0x1C2);
+                    lbl_8087F430->fn_803750E4(0x1C2);
                 }
                 break;
             }
         }
-        if (lbl_8087F430 && ((GameTask*)lbl_8087F430)->fn_80375184()) {
+        if (lbl_8087F430 && lbl_8087F430->fn_80375184()) {
             if (mChara->mType == 2) {
                 lbl_8087F048->fn_801092C8(0xC, mChara, hit->m04, 0);
             } else {

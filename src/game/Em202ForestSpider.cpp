@@ -31,14 +31,7 @@ extern "C" void PSVECNormalize(const atn::Vector3* src, atn::Vector3* dst);
 extern "C" void PSMTXMultVec(const Mtx m, const atn::Vector3* src, atn::Vector3* dst);
 extern "C" void PSMTXScale(Mtx m, float x, float y, float z);
 
-// inferred: field (lbl_8087F430): route tables at 0x10D8 (as in game/Em202Spider.cpp)
-struct Field_unk {
-    unsigned char m0000[0x10D8];
-    GameScene* m10D8;
-    unsigned char m10DC[0x5694 - 0x10DC];
-    int m5694; // inferred: nonzero in the multiplayer mode (the threads go for the target)
-};
-extern "C" Field_unk* lbl_8087F430;
+extern "C" GameTask* lbl_8087F430;
 // inferred: std::string concatenation (weak copy 0x8006AFF8)
 extern "C" std::string fn_8006AFF8(const std::string& a, const std::string& b);
 // inferred: player manager (lbl_8087F8A0)
@@ -728,7 +721,7 @@ void Em202ForestSpider::vf110() {
             const wchar_t* name = m18EC->m60->m04;
             fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0xB5), name);
             lbl_8087F048->fn_80109828(text);
-            ((GameTask*)lbl_8087F430)->fn_80370AE4(0x6E, m18EC->mType == 0 ? 10 : m18EC->m58);
+            lbl_8087F430->fn_80370AE4(0x6E, m18EC->mType == 0 ? 10 : m18EC->m58);
             vf148();
             return;
         }
@@ -1075,9 +1068,9 @@ void Em202ForestSpider::vf14C() {
     r2.z = 0.0f;
     m18EC->mRot = r2;
     m18EC->fn_8015C3A8((int)this);
-    ((GameTask*)lbl_8087F430)->fn_80370AE4(0x79, m18EC->mType == 0 ? 10 : m18EC->m58);
+    lbl_8087F430->fn_80370AE4(0x79, m18EC->mType == 0 ? 10 : m18EC->m58);
     if (m18EC->mType == 0) {
-        ((GameTask*)lbl_8087F430)->fn_80370C6C();
+        lbl_8087F430->fn_80370C6C();
     }
 }
 
@@ -1394,8 +1387,8 @@ void Em202ForestSpider::fn_802790A0(int index) {
     fn_80239DAC(lbl_8087F3C0, t, 103, 0);
     if (t->m04 != 0) {
         if (t->m88 != 0) {
-            if (t->m88 == lbl_8087F8A0->mHead && ((GameTask*)lbl_8087F430)->fn_80370A78(0x73) == 0) {
-                ((GameTask*)lbl_8087F430)->fn_80370AE4(0x73, 1);
+            if (t->m88 == lbl_8087F8A0->mHead && lbl_8087F430->fn_80370A78(0x73) == 0) {
+                lbl_8087F430->fn_80370AE4(0x73, 1);
             }
             if (t->m88->m55C == 6 && t->m88->m560 - 0x74U <= 1) {
                 t->m88->fn_8015C6A0();

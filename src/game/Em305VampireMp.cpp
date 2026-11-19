@@ -1,3 +1,4 @@
+#include "game/GameTask.h"
 #include "game/Em305VampireMp.h"
 #include "game/GameUI.h"
 #include "atn/Material_unk.h"
@@ -17,12 +18,7 @@ extern "C" double strtod(const char* str);
 extern "C" int fn_800DC12C(const char* s); // inferred: string to int
 // inferred: std::string concatenation (weak copy 0x8006AFF8)
 extern "C" std::string fn_8006AFF8(const std::string& a, const std::string& b);
-// inferred: field (lbl_8087F430); m10D8: route tables
-struct Field_unk {
-    unsigned char m0000[0x10D8];
-    GameScene* m10D8;
-};
-extern "C" Field_unk* lbl_8087F430;
+extern "C" GameTask* lbl_8087F430;
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
 extern "C" void fn_800CB5C8(atn::SoundRef* sound, int frames, int arg); // inferred: stops the sound
 extern "C" int fn_800CB58C(atn::SoundRef* sound);                       // inferred: nonzero while playing

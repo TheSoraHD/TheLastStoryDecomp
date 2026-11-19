@@ -50,16 +50,7 @@ Em401_01_WhiteLeoPard::Em401_01_WhiteLeoPard(atn::Task* parent, const EnemyInfo_
 
 Em401_01_WhiteLeoPard::~Em401_01_WhiteLeoPard() {}
 
-// inferred: field (lbl_8087F430); names invented (as in game/CharaTask.cpp)
-struct Field_unk {
-    unsigned char m000[0x868];
-    int m868; // inferred: mode
-    unsigned char m86C[0x8A0 - 0x86C];
-    int m8A0;
-    unsigned char m8A4[0x10D8 - 0x8A4];
-    GameScene* m10D8; // inferred: route tables (as in game/Em403WarLion.cpp)
-};
-extern "C" Field_unk* lbl_8087F430;
+extern "C" GameTask* lbl_8087F430;
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
@@ -137,10 +128,10 @@ void Em401_01_WhiteLeoPard::vf10() {
     if ((mStatus.m0C & 0x20) != 0x20) {
         fn_8031FAA4();
     } else {
-        lbl_8087F430->m8A0 = 0;
+        lbl_8087F430->mCamera.m834 = 0;
     }
     if (lbl_8087F8A0->mHead->mFlag28 && m156C == 0) {
-        ((GameTask*)lbl_8087F430)->fn_80370AE4(0x3C, 1);
+        lbl_8087F430->fn_80370AE4(0x3C, 1);
     }
     atn::Vector3 pos(mPos);
     m156C = LeaderFlag_unk();
@@ -164,7 +155,7 @@ void Em401_01_WhiteLeoPard::vf10() {
         mFlag24 = 1;
     }
     fn_80145334();
-    if (lbl_8087F430->m868 == 6) {
+    if (lbl_8087F430->mCamera.m7FC == 6) {
         mRoute.fn_80127D8C(0, 0, 0);
     }
 }
@@ -201,7 +192,7 @@ void Em401_01_WhiteLeoPard::vf14() {
 // inferred: picks the target: the leader when it has mFlag28, else (field flag 0x3D set) a player held by
 // a control 0x1D-0x1F
 void Em401_01_WhiteLeoPard::fn_8031FAA4() {
-    if (((GameTask*)lbl_8087F430)->fn_80370A78(0x3D) == 0) {
+    if (lbl_8087F430->fn_80370A78(0x3D) == 0) {
         if (lbl_8087F8A0->mHead->mFlag28) {
             mC58.mC8 = (int)mC58.mC4;
             m1454 = 0;
@@ -228,7 +219,7 @@ void Em401_01_WhiteLeoPard::fn_8031FAA4() {
             m1454 = 1;
         }
     }
-    lbl_8087F430->m8A0 = 0;
+    lbl_8087F430->mCamera.m834 = 0;
     if (mC58.mC4 != (CharaTask*)mC58.mC8) {
         mRoute.fn_8012539C();
     }
@@ -245,14 +236,14 @@ void Em401_01_WhiteLeoPard::vf3C(HitInfo_unk* hit, int) {
                 msg->m90 = 1;
                 return;
             }
-            if (m58C == 1 && ((GameTask*)lbl_8087F430)->fn_80370A78(0x3D) == 1) {
+            if (m58C == 1 && lbl_8087F430->fn_80370A78(0x3D) == 1) {
                 msg->m10 *= 0.0f;
             } else {
                 msg->m10 *= 0.7f;
                 msg->m50 |= 0x90;
             }
         }
-        ((GameTask*)lbl_8087F430)->fn_80370A78(0x3D);
+        lbl_8087F430->fn_80370A78(0x3D);
     }
     fn_80151448(msg);
     fn_8031FD34(msg);
@@ -352,10 +343,10 @@ void Em401_01_WhiteLeoPard::fn_8031FE4C() {
         if (lbl_8087F048 != 0 && fn_80158CA4() && m594 != 0) {
             fn_80144710();
             HitInfo_unk* hit = fn_80219E6C(0x687);
-            if (((GameTask*)lbl_8087F430)->fn_80370A78(0x3D) == 0) {
+            if (lbl_8087F430->fn_80370A78(0x3D) == 0) {
                 int left = 3;
                 for (int i = 0; i < 3; i++) {
-                    if (((GameTask*)lbl_8087F430)->fn_80370A78(lbl_80749898[i]) >= 200) {
+                    if (lbl_8087F430->fn_80370A78(lbl_80749898[i]) >= 200) {
                         left--;
                     }
                 }
@@ -414,7 +405,7 @@ void Em401_01_WhiteLeoPard::fn_803202E0() {
         if (FindRoutePlace2_unk(table, m1568) == 0) {
             mRoute.fn_8012539C();
             fn_80170A20(mC58.mC4, -1.0f, 0);
-        } else if (((GameTask*)lbl_8087F430)->fn_80370A78(0x3D) != 0) {
+        } else if (lbl_8087F430->fn_80370A78(0x3D) != 0) {
             mRoute.fn_8012539C();
             fn_8017039C(m1568, 0);
         }
@@ -432,7 +423,7 @@ void Em401_01_WhiteLeoPard::fn_803202E0() {
                 rot = mRot;
             }
         }
-        if (((GameTask*)lbl_8087F430)->fn_80370A78(0x3D) == 0) {
+        if (lbl_8087F430->fn_80370A78(0x3D) == 0) {
             rate *= 0.7f;
             if (dist < m1524 && m1560 > m15A0) {
                 fn_800EB270(200);

@@ -1,3 +1,4 @@
+#include "game/GameTask.h"
 #include "game/CrowdSimulation.h"
 #include "game/GameScene.h"
 #include "game/CharaStatus.h"
@@ -14,14 +15,7 @@ inline float LengthSq_unk(const atn::Vector3& v) {
 }
 extern "C" unsigned short fn_803CD958(U16Table_unk* path, int point); // inferred: next point towards `point`
 
-// inferred: field status (lbl_8087F430); only the members used here
-struct Field_unk {
-    unsigned char m00[0x10D0];
-    int m10D0; // inferred: hour
-    unsigned char m10D4[0x10D8 - 0x10D4];
-    GameScene* m10D8;
-};
-extern "C" Field_unk* lbl_8087F430;
+extern "C" GameTask* lbl_8087F430;
 // inferred: route manager of the town walkers (lbl_8087EE68)
 extern "C" void* lbl_8087EE68;
 extern "C" int fn_80016C10(void* mgr, int route, boost::function<void()>* callback);

@@ -1,3 +1,4 @@
+#include "game/GameTask.h"
 #include "game/LogMessageTask.h"
 #include "atn/Memory.h"
 #include "std/string.h"
@@ -82,12 +83,7 @@ void LogMessageTask::vf10() {
     }
 }
 
-// inferred: field (only the pause state is used here)
-struct LogField_unk {
-    unsigned char m00[0x54E4];
-    int m54E4;
-};
-extern "C" LogField_unk* lbl_8087F430;
+extern "C" GameTask* lbl_8087F430;
 extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float volume);
 extern "C" double sin(double x);
 

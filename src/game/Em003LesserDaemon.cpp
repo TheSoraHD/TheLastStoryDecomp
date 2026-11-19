@@ -20,12 +20,7 @@
 extern "C" unsigned long strlen(const char* s);
 extern "C" int atoi(const char* s);
 extern "C" float fn_800DC288(const char* s); // inferred: string to float
-// inferred: field (lbl_8087F430): route tables at 0x10D8 (as in game/Em306GurgBeast.cpp)
-struct Field_unk {
-    unsigned char m0000[0x10D8];
-    GameScene* m10D8;
-};
-extern "C" Field_unk* lbl_8087F430;
+extern "C" GameTask* lbl_8087F430;
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" int strncmp(const char* a, const char* b, unsigned long n);
 // inferred: std::string concatenation (weak copy 0x8006AFF8)
@@ -496,7 +491,7 @@ void Em003LesserDaemon::vf10() {
     if ((CharaTask*)mC58.mC8 != m14B0) {
         m14B4 = 1;
     }
-    if (m16C4 == 0 && m16CC >= 0 && ((GameTask*)lbl_8087F430)->fn_80370174(m16CC) == 1) {
+    if (m16C4 == 0 && m16CC >= 0 && lbl_8087F430->fn_80370174(m16CC) == 1) {
         m16C4 = 1;
         if (mStatus.IsState_unk(0x20)) {
             fn_8024FCDC();
@@ -561,8 +556,8 @@ void Em003LesserDaemon::vf10() {
             fn_80232B7C(&m1504, 0);
             PlayEffectM_unk(lbl_8087F3C0, &m1504, &mMotion);
             ResetAction_unk();
-            if (mFlag22 == 1 && m1640 >= 2 && m16D0 >= 0 && ((GameTask*)lbl_8087F430)->fn_80370A78(m16D0) == 0) {
-                ((GameTask*)lbl_8087F430)->fn_80370AE4(m16D0, 1);
+            if (mFlag22 == 1 && m1640 >= 2 && m16D0 >= 0 && lbl_8087F430->fn_80370A78(m16D0) == 0) {
+                lbl_8087F430->fn_80370AE4(m16D0, 1);
             }
             fn_800C344C("SE_SP007_001", &mPos, 0, -1, 1.0f);
         }
@@ -724,7 +719,7 @@ void Em003LesserDaemon::vf3C(HitInfo_unk* hit, int) {
             fn_800C344C("SE_SP007_003", &mPos, 0, -1, 1.0f);
             m1640++;
             if (m16D4 > 0) {
-                ((GameTask*)lbl_8087F430)->fn_80370AE4(m16D4, 1);
+                lbl_8087F430->fn_80370AE4(m16D4, 1);
             }
             for (unsigned int i = 0; i < mLinks.mSize; i++) {
                 if (mLinks.mData[i]->m58C != 2) {
@@ -1552,8 +1547,8 @@ void Em003LesserDaemon::fn_8024FFE8() {
         mLinks.mData[i]->m1654 = 11;
         mLinks.mData[i]->m1658 = rand() % 2 != 0 ? next : -1;
     }
-    if (((GameTask*)lbl_8087F430)->fn_80370A78(0xFA) == 0) {
-        ((GameTask*)lbl_8087F430)->fn_80370AE4(0xFA, 1);
+    if (lbl_8087F430->fn_80370A78(0xFA) == 0) {
+        lbl_8087F430->fn_80370AE4(0xFA, 1);
     }
 }
 

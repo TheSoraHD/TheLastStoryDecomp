@@ -1,3 +1,4 @@
+#include "game/GameTask.h"
 #include "game/Em006DarkMaster.h"
 #include "game/GameScene.h"
 #include "atn/Csv.h"
@@ -11,12 +12,7 @@ extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: length
-// inferred: field (lbl_8087F430); m10D8: route tables
-struct Field_unk {
-    unsigned char m0000[0x10D8];
-    void* m10D8;
-};
-extern "C" Field_unk* lbl_8087F430;
+extern "C" GameTask* lbl_8087F430;
 
 // inferred: servant of the master (enemy of kind 42); its master is at 0x14D4
 struct DarkServant_unk : public EnemyTask {
@@ -197,7 +193,7 @@ void Em006DarkMaster::vf100(int state) {
         if (lbl_8087F048 != 0) {
             lbl_8087F048->fn_8010653C(this, &mMotion);
         }
-        void* routes = lbl_8087F430 != 0 ? lbl_8087F430->m10D8 : 0;
+        GameScene* routes = lbl_8087F430 != 0 ? lbl_8087F430->m10D8 : 0;
         AIManager* search = lbl_8087EE68;
         int point = search->fn_80018D5C(&mPos, mC58.mB4, 0, -1, 0, fn_80179D44(), 1, 3.1415927f + mRot.y, 240.0f,
                                         100.0f, 200.0f);
@@ -212,7 +208,7 @@ void Em006DarkMaster::vf100(int state) {
                                         30.0f, 100.0f);
         }
         if (point > 0) {
-            m14FC = ((GameScene*)routes)->fn_803C11A4(point);
+            m14FC = routes->fn_803C11A4(point);
         } else {
             m14FC = mPos;
         }

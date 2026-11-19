@@ -9,16 +9,11 @@
 #include "game/GameTask.h"
 #include "game/GameSceneFind_unk.h"
 
-// inferred: field objects that own the route tables
-struct RouteField_unk {
-    unsigned char m00[0x10D8];
-    GameScene* m10D8;
-};
 struct RouteField2_unk {
     unsigned char m00[0x1A6C];
     GameScene* m1A6C;
 };
-extern "C" RouteField_unk* lbl_8087F430;
+extern "C" GameTask* lbl_8087F430;
 extern "C" RouteField2_unk* lbl_8087F540;
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 
@@ -335,7 +330,7 @@ void RouteWalker_unk::fn_80126214() {
             ((float)__fabs(m58.y) < 10.0f &&
              (m58.x * m58.x + m58.z * m58.z) < 1.5f * (1.5f * mChara->m5B0 * mChara->m5B0))) {
             GameSceneRoute_unk route;
-            if (((GameTask*)lbl_8087F430)->fn_8036DAF4(&route, mChara, 0, mLink) != 0) {
+            if (lbl_8087F430->fn_8036DAF4(&route, mChara, 0, mLink) != 0) {
                 mChara->fn_80153698(&route, 0);
                 if (m1C == 3) {
                     fn_80127D8C(1, 0, 0);

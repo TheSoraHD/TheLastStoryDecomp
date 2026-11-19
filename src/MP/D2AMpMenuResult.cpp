@@ -102,12 +102,7 @@ extern "C" MpItem_unk* fn_80211480(int id);
 extern "C" int fn_80444BE8(void* mgr, MpItem_unk* item);
 extern "C" MpUV_unk fn_80444C50(void* mgr, int icon);
 
-// inferred: field (lbl_8087F430)
-struct MpField_unk {
-    unsigned char m0000[0x54E4];
-    int m54E4;
-};
-extern "C" MpField_unk* lbl_8087F430;
+extern "C" GameTask* lbl_8087F430;
 
 
 
@@ -305,7 +300,7 @@ void D2AMpMenuResult::fn_804C5E9C(int state) {
                 MpCharaTask_unk* chara = fn_804EB870(lbl_8087F610)->m00;
                 chara->m54C |= 0x10;
                 chara->fn_800D246C(1);
-                ((GameTask*)lbl_8087F430)->fn_803729B4((CharaTask*)chara);
+                lbl_8087F430->fn_803729B4((CharaTask*)chara);
                 m19C = 1;
             }
             D2AMpMenuCockpit::sInstance->fn_804B50C0(3);

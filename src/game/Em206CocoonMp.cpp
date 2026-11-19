@@ -35,13 +35,7 @@ struct Color4f_unk {
 extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
-// inferred: field (lbl_8087F430); class unknown
-// inferred: field (lbl_8087F430): route tables at 0x10D8 (as in game/Em203GreaterDaemonRedMp.cpp)
-struct Field_unk {
-    unsigned char m0000[0x10D8];
-    GameScene* m10D8;
-};
-extern "C" Field_unk* lbl_8087F430;
+extern "C" GameTask* lbl_8087F430;
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 extern "C" void PSVECNormalize(const atn::Vector3* src, atn::Vector3* dst);
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
@@ -191,7 +185,7 @@ inline void Em206CocoonMp::Die_unk() {
     fn_80232B7C(0, 0);
     PlayEffectM_unk(lbl_8087F3C0, &m191C, &mMotion);
     m574 = lbl_807C7030;
-    ((GameTask*)lbl_8087F430)->fn_80370AE4(0x65, 1);
+    lbl_8087F430->fn_80370AE4(0x65, 1);
     BattleTask* mgr = lbl_8087F048;
     CharaTask* player = lbl_8087F8A0->mHead;
     mgr->fn_800FAB80(player, fn_80219E6C(0x5C3), mgr->fn_800F8548(), &mPos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
@@ -250,7 +244,7 @@ template void std::vector<EnemyTask*>::push_back(EnemyTask* const& x);
 
 void Em206CocoonMp::vf10() {
     if (m1520 != m1524) {
-        ((GameTask*)lbl_8087F430)->fn_80370AE4(10, 1);
+        lbl_8087F430->fn_80370AE4(10, 1);
         m1524 = m1520;
     }
     if (!CharaTask::mFlag2 || !CanAct_unk()) {
@@ -1065,8 +1059,8 @@ void Em206CocoonMp::fn_802BE9C8() {
         fn_8016E970(3);
     }
     if (mMotion.mTracks[0].m08 >= 55.1f && m1904 == 0) {
-        if (((GameTask*)lbl_8087F430)->fn_80370A78(0x96) == 0) {
-            ((GameTask*)lbl_8087F430)->fn_80370AE4(0x96, 1);
+        if (lbl_8087F430->fn_80370A78(0x96) == 0) {
+            lbl_8087F430->fn_80370AE4(0x96, 1);
         }
         m1520 = m1520 == 0;
         BattleTask* mgr = lbl_8087F048;

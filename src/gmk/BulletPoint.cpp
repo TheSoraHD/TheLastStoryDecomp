@@ -1,3 +1,4 @@
+#include "game/GameTask.h"
 #include "gmk/BulletPoint.h"
 #include "game/BattleTask.h"
 #include "atn/Memory.h"
@@ -12,12 +13,7 @@
 
 extern "C" int rand();
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
-// inferred: field object (class unknown)
-struct BulletField_unk {
-    unsigned char m00[0x10D8];
-    GameScene* m10D8; // inferred: route tables
-};
-extern "C" BulletField_unk* lbl_8087F430;
+extern "C" GameTask* lbl_8087F430;
 // inferred: game settings
 struct BulletSettings_unk {
     unsigned char m00[0x30];

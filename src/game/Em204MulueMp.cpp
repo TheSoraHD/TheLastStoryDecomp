@@ -1,3 +1,4 @@
+#include "game/GameTask.h"
 #include "game/Em204Mulue.h"
 #include "game/BattleTask.h"
 #include "atn/Material_unk.h"
@@ -54,12 +55,7 @@ extern "C" void fn_8004D124(void* world); // inferred: rebuilds the active shape
 extern "C" void fn_805A5078(const atn::Vector3* pos, const atn::Vector3* dir, int id, float radius, float angle);
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
-// inferred: field (lbl_8087F430); m10D8: route tables
-struct Field_unk {
-    unsigned char m0000[0x10D8];
-    GameScene* m10D8;
-};
-extern "C" Field_unk* lbl_8087F430;
+extern "C" GameTask* lbl_8087F430;
 // inferred: player of the multiplayer session (0xD5C bytes, as in MP/D2AMpMenuCockpit.cpp)
 struct MulueMpPlayer_unk {
     CharaTask* m00;

@@ -1,3 +1,4 @@
+#include "game/GameTask.h"
 #include "game/EnvSeManager.h"
 #include "game/ChaseManager.h"
 #include "game/CharaTask.h"
@@ -25,17 +26,7 @@ struct ChaseSettings_unk {
     float m538;
 };
 extern "C" ChaseSettings_unk* lbl_8087F0A8;
-struct ChaseField_unk {
-    unsigned char m0000[0x8A0];
-    CharaTask* m8A0; // inferred: caught character (cleared every frame while chasing)
-    unsigned char m08A4[0x10D8 - 0x8A4];
-    GameScene* m10D8; // inferred: scene of the field (goal points GameScene::m78)
-    unsigned char m10DC[0x54E4 - 0x10DC];
-    int m54E4;
-    unsigned char m54E8[0x5660 - 0x54E8];
-    int m5660;
-};
-extern "C" ChaseField_unk* lbl_8087F430;
+extern "C" GameTask* lbl_8087F430;
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 
 ChaseManager* lbl_8087F098;
@@ -208,7 +199,7 @@ inline bool IsLedgeHold_unk(CharaTask* chara) {
 void ChaseManager::vf10() {
     if (mState != 0 && lbl_8087F8A0 != 0 && lbl_8087F8A0->mHead != 0) {
         mFrames++;
-        lbl_8087F430->m8A0 = 0;
+        lbl_8087F430->mCamera.m834 = 0;
         if (lbl_8087F8A0->mHead->m484[3] != 0x1F) {
             lbl_8087F8A0->mHead->fn_8014C0B4(3, 0x1F);
             lbl_8087F8A0->mHead->fn_8014C0B4(2, 0x19);
@@ -236,7 +227,7 @@ void ChaseManager::vf10() {
     }
     if (mState == 2) {
         m6C++;
-        lbl_8087F430->m8A0 = mCaught;
+        lbl_8087F430->mCamera.m834 = mCaught;
     }
     CharaTask* player = lbl_8087F8A0->mHead;
     if (mShowGoal != 0 && lbl_8087F430 != 0 && lbl_8087F430->m54E4 == 0 && mGoalId > 0 && !player->mFlag25 &&

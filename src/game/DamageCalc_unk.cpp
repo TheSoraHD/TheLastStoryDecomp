@@ -30,10 +30,7 @@ extern "C" SkillEffect* fn_8059B66C(void* mgr, HitInfo_unk* skill, CharaTask* us
 
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
 
-// inferred: field (lbl_8087F430)
-struct Field_unk {
-};
-extern "C" Field_unk* lbl_8087F430;
+extern "C" GameTask* lbl_8087F430;
 
 extern "C" GameConfig_unk* lbl_8087F0A8;
 
@@ -510,7 +507,7 @@ float fn_80040588(const float* elements, CharaStatus* status, int positiveOnly) 
     if (positiveOnly != 0 && best >= 0.0f) {
         return 0.0f;
     }
-    if (lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->fn_80370174(0x11B) > 0) {
+    if (lbl_8087F430 != 0 && lbl_8087F430->fn_80370174(0x11B) > 0) {
         best *= 2.0f;
     }
     return best;
@@ -809,14 +806,14 @@ int fn_80040B44(DamageResult_unk* result, HitInfo_unk* data, CharaStatus* attack
         if (element <= -2) {
             result->mType = 5;
             if (lbl_8087F430 != 0) {
-                ((GameTask*)lbl_8087F430)->fn_803750E4(0x15B);
+                lbl_8087F430->fn_803750E4(0x15B);
             }
         } else if (element <= -1) {
             result->mType = 4;
         } else if (element >= 1) {
             result->mType = 1;
             if (attacker->mChara != 0 && attacker->mChara->mType == 0 && lbl_8087F430 != 0) {
-                ((GameTask*)lbl_8087F430)->fn_803750E4(0x15A);
+                lbl_8087F430->fn_803750E4(0x15A);
             }
         } else {
             result->mType = 1;

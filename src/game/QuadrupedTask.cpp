@@ -22,16 +22,7 @@
 inline atn::Vector3 GetNodePos_unk(MtxPtr m) {
     return atn::Vector3(m[0][3], m[1][3], m[2][3]);
 }
-// inferred: field (lbl_8087F430); names invented (as in game/CharaTask.cpp)
-struct Field_unk {
-    unsigned char m000[0x868];
-    int m868; // inferred: mode
-    unsigned char m86C[0x8A0 - 0x86C];
-    int m8A0;
-    unsigned char m8A4[0x10D8 - 0x8A4];
-    GameScene* m10D8; // inferred: route tables (as in game/Em403WarLion.cpp)
-};
-extern "C" Field_unk* lbl_8087F430;
+extern "C" GameTask* lbl_8087F430;
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector

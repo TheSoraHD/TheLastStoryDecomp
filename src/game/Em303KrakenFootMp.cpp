@@ -1,3 +1,4 @@
+#include "game/GameTask.h"
 #include "game/Em303KrakenFootMp.h"
 #include "math/VecAssign_unk.h"
 #include "atn/Csv.h"
@@ -33,12 +34,7 @@ extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the nex
 inline atn::Vector3 GetNodePos_unk(MtxPtr m) {
     return atn::Vector3(m[0][3], m[1][3], m[2][3]);
 }
-// inferred: field (lbl_8087F430): route tables at 0x10D8 (as in game/CharaC58_unk.cpp)
-struct Field_unk {
-    unsigned char m0000[0x10D8];
-    GameScene* m10D8;
-};
-extern "C" Field_unk* lbl_8087F430;
+extern "C" GameTask* lbl_8087F430;
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 extern "C" int rand();
 

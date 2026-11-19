@@ -51,12 +51,7 @@ struct SelectMemberMsg_unk {
     const wchar_t* mText[1];
 };
 extern "C" SelectMemberMsg_unk* lbl_8087F1E4;
-// inferred: field (lbl_8087F430)
-struct SelectMemberField_unk {
-    unsigned char m0000[0x10D0];
-    int m10D0; // inferred: story progress
-};
-extern "C" SelectMemberField_unk* lbl_8087F430;
+extern "C" GameTask* lbl_8087F430;
 // inferred: members available at a point of the story
 struct SelectMemberAvail_unk {
     unsigned char m00[4];
@@ -354,7 +349,7 @@ void SelectMember::fn_80572290() {
     int value = 0;
     if (lbl_8087F430 != 0) {
         progress = lbl_8087F430->m10D0;
-        value = ((GameTask*)lbl_8087F430)->fn_80370174(99);
+        value = lbl_8087F430->fn_80370174(99);
     }
     SelectMemberAvail_unk* avail = fn_80217D9C(progress);
     if (avail != 0) {

@@ -40,12 +40,7 @@ extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); /
 extern "C" void fn_80232B7C(void* owner, int arg);
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
 
-// inferred: field object (class unknown)
-struct Field_unk {
-    unsigned char m00[0x10D8];
-    void* m10D8; // inferred: route tables
-};
-extern "C" Field_unk* lbl_8087F430;
+extern "C" GameTask* lbl_8087F430;
 // inferred: finds the place where `chara` stands in the route tables
 
 // inferred: request of an event (names invented)
@@ -190,7 +185,7 @@ void LottaSummon::vf10() {
             if (player != 0) {
                 if (LenSq_unk(player->mPos - m6C) < 256.0f) {
                     if (lbl_8087F430 != 0) {
-                        ((GameTask*)lbl_8087F430)->fn_803750E4(0x1BD);
+                        lbl_8087F430->fn_803750E4(0x1BD);
                     }
                     if (!player->mFlag6 && !player->HasC48_unk() && !player->mFlag31) {
                         lbl_8087F490->Request_unk(15);

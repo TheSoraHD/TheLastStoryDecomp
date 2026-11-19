@@ -20,14 +20,7 @@ extern "C" float fn_800DC288(const char* s); // inferred: string to float
 extern "C" void PSMTXRotRad(Mtx m, char axis, float rad);
 extern "C" void PSMTXConcat(const Mtx a, const Mtx b, Mtx ab);
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
-// inferred: field (lbl_8087F430) with its route tables
-struct RandomItemField_unk {
-    unsigned char m00[0x10D0];
-    int m10D0; // inferred: level of the random tables
-    unsigned char m10D4[0x10D8 - 0x10D4];
-    GameScene* m10D8;
-};
-extern "C" RandomItemField_unk* lbl_8087F430;
+extern "C" GameTask* lbl_8087F430;
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 extern "C" int rand();
 // inferred: effect manager (class unknown), global instance at 0x8087F3C0
@@ -355,7 +348,7 @@ void RandomItem::fn_804348C4() {
         }
         return;
     }
-    GameCamera& camera = ((GameTask*)lbl_8087F430)->mCamera;
+    GameCamera& camera = lbl_8087F430->mCamera;
     if (!IsLookMode_unk(camera.m7FC)) {
         camera.m858 = 0;
         camera.m838 = 0;
@@ -401,7 +394,7 @@ void RandomItem::fn_804348C4() {
             if (fn_80051B70(line, &sphere) != 0 && CanSee_unk(line[0], sphere)) {
                 found = 1;
                 lbl_8087F490->fn_803E6ADC(item.mCenter + lo, item.mCenter + hi);
-                lbl_8087F490->fn_803E3BE8(((GameTask*)lbl_8087F430)->m10D8->fn_803CC6B4(m124 + rand() % 4), 0, 0.0f);
+                lbl_8087F490->fn_803E3BE8(lbl_8087F430->m10D8->fn_803CC6B4(m124 + rand() % 4), 0, 0.0f);
                 fn_800C31F4(sSounds_unk[0], 0, -1, 1.0f);
                 camera.fn_8037F6D8(&m154);
                 fn_80435684(3);
@@ -438,7 +431,7 @@ void RandomItem::fn_804348C4() {
                     e.m84 = m160;
                     lbl_8087F8A8->fn_8054E0FC(&e);
                 }
-                RandomTable_unk* table = fn_8021D720(((GameTask*)lbl_8087F430)->m10D0, m144->m04);
+                RandomTable_unk* table = fn_8021D720(lbl_8087F430->m10D0, m144->m04);
                 char name[0x10];
                 memset(name, 0, sizeof(name));
                 int item;

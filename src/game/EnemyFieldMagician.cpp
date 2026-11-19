@@ -12,13 +12,7 @@ extern "C" int atoi(const char* s);
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
 extern "C" void PSMTXTrans(Mtx m, float x, float y, float z);
-// inferred: field (lbl_8087F430); m10D8 holds the route tables, the event flags are read with
-// fn_80370A78 and written with fn_80370AE4
-struct Field_unk {
-    unsigned char m0000[0x10D8];
-    GameScene* m10D8;
-};
-extern "C" Field_unk* lbl_8087F430;
+extern "C" GameTask* lbl_8087F430;
 // inferred: effects (as in game/Em002Skelton.cpp)
 struct EffectMgr_unk;
 struct Color4f_unk {
@@ -226,7 +220,7 @@ void EnemyFieldMagician::fn_8032C964() {
 
 void EnemyFieldMagician::vf10() {
     bool unused = false;
-    if (m1660 >= 0 && lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->fn_80370A78(m1660) == 1) {
+    if (m1660 >= 0 && lbl_8087F430 != 0 && lbl_8087F430->fn_80370A78(m1660) == 1) {
         unused = true;
     }
     if (m55C == 7 || unused) {
@@ -252,7 +246,7 @@ void EnemyFieldMagician::vf10() {
         break;
     case 7:
         if (++m1610 >= 600) {
-            ((GameTask*)lbl_8087F430)->fn_803750E4(0xF7);
+            lbl_8087F430->fn_803750E4(0xF7);
         }
         fn_80145334();
         fn_8014C540();
@@ -360,8 +354,8 @@ void EnemyFieldMagician::fn_8032D1F4() {
         m1608 = 1;
         m160C = 0;
         int flag = m1654;
-        if (flag >= 0 && ((GameTask*)lbl_8087F430)->fn_80370A78(flag) == 0) {
-            ((GameTask*)lbl_8087F430)->fn_80370AE4(flag, 1);
+        if (flag >= 0 && lbl_8087F430->fn_80370A78(flag) == 0) {
+            lbl_8087F430->fn_80370AE4(flag, 1);
         }
     }
     float frame2 = mMotion.mTracks[0].m08;
@@ -454,8 +448,8 @@ void EnemyFieldMagician::vf3C(HitInfo_unk* hit, int) {
                         lbl_8087EFE8->m34D8 = 0;
                     }
                     int flag = m1658;
-                    if (flag >= 0 && ((GameTask*)lbl_8087F430)->fn_80370A78(flag) == 0) {
-                        ((GameTask*)lbl_8087F430)->fn_80370AE4(flag, 1);
+                    if (flag >= 0 && lbl_8087F430->fn_80370A78(flag) == 0) {
+                        lbl_8087F430->fn_80370AE4(flag, 1);
                     }
                 }
                 if (weak && msg->mData->m01 == 0) {
@@ -500,8 +494,8 @@ void EnemyFieldMagician::vf40(HitInfo_unk* hit) {
             m14B0[0].mFlags &= ~1;
             m14B0[1].mFlags &= ~1;
             m1608 = 0;
-            if (flag >= 0 && ((GameTask*)lbl_8087F430)->fn_80370A78(flag) == 0) {
-                ((GameTask*)lbl_8087F430)->fn_80370AE4(flag, 1);
+            if (flag >= 0 && lbl_8087F430->fn_80370A78(flag) == 0) {
+                lbl_8087F430->fn_80370AE4(flag, 1);
             }
         }
     }

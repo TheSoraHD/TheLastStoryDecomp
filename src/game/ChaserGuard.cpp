@@ -22,14 +22,7 @@ extern "C" double acos(double x);
 extern "C" double fabs(double x);
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
-// inferred: field (class unknown); m10D8 holds the route tables
-struct Field_unk {
-    unsigned char m00[0x10D8];
-    GameScene* m10D8;
-    unsigned char m10DC[0x5660 - 0x10DC];
-    int m5660;
-};
-extern "C" Field_unk* lbl_8087F430;
+extern "C" GameTask* lbl_8087F430;
 extern "C" GameUI* lbl_8087F490; // inferred: the HUD (fn_803E3BE8 shows a message)
 // inferred: color as four floats (as in gmk/PlayEffect.cpp)
 struct Color4f_unk {
@@ -688,7 +681,7 @@ void ChaserGuard::fn_8017FED0() {
             m14D8--;
             speed *= 0.85f;
         }
-        bool hard = ((GameTask*)lbl_8087F430)->fn_80370174(0xD4) == 1;
+        bool hard = lbl_8087F430->fn_80370174(0xD4) == 1;
         if (hard) {
             speed *= 0.9f;
         }
