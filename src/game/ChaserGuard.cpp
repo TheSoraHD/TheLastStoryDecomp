@@ -15,6 +15,7 @@
 #include "atn/ColliBase.h"
 #include "game/GameSceneFind_unk.h"
 #include "game/GameConfig_unk.h"
+#include "game/ChaseManager.h"
 
 extern "C" unsigned long strlen(const char* s);
 extern "C" int strcmp(const char* a, const char* b);
@@ -31,22 +32,7 @@ struct Color4f_unk {
     Color4f_unk(float r_, float g_, float b_, float a_) : r(r_), g(g_), b(b_), a(a_) {}
     float r, g, b, a;
 };
-// inferred: chase manager (class unknown)
-struct ChaseState_unk {
-    unsigned char m00[0x48];
-    int m48; // inferred: state (0: idle, 3: the guards stop)
-    unsigned char m4C[0x58 - 0x4C];
-    int m58; // inferred: frames since the chase started
-    unsigned char m5C[0x70 - 0x5C];
-    ChaserGuard* m70; // inferred: guard that caught the player
-    int m74;          // inferred: number of guards
-    unsigned char m78[0xF8 - 0x78];
-    int mF8;
-};
-extern "C" ChaseState_unk* lbl_8087F098;
-extern "C" CharaTask* fn_80183860(ChaseState_unk* mgr, const atn::Vector3* pos); // inferred: player to chase
-extern "C" void fn_80182788(ChaseState_unk* mgr, ChaserGuard* guard, CharaTask* target); // inferred: catch
-extern "C" void fn_80182874(ChaseState_unk* mgr); // inferred: release
+extern "C" ChaseManager* lbl_8087F098;
 extern "C" GameConfig_unk* lbl_8087F0A8;
 // inferred: accessor (the original computes the address of the parameters once and reuses it)
 inline GameConfig4DC_unk* GetChaseParam_unk() {
@@ -132,7 +118,7 @@ ChaserGuard::~ChaserGuard() {
 }
 
 void ChaserGuard::vf10() {
-    int state = lbl_8087F098->m48;
+    int state = lbl_8087F098->mState;
     if (state != 0) {
         PlayerTask* player = lbl_8087F8A0->mHead;
         if (player != 0 && (player->mStatus.m0C & 0x20) != 0x20) {
@@ -182,11 +168,11 @@ inline bool ChaserGuard::IsPlayerNear_unk() {
 void ChaserGuard::fn_8017D13C() {
     mC58.mC4 = lbl_8087F8A0->mHead;
     mC58.m11C.m01 = 0;
-    if (lbl_8087F098->m48 == 0 && m14B0 != 3 && m14B0 != 5) {
+    if (lbl_8087F098->mState == 0 && m14B0 != 3 && m14B0 != 5) {
         fn_8017F4A0(5);
         return;
     }
-    if (lbl_8087F098->m48 == 0) {
+    if (lbl_8087F098->mState == 0) {
         m14D0 = 0;
     }
     mColli.mFlags |= 1;
@@ -278,7 +264,7 @@ void ChaserGuard::fn_8017E650() {
             m14B4 = 0;
         } else {
             float range = lbl_8087F0A8->m4DC.mCatchDistance;
-            if (lbl_8087F098->mF8 != 0) {
+            if (lbl_8087F098->mCaught != 0) {
                 range *= 1.8f;
             }
             range *= range;
@@ -353,7 +339,7 @@ void ChaserGuard::fn_8017E9D8() {
             }
         } else {
             m14B4 = 0;
-            if (lbl_8087F098->m70 == this) {
+            if (lbl_8087F098->mCatcher == this) {
                 fn_80182874(lbl_8087F098);
             }
             if (mMotion.mTracks[0].m00 == 0x88) {
@@ -420,7 +406,7 @@ void ChaserGuard::fn_8017F118() {
 
 void ChaserGuard::fn_8017F348() {
     bool seen = fn_8017FBEC();
-    if (lbl_8087F098->m48 != 0) {
+    if (lbl_8087F098->mState != 0) {
         if (seen) {
             if (++m14D0 > lbl_8087F0A8->m4DC.mFindTime) {
                 fn_8017F4A0(2);
@@ -472,14 +458,14 @@ void ChaserGuard::fn_8017F4A0(int state) {
         }
         mC58.m0C.fn_801255C8();
         GameUI* player = lbl_8087F490;
-        if (player != 0 && lbl_8087F098->m48 != 0 && m14B0 == 4) {
+        if (player != 0 && lbl_8087F098->mState != 0 && m14B0 == 4) {
             player->fn_803E3BE8(((GameScene*)lbl_8087F430->m10D8)->fn_803CC6B4(0x2715), 0, 10.0f);
         }
         break;
     }
     case 3: {
         m150C = 0;
-        if (lbl_8087F098->m70 == this) {
+        if (lbl_8087F098->mCatcher == this) {
             mMotion.m34C = 1;
             mMotion.mTracks[0].m20 = 1.0f;
             mMotion.fn_80097C08(0, 0x87, 0, 0, 1, 0.0f, 0.1f);
@@ -489,10 +475,10 @@ void ChaserGuard::fn_8017F4A0(int state) {
             GameUI* player = lbl_8087F490;
             player->fn_803E3BE8(((GameScene*)lbl_8087F430->m10D8)->fn_803CC6B4(0x2717), 0, 10.0f);
         } else {
-            m150C = lbl_8087F098->m70;
+            m150C = lbl_8087F098->mCatcher;
             m1510 = mPos;
             if (m150C != 0) {
-                float base = 6.2831855f * (float)(lbl_8087F098->m74 - 2) / 8.0f;
+                float base = 6.2831855f * (float)((int)lbl_8087F098->mGuards.size() - 2) / 8.0f;
                 for (int i = 0; i < 8; i++) {
                     Mtx m2;
                     Mtx m1;
@@ -664,11 +650,11 @@ void ChaserGuard::fn_8017FED0() {
         if (hard) {
             speed *= 0.9f;
         }
-        if (lbl_8087F098->m58 > 4500) {
+        if (lbl_8087F098->mFrames > 4500) {
             speed *= hard ? 0.5f : 0.7f;
-        } else if (lbl_8087F098->m58 > 3600) {
+        } else if (lbl_8087F098->mFrames > 3600) {
             speed *= hard ? 0.65f : 0.8f;
-        } else if (lbl_8087F098->m58 > 2700) {
+        } else if (lbl_8087F098->mFrames > 2700) {
             speed *= hard ? 0.8f : 0.9f;
         }
     }
