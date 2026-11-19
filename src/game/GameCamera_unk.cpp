@@ -2301,14 +2301,13 @@ void GameCamera::fn_803884B8(const CharaTask* chara) {
     fn_80392964(0, 1, 0, 0);
 }
 
-// NONMATCHING: 93.7% - scheduling of the target sum and of the fovy; the original reads mTarget.z for the
-// distance from a register with a frsp
 // inferred: camera mode at m738.m0C looking at the character (m738.m18 above it); with a camera box of size m30
 // the fovy is narrowed to keep that size in view
 void GameCamera::fn_80388A88(const CharaTask* chara) {
     mCamera.SetPosition(atn::Vector3(m738.m0C, m738.m10, m738.m14));
     mCamera.SetTarget_unk(const_cast<CharaTask*>(chara)->fn_80178088() + atn::Vector3(0.0f, m738.m18, 0.0f));
-    mCamera.mFovy = m738.m04;
+    float baseFovy = m738.m04; // inferred: a local (the original loads it before the stores of the target)
+    mCamera.mFovy = baseFovy;
     if (mC20 != 0 && mC20->m30 > 0) {
         float dist = PSVECMag(&(mCamera.mPos - mCamera.mTarget));
         float fovy = 2.0f * (float)atan((float)mC20->m30 * (float)tan(m738.m04 / 2.0f) / dist);
