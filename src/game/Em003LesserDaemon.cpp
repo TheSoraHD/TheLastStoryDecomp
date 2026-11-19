@@ -81,28 +81,20 @@ extern "C" void fn_8023A8B4(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Mod
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
 
-// NONMATCHING: 99.74% - li order of the per-phase defaults (r0/r4/r5/r6; 5 orders of the loop body) and the
-// second std::string registers (same as Em101ElderZesya / Em201ZanGurg)
+// inferred: the zero members are in the initializer list (declaration order: the stores of m16E8 by
+// its ResHandle constructor fall between m16E4 and m16EC, and the li of the per-phase defaults are scheduled
+// as in the original)
 Em003LesserDaemon::Em003LesserDaemon(atn::Task* parent, EnemyInfo_unk* info)
     : EnemyTask(parent, info->m20), m14B0(0), m14B4(0), m14B8(0), m14BC(0), m14C0(0), m14C4(0), m14C8(0), m14D0(0),
-      m14D4(0), m14D8(0), m161C(10000), m1620(1), m1644(0.0f), m1648(1.0f), m1654(-1), m1658(-1), m1660(35.0f),
-      m1664(50.0f), m1668(80.0f), m166C(60.0f), m16C0(1.0f), m16C8(0.0f), m16CC(-1), m16D0(-1), m16D4(-1) {
+      m14D4(0), m14D8(0), m161C(10000), m1620(1), m1624(0), m1640(0), m1644(0.0f), m1648(1.0f), m164C(0), m1654(-1),
+      m1658(-1), m1660(35.0f), m1664(50.0f), m1668(80.0f), m166C(60.0f), m1670(0), m16BC(0), m16C0(1.0f), m16C4(0),
+      m16C8(0.0f), m16CC(-1), m16D0(-1), m16D4(-1), m16E4(0), m16EC(0) {
     for (int i = 0; i < 6; i++) {
         m168C[i] = 60;
         m16A4[i] = 30;
         m1674[i] = 600;
         m1628[i] = 10;
     }
-    mPoints.mSize = 0;
-    m1624 = 0;
-    m1640 = 0;
-    m164C = 0;
-    m1670 = 0;
-    m16BC = 0;
-    m16C4 = 0;
-    mLinks.mSize = 0;
-    m16E4 = 0;
-    m16EC = 0;
     m14DC = 0;
     m14E4 = 0;
     std::string dir("database/chara/special/");
