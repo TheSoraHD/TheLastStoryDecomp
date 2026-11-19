@@ -382,10 +382,6 @@ extern "C" int fn_803CE278(int area, int room, int sub) {
 
 // inferred: save header (game/GameSaveBackground.h)
 extern "C" void* memset(void* dst, int c, unsigned long n);
-struct SaveField_unk {
-    unsigned char m0000[0x10D0];
-    int m10D0;
-};
 
 Unk_803CE3B8::Unk_803CE3B8() {
     m00 = 0;
@@ -396,7 +392,7 @@ Unk_803CE3B8::Unk_803CE3B8() {
 }
 
 void Unk_803CE3B8::fn_803CE408() {
-    m00 = ((SaveField_unk*)lbl_8087F430)->m10D0;
+    m00 = ((GameTask*)lbl_8087F430)->m10D0;
     GameConfig_unk* sys = lbl_8087F0A8;
     if (sys == 0) {
         return;
