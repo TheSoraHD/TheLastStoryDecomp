@@ -99,11 +99,11 @@ Sesion secuencial del 2026-11-19 (rama `secuencial-20261119`, notas `docs/secuen
   `const wchar_t* mShortName` (alli `const char*`), `m14` es `const char*` (alli `int`, se pasa a `fn_8020A81C`), `m04` es
   `mName`. Commit siguiente: `CharaInfo_unk::m14` pasa a `const char*` y `fn_8020A81C(const char* name)` en CharaTask y GameEventScript
   (GameTask quita su cast): en 64 bits el `int` truncaba el puntero. `m08` sigue `const char*` (sin cambiar).
-- GameOverTask y NewCampPartsTop con `CampSaveLoad.h`: no llevado. Al incluirla entra `atn/D2A_Task.h`, cuyas
-  declaraciones chocan con las locales: `fn_801F4E8C` es `atn::D2A_DrawRect GetRect(atn::D2A_Task*, unsigned int)` y
-  aqui `NewCampPartsPoint_unk (atn::Task*, ...)` (struct de game/NewCampPartsBase.h que usan todas las NewCampParts*),
-  ademas de las vistas `NewCampTopLayout_unk`/`GameOverD2A_unk`. Para el port: `NewCampPartsPoint_unk` = `atn::D2A_DrawRect`
-  (x, y, w, h, z) y el primer argumento de `fn_801F4E8C` es un `atn::D2A_Task*`.
+- GameOverTask y NewCampPartsTop incluyen `CampSaveLoad.h` (commit d66a8b7): fuera sus `MenuLoadTask` locales y la
+  vista de solo metodos de `atn::D2A_Task` de NewCampPartsTop (`mLayout` -> `&mData.m10`). Hizo falta sacar las funciones C
+  de D2A_Task de `atn/D2A_Task.h` (ver MenuD2A_unk) y que CampSaveLoad.h no incluya `D2A_TaskApi_unk.h`. Para el port:
+  `NewCampPartsPoint_unk` (game/NewCampPartsBase.h) = `atn::D2A_DrawRect` (x, y, w, h, z) y el primer argumento de
+  `fn_801F4E8C` es un `atn::D2A_Task*` (las NewCampParts* siguen con su declaracion local).
 
 ## 2.5 `Settings_unk` (lbl_8087F0A8) -> `GameConfig_unk` (commit 09a7051)
 
@@ -160,6 +160,34 @@ Sesion secuencial del 2026-11-19 (rama `secuencial-20261119`, notas `docs/secuen
 - No llevados: `GimmickLocTable_unk` (MapPartsGimmickLoc) y `BuildingFile_unk` (MapPartsLocatorSet) son el mismo fichero
   pero la primera vista empieza 0x10 bytes despues (cabecera) y tiene un getter debil con su nombre (0x80498E7C);
   vistas de oclusion (`atn/ModelOcclusion_unk.h`): no buscadas.
-- No llevados: `PathData_unk` de game/PathData_unk.cpp (= `Event::Path`: la unidad repite `PathSpline_unk`, `PathPoint_unk` y un
-  `PathVec_unk` propio en vez de los de Event/Path.h/PathSpline.h) y `MenuD2A_unk` = `atn::D2A_Task` (incluir atn/D2A_Task.h
-  choca con las declaraciones locales de las unidades que incluyen MenuCommonTask.h).
+- `PathData_unk` (game/PathData_unk.cpp) = `Event::Path` (commit 27a692d): fuera sus copias locales de `PathPoint_unk`,
+  `PathSpline_unk` y `PathVec_unk`; `mOwner` -> `CommonData::m04`, `mPoints` es el `std::vector<PathPoint_unk>` de Event/Path.h,
+  `GetPoint_unk` pasa a inline libre; `Event::PathSpline_unk::Clear_unk()` declarado en Event/PathSpline.h y definido (como
+  `Build_unk`) en la unidad. fn_80547EA0/fn_8054856C/fn_8054875C con el mismo porcentaje.
+
+## 2.5 `MenuD2A_unk` = `atn::D2A_Task` (commit 5b0c35d)
+
+- `include/game/MenuCommonTask.h`: `typedef atn::D2A_Task MenuD2A_unk;` con declaracion adelantada (antes un struct con
+  relleno). MenuCommonTask.cpp y GameOverTask.cpp incluyen atn/D2A_Task.h: `m58` (layout) -> `&mData.m10`, `mCallback`
+  (0xE4) -> `mData.m9C` (callback `(D2A_Common*, D2A_DrawColor*, void*)`), `m108` -> `mBlend`, `mLastFrame` -> `mData.mEndFrame`.
+  MenuCommonTask::vf14 prueba el final con una inline no const `IsAnimeEnd_unk` (la `IsEnd_unk() const` de D2A_Task
+  relee el frame alli).
+- Las funciones C de D2A_Task (`fn_801F3FF8`, `fn_801F4484`, `fn_801F465C`, `fn_801F4728`, `fn_801F4E8C`) pasan de
+  atn/D2A_Task.h a `include/atn/D2A_TaskApi_unk.h` (incluida justo detras por los 28 que incluian D2A_Task.h).
+- Quedan: `MP::MpD2A_unk` (include/MP/D2AMpMenu_unk.h, ~10 unidades MP, 357 usos de `mLayout`) y las vistas
+  `atn::D2A_Task` de solo metodos de MP/D2AMpMenu_unk.h, SelectMember y ShopUpGrade.
+- atn/PostFxMotionBlur: la vista `MotionBlurParams_unk` de `lbl_8087EFA8` -> `RenderSetting_unk::m240`
+  (`MotionBlurParam_unk`: mEnabled, mDebug, mFrozen, mScale, mShift, mStartBlend, mEndBlend, mStartBlendSpeed, mEndBlendSpeed).
+- Commit 243e05b: `MP::MpD2A_unk` = `atn::D2A_Task` (include/MP/D2AMpMenu_unk.h incluye atn/D2A_Task.h; fuera
+  la vista de solo metodos y el struct con relleno). `mLayout` -> `&mData.m10` (~380 usos), `mLastFrame` -> `mData.mEndFrame`,
+  `m108` -> `mBlend`. Unidades: MP/D2AMpMenuCockpit MP/D2ACommonDialog MP/D2AMpMenu MP/D2AMpMenuMessageList MP/D2AMpMenuSetMessage MP/D2AMpMenuFriend MP/D2AMpMenuFriendRoom MP/D2AMpMenuLobby MP/D2AMpMenuSetRule MP/D2AMpMenuResult game/CosEditPalette_unk Event/Dialog atn/SoftKeyboardU . Quedan las vistas propias de MP/Popup
+  (`PopupTask_unk`), game/PopupTask.h, Em208Queen y Em001Necromancer (`GetSlash_unk`), SelectMember y ShopUpGrade.
+- Commit 072aa2e: gmk/ReinforcePoint: `Settings_unk::mE4[mD4].m00` -> `GameConfig_unk::mDifficulty[mCurrentLevel].mLevelAddBoss`.
+- Para el port (no llevado; mapas medidos): CharaStatus `StatusRate_unk mD8[4]` = `mDifficulty[4]` (`m00..m1C` -> `mLevelMul,
+  mLevelAdd, mLevelMulBoss, mLevelAddBoss, mHPMul, mHPAdd, mAttack, mAttackAdd`) y `m5A0` cae en `mTitle` (0x584); ChaserGuard
+  `ChaseParam_unk mChase` = `GameConfig4DC_unk m4DC` (`m4DC..m518` -> `m00..m3C`); PlayerInput_unk `SettingsOpt_unk m244`
+  cae dentro de `mSceneDebug` (`m244.m34/m38` = `m278/m27C`) y su `DialogConfig_unk` local (de SetConfig) choca de nombre
+  con el de GameConfig_unk.h; CharaTask y Em315Coffin: `fn_8013C434` devuelve `&m454` (bloque Surround 0x454-0x46C, sin struct
+  en GameConfig_unk: hace falta uno para tiparlo).
+- Commit 1ef554e: game/Bullet (`HomingField_unk` de game/Bullet.h fuera: `m5590` = `GameTask::m5590` ReplayBuffer*)
+  y NewCampPartsOption (vista vacia) -> `GameTask*`, sin casts.

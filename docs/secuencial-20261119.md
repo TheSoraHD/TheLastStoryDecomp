@@ -11,6 +11,7 @@ Referencia: `/home/claude/ref` (1077 unidades con .o, labelcheck 11, rep100 23).
 |---|---|---|
 | 02:30 | 0 | 742 u, 16074, 62.39 / 76.18, 0% 45, DRAFT 0 |
 | 03:55 | 2 | 742 u, 16075, 62.40 / 76.18, 0% 45, DRAFT 0 (D1 +1; fase 2 sin cambios de codigo) |
+| 05:20 | 2 | 742 u, 16075, 62.40 / 76.18, 0% 45, DRAFT 0 |
 
 ## Fase 0: listas
 
@@ -20,24 +21,24 @@ Inventario de vistas del port (`grep -rlw` en src + include):
 
 | Vista | Ficheros antes | Despues |
 |---|---|---|
-| `Field_unk` | 99 | 6 (03:55) |
-| `BulletField_unk` | 1 | 0 (03:55) |
-| `SoundEngine_unk` | 7 | 7 (03:55) |
-| `MenuD2A_unk` | 6 | 6 (03:55) |
-| `PathData_unk` | 11 | 11 (03:55) |
-| `ActionOwner_unk` | 9 | 9 (03:55) |
-| `Settings_unk` | 47 | 16 (03:55) |
-| `EffectMgr_unk` | 92 | 92 (03:55) |
-| `GameTaskTable_unk` | 2 | 3 (03:55) |
-| `CharaIdEntry_unk` | 2 | 7 (03:55) |
-| `ShopChara_unk` | 1 | 0 (03:55) |
-| `NewCampStatusName_unk` | 1 | 0 (03:55) |
-| `MenuItem_unk` | 3 | 2 (03:55) |
-| `SelectMemberAnim_unk` | 2 | 2 (03:55) |
-| `SceneData_unk` | 0 | 0 (03:55) |
-| `MotionData_unk` | 1 | 1 (03:55) |
-| `ModelOcclusion_unk` | 0 | 0 (03:55) |
-| `fn_8013C504__9Field_unkFv` | 1 | 0 (03:55) |
+| `Field_unk` | 99 | 6 (03:55), 5 (05:20) |
+| `BulletField_unk` | 1 | 0 (03:55), 0 (05:20) |
+| `SoundEngine_unk` | 7 | 7 (03:55), 7 (05:20) |
+| `MenuD2A_unk` | 6 | 6 (03:55), 5 (05:20) |
+| `PathData_unk` | 11 | 11 (03:55), 10 (05:20) |
+| `ActionOwner_unk` | 9 | 9 (03:55), 0 (05:20) |
+| `Settings_unk` | 47 | 16 (03:55), 11 (05:20) |
+| `EffectMgr_unk` | 92 | 92 (03:55), 58 (05:20) |
+| `GameTaskTable_unk` | 2 | 3 (03:55), 3 (05:20) |
+| `CharaIdEntry_unk` | 2 | 7 (03:55), 7 (05:20) |
+| `ShopChara_unk` | 1 | 0 (03:55), 0 (05:20) |
+| `NewCampStatusName_unk` | 1 | 0 (03:55), 0 (05:20) |
+| `MenuItem_unk` | 3 | 2 (03:55), 2 (05:20) |
+| `SelectMemberAnim_unk` | 2 | 2 (03:55), 2 (05:20) |
+| `SceneData_unk` | 0 | 0 (03:55), 1 (05:20) |
+| `MotionData_unk` | 1 | 1 (03:55), 2 (05:20) |
+| `ModelOcclusion_unk` | 0 | 0 (03:55), 0 (05:20) |
+| `fn_8013C504__9Field_unkFv` | 1 | 0 (03:55), 0 (05:20) |
 
 ## Decisiones
 
@@ -79,6 +80,21 @@ poolcheck igual que main) salvo el `ordercheck` de GameEventScript, que ya tiene
 | f1e72a8 | 2.4 | `CharaIdEntry_unk` en `db/CharaIdTable_unk.h` (fuera ShopChara_unk, NewCampStatusName_unk, MenuItem_unk de personajes) |
 | 34d8804 | 2.4 | `CharaInfo_unk::m14` = `const char*` |
 | 09a7051 | 2.5 | 31 `Settings_unk` -> `GameConfig_unk` |
+| c424b8f | 2.5 | 4 `Settings_unk` mas (m4DC/m53C, `Input_unk` comun); EffectMgr_unk en FallingTower/WaterLevel |
+| e0b50cc | 2.6 | `EffectSlot_unk::m0C` = `atn::Texture*` |
+| 60ffa1a | 2.5 | `ActionOwner_unk` = `Event::Section` |
+| 9cac0ae | 2.5 | `atn/SceneData_unk.h`, `atn/MotionData_unk.h` |
+| 4d47070 | 2.5 | `EffectMgr_unk::mB8` -> `mSystem.mLayer` en 41 unidades (`atn/EffectApi_unk.h`) |
+| 5b0c35d | 2.5 | `MenuD2A_unk` = `atn::D2A_Task` (`atn/D2A_TaskApi_unk.h`); PostFxMotionBlur con `RenderSetting_unk` |
+| 243e05b | 2.5 | `MP::MpD2A_unk` = `atn::D2A_Task` (13 unidades MP) |
+| 072aa2e | 2.5 | ReinforcePoint con `mDifficulty` |
+| 1ef554e | 2.1 | Bullet y NewCampPartsOption con `GameTask` |
+| d66a8b7 | 2.4 | GameOverTask y NewCampPartsTop con `CampSaveLoad.h` |
+| 27a692d | 2.5 | `PathData_unk` = `Event::Path` |
+
+Re-emparejado: `pdbatch.sh` y, para lo que queda (pools iguales que main), `refmap.py` (scratch): nombre en symbols.txt de main ->
+(seccion, desplazamiento) en el .o de main -> nombre en nuestro .o. Mas fiable que lblseq/valfix cuando el pool no cambia;
+`@STRING@` y etiquetas vigiladas restauradas por linea tras cada lote.
 
 GameEventScript fn_803A26F4 98,75 -> 99,55 (llama al getter debil y a `GameScene::FindPlace_unk`, como el original).
 
@@ -94,8 +110,9 @@ GameEventScript fn_803A26F4 98,75 -> 99,55 (llama al getter debil y a `GameScene
   sub-vista; con `GameCamera&`/`GameCameraParam_unk` cambia la base o entra el ctor de la cabecera). TeamAIManager
   (`TeamTargets_unk::Find_unk` sobre tres `SimpleArray` de tipos distintos), GameSoundControl (`FieldStream_unk` es una vista
   de los fades m5620/m5624), Bullet (`HomingField_unk`) y NewCampPartsOption (`class Field_unk`): sin tocar.
-- 2.3: `atn::AudioDevice` a cabecera: refactor de nombres de una unidad enlazada (metodos `extern "C"`, tipos locales de
-  ~600 lineas); no empezado.
+- 2.3: `atn::AudioDevice` a cabecera: la clase lleva ~700 lineas de tipos locales (vistas de nw4r::snd con tamanos,
+  `AudioMap_unk`, `Sound3dEngine m900` de otra unidad); incluirla en Sound3dListener/SoundManager/BootTask/GameVoice/PacketPack/
+  Event/Manager choca con sus vistas locales de nw4r. No empezado.
 - 2.4: GameOverTask/NewCampPartsTop con `CampSaveLoad.h`: choca `fn_801F4E8C` (`D2A_DrawRect GetRect(D2A_Task*, ...)` frente
   a `NewCampPartsPoint_unk (atn::Task*, ...)` de NewCampPartsBase.h). `SelectMemberAnim_unk`: `mAnims[9]` se recorre como
   array; separarlo cambia el tipo de todos los accesos. No probados.
