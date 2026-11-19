@@ -1325,7 +1325,7 @@ void GameEventScript::CharaMarkers_unk(Manager* manager, atn::SimpleArray<gs::Np
         marker.m1C = 1.0f - ((marker.m1C > 0.0f ? marker.m1C : 0.0f) < 1.0f
                                  ? (marker.m1C > 0.0f ? marker.m1C : 0.0f)
                                  : 1.0f);
-        marker.m10 = (int)chara; // inferred: the character of the marker
+        marker.m10 = chara;
         lbl_8087F490->fn_803E3C78(marker);
     }
 }

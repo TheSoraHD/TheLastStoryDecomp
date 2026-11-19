@@ -1,3 +1,4 @@
+#include "game/GameUI.h"
 #include "game/GameTask.h"
 #include "game/TownTpcLoader.h"
 #include "game/GameEventScript.h"
@@ -9,32 +10,21 @@
 #include "game/TownTask.h"
 
 extern "C" atn::Vector3 lbl_807C7030;
-struct Target_unk {
-    unsigned char m000[0xD3C];
-    int mD3C;
-    int mD40;
-    atn::Vector3 mD44;
-    atn::Task* mD50;
-    int mD54;
-    int mD58;
-    float mD5C;
-
-    // inferred: clears the target if it is `chara`
-    void Clear_unk(atn::Task* chara) {
-        if (mD50 == chara) {
-            mD40 = 0;
-            mD50 = 0;
-            mD44 = lbl_807C7030;
-            mD54 = 0;
-            mD58 = 0;
-            mD5C = 0.0f;
-            mD3C = 0;
-        }
+// inferred: clears the marker of the game UI if it shows `chara` (inlined; as GameUI::fn_803CF74C); name invented
+static inline void ClearMarker_unk(GameUI* ui, atn::Task* chara) {
+    if (ui->mD40.m10 == chara) {
+        ui->mD40.m00 = 0;
+        ui->mD40.m10 = 0;
+        ui->mD40.mPos = lbl_807C7030;
+        ui->mD40.m14 = 0;
+        ui->mD40.m18 = 0;
+        ui->mD40.m1C = 0.0f;
+        ui->mD3C = 0;
     }
-};
+}
 
 extern "C" GameTask* lbl_8087F430;
-extern "C" Target_unk* lbl_8087F490;
+extern "C" GameUI* lbl_8087F490;
 extern "C" void fn_800D2338(atn::Task* task); // inferred: deletes the task
 
 struct Chara_unk : public atn::Task {
@@ -103,7 +93,7 @@ void TownTpcLoader::fn_805B9D58() {
             lbl_8087F498->fn_803EAC3C((CharaTask*)mCharas[i]);
         }
         if (lbl_8087F490 != 0) {
-            lbl_8087F490->Clear_unk(mCharas[i]);
+            ClearMarker_unk(lbl_8087F490, mCharas[i]);
         }
         fn_800D2338(mCharas[i]);
     }

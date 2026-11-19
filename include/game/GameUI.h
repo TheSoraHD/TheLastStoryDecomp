@@ -61,7 +61,7 @@ struct GameUIMarker_unk {
     GameUIMarker_unk() : m00(0), mPos(0.0f, 0.0f, 0.0f), m14(0), m18(0), m1C(0.0f) {}
     int m00;
     atn::Vector3 mPos;
-    int m10;
+    CharaTask* m10; // inferred: character of the marker (GameEventScript, GameUI::fn_803D2A6C)
     int m14;
     int m18;
     float m1C;

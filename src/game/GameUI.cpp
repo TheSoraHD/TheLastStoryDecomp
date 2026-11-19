@@ -2827,7 +2827,7 @@ void GameUI::fn_803D2A6C() {
             mD60.Set_unk(0.0f, 0.0f, 0.0f);
             if (mD3C != 0) {
                 atn::Vector3 pos(mD40.mPos);
-                CharaTask* c = (CharaTask*)mD40.m10;
+                CharaTask* c = mD40.m10;
                 if (c != 0) {
                     MtxPtr mtx = c->GetModel_unk()->GetNodeMtx_unk("head");
                     pos = mtx != 0 ? ((atn::Matrix3x4*)mtx)->GetTrans_unk() + atn::Vector3(0.0f, 5.0f, 0.0f)
