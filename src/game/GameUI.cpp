@@ -6466,18 +6466,21 @@ static inline unsigned int GameUIIconCount_unk(const GameUI::W2568_unk* a) {
 }
 
 // inferred: adds the icon of a skill that hit (SkillEffectManager)
-// NONMATCHING: 99.2% - registers of the count, the first flag and the icon (r8/r9/r7 in the original); the
-// reload of the count for the slot comes from GameUIIconCount_unk (tried the icon declared first, the inline
-// in the first test or in the loop)
+// inferred: the locals are declared first (icon, count, flag) and assigned later: that order gives the
+// registers of the original; the reload of the count for the slot comes from GameUIIconCount_unk
 void GameUI::fn_803E6890(CharaTask* chara, HitInfo_unk* hit) {
-    if (m2568.m00 >= 8 || hit == 0) {
+    int icon;
+    unsigned int count;
+    bool first;
+    count = m2568.m00;
+    if (count >= 8 || hit == 0) {
         return;
     }
-    bool first = false;
-    if (m2568.m00 == 0) {
+    first = false;
+    if (count == 0) {
         first = true;
     }
-    int icon = -1;
+    icon = -1;
     if (chara == 0 || chara->mType == 2) {
         if (hit->m04 == 0x8A) {
             icon = 10;
@@ -6531,7 +6534,7 @@ void GameUI::fn_803E6890(CharaTask* chara, HitInfo_unk* hit) {
     if (icon < 0) {
         return;
     }
-    for (unsigned int i = 0; i < m2568.m00; i++) {
+    for (unsigned int i = 0; i < count; i++) {
         if (icon == m2568.m[i].m00) {
             return;
         }
