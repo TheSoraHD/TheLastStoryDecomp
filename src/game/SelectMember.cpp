@@ -7,6 +7,7 @@
 #include "game/MenuCommonTask.h"
 #include "game/GameTask.h"
 #include "atn/D2A_TaskInstanceC.h"
+#include "atn/TextTable_unk.h"
 
 // Only the two members called here (the full class is in atn/D2A_Task.h, whose extern "C" declarations
 // clash with the local ones of this file).
@@ -43,14 +44,6 @@ extern "C" SelectMemberPoint_unk fn_801F4E8C(atn::Task* layout, unsigned int has
 extern "C" void fn_804A53D4(void* cursor, int a, int b, const SelectMemberPoint_unk* pos, int c);
 extern "C" const wchar_t* fn_80116FC0(int a, int id); // inferred: message text
 extern "C" const wchar_t lbl_808813D0[2]; // inferred: empty text
-// inferred: message table (lbl_8087F1E4); name invented
-struct SelectMemberMsg_unk {
-    const wchar_t* Get_unk(int id) {
-        return mText[id] != 0 ? mText[id] : lbl_808813D0;
-    }
-    const wchar_t* mText[1];
-};
-extern "C" SelectMemberMsg_unk* lbl_8087F1E4;
 extern "C" GameTask* lbl_8087F430;
 // inferred: members available at a point of the story
 struct SelectMemberAvail_unk {

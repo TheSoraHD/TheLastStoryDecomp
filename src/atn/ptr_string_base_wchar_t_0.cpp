@@ -1,34 +1,11 @@
 #include "atn/Csv.h"
 #include "atn/FileList.h"
 #include "atn/Memory.h"
+#include "atn/TextTable_unk.h"
 
 extern "C" void* fn_8006BA8C(const char* path, unsigned int* size, int flag); // inferred: loads a file
 extern "C" int fn_800DD3FC(wchar_t* s, const wchar_t* format, ...);         // inferred: wide sprintf
 extern "C" unsigned long wcslen(const wchar_t* s);
-
-namespace atn {
-
-// inferred: pointer to a string owned elsewhere (vptr + pointer; constructor 0x8020C4B0)
-template <class T, int N>
-class ptr_string_base {
-public:
-    ptr_string_base() : mPtr(0) {}
-    virtual ~ptr_string_base() {}
-
-    T* mPtr;
-};
-
-} // namespace atn
-
-// inferred: table of the game texts read from two UTF-16 CSV files (0x1018 bytes); names invented
-class TextTable_unk {
-public:
-    TextTable_unk();
-    ~TextTable_unk();
-    static void fn_8020C028(); // inferred: creates the singleton
-
-    atn::ptr_string_base<wchar_t, 0> mStrings[0x203];
-};
 
 // inferred: defined here (just before this unit in the .sbss of the .dol)
 extern "C" {

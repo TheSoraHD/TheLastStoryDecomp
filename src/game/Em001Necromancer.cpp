@@ -16,6 +16,7 @@
 #include "game/BattleTask.h"
 #include "atn/ColliBase.h"
 #include "game/GameSceneFind_unk.h"
+#include "atn/TextTable_unk.h"
 
 extern "C" unsigned long strlen(const char* s);
 extern "C" int strcmp(const char* a, const char* b);
@@ -65,12 +66,6 @@ extern "C" void fn_801FED24(void* layout, unsigned int hash, int index, float va
 extern "C" void fn_801FEE08(void* layout, unsigned int hash, const wchar_t* text);
 extern "C" int fn_800DD3FC(wchar_t* s, const wchar_t* format, ...); // inferred: wide sprintf
 extern "C" const wchar_t lbl_808813D0[2]; // inferred: empty text
-// inferred: camp message table (lbl_8087F1E4, as in game/Em309Ghoul.cpp)
-struct NecroMsgTable_unk {
-    const wchar_t* Get_unk(int id) { return mText[id] != 0 ? mText[id] : lbl_808813D0; }
-    const wchar_t* mText[1];
-};
-extern "C" NecroMsgTable_unk* lbl_8087F1E4;
 extern "C" atn::Task* fn_801F3FF8(atn::Task* parent, const char* path, int loop);
 
 // inferred: d2anime task made by fn_801F3FF8 (same layout as atn::D2A_Task, as QueenD2A_unk of

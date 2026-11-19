@@ -6,6 +6,7 @@
 #include "math/Vec.h"
 #include "std/string.h"
 #include "atn/D2A_TaskInstanceC.h"
+#include "atn/TextTable_unk.h"
 
 extern "C" int sprintf(char* s, const char* format, ...);
 extern "C" unsigned int fn_800DC6B4(const char* s); // inferred: string hash
@@ -87,19 +88,6 @@ extern "C" int fn_8044D560(Inventory* party);           // inferred: number of i
 extern "C" int fn_8044D500(Inventory* party, int index); // inferred: item to identify
 extern "C" void fn_8044D56C(Inventory* party, int index);
 extern "C" void fn_8044D6AC(Inventory* party, int money);
-// inferred: message table (lbl_8087F1E4)
-extern "C" const wchar_t lbl_808813D0[2]; // inferred: empty text
-struct ShopMsgPair_unk {
-    const wchar_t* m00;
-    const wchar_t* mText;
-};
-struct ShopMsg_unk {
-    const wchar_t* GetPair_unk(int id) {
-        return mPairs[id].mText != 0 ? mPairs[id].mText : lbl_808813D0;
-    }
-    ShopMsgPair_unk mPairs[1];
-};
-extern "C" ShopMsg_unk* lbl_8087F1E4;
 // inferred: wide literals of this file kept in .sdata (L"", L"1", L"WEAPON")
 extern "C" const wchar_t lbl_8087E690[2];
 extern "C" GameConfig_unk* lbl_8087F0A8;

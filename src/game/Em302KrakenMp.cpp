@@ -17,6 +17,7 @@
 #include "game/BattleTask.h"
 #include "atn/ColliBase.h"
 #include "game/GameSceneFind_unk.h"
+#include "atn/TextTable_unk.h"
 
 extern "C" unsigned long strlen(const char* s);
 extern "C" int strcmp(const char* a, const char* b);
@@ -24,12 +25,6 @@ extern "C" int strncmp(const char* a, const char* b, unsigned long n);
 extern "C" void* memset(void* dst, int c, unsigned long n);
 extern "C" int fn_800DD3FC(wchar_t* s, const wchar_t* format, ...); // inferred: wide sprintf
 extern "C" const wchar_t lbl_808813D0[2]; // inferred: empty text
-// inferred: camp message table (lbl_8087F1E4, as in game/Em302Kraken.cpp)
-struct KrakenMpMsgTable_unk {
-    const wchar_t* Get_unk(int id) { return mText[id] != 0 ? mText[id] : lbl_808813D0; }
-    const wchar_t* mText[1];
-};
-extern "C" KrakenMpMsgTable_unk* lbl_8087F1E4;
 extern "C" float fn_800DC288(const char* s); // inferred: string to float
 extern "C" int fn_800DC12C(const char* s);   // inferred: string to int
 // inferred: std::string concatenation (weak copy 0x8006AFF8)

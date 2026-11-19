@@ -16,6 +16,7 @@
 #include "db/OptionParts_unk.h"
 #include "macros.h"
 #include "chr/CharaEquip_unk.h"
+#include "atn/TextTable_unk.h"
 
 // Second file of CosEditProtector (game/CosEditProtector.cpp has the rest): the palette and part
 // pages of the costume menu.
@@ -78,12 +79,6 @@ struct CosEditItemInfo_unk {
 };
 extern "C" CosEditItemInfo_unk* fn_802091E8(int id);
 
-// inferred: camp message table (lbl_8087F1E4, as in MP/D2AMpMenuSetRule.cpp)
-struct CosEditMsgTable_unk {
-    const wchar_t* Get_unk(int id) { return mText[id] != 0 ? mText[id] : lbl_808813D0; }
-    const wchar_t* mText[1];
-};
-extern "C" CosEditMsgTable_unk* lbl_8087F1E4;
 
 // inferred: not used by this file (only its __sinit is left)
 static atn::Vector3 sHidePos(0.0f, -600.0f, 0.0f);

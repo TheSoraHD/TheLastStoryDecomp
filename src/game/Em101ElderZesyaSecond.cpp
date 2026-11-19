@@ -16,6 +16,7 @@
 #include "game/GameTask.h"
 #include "atn/ColliBase.h"
 #include "game/GameSceneFind_unk.h"
+#include "atn/TextTable_unk.h"
 
 extern "C" unsigned long strlen(const char* s);
 extern "C" int strcmp(const char* a, const char* b);
@@ -46,12 +47,6 @@ extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float
 extern "C" void* memset(void* dst, int c, unsigned long n);
 extern "C" int fn_800DD3FC(wchar_t* s, const wchar_t* format, ...); // inferred: wide sprintf
 extern "C" const wchar_t lbl_808813D0[2]; // inferred: empty text
-// inferred: camp message table (lbl_8087F1E4, as in game/Em309Ghoul.cpp)
-struct ElderMsgTable_unk {
-    const wchar_t* Get_unk(int id) { return mText[id] != 0 ? mText[id] : lbl_808813D0; }
-    const wchar_t* mText[1];
-};
-extern "C" ElderMsgTable_unk* lbl_8087F1E4;
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 extern "C" atn::Vector3 lbl_807C7030;              // inferred: zero vector

@@ -18,6 +18,7 @@
 #include "atn/DrawHelper.h"
 #include "game/PlayerTask.h"
 #include "game/CharaManager.h"
+#include "atn/TextTable_unk.h"
 
 extern "C" int rand();
 extern "C" GameTask* lbl_8087F430;
@@ -298,13 +299,6 @@ extern "C" void* lbl_8087EEC8;                    // inferred: font
 extern "C" float fn_8006EF48(void* font, float size, const wchar_t* text, float f2, int a, int b); // inferred: width
 extern "C" void* fn_801FEC74(void* layout, const char* name); // inferred: finds a pane
 extern "C" std::basic_string<wchar_t> fn_800A4450(void* pane, int a, int b); // inferred: text of a pane
-// inferred: message table (lbl_8087F1E4; as MP/MpCampMsgTable_unk.h, whose header conflicts here)
-extern "C" const wchar_t lbl_808813D0[2]; // inferred: empty text
-struct PopupMsgTable_unk {
-    const wchar_t* Get_unk(int id) { return mText[id] != 0 ? mText[id] : lbl_808813D0; }
-    const wchar_t* mText[1];
-};
-extern "C" PopupMsgTable_unk* lbl_8087F1E4;
 inline void SetPaneFloat_unk(void* layout, const char* name, float value) {
     fn_801FECE0(layout, fn_800DC6B4(name), value);
 }

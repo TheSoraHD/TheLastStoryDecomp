@@ -11,6 +11,15 @@
 #include "std/new.h"
 #include "game/MslSort_unk.h"
 #include "atn/D2A_TaskInstanceC.h"
+#include "atn/TextTable_unk.h"
+
+// inferred: TextTable_unk::GetPair_unk written with an if (as the original allocates it here)
+inline const wchar_t* GetText_unk(TextTable_unk* table, int id) {
+    if (table->mStrings[id].mPtr != 0) {
+        return table->mStrings[id].mPtr;
+    }
+    return lbl_808813D0;
+}
 
 extern "C" int sprintf(char* s, const char* format, ...);
 extern "C" ShopD2A_unk* fn_801F3FF8(atn::Task* parent, const char* path, int loop); // inferred: d2anime task
@@ -57,21 +66,6 @@ inline void SetPaneValue_unk(void* layout, const char* name, int index, float va
 }
 extern "C" int fn_800DD3FC(wchar_t* buf, const wchar_t* format, ...); // inferred: swprintf
 extern "C" const wchar_t lbl_808813D0[2]; // inferred: empty text
-// inferred: message table (lbl_8087F1E4) seen as pairs; name invented
-struct ShopMsgTable_unk {
-    struct Entry {
-        int m00;
-        const wchar_t* mText;
-    };
-    const wchar_t* Get_unk(int id) {
-        if (mEntries[id].mText != 0) {
-            return mEntries[id].mText;
-        }
-        return lbl_808813D0;
-    }
-    Entry mEntries[1];
-};
-extern "C" ShopMsgTable_unk* lbl_8087F1E4;
 extern "C" int fn_800A55AC(void* pad, int port, int button); // inferred: button repeated
 extern "C" void fn_804A4930(atn::Task* task, int top, int count, int page); // inferred: scroll bar
 // Only the members used here (the full class is in atn/D2A_Task.h, whose extern "C" declarations
@@ -196,11 +190,11 @@ struct ShopEntryLess_unk {
         }
         const wchar_t* na = ia->mName;
         if (a.m48 == 0 && wa != 0) {
-            na = lbl_8087F1E4->Get_unk(wa->mKind + 0xEB);
+            na = GetText_unk(lbl_8087F1E4, wa->mKind + 0xEB);
         }
         const wchar_t* nb = ib->mName;
         if (b.m48 == 0 && wb != 0) {
-            nb = lbl_8087F1E4->Get_unk(wb->mKind + 0xEB);
+            nb = GetText_unk(lbl_8087F1E4, wb->mKind + 0xEB);
         }
         wchar_t sa[0x40];
         fn_800DD3FC(sa, L"%s", na);
@@ -520,9 +514,9 @@ void ShopBase::fn_8058036C() {
         m68->MeltTask();
         m6C = 0;
     }
-    const wchar_t* title = lbl_8087F1E4->Get_unk(mTitle + 0x1D1);
+    const wchar_t* title = GetText_unk(lbl_8087F1E4, mTitle + 0x1D1);
     SetPaneText_unk(m70->mLayout, "title", title);
-    const wchar_t* name = lbl_8087F1E4->Get_unk(mName + 0x1D1);
+    const wchar_t* name = GetText_unk(lbl_8087F1E4, mName + 0x1D1);
     SetPaneText_unk(m70->mLayout, "shopName", name);
     switch (vf3C()) {
     case 0:
@@ -621,7 +615,7 @@ void ShopBase::fn_805807A4() {
             } else {
                 ShopWeapon_unk* weapon = fn_80206C50(entry->m00);
                 if (weapon != 0) {
-                    mAC[i]->SetText_unk("itemName", lbl_8087F1E4->Get_unk(weapon->mKind + 0xEB));
+                    mAC[i]->SetText_unk("itemName", GetText_unk(lbl_8087F1E4, weapon->mKind + 0xEB));
                 } else {
                     mAC[i]->SetText_unk("itemName", L"WEAPON");
                 }
@@ -875,10 +869,10 @@ void ShopBase::fn_8058181C(int show, int message, int arg) {
             window->mSpeed = 3.0f;
             if (arg) {
                 wchar_t text[0x100];
-                fn_800DD3FC(text, lbl_8087F1E4->Get_unk(sMessages[message]), arg);
+                fn_800DD3FC(text, GetText_unk(lbl_8087F1E4, sMessages[message]), arg);
                 SetPaneText_unk(m74->mLayout, "warning_msg", text);
             } else {
-                const wchar_t* text = lbl_8087F1E4->Get_unk(sMessages[message]);
+                const wchar_t* text = GetText_unk(lbl_8087F1E4, sMessages[message]);
                 if (text != 0) {
                     SetPaneText_unk(m74->mLayout, "warning_msg", text);
                 }
@@ -903,7 +897,7 @@ void ShopBase::fn_80581964(int show, int message, int arg) {
             m84 = 1;
             m88 = message;
             m80->mSpeed = 3.0f;
-            const wchar_t* text = lbl_8087F1E4->Get_unk(sMessages[message]);
+            const wchar_t* text = GetText_unk(lbl_8087F1E4, sMessages[message]);
             if (text != 0) {
                 SetPaneText_unk(m80->mLayout, "check_msg", text);
             }

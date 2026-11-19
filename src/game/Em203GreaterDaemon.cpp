@@ -15,6 +15,7 @@
 #include "atn/ColliBase.h"
 #include "game/DamageResult_unk.h"
 #include "game/GameSceneFind_unk.h"
+#include "atn/TextTable_unk.h"
 
 // inferred: empty release assert (some state functions of the original are not auto-inlined)
 #define ASSERT_UNK(x) ((void)0)
@@ -205,12 +206,6 @@ extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* m
 struct HomingParam_unk;
 extern "C" int fn_800DD3FC(wchar_t* s, const wchar_t* format, ...); // inferred: wide sprintf
 extern "C" const wchar_t lbl_808813D0[2]; // inferred: empty text
-// inferred: camp message table (lbl_8087F1E4, as in game/Em101ElderZesya.cpp)
-struct DaemonMsgTable_unk {
-    const wchar_t* Get_unk(int id) { return mText[id] != 0 ? mText[id] : lbl_808813D0; }
-    const wchar_t* mText[1];
-};
-extern "C" DaemonMsgTable_unk* lbl_8087F1E4;
 extern "C" void PSMTXScale(Mtx m, float x, float y, float z);
 // inferred: homing parameters with their defaults (the constants are pooled before the values set by
 // the callers); name invented

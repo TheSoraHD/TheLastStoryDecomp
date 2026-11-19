@@ -14,6 +14,7 @@
 #include "atn/DrawHelper.h"
 #include "std/string_members.h"
 #include "atn/D2A_TaskInstanceC.h"
+#include "atn/TextTable_unk.h"
 
 extern "C" MenuD2A_unk* fn_801F3FF8(atn::Task* parent, const char* path, int arg); // inferred: creates a D2A anime
 extern "C" void fn_805115D0(MenuD2A_unk* anime, int arg1, int arg2, float a, float b);
@@ -973,14 +974,6 @@ extern "C" void fn_804A5E40(MenuCommonTask* menu, int type, const float* ofs, in
     }
     menu->m1CC++;
 }
-
-// inferred: message table (lbl_8087F1E4, see game/CharaTask.cpp)
-extern "C" const wchar_t lbl_808813D0[2]; // inferred: empty text
-struct MenuMsgTable_unk {
-    const wchar_t* Get_unk(int id) { return mText[id] != 0 ? mText[id] : lbl_808813D0; }
-    const wchar_t* mText[1];
-};
-extern "C" MenuMsgTable_unk* lbl_8087F1E4;
 
 // inferred: shows a confirmation message in camp_info2.d2a
 extern "C" void fn_804A62C8(MenuCommonTask* menu, int type, int noCancel) {

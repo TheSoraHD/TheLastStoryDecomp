@@ -22,6 +22,7 @@
 #include "atn/RenderManager.h"
 #include "std/vector_wstring.h"
 #include "atn/D2A_TaskInstanceC.h"
+#include "atn/TextTable_unk.h"
 
 // inferred: sector (0 ahead, 1-7 clockwise, 8 none) of the direction `dir` seen from above
 int fn_805A6D20(const atn::Vector3& dir) {
@@ -70,18 +71,6 @@ static SkillParam_unk sSkillParams_unk[6];
 
 // inferred: layout anime task (declared with other return types by game/CosEditProtector.cpp and others)
 
-// inferred: message table (lbl_8087F1E4) as the view reads it: {id, text} entries (8 bytes each)
-extern "C" const wchar_t lbl_808813D0[2]; // inferred: empty text
-struct TacViewMsgTable_unk {
-    struct Entry {
-        int mId;
-        const wchar_t* mText;
-    };
-    const wchar_t* Get_unk(int id) { return mEntries[id].mText != 0 ? mEntries[id].mText : lbl_808813D0; }
-    Entry mEntries[1];
-};
-extern "C" TacViewMsgTable_unk* lbl_8087F1E4;
-
 TacView* TacView::fn_805A70F0(atn::Task* parent) {
     if (lbl_8087F9F8 == 0) {
         lbl_8087F9F8 = new ((MemoryTag)3, "", "", 0) TacView(parent);
@@ -114,14 +103,14 @@ TacView::TacView(atn::Task* parent)
         sSkillParams_unk[i].mId = sIds[i];
         sSkillParams_unk[i].m64 = 0;
         if (sNames2[i] < 0) {
-            sSkillParams_unk[i].mName = lbl_8087F1E4->Get_unk(sNames[i]);
+            sSkillParams_unk[i].mName = lbl_8087F1E4->GetPair_unk(sNames[i]);
         } else {
-            sSkillParams_unk[i].mName = lbl_8087F1E4->Get_unk(sNames2[i]);
+            sSkillParams_unk[i].mName = lbl_8087F1E4->GetPair_unk(sNames2[i]);
         }
         if (sTexts2[i] < 0) {
-            sSkillParams_unk[i].mText = lbl_8087F1E4->Get_unk(sTexts[i]);
+            sSkillParams_unk[i].mText = lbl_8087F1E4->GetPair_unk(sTexts[i]);
         } else {
-            sSkillParams_unk[i].mText = lbl_8087F1E4->Get_unk(sTexts2[i]);
+            sSkillParams_unk[i].mText = lbl_8087F1E4->GetPair_unk(sTexts2[i]);
         }
     }
 }

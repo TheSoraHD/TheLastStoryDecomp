@@ -48,14 +48,6 @@ extern "C" void fn_804A39EC(GameOverD2A_unk* anime, int arg1, int repeat, float 
 extern "C" void fn_804A4300(MenuCommonTask* menu, const wchar_t* text);
 extern "C" void fn_804A5B9C(MenuCommonTask* menu, int id, const char* name); // inferred: adds an entry
 extern "C" const wchar_t lbl_808813D0[2]; // inferred: empty text
-// inferred: message table (lbl_8087F1E4)
-struct GameOverMsg_unk {
-    const wchar_t* Get_unk(int id) {
-        return mText[id] != 0 ? mText[id] : lbl_808813D0;
-    }
-    const wchar_t* mText[1];
-};
-extern "C" GameOverMsg_unk* lbl_8087F1E4;
 extern "C" void* lbl_8087EF70;
 extern "C" int fn_800A555C(void* pad, int port, int button); // inferred: button triggered
 extern "C" int fn_800A55AC(void* pad, int port, int button); // inferred: button repeated
@@ -63,6 +55,7 @@ extern "C" int lbl_8087DCCC;
 extern "C" int lbl_8087F434;
 #include "atn/SequenceBoot_unk.h"
 #include "atn/RenderManager.h"
+#include "atn/TextTable_unk.h"
 extern "C" MP::SaveData_unk* lbl_8087F460;
 extern "C" int fn_803BE854(MP::SaveData_unk* data);
 extern "C" GameTask* lbl_8087F430;

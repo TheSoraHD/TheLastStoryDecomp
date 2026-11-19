@@ -11,6 +11,7 @@
 #include "game/Inventory.h"
 #include "game/MslSort_unk.h"
 #include "atn/D2A_TaskInstanceC.h"
+#include "atn/TextTable_unk.h"
 
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 extern "C" void* lbl_8087EF70;                                // inferred: pad
@@ -372,17 +373,6 @@ struct NewCampWeapon_unk {
 };
 extern "C" NewCampWeapon_unk* fn_80206C50(int code);
 extern "C" const wchar_t lbl_808813D0[2]; // inferred: empty text
-struct NewCampMsgPair_unk {
-    int m00;
-    const wchar_t* mText;
-};
-struct NewCampMsg_unk {
-    const wchar_t* GetPair_unk(int id) {
-        return mPairs[id].mText != 0 ? mPairs[id].mText : lbl_808813D0;
-    }
-    NewCampMsgPair_unk mPairs[1];
-};
-extern "C" NewCampMsg_unk* lbl_8087F1E4;
 extern "C" NewCampItemData_unk* fn_802114E0(int index); // inferred: entry of the item table by index
 extern "C" int fn_8011728C(int category, NewCampItemData_unk* item); // inferred: the item is in the category
 extern "C" int fn_801173A8(NewCampItemData_unk* item);               // inferred: category of the item

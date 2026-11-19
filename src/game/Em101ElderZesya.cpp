@@ -18,6 +18,7 @@
 #include "math/VecAssign_unk.h"
 #include "atn/ColliBase.h"
 #include "game/GameSceneFind_unk.h"
+#include "atn/TextTable_unk.h"
 
 extern "C" unsigned long strlen(const char* s);
 extern "C" int strcmp(const char* a, const char* b);
@@ -139,12 +140,6 @@ extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float
 extern "C" int fn_800DD3FC(wchar_t* s, const wchar_t* format, ...); // inferred: wide sprintf
 extern "C" void* memset(void* dst, int c, unsigned long n);
 extern "C" const wchar_t lbl_808813D0[2]; // inferred: empty text
-// inferred: camp message table (lbl_8087F1E4, as in game/Em309Ghoul.cpp)
-struct ElderMsgTable_unk {
-    const wchar_t* Get_unk(int id) { return mText[id] != 0 ? mText[id] : lbl_808813D0; }
-    const wchar_t* mText[1];
-};
-extern "C" ElderMsgTable_unk* lbl_8087F1E4;
 // inferred: order sent to the little Zesya (game/Em101LittleZesya.h ZesyaWarp_unk)
 struct ElderOrder_unk {
     int m00;

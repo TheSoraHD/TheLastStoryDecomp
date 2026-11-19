@@ -8,6 +8,7 @@
 #include "std/string.h"
 #include "std/string_members.h"
 #include "atn/D2A_TaskInstanceC.h"
+#include "atn/TextTable_unk.h"
 
 extern "C" int sprintf(char* s, const char* format, ...);
 extern "C" unsigned int fn_800DC6B4(const char* s); // inferred: string hash
@@ -104,19 +105,6 @@ struct ShopMembers_unk {
     unsigned char mIn[8];
 };
 extern "C" ShopMembers_unk* fn_80217D9C(int progress);
-// inferred: message table (lbl_8087F1E4)
-extern "C" const wchar_t lbl_808813D0[2]; // inferred: empty text
-struct ShopMsgPair_unk {
-    const wchar_t* m00;
-    const wchar_t* mText;
-};
-struct ShopMsg_unk {
-    const wchar_t* GetPair_unk(int id) {
-        return mPairs[id].mText != 0 ? mPairs[id].mText : lbl_808813D0;
-    }
-    ShopMsgPair_unk mPairs[1];
-};
-extern "C" ShopMsg_unk* lbl_8087F1E4;
 class MenuCommonTask {
 public:
     static MenuCommonTask* sInstance;

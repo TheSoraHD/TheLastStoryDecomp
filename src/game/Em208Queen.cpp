@@ -15,6 +15,7 @@
 #include "math/VecAssign_unk.h"
 #include "game/DamageResult_unk.h"
 #include "game/GameScene.h"
+#include "atn/TextTable_unk.h"
 
 // inferred: debug menu entries (as in game/Em101LittleZesya.cpp)
 extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3, int arg4);
@@ -50,12 +51,6 @@ extern "C" unsigned int fn_800DC6B4(const char* s); // inferred: string hash
 extern "C" void fn_801FED24(void* layout, unsigned int hash, int index, float value);
 extern "C" void fn_801FEE08(void* layout, unsigned int hash, const wchar_t* text);
 extern "C" const wchar_t lbl_808813D0[2]; // inferred: empty text
-// inferred: camp message table (lbl_8087F1E4, as in game/Em309Ghoul.cpp)
-struct QueenMsgTable_unk {
-    const wchar_t* Get_unk(int id) { return mText[id] != 0 ? mText[id] : lbl_808813D0; }
-    const wchar_t* mText[1];
-};
-extern "C" QueenMsgTable_unk* lbl_8087F1E4;
 
 // inferred: d2anime task made by fn_801F3FF8 (same layout as atn::D2A_Task; as MenuD2A_unk of
 // game/MenuCommonTask.h); only the members used here

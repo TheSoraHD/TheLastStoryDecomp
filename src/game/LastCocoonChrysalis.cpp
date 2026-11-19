@@ -8,6 +8,7 @@
 #include "atn/DrawHelper.h"
 #include "atn/RenderManager.h"
 #include "game/GameTask.h"
+#include "atn/TextTable_unk.h"
 
 extern "C" int strncmp(const char* a, const char* b, unsigned long n);
 extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3, int arg4);
@@ -21,17 +22,6 @@ struct Camera;
 }
 typedef atn::Camera Camera_unk;
 extern "C" const wchar_t lbl_808813D0[2]; // inferred: empty text
-// inferred: message table (lbl_8087F1E4); name invented (as in game/CharaTask.cpp)
-struct MsgTable_unk {
-    const wchar_t* Get_unk(int id) {
-        if (mText[id] != 0) {
-            return mText[id];
-        }
-        return lbl_808813D0;
-    }
-    const wchar_t* mText[1];
-};
-extern "C" MsgTable_unk* lbl_8087F1E4;
 
 extern "C" std::string fn_8006AFF8(const std::string& a, const std::string& b); // inferred: a + b
 

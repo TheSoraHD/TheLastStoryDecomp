@@ -5,6 +5,7 @@
 #include "atn/Csv.h"
 #include "math/Vec.h"
 #include "atn/D2A_TaskInstanceC.h"
+#include "atn/TextTable_unk.h"
 
 extern "C" int sprintf(char* s, const char* format, ...);
 extern "C" int strcmp(const char* a, const char* b);
@@ -52,15 +53,6 @@ extern "C" int fn_804444E8(void* party, int id); // inferred: number of items
 extern "C" void fn_8044441C(void* party, int id, int num); // inferred: removes items
 extern "C" int fn_80444BE8(void* party, ShopItem_unk* item);
 extern "C" ShopUV_unk fn_80444C50(void* party, int icon);
-// inferred: message table (lbl_8087F1E4)
-extern "C" const wchar_t lbl_808813D0[2]; // inferred: empty text
-struct ShopMsg_unk {
-    const wchar_t* Get_unk(int id) {
-        return mText[id] != 0 ? mText[id] : lbl_808813D0;
-    }
-    const wchar_t* mText[1];
-};
-extern "C" ShopMsg_unk* lbl_8087F1E4;
 class MenuCommonTask {
 public:
     static MenuCommonTask* sInstance;

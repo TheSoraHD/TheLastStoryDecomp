@@ -14,6 +14,7 @@
 #include "game/GameTask.h"
 #include "atn/ColliBase.h"
 #include "game/GameSceneFind_unk.h"
+#include "atn/TextTable_unk.h"
 
 // inferred: empty release assert (the original functions are not auto-inlined)
 #define ASSERT_UNK(x) ((void)0)
@@ -44,12 +45,6 @@ extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
 extern "C" int fn_800DD3FC(wchar_t* s, const wchar_t* format, ...); // inferred: wide sprintf
 extern "C" void* memset(void* dst, int c, unsigned long n);
 extern "C" const wchar_t lbl_808813D0[2]; // inferred: empty text
-// inferred: camp message table (lbl_8087F1E4, as in game/Em309Ghoul.cpp)
-struct ZesyaMsgTable_unk {
-    const wchar_t* Get_unk(int id) { return mText[id] != 0 ? mText[id] : lbl_808813D0; }
-    const wchar_t* mText[1];
-};
-extern "C" ZesyaMsgTable_unk* lbl_8087F1E4;
 // inferred: effect manager (class unknown), global instance at 0x8087F3C0
 struct EffectMgr_unk;
 extern "C" EffectMgr_unk* lbl_8087F3C0;

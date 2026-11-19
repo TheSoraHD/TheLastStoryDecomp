@@ -19,6 +19,7 @@
 #include "atn/RenderManager.h"
 #include "atn/Lerp_unk.h"
 #include "atn/D2A_TaskInstanceC.h"
+#include "atn/TextTable_unk.h"
 
 // First file of CosEditProtector (game/CosEditPalette_unk.cpp has the palette and part pages).
 extern "C" int sprintf(char* s, const char* format, ...);
@@ -596,12 +597,6 @@ inline void SetText_unk(atn::D2ATask_unk* task, const char* name, const wchar_t*
 }
 extern "C" const wchar_t* fn_80116FC0(int a, int id); // inferred: system text
 extern "C" const wchar_t lbl_808813D0[2];             // inferred: empty text
-// inferred: camp message table (lbl_8087F1E4, as in game/CosEditPalette_unk.cpp)
-struct CosEditMsgTable_unk {
-    const wchar_t* Get_unk(int id) { return mText[id] != 0 ? mText[id] : lbl_808813D0; }
-    const wchar_t* mText[1];
-};
-extern "C" CosEditMsgTable_unk* lbl_8087F1E4;
 extern "C" int fn_80444A50(Inventory* inv, int kind);    // inferred: item of a kind
 extern "C" int fn_804444E8(Inventory* inv, int id);      // inferred: number of items
 extern "C" int fn_80444828(Inventory* inv, int palette); // inferred: item of a palette colour

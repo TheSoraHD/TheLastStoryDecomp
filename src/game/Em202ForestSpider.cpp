@@ -16,6 +16,7 @@
 #include "game/BattleTask.h"
 #include "atn/ColliBase.h"
 #include "game/GameSceneFind_unk.h"
+#include "atn/TextTable_unk.h"
 
 extern "C" unsigned long strlen(const char* s);
 extern "C" int strcmp(const char* a, const char* b);
@@ -80,17 +81,6 @@ extern "C" void fn_80276AE4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* m
 extern "C" int fn_800DD3FC(wchar_t* s, const wchar_t* format, ...); // inferred: wide sprintf
 extern "C" void* memset(void* dst, int c, unsigned long n);
 extern "C" const wchar_t lbl_808813D0[2]; // inferred: empty text
-// inferred: message table (lbl_8087F1E4); name invented (as in game/CharaTask.cpp)
-struct MsgTable_unk {
-    const wchar_t* Get_unk(int id) {
-        if (mText[id] != 0) {
-            return mText[id];
-        }
-        return lbl_808813D0;
-    }
-    const wchar_t* mText[1];
-};
-extern "C" MsgTable_unk* lbl_8087F1E4;
 // inferred: effect `efp` on a model with no offset (name invented)
 static inline void PlayEffect_unk(atn::EfpFile* efp, atn::Model* model) {
     atn::Vector3 pos;

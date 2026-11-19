@@ -16,17 +16,12 @@
 #include "math/VecAssign_unk.h"
 #include "atn/ColliBase.h"
 #include "game/GameSceneFind_unk.h"
+#include "atn/TextTable_unk.h"
 
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
 extern "C" double sqrt(double x);
 extern "C" int fn_800DD3FC(wchar_t* s, const wchar_t* format, ...); // inferred: wide sprintf
 extern "C" const wchar_t lbl_808813D0[2]; // inferred: empty text
-// inferred: camp message table (lbl_8087F1E4, see MP/D2AMpMenuSetRule.cpp)
-struct GhoulMsgTable_unk {
-    const wchar_t* Get_unk(int id) { return mText[id] != 0 ? mText[id] : lbl_808813D0; }
-    const wchar_t* mText[1];
-};
-extern "C" GhoulMsgTable_unk* lbl_8087F1E4;
 // inferred: debug drawing (lbl_8087EEB0, see game/CharaTask.cpp)
 
 // inferred: effect manager (class unknown), global instance at 0x8087F3C0

@@ -17,6 +17,7 @@
 #include "game/DamageResult_unk.h"
 #include "game/GameSceneFind_unk.h"
 #include "atn/EffectManager.h"
+#include "atn/TextTable_unk.h"
 
 extern "C" unsigned long strlen(const char* s);
 extern "C" int strcmp(const char* a, const char* b);
@@ -36,12 +37,6 @@ extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3,
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
 extern "C" int fn_800DD3FC(wchar_t* s, const wchar_t* format, ...); // inferred: wide sprintf
 extern "C" const wchar_t lbl_808813D0[2]; // inferred: empty text
-// inferred: camp message table (lbl_8087F1E4, as in game/Em302Kraken.cpp)
-struct MulueMsgTable_unk {
-    const wchar_t* Get_unk(int id) { return mText[id] != 0 ? mText[id] : lbl_808813D0; }
-    const wchar_t* mText[1];
-};
-extern "C" MulueMsgTable_unk* lbl_8087F1E4;
 // inferred: effect manager (class unknown), global instance at 0x8087F3C0 (two flags at 0xC4/0xC8 are
 // set around the spin effect, as in game/Em209SmallGolem.cpp)
 extern "C" atn::EffectManager* lbl_8087F3C0;

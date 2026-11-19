@@ -15,6 +15,7 @@
 #include "atn/GraphicsDevice.h"
 #include "atn/DrawHelper.h"
 #include "atn/D2A_TaskInstanceC.h"
+#include "atn/TextTable_unk.h"
 
 extern "C" unsigned long strlen(const char* s);
 extern "C" void* memcpy(void* dst, const void* src, unsigned long n);
@@ -741,12 +742,6 @@ extern "C" void fn_801FED24(void* layout, unsigned int hash, int index, float va
 extern "C" int fn_8006BA30(); // inferred: language of the game
 extern "C" int fn_800DD3FC(wchar_t* s, const wchar_t* format, ...); // inferred: swprintf
 extern "C" const wchar_t lbl_808813D0[2]; // inferred: empty text
-// inferred: camp message table (lbl_8087F1E4, as in game/CosEditItemList_unk.cpp)
-struct CampSaveLoadMsg_unk {
-    const wchar_t* Get_unk(int id) { return mText[id] != 0 ? mText[id] : lbl_808813D0; }
-    const wchar_t* mText[1];
-};
-extern "C" CampSaveLoadMsg_unk* lbl_8087F1E4;
 
 // NONMATCHING: 99.08% - string pool offsets and the registers of the message text of "ampm" (r27/r28)
 // inferred: fills the info bar (m5C) with the slot m128: map, act, level, date and play time

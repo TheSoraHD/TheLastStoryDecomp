@@ -14,6 +14,7 @@
 #include "std/string.h"
 #include "game/BattleTask.h"
 #include "atn/D2A_TaskInstanceC.h"
+#include "atn/TextTable_unk.h"
 
 extern "C" int sprintf(char* s, const char* format, ...);
 extern "C" wchar_t* wcsstr(const wchar_t* s, const wchar_t* sub);
@@ -77,19 +78,6 @@ typedef atn::Vector4_unk ShopUV_unk; // inferred: texture rectangle
 extern "C" int fn_80444BE8(Inventory* party, ItemParamEntry_unk* item); // inferred: icon of an item
 extern "C" int fn_80444C48(Inventory* party);                          // inferred: icon of an unknown item
 extern "C" ShopUV_unk fn_80444C50(Inventory* party, int icon);
-// inferred: message table (lbl_8087F1E4)
-extern "C" const wchar_t lbl_808813D0[2]; // inferred: empty text
-struct ShopMsgPair_unk {
-    const wchar_t* m00;
-    const wchar_t* mText;
-};
-struct ShopMsg_unk {
-    const wchar_t* GetPair_unk(int id) {
-        return mPairs[id].mText != 0 ? mPairs[id].mText : lbl_808813D0;
-    }
-    ShopMsgPair_unk mPairs[1];
-};
-extern "C" ShopMsg_unk* lbl_8087F1E4;
 // Only the members used here (the full class is in atn/D2A_Task.h, whose extern "C" declarations
 // clash with the local ones of this file, as in game/ShopIdentify.cpp).
 namespace atn {

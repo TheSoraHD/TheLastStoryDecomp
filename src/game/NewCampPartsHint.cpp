@@ -8,6 +8,7 @@
 #include "atn/D3AnimeInstance.h"
 #include "std/string_members.h"
 #include "atn/D2A_TaskInstanceC.h"
+#include "atn/TextTable_unk.h"
 extern "C" int sprintf(char* s, const char* format, ...);
 extern "C" void fn_801FEE08(void* layout, unsigned int hash, const wchar_t* text); // inferred: sets a text
 extern "C" void fn_801FECE0(void* layout, unsigned int hash, float value);
@@ -57,18 +58,6 @@ extern "C" int fn_8021F094();                      // inferred: number of tutori
 extern "C" NewCampTutorial_unk* fn_8021F0D4(int index); // inferred: tutorial entry
 
 extern "C" const wchar_t lbl_808813D0[2]; // inferred: empty text
-// inferred: message table (lbl_8087F1E4), entries of 8 bytes
-struct NewCampHintMsg_unk {
-    struct Entry_unk {
-        int m00;
-        const wchar_t* mText;
-    };
-    const wchar_t* Get_unk(int id) {
-        return mEntries[id].mText != 0 ? mEntries[id].mText : lbl_808813D0;
-    }
-    Entry_unk mEntries[1];
-};
-extern "C" NewCampHintMsg_unk* lbl_8087F1E4;
 
 // inferred: category of the list (kind of tutorial and message id)
 struct NewCampHintCategory_unk {
@@ -313,7 +302,7 @@ void NewCampPartsHint::vf20() {
         int index = i + 5;
         NewCampPartsEntry_unk* entries = m50.mData;
         if (entries[index].mAnime->GetTask() != 0) {
-            const wchar_t* text = lbl_8087F1E4->Get_unk(sCategories[i].mMsg);
+            const wchar_t* text = lbl_8087F1E4->GetPair_unk(sCategories[i].mMsg);
             SetPaneText_unk(GetD2A_unk(entries[index].mAnime)->mLayout, "name", text);
             GetD2A_unk(entries[index].mAnime)->mSpeed = 0.0f;
             GetD2A_unk(entries[index].mAnime)->mFrame = 10.0f;
