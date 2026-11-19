@@ -1775,7 +1775,7 @@
   "classes": [
    "Em315Coffin"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "game/Em316LaserSphere.cpp",
