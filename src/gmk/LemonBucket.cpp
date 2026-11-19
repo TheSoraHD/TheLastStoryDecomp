@@ -6,6 +6,8 @@
 #include "atn/Memory.h"
 #include "atn/SoundRef.h"
 #include "atn/RenderManager.h"
+#include "game/PlayerTask.h"
+#include "game/CharaManager.h"
 
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" char* strcpy(char* dst, const char* src);
@@ -31,16 +33,7 @@ extern "C" void fn_80087858(void* group, const char* name, float* value, int arg
 
 extern "C" GameConfig_unk* lbl_8087F0A8;
 extern "C" ChaseManager* lbl_8087F098;
-// inferred: player manager and its first character (only the rotation is read)
-struct LemonPlayer_unk {
-    unsigned char m000[0x538];
-    float mRotY; // 0x538
-};
-struct LemonPlayers_unk {
-    unsigned char m00[0x48];
-    LemonPlayer_unk* mHead; // 0x48
-};
-extern "C" LemonPlayers_unk* lbl_8087F8A0;
+extern "C" CharaManager<PlayerTask>* lbl_8087F8A0;
 // inferred: view of gmk::Lemon (velocity at 0x17C)
 struct LemonView_unk {
     unsigned char m000[0x17C];
@@ -361,11 +354,11 @@ int LemonBucket::vf48(const atn::Vector3* pos, const atn::Vector3* dir, int flag
                 return 1;
             }
         } else {
-            LemonPlayer_unk* player = lbl_8087F8A0 != 0 ? lbl_8087F8A0->mHead : 0;
+            PlayerTask* player = lbl_8087F8A0 != 0 ? lbl_8087F8A0->mHead : 0;
             if (len < 144.0f && player != 0) {
                 atn::Vector3 fwd(0.0f, 0.0f, 1.0f);
                 Mtx mtx;
-                PSMTXRotRad(mtx, 'y', player->mRotY);
+                PSMTXRotRad(mtx, 'y', player->mRot.y);
                 PSMTXMultVec(mtx, &fwd, &fwd);
                 if (PSVECDotProduct(&fwd, &d) >= 0.70710677f) {
                     atn::Vector3 back(-d.x, -d.y, -d.z);

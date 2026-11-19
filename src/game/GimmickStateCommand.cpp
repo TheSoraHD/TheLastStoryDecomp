@@ -17,6 +17,8 @@
 #include "std/vector_string.h"
 #include "game/MapTask.h"
 #include "game/BattleTask.h"
+#include "game/PlayerTask.h"
+#include "game/CharaManager.h"
 
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" int strncmp(const char* a, const char* b, unsigned long n);
@@ -53,16 +55,7 @@ extern "C" void fn_800CB518(atn::SoundRef* sound, int frames);           // infe
 extern "C" void fn_800CB688(atn::SoundRef* sound, int arg, float pitch); // inferred: sets the pitch
 extern "C" void fn_800CB6B0(atn::SoundRef* sound, int arg, float distance); // inferred: sets the distance
 extern "C" RenderSetting_unk* lbl_8087EFA8;
-// inferred: player manager (lbl_8087F8A0)
-struct ShakePlayer_unk {
-    unsigned char m000[0x528];
-    atn::Vector3 m528; // inferred: camera position
-};
-struct ShakePlayerMgr_unk {
-    unsigned char m00[0x48];
-    ShakePlayer_unk* m48;
-};
-extern "C" ShakePlayerMgr_unk* lbl_8087F8A0;
+extern "C" CharaManager<PlayerTask>* lbl_8087F8A0;
 extern "C" float PSVECMag(const atn::Vector3* v);
 extern "C" void PSMTXRotRad(Mtx m, char axis, float rad);
 extern "C" void PSMTXMultVec(const Mtx m, const atn::Vector3* src, atn::Vector3* dst);
@@ -337,7 +330,7 @@ void GimmickCommonB0_unk::fn_803F0764(GimmickCommon* gimmick) {
                 } else {
                     pos += gimmick->m6C;
                 }
-                atn::Vector3 camera = lbl_8087F8A0->m48->m528;
+                atn::Vector3 camera = lbl_8087F8A0->mHead->mPos;
                 int frames = cmd->mOffset.z;
                 atn::Vector3 d(pos.x - camera.x, pos.y - camera.y, pos.z - camera.z);
                 float dist = PSVECMag(&d);

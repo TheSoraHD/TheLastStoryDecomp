@@ -10,6 +10,8 @@
 #include "game/GameBgm.h"
 #include "math/Vec.h"
 #include "game/SongManager.h"
+#include "game/PlayerTask.h"
+#include "game/CharaManager.h"
 
 extern "C" double sqrt(double x);
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
@@ -22,17 +24,7 @@ extern "C" atn::Vector3* fn_800CB6C4(atn::SoundRef* sound); // inferred: positio
 
 
 
-// inferred: party manager (lbl_8087F8A0) and its leader, only the members used here
-struct SongChara_unk {
-    unsigned char m000[0x528];
-    atn::Vector3 mPos; // 0x528
-    atn::Vector3 mRot; // 0x534
-};
-struct SongParty_unk {
-    unsigned char m00[0x48];
-    SongChara_unk* m48; // inferred: leader
-};
-extern "C" SongParty_unk* lbl_8087F8A0;
+extern "C" CharaManager<PlayerTask>* lbl_8087F8A0;
 
 // inferred: sound engine and field (as in game/GameBgm.cpp)
 extern "C" void* lbl_8087EE90;
@@ -127,7 +119,7 @@ void SongManager::vf10() {
     if (mBgm->mSound.mPtr != 0) {
         fn_800CB6E4(&mBgm->mSound, &mPos.mCur);
         ((atn::SoundCore*)mBgm->mSound.mPtr)->fn_800CA798(1, mDistance.mCur);
-        SongChara_unk* leader = lbl_8087F8A0 != 0 ? lbl_8087F8A0->m48 : 0;
+        PlayerTask* leader = lbl_8087F8A0 != 0 ? lbl_8087F8A0->mHead : 0;
         if (leader == 0) {
             return;
         }
