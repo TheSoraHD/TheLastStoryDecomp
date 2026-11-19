@@ -803,19 +803,19 @@ void ControlGuardCounter::vf1C() {
     lbl_8087EFA8->m3A4 = 1.0f;
 }
 
-// NONMATCHING: 96.2% - temporaries of the rotation.
+// inferred: the yaw comes from the dir argument (kept in a saved register like the original) and the new
+// rotation is a temporary (stack slots of the original)
 ControlHitBackBullet::ControlHitBackBullet(Chara_unk* chara, const atn::Vector3& dir, HomingBullet* bullet)
     : ControlAttackBase(chara, dir) {
     chara->m560 = 0x80;
-    mChara->mMotion.m34C = 1;
     Motion_unk* motion = &mChara->mMotion;
+    motion->m34C = 1;
     motion->mTracks[0].m20 = 1.0f;
     motion->fn_80097C08(0, 0x1D2, 0, 0, 1, 0.0f, 0.1f);
     motion->mTracks[0].m0C = vf60();
     motion->mTracks[0].m08 = 5.0f;
     mChara->fn_801446F0();
-    atn::Vector3 rot = mDir.ToRotation_unk();
-    mChara->mRot = atn::Vector3(0.0f, rot.y, 0.0f);
+    mChara->mRot = atn::Vector3(0.0f, dir.ToRotation_unk().y, 0.0f);
     LoadTable_unk();
     mBullets.push_back(bullet);
     if (lbl_8087F498 != 0 && rand() % 2 == 0) {
