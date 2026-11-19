@@ -23,6 +23,7 @@
 #include "Event/Section.h"
 #include "Event/Channel.h"
 #include "Event/Action.h"
+#include "game/GameConfig_unk.h"
 
 // Everything below is inferred from Event::Dialog (0x802280B4..0x80229DF0); names are invented.
 
@@ -129,25 +130,7 @@ extern "C" float fn_8006EF48(void* font, float size, const wchar_t* text, float 
 
 extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float volume);
 
-// inferred: game settings (lbl_8087F0A8): help/button display at 0x48C
-struct DialogUv_unk {
-    DialogUv_unk() {}
-    DialogUv_unk(const DialogUv_unk& o) { __Vec4Copy(&u0, &o.u0); }
-    float u0;
-    float v0;
-    float u1;
-    float v1;
-};
-struct DialogSettings_unk {
-    unsigned char m000[0x48C];
-    unsigned char mPad[1];
-};
-extern "C" DialogSettings_unk* lbl_8087F0A8;
-// inferred: pad input of the settings (game/Input_unk.h; declared here with the uv type of this file)
-struct Input_unk {
-    DialogUv_unk fn_80124C6C(int action);
-    void fn_80122330(int reset);
-};
+extern "C" GameConfig_unk* lbl_8087F0A8;
 
 
 
@@ -608,16 +591,16 @@ void Dialog::fn_802297AC() {
         m10C->mFlags |= 4;
     }
     if (lbl_8087F0A8 != 0) {
-        DialogUv_unk uv = ((Input_unk*)lbl_8087F0A8->mPad)->fn_80124C6C(0);
-        DialogUv_unk uv0 = uv;
-        m10C->SetParam2_unk("btnUv", &uv0.u0);
-        DialogUv_unk uv1 = uv;
-        m10C->SetParam2_unk("btnUvMask", &uv1.u0);
+        ButtonUv_unk uv = lbl_8087F0A8->mInput.fn_80124C6C(0);
+        ButtonUv_unk uv0 = uv;
+        m10C->SetParam2_unk("btnUv", &uv0.x);
+        ButtonUv_unk uv1 = uv;
+        m10C->SetParam2_unk("btnUvMask", &uv1.x);
     }
     fn_80229414();
     fn_800D9560(lbl_8087F008);
     if (lbl_8087F0A8 != 0) {
-        ((Input_unk*)lbl_8087F0A8->mPad)->fn_80122330(0);
+        lbl_8087F0A8->mInput.fn_80122330(0);
     }
     if (m150 >= 0 && ++m150 <= 30) {
         float t = DIALOG_MIN_UNK(1.0f, m150 / 30.0f);

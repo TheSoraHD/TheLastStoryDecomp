@@ -15,6 +15,7 @@
 #include "std/string_members.h"
 #include "atn/D2A_TaskInstanceC.h"
 #include "atn/TextTable_unk.h"
+#include "game/GameConfig_unk.h"
 
 extern "C" MenuD2A_unk* fn_801F3FF8(atn::Task* parent, const char* path, int arg); // inferred: creates a D2A anime
 extern "C" void fn_805115D0(MenuD2A_unk* anime, int arg1, int arg2, float a, float b);
@@ -924,16 +925,7 @@ static const MenuButtonInfo_unk lbl_80757110[17] = {
     {570.0f, 407.0f, 560.0f, 395.0f, 0.0f, 0.0f, L"a", 51, 10079},
 };
 
-// inferred: game settings (lbl_8087F0A8, see game/CampSaveLoad.cpp); only the member used here
-struct MenuSettings_unk {
-    unsigned char m00[0x48C];
-    unsigned char m48C[4]; // 0x48C: inferred: button icon table
-};
-extern "C" MenuSettings_unk* lbl_8087F0A8;
-// inferred: pad input of the settings (game/Input_unk.h; declared here with the uv type of this file)
-struct Input_unk {
-    MenuUV_unk fn_80124C6C(int action); // inferred: UV of a button icon
-};
+extern "C" GameConfig_unk* lbl_8087F0A8;
 extern "C" const wchar_t* fn_80116FC0(int group, int id); // inferred: message text
 
 // inferred: shows an A button prompt (ui_abtn_reaction_*.d2a)
@@ -953,16 +945,16 @@ extern "C" void fn_804A5E40(MenuCommonTask* menu, int type, const float* ofs, in
     SetPaneValue_unk(&menu->m1D8[menu->m1CC]->mData.m10, "basePos", 1, y + ofs[1]);
     SetPaneValue_unk(&menu->m1D8[menu->m1CC]->mData.m10, "basePos", 4, info->mZ);
     SetPaneValue2_unk(&menu->m1D8[menu->m1CC]->mData.m10, "crossOn", info->mCross);
-    SetUV_unk((atn::D2A_Task*)menu->m1D8[menu->m1CC], "btnUv", ((Input_unk*)lbl_8087F0A8->m48C)->fn_80124C6C(info->mUV));
-    SetUV_unk((atn::D2A_Task*)menu->m1D8[menu->m1CC], "btnUvMask", ((Input_unk*)lbl_8087F0A8->m48C)->fn_80124C6C(info->mUV));
+    SetUV_unk((atn::D2A_Task*)menu->m1D8[menu->m1CC], "btnUv", lbl_8087F0A8->mInput.fn_80124C6C(info->mUV));
+    SetUV_unk((atn::D2A_Task*)menu->m1D8[menu->m1CC], "btnUvMask", lbl_8087F0A8->mInput.fn_80124C6C(info->mUV));
     SetPaneText_unk(&menu->m1D8[menu->m1CC]->mData.m10, "buttonStr", info->mButton);
     SetPaneText_unk(&menu->m1D8[menu->m1CC]->mData.m10, "action_name", fn_80116FC0(0, info->mMsg));
     SetPaneValue_unk(&menu->m1E0[menu->m1CC]->mData.m10, "basePos", 0, x + ofs[0]);
     SetPaneValue_unk(&menu->m1E0[menu->m1CC]->mData.m10, "basePos", 1, y + ofs[1]);
     SetPaneValue_unk(&menu->m1E0[menu->m1CC]->mData.m10, "basePos", 4, info->mZ);
     SetPaneValue2_unk(&menu->m1E0[menu->m1CC]->mData.m10, "crossOn", info->mCross);
-    SetUV_unk((atn::D2A_Task*)menu->m1E0[menu->m1CC], "btnUv", ((Input_unk*)lbl_8087F0A8->m48C)->fn_80124C6C(info->mUV));
-    SetUV_unk((atn::D2A_Task*)menu->m1E0[menu->m1CC], "btnUvMask", ((Input_unk*)lbl_8087F0A8->m48C)->fn_80124C6C(info->mUV));
+    SetUV_unk((atn::D2A_Task*)menu->m1E0[menu->m1CC], "btnUv", lbl_8087F0A8->mInput.fn_80124C6C(info->mUV));
+    SetUV_unk((atn::D2A_Task*)menu->m1E0[menu->m1CC], "btnUvMask", lbl_8087F0A8->mInput.fn_80124C6C(info->mUV));
     SetPaneText_unk(&menu->m1E0[menu->m1CC]->mData.m10, "buttonStr", info->mButton);
     SetPaneText_unk(&menu->m1E0[menu->m1CC]->mData.m10, "action_name", fn_80116FC0(0, info->mMsg));
     if (type == 6 || type == 7) {
