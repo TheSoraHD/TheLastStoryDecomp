@@ -1,0 +1,32 @@
+diff --git a/src/game/NewCampPartsStatus.cpp b/src/game/NewCampPartsStatus.cpp
+index ad3cd4e..def2a1c 100644
+--- a/src/game/NewCampPartsStatus.cpp
++++ b/src/game/NewCampPartsStatus.cpp
+@@ -228,17 +228,22 @@ void NewCampPartsStatus::vf10() {
+ 
+ // NONMATCHING: 99.70% - register allocation only (the show flag and the entry offset swap r30/r31, the
+ // source vector address and its copy swap r3/r4)
++// inferred: offset of the parts for a camp mode (name invented)
++static inline const atn::Vector3* GetOffset_unk(int mode) {
++    const atn::Vector3* src = &lbl_807C7030;
++    if (mode == 6) {
++        src = &sOffset;
++    }
++    return src;
++}
++
+ void NewCampPartsStatus::vf14() {
+     int show = 0;
+     if (fn_8050FD20() && ((NewCampStatusCamp_unk*)m48)->m11F8 != 1) {
+         show = 1;
+     }
+     vf3C(show);
+-    const atn::Vector3* src = &lbl_807C7030;
+-    if (((NewCampStatusCamp_unk*)m48)->m464 == 6) {
+-        src = &sOffset;
+-    }
+-    atn::Vector3 target = *src;
++    atn::Vector3 target = *GetOffset_unk(((NewCampStatusCamp_unk*)m48)->m464);
+     mOffset = LerpFrom_unk(mOffset, target, 0.2f);
+     atn::Vector3 move = mMove * mScroll;
+     for (int i = 0; i < m4C; i++) {
