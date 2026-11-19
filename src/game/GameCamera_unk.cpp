@@ -1234,8 +1234,8 @@ void GameCamera::fn_8037F9AC(const CharaTask* chara) {
 // its yaw at the speed m6FC.m2C (immediately with m8EC); lower pitch near the centre cell of the town; the eye is
 // moved in front of the walls (m880 frames back out), and the target goes m6FC.m0C beside the character
 // (over the inlining budget: the accessors are weak copies)
-// NONMATCHING: 99.9% - float registers of the pitch blend (the two y rotations come by value from
-// atn::Matrix3x4::fn_8013A13C, as in the original)
+// (the two y rotations come by value from atn::Matrix3x4::fn_8013A13C, as in the original; the pitch step in a
+// local before the blend)
 void GameCamera::fn_80382A1C(const CharaTask* chara) {
     CharaTask* c = const_cast<CharaTask*>(chara);
     atn::Vector3 pos(*mCamera.GetPosition_unk());
@@ -1280,7 +1280,8 @@ void GameCamera::fn_80382A1C(const CharaTask* chara) {
     atn::ColliResult_unk result;
     offset = target - eye;
     r = (-offset).ToRotation_unk();
-    rot.x += pitch - rot.x;
+    float d = pitch - rot.x;
+    rot.x += d;
     rot.y = r.y;
     rot.z = r.z;
     dir = atn::Vector3(0.0f, 0.0f, m6FC.m00);
@@ -2035,8 +2036,8 @@ void GameCamera::fn_80387548(const CharaTask* chara) {
 // inferred: tactical view camera: blends the parameters m684 to m4C0 with the timer m4B4, keeps the pitch
 // -param.m08 and the yaw m8A0, looks at m8A4 (copied to m868) from a distance blended to param.m00, keeps the
 // target in front of the yaw and, beyond 0.1, blends distance and pitch with the current camera by 0.4
-// NONMATCHING: 99.9% - the fmuls/fadds registers of the distance blend (the yaw matrix comes by value from
-// atn::Matrix3x4::fn_8013A13C, without constructor call)
+// (the yaw matrix comes by value from atn::Matrix3x4::fn_8013A13C, without constructor call; the distance blend
+// in three statements)
 void GameCamera::fn_80387910(const CharaTask* chara) {
     GameCameraParam_unk param(m684);
     if (m4B4.fn_803829C0()) {
@@ -2067,7 +2068,9 @@ void GameCamera::fn_80387910(const CharaTask* chara) {
     pos.y -= dist * fn_8037F664(delta);
     atn::Vector3 diff = look - pos;
     float len = diff.Length_unk();
-    float d = len + (float)((param.m00 - len) * param.m1C);
+    float d = param.m00 - len;
+    d *= param.m1C;
+    d = len + d;
     target = look;
     m868 = target;
     dir.Set_unk(0.0f, 0.0f, -d);
