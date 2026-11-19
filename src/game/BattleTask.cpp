@@ -2631,7 +2631,6 @@ inline float SquareMagXZ_unk(const atn::Vector3& v) {
 // inferred: index of the hit sphere of `chara` reached by the melee arc of `attacker` (reach data->m40 plus
 // the reach of the attacker, angle data->m50 around the facing of the attacker turned by `angle`, height
 // data->m54) nearest to the attacker; -1 when nothing is reached. Called by the enemies.
-// NONMATCHING: 99.96% - register of the absolute height (f3/f4)
 int BattleTask::fn_800FBA9C(CharaTask* attacker, CharaTask* chara, HitInfo_unk* data, int id,
                            float angle) {
     if (chara->fn_801533C8(id, data)) {
@@ -2660,7 +2659,7 @@ int BattleTask::fn_800FBA9C(CharaTask* attacker, CharaTask* chara, HitInfo_unk* 
         }
         float range = reach + item->m04.mRadius;
         atn::Vector3 d = item->m04.mCenter - attacker->mPos;
-        float dy = __fabs(d.y);
+        float dy = atn::Abs_unk(d.y);
         if (dy > range) {
             continue;
         }
@@ -2846,7 +2845,7 @@ void BattleTask::fn_800FC410(CharaTask* attacker, CharaTask* chara, int index, H
     m38A5C.m40 = index;
     m38A5C.m08 = hit;
     atn::Vector3 dir = attacker->mPos - HitCenterAt_unk(chara, index);
-    if (!((float)__fabs(PSVECSquareMag(&dir)) < 1.1920929e-7f)) {
+    if (!(atn::Abs_unk(PSVECSquareMag(&dir)) < 1.1920929e-7f)) {
         PSVECNormalize(&dir, &dir);
         dir *= chara->m5B0;
         m38A5C.m1C = dir + HitCenterAt_unk(chara, index);

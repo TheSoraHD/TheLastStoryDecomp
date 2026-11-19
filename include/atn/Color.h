@@ -3,15 +3,11 @@
 
 namespace atn {
 
-// inferred: [0,1] float channel to 0..255
+// inferred: [0,1] float channel to 0..255 (conditional expression in a local: the if/return form swaps the
+// registers of ToU32 0x800F8348; without the local D2A_Window::vf18 inlines ToU32)
 inline unsigned int ColorToU8_unk(float f) {
-    if (f >= 1.0f) {
-        return 255;
-    }
-    if (f <= 0.0f) {
-        return 0;
-    }
-    return (unsigned int)(f * 255.0f + 0.5f);
+    unsigned int u = f >= 1.0f ? 255 : (f <= 0.0f ? 0 : (unsigned int)(f * 255.0f + 0.5f));
+    return u;
 }
 
 // RGBA color of the engine (0.0-1.0). Real name from the RSO (SetColor__Q23atn5LightFRCQ23atn5Color,
