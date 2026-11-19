@@ -135,6 +135,15 @@ poolcheck igual que main) salvo el `ordercheck` de GameEventScript, que ya tiene
 | bf4a3b4 | 2.5 | `GameUI` en AttractHatePoint y LottaSummon (`Request_unk`, constructor `GameUIElem1C_unk(int)`) |
 | 4813e92, 6ca6827, f9c2260, 9c11016 | 2.5 | `RenderSetting_unk` en LinearAllocator, ModelDraw_unk (`m104` = `ShadowParam_unk`), Layer2DBlur, ModelInstance |
 | 6323082 | 2.5 | `lbl_8087EE60/EE64` de `void*` a `CharaTask*`/`CharaLink_unk*` (lista de 16 en `CharaLink_unk`); fuera `AiList_unk` |
+| 3430212 | 2.6 | `GameUIMarker_unk::m10` = `CharaTask*`; TownTpcLoader limpia `GameUI::mD40` (inline `static` del .cpp) |
+| 822c7cc | 2.6 | `atn::ColliBase::m0C` (dueno) = `void*`: fuera `(int)this` en 22 unidades; `BattleTask::m3E2E0` igual |
+| 0100abd | 2.6 | `GimmickMsg_unk::m10` = `CharaTask*` (9 unidades) |
+| 060e436, ddaec9f, a0afe75 | 2.6 | `EnemyQuarkStand::m16F0`, `GameEventScript::m98`, `NewCampPair_unk::m04`, `WindySlot_unk::m184`, `PopupEntry_unk::mB0` (`MtxPtr`) |
+| 0c51c4e | regla 10 | Em101LittleZesya: 3 `extern "C"` con `zesya` a miembros; `Em101ElderZesya::m16A0`/`m1530` tipados |
+| e077c2b | 2.6 | `SpecialEnemyBase::m14B0` (`EnemyInfo_unk*`), `EnemyQuarkStand::m14B0`, `Em303KrakenFootMp::m14F4` |
+| b1a6996, 9b80141 | 2.6 | atacante (`CharaHit_unk::m10`) y quien derroto (`CharaTask::m13B0`) como `CharaTask*`; `BattleTask::fn_800FDE60` e `Inventory::fn_80449A18/ABC` con puntero (simbolos renombrados) |
+| bf2c660, 082973f | regla 10 | `atn::net::Manager` lock/unlock y ChaseManager (3) a miembros |
+| 7d10fd3 | 2.5 | `lbl_8087FA20` (`TownTask*`), `lbl_8087F418` (`EnvSeManager*`) |
 
 Re-emparejado: `pdbatch.sh` y, para lo que queda (pools iguales que main), `refmap.py` (scratch): nombre en symbols.txt de main ->
 (seccion, desplazamiento) en el .o de main -> nombre en nuestro .o. Mas fiable que lblseq/valfix cuando el pool no cambia;
