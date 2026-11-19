@@ -8,7 +8,16 @@ extern "C" int rand();
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 
 // inferred: closest point to `pos` on the segment a-b (written to `out`)
-extern "C" void fn_80050A1C(const atn::Vector3* pos, atn::Vector3 a, atn::Vector3* out, atn::Vector3 b);
+// inferred: line segment passed to fn_80050A1C (same struct as game/CharaTask.cpp, atn/Geometry_unk.cpp)
+struct Segment_unk {
+    Segment_unk() {}
+    Segment_unk(const atn::Vector3& start, const atn::Vector3& end) : mStart(start), mEnd(end) {}
+    atn::Vector3 mStart;
+    atn::Vector3 mEnd;
+};
+// inferred: squared distance from a point to a segment; the closest point goes to `out` if given
+// (0x80050A1C)
+extern "C" float fn_80050A1C(const atn::Vector3* point, const Segment_unk* seg, atn::Vector3* out);
 
 
 class BattleTask;
@@ -99,15 +108,18 @@ int ControlDuckUnderA::vf0C() {
     return ret;
 }
 
-// NONMATCHING: 91.9% - saved register allocation (this/a/b/motion) and stack slots of the
-// by-value vectors passed to fn_80050A1C.
+// inferred: a-b is a segment local filled member by member (fn_80050A1C takes the segment by
+// pointer: stack slots and registers of the original)
 ControlDuckUnderB::ControlDuckUnderB(Chara_unk* chara, const atn::Vector3& a, const atn::Vector3& b)
     : ControlInteractionBase(chara, 0x19, 0x4A) {
     m24 = GetFrontDir_unk(mChara);
     m3C = 0.5f;
     m08 = 3;
     m18 = mChara->mPos;
-    fn_80050A1C(&m18, a, &m0C, b);
+    Segment_unk seg;
+    seg.mStart = a;
+    seg.mEnd = b;
+    fn_80050A1C(&m18, &seg, &m0C);
     m0C += m24 * -5.0f;
     mChara->fn_801446F0();
     if (lbl_8087F498 != 0 && rand() % 2 == 0) {
