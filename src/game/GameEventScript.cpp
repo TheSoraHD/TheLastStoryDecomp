@@ -180,6 +180,14 @@ static inline int ScriptValue_unk(int type, int value) {
     }
     return value;
 }
+// inferred: end of the commands of a script (name invented)
+static inline ScriptCmd_unk* ScriptEndOf_unk(ScriptData_unk* data) {
+    ScriptCmd_unk* end = &data->mCmds;
+    for (unsigned int i = 0; i < data->mCmdCount; i++) {
+        end = (ScriptCmd_unk*)((char*)end + lbl_8074ED24[end->mCmd]);
+    }
+    return end;
+}
 // inferred: command after the end of the block that starts at `cmd` (commands 0x44 open nested
 // blocks, 0x45 closes one); the end of the script if missing (name invented)
 static inline ScriptCmd_unk* SkipBlock_unk(ScriptData_unk* data, const ScriptCmd_unk* cmd) {
@@ -347,6 +355,10 @@ GameEventScript::GameEventScript(atn::Task* parent, const char* path, int area, 
     memset(m154, 0, sizeof(m154));
 }
 
+std::bad_cast::~bad_cast() {}
+
+boost::bad_lexical_cast::~bad_lexical_cast() {}
+
 // inferred: starts or stops the log of the checked events (name invented)
 static inline void SetLog_unk(GameEventScript* self, int on) {
     if (self->m37C != on) {
@@ -381,10 +393,6 @@ static inline void SetLog_unk(GameEventScript* self, int on) {
 GameEventScript::~GameEventScript() {
     SetLog_unk(this, 0);
 }
-
-std::bad_cast::~bad_cast() {}
-
-boost::bad_lexical_cast::~bad_lexical_cast() {}
 
 extern "C" const char lbl_8078B34C[];
 extern "C" const char lbl_8078B394[];
@@ -982,19 +990,13 @@ inline int GameEventScript::CanStartArg_unk(int event, int arg) {
     return ok;
 }
 
-// NONMATCHING: 99.4% - volatile registers of the range test reversed (r5-r8), as fn_80398530
 // inferred: the event can start (field value in range and all its conditions; arg 0 tests only the
 // conditions of kind 1)
 int GameEventScript::fn_80398590(int event, int arg) {
     int ok = 0;
     if (event != 0) {
         const ScriptEventConds_unk* e = (const ScriptEventConds_unk*)event;
-        int value = lbl_8087F430->m10D0;
-        bool pass = true;
-        if (!e->IsAlways_unk() && !e->Contains_unk(value)) {
-            pass = false;
-        }
-        if (pass) {
+        bool pass = InEventRange_unk(event);        if (pass) {
             ok = 1;
             const ScriptEventCond_unk* cond = e->mConds;
             for (int i = 0; i < e->mCount; cond++, i++) {
@@ -1890,9 +1892,9 @@ void GameEventScript::fn_8039B2BC() {
         marker.m18 = !fn_80051CD8(&near, &shape);
         atn::Vector3 toLeader = leader->mPos - marker.mPos;
         marker.m1C = (PSVECMag(&toLeader) - 30.0f) / 120.0f;
-        marker.m1C = 0.5f - ((marker.m1C > 0.0f ? marker.m1C : 0.0f) < 0.5f
+        marker.m1C = 1.0f - ((marker.m1C > 0.0f ? marker.m1C : 0.0f) < 1.0f
                                  ? (marker.m1C > 0.0f ? marker.m1C : 0.0f)
-                                 : 0.5f);
+                                 : 1.0f);
         marker.m10 = 0;
         lbl_8087F490->fn_803E3C78(marker);
     }
@@ -2253,9 +2255,9 @@ void GameEventScript::fn_8039B7B0() {
         marker.m18 = !fn_80051A88(&near, &sphere);
         atn::Vector3 toLeader = leader->mPos - marker.mPos;
         marker.m1C = (PSVECMag(&toLeader) - 30.0f) / 120.0f;
-        marker.m1C = 0.5f - ((marker.m1C > 0.0f ? marker.m1C : 0.0f) < 0.5f
+        marker.m1C = 1.0f - ((marker.m1C > 0.0f ? marker.m1C : 0.0f) < 1.0f
                                  ? (marker.m1C > 0.0f ? marker.m1C : 0.0f)
-                                 : 0.5f);
+                                 : 1.0f);
         marker.m10 = 0;
         lbl_8087F490->fn_803E3C78(marker);
     }
@@ -2454,15 +2456,11 @@ int GameEventScript::fn_8039CCD0(const ScriptCmd_unk* cmd) {
     return 0;
 }
 
-// NONMATCHING: 99.2% - `end` and `count` take r30/r29 swapped
 // inferred: runs the commands of `data` from `cmd`; 0 when a command waits, 1 at the end
 int GameEventScript::fn_8039CF8C(ScriptData_unk* data, ScriptCmd_unk* cmd) {
     m94 = data;
-    ScriptCmd_unk* end = &data->mCmds;
+    ScriptCmd_unk* end = ScriptEndOf_unk(data);
     unsigned int count = data->mCmdCount;
-    for (unsigned int i = 0; i < count; i++) {
-        end = (ScriptCmd_unk*)((char*)end + lbl_8074ED24[end->mCmd]);
-    }
     for (unsigned int n = 0; n < count; n++) {
         if (cmd == 0 || cmd >= end) {
             break;
@@ -4069,7 +4067,7 @@ void GameEventScript::fn_803A2E20(ScriptResult_unk& result, const ScriptCmd_unk*
     result.SetNext_unk(cmd, wait);
 }
 
-// NONMATCHING: 87% - the original keeps the character and the value in r5/r4 across fn_8014C468
+// inferred: value 0 resets the character (fn_8014C468), otherwise fn_8014C0B4 with value + 0xD5
 void GameEventScript::fn_803A330C(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
     const ScriptArgs_unk* args = static_cast<const ScriptArgs_unk*>(cmd);
     CharaTask* chara = GetChara_unk(args->m08, args->m0C);
@@ -4077,8 +4075,9 @@ void GameEventScript::fn_803A330C(ScriptResult_unk& result, const ScriptCmd_unk*
         int value = args->m10;
         if (value == 0) {
             chara->fn_8014C468();
+        } else {
+            chara->fn_8014C0B4(0, value + 0xD5);
         }
-        chara->fn_8014C0B4(0, value + 0xD5);
     }
     result.SetNext_unk(cmd);
 }
@@ -4399,17 +4398,18 @@ void GameEventScript::fn_803A4474(ScriptResult_unk& result, const ScriptCmd_unk*
     result.SetNext_unk(cmd);
 }
 
-// NONMATCHING: 86% - register allocation (registers of the camera, the table and the frame)
-void GameEventScript::fn_803A450C(ScriptResult_unk& result, ScriptCmd_unk* cmd) {
-    ScriptArgsF_unk* args = static_cast<ScriptArgsF_unk*>(cmd);
-    GameCamera& camera = lbl_8087F430->mCamera;
-    ScriptCmd_unk* next = NextCmd_unk(cmd);
+// inferred: shakes the camera (keeps the parity of the frame); the arguments are read before the camera
+void GameEventScript::fn_803A450C(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
+    const ScriptArgsF_unk* args = static_cast<const ScriptArgsF_unk*>(cmd);
     int length = args->m08;
+    float width = args->m0C;
+    float height = args->m10;
+    GameCamera& camera = lbl_8087F430->mCamera;
     camera.mShake.mFrame = camera.mShake.mFrame % 2;
     camera.mShake.mLength = length;
-    camera.mShake.mWidth = args->m0C;
-    camera.mShake.mHeight = args->m10;
-    result.mNext = next;
+    camera.mShake.mWidth = width;
+    camera.mShake.mHeight = height;
+    result.mNext = NextCmd_unk(cmd);
     result.mWait = 0;
 }
 
@@ -4554,13 +4554,13 @@ void GameEventScript::fn_803A4A7C(ScriptResult_unk& result, const ScriptCmd_unk*
                         } else if (args->m1C == 1 && lbl_8087F048 != 0) {
                             lbl_8087F048->m3E39C = 1;
                             Mtx m;
-                            atn::Vector3 front(0.0f, 0.0f, 0.5f);
+                            atn::Vector3 front(0.0f, 0.0f, 1.0f);
                             PSMTXRotRad(m, 'y', member->mRot.y);
                             PSMTXMultVec(m, &front, &front);
                             atn::Vector3 pos = member->fn_801781B0() + front;
                             BattleTask* battle = lbl_8087F048;
                             battle->fn_800FAB80(member, hit, battle->fn_800F8548(), &pos, &member->mRot, 0, 30, -1, -1,
-                                        0.0f, 0.5f);
+                                        0.0f, 1.0f);
                             lbl_8087F048->m3E39C = 0;
                         }
                     }
@@ -4585,18 +4585,18 @@ void GameEventScript::fn_803A4A7C(ScriptResult_unk& result, const ScriptCmd_unk*
                     fn_80232B7C((unsigned int)member, 9997);
                     if (battleEfp != 0) {
                         fn_8023A8B4(lbl_8087F3C0, battleEfp, member->GetModel_unk(), 0, atn::Vector3(0.0f, 0.0f, 0.0f),
-                                    atn::Vector3(0.0f, 0.0f, 0.0f), atn::Color(0.5f, 0.5f, 0.5f, 0.5f), -1, -1, 1,
-                                    0.5f);
+                                    atn::Vector3(0.0f, 0.0f, 0.0f), atn::Color(1.0f, 1.0f, 1.0f, 1.0f), -1, -1, 1,
+                                    1.0f);
                     }
                     if (skillEfp != 0) {
                         fn_8023A8B4(lbl_8087F3C0, skillEfp, member->GetModel_unk(), 0, atn::Vector3(0.0f, 0.0f, 0.0f),
-                                    atn::Vector3(0.0f, 0.0f, 0.0f), atn::Color(0.5f, 0.5f, 0.5f, 0.5f), -1, -1, 1,
-                                    0.5f);
+                                    atn::Vector3(0.0f, 0.0f, 0.0f), atn::Color(1.0f, 1.0f, 1.0f, 1.0f), -1, -1, 1,
+                                    1.0f);
                     }
                     if (charaEfp != 0) {
                         float scale = member->vf90();
                         fn_8023A8B4(lbl_8087F3C0, charaEfp, 0, 0, member->mPos, member->mRot,
-                                    atn::Color(0.5f, 0.5f, 0.5f, 0.5f), -1, -1, 1, scale);
+                                    atn::Color(1.0f, 1.0f, 1.0f, 1.0f), -1, -1, 1, scale);
                     }
                 }
             } else {
@@ -4613,7 +4613,7 @@ void GameEventScript::fn_803A4A7C(ScriptResult_unk& result, const ScriptCmd_unk*
             if (efp != 0) {
                 fn_80232B7C((unsigned int)chara, 999);
                 fn_8023A8B4(lbl_8087F3C0, efp, chara->GetModel_unk(), 0, atn::Vector3(0.0f, 0.0f, 0.0f),
-                            atn::Vector3(0.0f, 0.0f, 0.0f), atn::Color(0.5f, 0.5f, 0.5f, 0.5f), -1, -1, 1, 0.5f);
+                            atn::Vector3(0.0f, 0.0f, 0.0f), atn::Color(1.0f, 1.0f, 1.0f, 1.0f), -1, -1, 1, 1.0f);
             } else {
                 fn_80239DAC(lbl_8087F3C0, (unsigned int)chara, 999, 1);
             }
@@ -4772,9 +4772,14 @@ void GameEventScript::fn_803A5A10(ScriptResult_unk& result, const ScriptCmd_unk*
     result.mNext = NextCmd_unk(cmd);
 }
 
-// inferred: value of the chase or of the config `kind` (name invented)
-static inline int ChaseValue_unk(int kind) {
-    int value = 0;
+// inferred: radians to degrees (an inline: the literal written in place gives the fmuls operands in the
+// other registers; name invented)
+static inline float RadToDeg_unk(float rad) {
+    return rad * 57.295776f;
+}
+// inferred: value of the chase or of the config `kind`; an out parameter set to 0 by the caller (the
+// original keeps it in r31) (name invented)
+static inline void ChaseValue_unk(int kind, int& value) {
     switch (kind) {
     case 0:
         if (lbl_8087F098 != 0 && lbl_8087F098->mState != 0) {
@@ -4813,7 +4818,7 @@ static inline int ChaseValue_unk(int kind) {
         value = lbl_8087F0A8->m4DC.mVisChaseDistance;
         break;
     case 7:
-        value = lbl_8087F0A8->m4DC.mVisAngle * 57.295776f;
+        value = RadToDeg_unk(lbl_8087F0A8->m4DC.mVisAngle);
         break;
     case 9:
         value = lbl_8087F0A8->m53C.mChPlayerHit;
@@ -4827,34 +4832,17 @@ static inline int ChaseValue_unk(int kind) {
         }
         break;
     }
-    return value;
 }
 
-// inferred: writes a field flag without recording it (m37C cleared meanwhile) (name invented)
-static inline void StoreValue_unk(GameEventScript* self, int value, int flag, int mode) {
-    GameTask* field = lbl_8087F430;
-    if (field != 0) {
-        int saved = self->m37C;
-        self->m37C = 0;
-        if (mode == 1) {
-            field->fn_80370320(flag, value, 0);
-        } else {
-            field->fn_80370AE4(flag, value);
-        }
-        self->mF0 = 1;
-        self->m37C = saved;
-    }
-}
-
-// NONMATCHING: 98.4% - the value takes r28 instead of r31 (this/result/cmd shifted) and the operands
-// of the fmuls of case 7 are swapped
 // inferred: stores a value of the chase or of the config (m08) into the field flag m10 (m0C: 1 with
 // fn_80370320, else fn_80370AE4); counterpart of the setter above
 void GameEventScript::fn_803A5A8C(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
     const ScriptArgs_unk* args = static_cast<const ScriptArgs_unk*>(cmd);
-    int value = ChaseValue_unk(args->m08);
-    StoreValue_unk(this, value, args->m10, args->m0C);
-    result.SetNext_unk(cmd);
+    int value = 0;
+    ChaseValue_unk(args->m08, value);
+    SetFlag_unk(args->m0C, args->m10, value);
+    result.mWait = 0;
+    result.mNext = NextCmd_unk(cmd);
 }
 
 // inferred: settings of the chase and of the game config, with the value (m10, m0C, as fn_803A6CDC)
