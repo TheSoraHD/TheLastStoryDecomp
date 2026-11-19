@@ -1070,14 +1070,14 @@ void GameEventScript::vf10() {
             0, &GameEventScript::fn_8039D274, 0, 0, &GameEventScript::fn_8039D99C, &GameEventScript::fn_8039DA00, 0,
             &GameEventScript::fn_8039DB2C, &GameEventScript::fn_8039E328, 0, 0, 0, 0, 0, 0,
             &GameEventScript::fn_8039EBB8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-            &GameEventScript::fn_803A1DB0, 0, &GameEventScript::fn_803A2378, (ScriptCmdFn_unk)&GameEventScript::fn_803A2600,
-            (ScriptCmdFn_unk)&GameEventScript::fn_803A2E20, 0, &GameEventScript::fn_803A362C, (ScriptCmdFn_unk)&GameEventScript::fn_803A36D8, 0,
-            &GameEventScript::fn_803A3AB4, 0, 0, 0, 0, 0, 0, 0, 0, 0, (ScriptCmdFn_unk)&GameEventScript::fn_803A49F4, 0, 0, 0, 0, 0,
+            &GameEventScript::fn_803A1DB0, 0, &GameEventScript::fn_803A2378, &GameEventScript::fn_803A2600,
+            &GameEventScript::fn_803A2E20, 0, &GameEventScript::fn_803A362C, &GameEventScript::fn_803A36D8, 0,
+            &GameEventScript::fn_803A3AB4, 0, 0, 0, 0, 0, 0, 0, 0, 0, &GameEventScript::fn_803A49F4, 0, 0, 0, 0, 0,
             &GameEventScript::fn_803A59D4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
             &GameEventScript::fn_803A7D94, 0, 0, 0, 0, 0, &GameEventScript::fn_803A8470, 0,
             &GameEventScript::fn_803A914C, &GameEventScript::fn_803A956C, &GameEventScript::fn_803A98EC,
-            &GameEventScript::fn_803A9DBC, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, (ScriptCmdFn_unk)&GameEventScript::fn_803AB1B0,
-            (ScriptCmdFn_unk)&GameEventScript::fn_803AB26C, &GameEventScript::fn_803AB368};
+            &GameEventScript::fn_803A9DBC, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, &GameEventScript::fn_803AB1B0,
+            &GameEventScript::fn_803AB26C, &GameEventScript::fn_803AB368};
         ScriptResult_unk result;
         (this->*sFrameCmds[m90->mCmd])(result, m90);
         int done;
@@ -2776,8 +2776,8 @@ void GameEventScript::fn_8039E80C(ScriptResult_unk& result, const ScriptCmd_unk*
     result.SetNext_unk(cmd);
 }
 
-void GameEventScript::fn_8039E834(ScriptResult_unk& result, ScriptCmd_unk* cmd) {
-    result.mNext = FindLabel_unk(static_cast<ScriptArgs_unk*>(cmd)->m08);
+void GameEventScript::fn_8039E834(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
+    result.mNext = FindLabel_unk(static_cast<const ScriptArgs_unk*>(cmd)->m08);
     result.mWait = 0;
 }
 
@@ -2821,7 +2821,6 @@ void GameEventScript::fn_8039EA50(ScriptResult_unk& result, const ScriptCmd_unk*
 }
 
 // inferred: shows the choices of the message m08 and waits for the answer
-// NONMATCHING: 84.6% - this and cmd swap r29/r30 (tried an args local)
 void GameEventScript::fn_8039EACC(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
     const ScriptArgs_unk* args = static_cast<const ScriptArgs_unk*>(cmd);
     lbl_8087F490->m263C->fn_803B583C(args->m08);
@@ -3582,8 +3581,8 @@ static inline void HoldLeader_unk(int& saved, EventIdEntry_unk* entry, CharaTask
 // NONMATCHING: 99.9% - only the @stringBase0 offset (the earlier strings belong to unwritten functions)
 // inferred: starts the event m08 (flag 2: queued, flag 0x40000000: stops it instead); the result
 // is 1 while it runs
-void GameEventScript::fn_803A1B20(ScriptResult_unk& result, ScriptCmd_unk* cmd) {
-    ScriptArgs_unk* args = static_cast<ScriptArgs_unk*>(cmd);
+void GameEventScript::fn_803A1B20(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
+    const ScriptArgs_unk* args = static_cast<const ScriptArgs_unk*>(cmd);
     CharaTask* leader;
     int wait;
     EventIdEntry_unk* entry;
@@ -3730,7 +3729,6 @@ void GameEventScript::fn_803A2154(ScriptResult_unk& result, const ScriptCmd_unk*
 }
 
 // inferred: plays the motion named in the command on a character (bit 0 of m34: wait)
-// NONMATCHING: 97.8% - registers of the character, cmd and result, and the store of mWait
 void GameEventScript::fn_803A2210(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
     const ScriptMotionArgs_unk* args = static_cast<const ScriptMotionArgs_unk*>(cmd);
     CharaTask* chara = GetChara_unk(args->m08, args->m0C);
@@ -3746,7 +3744,6 @@ void GameEventScript::fn_803A2210(ScriptResult_unk& result, const ScriptCmd_unk*
     result.SetNext_unk(cmd, wait);
 }
 
-// NONMATCHING: 97% - the wait flag is stored before the table lookup
 void GameEventScript::fn_803A2378(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
     const ScriptArgs_unk* args = static_cast<const ScriptArgs_unk*>(cmd);
     CharaTask* chara = GetChara_unk(args->m08, args->m0C);
@@ -3782,7 +3779,7 @@ void GameEventScript::fn_803A24A4(ScriptResult_unk& result, const ScriptCmd_unk*
 }
 
 // inferred: waits for the gauge of the UI; meanwhile sets flag 0x10 of the leader from mC0
-void GameEventScript::fn_803A2600(ScriptResult_unk& result, ScriptCmd_unk* cmd) {
+void GameEventScript::fn_803A2600(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
     if (lbl_8087F430 != 0 && lbl_8087F430->m5694 != 0) {
         int wait;
         if (lbl_8087F490 != 0 && lbl_8087F490->fn_803E5940()) {
@@ -4002,8 +3999,8 @@ struct ScriptWarpArgs_unk : public ScriptCmd_unk {
 // inferred: waits while the character m08/m0C moves (m10 <= 7); when it is stuck for 90 frames it is
 // warped (2: next to the character m18/m1C at least m20 away, 4: to the scene position, 5: to the
 // warp point m28)
-void GameEventScript::fn_803A2E20(ScriptResult_unk& result, ScriptCmd_unk* cmd) {
-    ScriptWarpArgs_unk* args = static_cast<ScriptWarpArgs_unk*>(cmd);
+void GameEventScript::fn_803A2E20(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
+    const ScriptWarpArgs_unk* args = static_cast<const ScriptWarpArgs_unk*>(cmd);
     CharaTask* chara = GetChara_unk(args->m08, args->m0C);
     int wait = 0;
     if (chara != 0) {
@@ -4111,8 +4108,8 @@ void GameEventScript::fn_803A362C(ScriptResult_unk& result, const ScriptCmd_unk*
     result.SetNext_unk(cmd);
 }
 
-void GameEventScript::fn_803A3654(ScriptResult_unk& result, ScriptCmd_unk* cmd) {
-    ScriptArgs_unk* args = static_cast<ScriptArgs_unk*>(cmd);
+void GameEventScript::fn_803A3654(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
+    const ScriptArgs_unk* args = static_cast<const ScriptArgs_unk*>(cmd);
     int wait = 0;
     if (lbl_8087F430 != 0) {
         lbl_8087F430->fn_80374964(args->m08);
@@ -4124,7 +4121,7 @@ void GameEventScript::fn_803A3654(ScriptResult_unk& result, ScriptCmd_unk* cmd) 
 }
 
 // inferred: waits while the field is in an event state (9, 10, 13)
-void GameEventScript::fn_803A36D8(ScriptResult_unk& result, ScriptCmd_unk* cmd) {
+void GameEventScript::fn_803A36D8(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
     int wait = 0;
     if (lbl_8087F430 != 0 &&
         (lbl_8087F430->m54E4 == 9 || lbl_8087F430->m54E4 == 10 || lbl_8087F430->m54E4 == 13)) {
@@ -4216,8 +4213,8 @@ void GameEventScript::fn_803A372C(ScriptResult_unk& result, const ScriptCmd_unk*
 }
 
 // inferred: battle camera on (m08 0: mode m0C) or off (1, 2: also opens the tactical view)
-void GameEventScript::fn_803A39F8(ScriptResult_unk& result, ScriptCmd_unk* cmd) {
-    ScriptArgs_unk* args = static_cast<ScriptArgs_unk*>(cmd);
+void GameEventScript::fn_803A39F8(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
+    const ScriptArgs_unk* args = static_cast<const ScriptArgs_unk*>(cmd);
     int wait = 0;
     if (lbl_8087F430 != 0) {
         if (args->m08 == 0) {
@@ -4402,13 +4399,14 @@ void GameEventScript::fn_803A4474(ScriptResult_unk& result, const ScriptCmd_unk*
     result.SetNext_unk(cmd);
 }
 
-// NONMATCHING: 77% - register allocation; the original loads m08 before the first store
+// NONMATCHING: 86% - register allocation (registers of the camera, the table and the frame)
 void GameEventScript::fn_803A450C(ScriptResult_unk& result, ScriptCmd_unk* cmd) {
     ScriptArgsF_unk* args = static_cast<ScriptArgsF_unk*>(cmd);
-    ScriptCmd_unk* next = NextCmd_unk(cmd);
     GameCamera& camera = lbl_8087F430->mCamera;
+    ScriptCmd_unk* next = NextCmd_unk(cmd);
+    int length = args->m08;
     camera.mShake.mFrame = camera.mShake.mFrame % 2;
-    camera.mShake.mLength = args->m08;
+    camera.mShake.mLength = length;
     camera.mShake.mWidth = args->m0C;
     camera.mShake.mHeight = args->m10;
     result.mNext = next;
@@ -4473,8 +4471,8 @@ void GameEventScript::fn_803A47A4(ScriptResult_unk& result, const ScriptCmd_unk*
 }
 
 // inferred: sends the members of the team (m08, m0C) away (state 1 of the group: m08...)
-void GameEventScript::fn_803A48A8(ScriptResult_unk& result, ScriptCmd_unk* cmd) {
-    ScriptArgs_unk* args = static_cast<ScriptArgs_unk*>(cmd);
+void GameEventScript::fn_803A48A8(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
+    const ScriptArgs_unk* args = static_cast<const ScriptArgs_unk*>(cmd);
     TeamAI_unk* team;
     TeamChara_unk** members;
     int wait;
@@ -4509,10 +4507,10 @@ void GameEventScript::fn_803A48A8(ScriptResult_unk& result, ScriptCmd_unk* cmd) 
 
 // inferred: waits while the message window is open
 // inferred: waits 30 frames, then sets the battle mode of a team
-void GameEventScript::fn_803A49F4(ScriptResult_unk& result, ScriptCmd_unk* cmd) {
+void GameEventScript::fn_803A49F4(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
     int wait = 1;
     if (++mB4 >= 30) {
-        ScriptArgs_unk* args = static_cast<ScriptArgs_unk*>(cmd);
+        const ScriptArgs_unk* args = static_cast<const ScriptArgs_unk*>(cmd);
         lbl_8087FA00->Find_unk(args->m08, args->m0C)->SetBattleMode_unk(1);
         wait = 0;
     }
@@ -5218,7 +5216,6 @@ void GameEventScript::fn_803A68B8(ScriptResult_unk& result, const ScriptCmd_unk*
     result.SetNext_unk(cmd);
 }
 
-// NONMATCHING: 92.3% - the original reloads mItemCount for the slot of AddItem_unk (as BattleCharaTask::fn_800EE360) and stores mDB0C later
 // inferred: gives the item m08 (bit 0 of m0C: added to the result of the battle instead) and shows it
 void GameEventScript::fn_803A6B9C(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
     const ScriptArgs_unk* args = static_cast<const ScriptArgs_unk*>(cmd);
@@ -5463,7 +5460,6 @@ void GameEventScript::fn_803A7CC0(ScriptResult_unk& result, const ScriptCmd_unk*
     result.SetNext_unk(cmd, 1);
 }
 
-// NONMATCHING: 97.3% - the store of mWait is scheduled after the table address in the original
 // inferred: closes a gauge of the UI (m10 bit 1) or opens it (bit 2), the minimap of the town follows;
 // otherwise waits while the field is in state 3
 void GameEventScript::fn_803A7D94(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
@@ -6089,8 +6085,6 @@ static inline bool IsFlag0_unk(const CharaTask* chara) {
     return chara->mFlag0;
 }
 
-// NONMATCHING: 99% - the store of `wait` in SetNext_unk is scheduled one instruction later in the
-// original (the non-const cmd that fixes it elsewhere does not fit: fn_803A98C4 passes its const cmd)
 // inferred: makes the leader walk to the place m18 (m14 flags: 0x1 no walk, 0x2 wait for the route
 // instead of mC0 frames, 0x4 keeps flag 3, 0x8 keeps the input) with a fade out
 void GameEventScript::fn_803A98EC(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
@@ -6516,7 +6510,7 @@ void GameEventScript::fn_803AB144(ScriptResult_unk& result, const ScriptCmd_unk*
     result.SetNext_unk(cmd, 1);
 }
 
-void GameEventScript::fn_803AB1B0(ScriptResult_unk& result, ScriptCmd_unk* cmd) {
+void GameEventScript::fn_803AB1B0(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
     int wait = 1;
     if (lbl_8087F430 != 0 && lbl_8087F430->m54E4 != 5) {
         wait = 0;
@@ -6533,8 +6527,8 @@ void GameEventScript::fn_803AB1F4(ScriptResult_unk& result, const ScriptCmd_unk*
 }
 
 // inferred: runs the save event (unless the save menu is open)
-void GameEventScript::fn_803AB26C(ScriptResult_unk& result, ScriptCmd_unk* cmd) {
-    ScriptArgs_unk* args = static_cast<ScriptArgs_unk*>(cmd);
+void GameEventScript::fn_803AB26C(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
+    const ScriptArgs_unk* args = static_cast<const ScriptArgs_unk*>(cmd);
     int wait = 1;
     if (MenuSaveTask::sInstance == 0) {
         if (lbl_8087D990 >= 0) {
