@@ -880,7 +880,16 @@ inline void Em201ZanGurgFinal::ToIdle_unk() {
     fn_80239DAC(lbl_8087F3C0, this, 101, 1);
 }
 
-// NONMATCHING: r6/r7 of the data of the hit and of the sword flag (rest matches; 6 variants)
+// inferred: the weapon ids 0x1D5-0x1DA are swords; local helper (with the flag inline the hit data and the flag
+// swap r6/r7)
+static inline bool IsSword_unk(CharaTask* c) {
+    bool sword = false;
+    if ((unsigned int)(c->m648->m08 - 0x1D5) <= 5) {
+        sword = true;
+    }
+    return sword;
+}
+
 void Em201ZanGurgFinal::vf3C(HitInfo_unk* hit, int) {
     HitMsg_unk* msg = (HitMsg_unk*)hit;
     m1688++;
@@ -919,11 +928,7 @@ void Em201ZanGurgFinal::vf3C(HitInfo_unk* hit, int) {
             return;
         }
         if (msg->mAttacker != 0 && msg->mAttacker->m648 != 0) {
-            bool sword = false;
-            if ((unsigned int)(*(int*)((char*)msg->mAttacker->m648 + 8) - 0x1D5) <= 5) {
-                sword = true;
-            }
-            if (sword) {
+            if (IsSword_unk(msg->mAttacker)) {
                 msg->m50 |= 8;
                 msg->m0C |= 0x40000000;
                 atn::Vector3 rot = msg->m28.ToRotation_unk();
@@ -2601,26 +2606,37 @@ void Em201ZanGurgFinal::fn_8026DB8C() {
     ((atn::Model*)m1624->m010)->CalcMatrixStack(0, atn::ModelNodeCallback_unk());
 }
 
-// NONMATCHING: r3/r4 of the target and of the temporary in every case (6 variants)
+// inferred: local copy helper (one more inline level: dst/src registers of the original in the __VecCopy)
+static inline void CopyVec_unk(atn::Vector3& dst, const atn::Vector3& src) {
+    dst = src;
+}
+
+// inferred: position of the target read through an accessor (with the member read in place the target and the
+// temporary swap r3/r4)
+static inline const atn::Vector3& TargetPos_unk(CharaTask* c) {
+    return c->mPos;
+}
+
 // inferred: warp point `point` around the target (0/4/5 behind it at 25/50/20, 1 in front, 2 the center of the
 // arena, 6 the shield) put on the ground, and the rotation facing the target
 void Em201ZanGurgFinal::fn_8026F38C(int point, atn::Vector3* pos, float* rot) {
     if (m14B8 == 0) {
         return;
     }
-    atn::Vector3 d(m14B8->mPos.x - m14F4.x, 0.0f, m14B8->mPos.z - m14F4.z);
+    atn::Vector3 d = m14B8->mPos - m14F4;
+    d.y = 0.0f;
     if (PSVECMag(&d) > 0.0001f) {
         PSVECNormalize(&d, &d);
     } else {
-        d = atn::Vector3(0.0f, 0.0f, 1.0f);
+        CopyVec_unk(d, atn::Vector3(0.0f, 0.0f, 1.0f));
     }
     switch (point) {
     case 0:
-        *pos = m14B8->mPos + Neg2_unk(d) * 25.0f;
+        *pos = TargetPos_unk(m14B8) + Neg2_unk(d) * 25.0f;
         pos->y += 10.0f;
         break;
     case 1:
-        *pos = m14B8->mPos + d * 25.0f;
+        *pos = TargetPos_unk(m14B8) + d * 25.0f;
         pos->y += 10.0f;
         break;
     case 2:
@@ -2628,11 +2644,11 @@ void Em201ZanGurgFinal::fn_8026F38C(int point, atn::Vector3* pos, float* rot) {
         pos->y += 10.0f;
         break;
     case 4:
-        *pos = m14B8->mPos + Neg2_unk(d) * 50.0f;
+        *pos = TargetPos_unk(m14B8) + Neg2_unk(d) * 50.0f;
         pos->y += 10.0f;
         break;
     case 5:
-        *pos = m14B8->mPos + Neg2_unk(d) * 20.0f;
+        *pos = TargetPos_unk(m14B8) + Neg2_unk(d) * 20.0f;
         pos->y += 10.0f;
         break;
     case 6:
@@ -2645,7 +2661,7 @@ void Em201ZanGurgFinal::fn_8026F38C(int point, atn::Vector3* pos, float* rot) {
     if (fn_8004ED34(lbl_8087EE98, &result, pos, &to, 0x80000000, &mColli, 0)) {
         *pos = result.m10;
     }
-    *rot = (m14B8->mPos - *pos).ToRotationZ_unk().y;
+    *rot = (TargetPos_unk(m14B8) - *pos).ToRotationZ_unk().y;
 }
 
 // inferred: shock wave in front (the node is not used)
