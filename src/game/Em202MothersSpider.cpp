@@ -358,7 +358,14 @@ void Em202MothersSpider::vf10() {
     m196C.m[2][3] = base.z;
 }
 
-// NONMATCHING: 99.3% - stack slots of fwd/d and operand order of m1514 * 0.5f (as Em202ForestSpider::vf3C)
+// inferred: dot of the direction to `pos` with the front of `rot` (local helper: its vectors go to the bottom of
+// the frame as in the original)
+static inline float FrontDot_unk(const atn::Vector3& rot, const atn::Vector3& pos, const atn::Vector3& from) {
+    atn::Vector3 fwd = FrontDir_unk(rot);
+    atn::Vector3 d(pos - from);
+    return PSVECDotProduct(&d, &fwd);
+}
+
 void Em202MothersSpider::vf3C(HitInfo_unk* hit, int) {
     HitMsg_unk* msg = (HitMsg_unk*)hit;
     if (fn_8021A888(msg->mData) != 0 && msg->mAttacker->mType == 3 && fn_80277B84(msg->mAttacker) == 0 &&
@@ -380,10 +387,8 @@ void Em202MothersSpider::vf3C(HitInfo_unk* hit, int) {
         }
         if (msg->mData->m01 != 1) {
             int guard = 0;
-            atn::Vector3 fwd = FrontDir_unk(mRot);
-            atn::Vector3 d(msg->m1C - mPos);
-            float dot = PSVECDotProduct(&d, &fwd);
-            if (dot > (float)cos(m1514 * 0.5f)) {
+            float dot = FrontDot_unk(mRot, msg->m1C, mPos);
+            if (dot > (float)cos(m1514 / 2.0f)) {
                 guard = 1;
             }
             if (guard) {
