@@ -4224,16 +4224,12 @@ extern "C" void fn_803DD90C(atn::D2A_Task* task, int job) {
 
 // inferred: colour parameter of a d2anime instance from a colour of the table (see SetWindowColor_unk)
 inline void SetInstColor_unk(GameUIInst_unk* inst, const char* name, const atn::Color& c) {
-    atn::D2A_RGB_unk rgb;
-    rgb.r = c.r;
-    rgb.g = c.g;
-    rgb.b = c.b;
-    inst->SetColor255_unk(name, rgb);
+    inst->SetColor255_unk(name, c);
 }
 
 // inferred: job icon of a d2anime instance by job index (UV of the icon and its colours; 10 jobs)
-// NONMATCHING: the copy of each colour (the original passes the whole atn::Color to SetColor255_unk) and
-// registers
+// NONMATCHING: the original keeps &colors[k] in a register (the red channel is read from the table base,
+// the rest from that pointer; direct calls and references tried) and registers
 extern "C" void fn_803DDD54(GameUIInst_unk* inst, int job) {
     atn::Color* colors = lbl_807C8628;
     switch (job) {
@@ -5358,18 +5354,14 @@ void GameUI::fn_803E2410(CharaTask* chara) {
 
 // inferred: colour parameter of a d2anime instance from a colour of the HUD (see SetInstColor_unk)
 inline void SetInstColorU_unk(GameUIInst_unk* inst, const char* name, GameUIColor_unk c) {
-    atn::D2A_RGB_unk rgb;
-    rgb.r = c.r;
-    rgb.g = c.g;
-    rgb.b = c.b;
-    inst->SetColor255_unk(name, rgb);
+    inst->SetColor255_unk(name, atn::Color(c.r, c.g, c.b, c.a));
 }
 
 // inferred: next magic point gauge of the HUD (mA90/mAB8/mAE0[mA8C]) at `pos`: `frames` left (seconds and
 // sub-second frame), colour by `kind`, `count` points lit (the giga gauge when more than one) and the
 // speed gauge when `speed`
-// NONMATCHING: the colour is passed to SetColor255_unk as D2A_RGB_unk (the original copies the whole
-// colour; parameter of atn/D2A_TaskInstance.h, see pendientes)
+// NONMATCHING: the colour (GameUIColor_unk) is copied to a temporary atn::Color for SetColor255_unk (the
+// original frame is 16 bytes smaller: its colour is probably an atn::Color) and registers
 void GameUI::fn_803E2A30(int kind, int frames, atn::Vector3 pos, int count, int speed) {
     if (mA8C < 10) {
         int seconds = fn_803CE854(frames);
@@ -6094,8 +6086,6 @@ inline GameUIInst_unk* GetIconInst_unk(atn::D3AnimeInstance* icon) {
 // inferred: icon over a character (position by fn_803E5200, colour by the kind of attack the character
 // uses: white when `white`, else the line colours of the settings) and its frame kept in [0, 40); moves
 // `pos` down for the next icon
-// NONMATCHING: the colour is passed to SetColor255_unk as D2A_RGB_unk (the original copies the whole
-// atn::Color, see pendientes)
 void GameUI::fn_803E4E58(atn::D3AnimeInstance* icon, CharaTask* chara, atn::Vector3* pos, int white) {
     if (icon == 0 || chara == 0) {
         return;
@@ -6111,10 +6101,10 @@ void GameUI::fn_803E4E58(atn::D3AnimeInstance* icon, CharaTask* chara, atn::Vect
     } else {
         color = GameUIColorU32_unk(lbl_8087F0A8->mLineColorSword);
     }
-    SetInstColor_unk(GetIconInst_unk(icon), "iconColor00", color);
-    SetInstColor_unk(GetIconInst_unk(icon), "iconColor01", color);
-    SetInstColor_unk(GetIconInst_unk(icon), "iconColor02", color);
-    SetInstColor_unk(GetIconInst_unk(icon), "iconColorSdw00", color);
+    GetIconInst_unk(icon)->SetColor255_unk("iconColor00", color);
+    GetIconInst_unk(icon)->SetColor255_unk("iconColor01", color);
+    GetIconInst_unk(icon)->SetColor255_unk("iconColor02", color);
+    GetIconInst_unk(icon)->SetColor255_unk("iconColorSdw00", color);
     float zero = 0.0f;
     float end = 40.0f;
     if (zero > GetIconInst_unk(icon)->mFrame) {
@@ -6645,20 +6635,15 @@ bool GameUI::fn_803E6C88(unsigned int id) {
     return false;
 }
 
-// inferred: colour parameter of a character window; the original passes the whole atn::Color (16 bytes are
-// copied), so the parameter of D2A_TaskInstanceBase::SetColor255_unk is probably an atn::Color (name invented)
+// inferred: colour parameter of a character window (the original copies the whole atn::Color; name invented)
 inline void SetWindowColor_unk(GameUIWindow_unk* task, const char* name, const atn::Color& c) {
-    atn::D2A_RGB_unk rgb;
-    rgb.r = c.r;
-    rgb.g = c.g;
-    rgb.b = c.b;
-    task->SetColor255_unk(name, rgb);
+    task->SetColor255_unk(name, c);
 }
 
 extern "C" void fn_803E746C(GameUIWindow_unk* task, int job);
 
 // inferred: same as fn_803DD160 for a character window (D2A_TaskInstanceBase<64, 8>)
-// NONMATCHING: the copy of each colour (see SetWindowColor_unk), registers and the string pool offsets
+// NONMATCHING: &colors[k] kept in a register as in fn_803DDD54, registers and the string pool offsets
 extern "C" void fn_803E6D4C(GameUIWindow_unk* task, chr::CharaData_unk* data) {
     atn::Color* colors = lbl_807C8628;
     if (data == 0 || task == 0) {
@@ -6723,7 +6708,7 @@ extern "C" void fn_803E6D4C(GameUIWindow_unk* task, chr::CharaData_unk* data) {
 }
 
 // inferred: same as fn_803DD90C for a character window (D2A_TaskInstanceBase<64, 8>)
-// NONMATCHING: the copy of each colour (see SetWindowColor_unk) and the string pool offsets
+// NONMATCHING: &colors[k] kept in a register as in fn_803DDD54 and the string pool offsets
 extern "C" void fn_803E746C(GameUIWindow_unk* task, int job) {
     atn::Color* colors = lbl_807C8628;
     if (job == 4) {
